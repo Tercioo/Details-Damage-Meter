@@ -1,10 +1,10 @@
 move-folders:
-    plugins/Details_DmgRank: Details_DmgRank
-    plugins/Details_EncounterDetails: Details_EncounterDetails
-    plugins/Details_ErrorReport: Details_ErrorReport
-    plugins/Details_RaidInfo-ThroneOfThunder: Details_RaidInfo-ThroneOfThunder
-    plugins/Details_SaveData: Details_SaveData
-    plugins/Details_SpellDetails: Details_SpellDetails
-    plugins/Details_TimeAttack: Details_TimeAttack
-    plugins/Details_TinyThreat: Details_TinyThreat
-    plugins/Details_Vanguard: Details_Vanguard
+    Details/plugins/Details_DmgRank: Details_DmgRank
+    Details/plugins/Details_EncounterDetails: Details_EncounterDetails
+    Details/plugins/Details_ErrorReport: Details_ErrorReport
+    Details/plugins/Details_RaidInfo-ThroneOfThunder: Details_RaidInfo-ThroneOfThunder
+    Details/plugins/Details_SaveData: Details_SaveData
+    Details/plugins/Details_SpellDetails: Details_SpellDetails
+    Details/plugins/Details_TimeAttack: Details_TimeAttack
+    Details/plugins/Details_TinyThreat: Details_TinyThreat
+    Details/plugins/Details_Vanguard: Details_Vanguard
