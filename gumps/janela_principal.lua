@@ -1682,8 +1682,16 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 		instancia.freeze_texto:SetPoint ("left", instancia.freeze_icon, "right", 0, 0)
 		instancia.freeze_texto:SetTextColor (1, 1, 1)
 		instancia.freeze_texto:SetText (Loc ["STRING_FREEZE"])
-		instancia.freeze_texto:Hide()	
+		instancia.freeze_texto:Hide()
 
+	instancia._version = BaseFrame:CreateFontString (nil, "OVERLAY", "GameFontHighlightSmall")
+		instancia._version:SetPoint ("left", BackGroundDisplay, "left", 20, 0)
+		instancia._version:SetTextColor (1, 1, 1)
+		instancia._version:SetText ("this is a early alpha version (1) of Details\nyou can help us sending bug reports\nuse the blue button.")
+		if (not _detalhes.initializing) then
+			instancia._version:Hide()
+		end
+		
 	BaseFrame.wallpaper = BaseFrame:CreateTexture (nil, "border")
 	BaseFrame.wallpaper:Hide()
 

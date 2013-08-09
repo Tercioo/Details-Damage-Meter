@@ -807,6 +807,11 @@ function _detalhes:RestauraJanela (index, temp)
 			height = 0,
 			overlay = {1, 1, 1, 1}
 		}
+		
+		if (self.wallpaper.enabled) then
+			self:InstanceWallpaper (true)
+		end
+		
 		self:InstanceColor (self.color)
 		
 		self.largura_scroll = 26

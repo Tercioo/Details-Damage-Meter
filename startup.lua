@@ -81,11 +81,9 @@ function _G._detalhes:Start()
 			menus = 10
 		}
 		
-		if (not self.tutorial) then
-			self.tutorial = {
-				unlock_button = 0,
-			}
-		end
+		self.tutorial = self.tutorial or {}
+		self.tutorial.unlock_button = self.tutorial.unlock_button or 0
+		self.tutorial.version_announce = self.tutorial.version_announce or 0
 		
 	--> class colors and tcoords
 		if (not self.class_colors) then
@@ -235,5 +233,27 @@ function _G._detalhes:Start()
 		self:SendEvent ("DETAILS_STARTED", "SEND_TO_ALL")
 	end
 	self:ScheduleTimer ("AnnounceStartup", 5)
-
+	
+	--> announce alpha version
+	function self:AnnounceVersion()
+		for index, instancia in ipairs (self.tabela_instancias) do
+			if (instancia.ativa) then
+				self.gump:Fade (instancia._version, "in", 5)
+			end
+		end
+	end
+	
+	if (self.tutorial.version_announce < 4) then
+		self:ScheduleTimer ("AnnounceVersion", 20)
+		self.tutorial.version_announce = self.tutorial.version_announce + 1
+	else
+		for index, instancia in ipairs (self.tabela_instancias) do
+			if (instancia.ativa) then
+				instancia._version:SetText ("Details Alpha (" .. self.realversion..")")
+				instancia._version:SetPoint ("bottomleft", self.baseframe, "bottomleft", 0, 16)
+				self.gump:Fade (instancia._version, "in", 10)
+			end
+		end
+	end
+	
 end
