@@ -1,0 +1,36 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+
+	<Script file="textentry.lua"/>
+
+	<EditBox name="DetailsEditBoxTemplate2" virtual="true">
+		<Size x="232" y="20"/>
+		
+		<Backdrop bgFile="Interface\\ChatFrame\\ChatFrameBackground" edgeFile="Interface\\ChatFrame\\ChatFrameBackground" tile="true">
+			<EdgeSize>
+				<AbsValue val="1"/>
+			</EdgeSize>
+			<TileSize>
+				<AbsValue val="16"/>
+			</TileSize>
+			<BackgroundInsets>
+				<AbsInset left="0" right="0" top="0" bottom="0"/>
+			</BackgroundInsets>
+		</Backdrop>
+		
+		<Layers>
+		
+			<Layer level="OVERLAY">
+				<!-- box description -->
+				<FontString name="$parent_Desc" text="" parentKey="label" inherits="GameFontHighlightSmall" justifyH="LEFT" nonspacewrap="false">
+					<Color r = "0.8" g = "0.8" b = "0.8" a = "1"/>
+					<Anchors>
+						<Anchor point="RIGHT" relativeTo="$parent" relativePoint="LEFT" x="-2" y="0" />
+					</Anchors>
+				</FontString>
+			
+			</Layer>
+		
+		</Layers>
+		
+	</EditBox>
+</Ui>

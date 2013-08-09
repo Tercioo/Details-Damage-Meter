@@ -1,0 +1,15 @@
+## Interface: 50300
+## Title: Details Tiny Threat (plugin)
+## Notes: Plugin for Details
+## SavedVariablesPerCharacter: _detalhes_databaseThreat
+## RequiredDeps: Details
+## OptionalDeps: Ace3
+
+#@no-lib-strip@
+embeds.xml
+#@end-no-lib-strip@
+
+enUS.lua
+ptBR.lua
+
+Details_TinyThreat.lua

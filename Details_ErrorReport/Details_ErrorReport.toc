@@ -1,0 +1,6 @@
+## Interface: 50300
+## Title: Details Error Report
+## Notes: This plugin adds a button to Details tooltip where you can report bugs directly to Details Developers.
+## RequiredDeps: Details
+
+Details_ErrorReport.lua

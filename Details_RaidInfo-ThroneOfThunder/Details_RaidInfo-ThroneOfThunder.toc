@@ -1,0 +1,9 @@
+## Interface: 50300
+## Title: Details: Throne of Thunder
+## Notes: Plugin for Details
+## RequiredDeps: Details
+
+enUS.lua
+ptBR.lua
+
+ThroneOfThunder.lua
