@@ -153,5 +153,15 @@ function SlashCmdList.DETAILS (msg, editbox)
 	elseif (msg == "gs") then
 		_detalhes:teste_grayscale()
 	
+	else
+		
+		--if (_detalhes.opened_windows < 1) then
+		--	_detalhes:CriarInstancia()
+		--end
+		
+		print (" ")
+		print ("Details! Help")
+		print ("|cffffaeae/details new|r: open or re-open a new window.")
+		print (" ")
 	end
 end
