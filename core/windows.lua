@@ -323,6 +323,11 @@
 					end
 				end
 			end
+			
+			if (self.freezed) then
+				--> reajusta o freeze
+				_detalhes:Freeze (self)
+			end
 		
 			-- -4 difere a precisão de quando a barra será adicionada ou apagada da barra
 			self.baseframe.BoxBarrasAltura = self.baseframe:GetHeight()-4

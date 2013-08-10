@@ -337,6 +337,8 @@ local g = _detalhes.gump
 					end
 					rightCoordTexture:Hide()
 					leftCoordTexture:Hide()
+					rightSlider:Hide()
+					leftSlider:Hide()
 					leftTexCoordButton:Disable()
 					rightTexCoordButton:Disable()
 				else
@@ -361,6 +363,8 @@ local g = _detalhes.gump
 					end
 					topCoordTexture:Hide()
 					bottomCoordTexture:Hide()
+					topSlider:Hide()
+					bottomSlider:Hide()
 					topTexCoordButton:Disable()
 					bottomTexCoordButton:Disable()
 				else
@@ -410,7 +414,7 @@ local g = _detalhes.gump
 				coords [4] = bottomSlider.value/100
 			end
 
-			return window.callback_func (edit_texture.width, edit_texture.height, {edit_texture:GetVertexColor()}, edit_texture:GetAlpha(), coords)
+			return window.callback_func (edit_texture.width, edit_texture.height, {edit_texture:GetVertexColor()}, edit_texture:GetAlpha(), coords, window.extra_param)
 		end
 		
 		local acceptButton = g:NewButton (buttonsBackground, _, "$parentAcceptButton", _, 100, 20, accept, _, _, _, "DONE")
@@ -426,7 +430,7 @@ window:Hide()
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 		
 		local ttexcoord
-		function g:ImageEditor (callback, texture, texcoord, colors)
+		function g:ImageEditor (callback, texture, texcoord, colors, extraParam)
 		
 			edit_texture:SetTexture (texture)
 			
@@ -442,6 +446,7 @@ window:Hide()
 			
 			window:Show()
 			window.callback_func = callback
+			window.extra_param = extraParam
 			buttonsBackground:Show()
 		end
 		

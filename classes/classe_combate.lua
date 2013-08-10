@@ -204,10 +204,13 @@ end
 
 function combate:GetCombatTime()
 	if (self.end_time) then
+		--print ("tem end time")
 		return self.end_time - self.start_time
 	elseif (self.start_time and _detalhes.in_combat) then
+		--print ("tem start time e esta em combate")
 		return _tempo - self.start_time
 	else
+		--print ("retornando zero")
 		return 0
 	end
 end

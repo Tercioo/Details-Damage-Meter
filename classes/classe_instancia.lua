@@ -925,8 +925,12 @@ function _detalhes:Freeze (instancia)
 		gump:Fade (instancia, "in", nil, "barras")
 	end
 	
-	instancia.freeze_texto:Show()
 	instancia.freeze_icon:Show()
+	instancia.freeze_texto:Show()
+	
+	local width = instancia:GetSize()
+	instancia.freeze_texto:SetWidth (width-64)
+	
 	instancia.freezed = true
 end
 
