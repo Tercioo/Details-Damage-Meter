@@ -3,6 +3,8 @@ if not Loc then return end
 
 --------------------------------------------------------------------------------------------------------------------------------------------
 
+	Loc ["STRING_DETAILS1"] = "|cffffaeaeDetails:|r " --> color and details name
+
 	Loc ["STRING_AUTO"] = "auto"
 	Loc ["STRING_LEFT"] = "left"
 	Loc ["STRING_CENTER"] = "center"
@@ -10,7 +12,23 @@ if not Loc then return end
 	Loc ["STRING_TOOOLD"] = "could not be installed because your Details! version is too old."
 
 --> Slash
+	Loc ["STRING_COMMAND_LIST"] = "command list"
+	
+	Loc ["STRING_SLASH_DISABLE"] = "disable"
+	Loc ["STRING_SLASH_DISABLE_DESC"] = "turn off all captures of data."
+	Loc ["STRING_SLASH_CAPTUREOFF"] = "all captures has been turned off."
+	
+	Loc ["STRING_SLASH_ENABLE"] = "enable"
+	Loc ["STRING_SLASH_ENABLE_DESC"] = "turn on all captures of data."
+	Loc ["STRING_SLASH_CAPTUREON"] = "all captures has been turned on."
+	
+	Loc ["STRING_SLASH_OPTIONS"] = "options"
+	Loc ["STRING_SLASH_OPTIONS_DESC"] = "open the options panel."
+	
 	Loc ["STRING_SLASH_NEW"] = "new"
+	Loc ["STRING_SLASH_NEW_DESC"] = "open or reopen a instance."
+	
+
 
 --> StatusBar Plugins
 	Loc ["STRING_STATUSBAR_NOOPTIONS"] = "This widget doesn't have options."

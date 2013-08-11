@@ -16,9 +16,44 @@ function SlashCmdList.DETAILS (msg, editbox)
 
 	local command, rest = msg:match("^(%S*)%s*(.-)$")
 	
-	if (msg == Loc ["STRING_SLASH_NEW"]) then
+	if (command == Loc ["STRING_SLASH_NEW"]) then
+	
 		_detalhes:CriarInstancia()
 	
+	elseif (command == Loc ["STRING_SLASH_DISABLE"]) then
+	
+		_detalhes:CaptureSet (false, "damage", true)
+		_detalhes:CaptureSet (false, "heal", true)
+		_detalhes:CaptureSet (false, "energy", true)
+		_detalhes:CaptureSet (false, "miscdata", true)
+		_detalhes:CaptureSet (false, "aura", true)
+		print (Loc ["STRING_DETAILS1"] .. Loc ["STRING_SLASH_CAPTUREOFF"])
+	
+	elseif (command == Loc ["STRING_SLASH_ENABLE"]) then
+	
+		_detalhes:CaptureSet (true, "damage", true)
+		_detalhes:CaptureSet (true, "heal", true)
+		_detalhes:CaptureSet (true, "energy", true)
+		_detalhes:CaptureSet (true, "miscdata", true)
+		_detalhes:CaptureSet (true, "aura", true)
+		print (Loc ["STRING_DETAILS1"] .. Loc ["STRING_SLASH_CAPTUREON"])
+	
+	elseif (command == Loc ["STRING_SLASH_OPTIONS"]) then
+	
+		if (rest and tonumber (rest)) then
+			local instanceN = tonumber (rest)
+			if (instanceN > 0 and instanceN <= #_detalhes.tabela_instancias) then
+				local instance = _detalhes:GetInstance (instanceN)
+				_detalhes:OpenOptionsWindow (instance)
+			end
+		else
+			local lower_instance = _detalhes:GetLowerInstanceNumber()
+			print (_detalhes:GetInstance (lower_instance))
+			_detalhes:OpenOptionsWindow (_detalhes:GetInstance (lower_instance))
+		end
+		
+	
+-------- debug ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	elseif (msg == "copy") then
 		_G.DetailsCopy:Show()
 		_G.DetailsCopy.MyObject.text:HighlightText()
@@ -160,8 +195,12 @@ function SlashCmdList.DETAILS (msg, editbox)
 		--end
 		
 		print (" ")
-		print ("Details! Help")
-		print ("|cffffaeae/details new|r: open or re-open a new window.")
+		print (Loc ["STRING_DETAILS1"] ..  Loc ["STRING_COMMAND_LIST"])
+		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_NEW"] .. "|r: " .. Loc ["STRING_SLASH_NEW_DESC"])
+		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_ENABLE"] .. "|r: " .. Loc ["STRING_SLASH_ENABLE_DESC"])
+		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_DISABLE"] .. "|r: " .. Loc ["STRING_SLASH_DISABLE_DESC"])
+		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_OPTIONS"] .. "|r|cfffcffb0 <instance number>|r: " .. Loc ["STRING_SLASH_OPTIONS_DESC"])
 		print (" ")
+
 	end
 end

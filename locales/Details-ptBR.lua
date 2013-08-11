@@ -3,6 +3,8 @@ if not Loc then return end
 
 --------------------------------------------------------------------------------------------------------------------------------------------
 
+	Loc ["STRING_DETAILS1"] = "|cffffaeaeDetalhes:|r " --> color and details name
+
 	Loc ["STRING_AUTO"] = "auto"
 	Loc ["STRING_LEFT"] = "esquerda"
 	Loc ["STRING_CENTER"] = "centro"
@@ -10,8 +12,22 @@ if not Loc then return end
 	Loc ["STRING_TOOOLD"] = "nao pode ser instalado pois sua versao do Details! e muito antiga."
 
 --> Slash
-	Loc ["STRING_SLASH_NEW"] = "novo"
+	Loc ["STRING_COMMAND_LIST"] = "lista de comandos"
 
+	Loc ["STRING_SLASH_DISABLE"] = "desativar"
+	Loc ["STRING_SLASH_DISABLE_DESC"] = "desliga todas as capturas de dados."
+	Loc ["STRING_SLASH_CAPTUREOFF"] = "todas as capturas foram desligadas."
+	
+	Loc ["STRING_SLASH_ENABLE"] = "ativa"
+	Loc ["STRING_SLASH_ENABLE_DESC"] = "liga todas as capturas de dados."
+	Loc ["STRING_SLASH_CAPTUREON"] = "todas as capturas foram ligadas."
+
+	Loc ["STRING_SLASH_OPTIONS"] = "opcoes"
+	Loc ["STRING_SLASH_OPTIONS_DESC"] = "abre o painel de opcoes."
+	
+	Loc ["STRING_SLASH_NEW"] = "novo"
+	Loc ["STRING_SLASH_NEW_DESC"] = "abre ou reabre uma instancia."
+	
 --> StatusBar Plugins
 	Loc ["STRING_STATUSBAR_NOOPTIONS"] = "Nao ha opcoes para esta ferramenta."
 	

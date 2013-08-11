@@ -29,7 +29,7 @@ function _detalhes:OpenOptionsWindow (instance)
 		g:NewLabel (window, _, "$parentSliderLabel", "segmentsLabel", "max segments")
 		window.segmentsLabel:SetPoint (10, -35)
 		--
-		g:NewSlider (window, _, "$parentSlider", "segmentsSlider", 60, 20, 1, 5, 1, _detalhes.segments_amount) -- min, max, step, defaultv
+		g:NewSlider (window, _, "$parentSlider", "segmentsSlider", 120, 20, 1, 10, 1, _detalhes.segments_amount) -- min, max, step, defaultv
 		window.segmentsSlider:SetPoint ("left", window.segmentsLabel, "right")
 		window.segmentsSlider:SetHook ("OnValueChange", function (self, _, amount) --> slider, fixedValue, sliderValue
 			_detalhes.segments_amount = amount
