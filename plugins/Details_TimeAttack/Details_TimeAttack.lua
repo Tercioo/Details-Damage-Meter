@@ -86,6 +86,15 @@ local function CreatePluginFrames (data)
 		texturetitle:SetWidth (300)
 		texturetitle:SetHeight (128)
 	
+	--> help button
+	--> after 10 logins on the character this help button will not be show any more
+		if (_detalhes.tutorial.main_help_button < 10) then
+			local help = DetailsFrameWork:NewHelp (TimeAttackFrame, 280, 280, 0, -20, 40, 40)
+			help:SetPoint ("topright", TimeAttackFrame, "topright", 8, 9)
+			help:AddHelp (300, 300, 0, 0, 138, -138, Loc ["STRING_HELP"])
+			help:SetFrameLevel (TimeAttackFrame:GetFrameLevel()+2)
+		end
+	
 	--> a dark blue image on bottom of window
 		local texturedown = TimeAttackFrame:CreateTexture (nil, "artwork")
 		texturedown:SetTexture ("Interface\\PetBattles\\Weather-Darkness")

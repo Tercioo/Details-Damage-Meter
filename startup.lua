@@ -29,8 +29,13 @@ function _G._detalhes:Start()
 		self.in_combat = false
 		self.combat_id = self.combat_id or 0
 		self.segments_amount = self.segments_amount or 3
+		self.segments_amount_to_save = self.segments_amount_to_save or 2
 		self.deadlog_limit = self.deadlog_limit or 12
 		self.minimum_combat_time = self.minimum_combat_time or 5
+		
+		if (type (self.segments_panic_mode) ~= "boolean") then
+			self.segments_panic_mode = true
+		end
 		
 		if (type (self.clear_graphic) ~= "boolean") then
 			self.clear_graphic = self.clear_graphic or true
@@ -84,6 +89,7 @@ function _G._detalhes:Start()
 		self.tutorial = self.tutorial or {}
 		self.tutorial.unlock_button = self.tutorial.unlock_button or 0
 		self.tutorial.version_announce = self.tutorial.version_announce or 0
+		self.tutorial.main_help_button = self.tutorial.main_help_button or 0
 		
 	--> class colors and tcoords
 		if (not self.class_colors) then

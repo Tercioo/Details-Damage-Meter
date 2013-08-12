@@ -19,6 +19,7 @@ Loc ["STRING_CANCELLED"] = "This attempt has been cancelled."
 Loc ["STRING_CANCELLED_NOT_COMBAT"] = "This attempt has been cancelled: you aren't in combat."
 Loc ["STRING_CANCELLED_IN_GROUP"] = "This attempt has been cancelled: you are in a group."
 Loc ["STRING_CANCELLED_AURA"] = "This attempt has been cancelled: prohibited aura: "
+Loc ["STRING_HELP"] = "Damage Rank is a fun tool where your goal is reach the requested damage within the given time. Completing the mission, your rank increases and the challenge becomes harder and harder."
 
 --> Challenge Names:
 Loc ["CHALLENGENAME_1"] = "Ready to Raid"

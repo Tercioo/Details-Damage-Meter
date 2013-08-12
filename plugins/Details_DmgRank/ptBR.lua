@@ -19,6 +19,7 @@ Loc ["STRING_CANCELLED"] = "Esta tentativa foi cancelada."
 Loc ["STRING_CANCELLED_NOT_COMBAT"] = "Esta tentativa foi cancelada: você não esta mais em combate."
 Loc ["STRING_CANCELLED_IN_GROUP"] = "Esta tentativa foi cancelada: você está em grupo."
 Loc ["STRING_CANCELLED_AURA"] = "Esta tentativa foi cancelada: buff proibido: "
+Loc ["STRING_HELP"] = "Rank de Dano eh uma ferramenta interativa cujo o objetivo eh conseguir alcancar a margem de dano pedida dentro do tempo estabelecido. Cada vez que voce alcanca-lo, seu nivel aumenta e o desafio torna-se maior."
 
 --> Challenge Names:
 Loc ["CHALLENGENAME_1"] = "Pronto Para Raidar"

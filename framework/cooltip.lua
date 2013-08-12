@@ -65,6 +65,9 @@ function DetailsCreateCoolTip()
 			["WidthAnchorMod"] = true,
 			["FixedWidth"] = true,
 			["FixedHeight"] = true,
+			["FixedWidthSub"] = true,
+			["FixedHeightSub"] = true,
+			["IgnoreSubMenu"] = true,
 			["TextHeightMod"] = true,
 			["ButtonHeightMod"] = true,
 			["ButtonHeightModSub"] = true,
@@ -89,8 +92,11 @@ function DetailsCreateCoolTip()
 			["IconSize"] = nil,
 			["HeightAnchorMod"] = nil,
 			["WidthAnchorMod"] = nil,
-			["Width"] = nil,
-			["Height"] = nil,
+			["FixedWidth"] = nil,
+			["FixedHeight"] = nil,
+			["FixedWidthSub"] = nil,
+			["FixedHeightSub"] = nil,
+			["IgnoreSubMenu"] = nil,
 			["TextHeightMod"] = nil,
 			["ButtonHeightMod"] = nil,
 			["ButtonHeightModSub"] = nil,
@@ -499,7 +505,7 @@ function DetailsCreateCoolTip()
 					
 				end
 		
-		function CoolTip:TextAndIcon (frame, menuButton, leftTextTable, rightTextTable, leftIconTable, rightIconTable)
+		function CoolTip:TextAndIcon (frame, menuButton, leftTextTable, rightTextTable, leftIconTable, rightIconTable, isSub)
 		
 			--> reset width
 			menuButton.leftText:SetWidth (0)
@@ -581,6 +587,10 @@ function DetailsCreateCoolTip()
 						frame.w = stringWidth
 					end
 				end
+			else
+				if (isSub and CoolTip.OptionsTable.FixedWidthSub) then
+					menuButton.leftText:SetWidth (CoolTip.OptionsTable.FixedWidthSub - menuButton.leftIcon:GetWidth() - 20)
+				end
 			end
 			
 			local height = _math_max ( menuButton.leftIcon:GetHeight(), menuButton.rightIcon:GetHeight(), menuButton.leftText:GetStringHeight(), menuButton.rightText:GetStringHeight() )
@@ -651,7 +661,7 @@ function DetailsCreateCoolTip()
 			CoolTip:TextAndIcon (frame2, menuButton, CoolTip.LeftTextTableSub [mainMenuIndex] and CoolTip.LeftTextTableSub [mainMenuIndex] [index],
 			CoolTip.RightTextTableSub [mainMenuIndex] and CoolTip.RightTextTableSub [mainMenuIndex] [index], 
 			CoolTip.LeftIconTableSub [mainMenuIndex] and CoolTip.LeftIconTableSub [mainMenuIndex] [index], 
-			CoolTip.RightIconTableSub [mainMenuIndex] and CoolTip.RightIconTableSub [mainMenuIndex] [index])
+			CoolTip.RightIconTableSub [mainMenuIndex] and CoolTip.RightIconTableSub [mainMenuIndex] [index], true)
 			--> setup statusbar
 			CoolTip:StatusBar (menuButton, CoolTip.StatusBarTable [mainMenuIndex] and CoolTip.StatusBarTable [mainMenuIndex] [index])
 
@@ -682,12 +692,21 @@ function DetailsCreateCoolTip()
 	
 	function CoolTip:ShowSub (index)
 	
+		if (CoolTip.OptionsTable.IgnoreSubMenu) then
+			gump:Fade (frame2, 1)
+			return
+		end
+	
 		frame2:SetHeight (6)
 		
 		local amtIndexes = CoolTip.IndexesSub [index]
 		if (not amtIndexes) then
 			--print ("Sub menu called but sub menu indexes is nil")
 			return
+		end
+		
+		if (CoolTip.OptionsTable.FixedWidthSub) then
+			frame2:SetWidth (CoolTip.OptionsTable.FixedWidthSub)
 		end
 		
 		frame2.h = CoolTip.IndexesSub [index] * 20
@@ -753,7 +772,10 @@ function DetailsCreateCoolTip()
 		--]]
 		
 		frame2:SetHeight ( (frame2.hHeight * CoolTip.IndexesSub [index]) + 12 + (-spacing))
-		frame2:SetWidth (frame2.w + 44)
+		
+		if (not CoolTip.OptionsTable.FixedWidthSub) then
+			frame2:SetWidth (frame2.w + 44)
+		end
 		
 		gump:Fade (frame2, 0)
 		
@@ -1870,7 +1892,7 @@ function DetailsCreateCoolTip()
 	end
 	
 	--> search key: ~inject
-	function CoolTip:ExecFunc (host)
+	function CoolTip:ExecFunc (host, fromClick)
 	
 		if (host.dframework) then
 			if (not host.widget.CoolTip) then
@@ -1899,6 +1921,10 @@ function DetailsCreateCoolTip()
 		
 		host.CoolTip.BuildFunc()
 		CoolTip:ShowCooltip()
+		
+		if (fromClick) then
+			UIFrameFlash (frame1, 0.05, 0.05, 0.2, true, 0, 0)
+		end
 	end
 	
 	local InjectOnUpdateEnter = function (self, elapsed)  
@@ -1956,7 +1982,7 @@ function DetailsCreateCoolTip()
 		end
 	end
 	
-	function CoolTip:CoolTipInject (host)
+	function CoolTip:CoolTipInject (host, openOnClick)
 		if (host.dframework) then
 			if (not host.widget.CoolTip) then
 				host.widget.CoolTip = host.CoolTip
@@ -1975,6 +2001,12 @@ function DetailsCreateCoolTip()
 		
 		host:SetScript ("OnEnter", InjectOnEnter)
 		host:SetScript ("OnLeave", InjectOnLeave)
+		
+		if (openOnClick) then
+			if (host:GetObjectType() == "Button") then
+				host:SetScript ("OnClick", function() CoolTip:ExecFunc (host, true) end)
+			end
+		end
 		
 		return ture
 	end

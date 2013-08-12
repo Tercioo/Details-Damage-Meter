@@ -33,6 +33,7 @@ function _detalhes:SaveDataOnLogout()
 		_detalhes_database.tutorial = _detalhes.tutorial
 		-- max segments
 		_detalhes_database.segments_amount = _detalhes.segments_amount
+		_detalhes_database.segments_amount_to_save = _detalhes.segments_amount_to_save
 		_detalhes_database.clear_ungrouped = _detalhes.clear_ungrouped
 		_detalhes_database.clear_graphic = _detalhes.clear_graphic
 		-- row animation
@@ -95,6 +96,8 @@ function _detalhes:SaveDataOnLogout()
 	_detalhes_global.savedStyles = _detalhes.savedStyles
 	--max segments
 	_detalhes_global.segments_amount = _detalhes.segments_amount
+	_detalhes_global.segments_amount_to_save = _detalhes.segments_amount_to_save
+	_detalhes_global.segments_panic_mode = _detalhes.segments_panic_mode
 	-- animations
 	_detalhes_global.use_row_animations = _detalhes.use_row_animations
 	_detalhes_global.animate_scroll = _detalhes.animate_scroll
@@ -269,6 +272,8 @@ end --]]
 		_detalhes.savedStyles = _detalhes_global.savedStyles or _detalhes.savedStyles
 		--max segments
 		_detalhes.segments_amount = _detalhes_global.segments_amount or _detalhes.segments_amount
+		_detalhes.segments_amount_to_save = _detalhes_global.segments_amount_to_save or _detalhes.segments_amount_to_save
+		_detalhes.segments_panic_mode = _detalhes_global.segments_panic_mode or _detalhes.segments_panic_mode
 		-- row animation
 		_detalhes.use_row_animations = _detalhes_global.use_row_animations or _detalhes.use_row_animations
 		_detalhes.animate_scroll = _detalhes_global.animate_scroll or _detalhes.animate_scroll

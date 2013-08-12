@@ -53,8 +53,8 @@ if not Loc then return end
 	Loc ["STRING_CUSTOM_SOURCE"] = "Source"
 	Loc ["STRING_CUSTOM_TARGET"] = "Target"
 	Loc ["STRING_CUSTOM_TOOLTIPNAME"] = "Insert here the name of your custom display.\nAllow letters and numbers, minimum of 5 characters and 32 max."
-	Loc ["STRING_CUSTOM_TOOLTIPSPELL"] = "Select a boss ability from the menu on the right or type the spell name to filter."
-	Loc ["STRING_CUSTOM_TOOLTIPSOURCE"] = "Spell source allow:\n|cFF00FF00[all]|r: Search for spell in all Actors.\n|cFFFF9900[raid]|r: Search only in your raid or party members.\n|cFF33CCFF[player]|r: Check only you\nAny other text will be considered an spesific Actor name."
+	Loc ["STRING_CUSTOM_TOOLTIPSPELL"] = "Select a boss ability from the menu on the right\nor type the spell name to filter."
+	Loc ["STRING_CUSTOM_TOOLTIPSOURCE"] = "Spell source allow (with brackets):\n|cFF00FF00[all]|r: Search for spell in all Actors.\n|cFFFF9900[raid]|r: Search only in your raid or party members.\n|cFF33CCFF[player]|r: Check only you\nAny other text will be considered an spesific Actor name."
 	Loc ["STRING_CUSTOM_TOOLTIPTARGET"] = "Insert the ability (player, monster, boss) target name."
 	Loc ["STRING_CUSTOM_TOOLTIPNOTWORKING"] = "Ouch, some gnome engineer touched this and broke it =("
 	Loc ["STRING_CUSTOM_BROADCASTSENT"] = "Sent"
@@ -66,6 +66,10 @@ if not Loc then return end
 	Loc ["STRING_CUSTOM_SHORTNAME"] = "Name need at least 5 characters."
 	Loc ["STRING_CUSTOM_LONGNAME"] = "Name too long, maximum allowed 32 characters."
 	Loc ["STRING_CUSTOM_NOSPELL"] = "Spell field cannot be empty."
+	Loc ["STRING_CUSTOM_HELP1"] = "When you mouse over the Remove button, a menu is shown asking which one of previously created customs you want to erase.\n\nThe send button shows up a menu for broadcast your custom to your raid group."
+	Loc ["STRING_CUSTOM_HELP2"] = "Choose here the attribute type of the spell, if your spell is a Healing spell, you may click on Heal."
+	Loc ["STRING_CUSTOM_HELP3"] = "Custom name will be used on Details attribute menu, and also, shown when reporting.\n\nOn spell id field, type some letters to filter spell names, you can also choose a spell from encounter menu on the right.\n\nOver source field, type where Details will serach for the spell, more info at his tooltip."
+	Loc ["STRING_CUSTOM_HELP4"] = "You can choose a spell from a raid encounter, mouse over this button and the options will be shown to you."
 	Loc ["STRING_CUSTOM_"] = ""
 
 --> Switch Window
@@ -250,6 +254,23 @@ if not Loc then return end
 	Loc ["STRING_RESIZE_ALL"] = "Freely resize all windows"
 	Loc ["STRING_FREEZE"] = "This segment is not available at the moment"
 	Loc ["STRING_CLOSEALL"] = "All Details windows are close, Type '/details new' to re-open."
+	
+	Loc ["STRING_HELP_MENUS"] = "Gear Menu: changes the game mode.\nSolo: tools where you can play by your self.\nGroup: display only actors which make part of your group.\nAll: show everything.\nRaid: assistance tools for raid or pvp groups.\n\nBook Menu: Change the segment, in Details! segments are dynamic and the instances change the displaying encounter data when a fight finishes.\n\nSword Menu: Change the attribute which this instance shown."
+	Loc ["STRING_HELP_ERASE"] = "Remove all segments stored."
+	Loc ["STRING_HELP_INSTANCE"] = "Click: open a new instance (window).\n\nMouse over: display a menu with all closed instances, you can reopen anyone at any time."
+	Loc ["STRING_HELP_STATUSBAR"] = "Statusbar can hold three plugins: one in left, another in the center and right side.\n\nRight click: select another plugin to show.\n\nLeft click: open the options window."
+	Loc ["STRING_HELP_SWITCH"] = "Right click: shows up the fast switch panel.\n\nLeft click on a switch option: change the instance (window) attribute.\nRight click: closes switch.\n\nYou can right click over icons to choose another attribute."
+	Loc ["STRING_HELP_RESIZE"] = "Resize and lock buttons."
+	Loc ["STRING_HELP_STRETCH"] = "Click, hold and pull to stretch the window."
+	
+	Loc ["STRING_HELP_MODESELF"] = "The self mode plugins are intended to focus only on you. Use the sword menu to choose which plugin you want to use."
+	Loc ["STRING_HELP_MODEGROUP"] = "Use this option to display only you or players which are in your group or raid."
+	Loc ["STRING_HELP_MODEALL"] = "This mode will show every player, npc, boss with data captured by Details!."
+	Loc ["STRING_HELP_MODERAID"] = "The raid mode is the opposite of self mode, this plugins are intended to work with data captured from your group. You can change the plugin on sword menu."
+
+
+	
+--O modo sozinho possui plugins que irão trabalhar apenas em cima dos dados capturados do seu personagem, como o dano que ele causa, os buffs e debuffs que ele possui, entre outros.	
 	
 --> misc
 	

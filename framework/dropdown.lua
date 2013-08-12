@@ -558,6 +558,7 @@ function DetailsDropDownOnMouseDown (button)
 				end
 			end
 
+			object.scroll:SetValue (0)
 			object:Open()
 			
 		else

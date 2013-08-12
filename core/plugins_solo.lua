@@ -78,6 +78,12 @@
 				self:SaveMainWindowPosition()
 			else
 				self:RestoreMainWindowPosition()
+				local w, h = self:GetSize()
+				if (w ~= 300 or h ~= 300) then
+					self.baseframe:SetWidth (300)
+					self.baseframe:SetHeight (300)
+					self:SaveMainWindowPosition()
+				end
 			end
 			
 			if (not _detalhes.SoloTables.Plugins [1]) then

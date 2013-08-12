@@ -2434,18 +2434,26 @@ function gump:CriaCabecalho (BaseFrame, instancia)
 		{text = Loc ["STRING_MODE_SELF"]},
 		{func = instancia.AlteraModo, param1 = 1},
 		{icon = "Interface\\AddOns\\Details\\images\\modo_icones", l = 0, r = 32/256, t = 0, b = 1, width = 20, height = 20},
+		{text = Loc ["STRING_HELP_MODESELF"], type = 2},
+		{icon = [[Interface\TUTORIALFRAME\TutorialFrame-QuestionMark]], type = 2, width = 16, height = 16, l = 8/64, r = 1 - (8/64), t = 8/64, b = 1 - (8/64)},
 		
 		{text = Loc ["STRING_MODE_GROUP"]},
 		{func = instancia.AlteraModo, param1 = 2},
 		{icon = "Interface\\AddOns\\Details\\images\\modo_icones", l = 32/256, r = 32/256*2, t = 0, b = 1, width = 20, height = 20},
+		{text = Loc ["STRING_HELP_MODEGROUP"], type = 2},
+		{icon = [[Interface\TUTORIALFRAME\TutorialFrame-QuestionMark]], type = 2, width = 16, height = 16, l = 8/64, r = 1 - (8/64), t = 8/64, b = 1 - (8/64)},
 		
 		{text = Loc ["STRING_MODE_ALL"]},
 		{func = instancia.AlteraModo, param1 = 3},
 		{icon = "Interface\\AddOns\\Details\\images\\modo_icones", l = 32/256*2, r = 32/256*3, t = 0, b = 1, width = 20, height = 20},
+		{text = Loc ["STRING_HELP_MODEALL"], type = 2},
+		{icon = [[Interface\TUTORIALFRAME\TutorialFrame-QuestionMark]], type = 2, width = 16, height = 16, l = 8/64, r = 1 - (8/64), t = 8/64, b = 1 - (8/64)},
 		
 		{text = Loc ["STRING_MODE_RAID"]},
 		{func = instancia.AlteraModo, param1 = 4},
 		{icon = "Interface\\AddOns\\Details\\images\\modo_icones", l = 32/256*3, r = 32/256*4, t = 0, b = 1, width = 20, height = 20},
+		{text = Loc ["STRING_HELP_MODERAID"], type = 2},
+		{icon = [[Interface\TUTORIALFRAME\TutorialFrame-QuestionMark]], type = 2, width = 16, height = 16, l = 8/64, r = 1 - (8/64), t = 8/64, b = 1 - (8/64)},
 		
 		{text = Loc ["STRING_OPTIONS_WINDOW"]},
 		{func = _detalhes.OpenOptionsWindow},
@@ -2484,6 +2492,13 @@ function gump:CriaCabecalho (BaseFrame, instancia)
 				CoolTip:SetOption ("ButtonsYMod", -5)
 				CoolTip:SetOption ("YSpacingMod", 1)
 				CoolTip:SetOption ("FixedHeight", 106)
+				CoolTip:SetOption ("FixedWidth", 106)
+				CoolTip:SetOption ("FixedWidthSub", 146)
+				CoolTip:SetOption ("SubMenuIsTooltip", true)
+				
+				if (_detalhes.tutorial.main_help_button > 9) then
+					CoolTip:SetOption ("IgnoreSubMenu", true)
+				end
 				
 				if (instancia.consolidate) then
 					CoolTip:SetOwner (self, "topleft", "topright", 3)
@@ -2933,10 +2948,91 @@ function gump:CriaCabecalho (BaseFrame, instancia)
 	
 	end
 	
-	--> fim botão reset
-----------------------------------------------------------------------------------------------------------------------------------------------------
+--> fim botão reset
 
----------> consolidate frame
+--> Botão de Ajuda ----------------------------------------------------------------------------------------------------------------------------------------------------
+
+	if (instancia.meu_id == 1 and _detalhes.tutorial.main_help_button < 10) then
+
+		_detalhes.tutorial.main_help_button = _detalhes.tutorial.main_help_button + 1
+	
+		--> help button
+		local helpButton = CreateFrame ("button", "DetailsMainWindowHelpButton", BaseFrame, "MainHelpPlateButton")
+		helpButton:SetWidth (28)
+		helpButton:SetHeight (28)
+		helpButton.I:SetWidth (22)
+		helpButton.I:SetHeight (22)
+		helpButton.Ring:SetWidth (28)
+		helpButton.Ring:SetHeight (28)
+		helpButton.Ring:SetPoint ("center", 5, -6)
+		
+		helpButton:SetPoint ("topright", BaseFrame, "topleft", 37, 37)
+		
+		helpButton:SetFrameLevel (0)
+		helpButton:SetFrameStrata ("LOW")
+
+		local mainWindowHelp =  {
+			FramePos = {x = 0, y = 10},
+			FrameSize = {width = 300, height = 85},
+			
+			--> modo, segmento e atributo
+			[1] ={HighLightBox = {x = 25, y = 10, width = 60, height = 20},
+				ButtonPos = { x = 32, y = 40},
+				ToolTipDir = "RIGHT",
+				ToolTipText = Loc ["STRING_HELP_MENUS"]
+			},
+			--> delete
+			[2] ={HighLightBox = {x = 195, y = 10, width = 47, height = 20},
+				ButtonPos = { x = 197, y = 5},
+				ToolTipDir = "LEFT",
+				ToolTipText = Loc ["STRING_HELP_ERASE"]
+			},
+			--> menu da instancia
+			[3] ={HighLightBox = {x = 244, y = 10, width = 30, height = 20},
+				ButtonPos = { x = 237, y = 5},
+				ToolTipDir = "RIGHT",
+				ToolTipText = Loc ["STRING_HELP_INSTANCE"]
+			},
+			--> stretch
+			[4] ={HighLightBox = {x = 244, y = 30, width = 30, height = 20},
+				ButtonPos = { x = 237, y = 57},
+				ToolTipDir = "RIGHT",
+				ToolTipText = Loc ["STRING_HELP_STRETCH"]
+			},
+			--> status bar
+			[5] ={HighLightBox = {x = 0, y = -101, width = 300, height = 20},
+				ButtonPos = { x = 126, y = -88},
+				ToolTipDir = "LEFT",
+				ToolTipText = Loc ["STRING_HELP_STATUSBAR"]
+			},
+			--> switch menu
+			[6] ={HighLightBox = {x = 0, y = -10, width = 300, height = 95},
+				ButtonPos = { x = 127, y = -37},
+				ToolTipDir = "LEFT",
+				ToolTipText = Loc ["STRING_HELP_SWITCH"]
+			},
+			--> resizer
+			[7] ={HighLightBox = {x = 250, y = -81, width = 50, height = 20},
+				ButtonPos = { x = 253, y = -52},
+				ToolTipDir = "RIGHT",
+				ToolTipText = Loc ["STRING_HELP_RESIZE"]
+			},
+		}
+		
+		helpButton:SetScript ("OnClick", function() 
+			if (not HelpPlate_IsShowing (mainWindowHelp)) then
+			
+				instancia:SetSize (300, 95)
+			
+				HelpPlate_Show (mainWindowHelp, BaseFrame, helpButton, true)
+			else
+				HelpPlate_Hide (true)
+			end
+		end)
+	
+	end
+
+---------> consolidate frame ----------------------------------------------------------------------------------------------------------------------------------------------------
 
 	local consolidateFrame = CreateFrame ("frame", nil, _detalhes.listener)
 	consolidateFrame:SetWidth (21)

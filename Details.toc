@@ -36,6 +36,7 @@ framework\colors.lua
 framework\label.lua
 framework\slider.lua
 framework\picture.lua
+framework\help.lua
 framework\cooltip.xml
 framework\textentry.xml
 framework\panel.xml

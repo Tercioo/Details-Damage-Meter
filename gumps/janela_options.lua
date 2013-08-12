@@ -25,19 +25,45 @@ function _detalhes:OpenOptionsWindow (instance)
 		g:NewLabel (window, _, "$parentTitle", "title", "Options for Details!")
 		window.title:SetPoint (10, -10)
 		
+		local close = g:NewLabel (window, _, "$parentRightMouseClose", nil, "|TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:20:20:0:1:512:512:8:70:328:409|t right click to close this panel")
+		close:SetPoint ("bottomleft", window, "bottomleft", 5, 5)
+		
 	--------------- Max Segments
 		g:NewLabel (window, _, "$parentSliderLabel", "segmentsLabel", "max segments")
 		window.segmentsLabel:SetPoint (10, -35)
 		--
-		g:NewSlider (window, _, "$parentSlider", "segmentsSlider", 120, 20, 1, 10, 1, _detalhes.segments_amount) -- min, max, step, defaultv
+		g:NewSlider (window, _, "$parentSlider", "segmentsSlider", 120, 20, 1, 25, 1, _detalhes.segments_amount) -- min, max, step, defaultv
 		window.segmentsSlider:SetPoint ("left", window.segmentsLabel, "right")
 		window.segmentsSlider:SetHook ("OnValueChange", function (self, _, amount) --> slider, fixedValue, sliderValue
 			_detalhes.segments_amount = amount
 		end)
+		window.segmentsSlider.tooltip = "This option control how many fights you want to maintain.\nAs overall data work dynamic with segments stored,\nfeel free to adjust this number to be comfortable for you.\nHigh value may increase the memory use,\nbut doesn't affect your game framerate."
+
+	--------------- Max Segments Saved
+		g:NewLabel (window, _, "$parentLabelSegmentsSave", "segmentsSaveLabel", "segments saved on logout")
+		window.segmentsSaveLabel:SetPoint (10, -50)
+		--
+		g:NewSlider (window, _, "$parentSliderSegmentsSave", "segmentsSliderToSave", 80, 20, 1, 5, 1, _detalhes.segments_amount_to_save) -- min, max, step, defaultv
+		window.segmentsSliderToSave:SetPoint ("left", window.segmentsSaveLabel, "right")
+		window.segmentsSliderToSave:SetHook ("OnValueChange", function (self, _, amount) --> slider, fixedValue, sliderValue
+			_detalhes.segments_amount_to_save = amount
+		end)
+		window.segmentsSliderToSave.tooltip = "How many segments will be saved on logout.\nHigher values may increase the time between a\nlogout button click and your character selection screen.\nIf you rarely check last day data, it`s high recommeded save only 1."
+	
+	--------------- Panic Mode
+		g:NewLabel (window, _, "$parentPanicModeLabel", "panicModeLabel", "panic mode")
+		window.panicModeLabel:SetPoint (10, -65)
+		--
+		g:NewSwitch (window, _, "$parentPanicModeSlider", "panicModeSlider", 60, 20, _, _, _detalhes.segments_panic_mode)
+		window.panicModeSlider:SetPoint ("left", window.panicModeLabel, "right")
+		window.panicModeSlider.OnSwitch = function (self, _, value) --> slider, fixedValue, sliderValue
+			_detalhes.segments_panic_mode = value
+		end
+		window.panicModeSlider.tooltip = "If enabled, when you are in a raid encounter\nand get dropped from the game, a disconnect for intance,\nDetails! immediately erase all segments\nmaking the disconnect process faster."
 		
 	--------------- Animate Rows
 		g:NewLabel (window, _, "$parentAnimateLabel", "animateLabel", "animate rows")
-		window.animateLabel:SetPoint (10, -50)
+		window.animateLabel:SetPoint (10, -80)
 		--
 		g:NewSwitch (window, _, "$parentAnimateSlider", "animateSlider", 60, 20, _, _, _detalhes.use_row_animations) -- ltext, rtext, defaultv
 		window.animateSlider:SetPoint ("left",window.animateLabel, "right")
@@ -46,6 +72,7 @@ function _detalhes:OpenOptionsWindow (instance)
 		end
 		
 	--------------- Clear Ungrouped
+	--[[
 		g:NewLabel (window, _, "$parentClearUngroupedLabel", "clearungroupedLabel", "delete ungrouped on logout")
 		window.clearungroupedLabel:SetPoint (10, -65)
 		--
@@ -55,10 +82,11 @@ function _detalhes:OpenOptionsWindow (instance)
 			_detalhes.clear_ungrouped = value
 		end
 		window.clearungroupedSlider.tooltip = "erase actors without a group when you logout."
-
+	--]]
+	
 	--------------- Use Scroll Bar
 		g:NewLabel (window, _, "$parentUseScrollLabel", "scrollLabel", "show scroll bar")
-		window.scrollLabel:SetPoint (10, -80)
+		window.scrollLabel:SetPoint (10, -95)
 		--
 		g:NewSwitch (window, _, "$parentUseScrollSlider", "scrollSlider", 60, 20, _, _, _detalhes.use_scroll) -- ltext, rtext, defaultv
 		window.scrollSlider:SetPoint ("left", window.scrollLabel, "right")
@@ -82,7 +110,7 @@ function _detalhes:OpenOptionsWindow (instance)
 		
 	--------------- Animate scroll bar
 		g:NewLabel (window, _, "$parentAnimateScrollLabel", "animatescrollLabel", "animate scroll")
-		window.animatescrollLabel:SetPoint (10, -95)
+		window.animatescrollLabel:SetPoint (10, -110)
 		--
 		g:NewSwitch (window, _, "$parentClearAnimateScrollSlider", "animatescrollSlider", 60, 20, _, _, _detalhes.animate_scroll) -- ltext, rtext, defaultv
 		window.animatescrollSlider:SetPoint ("left", window.animatescrollLabel, "right")
@@ -92,7 +120,7 @@ function _detalhes:OpenOptionsWindow (instance)
 		
 	--------------- Update Speed
 		g:NewLabel (window, _, "$parentUpdateSpeedLabel", "updatespeedLabel", "update speed")
-		window.updatespeedLabel:SetPoint (10, -110)
+		window.updatespeedLabel:SetPoint (10, -125)
 		--
 		g:NewSlider (window, _, "$parentSliderUpdateSpeed", "updatespeedSlider", 160, 20, 0.3, 2, 0.1, _detalhes.update_speed, true) --parent, container, name, member, w, h, min, max, step, defaultv
 		window.updatespeedSlider:SetPoint ("left", window.updatespeedLabel, "right")
@@ -118,8 +146,8 @@ function _detalhes:OpenOptionsWindow (instance)
 		window.updatespeedSlider.tooltip = "delay between each update,\nCPU usage may increase with low values."
 		
 	--------------- Time Type
-		g:NewLabel (window, _, "$parentTimeTypeLabel", "timetypeLabel", "time type")
-		window.timetypeLabel:SetPoint (10, -125)
+		g:NewLabel (window, _, "$parentTimeTypeLabel", "timetypeLabel", "time measure")
+		window.timetypeLabel:SetPoint (10, -143)
 		--
 		local onSelectTimeType = function (_, _, timetype)
 			_detalhes.time_type = timetype
@@ -132,8 +160,8 @@ function _detalhes:OpenOptionsWindow (instance)
 		local buildTimeTypeMenu = function()
 			return timetypeOptions
 		end
-		g:NewDropDown (window, _, "$parentTTDropdown", "timetypeDropdown", 200, 20, buildTimeTypeMenu, nil) -- func, default
-		window.timetypeDropdown:SetPoint (10, -140)
+		g:NewDropDown (window, _, "$parentTTDropdown", "timetypeDropdown", 160, 20, buildTimeTypeMenu, nil) -- func, default
+		window.timetypeDropdown:SetPoint ("left", window.timetypeLabel, "right")
 	
 		
 -- Current Instalnce --------------------------------------------------------------------------------------------------------------------------------------------
@@ -546,7 +574,7 @@ function _detalhes:OpenOptionsWindow (instance)
 		------ apply to all button
 		local applyToAll = function()
 			for _, this_instance in ipairs (_detalhes.tabela_instancias) do 
-				if (this_instance:IsAtiva()) then
+				if (this_instance:IsAtiva() and this_instance.meu_id ~= instance.meu_id) then
 					--texture
 					this_instance.barrasInfo.textura = SharedMedia:Fetch ("statusbar", window.textureDropdown.value)
 					this_instance.barrasInfo.textureName = window.textureDropdown.value
@@ -557,6 +585,8 @@ function _detalhes:OpenOptionsWindow (instance)
 					this_instance.barrasInfo.fontSize = window.fonsizeSlider.value
 					--color
 					this_instance:InstanceColor (window.instance.color)
+					--wallpaper
+					this_instance:InstanceWallpaper (window.instance.wallpaper)
 					--refresh
 					this_instance:RefreshBars()
 				end

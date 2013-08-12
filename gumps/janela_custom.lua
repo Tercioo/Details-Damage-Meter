@@ -82,6 +82,52 @@ local function CreateCustomWindow()
 		_detalhes:CloseCustomWindow()
 	end)
 	
+	--> help button
+	local helpButton = CreateFrame ("button", "DetailsCustomPanelHelpButton", frame, "MainHelpPlateButton")
+	helpButton:SetWidth (36)
+	helpButton:SetHeight (36)
+	helpButton.I:SetWidth (25)
+	helpButton.I:SetHeight (25)
+	helpButton.Ring:SetWidth (36)
+	helpButton.Ring:SetHeight (36)
+	helpButton.Ring:SetPoint ("center", 7, -7)
+	helpButton:SetPoint ("topright", frame, "topright", -20, -7)
+	helpButton:SetFrameLevel (frame.fechar:GetFrameLevel())
+
+	local customHelp =  {
+		FramePos = {x = 0, y = -30},
+		FrameSize = {width = 512, height = 120},
+		
+		[1] ={HighLightBox = {x = 15, y = -39, width = 100, height = 70},
+			ButtonPos = { x = 43, y = -50},
+			ToolTipDir = "LEFT",
+			ToolTipText = Loc ["STRING_CUSTOM_HELP1"]
+		},
+		[2] ={HighLightBox = {x = 120, y = -9, width = 170, height = 95},
+			ButtonPos = { x = 182, y = -30},
+			ToolTipDir = "RIGHT",
+			ToolTipText = Loc ["STRING_CUSTOM_HELP2"]
+		},
+		[3] ={HighLightBox = {x = 295, y = -9, width = 170, height = 75},
+			ButtonPos = { x = 363, y = -25},
+			ToolTipDir = "RIGHT",
+			ToolTipText = Loc ["STRING_CUSTOM_HELP3"]
+		},
+		[4] ={HighLightBox = {x = 470, y = -25, width = 30, height = 25},
+			ButtonPos = { x = 485, y = -15},
+			ToolTipDir = "RIGHT",
+			ToolTipText = Loc ["STRING_CUSTOM_HELP4"]
+		}
+	}
+	
+	helpButton:SetScript ("OnClick", function() 
+		if (not HelpPlate_IsShowing (customHelp)) then
+			HelpPlate_Show (customHelp, frame, helpButton, true)
+		else
+			HelpPlate_Hide (true)
+		end
+	end)
+	
 	--> titulo
 	gump:NewLabel (frame, frame, nil, "titulo", "Custom Display", "GameFontHighlightLeft", 12, {227/255, 186/255, 4/255})
 	frame.titulo:SetPoint ("center", frame, "center")
@@ -851,7 +897,7 @@ local function CreateCustomWindow()
 			Type = "menu",
 			BuildFunc = CreateCustomList, 
 			Options = {NoLastSelectedBar = true, TextSize = 9.5, HeightAnchorMod = -10}}
-		_detalhes.popup:CoolTipInject (DeleteButton)
+		_detalhes.popup:CoolTipInject (DeleteButton, true)
 
 	-------------------------
 	
@@ -877,7 +923,7 @@ local function CreateCustomWindow()
 			BuildFunc = CreateCustomListForShout, 
 			Options = {NoLastSelectedBar = true, TextSize = 9.5, HeightAnchorMod = -10}}
 			
-		GameCooltip:CoolTipInject (BroadcastButton)
+		GameCooltip:CoolTipInject (BroadcastButton, true)
 
 		function _detalhes:CommReceive (prefix, Msgs, distribution, target)
 			--print (prefix, Msgs, distribution, target)

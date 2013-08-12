@@ -308,6 +308,15 @@ local function CreatePluginFrames (data)
 	title:SetPoint ("left", titleIcon, "right", 20, -9)
 	DmgRank.Title = title
 	
+	--> help button
+	--> after 10 logins on the character this help button will not be show any more
+	if (_detalhes.tutorial.main_help_button < 10) then
+		local help = DetailsFrameWork:NewHelp (DmgRankFrame, 280, 280, 0, -20, 40, 40)
+		help:SetPoint ("topright", DmgRankFrame, "topright", 8, 9)
+		help:AddHelp (300, 300, 0, 0, 138, -138, Loc ["STRING_HELP"])
+		help:SetFrameLevel (DmgRankFrame:GetFrameLevel()+2)
+	end
+	
 	--> announce switch
 	local announce = DetailsFrameWork:NewSwitch (bg1, _, "DetailsDmgRankAnnouce", "announceSwitch", 60, 20, _, _, DmgRank.rank.annouce)
 	bg1.announceSwitch:SetPoint ("topleft", DmgRankFrame, 12, -184)
