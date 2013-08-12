@@ -166,7 +166,8 @@
 			bg.type:SetFrameLevel (2, bg)
 			bg.type.lastValue = 1
 			
-
+			local c = bg:CreateRightClickLabel ("medium")
+			c:SetPoint ("bottomright", bg, "bottomright", -3, 1)
 
 			--send button
 			local sendFunc = function()

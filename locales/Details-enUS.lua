@@ -10,6 +10,10 @@ if not Loc then return end
 	Loc ["STRING_CENTER"] = "center"
 	Loc ["STRING_RIGHT"] = "right"
 	Loc ["STRING_TOOOLD"] = "could not be installed because your Details! version is too old."
+	
+	Loc ["STRING_RIGHTCLICK_CLOSE_SHORT"] = "Right click to close."
+	Loc ["STRING_RIGHTCLICK_CLOSE_MEDIUM"] = "Use right click to close this window."
+	Loc ["STRING_RIGHTCLICK_CLOSE_LARGE"] = "Click with right mouse button to close this window."
 
 --> Slash
 	Loc ["STRING_COMMAND_LIST"] = "command list"

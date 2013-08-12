@@ -833,12 +833,21 @@ function _detalhes:RestauraJanela (index, temp)
 		self.StatusBar.right = nil
 		self.StatusBar.options = self.StatusBarSaved.options
 
+		if (self.StatusBarSaved.center and self.StatusBarSaved.center == "NONE") then
+			self.StatusBarSaved.center = "DETAILS_STATUSBAR_PLUGIN_CLOCK"
+		end
 		local clock = _detalhes.StatusBar:CreateStatusBarChildForInstance (self, self.StatusBarSaved.center or "DETAILS_STATUSBAR_PLUGIN_CLOCK")
 		_detalhes.StatusBar:SetCenterPlugin (self, clock)
 		
+		if (self.StatusBarSaved.left and self.StatusBarSaved.left == "NONE") then
+			self.StatusBarSaved.left = "DETAILS_STATUSBAR_PLUGIN_PSEGMENT"
+		end
 		local segment = _detalhes.StatusBar:CreateStatusBarChildForInstance (self, self.StatusBarSaved.left or "DETAILS_STATUSBAR_PLUGIN_PSEGMENT")
 		_detalhes.StatusBar:SetLeftPlugin (self, segment)
 		
+		if (self.StatusBarSaved.right and self.StatusBarSaved.right == "NONE") then
+			self.StatusBarSaved.right = "DETAILS_STATUSBAR_PLUGIN_PDPS"
+		end
 		local dps = _detalhes.StatusBar:CreateStatusBarChildForInstance (self, self.StatusBarSaved.right or "DETAILS_STATUSBAR_PLUGIN_PDPS")
 		_detalhes.StatusBar:SetRightPlugin (self, dps)
 		--

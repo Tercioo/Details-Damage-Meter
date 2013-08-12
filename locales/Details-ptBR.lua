@@ -11,6 +11,10 @@ if not Loc then return end
 	Loc ["STRING_RIGHT"] = "direita"
 	Loc ["STRING_TOOOLD"] = "nao pode ser instalado pois sua versao do Details! e muito antiga."
 
+	Loc ["STRING_RIGHTCLICK_CLOSE_SHORT"] = "Botao direito para fechar."
+	Loc ["STRING_RIGHTCLICK_CLOSE_MEDIUM"] = "Use o botao direito para fechar esta janela."
+	Loc ["STRING_RIGHTCLICK_CLOSE_LARGE"] = "Clique com o botao direito do mouse para fechar esta janela."
+	
 --> Slash
 	Loc ["STRING_COMMAND_LIST"] = "lista de comandos"
 

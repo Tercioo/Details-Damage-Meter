@@ -530,6 +530,10 @@ local APISplitBarFunctions
 			frame.MyObject.container.isMoving = false
 		end
 	end
+	
+	local OnSizeChanged = function (statusbar)
+		statusbar.MyObject.div:SetPoint ("left", statusbar, "left", statusbar:GetValue() * (statusbar:GetWidth()/100) - 18, 0)
+	end
 
 ------------------------------------------------------------------------------------------------------------
 --> object constructor
@@ -623,6 +627,7 @@ function gump:NewSplitBar (parent, container, name, member, w, h)
 		SplitBarObject.statusbar:SetScript ("OnShow", OnShow)
 		SplitBarObject.statusbar:SetScript ("OnMouseDown", OnMouseDown)
 		SplitBarObject.statusbar:SetScript ("OnMouseUp", OnMouseUp)
+		SplitBarObject.statusbar:SetScript ("OnSizeChanged", OnSizeChanged)
 		
 	_setmetatable (SplitBarObject, SplitBarMetaFunctions)
 	

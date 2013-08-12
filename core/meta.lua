@@ -366,6 +366,14 @@
 		
 		local historico_tabelas = _detalhes.tabela_historico.tabelas or {}
 		
+		if (_detalhes.segments_amount_to_save and _detalhes.segments_amount_to_save < _detalhes.segments_amount) then
+			for i = _detalhes.segments_amount, _detalhes.segments_amount_to_save+1, -1  do
+				if (_detalhes.tabela_historico.tabelas [i]) then
+					_detalhes.tabela_historico.tabelas [i] = nil
+				end
+			end
+		end
+		
 		--local tabela_overall = _detalhes.tabela_overall
 		_detalhes.tabela_overall = nil
 		
@@ -621,8 +629,16 @@
 				end
 			end	
 		
-		--> Limpa instâncias
 		
+		--> panic mode
+			if (_detalhes.segments_panic_mode and _detalhes.in_combat) then
+				if (_detalhes.tabela_vigente.is_boss) then
+					_detalhes.tabela_historico = _detalhes.historico:NovoHistorico()
+				end
+			end
+		
+		
+		--> Limpa instâncias
 		for _, esta_instancia in _ipairs (_detalhes.tabela_instancias) do
 			--> detona a janela do Solo Mode
 

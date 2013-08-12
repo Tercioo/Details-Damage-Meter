@@ -25,8 +25,8 @@ function _detalhes:OpenOptionsWindow (instance)
 		g:NewLabel (window, _, "$parentTitle", "title", "Options for Details!")
 		window.title:SetPoint (10, -10)
 		
-		local close = g:NewLabel (window, _, "$parentRightMouseClose", nil, "|TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:20:20:0:1:512:512:8:70:328:409|t right click to close this panel")
-		close:SetPoint ("bottomleft", window, "bottomleft", 5, 5)
+		local c = window:CreateRightClickLabel ("medium")
+		c:SetPoint ("bottomleft", window, "bottomleft", 5, 5)
 		
 	--------------- Max Segments
 		g:NewLabel (window, _, "$parentSliderLabel", "segmentsLabel", "max segments")

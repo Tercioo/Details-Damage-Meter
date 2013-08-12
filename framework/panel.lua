@@ -1,6 +1,7 @@
 --> details main objects
 local _detalhes = 		_G._detalhes
 local gump = 			_detalhes.gump
+local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
 
 --> lua locals
 local _rawset = rawset --> lua local
@@ -160,6 +161,28 @@ local APIFrameFunctions
 
 ------------------------------------------------------------------------------------------------------------
 --> methods
+
+--> right click to close
+	function PanelMetaFunctions:CreateRightClickLabel (textType, w, h)
+		local text
+		w = w or 20
+		h = h or 20
+		
+		if (textType) then
+			textType = string.lower (textType)
+			if (textType == "short") then
+				text = Loc ["STRING_RIGHTCLICK_CLOSE_SHORT"]
+			elseif (textType == "medium") then
+				text = Loc ["STRING_RIGHTCLICK_CLOSE_MEDIUM"]
+			elseif (textType == "large") then
+				text = Loc ["STRING_RIGHTCLICK_CLOSE_LARGE"]
+			end
+		else
+			text = Loc ["STRING_RIGHTCLICK_CLOSE_SHORT"]
+		end
+
+		return gump:NewLabel (self, _, "$parentRightMouseToClose", nil, "|TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:"..w..":"..h..":0:1:512:512:8:70:328:409|t " .. text)
+	end
 
 --> show & hide
 	function PanelMetaFunctions:Show()

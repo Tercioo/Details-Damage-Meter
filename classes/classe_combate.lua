@@ -48,7 +48,7 @@ combate.__call = _detalhes.call_combate
 --[[ Class Constructor ]]
 function combate:NovaTabela (iniciada, _tabela_overall, combatId, ...)
 
-	local esta_tabela = {}
+	local esta_tabela = {true, true, true, true, true}
 	
 	esta_tabela [1] = container_combatentes:NovoContainer (_detalhes.container_type.CONTAINER_DAMAGE_CLASS, esta_tabela, combatId) --> Damage
 	esta_tabela [2] = container_combatentes:NovoContainer (_detalhes.container_type.CONTAINER_HEAL_CLASS, esta_tabela, combatId) --> Healing

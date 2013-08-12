@@ -357,35 +357,39 @@
 
 	function gump:Fade (frame, tipo, velocidade, parametros)
 		
-		if (_type (frame) == "table" and frame.meu_id) then --> ups, é uma instância
-			if (parametros == "barras") then --> hida todas as barras da instância
-				if (velocidade) then
-					for i = 1, frame.barrasInfo.criadas, 1 do
-						gump:Fade (frame.barras[i], tipo, velocidade)
+		if (_type (frame) == "table") then 
+			if (frame.meu_id) then --> ups, é uma instância
+				if (parametros == "barras") then --> hida todas as barras da instância
+					if (velocidade) then
+						for i = 1, frame.barrasInfo.criadas, 1 do
+							gump:Fade (frame.barras[i], tipo, velocidade)
+						end
+						return
+					else
+						velocidade = velocidade or 0.3
+						for i = 1, frame.barrasInfo.criadas, 1 do
+							gump:Fade (frame.barras[i], tipo, 0.3+(i/10))
+						end
+						return
 					end
-					return
-				else
-					velocidade = velocidade or 0.3
+				elseif (parametros == "hide_barras") then --> hida todas as barras da instância
 					for i = 1, frame.barrasInfo.criadas, 1 do
-						gump:Fade (frame.barras[i], tipo, 0.3+(i/10))
+						local esta_barra = frame.barras[i]
+						if (esta_barra.fading_in or esta_barra.fading_out) then
+							esta_barra.fadeInfo.finishedFunc = nil
+							_UIFrameFadeIn (esta_barra, 0.01, esta_barra:GetAlpha(), esta_barra:GetAlpha())
+						end
+						esta_barra.hidden = true
+						esta_barra.faded = true
+						esta_barra.fading_in = false
+						esta_barra.fading_out = false
+						esta_barra:Hide()
+						esta_barra:SetAlpha(0)
 					end
 					return
 				end
-			elseif (parametros == "hide_barras") then --> hida todas as barras da instância
-				for i = 1, frame.barrasInfo.criadas, 1 do
-					local esta_barra = frame.barras[i]
-					if (esta_barra.fading_in or esta_barra.fading_out) then
-						esta_barra.fadeInfo.finishedFunc = nil
-						_UIFrameFadeIn (esta_barra, 0.01, esta_barra:GetAlpha(), esta_barra:GetAlpha())
-					end
-					esta_barra.hidden = true
-					esta_barra.faded = true
-					esta_barra.fading_in = false
-					esta_barra.fading_out = false
-					esta_barra:Hide()
-					esta_barra:SetAlpha(0)
-				end
-				return
+			elseif (frame.dframework) then
+				frame = frame.widget
 			end
 		end
 		

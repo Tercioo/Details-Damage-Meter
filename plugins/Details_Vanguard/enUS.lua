@@ -5,7 +5,12 @@ if (not Loc) then
 end 
 
 Loc ["STRING_PLUGIN_NAME"] = "Vanguard"
-Loc ["STRING_MOREINFORMATION"] = "Click for more information"
+Loc ["STRING_HEALVSDAMAGETOOLTIP"] = "Incoming heal is the amount of healing expected for the next seconds.\nIncoming damage is calculated by Vanguard using the average damage\ntaken on the last seconds.\n\n|cff33CC00*Click for more information."
+Loc ["STRING_AVOIDVSHITSTOOLTIP"] = "This is the amount of dodge and parry against the\namount of successful hits received on the last few seconds.\n\n|cff33CC00*Click for more information."
+Loc ["STRING_DAMAGESCROLL"] = "Latest damage received amount."
+Loc ["STRING_REPORT"] = "Details Vanguard Report"
+Loc ["STRING_REPORT_AVOIDANCE"] = "Avoidance statistic for"
+Loc ["STRING_REPORT_AVOIDANCE_TOOLTIP"] = "Send avoidance report"
 
 Loc ["STRING_HEALRECEIVED"] = "Heal Received"
 Loc ["STRING_HPS"] = "RHPS"

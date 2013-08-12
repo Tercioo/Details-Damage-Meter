@@ -65,15 +65,25 @@ local function CreatePluginFrames (data)
 			end
 			
 			player = UnitName ("player")
+			
+			DetailsFrameWork:Fade (ThreatMeterFrame.titleIcon, 0)
+			DetailsFrameWork:Fade (ThreatMeterFrame.titleText, 0)
+
 		
 		elseif (event == "REFRESH") then --> requested a refresh window
 			-->
 
 		elseif (event == "COMBAT_PLAYER_ENTER") then --> combat started
 			--print ("ENTER COMBAT - nova tabela")
+			if (IsInGroup() or IsInRaid()) then
+				DetailsFrameWork:Fade (ThreatMeterFrame.titleIcon, 1)
+				DetailsFrameWork:Fade (ThreatMeterFrame.titleText, 1)
+			end
 			ThreatMeter:Start()
 
 		elseif (event == "COMBAT_PLAYER_LEAVE") then --> combat ended
+			DetailsFrameWork:Fade (ThreatMeterFrame.titleIcon, 0)
+			DetailsFrameWork:Fade (ThreatMeterFrame.titleText, 0)
 			ThreatMeter:End()
 		
 		elseif (event == "DETAILS_INSTANCE_ENDRESIZE" or event == "DETAILS_INSTANCE_SIZECHANGED") then
@@ -95,8 +105,18 @@ local function CreatePluginFrames (data)
 		bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", 
 		tile = true, tileSize = 16,
 		insets = {left = 1, right = 1, top = 0, bottom = 1},})
-	ThreatMeterFrame:SetBackdropColor (.3, .3, .3, .3)	
-	
+	ThreatMeterFrame:SetBackdropColor (.3, .3, .3, .3)
+
+	local icon1 = DetailsFrameWork:NewImage (ThreatMeterFrame, nil, nil, "titleIcon", 64, 64, [[Interface\HELPFRAME\HelpIcon-ItemRestoration]])
+	icon1:SetPoint (10, -10)
+	local title = DetailsFrameWork:NewLabel (ThreatMeterFrame, nil, nil, "titleText", "Tiny Threat", "CoreAbilityFont", 26)
+	title:SetPoint ("left", icon1, "right", 2)
+	title.color = "white"
+	DetailsFrameWork:Fade (icon1, 1)
+	DetailsFrameWork:Fade (title, 1)
+	local title2 = DetailsFrameWork:NewLabel (ThreatMeterFrame, nil, nil, "titleText2", "A (very) small threat meter.", "GameFontHighlightSmall", 9)
+	title2:SetPoint ("bottomright", title, "bottomright", 0, -10)
+
 	function ThreatMeter:UpdateContainers()
 		for _, row in _ipairs (ThreatMeter.Rows) do 
 			row:SetContainer (instance.baseframe)

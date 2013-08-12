@@ -1707,6 +1707,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 	BaseFrame.resize_direita:SetPoint ("BOTTOMRIGHT", BaseFrame, "BOTTOMRIGHT", 0, 0)
 	BaseFrame.resize_direita:EnableMouse (true)
 	BaseFrame.resize_direita:SetFrameLevel (BaseFrame:GetFrameLevel() + 6)
+	BaseFrame.resize_direita:SetFrameStrata ("HIGH")
 
 	--> lock window button
 	BaseFrame.lock_button = _CreateFrame ("Button", "Details_Lock_Button"..ID, BaseFrame)
@@ -1744,6 +1745,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 	BaseFrame.resize_esquerda:SetPoint ("BOTTOMLEFT", BaseFrame, "BOTTOMLEFT", 0, 0)
 	BaseFrame.resize_esquerda:EnableMouse (true)
 	BaseFrame.resize_esquerda:SetFrameLevel (BaseFrame:GetFrameLevel() + 6)
+	BaseFrame.resize_esquerda:SetFrameStrata ("HIGH")
 	
 	gump:Fade (BaseFrame.resize_esquerda, "in", 3.0)
 	gump:Fade (BaseFrame.resize_direita, "in", 3.0)
@@ -2856,6 +2858,8 @@ function gump:CriaCabecalho (BaseFrame, instancia)
 			if (type (instancia) == "number") then
 				instancia = _detalhes:GetInstance (instancia)
 			end
+			
+			--print (instancia.baseframe, instancia.baseframe:GetObjectType())
 			
 			if (instancia.baseframe:GetWidth() < 215) then
 				_detalhes.ResetButtonMode = 2

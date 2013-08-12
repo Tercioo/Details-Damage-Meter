@@ -146,6 +146,11 @@ local function CreatePluginFrames (data)
 	
 		local w, h = instancia:GetSize()
 		VanguardFrame:SetHeight (h)
+		Vanguard:OnResizeDamageLabels()
+		Vanguard:OnResizeTankBoxes()
+		
+		Vanguard.DamageVsHeal.width = w - 6
+		Vanguard.TookVsAvoid.width = w - 6
 		
 		if (h >= 95) then
 			--> show two bars
@@ -155,8 +160,8 @@ local function CreatePluginFrames (data)
 			Vanguard.LastHitsBackground:Show()
 			Vanguard.LastHitsBackground:SetPoint ("topleft", VanguardFrame, 2, -35)
 			--> show tank boxes
-			for i = 1, 3 do 
-				Vanguard.TankFrames [i].Frame:SetPoint ("bottomleft", VanguardFrame, 2 + ((i-1)*98), 0)
+			for i = 1, Vanguard.TankFrames.Spots do 
+				Vanguard.TankFrames [i].Frame:SetPoint ("bottomleft", VanguardFrame, 2 + ((i-1)*95), 0)
 			end
 
 			return
@@ -170,8 +175,8 @@ local function CreatePluginFrames (data)
 			Vanguard.LastHitsBackground:Show()
 			Vanguard.LastHitsBackground:SetPoint (3, -3)
 			--> move up the 3 tank boxes
-			for i = 1, 3 do 
-				Vanguard.TankFrames [i].Frame:SetPoint ("bottomleft", VanguardFrame, 2 + ((i-1)*98), 0)
+			for i = 1, Vanguard.TankFrames.Spots do 
+				Vanguard.TankFrames [i].Frame:SetPoint ("bottomleft", VanguardFrame, 2 + ((i-1)*95), 0)
 			end
 			
 			return
@@ -184,8 +189,8 @@ local function CreatePluginFrames (data)
 			--> hide last hit box
 			Vanguard.LastHitsBackground:Hide()
 			--> move up the 3 tank boxes
-			for i = 1, 3 do 
-				Vanguard.TankFrames [i].Frame:SetPoint ("bottomleft", VanguardFrame, 2 + ((i-1)*98), 0)
+			for i = 1, Vanguard.TankFrames.Spots do 
+				Vanguard.TankFrames [i].Frame:SetPoint ("bottomleft", VanguardFrame, 2 + ((i-1)*95), 0)
 			end
 		end
 	end
@@ -219,13 +224,13 @@ local function CreatePluginFrames (data)
 					end
 					Vanguard.TankList [#Vanguard.TankList+1] = tankName
 					Vanguard.TankListHash ["raid"..i] = #Vanguard.TankList
-					if (#Vanguard.TankList == 3) then
+					if (#Vanguard.TankList == 5) then
 						break
 					end
 				end
 			end
 			
-			if (#Vanguard.TankList < 3 and playerName ~= "SELFISTANK") then
+			if (#Vanguard.TankList < 5 and playerName ~= "SELFISTANK") then
 				Vanguard.TankList [#Vanguard.TankList+1] = _UnitName ("player")
 				Vanguard.TankListHash ["player"] = #Vanguard.TankList
 			end
@@ -243,13 +248,13 @@ local function CreatePluginFrames (data)
 					end
 					Vanguard.TankList [#Vanguard.TankList+1] = tankName
 					Vanguard.TankListHash ["party"..i] = #Vanguard.TankList
-					if (#Vanguard.TankList == 3) then
+					if (#Vanguard.TankList == 5) then
 						break
 					end
 				end
 			end
 			
-			if (#Vanguard.TankList < 3 and playerName ~= "SELFISTANK") then
+			if (#Vanguard.TankList < 5 and playerName ~= "SELFISTANK") then
 				Vanguard.TankList [#Vanguard.TankList+1] = _UnitName ("player")
 				Vanguard.TankListHash ["player"] =#Vanguard.TankList
 			end
@@ -263,7 +268,7 @@ local function CreatePluginFrames (data)
 			Vanguard.TankFrames [index]:SetTank (tankname)
 		end
 		
-		for i = #Vanguard.TankList+1, 3 do
+		for i = #Vanguard.TankList+1, 5 do
 			Vanguard.TankFrames [i]:SetTank (nil, i)
 		end
 		
@@ -274,11 +279,13 @@ local function CreatePluginFrames (data)
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 	--> Vanguard frame attributes
+	--[[
 		VanguardFrame:SetBackdrop ({
 				bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", 
 				tile = true, tileSize = 16,
 				insets = {left = 1, right = 1, top = 0, bottom = 1},})
 		VanguardFrame:SetBackdropColor (.3, .3, .3, .3)
+--]]
 
 		VanguardFrame:SetWidth (300)
 		VanguardFrame:SetHeight (100)
@@ -297,6 +304,27 @@ local function CreatePluginFrames (data)
 		infoFrame:SetBackdropColor ("black")
 		infoFrame:SetGradient ("OnEnter", "black")
 		
+		local c = infoFrame:CreateRightClickLabel()
+		c:SetPoint ("bottomright", infoFrame, "bottomright", -3, 1)
+		
+		--> report button
+		local reportFunc = function (IsCurrent, IsReverse, AmtLines)
+			local lines = {	Loc ["STRING_REPORT"]..": " .. Loc ["STRING_REPORT_AVOIDANCE"] .. ": " .. MyName,
+						Loc ["STRING_HITS"] .. ": " .. infoFrame ["hitsReceivedAmount"].text,
+						Loc ["STRING_DODGE"] .. ": " .. infoFrame ["dodgeAmount"].text,
+						Loc ["STRING_PARRY"] .. ": " .. infoFrame ["parryAmount"].text,
+						Loc ["STRING_DAMAGETAKEN"] .. ": " .. infoFrame ["damageTakenAmount"].text,
+						Loc ["STRING_DTPS"] .. ": " .. infoFrame ["damageTakenSecAmount"].text
+						}
+			Vanguard:SendReportLines (lines)
+		end
+
+		--[1] fucntion wich will build report lines after click on 'Send Button' [2] enable current button [3] enable reverse button
+		local ReportButton = DetailsFrameWork:NewButton (infoFrame, nil, "DetailsVanguardAvoidanceReportButton", "ReportButton", 20, 20, function() Vanguard:SendReportWindow (reportFunc) end)
+		ReportButton.texture = "Interface\\COMMON\\VOICECHAT-ON"
+		ReportButton:SetPoint ("topright", infoFrame, "topright", -5, -1)
+		ReportButton.tooltip = Loc ["STRING_REPORT_AVOIDANCE_TOOLTIP"]
+		
 		infoFrame:SetHook ("OnMouseUp", function (_, button) 
 			if (string.lower (button):find ("right")) then
 				VanguardFrame.InfoShown = false
@@ -311,6 +339,9 @@ local function CreatePluginFrames (data)
 		local funcInfo = function() 
 			VanguardFrame.InfoShown = true
 			Vanguard:VanguardRefreshInfoFrame()
+			local w, h = instancia:GetSize()
+			infoFrame.width = w
+			infoFrame.height = h
 			infoFrame:Show()
 			infoFrame.refreshTick = Vanguard:ScheduleRepeatingTimer ("VanguardRefreshInfoFrame", 1)
 		end
@@ -368,30 +399,29 @@ local function CreatePluginFrames (data)
 
 			local hitsReceived = DetailsFrameWork:NewLabel (infoFrame, nil, "VanguardInfoHitsReceived", nil, Loc ["STRING_HITS"], "GameFontHighlightSmall", 9.5)
 			hitsReceived:SetPoint (150, -5)
-			local hitsReceivedAmount = DetailsFrameWork:NewLabel (infoFrame, nil, "VanguardInfoHitsReceivedAmount", nil, "0", "GameFontHighlightSmall", 9.5)
+			local hitsReceivedAmount = DetailsFrameWork:NewLabel (infoFrame, nil, "VanguardInfoHitsReceivedAmount", "hitsReceivedAmount", "0", "GameFontHighlightSmall", 9.5)
 			hitsReceivedAmount:SetPoint ("left", hitsReceived, "right", 2)
 			
 			local dodge = DetailsFrameWork:NewLabel (infoFrame, nil, "VanguardInfoDodge", nil, Loc ["STRING_DODGE"], "GameFontHighlightSmall", 9.5)
 			dodge:SetPoint (150, -20)
-			local dodgeAmount = DetailsFrameWork:NewLabel (infoFrame, nil, "VanguardInfoDodgeAmount", nil, "0", "GameFontHighlightSmall", 9.5)
+			local dodgeAmount = DetailsFrameWork:NewLabel (infoFrame, nil, "VanguardInfoDodgeAmount", "dodgeAmount", "0", "GameFontHighlightSmall", 9.5)
 			dodgeAmount:SetPoint ("left", dodge, "right", 2)
 			
 			local parry = DetailsFrameWork:NewLabel (infoFrame, nil, "VanguardInfoParry", nil, Loc ["STRING_PARRY"], "GameFontHighlightSmall", 9.5)
 			parry:SetPoint (150, -35)
-			local parryAmount = DetailsFrameWork:NewLabel (infoFrame, nil, "VanguardInfoParryAmount", nil, "0", "GameFontHighlightSmall", 9.5)
+			local parryAmount = DetailsFrameWork:NewLabel (infoFrame, nil, "VanguardInfoParryAmount", "parryAmount", "0", "GameFontHighlightSmall", 9.5)
 			parryAmount:SetPoint ("left", parry, "right", 2)
 			
 			local damageTaken = DetailsFrameWork:NewLabel (infoFrame, nil, "VanguardInfoDamageTaken", nil, Loc ["STRING_DAMAGETAKEN"], "GameFontHighlightSmall", 9.5)
 			damageTaken:SetPoint (150, -50)
-			local damageTakenAmount = DetailsFrameWork:NewLabel (infoFrame, nil, "VanguardInfoDamageTakenAmount", nil, "0", "GameFontHighlightSmall", 9.5)
+			local damageTakenAmount = DetailsFrameWork:NewLabel (infoFrame, nil, "VanguardInfoDamageTakenAmount", "damageTakenAmount", "0", "GameFontHighlightSmall", 9.5)
 			damageTakenAmount:SetPoint ("left", damageTaken, "right", 2)
 			
 			local damageTakenSec = DetailsFrameWork:NewLabel (infoFrame, nil, "VanguardInfoDamageSec", nil, Loc ["STRING_DTPS"], "GameFontHighlightSmall", 9.5)
 			damageTakenSec:SetPoint (150, -65)
-			local damageTakenSecAmount = DetailsFrameWork:NewLabel (infoFrame, nil, "VanguardInfoDamageTakenSecAmount", nil, "0", "GameFontHighlightSmall", 9.5)
+			local damageTakenSecAmount = DetailsFrameWork:NewLabel (infoFrame, nil, "VanguardInfoDamageTakenSecAmount", "damageTakenSecAmount", "0", "GameFontHighlightSmall", 9.5)
 			damageTakenSecAmount:SetPoint ("left", damageTakenSec, "right", 2)
 		----------
-		
 		--> need to be a member of _detalhes bacause we want to use a schedule timer
 		--> once a member of _detalhes we can call through plugin object like Vanguard:VanguardRefreshInfoFrame()
 		_detalhes.VanguardRefreshInfoFrame = function()
@@ -477,12 +507,14 @@ local function CreatePluginFrames (data)
 		
 		end
 		
-		local DamageVsHeal = DetailsFrameWork:NewSplitBar (VanguardFrame, VanguardFrame, "VanguardDamageVsHealBar", _, 294, 14)
+		local DamageVsHeal = DetailsFrameWork:NewSplitBar (VanguardFrame, VanguardFrame, "VanguardDamageVsHealBar", "DamageVsHealBar", 294, 14)
+		
 		DamageVsHeal:SetPoint (3, -3)
+		
 		DamageVsHeal.fontsize = 10
 		DamageVsHeal.lefticon = "Interface\\ICONS\\misc_arrowright"
 		DamageVsHeal.righticon = "Interface\\ICONS\\misc_arrowleft"
-		DamageVsHeal.tooltip = Loc ["STRING_MOREINFORMATION"]
+		DamageVsHeal.tooltip = Loc ["STRING_HEALVSDAMAGETOOLTIP"]
 		DamageVsHeal:SetHook ("OnMouseUp", funcInfo)
 		
 		DamageVsHeal.iconleft:SetVertexColor (.5, 1, .5, 1)
@@ -491,11 +523,11 @@ local function CreatePluginFrames (data)
 		Vanguard.DamageVsHeal = DamageVsHeal
 
 	--> Hits vs Avoidance bar
-		local TookVsAvoid = DetailsFrameWork:NewSplitBar (VanguardFrame, VanguardFrame, "VanguardTookVsAvoidBar", _, 294, 14)
+		local TookVsAvoid = DetailsFrameWork:NewSplitBar (VanguardFrame, VanguardFrame, "VanguardTookVsAvoidBar", "TookVsAvoidBar", 294, 14)
 		TookVsAvoid:SetPoint ("topleft", VanguardFrame, 3, -18)
 		TookVsAvoid.lefticon = "Interface\\TIMEMANAGER\\RWButton"
 		TookVsAvoid.righticon = "Interface\\TIMEMANAGER\\FFButton"
-		TookVsAvoid.tooltip = Loc ["STRING_MOREINFORMATION"]
+		TookVsAvoid.tooltip = Loc ["STRING_AVOIDVSHITSTOOLTIP"]
 		TookVsAvoid:SetHook ("OnMouseUp", funcInfo)
 		
 		TookVsAvoid.iconleft:SetWidth (18)
@@ -523,11 +555,12 @@ local function CreatePluginFrames (data)
 			DamageVsHeal:SetRightColor (.9, .1, .1, 1)
 		end
 		
----------> build 6 damage text entries ---------------------------------------------------------------------------------------------------------------------------------------------------------
+---------> build damage text entries ---------------------------------------------------------------------------------------------------------------------------------------------------------
 
 		--> entry functions
 			Vanguard.DamageLabels = {}
-
+			Vanguard.DamageLabels.Spots = 6
+			
 			function Vanguard:InsertDamage (damage, index, hp)
 				Vanguard.DamageLabels [index]:SetText (_detalhes:ToK (damage))
 				local percent = damage / hp
@@ -535,40 +568,56 @@ local function CreatePluginFrames (data)
 				Vanguard.DamageLabels [index]:SetTextColor (1, abs, abs, 1)
 			end
 			
-			function Vanguard:NewDamage (damage)
-				local hp = _UnitHealthMax (_track_player_name) / 3
-				for i = 6, 2 do 
-					Vanguard.DamageLabels [i]:SetText (Vanguard.DamageLabels [i-1]:GetText())
-					Vanguard.DamageLabels [i]:SetTextColor (Vanguard.DamageLabels [i-1]:GetTextColor())
-				end
-				Vanguard.DamageLabels [1]:SetText (_detalhes:ToK (damage))
-				Vanguard.DamageLabels [1]:SetTextColor (_math_min (damage/hp, 1), .1, .1, 1)
-			end
-			
 			function Vanguard:ResetDamage()
-				for i = 1, 6 do
+				for i = 1, Vanguard.DamageLabels.Spots do
 					Vanguard.DamageLabels [i]:SetText ("0.0k")
 					Vanguard.DamageLabels [i]:SetTextColor (1, 1, 1, 1)
+					Vanguard.DamageLabels [i]:Show()
+				end
+				for i = Vanguard.DamageLabels.Spots + 1, #Vanguard.DamageLabels do
+					Vanguard.DamageLabels [i]:Hide()
 				end
 			end
 			
 		--> bg frame
 			local LastHitsBackground = DetailsFrameWork:NewPanel (VanguardFrame, _, "DetailsVanguardRowBackground", "DamageRowBackground", 296, 20)
 			LastHitsBackground:SetPoint ("topleft", VanguardFrame, 2, -35)
+			LastHitsBackground.tooltip = Loc ["STRING_DAMAGESCROLL"]
 			Vanguard.LastHitsBackground = LastHitsBackground
 			
 		--> labels
-			for i = 1, 6 do
+		
+			for i = 1, Vanguard.DamageLabels.Spots do
 				local ThisLabel = DetailsFrameWork:NewLabel (LastHitsBackground, Vanguard, nil, "DamageLabel"..i, "0.0k", "GameFontHighlightSmall", 11, {1, 1, 1, 1})
 				Vanguard.DamageLabels [i] = ThisLabel
 				ThisLabel:SetPoint ("left", LastHitsBackground.frame, 9 + ((i-1)*50), 0)
 			end
+			
+			function Vanguard:OnResizeDamageLabels()
+				local w, h = instancia:GetSize()
+				LastHitsBackground.width = w - 6
+				
+				local amt = math.floor (w / 50)
+				
+				if (amt > Vanguard.DamageLabels.Spots) then
+					for i = Vanguard.DamageLabels.Spots + 1, amt do
+						local ThisLabel = DetailsFrameWork:NewLabel (LastHitsBackground, Vanguard, nil, "DamageLabel"..i, "0.0k", "GameFontHighlightSmall", 11, {1, 1, 1, 1})
+						Vanguard.DamageLabels [i] = ThisLabel
+						ThisLabel:SetPoint ("left", LastHitsBackground.frame, 9 + ((i-1)*50), 0)
+					end
+				end
+				
+				Vanguard.DamageLabels.Spots = amt
+				Vanguard:ResetDamage()
+			end			
 	
 	
 ---------> build 3 tanks debuff frames -------------------------------------------------------------------------------------------------------------------------------------------------------
 
 		local tankframemeta = {}
 		tankframemeta.__index = tankframemeta
+		
+		
 		
 		--> update tank information
 		function tankframemeta:SetTank (name, index)
@@ -666,8 +715,9 @@ local function CreatePluginFrames (data)
 			Vanguard.TankFrames [index].Life (percent)
 		end
 	
-		--> build the 3 boxes
+		--> build the boxes
 		Vanguard.TankFrames = {}
+		Vanguard.TankFrames.Spots = 5
 		
 		local iconMouseOver = function (iconFrame)
 			iconFrame.icon:SetBlendMode ("ADD")
@@ -684,7 +734,7 @@ local function CreatePluginFrames (data)
 			end
 		end
 		
-		for i = 1, 3 do
+		for i = 1, Vanguard.TankFrames.Spots do
 		
 			local ThisBoxObject = {}
 			setmetatable (ThisBoxObject, tankframemeta)
@@ -694,12 +744,12 @@ local function CreatePluginFrames (data)
 			ThisBoxObject.FreeSpots = {true, true, true}
 			ThisBoxObject.InUse = 0
 
-			local Frame = DetailsFrameWork:NewPanel (VanguardFrame, nil, "DetailsVanguardFrameBox"..i, _, 98, 40)
-			Frame:SetPoint ("bottomleft", VanguardFrame, 2 + ((i-1)*98), 0)
+			local Frame = DetailsFrameWork:NewPanel (VanguardFrame, nil, "DetailsVanguardFrameBox"..i, _, 95, 40)
+			Frame:SetPoint ("bottomleft", VanguardFrame, 2 + ((i-1)*95), 0)
 			Frame.color = {.1, .1, .1, 1}
 			ThisBoxObject.Frame = Frame
 			
-			local life = DetailsFrameWork:NewBar (Frame, Frame, "DetailsVanguardFrameBox"..i.."Life", nil, 94, 36, 100)
+			local life = DetailsFrameWork:NewBar (Frame, Frame, "DetailsVanguardFrameBox"..i.."Life", nil, 91, 36, 100)
 			life:SetPoint (Frame, 2, -2)
 			life:SetFrameLevel (-1, Frame)
 			ThisBoxObject.Life = life
@@ -813,6 +863,22 @@ local function CreatePluginFrames (data)
 			blackbg3:Hide()
 		end
 	
+		function Vanguard:OnResizeTankBoxes()
+			local w, h = instancia:GetSize()
+			local amt = math.floor (w / 95)
+
+			for i = 1, amt do 
+				Vanguard.TankFrames [i].Frame:Show()
+			end
+			
+			for i = amt+1, #Vanguard.TankFrames do
+				Vanguard.TankFrames [i].Frame:Hide()
+			end
+			
+			Vanguard.TankFrames.Spots = amt
+			
+		end
+	
 -------> Core function --------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	
 	--> cancel function
@@ -872,6 +938,11 @@ local function CreatePluginFrames (data)
 				for TankIndex, TankName in _ipairs (Vanguard.TankList) do 
 				
 					local ThisTankFrame = Vanguard.TankFrames [TankIndex]
+					
+					if (not ThisTankFrame) then
+						break
+					end
+					
 					local updated = {false, false, false}
 					
 					for i = 1, 41 do 
@@ -1044,7 +1115,7 @@ local function CreatePluginFrames (data)
 				for _, tabela in _ipairs (_track_player_object.last_events_table) do 
 					if (tabela[1]) then
 						Vanguard:InsertDamage (tabela[3], amt, hp)
-						if (amt == 6) then
+						if (amt == Vanguard.DamageLabels.Spots) then
 							break
 						end
 						amt = amt+1
