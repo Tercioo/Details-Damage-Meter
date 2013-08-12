@@ -1,0 +1,194 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ .. \FrameXML\UI.xsd">
+	<Script file="cooltip.lua"/>
+
+	<Frame  name="CooltipMainFrameTemplate" virtual="true" frameStrata="TOOLTIP">
+		<Size x="1" y="1"/>
+		<Anchors>
+			<Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER" x="0" y="0"/>
+		</Anchors>
+		
+		<Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background-Dark" edgeFile="Interface\Tooltips\UI-Tooltip-Border" tile="true">
+			<EdgeSize>
+				<AbsValue val="16"/>
+			</EdgeSize>
+			<TileSize>
+				<AbsValue val="16"/>
+			</TileSize>
+			<BackgroundInsets>
+				<AbsInset left="5" right="5" top="5" bottom="5"/>
+			</BackgroundInsets>
+		  </Backdrop>
+		  
+		  <Scripts>
+			<OnLoad>
+				self:SetBackdropColor (0.09019, 0.09019, 0.18823, 1)
+				self:SetBackdropBorderColor (1, 1, 1, 1)
+			</OnLoad>
+		  </Scripts>
+		
+		<Layers>
+		
+			<Layer level="BORDER">
+				<!-- frame background -->
+				<Texture name="$parent_FrameBackground" parentKey="framebackground" file = "Interface\AddOns\Details\images\cooltip_selected">
+					<Color a = "1" r = "0" g = "1" b = "0" />
+					<Anchors>
+						<Anchor point="TOP" relativeTo="$parent" relativePoint="TOP" x="0" y="-5"/>
+						<Anchor point="BOTTOM" relativeTo="$parent" relativePoint="BOTTOM" x="0" y="5"/>
+						<Anchor point="LEFT" relativeTo="$parent" relativePoint="LEFT" x="3" y="0"/>
+						<Anchor point="RIGHT" relativeTo="$parent" relativePoint="RIGHT" x="-3" y="0"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		
+			<Layer level="ARTWORK">
+				<!-- selected bar -->
+				<Texture name="$parent_Selected" parentKey="selected" file = "Interface\AddOns\Details\images\cooltip_selected">
+					<Size y="20"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeTo="$parent" relativePoint="LEFT" x="3" y="0"/>
+						<Anchor point="RIGHT" relativeTo="$parent" relativePoint="RIGHT" x="-3" y="0"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			
+			<Layer level="OVERLAY">
+				<!-- title icon -->
+				<Texture name="$parent_TitleIcon" hidden="true" parentKey="titleIcon" file = "Interface\AddOns\Details\images\cooltip_selected">
+					<Anchors>
+						<Anchor point="TOP" relativeTo="$parent" relativePoint="TOP" x="0" y="0"/>
+						<Anchor point="LEFT" relativeTo="$parent" relativePoint="LEFT" x="0" y="0"/>
+					</Anchors>
+				</Texture>
+				<!-- title text -->
+				<FontString name="$parent_TitleText" parentKey="titleText" inherits="GameFontHighlightSmall" justifyH="LEFT" nonspacewrap="true">
+					<FontHeight val="10.5"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeTo="$parent_Selected" relativePoint="RIGHT" x="0" y="0"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		
+		</Layers>
+	</Frame>
+	
+	<Button name="CooltipButtonTemplate" virtual="true">
+		<Size x="1" y="20"/>
+
+		<Frames>
+		
+			<StatusBar name="$Parent_StatusBar" parentKey="statusbar">
+			
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parent" relativePoint="LEFT" x="10" y="0"/>
+					<Anchor point="RIGHT" relativeTo="$parent" relativePoint="RIGHT" x="-10" y="0"/>
+					<Anchor point="TOP" relativeTo="$parent" relativePoint="TOP" x="0" y="0"/>
+					<Anchor point="BOTTOM" relativeTo="$parent" relativePoint="BOTTOM" x="0" y="0"/>
+				</Anchors>
+				
+				<Size y="20" />
+			
+				<Layers>
+					<Layer level="BACKGROUND">
+						<!-- statusbar texture -->
+						<Texture name="$parent_Texture" hidden="false" parentKey="texture" file = "Interface\PaperDollInfoFrame\UI-Character-Skills-Bar" horizTile="false" vertTile="false">
+							<Size x="300" y="14" />
+							<Color a = "1" r = "1" g = "1" b = "1" />
+						</Texture>
+						<!-- spark -->
+						<Texture name="$parent_Spark" hidden="true" parentKey="spark" file = "Interface\AddOns\Details\images\bar_detalhes2_end">
+							<Size>
+								<AbsDimension x="8" y="18"/>
+							</Size>
+							<Anchors>
+								<Anchor point="LEFT" relativeTo="$parent" relativePoint="RIGHT" x="-16" y="-1"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+					
+					<Layer level="ARTWORK">
+						<!-- background texture -->
+						<Texture name="$parent_Background" hidden="true" parentKey="background" file = "Interface\FriendsFrame\UI-FriendsFrame-HighlightBar" horizTile="false" vertTile="false">
+							<Anchors>
+								<Anchor point="LEFT" relativeTo="$parent" relativePoint="LEFT" x="-6" y="0"/>
+								<Anchor point="RIGHT" relativeTo="$parent" relativePoint="RIGHT" x="6" y="0"/>
+								<Anchor point="TOP" relativeTo="$parent" relativePoint="TOP" x="0" y="0"/>
+								<Anchor point="BOTTOM" relativeTo="$parent" relativePoint="BOTTOM" x="0" y="0"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+
+					<Layer level="OVERLAY">
+						<!-- left icon texture -->
+						<Texture name="$parent_LeftIcon" parentKey="leftIcon">
+							<Size x="16" y="16" />
+							<Anchors>
+								<Anchor point="LEFT" relativeTo="$parent" relativePoint="LEFT" x="0" y="0"/>
+							</Anchors>
+						</Texture>
+						<!-- right icon texture -->
+						<Texture name="$parent_RightIcon" parentKey="rightIcon">
+							<Size x="16" y="16" />
+							<Anchors>
+								<Anchor point="RIGHT" relativeTo="$parent" relativePoint="RIGHT" x="0" y="0"/>
+							</Anchors>
+						</Texture>
+						
+						<!-- left text -->
+						<FontString name="$parent_LeftText" parentKey="leftText" inherits="GameFontHighlight" justifyH="LEFT" nonspacewrap="false">
+							<FontHeight val="10.5"/>
+							<Anchors>
+								<Anchor point="CENTER" relativeTo="$parent_LeftIcon" relativePoint="CENTER" x="0" y="0"/>
+								<Anchor point="LEFT" relativeTo="$parent_LeftIcon" relativePoint="RIGHT" x="3" y="0"/>
+							</Anchors>
+						</FontString>
+
+						<!-- right text -->
+						<FontString name="$parent_TextRight" parentKey="rightText" inherits="GameFontHighlight" justifyH="RIGHT" nonspacewrap="false">
+							<FontHeight val="10.5"/>
+							<Anchors>
+								<Anchor point="CENTER" relativeTo="$parent_RightIcon" relativePoint="CENTER" x="0" y="0"/>
+								<Anchor point="RIGHT" relativeTo="$parent_RightIcon" relativePoint="LEFT" x="-3" y="0"/>
+							</Anchors>
+						</FontString>
+						
+					</Layer>
+				
+				</Layers>
+				
+				<Scripts>
+					<OnLoad>
+						self:SetStatusBarTexture (self.texture);
+						<!-- note to my self, never forget statusbar MinMaxValues  -->
+						self:SetMinMaxValues (0, 100);
+						self:GetParent().background = self.background
+					</OnLoad>
+				</Scripts>
+				
+			</StatusBar>
+		
+		</Frames>
+		
+		<Scripts>
+			<OnLoad>
+				self:RegisterForClicks ("LeftButtonDown")
+				self.leftIcon = self.statusbar.leftIcon
+				self.rightIcon = self.statusbar.rightIcon
+				self.texture = self.statusbar.texture
+				self.spark = self.statusbar.spark
+				self.leftText = self.statusbar.leftText
+				self.rightText = self.statusbar.rightText
+			</OnLoad>
+			
+			<OnMouseDown>
+				GameCooltipButtonMouseDown (self);
+			</OnMouseDown>
+			
+			<OnMouseUp>
+				GameCooltipButtonMouseUp (self);
+			</OnMouseUp>
+			
+		</Scripts>
+	</Button>
+	
+</Ui>

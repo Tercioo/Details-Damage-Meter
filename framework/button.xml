@@ -1,0 +1,40 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ .. \FrameXML\UI.xsd">
+	<Script file="button.lua"/>
+
+	<Button name="DetailsButtonTemplate" virtual="true">
+		<Size x="100" y="20"/>
+
+		<Layers>
+			
+			<Layer level="ARTWORK">
+			
+				<!-- text -->
+				<FontString name="$parent_Text" parentKey="text" inherits="GameFontNormal" justifyH="CENTER" nonspacewrap="false">
+					<FontHeight val="10.5"/>
+					<Anchors>
+						<Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER" x="0" y="0"/>
+					</Anchors>
+				</FontString>
+
+			</Layer>
+			
+			<Layer level="OVERLAY">
+				<Texture name="$parent_TextureDisabled" setAllPoints="true" hidden="true" parentKey="texture_disabled" file = "Interface\AddOns\Details\images\button_disable_overlay"/>
+			</Layer>
+			
+		</Layers>
+		
+		<Scripts>
+		
+			<OnDisable>
+				self.texture_disabled:Show()
+			</OnDisable>
+			
+			<OnEnable>
+				self.texture_disabled:Hide()
+			</OnEnable>
+		
+		</Scripts>
+		
+	</Button>
+</Ui>

@@ -1,0 +1,15 @@
+## Interface: 50300
+## Title: Details TimeAttack (plugin)
+## Notes: Plugin for Details
+## SavedVariablesPerCharacter: _detalhes_databaseTimeAttack
+## RequiredDeps: Details
+## OptionalDeps: Ace3
+
+#@no-lib-strip@
+embeds.xml
+#@end-no-lib-strip@
+
+enUS.lua
+ptBR.lua
+
+Details_TimeAttack.lua
