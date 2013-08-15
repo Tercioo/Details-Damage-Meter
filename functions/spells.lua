@@ -369,8 +369,9 @@ do
 	
 	local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
 	_detalhes.SpellOverwrite = {
-		[124464] = {name = GetSpellInfo (124464) .. " " .. Loc ["STRING_MASTERY"]}, --> shadow word: pain mastery proc
-		[124465] = {name = GetSpellInfo (124465) .. " " .. Loc ["STRING_MASTERY"]} --> vampiric touch mastery proc
+		[124464] = {name = GetSpellInfo (124464) .. " (" .. Loc ["STRING_MASTERY"] .. ")"}, --> shadow word: pain mastery proc
+		[124465] = {name = GetSpellInfo (124465) .. " (" .. Loc ["STRING_MASTERY"] .. ")"} --> vampiric touch mastery proc
+		
 	}
 
 end

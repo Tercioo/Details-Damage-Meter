@@ -86,6 +86,11 @@ do
 		end
 	end
 	
+	--> return the boss portrit
+	function _detalhes:GetBossPortrait (mapid, bossindex)
+		return _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].encounters [bossindex].portrait
+	end
+	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> core
 

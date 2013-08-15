@@ -18,6 +18,9 @@ if not Loc then return end
 --> Slash
 	Loc ["STRING_COMMAND_LIST"] = "command list"
 	
+	Loc ["STRING_SLASH_SHOW"] = "show"
+	Loc ["STRING_SLASH_SHOW_DESC"] = "open a details window if none."
+	
 	Loc ["STRING_SLASH_DISABLE"] = "disable"
 	Loc ["STRING_SLASH_DISABLE_DESC"] = "turn off all captures of data."
 	Loc ["STRING_SLASH_CAPTUREOFF"] = "all captures has been turned off."
@@ -31,8 +34,6 @@ if not Loc then return end
 	
 	Loc ["STRING_SLASH_NEW"] = "new"
 	Loc ["STRING_SLASH_NEW_DESC"] = "open or reopen a instance."
-	
-
 
 --> StatusBar Plugins
 	Loc ["STRING_STATUSBAR_NOOPTIONS"] = "This widget doesn't have options."
@@ -40,6 +41,12 @@ if not Loc then return end
 --> Fights and Segments
 
 	Loc ["STRING_SEGMENT"] = "Segment"
+	Loc ["STRING_SEGMENT_LOWER"] = "segment"
+	Loc ["STRING_SEGMENT_EMPTY"] = "this segment is empty"
+	Loc ["STRING_SEGMENT_START"] = "Start"
+	Loc ["STRING_SEGMENT_END"] = "End"
+	Loc ["STRING_SEGMENT_ENEMY"] = "Enemy"
+	Loc ["STRING_SEGMENT_TIME"] = "Time"
 	Loc ["STRING_TOTAL"] = "Total"
 	Loc ["STRING_OVERALL"] = "Overall"
 	Loc ["STRING_CURRENT"] = "Current"

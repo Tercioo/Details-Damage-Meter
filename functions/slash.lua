@@ -19,6 +19,12 @@ function SlashCmdList.DETAILS (msg, editbox)
 	if (command == Loc ["STRING_SLASH_NEW"]) then
 	
 		_detalhes:CriarInstancia()
+		
+	elseif (command ==Loc ["STRING_SLASH_SHOW_DESC"]) then
+	
+		if (_detalhes.opened_windows == 0) then
+			_detalhes:CriarInstancia()
+		end
 	
 	elseif (command == Loc ["STRING_SLASH_DISABLE"]) then
 	
@@ -197,6 +203,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 		print (" ")
 		print (Loc ["STRING_DETAILS1"] ..  Loc ["STRING_COMMAND_LIST"])
 		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_NEW"] .. "|r: " .. Loc ["STRING_SLASH_NEW_DESC"])
+		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_SHOW"] .. "|r: " .. Loc ["STRING_SLASH_SHOW_DESC"])
 		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_ENABLE"] .. "|r: " .. Loc ["STRING_SLASH_ENABLE_DESC"])
 		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_DISABLE"] .. "|r: " .. Loc ["STRING_SLASH_DISABLE_DESC"])
 		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_OPTIONS"] .. "|r|cfffcffb0 <instance number>|r: " .. Loc ["STRING_SLASH_OPTIONS_DESC"])

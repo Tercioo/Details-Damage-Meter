@@ -17,6 +17,9 @@ if not Loc then return end
 	
 --> Slash
 	Loc ["STRING_COMMAND_LIST"] = "lista de comandos"
+	
+	Loc ["STRING_SLASH_SHOW"] = "mostrar"
+	Loc ["STRING_SLASH_SHOW_DESC"] = "abre uma janela caso nao tenha nenhuma aberta."
 
 	Loc ["STRING_SLASH_DISABLE"] = "desativar"
 	Loc ["STRING_SLASH_DISABLE_DESC"] = "desliga todas as capturas de dados."
@@ -38,6 +41,12 @@ if not Loc then return end
 --> Fights and Segments
 
 	Loc ["STRING_SEGMENT"] = "Segmento"
+	Loc ["STRING_SEGMENT_LOWER"] = "segmento"
+	Loc ["STRING_SEGMENT_EMPTY"] = "este segmento esta vazio"
+	Loc ["STRING_SEGMENT_START"] = "Inicio"
+	Loc ["STRING_SEGMENT_END"] = "Fim"
+	Loc ["STRING_SEGMENT_ENEMY"] = "Contra"
+	Loc ["STRING_SEGMENT_TIME"] = "Tempo"
 	Loc ["STRING_TOTAL"] = "Total"
 	Loc ["STRING_OVERALL"] = "Dados Gerais"
 	Loc ["STRING_CURRENT"] = "Atual"

@@ -188,9 +188,25 @@
 			_overall_gtotal [1] = _overall_gtotal [1]+amount
 			
 		elseif (jogador_alvo.grupo) then
+		
 			--> record death log
-			_table_insert (jogador_alvo.last_events_table, 1, {true, spellid, amount, time, _UnitHealth (alvo_name), who_name }) --: [1] true = damage, false = heal [2] spellid [3] amount
-			_table_remove (jogador_alvo.last_events_table, 20) --> max 20 spots
+			local t = jogador_alvo.last_events_table
+			local i = t.n
+			t.n = i + 1
+			
+			t = t [i]
+			
+			t [1] = true --> true if this is a damage || false for healing
+			t [2] = spellid --> spellid || false if this is a battle ress line
+			t [3] = amount --> amount of damage or healing
+			t [4] = time --> parser time
+			t [5] = _UnitHealth (alvo_name) --> current unit heal
+			t [6] = who_name --> source name
+			
+			i = i + 1
+			if (i == 9) then
+				jogador_alvo.last_events_table.n = 1
+			end
 			
 			--> record avoidance only for player actors
 			if (spellid < 3) then --> autoshot melee
@@ -253,6 +269,11 @@
 	--> firendly fire
 
 		if (_bit_band (who_flags, REACTION_FRIENDLY) ~= 0 and _bit_band (alvo_flags, REACTION_FRIENDLY) ~= 0) then
+		
+			--> investigation about mind control and reaction switch done 
+			--> details will do count mind control and reaction switch as normal damage.
+			--> reaction switch normally came as 0x548 flag on players and 0x1148 for pets.
+		
 			este_jogador.friendlyfire_total = este_jogador.friendlyfire_total + amount
 			shadow.friendlyfire_total = shadow.friendlyfire_total + amount
 			
@@ -270,11 +291,12 @@
 			if (not spell) then
 				spell = amigo.spell_tables:PegaHabilidade (spellid, true, token)
 			end
-			
+
 			return spell:AddFF (amount) --adiciona a classe da habilidade, a classe da habilidade se encarrega de adicionar aos alvos dela
 		else
 			_current_total [1] = _current_total [1]+amount
 			_overall_total [1] = _overall_total [1]+amount
+			
 		end
 		
 	------------------------------------------------------------------------------------------------
@@ -478,8 +500,24 @@
 		end
 		
 		if (jogador_alvo.grupo) then
-			_table_insert (jogador_alvo.last_events_table, 1, {false, spellid, amount, time, _UnitHealth (alvo_name), who_name}) --: [1] true = damage, false = heal [2] spellid [3] amount
-			_table_remove (jogador_alvo.last_events_table, 20) --> limita a 20 spots
+		
+			local t = jogador_alvo.last_events_table
+			local i = t.n
+			t.n = i + 1
+
+			t = t [i]
+			
+			t [1] = false --> true if this is a damage || false for healing
+			t [2] = spellid --> spellid || false if this is a battle ress line
+			t [3] = amount --> amount of damage or healing
+			t [4] = time --> parser time
+			t [5] = _UnitHealth (alvo_name) --> current unit heal
+			t [6] = who_name --> source name
+			
+			i = i + 1
+			if (i == 9) then
+				jogador_alvo.last_events_table.n = 1
+			end
 		end
 
 	------------------------------------------------------------------------------------------------
@@ -1396,7 +1434,7 @@
 		return spell:Add (alvo_serial, alvo_name, alvo_flags, who_name, token, extraSpellID, extraSpellName)
 	end
 
-	--serach key: ~dead ~death
+	--serach key: ~dead ~death ~morte
 	function parser:dead (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags)
 
 	--> not yet well cleaned, need more improvements
@@ -1434,7 +1472,7 @@
 				_current_gtotal [4].dead = _current_gtotal [4].dead + 1
 				_overall_gtotal [4].dead = _overall_gtotal [4].dead + 1
 				
-				--> main actor
+				--> main actor no container de misc que irá armazenar a morte
 				local este_jogador, meu_dono = misc_cache [alvo_name]
 				if (not este_jogador) then --> pode ser um desconhecido ou um pet
 					este_jogador, meu_dono, who_name = _current_misc_container:PegarCombatente (alvo_serial, alvo_name, alvo_flags, true)
@@ -1443,15 +1481,13 @@
 					end
 				end
 
-				--> monta a estrutura da morte
-				local dano = _current_combat[1]:PegarCombatente (alvo_serial, alvo_name, alvo_flags, true) --> container do dano
-				local cura = _current_combat[2]:PegarCombatente (alvo_serial, alvo_name, alvo_flags, true) --> container da cura
-				local esta_morte = {}
-
+				--[[
 				if (dano.last_events_table) then
 				
 					local novaTabela = {}
 					local counter = 1
+					
+					--> junta os danos iguais
 					for i = 1, #dano.last_events_table, 1 do 
 					
 						local este_dano = dano.last_events_table[i]
@@ -1480,27 +1516,38 @@
 						counter = counter + 1
 						
 					end
+				end
+				--]]
 				
-					local amt = 0
-					for index, tabela in _ipairs (dano.last_events_table) do 
+				--> monta a estrutura da morte pegando a tabela de dano e a tabela de cura
+				local dano = _current_combat[1]:PegarCombatente (alvo_serial, alvo_name, alvo_flags, true) --> container do dano
+				local cura = _current_combat[2]:PegarCombatente (alvo_serial, alvo_name, alvo_flags, true) --> container da cura
+				--> objeto da morte
+				local esta_morte = {}
+				
+				--> adiciona a tabela da morte apenas os DANOS recentes
+				for index, tabela in _ipairs (dano.last_events_table) do 
+					--print ("PARSER 3 dano", unpack (tabela))
+					if (tabela [4]) then
 						if (tabela [4] + 12 > time) then --> mostra apenas eventos recentes
 							esta_morte [#esta_morte+1] = tabela
-							amt = amt + 1
 						end
 					end
 				end
 				
+				--> adiciona a tabela da morte apenas as CURAS recentes
 				if (cura.last_events_table) then
-					local amt = 0
 					for index, tabela in _ipairs (cura.last_events_table) do 
-						if (tabela [4] + 12 > time) then --> mostra apenas eventos recentes
-							esta_morte [#esta_morte+1] = tabela
-							amt = amt + 1
+						--print ("PARSER 3 cura", unpack (tabela))
+						if (tabela [4]) then
+							if (tabela [4] + 12 > time) then
+								esta_morte [#esta_morte+1] = tabela
+							end
 						end
 					end
 				end
 
-				_table_sort (esta_morte, function (a, b) return a[4] > b[4] end)
+				_table_sort (esta_morte, _detalhes.Sort4)
 				
 				if (_detalhes.deadlog_limit and #esta_morte > _detalhes.deadlog_limit) then 
 					for i = #esta_morte, _detalhes.deadlog_limit+1, -1 do
@@ -1519,8 +1566,8 @@
 				_table_insert (_overall_combat.last_events_tables, #_current_combat.last_events_tables+1, t)
 
 				--> reseta a pool
-				dano.last_events_table = {}
-				cura.last_events_table = {}
+				dano.last_events_table =  _detalhes:CreateActorLastEventTable()
+				cura.last_events_table =  _detalhes:CreateActorLastEventTable()
 				
 			end
 		end

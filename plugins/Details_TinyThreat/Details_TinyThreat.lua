@@ -38,16 +38,25 @@ local function CreatePluginFrames (data)
 	ThreatMeter.Rows = {}
 	--> current shown rows
 	ThreatMeter.ShownRows = {}
+	-->
+	ThreatMeter.Actived = false
 	
 	--> window reference
 	local instance
 	local player
+	
+	function _detalhes:FadeOnShow()
+		DetailsFrameWork:Fade (ThreatMeterFrame.titleIcon, "ALPHAANIM", 0.05)
+		DetailsFrameWork:Fade (ThreatMeterFrame.titleText, "ALPHAANIM", 0.05)
+		DetailsFrameWork:Fade (ThreatMeterFrame.titleText2, "IN", 0.5)
+	end
 	
 	--> OnEvent Table
 	function ThreatMeter:OnDetailsEvent (event)
 	
 		if (event == "HIDE") then --> plugin hidded, disabled
 			ThreatMeterFrame:SetScript ("OnUpdate", nil) 
+			ThreatMeter.Actived = false
 			ThreatMeter:Cancel()
 		
 		elseif (event == "SHOW") then
@@ -60,16 +69,20 @@ local function CreatePluginFrames (data)
 			
 			ThreatMeter:SizeChanged()
 			
+			player = UnitName ("player")
+			ThreatMeterFrame:RegisterEvent ("PLAYER_TARGET_CHANGED")
+			ThreatMeter.Actived = false
+			_detalhes:ScheduleTimer ("FadeOnShow", 3)
+
 			if (ThreatMeter:IsInCombat()) then
+				ThreatMeter.Actived = true
 				ThreatMeter:Start()
+			else
+				DetailsFrameWork:Fade (ThreatMeterFrame.titleIcon, 0)
+				DetailsFrameWork:Fade (ThreatMeterFrame.titleText, 0)
+				DetailsFrameWork:Fade (ThreatMeterFrame.titleText2, 0)
 			end
 			
-			player = UnitName ("player")
-			
-			DetailsFrameWork:Fade (ThreatMeterFrame.titleIcon, 0)
-			DetailsFrameWork:Fade (ThreatMeterFrame.titleText, 0)
-
-		
 		elseif (event == "REFRESH") then --> requested a refresh window
 			-->
 
@@ -78,13 +91,17 @@ local function CreatePluginFrames (data)
 			if (IsInGroup() or IsInRaid()) then
 				DetailsFrameWork:Fade (ThreatMeterFrame.titleIcon, 1)
 				DetailsFrameWork:Fade (ThreatMeterFrame.titleText, 1)
+				DetailsFrameWork:Fade (ThreatMeterFrame.titleText2, 1)
 			end
+			ThreatMeter.Actived = true
 			ThreatMeter:Start()
 
 		elseif (event == "COMBAT_PLAYER_LEAVE") then --> combat ended
-			DetailsFrameWork:Fade (ThreatMeterFrame.titleIcon, 0)
-			DetailsFrameWork:Fade (ThreatMeterFrame.titleText, 0)
+			DetailsFrameWork:Fade (ThreatMeterFrame.titleIcon, "alpha", 0.05)
+			DetailsFrameWork:Fade (ThreatMeterFrame.titleText, "alpha", 0.05)
+			DetailsFrameWork:Fade (ThreatMeterFrame.titleText2, 1)
 			ThreatMeter:End()
+			ThreatMeter.Actived = false
 		
 		elseif (event == "DETAILS_INSTANCE_ENDRESIZE" or event == "DETAILS_INSTANCE_SIZECHANGED") then
 			ThreatMeter:SizeChanged()
@@ -101,12 +118,15 @@ local function CreatePluginFrames (data)
 	
 	ThreatMeterFrame:SetWidth (300)
 	ThreatMeterFrame:SetHeight (100)
+	
+	--[[
 	ThreatMeterFrame:SetBackdrop ({
 		bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", 
 		tile = true, tileSize = 16,
 		insets = {left = 1, right = 1, top = 0, bottom = 1},})
 	ThreatMeterFrame:SetBackdropColor (.3, .3, .3, .3)
-
+	--]]
+	
 	local icon1 = DetailsFrameWork:NewImage (ThreatMeterFrame, nil, nil, "titleIcon", 64, 64, [[Interface\HELPFRAME\HelpIcon-ItemRestoration]])
 	icon1:SetPoint (10, -10)
 	local title = DetailsFrameWork:NewLabel (ThreatMeterFrame, nil, nil, "titleText", "Tiny Threat", "CoreAbilityFont", 26)
@@ -139,14 +159,6 @@ local function CreatePluginFrames (data)
 	local timer = 0
 	local interval = 1.0
 	
-	function ThreatMeter:TargetChanged()
-		local NewTarget = _UnitName ("target")
-		if (NewTarget and not _UnitIsFriend ("player", "target")) then
-			target = NewTarget
-		end
-		ThreatMeter:HideBars()
-	end
-
 	local RoleIconCoord = {
 		["TANK"] = {0, 0.28125, 0.328125, 0.625},
 		["HEALER"] = {0.3125, 0.59375, 0, 0.296875},
@@ -201,7 +213,14 @@ local function CreatePluginFrames (data)
 			return false
 		end
 	end
-
+	--[[
+						local percent = threat_actor [2]
+						if (percentagem >= 50) then
+							thisRow:SetColor ( percent/100, 1, 0, 1)
+						else
+							thisRow:SetColor ( 1, percent/100, 0, 1)
+						end	
+--]]
 	local Threater = function()
 		
 		local threat_table = {}
@@ -238,11 +257,19 @@ local function CreatePluginFrames (data)
 					thisRow:SetLeftText (threat_actor [1])
 					thisRow:SetRightText (_cstr ("%.1f", threat_actor [2]).."%")
 					thisRow:SetValue (threat_actor [2])
+					
 					if (index == 1) then
 						thisRow:SetColor (threat_actor [2]*0.01, math.abs (threat_actor [2]-100)*0.01, 0, 1)
 					else
 						thisRow:SetColor (threat_actor [2]*0.01, math.abs (threat_actor [2]-100)*0.01, 0, .3)
+						local percent = threat_actor [2]
+						if (percent >= 50) then
+							thisRow:SetColor ( 1, math.abs (percent - 100)/100, 0, 1)
+						else
+							thisRow:SetColor ( percent/100, 1, 0, 1)
+						end
 					end
+					
 					if (not thisRow.statusbar:IsShown()) then
 						thisRow:Show()
 					end
@@ -267,9 +294,24 @@ local function CreatePluginFrames (data)
 					thisRow:SetColor (threatpct*0.01, math.abs (threatpct-100)*0.01, 0, .3)
 				end
 			end
-
+		
+		else
+			--print ("nao tem target")
 		end
 		
+	end
+	
+	function ThreatMeter:TargetChanged()
+		if (not ThreatMeter.Actived) then
+			return
+		end
+		local NewTarget = _UnitName ("target")
+		if (NewTarget and not _UnitIsFriend ("player", "target")) then
+			target = NewTarget
+			Threater()
+		else
+			ThreatMeter:HideBars()
+		end
 	end
 	
 	local OnUpdate = function (self, elapsed)
@@ -280,15 +322,16 @@ local function CreatePluginFrames (data)
 				--print ("aqui")
 				Threater()
 			--end
-		
 		end
 	end
 
 	function ThreatMeter:Start()
 		ThreatMeter:HideBars()
-		if (_IsInRaid() or _IsInGroup()) then	
-			--print ("Iniciando analizador de Threat")
-			ThreatMeterFrame:SetScript ("OnUpdate", OnUpdate)
+		if (ThreatMeter.Actived) then
+			if (_IsInRaid() or _IsInGroup()) then	
+				--print ("Iniciando analizador de Threat")
+				ThreatMeterFrame:SetScript ("OnUpdate", OnUpdate)
+			end
 		end
 	end
 	
@@ -306,7 +349,10 @@ end
 
 function ThreatMeter:OnEvent (_, event, ...)
 
-	if (event == "ADDON_LOADED") then
+	if (event == "PLAYER_TARGET_CHANGED") then
+		ThreatMeter:TargetChanged()
+		
+	elseif (event == "ADDON_LOADED") then
 		local AddonName = select (1, ...)
 		if (AddonName == "Details_TinyThreat") then
 			
@@ -336,9 +382,6 @@ function ThreatMeter:OnEvent (_, event, ...)
 			end
 		end
 
-	elseif (event == "PLAYER_TARGET_CHANGED") then
-		ThreatMeter:TargetChanged()
-		
 	elseif (event == "PLAYER_LOGOUT") then
 		_detalhes_databaseThreat = ThreatMeter.data
 

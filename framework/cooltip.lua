@@ -45,6 +45,8 @@ function DetailsCreateCoolTip()
 		CoolTip.LeftIconTableSub = {}
 		CoolTip.RightIconTable = {}
 		CoolTip.RightIconTableSub = {}
+		CoolTip.TopIcon = nil
+		CoolTip.TopIconTableSub = {}
 		CoolTip.StatusBarTable = {}
 		CoolTip.StatusBarTableSub = {}
 		
@@ -773,6 +775,17 @@ function DetailsCreateCoolTip()
 		
 		frame2:SetHeight ( (frame2.hHeight * CoolTip.IndexesSub [index]) + 12 + (-spacing))
 		
+		if (CoolTip.TopIconTableSub [index]) then
+			local upperImageTable = CoolTip.TopIconTableSub [index]
+			frame2.upperImage:SetTexture (upperImageTable [1])
+			frame2.upperImage:SetWidth (upperImageTable [2])
+			frame2.upperImage:SetHeight (upperImageTable [3])
+			frame2.upperImage:SetTexCoord (upperImageTable[4], upperImageTable[5], upperImageTable[6], upperImageTable[7])
+			frame2.upperImage:Show()
+		else
+			frame2.upperImage:Hide()
+		end
+		
 		if (not CoolTip.OptionsTable.FixedWidthSub) then
 			frame2:SetWidth (frame2.w + 44)
 		end
@@ -1256,6 +1269,11 @@ function DetailsCreateCoolTip()
 			_table_wipe (CoolTip.RightIconTable)
 			_table_wipe (CoolTip.RightIconTableSub)
 			
+			CoolTip.TopIcon = nil
+			_table_wipe (CoolTip.TopIconTableSub)
+			frame1.upperImage:Hide()
+			frame2.upperImage:Hide()
+			
 			_table_wipe (CoolTip.StatusBarTable)
 			_table_wipe (CoolTip.StatusBarTableSub)
 			
@@ -1556,10 +1574,14 @@ function DetailsCreateCoolTip()
 			local iconTable
 
 			if (not frame or (type (frame) == "string" and frame == "main") or (type (frame) == "number" and frame == 1)) then
+			
 				if (not side or (type (side) == "string" and side == "left") or (type (side) == "number" and side == 1)) then
 					frameTable = CoolTip.LeftIconTable
 				elseif ((type (side) == "string" and side == "right") or (type (side) == "number" and side == 2)) then
 					frameTable = CoolTip.RightIconTable
+				elseif ((type (side) == "string" and side == "top") or (type (side) == "number" and side == 3)) then
+					CoolTip.TopIcon = iconTexture
+					return
 				end
 				
 				if (CoolTip.isSpecial) then
@@ -1580,6 +1602,16 @@ function DetailsCreateCoolTip()
 					frameTable = CoolTip.LeftIconTableSub
 				elseif ((type (side) == "string" and side == "right") or (type (side) == "number" and side == 2)) then
 					frameTable = CoolTip.RightIconTableSub
+				elseif ((type (side) == "string" and side == "top") or (type (side) == "number" and side == 3)) then
+					CoolTip.TopIconTableSub [CoolTip.Indexes] = CoolTip.TopIconTableSub [CoolTip.Indexes] or {}
+					CoolTip.TopIconTableSub [CoolTip.Indexes] [1] = iconTexture
+					CoolTip.TopIconTableSub [CoolTip.Indexes] [2] = iconWidth or 16
+					CoolTip.TopIconTableSub [CoolTip.Indexes] [3] = iconHeight or 16
+					CoolTip.TopIconTableSub [CoolTip.Indexes] [4] = L or 0 
+					CoolTip.TopIconTableSub [CoolTip.Indexes] [5] = R or 1 
+					CoolTip.TopIconTableSub [CoolTip.Indexes] [6] = T or 0 
+					CoolTip.TopIconTableSub [CoolTip.Indexes] [7] = B or 1
+					return
 				end
 				
 				local subMenuContainerIcons = frameTable [CoolTip.Indexes]
@@ -1927,9 +1959,11 @@ function DetailsCreateCoolTip()
 		end
 	end
 	
+	local wait = 0.3
+	
 	local InjectOnUpdateEnter = function (self, elapsed)  
 		elapsedTime = elapsedTime+elapsed
-		if (elapsedTime > 0.3) then
+		if (elapsedTime > wait) then
 			self:SetScript ("OnUpdate", nil)
 			CoolTip:ExecFunc (self)
 		end
@@ -1970,6 +2004,7 @@ function DetailsCreateCoolTip()
 			CoolTip:ExecFunc (self)
 		else
 			elapsedTime = 0
+			wait = self.CoolTip.ShowSpeed or 0.3
 			self:SetScript ("OnUpdate", InjectOnUpdateEnter)
 		end
 

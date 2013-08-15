@@ -18,6 +18,7 @@ local throne_of_thunder = {
 	icon = "Interface\\AddOns\\Details_RaidInfo-ThroneOfThunder\\images\\icon256x128",
 	
 	background = "Interface\\AddOns\\Details_RaidInfo-ThroneOfThunder\\images\\raid_tot",
+	backgroundEJ = [[Interface\EncounterJournal\UI-EJ-LOREBG-ThunderKingRaid]],
 	
 	boss_names = { 
 		"Jin'rokh the Breaker",
@@ -67,6 +68,7 @@ local throne_of_thunder = {
 		[1] = {
 			
 			boss =	"Jin'rokh the Breaker",
+			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Jinrokh the Breaker]],
 
 			spell_mechanics =	{
 						[137261] = {0x1, 0x40}, --> Lightning Storm
@@ -107,6 +109,7 @@ local throne_of_thunder = {
 		[2] = {
 		
 			boss =	"Horridon",
+			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Horridon]],
 
 			spell_mechanics =	{
 						[136719] = {0x10}, --> Blazing Sunlight (Wastewalker)
@@ -216,6 +219,7 @@ local throne_of_thunder = {
 ------------> Concil of Elders ------------------------------------------------------------------------------
 		[3] = {
 			boss =	"Council of Elders",
+			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Council of Elders]],
 			
 			--> this is a fix for twisted fate spell, due Mar'li adds comes with exactly the same name as the player name, the add spell are assigned to the player
 			func = function() 
@@ -311,6 +315,7 @@ local throne_of_thunder = {
 ------------> Tortos ------------------------------------------------------------------------------	
 		[4] = {
 			boss =	"Tortos",
+			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Tortos]],
 			
 			spell_mechanics = {
 				[134476] = {0x1}, --> "Rockfall",
@@ -345,7 +350,8 @@ local throne_of_thunder = {
 ------------> Megaera ------------------------------------------------------------------------------
 		[5] = {
 			boss =	"Megaera",
-
+			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Megaera]],
+			
 			spell_mechanics = {
 				[139549] = {0x1}, --Rampage blue
 				[139548] = {0x1}, --rampage red
@@ -403,6 +409,7 @@ local throne_of_thunder = {
 ------------> Ji-Kun ------------------------------------------------------------------------------
 		[6] = {
 			boss =	"Ji'kun",
+			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Ji Kun]],
 			
 			spell_mechanics = {
 				[134381] = {0x1}, --Quills
@@ -448,6 +455,8 @@ local throne_of_thunder = {
 ------------> Durumu the forgotten ------------------------------------------------------------------------------
 		[7] = {
 			boss =	"Durumu the Forgotten",
+			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Durumu]],
+			
 			spell_mechanics =	{
 				[133732] = {0x1, 0x200}, --> Infrared Light
 				[133738] = {0x1, 0x200}, --> Bright Light
@@ -531,6 +540,8 @@ local throne_of_thunder = {
 ------------> Primordius ------------------------------------------------------------------------------
 		[8] = {
 			boss =	"Primordius",
+			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Primordius]],
+			
 			spell_mechanics =	{
 				[136220] = {0x1, 0x2000}, --> Acidic Explosion
 				[136216] = {0x1, 0x40}, --> Caustic Gas
@@ -571,6 +582,8 @@ local throne_of_thunder = {
 
 		[9] = {
 			boss =	"Dark Animus",
+			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Dark Animus]],
+			
 			spell_mechanics =	{
 				[139867] = {0x1, 0x3000}, --> Interrupting Jolt
 				[138659] = {0x1}, --> Touch of the Animus
@@ -606,6 +619,8 @@ local throne_of_thunder = {
 ------------> Iron Qon ------------------------------------------------------------------------------		
 		[10] = {
 			boss =	"Iron Qon",
+			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Iron Qon]],
+			
 			spell_mechanics =	{
 				[136925] = {0x40}, --> Burning Blast
 				[134628] = {0x200, 0x1}, --> Unleashed Flame
@@ -710,6 +725,7 @@ local throne_of_thunder = {
 ------------> Twin Consorts ------------------------------------------------------------------------------
 		[11] = {
 			boss =	"Twin Consorts",
+			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Empyreal Queens]],
 			
 			spell_mechanics =	{
 				[137410] = {0x200, 0x1}, --> Blazing Radiance
@@ -815,6 +831,7 @@ local throne_of_thunder = {
 ------------> Lei Shen ------------------------------------------------------------------------------
 		[12] = {
 			boss =	"Lei Shen",
+			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Lei Shen]],
 			
 			spell_mechanics =	{
 				[136889] = {0x2, 0x1}, --> Violent Gale Winds 
