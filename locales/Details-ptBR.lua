@@ -5,11 +5,15 @@ if not Loc then return end
 
 	Loc ["STRING_DETAILS1"] = "|cffffaeaeDetalhes:|r " --> color and details name
 
+	Loc ["STRING_YES"] = "Sim"
+	Loc ["STRING_NO"] = "Nao"
+	
 	Loc ["STRING_AUTO"] = "auto"
 	Loc ["STRING_LEFT"] = "esquerda"
 	Loc ["STRING_CENTER"] = "centro"
 	Loc ["STRING_RIGHT"] = "direita"
 	Loc ["STRING_TOOOLD"] = "nao pode ser instalado pois sua versao do Details! e muito antiga."
+	Loc ["STRING_TOOOLD2"] = "a sua versao do Details! nao e a mesma."
 
 	Loc ["STRING_RIGHTCLICK_CLOSE_SHORT"] = "Botao direito para fechar."
 	Loc ["STRING_RIGHTCLICK_CLOSE_MEDIUM"] = "Use o botao direito para fechar esta janela."
@@ -81,7 +85,7 @@ if not Loc then return end
 	Loc ["STRING_CUSTOM_HELP2"] = "Escolha aqui o atributo, se a sua magia for de curar, voce deve escolher cura."
 	Loc ["STRING_CUSTOM_HELP3"] = "O nome da customizacao e usado no menu de atributos do Detalhes, e tambem mostrado no relatorio ao reportar."
 	Loc ["STRING_CUSTOM_HELP4"] = "Voce pode escolher uma magia de algum encontro de uma raide, basta deixar o ponteiro do mouse sobre o botao para que o menu seja mostrado."
-	Loc ["STRING_CUSTOM_"] = ""
+	Loc ["STRING_CUSTOM_ACCETP_CUSTOM"] = "lhe enviou um display customizado. Voce deseja adicionar esta customizacao a sua biblioteca de displays customizados?"
 
 --> Switch Window
 

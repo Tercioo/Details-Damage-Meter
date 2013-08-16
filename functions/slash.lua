@@ -65,6 +65,25 @@ function SlashCmdList.DETAILS (msg, editbox)
 		_G.DetailsCopy.MyObject.text:HighlightText()
 		_G.DetailsCopy.MyObject.text:SetFocus()
 	
+	elseif (msg == "comm") then
+		
+		--_detalhes:SendData ("RAID", "Hello There!")
+		local s = _detalhes:Serialize ("tercio", "jose")
+		local d, e, f = _detalhes:Deserialize (s)
+		print (d, e, f)
+		
+	elseif (msg == "visao") then
+		--_detalhes:VisiblePlayers()
+		--local a, b = GetUnitName ("player")
+		--print (a,GetRealmName())
+		--print (time())
+		--print (math.floor (time()/10))
+		
+		assert (false, "teste")
+		
+	elseif (msg == "yesno") then
+		--_detalhes:Show()
+	
 	elseif (msg == "imageedit") then
 		
 		local callback = function (width, height, overlayColor, alpha, texCoords)

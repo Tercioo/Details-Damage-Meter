@@ -4,11 +4,11 @@
 	-- 27/07/2013: Finished alpha version.
 
 function _G._detalhes:Start()
-   
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> details defaults
 
-	-- _detalhes.debug = true
+	_detalhes.debug = false
 
 	--> who is
 		self.playername = UnitName ("player")
@@ -149,6 +149,29 @@ function _G._detalhes:Start()
 		--> copy and paste window
 			self:CreateCopyPasteWindow()
 			self.CreateCopyPasteWindow = nil
+		--> yesno frame
+			self.yesNo = self.gump:NewPanel (UIParent, _, "DetailsYesNoWindow", _, 500, 80)
+			self.yesNo:SetPoint ("center", UIParent, "center")
+			self.gump:NewLabel (self.yesNo, _, "$parentAsk", "ask", "")
+			self.yesNo ["ask"]:SetPoint ("center", self.yesNo, "center", 0, 25)
+			self.yesNo ["ask"]:SetWidth (480)
+			self.yesNo ["ask"]:SetJustifyH ("center")
+			self.yesNo ["ask"]:SetHeight (22)
+			local Loc = LibStub ("AceLocale-3.0"):GetLocale ("Details")
+			self.gump:NewButton (self.yesNo, _, "$parentNo", "no", 100, 30, function() self.yesNo:Hide() end, nil, nil, nil, Loc ["STRING_NO"])
+			self.gump:NewButton (self.yesNo, _, "$parentYes", "yes", 100, 30, nil, nil, nil, nil, Loc ["STRING_YES"])
+			self.yesNo ["no"]:SetPoint (10, -45)
+			self.yesNo ["yes"]:SetPoint (390, -45)
+			self.yesNo ["no"]:InstallCustomTexture()
+			self.yesNo ["yes"]:InstallCustomTexture()
+			self.yesNo ["yes"]:SetHook ("OnMouseUp", function() self.yesNo:Hide() end)
+			function _detalhes:Ask (msg, func, ...)
+				self.yesNo ["ask"].text = msg
+				local p1, p2 = ...
+				self.yesNo ["yes"]:SetClickFunction (func, p1, p2)
+				self.yesNo:Show()
+			end
+			self.yesNo:Hide()
 
 	--> start instances
 		if (self:QuantasInstancias() == 0) then

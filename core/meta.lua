@@ -141,6 +141,8 @@
 		if (#tabelas_de_combate > 0) then
 			for index, combate in _ipairs (tabelas_de_combate) do
 				
+				combate.hasSaved = true
+				
 				if (combate.end_time and combate.start_time) then 
 					tabela_overall.start_time = tabela_overall.start_time - (combate.end_time - combate.start_time)
 				end

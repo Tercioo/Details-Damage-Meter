@@ -87,6 +87,7 @@ core\plugins_solo.lua
 core\gears.lua
 core\windows.lua
 core\meta.lua
+core\network.lua
 core\parser.lua
 
 startup.lua

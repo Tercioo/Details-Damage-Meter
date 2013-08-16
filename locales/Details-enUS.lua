@@ -5,11 +5,15 @@ if not Loc then return end
 
 	Loc ["STRING_DETAILS1"] = "|cffffaeaeDetails:|r " --> color and details name
 
+	Loc ["STRING_YES"] = "Yes"
+	Loc ["STRING_NO"] = "No"
+	
 	Loc ["STRING_AUTO"] = "auto"
 	Loc ["STRING_LEFT"] = "left"
 	Loc ["STRING_CENTER"] = "center"
 	Loc ["STRING_RIGHT"] = "right"
 	Loc ["STRING_TOOOLD"] = "could not be installed because your Details! version is too old."
+	Loc ["STRING_TOOOLD2"] = "your Details! version isn't the same."
 	
 	Loc ["STRING_RIGHTCLICK_CLOSE_SHORT"] = "Right click to close."
 	Loc ["STRING_RIGHTCLICK_CLOSE_MEDIUM"] = "Use right click to close this window."
@@ -81,7 +85,7 @@ if not Loc then return end
 	Loc ["STRING_CUSTOM_HELP2"] = "Choose here the attribute type of the spell, if your spell is a Healing spell, you may click on Heal."
 	Loc ["STRING_CUSTOM_HELP3"] = "Custom name will be used on Details attribute menu, and also, shown when reporting.\n\nOn spell id field, type some letters to filter spell names, you can also choose a spell from encounter menu on the right.\n\nOver source field, type where Details will serach for the spell, more info at his tooltip."
 	Loc ["STRING_CUSTOM_HELP4"] = "You can choose a spell from a raid encounter, mouse over this button and the options will be shown to you."
-	Loc ["STRING_CUSTOM_"] = ""
+	Loc ["STRING_CUSTOM_ACCETP_CUSTOM"] = "sent a custom display to you, Do you want add this to your custom library?"
 
 --> Switch Window
 

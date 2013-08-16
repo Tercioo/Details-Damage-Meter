@@ -220,19 +220,31 @@
 					end
 				end
 				_detalhes.tabela_vigente.enemy = inimigo
-			else
-				_detalhes.tabela_vigente.enemy = _detalhes.tabela_vigente.is_boss.encounter
-				_detalhes:CaptureSet (false, "damage", false, 30)
-				_detalhes:CaptureSet (false, "heal", false, 30)
-				
 				if (_detalhes.debug) then
-					print ("Details found a boss on last fight, freezing parser for 30 seconds.")
+					_detalhes:EqualizeActors()
 				end
-				
-				local bossFunction, bossFunctionType = _detalhes:GetBossFunction (_detalhes.tabela_vigente.is_boss.mapid, _detalhes.tabela_vigente.is_boss.index)
-				if (bossFunction) then
-					if (_bit_band (bossFunctionType, 0x2) ~= 0) then --end of combat
-						bossFunction()
+			else
+			
+				if (_detalhes:GetBossDetails (_detalhes.tabela_vigente.is_boss.mapid, _detalhes.tabela_vigente.is_boss.index)) then
+					_detalhes.tabela_vigente.enemy = _detalhes.tabela_vigente.is_boss.encounter
+					_detalhes:CaptureSet (false, "damage", false, 30)
+					_detalhes:CaptureSet (false, "heal", false, 30)
+					
+					if (_detalhes.debug) then
+						print ("Details found a boss on last fight, freezing parser for 30 seconds.")
+					end
+					
+					local bossFunction, bossFunctionType = _detalhes:GetBossFunction (_detalhes.tabela_vigente.is_boss.mapid, _detalhes.tabela_vigente.is_boss.index)
+					if (bossFunction) then
+						if (_bit_band (bossFunctionType, 0x2) ~= 0) then --end of combat
+							bossFunction()
+						end
+					end
+					
+					_detalhes:EqualizeActors()
+				else
+					if (_detalhes.debug) then
+						_detalhes:EqualizeActors()
 					end
 				end
 			end
@@ -256,14 +268,15 @@
 			_detalhes.tabela_vigente:seta_tempo_decorrido() --> salva o end_time
 			_detalhes.tabela_overall:seta_tempo_decorrido() --seta o end_time
 
-			local tempo_do_combate = _detalhes.tabela_vigente.end_time - _detalhes.tabela_vigente.start_time
-			
 			if (_detalhes.solo) then
 				--> debuffs need a checkup, not well functional right now
 				_detalhes.CloseSoloDebuffs()
 			end
 			
-			if ( tempo_do_combate >= _detalhes.minimum_combat_time) then --> tempo minimo precisa ser 5 segundos pra acrecentar a tabela ao historico
+			local tempo_do_combate = _detalhes.tabela_vigente.end_time - _detalhes.tabela_vigente.start_time
+			
+			--if ( tempo_do_combate >= _detalhes.minimum_combat_time) then --> tempo minimo precisa ser 5 segundos pra acrecentar a tabela ao historico
+			if ( tempo_do_combate >= 10) then --> tempo minimo precisa ser 5 segundos pra acrecentar a tabela ao historico
 				_detalhes.tabela_historico:adicionar (_detalhes.tabela_vigente) --move a tabela atual para dentro do histórico
 			else
 				--> this is a little bit complicated, need a specific function for combat cancellation
@@ -281,6 +294,13 @@
 				if (not _detalhes.tabela_vigente) then --> provavel foi o primeiro combate após um reset
 					_detalhes.tabela_vigente = _detalhes.combate:NovaTabela (false, _detalhes.tabela_overall) --cria uma nova tabela de combate caso não tenha nenhuma no historico
 				end
+				
+				if (_detalhes.tabela_vigente.start_time == 0) then
+					_detalhes.tabela_vigente.start_time = _detalhes._tempo
+					_detalhes.tabela_vigente.end_time = _detalhes._tempo
+				end
+				
+				_detalhes.tabela_vigente.resincked = true
 				
 				--> tabela foi descartada, precisa atualizar os baseframes // precisa atualizer todos ou apenas o overall?
 				_detalhes:InstanciaCallFunction (_detalhes.AtualizarJanela)
@@ -311,6 +331,104 @@
 			_detalhes:SendEvent ("COMBAT_PLAYER_LEAVE", nil, _detalhes.tabela_vigente)
 		end
 
+		function _detalhes:MakeEqualizeOnActor (player, realm, receivedActor)
+		
+			local damage, heal, energy, misc = _detalhes:GetAllActors ("current", player)
+			
+			if (not damage and not heal) then
+				--> add server name
+				damage, heal, energy, misc = _detalhes:GetAllActors ("current", player.."-"..realm)
+			end
+			
+			local combat = _detalhes:GetCombat ("current")
+			combat[1].need_refresh = true
+			combat[2].need_refresh = true
+			combat[3].need_refresh = true
+			combat[4].need_refresh = true
+			
+			if (damage) then
+				if (damage.total < receivedActor [1][1]) then
+					damage.total = receivedActor [1][1]
+				end
+				if (damage.damage_taken < receivedActor [1][2]) then
+					damage.damage_taken = receivedActor [1][2]
+				end
+				if (damage.friendlyfire_total < receivedActor [1][3]) then
+					damage.friendlyfire_total = receivedActor [1][3]
+				end
+			end
+			
+			if (heal) then
+				if (heal.total < receivedActor [2][1]) then
+					heal.total = receivedActor [2][1]
+				end
+				if (heal.totalover < receivedActor [2][2]) then
+					heal.totalover = receivedActor [2][2]
+				end
+				if (heal.healing_taken < receivedActor [2][3]) then
+					heal.healing_taken = receivedActor [2][3]
+				end
+			end
+			
+			if (energy) then
+				if (energy.mana and (receivedActor [3][1] > 0 and energy.mana < receivedActor [3][1])) then
+					energy.mana = receivedActor [3][1]
+				end
+				if (energy.e_rage and (receivedActor [3][2] > 0 and energy.e_rage < receivedActor [3][2])) then
+					energy.e_rage = receivedActor [3][2]
+				end
+				if (energy.e_energy and (receivedActor [3][3] > 0 and energy.e_energy < receivedActor [3][3])) then
+					energy.e_energy = receivedActor [3][3]
+				end
+				if (energy.runepower and (receivedActor [3][4] > 0 and energy.runepower < receivedActor [3][4])) then
+					energy.runepower = receivedActor [3][4]
+				end
+			end
+			
+			if (misc) then
+				if (misc.interrupt and (receivedActor [4][1] > 0 and misc.interrupt < receivedActor [4][1])) then
+					misc.interrupt = receivedActor [4][1]
+				end
+				if (misc.dispell and (receivedActor [4][2] > 0 and misc.dispell < receivedActor [4][2])) then
+					misc.dispell = receivedActor [4][2]
+				end
+			end
+		end
+		
+		function _detalhes:EqualizeActors()
+		
+			local damage, heal, energy, misc = _detalhes:GetAllActors ("current", UnitName ("player"))
+			
+			if (damage) then
+				damage = {damage.total, damage.damage_taken, damage.friendlyfire_total}
+			else
+				damage = {0, 0, 0}
+			end
+			
+			if (heal) then
+				heal = {heal.total, heal.totalover, heal.healing_taken}
+			else
+				heal = {0, 0, 0}
+			end
+			
+			if (energy) then
+				energy = {energy.mana or 0, energy.e_rage or 0, energy.e_energy or 0, energy.runepower or 0}
+			else
+				energy = {0, 0, 0, 0}
+			end
+			
+			if (misc) then
+				misc = {misc.interrupt or 0, misc.dispell or 0}
+			else
+				misc = {0, 0}
+			end
+			
+			local data = {damage, heal, energy, misc}
+			
+			_detalhes:SendRaidData ("equalize_actors", data)
+			
+		end
+		
 		function _detalhes:FlagActorsOnBossFight()
 			for class_type, container in _ipairs (_detalhes.tabela_vigente) do 
 				for _, actor in _ipairs (container._ActorTable) do 

@@ -903,12 +903,31 @@ local function CreateCustomWindow()
 	
 	-------------------------> Install CoolTip on Shout Button
 
+		local addCustomReceived = function (param1)
+			_detalhes.custom [#_detalhes.custom+1] = param1
+			print (Loc ["STRING_CUSTOM_CREATED"])
+		end
+	
+		function _detalhes:OnReceiveCustom (source, realm, dversion, _customTable)
+		
+			if (dversion ~= _detalhes.realversion) then
+				print (Loc ["STRING_TOOOLD2"])
+				return
+			end
+		
+			for index, custom in _ipairs (_detalhes.custom) do 
+				if (_customTable.name == custom.name) then
+					return
+				end
+			end
+			_detalhes:Ask (source .. "-" .. realm .. " " .. Loc ["STRING_CUSTOM_ACCETP_CUSTOM"], addCustomReceived, _customTable)
+		end
+	
 		--> testing
 		local ShoutFunc = function (_, _, CustomIndex)
-			AceComm:SendCommMessage ("DETAILS", AceSerializer:Serialize ( _detalhes.custom [CustomIndex] ), "RAID")
-			print (Loc ["STRING_CUSTOM_BROADCASTSENT"])
 			GameCooltip:Close()
-			--AceComm:SendCommMessage ("DETAILS", AceSerializer:Serialize ( _detalhes.custom [CustomIndex] ), "WHISPER", UnitName ("player"))
+			_detalhes:SendRaidData ("custom_broadcast", _detalhes.custom [CustomIndex])
+			print (Loc ["STRING_CUSTOM_BROADCASTSENT"])
 		end
 
 		local CreateCustomListForShout = function() 

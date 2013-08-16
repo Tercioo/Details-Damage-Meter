@@ -192,6 +192,39 @@
 			--> record death log
 			local t = jogador_alvo.last_events_table
 			local i = t.n
+			
+			if (not i) then
+				local isOriginal = jogador_alvo.last_events_table.original
+				if (isOriginal) then
+					isOriginal = "IsOriginal = TRUE"
+				else
+					isOriginal = "IsOriginal = FALSE"
+				end
+				local indexes = #jogador_alvo.last_events_table
+				if (not indexes) then
+					indexes = "Indexes = NIL"
+				else
+					indexes = "Indexes = "..indexes
+				end
+				local resync = _detalhes.tabela_vigente.resincked
+				if (resync) then
+					resync = "resync = TRUE"
+				else
+					resync = "resync = FALSE"
+				end
+				
+				local saved = _detalhes.tabela_vigente.hasSaved
+				if (saved) then
+					saved = "saved = TRUE"
+				else
+					saved = "saved = FALSE"
+				end
+				
+				print ("Report the lines shown, click on reset button and type /reload")
+				print ("We are investigation this issue, this information is important to us.")
+				assert (false, "Please Report This Error on the Blue Button: Parser 194: " .. isOriginal .. " " .. indexes .. " " .. resync .. " " .. saved)
+			end
+			
 			t.n = i + 1
 			
 			t = t [i]
@@ -605,7 +638,7 @@
 
 	
 -----------------------------------------------------------------------------------------------------------------------------------------
-	--> BUFFS & DEBUFFS 	serach key: ~buff										|
+	--> BUFFS & DEBUFFS 	serach key: ~buff ~aura ~shield								|
 -----------------------------------------------------------------------------------------------------------------------------------------
 
 	function parser:buff (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, _, tipo, amount)
@@ -1953,6 +1986,10 @@
 		return nil
 	end
 
+	function _detalhes:GetAllActors (_combat, _actorname)
+		return _detalhes:GetActor (_combat, 1, _actorname), _detalhes:GetActor (_combat, 2, _actorname), _detalhes:GetActor (_combat, 3, _actorname), _detalhes:GetActor (_combat, 4, _actorname)
+	end
+	
 	--> get an actor
 	function _detalhes:GetActor (_combat, _attribute, _actorname)
 

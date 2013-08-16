@@ -69,7 +69,7 @@ function atributo_custom:RefreshWindow (instancia, _combat, forcar, exportar)
 			end
 		elseif (_IsInGroup()) then
 			for i = 1, _GetNumGroupMembers()-1, 1 do
-				local nome = _GetUnitName ("raid"..i, true):gsub (("%s+"), "")
+				local nome = _GetUnitName ("party"..i, true):gsub (("%s+"), "")
 				local Actor = _combat (CustomObject.attribute, nome)			
 				if (Actor) then 
 					Actor:Custom (CustomObject.name, _combat, CustomObject.sattribute, CustomObject.spell, CustomObject.target)
