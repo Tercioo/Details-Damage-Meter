@@ -15,7 +15,7 @@ function _detalhes:OpenOptionsWindow (instance)
 	
 		-- Most of details widgets have the same 6 first parameters: parent, container, global name, parent key, width, height
 	
-		window = g:NewPanel (UIParent, _, "DetailsOptionsWindow", _, 500, 300)
+		window = g:NewPanel (UIParent, _, "DetailsOptionsWindow", _, 500, 320)
 		window.instance = instance
 		tinsert (UISpecialFrames, "DetailsOptionsWindow")
 		window:SetPoint ("center", UIParent, "Center")
@@ -163,6 +163,85 @@ function _detalhes:OpenOptionsWindow (instance)
 		g:NewDropDown (window, _, "$parentTTDropdown", "timetypeDropdown", 160, 20, buildTimeTypeMenu, nil) -- func, default
 		window.timetypeDropdown:SetPoint ("left", window.timetypeLabel, "right")
 	
+	--------------- Captures
+		g:NewImage (window, _, "$parentCaptureDamage", "damageCaptureImage", 20, 20, [[Interface\AddOns\Details\images\atributos_captures]])
+		window.damageCaptureImage:SetPoint (10, -163)
+		window.damageCaptureImage:SetTexCoord (0, 0.125, 0, 1)
+		
+		g:NewImage (window, _, "$parentCaptureHeal", "healCaptureImage", 20, 20, [[Interface\AddOns\Details\images\atributos_captures]])
+		window.healCaptureImage:SetPoint (10, -183)
+		window.healCaptureImage:SetTexCoord (0.125, 0.25, 0, 1)
+		
+		g:NewImage (window, _, "$parentCaptureEnergy", "energyCaptureImage", 20, 20, [[Interface\AddOns\Details\images\atributos_captures]])
+		window.energyCaptureImage:SetPoint (10, -203)
+		window.energyCaptureImage:SetTexCoord (0.25, 0.375, 0, 1)
+		
+		g:NewImage (window, _, "$parentCaptureMisc", "miscCaptureImage", 20, 20, [[Interface\AddOns\Details\images\atributos_captures]])
+		window.miscCaptureImage:SetPoint (10, -223)
+		window.miscCaptureImage:SetTexCoord (0.375, 0.5, 0, 1)
+		
+		g:NewImage (window, _, "$parentCaptureAura", "auraCaptureImage", 20, 20, [[Interface\AddOns\Details\images\atributos_captures]])
+		window.auraCaptureImage:SetPoint (10, -243)
+		window.auraCaptureImage:SetTexCoord (0.5, 0.625, 0, 1)
+		
+		g:NewLabel (window, _, "$parentCaptureDamageLabel", "damageCaptureLabel", "Damage")
+		window.damageCaptureLabel:SetPoint ("left", window.damageCaptureImage, "right", 2)
+		g:NewLabel (window, _, "$parentCaptureDamageLabel", "healCaptureLabel", "Healing")
+		window.healCaptureLabel:SetPoint ("left", window.healCaptureImage, "right", 2)
+		g:NewLabel (window, _, "$parentCaptureDamageLabel", "energyCaptureLabel", "Energy")
+		window.energyCaptureLabel:SetPoint ("left", window.energyCaptureImage, "right", 2)
+		g:NewLabel (window, _, "$parentCaptureDamageLabel", "miscCaptureLabel", "Misc")
+		window.miscCaptureLabel:SetPoint ("left", window.miscCaptureImage, "right", 2)
+		g:NewLabel (window, _, "$parentCaptureDamageLabel", "auraCaptureLabel", "Auras")
+		window.auraCaptureLabel:SetPoint ("left", window.auraCaptureImage, "right", 2)
+		
+		g:NewSwitch (window, _, "$parentCaptureDamageSlider", "damageCaptureSlider", 60, 20, _, _, _detalhes.capture_real ["damage"])
+		window.damageCaptureSlider:SetPoint ("left", window.damageCaptureLabel, "right", 2)
+		window.damageCaptureSlider.tooltip = "Pause or enable capture of:\n- damage done\n- damage per second\n- friendly fire\n- damage taken"
+		window.damageCaptureSlider.OnSwitch = function (self, _, value)
+			_detalhes:CaptureSet (value, "damage", true)
+		end
+		
+		g:NewSwitch (window, _, "$parentCaptureHealSlider", "healCaptureSlider", 60, 20, _, _, _detalhes.capture_real ["heal"])
+		window.healCaptureSlider:SetPoint ("left", window.healCaptureLabel, "right", 2)
+		window.healCaptureSlider.tooltip = "Pause or enable capture of:\n- healing done (not absorbs)\n- healing per second\n- overheal\n- healing taken"
+		window.healCaptureSlider.OnSwitch = function (self, _, value)
+			_detalhes:CaptureSet (value, "heal", true)
+		end
+		
+		g:NewSwitch (window, _, "$parentCaptureEnergySlider", "energyCaptureSlider", 60, 20, _, _, _detalhes.capture_real ["energy"])
+		window.energyCaptureSlider:SetPoint ("left", window.energyCaptureLabel, "right", 2)
+		window.energyCaptureSlider.tooltip = "Pause or enable capture of:\n- mana restored\n- rage generated\n- energy generated\n- runic power generated"
+		window.energyCaptureSlider.OnSwitch = function (self, _, value)
+			_detalhes:CaptureSet (value, "energy", true)
+		end
+		
+		g:NewSwitch (window, _, "$parentCaptureMiscSlider", "miscCaptureSlider", 60, 20, _, _, _detalhes.capture_real ["miscdata"])
+		window.miscCaptureSlider:SetPoint ("left", window.miscCaptureLabel, "right", 2)
+		window.miscCaptureSlider.tooltip = "Pause or enable capture of:\n- cc breaks\n- dispell\n- interrupts\n- ress\n- deaths"
+		window.miscCaptureSlider.OnSwitch = function (self, _, value)
+			_detalhes:CaptureSet (value, "miscdata", true)
+		end
+		
+		g:NewSwitch (window, _, "$parentCaptureAuraSlider", "auraCaptureSlider", 60, 20, _, _, _detalhes.capture_real ["aura"])
+		window.auraCaptureSlider:SetPoint ("left", window.auraCaptureLabel, "right", 2)
+		window.auraCaptureSlider.tooltip = "Pause or enable capture of:\n- buffs and debufs\n- absorbs (heal)"
+		window.auraCaptureSlider.OnSwitch = function (self, _, value)
+			_detalhes:CaptureSet (value, "aura", true)
+		end
+		
+	--------------- Cload Capture
+	
+		g:NewLabel (window, _, "$parentCloudCaptureLabel", "cloudCaptureLabel", "Cloud Capture")
+		window.cloudCaptureLabel:SetPoint (10, -268)
+	
+		g:NewSwitch (window, _, "$parentCloudAuraSlider", "cloudCaptureSlider", 60, 20, _, _, _detalhes.cloud_capture)
+		window.cloudCaptureSlider:SetPoint ("left", window.cloudCaptureLabel, "right", 2)
+		window.cloudCaptureSlider.tooltip = "Download capture data from another\nraid member when a capture are disabled."
+		window.cloudCaptureSlider.OnSwitch = function (self, _, value)
+			_detalhes.cloud_capture = value
+		end
+		
 		
 -- Current Instalnce --------------------------------------------------------------------------------------------------------------------------------------------
 		
@@ -487,7 +566,7 @@ function _detalhes:OpenOptionsWindow (instance)
 		----- style name
 		g:NewTextEntry (window, _, "$parentSaveStyleName", "saveStyleName", nil, 20, _, _, _, 178) --width will be auto adjusted if space parameter is passed
 		window.saveStyleName:SetLabelText ("style name:")
-		window.saveStyleName:SetPoint (250, -280)
+		window.saveStyleName:SetPoint (250, -300)
 	
 		local saveStyleFunc = function()
 			if (not window.saveStyleName.text or window.saveStyleName.text == "") then

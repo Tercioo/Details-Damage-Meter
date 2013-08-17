@@ -35,7 +35,7 @@ function container_pets:PegaDono (pet_serial, pet_nome, pet_flags)
 	
 	if (_IsInRaid()) then
 		--print ("estou em RAIDE")
-		for i = 1, _GetNumGroupMembers(), 1 do 
+		for i = 1, _GetNumGroupMembers() do 
 			if (pet_serial == _UnitGUID ("raidpet"..i)) then
 				dono_serial = _UnitGUID ("raid"..i)
 				dono_flags = 0x00000417 --> emulate sourceflag flag
@@ -51,7 +51,7 @@ function container_pets:PegaDono (pet_serial, pet_nome, pet_flags)
 		
 	elseif (_IsInGroup()) then
 		--print ("DEBUG estou em PARTY")
-		for i = 1, _GetNumGroupMembers()-1, 1 do 
+		for i = 1, _GetNumGroupMembers()-1 do 
 			if (pet_serial == _UnitGUID ("partypet"..i)) then
 				dono_serial = _UnitGUID ("party"..i)
 				dono_flags = 0x00000417 --> emulate sourceflag flag

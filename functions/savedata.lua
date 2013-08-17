@@ -63,6 +63,7 @@ function _detalhes:SaveDataOnLogout()
 		_detalhes_database.switch.table = _detalhes.switch.table
 		-- capture
 		_detalhes_database.capture_real = _detalhes.capture_real
+		_detalhes_database.cloud_capture = _detalhes.cloud_capture
 		_detalhes_database.minimum_combat_time = _detalhes.minimum_combat_time
 	--> combat data
 		-- segments table
@@ -255,6 +256,8 @@ end --]]
 		["miscdata"] = true,
 		["aura"] = true,
 	}
+	_detalhes.cloud_capture = _detalhes_database.cloud_capture
+	
 	_detalhes.capture_current = {}
 	for captureType, captureValue in pairs (_detalhes.capture_real) do 
 		_detalhes.capture_current [captureType] = captureValue

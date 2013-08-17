@@ -81,7 +81,8 @@ function atributo_damage:NovaTabela (serial, nome, link)
 	_new_damageActor.damage_taken = 0 --> total de dano que este jogador levou
 	_new_damageActor.damage_from = {} --> armazena os nomes que deram dano neste jogador
 	
-	_new_damageActor.last_events_table = {} --> log da morte
+	_new_damageActor.last_events_table = _detalhes:CreateActorLastEventTable()
+	_new_damageActor.last_events_table.original = true
 	
 	_new_damageActor.avoidance = {["DODGE"] = 0, ["PARRY"] = 0, ["HITS"] = 0} --> avoidance
 	
@@ -116,6 +117,12 @@ function atributo_damage:NovaTabela (serial, nome, link)
 	
 	return _new_damageActor
 end
+
+--[[exported]]	function _detalhes:CreateActorLastEventTable()
+				local t = { {}, {}, {}, {}, {}, {}, {}, {} }
+				t.n = 1
+				return t
+			end
 
 --[[exported]]	function _detalhes.SortGroup (container, keyName2)
 				keyName = keyName2
@@ -660,7 +667,13 @@ end
 --[[exported]]	function _detalhes.Sort2 (table1, table2)
 				return table1 [2] > table2 [2]
 			end
-			
+--[[exported]]	function _detalhes.Sort3 (table1, table2)
+				return table1 [3] > table2 [3]
+			end
+--[[exported]]	function _detalhes.Sort4 (table1, table2)
+				return table1 [4] > table2 [4]
+			end
+
 ---------> DAMAGE DONE & DPS
 function atributo_damage:ToolTip_DamageDone (instancia, numero, barra)
 
@@ -943,7 +956,7 @@ function atributo_damage:MontaInfoFriendlyFire()
 	local amt = #DamagedPlayers
 	gump:JI_AtualizaContainerBarras (amt)
 	
-	local FirstPlaceDamage = DamagedPlayers [1][2]
+	local FirstPlaceDamage = DamagedPlayers [1] and DamagedPlayers [1][2] or 0
 	
 	for index, tabela in _ipairs (DamagedPlayers) do
 		local barra = barras [index]
@@ -1012,7 +1025,7 @@ function atributo_damage:MontaInfoFriendlyFire()
 
 	gump:JI_AtualizaContainerAlvos (amt)
 	
-	FirstPlaceDamage = SkillTable [1][2]
+	FirstPlaceDamage = SkillTable [1] and SkillTable [1][2] or 0
 	
 	for index, tabela in _ipairs (SkillTable) do
 		local barra = barras2 [index]
@@ -1072,7 +1085,7 @@ function atributo_damage:MontaInfoDamageTaken()
 	
 	gump:JI_AtualizaContainerBarras (amt)
 
-	local max_ = meus_agressores [1][2]
+	local max_ = meus_agressores [1] and meus_agressores [1][2] or 0
 	
 	for index, tabela in _ipairs (meus_agressores) do
 		
@@ -1232,7 +1245,7 @@ function atributo_damage:MontaInfoDamageDone()
 
 	gump:JI_AtualizaContainerBarras (#ActorSkillsSortTable)
 
-	local max_ = ActorSkillsSortTable[1][2] --> dano que a primeiro magia vez
+	local max_ = ActorSkillsSortTable[1] and ActorSkillsSortTable[1][2] or 0 --> dano que a primeiro magia vez
 
 	local barra
 	for index, tabela in _ipairs (ActorSkillsSortTable) do
@@ -1263,7 +1276,7 @@ function atributo_damage:MontaInfoDamageDone()
 	
 	gump:JI_AtualizaContainerAlvos (amt_alvos)
 	
-	local max_inimigos = meus_inimigos[1][2]
+	local max_inimigos = meus_inimigos[1] and meus_inimigos[1][2] or 0
 	
 	local barra
 	for index, tabela in _ipairs (meus_inimigos) do
@@ -1350,7 +1363,7 @@ function atributo_damage:MontaDetalhesFriendlyFire (nome, barra)
 	--local amt = #minhas_magias
 	--gump:JI_AtualizaContainerBarras (amt)
 
-	local max_ = minhas_magias[1][2] --> dano que a primeiro magia vez
+	local max_ = minhas_magias[1] and minhas_magias[1][2] or 0 --> dano que a primeiro magia vez
 	
 	local barra
 	for index, tabela in _ipairs (minhas_magias) do
@@ -1428,7 +1441,7 @@ function atributo_damage:MontaDetalhesDamageTaken (nome, barra)
 	--local amt = #minhas_magias
 	--gump:JI_AtualizaContainerBarras (amt)
 
-	local max_ = minhas_magias[1][2] --> dano que a primeiro magia vez
+	local max_ = minhas_magias[1] and minhas_magias[1][2] or 0 --> dano que a primeiro magia vez
 	
 	local barra
 	for index, tabela in _ipairs (minhas_magias) do

@@ -831,6 +831,7 @@ function _detalhes:RestauraJanela (index, temp)
 		self.StatusBar.left = nil
 		self.StatusBar.center = nil
 		self.StatusBar.right = nil
+		self.StatusBarSaved = self.StatusBarSaved or {options = {}}
 		self.StatusBar.options = self.StatusBarSaved.options
 
 		if (self.StatusBarSaved.center and self.StatusBarSaved.center == "NONE") then

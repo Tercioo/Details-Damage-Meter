@@ -67,10 +67,9 @@ function SlashCmdList.DETAILS (msg, editbox)
 	
 	elseif (msg == "comm") then
 		
-		--_detalhes:SendData ("RAID", "Hello There!")
-		local s = _detalhes:Serialize ("tercio", "jose")
-		local d, e, f = _detalhes:Deserialize (s)
-		print (d, e, f)
+	_detalhes:SendCommMessage ("details_comm", _detalhes:Serialize ("foundcloud", UnitName ("player"), GetRealmName(), _detalhes.realversion), "WHISPER", "Marleyieu-Azralon")
+	SendAddonMessage ("details_comm", "text", "WHISPER", "Marleyieu-Azralon")
+	SendChatMessage ("Hello Bob!", "WHISPER", "Common", "Marleyieu-Azralon")
 		
 	elseif (msg == "visao") then
 		--_detalhes:VisiblePlayers()

@@ -33,6 +33,10 @@ function _G._detalhes:Start()
 		self.deadlog_limit = self.deadlog_limit or 12
 		self.minimum_combat_time = self.minimum_combat_time or 5
 		
+		if (type (self.cloud_capture) ~= "boolean") then
+			self.cloud_capture = true
+		end
+		
 		if (type (self.segments_panic_mode) ~= "boolean") then
 			self.segments_panic_mode = true
 		end
@@ -227,13 +231,15 @@ function _G._detalhes:Start()
 			self.listener:RegisterEvent ("UNIT_PET")
 
 			self.listener:RegisterEvent ("PARTY_MEMBERS_CHANGED")
-			self.listener:RegisterEvent ("RAID_ROSTER_UPDATE")
+			self.listener:RegisterEvent ("GROUP_ROSTER_UPDATE")
 			self.listener:RegisterEvent ("PARTY_CONVERTED_TO_RAID")
 			
 			self.listener:RegisterEvent ("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
 			
 			self.listener:RegisterEvent ("ZONE_CHANGED_NEW_AREA")
 			self.listener:RegisterEvent ("PLAYER_ENTERING_WORLD")
+		
+			--self.listener:RegisterAllEvents()
 		
 	--		self.listener:RegisterEvent ("SPELL_CAST_START")
 	--		self.listener:RegisterEvent ("UNIT_SPELLCAST_STOP")
@@ -246,6 +252,13 @@ function _G._detalhes:Start()
 	
 	--> done
 	self.initializing = nil
+	
+	--> group
+	self.details_users = {}
+	self.in_group = IsInGroup() or IsInRaid()
+	if (self.in_group) then
+		_detalhes:SendHighFive()
+	end
 	
 	--> send messages gathered on initialization
 	self:ScheduleTimer ("ShowDelayMsg", 7) 

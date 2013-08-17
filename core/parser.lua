@@ -1620,6 +1620,15 @@
 
 	_detalhes.capture_types = {"damage", "heal", "energy", "miscdata", "aura"}
 
+	function _detalhes:CaptureIsAllEnabled()
+		for _, _thisType in _ipairs (_detalhes.capture_types) do 
+			if (not _detalhes.capture_real [_thisType]) then
+				return false
+			end
+		end
+		return true
+	end
+	
 	function _detalhes:CaptureRefresh()
 		for _, _thisType in _ipairs (_detalhes.capture_types) do 
 			if (_detalhes.capture_current [_thisType]) then
@@ -1628,6 +1637,10 @@
 				_detalhes:CaptureDisable (_thisType)
 			end
 		end
+	end
+	
+	function _detalhes:CaptureGet (capture_type)
+		return _detalhes.capture_real [capture_type]
 	end
 
 	function _detalhes:CaptureSet (on_off, capture_type, real, time)
@@ -1788,6 +1801,8 @@
 
 	--serach key: ~event
 	function _detalhes:OnEvent (evento, ...)
+	
+		--print (evento, select (1, ...))
 		
 		if (evento == "COMBAT_LOG_EVENT_UNFILTERED") then
 			return parser:do_parser (...)
@@ -1836,6 +1851,10 @@
 			if (_detalhes.EncounterInformation [_detalhes.zone_id]) then 
 				_detalhes:ScheduleTimer ("ReadBossFrames", 1)
 			end
+			
+			if (not _detalhes:CaptureGet ("damage")) then
+				_detalhes:EntrarEmCombate()
+			end
 
 			--> essa parte do solo mode ainda sera usada?
 			if (_detalhes.solo and _detalhes.PluginCount.SOLO > 0) then --> solo mode
@@ -1854,8 +1873,20 @@
 			end
 			return
 			
-		elseif (evento == "RAID_ROSTER_UPDATE") then
+		elseif (evento == "GROUP_ROSTER_UPDATE") then
 			_detalhes.container_pets:BuscarPets()
+			if (not _detalhes.in_group) then
+				_detalhes.in_group = IsInGroup() or IsInRaid()
+				if (_detalhes.in_group) then
+					_detalhes:SendHighFive()
+				end
+			else
+				_detalhes.in_group = IsInGroup() or IsInRaid()
+				if (not _detalhes.in_group) then
+					table.wipe (_detalhes.details_users)
+				end
+			end
+			
 			return
 
 		elseif (evento == "PARTY_MEMBERS_CHANGED") then

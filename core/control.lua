@@ -196,6 +196,17 @@
 			
 			_detalhes:UpdateParserGears()
 			
+			_detalhes.host_of = nil
+			_detalhes.host_by = nil
+			
+			if (_detalhes.in_group and _detalhes.cloud_capture) then
+				if (_detalhes:IsInInstance() or _detalhes.debug) then
+					if (not _detalhes:CaptureIsAllEnabled()) then
+						_detalhes:SendCloudRequest()
+					end
+				end
+			end
+			
 			_detalhes:SendEvent ("COMBAT_PLAYER_ENTER", nil, _detalhes.tabela_vigente)
 		end
 
@@ -322,6 +333,13 @@
 				
 				_detalhes:NumeroCombate (-1)
 				_detalhes:UpdateParserGears()
+			end
+			
+			_detalhes.host_of = nil
+			_detalhes.host_by = nil
+			
+			if (_detalhes.cloud_process) then
+				_detalhes:CancelTimer (_detalhes.cloud_process)
 			end
 			
 			_detalhes.in_combat = false --sinaliza ao addon que não há combate no momento

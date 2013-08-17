@@ -79,7 +79,8 @@ function atributo_heal:NovaTabela (serial, nome, link)
 	esta_tabela.total_without_pet = 0 --> pet de DK cura
 	esta_tabela.totalover_without_pet = 0 --> pet de DK cura
 	
-	esta_tabela.last_events_table = {} --> log da morte
+	esta_tabela.last_events_table = _detalhes:CreateActorLastEventTable()
+	esta_tabela.last_events_table.original = true
 	
 	esta_tabela.healing_taken = 0 --> total de cura que este jogador recebeu
 	esta_tabela.healing_from = {} --> armazena os nomes que deram cura neste jogador
@@ -532,7 +533,7 @@ function atributo_heal:MontaInfoHealTaken()
 	
 	gump:JI_AtualizaContainerBarras (amt)
 
-	local max_ = meus_curandeiros [1][2]
+	local max_ = meus_curandeiros [1] and meus_curandeiros [1][2] or 0
 	
 	for index, tabela in _ipairs (meus_curandeiros) do
 		
@@ -610,7 +611,7 @@ function atributo_heal:MontaInfoOverHealing()
 	local amt = #minhas_curas
 	gump:JI_AtualizaContainerBarras (amt)
 
-	local max_ = minhas_curas[1][2]
+	local max_ = minhas_curas[1] and minhas_curas[1][2] or 0
 
 	for index, tabela in _ipairs (minhas_curas) do
 
@@ -671,7 +672,7 @@ function atributo_heal:MontaInfoOverHealing()
 	local amt_alvos = #meus_inimigos
 	gump:JI_AtualizaContainerAlvos (amt_alvos)
 	
-	local max_inimigos = meus_inimigos[1][2]
+	local max_inimigos = meus_inimigos[1] and meus_inimigos[1][2] or 0
 	
 	for index, tabela in _ipairs (meus_inimigos) do
 	
@@ -727,7 +728,7 @@ function atributo_heal:MontaInfoHealingDone()
 	local amt = #minhas_curas
 	gump:JI_AtualizaContainerBarras (amt)
 
-	local max_ = minhas_curas[1][2]
+	local max_ = minhas_curas[1] and minhas_curas[1][2] or 0
 
 	for index, tabela in _ipairs (minhas_curas) do
 
@@ -763,7 +764,7 @@ function atributo_heal:MontaInfoHealingDone()
 	local amt_alvos = #meus_inimigos
 	gump:JI_AtualizaContainerAlvos (amt_alvos)
 	
-	local max_inimigos = meus_inimigos[1][2]
+	local max_inimigos = meus_inimigos[1] and meus_inimigos[1][2] or 0
 	
 	for index, tabela in _ipairs (meus_inimigos) do
 	
@@ -905,7 +906,7 @@ function atributo_heal:MontaDetalhesHealingTaken (nome, barra)
 	--local amt = #minhas_magias
 	--gump:JI_AtualizaContainerBarras (amt)
 
-	local max_ = minhas_magias[1][2] --> dano que a primeiro magia vez
+	local max_ = minhas_magias[1] and minhas_magias[1][2] or 0 --> dano que a primeiro magia vez
 	
 	local barra
 	for index, tabela in _ipairs (minhas_magias) do

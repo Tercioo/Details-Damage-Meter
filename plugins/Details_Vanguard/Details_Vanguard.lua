@@ -60,7 +60,7 @@ local function CreatePluginFrames (data)
 		if (event == "HIDE") then --> plugin hidded, disabled
 			VanguardFrame:SetScript ("OnUpdate", nil) 
 			VanguardFrame:UnregisterEvent ("ROLE_CHANGED_INFORM")
-			VanguardFrame:UnregisterEvent ("RAID_ROSTER_UPDATE")
+			VanguardFrame:UnregisterEvent ("GROUP_ROSTER_UPDATE")
 			VanguardFrame:UnregisterEvent ("PLAYER_TARGET_CHANGED")
 			Vanguard:Cancel()
 			
@@ -75,7 +75,7 @@ local function CreatePluginFrames (data)
 			Vanguard:OnResize()
 			
 			VanguardFrame:RegisterEvent ("ROLE_CHANGED_INFORM")
-			VanguardFrame:RegisterEvent ("RAID_ROSTER_UPDATE")
+			VanguardFrame:RegisterEvent ("GROUP_ROSTER_UPDATE")
 			VanguardFrame:RegisterEvent ("PLAYER_TARGET_CHANGED")
 			
 			Vanguard:ResetBars()
@@ -1234,7 +1234,7 @@ function Vanguard:OnEvent (_, event, ...)
 	elseif (event == "PLAYER_TARGET_CHANGED") then
 		Vanguard:TargetChanged()
 	
-	elseif (event == "ROLE_CHANGED_INFORM" or event == "RAID_ROSTER_UPDATE") then --> raid changes
+	elseif (event == "ROLE_CHANGED_INFORM" or event == "GROUP_ROSTER_UPDATE") then --> raid changes
 		Vanguard:IdentifyTanks()
 		
 	elseif (event == "ZONE_CHANGED_NEW_AREA" or event == "PLAYER_ENTERING_WORLD") then --> logon or map changes

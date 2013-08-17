@@ -66,7 +66,8 @@ do
 				{"Interface\\AddOns\\Details\\images\\atributos_icones_damage", {.125, .25, 0, 1}},
 				{"Interface\\AddOns\\Details\\images\\atributos_icones_damage", {.25, .375, 0, 1}},
 				{"Interface\\AddOns\\Details\\images\\atributos_icones_damage", {.375, .5, 0, 1}}
-			}
+			},
+			internal = {"total", "last_dps", "damage_taken", "friendlyfire_total"}
 		},
 
 		{
@@ -87,7 +88,8 @@ do
 				{"Interface\\AddOns\\Details\\images\\atributos_icones_heal", {.125, .25, 0, 1}},
 				{"Interface\\AddOns\\Details\\images\\atributos_icones_heal", {.25, .375, 0, 1}},
 				{"Interface\\AddOns\\Details\\images\\atributos_icones_heal", {.375, .5, 0, 1}}
-			}
+			},
+			internal = {"total", "last_hps", "totalover", "healing_taken"}
 		},
 		
 		{
@@ -149,9 +151,7 @@ do
 	end
 	
 	function _detalhes:GetInternalSubAttributeName (attribute, subAttribute)
-		if (attribute == 3 or attribute == 4) then
-			return _detalhes.sub_atributos [attribute].internal [subAttribute]
-		end
+		return _detalhes.sub_atributos [attribute].internal [subAttribute]
 	end
 	
 end
