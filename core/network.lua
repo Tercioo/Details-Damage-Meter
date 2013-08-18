@@ -63,16 +63,39 @@
 				if (not actor) then
 					if (IsInRaid()) then
 						for i = 1, GetNumGroupMembers() do 
-							if (UnitName ("raid"..i) == name) then
-								actor = container:PegarCombatente (UnitGUID ("raid"..i), name, 0x00000417, true)
-								break
+							if (name:find ("-")) then --> other realm
+								local nname, server = UnitName ("raid"..i)
+								if (server) then
+									nname = nname.."-"..server
+								end
+								if (nname == name) then
+									actor = container:PegarCombatente (UnitGUID ("raid"..i), name, 0x00000417, true)
+									break
+								end
+							else
+								if (UnitName ("raid"..i) == name) then
+									actor = container:PegarCombatente (UnitGUID ("raid"..i), name, 0x00000417, true)
+									break
+								end
 							end
+
 						end
 					elseif (IsInGroup()) then
 						for i = 1, GetNumGroupMembers()-1 do
-							if (UnitName ("party"..i) == name or _detalhes.playername == name) then
-								actor = container:PegarCombatente (UnitGUID ("party"..i), name, 0x00000417, true)
-								break
+							if (name:find ("-")) then --> other realm
+								local nname, server = UnitName ("party"..i)
+								if (server) then
+									nname = nname.."-"..server
+								end
+								if (nname == name) then
+									actor = container:PegarCombatente (UnitGUID ("party"..i), name, 0x00000417, true)
+									break
+								end
+							else
+								if (UnitName ("party"..i) == name or _detalhes.playername == name) then
+									actor = container:PegarCombatente (UnitGUID ("party"..i), name, 0x00000417, true)
+									break
+								end
 							end
 						end
 					end
@@ -199,6 +222,9 @@
 			player = player .."-"..realm
 		end
 		_detalhes.host_of = player
+		if (_detalhes.debug) then
+			_detalhes:Msg ("Details: CloudRequest()")
+		end
 		_detalhes:SendCommMessage ("details_comm", _detalhes:Serialize ("foundcloud", UnitName ("player"), GetRealmName(), _detalhes.realversion), "WHISPER", player)
 	end
 

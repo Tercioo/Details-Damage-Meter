@@ -203,7 +203,18 @@
 				if (_detalhes:IsInInstance() or _detalhes.debug) then
 					if (not _detalhes:CaptureIsAllEnabled()) then
 						_detalhes:SendCloudRequest()
+						if (_detalhes.debug) then
+							_detalhes:Msg ("Details: CloudRequest()")
+						end
 					end
+				else
+					if (_detalhes.debug) then
+						_detalhes:Msg ("Details: instance", _detalhes:IsInInstance())
+					end
+				end
+			else
+				if (_detalhes.debug) then
+					_detalhes:Msg ("Details: group and cloud", _detalhes.in_group, _detalhes.cloud_capture)
 				end
 			end
 			
