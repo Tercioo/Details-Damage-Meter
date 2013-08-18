@@ -232,7 +232,7 @@
 				end
 				_detalhes.tabela_vigente.enemy = inimigo
 				if (_detalhes.debug) then
-					_detalhes:EqualizeActors()
+					_detalhes:EqualizeActorsSchedule()
 				end
 			else
 			
@@ -252,10 +252,10 @@
 						end
 					end
 					
-					_detalhes:EqualizeActors()
+					_detalhes:EqualizeActorsSchedule()
 				else
 					if (_detalhes.debug) then
-						_detalhes:EqualizeActors()
+						_detalhes:EqualizeActorsSchedule()
 					end
 				end
 			end
@@ -411,6 +411,10 @@
 					misc.dispell = receivedActor [4][2]
 				end
 			end
+		end
+		
+		function _detalhes:EqualizeActorsSchedule()
+			_detalhes:ScheduleTimer ("EqualizeActors", 2)
 		end
 		
 		function _detalhes:EqualizeActors()

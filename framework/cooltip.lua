@@ -155,20 +155,36 @@ function DetailsCreateCoolTip()
 	--> Title Function 
 ----------------------------------------------------------------------
 
+		function CoolTip:SetTitle (_f, text)
+			if (_f == 1) then
+				CoolTip.title1 = true
+				CoolTip.title_text = text
+			end
+		end
+
 		function CoolTip:SetTitleAnchor (_f, _anchor, ...)
 			_anchor = string.lower (_anchor)
 			if (_f == 1) then
 				self.frame1.titleIcon:ClearAllPoints()
 				self.frame1.titleText:ClearAllPoints()
+				
 				if (_anchor == "left") then
 					self.frame1.titleIcon:SetPoint ("left", frame1, "left", ...)
 					self.frame1.titleText:SetPoint ("left", frame1.titleIcon, "right")
+					
 				elseif (_anchor == "center") then
-					self.frame1.titleIcon:SetPoint ("center", frame1, "center", ...)
+					self.frame1.titleIcon:SetPoint ("center", frame1, "center")
+					self.frame1.titleIcon:SetPoint ("bottom", frame1, "top")
 					self.frame1.titleText:SetPoint ("left", frame1.titleIcon, "right")
+					self.frame1.titleText:SetText ("TESTE")
+					
+					self.frame1.titleText:Show()
+					self.frame1.titleIcon:Show()
+					
 				elseif (_anchor == "right") then
 					self.frame1.titleIcon:SetPoint ("right", frame1, "right", ...)
 					self.frame1.titleText:SetPoint ("right", frame1.titleIcon, "left")
+					
 				end
 			elseif (_f == 2) then
 				self.frame2.titleIcon:ClearAllPoints()
@@ -318,7 +334,7 @@ function DetailsCreateCoolTip()
 
 		local OnEnterUpdateButton = function (self, elapsed)
 									elapsedTime = elapsedTime+elapsed
-									if (elapsedTime > 0.3) then
+									if (elapsedTime > 0.001) then
 										--> search key: ~onenterupdatemain
 										CoolTip:ShowSub (self.index)
 										CoolTip.last_button = self.index
@@ -390,7 +406,7 @@ function DetailsCreateCoolTip()
 								
 								elapsedTime = 0
 								frame1:SetScript ("OnUpdate", OnLeaveUpdateButton)
-								CoolTip:HideSub (i)
+								--CoolTip:HideSub (i)
 							else
 								CoolTip.active = false
 								elapsedTime = 0
@@ -582,15 +598,26 @@ function DetailsCreateCoolTip()
 			end
 			
 			--> string length
-			if (not CoolTip.OptionsTable.FixedWidth) then
-				if (CoolTip.Type == 1 or CoolTip.Type == 2) then
-					local stringWidth = menuButton.leftText:GetStringWidth() + menuButton.rightText:GetStringWidth() + menuButton.leftIcon:GetWidth() + menuButton.rightIcon:GetWidth()
-					if (stringWidth > frame.w) then
-						frame.w = stringWidth
+			if (not isSub) then --> main frame
+				if (not CoolTip.OptionsTable.FixedWidth) then
+					if (CoolTip.Type == 1 or CoolTip.Type == 2) then
+						local stringWidth = menuButton.leftText:GetStringWidth() + menuButton.rightText:GetStringWidth() + menuButton.leftIcon:GetWidth() + menuButton.rightIcon:GetWidth()
+						if (stringWidth > frame.w) then
+							frame.w = stringWidth
+						end
 					end
+				else
+					menuButton.leftText:SetWidth (CoolTip.OptionsTable.FixedWidth - menuButton.leftIcon:GetWidth() - 20)
 				end
 			else
-				if (isSub and CoolTip.OptionsTable.FixedWidthSub) then
+				if (not CoolTip.OptionsTable.FixedWidthSub) then
+					if (CoolTip.Type == 1 or CoolTip.Type == 2) then
+						local stringWidth = menuButton.leftText:GetStringWidth() + menuButton.rightText:GetStringWidth() + menuButton.leftIcon:GetWidth() + menuButton.rightIcon:GetWidth()
+						if (stringWidth > frame.w) then
+							frame.w = stringWidth
+						end
+					end
+				else
 					menuButton.leftText:SetWidth (CoolTip.OptionsTable.FixedWidthSub - menuButton.leftIcon:GetWidth() - 20)
 				end
 			end
@@ -1008,6 +1035,14 @@ function DetailsCreateCoolTip()
 		
 		frame1:ClearAllPoints()
 		CoolTip:SetMyPoint (host)
+		
+		if (CoolTip.title1) then
+			CoolTip.frame1.titleText:Show()
+			CoolTip.frame1.titleIcon:Show()
+			CoolTip.frame1.titleText:SetText (CoolTip.title_text)
+			CoolTip.frame1.titleIcon:SetWidth (frame1:GetWidth())
+			CoolTip.frame1.titleIcon:SetHeight (40)
+		end
 	
 		gump:Fade (frame1, 0)
 
@@ -1071,9 +1106,9 @@ function DetailsCreateCoolTip()
 	function CoolTip:GetText (buttonIndex)
 		local button1 = frame1.Lines [buttonIndex]
 		if (not button1) then
-			return ""
+			return "", ""
 		else
-			return button1.leftText:GetText()
+			return button1.leftText:GetText(), button1.rightText:GetText()
 		end
 	end
 	
@@ -1282,6 +1317,12 @@ function DetailsCreateCoolTip()
 			
 			_table_wipe (CoolTip.ParametersTableMain)
 			_table_wipe (CoolTip.ParametersTableSub)
+			
+			CoolTip.title1 = nil
+			CoolTip.title_text = nil
+			
+			CoolTip.frame1.titleText:Hide()
+			CoolTip.frame1.titleIcon:Hide()
 			
 			CoolTip:ClearAllOptions()
 			CoolTip:SetColor (1, "transparent")
@@ -1952,6 +1993,14 @@ function DetailsCreateCoolTip()
 		end
 		
 		host.CoolTip.BuildFunc()
+		
+		if (CoolTip.Indexes == 0) then
+			if (host.CoolTip.Default) then
+				CoolTip:SetType ("tooltip")
+				CoolTip:AddLine (host.CoolTip.Default, nil, 1, "white")
+			end
+		end
+		
 		CoolTip:ShowCooltip()
 		
 		if (fromClick) then
@@ -1959,7 +2008,7 @@ function DetailsCreateCoolTip()
 		end
 	end
 	
-	local wait = 0.3
+	local wait = 0.2
 	
 	local InjectOnUpdateEnter = function (self, elapsed)  
 		elapsedTime = elapsedTime+elapsed
@@ -1971,7 +2020,7 @@ function DetailsCreateCoolTip()
 
 	local InjectOnUpdateLeave = function (self, elapsed)  
 		elapsedTime = elapsedTime+elapsed
-		if (elapsedTime > 0.3) then
+		if (elapsedTime > 0.2) then
 			if (not CoolTip.mouseOver and not CoolTip.buttonOver and self == CoolTip.Host) then
 				CoolTip:ShowMe (false)
 			end
@@ -2004,7 +2053,7 @@ function DetailsCreateCoolTip()
 			CoolTip:ExecFunc (self)
 		else
 			elapsedTime = 0
-			wait = self.CoolTip.ShowSpeed or 0.3
+			wait = self.CoolTip.ShowSpeed or 0.2
 			self:SetScript ("OnUpdate", InjectOnUpdateEnter)
 		end
 

@@ -1884,6 +1884,8 @@
 				_detalhes.in_group = IsInGroup() or IsInRaid()
 				if (not _detalhes.in_group) then
 					table.wipe (_detalhes.details_users)
+				else
+					_detalhes:CheckDetailsUsers()
 				end
 			end
 			

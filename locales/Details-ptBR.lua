@@ -93,11 +93,14 @@ if not Loc then return end
 	
 --> Mode Names
 
-	Loc ["STRING_MODE_SELF"] = "Sozinho"
-	Loc ["STRING_MODE_GROUP"] = "Grupo"
-	Loc ["STRING_MODE_ALL"] = "Tudo"
-	Loc ["STRING_MODE_RAID"] = "Raid"	
-
+	Loc ["STRING_MODE_GROUP"] = "Grupo & Raide"
+	Loc ["STRING_MODE_ALL"] = "Mostrar Tudo"
+	
+	Loc ["STRING_MODE_SELF"] = "Lobo Solitario"
+	Loc ["STRING_MODE_RAID"] = "Acessorios"
+	Loc ["STRING_MODE_PLUGINS"] = "plugins"
+	
+	Loc ["STRING_OPTIONS_WINDOW"] = "Painel de Opcoes"
 -->
 	
 	Loc ["STRING_NEWROW"] = "esperando atualizar..."
@@ -214,12 +217,14 @@ if not Loc then return end
 	Loc ["STRING_CUSTOM_NEW"] = "Criar Novo"
 	Loc ["STRING_CUSTOM_REPORT"] = "Relatorio para (custom)"
 	Loc ["STRING_REPORT"] = "Relatorio para"
+	Loc ["STRING_REPORT_LEFTCLICK"] = "Clique para abrir a janela de relatorio"
 	Loc ["STRING_REPORT_FIGHT"] = "luta"
 	Loc ["STRING_REPORT_LAST"] = "Ultimas"
 	Loc ["STRING_REPORT_FIGHTS"] = "lutas"
 	Loc ["STRING_REPORT_LASTFIGHT"] = "ultima luta"
 	Loc ["STRING_REPORT_PREVIOUSFIGHTS"] = "lutas anteriores"
 	Loc ["STRING_REPORT_INVALIDTARGET"] = "O alvo nao pode ser encontrado"
+	Loc ["STRING_NOCLOSED_INSTANCES"] = "Nao ha instancias fechadas,\nclique para abrir uma nova."
 	
 --> report frame
 
@@ -253,7 +258,6 @@ if not Loc then return end
 	
 --> Main Window
 
-	Loc ["STRING_OPTIONS_WINDOW"] = "opcoes"
 	Loc ["STRING_LOCK_WINDOW"] = "travar"
 	Loc ["STRING_UNLOCK_WINDOW"] = "destravar"
 	Loc ["STRING_ERASE"] = "apagar"

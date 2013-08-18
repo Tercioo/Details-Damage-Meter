@@ -12,26 +12,45 @@
 --> local pointers
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---> api
+
+	function _detalhes:CheckDetailsUsers()
+		
+		if (true) then --> disabled
+			return
+		end
+	
+		if (IsInRaid()) then
+			for i = 1, GetNumGroupMembers() do 
+				if (_detalhes.details_users [ UnitName ("raid"..i)]) then
+				end
+			end
+		elseif (IsInGroup()) then
+			for i = 1, GetNumGroupMembers()-1 do
+				if (_detalhes.details_users [ UnitName ("party"..i)]) then
+				end
+			end
+		end
+	end
 
 	local temp = {}
 
 	function _detalhes:RaidComm (_, data, _, source)
-		local type =  select (2, _detalhes:Deserialize (data))
+	
+		local type, player, realm, dversion, arg6 =  select (2, _detalhes:Deserialize (data))
 		
 		if (_detalhes.debug) then
 			print ("comm received", type)
 		end
 		
 		if (type == "highfive") then
-			local player, realm, dversion = select (3, _detalhes:Deserialize (data))
-			if (player ~= _detalhes.playername) then
-				_detalhes.details_users [#_detalhes.details_users+1] = {player, realm, dversion}
+			if (player ~= _detalhes.playername and not _detalhes.details_users [player]) then
+				_detalhes.details_users [player] = {player, realm, dversion}
 			end
 		
 		elseif (type == "clouddatareceived") then
 		
-			local atributo, atributo_name, data = select (3, _detalhes:Deserialize (data))
+			--local atributo, atributo_name, data = select (3, _detalhes:Deserialize (data))
+			local atributo, atributo_name, data = player, realm, dversion
 			
 			local container = _detalhes.tabela_vigente [atributo]
 			
@@ -76,8 +95,8 @@
 				--> delayed response
 				return
 			end
-		
-			local atributo, subatributo = select (3, _detalhes:Deserialize (data))
+
+			local atributo, subatributo = player, realm
 			
 			local data
 			local atributo_name = _detalhes:GetInternalSubAttributeName (atributo, subatributo)
@@ -118,7 +137,6 @@
 				return
 			end
 		
-			local player, realm, dversion = select (3, _detalhes:Deserialize (data))
 			if (realm ~= GetRealmName()) then
 				player = player .."-"..realm
 			end
@@ -131,7 +149,7 @@
 			_detalhes.cloud_process = _detalhes:ScheduleRepeatingTimer ("RequestData", 7)
 			
 		elseif (type == "needcloud") then
-			local player, realm, dversion = select (3, _detalhes:Deserialize (data))
+
 			if (_detalhes.debug) then
 				print (player, _detalhes.host_of, _detalhes:CaptureIsAllEnabled(), dversion == _detalhes.realversion)
 			end
@@ -148,7 +166,7 @@
 		
 			if (not _detalhes.in_combat) then
 			
-				local player, realm, dversion, receivedActor = select (3, _detalhes:Deserialize (data))
+				local receivedActor = arg6
 				
 				if (dversion ~= _detalhes.realversion) then
 					return
@@ -166,6 +184,9 @@
 	end
 	
 	function _detalhes:SendHighFive()
+		if (true) then --> disabled
+			return
+		end
 		_detalhes:SendCommMessage ("details_comm", _detalhes:Serialize ("highfive", UnitName ("player"), GetRealmName(), _detalhes.realversion), "RAID")
 	end
 	
@@ -185,8 +206,20 @@
 		for index = 1, #_detalhes.tabela_instancias do
 			local instancia = _detalhes.tabela_instancias [index]
 			if (instancia.ativa) then
-				_detalhes:SendCommMessage ("details_comm", _detalhes:Serialize ("clouddatarequest", instancia.atributo, instancia.sub_atributo), "WHISPER", _detalhes.host_by)
-				break
+				local atributo = instancia.atributo
+				if (atributo == 1 and not _detalhes:CaptureGet ("damage")) then
+					_detalhes:SendCommMessage ("details_comm", _detalhes:Serialize ("clouddatarequest", atributo, instancia.sub_atributo), "WHISPER", _detalhes.host_by)
+					break
+				elseif (atributo == 2 and (not _detalhes:CaptureGet ("heal") or _detalhes:CaptureGet ("aura"))) then
+					_detalhes:SendCommMessage ("details_comm", _detalhes:Serialize ("clouddatarequest", atributo, instancia.sub_atributo), "WHISPER", _detalhes.host_by)
+					break
+				elseif (atributo == 3 and not _detalhes:CaptureGet ("energy")) then
+					_detalhes:SendCommMessage ("details_comm", _detalhes:Serialize ("clouddatarequest", atributo, instancia.sub_atributo), "WHISPER", _detalhes.host_by)
+					break
+				elseif (atributo == 4 and not _detalhes:CaptureGet ("miscdata")) then
+					_detalhes:SendCommMessage ("details_comm", _detalhes:Serialize ("clouddatarequest", atributo, instancia.sub_atributo), "WHISPER", _detalhes.host_by)
+					break
+				end
 			end
 		end
 	end

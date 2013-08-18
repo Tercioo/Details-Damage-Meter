@@ -1696,7 +1696,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 	instancia._version = BaseFrame:CreateFontString (nil, "OVERLAY", "GameFontHighlightSmall")
 		instancia._version:SetPoint ("left", BackGroundDisplay, "left", 20, 0)
 		instancia._version:SetTextColor (1, 1, 1)
-		instancia._version:SetText ("this is a early alpha version (1) of Details\nyou can help us sending bug reports\nuse the blue button.")
+		instancia._version:SetText ("this is a alpha version of Details\nyou can help us sending bug reports\nuse the blue button.")
 		if (not _detalhes.initializing) then
 			instancia._version:Hide()
 		end
@@ -2053,6 +2053,7 @@ function gump:CriaNovaBarra (instancia, index)
 	return esta_barra
 end
 
+-- search key: ~wallpaper
 function _detalhes:InstanceWallpaper (texture, anchor, alpha, texcoord, width, height, overlay)
 
 	local wallpaper = self.wallpaper
@@ -2441,25 +2442,26 @@ function gump:CriaCabecalho (BaseFrame, instancia)
 	
 	--> Generating Cooltip menu from table template
 	local modeMenuTable = {
-		{text = Loc ["STRING_MODE_SELF"]},
-		{func = instancia.AlteraModo, param1 = 1},
-		{icon = "Interface\\AddOns\\Details\\images\\modo_icones", l = 0, r = 32/256, t = 0, b = 1, width = 20, height = 20},
-		{text = Loc ["STRING_HELP_MODESELF"], type = 2},
-		{icon = [[Interface\TUTORIALFRAME\TutorialFrame-QuestionMark]], type = 2, width = 16, height = 16, l = 8/64, r = 1 - (8/64), t = 8/64, b = 1 - (8/64)},
-		
+	
 		{text = Loc ["STRING_MODE_GROUP"]},
 		{func = instancia.AlteraModo, param1 = 2},
 		{icon = "Interface\\AddOns\\Details\\images\\modo_icones", l = 32/256, r = 32/256*2, t = 0, b = 1, width = 20, height = 20},
 		{text = Loc ["STRING_HELP_MODEGROUP"], type = 2},
 		{icon = [[Interface\TUTORIALFRAME\TutorialFrame-QuestionMark]], type = 2, width = 16, height = 16, l = 8/64, r = 1 - (8/64), t = 8/64, b = 1 - (8/64)},
-		
+
 		{text = Loc ["STRING_MODE_ALL"]},
 		{func = instancia.AlteraModo, param1 = 3},
 		{icon = "Interface\\AddOns\\Details\\images\\modo_icones", l = 32/256*2, r = 32/256*3, t = 0, b = 1, width = 20, height = 20},
 		{text = Loc ["STRING_HELP_MODEALL"], type = 2},
+		{icon = [[Interface\TUTORIALFRAME\TutorialFrame-QuestionMark]], type = 2, width = 16, height = 16, l = 8/64, r = 1 - (8/64), t = 8/64, b = 1 - (8/64)},		
+	
+		{text = Loc ["STRING_MODE_SELF"] .. " (|cffa0a0a0" .. Loc ["STRING_MODE_PLUGINS"] .. "|r)"},
+		{func = instancia.AlteraModo, param1 = 1},
+		{icon = "Interface\\AddOns\\Details\\images\\modo_icones", l = 0, r = 32/256, t = 0, b = 1, width = 20, height = 20},
+		{text = Loc ["STRING_HELP_MODESELF"], type = 2},
 		{icon = [[Interface\TUTORIALFRAME\TutorialFrame-QuestionMark]], type = 2, width = 16, height = 16, l = 8/64, r = 1 - (8/64), t = 8/64, b = 1 - (8/64)},
-		
-		{text = Loc ["STRING_MODE_RAID"]},
+
+		{text = Loc ["STRING_MODE_RAID"] .. " (|cffa0a0a0" .. Loc ["STRING_MODE_PLUGINS"] .. "|r)"},
 		{func = instancia.AlteraModo, param1 = 4},
 		{icon = "Interface\\AddOns\\Details\\images\\modo_icones", l = 32/256*3, r = 32/256*4, t = 0, b = 1, width = 20, height = 20},
 		{text = Loc ["STRING_HELP_MODERAID"], type = 2},
@@ -2482,8 +2484,17 @@ function gump:CriaCabecalho (BaseFrame, instancia)
 		if (_detalhes.popup.active) then
 			passou = 0.15
 		end
-		
-		local checked = instancia.modo or 2
+
+		local checked
+		if (instancia.modo == 1) then
+			checked = 3
+		elseif (instancia.modo == 2) then
+			checked = 1
+		elseif (instancia.modo == 3) then
+			checked = 2
+		elseif (instancia.modo == 4) then
+			checked = 4
+		end
 
 		self:SetScript ("OnUpdate", function (self, elapsed)
 			passou = passou+elapsed
@@ -2502,7 +2513,7 @@ function gump:CriaCabecalho (BaseFrame, instancia)
 				CoolTip:SetOption ("ButtonsYMod", -5)
 				CoolTip:SetOption ("YSpacingMod", 1)
 				CoolTip:SetOption ("FixedHeight", 106)
-				CoolTip:SetOption ("FixedWidth", 106)
+				--CoolTip:SetOption ("FixedWidth", 138)
 				CoolTip:SetOption ("FixedWidthSub", 146)
 				CoolTip:SetOption ("SubMenuIsTooltip", true)
 				
@@ -2785,19 +2796,67 @@ function gump:CriaCabecalho (BaseFrame, instancia)
 	_detalhes.popup:CoolTipInject (BaseFrame.cabecalho.atributo)
 
 	--> REPORTAR ----------------------------------------------------------------------------------------------------------------------------------------------------
-			BaseFrame.cabecalho.report = gump:NewDetailsButton (BaseFrame, _, instancia, _detalhes.Reportar, instancia, nil, 16, 16,
-			"Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON")
+			BaseFrame.cabecalho.report = gump:NewDetailsButton (BaseFrame, _, instancia, _detalhes.Reportar, instancia, nil, 16, 16, [[Interface\COMMON\VOICECHAT-ON]])
 			BaseFrame.cabecalho.report:SetPoint ("left", BaseFrame.cabecalho.atributo, "right", -6, 0)
 			BaseFrame.cabecalho.report:SetFrameLevel (BaseFrame.UPFrame:GetFrameLevel()+1)
-			BaseFrame.cabecalho.report:SetScript ("OnEnter", function()
-				_detalhes.popup.button_over = true
+			
+			--[[
+			
+			BaseFrame.cabecalho.report:SetScript ("OnEnter", function (self) 
+				gump:Fade (BaseFrame.button_stretch, "alpha", 0.3)
+				
+				_detalhes.popup.buttonOver = true
 				BaseFrame.cabecalho.button_mouse_over = true
-			end) 
-			BaseFrame.cabecalho.report:SetScript ("OnLeave", function()
-				_detalhes.popup.button_over = false
-				BaseFrame.cabecalho.button_mouse_over = false
-			end) 
+				
+				local passou = 0
+				if (_detalhes.popup.active) then
+					passou = 0.15
+				end
 
+				self:SetScript ("OnUpdate", function (self, elapsed)
+					passou = passou+elapsed
+					if (passou > 0.15) then
+					
+						CoolTip:Reset()
+						CoolTip:SetType ("menu")
+						CoolTip:SetFixedParameter (instancia)
+						CoolTip:SetColor ("main", "transparent")
+					
+						CoolTip:AddLine (Loc ["STRING_REPORTFRAME_PARTY"], _, 1, "white")
+						CoolTip:AddMenu (1, instancia.TrocaTabela, -1)
+					
+						CoolTip:SetOwner (self)
+						CoolTip:ShowCooltip()
+						
+						self:SetScript ("OnUpdate", nil)
+					end
+				end)
+			end)
+			
+			BaseFrame.cabecalho.report:SetScript ("OnLeave", function (self) 
+				gump:Fade (BaseFrame.button_stretch, -1)
+				
+				_detalhes.popup.buttonOver = false
+				BaseFrame.cabecalho.button_mouse_over = false
+				
+				if (_detalhes.popup.active) then
+					local passou = 0
+					self:SetScript ("OnUpdate", function (self, elapsed)
+						passou = passou+elapsed
+						if (passou > 0.3) then
+							if (not _detalhes.popup.mouseOver and not _detalhes.popup.buttonOver) then
+								_detalhes.popup:ShowMe (false)
+							end
+							self:SetScript ("OnUpdate", nil)
+						end
+					end)
+				else
+					self:SetScript ("OnUpdate", nil)
+				end
+			end)	
+
+			--]]
+			
 	--> BOSS INFO ----------------------------------------------------------------------------------------------------------------------------------------------------
 			--BaseFrame.cabecalho.boss_info = gump:NewDetailsButton (BaseFrame, BaseFrame, instancia, _detalhes.AbrirEncounterWindow, instancia, nil, 16, 16,
 			--"Interface\\COMMON\\help-i", "Interface\\COMMON\\help-i", "Interface\\COMMON\\help-i", "Interface\\COMMON\\help-i")
@@ -2887,6 +2946,8 @@ function gump:CriaCabecalho (BaseFrame, instancia)
 		OnEnterFunc = function() gump:Fade (BaseFrame.button_stretch, "alpha", 0.3) end,
 		--> a hook for OnLeaveScript
 		OnLeaveFunc = function() gump:Fade (BaseFrame.button_stretch, -1) end,
+		--> default message if there is no option avaliable
+		Default = Loc ["STRING_NOCLOSED_INSTANCES"], 
 		--> instancia is the first parameter sent after click, before parameters
 		FixedValue = instancia,
 		Options = {TextSize = 10, NoLastSelectedBar = true}}

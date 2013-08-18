@@ -6,6 +6,7 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> global name declaration
 		_detalhes = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0")
+		_detalhes.userversion = "v1.1.3"
 		_detalhes.version = "Alpha 002"
 		_detalhes.realversion = 2
 
@@ -203,6 +204,11 @@ do
 				end
 			end
 			_detalhes.delaymsgs = {}
+		end
+	
+	--> print messages
+		function _detalhes:Msg (_string)
+			print (Loc ["STRING_DETAILS1"] .. _string)
 		end
 	
 end

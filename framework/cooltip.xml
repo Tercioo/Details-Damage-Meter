@@ -61,17 +61,18 @@
 					</Anchors>
 				</Texture>
 				<!-- title icon -->
-				<Texture name="$parent_TitleIcon" hidden="true" parentKey="titleIcon" file = "Interface\AddOns\Details\images\cooltip_selected">
+				<Texture name="$parent_TitleIcon" hidden="true" parentKey="titleIcon" file = "Interface\Challenges\challenges-main">
 					<Anchors>
-						<Anchor point="TOP" relativeTo="$parent" relativePoint="TOP" x="0" y="0"/>
-						<Anchor point="LEFT" relativeTo="$parent" relativePoint="LEFT" x="0" y="0"/>
+						<Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER" x="0" y="0"/>
+						<Anchor point="BOTTOM" relativeTo="$parent" relativePoint="TOP" x="0" y="-22"/>
 					</Anchors>
+					<TexCoords left="0.1521484375" right="0.563671875" top="0.160859375" bottom="0.234375"/>
 				</Texture>
 				<!-- title text -->
 				<FontString name="$parent_TitleText" parentKey="titleText" inherits="GameFontHighlightSmall" justifyH="LEFT" nonspacewrap="true">
 					<FontHeight val="10.5"/>
 					<Anchors>
-						<Anchor point="LEFT" relativeTo="$parent_Selected" relativePoint="RIGHT" x="0" y="0"/>
+						<Anchor point="CENTER" relativeTo="$parent_TitleIcon" relativePoint="CENTER" x="0" y="6"/>
 					</Anchors>
 				</FontString>
 			</Layer>

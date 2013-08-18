@@ -93,10 +93,15 @@ if not Loc then return end
 	
 --> Mode Names
 
-	Loc ["STRING_MODE_SELF"] = "Self"
-	Loc ["STRING_MODE_GROUP"] = "Group"
+	Loc ["STRING_MODE_GROUP"] = "Group & Raid"
 	Loc ["STRING_MODE_ALL"] = "Everything"
-	Loc ["STRING_MODE_RAID"] = "Raid"
+	
+	Loc ["STRING_MODE_SELF"] = "Lone Wolf"
+	Loc ["STRING_MODE_RAID"] = "Widgets"
+	Loc ["STRING_MODE_PLUGINS"] = "plugins"
+	
+	Loc ["STRING_OPTIONS_WINDOW"] = "Options Panel"
+	
 
 --> Wait Messages
 	
@@ -218,12 +223,14 @@ if not Loc then return end
 	Loc ["STRING_CUSTOM_NEW"] = "Create New"
 	Loc ["STRING_CUSTOM_REPORT"] = "Report for (custom)"
 	Loc ["STRING_REPORT"] = "Report for"
+	Loc ["STRING_REPORT_LEFTCLICK"] = "Click to open report dialog"
 	Loc ["STRING_REPORT_FIGHT"] = "fight"
 	Loc ["STRING_REPORT_LAST"] = "Last" -- >last< 3 fights
 	Loc ["STRING_REPORT_FIGHTS"] = "fights" -- last 3 >fights<
 	Loc ["STRING_REPORT_LASTFIGHT"] = "last fight"
 	Loc ["STRING_REPORT_PREVIOUSFIGHTS"] = "previous fights"
 	Loc ["STRING_REPORT_INVALIDTARGET"] = "Whisper target not found"
+	Loc ["STRING_NOCLOSED_INSTANCES"] = "There are no closed instances,\nclick to open a new one."
 	
 --> report frame
 
@@ -257,7 +264,6 @@ if not Loc then return end
 	
 --> Main Window
 
-	Loc ["STRING_OPTIONS_WINDOW"] = "options"
 	Loc ["STRING_LOCK_WINDOW"] = "lock"
 	Loc ["STRING_UNLOCK_WINDOW"] = "unlock"
 	Loc ["STRING_ERASE"] = "delete"

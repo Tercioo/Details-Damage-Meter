@@ -775,7 +775,7 @@ end
 
 ---------> default options panel ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-local window = _detalhes.gump:NewPanel (UIParent, nil, "DetailsStatusBarOptions", nil, 300, 160)
+local window = _detalhes.gump:NewPanel (UIParent, nil, "DetailsStatusBarOptions", nil, 300, 180)
 tinsert (UISpecialFrames, "DetailsStatusBarOptions")
 window:SetPoint ("center", UIParent, "center")
 window.locked = false
@@ -783,7 +783,7 @@ window.close_with_right = true
 window.child = nil
 window.instance = nil
 
-local extraWindow = _detalhes.gump:NewPanel (window, nil, "DetailsStatusBarOptions2", "extra", 300, 160)
+local extraWindow = _detalhes.gump:NewPanel (window, nil, "DetailsStatusBarOptions2", "extra", 300, 180)
 extraWindow:SetPoint ("left", window, "right")
 extraWindow.close_with_right = true
 extraWindow.locked = false
@@ -821,11 +821,12 @@ end)
 		_detalhes.StatusBar:ApplyOptions (window.child, "textcolor", {r, g, b, a})
 	end
 	local colorpick = function()
-		ColorPickerFrame:SetColorRGB (unpack (window.child.options.textColor))
-		ColorPickerFrame.hasOpacity = false
-		ColorPickerFrame.previousValues = window.child.options.textColor
 		ColorPickerFrame.func = selectedColor
 		ColorPickerFrame.cancelFunc = canceledColor
+		ColorPickerFrame.hasOpacity = false
+		ColorPickerFrame.previousValues = window.child.options.textColor
+		ColorPickerFrame:SetParent (window.widget)
+		ColorPickerFrame:SetColorRGB (unpack (window.child.options.textColor))
 		ColorPickerFrame:Show()
 	end
 
@@ -916,6 +917,10 @@ end)
 	window.alignYSlider:SetHook ("OnValueChange", function (self, child, amount) 
 		_detalhes.StatusBar:ApplyOptions (child, "textymod", amount)
 	end)
+	
+--> right click to close
+	local c = window:CreateRightClickLabel ("short")
+	c:SetPoint ("bottomleft", window, "bottomleft", 8, 5)
 	
 --> open options
 	function _detalhes.StatusBar:OpenOptionsForChild (child)

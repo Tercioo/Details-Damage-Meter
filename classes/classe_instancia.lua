@@ -702,7 +702,7 @@ end
 		nova_instancia.wallpaper = {
 			enabled = false,
 			texture = nil,
-			anchor = "bottomright",
+			anchor = "all",
 			alpha = 0.5,
 			texcoord = {0, 1, 0, 1},
 			width = 0,
@@ -800,7 +800,7 @@ function _detalhes:RestauraJanela (index, temp)
 		self.wallpaper = self.wallpaper or {
 			enabled = false,
 			texture = nil,
-			anchor = "bottomright",
+			anchor = "all",
 			alpha = 0.5,
 			texcoord = {0, 1, 0, 1},
 			width = 0,
@@ -1454,7 +1454,18 @@ function _detalhes:AlteraModo (instancia, qual)
 		_detalhes:SendEvent ("DETAILS_INSTANCE_CHANGEMODE", nil, instancia, modo_all)
 	end
 	
-	_detalhes.popup:Select (1, qual)
+	local checked
+	if (instancia.modo == 1) then
+		checked = 3
+	elseif (instancia.modo == 2) then
+		checked = 1
+	elseif (instancia.modo == 3) then
+		checked = 2
+	elseif (instancia.modo == 4) then
+		checked = 4
+	end	
+	
+	_detalhes.popup:Select (1, checked)
 end
 
 

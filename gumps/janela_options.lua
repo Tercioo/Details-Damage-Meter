@@ -195,42 +195,56 @@ function _detalhes:OpenOptionsWindow (instance)
 		g:NewLabel (window, _, "$parentCaptureDamageLabel", "auraCaptureLabel", "Auras")
 		window.auraCaptureLabel:SetPoint ("left", window.auraCaptureImage, "right", 2)
 		
+		local switch_icon_color = function (icon, on_off)
+			icon:SetDesaturated (not on_off)
+		end
+		
 		g:NewSwitch (window, _, "$parentCaptureDamageSlider", "damageCaptureSlider", 60, 20, _, _, _detalhes.capture_real ["damage"])
 		window.damageCaptureSlider:SetPoint ("left", window.damageCaptureLabel, "right", 2)
 		window.damageCaptureSlider.tooltip = "Pause or enable capture of:\n- damage done\n- damage per second\n- friendly fire\n- damage taken"
 		window.damageCaptureSlider.OnSwitch = function (self, _, value)
 			_detalhes:CaptureSet (value, "damage", true)
+			switch_icon_color (window.damageCaptureImage, value)
 		end
+		switch_icon_color (window.damageCaptureImage, _detalhes.capture_real ["damage"])
 		
 		g:NewSwitch (window, _, "$parentCaptureHealSlider", "healCaptureSlider", 60, 20, _, _, _detalhes.capture_real ["heal"])
 		window.healCaptureSlider:SetPoint ("left", window.healCaptureLabel, "right", 2)
 		window.healCaptureSlider.tooltip = "Pause or enable capture of:\n- healing done (not absorbs)\n- healing per second\n- overheal\n- healing taken"
 		window.healCaptureSlider.OnSwitch = function (self, _, value)
 			_detalhes:CaptureSet (value, "heal", true)
+			switch_icon_color (window.healCaptureImage, value)
 		end
+		switch_icon_color (window.healCaptureImage, _detalhes.capture_real ["heal"])
 		
 		g:NewSwitch (window, _, "$parentCaptureEnergySlider", "energyCaptureSlider", 60, 20, _, _, _detalhes.capture_real ["energy"])
 		window.energyCaptureSlider:SetPoint ("left", window.energyCaptureLabel, "right", 2)
 		window.energyCaptureSlider.tooltip = "Pause or enable capture of:\n- mana restored\n- rage generated\n- energy generated\n- runic power generated"
 		window.energyCaptureSlider.OnSwitch = function (self, _, value)
 			_detalhes:CaptureSet (value, "energy", true)
+			switch_icon_color (window.energyCaptureImage, value)
 		end
+		switch_icon_color (window.energyCaptureImage, _detalhes.capture_real ["energy"])
 		
 		g:NewSwitch (window, _, "$parentCaptureMiscSlider", "miscCaptureSlider", 60, 20, _, _, _detalhes.capture_real ["miscdata"])
 		window.miscCaptureSlider:SetPoint ("left", window.miscCaptureLabel, "right", 2)
 		window.miscCaptureSlider.tooltip = "Pause or enable capture of:\n- cc breaks\n- dispell\n- interrupts\n- ress\n- deaths"
 		window.miscCaptureSlider.OnSwitch = function (self, _, value)
 			_detalhes:CaptureSet (value, "miscdata", true)
+			switch_icon_color (window.miscCaptureImage, value)
 		end
+		switch_icon_color (window.miscCaptureImage, _detalhes.capture_real ["miscdata"])
 		
 		g:NewSwitch (window, _, "$parentCaptureAuraSlider", "auraCaptureSlider", 60, 20, _, _, _detalhes.capture_real ["aura"])
 		window.auraCaptureSlider:SetPoint ("left", window.auraCaptureLabel, "right", 2)
 		window.auraCaptureSlider.tooltip = "Pause or enable capture of:\n- buffs and debufs\n- absorbs (heal)"
 		window.auraCaptureSlider.OnSwitch = function (self, _, value)
 			_detalhes:CaptureSet (value, "aura", true)
+			switch_icon_color (window.auraCaptureImage, value)
 		end
+		switch_icon_color (window.auraCaptureImage, _detalhes.capture_real ["aura"])
 		
-	--------------- Cload Capture
+	--------------- Cloud Capture
 	
 		g:NewLabel (window, _, "$parentCloudCaptureLabel", "cloudCaptureLabel", "Cloud Capture")
 		window.cloudCaptureLabel:SetPoint (10, -268)
@@ -267,10 +281,9 @@ function _detalhes:OpenOptionsWindow (instance)
 		g:NewLabel (window, _, "$parentFontSizeLabel", "fonsizeLabel", "font size")
 		window.fonsizeLabel:SetPoint (250, -65)
 		--
-		g:NewSlider (window, _, "$parentSliderFontSize", "fonsizeSlider", 90, 20, 9, 13, .5, tonumber (instance.barrasInfo.fontSize)) --parent, container, name, member, w, h, min, max, step, defaultv
+		g:NewSlider (window, _, "$parentSliderFontSize", "fonsizeSlider", 90, 20, 8, 15, 1, tonumber (instance.barrasInfo.fontSize)) --parent, container, name, member, w, h, min, max, step, defaultv
 		window.fonsizeSlider:SetPoint ("left", window.fonsizeLabel, "right")
 		window.fonsizeSlider:SetThumbSize (50)
-		window.fonsizeSlider.useDecimals = true
 		window.fonsizeSlider:SetHook ("OnValueChange", function (self, instance, amount) 
 			instance.barrasInfo.fontSize = amount
 			instance:RefreshBars()
@@ -338,14 +351,13 @@ function _detalhes:OpenOptionsWindow (instance)
 		end
 		
 		local colorpick = function()
-			ColorPickerFrame:SetColorRGB (unpack (window.instance.color))
+			ColorPickerFrame.func = selectedColor
+			ColorPickerFrame.cancelFunc = canceledColor
 			ColorPickerFrame.hasOpacity = false
 			ColorPickerFrame.opacity = window.instance.color[4] or 1
 			ColorPickerFrame.previousValues = window.instance.color
-			ColorPickerFrame.func = selectedColor
-			ColorPickerFrame.opacityFunc = selectedAlpha
-			ColorPickerFrame.cancelFunc = canceledColor
 			ColorPickerFrame:SetParent (window.widget)
+			ColorPickerFrame:SetColorRGB (unpack (window.instance.color))
 			ColorPickerFrame:Show()
 		end
 
@@ -359,7 +371,12 @@ function _detalhes:OpenOptionsWindow (instance)
 	--------------- Background
 	
 		local onSelectSecTexture = function (self, instance, texturePath) 
-			instance:InstanceWallpaper (texturePath)
+			
+			if (texturePath:find ("TALENTFRAME")) then
+				instance:InstanceWallpaper (texturePath, nil, nil, {0, 1, 0, 0.703125})
+			else
+				instance:InstanceWallpaper (texturePath, nil, nil, {0, 1, 0, 1})
+			end
 		end
 	
 		local subMenu = {
@@ -402,7 +419,7 @@ function _detalhes:OpenOptionsWindow (instance)
 				{value = [[Interface\DRESSUPFRAME\DressUpBackground-Dwarf1]], label = "Dwarf", onclick = onSelectSecTexture, icon = [[Interface\Glues\CHARACTERCREATE\UI-CHARACTERCREATE-RACES]], texcoord = {0.125, 0.25, 0, 0.25}},
 				{value = [[Interface\DRESSUPFRAME\DRESSUPBACKGROUND-GNOME1]], label = "Gnome", onclick = onSelectSecTexture, icon = [[Interface\Glues\CHARACTERCREATE\UI-CHARACTERCREATE-RACES]], texcoord = {0.25, 0.375, 0, 0.25}},
 				{value = [[Interface\DRESSUPFRAME\DressUpBackground-Goblin1]], label = "Goblin", onclick = onSelectSecTexture, icon = [[Interface\Glues\CHARACTERCREATE\UI-CHARACTERCREATE-RACES]], texcoord = {0.625, 0.75, 0.75, 1}},
-				{value = [[Interface\DRESSUPFRAME\DressUpBackground-Human1]], label = "Human", onclick = onSelectSecTexture, icon = [[Interface\Glues\CHARACTERCREATE\UI-CHARACTERCREATE-RACES]], texcoord = {0, 0.125, 0.75, 1}},
+				{value = [[Interface\DRESSUPFRAME\DressUpBackground-Human1]], label = "Human", onclick = onSelectSecTexture, icon = [[Interface\Glues\CHARACTERCREATE\UI-CHARACTERCREATE-RACES]], texcoord = {0, 0.125, 0.5, 0.75}},
 				{value = [[Interface\DRESSUPFRAME\DressUpBackground-NightElf1]], label = "Night Elf", onclick = onSelectSecTexture, icon = [[Interface\Glues\CHARACTERCREATE\UI-CHARACTERCREATE-RACES]], texcoord = {0.375, 0.5, 0, 0.25}},
 				{value = [[Interface\DRESSUPFRAME\DressUpBackground-Orc1]], label = "Orc", onclick = onSelectSecTexture, icon = [[Interface\Glues\CHARACTERCREATE\UI-CHARACTERCREATE-RACES]], texcoord = {0.375, 0.5, 0.25, 0.5}},
 				{value = [[Interface\DRESSUPFRAME\DressUpBackground-Pandaren1]], label = "Pandaren", onclick = onSelectSecTexture, icon = [[Interface\Glues\CHARACTERCREATE\UI-CHARACTERCREATE-RACES]], texcoord = {0.75, 0.875, 0.5, 0.75}},
@@ -506,6 +523,18 @@ function _detalhes:OpenOptionsWindow (instance)
 		window.useBackgroundSlider.OnSwitch = function (self, instance, value) --> slider, fixedValue, sliderValue
 			instance.wallpaper.enabled = value
 			if (value) then
+				--> primeira vez que roda:
+				if (not instance.wallpaper.texture) then
+					local spec = GetSpecialization()
+					if (spec) then
+						local id, name, description, icon, _background, role = GetSpecializationInfo (spec)
+						if (_background) then
+							instance.wallpaper.texture = "Interface\\TALENTFRAME\\".._background
+						end
+					end
+					instance.wallpaper.texcoord = {0, 1, 0, 0.703125}
+				end
+				
 				instance:InstanceWallpaper (true)
 				_G.DetailsOptionsWindowBackgroundDropdown.MyObject:Enable()
 				_G.DetailsOptionsWindowBackgroundDropdown2.MyObject:Enable()
@@ -516,12 +545,17 @@ function _detalhes:OpenOptionsWindow (instance)
 				_G.DetailsOptionsWindowBackgroundDropdown2.MyObject:Disable()
 			end
 		end
+		
+		g:NewLabel (window, _, "$parentBackgroundLabel", "backgroundLabel", "wallpaper group")
+		window.backgroundLabel:SetPoint (250, -160)
+		g:NewLabel (window, _, "$parentBackgroundLabel", "backgroundLabel", "select wallpaper")
+		window.backgroundLabel:SetPoint (370, -160)
 		--
 		g:NewDropDown (window, _, "$parentBackgroundDropdown", "backgroundDropdown", 120, 20, buildBackgroundMenu, nil)
-		window.backgroundDropdown:SetPoint (250, -160)
+		window.backgroundDropdown:SetPoint (250, -175)
 		--
 		g:NewDropDown (window, _, "$parentBackgroundDropdown2", "backgroundDropdown2", 120, 20, buildBackgroundMenu2, nil)
-		window.backgroundDropdown2:SetPoint (370, -160)
+		window.backgroundDropdown2:SetPoint (370, -175)
 
 		
 		local onSelectAnchor = function (_, instance, anchor)
@@ -548,11 +582,16 @@ function _detalhes:OpenOptionsWindow (instance)
 		
 		local startImageEdit = function()
 			local tinstance = _G ["DetailsOptionsWindow"].MyObject.instance
-			g:ImageEditor (callmeback, tinstance.wallpaper.texture, tinstance.wallpaper.texcoord, tinstance.wallpaper.overlay)
+			
+			if (tinstance.wallpaper.texture:find ("TALENTFRAME")) then
+				g:ImageEditor (callmeback, tinstance.wallpaper.texture, tinstance.wallpaper.texcoord, tinstance.wallpaper.overlay, window.instance.baseframe.wallpaper:GetWidth(), window.instance.baseframe.wallpaper:GetHeight())
+			else
+				g:ImageEditor (callmeback, tinstance.wallpaper.texture, tinstance.wallpaper.texcoord, tinstance.wallpaper.overlay, window.instance.baseframe.wallpaper:GetWidth(), window.instance.baseframe.wallpaper:GetHeight())
+			end
 		end
 		
 		g:NewLabel (window, _, "$parentAnchorLabel", "anchorLabel", "align")
-		window.anchorLabel:SetPoint (250, -185)
+		window.anchorLabel:SetPoint (250, -200)
 		--
 		g:NewDropDown (window, _, "$parentAnchorDropdown", "anchorDropdown", 100, 20, buildAnchorMenu, nil)
 		window.anchorDropdown:SetPoint ("left", window.anchorLabel, "right", 2)
@@ -570,7 +609,7 @@ function _detalhes:OpenOptionsWindow (instance)
 	
 		local saveStyleFunc = function()
 			if (not window.saveStyleName.text or window.saveStyleName.text == "") then
-				print ("Give a name for your style.")
+				_detalhes:Msg ("Give a name for your style.")
 				return
 			end
 			local savedObject = {

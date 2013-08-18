@@ -12,7 +12,7 @@ local g = _detalhes.gump
 	background:SetAllPoints()
 	background:SetTexture (0, 0, 0, .8)
 	
-	local edit_texture = g:NewImage (window, _, "$parentImage", _, _, _, nil, "artwork")
+	local edit_texture = g:NewImage (window, _, "$parentImage", _, 300, 250, nil, "artwork")
 	edit_texture:SetPoint ("center", window, "center")
 	
 	local haveHFlip = false
@@ -430,9 +430,11 @@ window:Hide()
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 		
 		local ttexcoord
-		function g:ImageEditor (callback, texture, texcoord, colors, extraParam)
+		function g:ImageEditor (callback, texture, texcoord, colors, width, height, extraParam)
 		
 			edit_texture:SetTexture (texture)
+			edit_texture.width = width
+			edit_texture.height = height
 			
 			colors = colors or {1, 1, 1, 1}
 			edit_texture:SetVertexColor (colors [1], colors [2], colors [3])

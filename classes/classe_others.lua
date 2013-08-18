@@ -155,6 +155,10 @@ function _detalhes:ToolTipDead (instancia, morte, esta_barra)
 		end
 	end
 	
+	GameCooltip:AddLine (" ", " ", 1, "white", "white")
+	GameCooltip:AddLine (Loc ["STRING_REPORT_LEFTCLICK"], "--", 1, "white", "white")
+	GameCooltip:AddIcon ([[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]], 1, 1, 12, 16, 0.015625, 0.13671875, 0.4375, 0.59765625)
+
 	if (battleress) then
 		--_table_insert (linhas, 2, {{"Interface\\AddOns\\Details\\images\\small_icons", .75, 1, 0, 1}, morte [6] .. " Morreu", "-- -- -- ", 100, {75/255, 75/255, 75/255, 1}, {noglow = true}}) --> localize-me
 		GameCooltip:AddSpecial ("line", 2, nil, morte [6] .. " Morreu", "-- -- -- ", 1, "white")
@@ -166,7 +170,7 @@ function _detalhes:ToolTipDead (instancia, morte, esta_barra)
 		GameCooltip:AddSpecial ("statusbar", 1, nil, 100, 1, "darkgray", false)
 		--_table_insert (linhas, 1, {{, .75, 1, 0, 1}, , 100, {75/255, 75/255, 75/255, 1}, {noglow = true}}) --> localize-me
 	end
-	
+
 	GameCooltip:SetOption ("StatusBarHeightMod", -6)
 	GameCooltip:SetOption ("FixedWidth", 300)
 	GameCooltip:SetOption ("TextSize", 9.5)
@@ -185,9 +189,8 @@ function atributo_misc:ReportSingleDeadLine (morte, instancia)
 	local barra = instancia.barras [morte.minha_barra]
 
 	local reportar = {"Detalhes da morte de " .. morte [3] .. " " .. barra.texto_esquerdo:GetText()} --> localize-me
-	for i = 1, _detalhes.popup.NumLines, 1 do 
-		local texto_left = _detalhes.popup.frame1.linhas[i].left_text:GetText()
-		local texto_right = _detalhes.popup.frame1.linhas[i].right_text:GetText()
+	for i = 1, GameCooltip:GetNumLines() do 
+		local texto_left, texto_right = GameCooltip:GetText (i)
 		
 		if (texto_left and texto_right) then 
 			texto_left = texto_left:gsub (("|T(.*)|t "), "")

@@ -382,6 +382,8 @@ function gump:NewSwitch (parent, container, name, member, w, h, ltext, rtext, de
 
 --> build frames
 	local slider = gump:NewSlider (parent, container, name, member, w, h, 1, 2, 1, defaultv)
+	slider:SetBackdrop ({edgeFile = "Interface\\Buttons\\UI-SliderBar-Border", edgeSize = 8,
+	bgFile = [[Interface\AddOns\Details\images\background]], insets = {left = 3, right = 3, top = 5, bottom = 5}})
 	
 	slider:SetHook ("OnValueChange", function (self)
 		if (slider:GetValue() == 1) then
@@ -389,11 +391,13 @@ function gump:NewSwitch (parent, container, name, member, w, h, ltext, rtext, de
 			if (slider.OnSwitch) then
 				slider.OnSwitch (slider, slider.FixedValue, false)
 			end
+			slider:SetBackdropColor (1, 0, 0, 0.4)
 		else
 			slider.amt:SetText (rtext)
 			if (slider.OnSwitch) then
 				slider.OnSwitch (slider, slider.FixedValue, true)
 			end
+			slider:SetBackdropColor (0, 0, 1, 0.4)
 		end
 		return true
 	end)
