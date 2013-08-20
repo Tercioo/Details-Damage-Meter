@@ -410,6 +410,8 @@ function DetailsDropDownOnMouseDown (button)
 	if (not object.opened) then --> click to open
 		
 		local menu = object:func()
+		object.builtMenu = menu
+		
 		local frame_witdh = object.realsizeW
 		
 		if (menu [1]) then
@@ -698,6 +700,8 @@ function gump:NewDropDown (parent, container, name, member, w, h, func, default)
 		
 	DropDownObject.dropdown = CreateFrame ("Button", name, parent, "DetailsDropDownTemplate")
 	DropDownObject.widget = DropDownObject.dropdown
+	
+	DropDownObject.__it = {nil, nil}
 	--_G [name] = DropDownObject
 
 	if (not APIDropDownFunctions) then
@@ -746,6 +750,8 @@ function gump:NewDropDown (parent, container, name, member, w, h, func, default)
 		scroll.cima:Show()
 		scroll.slider:Show()
 	end
+	
+	--button_down_scripts (DropDownObject, scroll.slider, scroll.baixo)
 	
 	DropDownObject:HideScroll()
 	DropDownObject.label:SetSize (DropDownObject.dropdown:GetWidth()-40, 10)

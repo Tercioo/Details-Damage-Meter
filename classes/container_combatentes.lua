@@ -46,26 +46,21 @@ local REACTION_HOSTILE = COMBATLOG_OBJECT_REACTION_HOSTILE or 0x00000040
 
 function container_combatentes:NovoContainer (tipo_do_container, combatTable, combatId)
 
-	local esta_tabela = {}
-	_setmetatable (esta_tabela, container_combatentes)
+	local _newContainer = {
 	
-	esta_tabela.funcao_de_criacao = container_combatentes:FuncaoDeCriacao (tipo_do_container)
-	if (not esta_tabela.funcao_de_criacao) then
-		print ("Debug: Container criado mas sem funcao de criacao. TIPO: ")
-		print (tipo_do_container)
-		print (debugstack(2))
-		return
-	end
+		funcao_de_criacao = container_combatentes:FuncaoDeCriacao (tipo_do_container),
+		
+		tipo = tipo_do_container,
+		
+		combatId = combatId,
+		
+		_ActorTable = {},
+		_NameIndexTable = {}
+	}
 	
-	esta_tabela.tipo = tipo_do_container
-	
-	esta_tabela.combatId = combatId
-	
-	esta_tabela._ActorTable = {}
-	esta_tabela._NameIndexTable = {}
-	esta_tabela.meu_tipo = "container_combatentes"
-	
-	return esta_tabela
+	_setmetatable (_newContainer, container_combatentes)
+
+	return _newContainer
 end
 
 local function get_class_ (novo_objeto, nome, flag)
@@ -106,32 +101,6 @@ function container_combatentes:Dupe (who)
 	end
 	
 	return novo_objeto
-end
-
-function container_combatentes:CriarShadow (who)
-	--> o self é o container no combate_overall -- who é o objeto na tabela do historico [1 2 3]
-	local mapa = self._NameIndexTable
-	local conteudo = self._ActorTable
-	
-	local novo_objeto = self.funcao_de_criacao (_, who.serial, who.nome)
-	novo_objeto.nome = who.nome
-	
-	novo_objeto.flag = who.flag
-	novo_objeto.classe = who.classe
-	
-	for _, pet in _ipairs (who.pets) do 
-		novo_objeto.pets [#novo_objeto.pets+1] = pet
-	end
-	
-	if (who.enemy) then 
-		novo_objeto.enemy = true
-	end
-
-	self._ActorTable [#self._ActorTable+1] = novo_objeto
-	self._NameIndexTable[who.nome] = #self._ActorTable
-	
-	return novo_objeto
-	
 end
 
 function container_combatentes:GetAmount (actorName, key)
@@ -227,6 +196,7 @@ function container_combatentes:PegarCombatente (serial, nome, flag, criar, isOwn
 					if (shadow_objeto) then
 						shadow_objeto.grupo = true
 					end
+					
 				end
 				
 			elseif (dono_do_pet) then --> é um pet
@@ -285,8 +255,11 @@ function container_combatentes:PegarCombatente (serial, nome, flag, criar, isOwn
 				novo_objeto.shadow = shadow_objeto
 				novo_objeto:CriaLink (shadow_objeto) --> criando o link
 				shadow_objeto.flag = details_flag
+				if (novo_objeto.grupo) then
+					_detalhes.cache_damage_group [#_detalhes.cache_damage_group+1] = novo_objeto
+				end
 			end
-
+			
 			if (novo_objeto.classe == "UNGROUPPLAYER") then --> is a player
 				if (_bit_band (flag, REACTION_HOSTILE ) ~= 0) then --> is hostile
 					novo_objeto.enemy = true 
@@ -311,6 +284,9 @@ function container_combatentes:PegarCombatente (serial, nome, flag, criar, isOwn
 				novo_objeto.shadow = shadow_objeto
 				novo_objeto:CriaLink (shadow_objeto)  --> criando o link
 				shadow_objeto.flag = details_flag
+				if (novo_objeto.grupo) then
+					_detalhes.cache_healing_group [#_detalhes.cache_healing_group+1] = novo_objeto
+				end
 			end
 			
 			if (novo_objeto.classe == "UNGROUPPLAYER") then --> is a player

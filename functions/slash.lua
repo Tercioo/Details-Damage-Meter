@@ -20,7 +20,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 	
 		_detalhes:CriarInstancia()
 		
-	elseif (command ==Loc ["STRING_SLASH_SHOW_DESC"]) then
+	elseif (command == Loc ["STRING_SLASH_SHOW"]) then
 	
 		if (_detalhes.opened_windows == 0) then
 			_detalhes:CriarInstancia()
@@ -65,20 +65,79 @@ function SlashCmdList.DETAILS (msg, editbox)
 		_G.DetailsCopy.MyObject.text:HighlightText()
 		_G.DetailsCopy.MyObject.text:SetFocus()
 	
+	elseif (msg == "slider") then
+		
+		local f = CreateFrame ("frame", "TESTEDESCROLL", UIParent)
+		f:SetPoint ("center", UIParent, "center", 200, -2)
+		f:SetWidth (300)
+		f:SetHeight (150)
+		f:SetBackdrop ({bgFile = "Interface\\AddOns\\Details\\images\\background", tile = true, tileSize = 16, insets = {left = 0, right = 0, top = 0, bottom = 0}})
+		f:SetBackdropColor (0, 0, 0, 1)
+		f:EnableMouseWheel (true)
+		
+		local rows = {}
+		for i = 1, 7 do 
+			local row = CreateFrame ("frame", nil, UIParent)
+			row:SetPoint ("topleft", f, "topleft", 10, -(i-1)*21)
+			row:SetWidth (200)
+			row:SetHeight (20)
+			row:SetBackdrop ({bgFile = "Interface\\AddOns\\Details\\images\\background", tile = true, tileSize = 16, insets = {left = 0, right = 0, top = 0, bottom = 0}})
+			local t = row:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+			t:SetPoint ("left", row, "left")
+			row.text = t
+			rows [#rows+1] = row
+		end
+		
+		local data = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20}
+		
+		
+	
+	elseif (msg == "bcollor") then
+	
+		--local instancia = _detalhes.tabela_instancias [1]
+		_detalhes.ResetButton.Middle:SetVertexColor (1, 1, 0, 1)
+		
+		--print (_detalhes.ResetButton:GetHighlightTexture())
+		
+		local t = _detalhes.ResetButton:GetHighlightTexture()
+		t:SetVertexColor (0, 1, 0, 1)
+		--print (t:GetObjectType())
+		--_detalhes.ResetButton:SetHighlightTexture (t)
+		_detalhes.ResetButton:SetNormalTexture (t)
+		
+		print ("backdrop", _detalhes.ResetButton:GetBackdrop())
+		
+		_detalhes.ResetButton:SetBackdropColor (0, 0, 1, 1)
+		
+		--vardump (_detalhes.ResetButton)
+	
+	elseif (msg == "alert") then
+		
+		local instancia = _detalhes.tabela_instancias [1]
+		--instancia:InstanceAlert ("Teste do alerta da instancia", [[Interface\Buttons\UI-GroupLoot-Pass-Down]], 5, clickfunc)
+		--instancia:InstanceAlert ("Teste do alerta da instancia", [[Interface\Buttons\UI-GroupLoot-Pass-Down]], 5, clickfunc)
+		local f = function() print ("teste") end
+		instancia:InstanceAlert (Loc ["STRING_PLEASE_WAIT"], {[[Interface\COMMON\StreamCircle]], 22, 22, true}, 5, {f, "param1", "param2"})
+	
+	
 	elseif (msg == "comm") then
 		
-	_detalhes:SendCommMessage ("details_comm", _detalhes:Serialize ("foundcloud", UnitName ("player"), GetRealmName(), _detalhes.realversion), "WHISPER", "Marleyieu-Azralon")
-	SendAddonMessage ("details_comm", "text", "WHISPER", "Marleyieu-Azralon")
-	SendChatMessage ("Hello Bob!", "WHISPER", "Common", "Marleyieu-Azralon")
+		if (IsInRaid()) then
+			for i = 1, GetNumGroupMembers() do 
+				local nname, server = UnitName ("raid"..i)
+				print (nname, server)
+				--nname = nname.."-"..server
+			end
+		end
 		
-	elseif (msg == "visao") then
-		--_detalhes:VisiblePlayers()
-		--local a, b = GetUnitName ("player")
-		--print (a,GetRealmName())
-		--print (time())
-		--print (math.floor (time()/10))
+			
+	elseif (msg == "teste") then
 		
-		assert (false, "teste")
+		local teste = nil
+		local tabela = {um = 1, dois = 2}
+		
+		local a = tabela [teste]
+		print (a)
 		
 	elseif (msg == "yesno") then
 		--_detalhes:Show()

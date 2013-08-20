@@ -25,18 +25,16 @@ local habilidade_misc = 		_detalhes.habilidade_misc
 local container_habilidades = 	_detalhes.container_habilidades
 
 function container_habilidades:NovoContainer (tipo_do_container)
-	local esta_tabela = {}
-	_setmetatable (esta_tabela, container_habilidades)
+
+	local _newContainer = {
+		funcao_de_criacao = container_habilidades:FuncaoDeCriacao (tipo_do_container),
+		tipo = tipo_do_container,
+		_ActorTable = {}
+	}
 	
-	esta_tabela.funcao_de_criacao = container_habilidades:FuncaoDeCriacao (tipo_do_container)
-	if (not esta_tabela.funcao_de_criacao) then
-		print ("DEBUG: Sem funcao de criacao para a habilidade... TIPO: ")
-		print (tipo_do_container)
-	end
+	_setmetatable (_newContainer, container_habilidades)
 	
-	esta_tabela.tipo = tipo_do_container
-	esta_tabela._ActorTable = {}
-	return esta_tabela
+	return _newContainer
 end
 
 function container_habilidades:Dupe (who)

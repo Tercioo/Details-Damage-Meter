@@ -58,9 +58,6 @@ function combate:NovaTabela (iniciada, _tabela_overall, combatId, ...)
 	
 	_setmetatable (esta_tabela, combate)
 	
-	--> debug
-	esta_tabela.meu_tipo = "classe_combate"
-	
 	--> try discover if is a pvp combat
 	local who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags = ...
 	if (who_serial) then --> aqui irá identificar o boss ou o oponente
@@ -170,14 +167,16 @@ end
 function combate:TravarTempos()
 	--é necessário travar o tempo em todos os atributos do combate.
 	for index, container in _ipairs (self) do -- aqui ele lista os tipos de atributo listado na lista acima
-		if (index ~= 3 and index ~= 4) then --> 3 é e_energy, não possui tempo // 4 é misc tbm não possui tempo
+		if (index < 3) then --> 3 é e_energy, não possui tempo // 4 é misc tbm não possui tempo
 			for _, jogador in _ipairs (container._ActorTable) do 
 				if (jogador:Iniciar()) then -- retorna se ele esta com o dps ativo
 					jogador:TerminarTempo()
 					jogador:Iniciar (false) --trava o dps do jogador
-					jogador.last_events_table = {} --> elimina a tabela dos danos --não é mais usado desta forma
+					--jogador.last_events_table =  _detalhes:CreateActorLastEventTable()
 				end
 			end
+		else
+			break
 		end
 	end
 end

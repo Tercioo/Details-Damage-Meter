@@ -139,7 +139,7 @@ local ButtonMetaFunctions = {}
 	end
 	--> function
 	local smember_function = function (_object, _value)
-		return _rawset (_object, "func", _value)	
+		return _rawset (_object, "func", _value)
 	end
 	--> text color
 	local smember_textcolor = function (_object, _value)

@@ -15,41 +15,29 @@ local _UnitAura = UnitAura
 local container_playernpc = _detalhes.container_type.CONTAINER_PLAYERNPC
 
 function habilidade_misc:NovaTabela (id, link, token) --aqui eu não sei que parâmetros passar
-	local esta_tabela = {}
-	_setmetatable (esta_tabela, habilidade_misc)
 
-	esta_tabela.quem_sou = "classe_others_habilidade"
-	
-	esta_tabela.id = id
-	
-	--print ("token: " .. token)
+	local _newMiscSpell = {
+
+		id = id,
+		counter = 0,
+		targets = container_combatentes:NovoContainer (container_misc_target)
+	}
 	
 	if (token == "SPELL_INTERRUPT") then
-		--print ("token de interrupt")
-		esta_tabela.interrompeu_oque = {}
-	end
-	
-	if (token == "SPELL_DISPEL" or token == "SPELL_STOLEN") then
-		--print ("token de interrupt")
-		esta_tabela.dispell_oque = {}
-	end
-	
-	if (token == "SPELL_AURA_BROKEN" or token == "SPELL_AURA_BROKEN_SPELL") then
-		--print ("token de interrupt")
-		esta_tabela.cc_break_oque = {}
+		_newMiscSpell.interrompeu_oque = {}
+	elseif (token == "SPELL_DISPEL" or token == "SPELL_STOLEN") then
+		_newMiscSpell.dispell_oque = {}
+	elseif (token == "SPELL_AURA_BROKEN" or token == "SPELL_AURA_BROKEN_SPELL") then
+		_newMiscSpell.cc_break_oque = {}
 	end	
-	
-	-- isso aqui não pode ser assim... ou pode?
-	esta_tabela.counter = 0 
-	--esta_tabela.res = 0
 
-	esta_tabela.targets = container_combatentes:NovoContainer (container_misc_target)
+	_setmetatable (_newMiscSpell, habilidade_misc)
 	
 	if (link) then
-		esta_tabela.targets.shadow = link.targets
+		_newMiscSpell.targets.shadow = link.targets
 	end
 	
-	return esta_tabela
+	return _newMiscSpell
 end
 
 function habilidade_misc:Add (serial, nome, flag, who_nome, token, spellID, spellName)

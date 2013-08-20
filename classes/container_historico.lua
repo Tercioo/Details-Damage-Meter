@@ -14,11 +14,8 @@ local container_pets =		_detalhes.container_pets
 local timeMachine =		_detalhes.timeMachine
 
 function historico:NovoHistorico()
-	local esta_tabela = {}
+	local esta_tabela = {tabelas = {}}
 	_setmetatable (esta_tabela, historico)
-	
-	esta_tabela.tabelas = {} --guarda as tabelas dos combates
-
 	return esta_tabela
 end
 
@@ -37,8 +34,26 @@ function historico:adicionar (tabela)
 		_detalhes:InstanciaCallFunction (_detalhes.CheckFreeze, tamanho+1, ultima_tabela)
 	end
 
-	--> reordena as tabelas
+	--> adiciona no index #1
 	_table_insert (self.tabelas, 1, tabela)
+	
+	if (self.tabelas[2]) then
+	
+		--> fazer limpeza na tabela
+
+		for index, container in ipairs (self.tabelas[2]) do
+			if (index < 3) then
+				for _, jogador in ipairs (container._ActorTable) do 
+				
+					--> limpeza
+					jogador.last_events_table =  nil
+					
+				end
+			else
+				break
+			end
+		end
+	end
 
 	--> chama a função que irá atualizar as instâncias com segmentos no histórico
 	_detalhes:InstanciaCallFunction (_detalhes.AtualizaSegmentos_AfterCombat, self)

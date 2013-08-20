@@ -36,7 +36,7 @@
 
 	function _detalhes:RaidComm (_, data, _, source)
 	
-		local type, player, realm, dversion, arg6 =  select (2, _detalhes:Deserialize (data))
+		local type, player, realm, dversion, arg6, arg7 =  select (2, _detalhes:Deserialize (data))
 		
 		if (_detalhes.debug) then
 			print ("comm received", type)
@@ -45,6 +45,46 @@
 		if (type == "highfive") then
 			if (player ~= _detalhes.playername and not _detalhes.details_users [player]) then
 				_detalhes.details_users [player] = {player, realm, dversion}
+			end
+			
+		elseif (type == "petowner") then
+			local serial = player
+			local nome = realm
+			local owner_table = dversion
+			
+			if (not _detalhes.container_pets.pets [serial]) then
+				_detalhes.container_pets.pets [serial] = owner_table
+				local petActor = _detalhes.tabela_vigente[1]:PegarCombatente (_, nome)
+				if (petActor) then
+					local ownerActor = _detalhes.tabela_vigente[1]:PegarCombatente (owner_table[2], owner_table[1], owner_table[3], true)
+					ownerActor.total = ownerActor.total + petActor.total
+					if (_detalhes.debug) then
+						_detalhes:Msg ("Received owner for pet ",nome, "assigned to", owner_table[1])
+					end
+					
+					local combat = _detalhes:GetCombat ("current")
+					combat[1].need_refresh = true
+				end
+			end
+		
+		elseif (type == "needpetowner") then
+		
+			if (dversion ~= _detalhes.realversion) then
+				return
+			end
+		
+			local petserial = arg6
+			local petnome = arg7
+			local owner_table = _detalhes.container_pets.pets [petserial]
+			
+			if (owner_table) then
+				if (realm ~= GetRealmName()) then
+					player = player .."-"..realm
+				end
+				if (_detalhes.debug) then
+					_detalhes:Msg ("Received pet owner request of pet, sending owner")
+				end
+				_detalhes:SendCommMessage ("details_comm", _detalhes:Serialize ("petowner", petserial, petnome, owner_table), "WHISPER", player)
 			end
 		
 		elseif (type == "clouddatareceived") then
@@ -118,7 +158,7 @@
 				--> delayed response
 				return
 			end
-
+			
 			local atributo, subatributo = player, realm
 			
 			local data
@@ -170,6 +210,7 @@
 			end
 			
 			_detalhes.cloud_process = _detalhes:ScheduleRepeatingTimer ("RequestData", 7)
+			_detalhes.last_data_requested = _detalhes._tempo
 			
 		elseif (type == "needcloud") then
 
@@ -213,6 +254,13 @@
 		_detalhes:SendCommMessage ("details_comm", _detalhes:Serialize ("highfive", UnitName ("player"), GetRealmName(), _detalhes.realversion), "RAID")
 	end
 	
+	function _detalhes:SendPetOwnerRequest (petserial, petnome)
+		if (_detalhes.debug) then
+			_detalhes:Msg ("Sent request for a pet",petserial, petnome)
+		end
+		_detalhes:SendCommMessage ("details_comm", _detalhes:Serialize ("needpetowner", UnitName ("player"), GetRealmName(), _detalhes.realversion, petserial, petnome), "RAID")
+	end
+	
 	function _detalhes:SendCloudRequest()
 		_detalhes:SendCommMessage ("details_comm", _detalhes:Serialize ("needcloud", UnitName ("player"), GetRealmName(), _detalhes.realversion), "RAID")
 	end
@@ -223,12 +271,15 @@
 		end
 		_detalhes.host_of = player
 		if (_detalhes.debug) then
-			_detalhes:Msg ("Details: CloudRequest()")
+			_detalhes:Msg ("Sent request for a cloud parser")
 		end
 		_detalhes:SendCommMessage ("details_comm", _detalhes:Serialize ("foundcloud", UnitName ("player"), GetRealmName(), _detalhes.realversion), "WHISPER", player)
 	end
 
 	function _detalhes:RequestData()
+	
+		_detalhes.last_data_requested = _detalhes._tempo
+	
 		for index = 1, #_detalhes.tabela_instancias do
 			local instancia = _detalhes.tabela_instancias [index]
 			if (instancia.ativa) then

@@ -6,9 +6,9 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> global name declaration
 		_detalhes = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0")
-		_detalhes.userversion = "v1.1.3"
-		_detalhes.version = "Alpha 002"
-		_detalhes.realversion = 2
+		_detalhes.userversion = "v1.1.8"
+		_detalhes.version = "Alpha 003"
+		_detalhes.realversion = 3
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> initialization stuff
@@ -49,6 +49,9 @@ do
 			_detalhes.ReportOptions = {}
 		--> armazena os buffs registrados - store buffs ids and functions
 			_detalhes.Buffs = {} --> initialize buff table
+		-->  cache de grupo
+			_detalhes.cache_damage_group = {}
+			_detalhes.cache_healing_group = {}
 	
 	--> Plugins
 		--> raid -------------------------------------------------------------------

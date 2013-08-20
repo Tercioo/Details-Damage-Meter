@@ -171,7 +171,6 @@
 						
 							shadow = overall_dano._ActorTable [overall_dano._NameIndexTable[nome]]
 							if (not shadow) then 
-								--shadow = overall_dano:CriarShadow (esta_classe)
 								shadow = overall_dano:PegarCombatente (esta_classe.serial, esta_classe.nome, esta_classe.flag_original, true)
 								shadow.classe = esta_classe.classe
 								shadow.start_time = _tempo
@@ -190,7 +189,6 @@
 						elseif (class_type == class_type_cura) then
 							shadow = overall_cura._ActorTable [overall_cura._NameIndexTable[nome]]
 							if (not shadow) then 
-								--shadow = overall_cura:CriarShadow (esta_classe)
 								shadow = overall_cura:PegarCombatente (esta_classe.serial, esta_classe.nome, esta_classe.flag_original, true)
 								shadow.classe = esta_classe.classe
 								shadow.start_time = _tempo
@@ -202,7 +200,6 @@
 						elseif (class_type == class_type_e_energy) then
 							shadow = overall_energy._ActorTable [overall_energy._NameIndexTable[nome]]
 							if (not shadow) then 
-								--shadow = overall_energy:CriarShadow (esta_classe)
 								shadow = overall_energy:PegarCombatente (esta_classe.serial, esta_classe.nome, esta_classe.flag_original, true)
 								shadow.classe = esta_classe.classe
 							end
@@ -216,7 +213,6 @@
 							shadow = overall_misc._ActorTable [overall_misc._NameIndexTable[nome]]
 							
 							if (not shadow) then 
-								--shadow = overall_misc:CriarShadow (esta_classe)
 								shadow = overall_misc:PegarCombatente (esta_classe.serial, esta_classe.nome, esta_classe.flag_original, true)
 								shadow.classe = esta_classe.classe
 							end

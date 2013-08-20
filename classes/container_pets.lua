@@ -136,9 +136,9 @@ function container_pets:Adicionar (pet_serial, pet_nome, pet_flags, dono_serial,
 		--print ("dono nome:",d[1], "dono serial:", d[2], "dono flags:", d[3], "tempo:", d[4])
 	--end
 	
-	if (self.pets [dono_serial]) then
+	--if (self.pets [dono_serial]) then
 		--print ("debug: a owner is a pet, Owner: ", dono_nome, " Pet: ", pet_nome)
-	end
+	--end
 
 end
 

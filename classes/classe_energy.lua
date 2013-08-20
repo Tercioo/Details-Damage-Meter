@@ -61,56 +61,55 @@ local div_lugar = _detalhes.divisores.colocacao
 local info = _detalhes.janela_info
 local keyName
 
+
 function atributo_energy:NovaTabela (serial, nome, link)
-	local esta_tabela = {}
-	esta_tabela.quem_sou = "classe_energy" --> DEBUG deleta-me
-	
-	--print ("CRIANDO NOVO OBJETO")
-	
-	_setmetatable (esta_tabela, atributo_energy)
-	
-	--> grava o tempo que a tabela foi criada para o garbage collector interno
-	esta_tabela.CriadaEm = time()
-	esta_tabela.last_event = 0
-	esta_tabela.tipo = class_type --> atributo 3 = e_energy
-	
-	esta_tabela.mana = 0
-	esta_tabela.e_rage = 0
-	esta_tabela.e_energy = 0
-	esta_tabela.runepower = 0
-	esta_tabela.focus = 0
-	esta_tabela.holypower = 0
 
-	esta_tabela.mana_r = 0
-	esta_tabela.e_rage_r = 0
-	esta_tabela.e_energy_r = 0
-	esta_tabela.runepower_r = 0
-	esta_tabela.focus_r = 0
-	esta_tabela.holypower_r = 0
+	--> constructor
+	local _new_energyActor = {
 	
-	esta_tabela.mana_from = {}
-	esta_tabela.e_rage_from = {}
-	esta_tabela.e_energy_from = {}
-	esta_tabela.runepower_from = {}
-	esta_tabela.focus_from = {}
-	esta_tabela.holypower_from = {}
-	
-	esta_tabela.last_value = nil --> ultimo valor que este jogador teve, salvo quando a barra dele é atualizada
+		last_event = 0,
+		tipo = class_type, --> atributo 3 = e_energy
+		
+		mana = 0,
+		e_rage = 0,
+		e_energy = 0,
+		runepower = 0,
+		focus = 0,
+		holypower = 0,
 
-	esta_tabela.pets = {}
-	
-	--container armazenará os seriais dos alvos que o player aplicou dano
-	esta_tabela.targets = container_combatentes:NovoContainer (container_energy_target)
-	
-	--container armazenará os IDs das habilidades usadas por este jogador
-	esta_tabela.spell_tables = container_habilidades:NovoContainer (container_energy)
+		mana_r = 0,
+		e_rage_r = 0,
+		e_energy_r = 0,
+		runepower_r = 0,
+		focus_r = 0,
+		holypower_r = 0,
+		
+		mana_from = {},
+		e_rage_from = {},
+		e_energy_from = {},
+		runepower_from = {},
+		focus_from = {},
+		holypower_from = {},
+		
+		last_value = nil, --> ultimo valor que este jogador teve, salvo quando a barra dele é atualizada
 
+		pets = {},
+		
+		--container armazenará os seriais dos alvos que o player aplicou dano
+		targets = container_combatentes:NovoContainer (container_energy_target),
+		
+		--container armazenará os IDs das habilidades usadas por este jogador
+		spell_tables = container_habilidades:NovoContainer (container_energy),
+	}
+	
+	_setmetatable (_new_energyActor, atributo_energy)
+	
 	if (link) then
-		esta_tabela.targets.shadow = link.targets
-		esta_tabela.spell_tables.shadow = link.spell_tables
+		_new_energyActor.targets.shadow = link.targets
+		_new_energyActor.spell_tables.shadow = link.spell_tables
 	end
 	
-	return esta_tabela
+	return _new_energyActor
 end
 
 function atributo_energy:RefreshWindow (instancia, tabela_do_combate, forcar, exportar)

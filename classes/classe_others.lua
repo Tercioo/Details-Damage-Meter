@@ -59,42 +59,15 @@ local info = _detalhes.janela_info
 local keyName
 
 function atributo_misc:NovaTabela (serial, nome, link)
-	local esta_tabela = {}
-	esta_tabela.quem_sou = "classe_misc" --> DEBUG deleta-me
-	
-	--print ("CRIANDO NOVO OBJETO")
-	
-	_setmetatable (esta_tabela, atributo_misc)
-	
-	--> grava o tempo que a tabela foi criada para o garbage collector interno
-	esta_tabela.CriadaEm = time()
-	esta_tabela.last_event = 0
-	esta_tabela.tipo = class_type --> atributo 4 = misc
 
-	--esta_tabela.interrupt = 0 --> armazena quantos interrupt a pessoa deu
+	local _new_miscActor = {
+		last_event = 0,
+		tipo = class_type, --> atributo 4 = misc
+		pets = {} --> pets? okey pets
+	}
+	_setmetatable (_new_miscActor, atributo_misc)
 	
-	--[[
-	esta_tabela.cc_break = 0 --> armazena quantas quebras de CC
-	esta_tabela.ress = 0 --> armazena quantos pessoas ele reviveu
-	esta_tabela.dispelled = 0 --> armazena quantos dispells esta pessoa fez
-	esta_tabela.dispell = 0 --> armazena quantos dispell esta pessoa recebeu
-	esta_tabela.last_events_tables = 0 --> armazena quantas vezes essa oessia morreu
-	--]]
-	
-	esta_tabela.pets = {} --> pets? okey pets
-	
-	--container armazenará os seriais dos alvos que o player aplicou dano
-	--esta_tabela.targets = container_combatentes:NovoContainer (container_energy_target)
-
-	--container armazenará os IDs das habilidades usadas por este jogador
-	--esta_tabela.spell_tables = container_habilidades:NovoContainer (container_energy)
-
-	if (link) then
-		--esta_tabela.targets.shadow = link.targets
-		--esta_tabela.spell_tables.shadow = link.spell_tables
-	end
-	
-	return esta_tabela
+	return _new_miscActor
 end
 
 function _detalhes:ToolTipDead (instancia, morte, esta_barra)

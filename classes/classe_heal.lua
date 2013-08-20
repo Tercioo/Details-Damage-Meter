@@ -59,60 +59,54 @@ local info = _detalhes.janela_info
 local keyName
 
 function atributo_heal:NovaTabela (serial, nome, link)
-	local esta_tabela = {}
-	esta_tabela.quem_sou = "classe_heal" --> DEBUG deleta-me
-	
-	_setmetatable (esta_tabela, atributo_heal)
 
-	--> grava o tempo que a tabela foi criada para o garbage collector interno
-	esta_tabela.CriadaEm = time()
-	
-	--> dps do objeto inicia sempre desligado
-	esta_tabela.iniciar_hps = false  --> sera necessario isso na cura?
-	
-	esta_tabela.tipo = class_type --> atributo 2 = cura
-	
-	esta_tabela.total = 0
-	esta_tabela.totalover = 0
-	esta_tabela.custom = 0
-	
-	esta_tabela.total_without_pet = 0 --> pet de DK cura
-	esta_tabela.totalover_without_pet = 0 --> pet de DK cura
-	
-	esta_tabela.last_events_table = _detalhes:CreateActorLastEventTable()
-	esta_tabela.last_events_table.original = true
-	
-	esta_tabela.healing_taken = 0 --> total de cura que este jogador recebeu
-	esta_tabela.healing_from = {} --> armazena os nomes que deram cura neste jogador
-	
-	esta_tabela.last_event = 0 --> mantem igual ao dano
-	esta_tabela.on_hold = false --> mantem igual ao dano
-	esta_tabela.delay = 0 --> mantem igual ao dano
-	
-	esta_tabela.last_value = nil --> ultimo valor que este jogador teve, salvo quando a barra dele é atualizada
-	
-	esta_tabela.end_time = nil
-	esta_tabela.start_time = 0
-	
-	esta_tabela.last_hps = 0 --> cura por segundo
-	esta_tabela.last_value = 0
-	
-	esta_tabela.pets = {} --cura não tem pet, okey? tem pet sim, as larvas de DK
-	
-	esta_tabela.heal_enemy = {} --> quando o jogador cura um inimigo
+	--> constructor
+	local _new_healActor = {
 
-	--container armazenará os IDs das habilidades usadas por este jogador
-	esta_tabela.spell_tables = container_habilidades:NovoContainer (container_heal) 
-	
-	--container armazenará os seriais dos alvos que o player aplicou dano
-	esta_tabela.targets = container_combatentes:NovoContainer (container_heal_target) 
+		tipo = class_type, --> atributo 2 = cura
+		
+		total = 0,
+		totalover = 0,
+		custom = 0,
+		
+		total_without_pet = 0,
+		totalover_without_pet = 0,
+		
+		healing_taken = 0, --> total de cura que este jogador recebeu
+		healing_from = {}, --> armazena os nomes que deram cura neste jogador
 
-	if (link) then
-		esta_tabela.targets.shadow = link.targets
-		esta_tabela.spell_tables.shadow = link.spell_tables
+		iniciar_hps = false,  --> dps_started
+		last_event = 0,
+		on_hold = false,
+		delay = 0,
+		last_value = nil, --> ultimo valor que este jogador teve, salvo quando a barra dele é atualizada
+		last_hps = 0, --> cura por segundo
+
+		end_time = nil,
+		start_time = 0,
+
+		pets = {}, --> nome já formatado: pet nome <owner nome>
+		
+		heal_enemy = {}, --> quando o jogador cura um inimigo
+
+		--container armazenará os IDs das habilidades usadas por este jogador
+		spell_tables = container_habilidades:NovoContainer (container_heal),
+		
+		--container armazenará os seriais dos alvos que o player aplicou dano
+		targets = container_combatentes:NovoContainer (container_heal_target)
+	}
+	
+	_setmetatable (_new_healActor, atributo_heal)
+	
+	if (link) then --> se não for a shadow
+		_new_healActor.last_events_table = _detalhes:CreateActorLastEventTable()
+		_new_healActor.last_events_table.original = true
+	
+		_new_healActor.targets.shadow = link.targets
+		_new_healActor.spell_tables.shadow = link.spell_tables
 	end
 	
-	return esta_tabela
+	return _new_healActor
 end
 
 
@@ -130,6 +124,8 @@ function atributo_heal:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 	local total = 0 
 	--> top actor #1
 	instancia.top = 0
+	
+	local using_cache = false
 	
 	local sub_atributo = instancia.sub_atributo --> o que esta sendo mostrado nesta instância
 	local conteudo = showing._ActorTable
@@ -199,16 +195,33 @@ function atributo_heal:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 		
 	elseif (instancia.modo == modo_GROUP) then --> mostrando GROUP
 
-		--> organiza as tabelas
+	
+		if (_detalhes.in_combat) then
+			using_cache = true
+		end
+			
+		if (using_cache) then
+			conteudo = _detalhes.cache_healing_group
 		
-		--print ("AQUI")
-		--print ("::"..keyName)
+			_table_sort (conteudo, _detalhes.SortKeySimple)
 		
-		--_detalhes:DelayMsg ("==================")
-		--_detalhes:DelayMsg (keyName)
+			if (conteudo[1][keyName] < 1) then
+				amount = 0
+			else
+				instancia.top = conteudo[1][keyName]
+				amount = #conteudo
+			end
+		
+			for i = 1, amount do 
+				total = total + conteudo[i][keyName]
+			end
+		else
+			--_table_sort (conteudo, _detalhes.SortKeyGroup)
+			_detalhes.SortGroup (conteudo, keyName)
+		end
 		
 		--_table_sort (conteudo, _detalhes.SortKeyGroup)
-		_detalhes.SortGroup (conteudo, keyName)
+		
 		
 		--[[_table_sort (conteudo, function (a, b)
 				if (a.grupo and b.grupo) then
@@ -328,7 +341,7 @@ function atributo_heal:AtualizaBarra (instancia, barras_container, qual_barra, l
 	local porcentagem = self [keyName] / total * 100
 	local esta_porcentagem
 
-	if (_detalhes.time_type == 2 and self.grupo) then
+	if ((_detalhes.time_type == 2 and self.grupo) or (not _detalhes:CaptureGet ("heal") and not _detalhes:CaptureGet ("aura"))) then
 		hps = healing_total / combat_time
 		self.last_hps = hps
 	else

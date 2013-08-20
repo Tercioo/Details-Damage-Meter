@@ -21,41 +21,37 @@ local _setmetatable = setmetatable
 
 function habilidade_cura:NovaTabela (id, link) --aqui eu não sei que parâmetros passar
 
-	local esta_tabela = {}
-	_setmetatable (esta_tabela, habilidade_cura)
+	local _newHealSpell = {
+	
+		total = 0, 
+		counter = 0,
+		id = id,
 
-	esta_tabela.CriadaEm = time()
-	esta_tabela.quem_sou = "classe_heal_habilidade"
-	
-	-- esta_tabela.jogador = serial
+		--> normal hits		
+		n_min = 0,
+		n_max = 0,
+		n_amt = 0,
+		n_curado = 0,
+		
+		--> critical hits 		
+		c_min = 0,
+		c_max = 0,
+		c_amt = 0,
+		c_curado = 0,
 
-	esta_tabela.total = 0 --total de dano aplicado por esta habilidade
-	esta_tabela.counter = 0 --conta quantas vezes a habilidade foi chamada
-	esta_tabela.id = id
-
-	--> normal hits
+		absorbed = 0,
+		overheal = 0,
+		
+		targets = container_combatentes:NovoContainer (container_heal_target)
+	}
 	
-	esta_tabela.n_min = 0
-	esta_tabela.n_max = 0
-	esta_tabela.n_amt = 0
-	esta_tabela.n_curado = 0
+	_setmetatable (_newHealSpell, habilidade_cura)
 	
-	--> critical hits 
-	
-	esta_tabela.c_min = 0
-	esta_tabela.c_max = 0
-	esta_tabela.c_amt = 0
-	esta_tabela.c_curado = 0
-
-	esta_tabela.absorbed = 0
-	esta_tabela.overheal = 0
-	
-	esta_tabela.targets = container_combatentes:NovoContainer (container_heal_target)
 	if (link) then
-		esta_tabela.targets.shadow = link.targets
+		_newHealSpell.targets.shadow = link.targets
 	end
 	
-	return esta_tabela
+	return _newHealSpell
 end
 
 function habilidade_cura:Add (serial, nome, flag, amount, who_nome, absorbed, critical, overhealing, is_shield)

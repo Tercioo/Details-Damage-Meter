@@ -194,6 +194,8 @@
 
 			_detalhes.container_pets:BuscarPets()
 			
+			table.wipe (_detalhes.cache_damage_group)
+			table.wipe (_detalhes.cache_healing_group)
 			_detalhes:UpdateParserGears()
 			
 			_detalhes.host_of = nil
@@ -355,6 +357,8 @@
 			
 			_detalhes.in_combat = false --sinaliza ao addon que não há combate no momento
 			
+			table.wipe (_detalhes.cache_damage_group)
+			table.wipe (_detalhes.cache_healing_group)
 			_detalhes:UpdateParserGears()
 			
 			_detalhes:SendEvent ("COMBAT_PLAYER_LEAVE", nil, _detalhes.tabela_vigente)
@@ -425,6 +429,16 @@
 		end
 		
 		function _detalhes:EqualizeActorsSchedule()
+			--> check for pets without owner
+			for _, actor in _ipairs (_detalhes.tabela_vigente[1]._ActorTable) do 
+				--> have flag and the flag tell us he is a pet
+				if (actor.flag_original and bit.band (actor.flag_original, OBJECT_TYPE_PETS) ~= 0) then
+					--> do not have owner and he isn't on owner container
+					if (not actor.owner and not _detalhes.container_pets.pets [actor.serial]) then
+						_detalhes:SendPetOwnerRequest (actor.serial, actor.nome)
+					end
+				end
+			end
 			_detalhes:ScheduleTimer ("EqualizeActors", 2)
 		end
 		
@@ -561,9 +575,12 @@
 
 			if (not tabela_do_combate[self.atributo].need_refresh and not forcar) then
 				return --> não precisa de refresh
+			else
+				tabela_do_combate[self.atributo].need_refresh = false
 			end
 			
 			if (self.atributo == 1) then --> damage
+				
 				return atributo_damage:RefreshWindow (self, tabela_do_combate, forcar)
 			elseif (self.atributo == 2) then --> heal
 				return atributo_heal:RefreshWindow (self, tabela_do_combate, forcar)
@@ -593,6 +610,7 @@
 					if (esta_instancia.ativa) then
 						if (esta_instancia.modo == modo_GROUP or esta_instancia.modo == modo_ALL) then
 							local atributo = esta_instancia:AtualizarALL (forcar)
+
 							if (atributo) then
 								refresh_poll [#refresh_poll+1] = atributo
 							end

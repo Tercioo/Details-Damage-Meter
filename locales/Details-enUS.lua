@@ -15,6 +15,8 @@ if not Loc then return end
 	Loc ["STRING_TOOOLD"] = "could not be installed because your Details! version is too old."
 	Loc ["STRING_TOOOLD2"] = "your Details! version isn't the same."
 	
+	Loc ["STRING_PLEASE_WAIT"] = "Please wait"
+	
 	Loc ["STRING_RIGHTCLICK_CLOSE_SHORT"] = "Right click to close."
 	Loc ["STRING_RIGHTCLICK_CLOSE_MEDIUM"] = "Use right click to close this window."
 	Loc ["STRING_RIGHTCLICK_CLOSE_LARGE"] = "Click with right mouse button to close this window."

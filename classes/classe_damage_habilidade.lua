@@ -30,73 +30,66 @@ local _recording_ability_with_buffs = false
 
 --id, nome, type, miss, dano, cura, overkill, school, resisted, blocked, absorbed, critico, glacing, crushing
 function habilidade_dano:NovaTabela (id, link, token) --aqui eu não sei que parâmetros passar
-	local esta_tabela = {}
-	_setmetatable (esta_tabela, habilidade_dano)
 
-	esta_tabela.quem_sou = "classe_damage_habilidade"
+	local _newDamageSpell = {
 	
-	-- esta_tabela.jogador = serial
+		total = 0, --total de dano aplicado por esta habilidade
+		counter = 0, --conta quantas vezes a habilidade foi chamada
+		id = id,
+		school = 0,
+		
+		--> normal
+		n_min = 0,
+		n_max = 0,
+		n_amt = 0,
+		n_dmg = 0,
+		
+		--> criticos
+		c_min = 0,
+		c_max = 0,
+		c_amt = 0,
+		c_dmg = 0,
 
-	esta_tabela.total = 0 --total de dano aplicado por esta habilidade
-	esta_tabela.counter = 0 --conta quantas vezes a habilidade foi chamada
-	esta_tabela.id = id
-	esta_tabela.school = 0
-	
-	--> normal hits
-	--esta_tabela.normal = {["min"] = 0, ["max"] = 0, ["amt"] = 0, ["dmg"] = 0}
-	
-	esta_tabela.n_min = 0
-	esta_tabela.n_max = 0
-	esta_tabela.n_amt = 0
-	esta_tabela.n_dmg = 0
-	
-	--> hits criticos
-	--esta_tabela.critico = {["min"] = 0, ["max"] = 0, ["amt"] = 0, ["dmg"] = 0}
-	esta_tabela.c_min = 0
-	esta_tabela.c_max = 0
-	esta_tabela.c_amt = 0
-	esta_tabela.c_dmg = 0
+		--> glacing
+		g_min = 0, --not sure but, glancing min and max shouldn't be necessary
+		g_max = 0, --
+		g_amt = 0,
+		g_dmg = 0,
+		
+		--> resisted
+		r_min = 0, --not sure but, resisted min and max shouldn't be necessary
+		r_max = 0, --
+		r_amt = 0,
+		r_dmg = 0,
+		
+		--> blocked
+		b_min = 0, --not sure but, block min and max shouldn't be necessary
+		b_max = 0, --
+		b_amt = 0,
+		b_dmg = 0,
 
-	--> hit glacing
-	--esta_tabela.glacing = {["min"] = 0, ["max"] = 0, ["amt"] = 0, ["dmg"] = 0}
-	esta_tabela.g_min = 0
-	esta_tabela.g_max = 0
-	esta_tabela.g_amt = 0
-	esta_tabela.g_dmg = 0
-
-	--informações e detalhes gerais desta habilidade
+		--> obsorved
+		a_min = 0, --not sure but, absorbed min and max shouldn't be necessary
+		a_max = 0, --
+		a_amt = 0,
+		a_dmg = 0,
+		
+		crushing = 0, --> this still exists?
+		
+		targets = container_combatentes:NovoContainer (container_damage_target)
+	}
 	
-	--esta_tabela.resisted = {["min"] = 0, ["max"] = 0, ["amt"] = 0, ["dmg"] = 0}
-	esta_tabela.r_min = 0
-	esta_tabela.r_max = 0
-	esta_tabela.r_amt = 0
-	esta_tabela.r_dmg = 0
-	
-	--esta_tabela.blocked = {["min"] = 0, ["max"] = 0, ["amt"] = 0, ["dmg"] = 0}
-	esta_tabela.b_min = 0
-	esta_tabela.b_max = 0
-	esta_tabela.b_amt = 0
-	esta_tabela.b_dmg = 0
-	
-	--esta_tabela.absorbed = {["min"] = 0, ["max"] = 0, ["amt"] = 0, ["dmg"] = 0}
-	esta_tabela.a_min = 0
-	esta_tabela.a_max = 0
-	esta_tabela.a_amt = 0
-	esta_tabela.a_dmg = 0
-	
-	esta_tabela.crushing = 0 -- ??
-	
-	esta_tabela.targets = container_combatentes:NovoContainer (container_damage_target)
+	_setmetatable (_newDamageSpell, habilidade_dano)
 	
 	if (link) then
-		esta_tabela.targets.shadow = link.targets
+		_newDamageSpell.targets.shadow = link.targets
 	end
 	
 	if (token == "SPELL_PERIODIC_DAMAGE") then
 		_detalhes:SpellIsDot (id)
 	end
 	
-	return esta_tabela
+	return _newDamageSpell
 end
 
 

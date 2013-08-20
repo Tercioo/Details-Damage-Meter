@@ -15,27 +15,28 @@ local _UnitAura = UnitAura
 
 local container_playernpc = _detalhes.container_type.CONTAINER_PLAYERNPC
 
---id, nome, type, miss, dano, cura, overkill, school, resisted, blocked, absorbed, critico, glacing, crushing
-function habilidade_energy:NovaTabela (id, link, token) --aqui eu não sei que parâmetros passar
-	local esta_tabela = {}
-	_setmetatable (esta_tabela, habilidade_energy)
+function habilidade_energy:NovaTabela (id, link, token)
 
-	esta_tabela.quem_sou = "classe_energy_habilidade"
-	esta_tabela.id = id
-	esta_tabela.counter = 0
+	local _newEnergySpell = {
+
+		id = id,
+		counter = 0,
+		
+		mana = 0,
+		e_rage = 0,
+		e_energy = 0,
+		runepower = 0,
+		
+		targets = container_combatentes:NovoContainer (container_energy_target)
+	}
 	
-	esta_tabela.mana = 0
-	esta_tabela.e_rage = 0
-	esta_tabela.e_energy = 0
-	esta_tabela.runepower = 0
-	
-	esta_tabela.targets = container_combatentes:NovoContainer (container_energy_target)
+	_setmetatable (_newEnergySpell, habilidade_energy)
 	
 	if (link) then
-		esta_tabela.targets.shadow = link.targets
+		_newEnergySpell.targets.shadow = link.targets
 	end
 	
-	return esta_tabela
+	return _newEnergySpell
 end
 
 function habilidade_energy:Add (serial, nome, flag, amount, who_nome, powertype)

@@ -61,55 +61,49 @@ local keyName
 
 function atributo_damage:NovaTabela (serial, nome, link)
 
-	local _new_damageActor = {}
+	--> constructor
+	local _new_damageActor = {
+		
+		--> dps do objeto inicia sempre desligado
+		tipo = class_type, --> atributo 1 = dano
+		
+		total = 0,
+		total_without_pet = 0,
+		custom = 0,
+		
+		damage_taken = 0, --> total de dano que este jogador levou
+		damage_from = {}, --> armazena os nomes que deram dano neste jogador
+
+		avoidance = {["DODGE"] = 0, ["PARRY"] = 0, ["HITS"] = 0}, --> avoidance
+		
+		dps_started = false,
+		last_event = 0,
+		on_hold = false,
+		delay = 0,
+		last_value = nil, --> ultimo valor que este jogador teve, salvo quando a barra dele é atualizada
+		last_dps = 0,
+
+		end_time = nil,
+		start_time = 0,
+		
+		pets = {}, --> armazena os nomes dos pets já com a tag do dono: pet name <owner nome>
+		
+		friendlyfire_total = 0,
+		friendlyfire = container_combatentes:NovoContainer (container_friendlyfire),
+
+		--container armazenará os seriais dos alvos que o player aplicou dano
+		targets = container_combatentes:NovoContainer (container_damage_target),
+
+		--container armazenará os IDs das habilidades usadas por este jogador
+		spell_tables = container_habilidades:NovoContainer (container_damage)
+	}
+	
 	_setmetatable (_new_damageActor, atributo_damage)
 	
-	_new_damageActor.quem_sou = "classe_damage" --> DEBUG deleta-me
-	
-	--> grava o tempo que a tabela foi criada para o garbage collector interno
-	_new_damageActor.CriadaEm = time()
-	
-	--> dps do objeto inicia sempre desligado
-	_new_damageActor.dps_started = false 
-	
-	_new_damageActor.tipo = class_type --> atributo 1 = dano
-	
-	_new_damageActor.total = 0
-	_new_damageActor.custom = 0
-	_new_damageActor.total_without_pet = 0
-	
-	_new_damageActor.damage_taken = 0 --> total de dano que este jogador levou
-	_new_damageActor.damage_from = {} --> armazena os nomes que deram dano neste jogador
-	
-	_new_damageActor.last_events_table = _detalhes:CreateActorLastEventTable()
-	_new_damageActor.last_events_table.original = true
-	
-	_new_damageActor.avoidance = {["DODGE"] = 0, ["PARRY"] = 0, ["HITS"] = 0} --> avoidance
-	
-	_new_damageActor.last_event = 0
-	_new_damageActor.on_hold = false
-	_new_damageActor.delay = 0
-	
-	_new_damageActor.last_value = nil --> ultimo valor que este jogador teve, salvo quando a barra dele é atualizada
-	
-	_new_damageActor.end_time = nil
-	_new_damageActor.start_time = 0
-	
-	_new_damageActor.last_dps = 0
-	
-	_new_damageActor.pets = {}
-	
-	--_new_damageActor.friendlyfire = {} --> será criado no primeiro fogo amigo dado
-	_new_damageActor.friendlyfire_total = 0
-	_new_damageActor.friendlyfire = container_combatentes:NovoContainer (container_friendlyfire)
-
-	--container armazenará os seriais dos alvos que o player aplicou dano
-	_new_damageActor.targets = container_combatentes:NovoContainer (container_damage_target)
-
-	--container armazenará os IDs das habilidades usadas por este jogador
-	_new_damageActor.spell_tables = container_habilidades:NovoContainer (container_damage)
-
-	if (link) then
+	if (link) then --> se não for a shadow
+		_new_damageActor.last_events_table = _detalhes:CreateActorLastEventTable()
+		_new_damageActor.last_events_table.original = true
+		
 		_new_damageActor.targets.shadow = link.targets
 		_new_damageActor.spell_tables.shadow = link.spell_tables
 		_new_damageActor.friendlyfire.shadow = link.friendlyfire
@@ -162,14 +156,14 @@ end
 				end
 			end
 			
---[[ exported]] function _detalhes:IsPlayer()
-	if (self.flags) then
-		if (_bit_band (self.flag, 0x00000001) ~= 0) then
-			return true
-		end
-	end
-	return false
-end
+--[[ exported]] 	function _detalhes:IsPlayer()
+				if (self.flags) then
+					if (_bit_band (self.flag, 0x00000001) ~= 0) then
+						return true
+					end
+				end
+				return false
+			end
 
 function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, exportar)
 	
@@ -185,6 +179,8 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 	local total = 0 
 	--> top actor #1
 	instancia.top = 0
+	
+	local using_cache = false
 	
 	local sub_atributo = instancia.sub_atributo --> o que esta sendo mostrado nesta instância
 	local conteudo = showing._ActorTable --> pega a lista de jogadores -- get actors table from container
@@ -245,7 +241,29 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 	
 		--> organiza as tabelas
 		
-		_table_sort (conteudo, _detalhes.SortKeyGroup, keyName)
+		if (_detalhes.in_combat) then
+			using_cache = true
+		end
+			
+		if (using_cache) then
+			conteudo = _detalhes.cache_damage_group
+		
+			_table_sort (conteudo, _detalhes.SortKeySimple)
+		
+			if (conteudo[1][keyName] < 1) then
+				amount = 0
+			else
+				instancia.top = conteudo[1][keyName]
+				amount = #conteudo
+			end
+		
+			for i = 1, amount do 
+				total = total + conteudo[i][keyName]
+			end
+		else
+			_table_sort (conteudo, _detalhes.SortKeyGroup)
+		end
+		--
 		
 		--[[
 		_table_sort (conteudo, function (a, b)
@@ -261,25 +279,29 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 			end)
 		--]]
 		
-		for index, player in _ipairs (conteudo) do
-			if (_bit_band (player.flag, DFLAG_player_group) >= 0x101) then --> é um player e esta em grupo
-				if (player[keyName] < 1) then --> dano menor que 1, interromper o loop
-					amount = index - 1
+		if (not using_cache) then
+			for index, player in _ipairs (conteudo) do
+				if (_bit_band (player.flag, DFLAG_player_group) >= 0x101) then --> é um player e esta em grupo
+					if (player[keyName] < 1) then --> dano menor que 1, interromper o loop
+						amount = index - 1
+						break
+					elseif (index == 1) then --> esse IF aqui, precisa mesmo ser aqui? não daria pra pega-lo com uma chave [1] nad grupo == true?
+						instancia.top = conteudo[1][keyName]
+					end
+					
+					total = total + player[keyName]
+				else
+					amount = index-1
 					break
-				elseif (index == 1) then --> esse IF aqui, precisa mesmo ser aqui? não daria pra pega-lo com uma chave [1] nad grupo == true?
-					instancia.top = conteudo[1][keyName]
 				end
-				
-				total = total + player[keyName]
-			else
-				amount = index-1
-				break
 			end
 		end
 	end
 
 	--> refaz o mapa do container
-	showing:remapear()
+	if (not using_cache) then
+		showing:remapear()
+	end
 	
 	if (exportar) then 
 		return total, keyName, instancia.top
@@ -424,7 +446,7 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 	local porcentagem = self [keyName] / total * 100
 	local esta_porcentagem
 
-	if (_detalhes.time_type == 2 and self.grupo) then
+	if ((_detalhes.time_type == 2 and self.grupo) or not _detalhes:CaptureGet ("damage")) then
 		dps = damage_total / combat_time
 		self.last_dps = dps
 	else

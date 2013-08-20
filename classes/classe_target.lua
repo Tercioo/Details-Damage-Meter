@@ -14,12 +14,9 @@ local _setmetatable = setmetatable
 --esta tabela irá ser usada por todas os tipos? tipo dano, cura, interrupts?
 
 function alvo_da_habilidade:NovaTabela (link)
-	local esta_tabela = {}
-	_setmetatable (esta_tabela, alvo_da_habilidade)
 
-	esta_tabela.quem_sou = "classe_alvo_da_habilidade"
-	
-	esta_tabela.total = 0 --total que a habilidade fez.
+	local esta_tabela = {total = 0}
+	_setmetatable (esta_tabela, alvo_da_habilidade)
 	
 	return esta_tabela
 end

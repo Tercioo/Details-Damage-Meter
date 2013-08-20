@@ -1528,6 +1528,117 @@ local function iterate_scroll_scripts (BackGroundDisplay, BackGroundFrame, BaseF
 	end)		
 end
 
+function _detalhes:InstanceAlertTime (instance)
+	instance.alert:Hide()
+	instance.alert.rotate:Stop()
+	instance.alert_time = nil
+end
+
+function _detalhes:InstanceAlert (msg, icon, time, clickfunc)
+	
+	if (msg) then
+		self.alert.text:SetText (msg)
+	else
+		self.alert.text:SetText ("")
+	end
+	
+	if (icon) then
+		if (type (icon) == "table") then
+			local texture, w, h, animate, l, r, t, b = unpack (icon)
+			
+			self.alert.icon:SetTexture (texture)
+			self.alert.icon:SetWidth (w or 14)
+			self.alert.icon:SetHeight (h or 14)
+			if (l and r and t and b) then
+				self.alert.icon:SetTexCoord (l, r, t, b)
+			end
+			if (animate) then
+				self.alert.rotate:Play()
+			end
+		else
+			self.alert.icon:SetWidth (14)
+			self.alert.icon:SetHeight (14)
+			self.alert.icon:SetTexture (icon)
+			self.alert.icon:SetTexCoord (0, 1, 0, 1)
+		end
+	else
+		self.alert.icon:SetTexture (nil)
+	end
+	
+	if (clickfunc) then
+		self.alert.button:SetClickFunction (unpack (clickfunc))
+	else
+		self.alert.button.clickfunction = nil
+	end
+
+	if (time) then
+		self.alert_time = time
+		_detalhes:ScheduleTimer ("InstanceAlertTime", time, self)
+	end
+	
+	self.alert:Show()
+end
+
+function CreateAlertFrame (BaseFrame, instancia)
+
+	local alert_bg = CreateFrame ("frame", nil, BaseFrame)
+	alert_bg:SetPoint ("bottom", BaseFrame, "bottom")
+	alert_bg:SetPoint ("left", BaseFrame, "left", 3, 0)
+	alert_bg:SetPoint ("right", BaseFrame, "right", -3, 0)
+	alert_bg:SetHeight (12)
+	alert_bg:SetBackdrop ({bgFile = "Interface\\AddOns\\Details\\images\\background", tile = true, tileSize = 16,
+	insets = {left = 0, right = 0, top = 0, bottom = 0}})
+	alert_bg:SetBackdropColor (.1, .1, .1, 1)
+	alert_bg:SetFrameStrata ("HIGH")
+	alert_bg:SetFrameLevel (BaseFrame:GetFrameLevel() + 6)
+	alert_bg:Hide()
+	
+	local toptexture = alert_bg:CreateTexture (nil, "background")
+	toptexture:SetTexture ([[Interface\Challenges\challenges-main]])
+	--toptexture:SetTexCoord (0.1921484375, 0.523671875, 0.234375, 0.160859375)
+	toptexture:SetTexCoord (0.231171875, 0.4846484375, 0.0703125, 0.072265625)
+	toptexture:SetPoint ("left", alert_bg, "left")
+	toptexture:SetPoint ("right", alert_bg, "right")
+	toptexture:SetPoint ("bottom", alert_bg, "top", 0, 0)
+	toptexture:SetHeight (1)
+	
+	local text = alert_bg:CreateFontString (nil, "overlay", "GameFontNormal")
+	text:SetPoint ("right", alert_bg, "right", -14, 0)
+	_detalhes:SetFontSize (text, 10)
+	text:SetTextColor (1, 1, 1, 1)
+	
+	local rotate_frame = CreateFrame ("frame", nil, alert_bg)
+	rotate_frame:SetWidth (12)
+	rotate_frame:SetPoint ("right", alert_bg, "right")
+	rotate_frame:SetHeight (alert_bg:GetWidth())
+	
+	local icon = rotate_frame:CreateTexture (nil, "overlay")
+	icon:SetPoint ("center", rotate_frame, "center")
+	icon:SetWidth (14)
+	icon:SetHeight (14)
+	
+	local button = gump:NewButton (alert_bg, nil, "DetailsInstance"..instancia.meu_id.."AlertButton", nil, 1, 1)
+	button:SetAllPoints()
+	button:SetHook ("OnMouseUp", function() alert_bg:Hide() end)
+	
+	local RotateAnimGroup = rotate_frame:CreateAnimationGroup()
+	local rotate = RotateAnimGroup:CreateAnimation ("Rotation")
+	rotate:SetDegrees (360)
+	rotate:SetDuration (6)
+	RotateAnimGroup:SetLooping ("repeat")
+	
+	alert_bg:Hide()	
+	
+	alert_bg.text = text
+	alert_bg.icon = icon
+	alert_bg.button = button
+	alert_bg.rotate = RotateAnimGroup
+	
+	instancia.alert = alert_bg
+	
+	return alert_bg
+end
+
 --> inicio
 function gump:CriaJanelaPrincipal (ID, instancia, criando)
 
@@ -1703,7 +1814,9 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 		
 	BaseFrame.wallpaper = BaseFrame:CreateTexture (nil, "border")
 	BaseFrame.wallpaper:Hide()
-
+	
+	BaseFrame.alert = CreateAlertFrame (BaseFrame, instancia)
+	
 --cria os 2 resizers
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -2159,6 +2272,8 @@ function _detalhes:InstanceColor (red, green, blue, alpha)
 		self.baseframe.cabecalho.ball_r:SetAlpha (alpha)
 	self.baseframe.cabecalho.ball:SetVertexColor (red, green, blue)
 		self.baseframe.cabecalho.ball:SetAlpha (alpha)
+	self.baseframe.cabecalho.emenda:SetVertexColor (red, green, blue)
+		self.baseframe.cabecalho.emenda:SetAlpha (alpha)
 	self.baseframe.cabecalho.top_bg:SetVertexColor (red, green, blue)
 		self.baseframe.cabecalho.top_bg:SetAlpha (alpha)
 
@@ -2390,7 +2505,13 @@ function gump:CriaCabecalho (BaseFrame, instancia)
 	BaseFrame.cabecalho.ball:SetPoint ("BOTTOMLEFT", BaseFrame, "TOPLEFT", -37, 0)
 	BaseFrame.cabecalho.ball:SetWidth (64)
 	BaseFrame.cabecalho.ball:SetHeight (64)
-	BaseFrame.cabecalho.ball:SetTexture ("Interface\\AddOns\\Details\\images\\ball_left")
+	BaseFrame.cabecalho.ball:SetTexture ([[Interface\AddOns\Details\images\ball_left]])
+	
+	BaseFrame.cabecalho.emenda = BaseFrame:CreateTexture (nil, "OVERLAY")
+	BaseFrame.cabecalho.emenda:SetPoint ("bottomright", BaseFrame.cabecalho.ball, "bottomright", 0, 0)
+	BaseFrame.cabecalho.emenda:SetWidth (8)
+	BaseFrame.cabecalho.emenda:SetHeight (32)
+	BaseFrame.cabecalho.emenda:SetTexture ([[Interface\AddOns\Details\images\emenda_left]])
 
 	BaseFrame.cabecalho.atributo_icon:Hide()
 	BaseFrame.cabecalho.ball:Hide()
@@ -2404,7 +2525,7 @@ function gump:CriaCabecalho (BaseFrame, instancia)
 	
 	--> barra centro
 	BaseFrame.cabecalho.top_bg = BaseFrame:CreateTexture (nil, "BACKGROUND")
-	BaseFrame.cabecalho.top_bg:SetPoint ("LEFT", BaseFrame.cabecalho.ball, "RIGHT", 0, -16)
+	BaseFrame.cabecalho.top_bg:SetPoint ("LEFT", BaseFrame.cabecalho.ball, "RIGHT", -4, -16)
 	BaseFrame.cabecalho.top_bg:SetPoint ("RIGHT", BaseFrame.cabecalho.ball_r, "LEFT")
 	BaseFrame.cabecalho.top_bg:SetTexture ("Interface\\AddOns\\Details\\images\\bar_top_center")
 

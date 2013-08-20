@@ -1118,6 +1118,27 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 			--print ("DEBUG: contra", instancia.showing.contra)
 		end
 		
+		if (_detalhes.cloud_process) then
+			local atributo = instancia.atributo
+			local time_left = (_detalhes.last_data_requested+7) - _detalhes._tempo
+			
+			if (atributo == 1 and _detalhes.in_combat and not _detalhes:CaptureGet ("damage") and _detalhes.host_by) then
+				
+			elseif (atributo == 2 and _detalhes.in_combat and (not _detalhes:CaptureGet ("heal") or _detalhes:CaptureGet ("aura")) and _detalhes.host_by) then
+				
+			elseif (atributo == 3 and _detalhes.in_combat and not _detalhes:CaptureGet ("energy") and _detalhes.host_by) then
+				
+			elseif (atributo == 4 and _detalhes.in_combat and not _detalhes:CaptureGet ("miscdata") and _detalhes.host_by) then
+				
+			else
+				time_left = nil
+			end
+			
+			if (time_left) then
+				instancia:InstanceAlert (Loc ["STRING_PLEASE_WAIT"], {[[Interface\COMMON\StreamCircle]], 22, 22, true}, time_left)
+			end
+		end
+		
 		_detalhes:SendEvent ("DETAILS_INSTANCE_CHANGESEGMENT", nil, instancia, segmento)
 		
 	end

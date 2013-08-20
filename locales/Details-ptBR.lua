@@ -14,6 +14,8 @@ if not Loc then return end
 	Loc ["STRING_RIGHT"] = "direita"
 	Loc ["STRING_TOOOLD"] = "nao pode ser instalado pois sua versao do Details! e muito antiga."
 	Loc ["STRING_TOOOLD2"] = "a sua versao do Details! nao e a mesma."
+	
+	Loc ["STRING_PLEASE_WAIT"] = "Por favor espere"
 
 	Loc ["STRING_RIGHTCLICK_CLOSE_SHORT"] = "Botao direito para fechar."
 	Loc ["STRING_RIGHTCLICK_CLOSE_MEDIUM"] = "Use o botao direito para fechar esta janela."

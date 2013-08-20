@@ -35,6 +35,7 @@ framework\framework.lua
 framework\colors.lua
 framework\label.lua
 framework\slider.lua
+framework\itscroll.xml
 framework\picture.lua
 framework\help.lua
 framework\cooltip.xml

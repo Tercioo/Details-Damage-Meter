@@ -37,6 +37,10 @@
 	local container_combatentes = _detalhes.container_combatentes --details local
 	local container_habilidades = _detalhes.container_habilidades --details local
 	
+	local spell_damage_func = _detalhes.habilidade_dano.Add --details local
+	local spell_heal_func = _detalhes.habilidade_cura.Add --details local
+	local spell_energy_func = _detalhes.habilidade_e_energy.Add --details local
+	
 	--> current combat and overall pointers
 		local _current_combat = _detalhes.tabela_vigente or {} --> placeholder table
 		local _overall_combat = _detalhes.tabela_overall or {} --> placeholder table
@@ -59,6 +63,8 @@
 --> cache
 	--> damage
 		local damage_cache = {}
+		local damage_cache_pets = {}
+		local damage_cache_petsOwners = {}
 	--> heaing
 		local healing_cache = {}
 	--> energy
@@ -147,29 +153,39 @@
 	--> get actors
 	
 		--> damager
-		local este_jogador, meu_dono = damage_cache [who_name]
+		local este_jogador, meu_dono = damage_cache [who_name] or damage_cache_pets [who_serial], damage_cache_petsOwners [who_serial]
 		
 		if (not este_jogador) then --> pode ser um desconhecido ou um pet
 		
 			este_jogador, meu_dono, who_name = _current_damage_container:PegarCombatente (who_serial, who_name, who_flags, true)
 			
-			if (not meu_dono) then --> se não for um pet, adicionar no cache
-				--> fazer: precisa ser com cache
-				local search = _detalhes.tabela_pets.pets [who_serial]
-				if (not search) then --> make sure isn't a pet
+			if (meu_dono) then --> é um pet
+				damage_cache_pets [who_serial] = este_jogador
+				damage_cache_petsOwners [who_serial] = meu_dono
+			else
+				if (who_flags) then --> ter certeza que não é um pet
 					damage_cache [who_name] = este_jogador
 				end
 			end
+			
 		end
 		
 		--> his target
-		local jogador_alvo, alvo_dono = damage_cache [alvo_name]
+		local jogador_alvo, alvo_dono = damage_cache [alvo_name] or damage_cache_pets [alvo_serial], damage_cache_petsOwners [alvo_serial]
+		
 		if (not jogador_alvo) then
+		
 			jogador_alvo, alvo_dono, alvo_name = _current_damage_container:PegarCombatente (alvo_serial, alvo_name, alvo_flags, true)
-			--> fazer: precisa ser com cache
-			if (not alvo_dono and not _detalhes.tabela_pets.pets [alvo_serial]) then
-				damage_cache [alvo_name] = jogador_alvo
+			
+			if (meu_dono) then
+				damage_cache_pets [alvo_serial] = jogador_alvo
+				damage_cache_petsOwners [alvo_serial] = alvo_dono
+			else
+				if (alvo_flags) then --> ter certeza que não é um pet
+					damage_cache [alvo_name] = jogador_alvo
+				end
 			end
+			
 		end
 		
 		--> damager shadow
@@ -193,6 +209,7 @@
 			local t = jogador_alvo.last_events_table
 			local i = t.n
 			
+			--[[
 			if (not i) then
 				local isOriginal = jogador_alvo.last_events_table.original
 				if (isOriginal) then
@@ -224,6 +241,7 @@
 				print ("We are investigation this issue, this information is important to us.")
 				assert (false, "Please Report This Error on the Blue Button: Parser 194: " .. isOriginal .. " " .. indexes .. " " .. resync .. " " .. saved)
 			end
+			--]]
 			
 			t.n = i + 1
 			
@@ -364,7 +382,8 @@
 			spell = este_jogador.spell_tables:PegaHabilidade (spellid, true, token)
 		end
 		
-		return spell:Add (alvo_serial, alvo_name, alvo_flags, amount, who_name, resisted, blocked, absorbed, critical, glacing, token)
+		--return spell:Add (alvo_serial, alvo_name, alvo_flags, amount, who_name, resisted, blocked, absorbed, critical, glacing, token)
+		return spell_damage_func (spell, alvo_serial, alvo_name, alvo_flags, amount, who_name, resisted, blocked, absorbed, critical, glacing, token)
 	end
 
 	function parser:swingmissed (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, missType, isOffHand, amountMissed)
@@ -486,7 +505,7 @@
 		local este_jogador, meu_dono = healing_cache [who_name]
 		if (not este_jogador) then --> pode ser um desconhecido ou um pet
 			este_jogador, meu_dono, who_name = _current_heal_container:PegarCombatente (who_serial, who_name, who_flags, true)
-			if (not meu_dono) then --> se não for um pet, adicionar no cache
+			if (not meu_dono and who_flags) then --> se não for um pet, adicionar no cache
 				healing_cache [who_name] = este_jogador
 			end
 		end
@@ -494,7 +513,7 @@
 		local jogador_alvo, alvo_dono = healing_cache [alvo_name]
 		if (not jogador_alvo) then
 			jogador_alvo, alvo_dono, alvo_name = _current_heal_container:PegarCombatente (alvo_serial, alvo_name, alvo_flags, true)
-			if (not alvo_dono) then
+			if (not alvo_dono and alvo_flags) then
 				healing_cache [alvo_name] = jogador_alvo
 			end
 		end
@@ -536,6 +555,41 @@
 		
 			local t = jogador_alvo.last_events_table
 			local i = t.n
+			
+			--[[
+			if (not i) then
+				local isOriginal = jogador_alvo.last_events_table.original
+				if (isOriginal) then
+					isOriginal = "IsOriginal = TRUE"
+				else
+					isOriginal = "IsOriginal = FALSE"
+				end
+				local indexes = #jogador_alvo.last_events_table
+				if (not indexes) then
+					indexes = "Indexes = NIL"
+				else
+					indexes = "Indexes = "..indexes
+				end
+				local resync = _detalhes.tabela_vigente.resincked
+				if (resync) then
+					resync = "resync = TRUE"
+				else
+					resync = "resync = FALSE"
+				end
+				
+				local saved = _detalhes.tabela_vigente.hasSaved
+				if (saved) then
+					saved = "saved = TRUE"
+				else
+					saved = "saved = FALSE"
+				end
+				
+				print ("Report the lines shown, click on reset button and type /reload")
+				print ("We are investigation this issue, this information is important to us.")
+				assert (false, "Please Report This Error on the Blue Button: Parser 194: " .. isOriginal .. " " .. indexes .. " " .. resync .. " " .. saved)
+			end			
+			--]]
+			
 			t.n = i + 1
 
 			t = t [i]
@@ -629,9 +683,11 @@
 		end
 		
 		if (is_shield) then
-			return spell:Add (alvo_serial, alvo_name, alvo_flags, cura_efetiva, who_name, 0, 		  nil, 	     overhealing, true)
+			--return spell:Add (alvo_serial, alvo_name, alvo_flags, cura_efetiva, who_name, 0, 		  nil, 	     overhealing, true)
+			return spell_heal_func (spell, alvo_serial, alvo_name, alvo_flags, cura_efetiva, who_name, 0, 		  nil, 	     overhealing, true)
 		else
-			return spell:Add (alvo_serial, alvo_name, alvo_flags, cura_efetiva, who_name, absorbed, critical, overhealing)
+			--return spell:Add (alvo_serial, alvo_name, alvo_flags, cura_efetiva, who_name, absorbed, critical, overhealing)
+			return spell_heal_func (spell, alvo_serial, alvo_name, alvo_flags, cura_efetiva, who_name, absorbed, critical, overhealing)
 		end
 	end
 
@@ -1037,7 +1093,8 @@
 			spell = este_jogador.spell_tables:PegaHabilidade (spellid, true, token)
 		end
 		
-		return spell:Add (alvo_serial, alvo_name, alvo_flags, amount, who_name, powertype)
+		--return spell:Add (alvo_serial, alvo_name, alvo_flags, amount, who_name, powertype)
+		return spell_energy_func (spell, alvo_serial, alvo_name, alvo_flags, amount, who_name, powertype)
 	end
 
 
@@ -1845,6 +1902,9 @@
 			
 			return
 			
+		elseif (evento == "UNIT_PET") then
+			_detalhes.container_pets:BuscarPets()
+		
 		elseif (evento == "PLAYER_REGEN_DISABLED") then -- Entrou em Combate
 			--> inicia um timer para pegar qual é a luta:
 			
@@ -1974,8 +2034,13 @@
 		
 		--> clear cache
 		damage_cache = {}
+		damage_cache_pets = {}
+		damage_cache_petsOwners = {}
+		
 		healing_cache = {}
+		
 		energy_cache = {}
+		
 		misc_cache = {}
 		
 	end
