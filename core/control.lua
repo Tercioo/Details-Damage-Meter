@@ -36,7 +36,8 @@
 	local modo_GROUP = _detalhes.modos.group
 	local modo_ALL = _detalhes.modos.all
 	local class_type_dano = _detalhes.atributos.dano
-
+	local OBJECT_TYPE_PETS = 0x00003000
+	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> details api functions
 
