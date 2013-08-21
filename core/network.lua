@@ -52,8 +52,8 @@
 			local nome = realm
 			local owner_table = dversion
 			
-			if (not _detalhes.container_pets.pets [serial]) then
-				_detalhes.container_pets.pets [serial] = owner_table
+			if (not _detalhes.tabela_pets.pets [serial]) then
+				_detalhes.tabela_pets.pets [serial] = owner_table
 				local petActor = _detalhes.tabela_vigente[1]:PegarCombatente (_, nome)
 				if (petActor) then
 					local ownerActor = _detalhes.tabela_vigente[1]:PegarCombatente (owner_table[2], owner_table[1], owner_table[3], true)
@@ -75,7 +75,7 @@
 		
 			local petserial = arg6
 			local petnome = arg7
-			local owner_table = _detalhes.container_pets.pets [petserial]
+			local owner_table = _detalhes.tabela_pets.pets [petserial]
 			
 			if (owner_table) then
 				if (realm ~= GetRealmName()) then

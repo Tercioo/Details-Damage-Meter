@@ -435,7 +435,7 @@
 				--> have flag and the flag tell us he is a pet
 				if (actor.flag_original and bit.band (actor.flag_original, OBJECT_TYPE_PETS) ~= 0) then
 					--> do not have owner and he isn't on owner container
-					if (not actor.owner and not _detalhes.container_pets.pets [actor.serial]) then
+					if (not actor.owner and not _detalhes.tabela_pets.pets [actor.serial]) then
 						_detalhes:SendPetOwnerRequest (actor.serial, actor.nome)
 					end
 				end

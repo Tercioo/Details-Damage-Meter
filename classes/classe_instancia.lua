@@ -1119,13 +1119,20 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 		end
 		
 		if (_detalhes.cloud_process) then
+			
+			if (_detalhes.debug) then
+				_detalhes:Msg ("cloud process running...")
+			end
+			
 			local atributo = instancia.atributo
 			local time_left = (_detalhes.last_data_requested+7) - _detalhes._tempo
 			
 			if (atributo == 1 and _detalhes.in_combat and not _detalhes:CaptureGet ("damage") and _detalhes.host_by) then
 				
 			elseif (atributo == 2 and _detalhes.in_combat and (not _detalhes:CaptureGet ("heal") or _detalhes:CaptureGet ("aura")) and _detalhes.host_by) then
-				
+				if (_detalhes.debug) then
+					_detalhes:Msg ("cofirmed, geting heal.")
+				end
 			elseif (atributo == 3 and _detalhes.in_combat and not _detalhes:CaptureGet ("energy") and _detalhes.host_by) then
 				
 			elseif (atributo == 4 and _detalhes.in_combat and not _detalhes:CaptureGet ("miscdata") and _detalhes.host_by) then
@@ -1135,6 +1142,9 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 			end
 			
 			if (time_left) then
+				if (_detalhes.debug) then
+					_detalhes:Msg ("showing please wait.")
+				end
 				instancia:InstanceAlert (Loc ["STRING_PLEASE_WAIT"], {[[Interface\COMMON\StreamCircle]], 22, 22, true}, time_left)
 			end
 		end
