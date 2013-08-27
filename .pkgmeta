@@ -1,4 +1,4 @@
-nicktagname: !!str "!NickTag"
+nicktagname: "!NickTag"
 
 externals:
     Details/plugins/NickTag:
