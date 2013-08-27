@@ -14,4 +14,4 @@ move-folders:
     Details/plugins/Details_TimeAttack: Details_TimeAttack
     Details/plugins/Details_TinyThreat: Details_TinyThreat
     Details/plugins/Details_Vanguard: Details_Vanguard
-    Details/plugins/NickTag: !nicktagname
+    Details/plugins/NickTag: nicktagname
