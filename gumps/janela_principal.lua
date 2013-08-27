@@ -1089,12 +1089,15 @@ local function barra_scripts (esta_barra, instancia, i)
 		resize_fade (instancia, "out")
 		gump:Fade (instancia.baseframe.button_stretch, "alpha", 0.3)
 
+		instancia:MontaTooltip (self, i)
+		
+		--[[
 		_GameTooltip:SetOwner (self, "ANCHOR_TOPRIGHT")
 		if (not instancia:MontaTooltip (i)) then
 			return
 		end
-		
 		_GameTooltip:Show()
+		--]]
 	--
 		self:SetBackdrop({
 			bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", 
@@ -1154,7 +1157,7 @@ local function barra_scripts (esta_barra, instancia, i)
 			move_janela (parent, false, instancia) --> novo movedor da janela
 			instancia:SaveMainWindowPosition()
 			_GameTooltip:SetOwner (self, "ANCHOR_TOPRIGHT")
-			if (instancia:MontaTooltip (i)) then
+			if (instancia:MontaTooltip (self, i)) then
 				_GameTooltip:Show()
 			end
 			

@@ -408,10 +408,21 @@ function atributo_heal:ToolTip (instancia, numero, barra)
 		end
 	end
 end
-
+--> tooltip locals
+local r, g, b
+local headerColor = "yellow"
+local barAlha = .6
 
 ---------> HEALING TAKEN
 function atributo_heal:ToolTip_HealingTaken (instancia, numero, barra)
+
+	local owner = self.owner
+	if (owner and owner.classe) then
+		r, g, b = unpack (_detalhes.class_colors [owner.classe])
+	else
+		r, g, b = unpack (_detalhes.class_colors [self.classe])
+	end
+
 	local curadores = self.healing_from
 	local total_curado = self.healing_taken
 	
@@ -431,7 +442,10 @@ function atributo_heal:ToolTip_HealingTaken (instancia, numero, barra)
 		end
 	end
 	
-	GameTooltip:AddLine (" ")
+	GameCooltip:AddLine (Loc ["STRING_FROM"], nil, nil, headerColor, nil, 12)
+	--GameCooltip:AddIcon ([[Interface\Addons\Details\images\icons]], 1, 1, 14, 14, 0.03515625, 0.087890625, 0.0234375, 0.09765625, _detalhes.class_colors [self.classe])
+	GameCooltip:AddIcon ([[Interface\TUTORIALFRAME\UI-TutorialFrame-LevelUp]], 1, 1, 14, 14, 0.10546875, 0.89453125, 0.05859375, 0.6796875)
+	GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
 	
 	_table_sort (meus_curadores, function (a, b) return a[2] > b[2] end)
 	local max = #meus_curadores
@@ -440,12 +454,17 @@ function atributo_heal:ToolTip_HealingTaken (instancia, numero, barra)
 	end
 
 	for i = 1, max do
-		GameTooltip:AddDoubleLine (meus_curadores[i][1]..": ", meus_curadores[i][2].." (".._cstr ("%.1f", (meus_curadores[i][2]/total_curado) * 100).."%)", 1, 1, 1, 1, 1, 1)
+		GameCooltip:AddLine (meus_curadores[i][1]..": ", _detalhes:comma_value (meus_curadores[i][2]).." (".._cstr ("%.1f", (meus_curadores[i][2]/total_curado) * 100).."%)")
 		local classe = meus_curadores[i][3]
 		if (not classe) then
-			classe = "monster"
+			classe = "UNKNOW"
 		end
-		GameTooltip:AddTexture ("Interface\\AddOns\\Details\\images\\"..classe:lower().."_small")
+		if (classe == "UNKNOW") then
+			GameCooltip:AddIcon ("Interface\\LFGFRAME\\LFGROLE_BW", nil, nil, 14, 14, .25, .5, 0, 1)
+		else
+			GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small", nil, nil, 14, 14, _unpack (_detalhes.class_coords [classe]))
+		end
+		GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
 	end
 	
 	return true
@@ -454,6 +473,13 @@ end
 ---------> HEALING DONE / HPS / OVERHEAL
 function atributo_heal:ToolTip_HealingDone (instancia, numero, barra)
 
+	local owner = self.owner
+	if (owner and owner.classe) then
+		r, g, b = unpack (_detalhes.class_colors [owner.classe])
+	else
+		r, g, b = unpack (_detalhes.class_colors [self.classe])
+	end
+	
 	local ActorHealingTable = {}
 	local ActorHealingTargets = {}
 	local ActorSkillsContainer = self.spell_tables._ActorTable
@@ -463,10 +489,16 @@ function atributo_heal:ToolTip_HealingDone (instancia, numero, barra)
 		key = "totalover", "overheal"
 	end
 	
+	local meu_tempo
+	if (_detalhes.time_type == 1 or not self.grupo) then
+		meu_tempo = self:Tempo()
+	elseif (_detalhes.time_type == 2) then
+		meu_tempo = self:GetCombatTime()
+	end
 	local ActorTotal = self [actor_key]
 	for _spellid, _skill in _pairs (ActorSkillsContainer) do 
 		local SkillName, _, SkillIcon = _GetSpellInfo (_spellid)
-		_table_insert (ActorHealingTable, {_spellid, _skill [skill_key], _skill [skill_key]/ActorTotal*100, {SkillName, nil, SkillIcon}})
+		_table_insert (ActorHealingTable, {_spellid, _skill [skill_key], _skill [skill_key]/ActorTotal*100, {SkillName, nil, SkillIcon}, _skill [skill_key]/meu_tempo})
 	end
 	_table_sort (ActorHealingTable, _detalhes.Sort2)
 	
@@ -478,24 +510,144 @@ function atributo_heal:ToolTip_HealingDone (instancia, numero, barra)
 	_table_sort (ActorHealingTargets, _detalhes.Sort2)
 
 	--> Mostra as habilidades no tooltip
-	GameTooltip:AddLine (Loc ["STRING_SPELLS"] .. ":") --> localiza-me
-	for i = 1, _math_min (_detalhes.tooltip_max_abilities, #ActorHealingTable) do
+	GameCooltip:AddLine (Loc ["STRING_SPELLS"], nil, nil, headerColor, nil, 12) --> localiza-me
+	--GameCooltip:AddIcon ([[Interface\Addons\Details\images\icons]], 1, 1, 14, 14, 0.03515625, 0.087890625, 0.0234375, 0.09765625, _detalhes.class_colors [self.classe])
+	--GameCooltip:AddIcon ([[Interface\HELPFRAME\HotIssueIcon]], 1, 1, 14, 14, 0, 1, 0, 1)
+	--GameCooltip:AddIcon ([[Interface\TUTORIALFRAME\UI-TUTORIALFRAME-SPIRITREZ]], 1, 1, 14, 14, 0.283203125, 0.470703125, 0.0859375, 0.9296875)
+	GameCooltip:AddIcon ([[Interface\RAIDFRAME\Raid-Icon-Rez]], 1, 1, 14, 14, 0.109375, 0.890625, 0.0625, 0.90625)
+	GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)	
+
+	local tooltip_max_abilities = _detalhes.tooltip_max_abilities
+	
+	if (instancia.sub_atributo == 3 or instancia.sub_atributo == 2) then
+		tooltip_max_abilities = 6
+	end
+	
+	for i = 1, _math_min (tooltip_max_abilities, #ActorHealingTable) do
 		if (ActorHealingTable[i][2] < 1) then
 			break
 		end
-		GameTooltip:AddDoubleLine (ActorHealingTable[i][4][1]..": ", _detalhes:comma_value (ActorHealingTable[i][2]).." (".._cstr ("%.1f", ActorHealingTable[i][3]).."%)", 1, 1, 1, 1, 1, 1)
-		GameTooltip:AddTexture (ActorHealingTable[i][4][3])
+		if (instancia.sub_atributo == 2) then
+			GameCooltip:AddLine (ActorHealingTable[i][4][1]..": ", _detalhes:comma_value ( _math_floor (ActorHealingTable[i][5])).." (".._cstr ("%.1f", ActorHealingTable[i][3]).."%)")
+		else
+			GameCooltip:AddLine (ActorHealingTable[i][4][1]..": ", _detalhes:comma_value (ActorHealingTable[i][2]).." (".._cstr ("%.1f", ActorHealingTable[i][3]).."%)")
+		end
+		GameCooltip:AddIcon (ActorHealingTable[i][4][3], nil, nil, 14, 14)
+		GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
 	end
 	
-	if (instancia.sub_atributo < 3) then -- 1 or 2 -> healing done or hps
-		GameTooltip:AddLine (Loc ["STRING_TARGETS"]..":") --> localiza-me
-		for i = 1, _math_min (_detalhes.tooltip_max_targets, #ActorHealingTargets) do
+	local container = instancia.showing [2]
+	
+	if (instancia.sub_atributo == 1) then -- 1 or 2 -> healing done or hps
+	
+		GameCooltip:AddLine (Loc ["STRING_TARGETS"].."", nil, nil, headerColor, nil, 12)
+		--GameCooltip:AddIcon ([[Interface\Addons\Details\images\icons]], 1, 1, 14, 14, 0.03515625, 0.087890625, 0.0234375, 0.09765625, _detalhes.class_colors [self.classe])
+		--GameCooltip:AddIcon ([[Interface\Addons\Details\images\icons]], 1, 1, 14, 14, 0, 0.03125, 0.126953125, 0.15625)
+		GameCooltip:AddIcon ([[Interface\TUTORIALFRAME\UI-TutorialFrame-LevelUp]], 1, 1, 14, 14, 0.10546875, 0.89453125, 0.05859375, 0.6796875)
+		GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
+		
+		for i = 1, _math_min (tooltip_max_abilities, #ActorHealingTargets) do
 			if (ActorHealingTargets[i][2] < 1) then
 				break
 			end
-			GameTooltip:AddDoubleLine (ActorHealingTargets[i][1]..": ", _detalhes:comma_value (ActorHealingTargets[i][2]) .." (".._cstr ("%.1f", ActorHealingTargets[i][3]).."%)", 1, 1, 1, 1, 1, 1)
-			GameTooltip:AddTexture ("Interface\\AddOns\\Details\\images\\espadas")
+			
+			GameCooltip:AddLine (ActorHealingTargets[i][1]..": ", _detalhes:comma_value (ActorHealingTargets[i][2]) .." (".._cstr ("%.1f", ActorHealingTargets[i][3]).."%)")
+			GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
+			
+			local targetActor = container:PegarCombatente (_, ActorHealingTargets[i][1])
+			
+			if (targetActor) then
+				local classe = targetActor.classe
+				if (not classe) then
+					classe = "UNKNOW"
+				end
+				if (classe == "UNKNOW") then
+					GameCooltip:AddIcon ("Interface\\LFGFRAME\\LFGROLE_BW", nil, nil, 14, 14, .25, .5, 0, 1)
+				else
+					GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small", nil, nil, 14, 14, _unpack (_detalhes.class_coords [classe]))
+				end
+			end
 		end
+	end
+	
+	--> PETS
+	local meus_pets = self.pets
+	
+	if (#meus_pets > 0) then --> teve ajudantes
+		
+		local quantidade = {} --> armazena a quantidade de pets iguais
+		local danos = {} --> armazena as habilidades
+		local alvos = {} --> armazena os alvos
+		local totais = {} --> armazena o dano total de cada objeto
+		
+		for index, nome in _ipairs (meus_pets) do
+			if (not quantidade [nome]) then
+				quantidade [nome] = 1
+				
+				local my_self = instancia.showing [class_type]:PegarCombatente (_, nome)
+				if (my_self) then
+				
+					local meu_total = my_self.total_without_pet
+					local tabela = my_self.spell_tables._ActorTable
+					local meus_danos = {}
+					
+					local meu_tempo
+					if (_detalhes.time_type == 1 or not self.grupo) then
+						meu_tempo = my_self:Tempo()
+					elseif (_detalhes.time_type == 2) then
+						meu_tempo = my_self:GetCombatTime()
+					end
+					totais [#totais+1] = {nome, my_self.total_without_pet, my_self.total_without_pet/meu_tempo}
+					
+					for spellid, tabela in _pairs (tabela) do
+						local nome, rank, icone = _GetSpellInfo (spellid)
+						_table_insert (meus_danos, {spellid, tabela.total, tabela.total/meu_total*100, {nome, rank, icone}})
+					end
+					_table_sort (meus_danos, _detalhes.Sort2)
+					danos [nome] = meus_danos
+					
+					local meus_inimigos = {}
+					tabela = my_self.targets._ActorTable
+					for _, tabela in _ipairs (tabela) do
+						_table_insert (meus_inimigos, {tabela.nome, tabela.total, tabela.total/meu_total*100})
+					end
+					_table_sort (meus_inimigos,_detalhes.Sort2)
+					alvos [nome] = meus_inimigos
+				end
+				
+			else
+				quantidade [nome] = quantidade [nome]+1
+			end
+		end
+		
+		local _quantidade = 0
+		local added_logo = false
+
+		_table_sort (totais, _detalhes.Sort2)
+		
+		for _, _table in _ipairs (totais) do
+			
+			if (_table [2] > 0) then
+			
+				if (not added_logo) then
+					added_logo = true
+					GameCooltip:AddLine (Loc ["STRING_PETS"].."", nil, nil, headerColor, nil, 12)
+					--GameCooltip:AddIcon ([[Interface\Addons\Details\images\icons]], 1, 1, 14, 14, 0.03515625, 0.087890625, 0.0234375, 0.09765625, _detalhes.class_colors [self.classe])
+					GameCooltip:AddIcon ([[Interface\COMMON\friendship-heart]], 1, 1, 14, 14, 0.21875, 0.78125, 0.09375, 0.6875)
+					GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
+				end
+			
+				local n = _table [1]:gsub (("%s%<.*"), "")
+				if (instancia.sub_atributo == 2) then
+					GameCooltip:AddLine (n, _detalhes:comma_value ( _math_floor (_table [3])) .. " (" .. _math_floor (_table [2]/self.total*100) .. "%)")
+				else
+					GameCooltip:AddLine (n, _detalhes:comma_value (_table [2]) .. " (" .. _math_floor (_table [2]/self.total*100) .. "%)")
+				end
+				GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
+				GameCooltip:AddIcon ([[Interface\AddOns\Details\images\classes_small]], 1, 1, 14, 14, 0.25, 0.49609375, 0.75, 1)
+			end
+		end
+		
 	end
 	
 	return true

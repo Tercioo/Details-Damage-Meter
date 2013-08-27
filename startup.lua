@@ -28,6 +28,7 @@ function _G._detalhes:Start()
 	--> combat
 		self.in_combat = false
 		self.combat_id = self.combat_id or 0
+		self.instances_amount = self.instances_amount or 12
 		self.segments_amount = self.segments_amount or 8
 		self.segments_amount_to_save = self.segments_amount_to_save or 2
 		self.deadlog_limit = self.deadlog_limit or 12
@@ -216,7 +217,7 @@ function _G._detalhes:Start()
 		
 	--> start garbage collector
 		self.ultima_coleta = 0
-		self.intervalo_coleta = 1800
+		self.intervalo_coleta = 720
 		self.garbagecollect = self:ScheduleRepeatingTimer ("IniciarColetaDeLixo", self.intervalo_coleta)
 
 	--> start parser

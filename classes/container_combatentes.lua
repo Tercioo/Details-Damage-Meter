@@ -178,16 +178,20 @@ function container_combatentes:PegarCombatente (serial, nome, flag, criar, isOwn
 		
 		--> pega afiliação
 		local details_flag = 0x00000000
+
 		if (flag) then
 			--print ("tem flag")
 			
 			if (_bit_band (flag, 0x00000400) ~= 0) then --> é um player
 				details_flag = details_flag+0x00000001
 				
-				if (IsInInstance()) then
-					novo_objeto.displayName = nome:gsub (("%-.*"), "")
-				else
-					novo_objeto.displayName = nome
+				novo_objeto.displayName = _detalhes:GetNickname (serial, false, true) --> serial, default, silent
+				if (not novo_objeto.displayName) then
+					if (IsInInstance()) then
+						novo_objeto.displayName = nome:gsub (("%-.*"), "")
+					else
+						novo_objeto.displayName = nome
+					end
 				end
 				
 				if (_bit_band (flag, EM_GRUPO) ~= 0) then --> faz parte do grupo

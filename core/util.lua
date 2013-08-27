@@ -113,7 +113,7 @@
 
 	--> scale
 	function _detalhes:Scale (rangeMin, rangeMax, scaleMin, scaleMax, x)
-		return 1 + (x-rangeMin)*(scaleMax-scaleMin)/(rangeMax-rangeMin)
+		return 1 + (x - rangeMin) * (scaleMax - scaleMin) / (rangeMax - rangeMin)
 	end
 
 	--> font size
@@ -189,17 +189,32 @@
 		LastDps = 0
 		_detalhes:SairDoCombate()
 	end
+	
+	function _detalhes:FindGUIDFromName (name)
+		if (_IsInRaid()) then
+			for i = 1, _GetNumGroupMembers(), 1 do
+				local this_name, _ = UnitName ("raid"..i)
+				if (this_name == name) then
+					return UnitGUID ("raid"..i)
+				end
+			end
+		elseif (_IsInGroup()) then
+			for i = 1, _GetNumGroupMembers()-1, 1 do
+				local this_name, _ = UnitName ("party"..i)
+				if (this_name == name) then
+					return UnitGUID ("party"..i)
+				end
+			end
+		end
+		if (UnitName ("player") == name) then
+			return UnitGUID ("player")
+		end
+		return nil
+	end
 
 	--> Armazena uma label recém criada - Store a new label on the pool
 	function _detalhes.font_pool:add (_fontstring)
 		self [#self+1] = _fontstring
-	end
-
-	function gump:UpdateTooltip (qual_barra, esta_barra, instancia)
-		_GameTooltip:Hide() 
-		_GameTooltip:SetOwner (esta_barra, "ANCHOR_TOPRIGHT")
-		instancia:MontaTooltip (qual_barra)
-		_GameTooltip:Show()
 	end
 
 	local function frame_task (self, elapsed)

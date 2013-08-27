@@ -15,6 +15,8 @@ if not Loc then return end
 	Loc ["STRING_TOOOLD"] = "could not be installed because your Details! version is too old."
 	Loc ["STRING_TOOOLD2"] = "your Details! version isn't the same."
 	
+	Loc ["STRING_INSTANCE_LIMIT"] = "max instance number has been reached, you can modify this limit over options panel."
+	
 	Loc ["STRING_PLEASE_WAIT"] = "Please wait"
 	
 	Loc ["STRING_RIGHTCLICK_CLOSE_SHORT"] = "Right click to close."
@@ -150,7 +152,9 @@ if not Loc then return end
 	Loc ["STRING_NO_SPELL"] = "no spell has been used"
 	Loc ["STRING_TARGET"] = "Target"
 	Loc ["STRING_TARGETS"] = "Targets"
+	Loc ["STRING_FROM"] = "From"
 	Loc ["STRING_PET"] = "Pet"
+	Loc ["STRING_PETS"] = "Pets"
 	Loc ["STRING_DPS"] = "Dps"
 	Loc ["STRING_SEE_BELOW"] = "see below"
 	Loc ["STRING_GERAL"] = "Geral"

@@ -249,9 +249,15 @@ end
 	function _detalhes:CriarInstancia (_, id)
 
 		if (id and _type (id) == "boolean") then
+			
+			if (#_detalhes.tabela_instancias >= _detalhes.instances_amount) then
+				return _detalhes:Msg (Loc ["STRING_INSTANCE_LIMIT"])
+			end
+			
 			local nova_instancia = _detalhes:NovaInstancia (#_detalhes.tabela_instancias+1)
 			_detalhes.tabela_instancias [#_detalhes.tabela_instancias+1] = nova_instancia
 			return nova_instancia
+			
 		elseif (id) then
 			local instancia = _detalhes.tabela_instancias [id]
 			if (instancia and not instancia:IsAtiva()) then
@@ -266,6 +272,10 @@ end
 				instancia:AtivarInstancia()
 				return
 			end
+		end
+		
+		if (#_detalhes.tabela_instancias >= _detalhes.instances_amount) then
+			return _detalhes:Msg (Loc ["STRING_INSTANCE_LIMIT"])
 		end
 		
 		local nova_instancia = _detalhes:NovaInstancia (#_detalhes.tabela_instancias+1)
@@ -1117,38 +1127,7 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 		if (instancia.showing and instancia.showing.contra) then
 			--print ("DEBUG: contra", instancia.showing.contra)
 		end
-		
-		if (_detalhes.cloud_process) then
-			
-			if (_detalhes.debug) then
-				_detalhes:Msg ("cloud process running...")
-			end
-			
-			local atributo = instancia.atributo
-			local time_left = (_detalhes.last_data_requested+7) - _detalhes._tempo
-			
-			if (atributo == 1 and _detalhes.in_combat and not _detalhes:CaptureGet ("damage") and _detalhes.host_by) then
-				
-			elseif (atributo == 2 and _detalhes.in_combat and (not _detalhes:CaptureGet ("heal") or _detalhes:CaptureGet ("aura")) and _detalhes.host_by) then
-				if (_detalhes.debug) then
-					_detalhes:Msg ("cofirmed, geting heal.")
-				end
-			elseif (atributo == 3 and _detalhes.in_combat and not _detalhes:CaptureGet ("energy") and _detalhes.host_by) then
-				
-			elseif (atributo == 4 and _detalhes.in_combat and not _detalhes:CaptureGet ("miscdata") and _detalhes.host_by) then
-				
-			else
-				time_left = nil
-			end
-			
-			if (time_left) then
-				if (_detalhes.debug) then
-					_detalhes:Msg ("showing please wait.")
-				end
-				instancia:InstanceAlert (Loc ["STRING_PLEASE_WAIT"], {[[Interface\COMMON\StreamCircle]], 22, 22, true}, time_left)
-			end
-		end
-		
+
 		_detalhes:SendEvent ("DETAILS_INSTANCE_CHANGESEGMENT", nil, instancia, segmento)
 		
 	end
@@ -1203,6 +1182,43 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 		if (update_coolTip) then
 			_detalhes.popup:Select (1, atributo)
 			_detalhes.popup:Select (2, instancia.sub_atributo, atributo)
+		end
+		
+		if (_detalhes.cloud_process) then
+			
+			if (_detalhes.debug) then
+				_detalhes:Msg ("(debug) instancia #"..instancia.meu_id.." found cloud process.")
+			end
+			
+			local atributo = instancia.atributo
+			local time_left = (_detalhes.last_data_requested+7) - _detalhes._tempo
+			
+			if (atributo == 1 and _detalhes.in_combat and not _detalhes:CaptureGet ("damage") and _detalhes.host_by) then
+				if (_detalhes.debug) then
+					_detalhes:Msg ("(debug) instancia need damage cloud.")
+				end
+			elseif (atributo == 2 and _detalhes.in_combat and (not _detalhes:CaptureGet ("heal") or _detalhes:CaptureGet ("aura")) and _detalhes.host_by) then
+				if (_detalhes.debug) then
+					_detalhes:Msg ("(debug) instancia need heal cloud.")
+				end
+			elseif (atributo == 3 and _detalhes.in_combat and not _detalhes:CaptureGet ("energy") and _detalhes.host_by) then
+				if (_detalhes.debug) then
+					_detalhes:Msg ("(debug) instancia need energy cloud.")
+				end
+			elseif (atributo == 4 and _detalhes.in_combat and not _detalhes:CaptureGet ("miscdata") and _detalhes.host_by) then
+				if (_detalhes.debug) then
+					_detalhes:Msg ("(debug) instancia need misc cloud.")
+				end
+			else
+				time_left = nil
+			end
+			
+			if (time_left) then
+				if (_detalhes.debug) then
+					_detalhes:Msg ("(debug) showing instance alert.")
+				end
+				instancia:InstanceAlert (Loc ["STRING_PLEASE_WAIT"], {[[Interface\COMMON\StreamCircle]], 22, 22, true}, time_left)
+			end
 		end
 		
 		_detalhes:SendEvent ("DETAILS_INSTANCE_CHANGEATTRIBUTE", nil, instancia, atributo, sub_atributo)

@@ -150,7 +150,7 @@
 		function _detalhes:EntrarEmCombate (...)
 
 			if (_detalhes.debug) then
-				print ("Details started a new combat.")
+				_detalhes:Msg ("(debug) started a new combat.")
 			end
 
 			--> não tem historico, addon foi resetado, a primeira tabela é descartada -- Erase first table is does not have a firts segment history, this occour after reset or first run
@@ -207,17 +207,17 @@
 					if (not _detalhes:CaptureIsAllEnabled()) then
 						_detalhes:SendCloudRequest()
 						if (_detalhes.debug) then
-							_detalhes:Msg ("Details: CloudRequest()")
+							_detalhes:Msg ("(debug) requesting a cloud server.")
 						end
 					end
 				else
 					if (_detalhes.debug) then
-						_detalhes:Msg ("Details: instance", _detalhes:IsInInstance())
+						_detalhes:Msg ("(debug) isn't inside a registred instance", _detalhes:IsInInstance())
 					end
 				end
 			else
 				if (_detalhes.debug) then
-					_detalhes:Msg ("Details: group and cloud", _detalhes.in_group, _detalhes.cloud_capture)
+					_detalhes:Msg ("(debug) isn't in group or cloud is turned off", _detalhes.in_group, _detalhes.cloud_capture)
 				end
 			end
 			
@@ -234,19 +234,20 @@
 			end
 			
 			if (_detalhes.debug) then
-				print ("Details ended a combat.")
+				_detalhes:Msg ("(debug) ended a combat.")
 			end
 			
 			if (not _detalhes.tabela_vigente.is_boss) then
 				local inimigo = _detalhes:FindEnemy()
 				if (inimigo) then
 					if (_detalhes.debug) then
-						print ("Details last fight against: " .. inimigo)
+						_detalhes:Msg ("(debug) enemy recognized", inimigo)
 					end
 				end
 				_detalhes.tabela_vigente.enemy = inimigo
 				if (_detalhes.debug) then
-					_detalhes:EqualizeActorsSchedule()
+					_detalhes:Msg ("(debug) forcing equalize actors behavior.")
+					_detalhes:EqualizeActorsSchedule (_detalhes.host_of)
 				end
 			else
 			
@@ -256,7 +257,7 @@
 					_detalhes:CaptureSet (false, "heal", false, 30)
 					
 					if (_detalhes.debug) then
-						print ("Details found a boss on last fight, freezing parser for 30 seconds.")
+						_detalhes:Msg ("(debug) found encounter on last fight, freezing parser for 30 seconds.")
 					end
 					
 					local bossFunction, bossFunctionType = _detalhes:GetBossFunction (_detalhes.tabela_vigente.is_boss.mapid, _detalhes.tabela_vigente.is_boss.index)
@@ -266,10 +267,12 @@
 						end
 					end
 					
-					_detalhes:EqualizeActorsSchedule()
+					_detalhes:EqualizeActorsSchedule (_detalhes.host_of)
+					
+					_detalhes:IniciarColetaDeLixo (true)
 				else
 					if (_detalhes.debug) then
-						_detalhes:EqualizeActorsSchedule()
+						_detalhes:EqualizeActorsSchedule (_detalhes.host_of)
 					end
 				end
 			end
@@ -301,7 +304,7 @@
 			local tempo_do_combate = _detalhes.tabela_vigente.end_time - _detalhes.tabela_vigente.start_time
 			
 			--if ( tempo_do_combate >= _detalhes.minimum_combat_time) then --> tempo minimo precisa ser 5 segundos pra acrecentar a tabela ao historico
-			if ( tempo_do_combate >= 10) then --> tempo minimo precisa ser 5 segundos pra acrecentar a tabela ao historico
+			if ( tempo_do_combate >= 5) then --> tempo minimo precisa ser 5 segundos pra acrecentar a tabela ao historico
 				_detalhes.tabela_historico:adicionar (_detalhes.tabela_vigente) --move a tabela atual para dentro do histórico
 			else
 				--> this is a little bit complicated, need a specific function for combat cancellation
@@ -367,14 +370,47 @@
 
 		function _detalhes:MakeEqualizeOnActor (player, realm, receivedActor)
 		
+			local combat = _detalhes:GetCombat ("current")
 			local damage, heal, energy, misc = _detalhes:GetAllActors ("current", player)
 			
-			if (not damage and not heal) then
-				--> add server name
+			if (not damage and not heal and not energy and not misc) then
+			
+				--> try adding server name
 				damage, heal, energy, misc = _detalhes:GetAllActors ("current", player.."-"..realm)
+				
+				if (not damage and not heal and not energy and not misc) then
+					--> not found any actor object, so we need to create
+					
+					local actorName
+					
+					if (realm ~= GetRealmName()) then
+						actorName = player.."-"..realm
+					else
+						actorName = player
+					end
+					
+					local guid = _detalhes:FindGUIDFromName (player)
+					
+					-- 0x512 normal party
+					-- 0x514 normal raid
+					
+					if (guid) then
+						damage = combat [1]:PegarCombatente (guid, actorName, 0x514, true)
+						heal = combat [2]:PegarCombatente (guid, actorName, 0x514, true)
+						energy = combat [3]:PegarCombatente (guid, actorName, 0x514, true)
+						misc = combat [4]:PegarCombatente (guid, actorName, 0x514, true)
+						
+						if (_detalhes.debug) then
+							_detalhes:Msg ("(debug) equalize received actor:", actorName, damage, heal)
+						end
+					else
+						if (_detalhes.debug) then
+							_detalhes:Msg ("(debug) equalize couldn't get guid for player ",player)
+						end
+					end
+				end
 			end
 			
-			local combat = _detalhes:GetCombat ("current")
 			combat[1].need_refresh = true
 			combat[2].need_refresh = true
 			combat[3].need_refresh = true
@@ -429,7 +465,7 @@
 			end
 		end
 		
-		function _detalhes:EqualizeActorsSchedule()
+		function _detalhes:EqualizeActorsSchedule (host_of)
 			--> check for pets without owner
 			for _, actor in _ipairs (_detalhes.tabela_vigente[1]._ActorTable) do 
 				--> have flag and the flag tell us he is a pet
@@ -440,12 +476,21 @@
 					end
 				end
 			end
-			_detalhes:ScheduleTimer ("EqualizeActors", 2)
+			--> do not equilize if there is any disabled capture
+			if (_detalhes:CaptureIsAllEnabled()) then
+				_detalhes:ScheduleTimer ("EqualizeActors", 2, host_of)
+			end
 		end
 		
-		function _detalhes:EqualizeActors()
+		function _detalhes:EqualizeActors (host_of)
 		
-			local damage, heal, energy, misc = _detalhes:GetAllActors ("current", UnitName ("player"))
+			local damage, heal, energy, misc
+		
+			if (host_of) then
+				damage, heal, energy, misc = _detalhes:GetAllActors ("current", host_of)
+			else
+				damage, heal, energy, misc = _detalhes:GetAllActors ("current", UnitName ("player"))
+			end
 			
 			if (damage) then
 				damage = {damage.total, damage.damage_taken, damage.friendlyfire_total}
@@ -472,8 +517,13 @@
 			end
 			
 			local data = {damage, heal, energy, misc}
-			
-			_detalhes:SendRaidData ("equalize_actors", data)
+
+			if (host_of) then
+				_detalhes:SendCustomRaidData ("equalize_actors", host_of, nil, data)
+				_detalhes:EqualizeActors()
+			else
+				_detalhes:SendRaidData ("equalize_actors", data)
+			end
 			
 		end
 		
@@ -526,23 +576,51 @@
 		end
 
 	--> tooltip fork
-		function _detalhes:MontaTooltip (qual_barra)
+		local avatarPoint = {"bottomleft", "topleft", -3, -4}
+		local backgroundPoint = {{"bottomleft", "topleft", 0, -3}, {"bottomright", "topright", 0, -3}}
+		local textPoint = {"left", "right", -11, -5}
+		
+		function _detalhes:MontaTooltip (frame, qual_barra)
 
+			GameCooltip:Reset()
+			GameCooltip:SetType ("tooltip")
+			GameCooltip:SetOption ("LeftBorderSize", -5)
+			GameCooltip:SetOption ("RightBorderSize", 5)
+			GameCooltip:SetOption ("StatusBarTexture", [[Interface\WorldStateFrame\WORLDSTATEFINALSCORE-HIGHLIGHT]]) --[[Interface\Addons\Details\images\bar_flat]]
+			GameCooltip:SetOwner (frame)
+			
 			local esta_barra = self.barras [qual_barra] --> barra que o mouse passou em cima e irá mostrar o tooltip
 			local objeto = esta_barra.minha_tabela --> pega a referencia da tabela --> retorna a classe_damage ou classe_heal
 			if (not objeto) then --> a barra não possui um objeto
 				return false
 			end
-			_detalhes.popup:Close()
-			
+
 			--verifica por tooltips especiais:
 			if (objeto.dead) then --> é uma barra de dead
 				return _detalhes:ToolTipDead (self, objeto, esta_barra) --> instância, [morte], barra
 			end
 			
-			return objeto:ToolTip (self, qual_barra, esta_barra) --> instância, nº barra, objeto barra
+			local t = objeto:ToolTip (self, qual_barra, esta_barra) --> instância, nº barra, objeto barra
+			if (t) then
+			
+				if (esta_barra.minha_tabela.serial and esta_barra.minha_tabela.serial ~= "") then
+					local avatar = NickTag:GetNicknameTable (esta_barra.minha_tabela.serial)
+					if (avatar) then
+						GameCooltip:SetBannerImage (1, avatar [2], 80, 40, avatarPoint, nil, nil) --> overlay [2] avatar path
+						--local l, r, t, b = unpack (avatar [5])
+						--local r, g, b = unpack (avatar [6])
+						GameCooltip:SetBannerImage (2, avatar [4], 200, 55, backgroundPoint, avatar [5], avatar [6]) --> background
+						GameCooltip:SetBannerText (1, avatar [1], textPoint) --> text [1] nickname
+					end
+				end
+				
+				return GameCooltip:ShowCooltip()
+			end
 		end
-
+		
+		function _detalhes.gump:UpdateTooltip (qual_barra, esta_barra, instancia)
+			return instancia:MontaTooltip (esta_barra, qual_barra)
+		end
 
 		function _detalhes:EndRefresh (instancia, total, tabela_do_combate, showing)
 			_detalhes:EsconderBarrasNaoUsadas (instancia, showing)
@@ -576,8 +654,8 @@
 
 			if (not tabela_do_combate[self.atributo].need_refresh and not forcar) then
 				return --> não precisa de refresh
-			else
-				tabela_do_combate[self.atributo].need_refresh = false
+			--else
+				--tabela_do_combate[self.atributo].need_refresh = false
 			end
 			
 			if (self.atributo == 1) then --> damage
@@ -603,27 +681,27 @@
 			end
 			
 			if (instancia == -1) then
-				
-				local refresh_poll = {}
-				
-				for _, esta_instancia in _ipairs (_detalhes.tabela_instancias) do
-					
+	
+				--> update
+				for index, esta_instancia in _ipairs (_detalhes.tabela_instancias) do
 					if (esta_instancia.ativa) then
 						if (esta_instancia.modo == modo_GROUP or esta_instancia.modo == modo_ALL) then
-							local atributo = esta_instancia:AtualizarALL (forcar)
-
-							if (atributo) then
-								refresh_poll [#refresh_poll+1] = atributo
+							esta_instancia:AtualizarALL (forcar)
+						end
+					end
+				end
+				
+				--> marcar que não precisa ser atualizada
+				for index, esta_instancia in _ipairs (_detalhes.tabela_instancias) do
+					if (esta_instancia.ativa and esta_instancia.showing) then
+						if (esta_instancia.modo == modo_GROUP or esta_instancia.modo == modo_ALL) then
+							if (esta_instancia.atributo <= 4) then
+								esta_instancia.showing [esta_instancia.atributo].need_refresh = false
 							end
 						end
 					end
-					
 				end
-				
-				for _, atributo in _ipairs (refresh_poll) do 
-					atributo.need_refresh = false
-				end
-				
+
 				if (not forcar) then --atualizar o gump de detalhes também se ele estiver aberto
 					if (info.ativo) then
 						return info.jogador:MontaInfo()

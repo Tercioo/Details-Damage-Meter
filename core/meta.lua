@@ -681,15 +681,25 @@
 
 
 
-	function _detalhes:IniciarColetaDeLixo()
+	function _detalhes:IniciarColetaDeLixo (forcar)
 
-		if (_detalhes.ultima_coleta + _detalhes.intervalo_coleta > _detalhes._tempo + 1)  then
-			return
-		elseif (_detalhes.in_combat or _InCombatLockdown() or _detalhes:IsInInstance()) then 
-			_detalhes:ScheduleTimer ("IniciarColetaDeLixo", 5) 
-			return
+		if (not forcar) then
+			if (_detalhes.ultima_coleta + _detalhes.intervalo_coleta > _detalhes._tempo + 1)  then
+				return
+			elseif (_detalhes.in_combat or _InCombatLockdown() or _detalhes:IsInInstance()) then 
+				_detalhes:ScheduleTimer ("IniciarColetaDeLixo", 5) 
+				return
+			end
 		end
 
+		if (_detalhes.debug) then
+			if (forcar) then
+				_detalhes:Msg ("collecting garbage with forced state.")
+			else
+				_detalhes:Msg ("collecting garbage.")
+			end
+		end
+		
 		_detalhes:ClearParserCache()
 		
 		local limpados = atributo_damage:ColetarLixo() + atributo_heal:ColetarLixo() + atributo_energy:ColetarLixo() + atributo_misc:ColetarLixo()
@@ -797,7 +807,7 @@
 		local conteudo = _overall_combat [tipo]._ActorTable
 		_iter = {index = 1, data = conteudo[1], cleaned = 0} --> ._ActorTable[1] para pegar o primeiro index
 		
-		collectgarbage()
+		--collectgarbage()
 		
 		while (_iter.data) do
 		
@@ -817,9 +827,9 @@
 				_table_wipe (meus_links)
 			end
 			
-			if (tipo == 1 and #new_weak_table > 0) then
+			--if (tipo == 1 and #new_weak_table > 0) then
 			--	print (can_garbage, _actor.nome)
-			end
+			--end
 			
 			
 			if (can_garbage or not meus_links) then --> não há referências a este objeto

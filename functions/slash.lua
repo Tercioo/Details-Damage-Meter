@@ -65,6 +65,35 @@ function SlashCmdList.DETAILS (msg, editbox)
 		_G.DetailsCopy.MyObject.text:HighlightText()
 		_G.DetailsCopy.MyObject.text:SetFocus()
 	
+	elseif (msg == "raid") then
+	
+		local player, realm = "Marleyieu", "Azralon"
+	
+		local actorName
+		if (realm ~= GetRealmName()) then
+			actorName = player.."-"..realm
+		else
+			actorName = player
+		end
+		
+		print (actorName)
+	
+		local guid = _detalhes:FindGUIDFromName ("Marleyieu")
+		print (guid)
+		
+		for i = 1, GetNumGroupMembers()-1, 1 do 
+			local name, realm = UnitName ("party"..i)
+			print (name, " -- ", realm)
+		end
+	
+	elseif (msg == "captures") then
+		for k, v in pairs (_detalhes.capture_real) do 
+			print ("real -",k,":",v)
+		end
+		for k, v in pairs (_detalhes.capture_current) do 
+			print ("current -",k,":",v)
+		end
+	
 	elseif (msg == "slider") then
 		
 		local f = CreateFrame ("frame", "TESTEDESCROLL", UIParent)
@@ -129,15 +158,10 @@ function SlashCmdList.DETAILS (msg, editbox)
 				--nname = nname.."-"..server
 			end
 		end
-		
-			
+
 	elseif (msg == "teste") then
 		
-		local teste = nil
-		local tabela = {um = 1, dois = 2}
-		
-		local a = tabela [teste]
-		print (a)
+		print (time())
 		
 	elseif (msg == "yesno") then
 		--_detalhes:Show()
@@ -172,6 +196,18 @@ function SlashCmdList.DETAILS (msg, editbox)
 		print ("Instances opened: " .. _detalhes.opened_windows)
 	
 	--> debug, get a guid of something
+	elseif (command == "myguid") then --> localize-me
+	
+		local g = UnitGUID ("player")
+		print (type (g))
+		print (g)
+		print (string.len (g))
+		local serial = g:sub (12, 18)
+		serial = tonumber ("0x"..serial)
+		print (serial)
+		
+		--tonumber((UnitGUID("target")):sub(-12, -9), 16))
+	
 	elseif (command == "guid") then --> localize-me
 	
 		local pass_guid = rest:match("^(%S*)%s*(.-)$")

@@ -39,7 +39,7 @@
 		local type, player, realm, dversion, arg6, arg7 =  select (2, _detalhes:Deserialize (data))
 		
 		if (_detalhes.debug) then
-			print ("comm received", type)
+			_detalhes:Msg ("(debug) network received command", type)
 		end
 		
 		if (type == "highfive") then
@@ -59,7 +59,7 @@
 					local ownerActor = _detalhes.tabela_vigente[1]:PegarCombatente (owner_table[2], owner_table[1], owner_table[3], true)
 					ownerActor.total = ownerActor.total + petActor.total
 					if (_detalhes.debug) then
-						_detalhes:Msg ("Received owner for pet ",nome, "assigned to", owner_table[1])
+						_detalhes:Msg ("(debug) received owner for pet ",nome, "assigned to", owner_table[1])
 					end
 					
 					local combat = _detalhes:GetCombat ("current")
@@ -82,7 +82,7 @@
 					player = player .."-"..realm
 				end
 				if (_detalhes.debug) then
-					_detalhes:Msg ("Received pet owner request of pet, sending owner")
+					_detalhes:Msg ("(debug) received pet owner request, sending owner")
 				end
 				_detalhes:SendCommMessage ("details_comm", _detalhes:Serialize ("petowner", petserial, petnome, owner_table), "WHISPER", player)
 			end
@@ -109,12 +109,12 @@
 									nname = nname.."-"..server
 								end
 								if (nname == name) then
-									actor = container:PegarCombatente (UnitGUID ("raid"..i), name, 0x00000417, true)
+									actor = container:PegarCombatente (UnitGUID ("raid"..i), name, 0x514, true)
 									break
 								end
 							else
 								if (UnitName ("raid"..i) == name) then
-									actor = container:PegarCombatente (UnitGUID ("raid"..i), name, 0x00000417, true)
+									actor = container:PegarCombatente (UnitGUID ("raid"..i), name, 0x514, true)
 									break
 								end
 							end
@@ -128,12 +128,12 @@
 									nname = nname.."-"..server
 								end
 								if (nname == name) then
-									actor = container:PegarCombatente (UnitGUID ("party"..i), name, 0x00000417, true)
+									actor = container:PegarCombatente (UnitGUID ("party"..i), name, 0x514, true)
 									break
 								end
 							else
 								if (UnitName ("party"..i) == name or _detalhes.playername == name) then
-									actor = container:PegarCombatente (UnitGUID ("party"..i), name, 0x00000417, true)
+									actor = container:PegarCombatente (UnitGUID ("party"..i), name, 0x514, true)
 									break
 								end
 							end
@@ -146,7 +146,7 @@
 					container.need_refresh = true
 				else
 					if (_detalhes.debug) then
-						print ("Actor not found on cloud data received", name, atributo_name)
+						_detalhes:Msg ("(debug) actor not found on cloud data received", name, atributo_name)
 					end
 				end
 				
@@ -177,17 +177,13 @@
 			end
 			
 			if (data) then
-			
 				local export = temp
 				local container = _detalhes.tabela_vigente [atributo]._ActorTable
 				for i = 1, math.min (6, #container) do 
 					local actor = container [i]
-					
-					if (not actor.grupo) then
-						break
+					if (actor.grupo) then
+						export [#export+1] = {actor.nome, actor [atributo_name]}
 					end
-					
-					export [#export+1] = {actor.nome, actor [atributo_name]}
 				end
 				
 				_detalhes:SendCommMessage ("details_comm", _detalhes:Serialize ("clouddatareceived", atributo, atributo_name, export), "WHISPER", _detalhes.host_of)
@@ -206,7 +202,7 @@
 			_detalhes.host_by = player
 			
 			if (_detalhes.debug) then
-				print ("Details found a cloud for disabled captures.")
+				_detalhes:Msg ("(debug) cloud found for disabled captures.")
 			end
 			
 			_detalhes.cloud_process = _detalhes:ScheduleRepeatingTimer ("RequestData", 7)
@@ -243,6 +239,22 @@
 
 	_detalhes:RegisterComm ("details_comm", "RaidComm")
 	
+	function _detalhes:SendCustomRaidData (type, player, realm, ...)
+		if (not realm) then
+			--> check if realm is already inside player name
+			for _name, _realm in string.gmatch (player, "(%w+)-(%w+)") do
+				if (_realm) then
+					player = _name
+					realm = _realm
+				end
+			end
+		end
+		if (not realm) then
+			--> doesn't have realm at all, so we assume the actor is in same realm as player
+			realm = GetRealmName()
+		end
+		_detalhes:SendCommMessage ("details_comm", _detalhes:Serialize (type, player, realm, _detalhes.realversion, ...), "RAID")
+	end
 	function _detalhes:SendRaidData (type, ...)
 		_detalhes:SendCommMessage ("details_comm", _detalhes:Serialize (type, UnitName ("player"), GetRealmName(), _detalhes.realversion, ...), "RAID")
 	end
@@ -256,7 +268,7 @@
 	
 	function _detalhes:SendPetOwnerRequest (petserial, petnome)
 		if (_detalhes.debug) then
-			_detalhes:Msg ("Sent request for a pet",petserial, petnome)
+			_detalhes:Msg ("(debug) sent request for a pet",petserial, petnome)
 		end
 		_detalhes:SendCommMessage ("details_comm", _detalhes:Serialize ("needpetowner", UnitName ("player"), GetRealmName(), _detalhes.realversion, petserial, petnome), "RAID")
 	end
@@ -271,7 +283,7 @@
 		end
 		_detalhes.host_of = player
 		if (_detalhes.debug) then
-			_detalhes:Msg ("Sent request for a cloud parser")
+			_detalhes:Msg ("(debug) sent 'okey' answer for a cloud parser request.")
 		end
 		_detalhes:SendCommMessage ("details_comm", _detalhes:Serialize ("foundcloud", UnitName ("player"), GetRealmName(), _detalhes.realversion), "WHISPER", player)
 	end
@@ -282,7 +294,7 @@
 	
 		for index = 1, #_detalhes.tabela_instancias do
 			local instancia = _detalhes.tabela_instancias [index]
-			if (instancia.ativa) then
+			if (instancia.ativa and _detalhes.host_by) then
 				local atributo = instancia.atributo
 				if (atributo == 1 and not _detalhes:CaptureGet ("damage")) then
 					_detalhes:SendCommMessage ("details_comm", _detalhes:Serialize ("clouddatarequest", atributo, instancia.sub_atributo), "WHISPER", _detalhes.host_by)

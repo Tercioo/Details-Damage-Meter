@@ -15,6 +15,8 @@ if not Loc then return end
 	Loc ["STRING_TOOOLD"] = "nao pode ser instalado pois sua versao do Details! e muito antiga."
 	Loc ["STRING_TOOOLD2"] = "a sua versao do Details! nao e a mesma."
 	
+	Loc ["STRING_INSTANCE_LIMIT"] = "o limite de instancias foi atingido, voce pode modificar este limite no painel de opcoes."
+	
 	Loc ["STRING_PLEASE_WAIT"] = "Por favor espere"
 
 	Loc ["STRING_RIGHTCLICK_CLOSE_SHORT"] = "Botao direito para fechar."
@@ -147,7 +149,9 @@ if not Loc then return end
 	Loc ["STRING_NO_SPELL"] = "Nenhuma habilidade foi usada"
 	Loc ["STRING_TARGET"] = "Alvo"
 	Loc ["STRING_TARGETS"] = "Alvos"
+	Loc ["STRING_FROM"] = "Fonte"
 	Loc ["STRING_PET"] = "Ajudante"
+	Loc ["STRING_PETS"] = "Ajudantes"
 	Loc ["STRING_DPS"] = "Dps"
 	Loc ["STRING_SEE_BELOW"] = "veja abaixo"
 	Loc ["STRING_GERAL"] = "Geral"

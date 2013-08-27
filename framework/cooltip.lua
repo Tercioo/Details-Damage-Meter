@@ -45,7 +45,7 @@ function DetailsCreateCoolTip()
 		CoolTip.LeftIconTableSub = {}
 		CoolTip.RightIconTable = {}
 		CoolTip.RightIconTableSub = {}
-		CoolTip.TopIcon = nil
+		CoolTip.Banner = {false, false, false}
 		CoolTip.TopIconTableSub = {}
 		CoolTip.StatusBarTable = {}
 		CoolTip.StatusBarTableSub = {}
@@ -87,7 +87,9 @@ function DetailsCreateCoolTip()
 			["Anchor"] = true,
 			["RelativeAnchor"] = true,
 			["NoLastSelectedBar"] = true,
-			["SubMenuIsTooltip"] = true
+			["SubMenuIsTooltip"] = true,
+			["LeftBorderSize"] = true,
+			["RightBorderSize"] = true
 			
 		}
 		CoolTip.OptionsTable = {
@@ -116,7 +118,9 @@ function DetailsCreateCoolTip()
 			["Anchor"] = nil,
 			["RelativeAnchor"] = nil,
 			["NoLastSelectedBar"] = nil,
-			["SubMenuIsTooltip"] = nil
+			["SubMenuIsTooltip"] = nil,
+			["LeftBorderSize"] = nil,
+			["RightBorderSize"] = nil
 		}
 	
 		--cprops
@@ -126,6 +130,7 @@ function DetailsCreateCoolTip()
 		CoolTip.SubIndexes = 0 --> amount of lines current on shown on sub menu
 		CoolTip.Type = 1 --> 1 tooltip 2 tooltip with bars 3 menu 4 menu + submenus
 		CoolTip.Host = nil --> frame to anchor
+		CoolTip.LastSize = 0 --> last size
 		
 		--defaults
 		CoolTip.default_height = 20
@@ -523,18 +528,32 @@ function DetailsCreateCoolTip()
 					
 				end
 		
-		function CoolTip:TextAndIcon (frame, menuButton, leftTextTable, rightTextTable, leftIconTable, rightIconTable, isSub)
+		function CoolTip:TextAndIcon (index, frame, menuButton, leftTextTable, rightTextTable, leftIconTable, rightIconTable, isSub)
 		
 			--> reset width
 			menuButton.leftText:SetWidth (0)
 			menuButton.leftText:SetHeight (0)
 			menuButton.rightText:SetWidth (0)
 			menuButton.rightText:SetHeight (0)
-			
+
 			--> set text
 			if (leftTextTable) then
 				menuButton.leftText:SetText (leftTextTable [1])
 				menuButton.leftText:SetTextColor (leftTextTable [2], leftTextTable [3], leftTextTable [4], leftTextTable [5])
+
+				if (CoolTip.OptionsTable.TextSize and not leftTextTable [6]) then
+					_detalhes:SetFontSize (menuButton.leftText, CoolTip.OptionsTable.TextSize)
+				end
+				
+				if (CoolTip.OptionsTable.TextFont and not leftTextTable [7]) then
+					menuButton.leftText:SetFontObject (CoolTip.OptionsTable.TextFont)
+				end
+				
+				local face, size, flags = menuButton.leftText:GetFont()
+				size = leftTextTable [6] or 10
+				face = leftTextTable [7] or [[Fonts\FRIZQT__.TTF]]
+				flags = leftTextTable [8]
+				menuButton.leftText:SetFont (face, size, flags)
 			else
 				menuButton.leftText:SetText ("")
 			end
@@ -542,17 +561,23 @@ function DetailsCreateCoolTip()
 			if (rightTextTable) then
 				menuButton.rightText:SetText (rightTextTable [1])
 				menuButton.rightText:SetTextColor (rightTextTable [2], rightTextTable [3], rightTextTable [4], rightTextTable [5])
+				
+				if (CoolTip.OptionsTable.TextSize and not rightTextTable [6]) then
+					_detalhes:SetFontSize (menuButton.rightText, CoolTip.OptionsTable.TextSize)
+				end
+				
+				if (CoolTip.OptionsTable.TextFont and not rightTextTable [7]) then
+					menuButton.rightText:SetFontObject (CoolTip.OptionsTable.TextFont)
+				end
+				
+				local face, size, flags = menuButton.rightText:GetFont()
+				size = rightTextTable [6] or 10
+				face = rightTextTable [7] or [[Fonts\FRIZQT__.TTF]]
+				flags = rightTextTable [8]
+				menuButton.rightText:SetFont (face, size, flags)
 			else
 				menuButton.rightText:SetText ("")
 			end
-			
-			--> overwrite text size
-			_detalhes:SetFontSize (menuButton.leftText, CoolTip.OptionsTable.TextSize or self.default_text_size)
-			_detalhes:SetFontSize (menuButton.rightText, CoolTip.OptionsTable.TextSize or self.default_text_size)
-			
-			--> overwrite text font object
-			menuButton.leftText:SetFontObject (CoolTip.OptionsTable.TextFont or self.default_text_font)
-			menuButton.rightText:SetFontObject (CoolTip.OptionsTable.TextFont or self.default_text_font)
 
 			--> left icon
 			if (leftIconTable and leftIconTable [1]) then
@@ -560,17 +585,13 @@ function DetailsCreateCoolTip()
 				menuButton.leftIcon:SetWidth (leftIconTable [2])
 				menuButton.leftIcon:SetHeight (leftIconTable [3])
 				menuButton.leftIcon:SetTexCoord (leftIconTable [4], leftIconTable [5], leftIconTable [6], leftIconTable [7])
-				--[[
-				if (CoolTip.OptionsTable.IconHeightMod) then
-					menuButton.leftIcon:SetPoint ("left", menuButton.leftIcon:GetParent(), "left", 0, CoolTip.OptionsTable.IconHeightMod)
-				else
-					menuButton.leftIcon:SetPoint ("left", menuButton.leftIcon:GetParent(), "left", 0, 0)
-				end
-				--]]
+				menuButton.leftIcon:SetVertexColor (unpack (leftIconTable [8]))
+				--menuButton.leftText:SetPoint ("left", menuButton.leftIcon, "right", 3, 0)
 			else
 				menuButton.leftIcon:SetTexture (nil)
 				menuButton.leftIcon:SetWidth (3)
 				menuButton.leftIcon:SetHeight (3)
+				--menuButton.leftText:SetPoint ("left", menuButton.leftIcon, "left", -5, 0)
 			end
 			
 			--> right icon
@@ -579,10 +600,13 @@ function DetailsCreateCoolTip()
 				menuButton.rightIcon:SetWidth (rightIconTable [2])
 				menuButton.rightIcon:SetHeight (rightIconTable [3])
 				menuButton.rightIcon:SetTexCoord (rightIconTable [4], rightIconTable [5], rightIconTable [6], rightIconTable [7])
+				menuButton.rightIcon:SetVertexColor (unpack (rightIconTable [8]))
+				--menuButton.rightText:SetPoint ("right", menuButton.rightIcon, "left", -3, 0)
 			else
 				menuButton.rightIcon:SetTexture (nil)
-				menuButton.rightIcon:SetWidth (3)
-				menuButton.rightIcon:SetHeight (3)
+				menuButton.rightIcon:SetWidth (1)
+				menuButton.rightIcon:SetHeight (1)
+				--menuButton.rightText:SetPoint ("right", menuButton.rightIcon, "right", 5, 0)
 			end
 			
 			--> overwrite icon size
@@ -601,13 +625,13 @@ function DetailsCreateCoolTip()
 			if (not isSub) then --> main frame
 				if (not CoolTip.OptionsTable.FixedWidth) then
 					if (CoolTip.Type == 1 or CoolTip.Type == 2) then
-						local stringWidth = menuButton.leftText:GetStringWidth() + menuButton.rightText:GetStringWidth() + menuButton.leftIcon:GetWidth() + menuButton.rightIcon:GetWidth()
+						local stringWidth = menuButton.leftText:GetStringWidth() + menuButton.rightText:GetStringWidth() + menuButton.leftIcon:GetWidth() + menuButton.rightIcon:GetWidth() + 10
 						if (stringWidth > frame.w) then
 							frame.w = stringWidth
 						end
 					end
 				else
-					menuButton.leftText:SetWidth (CoolTip.OptionsTable.FixedWidth - menuButton.leftIcon:GetWidth() - 20)
+					menuButton.leftText:SetWidth (CoolTip.OptionsTable.FixedWidth - menuButton.leftIcon:GetWidth() - menuButton.rightText:GetStringWidth() - menuButton.rightIcon:GetWidth() - 30)
 				end
 			else
 				if (not CoolTip.OptionsTable.FixedWidthSub) then
@@ -655,13 +679,25 @@ function DetailsCreateCoolTip()
 				menuButton.statusbar:SetValue (0)
 				menuButton.spark:Hide()
 			end
+
+			if (CoolTip.OptionsTable.LeftBorderSize) then
+				menuButton.statusbar:SetPoint ("left", menuButton, "left", 10 + CoolTip.OptionsTable.LeftBorderSize, 0)
+			else
+				menuButton.statusbar:SetPoint ("left", menuButton, "left", 10, 0)
+			end
+			
+			if (CoolTip.OptionsTable.RightBorderSize) then
+				menuButton.statusbar:SetPoint ("right", menuButton, "right", CoolTip.OptionsTable.RightBorderSize + (- 10), 0)
+			else
+				menuButton.statusbar:SetPoint ("right", menuButton, "right", -10, 0)
+			end
 		end
 		
 		function CoolTip:SetupMainButton (menuButton, index)
 			menuButton.index = index
 			
 			--> setup texts and icons
-			CoolTip:TextAndIcon (frame1, menuButton, CoolTip.LeftTextTable [index], CoolTip.RightTextTable [index], CoolTip.LeftIconTable [index], CoolTip.RightIconTable [index])
+			CoolTip:TextAndIcon (index, frame1, menuButton, CoolTip.LeftTextTable [index], CoolTip.RightTextTable [index], CoolTip.LeftIconTable [index], CoolTip.RightIconTable [index])
 			--> setup statusbar
 			CoolTip:StatusBar (menuButton, CoolTip.StatusBarTable [index])
 
@@ -687,7 +723,7 @@ function DetailsCreateCoolTip()
 			menuButton.mainIndex = mainMenuIndex
 			
 			--> setup texts and icons
-			CoolTip:TextAndIcon (frame2, menuButton, CoolTip.LeftTextTableSub [mainMenuIndex] and CoolTip.LeftTextTableSub [mainMenuIndex] [index],
+			CoolTip:TextAndIcon (index, frame2, menuButton, CoolTip.LeftTextTableSub [mainMenuIndex] and CoolTip.LeftTextTableSub [mainMenuIndex] [index],
 			CoolTip.RightTextTableSub [mainMenuIndex] and CoolTip.RightTextTableSub [mainMenuIndex] [index], 
 			CoolTip.LeftIconTableSub [mainMenuIndex] and CoolTip.LeftIconTableSub [mainMenuIndex] [index], 
 			CoolTip.RightIconTableSub [mainMenuIndex] and CoolTip.RightIconTableSub [mainMenuIndex] [index], true)
@@ -869,7 +905,7 @@ function DetailsCreateCoolTip()
 			button:RegisterForClicks()
 
 			--> setup texts and icons
-			CoolTip:TextAndIcon (frame1, button, CoolTip.LeftTextTable [i], CoolTip.RightTextTable [i], CoolTip.LeftIconTable [i], CoolTip.RightIconTable [i])
+			CoolTip:TextAndIcon (i, frame1, button, CoolTip.LeftTextTable [i], CoolTip.RightTextTable [i], CoolTip.LeftIconTable [i], CoolTip.RightIconTable [i])
 			--> setup statusbar
 			CoolTip:StatusBar (button, CoolTip.StatusBarTable [i])
 		end
@@ -903,12 +939,18 @@ function DetailsCreateCoolTip()
 			menuButton:EnableMouse (false)
 		end
 		
-		--> set frame sizes
 		if (not CoolTip.OptionsTable.FixedWidth) then
-			if (CoolTip.Type == 2) then
+			if (CoolTip.Type == 2) then --> with bars
 				frame1:SetWidth (frame1.w + 34)
 			else
-				frame1:SetWidth (frame1.w + 24)
+				--> width stability check
+				local width = frame1.w + 24
+				if (width > CoolTip.LastSize-5 and width < CoolTip.LastSize+5) then
+					width = CoolTip.LastSize
+				else
+					CoolTip.LastSize = width
+				end
+				frame1:SetWidth (width)
 			end
 		end
 		
@@ -1303,10 +1345,17 @@ function DetailsCreateCoolTip()
 			_table_wipe (CoolTip.LeftIconTableSub)
 			_table_wipe (CoolTip.RightIconTable)
 			_table_wipe (CoolTip.RightIconTableSub)
-			
-			CoolTip.TopIcon = nil
+
 			_table_wipe (CoolTip.TopIconTableSub)
+			CoolTip.Banner [1] = false
+			CoolTip.Banner [2] = false
+			CoolTip.Banner [3] = false
+			
 			frame1.upperImage:Hide()
+			frame1.upperImage2:Hide()
+			frame1.upperImageText:Hide()
+			frame1.upperImageText2:Hide()
+			
 			frame2.upperImage:Hide()
 			
 			_table_wipe (CoolTip.StatusBarTable)
@@ -1332,6 +1381,8 @@ function DetailsCreateCoolTip()
 ----------------------------------------------------------------------
 	--> Menu functions
 	
+		local _default_color = {1, 1, 1}
+		local _default_point = {"center", "center", 0, -3}
 		
 		function CoolTip:AddMenu (menuType, func, param1, param2, param3, leftText, leftIcon, indexUp)
 		
@@ -1396,6 +1447,7 @@ function DetailsCreateCoolTip()
 						iconTable [5] = 1 --> default 1
 						iconTable [6] = 0 --> default 0
 						iconTable [7] = 1 --> default 1
+						iconTable [8] = _default_color
 					end
 					
 					if (leftText) then
@@ -1411,7 +1463,9 @@ function DetailsCreateCoolTip()
 						lineTable_left [3] = 1
 						lineTable_left [4] = 1
 						lineTable_left [5] = 1
-						lineTable_left [6] = true
+						lineTable_left [6] = false
+						lineTable_left [7] = false
+						lineTable_left [8] = false
 
 					end
 					
@@ -1480,6 +1534,7 @@ function DetailsCreateCoolTip()
 						subMenuTablesIcons [5] = 1 --> default 1
 						subMenuTablesIcons [6] = 0 --> default 0
 						subMenuTablesIcons [7] = 1 --> default 1
+						subMenuTablesIcons [8] = _default_color
 					end
 					
 					if (leftText) then
@@ -1500,7 +1555,9 @@ function DetailsCreateCoolTip()
 						subMenuTablesTexts [3] = 1
 						subMenuTablesTexts [4] = 1
 						subMenuTablesTexts [5] = 1
-						subMenuTablesTexts [6] = true
+						subMenuTablesTexts [6] = false
+						subMenuTablesTexts [7] = false
+						subMenuTablesTexts [8] = false
 						
 					end
 					
@@ -1591,13 +1648,94 @@ function DetailsCreateCoolTip()
 			
 		end
 
+		function CoolTip:SetBannerText (index, text, anchor, color, fontsize, fontface, fontflag)
+			local fontstring
+			
+			if (index == 1) then
+				fontstring = frame1.upperImageText
+			elseif (index == 2) then
+				fontstring = frame1.upperImageText2
+			end
+			
+			fontstring:SetText (text or "")
+			
+			if (anchor and index == 1) then
+				local myAnchor, hisAnchor, x, y = unpack (anchor)
+				fontstring:SetPoint (myAnchor, frame1.upperImage, hisAnchor or myAnchor, x or 0, y or 0)
+			elseif (anchor and index == 2) then
+				local myAnchor, hisAnchor, x, y = unpack (anchor)
+				fontstring:SetPoint (myAnchor, frame1, hisAnchor or myAnchor, x or 0, y or 0)
+			end
+			
+			if (color) then
+				fontstring:SetTextColor (unpack (color))
+			end
+			
+			local face, size, flags = fontstring:GetFont()
+			face = fontface or [[Fonts\FRIZQT__.TTF]]
+			size = fontsize or 13
+			flags = fontflag or nil
+			fontstring:SetFont (face, size, flags)
+			fontstring:Show()
+		end
+		
+		function CoolTip:SetBannerImage (index, texturepath, width, height, anchor, texcoord, overlay)
+			
+			local texture
+		
+			if (index == 1) then
+				texture = frame1.upperImage
+			elseif (index == 2) then
+				texture = frame1.upperImage2
+			end
+			
+			if (texturepath) then
+				texture:SetTexture (texturepath)
+			end
+			
+			if (width) then
+				texture:SetWidth (width)
+			end
+			if (height) then
+				texture:SetHeight (height)
+			end
+			
+			if (anchor) then
+				if (type (anchor[1]) == "table") then
+					for _, t in _ipairs (anchor) do
+						local myAnchor, hisAnchor, x, y = unpack (t)
+						texture:SetPoint (myAnchor, frame1, hisAnchor or myAnchor, x or 0, y or 0)
+					end
+				else
+					local myAnchor, hisAnchor, x, y = unpack (anchor)
+					texture:SetPoint (myAnchor, frame1, hisAnchor or myAnchor, x or 0, y or 0)
+				end
+			end
+			
+			if (texcoord) then
+				local L, R, T, B = unpack (texcoord)
+				texture:SetTexCoord (L, R, T, B)
+			end
+			
+			if (overlay) then
+				texture:SetVertexColor (unpack (overlay))
+			end
+			
+			CoolTip.Banner [index] = true
+			texture:Show()
+
+		end
+		
 ----------------------------------------------------------------------
 	--> adds a icon to the last line added.
 	--> only works with cooltip type 1 and 2 (tooltip and tooltip with bars)
 	--> parameters: icon [, width [, height [, TexCoords L R T B ]]]
 	--> texture support string path or texture object
 	
-		function CoolTip:AddIcon (iconTexture, frame, side, iconWidth, iconHeight, L, R, T, B)
+		function CoolTip:AddTexture (iconTexture, frame, side, iconWidth, iconHeight, L, R, T, B, overlayColor, point)
+			return CoolTip:AddIcon (iconTexture, frame, side, iconWidth, iconHeight, L, R, T, B, overlayColor, point)
+		end
+		function CoolTip:AddIcon (iconTexture, frame, side, iconWidth, iconHeight, L, R, T, B, overlayColor, point)
 
 			--> need a previous line
 			if (CoolTip.Indexes == 0) then
@@ -1618,11 +1756,10 @@ function DetailsCreateCoolTip()
 			
 				if (not side or (type (side) == "string" and side == "left") or (type (side) == "number" and side == 1)) then
 					frameTable = CoolTip.LeftIconTable
+					
 				elseif ((type (side) == "string" and side == "right") or (type (side) == "number" and side == 2)) then
 					frameTable = CoolTip.RightIconTable
-				elseif ((type (side) == "string" and side == "top") or (type (side) == "number" and side == 3)) then
-					CoolTip.TopIcon = iconTexture
-					return
+					
 				end
 				
 				if (CoolTip.isSpecial) then
@@ -1652,6 +1789,7 @@ function DetailsCreateCoolTip()
 					CoolTip.TopIconTableSub [CoolTip.Indexes] [5] = R or 1 
 					CoolTip.TopIconTableSub [CoolTip.Indexes] [6] = T or 0 
 					CoolTip.TopIconTableSub [CoolTip.Indexes] [7] = B or 1
+					CoolTip.TopIconTableSub [CoolTip.Indexes] [8] = overlayColor or _default_color
 					return
 				end
 				
@@ -1683,6 +1821,7 @@ function DetailsCreateCoolTip()
 			iconTable [5] = R or 1 --> default 1
 			iconTable [6] = T or 0 --> default 0
 			iconTable [7] = B or 1 --> default 1
+			iconTable [8] = overlayColor or _default_color --> default 1, 1, 1
 			
 			return true
 		end
@@ -1692,8 +1831,13 @@ function DetailsCreateCoolTip()
 	--> only works with cooltip type 1 and 2 (tooltip and tooltip with bars)
 	--> parameters: left text, right text [, L color R, L color G, L color B, L color A [, R color R, R color G, R color B, R color A [, wrap]]] 
 	
+		--> alias
+		function CoolTip:AddDoubleLine (leftText, rightText, frame, ColorR1, ColorG1, ColorB1, ColorA1, ColorR2, ColorG2, ColorB2, ColorA2, fontSize, fontFace, fontFlag)
+			return CoolTip:AddLine (leftText, rightText, frame, ColorR1, ColorG1, ColorB1, ColorA1, ColorR2, ColorG2, ColorB2, ColorA2, fontSize, fontFace, fontFlag)
+		end
+		
 		--> adds a line for tooltips
-		function CoolTip:AddLine (leftText, rightText, frame, ColorR, ColorG, ColorB, ColorA, ColorR1, ColorG2, ColorB3, ColorA4, wrapLine)
+		function CoolTip:AddLine (leftText, rightText, frame, ColorR1, ColorG1, ColorB1, ColorA1, ColorR2, ColorG2, ColorB2, ColorA2, fontSize, fontFace, fontFlag)
 			
 			--> check data integrity
 			if (type (leftText) ~= "string") then
@@ -1703,20 +1847,24 @@ function DetailsCreateCoolTip()
 				rightText = ""
 			end
 			
-			if (type (ColorR) == "table" or type (ColorR) == "string") then
-				ColorR1, ColorG2, ColorB3, ColorA4, wrapLine, ColorR, ColorG, ColorB, ColorA = ColorG, ColorB, ColorA, ColorR1, ColorG2, gump:ParseColors (ColorR)
-				if (type (ColorR1) == "table" or type (ColorR1) == "string") then
-					wrapLine = ColorG2
-					ColorR1, ColorG2, ColorB3, ColorA4 = gump:ParseColors (ColorR1)
+			if (type (ColorR1) ~= "number") then
+				ColorR2, ColorG2, ColorB2, ColorA2, fontSize, fontFace, fontFlag = ColorG1, ColorB1, ColorA1, ColorR2, ColorG2, ColorB2, ColorA2
+				
+				if (type (ColorR1) == "boolean" or not ColorR1) then
+					ColorR1, ColorG1, ColorB1, ColorA1 = 1, 1, 1, 1
+				else
+					ColorR1, ColorG1, ColorB1, ColorA1 = gump:ParseColors (ColorR1)
 				end
-			elseif (type (ColorR) == "boolean") then
-				wrapLine = ColorR
-				ColorR, ColorG, ColorB, ColorA = 1, 1, 1, 1
-				ColorR1, ColorG2, ColorB3, ColorA4 = 1, 1, 1, 1
-			else
-				ColorR, ColorG, ColorB, ColorA = 1, 1, 1, 1
-				ColorR1, ColorG2, ColorB3, ColorA4 = 1, 1, 1, 1
-				wrapLine = true
+			end
+			
+			if (type (ColorR2) ~= "number") then
+				fontSize, fontFace, fontFlag = ColorG2, ColorB2, ColorA2
+				
+				if (type (ColorR2) == "boolean" or not ColorR2) then
+					ColorR2, ColorG2, ColorB2, ColorA2 = 1, 1, 1, 1
+				else
+					ColorR2, ColorG2, ColorB2, ColorA2 = gump:ParseColors (ColorR2)
+				end
 			end
 			
 			local frameTableLeft
@@ -1808,18 +1956,22 @@ function DetailsCreateCoolTip()
 			end
 
 			lineTable_left [1] = leftText --> line text
-			lineTable_left [2] = ColorR
-			lineTable_left [3] = ColorG
-			lineTable_left [4] = ColorB
-			lineTable_left [5] = ColorA
-			lineTable_left [6] = wrapLine
+			lineTable_left [2] = ColorR1
+			lineTable_left [3] = ColorG1
+			lineTable_left [4] = ColorB1
+			lineTable_left [5] = ColorA1
+			lineTable_left [6] = fontSize
+			lineTable_left [7] = fontFace
+			lineTable_left [8] = fontFlag
 			
 			lineTable_right [1] = rightText --> line text
-			lineTable_right [2] = ColorR1
+			lineTable_right [2] = ColorR2
 			lineTable_right [3] = ColorG2
-			lineTable_right [4] = ColorB3
-			lineTable_right [5] = ColorA4
-			lineTable_right [6] = wrapLine
+			lineTable_right [4] = ColorB2
+			lineTable_right [5] = ColorA2
+			lineTable_right [6] = fontSize
+			lineTable_right [7] = fontFace
+			lineTable_right [8] = fontFlag
 		end
 		
 		function CoolTip:AddSpecial (widgetType, index, subIndex, ...)
@@ -1906,7 +2058,7 @@ function DetailsCreateCoolTip()
 				elseif (menu.icon) then
 					CoolTip:AddIcon (menu.icon, menu.type or 1, menu.side or 1, menu.width, menu.height, menu.l, menu.r, menu.t, menu.b)
 				elseif (menu.textleft or menu.textright or menu.text) then
-					CoolTip:AddLine (menu.text, "", menu.type, menu.color, menu.color, true)
+					CoolTip:AddLine (menu.text, "", menu.type, menu.color, menu.color)
 				end
 			end
 		end
@@ -1915,6 +2067,10 @@ function DetailsCreateCoolTip()
 	--> show cooltip
 	
 		--> serach key: ~start
+		function CoolTip:Show (frame, menuType, color)
+			return CoolTip:ShowCooltip (frame, menuType, color)
+		end
+		
 		function CoolTip:ShowCooltip (frame, menuType, color)
 
 			if (frame) then
@@ -1942,6 +2098,10 @@ function DetailsCreateCoolTip()
 		end
 	
 	local emptyOptions = {}
+	
+	function CoolTip:Hide()
+		return CoolTip:Close()
+	end
 	
 	function CoolTip:Close()
 		CoolTip.active = false

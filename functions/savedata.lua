@@ -34,6 +34,7 @@ function _detalhes:SaveDataOnLogout()
 		-- max segments
 		_detalhes_database.segments_amount = _detalhes.segments_amount
 		_detalhes_database.segments_amount_to_save = _detalhes.segments_amount_to_save
+		_detalhes_database.instances_amount = _detalhes.instances_amount
 		_detalhes_database.clear_ungrouped = _detalhes.clear_ungrouped
 		_detalhes_database.clear_graphic = _detalhes.clear_graphic
 		-- row animation
@@ -184,6 +185,7 @@ end --]]
 		_detalhes.window_clamp = _detalhes_database.window_clamp
 		-- max segments
 		_detalhes.segments_amount = _detalhes_database.segments_amount
+		_detalhes.instances_amount = _detalhes_database.instances_amount
 		_detalhes.clear_ungrouped = _detalhes_database.clear_ungrouped
 		_detalhes.clear_graphic = _detalhes_database.clear_graphic
 		--> text sizes

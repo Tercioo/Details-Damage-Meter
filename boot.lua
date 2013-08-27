@@ -5,10 +5,10 @@
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> global name declaration
-		_detalhes = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0")
-		_detalhes.userversion = "v1.1.8"
-		_detalhes.version = "Alpha 003"
-		_detalhes.realversion = 3
+		_detalhes = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0", "NickTag-1.0")
+		_detalhes.userversion = "v1.2.0"
+		_detalhes.version = "Alpha 004"
+		_detalhes.realversion = 4
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> initialization stuff
@@ -210,8 +210,9 @@ do
 		end
 	
 	--> print messages
-		function _detalhes:Msg (_string)
-			print (Loc ["STRING_DETAILS1"] .. _string)
+		function _detalhes:Msg (_string, arg1, arg2, arg3, arg4)
+			
+			print (Loc ["STRING_DETAILS1"] .. _string, arg1 or "", arg2 or "", arg3 or "", arg4 or "")
 		end
 	
 end

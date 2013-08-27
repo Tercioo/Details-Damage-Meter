@@ -15,7 +15,7 @@ function _detalhes:OpenOptionsWindow (instance)
 	
 		-- Most of details widgets have the same 6 first parameters: parent, container, global name, parent key, width, height
 	
-		window = g:NewPanel (UIParent, _, "DetailsOptionsWindow", _, 500, 320)
+		window = g:NewPanel (UIParent, _, "DetailsOptionsWindow", _, 700, 340)
 		window.instance = instance
 		tinsert (UISpecialFrames, "DetailsOptionsWindow")
 		window:SetPoint ("center", UIParent, "Center")
@@ -256,6 +256,16 @@ function _detalhes:OpenOptionsWindow (instance)
 			_detalhes.cloud_capture = value
 		end
 		
+	--------------- Max Instances
+		g:NewLabel (window, _, "$parentLabelMaxInstances", "maxInstancesLabel", "max instances")
+		window.maxInstancesLabel:SetPoint (10, -288)
+		--
+		g:NewSlider (window, _, "$parentSliderMaxInstances", "maxInstancesSlider", 150, 20, 12, 30, 1, _detalhes.instances_amount) -- min, max, step, defaultv
+		window.maxInstancesSlider:SetPoint ("left", window.maxInstancesLabel, "right")
+		window.maxInstancesSlider:SetHook ("OnValueChange", function (self, _, amount) --> slider, fixedValue, sliderValue
+			_detalhes.instances_amount = amount
+		end)
+		window.maxInstancesSlider.tooltip = "Amount of windows which can be created."
 		
 -- Current Instalnce --------------------------------------------------------------------------------------------------------------------------------------------
 		
@@ -749,9 +759,40 @@ function _detalhes:OpenOptionsWindow (instance)
 			end
 		end
 		
-		g:NewButton (window, _, "$parentToAllStyleButton", "applyToAll", 130, 14, applyToAll, nil, nil, nil, "apply to all instances")
+		g:NewButton (window, _, "$parentToAllStyleButton", "applyToAll", 140, 14, applyToAll, nil, nil, nil, "apply to all instances")
 		window.applyToAll:InstallCustomTexture()
 		window.applyToAll:SetPoint ("bottomright", window.removeStyle, "topright", 1, 3)
+		
+		
+-- Persona --------------------------------------------------------------------------------------------------------------------------------------------
+
+		local onPressEnter = function (_, _, text)
+			local accepted, errortext = _detalhes:SetNickname (text)
+			if (not accepted) then
+				_detalhes:Msg (errortext)
+			end
+			--> we call again here, because if not accepted the box return the previous value and if successful accepted, update the value for formated string.
+			window.nicknameEntry.text = _detalhes:GetNickname (UnitGUID ("player"), UnitName ("player"), true)
+		end
+
+		g:NewTextEntry (window, _, "$parentNicknameEntry", "nicknameEntry", nil, 20, onPressEnter, _, _, 198) --width will be auto adjusted if space parameter is passed
+		window.nicknameEntry:SetLabelText ("nickname")
+		window.nicknameEntry:SetPoint (510, -35)
+		
+		local avatarcallback = function (textureAvatar, textureAvatarTexCoord, textureBackground, textureBackgroundTexCoord, textureBackgroundColor)
+			_detalhes:SetNicknameBackground (textureBackground, textureBackgroundTexCoord, textureBackgroundColor, true)
+			_detalhes:SetNicknameAvatar (textureAvatar, textureAvatarTexCoord)
+			_G.AvatarPickFrame.callback = nil
+		end
+		
+		local openAtavarPickFrame = function()
+			_G.AvatarPickFrame.callback = avatarcallback
+			_G.AvatarPickFrame:Show()
+		end
+		
+		g:NewButton (window, _, "$parentAvatarFrame", "chooseAvatarButton", 120, 14, openAtavarPickFrame, nil, nil, nil, "Choose Avatar")
+		window.chooseAvatarButton:InstallCustomTexture()
+		window.chooseAvatarButton:SetPoint (510, -55)
 		
 	end
 	
@@ -789,6 +830,8 @@ function _detalhes:OpenOptionsWindow (instance)
 	_G.DetailsOptionsWindowInstanceColorTexture.MyObject:SetTexture (unpack (instance.color))
 	--
 	GameCooltip:SetFixedParameter (_G.DetailsOptionsWindowLoadStyleButton, instance)
+	
+	_G.DetailsOptionsWindowNicknameEntry.MyObject.text = _detalhes:GetNickname (UnitGUID ("player"), UnitName ("player"), true) --> serial, default, silent
 	
 	_G.DetailsOptionsWindow.MyObject.instance = instance
 	window:Show()

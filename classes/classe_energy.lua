@@ -383,14 +383,24 @@ end
 ---------> TOOLTIPS BIFURCAÇÃO
 function atributo_energy:ToolTip (instancia, numero, barra)
 	--> seria possivel aqui colocar o icone da classe dele?
-	GameTooltip:ClearLines()
-	GameTooltip:AddLine (barra.colocacao..". "..self.nome)
+	--GameCooltip:AddLine (barra.colocacao..". "..self.nome)
 	if (instancia.sub_atributo <= 4) then
 		return self:ToolTipRegenRecebido (instancia, numero, barra)
 	end
 end
+--> tooltip locals
+local r, g, b
+local headerColor = "yellow"
+local barAlha = .6
 
 function atributo_energy:ToolTipRegenRecebido (instancia, numero, barra)
+	
+	local owner = self.owner
+	if (owner and owner.classe) then
+		r, g, b = unpack (_detalhes.class_colors [owner.classe])
+	else
+		r, g, b = unpack (_detalhes.class_colors [self.classe])
+	end	
 	
 	local tabela_do_combate = instancia.showing
 	local showing = tabela_do_combate [class_type] 
@@ -403,7 +413,9 @@ function atributo_energy:ToolTipRegenRecebido (instancia, numero, barra)
 	local fontes, habilidades = self:Fontes_e_Habilidades (recebido_from, showing, keyName)
 
 -----------------------------------------------------------------	
-	GameTooltip:AddLine (Loc ["STRING_SPELLS"])
+	GameCooltip:AddLine (Loc ["STRING_SPELLS"], nil, nil, headerColor, nil, 12) --> localiza-me
+	GameCooltip:AddIcon ([[Interface\HELPFRAME\ReportLagIcon-Spells]], 1, 1, 14, 14, 0.21875, 0.78125, 0.21875, 0.78125)
+	GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)	
 	
 	local max = #habilidades
 	if (max > 3) then
@@ -412,12 +424,15 @@ function atributo_energy:ToolTipRegenRecebido (instancia, numero, barra)
 
 	for i = 1, max do
 		local nome_magia, _, icone_magia = _GetSpellInfo (habilidades[i][1])
-		GameTooltip:AddDoubleLine (nome_magia..": ", _detalhes:comma_value (habilidades[i][2]).." (".._cstr("%.1f", (habilidades[i][2]/total_regenerado) * 100).."%)", 1, 1, 1, 1, 1, 1)
-		GameTooltip:AddTexture (icone_magia)
+		GameCooltip:AddLine (nome_magia..": ", _detalhes:comma_value (habilidades[i][2]).." (".._cstr("%.1f", (habilidades[i][2]/total_regenerado) * 100).."%)")
+		GameCooltip:AddIcon (icone_magia)
+		GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
 	end
 	
 -----------------------------------------------------------------
-	GameTooltip:AddLine (Loc ["STRING_PLAYERS"]..":")
+	GameCooltip:AddLine (Loc ["STRING_PLAYERS"], nil, nil, headerColor, nil, 12) --> localiza-me
+	GameCooltip:AddIcon ([[Interface\HELPFRAME\HelpIcon-HotIssues]], 1, 1, 14, 14, 0.21875, 0.78125, 0.21875, 0.78125)
+	GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)	
 	
 	max = #fontes
 	if (max > 3) then
@@ -425,13 +440,19 @@ function atributo_energy:ToolTipRegenRecebido (instancia, numero, barra)
 	end
 	
 	for i = 1, max do
-		GameTooltip:AddDoubleLine (fontes[i][1]..": ", _detalhes:comma_value (fontes[i][2]).." (".._cstr("%.1f", (fontes[i][2]/total_regenerado) * 100).."%)", 1, 1, 1, 1, 1, 1)
+		GameCooltip:AddLine (fontes[i][1]..": ", _detalhes:comma_value (fontes[i][2]).." (".._cstr("%.1f", (fontes[i][2]/total_regenerado) * 100).."%)")
+		GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
+		
 		local classe = fontes[i][3]
 		if (not classe) then
-			classe = "monster"
+			classe = "UNKNOW"
 		end
-
-		GameTooltip:AddTexture ("Interface\\AddOns\\Details\\images\\"..classe:lower().."_small")
+		if (classe == "UNKNOW") then
+			GameCooltip:AddIcon ("Interface\\LFGFRAME\\LFGROLE_BW", nil, nil, 14, 14, .25, .5, 0, 1)
+		else
+			GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small", nil, nil, 14, 14, _unpack (_detalhes.class_coords [classe]))
+		end
+		
 	end
 	
 	return true

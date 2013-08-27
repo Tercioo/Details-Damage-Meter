@@ -113,7 +113,7 @@
 
 	------------------------------------------------------------------------------------------------
 	--> early checks and fixes
-
+	
 		if (who_serial == "0x0000000000000000") then
 			if (who_flags and _bit_band (who_flags, OBJECT_TYPE_PETS) ~= 0) then --> é um pet
 				--> pets must have an serial
@@ -1934,20 +1934,25 @@
 			return
 			
 		elseif (evento == "GROUP_ROSTER_UPDATE") then
-			_detalhes.container_pets:BuscarPets()
+
 			if (not _detalhes.in_group) then
 				_detalhes.in_group = IsInGroup() or IsInRaid()
 				if (_detalhes.in_group) then
+					--> entrou num grupo
+					_detalhes:IniciarColetaDeLixo (true)
 					_detalhes:SendHighFive()
 				end
 			else
 				_detalhes.in_group = IsInGroup() or IsInRaid()
 				if (not _detalhes.in_group) then
+					_detalhes:IniciarColetaDeLixo (true)
 					table.wipe (_detalhes.details_users)
 				else
 					_detalhes:CheckDetailsUsers()
 				end
 			end
+			
+			_detalhes.container_pets:BuscarPets()
 			
 			return
 

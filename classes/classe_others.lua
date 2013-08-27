@@ -128,8 +128,8 @@ function _detalhes:ToolTipDead (instancia, morte, esta_barra)
 		end
 	end
 	
-	GameCooltip:AddLine (" ", " ", 1, "white", "white")
-	GameCooltip:AddLine (Loc ["STRING_REPORT_LEFTCLICK"], "--", 1, "white", "white")
+	--GameCooltip:AddLine (" ", " ", 1, "white", "white")
+	GameCooltip:AddLine (Loc ["STRING_REPORT_LEFTCLICK"], nil, 1, "white")
 	GameCooltip:AddIcon ([[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]], 1, 1, 12, 16, 0.015625, 0.13671875, 0.4375, 0.59765625)
 
 	if (battleress) then
@@ -516,16 +516,26 @@ function atributo_misc:ToolTip (instancia, numero, barra)
 		return self:ToolTipDead (instancia, numero, barra)
 	end
 end
+--> tooltip locals
+local r, g, b
+local headerColor = "yellow"
+local barAlha = .6
+
 
 function atributo_misc:ToolTipDead (instancia, numero, barra)
 	
 	local last_dead = self.dead_log [#self.dead_log]
-	
-	
-	
+
 end
 
 function atributo_misc:ToolTipCC (instancia, numero, barra)
+
+	local owner = self.owner
+	if (owner and owner.classe) then
+		r, g, b = unpack (_detalhes.class_colors [owner.classe])
+	else
+		r, g, b = unpack (_detalhes.class_colors [self.classe])
+	end	
 
 	local meu_total = self ["cc_break"]
 	local habilidades = self.cc_break_spell_tables._ActorTable
@@ -542,8 +552,8 @@ function atributo_misc:ToolTipCC (instancia, numero, barra)
 		for i = 1, _math_min (3, #meus_cc_breaks) do
 			local esta_habilidade = meus_cc_breaks[i]
 			local nome_magia, _, icone_magia = _GetSpellInfo (esta_habilidade[1])
-			GameTooltip:AddDoubleLine (nome_magia..": ", esta_habilidade[2].." (".._cstr("%.1f", esta_habilidade[2]/meu_total*100).."%)", 1, 1, 1, 1, 1, 1)
-			GameTooltip:AddTexture (icone_magia)
+			GameCooltip:AddLine (nome_magia..": ", esta_habilidade[2].." (".._cstr("%.1f", esta_habilidade[2]/meu_total*100).."%)")
+			GameCooltip:AddIcon (icone_magia, nil, nil, 14, 14)
 		end
 	else
 		GameTooltip:AddLine (Loc ["STRING_NO_SPELL"])
@@ -561,8 +571,8 @@ function atributo_misc:ToolTipCC (instancia, numero, barra)
 		for i = 1, _math_min (3, #buffs_dispelados) do
 			local esta_habilidade = buffs_dispelados[i]
 			local nome_magia, _, icone_magia = _GetSpellInfo (esta_habilidade[1])
-			GameTooltip:AddDoubleLine (nome_magia..": ", esta_habilidade[2].." (".._cstr("%.1f", esta_habilidade[2]/meu_total*100).."%)", 1, 1, 1, 1, 1, 1)
-			GameTooltip:AddTexture (icone_magia)
+			GameCooltip:AddLine (nome_magia..": ", esta_habilidade[2].." (".._cstr("%.1f", esta_habilidade[2]/meu_total*100).."%)")
+			GameCooltip:AddIcon (icone_magia, nil, nil, 14, 14)
 		end
 	end
 	
@@ -570,6 +580,13 @@ function atributo_misc:ToolTipCC (instancia, numero, barra)
 end
 
 function atributo_misc:ToolTipDispell (instancia, numero, barra)
+
+	local owner = self.owner
+	if (owner and owner.classe) then
+		r, g, b = unpack (_detalhes.class_colors [owner.classe])
+	else
+		r, g, b = unpack (_detalhes.class_colors [self.classe])
+	end	
 
 	local meu_total = self ["dispell"]
 	local habilidades = self.dispell_spell_tables._ActorTable
@@ -586,8 +603,8 @@ function atributo_misc:ToolTipDispell (instancia, numero, barra)
 		for i = 1, _math_min (3, #meus_dispells) do
 			local esta_habilidade = meus_dispells[i]
 			local nome_magia, _, icone_magia = _GetSpellInfo (esta_habilidade[1])
-			GameTooltip:AddDoubleLine (nome_magia..": ", esta_habilidade[2].." (".._cstr("%.1f", esta_habilidade[2]/meu_total*100).."%)", 1, 1, 1, 1, 1, 1)
-			GameTooltip:AddTexture (icone_magia)
+			GameCooltip:AddLine (nome_magia..": ", esta_habilidade[2].." (".._cstr("%.1f", esta_habilidade[2]/meu_total*100).."%)")
+			GameCooltip:AddIcon (icone_magia, nil, nil, 14, 14)
 		end
 	else
 		GameTooltip:AddLine (Loc ["STRING_NO_SPELL"])
@@ -605,8 +622,8 @@ function atributo_misc:ToolTipDispell (instancia, numero, barra)
 		for i = 1, _math_min (3, #buffs_dispelados) do
 			local esta_habilidade = buffs_dispelados[i]
 			local nome_magia, _, icone_magia = _GetSpellInfo (esta_habilidade[1])
-			GameTooltip:AddDoubleLine (nome_magia..": ", esta_habilidade[2].." (".._cstr("%.1f", esta_habilidade[2]/meu_total*100).."%)", 1, 1, 1, 1, 1, 1)
-			GameTooltip:AddTexture (icone_magia)
+			GameCooltip:AddLine (nome_magia..": ", esta_habilidade[2].." (".._cstr("%.1f", esta_habilidade[2]/meu_total*100).."%)")
+			GameCooltip:AddIcon (icone_magia, nil, nil, 14, 14)
 		end
 	end
 	
@@ -614,6 +631,13 @@ function atributo_misc:ToolTipDispell (instancia, numero, barra)
 end
 
 function atributo_misc:ToolTipRess (instancia, numero, barra)
+
+	local owner = self.owner
+	if (owner and owner.classe) then
+		r, g, b = unpack (_detalhes.class_colors [owner.classe])
+	else
+		r, g, b = unpack (_detalhes.class_colors [self.classe])
+	end	
 
 	local meu_total = self ["ress"]
 	local minha_tabela = self.ress_spell_tables._ActorTable
@@ -631,8 +655,8 @@ function atributo_misc:ToolTipRess (instancia, numero, barra)
 		for i = 1, _math_min (3, #meus_ress) do
 			local esta_habilidade = meus_ress[i]
 			local nome_magia, _, icone_magia = _GetSpellInfo (esta_habilidade[1])
-			GameTooltip:AddDoubleLine (nome_magia..": ", esta_habilidade[2].." (".._cstr("%.1f", esta_habilidade[2]/meu_total*100).."%)", 1, 1, 1, 1, 1, 1)
-			GameTooltip:AddTexture (icone_magia)
+			GameCooltip:AddLine (nome_magia..": ", esta_habilidade[2].." (".._cstr("%.1f", esta_habilidade[2]/meu_total*100).."%)")
+			GameCooltip:AddIcon (icone_magia, nil, nil, 14, 14)
 		end
 	else
 		GameTooltip:AddLine (Loc ["STRING_NO_SPELL"]) 
@@ -650,8 +674,8 @@ function atributo_misc:ToolTipRess (instancia, numero, barra)
 	GameTooltip:AddLine (Loc ["STRING_TARGETS"]..":")
 	if (#alvos > 0) then
 		for i = 1, _math_min (3, #alvos) do
-			GameTooltip:AddDoubleLine (alvos[i][1]..": ", alvos[i][2], 1, 1, 1, 1, 1, 1)
-			GameTooltip:AddTexture ("Interface\\Icons\\PALADIN_HOLY")
+			GameCooltip:AddLine (alvos[i][1]..": ", alvos[i][2])
+			GameCooltip:AddIcon ("Interface\\Icons\\PALADIN_HOLY", nil, nil, 14, 14)
 		end
 	end
 	
@@ -660,6 +684,13 @@ function atributo_misc:ToolTipRess (instancia, numero, barra)
 end
 
 function atributo_misc:ToolTipInterrupt (instancia, numero, barra)
+
+	local owner = self.owner
+	if (owner and owner.classe) then
+		r, g, b = unpack (_detalhes.class_colors [owner.classe])
+	else
+		r, g, b = unpack (_detalhes.class_colors [self.classe])
+	end	
 
 	local meu_total = self ["interrupt"]
 	local minha_tabela = self.interrupt_spell_tables._ActorTable
@@ -677,8 +708,8 @@ function atributo_misc:ToolTipInterrupt (instancia, numero, barra)
 		for i = 1, _math_min (3, #meus_interrupts) do
 			local esta_habilidade = meus_interrupts[i]
 			local nome_magia, _, icone_magia = _GetSpellInfo (esta_habilidade[1])
-			GameTooltip:AddDoubleLine (nome_magia..": ", esta_habilidade[2].." (".._cstr("%.1f", esta_habilidade[2]/meu_total*100).."%)", 1, 1, 1, 1, 1, 1)
-			GameTooltip:AddTexture (icone_magia)
+			GameCooltip:AddLine (nome_magia..": ", esta_habilidade[2].." (".._cstr("%.1f", esta_habilidade[2]/meu_total*100).."%)")
+			GameCooltip:AddIcon (icone_magia, nil, nil, 14, 14)
 		end
 	else
 		GameTooltip:AddLine (Loc ["STRING_NO_SPELL"])
@@ -697,8 +728,8 @@ function atributo_misc:ToolTipInterrupt (instancia, numero, barra)
 		for i = 1, _math_min (3, #habilidades_interrompidas) do
 			local esta_habilidade = habilidades_interrompidas[i]
 			local nome_magia, _, icone_magia = _GetSpellInfo (esta_habilidade[1])
-			GameTooltip:AddDoubleLine (nome_magia..": ", esta_habilidade[2].." (".._cstr("%.1f", esta_habilidade[2]/meu_total*100).."%)", 1, 1, 1, 1, 1, 1)
-			GameTooltip:AddTexture (icone_magia)
+			GameCooltip:AddLine (nome_magia..": ", esta_habilidade[2].." (".._cstr("%.1f", esta_habilidade[2]/meu_total*100).."%)")
+			GameCooltip:AddIcon (icone_magia, nil, nil, 14, 14)
 		end
 	end
 	

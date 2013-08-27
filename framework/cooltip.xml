@@ -15,7 +15,7 @@
 				<AbsValue val="16"/>
 			</TileSize>
 			<BackgroundInsets>
-				<AbsInset left="5" right="5" top="5" bottom="5"/>
+				<AbsInset left="3" right="3" top="4" bottom="4"/>
 			</BackgroundInsets>
 		  </Backdrop>
 		  
@@ -50,16 +50,34 @@
 						<Anchor point="RIGHT" relativeTo="$parent" relativePoint="RIGHT" x="-3" y="0"/>
 					</Anchors>
 				</Texture>
+				<Texture name="$parent_UpperImage2" hidden="true" parentKey="upperImage2" file = "">
+					<Anchors>
+						<Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER" x="0" y="-3"/>
+						<Anchor point="BOTTOM" relativeTo="$parent" relativePoint="TOP" x="0" y="-3"/>
+					</Anchors>
+				</Texture>
 			</Layer>
 			
 			<Layer level="OVERLAY">
-				<!-- upper image -->
+				<!-- upper image2 -->
 				<Texture name="$parent_UpperImage" hidden="true" parentKey="upperImage" file = "">
 					<Anchors>
 						<Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER" x="0" y="-3"/>
 						<Anchor point="BOTTOM" relativeTo="$parent" relativePoint="TOP" x="0" y="-3"/>
 					</Anchors>
 				</Texture>
+				<FontString name="$parent_UpperImageText" parentKey="upperImageText" inherits="GameTooltipHeaderText" justifyH="LEFT" nonspacewrap="true">
+					<FontHeight val="13"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeTo="$parent_UpperImage" relativePoint="RIGHT" x="5" y="0"/>
+					</Anchors>
+				</FontString>
+				<FontString name="$parent_UpperImageText2" parentKey="upperImageText2" inherits="GameTooltipHeaderText" justifyH="LEFT" nonspacewrap="true">
+					<FontHeight val="13"/>
+					<Anchors>
+						<Anchor point="BOTTOMRIGHT" relativeTo="$parent" relativePoint="TOPRIGHT" x="0" y="3"/>
+					</Anchors>
+				</FontString>
 				<!-- title icon -->
 				<Texture name="$parent_TitleIcon" hidden="true" parentKey="titleIcon" file = "Interface\Challenges\challenges-main">
 					<Anchors>
@@ -143,8 +161,8 @@
 						</Texture>
 						
 						<!-- left text -->
-						<FontString name="$parent_LeftText" parentKey="leftText" inherits="GameFontHighlight" justifyH="LEFT" nonspacewrap="false">
-							<FontHeight val="10.5"/>
+						<FontString name="$parent_LeftText" parentKey="leftText" inherits="GameTooltipHeaderText" justifyH="LEFT" nonspacewrap="false">
+							<FontHeight val="10"/>
 							<Anchors>
 								<Anchor point="CENTER" relativeTo="$parent_LeftIcon" relativePoint="CENTER" x="0" y="0"/>
 								<Anchor point="LEFT" relativeTo="$parent_LeftIcon" relativePoint="RIGHT" x="3" y="0"/>
@@ -152,8 +170,8 @@
 						</FontString>
 
 						<!-- right text -->
-						<FontString name="$parent_TextRight" parentKey="rightText" inherits="GameFontHighlight" justifyH="RIGHT" nonspacewrap="false">
-							<FontHeight val="10.5"/>
+						<FontString name="$parent_TextRight" parentKey="rightText" inherits="GameTooltipHeaderText" justifyH="RIGHT" nonspacewrap="false">
+							<FontHeight val="10"/>
 							<Anchors>
 								<Anchor point="CENTER" relativeTo="$parent_RightIcon" relativePoint="CENTER" x="0" y="0"/>
 								<Anchor point="RIGHT" relativeTo="$parent_RightIcon" relativePoint="LEFT" x="-3" y="0"/>
