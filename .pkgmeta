@@ -1,5 +1,5 @@
 externals:
-    Details/plugins/!NickTag:
+    "Details/plugins/!NickTag":
         url: http://hg.curseforge.net/wow/nicktag/mainline
 
 move-folders:
@@ -12,4 +12,4 @@ move-folders:
     Details/plugins/Details_TimeAttack: Details_TimeAttack
     Details/plugins/Details_TinyThreat: Details_TinyThreat
     Details/plugins/Details_Vanguard: Details_Vanguard
-    Details/plugins/NickTag: !NickTag
+    "Details/plugins/!NickTag": "!NickTag"
