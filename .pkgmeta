@@ -1,5 +1,5 @@
 externals:
-    "Details/plugins/!NickTag":
+    "plugins/!NickTag":
         url: http://hg.curseforge.net/wow/nicktag/mainline
 
 move-folders:
