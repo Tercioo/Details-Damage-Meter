@@ -367,6 +367,91 @@ do
 
 	}
 	
+	_detalhes.DefensiveCooldownSpells = {
+	
+		--> spellid = {cooldown, duration}
+		
+		-- Death Knigh 
+		[55233] = {60, 10}, -- Vampiric Blood
+		[49222] = {60, 300}, -- Bone Shield
+		[48707] = {45, 5}, -- Anti-Magic Shell
+		[48792] = {180, 12}, -- Icebound Fortitude
+		[48743] = {120, 0}, -- Death Pact
+		[49039] = {12, 10}, -- Lichborne
+		["DEATHKNIGHT"] = {55233, 49222, 48707, 48792, 48743, 49039},
+
+		-- Druid
+		[62606] = {1.5, 6}, -- Savage Defense
+		[106922] = {180, 20}, -- Might of Ursoc
+		[102342] = {60, 12}, -- Ironbark
+		[61336] = {180, 12}, -- Survival Instincts
+		[22812] = {60, 12}, -- Barkskin
+		["DRUID"] = {62606, 106922, 102342, 61336, 22812},
+		
+		-- Hunter
+		[19263] = {120, 5}, -- Deterrence
+		["HUNTER"] = {19263},
+		
+		-- Mage
+		[45438] = {300, 12}, -- Ice Block
+		["MAGE"] = {45438},
+		
+		-- Monk
+		[115295] = {30, 30}, -- Guard
+		[115203] = {180, 20}, -- Fortifying Brew
+		[122470] = {90, 10}, -- Touch of Karma
+		[115176] = {180, 8}, -- Zen Meditation
+		[116849] = {120, 12}, -- Life Cocoon
+		[115213] = {180, 6}, -- Avert Harm
+		[122278] = {90, 45}, -- Dampen Harm
+		[122783] = {90, 6}, -- Diffuse Magic
+		["MONK"] = {115295, 115203, 122470, 115176, 116849, 115213, 122278, 122783},
+		
+		-- Paladin
+		[86659] = {180, 12}, -- Guardian of Ancient Kings
+		[31850] = {180, 10}, -- Ardent Defender
+		[498] = {60, 10}, -- Divine Protection
+		[642] = {300, 8}, -- Divine Shield
+		[6940] = {120, 12}, -- Hand of Sacrifice
+		[1022] = {300, 10}, -- Hand of Protection
+		[1038] = {120, 10}, -- Hand of Salvation
+		["PALADIN"] = {86659, 31850, 498, 642, 6940, 1022, 1038},
+		
+		-- Priest
+		[15286] = {180, 15}, -- Vampiric Embrace
+		[47788] = {180, 10}, -- Guardian Spirit
+		[47585] = {120, 6}, -- Dispersion
+		[33206] = {180, 8}, -- Pain Suppression
+		["PRIEST"] = {15286, 47788, 47585, 33206},
+		
+		-- Rogue
+		[1966] = {1.5, 5}, -- Feint
+		[31224] = {60, 5}, -- Cloak of Shadows
+		[5277] = {180, 15}, -- Evasion
+		["ROGUE"] = {1966, 31224, 5277},
+		
+		-- Shaman
+		[30823] = {60, 15}, -- Shamanistic Rage
+		[108271] = {120, 6}, -- Astral Shift
+		[108270] = {60, 5}, -- Stone Bulwark Totem
+		["SHAMAN"] = {30823, 108271, 108270},
+		
+		-- Warlock
+		[104773] = {180, 8}, -- Unending Resolve
+		[108359] = {120, 12}, -- Dark Regeneration
+		[108416] = {60, 20}, -- Sacrificial Pact
+		[110913] = {180, 8}, -- Dark Bargain
+		["WARLOCK"] = {104773, 108359, 108416, 110913},
+		
+		-- Warrior
+		[871] = {180, 12}, -- Shield Wall
+		[12975] = {180, 20}, -- Last Stand
+		[23920] = {25, 5}, -- Spell Reflection
+		[114030] = {120, 12}, -- Vigilance
+		[118038] = {120, 8}, -- Die by the Sword
+		["WARRIOR"] = {871, 12975, 23920, 114030, 118038}
+	}
+	
 	local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
 	_detalhes.SpellOverwrite = {
 		[124464] = {name = GetSpellInfo (124464) .. " (" .. Loc ["STRING_MASTERY"] .. ")"}, --> shadow word: pain mastery proc

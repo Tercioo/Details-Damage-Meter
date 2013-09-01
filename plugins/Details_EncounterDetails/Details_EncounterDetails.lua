@@ -54,7 +54,10 @@ local ability_type_table = {
 	[0x800] = "|cFF6e4d13"..Loc ["STRING_TANKCOOLDOWN"].."|r", 
 	[0x1000] = "|cFFffff00"..Loc ["STRING_KILLADD"].."|r", 
 	[0x2000] = "|cFFff9999"..Loc ["STRING_SPREADOUT"].."|r", 
-	[0x3000] = "|cFFffff99"..Loc ["STRING_STOPCAST"].."|r" 
+	[0x4000] = "|cFFffff99"..Loc ["STRING_STOPCAST"].."|r",
+	[0x8000] = "|cFFffff99"..Loc ["STRING_FACING"].."|r",
+	[0x10000] = "|cFFffff99"..Loc ["STRING_STACK"].."|r",
+	
 }
 
 local debugmode = false
@@ -422,11 +425,10 @@ function _detalhes:BossInfoRowClick (barra, param1)
 	
 	if (barra.TTT == "morte") then --> deaths
 		reportar = {barra.report_text .. " " .. barra.texto_esquerdo:GetText()}
-		for i = 1, _detalhes.popup.NumLines, 1 do 
+		for i = 1, GameCooltip:GetNumLines(), 1 do 
 		
-			local texto_left = _detalhes.popup.frame1.linhas[i].left_text:GetText()
-			local texto_right = _detalhes.popup.frame1.linhas[i].right_text:GetText()
-			
+			local texto_left, texto_right = GameCooltip:GetText (i)
+
 			if (texto_left and texto_right) then 
 				texto_left = texto_left:gsub (("|T(.*)|t "), "")
 				reportar [#reportar+1] = ""..texto_left.." "..texto_right..""
@@ -629,7 +631,7 @@ function EncounterDetails:OpenAndRefresh()
 				break
 			end
 			
-			if (jogador.classe and jogador.classe ~= "UNGROUPPLAYER") then
+			if (jogador.classe and jogador.classe ~= "UNGROUPPLAYER" and jogador.classe ~= "UNKNOW") then
 				local barra = container.barras [index]
 				if (not barra) then
 					barra = EncounterDetails:CreateRow (index, container)

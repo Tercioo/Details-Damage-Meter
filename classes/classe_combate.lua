@@ -133,7 +133,8 @@ function combate:NovaTabela (iniciada, _tabela_overall, combatId, ...)
 			ress = 0, --> armazena quantos pessoas ele reviveu
 			interrupt = 0, --> armazena quantos interrupt a pessoa deu
 			dispell = 0, --> armazena quantos dispell esta pessoa recebeu
-			dead = 0 --> armazena quantas vezes essa oessia morreu		
+			dead = 0, --> armazena quantas vezes essa pessia morreu		
+			cooldowns_defensive = 0 --> armazena quantos cooldowns a raid usou
 		}
 	}
 	
@@ -151,7 +152,8 @@ function combate:NovaTabela (iniciada, _tabela_overall, combatId, ...)
 			ress = 0, --> armazena quantos pessoas ele reviveu
 			interrupt = 0, --> armazena quantos interrupt a pessoa deu
 			dispell = 0, --> armazena quantos dispell esta pessoa recebeu
-			dead = 0 --> armazena quantas vezes essa oessia morreu		
+			dead = 0, --> armazena quantas vezes essa oessia morreu		
+			cooldowns_defensive = 0 --> armazena quantos cooldowns a raid usou
 		}
 	}
 
@@ -333,6 +335,27 @@ combate.__sub = function (overall, combate)
 			local no_overall = overall[4]._ActorTable [overall[4]._NameIndexTable [nome]]
 			no_overall = no_overall - classe_misc
 			
+			if (classe_misc.cooldowns_defensive) then
+				local alvos = classe_misc.cooldowns_defensive_targets
+				local habilidades = classe_misc.cooldowns_defensive_spell_tables
+				
+				for index, alvo in _ipairs (alvos._ActorTable) do
+					local alvo_overall = no_overall.cooldowns_defensive_targets._ActorTable [no_overall.cooldowns_defensive_targets._NameIndexTable [alvo.nome]]
+					alvo_overall = alvo_overall - alvo
+				end
+				
+				for _spellid, habilidade in _pairs (habilidades._ActorTable) do 
+					local habilidade_overall = no_overall.cooldowns_defensive_spell_tables._ActorTable [_spellid]
+					habilidade_overall = habilidade_overall - habilidade
+					
+					local alvos = habilidade.targets
+					for index, alvo in _ipairs (alvos._ActorTable) do 
+						local alvo_overall = habilidade_overall.targets._ActorTable [habilidade_overall.targets._NameIndexTable [alvo.nome]]
+						alvo_overall = alvo_overall - alvo
+					end
+				end
+			end
+			
 			if (classe_misc.interrupt) then
 				local alvos = classe_misc.interrupt_targets
 				local habilidades = classe_misc.interrupt_spell_tables
@@ -433,6 +456,7 @@ combate.__sub = function (overall, combate)
 	overall.totals[4].interrupt = overall.totals[4].interrupt - combate.totals[4].interrupt
 	overall.totals[4].dispell = overall.totals[4].dispell - combate.totals[4].dispell
 	overall.totals[4].dead = overall.totals[4].dead - combate.totals[4].dead
+	overall.totals[4].cooldowns_defensive = overall.totals[4].cooldowns_defensive - combate.totals[4].cooldowns_defensive
 	
 	
 	overall.totals_grupo[1] = overall.totals_grupo[1] - combate.totals_grupo[1]
@@ -448,7 +472,7 @@ combate.__sub = function (overall, combate)
 	overall.totals_grupo[4].interrupt = overall.totals_grupo[4].interrupt - combate.totals_grupo[4].interrupt
 	overall.totals_grupo[4].dispell = overall.totals_grupo[4].dispell - combate.totals_grupo[4].dispell
 	overall.totals_grupo[4].dead = overall.totals_grupo[4].dead - combate.totals_grupo[4].dead
-	
+	overall.totals_grupo[4].cooldowns_defensive = overall.totals_grupo[4].cooldowns_defensive - combate.totals_grupo[4].cooldowns_defensive
 	
 	return overall
 end

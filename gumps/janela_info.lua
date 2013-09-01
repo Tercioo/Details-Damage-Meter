@@ -1224,6 +1224,9 @@ local function CriaTexturaBarra (instancia, barra)
 	barra.texto_esquerdo:SetJustifyH ("LEFT")
 	barra.texto_esquerdo:SetTextColor (1,1,1,1)
 	
+	barra.texto_esquerdo:SetNonSpaceWrap (true)
+	barra.texto_esquerdo:SetWordWrap (false)
+	
 	barra.texto_direita = barra.textura:CreateFontString (nil, "OVERLAY", "GameFontHighlightSmall")
 	barra.texto_direita:SetPoint ("RIGHT", barra.textura, "RIGHT", -2)
 	barra.texto_direita:SetJustifyH ("RIGHT")

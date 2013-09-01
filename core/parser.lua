@@ -33,6 +33,7 @@
 	local escudo = _detalhes.escudos --details local
 	local parser = _detalhes.parser --details local
 	local absorb_spell_list = _detalhes.AbsorbSpells --details local
+	local defensive_cooldown_spell_list = _detalhes.DefensiveCooldownSpells --details local
 	local cc_spell_list = _detalhes.CrowdControlSpells --details local
 	local container_combatentes = _detalhes.container_combatentes --details local
 	local container_habilidades = _detalhes.container_habilidades --details local
@@ -488,12 +489,13 @@
 			return
 		end
 		
-		--> checking shield and overheals
 		local cura_efetiva = absorbed
 		if (is_shield) then 
+			--> o shield ja passa o numero exato da cura e o overheal
 			cura_efetiva = amount
 		else
-			cura_efetiva = amount - overhealing
+			--cura_efetiva = absorbed + amount - overhealing
+			cura_efetiva = cura_efetiva + amount - overhealing
 		end
 		
 		_current_heal_container.need_refresh = true
@@ -535,10 +537,13 @@
 			end
 			
 			if (not este_jogador.shadow.heal_enemy [spellid]) then 
-				este_jogador.shadow.heal_enemy [spellid] = cura_efetiva
+				shadow.heal_enemy [spellid] = cura_efetiva
 			else
-				este_jogador.shadow.heal_enemy [spellid] = este_jogador.shadow.heal_enemy [spellid] + cura_efetiva
+				shadow.heal_enemy [spellid] = shadow.heal_enemy [spellid] + cura_efetiva
 			end
+			
+			este_jogador.heal_enemy_amt = este_jogador.heal_enemy_amt + cura_efetiva
+			shadow.heal_enemy_amt = shadow.heal_enemy_amt + cura_efetiva
 			
 			return
 		end	
@@ -555,41 +560,6 @@
 		
 			local t = jogador_alvo.last_events_table
 			local i = t.n
-			
-			--[[
-			if (not i) then
-				local isOriginal = jogador_alvo.last_events_table.original
-				if (isOriginal) then
-					isOriginal = "IsOriginal = TRUE"
-				else
-					isOriginal = "IsOriginal = FALSE"
-				end
-				local indexes = #jogador_alvo.last_events_table
-				if (not indexes) then
-					indexes = "Indexes = NIL"
-				else
-					indexes = "Indexes = "..indexes
-				end
-				local resync = _detalhes.tabela_vigente.resincked
-				if (resync) then
-					resync = "resync = TRUE"
-				else
-					resync = "resync = FALSE"
-				end
-				
-				local saved = _detalhes.tabela_vigente.hasSaved
-				if (saved) then
-					saved = "saved = TRUE"
-				else
-					saved = "saved = FALSE"
-				end
-				
-				print ("Report the lines shown, click on reset button and type /reload")
-				print ("We are investigation this issue, this information is important to us.")
-				assert (false, "Please Report This Error on the Blue Button: Parser 194: " .. isOriginal .. " " .. indexes .. " " .. resync .. " " .. saved)
-			end			
-			--]]
-			
 			t.n = i + 1
 
 			t = t [i]
@@ -652,6 +622,11 @@
 			--> actor healing amount
 			este_jogador.total = este_jogador.total + cura_efetiva
 			shadow.total = shadow.total + cura_efetiva
+			
+			if (is_shield) then
+				este_jogador.totalabsorb = este_jogador.totalabsorb + cura_efetiva
+				shadow.totalabsorb = shadow.totalabsorb + cura_efetiva
+			end
 
 			este_jogador.total_without_pet = este_jogador.total_without_pet + cura_efetiva
 			shadow.total_without_pet = shadow.total_without_pet + cura_efetiva
@@ -721,6 +696,10 @@
 				else
 					escudo [alvo_name] [spellid] [who_name] = amount
 				end
+			
+			elseif (defensive_cooldown_spell_list [spellid]) then
+				--> usou cooldown
+				return parser:add_defensive_cooldown (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, _, tipo, amount)
 				
 	------------------------------------------------------------------------------------------------
 	--> recording buffs
@@ -816,12 +795,16 @@
 			if (absorb_spell_list [spellid] and amount) then
 				
 				if (escudo [alvo_name] and escudo [alvo_name][spellid] and escudo [alvo_name][spellid][who_name]) then
+				
+					--print ("refresh", escudo [alvo_name][spellid][who_name], amount)
+				
 					local absorb = escudo [alvo_name][spellid][who_name] - amount
+					local overheal = amount - absorb
 					escudo [alvo_name][spellid][who_name] = amount
 					
-					if (absorb > 0) then
-						return parser:heal (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, _, _math_ceil (absorb), 0, 0, 0, true)
-					end
+					--if (absorb > 0) then
+						return parser:heal (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, _, _math_ceil (absorb), _math_ceil (overheal), 0, 0, true)
+					--end
 				else
 					--> should apply aura if not found in already applied buff list?
 				end
@@ -905,12 +888,21 @@
 			if (absorb_spell_list [spellid]) then
 				if (escudo [alvo_name] and escudo [alvo_name][spellid] and escudo [alvo_name][spellid][who_name]) then
 					if (amount) then
-						local escudo_antigo = escudo [alvo_name][spellid][who_name]
-						if (escudo_antigo and escudo_antigo > amount) then 
-							local absorb = escudo_antigo - amount
-							escudo [alvo_name][spellid][who_name] = nil
-							return parser:heal (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, _, _math_ceil (absorb), _math_ceil (escudo_antigo), 0, 0, true) --> último parametro IS_SHIELD
-						end
+					
+						-- o amount é o que sobrou do escudo
+					
+						local escudo_antigo = escudo [alvo_name][spellid][who_name] --> quantidade total do escudo que foi colocado
+						--print (escudo_antigo, amount)
+						--if (escudo_antigo and escudo_antigo > amount) then 
+						
+						local absorb = escudo_antigo - amount
+						local overheal = escudo_antigo - absorb
+						
+						escudo [alvo_name][spellid][who_name] = nil
+						
+						return parser:heal (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, _, _math_ceil (absorb), _math_ceil (overheal), 0, 0, true) --> último parametro IS_SHIELD
+							
+						--end
 					end
 					escudo [alvo_name][spellid][who_name] = nil
 				end
@@ -1103,6 +1095,85 @@
 	--> MISC															|
 -----------------------------------------------------------------------------------------------------------------------------------------
 
+	function parser:add_defensive_cooldown (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, _, tipo, amount)
+	
+	------------------------------------------------------------------------------------------------
+	--> early checks and fixes
+		
+		_current_misc_container.need_refresh = true
+		_overall_misc_container.need_refresh = true
+		
+	------------------------------------------------------------------------------------------------
+	--> get actors
+	
+		--> main actor
+		local este_jogador, meu_dono = misc_cache [who_name]
+		if (not este_jogador) then --> pode ser um desconhecido ou um pet
+			este_jogador, meu_dono, who_name = _current_misc_container:PegarCombatente (who_serial, who_name, who_flags, true)
+			if (not meu_dono) then --> se não for um pet, adicionar no cache
+				misc_cache [who_name] = este_jogador
+			end
+		end
+		
+		local shadow = este_jogador.shadow
+		
+	------------------------------------------------------------------------------------------------
+	--> build containers on the fly
+		
+		if (not este_jogador.cooldowns_defensive) then
+			este_jogador.cooldowns_defensive = 0
+			este_jogador.cooldowns_defensive_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
+			este_jogador.cooldowns_defensive_spell_tables = container_habilidades:NovoContainer (container_misc) --> cria o container das habilidades
+
+			if (not shadow.cooldowns_defensive_targets) then
+				shadow.cooldowns_defensive = 0
+				shadow.cooldowns_defensive_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
+				shadow.cooldowns_defensive_spell_tables = container_habilidades:NovoContainer (container_misc) --> cria o container das habilidades usadas
+			end
+
+			este_jogador.cooldowns_defensive_targets.shadow = shadow.cooldowns_defensive_targets
+			este_jogador.cooldowns_defensive_spell_tables.shadow = shadow.cooldowns_defensive_spell_tables
+		end	
+		
+	------------------------------------------------------------------------------------------------
+	--> add amount
+
+		--> actor cooldowns used
+		este_jogador.cooldowns_defensive = este_jogador.cooldowns_defensive + 1
+		shadow.cooldowns_defensive = shadow.cooldowns_defensive + 1
+
+		--> combat totals
+		_current_total [4].cooldowns_defensive = _current_total [4].cooldowns_defensive + 1
+		_overall_total [4].cooldowns_defensive = _overall_total [4].cooldowns_defensive + 1
+		
+		if (este_jogador.grupo) then
+			_current_gtotal [4].cooldowns_defensive = _current_gtotal [4].cooldowns_defensive + 1
+			_overall_gtotal [4].cooldowns_defensive = _overall_gtotal [4].cooldowns_defensive + 1
+		end
+		
+		--> update last event
+		este_jogador.last_event = _tempo
+		shadow.last_event = _tempo
+		
+		--> actor targets
+		local este_alvo = este_jogador.cooldowns_defensive_targets._NameIndexTable [alvo_name]
+		if (not este_alvo) then
+			este_alvo = este_jogador.cooldowns_defensive_targets:PegarCombatente (alvo_serial, alvo_name, alvo_flags, true)
+		else
+			este_alvo = este_jogador.cooldowns_defensive_targets._ActorTable [este_alvo]
+		end
+		este_alvo.total = este_alvo.total + 1
+
+		--> actor spells table
+		local spell = este_jogador.cooldowns_defensive_spell_tables._ActorTable [spellid]
+		if (not spell) then
+			spell = este_jogador.cooldowns_defensive_spell_tables:PegaHabilidade (spellid, true, token)
+		end
+		return spell:Add (alvo_serial, alvo_name, alvo_flags, who_name, token, "BUFF", "COOLDOWN")
+		
+	end
+
+	
 	--serach key: ~interrupt
 	function parser:interrupt (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, extraSpellID, extraSpellName, extraSchool)
 
@@ -1282,16 +1353,18 @@
 		shadow.dispell = shadow.dispell + 1
 		
 		--> dispell what
-		if (not este_jogador.dispell_oque [spellid]) then
-			este_jogador.dispell_oque [spellid] = 1
-		else
-			este_jogador.dispell_oque [spellid] = este_jogador.dispell_oque [spellid] + 1
-		end
-		
-		if (not shadow.dispell_oque [spellid]) then
-			shadow.dispell_oque [spellid] = 1
-		else
-			shadow.dispell_oque [spellid] = shadow.dispell_oque [spellid] + 1
+		if (extraSpellID) then
+			if (not este_jogador.dispell_oque [extraSpellID]) then
+				este_jogador.dispell_oque [extraSpellID] = 1
+			else
+				este_jogador.dispell_oque [extraSpellID] = este_jogador.dispell_oque [extraSpellID] + 1
+			end
+			
+			if (not shadow.dispell_oque [extraSpellID]) then
+				shadow.dispell_oque [extraSpellID] = 1
+			else
+				shadow.dispell_oque [extraSpellID] = shadow.dispell_oque [extraSpellID] + 1
+			end
 		end
 		
 		--> actor targets
@@ -1822,6 +1895,9 @@
 		--print (token)
 
 		-- DEBUG
+		
+		--local a, b, c, d, e, f, g, h, i, j, k = select (1, ...)
+		--print (token, who_name, a, b, c, d, e, f, g, h, i, j, k)
 		
 		--[[
 		if (who_name == "Ditador") then

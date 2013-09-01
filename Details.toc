@@ -3,10 +3,9 @@
 ## Notes: Computes detailed infos about combats.
 ## SavedVariables: _detalhes_global
 ## SavedVariablesPerCharacter: _detalhes_database
-## OptionalDeps:  Ace3, LibSharedMedia-3.0, LibBossIDs-1.0, LibGraph-2.0, !ClassColors
 
 #@no-lib-strip@
-embeds.xml
+Libs\libs.xml
 #@end-no-lib-strip@
 
 locales\Details-ptBR.lua

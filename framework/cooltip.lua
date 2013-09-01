@@ -550,7 +550,7 @@ function DetailsCreateCoolTip()
 				end
 				
 				local face, size, flags = menuButton.leftText:GetFont()
-				size = leftTextTable [6] or 10
+				size = leftTextTable [6] or CoolTip.OptionsTable.TextSize or 10
 				face = leftTextTable [7] or [[Fonts\FRIZQT__.TTF]]
 				flags = leftTextTable [8]
 				menuButton.leftText:SetFont (face, size, flags)
@@ -585,7 +585,8 @@ function DetailsCreateCoolTip()
 				menuButton.leftIcon:SetWidth (leftIconTable [2])
 				menuButton.leftIcon:SetHeight (leftIconTable [3])
 				menuButton.leftIcon:SetTexCoord (leftIconTable [4], leftIconTable [5], leftIconTable [6], leftIconTable [7])
-				menuButton.leftIcon:SetVertexColor (unpack (leftIconTable [8]))
+				local ColorR, ColorG, ColorB, ColorA = gump:ParseColors (leftIconTable [8])
+				menuButton.leftIcon:SetVertexColor (ColorR, ColorG, ColorB, ColorA)
 				--menuButton.leftText:SetPoint ("left", menuButton.leftIcon, "right", 3, 0)
 			else
 				menuButton.leftIcon:SetTexture (nil)
@@ -600,7 +601,8 @@ function DetailsCreateCoolTip()
 				menuButton.rightIcon:SetWidth (rightIconTable [2])
 				menuButton.rightIcon:SetHeight (rightIconTable [3])
 				menuButton.rightIcon:SetTexCoord (rightIconTable [4], rightIconTable [5], rightIconTable [6], rightIconTable [7])
-				menuButton.rightIcon:SetVertexColor (unpack (rightIconTable [8]))
+				local ColorR, ColorG, ColorB, ColorA = gump:ParseColors (rightIconTable [8])
+				menuButton.rightIcon:SetVertexColor (ColorR, ColorG, ColorB, ColorA)
 				--menuButton.rightText:SetPoint ("right", menuButton.rightIcon, "left", -3, 0)
 			else
 				menuButton.rightIcon:SetTexture (nil)
@@ -653,6 +655,13 @@ function DetailsCreateCoolTip()
 			
 		end
 		
+		function CoolTip:RefreshSpark (menuButton)
+			menuButton.spark:ClearAllPoints()
+			menuButton.spark:SetPoint ("LEFT", menuButton.statusbar, "LEFT", (menuButton.statusbar:GetValue() * (menuButton.statusbar:GetWidth() / 100)) - 3, 0)
+			menuButton.spark2:ClearAllPoints()
+			menuButton.spark2:SetPoint ("left", menuButton.statusbar, "left", menuButton.statusbar:GetValue() * (menuButton.statusbar:GetWidth()/100) - 16, 0)
+		end
+		
 		function CoolTip:StatusBar (menuButton, StatusBar)
 		
 			if (StatusBar) then
@@ -661,12 +670,30 @@ function DetailsCreateCoolTip()
 				menuButton.statusbar:SetStatusBarColor (StatusBar [2], StatusBar [3], StatusBar [4], StatusBar [5])
 				menuButton.statusbar:SetHeight (20 + (CoolTip.OptionsTable.StatusBarHeightMod or 0))
 				
+				menuButton.spark2:Hide()
 				if (StatusBar [6]) then
 					menuButton.spark:Show()
-					menuButton.spark:ClearAllPoints()
-					menuButton.spark:SetPoint ("LEFT", menuButton.statusbar, "LEFT", (StatusBar [1] * (menuButton.statusbar:GetWidth() / 100)) - 3, 0)
+					--menuButton.spark:ClearAllPoints()
+					--menuButton.spark:SetPoint ("LEFT", menuButton.statusbar, "LEFT", (StatusBar [1] * (menuButton.statusbar:GetWidth() / 100)) - 3, 0)
 				else
 					menuButton.spark:Hide()
+				end
+				
+				if (StatusBar [7]) then
+					menuButton.statusbar2:SetValue (StatusBar[7].value)
+					menuButton.statusbar2.texture:SetTexture (StatusBar[7].texture or [[Interface\AddOns\Details\images\bar4_reverse]])
+					if (StatusBar[7].specialSpark) then
+						menuButton.spark2:Show()
+					end
+					if (StatusBar[7].color) then
+						local ColorR, ColorG, ColorB, ColorA = gump:ParseColors (StatusBar[7].color)
+						menuButton.statusbar2:SetStatusBarColor (ColorR, ColorG, ColorB, ColorA)
+					else
+						menuButton.statusbar2:SetStatusBarColor (1, 1, 1, 1)
+					end
+				else
+					menuButton.statusbar2:SetValue (0)
+					menuButton.spark2:Hide()
 				end
 				
 				if (CoolTip.OptionsTable.StatusBarTexture) then
@@ -677,7 +704,9 @@ function DetailsCreateCoolTip()
 
 			else
 				menuButton.statusbar:SetValue (0)
+				menuButton.statusbar2:SetValue (0)
 				menuButton.spark:Hide()
+				menuButton.spark2:Hide()
 			end
 
 			if (CoolTip.OptionsTable.LeftBorderSize) then
@@ -963,6 +992,14 @@ function DetailsCreateCoolTip()
 		--> unhide frame
 		gump:Fade (frame1, 0)
 		CoolTip:SetMyPoint (host)
+		
+		--> fix sparks
+		for i = 1, CoolTip.Indexes do 
+			local menuButton = frame1.Lines [i]
+			if (menuButton.spark:IsShown() or menuButton.spark2:IsShown()) then
+				CoolTip:RefreshSpark (menuButton)
+			end
+		end
 	end
 
 	function CoolTip:monta_cooltip (host, instancia, options, sub_menus, icones, tamanho1, tamanho2, font, fontsize)
@@ -1574,7 +1611,7 @@ function DetailsCreateCoolTip()
 	--> parameters: value [, color red, color green, color blue, color alpha [, glow]]
 	--> can also use a table or html color name in color red and send glow in color green
 	
-		function CoolTip:AddStatusBar (statusbarValue, frame, ColorR, ColorG, ColorB, ColorA, statusbarGlow)
+		function CoolTip:AddStatusBar (statusbarValue, frame, ColorR, ColorG, ColorB, ColorA, statusbarGlow, backgroundBar)
 		
 			--> need a previous line
 			if (CoolTip.Indexes == 0) then
@@ -1587,8 +1624,9 @@ function DetailsCreateCoolTip()
 			end
 		
 			if (type (ColorR) == "table" or type (ColorR) == "string") then
-				statusbarGlow, ColorR, ColorG, ColorB, ColorA = ColorG, gump:ParseColors (ColorR)
+				statusbarGlow, backgroundBar, ColorR, ColorG, ColorB, ColorA = ColorG, ColorB, gump:ParseColors (ColorR)
 			elseif (type (ColorR) == "boolean") then
+				backgroundBar = ColorG
 				statusbarGlow = ColorR
 				ColorR, ColorG, ColorB, ColorA = 1, 1, 1, 1
 			else
@@ -1645,6 +1683,7 @@ function DetailsCreateCoolTip()
 			statusbarTable [4] = ColorB
 			statusbarTable [5] = ColorA
 			statusbarTable [6] = statusbarGlow
+			statusbarTable [7] = backgroundBar
 			
 		end
 
@@ -1840,11 +1879,22 @@ function DetailsCreateCoolTip()
 		function CoolTip:AddLine (leftText, rightText, frame, ColorR1, ColorG1, ColorB1, ColorA1, ColorR2, ColorG2, ColorB2, ColorA2, fontSize, fontFace, fontFlag)
 			
 			--> check data integrity
-			if (type (leftText) ~= "string") then
-				leftText = ""
+			local t = type (leftText)
+			if (t ~= "string") then
+				if (t == "number") then
+					leftText = tostring (leftText)
+				else
+					leftText = ""
+				end
 			end
-			if (type (rightText) ~= "string") then
-				rightText = ""
+			
+			local t = type (rightText)
+			if (t ~= "string") then
+				if (t == "number") then
+					rightText = tostring (rightText)
+				else
+					rightText = ""
+				end
 			end
 			
 			if (type (ColorR1) ~= "number") then

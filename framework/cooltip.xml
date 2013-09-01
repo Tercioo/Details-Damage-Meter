@@ -177,7 +177,15 @@
 								<Anchor point="RIGHT" relativeTo="$parent_RightIcon" relativePoint="LEFT" x="-3" y="0"/>
 							</Anchors>
 						</FontString>
-						
+						<!-- spark 2 -->
+						<Texture name="$parent_Spark2" hidden="true" parentKey="spark2" file = "Interface\CastingBar\UI-CastingBar-Spark"  alphaMode="ADD">
+							<Size>
+								<AbsDimension x="32" y="32"/>
+							</Size>
+							<Anchors>
+								<Anchor point="LEFT" relativeTo="$parent" relativePoint="RIGHT" x="-17" y="-1"/>
+							</Anchors>
+						</Texture>
 					</Layer>
 				
 				</Layers>
@@ -192,6 +200,30 @@
 				</Scripts>
 				
 			</StatusBar>
+			
+			<StatusBar name="$Parent_StatusBarBackground" parentKey="statusbar2">
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$Parent_StatusBar" relativePoint="LEFT"/>
+					<Anchor point="RIGHT" relativeTo="$Parent_StatusBar" relativePoint="RIGHT"/>
+					<Anchor point="TOP" relativeTo="$Parent_StatusBar" relativePoint="TOP"/>
+					<Anchor point="BOTTOM" relativeTo="$Parent_StatusBar" relativePoint="BOTTOM"/>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<!-- statusbar texture -->
+						<Texture name="$parent_Texture" hidden="false" parentKey="texture" file = "Interface\AddOns\Details\images\bar4_reverse" horizTile="false" vertTile="false">
+							<Size x="300" y="14" />
+							<Color a = "1" r = "1" g = "1" b = "1" />
+						</Texture>
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnLoad>
+						self:SetStatusBarTexture (self.texture);
+						self:SetMinMaxValues (0, 100);
+					</OnLoad>
+				</Scripts>
+			</StatusBar>
 		
 		</Frames>
 		
@@ -202,8 +234,12 @@
 				self.rightIcon = self.statusbar.rightIcon
 				self.texture = self.statusbar.texture
 				self.spark = self.statusbar.spark
+				self.spark2 = self.statusbar.spark2
 				self.leftText = self.statusbar.leftText
 				self.rightText = self.statusbar.rightText
+				self.statusbar:SetFrameLevel (self:GetFrameLevel()+2)
+				self.statusbar2:SetFrameLevel (self.statusbar:GetFrameLevel()-1)
+				self.statusbar2:SetValue (0)
 			</OnLoad>
 			
 			<OnMouseDown>

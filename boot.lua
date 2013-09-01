@@ -5,11 +5,21 @@
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> global name declaration
+
+		--> fix for old nicktag version
+		if (_G.NickTag) then
+			if (_G.NickTag.OnEvent) then
+				_G.NickTag:UnregisterComm ("NickTag")
+			end
+		end
+
 		_detalhes = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0", "NickTag-1.0")
 		_detalhes.userversion = "v1.2.0"
 		_detalhes.version = "Alpha 004"
 		_detalhes.realversion = 4
 
+		--_detalhes:NickTagSetCache (_detalhes.NickTagCache)
+		
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> initialization stuff
 
@@ -184,6 +194,7 @@ do
 	--> register textures and fonts for shared media
 		local SharedMedia = LibStub:GetLibrary ("LibSharedMedia-3.0")
 		SharedMedia:Register ("statusbar", "Details D'ictum", [[Interface\AddOns\Details\images\bar4]])
+		SharedMedia:Register ("statusbar", "Details D'ictum (reverse)", [[Interface\AddOns\Details\images\bar4_reverse]])
 	
 	--> global 'vardump' for dump table contents over chat panel
 		function vardump (t)

@@ -53,8 +53,12 @@ function habilidade_misc:Add (serial, nome, flag, who_nome, token, spellID, spel
 	alvo.total = alvo.total + 1
 	
 	--alvo:AddQuantidade (1)
-	
-	if (token == "SPELL_INTERRUPT") then
+	if (spellID == "BUFF") then
+		if (spellName == "COOLDOWN") then
+			self.counter = self.counter + 1
+		end
+		
+	elseif (token == "SPELL_INTERRUPT") then
 		self.counter = self.counter + 1
 
 		if (not self.interrompeu_oque [spellID]) then --> interrompeu_oque a NIL value

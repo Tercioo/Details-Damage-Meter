@@ -870,7 +870,7 @@ local resizeTooltip = {
 }
 
 --> search key: ~resizescript
-local function resize_scripts (resizer, instancia, ScrollBar, side)
+local function resize_scripts (resizer, instancia, ScrollBar, side, baseframe)
 
 	resizer:SetScript ("OnMouseDown", function (self, button) 
 	
@@ -914,6 +914,9 @@ local function resize_scripts (resizer, instancia, ScrollBar, side)
 					instancia.baseframe:StartSizing("BOTTOMLEFT")
 				end
 				
+				resizer:SetPoint ("BOTTOMLEFT", baseframe, "BOTTOMLEFT", -1, -1)
+				resizer.afundado = true
+				
 			elseif (side == ">") then
 				if (_IsShiftKeyDown()) then
 					instancia.baseframe:StartSizing("RIGHT")
@@ -928,14 +931,33 @@ local function resize_scripts (resizer, instancia, ScrollBar, side)
 					instancia.baseframe:StartSizing("BOTTOMRIGHT")
 				end
 				
+				if (instancia.rolagem and _detalhes.use_scroll) then
+					resizer:SetPoint ("BOTTOMRIGHT", baseframe, "BOTTOMRIGHT", (instancia.largura_scroll*-1) + 1, -1)
+				else
+					resizer:SetPoint ("BOTTOMRIGHT", baseframe, "BOTTOMRIGHT", 1, -1)
+				end
+				resizer.afundado = true
 			end
 			
 			_detalhes:SendEvent ("DETAILS_INSTANCE_STARTRESIZE", nil, instancia)
-				
+			
 		end 
 	end)
-		
+	
 	resizer:SetScript ("OnMouseUp", function (self,button) 
+	
+			if (resizer.afundado) then
+				resizer.afundado = false
+				if (resizer.side == 2) then
+					if (instancia.rolagem and _detalhes.use_scroll) then
+						resizer:SetPoint ("BOTTOMRIGHT", baseframe, "BOTTOMRIGHT", instancia.largura_scroll*-1, 0)
+					else
+						resizer:SetPoint ("BOTTOMRIGHT", baseframe, "BOTTOMRIGHT", 0, 0)
+					end
+				else
+					resizer:SetPoint ("BOTTOMLEFT", baseframe, "BOTTOMLEFT", 0, 0)
+				end
+			end
 	
 			if (self:GetParent().isResizing) then 
 			
@@ -1084,6 +1106,7 @@ local function bota_separar_script (botao, instancia)
 end
 
 local function barra_scripts (esta_barra, instancia, i)
+
 	esta_barra:SetScript ("OnEnter", function (self) 
 		self.mouse_over = true
 		resize_fade (instancia, "out")
@@ -1091,14 +1114,6 @@ local function barra_scripts (esta_barra, instancia, i)
 
 		instancia:MontaTooltip (self, i)
 		
-		--[[
-		_GameTooltip:SetOwner (self, "ANCHOR_TOPRIGHT")
-		if (not instancia:MontaTooltip (i)) then
-			return
-		end
-		_GameTooltip:Show()
-		--]]
-	--
 		self:SetBackdrop({
 			bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", 
 			tile = true, tileSize = 16,
@@ -1132,21 +1147,21 @@ local function barra_scripts (esta_barra, instancia, i)
 			return _detalhes.switch:ShowMe (instancia)
 		end
 	
-		--if (button == "leftButton") then
-			self.mouse_down = _GetTime()
-			self.button = button
-			local x, y = _GetCursorPosition()
-			self.x = _math_floor (x)
-			self.y = _math_floor (y)
-		
-			local parent = instancia.baseframe
-			if ((not parent.isLocked) or (parent.isLocked == 0)) then
-				_GameTooltip:Hide() --> fecha o tooltip
-				move_janela (parent, true, instancia) --> novo movedor da janela
-			end
-		
-		--end
-		
+		esta_barra.texto_esquerdo:SetPoint ("LEFT", esta_barra.icone_classe, "right", 4, -1)
+		esta_barra.texto_direita:SetPoint ("RIGHT", esta_barra.statusbar, "RIGHT", 1, -1)
+	
+		self.mouse_down = _GetTime()
+		self.button = button
+		local x, y = _GetCursorPosition()
+		self.x = _math_floor (x)
+		self.y = _math_floor (y)
+	
+		local parent = instancia.baseframe
+		if ((not parent.isLocked) or (parent.isLocked == 0)) then
+			GameCooltip:Hide() --> fecha o tooltip
+			move_janela (parent, true, instancia) --> novo movedor da janela
+		end
+
 	end)
 	
 	esta_barra:SetScript ("OnMouseUp", function (self, button)
@@ -1158,11 +1173,14 @@ local function barra_scripts (esta_barra, instancia, i)
 			instancia:SaveMainWindowPosition()
 			_GameTooltip:SetOwner (self, "ANCHOR_TOPRIGHT")
 			if (instancia:MontaTooltip (self, i)) then
-				_GameTooltip:Show()
+				GameCooltip:Show (esta_barra, 1)
 			end
 			
 		end
 
+		esta_barra.texto_esquerdo:SetPoint ("LEFT", esta_barra.icone_classe, "right", 3, 0)
+		esta_barra.texto_direita:SetPoint ("RIGHT", esta_barra.statusbar, "RIGHT")
+		
 		local x, y = _GetCursorPosition()
 		x = _math_floor (x)
 		y = _math_floor (y)
@@ -1832,6 +1850,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 	BaseFrame.resize_direita:EnableMouse (true)
 	BaseFrame.resize_direita:SetFrameLevel (BaseFrame:GetFrameLevel() + 6)
 	BaseFrame.resize_direita:SetFrameStrata ("HIGH")
+	BaseFrame.resize_direita.side = 2
 
 	--> lock window button
 	BaseFrame.lock_button = _CreateFrame ("Button", "Details_Lock_Button"..ID, BaseFrame)
@@ -1942,8 +1961,8 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 
 	gump:Fade (instancia.botao_separar, "in", 3.0)
 	
-	resize_scripts (BaseFrame.resize_direita, instancia, ScrollBar, ">")
-	resize_scripts (BaseFrame.resize_esquerda, instancia, ScrollBar, "<")
+	resize_scripts (BaseFrame.resize_direita, instancia, ScrollBar, ">", BaseFrame)
+	resize_scripts (BaseFrame.resize_esquerda, instancia, ScrollBar, "<", BaseFrame)
 	lock_button_scripts (BaseFrame.lock_button, instancia)
 	
 	bota_separar_script (instancia.botao_separar, instancia)
@@ -2706,7 +2725,6 @@ function gump:CriaCabecalho (BaseFrame, instancia)
 				CoolTip:SetColor ("main", "transparent")
 
 				----------- segments
-				--for i = 1, _detalhes.segments_amount do
 				local menuIndex = 0
 				for i = _detalhes.segments_amount, 1, -1 do
 					
@@ -2715,7 +2733,7 @@ function gump:CriaCabecalho (BaseFrame, instancia)
 						local enemy = thisCombat.is_boss and thisCombat.is_boss.name
 
 						if (thisCombat.is_boss and thisCombat.is_boss.name) then
-							CoolTip:AddLine (thisCombat.is_boss.name .." ("..i..")", _, 1, "red")
+							CoolTip:AddLine (thisCombat.is_boss.name .." (#"..i..")", _, 1, "red")
 							local portrait = _detalhes:GetBossPortrait (thisCombat.is_boss.mapid, thisCombat.is_boss.index)
 							if (portrait) then
 								CoolTip:AddIcon (portrait, 2, "top", 128, 64)
@@ -2723,7 +2741,7 @@ function gump:CriaCabecalho (BaseFrame, instancia)
 						else
 							enemy = thisCombat.enemy
 							if (enemy) then
-								CoolTip:AddLine (thisCombat.enemy .." ("..i..")", _, 1, "yellow")
+								CoolTip:AddLine (thisCombat.enemy .." (#"..i..")", _, 1, "yellow")
 							else
 								CoolTip:AddLine (segmentos.past..i, _, 1, "silver")
 							end
@@ -2763,6 +2781,14 @@ function gump:CriaCabecalho (BaseFrame, instancia)
 				CoolTip:AddIcon ("Interface\\QUESTFRAME\\UI-Quest-BulletPoint", "main", "left", 16, 16)
 					
 					local enemy = _detalhes.tabela_vigente.is_boss and _detalhes.tabela_vigente.is_boss.name or _detalhes.tabela_vigente.enemy or "--x--x--"
+					
+					if (_detalhes.tabela_vigente.is_boss and _detalhes.tabela_vigente.is_boss.name) then
+						local portrait = _detalhes:GetBossPortrait (_detalhes.tabela_vigente.is_boss.mapid, _detalhes.tabela_vigente.is_boss.index)
+						if (portrait) then
+							CoolTip:AddIcon (portrait, 2, "top", 128, 64)
+						end
+					end					
+					
 					CoolTip:AddLine (Loc ["STRING_SEGMENT_ENEMY"] .. ":", enemy, 2, "white", "white")
 					
 					if (not _detalhes.tabela_vigente.end_time) then

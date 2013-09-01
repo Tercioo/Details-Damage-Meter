@@ -19,6 +19,9 @@ function _detalhes:SaveDataOnLogout()
 --> get data
 
 -- On Character
+	
+	--> nicktag cache
+	_detalhes_database.nick_tag_cache = _detalhes.nick_tag_cache
 
 	--> save instances (windows)
 		_detalhes_database.tabela_instancias = _detalhes.tabela_instancias
@@ -137,6 +140,9 @@ end --]]
 	
 	if (_detalhes_database) then
 	
+	--> nicktag cache
+		_detalhes.nick_tag_cache = _detalhes_database.nick_tag_cache or {}
+		_detalhes:NickTagSetCache (_detalhes.nick_tag_cache)
 
 	--> build basic containers
 		_detalhes.tabela_historico = _detalhes_database.tabela_historico or _detalhes.historico:NovoHistorico() -- segments
@@ -240,6 +246,13 @@ end --]]
 		
 		-- version
 		_detalhes.last_realversion = _detalhes_database.last_realversion or _detalhes.realversion
+		if (_detalhes.last_realversion < _detalhes.realversion) then
+			--> details was been hard upgraded
+			_detalhes.tabela_historico = _detalhes.historico:NovoHistorico()
+			_detalhes.tabela_pets = _detalhes.container_pets:NovoContainer()
+			_detalhes.tabela_overall = _detalhes.combate:NovaTabela()
+			_detalhes.tabela_vigente = _detalhes.combate:NovaTabela (_, _detalhes.tabela_overall)
+		end
 
 	else
 		_detalhes.tabela_instancias = {}

@@ -146,7 +146,11 @@ function _detalhes:ToolTipDead (instancia, morte, esta_barra)
 
 	GameCooltip:SetOption ("StatusBarHeightMod", -6)
 	GameCooltip:SetOption ("FixedWidth", 300)
-	GameCooltip:SetOption ("TextSize", 9.5)
+	GameCooltip:SetOption ("TextSize", 9)
+	GameCooltip:SetOption ("LeftBorderSize", -4)
+	GameCooltip:SetOption ("RightBorderSize", 5)
+	GameCooltip:SetOption ("StatusBarTexture", [[Interface\AddOns\Details\images\bar4_reverse]])
+	
 	GameCooltip:ShowCooltip()
 	
 	--_detalhes.popup:ShowMe (esta_barra, "tooltip_bars", linhas, 300, 16, 9) --> [1] ancora [2] tipo do painel [3] texto/linhas [4] largura [5] tamanho do icone e altura da barra [6] tamanho da fonte
@@ -251,6 +255,8 @@ function atributo_misc:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 				keyName = "dispell"
 			elseif (sub_atributo == 5) then --> DEATHS
 				keyName = "dead"
+			elseif (sub_atributo == 6) then --> DEFENSIVE COOLDOWNS
+				keyName = "cooldowns_defensive"
 			end
 		else
 			keyName = exportar.key
@@ -274,6 +280,8 @@ function atributo_misc:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 			keyName = "dispell"
 		elseif (sub_atributo == 5) then --> DEATHS
 			keyName = "dead"
+		elseif (sub_atributo == 6) then --> DEFENSIVE COOLDOWNS
+			keyName = "cooldowns_defensive"
 		end
 	
 	end
@@ -514,6 +522,8 @@ function atributo_misc:ToolTip (instancia, numero, barra)
 		return self:ToolTipDispell (instancia, numero, barra)
 	elseif (instancia.sub_atributo == 5) then --> mortes
 		return self:ToolTipDead (instancia, numero, barra)
+	elseif (instancia.sub_atributo == 6) then --> defensive cooldowns
+		return self:ToolTipDefensiveCooldowns (instancia, numero, barra)
 	end
 end
 --> tooltip locals
@@ -598,13 +608,19 @@ function atributo_misc:ToolTipDispell (instancia, numero, barra)
 	end
 	_table_sort (meus_dispells, function(a, b) return a[2] > b[2] end)
 	
-	GameTooltip:AddLine (Loc ["STRING_SPELLS"]..":") 
+	GameCooltip:AddLine (Loc ["STRING_SPELLS"].."", nil, nil, headerColor, nil, 12)
+	--GameCooltip:AddIcon ([[Interface\ICONS\inv_emberweavebandage2]], 1, 1, 14, 14, 0.078125, 0.9375, 0.078125, 0.953125)
+	--GameCooltip:AddIcon ([[Interface\ICONS\INV_Enchant_Disenchant]], 1, 1, 14, 14, 0.078125, 0.9375, 0.078125, 0.953125)
+	GameCooltip:AddIcon ([[Interface\ICONS\Spell_Arcane_ArcaneTorrent]], 1, 1, 14, 14, 0.078125, 0.9375, 0.078125, 0.953125)
+	GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
+	
 	if (#meus_dispells > 0) then
 		for i = 1, _math_min (3, #meus_dispells) do
 			local esta_habilidade = meus_dispells[i]
 			local nome_magia, _, icone_magia = _GetSpellInfo (esta_habilidade[1])
 			GameCooltip:AddLine (nome_magia..": ", esta_habilidade[2].." (".._cstr("%.1f", esta_habilidade[2]/meu_total*100).."%)")
 			GameCooltip:AddIcon (icone_magia, nil, nil, 14, 14)
+			GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
 		end
 	else
 		GameTooltip:AddLine (Loc ["STRING_NO_SPELL"])
@@ -617,17 +633,131 @@ function atributo_misc:ToolTipDispell (instancia, numero, barra)
 	end
 	_table_sort (buffs_dispelados, function(a, b) return a[2] > b[2] end)
 	
-	GameTooltip:AddLine (Loc ["STRING_DISPELLED"] .. ":") 
+	GameCooltip:AddLine (Loc ["STRING_DISPELLED"] .. ":", nil, nil, headerColor, nil, 12)
+	GameCooltip:AddIcon ([[Interface\ICONS\Spell_Arcane_ManaTap]], 1, 1, 14, 14, 0.078125, 0.9375, 0.078125, 0.953125)
+	GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
+
 	if (#buffs_dispelados > 0) then
 		for i = 1, _math_min (3, #buffs_dispelados) do
 			local esta_habilidade = buffs_dispelados[i]
 			local nome_magia, _, icone_magia = _GetSpellInfo (esta_habilidade[1])
 			GameCooltip:AddLine (nome_magia..": ", esta_habilidade[2].." (".._cstr("%.1f", esta_habilidade[2]/meu_total*100).."%)")
 			GameCooltip:AddIcon (icone_magia, nil, nil, 14, 14)
+			GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
+		end
+	end
+	
+	GameCooltip:AddLine (Loc ["STRING_TARGETS"].."", nil, nil, headerColor, nil, 12)
+	GameCooltip:AddIcon ([[Interface\ICONS\ACHIEVEMENT_GUILDPERK_EVERYONES A HERO_RANK2]], 1, 1, 14, 14, 0.078125, 0.9375, 0.078125, 0.953125)
+	GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
+	
+	local alvos_dispelados = {}
+	for _, TargetTable in _ipairs (self.dispell_targets._ActorTable) do
+		alvos_dispelados [#alvos_dispelados + 1] = {TargetTable.nome, TargetTable.total, TargetTable.total/meu_total*100}
+	end
+	_table_sort (alvos_dispelados, _detalhes.Sort2)
+	
+	for i = 1, _math_min (3, #alvos_dispelados) do
+		if (alvos_dispelados[i][2] < 1) then
+			break
+		end
+		
+		GameCooltip:AddLine (alvos_dispelados[i][1]..": ", _detalhes:comma_value (alvos_dispelados[i][2]) .." (".._cstr ("%.1f", alvos_dispelados[i][3]).."%)")
+		GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
+		
+		local targetActor = instancia.showing[4]:PegarCombatente (_, alvos_dispelados[i][1])
+		
+		if (targetActor) then
+			local classe = targetActor.classe
+			if (not classe) then
+				classe = "UNKNOW"
+			end
+			if (classe == "UNKNOW") then
+				GameCooltip:AddIcon ("Interface\\LFGFRAME\\LFGROLE_BW", nil, nil, 14, 14, .25, .5, 0, 1)
+			else
+				GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small", nil, nil, 14, 14, _unpack (_detalhes.class_coords [classe]))
+			end
 		end
 	end
 	
 	return true
+end
+
+function atributo_misc:ToolTipDefensiveCooldowns (instancia, numero, barra)
+	
+	local owner = self.owner
+	if (owner and owner.classe) then
+		r, g, b = unpack (_detalhes.class_colors [owner.classe])
+	else
+		r, g, b = unpack (_detalhes.class_colors [self.classe])
+	end	
+	
+	local meu_total = self ["cooldowns_defensive"]
+	local minha_tabela = self.cooldowns_defensive_spell_tables._ActorTable
+	
+--> habilidade usada para interromper
+	local cooldowns_usados = {}
+	
+	for _spellid, _tabela in _pairs (minha_tabela) do
+		cooldowns_usados [#cooldowns_usados+1] = {_spellid, _tabela.counter}
+	end
+	_table_sort (cooldowns_usados, function(a, b) return a[2] > b[2] end)
+	
+	
+	GameCooltip:AddLine (Loc ["STRING_SPELLS"].."", nil, nil, headerColor, nil, 12)
+	GameCooltip:AddIcon ([[Interface\ICONS\Ability_Warrior_Safeguard]], 1, 1, 14, 14, 0.9375, 0.078125, 0.078125, 0.953125)
+	GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
+	
+	if (#cooldowns_usados > 0) then
+		for i = 1, _math_min (3, #cooldowns_usados) do
+			local esta_habilidade = cooldowns_usados[i]
+			local nome_magia, _, icone_magia = _GetSpellInfo (esta_habilidade[1])
+			GameCooltip:AddLine (nome_magia..": ", esta_habilidade[2].." (".._cstr("%.1f", esta_habilidade[2]/meu_total*100).."%)")
+			GameCooltip:AddIcon (icone_magia, nil, nil, 14, 14) --0.03125, 0.96875, 0.03125, 0.96875
+			GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
+		end
+	else
+		GameCooltip:AddLine (Loc ["STRING_NO_SPELL"]) 
+	end
+
+--> quem foi que o cara reviveu
+	local meus_alvos = self.cooldowns_defensive_targets._ActorTable
+	local alvos = {}
+	
+	for _, _tabela in _ipairs (meus_alvos) do
+		alvos [#alvos+1] = {_tabela.nome, _tabela.total}
+	end
+	_table_sort (alvos, function(a, b) return a[2] > b[2] end)
+	
+	GameCooltip:AddLine (Loc ["STRING_TARGETS"].."", nil, nil, headerColor, nil, 12)
+	GameCooltip:AddIcon ([[Interface\ICONS\Ability_Warrior_DefensiveStance]], 1, 1, 14, 14, 0.9375, 0.125, 0.0625, 0.9375)
+	GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
+	
+	if (#alvos > 0) then
+		for i = 1, _math_min (3, #alvos) do
+			GameCooltip:AddLine (alvos[i][1]..": ", alvos[i][2], 1, "white", "white")
+			GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
+			
+			GameCooltip:AddIcon ("Interface\\Icons\\PALADIN_HOLY", nil, nil, 14, 14)
+			
+			local targetActor = instancia.showing[4]:PegarCombatente (_, alvos[i][1])
+			if (targetActor) then
+				local classe = targetActor.classe
+				if (not classe) then
+					classe = "UNKNOW"
+				end
+				if (classe == "UNKNOW") then
+					GameCooltip:AddIcon ("Interface\\LFGFRAME\\LFGROLE_BW", nil, nil, 14, 14, .25, .5, 0, 1)
+				else
+					GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small", nil, nil, 14, 14, _unpack (_detalhes.class_coords [classe]))
+				end
+			end
+			
+		end
+	end
+	
+	return true
+	
 end
 
 function atributo_misc:ToolTipRess (instancia, numero, barra)
@@ -650,16 +780,20 @@ function atributo_misc:ToolTipRess (instancia, numero, barra)
 	end
 	_table_sort (meus_ress, function(a, b) return a[2] > b[2] end)
 	
-	GameTooltip:AddLine (Loc ["STRING_SPELLS"]..":") 
+	GameCooltip:AddLine (Loc ["STRING_SPELLS"].."", nil, nil, headerColor, nil, 12)
+	GameCooltip:AddIcon ([[Interface\ICONS\Ability_Paladin_BlessedMending]], 1, 1, 14, 14, 0.098125, 0.828125, 0.953125, 0.168125)
+	GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
+	
 	if (#meus_ress > 0) then
 		for i = 1, _math_min (3, #meus_ress) do
 			local esta_habilidade = meus_ress[i]
 			local nome_magia, _, icone_magia = _GetSpellInfo (esta_habilidade[1])
 			GameCooltip:AddLine (nome_magia..": ", esta_habilidade[2].." (".._cstr("%.1f", esta_habilidade[2]/meu_total*100).."%)")
 			GameCooltip:AddIcon (icone_magia, nil, nil, 14, 14)
+			GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
 		end
 	else
-		GameTooltip:AddLine (Loc ["STRING_NO_SPELL"]) 
+		GameCooltip:AddLine (Loc ["STRING_NO_SPELL"]) 
 	end
 
 --> quem foi que o cara reviveu
@@ -671,11 +805,30 @@ function atributo_misc:ToolTipRess (instancia, numero, barra)
 	end
 	_table_sort (alvos, function(a, b) return a[2] > b[2] end)
 	
-	GameTooltip:AddLine (Loc ["STRING_TARGETS"]..":")
+	GameCooltip:AddLine (Loc ["STRING_TARGETS"].."", nil, nil, headerColor, nil, 12)
+	--GameCooltip:AddIcon ([[Interface\ICONS\Ability_DeathKnight_IcyGrip]], 1, 1, 14, 14, 0.9375, 0.078125, 0.953125, 0.078125)
+	
+	GameCooltip:AddIcon ([[Interface\ICONS\Ability_Priest_Cascade]], 1, 1, 14, 14, 0.9375, 0.0625, 0.0625, 0.9375)
+	GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
+	
 	if (#alvos > 0) then
 		for i = 1, _math_min (3, #alvos) do
 			GameCooltip:AddLine (alvos[i][1]..": ", alvos[i][2])
-			GameCooltip:AddIcon ("Interface\\Icons\\PALADIN_HOLY", nil, nil, 14, 14)
+			GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
+			
+			local targetActor = instancia.showing[4]:PegarCombatente (_, alvos[i][1])
+			if (targetActor) then
+				local classe = targetActor.classe
+				if (not classe) then
+					classe = "UNKNOW"
+				end
+				if (classe == "UNKNOW") then
+					GameCooltip:AddIcon ("Interface\\LFGFRAME\\LFGROLE_BW", nil, nil, 14, 14, .25, .5, 0, 1)
+				else
+					GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small", nil, nil, 14, 14, _unpack (_detalhes.class_coords [classe]))
+				end
+			end
+			
 		end
 	end
 	
@@ -703,13 +856,17 @@ function atributo_misc:ToolTipInterrupt (instancia, numero, barra)
 	end
 	_table_sort (meus_interrupts, function(a, b) return a[2] > b[2] end)
 	
-	GameTooltip:AddLine (Loc ["STRING_SPELLS"]..":")
+	GameCooltip:AddLine (Loc ["STRING_SPELLS"].."", nil, nil, headerColor, nil, 12)
+	GameCooltip:AddIcon ([[Interface\ICONS\Ability_Warrior_PunishingBlow]], 1, 1, 14, 14, 0.9375, 0.078125, 0.078125, 0.953125)
+	GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
+	
 	if (#meus_interrupts > 0) then
 		for i = 1, _math_min (3, #meus_interrupts) do
 			local esta_habilidade = meus_interrupts[i]
 			local nome_magia, _, icone_magia = _GetSpellInfo (esta_habilidade[1])
 			GameCooltip:AddLine (nome_magia..": ", esta_habilidade[2].." (".._cstr("%.1f", esta_habilidade[2]/meu_total*100).."%)")
 			GameCooltip:AddIcon (icone_magia, nil, nil, 14, 14)
+			GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
 		end
 	else
 		GameTooltip:AddLine (Loc ["STRING_NO_SPELL"])
@@ -723,13 +880,17 @@ function atributo_misc:ToolTipInterrupt (instancia, numero, barra)
 	end
 	_table_sort (habilidades_interrompidas, function(a, b) return a[2] > b[2] end)
 	
-	GameTooltip:AddLine (Loc ["STRING_SPELL_INTERRUPTED"] .. ":")
+	GameCooltip:AddLine (Loc ["STRING_SPELL_INTERRUPTED"] .. ":", nil, nil, headerColor, nil, 12)
+	GameCooltip:AddIcon ([[Interface\ICONS\Ability_Warrior_Sunder]], 1, 1, 14, 14, 0.078125, 0.9375, 0.128125, 0.913125)
+	GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
+	
 	if (#habilidades_interrompidas > 0) then
 		for i = 1, _math_min (3, #habilidades_interrompidas) do
 			local esta_habilidade = habilidades_interrompidas[i]
 			local nome_magia, _, icone_magia = _GetSpellInfo (esta_habilidade[1])
 			GameCooltip:AddLine (nome_magia..": ", esta_habilidade[2].." (".._cstr("%.1f", esta_habilidade[2]/meu_total*100).."%)")
 			GameCooltip:AddIcon (icone_magia, nil, nil, 14, 14)
+			GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
 		end
 	end
 	
@@ -1063,6 +1224,11 @@ function _detalhes.refresh:r_atributo_misc (este_jogador, shadow)
 			_detalhes.refresh:r_container_combatentes (este_jogador.interrupt_targets, shadow.interrupt_targets)
 			_detalhes.refresh:r_container_habilidades (este_jogador.interrupt_spell_tables, shadow.interrupt_spell_tables)
 		end
+		--> refresh cooldowns defensive
+		if (este_jogador.cooldowns_defensive_targets) then
+			_detalhes.refresh:r_container_combatentes (este_jogador.cooldowns_defensive_targets, shadow.cooldowns_defensive_targets)
+			_detalhes.refresh:r_container_habilidades (este_jogador.cooldowns_defensive_spell_tables, shadow.cooldowns_defensive_spell_tables)
+		end
 		
 		--> refresh ressers
 		if (este_jogador.ress_targets) then
@@ -1087,6 +1253,11 @@ function _detalhes.refresh:r_atributo_misc (este_jogador, shadow)
 		if (este_jogador.interrupt_targets) then
 			_detalhes.refresh:r_container_combatentes (este_jogador.interrupt_targets, -1)
 			_detalhes.refresh:r_container_habilidades (este_jogador.interrupt_spell_tables, -1)
+		end
+		--> refresh cooldowns defensive
+		if (este_jogador.cooldowns_defensive_targets) then
+			_detalhes.refresh:r_container_combatentes (este_jogador.cooldowns_defensive_targets, -1)
+			_detalhes.refresh:r_container_habilidades (este_jogador.cooldowns_defensive_spell_tables, -1)
 		end
 		
 		--> refresh ressers
@@ -1119,6 +1290,10 @@ function _detalhes.clear:c_atributo_misc (este_jogador)
 	if (este_jogador.interrupt_targets) then
 		_detalhes.clear:c_container_combatentes (este_jogador.interrupt_targets)
 		_detalhes.clear:c_container_habilidades (este_jogador.interrupt_spell_tables)
+	end
+	if (este_jogador.cooldowns_defensive_targets) then
+		_detalhes.clear:c_container_combatentes (este_jogador.cooldowns_defensive_targets)
+		_detalhes.clear:c_container_habilidades (este_jogador.cooldowns_defensive_spell_tables)
 	end
 	
 	if (este_jogador.ress_targets) then
@@ -1185,6 +1360,42 @@ atributo_misc.__add = function (shadow, tabela2)
 			end
 			shadow.interrompeu_oque [spellid] = shadow.interrompeu_oque [spellid] + amount
 		end
+		
+	end
+	
+	if (tabela2.cooldowns_defensive) then
+	
+		shadow.cooldowns_defensive = shadow.cooldowns_defensive + tabela2.cooldowns_defensive
+		_detalhes.tabela_overall.totals[4]["cooldowns_defensive"] = _detalhes.tabela_overall.totals[4]["cooldowns_defensive"] + tabela2.cooldowns_defensive
+		
+		if (tabela2.grupo) then
+			_detalhes.tabela_overall.totals_grupo[4]["cooldowns_defensive"] = _detalhes.tabela_overall.totals_grupo[4]["cooldowns_defensive"] + tabela2.cooldowns_defensive
+		end
+		
+		for index, alvo in _ipairs (tabela2.cooldowns_defensive_targets._ActorTable) do 
+			local alvo_shadow = shadow.cooldowns_defensive_targets:PegarCombatente (alvo.serial, alvo.nome, alvo.flag_original, true)
+			alvo_shadow.total = alvo_shadow.total + alvo.total
+		end
+		
+		for spellid, habilidade in _pairs (tabela2.cooldowns_defensive_spell_tables._ActorTable) do 
+			local habilidade_shadow = shadow.cooldowns_defensive_spell_tables:PegaHabilidade (spellid, true, nil, true)
+
+			for index, alvo in _ipairs (habilidade.targets._ActorTable) do 
+				local alvo_shadow = habilidade_shadow.targets:PegarCombatente (alvo.serial, alvo.nome, alvo.flag_original, true)
+				alvo_shadow.total = alvo_shadow.total + alvo.total
+			end
+			
+			for key, value in _pairs (habilidade) do 
+				if (_type (value) == "number") then
+					if (key ~= "id") then
+						if (not habilidade_shadow [key]) then 
+							habilidade_shadow [key] = 0
+						end
+						habilidade_shadow [key] = habilidade_shadow [key] + value
+					end
+				end
+			end
+		end	
 		
 	end
 	
@@ -1334,6 +1545,9 @@ atributo_misc.__sub = function (tabela1, tabela2)
 		for spellid, amt in _pairs (tabela2.interrompeu_oque) do
 			tabela1.interrompeu_oque [spellid] = tabela1.interrompeu_oque [spellid] - amt
 		end
+	end
+	if (tabela1.cooldowns_defensive and tabela2.cooldowns_defensive) then
+		tabela1.cooldowns_defensive = tabela1.cooldowns_defensive - tabela2.cooldowns_defensive
 	end
 	
 	if (tabela1.ress and tabela2.ress) then

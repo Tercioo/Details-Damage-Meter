@@ -585,7 +585,7 @@ local throne_of_thunder = {
 			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Dark Animus]],
 			
 			spell_mechanics =	{
-				[139867] = {0x1, 0x3000}, --> Interrupting Jolt
+				[139867] = {0x1, 0x4000}, --> Interrupting Jolt
 				[138659] = {0x1}, --> Touch of the Animus
 				[138707] = {0x2000, 0x1}, --> Anima Font
 				[138618] = {0x200, 0x10}, --> Matter Swap

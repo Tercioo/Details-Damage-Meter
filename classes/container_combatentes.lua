@@ -259,7 +259,7 @@ function container_combatentes:PegarCombatente (serial, nome, flag, criar, isOwn
 				novo_objeto.shadow = shadow_objeto
 				novo_objeto:CriaLink (shadow_objeto) --> criando o link
 				shadow_objeto.flag = details_flag
-				if (novo_objeto.grupo) then
+				if (novo_objeto.grupo and _detalhes.in_combat) then
 					_detalhes.cache_damage_group [#_detalhes.cache_damage_group+1] = novo_objeto
 				end
 			end
@@ -288,7 +288,7 @@ function container_combatentes:PegarCombatente (serial, nome, flag, criar, isOwn
 				novo_objeto.shadow = shadow_objeto
 				novo_objeto:CriaLink (shadow_objeto)  --> criando o link
 				shadow_objeto.flag = details_flag
-				if (novo_objeto.grupo) then
+				if (novo_objeto.grupo and _detalhes.in_combat) then
 					_detalhes.cache_healing_group [#_detalhes.cache_healing_group+1] = novo_objeto
 				end
 			end
@@ -483,29 +483,3 @@ function _detalhes.clear:c_container_combatentes (container)
 	container.need_refresh = nil
 	container.funcao_de_criacao = nil
 end
-
-	--[[
-	if (not serial) then
-		print ("DEBUG: objeto sem serial: "..nome)
-		novo_objeto.classe = "UNKNOW"
-	else
-		if (_bit_band (flag, 0x00000400) ~= 0) then --> é player
-			
-			local _, engClass, _, engRace  = _GetPlayerInfoByGUID (serial)
-			novo_objeto.classe = engClass
-			--print (novo_objeto.classe)
-			--print ("eh um player ".. nome.." da classe "..engClass)
-		else 
-			--print ("nao eh um player "..nome)
-			local _, engClass = _UnitClass (nome)
-			--print (engClass)
-
-			if (engClass) then
-				novo_objeto.classe = engClass
-			else	
-				novo_objeto.classe = "UNKNOW"
-			end
-		end
-		--novo_objeto.classe = "UNKNOW"
-	end
-	--]]

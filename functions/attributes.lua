@@ -22,7 +22,7 @@ do
 		
 		--[[ HEALING ]]
 			cura = 2,	--> identifier
-			[2] = 4,	-->  sub attributes 
+			[2] = 6,	-->  sub attributes 
 		
 		--[[ ENERGY ]]
 			e_energy = 3,--> identifier
@@ -30,7 +30,7 @@ do
 		
 		--[[ MISC ]]
 			misc = 4,	--> identifier
-			[4] = 5,	-->  sub attributes 
+			[4] = 6,	-->  sub attributes 
 			
 		--[[ CUSTOM ]]
 			custom = 5,
@@ -76,20 +76,26 @@ do
 			hps = 2, 
 			overheal = 3,
 			healing_tanken = 4,
+			heal_enemy_amt = 5,
+			totalabsorb = 6,
 			lista = {	--[[ String Names ]]
 				Loc ["STRING_ATTRIBUTE_HEAL_DONE"],
 				Loc ["STRING_ATTRIBUTE_HEAL_HPS"],
 				Loc ["STRING_ATTRIBUTE_HEAL_OVERHEAL"],
-				Loc ["STRING_ATTRIBUTE_HEAL_TAKEN"]
+				Loc ["STRING_ATTRIBUTE_HEAL_TAKEN"],
+				Loc ["STRING_ATTRIBUTE_HEAL_ENEMY"],
+				Loc ["STRING_ATTRIBUTE_HEAL_PREVENT"],
 			},
 		
 			icones = {
 				{"Interface\\AddOns\\Details\\images\\atributos_icones_heal", {0, .125, 0, 1}},
 				{"Interface\\AddOns\\Details\\images\\atributos_icones_heal", {.125, .25, 0, 1}},
 				{"Interface\\AddOns\\Details\\images\\atributos_icones_heal", {.25, .375, 0, 1}},
-				{"Interface\\AddOns\\Details\\images\\atributos_icones_heal", {.375, .5, 0, 1}}
+				{"Interface\\AddOns\\Details\\images\\atributos_icones_heal", {.375, .5, 0, 1}},
+				{"Interface\\AddOns\\Details\\images\\atributos_icones_heal", {.5, 0.625, 0, 1}},
+				{"Interface\\AddOns\\Details\\images\\atributos_icones_heal", {0.625, 0.75, 0, 1}}
 			},
-			internal = {"total", "last_hps", "totalover", "healing_taken"}
+			internal = {"total", "last_hps", "totalover", "healing_taken", "heal_enemy_amt", "totalabsorb"}
 		},
 		
 		{
@@ -120,21 +126,24 @@ do
 			kick = 3,
 			dispell = 4,
 			deaths = 5,
+			cooldowns_defensive = 6,
 			lista = {	--[[ String Names ]]
 				Loc ["STRING_ATTRIBUTE_MISC_CCBREAK"],
 				Loc ["STRING_ATTRIBUTE_MISC_RESS"],
 				Loc ["STRING_ATTRIBUTE_MISC_INTERRUPT"],
 				Loc ["STRING_ATTRIBUTE_MISC_DISPELL"],
 				Loc ["STRING_ATTRIBUTE_MISC_DEAD"],
+				Loc ["STRING_ATTRIBUTE_MISC_DEFENSIVE_COOLDOWNS"],
 			},
 			icones = {
 				{"Interface\\AddOns\\Details\\images\\atributos_icones_misc", {0, .125, 0, 1}},
 				{"Interface\\AddOns\\Details\\images\\atributos_icones_misc", {.125, .25, 0, 1}},
 				{"Interface\\AddOns\\Details\\images\\atributos_icones_misc", {.25, .375, 0, 1}},
 				{"Interface\\AddOns\\Details\\images\\atributos_icones_misc", {.375, .5, 0, 1}},
-				{"Interface\\AddOns\\Details\\images\\atributos_icones_misc", {.5, .625, 0, 1}}
+				{"Interface\\AddOns\\Details\\images\\atributos_icones_misc", {.5, .625, 0, 1}},
+				{"Interface\\AddOns\\Details\\images\\atributos_icones_misc", {.625, 0.75, 0, 1}}
 			},
-			internal = {"cc_break", "ress", "interrupt", "dispell", "dead"}
+			internal = {"cc_break", "ress", "interrupt", "dispell", "dead", "cooldowns_defensive"}
 		}
 	}
 	

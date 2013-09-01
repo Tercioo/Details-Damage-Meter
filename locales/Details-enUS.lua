@@ -130,6 +130,8 @@ if not Loc then return end
 		Loc ["STRING_ATTRIBUTE_HEAL_HPS"] = "Healing Per Second"
 		Loc ["STRING_ATTRIBUTE_HEAL_OVERHEAL"] = "Overhealing"
 		Loc ["STRING_ATTRIBUTE_HEAL_TAKEN"] = "Healing Taken"
+		Loc ["STRING_ATTRIBUTE_HEAL_ENEMY"] = "Enemy Healed"
+		Loc ["STRING_ATTRIBUTE_HEAL_PREVENT"] = "Damage Prevented"
 	
 	Loc ["STRING_ATTRIBUTE_ENERGY"] = "Energy"
 		Loc ["STRING_ATTRIBUTE_ENERGY_MANA"] = "Mana Restored"
@@ -143,6 +145,7 @@ if not Loc then return end
 		Loc ["STRING_ATTRIBUTE_MISC_INTERRUPT"] = "Interrupts"
 		Loc ["STRING_ATTRIBUTE_MISC_DISPELL"] = "Dispells"
 		Loc ["STRING_ATTRIBUTE_MISC_DEAD"] = "Deaths"
+		Loc ["STRING_ATTRIBUTE_MISC_DEFENSIVE_COOLDOWNS"] = "Cooldowns"
 		
 	Loc ["STRING_ATTRIBUTE_CUSTOM"] = "Custom"
 

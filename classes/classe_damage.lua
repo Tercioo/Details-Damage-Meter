@@ -244,7 +244,7 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 		if (_detalhes.in_combat) then
 			using_cache = true
 		end
-			
+		
 		if (using_cache) then
 			conteudo = _detalhes.cache_damage_group
 		
@@ -741,7 +741,8 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra)
 		--leftText, rightText, frame, ColorR, ColorG, ColorB, ColorA, ColorR1, ColorG2, ColorB3, ColorA4, fontSize, fontFace
 
 		GameCooltip:AddLine (Loc ["STRING_SPELLS"].."", nil, nil, headerColor, nil, 12)
-		GameCooltip:AddIcon ([[Interface\HELPFRAME\HotIssueIcon]], 1, 1, 14, 14, 0.0625, 0.90625, 0, 1)
+		--GameCooltip:AddIcon ([[Interface\HELPFRAME\HotIssueIcon]], 1, 1, 14, 14, 0.0625, 0.90625, 0, 1)
+		GameCooltip:AddIcon ([[Interface\ICONS\Spell_Shaman_BlessingOfTheEternals]], 1, 1, 14, 14, 0.90625, 0.109375, 0.15625, 0.875)
 		GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
 
 		local tooltip_max_abilities = _detalhes.tooltip_max_abilities
@@ -769,7 +770,6 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra)
 		--> MOSTRA INIMIGOS
 		if (instancia.sub_atributo == 1) then
 			GameCooltip:AddLine (Loc ["STRING_TARGETS"].."", nil, nil, headerColor, nil, 12)
-			--GameCooltip:AddIcon ([[Interface\Addons\Details\images\icons]], 1, 1, 14, 14, 0.03515625, 0.087890625, 0.0234375, 0.09765625, _detalhes.class_colors [self.classe])
 			GameCooltip:AddIcon ([[Interface\Addons\Details\images\icons]], 1, 1, 14, 14, 0, 0.03125, 0.126953125, 0.15625)
 			GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
 			

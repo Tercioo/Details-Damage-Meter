@@ -99,6 +99,12 @@
 					_combate.totals_grupo [_actor.tipo] ["interrupt"] = _combate.totals_grupo [_actor.tipo] ["interrupt"] - _actor.interrupt 
 				end
 			end
+			if (_actor.cooldowns_defensive) then 
+				_combate.totals [_actor.tipo] ["cooldowns_defensive"] = _combate.totals [_actor.tipo] ["cooldowns_defensive"] - _actor.cooldowns_defensive 
+				if (_actor.grupo) then
+					_combate.totals_grupo [_actor.tipo] ["cooldowns_defensive"] = _combate.totals_grupo [_actor.tipo] ["cooldowns_defensive"] - _actor.cooldowns_defensive 
+				end
+			end
 			if (_actor.dispell) then 
 				_combate.totals [_actor.tipo] ["dispell"] = _combate.totals [_actor.tipo] ["dispell"] - _actor.dispell 
 				if (_actor.grupo) then
@@ -208,8 +214,6 @@
 							
 						elseif (class_type == class_type_misc) then
 						
-						-- o problema ta na habilidade do interrupt, aqui ele só ta recriando os containers no Actor principal e não esta itinerando nas habilidades
-						
 							shadow = overall_misc._ActorTable [overall_misc._NameIndexTable[nome]]
 							
 							if (not shadow) then 
@@ -217,6 +221,14 @@
 								shadow.classe = esta_classe.classe
 							end
 
+							if (esta_classe.cooldowns_defensive) then
+								if (not shadow.cooldowns_defensive_targets) then
+									shadow.cooldowns_defensive = 0
+									shadow.cooldowns_defensive_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
+									shadow.cooldowns_defensive_spell_tables = container_habilidades:NovoContainer (_detalhes.container_type.CONTAINER_MISC_CLASS) --> cria o container das habilidades usadas para interromper
+								end
+							end
+							
 							if (esta_classe.interrupt) then
 								if (not shadow.interrupt_targets) then
 									shadow.interrupt = 0
@@ -260,6 +272,11 @@
 									_detalhes.refresh:r_alvo_da_habilidade (este_alvo, shadow.interrupt_targets)
 								end
 							end
+							if (esta_classe.cooldowns_defensive) then
+								for _, este_alvo in _ipairs (esta_classe.cooldowns_defensive_targets._ActorTable) do
+									_detalhes.refresh:r_alvo_da_habilidade (este_alvo, shadow.cooldowns_defensive_targets)
+								end
+							end
 							if (esta_classe.ress) then
 								for _, este_alvo in _ipairs (esta_classe.ress_targets._ActorTable) do
 									_detalhes.refresh:r_alvo_da_habilidade (este_alvo, shadow.ress_targets)
@@ -301,6 +318,15 @@
 							if (esta_classe.interrupt) then
 								for _, habilidade in _pairs (esta_classe.interrupt_spell_tables._ActorTable) do
 									_detalhes.refresh:r_habilidade_misc (habilidade, shadow.interrupt_spell_tables)
+									
+									for _, este_alvo in _ipairs (habilidade.targets._ActorTable) do
+										_detalhes.refresh:r_alvo_da_habilidade (este_alvo, habilidade.targets.shadow)
+									end
+								end
+							end
+							if (esta_classe.cooldowns_defensive) then
+								for _, habilidade in _pairs (esta_classe.cooldowns_defensive_spell_tables._ActorTable) do
+									_detalhes.refresh:r_habilidade_misc (habilidade, shadow.cooldowns_defensive_spell_tables)
 									
 									for _, este_alvo in _ipairs (habilidade.targets._ActorTable) do
 										_detalhes.refresh:r_alvo_da_habilidade (este_alvo, habilidade.targets.shadow)
@@ -468,6 +494,12 @@
 											_combate.totals_grupo [myself.tipo] ["ress"] = _combate.totals_grupo [myself.tipo] ["ress"] - myself.ress
 										end
 									end
+									if (myself.cooldowns_defensive) then 
+										_combate.totals [myself.tipo] ["cooldowns_defensive"] = _combate.totals [myself.tipo] ["cooldowns_defensive"] - myself.cooldowns_defensive 
+										if (myself.grupo) then
+											_combate.totals_grupo [myself.tipo] ["cooldowns_defensive"] = _combate.totals_grupo [myself.tipo] ["cooldowns_defensive"] - myself.cooldowns_defensive 
+										end
+									end
 									if (myself.interrupt) then 
 										_combate.totals [myself.tipo] ["interrupt"] = _combate.totals [myself.tipo] ["interrupt"] - myself.interrupt 
 										if (myself.grupo) then
@@ -524,6 +556,11 @@
 								_detalhes.clear:c_alvo_da_habilidade (_alvo)
 							end
 						end
+						if (esta_classe.cooldowns_defensive) then
+							for _, _alvo in _ipairs (esta_classe.cooldowns_defensive_targets._ActorTable) do 
+								_detalhes.clear:c_alvo_da_habilidade (_alvo)
+							end
+						end
 						
 						if (esta_classe.ress) then
 							for _, _alvo in _ipairs (esta_classe.ress_targets._ActorTable) do 
@@ -565,6 +602,15 @@
 					else
 						if (esta_classe.interrupt) then
 							for _, habilidade in _pairs (esta_classe.interrupt_spell_tables._ActorTable) do
+								_detalhes.clear:c_habilidade_misc (habilidade)
+								
+								for _, _alvo in ipairs (habilidade.targets._ActorTable) do
+									_detalhes.clear:c_alvo_da_habilidade (_alvo)
+								end
+							end
+						end
+						if (esta_classe.cooldowns_defensive) then
+							for _, habilidade in _pairs (esta_classe.cooldowns_defensive_spell_tables._ActorTable) do
 								_detalhes.clear:c_habilidade_misc (habilidade)
 								
 								for _, _alvo in ipairs (habilidade.targets._ActorTable) do

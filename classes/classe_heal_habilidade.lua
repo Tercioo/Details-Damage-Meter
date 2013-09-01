@@ -24,6 +24,7 @@ function habilidade_cura:NovaTabela (id, link) --aqui eu não sei que parâmetros 
 	local _newHealSpell = {
 	
 		total = 0, 
+		totalabsorb = 0,
 		counter = 0,
 		id = id,
 
@@ -54,6 +55,7 @@ function habilidade_cura:NovaTabela (id, link) --aqui eu não sei que parâmetros 
 	return _newHealSpell
 end
 
+--> o primeiro parametro "spell" vira self a atrasa 1 parâmetro em todos os argumentos.
 function habilidade_cura:Add (serial, nome, flag, amount, who_nome, absorbed, critical, overhealing, is_shield)
 
 	self.counter = self.counter + 1
@@ -79,6 +81,9 @@ function habilidade_cura:Add (serial, nome, flag, amount, who_nome, absorbed, cr
 	if (amount and amount > 0) then
 
 		self.total = self.total + amount
+		if (is_shield) then
+			self.totalabsorb = self.totalabsorb + amount
+		end
 
 		alvo:AddQuantidade (amount)
 
