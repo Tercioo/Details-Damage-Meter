@@ -149,6 +149,16 @@ end --]]
 		_detalhes.tabela_overall = _detalhes.combate:NovaTabela() -- overall
 		_detalhes.tabela_pets = _detalhes_database.tabela_pets or _detalhes.container_pets:NovoContainer() -- pets
 		
+	--> version
+		_detalhes.last_realversion = _detalhes_database.last_realversion or _detalhes.realversion
+		if (_detalhes.last_realversion < _detalhes.realversion) then
+			--> details was been hard upgraded
+			_detalhes.tabela_historico = _detalhes.historico:NovoHistorico()
+			_detalhes.tabela_pets = _detalhes.container_pets:NovoContainer()
+			_detalhes.tabela_overall = _detalhes.combate:NovaTabela()
+			_detalhes.tabela_vigente = _detalhes.combate:NovaTabela (_, _detalhes.tabela_overall)
+		end
+		
 	--> re-build all indexes and metatables
 		_detalhes:RestauraMetaTables()
 		
@@ -243,16 +253,6 @@ end --]]
 		_detalhes_database.tabela_vigente = nil
 		_detalhes_database.tabela_historico = nil
 		_detalhes_database.tabela_pets = nil
-		
-		-- version
-		_detalhes.last_realversion = _detalhes_database.last_realversion or _detalhes.realversion
-		if (_detalhes.last_realversion < _detalhes.realversion) then
-			--> details was been hard upgraded
-			_detalhes.tabela_historico = _detalhes.historico:NovoHistorico()
-			_detalhes.tabela_pets = _detalhes.container_pets:NovoContainer()
-			_detalhes.tabela_overall = _detalhes.combate:NovaTabela()
-			_detalhes.tabela_vigente = _detalhes.combate:NovaTabela (_, _detalhes.tabela_overall)
-		end
 
 	else
 		_detalhes.tabela_instancias = {}
