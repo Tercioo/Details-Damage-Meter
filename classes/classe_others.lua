@@ -76,8 +76,6 @@ function _detalhes:ToolTipDead (instancia, morte, esta_barra)
 	local hora_da_morte = morte [2]
 	local hp_max = morte [5]
 	
-	local linhas = {}
-	
 	local battleress = false
 	
 	local GameCooltip = GameCooltip
@@ -180,7 +178,7 @@ end
 
 function atributo_misc:DeadAtualizarBarra (morte, qual_barra, colocacao, instancia)
 
-	morte ["dead"] = true --> temporario (testes)
+	morte ["dead"] = true --> marca que esta tabela é uma tabela de mortes, usado no controla na hora de montar o tooltip
 	local esta_barra = instancia.barras[qual_barra] --> pega a referência da barra na janela
 	
 	if (not esta_barra) then

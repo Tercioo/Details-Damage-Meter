@@ -136,6 +136,7 @@ end
 
 habilidade_cura.__sub = function (tabela1, tabela2)
 	tabela1.total = tabela1.total - tabela2.total
+	tabela1.totalabsorb = tabela1.totalabsorb - tabela2.totalabsorb
 	tabela1.counter = tabela1.counter - tabela2.counter
 
 	tabela1.n_min = tabela1.n_min - tabela2.n_min

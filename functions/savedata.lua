@@ -80,11 +80,15 @@ function _detalhes:SaveDataOnLogout()
 		--> precisa pegar o nome do plugin
 		if (_detalhes.SoloTables.Mode) then
 			_detalhes_database.SoloTables.Mode = _detalhes.SoloTables.Mode
-			_detalhes_database.SoloTables.LastSelected = _detalhes.SoloTables.Plugins [_detalhes.SoloTables.Mode].real_name
+			if (_detalhes.SoloTables.Plugins [_detalhes.SoloTables.Mode]) then
+				_detalhes_database.SoloTables.LastSelected = _detalhes.SoloTables.Plugins [_detalhes.SoloTables.Mode].real_name
+			end
 		end
 		if (_detalhes.RaidTables.Mode) then
 			_detalhes_database.RaidTables.Mode = _detalhes.RaidTables.Mode
-			_detalhes_database.RaidTables.LastSelected = _detalhes.RaidTables.Plugins [_detalhes.RaidTables.Mode].real_name
+			if (_detalhes.RaidTables.Plugins [_detalhes.RaidTables.Mode]) then
+				_detalhes_database.RaidTables.LastSelected = _detalhes.RaidTables.Plugins [_detalhes.RaidTables.Mode].real_name
+			end
 		end
 	--> buff data
 		_detalhes.Buffs:SaveBuffs()
@@ -99,6 +103,7 @@ function _detalhes:SaveDataOnLogout()
 
 	_detalhes_global = _detalhes_global or {}
 	_detalhes_global.savedStyles = _detalhes.savedStyles
+	_detalhes_global.got_first_run = true
 	--max segments
 	_detalhes_global.segments_amount = _detalhes.segments_amount
 	_detalhes_global.segments_amount_to_save = _detalhes.segments_amount_to_save
@@ -286,8 +291,11 @@ end --]]
 
 	if (_detalhes_global) then
 		--saved styles
-		vardump (_detalhes_global.savedStyles)
+		--vardump (_detalhes_global.savedStyles)
 		_detalhes.savedStyles = _detalhes_global.savedStyles or _detalhes.savedStyles
+		if (not _detalhes_global.got_first_run) then
+			_detalhes.is_first_run = true
+		end
 		--max segments
 		_detalhes.segments_amount = _detalhes_global.segments_amount or _detalhes.segments_amount
 		_detalhes.segments_amount_to_save = _detalhes_global.segments_amount_to_save or _detalhes.segments_amount_to_save

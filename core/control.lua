@@ -80,13 +80,47 @@
 
 								if (BossIndex) then 
 								
+									if (_detalhes.debug) then
+										_detalhes:Msg ("(debug) boss found:",_detalhes:GetBossName (ZoneMapID, BossIndex))
+									end
+								
 									if (_detalhes.in_combat) then
+									
+										--> catch boss function if any
 										local bossFunction, bossFunctionType = _detalhes:GetBossFunction (ZoneMapID, BossIndex)
 										if (bossFunction) then
 											if (_bit_band (bossFunctionType, 0x1) ~= 0) then --realtime
 												_detalhes.bossFunction = bossFunction
 												local combat = _detalhes:GetCombat ("current")
 												combat.bossFunction = _detalhes:ScheduleTimer ("bossFunction", 1)
+											end
+										end
+										
+										--> catch boss end if any
+										local endType, endData = _detalhes:GetEncounterEnd (ZoneMapID, BossIndex)
+										if (endType and endData) then
+										
+											if (_detalhes.debug) then
+												_detalhes:Msg ("(debug) setting boss end type to:", endType)
+											end
+										
+											_detalhes.encounter.type = endType
+											_detalhes.encounter.killed = {}
+											_detalhes.encounter.data = {}
+											
+											if (type (endData) == "table") then
+												if (_detalhes.debug) then
+													_detalhes:Msg ("(debug) boss type is table:", endType)
+												end
+												if (endType == 1 or endType == 2) then
+													for _, npcID in ipairs (endData) do 
+														_detalhes.encounter.data [npcID] = false
+													end
+												end
+											else
+												if (endType == 1 or endType == 2) then
+													_detalhes.encounter.data [endData] = false
+												end
 											end
 										end
 									end
@@ -165,6 +199,8 @@
 				_detalhes:InstanciaCallFunction (_detalhes.InstanciaFadeBarras, -1) --> esconde todas as barras
 				_detalhes:InstanciaCallFunction (_detalhes.AtualizaSegmentos) --> atualiza o showing
 			end
+			
+			table.wipe (_detalhes.encounter)
 			
 			--> conta o tempo na tabela overall -- start time at overall table
 			if (_detalhes.tabela_overall.end_time) then
@@ -465,7 +501,7 @@
 			end
 		end
 		
-		function _detalhes:EqualizeActorsSchedule (host_of)
+		function _detalhes:EqualizePets()
 			--> check for pets without owner
 			for _, actor in _ipairs (_detalhes.tabela_vigente[1]._ActorTable) do 
 				--> have flag and the flag tell us he is a pet
@@ -476,13 +512,31 @@
 					end
 				end
 			end
+		end
+		
+		function _detalhes:EqualizeActorsSchedule (host_of)
+		
+			--> store pets sent through 'needpetowner'
+			_detalhes.sent_pets = _detalhes.sent_pets or {n = time()}
+			if (_detalhes.sent_pets.n+20 < time()) then
+				_table_wipe (_detalhes.sent_pets)
+				_detalhes.sent_pets.n = time()
+			end
+			
+			--> pet equilize disabled on details 1.4.0
+			--_detalhes:ScheduleTimer ("EqualizePets", 1+math.random())
+
 			--> do not equilize if there is any disabled capture
 			if (_detalhes:CaptureIsAllEnabled()) then
-				_detalhes:ScheduleTimer ("EqualizeActors", 2, host_of)
+				_detalhes:ScheduleTimer ("EqualizeActors", 2+math.random()+math.random() , host_of)
 			end
 		end
 		
 		function _detalhes:EqualizeActors (host_of)
+		
+			if (_detalhes.debug) then
+				_detalhes:Msg ("(debug) sending equilize actor data")
+			end
 		
 			local damage, heal, energy, misc
 		
@@ -518,6 +572,7 @@
 			
 			local data = {damage, heal, energy, misc}
 
+			--> envia os dados do proprio host pra ele antes
 			if (host_of) then
 				_detalhes:SendCustomRaidData ("equalize_actors", host_of, nil, data)
 				_detalhes:EqualizeActors()
@@ -598,6 +653,8 @@
 			--verifica por tooltips especiais:
 			if (objeto.dead) then --> é uma barra de dead
 				return _detalhes:ToolTipDead (self, objeto, esta_barra) --> instância, [morte], barra
+			elseif (objeto.frags) then
+				return _detalhes:ToolTipFrags (self, objeto, esta_barra)
 			end
 			
 			local t = objeto:ToolTip (self, qual_barra, esta_barra) --> instância, nº barra, objeto barra
@@ -606,11 +663,15 @@
 				if (esta_barra.minha_tabela.serial and esta_barra.minha_tabela.serial ~= "") then
 					local avatar = NickTag:GetNicknameTable (esta_barra.minha_tabela.serial)
 					if (avatar) then
-						GameCooltip:SetBannerImage (1, avatar [2], 80, 40, avatarPoint, nil, nil) --> overlay [2] avatar path
-						--local l, r, t, b = unpack (avatar [5])
-						--local r, g, b = unpack (avatar [6])
-						GameCooltip:SetBannerImage (2, avatar [4], 200, 55, backgroundPoint, avatar [5], avatar [6]) --> background
-						GameCooltip:SetBannerText (1, avatar [1], textPoint) --> text [1] nickname
+						if (avatar [2]) then
+							GameCooltip:SetBannerImage (1, avatar [2], 80, 40, avatarPoint, nil, nil) --> overlay [2] avatar path
+						end
+						if (avatar [4]) then
+							GameCooltip:SetBannerImage (2, avatar [4], 200, 55, backgroundPoint, avatar [5], avatar [6]) --> background
+						end
+						if (avatar [1]) then
+							GameCooltip:SetBannerText (1, avatar [1], textPoint) --> text [1] nickname
+						end
 					end
 				end
 				

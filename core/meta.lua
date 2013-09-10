@@ -439,6 +439,9 @@
 				local conteudo = _tabela._ActorTable
 
 				--> Limpa tabelas que não estejam em grupo
+				
+				_detalhes.clear_ungrouped = true
+				
 				if (_detalhes.clear_ungrouped) then
 				
 					local _iter = {index = 1, data = conteudo[1], cleaned = 0} --> ._ActorTable[1] para pegar o primeiro index

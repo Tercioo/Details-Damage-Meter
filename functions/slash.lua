@@ -143,8 +143,6 @@ function SlashCmdList.DETAILS (msg, editbox)
 	elseif (msg == "alert") then
 		
 		local instancia = _detalhes.tabela_instancias [1]
-		--instancia:InstanceAlert ("Teste do alerta da instancia", [[Interface\Buttons\UI-GroupLoot-Pass-Down]], 5, clickfunc)
-		--instancia:InstanceAlert ("Teste do alerta da instancia", [[Interface\Buttons\UI-GroupLoot-Pass-Down]], 5, clickfunc)
 		local f = function() print ("teste") end
 		instancia:InstanceAlert (Loc ["STRING_PLEASE_WAIT"], {[[Interface\COMMON\StreamCircle]], 22, 22, true}, 5, {f, "param1", "param2"})
 	
@@ -161,7 +159,8 @@ function SlashCmdList.DETAILS (msg, editbox)
 
 	elseif (msg == "teste") then
 		
-		print (time())
+		local a, b = _detalhes:GetEncounterEnd (1098, 3)
+		print (a, unpack (b))
 		
 	elseif (msg == "yesno") then
 		--_detalhes:Show()

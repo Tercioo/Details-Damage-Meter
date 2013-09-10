@@ -79,13 +79,13 @@ function combate:NovaTabela (iniciada, _tabela_overall, combatId, ...)
 	--> start/end time (duration)
 	esta_tabela.data_fim = 0
 	esta_tabela.data_inicio = 0
-	--esta_tabela.last_event = 0
 	
 	--> record last event before dead
 	esta_tabela.last_events_tables = {}
 	
-	--> record damage data
-	--esta_tabela.DpsGraphic = {max = 0}
+	--> frags
+	esta_tabela.frags = {}
+	esta_tabela.frags_need_refresh = false
 	
 	--> time data container
 	esta_tabela.TimeData = _detalhes.timeContainer:CreateTimeTable()
@@ -168,18 +168,29 @@ end
 
 function combate:TravarTempos()
 	--é necessário travar o tempo em todos os atributos do combate.
-	for index, container in _ipairs (self) do -- aqui ele lista os tipos de atributo listado na lista acima
-		if (index < 3) then --> 3 é e_energy, não possui tempo // 4 é misc tbm não possui tempo
-			for _, jogador in _ipairs (container._ActorTable) do 
-				if (jogador:Iniciar()) then -- retorna se ele esta com o dps ativo
-					jogador:TerminarTempo()
-					jogador:Iniciar (false) --trava o dps do jogador
-					--jogador.last_events_table =  _detalhes:CreateActorLastEventTable()
-				end
+	
+	if (self [1]) then
+		for _, jogador in _ipairs (self [1]._ActorTable) do --> damage
+			if (jogador:Iniciar()) then -- retorna se ele esta com o dps ativo
+				jogador:TerminarTempo()
+				jogador:Iniciar (false) --trava o dps do jogador
+				--jogador.last_events_table =  _detalhes:CreateActorLastEventTable()
 			end
-		else
-			break
 		end
+	else
+		--print ("combat [1] doesn't exist.")
+	end
+	if (self [2]) then
+		for _, jogador in _ipairs (self [2]._ActorTable) do --> healing
+			if (jogador:Iniciar()) then -- retorna se ele esta com o dps ativo
+				jogador:TerminarTempo()
+				jogador:Iniciar (false) --trava o dps do jogador
+				--print ("travando o tempo de",jogador.nome, jogador.end_time)
+				--jogador.last_events_table =  _detalhes:CreateActorLastEventTable()
+			end
+		end
+	else
+		--print ("combat [2] doesn't exist.")
 	end
 end
 
@@ -458,7 +469,6 @@ combate.__sub = function (overall, combate)
 	overall.totals[4].dead = overall.totals[4].dead - combate.totals[4].dead
 	overall.totals[4].cooldowns_defensive = overall.totals[4].cooldowns_defensive - combate.totals[4].cooldowns_defensive
 	
-	
 	overall.totals_grupo[1] = overall.totals_grupo[1] - combate.totals_grupo[1]
 	overall.totals_grupo[2] = overall.totals_grupo[2] - combate.totals_grupo[2]
 	
@@ -473,6 +483,13 @@ combate.__sub = function (overall, combate)
 	overall.totals_grupo[4].dispell = overall.totals_grupo[4].dispell - combate.totals_grupo[4].dispell
 	overall.totals_grupo[4].dead = overall.totals_grupo[4].dead - combate.totals_grupo[4].dead
 	overall.totals_grupo[4].cooldowns_defensive = overall.totals_grupo[4].cooldowns_defensive - combate.totals_grupo[4].cooldowns_defensive
+	
+	for fragName, fragAmount in pairs (combate.frags) do 
+		if (fragAmount and overall.frags [fragName]) then --> not sure why 
+			overall.frags [fragName] = overall.frags [fragName] - fragAmount
+		end
+	end
+	overall.frags_need_refresh = true
 	
 	return overall
 end

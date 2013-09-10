@@ -248,7 +248,8 @@ function gump:NewLabel (parent, container, name, member, text, font, size, color
 	end
 	
 	if (color) then
-		LabelObject.label:SetTextColor (unpack (color))
+		local r, g, b, a = gump:ParseColors (color)
+		LabelObject.label:SetTextColor (r, g, b, a)
 	end
 	
 	LabelObject.label:SetJustifyH ("LEFT")

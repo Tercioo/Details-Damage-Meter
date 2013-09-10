@@ -1,9 +1,9 @@
 ## Interface: 50400
-## Title: Details: Throne of Thunder
+## Title: Details: Siege of Orgrimmar
 ## Notes: Plugin for Details
 ## RequiredDeps: Details
 
 enUS.lua
 ptBR.lua
 
-ThroneOfThunder.lua
+SiegeOfOrgrimmar.lua

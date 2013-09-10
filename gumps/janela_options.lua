@@ -62,7 +62,7 @@ function _detalhes:OpenOptionsWindow (instance)
 		window.panicModeSlider.tooltip = "If enabled, when you are in a raid encounter\nand get dropped from the game, a disconnect for intance,\nDetails! immediately erase all segments\nmaking the disconnect process faster."
 		
 	--------------- Animate Rows
-		g:NewLabel (window, _, "$parentAnimateLabel", "animateLabel", "animate rows")
+		g:NewLabel (window, _, "$parentAnimateLabel", "animateLabel", "dance bars")
 		window.animateLabel:SetPoint (10, -80)
 		--
 		g:NewSwitch (window, _, "$parentAnimateSlider", "animateSlider", 60, 20, _, _, _detalhes.use_row_animations) -- ltext, rtext, defaultv
@@ -122,7 +122,7 @@ function _detalhes:OpenOptionsWindow (instance)
 		g:NewLabel (window, _, "$parentUpdateSpeedLabel", "updatespeedLabel", "update speed")
 		window.updatespeedLabel:SetPoint (10, -125)
 		--
-		g:NewSlider (window, _, "$parentSliderUpdateSpeed", "updatespeedSlider", 160, 20, 0.3, 2, 0.1, _detalhes.update_speed, true) --parent, container, name, member, w, h, min, max, step, defaultv
+		g:NewSlider (window, _, "$parentSliderUpdateSpeed", "updatespeedSlider", 160, 20, 0.3, 3, 0.1, _detalhes.update_speed, true) --parent, container, name, member, w, h, min, max, step, defaultv
 		window.updatespeedSlider:SetPoint ("left", window.updatespeedLabel, "right")
 		window.updatespeedSlider:SetThumbSize (50)
 		window.updatespeedSlider.useDecimals = true
@@ -130,7 +130,7 @@ function _detalhes:OpenOptionsWindow (instance)
 			if (value < 1) then
 				slider.amt:SetTextColor (1, value, 0)
 			elseif (value > 1) then
-				slider.amt:SetTextColor (-(value-2), 1, 0)
+				slider.amt:SetTextColor (-(value-3), 1, 0)
 			else
 				slider.amt:SetTextColor (1, 1, 0)
 			end

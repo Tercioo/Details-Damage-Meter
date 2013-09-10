@@ -1,4 +1,4 @@
-## Interface: 50300
+## Interface: 50400
 ## Title: Details
 ## Notes: Computes detailed infos about combats.
 ## SavedVariables: _detalhes_global
@@ -54,6 +54,7 @@ gumps\janela_info.lua
 gumps\janela_report.lua
 gumps\janela_principal.lua
 gumps\janela_custom.lua
+gumps\janela_welcome.lua
 gumps\fw_mods.lua
 gumps\switch.lua
 gumps\toolbar_button.xml

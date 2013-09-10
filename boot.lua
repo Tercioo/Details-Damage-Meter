@@ -6,20 +6,11 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> global name declaration
 
-		--> fix for old nicktag version
-		if (_G.NickTag) then
-			if (_G.NickTag.OnEvent) then
-				_G.NickTag:UnregisterComm ("NickTag")
-			end
-		end
-
 		_detalhes = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0", "NickTag-1.0")
-		_detalhes.userversion = "v1.3.1"
-		_detalhes.version = "Alpha 005"
-		_detalhes.realversion = 5
+		_detalhes.userversion = "v1.4.0"
+		_detalhes.version = "Alpha 006"
+		_detalhes.realversion = 6
 
-		--_detalhes:NickTagSetCache (_detalhes.NickTagCache)
-		
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> initialization stuff
 

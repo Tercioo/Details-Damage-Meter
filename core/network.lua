@@ -39,7 +39,7 @@
 		local type, player, realm, dversion, arg6, arg7 =  select (2, _detalhes:Deserialize (data))
 		
 		if (_detalhes.debug) then
-			_detalhes:Msg ("(debug) network received command", type)
+			_detalhes:Msg ("(debug) network received:", type, "length:",string.len (data))
 		end
 		
 		if (type == "highfive") then
@@ -48,16 +48,34 @@
 			end
 			
 		elseif (type == "petowner") then
-			local serial = player
-			local nome = realm
-			local owner_table = dversion
+			
+			dversion, serial, nome, owner_table = player, realm, dversion, arg6
+			
+			if (dversion ~= _detalhes.realversion) then
+				return
+			end
+			
+			--> check for miss timing when combat finishes
+			if (not _detalhes.sent_pets) then
+				_detalhes.sent_pets = {n = time()}
+			else
+				if (_detalhes.sent_pets.n+20 < time()) then
+					_table_wipe (_detalhes.sent_pets)
+					_detalhes.sent_pets.n = time()
+				end
+			end
+			
+			_detalhes.sent_pets [serial] = true
 			
 			if (not _detalhes.tabela_pets.pets [serial]) then
 				_detalhes.tabela_pets.pets [serial] = owner_table
 				local petActor = _detalhes.tabela_vigente[1]:PegarCombatente (_, nome)
 				if (petActor) then
+				
 					local ownerActor = _detalhes.tabela_vigente[1]:PegarCombatente (owner_table[2], owner_table[1], owner_table[3], true)
 					ownerActor.total = ownerActor.total + petActor.total
+					ownerActor.pets [#ownerActor.pets+1] = nome
+					
 					if (_detalhes.debug) then
 						_detalhes:Msg ("(debug) received owner for pet ",nome, "assigned to", owner_table[1])
 					end
@@ -75,16 +93,34 @@
 		
 			local petserial = arg6
 			local petnome = arg7
+			
+			--> check for miss timing on combat finishes
+			if (not _detalhes.sent_pets) then
+				_detalhes.sent_pets = {n = time()}
+			else
+				if (_detalhes.sent_pets.n+20 < time()) then
+					_table_wipe (_detalhes.sent_pets)
+					_detalhes.sent_pets.n = time()
+				end
+			end
+			
+			--> already sent
+			if (_detalhes.sent_pets [petserial]) then
+				return
+			else
+				_detalhes.sent_pets [petserial] = true
+			end
+			
 			local owner_table = _detalhes.tabela_pets.pets [petserial]
 			
 			if (owner_table) then
-				if (realm ~= GetRealmName()) then
-					player = player .."-"..realm
-				end
+				
 				if (_detalhes.debug) then
 					_detalhes:Msg ("(debug) received pet owner request, sending owner")
 				end
-				_detalhes:SendCommMessage ("details_comm", _detalhes:Serialize ("petowner", petserial, petnome, owner_table), "WHISPER", player)
+				
+				_detalhes:SendCommMessage ("details_comm", _detalhes:Serialize ("petowner", _detalhes.realversion, petserial, petnome, owner_table), "RAID")
+				--_detalhes:SendCommMessage ("details_comm", _detalhes:Serialize ("petowner", petserial, petnome, owner_table), "WHISPER", player)
 			end
 		
 		elseif (type == "clouddatareceived") then

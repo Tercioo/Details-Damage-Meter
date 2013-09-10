@@ -26,6 +26,7 @@ function _G._detalhes:Start()
 		_detalhes.temp_table1 = {}
 		
 	--> combat
+		self.encounter = {}
 		self.in_combat = false
 		self.combat_id = self.combat_id or 0
 		self.instances_amount = self.instances_amount or 12
@@ -127,13 +128,13 @@ function _G._detalhes:Start()
 
 	--> single click row function replace
 		--damage, dps, damage taken, friendly fire
-			self.row_singleclick_overwrite [1] = {true, true, true, true} 
+			self.row_singleclick_overwrite [1] = {true, true, true, true, self.atributo_damage.ReportSingleFragsLine} 
 		--healing, hps, overheal, healing taken
-			self.row_singleclick_overwrite [2] = {true, true, true, true} 
+			self.row_singleclick_overwrite [2] = {true, true, true, true, false, false} 
 		--mana, rage, energy, runepower
 			self.row_singleclick_overwrite [3] = {true, true, true, true} 
 		--cc breaks, ress, interrupts, dispells, deaths
-			self.row_singleclick_overwrite [4] = {true, true, true, true, self.atributo_misc.ReportSingleDeadLine} 
+			self.row_singleclick_overwrite [4] = {true, true, true, true, self.atributo_misc.ReportSingleDeadLine, false} 
 		
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> initialize
@@ -293,11 +294,15 @@ function _G._detalhes:Start()
 		for index, instancia in ipairs (self.tabela_instancias) do
 			if (instancia.ativa) then
 				self.gump:Fade (instancia._version, 0)
-				instancia._version:SetText ("Details Alpha " .. _detalhes.userversion .. " (" .. self.realversion .. ")")
+				instancia._version:SetText ("Details Alpha " .. _detalhes.userversion .. " (core: " .. self.realversion .. ")")
 				instancia._version:SetPoint ("bottomleft", instancia.baseframe, "bottomleft", 0, 1)
 				self.gump:Fade (instancia._version, "in", 10)
 			end
 		end
 	end
 	
+	if (self.is_first_run) then
+		_detalhes:OpenWelcomeWindow()
+	end
+
 end

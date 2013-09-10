@@ -123,7 +123,7 @@ if not Loc then return end
 		Loc ["STRING_ATTRIBUTE_DAMAGE_DPS"] = "Damage Per Second"
 		Loc ["STRING_ATTRIBUTE_DAMAGE_TAKEN"] = "Damage Taken"
 		Loc ["STRING_ATTRIBUTE_DAMAGE_FRIENDLYFIRE"] = "Friendly Fire"
-
+		Loc ["STRING_ATTRIBUTE_DAMAGE_FRAGS"] = "Frags"
 	
 	Loc ["STRING_ATTRIBUTE_HEAL"] = "Heal"
 		Loc ["STRING_ATTRIBUTE_HEAL_DONE"] = "Healing Done"

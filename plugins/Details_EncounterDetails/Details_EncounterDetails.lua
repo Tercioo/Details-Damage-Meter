@@ -229,7 +229,7 @@ end
 					
 				elseif (event[3]) then
 					
-					local habilidade_school = skillTable [event [2]] --> pegou a tabela com os hex --> aqui 4
+					local habilidade_school = skillTable [event [2]] --> pegou a tabela com os hex
 					local _school = ""
 					
 					if (habilidade_school) then
@@ -656,7 +656,9 @@ function EncounterDetails:OpenAndRefresh()
 				end
 				
 				barra.icone:SetTexture ("Interface\\AddOns\\Details\\images\\classes_small")
-				barra.icone:SetTexCoord (_unpack (CLASS_ICON_TCOORDS [jogador.classe]))
+				if (CLASS_ICON_TCOORDS [jogador.classe]) then
+					barra.icone:SetTexCoord (_unpack (CLASS_ICON_TCOORDS [jogador.classe]))
+				end
 				
 				barra:Show()
 				quantidade = quantidade + 1

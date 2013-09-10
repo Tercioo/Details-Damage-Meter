@@ -1604,7 +1604,7 @@
 
 	------------------------------------------------------------------------------------------------
 	--> early checks and fixes
-
+	
 		if (not alvo_name) then
 			return
 		end
@@ -1612,7 +1612,61 @@
 	------------------------------------------------------------------------------------------------
 	--> build dead
 		
-		if (not _UnitIsFeignDeath (alvo_name)) then
+		--> frags
+		if (alvo_flags and _bit_band (alvo_flags, 0x00000008) ~= 0 and _in_combat) then
+			--> outsider death while in combat
+			
+			if (not _current_combat.frags [alvo_name]) then
+				_current_combat.frags [alvo_name] = 1
+			else
+				_current_combat.frags [alvo_name] = _current_combat.frags [alvo_name] + 1
+			end
+			
+			if (not _overall_combat.frags [alvo_name]) then
+				_overall_combat.frags [alvo_name] = 1
+			else
+				_overall_combat.frags [alvo_name] = _overall_combat.frags [alvo_name] + 1
+			end
+			
+			_current_combat.frags_need_refresh = true
+			_overall_combat.frags_need_refresh = true
+
+			local encounter_type = _detalhes.encounter.type
+			if (encounter_type) then
+				if (encounter_type == 1 or encounter_type == 2) then
+				
+					local npcTable = _detalhes.encounter.data
+					local serial = tonumber (alvo_serial:sub (6, 10), 16)
+
+					--vardump (npcTable)
+					
+					if (npcTable [serial] ~= nil) then --> ~= default false
+					
+						_detalhes.encounter.data [serial] = true
+
+						--> check if it's done
+						local its_done = true
+						for _, killed in pairs (_detalhes.encounter.data) do 
+							if (not killed) then
+								its_done = false
+								break
+							end
+						end
+						
+						--> combat finished
+						if (its_done) then
+							if (_detalhes.debug) then
+								_detalhes:Msg ("(debug) combat finished: encounter objective is completed")
+							end
+							_detalhes:SairDoCombate()
+						end
+					end
+					
+				end
+			end
+
+		--> player death
+		elseif (not _UnitIsFeignDeath (alvo_name)) then
 			if (
 				--> player in your group
 				_bit_band (alvo_flags, AFFILIATION_GROUP) ~= 0 and 
@@ -1837,6 +1891,7 @@
 			token_list ["SPELL_INTERRUPT"] = nil
 			-- dead
 			token_list ["UNIT_DIED"] = nil
+			token_list ["UNIT_DESTROYED"] = nil
 		
 		end
 	end
@@ -1883,6 +1938,7 @@
 			token_list ["SPELL_INTERRUPT"] = parser.interrupt
 			-- dead
 			token_list ["UNIT_DIED"] = parser.dead
+			token_list ["UNIT_DESTROYED"] = parser.dead
 			
 		end
 	end

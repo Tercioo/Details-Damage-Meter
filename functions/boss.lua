@@ -19,6 +19,18 @@ do
 	end
 
 	--> return the function for the boss
+	function _detalhes:GetEncounterEnd (mapid, bossindex)
+		local t = _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].encounters [bossindex]
+		if (t) then
+			local _end = t.combat_end
+			if (_end) then
+				return unpack (_end)
+			end
+		end
+		return 
+	end
+	
+	--> return the function for the boss
 	function _detalhes:GetBossFunction (mapid, bossindex)
 		local func = _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].encounters [bossindex] and _detalhes.EncounterInformation [mapid].encounters [bossindex].func
 		if (func) then

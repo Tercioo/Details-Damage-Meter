@@ -1555,7 +1555,18 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 			local container = self.showing [atributo]._ActorTable
 			
 			if (atributo == 1) then --> damage
-				total, keyName, first = _detalhes.atributo_damage:RefreshWindow (self, self.showing, true, true)
+				if (self.sub_atributo == 5) then --> frags
+					local frags = self.showing.frags
+					local reportarFrags = {}
+					for name, amount in pairs (frags) do 
+						--> string para imprimir direto sem calculos
+						reportarFrags [#reportarFrags+1] = {frag = tostring (amount), nome = name} 
+					end
+					container = reportarFrags
+					keyName = "frag"
+				else
+					total, keyName, first = _detalhes.atributo_damage:RefreshWindow (self, self.showing, true, true)
+				end
 			elseif (atributo == 2) then --> heal
 				total, keyName, first = _detalhes.atributo_heal:RefreshWindow (self, self.showing, true, true)
 			elseif (atributo == 3) then --> energy
@@ -1618,32 +1629,61 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 			local total, keyName, first
 			local atributo = self.atributo
 			
+			local container = self.showing [atributo]._ActorTable
+			local quantidade = 0
+			
 			if (atributo == 1) then --> damage
-				total, keyName, first = _detalhes.atributo_damage:RefreshWindow (self, self.showing, true, true)
+				if (self.sub_atributo == 5) then --> frags
+					local frags = self.showing.frags
+					local reportarFrags = {}
+					for name, amount in pairs (frags) do 
+						--> string para imprimir direto sem calculos
+						reportarFrags [#reportarFrags+1] = {frag = tostring (amount), nome = name} 
+					end
+					container = reportarFrags
+					keyName = "frag"
+				else
+					total, keyName, first = _detalhes.atributo_damage:RefreshWindow (self, self.showing, true, true)
+				end
 			elseif (atributo == 2) then --> heal
 				total, keyName, first = _detalhes.atributo_heal:RefreshWindow (self, self.showing, true, true)
 			elseif (atributo == 3) then --> energy
 				total, keyName, first = _detalhes.atributo_energy:RefreshWindow (self, self.showing, true, true)
 			elseif (atributo == 4) then --> misc
-				total, keyName, first = _detalhes.atributo_misc:RefreshWindow (self, self.showing, true, true)
+				if (self.sub_atributo == 5) then --> mortes
+					local mortes = self.showing.last_events_tables
+					local reportarMortes = {}
+					for index, morte in ipairs (mortes) do 
+						reportarMortes [#reportarMortes+1] = {dead = morte [6], nome = morte [3]:gsub (("%-.*"), "")}
+					end
+					container = reportarMortes
+					keyName = "dead"
+				else
+					total, keyName, first = _detalhes.atributo_misc:RefreshWindow (self, self.showing, true, true)
+				end
 			elseif (atributo == 5) then --> custom
 				total, keyName, first = _detalhes.atributo_custom:RefreshWindow (self, self.showing, true, {key = "custom"})
 				total = self.showing.totals [self.customName]
 				atributo = _detalhes.custom [self.sub_atributo].attribute
 			end
 
-			local container = self.showing [atributo]._ActorTable
-			local quantidade = 0
-			
 			for i = #container, 1, -1 do 
+				
 				local _thisActor = container [i]
 				local amount = _thisActor [keyName]
-				if (amount > 0) then 
-					report_lines [#report_lines+1] = i..".".. _thisActor.nome.."   ".. _detalhes:comma_value ( _math_floor (amount) ).." (".._cstr ("%.1f", amount/total*100).."%)"
-					quantidade = quantidade + 1
-					if (quantidade == amt) then
-						break
+				
+				if (_type (amount) == "number") then
+					if (amount > 0) then 
+						report_lines [#report_lines+1] = i..".".. _thisActor.nome.."   ".. _detalhes:comma_value ( _math_floor (amount) ).." (".._cstr ("%.1f", amount/total*100).."%)"
+						quantidade = quantidade + 1
+						if (quantidade == amt) then
+							break
+						end
 					end
+				elseif (_type (amount) == "string") then
+					report_lines [#report_lines+1] = i..".".. _thisActor.nome.."   ".. amount
+				else
+					break
 				end
 			end
 

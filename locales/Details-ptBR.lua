@@ -121,6 +121,7 @@ if not Loc then return end
 		Loc ["STRING_ATTRIBUTE_DAMAGE_DPS"] = "Dano por Segundo"
 		Loc ["STRING_ATTRIBUTE_DAMAGE_TAKEN"] = "Dano Recebido"
 		Loc ["STRING_ATTRIBUTE_DAMAGE_FRIENDLYFIRE"] = "Fogo Amigo"
+		Loc ["STRING_ATTRIBUTE_DAMAGE_FRAGS"] = "Inimigos Abatidos"
 		
 	Loc ["STRING_ATTRIBUTE_HEAL"] = "Cura"
 		Loc ["STRING_ATTRIBUTE_HEAL_DONE"] = "Cura Feita"
@@ -234,6 +235,7 @@ if not Loc then return end
 	Loc ["STRING_REPORT_PREVIOUSFIGHTS"] = "lutas anteriores"
 	Loc ["STRING_REPORT_INVALIDTARGET"] = "O alvo nao pode ser encontrado"
 	Loc ["STRING_NOCLOSED_INSTANCES"] = "Nao ha instancias fechadas,\nclique para abrir uma nova."
+	--Loc ["STRING_REPORT_FRAG"] = 
 	
 --> report frame
 

@@ -209,7 +209,7 @@ function atributo_heal:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 			using_cache = true
 		end
 		
-		if (using_cache) then
+		if (using_cache and instancia.segmento == 0) then
 			conteudo = _detalhes.cache_healing_group
 		
 			_detalhes:ContainerSort (conteudo, nil, keyName)
@@ -1395,6 +1395,7 @@ atributo_heal.__add = function (shadow, tabela2)
 	end
 	
 	shadow.totalover = shadow.totalover + tabela2.totalover
+	shadow.totalabsorb = shadow.totalabsorb + tabela2.totalabsorb
 	shadow.heal_enemy_amt = shadow.heal_enemy_amt + tabela2.heal_enemy_amt
 	
 	shadow.total_without_pet = shadow.total_without_pet + tabela2.total_without_pet
@@ -1455,6 +1456,7 @@ end
 atributo_heal.__sub = function (tabela1, tabela2)
 	tabela1.total = tabela1.total - tabela2.total
 	tabela1.totalover = tabela1.totalover - tabela2.totalover
+	tabela1.totalabsorb = tabela1.totalabsorb - tabela2.totalabsorb
 	tabela1.heal_enemy_amt = tabela1.heal_enemy_amt - tabela2.heal_enemy_amt
 	
 	tabela1.total_without_pet = tabela1.total_without_pet - tabela2.total_without_pet

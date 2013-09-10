@@ -69,7 +69,10 @@ local throne_of_thunder = {
 			
 			boss =	"Jin'rokh the Breaker",
 			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Jinrokh the Breaker]],
+			
+			combat_end = {1, 69465},
 
+			--[
 			spell_mechanics =	{
 						[137261] = {0x1, 0x40}, --> Lightning Storm
 						[137162] = {0x1, 0x100}, --> Static Burst 
@@ -84,7 +87,7 @@ local throne_of_thunder = {
 						[138733] = {0x10, 0x40}, --> Ionization
 						[137647] = {0x40}, --> Lightning Strike
 					},
-			
+			--]]
 			phases = {
 				--> fase 1
 				{
@@ -111,6 +114,8 @@ local throne_of_thunder = {
 			boss =	"Horridon",
 			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Horridon]],
 
+			combat_end = {1, 68476},
+			
 			spell_mechanics =	{
 						[136719] = {0x10}, --> Blazing Sunlight (Wastewalker)
 						[136723] = {0x8},  --> Sand Trap (Voidzone)
@@ -221,6 +226,8 @@ local throne_of_thunder = {
 			boss =	"Council of Elders",
 			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Council of Elders]],
 			
+			combat_end = {2, {69131, 69134, 69078, 69132}},
+			
 			--> this is a fix for twisted fate spell, due Mar'li adds comes with exactly the same name as the player name, the add spell are assigned to the player
 			func = function() 
 				local combat = _detalhes:GetCombat ("current")
@@ -317,6 +324,8 @@ local throne_of_thunder = {
 			boss =	"Tortos",
 			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Tortos]],
 			
+			combat_end = {1, 67977},
+			
 			spell_mechanics = {
 				[134476] = {0x1}, --> "Rockfall",
 				[134920] = {0x1}, --> "Quake Stomp",
@@ -411,6 +420,8 @@ local throne_of_thunder = {
 			boss =	"Ji'kun",
 			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Ji Kun]],
 			
+			combat_end = {1, 69712},
+			
 			spell_mechanics = {
 				[134381] = {0x1}, --Quills
 				[140092] = {0x100}, -- Infected Talons
@@ -456,6 +467,8 @@ local throne_of_thunder = {
 		[7] = {
 			boss =	"Durumu the Forgotten",
 			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Durumu]],
+			
+			combat_end = {1, 68036},
 			
 			spell_mechanics =	{
 				[133732] = {0x1, 0x200}, --> Infrared Light
@@ -542,6 +555,8 @@ local throne_of_thunder = {
 			boss =	"Primordius",
 			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Primordius]],
 			
+			combat_end = {1, 69017},
+			
 			spell_mechanics =	{
 				[136220] = {0x1, 0x2000}, --> Acidic Explosion
 				[136216] = {0x1, 0x40}, --> Caustic Gas
@@ -584,6 +599,8 @@ local throne_of_thunder = {
 			boss =	"Dark Animus",
 			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Dark Animus]],
 			
+			combat_end = {1, 69427},
+			
 			spell_mechanics =	{
 				[139867] = {0x1, 0x4000}, --> Interrupting Jolt
 				[138659] = {0x1}, --> Touch of the Animus
@@ -620,6 +637,8 @@ local throne_of_thunder = {
 		[10] = {
 			boss =	"Iron Qon",
 			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Iron Qon]],
+			
+			combat_end = {1, 68078},
 			
 			spell_mechanics =	{
 				[136925] = {0x40}, --> Burning Blast
@@ -727,6 +746,8 @@ local throne_of_thunder = {
 			boss =	"Twin Consorts",
 			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Empyreal Queens]],
 			
+			combat_end = {2, {68904, 68905}},
+			
 			spell_mechanics =	{
 				[137410] = {0x200, 0x1}, --> Blazing Radiance
 				[137492] = {0x1}, --> Nuclear Inferno
@@ -832,6 +853,8 @@ local throne_of_thunder = {
 		[12] = {
 			boss =	"Lei Shen",
 			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Lei Shen]],
+			
+			combat_end = {1, 68397},
 			
 			spell_mechanics =	{
 				[136889] = {0x2, 0x1}, --> Violent Gale Winds 

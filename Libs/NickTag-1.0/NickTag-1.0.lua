@@ -4,12 +4,21 @@
 -- NickTag:SetNickname (name) -> set the player nick name, after set nicktag will broadcast the nick over addon guild channel.
 -- 
 
-local major, minor = "NickTag-1.0", 2
+local major, minor = "NickTag-1.0", 3
 local NickTag, oldminor = LibStub:NewLibrary (major, minor)
 
 if (not NickTag) then 
 	return 
 end
+
+--> fix for old nicktag version
+if (_G.NickTag) then
+	if (_G.NickTag.OnEvent) then
+		_G.NickTag:UnregisterComm ("NickTag")
+		_G.NickTag.OnEvent = nil
+	end
+end
+
  
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 --> constants
@@ -32,6 +41,13 @@ end
 	_G.NickTag = NickTag --> nicktag object over global container
 
 	local pool = {default = true} --> pointer to the cache pool and the default pool if no cache
+	local queue_request = {}
+	local queue_send = {}
+	local last_queue = 0
+	local is_updating = false
+	NickTag.debug = false
+	
+	local GetGuildRosterInfo = GetGuildRosterInfo
 
 	LibStub:GetLibrary ("AceComm-3.0"):Embed (NickTag)
 	LibStub:GetLibrary ("AceSerializer-3.0"):Embed (NickTag)
@@ -56,6 +72,10 @@ end
 		end
 		self.embeds [target] = true
 		return target
+	end
+	
+	function NickTag:Msg (text)
+		print ("|cFFFFFF00NickTag:|r",text)
 	end
 	
 	local enUS = LibStub("AceLocale-3.0"):NewLocale ("NickTag-1.0", "enUS", true)
@@ -204,8 +224,16 @@ end
 		--> 0x2: received a revision version from a guy which logon in the game
 		elseif (_type == CONST_COMM_LOGONREVISION) then
 		
+			if (UnitName ("player") == name) then
+				return
+			end
+		
 			local receivedRevision = arg3
 			local storedPersona = NickTag:GetNicknameTable (serial)
+			
+			if (NickTag.debug) then
+				NickTag:Msg ("LOGONREVISION from: " .. name .. " rev: " .. receivedRevision)
+			end
 			
 			if (type (version) ~= "number" or version ~= minor) then
 				return
@@ -216,7 +244,17 @@ end
 				if (realm ~= GetRealmName()) then
 					name = name .. "-" .. realm
 				end
-				NickTag:ScheduleTimer ("RequestPersona", math.random (1, 20), name)
+				
+				--> put in queue our request for receive a updated persona
+				NickTag:ScheduleTimer ("QueueRequest", math.random (10, 60), name)
+				
+				if (NickTag.debug) then
+					NickTag:Msg ("LOGONREVISION from: " .. name .. " |cFFFF0000is out of date|r, queueing a request persona.")
+				end
+			else
+				if (NickTag.debug) then
+					NickTag:Msg ("LOGONREVISION from: " .. name .. " |cFF00FF00is up to date.")
+				end
 			end
 			
 		--> 0x3: someone requested my persona, so i need to send to him
@@ -230,15 +268,149 @@ end
 			if (realm ~= GetRealmName()) then
 				name = name .. "-" .. realm
 			end
-			NickTag:SendPersona (name)
+			
+			--> queue to send our persona for requested person
+			if (NickTag.debug) then
+				NickTag:Msg ("REQUESTPERSONA from: " .. name .. ", the request has been placed in queue.")
+			end
+			
+			NickTag:QueueSend (name)
 		end
 
 	end
 
 	NickTag:RegisterComm ("NickTag", "OnReceiveComm")
+	
+	function NickTag:UpdateRoster()
+		--> do not update roster if is in combat
+		if (not UnitAffectingCombat ("player")) then
+			GuildRoster()
+		end
+	end
+	
+	function NickTag:IsOnline (name)
+	
+		local isShownOffline = GetGuildRosterShowOffline()
+		if (isShownOffline) then
+			SetGuildRosterShowOffline (false)
+		end
+		
+		local _, numOnlineMembers = GetNumGuildMembers()
+		for i = 1, numOnlineMembers do
+			local player_name = GetGuildRosterInfo (i)
+			if (player_name == name) then
+				if (isShownOffline) then
+					SetGuildRosterShowOffline (true)
+				end
+				return true
+			end
+		end
+		if (isShownOffline) then
+			SetGuildRosterShowOffline (true)
+		end
+		return false
+	end
+	
+	local event_frame = CreateFrame ("frame", nil, UIParent)
+	event_frame:Hide()
+	event_frame:SetScript ("OnEvent", function (_, _, local_update)
+		if (not local_update) then
+		
+			--> roster was been updated
+			if (last_queue < time()) then
+				last_queue = time()+11
+			else
+				return
+			end
+			
+			--> do not share if we are in combat
+			if (UnitAffectingCombat ("player")) then
+				return
+			end
+			
+			--> start with send requested personas
+			if (#queue_send > 0) then
+
+				local name = queue_send [1]
+				table.remove (queue_send, 1)
+			
+				if (NickTag.debug) then
+					NickTag:Msg ("QUEUE -> ready to send persona to " .. name)
+				end
+				
+				--> check if the player is online
+				if (NickTag:IsOnline (name)) then
+					NickTag:SendPersona (name)
+				end
+				
+				if (#queue_send == 0 and #queue_request == 0) then
+					NickTag:StopRosterUpdates()
+				end
+				
+			elseif (#queue_request > 0) then
+
+				local name = queue_request [1]
+				table.remove (queue_request, 1)
+				
+				if (NickTag.debug) then
+					NickTag:Msg ("QUEUE -> ready to request the persona of " .. name)
+				end
+				
+				--> check if the player is online
+				if (NickTag:IsOnline (name)) then
+					NickTag:RequestPersona (name)
+				end
+				
+				if (#queue_request == 0 and #queue_request == 0) then
+					NickTag:StopRosterUpdates()
+				end
+				
+			else
+				NickTag:StopRosterUpdates()
+			end
+		end
+	end)
+	
+	function NickTag:StopRosterUpdates()
+		if (NickTag.debug) then
+			NickTag:Msg ("ROSTER -> updates has been stopped")
+		end
+		if (NickTag.UpdateRosterTimer) then
+			NickTag:CancelTimer (NickTag.UpdateRosterTimer)
+		end
+		NickTag.UpdateRosterTimer = nil
+		event_frame:UnregisterEvent ("GUILD_ROSTER_UPDATE")
+		is_updating = false
+	end
+	
+	function NickTag:StartRosterUpdates()
+		if (NickTag.debug) then
+			NickTag:Msg ("ROSTER -> updates has been actived")
+		end
+		event_frame:RegisterEvent ("GUILD_ROSTER_UPDATE")
+		if (not NickTag.UpdateRosterTimer) then
+			NickTag.UpdateRosterTimer = NickTag:ScheduleRepeatingTimer ("UpdateRoster", 12)
+		end
+		is_updating = true
+	end
+	
+	--> we queue data for roster update and also check for combat
+	function NickTag:QueueRequest (name)
+		table.insert (queue_request, name)
+		if (not is_updating) then
+			NickTag:StartRosterUpdates()
+		end
+	end
+	function NickTag:QueueSend (name)
+		table.insert (queue_send, name)
+		if (not is_updating) then
+			NickTag:StartRosterUpdates()
+		end
+	end
 
 	--> after logon, we send our revision, who needs update my persona will send 0x3 (request persona) to me and i send back 0x1 (send persona)
 	function NickTag:SendRevision()
+	
 		local battlegroup_serial = NickTag:GetSerial()
 		if (not battlegroup_serial) then
 			return
@@ -246,17 +418,28 @@ end
 		
 		local myPersona = NickTag:GetNicknameTable (battlegroup_serial)
 		if (myPersona) then
+			if (NickTag.debug) then
+				NickTag:Msg ("SendRevision() -> SENT")
+			end
 			NickTag:SendCommMessage ("NickTag", NickTag:Serialize (CONST_COMM_LOGONREVISION, battlegroup_serial, myPersona [CONST_INDEX_REVISION], UnitName ("player"), GetRealmName(), minor), "GUILD")
 		end
 	end
 	
 	--> i received 0x2 and his persona is out of date here, so i need to send 0x3 to him and him will send 0x1.
 	function NickTag:RequestPersona (target)
+		if (NickTag.debug) then
+			NickTag:Msg ("RequestPersona() -> requesting of " .. target)
+		end
 		NickTag:SendCommMessage ("NickTag", NickTag:Serialize (CONST_COMM_REQUESTPERSONA, 0, 0, UnitName ("player"), GetRealmName(), minor), "WHISPER", target)
 	end
 
 	--> this broadcast my persona to entire guild when i update my persona or send my persona to someone who doesn't have it or need to update.
 	function NickTag:SendPersona (target)
+		if (target) then
+			if (NickTag.debug) then
+				NickTag:Msg ("SendPersona() -> sent to " .. target)
+			end
+		end
 		local battlegroup_serial = NickTag:GetSerial()
 		if (not battlegroup_serial) then
 			return

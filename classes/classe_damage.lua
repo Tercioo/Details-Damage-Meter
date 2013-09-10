@@ -7,6 +7,7 @@ local _table_sort = table.sort
 local _table_insert = table.insert
 local _table_size = table.getn
 local _setmetatable = setmetatable
+local _getmetatable = getmetatable
 local _ipairs = ipairs
 local _pairs = pairs
 local _rawget= rawget
@@ -165,6 +166,150 @@ end
 				return false
 			end
 
+function _detalhes:ToolTipFrags (instancia, frag, esta_barra)
+	
+	--vardump (frag)
+	
+	local name = frag [1]
+	local GameCooltip = GameCooltip
+	
+	GameCooltip:Reset()
+	GameCooltip:SetType ("tooltip")
+	GameCooltip:SetOwner (esta_barra)
+	GameCooltip:SetOption ("LeftBorderSize", -5)
+	GameCooltip:SetOption ("RightBorderSize", 5)
+	GameCooltip:SetOption ("StatusBarTexture", [[Interface\WorldStateFrame\WORLDSTATEFINALSCORE-HIGHLIGHT]])
+	
+	--> mantendo a função o mais low level possível
+	local damage_container = instancia.showing [1]
+	
+	local frag_actor = damage_container._ActorTable [damage_container._NameIndexTable [ name ]]
+
+	if (frag_actor) then
+		
+		local damage_taken_table = {}
+
+		local took_damage_from = frag_actor.damage_from
+		local total_damage_taken = frag_actor.damage_taken
+
+		for aggressor, _ in _pairs (took_damage_from) do
+		
+			local damager_actor = damage_container._ActorTable[damage_container._NameIndexTable [ aggressor ]]
+			
+			if (damager_actor) then --> checagem por causa do total e do garbage collector que não limpa os names que deram dano
+			
+				local targets = damager_actor.targets
+				
+				local specific_target = targets._ActorTable [targets._NameIndexTable [ name ]] --> é ele mesmo
+				if (specific_target) then
+					damage_taken_table [#damage_taken_table+1] = {aggressor, specific_target.total, damager_actor.classe}
+				end
+			end
+		end
+
+		if (#damage_taken_table > 0) then
+			
+			_table_sort (damage_taken_table, _detalhes.Sort2)
+			
+			GameCooltip:AddLine (Loc ["STRING_FROM"], nil, nil, headerColor, nil, 12)
+			GameCooltip:AddIcon ([[Interface\Addons\Details\images\icons]], 1, 1, 14, 14, 0.126953125, 0.1796875, 0, 0.0546875)
+			GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
+		
+			for i = 1, math.min (6, #damage_taken_table) do 
+			
+				local t = damage_taken_table [i]
+			
+				GameCooltip:AddLine (t [1], _detalhes:comma_value (t [2]))
+				local classe = t [3]
+				if (not classe) then
+					classe = "UNKNOW"
+				end
+				if (classe == "UNKNOW") then
+					GameCooltip:AddIcon ("Interface\\LFGFRAME\\LFGROLE_BW", nil, nil, 14, 14, .25, .5, 0, 1)
+				else
+					GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small", nil, nil, 14, 14, _unpack (_detalhes.class_coords [classe]))
+				end
+				GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
+			end
+			
+			GameCooltip:AddLine (Loc ["STRING_REPORT_LEFTCLICK"], nil, 1, "white")
+			GameCooltip:AddIcon ([[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]], 1, 1, 12, 16, 0.015625, 0.13671875, 0.4375, 0.59765625)
+			GameCooltip:ShowCooltip()
+		
+		end
+	end
+	
+end
+
+local function RefreshBarraFrags (tabela, barra, instancia)
+	atributo_damage:AtualizarFrags (tabela, tabela.minha_barra, barra.colocacao, instancia)
+end
+
+function atributo_damage:ReportSingleFragsLine (frag, instancia)
+	local barra = instancia.barras [frag.minha_barra]
+
+	local reportar = {"Details! " .. Loc ["STRING_ATTRIBUTE_DAMAGE_TAKEN"].. ": " .. frag [1]} --> localize-me
+	for i = 1, GameCooltip:GetNumLines() do 
+		local texto_left, texto_right = GameCooltip:GetText (i)
+		if (texto_left and texto_right) then 
+			texto_left = texto_left:gsub (("|T(.*)|t "), "")
+			reportar [#reportar+1] = ""..texto_left.." "..texto_right..""
+		end
+	end
+
+	return _detalhes:Reportar (reportar, {_no_current = true, _no_inverse = true, _custom = true})
+end
+
+function atributo_damage:AtualizarFrags (tabela, qual_barra, colocacao, instancia)
+
+	tabela ["frags"] = true --> marca que esta tabela é uma tabela de frags, usado no controla na hora de montar o tooltip
+	local esta_barra = instancia.barras [qual_barra] --> pega a referência da barra na janela
+	
+	if (not esta_barra) then
+		print ("DEBUG: problema com <instancia.esta_barra> "..qual_barra.." "..lugar)
+		return
+	end
+	
+	local tabela_anterior = esta_barra.minha_tabela
+	
+	esta_barra.minha_tabela = tabela
+	
+	tabela.nome = tabela [1] --> evita dar erro ao redimencionar a janela
+	tabela.minha_barra = qual_barra
+	esta_barra.colocacao = colocacao
+	
+	if (not _getmetatable (tabela)) then 
+		_setmetatable (tabela, {__call = RefreshBarraFrags}) 
+		tabela._custom = true
+	end
+
+	esta_barra.texto_esquerdo:SetText (colocacao .. ". " .. tabela [1])
+	esta_barra.texto_direita:SetText (tabela [2])
+	
+	if (colocacao == 1) then
+		esta_barra.statusbar:SetValue (100)
+	else
+		esta_barra.statusbar:SetValue (tabela [2] / instancia.top * 100)
+	end
+	
+	if (esta_barra.hidden or esta_barra.fading_in or esta_barra.faded) then
+		gump:Fade (esta_barra, "out")
+	end
+
+	--> ele nao come o texto quando a instância esta muito pequena
+
+	esta_barra.textura:SetVertexColor (1, 1, 1)
+	esta_barra.icone_classe:SetTexture ("Interface\\LFGFRAME\\LFGROLE_BW")
+	esta_barra.icone_classe:SetTexCoord (.25, .5, 0, 1)
+	esta_barra.icone_classe:SetVertexColor (1, 1, 1)
+
+	if (esta_barra.mouse_over and not instancia.baseframe.isMoving) then --> precisa atualizar o tooltip
+		--gump:UpdateTooltip (qual_barra, esta_barra, instancia)
+	end
+
+end
+
+local ntable = {}
 function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, exportar)
 	
 	local showing = tabela_do_combate [class_type] --> o que esta sendo mostrado -> [1] - dano [2] - cura --> pega o container com ._NameIndexTable ._ActorTable
@@ -199,6 +344,8 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 				keyName = "damage_taken"
 			elseif (sub_atributo == 4) then --> FRIENDLY FIRE
 				keyName = "friendlyfire_total"
+			elseif (sub_atributo == 5) then --> FRAGS
+				keyName = "frags"
 			end
 		else
 			keyName = exportar.key
@@ -216,88 +363,154 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 			keyName = "damage_taken"
 		elseif (sub_atributo == 4) then --> FRIENDLY FIRE
 			keyName = "friendlyfire_total"
+		elseif (sub_atributo == 5) then --> FRAGS
+			keyName = "frags"
 		end
 	end
 	
-	if (instancia.atributo == 5) then --> custom
-		--> faz o sort da categoria e retorna o amount corrigido
-		amount = _detalhes:ContainerSort (conteudo, amount, keyName)
-		
-		--> grava o total
-		instancia.top = conteudo[1][keyName]
-		
-	elseif (modo == modo_ALL) then --> mostrando ALL
+	if (keyName == "frags") then 
 	
-		--> faz o sort da categoria e retorna o amount corrigido
-		amount = _detalhes:ContainerSort (conteudo, amount, keyName)
+		local frags = instancia.showing.frags
+		local index = 0
 		
-		--> pega o total ja aplicado na tabela do combate
-		total = tabela_do_combate.totals [class_type]
+		for fragName, fragAmount in _pairs (frags) do 
 		
-		--> grava o total
-		instancia.top = conteudo[1][keyName]
-	
-	elseif (modo == modo_GROUP) then --> mostrando GROUP
-	
-		--> organiza as tabelas
+			index = index + 1
 		
-		if (_detalhes.in_combat) then
-			using_cache = true
-		end
-		
-		if (using_cache) then
-			conteudo = _detalhes.cache_damage_group
-		
-			_table_sort (conteudo, _detalhes.SortKeySimple)
-		
-			if (conteudo[1][keyName] < 1) then
-				amount = 0
+			if (ntable [index]) then
+				ntable [index] [1] = fragName
+				ntable [index] [2] = fragAmount
 			else
-				instancia.top = conteudo[1][keyName]
-				amount = #conteudo
+				ntable [index] = {fragName, fragAmount}
 			end
-		
-			for i = 1, amount do 
-				total = total + conteudo[i][keyName]
-			end
-		else
-			_table_sort (conteudo, _detalhes.SortKeyGroup)
+			
 		end
-		--
 		
-		--[[
-		_table_sort (conteudo, function (a, b)
-				if (a.grupo and b.grupo) then
-					return a[keyName] > b[keyName]
-				elseif (a.grupo and not b.grupo) then
-					return true
-				elseif (not a.grupo and b.grupo) then
-					return false
+		local tsize = #ntable
+		if (index < tsize) then
+			for i = index+1, tsize do
+				ntable [i][2] = 0
+			end
+		end
+		
+		if (tsize > 0) then
+			--_table_sort (ntable, function (t1, t2) 
+			--	return (t1 [2] > t2 [2])
+			--end)
+			_table_sort (ntable, _detalhes.Sort2)
+			instancia.top = ntable [1][2]
+		end
+	
+		total = index
+		
+		if (exportar) then 
+			local export = {}
+			for i = 1, index do 
+				export [i] = {ntable[i][1], ntable[i][2]}
+			end
+			return export
+		end
+		
+		if (total < 1) then
+			instancia:EsconderScrollBar()
+			return _detalhes:EndRefresh (instancia, total, tabela_do_combate, showing) --> retorna a tabela que precisa ganhar o refresh
+		end
+		
+		--estra mostrando ALL então posso seguir o padrão correto? primeiro, atualiza a scroll bar...
+		instancia:AtualizarScrollBar (total)
+		
+		--depois faz a atualização normal dele através dos iterators
+		local qual_barra = 1
+		local barras_container = instancia.barras
+
+		for i = instancia.barraS[1], instancia.barraS[2], 1 do --> vai atualizar só o range que esta sendo mostrado
+			atributo_damage:AtualizarFrags (ntable[i], qual_barra, i, instancia)
+			qual_barra = qual_barra+1
+		end
+		
+		return _detalhes:EndRefresh (instancia, total, tabela_do_combate, showing) --> retorna a tabela que precisa ganhar o refresh
+	else
+	
+		if (instancia.atributo == 5) then --> custom
+			--> faz o sort da categoria e retorna o amount corrigido
+			amount = _detalhes:ContainerSort (conteudo, amount, keyName)
+			
+			--> grava o total
+			instancia.top = conteudo[1][keyName]
+			
+		elseif (modo == modo_ALL) then --> mostrando ALL
+		
+			--> faz o sort da categoria e retorna o amount corrigido
+			amount = _detalhes:ContainerSort (conteudo, amount, keyName)
+			
+			--> pega o total ja aplicado na tabela do combate
+			total = tabela_do_combate.totals [class_type]
+			
+			--> grava o total
+			instancia.top = conteudo[1][keyName]
+		
+		elseif (modo == modo_GROUP) then --> mostrando GROUP
+		
+			--> organiza as tabelas
+			
+			if (_detalhes.in_combat) then
+				using_cache = true
+			end
+			
+			if (using_cache and instancia.segmento == 0) then
+				conteudo = _detalhes.cache_damage_group
+			
+				_table_sort (conteudo, _detalhes.SortKeySimple)
+			
+				if (conteudo[1][keyName] < 1) then
+					amount = 0
 				else
-					return a[keyName] > b[keyName]
+					instancia.top = conteudo[1][keyName]
+					amount = #conteudo
 				end
-			end)
-		--]]
-		
-		if (not using_cache) then
-			for index, player in _ipairs (conteudo) do
-				if (_bit_band (player.flag, DFLAG_player_group) >= 0x101) then --> é um player e esta em grupo
-					if (player[keyName] < 1) then --> dano menor que 1, interromper o loop
-						amount = index - 1
-						break
-					elseif (index == 1) then --> esse IF aqui, precisa mesmo ser aqui? não daria pra pega-lo com uma chave [1] nad grupo == true?
-						instancia.top = conteudo[1][keyName]
+			
+				for i = 1, amount do 
+					total = total + conteudo[i][keyName]
+				end
+			else
+				_table_sort (conteudo, _detalhes.SortKeyGroup)
+			end
+			--
+			
+			--[[
+			_table_sort (conteudo, function (a, b)
+					if (a.grupo and b.grupo) then
+						return a[keyName] > b[keyName]
+					elseif (a.grupo and not b.grupo) then
+						return true
+					elseif (not a.grupo and b.grupo) then
+						return false
+					else
+						return a[keyName] > b[keyName]
 					end
-					
-					total = total + player[keyName]
-				else
-					amount = index-1
-					break
+				end)
+			--]]
+			
+			if (not using_cache) then
+				for index, player in _ipairs (conteudo) do
+					if (_bit_band (player.flag, DFLAG_player_group) >= 0x101) then --> é um player e esta em grupo
+						if (player[keyName] < 1) then --> dano menor que 1, interromper o loop
+							amount = index - 1
+							break
+						elseif (index == 1) then --> esse IF aqui, precisa mesmo ser aqui? não daria pra pega-lo com uma chave [1] nad grupo == true?
+							instancia.top = conteudo[1][keyName]
+						end
+						
+						total = total + player[keyName]
+					else
+						amount = index-1
+						break
+					end
 				end
 			end
 		end
 	end
-
+	
 	--> refaz o mapa do container
 	if (not using_cache) then
 		showing:remapear()
