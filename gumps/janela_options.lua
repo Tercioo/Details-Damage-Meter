@@ -35,7 +35,7 @@ function _detalhes:OpenOptionsWindow (instance)
 		g:NewSlider (window, _, "$parentSlider", "segmentsSlider", 120, 20, 1, 25, 1, _detalhes.segments_amount) -- min, max, step, defaultv
 		window.segmentsSlider:SetPoint ("left", window.segmentsLabel, "right")
 		window.segmentsSlider:SetHook ("OnValueChange", function (self, _, amount) --> slider, fixedValue, sliderValue
-			_detalhes.segments_amount = amount
+			_detalhes.segments_amount = math.floor (amount)
 		end)
 		window.segmentsSlider.tooltip = "This option control how many fights you want to maintain.\nAs overall data work dynamic with segments stored,\nfeel free to adjust this number to be comfortable for you.\nHigh value may increase the memory use,\nbut doesn't affect your game framerate."
 

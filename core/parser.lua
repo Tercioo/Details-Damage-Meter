@@ -1282,15 +1282,15 @@
 		
 		--> esta dando erro onde o nome é NIL, fazendo um fix para isso
 		if (not who_name) then
-			print ( "DISPELL sem who_name: [*] "..extraSpellName )
-			print (alvo_name)
-			print (spellname)
+			--print ( "DISPELL sem who_name: [*] "..extraSpellName )
+			--print (alvo_name)
+			--print (spellname)
 			who_name = "[*] "..extraSpellName
 		end
 		if (not alvo_name) then
-			print ("DISPELL sem alvo_name: [*] "..extraSpellName)
-			print (who_name)
-			print (spellname)
+			--print ("DISPELL sem alvo_name: [*] "..extraSpellName)
+			--print (who_name)
+			--print (spellname)
 			alvo_name = "[*] "..spellid
 		end
 		

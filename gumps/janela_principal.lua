@@ -2726,6 +2726,7 @@ function gump:CriaCabecalho (BaseFrame, instancia)
 
 				----------- segments
 				local menuIndex = 0
+				_detalhes.segments_amount = math.floor (_detalhes.segments_amount)
 				for i = _detalhes.segments_amount, 1, -1 do
 					
 					local thisCombat = _detalhes.tabela_historico.tabelas [i]
