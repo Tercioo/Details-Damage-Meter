@@ -311,7 +311,8 @@ end --]]
 		_detalhes.time_type = _detalhes_global.time_type or _detalhes.time_type
 		
 		_detalhes.SpellOverwriteUser = _detalhes_global.SpellOverwriteUser or _detalhes.SpellOverwriteUser
-
+	else
+		_detalhes.is_first_run = true
 	end
 	
 	return true
