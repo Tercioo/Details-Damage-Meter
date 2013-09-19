@@ -272,7 +272,7 @@ Message: ..\AddOns\Details_EncounterDetails\frames.lua line 156:
 			end
 		end
 		
-		print ("DPSMAX: " .. dps_max .. " > " .. g.max_damage)
+		--print ("DPSMAX: " .. dps_max .. " > " .. g.max_damage)
 		
 		if (dps_max > g.max_damage) then 
 		

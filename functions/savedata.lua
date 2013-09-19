@@ -117,6 +117,8 @@ function _detalhes:SaveDataOnLogout()
 	_detalhes_global.clear_ungrouped = _detalhes.clear_ungrouped
 	_detalhes_global.update_speed = _detalhes.update_speed
 	_detalhes_global.time_type = _detalhes.time_type
+	_detalhes_global.memory_threshold = _detalhes.memory_threshold
+	_detalhes_global.memory_ram = _detalhes.memory_ram
 	
 	_detalhes_global.SpellOverwriteUser = _detalhes.SpellOverwriteUser
 	
@@ -309,6 +311,8 @@ end --]]
 		_detalhes.clear_ungrouped = _detalhes_global.clear_ungrouped or _detalhes.clear_ungrouped
 		_detalhes.update_speed = _detalhes_global.update_speed or _detalhes.update_speed
 		_detalhes.time_type = _detalhes_global.time_type or _detalhes.time_type
+		_detalhes.memory_threshold = _detalhes_global.memory_threshold
+		_detalhes.memory_ram = _detalhes_global.memory_ram
 		
 		_detalhes.SpellOverwriteUser = _detalhes_global.SpellOverwriteUser or _detalhes.SpellOverwriteUser
 	else

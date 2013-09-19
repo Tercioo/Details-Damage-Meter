@@ -658,8 +658,8 @@ function atributo_energy:Iniciar (iniciar)
 	return false --retorna se o dps esta aberto ou fechado para este jogador
 end
 
-function atributo_energy:ColetarLixo()
-	return _detalhes:ColetarLixo (class_type)
+function atributo_energy:ColetarLixo (lastevent)
+	return _detalhes:ColetarLixo (class_type, lastevent)
 end
 
 local function ReconstroiMapa (tabela)

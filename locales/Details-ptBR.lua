@@ -14,6 +14,7 @@ if not Loc then return end
 	Loc ["STRING_RIGHT"] = "direita"
 	Loc ["STRING_TOOOLD"] = "nao pode ser instalado pois sua versao do Details! e muito antiga."
 	Loc ["STRING_TOOOLD2"] = "a sua versao do Details! nao e a mesma."
+	Loc ["STRING_CHANGED_TO_CURRENT"] = "Segmento trocado para atual"
 	
 	Loc ["STRING_INSTANCE_LIMIT"] = "o limite de instancias foi atingido, voce pode modificar este limite no painel de opcoes."
 	
@@ -55,6 +56,7 @@ if not Loc then return end
 	Loc ["STRING_SEGMENT_END"] = "Fim"
 	Loc ["STRING_SEGMENT_ENEMY"] = "Contra"
 	Loc ["STRING_SEGMENT_TIME"] = "Tempo"
+	Loc ["STRING_SEGMENT_OVERALL"] = "Total dos Segmentos Atuais"
 	Loc ["STRING_TOTAL"] = "Total"
 	Loc ["STRING_OVERALL"] = "Dados Gerais"
 	Loc ["STRING_CURRENT"] = "Atual"
@@ -203,6 +205,7 @@ if not Loc then return end
 	Loc ["STRING_PLUGIN_PDPSNAME"] = "Dps da Raide"
 	Loc ["STRING_PLUGIN_THREATNAME"] = "Minha Ameaça"
 	Loc ["STRING_PLUGIN_PATTRIBUTENAME"] = "Atributo"
+	Loc ["STRING_PLUGIN_CLEAN"] = "Nenhum"
 	
 	Loc ["STRING_PLUGINOPTIONS_COMMA"] = "Virgula"
 	Loc ["STRING_PLUGINOPTIONS_ABBREVIATE"] = "Abreviar"

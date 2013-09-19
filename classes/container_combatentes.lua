@@ -245,9 +245,9 @@ function container_combatentes:PegarCombatente (serial, nome, flag, criar, isOwn
 	-- tipo do container
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------	
 
-		if (self.tipo == container_playernpc) then --> CONTAINER COMUM
+		--if (self.tipo == container_playernpc) then --> CONTAINER COMUM
 		
-		elseif (self.tipo == container_damage) then --> CONTAINER DAMAGE
+		if (self.tipo == container_damage) then --> CONTAINER DAMAGE
 
 			get_class_ (novo_objeto, nome, flag)
 			

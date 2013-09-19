@@ -30,8 +30,10 @@ function _G._detalhes:Start()
 		self.in_combat = false
 		self.combat_id = self.combat_id or 0
 		self.instances_amount = self.instances_amount or 12
-		self.segments_amount = self.segments_amount or 10
-		self.segments_amount_to_save = self.segments_amount_to_save or 2
+		self.segments_amount = self.segments_amount or 25
+		self.segments_amount_to_save = self.segments_amount_to_save or 5
+		self.memory_threshold = self.memory_threshold or 3
+		self.memory_ram = self.memory_ram or 64
 		self.deadlog_limit = self.deadlog_limit or 12
 		self.minimum_combat_time = self.minimum_combat_time or 5
 		
@@ -219,8 +221,11 @@ function _G._detalhes:Start()
 	--> start garbage collector
 		self.ultima_coleta = 0
 		self.intervalo_coleta = 720
+		self.intervalo_memoria = 180
 		self.garbagecollect = self:ScheduleRepeatingTimer ("IniciarColetaDeLixo", self.intervalo_coleta)
-
+		self.memorycleanup = self:ScheduleRepeatingTimer ("CheckMemoryPeriodically", self.intervalo_memoria)
+		self.next_memory_check = time()+self.intervalo_memoria
+		
 	--> start parser
 		
 		--> load parser capture options
@@ -271,7 +276,7 @@ function _G._detalhes:Start()
 			self:SendEvent ("DETAILS_INSTANCE_OPEN", nil, instancia)
 		end
 	end
-
+	
 	--> all done, send started signal and we are ready
 	function self:AnnounceStartup()
 		self:SendEvent ("DETAILS_STARTED", "SEND_TO_ALL")
@@ -304,5 +309,5 @@ function _G._detalhes:Start()
 	if (self.is_first_run) then
 		_detalhes:OpenWelcomeWindow()
 	end
-
+	
 end

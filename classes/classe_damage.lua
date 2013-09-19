@@ -453,12 +453,16 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 		
 			--> organiza as tabelas
 			
-			if (_detalhes.in_combat) then
+			if (_detalhes.in_combat and instancia.segmento == 0) then
 				using_cache = true
 			end
 			
-			if (using_cache and instancia.segmento == 0) then
+			if (using_cache) then
 				conteudo = _detalhes.cache_damage_group
+			
+				if (#conteudo < 1) then
+					return _detalhes:EsconderBarrasNaoUsadas (instancia, showing)
+				end
 			
 				_table_sort (conteudo, _detalhes.SortKeySimple)
 			
@@ -2114,8 +2118,8 @@ function atributo_damage:FF_funcao_de_criacao (_, _, link)
 	return tabela
 end
 
-function atributo_damage:ColetarLixo()
-	return _detalhes:ColetarLixo (class_type)
+function atributo_damage:ColetarLixo (lastevent)
+	return _detalhes:ColetarLixo (class_type, lastevent)
 end
 
 local function ReconstroiMapa (tabela)

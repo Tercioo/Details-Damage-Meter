@@ -1,3 +1,6 @@
+
+--note: this file need a major clean up especially on function creation.
+
 local _detalhes = 		_G._detalhes
 local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
 
@@ -1333,7 +1336,7 @@ local function button_stretch_scripts (BaseFrame, BackGroundDisplay, instancia)
 					_detalhes:SendEvent ("DETAILS_INSTANCE_SIZECHANGED", nil, esta_instancia)
 					
 					local _r, _g, _b, _a = esta_instancia.baseframe:GetBackdropColor()
-					gump:GradientEffect ( esta_instancia.baseframe, "frame", _r, _g, _b, _a, _detalhes.default_bg_color, _detalhes.default_bg_color, _detalhes.default_bg_color, _detalhes.default_bg_alpha, 0.5)
+					gump:GradientEffect ( esta_instancia.baseframe, "frame", _r, _g, _b, _a, instancia.bg_r, instancia.bg_g, instancia.bg_b, instancia.bg_alpha, 0.5)
 					
 					if (esta_instancia.wallpaper.enabled) then
 						_r, _g, _b = esta_instancia.baseframe.wallpaper:GetVertexColor()
@@ -1351,7 +1354,7 @@ local function button_stretch_scripts (BaseFrame, BackGroundDisplay, instancia)
 		end 
 		
 		local _r, _g, _b, _a = BaseFrame:GetBackdropColor()
-		gump:GradientEffect ( BaseFrame, "frame", _r, _g, _b, _a, _detalhes.default_bg_color, _detalhes.default_bg_color, _detalhes.default_bg_color, _detalhes.default_bg_alpha, 0.5)
+		gump:GradientEffect ( BaseFrame, "frame", _r, _g, _b, _a, instancia.bg_r, instancia.bg_g, instancia.bg_b, instancia.bg_alpha, 0.5)
 		if (instancia.wallpaper.enabled) then
 			_r, _g, _b = BaseFrame.wallpaper:GetVertexColor()
 			_a = BaseFrame.wallpaper:GetAlpha()
@@ -1630,7 +1633,7 @@ function CreateAlertFrame (BaseFrame, instancia)
 	
 	local rotate_frame = CreateFrame ("frame", nil, alert_bg)
 	rotate_frame:SetWidth (12)
-	rotate_frame:SetPoint ("right", alert_bg, "right")
+	rotate_frame:SetPoint ("right", alert_bg, "right", -2, 0)
 	rotate_frame:SetHeight (alert_bg:GetWidth())
 	
 	local icon = rotate_frame:CreateTexture (nil, "overlay")
@@ -1790,7 +1793,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 	BaseFrame:SetMaxResize (_detalhes.max_window_size.width, _detalhes.max_window_size.height)
 
 	BaseFrame:SetBackdrop (gump_fundo_backdrop)
-	BaseFrame:SetBackdropColor (_detalhes.default_bg_color, _detalhes.default_bg_color, _detalhes.default_bg_color, _detalhes.default_bg_alpha)
+	BaseFrame:SetBackdropColor (instancia.bg_r, instancia.bg_g, instancia.bg_b, instancia.bg_alpha)
 	--BaseFrame:SetBackdropColor (0, 0, 0, 1)
 	
 -- fundo
@@ -1803,7 +1806,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 	BackGroundDisplay:SetPoint ("TOPLEFT", BaseFrame, "TOPLEFT")
 	BackGroundDisplay:SetPoint ("BOTTOMRIGHT", BaseFrame, "BOTTOMRIGHT")
 	BackGroundDisplay:SetBackdrop (gump_fundo_backdrop)
-	BackGroundDisplay:SetBackdropColor (_detalhes.default_bg_color, _detalhes.default_bg_color, _detalhes.default_bg_color, _detalhes.default_bg_alpha)
+	BackGroundDisplay:SetBackdropColor (instancia.bg_r, instancia.bg_g, instancia.bg_b, instancia.bg_alpha)
 	--BackGroundDisplay:SetBackdropColor (0, 0, 0, 1)
 
 	
@@ -1832,8 +1835,13 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 		if (not _detalhes.initializing) then
 			instancia._version:Hide()
 		end
-		
+	--[[	
 	BaseFrame.wallpaper = BaseFrame:CreateTexture (nil, "border")
+	BaseFrame.wallpaper:Hide()
+	BaseFrame.wallpaperUP = BackGroundDisplay:CreateTexture (nil, "overlay")
+	BaseFrame.wallpaperUP:Hide()
+	--]]
+	BaseFrame.wallpaper = BackGroundDisplay:CreateTexture (nil, "overlay")
 	BaseFrame.wallpaper:Hide()
 	
 	BaseFrame.alert = CreateAlertFrame (BaseFrame, instancia)
@@ -2241,7 +2249,7 @@ function _detalhes:InstanceWallpaper (texture, anchor, alpha, texcoord, width, h
 		t:SetPoint ("topleft", self.baseframe, "topleft")
 		t:SetPoint ("bottomright", self.baseframe, "bottomright")
 	elseif (anchor == "center") then
-		t:SetPoint ("center", self.baseframe, "center")
+		t:SetPoint ("center", self.baseframe, "center", 0, 4)
 	elseif (anchor == "stretchLR") then
 		t:SetPoint ("center", self.baseframe, "center")
 		t:SetPoint ("left", self.baseframe, "left")
@@ -2380,7 +2388,9 @@ end
 
 function _detalhes:UnConsolidateIcons()
 	self.consolidate = false
-	print (self.consolidateButton:GetObjectType())
+	if (not self.consolidateButton) then
+		return self:DefaultIcons()
+	end
 	self.consolidateButton:Hide()
 	return self:DefaultIcons()
 end
@@ -2446,10 +2456,10 @@ function _detalhes:DefaultIcons (_mode, _segment, _attributes, _report)
 					if (_thisIcon2:IsShown()) then
 						_thisIcon:ClearAllPoints()
 						if (self.consolidate) then
-							_thisIcon:SetPoint ("topleft", _thisIcon2, "bottomleft", anchors[index][1], anchors[index][2]-2)
+							_thisIcon:SetPoint ("topleft", _thisIcon2.widget or _thisIcon2, "bottomleft", anchors[index][1], anchors[index][2]-2)
 							_thisIcon:SetParent (self.consolidateFrame)
 						else
-							_thisIcon:SetPoint ("left", _thisIcon2, "right", 0 + anchors[index][1], 0 + anchors[index][2])
+							_thisIcon:SetPoint ("left", _thisIcon2.widget or _thisIcon2, "right", 0 + anchors[index][1], 0 + anchors[index][2])
 							_thisIcon:SetParent (self.baseframe)
 							_thisIcon:SetFrameLevel (self.baseframe.UPFrame:GetFrameLevel()+1)
 						end
@@ -2476,6 +2486,7 @@ function _detalhes:DefaultIcons (_mode, _segment, _attributes, _report)
 	return true
 end
 
+local empty_segment_color = {1, 1, 1, .4}
 
 function gump:CriaCabecalho (BaseFrame, instancia)
 
@@ -2697,6 +2708,23 @@ function gump:CriaCabecalho (BaseFrame, instancia)
 	end)
 	
 	--> SELECIONAR O SEGMENTO  ----------------------------------------------------------------------------------------------------------------------------------------------------
+	
+	--[[
+	BaseFrame.cabecalho.segmento = gump:NewButton (BaseFrame, nil, "DetailsSegmentButton"..instancia.meu_id, nil, 16, 16, function() end, nil, nil, "Interface\GossipFrame\TrainerGossipIcon")
+	BaseFrame.cabecalho.segmento:SetFrameLevel (BaseFrame.UPFrame:GetFrameLevel()+1)
+	
+	BaseFrame.cabecalho.segmento:SetHook ("OnMouseUp", function (button, buttontype)
+		if (buttontype == "LeftButton") then
+			local segmento_goal = instancia.segmento + 1
+			if (segmento_goal > _detalhes.segments_amount) then
+			
+			end
+		elseif (buttontype == "RightButton") then
+			--instancia:TrocaTabela (-2)
+		end
+	end)
+	--]]
+	
 	BaseFrame.cabecalho.segmento = gump:NewDetailsButton (BaseFrame, _, instancia, instancia.TrocaTabela, instancia, -2, 16, 16, "Interface\\GossipFrame\\TrainerGossipIcon")
 	BaseFrame.cabecalho.segmento:SetFrameLevel (BaseFrame.UPFrame:GetFrameLevel()+1)
 	
@@ -2727,51 +2755,79 @@ function gump:CriaCabecalho (BaseFrame, instancia)
 				----------- segments
 				local menuIndex = 0
 				_detalhes.segments_amount = math.floor (_detalhes.segments_amount)
+				
+				local fight_amount = 0
+				
+				local filled_segments = 0
+				for i = 1, _detalhes.segments_amount do
+					if (_detalhes.tabela_historico.tabelas [i]) then
+						filled_segments = filled_segments + 1
+					else
+						break
+					end
+				end
+
+				filled_segments = _detalhes.segments_amount - filled_segments - 2
+				local fill = math.abs (filled_segments - _detalhes.segments_amount)
+				
 				for i = _detalhes.segments_amount, 1, -1 do
 					
-					local thisCombat = _detalhes.tabela_historico.tabelas [i]
-					if (thisCombat) then
-						local enemy = thisCombat.is_boss and thisCombat.is_boss.name
+					if (i <= fill) then
 
-						if (thisCombat.is_boss and thisCombat.is_boss.name) then
-							CoolTip:AddLine (thisCombat.is_boss.name .." (#"..i..")", _, 1, "red")
-							local portrait = _detalhes:GetBossPortrait (thisCombat.is_boss.mapid, thisCombat.is_boss.index)
-							if (portrait) then
-								CoolTip:AddIcon (portrait, 2, "top", 128, 64)
-							end
-						else
-							enemy = thisCombat.enemy
-							if (enemy) then
-								CoolTip:AddLine (thisCombat.enemy .." (#"..i..")", _, 1, "yellow")
+						local thisCombat = _detalhes.tabela_historico.tabelas [i]
+						if (thisCombat) then
+							local enemy = thisCombat.is_boss and thisCombat.is_boss.name
+
+							if (thisCombat.is_boss and thisCombat.is_boss.name) then
+							
+								if (thisCombat.is_boss.killed) then
+									CoolTip:AddLine (thisCombat.is_boss.name .." (#"..i..")", _, 1, "lime")
+								else
+									CoolTip:AddLine (thisCombat.is_boss.name .." (#"..i..")", _, 1, "red")
+								end
+								
+								local portrait = _detalhes:GetBossPortrait (thisCombat.is_boss.mapid, thisCombat.is_boss.index)
+								if (portrait) then
+									CoolTip:AddIcon (portrait, 2, "top", 128, 64)
+								end
+								CoolTip:AddIcon ([[Interface\AddOns\Details\images\icons]], "main", "left", 16, 16, 0.96875, 1, 0, 0.03125)
 							else
-								CoolTip:AddLine (segmentos.past..i, _, 1, "silver")
+								enemy = thisCombat.enemy
+								if (enemy) then
+									CoolTip:AddLine (thisCombat.enemy .." (#"..i..")", _, 1, "yellow")
+								else
+									CoolTip:AddLine (segmentos.past..i, _, 1, "silver")
+								end
+								CoolTip:AddIcon ("Interface\\QUESTFRAME\\UI-Quest-BulletPoint", "main", "left", 16, 16)
+							end
+							
+							CoolTip:AddMenu (1, instancia.TrocaTabela, i)
+							
+							CoolTip:AddLine (Loc ["STRING_SEGMENT_ENEMY"] .. ":", enemy, 2, "white", "white")
+							
+							local decorrido = (thisCombat.end_time or _detalhes._tempo) - thisCombat.start_time
+							local minutos, segundos = _math_floor (decorrido/60), _math_floor (decorrido%60)
+							CoolTip:AddLine (Loc ["STRING_SEGMENT_TIME"] .. ":", minutos.."m "..segundos.."s", 2, "white", "white")
+							
+							CoolTip:AddLine (Loc ["STRING_SEGMENT_START"] .. ":", thisCombat.data_inicio, 2, "white", "white")
+							CoolTip:AddLine (Loc ["STRING_SEGMENT_END"] .. ":", thisCombat.data_fim or "in progress", 2, "white", "white")
+							
+							fight_amount = fight_amount + 1
+						else
+							CoolTip:AddLine (Loc ["STRING_SEGMENT_LOWER"] .. " #" .. i, _, 1, "gray")
+							CoolTip:AddMenu (1, instancia.TrocaTabela, i)
+							CoolTip:AddIcon ("Interface\\QUESTFRAME\\UI-Quest-BulletPoint", "main", "left", 16, 16, nil, nil, nil, nil, empty_segment_color)
+							CoolTip:AddLine (Loc ["STRING_SEGMENT_EMPTY"], _, 2)
+						end
+						
+						if (menuIndex) then
+							menuIndex = menuIndex + 1
+							if (instancia.segmento == i) then
+								CoolTip:SetLastSelected ("main", menuIndex)
+								menuIndex = nil
 							end
 						end
-						
-						CoolTip:AddMenu (1, instancia.TrocaTabela, i)
-						CoolTip:AddIcon ("Interface\\QUESTFRAME\\UI-Quest-BulletPoint", "main", "left", 16, 16)
-						
-						CoolTip:AddLine (Loc ["STRING_SEGMENT_ENEMY"] .. ":", enemy, 2, "white", "white")
-						
-						local decorrido = (thisCombat.end_time or _detalhes._tempo) - thisCombat.start_time
-						local minutos, segundos = _math_floor (decorrido/60), _math_floor (decorrido%60)
-						CoolTip:AddLine (Loc ["STRING_SEGMENT_TIME"] .. ":", minutos.."m "..segundos.."s", 2, "white", "white")
-						
-						CoolTip:AddLine (Loc ["STRING_SEGMENT_START"] .. ":", thisCombat.data_inicio, 2, "white", "white")
-						CoolTip:AddLine (Loc ["STRING_SEGMENT_END"] .. ":", thisCombat.data_fim or "in progress", 2, "white", "white")
-					else
-						CoolTip:AddLine (Loc ["STRING_SEGMENT_LOWER"] .. " #" .. i, _, 1, "gray")
-						CoolTip:AddMenu (1, instancia.TrocaTabela, i)
-						CoolTip:AddIcon ("Interface\\QUESTFRAME\\UI-Quest-BulletPoint", "main", "left", 16, 16)
-						CoolTip:AddLine (Loc ["STRING_SEGMENT_EMPTY"], _, 2)
-					end
 					
-					if (menuIndex) then
-						menuIndex = menuIndex + 1
-						if (instancia.segmento == i) then
-							CoolTip:SetLastSelected ("main", menuIndex)
-							menuIndex = nil
-						end
 					end
 					
 				end
@@ -2779,7 +2835,7 @@ function gump:CriaCabecalho (BaseFrame, instancia)
 				----------- current
 				CoolTip:AddLine (segmentos.current_standard, _, 1, "white")
 				CoolTip:AddMenu (1, instancia.TrocaTabela, 0)
-				CoolTip:AddIcon ("Interface\\QUESTFRAME\\UI-Quest-BulletPoint", "main", "left", 16, 16)
+				CoolTip:AddIcon ("Interface\\QUESTFRAME\\UI-Quest-BulletPoint", "main", "left", 16, 16, nil, nil, nil, nil, "orange")
 					
 					local enemy = _detalhes.tabela_vigente.is_boss and _detalhes.tabela_vigente.is_boss.name or _detalhes.tabela_vigente.enemy or "--x--x--"
 					
@@ -2810,15 +2866,17 @@ function gump:CriaCabecalho (BaseFrame, instancia)
 					CoolTip:AddLine (Loc ["STRING_SEGMENT_START"] .. ":", _detalhes.tabela_vigente.data_inicio, 2, "white", "white")
 					CoolTip:AddLine (Loc ["STRING_SEGMENT_END"] .. ":", _detalhes.tabela_vigente.data_fim or "in progress", 2, "white", "white") 
 				
+					--> fill é a quantidade de menu que esta sendo mostrada
 					if (instancia.segmento == 0) then
-						CoolTip:SetLastSelected ("main", _detalhes.segments_amount + 1)
+						CoolTip:SetLastSelected ("main", fill + 1)
 						menuIndex = nil
 					end
 				
 				----------- overall
-				CoolTip:AddLine (segmentos.overall_standard, _, 1, "white")
+				--CoolTip:AddLine (segmentos.overall_standard, _, 1, "white") Loc ["STRING_REPORT_LAST"] .. " " .. fight_amount .. " " .. Loc ["STRING_REPORT_FIGHTS"]
+				CoolTip:AddLine (Loc ["STRING_SEGMENT_OVERALL"], _, 1, "white")
 				CoolTip:AddMenu (1, instancia.TrocaTabela, -1)
-				CoolTip:AddIcon ("Interface\\QUESTFRAME\\UI-Quest-BulletPoint", "main", "left", 16, 16)
+				CoolTip:AddIcon ("Interface\\QUESTFRAME\\UI-Quest-BulletPoint", "main", "left", 16, 16, nil, nil, nil, nil, "orange")
 				
 					CoolTip:AddLine (Loc ["STRING_SEGMENT_ENEMY"] .. ":", "--x--x--", 2, "white", "white")--localize-me
 					
@@ -2854,8 +2912,9 @@ function gump:CriaCabecalho (BaseFrame, instancia)
 					end
 					CoolTip:AddLine (Loc ["STRING_SEGMENT_END"] .. ":", lastFight, 2, "white", "white")
 					
+					--> fill é a quantidade de menu que esta sendo mostrada
 					if (instancia.segmento == -1) then
-						CoolTip:SetLastSelected ("main", _detalhes.segments_amount + 2)
+						CoolTip:SetLastSelected ("main", fill + 2)
 						menuIndex = nil
 					end
 					
@@ -2911,7 +2970,7 @@ function gump:CriaCabecalho (BaseFrame, instancia)
 	--> SELECIONAR O ATRIBUTO  ----------------------------------------------------------------------------------------------------------------------------------------------------
 	BaseFrame.cabecalho.atributo = gump:NewDetailsButton (BaseFrame, _, instancia, instancia.TrocaTabela, instancia, -3, 16, 16, "Interface\\AddOns\\Details\\images\\sword")
 	BaseFrame.cabecalho.atributo:SetFrameLevel (BaseFrame.UPFrame:GetFrameLevel()+1)
-	BaseFrame.cabecalho.atributo:SetPoint ("left", BaseFrame.cabecalho.segmento, "right", 0, 0)
+	BaseFrame.cabecalho.atributo:SetPoint ("left", BaseFrame.cabecalho.segmento.widget, "right", 0, 0)
 
 	--> Cooltip automatic method through Injection
 	

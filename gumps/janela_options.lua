@@ -15,7 +15,7 @@ function _detalhes:OpenOptionsWindow (instance)
 	
 		-- Most of details widgets have the same 6 first parameters: parent, container, global name, parent key, width, height
 	
-		window = g:NewPanel (UIParent, _, "DetailsOptionsWindow", _, 700, 340)
+		window = g:NewPanel (UIParent, _, "DetailsOptionsWindow", _, 700, 360)
 		window.instance = instance
 		tinsert (UISpecialFrames, "DetailsOptionsWindow")
 		window:SetPoint ("center", UIParent, "Center")
@@ -28,11 +28,85 @@ function _detalhes:OpenOptionsWindow (instance)
 		local c = window:CreateRightClickLabel ("medium")
 		c:SetPoint ("bottomleft", window, "bottomleft", 5, 5)
 		
+	--------------- Memory
+	
+		g:NewSlider (window, _, "$parentSlider", "segmentsSlider", 120, 20, 1, 25, 1, _detalhes.segments_amount) -- min, max, step, defaultv
+		g:NewSlider (window, _, "$parentSliderSegmentsSave", "segmentsSliderToSave", 80, 20, 1, 5, 1, _detalhes.segments_amount_to_save) -- min, max, step, defaultv
+		g:NewSlider (window, _, "$parentSliderUpdateSpeed", "updatespeedSlider", 160, 20, 0.3, 3, 0.1, _detalhes.update_speed, true) --parent, container, name, member, w, h, min, max, step, defaultv
+	
+		g:NewLabel (window, _, "$parentLabelMemory", "memoryLabel", "memory threshold")
+		window.memoryLabel:SetPoint (10, -35)
+		--
+		g:NewSlider (window, _, "$parentSliderMemory", "memorySlider", 130, 20, 1, 4, 1, _detalhes.memory_threshold) -- min, max, step, defaultv
+		window.memorySlider:SetPoint ("left", window.memoryLabel, "right", 2, 0)
+		window.memorySlider:SetHook ("OnValueChange", function (slider, _, amount) --> slider, fixedValue, sliderValue
+			
+			amount = math.floor (amount)
+			
+			if (amount == 1) then
+				slider.amt:SetText ("<= 1gb")
+				_detalhes.memory_ram = 16
+				_detalhes.segments_amount = 5
+				_detalhes.segments_amount_to_save = 2
+				_detalhes.update_speed = 1.5
+				
+				_G.DetailsOptionsWindowSlider.MyObject:SetValue (_detalhes.segments_amount)
+				_G.DetailsOptionsWindowSliderSegmentsSave.MyObject:SetValue (_detalhes.segments_amount_to_save)
+				_G.DetailsOptionsWindowSliderUpdateSpeed.MyObject:SetValue (_detalhes.update_speed)
+				
+			elseif (amount == 2) then
+				slider.amt:SetText ("2gb")
+				_detalhes.memory_ram = 32
+				_detalhes.segments_amount = 10
+				_detalhes.segments_amount_to_save = 3
+				_detalhes.update_speed = 1.2
+				
+				_G.DetailsOptionsWindowSlider.MyObject:SetValue (_detalhes.segments_amount)
+				_G.DetailsOptionsWindowSliderSegmentsSave.MyObject:SetValue (_detalhes.segments_amount_to_save)
+				_G.DetailsOptionsWindowSliderUpdateSpeed.MyObject:SetValue (_detalhes.update_speed)
+				
+			elseif (amount == 3) then
+				slider.amt:SetText ("4gb")
+				_detalhes.memory_ram = 64
+				_detalhes.segments_amount = 20
+				_detalhes.segments_amount_to_save = 5
+				_detalhes.update_speed = 1.0
+				
+				_G.DetailsOptionsWindowSlider.MyObject:SetValue (_detalhes.segments_amount)
+				_G.DetailsOptionsWindowSliderSegmentsSave.MyObject:SetValue (_detalhes.segments_amount_to_save)
+				_G.DetailsOptionsWindowSliderUpdateSpeed.MyObject:SetValue (_detalhes.update_speed)
+				
+			elseif (amount == 4) then
+				slider.amt:SetText (">= 6gb")
+				_detalhes.memory_ram = 128
+				_detalhes.segments_amount = 25
+				_detalhes.segments_amount_to_save = 5
+				_detalhes.update_speed = 0.5
+				
+				_G.DetailsOptionsWindowSlider.MyObject:SetValue (_detalhes.segments_amount)
+				_G.DetailsOptionsWindowSliderSegmentsSave.MyObject:SetValue (_detalhes.segments_amount_to_save)
+				_G.DetailsOptionsWindowSliderUpdateSpeed.MyObject:SetValue (_detalhes.update_speed)
+				
+			end
+			
+			_detalhes.memory_threshold = amount
+			
+			return true
+		end)
+		window.memorySlider.tooltip = "Details! try adjust it self with the amount of memory\navaliable on your system.\n\nAlso is recommeded keep the amount of\nsegments low if your system have 2gb ram or less."
+		window.memorySlider.thumb:SetSize (40, 12)
+		window.memorySlider.thumb:SetTexture ([[Interface\Buttons\UI-Listbox-Highlight2]])
+		window.memorySlider.thumb:SetVertexColor (.2, .2, .2, .9)
+		local t = _detalhes.memory_threshold
+		window.memorySlider:SetValue (1)
+		window.memorySlider:SetValue (2)
+		window.memorySlider:SetValue (t)
+		
 	--------------- Max Segments
 		g:NewLabel (window, _, "$parentSliderLabel", "segmentsLabel", "max segments")
-		window.segmentsLabel:SetPoint (10, -35)
+		window.segmentsLabel:SetPoint (10, -50)
 		--
-		g:NewSlider (window, _, "$parentSlider", "segmentsSlider", 120, 20, 1, 25, 1, _detalhes.segments_amount) -- min, max, step, defaultv
+		
 		window.segmentsSlider:SetPoint ("left", window.segmentsLabel, "right")
 		window.segmentsSlider:SetHook ("OnValueChange", function (self, _, amount) --> slider, fixedValue, sliderValue
 			_detalhes.segments_amount = math.floor (amount)
@@ -41,18 +115,18 @@ function _detalhes:OpenOptionsWindow (instance)
 
 	--------------- Max Segments Saved
 		g:NewLabel (window, _, "$parentLabelSegmentsSave", "segmentsSaveLabel", "segments saved on logout")
-		window.segmentsSaveLabel:SetPoint (10, -50)
+		window.segmentsSaveLabel:SetPoint (10, -65)
 		--
-		g:NewSlider (window, _, "$parentSliderSegmentsSave", "segmentsSliderToSave", 80, 20, 1, 5, 1, _detalhes.segments_amount_to_save) -- min, max, step, defaultv
+		
 		window.segmentsSliderToSave:SetPoint ("left", window.segmentsSaveLabel, "right")
 		window.segmentsSliderToSave:SetHook ("OnValueChange", function (self, _, amount) --> slider, fixedValue, sliderValue
-			_detalhes.segments_amount_to_save = amount
+			_detalhes.segments_amount_to_save = math.floor (amount)
 		end)
 		window.segmentsSliderToSave.tooltip = "How many segments will be saved on logout.\nHigher values may increase the time between a\nlogout button click and your character selection screen.\nIf you rarely check last day data, it`s high recommeded save only 1."
 	
 	--------------- Panic Mode
 		g:NewLabel (window, _, "$parentPanicModeLabel", "panicModeLabel", "panic mode")
-		window.panicModeLabel:SetPoint (10, -65)
+		window.panicModeLabel:SetPoint (10, -80)
 		--
 		g:NewSwitch (window, _, "$parentPanicModeSlider", "panicModeSlider", 60, 20, _, _, _detalhes.segments_panic_mode)
 		window.panicModeSlider:SetPoint ("left", window.panicModeLabel, "right")
@@ -63,7 +137,7 @@ function _detalhes:OpenOptionsWindow (instance)
 		
 	--------------- Animate Rows
 		g:NewLabel (window, _, "$parentAnimateLabel", "animateLabel", "dance bars")
-		window.animateLabel:SetPoint (10, -80)
+		window.animateLabel:SetPoint (10, -95)
 		--
 		g:NewSwitch (window, _, "$parentAnimateSlider", "animateSlider", 60, 20, _, _, _detalhes.use_row_animations) -- ltext, rtext, defaultv
 		window.animateSlider:SetPoint ("left",window.animateLabel, "right")
@@ -71,22 +145,9 @@ function _detalhes:OpenOptionsWindow (instance)
 			_detalhes.use_row_animations = value
 		end
 		
-	--------------- Clear Ungrouped
-	--[[
-		g:NewLabel (window, _, "$parentClearUngroupedLabel", "clearungroupedLabel", "delete ungrouped on logout")
-		window.clearungroupedLabel:SetPoint (10, -65)
-		--
-		g:NewSwitch (window, _, "$parentClearUngroupedSlider", "clearungroupedSlider", 60, 20, _, _, _detalhes.clear_ungrouped) -- ltext, rtext, defaultv
-		window.clearungroupedSlider:SetPoint ("left", window.clearungroupedLabel, "right")
-		window.clearungroupedSlider.OnSwitch = function (self, _, value) --> slider, fixedValue, sliderValue
-			_detalhes.clear_ungrouped = value
-		end
-		window.clearungroupedSlider.tooltip = "erase actors without a group when you logout."
-	--]]
-	
 	--------------- Use Scroll Bar
 		g:NewLabel (window, _, "$parentUseScrollLabel", "scrollLabel", "show scroll bar")
-		window.scrollLabel:SetPoint (10, -95)
+		window.scrollLabel:SetPoint (10, -110)
 		--
 		g:NewSwitch (window, _, "$parentUseScrollSlider", "scrollSlider", 60, 20, _, _, _detalhes.use_scroll) -- ltext, rtext, defaultv
 		window.scrollSlider:SetPoint ("left", window.scrollLabel, "right")
@@ -110,7 +171,7 @@ function _detalhes:OpenOptionsWindow (instance)
 		
 	--------------- Animate scroll bar
 		g:NewLabel (window, _, "$parentAnimateScrollLabel", "animatescrollLabel", "animate scroll")
-		window.animatescrollLabel:SetPoint (10, -110)
+		window.animatescrollLabel:SetPoint (10, -125)
 		--
 		g:NewSwitch (window, _, "$parentClearAnimateScrollSlider", "animatescrollSlider", 60, 20, _, _, _detalhes.animate_scroll) -- ltext, rtext, defaultv
 		window.animatescrollSlider:SetPoint ("left", window.animatescrollLabel, "right")
@@ -120,9 +181,9 @@ function _detalhes:OpenOptionsWindow (instance)
 		
 	--------------- Update Speed
 		g:NewLabel (window, _, "$parentUpdateSpeedLabel", "updatespeedLabel", "update speed")
-		window.updatespeedLabel:SetPoint (10, -125)
+		window.updatespeedLabel:SetPoint (10, -143)
 		--
-		g:NewSlider (window, _, "$parentSliderUpdateSpeed", "updatespeedSlider", 160, 20, 0.3, 3, 0.1, _detalhes.update_speed, true) --parent, container, name, member, w, h, min, max, step, defaultv
+		--g:NewSlider (window, _, "$parentSliderUpdateSpeed", "updatespeedSlider", 160, 20, 0.3, 3, 0.1, _detalhes.update_speed, true) --parent, container, name, member, w, h, min, max, step, defaultv
 		window.updatespeedSlider:SetPoint ("left", window.updatespeedLabel, "right")
 		window.updatespeedSlider:SetThumbSize (50)
 		window.updatespeedSlider.useDecimals = true
@@ -147,7 +208,7 @@ function _detalhes:OpenOptionsWindow (instance)
 		
 	--------------- Time Type
 		g:NewLabel (window, _, "$parentTimeTypeLabel", "timetypeLabel", "time measure")
-		window.timetypeLabel:SetPoint (10, -143)
+		window.timetypeLabel:SetPoint (10, -163)
 		--
 		local onSelectTimeType = function (_, _, timetype)
 			_detalhes.time_type = timetype
@@ -165,23 +226,23 @@ function _detalhes:OpenOptionsWindow (instance)
 	
 	--------------- Captures
 		g:NewImage (window, _, "$parentCaptureDamage", "damageCaptureImage", 20, 20, [[Interface\AddOns\Details\images\atributos_captures]])
-		window.damageCaptureImage:SetPoint (10, -163)
+		window.damageCaptureImage:SetPoint (10, -183)
 		window.damageCaptureImage:SetTexCoord (0, 0.125, 0, 1)
 		
 		g:NewImage (window, _, "$parentCaptureHeal", "healCaptureImage", 20, 20, [[Interface\AddOns\Details\images\atributos_captures]])
-		window.healCaptureImage:SetPoint (10, -183)
+		window.healCaptureImage:SetPoint (10, -203)
 		window.healCaptureImage:SetTexCoord (0.125, 0.25, 0, 1)
 		
 		g:NewImage (window, _, "$parentCaptureEnergy", "energyCaptureImage", 20, 20, [[Interface\AddOns\Details\images\atributos_captures]])
-		window.energyCaptureImage:SetPoint (10, -203)
+		window.energyCaptureImage:SetPoint (10, -223)
 		window.energyCaptureImage:SetTexCoord (0.25, 0.375, 0, 1)
 		
 		g:NewImage (window, _, "$parentCaptureMisc", "miscCaptureImage", 20, 20, [[Interface\AddOns\Details\images\atributos_captures]])
-		window.miscCaptureImage:SetPoint (10, -223)
+		window.miscCaptureImage:SetPoint (10, -243)
 		window.miscCaptureImage:SetTexCoord (0.375, 0.5, 0, 1)
 		
 		g:NewImage (window, _, "$parentCaptureAura", "auraCaptureImage", 20, 20, [[Interface\AddOns\Details\images\atributos_captures]])
-		window.auraCaptureImage:SetPoint (10, -243)
+		window.auraCaptureImage:SetPoint (10, -263)
 		window.auraCaptureImage:SetTexCoord (0.5, 0.625, 0, 1)
 		
 		g:NewLabel (window, _, "$parentCaptureDamageLabel", "damageCaptureLabel", "Damage")
@@ -247,7 +308,7 @@ function _detalhes:OpenOptionsWindow (instance)
 	--------------- Cloud Capture
 	
 		g:NewLabel (window, _, "$parentCloudCaptureLabel", "cloudCaptureLabel", "Cloud Capture")
-		window.cloudCaptureLabel:SetPoint (10, -268)
+		window.cloudCaptureLabel:SetPoint (10, -288)
 	
 		g:NewSwitch (window, _, "$parentCloudAuraSlider", "cloudCaptureSlider", 60, 20, _, _, _detalhes.cloud_capture)
 		window.cloudCaptureSlider:SetPoint ("left", window.cloudCaptureLabel, "right", 2)
@@ -258,7 +319,7 @@ function _detalhes:OpenOptionsWindow (instance)
 		
 	--------------- Max Instances
 		g:NewLabel (window, _, "$parentLabelMaxInstances", "maxInstancesLabel", "max instances")
-		window.maxInstancesLabel:SetPoint (10, -288)
+		window.maxInstancesLabel:SetPoint (10, -314)
 		--
 		g:NewSlider (window, _, "$parentSliderMaxInstances", "maxInstancesSlider", 150, 20, 12, 30, 1, _detalhes.instances_amount) -- min, max, step, defaultv
 		window.maxInstancesSlider:SetPoint ("left", window.maxInstancesLabel, "right")
@@ -267,8 +328,11 @@ function _detalhes:OpenOptionsWindow (instance)
 		end)
 		window.maxInstancesSlider.tooltip = "Amount of windows which can be created."
 		
--- Current Instalnce --------------------------------------------------------------------------------------------------------------------------------------------
+
 		
+-- Current Instalnce --------------------------------------------------------------------------------------------------------------------------------------------
+	
+
 	--------------- Row textures
 		g:NewLabel (window, _, "$parentTextureLabel", "textureLabel", "row style")
 		window.textureLabel:SetPoint (250, -30)
@@ -351,6 +415,8 @@ function _detalhes:OpenOptionsWindow (instance)
 		local selectedAlpha = function()
 			local r, g, b = ColorPickerFrame:GetColorRGB()
 			local a = OpacitySliderFrame:GetValue()
+
+			a = _detalhes:Scale (0, 1, 0.5, 1, a) - 0.5
 			
 			window.instancecolortexture:SetTexture (r, g, b)
 			window.instancecolortexture:SetAlpha (a)
@@ -362,8 +428,9 @@ function _detalhes:OpenOptionsWindow (instance)
 		
 		local colorpick = function()
 			ColorPickerFrame.func = selectedColor
+			ColorPickerFrame.opacityFunc = selectedAlpha
 			ColorPickerFrame.cancelFunc = canceledColor
-			ColorPickerFrame.hasOpacity = false
+			ColorPickerFrame.hasOpacity = true --false
 			ColorPickerFrame.opacity = window.instance.color[4] or 1
 			ColorPickerFrame.previousValues = window.instance.color
 			ColorPickerFrame:SetParent (window.widget)
@@ -371,7 +438,7 @@ function _detalhes:OpenOptionsWindow (instance)
 			ColorPickerFrame:Show()
 		end
 
-		g:NewImage (window, _, "$parentInstanceColorTexture", "instancecolortexture", 100, 12)
+		g:NewImage (window, _, "$parentInstanceColorTexture", "instancecolortexture", 150, 12)
 		window.instancecolortexture:SetPoint ("left", window.instancecolor, "right", 2)
 		window.instancecolortexture:SetTexture (1, 1, 1)
 		
@@ -634,6 +701,7 @@ function _detalhes:OpenOptionsWindow (instance)
 			if (tinstance.wallpaper.texture:find ("TALENTFRAME")) then
 				g:ImageEditor (callmeback, tinstance.wallpaper.texture, tinstance.wallpaper.texcoord, tinstance.wallpaper.overlay, window.instance.baseframe.wallpaper:GetWidth(), window.instance.baseframe.wallpaper:GetHeight())
 			else
+				tinstance.wallpaper.overlay [4] = 0.5
 				g:ImageEditor (callmeback, tinstance.wallpaper.texture, tinstance.wallpaper.texcoord, tinstance.wallpaper.overlay, window.instance.baseframe.wallpaper:GetWidth(), window.instance.baseframe.wallpaper:GetHeight())
 			end
 		end
@@ -647,6 +715,35 @@ function _detalhes:OpenOptionsWindow (instance)
 		g:NewButton (window, _, "$parentEditImage", "editImage", 100, 18, startImageEdit, nil, nil, nil, "edit image")
 		window.editImage:InstallCustomTexture()
 		window.editImage:SetPoint ("left", window.anchorDropdown, "right", 2)
+		
+		--
+		
+	--------------- Alpha
+		g:NewLabel (window, _, "$parentAlphaLabel", "alphaLabel", "transparency")
+		window.alphaLabel:SetPoint (250, -230)
+		--
+		g:NewSlider (window, _, "$parentAlphaSlider", "alphaSlider", 160, 20, 0.02, 1, 0.02, instance.bg_alpha, true) -- min, max, step, defaultv
+		window.alphaSlider:SetPoint ("left", window.alphaLabel, "right", 2, 0)
+		window.alphaSlider.useDecimals = true
+		window.alphaSlider:SetHook ("OnValueChange", function (self, instance, amount) --> slider, fixedValue, sliderValue
+			self.amt:SetText (string.format ("%.2f", amount))
+			instance:SetBackgroundAlpha (amount)
+			return true
+		end)
+		window.alphaSlider.thumb:SetSize (30+(120*0.2)+2, 20*1.2)
+		window.alphaSlider.tooltip = "Change the background alpha for this instance"
+		
+	--------------- Auto Current Segment
+	
+		g:NewLabel (window, _, "$parentAutoCurrentLabel", "autoCurrentLabel", "auto switch to current")
+		window.autoCurrentLabel:SetPoint (250, -253)
+	
+		g:NewSwitch (window, _, "$parentAutoCurrentSlider", "autoCurrentSlider", 60, 20, _, _, instance.auto_current)
+		window.autoCurrentSlider:SetPoint ("left", window.autoCurrentLabel, "right", 2)
+		window.autoCurrentSlider.tooltip = "Whenever a combat start and there is no other instance on\ncurrent segment, this instance auto switch to current segment."
+		window.autoCurrentSlider.OnSwitch = function (self, instance, value)
+			instance.auto_current = value
+		end
 		
 ----------------------- Save Style Text Entry and Button -----------------------------------------
 	
@@ -666,7 +763,8 @@ function _detalhes:OpenOptionsWindow (instance)
 				fontSize = tonumber (window.fonsizeSlider.value),
 				fontFace = window.fontDropdown.value, 
 				color = window.instance.color,
-				wallpaper = instance.wallpaper
+				wallpaper = instance.wallpaper,
+				alpha = tonumber (window.alphaSlider.value)
 			}
 			_detalhes.savedStyles [#_detalhes.savedStyles+1] = savedObject
 			window.saveStyleName.text = ""
@@ -695,6 +793,8 @@ function _detalhes:OpenOptionsWindow (instance)
 			instance:InstanceColor (style.color)
 			--wallpaper
 			instance:InstanceWallpaper (style.wallpaper)
+			--alpha
+			instance:SetBackgroundAlpha (style.alpha or _detalhes.default_bg_alpha)
 			--refresh
 			instance:RefreshBars()
 			--update options
@@ -703,6 +803,7 @@ function _detalhes:OpenOptionsWindow (instance)
 			_G.DetailsOptionsWindowTextureDropdown.MyObject:Select (style.texture)
 			_G.DetailsOptionsWindowFontDropdown.MyObject:Select (style.fontFace)
 			_G.DetailsOptionsWindowSliderFontSize.MyObject:SetValue (style.fontSize)
+			_G.DetailsOptionsWindowAlphaSlider.MyObject:SetValue (style.alpha or _detalhes.default_bg_alpha)
 		end
 	
 		local createLoadMenu = function()
@@ -808,6 +909,12 @@ function _detalhes:OpenOptionsWindow (instance)
 	--
 	_G.DetailsOptionsWindowSliderFontSize.MyObject:SetFixedParameter (instance)
 	_G.DetailsOptionsWindowSliderFontSize.MyObject:SetValue (instance.barrasInfo.fontSize)
+	--
+	_G.DetailsOptionsWindowAutoCurrentSlider.MyObject:SetFixedParameter (instance)
+	_G.DetailsOptionsWindowAutoCurrentSlider.MyObject:SetValue (instance.auto_current)
+	--
+	_G.DetailsOptionsWindowAlphaSlider.MyObject:SetFixedParameter (instance)
+	_G.DetailsOptionsWindowAlphaSlider.MyObject:SetValue (instance.bg_alpha)
 	--
 	_G.DetailsOptionsWindowUseBackgroundSlider.MyObject:SetFixedParameter (instance)
 	_G.DetailsOptionsWindowBackgroundDropdown.MyObject:SetFixedParameter (instance)

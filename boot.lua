@@ -7,7 +7,7 @@
 --> global name declaration
 
 		_detalhes = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0", "NickTag-1.0")
-		_detalhes.userversion = "v1.4.0"
+		_detalhes.userversion = "v1.4.6"
 		_detalhes.version = "Alpha 006"
 		_detalhes.realversion = 6
 

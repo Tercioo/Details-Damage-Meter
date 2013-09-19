@@ -8,6 +8,8 @@ local g = _detalhes.gump
 	window:SetMovable (true)
 	tinsert (UISpecialFrames, "DetailsImageEdit")
 	
+	window.hooks = {}
+	
 	local background = g:NewImage (window, _, "$parentBackground", _, _, _, nil, "background")
 	background:SetAllPoints()
 	background:SetTexture (0, 0, 0, .8)
@@ -43,6 +45,9 @@ local g = _detalhes.gump
 
 		topSlider:SetHook ("OnValueChange", function (_, _, value)
 			topCoordTexture.image:SetHeight (window.frame:GetHeight()/100*value)
+			if (window.callback_func) then
+				window.accept (true)
+			end
 		end)
 		
 		topSlider:Hide()
@@ -73,6 +78,9 @@ local g = _detalhes.gump
 		bottomSlider:SetHook ("OnValueChange", function (_, _, value)
 			value = math.abs (value-100)
 			bottomCoordTexture.image:SetHeight (math.max (window.frame:GetHeight()/100*value, 1))
+			if (window.callback_func) then
+				window.accept (true)
+			end
 		end)
 		
 		bottomSlider:Hide()
@@ -101,6 +109,9 @@ local g = _detalhes.gump
 		
 		leftSlider:SetHook ("OnValueChange", function (_, _, value)
 			leftCoordTexture.image:SetWidth (window.frame:GetWidth()/100*value)
+			if (window.callback_func) then
+				window.accept (true)
+			end
 		end)
 		
 		leftSlider:Hide()
@@ -130,6 +141,9 @@ local g = _detalhes.gump
 		rightSlider:SetHook ("OnValueChange", function (_, _, value)
 			value = math.abs (value-100)
 			rightCoordTexture.image:SetWidth (math.max (window.frame:GetWidth()/100*value, 1))
+			if (window.callback_func) then
+				window.accept (true)
+			end
 		end)
 		
 		rightSlider:Hide()
@@ -202,8 +216,14 @@ local g = _detalhes.gump
 		local selectedColor = function (default)
 			if (default) then
 				edit_texture:SetVertexColor (unpack (default))
+				if (window.callback_func) then
+					window.accept (true)
+				end
 			else
 				edit_texture:SetVertexColor (ColorPickerFrame:GetColorRGB())
+				if (window.callback_func) then
+					window.accept (true)
+				end
 			end
 		end
 		
@@ -282,6 +302,9 @@ local g = _detalhes.gump
 		
 		alphaSlider:SetHook ("OnValueChange", function (_, _, value)
 			edit_texture:SetAlpha (value/100)
+			if (window.callback_func) then
+				window.accept (true)
+			end
 		end)
 
 		local resizer = CreateFrame ("Button", nil, window.widget)
@@ -320,6 +343,10 @@ local g = _detalhes.gump
 			leftCoordTexture.image:SetWidth (window.frame:GetWidth()/100*leftSlider:GetValue())
 			bottomCoordTexture:SetHeight (math.max ( (window.frame:GetHeight() / 100 * math.abs (bottomSlider:GetValue()-100)), 1))
 			topCoordTexture:SetHeight (window.frame:GetHeight()/100*topSlider:GetValue())
+			
+			if (window.callback_func) then
+				window.accept (true)
+			end
 		end)
 		
 	--> change size
@@ -353,6 +380,10 @@ local g = _detalhes.gump
 					rightTexCoordButton:Enable()
 				end
 				haveHFlip = not haveHFlip
+				if (window.callback_func) then
+					window.accept (true)
+				end
+
 
 			elseif (side == 2) then
 				if (not haveVFlip) then
@@ -379,6 +410,9 @@ local g = _detalhes.gump
 					bottomTexCoordButton:Enable()
 				end
 				haveVFlip = not haveVFlip
+				if (window.callback_func) then
+					window.accept (true)
+				end
 			end
 		end
 		
@@ -391,11 +425,14 @@ local g = _detalhes.gump
 		flipButtonV:InstallCustomTexture()
 		
 	--> accept
-		local accept = function()
-			buttonsBackground:Hide()
-			window:Hide()
-			alphaFrame:Hide()
-			ColorPickerFrame:Hide()
+		window.accept = function (keep_editing)
+		
+			if (not keep_editing) then
+				buttonsBackground:Hide()
+				window:Hide()
+				alphaFrame:Hide()
+				ColorPickerFrame:Hide()
+			end
 			
 			local coords = {}
 			if (haveHFlip) then
@@ -417,7 +454,7 @@ local g = _detalhes.gump
 			return window.callback_func (edit_texture.width, edit_texture.height, {edit_texture:GetVertexColor()}, edit_texture:GetAlpha(), coords, window.extra_param)
 		end
 		
-		local acceptButton = g:NewButton (buttonsBackground, _, "$parentAcceptButton", _, 100, 20, accept, _, _, _, "DONE")
+		local acceptButton = g:NewButton (buttonsBackground, _, "$parentAcceptButton", _, 100, 20, window.accept, _, _, _, "DONE")
 		acceptButton:SetPoint ("topleft", window, "topright", 10, -200)
 		acceptButton:InstallCustomTexture()
 
@@ -432,24 +469,27 @@ window:Hide()
 		local ttexcoord
 		function g:ImageEditor (callback, texture, texcoord, colors, width, height, extraParam)
 		
+			texcoord = texcoord or {0, 1, 0, 1}
+			ttexcoord = texcoord
+		
+			colors = colors or {1, 1, 1, 1}
+		
 			edit_texture:SetTexture (texture)
 			edit_texture.width = width
 			edit_texture.height = height
 			
-			colors = colors or {1, 1, 1, 1}
 			edit_texture:SetVertexColor (colors [1], colors [2], colors [3])
 			
 			edit_texture:SetAlpha (colors [4] or 1)
-			
-			texcoord = texcoord or {0, 1, 0, 1}
-			ttexcoord = texcoord
-			
+
 			_detalhes:ScheduleTimer ("RefreshImageEditor", 0.2)
 			
 			window:Show()
 			window.callback_func = callback
 			window.extra_param = extraParam
 			buttonsBackground:Show()
+			
+			table.wipe (window.hooks)
 		end
 		
 		function _detalhes:RefreshImageEditor()
@@ -475,6 +515,10 @@ window:Hide()
 				flip (2)
 				topSlider:SetValue (ttexcoord[3]*100)
 				bottomSlider:SetValue (ttexcoord[4]*100)
+			end
+			
+			if (window.callback_func) then
+				window.accept (true)
 			end
 
 		end

@@ -19,8 +19,28 @@ local SliderMetaFunctions = {}
 
 	SliderMetaFunctions.__call = function (_table, value)
 		if (not value) then
+			if (_table.isSwitch) then
+				if (_table.slider:GetValue() == 1) then
+					return false
+				else
+					return true
+				end
+			end
 			return _table.slider:GetValue()
 		else
+			if (_table.isSwitch) then
+				if (type (value) == "boolean") then
+					if (value) then
+						_table.slider:SetValue (2)
+					else
+						_table.slider:SetValue (1)
+					end
+				else
+					_table.slider:SetValue (value)
+				end
+				return
+			end
+			
 			return _table.slider:SetValue (value)
 		end
 	end
@@ -161,6 +181,11 @@ local SliderMetaFunctions = {}
 --> fixed value
 	function SliderMetaFunctions:SetFixedParameter (value)
 		_rawset (self, "FixedValue", value)
+	end
+	
+--> set value
+	function SliderMetaFunctions:SetValue (value)
+		return self (value)
 	end
 	
 -- thumb size
@@ -382,6 +407,7 @@ function gump:NewSwitch (parent, container, name, member, w, h, ltext, rtext, de
 
 --> build frames
 	local slider = gump:NewSlider (parent, container, name, member, w, h, 1, 2, 1, defaultv)
+	
 	slider:SetBackdrop ({edgeFile = "Interface\\Buttons\\UI-SliderBar-Border", edgeSize = 8,
 	bgFile = [[Interface\AddOns\Details\images\background]], insets = {left = 3, right = 3, top = 5, bottom = 5}})
 	
@@ -405,6 +431,8 @@ function gump:NewSwitch (parent, container, name, member, w, h, ltext, rtext, de
 	slider:SetValue (1)
 	slider:SetValue (2)
 	slider:SetValue (defaultv)
+	
+	slider.isSwitch = true
 	
 	return slider
 end

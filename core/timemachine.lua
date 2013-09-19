@@ -1,13 +1,13 @@
---File Revision: 1
---Last Modification: 27/07/2013
+--File Revision: 2
+--Last Modification: 12/09/2013
 -- Change Log:
 	-- 27/07/2013: Finished alpha version.
+	-- 12/09/2013: Fixed some problems with garbage collector.
 
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 	local _detalhes = 		_G._detalhes
-	local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
 	local _tempo = time()
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -66,7 +66,6 @@
 				jogador:RegistrarNaTimeMachine()
 			end
 		end
-
 	end
 
 	function timeMachine:Desligar()
@@ -86,9 +85,15 @@
 		if (not timeMachine.ligada) then
 			return
 		end
-		local esta_tabela = timeMachine.tabelas [self.tipo]
-		esta_tabela [self.timeMachine] = nil
-		self.timeMachine = nil
+		
+		local timeMachineContainer = timeMachine.tabelas [self.tipo]
+		local actorTimeMachineID = self.timeMachine
+		
+		if (timeMachineContainer [actorTimeMachineID] == self) then
+			self:TerminarTempo()
+			self.timeMachine = nil
+			timeMachineContainer [actorTimeMachineID] = false
+		end
 	end
 
 	function _detalhes:RegistrarNaTimeMachine()
@@ -96,11 +101,6 @@
 			return
 		end
 		
-		--if (self.tipo == 3) then
-		--	print (debugstack())
-		--	return
-		--end
-
 		local esta_tabela = timeMachine.tabelas [self.tipo]
 		_table_insert (esta_tabela, self)
 		self.timeMachine = #esta_tabela
@@ -109,13 +109,21 @@
 	function _detalhes:ManutencaoTimeMachine()
 		for tipo, tabela in _ipairs (timeMachine.tabelas) do
 			local t = {}
+			local removed = 0
 			for index, jogador in _ipairs (tabela) do
 				if (jogador) then
 					t [#t+1] = jogador
 					jogador.timeMachine = #t
+				else
+					removed = removed + 1
 				end
 			end
+			
 			timeMachine.tabelas [tipo] = t
+			
+			if (_detalhes.debug) then
+				_detalhes:Msg ("timemachine r"..removed.."| e"..#t.."| t"..tipo)
+			end
 		end
 	end
 
@@ -202,4 +210,9 @@
 		else
 			self.last_event = tempo
 		end
+	end
+
+	function _detalhes:PrintTimeMachineIndexes()
+		print ("timemachine damage", #timeMachine.tabelas [1])
+		print ("timemachine heal", #timeMachine.tabelas [2])
 	end

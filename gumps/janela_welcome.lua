@@ -366,7 +366,7 @@ function _detalhes:OpenWelcomeWindow ()
 		interval_text:SetPoint ("topleft", window, "topleft", 30, -110)
 		
 		local dance_text = window:CreateFontString (nil, "overlay", "GameFontNormal")
-		dance_text:SetText ("Keeping 'Dance Bars' disabled may help save performance.")
+		dance_text:SetText ("Keeping 'Dance Bars' disabled also may help with performance.")
 		dance_text:SetWidth (460)
 		dance_text:SetHeight (40)
 		dance_text:SetJustifyH ("left")
@@ -421,6 +421,109 @@ function _detalhes:OpenWelcomeWindow ()
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> page 5
 
+		local bg44 = window:CreateTexture (nil, "overlay")
+		bg44:SetTexture ([[Interface\MainMenuBar\UI-MainMenuBar-EndCap-Human]])
+		bg44:SetPoint ("bottomright", window, "bottomright", -10, 10)
+		bg44:SetHeight (125*3)--125
+		bg44:SetWidth (89*3)--82
+		bg44:SetAlpha (.1)
+		bg44:SetTexCoord (1, 0, 0, 1)
+		
+		g:NewLabel (window, _, "$parentChangeMind44Label", "changemind44Label", "if you change your mind, you can always modify again through options panel", "GameFontNormal", 9, "orange")
+		window.changemind44Label:SetPoint ("center", window, "center")
+		window.changemind44Label:SetPoint ("bottom", window, "bottom", 0, 19)
+		window.changemind44Label.align = "|"
+		
+		local texto44 = window:CreateFontString (nil, "overlay", "GameFontNormal")
+		texto44:SetPoint ("topleft", window, "topleft", 20, -80)
+		texto44:SetText ("Memory Adjustments:")
+		
+		local interval_text4 = window:CreateFontString (nil, "overlay", "GameFontNormal")
+		interval_text4:SetText ("The amount of memory used by addons doesn't affect framerate, but, saving memory in computers which doesn't have much of it, may help the whole system. Details! try to be as flexible as possible to keep the game smooth even in not high-end hardware.")
+		interval_text4:SetWidth (460)
+		interval_text4:SetHeight (60)
+		interval_text4:SetJustifyH ("left")
+		interval_text4:SetJustifyV ("top")
+		interval_text4:SetTextColor (1, 1, 1, 1)
+		interval_text4:SetPoint ("topleft", window, "topleft", 30, -110)
+		
+		--[[
+		local dance_text = window:CreateFontString (nil, "overlay", "GameFontNormal")
+		dance_text:SetText ("Low amount of segments can keep memory .")
+		dance_text:SetWidth (460)
+		dance_text:SetHeight (40)
+		dance_text:SetJustifyH ("left")
+		dance_text:SetJustifyV ("top")
+		dance_text:SetTextColor (1, 1, 1, 1)
+		dance_text:SetPoint ("topleft", window, "topleft", 30, -170)
+		--]]
+	--------------- Max Segments
+		g:NewLabel (window, _, "$parentSliderLabel", "segmentsLabel", "max segments")
+		window.segmentsLabel:SetPoint (31, -170)
+		--
+		g:NewSlider (window, _, "$parentSlider", "segmentsSlider", 120, 20, 1, 25, 1, _detalhes.segments_amount) -- min, max, step, defaultv
+		window.segmentsSlider:SetPoint ("left", window.segmentsLabel, "right", 2, 0)
+		window.segmentsSlider:SetHook ("OnValueChange", function (self, _, amount) --> slider, fixedValue, sliderValue
+			_detalhes.segments_amount = math.floor (amount)
+		end)
+		window.segmentsSlider.tooltip = "How many segments you want to maintain.\nFeel free to adjust this number to be comfortable for you."
+		
+	--------------- memory
+		g:NewLabel (window, _, "$parentLabelMemory", "memoryLabel", "memory threshold")
+		window.memoryLabel:SetPoint (31, -185)
+		--
+		g:NewSlider (window, _, "$parentSliderMemory", "memorySlider", 130, 20, 1, 4, 1, _detalhes.memory_threshold) -- min, max, step, defaultv
+		window.memorySlider:SetPoint ("left", window.memoryLabel, "right", 2, 0)
+		window.memorySlider:SetHook ("OnValueChange", function (slider, _, amount) --> slider, fixedValue, sliderValue
+			
+			amount = math.floor (amount)
+			
+			if (amount == 1) then
+				slider.amt:SetText ("<= 1gb")
+				_detalhes.memory_ram = 16
+			elseif (amount == 2) then
+				slider.amt:SetText ("2gb")
+				_detalhes.memory_ram = 32
+			elseif (amount == 3) then
+				slider.amt:SetText ("4gb")
+				_detalhes.memory_ram = 64
+			elseif (amount == 4) then
+				slider.amt:SetText (">= 6gb")
+				_detalhes.memory_ram = 128
+			end
+			
+			_detalhes.memory_threshold = amount
+			return true
+		end)
+		window.memorySlider.tooltip = "Details! try adjust it self with the amount of memory\navaliable on your system.\n\nAlso is recommeded keep the amount of\nsegments low if your system have 2gb ram or less."
+		window.memorySlider.thumb:SetSize (40, 10)
+		window.memorySlider.thumb:SetTexture ([[Interface\Buttons\UI-Listbox-Highlight2]])
+		window.memorySlider.thumb:SetVertexColor (.2, .2, .2, .9)
+		local t = _detalhes.memory_threshold
+		window.memorySlider:SetValue (1)
+		window.memorySlider:SetValue (2)
+		window.memorySlider:SetValue (t)
+		
+	--------------- Max Segments Saved
+		g:NewLabel (window, _, "$parentLabelSegmentsSave", "segmentsSaveLabel", "segments saved on logout")
+		window.segmentsSaveLabel:SetPoint (31, -200)
+		--
+		g:NewSlider (window, _, "$parentSliderSegmentsSave", "segmentsSliderToSave", 120, 20, 1, 5, 1, _detalhes.segments_amount_to_save) -- min, max, step, defaultv
+		window.segmentsSliderToSave:SetPoint ("left", window.segmentsSaveLabel, "right")
+		window.segmentsSliderToSave:SetHook ("OnValueChange", function (self, _, amount) --> slider, fixedValue, sliderValue
+			_detalhes.segments_amount_to_save = math.floor (amount)
+		end)
+		window.segmentsSliderToSave.tooltip = "High values may increase the time between a\nlogout button click and your character selection screen.\n\nIf you rarely check 'last day data', it`s high recommeded save only 1."
+		
+		pages [#pages+1] = {bg44, window.changemind44Label, texto44, interval_text4, window.memorySlider, window.memoryLabel, window.segmentsLabel, window.segmentsSlider, window.segmentsSaveLabel, window.segmentsSliderToSave}
+		
+		for _, widget in ipairs (pages[#pages]) do 
+			widget:Hide()
+		end
+		
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> page 6
+
 		local bg6 = window:CreateTexture (nil, "overlay")
 		bg6:SetTexture ([[Interface\MainMenuBar\UI-MainMenuBar-EndCap-Human]])
 		bg6:SetPoint ("bottomright", window, "bottomright", -10, 10)
@@ -456,7 +559,7 @@ function _detalhes:OpenWelcomeWindow ()
 		end
 		
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---> page 6
+--> page 7
 
 		local bg6 = window:CreateTexture (nil, "overlay")
 		bg6:SetTexture ([[Interface\MainMenuBar\UI-MainMenuBar-EndCap-Human]])
@@ -493,7 +596,7 @@ function _detalhes:OpenWelcomeWindow ()
 		end
 		
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---> page 7
+--> page 8
 
 		local bg7 = window:CreateTexture (nil, "overlay")
 		bg7:SetTexture ([[Interface\MainMenuBar\UI-MainMenuBar-EndCap-Human]])
@@ -537,7 +640,125 @@ function _detalhes:OpenWelcomeWindow ()
 		end
 		
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---> page 8
+--> page 9
+
+		local bg77 = window:CreateTexture (nil, "overlay")
+		bg77:SetTexture ([[Interface\MainMenuBar\UI-MainMenuBar-EndCap-Human]])
+		bg77:SetPoint ("bottomright", window, "bottomright", -10, 10)
+		bg77:SetHeight (125*3)--125
+		bg77:SetWidth (89*3)--82
+		bg77:SetAlpha (.1)
+		bg77:SetTexCoord (1, 0, 0, 1)
+
+		local texto77 = window:CreateFontString (nil, "overlay", "GameFontNormal")
+		texto77:SetPoint ("topleft", window, "topleft", 20, -80)
+		texto77:SetText ("Using the Interface: Snap Instances")
+		
+		local texto_snap = window:CreateFontString (nil, "overlay", "GameFontNormal")
+		texto_snap:SetPoint ("topleft", window, "topleft", 25, -101)
+		texto_snap:SetText ("You can |cFFFFFF00snap windows|r in vertical or horizontal. A window always snap with |cFFFFFF00previous instance number|r: like the image in the right, instance |cFFFFFF00#5|r snapped with |cFFFFFF00#4|r. When a snapped window is stretched, all other instances in the |cFFFFFF00cluster are also|r stretched.")
+		texto_snap:SetWidth (160)
+		texto_snap:SetHeight (110)
+		texto_snap:SetJustifyH ("left")
+		texto_snap:SetJustifyV ("top")
+		texto_snap:SetTextColor (1, 1, 1, 1)
+		local fonte, _, flags = texto_snap:GetFont()
+		texto_snap:SetFont (fonte, 11, flags)
+		
+		local snap_image1 = window:CreateTexture (nil, "overlay")
+		snap_image1:SetTexture ([[Interface\Addons\Details\images\icons]])
+		snap_image1:SetPoint ("topright", window, "topright", -12, -95)
+		snap_image1:SetWidth (308)
+		snap_image1:SetHeight (121)
+		snap_image1:SetTexCoord (0, 0.6015625, 0.353515625, 0.58984375)
+
+		
+		pages [#pages+1] = {bg77, texto77, snap_image1, texto_snap}
+		
+		for _, widget in ipairs (pages[#pages]) do 
+			widget:Hide()
+		end
+		
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> page 10
+
+		local bg88 = window:CreateTexture (nil, "overlay")
+		bg88:SetTexture ([[Interface\MainMenuBar\UI-MainMenuBar-EndCap-Human]])
+		bg88:SetPoint ("bottomright", window, "bottomright", -10, 10)
+		bg88:SetHeight (125*3)--125
+		bg88:SetWidth (89*3)--82
+		bg88:SetAlpha (.1)
+		bg88:SetTexCoord (1, 0, 0, 1)
+
+		local texto88 = window:CreateFontString (nil, "overlay", "GameFontNormal")
+		texto88:SetPoint ("topleft", window, "topleft", 20, -80)
+		texto88:SetText ("Using the Interface: Micro Display")
+		--|cFFFFFF00
+		local texto_micro_display = window:CreateFontString (nil, "overlay", "GameFontNormal")
+		texto_micro_display:SetPoint ("topleft", window, "topleft", 25, -101)
+		texto_micro_display:SetText ("All instances have three |cFFFFFF00mini widgets|r located at the bottom of window. |cFFFFFF00Right clicking|r pops up a menu and with |cFFFFFF00left click|r displays a options panel for that widget.")
+		texto_micro_display:SetWidth (160)
+		texto_micro_display:SetHeight (110)
+		texto_micro_display:SetJustifyH ("left")
+		texto_micro_display:SetJustifyV ("top")
+		texto_micro_display:SetTextColor (1, 1, 1, 1)
+		--local fonte, _, flags = texto_micro_display:GetFont()
+		--texto_micro_display:SetFont (fonte, 11, flags)
+		
+		local micro_image1 = window:CreateTexture (nil, "overlay")
+		micro_image1:SetTexture ([[Interface\Addons\Details\images\icons]])
+		micro_image1:SetPoint ("topright", window, "topright", -12, -95)
+		micro_image1:SetWidth (303)
+		micro_image1:SetHeight (128)
+		micro_image1:SetTexCoord (0.408203125, 1, 0.09375, 0.341796875)
+		
+		pages [#pages+1] = {bg88, texto88, micro_image1, texto_micro_display}
+		
+		for _, widget in ipairs (pages[#pages]) do 
+			widget:Hide()
+		end
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> page 11
+
+		local bg11 = window:CreateTexture (nil, "overlay")
+		bg11:SetTexture ([[Interface\MainMenuBar\UI-MainMenuBar-EndCap-Human]])
+		bg11:SetPoint ("bottomright", window, "bottomright", -10, 10)
+		bg11:SetHeight (125*3)--125
+		bg11:SetWidth (89*3)--82
+		bg11:SetAlpha (.1)
+		bg11:SetTexCoord (1, 0, 0, 1)
+
+		local texto11 = window:CreateFontString (nil, "overlay", "GameFontNormal")
+		texto11:SetPoint ("topleft", window, "topleft", 20, -80)
+		texto11:SetText ("Using the Interface: Plugins")
+		--|cFFFFFF00
+		local texto_plugins = window:CreateFontString (nil, "overlay", "GameFontNormal")
+		texto_plugins:SetPoint ("topleft", window, "topleft", 25, -101)
+		texto_plugins:SetText ("|cFFFFFF00Threat, tank avoidance, and others|r are handled by |cFFFFFF00plugins|r. You can open a new instance, select '|cFFFFFF00Widgets|r' and choose what you want at |cFFFFFF00sword|r menu.\n\nTip: click over a bar on |cFFFFFF00Vanguard|r to show avoidance numbers.")
+		texto_plugins:SetWidth (220)
+		texto_plugins:SetHeight (110)
+		texto_plugins:SetJustifyH ("left")
+		texto_plugins:SetJustifyV ("top")
+		texto_plugins:SetTextColor (1, 1, 1, 1)
+		--local fonte, _, flags = texto_plugins:GetFont()
+		--texto_plugins:SetFont (fonte, 11, flags)
+		
+		local plugins_image1 = window:CreateTexture (nil, "overlay")
+		plugins_image1:SetTexture ([[Interface\Addons\Details\images\icons2]])
+		plugins_image1:SetPoint ("topright", window, "topright", -12, -35)
+		plugins_image1:SetWidth (226)
+		plugins_image1:SetHeight (181)
+		plugins_image1:SetTexCoord (0.55859375, 1, 0.646484375, 1)
+		
+		pages [#pages+1] = {bg11, texto11, plugins_image1, texto_plugins}
+		
+		for _, widget in ipairs (pages[#pages]) do 
+			widget:Hide()
+		end		
+		
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> page 12
 
 		local bg8 = window:CreateTexture (nil, "overlay")
 		bg8:SetTexture ([[Interface\MainMenuBar\UI-MainMenuBar-EndCap-Human]])
@@ -576,6 +797,9 @@ function _detalhes:OpenWelcomeWindow ()
 ------------------------------------------------------------------------------------------------------------------------------		
 		
 		--[[
+		forward:Click()
+		forward:Click()
+		forward:Click()
 		forward:Click()
 		forward:Click()
 		forward:Click()

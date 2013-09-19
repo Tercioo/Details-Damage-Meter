@@ -58,7 +58,7 @@
 	end
 	
 	--> functions to set the three statusbar places: left, center and right
-		function _detalhes.StatusBar:SetCenterPlugin (instance, childObject)
+		function _detalhes.StatusBar:SetCenterPlugin (instance, childObject, fromStartup)
 			childObject.frame:Show()
 			childObject.frame:SetPoint ("center", instance.baseframe.rodape.StatusBarCenterAnchor, "center")
 			_detalhes.StatusBar:AlignPluginText (childObject, 2)
@@ -69,10 +69,19 @@
 			if (childObject.OnEnable) then
 				childObject:OnEnable()
 			end
+			
+			if (fromStartup and childObject.options.isHidden) then
+				childObject.frame.text:Hide()
+			end
+			
 			return true
 		end
 
-		function _detalhes.StatusBar:SetLeftPlugin (instance, childObject)
+		function _detalhes.StatusBar:SetLeftPlugin (instance, childObject, fromStartup)
+		
+			if (not childObject) then
+				return
+			end
 		
 			childObject.frame:Show()
 			childObject.frame:SetPoint ("left", instance.baseframe.rodape.StatusBarLeftAnchor,  "left")
@@ -84,10 +93,15 @@
 			if (childObject.OnEnable) then
 				childObject:OnEnable()
 			end
+			
+			if (fromStartup and childObject.options.isHidden) then
+				childObject.frame.text:Hide()
+			end
+			
 			return true
 		end
 
-		function _detalhes.StatusBar:SetRightPlugin (instance, childObject)
+		function _detalhes.StatusBar:SetRightPlugin (instance, childObject, fromStartup)
 			childObject.frame:Show()
 			childObject.frame:SetPoint ("right", instance.baseframe.rodape.direita, "right", -20, 10)
 			_detalhes.StatusBar:AlignPluginText (childObject, 3)
@@ -98,6 +112,11 @@
 			if (childObject.OnEnable) then
 				childObject:OnEnable()
 			end
+			
+			if (fromStartup and childObject.options.isHidden) then
+				childObject.frame.text:Hide()
+			end
+			
 			return true
 		end
 
@@ -126,6 +145,16 @@
 
 	--> select a new plugin in for an instance anchor
 	local ChoosePlugin = function (_, _, index, current_child, anchor)
+	
+		if (index == -1) then --> hide
+			current_child.frame.text:Hide()
+			_detalhes.StatusBar:ApplyOptions (current_child, "hidden", true)
+			return
+		else
+			_detalhes.StatusBar:ApplyOptions (current_child, "hidden", false)
+			current_child.frame.text:Show()
+		end
+	
 		local pluginMestre = _detalhes.StatusBar.Plugins [index]
 		local instance = current_child.instance -- instance que estamos usando agora
 		
@@ -210,6 +239,7 @@
 			frame.child:Setup()
 		else
 			GameCooltip:Reset()
+			GameCooltip:AddMenu (1, ChoosePlugin, -1, frame.child, frame.child.anchor, Loc ["STRING_PLUGIN_CLEAN"], [[Interface\Buttons\UI-GroupLoot-Pass-Down]], true)
 			for index, _name_and_icon in _ipairs (_detalhes.StatusBar.Menu) do 
 				GameCooltip:AddMenu (1, ChoosePlugin, index, frame.child, frame.child.anchor, _name_and_icon [1], _name_and_icon [2], true)
 			end
@@ -308,6 +338,8 @@
 				child.options.textFace = value
 			end
 			child:SetFontFace (child.text, SharedMedia:Fetch ("font", child.options.textFace))
+		elseif (option == "hidden") then
+			child.options.isHidden = value
 		else
 			if (child [option] and type (child [option]) == "function") then
 				child [option] (_, child, value)
@@ -772,6 +804,49 @@ do
 
 
 end
+
+---------> BUILT-IN CLEAR PLUGIN ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--[[
+do
+		--> Create the plugin Object
+		local PClear1 = _detalhes:NewPluginObject ("Details_Attribute", DETAILSPLUGIN_ALWAYSENABLED, "STATUSBAR")
+		local PClear2 = _detalhes:NewPluginObject ("Details_Attribute", DETAILSPLUGIN_ALWAYSENABLED, "STATUSBAR")
+		local PClear3 = _detalhes:NewPluginObject ("Details_Attribute", DETAILSPLUGIN_ALWAYSENABLED, "STATUSBAR")
+		--> Handle events (must have)
+		function PClear1:OnDetailsEvent (event)
+			return
+		end
+		function PClear2:OnDetailsEvent (event)
+			return
+		end
+		function PClear3:OnDetailsEvent (event)
+			return
+		end
+		
+		--> Create Plugin Frames (must have)
+		function PClear1:CreateChildObject (instance)
+			local myframe = _detalhes.StatusBar:CreateChildFrame (instance, "DetailsPClear1Instance" .. instance:GetInstanceId(), DEFAULT_CHILD_WIDTH, DEFAULT_CHILD_HEIGHT)
+			local new_child = _detalhes.StatusBar:CreateChildTable (instance, PClear1, myframe)
+			return new_child
+		end
+		function PClear2:CreateChildObject (instance)
+			local myframe = _detalhes.StatusBar:CreateChildFrame (instance, "DetailsPClear2Instance" .. instance:GetInstanceId(), DEFAULT_CHILD_WIDTH, DEFAULT_CHILD_HEIGHT)
+			local new_child = _detalhes.StatusBar:CreateChildTable (instance, PClear2, myframe)
+			return new_child
+		end
+		function PClear3:CreateChildObject (instance)
+			local myframe = _detalhes.StatusBar:CreateChildFrame (instance, "DetailsPClear3Instance" .. instance:GetInstanceId(), DEFAULT_CHILD_WIDTH, DEFAULT_CHILD_HEIGHT)
+			local new_child = _detalhes.StatusBar:CreateChildTable (instance, PClear3, myframe)
+			return new_child
+		end
+		
+--]]		--> Install
+--		_detalhes:InstallPlugin ("STATUSBAR", Loc ["STRING_PLUGIN_CLEAN"].." 1", [[Interface\Buttons\UI-GroupLoot-Pass-Down]], PClear1, "DETAILS_STATUSBAR_PLUGIN_PCLEAR1")
+--		_detalhes:InstallPlugin ("STATUSBAR", Loc ["STRING_PLUGIN_CLEAN"].." 2", [[Interface\Buttons\UI-GroupLoot-Pass-Down]], PClear2, "DETAILS_STATUSBAR_PLUGIN_PCLEAR2")
+--		_detalhes:InstallPlugin ("STATUSBAR", Loc ["STRING_PLUGIN_CLEAN"].." 3", [[Interface\Buttons\UI-GroupLoot-Pass-Down]], PClear3, "DETAILS_STATUSBAR_PLUGIN_PCLEAR3")
+		
+--end
+
 
 ---------> default options panel ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 

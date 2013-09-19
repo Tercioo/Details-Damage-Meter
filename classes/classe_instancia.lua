@@ -620,6 +620,7 @@ function _detalhes:SnapTextures (remove)
 end
 
 --> cria uma janela para uma nova instância
+	--> search key: ~new ~nova
 	function _detalhes:NovaInstancia (ID)
 
 		-- Uma nova instância será uma extensão do acetimer somada com uma cópia da classe detalhes_funções
@@ -661,6 +662,13 @@ end
 		nova_instancia.largura_scroll = 26
 		nova_instancia.bar_mod = 0
 		nova_instancia.bgdisplay_loc = 0
+		
+		nova_instancia.bg_alpha = _detalhes.default_bg_alpha
+		nova_instancia.bg_r = _detalhes.default_bg_color
+		nova_instancia.bg_g = _detalhes.default_bg_color
+		nova_instancia.bg_b = _detalhes.default_bg_color
+		
+		nova_instancia.auto_current = true
 		
 		nova_instancia.barrasInfo["alturaReal"] = nova_instancia.barrasInfo.altura+nova_instancia.barrasInfo.espaco.entre
 
@@ -764,11 +772,21 @@ end
 ------------------------------------------------------------------------------------------------------------------------
 
 --> ao reiniciar o addon esta função é rodada para recriar a janela da instância
+--> search key: ~restaura
 function _detalhes:RestauraJanela (index, temp)
 
 		--if (index ~= self.meu_id) then
 			--print ("DEBUG: Algo de errado, o index esta diferente do meu_id")
 		--end
+		
+		self.bg_alpha = self.bg_alpha or _detalhes.default_bg_alpha
+		self.bg_r = self.bg_r or _detalhes.default_bg_color
+		self.bg_g = self.bg_g or _detalhes.default_bg_color
+		self.bg_b = self.bg_b or _detalhes.default_bg_color
+		
+		if (self.auto_current == nil) then
+			self.auto_current = true
+		end
 		
 		local _baseframe, _bgframe, _bgframe_display, _scrollframe = gump:CriaJanelaPrincipal (self.meu_id, self)
 		
@@ -848,19 +866,19 @@ function _detalhes:RestauraJanela (index, temp)
 			self.StatusBarSaved.center = "DETAILS_STATUSBAR_PLUGIN_CLOCK"
 		end
 		local clock = _detalhes.StatusBar:CreateStatusBarChildForInstance (self, self.StatusBarSaved.center or "DETAILS_STATUSBAR_PLUGIN_CLOCK")
-		_detalhes.StatusBar:SetCenterPlugin (self, clock)
+		_detalhes.StatusBar:SetCenterPlugin (self, clock, true)
 		
 		if (self.StatusBarSaved.left and self.StatusBarSaved.left == "NONE") then
 			self.StatusBarSaved.left = "DETAILS_STATUSBAR_PLUGIN_PSEGMENT"
 		end
 		local segment = _detalhes.StatusBar:CreateStatusBarChildForInstance (self, self.StatusBarSaved.left or "DETAILS_STATUSBAR_PLUGIN_PSEGMENT")
-		_detalhes.StatusBar:SetLeftPlugin (self, segment)
+		_detalhes.StatusBar:SetLeftPlugin (self, segment, true)
 		
 		if (self.StatusBarSaved.right and self.StatusBarSaved.right == "NONE") then
 			self.StatusBarSaved.right = "DETAILS_STATUSBAR_PLUGIN_PDPS"
 		end
 		local dps = _detalhes.StatusBar:CreateStatusBarChildForInstance (self, self.StatusBarSaved.right or "DETAILS_STATUSBAR_PLUGIN_PDPS")
-		_detalhes.StatusBar:SetRightPlugin (self, dps)
+		_detalhes.StatusBar:SetRightPlugin (self, dps, true)
 		--
 		
 		if (not self.last_modo) then
@@ -909,6 +927,20 @@ function _detalhes:RefreshBars (instance)
 	end
 end
 
+function _detalhes:SetBackgroundColor (...)
+	local r, g, b = gump:ParseColors (...)
+	self.bgdisplay:SetBackdropColor (r, g, b, self.bg_alpha or _detalhes.default_bg_alpha)
+	self.bg_r = r
+	self.bg_g = g
+	self.bg_b = b
+end
+
+function _detalhes:SetBackgroundAlpha (alpha)
+	alpha = alpha or _detalhes.default_bg_alpha
+	self.bgdisplay:SetBackdropColor (self.bg_r or _detalhes.default_bg_color, self.bg_g or _detalhes.default_bg_color, self.bg_b or _detalhes.default_bg_color, alpha)
+	self.bg_alpha = alpha
+end
+
 function _detalhes:GetSize()
 	return self.bgframe:GetWidth(), self.bgframe:GetHeight()
 end
@@ -933,6 +965,33 @@ function _detalhes:Resize (w, h)
 end
 
 ------------------------------------------------------------------------------------------------------------------------
+
+function _detalhes:HaveOneCurrentInstance()
+
+	local have = false
+	for _, instance in _ipairs (_detalhes.tabela_instancias) do
+		if (instance.ativa and instance.baseframe and instance.segmento == 0) then
+			return
+		end
+	end
+	
+	local lower = _detalhes:GetLowerInstanceNumber()
+	if (lower) then
+		local instance = _detalhes:GetInstance (lower)
+		if (instance and instance.auto_current) then
+			instance:TrocaTabela (0) --> muda o segmento pra current
+			return instance:InstanceAlert (Loc ["STRING_CHANGED_TO_CURRENT"], {[[Interface\GossipFrame\TrainerGossipIcon]], 18, 18, false}, 6)
+		else
+			for _, instance in _ipairs (_detalhes.tabela_instancias) do
+				if (instance.ativa and instance.baseframe and instance.segmento ~= 0 and instance.auto_current) then
+					instance:TrocaTabela (0) --> muda o segmento pra current
+					return instance:InstanceAlert (Loc ["STRING_CHANGED_TO_CURRENT"], {[[Interface\GossipFrame\TrainerGossipIcon]], 18, 18, false}, 6)
+				end
+			end
+		end
+	end
+	
+end
 
 function _detalhes:Freeze (instancia)
 
@@ -1048,7 +1107,7 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 	local update_coolTip = false
 	
 	if (segmento == -2) then --> clicou para mudar de segmento
-		segmento = instancia.segmento+1
+		segmento = instancia.segmento + 1
 		
 		if (segmento > _detalhes.segments_amount) then
 			segmento = -1
@@ -1515,6 +1574,39 @@ function _detalhes:AlteraModo (instancia, qual)
 	_detalhes.popup:Select (1, checked)
 end
 
+local function GetDpsHps (_thisActor, key)
+
+	local keyname
+	if (key == "dps") then
+		keyname = "last_dps"
+	elseif (key == "hps") then
+		keyname = "last_hps"
+	end
+		
+	if (_thisActor [keyname]) then
+		return _thisActor [keyname]
+	else
+		if ((_detalhes.time_type == 2 and _thisActor.grupo) or not _detalhes:CaptureGet ("damage")) then
+			local dps = _thisActor.total / _thisActor:GetCombatTime()
+			_thisActor [keyname] = dps
+			return dps
+		else
+			if (not _thisActor.on_hold) then
+				local dps = _thisActor.total/_thisActor:Tempo() --calcula o dps deste objeto
+				_thisActor [keyname] = dps --salva o dps dele
+				return dps
+			else
+				if (_thisActor [keyname] == 0) then --> não calculou o dps dele ainda mas entrou em standby
+					local dps = _thisActor.total/_thisActor:Tempo()
+					_thisActor [keyname] = dps
+					return dps
+				else
+					return _thisActor [keyname]
+				end
+			end
+		end
+	end
+end
 
 --> Reportar o que esta na janela da instância
 function _detalhes:monta_relatorio (este_relatorio, custom)
@@ -1546,11 +1638,23 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 	local is_current = _G ["Details_Report_CB_1"]:GetChecked()
 	local is_reverse = _G ["Details_Report_CB_2"]:GetChecked()
 	
+	if (not _detalhes.fontstring_len) then
+		_detalhes.fontstring_len = _detalhes.listener:CreateFontString (nil, "background", "GameFontNormal")
+	end
+	local _, fontSize = FCF_GetChatWindowInfo (1)
+	local fonte, _, flags = _detalhes.fontstring_len:GetFont()
+	_detalhes.fontstring_len:SetFont (fonte, fontSize, flags)
+	_detalhes.fontstring_len:SetText ("hello details!")
+	local default_len = _detalhes.fontstring_len:GetStringWidth()
+	
+	--> pegar a font do chat
+	--_detalhes.fontstring_len:
+	
 	if (not is_reverse) then
 	
 		if (not is_current) then 
 			--> assumindo que self é sempre uma instância aqui.
-			local total, keyName, first
+			local total, keyName, keyNameSec, first
 			local atributo = self.atributo
 			local container = self.showing [atributo]._ActorTable
 			
@@ -1566,9 +1670,15 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 					keyName = "frag"
 				else
 					total, keyName, first = _detalhes.atributo_damage:RefreshWindow (self, self.showing, true, true)
+					if (self.sub_atributo == 1) then
+						keyNameSec = "dps"
+					end
 				end
 			elseif (atributo == 2) then --> heal
 				total, keyName, first = _detalhes.atributo_heal:RefreshWindow (self, self.showing, true, true)
+				if (self.sub_atributo == 1) then
+					keyNameSec = "hps"
+				end
 			elseif (atributo == 3) then --> energy
 				total, keyName, first = _detalhes.atributo_energy:RefreshWindow (self, self.showing, true, true)
 			elseif (atributo == 4) then --> misc
@@ -1595,9 +1705,26 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 				if (_thisActor) then 
 					local amount = _thisActor [keyName]
 					if (_type (amount) == "number" and amount > 0) then --1236
-						report_lines [#report_lines+1] = i..".".. _thisActor.nome.."   ".. _detalhes:comma_value ( _math_floor (amount) ).." (".._cstr ("%.1f", amount/total*100).."%)"
+						if (keyNameSec) then
+							local dps = GetDpsHps (_thisActor, keyNameSec)
+							
+							local name = _thisActor.nome.." "
+							
+							_detalhes.fontstring_len:SetText (name)
+							local stringlen = _detalhes.fontstring_len:GetStringWidth()
+							
+							while (stringlen < default_len) do 
+								name = name .. "."
+								_detalhes.fontstring_len:SetText (name)
+								stringlen = _detalhes.fontstring_len:GetStringWidth()
+							end
+
+							report_lines [#report_lines+1] = i..". ".. name .." ".. _cstr ("%.2f", amount/total*100) .. "% (" .. _math_floor (dps) .. ", " .. _detalhes:ToK ( _math_floor (amount) ) .. ")"
+						else
+							report_lines [#report_lines+1] = i..". ".. _thisActor.nome.."   ".. _detalhes:comma_value ( _math_floor (amount) ).." (".._cstr ("%.1f", amount/total*100).."%)"
+						end
 					elseif (_type (amount) == "string") then
-						report_lines [#report_lines+1] = i..".".. _thisActor.nome.."   ".. amount
+						report_lines [#report_lines+1] = i..". ".. _thisActor.nome.."   ".. amount
 					else
 						break
 					end
@@ -1643,10 +1770,16 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 					container = reportarFrags
 					keyName = "frag"
 				else
+					if (self.sub_atributo == 1) then
+						keyNameSec = "dps"
+					end
 					total, keyName, first = _detalhes.atributo_damage:RefreshWindow (self, self.showing, true, true)
 				end
 			elseif (atributo == 2) then --> heal
 				total, keyName, first = _detalhes.atributo_heal:RefreshWindow (self, self.showing, true, true)
+				if (self.sub_atributo == 1) then
+					keyNameSec = "hps"
+				end
 			elseif (atributo == 3) then --> energy
 				total, keyName, first = _detalhes.atributo_energy:RefreshWindow (self, self.showing, true, true)
 			elseif (atributo == 4) then --> misc
@@ -1674,7 +1807,24 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 				
 				if (_type (amount) == "number") then
 					if (amount > 0) then 
-						report_lines [#report_lines+1] = i..".".. _thisActor.nome.."   ".. _detalhes:comma_value ( _math_floor (amount) ).." (".._cstr ("%.1f", amount/total*100).."%)"
+						if (keyNameSec) then
+							local dps = GetDpsHps (_thisActor, keyNameSec)
+							
+							local name = _thisActor.nome.." "
+							
+							_detalhes.fontstring_len:SetText (name)
+							local stringlen = _detalhes.fontstring_len:GetStringWidth()
+							
+							while (stringlen < default_len) do 
+								name = name .. "."
+								_detalhes.fontstring_len:SetText (name)
+								stringlen = _detalhes.fontstring_len:GetStringWidth()
+							end
+
+							report_lines [#report_lines+1] = i..". ".. name .." ".. _cstr ("%.2f", amount/total*100) .. "% (" .. _math_floor (dps) .. ", " .. _detalhes:ToK ( _math_floor (amount) ) .. ")"
+						else
+							report_lines [#report_lines+1] = i..".".. _thisActor.nome.."   ".. _detalhes:comma_value ( _math_floor (amount) ).." (".._cstr ("%.1f", amount/total*100).."%)"
+						end
 						quantidade = quantidade + 1
 						if (quantidade == amt) then
 							break
@@ -1782,6 +1932,13 @@ function _detalhes:envia_relatorio (linhas, custom)
 		end
 
 		linhas[1] = linhas[1] .. ". " .. Loc ["STRING_REPORT_FIGHT"] .. ": " .. luta
+
+	end
+	
+	if (_detalhes.time_type == 2) then
+		linhas[1] = linhas[1] .. " (Co)"
+	else
+		linhas[1] = linhas[1] .. " (Cr)"
 	end
 	
 	local editbox = _detalhes.janela_report.editbox
@@ -1809,6 +1966,7 @@ function _detalhes:envia_relatorio (linhas, custom)
 		for i = 1, #linhas do 
 			_SendChatMessage (linhas[i], "CHANNEL", nil, _GetChannelName (channel))
 		end
+		
 		return
 
 	elseif (to_who == "WHISPER") then --> whisper
@@ -1846,6 +2004,14 @@ function _detalhes:envia_relatorio (linhas, custom)
 		end
 
 		return
+	end
+	
+	if (to_who == "RAID") then
+		--LE_PARTY_CATEGORY_HOME - default
+		--LE_PARTY_CATEGORY_INSTANCE - player's automatic group, raid finder?.
+		if (GetNumGroupMembers (LE_PARTY_CATEGORY_INSTANCE) > 0) then
+			to_who = "INSTANCE_CHAT"
+		end
 	end
 	
 	for i = 1, #linhas do 

@@ -258,9 +258,11 @@
 			end
 			
 			_detalhes:SendEvent ("COMBAT_PLAYER_ENTER", nil, _detalhes.tabela_vigente)
+			
+			_detalhes:HaveOneCurrentInstance()
 		end
 
-		function _detalhes:SairDoCombate()
+		function _detalhes:SairDoCombate (bossKilled)
 
 			--> pega a zona do jogador e vê se foi uma luta contra um Boss -- identifica se a luta foi com um boss
 			if (not _detalhes.tabela_vigente.is_boss) then 
@@ -285,6 +287,10 @@
 					_detalhes:Msg ("(debug) forcing equalize actors behavior.")
 					_detalhes:EqualizeActorsSchedule (_detalhes.host_of)
 				end
+				
+				--> verifica memoria
+				_detalhes:CheckMemoryAfterCombat()
+				
 			else
 			
 				if (_detalhes:GetBossDetails (_detalhes.tabela_vigente.is_boss.mapid, _detalhes.tabela_vigente.is_boss.index)) then
@@ -295,6 +301,11 @@
 					if (_detalhes.debug) then
 						_detalhes:Msg ("(debug) found encounter on last fight, freezing parser for 30 seconds.")
 					end
+					
+					if (bossKilled) then
+						_detalhes.tabela_vigente.is_boss.killed = true
+					end
+					
 					
 					local bossFunction, bossFunctionType = _detalhes:GetBossFunction (_detalhes.tabela_vigente.is_boss.mapid, _detalhes.tabela_vigente.is_boss.index)
 					if (bossFunction) then

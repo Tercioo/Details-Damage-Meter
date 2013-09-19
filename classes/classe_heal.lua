@@ -119,7 +119,7 @@ function atributo_heal:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 	--> não há barras para mostrar -- not have something to show
 	if (#showing._ActorTable < 1) then --> não há barras para mostrar
 		--> colocado isso recentemente para fazer as barras de dano sumirem na troca de atributo
-		return _detalhes:EsconderBarrasNaoUsadas (instancia, showing) 
+		return _detalhes:EsconderBarrasNaoUsadas (instancia, showing)
 	end
 
 	--> total
@@ -205,12 +205,17 @@ function atributo_heal:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 		
 	elseif (instancia.modo == modo_GROUP) then --> mostrando GROUP
 	
-		if (_detalhes.in_combat) then
+		if (_detalhes.in_combat and instancia.segmento == 0) then
 			using_cache = true
 		end
 		
-		if (using_cache and instancia.segmento == 0) then
+		if (using_cache) then
+		
 			conteudo = _detalhes.cache_healing_group
+
+			if (#conteudo < 1) then
+				return _detalhes:EsconderBarrasNaoUsadas (instancia, showing)
+			end
 		
 			_detalhes:ContainerSort (conteudo, nil, keyName)
 		
@@ -1353,8 +1358,8 @@ function atributo_heal:Iniciar (iniciar)
 	end
 end
 
-function atributo_heal:ColetarLixo()
-	return _detalhes:ColetarLixo (class_type)
+function atributo_heal:ColetarLixo (lastevent)
+	return _detalhes:ColetarLixo (class_type, lastevent)
 end
 
 function _detalhes.refresh:r_atributo_heal (este_jogador, shadow)

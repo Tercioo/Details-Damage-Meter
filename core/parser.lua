@@ -63,15 +63,15 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> cache
 	--> damage
-		local damage_cache = {}
-		local damage_cache_pets = {}
-		local damage_cache_petsOwners = {}
+		local damage_cache = setmetatable ({}, _detalhes.weaktable)
+		local damage_cache_pets = setmetatable ({}, _detalhes.weaktable)
+		local damage_cache_petsOwners = setmetatable ({}, _detalhes.weaktable)
 	--> heaing
-		local healing_cache = {}
+		local healing_cache = setmetatable ({}, _detalhes.weaktable)
 	--> energy
-		local energy_cache = {}
+		local energy_cache = setmetatable ({}, _detalhes.weaktable)
 	--> misc
-		local misc_cache = {}
+		local misc_cache = setmetatable ({}, _detalhes.weaktable)
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> constants
@@ -153,6 +153,12 @@
 	------------------------------------------------------------------------------------------------
 	--> get actors
 	
+		--> debug - no cache
+		--[[
+		local este_jogador, meu_dono, who_name = _current_damage_container:PegarCombatente (who_serial, who_name, who_flags, true)
+		local jogador_alvo, alvo_dono, alvo_name = _current_damage_container:PegarCombatente (alvo_serial, alvo_name, alvo_flags, true)
+		--]]
+		--[
 		--> damager
 		local este_jogador, meu_dono = damage_cache [who_name] or damage_cache_pets [who_serial], damage_cache_petsOwners [who_serial]
 		
@@ -188,6 +194,7 @@
 			end
 			
 		end
+		--]]
 		
 		--> damager shadow
 		local shadow = este_jogador.shadow
@@ -209,41 +216,7 @@
 			--> record death log
 			local t = jogador_alvo.last_events_table
 			local i = t.n
-			
-			--[[
-			if (not i) then
-				local isOriginal = jogador_alvo.last_events_table.original
-				if (isOriginal) then
-					isOriginal = "IsOriginal = TRUE"
-				else
-					isOriginal = "IsOriginal = FALSE"
-				end
-				local indexes = #jogador_alvo.last_events_table
-				if (not indexes) then
-					indexes = "Indexes = NIL"
-				else
-					indexes = "Indexes = "..indexes
-				end
-				local resync = _detalhes.tabela_vigente.resincked
-				if (resync) then
-					resync = "resync = TRUE"
-				else
-					resync = "resync = FALSE"
-				end
-				
-				local saved = _detalhes.tabela_vigente.hasSaved
-				if (saved) then
-					saved = "saved = TRUE"
-				else
-					saved = "saved = FALSE"
-				end
-				
-				print ("Report the lines shown, click on reset button and type /reload")
-				print ("We are investigation this issue, this information is important to us.")
-				assert (false, "Please Report This Error on the Blue Button: Parser 194: " .. isOriginal .. " " .. indexes .. " " .. resync .. " " .. saved)
-			end
-			--]]
-			
+
 			t.n = i + 1
 			
 			t = t [i]
@@ -504,6 +477,12 @@
 	------------------------------------------------------------------------------------------------
 	--> get actors
 
+		--> debug - no cache
+		--[[
+		local este_jogador, meu_dono, who_name = _current_heal_container:PegarCombatente (who_serial, who_name, who_flags, true)
+		local jogador_alvo, alvo_dono, alvo_name = _current_heal_container:PegarCombatente (alvo_serial, alvo_name, alvo_flags, true)
+		--]]
+		--[
 		local este_jogador, meu_dono = healing_cache [who_name]
 		if (not este_jogador) then --> pode ser um desconhecido ou um pet
 			este_jogador, meu_dono, who_name = _current_heal_container:PegarCombatente (who_serial, who_name, who_flags, true)
@@ -519,7 +498,7 @@
 				healing_cache [alvo_name] = jogador_alvo
 			end
 		end
-		
+		--]]
 		local shadow = este_jogador.shadow
 		local shadow_of_target = jogador_alvo.shadow
 		
@@ -1013,6 +992,12 @@
 	--> get actors
 
 		--> main actor
+		--> debug - no cache
+		--[[
+		local este_jogador, meu_dono, who_name = _current_energy_container:PegarCombatente (who_serial, who_name, who_flags, true)
+		local jogador_alvo, alvo_dono, alvo_name = _current_energy_container:PegarCombatente (alvo_serial, alvo_name, alvo_flags, true)
+		--]]
+		--[		
 		local este_jogador, meu_dono = energy_cache [who_name]
 		if (not este_jogador) then --> pode ser um desconhecido ou um pet
 			este_jogador, meu_dono, who_name = _current_energy_container:PegarCombatente (who_serial, who_name, who_flags, true)
@@ -1029,6 +1014,7 @@
 				energy_cache [alvo_name] = jogador_alvo
 			end
 		end
+		--]]
 		
 		--> actor targets
 		local este_alvo = este_jogador.targets._NameIndexTable [alvo_name]
@@ -1107,6 +1093,12 @@
 	--> get actors
 	
 		--> main actor
+		
+		--> debug - no cache
+		--[[
+		local este_jogador, meu_dono, who_name = _current_misc_container:PegarCombatente (who_serial, who_name, who_flags, true)
+		--]]
+		--[
 		local este_jogador, meu_dono = misc_cache [who_name]
 		if (not este_jogador) then --> pode ser um desconhecido ou um pet
 			este_jogador, meu_dono, who_name = _current_misc_container:PegarCombatente (who_serial, who_name, who_flags, true)
@@ -1114,7 +1106,7 @@
 				misc_cache [who_name] = este_jogador
 			end
 		end
-		
+		--]]
 		local shadow = este_jogador.shadow
 		
 	------------------------------------------------------------------------------------------------
@@ -1193,6 +1185,11 @@
 	--> get actors
 
 		--> main actor
+		--> debug - no cache
+		--[[
+		local este_jogador, meu_dono, who_name = _current_misc_container:PegarCombatente (who_serial, who_name, who_flags, true)
+		--]]
+		--[
 		local este_jogador, meu_dono = misc_cache [who_name]
 		if (not este_jogador) then --> pode ser um desconhecido ou um pet
 			este_jogador, meu_dono, who_name = _current_misc_container:PegarCombatente (who_serial, who_name, who_flags, true)
@@ -1200,7 +1197,7 @@
 				misc_cache [who_name] = este_jogador
 			end
 		end
-		
+		--]]
 		local shadow = este_jogador.shadow
 		
 	------------------------------------------------------------------------------------------------
@@ -1301,6 +1298,11 @@
 	--> get actors
 
 		--> main actor
+		--> debug - no cache
+		--[[
+		local este_jogador, meu_dono, who_name = _current_misc_container:PegarCombatente (who_serial, who_name, who_flags, true)
+		--]]
+		--[
 		local este_jogador, meu_dono = misc_cache [who_name]
 		if (not este_jogador) then --> pode ser um desconhecido ou um pet
 			este_jogador, meu_dono, who_name = _current_misc_container:PegarCombatente (who_serial, who_name, who_flags, true)
@@ -1308,7 +1310,7 @@
 				misc_cache [who_name] = este_jogador
 			end
 		end
-		
+		--]]
 		local shadow = este_jogador.shadow
 
 	------------------------------------------------------------------------------------------------
@@ -1516,6 +1518,11 @@
 	--> get actors
 
 		--> main actor
+		--> debug - no cache
+		--[[
+		local este_jogador, meu_dono, who_name = _current_misc_container:PegarCombatente (who_serial, who_name, who_flags, true)
+		--]]
+		--[		
 		local este_jogador, meu_dono = misc_cache [who_name]
 		if (not este_jogador) then --> pode ser um desconhecido ou um pet
 			este_jogador, meu_dono, who_name = _current_misc_container:PegarCombatente (who_serial, who_name, who_flags, true)
@@ -1523,7 +1530,7 @@
 				misc_cache [who_name] = este_jogador
 			end
 		end
-		
+		--]]
 		local shadow = este_jogador.shadow
 		
 	------------------------------------------------------------------------------------------------
@@ -1658,7 +1665,7 @@
 							if (_detalhes.debug) then
 								_detalhes:Msg ("(debug) combat finished: encounter objective is completed")
 							end
-							_detalhes:SairDoCombate()
+							_detalhes:SairDoCombate (true)
 						end
 					end
 					
@@ -2133,11 +2140,69 @@
 		_tempo = _detalhes._tempo
 	end
 
+	function _detalhes:PrintParserCacheIndexes()
+	
+		local amount = 0
+		for n, nn in pairs (damage_cache) do 
+			amount = amount + 1
+		end
+		print ("parser damage_cache", amount)
+		
+		amount = 0
+		for n, nn in pairs (damage_cache_pets) do 
+			amount = amount + 1
+		end
+		print ("parser damage_cache_pets", amount)
+		
+		amount = 0
+		for n, nn in pairs (damage_cache_petsOwners) do 
+			amount = amount + 1
+		end
+		print ("parser damage_cache_petsOwners", amount)
+		
+		amount = 0
+		for n, nn in pairs (healing_cache) do 
+			amount = amount + 1
+		end
+		print ("parser healing_cache", amount)
+		
+		amount = 0
+		for n, nn in pairs (energy_cache) do 
+			amount = amount + 1
+		end
+		print ("parser energy_cache", amount)
+
+		amount = 0
+		for n, nn in pairs (misc_cache) do 
+			amount = amount + 1
+		end
+		print ("parser misc_cache", amount)
+		
+		print ("group damage", #_detalhes.cache_damage_group)
+		print ("group damage", #_detalhes.cache_healing_group)
+	end
+	
 	function _detalhes:ClearParserCache()
-		damage_cache = {}
-		healing_cache = {}
-		energy_cache = {}
-		misc_cache = {}
+		
+		--> clear cache | not sure if replacing the old table is the best approach
+	
+		table.wipe (damage_cache)
+		table.wipe (damage_cache_pets)
+		table.wipe (damage_cache_petsOwners)
+		table.wipe (healing_cache)
+		table.wipe (energy_cache)
+		table.wipe (misc_cache)
+	
+		damage_cache = setmetatable ({}, _detalhes.weaktable)
+		damage_cache_pets = setmetatable ({}, _detalhes.weaktable)
+		damage_cache_petsOwners = setmetatable ({}, _detalhes.weaktable)
+		
+		healing_cache = setmetatable ({}, _detalhes.weaktable)
+		
+		energy_cache = setmetatable ({}, _detalhes.weaktable)
+		
+		misc_cache = setmetatable ({}, _detalhes.weaktable)
+		
 	end
 
 	--serach key: ~cache
@@ -2168,18 +2233,8 @@
 		_recording_took_damage = _detalhes.RecordRealTimeTookDamage
 		_recording_ability_with_buffs = _detalhes.RecordPlayerAbilityWithBuffs
 		_in_combat = _detalhes.in_combat
-		
-		--> clear cache
-		damage_cache = {}
-		damage_cache_pets = {}
-		damage_cache_petsOwners = {}
-		
-		healing_cache = {}
-		
-		energy_cache = {}
-		
-		misc_cache = {}
-		
+
+		return _detalhes:ClearParserCache()
 	end
 	
 	

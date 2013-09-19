@@ -728,55 +728,153 @@
 		end
 	end
 
+	function _detalhes:CheckMemoryAfterCombat()
+		if (_detalhes.next_memory_check < time()) then
+			if (_detalhes.debug) then
+				_detalhes:Msg ("checking memory after combat.")
+			end
+			_detalhes.next_memory_check = time()+_detalhes.intervalo_memoria
+			UpdateAddOnMemoryUsage()
+			local memory = GetAddOnMemoryUsage ("Details")
+			if (memory > _detalhes.memory_ram) then
+				_detalhes:IniciarColetaDeLixo (true, 60) --> sending true doesn't check anythink
+			end
+		end
+	end
+	function _detalhes:CheckMemoryPeriodically()
+		if (_detalhes.next_memory_check <= time() and not _InCombatLockdown() and not _detalhes.in_combat) then
+			_detalhes.next_memory_check = time() + _detalhes.intervalo_memoria - 3
+			UpdateAddOnMemoryUsage()
+			local memory = GetAddOnMemoryUsage ("Details")
+			if (_detalhes.debug) then
+				_detalhes:Msg ("checking memory periodically. Using: ",math.floor (memory), "of", _detalhes.memory_ram)
+			end
+			if (memory > _detalhes.memory_ram) then
+				if (_detalhes.debug) then
+					_detalhes:Msg ("Memory is too high, starting garbage collector")
+				end
+				_detalhes:IniciarColetaDeLixo (1, 60) --> sending 1 only check for combat and ignore garbage collect cooldown
+			end
+		end
+	end
 
-
-	function _detalhes:IniciarColetaDeLixo (forcar)
+	function _detalhes:IniciarColetaDeLixo (forcar, lastevent)
 
 		if (not forcar) then
 			if (_detalhes.ultima_coleta + _detalhes.intervalo_coleta > _detalhes._tempo + 1)  then
 				return
 			elseif (_detalhes.in_combat or _InCombatLockdown() or _detalhes:IsInInstance()) then 
+				if (_detalhes.debug) then
+					_detalhes:Msg ("garbage collect queued due combatlockdown (forced false)")
+				end
 				_detalhes:ScheduleTimer ("IniciarColetaDeLixo", 5) 
 				return
+			end
+		else
+			if (type (forcar) ~= "boolean") then
+				if (forcar == 1) then
+					if (_detalhes.in_combat or _InCombatLockdown()) then
+						if (_detalhes.debug) then
+							_detalhes:Msg ("garbage collect queued due combatlockdown (forced 1)")
+						end
+						_detalhes:ScheduleTimer ("IniciarColetaDeLixo", 5, forcar) 
+						return
+					end
+				end
 			end
 		end
 
 		if (_detalhes.debug) then
 			if (forcar) then
-				_detalhes:Msg ("collecting garbage with forced state.")
+				_detalhes:Msg ("collecting garbage with forced state: ", forcar)
 			else
 				_detalhes:Msg ("collecting garbage.")
 			end
 		end
 		
+		local memory = GetAddOnMemoryUsage ("Details")
+		
+		--> reseta o cache do parser
 		_detalhes:ClearParserCache()
 		
-		local limpados = atributo_damage:ColetarLixo() + atributo_heal:ColetarLixo() + atributo_energy:ColetarLixo() + atributo_misc:ColetarLixo()
+		--> limpa barras que não estão sendo usadas nas instâncias.
+		for index, instancia in _ipairs (_detalhes.tabela_instancias) do 
+			if (instancia.barras and instancia.barras [1]) then
+				for i, barra in _ipairs (instancia.barras) do 
+					if (not barra:IsShown()) then
+						barra.minha_tabela = nil
+					end
+				end
+			end
+		end
 		
+		--> faz a coleta nos 4 atributos
+		local damage = atributo_damage:ColetarLixo (lastevent)
+		local heal = atributo_heal:ColetarLixo (lastevent)
+		local energy = atributo_energy:ColetarLixo (lastevent)
+		local misc = atributo_misc:ColetarLixo (lastevent)
+
+		local limpados = damage + heal + energy + misc
+		
+		--> refresh nas janelas
 		if (limpados > 0) then
 			_detalhes:InstanciaCallFunction (_detalhes.reset_window)
 		end
 
-		--print ("coletados: " .. limpados)
+		_detalhes:ManutencaoTimeMachine()
 		
+		--> print cache states
+		if (_detalhes.debug) then
+			_detalhes:Msg ("removed: damage "..damage.." heal "..heal.." energy "..energy.." misc "..misc)
+		end
+		
+		--> elimina pets antigos
+		local _new_PetTable = {}
+		for PetSerial, PetTable in _pairs (_detalhes.tabela_pets.pets) do 
+			if (PetTable[4] + _detalhes.intervalo_coleta > _detalhes._tempo + 1) then
+				_new_PetTable [PetSerial] = PetTable
+			end
+		end
+		_table_wipe (_detalhes.tabela_pets.pets)
+		_detalhes.tabela_pets.pets = _new_PetTable
+		
+		--> wipa container de escudos
+		_table_wipe (_detalhes.escudos)
+
 		_detalhes.ultima_coleta = _detalhes._tempo
+
+		if (_detalhes.debug) then
+			collectgarbage()
+			UpdateAddOnMemoryUsage()
+			local memory2 = GetAddOnMemoryUsage ("Details")
+			_detalhes:Msg ("memory antes: "..memory.." memory depois: "..memory2)
+		end
 		
 	end
 
 
-
-	local function FazColeta (_combate, tipo)
+	--> combates Normais
+	local function FazColeta (_combate, tipo, intervalo_overwrite)
 		
 		local conteudo = _combate [tipo]._ActorTable
 		local _iter = {index = 1, data = conteudo[1], cleaned = 0}
 		local _tempo  = _time()
+		
+		local links_removed = 0
 		
 		while (_iter.data) do
 		
 			local _actor = _iter.data
 			local can_garbage = false
 			
-			if (not _actor.grupo and not _actor.boss and not _actor.boss_fight_component and _actor.last_event + _detalhes.intervalo_coleta < _tempo) then 
+			local t
+			if (intervalo_overwrite) then 
+				t =  _actor.last_event + intervalo_overwrite
+			else
+				t = _actor.last_event + _detalhes.intervalo_coleta
+			end
+			
+			if (not _actor.grupo and not _actor.boss and not _actor.boss_fight_component and t < _tempo) then 
 				local owner = _actor.owner
 				if (owner) then 
 					local owner_actor = _combate (tipo, owner.nome)
@@ -807,6 +905,11 @@
 				end
 			
 				_iter.cleaned = _iter.cleaned+1
+				
+				if (_actor.tipo == 1 or _actor.tipo == 2) then
+					_actor:DesregistrarNaTimeMachine()
+				end				
+				
 				_table_remove (conteudo, _iter.index)
 				_iter.data = conteudo [_iter.index]
 			else
@@ -814,6 +917,10 @@
 				_iter.data = conteudo [_iter.index]
 			end
 		
+		end
+		
+		if (_detalhes.debug) then
+			-- _detalhes:Msg ("- garbage collect:", tipo, "actors removed:",_iter.cleaned)
 		end
 		
 		if (_iter.cleaned > 0) then
@@ -824,21 +931,13 @@
 		return _iter.cleaned
 	end
 
-	function _detalhes:ColetarLixo (tipo)
-
-		for index, instancia in _ipairs (_detalhes.tabela_instancias) do 
-			if (instancia:IsAtiva()) then
-				for i, barra in _ipairs (instancia.barras) do 
-					if (not barra:IsShown()) then
-						barra.minha_tabela = nil
-					end
-				end
-			end
-		end
+	--> Combate overall
+	function _detalhes:ColetarLixo (tipo, lastevent)
 
 		local _tempo  = _time()
 		local limpados = 0
 
+		--> monta a lista de combates
 		local tabelas_de_combate = {}
 		for _, _tabela in _ipairs (_detalhes.tabela_historico.tabelas) do
 			if (_tabela ~= _detalhes.tabela_vigente) then
@@ -847,17 +946,16 @@
 		end
 		tabelas_de_combate [#tabelas_de_combate+1] = _detalhes.tabela_vigente
 		
+		--> faz a coleta em todos os combates para este atributo
 		for _, _combate in _ipairs (tabelas_de_combate) do 
-			limpados = limpados + FazColeta (_combate, tipo)
+			limpados = limpados + FazColeta (_combate, tipo, lastevent)
 		end
 
-		--> clear shadow tables
+		--> limpa a tabela overall
 		local _overall_combat = _detalhes.tabela_overall	
 		local conteudo = _overall_combat [tipo]._ActorTable
-		_iter = {index = 1, data = conteudo[1], cleaned = 0} --> ._ActorTable[1] para pegar o primeiro index
-		
-		--collectgarbage()
-		
+		local _iter = {index = 1, data = conteudo[1], cleaned = 0} --> ._ActorTable[1] para pegar o primeiro index
+
 		while (_iter.data) do
 		
 			local _actor = _iter.data
@@ -875,12 +973,7 @@
 				end
 				_table_wipe (meus_links)
 			end
-			
-			--if (tipo == 1 and #new_weak_table > 0) then
-			--	print (can_garbage, _actor.nome)
-			--end
-			
-			
+
 			if (can_garbage or not meus_links) then --> não há referências a este objeto
 				
 				if (not _actor.owner) then --> pet
@@ -889,7 +982,18 @@
 
 				--> apaga a referência deste jogador na tabela overall
 				_iter.cleaned = _iter.cleaned+1
+				
+				if (_detalhes.debug) then
+					if (#_actor.links > 0) then
+						_detalhes:Msg (_actor.nome, " has been garbaged but have links: ", #_actor.links)
+					end
+				end
+				
+				if (_actor.tipo == 1 or _actor.tipo == 2) then
+					_actor:DesregistrarNaTimeMachine()
+				end
 				_table_remove (conteudo, _iter.index)
+
 				_iter.data = conteudo [_iter.index]
 			else
 				_actor.links = new_weak_table
@@ -898,21 +1002,7 @@
 			end
 
 		end
-		
-		--> elimina pets antigos
-		local _new_PetTable = {}
-		for PetSerial, PetTable in _pairs (_detalhes.tabela_pets.pets) do 
-			if (PetTable[4] + _detalhes.intervalo_coleta > _detalhes._tempo + 1) then
-				_new_PetTable [PetSerial] = PetTable
-			end
-		end
-		
-		_table_wipe (_detalhes.tabela_pets.pets)
-		_detalhes.tabela_pets.pets = _new_PetTable
-		
-		--> wipa container de escudos
-		_table_wipe (_detalhes.escudos)
-		
+
 		--> termina o coletor de lixo
 		if (_iter.cleaned > 0) then
 			_overall_combat[tipo].need_refresh = true

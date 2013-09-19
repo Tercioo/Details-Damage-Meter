@@ -45,8 +45,13 @@ function historico:adicionar (tabela)
 			if (index < 3) then
 				for _, jogador in ipairs (container._ActorTable) do 
 				
-					--> limpeza
+					--> remover a tabela de last events
 					jogador.last_events_table =  nil
+					
+					--> verifica se ele ainda esta registrado na time machine
+					if (jogador.timeMachine) then
+						jogador:DesregistrarNaTimeMachine()
+					end
 					
 				end
 			else
@@ -61,18 +66,32 @@ function historico:adicionar (tabela)
 	--> verifica se precisa apagar a última tabela do histórico
 	if (#self.tabelas > _detalhes.segments_amount) then
 		
-		-- BETA subtração do combate overall
-		_detalhes.tabela_overall = _detalhes.tabela_overall - self.tabelas [#self.tabelas]
-		_detalhes.tabela_overall.start_time = _detalhes.tabela_overall.start_time + (self.tabelas[#self.tabelas].end_time-self.tabelas[#self.tabelas].start_time)
-		--print (#self.tabelas)
+		local combat_removed = self.tabelas [#self.tabelas]
+	
+		--> diminuir quantidades no overall
+		_detalhes.tabela_overall = _detalhes.tabela_overall - combat_removed
+		_detalhes.tabela_overall.start_time = _detalhes.tabela_overall.start_time + (combat_removed.end_time-combat_removed.start_time)
 		
-		local amt_mortes =  #self.tabelas[#self.tabelas].last_events_tables --> quantas mortes teve nessa luta
+		local amt_mortes =  #combat_removed.last_events_tables --> quantas mortes teve nessa luta
 		if (amt_mortes > 0) then
 			for i = #_detalhes.tabela_overall.last_events_tables, #_detalhes.tabela_overall.last_events_tables-amt_mortes, -1 do 
 				_table_remove (_detalhes.tabela_overall.last_events_tables, #_detalhes.tabela_overall.last_events_tables)
 			end
 		end
 		
+		--> verificar novamente a time machine
+		for _, jogador in ipairs (combat_removed [1]._ActorTable) do --> damage
+			if (jogador.timeMachine) then
+				jogador:DesregistrarNaTimeMachine()
+			end
+		end
+		for _, jogador in ipairs (combat_removed [2]._ActorTable) do --> heal
+			if (jogador.timeMachine) then
+				jogador:DesregistrarNaTimeMachine()
+			end
+		end
+		
+		--> remover
 		_table_remove (self.tabelas, #self.tabelas)
 		_detalhes:SendEvent ("DETAILS_DATA_SEGMENTREMOVED", nil, nil)
 		

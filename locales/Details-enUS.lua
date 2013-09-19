@@ -14,6 +14,7 @@ if not Loc then return end
 	Loc ["STRING_RIGHT"] = "right"
 	Loc ["STRING_TOOOLD"] = "could not be installed because your Details! version is too old."
 	Loc ["STRING_TOOOLD2"] = "your Details! version isn't the same."
+	Loc ["STRING_CHANGED_TO_CURRENT"] = "Segment changed to current"
 	
 	Loc ["STRING_INSTANCE_LIMIT"] = "max instance number has been reached, you can modify this limit over options panel."
 	
@@ -55,6 +56,7 @@ if not Loc then return end
 	Loc ["STRING_SEGMENT_END"] = "End"
 	Loc ["STRING_SEGMENT_ENEMY"] = "Enemy"
 	Loc ["STRING_SEGMENT_TIME"] = "Time"
+	Loc ["STRING_SEGMENT_OVERALL"] = "Current Segments Overall"
 	Loc ["STRING_TOTAL"] = "Total"
 	Loc ["STRING_OVERALL"] = "Overall"
 	Loc ["STRING_CURRENT"] = "Current"
@@ -205,6 +207,7 @@ if not Loc then return end
 	Loc ["STRING_PLUGIN_PDPSNAME"] = "Raid Dps"
 	Loc ["STRING_PLUGIN_THREATNAME"] = "My Threat"
 	Loc ["STRING_PLUGIN_PATTRIBUTENAME"] = "Attribute"
+	Loc ["STRING_PLUGIN_CLEAN"] = "None"
 	
 	Loc ["STRING_PLUGINOPTIONS_COMMA"] = "Comma"
 	Loc ["STRING_PLUGINOPTIONS_ABBREVIATE"] = "Abbreviate"
@@ -244,6 +247,7 @@ if not Loc then return end
 --> report frame
 
 	Loc ["STRING_REPORTFRAME_PARTY"] = "Party"
+	--Loc ["STRING_REPORTFRAME_INSTANCE"] = "Instance"
 	Loc ["STRING_REPORTFRAME_RAID"] = "Raid"
 	Loc ["STRING_REPORTFRAME_GUILD"] = "Guild"
 	Loc ["STRING_REPORTFRAME_OFFICERS"] = "Officer Channel"

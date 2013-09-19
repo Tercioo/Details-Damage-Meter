@@ -239,13 +239,13 @@ local _UISpecialFrames = UISpecialFrames --> wow api locals
 
 		slider:SetThumbTexture (slider.thumb) --depois 
 		slider:SetOrientation ("HORIZONTAL")
-		slider:SetMinMaxValues (1, 25)
-		slider:SetValueStep (1)
+		slider:SetMinMaxValues (1.0, 25.0)
+		slider:SetValueStep (1.0)
 		slider:SetWidth (232)
 		slider:SetHeight (20)
 
 		local last_value = _detalhes.report_lines or 5
-		slider:SetValue (last_value)
+		slider:SetValue (math.floor (last_value))
 		
 		slider.amt = slider:CreateFontString (nil, "OVERLAY", "GameFontHighlightSmall")
 		local amt = slider:GetValue()
@@ -258,7 +258,7 @@ local _UISpecialFrames = UISpecialFrames --> wow api locals
 		slider.amt:SetPoint ("center", slider.thumb, "center")
 		
 		slider:SetScript ("OnValueChanged", function (self) 
-			local amt = self:GetValue()
+			local amt = math.floor (self:GetValue())
 			_detalhes.report_lines = amt
 			if (amt < 10) then
 				amt = "0"..amt
