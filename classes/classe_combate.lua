@@ -263,6 +263,75 @@ function _detalhes.clear:c_combate (tabela_combate)
 	tabela_combate.shadow = nil
 end
 
+combate.__add = function (combate1, combate2)
+	--> add dano
+		for index, actor_T2 in _ipairs (combate2[1]._ActorTable) do
+			local actor_T1 = combate1[1]:PegarCombatente (actor_T2.serial, actor_T2.nome, actor_T2.flag_original, true)
+			actor_T1 = actor_T1 + actor_T2
+		end
+	--> add heal
+		for index, actor_T2 in _ipairs (combate2[2]._ActorTable) do
+			local actor_T1 = combate1[2]:PegarCombatente (actor_T2.serial, actor_T2.nome, actor_T2.flag_original, true)
+			actor_T1 = actor_T1 + actor_T2
+		end
+	--> add energy
+		for index, actor_T2 in _ipairs (combate2[3]._ActorTable) do
+			local actor_T1 = combate1[3]:PegarCombatente (actor_T2.serial, actor_T2.nome, actor_T2.flag_original, true)
+			actor_T1 = actor_T1 + actor_T2
+		end
+	--> add misc
+		for index, actor_T2 in _ipairs (combate2[4]._ActorTable) do
+			local actor_T1 = combate1[4]:PegarCombatente (actor_T2.serial, actor_T2.nome, actor_T2.flag_original, true)
+			actor_T1 = actor_T1 + actor_T2
+		end
+	--> aumenta o total
+		combate1.totals[1] = combate1.totals[1] - combate2.totals[1]
+		combate1.totals[2] = combate1.totals[2] - combate2.totals[2]
+		
+		combate1.totals[3].mana = combate1.totals[3].mana - combate2.totals[3].mana
+		combate1.totals[3].e_rage = combate1.totals[3].e_rage - combate2.totals[3].e_rage
+		combate1.totals[3].e_energy = combate1.totals[3].e_energy - combate2.totals[3].e_energy
+		combate1.totals[3].runepower = combate1.totals[3].runepower - combate2.totals[3].runepower
+		
+		combate1.totals[4].cc_break = combate1.totals[4].cc_break - combate2.totals[4].cc_break
+		combate1.totals[4].ress = combate1.totals[4].ress - combate2.totals[4].ress
+		combate1.totals[4].interrupt = combate1.totals[4].interrupt - combate2.totals[4].interrupt
+		combate1.totals[4].dispell = combate1.totals[4].dispell - combate2.totals[4].dispell
+		combate1.totals[4].dead = combate1.totals[4].dead - combate2.totals[4].dead
+		combate1.totals[4].cooldowns_defensive = combate1.totals[4].cooldowns_defensive - combate2.totals[4].cooldowns_defensive
+		
+		combate1.totals_grupo[1] = combate1.totals_grupo[1] - combate2.totals_grupo[1]
+		combate1.totals_grupo[2] = combate1.totals_grupo[2] - combate2.totals_grupo[2]
+		
+		combate1.totals_grupo[3].mana = combate1.totals_grupo[3].mana - combate2.totals_grupo[3].mana
+		combate1.totals_grupo[3].e_rage = combate1.totals_grupo[3].e_rage - combate2.totals_grupo[3].e_rage
+		combate1.totals_grupo[3].e_energy = combate1.totals_grupo[3].e_energy - combate2.totals_grupo[3].e_energy
+		combate1.totals_grupo[3].runepower = combate1.totals_grupo[3].runepower - combate2.totals_grupo[3].runepower
+		
+		combate1.totals_grupo[4].cc_break = combate1.totals_grupo[4].cc_break - combate2.totals_grupo[4].cc_break
+		combate1.totals_grupo[4].ress = combate1.totals_grupo[4].ress - combate2.totals_grupo[4].ress
+		combate1.totals_grupo[4].interrupt = combate1.totals_grupo[4].interrupt - combate2.totals_grupo[4].interrupt
+		combate1.totals_grupo[4].dispell = combate1.totals_grupo[4].dispell - combate2.totals_grupo[4].dispell
+		combate1.totals_grupo[4].dead = combate1.totals_grupo[4].dead - combate2.totals_grupo[4].dead
+		combate1.totals_grupo[4].cooldowns_defensive = combate1.totals_grupo[4].cooldowns_defensive - combate2.totals_grupo[4].cooldowns_defensive	
+	--> aumenta o tempo 
+		combate1.start_time = combate1.start_time - (combate2.end_time - combate2.start_time)
+	--> frags
+		for fragName, fragAmount in pairs (combate2.frags) do 
+			if (fragAmount) then
+				if (combate1.frags [fragName]) then
+					combate1.frags [fragName] = combate1.frags [fragName] + fragAmount
+				else
+					combate1.frags [fragName] = fragAmount
+				end
+			end
+		end
+		combate1.frags_need_refresh = true
+		
+	return combate1
+	
+end
+
 combate.__sub = function (overall, combate)
 
 	--> foreach no dano
@@ -497,3 +566,46 @@ end
 function _detalhes:UpdateCombat()
 	_tempo = _detalhes._tempo
 end
+
+--[[
+			local nome = actor_T2.nome
+			
+			--> actor principal
+			local actor_T1 = combate1[1]._ActorTable [combate1[1]._NameIndexTable [nome] ]
+			if (not actor_T1) then --> precisa cria-lo
+				actor_T1 = combate1[1]:PegarCombatente (actor_T2.serial, nome, actor_T2.flag_original, true)
+			end
+			
+			if (actor_T1) then
+				
+				--> add basic members
+				actor_T1 = actor_T1 + actor_T2
+				
+				--> alvos
+				local alvos = actor_T2.targets
+				for index, alvo in _ipairs (alvos._ActorTable) do 
+					local alvo_T1 = actor_T1.targets._ActorTable [actor_T1.targets._NameIndexTable [alvo.nome] ]
+					if (not alvo_T1) then
+						alvo_T1 = actor_T1.targets:PegarCombatente (alvo.serial, alvo.nome, alvo.flag_original, true)
+					end
+					alvo_T1 = alvo_T1 + alvo
+				end
+				
+				--> spells
+				local habilidades = actor_T2.spell_tables
+				for _spellid, habilidade in _pairs (habilidades._ActorTable) do
+					local habilidade_T1 = actor_T1.spell_tables._ActorTable [_spellid]
+					if (not habilidade_T1) then
+						
+					end
+					
+					habilidade_overall = habilidade_overall - habilidade
+					
+					local alvos = habilidade.targets
+					for index, alvo in _ipairs (alvos._ActorTable) do 
+						local alvo_overall = habilidade_overall.targets._ActorTable [habilidade_overall.targets._NameIndexTable [alvo.nome] ]
+						alvo_overall = alvo_overall - alvo
+					end
+				end
+			end
+--]]

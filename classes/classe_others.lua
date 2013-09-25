@@ -32,7 +32,7 @@ local container_pets =		_detalhes.container_pets
 local atributo_misc =		_detalhes.atributo_misc
 local habilidade_misc = 	_detalhes.habilidade_misc
 
---local container_damage_target = _detalhes.container_type.CONTAINER_DAMAGETARGET_CLASS
+local container_damage_target = _detalhes.container_type.CONTAINER_DAMAGETARGET_CLASS
 local container_playernpc = _detalhes.container_type.CONTAINER_PLAYERNPC
 local container_misc = _detalhes.container_type.CONTAINER_MISC_CLASS
 local container_misc_target = _detalhes.container_type.CONTAINER_ENERGYTARGET_CLASS
@@ -57,6 +57,40 @@ local div_lugar = _detalhes.divisores.colocacao
 
 local info = _detalhes.janela_info
 local keyName
+
+function _detalhes.SortIfHaveKey (table1, table2)
+	if (table1[keyName] and table2[keyName]) then
+		return table1[keyName] > table2[keyName] 
+	elseif (table1[keyName] and not table2[keyName]) then
+		return true
+	else
+		return false
+	end
+end
+
+function _detalhes.SortGroupIfHaveKey (table1, table2)
+	if (table1.grupo and table2.grupo) then
+		if (table1[keyName] and table2[keyName]) then
+			return table1[keyName] > table2[keyName] 
+		elseif (table1[keyName] and not table2[keyName]) then
+			return true
+		else
+			return false
+		end
+	elseif (table1.grupo and not table2.grupo) then
+		return true
+	elseif (not table1.grupo and table2.grupo) then
+		return false
+	else
+		if (table1[keyName] and table2[keyName]) then
+			return table1[keyName] > table2[keyName] 
+		elseif (table1[keyName] and not table2[keyName]) then
+			return true
+		else
+			return false
+		end
+	end
+end
 
 function atributo_misc:NovaTabela (serial, nome, link)
 
@@ -219,21 +253,13 @@ end
 
 function atributo_misc:RefreshWindow (instancia, tabela_do_combate, forcar, exportar)
 	
-	--print ("refresh misc...")
-	
-	local total = 0 --> total iniciado como ZERO
-	
 	local showing = tabela_do_combate [class_type] --> o que esta sendo mostrado -> [1] - dano [2] - cura --> pega o container com ._NameIndexTable ._ActorTable
- 
+
 	if (#showing._ActorTable < 1) then --> não há barras para mostrar
-		if (forcar) then
-			_detalhes:EsconderBarrasNaoUsadas (instancia, showing)
-		end
-		return
+		return _detalhes:EsconderBarrasNaoUsadas (instancia, showing)
 	end
 	
-	--print ("refresh misc... 2")
-	
+	local total = 0	
 	instancia.top = 0
 	
 	local sub_atributo = instancia.sub_atributo --> o que esta sendo mostrado nesta instância
@@ -319,34 +345,37 @@ function atributo_misc:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 	
 		if (instancia.atributo == 5) then --> custom
 			--> faz o sort da categoria e retorna o amount corrigido
-			amount = _detalhes:ContainerSort (conteudo, amount, keyName)
+			_table_sort (conteudo, _detalhes.SortIfHaveKey)
+			
+			--> não mostrar resultados com zero
+			for i = amount, 1, -1 do --> de trás pra frente
+				if (not conteudo[i][keyName] or conteudo[i][keyName] < 1) then
+					amount = amount - 1
+				else
+					break
+				end
+			end
+
+			--> pega o total ja aplicado na tabela do combate
+			total = tabela_do_combate.totals [class_type] [keyName]
 			
 			--> grava o total
 			instancia.top = conteudo[1][keyName]
 	
 		elseif (modo == modo_ALL) then --> mostrando ALL
-		
-			--> faz o sort da categoria
-			_table_sort (conteudo, function (a, b) 
-			
-				if (a[keyName] and b[keyName]) then
-					return a[keyName] > b[keyName] 
-				elseif (a[keyName] and not b[keyName]) then
-					return true
-				else
-					return false
-				end
-				
-			end)
+
+			_table_sort (conteudo, _detalhes.SortIfHaveKey)
 			
 			--> não mostrar resultados com zero
 			for i = amount, 1, -1 do --> de trás pra frente
-				if (not conteudo[i][keyName]) then
-					amount = amount-i
+				if (not conteudo[i][keyName] or conteudo[i][keyName] < 1) then
+					amount = amount - 1
+				else
 					break
 				end
 			end
 
+			--> pega o total ja aplicado na tabela do combate
 			total = tabela_do_combate.totals [class_type] [keyName]
 			
 			--> grava o total
@@ -354,31 +383,7 @@ function atributo_misc:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 		
 		elseif (modo == modo_GROUP) then --> mostrando GROUP
 		
-			--> faz o sort da categoria
-			_table_sort (conteudo, function (a, b) 
-			
-				if (a.grupo and b.grupo) then
-					if (a[keyName] and b[keyName]) then
-						return a[keyName] > b[keyName] 
-					elseif (a[keyName] and not b[keyName]) then
-						return true
-					else
-						return false
-					end
-				elseif (a.grupo and not b.grupo) then
-					return true
-				elseif (not a.grupo and b.grupo) then
-					return false
-				else
-					if (a[keyName] and b[keyName]) then
-						return a[keyName] > b[keyName] 
-					elseif (a[keyName] and not b[keyName]) then
-						return true
-					else
-						return false
-					end
-				end
-			end)
+			_table_sort (conteudo, _detalhes.SortGroupIfHaveKey)
 		
 			for index, player in _ipairs (conteudo) do
 				if (_bit_band (player.flag, DFLAG_player_group) >= 0x101) then --> é um player e esta em grupo
@@ -1315,11 +1320,21 @@ atributo_misc.__add = function (shadow, tabela2)
 
 	if (tabela2.interrupt) then
 	
+		if (not shadow.interrupt) then
+			shadow.interrupt = 0
+			shadow.interrupt_targets = container_combatentes:NovoContainer (container_damage_target)
+			shadow.interrupt_spell_tables = container_habilidades:NovoContainer (container_misc)
+			shadow.interrompeu_oque = {}
+		end
+	
 		shadow.interrupt = shadow.interrupt + tabela2.interrupt
-		_detalhes.tabela_overall.totals[4]["interrupt"] = _detalhes.tabela_overall.totals[4]["interrupt"] + tabela2.interrupt
 		
-		if (tabela2.grupo) then
-			_detalhes.tabela_overall.totals_grupo[4]["interrupt"] = _detalhes.tabela_overall.totals_grupo[4]["interrupt"] + tabela2.interrupt
+		if ( not (shadow.shadow and tabela2.shadow) ) then
+			_detalhes.tabela_overall.totals[4]["interrupt"] = _detalhes.tabela_overall.totals[4]["interrupt"] + tabela2.interrupt
+			
+			if (tabela2.grupo) then
+				_detalhes.tabela_overall.totals_grupo[4]["interrupt"] = _detalhes.tabela_overall.totals_grupo[4]["interrupt"] + tabela2.interrupt
+			end
 		end
 		
 		for index, alvo in _ipairs (tabela2.interrupt_targets._ActorTable) do 
@@ -1363,11 +1378,20 @@ atributo_misc.__add = function (shadow, tabela2)
 	
 	if (tabela2.cooldowns_defensive) then
 	
+		if (not shadow.cooldowns_defensive) then
+			shadow.cooldowns_defensive = 0
+			shadow.cooldowns_defensive_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
+			shadow.cooldowns_defensive_spell_tables = container_habilidades:NovoContainer (container_misc) --> cria o container das habilidades usadas
+		end
+	
 		shadow.cooldowns_defensive = shadow.cooldowns_defensive + tabela2.cooldowns_defensive
-		_detalhes.tabela_overall.totals[4]["cooldowns_defensive"] = _detalhes.tabela_overall.totals[4]["cooldowns_defensive"] + tabela2.cooldowns_defensive
 		
-		if (tabela2.grupo) then
-			_detalhes.tabela_overall.totals_grupo[4]["cooldowns_defensive"] = _detalhes.tabela_overall.totals_grupo[4]["cooldowns_defensive"] + tabela2.cooldowns_defensive
+		if ( not (shadow.shadow and tabela2.shadow) ) then
+			_detalhes.tabela_overall.totals[4]["cooldowns_defensive"] = _detalhes.tabela_overall.totals[4]["cooldowns_defensive"] + tabela2.cooldowns_defensive
+			
+			if (tabela2.grupo) then
+				_detalhes.tabela_overall.totals_grupo[4]["cooldowns_defensive"] = _detalhes.tabela_overall.totals_grupo[4]["cooldowns_defensive"] + tabela2.cooldowns_defensive
+			end
 		end
 		
 		for index, alvo in _ipairs (tabela2.cooldowns_defensive_targets._ActorTable) do 
@@ -1399,11 +1423,20 @@ atributo_misc.__add = function (shadow, tabela2)
 	
 	if (tabela2.ress) then
 	
+		if (not shadow.ress) then
+			shadow.ress = 0
+			shadow.ress_targets = container_combatentes:NovoContainer (container_damage_target)
+			shadow.ress_spell_tables = container_habilidades:NovoContainer (container_misc)
+		end
+	
 		shadow.ress = shadow.ress + tabela2.ress
-		_detalhes.tabela_overall.totals[4]["ress"] = _detalhes.tabela_overall.totals[4]["ress"] + tabela2.ress
 		
-		if (tabela2.grupo) then
-			_detalhes.tabela_overall.totals_grupo[4]["ress"] = _detalhes.tabela_overall.totals_grupo[4]["ress"] + tabela2.ress
+		if ( not (shadow.shadow and tabela2.shadow) ) then
+			_detalhes.tabela_overall.totals[4]["ress"] = _detalhes.tabela_overall.totals[4]["ress"] + tabela2.ress
+			
+			if (tabela2.grupo) then
+				_detalhes.tabela_overall.totals_grupo[4]["ress"] = _detalhes.tabela_overall.totals_grupo[4]["ress"] + tabela2.ress
+			end
 		end
 		
 		for index, alvo in _ipairs (tabela2.ress_targets._ActorTable) do 
@@ -1435,11 +1468,21 @@ atributo_misc.__add = function (shadow, tabela2)
 	
 	if (tabela2.dispell) then
 	
+		if (not shadow.dispell) then
+			shadow.dispell = 0
+			shadow.dispell_targets = container_combatentes:NovoContainer (container_damage_target)
+			shadow.dispell_spell_tables = container_habilidades:NovoContainer (container_misc)
+			shadow.dispell_oque = {}
+		end
+	
 		shadow.dispell = shadow.dispell + tabela2.dispell
-		_detalhes.tabela_overall.totals[4]["dispell"] = _detalhes.tabela_overall.totals[4]["dispell"] + tabela2.dispell
 		
-		if (tabela2.grupo) then
-			_detalhes.tabela_overall.totals_grupo[4]["dispell"] = _detalhes.tabela_overall.totals_grupo[4]["dispell"] + tabela2.dispell
+		if ( not (shadow.shadow and tabela2.shadow) ) then
+			_detalhes.tabela_overall.totals[4]["dispell"] = _detalhes.tabela_overall.totals[4]["dispell"] + tabela2.dispell
+			
+			if (tabela2.grupo) then
+				_detalhes.tabela_overall.totals_grupo[4]["dispell"] = _detalhes.tabela_overall.totals_grupo[4]["dispell"] + tabela2.dispell
+			end
 		end
 		
 		for index, alvo in _ipairs (tabela2.dispell_targets._ActorTable) do 
@@ -1486,11 +1529,21 @@ atributo_misc.__add = function (shadow, tabela2)
 	
 	if (tabela2.cc_break) then
 	
+		if (not shadow.cc_break) then
+			shadow.cc_break = 0
+			shadow.cc_break_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
+			shadow.cc_break_spell_tables = container_habilidades:NovoContainer (container_misc) --> cria o container das habilidades usadas para interromper
+			shadow.cc_break_oque = {}
+		end
+	
 		shadow.cc_break = shadow.cc_break + tabela2.cc_break
-		_detalhes.tabela_overall.totals[4]["cc_break"] = _detalhes.tabela_overall.totals[4]["cc_break"] + tabela2.cc_break
 		
-		if (tabela2.grupo) then
-			_detalhes.tabela_overall.totals_grupo[4]["cc_break"] = _detalhes.tabela_overall.totals_grupo[4]["cc_break"] + tabela2.cc_break
+		if ( not (shadow.shadow and tabela2.shadow) ) then
+			_detalhes.tabela_overall.totals[4]["cc_break"] = _detalhes.tabela_overall.totals[4]["cc_break"] + tabela2.cc_break
+			
+			if (tabela2.grupo) then
+				_detalhes.tabela_overall.totals_grupo[4]["cc_break"] = _detalhes.tabela_overall.totals_grupo[4]["cc_break"] + tabela2.cc_break
+			end
 		end
 		
 		for index, alvo in _ipairs (tabela2.cc_break_targets._ActorTable) do 

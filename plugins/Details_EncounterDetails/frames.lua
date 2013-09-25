@@ -482,7 +482,7 @@ Message: ..\AddOns\Details_EncounterDetails\frames.lua line 156:
 	BossFrame.raidbackground = BossFrame:CreateTexture (nil, "BACKGROUND")
 	BossFrame.raidbackground:SetPoint ("TOPLEFT", BossFrame, "TOPLEFT", 244, -74)
 	
-	BossFrame.raidbackground:SetWidth (512)
+	BossFrame.raidbackground:SetWidth (450)
 	BossFrame.raidbackground:SetHeight (256)
 	
 	--> background completo

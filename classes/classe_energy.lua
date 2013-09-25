@@ -703,16 +703,18 @@ atributo_energy.__add = function (shadow, tabela2)
 	shadow.focus = shadow.focus + tabela2.focus
 	shadow.holypower = shadow.holypower + tabela2.holypower
 
-	_detalhes.tabela_overall.totals[3]["mana"] = _detalhes.tabela_overall.totals[3]["mana"] + tabela2.mana
-	_detalhes.tabela_overall.totals[3]["e_rage"] = _detalhes.tabela_overall.totals[3]["e_rage"] + tabela2.e_rage
-	_detalhes.tabela_overall.totals[3]["e_energy"] = _detalhes.tabela_overall.totals[3]["e_energy"] + tabela2.e_energy
-	_detalhes.tabela_overall.totals[3]["runepower"] = _detalhes.tabela_overall.totals[3]["runepower"] + tabela2.runepower
-	
-	if (tabela2.grupo) then
-		_detalhes.tabela_overall.totals_grupo[3]["mana"] = _detalhes.tabela_overall.totals_grupo[3]["mana"] + tabela2.mana
-		_detalhes.tabela_overall.totals_grupo[3]["e_rage"] = _detalhes.tabela_overall.totals_grupo[3]["e_rage"] + tabela2.e_rage
-		_detalhes.tabela_overall.totals_grupo[3]["e_energy"] = _detalhes.tabela_overall.totals_grupo[3]["e_energy"] + tabela2.e_energy
-		_detalhes.tabela_overall.totals_grupo[3]["runepower"] = _detalhes.tabela_overall.totals_grupo[3]["runepower"] + tabela2.runepower
+	if ( not (shadow.shadow and tabela2.shadow) ) then
+		_detalhes.tabela_overall.totals[3]["mana"] = _detalhes.tabela_overall.totals[3]["mana"] + tabela2.mana
+		_detalhes.tabela_overall.totals[3]["e_rage"] = _detalhes.tabela_overall.totals[3]["e_rage"] + tabela2.e_rage
+		_detalhes.tabela_overall.totals[3]["e_energy"] = _detalhes.tabela_overall.totals[3]["e_energy"] + tabela2.e_energy
+		_detalhes.tabela_overall.totals[3]["runepower"] = _detalhes.tabela_overall.totals[3]["runepower"] + tabela2.runepower
+		
+		if (tabela2.grupo) then
+			_detalhes.tabela_overall.totals_grupo[3]["mana"] = _detalhes.tabela_overall.totals_grupo[3]["mana"] + tabela2.mana
+			_detalhes.tabela_overall.totals_grupo[3]["e_rage"] = _detalhes.tabela_overall.totals_grupo[3]["e_rage"] + tabela2.e_rage
+			_detalhes.tabela_overall.totals_grupo[3]["e_energy"] = _detalhes.tabela_overall.totals_grupo[3]["e_energy"] + tabela2.e_energy
+			_detalhes.tabela_overall.totals_grupo[3]["runepower"] = _detalhes.tabela_overall.totals_grupo[3]["runepower"] + tabela2.runepower
+		end
 	end
 	
 	shadow.mana_r = shadow.mana_r + tabela2.mana_r

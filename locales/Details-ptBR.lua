@@ -15,6 +15,7 @@ if not Loc then return end
 	Loc ["STRING_TOOOLD"] = "nao pode ser instalado pois sua versao do Details! e muito antiga."
 	Loc ["STRING_TOOOLD2"] = "a sua versao do Details! nao e a mesma."
 	Loc ["STRING_CHANGED_TO_CURRENT"] = "Segmento trocado para atual"
+	Loc ["STRING_SEGMENT_TRASH"] = "Caminho do Proximo Boss"
 	
 	Loc ["STRING_INSTANCE_LIMIT"] = "o limite de instancias foi atingido, voce pode modificar este limite no painel de opcoes."
 	

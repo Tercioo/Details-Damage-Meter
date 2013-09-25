@@ -202,7 +202,8 @@
 		
 		--> last event
 		este_jogador.last_event = _tempo
-		shadow.last_event = _tempo	
+		--jogador_alvo.last_event = _tempo
+		--shadow.last_event = _tempo	
 		
 	------------------------------------------------------------------------------------------------
 	--> group checks and avoidance
@@ -503,7 +504,8 @@
 		local shadow_of_target = jogador_alvo.shadow
 		
 		este_jogador.last_event = _tempo
-		shadow.last_event = _tempo
+		--jogador_alvo.last_event = _tempo
+		--shadow.last_event = _tempo
 
 	------------------------------------------------------------------------------------------------
 	--> an enemy healing enemy or an player actor healing a enemy
@@ -1028,7 +1030,7 @@
 		local shadow_of_target = jogador_alvo.shadow
 		
 		este_jogador.last_event = _tempo
-		shadow.last_event = _tempo
+		--shadow.last_event = _tempo
 
 	------------------------------------------------------------------------------------------------
 	--> amount add
@@ -1078,7 +1080,7 @@
 
 	
 -----------------------------------------------------------------------------------------------------------------------------------------
-	--> MISC															|
+	--> MISC 	search key: ~cooldown											|
 -----------------------------------------------------------------------------------------------------------------------------------------
 
 	function parser:add_defensive_cooldown (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, _, tipo, amount)
@@ -1145,7 +1147,7 @@
 		
 		--> update last event
 		este_jogador.last_event = _tempo
-		shadow.last_event = _tempo
+		--shadow.last_event = _tempo
 		
 		--> actor targets
 		local este_alvo = este_jogador.cooldowns_defensive_targets._NameIndexTable [alvo_name]
@@ -1238,7 +1240,7 @@
 
 		--> update last event
 		este_jogador.last_event = _tempo
-		shadow.last_event = _tempo
+		--shadow.last_event = _tempo
 		
 		--> spells interrupted
 		if (not este_jogador.interrompeu_oque [extraSpellID]) then
@@ -1339,7 +1341,7 @@
 
 		--> last event update
 		este_jogador.last_event = _tempo
-		shadow.last_event = _tempo
+		--shadow.last_event = _tempo
 
 		--> total dispells in combat
 		_current_total [4].dispell = _current_total [4].dispell + 1
@@ -1437,7 +1439,7 @@
 
 		--> update last event
 		este_jogador.last_event = _tempo
-		shadow.last_event = _tempo
+		--shadow.last_event = _tempo
 
 		--> combat ress total
 		_current_total [4].ress = _current_total [4].ress + 1
@@ -1559,7 +1561,7 @@
 
 		--> update last event
 		este_jogador.last_event = _tempo
-		shadow.last_event = _tempo
+		--shadow.last_event = _tempo
 		
 		--> combat cc break total
 		_current_total [4].cc_break = _current_total [4].cc_break + 1
@@ -1638,6 +1640,8 @@
 			_current_combat.frags_need_refresh = true
 			_overall_combat.frags_need_refresh = true
 
+			--print (alvo_name)
+			
 			local encounter_type = _detalhes.encounter.type
 			if (encounter_type) then
 				if (encounter_type == 1 or encounter_type == 2) then
@@ -2021,6 +2025,11 @@
 					_detalhes.listener:RegisterEvent ("CHAT_MSG_BG_SYSTEM_NEUTRAL")
 				end
 			else
+				
+				if (_detalhes:IsInInstance()) then
+					_detalhes.last_instance = zoneMapID
+				end
+				
 				if (_current_combat.pvp) then 
 					_current_combat.pvp = false
 				end

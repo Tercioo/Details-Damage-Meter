@@ -2486,7 +2486,290 @@ function _detalhes:DefaultIcons (_mode, _segment, _attributes, _report)
 	return true
 end
 
+local parameters_table = {}
+
+local on_leave_menu = function (self, elapsed)
+	parameters_table[2] = parameters_table[2] + elapsed
+	if (parameters_table[2] > 0.3) then
+		if (not _detalhes.popup.mouseOver and not _detalhes.popup.buttonOver) then
+			_detalhes.popup:ShowMe (false)
+		end
+		self:SetScript ("OnUpdate", nil)
+	end
+end
+
+local build_mode_list = function (self, elapsed)
+
+	local CoolTip = GameCooltip
+	local instancia = parameters_table [1]
+	parameters_table[2] = parameters_table[2] + elapsed
+	
+	if (parameters_table[2] > 0.15) then
+		self:SetScript ("OnUpdate", nil)
+		
+		CoolTip:Reset()
+		CoolTip:SetType ("menu")
+		CoolTip:AddFromTable (parameters_table [4])
+		CoolTip:SetLastSelected ("main", parameters_table [3])
+		CoolTip:SetFixedParameter (instancia)
+		CoolTip:SetColor ("main", "transparent")
+		
+		CoolTip:SetOption ("TextSize", _detalhes.font_sizes.menus)
+		CoolTip:SetOption ("ButtonHeightMod", -5)
+		CoolTip:SetOption ("ButtonsYMod", -5)
+		CoolTip:SetOption ("YSpacingMod", 1)
+		CoolTip:SetOption ("FixedHeight", 106)
+		--CoolTip:SetOption ("FixedWidth", 138)
+		CoolTip:SetOption ("FixedWidthSub", 146)
+		CoolTip:SetOption ("SubMenuIsTooltip", true)
+		
+		if (_detalhes.tutorial.main_help_button > 9) then
+			CoolTip:SetOption ("IgnoreSubMenu", true)
+		end
+		
+		if (instancia.consolidate) then
+			CoolTip:SetOwner (self, "topleft", "topright", 3)
+		else
+			CoolTip:SetOwner (self)
+		end
+		CoolTip:ShowCooltip()
+	end
+end
+
+local segments_used = 0
+local segments_filled = 0
 local empty_segment_color = {1, 1, 1, .4}
+
+-- search key: ~segments
+local build_segment_list = function (self, elapsed)
+
+	local CoolTip = GameCooltip
+	local instancia = parameters_table [1]
+	parameters_table[2] = parameters_table[2] + elapsed
+	
+	if (parameters_table[2] > 0.15) then
+		self:SetScript ("OnUpdate", nil)
+	
+		--> here we are using normal Add calls
+		CoolTip:Reset()
+		CoolTip:SetType ("menu")
+		CoolTip:SetFixedParameter (instancia)
+		CoolTip:SetColor ("main", "transparent")
+
+		----------- segments
+		local menuIndex = 0
+		_detalhes.segments_amount = math.floor (_detalhes.segments_amount)
+		
+		local fight_amount = 0
+		
+		local filled_segments = 0
+		for i = 1, _detalhes.segments_amount do
+			if (_detalhes.tabela_historico.tabelas [i]) then
+				filled_segments = filled_segments + 1
+			else
+				break
+			end
+		end
+
+		filled_segments = _detalhes.segments_amount - filled_segments - 2
+		local fill = math.abs (filled_segments - _detalhes.segments_amount)
+		segments_used = 0
+		segments_filled = fill
+		
+		for i = _detalhes.segments_amount, 1, -1 do
+			
+			if (i <= fill) then
+
+				local thisCombat = _detalhes.tabela_historico.tabelas [i]
+				if (thisCombat) then
+					local enemy = thisCombat.is_boss and thisCombat.is_boss.name
+					segments_used = segments_used + 1
+
+					if (thisCombat.is_boss and thisCombat.is_boss.name) then
+					
+						if (thisCombat.is_boss.killed) then
+							CoolTip:AddLine (thisCombat.is_boss.name .." (#"..i..")", _, 1, "lime")
+						else
+							CoolTip:AddLine (thisCombat.is_boss.name .." (#"..i..")", _, 1, "red")
+						end
+						
+						local portrait = _detalhes:GetBossPortrait (thisCombat.is_boss.mapid, thisCombat.is_boss.index)
+						if (portrait) then
+							CoolTip:AddIcon (portrait, 2, "top", 128, 64)
+						end
+						CoolTip:AddIcon ([[Interface\AddOns\Details\images\icons]], "main", "left", 16, 16, 0.96875, 1, 0, 0.03125)
+					else
+						enemy = thisCombat.enemy
+						if (enemy) then
+							CoolTip:AddLine (thisCombat.enemy .." (#"..i..")", _, 1, "yellow")
+						else
+							CoolTip:AddLine (segmentos.past..i, _, 1, "silver")
+						end
+						
+						if (thisCombat.is_trash) then
+							CoolTip:AddIcon ([[Interface\AddOns\Details\images\icons]], "main", "left", 16, 12, 0.02734375, 0.11328125, 0.19140625, 0.3125)
+						else
+							CoolTip:AddIcon ("Interface\\QUESTFRAME\\UI-Quest-BulletPoint", "main", "left", 16, 16)
+						end
+					end
+					
+					CoolTip:AddMenu (1, instancia.TrocaTabela, i)
+					
+					CoolTip:AddLine (Loc ["STRING_SEGMENT_ENEMY"] .. ":", enemy, 2, "white", "white")
+					
+					local decorrido = (thisCombat.end_time or _detalhes._tempo) - thisCombat.start_time
+					local minutos, segundos = _math_floor (decorrido/60), _math_floor (decorrido%60)
+					CoolTip:AddLine (Loc ["STRING_SEGMENT_TIME"] .. ":", minutos.."m "..segundos.."s", 2, "white", "white")
+					
+					CoolTip:AddLine (Loc ["STRING_SEGMENT_START"] .. ":", thisCombat.data_inicio, 2, "white", "white")
+					CoolTip:AddLine (Loc ["STRING_SEGMENT_END"] .. ":", thisCombat.data_fim or "in progress", 2, "white", "white")
+					
+					fight_amount = fight_amount + 1
+				else
+					CoolTip:AddLine (Loc ["STRING_SEGMENT_LOWER"] .. " #" .. i, _, 1, "gray")
+					CoolTip:AddMenu (1, instancia.TrocaTabela, i)
+					CoolTip:AddIcon ("Interface\\QUESTFRAME\\UI-Quest-BulletPoint", "main", "left", 16, 16, nil, nil, nil, nil, empty_segment_color)
+					CoolTip:AddLine (Loc ["STRING_SEGMENT_EMPTY"], _, 2)
+				end
+				
+				if (menuIndex) then
+					menuIndex = menuIndex + 1
+					if (instancia.segmento == i) then
+						CoolTip:SetLastSelected ("main", menuIndex); --print (2)
+						menuIndex = nil
+					end
+				end
+			
+			end
+			
+		end
+		
+		----------- current
+		CoolTip:AddLine (segmentos.current_standard, _, 1, "white")
+		CoolTip:AddMenu (1, instancia.TrocaTabela, 0)
+		CoolTip:AddIcon ("Interface\\QUESTFRAME\\UI-Quest-BulletPoint", "main", "left", 16, 16, nil, nil, nil, nil, "orange")
+			
+			local enemy = _detalhes.tabela_vigente.is_boss and _detalhes.tabela_vigente.is_boss.name or _detalhes.tabela_vigente.enemy or "--x--x--"
+			
+			if (_detalhes.tabela_vigente.is_boss and _detalhes.tabela_vigente.is_boss.name) then
+				local portrait = _detalhes:GetBossPortrait (_detalhes.tabela_vigente.is_boss.mapid, _detalhes.tabela_vigente.is_boss.index)
+				if (portrait) then
+					CoolTip:AddIcon (portrait, 2, "top", 128, 64)
+				end
+			end					
+			
+			CoolTip:AddLine (Loc ["STRING_SEGMENT_ENEMY"] .. ":", enemy, 2, "white", "white")
+			
+			if (not _detalhes.tabela_vigente.end_time) then
+				if (_detalhes.in_combat) then
+					local decorrido = _detalhes._tempo - _detalhes.tabela_vigente.start_time
+					local minutos, segundos = _math_floor (decorrido/60), _math_floor (decorrido%60)
+					CoolTip:AddLine (Loc ["STRING_SEGMENT_TIME"] .. ":", minutos.."m "..segundos.."s", 2, "white", "white") 
+				else
+					CoolTip:AddLine (Loc ["STRING_SEGMENT_TIME"] .. ":", "--x--x--", 2, "white", "white")
+				end
+			else
+				local decorrido = (_detalhes.tabela_vigente.end_time) - _detalhes.tabela_vigente.start_time
+				local minutos, segundos = _math_floor (decorrido/60), _math_floor (decorrido%60)
+				CoolTip:AddLine (Loc ["STRING_SEGMENT_TIME"] .. ":", minutos.."m "..segundos.."s", 2, "white", "white") 
+			end
+
+			
+			CoolTip:AddLine (Loc ["STRING_SEGMENT_START"] .. ":", _detalhes.tabela_vigente.data_inicio, 2, "white", "white")
+			CoolTip:AddLine (Loc ["STRING_SEGMENT_END"] .. ":", _detalhes.tabela_vigente.data_fim or "in progress", 2, "white", "white") 
+		
+			--> fill é a quantidade de menu que esta sendo mostrada
+			if (instancia.segmento == 0) then
+				if (fill - 2 == menuIndex) then
+					CoolTip:SetLastSelected ("main", fill - 1)--; print (21)
+				elseif (fill - 1 == menuIndex) then
+					CoolTip:SetLastSelected ("main", fill)--; print (22)
+				else
+					CoolTip:SetLastSelected ("main", fill + 1)--; print (23)
+				end
+
+				menuIndex = nil
+			end
+		
+		----------- overall
+		--CoolTip:AddLine (segmentos.overall_standard, _, 1, "white") Loc ["STRING_REPORT_LAST"] .. " " .. fight_amount .. " " .. Loc ["STRING_REPORT_FIGHTS"]
+		CoolTip:AddLine (Loc ["STRING_SEGMENT_OVERALL"], _, 1, "white")
+		CoolTip:AddMenu (1, instancia.TrocaTabela, -1)
+		CoolTip:AddIcon ("Interface\\QUESTFRAME\\UI-Quest-BulletPoint", "main", "left", 16, 16, nil, nil, nil, nil, "orange")
+		
+			CoolTip:AddLine (Loc ["STRING_SEGMENT_ENEMY"] .. ":", "--x--x--", 2, "white", "white")--localize-me
+			
+			if (not _detalhes.tabela_overall.end_time) then
+				if (_detalhes.in_combat) then
+					local decorrido = _detalhes._tempo - _detalhes.tabela_overall.start_time
+					local minutos, segundos = _math_floor (decorrido/60), _math_floor (decorrido%60)
+					CoolTip:AddLine (Loc ["STRING_SEGMENT_TIME"] .. ":", minutos.."m "..segundos.."s", 2, "white", "white") 
+				else
+					CoolTip:AddLine (Loc ["STRING_SEGMENT_TIME"] .. ":", "--x--x--", 2, "white", "white")
+				end
+			else
+				local decorrido = (_detalhes.tabela_overall.end_time) - _detalhes.tabela_overall.start_time
+				local minutos, segundos = _math_floor (decorrido/60), _math_floor (decorrido%60)
+				CoolTip:AddLine (Loc ["STRING_SEGMENT_TIME"] .. ":", minutos.."m "..segundos.."s", 2, "white", "white") 
+			end
+			
+			local earlyFight = ""
+			for i = _detalhes.segments_amount, 1, -1 do
+				if (_detalhes.tabela_historico.tabelas [i]) then
+					earlyFight = _detalhes.tabela_historico.tabelas [i].data_inicio
+					break
+				end
+			end
+			CoolTip:AddLine (Loc ["STRING_SEGMENT_START"] .. ":", earlyFight, 2, "white", "white")
+			
+			local lastFight = ""
+			for i = 1, _detalhes.segments_amount do
+				if (_detalhes.tabela_historico.tabelas [i] and _detalhes.tabela_historico.tabelas [i].data_fim ~= 0) then
+					lastFight = _detalhes.tabela_historico.tabelas [i].data_fim
+					break
+				end
+			end
+			CoolTip:AddLine (Loc ["STRING_SEGMENT_END"] .. ":", lastFight, 2, "white", "white")
+			
+			--> fill é a quantidade de menu que esta sendo mostrada
+			if (instancia.segmento == -1) then
+				if (fill - 2 == menuIndex) then
+					CoolTip:SetLastSelected ("main", fill)--; print (31)
+				elseif (fill - 1 == menuIndex) then
+					CoolTip:SetLastSelected ("main", fill+1)--; print (32)
+				else
+					CoolTip:SetLastSelected ("main", fill + 2)--; print (33)
+				end
+				menuIndex = nil
+			end
+			
+		---------------------------------------------
+		
+		if (instancia.consolidate) then
+			CoolTip:SetOwner (self, "topleft", "topright", 3)
+		else
+			CoolTip:SetOwner (self)
+		end
+		
+		CoolTip:SetOption ("TextSize", _detalhes.font_sizes.menus)
+		CoolTip:SetOption ("SubMenuIsTooltip", true)
+		
+		CoolTip:SetOption ("ButtonHeightMod", -4)
+		CoolTip:SetOption ("ButtonsYMod", -4)
+		CoolTip:SetOption ("YSpacingMod", 4)
+		
+		CoolTip:SetOption ("ButtonHeightModSub", 4)
+		CoolTip:SetOption ("ButtonsYModSub", 0)
+		CoolTip:SetOption ("YSpacingModSub", -4)
+		
+		CoolTip:ShowCooltip()
+		
+		self:SetScript ("OnUpdate", nil)
+	end	
+	
+end
+
+
 
 function gump:CriaCabecalho (BaseFrame, instancia)
 
@@ -2588,10 +2871,9 @@ function gump:CriaCabecalho (BaseFrame, instancia)
 	local CoolTip = _G.GameCooltip
 
 	--> SELEÇÃO DO MODO ----------------------------------------------------------------------------------------------------------------------------------------------------
-	BaseFrame.cabecalho.modo_selecao = gump:NewDetailsButton (BaseFrame, _, instancia, instancia.AlteraModo, instancia, -2, 16, 16, 
-	"Interface\\GossipFrame\\HealerGossipIcon")
-	BaseFrame.cabecalho.modo_selecao:SetFrameLevel (BaseFrame.UPFrame:GetFrameLevel()+1)
 	
+	BaseFrame.cabecalho.modo_selecao = gump:NewButton (BaseFrame, nil, "DetailsModeButton"..instancia.meu_id, nil, 16, 16, _detalhes.empty_function, nil, nil, [[Interface\GossipFrame\HealerGossipIcon]])
+	BaseFrame.cabecalho.modo_selecao:SetFrameLevel (BaseFrame.UPFrame:GetFrameLevel()+1)
 	BaseFrame.cabecalho.modo_selecao:SetPoint ("BOTTOMLEFT", BaseFrame.cabecalho.ball, "BOTTOMRIGHT", 0, 2)
 	
 	--> Generating Cooltip menu from table template
@@ -2624,7 +2906,6 @@ function gump:CriaCabecalho (BaseFrame, instancia)
 		{text = Loc ["STRING_OPTIONS_WINDOW"]},
 		{func = _detalhes.OpenOptionsWindow},
 		{icon = "Interface\\AddOns\\Details\\images\\modo_icones", l = 32/256*4, r = 32/256*5, t = 0, b = 1, width = 20, height = 20},
-		--{icon = "Interface\\HELPFRAME\\OpenTicketIcon", width = 24, height = 20}
 	}
 	
 	--> Cooltip raw method for enter/leave show/hide
@@ -2650,39 +2931,12 @@ function gump:CriaCabecalho (BaseFrame, instancia)
 			checked = 4
 		end
 
-		self:SetScript ("OnUpdate", function (self, elapsed)
-			passou = passou+elapsed
-			if (passou > 0.15) then
-				self:SetScript ("OnUpdate", nil)
-				
-				CoolTip:Reset()
-				CoolTip:SetType ("menu")
-				CoolTip:AddFromTable (modeMenuTable)
-				CoolTip:SetLastSelected ("main", checked)
-				CoolTip:SetFixedParameter (instancia)
-				CoolTip:SetColor ("main", "transparent")
-				
-				CoolTip:SetOption ("TextSize", _detalhes.font_sizes.menus)
-				CoolTip:SetOption ("ButtonHeightMod", -5)
-				CoolTip:SetOption ("ButtonsYMod", -5)
-				CoolTip:SetOption ("YSpacingMod", 1)
-				CoolTip:SetOption ("FixedHeight", 106)
-				--CoolTip:SetOption ("FixedWidth", 138)
-				CoolTip:SetOption ("FixedWidthSub", 146)
-				CoolTip:SetOption ("SubMenuIsTooltip", true)
-				
-				if (_detalhes.tutorial.main_help_button > 9) then
-					CoolTip:SetOption ("IgnoreSubMenu", true)
-				end
-				
-				if (instancia.consolidate) then
-					CoolTip:SetOwner (self, "topleft", "topright", 3)
-				else
-					CoolTip:SetOwner (self)
-				end
-				CoolTip:ShowCooltip()
-			end
-		end)
+		parameters_table [1] = instancia
+		parameters_table [2] = passou
+		parameters_table [3] = checked
+		parameters_table [4] = modeMenuTable
+		
+		self:SetScript ("OnUpdate", build_mode_list)
 	end)
 	
 	BaseFrame.cabecalho.modo_selecao:SetScript ("OnLeave", function (self) 
@@ -2692,44 +2946,66 @@ function gump:CriaCabecalho (BaseFrame, instancia)
 		BaseFrame.cabecalho.button_mouse_over = false
 		
 		if (_detalhes.popup.active) then
-			local passou = 0
-			self:SetScript ("OnUpdate", function (self, elapsed)
-				passou = passou+elapsed
-				if (passou > 0.3) then
-					if (not _detalhes.popup.mouseOver and not _detalhes.popup.buttonOver) then
-						_detalhes.popup:ShowMe (false)
-					end
-					self:SetScript ("OnUpdate", nil)
-				end
-			end)
+			parameters_table [2] = 0
+			self:SetScript ("OnUpdate", on_leave_menu)
 		else
 			self:SetScript ("OnUpdate", nil)
 		end
 	end)
 	
 	--> SELECIONAR O SEGMENTO  ----------------------------------------------------------------------------------------------------------------------------------------------------
-	
-	--[[
-	BaseFrame.cabecalho.segmento = gump:NewButton (BaseFrame, nil, "DetailsSegmentButton"..instancia.meu_id, nil, 16, 16, function() end, nil, nil, "Interface\GossipFrame\TrainerGossipIcon")
+	BaseFrame.cabecalho.segmento = gump:NewButton (BaseFrame, nil, "DetailsSegmentButton"..instancia.meu_id, nil, 16, 16, _detalhes.empty_function, nil, nil, [[Interface\GossipFrame\TrainerGossipIcon]])
 	BaseFrame.cabecalho.segmento:SetFrameLevel (BaseFrame.UPFrame:GetFrameLevel()+1)
-	
+
 	BaseFrame.cabecalho.segmento:SetHook ("OnMouseUp", function (button, buttontype)
+
 		if (buttontype == "LeftButton") then
+		
 			local segmento_goal = instancia.segmento + 1
-			if (segmento_goal > _detalhes.segments_amount) then
-			
+			if (segmento_goal > segments_used) then
+				segmento_goal = -1
+			elseif (segmento_goal > _detalhes.segments_amount) then
+				segmento_goal = -1
 			end
+			
+			local total_shown = segments_filled+2
+			local goal = segmento_goal+1
+			
+			local select_ = math.abs (goal - total_shown)
+			GameCooltip:Select (1, select_)
+			
+			return instancia:TrocaTabela (segmento_goal)
 		elseif (buttontype == "RightButton") then
-			--instancia:TrocaTabela (-2)
+		
+			local segmento_goal = instancia.segmento - 1
+			if (segmento_goal < -1) then
+				segmento_goal = segments_used
+			end
+			
+			local total_shown = segments_filled+2
+			local goal = segmento_goal+1
+			
+			local select_ = math.abs (goal - total_shown)
+			GameCooltip:Select (1, select_)
+			
+			return instancia:TrocaTabela (segmento_goal)
+		
+		elseif (buttontype == "MiddleButton") then
+			
+			local segmento_goal = 0
+			
+			local total_shown = segments_filled+2
+			local goal = segmento_goal+1
+			
+			local select_ = math.abs (goal - total_shown)
+			GameCooltip:Select (1, select_)
+			
+			return instancia:TrocaTabela (segmento_goal)
+			
 		end
 	end)
-	--]]
-	
-	BaseFrame.cabecalho.segmento = gump:NewDetailsButton (BaseFrame, _, instancia, instancia.TrocaTabela, instancia, -2, 16, 16, "Interface\\GossipFrame\\TrainerGossipIcon")
-	BaseFrame.cabecalho.segmento:SetFrameLevel (BaseFrame.UPFrame:GetFrameLevel()+1)
-	
 	BaseFrame.cabecalho.segmento:SetPoint ("left", BaseFrame.cabecalho.modo_selecao, "right", 0, 0)
-	
+
 	--> Cooltip raw method for show/hide onenter/onhide
 	BaseFrame.cabecalho.segmento:SetScript ("OnEnter", function (self) 
 		gump:Fade (BaseFrame.button_stretch, "alpha", 0.3)
@@ -2742,206 +3018,9 @@ function gump:CriaCabecalho (BaseFrame, instancia)
 			passou = 0.15
 		end
 
-		self:SetScript ("OnUpdate", function (self, elapsed)
-			passou = passou+elapsed
-			if (passou > 0.15) then
-
-				--> here we are using normal Add calls
-				CoolTip:Reset()
-				CoolTip:SetType ("menu")
-				CoolTip:SetFixedParameter (instancia)
-				CoolTip:SetColor ("main", "transparent")
-
-				----------- segments
-				local menuIndex = 0
-				_detalhes.segments_amount = math.floor (_detalhes.segments_amount)
-				
-				local fight_amount = 0
-				
-				local filled_segments = 0
-				for i = 1, _detalhes.segments_amount do
-					if (_detalhes.tabela_historico.tabelas [i]) then
-						filled_segments = filled_segments + 1
-					else
-						break
-					end
-				end
-
-				filled_segments = _detalhes.segments_amount - filled_segments - 2
-				local fill = math.abs (filled_segments - _detalhes.segments_amount)
-				
-				for i = _detalhes.segments_amount, 1, -1 do
-					
-					if (i <= fill) then
-
-						local thisCombat = _detalhes.tabela_historico.tabelas [i]
-						if (thisCombat) then
-							local enemy = thisCombat.is_boss and thisCombat.is_boss.name
-
-							if (thisCombat.is_boss and thisCombat.is_boss.name) then
-							
-								if (thisCombat.is_boss.killed) then
-									CoolTip:AddLine (thisCombat.is_boss.name .." (#"..i..")", _, 1, "lime")
-								else
-									CoolTip:AddLine (thisCombat.is_boss.name .." (#"..i..")", _, 1, "red")
-								end
-								
-								local portrait = _detalhes:GetBossPortrait (thisCombat.is_boss.mapid, thisCombat.is_boss.index)
-								if (portrait) then
-									CoolTip:AddIcon (portrait, 2, "top", 128, 64)
-								end
-								CoolTip:AddIcon ([[Interface\AddOns\Details\images\icons]], "main", "left", 16, 16, 0.96875, 1, 0, 0.03125)
-							else
-								enemy = thisCombat.enemy
-								if (enemy) then
-									CoolTip:AddLine (thisCombat.enemy .." (#"..i..")", _, 1, "yellow")
-								else
-									CoolTip:AddLine (segmentos.past..i, _, 1, "silver")
-								end
-								CoolTip:AddIcon ("Interface\\QUESTFRAME\\UI-Quest-BulletPoint", "main", "left", 16, 16)
-							end
-							
-							CoolTip:AddMenu (1, instancia.TrocaTabela, i)
-							
-							CoolTip:AddLine (Loc ["STRING_SEGMENT_ENEMY"] .. ":", enemy, 2, "white", "white")
-							
-							local decorrido = (thisCombat.end_time or _detalhes._tempo) - thisCombat.start_time
-							local minutos, segundos = _math_floor (decorrido/60), _math_floor (decorrido%60)
-							CoolTip:AddLine (Loc ["STRING_SEGMENT_TIME"] .. ":", minutos.."m "..segundos.."s", 2, "white", "white")
-							
-							CoolTip:AddLine (Loc ["STRING_SEGMENT_START"] .. ":", thisCombat.data_inicio, 2, "white", "white")
-							CoolTip:AddLine (Loc ["STRING_SEGMENT_END"] .. ":", thisCombat.data_fim or "in progress", 2, "white", "white")
-							
-							fight_amount = fight_amount + 1
-						else
-							CoolTip:AddLine (Loc ["STRING_SEGMENT_LOWER"] .. " #" .. i, _, 1, "gray")
-							CoolTip:AddMenu (1, instancia.TrocaTabela, i)
-							CoolTip:AddIcon ("Interface\\QUESTFRAME\\UI-Quest-BulletPoint", "main", "left", 16, 16, nil, nil, nil, nil, empty_segment_color)
-							CoolTip:AddLine (Loc ["STRING_SEGMENT_EMPTY"], _, 2)
-						end
-						
-						if (menuIndex) then
-							menuIndex = menuIndex + 1
-							if (instancia.segmento == i) then
-								CoolTip:SetLastSelected ("main", menuIndex)
-								menuIndex = nil
-							end
-						end
-					
-					end
-					
-				end
-				
-				----------- current
-				CoolTip:AddLine (segmentos.current_standard, _, 1, "white")
-				CoolTip:AddMenu (1, instancia.TrocaTabela, 0)
-				CoolTip:AddIcon ("Interface\\QUESTFRAME\\UI-Quest-BulletPoint", "main", "left", 16, 16, nil, nil, nil, nil, "orange")
-					
-					local enemy = _detalhes.tabela_vigente.is_boss and _detalhes.tabela_vigente.is_boss.name or _detalhes.tabela_vigente.enemy or "--x--x--"
-					
-					if (_detalhes.tabela_vigente.is_boss and _detalhes.tabela_vigente.is_boss.name) then
-						local portrait = _detalhes:GetBossPortrait (_detalhes.tabela_vigente.is_boss.mapid, _detalhes.tabela_vigente.is_boss.index)
-						if (portrait) then
-							CoolTip:AddIcon (portrait, 2, "top", 128, 64)
-						end
-					end					
-					
-					CoolTip:AddLine (Loc ["STRING_SEGMENT_ENEMY"] .. ":", enemy, 2, "white", "white")
-					
-					if (not _detalhes.tabela_vigente.end_time) then
-						if (_detalhes.in_combat) then
-							local decorrido = _detalhes._tempo - _detalhes.tabela_vigente.start_time
-							local minutos, segundos = _math_floor (decorrido/60), _math_floor (decorrido%60)
-							CoolTip:AddLine (Loc ["STRING_SEGMENT_TIME"] .. ":", minutos.."m "..segundos.."s", 2, "white", "white") 
-						else
-							CoolTip:AddLine (Loc ["STRING_SEGMENT_TIME"] .. ":", "--x--x--", 2, "white", "white")
-						end
-					else
-						local decorrido = (_detalhes.tabela_vigente.end_time) - _detalhes.tabela_vigente.start_time
-						local minutos, segundos = _math_floor (decorrido/60), _math_floor (decorrido%60)
-						CoolTip:AddLine (Loc ["STRING_SEGMENT_TIME"] .. ":", minutos.."m "..segundos.."s", 2, "white", "white") 
-					end
-
-					
-					CoolTip:AddLine (Loc ["STRING_SEGMENT_START"] .. ":", _detalhes.tabela_vigente.data_inicio, 2, "white", "white")
-					CoolTip:AddLine (Loc ["STRING_SEGMENT_END"] .. ":", _detalhes.tabela_vigente.data_fim or "in progress", 2, "white", "white") 
-				
-					--> fill é a quantidade de menu que esta sendo mostrada
-					if (instancia.segmento == 0) then
-						CoolTip:SetLastSelected ("main", fill + 1)
-						menuIndex = nil
-					end
-				
-				----------- overall
-				--CoolTip:AddLine (segmentos.overall_standard, _, 1, "white") Loc ["STRING_REPORT_LAST"] .. " " .. fight_amount .. " " .. Loc ["STRING_REPORT_FIGHTS"]
-				CoolTip:AddLine (Loc ["STRING_SEGMENT_OVERALL"], _, 1, "white")
-				CoolTip:AddMenu (1, instancia.TrocaTabela, -1)
-				CoolTip:AddIcon ("Interface\\QUESTFRAME\\UI-Quest-BulletPoint", "main", "left", 16, 16, nil, nil, nil, nil, "orange")
-				
-					CoolTip:AddLine (Loc ["STRING_SEGMENT_ENEMY"] .. ":", "--x--x--", 2, "white", "white")--localize-me
-					
-					if (not _detalhes.tabela_overall.end_time) then
-						if (_detalhes.in_combat) then
-							local decorrido = _detalhes._tempo - _detalhes.tabela_overall.start_time
-							local minutos, segundos = _math_floor (decorrido/60), _math_floor (decorrido%60)
-							CoolTip:AddLine (Loc ["STRING_SEGMENT_TIME"] .. ":", minutos.."m "..segundos.."s", 2, "white", "white") 
-						else
-							CoolTip:AddLine (Loc ["STRING_SEGMENT_TIME"] .. ":", "--x--x--", 2, "white", "white")
-						end
-					else
-						local decorrido = (_detalhes.tabela_overall.end_time) - _detalhes.tabela_overall.start_time
-						local minutos, segundos = _math_floor (decorrido/60), _math_floor (decorrido%60)
-						CoolTip:AddLine (Loc ["STRING_SEGMENT_TIME"] .. ":", minutos.."m "..segundos.."s", 2, "white", "white") 
-					end
-					
-					local earlyFight = ""
-					for i = _detalhes.segments_amount, 1, -1 do
-						if (_detalhes.tabela_historico.tabelas [i]) then
-							earlyFight = _detalhes.tabela_historico.tabelas [i].data_inicio
-							break
-						end
-					end
-					CoolTip:AddLine (Loc ["STRING_SEGMENT_START"] .. ":", earlyFight, 2, "white", "white")
-					
-					local lastFight = ""
-					for i = 1, _detalhes.segments_amount do
-						if (_detalhes.tabela_historico.tabelas [i] and _detalhes.tabela_historico.tabelas [i].data_fim ~= 0) then
-							lastFight = _detalhes.tabela_historico.tabelas [i].data_fim
-							break
-						end
-					end
-					CoolTip:AddLine (Loc ["STRING_SEGMENT_END"] .. ":", lastFight, 2, "white", "white")
-					
-					--> fill é a quantidade de menu que esta sendo mostrada
-					if (instancia.segmento == -1) then
-						CoolTip:SetLastSelected ("main", fill + 2)
-						menuIndex = nil
-					end
-					
-				---------------------------------------------
-				
-				if (instancia.consolidate) then
-					CoolTip:SetOwner (self, "topleft", "topright", 3)
-				else
-					CoolTip:SetOwner (self)
-				end
-				
-				CoolTip:SetOption ("TextSize", _detalhes.font_sizes.menus)
-				CoolTip:SetOption ("SubMenuIsTooltip", true)
-				
-				CoolTip:SetOption ("ButtonHeightMod", -4)
-				CoolTip:SetOption ("ButtonsYMod", -4)
-				CoolTip:SetOption ("YSpacingMod", 4)
-				
-				CoolTip:SetOption ("ButtonHeightModSub", 4)
-				CoolTip:SetOption ("ButtonsYModSub", 0)
-				CoolTip:SetOption ("YSpacingModSub", -4)
-				
-				CoolTip:ShowCooltip()
-				
-				self:SetScript ("OnUpdate", nil)
-			end
-		end)
+		parameters_table [1] = instancia
+		parameters_table [2] = passou
+		self:SetScript ("OnUpdate", build_segment_list)
 	end)
 	
 	--> Cooltip raw method
@@ -2952,16 +3031,8 @@ function gump:CriaCabecalho (BaseFrame, instancia)
 		BaseFrame.cabecalho.button_mouse_over = false
 		
 		if (_detalhes.popup.active) then
-			local passou = 0
-			self:SetScript ("OnUpdate", function (self, elapsed)
-				passou = passou+elapsed
-				if (passou > 0.3) then
-					if (not _detalhes.popup.mouseOver and not _detalhes.popup.buttonOver) then
-						_detalhes.popup:ShowMe (false)
-					end
-					self:SetScript ("OnUpdate", nil)
-				end
-			end)
+			parameters_table [2] = 0
+			self:SetScript ("OnUpdate", on_leave_menu)
 		else
 			self:SetScript ("OnUpdate", nil)
 		end

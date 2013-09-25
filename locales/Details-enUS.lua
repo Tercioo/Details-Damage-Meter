@@ -15,6 +15,7 @@ if not Loc then return end
 	Loc ["STRING_TOOOLD"] = "could not be installed because your Details! version is too old."
 	Loc ["STRING_TOOOLD2"] = "your Details! version isn't the same."
 	Loc ["STRING_CHANGED_TO_CURRENT"] = "Segment changed to current"
+	Loc ["STRING_SEGMENT_TRASH"] = "Next Boss Cleanup"
 	
 	Loc ["STRING_INSTANCE_LIMIT"] = "max instance number has been reached, you can modify this limit over options panel."
 	

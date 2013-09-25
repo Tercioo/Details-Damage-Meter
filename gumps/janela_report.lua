@@ -77,7 +77,7 @@ local _UISpecialFrames = UISpecialFrames --> wow api locals
 		end
 		
 		if (_detalhes.janela_report.ativa) then 
-			UIFrameFlash (_detalhes.janela_report, 0.2, 0.2, 0.19, true, 0, 0)
+			_detalhes.janela_report:Flash (0.2, 0.2, 0.4, true, 0, 0)
 		end
 		
 		_detalhes.janela_report.ativa = true
@@ -125,7 +125,7 @@ local _UISpecialFrames = UISpecialFrames --> wow api locals
 		end
 
 		if (_detalhes.janela_report.ativa) then 
-			UIFrameFlash (_detalhes.janela_report, 0.2, 0.2, 0.19, true, 0, 0)
+			_detalhes.janela_report:Flash (0.2, 0.2, 0.4, true, 0, 0)
 		end
 		
 		_detalhes.janela_report.ativa = true
@@ -411,11 +411,13 @@ local _UISpecialFrames = UISpecialFrames --> wow api locals
 		_tinsert (_UISpecialFrames, este_gump:GetName())
 		
 		este_gump:SetScript ("OnHide", function (self)
+			--[[ avoid taint problems
 			if (not este_gump.hidden or este_gump.fading_in) then --> trick to fade an window closed by pressing escape
 				este_gump:Show()
 				gump:Fade (este_gump, "in")
-				_detalhes.janela_report.ativa = false
 			end
+			--]]
+			_detalhes.janela_report.ativa = false
 		end)
 		
 		este_gump:SetPoint ("CENTER", UIParent)
@@ -476,6 +478,7 @@ local _UISpecialFrames = UISpecialFrames --> wow api locals
 		este_gump.enviar:SetText (Loc ["STRING_REPORTFRAME_SEND"])
 
 		gump:Fade (este_gump, 1)
+		gump:CreateFlashAnimation (este_gump)
 		
 		return este_gump
 		

@@ -2195,12 +2195,15 @@ atributo_damage.__add = function (shadow, tabela2)
 	
 	--> total de dano
 	shadow.total = shadow.total + tabela2.total
-	_detalhes.tabela_overall.totals[1] = _detalhes.tabela_overall.totals[1] + tabela2.total
 	
-	if (tabela2.grupo) then
-		_detalhes.tabela_overall.totals_grupo[1] = _detalhes.tabela_overall.totals_grupo[1] + tabela2.total
+	if ( not (shadow.shadow and tabela2.shadow) ) then
+		_detalhes.tabela_overall.totals[1] = _detalhes.tabela_overall.totals[1] + tabela2.total
+	
+		if (tabela2.grupo) then
+			_detalhes.tabela_overall.totals_grupo[1] = _detalhes.tabela_overall.totals_grupo[1] + tabela2.total
+		end
 	end
-	
+		
 	--> total de dano sem o pet
 	shadow.total_without_pet = shadow.total_without_pet + tabela2.total_without_pet
 	--> total de dano que o cara levou
@@ -2219,7 +2222,7 @@ atributo_damage.__add = function (shadow, tabela2)
 	--> copia o container de friendly fire
 	for index, friendlyFire in _ipairs (tabela2.friendlyfire._ActorTable) do 
 		-- friendlyFire é uma tabela com .total e .spell_tables  -- habilidade é um container de habilidades tipo damage
-		local friendlyFire_shadow = shadow.friendlyfire:PegarCombatente (_, friendlyFire.nome)
+		local friendlyFire_shadow = shadow.friendlyfire:PegarCombatente (friendlyFire.serial, friendlyFire.nome, friendlyFire.flag_original, true)
 		--_detalhes:DelayMsg ("+ achou -> " .. friendlyFire_shadow.nome)
 		
 		--friendlyFire_shadow agora tem uma tabela com .total e .spell_tables

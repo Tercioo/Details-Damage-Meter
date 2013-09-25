@@ -77,6 +77,57 @@ local siege_of_orgrimmar = {
 			[71865]	= 14, -- Garrosh Hellscream
 	},
 	
+	trash_ids = {
+		--Immerseus
+		[73349] = true, --Tormented Initiate
+		[73342] = true, --Fallen Pool Tender
+		[73226] = true, --Lesser Sha Pool
+		[73191] = true, --Aqueius Defender
+		
+		-- Norushen
+		[72655] = true, --Fragment of Pride
+		[72658] = true, --Amalmated Hubris
+		[72662] = true, --Vanity
+		[72663] = true, --Arrogance
+		[72661] = true, --Zeal
+		
+		--Sha of Pride
+		[72791] = true, --lingering corruption
+		--[] = true, --
+		--[] = true, --
+		--[] = true, --
+		
+		--Galakras
+		--[72367] = true, --dragonmaw tidal shaman
+		--[72354] = true, --dragonmaw bonecrusher
+		[72365] = true, --dragonmaw canoner
+		[72350] = true, --dragonmaw elite grunt
+		--[72351] = true, --dragonmaw flamebarer
+		
+		--> shamans
+		[72412] = true, -- korkron grunt
+		[72150] = true, -- kro kron shadowmage
+		[72451] = true, --
+		[72455] = true, --
+		[72490] = true, --overseer mojka
+		[72434] = true, --tresure guard
+		[72421] = true, --korkron overseer
+		[72452] = true, --dire wolf
+		[72496] = true, --overseer thathung
+		[72562] = true, --poison bolt toten
+		
+		--> nazgrim
+		[72131] = true, -- blind blade master
+		[72191] = true, -- overlord runthak
+		[72194] = true, -- hellscreen demolisher
+		[72564] = true, -- doom lord
+		[71771] = true, -- korkron arcweaver
+		[71772] = true, -- korkron assassin
+		[71773] = true, -- krokron warshaman
+		[71770] = true, -- krokron iron blade
+		[71715] = true, -- orgrimmar faithful
+	},
+	
 	encounters = {
 	
 ------------> Immerseus ------------------------------------------------------------------------------
@@ -149,6 +200,11 @@ local siege_of_orgrimmar = {
 			boss =	"The Fallen Protectors",
 			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Golden Lotus Council]],
 
+			combat_end = {2, {	71479, -- He Softfoot
+							71480, -- Sun Tenderheart
+							71475, -- Rook Stonetoe
+						}},
+			
 			spell_mechanics =	{
 						[144397] = {0x8000, 0x1}, --> Vengeful Strikes (Rook Stonetoe)
 						[143023] = {0x8}, --> Corrupted Brew (Rook Stonetoe)
@@ -488,6 +544,8 @@ local siege_of_orgrimmar = {
 			boss =	"Iron Juggernaut",
 			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Iron Juggernaut]],
 
+			combat_end = {1, 71466},
+			
 			spell_mechanics = {
 						[144464] = {0x100}, --> Flame Vents
 						[144467] = {0x100, 0x1}, -->  Ignite Armor
@@ -512,7 +570,8 @@ local siege_of_orgrimmar = {
 			phases = { 
 				{ --> phase 1: Pressing the Attack: Assault Mode
 					adds = {
-						72050 --> Crawler Mines
+						72050, --> Crawler Mines
+						71466 --> iron juggernaut
 					},
 					spells = {
 						144464, --> Flame Vents
@@ -528,7 +587,7 @@ local siege_of_orgrimmar = {
 				},
 				{ --> phase 2: Breaking the Defense: Siege Mode: 
 					adds = {
-
+						71466 --> iron juggernaut
 					},
 					spells = {
 						144483, --> Seismic Activity
@@ -547,6 +606,7 @@ local siege_of_orgrimmar = {
 		[7] = {
 			boss =	"Kor'kron Dark Shaman",
 			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-KorKron Dark Shaman]],
+			combat_end = {1, 71859},
 
 			spell_mechanics = {
 				[144303] = {0x1}, --Swipe
@@ -624,6 +684,8 @@ local siege_of_orgrimmar = {
 			boss =	"General Nazgrim",
 			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-General Nazgrim]],
 
+			combat_end = {1, 71515},
+			
 			spell_mechanics = {
 				[143494] = {0x100}, --Sundering Blow
 				[143638] = {0x1}, --Bonecracker
@@ -680,6 +742,8 @@ local siege_of_orgrimmar = {
 			boss =	"Malkorok",
 			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Malkorok]],
 
+			combat_end = {1, 71454},
+			
 			spell_mechanics = {
 						[142861] = {0x200}, --Ancient Miasma
 						[142906] = {0x200}, --Ancient Miasma
@@ -912,6 +976,8 @@ local siege_of_orgrimmar = {
 			boss =	"Thok the Bloodthirsty",
 			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Thok the Bloodthirsty]],
 
+			combat_end = {1, 71529},
+			
 			spell_mechanics = {
 				[143426] = {0x100}, --Fearsome Roar
 				[143428] = {0x40}, --Tail Lash
@@ -936,7 +1002,7 @@ local siege_of_orgrimmar = {
 			phases = { 
 				{ --> phase 1: A Cry in the Darkness 
 					adds = {
-						
+						71529 --> Thok the Bloodthirsty
 					},
 					spells = {
 						143426, --Fearsome Roar
@@ -972,6 +1038,8 @@ local siege_of_orgrimmar = {
 			boss =	"Siegecrafter Blackfuse",
 			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Siegecrafter Blackfuse]],
 
+			combat_end = {1, 71504},
+			
 			spell_mechanics = {
 						[144335] = {0x8}, --Matter Purification Beam
 						[143385] = {0x100}, --Electrostatic Charge
@@ -1041,6 +1109,18 @@ local siege_of_orgrimmar = {
 		[13] = {
 			boss =	"Paragons of the Klaxxi",
 			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Klaxxi Paragons]],
+			
+			combat_end = {2, {
+						71161, --Kil'ruk the Wind-Reaver
+						71157, --Xaril the Poisoned Mind
+						71158, --Rik'kal the Dissector 
+						71152, --Skeer the Bloodseeker
+						71160, --Iyyokuk the Lucid
+						71155, --Korven the Prime
+						71156, -- Kaz'tik the Manipulator
+						71154, -- Ka'roz the Locust
+						71153, -- Hisek the Swarmkeeper
+						}},
 
 			spell_mechanics = {
 				--Kil'ruk the Wind-Reaver
@@ -1234,6 +1314,8 @@ local siege_of_orgrimmar = {
 			boss =	"Garrosh Hellscream",
 			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Garrosh Hellscream]],
 
+			combat_end = {1, 71865},
+			
 			spell_mechanics = {
 				[144582] = {0x1}, --Hamstring (Kor'kron Warbringers)
 				[144758] = {0x1, 0x40}, --Desecrate
@@ -1257,6 +1339,7 @@ local siege_of_orgrimmar = {
 						71979, --Kor'kron Warbringers
 						71983, --Farseer Wolf Riders
 						71984, --Siege Engineers
+						71865, --Garrosh Hellscream
 					},
 					spells = {
 						144758, --Desecrate
@@ -1272,6 +1355,7 @@ local siege_of_orgrimmar = {
 						72237, --Embodied Fears
 						72238, --Embodied Doubts
 						72236, --Embodied Despairs
+						71865, --Garrosh Hellscream
 					},
 					spells = {
 						144969 --Annihilate
@@ -1280,8 +1364,8 @@ local siege_of_orgrimmar = {
 				
 				{ --> phase 3:
 					adds = {
-						72272 --Minion of Y'Shaarj
-
+						72272, --Minion of Y'Shaarj
+						71865, --Garrosh Hellscream
 					},
 					spells = {
 						144989, --Whirling Corruption
@@ -1298,7 +1382,8 @@ local siege_of_orgrimmar = {
 
 				{ --> phase 4:
 					adds = {
-						72272 --Minion of Y'Shaarj
+						72272, --Minion of Y'Shaarj
+						71865, --Garrosh Hellscream
 					},
 					spells = {
 						145033, --Empowered Whirling Corruption

@@ -132,6 +132,8 @@ function DetailsCreateCoolTip()
 		CoolTip.Host = nil --> frame to anchor
 		CoolTip.LastSize = 0 --> last size
 		
+		CoolTip.LastIndex = 0
+		
 		--defaults
 		CoolTip.default_height = 20
 		CoolTip.default_text_size = 10.5
@@ -142,9 +144,13 @@ function DetailsCreateCoolTip()
 		--> main frame
 		local frame1 = CreateFrame ("Frame", "CoolTipFrame1", UIParent, "CooltipMainFrameTemplate")
 		tinsert (UISpecialFrames, "CoolTipFrame1")
+		gump:CreateFlashAnimation (frame1)
+		
 		--> secondary frame
 		local frame2 = CreateFrame ("Frame", "CoolTipFrame2", UIParent, "CooltipMainFrameTemplate")
 		tinsert (UISpecialFrames, "CoolTipFrame2")
+		gump:CreateFlashAnimation (frame2)
+		
 		frame2:SetPoint ("bottomleft", frame1, "bottomright")
 	
 		CoolTip.frame1 = frame1
@@ -303,6 +309,7 @@ function DetailsCreateCoolTip()
 		end)	
 
 		frame1:SetScript ("OnHide", function (self)
+			--[[ --> avoid taint errors
 			if (not frame1.hidden) then --> significa que foi fechado com ESC
 				frame1:Show()
 				gump:Fade (frame1, 1)
@@ -311,6 +318,7 @@ function DetailsCreateCoolTip()
 				frame2:Show()
 				gump:Fade (frame2, 1)
 			end
+			--]]
 			CoolTip.active = false
 			CoolTip.buttonClicked = false
 			CoolTip.mouseOver = false
@@ -509,7 +517,7 @@ function DetailsCreateCoolTip()
 					frame2.selected:SetPoint ("top", self, "top", 0, -1)
 					frame2.selected:SetPoint ("bottom", self, "bottom")
 					
-					UIFrameFlash (frame2.selected, 0.05, 0.05, 0.2, true, 0, 0)
+					--UIFrameFlash (frame2.selected, 0.05, 0.05, 0.2, true, 0, 0)
 					
 					if (CoolTip.FunctionsTableSub [self.mainIndex] and CoolTip.FunctionsTableSub [self.mainIndex] [self.index]) then
 						local parameterTable = CoolTip.ParametersTableSub [self.mainIndex] [self.index]
@@ -1345,7 +1353,7 @@ function DetailsCreateCoolTip()
 				CoolTip.buttonClicked = true
 				frame1.selected:SetPoint ("top", botao, "top", 0, -1)
 				frame1.selected:SetPoint ("bottom", botao, "bottom")
-				UIFrameFlash (frame1.selected, 0.05, 0.05, 0.2, true, 0, 0)
+				--UIFrameFlash (frame1.selected, 0.05, 0.05, 0.2, true, 0, 0)
 				
 			elseif (menuType == 2) then --sub menu
 				CoolTip:ShowSub (mainIndex)
@@ -1353,7 +1361,7 @@ function DetailsCreateCoolTip()
 				CoolTip.buttonClicked = true
 				frame2.selected:SetPoint ("top", botao, "top", 0, -1)
 				frame2.selected:SetPoint ("bottom", botao, "bottom")	
-				UIFrameFlash (frame2.selected, 0.05, 0.05, 0.2, true, 0, 0)
+				--UIFrameFlash (frame2.selected, 0.05, 0.05, 0.2, true, 0, 0)
 			end
 		end
 	
@@ -1373,6 +1381,9 @@ function DetailsCreateCoolTip()
 			CoolTip.SubIndexes = 0
 			_table_wipe (CoolTip.IndexesSub)
 			
+			--> 
+			
+			--[
 			_table_wipe (CoolTip.LeftTextTable)
 			_table_wipe (CoolTip.LeftTextTableSub)
 			_table_wipe (CoolTip.RightTextTable)
@@ -1383,6 +1394,16 @@ function DetailsCreateCoolTip()
 			_table_wipe (CoolTip.RightIconTable)
 			_table_wipe (CoolTip.RightIconTableSub)
 
+			_table_wipe (CoolTip.StatusBarTable)
+			_table_wipe (CoolTip.StatusBarTableSub)
+			
+			_table_wipe (CoolTip.FunctionsTableMain)
+			_table_wipe (CoolTip.FunctionsTableSub)
+			
+			_table_wipe (CoolTip.ParametersTableMain)
+			_table_wipe (CoolTip.ParametersTableSub)
+			--]]
+			
 			_table_wipe (CoolTip.TopIconTableSub)
 			CoolTip.Banner [1] = false
 			CoolTip.Banner [2] = false
@@ -1394,16 +1415,7 @@ function DetailsCreateCoolTip()
 			frame1.upperImageText2:Hide()
 			
 			frame2.upperImage:Hide()
-			
-			_table_wipe (CoolTip.StatusBarTable)
-			_table_wipe (CoolTip.StatusBarTableSub)
-			
-			_table_wipe (CoolTip.FunctionsTableMain)
-			_table_wipe (CoolTip.FunctionsTableSub)
-			
-			_table_wipe (CoolTip.ParametersTableMain)
-			_table_wipe (CoolTip.ParametersTableSub)
-			
+
 			CoolTip.title1 = nil
 			CoolTip.title_text = nil
 			
@@ -2214,7 +2226,8 @@ function DetailsCreateCoolTip()
 		CoolTip:ShowCooltip()
 		
 		if (fromClick) then
-			UIFrameFlash (frame1, 0.05, 0.05, 0.2, true, 0, 0)
+			--UIFrameFlash (frame1, )
+			frame1:Flash (0.05, 0.05, 0.2, true, 0, 0)
 		end
 	end
 	

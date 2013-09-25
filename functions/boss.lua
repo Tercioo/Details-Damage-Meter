@@ -18,6 +18,11 @@ do
 		end
 	end
 
+	--> return the ids of trash mobs in the instance
+	function _detalhes:GetInstanceTrashInfo (mapid)
+		return _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].trash_ids
+	end
+	
 	--> return the function for the boss
 	function _detalhes:GetEncounterEnd (mapid, bossindex)
 		local t = _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].encounters [bossindex]

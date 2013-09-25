@@ -60,10 +60,22 @@ function SlashCmdList.DETAILS (msg, editbox)
 		
 	
 -------- debug ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+	elseif (msg == "time") then
+		print ("GetTime()", GetTime())
+		print ("time()", time())
+
 	elseif (msg == "copy") then
 		_G.DetailsCopy:Show()
 		_G.DetailsCopy.MyObject.text:HighlightText()
 		_G.DetailsCopy.MyObject.text:SetFocus()
+	
+	elseif (msg == "garbage") then
+		local a = {}
+		for i = 1, 10000 do 
+			a [i] = {math.random (50000)}
+		end
+		table.wipe (a)
 	
 	elseif (msg == "raid") then
 	
@@ -267,6 +279,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 		end
 		
 		_detalhes.id_frame:Show()
+		_detalhes.id_frame.texto:SetFocus()
 		
 		if (pass_guid == "-") then
 			local guid = UnitGUID ("target")
@@ -282,6 +295,80 @@ function SlashCmdList.DETAILS (msg, editbox)
 			_detalhes.id_frame.texto:HighlightText()
 		end
 		
+	--> debug
+	elseif (command == "actors") then
+	
+		local t, filter = rest:match("^(%S*)%s*(.-)$")
+
+		t = tonumber (t)
+		if (not t) then
+			return print ("not T found.")
+		end
+
+		local f = _detalhes.actorsFrame
+		if (not f) then
+			_detalhes.actorsFrame = _detalhes.gump:NewPanel (UIParent, nil, "DetailsActorsFrame", nil, 300, 600)
+			_detalhes.actorsFrame:SetPoint ("center", UIParent, "center", 300, 0)
+			_detalhes.actorsFrame.barras = {}
+				
+			local container_barras_window = CreateFrame ("ScrollFrame", "Details_ActorsBarrasScroll", _detalhes.actorsFrame.widget) 
+			local container_barras = CreateFrame ("Frame", "Details_ActorsBarras", container_barras_window)
+			_detalhes.actorsFrame.container = container_barras
+
+			container_barras_window:SetBackdrop({
+				edgeFile = "Interface\\DialogFrame\\UI-DialogBox-gold-Border", tile = true, tileSize = 16, edgeSize = 5,
+				insets = {left = 1, right = 1, top = 0, bottom = 1},})
+			container_barras_window:SetBackdropBorderColor (0, 0, 0, 0)
+			
+			container_barras:SetBackdrop({
+				bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16,
+				insets = {left = 1, right = 1, top = 0, bottom = 1},})		
+			container_barras:SetBackdropColor (0, 0, 0, 0)
+
+			container_barras:SetAllPoints (container_barras_window)
+			container_barras:SetWidth (300)
+			container_barras:SetHeight (150)
+			container_barras:EnableMouse (true)
+			container_barras:SetResizable (false)
+			container_barras:SetMovable (true)
+			
+			container_barras_window:SetWidth (260)
+			container_barras_window:SetHeight (550)
+			container_barras_window:SetScrollChild (container_barras)
+			container_barras_window:SetPoint ("TOPLEFT", _detalhes.actorsFrame.widget, "TOPLEFT", 21, -10)
+
+			_detalhes.gump:NewScrollBar (container_barras_window, container_barras, -10, -17)
+			container_barras_window.slider:Altura (560)
+			container_barras_window.slider:cimaPoint (0, 1)
+			container_barras_window.slider:baixoPoint (0, -3)
+			container_barras_window.slider:SetFrameLevel (10)
+
+			container_barras_window.ultimo = 0
+			
+			container_barras_window.gump = container_barras
+			--container_barras_window.slider = slider_gump
+		end
+		
+		local container = _detalhes.tabela_vigente [t]._ActorTable
+		print (#container, "actors found.")
+		for index, actor in ipairs (container) do 
+			
+			local row = _detalhes.actorsFrame.barras [index]
+			if (not row) then
+				row = {text = _detalhes.actorsFrame.container:CreateFontString (nil, "overlay", "GameFontNormal")}
+				_detalhes.actorsFrame.barras [index] = row
+				row.text:SetPoint ("topleft", _detalhes.actorsFrame.container, "topleft", 0, -index * 15)
+			end
+			
+			if (filter and actor.nome:find (filter)) then
+				row.text:SetTextColor (1, 1, 0)
+			else
+				row.text:SetTextColor (1, 1, 1)
+			end
+			
+			row.text:SetText (actor.nome)
+			
+		end
 	
 	--> debug
 	elseif (msg == "id") then

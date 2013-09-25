@@ -22,7 +22,6 @@ local container_misc_target = _detalhes.container_type.CONTAINER_MISCTARGET_CLAS
 
 --api locals
 local _UnitClass = UnitClass
-local _GetPlayerInfoByGUID = GetPlayerInfoByGUID
 --lua locals
 local _setmetatable = setmetatable
 local _getmetatable = getmetatable

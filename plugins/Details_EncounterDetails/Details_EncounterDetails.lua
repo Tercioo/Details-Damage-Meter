@@ -341,8 +341,10 @@ local function EnemySkills (habilidade, barra)
 	
 	for index, tabela in _ipairs (tabela_jogadores) do
 		local coords = CLASS_ICON_TCOORDS [tabela[3]]
+		if (coords) then
+			GameTooltip:AddDoubleLine ("|TInterface\\AddOns\\Details\\images\\classes_small:14:14:0:0:128:128:"..(coords[1]*128)..":"..(coords[2]*128)..":"..(coords[3]*128)..":"..(coords[4]*128).."|t "..tabela[1]..": ", _detalhes:comma_value(tabela[2]).." (".._cstr("%.1f", (tabela[2]/total) * 100).."%)", 1, 1, 1, 1, 1, 1)
+		end
 		--GameTooltip:AddDoubleLine ("|TInterface\\AddOns\\Details\\images\\classes_small:14:14:0:0:128:128:"..coords[1]..":"..coords[2]..":"..coords[3]..":"..coords[4].."|t "..tabela[1]..": ", _detalhes:comma_value(tabela[2]).." (".._cstr("%.1f", (tabela[2]/total) * 100).."%)", 1, 1, 1, 1, 1, 1)
-		GameTooltip:AddDoubleLine ("|TInterface\\AddOns\\Details\\images\\classes_small:14:14:0:0:128:128:"..(coords[1]*128)..":"..(coords[2]*128)..":"..(coords[3]*128)..":"..(coords[4]*128).."|t "..tabela[1]..": ", _detalhes:comma_value(tabela[2]).." (".._cstr("%.1f", (tabela[2]/total) * 100).."%)", 1, 1, 1, 1, 1, 1)
 	end
 	
 end
@@ -842,7 +844,7 @@ function EncounterDetails:OpenAndRefresh()
 							tabela.dano_em_total = tabela.dano_em_total + alvo.total
 						end
 					else
-						print ("actor not found: " ..alvo.nome )
+						--print ("actor not found: " ..alvo.nome )
 					end
 				end
 				_table_sort (tabela.dano_em, function(a, b) return a[2] > b[2] end)

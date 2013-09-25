@@ -292,7 +292,7 @@
 		end
 	end
 
-	function gump:GradientEffect ( Object, ObjectType, StartRed, StartGreen, StartBlue, StartAlpha, EndRed, EndGreen, EndBlue, EndAlpha, Duration, EndFunction)
+	function gump:GradientEffect ( Object, ObjectType, StartRed, StartGreen, StartBlue, StartAlpha, EndRed, EndGreen, EndBlue, EndAlpha, Duration, EndFunction, FuncParam)
 		
 		if (type (StartRed) == "table" and type (StartGreen) == "table") then
 			Duration, EndFunction = StartBlue, StartAlpha
@@ -359,7 +359,8 @@
 			Object = Object,
 			ObjectType = string.lower (ObjectType),
 			Colors = ColorStep,
-			Func = EndFunction}
+			Func = EndFunction,
+			FuncParam = FuncParam}
 		
 		Object.HaveGradientEffect = true
 		GradientFrameControl.HaveGradientEffect = true
@@ -369,7 +370,71 @@
 		end
 
 	end
+	
+	
+	--> work around to solve the UI Frame Flashes
+	
+	local onFinish = function (self)
+		if (self.showWhenDone) then
+			self.frame:SetAlpha (1)
+		else
+			self.frame:SetAlpha (0)
+			self.frame:Hide()
+		end
+	end
+	
+	local onLoop = function (self)
+		if (self.finishAt < GetTime()) then
+			self:Stop()
+		end
+	end
 
+	local flash = function (self, fadeInTime, fadeOutTime, flashDuration, showWhenDone, flashInHoldTime, flashOutHoldTime)
+		
+		local FlashAnimation = self.FlashAnimation
+		local fadeIn = FlashAnimation.fadeIn
+		local fadeOut = FlashAnimation.fadeOut
+	
+		fadeIn:SetDuration (fadeInTime)
+		fadeIn:SetEndDelay (flashInHoldTime or 0)
+		
+		fadeOut:SetDuration (fadeOutTime)
+		fadeOut:SetEndDelay (flashOutHoldTime or 0)
+		
+		fadeIn:SetOrder (1)
+		fadeOut:SetOrder (2)		
+		
+		fadeIn:SetChange (-1)
+		fadeOut:SetChange (1)
+		
+		FlashAnimation.duration = flashDuration
+		FlashAnimation.loopTime = FlashAnimation:GetDuration()
+		FlashAnimation.finishAt = GetTime() + flashDuration
+		FlashAnimation.showWhenDone = showWhenDone
+		
+		FlashAnimation:SetLooping ("REPEAT")
+		
+		FlashAnimation:Play()
+	end
+	
+	function gump:CreateFlashAnimation (frame)
+	
+		local FlashAnimation = frame:CreateAnimationGroup() 
+		
+		FlashAnimation.fadeIn = FlashAnimation:CreateAnimation ("Alpha") --> fade in anime
+		FlashAnimation.fadeOut = FlashAnimation:CreateAnimation ("Alpha") --> fade out anime
+		
+		frame.FlashAnimation = FlashAnimation
+		FlashAnimation.frame = frame
+		
+		FlashAnimation:SetScript ("OnLoop", onLoop)
+		FlashAnimation:SetScript ("OnFinished", onFinish)
+		
+		frame.Flash = flash
+	
+	end
+
+	--> todo: remove the function creation everytime this function run.
 	function gump:Fade (frame, tipo, velocidade, parametros)
 		
 		if (_type (frame) == "table") then 

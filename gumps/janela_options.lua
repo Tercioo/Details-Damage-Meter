@@ -46,46 +46,46 @@ function _detalhes:OpenOptionsWindow (instance)
 			if (amount == 1) then
 				slider.amt:SetText ("<= 1gb")
 				_detalhes.memory_ram = 16
-				_detalhes.segments_amount = 5
-				_detalhes.segments_amount_to_save = 2
-				_detalhes.update_speed = 1.5
+				--_detalhes.segments_amount = 5
+				--_detalhes.segments_amount_to_save = 2
+				--_detalhes.update_speed = 1.5
 				
-				_G.DetailsOptionsWindowSlider.MyObject:SetValue (_detalhes.segments_amount)
-				_G.DetailsOptionsWindowSliderSegmentsSave.MyObject:SetValue (_detalhes.segments_amount_to_save)
-				_G.DetailsOptionsWindowSliderUpdateSpeed.MyObject:SetValue (_detalhes.update_speed)
+				--_G.DetailsOptionsWindowSlider.MyObject:SetValue (_detalhes.segments_amount)
+				--_G.DetailsOptionsWindowSliderSegmentsSave.MyObject:SetValue (_detalhes.segments_amount_to_save)
+				--_G.DetailsOptionsWindowSliderUpdateSpeed.MyObject:SetValue (_detalhes.update_speed)
 				
 			elseif (amount == 2) then
 				slider.amt:SetText ("2gb")
 				_detalhes.memory_ram = 32
-				_detalhes.segments_amount = 10
-				_detalhes.segments_amount_to_save = 3
-				_detalhes.update_speed = 1.2
+				--_detalhes.segments_amount = 10
+				--_detalhes.segments_amount_to_save = 3
+				--_detalhes.update_speed = 1.2
 				
-				_G.DetailsOptionsWindowSlider.MyObject:SetValue (_detalhes.segments_amount)
-				_G.DetailsOptionsWindowSliderSegmentsSave.MyObject:SetValue (_detalhes.segments_amount_to_save)
-				_G.DetailsOptionsWindowSliderUpdateSpeed.MyObject:SetValue (_detalhes.update_speed)
+				--_G.DetailsOptionsWindowSlider.MyObject:SetValue (_detalhes.segments_amount)
+				--_G.DetailsOptionsWindowSliderSegmentsSave.MyObject:SetValue (_detalhes.segments_amount_to_save)
+				--_G.DetailsOptionsWindowSliderUpdateSpeed.MyObject:SetValue (_detalhes.update_speed)
 				
 			elseif (amount == 3) then
 				slider.amt:SetText ("4gb")
 				_detalhes.memory_ram = 64
-				_detalhes.segments_amount = 20
-				_detalhes.segments_amount_to_save = 5
-				_detalhes.update_speed = 1.0
+				--_detalhes.segments_amount = 20
+				--_detalhes.segments_amount_to_save = 5
+				--_detalhes.update_speed = 1.0
 				
-				_G.DetailsOptionsWindowSlider.MyObject:SetValue (_detalhes.segments_amount)
-				_G.DetailsOptionsWindowSliderSegmentsSave.MyObject:SetValue (_detalhes.segments_amount_to_save)
-				_G.DetailsOptionsWindowSliderUpdateSpeed.MyObject:SetValue (_detalhes.update_speed)
+				--_G.DetailsOptionsWindowSlider.MyObject:SetValue (_detalhes.segments_amount)
+				--_G.DetailsOptionsWindowSliderSegmentsSave.MyObject:SetValue (_detalhes.segments_amount_to_save)
+				--_G.DetailsOptionsWindowSliderUpdateSpeed.MyObject:SetValue (_detalhes.update_speed)
 				
 			elseif (amount == 4) then
 				slider.amt:SetText (">= 6gb")
 				_detalhes.memory_ram = 128
-				_detalhes.segments_amount = 25
-				_detalhes.segments_amount_to_save = 5
-				_detalhes.update_speed = 0.5
+				--_detalhes.segments_amount = 25
+				--_detalhes.segments_amount_to_save = 5
+				--_detalhes.update_speed = 0.5
 				
-				_G.DetailsOptionsWindowSlider.MyObject:SetValue (_detalhes.segments_amount)
-				_G.DetailsOptionsWindowSliderSegmentsSave.MyObject:SetValue (_detalhes.segments_amount_to_save)
-				_G.DetailsOptionsWindowSliderUpdateSpeed.MyObject:SetValue (_detalhes.update_speed)
+				--_G.DetailsOptionsWindowSlider.MyObject:SetValue (_detalhes.segments_amount)
+				--_G.DetailsOptionsWindowSliderSegmentsSave.MyObject:SetValue (_detalhes.segments_amount_to_save)
+				--_G.DetailsOptionsWindowSliderUpdateSpeed.MyObject:SetValue (_detalhes.update_speed)
 				
 			end
 			

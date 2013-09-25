@@ -662,10 +662,12 @@ function gump:CriaJanelaInfo()
 	
 	--> fix para dar fadein ao apertar esc
 	este_gump:SetScript ("OnHide", function (self)
+		--[[ avoid taint problems
 		if (not este_gump.hidden) then --> significa que foi fechado com ESC
 			este_gump:Show()
-			_detalhes:FechaJanelaInfo(1)
 		end
+		--]]
+		_detalhes:FechaJanelaInfo()
 	end)
 	
 	--> propriedades da janela

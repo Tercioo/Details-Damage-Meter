@@ -44,8 +44,26 @@
 	--> try to find the opponent of last fight, can be called during a fight as well
 		function _detalhes:FindEnemy()
 			
+			local trash_list
+			if (_detalhes.in_group and _detalhes.last_instance) then
+				trash_list = _detalhes:GetInstanceTrashInfo (_detalhes.last_instance)
+			end
+			
 			for _, actor in _ipairs (_detalhes.tabela_vigente[class_type_dano]._ActorTable) do 
+			
 				if (not actor.grupo and not actor.owner and not actor.nome:find ("[*]") and _bit_band (actor.flag, 0x00000060) ~= 0) then --> 0x20+0x40 neutral + enemy reaction
+				
+					if (trash_list) then
+						local serial = tonumber (actor.serial:sub(6, 10), 16)
+						if (serial and trash_list [serial]) then
+							if (_detalhes.debug) then
+								_detalhes:Msg ("(debug) segment against trash mobs.")
+							end
+							_detalhes.tabela_vigente.is_trash = true
+							return Loc ["STRING_SEGMENT_TRASH"]
+						end
+					end
+				
 					for name, _ in _pairs (actor.targets._NameIndexTable) do
 						if (name == _detalhes.playername) then
 							return actor.nome
@@ -161,7 +179,6 @@
 								if (BossIndex) then
 									Actor.boss = true
 									Actor.shadow.boss = true
-									_detalhes:FlagActorsOnBossFight()
 									return {
 										index = BossIndex, 
 										name =_detalhes:GetBossName (ZoneMapID, BossIndex), 
@@ -267,8 +284,6 @@
 			--> pega a zona do jogador e vê se foi uma luta contra um Boss -- identifica se a luta foi com um boss
 			if (not _detalhes.tabela_vigente.is_boss) then 
 				_detalhes.tabela_vigente.is_boss = _detalhes:FindBoss()
-			else
-				_detalhes:FlagActorsOnBossFight()
 			end
 			
 			if (_detalhes.debug) then
@@ -276,13 +291,17 @@
 			end
 			
 			if (not _detalhes.tabela_vigente.is_boss) then
+			
 				local inimigo = _detalhes:FindEnemy()
+				
 				if (inimigo) then
 					if (_detalhes.debug) then
 						_detalhes:Msg ("(debug) enemy recognized", inimigo)
 					end
 				end
+				
 				_detalhes.tabela_vigente.enemy = inimigo
+				
 				if (_detalhes.debug) then
 					_detalhes:Msg ("(debug) forcing equalize actors behavior.")
 					_detalhes:EqualizeActorsSchedule (_detalhes.host_of)
@@ -292,6 +311,8 @@
 				_detalhes:CheckMemoryAfterCombat()
 				
 			else
+			
+				_detalhes:FlagActorsOnBossFight()
 			
 				if (_detalhes:GetBossDetails (_detalhes.tabela_vigente.is_boss.mapid, _detalhes.tabela_vigente.is_boss.index)) then
 					_detalhes.tabela_vigente.enemy = _detalhes.tabela_vigente.is_boss.encounter
@@ -410,6 +431,7 @@
 			
 			table.wipe (_detalhes.cache_damage_group)
 			table.wipe (_detalhes.cache_healing_group)
+			
 			_detalhes:UpdateParserGears()
 			
 			_detalhes:SendEvent ("COMBAT_PLAYER_LEAVE", nil, _detalhes.tabela_vigente)
@@ -596,16 +618,10 @@
 		function _detalhes:FlagActorsOnBossFight()
 			for class_type, container in _ipairs (_detalhes.tabela_vigente) do 
 				for _, actor in _ipairs (container._ActorTable) do 
-					if (not actor.grupo and not actor.boss) then 
-						if (_bit_band (actor.flag, _detalhes.flags.friend) == 0) then 
-							actor.boss_fight_component = true
-							local shadow = _detalhes.tabela_overall (class_type, actor.nome)
-							if (shadow) then 
-								shadow.boss_fight_component = true
-							else
-								print ("Nao achou a shadow em FlagActorsOnBossFight()")
-							end
-						end
+					actor.boss_fight_component = true
+					local shadow = _detalhes.tabela_overall (class_type, actor.nome)
+					if (shadow) then 
+						shadow.boss_fight_component = true
 					end
 				end
 			end

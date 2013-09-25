@@ -184,19 +184,7 @@ function atributo_heal:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 	elseif (instancia.modo == modo_ALL or sub_atributo == 5) then --> mostrando ALL
 	
 		amount = _detalhes:ContainerSort (conteudo, amount, keyName)
-	
-		--> faz o sort da categoria
-		--_table_sort (conteudo, function (a, b) return a[keyName] > b[keyName] end)
-		
-		--> não mostrar resultados com zero
-		--[[for i = amount, 1, -1 do --> de trás pra frente
-			if (conteudo[i][keyName] < 1) then
-				amount = amount-1
-			else
-				break
-			end
-		end--]]
-		
+
 		--> pega o total ja aplicado na tabela do combate
 		total = tabela_do_combate.totals [class_type]
 		
@@ -1393,10 +1381,13 @@ atributo_heal.__add = function (shadow, tabela2)
 	shadow.start_time = shadow.start_time - tempo
 
 	shadow.total = shadow.total + tabela2.total
-	_detalhes.tabela_overall.totals[2] = _detalhes.tabela_overall.totals[2] + tabela2.total
 	
-	if (tabela2.grupo) then
-		_detalhes.tabela_overall.totals_grupo[2] = _detalhes.tabela_overall.totals_grupo[2] + tabela2.total
+	if ( not (shadow.shadow and tabela2.shadow) ) then
+		_detalhes.tabela_overall.totals[2] = _detalhes.tabela_overall.totals[2] + tabela2.total
+		
+		if (tabela2.grupo) then
+			_detalhes.tabela_overall.totals_grupo[2] = _detalhes.tabela_overall.totals_grupo[2] + tabela2.total
+		end
 	end
 	
 	shadow.totalover = shadow.totalover + tabela2.totalover

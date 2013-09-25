@@ -58,6 +58,27 @@ function historico:adicionar (tabela)
 				break
 			end
 		end
+		
+		if (self.tabelas[3]) then
+			if (self.tabelas[3].is_trash and self.tabelas[2].is_trash) then
+				--> tabela 2 deve ser deletada e somada a tabela 1
+				if (_detalhes.debug) then
+					detalhes:Msg ("(debug) concatenating two trash segments.")
+				end
+				
+				self.tabelas[2] = self.tabelas[2] + self.tabelas[3]
+				self.tabelas[2].is_trash = true
+				
+				--> remover
+				_table_remove (self.tabelas, 3)
+				_detalhes:SendEvent ("DETAILS_DATA_SEGMENTREMOVED", nil, nil)
+			end
+			
+			--> debug
+			--self.tabelas[2] = self.tabelas[2] + self.tabelas[3]
+			--_table_remove (self.tabelas, 3)
+		end
+		
 	end
 
 	--> chama a função que irá atualizar as instâncias com segmentos no histórico
