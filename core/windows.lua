@@ -464,7 +464,7 @@
 					if (tabela._custom) then 
 						tabela (esta_barra, self)
 					else
-						tabela:RefreshBarra (esta_barra, self)
+						tabela:RefreshBarra (esta_barra, self, true)
 					end
 					
 					if (esta_barra.minha_tabela.enemy) then

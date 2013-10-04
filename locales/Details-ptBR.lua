@@ -20,6 +20,7 @@ if not Loc then return end
 	Loc ["STRING_INSTANCE_LIMIT"] = "o limite de instancias foi atingido, voce pode modificar este limite no painel de opcoes."
 	
 	Loc ["STRING_PLEASE_WAIT"] = "Por favor espere"
+	Loc ["STRING_UPTADING"] = "atualizando"
 
 	Loc ["STRING_RIGHTCLICK_CLOSE_SHORT"] = "Botao direito para fechar."
 	Loc ["STRING_RIGHTCLICK_CLOSE_MEDIUM"] = "Use o botao direito para fechar esta janela."
@@ -185,6 +186,7 @@ if not Loc then return end
 	
 	Loc ["STRING_HPS"] = "Hps"
 	Loc ["STRING_HEAL"] = "Cura"
+	Loc ["STRING_HEAL_CRIT"] = "Cura Critica"
 	Loc ["STRING_HEAL_ABSORBED"] = "Cura absorvida"
 	Loc ["STRING_OVERHEAL"] = "Sobrecura"
 ----------------	
@@ -201,6 +203,11 @@ if not Loc then return end
 	
 	Loc ["STRING_PLUGIN_CLOCKTYPE"] = "Tipo do Tempo"
 	
+	Loc ["STRING_PLUGIN_DURABILITY"] = "Durabilidade"
+	Loc ["STRING_PLUGIN_LATENCY"] = "Latencia"
+	Loc ["STRING_PLUGIN_GOLD"] = "Dinheiro"
+	Loc ["STRING_PLUGIN_FPS"] = "Quadros por Segundo"
+	Loc ["STRING_PLUGIN_TIME"] = "Relogio"
 	Loc ["STRING_PLUGIN_CLOCKNAME"] = "Tempo de Luta"
 	Loc ["STRING_PLUGIN_PSEGMENTNAME"] = "Segmento Mostrado"
 	Loc ["STRING_PLUGIN_PDPSNAME"] = "Dps da Raide"

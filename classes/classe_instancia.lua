@@ -156,6 +156,10 @@ end
 		self.ativa = false
 		_detalhes:GetLowerInstanceNumber()
 		
+		if (_detalhes.switch.current_instancia and _detalhes.switch.current_instancia == self) then
+			_detalhes.switch:CloseMe()
+		end
+		
 		_detalhes.opened_windows = _detalhes.opened_windows-1
 		self:ResetaGump()
 		gump:Fade (self.baseframe.cabecalho.atributo_icon, _unpack (_detalhes.windows_fade_in))
@@ -629,11 +633,6 @@ end
 
 		nova_instancia.meu_id = ID
 
-		--meu_nome ficará aqui pois no futuro pode ser que ponha uma opção para monitorar um jogador específico
-		nova_instancia.meu_nome = UnitName ("player")
-
-		--> quantidade de habilidades que aparece no tooltip
-		
 		nova_instancia.barras = {} --container que irá armazenar todas as barras
 		nova_instancia.barraS = {nil, nil} --de x até x são as barras que estão sendo mostradas na tela
 		nova_instancia.rolagem = false --barra de rolagem não esta sendo mostrada
@@ -648,7 +647,11 @@ end
 			["font"] = SharedMedia:Fetch ("font", "Arial Narrow"),
 			["fontName"] = "Arial Narrow",
 			["textura"] = _detalhes.default_texture,
+			["texturaBackground"] = _detalhes.default_texture,
+			["texturaBackgroundColor"] = {0, 0, 0, 0},
+			["texturaBackgroundByClass"] = false,
 			["textureName"] = _detalhes.default_texture_name,
+			["textureNameBackground"] = _detalhes.default_texture_name,
 			["textura_mouseover"] = "Interface\\FriendsFrame\\UI-FriendsList-Highlight",
 			["animar"] = true,
 			["fade"] = true,
@@ -669,6 +672,13 @@ end
 		nova_instancia.bg_b = _detalhes.default_bg_color
 		
 		nova_instancia.auto_current = true
+		nova_instancia.row_texture_class_colors = true
+		nova_instancia.row_textL_class_colors = false
+		nova_instancia.row_textR_class_colors = false
+		nova_instancia.row_textL_outline = false
+		nova_instancia.row_textR_outline = false
+		nova_instancia.fixed_row_texture_color = {0, 0, 0}
+		nova_instancia.fixed_row_text_color = {1, 1, 1}
 		
 		nova_instancia.barrasInfo["alturaReal"] = nova_instancia.barrasInfo.altura+nova_instancia.barrasInfo.espaco.entre
 
@@ -774,10 +784,6 @@ end
 --> ao reiniciar o addon esta função é rodada para recriar a janela da instância
 --> search key: ~restaura
 function _detalhes:RestauraJanela (index, temp)
-
-		--if (index ~= self.meu_id) then
-			--print ("DEBUG: Algo de errado, o index esta diferente do meu_id")
-		--end
 		
 		self.bg_alpha = self.bg_alpha or _detalhes.default_bg_alpha
 		self.bg_r = self.bg_r or _detalhes.default_bg_color
@@ -788,6 +794,37 @@ function _detalhes:RestauraJanela (index, temp)
 			self.auto_current = true
 		end
 		
+		if (self.row_texture_class_colors == nil) then
+			self.row_texture_class_colors = true
+		end
+		
+		if (self.row_textL_class_colors == nil) then
+			self.row_textL_class_colors = false
+		end
+		if (self.row_textR_class_colors == nil) then
+			self.row_textR_class_colors = false
+		end
+		if (self.row_textL_outline == nil) then
+			self.row_textL_outline = false
+		end
+		if (self.row_textR_outline == nil) then
+			self.row_textR_outline = false
+		end
+
+		if (self.fixed_row_texture_color == nil) then
+			self.fixed_row_texture_color = {0, 0, 0}
+		end
+		if (self.fixed_row_text_color == nil) then
+			self.fixed_row_text_color = {1, 1, 1}
+		end
+		
+		if (not self.barrasInfo.texturaBackground) then
+			self.barrasInfo.texturaBackground = _detalhes.default_texture
+			self.barrasInfo.texturaBackgroundColor = {0, 0, 0, 0}
+			self.barrasInfo.texturaBackgroundByClass = false
+			self.barrasInfo.textureNameBackground = _detalhes.default_texture_name
+		end
+
 		local _baseframe, _bgframe, _bgframe_display, _scrollframe = gump:CriaJanelaPrincipal (self.meu_id, self)
 		
 		self.baseframe = _baseframe
@@ -887,9 +924,7 @@ function _detalhes:RestauraJanela (index, temp)
 
 		self.barrasInfo.altura = self.barrasInfo.altura or 14
 		self.barrasInfo.alturaReal = self.barrasInfo.altura+self.barrasInfo.espaco.entre
-		
-		self:DefaultIcons (true, true, true, true)
-		
+
 		if (self.modo == modo_alone) then
 			if (_detalhes.solo and _detalhes.solo ~= self.meu_id) then --> proteção para ter apenas uma instância com a janela SOLO
 				self.modo = modo_grupo
@@ -908,11 +943,23 @@ function _detalhes:RestauraJanela (index, temp)
 		self:ReajustaGump()
 		self:SaveMainWindowPosition()
 		
+		self:DefaultIcons (true, true, true, true)
+		
 		self.iniciada = true
 		self:AtivarInstancia (temp)
-		
 	end
 ------------------------------------------------------------------------------------------------------------------------
+
+function _detalhes:InstanceReset (instance)
+	if (instance) then
+		self = instance
+	end
+	_detalhes.gump:Fade (self, "in", nil, "barras")
+	self:AtualizaSegmentos (self)
+	self:AtualizaSoloMode_AfertReset()
+	self:ResetaGump()
+	_detalhes:AtualizaGumpPrincipal (-1, true) --atualiza todas as instancias
+end
 
 function _detalhes:RefreshBars (instance)
 	if (instance) then
@@ -920,7 +967,19 @@ function _detalhes:RefreshBars (instance)
 	end
 	if (self.barras and self.barras[1]) then
 		for index, row in _ipairs (self.barras) do 
+		
 			row.textura:SetTexture (self.barrasInfo.textura)
+			
+			row.background:SetTexture (self.barrasInfo.texturaBackground)
+			if (not self.barrasInfo.texturaBackgroundByClass) then
+				local c = self.barrasInfo.texturaBackgroundColor
+				row.background:SetVertexColor (c[1], c[2], c[3], c[4])
+			else
+				local c = self.barrasInfo.texturaBackgroundColor
+				local r, g, b = row.background:GetVertexColor()
+				row.background:SetVertexColor (r, g, b, c[4])
+			end
+			
 			row.texto_esquerdo:SetFont (self.barrasInfo.font or "GameFontHighlight", self.barrasInfo.fontSize or self.barrasInfo.altura*0.75)
 			row.texto_direita:SetFont (self.barrasInfo.font or "GameFontHighlight", self.barrasInfo.fontSize or self.barrasInfo.altura*0.75)
 		end
@@ -930,15 +989,28 @@ end
 function _detalhes:SetBackgroundColor (...)
 	local r, g, b = gump:ParseColors (...)
 	self.bgdisplay:SetBackdropColor (r, g, b, self.bg_alpha or _detalhes.default_bg_alpha)
+	self.baseframe:SetBackdropColor (r, g, b, self.bg_alpha or _detalhes.default_bg_alpha)
 	self.bg_r = r
 	self.bg_g = g
 	self.bg_b = b
 end
 
 function _detalhes:SetBackgroundAlpha (alpha)
+
+	--self.bgdisplay:SetBackdropColor (1, 1, 1, 1)
+
 	alpha = alpha or _detalhes.default_bg_alpha
+	
+	--print ("antes",alpha)
+	alpha = _detalhes:Scale (0, 1, 0.2, 1, alpha) - 0.8
+	--print ("depois",alpha)
+	
 	self.bgdisplay:SetBackdropColor (self.bg_r or _detalhes.default_bg_color, self.bg_g or _detalhes.default_bg_color, self.bg_b or _detalhes.default_bg_color, alpha)
+	self.baseframe:SetBackdropColor (self.bg_r or _detalhes.default_bg_color, self.bg_g or _detalhes.default_bg_color, self.bg_b or _detalhes.default_bg_color, alpha)
 	self.bg_alpha = alpha
+	
+	--local r, g, b, a = self.bgdisplay:GetBackdropColor()
+	--print (a)
 end
 
 function _detalhes:GetSize()

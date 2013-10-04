@@ -20,7 +20,6 @@ local _type = type
 
 --api locals
 local _GetSpellInfo = _detalhes.getspellinfo
-local _UnitName = UnitName
 local _IsInRaid = IsInRaid
 local _IsInGroup = IsInGroup
 local _GetNumGroupMembers = GetNumGroupMembers

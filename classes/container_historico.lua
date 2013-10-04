@@ -41,26 +41,30 @@ function historico:adicionar (tabela)
 	
 		--> fazer limpeza na tabela
 
-		for index, container in ipairs (self.tabelas[2]) do
-			if (index < 3) then
-				for _, jogador in ipairs (container._ActorTable) do 
-				
-					--> remover a tabela de last events
-					jogador.last_events_table =  nil
-					
-					--> verifica se ele ainda esta registrado na time machine
-					if (jogador.timeMachine) then
-						jogador:DesregistrarNaTimeMachine()
-					end
-					
-				end
-			else
-				break
+		local _segundo_combate = self.tabelas[2]
+		
+		local container_damage = _segundo_combate [1]
+		local container_heal = _segundo_combate [2]
+		
+		for _, jogador in ipairs (container_damage._ActorTable) do 
+			--> remover a tabela de last events
+			jogador.last_events_table =  nil
+			--> verifica se ele ainda esta registrado na time machine
+			if (jogador.timeMachine) then
+				jogador:DesregistrarNaTimeMachine()
+			end
+		end
+		for _, jogador in ipairs (container_heal._ActorTable) do 
+			--> remover a tabela de last events
+			jogador.last_events_table =  nil
+			--> verifica se ele ainda esta registrado na time machine
+			if (jogador.timeMachine) then
+				jogador:DesregistrarNaTimeMachine()
 			end
 		end
 		
 		if (self.tabelas[3]) then
-			if (self.tabelas[3].is_trash and self.tabelas[2].is_trash) then
+			if (self.tabelas[3].is_trash and self.tabelas[2].is_trash and not self.tabelas[3].is_boss and not self.tabelas[2].is_boss) then
 				--> tabela 2 deve ser deletada e somada a tabela 1
 				if (_detalhes.debug) then
 					detalhes:Msg ("(debug) concatenating two trash segments.")
@@ -167,6 +171,10 @@ function historico:resetar()
 	
 	--> reinicia a time machine
 	timeMachine:Reiniciar()
+	
+	_table_wipe (_detalhes.cache_damage_group)
+	_table_wipe (_detalhes.cache_healing_group)
+	_detalhes:UpdateParserGears()
 
 	_detalhes:InstanciaCallFunction (_detalhes.AtualizaSegmentos) -- atualiza o instancia.showing para as novas tabelas criadas
 	_detalhes:InstanciaCallFunction (_detalhes.AtualizaSoloMode_AfertReset) -- verifica se precisa zerar as tabela da janela solo mode
@@ -174,8 +182,6 @@ function historico:resetar()
 	_detalhes:InstanciaCallFunction (gump.Fade, "in", nil, "barras")
 	
 	_detalhes:AtualizaGumpPrincipal (-1) --atualiza todas as instancias
-	
-	_detalhes:UpdateParserGears()
 	
 	_detalhes:SendEvent ("DETAILS_DATA_RESET", nil, nil)
 end

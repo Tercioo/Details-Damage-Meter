@@ -159,6 +159,18 @@
 		local jogador_alvo, alvo_dono, alvo_name = _current_damage_container:PegarCombatente (alvo_serial, alvo_name, alvo_flags, true)
 		--]]
 		--[
+		
+		
+		--[[
+		if (who_name:find ("Lyl")) then
+			if (who_name:find ("-"))  then
+				print ("nome com -", isOwner)
+			else
+				--print ("nome okey", isOwner)
+			end
+		end
+		--]]
+		
 		--> damager
 		local este_jogador, meu_dono = damage_cache [who_name] or damage_cache_pets [who_serial], damage_cache_petsOwners [who_serial]
 		
@@ -169,6 +181,10 @@
 			if (meu_dono) then --> é um pet
 				damage_cache_pets [who_serial] = este_jogador
 				damage_cache_petsOwners [who_serial] = meu_dono
+				--conferir se o dono já esta no cache
+				if (not damage_cache [meu_dono.nome]) then
+					damage_cache [meu_dono.nome] = meu_dono
+				end
 			else
 				if (who_flags) then --> ter certeza que não é um pet
 					damage_cache [who_name] = este_jogador
@@ -184,9 +200,13 @@
 		
 			jogador_alvo, alvo_dono, alvo_name = _current_damage_container:PegarCombatente (alvo_serial, alvo_name, alvo_flags, true)
 			
-			if (meu_dono) then
+			if (alvo_dono) then
 				damage_cache_pets [alvo_serial] = jogador_alvo
 				damage_cache_petsOwners [alvo_serial] = alvo_dono
+				--conferir se o dono já esta no cache
+				if (not damage_cache [alvo_dono.nome]) then
+					damage_cache [alvo_dono.nome] = alvo_dono
+				end
 			else
 				if (alvo_flags) then --> ter certeza que não é um pet
 					damage_cache [alvo_name] = jogador_alvo
@@ -695,6 +715,11 @@
 						return false
 					end
 				end
+				
+			--else
+				--> record buff uptime
+				
+				
 			end
 
 	------------------------------------------------------------------------------------------------
@@ -2034,6 +2059,8 @@
 					_current_combat.pvp = false
 				end
 			end
+			
+			_detalhes.container_pets:BuscarPets()
 
 			return
 			
@@ -2088,7 +2115,6 @@
 				if (_detalhes.in_group) then
 					--> entrou num grupo
 					_detalhes:IniciarColetaDeLixo (true)
-					_detalhes:SendHighFive()
 				end
 			else
 				_detalhes.in_group = IsInGroup() or IsInRaid()
@@ -2301,23 +2327,25 @@
 		end
 		
 		if (not _actorname) then
-			_actorname = UnitName ("player")
+			_actorname = _detalhes.playername
 		end
 		
 		if (_combat == 0 or _combat == "current") then
-			local actor = _current_combat (_attribute, _actorname)
+			local actor = _detalhes.tabela_vigente (_attribute, _actorname)
 			if (actor) then
 				return actor
 			else
 				return nil --_detalhes:NewError ("Current combat doesn't have an actor called ".. _actorname)
-			end		
+			end
+			
 		elseif (_combat == -1 or _combat == "overall") then
-			local actor = _overall_combat (_attribute, _actorname)
+			local actor = _detalhes.tabela_overall (_attribute, _actorname)
 			if (actor) then
 				return actor
 			else
 				return nil --_detalhes:NewError ("Combat overall doesn't have an actor called ".. _actorname)
 			end
+			
 		elseif (type (_combat) == "number") then
 			local _combatOnHistoryTables = _detalhes.tabela_historico.tabelas [_combat]
 			if (_combatOnHistoryTables) then

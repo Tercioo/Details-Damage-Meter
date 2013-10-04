@@ -276,6 +276,8 @@ function atributo_energy:Custom (_customName, _combat, sub_atributo, spell, alvo
 	end
 end
 
+local actor_class_color_r, actor_class_color_g, actor_class_color_b
+
 function atributo_energy:AtualizaBarra (instancia, barras_container, qual_barra, lugar, total, sub_atributo, forcar)
 
 	local esta_barra = instancia.barras[qual_barra] --> pega a referência da barra na janela
@@ -303,10 +305,163 @@ function atributo_energy:AtualizaBarra (instancia, barras_container, qual_barra,
 		gump:UpdateTooltip (qual_barra, esta_barra, instancia)
 	end
 
+	if (self.owner) then
+		actor_class_color_r, actor_class_color_g, actor_class_color_b = _unpack (_detalhes.class_colors [self.owner.classe])
+	else
+		actor_class_color_r, actor_class_color_g, actor_class_color_b = _unpack (_detalhes.class_colors [self.classe])
+	end	
+	
 	return self:RefreshBarra2 (esta_barra, instancia, tabela_anterior, forcar, esta_porcentagem, qual_barra, barras_container)
 end
 
+function atributo_energy:RefreshBarra2 (esta_barra, instancia, tabela_anterior, forcar, esta_porcentagem, qual_barra, barras_container)
+	
+	--> primeiro colocado
+	if (esta_barra.colocacao == 1) then
+		if (not tabela_anterior or tabela_anterior ~= esta_barra.minha_tabela or forcar) then
+			esta_barra.statusbar:SetValue (100)
+			
+			if (esta_barra.hidden or esta_barra.fading_in or esta_barra.faded) then
+				gump:Fade (esta_barra, "out")
+			end
+			
+			return self:RefreshBarra (esta_barra, instancia)
+		else
+			return
+		end
+	else
 
+		if (esta_barra.hidden or esta_barra.fading_in or esta_barra.faded) then
+		
+			esta_barra.statusbar:SetValue (esta_porcentagem)
+			gump:Fade (esta_barra, "out")
+			
+			if (instancia.row_texture_class_colors) then
+				esta_barra.textura:SetVertexColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
+			end
+			if (instancia.barrasInfo.texturaBackgroundByClass) then
+				esta_barra.background:SetVertexColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
+			end
+			
+			return self:RefreshBarra (esta_barra, instancia)
+			
+		else
+			--> agora esta comparando se a tabela da barra é diferente da tabela na atualização anterior
+			if (not tabela_anterior or tabela_anterior ~= esta_barra.minha_tabela or forcar) then --> aqui diz se a barra do jogador mudou de posição ou se ela apenas será atualizada
+			
+				esta_barra.statusbar:SetValue (esta_porcentagem)
+			
+				esta_barra.last_value = esta_porcentagem --> reseta o ultimo valor da barra
+				
+				if (instancia.use_row_animations and forcar) then
+					esta_barra.tem_animacao = 0
+					esta_barra:SetScript ("OnUpdate", nil)
+				end
+				
+				return self:RefreshBarra (esta_barra, instancia)
+				
+			elseif (esta_porcentagem ~= esta_barra.last_value) then --> continua mostrando a mesma tabela então compara a porcentagem
+				--> apenas atualizar
+				if (instancia.use_row_animations) then
+					
+					local upRow = barras_container [qual_barra-1]
+					if (upRow) then
+						if (upRow.statusbar:GetValue() < esta_barra.statusbar:GetValue()) then
+							esta_barra.statusbar:SetValue (esta_porcentagem)
+						else
+							instancia:AnimarBarra (esta_barra, esta_porcentagem)
+						end
+					else
+						instancia:AnimarBarra (esta_barra, esta_porcentagem)
+					end
+				else
+					esta_barra.statusbar:SetValue (esta_porcentagem)
+				end
+				esta_barra.last_value = esta_porcentagem
+			end
+		end
+
+	end
+	
+end
+
+function atributo_energy:RefreshBarra (esta_barra, instancia, from_resize)
+	
+	if (from_resize) then
+		if (self.owner) then
+			actor_class_color_r, actor_class_color_g, actor_class_color_b = _unpack (_detalhes.class_colors [self.owner.classe])
+		else
+			actor_class_color_r, actor_class_color_g, actor_class_color_b = _unpack (_detalhes.class_colors [self.classe])
+		end
+	end
+	
+	if (instancia.row_texture_class_colors) then
+		esta_barra.textura:SetVertexColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
+	end
+	if (instancia.barrasInfo.texturaBackgroundByClass) then
+		esta_barra.background:SetVertexColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
+	end
+	
+	if (self.classe == "UNKNOW") then
+		esta_barra.icone_classe:SetTexture ("Interface\\LFGFRAME\\LFGROLE_BW")
+		esta_barra.icone_classe:SetTexCoord (.25, .5, 0, 1)
+		esta_barra.icone_classe:SetVertexColor (1, 1, 1)
+	
+	elseif (self.classe == "UNGROUPPLAYER") then
+		if (self.enemy) then
+			if (_detalhes.faction_against == "Horde") then
+				esta_barra.icone_classe:SetTexture ("Interface\\ICONS\\Achievement_Character_Orc_Male")
+				esta_barra.icone_classe:SetTexCoord (0, 1, 0, 1)
+			else
+				esta_barra.icone_classe:SetTexture ("Interface\\ICONS\\Achievement_Character_Human_Male")
+				esta_barra.icone_classe:SetTexCoord (0, 1, 0, 1)
+			end
+		else
+			if (_detalhes.faction_against == "Horde") then
+				esta_barra.icone_classe:SetTexture ("Interface\\ICONS\\Achievement_Character_Human_Male")
+				esta_barra.icone_classe:SetTexCoord (0, 1, 0, 1)
+			else
+				esta_barra.icone_classe:SetTexture ("Interface\\ICONS\\Achievement_Character_Orc_Male")
+				esta_barra.icone_classe:SetTexCoord (0, 1, 0, 1)
+			end
+		end
+		esta_barra.icone_classe:SetVertexColor (1, 1, 1)
+	
+	elseif (self.classe == "PET") then
+		esta_barra.icone_classe:SetTexture ("Interface\\AddOns\\Details\\images\\classes_small")
+		esta_barra.icone_classe:SetTexCoord (0.25, 0.49609375, 0.75, 1)
+		esta_barra.icone_classe:SetVertexColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
+
+	else
+		esta_barra.icone_classe:SetTexture ("Interface\\AddOns\\Details\\images\\classes_small")
+		esta_barra.icone_classe:SetTexCoord (_unpack (CLASS_ICON_TCOORDS [self.classe])) --very slow method
+		esta_barra.icone_classe:SetVertexColor (1, 1, 1)
+	end
+	
+	if (self.enemy) then
+		if (_detalhes.faction_against == "Horde") then
+			esta_barra.texto_esquerdo:SetText (esta_barra.colocacao..". |TInterface\\AddOns\\Details\\images\\icones_barra:"..instancia.barrasInfo.altura..":"..instancia.barrasInfo.altura..":0:0:256:32:0:32:0:32|t"..self.displayName) --seta o texto da esqueda -- HORDA
+		else
+			esta_barra.texto_esquerdo:SetText (esta_barra.colocacao..". |TInterface\\AddOns\\Details\\images\\icones_barra:"..instancia.barrasInfo.altura..":"..instancia.barrasInfo.altura..":0:0:256:32:32:64:0:32|t"..self.displayName) --seta o texto da esqueda -- ALLY
+		end
+		
+		if (instancia.row_texture_class_colors) then
+			esta_barra.textura:SetVertexColor (240/255, 0, 5/255, 1)
+		end
+	else
+		esta_barra.texto_esquerdo:SetText (esta_barra.colocacao..". "..self.displayName) --seta o texto da esqueda
+	end
+	
+	if (instancia.row_textL_class_colors) then
+		esta_barra.texto_esquerdo:SetTextColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
+	end
+	if (instancia.row_textR_class_colors) then
+		esta_barra.texto_direita:SetTextColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
+	end
+	
+	esta_barra.texto_esquerdo:SetSize (esta_barra:GetWidth() - esta_barra.texto_direita:GetStringWidth() - 20, 15)
+	
+end
 
 --------------------------------------------- // TOOLTIPS // ---------------------------------------------
 function atributo_energy:KeyNames (sub_atributo)

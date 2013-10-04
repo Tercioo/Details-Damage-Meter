@@ -125,7 +125,7 @@ local siege_of_orgrimmar = {
 		[71772] = true, -- korkron assassin
 		[71773] = true, -- krokron warshaman
 		[71770] = true, -- krokron iron blade
-		[71715] = true, -- orgrimmar faithful
+		--[71715] = true, -- orgrimmar faithful -- also is used in nazgrim encounter
 	},
 	
 	encounters = {

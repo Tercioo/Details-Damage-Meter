@@ -77,6 +77,14 @@ function SlashCmdList.DETAILS (msg, editbox)
 		end
 		table.wipe (a)
 	
+	elseif (msg == "unitname") then
+	
+		local nome, realm = UnitName ("target")
+		if (realm) then
+			nome = nome.."-"..realm
+		end
+		print (nome, realm)
+	
 	elseif (msg == "raid") then
 	
 		local player, realm = "Marleyieu", "Azralon"
@@ -296,6 +304,58 @@ function SlashCmdList.DETAILS (msg, editbox)
 		end
 		
 	--> debug
+	
+	elseif (msg == "users") then
+		_detalhes.users = {}
+		_detalhes.sent_highfive = GetTime()
+		_detalhes:SendRaidData ("highfive")
+	
+	elseif (command == "showusers") then
+		local users = _detalhes.users
+		if (not users) then
+			return _detalhes:Msg ("there is no users.")
+		end
+		
+		local f = _detalhes.ListPanel
+		if (not f) then
+			f = _detalhes:CreateListPanel()
+		end
+		
+		local i = 0
+		for _, t in ipairs (users) do 
+			i = i + 1
+			f:add (t [1] .. " | " .. t [2] .. " | " .. t [3] , i)
+		end
+		
+		print (i, "users found.")
+	
+		f:Show()
+	
+	elseif (command == "names") then
+		local t, filter = rest:match("^(%S*)%s*(.-)$")
+
+		t = tonumber (t)
+		if (not t) then
+			return print ("not T found.")
+		end
+
+		local f = _detalhes.ListPanel
+		if (not f) then
+			f = _detalhes:CreateListPanel()
+		end
+		
+		local container = _detalhes.tabela_vigente [t]._NameIndexTable
+		
+		local i = 0
+		for name, _ in pairs (container) do 
+			i = i + 1
+			f:add (name, i)
+		end
+		
+		print (i, "names found.")
+	
+		f:Show()
+		
 	elseif (command == "actors") then
 	
 		local t, filter = rest:match("^(%S*)%s*(.-)$")
@@ -305,70 +365,18 @@ function SlashCmdList.DETAILS (msg, editbox)
 			return print ("not T found.")
 		end
 
-		local f = _detalhes.actorsFrame
+		local f = _detalhes.ListPanel
 		if (not f) then
-			_detalhes.actorsFrame = _detalhes.gump:NewPanel (UIParent, nil, "DetailsActorsFrame", nil, 300, 600)
-			_detalhes.actorsFrame:SetPoint ("center", UIParent, "center", 300, 0)
-			_detalhes.actorsFrame.barras = {}
-				
-			local container_barras_window = CreateFrame ("ScrollFrame", "Details_ActorsBarrasScroll", _detalhes.actorsFrame.widget) 
-			local container_barras = CreateFrame ("Frame", "Details_ActorsBarras", container_barras_window)
-			_detalhes.actorsFrame.container = container_barras
-
-			container_barras_window:SetBackdrop({
-				edgeFile = "Interface\\DialogFrame\\UI-DialogBox-gold-Border", tile = true, tileSize = 16, edgeSize = 5,
-				insets = {left = 1, right = 1, top = 0, bottom = 1},})
-			container_barras_window:SetBackdropBorderColor (0, 0, 0, 0)
-			
-			container_barras:SetBackdrop({
-				bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16,
-				insets = {left = 1, right = 1, top = 0, bottom = 1},})		
-			container_barras:SetBackdropColor (0, 0, 0, 0)
-
-			container_barras:SetAllPoints (container_barras_window)
-			container_barras:SetWidth (300)
-			container_barras:SetHeight (150)
-			container_barras:EnableMouse (true)
-			container_barras:SetResizable (false)
-			container_barras:SetMovable (true)
-			
-			container_barras_window:SetWidth (260)
-			container_barras_window:SetHeight (550)
-			container_barras_window:SetScrollChild (container_barras)
-			container_barras_window:SetPoint ("TOPLEFT", _detalhes.actorsFrame.widget, "TOPLEFT", 21, -10)
-
-			_detalhes.gump:NewScrollBar (container_barras_window, container_barras, -10, -17)
-			container_barras_window.slider:Altura (560)
-			container_barras_window.slider:cimaPoint (0, 1)
-			container_barras_window.slider:baixoPoint (0, -3)
-			container_barras_window.slider:SetFrameLevel (10)
-
-			container_barras_window.ultimo = 0
-			
-			container_barras_window.gump = container_barras
-			--container_barras_window.slider = slider_gump
+			f = _detalhes:CreateListPanel()
 		end
 		
 		local container = _detalhes.tabela_vigente [t]._ActorTable
 		print (#container, "actors found.")
 		for index, actor in ipairs (container) do 
-			
-			local row = _detalhes.actorsFrame.barras [index]
-			if (not row) then
-				row = {text = _detalhes.actorsFrame.container:CreateFontString (nil, "overlay", "GameFontNormal")}
-				_detalhes.actorsFrame.barras [index] = row
-				row.text:SetPoint ("topleft", _detalhes.actorsFrame.container, "topleft", 0, -index * 15)
-			end
-			
-			if (filter and actor.nome:find (filter)) then
-				row.text:SetTextColor (1, 1, 0)
-			else
-				row.text:SetTextColor (1, 1, 1)
-			end
-			
-			row.text:SetText (actor.nome)
-			
+			f:add (actor.nome, index, filter)
 		end
+	
+		f:Show()
 	
 	--> debug
 	elseif (msg == "id") then
@@ -401,13 +409,17 @@ function SlashCmdList.DETAILS (msg, editbox)
 			print ("Wow combatlog record turned ON.")
 			_detalhes.isLoggingCombat = true
 		end
-	
-	--> debug
-	elseif (msg == "tables") then
-		_detalhes:tables()
 		
 	elseif (msg == "gs") then
 		_detalhes:teste_grayscale()
+		
+	elseif (msg == "outline") then
+	
+		local instancia = _detalhes.tabela_instancias [1]
+		for _, barra in ipairs (instancia.barras) do 
+			local _, _, flags = barra.texto_esquerdo:GetFont()
+			print ("outline:",flags)
+		end
 	
 	else
 		
@@ -427,443 +439,66 @@ function SlashCmdList.DETAILS (msg, editbox)
 	end
 end
 
-function _detalhes:tables ()
-	-- generate a graphviz graph from a lua table structure
-
-	local string_result = ""
+function _detalhes:CreateListPanel()
+	_detalhes.ListPanel = _detalhes.gump:NewPanel (UIParent, nil, "DetailsActorsFrame", nil, 300, 600)
+	_detalhes.ListPanel:SetPoint ("center", UIParent, "center", 300, 0)
+	_detalhes.ListPanel.barras = {}
 	
-	local function append( tab, ... )
-	  for i = 1, select( '#', ... ) do
-	    tab[ #tab + 1 ] = (select( i, ... ))
-	  end
-	  return tab
-	end
+	tinsert (UISpecialFrames, "DetailsActorsFrame")
+	_detalhes.ListPanel.close_with_right = true
 
-	local function abbrev( str, data )
-	  local escape = "\\\\"
-	  if data.use_html then
-	    escape = "\\"
-	  end
-	  local s = string.gsub( str, "[^%w?!=/+*-_.:,; ]", function( c )
-	--  local s = string.gsub( str, "[^%w_]", function( c )
-	    return escape .. string.byte( c )
-	  end )
-	  if string.len( s ) > 20 then
-	    s = string.sub( s, 1, 17 ) .. "..."
-	  end
-	  return "'" .. s .. "'"
-	end
+	local container_barras_window = CreateFrame ("ScrollFrame", "Details_ActorsBarrasScroll", _detalhes.ListPanel.widget) 
+	local container_barras = CreateFrame ("Frame", "Details_ActorsBarras", container_barras_window)
+	_detalhes.ListPanel.container = container_barras
 
-	local function update_node_depth( val, data, depth )
-	  data.node2depth[ val ] = math.min( data.node2depth[ val ] or depth, depth )
-	end
+	container_barras_window:SetBackdrop({
+		edgeFile = "Interface\\DialogFrame\\UI-DialogBox-gold-Border", tile = true, tileSize = 16, edgeSize = 5,
+		insets = {left = 1, right = 1, top = 0, bottom = 1},})
+	container_barras_window:SetBackdropBorderColor (0, 0, 0, 0)
+	
+	container_barras:SetBackdrop({
+		bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16,
+		insets = {left = 1, right = 1, top = 0, bottom = 1},})		
+	container_barras:SetBackdropColor (0, 0, 0, 0)
 
-	local function define_node( data, node )
-	  assert( not data.node2id[ node.value ] )
-	  local id = data.n_nodes
-	  data.n_nodes = data.n_nodes + 1
-	  data.node2id[ node.value ] = id
-	  append( data.nodes, node )
-	  return id
-	end
+	container_barras:SetAllPoints (container_barras_window)
+	container_barras:SetWidth (300)
+	container_barras:SetHeight (150)
+	container_barras:EnableMouse (true)
+	container_barras:SetResizable (false)
+	container_barras:SetMovable (true)
+	
+	container_barras_window:SetWidth (260)
+	container_barras_window:SetHeight (550)
+	container_barras_window:SetScrollChild (container_barras)
+	container_barras_window:SetPoint ("TOPLEFT", _detalhes.ListPanel.widget, "TOPLEFT", 21, -10)
 
-	local function define_edge( data, edge )
-	  append( data.edges, edge )
-	end
+	_detalhes.gump:NewScrollBar (container_barras_window, container_barras, -10, -17)
+	container_barras_window.slider:Altura (560)
+	container_barras_window.slider:cimaPoint (0, 1)
+	container_barras_window.slider:baixoPoint (0, -3)
+	container_barras_window.slider:SetFrameLevel (10)
 
-	local function get_metatable( val, enabled )
-	  if enabled then
-	    if type( debug ) == "table" and
-	       type( debug.getmetatable ) == "function" then
-	      return debug.getmetatable( val )
-	    elseif type( getmetatable ) == "function" then
-	      return getmetatable( val )
-	    end
-	  end
-	end
-
-	local function get_environment( val, enabled )
-	  if enabled then
-	    if type( debug ) == "table" and
-	       type( debug.getfenv ) == "function" then
-	       return debug.getfenv( val )
-	    elseif type( getfenv ) == "function" and
-		   type( val ) == "function" then
-	      return getfenv( val )
-	    end
-	  end
-	end
-
-
-
-	-- generate dot code for references
-	local function dottify_metatable_ref( val, id1, mt, id2, data )
-	  append( data.edges, {
-	    A = val, A_id = id1,
-	    B = mt, B_id = id2,
-	    style = "dashed",
-	    arrowtail = "odiamond",
-	    label = "metatable",
-	    color = "blue"
-	  } )
-	  data.nodes[ data.node2id[ val ] ].important = true
-	  data.nodes[ data.node2id[ mt ] ].important = true
-	end
-	local function dottify_environment_ref( val, id1, env, id2, data )
-	  append( data.edges, {
-	    A = val, A_id = id1,
-	    B = env, B_id = id2,
-	    style = "dotted",
-	    arrowtail = "dot",
-	    label = "environment",
-	    color = "red"
-	  } )
-	  data.nodes[ data.node2id[ val ] ].important = true
-	  data.nodes[ data.node2id[ env ] ].important = true
-	end
-	local function dottify_upvalue_ref( val, id1, upv, id2, data, name )
-	  append( data.edges, {
-	    A = val, A_id = id1,
-	    B = upv, B_id = id2,
-	    style = "dashed",
-	    label = name or "#upvalue",
-	    color = "green"
-	  } )
-	  data.nodes[ data.node2id[ val ] ].important = true
-	  data.nodes[ data.node2id[ upv ] ].important = true
-	end
-	local function dottify_ref( val1, id1, val2, id2, data )
-	  append( data.edges, {
-	    A = val1, A_id = id1,
-	    B = val2, B_id = id2,
-	    style = "solid",
-	    arrowhead = "normal",
-	  } )
-	end
-
-
-	-- forward declarations
-	local dottify_table, dottify_userdata, dottify_thread, dottify_function
-
-
-	local function make_label( tab, v, data, id, subid, depth )
-	  if type( v ) == "table" then
-	    local id2 = dottify_table( v, data, depth+1 )
-	    dottify_ref( tab, id..":"..subid, v, id2..":0", data )
-	    return tostring( v )
-	  elseif type( v ) == "userdata" then
-	    local id2 = dottify_userdata( v, data, depth+1 )
-	    dottify_ref( tab, id..":"..subid, v, id2, data )
-	    return tostring( v )
-	  elseif type( v ) == "function" then
-	    local id2 = dottify_function( v, data, depth+1 )
-	    dottify_ref( tab, id..":"..subid, v, id2, data )
-	    return tostring( v )
-	  elseif type( v ) == "thread" then
-	    local id2 = dottify_thread( v, data, depth+1 )
-	    dottify_ref( tab, id..":"..subid, v, id2, data )
-	    return tostring( v )
-	  elseif type( v ) == "string" then
-	    return abbrev( v, data )
-	  elseif type( v ) == "number" or type( v ) == "boolean" then
-	    return tostring( v )
-	  else
-	    error( "unsupported primitive lua type" )
-	  end
-	end
-
-
-	function dottify_table( tab, data, depth )
-	  assert( type( tab ) == "table" )
-	  update_node_depth( tab, data, depth )
-	  if not data.node2id[ tab ] then
-	    local node = {
-	      value = tab
-	    }
-	    local id = define_node( data, node )
-	    local label
-	    -- build label for this table
-	    if data.use_html then
-	      node.shape = "plaintext"
-	      label = [[<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0"><TR><TD PORT="0" COLSPAN="2" BGCOLOR="lightgrey">]] .. tostring( tab ) .. [[</TD></TR>]]
-	    else
-	      node.shape = "record"
-	      label = "{ <0> " .. tostring( tab )
-	    end
-	    local handled = {}
-	    local n = 1
-	    -- first the array part
-	    for i,v in ipairs( tab ) do
-	      local el_label = make_label( tab, v, data, id, n, depth )
-	      if data.use_html then
-		label = label .. [[<TR><TD PORT="]] .. n .. [[" COLSPAN="2">]] .. el_label .. [[</TD></TR>]]
-	      else
-		label = label .. " | <" .. n .. "> " .. el_label
-	      end
-	      n = n + 1
-	      handled[ i ] = true
-	    end
-	    -- and then the hash part
-	    local keys, values = {}, {}
-	    for k,v in pairs( tab ) do
-	      node.important = true
-	      if not handled[ k ] then -- skip array part elements
-		local k_label = make_label( tab, k, data, id, "k"..n, depth )
-		local v_label = make_label( tab, v, data, id, "v"..n, depth )
-		if data.use_html then
-		  label = label .. [[ <TR><TD PORT="k]] .. n .. [[">]] .. k_label .. [[</TD><TD PORT="v]] .. n .. [[">]] .. v_label .. [[</TD></TR>]]
+	container_barras_window.ultimo = 0
+	
+	container_barras_window.gump = container_barras
+	
+	function _detalhes.ListPanel:add (text, index, filter)
+		local row = _detalhes.ListPanel.barras [index]
+		if (not row) then
+			row = {text = _detalhes.ListPanel.container:CreateFontString (nil, "overlay", "GameFontNormal")}
+			_detalhes.ListPanel.barras [index] = row
+			row.text:SetPoint ("topleft", _detalhes.ListPanel.container, "topleft", 0, -index * 15)
+		end
+		
+		if (filter and text:find (filter)) then
+			row.text:SetTextColor (1, 1, 0)
 		else
-		  append( keys, "<k" .. n .. "> " .. k_label )
-		  append( values, "<v" .. n .. "> " .. v_label )
+			row.text:SetTextColor (1, 1, 1)
 		end
-		n = n + 1
-	      end
-	    end
-	    if data.use_html then
-	      node.label = label .. [[</TABLE>]]
-	    else
-	      if next( keys ) ~= nil then
-		label = label .. " | { { " .. table.concat( keys, " | " ) ..
-			" } | { " .. table.concat( values, " | " ) .. " } }"
-	      end
-	      node.label = label .. " }"
-	    end
-	    -- and now the metatable
-	    local mt = get_metatable( tab, data.show_metatables )
-	    if type( mt ) == "table" then
-	      local id2 = dottify_table( mt, data, depth+1 )
-	      dottify_metatable_ref( tab, id .. ":0", mt, id2 .. ":0", data )
-	    end
-	  end
-	  return data.node2id[ tab ]
-	end
-
-
-	function dottify_userdata( udata, data, depth )
-	  assert( type( udata ) == "userdata" )
-	  update_node_depth( udata, data, depth )
-	  if not data.node2id[ udata ] then
-	    local id = define_node( data, {
-	      value = udata,
-	      label = tostring( udata ),
-	      shape = "box"
-	    } )
-	    -- the metatable
-	    local mt = get_metatable( udata, data.show_metatables )
-	    if type( mt ) == "table" then
-	      local id2 = dottify_table( mt, data, depth+1 )
-	      dottify_metatable_ref( udata, id, mt, id2..":0", data )
-	    end
-	    -- the environment
-	    local env = get_environment( udata, data.show_environments )
-	    if type( env ) == "table" then
-	      local id2 = dottify_table( env, data, depth+1 )
-	      dottify_environment_ref( udata, id, env, id2..":0", data )
-	    end
-	  end
-	  return data.node2id[ udata ]
-	end
-
-
-	function dottify_thread( thread, data, depth )
-	  assert( type( thread ) == "thread" )
-	  update_node_depth( thread, data, depth )
-	  if not data.node2id[ thread ] then
-	    local id = define_node( data, {
-	      value = thread,
-	      label = tostring( thread ),
-	      shape = "triangle"
-	    } )
-	    -- the environment
-	    local env = get_environment( val, data.show_environments )
-	    if type( env ) == "table" then
-	      local id2 = dottify_table( env, data, depth+1 )
-	      dottify_environment_ref( thread, id, env, id2..":0", data )
-	    end
-	  end
-	  return data.node2id[ thread ]
-	end
-
-
-
-	function dottify_function( func, data, depth )
-	  assert( type( func ) == "function" )
-	  update_node_depth( func, data, depth )
-	  if not data.node2id[ func ] then
-	    local id = define_node( data, {
-	      value = func,
-	      label = tostring( func ),
-	      shape = "ellipse"
-	    } )
-	    -- the environment
-	    local env = get_environment( func, data.show_environments )
-	    if type( env ) == "table" then
-	      local id2 = dottify_table( env, data, depth+1 )
-	      dottify_environment_ref( func, id, env, id2..":0", data )
-	    end
-	    -- the upvalues
-	    if data.show_upvalues and
-	       type( debug ) == "table" and
-	       type( debug.getupvalue ) == "function" then
-	      local n = 1
-	      repeat
-		local name, upvalue = debug.getupvalue( func, n )
-		if type( upvalue ) == "table" then
-		  local id2 = dottify_table( upvalue, data, depth+1 )
-		  dottify_upvalue_ref( func, id, upvalue, id2..":0", data, name )
-		elseif type( upvalue ) == "userdata" then
-		  local id2 = dottify_userdata( upvalue, data, depth+1 )
-		  dottify_upvalue_ref( func, id, upvalue, id2, data, name )
-		elseif type( upvalue ) == "function" then
-		  local id2 = dottify_function( upvalue, data, depth+1 )
-		  dottify_upvalue_ref( func, id, upvalue, id2, data, name )
-		elseif type( upvalue ) == "thread" then
-		  local id2 = dottify_thread( upvalue, data, depth+1 )
-		  dottify_upvalue_ref( func, id, upvalue, id2, data, name )
-		end
-		n = n + 1
-	      until name == nil
-	    end
-	  end
-	  return data.node2id[ func ]
-	end
-
-	local option_names = {
-	  "label", "shape", "style", "dir", "arrowhead", "arrowtail", "color",
-	  "fillcolor"
-	}
-
-	local function process_options( obj )
-	  local options = {}
-	  for _,opt in ipairs( option_names ) do
-	    if obj[ opt ] then
-	      local quote_on = "\""
-	      local quote_off = "\""
-	      if opt == "label" and type( obj[ opt ] ) == "string" and
-		 obj[ opt ]:match( "^<.*>$" ) then
-		quote_on, quote_off = "<", ">"
-	      end
-	      append( options, tostring( opt ) .. "=" .. quote_on ..
-			       tostring( obj[ opt ] ) .. quote_off )
-	    end
-	  end
-	  return options
-	end
-
-
-	local function write_nodes( file, data )
-	  for _,n in ipairs( data.nodes ) do
-	    if (data.max_depth <= 0 or
-		data.node2depth[ n.value ] <= data.max_depth) and
-	       (data.show_unimportant or n.important) then
-	      local options = process_options( n )
-	      
-	       string_result = string_result .. "  " .. tostring( data.node2id[ n.value ] ) .. " [" .. table.concat( options, "," ) .. "];--PULALINHA--" 
-	      
-	    end
-	  end
-	end
-
-
-	local function write_edges( file, data )
-	  for _,e in ipairs( data.edges ) do
-	    if (data.max_depth <= 0 or
-		(data.node2depth[ e.A ] <= data.max_depth and
-		 data.node2depth[ e.B ] <= data.max_depth)) and
-	       (data.show_unimportant or
-		(data.nodes[ data.node2id[ e.A ] ].important and
-		 data.nodes[ data.node2id[ e.B ] ].important)) then
-	      local id1 = e.A_id or data.node2id[ e.A ]
-	      local id2 = e.B_id or data.node2id[ e.B ]
-	      local options = process_options( e )
-	      
-	      string_result = string_result .. "  " .. tostring( id1 ) .. " -> " .. tostring( id2 ) .. " [" .. table.concat( options, "," ) .. "];--PULALINHA--"
-
-	    end
-	  end
-	end
-
-
-	-- main function
-	local function dottify( filename, val, ... )
-
-	  local data = {
-	    n_nodes = 1,
-	    node2id = {},
-	    node2depth = {},
-	    nodes = {},
-	    edges = {},
-	    show_metatables = true,
-	    show_upvalues = true,
-	    show_environments = false,
-	    use_html = true,
-	    show_unimportant = false,
-	    max_depth = 0,
-	  }
-	  for i = 1, select( '#', ... ) do
-	    local opt = select( i, ... )
-	    if opt == "noenvironments" then
-	      data.show_environments = false
-	    elseif opt == "nometatables" then
-	      data.show_metatables = false
-	    elseif opt == "noupvalues" then
-	      data.show_upvalues = false
-	    elseif opt == "nohtml" then
-	      data.use_html = false
-	    elseif opt == "environments" then
-	      data.show_environments = true
-	    elseif opt == "metatables" then
-	      data.show_metatables = true
-	    elseif opt == "upvalues" then
-	      data.show_upvalues = true
-	    elseif opt == "html" then
-	      data.use_html = true
-	    elseif opt == "unimportant" then
-	      data.show_unimportant = true
-	    elseif type( opt ) == "number" then
-	      data.max_depth = opt
-	    end
-	  end
-	  local t = type( val )
-	  if t == "table" then
-	    local id = dottify_table( val, data, 1 )
-	    data.nodes[ id ].important = true
-	  elseif t == "function" then
-	    local id = dottify_function( val, data, 1 )
-	    data.nodes[ id ].important = true
-	  elseif t == "thread" then
-	    local id = dottify_thread( val, data, 1 )
-	    data.nodes[ id ].important = true
-	  elseif t == "userdata" then
-	    local id = dottify_userdata( val, data, 1 )
-	    data.nodes[ id ].important = true
-	  else
-	    io.stderr:write( "warning: unsuitable value for dotlua!<br>" )
-	  end
-	  
-	  --local file = assert( io.open( filename, "w" ) )
+		
+		row.text:SetText (text)
+	end	
 	
-	string_result = string_result .. "digraph {--PULALINHA--"
-	  
-	  --file:write( "digraph {\n" )
-	  write_nodes ( o, data )
-	  write_edges ( o, data )
-	  
-	  string_result = string_result .. "}--PULALINHA--"
-	  
-	  --file:write( "}\n" )
-	  --file:close()
-	  return o
-	end
-	
-	dottify ( nil, _detalhes, "nohtml")
-	
-	print ("running...", string.len (string_result))
-	
-	--_G ["_detalhes_database"].aaaaaaaa = string_result
-	
-	_detalhes:CopyPaste (string_result)
-	
-
-	return dottify
+	return _detalhes.ListPanel
 end

@@ -140,6 +140,36 @@
 			tabelas_de_combate [#tabelas_de_combate+1] = _tabela
 			_tabela.__call = _detalhes.call_combate
 		end
+		
+		--> restaura last_events_table
+		local _primeiro_combate = _detalhes.tabela_historico.tabelas[1]
+		if (_primeiro_combate) then
+			local _container_damage =_primeiro_combate [1]
+			local _container_heal = _primeiro_combate [2]
+			
+			for _, jogador in ipairs (_container_damage._ActorTable) do 
+				--> remover a tabela de last events
+				jogador.last_events_table =  _detalhes:CreateActorLastEventTable()
+			end
+			for _, jogador in ipairs (_container_heal._ActorTable) do 
+				--> remover a tabela de last events
+				jogador.last_events_table =  _detalhes:CreateActorLastEventTable()
+			end
+		end
+		local _segundo_combate = _detalhes.tabela_historico.tabelas[2]
+		if (_segundo_combate) then
+			local _container_damage = _segundo_combate [1]
+			local _container_heal = _segundo_combate [2]
+			
+			for _, jogador in ipairs (_container_damage._ActorTable) do 
+				--> remover a tabela de last events
+				jogador.last_events_table =  _detalhes:CreateActorLastEventTable()
+			end
+			for _, jogador in ipairs (_container_heal._ActorTable) do 
+				--> remover a tabela de last events
+				jogador.last_events_table =  _detalhes:CreateActorLastEventTable()
+			end
+		end
 
 		tabela_overall.end_time = _tempo
 		tabela_overall.start_time = _tempo

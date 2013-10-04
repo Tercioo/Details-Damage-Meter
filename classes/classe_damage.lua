@@ -639,6 +639,8 @@ function _detalhes:FastRefreshWindow (instancia)
 	end
 end
 
+local actor_class_color_r, actor_class_color_g, actor_class_color_b
+
 --self = esta classe de dano
 function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra, lugar, total, sub_atributo, forcar, keyName, combat_time)
 							-- instância, container das barras, qual barra, colocação, total?, sub atributo, forçar refresh, key
@@ -713,6 +715,12 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 		forcar = true
 	end
 	
+	if (self.owner) then
+		actor_class_color_r, actor_class_color_g, actor_class_color_b = _unpack (_detalhes.class_colors [self.owner.classe])
+	else
+		actor_class_color_r, actor_class_color_g, actor_class_color_b = _unpack (_detalhes.class_colors [self.classe])
+	end
+	
 	return self:RefreshBarra2 (esta_barra, instancia, tabela_anterior, forcar, esta_porcentagem, qual_barra, barras_container)
 
 end
@@ -739,10 +747,11 @@ end
 			esta_barra.statusbar:SetValue (esta_porcentagem)
 			gump:Fade (esta_barra, "out")
 			
-			if (self.classe == "PET" and self.owner) then
-				esta_barra.textura:SetVertexColor (_unpack (_detalhes.class_colors [self.owner.classe]))
-			else
-				esta_barra.textura:SetVertexColor (_unpack (_detalhes.class_colors [self.classe]))
+			if (instancia.row_texture_class_colors) then
+				esta_barra.textura:SetVertexColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
+			end
+			if (instancia.barrasInfo.texturaBackgroundByClass) then
+				esta_barra.background:SetVertexColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
 			end
 			
 			return self:RefreshBarra (esta_barra, instancia)
@@ -787,33 +796,28 @@ end
 	
 end
 
---[[ exported]] function _detalhes:RefreshBarra (esta_barra, instancia)
-	--print (self.classe)
+--[[ exported]] function _detalhes:RefreshBarra (esta_barra, instancia, from_resize)
 	
-	if (self.classe == "PET" and self.owner) then
-		esta_barra.textura:SetVertexColor (_unpack (_detalhes.class_colors [self.owner.classe]))
-	else
-		esta_barra.textura:SetVertexColor (_unpack (_detalhes.class_colors [self.classe]))
+	if (from_resize) then
+		if (self.owner) then
+			actor_class_color_r, actor_class_color_g, actor_class_color_b = _unpack (_detalhes.class_colors [self.owner.classe])
+		else
+			actor_class_color_r, actor_class_color_g, actor_class_color_b = _unpack (_detalhes.class_colors [self.classe])
+		end
 	end
-			
-	--esta_barra.textura:SetVertexColor (_unpack (_detalhes.class_colors [self.classe]))
+	
+	if (instancia.row_texture_class_colors) then
+		esta_barra.textura:SetVertexColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
+	end
+	if (instancia.barrasInfo.texturaBackgroundByClass) then
+		esta_barra.background:SetVertexColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
+	end	
 	
 	if (self.classe == "UNKNOW") then
-	
-		--esta_barra.icone_classe:SetTexture ("Interface\\ICONS\\Pet_Type_Undead")
-		--esta_barra.icone_classe:SetTexture ("Interface\\ICONS\\INV_Misc_Bone_Skull_02")
-		--esta_barra.icone_classe:SetTexture ("Interface\\ICONS\\Icon_PetFamily_Undead")
-		
-		--esta_barra.icone_classe:SetTexture ("Interface\\CHARACTERFRAME\\UI-StateIcon")
-		--esta_barra.icone_classe:SetTexCoord (0.5625, 0.90625, 0.078125, 0.4375)
-		
-		--esta_barra.icone_classe:SetTexture ("Interface\\LFGFRAME\\UI-LFG-ICON-HEROIC")
-		--esta_barra.icone_classe:SetTexCoord (0, 0.5625, 0, 0.5625)
-		
 		esta_barra.icone_classe:SetTexture ("Interface\\LFGFRAME\\LFGROLE_BW")
 		esta_barra.icone_classe:SetTexCoord (.25, .5, 0, 1)
 		esta_barra.icone_classe:SetVertexColor (1, 1, 1)
-		
+	
 	elseif (self.classe == "UNGROUPPLAYER") then
 		if (self.enemy) then
 			if (_detalhes.faction_against == "Horde") then
@@ -833,25 +837,15 @@ end
 			end
 		end
 		esta_barra.icone_classe:SetVertexColor (1, 1, 1)
-
+	
 	elseif (self.classe == "PET") then
-		--esta_barra.icone_classe:SetTexture ("Interface\\ICONS\\Ability_Hunter_Pet_Wolf")
-		--esta_barra.icone_classe:SetTexture ("Interface\\ICONS\\Pet_Type_Beast")
-		--esta_barra.icone_classe:SetTexCoord (0, 1, 0, 1)
-		--esta_barra.icone_classe:SetTexCoord (0, 0.25, 0.75, 1)
-		
 		esta_barra.icone_classe:SetTexture ("Interface\\AddOns\\Details\\images\\classes_small")
 		esta_barra.icone_classe:SetTexCoord (0.25, 0.49609375, 0.75, 1)
-		if (self.owner) then
-			esta_barra.icone_classe:SetVertexColor (_unpack (_detalhes.class_colors [self.owner.classe]))
-		else
-			esta_barra.icone_classe:SetVertexColor (_unpack (_detalhes.class_colors [self.classe]))
-		end
-		
-		
+		esta_barra.icone_classe:SetVertexColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
+
 	else
 		esta_barra.icone_classe:SetTexture ("Interface\\AddOns\\Details\\images\\classes_small")
-		esta_barra.icone_classe:SetTexCoord (_unpack (CLASS_ICON_TCOORDS [self.classe]))
+		esta_barra.icone_classe:SetTexCoord (_unpack (CLASS_ICON_TCOORDS [self.classe])) --very slow method
 		esta_barra.icone_classe:SetVertexColor (1, 1, 1)
 	end
 	
@@ -861,9 +855,19 @@ end
 		else
 			esta_barra.texto_esquerdo:SetText (esta_barra.colocacao..". |TInterface\\AddOns\\Details\\images\\icones_barra:"..instancia.barrasInfo.altura..":"..instancia.barrasInfo.altura..":0:0:256:32:32:64:0:32|t"..self.displayName) --seta o texto da esqueda -- ALLY
 		end
-		esta_barra.textura:SetVertexColor (240/255, 0, 5/255, 1)
+		
+		if (instancia.row_texture_class_colors) then
+			esta_barra.textura:SetVertexColor (240/255, 0, 5/255, 1)
+		end
 	else
 		esta_barra.texto_esquerdo:SetText (esta_barra.colocacao..". "..self.displayName) --seta o texto da esqueda
+	end
+	
+	if (instancia.row_textL_class_colors) then
+		esta_barra.texto_esquerdo:SetTextColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
+	end
+	if (instancia.row_textR_class_colors) then
+		esta_barra.texto_direita:SetTextColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
 	end
 	
 	esta_barra.texto_esquerdo:SetSize (esta_barra:GetWidth() - esta_barra.texto_direita:GetStringWidth() - 20, 15)
@@ -1977,7 +1981,10 @@ function atributo_damage:MontaDetalhesDamageDone (spellid, barra)
 			local T = (meu_tempo*esta_magia.c_dmg)/esta_magia.total
 			local P = media/media_critico*100
 			T = P*T/100
-			local crit_dps =_cstr("%.1f", esta_magia.c_dmg/T)
+			local crit_dps = esta_magia.c_dmg/T
+			if (not crit_dps) then
+				crit_dps = 0
+			end
 			
 			data[#data+1] = {
 				esta_magia.c_amt,
@@ -2081,11 +2088,6 @@ function atributo_damage:MontaTooltipAlvos (esta_barra, index)
 	--GameTooltip:AddDoubleLine (meus_danos[i][4][1]..": ", meus_danos[i][2].." (".._cstr("%.1f", meus_danos[i][3]).."%)", 1, 1, 1, 1, 1, 1)
 	
 end
-
-
---if (esta_magia.counter == esta_magia.c_amt) then --> só teve critico
---	gump:SetaDetalheInfoTexto (1, nil, nil, nil, nil, nil, "DPS: "..crit_dps)
---end
 
 --controla se o dps do jogador esta travado ou destravado
 function atributo_damage:Iniciar (iniciar)
@@ -2281,6 +2283,9 @@ atributo_damage.__sub = function (tabela1, tabela2)
 		friendlyfire.shadow.total = friendlyfire.shadow.total - friendlyfire.total
 		for spellid, habilidade in _pairs (friendlyfire.spell_tables._ActorTable) do 
 			-- eu di reload para trocar os talentos
+			if (not habilidade.shadow) then --> tapa buraco
+				return
+			end
 			habilidade.shadow.total = habilidade.shadow.total - habilidade.total --    attempt to index field 'shadow' (a nil value) -- Deu erro denovo depois de um /reload
 		end
 	end

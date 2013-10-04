@@ -12,7 +12,7 @@
 	local DEFAULT_CHILD_WIDTH = 60
 	local DEFAULT_CHILD_HEIGHT = 16
 	local DEFAULT_CHILD_FONTFACE = "Friz Quadrata TT"
-	local DEFAULT_CHILD_FONTCOLOR = {1, 0.7333333333333333, 0, 1}
+	local DEFAULT_CHILD_FONTCOLOR = {1, 0.733333, 0, 1}
 	local DEFAULT_CHILD_FONTSIZE = 10
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -805,48 +805,305 @@ do
 
 end
 
----------> BUILT-IN CLEAR PLUGIN ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---[[
+---------> BUILT-IN PFS PLUGIN ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 do
 		--> Create the plugin Object
-		local PClear1 = _detalhes:NewPluginObject ("Details_Attribute", DETAILSPLUGIN_ALWAYSENABLED, "STATUSBAR")
-		local PClear2 = _detalhes:NewPluginObject ("Details_Attribute", DETAILSPLUGIN_ALWAYSENABLED, "STATUSBAR")
-		local PClear3 = _detalhes:NewPluginObject ("Details_Attribute", DETAILSPLUGIN_ALWAYSENABLED, "STATUSBAR")
+		local PFps = _detalhes:NewPluginObject ("Details_Statusbar_Fps", DETAILSPLUGIN_ALWAYSENABLED, "STATUSBAR")
 		--> Handle events (must have)
-		function PClear1:OnDetailsEvent (event)
+		function PFps:OnDetailsEvent (event)
 			return
 		end
-		function PClear2:OnDetailsEvent (event)
+		
+		function PFps:UpdateFps()
+			self.text:SetText (_math_floor (GetFramerate()) .. " fps")
+		end
+		
+		function PFps:OnDisable()
+			self:CancelTimer (self.srt)
+		end
+
+		function PFps:OnEnable()
+			self.srt = self:ScheduleRepeatingTimer ("UpdateFps", 1, self)
+			self:UpdateFps()
+		end
+		
+		function PFps:CreateChildObject (instance)
+			local myframe = _detalhes.StatusBar:CreateChildFrame (instance, "DetailsPFpsInstance" .. instance:GetInstanceId(), DEFAULT_CHILD_WIDTH, DEFAULT_CHILD_HEIGHT)
+			local new_child = _detalhes.StatusBar:CreateChildTable (instance, PFps, myframe)
+			return new_child
+		end
+		
+		--> Install
+		local install = _detalhes:InstallPlugin ("STATUSBAR", Loc ["STRING_PLUGIN_FPS"], "Interface\\Icons\\Spell_Shadow_MindTwisting", PFps, "DETAILS_STATUSBAR_PLUGIN_PFPS")
+		if (type (install) == "table" and install.error) then
+			print (install.errortext)
+			return
+		end		
+
+end
+
+---------> BUILT-IN LATENCY PLUGIN ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+do
+		--> Create the plugin Object
+		local PLatency = _detalhes:NewPluginObject ("Details_Statusbar_Latency", DETAILSPLUGIN_ALWAYSENABLED, "STATUSBAR")
+		--> Handle events (must have)
+		function PLatency:OnDetailsEvent (event)
 			return
 		end
-		function PClear3:OnDetailsEvent (event)
+		
+		function PLatency:UpdateLatency()
+			local _, _, _, lagWorld = GetNetStats()
+			self.text:SetText (_math_floor (lagWorld) .. " ms")
+		end
+		
+		function PLatency:OnDisable()
+			self:CancelTimer (self.srt)
+		end
+
+		function PLatency:OnEnable()
+			self.srt = self:ScheduleRepeatingTimer ("UpdateLatency", 30, self)
+			self:UpdateLatency()
+		end
+		
+		function PLatency:CreateChildObject (instance)
+			local myframe = _detalhes.StatusBar:CreateChildFrame (instance, "DetailsPLatencyInstance" .. instance:GetInstanceId(), DEFAULT_CHILD_WIDTH, DEFAULT_CHILD_HEIGHT)
+			local new_child = _detalhes.StatusBar:CreateChildTable (instance, PLatency, myframe)
+			return new_child
+		end
+		
+		--> Install
+		local install = _detalhes:InstallPlugin ("STATUSBAR", Loc ["STRING_PLUGIN_LATENCY"], "Interface\\FriendsFrame\\PlusManz-BattleNet", PLatency, "DETAILS_STATUSBAR_PLUGIN_PLATENCY")
+		if (type (install) == "table" and install.error) then
+			print (install.errortext)
 			return
+		end		
+
+end
+
+---------> BUILT-IN DURABILITY PLUGIN ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+do
+
+		local _GetInventoryItemDurability = GetInventoryItemDurability
+
+		--> Create the plugin Object
+		local PDurability = _detalhes:NewPluginObject ("Details_Statusbar_Latency", DETAILSPLUGIN_ALWAYSENABLED, "STATUSBAR")
+		--> Handle events (must have)
+		function PDurability:OnDetailsEvent (event)
+			return
+		end
+		
+		function PDurability:UpdateDurability()
+			local percent, items = 0, 0
+			for i = INVSLOT_FIRST_EQUIPPED, INVSLOT_LAST_EQUIPPED do
+				local durability, maxdurability = _GetInventoryItemDurability (i)
+				if (durability and maxdurability) then
+					local p = durability / maxdurability * 100
+					percent = percent + p
+					items = items + 1
+				end
+			end
+			
+			if (items == 0) then
+				self.text:SetText (Loc ["STRING_UPTADING"])
+				return self:ScheduleTimer ("UpdateDurability", 5, self)
+			end
+			
+			percent = percent / items
+			self.text:SetText (_math_floor (percent) .. "%")
+		end
+		
+		function PDurability:OnDisable()
+			self.frame.widget:UnregisterEvent ("PLAYER_DEAD")
+			self.frame.widget:UnregisterEvent ("PLAYER_UNGHOST")
+			self.frame.widget:UnregisterEvent ("UPDATE_INVENTORY_DURABILITY")
+			self.frame.widget:UnregisterEvent ("MERCHANT_SHOW")
+			self.frame.widget:UnregisterEvent ("MERCHANT_CLOSED")
+			self.frame.widget:UnregisterEvent ("ZONE_CHANGED_NEW_AREA")
+		end
+
+		function PDurability:OnEnable()
+			self.frame.widget:RegisterEvent ("PLAYER_DEAD")
+			self.frame.widget:RegisterEvent ("PLAYER_UNGHOST")
+			self.frame.widget:RegisterEvent ("UPDATE_INVENTORY_DURABILITY")
+			self.frame.widget:RegisterEvent ("MERCHANT_SHOW")
+			self.frame.widget:RegisterEvent ("MERCHANT_CLOSED")
+			self.frame.widget:RegisterEvent ("ZONE_CHANGED_NEW_AREA")
+			self:UpdateDurability()
+		end
+		
+		function PDurability:CreateChildObject (instance)
+			local myframe = _detalhes.StatusBar:CreateChildFrame (instance, "DetailsPDurabilityInstance" .. instance:GetInstanceId(), DEFAULT_CHILD_WIDTH, DEFAULT_CHILD_HEIGHT)
+			local new_child = _detalhes.StatusBar:CreateChildTable (instance, PDurability, myframe)
+			
+			local texture = myframe:CreateTexture (nil, "overlay")
+			texture:SetTexture ("Interface\\AddOns\\Details\\images\\icons")
+			texture:SetPoint ("right", myframe.text.widget, "left", -2, -1)
+			texture:SetWidth (10)
+			texture:SetHeight (10)
+			texture:SetTexCoord (0.216796875, 0.26171875, 0.0078125, 0.052734375)
+			
+			myframe.widget:SetScript ("OnEvent", function()
+				new_child:UpdateDurability()
+			end)
+			
+			return new_child
+		end
+		
+		--> Install
+		local install = _detalhes:InstallPlugin ("STATUSBAR", Loc ["STRING_PLUGIN_DURABILITY"], "Interface\\ICONS\\INV_Chest_Chain_10", PDurability, "DETAILS_STATUSBAR_PLUGIN_PDURABILITY")
+		if (type (install) == "table" and install.error) then
+			print (install.errortext)
+			return
+		end		
+
+end
+
+
+---------> BUILT-IN GOLD PLUGIN ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+do
+		--> Create the plugin Object
+		local PGold = _detalhes:NewPluginObject ("Details_Statusbar_Gold", DETAILSPLUGIN_ALWAYSENABLED, "STATUSBAR")
+		--> Handle events (must have)
+		function PGold:OnDetailsEvent (event)
+			return
+		end
+		
+		function PGold:GoldPluginTick()
+			for index, child in _ipairs (PGold.childs) do
+				local instance = child.instance
+				if (child.enabled and instance:IsEnabled()) then
+					child:UpdateGold()
+				end
+			end
+		end
+		
+		function PGold:UpdateGold()
+			self.text:SetText (_math_floor (GetMoney() / 100 / 100))
+		end
+
+		function PGold:OnEnable()
+			self:UpdateGold()
+		end
+		
+		function PGold:CreateChildObject (instance)
+			local myframe = _detalhes.StatusBar:CreateChildFrame (instance, "DetailsPGoldInstance" .. instance:GetInstanceId(), DEFAULT_CHILD_WIDTH, DEFAULT_CHILD_HEIGHT)
+			local new_child = _detalhes.StatusBar:CreateChildTable (instance, PGold, myframe)
+			
+			local texture = myframe:CreateTexture (nil, "overlay")
+			texture:SetTexture ("Interface\\MONEYFRAME\\UI-GoldIcon")
+			texture:SetPoint ("right", myframe.text.widget, "left")
+			texture:SetWidth (12)
+			texture:SetHeight (12)
+			
+			myframe.widget:RegisterEvent ("PLAYER_MONEY")
+			myframe.widget:RegisterEvent ("PLAYER_ENTERING_WORLD")
+			myframe.widget:SetScript ("OnEvent", function (event)
+				if (event == "PLAYER_ENTERING_WORLD") then
+					return PGold:ScheduleTimer ("GoldPluginTick", 10)
+				end
+				PGold:GoldPluginTick()
+			end)
+			
+			return new_child
+		end
+		
+		--> Install
+		local install = _detalhes:InstallPlugin ("STATUSBAR", Loc ["STRING_PLUGIN_GOLD"], "Interface\\Icons\\INV_Ore_Gold_01", PGold, "DETAILS_STATUSBAR_PLUGIN_PGold")
+		if (type (install) == "table" and install.error) then
+			print (install.errortext)
+			return
+		end		
+
+end
+
+---------> BUILT-IN TIME PLUGIN ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+do
+		--> Create the plugin Object
+		local PTime = _detalhes:NewPluginObject ("Details_Statusbar_Time", DETAILSPLUGIN_ALWAYSENABLED, "STATUSBAR")
+		--> Handle events (must have)
+		function PTime:OnDetailsEvent (event)
+			return
+		end
+		
+		function PTime:UpdateClock()
+			
+			if (self.options.timeType == 1) then
+				self.text:SetText (date ("%I:%M %p"))
+			elseif (self.options.timeType == 2) then
+				self.text:SetText (date ("%H:%M"))
+			end
+			
+		end
+		
+		function PTime:OnDisable()
+			self:CancelTimer (self.srt)
+		end
+
+		function PTime:OnEnable()
+			self.srt = self:ScheduleRepeatingTimer ("UpdateClock", 60, self)
+			self:UpdateClock()
+		end
+		
+		function PTime:ExtraOptions()
+			
+			--> all widgets need to be placed on a table
+			local widgets = {}
+			--> reference of extra window for custom options
+			local window = _G.DetailsStatusBarOptions2.MyObject
+			
+			--> build all your widgets -----------------------------------------------------------------------------------------------------------------------------
+				_detalhes.gump:NewLabel (window, _, "$parentTimeTypeLabel", "TimeTypeLabel", Loc ["STRING_PLUGIN_CLOCKTYPE"])
+				window.TimeTypeLabel:SetPoint (10, -15)
+				
+				local onSelectClockType = function (_, child, thistype)
+					child.options.timeType = thistype
+					child:UpdateClock()
+				end
+				
+				local clockTypes = {{value = 1, label = date ("%I:%M %p"), onclick = onSelectClockType},
+				{value = 2, label = date ("%H:%M"), onclick = onSelectClockType}
+				}
+				
+				_detalhes.gump:NewDropDown (window, _, "$parentTimeTypeDropdown", "TimeTypeDropdown", 200, 20, function() return clockTypes end, 1) -- func, default
+				window.TimeTypeDropdown:SetPoint ("left", window.TimeTypeLabel, "right", 2)
+			-----------------------------------------------------------------------------------------------------------------------------
+			
+			--> now we insert all widgets created on widgets table
+			table.insert (widgets, window.TimeTypeLabel)
+			table.insert (widgets, window.TimeTypeDropdown)
+
+			--> after first call we replace this function with widgets table
+			PTime.ExtraOptions = widgets
+		end
+		
+		--> ExtraOptionsOnOpen is called when options are opened and plugin have custom options
+		--> here we setup options widgets for get the values of clicked child and also for tell options window what child we are configuring
+		function PTime:ExtraOptionsOnOpen (child)
+			_G.DetailsStatusBarOptions2TimeTypeDropdown.MyObject:SetFixedParameter (child)
+			_G.DetailsStatusBarOptions2TimeTypeDropdown.MyObject:Select (child.options.timeType, true)
 		end
 		
 		--> Create Plugin Frames (must have)
-		function PClear1:CreateChildObject (instance)
-			local myframe = _detalhes.StatusBar:CreateChildFrame (instance, "DetailsPClear1Instance" .. instance:GetInstanceId(), DEFAULT_CHILD_WIDTH, DEFAULT_CHILD_HEIGHT)
-			local new_child = _detalhes.StatusBar:CreateChildTable (instance, PClear1, myframe)
-			return new_child
-		end
-		function PClear2:CreateChildObject (instance)
-			local myframe = _detalhes.StatusBar:CreateChildFrame (instance, "DetailsPClear2Instance" .. instance:GetInstanceId(), DEFAULT_CHILD_WIDTH, DEFAULT_CHILD_HEIGHT)
-			local new_child = _detalhes.StatusBar:CreateChildTable (instance, PClear2, myframe)
-			return new_child
-		end
-		function PClear3:CreateChildObject (instance)
-			local myframe = _detalhes.StatusBar:CreateChildFrame (instance, "DetailsPClear3Instance" .. instance:GetInstanceId(), DEFAULT_CHILD_WIDTH, DEFAULT_CHILD_HEIGHT)
-			local new_child = _detalhes.StatusBar:CreateChildTable (instance, PClear3, myframe)
+		function PTime:CreateChildObject (instance)
+			local myframe = _detalhes.StatusBar:CreateChildFrame (instance, "DetailsPTimeInstance" .. instance:GetInstanceId(), DEFAULT_CHILD_WIDTH, DEFAULT_CHILD_HEIGHT)
+			local new_child = _detalhes.StatusBar:CreateChildTable (instance, PTime, myframe)
+			new_child.options.timeType = new_child.options.timeType or 1
 			return new_child
 		end
 		
---]]		--> Install
---		_detalhes:InstallPlugin ("STATUSBAR", Loc ["STRING_PLUGIN_CLEAN"].." 1", [[Interface\Buttons\UI-GroupLoot-Pass-Down]], PClear1, "DETAILS_STATUSBAR_PLUGIN_PCLEAR1")
---		_detalhes:InstallPlugin ("STATUSBAR", Loc ["STRING_PLUGIN_CLEAN"].." 2", [[Interface\Buttons\UI-GroupLoot-Pass-Down]], PClear2, "DETAILS_STATUSBAR_PLUGIN_PCLEAR2")
---		_detalhes:InstallPlugin ("STATUSBAR", Loc ["STRING_PLUGIN_CLEAN"].." 3", [[Interface\Buttons\UI-GroupLoot-Pass-Down]], PClear3, "DETAILS_STATUSBAR_PLUGIN_PCLEAR3")
+		--> Install
+		local install = _detalhes:InstallPlugin ("STATUSBAR", Loc ["STRING_PLUGIN_TIME"], "Interface\\Icons\\Spell_Shadow_LastingAfflictions", PTime, "DETAILS_STATUSBAR_PLUGIN_PTIME")
+		if (type (install) == "table" and install.error) then
+			print (install.errortext)
+			return
+		end
 		
---end
-
+end
 
 ---------> default options panel ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -898,6 +1155,7 @@ end)
 	local colorpick = function()
 		ColorPickerFrame.func = selectedColor
 		ColorPickerFrame.cancelFunc = canceledColor
+		ColorPickerFrame.opacityFunc = nil
 		ColorPickerFrame.hasOpacity = false
 		ColorPickerFrame.previousValues = window.child.options.textColor
 		ColorPickerFrame:SetParent (window.widget)
@@ -905,14 +1163,23 @@ end)
 		ColorPickerFrame:Show()
 	end
 
-	_detalhes.gump:NewImage (window, _, "$parentTextColorTexture", "textcolortexture", 200, 16)
+	_detalhes.gump:NewImage (window, _, "$parentTextColorTexture", "textcolortexture", 150, 16)
 	window.textcolortexture:SetPoint ("left", window.textcolor, "right", 2)
 	window.textcolortexture:SetTexture (1, 1, 1)
 	
-	_detalhes.gump:NewButton (window, _, "$parentTextColorButton", "textcolorbutton", 200, 20, colorpick)
+	_detalhes.gump:NewButton (window, _, "$parentTextColorButton", "textcolorbutton", 150, 20, colorpick)
 	window.textcolorbutton:SetPoint ("left", window.textcolor, "right", 2)
-
 	
+	local applyToAll = function()
+		_detalhes.StatusBar:ApplyOptions (window.instance.StatusBar.left, "textcolor", window.child.options.textColor)
+		_detalhes.StatusBar:ApplyOptions (window.instance.StatusBar.center, "textcolor", window.child.options.textColor)
+		_detalhes.StatusBar:ApplyOptions (window.instance.StatusBar.right, "textcolor", window.child.options.textColor)
+	end
+	_detalhes.gump:NewButton (window, _, "$parentTextColorApplyToAllButton", "applyToAll", 45, 16, applyToAll, nil, nil, nil, "->")
+	window.applyToAll:InstallCustomTexture()
+	window.applyToAll:SetPoint ("left", window.textcolorbutton, "right", 5)
+	window.applyToAll.tooltip = "apply this color to all micro displays"
+
 --> text size
 	_detalhes.gump:NewLabel (window, _, "$parentFontSizeLabel", "fonsizeLabel", Loc ["STRING_PLUGINOPTIONS_TEXTSIZE"])
 	window.fonsizeLabel:SetPoint (10, -55)
@@ -933,6 +1200,8 @@ end)
 	window.alignSlider:SetPoint ("left", window.textalign, "right")
 	window.alignSlider:SetThumbSize (75)
 	window.alignSlider:SetHook ("OnValueChange", function (self, child, side)
+		
+		side = _math_floor (side)
 		
 		child.options.textAlign = side
 		

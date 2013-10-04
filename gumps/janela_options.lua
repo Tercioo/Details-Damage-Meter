@@ -15,14 +15,14 @@ function _detalhes:OpenOptionsWindow (instance)
 	
 		-- Most of details widgets have the same 6 first parameters: parent, container, global name, parent key, width, height
 	
-		window = g:NewPanel (UIParent, _, "DetailsOptionsWindow", _, 700, 360)
+		window = g:NewPanel (UIParent, _, "DetailsOptionsWindow", _, 700, 470)
 		window.instance = instance
 		tinsert (UISpecialFrames, "DetailsOptionsWindow")
 		window:SetPoint ("center", UIParent, "Center")
 		window.locked = false
 		window.close_with_right = true
 	
-		g:NewLabel (window, _, "$parentTitle", "title", "Options for Details!")
+		g:NewLabel (window, _, "$parentTitle", "title", "This is a tiny options panel for Alpha Development Stage of Details!, yeah, it's a mess i agree, but in a near future will be changed.")
 		window.title:SetPoint (10, -10)
 		
 		local c = window:CreateRightClickLabel ("medium")
@@ -334,8 +334,8 @@ function _detalhes:OpenOptionsWindow (instance)
 	
 
 	--------------- Row textures
-		g:NewLabel (window, _, "$parentTextureLabel", "textureLabel", "row style")
-		window.textureLabel:SetPoint (250, -30)
+		g:NewLabel (window, _, "$parentTextureLabel", "textureLabel", "bar texture")
+		window.textureLabel:SetPoint (250, -35)
 		--
 		local onSelectTexture = function (_, instance, textureName) 	
 			instance.barrasInfo.textura = SharedMedia:Fetch ("statusbar", textureName)
@@ -352,11 +352,11 @@ function _detalhes:OpenOptionsWindow (instance)
 		window.textureDropdown:SetPoint ("left", window.textureLabel, "right", 2)
 		
 	--------------- Text Sizes
-		g:NewLabel (window, _, "$parentFontSizeLabel", "fonsizeLabel", "font size")
-		window.fonsizeLabel:SetPoint (250, -65)
+		g:NewLabel (window, _, "$parentFontSizeLabel", "fonsizeLabel", "text size")
+		window.fonsizeLabel:SetPoint (250, -53)
 		--
 		g:NewSlider (window, _, "$parentSliderFontSize", "fonsizeSlider", 90, 20, 8, 15, 1, tonumber (instance.barrasInfo.fontSize)) --parent, container, name, member, w, h, min, max, step, defaultv
-		window.fonsizeSlider:SetPoint ("left", window.fonsizeLabel, "right")
+		window.fonsizeSlider:SetPoint ("left", window.fonsizeLabel, "right", 2)
 		window.fonsizeSlider:SetThumbSize (50)
 		window.fonsizeSlider:SetHook ("OnValueChange", function (self, instance, amount) 
 			instance.barrasInfo.fontSize = amount
@@ -377,8 +377,8 @@ function _detalhes:OpenOptionsWindow (instance)
 		end
 		local buildFontMenu = function() return fontTable end
 		
-		g:NewLabel (window, _, "$parentFontLabel", "fontLabel", "select font style")
-		window.fontLabel:SetPoint (250, -82)
+		g:NewLabel (window, _, "$parentFontLabel", "fontLabel", "text font")
+		window.fontLabel:SetPoint (250, -71)
 		--
 		g:NewDropDown (window, _, "$parentFontDropdown", "fontDropdown", 160, 20, buildFontMenu, nil)
 		window.fontDropdown:SetPoint ("left", window.fontLabel, "right", 2)
@@ -386,7 +386,7 @@ function _detalhes:OpenOptionsWindow (instance)
 	--------------- Instance Color
 	
 		g:NewLabel (window, _, "$parentInstanceColorLabel", "instancecolor", "instance color")
-		window.instancecolor:SetPoint (250, -115)
+		window.instancecolor:SetPoint (250, -89)
 		
 		local selectedColor = function()
 			local r, g, b = ColorPickerFrame:GetColorRGB()
@@ -442,9 +442,110 @@ function _detalhes:OpenOptionsWindow (instance)
 		window.instancecolortexture:SetPoint ("left", window.instancecolor, "right", 2)
 		window.instancecolortexture:SetTexture (1, 1, 1)
 		
-		g:NewButton (window, _, "$parentInstanceColorButton", "instancecolorbutton", 200, 20, colorpick)
+		g:NewButton (window, _, "$parentInstanceColorButton", "instancecolorbutton", 150, 14, colorpick)
 		window.instancecolorbutton:SetPoint ("left", window.instancecolor, "right", 2)
+		window.instancecolorbutton:InstallCustomTexture()
 	
+	-------- bar background
+
+		g:NewLabel (window, _, "$parentRowBackgroundTextureLabel", "rowBackgroundLabel", "bar background texture")
+		window.rowBackgroundLabel:SetPoint (250, -107)
+		--
+		local onSelectTextureBackground = function (_, instance, textureName) 	
+			instance.barrasInfo.texturaBackground = SharedMedia:Fetch ("statusbar", textureName)
+			instance.barrasInfo.textureNameBackground = textureName
+			instance:RefreshBars()
+			instance:InstanceReset()
+			instance:InstanceRefreshRows()
+		end	
+		local textures2 = SharedMedia:HashTable ("statusbar")
+		local texTable2 = {}
+		for name, texturePath in pairs (textures2) do 
+			texTable2[#texTable2+1] = {value = name, label = name, statusbar = texturePath,  onclick = onSelectTextureBackground}
+		end
+		local buildTextureMenu2 = function() return texTable2 end
+		g:NewDropDown (window, _, "$parentRowBackgroundTextureDropdown", "rowBackgroundDropdown", 120, 20, buildTextureMenu2, nil) -- func, default
+		window.rowBackgroundDropdown:SetPoint ("left", window.rowBackgroundLabel, "right", 2)
+	
+		g:NewLabel (window, _, "$parentRowBackgroundColorLabel", "rowBackgroundColorLabel", "bar background color")
+		window.rowBackgroundColorLabel:SetPoint (250, -125)
+		
+		local selectedRowBackgroundColor = function()
+			local r, g, b = ColorPickerFrame:GetColorRGB()
+			local a = OpacitySliderFrame:GetValue()
+			
+			local c =  window.instance.barrasInfo.texturaBackgroundColor
+			c [1], c [2], c [3], c [4] = r, g, b, a
+			
+			window.instance:RefreshBars()
+			window.instance:InstanceReset()
+			window.instance:InstanceRefreshRows()
+			
+			window.rowBackgroundColorTexture:SetTexture (r, g, b, a)
+		end
+		
+		local canceledRowBackgroundColor = function()
+			local c =  window.instance.barrasInfo.texturaBackgroundColor
+			c [1], c [2], c [3], c [4] = unpack (ColorPickerFrame.previousValues)
+			
+			window.instance:RefreshBars()
+			window.instance:InstanceReset()
+			window.instance:InstanceRefreshRows()
+			
+			ColorPickerFrame.func = nil
+			ColorPickerFrame.opacityFunc = nil
+			ColorPickerFrame.cancelFunc = nil
+		end
+		
+		local selectedRowBackgroundAlpha = function()
+			local r, g, b = ColorPickerFrame:GetColorRGB()
+			local a = OpacitySliderFrame:GetValue()
+			
+			local c =  window.instance.barrasInfo.texturaBackgroundColor
+			c [1], c [2], c [3], c [4] = r, g, b, a
+			
+			window.instance:RefreshBars()
+			window.instance:InstanceReset()
+			window.instance:InstanceRefreshRows()
+			
+			window.rowBackgroundColorTexture:SetTexture (r, g, b, a)
+		end
+		
+		local colorpickRowBackground = function()
+			ColorPickerFrame.func = selectedRowBackgroundColor
+			ColorPickerFrame.opacityFunc = selectedRowBackgroundAlpha
+			ColorPickerFrame.cancelFunc = canceledRowBackgroundColor
+			ColorPickerFrame.hasOpacity = true --false
+			ColorPickerFrame.opacity = window.instance.barrasInfo.texturaBackgroundColor[4]
+			ColorPickerFrame.previousValues = window.instance.barrasInfo.texturaBackgroundColor
+			ColorPickerFrame:SetParent (window.widget)
+			ColorPickerFrame:SetColorRGB (unpack (window.instance.barrasInfo.texturaBackgroundColor))
+			ColorPickerFrame:Show()
+		end
+
+		g:NewImage (window, _, "$parentRowBackgroundColor", "rowBackgroundColorTexture", 120, 12)
+		window.rowBackgroundColorTexture:SetPoint ("left", window.rowBackgroundColorLabel, "right", 2)
+		window.rowBackgroundColorTexture:SetTexture (1, 1, 1)
+		
+		g:NewButton (window, _, "$parentRowBackgroundColorButton", "rowBackgroundColorButton", 120, 14, colorpickRowBackground)
+		window.rowBackgroundColorButton:SetPoint ("left", window.rowBackgroundColorLabel, "right", 2)
+		window.rowBackgroundColorButton:InstallCustomTexture()
+	
+	--------------- back background with class color
+	
+		g:NewLabel (window, _, "$parentRowBackgroundClassColorLabel", "rowBackgroundColorByClassLabel", "background by class")
+		window.rowBackgroundColorByClassLabel:SetPoint (250, -143)
+	
+		g:NewSwitch (window, _, "$parentBackgroundClassColorSlider", "rowBackgroundColorByClassSlider", 60, 20, _, _, instance.barrasInfo.texturaBackgroundByClass)
+		window.rowBackgroundColorByClassSlider:SetPoint ("left", window.rowBackgroundColorByClassLabel, "right", 2)
+		window.rowBackgroundColorByClassSlider.tooltip = ""
+		window.rowBackgroundColorByClassSlider.OnSwitch = function (self, instance, value)
+			instance.barrasInfo.texturaBackgroundByClass = value
+			instance:RefreshBars()
+			instance:InstanceReset()
+			instance:InstanceRefreshRows()
+		end
+		
 	--------------- Background
 	
 		local onSelectSecTexture = function (self, instance, texturePath) 
@@ -630,12 +731,13 @@ function _detalhes:OpenOptionsWindow (instance)
 		}
 		local buildBackgroundMenu = function() return backgroundTable end
 		
-		g:NewLabel (window, _, "$parentBackgroundLabel", "backgroundLabel", "instance wallpaper")
-		window.backgroundLabel:SetPoint (250, -145)
+		g:NewLabel (window, _, "$parentBackgroundLabel", "backgroundLabel", "enable wallpaper")
+		window.backgroundLabel:SetPoint (250, -185)
 		--
 		g:NewSwitch (window, _, "$parentUseBackgroundSlider", "useBackgroundSlider", 60, 20, _, _, window.instance.wallpaper.enabled)
-		window.useBackgroundSlider:SetPoint ("left", window.backgroundLabel, "right")
+		window.useBackgroundSlider:SetPoint ("left", window.backgroundLabel, "right", 2, 0)
 		window.useBackgroundSlider.OnSwitch = function (self, instance, value) --> slider, fixedValue, sliderValue
+		window.useBackgroundSlider.tooltip = "enable or disable wallpaper in this instante\nselect the group on the left box and the image on the right.\nalso, you can edit the image through edit image button."
 			instance.wallpaper.enabled = value
 			if (value) then
 				--> primeira vez que roda:
@@ -662,15 +764,15 @@ function _detalhes:OpenOptionsWindow (instance)
 		end
 		
 		g:NewLabel (window, _, "$parentBackgroundLabel", "backgroundLabel", "wallpaper group")
-		window.backgroundLabel:SetPoint (250, -160)
+		window.backgroundLabel:SetPoint (250, -200)
 		g:NewLabel (window, _, "$parentBackgroundLabel", "backgroundLabel", "select wallpaper")
-		window.backgroundLabel:SetPoint (370, -160)
+		window.backgroundLabel:SetPoint (370, -200)
 		--
 		g:NewDropDown (window, _, "$parentBackgroundDropdown", "backgroundDropdown", 120, 20, buildBackgroundMenu, nil)
-		window.backgroundDropdown:SetPoint (250, -175)
+		window.backgroundDropdown:SetPoint (250, -215)
 		--
 		g:NewDropDown (window, _, "$parentBackgroundDropdown2", "backgroundDropdown2", 120, 20, buildBackgroundMenu2, nil)
-		window.backgroundDropdown2:SetPoint (370, -175)
+		window.backgroundDropdown2:SetPoint (370, -215)
 
 		
 		local onSelectAnchor = function (_, instance, anchor)
@@ -707,7 +809,7 @@ function _detalhes:OpenOptionsWindow (instance)
 		end
 		
 		g:NewLabel (window, _, "$parentAnchorLabel", "anchorLabel", "align")
-		window.anchorLabel:SetPoint (250, -200)
+		window.anchorLabel:SetPoint (250, -240)
 		--
 		g:NewDropDown (window, _, "$parentAnchorDropdown", "anchorDropdown", 100, 20, buildAnchorMenu, nil)
 		window.anchorDropdown:SetPoint ("left", window.anchorLabel, "right", 2)
@@ -720,9 +822,9 @@ function _detalhes:OpenOptionsWindow (instance)
 		
 	--------------- Alpha
 		g:NewLabel (window, _, "$parentAlphaLabel", "alphaLabel", "transparency")
-		window.alphaLabel:SetPoint (250, -230)
+		window.alphaLabel:SetPoint (250, -270)
 		--
-		g:NewSlider (window, _, "$parentAlphaSlider", "alphaSlider", 160, 20, 0.02, 1, 0.02, instance.bg_alpha, true) -- min, max, step, defaultv
+		g:NewSlider (window, _, "$parentAlphaSlider", "alphaSlider", 130, 20, 0.02, 1, 0.02, instance.bg_alpha, true) -- min, max, step, defaultv
 		window.alphaSlider:SetPoint ("left", window.alphaLabel, "right", 2, 0)
 		window.alphaSlider.useDecimals = true
 		window.alphaSlider:SetHook ("OnValueChange", function (self, instance, amount) --> slider, fixedValue, sliderValue
@@ -733,10 +835,42 @@ function _detalhes:OpenOptionsWindow (instance)
 		window.alphaSlider.thumb:SetSize (30+(120*0.2)+2, 20*1.2)
 		window.alphaSlider.tooltip = "Change the background alpha for this instance"
 		
+		local selectedBackgroundColor = function()
+			local r, g, b = ColorPickerFrame:GetColorRGB()
+			window.instance:SetBackgroundColor (r, g, b)
+			window.backgroundColorTexture:SetTexture (r, g, b)
+		end
+		
+		local canceledBackgroundColor = function()
+			local c = ColorPickerFrame.previousValues
+			window.instance:SetBackgroundColor (unpack (c))
+			window.backgroundColorTexture:SetTexture (unpack (c))
+			ColorPickerFrame.func = nil
+			ColorPickerFrame.cancelFunc = nil
+		end
+		
+		local colorpickBackgroundColor = function()
+			ColorPickerFrame.func = selectedBackgroundColor
+			ColorPickerFrame.cancelFunc = canceledBackgroundColor
+			ColorPickerFrame.opacityFunc = nil
+			ColorPickerFrame.hasOpacity = false
+			ColorPickerFrame.previousValues = {window.instance.bg_r, window.instance.bg_g, window.instance.bg_b}
+			ColorPickerFrame:SetParent (window.widget)
+			ColorPickerFrame:SetColorRGB (window.instance.bg_r, window.instance.bg_g, window.instance.bg_b)
+			ColorPickerFrame:Show()
+		end
+
+		g:NewImage (window, _, "$parentBackgroundColorTexture", "backgroundColorTexture", 40, 14)
+		window.backgroundColorTexture:SetPoint ("left", window.alphaSlider, "right", 5)
+		window.backgroundColorTexture:SetTexture (1, 1, 1)
+		
+		g:NewButton (window, _, "$parentBackgroundColorButton", "backgroundColorButton", 40, 20, colorpickBackgroundColor)
+		window.backgroundColorButton:SetPoint ("left", window.alphaSlider, "right", 5)
+		window.backgroundColorButton:InstallCustomTexture()
 	--------------- Auto Current Segment
 	
 		g:NewLabel (window, _, "$parentAutoCurrentLabel", "autoCurrentLabel", "auto switch to current")
-		window.autoCurrentLabel:SetPoint (250, -253)
+		window.autoCurrentLabel:SetPoint (250, -293)
 	
 		g:NewSwitch (window, _, "$parentAutoCurrentSlider", "autoCurrentSlider", 60, 20, _, _, instance.auto_current)
 		window.autoCurrentSlider:SetPoint ("left", window.autoCurrentLabel, "right", 2)
@@ -745,27 +879,186 @@ function _detalhes:OpenOptionsWindow (instance)
 			instance.auto_current = value
 		end
 		
+	--------------- Bar and Text Color 
+	
+		-- BAR TEXTURE
+		g:NewLabel (window, _, "$parentUseClassColorsLabel", "classColorsLabel", "bar texture: class color")
+		window.classColorsLabel:SetPoint (250, -313)
+	
+		g:NewSwitch (window, _, "$parentClassColorSlider", "classColorSlider", 60, 20, _, _, instance.row_texture_class_colors)
+		window.classColorSlider:SetPoint ("left", window.classColorsLabel, "right", 2)
+		window.classColorSlider.tooltip = "if enabled, bar color matches the class, \nelse, a fixed color is used for all bars."
+		window.classColorSlider.OnSwitch = function (self, instance, value)
+			instance.row_texture_class_colors = value
+			instance:InstanceReset()
+			instance:InstanceRefreshRows()
+		end
+		-- LEFT TEXT
+		g:NewLabel (window, _, "$parentUseClassColorsLeftText", "classColorsLeftTextLabel", "left text: class color")
+		window.classColorsLeftTextLabel:SetPoint (250, -333)
+	
+		g:NewSwitch (window, _, "$parentUseClassColorsLeftTextSlider", "classColorsLeftTextSlider", 60, 20, _, _, instance.row_textL_class_colors)
+		window.classColorsLeftTextSlider:SetPoint ("left", window.classColorsLeftTextLabel, "right", 2)
+		window.classColorsLeftTextSlider.tooltip = "if enabled, left bar text color matches the class, \nelse, a fixed color is used."
+		window.classColorsLeftTextSlider.OnSwitch = function (self, instance, value)
+			instance.row_textL_class_colors = value
+			instance:InstanceReset()
+			instance:InstanceRefreshRows()
+		end
+		-- RIGHT TEXT
+		g:NewLabel (window, _, "$parentUseClassColorsRightText", "classColorsRightTextLabel", "right text: class color")
+		window.classColorsRightTextLabel:SetPoint (250, -347)
+	
+		g:NewSwitch (window, _, "$parentUseClassColorsRightTextSlider", "classColorsRightTextSlider", 60, 20, _, _, instance.row_textR_class_colors)
+		window.classColorsRightTextSlider:SetPoint ("left", window.classColorsRightTextLabel, "right", 2)
+		window.classColorsRightTextSlider.tooltip = "if enabled, right bar text color matches the class, \nelse, a fixed color is used."
+		window.classColorsRightTextSlider.OnSwitch = function (self, instance, value)
+			instance.row_textR_class_colors = value
+			instance:InstanceReset()
+			instance:InstanceRefreshRows()
+		end
+		-- ROW TEXTURE COLOR
+		local selectedColorClass = function()
+			local r, g, b = ColorPickerFrame:GetColorRGB()
+			window.fixedRowColorTexture:SetTexture (r, g, b)
+			window.instance.fixed_row_texture_color[1], window.instance.fixed_row_texture_color[2], window.instance.fixed_row_texture_color[3] = r, g, b
+			instance:InstanceReset()
+			instance:InstanceRefreshRows()
+		end
+		
+		local canceledColorClass = function()
+			local c = ColorPickerFrame.previousValues
+			window.fixedRowColorTexture:SetTexture (c [1], c [2], c [3])
+			
+			window.instance.fixed_row_texture_color[1], window.instance.fixed_row_texture_color[2], window.instance.fixed_row_texture_color[3] = c [1], c [2], c [3]
+
+			ColorPickerFrame.func = nil
+			ColorPickerFrame.cancelFunc = nil
+			instance:InstanceReset()
+			instance:InstanceRefreshRows()
+		end
+		
+		local colorpickClass = function()
+			ColorPickerFrame.func = selectedColorClass
+			ColorPickerFrame.cancelFunc = canceledColorClass
+			ColorPickerFrame.opacityFunc = nil
+			ColorPickerFrame.hasOpacity = false
+			ColorPickerFrame.previousValues = window.instance.fixed_row_texture_color
+			ColorPickerFrame:SetParent (window.widget)
+			ColorPickerFrame:SetColorRGB (unpack (window.instance.fixed_row_texture_color))
+			ColorPickerFrame:Show()
+		end
+
+		g:NewImage (window, _, "$parentFixedRowColorTexture", "fixedRowColorTexture", 55, 14)
+		window.fixedRowColorTexture:SetPoint ("left", window.classColorSlider, "right", 5)
+		window.fixedRowColorTexture:SetTexture (1, 1, 1)
+		
+		g:NewButton (window, _, "$parentFixedRowColorButton", "fixedRowColorButton", 55, 20, colorpickClass)
+		window.fixedRowColorButton:SetPoint ("left", window.fixedRowColorTexture, "left")
+		window.fixedRowColorButton:InstallCustomTexture()
+		
+		-- TEXT COLOR
+		local selectedTextColor = function()
+			local r, g, b = ColorPickerFrame:GetColorRGB()
+			window.fixedRowColorText:SetTexture (r, g, b)
+			window.instance.fixed_row_text_color[1], window.instance.fixed_row_text_color[2], window.instance.fixed_row_text_color[3] = r, g, b
+			instance:InstanceReset()
+			instance:InstanceRefreshRows()
+		end
+		
+		local canceledTextColor = function()
+			local c = ColorPickerFrame.previousValues
+			window.fixedRowColorText:SetTexture (c [1], c [2], c [3])
+			
+			window.instance.fixed_row_text_color[1], window.instance.fixed_row_text_color[2], window.instance.fixed_row_text_color[3] = c [1], c [2], c [3]
+
+			ColorPickerFrame.func = nil
+			ColorPickerFrame.cancelFunc = nil
+			instance:InstanceReset()
+			instance:InstanceRefreshRows()
+		end
+		
+		local colorpickTextColor = function()
+			ColorPickerFrame.func = selectedTextColor
+			ColorPickerFrame.cancelFunc = canceledTextColor
+			ColorPickerFrame.opacityFunc = nil
+			ColorPickerFrame.hasOpacity = false
+			ColorPickerFrame.previousValues = window.instance.fixed_row_text_color
+			ColorPickerFrame:SetParent (window.widget)
+			ColorPickerFrame:SetColorRGB (unpack (window.instance.fixed_row_text_color))
+			ColorPickerFrame:Show()
+		end
+
+		g:NewImage (window, _, "$parentFixedRowColorTTexture", "fixedRowColorText", 55, 25)
+		window.fixedRowColorText:SetPoint ("topleft", window.classColorsLeftTextSlider, "topright", 10, -5)
+		window.fixedRowColorText:SetPoint ("bottomleft", window.classColorsRightTextSlider, "bottomright", 10, 5)
+		window.fixedRowColorText:SetTexture (1, 1, 1)
+		
+		g:NewButton (window, _, "$parentFixedRowColorTButton", "fixedRowColorTButton", 55, 25, colorpickTextColor)
+		window.fixedRowColorTButton:SetPoint ("topleft", window.classColorsLeftTextSlider, "topright", 10, -5)
+		window.fixedRowColorTButton:SetPoint ("bottomleft", window.classColorsRightTextSlider, "bottomright", 10, 5)
+		window.fixedRowColorTButton:InstallCustomTexture()
+		
+		-- LEFT TEXT OUTLINE
+		g:NewLabel (window, _, "$parentTextLeftOutlineLabel", "textLeftOutlineLabel", "left text: outline")
+		window.textLeftOutlineLabel:SetPoint (250, -373)
+	
+		g:NewSwitch (window, _, "$parentTextLeftOutlineSlider", "textLeftOutlineSlider", 60, 20, _, _, instance.row_textL_outline)
+		window.textLeftOutlineSlider:SetPoint ("left", window.textLeftOutlineLabel, "right", 2)
+		window.textLeftOutlineSlider.tooltip = "if enabled, left text is outlined"
+		window.textLeftOutlineSlider.OnSwitch = function (self, instance, value)
+			instance.row_textL_outline = value
+			instance:InstanceReset()
+			instance:InstanceRefreshRows()
+		end
+		-- RIGHT TEXT OUTLINE
+		g:NewLabel (window, _, "$parentTextRightOutlineLabel", "textRightOutlineLabel", "right text: outline")
+		window.textRightOutlineLabel:SetPoint (250, -388)
+	
+		g:NewSwitch (window, _, "$parentTextRightOutlineSlider", "textRightOutlineSlider", 60, 20, _, _, instance.row_textR_outline)
+		window.textRightOutlineSlider:SetPoint ("left", window.textRightOutlineLabel, "right", 2)
+		window.textRightOutlineSlider.tooltip = "if enabled, right text is outlined"
+		window.textRightOutlineSlider.OnSwitch = function (self, instance, value)
+			instance.row_textR_outline = value
+			instance:InstanceReset()
+			instance:InstanceRefreshRows()
+		end
+		
 ----------------------- Save Style Text Entry and Button -----------------------------------------
 	
 		----- style name
 		g:NewTextEntry (window, _, "$parentSaveStyleName", "saveStyleName", nil, 20, _, _, _, 178) --width will be auto adjusted if space parameter is passed
 		window.saveStyleName:SetLabelText ("style name:")
-		window.saveStyleName:SetPoint (250, -300)
+		window.saveStyleName:SetPoint (250, -450)
 	
 		local saveStyleFunc = function()
 			if (not window.saveStyleName.text or window.saveStyleName.text == "") then
 				_detalhes:Msg ("Give a name for your style.")
 				return
 			end
+			local w = window.instance.wallpaper
 			local savedObject = {
 				name = window.saveStyleName.text,
 				texture = window.textureDropdown.value,
 				fontSize = tonumber (window.fonsizeSlider.value),
 				fontFace = window.fontDropdown.value, 
-				color = window.instance.color,
-				wallpaper = instance.wallpaper,
-				alpha = tonumber (window.alphaSlider.value)
+				color = {unpack (window.instance.color)},
+				wallpaper = {texture = w.texture, enabled = w.enabled, texcoord = {unpack (w.texcoord)}, overlay = {unpack(w.overlay)}, anchor = w.anchor, height = w.height, alpha = w.alpha, width = w.width},
+				bg_colors = {window.instance.bg_r, window.instance.bg_g, window.instance.bg_b},
+				alpha = tonumber (window.alphaSlider.value),
+				texture_class = window.instance.row_texture_class_colors,
+				row_textL_class = window.instance.row_textL_class_colors,
+				row_textR_class = window.instance.row_textR_class_colors,
+				row_textL_outline = window.instance.row_textL_outline,
+				row_textR_outline = window.instance.row_textR_outline,
+				fixed_row_texture_color = {unpack (window.instance.fixed_row_texture_color)},
+				fixed_row_text_color = {unpack (window.instance.fixed_row_text_color)},
+				texture_background = window.instance.barrasInfo.texturaBackground,
+				texture_background_color = {unpack (window.instance.barrasInfo.texturaBackgroundColor)},
+				texture_background_by_class = window.instance.barrasInfo.texturaBackgroundByClass,
+				texture_name_background = window.instance.barrasInfo.textureNameBackground
 			}
+			
 			_detalhes.savedStyles [#_detalhes.savedStyles+1] = savedObject
 			window.saveStyleName.text = ""
 		end
@@ -795,15 +1088,43 @@ function _detalhes:OpenOptionsWindow (instance)
 			instance:InstanceWallpaper (style.wallpaper)
 			--alpha
 			instance:SetBackgroundAlpha (style.alpha or _detalhes.default_bg_alpha)
+			instance:SetBackgroundColor (style.bg_colors)
+			--texture e texts
+			instance.row_texture_class_colors = style.texture_class
+			instance.row_textL_class_colors = style.row_textL_class
+			instance.row_textR_class_colors = style.row_textR_class
+			instance.row_textL_outline = style.row_textL_outline
+			instance.row_textR_outline = style.row_textR_outline
+			instance.fixed_row_texture_color = {unpack (style.fixed_row_texture_color)}
+			instance.fixed_row_text_color = {unpack (style.fixed_row_text_color)}
+			--row background
+			instance.barrasInfo.texturaBackground = style.texture_background
+			instance.barrasInfo.texturaBackgroundColor = {unpack (style.texture_background_color)}
+			instance.barrasInfo.texturaBackgroundByClass = style.texture_background_by_class
+			instance.barrasInfo.textureNameBackground = style.texture_name_background
 			--refresh
 			instance:RefreshBars()
+			instance:InstanceReset()
+			instance:InstanceRefreshRows()
 			--update options
+			
+			_G.DetailsOptionsWindowBackgroundClassColorSlider.MyObject:SetValue (style.texture_background_by_class)
+			_G.DetailsOptionsWindowRowBackgroundTextureDropdown.MyObject:Select (style.texture_name_background)
+			_G.DetailsOptionsWindowRowBackgroundColor.MyObject:SetTexture (unpack (style.texture_background_color))
 			
 			_G.DetailsOptionsWindowInstanceColorTexture.MyObject:SetTexture (unpack (style.color))
 			_G.DetailsOptionsWindowTextureDropdown.MyObject:Select (style.texture)
 			_G.DetailsOptionsWindowFontDropdown.MyObject:Select (style.fontFace)
 			_G.DetailsOptionsWindowSliderFontSize.MyObject:SetValue (style.fontSize)
 			_G.DetailsOptionsWindowAlphaSlider.MyObject:SetValue (style.alpha or _detalhes.default_bg_alpha)
+			
+			_G.DetailsOptionsWindowClassColorSlider.MyObject:SetValue (style.texture_class)
+			_G.DetailsOptionsWindowUseClassColorsLeftTextSlider.MyObject:SetValue (style.row_textL_class)
+			_G.DetailsOptionsWindowUseClassColorsRightTextSlider.MyObject:SetValue (style.row_textR_class)
+			_G.DetailsOptionsWindowTextLeftOutlineSlider.MyObject:SetValue (style.row_textL_outline)
+			_G.DetailsOptionsWindowTextRightOutlineSlider.MyObject:SetValue (style.row_textR_outline)
+			_G.DetailsOptionsWindowUseBackgroundSlider.MyObject:SetValue (style.wallpaper.enabled)
+			
 		end
 	
 		local createLoadMenu = function()
@@ -841,7 +1162,7 @@ function _detalhes:OpenOptionsWindow (instance)
 		------ apply to all button
 		local applyToAll = function()
 			for _, this_instance in ipairs (_detalhes.tabela_instancias) do 
-				if (this_instance:IsAtiva() and this_instance.meu_id ~= instance.meu_id) then
+				if (this_instance:IsAtiva() and this_instance.meu_id ~= window.instance.meu_id) then
 					--texture
 					this_instance.barrasInfo.textura = SharedMedia:Fetch ("statusbar", window.textureDropdown.value)
 					this_instance.barrasInfo.textureName = window.textureDropdown.value
@@ -854,8 +1175,19 @@ function _detalhes:OpenOptionsWindow (instance)
 					this_instance:InstanceColor (window.instance.color)
 					--wallpaper
 					this_instance:InstanceWallpaper (window.instance.wallpaper)
+					--alpha
+					this_instance:SetBackgroundAlpha (window.instance.bg_alpha)
+					this_instance:SetBackgroundColor (window.instance.bg_r, window.instance.bg_g, window.instance.bg_b)
+					--texture e texts
+					this_instance.row_texture_class_colors = window.instance.row_texture_class_colors
+					this_instance.row_textL_class_colors = window.instance.row_textL_class_colors
+					this_instance.row_textR_class_colors = window.instance.row_textR_class_colors
+					this_instance.row_textL_outline = window.instance.row_textL_outline
+					this_instance.row_textR_outline = window.instance.row_textR_outline
 					--refresh
 					this_instance:RefreshBars()
+					this_instance:InstanceReset()
+					this_instance:InstanceRefreshRows()
 				end
 			end
 		end
@@ -863,6 +1195,72 @@ function _detalhes:OpenOptionsWindow (instance)
 		g:NewButton (window, _, "$parentToAllStyleButton", "applyToAll", 140, 14, applyToAll, nil, nil, nil, "apply to all instances")
 		window.applyToAll:InstallCustomTexture()
 		window.applyToAll:SetPoint ("bottomright", window.removeStyle, "topright", 1, 3)
+		
+		_detalhes.defaultStyle = {
+			texture = "Details D'ictum",
+			fontSize = 11,
+			fontFace = "Arial Narrow",
+			color = {1, 1, 1, 1},
+			wallpaper = {enabled = false, texcoord = {0, 1, 0, 1},	overlay = {1, 1, 1, 1},  anchor = "all", height = 0, alpha = 0.5, width = 0},
+			alpha = 0.7,
+			bg_colors = {0.0941, 0.0941, 0.0941},
+			texture_class = true,
+			row_textL_class = false,
+			row_textR_class = false,
+			row_textL_outline = false,
+			row_textR_outline = false
+		}
+		
+		local resetToDefaults = function()
+			local style = _detalhes.defaultStyle
+			local instance = window.instance
+			--texture
+			instance.barrasInfo.textura = SharedMedia:Fetch ("statusbar", style.texture)
+			instance.barrasInfo.textureName = style.texture
+			--fontface
+			instance.barrasInfo.font = SharedMedia:Fetch ("font", style.fontFace)
+			instance.barrasInfo.fontName = style.fontFace
+			--fontsize
+			instance.barrasInfo.fontSize = tonumber (style.fontSize)
+			--color
+			instance:InstanceColor (style.color)
+			instance:SetBackgroundColor (style.bg_colors)
+			--wallpaper
+			instance:InstanceWallpaper (style.wallpaper)
+			--alpha
+			instance:SetBackgroundAlpha (style.alpha or _detalhes.default_bg_alpha)
+			--texture e texts
+			instance.row_texture_class_colors = style.texture_class
+			instance.fixed_row_texture_color = {0, 0, 0}
+			instance.row_textL_class_colors = style.row_textL_class
+			instance.row_textR_class_colors = style.row_textR_class
+			instance.fixed_row_text_color = {1, 1, 1}
+			instance.row_textL_outline = style.row_textL_outline
+			instance.row_textR_outline = style.row_textR_outline
+			--refresh
+			instance:RefreshBars()
+			instance:InstanceReset()
+			instance:InstanceRefreshRows()
+			--update options
+			
+			_G.DetailsOptionsWindowInstanceColorTexture.MyObject:SetTexture (unpack (style.color))
+			_G.DetailsOptionsWindowBackgroundColorTexture.MyObject:SetTexture (unpack (style.bg_colors))
+			_G.DetailsOptionsWindowFixedRowColorTexture.MyObject:SetTexture (0, 0, 0)
+			_G.DetailsOptionsWindowFixedRowColorTTexture.MyObject:SetTexture (unpack (instance.fixed_row_text_color))
+			_G.DetailsOptionsWindowTextureDropdown.MyObject:Select (style.texture)
+			_G.DetailsOptionsWindowFontDropdown.MyObject:Select (style.fontFace)
+			_G.DetailsOptionsWindowSliderFontSize.MyObject:SetValue (style.fontSize)
+			_G.DetailsOptionsWindowAlphaSlider.MyObject:SetValue (style.alpha or _detalhes.default_bg_alpha)
+			
+			_G.DetailsOptionsWindowClassColorSlider.MyObject:SetValue (style.texture_class)
+			_G.DetailsOptionsWindowUseClassColorsLeftTextSlider.MyObject:SetValue (style.row_textL_class)
+			_G.DetailsOptionsWindowUseClassColorsRightTextSlider.MyObject:SetValue (style.row_textR_class)
+			_G.DetailsOptionsWindowTextLeftOutlineSlider.MyObject:SetValue (style.row_textL_outline)
+			_G.DetailsOptionsWindowTextRightOutlineSlider.MyObject:SetValue (style.row_textR_outline)
+		end
+		g:NewButton (window, _, "$parentResetToDefaultButton", "resetToDefaults", 100, 14, resetToDefaults, nil, nil, nil, "reset to default")
+		window.resetToDefaults:InstallCustomTexture()
+		window.resetToDefaults:SetPoint ("right", window.applyToAll, "left", -5, 0)
 		
 		
 -- Persona --------------------------------------------------------------------------------------------------------------------------------------------
@@ -895,6 +1293,18 @@ function _detalhes:OpenOptionsWindow (instance)
 		window.chooseAvatarButton:InstallCustomTexture()
 		window.chooseAvatarButton:SetPoint (510, -55)
 		
+--  realm name --------------------------------------------------------------------------------------------------------------------------------------------
+
+		g:NewLabel (window, _, "$parentRealmNameLabel", "realmNameLabel", "remove realm name")
+		window.realmNameLabel:SetPoint (510, -80)
+	
+		g:NewSwitch (window, _, "$parentRealmNameSlider", "realmNameSlider", 60, 20, _, _, _detalhes.remove_realm_from_name)
+		window.realmNameSlider:SetPoint ("left", window.realmNameLabel, "right", 2)
+		window.realmNameSlider.tooltip = "When enabled and inside a instance, the realm name\nwill not be shown after the player name."
+		window.realmNameSlider.OnSwitch = function (self, _, value)
+			_detalhes.remove_realm_from_name = value
+		end
+		
 	end
 	
 	
@@ -902,7 +1312,14 @@ function _detalhes:OpenOptionsWindow (instance)
 --> Show
 
 	_G.DetailsOptionsWindowTextureDropdown.MyObject:SetFixedParameter (instance)
+	_G.DetailsOptionsWindowRowBackgroundTextureDropdown.MyObject:SetFixedParameter (instance)
 	_G.DetailsOptionsWindowTextureDropdown.MyObject:Select (instance.barrasInfo.textureName)
+	_G.DetailsOptionsWindowRowBackgroundTextureDropdown.MyObject:Select (instance.barrasInfo.textureNameBackground)
+	_G.DetailsOptionsWindowRowBackgroundColor.MyObject:SetTexture (unpack (instance.barrasInfo.texturaBackgroundColor))
+	
+	_G.DetailsOptionsWindowBackgroundClassColorSlider.MyObject:SetFixedParameter (instance)
+	_G.DetailsOptionsWindowBackgroundClassColorSlider.MyObject:SetValue (instance.barrasInfo.texturaBackgroundByClass)
+
 	--
 	_G.DetailsOptionsWindowFontDropdown.MyObject:SetFixedParameter (instance)
 	_G.DetailsOptionsWindowFontDropdown.MyObject:Select (instance.barrasInfo.fontName)
@@ -912,6 +1329,19 @@ function _detalhes:OpenOptionsWindow (instance)
 	--
 	_G.DetailsOptionsWindowAutoCurrentSlider.MyObject:SetFixedParameter (instance)
 	_G.DetailsOptionsWindowAutoCurrentSlider.MyObject:SetValue (instance.auto_current)
+	--
+	_G.DetailsOptionsWindowClassColorSlider.MyObject:SetFixedParameter (instance)
+	_G.DetailsOptionsWindowClassColorSlider.MyObject:SetValue (instance.row_texture_class_colors)
+	
+	_G.DetailsOptionsWindowUseClassColorsLeftTextSlider.MyObject:SetFixedParameter (instance)
+	_G.DetailsOptionsWindowUseClassColorsLeftTextSlider.MyObject:SetValue (instance.row_textL_class_colors)
+	_G.DetailsOptionsWindowUseClassColorsRightTextSlider.MyObject:SetFixedParameter (instance)
+	_G.DetailsOptionsWindowUseClassColorsRightTextSlider.MyObject:SetValue (instance.row_textR_class_colors)
+	
+	_G.DetailsOptionsWindowTextLeftOutlineSlider.MyObject:SetFixedParameter (instance)
+	_G.DetailsOptionsWindowTextLeftOutlineSlider.MyObject:SetValue (instance.row_textL_outline)
+	_G.DetailsOptionsWindowTextRightOutlineSlider.MyObject:SetFixedParameter (instance)
+	_G.DetailsOptionsWindowTextRightOutlineSlider.MyObject:SetValue (instance.row_textR_outline)
 	--
 	_G.DetailsOptionsWindowAlphaSlider.MyObject:SetFixedParameter (instance)
 	_G.DetailsOptionsWindowAlphaSlider.MyObject:SetValue (instance.bg_alpha)
@@ -935,6 +1365,9 @@ function _detalhes:OpenOptionsWindow (instance)
 	_G.DetailsOptionsWindowTTDropdown.MyObject:Select (_detalhes.time_type, true)
 	--
 	_G.DetailsOptionsWindowInstanceColorTexture.MyObject:SetTexture (unpack (instance.color))
+	_G.DetailsOptionsWindowBackgroundColorTexture.MyObject:SetTexture (instance.bg_r, instance.bg_g, instance.bg_b)
+	_G.DetailsOptionsWindowFixedRowColorTexture.MyObject:SetTexture (unpack (instance.fixed_row_texture_color))
+	_G.DetailsOptionsWindowFixedRowColorTTexture.MyObject:SetTexture (unpack (instance.fixed_row_text_color))
 	--
 	GameCooltip:SetFixedParameter (_G.DetailsOptionsWindowLoadStyleButton, instance)
 	

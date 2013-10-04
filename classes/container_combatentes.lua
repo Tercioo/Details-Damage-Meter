@@ -22,6 +22,7 @@ local container_misc_target = _detalhes.container_type.CONTAINER_MISCTARGET_CLAS
 
 --api locals
 local _UnitClass = UnitClass
+local _IsInInstance = IsInInstance
 --lua locals
 local _setmetatable = setmetatable
 local _getmetatable = getmetatable
@@ -114,6 +115,18 @@ end
 
 function container_combatentes:PegarCombatente (serial, nome, flag, criar, isOwner)
 
+--[[
+if (self.tipo == container_damage) then
+	if (nome:find ("Lyl")) then
+		if (nome:find ("-"))  then
+			print ("nome com -", isOwner)
+		else
+			--print ("nome okey", isOwner)
+		end
+	end
+end
+--]]
+
 	--> antes de mais nada, vamos verificar se é um pet
 	local dono_do_pet
 	if (flag and _bit_band (flag, OBJECT_TYPE_PETS) ~= 0) then --> é um pet
@@ -127,14 +140,12 @@ function container_combatentes:PegarCombatente (serial, nome, flag, criar, isOwn
 			if (nome_dele) then
 			
 				nome = nome_dele
-				--> aqui pode ocorrer bug caso o dono tenha sido adicionado ao container de pets enquanto não estava na party ou raide
-				--[[ old debug lines
-				if (self.shadow and self.tipo == container_damage and not self._NameIndexTable [dono_nome]) then
-					print ("CONTAINER 1: Criando Actor do Dono:", dono_nome, "Pet: ", nome)
-				elseif (self.shadow and self.tipo == container_damage and self._NameIndexTable [dono_nome]) then
-					print ("CONTAINER 1: criado actor repedido",nome)
-				end
-				--]]
+				--if (_detalhes.debug) then
+				--	print ("creating actor for pet:", nome, "owner:", dono_nome)
+				--end
+				
+				--> e se olharmos no cache do parser antes de tentar cria-lo?
+				
 				dono_do_pet = self:PegarCombatente (dono_serial, dono_nome, dono_flag, true, nome)
 				
 			end
@@ -147,14 +158,6 @@ function container_combatentes:PegarCombatente (serial, nome, flag, criar, isOwn
 		
 	elseif (criar) then
 
-	--[[ old debug lines
-		if (isOwner and self.shadow and self.tipo == container_damage) then
-			print ("CONTAINER 2: Criando actor do Dono do Pet: OWNER:", nome, "PET:", isOwner)
-			if (self._NameIndexTable [nome]) then
-				print ("Repetido")
-			end
-		end
-	--]]
 	-- rotinas de criação do objeto shadow
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 		local shadow = self.shadow --> espelho do container no overall
@@ -171,6 +174,7 @@ function container_combatentes:PegarCombatente (serial, nome, flag, criar, isOwn
 		local novo_objeto = self.funcao_de_criacao (_, serial, nome, shadow_objeto) --> shadow_objeto passa para o classe_damage gravar no .targets e .spell_tables, mas não grava nele mesmo
 		
 		novo_objeto.nome = nome
+		--print (nome)
 		
 	-- converte a flag do wow em flag do details
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------		
@@ -186,8 +190,9 @@ function container_combatentes:PegarCombatente (serial, nome, flag, criar, isOwn
 				
 				novo_objeto.displayName = _detalhes:GetNickname (serial, false, true) --> serial, default, silent
 				if (not novo_objeto.displayName) then
-					if (IsInInstance()) then
+					if (_IsInInstance() and _detalhes.remove_realm_from_name) then
 						novo_objeto.displayName = nome:gsub (("%-.*"), "")
+						--print (novo_objeto.displayName)
 					else
 						novo_objeto.displayName = nome
 					end
@@ -208,7 +213,7 @@ function container_combatentes:PegarCombatente (serial, nome, flag, criar, isOwn
 				novo_objeto.owner = dono_do_pet
 				novo_objeto.ownerName = dono_do_pet.nome
 				
-				if (IsInInstance()) then
+				if (_IsInInstance() and _detalhes.remove_realm_from_name) then
 					novo_objeto.displayName = nome:gsub (("%-.*"), ">")
 				else
 					novo_objeto.displayName = nome
@@ -401,12 +406,19 @@ function container_combatentes:PegarCombatente (serial, nome, flag, criar, isOwn
 	
 	-- grava o objeto no mapa do container
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------	
-		-- novo_objeto.combatID = _detalhes:NumeroCombate() --> grava no objeto qual o ID do combate que ele pertence -- Não serve pra nada? melhor DELETAR
-		
-		--if (self.shadow and self.tipo == container_damage and self._NameIndexTable [nome]) then
-		--	print ("CONTAINER 3: criado actor repedido",nome, isOwner)
-		--end
-		
+
+		--[[
+		if (self.tipo == container_damage) then
+			if (nome:find ("Lyl")) then
+				if (nome:find ("-"))  then
+					print ("nome FIM com -", isOwner)
+				else
+					--print ("nome FIM okey", isOwner)
+				end
+			end
+		end
+		--]]
+
 		local size = #self._ActorTable+1
 		self._ActorTable [size] = novo_objeto --> grava na tabela de indexes
 		self._NameIndexTable [nome] = size --> grava no hash map o index deste jogador

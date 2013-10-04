@@ -217,7 +217,7 @@
 				_detalhes:InstanciaCallFunction (_detalhes.AtualizaSegmentos) --> atualiza o showing
 			end
 			
-			table.wipe (_detalhes.encounter)
+			_table_wipe (_detalhes.encounter)
 			
 			--> conta o tempo na tabela overall -- start time at overall table
 			if (_detalhes.tabela_overall.end_time) then
@@ -248,8 +248,8 @@
 
 			_detalhes.container_pets:BuscarPets()
 			
-			table.wipe (_detalhes.cache_damage_group)
-			table.wipe (_detalhes.cache_healing_group)
+			_table_wipe (_detalhes.cache_damage_group)
+			_table_wipe (_detalhes.cache_healing_group)
 			_detalhes:UpdateParserGears()
 			
 			_detalhes.host_of = nil
@@ -258,7 +258,7 @@
 			if (_detalhes.in_group and _detalhes.cloud_capture) then
 				if (_detalhes:IsInInstance() or _detalhes.debug) then
 					if (not _detalhes:CaptureIsAllEnabled()) then
-						_detalhes:SendCloudRequest()
+						_detalhes:ScheduleSendCloudRequest()
 						if (_detalhes.debug) then
 							_detalhes:Msg ("(debug) requesting a cloud server.")
 						end
@@ -281,15 +281,26 @@
 
 		function _detalhes:SairDoCombate (bossKilled)
 
+			if (_detalhes.debug) then
+				_detalhes:Msg ("(debug) ended a combat.")
+			end
+		
 			--> pega a zona do jogador e vê se foi uma luta contra um Boss -- identifica se a luta foi com um boss
 			if (not _detalhes.tabela_vigente.is_boss) then 
 				_detalhes.tabela_vigente.is_boss = _detalhes:FindBoss()
 			end
 			
-			if (_detalhes.debug) then
-				_detalhes:Msg ("(debug) ended a combat.")
+			if (_detalhes.tabela_vigente.bossFunction) then
+				_detalhes:CancelTimer (_detalhes.tabela_vigente.bossFunction)
+				_detalhes.bossFunction = nil
 			end
-			
+
+			--> finaliza a checagem se esta ou não no combate -- finish combat check
+			if (_detalhes.tabela_vigente.verifica_combate) then 
+				_detalhes:CancelTimer (_detalhes.tabela_vigente.verifica_combate)
+				_detalhes.tabela_vigente.verifica_combate = nil
+			end
+
 			if (not _detalhes.tabela_vigente.is_boss) then
 			
 				local inimigo = _detalhes:FindEnemy()
@@ -315,19 +326,14 @@
 				_detalhes:FlagActorsOnBossFight()
 			
 				if (_detalhes:GetBossDetails (_detalhes.tabela_vigente.is_boss.mapid, _detalhes.tabela_vigente.is_boss.index)) then
+				
 					_detalhes.tabela_vigente.enemy = _detalhes.tabela_vigente.is_boss.encounter
-					_detalhes:CaptureSet (false, "damage", false, 30)
-					_detalhes:CaptureSet (false, "heal", false, 30)
-					
-					if (_detalhes.debug) then
-						_detalhes:Msg ("(debug) found encounter on last fight, freezing parser for 30 seconds.")
-					end
-					
+
 					if (bossKilled) then
 						_detalhes.tabela_vigente.is_boss.killed = true
 					end
-					
-					
+
+					--> encounter boss function
 					local bossFunction, bossFunctionType = _detalhes:GetBossFunction (_detalhes.tabela_vigente.is_boss.mapid, _detalhes.tabela_vigente.is_boss.index)
 					if (bossFunction) then
 						if (_bit_band (bossFunctionType, 0x2) ~= 0) then --end of combat
@@ -335,25 +341,24 @@
 						end
 					end
 					
+					--> schedule captures off
+					if (_detalhes.debug) then
+						_detalhes:Msg ("(debug) found encounter on last fight, freezing parser for 30 seconds.")
+					end
+					_detalhes:CaptureSet (false, "damage", false, 30)
+					_detalhes:CaptureSet (false, "heal", false, 30)
+					
+					--> schedule sync
 					_detalhes:EqualizeActorsSchedule (_detalhes.host_of)
 					
-					_detalhes:IniciarColetaDeLixo (true)
+					--> schedule clean up
+					_detalhes:ScheduleTimer ("IniciarColetaDeLixo", 15, true)
+					
 				else
 					if (_detalhes.debug) then
 						_detalhes:EqualizeActorsSchedule (_detalhes.host_of)
 					end
 				end
-			end
-			
-			if (_detalhes.tabela_vigente.bossFunction) then
-				_detalhes:CancelTimer (_detalhes.tabela_vigente.bossFunction)
-				_detalhes.bossFunction = nil
-			end
-
-			--> finaliza a checagem se esta ou não no combate -- finish combat check
-			if (_detalhes.tabela_vigente.verifica_combate) then 
-				_detalhes:CancelTimer (_detalhes.tabela_vigente.verifica_combate)
-				_detalhes.tabela_vigente.verifica_combate = nil
 			end
 			
 			--> lock timers
@@ -372,7 +377,7 @@
 			local tempo_do_combate = _detalhes.tabela_vigente.end_time - _detalhes.tabela_vigente.start_time
 			
 			--if ( tempo_do_combate >= _detalhes.minimum_combat_time) then --> tempo minimo precisa ser 5 segundos pra acrecentar a tabela ao historico
-			if ( tempo_do_combate >= 5) then --> tempo minimo precisa ser 5 segundos pra acrecentar a tabela ao historico
+			if ( tempo_do_combate >= 5 or not _detalhes.tabela_historico.tabelas[1]) then --> tempo minimo precisa ser 5 segundos pra acrecentar a tabela ao historico
 				_detalhes.tabela_historico:adicionar (_detalhes.tabela_vigente) --move a tabela atual para dentro do histórico
 			else
 				--> this is a little bit complicated, need a specific function for combat cancellation
@@ -387,10 +392,7 @@
 				_table_wipe (_detalhes.tabela_vigente) --> descarta ela, não será mais usada
 				
 				_detalhes.tabela_vigente = _detalhes.tabela_historico.tabelas[1] --> pega a tabela do ultimo combate
-				if (not _detalhes.tabela_vigente) then --> provavel foi o primeiro combate após um reset
-					_detalhes.tabela_vigente = _detalhes.combate:NovaTabela (false, _detalhes.tabela_overall) --cria uma nova tabela de combate caso não tenha nenhuma no historico
-				end
-				
+
 				if (_detalhes.tabela_vigente.start_time == 0) then
 					_detalhes.tabela_vigente.start_time = _detalhes._tempo
 					_detalhes.tabela_vigente.end_time = _detalhes._tempo
@@ -417,7 +419,6 @@
 				end
 				
 				_detalhes:NumeroCombate (-1)
-				_detalhes:UpdateParserGears()
 			end
 			
 			_detalhes.host_of = nil
@@ -429,8 +430,8 @@
 			
 			_detalhes.in_combat = false --sinaliza ao addon que não há combate no momento
 			
-			table.wipe (_detalhes.cache_damage_group)
-			table.wipe (_detalhes.cache_healing_group)
+			_table_wipe (_detalhes.cache_damage_group)
+			_table_wipe (_detalhes.cache_healing_group)
 			
 			_detalhes:UpdateParserGears()
 			
@@ -487,6 +488,9 @@
 			
 			if (damage) then
 				if (damage.total < receivedActor [1][1]) then
+					if (_detalhes.debug) then
+						_detalhes:Msg (player .. " damage before: " .. damage.total .. " damage received: " .. receivedActor [1][1])
+					end
 					damage.total = receivedActor [1][1]
 				end
 				if (damage.damage_taken < receivedActor [1][2]) then
@@ -576,7 +580,7 @@
 			if (host_of) then
 				damage, heal, energy, misc = _detalhes:GetAllActors ("current", host_of)
 			else
-				damage, heal, energy, misc = _detalhes:GetAllActors ("current", UnitName ("player"))
+				damage, heal, energy, misc = _detalhes:GetAllActors ("current", _detalhes.playername)
 			end
 			
 			if (damage) then

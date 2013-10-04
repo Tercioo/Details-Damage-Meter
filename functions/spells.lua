@@ -61,6 +61,7 @@ do
 			[3044]	=	"HUNTER",--arcane shot
 			[53301]	=	"HUNTER",--explosive shot
 			[120361]	=	"HUNTER",--barrage
+			[53351]	=	"HUNTER",--kill shot
 		
 		--mage
 			--> Mage Frost

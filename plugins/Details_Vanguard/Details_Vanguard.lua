@@ -1139,7 +1139,7 @@ local function CreatePluginFrames (data)
 		--> first, we need to get what we want to track:
 		local MyTarget, Realm = _UnitName ("target")
 		if (MyTarget and _UnitIsPlayer ("target")) then
-			if (Realm) then
+			if (Realm and Realm ~= "") then
 				MyTarget = MyTarget.."-"..Realm
 			end
 			_track_player_object = _combat_object (1, MyTarget)

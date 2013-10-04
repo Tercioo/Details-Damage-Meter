@@ -21,7 +21,6 @@ local _ipairs = ipairs --> lua api
 local _pairs = pairs --> lua api
 local _bit_band = bit.band --> lua api
 local _date = date --> lua api
-local _UnitName = UnitName --> wow api
 
 --time hold
 local _tempo = time()

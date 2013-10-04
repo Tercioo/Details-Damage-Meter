@@ -7,7 +7,13 @@
 
 	local _detalhes = 		_G._detalhes
 	local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
-
+	local _UnitName = UnitName
+	local _GetRealmName = GetRealmName
+	local _select = select
+	local _table_wipe = table.wipe
+	local _math_min = math.min
+	local _string_gmatch = string.gmatch
+	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> local pointers
 
@@ -21,12 +27,12 @@
 	
 		if (IsInRaid()) then
 			for i = 1, GetNumGroupMembers() do 
-				if (_detalhes.details_users [ UnitName ("raid"..i)]) then
+				if (_detalhes.details_users [ _UnitName ("raid"..i)]) then
 				end
 			end
 		elseif (IsInGroup()) then
 			for i = 1, GetNumGroupMembers()-1 do
-				if (_detalhes.details_users [ UnitName ("party"..i)]) then
+				if (_detalhes.details_users [ _UnitName ("party"..i)]) then
 				end
 			end
 		end
@@ -36,17 +42,22 @@
 
 	function _detalhes:RaidComm (_, data, _, source)
 	
-		local type, player, realm, dversion, arg6, arg7 =  select (2, _detalhes:Deserialize (data))
+		local type, player, realm, dversion, arg6, arg7 =  _select (2, _detalhes:Deserialize (data))
 		
 		if (_detalhes.debug) then
 			_detalhes:Msg ("(debug) network received:", type, "length:",string.len (data))
 		end
 		
 		if (type == "highfive") then
-			if (player ~= _detalhes.playername and not _detalhes.details_users [player]) then
-				_detalhes.details_users [player] = {player, realm, dversion}
-			end
 			
+			_detalhes:SendRaidData ("highfive_response")
+		
+		elseif (type == "highfive_response") then
+			
+			if (_detalhes.sent_highfive and _detalhes.sent_highfive+30 > GetTime()) then
+				_detalhes.users [#_detalhes.users+1] = {player, realm, dversion}
+			end
+		
 		elseif (type == "petowner") then
 			
 			dversion, serial, nome, owner_table = player, realm, dversion, arg6
@@ -140,8 +151,8 @@
 					if (IsInRaid()) then
 						for i = 1, GetNumGroupMembers() do 
 							if (name:find ("-")) then --> other realm
-								local nname, server = UnitName ("raid"..i)
-								if (server) then
+								local nname, server = _UnitName ("raid"..i)
+								if (server and server ~= "") then
 									nname = nname.."-"..server
 								end
 								if (nname == name) then
@@ -149,7 +160,7 @@
 									break
 								end
 							else
-								if (UnitName ("raid"..i) == name) then
+								if (_UnitName ("raid"..i) == name) then
 									actor = container:PegarCombatente (UnitGUID ("raid"..i), name, 0x514, true)
 									break
 								end
@@ -159,8 +170,8 @@
 					elseif (IsInGroup()) then
 						for i = 1, GetNumGroupMembers()-1 do
 							if (name:find ("-")) then --> other realm
-								local nname, server = UnitName ("party"..i)
-								if (server) then
+								local nname, server = _UnitName ("party"..i)
+								if (server and server ~= "") then
 									nname = nname.."-"..server
 								end
 								if (nname == name) then
@@ -168,7 +179,7 @@
 									break
 								end
 							else
-								if (UnitName ("party"..i) == name or _detalhes.playername == name) then
+								if (_UnitName ("party"..i) == name or _detalhes.playername == name) then
 									actor = container:PegarCombatente (UnitGUID ("party"..i), name, 0x514, true)
 									break
 								end
@@ -215,7 +226,7 @@
 			if (data) then
 				local export = temp
 				local container = _detalhes.tabela_vigente [atributo]._ActorTable
-				for i = 1, math.min (6, #container) do 
+				for i = 1, _math_min (6, #container) do 
 					local actor = container [i]
 					if (actor.grupo) then
 						export [#export+1] = {actor.nome, actor [atributo_name]}
@@ -223,7 +234,7 @@
 				end
 				
 				_detalhes:SendCommMessage ("details_comm", _detalhes:Serialize ("clouddatareceived", atributo, atributo_name, export), "WHISPER", _detalhes.host_of)
-				table.wipe (temp)
+				_table_wipe (temp)
 			end
 			
 		elseif (type == "foundcloud") then
@@ -232,7 +243,7 @@
 				return
 			end
 		
-			if (realm ~= GetRealmName()) then
+			if (realm ~= _GetRealmName()) then
 				player = player .."-"..realm
 			end
 			_detalhes.host_by = player
@@ -256,7 +267,7 @@
 			end
 			
 		elseif (type == "custom_broadcast") then
-			_detalhes:OnReceiveCustom (select (3, _detalhes:Deserialize (data)))
+			_detalhes:OnReceiveCustom (_select (3, _detalhes:Deserialize (data)))
 			
 		elseif (type == "equalize_actors") then
 		
@@ -278,7 +289,7 @@
 	function _detalhes:SendCustomRaidData (type, player, realm, ...)
 		if (not realm) then
 			--> check if realm is already inside player name
-			for _name, _realm in string.gmatch (player, "(%w+)-(%w+)") do
+			for _name, _realm in _string_gmatch (player, "(%w+)-(%w+)") do
 				if (_realm) then
 					player = _name
 					realm = _realm
@@ -287,41 +298,44 @@
 		end
 		if (not realm) then
 			--> doesn't have realm at all, so we assume the actor is in same realm as player
-			realm = GetRealmName()
+			realm = _GetRealmName()
 		end
 		_detalhes:SendCommMessage ("details_comm", _detalhes:Serialize (type, player, realm, _detalhes.realversion, ...), "RAID")
 	end
 	function _detalhes:SendRaidData (type, ...)
-		_detalhes:SendCommMessage ("details_comm", _detalhes:Serialize (type, UnitName ("player"), GetRealmName(), _detalhes.realversion, ...), "RAID")
+		_detalhes:SendCommMessage ("details_comm", _detalhes:Serialize (type, _UnitName ("player"), _GetRealmName(), _detalhes.realversion, ...), "RAID")
 	end
 	
 	function _detalhes:SendHighFive()
 		if (true) then --> disabled
 			return
 		end
-		_detalhes:SendCommMessage ("details_comm", _detalhes:Serialize ("highfive", UnitName ("player"), GetRealmName(), _detalhes.realversion), "RAID")
+		_detalhes:SendCommMessage ("details_comm", _detalhes:Serialize ("highfive", _UnitName ("player"), _GetRealmName(), _detalhes.realversion), "RAID")
 	end
 	
 	function _detalhes:SendPetOwnerRequest (petserial, petnome)
 		if (_detalhes.debug) then
 			_detalhes:Msg ("(debug) sent request for a pet",petserial, petnome)
 		end
-		_detalhes:SendCommMessage ("details_comm", _detalhes:Serialize ("needpetowner", UnitName ("player"), GetRealmName(), _detalhes.realversion, petserial, petnome), "RAID")
+		_detalhes:SendCommMessage ("details_comm", _detalhes:Serialize ("needpetowner", _UnitName ("player"), _GetRealmName(), _detalhes.realversion, petserial, petnome), "RAID")
 	end
 	
+	function _detalhes:ScheduleSendCloudRequest()
+		_detalhes:ScheduleTimer ("SendCloudRequest", 1)
+	end
 	function _detalhes:SendCloudRequest()
-		_detalhes:SendCommMessage ("details_comm", _detalhes:Serialize ("needcloud", UnitName ("player"), GetRealmName(), _detalhes.realversion), "RAID")
+		_detalhes:SendCommMessage ("details_comm", _detalhes:Serialize ("needcloud", _UnitName ("player"), _GetRealmName(), _detalhes.realversion), "RAID")
 	end
 	
 	function _detalhes:SendCloudResponse (player, realm)
-		if (realm ~= GetRealmName()) then
+		if (realm ~= _GetRealmName()) then
 			player = player .."-"..realm
 		end
 		_detalhes.host_of = player
 		if (_detalhes.debug) then
 			_detalhes:Msg ("(debug) sent 'okey' answer for a cloud parser request.")
 		end
-		_detalhes:SendCommMessage ("details_comm", _detalhes:Serialize ("foundcloud", UnitName ("player"), GetRealmName(), _detalhes.realversion), "WHISPER", player)
+		_detalhes:SendCommMessage ("details_comm", _detalhes:Serialize ("foundcloud", _UnitName ("player"), _GetRealmName(), _detalhes.realversion), "WHISPER", player)
 	end
 
 	function _detalhes:RequestData()

@@ -20,6 +20,7 @@ if not Loc then return end
 	Loc ["STRING_INSTANCE_LIMIT"] = "max instance number has been reached, you can modify this limit over options panel."
 	
 	Loc ["STRING_PLEASE_WAIT"] = "Please wait"
+	Loc ["STRING_UPTADING"] = "updating"
 	
 	Loc ["STRING_RIGHTCLICK_CLOSE_SHORT"] = "Right click to close."
 	Loc ["STRING_RIGHTCLICK_CLOSE_MEDIUM"] = "Use right click to close this window."
@@ -187,6 +188,7 @@ if not Loc then return end
 	
 	Loc ["STRING_HPS"] = "Hps"
 	Loc ["STRING_HEAL"] = "Heal"
+	Loc ["STRING_HEAL_CRIT"] = "Heal Critical"
 	Loc ["STRING_HEAL_ABSORBED"] = "Heal absorbed"
 	Loc ["STRING_OVERHEAL"] = "Overheal"
 	Loc ["STRING_"] = ""
@@ -203,6 +205,11 @@ if not Loc then return end
 
 	Loc ["STRING_PLUGIN_CLOCKTYPE"] = "Clock Type"
 	
+	Loc ["STRING_PLUGIN_DURABILITY"] = "Durability"
+	Loc ["STRING_PLUGIN_LATENCY"] = "Latency"
+	Loc ["STRING_PLUGIN_GOLD"] = "Gold"
+	Loc ["STRING_PLUGIN_FPS"] = "Framerate"
+	Loc ["STRING_PLUGIN_TIME"] = "Clock"
 	Loc ["STRING_PLUGIN_CLOCKNAME"] = "Encounter Time"
 	Loc ["STRING_PLUGIN_PSEGMENTNAME"] = "Instance Segment"
 	Loc ["STRING_PLUGIN_PDPSNAME"] = "Raid Dps"

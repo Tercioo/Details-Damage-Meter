@@ -37,6 +37,10 @@ function _G._detalhes:Start()
 		self.deadlog_limit = self.deadlog_limit or 12
 		self.minimum_combat_time = self.minimum_combat_time or 5
 		
+		if (type (self.remove_realm_from_name) ~= "boolean") then
+			self.remove_realm_from_name = true
+		end
+		
 		if (type (self.cloud_capture) ~= "boolean") then
 			self.cloud_capture = true
 		end
@@ -201,9 +205,11 @@ function _G._detalhes:Start()
 			local instance = self.tabela_instancias [index]
 			if (instance:IsAtiva()) then
 				self:ScheduleTimer ("RefreshBars", 1, instance)
+				self:ScheduleTimer ("InstanceReset", 1, instance)
+				self:ScheduleTimer ("InstanceRefreshRows", 1, instance)
 			end
 		end
-		
+
 		function self:AtualizaGumps()
 			self:AtualizaGumpPrincipal (-1, true)
 			self.AtualizaGumps = nil
@@ -263,10 +269,7 @@ function _G._detalhes:Start()
 	--> group
 	self.details_users = {}
 	self.in_group = IsInGroup() or IsInRaid()
-	if (self.in_group) then
-		_detalhes:SendHighFive()
-	end
-	
+
 	--> send messages gathered on initialization
 	self:ScheduleTimer ("ShowDelayMsg", 7) 
 	

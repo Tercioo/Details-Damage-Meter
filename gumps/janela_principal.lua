@@ -17,6 +17,7 @@ local _math_floor = math.floor
 local _ipairs = ipairs
 local _pairs = pairs
 local _string_lower = string.lower
+local _unpack = unpack
 --api locals
 local _CreateFrame = CreateFrame
 local _GetTime = GetTime
@@ -2145,6 +2146,10 @@ function gump:CriaNovaBarra (instancia, index)
 	esta_barra.textura:SetHorizTile (false)
 	esta_barra.textura:SetVertTile (false)
 	esta_barra.textura:SetTexture (instancia.barrasInfo.textura)
+	
+	esta_barra.background = esta_barra:CreateTexture (nil, "BACKGROUND")
+	esta_barra.background:SetTexture()
+	esta_barra.background:SetAllPoints (esta_barra)
 
 	esta_barra.statusbar:SetStatusBarColor (0, 0, 0, 0)
 	esta_barra.statusbar:SetStatusBarTexture (esta_barra.textura)
@@ -2186,7 +2191,23 @@ function gump:CriaNovaBarra (instancia, index)
 	instancia:SetFontFace (esta_barra.texto_direita, instancia.barrasInfo.font)
 	_detalhes.font_pool:add (esta_barra.texto_direita)
 	
+	if (instancia.row_textL_outline) then
+		instancia:SetFontOutline (esta_barra.texto_esquerdo, instancia.row_textL_outline)
+	end
+	if (instancia.row_textR_outline) then
+		instancia:SetFontOutline (esta_barra.texto_direita, instancia.row_textR_outline)
+	end
 	
+	if (not instancia.row_texture_class_colors) then
+		esta_barra.textura:SetVertexColor (_unpack (instancia.fixed_row_texture_color))
+	end
+	
+	if (not instancia.row_textL_class_colors) then
+		esta_barra.texto_esquerdo:SetTextColor (_unpack (instancia.fixed_row_text_color))
+	end
+	if (not instancia.row_textR_class_colors) then
+		esta_barra.texto_direita:SetTextColor (_unpack (instancia.fixed_row_text_color))
+	end
 
 	--> inicia os scripts da barra
 	barra_scripts (esta_barra, instancia, index)
@@ -2194,6 +2215,54 @@ function gump:CriaNovaBarra (instancia, index)
 	gump:Fade (esta_barra, 1) --> hida a barra
 	
 	return esta_barra
+end
+
+function _detalhes:InstanceRefreshRows (instancia)
+	if (instancia) then
+		self = instancia
+	end
+	
+	--outline
+	local L_outline = self.row_textL_outline
+	local R_outline = self.row_textR_outline
+	--texture color
+	local textureClassColor = self.row_texture_class_colors
+	local texture_r, texture_g, texture_b
+	if (not textureClassColor) then
+		texture_r, texture_g, texture_b = _unpack (self.fixed_row_texture_color)
+	end
+	--text color
+	local leftTextClassColor = self.row_textL_class_colors
+	local rightTextClassColor = self.row_textR_class_colors
+	local text_r, text_g, text_b
+	if (not leftTextClassColor or not rightTextClassColor) then
+		text_r, text_g, text_b = _unpack (self.fixed_row_text_color)
+	end
+
+	for _, row in _ipairs (self.barras) do 
+		
+		if (L_outline) then
+			self:SetFontOutline (row.texto_esquerdo, L_outline)
+		else
+			self:SetFontOutline (row.texto_esquerdo, nil)
+		end
+		if (R_outline) then
+			self:SetFontOutline (row.texto_direita, R_outline)
+		else
+			self:SetFontOutline (row.texto_direita, nil)
+		end
+		--
+		if (not textureClassColor) then
+			row.textura:SetVertexColor (texture_r, texture_g, texture_b)
+		end
+		--
+		if (not leftTextClassColor) then
+			row.texto_esquerdo:SetTextColor (text_r, text_g, text_b)
+		end
+		if (not rightTextClassColor) then
+			row.texto_direita:SetTextColor (text_r, text_g, text_b)
+		end
+	end
 end
 
 -- search key: ~wallpaper
@@ -2211,11 +2280,35 @@ function _detalhes:InstanceWallpaper (texture, anchor, alpha, texcoord, width, h
 	elseif (type (texture) == "table") then
 		anchor = texture.anchor or wallpaper.anchor
 		alpha = texture.alpha or wallpaper.alpha
-		texcoord = texture.texcoord or wallpaper.texcoord
+		if (texture.texcoord) then
+			texcoord = {unpack (texture.texcoord)}
+		else
+			texcoord = wallpaper.texcoord
+		end
 		width = texture.width or wallpaper.width
 		height = texture.height or wallpaper.height
-		overlay = texture.overlay or wallpaper.overlay
+		if (texture.overlay) then
+			overlay = {unpack (texture.overlay)}
+		else
+			overlay = wallpaper.overlay
+		end
+		
+		if (type (texture.enabled) == "boolean") then
+			if (not texture.enabled) then
+				wallpaper.enabled = false
+				wallpaper.texture = texture.texture or wallpaper.texture
+				wallpaper.anchor = anchor
+				wallpaper.alpha = alpha
+				wallpaper.texcoord = texcoord
+				wallpaper.width = width
+				wallpaper.height = height
+				wallpaper.overlay = overlay
+				return self:InstanceWallpaper (false)
+			end
+		end
+		
 		texture = texture.texture or wallpaper.texture
+
 	else
 		texture = texture or wallpaper.texture
 		anchor = anchor or wallpaper.anchor
@@ -2481,7 +2574,7 @@ function _detalhes:DefaultIcons (_mode, _segment, _attributes, _report)
 		self.lastIcon = baseToolbar.ball
 	end
 	
-	_detalhes.ToolBar:ReorganizeIcons()
+	_detalhes.ToolBar:ReorganizeIcons() --> aqui 2553
 
 	return true
 end

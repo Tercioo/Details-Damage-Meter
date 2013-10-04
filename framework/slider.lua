@@ -20,6 +20,11 @@ local SliderMetaFunctions = {}
 	SliderMetaFunctions.__call = function (_table, value)
 		if (not value) then
 			if (_table.isSwitch) then
+			
+				if (type (value) == "boolean") then --> false
+					return _table.slider:SetValue (1)
+				end
+			
 				if (_table.slider:GetValue() == 1) then
 					return false
 				else

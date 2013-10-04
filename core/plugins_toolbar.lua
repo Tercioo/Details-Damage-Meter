@@ -186,7 +186,7 @@
 		
 		for _, instancia in pairs (_detalhes.tabela_instancias) do 
 			if (instancia.baseframe and instancia:IsAtiva()) then
-				instancia:ReajustaGump()
+				instancia:ReajustaGump() -- aqui
 			end
 		end
 		

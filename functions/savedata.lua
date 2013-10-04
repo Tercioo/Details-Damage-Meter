@@ -119,6 +119,7 @@ function _detalhes:SaveDataOnLogout()
 	_detalhes_global.time_type = _detalhes.time_type
 	_detalhes_global.memory_threshold = _detalhes.memory_threshold
 	_detalhes_global.memory_ram = _detalhes.memory_ram
+	_detalhes_global.remove_realm_from_name = _detalhes.remove_realm_from_name
 	
 	_detalhes_global.SpellOverwriteUser = _detalhes.SpellOverwriteUser
 	
@@ -313,6 +314,7 @@ end --]]
 		_detalhes.time_type = _detalhes_global.time_type or _detalhes.time_type
 		_detalhes.memory_threshold = _detalhes_global.memory_threshold
 		_detalhes.memory_ram = _detalhes_global.memory_ram
+		_detalhes.remove_realm_from_name = _detalhes_global.remove_realm_from_name
 		
 		_detalhes.SpellOverwriteUser = _detalhes_global.SpellOverwriteUser or _detalhes.SpellOverwriteUser
 	else

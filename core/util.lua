@@ -136,7 +136,20 @@
 		return fontface
 	end	
 	
-	
+	--> font outline
+	function _detalhes:SetFontOutline (fontString, outline)
+		local fonte, size = fontString:GetFont()
+		if (outline) then
+			if (_type (outline) == "boolean" and outline) then
+				outline = "OUTLINE"
+			elseif (outline == 1) then
+				outline = "OUTLINE"
+			elseif (outline == 2) then
+				outline = "THICKOUTLINE"
+			end
+		end
+		fontString:SetFont (fonte, size, outline)
+	end
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> internal functions
