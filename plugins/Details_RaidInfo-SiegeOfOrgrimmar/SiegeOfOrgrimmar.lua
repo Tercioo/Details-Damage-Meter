@@ -140,6 +140,7 @@ local siege_of_orgrimmar = {
 						[143295] = {0x1, 0x2000}, --> Sha Bolt
 						[143309] = {0x8, 0x40}, --> Swirl
 						[143413] = {0x8, 0x40}, --> Swirl
+						[143412] = {0x8, 0x40}, --  Swirl
 						[143436] = {0x100}, --> Corrosive Blast
 						[143281] = {0x8}, --> Seeping Sha
 						[143574] = {0x200}, --> Swelling Corruption
@@ -149,7 +150,9 @@ local siege_of_orgrimmar = {
 						[143297] = {0x200}, --> Sha Splash
 						[145377] = {0x1}, --> Erupting Water
 						[143574] = {0x200}, --> Swelling Corruption (H)
-						[143460] = {0x200} --> 
+						[143460] = {0x200}, --> 
+						[143579] = {} -- Sha Corruption
+						
 					},
 			
 			phases = {
@@ -164,11 +167,13 @@ local siege_of_orgrimmar = {
 							143574, --> Swelling Corruption
 							143297, --> Sha Splash
 							145377, --> Erupting Water
-							143574 --> Swelling Corruption (H)
+							143574, --> Swelling Corruption (H)
+							143579 -- Sha Corruption
 						},
 						
 					adds = {
 						71543, --> Immerseus
+						71642, --> Congealed Sha
 					}
 				},
 				--> phase 2 - Split
@@ -188,6 +193,7 @@ local siege_of_orgrimmar = {
 					adds = {
 						71603, --> Sha Puddle
 						71604, --> Contaminated Puddle
+						71642, --> Congealed Sha
 					}
 				}
 			}
@@ -320,6 +326,7 @@ local siege_of_orgrimmar = {
 						[145073] = {0x200, 0x8}, --> Residual Corruption
 						[144548] = {0x200}, --> Expel Corruption
 						[145134] = {0x200}, --> Expel Corruption -live
+						[144482] = {} --> Tear Reality
 					},
 			
 			continuo = {
@@ -341,6 +348,7 @@ local siege_of_orgrimmar = {
 						145073, -->  Residual Corruption
 						144548, -->  Expel Corruption
 						145134, -->  Expel Corruption
+						144482, --> Tear Reality
 			},
 			
 			phases = {

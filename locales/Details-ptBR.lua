@@ -21,6 +21,8 @@ if not Loc then return end
 	
 	Loc ["STRING_PLEASE_WAIT"] = "Por favor espere"
 	Loc ["STRING_UPTADING"] = "atualizando"
+	
+	Loc ["STRING_RAID_WIDE"] = "[*] cooldown de raide"
 
 	Loc ["STRING_RIGHTCLICK_CLOSE_SHORT"] = "Botao direito para fechar."
 	Loc ["STRING_RIGHTCLICK_CLOSE_MEDIUM"] = "Use o botao direito para fechar esta janela."

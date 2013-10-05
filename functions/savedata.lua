@@ -278,13 +278,19 @@ end --]]
 		["energy"] = true,
 		["miscdata"] = true,
 		["aura"] = true,
+		["spellcast"] = true,
 	}
-	_detalhes.cloud_capture = _detalhes_database.cloud_capture
+
+	if (_detalhes.capture_real.spellcast == nil) then
+		_detalhes.capture_real.spellcast = true
+	end
 	
 	_detalhes.capture_current = {}
 	for captureType, captureValue in pairs (_detalhes.capture_real) do 
 		_detalhes.capture_current [captureType] = captureValue
 	end
+	
+	_detalhes.cloud_capture = _detalhes_database.cloud_capture
 	_detalhes.minimum_combat_time = _detalhes_database.minimum_combat_time
 	
 	

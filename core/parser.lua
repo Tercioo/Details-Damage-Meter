@@ -34,6 +34,7 @@
 	local parser = _detalhes.parser --details local
 	local absorb_spell_list = _detalhes.AbsorbSpells --details local
 	local defensive_cooldown_spell_list = _detalhes.DefensiveCooldownSpells --details local
+	local defensive_cooldown_spell_list_no_buff = _detalhes.DefensiveCooldownSpellsNoBuff --details local
 	local cc_spell_list = _detalhes.CrowdControlSpells --details local
 	local container_combatentes = _detalhes.container_combatentes --details local
 	local container_habilidades = _detalhes.container_habilidades --details local
@@ -137,9 +138,9 @@
 		if (not _in_combat) then
 			if (		token ~= "SPELL_PERIODIC_DAMAGE" and 
 				( 
-					( _bit_band (who_flags, AFFILIATION_GROUP) ~= 0 and _UnitAffectingCombat (who_name) )
+					(who_flags and _bit_band (who_flags, AFFILIATION_GROUP) ~= 0 and _UnitAffectingCombat (who_name) )
 					or 
-					(_bit_band (alvo_flags, AFFILIATION_GROUP) ~= 0 and _UnitAffectingCombat (alvo_name) ) 
+					(alvo_flags and _bit_band (alvo_flags, AFFILIATION_GROUP) ~= 0 and _UnitAffectingCombat (alvo_name) ) 
 				)) then 
 				
 				--> não entra em combate se for DOT
@@ -697,10 +698,9 @@
 				else
 					escudo [alvo_name] [spellid] [who_name] = amount
 				end
-			
 			elseif (defensive_cooldown_spell_list [spellid]) then
 				--> usou cooldown
-				return parser:add_defensive_cooldown (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, _, tipo, amount)
+				return parser:add_defensive_cooldown (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname)
 				
 	------------------------------------------------------------------------------------------------
 	--> recording buffs
@@ -1108,7 +1108,7 @@
 	--> MISC 	search key: ~cooldown											|
 -----------------------------------------------------------------------------------------------------------------------------------------
 
-	function parser:add_defensive_cooldown (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, _, tipo, amount)
+	function parser:add_defensive_cooldown (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname)
 	
 	------------------------------------------------------------------------------------------------
 	--> early checks and fixes
@@ -1297,6 +1297,114 @@
 		return spell:Add (alvo_serial, alvo_name, alvo_flags, who_name, token, extraSpellID, extraSpellName)
 
 	end
+	
+	--> search key: ~spellcast castspell
+	function parser:spellcast (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype)
+	
+		--print (token, time, "WHO:",who_serial, who_name, who_flags, "TARGET:",alvo_serial, alvo_name, alvo_flags, "SPELL:",spellid, spellname, spelltype)
+		
+		--> esta dando erro onde o nome é NIL, fazendo um fix para isso
+		if (who_flags and _bit_band (who_flags, OBJECT_TYPE_PLAYER) ~= 0) then
+			--> check if is a cooldown :D
+			if (defensive_cooldown_spell_list_no_buff [spellid]) then
+				--> usou cooldown
+				if (not alvo_name) then	
+					if (defensive_cooldown_spell_list_no_buff [spellid][3] == 1) then
+						alvo_name = who_name
+					else
+						alvo_name = Loc ["STRING_RAID_WIDE"]
+					end
+				end
+				return parser:add_defensive_cooldown (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname)
+			else
+				return
+			end
+		else
+		
+			
+		
+			--> spells de boss
+			return
+		end
+
+		if (not who_name) then
+			--print ( "DISPELL sem who_name: [*] "..extraSpellName )
+			--print (alvo_name)
+			--print (spellname)
+			who_name = "[*] ".. spellname
+		end
+		
+		if (not alvo_name) then
+			--print ("DISPELL sem alvo_name: [*] "..extraSpellName)
+			--print (who_name)
+			--print (spellname)
+			alvo_name = "[*] ".. spellid
+		end
+		
+		_current_misc_container.need_refresh = true
+		_overall_misc_container.need_refresh = true
+		
+		
+		
+	------------------------------------------------------------------------------------------------
+	--> get actors
+
+		--> main actor
+		--> debug - no cache
+		--[[
+		local este_jogador, meu_dono, who_name = _current_misc_container:PegarCombatente (who_serial, who_name, who_flags, true)
+		--]]
+		--[
+		
+		
+		
+		local este_jogador, meu_dono = misc_cache [who_name]
+		if (not este_jogador) then --> pode ser um desconhecido ou um pet
+			este_jogador, meu_dono, who_name = _current_misc_container:PegarCombatente (who_serial, who_name, who_flags, true)
+			if (not meu_dono) then --> se não for um pet, adicionar no cache
+				misc_cache [who_name] = este_jogador
+			end
+		end
+		--]]
+		local shadow = este_jogador.shadow
+
+	------------------------------------------------------------------------------------------------
+	--> build containers on the fly
+
+		if (not este_jogador.spellcast) then
+			--> constrói aqui a tabela dele
+			este_jogador.spellcast = 0
+			este_jogador.spellcast_spell_tables = container_habilidades:NovoContainer (container_misc)
+
+			if (not shadow.spellcast_targets) then
+				shadow.spellcast = 0
+				shadow.spellcast_spell_tables = container_habilidades:NovoContainer (container_misc)
+			end
+
+			este_jogador.spellcast_targets.shadow = shadow.spellcast_targets
+			este_jogador.spellcast_spell_tables.shadow = shadow.spellcast_spell_tables
+		end
+		
+	------------------------------------------------------------------------------------------------
+	--> add amount
+
+		--> last event update
+		este_jogador.last_event = _tempo
+
+		--> actor dispell amount
+		este_jogador.spellcast = este_jogador.spellcast + 1
+		shadow.spellcast = shadow.spellcast + 1
+		
+		--> actor spells table
+		local spell = este_jogador.spellcast_spell_tables._ActorTable [spellid]
+		if (not spell) then
+			spell = este_jogador.spellcast_spell_tables:PegaHabilidade (spellid, true, token)
+		end
+		return spell:Add (alvo_serial, alvo_name, alvo_flags, who_name, token)
+		
+		-- FIM FIM 
+	end
+
 
 	--serach key: ~dispell
 	function parser:dispell (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, extraSpellID, extraSpellName, extraSchool, auraType)
@@ -1838,7 +1946,7 @@
 
 	--serach key: ~capture
 
-	_detalhes.capture_types = {"damage", "heal", "energy", "miscdata", "aura"}
+	_detalhes.capture_types = {"damage", "heal", "energy", "miscdata", "aura", "spellcast"}
 
 	function _detalhes:CaptureIsAllEnabled()
 		for _, _thisType in _ipairs (_detalhes.capture_types) do 
@@ -1914,6 +2022,9 @@
 			token_list ["SPELL_ENERGIZE"] = nil
 			token_list ["SPELL_PERIODIC_ENERGIZE"] = nil
 		
+		elseif (capture_type == "spellcast") then
+			token_list ["SPELL_CAST_SUCCESS"] = nil
+		
 		elseif (capture_type == "miscdata") then
 			-- dispell
 			token_list ["SPELL_DISPEL"] = nil
@@ -1961,6 +2072,9 @@
 			token_list ["SPELL_ENERGIZE"] = parser.energize
 			token_list ["SPELL_PERIODIC_ENERGIZE"] = parser.energize
 		
+		elseif (capture_type == "spellcast") then
+			token_list ["SPELL_CAST_SUCCESS"] = parser.spellcast
+		
 		elseif (capture_type == "miscdata") then
 			-- dispell
 			token_list ["SPELL_DISPEL"] = parser.dispell
@@ -1987,10 +2101,12 @@
 		--print (token)
 
 		-- DEBUG
-		
-		--local a, b, c, d, e, f, g, h, i, j, k = select (1, ...)
-		--print (token, who_name, a, b, c, d, e, f, g, h, i, j, k)
-		
+		--[[
+		if (who_name == "Trcioo") then
+		local a, b, c, d, e, f, g, h, i, j, k = select (1, ...)
+		print (token, who_name, a, b, c, d, e, f, g, h, i, j, k)
+		end
+		--]]
 		--[[
 		if (who_name == "Ditador") then
 			if (token:find ("CAST")) then

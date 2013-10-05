@@ -22,6 +22,8 @@ if not Loc then return end
 	Loc ["STRING_PLEASE_WAIT"] = "Please wait"
 	Loc ["STRING_UPTADING"] = "updating"
 	
+	Loc ["STRING_RAID_WIDE"] = "[*] raid wide cooldown"
+	
 	Loc ["STRING_RIGHTCLICK_CLOSE_SHORT"] = "Right click to close."
 	Loc ["STRING_RIGHTCLICK_CLOSE_MEDIUM"] = "Use right click to close this window."
 	Loc ["STRING_RIGHTCLICK_CLOSE_LARGE"] = "Click with right mouse button to close this window."

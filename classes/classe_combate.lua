@@ -133,7 +133,7 @@ function combate:NovaTabela (iniciada, _tabela_overall, combatId, ...)
 			interrupt = 0, --> armazena quantos interrupt a pessoa deu
 			dispell = 0, --> armazena quantos dispell esta pessoa recebeu
 			dead = 0, --> armazena quantas vezes essa pessia morreu		
-			cooldowns_defensive = 0 --> armazena quantos cooldowns a raid usou
+			cooldowns_defensive = 0, --> armazena quantos cooldowns a raid usou
 		}
 	}
 	

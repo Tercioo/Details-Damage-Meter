@@ -63,6 +63,7 @@ function historico:adicionar (tabela)
 			end
 		end
 		
+		--[[
 		if (self.tabelas[3]) then
 			if (self.tabelas[3].is_trash and self.tabelas[2].is_trash and not self.tabelas[3].is_boss and not self.tabelas[2].is_boss) then
 				--> tabela 2 deve ser deletada e somada a tabela 1
@@ -82,6 +83,7 @@ function historico:adicionar (tabela)
 			--self.tabelas[2] = self.tabelas[2] + self.tabelas[3]
 			--_table_remove (self.tabelas, 3)
 		end
+		--]]
 		
 	end
 
