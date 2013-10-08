@@ -115,6 +115,7 @@ local throne_of_thunder = {
 			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Horridon]],
 
 			combat_end = {1, 68476},
+			equalize = true,
 			
 			spell_mechanics =	{
 						[136719] = {0x10}, --> Blazing Sunlight (Wastewalker)
@@ -747,6 +748,7 @@ local throne_of_thunder = {
 			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Empyreal Queens]],
 			
 			combat_end = {2, {68904, 68905}},
+			equalize = true,
 			
 			spell_mechanics =	{
 				[137410] = {0x200, 0x1}, --> Blazing Radiance

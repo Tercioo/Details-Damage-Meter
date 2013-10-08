@@ -92,6 +92,44 @@ function _detalhes.SortGroupIfHaveKey (table1, table2)
 	end
 end
 
+function _detalhes.SortGroupMisc (container, keyName2)
+	keyName = keyName2
+	return _table_sort (container, _detalhes.SortKeyGroupMisc)
+end
+
+function _detalhes.SortKeyGroupMisc (table1, table2)
+	if (table1.grupo and table2.grupo) then
+		return table1 [keyName] > table2 [keyName]
+	elseif (table1.grupo and not table2.grupo) then
+		return true
+	elseif (not table1.grupo and table2.grupo) then
+		return false
+	else
+		return table1 [keyName] > table2 [keyName]
+	end
+end
+
+function _detalhes.SortKeySimpleMisc (table1, table2)
+	return table1 [keyName] > table2 [keyName]
+end
+
+function _detalhes:ContainerSortMisc (container, amount, keyName2)
+	keyName = keyName2
+	_table_sort (container,  _detalhes.SortKeySimpleMisc)
+	
+	if (amount) then 
+		for i = amount, 1, -1 do --> de trás pra frente
+			if (container[i][keyName] < 1) then
+				amount = amount-1
+			else
+				break
+			end
+		end
+		
+		return amount
+	end
+end
+
 function atributo_misc:NovaTabela (serial, nome, link)
 
 	local _new_miscActor = {
@@ -197,13 +235,34 @@ function atributo_misc:ReportSingleDeadLine (morte, instancia)
 
 	local barra = instancia.barras [morte.minha_barra]
 
-	local reportar = {"Detalhes da morte de " .. morte [3] .. " " .. barra.texto_esquerdo:GetText()} --> localize-me
+	local reportar = {"Details! " .. Loc ["STRING_REPORT_SINGLE_DEATH"] .. " " .. morte [3] .. " " .. barra.texto_esquerdo:GetText()} --> localize-me
 	for i = 1, GameCooltip:GetNumLines() do 
 		local texto_left, texto_right = GameCooltip:GetText (i)
 		
 		if (texto_left and texto_right) then 
 			texto_left = texto_left:gsub (("|T(.*)|t "), "")
 			reportar [#reportar+1] = ""..texto_left.." "..texto_right..""
+		end
+	end
+
+	return _detalhes:Reportar (reportar, {_no_current = true, _no_inverse = true, _custom = true})
+end
+
+function atributo_misc:ReportSingleCooldownLine (misc_actor, instancia)
+
+	local barra = misc_actor.minha_barra
+
+	local reportar = {"Details! " .. Loc ["STRING_REPORT_SINGLE_COOLDOWN"] .. " " .. barra.texto_esquerdo:GetText()} --> localize-me
+	reportar [#reportar+1] = "> " .. Loc ["STRING_SPELLS"] .. ":"
+	
+	for i = 1, GameCooltip:GetNumLines() do 
+		local texto_left, texto_right = GameCooltip:GetText (i)
+		
+		if (texto_left and texto_right) then 
+			texto_left = texto_left:gsub (("|T(.*)|t "), "")
+			reportar [#reportar+1] = "  "..texto_left.." "..texto_right..""
+		elseif (i ~= 1) then
+			reportar [#reportar+1] = "> " .. Loc ["STRING_TARGETS"] .. ":"
 		end
 	end
 
@@ -867,7 +926,7 @@ function atributo_misc:ToolTipDefensiveCooldowns (instancia, numero, barra)
 	GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
 	
 	if (#cooldowns_usados > 0) then
-		for i = 1, _math_min (3, #cooldowns_usados) do
+		for i = 1, _math_min (15, #cooldowns_usados) do
 			local esta_habilidade = cooldowns_usados[i]
 			local nome_magia, _, icone_magia = _GetSpellInfo (esta_habilidade[1])
 			GameCooltip:AddLine (nome_magia..": ", esta_habilidade[2].." (".._cstr("%.1f", esta_habilidade[2]/meu_total*100).."%)")

@@ -107,7 +107,7 @@ function atributo_custom:RefreshWindow (instancia, _combat, forcar, exportar)
 	if (CustomObject.attribute == 1) then 
 		return _detalhes.atributo_damage:RefreshWindow (instancia, _combat, forcar, exportar)
 	elseif (CustomObject.attribute == 2) then 
-		_detalhes.atributo_heal:RefreshWindow (instancia, _combat, forcar, exportar)
+		return _detalhes.atributo_heal:RefreshWindow (instancia, _combat, forcar, exportar)
 	end
 	
 	--> aqui precisa fazer algo para retornar algo pro report reconhecer a tabela

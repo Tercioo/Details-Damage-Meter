@@ -136,11 +136,11 @@ function _G._detalhes:Start()
 		--damage, dps, damage taken, friendly fire
 			self.row_singleclick_overwrite [1] = {true, true, true, true, self.atributo_damage.ReportSingleFragsLine} 
 		--healing, hps, overheal, healing taken
-			self.row_singleclick_overwrite [2] = {true, true, true, true, false, false} 
+			self.row_singleclick_overwrite [2] = {true, true, true, true, false, self.atributo_heal.ReportSingleDamagePreventedLine} 
 		--mana, rage, energy, runepower
 			self.row_singleclick_overwrite [3] = {true, true, true, true} 
 		--cc breaks, ress, interrupts, dispells, deaths
-			self.row_singleclick_overwrite [4] = {true, true, true, true, self.atributo_misc.ReportSingleDeadLine, false} 
+			self.row_singleclick_overwrite [4] = {true, true, true, true, self.atributo_misc.ReportSingleDeadLine, self.atributo_misc.ReportSingleCooldownLine} 
 		
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> initialize

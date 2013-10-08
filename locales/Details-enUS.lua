@@ -17,6 +17,11 @@ if not Loc then return end
 	Loc ["STRING_CHANGED_TO_CURRENT"] = "Segment changed to current"
 	Loc ["STRING_SEGMENT_TRASH"] = "Next Boss Cleanup"
 	
+	Loc ["STRING_NO_DATA"] = "data already has been cleaned"
+	Loc ["STRING_ISA_PET"] = "This Actor is a Pet"
+	Loc ["STRING_EQUILIZING"] = "Sharing encounter data"
+	Loc ["STRING_LEFT_CLICK_SHARE"] = "Left click to report."
+	
 	Loc ["STRING_INSTANCE_LIMIT"] = "max instance number has been reached, you can modify this limit over options panel."
 	
 	Loc ["STRING_PLEASE_WAIT"] = "Please wait"
@@ -252,6 +257,8 @@ if not Loc then return end
 	Loc ["STRING_REPORT_LASTFIGHT"] = "last fight"
 	Loc ["STRING_REPORT_PREVIOUSFIGHTS"] = "previous fights"
 	Loc ["STRING_REPORT_INVALIDTARGET"] = "Whisper target not found"
+	Loc ["STRING_REPORT_SINGLE_DEATH"] = "death details of"
+	Loc ["STRING_REPORT_SINGLE_COOLDOWN"] = "cooldowns used by"
 	Loc ["STRING_NOCLOSED_INSTANCES"] = "There are no closed instances,\nclick to open a new one."
 	
 --> report frame

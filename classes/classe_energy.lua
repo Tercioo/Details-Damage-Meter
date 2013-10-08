@@ -112,6 +112,44 @@ function atributo_energy:NovaTabela (serial, nome, link)
 	return _new_energyActor
 end
 
+function _detalhes.SortGroupEnergy (container, keyName2)
+	keyName = keyName2
+	return _table_sort (container, _detalhes.SortKeyGroupEnergy)
+end
+
+function _detalhes.SortKeyGroupEnergy (table1, table2)
+	if (table1.grupo and table2.grupo) then
+		return table1 [keyName] > table2 [keyName]
+	elseif (table1.grupo and not table2.grupo) then
+		return true
+	elseif (not table1.grupo and table2.grupo) then
+		return false
+	else
+		return table1 [keyName] > table2 [keyName]
+	end
+end
+
+function _detalhes.SortKeySimpleEnergy (table1, table2)
+	return table1 [keyName] > table2 [keyName]
+end
+
+function _detalhes:ContainerSortEnergy (container, amount, keyName2)
+	keyName = keyName2
+	_table_sort (container,  _detalhes.SortKeySimpleEnergy)
+	
+	if (amount) then 
+		for i = amount, 1, -1 do --> de trás pra frente
+			if (container[i][keyName] < 1) then
+				amount = amount-1
+			else
+				break
+			end
+		end
+		
+		return amount
+	end
+end
+
 function atributo_energy:RefreshWindow (instancia, tabela_do_combate, forcar, exportar)
 
 	local showing = tabela_do_combate [class_type] --> o que esta sendo mostrado -> [1] - dano [2] - cura --> pega o container com ._NameIndexTable ._ActorTable
@@ -162,7 +200,7 @@ function atributo_energy:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 	
 	if (instancia.atributo == 5) then --> custom
 		--> faz o sort da categoria e retorna o amount corrigido
-		amount = _detalhes:ContainerSort (conteudo, amount, keyName)
+		amount = _detalhes:ContainerSortEnergy (conteudo, amount, keyName)
 		
 		--> grava o total
 		instancia.top = conteudo[1][keyName]

@@ -306,6 +306,7 @@ local siege_of_orgrimmar = {
 			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Norushen]],
 			
 			combat_end = {1, 72276},
+			equalize = true,
 			
 			spell_mechanics =	{
 						[146707] = {0x1}, --> Disheartening Laugh
@@ -1323,6 +1324,7 @@ local siege_of_orgrimmar = {
 			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Garrosh Hellscream]],
 
 			combat_end = {1, 71865},
+			equalize = true,
 			
 			spell_mechanics = {
 				[144582] = {0x1}, --Hamstring (Kor'kron Warbringers)

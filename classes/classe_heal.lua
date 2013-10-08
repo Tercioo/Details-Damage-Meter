@@ -112,6 +112,59 @@ function atributo_heal:NovaTabela (serial, nome, link)
 end
 
 
+function _detalhes.SortGroupHeal (container, keyName2)
+	keyName = keyName2
+	return _table_sort (container, _detalhes.SortKeyGroupHeal)
+end
+
+function _detalhes.SortKeyGroupHeal (table1, table2)
+	if (table1.grupo and table2.grupo) then
+		return table1 [keyName] > table2 [keyName]
+	elseif (table1.grupo and not table2.grupo) then
+		return true
+	elseif (not table1.grupo and table2.grupo) then
+		return false
+	else
+		return table1 [keyName] > table2 [keyName]
+	end
+end
+
+function _detalhes.SortKeySimpleHeal (table1, table2)
+	return table1 [keyName] > table2 [keyName]
+end
+
+function _detalhes:ContainerSortHeal (container, amount, keyName2)
+	keyName = keyName2
+	_table_sort (container,  _detalhes.SortKeySimpleHeal)
+	
+	if (amount) then 
+		for i = amount, 1, -1 do --> de trás pra frente
+			if (container[i][keyName] < 1) then
+				amount = amount-1
+			else
+				break
+			end
+		end
+		
+		return amount
+	end
+end
+
+function atributo_heal:ReportSingleDamagePreventedLine (actor, instancia)
+	local barra = instancia.barras [actor.minha_barra]
+
+	local reportar = {"Details! " .. Loc ["STRING_ATTRIBUTE_HEAL_PREVENT"].. ": " .. actor.nome} --> localize-me
+	for i = 1, GameCooltip:GetNumLines() do 
+		local texto_left, texto_right = GameCooltip:GetText (i)
+		if (texto_left and texto_right) then 
+			texto_left = texto_left:gsub (("|T(.*)|t "), "")
+			reportar [#reportar+1] = ""..texto_left.." "..texto_right..""
+		end
+	end
+
+	return _detalhes:Reportar (reportar, {_no_current = true, _no_inverse = true, _custom = true})
+end
+
 function atributo_heal:RefreshWindow (instancia, tabela_do_combate, forcar, exportar)
 	
 	local showing = tabela_do_combate [class_type] --> o que esta sendo mostrado -> [1] - dano [2] - cura
@@ -176,14 +229,14 @@ function atributo_heal:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 
 	if (instancia.atributo == 5) then --> custom
 		--> faz o sort da categoria e retorna o amount corrigido
-		amount = _detalhes:ContainerSort (conteudo, amount, keyName)
+		amount = _detalhes:ContainerSortHeal (conteudo, amount, keyName)
 		
 		--> grava o total
 		instancia.top = conteudo[1][keyName]
 	
 	elseif (instancia.modo == modo_ALL or sub_atributo == 5) then --> mostrando ALL
 	
-		amount = _detalhes:ContainerSort (conteudo, amount, keyName)
+		amount = _detalhes:ContainerSortHeal (conteudo, amount, keyName)
 
 		--> pega o total ja aplicado na tabela do combate
 		total = tabela_do_combate.totals [class_type]
@@ -205,7 +258,7 @@ function atributo_heal:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 				return _detalhes:EsconderBarrasNaoUsadas (instancia, showing)
 			end
 		
-			_detalhes:ContainerSort (conteudo, nil, keyName)
+			_detalhes:ContainerSortHeal (conteudo, nil, keyName)
 		
 			if (conteudo[1][keyName] < 1) then
 				amount = 0
@@ -219,7 +272,7 @@ function atributo_heal:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 			end
 		else
 			--_table_sort (conteudo, _detalhes.SortKeyGroup)
-			_detalhes.SortGroup (conteudo, keyName)
+			_detalhes.SortGroupHeal (conteudo, keyName)
 		end
 		
 		--_table_sort (conteudo, _detalhes.SortKeyGroup)
@@ -317,8 +370,10 @@ function atributo_heal:Custom (_customName, _combat, sub_atributo, spell, alvo)
 		
 		for _, TargetActor in _ipairs (SkillTargets) do 
 			local TargetActorSelf = _combat (class_type, TargetActor.nome)
-			TargetActorSelf.custom = TargetActor.total + TargetActorSelf.custom
-			_combat.totals [_customName] = _combat.totals [_customName] + TargetActor.total
+			if (TargetActorSelf) then
+				TargetActorSelf.custom = TargetActor.total + TargetActorSelf.custom
+				_combat.totals [_customName] = _combat.totals [_customName] + TargetActor.total
+			end
 		end
 	end
 end
@@ -713,6 +768,12 @@ function atributo_heal:ToolTip_HealingDone (instancia, numero, barra)
 		GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
 	end
 	
+	if (instancia.sub_atributo == 6) then
+		GameCooltip:AddLine (Loc ["STRING_REPORT_LEFTCLICK"], nil, 1, "white")
+		GameCooltip:AddIcon ([[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]], 1, 1, 12, 16, 0.015625, 0.13671875, 0.4375, 0.59765625)
+		GameCooltip:ShowCooltip()
+	end
+	
 	local container = instancia.showing [2]
 	
 	if (instancia.sub_atributo == 1) then -- 1 or 2 -> healing done or hps
@@ -915,6 +976,26 @@ function atributo_heal:MontaInfoHealTaken()
 
 	local max_ = meus_curandeiros [1] and meus_curandeiros [1][2] or 0
 	
+	local barra
+	for index, tabela in _ipairs (meus_curandeiros) do
+		barra = barras [index]
+		if (not barra) then
+			barra = gump:CriaNovaBarraInfo1 (instancia, index)
+		end
+
+		self:FocusLock (barra, tabela[1])
+		
+		--hes:UpdadeInfoBar (row, index, spellid, name, value, max, percent, icon, detalhes)
+		
+		local texCoords = CLASS_ICON_TCOORDS [tabela[4]]
+		if (not texCoords) then
+			texCoords = _detalhes.class_coords ["UNKNOW"]
+		end
+		
+		self:UpdadeInfoBar (barra, index, tabela[1], tabela[1], tabela[2], max_, tabela[3], "Interface\\AddOns\\Details\\images\\classes_small", true, texCoords)
+	end	
+	
+	--[[
 	for index, tabela in _ipairs (meus_curandeiros) do
 		
 		local barra = barras [index]
@@ -969,7 +1050,7 @@ function atributo_heal:MontaInfoHealTaken()
 		end
 		
 	end
-	
+	--]]
 end
 
 function atributo_heal:MontaInfoOverHealing()

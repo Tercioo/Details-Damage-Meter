@@ -17,6 +17,11 @@ if not Loc then return end
 	Loc ["STRING_CHANGED_TO_CURRENT"] = "Segmento trocado para atual"
 	Loc ["STRING_SEGMENT_TRASH"] = "Caminho do Proximo Boss"
 	
+	Loc ["STRING_NO_DATA"] = "data já foi limpada"
+	Loc ["STRING_ISA_PET"] = "Este Ator e um Ajudante"
+	Loc ["STRING_EQUILIZING"] = "Comparilhando dados"
+	Loc ["STRING_LEFT_CLICK_SHARE"] = "Clique para enviar relatorio."
+	
 	Loc ["STRING_INSTANCE_LIMIT"] = "o limite de instancias foi atingido, voce pode modificar este limite no painel de opcoes."
 	
 	Loc ["STRING_PLEASE_WAIT"] = "Por favor espere"
@@ -247,6 +252,8 @@ if not Loc then return end
 	Loc ["STRING_REPORT_LASTFIGHT"] = "ultima luta"
 	Loc ["STRING_REPORT_PREVIOUSFIGHTS"] = "lutas anteriores"
 	Loc ["STRING_REPORT_INVALIDTARGET"] = "O alvo nao pode ser encontrado"
+	Loc ["STRING_REPORT_SINGLE_DEATH"] = "detalhes da morte de"
+	Loc ["STRING_REPORT_SINGLE_COOLDOWN"] = "cooldowns usados por"
 	Loc ["STRING_NOCLOSED_INSTANCES"] = "Nao ha instancias fechadas,\nclique para abrir uma nova."
 	--Loc ["STRING_REPORT_FRAG"] = 
 	

@@ -423,7 +423,8 @@
 		if (_detalhes.segments_amount_to_save and _detalhes.segments_amount_to_save < _detalhes.segments_amount) then
 			for i = _detalhes.segments_amount, _detalhes.segments_amount_to_save+1, -1  do
 				if (_detalhes.tabela_historico.tabelas [i]) then
-					_detalhes.tabela_historico.tabelas [i] = nil
+					--_detalhes.tabela_historico.tabelas [i] = nil
+					table.remove (_detalhes.tabela_historico.tabelas, i)
 				end
 			end
 		end
@@ -437,8 +438,8 @@
 			tabelas_de_combate [#tabelas_de_combate+1] = _tabela
 		end
 		
-		tabelas_de_combate [#tabelas_de_combate+1] = tabela_atual
-		--tabelas_de_combate [#tabelas_de_combate+1] = tabela_overall
+		--tabelas_de_combate [#tabelas_de_combate+1] = tabela_atual --não salva mais a atual
+		--tabelas_de_combate [#tabelas_de_combate+1] = tabela_overall --não salva mais a overall
 
 		--> make sure details database exists
 		_detalhes_database = _detalhes_database or {}
@@ -481,15 +482,25 @@
 						
 						if (_iter.data.grupo or _iter.data.boss or _iter.data.boss_fight_component or IsBossEncounter) then
 							can_erase = false
+							--if (class_type == 1) then
+							--	print ("SAVE ",  _iter.data.nome, tabela_index)
+							--end
 						else
 							local owner = _iter.data.owner
 							if (owner) then 
 								local owner_actor = _combate (class_type, owner.nome)
 								if (owner_actor) then 
 									if (owner.grupo or owner.boss or owner.boss_fight_component) then
+										--if (class_type == 1) then
+										--	print ("SAVE",  _iter.data.nome, "| owner:",_iter.data.owner.nome, tabela_index)
+										--end
 										can_erase = false
 									end
 								end
+							else
+								--if (class_type == 1) then
+								--	print ("DELETANDO",  _iter.data.nome, tabela_index)
+								--end
 							end
 						end
 						

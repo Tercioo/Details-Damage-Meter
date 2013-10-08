@@ -350,6 +350,15 @@
 					
 					--> schedule sync
 					_detalhes:EqualizeActorsSchedule (_detalhes.host_of)
+					if (_detalhes:GetEncounterEqualize (_detalhes.tabela_vigente.is_boss.mapid, _detalhes.tabela_vigente.is_boss.index)) then
+						local lower_instance = _detalhes:GetLowerInstanceNumber()
+						if (lower_instance) then
+							lower_instance = _detalhes:GetInstance (lower_instance)
+							if (lower_instance) then
+								lower_instance:InstanceAlert (Loc ["STRING_EQUILIZING"], {[[Interface\COMMON\StreamCircle]], 22, 22, true}, 5)
+							end
+						end
+					end
 					
 					--> schedule clean up
 					_detalhes:ScheduleTimer ("IniciarColetaDeLixo", 15, true)
@@ -661,7 +670,7 @@
 			return _detalhes.combat_id
 		end
 
-	--> tooltip fork
+	--> tooltip fork search key: ~tooltip
 		local avatarPoint = {"bottomleft", "topleft", -3, -4}
 		local backgroundPoint = {{"bottomleft", "topleft", 0, -3}, {"bottomright", "topright", 0, -3}}
 		local textPoint = {"left", "right", -11, -5}
@@ -672,6 +681,7 @@
 			GameCooltip:SetType ("tooltip")
 			GameCooltip:SetOption ("LeftBorderSize", -5)
 			GameCooltip:SetOption ("RightBorderSize", 5)
+			GameCooltip:SetOption ("MinWidth", 180)
 			GameCooltip:SetOption ("StatusBarTexture", [[Interface\WorldStateFrame\WORLDSTATEFINALSCORE-HIGHLIGHT]]) --[[Interface\Addons\Details\images\bar_flat]]
 			GameCooltip:SetOwner (frame)
 			

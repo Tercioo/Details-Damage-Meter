@@ -65,6 +65,7 @@ function DetailsCreateCoolTip()
 			["IconSize"] = true,
 			["HeightAnchorMod"] = true,
 			["WidthAnchorMod"] = true,
+			["MinWidth"] = true,
 			["FixedWidth"] = true,
 			["FixedHeight"] = true,
 			["FixedWidthSub"] = true,
@@ -96,6 +97,7 @@ function DetailsCreateCoolTip()
 			["IconSize"] = nil,
 			["HeightAnchorMod"] = nil,
 			["WidthAnchorMod"] = nil,
+			["MinWidth"] = nil,
 			["FixedWidth"] = nil,
 			["FixedHeight"] = nil,
 			["FixedWidthSub"] = nil,
@@ -978,7 +980,12 @@ function DetailsCreateCoolTip()
 		
 		if (not CoolTip.OptionsTable.FixedWidth) then
 			if (CoolTip.Type == 2) then --> with bars
-				frame1:SetWidth (frame1.w + 34)
+				if (CoolTip.OptionsTable.MinWidth) then
+					local w = frame1.w + 34
+					frame1:SetWidth (math.max (w, CoolTip.OptionsTable.MinWidth))
+				else
+					frame1:SetWidth (frame1.w + 34)
+				end
 			else
 				--> width stability check
 				local width = frame1.w + 24
@@ -987,7 +994,12 @@ function DetailsCreateCoolTip()
 				else
 					CoolTip.LastSize = width
 				end
-				frame1:SetWidth (width)
+				
+				if (CoolTip.OptionsTable.MinWidth) then
+					frame1:SetWidth (math.max (width, CoolTip.OptionsTable.MinWidth))
+				else
+					frame1:SetWidth (width)
+				end
 			end
 		end
 		
@@ -1111,7 +1123,12 @@ function DetailsCreateCoolTip()
 		end
 		
 		if (not CoolTip.OptionsTable.FixedWidth) then
-			frame1:SetWidth (frame1.w + 24)
+			if (CoolTip.OptionsTable.MinWidth) then
+				local w = frame1.w + 24
+				frame1:SetWidth (math.max (w, CoolTip.OptionsTable.MinWidth))
+			else
+				frame1:SetWidth (frame1.w + 24)
+			end
 		end
 		
 		if (CoolTip.OptionsTable.FixedHeight) then

@@ -379,6 +379,10 @@ function SlashCmdList.DETAILS (msg, editbox)
 		f:Show()
 	
 	--> debug
+	elseif (msg == "save") then
+		print ("running...")
+		_detalhes:PrepareTablesForSave()
+	
 	elseif (msg == "id") then
 		local one, two = rest:match("^(%S*)%s*(.-)$")
 		if (one ~= "") then

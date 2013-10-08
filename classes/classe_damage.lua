@@ -1,4 +1,4 @@
-
+--why do a cleanup on classes today if i can do tomorrow?
 
 --lua locals
 local _cstr = string.format
@@ -139,7 +139,7 @@ end
 --[[exported]] 	function _detalhes.SortKeySimple (table1, table2)
 				return table1 [keyName] > table2 [keyName]
 			end
-
+			
 --[[exported]] 	function _detalhes:ContainerSort (container, amount, keyName2)
 				keyName = keyName2
 				_table_sort (container,  _detalhes.SortKeySimple)
@@ -165,6 +165,24 @@ end
 				end
 				return false
 			end
+
+function atributo_damage:ContainerRefreshDps (container, combat_time)
+
+	if (_detalhes.time_type == 2 or not _detalhes:CaptureGet ("damage")) then
+		for _, actor in _ipairs (container) do
+			if (actor.grupo) then
+				actor.last_dps = actor.total / combat_time
+			else
+				actor.last_dps = actor.total / actor:Tempo()
+			end
+		end
+	else
+		for _, actor in _ipairs (container) do
+			actor.last_dps = actor.total / actor:Tempo()
+		end
+	end
+	
+end
 
 function _detalhes:ToolTipFrags (instancia, frag, esta_barra)
 	
@@ -236,7 +254,16 @@ function _detalhes:ToolTipFrags (instancia, frag, esta_barra)
 			GameCooltip:AddIcon ([[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]], 1, 1, 12, 16, 0.015625, 0.13671875, 0.4375, 0.59765625)
 			GameCooltip:ShowCooltip()
 		
+		else
+			GameCooltip:AddLine (Loc ["STRING_NO_DATA"], nil, 1, "white")
+			GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small", nil, nil, 14, 14, _unpack (_detalhes.class_coords ["UNKNOW"]))
+			GameCooltip:ShowCooltip()
 		end
+		
+	else
+		GameCooltip:AddLine (Loc ["STRING_NO_DATA"], nil, 1, "white")
+		GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small", nil, nil, 14, 14, _unpack (_detalhes.class_coords ["UNKNOW"]))
+		GameCooltip:ShowCooltip()
 	end
 	
 end
@@ -326,6 +353,8 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 	instancia.top = 0
 	
 	local using_cache = false
+	
+	local combat_time = instancia.showing:GetCombatTime()
 	
 	local sub_atributo = instancia.sub_atributo --> o que esta sendo mostrado nesta instância
 	local conteudo = showing._ActorTable --> pega a lista de jogadores -- get actors table from container
@@ -441,6 +470,11 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 		elseif (modo == modo_ALL) then --> mostrando ALL
 		
 			--> faz o sort da categoria e retorna o amount corrigido
+			--print (keyName)
+			if (sub_atributo == 2) then
+				atributo_damage:ContainerRefreshDps (conteudo, combat_time)
+			end
+			
 			amount = _detalhes:ContainerSort (conteudo, amount, keyName)
 			
 			--> pega o total ja aplicado na tabela do combate
@@ -458,7 +492,12 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 			end
 			
 			if (using_cache) then
+			
 				conteudo = _detalhes.cache_damage_group
+				
+				if (sub_atributo == 2) then
+					atributo_damage:ContainerRefreshDps (conteudo, combat_time)
+				end
 			
 				if (#conteudo < 1) then
 					return _detalhes:EsconderBarrasNaoUsadas (instancia, showing)
@@ -477,6 +516,9 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 					total = total + conteudo[i][keyName]
 				end
 			else
+				if (sub_atributo == 2) then
+					atributo_damage:ContainerRefreshDps (conteudo, combat_time)
+				end
 				_table_sort (conteudo, _detalhes.SortKeyGroup)
 			end
 			--
@@ -568,7 +610,6 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 
 		end
 	else
-		local combat_time = instancia.showing:GetCombatTime()
 		for i = instancia.barraS[1], instancia.barraS[2], 1 do --> vai atualizar só o range que esta sendo mostrado
 			conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time) --> instância, index, total, valor da 1º barra
 			qual_barra = qual_barra+1
@@ -623,11 +664,13 @@ function atributo_damage:Custom (_customName, _combat, sub_atributo, spell, alvo
 			for _, TargetActor in _ipairs (SkillTargets) do 
 				--print (TargetActor.nome)
 				local TargetActorSelf = _combat (class_type, TargetActor.nome)
-				--print (TargetActor.total)
-				TargetActorSelf.custom = TargetActor.total + TargetActorSelf.custom
-				--print (TargetActorSelf.custom)
-				_combat.totals [_customName] = _combat.totals [_customName] + TargetActor.total
-				--print (self.nome .. " " ..TargetActor.total)
+				if (TargetActorSelf) then
+					--print (TargetActor.total)
+					TargetActorSelf.custom = TargetActor.total + TargetActorSelf.custom
+					--print (TargetActorSelf.custom)
+					_combat.totals [_customName] = _combat.totals [_customName] + TargetActor.total
+					--print (self.nome .. " " ..TargetActor.total)
+				end
 			end
 		end
 	--end
@@ -878,12 +921,8 @@ end
 --------------------------------------------- // TOOLTIPS // ---------------------------------------------
 
 --[[Exported]] function _detalhes:TooltipForCustom (barra)
-		_detalhes.popup:Close()
-		
-		GameTooltip:ClearLines()
-		GameTooltip:AddLine (barra.colocacao..". "..self.nome)
-		GameTooltip:AddLine ("-> Left click for report", 1, 1, 1, 1) --> localize-me
-		
+		--GameCooltip:AddLine (barra.colocacao..". "..self.nome)
+		GameCooltip:AddLine (Loc ["STRING_LEFT_CLICK_SHARE"])
 		return true
 end
 
@@ -1456,12 +1495,33 @@ function atributo_damage:MontaInfoDamageTaken()
 		return true
 	end
 	
-	_table_sort (meus_agressores, function (a, b) return a[2] > b[2] end)
+	--_table_sort (meus_agressores, function (a, b) return a[2] > b[2] end)
+	_table_sort (meus_agressores, _detalhes.Sort2)
 	
 	gump:JI_AtualizaContainerBarras (amt)
 
 	local max_ = meus_agressores [1] and meus_agressores [1][2] or 0
+
+	local barra
+	for index, tabela in _ipairs (meus_agressores) do
+		barra = barras [index]
+		if (not barra) then
+			barra = gump:CriaNovaBarraInfo1 (instancia, index)
+		end
+
+		self:FocusLock (barra, tabela[1])
+		
+		--hes:UpdadeInfoBar (row, index, spellid, name, value, max, percent, icon, detalhes)
+		
+		local texCoords = CLASS_ICON_TCOORDS [tabela[4]]
+		if (not texCoords) then
+			texCoords = _detalhes.class_coords ["UNKNOW"]
+		end
+		
+		self:UpdadeInfoBar (barra, index, tabela[1], tabela[1], tabela[2], max_, tabela[3], "Interface\\AddOns\\Details\\images\\classes_small", true, texCoords)
+	end
 	
+	--[[
 	for index, tabela in _ipairs (meus_agressores) do
 		
 		local barra = barras [index]
@@ -1469,7 +1529,6 @@ function atributo_damage:MontaInfoDamageTaken()
 		if (not barra) then
 			barra = gump:CriaNovaBarraInfo1 (instancia, index)
 			barra.textura:SetStatusBarColor (1, 1, 1, 1)
-			
 			barra.on_focus = false
 		end
 
@@ -1516,7 +1575,7 @@ function atributo_damage:MontaInfoDamageTaken()
 		end
 		
 	end
-	
+	--]]
 end
 
 --[[
@@ -1538,7 +1597,7 @@ end
 		_table_sort (ActorTargetsSortTable, _detalhes.Sort2)
 --]]
 
---[[exported]] function _detalhes:UpdadeInfoBar (row, index, spellid, name, value, max, percent, icon, detalhes)
+--[[exported]] function _detalhes:UpdadeInfoBar (row, index, spellid, name, value, max, percent, icon, detalhes, texCoords)
 	--> seta o tamanho da barra
 	if (index == 1) then
 		row.textura:SetValue (100)
@@ -1558,8 +1617,17 @@ end
 	--> seta o icone
 	if (icon) then 
 		row.icone:SetTexture (icon)
+		if (icon == "Interface\\AddOns\\Details\\images\\classes_small") then
+			row.icone:SetTexCoord (0.25, 0.49609375, 0.75, 1)
+		else
+			row.icone:SetTexCoord (0, 1, 0, 1)
+		end
 	else
 		row.icone:SetTexture ("")
+	end
+	
+	if (texCoords) then
+		row.icone:SetTexCoord (unpack (texCoords))
 	end
 	
 	row.minha_tabela = self
@@ -1606,13 +1674,13 @@ function atributo_damage:MontaInfoDamageDone()
 		local nome, _, icone = _GetSpellInfo (_spellid)
 		_table_insert (ActorSkillsSortTable, {_spellid, _skill.total, _skill.total/ActorTotalDamage*100, nome, icone})
 	end
-	
+
 	--> add pets
 	local ActorPets = self.pets
 	for _, PetName in _ipairs (ActorPets) do
 		local PetActor = instancia.showing (class_type, PetName)
 		if (PetActor) then 
-			_table_insert (ActorSkillsSortTable, {PetName, PetActor.total, PetActor.total/ActorTotalDamage*100, PetName:gsub ((" <.*"), ""), "Interface\\ICONS\\Ability_Hunter_Pet_Wolf"})
+			_table_insert (ActorSkillsSortTable, {PetName, PetActor.total, PetActor.total/ActorTotalDamage*100, PetName:gsub ((" <.*"), ""), "Interface\\AddOns\\Details\\images\\classes_small"})
 		end
 	end
 	
@@ -1858,11 +1926,15 @@ function atributo_damage:MontaDetalhesDamageDone (spellid, barra)
 		
 		if (not _barra.pet) then 
 			_barra.bg.PetIcon = _barra.bg:CreateTexture (nil, "overlay")
-			_barra.bg.PetIcon:SetTexture ("Interface\\ICONS\\Ability_Druid_SkinTeeth")
+			
+			--_barra.bg.PetIcon:SetTexture ("Interface\\ICONS\\Ability_Druid_SkinTeeth")
+			_barra.bg.PetIcon:SetTexture ("Interface\\AddOns\\Details\\images\\classes")
+			_barra.bg.PetIcon:SetTexCoord (0.25, 0.49609375, 0.75, 1)
+
 			_barra.bg.PetIcon:SetPoint ("left", _barra.bg, "left", 2, 2)
 			_barra.bg.PetIcon:SetWidth (40)
 			_barra.bg.PetIcon:SetHeight (40)
-			gump:NewLabel (_barra.bg, _barra.bg, nil, "PetText", "The Actor is a Pet", "GameFontHighlightLeft")
+			gump:NewLabel (_barra.bg, _barra.bg, nil, "PetText", Loc ["STRING_ISA_PET"], "GameFontHighlightLeft")
 			_barra.bg.PetText:SetPoint ("topleft", _barra.bg.PetIcon, "topright", 10, -2)
 			gump:NewLabel (_barra.bg, _barra.bg, nil, "PetDps", "", "GameFontHighlightSmall")
 			_barra.bg.PetDps:SetPoint ("left", _barra.bg.PetIcon, "right", 10, 2)
@@ -1875,6 +1947,7 @@ function atributo_damage:MontaDetalhesDamageDone (spellid, barra)
 		gump:Fade (_barra.bg.overlay, "OUT")
 		_barra.bg:SetStatusBarColor (1, 1, 1)
 		_barra.bg_end:SetPoint ("LEFT", _barra.bg, "LEFT", (_barra.bg:GetValue()*2.19)-6, 0)
+		_barra.bg.PetIcon:SetVertexColor (_unpack (_detalhes.class_colors [self.classe]))
 		_barra.bg:Show()
 		_barra.bg.PetIcon:Show()
 		_barra.bg.PetText:Show()

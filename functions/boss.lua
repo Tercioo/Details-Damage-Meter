@@ -35,6 +35,11 @@ do
 		return 
 	end
 	
+	--> return if the boss need sync
+	function _detalhes:GetEncounterEqualize (mapid, bossindex)
+		return _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].encounters [bossindex] and _detalhes.EncounterInformation [mapid].encounters [bossindex].equalize
+	end
+	
 	--> return the function for the boss
 	function _detalhes:GetBossFunction (mapid, bossindex)
 		local func = _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].encounters [bossindex] and _detalhes.EncounterInformation [mapid].encounters [bossindex].func

@@ -1273,6 +1273,8 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 		end
 	end
 	
+	local atributo_changed = false
+	
 	if (atributo ~= meu_atributo or _detalhes.initializing or iniciando_instancia or (instancia.modo == modo_alone or instancia.modo == modo_raid)) then
 	
 		if (instancia.modo == modo_alone and not (_detalhes.initializing or iniciando_instancia)) then
@@ -1296,6 +1298,8 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 			end
 			return _detalhes.RaidTables.switch (_, _, -1)
 		end
+	
+		atributo_changed = true
 	
 		instancia.m2_last [instancia.atributo] = instancia.sub_atributo --> salta o último sub-atributo do atributo que esta sendo mostrado na instÇancia
 		instancia.atributo = atributo
@@ -1355,8 +1359,8 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 		_detalhes:SendEvent ("DETAILS_INSTANCE_CHANGEATTRIBUTE", nil, instancia, atributo, sub_atributo)
 		
 	end
-	
-	if (sub_atributo ~= meu_sub_atributo or _detalhes.initializing or iniciando_instancia) then
+
+	if (sub_atributo ~= meu_sub_atributo or _detalhes.initializing or iniciando_instancia or atributo_changed) then
 		instancia.m2_last [instancia.atributo] = sub_atributo
 		instancia.sub_atributo = sub_atributo
 		
@@ -1453,9 +1457,7 @@ function _detalhes:MontaAtributosOption (instancia, func)
 	for index, custom in _ipairs (_detalhes.custom) do 
 		CoolTip:AddMenu (2, func, nil, 5, index, custom.name, custom.icon, true)
 	end
-	CoolTip:SetLastSelected (2, 5, instancia.m2_last [5])
-
-	
+	CoolTip:SetLastSelected (2, 5, instancia.m2_last [5]+1)
 	CoolTip:SetLastSelected (1, atributo_ativo)
 	
 	return menu_principal, sub_menus
@@ -1770,6 +1772,8 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 				total = self.showing.totals [self.customName]
 				atributo = _detalhes.custom [self.sub_atributo].attribute
 				container = self.showing [atributo]._ActorTable
+				
+				print (total, keyName, first, atributo)
 			end
 			
 			for i = 1, amt do 
