@@ -354,8 +354,6 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 	
 	local using_cache = false
 	
-	local combat_time = instancia.showing:GetCombatTime()
-	
 	local sub_atributo = instancia.sub_atributo --> o que esta sendo mostrado nesta instância
 	local conteudo = showing._ActorTable --> pega a lista de jogadores -- get actors table from container
 	local amount = #conteudo
@@ -472,6 +470,7 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 			--> faz o sort da categoria e retorna o amount corrigido
 			--print (keyName)
 			if (sub_atributo == 2) then
+				local combat_time = instancia.showing:GetCombatTime()
 				atributo_damage:ContainerRefreshDps (conteudo, combat_time)
 			end
 			
@@ -496,6 +495,7 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 				conteudo = _detalhes.cache_damage_group
 				
 				if (sub_atributo == 2) then
+					local combat_time = instancia.showing:GetCombatTime()
 					atributo_damage:ContainerRefreshDps (conteudo, combat_time)
 				end
 			
@@ -517,6 +517,7 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 				end
 			else
 				if (sub_atributo == 2) then
+					local combat_time = instancia.showing:GetCombatTime()
 					atributo_damage:ContainerRefreshDps (conteudo, combat_time)
 				end
 				_table_sort (conteudo, _detalhes.SortKeyGroup)
@@ -610,6 +611,7 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 
 		end
 	else
+		local combat_time = instancia.showing:GetCombatTime()
 		for i = instancia.barraS[1], instancia.barraS[2], 1 do --> vai atualizar só o range que esta sendo mostrado
 			conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time) --> instância, index, total, valor da 1º barra
 			qual_barra = qual_barra+1
