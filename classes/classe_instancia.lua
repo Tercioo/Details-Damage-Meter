@@ -1457,7 +1457,13 @@ function _detalhes:MontaAtributosOption (instancia, func)
 	for index, custom in _ipairs (_detalhes.custom) do 
 		CoolTip:AddMenu (2, func, nil, 5, index, custom.name, custom.icon, true)
 	end
-	CoolTip:SetLastSelected (2, 5, instancia.m2_last [5]+1)
+
+	if (not instancia.m2_last [5]) then
+		CoolTip:SetLastSelected (2, 5, 1)
+	else
+		CoolTip:SetLastSelected (2, 5, instancia.m2_last [5]+1)
+	end
+	
 	CoolTip:SetLastSelected (1, atributo_ativo)
 	
 	return menu_principal, sub_menus
