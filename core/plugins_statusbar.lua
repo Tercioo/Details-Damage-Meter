@@ -14,6 +14,7 @@
 	local DEFAULT_CHILD_FONTFACE = "Friz Quadrata TT"
 	local DEFAULT_CHILD_FONTCOLOR = {1, 0.733333, 0, 1}
 	local DEFAULT_CHILD_FONTSIZE = 10
+	local _
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> local pointers
@@ -255,7 +256,7 @@
 		local frame = _detalhes.gump:NewPanel (instance.baseframe.cabecalho.fechar, nil, name..instance:GetInstanceId(), nil, w or DEFAULT_CHILD_WIDTH, h or DEFAULT_CHILD_HEIGHT, false)
 
 		--create widgets
-		local text = _detalhes.gump:NewLabel (frame, _, "$parentText", "text", "0")
+		local text = _detalhes.gump:NewLabel (frame, nil, "$parentText", "text", "0")
 		text:SetPoint ("right", frame, "right", 0, 0)
 		text:SetJustifyH ("right")
 		_detalhes:SetFontSize (text, 9.8)
@@ -342,7 +343,7 @@
 			child.options.isHidden = value
 		else
 			if (child [option] and type (child [option]) == "function") then
-				child [option] (_, child, value)
+				child [option] (nil, child, value)
 			end
 		end
 	end
@@ -651,7 +652,7 @@ do
 			local window = _G.DetailsStatusBarOptions2.MyObject
 			
 			--> build all your widgets -----------------------------------------------------------------------------------------------------------------------------
-				_detalhes.gump:NewLabel (window, _, "$parentClockTypeLabel", "ClockTypeLabel", Loc ["STRING_PLUGIN_CLOCKTYPE"])
+				_detalhes.gump:NewLabel (window, nil, "$parentClockTypeLabel", "ClockTypeLabel", Loc ["STRING_PLUGIN_CLOCKTYPE"])
 				window.ClockTypeLabel:SetPoint (10, -15)
 				
 				local onSelectClockType = function (_, child, thistype)
@@ -663,7 +664,7 @@ do
 				{value = 2, label = Loc ["STRING_PLUGIN_SECONLY"], onclick = onSelectClockType},
 				{value = 3, label = Loc ["STRING_PLUGIN_TIMEDIFF"], onclick = onSelectClockType}}
 				
-				_detalhes.gump:NewDropDown (window, _, "$parentClockTypeDropdown", "ClockTypeDropdown", 200, 20, function() return clockTypes end, 1) -- func, default
+				_detalhes.gump:NewDropDown (window, nil, "$parentClockTypeDropdown", "ClockTypeDropdown", 200, 20, function() return clockTypes end, 1) -- func, default
 				window.ClockTypeDropdown:SetPoint ("left", window.ClockTypeLabel, "right", 2)
 			-----------------------------------------------------------------------------------------------------------------------------
 			

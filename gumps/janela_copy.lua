@@ -2,7 +2,7 @@ do
 
 	local _detalhes = _G._detalhes
 	local DetailsFrameWork = _detalhes.gump
-
+	local _
 --> panel
 	
 	function _detalhes:CreateCopyPasteWindow()

@@ -29,6 +29,8 @@ local modo_alone = _detalhes._detalhes_props["MODO_ALONE"]
 local modo_grupo = _detalhes._detalhes_props["MODO_GROUP"]
 local modo_all = _detalhes._detalhes_props["MODO_ALL"]
 
+local _
+
 local atributos = _detalhes.atributos
 local sub_atributos = _detalhes.sub_atributos
 local segmentos = _detalhes.segmentos
@@ -44,7 +46,7 @@ local segmentos = _detalhes.segmentos
 			if (instancia:IsAtiva()) then --> só reabre se ela estiver ativa
 				instancia:RestauraJanela (index)
 				if (not _detalhes.initializing) then
-					_detalhes:SendEvent ("DETAILS_INSTANCE_OPEN", _, instancia)
+					_detalhes:SendEvent ("DETAILS_INSTANCE_OPEN", nil, instancia)
 				end
 			else
 				instancia.iniciada = false
@@ -179,7 +181,7 @@ end
 		
 		--print ("Abertas: " .. _detalhes.opened_windows)
 		if (not _detalhes.initializing) then
-			_detalhes:SendEvent ("DETAILS_INSTANCE_CLOSE", _, self)
+			_detalhes:SendEvent ("DETAILS_INSTANCE_CLOSE", nil, self)
 		end
 		
 	end
@@ -1285,7 +1287,7 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 					_detalhes.popup:Select (1, _detalhes.SoloTables.Mode+1)
 				end
 			end
-			return _detalhes.SoloTables.switch (_, _, -1)
+			return _detalhes.SoloTables.switch (nil, nil, -1)
 	
 		elseif ( (instancia.modo == modo_raid) and not (_detalhes.initializing or iniciando_instancia) ) then --> raid
 			if (_detalhes.RaidTables.Mode == #_detalhes.RaidTables.Plugins) then
@@ -1296,7 +1298,7 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 				end
 				
 			end
-			return _detalhes.RaidTables.switch (_, _, -1)
+			return _detalhes.RaidTables.switch (nil, nil, -1)
 		end
 	
 		atributo_changed = true
@@ -1439,18 +1441,18 @@ function _detalhes:MontaAtributosOption (instancia, func)
 	local p = 0.125 --> 32/256
 	
 	for i = 1, atributos[0] do --> [0] armazena quantos atributos existem
-		CoolTip:AddMenu (1, func, nil, i, nil, atributos.lista[i], _, true)
+		CoolTip:AddMenu (1, func, nil, i, nil, atributos.lista[i], nil, true)
 		CoolTip:AddIcon ("Interface\\AddOns\\Details\\images\\atributos_icones", 1, 1, 20, 20, p*(i-1), p*(i), 0, 1)
 		local options = sub_atributos [i].lista
 		for o = 1, atributos [i] do
-			CoolTip:AddMenu (2, func, nil, i, o, options[o], _, true)
+			CoolTip:AddMenu (2, func, nil, i, o, options[o], nil, true)
 			CoolTip:AddIcon (icones[i], 2, 1, 20, 20, p*(o-1), p*(o), 0, 1)
 		end
 		CoolTip:SetLastSelected (2, i, instancia.m2_last [i])
 	end
 	
 	--> custom
-	CoolTip:AddMenu (1, func, nil, 5, nil, atributos.lista[5], _, true)
+	CoolTip:AddMenu (1, func, nil, 5, nil, atributos.lista[5], nil, true)
 	CoolTip:AddIcon ("Interface\\AddOns\\Details\\images\\atributos_icones", 1, 1, 20, 20, p*(5-1), p*(5), 0, 1)
 	CoolTip:AddMenu (2, _detalhes.OpenCustomWindow, nil, nil, nil, Loc ["STRING_CUSTOM_NEW"], "Interface\\PaperDollInfoFrame\\Character-Plus", true)
 	

@@ -2,7 +2,7 @@
 local _detalhes = 		_G._detalhes
 local gump = 			_detalhes.gump
 local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
-
+local _
 --> lua locals
 local _rawset = rawset --> lua local
 local _rawget = rawget --> lua local

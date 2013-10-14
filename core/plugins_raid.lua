@@ -49,7 +49,7 @@
 				if (not _detalhes.RaidTables.Plugins [_detalhes.RaidTables.Mode]) then
 					_detalhes.RaidTables.Mode = 1
 				end
-				_detalhes.RaidTables:switch (_, _detalhes.RaidTables.Mode)
+				_detalhes.RaidTables:switch (nil, _detalhes.RaidTables.Mode)
 			end
 		
 		else

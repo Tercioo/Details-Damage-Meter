@@ -3,7 +3,7 @@ local AceLocale = LibStub ("AceLocale-3.0")
 local Loc = AceLocale:GetLocale ( "Details" )
 
 local gump = 			_detalhes.gump
-
+local _
 --lua locals
 local _unpack = unpack
 local _math_floor = math.floor

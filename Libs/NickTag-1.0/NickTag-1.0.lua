@@ -4,7 +4,7 @@
 -- NickTag:SetNickname (name) -> set the player nick name, after set nicktag will broadcast the nick over addon guild channel.
 -- 
 
-local major, minor = "NickTag-1.0", 3
+local major, minor = "NickTag-1.0", 4
 local NickTag, oldminor = LibStub:NewLibrary (major, minor)
 
 if (not NickTag) then 
@@ -443,6 +443,12 @@ end
 		local battlegroup_serial = NickTag:GetSerial()
 		if (not battlegroup_serial) then
 			return
+		end
+		
+		--> auto change nickname if we have a invalid nickname
+		if (NickTag:GetNickname (UnitGUID ("player")) == LibStub ("AceLocale-3.0"):GetLocale ("NickTag-1.0")["STRING_INVALID_NAME"]) then
+			local nick_table = NickTag:GetNicknameTable (UnitGUID ("player"))
+			nick_table [CONST_INDEX_NICKNAME] = UnitName ("player")
 		end
 		
 		if (target) then

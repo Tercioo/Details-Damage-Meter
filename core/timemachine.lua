@@ -78,6 +78,8 @@
 	end
 
 	function timeMachine:Reiniciar()
+		table.wipe (self.tabelas[1])
+		table.wipe (self.tabelas[2])
 		self.tabelas = {{}, {}} --> 1 dano 2 cura
 	end
 

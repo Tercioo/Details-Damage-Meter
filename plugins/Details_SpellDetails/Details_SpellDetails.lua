@@ -292,7 +292,7 @@ local function CreatePluginFrames (data)
 		g.max_damage = 0
 		g.BuffLines = {}
 		g.LinesContainer = {}
-		g.CustomLine = "smallline"
+		g.CustomLine = "Interface\\AddOns\\Details\\Libs\\LibGraph-2.0\\smallline"
 		--g.LockOnXMax = true
 		
 		for i = 1, 8, 1 do

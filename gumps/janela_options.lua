@@ -3,7 +3,7 @@ local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
 local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
 
 local g =	_detalhes.gump
-
+local _
 function _detalhes:OpenOptionsWindow (instance)
 
 	GameCooltip:Close()

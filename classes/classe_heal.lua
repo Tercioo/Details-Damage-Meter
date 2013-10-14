@@ -22,6 +22,7 @@ local _GetSpellInfo = _detalhes.getspellinfo
 
 
 local _detalhes = 		_G._detalhes
+local _
 
 local AceLocale = LibStub ("AceLocale-3.0")
 local Loc = AceLocale:GetLocale ( "Details" )
@@ -790,7 +791,7 @@ function atributo_heal:ToolTip_HealingDone (instancia, numero, barra)
 			GameCooltip:AddLine (ActorHealingTargets[i][1]..": ", _detalhes:comma_value (ActorHealingTargets[i][2]) .." (".._cstr ("%.1f", ActorHealingTargets[i][3]).."%)")
 			GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
 			
-			local targetActor = container:PegarCombatente (_, ActorHealingTargets[i][1])
+			local targetActor = container:PegarCombatente (nil, ActorHealingTargets[i][1])
 			
 			if (targetActor) then
 				local classe = targetActor.classe
@@ -820,7 +821,7 @@ function atributo_heal:ToolTip_HealingDone (instancia, numero, barra)
 			if (not quantidade [nome]) then
 				quantidade [nome] = 1
 				
-				local my_self = instancia.showing [class_type]:PegarCombatente (_, nome)
+				local my_self = instancia.showing [class_type]:PegarCombatente (nil, nome)
 				if (my_self) then
 				
 					local meu_total = my_self.total_without_pet

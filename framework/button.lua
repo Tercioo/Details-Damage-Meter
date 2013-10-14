@@ -9,7 +9,7 @@ local _unpack = unpack --> lua local
 local _type = type --> lua local
 local _math_floor = math.floor --> lua local
 local loadstring = loadstring --> lua local
-
+local _
 local cleanfunction = function() end
 local APIButtonFunctions = false
 local ButtonMetaFunctions = {}

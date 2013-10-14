@@ -4,7 +4,7 @@ local gump = 			_detalhes.gump
 
 local _type = type
 local _unpack = unpack
-
+local _
 gump.LabelNameCounter = 1
 gump.PictureNameCounter = 1
 

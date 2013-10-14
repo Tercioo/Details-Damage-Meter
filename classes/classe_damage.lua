@@ -25,6 +25,7 @@ local AceLocale = LibStub ("AceLocale-3.0")
 local Loc = AceLocale:GetLocale ( "Details" )
 
 local gump = 			_detalhes.gump
+local _
 
 local alvo_da_habilidade = 	_detalhes.alvo_da_habilidade
 local container_habilidades = 	_detalhes.container_habilidades
@@ -1057,7 +1058,7 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra)
 			if (not quantidade [nome]) then
 				quantidade [nome] = 1
 				
-				local my_self = instancia.showing[class_type]:PegarCombatente (_, nome)
+				local my_self = instancia.showing[class_type]:PegarCombatente (nil, nome)
 				if (my_self) then
 					local meu_total = my_self.total_without_pet
 					local tabela = my_self.spell_tables._ActorTable
@@ -2223,7 +2224,7 @@ function _detalhes.refresh:r_atributo_damage (este_jogador, shadow)
 
 			_setmetatable (friendlyfire, _detalhes)
 			
-			local friendlyfire_shadow = shadow.friendlyfire:PegarCombatente (_, friendlyfire.nome) --> corrigido erro aqui, estava este_jogador.nome
+			local friendlyfire_shadow = shadow.friendlyfire:PegarCombatente (nil, friendlyfire.nome) --> corrigido erro aqui, estava este_jogador.nome
 			_detalhes.refresh:r_container_habilidades (friendlyfire.spell_tables, friendlyfire_shadow.spell_tables) -- acho que corrigi mais um bug, estava apenas 'friendlyfire_shadow'
 
 		end
@@ -2293,7 +2294,7 @@ atributo_damage.__add = function (shadow, tabela2)
 	
 	--> copia o container de alvos
 	for index, alvo in _ipairs (tabela2.targets._ActorTable) do 
-		local alvo_shadow = shadow.targets:PegarCombatente (alvo.serial, alvo.nome, _, true)
+		local alvo_shadow = shadow.targets:PegarCombatente (alvo.serial, alvo.nome, nil, true)
 		alvo_shadow.total = alvo_shadow.total + alvo.total
 	end
 	--> copia o container de friendly fire

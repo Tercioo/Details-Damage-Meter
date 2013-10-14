@@ -28,6 +28,7 @@ local _GetNumRaidMembers = GetNumRaidMembers or GetNumGroupMembers
 local _GetUnitName = GetUnitName
 
 local gump = 			_detalhes.gump
+local _
 
 local atributo_custom = _detalhes.atributo_custom
 

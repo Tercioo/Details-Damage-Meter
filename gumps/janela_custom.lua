@@ -6,7 +6,7 @@ local AceSerializer = LibStub ("AceSerializer-3.0")
 local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
 
 local gump = 			_detalhes.gump
-
+local _
 local atributos = _detalhes.atributos
 local sub_atributos = _detalhes.sub_atributos
 --lua locals

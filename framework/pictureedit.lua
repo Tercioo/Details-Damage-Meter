@@ -1,8 +1,8 @@
 local _detalhes = _G._detalhes
 local g = _detalhes.gump
+local _
 
-
-	local window = g:NewPanel (UIParent, _, "DetailsImageEdit", _, 100, 100, false)
+	local window = g:NewPanel (UIParent, nil, "DetailsImageEdit", nil, 100, 100, false)
 	window:SetPoint ("center", UIParent, "center")
 	window:SetResizable (true)
 	window:SetMovable (true)
@@ -10,11 +10,11 @@ local g = _detalhes.gump
 	
 	window.hooks = {}
 	
-	local background = g:NewImage (window, _, "$parentBackground", _, _, _, nil, "background")
+	local background = g:NewImage (window, nil, "$parentBackground", nil, nil, nil, nil, "background")
 	background:SetAllPoints()
 	background:SetTexture (0, 0, 0, .8)
 	
-	local edit_texture = g:NewImage (window, _, "$parentImage", _, 300, 250, nil, "artwork")
+	local edit_texture = g:NewImage (window, nil, "$parentImage", nil, 300, 250, nil, "artwork")
 	edit_texture:SetPoint ("center", window, "center")
 	
 	local haveHFlip = false
@@ -22,14 +22,14 @@ local g = _detalhes.gump
 	
 --> Top Slider
 	
-		local topCoordTexture = g:NewImage (window, _, "$parentImageTopCoord", _, _, _, _, "overlay")
+		local topCoordTexture = g:NewImage (window, nil, "$parentImageTopCoord", nil, nil, nil, nil, "overlay")
 		topCoordTexture:SetPoint ("topleft", window, "topleft")
 		topCoordTexture:SetPoint ("topright", window, "topright")
 		topCoordTexture.color = "red"
 		topCoordTexture.height = 1
 		topCoordTexture.alpha = .2
 		
-		local topSlider = g:NewSlider (window, _, "$parentTopSlider", "topSlider", 100, 100, 0.1, 100, 0.1, 0)
+		local topSlider = g:NewSlider (window, nil, "$parentTopSlider", "topSlider", 100, 100, 0.1, 100, 0.1, 0)
 		topSlider:SetAllPoints (window.widget)
 		topSlider:SetOrientation ("VERTICAL")
 		topSlider.backdrop = nil
@@ -54,14 +54,14 @@ local g = _detalhes.gump
 
 --> Bottom Slider
 
-		local bottomCoordTexture = g:NewImage (window, _, "$parentImageBottomCoord", _, _, _, _, "overlay")
+		local bottomCoordTexture = g:NewImage (window, nil, "$parentImageBottomCoord", nil, nil, nil, nil, "overlay")
 		bottomCoordTexture:SetPoint ("bottomleft", window, "bottomleft", 0, 0)
 		bottomCoordTexture:SetPoint ("bottomright", window, "bottomright", 0, 0)
 		bottomCoordTexture.color = "red"
 		bottomCoordTexture.height = 1
 		bottomCoordTexture.alpha = .2
 
-		local bottomSlider= g:NewSlider (window, _, "$parentBottomSlider", "bottomSlider", 100, 100, 0.1, 100, 0.1, 100)
+		local bottomSlider= g:NewSlider (window, nil, "$parentBottomSlider", "bottomSlider", 100, 100, 0.1, 100, 0.1, 100)
 		bottomSlider:SetAllPoints (window.widget)
 		bottomSlider:SetOrientation ("VERTICAL")
 		bottomSlider.backdrop = nil
@@ -87,14 +87,14 @@ local g = _detalhes.gump
 		
 --> Left Slider
 		
-		local leftCoordTexture = g:NewImage (window, _, "$parentImageLeftCoord", _, _, _, _, "overlay")
+		local leftCoordTexture = g:NewImage (window, nil, "$parentImageLeftCoord", nil, nil, nil, nil, "overlay")
 		leftCoordTexture:SetPoint ("topleft", window, "topleft", 0, 0)
 		leftCoordTexture:SetPoint ("bottomleft", window, "bottomleft", 0, 0)
 		leftCoordTexture.color = "red"
 		leftCoordTexture.width = 1
 		leftCoordTexture.alpha = .2
 		
-		local leftSlider = g:NewSlider (window, _, "$parentLeftSlider", "leftSlider", 100, 100, 0.1, 100, 0.1, 0.1)
+		local leftSlider = g:NewSlider (window, nil, "$parentLeftSlider", "leftSlider", 100, 100, 0.1, 100, 0.1, 0.1)
 		leftSlider:SetAllPoints (window.widget)
 		leftSlider.backdrop = nil
 		leftSlider.fractional = true
@@ -118,14 +118,14 @@ local g = _detalhes.gump
 		
 --> Right Slider
 		
-		local rightCoordTexture = g:NewImage (window, _, "$parentImageRightCoord", _, _, _, _, "overlay")
+		local rightCoordTexture = g:NewImage (window, nil, "$parentImageRightCoord", nil, nil, nil, nil, "overlay")
 		rightCoordTexture:SetPoint ("topright", window, "topright", 0, 0)
 		rightCoordTexture:SetPoint ("bottomright", window, "bottomright", 0, 0)
 		rightCoordTexture.color = "red"
 		rightCoordTexture.width = 1
 		rightCoordTexture.alpha = .2
 		
-		local rightSlider = g:NewSlider (window, _, "$parentRightSlider", "rightSlider", 100, 100, 0.1, 100, 0.1, 100)
+		local rightSlider = g:NewSlider (window, nil, "$parentRightSlider", "rightSlider", 100, 100, 0.1, 100, 0.1, 100)
 		rightSlider:SetAllPoints (window.widget)
 		rightSlider.backdrop = nil
 		rightSlider.fractional = true
@@ -150,7 +150,7 @@ local g = _detalhes.gump
 		
 --> Edit Buttons
 
-	local buttonsBackground = g:NewPanel (UIParent, _, "DetailsImageEditButtonsBg", _, 115, 225)
+	local buttonsBackground = g:NewPanel (UIParent, nil, "DetailsImageEditButtonsBg", nil, 115, 225)
 	buttonsBackground:SetPoint ("topleft", window, "topright", 2, 0)
 	buttonsBackground:Hide()
 	--buttonsBackground:SetMovable (true)
@@ -195,20 +195,20 @@ local g = _detalhes.gump
 			window [side.."Slider"]:Show()
 		end
 		
-		local leftTexCoordButton = g:NewButton (buttonsBackground, _, "$parentLeftTexButton", _, 100, 20, enableTexEdit, "left", _, _, "Crop Left")
+		local leftTexCoordButton = g:NewButton (buttonsBackground, nil, "$parentLeftTexButton", nil, 100, 20, enableTexEdit, "left", nil, nil, "Crop Left")
 		leftTexCoordButton:SetPoint ("topleft", window, "topright", 10, -10)
-		local rightTexCoordButton = g:NewButton (buttonsBackground, _, "$parentRightTexButton", _, 100, 20, enableTexEdit, "right", _, _, "Crop Right")
+		local rightTexCoordButton = g:NewButton (buttonsBackground, nil, "$parentRightTexButton", nil, 100, 20, enableTexEdit, "right", nil, nil, "Crop Right")
 		rightTexCoordButton:SetPoint ("topleft", window, "topright", 10, -30)
-		local topTexCoordButton = g:NewButton (buttonsBackground, _, "$parentTopTexButton", _, 100, 20, enableTexEdit, "top", _, _, "Crop Top")
+		local topTexCoordButton = g:NewButton (buttonsBackground, nil, "$parentTopTexButton", nil, 100, 20, enableTexEdit, "top", nil, nil, "Crop Top")
 		topTexCoordButton:SetPoint ("topleft", window, "topright", 10, -50)
-		local bottomTexCoordButton = g:NewButton (buttonsBackground, _, "$parentBottomTexButton", _, 100, 20, enableTexEdit, "bottom", _, _, "Crop Bottom")
+		local bottomTexCoordButton = g:NewButton (buttonsBackground, nil, "$parentBottomTexButton", nil, 100, 20, enableTexEdit, "bottom", nil, nil, "Crop Bottom")
 		bottomTexCoordButton:SetPoint ("topleft", window, "topright", 10, -70)
 		leftTexCoordButton:InstallCustomTexture()
 		rightTexCoordButton:InstallCustomTexture()
 		topTexCoordButton:InstallCustomTexture()
 		bottomTexCoordButton:InstallCustomTexture()
 		
-		local Alpha = g:NewButton (buttonsBackground, _, "$parentBottomAlphaButton", _, 100, 20, alpha, _, _, _, "Transparency")
+		local Alpha = g:NewButton (buttonsBackground, nil, "$parentBottomAlphaButton", nil, 100, 20, alpha, nil, nil, nil, "Transparency")
 		Alpha:SetPoint ("topleft", window, "topright", 10, -110)
 		Alpha:InstallCustomTexture()
 		
@@ -259,14 +259,14 @@ local g = _detalhes.gump
 			end
 		end
 		
-		local changeColorButton = g:NewButton (buttonsBackground, _, "$parentOverlayColorButton", _, 100, 20, changeColor, _, _, _, "Overlay Color")
+		local changeColorButton = g:NewButton (buttonsBackground, nil, "$parentOverlayColorButton", nil, 100, 20, changeColor, nil, nil, nil, "Overlay Color")
 		changeColorButton:SetPoint ("topleft", window, "topright", 10, -90)
 		changeColorButton:InstallCustomTexture()
 		
-		alphaFrame = g:NewPanel (buttonsBackground, _, "DetailsImageEditAlphaBg", _, 40, 225)
+		alphaFrame = g:NewPanel (buttonsBackground, nil, "DetailsImageEditAlphaBg", nil, 40, 225)
 		alphaFrame:SetPoint ("topleft", buttonsBackground, "topright", 2, 0)
 		alphaFrame:Hide() 
-		local alphaSlider = g:NewSlider (alphaFrame, _, "$parentAlphaSlider", "alphaSlider", 30, 220, 1, 100, 1, edit_texture:GetAlpha()*100)
+		local alphaSlider = g:NewSlider (alphaFrame, nil, "$parentAlphaSlider", "alphaSlider", 30, 220, 1, 100, 1, edit_texture:GetAlpha()*100)
 		alphaSlider:SetPoint ("top", alphaFrame, "top", 0, -5)
 		alphaSlider:SetOrientation ("VERTICAL")
 		alphaSlider.thumb:SetSize (40, 30)
@@ -350,7 +350,7 @@ local g = _detalhes.gump
 		end)
 		
 	--> change size
-		local resizeLabel = g:NewLabel (window, _, "$parentResizerIndicator", _, "RESIZE", _, 9)
+		local resizeLabel = g:NewLabel (window, nil, "$parentResizerIndicator", nil, "RESIZE", nil, 9)
 		resizeLabel:SetPoint ("right", resizer, "left", -2, 0)
 		
 	--> flip
@@ -416,11 +416,11 @@ local g = _detalhes.gump
 			end
 		end
 		
-		local flipButtonH = g:NewButton (buttonsBackground, _, "$parentFlipButton", _, 100, 20, flip, 1, _, _, "Flip Horizontal")
+		local flipButtonH = g:NewButton (buttonsBackground, nil, "$parentFlipButton", nil, 100, 20, flip, 1, nil, nil, "Flip Horizontal")
 		flipButtonH:SetPoint ("topleft", window, "topright", 10, -140)
 		flipButtonH:InstallCustomTexture()
 		--
-		local flipButtonV = g:NewButton (buttonsBackground, _, "$parentFlipButton2", _, 100, 20, flip, 2, _, _, "Flip Vertical")
+		local flipButtonV = g:NewButton (buttonsBackground, nil, "$parentFlipButton2", nil, 100, 20, flip, 2, nil, nil, "Flip Vertical")
 		flipButtonV:SetPoint ("topleft", window, "topright", 10, -160)
 		flipButtonV:InstallCustomTexture()
 		
@@ -454,7 +454,7 @@ local g = _detalhes.gump
 			return window.callback_func (edit_texture.width, edit_texture.height, {edit_texture:GetVertexColor()}, edit_texture:GetAlpha(), coords, window.extra_param)
 		end
 		
-		local acceptButton = g:NewButton (buttonsBackground, _, "$parentAcceptButton", _, 100, 20, window.accept, _, _, _, "DONE")
+		local acceptButton = g:NewButton (buttonsBackground, nil, "$parentAcceptButton", nil, 100, 20, window.accept, nil, nil, nil, "DONE")
 		acceptButton:SetPoint ("topleft", window, "topright", 10, -200)
 		acceptButton:InstallCustomTexture()
 

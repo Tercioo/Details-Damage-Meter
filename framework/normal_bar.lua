@@ -1,7 +1,7 @@
 --> details main objects
 local _detalhes = 		_G._detalhes
 local gump = 			_detalhes.gump
-
+local _
 local _rawset = rawset --> lua locals
 local _rawget = rawget --> lua locals
 local _setmetatable = setmetatable --> lua locals

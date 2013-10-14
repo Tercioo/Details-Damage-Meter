@@ -9,7 +9,7 @@ function _G._detalhes:Start()
 --> details defaults
 
 	_detalhes.debug = false
-
+	local _
 	--> who is
 		self.playername = UnitName ("player")
 		self.playerserial = UnitGUID ("player")
@@ -30,7 +30,7 @@ function _G._detalhes:Start()
 		self.in_combat = false
 		self.combat_id = self.combat_id or 0
 		self.instances_amount = self.instances_amount or 12
-		self.segments_amount = self.segments_amount or 25
+		self.segments_amount = self.segments_amount or 12
 		self.segments_amount_to_save = self.segments_amount_to_save or 5
 		self.memory_threshold = self.memory_threshold or 3
 		self.memory_ram = self.memory_ram or 64
@@ -186,6 +186,10 @@ function _G._detalhes:Start()
 			self.yesNo:Hide()
 
 	--> start instances
+	
+		--_detalhes.custom = {}
+		--_detalhes.tabela_instancias = {}
+	
 		if (self:QuantasInstancias() == 0) then
 			self:CriarInstancia()
 		else
@@ -312,5 +316,7 @@ function _G._detalhes:Start()
 	if (self.is_first_run) then
 		_detalhes:OpenWelcomeWindow()
 	end
+	
+	
 	
 end

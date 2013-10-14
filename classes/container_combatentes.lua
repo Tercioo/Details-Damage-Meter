@@ -30,6 +30,8 @@ local _bit_band = bit.band
 local _ipairs = ipairs
 local _pairs = pairs
 
+local _
+
 --local table_insert = table.insert
 
 --> FLAGS <== qual o tipo do objeto
@@ -113,19 +115,78 @@ function container_combatentes:GetAmount (actorName, key)
 	end
 end
 
-function container_combatentes:PegarCombatente (serial, nome, flag, criar, isOwner)
+local read_flag_ = function (novo_objeto, shadow_objeto, dono_do_pet, serial, flag, nome)
+	-- converte a flag do wow em flag do details
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------		
+	
+	--> pega afiliação
+	local details_flag = 0x00000000
 
---[[
-if (self.tipo == container_damage) then
-	if (nome:find ("Lyl")) then
-		if (nome:find ("-"))  then
-			print ("nome com -", isOwner)
+	if (flag) then
+		--print ("tem flag")
+		
+		if (_bit_band (flag, 0x00000400) ~= 0) then --> é um player
+			details_flag = details_flag+0x00000001
+			
+			novo_objeto.displayName = _detalhes:GetNickname (serial, false, true) --> serial, default, silent
+			if (not novo_objeto.displayName) then
+				if (_IsInInstance() and _detalhes.remove_realm_from_name) then
+					novo_objeto.displayName = nome:gsub (("%-.*"), "")
+					--print (novo_objeto.displayName)
+				else
+					novo_objeto.displayName = nome
+				end
+			end
+			
+			if (_bit_band (flag, EM_GRUPO) ~= 0) then --> faz parte do grupo
+				details_flag = details_flag+0x00000100
+				novo_objeto.grupo = true
+				if (shadow_objeto) then
+					shadow_objeto.grupo = true
+				end
+			end
+			
+		elseif (dono_do_pet) then --> é um pet
+		
+			details_flag = details_flag+0x00000002
+			novo_objeto.owner = dono_do_pet
+			novo_objeto.ownerName = dono_do_pet.nome
+			
+			if (_IsInInstance() and _detalhes.remove_realm_from_name) then
+				novo_objeto.displayName = nome:gsub (("%-.*"), ">")
+			else
+				novo_objeto.displayName = nome
+			end
+			
+			--if (not novo_objeto.displayName:find (">")) then
+			--	novo_objeto.displayName = novo_objeto.displayName .. ">"
+			--end
+			
+			--print ("pet -> " .. nome)
 		else
-			--print ("nome okey", isOwner)
+			novo_objeto.displayName = nome
 		end
+		
+		-- 0x00000060 --> inimigo neutro
+		if (_bit_band (flag, 0x00000010) ~= 0) then --> é amigo
+			details_flag = details_flag+0x00000010
+		elseif (_bit_band (flag, 0x00000020) ~= 0) then --> é neutro
+			details_flag = details_flag+0x00000020
+			--print ("neutro -> " .. nome)
+		elseif (_bit_band (flag, 0x00000040) ~= 0) then --> é inimigo
+			details_flag = details_flag+0x00000040
+			--print ("inimigos -> " .. nome)
+		end
+	else
+		--print (flag)
 	end
+	
+	novo_objeto.flag = details_flag
+	novo_objeto.flag_original = flag
+	novo_objeto.serial = serial
 end
---]]
+
+function container_combatentes:PegarCombatente (serial, nome, flag, criar, isOwner)
 
 	--> antes de mais nada, vamos verificar se é um pet
 	local dono_do_pet
@@ -161,7 +222,7 @@ end
 	-- rotinas de criação do objeto shadow
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 		local shadow = self.shadow --> espelho do container no overall
-		local shadow_objeto = nil
+		local shadow_objeto
 
 		if (shadow) then --> se tiver o espelho (não for a tabela overall já)
 			shadow_objeto = shadow:PegarCombatente (_, nome) --> apenas verifica se ele existe ou não
@@ -176,76 +237,6 @@ end
 		novo_objeto.nome = nome
 		--print (nome)
 		
-	-- converte a flag do wow em flag do details
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------		
-		
-		--> pega afiliação
-		local details_flag = 0x00000000
-
-		if (flag) then
-			--print ("tem flag")
-			
-			if (_bit_band (flag, 0x00000400) ~= 0) then --> é um player
-				details_flag = details_flag+0x00000001
-				
-				novo_objeto.displayName = _detalhes:GetNickname (serial, false, true) --> serial, default, silent
-				if (not novo_objeto.displayName) then
-					if (_IsInInstance() and _detalhes.remove_realm_from_name) then
-						novo_objeto.displayName = nome:gsub (("%-.*"), "")
-						--print (novo_objeto.displayName)
-					else
-						novo_objeto.displayName = nome
-					end
-				end
-				
-				if (_bit_band (flag, EM_GRUPO) ~= 0) then --> faz parte do grupo
-					details_flag = details_flag+0x00000100
-					novo_objeto.grupo = true
-					if (shadow_objeto) then
-						shadow_objeto.grupo = true
-					end
-					
-				end
-				
-			elseif (dono_do_pet) then --> é um pet
-			
-				details_flag = details_flag+0x00000002
-				novo_objeto.owner = dono_do_pet
-				novo_objeto.ownerName = dono_do_pet.nome
-				
-				if (_IsInInstance() and _detalhes.remove_realm_from_name) then
-					novo_objeto.displayName = nome:gsub (("%-.*"), ">")
-				else
-					novo_objeto.displayName = nome
-				end
-				
-				--if (not novo_objeto.displayName:find (">")) then
-				--	novo_objeto.displayName = novo_objeto.displayName .. ">"
-				--end
-				
-				--print ("pet -> " .. nome)
-			else
-				novo_objeto.displayName = nome
-			end
-			
-			-- 0x00000060 --> inimigo neutro
-			if (_bit_band (flag, 0x00000010) ~= 0) then --> é amigo
-				details_flag = details_flag+0x00000010
-			elseif (_bit_band (flag, 0x00000020) ~= 0) then --> é neutro
-				details_flag = details_flag+0x00000020
-				--print ("neutro -> " .. nome)
-			elseif (_bit_band (flag, 0x00000040) ~= 0) then --> é inimigo
-				details_flag = details_flag+0x00000040
-				--print ("inimigos -> " .. nome)
-			end
-		else
-			--print (flag)
-		end
-		
-		novo_objeto.flag = details_flag
-		novo_objeto.flag_original = flag
-		novo_objeto.serial = serial
-		
 	-- tipo do container
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------	
 
@@ -254,6 +245,7 @@ end
 		if (self.tipo == container_damage) then --> CONTAINER DAMAGE
 
 			get_class_ (novo_objeto, nome, flag)
+			read_flag_ (novo_objeto, shadow_objeto, dono_do_pet, serial, flag, nome)
 			
 			if (dono_do_pet) then
 				dono_do_pet.pets [#dono_do_pet.pets+1] = nome
@@ -283,6 +275,7 @@ end
 		elseif (self.tipo == container_heal) then --> CONTAINER HEALING
 			
 			get_class_ (novo_objeto, nome, flag)
+			read_flag_ (novo_objeto, shadow_objeto, dono_do_pet, serial, flag, nome)
 			
 			if (dono_do_pet) then
 				dono_do_pet.pets [#dono_do_pet.pets+1] = nome
@@ -312,6 +305,7 @@ end
 		elseif (self.tipo == container_energy) then --> CONTAINER ENERGY
 			
 			get_class_ (novo_objeto, nome, flag)
+			read_flag_ (novo_objeto, shadow_objeto, dono_do_pet, serial, flag, nome)
 			
 			if (dono_do_pet) then
 				dono_do_pet.pets [#dono_do_pet.pets+1] = nome
@@ -337,6 +331,7 @@ end
 		elseif (self.tipo == container_misc) then --> CONTAINER MISC
 			
 			get_class_ (novo_objeto, nome, flag)
+			read_flag_ (novo_objeto, shadow_objeto, dono_do_pet, serial, flag, nome)
 			
 			--local teste_classe = 
 			
@@ -364,7 +359,7 @@ end
 		elseif (self.tipo == container_damage_target) then --> CONTAINER ALVO DO DAMAGE
 			if (shadow_objeto) then
 				novo_objeto.shadow = shadow_objeto
-				shadow_objeto.flag = details_flag
+				--shadow_objeto.flag = details_flag
 			end
 		
 		elseif (self.tipo == container_heal_target) then --> CONTAINER ALVOS DO HEALING
@@ -372,7 +367,7 @@ end
 			novo_objeto.absorbed = 0
 			if (shadow_objeto) then
 				novo_objeto.shadow = shadow_objeto
-				shadow_objeto.flag = details_flag
+				--shadow_objeto.flag = details_flag
 			end
 			
 		elseif (self.tipo == container_energy_target) then --> CONTAINER ALVOS DO ENERGY
@@ -384,14 +379,14 @@ end
 			
 			if (shadow_objeto) then
 				novo_objeto.shadow = shadow_objeto
-				shadow_objeto.flag = details_flag
+				--shadow_objeto.flag = details_flag
 			end
 			
 		elseif (self.tipo == container_misc_target) then --> CONTAINER ALVOS DO MISC
 
 			if (shadow_objeto) then
 				novo_objeto.shadow = shadow_objeto
-				shadow_objeto.flag = details_flag
+				--shadow_objeto.flag = details_flag
 			end
 			
 		elseif (self.tipo == container_friendlyfire) then --> CONTAINER FRIENDLY FIRE

@@ -13,7 +13,7 @@
 	local _table_wipe = table.wipe
 	local _math_min = math.min
 	local _string_gmatch = string.gmatch
-	
+	local _
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> local pointers
 
@@ -80,7 +80,7 @@
 			
 			if (not _detalhes.tabela_pets.pets [serial]) then
 				_detalhes.tabela_pets.pets [serial] = owner_table
-				local petActor = _detalhes.tabela_vigente[1]:PegarCombatente (_, nome)
+				local petActor = _detalhes.tabela_vigente[1]:PegarCombatente (nil, nome)
 				if (petActor) then
 				
 					local ownerActor = _detalhes.tabela_vigente[1]:PegarCombatente (owner_table[2], owner_table[1], owner_table[3], true)
@@ -145,7 +145,7 @@
 				local _this = data [i]
 				
 				local name = _this [1]
-				local actor = container:PegarCombatente (_, name)
+				local actor = container:PegarCombatente (nil, name)
 				
 				if (not actor) then
 					if (IsInRaid()) then
@@ -212,13 +212,13 @@
 			local atributo_name = _detalhes:GetInternalSubAttributeName (atributo, subatributo)
 			
 			if (atributo == 1) then
-				data = _detalhes.atributo_damage:RefreshWindow ({}, _detalhes.tabela_vigente, _, { key = atributo_name, modo = _detalhes.modos.group })
+				data = _detalhes.atributo_damage:RefreshWindow ({}, _detalhes.tabela_vigente, nil, { key = atributo_name, modo = _detalhes.modos.group })
 			elseif (atributo == 2) then
-				data = _detalhes.atributo_heal:RefreshWindow ({}, _detalhes.tabela_vigente, _, { key = atributo_name, modo = _detalhes.modos.group })
+				data = _detalhes.atributo_heal:RefreshWindow ({}, _detalhes.tabela_vigente, nil, { key = atributo_name, modo = _detalhes.modos.group })
 			elseif (atributo == 3) then
-				data = _detalhes.atributo_energy:RefreshWindow ({}, _detalhes.tabela_vigente, _, { key = atributo_name, modo = _detalhes.modos.group })
+				data = _detalhes.atributo_energy:RefreshWindow ({}, _detalhes.tabela_vigente, nil, { key = atributo_name, modo = _detalhes.modos.group })
 			elseif (atributo == 4) then
-				data = _detalhes.atributo_misc:RefreshWindow ({}, _detalhes.tabela_vigente, _, { key = atributo_name, modo = _detalhes.modos.group })
+				data = _detalhes.atributo_misc:RefreshWindow ({}, _detalhes.tabela_vigente, nil, { key = atributo_name, modo = _detalhes.modos.group })
 			else
 				return
 			end

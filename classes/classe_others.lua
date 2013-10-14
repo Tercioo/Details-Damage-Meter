@@ -24,7 +24,7 @@ local AceLocale = LibStub ("AceLocale-3.0")
 local Loc = AceLocale:GetLocale ( "Details" )
 
 local gump = 			_detalhes.gump
-
+local _
 local alvo_da_habilidade = 	_detalhes.alvo_da_habilidade
 local container_habilidades = 	_detalhes.container_habilidades
 local container_combatentes = _detalhes.container_combatentes

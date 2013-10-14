@@ -2,7 +2,7 @@ local _detalhes = 		_G._detalhes
 local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
 
 local gump = 			_detalhes.gump
-
+local _
 --lua locals
 --local _string_len = string.len
 local _math_floor = math.floor

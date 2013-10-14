@@ -38,7 +38,7 @@
 	--> details can call a refresh for an plugin window
 	function _detalhes:RefreshSolo()
 		if (_detalhes.SoloTables.Plugins [_detalhes.SoloTables.Mode].Refresh) then
-			_detalhes.SoloTables.Plugins [_detalhes.SoloTables.Mode].Refresh (_, SoloInstance)
+			_detalhes.SoloTables.Plugins [_detalhes.SoloTables.Mode].Refresh (nil, SoloInstance)
 		end
 	end
 
@@ -92,7 +92,7 @@
 				if (not _detalhes.SoloTables.Plugins [_detalhes.SoloTables.Mode]) then
 					_detalhes.SoloTables.Mode = 1
 				end
-				_detalhes.SoloTables:switch (_, _detalhes.SoloTables.Mode)
+				_detalhes.SoloTables:switch (nil, _detalhes.SoloTables.Mode)
 			end
 
 		else

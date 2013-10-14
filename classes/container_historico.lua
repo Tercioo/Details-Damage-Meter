@@ -150,6 +150,14 @@ function historico:resetar()
 	--> fecha a janela de informações do jogador
 	_detalhes:FechaJanelaInfo()
 	
+	for _, combate in ipairs (_detalhes.tabela_historico.tabelas) do 
+		_table_wipe (combate)
+	end
+	_table_wipe (_detalhes.tabela_vigente)
+	_table_wipe (_detalhes.tabela_overall)
+	_table_wipe (_detalhes.tabela_pets.pets)
+	_table_wipe (_detalhes.spellcache)
+	
 	-- novo container de historico
 	_detalhes.tabela_historico = historico:NovoHistorico() --joga fora a tabela antiga e cria uma nova
 	--novo container para armazenar pets
@@ -158,7 +166,7 @@ function historico:resetar()
 	-- nova tabela do overall e current
 	_detalhes.tabela_overall = combate:NovaTabela() --joga fora a tabela antiga e cria uma nova
 	-- cria nova tabela do combate atual
-	_detalhes.tabela_vigente = combate:NovaTabela (_, _detalhes.tabela_overall)
+	_detalhes.tabela_vigente = combate:NovaTabela (nil, _detalhes.tabela_overall)
 	
 	--marca o addon como fora de combate
 	_detalhes.in_combat = false
@@ -178,6 +186,8 @@ function historico:resetar()
 	_table_wipe (_detalhes.cache_healing_group)
 	_detalhes:UpdateParserGears()
 
+	collectgarbage()
+	
 	_detalhes:InstanciaCallFunction (_detalhes.AtualizaSegmentos) -- atualiza o instancia.showing para as novas tabelas criadas
 	_detalhes:InstanciaCallFunction (_detalhes.AtualizaSoloMode_AfertReset) -- verifica se precisa zerar as tabela da janela solo mode
 	_detalhes:InstanciaCallFunction (_detalhes.ResetaGump) --_detalhes:ResetaGump ("de todas as instancias")

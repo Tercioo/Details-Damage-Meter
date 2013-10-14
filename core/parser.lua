@@ -8,7 +8,7 @@
 	local _detalhes = 		_G._detalhes
 	local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
 	local _tempo = time()
-
+	local _
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> local pointers
 
@@ -115,6 +115,10 @@
 
 	------------------------------------------------------------------------------------------------
 	--> early checks and fixes
+	
+	--if (alvo_name == "Ditador") then
+		--print ("resisted",resisted, "blocked",blocked, "absorbed",absorbed, "critical",critical, "glacing",glacing, "crushing",crushing)
+	--end
 	
 		if (who_serial == "0x0000000000000000") then
 			if (who_flags and _bit_band (who_flags, OBJECT_TYPE_PETS) ~= 0) then --> é um pet
@@ -405,7 +409,7 @@
 		--> 'misser'
 		local este_jogador = damage_cache [who_name]
 		if (not este_jogador) then
-			este_jogador, meu_dono, who_name = _current_damage_container:PegarCombatente (_, who_name)
+			este_jogador, meu_dono, who_name = _current_damage_container:PegarCombatente (nil, who_name)
 			if (not este_jogador) then
 				return --> just return if actor doen't exist yet
 			end
@@ -809,7 +813,7 @@
 					escudo [alvo_name][spellid][who_name] = amount
 					
 					--if (absorb > 0) then
-						return parser:heal (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, _, _math_ceil (absorb), _math_ceil (overheal), 0, 0, true)
+						return parser:heal (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, nil, _math_ceil (absorb), _math_ceil (overheal), 0, 0, true)
 					--end
 				else
 					--> should apply aura if not found in already applied buff list?
@@ -906,7 +910,7 @@
 						
 						escudo [alvo_name][spellid][who_name] = nil
 						
-						return parser:heal (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, _, _math_ceil (absorb), _math_ceil (overheal), 0, 0, true) --> último parametro IS_SHIELD
+						return parser:heal (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, nil, _math_ceil (absorb), _math_ceil (overheal), 0, 0, true) --> último parametro IS_SHIELD
 							
 						--end
 					end
@@ -2101,11 +2105,11 @@
 		--print (token)
 
 		-- DEBUG
-		--[[
-		if (who_name == "Trcioo") then
-		local a, b, c, d, e, f, g, h, i, j, k = select (1, ...)
-		print (token, who_name, a, b, c, d, e, f, g, h, i, j, k)
-		end
+		--[
+		--if (alvo_name == "Ditador") then
+		--	local a, b, c, d, e, f, g, h, i, j, k = select (1, ...)
+		--	print (token, who_name, a, b, c, d, e, f, g, h, i, j, k)
+		--end
 		--]]
 		--[[
 		if (who_name == "Ditador") then
@@ -2134,7 +2138,7 @@
 		
 		local funcao = token_list [token]
 		if (funcao) then
-			return funcao (_, token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, ... )
+			return funcao (nil, token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, ... )
 		else
 			return
 		end

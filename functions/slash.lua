@@ -24,6 +24,18 @@ function SlashCmdList.DETAILS (msg, editbox)
 	
 		if (_detalhes.opened_windows == 0) then
 			_detalhes:CriarInstancia()
+		else
+			-- ter certeza que não bugou a contagem
+			local have_opened = false
+			for _, instance in ipairs (_detalhes.tabela_instancias) do 
+				if (instance.baseframe:IsShown()) then
+					have_opened = true
+					break
+				end
+			end
+			if (not have_opened) then
+				_detalhes:CriarInstancia()
+			end
 		end
 	
 	elseif (command == Loc ["STRING_SLASH_DISABLE"]) then

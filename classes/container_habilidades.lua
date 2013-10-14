@@ -5,6 +5,7 @@ local _detalhes = 		_G._detalhes
 local gump = 			_detalhes.gump
 
 local _setmetatable = setmetatable
+local _
 
 local container_playernpc = _detalhes.container_type.CONTAINER_PLAYERNPC
 local container_damage = _detalhes.container_type.CONTAINER_DAMAGE_CLASS
@@ -62,7 +63,7 @@ function container_habilidades:PegaHabilidade (id, criar, token, cria_shadow)
 		if (criar) then
 		
 			if (cria_shadow) then 
-				local novo_objeto = self.funcao_de_criacao (_, id, nil, "")
+				local novo_objeto = self.funcao_de_criacao (nil, id, nil, "")
 				self._ActorTable [id] = novo_objeto
 				return novo_objeto
 			end
@@ -78,7 +79,7 @@ function container_habilidades:PegaHabilidade (id, criar, token, cria_shadow)
 			end
 			
 			--local novo_objeto = habilidade_dano:NovaTabela (id, shadow_objeto)
-			local novo_objeto = self.funcao_de_criacao (_, id, shadow_objeto, token)
+			local novo_objeto = self.funcao_de_criacao (nil, id, shadow_objeto, token)
 			
 			if (shadow_objeto) then --> link é esta mesma tabela mas no container do overall
 				novo_objeto.shadow = shadow_objeto --> diz ao objeto qual a shadow dele na tabela overall

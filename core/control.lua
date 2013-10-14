@@ -9,7 +9,7 @@
 	local _detalhes = 		_G._detalhes
 	local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
 	local _tempo = time()
-	
+	local _
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> local pointers
 	
@@ -212,7 +212,7 @@
 				--> aqui ele perdeu o self.showing das instâncias, precisa fazer com que elas atualizem
 				_detalhes.tabela_overall = _detalhes.combate:NovaTabela()
 				
-				_detalhes:InstanciaCallFunction (_detalhes.ResetaGump, _, -1) --> reseta scrollbar, iterators, rodapé, etc
+				_detalhes:InstanciaCallFunction (_detalhes.ResetaGump, nil, -1) --> reseta scrollbar, iterators, rodapé, etc
 				_detalhes:InstanciaCallFunction (_detalhes.InstanciaFadeBarras, -1) --> esconde todas as barras
 				_detalhes:InstanciaCallFunction (_detalhes.AtualizaSegmentos) --> atualiza o showing
 			end

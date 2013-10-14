@@ -3,7 +3,7 @@
 do 
 
 	local _detalhes	= 	_G._detalhes
-	
+	local _
 	local _pairs = pairs
 	local _ipairs = ipairs
 	local _UnitClass = UnitClass

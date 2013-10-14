@@ -25,6 +25,7 @@ local GameTooltip = GameTooltip
 local _detalhes = 		_G._detalhes
 local AceLocale = LibStub ("AceLocale-3.0")
 local Loc = AceLocale:GetLocale ( "Details" )
+local _
 
 local gump = 			_detalhes.gump
 
@@ -918,7 +919,7 @@ atributo_energy.__add = function (shadow, tabela2)
 	shadow.holypower_r = shadow.holypower_r + tabela2.holypower_r
 
 	for index, alvo in _ipairs (tabela2.targets._ActorTable) do 
-		local alvo_shadow = shadow.targets:PegarCombatente (alvo.serial, alvo.nome, _, true)
+		local alvo_shadow = shadow.targets:PegarCombatente (alvo.serial, alvo.nome, nil, true)
 		alvo_shadow.total = alvo_shadow.total + alvo.total
 	end
 	
@@ -927,7 +928,7 @@ atributo_energy.__add = function (shadow, tabela2)
 		local habilidade_shadow = shadow.spell_tables:PegaHabilidade (spellid, true, nil, true)
 		
 		for index, alvo in _ipairs (habilidade.targets._ActorTable) do 
-			local alvo_shadow = habilidade_shadow.targets:PegarCombatente (alvo.serial, alvo.nome, _, true)
+			local alvo_shadow = habilidade_shadow.targets:PegarCombatente (alvo.serial, alvo.nome, nil, true)
 			alvo_shadow.total = alvo_shadow.total + alvo.total
 		end
 		

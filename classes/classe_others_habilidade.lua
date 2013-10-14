@@ -7,6 +7,7 @@ local container_combatentes =	_detalhes.container_combatentes
 local container_misc_target = 	_detalhes.container_type.CONTAINER_MISCTARGET_CLASS
 
 --lua locals
+local _
 local _setmetatable = setmetatable
 local _ipairs = ipairs
 --api locals

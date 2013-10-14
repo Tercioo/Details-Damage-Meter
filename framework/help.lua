@@ -1,6 +1,6 @@
 local _detalhes = _G._detalhes
 local gump = _detalhes.gump
-
+local _
 local _rawset = rawset --> lua local
 local _rawget = rawget --> lua local
 local APIHelpFunctions = false

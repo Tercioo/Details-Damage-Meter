@@ -7,7 +7,7 @@ do
 
 	local _detalhes = 	_G._detalhes
 	local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
-
+	local _
 	local _rawget	=	rawget
 	local _rawset	=	rawset
 	local _setmetatable =	setmetatable

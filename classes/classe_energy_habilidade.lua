@@ -11,6 +11,7 @@ local _setmetatable = setmetatable
 local _ipairs = ipairs
 --api locals
 local _UnitAura = UnitAura
+local _
 --local _GetSpellInfo = _detalhes.getspellinfo
 
 local container_playernpc = _detalhes.container_type.CONTAINER_PLAYERNPC
