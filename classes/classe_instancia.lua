@@ -1730,6 +1730,9 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 		_detalhes.fontstring_len = _detalhes.listener:CreateFontString (nil, "background", "GameFontNormal")
 	end
 	local _, fontSize = FCF_GetChatWindowInfo (1)
+	if (fontSize < 1) then
+		fontSize = 10
+	end
 	local fonte, _, flags = _detalhes.fontstring_len:GetFont()
 	_detalhes.fontstring_len:SetFont (fonte, fontSize, flags)
 	_detalhes.fontstring_len:SetText ("hello details!")
@@ -1745,6 +1748,8 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 			local total, keyName, keyNameSec, first
 			local atributo = self.atributo
 			local container = self.showing [atributo]._ActorTable
+			
+			--print ("amt: ",#container)
 			
 			if (atributo == 1) then --> damage
 				if (self.sub_atributo == 5) then --> frags
@@ -1799,6 +1804,9 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 							local dps = GetDpsHps (_thisActor, keyNameSec)
 							
 							local name = _thisActor.nome.." "
+							if (_detalhes.remove_realm_from_name and name:find ("-")) then
+								name = name:gsub (("%-.*"), "")
+							end
 							
 							_detalhes.fontstring_len:SetText (name)
 							local stringlen = _detalhes.fontstring_len:GetStringWidth()
