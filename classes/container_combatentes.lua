@@ -138,9 +138,12 @@ local read_flag_ = function (novo_objeto, shadow_objeto, dono_do_pet, serial, fl
 				end
 			end
 			
-			if (_bit_band (flag, EM_GRUPO) ~= 0) then --> faz parte do grupo
+			if (_bit_band (flag, EM_GRUPO) ~= 0 and novo_objeto.classe ~= "UNGROUPPLAYER") then --> faz parte do grupo
 				details_flag = details_flag+0x00000100
 				novo_objeto.grupo = true
+				--if (nome:find ("[*]")) then
+				--	print ("Objeto em grupo:", nome, "flag:", flag, "classe:", novo_objeto.classe)
+				--end
 				if (shadow_objeto) then
 					shadow_objeto.grupo = true
 				end

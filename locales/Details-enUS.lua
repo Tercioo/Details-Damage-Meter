@@ -3,6 +3,8 @@ if not Loc then return end
 
 --------------------------------------------------------------------------------------------------------------------------------------------
 
+	Loc ["STRING_VERSION_LOG"] = "Details! v1.5.0:\n\n|cFFFFFF00-|r Buff Uptime was been implemented over Miscellaneous attribute.\n\n|cFFFFFF00-|r Death Logs now also display cooldowns and last cooldown used.\n\n|cFFFFFF00-|r Added this window showing the latest changes.\n\n|cFFFFFF00-|r Fixed the issue were sometimes the instance stops to update when clicking on the attribute name over sword menu.\n\n|cFFFFFF00-|r Disabling Healing now shutdown the absorbs too, disabling auras doesn't interrupt absorbs any more.\n\n|cFFFFFF00-|r Friendly Fire now only track players which is inside a group.\n\n|cFFFFFF00-|r Fixed a issue were pet damage on target isn't added to owner target.\n\n|cFFFFFF00-|r Fixed a bug were refreshing a cooldown isn't counting.\n\n|cFFFFFF00-|r Added absorbs for shammy and monk 2P tier 16.\n\n|cFFFFFF00-|r Added slash command 'worldboss' and 'updates'."
+
 	Loc ["STRING_DETAILS1"] = "|cffffaeaeDetails:|r " --> color and details name
 
 	Loc ["STRING_YES"] = "Yes"
@@ -16,13 +18,18 @@ if not Loc then return end
 	Loc ["STRING_TOOOLD2"] = "your Details! version isn't the same."
 	Loc ["STRING_CHANGED_TO_CURRENT"] = "Segment changed to current"
 	Loc ["STRING_SEGMENT_TRASH"] = "Next Boss Cleanup"
+	Loc ["STRING_VERSION_UPDATE"] = "new version: what's changed? click here"
+	Loc ["STRING_NEWS_TITLE"] = "What's New In This Version"
 	
 	Loc ["STRING_NO_DATA"] = "data already has been cleaned"
 	Loc ["STRING_ISA_PET"] = "This Actor is a Pet"
 	Loc ["STRING_EQUILIZING"] = "Sharing encounter data"
 	Loc ["STRING_LEFT_CLICK_SHARE"] = "Left click to report."
 	
-	Loc ["STRING_INSTANCE_LIMIT"] = "max instance number has been reached, you can modify this limit over options panel."
+	Loc ["STRING_LAST_COOLDOWN"] = "last cooldown used"
+	Loc ["STRING_NOLAST_COOLDOWN"] = "no cooldown used"
+	
+	Loc ["STRING_INSTANCE_LIMIT"] = "max instance number has been reached, you can modify this limit on options panel."
 	
 	Loc ["STRING_PLEASE_WAIT"] = "Please wait"
 	Loc ["STRING_UPTADING"] = "updating"
@@ -52,6 +59,14 @@ if not Loc then return end
 	
 	Loc ["STRING_SLASH_NEW"] = "new"
 	Loc ["STRING_SLASH_NEW_DESC"] = "open or reopen a instance."
+	
+	Loc ["STRING_SLASH_CHANGES"] = "updates"
+	Loc ["STRING_SLASH_CHANGES_DESC"] = "shows up the latest changes made on this version."
+	
+	Loc ["STRING_SLASH_WORLDBOSS"] = "worldboss"
+	Loc ["STRING_SLASH_WORLDBOSS_DESC"] = "run a macro showing which boss you killed this week."
+	Loc ["STRING_KILLED"] = "Killed"
+	Loc ["STRING_ALIVE"] = "Alive"
 
 --> StatusBar Plugins
 	Loc ["STRING_STATUSBAR_NOOPTIONS"] = "This widget doesn't have options."
@@ -157,6 +172,7 @@ if not Loc then return end
 		Loc ["STRING_ATTRIBUTE_MISC_DISPELL"] = "Dispells"
 		Loc ["STRING_ATTRIBUTE_MISC_DEAD"] = "Deaths"
 		Loc ["STRING_ATTRIBUTE_MISC_DEFENSIVE_COOLDOWNS"] = "Cooldowns"
+		Loc ["STRING_ATTRIBUTE_MISC_BUFF_UPTIME"] = "Buff Uptime"
 		
 	Loc ["STRING_ATTRIBUTE_CUSTOM"] = "Custom"
 
@@ -259,6 +275,7 @@ if not Loc then return end
 	Loc ["STRING_REPORT_INVALIDTARGET"] = "Whisper target not found"
 	Loc ["STRING_REPORT_SINGLE_DEATH"] = "death details of"
 	Loc ["STRING_REPORT_SINGLE_COOLDOWN"] = "cooldowns used by"
+	Loc ["STRING_REPORT_SINGLE_BUFFUPTIME"] = "buff uptime for"
 	Loc ["STRING_NOCLOSED_INSTANCES"] = "There are no closed instances,\nclick to open a new one."
 	
 --> report frame

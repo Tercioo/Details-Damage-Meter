@@ -47,6 +47,10 @@ function container_pets:PegaDono (pet_serial, pet_nome, pet_flags)
 				end
 				dono_nome = nome
 				
+				if (nome:find ("Unknown")) then
+					--print ("owner name with Unknown: ", nome)
+				end
+				
 				--print ("Dono encontrado na raide",nome,realm)
 			end
 		end
@@ -63,6 +67,7 @@ function container_pets:PegaDono (pet_serial, pet_nome, pet_flags)
 					--print ("tem realm: ", realm)
 					nome = nome.."-"..realm
 				end
+				
 				dono_nome = nome
 				--print ("Dono encontrado na party",nome,realm)
 				--print ("DEBUG Dono encontrado na party")
@@ -107,12 +112,18 @@ function container_pets:BuscarPets()
 			if (pet_serial) then
 				if (not _detalhes.tabela_pets.pets [pet_serial]) then
 					local nome, realm = _UnitName ("raid"..i)
-					if (realm and realm ~= "") then
-						nome = nome.."-"..realm
-						--print ("tem realm: ", realm, nome)
+					if (nome == "Unknown Entity") then
+						_detalhes:SchedulePetUpdate (1)
+						--print ("unknown owner name, rescheduling...")
+					else
+						if (realm and realm ~= "") then
+							nome = nome.."-"..realm
+							--print ("tem realm: ", realm, nome)
+						end
+						--print ("pet found: ", nome)
+						--print ("bp dono encontrado na raide:",nome, realm)
+						_detalhes.tabela_pets:Adicionar (pet_serial, _UnitName ("raidpet"..i), 2600, _UnitGUID ("raid"..i), nome, 0x514, true)
 					end
-					--print ("bp dono encontrado na raide:",nome, realm)
-					_detalhes.tabela_pets:Adicionar (pet_serial, _UnitName ("raidpet"..i), 2600, _UnitGUID ("raid"..i), nome, 0x514, true)
 				end
 			end
 		end
@@ -122,11 +133,17 @@ function container_pets:BuscarPets()
 			if (pet_serial) then
 				if (not _detalhes.tabela_pets.pets [pet_serial]) then
 					local nome, realm = _UnitName ("party"..i)
-					if (realm and realm ~= "") then
-						nome = nome.."-"..realm
+					if (nome == "Unknown Entity") then
+						_detalhes:SchedulePetUpdate (1)
+						--print ("unknown owner name, rescheduling...")
+					else
+						if (realm and realm ~= "") then
+							nome = nome.."-"..realm
+						end
+						--print ("pet found: ", nome)
+						--print ("bp dono encontrado no grupo:",nome, realm)
+						_detalhes.tabela_pets:Adicionar (pet_serial, _UnitName ("partypet"..i), 2600, _UnitGUID ("party"..i), nome, 0x514)
 					end
-					--print ("bp dono encontrado no grupo:",nome, realm)
-					_detalhes.tabela_pets:Adicionar (pet_serial, _UnitName ("partypet"..i), 2600, _UnitGUID ("party"..i), nome, 0x514)
 				end
 			end
 		end
@@ -146,6 +163,19 @@ function container_pets:Adicionar (pet_serial, pet_nome, pet_flags, dono_serial,
 		--print ("debug: a owner is a pet, Owner: ", dono_nome, " Pet: ", pet_nome)
 	--end
 
+end
+
+local have_schedule = false
+function _detalhes:UpdatePets()
+	have_schedule = false
+	return container_pets:BuscarPets()
+end
+function _detalhes:SchedulePetUpdate (seconds)
+	if (have_schedule) then
+		return
+	end
+	have_schedule = true
+	_detalhes:ScheduleTimer ("UpdatePets", seconds or 5)
 end
 
 function _detalhes.refresh:r_container_pets (container)

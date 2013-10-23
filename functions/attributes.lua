@@ -30,7 +30,7 @@ do
 		
 		--[[ MISC ]]
 			misc = 4,	--> identifier
-			[4] = 6,	-->  sub attributes 
+			[4] = 7,	-->  sub attributes 
 			
 		--[[ CUSTOM ]]
 			custom = 5,
@@ -130,6 +130,7 @@ do
 			dispell = 4,
 			deaths = 5,
 			cooldowns_defensive = 6,
+			buff_uptime = 7,
 			lista = {	--[[ String Names ]]
 				Loc ["STRING_ATTRIBUTE_MISC_CCBREAK"],
 				Loc ["STRING_ATTRIBUTE_MISC_RESS"],
@@ -137,6 +138,7 @@ do
 				Loc ["STRING_ATTRIBUTE_MISC_DISPELL"],
 				Loc ["STRING_ATTRIBUTE_MISC_DEAD"],
 				Loc ["STRING_ATTRIBUTE_MISC_DEFENSIVE_COOLDOWNS"],
+				Loc ["STRING_ATTRIBUTE_MISC_BUFF_UPTIME"],
 			},
 			icones = {
 				{"Interface\\AddOns\\Details\\images\\atributos_icones_misc", {0, .125, 0, 1}},
@@ -144,9 +146,10 @@ do
 				{"Interface\\AddOns\\Details\\images\\atributos_icones_misc", {.25, .375, 0, 1}},
 				{"Interface\\AddOns\\Details\\images\\atributos_icones_misc", {.375, .5, 0, 1}},
 				{"Interface\\AddOns\\Details\\images\\atributos_icones_misc", {.5, .625, 0, 1}},
-				{"Interface\\AddOns\\Details\\images\\atributos_icones_misc", {.625, 0.75, 0, 1}}
+				{"Interface\\AddOns\\Details\\images\\atributos_icones_misc", {.625, 0.75, 0, 1}},
+				{"Interface\\AddOns\\Details\\images\\atributos_icones_misc", {0.75, 0.875, 0, 1}}
 			},
-			internal = {"cc_break", "ress", "interrupt", "dispell", "dead", "cooldowns_defensive"}
+			internal = {"cc_break", "ress", "interrupt", "dispell", "dead", "cooldowns_defensive", "buff_uptime"}
 		}
 	}
 	
@@ -157,6 +160,7 @@ do
 	function _detalhes:GetSubAttributeName (attribute, subAttribute)
 		if (attribute == 5) then
 			local CustomObject = _detalhes.custom [subAttribute]
+			-- ??
 			return CustomObject.name
 		end
 		return _detalhes.sub_atributos [attribute].lista [subAttribute]

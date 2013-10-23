@@ -55,6 +55,7 @@ gumps\janela_report.lua
 gumps\janela_principal.lua
 gumps\janela_custom.lua
 gumps\janela_welcome.lua
+gumps\janela_news.lua
 gumps\fw_mods.lua
 gumps\switch.lua
 gumps\toolbar_button.xml
@@ -89,6 +90,7 @@ core\gears.lua
 core\windows.lua
 core\meta.lua
 core\network.lua
+
 core\parser.lua
 
 startup.lua

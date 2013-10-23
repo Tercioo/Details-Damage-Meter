@@ -3,6 +3,8 @@ if not Loc then return end
 
 --------------------------------------------------------------------------------------------------------------------------------------------
 
+	Loc ["STRING_VERSION_LOG"] = "Details! v1.5.0:\n\n|cFFFFFF00-|r Buff Uptime foi implementado no atributo miscelanea.\n\n|cFFFFFF00-|r Cooldowns usados agora aparecem nos registros da morte.\n\n|cFFFFFF00-|r Implementado esta janela mostrando as atualizacoes.\n\n|cFFFFFF00-|r Corrigido problema onde algumas vezes clicando no nome do atributo fazia a instancia parar de atualizar.\n\n|cFFFFFF00-|r Desativando a cura agora para as absorcoes tambem. Desligando as Auras nao interrompe as absorcoes. \n\n|cFFFFFF00-|r Fogo Amigo agora conta apenas jogadores dentro do grupo.\n\n|cFFFFFF00-|r Corrigido problema onde o dano feito por um ajudando nao estava contando no alvo do dono.\n\n|cFFFFFF00-|r Corrigido problema onde a atualizacao de um cooldown nao estava sendo contada.\n\n|cFFFFFF00-|r Adicionada as magias de absorcao para 2P tier 16.\n\n|cFFFFFF00-|r Adicionado os comandos de barra 'worldboss' e 'updates'."
+
 	Loc ["STRING_DETAILS1"] = "|cffffaeaeDetalhes:|r " --> color and details name
 
 	Loc ["STRING_YES"] = "Sim"
@@ -16,11 +18,16 @@ if not Loc then return end
 	Loc ["STRING_TOOOLD2"] = "a sua versao do Details! nao e a mesma."
 	Loc ["STRING_CHANGED_TO_CURRENT"] = "Segmento trocado para atual"
 	Loc ["STRING_SEGMENT_TRASH"] = "Caminho do Proximo Boss"
+	Loc ["STRING_VERSION_UPDATE"] = "nova versao: clique para ver o que mudou"
+	Loc ["STRING_NEWS_TITLE"] = "Quais As Novidades Desta Versao"
 	
 	Loc ["STRING_NO_DATA"] = "data já foi limpada"
 	Loc ["STRING_ISA_PET"] = "Este Ator e um Ajudante"
 	Loc ["STRING_EQUILIZING"] = "Comparilhando dados"
 	Loc ["STRING_LEFT_CLICK_SHARE"] = "Clique para enviar relatorio."
+	
+	Loc ["STRING_LAST_COOLDOWN"] = "ultimo cooldown usado"
+	Loc ["STRING_NOLAST_COOLDOWN"] = "nenhum cooldown usado"
 	
 	Loc ["STRING_INSTANCE_LIMIT"] = "o limite de instancias foi atingido, voce pode modificar este limite no painel de opcoes."
 	
@@ -52,6 +59,14 @@ if not Loc then return end
 	
 	Loc ["STRING_SLASH_NEW"] = "novo"
 	Loc ["STRING_SLASH_NEW_DESC"] = "abre ou reabre uma instancia."
+	
+	Loc ["STRING_SLASH_CHANGES"] = "updates"
+	Loc ["STRING_SLASH_CHANGES_DESC"] = "mostra o que foi implementado e corrigido nesta versao do Details."
+	
+	Loc ["STRING_SLASH_WORLDBOSS"] = "worldboss"
+	Loc ["STRING_SLASH_WORLDBOSS_DESC"] = "executa uma macro mostrando quais 'world boss' voce matou esta semana."
+	Loc ["STRING_KILLED"] = "Morto"
+	Loc ["STRING_ALIVE"] = "Vivo"
 	
 --> StatusBar Plugins
 	Loc ["STRING_STATUSBAR_NOOPTIONS"] = "Nao ha opcoes para esta ferramenta."
@@ -155,6 +170,7 @@ if not Loc then return end
 		Loc ["STRING_ATTRIBUTE_MISC_DISPELL"] = "Dissipados"
 		Loc ["STRING_ATTRIBUTE_MISC_DEAD"] = "Mortes"
 		Loc ["STRING_ATTRIBUTE_MISC_DEFENSIVE_COOLDOWNS"] = "Cooldowns"
+		Loc ["STRING_ATTRIBUTE_MISC_BUFF_UPTIME"] = "Buff Tempo Ativo"
 		
 	Loc ["STRING_ATTRIBUTE_CUSTOM"] = "Customizados"	
 	
@@ -254,6 +270,7 @@ if not Loc then return end
 	Loc ["STRING_REPORT_INVALIDTARGET"] = "O alvo nao pode ser encontrado"
 	Loc ["STRING_REPORT_SINGLE_DEATH"] = "detalhes da morte de"
 	Loc ["STRING_REPORT_SINGLE_COOLDOWN"] = "cooldowns usados por"
+	Loc ["STRING_REPORT_SINGLE_BUFFUPTIME"] = "duracao dos buffs de"
 	Loc ["STRING_NOCLOSED_INSTANCES"] = "Nao ha instancias fechadas,\nclique para abrir uma nova."
 	--Loc ["STRING_REPORT_FRAG"] = 
 	

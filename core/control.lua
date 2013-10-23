@@ -274,9 +274,12 @@
 				end
 			end
 			
+			_detalhes:CatchRaidBuffUptime ("BUFF_UPTIME_IN")
+			_detalhes:UptadeRaidMembersCache()
+			_detalhes:HaveOneCurrentInstance()
+			
 			_detalhes:SendEvent ("COMBAT_PLAYER_ENTER", nil, _detalhes.tabela_vigente)
 			
-			_detalhes:HaveOneCurrentInstance()
 		end
 
 		function _detalhes:SairDoCombate (bossKilled)
@@ -284,6 +287,8 @@
 			if (_detalhes.debug) then
 				_detalhes:Msg ("(debug) ended a combat.")
 			end
+		
+			_detalhes:CatchRaidBuffUptime ("BUFF_UPTIME_OUT")
 		
 			--> pega a zona do jogador e vê se foi uma luta contra um Boss -- identifica se a luta foi com um boss
 			if (not _detalhes.tabela_vigente.is_boss) then 

@@ -2728,7 +2728,7 @@ local build_segment_list = function (self, elapsed)
 				if (menuIndex) then
 					menuIndex = menuIndex + 1
 					if (instancia.segmento == i) then
-						CoolTip:SetLastSelected ("main", menuIndex); --print (2)
+						CoolTip:SetLastSelected ("main", menuIndex); 
 						menuIndex = nil
 					end
 				end
@@ -2774,11 +2774,11 @@ local build_segment_list = function (self, elapsed)
 			--> fill é a quantidade de menu que esta sendo mostrada
 			if (instancia.segmento == 0) then
 				if (fill - 2 == menuIndex) then
-					CoolTip:SetLastSelected ("main", fill - 1)--; print (21)
+					CoolTip:SetLastSelected ("main", fill - 1)
 				elseif (fill - 1 == menuIndex) then
-					CoolTip:SetLastSelected ("main", fill)--; print (22)
+					CoolTip:SetLastSelected ("main", fill)
 				else
-					CoolTip:SetLastSelected ("main", fill + 1)--; print (23)
+					CoolTip:SetLastSelected ("main", fill + 1)
 				end
 
 				menuIndex = nil
@@ -2827,11 +2827,11 @@ local build_segment_list = function (self, elapsed)
 			--> fill é a quantidade de menu que esta sendo mostrada
 			if (instancia.segmento == -1) then
 				if (fill - 2 == menuIndex) then
-					CoolTip:SetLastSelected ("main", fill)--; print (31)
+					CoolTip:SetLastSelected ("main", fill)
 				elseif (fill - 1 == menuIndex) then
-					CoolTip:SetLastSelected ("main", fill+1)--; print (32)
+					CoolTip:SetLastSelected ("main", fill+1)
 				else
-					CoolTip:SetLastSelected ("main", fill + 2)--; print (33)
+					CoolTip:SetLastSelected ("main", fill + 2)
 				end
 				menuIndex = nil
 			end
@@ -2956,8 +2956,6 @@ function gump:CriaCabecalho (BaseFrame, instancia)
 	BGFrame_scripts (BaseFrame.UPFrame, BaseFrame, instancia)
 	
 	
---BaseFrame.UPFrame:SetScript ("OnMouseDown", function() print ("hello world")end)
-
 -- botões	
 ------------------------------------------------------------------------------------------------------------------------------------------------- 	
 

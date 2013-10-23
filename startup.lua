@@ -140,7 +140,7 @@ function _G._detalhes:Start()
 		--mana, rage, energy, runepower
 			self.row_singleclick_overwrite [3] = {true, true, true, true} 
 		--cc breaks, ress, interrupts, dispells, deaths
-			self.row_singleclick_overwrite [4] = {true, true, true, true, self.atributo_misc.ReportSingleDeadLine, self.atributo_misc.ReportSingleCooldownLine} 
+			self.row_singleclick_overwrite [4] = {true, true, true, true, self.atributo_misc.ReportSingleDeadLine, self.atributo_misc.ReportSingleCooldownLine, self.atributo_misc.ReportSingleBuffUptimeLine} 
 		
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> initialize
@@ -317,6 +317,14 @@ function _G._detalhes:Start()
 		_detalhes:OpenWelcomeWindow()
 	end
 	
-	
+	if (self.is_version_first_run) then
+		local lower_instance = _detalhes:GetLowerInstanceNumber()
+		if (lower_instance) then
+			lower_instance = _detalhes:GetInstance (lower_instance)
+			if (lower_instance) then
+				lower_instance:InstanceAlert (Loc ["STRING_VERSION_UPDATE"], {[[Interface\GossipFrame\AvailableQuestIcon]], 16, 16, false}, 20, {_detalhes.OpenNewsWindow})
+			end
+		end
+	end
 	
 end

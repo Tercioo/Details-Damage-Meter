@@ -338,6 +338,8 @@ do
 			
 		--shaman
 			[114893]	=	true, --Stone Bulwark (stone bulwark totem)
+			[145379]	=	true, --Barreira da Natureza
+			[145378]	=	true, --2P T16
 
 		--paladin
 			[86273]	=	true, --Illuminated Healing (holy)
@@ -347,6 +349,10 @@ do
 			[116849]	=	true, --Life Cocoon (mistweaver)
 			[115295]	=	true, --Guard (brewmaster)
 			[118604]	=	true, --Guard (brewmaster)
+			[145051]	=	true, --Proteção de Niuzao 
+			[145056]	=	true, --
+			[145441]	=	true, --2P T16
+			[145439]	=	true, --2P T16
 		
 		--warlock
 			[6229]	=	true, --Twilight Ward
@@ -365,6 +371,7 @@ do
 		--others
 			[116631]	=	true, -- enchant "Enchant Weapon - Colossus"
 			[140380]	=	true, -- trinket "Inscribed Bag of Hydra-Spawn"
+			[138925]	=	true, -- trinket "Stolen Relic of Zuldazar"
 
 	}
 	

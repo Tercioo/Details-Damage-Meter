@@ -117,6 +117,7 @@
 					_combate.totals_grupo [_actor.tipo] ["dead"] = _combate.totals_grupo [_actor.tipo] ["dead"] - _actor.dead 
 				end
 			end
+			--buff uptime não precisa
 		end
 	end
 
@@ -259,6 +260,14 @@
 								end
 							end
 							
+							if (esta_classe.buff_uptime) then
+								if (not shadow.buff_uptime_spell_targets) then
+									shadow.buff_uptime = 0
+									shadow.buff_uptime_spell_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
+									shadow.buff_uptime_spell_tables = container_habilidades:NovoContainer (_detalhes.container_type.CONTAINER_MISC_CLASS) --> cria o container das habilidades usadas para interromper
+								end
+							end
+							
 							if (esta_classe.interrupt) then
 								if (not shadow.interrupt_targets) then
 									shadow.interrupt = 0
@@ -300,6 +309,11 @@
 							if (esta_classe.interrupt) then
 								for _, este_alvo in _ipairs (esta_classe.interrupt_targets._ActorTable) do
 									_detalhes.refresh:r_alvo_da_habilidade (este_alvo, shadow.interrupt_targets)
+								end
+							end
+							if (esta_classe.buff_uptime) then
+								for _, este_alvo in _ipairs (esta_classe.buff_uptime_targets._ActorTable) do
+									_detalhes.refresh:r_alvo_da_habilidade (este_alvo, shadow.buff_uptime_targets)
 								end
 							end
 							if (esta_classe.cooldowns_defensive) then
@@ -354,6 +368,17 @@
 									end
 								end
 							end
+
+							if (esta_classe.buff_uptime) then
+								for _, habilidade in _pairs (esta_classe.buff_uptime_spell_tables._ActorTable) do
+									_detalhes.refresh:r_habilidade_misc (habilidade, shadow.buff_uptime_spell_tables)
+									
+									for _, este_alvo in _ipairs (habilidade.targets._ActorTable) do
+										_detalhes.refresh:r_alvo_da_habilidade (este_alvo, habilidade.targets.shadow)
+									end
+								end
+							end
+							
 							if (esta_classe.cooldowns_defensive) then
 								for _, habilidade in _pairs (esta_classe.cooldowns_defensive_spell_tables._ActorTable) do
 									_detalhes.refresh:r_habilidade_misc (habilidade, shadow.cooldowns_defensive_spell_tables)
@@ -538,6 +563,7 @@
 											_combate.totals_grupo [myself.tipo] ["ress"] = _combate.totals_grupo [myself.tipo] ["ress"] - myself.ress
 										end
 									end
+									--> não precisa diminuir o total dos buffs e debuffs
 									if (myself.cooldowns_defensive) then 
 										_combate.totals [myself.tipo] ["cooldowns_defensive"] = _combate.totals [myself.tipo] ["cooldowns_defensive"] - myself.cooldowns_defensive 
 										if (myself.grupo) then
@@ -600,6 +626,13 @@
 								_detalhes.clear:c_alvo_da_habilidade (_alvo)
 							end
 						end
+						
+						if (esta_classe.buff_uptime) then
+							for _, _alvo in _ipairs (esta_classe.buff_uptime_targets._ActorTable) do 
+								_detalhes.clear:c_alvo_da_habilidade (_alvo)
+							end
+						end
+						
 						if (esta_classe.cooldowns_defensive) then
 							for _, _alvo in _ipairs (esta_classe.cooldowns_defensive_targets._ActorTable) do 
 								_detalhes.clear:c_alvo_da_habilidade (_alvo)
@@ -653,6 +686,17 @@
 								end
 							end
 						end
+						
+						if (esta_classe.buff_uptime) then
+							for _, habilidade in _pairs (esta_classe.buff_uptime_spell_tables._ActorTable) do
+								_detalhes.clear:c_habilidade_misc (habilidade)
+								
+								for _, _alvo in ipairs (habilidade.targets._ActorTable) do
+									_detalhes.clear:c_alvo_da_habilidade (_alvo)
+								end
+							end
+						end
+						
 						if (esta_classe.cooldowns_defensive) then
 							for _, habilidade in _pairs (esta_classe.cooldowns_defensive_spell_tables._ActorTable) do
 								_detalhes.clear:c_habilidade_misc (habilidade)

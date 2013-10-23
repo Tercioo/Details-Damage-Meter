@@ -69,7 +69,17 @@ function SlashCmdList.DETAILS (msg, editbox)
 			print (_detalhes:GetInstance (lower_instance))
 			_detalhes:OpenOptionsWindow (_detalhes:GetInstance (lower_instance))
 		end
+	
+	elseif (command == Loc ["STRING_SLASH_WORLDBOSS"]) then
 		
+		--local questIds = {Galleon = 32098, Sha = 32099, Oondasta = 32519, Celestials = 33117, Ordos = 33118, Nalak = 32518}
+		local questIds = {{"The Celestials", 33117}, {"Ordos", 33118}, {"Nalak", 32518}, {"Oondasta", 32519}, {"Salyis's Warband (Galleon)", 32098}, {"Sha of Anger", 32099}}
+		for _, _table in pairs (questIds) do 
+			print (format ("%s: \124cff%s\124r", _table [1], IsQuestFlaggedCompleted (_table [2]) and "ff0000"..Loc ["STRING_KILLED"] or "00ff00"..Loc ["STRING_ALIVE"]))
+		end
+		
+	elseif (command == Loc ["STRING_SLASH_CHANGES"]) then
+		_detalhes:OpenNewsWindow()
 	
 -------- debug ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -99,7 +109,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 	
 	elseif (msg == "raid") then
 	
-		local player, realm = "Marleyieu", "Azralon"
+		local player, realm = "Ditador", "Azralon"
 	
 		local actorName
 		if (realm ~= GetRealmName()) then
@@ -110,7 +120,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 		
 		print (actorName)
 	
-		local guid = _detalhes:FindGUIDFromName ("Marleyieu")
+		local guid = _detalhes:FindGUIDFromName ("Ditador")
 		print (guid)
 		
 		for i = 1, GetNumGroupMembers()-1, 1 do 
@@ -234,6 +244,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 		}
 		_detalhes.capture_current = _detalhes.capture_real
 		_detalhes:CaptureRefresh()
+		print (Loc ["STRING_DETAILS1"] .. "capture has been reseted.")
 
 	--> debug
 	elseif (msg == "opened") then 
@@ -317,10 +328,33 @@ function SlashCmdList.DETAILS (msg, editbox)
 		
 	--> debug
 	
+	elseif (msg == "auras") then
+		if (IsInRaid()) then
+			for raidIndex = 1, GetNumGroupMembers() do 
+				for buffIndex = 1, 41 do
+					local name, _, _, _, _, _, _, unitCaster, _, _, spellid  = UnitAura ("raid"..raidIndex, buffIndex, nil, "HELPFUL")
+					print (name, unitCaster, "==", "raid"..raidIndex)
+					if (name and unitCaster == "raid"..raidIndex) then
+						
+						local playerName, realmName = UnitName ("raid"..raidIndex)
+						if (realmName and realmName ~= "") then
+							playerName = playerName .. "-" .. realmName
+						end
+						
+						_detalhes.parser:add_buff_uptime (nil, GetTime(), UnitGUID ("raid"..raidIndex), playerName, 0x00000417, UnitGUID ("raid"..raidIndex), playerName, 0x00000417, spellid, name, in_or_out)
+						
+					else
+						--break
+					end
+				end
+			end
+		end
+	
 	elseif (msg == "users") then
 		_detalhes.users = {}
 		_detalhes.sent_highfive = GetTime()
 		_detalhes:SendRaidData ("highfive")
+		print (Loc ["STRING_DETAILS1"] .. "highfive sent.")
 	
 	elseif (command == "showusers") then
 		local users = _detalhes.users
@@ -392,7 +426,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 	
 	--> debug
 	elseif (msg == "save") then
-		print ("running...")
+		print ("running... this is a debug command, details wont work until next /reload.")
 		_detalhes:PrepareTablesForSave()
 	
 	elseif (msg == "id") then
@@ -408,10 +442,10 @@ function SlashCmdList.DETAILS (msg, editbox)
 	elseif (msg == "debug") then
 		if (_detalhes.debug) then
 			_detalhes.debug = false
-			_detalhes:Msg ("diagnostic mode has been turned off.")
+			print (Loc ["STRING_DETAILS1"] .. "diagnostic mode has been turned off.")
 		else
 			_detalhes.debug = true
-			_detalhes:Msg ("diagnostic mode has been turned on.")
+			print (Loc ["STRING_DETAILS1"] .. "diagnostic mode has been turned on.")
 		end
 	
 	--> debug combat log
@@ -450,6 +484,8 @@ function SlashCmdList.DETAILS (msg, editbox)
 		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_ENABLE"] .. "|r: " .. Loc ["STRING_SLASH_ENABLE_DESC"])
 		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_DISABLE"] .. "|r: " .. Loc ["STRING_SLASH_DISABLE_DESC"])
 		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_OPTIONS"] .. "|r|cfffcffb0 <instance number>|r: " .. Loc ["STRING_SLASH_OPTIONS_DESC"])
+		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_CHANGES"] .. "|r: " .. Loc ["STRING_SLASH_CHANGES_DESC"])
+		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_WORLDBOSS"] .. "|r: " .. Loc ["STRING_SLASH_WORLDBOSS_DESC"])
 		print (" ")
 
 	end

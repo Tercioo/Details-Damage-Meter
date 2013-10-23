@@ -97,7 +97,8 @@ function _detalhes:SaveDataOnLogout()
 		_detalhes_database.custom = _detalhes.custom
 		
 	--> version
-		_detalhes_database.last_realversion = _detalhes.realversion
+		_detalhes_database.last_realversion = _detalhes.realversion --> core number
+		_detalhes_database.last_version = _detalhes.userversion --> version
 
 -- On Account
 
@@ -158,13 +159,19 @@ end --]]
 		_detalhes.tabela_pets = _detalhes_database.tabela_pets or _detalhes.container_pets:NovoContainer() -- pets
 		
 	--> version
-		_detalhes.last_realversion = _detalhes_database.last_realversion or _detalhes.realversion
+		_detalhes.last_realversion = _detalhes_database.last_realversion or _detalhes.realversion --> core
+		_detalhes.last_version = _detalhes_database.last_version or "v1.0.0" --> version
+		
 		if (_detalhes.last_realversion < _detalhes.realversion) then
 			--> details was been hard upgraded
 			_detalhes.tabela_historico = _detalhes.historico:NovoHistorico()
 			_detalhes.tabela_pets = _detalhes.container_pets:NovoContainer()
 			_detalhes.tabela_overall = _detalhes.combate:NovaTabela()
 			_detalhes.tabela_vigente = _detalhes.combate:NovaTabela (_, _detalhes.tabela_overall)
+		end
+		
+		if (_detalhes.last_version ~= _detalhes.userversion) then
+			_detalhes.is_version_first_run = true
 		end
 		
 	--> re-build all indexes and metatables

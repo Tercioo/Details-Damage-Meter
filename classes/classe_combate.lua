@@ -127,14 +127,15 @@ function combate:NovaTabela (iniciada, _tabela_overall, combatId, ...)
 			e_rage = 0, --> rage
 			e_energy = 0, --> energy (rogues cat)
 			runepower = 0 --> runepower (dk)
-		}, 
+		},
 		{--> misc
 			cc_break = 0, --> armazena quantas quebras de CC
 			ress = 0, --> armazena quantos pessoas ele reviveu
 			interrupt = 0, --> armazena quantos interrupt a pessoa deu
 			dispell = 0, --> armazena quantos dispell esta pessoa recebeu
-			dead = 0, --> armazena quantas vezes essa pessia morreu		
+			dead = 0, --> armazena quantas vezes essa pessia morreu
 			cooldowns_defensive = 0, --> armazena quantos cooldowns a raid usou
+			buff_uptime = 0 --> armazena quantos cooldowns a raid usou
 		}
 	}
 	
@@ -153,7 +154,8 @@ function combate:NovaTabela (iniciada, _tabela_overall, combatId, ...)
 			interrupt = 0, --> armazena quantos interrupt a pessoa deu
 			dispell = 0, --> armazena quantos dispell esta pessoa recebeu
 			dead = 0, --> armazena quantas vezes essa oessia morreu		
-			cooldowns_defensive = 0 --> armazena quantos cooldowns a raid usou
+			cooldowns_defensive = 0, --> armazena quantos cooldowns a raid usou
+			buff_uptime = 0
 		}
 	}
 

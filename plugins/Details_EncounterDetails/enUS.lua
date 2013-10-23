@@ -33,6 +33,8 @@ Loc ["STRING_FIGHT_SUMMARY"] = "fight details"
 Loc ["STRING_FIGHT_GRAPHIC"] = "performance charts"
 Loc ["STRING_TOOLTIP"] = "Show Encounter Details Window"
 Loc ["STRING_"] = ""
+Loc ["STRING_LAST_COOLDOWN"] = "last cooldown used"
+Loc ["STRING_NOLAST_COOLDOWN"] = "no cooldown used"
 
 --> mechanic types
 Loc ["STRING_HEAL"] = "heal"

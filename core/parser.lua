@@ -16,7 +16,11 @@
 	local _UnitHealth = UnitHealth --wow api local
 	local _UnitHealthMax = UnitHealthMax --wow api local
 	local _UnitIsFeignDeath = UnitIsFeignDeath --wow api local
+	local _UnitGUID = UnitGUID
 	local _GetInstanceInfo = GetInstanceInfo --wow api local
+	local _IsInRaid = IsInRaid --wow api local
+	local _IsInGroup = IsInGroup --wow api local
+	local _GetNumGroupMembers = GetNumGroupMembers --wow api local
 
 	local _cstr = string.format --lua local
 	local _table_insert = table.insert --lua local
@@ -29,6 +33,7 @@
 	local _table_sort = table.sort --lua local
 	local _type = type --lua local
 	local _math_ceil = math.ceil --lua local
+	local _table_wipe = table.wipe
 
 	local escudo = _detalhes.escudos --details local
 	local parser = _detalhes.parser --details local
@@ -73,6 +78,8 @@
 		local energy_cache = setmetatable ({}, _detalhes.weaktable)
 	--> misc
 		local misc_cache = setmetatable ({}, _detalhes.weaktable)
+	--> party & raid members
+		local raid_members_cache = setmetatable ({}, _detalhes.weaktable)
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> constants
@@ -88,7 +95,9 @@
 	--> recording data options shortcuts
 		local _recording_self_buffs = false
 		local _recording_ability_with_buffs = false
-		local _recording_took_damage = false
+		--local _recording_took_damage = false
+		local _recording_healing = false
+		local _recording_buffs_and_debuffs = false
 	--> in combat shortcut
 		local _in_combat = false
 	
@@ -135,7 +144,16 @@
 			--> no actor name, use spell name instead
 			who_name = "[*] "..spellname
 		end
-
+		
+		--[[
+			if (who_name:find ("[*]")) then
+				print ("Objeto [*]:", who_name, "flag:", who_flags)
+				if (_bit_band (who_flags, AFFILIATION_GROUP) ~= 0) then
+					print ("A flag ja veio com grupo")
+				end
+			end
+		--]]
+		
 	------------------------------------------------------------------------------------------------	
 	--> check if need start an combat
 
@@ -164,18 +182,7 @@
 		local jogador_alvo, alvo_dono, alvo_name = _current_damage_container:PegarCombatente (alvo_serial, alvo_name, alvo_flags, true)
 		--]]
 		--[
-		
-		
-		--[[
-		if (who_name:find ("Lyl")) then
-			if (who_name:find ("-"))  then
-				print ("nome com -", isOwner)
-			else
-				--print ("nome okey", isOwner)
-			end
-		end
-		--]]
-		
+
 		--> damager
 		local este_jogador, meu_dono = damage_cache [who_name] or damage_cache_pets [who_serial], damage_cache_petsOwners [who_serial]
 		
@@ -319,7 +326,8 @@
 	------------------------------------------------------------------------------------------------
 	--> firendly fire
 
-		if (_bit_band (who_flags, REACTION_FRIENDLY) ~= 0 and _bit_band (alvo_flags, REACTION_FRIENDLY) ~= 0) then
+		--if (_bit_band (who_flags, REACTION_FRIENDLY) ~= 0 and _bit_band (alvo_flags, REACTION_FRIENDLY) ~= 0) then
+		if (raid_members_cache [who_serial] and raid_members_cache [alvo_serial]) then
 		
 			--> investigation about mind control and reaction switch done 
 			--> details will do count mind control and reaction switch as normal damage.
@@ -357,6 +365,14 @@
 		if (meu_dono) then --> se for dano de um Pet
 			meu_dono.total = meu_dono.total + amount --> e adiciona o dano ao pet
 			meu_dono.shadow.total = meu_dono.shadow.total + amount --> e adiciona o dano ao pet
+			
+			local owner_target = meu_dono.targets._NameIndexTable [alvo_name]
+			if (not owner_target) then
+				owner_target = meu_dono.targets:PegarCombatente (alvo_serial, alvo_name, alvo_flags, true) --retorna o objeto classe_target -> ALVO_DA_HABILIDADE:NovaTabela()
+			else
+				owner_target = meu_dono.targets._ActorTable [owner_target]
+			end
+			owner_target.total = owner_target.total + amount
 		end
 
 		--> actor
@@ -639,8 +655,17 @@
 			
 			--> pet
 			if (meu_dono) then
-				meu_dono.total = meu_dono.total + cura_efetiva --> e adiciona o dano ao pet
-				meu_dono.shadow.total = meu_dono.shadow.total + cura_efetiva --> e adiciona o dano ao pet
+				meu_dono.total = meu_dono.total + cura_efetiva --> heal do pet
+				meu_dono.shadow.total = meu_dono.shadow.total + cura_efetiva --> heal do pet na shadow
+				
+				local owner_target = meu_dono.targets._NameIndexTable [alvo_name]
+				if (not owner_target) then
+					owner_target = meu_dono.targets:PegarCombatente (alvo_serial, alvo_name, alvo_flags, true) --retorna o objeto classe_target -> ALVO_DA_HABILIDADE:NovaTabela()
+				else
+					owner_target = meu_dono.targets._ActorTable [owner_target]
+				end
+				owner_target.total = owner_target.total + amount
+				
 			end
 			
 			--> target amount
@@ -672,8 +697,6 @@
 		end
 	end
 
-
-	
 -----------------------------------------------------------------------------------------------------------------------------------------
 	--> BUFFS & DEBUFFS 	serach key: ~buff ~aura ~shield								|
 -----------------------------------------------------------------------------------------------------------------------------------------
@@ -691,106 +714,119 @@
 	--> handle shields
 
 		if (tipo == "BUFF") then
-			if (absorb_spell_list [spellid] and amount) then
-				if (not escudo [alvo_name]) then 
-					escudo [alvo_name] = {}
-					escudo [alvo_name] [spellid] = {}
-					escudo [alvo_name] [spellid] [who_name] = amount
-				elseif (not escudo [alvo_name] [spellid]) then 
-					escudo [alvo_name] [spellid] = {}
-					escudo [alvo_name] [spellid] [who_name] = amount
-				else
-					escudo [alvo_name] [spellid] [who_name] = amount
-				end
-			elseif (defensive_cooldown_spell_list [spellid]) then
-				--> usou cooldown
-				return parser:add_defensive_cooldown (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname)
-				
-	------------------------------------------------------------------------------------------------
-	--> recording buffs
-	 
-			elseif (_recording_self_buffs) then
-				--> or alvo_name needded, seems jade spirit not send who_name correctly
-				if (who_name == _detalhes.playername or alvo_name == _detalhes.playername) then
-					local bufftable = _detalhes.Buffs.BuffsTable [spellname]
-					if (bufftable) then
-						return bufftable:UpdateBuff ("new")
-					else
-						return false
+			------------------------------------------------------------------------------------------------
+			--> buff uptime
+				if (_recording_buffs_and_debuffs) then
+					if (who_name == alvo_name and raid_members_cache [who_serial] and _in_combat) then
+						--> call record buffs uptime
+	--[[not tail call, need to fix this]]	parser:add_buff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, "BUFF_UPTIME_IN")
 					end
 				end
+		
+			------------------------------------------------------------------------------------------------
+			--> healing done absorbs
+				if (absorb_spell_list [spellid] and _recording_healing and amount) then
+					if (not escudo [alvo_name]) then 
+						escudo [alvo_name] = {}
+						escudo [alvo_name] [spellid] = {}
+						escudo [alvo_name] [spellid] [who_name] = amount
+					elseif (not escudo [alvo_name] [spellid]) then 
+						escudo [alvo_name] [spellid] = {}
+						escudo [alvo_name] [spellid] [who_name] = amount
+					else
+						escudo [alvo_name] [spellid] [who_name] = amount
+					end
+			
+			------------------------------------------------------------------------------------------------
+			--> defensive cooldowns
+				elseif (defensive_cooldown_spell_list [spellid]) then
+					--> usou cooldown
+					return parser:add_defensive_cooldown (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname)
 				
-			--else
-				--> record buff uptime
-				
-				
+			------------------------------------------------------------------------------------------------
+			--> recording buffs
+				elseif (_recording_self_buffs) then
+					--> or alvo_name needded, seems jade spirit not send who_name correctly
+					if (who_name == _detalhes.playername or alvo_name == _detalhes.playername) then
+						local bufftable = _detalhes.Buffs.BuffsTable [spellname]
+						if (bufftable) then
+							return bufftable:UpdateBuff ("new")
+						else
+							return false
+						end
+					end
+
 			end
 
 	------------------------------------------------------------------------------------------------
 	--> recording debuffs applied by player
 
 		elseif (tipo == "DEBUFF") then
-			if (_recording_ability_with_buffs and _in_combat) then
-				if (who_name == _detalhes.playername) then
+			
+			if (_in_combat) then
+			
+				if (_recording_ability_with_buffs) then
+					if (who_name == _detalhes.playername) then
 
-					--> record debuff uptime
-					local SoloDebuffUptime = _current_combat.SoloDebuffUptime
-					if (not SoloDebuffUptime) then
-						SoloDebuffUptime = {}
-						_current_combat.SoloDebuffUptime = SoloDebuffUptime
-					end
-					
-					local ThisDebuff = SoloDebuffUptime [spellid]
-					
-					if (not ThisDebuff) then
-						ThisDebuff = {name = spellname, duration = 0, start = _tempo, castedAmt = 1, refreshAmt = 0, droppedAmt = 0, Active = true}
-						SoloDebuffUptime [spellid] = ThisDebuff
-					else
-						ThisDebuff.castedAmt = ThisDebuff.castedAmt + 1
-						ThisDebuff.start = _tempo
-						ThisDebuff.Active = true
-					end
-					
-					--> record debuff spell and attack power
-					local SoloDebuffPower = _current_combat.SoloDebuffPower
-					if (not SoloDebuffPower) then
-						SoloDebuffPower = {}
-						_current_combat.SoloDebuffPower = SoloDebuffPower
-					end
-					
-					local ThisDebuff = SoloDebuffPower [spellid]
-					if (not ThisDebuff) then
-						ThisDebuff = {}
-						SoloDebuffPower [spellid] = ThisDebuff
-					end
-				
-					local ThisDebuffOnTarget = ThisDebuff [alvo_serial]
-					
-					local base, posBuff, negBuff = UnitAttackPower ("player")
-					local AttackPower = base+posBuff+negBuff
-					local base, posBuff, negBuff = UnitRangedAttackPower ("player")
-					local RangedAttackPower = base+posBuff+negBuff
-					local SpellPower = GetSpellBonusDamage (3)
-					
-					--> record buffs active on player when the debuff was applied
-					local BuffsOn = {}
-					for BuffName, BuffTable in _pairs (_detalhes.Buffs.BuffsTable) do
-						if (BuffTable.active) then
-							BuffsOn [#BuffsOn+1] = BuffName
+						--> record debuff uptime
+						local SoloDebuffUptime = _current_combat.SoloDebuffUptime
+						if (not SoloDebuffUptime) then
+							SoloDebuffUptime = {}
+							_current_combat.SoloDebuffUptime = SoloDebuffUptime
 						end
+						
+						local ThisDebuff = SoloDebuffUptime [spellid]
+						
+						if (not ThisDebuff) then
+							ThisDebuff = {name = spellname, duration = 0, start = _tempo, castedAmt = 1, refreshAmt = 0, droppedAmt = 0, Active = true}
+							SoloDebuffUptime [spellid] = ThisDebuff
+						else
+							ThisDebuff.castedAmt = ThisDebuff.castedAmt + 1
+							ThisDebuff.start = _tempo
+							ThisDebuff.Active = true
+						end
+						
+						--> record debuff spell and attack power
+						local SoloDebuffPower = _current_combat.SoloDebuffPower
+						if (not SoloDebuffPower) then
+							SoloDebuffPower = {}
+							_current_combat.SoloDebuffPower = SoloDebuffPower
+						end
+						
+						local ThisDebuff = SoloDebuffPower [spellid]
+						if (not ThisDebuff) then
+							ThisDebuff = {}
+							SoloDebuffPower [spellid] = ThisDebuff
+						end
+					
+						local ThisDebuffOnTarget = ThisDebuff [alvo_serial]
+						
+						local base, posBuff, negBuff = UnitAttackPower ("player")
+						local AttackPower = base+posBuff+negBuff
+						local base, posBuff, negBuff = UnitRangedAttackPower ("player")
+						local RangedAttackPower = base+posBuff+negBuff
+						local SpellPower = GetSpellBonusDamage (3)
+						
+						--> record buffs active on player when the debuff was applied
+						local BuffsOn = {}
+						for BuffName, BuffTable in _pairs (_detalhes.Buffs.BuffsTable) do
+							if (BuffTable.active) then
+								BuffsOn [#BuffsOn+1] = BuffName
+							end
+						end
+						
+						if (not ThisDebuffOnTarget) then --> apply
+							ThisDebuff [alvo_serial] = {power = math.max (AttackPower, RangedAttackPower, SpellPower), onTarget = true, buffs = BuffsOn}
+						else --> re applying
+							ThisDebuff [alvo_serial].power = math.max (AttackPower, RangedAttackPower, SpellPower)
+							ThisDebuff [alvo_serial].buffs = BuffsOn
+							ThisDebuff [alvo_serial].onTarget = true
+						end
+						
+						--> send event for plugins
+						_detalhes:SendEvent ("BUFF_UPDATE_DEBUFFPOWER")
+						
 					end
-					
-					if (not ThisDebuffOnTarget) then --> apply
-						ThisDebuff [alvo_serial] = {power = math.max (AttackPower, RangedAttackPower, SpellPower), onTarget = true, buffs = BuffsOn}
-					else --> re applying
-						ThisDebuff [alvo_serial].power = math.max (AttackPower, RangedAttackPower, SpellPower)
-						ThisDebuff [alvo_serial].buffs = BuffsOn
-						ThisDebuff [alvo_serial].onTarget = true
-					end
-					
-					--> send event for plugins
-					_detalhes:SendEvent ("BUFF_UPDATE_DEBUFFPOWER")
-					
 				end
 			end
 		end
@@ -802,37 +838,55 @@
 	--> handle shields
 
 		if (tipo == "BUFF") then
-			if (absorb_spell_list [spellid] and amount) then
-				
-				if (escudo [alvo_name] and escudo [alvo_name][spellid] and escudo [alvo_name][spellid][who_name]) then
-				
-					--print ("refresh", escudo [alvo_name][spellid][who_name], amount)
-				
-					local absorb = escudo [alvo_name][spellid][who_name] - amount
-					local overheal = amount - absorb
-					escudo [alvo_name][spellid][who_name] = amount
-					
-					--if (absorb > 0) then
-						return parser:heal (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, nil, _math_ceil (absorb), _math_ceil (overheal), 0, 0, true)
-					--end
-				else
-					--> should apply aura if not found in already applied buff list?
-				end
-
-	------------------------------------------------------------------------------------------------
-	--> recording buffs
-
-			elseif (_recording_self_buffs) then
-				if (who_name == _detalhes.playername or alvo_name == _detalhes.playername) then --> foi colocado pelo player
-				
-					local bufftable = _detalhes.Buffs.BuffsTable [spellname]
-					if (bufftable) then
-						return bufftable:UpdateBuff ("refresh")
-					else
-						return false
+		
+			------------------------------------------------------------------------------------------------
+			--> buff uptime
+				if (_recording_buffs_and_debuffs) then
+					if (who_name == alvo_name and raid_members_cache [who_serial] and _in_combat) then
+						--> call record buffs uptime
+	--[[not tail call, need to fix this]]	parser:add_buff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, "BUFF_UPTIME_REFRESH")
 					end
 				end
-			end
+		
+			------------------------------------------------------------------------------------------------
+			--> healing done (shields)
+				if (absorb_spell_list [spellid] and _recording_healing and amount) then
+					
+					if (escudo [alvo_name] and escudo [alvo_name][spellid] and escudo [alvo_name][spellid][who_name]) then
+					
+						--print ("refresh", escudo [alvo_name][spellid][who_name], amount)
+					
+						local absorb = escudo [alvo_name][spellid][who_name] - amount
+						local overheal = amount - absorb
+						escudo [alvo_name][spellid][who_name] = amount
+						
+						--if (absorb > 0) then
+							return parser:heal (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, nil, _math_ceil (absorb), _math_ceil (overheal), 0, 0, true)
+						--end
+					else
+						--> should apply aura if not found in already applied buff list?
+					end
+
+			------------------------------------------------------------------------------------------------
+			--> defensive cooldowns
+				elseif (defensive_cooldown_spell_list [spellid]) then
+					--> usou cooldown
+					return parser:add_defensive_cooldown (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname)
+					
+			------------------------------------------------------------------------------------------------
+			--> recording buffs
+
+				elseif (_recording_self_buffs) then
+					if (who_name == _detalhes.playername or alvo_name == _detalhes.playername) then --> foi colocado pelo player
+					
+						local bufftable = _detalhes.Buffs.BuffsTable [spellname]
+						if (bufftable) then
+							return bufftable:UpdateBuff ("refresh")
+						else
+							return false
+						end
+					end
+				end
 
 	------------------------------------------------------------------------------------------------
 	--> recording debuffs applied by player
@@ -895,46 +949,53 @@
 	--> handle shields
 
 		if (tipo == "BUFF") then
-			if (absorb_spell_list [spellid]) then
-				if (escudo [alvo_name] and escudo [alvo_name][spellid] and escudo [alvo_name][spellid][who_name]) then
-					if (amount) then
-					
-						-- o amount é o que sobrou do escudo
-					
-						local escudo_antigo = escudo [alvo_name][spellid][who_name] --> quantidade total do escudo que foi colocado
-						--print (escudo_antigo, amount)
-						--if (escudo_antigo and escudo_antigo > amount) then 
-						
-						local absorb = escudo_antigo - amount
-						local overheal = escudo_antigo - absorb
-						
-						escudo [alvo_name][spellid][who_name] = nil
-						
-						return parser:heal (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, nil, _math_ceil (absorb), _math_ceil (overheal), 0, 0, true) --> último parametro IS_SHIELD
-							
-						--end
+		
+			------------------------------------------------------------------------------------------------
+			--> buff uptime
+				if (_recording_buffs_and_debuffs) then
+					if (who_name == alvo_name and raid_members_cache [who_serial] and _in_combat) then
+						--> call record buffs uptime
+	--[[not tail call, need to fix this]]	parser:add_buff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, "BUFF_UPTIME_OUT")
 					end
-					escudo [alvo_name][spellid][who_name] = nil
 				end
+		
+			------------------------------------------------------------------------------------------------
+			--> healing done (shields)
+				if (absorb_spell_list [spellid] and _recording_healing) then
+					if (escudo [alvo_name] and escudo [alvo_name][spellid] and escudo [alvo_name][spellid][who_name]) then
+						if (amount) then
+							-- o amount é o que sobrou do escudo
+							local escudo_antigo = escudo [alvo_name][spellid][who_name] --> quantidade total do escudo que foi colocado
+							--print (escudo_antigo, amount)
+							--if (escudo_antigo and escudo_antigo > amount) then 
+							
+							local absorb = escudo_antigo - amount
+							local overheal = escudo_antigo - absorb
+							
+							escudo [alvo_name][spellid][who_name] = nil
+							
+							return parser:heal (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, nil, _math_ceil (absorb), _math_ceil (overheal), 0, 0, true) --> último parametro IS_SHIELD
+						end
+						escudo [alvo_name][spellid][who_name] = nil
+					end
+				--end
 				
-	------------------------------------------------------------------------------------------------
-	--> recording buffs
-
-			elseif (_recording_self_buffs) then
-				if (who_name == _detalhes.playername or alvo_name == _detalhes.playername) then --> foi colocado pelo player
-				
-					local bufftable = _detalhes.Buffs.BuffsTable [spellname]
-					if (bufftable) then
-						return bufftable:UpdateBuff ("remove")
-					else
-						return false
+			------------------------------------------------------------------------------------------------
+			--> recording buffs
+				elseif (_recording_self_buffs) then
+					if (who_name == _detalhes.playername or alvo_name == _detalhes.playername) then --> foi colocado pelo player
+					
+						local bufftable = _detalhes.Buffs.BuffsTable [spellname]
+						if (bufftable) then
+							return bufftable:UpdateBuff ("remove")
+						else
+							return false
+						end			
 					end			
-				end			
-			end
+				end
 
 	------------------------------------------------------------------------------------------------
 	--> recording debuffs applied by player
-			
 		elseif (tipo == "DEBUFF") then
 			if (_recording_ability_with_buffs and _in_combat) then
 				if (who_name == _detalhes.playername) then
@@ -971,7 +1032,59 @@
 		end
 	end
 
+-----------------------------------------------------------------------------------------------------------------------------------------
+	--> MISC 	search key: ~buffuptime ~buffsuptime									|
+-----------------------------------------------------------------------------------------------------------------------------------------
 
+	function parser:add_buff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, in_out)
+	
+	------------------------------------------------------------------------------------------------
+	--> early checks and fixes
+		
+		_current_misc_container.need_refresh = true
+		_overall_misc_container.need_refresh = true
+		
+	------------------------------------------------------------------------------------------------
+	--> get actors
+		local este_jogador = misc_cache [who_name]
+		if (not este_jogador) then --> pode ser um desconhecido ou um pet
+			este_jogador = _current_misc_container:PegarCombatente (who_serial, who_name, who_flags, true)
+			misc_cache [who_name] = este_jogador
+		end
+		local shadow = este_jogador.shadow
+		
+	------------------------------------------------------------------------------------------------
+	--> build containers on the fly
+		
+		if (not este_jogador.buff_uptime) then
+			este_jogador.buff_uptime = 0
+			este_jogador.buff_uptime_spell_tables = container_habilidades:NovoContainer (container_misc)
+			este_jogador.buff_uptime_targets = container_combatentes:NovoContainer (container_damage_target)
+			
+			if (not shadow.buff_uptime_targets) then
+				shadow.buff_uptime = 0
+				shadow.buff_uptime_spell_tables = container_habilidades:NovoContainer (container_misc)
+				shadow.buff_uptime_targets = container_combatentes:NovoContainer (container_damage_target)
+			end
+			
+			este_jogador.buff_uptime_targets.shadow = shadow.buff_uptime_targets
+			este_jogador.buff_uptime_spell_tables.shadow = shadow.buff_uptime_spell_tables
+		end	
+		
+	------------------------------------------------------------------------------------------------
+	--> add amount
+		
+		--> update last event
+		este_jogador.last_event = _tempo
+
+		--> actor spells table
+		local spell = este_jogador.buff_uptime_spell_tables._ActorTable [spellid]
+		if (not spell) then
+			spell = este_jogador.buff_uptime_spell_tables:PegaHabilidade (spellid, true, "BUFF_UPTIME")
+		end
+		return spell:Add (alvo_serial, alvo_name, alvo_flags, who_name, este_jogador, "BUFF", in_out)
+		
+	end
 
 -----------------------------------------------------------------------------------------------------------------------------------------
 	--> ENERGY	serach key: ~energy												|
@@ -1172,6 +1285,39 @@
 		if (este_jogador.grupo) then
 			_current_gtotal [4].cooldowns_defensive = _current_gtotal [4].cooldowns_defensive + 1
 			_overall_gtotal [4].cooldowns_defensive = _overall_gtotal [4].cooldowns_defensive + 1
+			
+			if (who_name == alvo_name) then
+			
+				local damage_actor = damage_cache [who_name]
+				if (not damage_actor) then --> pode ser um desconhecido ou um pet
+					damage_actor = _current_damage_container:PegarCombatente (who_serial, who_name, who_flags, true)
+					if (who_flags) then --> se não for um pet, adicionar no cache
+						damage_cache [who_name] = damage_actor
+					end
+				end
+			
+				local t = damage_actor.last_events_table
+				local i = t.n
+				t.n = i + 1
+
+				t = t [i]
+				
+				t [1] = 1 --> true if this is a damage || false for healing || 1 for cooldown?
+				t [2] = spellid --> spellid || false if this is a battle ress line
+				t [3] = 1 --> amount of damage or healing
+				t [4] = time --> parser time
+				t [5] = _UnitHealth (who_name) --> current unit heal
+				t [6] = who_name --> source name
+				
+				i = i + 1
+				if (i == 9) then
+					damage_actor.last_events_table.n = 1
+				end
+				
+				este_jogador.last_cooldown = {time, spellid}
+				
+			end
+			
 		end
 		
 		--> update last event
@@ -1306,13 +1452,12 @@
 	function parser:spellcast (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype)
 	
 		--print (token, time, "WHO:",who_serial, who_name, who_flags, "TARGET:",alvo_serial, alvo_name, alvo_flags, "SPELL:",spellid, spellname, spelltype)
-		
-		--> esta dando erro onde o nome é NIL, fazendo um fix para isso
-		if (who_flags and _bit_band (who_flags, OBJECT_TYPE_PLAYER) ~= 0) then
+
+		if (raid_members_cache [who_serial]) then
 			--> check if is a cooldown :D
 			if (defensive_cooldown_spell_list_no_buff [spellid]) then
 				--> usou cooldown
-				if (not alvo_name) then	
+				if (not alvo_name) then
 					if (defensive_cooldown_spell_list_no_buff [spellid][3] == 1) then
 						alvo_name = who_name
 					else
@@ -1919,7 +2064,27 @@
 						_table_remove (esta_morte, i)
 					end
 				end
-
+				
+				if (este_jogador.last_cooldown) then
+					local t = {}
+					t [1] = 2 --> true if this is a damage || false for healing || 1 for cooldown usage || 2 for last cooldown
+					t [2] = este_jogador.last_cooldown[2] --> spellid || false if this is a battle ress line
+					t [3] = 1 --> amount of damage or healing
+					t [4] = este_jogador.last_cooldown[1] --> parser time
+					t [5] = 0 --> current unit heal
+					t [6] = alvo_name --> source name
+					esta_morte [#esta_morte+1] = t
+				else
+					local t = {}
+					t [1] = 2 --> true if this is a damage || false for healing || 1 for cooldown usage || 2 for last cooldown
+					t [2] = 0 --> spellid || false if this is a battle ress line
+					t [3] = 0 --> amount of damage or healing
+					t [4] = 0 --> parser time
+					t [5] = 0 --> current unit heal
+					t [6] = alvo_name --> source name
+					esta_morte [#esta_morte+1] = t
+				end
+				
 				local decorrido = _tempo - _current_combat.start_time
 				local minutos, segundos = _math_floor (decorrido/60), _math_floor (decorrido%60)
 				
@@ -2016,11 +2181,13 @@
 		elseif (capture_type == "heal") then
 			token_list ["SPELL_HEAL"] = nil
 			token_list ["SPELL_PERIODIC_HEAL"] = nil
+			_recording_healing = false
 		
 		elseif (capture_type == "aura") then
-			token_list ["SPELL_AURA_APPLIED"] = nil
-			token_list ["SPELL_AURA_REMOVED"] = nil
-			token_list ["SPELL_AURA_REFRESH"] = nil
+			--token_list ["SPELL_AURA_APPLIED"] = nil
+			--token_list ["SPELL_AURA_REMOVED"] = nil
+			--token_list ["SPELL_AURA_REFRESH"] = nil
+			_recording_buffs_and_debuffs = false
 		
 		elseif (capture_type == "energy") then
 			token_list ["SPELL_ENERGIZE"] = nil
@@ -2066,11 +2233,13 @@
 		elseif (capture_type == "heal") then
 			token_list ["SPELL_HEAL"] = parser.heal
 			token_list ["SPELL_PERIODIC_HEAL"] = parser.heal
+			_recording_healing = true
 		
 		elseif (capture_type == "aura") then
 			token_list ["SPELL_AURA_APPLIED"] = parser.buff
 			token_list ["SPELL_AURA_REMOVED"] = parser.unbuff
 			token_list ["SPELL_AURA_REFRESH"] = parser.buff_refresh
+			_recording_buffs_and_debuffs = true
 			
 		elseif (capture_type == "energy") then
 			token_list ["SPELL_ENERGIZE"] = parser.energize
@@ -2180,7 +2349,7 @@
 				end
 			end
 			
-			_detalhes.container_pets:BuscarPets()
+			_detalhes:SchedulePetUpdate (7)
 
 			return
 			
@@ -2198,7 +2367,8 @@
 			return
 			
 		elseif (evento == "UNIT_PET") then
-			_detalhes.container_pets:BuscarPets()
+			--_detalhes.container_pets:BuscarPets()
+			_detalhes:SchedulePetUpdate (1)
 		
 		elseif (evento == "PLAYER_REGEN_DISABLED") then -- Entrou em Combate
 			--> inicia um timer para pegar qual é a luta:
@@ -2240,13 +2410,14 @@
 				_detalhes.in_group = IsInGroup() or IsInRaid()
 				if (not _detalhes.in_group) then
 					_detalhes:IniciarColetaDeLixo (true)
-					table.wipe (_detalhes.details_users)
+					_table_wipe (_detalhes.details_users)
 				else
 					_detalhes:CheckDetailsUsers()
 				end
 			end
 			
-			_detalhes.container_pets:BuscarPets()
+			--_detalhes.container_pets:BuscarPets()
+			_detalhes:SchedulePetUpdate (6)
 			
 			return
 
@@ -2341,12 +2512,12 @@
 		
 		--> clear cache | not sure if replacing the old table is the best approach
 	
-		table.wipe (damage_cache)
-		table.wipe (damage_cache_pets)
-		table.wipe (damage_cache_petsOwners)
-		table.wipe (healing_cache)
-		table.wipe (energy_cache)
-		table.wipe (misc_cache)
+		_table_wipe (damage_cache)
+		_table_wipe (damage_cache_pets)
+		_table_wipe (damage_cache_petsOwners)
+		_table_wipe (healing_cache)
+		_table_wipe (energy_cache)
+		_table_wipe (misc_cache)
 	
 		damage_cache = setmetatable ({}, _detalhes.weaktable)
 		damage_cache_pets = setmetatable ({}, _detalhes.weaktable)
@@ -2360,6 +2531,22 @@
 		
 	end
 
+	function _detalhes:UptadeRaidMembersCache()
+		_table_wipe (raid_members_cache)
+		if (_IsInRaid()) then
+			for i = 1, _GetNumGroupMembers() do 
+				raid_members_cache [_UnitGUID ("raid"..i)] = true
+			end
+		elseif (_IsInGroup()) then
+			for i = 1, _GetNumGroupMembers()-1 do 
+				raid_members_cache [_UnitGUID ("party"..i)] = true
+			end
+			raid_members_cache [_UnitGUID ("player")] = true
+		else
+			raid_members_cache [_UnitGUID ("player")] = true
+		end
+	end
+	
 	--serach key: ~cache
 	function _detalhes:UpdateParserGears()
 
@@ -2385,7 +2572,8 @@
 		
 		--> refresh data capture options
 		_recording_self_buffs = _detalhes.RecordPlayerSelfBuffs
-		_recording_took_damage = _detalhes.RecordRealTimeTookDamage
+		--_recording_healing = _detalhes.RecordHealingDone
+		--_recording_took_damage = _detalhes.RecordRealTimeTookDamage
 		_recording_ability_with_buffs = _detalhes.RecordPlayerAbilityWithBuffs
 		_in_combat = _detalhes.in_combat
 

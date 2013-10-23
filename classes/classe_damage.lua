@@ -521,6 +521,7 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 					local combat_time = instancia.showing:GetCombatTime()
 					atributo_damage:ContainerRefreshDps (conteudo, combat_time)
 				end
+
 				_table_sort (conteudo, _detalhes.SortKeyGroup)
 			end
 			--
@@ -541,7 +542,8 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 			
 			if (not using_cache) then
 				for index, player in _ipairs (conteudo) do
-					if (_bit_band (player.flag, DFLAG_player_group) >= 0x101) then --> é um player e esta em grupo
+					--if (_bit_band (player.flag, DFLAG_player_group) >= 0x101) then --> é um player e esta em grupo
+					if (player.grupo) then --> é um player e esta em grupo
 						if (player[keyName] < 1) then --> dano menor que 1, interromper o loop
 							amount = index - 1
 							break

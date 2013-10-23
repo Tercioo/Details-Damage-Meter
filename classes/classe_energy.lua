@@ -196,6 +196,9 @@ function atributo_energy:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 			keyName = "e_energy"
 		elseif (sub_atributo == 4) then --> RUNEPOWER GANHO
 			keyName = "runepower"
+		else
+			--> not sure why this is happening
+			return
 		end
 	end
 	
@@ -223,8 +226,10 @@ function atributo_energy:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 		total = tabela_do_combate.totals [class_type] [keyName] --> pega o total de dano já aplicado
 		
 		instancia.top = conteudo[1] [keyName]
-			
+		
 	elseif (modo == modo_GROUP) then --> mostrando GROUP
+		
+		--print ("energy", keyName)
 		
 		_table_sort (conteudo, function (a, b)
 				if (a.grupo and b.grupo) then
@@ -239,7 +244,8 @@ function atributo_energy:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 			end)
 		
 		for index, player in _ipairs (conteudo) do
-			if (_bit_band (player.flag, DFLAG_player_group) >= 0x101) then --> é um player e esta em grupo
+			--if (_bit_band (player.flag, DFLAG_player_group) >= 0x101) then --> é um player e esta em grupo
+			if (player.grupo) then --> é um player e esta em grupo
 				if (player[keyName] < 1) then --> dano menor que 1, interromper o loop
 					amount = index - 1
 					break

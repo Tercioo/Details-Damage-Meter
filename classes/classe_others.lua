@@ -18,6 +18,12 @@ local _type = type
 --api locals
 local _GetSpellInfo = _detalhes.getspellinfo
 local GameTooltip = GameTooltip
+local _IsInRaid = IsInRaid
+local _IsInGroup = IsInGroup
+local _GetNumGroupMembers = GetNumGroupMembers
+local _UnitAura = UnitAura
+local _UnitGUID = UnitGUID
+local _UnitName = UnitName
 
 local _detalhes = 		_G._detalhes
 local AceLocale = LibStub ("AceLocale-3.0")
@@ -176,13 +182,27 @@ function _detalhes:ToolTipDead (instancia, morte, esta_barra)
 					amt_golpes = ""
 				end
 				
-				--> [1] left text [2] right text [3] main 1 or sub 2 [...] color
-				GameCooltip:AddLine ("".._cstr ("%.1f", evento[4] - hora_da_morte) .."s "..amt_golpes..nome_magia.." ("..evento[6]..")", "-".._detalhes:ToK (evento[3]).." (".. hp .."%)", 1, "white", "white")
-				--> [1] icon [2] main 1 or sub 2 [3] left or right [4,5] width height [...] texcoord
-				GameCooltip:AddIcon (icone_magia)
-				--> [1] value [2] main 1 or sub 2 [...] color [4] glow
-				GameCooltip:AddStatusBar (hp, 1, "red", true)
-			
+				if (type (evento [1]) ~= "boolean" and evento [1] == 2) then --> last cooldown
+					if (evento[3] == 1) then 
+						GameCooltip:AddLine (_cstr ("%.1f", evento[4] - hora_da_morte) .. "s " .. nome_magia .. " (" .. Loc ["STRING_LAST_COOLDOWN"] .. ")")
+						GameCooltip:AddIcon (icone_magia)
+					else
+						GameCooltip:AddLine (Loc ["STRING_NOLAST_COOLDOWN"])
+					end
+				else
+					--> [1] left text [2] right text [3] main 1 or sub 2 [...] color
+					GameCooltip:AddLine ("".._cstr ("%.1f", evento[4] - hora_da_morte) .."s "..amt_golpes..nome_magia.." ("..evento[6]..")", "-".._detalhes:ToK (evento[3]).." (".. hp .."%)", 1, "white", "white")
+					--> [1] icon [2] main 1 or sub 2 [3] left or right [4,5] width height [...] texcoord
+					GameCooltip:AddIcon (icone_magia)
+					
+					--> [1] value [2] main 1 or sub 2 [...] color [4] glow
+					if (type (evento [1]) ~= "boolean" and evento [1] == 1) then --> cooldown
+						GameCooltip:AddStatusBar (100, 1, "yellow", true)
+					else
+						GameCooltip:AddStatusBar (hp, 1, "red", true)
+					end
+				end
+
 			elseif (not battleress) then --> battle ress
 				GameCooltip:AddLine ("+".._cstr ("%.1f", evento[4] - hora_da_morte) .."s "..nome_magia.." ("..evento[6]..")", "", 1, "white")
 				GameCooltip:AddIcon ("Interface\\Glues\\CharacterSelect\\Glues-AddOn-Icons", 1, 1, nil, nil, .75, 1, 0, 1)
@@ -269,6 +289,27 @@ function atributo_misc:ReportSingleCooldownLine (misc_actor, instancia)
 	return _detalhes:Reportar (reportar, {_no_current = true, _no_inverse = true, _custom = true})
 end
 
+function atributo_misc:ReportSingleBuffUptimeLine (misc_actor, instancia)
+
+	local barra = misc_actor.minha_barra
+
+	local reportar = {"Details! " .. Loc ["STRING_REPORT_SINGLE_BUFFUPTIME"] .. " " .. barra.texto_esquerdo:GetText()} --> localize-me
+	reportar [#reportar+1] = "> " .. Loc ["STRING_SPELLS"] .. ":"
+	
+	for i = 1, GameCooltip:GetNumLines() do 
+		local texto_left, texto_right = GameCooltip:GetText (i)
+		
+		if (texto_left and texto_right) then 
+			texto_left = texto_left:gsub (("|T(.*)|t "), "")
+			reportar [#reportar+1] = "  "..texto_left.." "..texto_right..""
+		elseif (i ~= 1) then
+			reportar [#reportar+1] = "> " .. Loc ["STRING_TARGETS"] .. ":"
+		end
+	end
+
+	return _detalhes:Reportar (reportar, {_no_current = true, _no_inverse = true, _custom = true})
+end
+
 function atributo_misc:DeadAtualizarBarra (morte, qual_barra, colocacao, instancia)
 
 	morte ["dead"] = true --> marca que esta tabela é uma tabela de mortes, usado no controla na hora de montar o tooltip
@@ -313,7 +354,7 @@ end
 function atributo_misc:RefreshWindow (instancia, tabela_do_combate, forcar, exportar)
 	
 	local showing = tabela_do_combate [class_type] --> o que esta sendo mostrado -> [1] - dano [2] - cura --> pega o container com ._NameIndexTable ._ActorTable
-
+	
 	if (#showing._ActorTable < 1) then --> não há barras para mostrar
 		return _detalhes:EsconderBarrasNaoUsadas (instancia, showing)
 	end
@@ -340,6 +381,8 @@ function atributo_misc:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 				keyName = "dead"
 			elseif (sub_atributo == 6) then --> DEFENSIVE COOLDOWNS
 				keyName = "cooldowns_defensive"
+			elseif (sub_atributo == 7) then --> BUFF UPTIME
+				keyName = "buff_uptime"
 			end
 		else
 			keyName = exportar.key
@@ -365,6 +408,8 @@ function atributo_misc:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 			keyName = "dead"
 		elseif (sub_atributo == 6) then --> DEFENSIVE COOLDOWNS
 			keyName = "cooldowns_defensive"
+		elseif (sub_atributo == 7) then --> BUFF UPTIME
+			keyName = "buff_uptime"
 		end
 	
 	end
@@ -445,7 +490,8 @@ function atributo_misc:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 			_table_sort (conteudo, _detalhes.SortGroupIfHaveKey)
 		
 			for index, player in _ipairs (conteudo) do
-				if (_bit_band (player.flag, DFLAG_player_group) >= 0x101) then --> é um player e esta em grupo
+				--if (_bit_band (player.flag, DFLAG_player_group) >= 0x101) then --> é um player e esta em grupo
+				if (player.grupo) then --> é um player e esta em grupo
 					if (not player[keyName] or player[keyName] < 1) then --> dano menor que 1, interromper o loop
 						amount = index - 1
 						break
@@ -470,7 +516,7 @@ function atributo_misc:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 	if (exportar) then 
 		return total, keyName, instancia.top
 	end
-
+	
 	if (amount < 1) then --> não há barras para mostrar
 		instancia:EsconderScrollBar() --> precisaria esconder a scroll bar
 		return _detalhes:EndRefresh (instancia, total, tabela_do_combate, showing) --> retorna a tabela que precisa ganhar o refresh
@@ -741,6 +787,8 @@ function atributo_misc:ToolTip (instancia, numero, barra)
 		return self:ToolTipDead (instancia, numero, barra)
 	elseif (instancia.sub_atributo == 6) then --> defensive cooldowns
 		return self:ToolTipDefensiveCooldowns (instancia, numero, barra)
+	elseif (instancia.sub_atributo == 7) then --> buff uptime
+		return self:ToolTipBuffUptime (instancia, numero, barra)
 	end
 end
 --> tooltip locals
@@ -898,6 +946,142 @@ function atributo_misc:ToolTipDispell (instancia, numero, barra)
 	end
 	
 	return true
+end
+
+function _detalhes:CatchRaidBuffUptime (in_or_out)
+
+	if (_IsInRaid()) then
+	
+		for raidIndex = 1, _GetNumGroupMembers() do
+			for buffIndex = 1, 41 do
+				local name, _, _, _, _, _, _, unitCaster, _, _, spellid  = _UnitAura ("raid"..raidIndex, buffIndex, nil, "HELPFUL")
+				--print (name, unitCaster, "==", "raid"..raidIndex)
+				if (name and unitCaster == "raid"..raidIndex) then
+					
+					local playerName, realmName = _UnitName ("raid"..raidIndex)
+					if (realmName and realmName ~= "") then
+						playerName = playerName .. "-" .. realmName
+					end
+					
+					_detalhes.parser:add_buff_uptime (nil, GetTime(), _UnitGUID ("raid"..raidIndex), playerName, 0x00000417, _UnitGUID ("raid"..raidIndex), playerName, 0x00000417, spellid, name, in_or_out)
+					
+				else
+					--break
+				end
+			end
+		end
+		
+		for buffIndex = 1, 41 do
+			local name, _, _, _, _, _, _, unitCaster, _, _, spellid  = _UnitAura ("player", buffIndex, nil, "HELPFUL")
+			if (name and unitCaster == "player") then
+				local playerName = _UnitName ("player")
+				_detalhes.parser:add_buff_uptime (nil, GetTime(), _UnitGUID ("player"), playerName, 0x00000417, _UnitGUID ("player"), playerName, 0x00000417, spellid, name, in_or_out)
+			else
+				break
+			end
+		end
+		
+	elseif (_IsInGroup()) then
+		for groupIndex = 1, _GetNumGroupMembers()-1 do 
+			for buffIndex = 1, 41 do
+				local name, _, _, _, _, _, _, unitCaster, _, _, spellid  = _UnitAura ("party"..groupIndex, buffIndex, nil, "HELPFUL")
+				if (name and unitCaster == "party"..groupIndex) then
+				
+					local playerName, realmName = _UnitName ("party"..groupIndex)
+					if (realmName and realmName ~= "") then
+						playerName = playerName .. "-" .. realmName
+					end
+				
+					_detalhes.parser:add_buff_uptime (nil, GetTime(), _UnitGUID ("party"..groupIndex), playerName, 0x00000417, _UnitGUID ("party"..groupIndex), playerName, 0x00000417, spellid, name, in_or_out)
+					
+				else
+					--break
+				end
+			end
+		end
+		
+		for buffIndex = 1, 41 do
+			local name, _, _, _, _, _, _, unitCaster, _, _, spellid  = _UnitAura ("player", buffIndex, nil, "HELPFUL")
+			if (name and unitCaster == "player") then
+				local playerName = _UnitName ("player")
+				_detalhes.parser:add_buff_uptime (nil, GetTime(), _UnitGUID ("player"), playerName, 0x00000417, _UnitGUID ("player"), playerName, 0x00000417, spellid, name, in_or_out)
+			else
+				break
+			end
+		end
+		
+	else
+		for buffIndex = 1, 41 do
+			local name, _, _, _, _, _, _, unitCaster, _, _, spellid  = _UnitAura ("player", buffIndex, nil, "HELPFUL")
+			if (name and unitCaster == "player") then
+				local playerName = _UnitName ("player")
+				_detalhes.parser:add_buff_uptime (nil, GetTime(), _UnitGUID ("player"), playerName, 0x00000417, _UnitGUID ("player"), playerName, 0x00000417, spellid, name, in_or_out)
+			else
+				break
+			end
+		end
+	end
+end
+
+local Sort2Reverse = function (a, b)
+	return a[2] < b[2]
+end
+
+function atributo_misc:ToolTipBuffUptime (instancia, numero, barra)
+	
+	local owner = self.owner
+	if (owner and owner.classe) then
+		r, g, b = unpack (_detalhes.class_colors [owner.classe])
+	else
+		r, g, b = unpack (_detalhes.class_colors [self.classe])
+	end	
+	
+	local meu_total = self ["buff_uptime"]
+	local minha_tabela = self.buff_uptime_spell_tables._ActorTable
+	
+--> habilidade usada para interromper
+	local buffs_usados = {}
+	
+	local _combat_time = instancia.showing:GetCombatTime()
+	
+	for _spellid, _tabela in _pairs (minha_tabela) do
+		buffs_usados [#buffs_usados+1] = {_spellid, _tabela.uptime}
+	end
+	--_table_sort (buffs_usados, Sort2Reverse)
+	_table_sort (buffs_usados, _detalhes.Sort2)
+	
+	GameCooltip:AddLine (Loc ["STRING_SPELLS"].."", nil, nil, headerColor, nil, 12)
+	GameCooltip:AddIcon ([[Interface\ICONS\Ability_Warrior_Safeguard]], 1, 1, 14, 14, 0.9375, 0.078125, 0.078125, 0.953125)
+	GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
+
+	if (#buffs_usados > 0) then
+		for i = 1, _math_min (30, #buffs_usados) do
+			local esta_habilidade = buffs_usados[i]
+			
+			if (esta_habilidade[2] > 0) then
+				local nome_magia, _, icone_magia = _GetSpellInfo (esta_habilidade[1])
+				
+				local minutos, segundos = _math_floor (esta_habilidade[2]/60), _math_floor (esta_habilidade[2]%60)
+				if (esta_habilidade[2] >= _combat_time) then
+					GameCooltip:AddLine (nome_magia..": ", minutos .. "m " .. segundos .. "s" .. " (" .. _cstr ("%.1f", esta_habilidade[2] / _combat_time * 100) .. "%)", nil, "gray", "gray")
+					GameCooltip:AddStatusBar (100, nil, 1, 0, 1, .3, false)
+				elseif (minutos > 0) then
+					GameCooltip:AddLine (nome_magia..": ", minutos .. "m " .. segundos .. "s" .. " (" .. _cstr ("%.1f", esta_habilidade[2] / _combat_time * 100) .. "%)")
+					GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
+				else
+					GameCooltip:AddLine (nome_magia..": ", segundos .. "s" .. " (" .. _cstr ("%.1f", esta_habilidade[2] / _combat_time * 100) .. "%)")
+					GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
+				end
+				
+				GameCooltip:AddIcon (icone_magia, nil, nil, 14, 14) --0.03125, 0.96875, 0.03125, 0.96875
+			end
+		end
+	else
+		GameCooltip:AddLine (Loc ["STRING_NO_SPELL"]) 
+	end
+	
+	return true
+	
 end
 
 function atributo_misc:ToolTipDefensiveCooldowns (instancia, numero, barra)
@@ -1590,6 +1774,51 @@ atributo_misc.__add = function (shadow, tabela2)
 		
 	end
 	
+	if (tabela2.buff_uptime) then
+	
+		if (not shadow.buff_uptime) then
+			shadow.buff_uptime = 0
+			shadow.buff_uptime_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
+			shadow.buff_uptime_spell_tables = container_habilidades:NovoContainer (container_misc) --> cria o container das habilidades usadas
+		end
+	
+		shadow.buff_uptime = shadow.buff_uptime + tabela2.buff_uptime
+		
+		if ( not (shadow.shadow and tabela2.shadow) ) then
+			--_detalhes.tabela_overall.totals[4]["cooldowns_defensive"] = _detalhes.tabela_overall.totals[4]["cooldowns_defensive"] + tabela2.cooldowns_defensive
+			
+			--if (tabela2.grupo) then
+			--	_detalhes.tabela_overall.totals_grupo[4]["cooldowns_defensive"] = _detalhes.tabela_overall.totals_grupo[4]["cooldowns_defensive"] + tabela2.cooldowns_defensive
+			--end
+		end
+		
+		for index, alvo in _ipairs (tabela2.buff_uptime_targets._ActorTable) do 
+			local alvo_shadow = shadow.buff_uptime_targets:PegarCombatente (alvo.serial, alvo.nome, alvo.flag_original, true)
+			alvo_shadow.total = alvo_shadow.total + alvo.total
+		end
+		
+		for spellid, habilidade in _pairs (tabela2.buff_uptime_spell_tables._ActorTable) do 
+			local habilidade_shadow = shadow.buff_uptime_spell_tables:PegaHabilidade (spellid, true, nil, true)
+
+			for index, alvo in _ipairs (habilidade.targets._ActorTable) do 
+				local alvo_shadow = habilidade_shadow.targets:PegarCombatente (alvo.serial, alvo.nome, alvo.flag_original, true)
+				alvo_shadow.total = alvo_shadow.total + alvo.total
+			end
+			
+			for key, value in _pairs (habilidade) do 
+				if (_type (value) == "number") then
+					if (key ~= "id") then
+						if (not habilidade_shadow [key]) then 
+							habilidade_shadow [key] = 0
+						end
+						habilidade_shadow [key] = habilidade_shadow [key] + value
+					end
+				end
+			end
+		end	
+		
+	end
+	
 	if (tabela2.cooldowns_defensive) then
 	
 		if (not shadow.cooldowns_defensive) then
@@ -1811,6 +2040,11 @@ atributo_misc.__sub = function (tabela1, tabela2)
 			tabela1.interrompeu_oque [spellid] = tabela1.interrompeu_oque [spellid] - amt
 		end
 	end
+	
+	if (tabela1.buff_uptime and tabela2.buff_uptime) then
+		tabela1.buff_uptime = tabela1.buff_uptime - tabela2.buff_uptime
+	end
+	
 	if (tabela1.cooldowns_defensive and tabela2.cooldowns_defensive) then
 		tabela1.cooldowns_defensive = tabela1.cooldowns_defensive - tabela2.cooldowns_defensive
 	end
@@ -1821,10 +2055,12 @@ atributo_misc.__sub = function (tabela1, tabela2)
 	
 	if (tabela1.dispell and tabela2.dispell) then
 		tabela1.dispell = tabela1.dispell - tabela2.dispell
+		-- precisaria diminuir o que foi dispelado
 	end
 	
 	if (tabela1.cc_break and tabela2.cc_break) then
 		tabela1.cc_break = tabela1.cc_break - tabela2.cc_break
+		-- precisaria diminuir o que foi quebrado
 	end
 	
 	return tabela1

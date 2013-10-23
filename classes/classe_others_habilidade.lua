@@ -18,13 +18,15 @@ local container_playernpc = _detalhes.container_type.CONTAINER_PLAYERNPC
 function habilidade_misc:NovaTabela (id, link, token) --aqui eu não sei que parâmetros passar
 
 	local _newMiscSpell = {
-
 		id = id,
 		counter = 0,
 		targets = container_combatentes:NovoContainer (container_misc_target)
 	}
 	
-	if (token == "SPELL_INTERRUPT") then
+	if (token == "BUFF_UPTIME") then
+		_newMiscSpell.uptime = 0
+		_newMiscSpell.actived = false
+	elseif (token == "SPELL_INTERRUPT") then
 		_newMiscSpell.interrompeu_oque = {}
 	elseif (token == "SPELL_DISPEL" or token == "SPELL_STOLEN") then
 		_newMiscSpell.dispell_oque = {}
@@ -43,20 +45,52 @@ end
 
 function habilidade_misc:Add (serial, nome, flag, who_nome, token, spellID, spellName)
 
-	--local alvo = self.targets:PegarCombatente (serial, nome, flag, true)
-	local alvo = self.targets._NameIndexTable [nome]
-	if (not alvo) then
-		alvo = self.targets:PegarCombatente (serial, nome, flag, true)
-	else
-		alvo = self.targets._ActorTable [alvo]
-	end
-
-	alvo.total = alvo.total + 1
-	
 	--alvo:AddQuantidade (1)
 	if (spellID == "BUFF") then
 		if (spellName == "COOLDOWN") then
 			self.counter = self.counter + 1
+			
+			--alvo
+			local alvo = self.targets._NameIndexTable [nome]
+			if (not alvo) then
+				alvo = self.targets:PegarCombatente (serial, nome, flag, true)
+			else
+				alvo = self.targets._ActorTable [alvo]
+			end
+			alvo.total = alvo.total + 1
+			
+		elseif (spellName == "BUFF_UPTIME_IN") then
+			self.actived = true
+			self.actived_at = _detalhes._tempo
+			--print ("in",self.uptime)
+			
+		elseif (spellName == "BUFF_UPTIME_REFRESH") then
+			if (self.actived_at and self.actived) then
+				self.uptime = self.uptime + _detalhes._tempo - self.actived_at
+				token.buff_uptime = token.buff_uptime + _detalhes._tempo - self.actived_at --> token = actor misc object
+				
+			end
+			self.actived_at = _detalhes._tempo
+			self.actived = true
+			
+			if (self.shadow) then
+				return self.shadow:Add (serial, nome, flag, who_nome, token.shadow, spellID, spellName)
+			end
+			--print ("refresh",self.uptime)
+			
+		elseif (spellName == "BUFF_UPTIME_OUT") then	
+			if (self.actived_at and self.actived) then
+				self.uptime = self.uptime + _detalhes._tempo - self.actived_at
+				token.buff_uptime = token.buff_uptime + _detalhes._tempo - self.actived_at --> token = actor misc object
+			end
+			self.actived = false
+			self.actived_at = nil
+			
+			if (self.shadow) then
+				return self.shadow:Add (serial, nome, flag, who_nome, token.shadow, spellID, spellName)
+			end
+			
+			--print ("out",self.uptime)
 		end
 		
 	elseif (token == "SPELL_INTERRUPT") then
@@ -67,6 +101,15 @@ function habilidade_misc:Add (serial, nome, flag, who_nome, token, spellID, spel
 		else
 			self.interrompeu_oque [spellID] = self.interrompeu_oque [spellID] + 1
 		end
+		
+		--alvo
+		local alvo = self.targets._NameIndexTable [nome]
+		if (not alvo) then
+			alvo = self.targets:PegarCombatente (serial, nome, flag, true)
+		else
+			alvo = self.targets._ActorTable [alvo]
+		end
+		alvo.total = alvo.total + 1		
 	
 	elseif (token == "SPELL_RESURRECT") then
 		if (not self.ress) then
@@ -74,6 +117,16 @@ function habilidade_misc:Add (serial, nome, flag, who_nome, token, spellID, spel
 		else
 			self.ress = self.ress + 1
 		end
+		
+		--alvo
+		local alvo = self.targets._NameIndexTable [nome]
+		if (not alvo) then
+			alvo = self.targets:PegarCombatente (serial, nome, flag, true)
+		else
+			alvo = self.targets._ActorTable [alvo]
+		end
+		alvo.total = alvo.total + 1		
+		
 		
 	elseif (token == "SPELL_DISPEL" or token == "SPELL_STOLEN") then
 		if (not self.dispell) then
@@ -87,6 +140,16 @@ function habilidade_misc:Add (serial, nome, flag, who_nome, token, spellID, spel
 		else
 			self.dispell_oque [spellID] = self.dispell_oque [spellID] + 1
 		end
+
+		--alvo
+		local alvo = self.targets._NameIndexTable [nome]
+		if (not alvo) then
+			alvo = self.targets:PegarCombatente (serial, nome, flag, true)
+		else
+			alvo = self.targets._ActorTable [alvo]
+		end
+		alvo.total = alvo.total + 1		
+		
 		
 	elseif (token == "SPELL_AURA_BROKEN_SPELL" or token == "SPELL_AURA_BROKEN") then
 	
@@ -101,6 +164,15 @@ function habilidade_misc:Add (serial, nome, flag, who_nome, token, spellID, spel
 		else
 			self.cc_break_oque [spellID] = self.cc_break_oque [spellID] + 1
 		end
+		
+		--alvo
+		local alvo = self.targets._NameIndexTable [nome]
+		if (not alvo) then
+			alvo = self.targets:PegarCombatente (serial, nome, flag, true)
+		else
+			alvo = self.targets._ActorTable [alvo]
+		end
+		alvo.total = alvo.total + 1
 	end
 
 	if (self.shadow) then
@@ -131,8 +203,13 @@ end
 
 habilidade_misc.__sub = function (tabela1, tabela2)
 
-	--interrupts
+	--interrupts & cooldowns
 	tabela1.counter = tabela1.counter - tabela2.counter
+	
+	--buff uptime
+	if (tabela1.uptime and tabela2.uptime) then
+		tabela1.uptime = tabela1.uptime - tabela2.uptime
+	end
 	
 	--ressesrs
 	if (tabela1.ress and tabela2.ress) then
@@ -148,6 +225,6 @@ habilidade_misc.__sub = function (tabela1, tabela2)
 	if (tabela1.cc_break and tabela2.cc_break) then
 		tabela1.cc_break = tabela1.cc_break - tabela2.cc_break
 	end
-	
+
 	return tabela1
 end

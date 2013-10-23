@@ -239,12 +239,33 @@ end
 					end
 					
 					_school = _detalhes:trim (_school)
-					local texto_esquerdo = "".._cstr ("%.1f", event[4] - timeOfDeath) .."s "..nome_magia.." (".. _school ..")"
-					texto_esquerdo = texto_esquerdo:gsub ("(%()%)", "")
+					local texto_esquerdo
+					if (nome_magia) then
+						texto_esquerdo = "".._cstr ("%.1f", event[4] - timeOfDeath) .."s "..nome_magia.." (".. _school ..")"
+						texto_esquerdo = texto_esquerdo:gsub ("(%()%)", "")
+					else
+						texto_esquerdo = ""
+					end
 					
-					GameCooltip:AddLine (texto_esquerdo, "-".._detalhes:ToK (event[3]).." (".. hp .."%)", 1, "white", "white")
-					GameCooltip:AddIcon (icone_magia)
-					GameCooltip:AddStatusBar (hp, 1, "red", true)
+					if (type (event [1]) ~= "boolean" and event [1] == 2) then --> last cooldown
+						if (event[3] == 1) then 
+							GameCooltip:AddLine ("".._cstr ("%.1f", event[4] - timeOfDeath) .. "s " .. nome_magia .. " (" .. Loc ["STRING_LAST_COOLDOWN"] .. ")")
+							GameCooltip:AddIcon (icone_magia)
+							GameCooltip:AddStatusBar (100, 1, "gray", true)
+						else
+							GameCooltip:AddLine (Loc ["STRING_NOLAST_COOLDOWN"])
+							GameCooltip:AddStatusBar (100, 1, "gray", true)
+						end
+					else
+						GameCooltip:AddLine (texto_esquerdo, "-".._detalhes:ToK (event[3]).." (".. hp .."%)", 1, "white", "white")
+						GameCooltip:AddIcon (icone_magia)
+						
+						if (type (event [1]) ~= "boolean" and event [1] == 1) then --> cooldown
+							GameCooltip:AddStatusBar (100, 1, "yellow", true)
+						else
+							GameCooltip:AddStatusBar (hp, 1, "red", true)
+						end
+					end
 						
 				end
 			else

@@ -292,7 +292,8 @@ function atributo_heal:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 			end)--]]
 
 		for index, player in _ipairs (conteudo) do
-			if (_bit_band (player.flag, DFLAG_player_group) >= 0x101) then --> é um player e esta em grupo
+			--if (_bit_band (player.flag, DFLAG_player_group) >= 0x101) then --> é um player e esta em grupo
+			if (player.grupo) then --> é um player e esta em grupo
 				if (player[keyName] < 1) then --> dano menor que 1, interromper o loop
 					amount = index - 1
 					break

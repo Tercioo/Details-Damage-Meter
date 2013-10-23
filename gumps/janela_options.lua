@@ -271,7 +271,7 @@ function _detalhes:OpenOptionsWindow (instance)
 		
 		g:NewSwitch (window, _, "$parentCaptureHealSlider", "healCaptureSlider", 60, 20, _, _, _detalhes.capture_real ["heal"])
 		window.healCaptureSlider:SetPoint ("left", window.healCaptureLabel, "right", 2)
-		window.healCaptureSlider.tooltip = "Pause or enable capture of:\n- healing done (not absorbs)\n- healing per second\n- overheal\n- healing taken"
+		window.healCaptureSlider.tooltip = "Pause or enable capture of:\n- healing done\n- absorbs\n- healing per second\n- overheal\n- healing taken\n- enemy healed"
 		window.healCaptureSlider.OnSwitch = function (self, _, value)
 			_detalhes:CaptureSet (value, "heal", true)
 			switch_icon_color (window.healCaptureImage, value)
@@ -298,7 +298,7 @@ function _detalhes:OpenOptionsWindow (instance)
 		
 		g:NewSwitch (window, _, "$parentCaptureAuraSlider", "auraCaptureSlider", 60, 20, _, _, _detalhes.capture_real ["aura"])
 		window.auraCaptureSlider:SetPoint ("left", window.auraCaptureLabel, "right", 2)
-		window.auraCaptureSlider.tooltip = "Pause or enable capture of:\n- buffs and debufs\n- absorbs (heal)"
+		window.auraCaptureSlider.tooltip = "Pause or enable capture of:\n- buffs and debufs\n- cooldowns"
 		window.auraCaptureSlider.OnSwitch = function (self, _, value)
 			_detalhes:CaptureSet (value, "aura", true)
 			switch_icon_color (window.auraCaptureImage, value)

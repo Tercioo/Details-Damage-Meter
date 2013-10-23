@@ -31,8 +31,9 @@ Loc ["STRING_DEATH_LOG"] = "Ultimos Segundos"
 Loc ["STRING_FIGHT_SUMMARY"] = "detalhes da luta"
 Loc ["STRING_FIGHT_GRAPHIC"] = "graficos da performance"
 Loc ["STRING_TOOLTIP"] = "Mostrar os detalhes do combate"
-Loc ["STRING_"] = ""
-
+Loc ["STRING_LAST_COOLDOWN"] = "ultimo cooldown usado"
+Loc ["STRING_NOLAST_COOLDOWN"] = "nenhum cooldown usado"
+	
 --> mechanic types
 Loc ["STRING_HEAL"] = "cura"
 Loc ["STRING_LOWDPS"] = "dpsbaixo"

@@ -747,9 +747,7 @@ end
 		nova_instancia.atributo = 1 --> dano 
 		nova_instancia.sub_atributo = 1 --> damage done
 		
-		nova_instancia.m2_last = {
-			[nova_instancia.atributo] = nova_instancia.sub_atributo
-		}
+		nova_instancia.sub_atributo_last = {1, 1, 1, 1, 1}
 		
 		nova_instancia.segmento = -1 --> combate atual
 		
@@ -827,6 +825,10 @@ function _detalhes:RestauraJanela (index, temp)
 			self.barrasInfo.textureNameBackground = _detalhes.default_texture_name
 		end
 
+		if (not self.sub_atributo_last) then
+			self.sub_atributo_last = {1, 1, 1, 1, 1}
+		end
+		
 		local _baseframe, _bgframe, _bgframe_display, _scrollframe = gump:CriaJanelaPrincipal (self.meu_id, self)
 		
 		self.baseframe = _baseframe
@@ -1220,9 +1222,9 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 	if (not atributo) then
 		atributo  = instancia.atributo
 	end
-	if (not sub_atributo) then
-		sub_atributo  = instancia.sub_atributo
-	end
+	--if (not sub_atributo) then
+	--	sub_atributo  = instancia.sub_atributo
+	--end
 	
 	--print ("DEBUG: trocando para "..atributo.." "..sub_atributo)
 	
@@ -1276,6 +1278,10 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 	end
 	
 	local atributo_changed = false
+	local last_sub_atributo = instancia.sub_atributo_last [atributo]
+	if (not sub_atributo) then
+		sub_atributo = instancia.sub_atributo_last [atributo]
+	end
 	
 	if (atributo ~= meu_atributo or _detalhes.initializing or iniciando_instancia or (instancia.modo == modo_alone or instancia.modo == modo_raid)) then
 	
@@ -1303,14 +1309,10 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 	
 		atributo_changed = true
 	
-		instancia.m2_last [instancia.atributo] = instancia.sub_atributo --> salta o último sub-atributo do atributo que esta sendo mostrado na instÇancia
+		instancia.sub_atributo_last [instancia.atributo] = meu_sub_atributo
+		--print ("atributo last changed:",instancia.atributo, "->", meu_sub_atributo)
+		
 		instancia.atributo = atributo
-		
-		local last_sub_atributo = instancia.m2_last [atributo] --> isso aqui é invalido, pois sempre vai haver um sub atributo e nao precisa conferir se ele realmente existe.
-		if (not last_sub_atributo) then
-			last_sub_atributo = 1
-		end
-		
 		instancia.sub_atributo = last_sub_atributo
 		
 		--> troca icone
@@ -1363,7 +1365,10 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 	end
 
 	if (sub_atributo ~= meu_sub_atributo or _detalhes.initializing or iniciando_instancia or atributo_changed) then
-		instancia.m2_last [instancia.atributo] = sub_atributo
+	
+		instancia.sub_atributo_last [meu_atributo] = meu_sub_atributo
+		--print ("atributo last changed:",meu_atributo, "->", meu_sub_atributo)
+		
 		instancia.sub_atributo = sub_atributo
 		
 		if (instancia.atributo == 5) then --> custom
@@ -1388,6 +1393,7 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 	
 	if (not _detalhes.initializing and not iniciando_instancia) then
 		instancia:ResetaGump()
+		--print ("atualizando: ", instancia.atributo, instancia.sub_atributo)
 		instancia:AtualizaGumpPrincipal (true)
 	end
 
@@ -1448,7 +1454,7 @@ function _detalhes:MontaAtributosOption (instancia, func)
 			CoolTip:AddMenu (2, func, nil, i, o, options[o], nil, true)
 			CoolTip:AddIcon (icones[i], 2, 1, 20, 20, p*(o-1), p*(o), 0, 1)
 		end
-		CoolTip:SetLastSelected (2, i, instancia.m2_last [i])
+		CoolTip:SetLastSelected (2, i, instancia.sub_atributo_last [i])
 	end
 	
 	--> custom
@@ -1460,10 +1466,10 @@ function _detalhes:MontaAtributosOption (instancia, func)
 		CoolTip:AddMenu (2, func, nil, 5, index, custom.name, custom.icon, true)
 	end
 
-	if (not instancia.m2_last [5]) then
+	if (not instancia.sub_atributo_last [5]) then
 		CoolTip:SetLastSelected (2, 5, 1)
 	else
-		CoolTip:SetLastSelected (2, 5, instancia.m2_last [5]+1)
+		CoolTip:SetLastSelected (2, 5, instancia.sub_atributo_last [5]+1)
 	end
 	
 	CoolTip:SetLastSelected (1, atributo_ativo)
@@ -1781,7 +1787,7 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 				atributo = _detalhes.custom [self.sub_atributo].attribute
 				container = self.showing [atributo]._ActorTable
 				
-				print (total, keyName, first, atributo)
+				--print (total, keyName, first, atributo)
 			end
 			
 			for i = 1, amt do 
