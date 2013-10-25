@@ -128,7 +128,8 @@ function _detalhes.refresh:r_habilidade_cura (habilidade, shadow)
 end
 
 function _detalhes.clear:c_habilidade_cura (habilidade)
-	habilidade.__index = {}
+	--habilidade.__index = {}
+	habilidade.__index = nil
 	habilidade.shadow = nil
 	
 	_detalhes.clear:c_container_combatentes (habilidade.targets)

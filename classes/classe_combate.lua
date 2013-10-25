@@ -259,7 +259,8 @@ function _detalhes.refresh:r_combate (tabela_combate, shadow)
 end
 
 function _detalhes.clear:c_combate (tabela_combate)
-	tabela_combate.__index = {}
+	--tabela_combate.__index = {}
+	tabela_combate.__index = nil
 	tabela_combate.__call = {}
 	tabela_combate._combat_table = nil
 	tabela_combate.shadow = nil

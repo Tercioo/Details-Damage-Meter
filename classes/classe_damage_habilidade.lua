@@ -270,7 +270,8 @@ function _detalhes.refresh:r_habilidade_dano (habilidade, shadow) --recebeu o co
 end
 
 function _detalhes.clear:c_habilidade_dano (habilidade)
-	habilidade.__index = {}
+	--habilidade.__index = {}
+	habilidade.__index = nil
 	habilidade.shadow = nil
 	
 	_detalhes.clear:c_container_combatentes (habilidade.targets)

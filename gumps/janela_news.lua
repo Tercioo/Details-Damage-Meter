@@ -50,14 +50,60 @@ function _detalhes:CreateOrOpenNewsWindow()
 		titulo:SetPoint ("center", frame, "center")
 		titulo:SetPoint ("top", frame, "top", 0, -18)
 		
+		local frame_upper = CreateFrame ("scrollframe", nil, frame)
+		local frame_lower = CreateFrame ("frame", nil, frame_upper)
+		frame_lower:SetSize (380, 390)
+		frame_upper:SetPoint ("topleft", frame, "topleft", 85, -100)
+		frame_upper:SetWidth (395)
+		frame_upper:SetHeight (370)
+		frame_upper:SetBackdrop({
+				bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", 
+				tile = true, tileSize = 16,
+				insets = {left = 1, right = 1, top = 0, bottom = 1},})
+		frame_upper:SetBackdropColor (.1, .1, .1, .3)
+		frame_upper:SetScrollChild (frame_lower)
+		
+		local slider = CreateFrame ("slider", nil, frame)
+		slider.bg = slider:CreateTexture (nil, "background")
+		slider.bg:SetAllPoints (true)
+		slider.bg:SetTexture (0, 0, 0, 0.5)
+		
+		slider.thumb = slider:CreateTexture (nil, "OVERLAY")
+		slider.thumb:SetTexture ("Interface\\Buttons\\UI-ScrollBar-Knob")
+		slider.thumb:SetSize (25, 25)
+		
+		slider:SetThumbTexture (slider.thumb)
+		slider:SetOrientation ("vertical");
+		slider:SetSize (16, 369)
+		slider:SetPoint ("topleft", frame_upper, "topright")
+		slider:SetMinMaxValues (0, 1000)
+		slider:SetValue(0)
+		slider:SetScript("OnValueChanged", function (self)
+		      frame_upper:SetVerticalScroll (self:GetValue())
+		end)
+  
+		frame_upper:EnableMouseWheel (true)
+		frame_upper:SetScript("OnMouseWheel", function (self, delta)
+		      local current = slider:GetValue()
+		      if (IsShiftKeyDown() and (delta > 0)) then
+				slider:SetValue(0)
+		      elseif (IsShiftKeyDown() and (delta < 0)) then
+				slider:SetValue (1000)
+		      elseif ((delta < 0) and (current < 1000)) then
+				slider:SetValue (current + 20)
+		      elseif ((delta > 0) and (current > 1)) then
+				slider:SetValue (current - 20)
+		      end
+		end)
+  
 		--> text box
-		local texto = frame:CreateFontString ("DetailsNewsWindowText", "overlay", "GameFontNormal")
-		texto:SetPoint ("topleft", frame, "topleft", 100, -100)
+		local texto = frame_lower:CreateFontString ("DetailsNewsWindowText", "overlay", "GameFontNormal")
+		texto:SetPoint ("topleft", frame_lower, "topleft")
 		texto:SetJustifyH ("left")
 		texto:SetJustifyV ("top")
 		texto:SetTextColor (1, 1, 1)
-		texto:SetWidth (400)
-		texto:SetHeight (500)
+		texto:SetWidth (380)
+		texto:SetHeight (1000)
 		
 		function frame:Title (title)
 			titulo:SetText (title or "")

@@ -274,6 +274,9 @@ function container_combatentes:PegarCombatente (serial, nome, flag, criar, isOwn
 				end
 			end
 			
+			if (novo_objeto.grupo) then
+				novo_objeto.avoidance = {["DODGE"] = 0, ["PARRY"] = 0, ["HITS"] = 0} --> avoidance
+			end
 			
 		elseif (self.tipo == container_heal) then --> CONTAINER HEALING
 			
@@ -486,7 +489,8 @@ function _detalhes.refresh:r_container_combatentes (container, shadow)
 end
 
 function _detalhes.clear:c_container_combatentes (container)
-	container.__index = {}
+	--container.__index = {}
+	container.__index = nil
 	container.shadow = nil
 	container._NameIndexTable = nil
 	container.need_refresh = nil

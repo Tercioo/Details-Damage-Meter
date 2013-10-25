@@ -75,8 +75,6 @@ function atributo_damage:NovaTabela (serial, nome, link)
 		
 		damage_taken = 0, --> total de dano que este jogador levou
 		damage_from = {}, --> armazena os nomes que deram dano neste jogador
-
-		avoidance = {["DODGE"] = 0, ["PARRY"] = 0, ["HITS"] = 0}, --> avoidance
 		
 		dps_started = false,
 		last_event = 0,
@@ -2240,7 +2238,8 @@ function _detalhes.refresh:r_atributo_damage (este_jogador, shadow)
 end
 
 function _detalhes.clear:c_atributo_damage (este_jogador)
-	este_jogador.__index = {}
+	--este_jogador.__index = {}
+	este_jogador.__index = nil
 	este_jogador.shadow = nil
 	este_jogador.links = nil
 	este_jogador.minha_barra = nil

@@ -85,6 +85,7 @@ function _detalhes.refresh:r_habilidade_e_energy (habilidade, shadow) --recebeu 
 end
 
 function _detalhes.clear:c_habilidade_e_energy (habilidade)
+	--habilidade.__index = {}
 	habilidade.__index = {}
 	habilidade.shadow = nil
 	

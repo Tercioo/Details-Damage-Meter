@@ -434,7 +434,7 @@
 		--> 'avoider'
 		--> using this method means avoidance of pets will not be tracked
 		local TargetActor = damage_cache [alvo_name]
-		if (TargetActor) then
+		if (TargetActor and TargetActor.grupo) then
 			local missTable = TargetActor.avoidance [missType]
 			if (missTable) then
 				TargetActor.avoidance [missType] = missTable +1
@@ -2214,6 +2214,16 @@
 		end
 	end
 
+	--"ENVIRONMENTAL_DAMAGE" --> damage aplied by enviorement like lava.
+	--SPELL_PERIODIC_MISSED --> need research
+	--DAMAGE_SHIELD_MISSED --> need research
+	--SPELL_EXTRA_ATTACKS --> need research
+	--SPELL_DRAIN --> need research
+	--SPELL_LEECH --> need research
+	--SPELL_PERIODIC_DRAIN --> need research
+	--SPELL_PERIODIC_LEECH --> need research
+	--SPELL_DISPEL_FAILED --> need research
+	
 	function _detalhes:CaptureEnable (capture_type)
 
 		capture_type = string.lower (capture_type)
@@ -2229,7 +2239,8 @@
 			token_list ["RANGE_MISSED"] = parser.rangemissed
 			token_list ["SWING_MISSED"] = parser.swingmissed
 			token_list ["SPELL_MISSED"] = parser.missed
-		
+
+			
 		elseif (capture_type == "heal") then
 			token_list ["SPELL_HEAL"] = parser.heal
 			token_list ["SPELL_PERIODIC_HEAL"] = parser.heal

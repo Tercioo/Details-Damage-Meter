@@ -40,7 +40,8 @@ end
 
 function _detalhes.clear:c_alvo_da_habilidade (este_alvo)
 	este_alvo.shadow = nil
-	este_alvo.__index = {}
+	--este_alvo.__index = {}
+	este_alvo.__index = nil
 end
 
 alvo_da_habilidade.__sub = function (tabela1, tabela2)

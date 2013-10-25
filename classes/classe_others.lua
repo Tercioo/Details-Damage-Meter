@@ -1625,6 +1625,13 @@ function _detalhes.refresh:r_atributo_misc (este_jogador, shadow)
 			_detalhes.refresh:r_container_combatentes (este_jogador.interrupt_targets, shadow.interrupt_targets)
 			_detalhes.refresh:r_container_habilidades (este_jogador.interrupt_spell_tables, shadow.interrupt_spell_tables)
 		end
+		
+		--> refresh buff uptime
+		if (este_jogador.buff_uptime_targets) then
+			_detalhes.refresh:r_container_combatentes (este_jogador.buff_uptime_targets, shadow.buff_uptime_targets)
+			_detalhes.refresh:r_container_habilidades (este_jogador.buff_uptime_spell_tables, shadow.buff_uptime_spell_tables)
+		end
+		
 		--> refresh cooldowns defensive
 		if (este_jogador.cooldowns_defensive_targets) then
 			_detalhes.refresh:r_container_combatentes (este_jogador.cooldowns_defensive_targets, shadow.cooldowns_defensive_targets)
@@ -1655,10 +1662,17 @@ function _detalhes.refresh:r_atributo_misc (este_jogador, shadow)
 			_detalhes.refresh:r_container_combatentes (este_jogador.interrupt_targets, -1)
 			_detalhes.refresh:r_container_habilidades (este_jogador.interrupt_spell_tables, -1)
 		end
+		
 		--> refresh cooldowns defensive
 		if (este_jogador.cooldowns_defensive_targets) then
 			_detalhes.refresh:r_container_combatentes (este_jogador.cooldowns_defensive_targets, -1)
 			_detalhes.refresh:r_container_habilidades (este_jogador.cooldowns_defensive_spell_tables, -1)
+		end
+		
+		--> refresh buff uptime
+		if (este_jogador.buff_uptime_targets) then
+			_detalhes.refresh:r_container_combatentes (este_jogador.buff_uptime_targets, -1)
+			_detalhes.refresh:r_container_habilidades (este_jogador.buff_uptime_spell_tables, -1)
 		end
 		
 		--> refresh ressers
@@ -1683,7 +1697,8 @@ end
 
 function _detalhes.clear:c_atributo_misc (este_jogador)
 
-	este_jogador.__index = {}
+	--este_jogador.__index = {}
+	este_jogador.__index = nil
 	este_jogador.shadow = nil
 	este_jogador.links = nil
 	este_jogador.minha_barra = nil
@@ -1692,9 +1707,15 @@ function _detalhes.clear:c_atributo_misc (este_jogador)
 		_detalhes.clear:c_container_combatentes (este_jogador.interrupt_targets)
 		_detalhes.clear:c_container_habilidades (este_jogador.interrupt_spell_tables)
 	end
+	
 	if (este_jogador.cooldowns_defensive_targets) then
 		_detalhes.clear:c_container_combatentes (este_jogador.cooldowns_defensive_targets)
 		_detalhes.clear:c_container_habilidades (este_jogador.cooldowns_defensive_spell_tables)
+	end
+	
+	if (este_jogador.buff_uptime_targets) then
+		_detalhes.clear:c_container_combatentes (este_jogador.buff_uptime_targets)
+		_detalhes.clear:c_container_habilidades (este_jogador.buff_uptime_spell_tables)
 	end
 	
 	if (este_jogador.ress_targets) then

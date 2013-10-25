@@ -123,7 +123,8 @@ function _detalhes.refresh:r_container_habilidades (container, shadow)
 end
 
 function _detalhes.clear:c_container_habilidades (container)
-	container.__index = {}
+	--container.__index = {}
+	container.__index = nil
 	container.shadow = nil
 	container.funcao_de_criacao = nil
 end
