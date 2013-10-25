@@ -239,7 +239,8 @@ function _detalhes:OpenWelcomeWindow ()
 		data_text:SetPoint ("topleft", window, "topleft", 30, -105)
 		
 		local data_text2 = window:CreateFontString (nil, "overlay", "GameFontNormal")
-		data_text2:SetText ("Tip: for a best experience, it's recommend leave all turned on.")
+		--data_text2:SetText ("Tip: for a best experience, it's recommend leave all turned on.")
+		data_text2:SetText ("Mouse over each slider to see what they represent.")
 		data_text2:SetWidth (460)
 		data_text2:SetHeight (40)
 		data_text2:SetJustifyH ("left")
@@ -321,7 +322,7 @@ function _detalhes:OpenWelcomeWindow ()
 		
 		g:NewSwitch (window, _, "$parentCaptureAuraSlider", "auraCaptureSlider", 60, 20, _, _, _detalhes.capture_real ["aura"])
 		window.auraCaptureSlider:SetPoint ("left", window.auraCaptureLabel, "right", 2)
-		window.auraCaptureSlider.tooltip = "Pause or enable capture of:\n- buffs and debufs\n- cooldowns"
+		window.auraCaptureSlider.tooltip = "Pause or enable capture of:\n- buffs uptime"
 		window.auraCaptureSlider.OnSwitch = function (self, _, value)
 			_detalhes:CaptureSet (value, "aura", true)
 			switch_icon_color (window.auraCaptureImage, value)

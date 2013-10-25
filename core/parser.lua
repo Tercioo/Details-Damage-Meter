@@ -2184,9 +2184,9 @@
 			_recording_healing = false
 		
 		elseif (capture_type == "aura") then
-			--token_list ["SPELL_AURA_APPLIED"] = nil
-			--token_list ["SPELL_AURA_REMOVED"] = nil
-			--token_list ["SPELL_AURA_REFRESH"] = nil
+			token_list ["SPELL_AURA_APPLIED"] = parser.buff
+			token_list ["SPELL_AURA_REMOVED"] = parser.unbuff
+			token_list ["SPELL_AURA_REFRESH"] = parser.buff_refresh
 			_recording_buffs_and_debuffs = false
 		
 		elseif (capture_type == "energy") then

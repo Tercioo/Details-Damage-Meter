@@ -298,7 +298,7 @@ function _detalhes:OpenOptionsWindow (instance)
 		
 		g:NewSwitch (window, _, "$parentCaptureAuraSlider", "auraCaptureSlider", 60, 20, _, _, _detalhes.capture_real ["aura"])
 		window.auraCaptureSlider:SetPoint ("left", window.auraCaptureLabel, "right", 2)
-		window.auraCaptureSlider.tooltip = "Pause or enable capture of:\n- buffs and debufs\n- cooldowns"
+		window.auraCaptureSlider.tooltip = "Pause or enable capture of:\n- buffs uptime"
 		window.auraCaptureSlider.OnSwitch = function (self, _, value)
 			_detalhes:CaptureSet (value, "aura", true)
 			switch_icon_color (window.auraCaptureImage, value)

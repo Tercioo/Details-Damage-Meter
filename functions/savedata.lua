@@ -282,9 +282,9 @@ end --]]
 	_detalhes.capture_real = _detalhes_database and _detalhes_database.capture_real or {
 		["damage"] = true,
 		["heal"] = true,
-		["energy"] = true,
+		["energy"] = false,
 		["miscdata"] = true,
-		["aura"] = true,
+		["aura"] = false,
 		["spellcast"] = true,
 	}
 
