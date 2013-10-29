@@ -22,7 +22,8 @@ function _detalhes:SaveDataOnLogout()
 	
 	--> nicktag cache
 	_detalhes_database.nick_tag_cache = _detalhes.nick_tag_cache
-
+	_detalhes_database.only_pvp_frags = _detalhes.only_pvp_frags
+	
 	--> save instances (windows)
 		_detalhes_database.tabela_instancias = _detalhes.tabela_instancias
 	--> options data
@@ -45,7 +46,7 @@ function _detalhes:SaveDataOnLogout()
 		_detalhes_database.animate_scroll = _detalhes.animate_scroll
 		_detalhes_database.use_scroll = _detalhes.use_scroll
 		-- death log
-		_detalhes_database.deadlog_limit = _detalhes.deadlog_limit		
+		_detalhes_database.deadlog_limit = _detalhes.deadlog_limit
 		-- report
 		_detalhes_database.report_lines = _detalhes.report_lines
 		_detalhes_database.report_to_who = _detalhes.report_to_who
@@ -152,6 +153,7 @@ end --]]
 	--> nicktag cache
 		_detalhes.nick_tag_cache = _detalhes_database.nick_tag_cache or {}
 		_detalhes:NickTagSetCache (_detalhes.nick_tag_cache)
+		_detalhes.only_pvp_frags = _detalhes_database.only_pvp_frags
 
 	--> build basic containers
 		_detalhes.tabela_historico = _detalhes_database.tabela_historico or _detalhes.historico:NovoHistorico() -- segments

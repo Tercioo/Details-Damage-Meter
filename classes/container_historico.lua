@@ -155,8 +155,9 @@ function historico:resetar()
 	end
 	_table_wipe (_detalhes.tabela_vigente)
 	_table_wipe (_detalhes.tabela_overall)
-	_table_wipe (_detalhes.tabela_pets.pets)
 	_table_wipe (_detalhes.spellcache)
+	
+	_detalhes:LimparPets()
 	
 	-- novo container de historico
 	_detalhes.tabela_historico = historico:NovoHistorico() --joga fora a tabela antiga e cria uma nova

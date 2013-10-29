@@ -1808,13 +1808,11 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 	BackGroundDisplay:SetPoint ("BOTTOMRIGHT", BaseFrame, "BOTTOMRIGHT")
 	BackGroundDisplay:SetBackdrop (gump_fundo_backdrop)
 	BackGroundDisplay:SetBackdropColor (instancia.bg_r, instancia.bg_g, instancia.bg_b, instancia.bg_alpha)
-	--BackGroundDisplay:SetBackdropColor (0, 0, 0, 1)
-
 	
 -- congelamento da instância
 -------------------------------------------------------------------------------------------------------------------------------------------------
 	
-	instancia.freeze_icon = BaseFrame:CreateTexture (nil, "OVERLAY")
+	instancia.freeze_icon = BackGroundDisplay:CreateTexture (nil, "OVERLAY")
 		instancia.freeze_icon:SetTexture ("Interface\\CHARACTERFRAME\\Disconnect-Icon")
 		instancia.freeze_icon:SetWidth (64)
 		instancia.freeze_icon:SetHeight (64)
@@ -1822,7 +1820,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 		instancia.freeze_icon:SetPoint ("left", BackGroundDisplay, "left")
 		instancia.freeze_icon:Hide()
 	
-	instancia.freeze_texto = BaseFrame:CreateFontString (nil, "OVERLAY", "GameFontHighlightSmall")
+	instancia.freeze_texto = BackGroundDisplay:CreateFontString (nil, "OVERLAY", "GameFontHighlightSmall")
 		instancia.freeze_texto:SetHeight (64)
 		instancia.freeze_texto:SetPoint ("left", instancia.freeze_icon, "right", -18, 0)
 		instancia.freeze_texto:SetTextColor (1, 1, 1)
@@ -1836,12 +1834,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 		if (not _detalhes.initializing) then
 			instancia._version:Hide()
 		end
-	--[[	
-	BaseFrame.wallpaper = BaseFrame:CreateTexture (nil, "border")
-	BaseFrame.wallpaper:Hide()
-	BaseFrame.wallpaperUP = BackGroundDisplay:CreateTexture (nil, "overlay")
-	BaseFrame.wallpaperUP:Hide()
-	--]]
+
 	BaseFrame.wallpaper = BackGroundDisplay:CreateTexture (nil, "overlay")
 	BaseFrame.wallpaper:Hide()
 	

@@ -323,11 +323,19 @@ function atributo_damage:AtualizarFrags (tabela, qual_barra, colocacao, instanci
 	end
 
 	--> ele nao come o texto quando a instância esta muito pequena
-
-	esta_barra.textura:SetVertexColor (1, 1, 1)
-	esta_barra.icone_classe:SetTexture ("Interface\\LFGFRAME\\LFGROLE_BW")
-	esta_barra.icone_classe:SetTexCoord (.25, .5, 0, 1)
-	esta_barra.icone_classe:SetVertexColor (1, 1, 1)
+	
+	esta_barra.textura:SetVertexColor (_unpack (_detalhes.class_colors [tabela [3]]))
+	esta_barra.icone_classe:SetTexture ("Interface\\AddOns\\Details\\images\\classes_small")
+	
+	if (tabela [3] == "UNKNOW" or tabela [3] == "UNGROUPPLAYER") then
+		esta_barra.icone_classe:SetTexture ("Interface\\LFGFRAME\\LFGROLE_BW")
+		esta_barra.icone_classe:SetTexCoord (.25, .5, 0, 1)
+		esta_barra.icone_classe:SetVertexColor (1, 1, 1)
+	else
+		esta_barra.icone_classe:SetTexture ("Interface\\AddOns\\Details\\images\\classes_small")
+		esta_barra.icone_classe:SetTexCoord (_unpack (_detalhes.class_coords [tabela [3]])) --very slow method
+		esta_barra.icone_classe:SetVertexColor (1, 1, 1)
+	end
 
 	if (esta_barra.mouse_over and not instancia.baseframe.isMoving) then --> precisa atualizar o tooltip
 		--gump:UpdateTooltip (qual_barra, esta_barra, instancia)
@@ -403,11 +411,22 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 		
 			index = index + 1
 		
+			local actor_classe = showing._NameIndexTable [fragName] --> get index
+			if (actor_classe) then
+				actor_classe = showing._ActorTable [actor_classe] --> get object
+				actor_classe = actor_classe.classe
+			end
+			
+			if (not actor_classe) then
+				actor_classe = "UNGROUPPLAYER"
+			end
+			
 			if (ntable [index]) then
 				ntable [index] [1] = fragName
 				ntable [index] [2] = fragAmount
+				ntable [index] [3] = actor_classe
 			else
-				ntable [index] = {fragName, fragAmount}
+				ntable [index] = {fragName, fragAmount, actor_classe}
 			end
 			
 		end
@@ -432,7 +451,7 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 		if (exportar) then 
 			local export = {}
 			for i = 1, index do 
-				export [i] = {ntable[i][1], ntable[i][2]}
+				export [i] = {ntable[i][1], ntable[i][2], ntable[i][3]}
 			end
 			return export
 		end
@@ -485,7 +504,7 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 		
 			--> organiza as tabelas
 			
-			if (_detalhes.in_combat and instancia.segmento == 0) then
+			if (_detalhes.in_combat and instancia.segmento == 0 and not exportar) then
 				using_cache = true
 			end
 			

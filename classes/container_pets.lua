@@ -13,6 +13,13 @@ local _GetNumGroupMembers = GetNumGroupMembers
 
 -- lua locals
 local _setmetatable = setmetatable
+local _bit_band = bit.band --lua local
+local _pairs = pairs
+local _ipairs = ipairs
+local _table_wipe = table.wipe
+
+--details locals
+local is_ignored = _detalhes.pets_ignored
 
 function container_pets:NovoContainer()
 	local esta_tabela = {}
@@ -22,19 +29,27 @@ function container_pets:NovoContainer()
 	return esta_tabela
 end
 
+local OBJECT_TYPE_PET = 0x00001000
+local EM_GRUPO = 0x00000007
+local PET_EM_GRUPO = 0x00001007
+
 function container_pets:PegaDono (pet_serial, pet_nome, pet_flags)
 
+	--> sair se o pet estiver na ignore
+	if (is_ignored [pet_serial]) then
+		return
+	end
+
+	--> buscar pelo pet no container de pets
 	local busca = self.pets [pet_serial]
-	local dono_nome, dono_serial, dono_flags
-	
 	if (busca) then
-		--debug: print ("achou o pet no container de donos")
-		dono_nome, dono_serial, dono_flags = busca[1], busca[2], busca[3]
-		return pet_nome .." <"..dono_nome..">", dono_nome, dono_serial, dono_flags
+		return pet_nome .." <"..busca[1]..">", busca[1], busca[2], busca[3] --> [1] dono nome [2] dono serial [3] dono flag
 	end
 	
+	--> buscar pelo pet na raide
+	local dono_nome, dono_serial, dono_flags
+	
 	if (_IsInRaid()) then
-		--print ("estou em RAIDE")
 		for i = 1, _GetNumGroupMembers() do 
 			if (pet_serial == _UnitGUID ("raidpet"..i)) then
 				dono_serial = _UnitGUID ("raid"..i)
@@ -47,16 +62,15 @@ function container_pets:PegaDono (pet_serial, pet_nome, pet_flags)
 				end
 				dono_nome = nome
 				
-				if (nome:find ("Unknown")) then
+				--if (nome:find ("Unknown")) then
 					--print ("owner name with Unknown: ", nome)
-				end
+				--end
 				
 				--print ("Dono encontrado na raide",nome,realm)
 			end
 		end
 		
 	elseif (_IsInGroup()) then
-		--print ("DEBUG estou em PARTY")
 		for i = 1, _GetNumGroupMembers()-1 do 
 			if (pet_serial == _UnitGUID ("partypet"..i)) then
 				dono_serial = _UnitGUID ("party"..i)
@@ -89,17 +103,27 @@ function container_pets:PegaDono (pet_serial, pet_nome, pet_flags)
 	
 	if (dono_nome) then
 		--print ("dono encontrado, adicionando ao cache")
-		self.pets [pet_serial] = {dono_nome, dono_serial, dono_flags, _detalhes._tempo} --> adicionada a flag emulada
+		self.pets [pet_serial] = {dono_nome, dono_serial, dono_flags, _detalhes._tempo, true} --> adicionada a flag emulada
 		return pet_nome .." <"..dono_nome..">", dono_nome, dono_serial, dono_flags
 	else
 		--if (_GetNumGroupMembers() > 0) then
 			--print ("DEBUG: Pet sem dono: "..pet_nome)
 		--end
 		--print ("DEBUG Nao foi possivel achar o dono de "..pet_nome)
+		
+		if (pet_flags and _bit_band (pet_flags, OBJECT_TYPE_PET) ~= 0) then --> é um pet
+			if (not _detalhes.pets_no_owner [pet_serial] and _bit_band (pet_flags, EM_GRUPO) ~= 0) then
+				_detalhes.pets_no_owner [pet_serial] = {pet_nome, pet_flags}
+				_detalhes:Msg ("PET sem dono:", pet_nome)
+			end
+		else
+			is_ignored [pet_serial] = true
+		end
 	end
 	
-	return nil, nil, nil, nil
-
+	--> não pode encontrar o dono do pet, coloca-lo na ignore
+	
+	return
 end
 
 -->  ao ter raid roster update, precisa dar foreach no container de pets e verificar as flags
@@ -122,7 +146,7 @@ function container_pets:BuscarPets()
 						end
 						--print ("pet found: ", nome)
 						--print ("bp dono encontrado na raide:",nome, realm)
-						_detalhes.tabela_pets:Adicionar (pet_serial, _UnitName ("raidpet"..i), 2600, _UnitGUID ("raid"..i), nome, 0x514, true)
+						_detalhes.tabela_pets:Adicionar (pet_serial, _UnitName ("raidpet"..i), 0x1114, _UnitGUID ("raid"..i), nome, 0x514)
 					end
 				end
 			end
@@ -142,7 +166,7 @@ function container_pets:BuscarPets()
 						end
 						--print ("pet found: ", nome)
 						--print ("bp dono encontrado no grupo:",nome, realm)
-						_detalhes.tabela_pets:Adicionar (pet_serial, _UnitName ("partypet"..i), 2600, _UnitGUID ("party"..i), nome, 0x514)
+						_detalhes.tabela_pets:Adicionar (pet_serial, _UnitName ("partypet"..i), 0x1114, _UnitGUID ("party"..i), nome, 0x514) 
 					end
 				end
 			end
@@ -150,9 +174,15 @@ function container_pets:BuscarPets()
 	end
 end
 
-function container_pets:Adicionar (pet_serial, pet_nome, pet_flags, dono_serial, dono_nome, dono_flags, fromSearch)
+-- 4372 = 1114 -> pet control player -> friendly -> aff raid
+
+function container_pets:Adicionar (pet_serial, pet_nome, pet_flags, dono_serial, dono_nome, dono_flags)
 	
-	self.pets [pet_serial] = {dono_nome, dono_serial, dono_flags, _detalhes._tempo}
+	if (pet_flags and _bit_band (pet_flags, OBJECT_TYPE_PET) ~= 0 and _bit_band (pet_flags, EM_GRUPO) ~= 0) then
+		self.pets [pet_serial] = {dono_nome, dono_serial, dono_flags, _detalhes._tempo, true}
+	else
+		self.pets [pet_serial] = {dono_nome, dono_serial, dono_flags, _detalhes._tempo}
+	end
 	
 	--if (fromSearch) then
 	--	local d = self.pets [pet_serial]
@@ -163,6 +193,23 @@ function container_pets:Adicionar (pet_serial, pet_nome, pet_flags, dono_serial,
 		--print ("debug: a owner is a pet, Owner: ", dono_nome, " Pet: ", pet_nome)
 	--end
 
+end
+
+function _detalhes:WipePets()
+	return _table_wipe (_detalhes.tabela_pets.pets)
+end
+
+function _detalhes:LimparPets()
+	--> elimina pets antigos
+	local _new_PetTable = {}
+	for PetSerial, PetTable in _pairs (_detalhes.tabela_pets.pets) do 
+		if ( (PetTable[4] + _detalhes.intervalo_coleta > _detalhes._tempo + 1) or (PetTable[5] and PetTable[4] + 43200 > _detalhes._tempo) ) then
+			_new_PetTable [PetSerial] = PetTable
+		end
+	end
+	--a tabela antiga será descartada pelo garbage collector.
+	--_table_wipe (_detalhes.tabela_pets.pets)
+	_detalhes.tabela_pets.pets = _new_PetTable
 end
 
 local have_schedule = false

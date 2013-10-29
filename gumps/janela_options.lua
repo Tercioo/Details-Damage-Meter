@@ -328,7 +328,16 @@ function _detalhes:OpenOptionsWindow (instance)
 		end)
 		window.maxInstancesSlider.tooltip = "Amount of windows which can be created."
 		
-
+	--------------- Frags PVP Mode
+		g:NewLabel (window, _, "$parentLabelFragsPvP", "fragsPvpLabel", "only pvp frags")
+		window.fragsPvpLabel:SetPoint (10, -329)
+		--
+		g:NewSwitch (window, _, "$parentFragsPvpSlider", "fragsPvpSlider", 60, 20, _, _, _detalhes.only_pvp_frags)
+		window.fragsPvpSlider:SetPoint ("left", window.fragsPvpLabel, "right")
+		window.fragsPvpSlider.OnSwitch = function (self, _, amount) --> slider, fixedValue, sliderValue
+			_detalhes.only_pvp_frags = amount
+		end
+		window.fragsPvpSlider.tooltip = "Only record frags from player characters."
 		
 -- Current Instalnce --------------------------------------------------------------------------------------------------------------------------------------------
 	

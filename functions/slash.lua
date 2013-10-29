@@ -83,6 +83,27 @@ function SlashCmdList.DETAILS (msg, editbox)
 	
 -------- debug ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+	elseif (msg == "pets") then
+		local f = _detalhes:CreateListPanel()
+		
+		local i = 1
+		for k, v in pairs (_detalhes.tabela_pets.pets) do
+			_detalhes.ListPanel:add (k..": " ..  v[1] .. " | " .. v[2] .. " | " .. v[3], i)
+			i = i + 1
+		end
+		
+		f:Show()
+		
+	elseif (msg == "savepets") then
+		
+		_detalhes.tabela_vigente.saved_pets = {}
+		
+		for k, v in pairs (_detalhes.tabela_pets.pets) do
+			_detalhes.tabela_vigente.saved_pets [k] = {v[1], v[2], v[3]}
+		end
+		
+		_detalhes:Msg ("pet table has been saved on current combat.")
+	
 	elseif (msg == "time") then
 		print ("GetTime()", GetTime())
 		print ("time()", time())
@@ -478,7 +499,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 		--end
 		
 		print (" ")
-		print (Loc ["STRING_DETAILS1"] ..  Loc ["STRING_COMMAND_LIST"])
+		print (Loc ["STRING_DETAILS1"] .. "(" .. _detalhes.userversion .. ") " ..  Loc ["STRING_COMMAND_LIST"])
 		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_NEW"] .. "|r: " .. Loc ["STRING_SLASH_NEW_DESC"])
 		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_SHOW"] .. "|r: " .. Loc ["STRING_SLASH_SHOW_DESC"])
 		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_ENABLE"] .. "|r: " .. Loc ["STRING_SLASH_ENABLE_DESC"])
@@ -492,6 +513,12 @@ function SlashCmdList.DETAILS (msg, editbox)
 end
 
 function _detalhes:CreateListPanel()
+
+	local f = _detalhes.ListPanel
+	if (f) then
+		return f
+	end
+
 	_detalhes.ListPanel = _detalhes.gump:NewPanel (UIParent, nil, "DetailsActorsFrame", nil, 300, 600)
 	_detalhes.ListPanel:SetPoint ("center", UIParent, "center", 300, 0)
 	_detalhes.ListPanel.barras = {}
@@ -503,6 +530,9 @@ function _detalhes:CreateListPanel()
 	local container_barras = CreateFrame ("Frame", "Details_ActorsBarras", container_barras_window)
 	_detalhes.ListPanel.container = container_barras
 
+	_detalhes.ListPanel.width = 500
+	_detalhes.ListPanel.locked = false
+	
 	container_barras_window:SetBackdrop({
 		edgeFile = "Interface\\DialogFrame\\UI-DialogBox-gold-Border", tile = true, tileSize = 16, edgeSize = 5,
 		insets = {left = 1, right = 1, top = 0, bottom = 1},})
@@ -514,13 +544,13 @@ function _detalhes:CreateListPanel()
 	container_barras:SetBackdropColor (0, 0, 0, 0)
 
 	container_barras:SetAllPoints (container_barras_window)
-	container_barras:SetWidth (300)
+	container_barras:SetWidth (500)
 	container_barras:SetHeight (150)
 	container_barras:EnableMouse (true)
 	container_barras:SetResizable (false)
 	container_barras:SetMovable (true)
 	
-	container_barras_window:SetWidth (260)
+	container_barras_window:SetWidth (460)
 	container_barras_window:SetHeight (550)
 	container_barras_window:SetScrollChild (container_barras)
 	container_barras_window:SetPoint ("TOPLEFT", _detalhes.ListPanel.widget, "TOPLEFT", 21, -10)

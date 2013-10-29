@@ -36,6 +36,10 @@ function _G._detalhes:Start()
 		self.memory_ram = self.memory_ram or 64
 		self.deadlog_limit = self.deadlog_limit or 12
 		self.minimum_combat_time = self.minimum_combat_time or 5
+
+		if (type (self.only_pvp_frags) ~= "boolean") then
+			self.only_pvp_frags = false
+		end
 		
 		if (type (self.remove_realm_from_name) ~= "boolean") then
 			self.remove_realm_from_name = true

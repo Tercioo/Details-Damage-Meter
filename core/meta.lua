@@ -914,14 +914,7 @@
 		end
 		
 		--> elimina pets antigos
-		local _new_PetTable = {}
-		for PetSerial, PetTable in _pairs (_detalhes.tabela_pets.pets) do 
-			if (PetTable[4] + _detalhes.intervalo_coleta > _detalhes._tempo + 1) then
-				_new_PetTable [PetSerial] = PetTable
-			end
-		end
-		_table_wipe (_detalhes.tabela_pets.pets)
-		_detalhes.tabela_pets.pets = _new_PetTable
+		_detalhes:LimparPets()
 		
 		--> wipa container de escudos
 		_table_wipe (_detalhes.escudos)

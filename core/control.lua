@@ -216,9 +216,7 @@
 				_detalhes:InstanciaCallFunction (_detalhes.InstanciaFadeBarras, -1) --> esconde todas as barras
 				_detalhes:InstanciaCallFunction (_detalhes.AtualizaSegmentos) --> atualiza o showing
 			end
-			
-			_table_wipe (_detalhes.encounter)
-			
+
 			--> conta o tempo na tabela overall -- start time at overall table
 			if (_detalhes.tabela_overall.end_time) then
 				_detalhes.tabela_overall.start_time = _tempo - (_detalhes.tabela_overall.end_time - _detalhes.tabela_overall.start_time)
@@ -246,6 +244,10 @@
 			--> é o timer que ve se o jogador ta em combate ou não -- check if any party or raid members are in combat
 			_detalhes.tabela_vigente.verifica_combate = _detalhes:ScheduleRepeatingTimer ("EstaEmCombate", 1) 
 
+			_table_wipe (_detalhes.encounter)
+			
+			_table_wipe (_detalhes.pets_ignored)
+			_table_wipe (_detalhes.pets_no_owner)
 			_detalhes.container_pets:BuscarPets()
 			
 			_table_wipe (_detalhes.cache_damage_group)

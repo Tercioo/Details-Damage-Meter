@@ -247,7 +247,7 @@ function atributo_heal:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 		
 	elseif (instancia.modo == modo_GROUP) then --> mostrando GROUP
 	
-		if (_detalhes.in_combat and instancia.segmento == 0) then
+		if (_detalhes.in_combat and instancia.segmento == 0 and not exportar) then
 			using_cache = true
 		end
 		

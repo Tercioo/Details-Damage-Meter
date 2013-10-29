@@ -125,10 +125,6 @@
 	------------------------------------------------------------------------------------------------
 	--> early checks and fixes
 	
-	--if (alvo_name == "Ditador") then
-		--print ("resisted",resisted, "blocked",blocked, "absorbed",absorbed, "critical",critical, "glacing",glacing, "crushing",crushing)
-	--end
-	
 		if (who_serial == "0x0000000000000000") then
 			if (who_flags and _bit_band (who_flags, OBJECT_TYPE_PETS) ~= 0) then --> é um pet
 				--> pets must have an serial
@@ -144,16 +140,7 @@
 			--> no actor name, use spell name instead
 			who_name = "[*] "..spellname
 		end
-		
-		--[[
-			if (who_name:find ("[*]")) then
-				print ("Objeto [*]:", who_name, "flag:", who_flags)
-				if (_bit_band (who_flags, AFFILIATION_GROUP) ~= 0) then
-					print ("A flag ja veio com grupo")
-				end
-			end
-		--]]
-		
+
 	------------------------------------------------------------------------------------------------	
 	--> check if need start an combat
 
@@ -176,13 +163,6 @@
 	------------------------------------------------------------------------------------------------
 	--> get actors
 	
-		--> debug - no cache
-		--[[
-		local este_jogador, meu_dono, who_name = _current_damage_container:PegarCombatente (who_serial, who_name, who_flags, true)
-		local jogador_alvo, alvo_dono, alvo_name = _current_damage_container:PegarCombatente (alvo_serial, alvo_name, alvo_flags, true)
-		--]]
-		--[
-
 		--> damager
 		local este_jogador, meu_dono = damage_cache [who_name] or damage_cache_pets [who_serial], damage_cache_petsOwners [who_serial]
 		
@@ -234,8 +214,6 @@
 		
 		--> last event
 		este_jogador.last_event = _tempo
-		--jogador_alvo.last_event = _tempo
-		--shadow.last_event = _tempo	
 		
 	------------------------------------------------------------------------------------------------
 	--> group checks and avoidance
@@ -326,13 +304,9 @@
 	------------------------------------------------------------------------------------------------
 	--> firendly fire
 
-		--if (_bit_band (who_flags, REACTION_FRIENDLY) ~= 0 and _bit_band (alvo_flags, REACTION_FRIENDLY) ~= 0) then
+		--if (_bit_band (who_flags, REACTION_FRIENDLY) ~= 0 and _bit_band (alvo_flags, REACTION_FRIENDLY) ~= 0) then (old friendly check)
 		if (raid_members_cache [who_serial] and raid_members_cache [alvo_serial]) then
-		
-			--> investigation about mind control and reaction switch done 
-			--> details will do count mind control and reaction switch as normal damage.
-			--> reaction switch normally came as 0x548 flag on players and 0x1148 for pets.
-		
+
 			este_jogador.friendlyfire_total = este_jogador.friendlyfire_total + amount
 			shadow.friendlyfire_total = shadow.friendlyfire_total + amount
 			
@@ -366,6 +340,7 @@
 			meu_dono.total = meu_dono.total + amount --> e adiciona o dano ao pet
 			meu_dono.shadow.total = meu_dono.shadow.total + amount --> e adiciona o dano ao pet
 			
+			--> add owner targets
 			local owner_target = meu_dono.targets._NameIndexTable [alvo_name]
 			if (not owner_target) then
 				owner_target = meu_dono.targets:PegarCombatente (alvo_serial, alvo_name, alvo_flags, true) --retorna o objeto classe_target -> ALVO_DA_HABILIDADE:NovaTabela()
@@ -451,8 +426,6 @@
 		end
 		return spell:AddMiss (alvo_serial, alvo_name, alvo_flags, who_name, missType)
 	end
-
-
 	
 -----------------------------------------------------------------------------------------------------------------------------------------
 	--> SUMMON 	serach key: ~summon										|
@@ -460,22 +433,19 @@
 
 	function parser:summon (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellName)
 
+		--> pet summon another pet
 		local sou_pet = _detalhes.tabela_pets.pets [who_serial]
 		if (sou_pet) then --> okey, ja é um pet
-			--print ("PET sumonando PET: who_name -> " .. who_name .. " meu dono -> "..sou_pet[1])
 			who_name, who_serial, who_flags = sou_pet[1], sou_pet[2], sou_pet[3]
 		end
 		
 		local alvo_pet = _detalhes.tabela_pets.pets [alvo_serial]
 		if (alvo_pet) then
-			--print ("PET ALVO sumonando PET ALVO: who_name -> " .. who_name .. " meu dono -> "..sou_pet[1])
 			who_name, who_serial, who_flags = alvo_pet[1], alvo_pet[2], alvo_pet[3]
 		end
 
 		return _detalhes.tabela_pets:Adicionar (alvo_serial, alvo_name, alvo_flags, who_serial, who_name, who_flags)
 	end
-
-
 
 -----------------------------------------------------------------------------------------------------------------------------------------
 	--> HEALING 	serach key: ~heal											|
@@ -520,11 +490,6 @@
 	--> get actors
 
 		--> debug - no cache
-		--[[
-		local este_jogador, meu_dono, who_name = _current_heal_container:PegarCombatente (who_serial, who_name, who_flags, true)
-		local jogador_alvo, alvo_dono, alvo_name = _current_heal_container:PegarCombatente (alvo_serial, alvo_name, alvo_flags, true)
-		--]]
-		--[
 		local este_jogador, meu_dono = healing_cache [who_name]
 		if (not este_jogador) then --> pode ser um desconhecido ou um pet
 			este_jogador, meu_dono, who_name = _current_heal_container:PegarCombatente (who_serial, who_name, who_flags, true)
@@ -540,13 +505,11 @@
 				healing_cache [alvo_name] = jogador_alvo
 			end
 		end
-		--]]
+
 		local shadow = este_jogador.shadow
 		local shadow_of_target = jogador_alvo.shadow
 		
 		este_jogador.last_event = _tempo
-		--jogador_alvo.last_event = _tempo
-		--shadow.last_event = _tempo
 
 	------------------------------------------------------------------------------------------------
 	--> an enemy healing enemy or an player actor healing a enemy
@@ -1136,12 +1099,6 @@
 	--> get actors
 
 		--> main actor
-		--> debug - no cache
-		--[[
-		local este_jogador, meu_dono, who_name = _current_energy_container:PegarCombatente (who_serial, who_name, who_flags, true)
-		local jogador_alvo, alvo_dono, alvo_name = _current_energy_container:PegarCombatente (alvo_serial, alvo_name, alvo_flags, true)
-		--]]
-		--[		
 		local este_jogador, meu_dono = energy_cache [who_name]
 		if (not este_jogador) then --> pode ser um desconhecido ou um pet
 			este_jogador, meu_dono, who_name = _current_energy_container:PegarCombatente (who_serial, who_name, who_flags, true)
@@ -1158,7 +1115,6 @@
 				energy_cache [alvo_name] = jogador_alvo
 			end
 		end
-		--]]
 		
 		--> actor targets
 		local este_alvo = este_jogador.targets._NameIndexTable [alvo_name]
@@ -1172,7 +1128,6 @@
 		local shadow_of_target = jogador_alvo.shadow
 		
 		este_jogador.last_event = _tempo
-		--shadow.last_event = _tempo
 
 	------------------------------------------------------------------------------------------------
 	--> amount add
@@ -1237,12 +1192,6 @@
 	--> get actors
 	
 		--> main actor
-		
-		--> debug - no cache
-		--[[
-		local este_jogador, meu_dono, who_name = _current_misc_container:PegarCombatente (who_serial, who_name, who_flags, true)
-		--]]
-		--[
 		local este_jogador, meu_dono = misc_cache [who_name]
 		if (not este_jogador) then --> pode ser um desconhecido ou um pet
 			este_jogador, meu_dono, who_name = _current_misc_container:PegarCombatente (who_serial, who_name, who_flags, true)
@@ -1250,7 +1199,6 @@
 				misc_cache [who_name] = este_jogador
 			end
 		end
-		--]]
 		local shadow = este_jogador.shadow
 		
 	------------------------------------------------------------------------------------------------
@@ -1322,7 +1270,6 @@
 		
 		--> update last event
 		este_jogador.last_event = _tempo
-		--shadow.last_event = _tempo
 		
 		--> actor targets
 		local este_alvo = este_jogador.cooldowns_defensive_targets._NameIndexTable [alvo_name]
@@ -1362,11 +1309,6 @@
 	--> get actors
 
 		--> main actor
-		--> debug - no cache
-		--[[
-		local este_jogador, meu_dono, who_name = _current_misc_container:PegarCombatente (who_serial, who_name, who_flags, true)
-		--]]
-		--[
 		local este_jogador, meu_dono = misc_cache [who_name]
 		if (not este_jogador) then --> pode ser um desconhecido ou um pet
 			este_jogador, meu_dono, who_name = _current_misc_container:PegarCombatente (who_serial, who_name, who_flags, true)
@@ -1374,7 +1316,6 @@
 				misc_cache [who_name] = este_jogador
 			end
 		end
-		--]]
 		local shadow = este_jogador.shadow
 		
 	------------------------------------------------------------------------------------------------
@@ -1453,6 +1394,9 @@
 	
 		--print (token, time, "WHO:",who_serial, who_name, who_flags, "TARGET:",alvo_serial, alvo_name, alvo_flags, "SPELL:",spellid, spellname, spelltype)
 
+	------------------------------------------------------------------------------------------------
+	--> record cooldowns cast which can't track with buff applyed.
+	
 		if (raid_members_cache [who_serial]) then
 			--> check if is a cooldown :D
 			if (defensive_cooldown_spell_list_no_buff [spellid]) then
@@ -1469,44 +1413,29 @@
 				return
 			end
 		else
-		
-			
-		
-			--> spells de boss
+			-->
 			return
 		end
+		
+	------------------------------------------------------------------------------------------------
+	--> record how many times the spell has been casted successfully
 
 		if (not who_name) then
-			--print ( "DISPELL sem who_name: [*] "..extraSpellName )
-			--print (alvo_name)
-			--print (spellname)
 			who_name = "[*] ".. spellname
 		end
 		
 		if (not alvo_name) then
-			--print ("DISPELL sem alvo_name: [*] "..extraSpellName)
-			--print (who_name)
-			--print (spellname)
 			alvo_name = "[*] ".. spellid
 		end
 		
 		_current_misc_container.need_refresh = true
 		_overall_misc_container.need_refresh = true
-		
-		
-		
+
 	------------------------------------------------------------------------------------------------
 	--> get actors
 
 		--> main actor
-		--> debug - no cache
-		--[[
-		local este_jogador, meu_dono, who_name = _current_misc_container:PegarCombatente (who_serial, who_name, who_flags, true)
-		--]]
-		--[
-		
-		
-		
+
 		local este_jogador, meu_dono = misc_cache [who_name]
 		if (not este_jogador) then --> pode ser um desconhecido ou um pet
 			este_jogador, meu_dono, who_name = _current_misc_container:PegarCombatente (who_serial, who_name, who_flags, true)
@@ -1514,7 +1443,6 @@
 				misc_cache [who_name] = este_jogador
 			end
 		end
-		--]]
 		local shadow = este_jogador.shadow
 
 	------------------------------------------------------------------------------------------------
@@ -1550,8 +1478,6 @@
 			spell = este_jogador.spellcast_spell_tables:PegaHabilidade (spellid, true, token)
 		end
 		return spell:Add (alvo_serial, alvo_name, alvo_flags, who_name, token)
-		
-		-- FIM FIM 
 	end
 
 
@@ -1563,15 +1489,9 @@
 		
 		--> esta dando erro onde o nome é NIL, fazendo um fix para isso
 		if (not who_name) then
-			--print ( "DISPELL sem who_name: [*] "..extraSpellName )
-			--print (alvo_name)
-			--print (spellname)
 			who_name = "[*] "..extraSpellName
 		end
 		if (not alvo_name) then
-			--print ("DISPELL sem alvo_name: [*] "..extraSpellName)
-			--print (who_name)
-			--print (spellname)
 			alvo_name = "[*] "..spellid
 		end
 		
@@ -1903,60 +1823,67 @@
 	------------------------------------------------------------------------------------------------
 	--> build dead
 		
-		--> frags
-		if (alvo_flags and _bit_band (alvo_flags, 0x00000008) ~= 0 and _in_combat) then
+		
+		if (alvo_flags and _bit_band (alvo_flags, 0x00000008) ~= 0) then -- and _in_combat --byte 1 = 8 (AFFILIATION_OUTSIDER)
 			--> outsider death while in combat
 			
-			if (not _current_combat.frags [alvo_name]) then
-				_current_combat.frags [alvo_name] = 1
-			else
-				_current_combat.frags [alvo_name] = _current_combat.frags [alvo_name] + 1
-			end
+			--> frags
 			
-			if (not _overall_combat.frags [alvo_name]) then
-				_overall_combat.frags [alvo_name] = 1
-			else
-				_overall_combat.frags [alvo_name] = _overall_combat.frags [alvo_name] + 1
-			end
+				if (_detalhes.only_pvp_frags and (_bit_band (alvo_flags, 0x00000400) == 0 or (_bit_band (alvo_flags, 0x00000040) == 0 and _bit_band (alvo_flags, 0x00000020) == 0))) then --byte 2 = 4 (HOSTILE) byte 3 = 4 (OBJECT_TYPE_PLAYER)
+					-- 10528 // 66856
+					-- print ("recusando actor ",alvo_name, " flag: ", _detalhes:hex (alvo_flags), " sem hex: ", alvo_flags)
+					return
+				end
 			
-			_current_combat.frags_need_refresh = true
-			_overall_combat.frags_need_refresh = true
-
-			--print (alvo_name)
-			
-			local encounter_type = _detalhes.encounter.type
-			if (encounter_type) then
-				if (encounter_type == 1 or encounter_type == 2) then
+				if (not _current_combat.frags [alvo_name]) then
+					_current_combat.frags [alvo_name] = 1
+				else
+					_current_combat.frags [alvo_name] = _current_combat.frags [alvo_name] + 1
+				end
 				
-					local npcTable = _detalhes.encounter.data
-					local serial = tonumber (alvo_serial:sub (6, 10), 16)
+				if (not _overall_combat.frags [alvo_name]) then
+					_overall_combat.frags [alvo_name] = 1
+				else
+					_overall_combat.frags [alvo_name] = _overall_combat.frags [alvo_name] + 1
+				end
+				
+				_current_combat.frags_need_refresh = true
+				_overall_combat.frags_need_refresh = true
 
-					--vardump (npcTable)
+			--> encounter end
+				local encounter_type = _detalhes.encounter.type
+				if (encounter_type) then
+					if (encounter_type == 1 or encounter_type == 2) then
 					
-					if (npcTable [serial] ~= nil) then --> ~= default false
-					
-						_detalhes.encounter.data [serial] = true
+						local npcTable = _detalhes.encounter.data
+						local serial = tonumber (alvo_serial:sub (6, 10), 16)
 
-						--> check if it's done
-						local its_done = true
-						for _, killed in pairs (_detalhes.encounter.data) do 
-							if (not killed) then
-								its_done = false
-								break
+						--vardump (npcTable)
+						
+						if (npcTable [serial] ~= nil) then --> ~= default false
+						
+							_detalhes.encounter.data [serial] = true
+
+							--> check if it's done
+							local its_done = true
+							for _, killed in pairs (_detalhes.encounter.data) do 
+								if (not killed) then
+									its_done = false
+									break
+								end
+							end
+							
+							--> combat finished
+							if (its_done) then
+								if (_detalhes.debug) then
+									_detalhes:Msg ("(debug) combat finished: encounter objective is completed")
+								end
+								_detalhes:SairDoCombate (true)
 							end
 						end
 						
-						--> combat finished
-						if (its_done) then
-							if (_detalhes.debug) then
-								_detalhes:Msg ("(debug) combat finished: encounter objective is completed")
-							end
-							_detalhes:SairDoCombate (true)
-						end
 					end
-					
 				end
-			end
 
 		--> player death
 		elseif (not _UnitIsFeignDeath (alvo_name)) then
@@ -2416,13 +2343,19 @@
 				if (_detalhes.in_group) then
 					--> entrou num grupo
 					_detalhes:IniciarColetaDeLixo (true)
+					_detalhes:WipePets()
+					_detalhes:SchedulePetUpdate (1)
 				end
 			else
 				_detalhes.in_group = IsInGroup() or IsInRaid()
 				if (not _detalhes.in_group) then
+					--> saiu do grupo
 					_detalhes:IniciarColetaDeLixo (true)
+					_detalhes:WipePets()
+					_detalhes:SchedulePetUpdate (1)
 					_table_wipe (_detalhes.details_users)
 				else
+					_detalhes:SchedulePetUpdate (2)
 					_detalhes:CheckDetailsUsers()
 				end
 			end
