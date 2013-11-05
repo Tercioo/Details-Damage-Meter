@@ -1577,6 +1577,65 @@ function atributo_heal:Iniciar (iniciar)
 	end
 end
 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> core functions
+
+	--> subtract total from a combat table
+		function atributo_heal:subtract_total (combat_table)
+			combat_table.totals [class_type] = combat_table.totals [class_type] - self.total
+			if (self.grupo) then
+				combat_table.totals_grupo [class_type] = combat_table.totals_grupo [class_type] - self.total
+			end
+		end
+		
+	--> restaura a tabela de last event
+		function atributo_heal:r_last_events_table (actor)
+			if (not actor) then
+				actor = self
+			end
+			actor.last_events_table = _detalhes:CreateActorLastEventTable()
+		end
+		
+	--> restaura e liga o ator com a sua shadow durante a inicialização
+		function atributo_heal:r_connect_shadow (actor)
+		
+			if (not actor) then
+				actor = self
+			end
+		
+			local overall_cura = _detalhes.tabela_overall [2]
+			local shadow = overall_cura._ActorTable [overall_cura._NameIndexTable [actor.nome]]
+
+			--> constroi a shadow se não tiver uma
+			if (not shadow) then 
+				shadow = overall_cura:PegarCombatente (actor.serial, actor.nome, actor.flag_original, true)
+				shadow.classe = actor.classe
+				shadow.start_time = time()
+				shadow.end_time = time()
+			end
+			
+			--> aplica a meta e indexes
+			_detalhes.refresh:r_atributo_heal (actor, shadow)
+			
+			--> soma os valores
+			shadow = shadow + actor
+			
+			--> reconstroi o container de alvos
+			for index, alvo in _ipairs (actor.targets._ActorTable) do
+				_detalhes.refresh:r_alvo_da_habilidade (alvo, shadow.targets)
+			end
+			
+			--> reconstroi o container de habilidades
+			for spellid, habilidade in _pairs (actor.spell_tables._ActorTable) do
+				_detalhes.refresh:r_habilidade_cura (habilidade, shadow.spell_tables)
+				for index, alvo in _ipairs (habilidade.targets._ActorTable) do
+					_detalhes.refresh:r_alvo_da_habilidade (alvo, habilidade.targets.shadow)
+				end
+			end
+			
+			return shadow
+		end
+
 function atributo_heal:ColetarLixo (lastevent)
 	return _detalhes:ColetarLixo (class_type, lastevent)
 end

@@ -2205,6 +2205,72 @@ function atributo_damage:Iniciar (iniciar)
 	end
 end
 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> core functions
+
+	--> diminui o total das tabelas do combate
+		function atributo_damage:subtract_total (combat_table)
+			combat_table.totals [class_type] = combat_table.totals [class_type] - self.total
+			if (self.grupo) then
+				combat_table.totals_grupo [class_type] = combat_table.totals_grupo [class_type] - self.total
+			end
+		end
+		
+	--> restaura a tabela de last event
+		function atributo_damage:r_last_events_table (actor)
+			if (not actor) then
+				actor = self
+			end
+			actor.last_events_table = _detalhes:CreateActorLastEventTable()
+		end
+		
+	--> restaura e liga o ator com a sua shadow durante a inicialização
+		function atributo_damage:r_connect_shadow (actor)
+		
+			if (not actor) then
+				actor = self
+			end
+		
+			local overall_dano = _detalhes.tabela_overall [1]
+			local shadow = overall_dano._ActorTable [overall_dano._NameIndexTable [actor.nome]]
+			
+			--> constroi a shadow se não tiver uma
+			if (not shadow) then 
+				shadow = overall_dano:PegarCombatente (actor.serial, actor.nome, actor.flag_original, true)
+				shadow.classe = actor.classe
+				shadow.start_time = time()
+				shadow.end_time = time()
+			end
+			
+			--> reconstruir o container do friendly fire shadow
+			for index, friendlyfire in _ipairs (actor.friendlyfire._ActorTable) do 
+				local ff_shadow = shadow.friendlyfire:PegarCombatente (friendlyfire.serial, friendlyfire.nome, friendlyfire.flag_original, true)
+				friendlyfire.shadow = ff_shadow
+				--nao reconstroi as habilidades aqui
+			end
+			
+			--> aplica a meta e indexes
+			_detalhes.refresh:r_atributo_damage (actor, shadow)
+			
+			--> soma os valores
+			shadow = shadow + actor
+			
+			--> reconstroi o container de alvos
+			for index, alvo in _ipairs (actor.targets._ActorTable) do
+				_detalhes.refresh:r_alvo_da_habilidade (alvo, shadow.targets)
+			end
+			
+			--> reconstroi o container de habilidades
+			for spellid, habilidade in _pairs (actor.spell_tables._ActorTable) do
+				_detalhes.refresh:r_habilidade_dano (habilidade, shadow.spell_tables)
+				for index, alvo in _ipairs (habilidade.targets._ActorTable) do
+					_detalhes.refresh:r_alvo_da_habilidade (alvo, habilidade.targets.shadow)
+				end
+			end
+			
+			return shadow
+		end
+
 function atributo_damage:FF_funcao_de_criacao (_, _, link)
 	local tabela = _setmetatable ({}, _detalhes) --> mudei de _detalhes para atributo_damage
 	tabela.total = 0

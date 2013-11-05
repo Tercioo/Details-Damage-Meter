@@ -103,6 +103,15 @@ function gump:ParseColors (_arg1, _arg2, _arg3, _arg4)
 		end
 	end
 	
+	if (not _arg1) then
+		_arg1 = 1
+	end
+	if (not _arg2) then
+		_arg2 = 1
+	end
+	if (not _arg3) then
+		_arg3 = 1
+	end
 	if (not _arg4) then
 		_arg4 = 1
 	end

@@ -319,9 +319,48 @@ local function VPT (instancia, esta_instancia)
 	return nil
 end
 
+local tempo_movendo, precisa_ativar, instancia_alvo, tempo_fades, nao_anexados
+local movement_onupdate = function (self, elapsed) 
+
+				if (tempo_movendo and tempo_movendo < 0) then
+
+					if (precisa_ativar) then --> se a instância estiver fechada
+						gump:Fade (instancia_alvo.baseframe, "ALPHA", 0.2)
+						gump:Fade (instancia_alvo.baseframe.cabecalho.ball, "ALPHA", 0.2)
+						gump:Fade (instancia_alvo.baseframe.cabecalho.atributo_icon, "ALPHA", 0.2)
+						instancia_alvo:SaveMainWindowPosition()
+						instancia_alvo:RestoreMainWindowPosition()
+						precisa_ativar = false
+						
+					elseif (tempo_fades) then
+						for lado, livre in _ipairs (nao_anexados) do
+							if (livre) then
+								if (lado == 1) then
+									instancia_alvo.h_esquerda:Flash (tempo_fades, tempo_fades, 2.0, false, 0, 0)
+								elseif (lado == 2) then
+									instancia_alvo.h_baixo:Flash (tempo_fades, tempo_fades, 2.0, false, 0, 0)
+								elseif (lado == 3) then
+									instancia_alvo.h_direita:Flash (tempo_fades, tempo_fades, 2.0, false, 0, 0)
+								elseif (lado == 4) then
+									instancia_alvo.h_cima:Flash (tempo_fades, tempo_fades, 2.0, false, 0, 0)
+								end
+							end
+						end
+						
+						tempo_movendo = 1
+					else
+						BaseFrame:SetScript ("OnUpdate", nil)
+						tempo_movendo = 1
+					end
+					
+				else
+					tempo_movendo = tempo_movendo - elapsed
+				end
+			end
+
 local function move_janela (BaseFrame, iniciando, instancia)
 
-	local instancia_alvo = _detalhes.tabela_instancias [instancia.meu_id-1]
+	instancia_alvo = _detalhes.tabela_instancias [instancia.meu_id-1]
 
 	if (iniciando) then
 	
@@ -343,8 +382,9 @@ local function move_janela (BaseFrame, iniciando, instancia)
 		
 		if (instancia_alvo) then
 		
-			local tempo_fades = 1.0
-			local nao_anexados = {true, true, true, true}
+			tempo_fades = 1.0
+			nao_anexados = {true, true, true, true}
+			tempo_movendo = 1
 			
 			for lado, snap_to in _pairs (instancia_alvo.snap) do
 				if (snap_to) then
@@ -369,11 +409,9 @@ local function move_janela (BaseFrame, iniciando, instancia)
 					nao_anexados [lado] = false
 				end
 			end
-			
-			local tempo_movendo = 1
-			
+
 			local need_start = not instancia_alvo.iniciada
-			local need_activation = not instancia_alvo.ativa
+			precisa_ativar = not instancia_alvo.ativa
 			
 			if (need_start) then --> se a instância não tiver sido aberta ainda
 
@@ -390,47 +428,7 @@ local function move_janela (BaseFrame, iniciando, instancia)
 				need_start = false
 			end
 			
-			BaseFrame:SetScript ("OnUpdate", function (self, elapsed) 
-
-				if (tempo_movendo and tempo_movendo < 0) then
-
-					if (need_activation) then --> se a instância estiver fechada
-						gump:Fade (instancia_alvo.baseframe, "ALPHA", 0.2)
-						gump:Fade (instancia_alvo.baseframe.cabecalho.ball, "ALPHA", 0.2)
-						gump:Fade (instancia_alvo.baseframe.cabecalho.atributo_icon, "ALPHA", 0.2)
-						instancia_alvo:SaveMainWindowPosition()
-						instancia_alvo:RestoreMainWindowPosition()
-						need_activation = false
-						
-					elseif (tempo_fades) then
-						for lado, livre in _ipairs (nao_anexados) do
-							if (livre) then
-								if (lado == 1) then
-									instancia_alvo.h_esquerda:Show()
-									UIFrameFlash (instancia_alvo.h_esquerda, tempo_fades, tempo_fades, 2.0, false, 0, 0)
-								elseif (lado == 2) then
-									instancia_alvo.h_baixo:Show()
-									UIFrameFlash (instancia_alvo.h_baixo, tempo_fades, tempo_fades, 2.0, false, 0, 0)
-								elseif (lado == 3) then
-									instancia_alvo.h_direita:Show()
-									UIFrameFlash (instancia_alvo.h_direita, tempo_fades, tempo_fades, 2.0, false, 0, 0)
-								elseif (lado == 4) then
-									instancia_alvo.h_cima:Show()
-									UIFrameFlash (instancia_alvo.h_cima, tempo_fades, tempo_fades, 2.0, false, 0, 0)
-								end
-							end
-						end
-						
-						tempo_movendo = 1
-					else
-						BaseFrame:SetScript ("OnUpdate", nil)
-						tempo_movendo = 1
-					end
-					
-				else
-					tempo_movendo = tempo_movendo - elapsed
-				end
-			end)
+			BaseFrame:SetScript ("OnUpdate", movement_onupdate)
 		end
 		
 	else
@@ -1664,6 +1662,45 @@ function CreateAlertFrame (BaseFrame, instancia)
 	return alert_bg
 end
 
+function _detalhes:InstanceMsg (text, icon, textcolor, icontexture, iconcoords, iconcolor)
+	if (not text) then
+		self.freeze_icon:Hide()
+		return self.freeze_texto:Hide()
+	end
+	
+	self.freeze_texto:SetText (text)
+	self.freeze_icon:SetTexture (icon)
+
+	self.freeze_icon:Show()
+	self.freeze_texto:Show()
+	
+	if (textcolor) then
+		local r, g, b, a = gump:ParseColors (textcolor)
+		self.freeze_texto:SetTextColor (r, g, b, a)
+	else
+		self.freeze_texto:SetTextColor (1, 1, 1, 1)
+	end
+
+	if (icontexture) then
+		self.freeze_icon:SetTexture (icontexture)
+	else
+		self.freeze_icon:SetTexture ([[Interface\CHARACTERFRAME\Disconnect-Icon]])
+	end
+	
+	if (iconcoords and type (iconcoords) == "table") then
+		self.freeze_icon:SetTexCoord (_unpack (iconcoords))
+	else
+		self.freeze_icon:SetTexCoord (0, 1, 0, 1)
+	end
+	
+	if (iconcolor) then
+		local r, g, b, a = gump:ParseColors (iconcolor)
+		self.freeze_icon:SetVertexColor (r, g, b, a)
+	else
+		self.freeze_icon:SetVertexColor (1, 1, 1, 1)
+	end
+end
+
 --> inicio
 function gump:CriaJanelaPrincipal (ID, instancia, criando)
 
@@ -1811,9 +1848,8 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 	
 -- congelamento da instância
 -------------------------------------------------------------------------------------------------------------------------------------------------
-	
+
 	instancia.freeze_icon = BackGroundDisplay:CreateTexture (nil, "OVERLAY")
-		instancia.freeze_icon:SetTexture ("Interface\\CHARACTERFRAME\\Disconnect-Icon")
 		instancia.freeze_icon:SetWidth (64)
 		instancia.freeze_icon:SetHeight (64)
 		instancia.freeze_icon:SetPoint ("center", BackGroundDisplay, "center")
@@ -1824,7 +1860,6 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 		instancia.freeze_texto:SetHeight (64)
 		instancia.freeze_texto:SetPoint ("left", instancia.freeze_icon, "right", -18, 0)
 		instancia.freeze_texto:SetTextColor (1, 1, 1)
-		instancia.freeze_texto:SetText (Loc ["STRING_FREEZE"])
 		instancia.freeze_texto:Hide()
 
 	instancia._version = BaseFrame:CreateFontString (nil, "OVERLAY", "GameFontHighlightSmall")
@@ -1970,34 +2005,62 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 	bota_separar_script (instancia.botao_separar, instancia)
 	
 --------------------------------- BORDAS HIGHLIGHT
-	instancia.h_cima = BaseFrame.cabecalho.fechar:CreateTexture (nil, "OVERLAY")
+	local fcima = CreateFrame ("frame", nil, BaseFrame.cabecalho.fechar)
+	fcima:SetPoint ("topleft", BaseFrame.cabecalho.top_bg, "bottomleft", -10, 37)
+	fcima:SetPoint ("topright", BaseFrame.cabecalho.ball_r, "bottomright", -33, 37)
+	gump:CreateFlashAnimation (fcima)
+	fcima:Hide()
+	
+	instancia.h_cima = fcima:CreateTexture (nil, "OVERLAY")
 	instancia.h_cima:SetTexture ("Interface\\AddOns\\Details\\images\\highlight_updown")
 	instancia.h_cima:SetTexCoord (0, 1, 0.5, 1)
 	instancia.h_cima:SetPoint ("topleft", BaseFrame.cabecalho.top_bg, "bottomleft", -10, 37)
 	instancia.h_cima:SetPoint ("topright", BaseFrame.cabecalho.ball_r, "bottomright", -33, 37)
-	instancia.h_cima:Hide()
+	--instancia.h_cima:Hide()
+	instancia.h_cima = fcima
+	--
+	local fbaixo = CreateFrame ("frame", nil, BaseFrame.cabecalho.fechar)
+	fbaixo:SetPoint ("topleft", BaseFrame.rodape.esquerdo, "bottomleft", 16, 17)
+	fbaixo:SetPoint ("topright", BaseFrame.rodape.direita, "bottomright", -16, 17)
+	gump:CreateFlashAnimation (fbaixo)
+	fbaixo:Hide()
 	
-	instancia.h_baixo = BaseFrame.cabecalho.fechar:CreateTexture (nil, "OVERLAY")
+	instancia.h_baixo = fbaixo:CreateTexture (nil, "OVERLAY")
 	instancia.h_baixo:SetTexture ("Interface\\AddOns\\Details\\images\\highlight_updown")
 	instancia.h_baixo:SetTexCoord (0, 1, 0, 0.5)
 	instancia.h_baixo:SetPoint ("topleft", BaseFrame.rodape.esquerdo, "bottomleft", 16, 17)
 	instancia.h_baixo:SetPoint ("topright", BaseFrame.rodape.direita, "bottomright", -16, 17)
-	instancia.h_baixo:Hide()
-
-	instancia.h_esquerda = BaseFrame.cabecalho.fechar:CreateTexture (nil, "OVERLAY")
+	--instancia.h_baixo:Hide()
+	instancia.h_baixo = fbaixo
+	--
+	local fesquerda = CreateFrame ("frame", nil, BaseFrame.cabecalho.fechar)
+	fesquerda:SetPoint ("topleft", BaseFrame.barra_esquerda, "topleft", -8, 0)
+	fesquerda:SetPoint ("bottomleft", BaseFrame.barra_esquerda, "bottomleft", -8, 0)
+	gump:CreateFlashAnimation (fesquerda)
+	fesquerda:Hide()
+	
+	instancia.h_esquerda = fesquerda:CreateTexture (nil, "OVERLAY")
 	instancia.h_esquerda:SetTexture ("Interface\\AddOns\\Details\\images\\highlight_leftright")
 	instancia.h_esquerda:SetTexCoord (0.5, 1, 0, 1)
 	instancia.h_esquerda:SetPoint ("topleft", BaseFrame.barra_esquerda, "topleft", -8, 0)
 	instancia.h_esquerda:SetPoint ("bottomleft", BaseFrame.barra_esquerda, "bottomleft", -8, 0)
-	instancia.h_esquerda:Hide()
+	--instancia.h_esquerda:Hide()
+	instancia.h_esquerda = fesquerda
+	--
+	local fdireita = CreateFrame ("frame", nil, BaseFrame.cabecalho.fechar)
+	fdireita:SetPoint ("topleft", BaseFrame.barra_direita, "topleft", 8, 18)
+	fdireita:SetPoint ("bottomleft", BaseFrame.barra_direita, "bottomleft", 8, 0)
+	gump:CreateFlashAnimation (fdireita)	
+	fdireita:Hide()
 	
-	instancia.h_direita = BaseFrame.cabecalho.fechar:CreateTexture (nil, "OVERLAY")
+	instancia.h_direita = fdireita:CreateTexture (nil, "OVERLAY")
 	instancia.h_direita:SetTexture ("Interface\\AddOns\\Details\\images\\highlight_leftright")
 	instancia.h_direita:SetTexCoord (0, 0.5, 1, 0)
 	instancia.h_direita:SetPoint ("topleft", BaseFrame.barra_direita, "topleft", 8, 18)
 	instancia.h_direita:SetPoint ("bottomleft", BaseFrame.barra_direita, "bottomleft", 8, 0)
-	instancia.h_direita:Hide()
-	
+	--instancia.h_direita:Hide()
+	instancia.h_direita = fdireita
+
 	--instancia.botao_separar:Hide()
 
 	if (criando) then

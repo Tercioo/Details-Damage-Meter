@@ -310,6 +310,27 @@ function atributo_misc:ReportSingleBuffUptimeLine (misc_actor, instancia)
 	return _detalhes:Reportar (reportar, {_no_current = true, _no_inverse = true, _custom = true})
 end
 
+function atributo_misc:ReportSingleDebuffUptimeLine (misc_actor, instancia)
+
+	local barra = misc_actor.minha_barra
+
+	local reportar = {"Details! " .. Loc ["STRING_REPORT_SINGLE_DEBUFFUPTIME"]  .. " " .. barra.texto_esquerdo:GetText()} --> localize-me
+	reportar [#reportar+1] = "> " .. Loc ["STRING_SPELLS"] .. ":"
+	
+	for i = 1, GameCooltip:GetNumLines() do 
+		local texto_left, texto_right = GameCooltip:GetText (i)
+		
+		if (texto_left and texto_right) then 
+			texto_left = texto_left:gsub (("|T(.*)|t "), "")
+			reportar [#reportar+1] = "  "..texto_left.." "..texto_right..""
+		elseif (i ~= 1) then
+			reportar [#reportar+1] = "> " .. Loc ["STRING_TARGETS"] .. ":"
+		end
+	end
+
+	return _detalhes:Reportar (reportar, {_no_current = true, _no_inverse = true, _custom = true})
+end
+
 function atributo_misc:DeadAtualizarBarra (morte, qual_barra, colocacao, instancia)
 
 	morte ["dead"] = true --> marca que esta tabela é uma tabela de mortes, usado no controla na hora de montar o tooltip
@@ -383,6 +404,8 @@ function atributo_misc:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 				keyName = "cooldowns_defensive"
 			elseif (sub_atributo == 7) then --> BUFF UPTIME
 				keyName = "buff_uptime"
+			elseif (sub_atributo == 8) then --> DEBUFF UPTIME
+				keyName = "debuff_uptime"
 			end
 		else
 			keyName = exportar.key
@@ -410,6 +433,8 @@ function atributo_misc:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 			keyName = "cooldowns_defensive"
 		elseif (sub_atributo == 7) then --> BUFF UPTIME
 			keyName = "buff_uptime"
+		elseif (sub_atributo == 8) then --> DEBUFF UPTIME
+			keyName = "debuff_uptime"
 		end
 	
 	end
@@ -789,6 +814,8 @@ function atributo_misc:ToolTip (instancia, numero, barra)
 		return self:ToolTipDefensiveCooldowns (instancia, numero, barra)
 	elseif (instancia.sub_atributo == 7) then --> buff uptime
 		return self:ToolTipBuffUptime (instancia, numero, barra)
+	elseif (instancia.sub_atributo == 8) then --> debuff uptime
+		return self:ToolTipDebuffUptime (instancia, numero, barra)
 	end
 end
 --> tooltip locals
@@ -948,6 +975,111 @@ function atributo_misc:ToolTipDispell (instancia, numero, barra)
 	return true
 end
 
+local UnitReaction = UnitReaction
+
+function _detalhes:CatchRaidDebuffUptime (in_or_out) -- "DEBUFF_UPTIME_IN"
+
+	if (in_or_out == "DEBUFF_UPTIME_OUT") then
+		local combat = _detalhes.tabela_vigente
+		local misc_container = combat [4]._ActorTable
+		
+		for _, actor in _ipairs (misc_container) do 
+			if (actor.debuff_uptime) then
+				for spellid, spell in _pairs (actor.debuff_uptime_spell_tables._ActorTable) do 
+					if (spell.actived and spell.actived_at) then
+						spell.uptime = spell.uptime + _detalhes._tempo - spell.actived_at
+						actor.debuff_uptime = actor.debuff_uptime + _detalhes._tempo - spell.actived_at --> token = actor misc object
+						spell.actived = false
+						spell.actived_at = nil
+					end
+				end
+			end
+		end
+		
+		return
+	end
+
+	if (_IsInRaid()) then
+	
+		local checked = {}
+		
+		for raidIndex = 1, _GetNumGroupMembers() do
+			local his_target = _UnitGUID ("raid"..raidIndex.."target")
+			if (his_target and not checked [his_target] and UnitReaction ("raid"..raidIndex.."target", "player") <= 4) then
+				
+				checked [his_target] = true
+				
+				for debuffIndex = 1, 40 do
+					local name, _, _, _, _, _, _, unitCaster, _, _, spellid  = UnitDebuff ("raid"..raidIndex.."target", debuffIndex)
+					if (name and unitCaster) then
+						local playerName, realmName = _UnitName (unitCaster)
+						if (realmName and realmName ~= "") then
+							playerName = playerName .. "-" .. realmName
+						end
+						
+						_detalhes.parser:add_debuff_uptime (nil, GetTime(), _UnitGUID (unitCaster), playerName, 0x00000417, his_target, _UnitName ("raid"..raidIndex.."target"), 0x842, spellid, name, in_or_out)
+					end
+				end
+			end
+		end
+		
+	elseif (_IsInGroup()) then
+		
+		local checked = {}
+		
+		for raidIndex = 1, _GetNumGroupMembers()-1 do
+			local his_target = _UnitGUID ("party"..raidIndex.."target")
+			if (his_target and not checked [his_target] and UnitReaction ("party"..raidIndex.."target", "player") <= 4) then
+				
+				checked [his_target] = true
+				
+				for debuffIndex = 1, 40 do
+					local name, _, _, _, _, _, _, unitCaster, _, _, spellid  = UnitDebuff ("party"..raidIndex.."target", debuffIndex)
+					if (name and unitCaster) then
+						local playerName, realmName = _UnitName (unitCaster)
+						if (realmName and realmName ~= "") then
+							playerName = playerName .. "-" .. realmName
+						end
+						
+						_detalhes.parser:add_debuff_uptime (nil, GetTime(), _UnitGUID (unitCaster), playerName, 0x00000417, his_target, _UnitName ("party"..raidIndex.."target"), 0x842, spellid, name, in_or_out)
+					end
+				end
+			end
+		end
+		
+		local his_target = _UnitGUID ("playertarget")
+		
+		if (his_target and not checked [his_target] and UnitReaction ("playertarget", "player") <= 4) then
+			for debuffIndex = 1, 40 do
+				local name, _, _, _, _, _, _, unitCaster, _, _, spellid  = UnitDebuff ("playertarget", debuffIndex)
+				if (name and unitCaster) then
+					local playerName, realmName = _UnitName (unitCaster)
+					if (realmName and realmName ~= "") then
+						playerName = playerName .. "-" .. realmName
+					end
+					_detalhes.parser:add_debuff_uptime (nil, GetTime(), _UnitGUID (unitCaster), playerName, 0x00000417, his_target, _UnitName ("playertarget"), 0x842, spellid, name, in_or_out)
+				end
+			end
+		end
+		
+	else
+		local his_target = _UnitGUID ("playertarget")
+		
+		if (his_target and UnitReaction ("playertarget", "player") <= 4) then
+			for debuffIndex = 1, 40 do
+				local name, _, _, _, _, _, _, unitCaster, _, _, spellid  = UnitDebuff ("playertarget", debuffIndex)
+				if (name and unitCaster) then
+					local playerName, realmName = _UnitName (unitCaster)
+					if (realmName and realmName ~= "") then
+						playerName = playerName .. "-" .. realmName
+					end
+					_detalhes.parser:add_debuff_uptime (nil, GetTime(), _UnitGUID (unitCaster), playerName, 0x00000417, his_target, _UnitName ("playertarget"), 0x842, spellid, name, in_or_out)
+				end
+			end
+		end
+	end
+end
+
 function _detalhes:CatchRaidBuffUptime (in_or_out)
 
 	if (_IsInRaid()) then
@@ -1025,6 +1157,63 @@ end
 
 local Sort2Reverse = function (a, b)
 	return a[2] < b[2]
+end
+
+function atributo_misc:ToolTipDebuffUptime (instancia, numero, barra)
+	
+	local owner = self.owner
+	if (owner and owner.classe) then
+		r, g, b = unpack (_detalhes.class_colors [owner.classe])
+	else
+		r, g, b = unpack (_detalhes.class_colors [self.classe])
+	end	
+	
+	local meu_total = self ["debuff_uptime"]
+	local minha_tabela = self.debuff_uptime_spell_tables._ActorTable
+	
+--> habilidade usada para interromper
+	local debuffs_usados = {}
+	
+	local _combat_time = instancia.showing:GetCombatTime()
+	
+	for _spellid, _tabela in _pairs (minha_tabela) do
+		debuffs_usados [#debuffs_usados+1] = {_spellid, _tabela.uptime}
+	end
+	--_table_sort (debuffs_usados, Sort2Reverse)
+	_table_sort (debuffs_usados, _detalhes.Sort2)
+	
+	GameCooltip:AddLine (Loc ["STRING_SPELLS"].."", nil, nil, headerColor, nil, 12)
+	GameCooltip:AddIcon ([[Interface\ICONS\Ability_Warrior_Safeguard]], 1, 1, 14, 14, 0.9375, 0.078125, 0.078125, 0.953125)
+	GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
+
+	if (#debuffs_usados > 0) then
+		for i = 1, _math_min (30, #debuffs_usados) do
+			local esta_habilidade = debuffs_usados[i]
+			
+			if (esta_habilidade[2] > 0) then
+				local nome_magia, _, icone_magia = _GetSpellInfo (esta_habilidade[1])
+				
+				local minutos, segundos = _math_floor (esta_habilidade[2]/60), _math_floor (esta_habilidade[2]%60)
+				if (esta_habilidade[2] >= _combat_time) then
+					GameCooltip:AddLine (nome_magia..": ", minutos .. "m " .. segundos .. "s" .. " (" .. _cstr ("%.1f", esta_habilidade[2] / _combat_time * 100) .. "%)", nil, "gray", "gray")
+					GameCooltip:AddStatusBar (100, nil, 1, 0, 1, .3, false)
+				elseif (minutos > 0) then
+					GameCooltip:AddLine (nome_magia..": ", minutos .. "m " .. segundos .. "s" .. " (" .. _cstr ("%.1f", esta_habilidade[2] / _combat_time * 100) .. "%)")
+					GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
+				else
+					GameCooltip:AddLine (nome_magia..": ", segundos .. "s" .. " (" .. _cstr ("%.1f", esta_habilidade[2] / _combat_time * 100) .. "%)")
+					GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
+				end
+				
+				GameCooltip:AddIcon (icone_magia, nil, nil, 14, 14) --0.03125, 0.96875, 0.03125, 0.96875
+			end
+		end
+	else
+		GameCooltip:AddLine (Loc ["STRING_NO_SPELL"]) 
+	end
+	
+	return true
+	
 end
 
 function atributo_misc:ToolTipBuffUptime (instancia, numero, barra)
@@ -1601,6 +1790,163 @@ function atributo_misc:Iniciar (iniciar)
 	return false --retorna se o dps esta aberto ou fechado para este jogador
 end
 
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> core functions
+
+local sub_list = {"cc_break", "ress", "interrupt", "cooldowns_defensive", "dispell", "dead"}
+
+	--> subtract total from a combat table
+		function atributo_misc:subtract_total (combat_table)
+			for _, sub_attribute in _ipairs (sub_list) do 
+				if (self [sub_attribute]) then
+					combat_table.totals [class_type][sub_attribute] = combat_table.totals [class_type][sub_attribute] - self [sub_attribute]
+					if (self.grupo) then
+						combat_table.totals_grupo [class_type][sub_attribute] = combat_table.totals_grupo [class_type][sub_attribute] - self [sub_attribute]
+					end
+				end
+			end
+		end
+		
+	--> restaura e liga o ator com a sua shadow durante a inicialização
+		function atributo_misc:r_connect_shadow (actor)
+		
+			if (not actor) then
+				actor = self
+			end
+		
+			local overall_misc = _detalhes.tabela_overall [4]
+			local shadow = overall_misc._ActorTable [overall_misc._NameIndexTable [actor.nome]]
+			
+			if (not actor.nome) then
+				actor.nome = "unknown"
+			end
+			
+			--> constroi a shadow se não tiver uma
+			if (not shadow) then 
+				shadow = overall_misc:PegarCombatente (actor.serial, actor.nome, actor.flag_original, true)
+				shadow.classe = actor.classe
+			end
+			
+			--> cooldowns
+			if (actor.cooldowns_defensive) then
+				if (not shadow.cooldowns_defensive_targets) then
+					shadow.cooldowns_defensive = 0
+					shadow.cooldowns_defensive_targets = container_combatentes:NovoContainer (container_damage_target)
+					shadow.cooldowns_defensive_spell_tables = container_habilidades:NovoContainer (_detalhes.container_type.CONTAINER_MISC_CLASS)
+				end
+			end			
+			--> buff uptime
+			if (actor.buff_uptime) then
+				if (not shadow.buff_uptime_spell_targets) then
+					shadow.buff_uptime = 0
+					shadow.buff_uptime_spell_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
+					shadow.buff_uptime_spell_tables = container_habilidades:NovoContainer (_detalhes.container_type.CONTAINER_MISC_CLASS) --> cria o container das habilidades usadas para interromper
+				end
+			end			
+			--> debuff uptime
+			if (actor.debuff_uptime) then
+				if (not shadow.debuff_uptime_spell_targets) then
+					shadow.debuff_uptime = 0
+					shadow.debuff_uptime_spell_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
+					shadow.debuff_uptime_spell_tables = container_habilidades:NovoContainer (_detalhes.container_type.CONTAINER_MISC_CLASS) --> cria o container das habilidades usadas para interromper
+				end
+			end			
+			--> interrupt
+			if (actor.interrupt) then
+				if (not shadow.interrupt_targets) then
+					shadow.interrupt = 0
+					shadow.interrupt_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
+					shadow.interrupt_spell_tables = container_habilidades:NovoContainer (_detalhes.container_type.CONTAINER_MISC_CLASS) --> cria o container das habilidades usadas para interromper
+					shadow.interrompeu_oque = {}
+				end
+			end			
+			--> ress
+			if (actor.ress) then
+				if (not shadow.ress_targets) then
+					shadow.ress = 0
+					shadow.ress_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
+					shadow.ress_spell_tables = container_habilidades:NovoContainer (_detalhes.container_type.CONTAINER_MISC_CLASS) --> cria o container das habilidades usadas para interromper
+				end
+			end			
+			--> dispell
+			if (actor.dispell) then
+				if (not shadow.dispell_targets) then
+					shadow.dispell = 0
+					shadow.dispell_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
+					shadow.dispell_spell_tables = container_habilidades:NovoContainer (_detalhes.container_type.CONTAINER_MISC_CLASS) --> cria o container das habilidades usadas para interromper
+					shadow.dispell_oque = {}
+				end
+			end			
+			--> cc break
+			if (actor.cc_break) then
+				if (not shadow.cc_break) then
+					shadow.cc_break = 0
+					shadow.cc_break_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
+					shadow.cc_break_spell_tables = container_habilidades:NovoContainer (_detalhes.container_type.CONTAINER_MISC_CLASS) --> cria o container das habilidades usadas para interromper
+					shadow.cc_break_oque = {}
+				end
+			end
+			
+			--> aplica a meta e indexes
+			_detalhes.refresh:r_atributo_misc (actor, shadow)
+			
+			--> soma os valores
+			shadow = shadow + actor
+			
+			if (actor.interrupt) then
+				for _, este_alvo in _ipairs (actor.interrupt_targets._ActorTable) do
+					_detalhes.refresh:r_alvo_da_habilidade (este_alvo, shadow.interrupt_targets)
+				end
+			end
+			if (actor.buff_uptime) then
+				for _, este_alvo in _ipairs (actor.buff_uptime_targets._ActorTable) do
+					_detalhes.refresh:r_alvo_da_habilidade (este_alvo, shadow.buff_uptime_targets)
+				end
+			end
+			if (actor.debuff_uptime) then
+				for _, este_alvo in _ipairs (actor.debuff_uptime_targets._ActorTable) do
+					_detalhes.refresh:r_alvo_da_habilidade (este_alvo, shadow.debuff_uptime_targets)
+				end
+			end
+			if (actor.cooldowns_defensive) then
+				for _, este_alvo in _ipairs (actor.cooldowns_defensive_targets._ActorTable) do
+					_detalhes.refresh:r_alvo_da_habilidade (este_alvo, shadow.cooldowns_defensive_targets)
+				end
+			end
+			if (actor.ress) then
+				for _, este_alvo in _ipairs (actor.ress_targets._ActorTable) do
+					_detalhes.refresh:r_alvo_da_habilidade (este_alvo, shadow.ress_targets)
+				end
+			end
+			if (actor.dispell) then
+				for _, este_alvo in _ipairs (actor.dispell_targets._ActorTable) do
+					_detalhes.refresh:r_alvo_da_habilidade (este_alvo, shadow.dispell_targets)
+				end
+			end
+			if (actor.cc_break) then
+				for _, este_alvo in _ipairs (actor.cc_break_targets._ActorTable) do
+					_detalhes.refresh:r_alvo_da_habilidade (este_alvo, shadow.cc_break_targets)
+				end
+			end
+			
+			--> reconstroi o container de alvos
+			local t = {"cc_break", "ress", "interrupt", "cooldowns_defensive", "dispell", "buff_uptime", "debuff_uptime"}
+			for index, sub_attribute in _ipairs (t) do 
+				if (actor [sub_attribute]) then
+					for spellid, habilidade in _pairs (actor [sub_attribute .. "_spell_tables"]._ActorTable) do
+						_detalhes.refresh:r_habilidade_misc (habilidade, shadow [sub_attribute .. "_spell_tables"])
+						for _, este_alvo in _ipairs (habilidade.targets._ActorTable) do
+							_detalhes.refresh:r_alvo_da_habilidade (este_alvo, habilidade.targets.shadow)
+						end
+					end
+				end
+			end
+
+			return shadow
+		
+		end
+
 function atributo_misc:ColetarLixo (lastevent)
 	return _detalhes:ColetarLixo (class_type, lastevent)
 end
@@ -1630,6 +1976,12 @@ function _detalhes.refresh:r_atributo_misc (este_jogador, shadow)
 		if (este_jogador.buff_uptime_targets) then
 			_detalhes.refresh:r_container_combatentes (este_jogador.buff_uptime_targets, shadow.buff_uptime_targets)
 			_detalhes.refresh:r_container_habilidades (este_jogador.buff_uptime_spell_tables, shadow.buff_uptime_spell_tables)
+		end
+		
+		--> refresh buff uptime
+		if (este_jogador.debuff_uptime_targets) then
+			_detalhes.refresh:r_container_combatentes (este_jogador.debuff_uptime_targets, shadow.debuff_uptime_targets)
+			_detalhes.refresh:r_container_habilidades (este_jogador.debuff_uptime_spell_tables, shadow.debuff_uptime_spell_tables)
 		end
 		
 		--> refresh cooldowns defensive
@@ -1675,6 +2027,12 @@ function _detalhes.refresh:r_atributo_misc (este_jogador, shadow)
 			_detalhes.refresh:r_container_habilidades (este_jogador.buff_uptime_spell_tables, -1)
 		end
 		
+		--> refresh debuff uptime
+		if (este_jogador.debuff_uptime_targets) then
+			_detalhes.refresh:r_container_combatentes (este_jogador.debuff_uptime_targets, -1)
+			_detalhes.refresh:r_container_habilidades (este_jogador.debuff_uptime_spell_tables, -1)
+		end
+		
 		--> refresh ressers
 		if (este_jogador.ress_targets) then
 			_detalhes.refresh:r_container_combatentes (este_jogador.ress_targets, -1)
@@ -1716,6 +2074,11 @@ function _detalhes.clear:c_atributo_misc (este_jogador)
 	if (este_jogador.buff_uptime_targets) then
 		_detalhes.clear:c_container_combatentes (este_jogador.buff_uptime_targets)
 		_detalhes.clear:c_container_habilidades (este_jogador.buff_uptime_spell_tables)
+	end
+	
+	if (este_jogador.debuff_uptime_targets) then
+		_detalhes.clear:c_container_combatentes (este_jogador.debuff_uptime_targets)
+		_detalhes.clear:c_container_habilidades (este_jogador.debuff_uptime_spell_tables)
 	end
 	
 	if (este_jogador.ress_targets) then
@@ -1820,6 +2183,51 @@ atributo_misc.__add = function (shadow, tabela2)
 		
 		for spellid, habilidade in _pairs (tabela2.buff_uptime_spell_tables._ActorTable) do 
 			local habilidade_shadow = shadow.buff_uptime_spell_tables:PegaHabilidade (spellid, true, nil, true)
+
+			for index, alvo in _ipairs (habilidade.targets._ActorTable) do 
+				local alvo_shadow = habilidade_shadow.targets:PegarCombatente (alvo.serial, alvo.nome, alvo.flag_original, true)
+				alvo_shadow.total = alvo_shadow.total + alvo.total
+			end
+			
+			for key, value in _pairs (habilidade) do 
+				if (_type (value) == "number") then
+					if (key ~= "id") then
+						if (not habilidade_shadow [key]) then 
+							habilidade_shadow [key] = 0
+						end
+						habilidade_shadow [key] = habilidade_shadow [key] + value
+					end
+				end
+			end
+		end	
+		
+	end
+	
+	if (tabela2.debuff_uptime) then
+	
+		if (not shadow.debuff_uptime) then
+			shadow.debuff_uptime = 0
+			shadow.debuff_uptime_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
+			shadow.debuff_uptime_spell_tables = container_habilidades:NovoContainer (container_misc) --> cria o container das habilidades usadas
+		end
+	
+		shadow.debuff_uptime = shadow.debuff_uptime + tabela2.debuff_uptime
+		
+		if ( not (shadow.shadow and tabela2.shadow) ) then
+			--_detalhes.tabela_overall.totals[4]["cooldowns_defensive"] = _detalhes.tabela_overall.totals[4]["cooldowns_defensive"] + tabela2.cooldowns_defensive
+			
+			--if (tabela2.grupo) then
+			--	_detalhes.tabela_overall.totals_grupo[4]["cooldowns_defensive"] = _detalhes.tabela_overall.totals_grupo[4]["cooldowns_defensive"] + tabela2.cooldowns_defensive
+			--end
+		end
+		
+		for index, alvo in _ipairs (tabela2.debuff_uptime_targets._ActorTable) do 
+			local alvo_shadow = shadow.debuff_uptime_targets:PegarCombatente (alvo.serial, alvo.nome, alvo.flag_original, true)
+			alvo_shadow.total = alvo_shadow.total + alvo.total
+		end
+		
+		for spellid, habilidade in _pairs (tabela2.debuff_uptime_spell_tables._ActorTable) do 
+			local habilidade_shadow = shadow.debuff_uptime_spell_tables:PegaHabilidade (spellid, true, nil, true)
 
 			for index, alvo in _ipairs (habilidade.targets._ActorTable) do 
 				local alvo_shadow = habilidade_shadow.targets:PegarCombatente (alvo.serial, alvo.nome, alvo.flag_original, true)
@@ -2064,6 +2472,10 @@ atributo_misc.__sub = function (tabela1, tabela2)
 	
 	if (tabela1.buff_uptime and tabela2.buff_uptime) then
 		tabela1.buff_uptime = tabela1.buff_uptime - tabela2.buff_uptime
+	end
+	
+	if (tabela1.debuff_uptime and tabela2.debuff_uptime) then
+		tabela1.debuff_uptime = tabela1.debuff_uptime - tabela2.debuff_uptime
 	end
 	
 	if (tabela1.cooldowns_defensive and tabela2.cooldowns_defensive) then

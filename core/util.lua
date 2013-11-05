@@ -439,6 +439,7 @@
 		
 		FlashAnimation:SetLooping ("REPEAT")
 		
+		self:Show()
 		FlashAnimation:Play()
 	end
 	

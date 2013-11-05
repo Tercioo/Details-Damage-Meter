@@ -858,6 +858,62 @@ function atributo_energy:Iniciar (iniciar)
 	return false --retorna se o dps esta aberto ou fechado para este jogador
 end
 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> core functions
+
+	--> subtract total from a combat table
+		function atributo_energy:subtract_total (combat_table)
+			combat_table.totals [class_type].mana = combat_table.totals [class_type].mana - self.mana
+			combat_table.totals [class_type].e_rage = combat_table.totals [class_type].e_rage - self.e_rage
+			combat_table.totals [class_type].e_energy = combat_table.totals [class_type].e_energy - self.e_energy
+			combat_table.totals [class_type].runepower = combat_table.totals [class_type].runepower - self.runepower
+
+			if (self.grupo) then
+				combat_table.totals_grupo [class_type].mana = combat_table.totals_grupo [class_type].mana - self.mana
+				combat_table.totals_grupo [class_type].e_rage = combat_table.totals_grupo [class_type].e_rage - self.e_rage
+				combat_table.totals_grupo [class_type].e_energy = combat_table.totals_grupo [class_type].e_energy - self.e_energy
+				combat_table.totals_grupo [class_type].runepower = combat_table.totals_grupo [class_type].runepower - self.runepower
+			end
+		end
+		
+	--> restaura e liga o ator com a sua shadow durante a inicialização
+		function atributo_energy:r_connect_shadow (actor)
+		
+			if (not actor) then
+				actor = self
+			end
+		
+			local overall_energy = _detalhes.tabela_overall [3]
+			local shadow = overall_energy._ActorTable [overall_energy._NameIndexTable [actor.nome]]
+
+			--> constroi a shadow se não tiver uma
+			if (not shadow) then 
+				shadow = overall_energy:PegarCombatente (actor.serial, actor.nome, actor.flag_original, true)
+				shadow.classe = actor.classe
+			end
+			
+			--> aplica a meta e indexes
+			_detalhes.refresh:r_atributo_energy (actor, shadow)
+			
+			--> soma os valores
+			shadow = shadow + actor
+			
+			--> reconstroi o container de alvos
+			for index, alvo in _ipairs (actor.targets._ActorTable) do
+				_detalhes.refresh:r_alvo_da_habilidade (alvo, shadow.targets)
+			end
+			
+			--> reconstroi o container de habilidades
+			for spellid, habilidade in _pairs (actor.spell_tables._ActorTable) do
+				_detalhes.refresh:r_habilidade_e_energy (habilidade, shadow.spell_tables)
+				for index, alvo in _ipairs (habilidade.targets._ActorTable) do
+					_detalhes.refresh:r_alvo_da_habilidade (alvo, habilidade.targets.shadow)
+				end
+			end
+			
+			return shadow
+		end
+
 function atributo_energy:ColetarLixo (lastevent)
 	return _detalhes:ColetarLixo (class_type, lastevent)
 end

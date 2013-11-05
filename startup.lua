@@ -4,7 +4,7 @@
 	-- 27/07/2013: Finished alpha version.
 
 function _G._detalhes:Start()
- 
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> details defaults
 
@@ -144,7 +144,7 @@ function _G._detalhes:Start()
 		--mana, rage, energy, runepower
 			self.row_singleclick_overwrite [3] = {true, true, true, true} 
 		--cc breaks, ress, interrupts, dispells, deaths
-			self.row_singleclick_overwrite [4] = {true, true, true, true, self.atributo_misc.ReportSingleDeadLine, self.atributo_misc.ReportSingleCooldownLine, self.atributo_misc.ReportSingleBuffUptimeLine} 
+			self.row_singleclick_overwrite [4] = {true, true, true, true, self.atributo_misc.ReportSingleDeadLine, self.atributo_misc.ReportSingleCooldownLine, self.atributo_misc.ReportSingleBuffUptimeLine, self.atributo_misc.ReportSingleDebuffUptimeLine} 
 		
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> initialize

@@ -90,7 +90,7 @@
 						
 						if (serial) then
 						
-							local ZoneName, _, _, _, _, _, _, ZoneMapID = _GetInstanceInfo()
+							local ZoneName, _, DifficultyID, _, _, _, _, ZoneMapID = _GetInstanceInfo()
 						
 							local BossIds = _detalhes:GetBossIds (ZoneMapID)
 							if (BossIds) then
@@ -148,7 +148,8 @@
 										name = _detalhes:GetBossName (ZoneMapID, BossIndex),
 										zone = ZoneName, 
 										mapid = ZoneMapID, 
-										encounter = _detalhes:GetBossName (ZoneMapID, BossIndex)
+										encounter = _detalhes:GetBossName (ZoneMapID, BossIndex),
+										diff = DifficultyID
 										}
 									_detalhes:SendEvent ("COMBAT_BOSS_FOUND", nil, _detalhes.tabela_vigente.is_boss.index, _detalhes.tabela_vigente.is_boss.name)
 									return _detalhes.tabela_vigente.is_boss
@@ -163,7 +164,7 @@
 	--try to get the encounter name after the encounter (can be called during the combat as well)
 		function _detalhes:FindBoss()
 
-			local ZoneName, _, _, _, _, _, _, ZoneMapID = _GetInstanceInfo()
+			local ZoneName, _, DifficultyID, _, _, _, _, ZoneMapID = _GetInstanceInfo()
 			local BossIds = _detalhes:GetBossIds (ZoneMapID)
 			
 			if (BossIds) then	
@@ -184,7 +185,9 @@
 										name =_detalhes:GetBossName (ZoneMapID, BossIndex), 
 										zone = ZoneName, 
 										mapid = ZoneMapID, 
-										encounter = _detalhes:GetBossName (ZoneMapID, BossIndex)}
+										encounter = _detalhes:GetBossName (ZoneMapID, BossIndex),
+										diff = DifficultyID
+									}
 								end
 							end
 						end
@@ -277,6 +280,7 @@
 			end
 			
 			_detalhes:CatchRaidBuffUptime ("BUFF_UPTIME_IN")
+			_detalhes:CatchRaidDebuffUptime ("DEBUFF_UPTIME_IN")
 			_detalhes:UptadeRaidMembersCache()
 			_detalhes:HaveOneCurrentInstance()
 			
@@ -291,6 +295,7 @@
 			end
 		
 			_detalhes:CatchRaidBuffUptime ("BUFF_UPTIME_OUT")
+			_detalhes:CatchRaidDebuffUptime ("DEBUFF_UPTIME_OUT")
 		
 			--> pega a zona do jogador e vê se foi uma luta contra um Boss -- identifica se a luta foi com um boss
 			if (not _detalhes.tabela_vigente.is_boss) then 

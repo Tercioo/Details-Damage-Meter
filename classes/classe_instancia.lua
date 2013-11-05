@@ -1080,8 +1080,10 @@ function _detalhes:Freeze (instancia)
 		gump:Fade (instancia, "in", nil, "barras")
 	end
 	
-	instancia.freeze_icon:Show()
-	instancia.freeze_texto:Show()
+	instancia:InstanceMsg (Loc ["STRING_FREEZE"], [[Interface\CHARACTERFRAME\Disconnect-Icon]], "silver")
+	
+	--instancia.freeze_icon:Show()
+	--instancia.freeze_texto:Show()
 	
 	local width = instancia:GetSize()
 	instancia.freeze_texto:SetWidth (width-64)
@@ -1095,8 +1097,10 @@ function _detalhes:UnFreeze (instancia)
 		instancia = self
 	end
 
-	instancia.freeze_icon:Hide()
-	instancia.freeze_texto:Hide()
+	self:InstanceMsg (false)
+	
+	--instancia.freeze_icon:Hide()
+	--instancia.freeze_texto:Hide()
 	instancia.freezed = false
 	
 	if (not _detalhes.initializing) then
@@ -1366,10 +1370,14 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 
 	if (sub_atributo ~= meu_sub_atributo or _detalhes.initializing or iniciando_instancia or atributo_changed) then
 	
+		--instancia.sub_atributo_last [meu_atributo] = sub_atributo
 		instancia.sub_atributo_last [meu_atributo] = meu_sub_atributo
 		--print ("atributo last changed:",meu_atributo, "->", meu_sub_atributo)
 		
 		instancia.sub_atributo = sub_atributo
+		
+		--print (instancia.sub_atributo_last [meu_atributo])
+		--print (instancia.sub_atributo)
 		
 		if (instancia.atributo == 5) then --> custom
 			instancia:ChangeIcon()
@@ -1446,15 +1454,29 @@ function _detalhes:MontaAtributosOption (instancia, func)
 	local CoolTip = _G.GameCooltip
 	local p = 0.125 --> 32/256
 	
+	local gindex = 1
 	for i = 1, atributos[0] do --> [0] armazena quantos atributos existem
+		
 		CoolTip:AddMenu (1, func, nil, i, nil, atributos.lista[i], nil, true)
 		CoolTip:AddIcon ("Interface\\AddOns\\Details\\images\\atributos_icones", 1, 1, 20, 20, p*(i-1), p*(i), 0, 1)
+		
 		local options = sub_atributos [i].lista
+		
 		for o = 1, atributos [i] do
-			CoolTip:AddMenu (2, func, nil, i, o, options[o], nil, true)
-			CoolTip:AddIcon (icones[i], 2, 1, 20, 20, p*(o-1), p*(o), 0, 1)
+			if (_detalhes:CaptureIsEnabled ( _detalhes.atributos_capture [gindex] )) then
+				CoolTip:AddMenu (2, func, nil, i, o, options[o], nil, true)
+				CoolTip:AddIcon (icones[i], 2, 1, 20, 20, p*(o-1), p*(o), 0, 1)
+			else
+				CoolTip:AddLine (options[o], nil, 2, .5, .5, .5, 1)
+				CoolTip:AddMenu (2, func, nil, i, o)
+				CoolTip:AddIcon (icones[i], 2, 1, 20, 20, p*(o-1), p*(o), 0, 1, {.3, .3, .3, 1})
+			end
+
+			gindex = gindex + 1
 		end
+
 		CoolTip:SetLastSelected (2, i, instancia.sub_atributo_last [i])
+
 	end
 	
 	--> custom
@@ -1466,7 +1488,7 @@ function _detalhes:MontaAtributosOption (instancia, func)
 		CoolTip:AddMenu (2, func, nil, 5, index, custom.name, custom.icon, true)
 	end
 
-	if (not instancia.sub_atributo_last [5]) then
+	if (#_detalhes.custom == 0) then
 		CoolTip:SetLastSelected (2, 5, 1)
 	else
 		CoolTip:SetLastSelected (2, 5, instancia.sub_atributo_last [5]+1)

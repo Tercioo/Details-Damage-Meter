@@ -10,6 +10,35 @@ do
 	DETAILS_ATTRIBUTE_ENERGY = 3
 	DETAILS_ATTRIBUTE_MISC = 4
 	
+	_detalhes.atributos_capture = {
+		"damage", --damage done
+		"damage", --dps
+		"damage", --damage taken
+		"damage", --friendly fire
+		"miscdata", --frags
+		
+		"heal", --healing done
+		"heal", --hps
+		"heal", --overhealing
+		"heal", --healing taken
+		"heal", --enemy healed
+		"heal", --damage prevented
+		
+		"energy", --mana restored
+		"energy", --rage gained
+		"energy", --energy generated
+		"energy", --runic power generated
+		
+		"miscdata", --cc breaks
+		"miscdata", --ress
+		"miscdata", --interrupts
+		"miscdata", --dispells
+		"miscdata", --deaths
+		"miscdata", --cooldowns
+		"aura", --buff uptime
+		"aura", --debuff uptime
+	}
+	
 	--> Main Attributes
 	_detalhes.atributos = {
 
@@ -30,7 +59,7 @@ do
 		
 		--[[ MISC ]]
 			misc = 4,	--> identifier
-			[4] = 7,	-->  sub attributes 
+			[4] = 8,	-->  sub attributes 
 			
 		--[[ CUSTOM ]]
 			custom = 5,
@@ -139,6 +168,7 @@ do
 				Loc ["STRING_ATTRIBUTE_MISC_DEAD"],
 				Loc ["STRING_ATTRIBUTE_MISC_DEFENSIVE_COOLDOWNS"],
 				Loc ["STRING_ATTRIBUTE_MISC_BUFF_UPTIME"],
+				Loc ["STRING_ATTRIBUTE_MISC_DEBUFF_UPTIME"],
 			},
 			icones = {
 				{"Interface\\AddOns\\Details\\images\\atributos_icones_misc", {0, .125, 0, 1}},
@@ -147,9 +177,10 @@ do
 				{"Interface\\AddOns\\Details\\images\\atributos_icones_misc", {.375, .5, 0, 1}},
 				{"Interface\\AddOns\\Details\\images\\atributos_icones_misc", {.5, .625, 0, 1}},
 				{"Interface\\AddOns\\Details\\images\\atributos_icones_misc", {.625, 0.75, 0, 1}},
-				{"Interface\\AddOns\\Details\\images\\atributos_icones_misc", {0.75, 0.875, 0, 1}}
+				{"Interface\\AddOns\\Details\\images\\atributos_icones_misc", {0.75, 0.875, 0, 1}},
+				{"Interface\\AddOns\\Details\\images\\atributos_icones_misc", {0.875, 1, 0, 1}}
 			},
-			internal = {"cc_break", "ress", "interrupt", "dispell", "dead", "cooldowns_defensive", "buff_uptime"}
+			internal = {"cc_break", "ress", "interrupt", "dispell", "dead", "cooldowns_defensive", "buff_uptime", "debuff_uptime"}
 		}
 	}
 	

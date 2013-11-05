@@ -4,7 +4,7 @@ if not Loc then return end
 --------------------------------------------------------------------------------------------------------------------------------------------
 -- \n\n|cFFFFFF00-|r 
 
-	Loc ["STRING_VERSION_LOG"] = "|cFFFFFF00v1.5.3|r\n\n|cFFFFFF00-|r Fixed a issue with report data during combat lockdown.\n\n|cFFFFFF00-|r Improved pet owner recognition and added a ignore list if couldn't find his owner.\n\n|cFFFFFF00-|r Added an option to display only frags on enemy players.\n\n|cFFFFFF00-|r Added class colors for frags.\n\n|cFFFFFF00v1.5.2|r\n\n|cFFFFFF00-|r Fixed a issue were turning off buff uptime was disabling healing done too.\n\n|cFFFFFF00-|r Avoidance statistics will not be recorded for pets, ungrouped players and monsters.\n\n|cFFFFFF00-|r Fixed a issue were sometimes buff uptime was taking too long to save data on logout.\n\n|cFFFFFF00v1.5.1|r\n\n|cFFFFFF00-|r Fixed a issue with report data were sometimes wasn't working.\n\n|cFFFFFF00v1.5.0|r\n\n|cFFFFFF00-|r Buff Uptime was been implemented over Miscellaneous attribute.\n\n|cFFFFFF00-|r Death Logs now also display cooldowns and last cooldown used.\n\n|cFFFFFF00-|r Added this window showing the latest changes.\n\n|cFFFFFF00-|r Fixed the issue were sometimes the instance stops to update when clicking on the attribute name over sword menu.\n\n|cFFFFFF00-|r Disabling Healing now shutdown the absorbs too, disabling auras doesn't interrupt absorbs any more.\n\n|cFFFFFF00-|r Friendly Fire now only track players which is inside a group.\n\n|cFFFFFF00-|r Fixed a issue were pet damage on target isn't added to owner target.\n\n|cFFFFFF00-|r Fixed a bug were refreshing a cooldown isn't counting.\n\n|cFFFFFF00-|r Added absorbs for shammy and monk 2P tier 16.\n\n|cFFFFFF00-|r Added slash command 'worldboss' and 'updates'.\n\n"
+	Loc ["STRING_VERSION_LOG"] = "|cFFFFFF00v1.6.0|r\n\n|cFFFFFF00-|r Added debuff uptime at misc attribute.\n\n|cFFFFFF00-|r Disabled attributes now have a darkness effect over sword menu.\n\n|cFFFFFF00-|r Fixed a issue were sometimes you need to /reload before change a talent.\n\n|cFFFFFF00v1.5.3|r\n\n|cFFFFFF00-|r Fixed a issue with report data during combat lockdown.\n\n|cFFFFFF00-|r Improved pet owner recognition and added a ignore list if couldn't find his owner.\n\n|cFFFFFF00-|r Added an option to display only frags on enemy players.\n\n|cFFFFFF00-|r Added class colors for frags.\n\n|cFFFFFF00v1.5.2|r\n\n|cFFFFFF00-|r Fixed a issue were turning off buff uptime was disabling healing done too.\n\n|cFFFFFF00-|r Avoidance statistics will not be recorded for pets, ungrouped players and monsters.\n\n|cFFFFFF00-|r Fixed a issue were sometimes buff uptime was taking too long to save data on logout.\n\n|cFFFFFF00v1.5.1|r\n\n|cFFFFFF00-|r Fixed a issue with report data were sometimes wasn't working.\n\n|cFFFFFF00v1.5.0|r\n\n|cFFFFFF00-|r Buff Uptime was been implemented over Miscellaneous attribute.\n\n|cFFFFFF00-|r Death Logs now also display cooldowns and last cooldown used.\n\n|cFFFFFF00-|r Added this window showing the latest changes.\n\n|cFFFFFF00-|r Fixed the issue were sometimes the instance stops to update when clicking on the attribute name over sword menu.\n\n|cFFFFFF00-|r Disabling Healing now shutdown the absorbs too, disabling auras doesn't interrupt absorbs any more.\n\n|cFFFFFF00-|r Friendly Fire now only track players which is inside a group.\n\n|cFFFFFF00-|r Fixed a issue were pet damage on target isn't added to owner target.\n\n|cFFFFFF00-|r Fixed a bug were refreshing a cooldown isn't counting.\n\n|cFFFFFF00-|r Added absorbs for shammy and monk 2P tier 16.\n\n|cFFFFFF00-|r Added slash command 'worldboss' and 'updates'.\n\n"
 
 	Loc ["STRING_DETAILS1"] = "|cffffaeaeDetails:|r " --> color and details name
 
@@ -174,6 +174,7 @@ if not Loc then return end
 		Loc ["STRING_ATTRIBUTE_MISC_DEAD"] = "Deaths"
 		Loc ["STRING_ATTRIBUTE_MISC_DEFENSIVE_COOLDOWNS"] = "Cooldowns"
 		Loc ["STRING_ATTRIBUTE_MISC_BUFF_UPTIME"] = "Buff Uptime"
+		Loc ["STRING_ATTRIBUTE_MISC_DEBUFF_UPTIME"] = "Debuff Uptime"
 		
 	Loc ["STRING_ATTRIBUTE_CUSTOM"] = "Custom"
 
@@ -277,6 +278,7 @@ if not Loc then return end
 	Loc ["STRING_REPORT_SINGLE_DEATH"] = "death details of"
 	Loc ["STRING_REPORT_SINGLE_COOLDOWN"] = "cooldowns used by"
 	Loc ["STRING_REPORT_SINGLE_BUFFUPTIME"] = "buff uptime for"
+	Loc ["STRING_REPORT_SINGLE_DEBUFFUPTIME"] = "debuff uptime for"
 	Loc ["STRING_NOCLOSED_INSTANCES"] = "There are no closed instances,\nclick to open a new one."
 	
 --> report frame

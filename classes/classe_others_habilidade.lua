@@ -23,9 +23,10 @@ function habilidade_misc:NovaTabela (id, link, token) --aqui eu não sei que parâ
 		targets = container_combatentes:NovoContainer (container_misc_target)
 	}
 	
-	if (token == "BUFF_UPTIME") then
+	if (token == "BUFF_UPTIME" or token == "DEBUFF_UPTIME") then
 		_newMiscSpell.uptime = 0
 		_newMiscSpell.actived = false
+		_newMiscSpell.activedamt = 0
 	elseif (token == "SPELL_INTERRUPT") then
 		_newMiscSpell.interrompeu_oque = {}
 	elseif (token == "SPELL_DISPEL" or token == "SPELL_STOLEN") then
@@ -46,7 +47,7 @@ end
 function habilidade_misc:Add (serial, nome, flag, who_nome, token, spellID, spellName)
 
 	--alvo:AddQuantidade (1)
-	if (spellID == "BUFF") then
+	if (spellID == "BUFF_OR_DEBUFF") then
 		if (spellName == "COOLDOWN") then
 			self.counter = self.counter + 1
 			
@@ -59,11 +60,11 @@ function habilidade_misc:Add (serial, nome, flag, who_nome, token, spellID, spel
 			end
 			alvo.total = alvo.total + 1
 			
-		elseif (spellName == "BUFF_UPTIME_IN") then
+		elseif (spellName == "BUFF_UPTIME_IN" or spellName == "DEBUFF_UPTIME_IN") then
 			self.actived = true
+			self.activedamt = self.activedamt + 1
 			self.actived_at = _detalhes._tempo
-			--print ("in",self.uptime)
-			
+
 		elseif (spellName == "BUFF_UPTIME_REFRESH") then
 			if (self.actived_at and self.actived) then
 				self.uptime = self.uptime + _detalhes._tempo - self.actived_at
@@ -76,7 +77,18 @@ function habilidade_misc:Add (serial, nome, flag, who_nome, token, spellID, spel
 			if (self.shadow) then
 				return self.shadow:Add (serial, nome, flag, who_nome, token.shadow, spellID, spellName)
 			end
-			--print ("refresh",self.uptime)
+			
+		elseif (spellName == "DEBUFF_UPTIME_REFRESH") then
+			if (self.actived_at and self.actived) then
+				self.uptime = self.uptime + _detalhes._tempo - self.actived_at
+				token.debuff_uptime = token.debuff_uptime + _detalhes._tempo - self.actived_at --> token = actor misc object
+			end
+			self.actived_at = _detalhes._tempo
+			self.actived = true
+			
+			if (self.shadow) then
+				return self.shadow:Add (serial, nome, flag, who_nome, token.shadow, spellID, spellName)
+			end
 			
 		elseif (spellName == "BUFF_UPTIME_OUT") then	
 			if (self.actived_at and self.actived) then
@@ -90,7 +102,25 @@ function habilidade_misc:Add (serial, nome, flag, who_nome, token, spellID, spel
 				return self.shadow:Add (serial, nome, flag, who_nome, token.shadow, spellID, spellName)
 			end
 			
-			--print ("out",self.uptime)
+		elseif (spellName == "DEBUFF_UPTIME_OUT") then	
+			if (self.actived_at and self.actived) then
+				self.uptime = self.uptime + _detalhes._tempo - self.actived_at
+				token.debuff_uptime = token.debuff_uptime + _detalhes._tempo - self.actived_at --> token = actor misc object
+			end
+			
+			self.activedamt = self.activedamt - 1
+			
+			if (self.activedamt == 0) then
+				self.actived = false
+				self.actived_at = nil
+			else
+				self.actived_at = _detalhes._tempo
+			end
+			
+			if (self.shadow) then
+				return self.shadow:Add (serial, nome, flag, who_nome, token.shadow, spellID, spellName)
+			end
+
 		end
 		
 	elseif (token == "SPELL_INTERRUPT") then
@@ -207,7 +237,7 @@ habilidade_misc.__sub = function (tabela1, tabela2)
 	--interrupts & cooldowns
 	tabela1.counter = tabela1.counter - tabela2.counter
 	
-	--buff uptime
+	--buff uptime ou debuff uptime
 	if (tabela1.uptime and tabela2.uptime) then
 		tabela1.uptime = tabela1.uptime - tabela2.uptime
 	end

@@ -728,6 +728,15 @@
 			
 			if (_in_combat) then
 			
+			------------------------------------------------------------------------------------------------
+			--> buff uptime
+				if (_recording_buffs_and_debuffs) then
+					if (raid_members_cache [who_serial]) then
+						--> call record debuffs uptime
+	--[[not tail call, need to fix this]]	parser:add_debuff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, "DEBUFF_UPTIME_IN")
+					end
+				end
+			
 				if (_recording_ability_with_buffs) then
 					if (who_name == _detalhes.playername) then
 
@@ -855,52 +864,64 @@
 	--> recording debuffs applied by player
 
 		elseif (tipo == "DEBUFF") then
-			if (_recording_ability_with_buffs and _in_combat) then
-				if (who_name == _detalhes.playername) then
-				
-					--> record debuff uptime
-					local SoloDebuffUptime = _current_combat.SoloDebuffUptime
-					if (SoloDebuffUptime) then
-						local ThisDebuff = SoloDebuffUptime [spellid]
-						if (ThisDebuff and ThisDebuff.Active) then
-							ThisDebuff.refreshAmt = ThisDebuff.refreshAmt + 1
-							ThisDebuff.duration = ThisDebuff.duration + (_tempo - ThisDebuff.start)
-							ThisDebuff.start = _tempo
-							
-							--> send event for plugins
-							_detalhes:SendEvent ("BUFF_UPDATE_DEBUFFPOWER")
-						end
+		
+			if (_in_combat) then
+			------------------------------------------------------------------------------------------------
+			--> buff uptime
+				if (_recording_buffs_and_debuffs) then
+					if (raid_members_cache [who_serial]) then
+						--> call record debuffs uptime
+	--[[not tail call, need to fix this]]	parser:add_debuff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, "DEBUFF_UPTIME_REFRESH")
 					end
+				end
+		
+				if (_recording_ability_with_buffs) then
+					if (who_name == _detalhes.playername) then
 					
-					--> record debuff spell and attack power
-					local SoloDebuffPower = _current_combat.SoloDebuffPower
-					if (SoloDebuffPower) then
-						local ThisDebuff = SoloDebuffPower [spellid]
-						if (ThisDebuff) then
-							local ThisDebuffOnTarget = ThisDebuff [alvo_serial]
-							if (ThisDebuffOnTarget) then
-								local base, posBuff, negBuff = UnitAttackPower ("player")
-								local AttackPower = base+posBuff+negBuff
-								local base, posBuff, negBuff = UnitRangedAttackPower ("player")
-								local RangedAttackPower = base+posBuff+negBuff
-								local SpellPower = GetSpellBonusDamage (3)
-								
-								local BuffsOn = {}
-								for BuffName, BuffTable in _pairs (_detalhes.Buffs.BuffsTable) do
-									if (BuffTable.active) then
-										BuffsOn [#BuffsOn+1] = BuffName
-									end
-								end
-								
-								ThisDebuff [alvo_serial].power = math.max (AttackPower, RangedAttackPower, SpellPower)
-								ThisDebuff [alvo_serial].buffs = BuffsOn
+						--> record debuff uptime
+						local SoloDebuffUptime = _current_combat.SoloDebuffUptime
+						if (SoloDebuffUptime) then
+							local ThisDebuff = SoloDebuffUptime [spellid]
+							if (ThisDebuff and ThisDebuff.Active) then
+								ThisDebuff.refreshAmt = ThisDebuff.refreshAmt + 1
+								ThisDebuff.duration = ThisDebuff.duration + (_tempo - ThisDebuff.start)
+								ThisDebuff.start = _tempo
 								
 								--> send event for plugins
 								_detalhes:SendEvent ("BUFF_UPDATE_DEBUFFPOWER")
 							end
 						end
+						
+						--> record debuff spell and attack power
+						local SoloDebuffPower = _current_combat.SoloDebuffPower
+						if (SoloDebuffPower) then
+							local ThisDebuff = SoloDebuffPower [spellid]
+							if (ThisDebuff) then
+								local ThisDebuffOnTarget = ThisDebuff [alvo_serial]
+								if (ThisDebuffOnTarget) then
+									local base, posBuff, negBuff = UnitAttackPower ("player")
+									local AttackPower = base+posBuff+negBuff
+									local base, posBuff, negBuff = UnitRangedAttackPower ("player")
+									local RangedAttackPower = base+posBuff+negBuff
+									local SpellPower = GetSpellBonusDamage (3)
+									
+									local BuffsOn = {}
+									for BuffName, BuffTable in _pairs (_detalhes.Buffs.BuffsTable) do
+										if (BuffTable.active) then
+											BuffsOn [#BuffsOn+1] = BuffName
+										end
+									end
+									
+									ThisDebuff [alvo_serial].power = math.max (AttackPower, RangedAttackPower, SpellPower)
+									ThisDebuff [alvo_serial].buffs = BuffsOn
+									
+									--> send event for plugins
+									_detalhes:SendEvent ("BUFF_UPDATE_DEBUFFPOWER")
+								end
+							end
+						end
+						
 					end
-					
 				end
 			end
 		end
@@ -960,35 +981,48 @@
 	------------------------------------------------------------------------------------------------
 	--> recording debuffs applied by player
 		elseif (tipo == "DEBUFF") then
-			if (_recording_ability_with_buffs and _in_combat) then
-				if (who_name == _detalhes.playername) then
-				
-					--> record debuff uptime
-					local SoloDebuffUptime = _current_combat.SoloDebuffUptime
-					local sendevent = false
-					if (SoloDebuffUptime) then
-						local ThisDebuff = SoloDebuffUptime [spellid]
-						if (ThisDebuff and ThisDebuff.Active) then
-							ThisDebuff.duration = ThisDebuff.duration + (_tempo - ThisDebuff.start)
-							ThisDebuff.droppedAmt = ThisDebuff.droppedAmt + 1
-							ThisDebuff.start = nil
-							ThisDebuff.Active = false
-							sendevent = true
-						end
+		
+			if (_in_combat) then
+			------------------------------------------------------------------------------------------------
+			--> buff uptime
+				if (_recording_buffs_and_debuffs) then
+					if (raid_members_cache [who_serial]) then
+						--> call record debuffs uptime
+	--[[not tail call, need to fix this]]	parser:add_debuff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, "DEBUFF_UPTIME_OUT")
 					end
+				end
+			
+				if (_recording_ability_with_buffs) then
+			
+					if (who_name == _detalhes.playername) then
 					
-					--> record debuff spell and attack power
-					local SoloDebuffPower = _current_combat.SoloDebuffPower
-					if (SoloDebuffPower) then
-						local ThisDebuff = SoloDebuffPower [spellid]
-						if (ThisDebuff) then
-							ThisDebuff [alvo_serial] = nil
-							sendevent = true
+						--> record debuff uptime
+						local SoloDebuffUptime = _current_combat.SoloDebuffUptime
+						local sendevent = false
+						if (SoloDebuffUptime) then
+							local ThisDebuff = SoloDebuffUptime [spellid]
+							if (ThisDebuff and ThisDebuff.Active) then
+								ThisDebuff.duration = ThisDebuff.duration + (_tempo - ThisDebuff.start)
+								ThisDebuff.droppedAmt = ThisDebuff.droppedAmt + 1
+								ThisDebuff.start = nil
+								ThisDebuff.Active = false
+								sendevent = true
+							end
 						end
-					end
-					
-					if (sendevent) then
-						_detalhes:SendEvent ("BUFF_UPDATE_DEBUFFPOWER")
+						
+						--> record debuff spell and attack power
+						local SoloDebuffPower = _current_combat.SoloDebuffPower
+						if (SoloDebuffPower) then
+							local ThisDebuff = SoloDebuffPower [spellid]
+							if (ThisDebuff) then
+								ThisDebuff [alvo_serial] = nil
+								sendevent = true
+							end
+						end
+						
+						if (sendevent) then
+							_detalhes:SendEvent ("BUFF_UPDATE_DEBUFFPOWER")
+						end
 					end
 				end
 			end
@@ -998,6 +1032,55 @@
 -----------------------------------------------------------------------------------------------------------------------------------------
 	--> MISC 	search key: ~buffuptime ~buffsuptime									|
 -----------------------------------------------------------------------------------------------------------------------------------------
+
+	function parser:add_debuff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, in_out)
+	------------------------------------------------------------------------------------------------
+	--> early checks and fixes
+		
+		_current_misc_container.need_refresh = true
+		_overall_misc_container.need_refresh = true
+		
+	------------------------------------------------------------------------------------------------
+	--> get actors
+		local este_jogador = misc_cache [who_name]
+		if (not este_jogador) then --> pode ser um desconhecido ou um pet
+			este_jogador = _current_misc_container:PegarCombatente (who_serial, who_name, who_flags, true)
+			misc_cache [who_name] = este_jogador
+		end
+		local shadow = este_jogador.shadow
+		
+	------------------------------------------------------------------------------------------------
+	--> build containers on the fly
+		
+		if (not este_jogador.debuff_uptime) then
+			este_jogador.debuff_uptime = 0
+			este_jogador.debuff_uptime_spell_tables = container_habilidades:NovoContainer (container_misc)
+			este_jogador.debuff_uptime_targets = container_combatentes:NovoContainer (container_damage_target)
+			
+			if (not shadow.debuff_uptime_targets) then
+				shadow.debuff_uptime = 0
+				shadow.debuff_uptime_spell_tables = container_habilidades:NovoContainer (container_misc)
+				shadow.debuff_uptime_targets = container_combatentes:NovoContainer (container_damage_target)
+			end
+			
+			este_jogador.debuff_uptime_targets.shadow = shadow.debuff_uptime_targets
+			este_jogador.debuff_uptime_spell_tables.shadow = shadow.debuff_uptime_spell_tables
+		end
+		
+	------------------------------------------------------------------------------------------------
+	--> add amount
+		
+		--> update last event
+		este_jogador.last_event = _tempo
+
+		--> actor spells table
+		local spell = este_jogador.debuff_uptime_spell_tables._ActorTable [spellid]
+		if (not spell) then
+			spell = este_jogador.debuff_uptime_spell_tables:PegaHabilidade (spellid, true, "DEBUFF_UPTIME")
+		end
+		return spell:Add (alvo_serial, alvo_name, alvo_flags, who_name, este_jogador, "BUFF_OR_DEBUFF", in_out)
+		
+	end
 
 	function parser:add_buff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, in_out)
 	
@@ -1045,7 +1128,7 @@
 		if (not spell) then
 			spell = este_jogador.buff_uptime_spell_tables:PegaHabilidade (spellid, true, "BUFF_UPTIME")
 		end
-		return spell:Add (alvo_serial, alvo_name, alvo_flags, who_name, este_jogador, "BUFF", in_out)
+		return spell:Add (alvo_serial, alvo_name, alvo_flags, who_name, este_jogador, "BUFF_OR_DEBUFF", in_out)
 		
 	end
 
@@ -1397,6 +1480,7 @@
 	------------------------------------------------------------------------------------------------
 	--> record cooldowns cast which can't track with buff applyed.
 	
+		--> foi um jogador que castou
 		if (raid_members_cache [who_serial]) then
 			--> check if is a cooldown :D
 			if (defensive_cooldown_spell_list_no_buff [spellid]) then
@@ -2051,6 +2135,13 @@
 			end
 		end
 		return true
+	end
+	
+	function _detalhes:CaptureIsEnabled (capture)
+		if (_detalhes.capture_real [capture]) then
+			return true
+		end
+		return false
 	end
 	
 	function _detalhes:CaptureRefresh()

@@ -66,6 +66,7 @@ function container_combatentes:NovoContainer (tipo_do_container, combatTable, co
 end
 
 local function get_class_ (novo_objeto, nome, flag)
+
 	local _, engClass = _UnitClass (nome)
 
 	if (engClass) then
@@ -458,6 +459,13 @@ function container_combatentes:FuncaoDeCriacao (tipo)
 	elseif (tipo == container_misc_target) then
 		return alvo_da_habilidade.NovaTabela
 		
+	end
+end
+
+--> chama a função para ser executada em todos os atores
+function container_combatentes:ActorCallFunction (funcao, ...)
+	for index, actor in _ipairs (self._ActorTable) do
+		funcao (nil, actor, ...)
 	end
 end
 
