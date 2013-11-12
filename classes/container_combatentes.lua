@@ -477,23 +477,21 @@ function container_combatentes:remapear()
 	end
 end
 
-local function ReparaMapa (tabela)
-	local mapa = {}
-	for i = 1, #tabela._ActorTable do
-		mapa [tabela._ActorTable[i].nome] = i
-	end
-	tabela._NameIndexTable = mapa
-end
-
 function _detalhes.refresh:r_container_combatentes (container, shadow)
-	_setmetatable (container, _detalhes.container_combatentes)
-	container.__index = _detalhes.container_combatentes
-	container.funcao_de_criacao = container_combatentes:FuncaoDeCriacao (container.tipo)
-	ReparaMapa (container)
-	
-	if (shadow ~= -1) then
+	--> reconstrói meta e indexes
+		_setmetatable (container, _detalhes.container_combatentes)
+		container.__index = _detalhes.container_combatentes
+		container.funcao_de_criacao = container_combatentes:FuncaoDeCriacao (container.tipo)
+
+	--> repara mapa
+		local mapa = {}
+		for i = 1, #container._ActorTable do
+			mapa [container._ActorTable[i].nome] = i
+		end
+		container._NameIndexTable = mapa
+
+	--> seta a shadow
 		container.shadow = shadow
-	end
 end
 
 function _detalhes.clear:c_container_combatentes (container)

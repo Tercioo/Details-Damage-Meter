@@ -21,6 +21,7 @@ local _ipairs = ipairs --> lua api
 local _pairs = pairs --> lua api
 local _bit_band = bit.band --> lua api
 local _date = date --> lua api
+local _table_remove = table.remove
 
 --time hold
 local _tempo = time()
@@ -268,294 +269,113 @@ function _detalhes.clear:c_combate (tabela_combate)
 	tabela_combate.shadow = nil
 end
 
-combate.__sub = function (overall, combate)
+combate.__sub = function (combate1, combate2)
 
-	--> subtrai no damage
-		for index, classe_damage in _ipairs (combate [1]._ActorTable) do
-		
-			local nome = classe_damage.nome
-			local no_overall = overall[1]._ActorTable [overall[1]._NameIndexTable [nome]]
-			
-			--> ator do damage
-			no_overall = no_overall - classe_damage
-			
-			--> alvos
-			local alvos = classe_damage.targets
-			for index, alvo in _ipairs (alvos._ActorTable) do 
-				local alvo_overall = no_overall.targets._ActorTable [no_overall.targets._NameIndexTable [alvo.nome]]
-				alvo_overall = alvo_overall - alvo
-			end
-			
-			--> habilidades
-			local habilidades = classe_damage.spell_tables
-			for _spellid, habilidade in _pairs (habilidades._ActorTable) do 
-				local habilidade_overall = no_overall.spell_tables._ActorTable [_spellid]
-				habilidade_overall = habilidade_overall - habilidade
-				
-				--> alvos das habilidades
-				local alvos = habilidade.targets
-				for index, alvo in _ipairs (alvos._ActorTable) do 
-					local alvo_overall = habilidade_overall.targets._ActorTable [habilidade_overall.targets._NameIndexTable [alvo.nome]]
-					alvo_overall = alvo_overall - alvo
-				end
-			end
-		end
-		
-	--> foreach na cura
-		for index, classe_heal in _ipairs (combate[2]._ActorTable) do
-			local nome = classe_heal.nome
-			local no_overall = overall[2]._ActorTable [overall[2]._NameIndexTable [nome]]
-			no_overall = no_overall - classe_heal
-			
-			local alvos = classe_heal.targets
-			for index, alvo in _ipairs (alvos._ActorTable) do 
-				local alvo_overall = no_overall.targets._ActorTable [no_overall.targets._NameIndexTable [alvo.nome]]
-				alvo_overall = alvo_overall - alvo
-			end
-			
-			local habilidades = classe_heal.spell_tables
-			for _spellid, habilidade in _pairs (habilidades._ActorTable) do 
-				local habilidade_overall = no_overall.spell_tables._ActorTable [_spellid]
-				habilidade_overall = habilidade_overall - habilidade
-				
-				local alvos = habilidade.targets
-				for index, alvo in _ipairs (alvos._ActorTable) do 
-					local alvo_overall = habilidade_overall.targets._ActorTable [habilidade_overall.targets._NameIndexTable [alvo.nome]]
-					alvo_overall = alvo_overall - alvo
-				end
-			end			
-		end
-		
-	--> foreach na e_energy
-		for index, classe_energy in _ipairs (combate[3]._ActorTable) do
-			local nome = classe_energy.nome
-			local no_overall = overall[3]._ActorTable [overall[3]._NameIndexTable [nome]]
-			no_overall = no_overall - classe_energy
-			
-			local alvos = classe_energy.targets
-			for index, alvo in _ipairs (alvos._ActorTable) do 
-				local alvo_overall = no_overall.targets._ActorTable [no_overall.targets._NameIndexTable [alvo.nome]]
-				alvo_overall = alvo_overall - alvo
-			end
-			
-			local habilidades = classe_energy.spell_tables
-			for _spellid, habilidade in _pairs (habilidades._ActorTable) do 
-				local habilidade_overall = no_overall.spell_tables._ActorTable [_spellid]
-				habilidade_overall = habilidade_overall - habilidade
-				
-				local alvos = habilidade.targets
-				for index, alvo in _ipairs (alvos._ActorTable) do 
-					local alvo_overall = habilidade_overall.targets._ActorTable [habilidade_overall.targets._NameIndexTable [alvo.nome]]
-					alvo_overall = alvo_overall - alvo
-				end
-			end
-		end
-		
-	--> foreach no misc
-		for index, classe_misc in _ipairs (combate[4]._ActorTable) do
-			local nome = classe_misc.nome
-			local no_overall = overall[4]._ActorTable [overall[4]._NameIndexTable [nome]]
-			no_overall = no_overall - classe_misc
-			
-			if (classe_misc.cooldowns_defensive) then
-				local alvos = classe_misc.cooldowns_defensive_targets
-				local habilidades = classe_misc.cooldowns_defensive_spell_tables
-				
-				for index, alvo in _ipairs (alvos._ActorTable) do
-					local alvo_overall = no_overall.cooldowns_defensive_targets._ActorTable [no_overall.cooldowns_defensive_targets._NameIndexTable [alvo.nome]]
-					alvo_overall = alvo_overall - alvo
-				end
-				
-				for _spellid, habilidade in _pairs (habilidades._ActorTable) do 
-					local habilidade_overall = no_overall.cooldowns_defensive_spell_tables._ActorTable [_spellid]
-					habilidade_overall = habilidade_overall - habilidade
-					
-					local alvos = habilidade.targets
-					for index, alvo in _ipairs (alvos._ActorTable) do 
-						local alvo_overall = habilidade_overall.targets._ActorTable [habilidade_overall.targets._NameIndexTable [alvo.nome]]
-						alvo_overall = alvo_overall - alvo
-					end
-				end
-			end
-			
-			if (classe_misc.interrupt) then
-				local alvos = classe_misc.interrupt_targets
-				local habilidades = classe_misc.interrupt_spell_tables
-				
-				for index, alvo in _ipairs (alvos._ActorTable) do
-					local alvo_overall = no_overall.interrupt_targets._ActorTable [no_overall.interrupt_targets._NameIndexTable [alvo.nome]]
-					alvo_overall = alvo_overall - alvo
-				end
-				
-				for _spellid, habilidade in _pairs (habilidades._ActorTable) do 
-					local habilidade_overall = no_overall.interrupt_spell_tables._ActorTable [_spellid]
-					habilidade_overall = habilidade_overall - habilidade
-					
-					local alvos = habilidade.targets
-					for index, alvo in _ipairs (alvos._ActorTable) do 
-						local alvo_overall = habilidade_overall.targets._ActorTable [habilidade_overall.targets._NameIndexTable [alvo.nome]]
-						alvo_overall = alvo_overall - alvo
-					end
-				end
-			end
-
-			if (classe_misc.ress) then
-				local alvos = classe_misc.ress_targets
-				local habilidades = classe_misc.ress_spell_tables
-				
-				for index, alvo in _ipairs (alvos._ActorTable) do
-					local alvo_overall = no_overall.ress_targets._ActorTable [no_overall.ress_targets._NameIndexTable [alvo.nome]]
-					alvo_overall = alvo_overall - alvo
-				end
-				
-				for _spellid, habilidade in _pairs (habilidades._ActorTable) do 
-					local habilidade_overall = no_overall.ress_spell_tables._ActorTable [_spellid]
-					habilidade_overall = habilidade_overall - habilidade
-					
-					local alvos = habilidade.targets
-					for index, alvo in _ipairs (alvos._ActorTable) do 
-						local alvo_overall = habilidade_overall.targets._ActorTable [habilidade_overall.targets._NameIndexTable [alvo.nome]]
-						alvo_overall = alvo_overall - alvo
-					end
-				end
-			end	
-
-			if (classe_misc.dispell) then
-				local alvos = classe_misc.dispell_targets
-				local habilidades = classe_misc.dispell_spell_tables
-				
-				for index, alvo in _ipairs (alvos._ActorTable) do
-					local alvo_overall = no_overall.dispell_targets._ActorTable [no_overall.dispell_targets._NameIndexTable [alvo.nome]]
-					alvo_overall = alvo_overall - alvo
-				end
-				
-				for _spellid, habilidade in _pairs (habilidades._ActorTable) do 
-					local habilidade_overall = no_overall.dispell_spell_tables._ActorTable [_spellid]
-					habilidade_overall = habilidade_overall - habilidade
-					
-					local alvos = habilidade.targets
-					for index, alvo in _ipairs (alvos._ActorTable) do 
-						local alvo_overall = habilidade_overall.targets._ActorTable [habilidade_overall.targets._NameIndexTable [alvo.nome]]
-						alvo_overall = alvo_overall - alvo
-					end
-				end
-			end
-
-			if (classe_misc.cc_break) then
-				local alvos = classe_misc.cc_break_targets
-				local habilidades = classe_misc.cc_break_spell_tables
-				
-				for index, alvo in _ipairs (alvos._ActorTable) do
-					local alvo_overall = no_overall.cc_break_targets._ActorTable [no_overall.cc_break_targets._NameIndexTable [alvo.nome]]
-					alvo_overall = alvo_overall - alvo
-				end
-				
-				for _spellid, habilidade in _pairs (habilidades._ActorTable) do 
-					local habilidade_overall = no_overall.cc_break_spell_tables._ActorTable [_spellid]
-					habilidade_overall = habilidade_overall - habilidade
-					
-					local alvos = habilidade.targets
-					for index, alvo in _ipairs (alvos._ActorTable) do 
-						local alvo_overall = habilidade_overall.targets._ActorTable [habilidade_overall.targets._NameIndexTable [alvo.nome]]
-						alvo_overall = alvo_overall - alvo
-					end
-				end
-			end
-		
-		end
-	
-	--> diminui o total
-	overall.totals[1] = overall.totals[1] - combate.totals[1]
-	overall.totals[2] = overall.totals[2] - combate.totals[2]
-	
-	overall.totals[3].mana = overall.totals[3].mana - combate.totals[3].mana
-	overall.totals[3].e_rage = overall.totals[3].e_rage - combate.totals[3].e_rage
-	overall.totals[3].e_energy = overall.totals[3].e_energy - combate.totals[3].e_energy
-	overall.totals[3].runepower = overall.totals[3].runepower - combate.totals[3].runepower
-	
-	overall.totals[4].cc_break = overall.totals[4].cc_break - combate.totals[4].cc_break
-	overall.totals[4].ress = overall.totals[4].ress - combate.totals[4].ress
-	overall.totals[4].interrupt = overall.totals[4].interrupt - combate.totals[4].interrupt
-	overall.totals[4].dispell = overall.totals[4].dispell - combate.totals[4].dispell
-	overall.totals[4].dead = overall.totals[4].dead - combate.totals[4].dead
-	overall.totals[4].cooldowns_defensive = overall.totals[4].cooldowns_defensive - combate.totals[4].cooldowns_defensive
-	
-	overall.totals_grupo[1] = overall.totals_grupo[1] - combate.totals_grupo[1]
-	overall.totals_grupo[2] = overall.totals_grupo[2] - combate.totals_grupo[2]
-	
-	overall.totals_grupo[3].mana = overall.totals_grupo[3].mana - combate.totals_grupo[3].mana
-	overall.totals_grupo[3].e_rage = overall.totals_grupo[3].e_rage - combate.totals_grupo[3].e_rage
-	overall.totals_grupo[3].e_energy = overall.totals_grupo[3].e_energy - combate.totals_grupo[3].e_energy
-	overall.totals_grupo[3].runepower = overall.totals_grupo[3].runepower - combate.totals_grupo[3].runepower
-	
-	overall.totals_grupo[4].cc_break = overall.totals_grupo[4].cc_break - combate.totals_grupo[4].cc_break
-	overall.totals_grupo[4].ress = overall.totals_grupo[4].ress - combate.totals_grupo[4].ress
-	overall.totals_grupo[4].interrupt = overall.totals_grupo[4].interrupt - combate.totals_grupo[4].interrupt
-	overall.totals_grupo[4].dispell = overall.totals_grupo[4].dispell - combate.totals_grupo[4].dispell
-	overall.totals_grupo[4].dead = overall.totals_grupo[4].dead - combate.totals_grupo[4].dead
-	overall.totals_grupo[4].cooldowns_defensive = overall.totals_grupo[4].cooldowns_defensive - combate.totals_grupo[4].cooldowns_defensive
-	
-	for fragName, fragAmount in pairs (combate.frags) do 
-		if (fragAmount and overall.frags [fragName]) then --> not sure why 
-			overall.frags [fragName] = overall.frags [fragName] - fragAmount
-		end
+	if (combate1~= _detalhes.tabela_overall) then
+		return
 	end
-	overall.frags_need_refresh = true
+
+	--> sub dano
+		for index, actor_T2 in _ipairs (combate2[1]._ActorTable) do
+			local actor_T1 = combate1[1]:PegarCombatente (actor_T2.serial, actor_T2.nome, actor_T2.flag_original, true)
+			actor_T1 = actor_T1 - actor_T2
+			actor_T2:subtract_total (combate1)
+		end
+		combate1 [1].need_refresh = true
+		
+	--> sub heal
+		for index, actor_T2 in _ipairs (combate2[2]._ActorTable) do
+			local actor_T1 = combate1[2]:PegarCombatente (actor_T2.serial, actor_T2.nome, actor_T2.flag_original, true)
+			actor_T1 = actor_T1 - actor_T2
+			actor_T2:subtract_total (combate1)
+		end
+		combate1 [2].need_refresh = true
+		
+	--> sub energy
+		for index, actor_T2 in _ipairs (combate2[3]._ActorTable) do
+			local actor_T1 = combate1[3]:PegarCombatente (actor_T2.serial, actor_T2.nome, actor_T2.flag_original, true)
+			actor_T1 = actor_T1 - actor_T2
+			actor_T2:subtract_total (combate1)
+		end
+		combate1 [3].need_refresh = true
+		
+	--> sub misc
+		for index, actor_T2 in _ipairs (combate2[4]._ActorTable) do
+			local actor_T1 = combate1[4]:PegarCombatente (actor_T2.serial, actor_T2.nome, actor_T2.flag_original, true)
+			actor_T1 = actor_T1 - actor_T2
+			actor_T2:subtract_total (combate1)
+		end
+		combate1 [4].need_refresh = true
+
+	--> reduz o tempo 
+		combate1.start_time = combate1.start_time + (combate2.end_time - combate2.start_time)
+		
+	--> apaga as mortes da luta diminuida
+		local amt_mortes =  #combate2.last_events_tables --> quantas mortes teve nessa luta
+		if (amt_mortes > 0) then
+			for i = #combate1.last_events_tables, #combate1.last_events_tables-amt_mortes, -1 do 
+				_table_remove (combate1.last_events_tables, #combate1.last_events_tables)
+			end
+		end
+		
+	--> frags
+		for fragName, fragAmount in pairs (combate2.frags) do 
+			if (fragAmount) then
+				if (combate1.frags [fragName]) then
+					combate1.frags [fragName] = combate1.frags [fragName] - fragAmount
+				else
+					combate1.frags [fragName] = fragAmount
+				end
+			end
+		end
+		combate1.frags_need_refresh = true
+		
+	return combate1
 	
-	return overall
 end
 
 combate.__add = function (combate1, combate2)
+
+	if (combate1 == _detalhes.tabela_overall or combate2 == _detalhes.tabela_overall) then
+		return
+	end
+
 	--> add dano
 		for index, actor_T2 in _ipairs (combate2[1]._ActorTable) do
 			local actor_T1 = combate1[1]:PegarCombatente (actor_T2.serial, actor_T2.nome, actor_T2.flag_original, true)
 			actor_T1 = actor_T1 + actor_T2
+			actor_T1:add_total (combate1)
+			actor_T1:add_total (_detalhes.tabela_overall)
 		end
+		combate1 [1].need_refresh = true
+		
 	--> add heal
 		for index, actor_T2 in _ipairs (combate2[2]._ActorTable) do
 			local actor_T1 = combate1[2]:PegarCombatente (actor_T2.serial, actor_T2.nome, actor_T2.flag_original, true)
 			actor_T1 = actor_T1 + actor_T2
+			actor_T1:add_total (combate1)
+			actor_T1:add_total (_detalhes.tabela_overall)
 		end
+		combate1 [2].need_refresh = true
+		
 	--> add energy
 		for index, actor_T2 in _ipairs (combate2[3]._ActorTable) do
 			local actor_T1 = combate1[3]:PegarCombatente (actor_T2.serial, actor_T2.nome, actor_T2.flag_original, true)
 			actor_T1 = actor_T1 + actor_T2
+			actor_T1:add_total (combate1)
+			actor_T1:add_total (_detalhes.tabela_overall)
 		end
+		combate1 [3].need_refresh = true
+		
 	--> add misc
 		for index, actor_T2 in _ipairs (combate2[4]._ActorTable) do
 			local actor_T1 = combate1[4]:PegarCombatente (actor_T2.serial, actor_T2.nome, actor_T2.flag_original, true)
 			actor_T1 = actor_T1 + actor_T2
+			actor_T1:add_total (combate1)
+			actor_T1:add_total (_detalhes.tabela_overall)
 		end
-	--> aumenta o total
-		combate1.totals[1] = combate1.totals[1] - combate2.totals[1]
-		combate1.totals[2] = combate1.totals[2] - combate2.totals[2]
-		
-		combate1.totals[3].mana = combate1.totals[3].mana - combate2.totals[3].mana
-		combate1.totals[3].e_rage = combate1.totals[3].e_rage - combate2.totals[3].e_rage
-		combate1.totals[3].e_energy = combate1.totals[3].e_energy - combate2.totals[3].e_energy
-		combate1.totals[3].runepower = combate1.totals[3].runepower - combate2.totals[3].runepower
-		
-		combate1.totals[4].cc_break = combate1.totals[4].cc_break - combate2.totals[4].cc_break
-		combate1.totals[4].ress = combate1.totals[4].ress - combate2.totals[4].ress
-		combate1.totals[4].interrupt = combate1.totals[4].interrupt - combate2.totals[4].interrupt
-		combate1.totals[4].dispell = combate1.totals[4].dispell - combate2.totals[4].dispell
-		combate1.totals[4].dead = combate1.totals[4].dead - combate2.totals[4].dead
-		combate1.totals[4].cooldowns_defensive = combate1.totals[4].cooldowns_defensive - combate2.totals[4].cooldowns_defensive
-		
-		combate1.totals_grupo[1] = combate1.totals_grupo[1] - combate2.totals_grupo[1]
-		combate1.totals_grupo[2] = combate1.totals_grupo[2] - combate2.totals_grupo[2]
-		
-		combate1.totals_grupo[3].mana = combate1.totals_grupo[3].mana - combate2.totals_grupo[3].mana
-		combate1.totals_grupo[3].e_rage = combate1.totals_grupo[3].e_rage - combate2.totals_grupo[3].e_rage
-		combate1.totals_grupo[3].e_energy = combate1.totals_grupo[3].e_energy - combate2.totals_grupo[3].e_energy
-		combate1.totals_grupo[3].runepower = combate1.totals_grupo[3].runepower - combate2.totals_grupo[3].runepower
-		
-		combate1.totals_grupo[4].cc_break = combate1.totals_grupo[4].cc_break - combate2.totals_grupo[4].cc_break
-		combate1.totals_grupo[4].ress = combate1.totals_grupo[4].ress - combate2.totals_grupo[4].ress
-		combate1.totals_grupo[4].interrupt = combate1.totals_grupo[4].interrupt - combate2.totals_grupo[4].interrupt
-		combate1.totals_grupo[4].dispell = combate1.totals_grupo[4].dispell - combate2.totals_grupo[4].dispell
-		combate1.totals_grupo[4].dead = combate1.totals_grupo[4].dead - combate2.totals_grupo[4].dead
-		combate1.totals_grupo[4].cooldowns_defensive = combate1.totals_grupo[4].cooldowns_defensive - combate2.totals_grupo[4].cooldowns_defensive	
+		combate1 [4].need_refresh = true
+
 	--> aumenta o tempo 
 		combate1.start_time = combate1.start_time - (combate2.end_time - combate2.start_time)
 	--> frags
@@ -577,46 +397,3 @@ end
 function _detalhes:UpdateCombat()
 	_tempo = _detalhes._tempo
 end
-
---[[
-			local nome = actor_T2.nome
-			
-			--> actor principal
-			local actor_T1 = combate1[1]._ActorTable [combate1[1]._NameIndexTable [nome] ]
-			if (not actor_T1) then --> precisa cria-lo
-				actor_T1 = combate1[1]:PegarCombatente (actor_T2.serial, nome, actor_T2.flag_original, true)
-			end
-			
-			if (actor_T1) then
-				
-				--> add basic members
-				actor_T1 = actor_T1 + actor_T2
-				
-				--> alvos
-				local alvos = actor_T2.targets
-				for index, alvo in _ipairs (alvos._ActorTable) do 
-					local alvo_T1 = actor_T1.targets._ActorTable [actor_T1.targets._NameIndexTable [alvo.nome] ]
-					if (not alvo_T1) then
-						alvo_T1 = actor_T1.targets:PegarCombatente (alvo.serial, alvo.nome, alvo.flag_original, true)
-					end
-					alvo_T1 = alvo_T1 + alvo
-				end
-				
-				--> spells
-				local habilidades = actor_T2.spell_tables
-				for _spellid, habilidade in _pairs (habilidades._ActorTable) do
-					local habilidade_T1 = actor_T1.spell_tables._ActorTable [_spellid]
-					if (not habilidade_T1) then
-						
-					end
-					
-					habilidade_overall = habilidade_overall - habilidade
-					
-					local alvos = habilidade.targets
-					for index, alvo in _ipairs (alvos._ActorTable) do 
-						local alvo_overall = habilidade_overall.targets._ActorTable [habilidade_overall.targets._NameIndexTable [alvo.nome] ]
-						alvo_overall = alvo_overall - alvo
-					end
-				end
-			end
---]]

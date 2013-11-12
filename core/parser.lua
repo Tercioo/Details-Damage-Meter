@@ -366,6 +366,7 @@
 			este_alvo = este_jogador.targets._ActorTable [este_alvo]
 		end
 		este_alvo.total = este_alvo.total + amount
+		este_alvo.shadow.total = este_alvo.shadow.total + amount
 
 		--> actor spells table
 		local spell = este_jogador.spell_tables._ActorTable [spellid]
@@ -633,6 +634,7 @@
 			
 			--> target amount
 			este_alvo.total = este_alvo.total + cura_efetiva
+			este_alvo.shadow.total = este_alvo.shadow.total + cura_efetiva
 		end
 		
 		if (overhealing > 0) then
@@ -725,6 +727,10 @@
 	--> recording debuffs applied by player
 
 		elseif (tipo == "DEBUFF") then
+			
+			--if (who_name == "Ditador") then
+			--	print (spellname, alvo_name, "IN")
+			--end
 			
 			if (_in_combat) then
 			
@@ -865,6 +871,10 @@
 
 		elseif (tipo == "DEBUFF") then
 		
+			--if (who_name == "Ditador") then
+			--	print (spellname, alvo_name, "REFRESH")
+			--end
+		
 			if (_in_combat) then
 			------------------------------------------------------------------------------------------------
 			--> buff uptime
@@ -982,6 +992,10 @@
 	--> recording debuffs applied by player
 		elseif (tipo == "DEBUFF") then
 		
+			--if (who_name == "Ditador") then
+			--	print (spellname, alvo_name, "OUT")
+			--end
+		
 			if (_in_combat) then
 			------------------------------------------------------------------------------------------------
 			--> buff uptime
@@ -1066,7 +1080,7 @@
 			este_jogador.debuff_uptime_targets.shadow = shadow.debuff_uptime_targets
 			este_jogador.debuff_uptime_spell_tables.shadow = shadow.debuff_uptime_spell_tables
 		end
-		
+	
 	------------------------------------------------------------------------------------------------
 	--> add amount
 		
@@ -1368,7 +1382,8 @@
 		if (not spell) then
 			spell = este_jogador.cooldowns_defensive_spell_tables:PegaHabilidade (spellid, true, token)
 		end
-		return spell:Add (alvo_serial, alvo_name, alvo_flags, who_name, token, "BUFF", "COOLDOWN")
+		
+		return spell:Add (alvo_serial, alvo_name, alvo_flags, who_name, token, "BUFF_OR_DEBUFF", "COOLDOWN")
 		
 	end
 
@@ -1561,6 +1576,7 @@
 		if (not spell) then
 			spell = este_jogador.spellcast_spell_tables:PegaHabilidade (spellid, true, token)
 		end
+		
 		return spell:Add (alvo_serial, alvo_name, alvo_flags, who_name, token)
 	end
 

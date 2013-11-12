@@ -875,6 +875,19 @@ end
 				combat_table.totals_grupo [class_type].runepower = combat_table.totals_grupo [class_type].runepower - self.runepower
 			end
 		end
+		function atributo_energy:add_total (combat_table)
+			combat_table.totals [class_type].mana = combat_table.totals [class_type].mana + self.mana
+			combat_table.totals [class_type].e_rage = combat_table.totals [class_type].e_rage + self.e_rage
+			combat_table.totals [class_type].e_energy = combat_table.totals [class_type].e_energy + self.e_energy
+			combat_table.totals [class_type].runepower = combat_table.totals [class_type].runepower + self.runepower
+
+			if (self.grupo) then
+				combat_table.totals_grupo [class_type].mana = combat_table.totals_grupo [class_type].mana + self.mana
+				combat_table.totals_grupo [class_type].e_rage = combat_table.totals_grupo [class_type].e_rage + self.e_rage
+				combat_table.totals_grupo [class_type].e_energy = combat_table.totals_grupo [class_type].e_energy + self.e_energy
+				combat_table.totals_grupo [class_type].runepower = combat_table.totals_grupo [class_type].runepower + self.runepower
+			end
+		end
 		
 	--> restaura e liga o ator com a sua shadow durante a inicialização
 		function atributo_energy:r_connect_shadow (actor)
@@ -883,47 +896,88 @@ end
 				actor = self
 			end
 		
-			local overall_energy = _detalhes.tabela_overall [3]
-			local shadow = overall_energy._ActorTable [overall_energy._NameIndexTable [actor.nome]]
+			--> criar uma shadow desse ator se ainda não tiver uma
+				local overall_energy = _detalhes.tabela_overall [3]
+				local shadow = overall_energy._ActorTable [overall_energy._NameIndexTable [actor.nome]]
 
-			--> constroi a shadow se não tiver uma
-			if (not shadow) then 
-				shadow = overall_energy:PegarCombatente (actor.serial, actor.nome, actor.flag_original, true)
-				shadow.classe = actor.classe
-			end
-			
-			--> aplica a meta e indexes
-			_detalhes.refresh:r_atributo_energy (actor, shadow)
-			
-			--> soma os valores
-			shadow = shadow + actor
-			
-			--> reconstroi o container de alvos
-			for index, alvo in _ipairs (actor.targets._ActorTable) do
-				_detalhes.refresh:r_alvo_da_habilidade (alvo, shadow.targets)
-			end
-			
-			--> reconstroi o container de habilidades
-			for spellid, habilidade in _pairs (actor.spell_tables._ActorTable) do
-				_detalhes.refresh:r_habilidade_e_energy (habilidade, shadow.spell_tables)
-				for index, alvo in _ipairs (habilidade.targets._ActorTable) do
-					_detalhes.refresh:r_alvo_da_habilidade (alvo, habilidade.targets.shadow)
+				if (not shadow) then 
+					shadow = overall_energy:PegarCombatente (actor.serial, actor.nome, actor.flag_original, true)
+					shadow.classe = actor.classe
+					shadow.grupo = actor.grupo
 				end
-			end
 			
+			--> restaura a meta e indexes ao ator
+				_detalhes.refresh:r_atributo_energy (actor, shadow)
+			
+			--> total das energias (captura de dados)
+				shadow.mana = shadow.mana + actor.mana
+				shadow.e_rage = shadow.e_rage + actor.e_rage
+				shadow.e_energy = shadow.e_energy + actor.e_energy
+				shadow.runepower = shadow.runepower + actor.runepower
+				shadow.focus = shadow.focus + actor.focus
+				shadow.holypower = shadow.holypower + actor.holypower
+				
+				shadow.mana_r = shadow.mana_r + actor.mana_r
+				shadow.e_rage_r = shadow.e_rage_r + actor.e_rage_r
+				shadow.e_energy_r = shadow.e_energy_r + actor.e_energy_r
+				shadow.runepower_r = shadow.runepower_r + actor.runepower_r
+				shadow.focus_r = shadow.focus_r + actor.focus_r
+				shadow.holypower_r = shadow.holypower_r + actor.holypower_r
+				
+			--> total no combate overall (captura de dados)
+				_detalhes.tabela_overall.totals[3].mana = _detalhes.tabela_overall.totals[3].mana + actor.mana
+				_detalhes.tabela_overall.totals[3].e_rage = _detalhes.tabela_overall.totals[3].e_rage + actor.e_rage
+				_detalhes.tabela_overall.totals[3].e_energy = _detalhes.tabela_overall.totals[3].e_energy + actor.e_energy
+				_detalhes.tabela_overall.totals[3].runepower = _detalhes.tabela_overall.totals[3].runepower + actor.runepower
+				
+				if (actor.grupo) then
+					_detalhes.tabela_overall.totals_grupo[3]["mana"] = _detalhes.tabela_overall.totals_grupo[3]["mana"] + actor.mana
+					_detalhes.tabela_overall.totals_grupo[3]["e_rage"] = _detalhes.tabela_overall.totals_grupo[3]["e_rage"] + actor.e_rage
+					_detalhes.tabela_overall.totals_grupo[3]["e_energy"] = _detalhes.tabela_overall.totals_grupo[3]["e_energy"] + actor.e_energy
+					_detalhes.tabela_overall.totals_grupo[3]["runepower"] = _detalhes.tabela_overall.totals_grupo[3]["runepower"] + actor.runepower
+				end
+
+			--> copia o container de alvos (captura de dados)
+				for index, alvo in _ipairs (actor.targets._ActorTable) do
+					--> cria e soma o valor do total
+					local alvo_shadow = shadow.targets:PegarCombatente (nil, alvo.nome, nil, true)
+					alvo_shadow.total = alvo_shadow.total + alvo.total
+					--> refresh no alvo
+					_detalhes.refresh:r_alvo_da_habilidade (alvo, shadow.targets)
+				end
+			
+			--> copia o container de habilidades (captura de dados)
+				for spellid, habilidade in _pairs (actor.spell_tables._ActorTable) do
+					--> cria e soma o valor
+					local habilidade_shadow = shadow.spell_tables:PegaHabilidade (spellid, true, nil, true)
+					--> refresh e soma os valores dos alvos
+					for index, alvo in _ipairs (habilidade.targets._ActorTable) do 
+						--> cria e soma o valor do total
+						local alvo_shadow = habilidade_shadow.targets:PegarCombatente (nil, alvo.nome, nil, true)
+						alvo_shadow.total = alvo_shadow.total + alvo.total
+						--> refresh no alvo da habilidade
+						_detalhes.refresh:r_alvo_da_habilidade (alvo, habilidade_shadow.targets)
+					end
+					--> soma todos os demais valores
+					for key, value in _pairs (habilidade) do 
+						if (_type (value) == "number") then
+							if (key ~= "id") then
+								if (not habilidade_shadow [key]) then 
+									habilidade_shadow [key] = 0
+								end
+								habilidade_shadow [key] = habilidade_shadow [key] + value
+							end
+						end
+					end
+					--> refresh na meta e indexes
+					_detalhes.refresh:r_habilidade_e_energy (habilidade, shadow.spell_tables)
+				end
+
 			return shadow
 		end
 
 function atributo_energy:ColetarLixo (lastevent)
 	return _detalhes:ColetarLixo (class_type, lastevent)
-end
-
-local function ReconstroiMapa (tabela)
-	local mapa = {}
-	for i = 1, #tabela._ActorTable do
-		mapa [tabela._ActorTable[i].nome] = i
-	end
-	tabela._NameIndexTable = mapa
 end
 
 function _detalhes.refresh:r_atributo_energy (este_jogador, shadow)
@@ -951,80 +1005,102 @@ function _detalhes.clear:c_atributo_energy (este_jogador)
 	_detalhes.clear:c_container_habilidades (este_jogador.spell_tables)
 end
 
-atributo_energy.__add = function (shadow, tabela2)
+atributo_energy.__add = function (tabela1, tabela2)
 
-	shadow.mana = shadow.mana + tabela2.mana
-	shadow.e_rage = shadow.e_rage + tabela2.e_rage
-	shadow.e_energy = shadow.e_energy + tabela2.e_energy
-	shadow.runepower = shadow.runepower + tabela2.runepower
-	shadow.focus = shadow.focus + tabela2.focus
-	shadow.holypower = shadow.holypower + tabela2.holypower
-
-	if ( not (shadow.shadow and tabela2.shadow) ) then
-		_detalhes.tabela_overall.totals[3]["mana"] = _detalhes.tabela_overall.totals[3]["mana"] + tabela2.mana
-		_detalhes.tabela_overall.totals[3]["e_rage"] = _detalhes.tabela_overall.totals[3]["e_rage"] + tabela2.e_rage
-		_detalhes.tabela_overall.totals[3]["e_energy"] = _detalhes.tabela_overall.totals[3]["e_energy"] + tabela2.e_energy
-		_detalhes.tabela_overall.totals[3]["runepower"] = _detalhes.tabela_overall.totals[3]["runepower"] + tabela2.runepower
+	--> soma os totais das energias
+		tabela1.mana = tabela1.mana + tabela2.mana
+		tabela1.e_rage = tabela1.e_rage + tabela2.e_rage
+		tabela1.e_energy = tabela1.e_energy + tabela2.e_energy
+		tabela1.runepower = tabela1.runepower + tabela2.runepower
+		tabela1.focus = tabela1.focus + tabela2.focus
+		tabela1.holypower = tabela1.holypower + tabela2.holypower
 		
-		if (tabela2.grupo) then
-			_detalhes.tabela_overall.totals_grupo[3]["mana"] = _detalhes.tabela_overall.totals_grupo[3]["mana"] + tabela2.mana
-			_detalhes.tabela_overall.totals_grupo[3]["e_rage"] = _detalhes.tabela_overall.totals_grupo[3]["e_rage"] + tabela2.e_rage
-			_detalhes.tabela_overall.totals_grupo[3]["e_energy"] = _detalhes.tabela_overall.totals_grupo[3]["e_energy"] + tabela2.e_energy
-			_detalhes.tabela_overall.totals_grupo[3]["runepower"] = _detalhes.tabela_overall.totals_grupo[3]["runepower"] + tabela2.runepower
+		tabela1.mana_r = tabela1.mana_r + tabela2.mana_r
+		tabela1.e_rage_r = tabela1.e_rage_r + tabela2.e_rage_r
+		tabela1.e_energy_r = tabela1.e_energy_r + tabela2.e_energy_r
+		tabela1.runepower_r = tabela1.runepower_r + tabela2.runepower_r
+		tabela1.focus_r = tabela1.focus_r + tabela2.focus_r
+		tabela1.holypower_r = tabela1.holypower_r + tabela2.holypower_r
+
+	--> soma os containers de alvos
+		for index, alvo in _ipairs (tabela2.targets._ActorTable) do 
+			--> pega o alvo no ator
+			local alvo_tabela1 = tabela1.targets:PegarCombatente (nil, alvo.nome, nil, true)
+			--> soma o valor
+			alvo_tabela1.total = alvo_tabela1.total + alvo.total
 		end
-	end
 	
-	shadow.mana_r = shadow.mana_r + tabela2.mana_r
-	shadow.e_rage_r = shadow.e_rage_r + tabela2.e_rage_r
-	shadow.e_energy_r = shadow.e_energy_r + tabela2.e_energy_r
-	shadow.runepower_r = shadow.runepower_r + tabela2.runepower_r
-	shadow.focus_r = shadow.focus_r + tabela2.focus_r
-	shadow.holypower_r = shadow.holypower_r + tabela2.holypower_r
-
-	for index, alvo in _ipairs (tabela2.targets._ActorTable) do 
-		local alvo_shadow = shadow.targets:PegarCombatente (alvo.serial, alvo.nome, nil, true)
-		alvo_shadow.total = alvo_shadow.total + alvo.total
-	end
-	
-	--> copia o container de habilidades
-	for spellid, habilidade in _pairs (tabela2.spell_tables._ActorTable) do 
-		local habilidade_shadow = shadow.spell_tables:PegaHabilidade (spellid, true, nil, true)
-		
-		for index, alvo in _ipairs (habilidade.targets._ActorTable) do 
-			local alvo_shadow = habilidade_shadow.targets:PegarCombatente (alvo.serial, alvo.nome, nil, true)
-			alvo_shadow.total = alvo_shadow.total + alvo.total
-		end
-		
-		for key, value in _pairs (habilidade) do 
-			if (_type (value) == "number") then
-				if (key ~= "id") then
-					if (not habilidade_shadow [key]) then 
-						habilidade_shadow [key] = 0
+	--> soma o container de habilidades
+		for spellid, habilidade in _pairs (tabela2.spell_tables._ActorTable) do 
+			--> pega a habilidade no primeiro ator
+			local habilidade_tabela1 = tabela1.spell_tables:PegaHabilidade (spellid, true, "SPELL_ENERGY", false)
+			--> soma os alvos
+			for index, alvo in _ipairs (habilidade.targets._ActorTable) do 
+				local alvo_tabela1 = habilidade_tabela1.targets:PegarCombatente (nil, alvo.nome, nil, true)
+				alvo_tabela1.total = alvo_tabela1.total + alvo.total
+			end
+			--> soma os valores da habilidade
+			for key, value in _pairs (habilidade) do 
+				if (_type (value) == "number") then
+					if (key ~= "id") then
+						if (not habilidade_tabela1 [key]) then 
+							habilidade_tabela1 [key] = 0
+						end
+						habilidade_tabela1 [key] = habilidade_tabela1 [key] + value
 					end
-					habilidade_shadow [key] = habilidade_shadow [key] + value
 				end
 			end
-		end
-	end	
+		end	
 	
-	return shadow
+	return tabela1
 end
 
 atributo_energy.__sub = function (tabela1, tabela2)
 
-	tabela1.mana = tabela1.mana - tabela2.mana
-	tabela1.e_rage = tabela1.e_rage - tabela2.e_rage
-	tabela1.e_energy = tabela1.e_energy - tabela2.e_energy
-	tabela1.runepower = tabela1.runepower - tabela2.runepower
-	tabela1.focus = tabela1.focus - tabela2.focus
-	tabela1.holypower = tabela1.holypower - tabela2.holypower
+	--> soma os totais das energias
+		tabela1.mana = tabela1.mana - tabela2.mana
+		tabela1.e_rage = tabela1.e_rage - tabela2.e_rage
+		tabela1.e_energy = tabela1.e_energy - tabela2.e_energy
+		tabela1.runepower = tabela1.runepower - tabela2.runepower
+		tabela1.focus = tabela1.focus - tabela2.focus
+		tabela1.holypower = tabela1.holypower - tabela2.holypower
+		
+		tabela1.mana_r = tabela1.mana_r - tabela2.mana_r
+		tabela1.e_rage_r = tabela1.e_rage_r - tabela2.e_rage_r
+		tabela1.e_energy_r = tabela1.e_energy_r - tabela2.e_energy_r
+		tabela1.runepower_r = tabela1.runepower_r - tabela2.runepower_r
+		tabela1.focus_r = tabela1.focus_r - tabela2.focus_r
+		tabela1.holypower_r = tabela1.holypower_r - tabela2.holypower_r
 
-	tabela1.mana_r = tabela1.mana_r - tabela2.mana_r
-	tabela1.e_rage_r = tabela1.e_rage_r - tabela2.e_rage_r
-	tabela1.e_energy_r = tabela1.e_energy_r - tabela2.e_energy_r
-	tabela1.runepower_r = tabela1.runepower_r - tabela2.runepower_r
-	tabela1.focus_r = tabela1.focus_r - tabela2.focus_r
-	tabela1.holypower_r = tabela1.holypower_r - tabela2.holypower_r
+	--> soma os containers de alvos
+		for index, alvo in _ipairs (tabela2.targets._ActorTable) do 
+			--> pega o alvo no ator
+			local alvo_tabela1 = tabela1.targets:PegarCombatente (nil, alvo.nome, nil, true)
+			--> soma o valor
+			alvo_tabela1.total = alvo_tabela1.total - alvo.total
+		end
+	
+	--> soma o container de habilidades
+		for spellid, habilidade in _pairs (tabela2.spell_tables._ActorTable) do 
+			--> pega a habilidade no primeiro ator
+			local habilidade_tabela1 = tabela1.spell_tables:PegaHabilidade (spellid, true, "SPELL_ENERGY", false)
+			--> soma os alvos
+			for index, alvo in _ipairs (habilidade.targets._ActorTable) do 
+				local alvo_tabela1 = habilidade_tabela1.targets:PegarCombatente (nil, alvo.nome, nil, true)
+				alvo_tabela1.total = alvo_tabela1.total - alvo.total
+			end
+			--> soma os valores da habilidade
+			for key, value in _pairs (habilidade) do 
+				if (_type (value) == "number") then
+					if (key ~= "id") then
+						if (not habilidade_tabela1 [key]) then 
+							habilidade_tabela1 [key] = 0
+						end
+						habilidade_tabela1 [key] = habilidade_tabela1 [key] - value
+					end
+				end
+			end
+		end
 
 	return tabela1
 end

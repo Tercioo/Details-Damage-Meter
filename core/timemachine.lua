@@ -37,9 +37,9 @@
 		for tipo, tabela in _pairs (self.tabelas) do
 			for nome, jogador in _ipairs (tabela) do
 				if (jogador) then
-					--print (jogador) --> jogador é a referência da tabela classe_damage
 					
-					local ultima_acao = jogador:UltimaAcao()+3
+					local ultima_acao = jogador.last_event+3
+
 					if (ultima_acao > _tempo) then --> okey o jogador esta dando dps
 						if (jogador.on_hold) then --> o dps estava pausado, retornar a ativa
 							jogador:HoldOn (false)
@@ -102,7 +102,7 @@
 		if (not timeMachine.ligada) then
 			return
 		end
-		
+
 		local esta_tabela = timeMachine.tabelas [self.tipo]
 		_table_insert (esta_tabela, self)
 		self.timeMachine = #esta_tabela
@@ -152,26 +152,25 @@
 
 	-- inicia o tempo no shadow do objeto
 	--------------------------------------------------------------------------------	
-		-- eu nao sei se a shadow esta iniciando agora sou esta apenas reabrindo
-		-- tbm nao sei se a shadow esta reabrindo normalmente ou se esta reabrindo devido a combate menor de 4 segundos
-		
-		-- verificar se a shadow esta com TEMPO FINALIZADO
-		-- SE ESTIVER significa que a shadow esta sendo reaberta
 		
 		if (shadow.end_time) then
-			-- reabrir o tempo da shadow
-			-- eu tenho o tempo da abertura do combate atual, e o inicio e fim do tempo da shadow
-			
 			-- tempo do inicio da shadow = tempo de abertura ATUAL menos tempo de combate da shadow
 			local subs = shadow.end_time - shadow.start_time
 			shadow.start_time = tempo - subs
 			shadow.end_time = nil -- o tempo foi aberto retirando o end_time
 			
+			--if (self.nome == "Ditador") then print ("shadow ja itnha end_time") end
+			
 		else -- pela minha logica se nao tiver end_time significa que precisa apenas gravar o tempo de inicio
 			-- a shadow foi recém criada e esta abrindo o tempo pela primeira vez
+			
 			if (shadow.start_time == 0) then --> ja esta em um combate
 				shadow.start_time = tempo
+				--if (self.nome == "Ditador") then print ("shadom sem end_time com start_time == 0") end
+			else
+				--if (self.nome == "Ditador") then print ("shadom sem end_time") end
 			end
+			
 		end
 	end
 
@@ -194,6 +193,7 @@
 
 	--> diz se o dps deste jogador esta em pausa
 	function _detalhes:HoldOn (pausa)
+		--if (self.nome == "Ditador") then print ("colocando em hold on") end
 		if (pausa == nil) then 
 			return self.on_hold --retorna se o dps esta aberto ou fechado para este jogador
 		elseif (pausa) then --> true

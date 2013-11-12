@@ -691,7 +691,7 @@
 				t = _actor.last_event + _detalhes.intervalo_coleta
 			end
 			
-			if (not _actor.grupo and not _actor.boss and not _actor.boss_fight_component and t < _tempo) then 
+			if (not _actor.grupo and not _actor.boss and not _actor.fight_component and not _actor.boss_fight_component and t < _tempo) then 
 				local owner = _actor.owner
 				if (owner) then 
 					local owner_actor = _combate (tipo, owner.nome)

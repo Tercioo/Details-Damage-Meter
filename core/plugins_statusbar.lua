@@ -360,7 +360,7 @@ do
 		-- handle event "COMBAT_PLAYER_ENTER"
 		function PDps:PlayerEnterCombat()
 			for index, child in _ipairs (PDps.childs) do
-				if (child.enabled and child.instance:GetSegment() == 0) then
+				if (child.enabled and (child.instance:GetSegment() == 0 or child.instance:GetSegment() == -1)) then
 					child.tick = _detalhes:ScheduleRepeatingTimer ("PluginDpsUpdate", 1, child)
 				end
 			end
@@ -412,6 +412,8 @@ do
 				local total = child.instance.showing:GetTotal (child.instance.atributo, child.instance.sub_atributo, true)
 				
 				local dps = _math_floor (total / combatTime)
+				
+				--print (total, combatTime, dps)
 				
 				local textStyle = child.options.textStyle
 				if (textStyle == 1) then

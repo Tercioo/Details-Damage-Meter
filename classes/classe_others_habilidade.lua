@@ -48,10 +48,11 @@ function habilidade_misc:Add (serial, nome, flag, who_nome, token, spellID, spel
 
 	--alvo:AddQuantidade (1)
 	if (spellID == "BUFF_OR_DEBUFF") then
+		
 		if (spellName == "COOLDOWN") then
 			self.counter = self.counter + 1
 			
-			--alvo
+			--> alvo
 			local alvo = self.targets._NameIndexTable [nome]
 			if (not alvo) then
 				alvo = self.targets:PegarCombatente (serial, nome, flag, true)
@@ -60,28 +61,11 @@ function habilidade_misc:Add (serial, nome, flag, who_nome, token, spellID, spel
 			end
 			alvo.total = alvo.total + 1
 			
-		elseif (spellName == "BUFF_UPTIME_IN" or spellName == "DEBUFF_UPTIME_IN") then
-			self.actived = true
-			self.activedamt = self.activedamt + 1
-			self.actived_at = _detalhes._tempo
-
 		elseif (spellName == "BUFF_UPTIME_REFRESH") then
 			if (self.actived_at and self.actived) then
 				self.uptime = self.uptime + _detalhes._tempo - self.actived_at
 				token.buff_uptime = token.buff_uptime + _detalhes._tempo - self.actived_at --> token = actor misc object
 				
-			end
-			self.actived_at = _detalhes._tempo
-			self.actived = true
-			
-			if (self.shadow) then
-				return self.shadow:Add (serial, nome, flag, who_nome, token.shadow, spellID, spellName)
-			end
-			
-		elseif (spellName == "DEBUFF_UPTIME_REFRESH") then
-			if (self.actived_at and self.actived) then
-				self.uptime = self.uptime + _detalhes._tempo - self.actived_at
-				token.debuff_uptime = token.debuff_uptime + _detalhes._tempo - self.actived_at --> token = actor misc object
 			end
 			self.actived_at = _detalhes._tempo
 			self.actived = true
@@ -102,6 +86,34 @@ function habilidade_misc:Add (serial, nome, flag, who_nome, token, spellID, spel
 				return self.shadow:Add (serial, nome, flag, who_nome, token.shadow, spellID, spellName)
 			end
 			
+		elseif (spellName == "BUFF_UPTIME_IN" or spellName == "DEBUFF_UPTIME_IN") then
+			self.actived = true
+			self.activedamt = self.activedamt + 1
+			
+			if (self.actived_at and self.actived and spellName == "DEBUFF_UPTIME_IN") then
+				--> ja esta ativo em outro mob e jogou num novo
+				self.uptime = self.uptime + _detalhes._tempo - self.actived_at
+				token.debuff_uptime = token.debuff_uptime + _detalhes._tempo - self.actived_at
+			end
+			
+			self.actived_at = _detalhes._tempo
+			
+			if (self.shadow) then
+				return self.shadow:Add (serial, nome, flag, who_nome, token.shadow, spellID, spellName)
+			end
+			
+		elseif (spellName == "DEBUFF_UPTIME_REFRESH") then
+			if (self.actived_at and self.actived) then
+				self.uptime = self.uptime + _detalhes._tempo - self.actived_at
+				token.debuff_uptime = token.debuff_uptime + _detalhes._tempo - self.actived_at
+			end
+			self.actived_at = _detalhes._tempo
+			self.actived = true
+			
+			if (self.shadow) then
+				return self.shadow:Add (serial, nome, flag, who_nome, token.shadow, spellID, spellName)
+			end
+
 		elseif (spellName == "DEBUFF_UPTIME_OUT") then	
 			if (self.actived_at and self.actived) then
 				self.uptime = self.uptime + _detalhes._tempo - self.actived_at

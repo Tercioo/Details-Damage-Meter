@@ -405,7 +405,7 @@ function atributo_heal:AtualizaBarra (instancia, barras_container, qual_barra, l
 	local porcentagem = self [keyName] / total * 100
 	local esta_porcentagem
 
-	if ((_detalhes.time_type == 2 and self.grupo) or (not _detalhes:CaptureGet ("heal") and not _detalhes:CaptureGet ("aura"))) then
+	if ((_detalhes.time_type == 2 and self.grupo) or (not _detalhes:CaptureGet ("heal") and not _detalhes:CaptureGet ("aura")) or not self.shadow) then
 		hps = healing_total / combat_time
 		self.last_hps = hps
 	else
@@ -1565,14 +1565,14 @@ function atributo_heal:Iniciar (iniciar)
 		self:RegistrarNaTimeMachine() --coloca ele da timeMachine
 		if (self.shadow) then
 			self.shadow.iniciar_hps = true --> isso foi posto recentemente
-			self.shadow:RegistrarNaTimeMachine()
+			--self.shadow:RegistrarNaTimeMachine()
 		end
 	else
 		self.iniciar_hps = false
 		self:DesregistrarNaTimeMachine() --retira ele da timeMachine
 		if (self.shadow) then
-			self.shadow:DesregistrarNaTimeMachine()
 			self.shadow.iniciar_hps = false --> isso foi posto recentemente
+			--self.shadow:DesregistrarNaTimeMachine()
 		end
 	end
 end
@@ -1587,6 +1587,12 @@ end
 				combat_table.totals_grupo [class_type] = combat_table.totals_grupo [class_type] - self.total
 			end
 		end
+		function atributo_heal:add_total (combat_table)
+			combat_table.totals [class_type] = combat_table.totals [class_type] + self.total
+			if (self.grupo) then
+				combat_table.totals_grupo [class_type] = combat_table.totals_grupo [class_type] + self.total
+			end
+		end		
 		
 	--> restaura a tabela de last event
 		function atributo_heal:r_last_events_table (actor)
@@ -1603,35 +1609,101 @@ end
 				actor = self
 			end
 		
-			local overall_cura = _detalhes.tabela_overall [2]
-			local shadow = overall_cura._ActorTable [overall_cura._NameIndexTable [actor.nome]]
+			--> criar uma shadow desse ator se ainda não tiver uma
+				local overall_cura = _detalhes.tabela_overall [2]
+				local shadow = overall_cura._ActorTable [overall_cura._NameIndexTable [actor.nome]]
 
-			--> constroi a shadow se não tiver uma
-			if (not shadow) then 
-				shadow = overall_cura:PegarCombatente (actor.serial, actor.nome, actor.flag_original, true)
-				shadow.classe = actor.classe
-				shadow.start_time = time()
-				shadow.end_time = time()
-			end
-			
-			--> aplica a meta e indexes
-			_detalhes.refresh:r_atributo_heal (actor, shadow)
-			
-			--> soma os valores
-			shadow = shadow + actor
-			
-			--> reconstroi o container de alvos
-			for index, alvo in _ipairs (actor.targets._ActorTable) do
-				_detalhes.refresh:r_alvo_da_habilidade (alvo, shadow.targets)
-			end
-			
-			--> reconstroi o container de habilidades
-			for spellid, habilidade in _pairs (actor.spell_tables._ActorTable) do
-				_detalhes.refresh:r_habilidade_cura (habilidade, shadow.spell_tables)
-				for index, alvo in _ipairs (habilidade.targets._ActorTable) do
-					_detalhes.refresh:r_alvo_da_habilidade (alvo, habilidade.targets.shadow)
+				if (not shadow) then 
+					shadow = overall_cura:PegarCombatente (actor.serial, actor.nome, actor.flag_original, true)
+					shadow.classe = actor.classe
+					shadow.grupo = actor.grupo
+					shadow.start_time = time() - 3
+					shadow.end_time = time()
 				end
-			end
+			
+			--> restaura a meta e indexes ao ator
+				_detalhes.refresh:r_atributo_heal (actor, shadow)
+			
+			--> tempo decorrido (captura de dados)
+				if (actor.end_time) then
+					local tempo = (actor.end_time or time()) - actor.start_time
+					shadow.start_time = shadow.start_time - tempo
+				end
+
+			--> total de cura (captura de dados)
+				shadow.total = shadow.total + actor.total
+			--> total de overheal (captura de dados)
+				shadow.totalover = shadow.totalover + actor.totalover
+			--> total de absorbs (captura de dados)
+				shadow.totalabsorb = shadow.totalabsorb + actor.totalabsorb
+			--> total de cura feita em inimigos (captura de dados)
+				shadow.heal_enemy_amt = shadow.heal_enemy_amt + actor.heal_enemy_amt
+			--> total sem pets (captura de dados)
+				shadow.total_without_pet = shadow.total_without_pet + actor.total_without_pet
+				shadow.totalover_without_pet = shadow.totalover_without_pet + actor.totalover_without_pet
+			--> total de cura recebida (captura de dados)
+				shadow.healing_taken = shadow.healing_taken + actor.healing_taken
+
+			--> total no combate overall (captura de dados)
+				_detalhes.tabela_overall.totals[2] = _detalhes.tabela_overall.totals[2] + actor.total
+				if (actor.grupo) then
+					_detalhes.tabela_overall.totals_grupo[2] = _detalhes.tabela_overall.totals_grupo[2] + actor.total
+				end
+				
+			--> copia o healing_from  (captura de dados)
+				for nome, _ in _pairs (actor.healing_from) do 
+					shadow.healing_from [nome] = true
+				end
+				
+			--> copia o heal_enemy (captura de dados)
+				for spellid, amount in _pairs (actor.heal_enemy) do 
+					if (shadow.heal_enemy [spellid]) then 
+						shadow.heal_enemy [spellid] = shadow.heal_enemy [spellid] + amount
+					else
+						shadow.heal_enemy [spellid] = amount
+					end
+				end
+			
+			--> copia o container de alvos (captura de dados)
+				for index, alvo in _ipairs (actor.targets._ActorTable) do 
+					--> cria e soma o valor do total
+					local alvo_shadow = shadow.targets:PegarCombatente (nil, alvo.nome, nil, true)
+					alvo_shadow.total = alvo_shadow.total + alvo.total
+					alvo_shadow.overheal = alvo_shadow.overheal + alvo.overheal
+					alvo_shadow.absorbed = alvo_shadow.absorbed + alvo.absorbed 
+					--> refresh no alvo
+					_detalhes.refresh:r_alvo_da_habilidade (alvo, shadow.targets)
+				end
+			
+			--> copia o container de habilidades (captura de dados)
+				for spellid, habilidade in _pairs (actor.spell_tables._ActorTable) do 
+					--> cria e soma o valor
+					local habilidade_shadow = shadow.spell_tables:PegaHabilidade (spellid, true, nil, true)
+					--> refresh e soma os valores dos alvos
+					for index, alvo in _ipairs (habilidade.targets._ActorTable) do 
+						--> cria e soma o valor do total
+						local alvo_shadow = habilidade_shadow.targets:PegarCombatente (nil, alvo.nome, nil, true)
+						alvo_shadow.total = alvo_shadow.total + alvo.total
+						alvo_shadow.overheal = alvo_shadow.overheal + alvo.overheal
+						alvo_shadow.absorbed = alvo_shadow.absorbed + alvo.absorbed 
+						--> refresh no alvo da habilidade
+						_detalhes.refresh:r_alvo_da_habilidade (alvo, habilidade_shadow.targets)
+					end
+					--> soma todos os demais valores
+					for key, value in _pairs (habilidade) do 
+						if (_type (value) == "number") then
+							if (key ~= "id") then
+								if (not habilidade_shadow [key]) then 
+									habilidade_shadow [key] = 0
+								end
+								habilidade_shadow [key] = habilidade_shadow [key] + value
+							end
+						end
+					end
+					
+					--> refresh na habilidade
+					_detalhes.refresh:r_habilidade_cura (habilidade, shadow.spell_tables)
+				end
 			
 			return shadow
 		end
@@ -1665,91 +1737,139 @@ function _detalhes.clear:c_atributo_heal (este_jogador)
 	_detalhes.clear:c_container_habilidades (este_jogador.spell_tables)
 end
 
-atributo_heal.__add = function (shadow, tabela2)
+atributo_heal.__add = function (tabela1, tabela2)
 
 	--> tempo decorrido
-	local tempo = (tabela2.end_time or time()) - tabela2.start_time
-	shadow.start_time = shadow.start_time - tempo
+		local tempo = (tabela2.end_time or time()) - tabela2.start_time
+		tabela1.start_time = tabela1.start_time - tempo
 
-	shadow.total = shadow.total + tabela2.total
-	
-	if ( not (shadow.shadow and tabela2.shadow) ) then
-		_detalhes.tabela_overall.totals[2] = _detalhes.tabela_overall.totals[2] + tabela2.total
+	--> total de cura
+		tabela1.total = tabela1.total + tabela2.total
+	--> total de overheal
+		tabela1.totalover = tabela1.totalover + tabela2.totalover
+	--> total de absorbs
+		tabela1.totalabsorb = tabela1.totalabsorb + tabela2.totalabsorb
+	--> total de cura feita em inimigos
+		tabela1.heal_enemy_amt = tabela1.heal_enemy_amt + tabela2.heal_enemy_amt
+	--> total sem pets
+		tabela1.total_without_pet = tabela1.total_without_pet + tabela2.total_without_pet
+		tabela1.totalover_without_pet = tabela1.totalover_without_pet + tabela2.totalover_without_pet
+	--> total de cura recebida
+		tabela1.healing_taken = tabela1.healing_taken + tabela2.healing_taken
 		
-		if (tabela2.grupo) then
-			_detalhes.tabela_overall.totals_grupo[2] = _detalhes.tabela_overall.totals_grupo[2] + tabela2.total
+	--> soma o healing_from
+		for nome, _ in _pairs (tabela2.healing_from) do 
+			tabela1.healing_from [nome] = true
 		end
-	end
 	
-	shadow.totalover = shadow.totalover + tabela2.totalover
-	shadow.totalabsorb = shadow.totalabsorb + tabela2.totalabsorb
-	shadow.heal_enemy_amt = shadow.heal_enemy_amt + tabela2.heal_enemy_amt
-	
-	shadow.total_without_pet = shadow.total_without_pet + tabela2.total_without_pet
-	shadow.totalover_without_pet = shadow.totalover_without_pet + tabela2.totalover_without_pet
-	
-	shadow.healing_taken = shadow.healing_taken + tabela2.healing_taken
-	
-	--> copia o healing_from
-	for nome, _ in _pairs (tabela2.healing_from) do 
-		shadow.healing_from [nome] = true
-	end
-	
-	--> copiar o heal_enemy
-	if (tabela2.heal_enemy) then 
+	--> somar o heal_enemy
 		for spellid, amount in _pairs (tabela2.heal_enemy) do 
-			if (shadow.heal_enemy [spellid]) then 
-				shadow.heal_enemy [spellid] = shadow.heal_enemy [spellid] + amount
+			if (tabela1.heal_enemy [spellid]) then 
+				tabela1.heal_enemy [spellid] = tabela1.heal_enemy [spellid] + amount
 			else
-				shadow.heal_enemy [spellid] = amount
+				tabela1.heal_enemy [spellid] = amount
 			end
 		end
-	end
 	
-	--> copia o container de alvos
-	for index, alvo in _ipairs (tabela2.targets._ActorTable) do 
-		local alvo_shadow = shadow.targets:PegarCombatente (alvo.serial, alvo.nome, alvo.flag_original, true)
-		alvo_shadow.total = alvo_shadow.total + alvo.total
-		alvo_shadow.overheal = alvo_shadow.overheal + alvo.overheal
-		alvo_shadow.absorbed = alvo_shadow.absorbed + alvo.absorbed 
-	end
-	
-	--> copia o container de habilidades
-	for spellid, habilidade in _pairs (tabela2.spell_tables._ActorTable) do 
-		local habilidade_shadow = shadow.spell_tables:PegaHabilidade (spellid, true, nil, true)
-		
-		for index, alvo in _ipairs (habilidade.targets._ActorTable) do 
-			local alvo_shadow = habilidade_shadow.targets:PegarCombatente (alvo.serial, alvo.nome, alvo.flag_original, true)
-			alvo_shadow.total = alvo_shadow.total + alvo.total
-			alvo_shadow.overheal = alvo_shadow.overheal + alvo.overheal
-			alvo_shadow.absorbed = alvo_shadow.absorbed + alvo.absorbed 
+	--> somar o container de alvos
+		for index, alvo in _ipairs (tabela2.targets._ActorTable) do 
+			--> pega o alvo no ator
+			local alvo_tabela1 = tabela1.targets:PegarCombatente (nil, alvo.nome, nil, true)
+			--> soma os valores
+			alvo_tabela1.total = alvo_tabela1.total + alvo.total
+			alvo_tabela1.overheal = alvo_tabela1.overheal + alvo.overheal
+			alvo_tabela1.absorbed = alvo_tabela1.absorbed + alvo.absorbed 
 		end
-		
-		for key, value in _pairs (habilidade) do 
-			if (_type (value) == "number") then
-				if (key ~= "id") then
-					if (not habilidade_shadow [key]) then 
-						habilidade_shadow [key] = 0
+	
+	--> soma o container de habilidades
+		for spellid, habilidade in _pairs (tabela2.spell_tables._ActorTable) do 
+			--> pega a habilidade no primeiro ator
+			local habilidade_tabela1 = tabela1.spell_tables:PegaHabilidade (spellid, true, "SPELL_HEAL", false)
+			--> soma os alvos
+			for index, alvo in _ipairs (habilidade.targets._ActorTable) do 
+				local alvo_tabela1 = habilidade_tabela1.targets:PegarCombatente (nil, alvo.nome, nil, true)
+				alvo_tabela1.total = alvo_tabela1.total + alvo.total
+				alvo_tabela1.overheal = alvo_tabela1.overheal + alvo.overheal
+				alvo_tabela1.absorbed = alvo_tabela1.absorbed + alvo.absorbed 
+			end
+			--> soma os valores da habilidade
+			for key, value in _pairs (habilidade) do 
+				if (_type (value) == "number") then
+					if (key ~= "id") then
+						if (not habilidade_tabela1 [key]) then 
+							habilidade_tabela1 [key] = 0
+						end
+						habilidade_tabela1 [key] = habilidade_tabela1 [key] + value
 					end
-					habilidade_shadow [key] = habilidade_shadow [key] + value
 				end
 			end
 		end
-	end
 	
-	return shadow
+	return tabela1
 end
 
 atributo_heal.__sub = function (tabela1, tabela2)
-	tabela1.total = tabela1.total - tabela2.total
-	tabela1.totalover = tabela1.totalover - tabela2.totalover
-	tabela1.totalabsorb = tabela1.totalabsorb - tabela2.totalabsorb
-	tabela1.heal_enemy_amt = tabela1.heal_enemy_amt - tabela2.heal_enemy_amt
-	
-	tabela1.total_without_pet = tabela1.total_without_pet - tabela2.total_without_pet
-	tabela1.totalover_without_pet = tabela1.totalover_without_pet - tabela2.totalover_without_pet
-	
-	tabela1.healing_taken = tabela1.healing_taken - tabela2.healing_taken
+
+	--> tempo decorrido
+		local tempo = (tabela2.end_time or time()) - tabela2.start_time
+		tabela1.start_time = tabela1.start_time + tempo
+
+	--> total de cura
+		tabela1.total = tabela1.total - tabela2.total
+	--> total de overheal
+		tabela1.totalover = tabela1.totalover - tabela2.totalover
+	--> total de absorbs
+		tabela1.totalabsorb = tabela1.totalabsorb - tabela2.totalabsorb
+	--> total de cura feita em inimigos
+		tabela1.heal_enemy_amt = tabela1.heal_enemy_amt - tabela2.heal_enemy_amt
+	--> total sem pets
+		tabela1.total_without_pet = tabela1.total_without_pet - tabela2.total_without_pet
+		tabela1.totalover_without_pet = tabela1.totalover_without_pet - tabela2.totalover_without_pet
+	--> total de cura recebida
+		tabela1.healing_taken = tabela1.healing_taken - tabela2.healing_taken
+
+	--> reduz o heal_enemy
+		for spellid, amount in _pairs (tabela2.heal_enemy) do 
+			if (tabela1.heal_enemy [spellid]) then 
+				tabela1.heal_enemy [spellid] = tabela1.heal_enemy [spellid] - amount
+			else
+				tabela1.heal_enemy [spellid] = amount
+			end
+		end
+		
+	--> reduz o container de alvos
+		for index, alvo in _ipairs (tabela2.targets._ActorTable) do 
+			--> pega o alvo no ator
+			local alvo_tabela1 = tabela1.targets:PegarCombatente (nil, alvo.nome, nil, true)
+			--> soma os valores
+			alvo_tabela1.total = alvo_tabela1.total - alvo.total
+			alvo_tabela1.overheal = alvo_tabela1.overheal - alvo.overheal
+			alvo_tabela1.absorbed = alvo_tabela1.absorbed - alvo.absorbed 
+		end
+
+	--> reduz o container de habilidades
+		for spellid, habilidade in _pairs (tabela2.spell_tables._ActorTable) do 
+			--> pega a habilidade no primeiro ator
+			local habilidade_tabela1 = tabela1.spell_tables:PegaHabilidade (spellid, true, "SPELL_HEAL", false)
+			--> soma os alvos
+			for index, alvo in _ipairs (habilidade.targets._ActorTable) do 
+				local alvo_tabela1 = habilidade_tabela1.targets:PegarCombatente (nil, alvo.nome, nil, true)
+				alvo_tabela1.total = alvo_tabela1.total - alvo.total
+				alvo_tabela1.overheal = alvo_tabela1.overheal - alvo.overheal
+				alvo_tabela1.absorbed = alvo_tabela1.absorbed - alvo.absorbed 
+			end
+			--> soma os valores da habilidade
+			for key, value in _pairs (habilidade) do 
+				if (_type (value) == "number") then
+					if (key ~= "id") then
+						if (not habilidade_tabela1 [key]) then 
+							habilidade_tabela1 [key] = 0
+						end
+						habilidade_tabela1 [key] = habilidade_tabela1 [key] - value
+					end
+				end
+			end
+		end
 	
 	return tabela1
 end

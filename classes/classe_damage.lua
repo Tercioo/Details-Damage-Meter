@@ -730,7 +730,7 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 	local porcentagem = self [keyName] / total * 100
 	local esta_porcentagem
 
-	if ((_detalhes.time_type == 2 and self.grupo) or not _detalhes:CaptureGet ("damage")) then
+	if ((_detalhes.time_type == 2 and self.grupo) or not _detalhes:CaptureGet ("damage") or not self.shadow) then
 		dps = damage_total / combat_time
 		self.last_dps = dps
 	else
@@ -2139,7 +2139,7 @@ function atributo_damage:MontaDetalhesDamageDone (spellid, barra)
 	for i = #data+2, 5 do
 		gump:HidaDetalheInfo (i)
 	end
-		
+	
 end
 
 
@@ -2193,13 +2193,13 @@ function atributo_damage:Iniciar (iniciar)
 		self:RegistrarNaTimeMachine() --coloca ele da timeMachine
 		if (self.shadow) then
 			self.shadow.dps_started = true --> isso foi posto recentemente
-			self.shadow:RegistrarNaTimeMachine()
+			--self.shadow:RegistrarNaTimeMachine()
 		end
 	else
 		self.dps_started = false
 		self:DesregistrarNaTimeMachine() --retira ele da timeMachine
 		if (self.shadow) then
-			self.shadow:DesregistrarNaTimeMachine()
+			--self.shadow:DesregistrarNaTimeMachine()
 			self.shadow.dps_started = false --> isso foi posto recentemente
 		end
 	end
@@ -2215,6 +2215,12 @@ end
 				combat_table.totals_grupo [class_type] = combat_table.totals_grupo [class_type] - self.total
 			end
 		end
+		function atributo_damage:add_total (combat_table)
+			combat_table.totals [class_type] = combat_table.totals [class_type] + self.total
+			if (self.grupo) then
+				combat_table.totals_grupo [class_type] = combat_table.totals_grupo [class_type] + self.total
+			end
+		end
 		
 	--> restaura a tabela de last event
 		function atributo_damage:r_last_events_table (actor)
@@ -2224,49 +2230,113 @@ end
 			actor.last_events_table = _detalhes:CreateActorLastEventTable()
 		end
 		
-	--> restaura e liga o ator com a sua shadow durante a inicialização
+	--> restaura e liga o ator com a sua shadow durante a inicialização (startup function)
 		function atributo_damage:r_connect_shadow (actor)
 		
 			if (not actor) then
 				actor = self
 			end
-		
-			local overall_dano = _detalhes.tabela_overall [1]
-			local shadow = overall_dano._ActorTable [overall_dano._NameIndexTable [actor.nome]]
-			
-			--> constroi a shadow se não tiver uma
-			if (not shadow) then 
-				shadow = overall_dano:PegarCombatente (actor.serial, actor.nome, actor.flag_original, true)
-				shadow.classe = actor.classe
-				shadow.start_time = time()
-				shadow.end_time = time()
-			end
-			
-			--> reconstruir o container do friendly fire shadow
-			for index, friendlyfire in _ipairs (actor.friendlyfire._ActorTable) do 
-				local ff_shadow = shadow.friendlyfire:PegarCombatente (friendlyfire.serial, friendlyfire.nome, friendlyfire.flag_original, true)
-				friendlyfire.shadow = ff_shadow
-				--nao reconstroi as habilidades aqui
-			end
-			
-			--> aplica a meta e indexes
-			_detalhes.refresh:r_atributo_damage (actor, shadow)
-			
-			--> soma os valores
-			shadow = shadow + actor
-			
-			--> reconstroi o container de alvos
-			for index, alvo in _ipairs (actor.targets._ActorTable) do
-				_detalhes.refresh:r_alvo_da_habilidade (alvo, shadow.targets)
-			end
-			
-			--> reconstroi o container de habilidades
-			for spellid, habilidade in _pairs (actor.spell_tables._ActorTable) do
-				_detalhes.refresh:r_habilidade_dano (habilidade, shadow.spell_tables)
-				for index, alvo in _ipairs (habilidade.targets._ActorTable) do
-					_detalhes.refresh:r_alvo_da_habilidade (alvo, habilidade.targets.shadow)
+	
+			--> criar uma shadow desse ator se ainda não tiver uma
+				local overall_dano = _detalhes.tabela_overall [1]
+				local shadow = overall_dano._ActorTable [overall_dano._NameIndexTable [actor.nome]]
+				
+				if (not shadow) then 
+					shadow = overall_dano:PegarCombatente (actor.serial, actor.nome, actor.flag_original, true)
+					shadow.classe = actor.classe
+					shadow.grupo = actor.grupo
+					shadow.start_time = time() - 3
+					shadow.end_time = time()
 				end
-			end
+
+			--> restaura a meta e indexes ao ator
+				_detalhes.refresh:r_atributo_damage (actor, shadow)
+			
+			--> tempo decorrido (captura de dados)
+				if (actor.end_time) then
+					local tempo = (actor.end_time or time()) - actor.start_time
+					shadow.start_time = shadow.start_time - tempo
+				end
+				
+			--> total de dano (captura de dados)
+				shadow.total = shadow.total + actor.total				
+			--> total de dano sem o pet (captura de dados)
+				shadow.total_without_pet = shadow.total_without_pet + actor.total_without_pet
+			--> total de dano que o ator sofreu (captura de dados)
+				shadow.damage_taken = shadow.damage_taken + actor.damage_taken
+			--> total do friendly fire causado
+				shadow.friendlyfire_total = shadow.friendlyfire_total + actor.friendlyfire_total
+
+			--> total no combate overall (captura de dados)
+				_detalhes.tabela_overall.totals[1] = _detalhes.tabela_overall.totals[1] + actor.total
+				if (actor.grupo) then
+					_detalhes.tabela_overall.totals_grupo[1] = _detalhes.tabela_overall.totals_grupo[1] + actor.total
+				end
+				
+			--> copia o damage_from (captura de dados)
+				for nome, _ in _pairs (actor.damage_from) do 
+					shadow.damage_from [nome] = true
+				end
+			
+			--> copia o container de alvos (captura de dados)
+				for index, alvo in _ipairs (actor.targets._ActorTable) do 
+					--> cria e soma o valor do total
+					local alvo_shadow = shadow.targets:PegarCombatente (nil, alvo.nome, nil, true)
+					alvo_shadow.total = alvo_shadow.total + alvo.total
+					--> refresh no alvo
+					_detalhes.refresh:r_alvo_da_habilidade (alvo, shadow.targets)
+				end
+				
+			--> copia o container de habilidades (captura de dados)
+				for spellid, habilidade in _pairs (actor.spell_tables._ActorTable) do 
+					--> cria e soma o valor
+					local habilidade_shadow = shadow.spell_tables:PegaHabilidade (spellid, true, nil, true)
+					--> refresh e soma os valores dos alvos
+					for index, alvo in _ipairs (habilidade.targets._ActorTable) do 
+						--> cria e soma o valor do total
+						local alvo_shadow = habilidade_shadow.targets:PegarCombatente (nil, alvo.nome, nil, true)
+						alvo_shadow.total = alvo_shadow.total + alvo.total
+						--> refresh no alvo da habilidade
+						_detalhes.refresh:r_alvo_da_habilidade (alvo, habilidade_shadow.targets)
+					end
+					--> soma todos os demais valores
+					for key, value in _pairs (habilidade) do 
+						if (_type (value) == "number") then
+							if (key ~= "id") then
+								if (not habilidade_shadow [key]) then 
+									habilidade_shadow [key] = 0
+								end
+								habilidade_shadow [key] = habilidade_shadow [key] + value
+							end
+						end
+					end
+					
+					--> refresh na habilidade
+					_detalhes.refresh:r_habilidade_dano (habilidade, shadow.spell_tables)
+				end
+				
+			--> copia o container de friendly fire (captura de dados)
+				for index, friendlyFire in _ipairs (actor.friendlyfire._ActorTable) do 
+					--> cria ou pega a shadow
+					local friendlyFire_shadow = shadow.friendlyfire:PegarCombatente (nil, friendlyFire.nome, nil, true)
+					--> refresh na tabela e no container de habilidades
+					_setmetatable (friendlyFire, _detalhes)
+					friendlyFire.shadow = friendlyFire_shadow
+					--> soma o total
+					friendlyFire_shadow.total = friendlyFire_shadow.total + friendlyFire.total
+
+					for spellid, habilidade in _pairs (friendlyFire.spell_tables._ActorTable) do
+						--> cria ou pega a habilidade no container de habilidade
+						local habilidade_shadow = friendlyFire_shadow.spell_tables:PegaHabilidade (spellid, true, nil, true)
+						--> soma os valores
+						habilidade_shadow.counter = habilidade_shadow.counter + habilidade.counter
+						habilidade_shadow.total = habilidade_shadow.total + habilidade.total
+						--> refresh na habilidade
+						_detalhes.refresh:r_habilidade_dano (habilidade, friendlyFire_shadow.spell_tables)
+					end
+					--> refresh na meta e indexes
+					_detalhes.refresh:r_container_habilidades (friendlyFire.spell_tables, friendlyFire_shadow.spell_tables)
+				end
 			
 			return shadow
 		end
@@ -2285,41 +2355,17 @@ function atributo_damage:ColetarLixo (lastevent)
 	return _detalhes:ColetarLixo (class_type, lastevent)
 end
 
-local function ReconstroiMapa (tabela)
-	local mapa = {}
-	for i = 1, #tabela._ActorTable do
-		mapa [tabela._ActorTable[i].nome] = i
-	end
-	tabela._NameIndexTable = mapa
-end
-
 function _detalhes.refresh:r_atributo_damage (este_jogador, shadow)
-	_setmetatable (este_jogador, _detalhes.atributo_damage)
-	este_jogador.__index = _detalhes.atributo_damage
-	
-	if (shadow ~= -1) then
-	
+
+	--> restaura metas do ator
+		_setmetatable (este_jogador, _detalhes.atributo_damage)
+		este_jogador.__index = _detalhes.atributo_damage
+	--> atribui a shadow a ele
 		este_jogador.shadow = shadow
-		
+	--> restaura as metas dos container de alvos, habilidades e ff
 		_detalhes.refresh:r_container_combatentes (este_jogador.targets, shadow.targets)
 		_detalhes.refresh:r_container_combatentes (este_jogador.friendlyfire, shadow.friendlyfire)
 		_detalhes.refresh:r_container_habilidades (este_jogador.spell_tables, shadow.spell_tables)
-		
-		for index, friendlyfire in _ipairs (este_jogador.friendlyfire._ActorTable) do
-
-			_setmetatable (friendlyfire, _detalhes)
-			
-			local friendlyfire_shadow = shadow.friendlyfire:PegarCombatente (nil, friendlyfire.nome) --> corrigido erro aqui, estava este_jogador.nome
-			_detalhes.refresh:r_container_habilidades (friendlyfire.spell_tables, friendlyfire_shadow.spell_tables) -- acho que corrigi mais um bug, estava apenas 'friendlyfire_shadow'
-
-		end
-	else
-		_detalhes.refresh:r_container_combatentes (este_jogador.targets, -1)
-		_detalhes.refresh:r_container_combatentes (este_jogador.friendlyfire, -1)
-		_detalhes.refresh:r_container_habilidades (este_jogador.spell_tables, -1)
-		_detalhes.refresh:r_container_habilidades (este_jogador.friendlyfire.spell_tables, -1)
-	end
-
 end
 
 function _detalhes.clear:c_atributo_damage (este_jogador)
@@ -2351,106 +2397,131 @@ function _detalhes.clear:c_atributo_damage_FF (container)
 	end	
 end
 
-atributo_damage.__add = function (shadow, tabela2)
+atributo_damage.__add = function (tabela1, tabela2)
 
 	--> tempo decorrido
-	local tempo = (tabela2.end_time or time()) - tabela2.start_time
-	shadow.start_time = shadow.start_time - tempo
+		local tempo = (tabela2.end_time or time()) - tabela2.start_time
+		tabela1.start_time = tabela1.start_time - tempo
 	
 	--> total de dano
-	shadow.total = shadow.total + tabela2.total
-	
-	if ( not (shadow.shadow and tabela2.shadow) ) then
-		_detalhes.tabela_overall.totals[1] = _detalhes.tabela_overall.totals[1] + tabela2.total
-	
-		if (tabela2.grupo) then
-			_detalhes.tabela_overall.totals_grupo[1] = _detalhes.tabela_overall.totals_grupo[1] + tabela2.total
-		end
-	end
-		
+		tabela1.total = tabela1.total + tabela2.total
 	--> total de dano sem o pet
-	shadow.total_without_pet = shadow.total_without_pet + tabela2.total_without_pet
+		tabela1.total_without_pet = tabela1.total_without_pet + tabela2.total_without_pet
 	--> total de dano que o cara levou
-	shadow.damage_taken = shadow.damage_taken + tabela2.damage_taken
+		tabela1.damage_taken = tabela1.damage_taken + tabela2.damage_taken
+	--> total do friendly fire causado
+		tabela1.friendlyfire_total = tabela1.friendlyfire_total + tabela2.friendlyfire_total
 
-	--> copia o damage_from
-	for nome, _ in _pairs (tabela2.damage_from) do 
-		shadow.damage_from [nome] = true
-	end
-	
-	--> copia o container de alvos
-	for index, alvo in _ipairs (tabela2.targets._ActorTable) do 
-		local alvo_shadow = shadow.targets:PegarCombatente (alvo.serial, alvo.nome, nil, true)
-		alvo_shadow.total = alvo_shadow.total + alvo.total
-	end
-	--> copia o container de friendly fire
-	for index, friendlyFire in _ipairs (tabela2.friendlyfire._ActorTable) do 
-		-- friendlyFire é uma tabela com .total e .spell_tables  -- habilidade é um container de habilidades tipo damage
-		local friendlyFire_shadow = shadow.friendlyfire:PegarCombatente (friendlyFire.serial, friendlyFire.nome, friendlyFire.flag_original, true)
-		--_detalhes:DelayMsg ("+ achou -> " .. friendlyFire_shadow.nome)
-		
-		--friendlyFire_shadow agora tem uma tabela com .total e .spell_tables
-		friendlyFire_shadow.total = friendlyFire_shadow.total + friendlyFire.total
-		
-		--> container de habilidade
-		
-		local shadow_habilidades = friendlyFire_shadow.spell_tables
-		
-		for spellid, habilidade in _pairs (friendlyFire.spell_tables._ActorTable) do
-		
-			local habilidade_shadow = friendlyFire_shadow.spell_tables:PegaHabilidade (spellid, true, nil, true)
-			
-			habilidade_shadow.counter = habilidade_shadow.counter + habilidade.counter
-			habilidade_shadow.total = habilidade_shadow.total + habilidade.total
-			habilidade.shadow = habilidade_shadow --> aqui ele linka a habilidade com a shadow dele
-			
-			--> restaura a metatable das habilidades
-			_detalhes.refresh:r_habilidade_dano (habilidade, shadow_habilidades)
-			
+	--> soma o damage_from
+		for nome, _ in _pairs (tabela2.damage_from) do 
+			tabela1.damage_from [nome] = true
 		end
-	end
 	
-	--> copia o container de habilidades
-	for spellid, habilidade in _pairs (tabela2.spell_tables._ActorTable) do 
-		local habilidade_shadow = shadow.spell_tables:PegaHabilidade (spellid, true, nil, true)
-		
-		for index, alvo in _ipairs (habilidade.targets._ActorTable) do 
-			local alvo_shadow = habilidade_shadow.targets:PegarCombatente (alvo.serial, alvo.nome, alvo.flag_original, true)
-			alvo_shadow.total = alvo_shadow.total + alvo.total
+	--> soma os containers de alvos
+		for index, alvo in _ipairs (tabela2.targets._ActorTable) do 
+			--> pega o alvo no ator
+			local alvo_tabela1 = tabela1.targets:PegarCombatente (nil, alvo.nome, nil, true)
+			--> soma o valor
+			alvo_tabela1.total = alvo_tabela1.total + alvo.total
 		end
 		
-		for key, value in _pairs (habilidade) do 
-			if (_type (value) == "number") then
-				if (key ~= "id") then
-					if (not habilidade_shadow [key]) then 
-						habilidade_shadow [key] = 0
+	--> soma o container de habilidades
+		for spellid, habilidade in _pairs (tabela2.spell_tables._ActorTable) do 
+			--> pega a habilidade no primeiro ator
+			local habilidade_tabela1 = tabela1.spell_tables:PegaHabilidade (spellid, true, "SPELL_DAMAGE", false)
+			--> soma os alvos
+			for index, alvo in _ipairs (habilidade.targets._ActorTable) do 
+				local alvo_tabela1 = habilidade_tabela1.targets:PegarCombatente (nil, alvo.nome, nil, true)
+				alvo_tabela1.total = alvo_tabela1.total + alvo.total
+			end
+			--> soma os valores da habilidade
+			for key, value in _pairs (habilidade) do 
+				if (_type (value) == "number") then
+					if (key ~= "id") then
+						if (not habilidade_tabela1 [key]) then 
+							habilidade_tabela1 [key] = 0
+						end
+						habilidade_tabela1 [key] = habilidade_tabela1 [key] + value
 					end
-					habilidade_shadow [key] = habilidade_shadow [key] + value
 				end
 			end
 		end
-	end
 	
-	return shadow
+	--> soma o container de friendly fire
+		for index, friendlyFire in _ipairs (tabela2.friendlyfire._ActorTable) do 
+			--> pega o ator ff no ator principal
+			local friendlyFire_tabela1 = tabela1.friendlyfire:PegarCombatente (nil, friendlyFire.nome, nil, true)
+			--> soma o total
+			friendlyFire_tabela1.total = friendlyFire_tabela1.total + friendlyFire.total
+			--> soma as habilidades
+			for spellid, habilidade in _pairs (friendlyFire.spell_tables._ActorTable) do
+				local habilidade_tabela1 = friendlyFire_tabela1.spell_tables:PegaHabilidade (spellid, true, nil, false)
+				habilidade_tabela1.counter = habilidade_tabela1.counter + habilidade.counter
+				habilidade_tabela1.total = habilidade_tabela1.total + habilidade.total
+			end
+		end
+
+	return tabela1
 end
 
 atributo_damage.__sub = function (tabela1, tabela2)
 
-	tabela1.total = tabela1.total - tabela2.total
-	tabela1.total_without_pet = tabela1.total_without_pet - tabela2.total_without_pet
-	tabela1.damage_taken = tabela1.damage_taken - tabela2.damage_taken
-	tabela1.friendlyfire_total = tabela1.friendlyfire_total - tabela2.friendlyfire_total
+	--> tempo decorrido
+		local tempo = (tabela2.end_time or time()) - tabela2.start_time
+		tabela1.start_time = tabela1.start_time + tempo
 	
-	for index, friendlyfire in _ipairs (tabela2.friendlyfire._ActorTable) do 
-		friendlyfire.shadow.total = friendlyfire.shadow.total - friendlyfire.total
-		for spellid, habilidade in _pairs (friendlyfire.spell_tables._ActorTable) do 
-			-- eu di reload para trocar os talentos
-			if (not habilidade.shadow) then --> tapa buraco
-				return
-			end
-			habilidade.shadow.total = habilidade.shadow.total - habilidade.total --    attempt to index field 'shadow' (a nil value) -- Deu erro denovo depois de um /reload
+	--> total de dano
+		tabela1.total = tabela1.total - tabela2.total
+	--> total de dano sem o pet
+		tabela1.total_without_pet = tabela1.total_without_pet - tabela2.total_without_pet
+	--> total de dano que o cara levou
+		tabela1.damage_taken = tabela1.damage_taken - tabela2.damage_taken
+	--> total do friendly fire causado
+		tabela1.friendlyfire_total = tabela1.friendlyfire_total - tabela2.friendlyfire_total
+		
+	--> reduz os containers de alvos
+		for index, alvo in _ipairs (tabela2.targets._ActorTable) do 
+			--> pega o alvo no ator
+			local alvo_tabela1 = tabela1.targets:PegarCombatente (nil, alvo.nome, nil, true)
+			--> subtrai o valor
+			alvo_tabela1.total = alvo_tabela1.total - alvo.total
 		end
-	end
+		
+	--> reduz o container de habilidades
+		for spellid, habilidade in _pairs (tabela2.spell_tables._ActorTable) do 
+			--> pega a habilidade no primeiro ator
+			local habilidade_tabela1 = tabela1.spell_tables:PegaHabilidade (spellid, true, "SPELL_DAMAGE", false)
+			--> soma os alvos
+			for index, alvo in _ipairs (habilidade.targets._ActorTable) do 
+				local alvo_tabela1 = habilidade_tabela1.targets:PegarCombatente (nil, alvo.nome, nil, true)
+				alvo_tabela1.total = alvo_tabela1.total - alvo.total
+			end
+			--> subtrai os valores da habilidade
+			for key, value in _pairs (habilidade) do 
+				if (_type (value) == "number") then
+					if (key ~= "id") then
+						if (not habilidade_tabela1 [key]) then 
+							habilidade_tabela1 [key] = 0
+						end
+						habilidade_tabela1 [key] = habilidade_tabela1 [key] - value
+					end
+				end
+			end
+		end
+		
+	--> reduz o container de friendly fire
+		for index, friendlyFire in _ipairs (tabela2.friendlyfire._ActorTable) do 
+			--> pega o ator ff no ator principal
+			local friendlyFire_tabela1 = tabela1.friendlyfire:PegarCombatente (nil, friendlyFire.nome, nil, true)
+			--> soma o total
+			friendlyFire_tabela1.total = friendlyFire_tabela1.total - friendlyFire.total
+			--> soma as habilidades
+			for spellid, habilidade in _pairs (friendlyFire.spell_tables._ActorTable) do
+				local habilidade_tabela1 = friendlyFire_tabela1.spell_tables:PegaHabilidade (spellid, true, nil, false)
+				habilidade_tabela1.counter = habilidade_tabela1.counter - habilidade.counter
+				habilidade_tabela1.total = habilidade_tabela1.total - habilidade.total
+			end
+		end
 	
 	return tabela1
 end

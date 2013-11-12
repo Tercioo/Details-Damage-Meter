@@ -261,12 +261,8 @@ end
 function _detalhes.refresh:r_habilidade_dano (habilidade, shadow) --recebeu o container shadow
 	_setmetatable (habilidade, habilidade_dano)
 	habilidade.__index = habilidade_dano
-	
-	if (shadow ~= -1) then
-		habilidade.shadow = shadow._ActorTable[habilidade.id]		
-		_detalhes.refresh:r_container_combatentes (habilidade.targets, habilidade.shadow.targets)	else
-		_detalhes.refresh:r_container_combatentes (habilidade.targets, -1)
-	end
+	habilidade.shadow = shadow._ActorTable [habilidade.id]
+	_detalhes.refresh:r_container_combatentes (habilidade.targets, habilidade.shadow.targets)
 end
 
 function _detalhes.clear:c_habilidade_dano (habilidade)

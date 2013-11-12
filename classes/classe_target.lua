@@ -29,13 +29,9 @@ function alvo_da_habilidade:AddQuantidade (amt)
 end
 
 function _detalhes.refresh:r_alvo_da_habilidade (este_alvo, shadow)
-	--print (shadow)
-	--print (este_alvo.shadow)
 	_setmetatable (este_alvo, alvo_da_habilidade)
 	este_alvo.__index = alvo_da_habilidade
-	if (shadow ~= -1) then
-		este_alvo.shadow = shadow._ActorTable [shadow._NameIndexTable[este_alvo.nome]]
-	end
+	este_alvo.shadow = shadow._ActorTable [shadow._NameIndexTable [este_alvo.nome]]
 end
 
 function _detalhes.clear:c_alvo_da_habilidade (este_alvo)

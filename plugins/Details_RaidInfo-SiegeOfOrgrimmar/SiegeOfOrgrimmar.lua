@@ -93,9 +93,6 @@ local siege_of_orgrimmar = {
 		
 		--Sha of Pride
 		[72791] = true, --lingering corruption
-		--[] = true, --
-		--[] = true, --
-		--[] = true, --
 		
 		--Galakras
 		--[72367] = true, --dragonmaw tidal shaman
@@ -126,6 +123,53 @@ local siege_of_orgrimmar = {
 		[71773] = true, -- krokron warshaman
 		[71770] = true, -- krokron iron blade
 		--[71715] = true, -- orgrimmar faithful -- also is used in nazgrim encounter
+		
+		--> malkorok
+		[72728] = true, --korkron blood axe
+		[72784] = true, --korkron gunner
+		[72903] = true, --korkron siegemaster
+		[72744] = true, --korkron skullspliter
+		[72768] = true, --korkron warwolf
+		[72770] = true, --korkron darkfarseer
+		
+		--> spoils of pandaria
+		[73904] = true, --korkron iron sentinel
+		[73742] = true, --thresher turret
+		[73767] = true, --korkron shrederer
+		[73775] = true, --war master kragg
+		[73152] = true, --storeroom guard
+		
+		--> blackfuse
+		[73539] = true, --korkron den mother
+		[73541] = true, --korkron wolf puppy
+		[73194] = true, --korkron iron scorpion
+		--
+		[72981] = true, --aggron
+		[72964] = true, --gorodan
+		[72986] = true, --shanna sparkfizz
+		[73091] = true, --blackfuse sellsword
+		[73095] = true, --blackfuse enginer
+		
+		--> thok
+		--73195 --krokon jailer
+		[73188] = true, --captive cave bat
+		[73184] = true, --starved yeti
+		[73185] = true, --enraged mushan beast
+		[73223] = true, --pterrodax
+		
+		--> paragons
+		[72954] = true, --korthik guard
+		[72929] = true, --srathik amber master
+		[73012] = true, --klaxxi skirmisher
+		[72927] = true, --kovok
+
+		--> garrosh
+		[73414] = true, --korkron reaper
+		[73452] = true, --harbinger of y'shaarj
+		[73415] = true, --ichor of y'shaarj
+		
+		
+		
 	},
 	
 	encounters = {
@@ -570,6 +614,7 @@ local siege_of_orgrimmar = {
 						[144918] = {0x40, 0x80}, --> Cutter Laser
 						[144498] = {0x8, 0x200}, --> Explosive Tar 
 						[144327] = {}, --> Ricochet 
+						[144919] = {}, --> Tar Explosion
 			},
 			
 			continuo = {
@@ -604,7 +649,8 @@ local siege_of_orgrimmar = {
 						144485, --> Shock Pulse 
 						144154, --> Demolisher Cannons 
 						144918, --> Cutter Laser
-						144498 --> Explosive Tar 
+						144498, --> Explosive Tar 
+						144919,
 					}
 				}
 			},

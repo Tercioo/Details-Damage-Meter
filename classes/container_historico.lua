@@ -72,8 +72,10 @@ function historico:adicionar (tabela)
 				end
 				
 				self.tabelas[2] = self.tabelas[2] + self.tabelas[3]
-				self.tabelas[2].is_trash = true
+				_detalhes.tabela_overall = _detalhes.tabela_overall - self.tabelas[3]
 				
+				self.tabelas[2].is_trash = true
+
 				--> remover
 				_table_remove (self.tabelas, 3)
 				_detalhes:SendEvent ("DETAILS_DATA_SEGMENTREMOVED", nil, nil)
@@ -97,15 +99,8 @@ function historico:adicionar (tabela)
 	
 		--> diminuir quantidades no overall
 		_detalhes.tabela_overall = _detalhes.tabela_overall - combat_removed
-		_detalhes.tabela_overall.start_time = _detalhes.tabela_overall.start_time + (combat_removed.end_time-combat_removed.start_time)
-		
-		local amt_mortes =  #combat_removed.last_events_tables --> quantas mortes teve nessa luta
-		if (amt_mortes > 0) then
-			for i = #_detalhes.tabela_overall.last_events_tables, #_detalhes.tabela_overall.last_events_tables-amt_mortes, -1 do 
-				_table_remove (_detalhes.tabela_overall.last_events_tables, #_detalhes.tabela_overall.last_events_tables)
-			end
-		end
-		
+		--_detalhes.tabela_overall.start_time = _detalhes.tabela_overall.start_time + (combat_removed.end_time-combat_removed.start_time)
+
 		--> verificar novamente a time machine
 		for _, jogador in ipairs (combat_removed [1]._ActorTable) do --> damage
 			if (jogador.timeMachine) then

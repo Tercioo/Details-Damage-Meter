@@ -331,6 +331,7 @@
 				end
 				
 				--> verifica memoria
+				_detalhes:FlagActorsOnCommonFight() --fight_component
 				_detalhes:CheckMemoryAfterCombat()
 				
 			else
@@ -649,6 +650,60 @@
 						shadow.boss_fight_component = true
 					end
 				end
+			end
+		end
+		
+		local fight_component = function (energy_container, misc_container, name)
+			local on_energy = energy_container._ActorTable [energy_container._NameIndexTable [name]]
+			if (on_energy) then
+				on_energy.fight_component = true
+			end
+			local on_misc = misc_container._ActorTable [misc_container._NameIndexTable [name]]
+			if (on_misc) then
+				on_misc.fight_component = true
+			end
+		end
+		
+		function _detalhes:FlagActorsOnCommonFight()
+		
+			local damage_container = _detalhes.tabela_vigente [1]
+			local healing_container = _detalhes.tabela_vigente [2]
+			local energy_container = _detalhes.tabela_vigente [3]
+			local misc_container = _detalhes.tabela_vigente [4]
+			
+			for class_type, container in _ipairs ({damage_container, healing_container}) do 
+			
+				for _, actor in _ipairs (container._ActorTable) do 
+					if (actor.grupo) then
+						if (class_type == 1 or class_type == 2) then
+							for _, target_actor in _ipairs (actor.targets._ActorTable) do 
+								local target_object = container._ActorTable [container._NameIndexTable [target_actor.nome]]
+								if (target_object) then
+									target_object.fight_component = true
+									fight_component (energy_container, misc_container, target_actor.nome)
+								end
+							end
+							if (class_type == 1) then
+								for damager_actor, _ in _pairs (actor.damage_from) do 
+									local target_object = container._ActorTable [container._NameIndexTable [damager_actor]]
+									if (target_object) then
+										target_object.fight_component = true
+										fight_component (energy_container, misc_container, damager_actor)
+									end
+								end
+							elseif (class_type == 2) then
+								for healer_actor, _ in _pairs (actor.healing_from) do 
+									local target_object = container._ActorTable [container._NameIndexTable [healer_actor]]
+									if (target_object) then
+										target_object.fight_component = true
+										fight_component (energy_container, misc_container, healer_actor)
+									end
+								end
+							end
+						end
+					end
+				end
+				
 			end
 		end
 

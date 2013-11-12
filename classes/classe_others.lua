@@ -1807,6 +1807,16 @@ local sub_list = {"cc_break", "ress", "interrupt", "cooldowns_defensive", "dispe
 				end
 			end
 		end
+		function atributo_misc:add_total (combat_table)
+			for _, sub_attribute in _ipairs (sub_list) do 
+				if (self [sub_attribute]) then
+					combat_table.totals [class_type][sub_attribute] = combat_table.totals [class_type][sub_attribute] + self [sub_attribute]
+					if (self.grupo) then
+						combat_table.totals_grupo [class_type][sub_attribute] = combat_table.totals_grupo [class_type][sub_attribute] + self [sub_attribute]
+					end
+				end
+			end
+		end
 		
 	--> restaura e liga o ator com a sua shadow durante a inicialização
 		function atributo_misc:r_connect_shadow (actor)
@@ -1815,133 +1825,223 @@ local sub_list = {"cc_break", "ress", "interrupt", "cooldowns_defensive", "dispe
 				actor = self
 			end
 		
-			local overall_misc = _detalhes.tabela_overall [4]
-			local shadow = overall_misc._ActorTable [overall_misc._NameIndexTable [actor.nome]]
+			--> criar uma shadow desse ator se ainda não tiver uma
+				local overall_misc = _detalhes.tabela_overall [4]
+				local shadow = overall_misc._ActorTable [overall_misc._NameIndexTable [actor.nome]]
 			
-			if (not actor.nome) then
-				actor.nome = "unknown"
-			end
-			
-			--> constroi a shadow se não tiver uma
-			if (not shadow) then 
-				shadow = overall_misc:PegarCombatente (actor.serial, actor.nome, actor.flag_original, true)
-				shadow.classe = actor.classe
-			end
-			
-			--> cooldowns
-			if (actor.cooldowns_defensive) then
-				if (not shadow.cooldowns_defensive_targets) then
-					shadow.cooldowns_defensive = 0
-					shadow.cooldowns_defensive_targets = container_combatentes:NovoContainer (container_damage_target)
-					shadow.cooldowns_defensive_spell_tables = container_habilidades:NovoContainer (_detalhes.container_type.CONTAINER_MISC_CLASS)
+				if (not actor.nome) then
+					actor.nome = "unknown"
 				end
-			end			
-			--> buff uptime
-			if (actor.buff_uptime) then
-				if (not shadow.buff_uptime_spell_targets) then
-					shadow.buff_uptime = 0
-					shadow.buff_uptime_spell_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
-					shadow.buff_uptime_spell_tables = container_habilidades:NovoContainer (_detalhes.container_type.CONTAINER_MISC_CLASS) --> cria o container das habilidades usadas para interromper
+				
+				if (not shadow) then 
+					shadow = overall_misc:PegarCombatente (actor.serial, actor.nome, actor.flag_original, true)
+					shadow.classe = actor.classe
+					shadow.grupo = actor.grupo
 				end
-			end			
-			--> debuff uptime
-			if (actor.debuff_uptime) then
-				if (not shadow.debuff_uptime_spell_targets) then
-					shadow.debuff_uptime = 0
-					shadow.debuff_uptime_spell_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
-					shadow.debuff_uptime_spell_tables = container_habilidades:NovoContainer (_detalhes.container_type.CONTAINER_MISC_CLASS) --> cria o container das habilidades usadas para interromper
-				end
-			end			
-			--> interrupt
-			if (actor.interrupt) then
-				if (not shadow.interrupt_targets) then
-					shadow.interrupt = 0
-					shadow.interrupt_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
-					shadow.interrupt_spell_tables = container_habilidades:NovoContainer (_detalhes.container_type.CONTAINER_MISC_CLASS) --> cria o container das habilidades usadas para interromper
-					shadow.interrompeu_oque = {}
-				end
-			end			
-			--> ress
-			if (actor.ress) then
-				if (not shadow.ress_targets) then
-					shadow.ress = 0
-					shadow.ress_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
-					shadow.ress_spell_tables = container_habilidades:NovoContainer (_detalhes.container_type.CONTAINER_MISC_CLASS) --> cria o container das habilidades usadas para interromper
-				end
-			end			
-			--> dispell
-			if (actor.dispell) then
-				if (not shadow.dispell_targets) then
-					shadow.dispell = 0
-					shadow.dispell_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
-					shadow.dispell_spell_tables = container_habilidades:NovoContainer (_detalhes.container_type.CONTAINER_MISC_CLASS) --> cria o container das habilidades usadas para interromper
-					shadow.dispell_oque = {}
-				end
-			end			
-			--> cc break
-			if (actor.cc_break) then
-				if (not shadow.cc_break) then
-					shadow.cc_break = 0
-					shadow.cc_break_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
-					shadow.cc_break_spell_tables = container_habilidades:NovoContainer (_detalhes.container_type.CONTAINER_MISC_CLASS) --> cria o container das habilidades usadas para interromper
-					shadow.cc_break_oque = {}
-				end
-			end
-			
+
 			--> aplica a meta e indexes
-			_detalhes.refresh:r_atributo_misc (actor, shadow)
-			
-			--> soma os valores
-			shadow = shadow + actor
-			
-			if (actor.interrupt) then
-				for _, este_alvo in _ipairs (actor.interrupt_targets._ActorTable) do
-					_detalhes.refresh:r_alvo_da_habilidade (este_alvo, shadow.interrupt_targets)
-				end
-			end
-			if (actor.buff_uptime) then
-				for _, este_alvo in _ipairs (actor.buff_uptime_targets._ActorTable) do
-					_detalhes.refresh:r_alvo_da_habilidade (este_alvo, shadow.buff_uptime_targets)
-				end
-			end
-			if (actor.debuff_uptime) then
-				for _, este_alvo in _ipairs (actor.debuff_uptime_targets._ActorTable) do
-					_detalhes.refresh:r_alvo_da_habilidade (este_alvo, shadow.debuff_uptime_targets)
-				end
-			end
-			if (actor.cooldowns_defensive) then
-				for _, este_alvo in _ipairs (actor.cooldowns_defensive_targets._ActorTable) do
-					_detalhes.refresh:r_alvo_da_habilidade (este_alvo, shadow.cooldowns_defensive_targets)
-				end
-			end
-			if (actor.ress) then
-				for _, este_alvo in _ipairs (actor.ress_targets._ActorTable) do
-					_detalhes.refresh:r_alvo_da_habilidade (este_alvo, shadow.ress_targets)
-				end
-			end
-			if (actor.dispell) then
-				for _, este_alvo in _ipairs (actor.dispell_targets._ActorTable) do
-					_detalhes.refresh:r_alvo_da_habilidade (este_alvo, shadow.dispell_targets)
-				end
-			end
-			if (actor.cc_break) then
-				for _, este_alvo in _ipairs (actor.cc_break_targets._ActorTable) do
-					_detalhes.refresh:r_alvo_da_habilidade (este_alvo, shadow.cc_break_targets)
-				end
-			end
-			
-			--> reconstroi o container de alvos
-			local t = {"cc_break", "ress", "interrupt", "cooldowns_defensive", "dispell", "buff_uptime", "debuff_uptime"}
-			for index, sub_attribute in _ipairs (t) do 
-				if (actor [sub_attribute]) then
-					for spellid, habilidade in _pairs (actor [sub_attribute .. "_spell_tables"]._ActorTable) do
-						_detalhes.refresh:r_habilidade_misc (habilidade, shadow [sub_attribute .. "_spell_tables"])
-						for _, este_alvo in _ipairs (habilidade.targets._ActorTable) do
-							_detalhes.refresh:r_alvo_da_habilidade (este_alvo, habilidade.targets.shadow)
+				_detalhes.refresh:r_atributo_misc (actor, shadow)
+
+			--> somar as keys das habilidades
+				local somar_keys = function (habilidade, habilidade_shadow)
+					for key, value in _pairs (habilidade) do 
+						if (_type (value) == "number") then
+							if (key ~= "id") then
+								if (not habilidade_shadow [key]) then 
+									habilidade_shadow [key] = 0
+								end
+								habilidade_shadow [key] = habilidade_shadow [key] + value
+							end
 						end
 					end
 				end
-			end
+			--> somar os alvos do ator
+				local somar_alvos = function (container)
+					for index, alvo in _ipairs (actor [container]._ActorTable) do
+						--> cria e soma o valor do total
+						local alvo_shadow = shadow [container]:PegarCombatente (nil, alvo.nome, nil, true)
+						alvo_shadow.total = alvo_shadow.total + alvo.total
+						--> refresh no alvo
+						_detalhes.refresh:r_alvo_da_habilidade (alvo, shadow [container])
+					end
+				end
+			--> somar as habilidades do ator
+				local somar_habilidades = function (container, shadow)
+					for spellid, habilidade in _pairs (actor [container]._ActorTable) do 
+						--> cria e soma o valor
+						local habilidade_shadow = shadow [container]:PegaHabilidade (spellid, true, nil, true)
+						--> refresh e soma os valores dos alvos
+						for index, alvo in _ipairs (habilidade.targets._ActorTable) do 
+							--> cria e soma o valor do total
+							local alvo_shadow = habilidade_shadow.targets:PegarCombatente (nil, alvo.nome, nil, true)
+							alvo_shadow.total = alvo_shadow.total + alvo.total
+							--> refresh no alvo da habilidade
+							_detalhes.refresh:r_alvo_da_habilidade (alvo, habilidade_shadow.targets)
+						end
+						--> soma todos os demais valores
+						somar_keys (habilidade, habilidade_shadow)
+						--> refresh na habilidade
+						_detalhes.refresh:r_habilidade_misc (habilidade, shadow [container])
+					end
+				end
+				
+			--> cooldowns
+				if (actor.cooldowns_defensive) then
+					--> soma o total (captura de dados)
+						shadow.cooldowns_defensive = shadow.cooldowns_defensive + actor.cooldowns_defensive
+					--> total no combate overall (captura de dados)
+						_detalhes.tabela_overall.totals[4].cooldowns_defensive = _detalhes.tabela_overall.totals[4].cooldowns_defensive + actor.cooldowns_defensive
+						if (actor.grupo) then
+							_detalhes.tabela_overall.totals_grupo[4].cooldowns_defensive = _detalhes.tabela_overall.totals_grupo[4].cooldowns_defensive + actor.cooldowns_defensive
+						end
+					--> copia o container de alvos (captura de dados)
+						somar_alvos ("cooldowns_defensive_targets", shadow)
+					--> copia o container de habilidades (captura de dados)
+						somar_habilidades ("cooldowns_defensive_spell_tables", shadow)
+				end
+				
+			--> buff uptime
+				if (actor.buff_uptime) then
+					--> soma o total (captura de dados)
+						shadow.buff_uptime = shadow.buff_uptime + actor.buff_uptime
+					--> copia o container de alvos (captura de dados)
+						somar_alvos ("buff_uptime_targets", shadow)
+					--> copia o container de habilidades (captura de dados)
+						somar_habilidades ("buff_uptime_spell_tables", shadow)
+				end
+				
+			--> debuff uptime
+				if (actor.debuff_uptime) then
+					--> soma o total (captura de dados)
+						shadow.debuff_uptime = shadow.debuff_uptime + actor.debuff_uptime
+					--> copia o container de alvos (captura de dados)
+						somar_alvos ("debuff_uptime_targets", shadow)
+					--> copia o container de habilidades (captura de dados)
+						somar_habilidades ("debuff_uptime_spell_tables", shadow)
+				end
+				
+			--> interrupt
+				if (actor.interrupt) then
+					--> soma o total (captura de dados)
+						shadow.interrupt = shadow.interrupt + actor.interrupt
+					--> total no combate overall (captura de dados)
+						_detalhes.tabela_overall.totals[4].interrupt = _detalhes.tabela_overall.totals[4].interrupt + actor.interrupt
+						if (actor.grupo) then
+							_detalhes.tabela_overall.totals_grupo[4].interrupt = _detalhes.tabela_overall.totals_grupo[4].interrupt + actor.interrupt
+						end
+					--> copia o container de alvos (captura de dados)
+						somar_alvos ("interrupt_targets", shadow)
+					--> copia o container de habilidades (captura de dados)	
+						somar_habilidades ("interrupt_spell_tables", shadow)
+					--> copia o que cada habilidade interrompeu
+						for spellid, habilidade in _pairs (actor.interrupt_spell_tables._ActorTable) do 
+							--> pega o actor da shadow
+							local habilidade_shadow = shadow.interrupt_spell_tables:PegaHabilidade (spellid, true, nil, true)
+							--> copia as habilidades interrompidas
+							habilidade_shadow.interrompeu_oque = habilidade_shadow.interrompeu_oque or {}
+							for _spellid, amount in _pairs (habilidade.interrompeu_oque) do
+								if (habilidade_shadow.interrompeu_oque [_spellid]) then
+									habilidade_shadow.interrompeu_oque [_spellid] = habilidade_shadow.interrompeu_oque [_spellid] + amount
+								else
+									habilidade_shadow.interrompeu_oque [_spellid] = amount
+								end
+							end
+						end
+					--> copia o que ator interrompeu
+						for spellid, amount in _pairs (actor.interrompeu_oque) do 
+							if (not shadow.interrompeu_oque [spellid]) then 
+								shadow.interrompeu_oque [spellid] = 0
+							end
+							shadow.interrompeu_oque [spellid] = shadow.interrompeu_oque [spellid] + amount
+						end
+				end
+
+			--> ress
+				if (actor.ress) then
+					--> soma o total (captura de dados)
+						shadow.ress = shadow.ress + actor.ress
+					--> total no combate overall (captura de dados)
+						_detalhes.tabela_overall.totals[4].ress = _detalhes.tabela_overall.totals[4].ress + actor.ress
+						if (actor.grupo) then
+							_detalhes.tabela_overall.totals_grupo[4].ress = _detalhes.tabela_overall.totals_grupo[4].ress + actor.ress
+						end
+					--> copia o container de alvos (captura de dados)
+						somar_alvos ("ress_targets", shadow)
+					--> copia o container de habilidades (captura de dados)	
+						somar_habilidades ("ress_spell_tables", shadow)
+				end
+
+			--> dispell
+				if (actor.dispell) then
+					--> soma o total (captura de dados)
+						shadow.dispell = shadow.dispell + actor.dispell
+					--> total no combate overall (captura de dados)	
+						_detalhes.tabela_overall.totals[4].dispell = _detalhes.tabela_overall.totals[4].dispell + actor.dispell
+						if (actor.grupo) then
+							_detalhes.tabela_overall.totals_grupo[4].dispell = _detalhes.tabela_overall.totals_grupo[4].dispell + actor.dispell
+						end
+					--> copia o container de alvos (captura de dados)
+						somar_alvos ("dispell_targets", shadow)
+					--> copia o container de habilidades (captura de dados)	
+						somar_habilidades ("dispell_spell_tables", shadow)
+					--> copia o que cada habilidade dispelou
+						for spellid, habilidade in _pairs (actor.dispell_spell_tables._ActorTable) do 
+							--> pega o actor da shadow
+							local habilidade_shadow = shadow.dispell_spell_tables:PegaHabilidade (spellid, true, nil, true)
+							--> copia as habilidades dispeladas
+							habilidade_shadow.dispell_oque = habilidade_shadow.dispell_oque or {}
+							for _spellid, amount in _pairs (habilidade.dispell_oque) do
+								if (habilidade_shadow.dispell_oque [_spellid]) then
+									habilidade_shadow.dispell_oque [_spellid] = habilidade_shadow.dispell_oque [_spellid] + amount
+								else
+									habilidade_shadow.dispell_oque [_spellid] = amount
+								end
+							end
+						end
+					--> copia o que ator dispelou
+						for spellid, amount in _pairs (actor.dispell_oque) do 
+							if (not shadow.dispell_oque [spellid]) then 
+								shadow.dispell_oque [spellid] = 0
+							end
+							shadow.dispell_oque [spellid] = shadow.dispell_oque [spellid] + amount
+						end					
+					
+				end
+			--> cc break
+				if (actor.cc_break) then
+					--> soma o total (captura de dados)
+						shadow.cc_break = shadow.cc_break + actor.cc_break
+					--> total no combate overall (captura de dados)	
+						_detalhes.tabela_overall.totals[4].cc_break = _detalhes.tabela_overall.totals[4].cc_break + actor.cc_break
+						if (actor.grupo) then
+							_detalhes.tabela_overall.totals_grupo[4].cc_break = _detalhes.tabela_overall.totals_grupo[4].cc_break + actor.cc_break
+						end
+					--> copia o container de alvos (captura de dados)
+						somar_alvos ("cc_break_targets", shadow)
+					--> copia o container de habilidades (captura de dados)	
+						somar_habilidades ("cc_break_spell_tables", shadow)
+					--> copia o que cada habilidade quebrou
+						for spellid, habilidade in _pairs (actor.cc_break_spell_tables._ActorTable) do 
+							--> pega o actor da shadow
+							local habilidade_shadow = shadow.cc_break_spell_tables:PegaHabilidade (spellid, true, nil, true)
+							--> copia as habilidades quebradas
+							habilidade_shadow.cc_break_oque = habilidade_shadow.cc_break_oque or {}
+							for _spellid, amount in _pairs (habilidade.cc_break_oque) do
+								if (habilidade_shadow.cc_break_oque [_spellid]) then
+									habilidade_shadow.cc_break_oque [_spellid] = habilidade_shadow.cc_break_oque [_spellid] + amount
+								else
+									habilidade_shadow.cc_break_oque [_spellid] = amount
+								end
+							end
+						end
+					--> copia o que ator quebrou
+						for spellid, amount in _pairs (actor.cc_break_oque) do 
+							if (not shadow.cc_break_oque [spellid]) then 
+								shadow.cc_break_oque [spellid] = 0
+							end
+							shadow.cc_break_oque [spellid] = shadow.cc_break_oque [spellid] + amount
+						end
+				end
 
 			return shadow
 		
@@ -1951,106 +2051,107 @@ function atributo_misc:ColetarLixo (lastevent)
 	return _detalhes:ColetarLixo (class_type, lastevent)
 end
 
-local function ReconstroiMapa (tabela)
-	local mapa = {}
-	for i = 1, #tabela._ActorTable do
-		mapa [tabela._ActorTable[i].nome] = i
-	end
-	tabela._NameIndexTable = mapa
-end
 
 function _detalhes.refresh:r_atributo_misc (este_jogador, shadow)
 	_setmetatable (este_jogador, _detalhes.atributo_misc)
 	este_jogador.__index = _detalhes.atributo_misc
+
+	este_jogador.shadow = shadow
 	
-	if (shadow ~= -1) then
-		este_jogador.shadow = shadow
-		
-		--> refresh interrupts
-		if (este_jogador.interrupt_targets) then
+	--> refresh interrupts
+	if (este_jogador.interrupt_targets) then
+		--> constrói os containers na shadow se não existir
+			if (not shadow.interrupt_targets) then
+				shadow.interrupt = 0
+				shadow.interrupt_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
+				shadow.interrupt_spell_tables = container_habilidades:NovoContainer (_detalhes.container_type.CONTAINER_MISC_CLASS) --> cria o container das habilidades usadas para interromper
+				shadow.interrompeu_oque = {}
+			end
+		--> recupera metas e indexes
 			_detalhes.refresh:r_container_combatentes (este_jogador.interrupt_targets, shadow.interrupt_targets)
 			_detalhes.refresh:r_container_habilidades (este_jogador.interrupt_spell_tables, shadow.interrupt_spell_tables)
-		end
-		
-		--> refresh buff uptime
-		if (este_jogador.buff_uptime_targets) then
+	end
+	
+	--> refresh buff uptime
+	if (este_jogador.buff_uptime_targets) then
+		--> constrói os containers na shadow se não existir
+			if (not shadow.buff_uptime_spell_targets) then
+				shadow.buff_uptime = 0
+				shadow.buff_uptime_spell_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
+				shadow.buff_uptime_spell_tables = container_habilidades:NovoContainer (_detalhes.container_type.CONTAINER_MISC_CLASS) --> cria o container das habilidades usadas para interromper
+			end
+		--> recupera metas e indexes
 			_detalhes.refresh:r_container_combatentes (este_jogador.buff_uptime_targets, shadow.buff_uptime_targets)
 			_detalhes.refresh:r_container_habilidades (este_jogador.buff_uptime_spell_tables, shadow.buff_uptime_spell_tables)
-		end
-		
-		--> refresh buff uptime
-		if (este_jogador.debuff_uptime_targets) then
+	end
+	
+	--> refresh buff uptime
+	if (este_jogador.debuff_uptime_targets) then
+		--> constrói os containers na shadow se não existir
+			if (not shadow.debuff_uptime_spell_targets) then
+				shadow.debuff_uptime = 0
+				shadow.debuff_uptime_spell_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
+				shadow.debuff_uptime_spell_tables = container_habilidades:NovoContainer (_detalhes.container_type.CONTAINER_MISC_CLASS) --> cria o container das habilidades usadas para interromper
+			end
+		--> recupera metas e indexes
 			_detalhes.refresh:r_container_combatentes (este_jogador.debuff_uptime_targets, shadow.debuff_uptime_targets)
 			_detalhes.refresh:r_container_habilidades (este_jogador.debuff_uptime_spell_tables, shadow.debuff_uptime_spell_tables)
-		end
-		
-		--> refresh cooldowns defensive
-		if (este_jogador.cooldowns_defensive_targets) then
+	end
+	
+	--> refresh cooldowns defensive
+	if (este_jogador.cooldowns_defensive_targets) then
+		--> constrói os containers na shadow se não existir
+			if (not shadow.cooldowns_defensive_targets) then
+				shadow.cooldowns_defensive = 0
+				shadow.cooldowns_defensive_targets = container_combatentes:NovoContainer (container_damage_target)
+				shadow.cooldowns_defensive_spell_tables = container_habilidades:NovoContainer (_detalhes.container_type.CONTAINER_MISC_CLASS)
+			end
+		--> recupera metas e indexes
 			_detalhes.refresh:r_container_combatentes (este_jogador.cooldowns_defensive_targets, shadow.cooldowns_defensive_targets)
 			_detalhes.refresh:r_container_habilidades (este_jogador.cooldowns_defensive_spell_tables, shadow.cooldowns_defensive_spell_tables)
-		end
-		
-		--> refresh ressers
-		if (este_jogador.ress_targets) then
+	end
+	
+	--> refresh ressers
+	if (este_jogador.ress_targets) then
+		--> constrói os containers na shadow se não existir
+			if (not shadow.ress_targets) then
+				shadow.ress = 0
+				shadow.ress_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
+				shadow.ress_spell_tables = container_habilidades:NovoContainer (_detalhes.container_type.CONTAINER_MISC_CLASS) --> cria o container das habilidades usadas para interromper
+			end
+		--> recupera metas e indexes
 			_detalhes.refresh:r_container_combatentes (este_jogador.ress_targets, shadow.ress_targets)
 			_detalhes.refresh:r_container_habilidades (este_jogador.ress_spell_tables, shadow.ress_spell_tables)
-		end
-		
-		--> refresh dispells
-		if (este_jogador.dispell_targets) then
+	end
+	
+	--> refresh dispells
+	if (este_jogador.dispell_targets) then
+		--> constrói os containers na shadow se não existir
+			if (not shadow.dispell_targets) then
+				shadow.dispell = 0
+				shadow.dispell_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
+				shadow.dispell_spell_tables = container_habilidades:NovoContainer (_detalhes.container_type.CONTAINER_MISC_CLASS) --> cria o container das habilidades usadas para interromper
+				shadow.dispell_oque = {}
+			end
+		--> recupera metas e indexes
 			_detalhes.refresh:r_container_combatentes (este_jogador.dispell_targets, shadow.dispell_targets)
 			_detalhes.refresh:r_container_habilidades (este_jogador.dispell_spell_tables, shadow.dispell_spell_tables)
-		end
-		
-		--> refresh cc_breaks
-		if (este_jogador.cc_break_targets) then
+	end
+	
+	--> refresh cc_breaks
+	if (este_jogador.cc_break_targets) then
+		--> constrói os containers na shadow se não existir
+			if (not shadow.cc_break) then
+				shadow.cc_break = 0
+				shadow.cc_break_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
+				shadow.cc_break_spell_tables = container_habilidades:NovoContainer (_detalhes.container_type.CONTAINER_MISC_CLASS) --> cria o container das habilidades usadas para interromper
+				shadow.cc_break_oque = {}
+			end
+		--> recupera metas e indexes
 			_detalhes.refresh:r_container_combatentes (este_jogador.cc_break_targets, shadow.cc_break_targets)
 			_detalhes.refresh:r_container_habilidades (este_jogador.cc_break_spell_tables, shadow.cc_break_spell_tables)
-		end
-	else
-	
-		--> refresh interrupts
-		if (este_jogador.interrupt_targets) then
-			_detalhes.refresh:r_container_combatentes (este_jogador.interrupt_targets, -1)
-			_detalhes.refresh:r_container_habilidades (este_jogador.interrupt_spell_tables, -1)
-		end
-		
-		--> refresh cooldowns defensive
-		if (este_jogador.cooldowns_defensive_targets) then
-			_detalhes.refresh:r_container_combatentes (este_jogador.cooldowns_defensive_targets, -1)
-			_detalhes.refresh:r_container_habilidades (este_jogador.cooldowns_defensive_spell_tables, -1)
-		end
-		
-		--> refresh buff uptime
-		if (este_jogador.buff_uptime_targets) then
-			_detalhes.refresh:r_container_combatentes (este_jogador.buff_uptime_targets, -1)
-			_detalhes.refresh:r_container_habilidades (este_jogador.buff_uptime_spell_tables, -1)
-		end
-		
-		--> refresh debuff uptime
-		if (este_jogador.debuff_uptime_targets) then
-			_detalhes.refresh:r_container_combatentes (este_jogador.debuff_uptime_targets, -1)
-			_detalhes.refresh:r_container_habilidades (este_jogador.debuff_uptime_spell_tables, -1)
-		end
-		
-		--> refresh ressers
-		if (este_jogador.ress_targets) then
-			_detalhes.refresh:r_container_combatentes (este_jogador.ress_targets, -1)
-			_detalhes.refresh:r_container_habilidades (este_jogador.ress_spell_tables, -1)
-		end
-		
-		--> refresh dispells
-		if (este_jogador.dispell_targets) then
-			_detalhes.refresh:r_container_combatentes (este_jogador.dispell_targets, -1)
-			_detalhes.refresh:r_container_habilidades (este_jogador.dispell_spell_tables, -1)
-		end
-
-		--> refresh cc_breaks
-		if (este_jogador.cc_break_targets) then
-			_detalhes.refresh:r_container_combatentes (este_jogador.cc_break_targets, -1)
-			_detalhes.refresh:r_container_habilidades (este_jogador.cc_break_spell_tables, -1)
-		end		
 	end
+
 end
 
 function _detalhes.clear:c_atributo_misc (este_jogador)
@@ -2098,402 +2199,496 @@ function _detalhes.clear:c_atributo_misc (este_jogador)
 	
 end
 
-atributo_misc.__add = function (shadow, tabela2)
+atributo_misc.__add = function (tabela1, tabela2)
+
+	local somar_keys = function (habilidade, habilidade_tabela1)
+		for key, value in _pairs (habilidade) do 
+			if (_type (value) == "number") then
+				if (key ~= "id") then
+					if (not habilidade_tabela1 [key]) then 
+						habilidade_tabela1 [key] = 0
+					end
+					habilidade_tabela1 [key] = habilidade_tabela1 [key] + value
+				end
+			end
+		end
+	end
 
 	if (tabela2.interrupt) then
 	
-		if (not shadow.interrupt) then
-			shadow.interrupt = 0
-			shadow.interrupt_targets = container_combatentes:NovoContainer (container_damage_target)
-			shadow.interrupt_spell_tables = container_habilidades:NovoContainer (container_misc)
-			shadow.interrompeu_oque = {}
+		if (not tabela1.interrupt) then
+			tabela1.interrupt = 0
+			tabela1.interrupt_targets = container_combatentes:NovoContainer (container_damage_target)
+			tabela1.interrupt_spell_tables = container_habilidades:NovoContainer (container_misc)
+			tabela1.interrompeu_oque = {}
 		end
 	
-		shadow.interrupt = shadow.interrupt + tabela2.interrupt
-		
-		if ( not (shadow.shadow and tabela2.shadow) ) then
-			_detalhes.tabela_overall.totals[4]["interrupt"] = _detalhes.tabela_overall.totals[4]["interrupt"] + tabela2.interrupt
-			
-			if (tabela2.grupo) then
-				_detalhes.tabela_overall.totals_grupo[4]["interrupt"] = _detalhes.tabela_overall.totals_grupo[4]["interrupt"] + tabela2.interrupt
+		--> total de interrupts
+			tabela1.interrupt = tabela1.interrupt + tabela2.interrupt
+		--> soma o interrompeu o que
+			for spellid, amount in _pairs (tabela2.interrompeu_oque) do 
+				if (not tabela1.interrompeu_oque [spellid]) then 
+					tabela1.interrompeu_oque [spellid] = 0
+				end
+				tabela1.interrompeu_oque [spellid] = tabela1.interrompeu_oque [spellid] + amount
 			end
-		end
-		
-		for index, alvo in _ipairs (tabela2.interrupt_targets._ActorTable) do 
-			local alvo_shadow = shadow.interrupt_targets:PegarCombatente (alvo.serial, alvo.nome, alvo.flag_original, true)
-			alvo_shadow.total = alvo_shadow.total + alvo.total
-		end
-		
-		for spellid, habilidade in _pairs (tabela2.interrupt_spell_tables._ActorTable) do 
-			local habilidade_shadow = shadow.interrupt_spell_tables:PegaHabilidade (spellid, true, nil, true)
-			
-			habilidade_shadow.interrompeu_oque = {}
-			for _spellid, amount in _pairs (habilidade.interrompeu_oque) do
-				habilidade_shadow.interrompeu_oque [_spellid] = amount
+		--> soma os containers de alvos
+			for index, alvo in _ipairs (tabela2.interrupt_targets._ActorTable) do 
+				--> pega o alvo no ator
+				local alvo_tabela1 = tabela1.interrupt_targets:PegarCombatente (nil, alvo.nome, nil, true)
+				--> soma o valor
+				alvo_tabela1.total = alvo_tabela1.total + alvo.total
 			end
-			
-			for index, alvo in _ipairs (habilidade.targets._ActorTable) do 
-				local alvo_shadow = habilidade_shadow.targets:PegarCombatente (alvo.serial, alvo.nome, alvo.flag_original, true)
-				alvo_shadow.total = alvo_shadow.total + alvo.total
-			end
-			
-			for key, value in _pairs (habilidade) do 
-				if (_type (value) == "number") then
-					if (key ~= "id") then
-						if (not habilidade_shadow [key]) then 
-							habilidade_shadow [key] = 0
-						end
-						habilidade_shadow [key] = habilidade_shadow [key] + value
+		
+		--> soma o container de habilidades
+			for spellid, habilidade in _pairs (tabela2.interrupt_spell_tables._ActorTable) do 
+				--> pega a habilidade no primeiro ator
+				local habilidade_tabela1 = tabela1.interrupt_spell_tables:PegaHabilidade (spellid, true, nil, false)
+				--> soma o que essa habilidade interrompeu
+				habilidade_tabela1.interrompeu_oque = habilidade_tabela1.interrompeu_oque or {}
+				for _spellid, amount in _pairs (habilidade.interrompeu_oque) do
+					if (habilidade_tabela1.interrompeu_oque [_spellid]) then
+						habilidade_tabela1.interrompeu_oque [_spellid] = habilidade_tabela1.interrompeu_oque [_spellid] + amount
+					else
+						habilidade_tabela1.interrompeu_oque [_spellid] = amount
 					end
 				end
-			end
-		end	
+				--> soma os alvos
+				for index, alvo in _ipairs (habilidade.targets._ActorTable) do 
+					local alvo_tabela1 = habilidade_tabela1.targets:PegarCombatente (nil, alvo.nome, nil, true)
+					alvo_tabela1.total = alvo_tabela1.total + alvo.total
+				end
+				
+				somar_keys (habilidade, habilidade_tabela1)
+			end	
 
-		for spellid, amount in _pairs (tabela2.interrompeu_oque) do 
-			if (not shadow.interrompeu_oque [spellid]) then 
-				shadow.interrompeu_oque [spellid] = 0
-			end
-			shadow.interrompeu_oque [spellid] = shadow.interrompeu_oque [spellid] + amount
-		end
-		
 	end
 	
 	if (tabela2.buff_uptime) then
 	
-		if (not shadow.buff_uptime) then
-			shadow.buff_uptime = 0
-			shadow.buff_uptime_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
-			shadow.buff_uptime_spell_tables = container_habilidades:NovoContainer (container_misc) --> cria o container das habilidades usadas
+		if (not tabela1.buff_uptime) then
+			tabela1.buff_uptime = 0
+			tabela1.buff_uptime_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
+			tabela1.buff_uptime_spell_tables = container_habilidades:NovoContainer (container_misc) --> cria o container das habilidades usadas
 		end
 	
-		shadow.buff_uptime = shadow.buff_uptime + tabela2.buff_uptime
-		
-		if ( not (shadow.shadow and tabela2.shadow) ) then
-			--_detalhes.tabela_overall.totals[4]["cooldowns_defensive"] = _detalhes.tabela_overall.totals[4]["cooldowns_defensive"] + tabela2.cooldowns_defensive
-			
-			--if (tabela2.grupo) then
-			--	_detalhes.tabela_overall.totals_grupo[4]["cooldowns_defensive"] = _detalhes.tabela_overall.totals_grupo[4]["cooldowns_defensive"] + tabela2.cooldowns_defensive
-			--end
-		end
+		tabela1.buff_uptime = tabela1.buff_uptime + tabela2.buff_uptime
 		
 		for index, alvo in _ipairs (tabela2.buff_uptime_targets._ActorTable) do 
-			local alvo_shadow = shadow.buff_uptime_targets:PegarCombatente (alvo.serial, alvo.nome, alvo.flag_original, true)
-			alvo_shadow.total = alvo_shadow.total + alvo.total
+			local alvo_tabela1 = tabela1.buff_uptime_targets:PegarCombatente (nil, alvo.nome, nil, true)
+			alvo_tabela1.total = alvo_tabela1.total + alvo.total
 		end
 		
 		for spellid, habilidade in _pairs (tabela2.buff_uptime_spell_tables._ActorTable) do 
-			local habilidade_shadow = shadow.buff_uptime_spell_tables:PegaHabilidade (spellid, true, nil, true)
+			local habilidade_tabela1 = tabela1.buff_uptime_spell_tables:PegaHabilidade (spellid, true, nil, false)
 
 			for index, alvo in _ipairs (habilidade.targets._ActorTable) do 
-				local alvo_shadow = habilidade_shadow.targets:PegarCombatente (alvo.serial, alvo.nome, alvo.flag_original, true)
-				alvo_shadow.total = alvo_shadow.total + alvo.total
+				local alvo_tabela1 = habilidade_tabela1.targets:PegarCombatente (nil, alvo.nome, nil, true)
+				alvo_tabela1.total = alvo_tabela1.total + alvo.total
 			end
-			
-			for key, value in _pairs (habilidade) do 
-				if (_type (value) == "number") then
-					if (key ~= "id") then
-						if (not habilidade_shadow [key]) then 
-							habilidade_shadow [key] = 0
-						end
-						habilidade_shadow [key] = habilidade_shadow [key] + value
-					end
-				end
-			end
+
+			somar_keys (habilidade, habilidade_tabela1)
 		end	
 		
 	end
 	
 	if (tabela2.debuff_uptime) then
 	
-		if (not shadow.debuff_uptime) then
-			shadow.debuff_uptime = 0
-			shadow.debuff_uptime_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
-			shadow.debuff_uptime_spell_tables = container_habilidades:NovoContainer (container_misc) --> cria o container das habilidades usadas
+		if (not tabela1.debuff_uptime) then
+			tabela1.debuff_uptime = 0
+			tabela1.debuff_uptime_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
+			tabela1.debuff_uptime_spell_tables = container_habilidades:NovoContainer (container_misc) --> cria o container das habilidades usadas
 		end
 	
-		shadow.debuff_uptime = shadow.debuff_uptime + tabela2.debuff_uptime
-		
-		if ( not (shadow.shadow and tabela2.shadow) ) then
-			--_detalhes.tabela_overall.totals[4]["cooldowns_defensive"] = _detalhes.tabela_overall.totals[4]["cooldowns_defensive"] + tabela2.cooldowns_defensive
-			
-			--if (tabela2.grupo) then
-			--	_detalhes.tabela_overall.totals_grupo[4]["cooldowns_defensive"] = _detalhes.tabela_overall.totals_grupo[4]["cooldowns_defensive"] + tabela2.cooldowns_defensive
-			--end
-		end
+		tabela1.debuff_uptime = tabela1.debuff_uptime + tabela2.debuff_uptime
 		
 		for index, alvo in _ipairs (tabela2.debuff_uptime_targets._ActorTable) do 
-			local alvo_shadow = shadow.debuff_uptime_targets:PegarCombatente (alvo.serial, alvo.nome, alvo.flag_original, true)
-			alvo_shadow.total = alvo_shadow.total + alvo.total
+			local alvo_tabela1 = tabela1.debuff_uptime_targets:PegarCombatente (nil, alvo.nome, nil, true)
+			alvo_tabela1.total = alvo_tabela1.total + alvo.total
 		end
 		
 		for spellid, habilidade in _pairs (tabela2.debuff_uptime_spell_tables._ActorTable) do 
-			local habilidade_shadow = shadow.debuff_uptime_spell_tables:PegaHabilidade (spellid, true, nil, true)
+			local habilidade_tabela1 = tabela1.debuff_uptime_spell_tables:PegaHabilidade (spellid, true, nil, false)
 
 			for index, alvo in _ipairs (habilidade.targets._ActorTable) do 
-				local alvo_shadow = habilidade_shadow.targets:PegarCombatente (alvo.serial, alvo.nome, alvo.flag_original, true)
-				alvo_shadow.total = alvo_shadow.total + alvo.total
+				local alvo_tabela1 = habilidade_tabela1.targets:PegarCombatente (nil, alvo.nome, nil, true)
+				alvo_tabela1.total = alvo_tabela1.total + alvo.total
 			end
 			
-			for key, value in _pairs (habilidade) do 
-				if (_type (value) == "number") then
-					if (key ~= "id") then
-						if (not habilidade_shadow [key]) then 
-							habilidade_shadow [key] = 0
-						end
-						habilidade_shadow [key] = habilidade_shadow [key] + value
-					end
-				end
-			end
+			somar_keys (habilidade, habilidade_tabela1)
 		end	
 		
 	end
 	
 	if (tabela2.cooldowns_defensive) then
 	
-		if (not shadow.cooldowns_defensive) then
-			shadow.cooldowns_defensive = 0
-			shadow.cooldowns_defensive_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
-			shadow.cooldowns_defensive_spell_tables = container_habilidades:NovoContainer (container_misc) --> cria o container das habilidades usadas
+		if (not tabela1.cooldowns_defensive) then
+			tabela1.cooldowns_defensive = 0
+			tabela1.cooldowns_defensive_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
+			tabela1.cooldowns_defensive_spell_tables = container_habilidades:NovoContainer (container_misc) --> cria o container das habilidades usadas
 		end
 	
-		shadow.cooldowns_defensive = shadow.cooldowns_defensive + tabela2.cooldowns_defensive
-		
-		if ( not (shadow.shadow and tabela2.shadow) ) then
-			_detalhes.tabela_overall.totals[4]["cooldowns_defensive"] = _detalhes.tabela_overall.totals[4]["cooldowns_defensive"] + tabela2.cooldowns_defensive
-			
-			if (tabela2.grupo) then
-				_detalhes.tabela_overall.totals_grupo[4]["cooldowns_defensive"] = _detalhes.tabela_overall.totals_grupo[4]["cooldowns_defensive"] + tabela2.cooldowns_defensive
-			end
-		end
+		tabela1.cooldowns_defensive = tabela1.cooldowns_defensive + tabela2.cooldowns_defensive
 		
 		for index, alvo in _ipairs (tabela2.cooldowns_defensive_targets._ActorTable) do 
-			local alvo_shadow = shadow.cooldowns_defensive_targets:PegarCombatente (alvo.serial, alvo.nome, alvo.flag_original, true)
-			alvo_shadow.total = alvo_shadow.total + alvo.total
+			local alvo_tabela1 = tabela1.cooldowns_defensive_targets:PegarCombatente (nil, alvo.nome, nil, true)
+			alvo_tabela1.total = alvo_tabela1.total + alvo.total
 		end
 		
 		for spellid, habilidade in _pairs (tabela2.cooldowns_defensive_spell_tables._ActorTable) do 
-			local habilidade_shadow = shadow.cooldowns_defensive_spell_tables:PegaHabilidade (spellid, true, nil, true)
+			local habilidade_tabela1 = tabela1.cooldowns_defensive_spell_tables:PegaHabilidade (spellid, true, nil, false)
 
 			for index, alvo in _ipairs (habilidade.targets._ActorTable) do 
-				local alvo_shadow = habilidade_shadow.targets:PegarCombatente (alvo.serial, alvo.nome, alvo.flag_original, true)
-				alvo_shadow.total = alvo_shadow.total + alvo.total
+				local alvo_tabela1 = habilidade_tabela1.targets:PegarCombatente (nil, alvo.nome, nil, true)
+				alvo_tabela1.total = alvo_tabela1.total + alvo.total
 			end
 			
-			for key, value in _pairs (habilidade) do 
-				if (_type (value) == "number") then
-					if (key ~= "id") then
-						if (not habilidade_shadow [key]) then 
-							habilidade_shadow [key] = 0
-						end
-						habilidade_shadow [key] = habilidade_shadow [key] + value
-					end
-				end
-			end
+			somar_keys (habilidade, habilidade_tabela1)
 		end	
 		
 	end
 	
 	if (tabela2.ress) then
 	
-		if (not shadow.ress) then
-			shadow.ress = 0
-			shadow.ress_targets = container_combatentes:NovoContainer (container_damage_target)
-			shadow.ress_spell_tables = container_habilidades:NovoContainer (container_misc)
+		if (not tabela1.ress) then
+			tabela1.ress = 0
+			tabela1.ress_targets = container_combatentes:NovoContainer (container_damage_target)
+			tabela1.ress_spell_tables = container_habilidades:NovoContainer (container_misc)
 		end
 	
-		shadow.ress = shadow.ress + tabela2.ress
-		
-		if ( not (shadow.shadow and tabela2.shadow) ) then
-			_detalhes.tabela_overall.totals[4]["ress"] = _detalhes.tabela_overall.totals[4]["ress"] + tabela2.ress
-			
-			if (tabela2.grupo) then
-				_detalhes.tabela_overall.totals_grupo[4]["ress"] = _detalhes.tabela_overall.totals_grupo[4]["ress"] + tabela2.ress
-			end
-		end
+		tabela1.ress = tabela1.ress + tabela2.ress
 		
 		for index, alvo in _ipairs (tabela2.ress_targets._ActorTable) do 
-			local alvo_shadow = shadow.ress_targets:PegarCombatente (alvo.serial, alvo.nome, alvo.flag_original, true)
-			alvo_shadow.total = alvo_shadow.total + alvo.total
+			local alvo_tabela1 = tabela1.ress_targets:PegarCombatente (nil, alvo.nome, nil, true)
+			alvo_tabela1.total = alvo_tabela1.total + alvo.total
 		end
 		
 		for spellid, habilidade in _pairs (tabela2.ress_spell_tables._ActorTable) do 
-			local habilidade_shadow = shadow.ress_spell_tables:PegaHabilidade (spellid, true, nil, true)
+			local habilidade_tabela1 = tabela1.ress_spell_tables:PegaHabilidade (spellid, true, nil, false)
 			
 			for index, alvo in _ipairs (habilidade.targets._ActorTable) do 
-				local alvo_shadow = habilidade_shadow.targets:PegarCombatente (alvo.serial, alvo.nome, alvo.flag_original, true)
-				alvo_shadow.total = alvo_shadow.total + alvo.total
+				local alvo_tabela1 = habilidade_tabela1.targets:PegarCombatente (nil, alvo.nome, nil, true)
+				alvo_tabela1.total = alvo_tabela1.total + alvo.total
 			end
 			
-			for key, value in _pairs (habilidade) do 
-				if (_type (value) == "number") then
-					if (key ~= "id") then
-						if (not habilidade_shadow [key]) then 
-							habilidade_shadow [key] = 0
-						end
-						habilidade_shadow [key] = habilidade_shadow [key] + value
-					end
-				end
-			end
+			somar_keys (habilidade, habilidade_tabela1)
 		end	
 		
 	end
 	
 	if (tabela2.dispell) then
 	
-		if (not shadow.dispell) then
-			shadow.dispell = 0
-			shadow.dispell_targets = container_combatentes:NovoContainer (container_damage_target)
-			shadow.dispell_spell_tables = container_habilidades:NovoContainer (container_misc)
-			shadow.dispell_oque = {}
+		if (not tabela1.dispell) then
+			tabela1.dispell = 0
+			tabela1.dispell_targets = container_combatentes:NovoContainer (container_damage_target)
+			tabela1.dispell_spell_tables = container_habilidades:NovoContainer (container_misc)
+			tabela1.dispell_oque = {}
 		end
 	
-		shadow.dispell = shadow.dispell + tabela2.dispell
-		
-		if ( not (shadow.shadow and tabela2.shadow) ) then
-			_detalhes.tabela_overall.totals[4]["dispell"] = _detalhes.tabela_overall.totals[4]["dispell"] + tabela2.dispell
-			
-			if (tabela2.grupo) then
-				_detalhes.tabela_overall.totals_grupo[4]["dispell"] = _detalhes.tabela_overall.totals_grupo[4]["dispell"] + tabela2.dispell
-			end
-		end
+		tabela1.dispell = tabela1.dispell + tabela2.dispell
 		
 		for index, alvo in _ipairs (tabela2.dispell_targets._ActorTable) do 
-			local alvo_shadow = shadow.dispell_targets:PegarCombatente (alvo.serial, alvo.nome, alvo.flag_original, true)
-			alvo_shadow.total = alvo_shadow.total + alvo.total
+			local alvo_tabela1 = tabela1.dispell_targets:PegarCombatente (nil, alvo.nome, nil, true)
+			alvo_tabela1.total = alvo_tabela1.total + alvo.total
 		end
 		
 		for spellid, habilidade in _pairs (tabela2.dispell_spell_tables._ActorTable) do 
-			local habilidade_shadow = shadow.dispell_spell_tables:PegaHabilidade (spellid, true, nil, true)
+			local habilidade_tabela1 = tabela1.dispell_spell_tables:PegaHabilidade (spellid, true, nil, false)
 			
-			habilidade_shadow.dispell_oque = {}
+			habilidade_tabela1.dispell_oque = habilidade_tabela1.dispell_oque or {}
 
-			if (habilidade.dispell_oque) then
-				for _spellid, amount in _pairs (habilidade.dispell_oque) do
-					habilidade_shadow.dispell_oque [_spellid] = amount
+			for _spellid, amount in _pairs (habilidade.dispell_oque) do
+				if (habilidade_tabela1.dispell_oque [_spellid]) then
+					habilidade_tabela1.dispell_oque [_spellid] = habilidade_tabela1.dispell_oque [_spellid] + amount
+				else
+					habilidade_tabela1.dispell_oque [_spellid] = amount
 				end
 			end
 			
 			for index, alvo in _ipairs (habilidade.targets._ActorTable) do 
-				local alvo_shadow = habilidade_shadow.targets:PegarCombatente (alvo.serial, alvo.nome, alvo.flag_original, true)
-				alvo_shadow.total = alvo_shadow.total + alvo.total
+				local alvo_tabela1 = habilidade_tabela1.targets:PegarCombatente (nil, alvo.nome, nil, true)
+				alvo_tabela1.total = alvo_tabela1.total + alvo.total
 			end
 			
-			for key, value in _pairs (habilidade) do 
-				if (_type (value) == "number") then
-					if (key ~= "id") then
-						if (not habilidade_shadow [key]) then 
-							habilidade_shadow [key] = 0
-						end
-						habilidade_shadow [key] = habilidade_shadow [key] + value
-					end
-				end
-			end
+			somar_keys (habilidade, habilidade_tabela1)
 		end
 		
 		for spellid, amount in _pairs (tabela2.dispell_oque) do 
-			if (not shadow.dispell_oque [spellid]) then 
-				shadow.dispell_oque [spellid] = 0
+			if (not tabela1.dispell_oque [spellid]) then 
+				tabela1.dispell_oque [spellid] = 0
 			end
-			shadow.dispell_oque [spellid] = shadow.dispell_oque [spellid] + amount
+			tabela1.dispell_oque [spellid] = tabela1.dispell_oque [spellid] + amount
 		end
 		
 	end
 	
 	if (tabela2.cc_break) then
 	
-		if (not shadow.cc_break) then
-			shadow.cc_break = 0
-			shadow.cc_break_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
-			shadow.cc_break_spell_tables = container_habilidades:NovoContainer (container_misc) --> cria o container das habilidades usadas para interromper
-			shadow.cc_break_oque = {}
+		if (not tabela1.cc_break) then
+			tabela1.cc_break = 0
+			tabela1.cc_break_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
+			tabela1.cc_break_spell_tables = container_habilidades:NovoContainer (container_misc) --> cria o container das habilidades usadas para interromper
+			tabela1.cc_break_oque = {}
 		end
 	
-		shadow.cc_break = shadow.cc_break + tabela2.cc_break
-		
-		if ( not (shadow.shadow and tabela2.shadow) ) then
-			_detalhes.tabela_overall.totals[4]["cc_break"] = _detalhes.tabela_overall.totals[4]["cc_break"] + tabela2.cc_break
-			
-			if (tabela2.grupo) then
-				_detalhes.tabela_overall.totals_grupo[4]["cc_break"] = _detalhes.tabela_overall.totals_grupo[4]["cc_break"] + tabela2.cc_break
-			end
-		end
+		tabela1.cc_break = tabela1.cc_break + tabela2.cc_break
 		
 		for index, alvo in _ipairs (tabela2.cc_break_targets._ActorTable) do 
-			local alvo_shadow = shadow.cc_break_targets:PegarCombatente (alvo.serial, alvo.nome, alvo.flag_original, true)
-			alvo_shadow.total = alvo_shadow.total + alvo.total
+			local alvo_tabela1 = tabela1.cc_break_targets:PegarCombatente (nil, alvo.nome, nil, true)
+			alvo_tabela1.total = alvo_tabela1.total + alvo.total
 		end
 		
 		for spellid, habilidade in _pairs (tabela2.cc_break_spell_tables._ActorTable) do 
-			local habilidade_shadow = shadow.cc_break_spell_tables:PegaHabilidade (spellid, true, nil, true)
+			local habilidade_tabela1 = tabela1.cc_break_spell_tables:PegaHabilidade (spellid, true, nil, false)
 			
-			habilidade_shadow.cc_break_oque = {}
+			habilidade_tabela1.cc_break_oque = habilidade_tabela1.cc_break_oque or {}
 			for _spellid, amount in _pairs (habilidade.cc_break_oque) do
-				habilidade_shadow.cc_break_oque [_spellid] = amount
+				if (habilidade_tabela1.cc_break_oque [_spellid]) then
+					habilidade_tabela1.cc_break_oque [_spellid] = habilidade_tabela1.cc_break_oque [_spellid] + amount
+				else
+					habilidade_tabela1.cc_break_oque [_spellid] = amount
+				end
 			end
 			
 			for index, alvo in _ipairs (habilidade.targets._ActorTable) do 
-				local alvo_shadow = habilidade_shadow.targets:PegarCombatente (alvo.serial, alvo.nome, alvo.flag_original, true)
-				alvo_shadow.total = alvo_shadow.total + alvo.total
+				local alvo_tabela1 = habilidade_tabela1.targets:PegarCombatente (nil, alvo.nome, nil, true)
+				alvo_tabela1.total = alvo_tabela1.total + alvo.total
 			end
 			
-			for key, value in _pairs (habilidade) do 
-				if (_type (value) == "number") then
-					if (key ~= "id") then
-						if (not habilidade_shadow [key]) then 
-							habilidade_shadow [key] = 0
-						end
-						habilidade_shadow [key] = habilidade_shadow [key] + value
-					end
-				end
-			end
+			somar_keys (habilidade, habilidade_tabela1)
 		end
 
 		for spellid, amount in _pairs (tabela2.cc_break_oque) do 
-			if (not shadow.cc_break_oque [spellid]) then 
-				shadow.cc_break_oque [spellid] = 0
+			if (not tabela1.cc_break_oque [spellid]) then 
+				tabela1.cc_break_oque [spellid] = 0
 			end
-			shadow.cc_break_oque [spellid] = shadow.cc_break_oque [spellid] + amount
+			tabela1.cc_break_oque [spellid] = tabela1.cc_break_oque [spellid] + amount
 		end
 	end
 	
-	return shadow
+	return tabela1
 end
 
 atributo_misc.__sub = function (tabela1, tabela2)
 
-	if (tabela1.interrupt and tabela2.interrupt) then
-		tabela1.interrupt = tabela1.interrupt - tabela2.interrupt
-		
-		--> reduz o interrompeu_oque
-		for spellid, amt in _pairs (tabela2.interrompeu_oque) do
-			tabela1.interrompeu_oque [spellid] = tabela1.interrompeu_oque [spellid] - amt
+	local subtrair_keys = function (habilidade, habilidade_tabela1)
+		for key, value in _pairs (habilidade) do 
+			if (_type (value) == "number") then
+				if (key ~= "id") then
+					if (not habilidade_tabela1 [key]) then 
+						habilidade_tabela1 [key] = 0
+					end
+					habilidade_tabela1 [key] = habilidade_tabela1 [key] - value
+				end
+			end
 		end
 	end
+
+	if (tabela2.interrupt) then
 	
-	if (tabela1.buff_uptime and tabela2.buff_uptime) then
+		--> total de interrupts
+			tabela1.interrupt = tabela1.interrupt - tabela2.interrupt
+		--> soma o interrompeu o que
+			for spellid, amount in _pairs (tabela2.interrompeu_oque) do 
+				if (not tabela1.interrompeu_oque [spellid]) then 
+					tabela1.interrompeu_oque [spellid] = 0
+				end
+				tabela1.interrompeu_oque [spellid] = tabela1.interrompeu_oque [spellid] - amount
+			end
+		--> soma os containers de alvos
+			for index, alvo in _ipairs (tabela2.interrupt_targets._ActorTable) do 
+				--> pega o alvo no ator
+				local alvo_tabela1 = tabela1.interrupt_targets:PegarCombatente (nil, alvo.nome, nil, true)
+				--> soma o valor
+				alvo_tabela1.total = alvo_tabela1.total - alvo.total
+			end
+		
+		--> soma o container de habilidades
+			for spellid, habilidade in _pairs (tabela2.interrupt_spell_tables._ActorTable) do 
+				--> pega a habilidade no primeiro ator
+				local habilidade_tabela1 = tabela1.interrupt_spell_tables:PegaHabilidade (spellid, true, nil, false)
+				--> soma o que essa habilidade interrompeu
+				habilidade_tabela1.interrompeu_oque = habilidade_tabela1.interrompeu_oque or {}
+				for _spellid, amount in _pairs (habilidade.interrompeu_oque) do
+					if (habilidade_tabela1.interrompeu_oque [_spellid]) then
+						habilidade_tabela1.interrompeu_oque [_spellid] = habilidade_tabela1.interrompeu_oque [_spellid] - amount
+					else
+						habilidade_tabela1.interrompeu_oque [_spellid] = amount
+					end
+				end
+				--> soma os alvos
+				for index, alvo in _ipairs (habilidade.targets._ActorTable) do 
+					local alvo_tabela1 = habilidade_tabela1.targets:PegarCombatente (nil, alvo.nome, nil, true)
+					alvo_tabela1.total = alvo_tabela1.total - alvo.total
+				end
+				
+				subtrair_keys (habilidade, habilidade_tabela1)
+			end	
+
+	end
+	
+	if (tabela2.buff_uptime) then
+	
 		tabela1.buff_uptime = tabela1.buff_uptime - tabela2.buff_uptime
+		
+		for index, alvo in _ipairs (tabela2.buff_uptime_targets._ActorTable) do 
+			local alvo_tabela1 = tabela1.buff_uptime_targets:PegarCombatente (nil, alvo.nome, nil, true)
+			alvo_tabela1.total = alvo_tabela1.total - alvo.total
+		end
+		
+		for spellid, habilidade in _pairs (tabela2.buff_uptime_spell_tables._ActorTable) do 
+			local habilidade_tabela1 = tabela1.buff_uptime_spell_tables:PegaHabilidade (spellid, true, nil, false)
+
+			for index, alvo in _ipairs (habilidade.targets._ActorTable) do 
+				local alvo_tabela1 = habilidade_tabela1.targets:PegarCombatente (nil, alvo.nome, nil, true)
+				alvo_tabela1.total = alvo_tabela1.total - alvo.total
+			end
+
+			subtrair_keys (habilidade, habilidade_tabela1)
+		end	
+		
 	end
 	
-	if (tabela1.debuff_uptime and tabela2.debuff_uptime) then
+	if (tabela2.debuff_uptime) then
+	
 		tabela1.debuff_uptime = tabela1.debuff_uptime - tabela2.debuff_uptime
+		
+		for index, alvo in _ipairs (tabela2.debuff_uptime_targets._ActorTable) do 
+			local alvo_tabela1 = tabela1.debuff_uptime_targets:PegarCombatente (nil, alvo.nome, nil, true)
+			alvo_tabela1.total = alvo_tabela1.total - alvo.total
+		end
+		
+		for spellid, habilidade in _pairs (tabela2.debuff_uptime_spell_tables._ActorTable) do 
+			local habilidade_tabela1 = tabela1.debuff_uptime_spell_tables:PegaHabilidade (spellid, true, nil, false)
+
+			for index, alvo in _ipairs (habilidade.targets._ActorTable) do 
+				local alvo_tabela1 = habilidade_tabela1.targets:PegarCombatente (nil, alvo.nome, nil, true)
+				alvo_tabela1.total = alvo_tabela1.total - alvo.total
+			end
+			
+			subtrair_keys (habilidade, habilidade_tabela1)
+		end	
+		
 	end
 	
-	if (tabela1.cooldowns_defensive and tabela2.cooldowns_defensive) then
+	if (tabela2.cooldowns_defensive) then
+	
 		tabela1.cooldowns_defensive = tabela1.cooldowns_defensive - tabela2.cooldowns_defensive
+		
+		for index, alvo in _ipairs (tabela2.cooldowns_defensive_targets._ActorTable) do 
+			local alvo_tabela1 = tabela1.cooldowns_defensive_targets:PegarCombatente (nil, alvo.nome, nil, true)
+			alvo_tabela1.total = alvo_tabela1.total - alvo.total
+		end
+		
+		for spellid, habilidade in _pairs (tabela2.cooldowns_defensive_spell_tables._ActorTable) do 
+			local habilidade_tabela1 = tabela1.cooldowns_defensive_spell_tables:PegaHabilidade (spellid, true, nil, false)
+
+			for index, alvo in _ipairs (habilidade.targets._ActorTable) do 
+				local alvo_tabela1 = habilidade_tabela1.targets:PegarCombatente (nil, alvo.nome, nil, true)
+				alvo_tabela1.total = alvo_tabela1.total - alvo.total
+			end
+			
+			subtrair_keys (habilidade, habilidade_tabela1)
+		end	
+		
 	end
 	
-	if (tabela1.ress and tabela2.ress) then
+	if (tabela2.ress) then
+	
 		tabela1.ress = tabela1.ress - tabela2.ress
+		
+		for index, alvo in _ipairs (tabela2.ress_targets._ActorTable) do 
+			local alvo_tabela1 = tabela1.ress_targets:PegarCombatente (nil, alvo.nome, nil, true)
+			alvo_tabela1.total = alvo_tabela1.total - alvo.total
+		end
+		
+		for spellid, habilidade in _pairs (tabela2.ress_spell_tables._ActorTable) do 
+			local habilidade_tabela1 = tabela1.ress_spell_tables:PegaHabilidade (spellid, true, nil, false)
+			
+			for index, alvo in _ipairs (habilidade.targets._ActorTable) do 
+				local alvo_tabela1 = habilidade_tabela1.targets:PegarCombatente (nil, alvo.nome, nil, true)
+				alvo_tabela1.total = alvo_tabela1.total - alvo.total
+			end
+			
+			subtrair_keys (habilidade, habilidade_tabela1)
+		end	
+		
 	end
 	
-	if (tabela1.dispell and tabela2.dispell) then
+	if (tabela2.dispell) then
+	
 		tabela1.dispell = tabela1.dispell - tabela2.dispell
-		-- precisaria diminuir o que foi dispelado
+		
+		for index, alvo in _ipairs (tabela2.dispell_targets._ActorTable) do 
+			local alvo_tabela1 = tabela1.dispell_targets:PegarCombatente (nil, alvo.nome, nil, true)
+			alvo_tabela1.total = alvo_tabela1.total - alvo.total
+		end
+		
+		for spellid, habilidade in _pairs (tabela2.dispell_spell_tables._ActorTable) do 
+			local habilidade_tabela1 = tabela1.dispell_spell_tables:PegaHabilidade (spellid, true, nil, false)
+			
+			habilidade_tabela1.dispell_oque = habilidade_tabela1.dispell_oque or {}
+
+			for _spellid, amount in _pairs (habilidade.dispell_oque) do
+				if (habilidade_tabela1.dispell_oque [_spellid]) then
+					habilidade_tabela1.dispell_oque [_spellid] = habilidade_tabela1.dispell_oque [_spellid] - amount
+				else
+					habilidade_tabela1.dispell_oque [_spellid] = amount
+				end
+			end
+			
+			for index, alvo in _ipairs (habilidade.targets._ActorTable) do 
+				local alvo_tabela1 = habilidade_tabela1.targets:PegarCombatente (nil, alvo.nome, nil, true)
+				alvo_tabela1.total = alvo_tabela1.total - alvo.total
+			end
+			
+			subtrair_keys (habilidade, habilidade_tabela1)
+		end
+		
+		for spellid, amount in _pairs (tabela2.dispell_oque) do 
+			if (not tabela1.dispell_oque [spellid]) then 
+				tabela1.dispell_oque [spellid] = 0
+			end
+			tabela1.dispell_oque [spellid] = tabela1.dispell_oque [spellid] - amount
+		end
+		
 	end
 	
-	if (tabela1.cc_break and tabela2.cc_break) then
+	if (tabela2.cc_break) then
+	
 		tabela1.cc_break = tabela1.cc_break - tabela2.cc_break
-		-- precisaria diminuir o que foi quebrado
+		
+		for index, alvo in _ipairs (tabela2.cc_break_targets._ActorTable) do 
+			local alvo_tabela1 = tabela1.cc_break_targets:PegarCombatente (nil, alvo.nome, nil, true)
+			alvo_tabela1.total = alvo_tabela1.total - alvo.total
+		end
+		
+		for spellid, habilidade in _pairs (tabela2.cc_break_spell_tables._ActorTable) do 
+			local habilidade_tabela1 = tabela1.cc_break_spell_tables:PegaHabilidade (spellid, true, nil, false)
+			
+			habilidade_tabela1.cc_break_oque = habilidade_tabela1.cc_break_oque or {}
+			for _spellid, amount in _pairs (habilidade.cc_break_oque) do
+				if (habilidade_tabela1.cc_break_oque [_spellid]) then
+					habilidade_tabela1.cc_break_oque [_spellid] = habilidade_tabela1.cc_break_oque [_spellid] - amount
+				else
+					habilidade_tabela1.cc_break_oque [_spellid] = amount
+				end
+			end
+			
+			for index, alvo in _ipairs (habilidade.targets._ActorTable) do 
+				local alvo_tabela1 = habilidade_tabela1.targets:PegarCombatente (nil, alvo.nome, nil, true)
+				alvo_tabela1.total = alvo_tabela1.total - alvo.total
+			end
+			
+			subtrair_keys (habilidade, habilidade_tabela1)
+		end
+
+		for spellid, amount in _pairs (tabela2.cc_break_oque) do 
+			if (not tabela1.cc_break_oque [spellid]) then 
+				tabela1.cc_break_oque [spellid] = 0
+			end
+			tabela1.cc_break_oque [spellid] = tabela1.cc_break_oque [spellid] - amount
+		end
 	end
 	
 	return tabela1

@@ -1172,21 +1172,18 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 		instancia = self
 	end
 	
-	--> não trocar de modo se tiver em combate e a janela no solo mode
-	--[[if (_detalhes.solo and _detalhes.solo == instancia.meu_id) then 
-		if (UnitAffectingCombat ("player")) then
-			print (Loc ["STRING_SOLO_SWITCHINCOMBAT"])
-			return
-		end
-	end --]]
-	
 	if (InstanceMode and InstanceMode ~= instancia:GetMode()) then
 		instancia:AlteraModo (instancia, InstanceMode)
 	end
 	
 	local update_coolTip = false
+	local sub_attribute_click = false
 	
-	if (segmento == -2) then --> clicou para mudar de segmento
+	if (_type (segmento) == "boolean" and segmento) then --> clicou em um sub atributo
+		sub_attribute_click = true
+		segmento = instancia.segmento
+	
+	elseif (segmento == -2) then --> clicou para mudar de segmento
 		segmento = instancia.segmento + 1
 		
 		if (segmento > _detalhes.segments_amount) then
@@ -1215,9 +1212,11 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 	end	
 	
 	--> pega os atributos desta instancia
-	local meu_segmento = instancia.segmento
-	local meu_atributo = instancia.atributo
-	local meu_sub_atributo = instancia.sub_atributo
+	local current_segmento = instancia.segmento
+	local current_atributo = instancia.atributo
+	local current_sub_atributo = instancia.sub_atributo
+	
+	local atributo_changed = false
 	
 	--> verifica possiveis valores não passados
 	if (not segmento) then
@@ -1226,19 +1225,21 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 	if (not atributo) then
 		atributo  = instancia.atributo
 	end
-	--if (not sub_atributo) then
-	--	sub_atributo  = instancia.sub_atributo
-	--end
-	
-	--print ("DEBUG: trocando para "..atributo.." "..sub_atributo)
+	if (not sub_atributo) then
+		if (atributo == current_atributo) then
+			sub_atributo  = instancia.sub_atributo
+		else
+			sub_atributo  = instancia.sub_atributo_last [atributo]
+		end
+	end
 	
 	--> já esta mostrando isso que esta pedindo
-	if (not iniciando_instancia and segmento == meu_segmento and atributo == meu_atributo and sub_atributo == meu_sub_atributo and not _detalhes.initializing) then
+	if (not iniciando_instancia and segmento == current_segmento and atributo == current_atributo and sub_atributo == current_sub_atributo and not _detalhes.initializing) then
 		return
 	end
 
 	--> Muda o segmento caso necessário
-	if (segmento ~= meu_segmento or _detalhes.initializing or iniciando_instancia) then
+	if (segmento ~= current_segmento or _detalhes.initializing or iniciando_instancia) then
 
 		--> na troca de segmento, conferir se a instancia esta frozen
 		if (instancia.freezed) then
@@ -1281,13 +1282,7 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 		end
 	end
 	
-	local atributo_changed = false
-	local last_sub_atributo = instancia.sub_atributo_last [atributo]
-	if (not sub_atributo) then
-		sub_atributo = instancia.sub_atributo_last [atributo]
-	end
-	
-	if (atributo ~= meu_atributo or _detalhes.initializing or iniciando_instancia or (instancia.modo == modo_alone or instancia.modo == modo_raid)) then
+	if (atributo ~= current_atributo or _detalhes.initializing or iniciando_instancia or (instancia.modo == modo_alone or instancia.modo == modo_raid)) then
 	
 		if (instancia.modo == modo_alone and not (_detalhes.initializing or iniciando_instancia)) then
 			if (_detalhes.SoloTables.Mode == #_detalhes.SoloTables.Plugins) then
@@ -1310,14 +1305,10 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 			end
 			return _detalhes.RaidTables.switch (nil, nil, -1)
 		end
-	
-		atributo_changed = true
-	
-		instancia.sub_atributo_last [instancia.atributo] = meu_sub_atributo
-		--print ("atributo last changed:",instancia.atributo, "->", meu_sub_atributo)
 		
+		atributo_changed = true
 		instancia.atributo = atributo
-		instancia.sub_atributo = last_sub_atributo
+		instancia.sub_atributo = instancia.sub_atributo_last [atributo]
 		
 		--> troca icone
 		instancia:ChangeIcon()
@@ -1368,16 +1359,13 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 		
 	end
 
-	if (sub_atributo ~= meu_sub_atributo or _detalhes.initializing or iniciando_instancia or atributo_changed) then
-	
-		--instancia.sub_atributo_last [meu_atributo] = sub_atributo
-		instancia.sub_atributo_last [meu_atributo] = meu_sub_atributo
-		--print ("atributo last changed:",meu_atributo, "->", meu_sub_atributo)
+	if (sub_atributo ~= current_sub_atributo or _detalhes.initializing or iniciando_instancia or atributo_changed) then
 		
 		instancia.sub_atributo = sub_atributo
 		
-		--print (instancia.sub_atributo_last [meu_atributo])
-		--print (instancia.sub_atributo)
+		if (sub_attribute_click) then
+			instancia.sub_atributo_last [instancia.atributo] = instancia.sub_atributo
+		end
 		
 		if (instancia.atributo == 5) then --> custom
 			instancia:ChangeIcon()
@@ -1464,11 +1452,11 @@ function _detalhes:MontaAtributosOption (instancia, func)
 		
 		for o = 1, atributos [i] do
 			if (_detalhes:CaptureIsEnabled ( _detalhes.atributos_capture [gindex] )) then
-				CoolTip:AddMenu (2, func, nil, i, o, options[o], nil, true)
+				CoolTip:AddMenu (2, func, true, i, o, options[o], nil, true)
 				CoolTip:AddIcon (icones[i], 2, 1, 20, 20, p*(o-1), p*(o), 0, 1)
 			else
 				CoolTip:AddLine (options[o], nil, 2, .5, .5, .5, 1)
-				CoolTip:AddMenu (2, func, nil, i, o)
+				CoolTip:AddMenu (2, func, true, i, o)
 				CoolTip:AddIcon (icones[i], 2, 1, 20, 20, p*(o-1), p*(o), 0, 1, {.3, .3, .3, 1})
 			end
 
