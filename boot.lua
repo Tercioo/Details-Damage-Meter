@@ -8,7 +8,7 @@
 		
 		_ = nil
 		_detalhes = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0", "NickTag-1.0")
-		_detalhes.userversion = "v1.6.1"
+		_detalhes.userversion = "v1.6.3"
 		_detalhes.version = "Alpha 010"
 		_detalhes.realversion = 10
 
@@ -29,6 +29,8 @@ do
 	--> containers
 		--> armazenas as funções do parser - All parse functions 
 			_detalhes.parser = {} 
+			_detalhes.parser_frame = CreateFrame ("Frame", nil, _UIParent)
+			_detalhes.parser_frame:Hide()
 		--> armazena os escudos - Shields information for absorbs
 			_detalhes.escudos = {} 
 		--> armazena os overwirtes de spells pelo usuario

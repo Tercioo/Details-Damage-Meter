@@ -37,6 +37,13 @@ function _G._detalhes:Start()
 		self.deadlog_limit = self.deadlog_limit or 12
 		self.minimum_combat_time = self.minimum_combat_time or 5
 
+		if (type (self.trash_concatenate) ~= "boolean") then
+			self.trash_concatenate = false
+		end
+		if (type (self.trash_auto_remove) ~= "boolean") then
+			self.trash_auto_remove = false
+		end
+		
 		if (type (self.only_pvp_frags) ~= "boolean") then
 			self.only_pvp_frags = false
 		end
@@ -245,7 +252,8 @@ function _G._detalhes:Start()
 		--> load parser capture options
 			self:CaptureRefresh()
 		--> register parser events
-			self.listener:RegisterEvent ("COMBAT_LOG_EVENT_UNFILTERED")
+			--self.listener:RegisterEvent ("COMBAT_LOG_EVENT_UNFILTERED")
+			self.parser_frame:RegisterEvent ("COMBAT_LOG_EVENT_UNFILTERED")
 			self.listener:RegisterEvent ("PLAYER_REGEN_DISABLED")
 			self.listener:RegisterEvent ("PLAYER_REGEN_ENABLED")
 			self.listener:RegisterEvent ("SPELL_SUMMON")

@@ -42,6 +42,7 @@ function historico:adicionar (tabela)
 		--> fazer limpeza na tabela
 
 		local _segundo_combate = self.tabelas[2]
+		local _terceiro_combate = self.tabelas[3]
 		
 		local container_damage = _segundo_combate [1]
 		local container_heal = _segundo_combate [2]
@@ -63,29 +64,58 @@ function historico:adicionar (tabela)
 			end
 		end
 		
-		--[[
-		if (self.tabelas[3]) then
-			if (self.tabelas[3].is_trash and self.tabelas[2].is_trash and not self.tabelas[3].is_boss and not self.tabelas[2].is_boss) then
-				--> tabela 2 deve ser deletada e somada a tabela 1
-				if (_detalhes.debug) then
-					detalhes:Msg ("(debug) concatenating two trash segments.")
+		if (_detalhes.trash_auto_remove) then
+			if (_terceiro_combate) then
+				if (_terceiro_combate.is_trash and not _terceiro_combate.is_boss) then
+					_detalhes.tabela_overall = _detalhes.tabela_overall - _terceiro_combate
+					--> verificar novamente a time machine
+					for _, jogador in ipairs (_terceiro_combate [1]._ActorTable) do --> damage
+						if (jogador.timeMachine) then
+							jogador:DesregistrarNaTimeMachine()
+						end
+					end
+					for _, jogador in ipairs (_terceiro_combate [2]._ActorTable) do --> heal
+						if (jogador.timeMachine) then
+							jogador:DesregistrarNaTimeMachine()
+						end
+					end
+					--> remover
+					_table_remove (self.tabelas, 3)
+					_detalhes:SendEvent ("DETAILS_DATA_SEGMENTREMOVED", nil, nil)
 				end
-				
-				self.tabelas[2] = self.tabelas[2] + self.tabelas[3]
-				_detalhes.tabela_overall = _detalhes.tabela_overall - self.tabelas[3]
-				
-				self.tabelas[2].is_trash = true
-
-				--> remover
-				_table_remove (self.tabelas, 3)
-				_detalhes:SendEvent ("DETAILS_DATA_SEGMENTREMOVED", nil, nil)
 			end
 			
-			--> debug
-			--self.tabelas[2] = self.tabelas[2] + self.tabelas[3]
-			--_table_remove (self.tabelas, 3)
+		elseif (_detalhes.trash_concatenate) then
+			
+			if (_terceiro_combate) then
+				if (_terceiro_combate.is_trash and _segundo_combate.is_trash and not _terceiro_combate.is_boss and not _segundo_combate.is_boss) then
+					--> tabela 2 deve ser deletada e somada a tabela 1
+					if (_detalhes.debug) then
+						detalhes:Msg ("(debug) concatenating two trash segments.")
+					end
+					
+					_segundo_combate = _segundo_combate + _terceiro_combate
+					_detalhes.tabela_overall = _detalhes.tabela_overall - _terceiro_combate
+					
+					_segundo_combate.is_trash = true
+
+					--> verificar novamente a time machine
+					for _, jogador in ipairs (_terceiro_combate [1]._ActorTable) do --> damage
+						if (jogador.timeMachine) then
+							jogador:DesregistrarNaTimeMachine()
+						end
+					end
+					for _, jogador in ipairs (_terceiro_combate [2]._ActorTable) do --> heal
+						if (jogador.timeMachine) then
+							jogador:DesregistrarNaTimeMachine()
+						end
+					end
+					--> remover
+					_table_remove (self.tabelas, 3)
+					_detalhes:SendEvent ("DETAILS_DATA_SEGMENTREMOVED", nil, nil)
+				end
+			end
 		end
-		--]]
 		
 	end
 

@@ -860,6 +860,9 @@ function _detalhes:RestauraJanela (index, temp)
 		
 		self.consolidate = self.consolidate or false
 		self.icons = self.icons or {true, true, true, true}
+
+		--> teste
+		--self.barrasInfo.altura = 14
 		
 		self.barrasInfo.mostrando = 0
 		self.barrasInfo.criadas = 0
@@ -970,7 +973,19 @@ function _detalhes:RefreshBars (instance)
 		self = instance
 	end
 	if (self.barras and self.barras[1]) then
+		
+		local altura = self.barrasInfo.altura
+		
 		for index, row in _ipairs (self.barras) do 
+
+			local y = self.barrasInfo.alturaReal * (row.row_id - 1)
+			y = y*-1
+			row:SetPoint ("TOPLEFT", self.baseframe, "TOPLEFT", self.barrasInfo.espaco.esquerda, y)
+			row:SetHeight (altura)
+			row.icone_classe:SetHeight (altura)
+			row.icone_classe:SetWidth (altura)
+			row.icone_terceiro:SetHeight (altura)
+			row.icone_terceiro:SetWidth (altura)
 		
 			row.textura:SetTexture (self.barrasInfo.textura)
 			
@@ -984,8 +999,8 @@ function _detalhes:RefreshBars (instance)
 				row.background:SetVertexColor (r, g, b, c[4])
 			end
 			
-			row.texto_esquerdo:SetFont (self.barrasInfo.font or "GameFontHighlight", self.barrasInfo.fontSize or self.barrasInfo.altura*0.75)
-			row.texto_direita:SetFont (self.barrasInfo.font or "GameFontHighlight", self.barrasInfo.fontSize or self.barrasInfo.altura*0.75)
+			row.texto_esquerdo:SetFont (self.barrasInfo.font or "GameFontHighlight", self.barrasInfo.fontSize or altura * 0.75)
+			row.texto_direita:SetFont (self.barrasInfo.font or "GameFontHighlight", self.barrasInfo.fontSize or altura * 0.75)
 		end
 	end
 end

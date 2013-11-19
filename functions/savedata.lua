@@ -122,6 +122,8 @@ function _detalhes:SaveDataOnLogout()
 	_detalhes_global.memory_threshold = _detalhes.memory_threshold
 	_detalhes_global.memory_ram = _detalhes.memory_ram
 	_detalhes_global.remove_realm_from_name = _detalhes.remove_realm_from_name
+	_detalhes_global.trash_concatenate = _detalhes.trash_concatenate
+	_detalhes_global.trash_auto_remove = _detalhes.trash_auto_remove
 	
 	_detalhes_global.SpellOverwriteUser = _detalhes.SpellOverwriteUser
 	
@@ -330,7 +332,9 @@ end --]]
 		_detalhes.memory_threshold = _detalhes_global.memory_threshold
 		_detalhes.memory_ram = _detalhes_global.memory_ram
 		_detalhes.remove_realm_from_name = _detalhes_global.remove_realm_from_name
-		
+		_detalhes.trash_concatenate = _detalhes_global.trash_concatenate
+		_detalhes.trash_auto_remove = _detalhes_global.trash_auto_remove
+	
 		_detalhes.SpellOverwriteUser = _detalhes_global.SpellOverwriteUser or _detalhes.SpellOverwriteUser
 	else
 		_detalhes.is_first_run = true

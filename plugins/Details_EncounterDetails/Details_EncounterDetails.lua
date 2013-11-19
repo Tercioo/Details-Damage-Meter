@@ -1104,10 +1104,21 @@ function EncounterDetails:OpenAndRefresh()
 				barra.report_text = "Details! ".. Loc ["STRING_INTERRUPT_BY"]
 			end
 			
+			local spellid = tabela [3]
+			
 			local nome_magia, _, icone_magia = _GetSpellInfo (tabela [3])
+			local successful = 0
+			--> pegar quantas vezes a magia passou com sucesso.
+			for _, enemy_actor in _ipairs (DamageContainer._ActorTable) do
+				if (enemy_actor.spell_tables._ActorTable [spellid]) then
+					local spell = enemy_actor.spell_tables._ActorTable [spellid]
+					successful = spell.successful_casted
+				end
+			end
 			
 			barra.texto_esquerdo:SetText (nome_magia)
-			barra.texto_direita:SetText (tabela [2])
+			local total = successful + tabela [2]
+			barra.texto_direita:SetText (tabela [2] .. " / ".. total)
 			
 			_detalhes:name_space (barra)
 			

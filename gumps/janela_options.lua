@@ -339,6 +339,28 @@ function _detalhes:OpenOptionsWindow (instance)
 		end
 		window.fragsPvpSlider.tooltip = "Only record frags from player characters."
 		
+	--------------- Concatenate Trash
+		g:NewLabel (window, _, "$parentConcatenateTrash", "concatenateTrashLabel", "concatenate clean up segments")
+		window.concatenateTrashLabel:SetPoint (10, -344)
+		--
+		g:NewSwitch (window, _, "$parentConcatenateTrashSlider", "concatenateTrashSlider", 60, 20, _, _, _detalhes.trash_concatenate)
+		window.concatenateTrashSlider:SetPoint ("left", window.concatenateTrashLabel, "right")
+		window.concatenateTrashSlider.OnSwitch = function (self, _, amount) --> slider, fixedValue, sliderValue
+			_detalhes.trash_concatenate = amount
+		end
+		window.concatenateTrashSlider.tooltip = "Concatenate the next boss segments into only one."
+		
+	--------------- Erase Trash
+		g:NewLabel (window, _, "$parentEraseTrash", "eraseTrashLabel", "remove clean up segments")
+		window.eraseTrashLabel:SetPoint (10, -359)
+		--
+		g:NewSwitch (window, _, "$parentRemoveTrashSlider", "removeTrashSlider", 60, 20, _, _, _detalhes.trash_auto_remove)
+		window.removeTrashSlider:SetPoint ("left", window.eraseTrashLabel, "right")
+		window.removeTrashSlider.OnSwitch = function (self, _, amount) --> slider, fixedValue, sliderValue
+			_detalhes.trash_auto_remove = amount
+		end
+		window.removeTrashSlider.tooltip = "Auto erase the next boss segments."
+		
 -- Current Instalnce --------------------------------------------------------------------------------------------------------------------------------------------
 	
 
@@ -364,7 +386,7 @@ function _detalhes:OpenOptionsWindow (instance)
 		g:NewLabel (window, _, "$parentFontSizeLabel", "fonsizeLabel", "text size")
 		window.fonsizeLabel:SetPoint (250, -53)
 		--
-		g:NewSlider (window, _, "$parentSliderFontSize", "fonsizeSlider", 90, 20, 8, 15, 1, tonumber (instance.barrasInfo.fontSize)) --parent, container, name, member, w, h, min, max, step, defaultv
+		g:NewSlider (window, _, "$parentSliderFontSize", "fonsizeSlider", 150, 20, 8, 15, 1, tonumber (instance.barrasInfo.fontSize)) --parent, container, name, member, w, h, min, max, step, defaultv
 		window.fonsizeSlider:SetPoint ("left", window.fonsizeLabel, "right", 2)
 		window.fonsizeSlider:SetThumbSize (50)
 		window.fonsizeSlider:SetHook ("OnValueChange", function (self, instance, amount) 
@@ -554,6 +576,21 @@ function _detalhes:OpenOptionsWindow (instance)
 			instance:InstanceReset()
 			instance:InstanceRefreshRows()
 		end
+		
+	--------------- Bar Height
+		g:NewLabel (window, _, "$parentRowHeightLabel", "rowHeightLabel", "bar height")
+		window.rowHeightLabel:SetPoint (250, -163)
+		--
+		g:NewSlider (window, _, "$parentSliderRowHeight", "rowHeightSlider", 170, 20, 10, 30, 1, tonumber (instance.barrasInfo.altura)) --parent, container, name, member, w, h, min, max, step, defaultv
+		window.rowHeightSlider:SetPoint ("left", window.rowHeightLabel, "right", 2)
+		window.rowHeightSlider:SetThumbSize (50)
+		window.rowHeightSlider:SetHook ("OnValueChange", function (self, instance, amount) 
+			instance.barrasInfo.altura = amount
+			instance.barrasInfo.alturaReal = instance.barrasInfo.altura+instance.barrasInfo.espaco.entre
+			instance:RefreshBars()
+			instance:InstanceReset()
+			instance:ReajustaGump()
+		end)
 		
 	--------------- Background
 	
@@ -1332,6 +1369,9 @@ function _detalhes:OpenOptionsWindow (instance)
 	--
 	_G.DetailsOptionsWindowFontDropdown.MyObject:SetFixedParameter (instance)
 	_G.DetailsOptionsWindowFontDropdown.MyObject:Select (instance.barrasInfo.fontName)
+	--
+	_G.DetailsOptionsWindowSliderRowHeight.MyObject:SetFixedParameter (instance)
+	_G.DetailsOptionsWindowSliderRowHeight.MyObject:SetValue (instance.barrasInfo.altura)
 	--
 	_G.DetailsOptionsWindowSliderFontSize.MyObject:SetFixedParameter (instance)
 	_G.DetailsOptionsWindowSliderFontSize.MyObject:SetValue (instance.barrasInfo.fontSize)

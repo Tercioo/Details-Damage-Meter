@@ -206,7 +206,6 @@
 			end
 			
 		end
-		--]]
 		
 		--> damager shadow
 		local shadow = este_jogador.shadow
@@ -348,6 +347,8 @@
 				owner_target = meu_dono.targets._ActorTable [owner_target]
 			end
 			owner_target.total = owner_target.total + amount
+			
+			meu_dono.last_event = _tempo
 		end
 
 		--> actor
@@ -374,7 +375,6 @@
 			spell = este_jogador.spell_tables:PegaHabilidade (spellid, true, token)
 		end
 		
-		--return spell:Add (alvo_serial, alvo_name, alvo_flags, amount, who_name, resisted, blocked, absorbed, critical, glacing, token)
 		return spell_damage_func (spell, alvo_serial, alvo_name, alvo_flags, amount, who_name, resisted, blocked, absorbed, critical, glacing, token)
 	end
 
@@ -457,6 +457,11 @@
 	------------------------------------------------------------------------------------------------
 	--> early checks and fixes
 
+		--> only capture heal if is in combat
+		if (not _in_combat) then
+			return
+		end
+	
 		--> check nil serial against pets
 		if (who_serial == "0x0000000000000000") then
 			if (who_flags and _bit_band (who_flags, OBJECT_TYPE_PETS) ~= 0) then --> é um pet
@@ -486,11 +491,10 @@
 		
 		_current_heal_container.need_refresh = true
 		_overall_heal_container.need_refresh = true
-		
+	
 	------------------------------------------------------------------------------------------------
 	--> get actors
 
-		--> debug - no cache
 		local este_jogador, meu_dono = healing_cache [who_name]
 		if (not este_jogador) then --> pode ser um desconhecido ou um pet
 			este_jogador, meu_dono, who_name = _current_heal_container:PegarCombatente (who_serial, who_name, who_flags, true)
@@ -1487,7 +1491,7 @@
 
 	end
 	
-	--> search key: ~spellcast castspell
+	--> search key: ~spellcast ~castspell ~cast
 	function parser:spellcast (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype)
 	
 		--print (token, time, "WHO:",who_serial, who_name, who_flags, "TARGET:",alvo_serial, alvo_name, alvo_flags, "SPELL:",spellid, spellname, spelltype)
@@ -1512,7 +1516,21 @@
 				return
 			end
 		else
-			-->
+			--> successful casts (not interrupted)
+			if (_bit_band (who_flags, 0x00000040) ~= 0) then --> byte 2 = 4 (enemy)
+				--> damager
+				local este_jogador = damage_cache [who_name]
+				if (not este_jogador) then
+					este_jogador = _current_damage_container:PegarCombatente (who_serial, who_name, who_flags, true)
+				end
+				--> actor spells table
+				local spell = este_jogador.spell_tables._ActorTable [spellid]
+				if (not spell) then
+					spell = este_jogador.spell_tables:PegaHabilidade (spellid, true, token)
+				end
+				spell.successful_casted = spell.successful_casted + 1
+				--print ("cast success", who_name, spellname)
+			end
 			return
 		end
 		
@@ -1924,7 +1942,7 @@
 	--> build dead
 		
 		
-		if (alvo_flags and _bit_band (alvo_flags, 0x00000008) ~= 0) then -- and _in_combat --byte 1 = 8 (AFFILIATION_OUTSIDER)
+		if (_in_combat and alvo_flags and _bit_band (alvo_flags, 0x00000008) ~= 0) then -- and _in_combat --byte 1 = 8 (AFFILIATION_OUTSIDER)
 			--> outsider death while in combat
 			
 			--> frags
@@ -1966,10 +1984,13 @@
 
 							--> check if it's done
 							local its_done = true
-							for _, killed in pairs (_detalhes.encounter.data) do 
+							for npcID, killed in pairs (_detalhes.encounter.data) do 
 								if (not killed) then
 									its_done = false
+									--print ("npc",npcID,"NAO esta morto","quem morreu:",alvo_name)
 									break
+								else
+									--print ("npc",npcID,"esta morto","quem morreu:",alvo_name)
 								end
 							end
 							
@@ -1978,6 +1999,9 @@
 								if (_detalhes.debug) then
 									_detalhes:Msg ("(debug) combat finished: encounter objective is completed")
 								end
+								
+								--print ("saindo do combate")
+								
 								_detalhes:SairDoCombate (true)
 							end
 						end
@@ -2017,44 +2041,6 @@
 						misc_cache [alvo_name] = este_jogador
 					end
 				end
-
-				--[[
-				if (dano.last_events_table) then
-				
-					local novaTabela = {}
-					local counter = 1
-					
-					--> junta os danos iguais
-					for i = 1, #dano.last_events_table, 1 do 
-					
-						local este_dano = dano.last_events_table[i]
-						local proximo_dano = dano.last_events_table[counter+1]
-						
-						if (este_dano and proximo_dano) then 
-						
-							local spellId_this =  este_dano[2]
-							local tempo_this =  este_dano[4]
-							
-							local spellId_next =  proximo_dano[2]
-							local tempo_next =  proximo_dano[4]
-							
-							if (spellId_this == spellId_next and _cstr ("%.1f", tempo_this) == _cstr ("%.1f", tempo_next)) then 
-								este_dano[3] = este_dano[3] + proximo_dano[3]
-								if (not este_dano [7]) then
-									este_dano[7] = 2
-								else
-									este_dano[7] = este_dano[7] + 1
-								end
-								_table_remove (dano.last_events_table, counter+1)
-							end
-							
-						end
-						
-						counter = counter + 1
-						
-					end
-				end
-				--]]
 				
 				--> monta a estrutura da morte pegando a tabela de dano e a tabela de cura
 				local dano = _current_combat[1]:PegarCombatente (alvo_serial, alvo_name, alvo_flags, true) --> container do dano
@@ -2313,60 +2299,13 @@
 
 
 	-- PARSER
-	--serach key: ~parser
-	function parser:do_parser (time, token, hidding, who_serial, who_name, who_flags, who_flags2, alvo_serial, alvo_name, alvo_flags, alvo_flags2, ...)
+	--serach key: ~parser ~event
 
-		--print (token)
-
-		-- DEBUG
-		--[
-		--if (alvo_name == "Ditador") then
-		--	local a, b, c, d, e, f, g, h, i, j, k = select (1, ...)
-		--	print (token, who_name, a, b, c, d, e, f, g, h, i, j, k)
-		--end
-		--]]
-		--[[
-		if (who_name == "Ditador") then
-			if (token:find ("CAST")) then
-			
-				if (token == "SPELL_CAST_START") then
-					_detalhes.castStart = time
-				end
-			
-				if (token == "SPELL_CAST_SUCCESS") then
-					local tempoGasto = time - _detalhes.castStart
-					local default_cast_time = 2500 -- 2.5 sec
-					print (tempoGasto)
-					
-					local arg1, arg2, arg3, arg4, arg5 = select (1, ...)
-					local cd = GetSpellCooldown (arg1)
-					print (cd)
-				end
-				--local arg1, arg2, arg3, arg4, arg5 = select (1, ...)
-				--print (token, arg1, arg2, arg3, arg4, arg5)
-				--local name, rank, icon, cost, isFunnel, powerType, castTime, minRange, maxRange = GetSpellInfo (arg1)
-				--print (castTime)
-			end
-		end
-		--]]
-		
-		local funcao = token_list [token]
-		if (funcao) then
-			return funcao (nil, token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, ... )
-		else
-			return
-		end
-	end
-
-	--serach key: ~event
 	function _detalhes:OnEvent (evento, ...)
 	
 		--print (evento, select (1, ...))
-		
-		if (evento == "COMBAT_LOG_EVENT_UNFILTERED") then
-			return parser:do_parser (...)
-			
-		elseif (evento == "ZONE_CHANGED_NEW_AREA" or evento == "PLAYER_ENTERING_WORLD") then
+
+		if (evento == "ZONE_CHANGED_NEW_AREA" or evento == "PLAYER_ENTERING_WORLD") then
 		
 			local zoneName, zoneType, _, _, _, _, _, zoneMapID = _GetInstanceInfo()
 			
@@ -2512,6 +2451,16 @@
 	end
 
 	_detalhes.listener:SetScript ("OnEvent", _detalhes.OnEvent)
+	
+	function _detalhes:OnParserEvent (evento, time, token, hidding, who_serial, who_name, who_flags, who_flags2, alvo_serial, alvo_name, alvo_flags, alvo_flags2, ...)
+		local funcao = token_list [token]
+		if (funcao) then
+			return funcao (nil, token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, ... )
+		else
+			return
+		end
+	end
+	_detalhes.parser_frame:SetScript ("OnEvent", _detalhes.OnParserEvent)
 
 	function _detalhes:UpdateParser()
 		_tempo = _detalhes._tempo

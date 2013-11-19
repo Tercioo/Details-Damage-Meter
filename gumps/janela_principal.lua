@@ -2174,11 +2174,12 @@ end
 function gump:NewRow (instancia, index)
 	return gump:CriaNovaBarra (instancia, index)
 end
-
+--> search key: ~row ~barra
 function gump:CriaNovaBarra (instancia, index)
 
 	local BaseFrame = instancia.baseframe
 	local esta_barra = _CreateFrame ("Button", "DetailsBarra_"..instancia.meu_id.."_"..index, BaseFrame)
+	esta_barra.row_id = index
 	local y = instancia.barrasInfo.alturaReal*(index-1)
 
 	y = y*-1

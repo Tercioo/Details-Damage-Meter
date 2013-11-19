@@ -37,7 +37,7 @@ function habilidade_dano:NovaTabela (id, link, token) --aqui eu não sei que parâ
 		total = 0, --total de dano aplicado por esta habilidade
 		counter = 0, --conta quantas vezes a habilidade foi chamada
 		id = id,
-		--school = 0,
+		successful_casted = 0,
 		
 		--> normal
 		n_min = 0,
@@ -52,30 +52,20 @@ function habilidade_dano:NovaTabela (id, link, token) --aqui eu não sei que parâ
 		c_dmg = 0,
 
 		--> glacing
-		--g_min = 0, --not sure but, glancing min and max shouldn't be necessary
-		--g_max = 0, --
 		g_amt = 0,
 		g_dmg = 0,
 		
 		--> resisted
-		--r_min = 0, --not sure but, resisted min and max shouldn't be necessary
-		--r_max = 0, --
 		r_amt = 0,
 		r_dmg = 0,
 		
 		--> blocked
-		--b_min = 0, --not sure but, block min and max shouldn't be necessary
-		--b_max = 0, --
 		b_amt = 0,
 		b_dmg = 0,
 
 		--> obsorved
-		--a_min = 0, --not sure but, absorbed min and max shouldn't be necessary
-		--a_max = 0, --
 		a_amt = 0,
 		a_dmg = 0,
-		
-		--crushing = 0, --> this still exists?
 		
 		targets = container_combatentes:NovoContainer (container_damage_target)
 	}
@@ -117,7 +107,6 @@ function habilidade_dano:Add (serial, nome, flag, amount, who_nome, resisted, bl
 
 	self.counter = self.counter + 1
 	
-	--local alvo = self.targets:PegarCombatente (serial, nome, flag, true)
 	local alvo = self.targets._NameIndexTable [nome]
 	if (not alvo) then
 		alvo = self.targets:PegarCombatente (serial, nome, flag, true)
@@ -128,56 +117,26 @@ function habilidade_dano:Add (serial, nome, flag, amount, who_nome, resisted, bl
 	if (resisted and resisted > 0) then
 		self.r_dmg = self.r_dmg+amount --> tabela.total é o total de dano
 		self.r_amt = self.r_amt+1 --> tabela.total é o total de dano
-		--if (amount > self.r_max) then
-		--	self.r_max = amount
-		--end
-		--if (self.r_min > amount or self.r_min == 0) then
-		--	self.r_min = amount
-		--end
 	end
 	
 	if (blocked and blocked > 0) then
 		self.b_dmg = self.b_dmg+amount --> amount é o total de dano
 		self.b_amt = self.b_amt+1 --> amount é o total de dano
-		--if (amount > self.b_max) then
-		--	self.b_max = amount
-		--end
-		--if (self.b_min > amount or self.b_min == 0) then
-		--	self.b_min = amount
-		--end
 	end
 	
 	if (absorbed and absorbed > 0) then
 		self.a_dmg = self.a_dmg+amount --> amount é o total de dano
 		self.a_amt = self.a_amt+1 --> amount é o total de dano
-		--if (amount > self.a_max) then
-		--	self.a_max = amount
-		--end
-		--if (self.a_min > amount or self.a_min == 0) then
-		--	self.a_min = amount
-		--end
 	end	
 	
-	--if (amount and amount > 0) then
-	--if (amount and amount > 0) then
-	
 		self.total = self.total + amount
-
-		--alvo:AddQuantidade (amount)
 		alvo.total = alvo.total + amount
 
 		if (glacing) then
-			-- esta_tabela.glacing = {["mim"] = 0, ["max"] = 0, ["total"] = 0, ["dmg"] = 0}
 			self.g_dmg = self.g_dmg+amount --> amount é o total de dano
 			self.g_amt = self.g_amt+1 --> amount é o total de dano
-			--if (amount > self.g_max) then
-			--	self.g_max = amount
-			--end
-			--if (self.g_min > amount or self.g_min == 0) then
-			--	self.g_min = amount
-			--end
+
 		elseif (critical) then
-			--esta_tabela.critico = {["mim"] = 0, ["max"] = 0, ["total"] = 0, ["dmg"] = 0}
 			self.c_dmg = self.c_dmg+amount --> amount é o total de dano
 			self.c_amt = self.c_amt+1 --> amount é o total de dano
 			if (amount > self.c_max) then
@@ -187,7 +146,6 @@ function habilidade_dano:Add (serial, nome, flag, amount, who_nome, resisted, bl
 				self.c_min = amount
 			end
 		else
-			--esta_tabela.normal = {["mim"] = 0, ["max"] = 0, ["total"] = 0, ["dmg"] = 0}
 			self.n_dmg = self.n_dmg+amount
 			self.n_amt = self.n_amt+1
 			if (amount > self.n_max) then
@@ -276,7 +234,8 @@ end
 habilidade_dano.__add = function (tabela1, tabela2)
 	tabela1.total = tabela1.total + tabela2.total
 	tabela1.counter = tabela1.counter + tabela2.counter
-
+	tabela1.successful_casted = tabela1.successful_casted + tabela2.successful_casted
+	
 	tabela1.n_min = tabela1.n_min + tabela2.n_min
 	tabela1.n_max = tabela1.n_max + tabela2.n_max
 	tabela1.n_amt = tabela1.n_amt + tabela2.n_amt
@@ -315,6 +274,7 @@ end
 habilidade_dano.__sub = function (tabela1, tabela2)
 	tabela1.total = tabela1.total - tabela2.total
 	tabela1.counter = tabela1.counter - tabela2.counter
+	tabela1.successful_casted = tabela1.successful_casted - tabela2.successful_casted
 
 	tabela1.n_min = tabela1.n_min - tabela2.n_min
 	tabela1.n_max = tabela1.n_max - tabela2.n_max
