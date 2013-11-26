@@ -165,6 +165,50 @@ end
 				return false
 			end
 
+local sortEnemies = function (t1, t2)
+	local a = _bit_band (t1.flag_original, 0x00000040)
+	local b = _bit_band (t2.flag_original, 0x00000040)
+	
+	if (a ~= 0 and b ~= 0) then
+		return t1.total > t2.total
+	elseif (a ~= 0 and b == 0) then
+		return true
+	elseif (a == 0 and b ~= 0) then
+		return false
+	end
+	
+	return false
+end
+
+--[[exported]] 	function _detalhes:ContainerSortEnemies (container, amount, keyName2)
+
+				keyName = keyName2
+				
+				_table_sort (container, sortEnemies)
+				
+				local total = 0
+				
+				for index, player in _ipairs (container) do
+				
+					if (_bit_band (player.flag_original, 0x00000040) ~= 0) then --> é um inimigo
+					
+						-- ele vai contar os inimigos com 0 tbm
+					
+						--if (player[keyName] < 1) then --> dano menor que 1, interromper o loop
+						--	amount = index - 1
+						--	break
+						--end
+						
+						total = total + player [keyName]
+					else
+						amount = index-1
+						break
+					end
+				end
+				
+				return amount, total
+			end
+
 function atributo_damage:ContainerRefreshDps (container, combat_time)
 
 	if (_detalhes.time_type == 2 or not _detalhes:CaptureGet ("damage")) then
@@ -355,7 +399,7 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 	end
 	
 	--> total
-	local total = 0 
+	local total = 0
 	--> top actor #1
 	instancia.top = 0
 	
@@ -380,6 +424,8 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 				keyName = "friendlyfire_total"
 			elseif (sub_atributo == 5) then --> FRAGS
 				keyName = "frags"
+			elseif (sub_atributo == 6) then --> ENEMIES
+				keyName = "enemies"
 			end
 		else
 			keyName = exportar.key
@@ -399,6 +445,8 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 			keyName = "friendlyfire_total"
 		elseif (sub_atributo == 5) then --> FRAGS
 			keyName = "frags"
+		elseif (sub_atributo == 6) then --> ENEMIES
+			keyName = "enemies"
 		end
 	end
 	
@@ -474,6 +522,7 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 		end
 		
 		return _detalhes:EndRefresh (instancia, total, tabela_do_combate, showing) --> retorna a tabela que precisa ganhar o refresh
+	
 	else
 	
 		if (instancia.atributo == 5) then --> custom
@@ -483,6 +532,14 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 			--> grava o total
 			instancia.top = conteudo[1][keyName]
 			
+		elseif (keyName == "enemies") then 
+		
+			amount, total = _detalhes:ContainerSortEnemies (conteudo, amount, "total")
+			--> grava o total
+			instancia.top = conteudo[1][keyName]
+			
+			--print ("aqui", amount, total, instancia.top)
+
 		elseif (modo == modo_ALL) then --> mostrando ALL
 		
 			--> faz o sort da categoria e retorna o amount corrigido
@@ -542,20 +599,6 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 				_table_sort (conteudo, _detalhes.SortKeyGroup)
 			end
 			--
-			
-			--[[
-			_table_sort (conteudo, function (a, b)
-					if (a.grupo and b.grupo) then
-						return a[keyName] > b[keyName]
-					elseif (a.grupo and not b.grupo) then
-						return true
-					elseif (not a.grupo and b.grupo) then
-						return false
-					else
-						return a[keyName] > b[keyName]
-					end
-				end)
-			--]]
 			
 			if (not using_cache) then
 				for index, player in _ipairs (conteudo) do
@@ -631,6 +674,11 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 
 		end
 	else
+	
+		if (total == 0) then
+			total = 0.00000001
+		end
+	
 		local combat_time = instancia.showing:GetCombatTime()
 		for i = instancia.barraS[1], instancia.barraS[2], 1 do --> vai atualizar só o range que esta sendo mostrado
 			conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time) --> instância, index, total, valor da 1º barra
@@ -767,7 +815,10 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 		elseif (sub_atributo == 4) then --> mostrando friendly fire
 			esta_barra.texto_direita:SetText (_detalhes:ToK (self.friendlyfire_total) .." ".. div_abre .._cstr("%.1f", porcentagem).."%" .. div_fecha) --seta o texto da direita --_cstr("%.1f", dps) .. " - ".. DPS do damage taken não será possivel correto?
 			esta_porcentagem = _math_floor ((self.friendlyfire_total/instancia.top) * 100) --> determina qual o tamanho da barra
-			
+		
+		elseif (sub_atributo == 6) then --> mostrando friendly fire
+			esta_barra.texto_direita:SetText (_detalhes:ToK (damage_total) .." ".. div_abre .. _math_floor (dps) .. ", ".. _cstr ("%.1f", porcentagem).."%" .. div_fecha) --seta o texto da direita
+			esta_porcentagem = _math_floor ((damage_total/instancia.top) * 100) --> determina qual o tamanho da barra
 		end
 	end
 
@@ -956,7 +1007,7 @@ function atributo_damage:ToolTip (instancia, numero, barra)
 	if (instancia.atributo == 5) then --> custom
 		return self:TooltipForCustom (barra)
 	else
-		if (instancia.sub_atributo == 1 or instancia.sub_atributo == 2) then --> damage done or Dps
+		if (instancia.sub_atributo == 1 or instancia.sub_atributo == 2 or instancia.sub_atributo == 6) then --> damage done or Dps or enemy
 			return self:ToolTip_DamageDone (instancia, numero, barra)
 		elseif (instancia.sub_atributo == 3) then --> damage taken
 			return self:ToolTip_DamageTaken (instancia, numero, barra)
@@ -995,73 +1046,77 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra)
 	
 	do
 		--> TOP HABILIDADES
-		local ActorDamage = self.total_without_pet
-		local ActorSkillsContainer = self.spell_tables._ActorTable
-		local ActorSkillsSortTable = {}
-		
-		local meu_tempo
-		if (_detalhes.time_type == 1 or not self.grupo) then
-			meu_tempo = self:Tempo()
-		elseif (_detalhes.time_type == 2) then
-			meu_tempo = self:GetCombatTime()
-		end
-		
-		for _spellid, _skill in _pairs (ActorSkillsContainer) do
-			ActorSkillsSortTable [#ActorSkillsSortTable+1] = {_spellid, _skill.total, _skill.total/meu_tempo}
-		end
-		_table_sort (ActorSkillsSortTable, _detalhes.Sort2)
+			local ActorDamage = self.total_without_pet
+			if (ActorDamage == 0) then
+				ActorDamage = 0.00000001
+			end
+			local ActorSkillsContainer = self.spell_tables._ActorTable
+			local ActorSkillsSortTable = {}
+			
+			local meu_tempo
+			if (_detalhes.time_type == 1 or not self.grupo) then
+				meu_tempo = self:Tempo()
+			elseif (_detalhes.time_type == 2) then
+				meu_tempo = self:GetCombatTime()
+			end
+			
+			for _spellid, _skill in _pairs (ActorSkillsContainer) do
+				ActorSkillsSortTable [#ActorSkillsSortTable+1] = {_spellid, _skill.total, _skill.total/meu_tempo}
+				--local nome_magia, _, icone_magia = _GetSpellInfo (_spellid)
+				--print ("==============")
+				--print (nome_magia, _skill.total)
+			end
+			_table_sort (ActorSkillsSortTable, _detalhes.Sort2)
 		
 		--> TOP INIMIGOS
-		local ActorTargetsContainer = self.targets._ActorTable
-		local ActorTargetsSortTable = {}
-		for _, _target in _ipairs (ActorTargetsContainer) do
-			ActorTargetsSortTable [#ActorTargetsSortTable+1] = {_target.nome, _target.total}
-		end
-		_table_sort (ActorTargetsSortTable, _detalhes.Sort2)
+			local ActorTargetsContainer = self.targets._ActorTable
+			local ActorTargetsSortTable = {}
+			for _, _target in _ipairs (ActorTargetsContainer) do
+				ActorTargetsSortTable [#ActorTargetsSortTable+1] = {_target.nome, _target.total}
+			end
+			_table_sort (ActorTargetsSortTable, _detalhes.Sort2)
 		
 		--> MOSTRA HABILIDADES
-		--leftText, rightText, frame, ColorR, ColorG, ColorB, ColorA, ColorR1, ColorG2, ColorB3, ColorA4, fontSize, fontFace
-
-		GameCooltip:AddLine (Loc ["STRING_SPELLS"].."", nil, nil, headerColor, nil, 12)
-		--GameCooltip:AddIcon ([[Interface\HELPFRAME\HotIssueIcon]], 1, 1, 14, 14, 0.0625, 0.90625, 0, 1)
-		GameCooltip:AddIcon ([[Interface\ICONS\Spell_Shaman_BlessingOfTheEternals]], 1, 1, 14, 14, 0.90625, 0.109375, 0.15625, 0.875)
-		GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
-
-		local tooltip_max_abilities = _detalhes.tooltip_max_abilities
-
-		if (instancia.sub_atributo == 2) then
-			tooltip_max_abilities = 6
-		end
-		
-		if (#ActorSkillsSortTable > 0) then
-			for i = 1, _math_min (tooltip_max_abilities, #ActorSkillsSortTable) do
-				local SkillTable = ActorSkillsSortTable [i]
-				local nome_magia, _, icone_magia = _GetSpellInfo (SkillTable [1])
-				if (instancia.sub_atributo == 1) then
-					GameCooltip:AddLine (nome_magia..": ", _detalhes:comma_value (SkillTable [2]) .." (".._cstr("%.1f", SkillTable [2]/ActorDamage*100).."%)")
-				else
-					GameCooltip:AddLine (nome_magia..": ", _detalhes:comma_value (_math_floor (SkillTable [3])) .." (".._cstr("%.1f", SkillTable [2]/ActorDamage*100).."%)")
-				end
-				GameCooltip:AddIcon (icone_magia, nil, nil, 14, 14)
-				GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
-			end
-		else
-			GameCooltip:AddLine (Loc ["STRING_NO_SPELL"])
-		end
-		
-		--> MOSTRA INIMIGOS
-		if (instancia.sub_atributo == 1) then
-			GameCooltip:AddLine (Loc ["STRING_TARGETS"].."", nil, nil, headerColor, nil, 12)
-			GameCooltip:AddIcon ([[Interface\Addons\Details\images\icons]], 1, 1, 14, 14, 0, 0.03125, 0.126953125, 0.15625)
+			GameCooltip:AddLine (Loc ["STRING_SPELLS"].."", nil, nil, headerColor, nil, 12)
+			--GameCooltip:AddIcon ([[Interface\HELPFRAME\HotIssueIcon]], 1, 1, 14, 14, 0.0625, 0.90625, 0, 1)
+			GameCooltip:AddIcon ([[Interface\ICONS\Spell_Shaman_BlessingOfTheEternals]], 1, 1, 14, 14, 0.90625, 0.109375, 0.15625, 0.875)
 			GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
-			
-			for i = 1, _math_min (_detalhes.tooltip_max_targets, #ActorTargetsSortTable) do
-				local este_inimigo = ActorTargetsSortTable [i]
-				GameCooltip:AddLine (este_inimigo[1]..": ", _detalhes:comma_value (este_inimigo[2]) .." (".._cstr("%.1f", este_inimigo[2]/ActorDamage*100).."%)")
-				GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\espadas", nil, nil, 14, 14)
-				GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .2)
+
+			local tooltip_max_abilities = _detalhes.tooltip_max_abilities
+
+			if (instancia.sub_atributo == 2) then
+				tooltip_max_abilities = 6
 			end
-		end
+			
+			if (#ActorSkillsSortTable > 0) then
+				for i = 1, _math_min (tooltip_max_abilities, #ActorSkillsSortTable) do
+					local SkillTable = ActorSkillsSortTable [i]
+					local nome_magia, _, icone_magia = _GetSpellInfo (SkillTable [1])
+					if (instancia.sub_atributo == 1 or instancia.sub_atributo == 6) then
+						GameCooltip:AddLine (nome_magia..": ", _detalhes:comma_value (SkillTable [2]) .." (".._cstr("%.1f", SkillTable [2]/ActorDamage*100).."%)")
+					else
+						GameCooltip:AddLine (nome_magia..": ", _detalhes:comma_value (_math_floor (SkillTable [3])) .." (".._cstr("%.1f", SkillTable [2]/ActorDamage*100).."%)")
+					end
+					GameCooltip:AddIcon (icone_magia, nil, nil, 14, 14)
+					GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
+				end
+			else
+				GameCooltip:AddLine (Loc ["STRING_NO_SPELL"])
+			end
+			
+		--> MOSTRA INIMIGOS
+			if (instancia.sub_atributo == 1 or instancia.sub_atributo == 6) then
+				GameCooltip:AddLine (Loc ["STRING_TARGETS"].."", nil, nil, headerColor, nil, 12)
+				GameCooltip:AddIcon ([[Interface\Addons\Details\images\icons]], 1, 1, 14, 14, 0, 0.03125, 0.126953125, 0.15625)
+				GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
+				
+				for i = 1, _math_min (_detalhes.tooltip_max_targets, #ActorTargetsSortTable) do
+					local este_inimigo = ActorTargetsSortTable [i]
+					GameCooltip:AddLine (este_inimigo[1]..": ", _detalhes:comma_value (este_inimigo[2]) .." (".._cstr("%.1f", este_inimigo[2]/ActorDamage*100).."%)")
+					GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\espadas", nil, nil, 14, 14)
+					GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .2)
+				end
+			end
 	end
 	
 	--> PETS
@@ -1333,7 +1388,7 @@ end
 
 ---------> DETALHES BIFURCAÇÃO
 function atributo_damage:MontaInfo()
-	if (info.sub_atributo == 1 or info.sub_atributo == 2) then --> damage done & dps
+	if (info.sub_atributo == 1 or info.sub_atributo == 2 or info.sub_atributo == 6) then --> damage done & dps
 		return self:MontaInfoDamageDone()
 	elseif (info.sub_atributo == 3) then --> damage taken
 		return self:MontaInfoDamageTaken()
@@ -1350,6 +1405,8 @@ function atributo_damage:MontaDetalhes (spellid, barra)
 		return self:MontaDetalhesDamageTaken (spellid, barra)
 	elseif (info.sub_atributo == 4) then
 		return self:MontaDetalhesFriendlyFire (spellid, barra)
+	elseif (info.sub_atributo == 6) then
+		return self:MontaDetalhesEnemy (spellid, barra)
 	end
 end
 
@@ -1533,8 +1590,6 @@ function atributo_damage:MontaInfoDamageTaken()
 
 		self:FocusLock (barra, tabela[1])
 		
-		--hes:UpdadeInfoBar (row, index, spellid, name, value, max, percent, icon, detalhes)
-		
 		local texCoords = CLASS_ICON_TCOORDS [tabela[4]]
 		if (not texCoords) then
 			texCoords = _detalhes.class_coords ["UNKNOW"]
@@ -1543,61 +1598,6 @@ function atributo_damage:MontaInfoDamageTaken()
 		self:UpdadeInfoBar (barra, index, tabela[1], tabela[1], tabela[2], max_, tabela[3], "Interface\\AddOns\\Details\\images\\classes_small", true, texCoords)
 	end
 	
-	--[[
-	for index, tabela in _ipairs (meus_agressores) do
-		
-		local barra = barras [index]
-
-		if (not barra) then
-			barra = gump:CriaNovaBarraInfo1 (instancia, index)
-			barra.textura:SetStatusBarColor (1, 1, 1, 1)
-			barra.on_focus = false
-		end
-
-		if (not info.mostrando_mouse_over) then
-			if (tabela[1] == self.detalhes) then --> tabela [1] = NOME = NOME que esta na caixa da direita
-				if (not barra.on_focus) then --> se a barra não tiver no foco
-					barra.textura:SetStatusBarColor (129/255, 125/255, 69/255, 1)
-					barra.on_focus = true
-					if (not info.mostrando) then
-						info.mostrando = barra
-					end
-				end
-			else
-				if (barra.on_focus) then
-					barra.textura:SetStatusBarColor (1, 1, 1, 1) --> volta a cor antiga
-					barra:SetAlpha (.9) --> volta a alfa antiga
-					barra.on_focus = false
-				end
-			end
-		end
-
-		if (index == 1) then
-			barra.textura:SetValue (100)
-		else
-			barra.textura:SetValue (tabela[2]/max_*100) --> muito mais rapido...
-		end
-
-		barra.texto_esquerdo:SetText (index..instancia.divisores.colocacao..tabela[1]) --seta o texto da esqueda
-		barra.texto_direita:SetText (tabela[2] .." ".. instancia.divisores.abre .._cstr("%.1f", tabela[3]) .."%".. instancia.divisores.fecha) --seta o texto da direita
-		
-		local classe = tabela[4]
-		if (not classe) then
-			classe = "monster"
-		end
-
-		barra.icone:SetTexture ("Interface\\AddOns\\Details\\images\\"..classe:lower().."_small")
-
-		barra.minha_tabela = self
-		barra.show = tabela[1]
-		barra:Show()
-
-		if (self.detalhes and self.detalhes == barra.show) then
-			self:MontaDetalhes (self.detalhes, barra)
-		end
-		
-	end
-	--]]
 end
 
 --[[
@@ -1725,74 +1725,134 @@ function atributo_damage:MontaInfoDamageDone()
 	end
 	
 	--> TOP INIMIGOS
-	local meus_inimigos = {}
-	conteudo = self.targets._ActorTable
+	if (instancia.sub_atributo == 6) then
 	
-	for _, tabela in _ipairs (conteudo) do
-		_table_insert (meus_inimigos, {tabela.nome, tabela.total, tabela.total/total*100})
-	end
-	
-	_table_sort (meus_inimigos, function(a, b) return a[2] > b[2] end )	
-	
-	local amt_alvos = #meus_inimigos
-	if (amt_alvos < 1) then
-		return
-	end
-	
-	gump:JI_AtualizaContainerAlvos (amt_alvos)
-	
-	local max_inimigos = meus_inimigos[1] and meus_inimigos[1][2] or 0
-	
-	local barra
-	for index, tabela in _ipairs (meus_inimigos) do
-	
-		barra = info.barras2 [index]
+		local damage_taken = self.damage_taken
+		local agressores = self.damage_from
+		local tabela_do_combate = instancia.showing
+		local showing = tabela_do_combate [class_type] --> o que esta sendo mostrado -> [1] - dano [2] - cura --> pega o container com ._NameIndexTable ._ActorTable
+		local barras = info.barras2
+		local meus_agressores = {}
 		
-		if (not barra) then
-			barra = gump:CriaNovaBarraInfo2 (instancia, index)
-			barra.textura:SetStatusBarColor (1, 1, 1, 1)
-		end
-		
-		if (index == 1) then
-			barra.textura:SetValue (100)
-		else
-			barra.textura:SetValue (tabela[2]/max_inimigos*100)
+		local este_agressor	
+		for nome, _ in _pairs (agressores) do
+			este_agressor = showing._ActorTable[showing._NameIndexTable[nome]]
+			if (este_agressor) then
+				local alvos = este_agressor.targets
+				local este_alvo = alvos._ActorTable[alvos._NameIndexTable[self.nome]]
+				if (este_alvo) then
+					meus_agressores [#meus_agressores+1] = {nome, este_alvo.total, este_alvo.total/damage_taken*100, este_agressor.classe}
+				end
+			end
 		end
 
-		--barra.textura:SetStatusBarColor (1, 1, 1, 1)
+		local amt = #meus_agressores
 		
-		--gump:CorBarraOnInfo2 (index, {}) --> como será o esquema de cores?
+		if (amt < 1) then --> caso houve apenas friendly fire
+			return true
+		end
 		
-		barra.texto_esquerdo:SetText (index..instancia.divisores.colocacao..tabela[1]) --seta o texto da esqueda
-		barra.texto_direita:SetText (_detalhes:comma_value (tabela[2]) .." ".. instancia.divisores.abre .._cstr("%.1f", tabela[3]) .. instancia.divisores.fecha) --seta o texto da direita
+		--_table_sort (meus_agressores, function (a, b) return a[2] > b[2] end)
+		_table_sort (meus_agressores, _detalhes.Sort2)
 		
-		if (barra.mouse_over) then --> atualizar o tooltip
-			if (barra.isAlvo) then
-				GameTooltip:Hide() 
-				GameTooltip:SetOwner (barra, "ANCHOR_TOPRIGHT")
-				if (not barra.minha_tabela:MontaTooltipAlvos (barra, index)) then
-					return
-				end
-				GameTooltip:Show()
+		local max_ = meus_agressores[1] and meus_agressores[1][2] or 0 --> dano que a primeiro magia vez
+		
+		local barra
+		for index, tabela in _ipairs (meus_agressores) do
+			barra = barras [index]
+
+			if (not barra) then --> se a barra não existir, criar ela então
+				barra = gump:CriaNovaBarraInfo2 (instancia, index)
+				barra.textura:SetStatusBarColor (1, 1, 1, 1) --> isso aqui é a parte da seleção e desceleção
 			end
-		end	
+			
+			if (index == 1) then
+				barra.textura:SetValue (100)
+			else
+				barra.textura:SetValue (tabela[2]/max_*100)
+			end
+
+			barra.texto_esquerdo:SetText (index..instancia.divisores.colocacao..tabela[1]) --seta o texto da esqueda
+			barra.texto_direita:SetText (tabela[2] .." ".. instancia.divisores.abre .._cstr("%.1f", tabela[3]) .."%".. instancia.divisores.fecha) --seta o texto da direita
+			
+			--barra.icone:SetTexture (tabela[4]) --CLASSE
+			
+			if (barra.mouse_over) then --> atualizar o tooltip
+				if (barra.isAlvo) then
+					GameTooltip:Hide() 
+					GameTooltip:SetOwner (barra, "ANCHOR_TOPRIGHT")
+					if (not barra.minha_tabela:MontaTooltipDamageTaken (barra, index)) then
+						return
+					end
+					GameTooltip:Show()
+				end
+			end
+			
+			barra.minha_tabela = self --> grava o jogador na tabela
+			barra.nome_inimigo = tabela [1] --> salva o nome do inimigo na barra --> isso é necessário?
+			
+			-- no lugar do spell id colocar o que?
+			barra.spellid = "enemies"
+
+			barra:Show() --> mostra a barra
+		end
+	else
+		local meus_inimigos = {}
+		conteudo = self.targets._ActorTable
 		
-		--gump:TextoBarraOnInfo2 (index, , )
-		-- o que mostrar no local do ícone?
-		--barra.icone:SetTexture (tabela[4][3])
+		for _, tabela in _ipairs (conteudo) do
+			_table_insert (meus_inimigos, {tabela.nome, tabela.total, tabela.total/total*100})
+		end
 		
-		barra.minha_tabela = self --> grava o jogador na tabela
-		barra.nome_inimigo = tabela [1] --> salva o nome do inimigo na barra --> isso é necessário?
+		_table_sort (meus_inimigos, function(a, b) return a[2] > b[2] end )	
 		
-		-- no lugar do spell id colocar o que?
-		barra.spellid = tabela[5]
-		barra:Show()
+		local amt_alvos = #meus_inimigos
+		if (amt_alvos < 1) then
+			return
+		end
 		
-		--if (self.detalhes and self.detalhes == barra.spellid) then
-		--	self:MontaDetalhes (self.detalhes, barra)
-		--end
+		gump:JI_AtualizaContainerAlvos (amt_alvos)
+		
+		local max_inimigos = meus_inimigos[1] and meus_inimigos[1][2] or 0
+		
+		local barra
+		for index, tabela in _ipairs (meus_inimigos) do
+		
+			barra = info.barras2 [index]
+			
+			if (not barra) then
+				barra = gump:CriaNovaBarraInfo2 (instancia, index)
+				barra.textura:SetStatusBarColor (1, 1, 1, 1)
+			end
+			
+			if (index == 1) then
+				barra.textura:SetValue (100)
+			else
+				barra.textura:SetValue (tabela[2]/max_inimigos*100)
+			end
+			
+			barra.texto_esquerdo:SetText (index..instancia.divisores.colocacao..tabela[1]) --seta o texto da esqueda
+			barra.texto_direita:SetText (_detalhes:comma_value (tabela[2]) .." ".. instancia.divisores.abre .._cstr("%.1f", tabela[3]) .. instancia.divisores.fecha) --seta o texto da direita
+			
+			if (barra.mouse_over) then --> atualizar o tooltip
+				if (barra.isAlvo) then
+					GameTooltip:Hide() 
+					GameTooltip:SetOwner (barra, "ANCHOR_TOPRIGHT")
+					if (not barra.minha_tabela:MontaTooltipAlvos (barra, index)) then
+						return
+					end
+					GameTooltip:Show()
+				end
+			end
+			
+			barra.minha_tabela = self --> grava o jogador na tabela
+			barra.nome_inimigo = tabela [1] --> salva o nome do inimigo na barra --> isso é necessário?
+			
+			-- no lugar do spell id colocar o que?
+			barra.spellid = tabela[5]
+			barra:Show()
+		end
 	end
-	
 end
 
 
@@ -1849,6 +1909,77 @@ function atributo_damage:MontaDetalhesFriendlyFire (nome, barra)
 		barra.texto_direita:SetText (tabela[2] .." ".. instancia.divisores.abre .._cstr("%.1f", tabela[3]) .."%".. instancia.divisores.fecha) --seta o texto da direita
 		
 		barra.icone:SetTexture (tabela[5])
+
+		barra:Show() --> mostra a barra
+		
+		if (index == 15) then 
+			break
+		end
+	end
+	
+end
+
+-- detalhes info enemies
+function atributo_damage:MontaDetalhesEnemy (spellid, barra)
+	
+	for _, barra in _ipairs (info.barras3) do 
+		barra:Hide()
+	end
+	
+	local container = info.instancia.showing[1]
+	local barras = info.barras3
+	local instancia = info.instancia
+	local spell = self.spell_tables:PegaHabilidade (spellid)
+	
+	local targets = spell.targets._ActorTable
+	local target_pool = {}
+	
+	for _, target in _ipairs (targets) do	
+		local classe
+		local this_actor = info.instancia.showing (1, target.nome)
+		if (this_actor) then
+			classe = this_actor.classe or "UNKNOW"
+		else
+			classe = "UNKNOW"
+		end
+		target_pool [#target_pool+1] = {target.nome, target.total, classe}
+	end
+	
+	_table_sort (target_pool, _detalhes.Sort2)
+	
+	local max_ = target_pool [1] and target_pool [1][2] or 0
+	
+	local barra
+	for index, tabela in _ipairs (target_pool) do
+		barra = barras [index]
+
+		if (not barra) then --> se a barra não existir, criar ela então
+			barra = gump:CriaNovaBarraInfo3 (instancia, index)
+			barra.textura:SetStatusBarColor (1, 1, 1, 1) --> isso aqui é a parte da seleção e desceleção
+		end
+		
+		if (index == 1) then
+			barra.textura:SetValue (100)
+		else
+			barra.textura:SetValue (tabela[2]/max_*100) --> muito mais rapido...
+		end
+
+		barra.texto_esquerdo:SetText (index .. ". " .. tabela [1]) --seta o texto da esqueda
+		_detalhes:name_space_info (barra)
+		
+		if (spell.total > 0) then
+			barra.texto_direita:SetText (tabela[2] .." (".. _cstr("%.1f", tabela[2] / spell.total * 100) .."%)") --seta o texto da direita
+		else
+			barra.texto_direita:SetText (tabela[2] .." (0%)") --seta o texto da direita
+		end
+		
+		local texCoords = _detalhes.class_coords [tabela[3]]
+		if (not texCoords) then
+			texCoords = _detalhes.class_coords ["UNKNOW"]
+		end
+		
+		barra.icone:SetTexture ("Interface\\AddOns\\Details\\images\\classes_small")
+		barra.icone:SetTexCoord (unpack (texCoords))
 
 		barra:Show() --> mostra a barra
 		
@@ -2142,6 +2273,43 @@ function atributo_damage:MontaDetalhesDamageDone (spellid, barra)
 	
 end
 
+function atributo_damage:MontaTooltipDamageTaken (esta_barra, index)
+	
+	local aggressor = info.instancia.showing [1]:PegarCombatente (_, esta_barra.nome_inimigo)
+	local container = aggressor.spell_tables._ActorTable
+	local habilidades = {}
+
+	local total = 0
+	
+	for spellid, spell in _pairs (container) do 
+		for _, actor in _ipairs (spell.targets._ActorTable) do 
+			if (actor.nome == self.nome) then
+				total = total + actor.total
+				habilidades [#habilidades+1] = {spellid, actor.total, actor.nome}
+			end
+		end
+	end
+
+	table.sort (habilidades, function (a, b) return a[2] > b[2] end)
+	
+	GameTooltip:AddLine (index..". "..esta_barra.nome_inimigo)
+	GameTooltip:AddLine (Loc ["STRING_DAMAGE_TAKEN_FROM2"]..":")
+	GameTooltip:AddLine (" ")
+	
+	for index, tabela in _ipairs (habilidades) do
+		local nome, rank, icone = _GetSpellInfo (tabela[1])
+		if (index < 8) then
+			GameTooltip:AddDoubleLine (index..". |T"..icone..":0|t "..nome, _detalhes:comma_value (tabela[2]).." (".._cstr("%.1f", tabela[2]/total*100).."%)", 1, 1, 1, 1, 1, 1)
+			--GameTooltip:AddTexture (icone)
+		else
+			GameTooltip:AddDoubleLine (index..". "..nome, _detalhes:comma_value (tabela[2]).." (".._cstr("%.1f", tabela[2]/total*100).."%)", .65, .65, .65, .65, .65, .65)
+		end
+	end
+	
+	return true
+	--GameTooltip:AddDoubleLine (meus_danos[i][4][1]..": ", meus_danos[i][2].." (".._cstr("%.1f", meus_danos[i][3]).."%)", 1, 1, 1, 1, 1, 1)
+	
+end
 
 function atributo_damage:MontaTooltipAlvos (esta_barra, index)
 	-- eu ja sei quem é o alvo a mostrar os detalhes

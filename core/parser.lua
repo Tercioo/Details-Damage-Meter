@@ -1517,7 +1517,7 @@
 			end
 		else
 			--> successful casts (not interrupted)
-			if (_bit_band (who_flags, 0x00000040) ~= 0) then --> byte 2 = 4 (enemy)
+			if (_bit_band (who_flags, 0x00000040) ~= 0 and who_name) then --> byte 2 = 4 (enemy)
 				--> damager
 				local este_jogador = damage_cache [who_name]
 				if (not este_jogador) then

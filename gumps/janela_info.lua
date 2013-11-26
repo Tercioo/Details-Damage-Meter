@@ -59,6 +59,10 @@ function _detalhes:AbreJanelaInfo (jogador)
 	
 	info.nome:SetText (nome)
 	
+	if (info.instancia.atributo == 1 and info.instancia.sub_atributo == 6) then --> enemy
+		atributo_nome = sub_atributos [info.atributo].lista [1] .. " " .. Loc ["STRING_ACTORFRAME_REPORTOF"]
+	end
+	
 	info.atributo_nome:SetText (atributo_nome)
 	info.atributo_nome:SetPoint ("CENTER", info.nome, "CENTER", 0, 14)
 	
@@ -128,69 +132,83 @@ function gump:TrocaBackgroundInfo()
 	if (info.atributo == 1) then --> DANO
 		if (info.sub_atributo == 1 or info.sub_atributo == 2) then --> damage done / dps
 			if (info.tipo ~= 1) then --> janela com as divisorias
-				info.bg1:SetTexture ("Interface\\AddOns\\Details\\images\\info_bg_part1") --> top left
-				info.bg3:SetTexture ("Interface\\AddOns\\Details\\images\\info_bg_part3") --> bottom left
-				info.bg2:SetTexture ("Interface\\AddOns\\Details\\images\\info_bg_part2") --> top right
-				info.bg4:SetTexture ("Interface\\AddOns\\Details\\images\\info_bg_part4") --> bottom right
-				info.targets:SetText ("Alvos:")
+			
+				info.bg1:SetTexture ([[Interface\AddOns\Details\images\info_window_background]])
+				info.bg1_sec_texture:SetTexture (nil)
+				info.targets:SetText (Loc ["STRING_TARGETS"] .. ":")
 				info.tipo = 1
 			end
 		elseif (info.sub_atributo == 3) then --> damage taken
 			if (info.tipo ~= 2) then --> janela com fundo diferente
-				info.bg1:SetTexture ("Interface\\AddOns\\Details\\images\\bg_part1_sr") --> top left
-				info.bg3:SetTexture ("Interface\\AddOns\\Details\\images\\bg_part3_sr") --> bottom left
-				info.bg2:SetTexture ("Interface\\AddOns\\Details\\images\\bg_part2_sr") --> top right
-				info.bg4:SetTexture ("Interface\\AddOns\\Details\\images\\bg_part4_sr") --> bottom right
-				info.targets:SetText ("Alvos:")
+				info.bg1:SetTexture ([[Interface\AddOns\Details\images\info_window_background]])
+				info.bg1_sec_texture:SetTexture ([[Interface\AddOns\Details\images\info_window_damagetaken]])
+				info.targets:SetText (Loc ["STRING_TARGETS"] .. ":")
 				info.tipo = 2
 			end
 		elseif (info.sub_atributo == 4) then --> friendly fire
 			if (info.tipo ~= 3) then --> janela com fundo diferente
-				info.bg1:SetTexture ("Interface\\AddOns\\Details\\images\\bg_part1_sr") --> top left
-				info.bg3:SetTexture ("Interface\\AddOns\\Details\\images\\bg_part3_sr") --> bottom left
-				info.bg2:SetTexture ("Interface\\AddOns\\Details\\images\\bg_part2_sr") --> top right
-				info.bg4:SetTexture ("Interface\\AddOns\\Details\\images\\bg_part4_sr") --> bottom right
-				info.targets:SetText ("Habilidades:")
+				info.bg1:SetTexture ([[Interface\AddOns\Details\images\info_window_background]])
+				info.bg1_sec_texture:SetTexture ([[Interface\AddOns\Details\images\info_window_friendlyfire]])
+				info.targets:SetText (Loc ["STRING_SPELLS"] .. ":")
+				info.tipo = 3
+			end
+		elseif (info.sub_atributo == 6) then --> enemies
+			if (info.tipo ~= 3) then --> janela com fundo diferente
+				info.bg1:SetTexture ([[Interface\AddOns\Details\images\info_window_background]])
+				info.bg1_sec_texture:SetTexture ([[Interface\AddOns\Details\images\info_window_damagetaken]])
+				info.targets:SetText (Loc ["STRING_DAMAGE_TAKEN_FROM"])
 				info.tipo = 3
 			end
 		end
 	elseif (info.atributo == 2) then --> HEALING
 		if (info.sub_atributo == 1 or info.sub_atributo == 2 or info.sub_atributo == 3) then --> damage done / dps
 			if (info.tipo ~= 1) then --> janela com as divisorias
-				info.bg1:SetTexture ("Interface\\AddOns\\Details\\images\\info_bg_part1") --> top left
-				info.bg3:SetTexture ("Interface\\AddOns\\Details\\images\\info_bg_part3") --> bottom left
-				info.bg2:SetTexture ("Interface\\AddOns\\Details\\images\\info_bg_part2") --> top right
-				info.bg4:SetTexture ("Interface\\AddOns\\Details\\images\\info_bg_part4") --> bottom right
-				info.targets:SetText ("Alvos:")
+				--info.bg1:SetTexture ("Interface\\AddOns\\Details\\images\\info_bg_part1") --> top left
+				--info.bg3:SetTexture ("Interface\\AddOns\\Details\\images\\info_bg_part3") --> bottom left
+				--info.bg2:SetTexture ("Interface\\AddOns\\Details\\images\\info_bg_part2") --> top right
+				--info.bg4:SetTexture ("Interface\\AddOns\\Details\\images\\info_bg_part4") --> bottom right
+				
+				info.bg1:SetTexture ([[Interface\AddOns\Details\images\info_window_background]])
+				info.bg1_sec_texture:SetTexture (nil)
+				info.targets:SetText (Loc ["STRING_TARGETS"] .. ":")
 				info.tipo = 1
 			end
 		elseif (info.sub_atributo == 4) then --> Healing taken
 			if (info.tipo ~= 2) then --> janela com fundo diferente
-				info.bg1:SetTexture ("Interface\\AddOns\\Details\\images\\bg_part1_sr") --> top left
-				info.bg3:SetTexture ("Interface\\AddOns\\Details\\images\\bg_part3_sr") --> bottom left
-				info.bg2:SetTexture ("Interface\\AddOns\\Details\\images\\bg_part2_sr") --> top right
-				info.bg4:SetTexture ("Interface\\AddOns\\Details\\images\\bg_part4_sr") --> bottom right
-				info.targets:SetText ("Alvos:")
+				--info.bg1:SetTexture ("Interface\\AddOns\\Details\\images\\bg_part1_sr") --> top left
+				--info.bg3:SetTexture ("Interface\\AddOns\\Details\\images\\bg_part3_sr") --> bottom left
+				--info.bg2:SetTexture ("Interface\\AddOns\\Details\\images\\bg_part2_sr") --> top right
+				--info.bg4:SetTexture ("Interface\\AddOns\\Details\\images\\bg_part4_sr") --> bottom right
+				
+				info.bg1:SetTexture ([[Interface\AddOns\Details\images\info_window_background]])
+				info.bg1_sec_texture:SetTexture ([[Interface\AddOns\Details\images\info_window_damagetaken]])
+				info.targets:SetText (Loc ["STRING_TARGETS"] .. ":")
 				info.tipo = 2
 			end
 		end
 	elseif (info.atributo == 3) then --> REGEN
 		if (info.tipo ~= 2) then --> janela com fundo diferente
-			info.bg1:SetTexture ("Interface\\AddOns\\Details\\images\\bg_part1_sr") --> top left
-			info.bg3:SetTexture ("Interface\\AddOns\\Details\\images\\bg_part3_sr") --> bottom left
-			info.bg2:SetTexture ("Interface\\AddOns\\Details\\images\\bg_part2_sr") --> top right
-			info.bg4:SetTexture ("Interface\\AddOns\\Details\\images\\bg_part4_sr") --> bottom right
+			--info.bg1:SetTexture ("Interface\\AddOns\\Details\\images\\bg_part1_sr") --> top left
+			--info.bg3:SetTexture ("Interface\\AddOns\\Details\\images\\bg_part3_sr") --> bottom left
+			--info.bg2:SetTexture ("Interface\\AddOns\\Details\\images\\bg_part2_sr") --> top right
+			--info.bg4:SetTexture ("Interface\\AddOns\\Details\\images\\bg_part4_sr") --> bottom right
+			
+			info.bg1:SetTexture ([[Interface\AddOns\Details\images\info_window_background]])
+			info.bg1_sec_texture:SetTexture (nil)
 			info.targets:SetText ("Vindo de:")
 			info.tipo = 2
 		end
 	
 	elseif (info.atributo == 4) then --> MISC
 		if (info.tipo ~= 2) then --> janela com fundo diferente
-			info.bg1:SetTexture ("Interface\\AddOns\\Details\\images\\bg_part1_sr") --> top left
-			info.bg3:SetTexture ("Interface\\AddOns\\Details\\images\\bg_part3_sr") --> bottom left
-			info.bg2:SetTexture ("Interface\\AddOns\\Details\\images\\bg_part2_sr") --> top right
-			info.bg4:SetTexture ("Interface\\AddOns\\Details\\images\\bg_part4_sr") --> bottom right
-			info.targets:SetText ("Alvos:")
+			--info.bg1:SetTexture ("Interface\\AddOns\\Details\\images\\bg_part1_sr") --> top left
+			--info.bg3:SetTexture ("Interface\\AddOns\\Details\\images\\bg_part3_sr") --> bottom left
+			--info.bg2:SetTexture ("Interface\\AddOns\\Details\\images\\bg_part2_sr") --> top right
+			--info.bg4:SetTexture ("Interface\\AddOns\\Details\\images\\bg_part4_sr") --> bottom right
+			
+			info.bg1:SetTexture ([[Interface\AddOns\Details\images\info_window_background]])
+			info.bg1_sec_texture:SetTexture (nil)
+			info.targets:SetText (Loc ["STRING_TARGETS"] .. ":")
 			info.tipo = 2
 		end
 	end
@@ -702,9 +720,17 @@ function gump:CriaJanelaInfo()
 	--> top left
 	este_gump.bg1 = este_gump:CreateTexture (nil, "BORDER")
 	este_gump.bg1:SetPoint ("TOPLEFT", este_gump, "TOPLEFT", 0, 0)
-	este_gump.bg1:SetWidth (512)
-	este_gump.bg1:SetHeight (256)
+	--este_gump.bg1:SetWidth (512)
+	--este_gump.bg1:SetHeight (256)
 	este_gump.bg1:SetTexture ("Interface\\AddOns\\Details\\images\\info_bg_part1") 
+	este_gump.bg1:SetTexture ("Interface\\AddOns\\Details\\images\\info_window_background")
+	este_gump.bg1:SetDrawLayer ("BORDER", 1)
+	
+	este_gump.bg1_sec_texture = este_gump:CreateTexture (nil, "BORDER")
+	este_gump.bg1_sec_texture:SetDrawLayer ("BORDER", 2)
+	este_gump.bg1_sec_texture:SetPoint ("topleft", este_gump.bg1, "topleft", 356, -86)
+	este_gump.bg1_sec_texture:SetHeight (262)
+	este_gump.bg1_sec_texture:SetWidth (258)
 
 	--> bottom left
 	este_gump.bg3 = este_gump:CreateTexture (nil, "BORDER")
@@ -713,6 +739,7 @@ function gump:CriaJanelaInfo()
 	este_gump.bg3:SetWidth (512)
 	este_gump.bg3:SetHeight (128)
 	este_gump.bg3:SetTexture ("Interface\\AddOns\\Details\\images\\info_bg_part3") 
+	este_gump.bg3:Hide()
 	
 	--> top right
 	este_gump.bg2 = este_gump:CreateTexture (nil, "BORDER")
@@ -720,6 +747,7 @@ function gump:CriaJanelaInfo()
 	este_gump.bg2:SetWidth (128)
 	este_gump.bg2:SetHeight (128)
 	este_gump.bg2:SetTexture ("Interface\\AddOns\\Details\\images\\info_bg_part2") 
+	este_gump.bg2:Hide()
 	
 	--> bottom right
 	este_gump.bg4 = este_gump:CreateTexture (nil, "BORDER")
@@ -729,6 +757,7 @@ function gump:CriaJanelaInfo()
 	este_gump.bg4:SetWidth (128)
 	este_gump.bg4:SetHeight (256)
 	este_gump.bg4:SetTexture ("Interface\\AddOns\\Details\\images\\info_bg_part4") 
+	este_gump.bg4:Hide()
 
 	--> botão de fechar
 	este_gump.fechar = _CreateFrame ("Button", nil, este_gump, "UIPanelCloseButton")
@@ -1053,7 +1082,13 @@ local function SetBarraScripts (esta_barra, instancia, i)
 			if (self.isAlvo) then --> monta o tooltip do alvo
 				--> talvez devesse escurecer a janela no fundo... pois o tooltip é transparente e pode confundir
 				GameTooltip:SetOwner (self, "ANCHOR_TOPRIGHT")
-				if (not self.minha_tabela or not self.minha_tabela:MontaTooltipAlvos (self, i)) then  -- > poderia ser aprimerado para uma tailcall
+				
+				if (self.spellid == "enemies") then --> damage taken enemies
+					if (not self.minha_tabela or not self.minha_tabela:MontaTooltipDamageTaken (self, i)) then  -- > poderia ser aprimerado para uma tailcall
+						return
+					end
+				
+				elseif (not self.minha_tabela or not self.minha_tabela:MontaTooltipAlvos (self, i)) then  -- > poderia ser aprimerado para uma tailcall
 					return
 				end
 				GameTooltip:Show()

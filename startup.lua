@@ -139,13 +139,10 @@ function _G._detalhes:Start()
 		
 		self.class_coords ["UNKNOW"] = {0.5, 0.75, 0.75, 1}
 		self.class_coords ["UNGROUPPLAYER"] = {0.5, 0.75, 0.75, 1}
-		
-		
-		
 
 	--> single click row function replace
 		--damage, dps, damage taken, friendly fire
-			self.row_singleclick_overwrite [1] = {true, true, true, true, self.atributo_damage.ReportSingleFragsLine} 
+			self.row_singleclick_overwrite [1] = {true, true, true, true, self.atributo_damage.ReportSingleFragsLine, true} 
 		--healing, hps, overheal, healing taken
 			self.row_singleclick_overwrite [2] = {true, true, true, true, false, self.atributo_heal.ReportSingleDamagePreventedLine} 
 		--mana, rage, energy, runepower
