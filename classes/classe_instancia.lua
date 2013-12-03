@@ -445,8 +445,8 @@ function _detalhes:agrupar_janelas (lados)
 				self.snap [4] = esta_instancia.meu_id
 				esta_instancia.snap [2] = self.meu_id
 				
-				esta_instancia.baseframe.rodape.StatusBarLeftAnchor:SetPoint ("left", esta_instancia.baseframe.rodape.top_bg, "left", 25, 10)
-				esta_instancia.baseframe.rodape.StatusBarCenterAnchor:SetPoint ("center", esta_instancia.baseframe.rodape.top_bg, "center", 20, 10)
+				esta_instancia.baseframe.rodape.StatusBarLeftAnchor:SetPoint ("left", esta_instancia.baseframe.rodape.top_bg, "left", 25, 58)
+				esta_instancia.baseframe.rodape.StatusBarCenterAnchor:SetPoint ("center", esta_instancia.baseframe.rodape.top_bg, "center", 20, 58)
 				esta_instancia.baseframe.rodape.esquerdo:SetTexture ("Interface\\AddOns\\Details\\images\\bar_down_left_snap")
 				esta_instancia.baseframe.rodape.esquerdo.have_snap = true
 
@@ -476,9 +476,9 @@ function _detalhes:agrupar_janelas (lados)
 				self.snap [2] = esta_instancia.meu_id
 				esta_instancia.snap [4] = self.meu_id
 				
-				self.baseframe.rodape.StatusBarLeftAnchor:SetPoint ("left", self.baseframe.rodape.top_bg, "left", 25, 10)
-				self.baseframe.rodape.StatusBarCenterAnchor:SetPoint ("center", self.baseframe.rodape.top_bg, "center", 20, 10)
-				self.baseframe.rodape.esquerdo:SetTexture ("Interface\\AddOns\\Details\\images\\bar_down_left_snap")
+				self.baseframe.rodape.StatusBarLeftAnchor:SetPoint ("left", self.baseframe.rodape.top_bg, "left", 25, 58)
+				self.baseframe.rodape.StatusBarCenterAnchor:SetPoint ("center", self.baseframe.rodape.top_bg, "center", 20, 58)
+				self.baseframe.rodape.esquerdo:SetTexture ([[Interface\AddOns\Details\images\bar_down_left_snap]])
 				self.baseframe.rodape.esquerdo.have_snap = true
 			end
 			
@@ -558,8 +558,8 @@ function _detalhes:Desagrupar (instancia, lado)
 					end
 					
 					if (index == 2) then  -- index é o codigo do snap
-						esta_instancia.baseframe.rodape.StatusBarLeftAnchor:SetPoint ("left", esta_instancia.baseframe.rodape.top_bg, "left", 5, 10)
-						esta_instancia.baseframe.rodape.StatusBarCenterAnchor:SetPoint ("center", esta_instancia.baseframe.rodape.top_bg, "center", 0, 10)
+						esta_instancia.baseframe.rodape.StatusBarLeftAnchor:SetPoint ("left", esta_instancia.baseframe.rodape.top_bg, "left", 5, 58)
+						esta_instancia.baseframe.rodape.StatusBarCenterAnchor:SetPoint ("center", esta_instancia.baseframe.rodape.top_bg, "center", 0, 58)
 						esta_instancia.baseframe.rodape.esquerdo:SetTexture ("Interface\\AddOns\\Details\\images\\bar_down_left")
 						esta_instancia.baseframe.rodape.esquerdo.have_snap = nil
 					end
@@ -569,6 +569,7 @@ function _detalhes:Desagrupar (instancia, lado)
 		end
 		
 		gump:Fade (instancia.botao_separar, 1)
+		
 		instancia.verticalSnap = false
 		instancia.horizontalSnap = false
 		return
@@ -635,6 +636,8 @@ end
 
 		nova_instancia.meu_id = ID
 
+		nova_instancia.skin = "Default Skin"
+		
 		nova_instancia.barras = {} --container que irá armazenar todas as barras
 		nova_instancia.barraS = {nil, nil} --de x até x são as barras que estão sendo mostradas na tela
 		nova_instancia.rolagem = false --barra de rolagem não esta sendo mostrada
@@ -784,6 +787,8 @@ end
 --> ao reiniciar o addon esta função é rodada para recriar a janela da instância
 --> search key: ~restaura
 function _detalhes:RestauraJanela (index, temp)
+		
+		self.skin = self.skin or "Default Skin"
 		
 		self.bg_alpha = self.bg_alpha or _detalhes.default_bg_alpha
 		self.bg_r = self.bg_r or _detalhes.default_bg_color
@@ -954,6 +959,8 @@ function _detalhes:RestauraJanela (index, temp)
 		
 		self.iniciada = true
 		self:AtivarInstancia (temp)
+		
+		self:ChangeSkin()
 	end
 ------------------------------------------------------------------------------------------------------------------------
 
@@ -1506,53 +1513,53 @@ end
 -- o modo é apenas afetado na hora de mostrar o que na tabela
 
 function _detalhes:ChangeIcon (icon)
+	
+	local skin = _detalhes.skins [self.skin]
 
 	if (icon) then
 		
+		--> plugin chamou uma troca de icone
 		self.baseframe.cabecalho.atributo_icon:SetTexture (icon)
 		self.baseframe.cabecalho.atributo_icon:SetTexCoord (5/64, 60/64, 3/64, 62/64)
-		self.baseframe.cabecalho.atributo_icon:SetWidth (19)
-		self.baseframe.cabecalho.atributo_icon:SetHeight (20)
-		self.baseframe.cabecalho.atributo_icon:SetPoint ("TOPRIGHT", self.baseframe.cabecalho.ball_point, "TOPRIGHT", -11, -6)
+		
+		local icon_size = skin.icon_plugins_size
+		self.baseframe.cabecalho.atributo_icon:SetWidth (icon_size[1])
+		self.baseframe.cabecalho.atributo_icon:SetHeight (icon_size[2])
+		local icon_anchor = skin.icon_anchor_plugins
+		self.baseframe.cabecalho.atributo_icon:SetPoint ("TOPRIGHT", self.baseframe.cabecalho.ball_point, "TOPRIGHT", icon_anchor[1], icon_anchor[2])
 		
 	elseif (self.modo == modo_alone) then --> solo
+		-- o icone é alterado pelo próprio plugin
 	
-	--[[
-		self.baseframe.cabecalho.atributo_icon:SetTexture ("Interface\\AddOns\\Details\\images\\icon_mainwindow2")
-		self.baseframe.cabecalho.atributo_icon:SetTexCoord (32/256 * (1-1), 32/256 * 1, 0, 1) --> solo é o primeiro icone
-		self.baseframe.cabecalho.atributo_icon:SetPoint ("TOPRIGHT", self.baseframe.cabecalho.ball_point, "TOPRIGHT", -1, 1)
-		self.baseframe.cabecalho.atributo_icon:SetWidth (30)
-		self.baseframe.cabecalho.atributo_icon:SetHeight (30)
-		--]]
-		--print ("Icon Changed 1")
-		
-		--_detalhes.SoloTables.Menu [INDEX] [2]
-		
 	elseif (self.modo == modo_grupo or self.modo == modo_all) then --> grupo
 
 		if (self.atributo == 5) then 
+			--> custom
 			local icon = _detalhes.custom [self.sub_atributo].icon
 			self.baseframe.cabecalho.atributo_icon:SetTexture (icon)
 			self.baseframe.cabecalho.atributo_icon:SetTexCoord (5/64, 60/64, 3/64, 62/64)
-			self.baseframe.cabecalho.atributo_icon:SetWidth (20)
-			self.baseframe.cabecalho.atributo_icon:SetHeight (20)
-			self.baseframe.cabecalho.atributo_icon:SetPoint ("TOPRIGHT", self.baseframe.cabecalho.ball_point, "TOPRIGHT", -10, -5)
+			
+			local icon_size = skin.icon_plugins_size
+			self.baseframe.cabecalho.atributo_icon:SetWidth (icon_size[1])
+			self.baseframe.cabecalho.atributo_icon:SetHeight (icon_size[2])
+			local icon_anchor = skin.icon_anchor_plugins
+			self.baseframe.cabecalho.atributo_icon:SetPoint ("TOPRIGHT", self.baseframe.cabecalho.ball_point, "TOPRIGHT", icon_anchor[1], icon_anchor[2])
 		else
-			self.baseframe.cabecalho.atributo_icon:SetTexture ("Interface\\AddOns\\Details\\images\\icon_mainwindow")
-			self.baseframe.cabecalho.atributo_icon:SetTexCoord (32/256 * (self.atributo-1), 32/256 * self.atributo, 0, 1)
-			self.baseframe.cabecalho.atributo_icon:SetPoint ("TOPRIGHT", self.baseframe.cabecalho.ball_point, "TOPRIGHT", -1, 1)
-			self.baseframe.cabecalho.atributo_icon:SetWidth (30)
-			self.baseframe.cabecalho.atributo_icon:SetHeight (30)
+			--> normal
+			local half = 0.00048828125
+			local size = 0.03125
+			self.baseframe.cabecalho.atributo_icon:SetTexture (_detalhes.skin_path .. skin.file)
+			self.baseframe.cabecalho.atributo_icon:SetTexCoord ( (0.03125 * (self.atributo-1)) + half, (0.03125 * self.atributo) - half, 0.35693359375, 0.38720703125)
+			
+			local icon_anchor = skin.icon_anchor_main
+			self.baseframe.cabecalho.atributo_icon:SetPoint ("TOPRIGHT", self.baseframe.cabecalho.ball_point, "TOPRIGHT", icon_anchor[1], icon_anchor[2])
+			
+			self.baseframe.cabecalho.atributo_icon:SetWidth (32)
+			self.baseframe.cabecalho.atributo_icon:SetHeight (32)
 		end
 		
 	elseif (self.modo == modo_raid) then --> raid
-		--[[
-		self.baseframe.cabecalho.atributo_icon:SetTexture ("Interface\\AddOns\\Details\\images\\icon_mainwindow2")
-		self.baseframe.cabecalho.atributo_icon:SetTexCoord (32/256 * (2-1), 32/256 * 2, 0, 1) --> solo é o primeiro icone
-		self.baseframe.cabecalho.atributo_icon:SetPoint ("TOPRIGHT", self.baseframe.cabecalho.ball_point, "TOPRIGHT", -1, 1)
-		self.baseframe.cabecalho.atributo_icon:SetWidth (30)
-		self.baseframe.cabecalho.atributo_icon:SetHeight (30)
-		--]]
+		-- o icone é alterado pelo próprio plugin
 	end
 end
 

@@ -19,6 +19,7 @@ local container_energy = _detalhes.container_type.CONTAINER_ENERGY_CLASS
 local container_energy_target = _detalhes.container_type.CONTAINER_ENERGYTARGET_CLASS
 local container_misc = _detalhes.container_type.CONTAINER_MISC_CLASS
 local container_misc_target = _detalhes.container_type.CONTAINER_MISCTARGET_CLASS
+local container_enemydebufftarget_target = _detalhes.container_type.CONTAINER_ENEMYDEBUFFTARGET_CLASS
 
 --api locals
 local _UnitClass = UnitClass
@@ -386,7 +387,16 @@ function container_combatentes:PegarCombatente (serial, nome, flag, criar, isOwn
 			
 			if (shadow_objeto) then
 				novo_objeto.shadow = shadow_objeto
-				--shadow_objeto.flag = details_flag
+			end
+			
+		elseif (self.tipo == container_enemydebufftarget_target) then
+			
+			novo_objeto.uptime = 0
+			novo_objeto.actived = false
+			novo_objeto.activedamt = 0
+			
+			if (shadow_objeto) then
+				novo_objeto.shadow = shadow_objeto
 			end
 			
 		elseif (self.tipo == container_misc_target) then --> CONTAINER ALVOS DO MISC
@@ -446,6 +456,9 @@ function container_combatentes:FuncaoDeCriacao (tipo)
 		
 	elseif (tipo == container_friendlyfire) then
 		return atributo_damage.FF_funcao_de_criacao
+		
+	elseif (tipo == container_enemydebufftarget_target) then
+		return alvo_da_habilidade.NovaTabela
 		
 	elseif (tipo == container_energy) then
 		return atributo_energy.NovaTabela

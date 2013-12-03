@@ -1351,12 +1351,34 @@ function _detalhes:OpenOptionsWindow (instance)
 			_detalhes.remove_realm_from_name = value
 		end
 		
+--------SKINS
+		g:NewLabel (window, _, "$parentSkinLabel", "skinLabel", "select skin")
+		window.skinLabel:SetPoint (510, -100)
+		--
+		local onSelectSkin = function (_, instance, skin_name)
+			instance:ChangeSkin (skin_name)
+		end
+
+		local buildSkinMenu = function()
+			local skinOptions = {}
+			for skin_name, skin_table in pairs (_detalhes.skins) do
+				skinOptions [#skinOptions+1] = {value = skin_name, label = skin_name, onclick = onSelectSkin, icon = "Interface\\GossipFrame\\TabardGossipIcon", desc = skin_table.desc}
+			end
+			return skinOptions
+		end
+		
+		g:NewDropDown (window, _, "$parentSkinDropdown", "skinDropdown", 120, 20, buildSkinMenu, 1) -- func, default
+		window.skinDropdown:SetPoint ("left", window.skinLabel, "right", 2)
+		
 	end
 	
 	
 ----------------------------------------------------------------------------------------
 --> Show
 
+	_G.DetailsOptionsWindowSkinDropdown.MyObject:SetFixedParameter (instance)
+	_G.DetailsOptionsWindowSkinDropdown.MyObject:Select (instance.skin)
+	
 	_G.DetailsOptionsWindowTextureDropdown.MyObject:SetFixedParameter (instance)
 	_G.DetailsOptionsWindowRowBackgroundTextureDropdown.MyObject:SetFixedParameter (instance)
 	_G.DetailsOptionsWindowTextureDropdown.MyObject:Select (instance.barrasInfo.textureName)

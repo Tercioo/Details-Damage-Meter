@@ -8,7 +8,7 @@
 		
 		_ = nil
 		_detalhes = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0", "NickTag-1.0")
-		_detalhes.userversion = "v1.6.5"
+		_detalhes.userversion = "v1.6.7"
 		_detalhes.version = "Alpha 010"
 		_detalhes.realversion = 10
 
@@ -59,6 +59,32 @@ do
 		--> ignored pets
 			_detalhes.pets_ignored = {}
 			_detalhes.pets_no_owner = {}
+		--> armazena as skins disponíveis para as janelas
+			_detalhes.skins = {["Default Skin"] = {file = "default_skin", author = "Details!", version = "1.0", site = "unknown", desc = "default skin for Details!", can_change_alpha_head = false, icon_anchor_main = {-1, 1}, icon_anchor_plugins = {-9, -7}, icon_plugins_size = {19, 19}}}
+			_detalhes.skin_path = "Interface\\AddOns\\Details\\images\\skins\\"
+	
+		-- temporariamente aqui, precisa migrar para um arquivo separado
+			function _detalhes:InstallSkin (skin_name, skin_table)
+				if (not skin_name) then
+					return false -- sem nome
+				elseif (_detalhes.skins [skin_name]) then
+					return false -- ja existe
+				end
+				
+				if (not skin_table.file) then
+					return false -- sem arquivo
+				end
+				
+				skin_table.author = skin_table.author or ""
+				skin_table.version = skin_table.version or ""
+				skin_table.site = skin_table.site or ""
+				skin_table.desc = skin_table.desc or ""
+				
+				_detalhes.skins [skin_name] = skin_table
+				return true
+			end
+			
+			_detalhes:InstallSkin ("Flat Color", {file = "flat_skin", author = "Details!", version = "1.0", site = "unknown", desc = "a flat skin", can_change_alpha_head = true, icon_anchor_main = {-1, -5}, icon_anchor_plugins = {-7, -13}, icon_plugins_size = {19, 18}})
 	
 	--> Plugins
 		--> raid -------------------------------------------------------------------

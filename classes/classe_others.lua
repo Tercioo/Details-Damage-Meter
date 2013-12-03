@@ -977,6 +977,26 @@ end
 
 local UnitReaction = UnitReaction
 
+function _detalhes:CloseEnemyDebuffsUptime()
+	local combat = _detalhes.tabela_vigente
+	local misc_container = combat [4]._ActorTable
+	
+	for _, actor in _ipairs (misc_container) do 
+		if (actor.boss_debuff) then
+			for index, target in _ipairs (actor.debuff_uptime_targets._ActorTable) do 
+				if (target.actived and target.actived_at) then
+					target.uptime = target.uptime + _detalhes._tempo - target.actived_at
+					actor.debuff_uptime = actor.debuff_uptime + _detalhes._tempo - target.actived_at
+					target.actived = false
+					target.actived_at = nil
+				end
+			end
+		end
+	end
+	
+	return
+end
+
 function _detalhes:CatchRaidDebuffUptime (in_or_out) -- "DEBUFF_UPTIME_IN"
 
 	if (in_or_out == "DEBUFF_UPTIME_OUT") then
@@ -988,7 +1008,7 @@ function _detalhes:CatchRaidDebuffUptime (in_or_out) -- "DEBUFF_UPTIME_IN"
 				for spellid, spell in _pairs (actor.debuff_uptime_spell_tables._ActorTable) do 
 					if (spell.actived and spell.actived_at) then
 						spell.uptime = spell.uptime + _detalhes._tempo - spell.actived_at
-						actor.debuff_uptime = actor.debuff_uptime + _detalhes._tempo - spell.actived_at --> token = actor misc object
+						actor.debuff_uptime = actor.debuff_uptime + _detalhes._tempo - spell.actived_at
 						spell.actived = false
 						spell.actived_at = nil
 					end
@@ -1030,7 +1050,8 @@ function _detalhes:CatchRaidDebuffUptime (in_or_out) -- "DEBUFF_UPTIME_IN"
 		
 		for raidIndex = 1, _GetNumGroupMembers()-1 do
 			local his_target = _UnitGUID ("party"..raidIndex.."target")
-			if (his_target and not checked [his_target] and UnitReaction ("party"..raidIndex.."target", "player") <= 4) then
+			local rect = UnitReaction ("party"..raidIndex.."target", "player")
+			if (his_target and not checked [his_target] and rect and rect <= 4) then
 				
 				checked [his_target] = true
 				
@@ -1049,8 +1070,8 @@ function _detalhes:CatchRaidDebuffUptime (in_or_out) -- "DEBUFF_UPTIME_IN"
 		end
 		
 		local his_target = _UnitGUID ("playertarget")
-		
-		if (his_target and not checked [his_target] and UnitReaction ("playertarget", "player") <= 4) then
+		local rect = UnitReaction ("playertarget", "player")
+		if (his_target and not checked [his_target] and rect and rect <= 4) then
 			for debuffIndex = 1, 40 do
 				local name, _, _, _, _, _, _, unitCaster, _, _, spellid  = UnitDebuff ("playertarget", debuffIndex)
 				if (name and unitCaster) then
@@ -1862,6 +1883,10 @@ local sub_list = {"cc_break", "ress", "interrupt", "cooldowns_defensive", "dispe
 						--> cria e soma o valor do total
 						local alvo_shadow = shadow [container]:PegarCombatente (nil, alvo.nome, nil, true)
 						alvo_shadow.total = alvo_shadow.total + alvo.total
+						if (alvo.uptime) then --> boss debuff
+							alvo_shadow.uptime = alvo_shadow.uptime + alvo.uptime
+							alvo_shadow.activedamt = alvo_shadow.activedamt + alvo.activedamt
+						end
 						--> refresh no alvo
 						_detalhes.refresh:r_alvo_da_habilidade (alvo, shadow [container])
 					end
@@ -1916,6 +1941,9 @@ local sub_list = {"cc_break", "ress", "interrupt", "cooldowns_defensive", "dispe
 					--> soma o total (captura de dados)
 						shadow.debuff_uptime = shadow.debuff_uptime + actor.debuff_uptime
 					--> copia o container de alvos (captura de dados)
+						if (actor.boss_debuff) then
+							actor.debuff_uptime_targets.tipo = _detalhes.container_type.CONTAINER_ENEMYDEBUFFTARGET_CLASS
+						end
 						somar_alvos ("debuff_uptime_targets", shadow)
 					--> copia o container de habilidades (captura de dados)
 						somar_habilidades ("debuff_uptime_spell_tables", shadow)
@@ -2306,6 +2334,10 @@ atributo_misc.__add = function (tabela1, tabela2)
 		for index, alvo in _ipairs (tabela2.debuff_uptime_targets._ActorTable) do 
 			local alvo_tabela1 = tabela1.debuff_uptime_targets:PegarCombatente (nil, alvo.nome, nil, true)
 			alvo_tabela1.total = alvo_tabela1.total + alvo.total
+			if (alvo.uptime) then --> boss debuff
+				alvo_tabela1.uptime = alvo_tabela1.uptime + alvo.uptime
+				alvo_tabela1.activedamt = alvo_tabela1.activedamt + alvo.activedamt
+			end
 		end
 		
 		for spellid, habilidade in _pairs (tabela2.debuff_uptime_spell_tables._ActorTable) do 
@@ -2557,6 +2589,10 @@ atributo_misc.__sub = function (tabela1, tabela2)
 		for index, alvo in _ipairs (tabela2.debuff_uptime_targets._ActorTable) do 
 			local alvo_tabela1 = tabela1.debuff_uptime_targets:PegarCombatente (nil, alvo.nome, nil, true)
 			alvo_tabela1.total = alvo_tabela1.total - alvo.total
+			if (alvo.uptime) then --> boss debuff
+				alvo_tabela1.uptime = alvo_tabela1.uptime - alvo.uptime
+				alvo_tabela1.activedamt = alvo_tabela1.activedamt - alvo.activedamt
+			end
 		end
 		
 		for spellid, habilidade in _pairs (tabela2.debuff_uptime_spell_tables._ActorTable) do 

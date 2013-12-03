@@ -86,7 +86,8 @@
 
 	local container_damage_target = _detalhes.container_type.CONTAINER_DAMAGETARGET_CLASS
 	local container_misc = _detalhes.container_type.CONTAINER_MISC_CLASS
-
+	local container_enemydebufftarget_target = _detalhes.container_type.CONTAINER_ENEMYDEBUFFTARGET_CLASS
+	
 	local OBJECT_TYPE_PLAYER = 0x00000400
 	local OBJECT_TYPE_PETS = 0x00003000
 	local AFFILIATION_GROUP = 0x00000007
@@ -744,6 +745,9 @@
 					if (raid_members_cache [who_serial]) then
 						--> call record debuffs uptime
 	--[[not tail call, need to fix this]]	parser:add_debuff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, "DEBUFF_UPTIME_IN")
+	
+					--elseif (raid_members_cache [alvo_serial] and _bit_band (who_flags, 0x00000040) ~= 0) then --> alvo é da raide e o caster é inimigo
+	--[[not tail call, need to fix this]]	--parser:add_bad_debuff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, "DEBUFF_UPTIME_IN")
 					end
 				end
 			
@@ -886,6 +890,8 @@
 					if (raid_members_cache [who_serial]) then
 						--> call record debuffs uptime
 	--[[not tail call, need to fix this]]	parser:add_debuff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, "DEBUFF_UPTIME_REFRESH")
+					--elseif (raid_members_cache [alvo_serial] and _bit_band (who_flags, 0x00000040) ~= 0) then --> alvo é da raide e o caster é inimigo
+	--[[not tail call, need to fix this]]	--parser:add_bad_debuff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, "DEBUFF_UPTIME_REFRESH")
 					end
 				end
 		
@@ -1007,6 +1013,8 @@
 					if (raid_members_cache [who_serial]) then
 						--> call record debuffs uptime
 	--[[not tail call, need to fix this]]	parser:add_debuff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, "DEBUFF_UPTIME_OUT")
+					--elseif (raid_members_cache [alvo_serial] and _bit_band (who_flags, 0x00000040) ~= 0) then --> alvo é da raide e o caster é inimigo
+	--[[not tail call, need to fix this]]	--parser:add_bad_debuff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, "DEBUFF_UPTIME_OUT")
 					end
 				end
 			
@@ -1050,6 +1058,138 @@
 -----------------------------------------------------------------------------------------------------------------------------------------
 	--> MISC 	search key: ~buffuptime ~buffsuptime									|
 -----------------------------------------------------------------------------------------------------------------------------------------
+
+	function parser:add_bad_debuff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, in_out)
+		
+		if (not alvo_name) then
+			--> no target name, just quit
+			return
+		elseif (not who_name) then
+			--> no actor name, use spell name instead
+			who_name = "[*] "..spellname
+		end
+		
+		------------------------------------------------------------------------------------------------
+		--> get actors
+			--> nome do debuff será usado para armazenar o nome do ator
+			local este_jogador = misc_cache [spellname]
+			if (not este_jogador) then --> pode ser um desconhecido ou um pet
+				este_jogador = _current_misc_container:PegarCombatente (who_serial, spellname, who_flags, true)
+				misc_cache [spellname] = este_jogador
+			end
+			local shadow = este_jogador.shadow
+		
+		------------------------------------------------------------------------------------------------
+		--> build containers on the fly
+			
+			if (not este_jogador.debuff_uptime) then
+				este_jogador.boss_debuff = true
+				este_jogador.owner = who_name
+				este_jogador.debuff_uptime = 0
+				este_jogador.debuff_uptime_spell_tables = container_habilidades:NovoContainer (container_misc)
+				este_jogador.debuff_uptime_targets = container_combatentes:NovoContainer (container_enemydebufftarget_target)
+				
+				if (not shadow.debuff_uptime_targets) then
+					shadow.boss_debuff = true
+					shadow.owner = who_name
+					shadow.debuff_uptime = 0
+					shadow.debuff_uptime_spell_tables = container_habilidades:NovoContainer (container_misc)
+					shadow.debuff_uptime_targets = container_combatentes:NovoContainer (container_enemydebufftarget_target)
+				end
+				
+				este_jogador.debuff_uptime_targets.shadow = shadow.debuff_uptime_targets
+				este_jogador.debuff_uptime_spell_tables.shadow = shadow.debuff_uptime_spell_tables
+			end
+		
+		------------------------------------------------------------------------------------------------
+		--> add amount
+			
+			--> update last event
+			este_jogador.last_event = _tempo
+			
+			--> actor target
+			local este_alvo = este_jogador.debuff_uptime_targets._NameIndexTable [alvo_name]
+			if (not este_alvo) then
+				este_alvo = este_jogador.debuff_uptime_targets:PegarCombatente (alvo_serial, alvo_name, alvo_flags, true)
+			else
+				este_alvo = este_jogador.debuff_uptime_targets._ActorTable [este_alvo]
+			end
+			
+			if (in_out == "DEBUFF_UPTIME_IN") then
+				este_alvo.actived = true
+				este_alvo.activedamt = este_alvo.activedamt + 1
+				if (este_alvo.actived_at and este_alvo.actived) then
+					este_alvo.uptime = este_alvo.uptime + _tempo - este_alvo.actived_at
+					este_jogador.debuff_uptime = este_jogador.debuff_uptime + _tempo - este_alvo.actived_at
+				end
+				este_alvo.actived_at = _tempo
+				
+				--> shadows
+				este_alvo = este_alvo.shadow
+				este_jogador = este_jogador.shadow
+				
+				este_alvo.actived = true
+				este_alvo.activedamt = este_alvo.activedamt + 1
+				if (este_alvo.actived_at and este_alvo.actived) then
+					este_alvo.uptime = este_alvo.uptime + _tempo - este_alvo.actived_at
+					este_jogador.debuff_uptime = este_jogador.debuff_uptime + _tempo - este_alvo.actived_at
+				end
+				este_alvo.actived_at = _tempo
+				
+			elseif (in_out == "DEBUFF_UPTIME_REFRESH") then
+				if (este_alvo.actived_at and este_alvo.actived) then
+					este_alvo.uptime = este_alvo.uptime + _tempo - este_alvo.actived_at
+					este_jogador.debuff_uptime = este_jogador.debuff_uptime + _tempo - este_alvo.actived_at
+				end
+				este_alvo.actived_at = _tempo
+				este_alvo.actived = true
+				
+				--> shadows
+				este_alvo = este_alvo.shadow
+				este_jogador = este_jogador.shadow
+				
+				if (este_alvo.actived_at and este_alvo.actived) then
+					este_alvo.uptime = este_alvo.uptime + _tempo - este_alvo.actived_at
+					este_jogador.debuff_uptime = este_jogador.debuff_uptime + _tempo - este_alvo.actived_at
+				end
+				este_alvo.actived_at = _tempo
+				este_alvo.actived = true
+				
+			elseif (in_out == "DEBUFF_UPTIME_OUT") then
+				if (este_alvo.actived_at and este_alvo.actived) then
+					este_alvo.uptime = este_alvo.uptime + _detalhes._tempo - este_alvo.actived_at
+					este_jogador.debuff_uptime = este_jogador.debuff_uptime + _tempo - este_alvo.actived_at --> token = actor misc object
+				end
+				
+				este_alvo.activedamt = este_alvo.activedamt - 1
+				
+				if (este_alvo.activedamt == 0) then
+					este_alvo.actived = false
+					este_alvo.actived_at = nil
+				else
+					este_alvo.actived_at = _tempo
+				end
+				
+				--> shadows
+				este_alvo = este_alvo.shadow
+				este_jogador = este_jogador.shadow
+			
+				if (este_alvo.actived_at and este_alvo.actived) then
+					este_alvo.uptime = este_alvo.uptime + _detalhes._tempo - este_alvo.actived_at
+					este_jogador.debuff_uptime = este_jogador.debuff_uptime + _tempo - este_alvo.actived_at --> token = actor misc object
+				end
+				
+				este_alvo.activedamt = este_alvo.activedamt - 1
+				
+				if (este_alvo.activedamt == 0) then
+					este_alvo.actived = false
+					este_alvo.actived_at = nil
+				else
+					este_alvo.actived_at = _tempo
+				end
+			
+			end
+	end
 
 	function parser:add_debuff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, in_out)
 	------------------------------------------------------------------------------------------------

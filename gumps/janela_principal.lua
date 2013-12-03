@@ -35,7 +35,6 @@ local modo_grupo = _detalhes._detalhes_props["MODO_GROUP"]
 local modo_all = _detalhes._detalhes_props["MODO_ALL"]
 
 local gump_fundo_backdrop = {
-	--bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16,
 	bgFile = "Interface\\AddOns\\Details\\images\\background", tile = true, tileSize = 16,
 	insets = {left = 0, right = 0, top = 0, bottom = 0}}
 
@@ -52,6 +51,36 @@ function  _detalhes:ScheduleUpdate (instancia)
 		instancia.showing [instancia.atributo].need_refresh = true
 	end
 end
+
+--> skins TCoords
+
+--	0.00048828125
+	
+	local DEFAULT_SKIN = _detalhes.skin_path .. _detalhes.skins ["Default Skin"].file
+	
+	local COORDS_LEFT_BALL = {0.15673828125, 0.28076171875, 0.08251953125, 0.20654296875} -- x1 160 y1 84 x2 288 y2 212
+	local COORDS_LEFT_CONNECTOR = {0.29541015625, 0.30224609375, 0.08251953125, 0.20654296875} --302 84 310 212
+	local COORDS_TOP_BACKGROUND = {0.15673828125, 0.65576171875, 0.22314453125, 0.34716796875} -- 160 228 672 356
+	local COORDS_RIGHT_BALL = {0.31591796875, 0.43994140625, 0.08251953125, 0.20654296875} --324 84 452 212
+
+	local COORDS_LEFT_SIDE_BAR = {0.76611328125, 0.82861328125, 0.00244140625, 0.50244140625} -- 784 2 849 515
+	local COORDS_RIGHT_SIDE_BAR = {0.70068359375, 0.76318359375, 0.00244140625, 0.50244140625} -- 717 2 782 515
+	
+	local COORDS_SLIDER_TOP = {0.00146484375, 0.03173828125, 0.00244140625, 0.03271484375} -- 1 2 33 34
+	local COORDS_SLIDER_MIDDLE = {0.00146484375, 0.03173828125, 0.03955078125, 0.10107421875} -- 1 40 33 104
+	local COORDS_SLIDER_DOWN = {0.00146484375, 0.03173828125, 0.11767578125, 0.14794921875} -- 1 120 33 152
+	
+	local COORDS_STRETCH = {0.00146484375, 0.03173828125, 0.21435546875, 0.22900390625} -- 1 219 33 235
+	local COORDS_RESIZE_RIGHT = {0.00146484375, 0.01611328125, 0.24560546875, 0.26025390625} -- 1 251 17 267
+	local COORDS_RESIZE_LEFT = {0.02001953125, 0.03271484375, 0.24560546875, 0.26025390625} -- 20 251 34 267
+	
+	local COORDS_UNLOCK_BUTTON = {0.00146484375, 0.01611328125, 0.27197265625, 0.28662109375} -- 1 278 17 294
+	
+	local COORDS_BOTTOM_BACKGROUND = {0.15673828125, 0.65576171875, 0.35400390625, 0.47802734375} -- 160 362 672 490
+	local COORDS_PIN_LEFT = {0.00146484375, 0.03173828125, 0.30126953125, 0.33154296875} -- 1 308 33 340
+	local COORDS_PIN_RIGHT = {0.03564453125, 0.06591796875, 0.30126953125, 0.33154296875} -- 36 308 68 340
+	
+	-- icones: 365 = 0.35693359375 // 397 = 0.38720703125
 	
 function _detalhes:AtualizarScrollBar (x)
 
@@ -260,6 +289,9 @@ local function resize_fade (instancia, modo)
 		if (_string_lower (modo) == "out") then
 			for _, instancia_id in _pairs (instancia.snap) do
 				if (instancia_id) then
+					instancia.botao_separar.texture:Show()
+					instancia.botao_separar.texture:SetTexCoord (unpack (COORDS_UNLOCK_BUTTON))
+					gump:Fade (instancia.botao_separar.texture, modo, 1.0)
 					gump:Fade (instancia.botao_separar, modo, 1.0)
 					break
 				end
@@ -349,7 +381,7 @@ local movement_onupdate = function (self, elapsed)
 						
 						tempo_movendo = 1
 					else
-						BaseFrame:SetScript ("OnUpdate", nil)
+						self:SetScript ("OnUpdate", nil)
 						tempo_movendo = 1
 					end
 					
@@ -1028,6 +1060,7 @@ local function resize_scripts (resizer, instancia, ScrollBar, side, baseframe)
 	resizer:SetScript ("OnEnter", function(self) 
 		if (instancia.modo ~= _detalhes._detalhes_props["MODO_ALONE"] and not instancia.baseframe.isLocked) then
 			gump:Fade (self, "out", 0.1)
+			self.texture:SetBlendMode ("ADD")
 			self.mostrando = true
 			
 			_G.GameCooltip:Reset()
@@ -1039,12 +1072,13 @@ local function resize_scripts (resizer, instancia, ScrollBar, side, baseframe)
 			
 		end
 	end)
-		
+	
 	resizer:SetScript ("OnLeave", function(self) 
 		if (not self.movendo) then
 			gump:Fade (self, -1, 3.0)
 		end
 
+		self.texture:SetBlendMode ("BLEND")
 		_detalhes.popup:ShowMe (false)
 
 		self.mostrando = false
@@ -1722,35 +1756,39 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 	SwitchButton:SetFrameLevel (BackGroundDisplay:GetFrameLevel()+1)
 
 	local ScrollBar = _CreateFrame ("Slider", "Details_ScrollBar"..ID, BackGroundDisplay) --> scroll
-	--ScrollBar:SetFrameLevel (BaseFrame:GetFrameLevel()+5)
 
 -- textura da scroll bar
 -------------------------------------------------------------------------------------------------------------------------------------------------
 	--> scroll image-node up
 	BaseFrame.scroll_up = BackGroundDisplay:CreateTexture (nil, "BACKGROUND")
 	BaseFrame.scroll_up:SetPoint ("TOPLEFT", BackGroundDisplay, "TOPRIGHT", 0, 0)
-	--BaseFrame.scroll_up:SetTexture ("Interface\\AddOns\\Details\\images\\scroll_up")
-	BaseFrame.scroll_up:SetTexture ("Interface\\AddOns\\Details\\images\\scrollbar")
+	BaseFrame.scroll_up:SetTexture (DEFAULT_SKIN)
+	BaseFrame.scroll_up:SetTexCoord (unpack (COORDS_SLIDER_TOP))
 	BaseFrame.scroll_up:SetWidth (32)
 	BaseFrame.scroll_up:SetHeight (32)
-	BaseFrame.scroll_up:SetTexCoord (0, 1, 0, 0.25)
+	--BaseFrame.scroll_up:SetTexture ("Interface\\AddOns\\Details\\images\\scrollbar")
+	--BaseFrame.scroll_up:SetTexCoord (0, 1, 0, 0.25)
 	
 	--> scroll image-node down
 	BaseFrame.scroll_down = BackGroundDisplay:CreateTexture (nil, "BACKGROUND")
 	BaseFrame.scroll_down:SetPoint ("BOTTOMLEFT", BackGroundDisplay, "BOTTOMRIGHT", 0, 0)
-	BaseFrame.scroll_down:SetTexture ("Interface\\AddOns\\Details\\images\\scrollbar")
+	BaseFrame.scroll_down:SetTexture (DEFAULT_SKIN)
+	BaseFrame.scroll_down:SetTexCoord (unpack (COORDS_SLIDER_DOWN))
 	BaseFrame.scroll_down:SetWidth (32)
 	BaseFrame.scroll_down:SetHeight (32)
-	BaseFrame.scroll_down:SetTexCoord (0, 1, 0.751, 1)
+	--BaseFrame.scroll_down:SetTexture ("Interface\\AddOns\\Details\\images\\scrollbar")
+	--BaseFrame.scroll_down:SetTexCoord (0, 1, 0.751, 1)
 	
 	--> scroll image-node middle
 	BaseFrame.scroll_middle = BackGroundDisplay:CreateTexture (nil, "BACKGROUND")
 	BaseFrame.scroll_middle:SetPoint ("TOP", BaseFrame.scroll_up, "BOTTOM", 0, 8)
 	BaseFrame.scroll_middle:SetPoint ("BOTTOM", BaseFrame.scroll_down, "TOP", 0, -11)
-	BaseFrame.scroll_middle:SetTexture ("Interface\\AddOns\\Details\\images\\scrollbar")
+	BaseFrame.scroll_middle:SetTexture (DEFAULT_SKIN)
+	BaseFrame.scroll_middle:SetTexCoord (unpack (COORDS_SLIDER_MIDDLE))
 	BaseFrame.scroll_middle:SetWidth (32)
 	BaseFrame.scroll_middle:SetHeight (64)
-	BaseFrame.scroll_middle:SetTexCoord (0, 1, 0.251, 0.75)
+	--BaseFrame.scroll_middle:SetTexCoord (0, 1, 0.251, 0.75)
+	--BaseFrame.scroll_middle:SetTexture ("Interface\\AddOns\\Details\\images\\scrollbar")
 	
 	--> três botões scroll up, down, window strech
 	BaseFrame.button_up = _CreateFrame ("Button", nil, BackGroundDisplay)
@@ -1761,11 +1799,16 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 	BaseFrame.button_stretch:SetPoint ("RIGHT", BaseFrame, "RIGHT", -27, 0)
 	BaseFrame.button_stretch:SetFrameStrata ("FULLSCREEN")
 	
+	local stretch_texture = BaseFrame.button_stretch:CreateTexture (nil, "overlay")
+	stretch_texture:SetTexture (DEFAULT_SKIN)
+	stretch_texture:SetTexCoord (unpack (COORDS_STRETCH))
+	stretch_texture:SetWidth (32)
+	stretch_texture:SetHeight (16)
+	stretch_texture:SetAllPoints (BaseFrame.button_stretch)
+	BaseFrame.button_stretch.texture = stretch_texture
+	
 	BaseFrame.button_stretch:SetWidth (32)
 	BaseFrame.button_stretch:SetHeight (16)
-	BaseFrame.button_stretch:SetNormalTexture ("Interface\\AddOns\\Details\\images\\grab")
-	BaseFrame.button_stretch:SetPushedTexture ("Interface\\AddOns\\Details\\images\\grab_over")
-	BaseFrame.button_stretch:SetDisabledTexture ("Interface\\AddOns\\Details\\images\\grab")
 	gump:Fade (BaseFrame.button_stretch, -1)
 	
 	BaseFrame.button_stretch:Show()
@@ -1832,7 +1875,6 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 
 	BaseFrame:SetBackdrop (gump_fundo_backdrop)
 	BaseFrame:SetBackdropColor (instancia.bg_r, instancia.bg_g, instancia.bg_b, instancia.bg_alpha)
-	--BaseFrame:SetBackdropColor (0, 0, 0, 1)
 	
 -- fundo
 -------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1879,8 +1921,15 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 	BaseFrame.resize_direita = _CreateFrame ("Button", "Details_Resize_Direita"..ID, BaseFrame)
-	BaseFrame.resize_direita:SetNormalTexture ("Interface\\AddOns\\Details\\images\\ResizeGripD")
-	BaseFrame.resize_direita:SetHighlightTexture ("Interface\\AddOns\\Details\\images\\ResizeGripD")
+	
+	local resize_direita_texture = BaseFrame.resize_direita:CreateTexture (nil, "overlay")
+	resize_direita_texture:SetWidth (16)
+	resize_direita_texture:SetHeight (16)
+	resize_direita_texture:SetTexture (DEFAULT_SKIN)
+	resize_direita_texture:SetTexCoord (unpack (COORDS_RESIZE_RIGHT))
+	resize_direita_texture:SetAllPoints (BaseFrame.resize_direita)
+	BaseFrame.resize_direita.texture = resize_direita_texture
+
 	BaseFrame.resize_direita:SetWidth (16)
 	BaseFrame.resize_direita:SetHeight (16)
 	BaseFrame.resize_direita:SetPoint ("BOTTOMRIGHT", BaseFrame, "BOTTOMRIGHT", 0, 0)
@@ -1918,8 +1967,17 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 	--]]
 	
 	BaseFrame.resize_esquerda = _CreateFrame ("Button", "Details_Resize_Esquerda"..ID, BaseFrame)
-	BaseFrame.resize_esquerda:SetNormalTexture ("Interface\\AddOns\\Details\\images\\ResizeGripL")
-	BaseFrame.resize_esquerda:SetHighlightTexture ("Interface\\AddOns\\Details\\images\\ResizeGripL")
+	
+	local resize_esquerda_texture = BaseFrame.resize_esquerda:CreateTexture (nil, "overlay")
+	resize_esquerda_texture:SetWidth (16)
+	resize_esquerda_texture:SetHeight (16)
+	resize_esquerda_texture:SetTexture (DEFAULT_SKIN)
+	resize_esquerda_texture:SetTexCoord (unpack (COORDS_RESIZE_LEFT))
+	resize_esquerda_texture:SetAllPoints (BaseFrame.resize_esquerda)
+	BaseFrame.resize_esquerda.texture = resize_esquerda_texture
+	
+	--BaseFrame.resize_esquerda:SetNormalTexture ("Interface\\AddOns\\Details\\images\\ResizeGripL")
+	--BaseFrame.resize_esquerda:SetHighlightTexture ("Interface\\AddOns\\Details\\images\\ResizeGripL")
 	BaseFrame.resize_esquerda:SetWidth (16)
 	BaseFrame.resize_esquerda:SetHeight (16)
 	BaseFrame.resize_esquerda:SetPoint ("BOTTOMLEFT", BaseFrame, "BOTTOMLEFT", 0, 0)
@@ -1969,18 +2027,24 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 	
 	--> barra borda esquerda lateral
 		BaseFrame.barra_esquerda = BaseFrame.cabecalho.fechar:CreateTexture (nil, "ARTWORK")
-		BaseFrame.barra_esquerda:SetTexture ("Interface\\AddOns\\Details\\images\\bar_main_leftright")
-		BaseFrame.barra_esquerda:SetTexCoord (0.5, 1, 0, 1)
-		BaseFrame.barra_esquerda:SetWidth (16)
-		BaseFrame.barra_esquerda:SetPoint ("TOPLEFT", BaseFrame, "TOPLEFT", -8, 0)
-		BaseFrame.barra_esquerda:SetPoint ("BOTTOMLEFT", BaseFrame, "BOTTOMLEFT", -8, -14)
+		--BaseFrame.barra_esquerda:SetTexture ("Interface\\AddOns\\Details\\images\\bar_main_leftright")
+		--BaseFrame.barra_esquerda:SetTexCoord (0.5, 1, 0, 1)
+		BaseFrame.barra_esquerda:SetTexture (DEFAULT_SKIN)
+		BaseFrame.barra_esquerda:SetTexCoord (unpack (COORDS_LEFT_SIDE_BAR))
+		BaseFrame.barra_esquerda:SetWidth (64)
+		BaseFrame.barra_esquerda:SetHeight	(512)
+		BaseFrame.barra_esquerda:SetPoint ("TOPLEFT", BaseFrame, "TOPLEFT", -56, 0)
+		BaseFrame.barra_esquerda:SetPoint ("BOTTOMLEFT", BaseFrame, "BOTTOMLEFT", -56, -14)
 		
 		BaseFrame.barra_direita = BaseFrame.cabecalho.fechar:CreateTexture (nil, "ARTWORK")
-		BaseFrame.barra_direita:SetTexture ("Interface\\AddOns\\Details\\images\\bar_main_leftright")
-		BaseFrame.barra_direita:SetTexCoord (0, 0.5, 0, 1)
-		BaseFrame.barra_direita:SetWidth (16)
-		BaseFrame.barra_direita:SetPoint ("TOPRIGHT", BaseFrame, "TOPRIGHT", 8, 0)
-		BaseFrame.barra_direita:SetPoint ("BOTTOMRIGHT", BaseFrame, "BOTTOMRIGHT", 8, -14)
+		--BaseFrame.barra_direita:SetTexture ("Interface\\AddOns\\Details\\images\\bar_main_leftright")
+		--BaseFrame.barra_direita:SetTexCoord (0, 0.5, 0, 1)
+		BaseFrame.barra_direita:SetTexture (DEFAULT_SKIN)
+		BaseFrame.barra_direita:SetTexCoord (unpack (COORDS_RIGHT_SIDE_BAR))
+		BaseFrame.barra_direita:SetWidth (64)
+		BaseFrame.barra_direita:SetHeight (512)
+		BaseFrame.barra_direita:SetPoint ("TOPRIGHT", BaseFrame, "TOPRIGHT", 56, 0)
+		BaseFrame.barra_direita:SetPoint ("BOTTOMRIGHT", BaseFrame, "BOTTOMRIGHT", 56, -14)
 		
 		
 --chama função para criar o rodapé
@@ -1991,11 +2055,17 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 -- BETA -- botão de separar as instâncias que estão agrupadas
-	instancia.botao_separar = gump:NewDetailsButton (BaseFrame.cabecalho.fechar, _, instancia, instancia.Desagrupar, instancia, -1, 13, 13,
-	"Interface\\AddOns\\Details\\images\\cadeado", "Interface\\AddOns\\Details\\images\\cadeado", "Interface\\AddOns\\Details\\images\\cadeado", "Interface\\AddOns\\Details\\images\\cadeado")
+	instancia.botao_separar = gump:NewDetailsButton (BaseFrame.cabecalho.fechar, _, instancia, instancia.Desagrupar, instancia, -1, 13, 13)
 	instancia.botao_separar:SetPoint ("BOTTOM", BaseFrame.resize_direita, "TOP", -1, 0)
 	instancia.botao_separar:SetFrameLevel (BaseFrame:GetFrameLevel() + 5)
-
+	
+	local cadeado_texture = instancia.botao_separar:CreateTexture (nil, "overlay")
+	cadeado_texture:SetTexture (DEFAULT_SKIN)
+	cadeado_texture:SetTexCoord (unpack (COORDS_UNLOCK_BUTTON))
+	cadeado_texture:SetAllPoints (instancia.botao_separar)
+	instancia.botao_separar.texture = cadeado_texture
+	BaseFrame.unlock_texture = cadeado_texture
+	
 	gump:Fade (instancia.botao_separar, "in", 3.0)
 	
 	resize_scripts (BaseFrame.resize_direita, instancia, ScrollBar, ">", BaseFrame)
@@ -2015,7 +2085,8 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 	instancia.h_cima:SetTexture ("Interface\\AddOns\\Details\\images\\highlight_updown")
 	instancia.h_cima:SetTexCoord (0, 1, 0.5, 1)
 	instancia.h_cima:SetPoint ("topleft", BaseFrame.cabecalho.top_bg, "bottomleft", -10, 37)
-	instancia.h_cima:SetPoint ("topright", BaseFrame.cabecalho.ball_r, "bottomright", -33, 37)
+	--instancia.h_cima:SetPoint ("topright", BaseFrame.cabecalho.ball_r, "bottomright", -33, 37)
+	instancia.h_cima:SetPoint ("topright", BaseFrame.cabecalho.ball_r, "bottomright", -97, 37)
 	--instancia.h_cima:Hide()
 	instancia.h_cima = fcima
 	--
@@ -2042,8 +2113,8 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 	instancia.h_esquerda = fesquerda:CreateTexture (nil, "OVERLAY")
 	instancia.h_esquerda:SetTexture ("Interface\\AddOns\\Details\\images\\highlight_leftright")
 	instancia.h_esquerda:SetTexCoord (0.5, 1, 0, 1)
-	instancia.h_esquerda:SetPoint ("topleft", BaseFrame.barra_esquerda, "topleft", -8, 0)
-	instancia.h_esquerda:SetPoint ("bottomleft", BaseFrame.barra_esquerda, "bottomleft", -8, 0)
+	instancia.h_esquerda:SetPoint ("topleft", BaseFrame.barra_esquerda, "topleft", 40, 0)
+	instancia.h_esquerda:SetPoint ("bottomleft", BaseFrame.barra_esquerda, "bottomleft", 40, 0)
 	--instancia.h_esquerda:Hide()
 	instancia.h_esquerda = fesquerda
 	--
@@ -2077,96 +2148,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 		instancia.locs = CProps
 	end
 
-	--> background shadow color debug
-	--[[
-	local white_frame = _CreateFrame ("Frame", "DetailsWhiteFrame", _UIParent)
-	white_frame:SetFrameStrata ("LOW")
-	white_frame:SetFrameLevel (0)
-	
-	white_frame:SetSize (400, 250)
-	white_frame:SetPoint ("topleft", BaseFrame.cabecalho.ball, "topleft")
-	white_frame:SetBackdrop({
-				bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", 
-				tile = true, tileSize = 16,
-				insets = {left = 1, right = 1, top = 0, bottom = 1},})
-	white_frame:SetBackdropColor (255/255, 255/255, 255/255, 1)
-	local white_texture = white_frame:CreateTexture (nil, "artwork")
-	white_texture:SetAllPoints (white_frame)
-	white_texture:SetTexture (1, 1, 1, 1)
-	white_frame:Show()
-	--]]
-	
 	return BaseFrame, BackGroundFrame, BackGroundDisplay, ScrollBar
-	
-end
-
-function gump:CreateSplitBars (barra, instancia)
-	
-	barra.split = {}
-	local size = barra:GetHeight()
-	
-	--> barra superior
-	barra.split.barra = _CreateFrame ("StatusBar", nil, barra)
-	barra.split.barra:SetFrameLevel (barra.statusbar:GetFrameLevel()+2)
-	barra.split.barra:SetAllPoints (barra)
-	barra.split.barra:SetMinMaxValues (0, 100)
-	barra.split.barra:SetValue (100)
-	
-	barra.split.barra.textura = barra.split.barra:CreateTexture (nil, "ARTWORK")
-	barra.split.barra.textura:SetHorizTile (false)
-	barra.split.barra.textura:SetVertTile (false)
-	barra.split.barra.textura:SetTexture ([[Interface\PaperDollInfoFrame\UI-Character-Skills-Bar]])
-	barra.split.barra:SetStatusBarColor (1, 1, 1, 1)
-	barra.split.barra:SetStatusBarTexture (barra.split.barra.textura)
-	
-	barra.split.barra.icone = barra.split.barra:CreateTexture (nil, "OVERLAY")
-	barra.split.barra.icone:SetPoint ("left", barra.split.barra, "left")
-	barra.split.barra.icone:SetHeight (size)
-	barra.split.barra.icone:SetWidth (size)
-	barra.split.barra.icone:SetTexture ("Interface\\AddOns\\Details\\images\\classes_small")
-	barra.split.barra.icone:SetTexCoord (.75, 1, .75, 1)
-	
-	barra.split.barra.texto = barra.split.barra:CreateFontString (nil, "OVERLAY", "GameFontHighlight")
-	barra.split.barra.texto:SetPoint ("left", barra.split.barra.icone, "right", 3, 0)
-	barra.split.barra.texto:SetJustifyH ("left")
-	barra.split.barra.texto:SetNonSpaceWrap (true)
-	
-	instancia:SetFontSize (barra.split.barra.texto, size*0.75)
-	_detalhes.font_pool:add (barra.split.barra.texto)	
-	
-	--> barra inferior
-	barra.split.background = _CreateFrame ("StatusBar", nil, barra)
-	barra.split.background:SetAllPoints (barra)
-	barra.split.background:SetFrameLevel (barra.statusbar:GetFrameLevel()+1)
-	barra.split.background:SetMinMaxValues (0, 100)
-	barra.split.background:SetValue (100)
-	
-	barra.split.background.textura = barra.split.background:CreateTexture (nil, "ARTWORK")
-	barra.split.background.textura:SetHorizTile (false)
-	barra.split.background.textura:SetVertTile (false)
-	barra.split.background.textura:SetTexture ([[Interface\PaperDollInfoFrame\UI-Character-Skills-Bar]])
-	barra.split.background:SetStatusBarColor (1, 1, 1, 1)
-	barra.split.background:SetStatusBarTexture (barra.split.background.textura)
-	
-	barra.split.background.icone = barra.split.barra:CreateTexture (nil, "OVERLAY")
-	barra.split.background.icone:SetPoint ("right", barra.split.background, "right")
-	barra.split.background.icone:SetHeight (size)
-	barra.split.background.icone:SetWidth (size)
-	barra.split.background.icone:SetTexture ("Interface\\AddOns\\Details\\images\\classes_small")
-	barra.split.background.icone:SetTexCoord (.75, 1, .75, 1)	
-
-	barra.split.background.texto = barra.split.barra:CreateFontString (nil, "OVERLAY", "GameFontHighlight")
-	barra.split.background.texto:SetPoint ("right", barra.split.background.icone, "left", -3, 0)
-	barra.split.background.texto:SetJustifyH ("right")
-	barra.split.background.texto:SetNonSpaceWrap (true)
-	
-	instancia:SetFontSize (barra.split.background.texto, size*0.75)
-	_detalhes.font_pool:add (barra.split.background.texto)
-	
-	barra.split.div = barra.split.barra:CreateTexture (nil, "OVERLAY")
-	barra.split.div:SetTexture ("Interface\\AddOns\\Details\\images\\bar_detalhes2_end")
-	barra.split.div:SetHeight (size)
-	barra.split.div:SetWidth (10)
 	
 end
 
@@ -2185,6 +2167,7 @@ function gump:CriaNovaBarra (instancia, index)
 	y = y*-1
 	
 	esta_barra:SetPoint ("TOPLEFT", BaseFrame, "TOPLEFT", instancia.barrasInfo.espaco.esquerda, y)
+	
 	esta_barra:SetHeight (instancia.barrasInfo.altura) --> altura determinada pela instância
 	esta_barra:SetWidth (BaseFrame:GetWidth()+instancia.barrasInfo.espaco.direita)
 
@@ -2441,6 +2424,8 @@ function _detalhes:InstanceColor (red, green, blue, alpha)
 		red, green, blue, alpha = gump:ParseColors (red)
 	end
 
+	local skin = _detalhes.skins [self.skin]
+	
 	self.baseframe.rodape.esquerdo:SetVertexColor (red, green, blue)
 		self.baseframe.rodape.esquerdo:SetAlpha (alpha)
 	self.baseframe.rodape.direita:SetVertexColor (red, green, blue)
@@ -2451,7 +2436,9 @@ function _detalhes:InstanceColor (red, green, blue, alpha)
 	self.baseframe.cabecalho.ball_r:SetVertexColor (red, green, blue)
 		self.baseframe.cabecalho.ball_r:SetAlpha (alpha)
 	self.baseframe.cabecalho.ball:SetVertexColor (red, green, blue)
-		self.baseframe.cabecalho.ball:SetAlpha (alpha)
+		if (skin.can_change_alpha_head) then
+			self.baseframe.cabecalho.ball:SetAlpha (alpha)
+		end
 	self.baseframe.cabecalho.emenda:SetVertexColor (red, green, blue)
 		self.baseframe.cabecalho.emenda:SetAlpha (alpha)
 	self.baseframe.cabecalho.top_bg:SetVertexColor (red, green, blue)
@@ -2471,40 +2458,41 @@ function gump:CriaRodape (BaseFrame, instancia)
 	
 	--> esquerdo
 	BaseFrame.rodape.esquerdo = BaseFrame.cabecalho.fechar:CreateTexture (nil, "OVERLAY")
-	BaseFrame.rodape.esquerdo:SetPoint ("TOPRIGHT", BaseFrame, "BOTTOMLEFT", 48, 0)
-	BaseFrame.rodape.esquerdo:SetTexture ("Interface\\AddOns\\Details\\images\\bar_down_left")
+	BaseFrame.rodape.esquerdo:SetPoint ("TOPRIGHT", BaseFrame, "BOTTOMLEFT", 16, 0)
+	BaseFrame.rodape.esquerdo:SetTexture (DEFAULT_SKIN)
+	BaseFrame.rodape.esquerdo:SetTexCoord (unpack (COORDS_PIN_LEFT))
+	BaseFrame.rodape.esquerdo:SetWidth (32)
+	BaseFrame.rodape.esquerdo:SetHeight (32)
+	--BaseFrame.rodape.esquerdo:SetTexture ("Interface\\AddOns\\Details\\images\\bar_down_left")
 	
 	--> direito
 	BaseFrame.rodape.direita = BaseFrame.cabecalho.fechar:CreateTexture (nil, "OVERLAY")
 	BaseFrame.rodape.direita:SetPoint ("TOPLEFT", BaseFrame, "BOTTOMRIGHT", -16, 0)
-	BaseFrame.rodape.direita:SetTexture ("Interface\\AddOns\\Details\\images\\bar_down_right")
+	BaseFrame.rodape.direita:SetTexture (DEFAULT_SKIN)
+	BaseFrame.rodape.direita:SetTexCoord (unpack (COORDS_PIN_RIGHT))
+	BaseFrame.rodape.direita:SetWidth (32)
+	BaseFrame.rodape.direita:SetHeight (32)
+	--BaseFrame.rodape.direita:SetTexture ("Interface\\AddOns\\Details\\images\\bar_down_right")
 	
 	--> barra centro
 	BaseFrame.rodape.top_bg = BaseFrame:CreateTexture (nil, "BACKGROUND")
-	BaseFrame.rodape.top_bg:SetTexture ("Interface\\AddOns\\Details\\images\\bar_topdown_center")
-	BaseFrame.rodape.top_bg:SetTexCoord (0, 1, 0.5, 1)
-	BaseFrame.rodape.top_bg:SetHeight (32)
-	BaseFrame.rodape.top_bg:SetPoint ("LEFT", BaseFrame.rodape.esquerdo, "RIGHT", -48, 0)
-	BaseFrame.rodape.top_bg:SetPoint ("RIGHT", BaseFrame.rodape.direita, "LEFT", 16, 0)
+	BaseFrame.rodape.top_bg:SetTexture (DEFAULT_SKIN)
+	BaseFrame.rodape.top_bg:SetTexCoord (unpack (COORDS_BOTTOM_BACKGROUND))
+	BaseFrame.rodape.top_bg:SetWidth (512)
+	BaseFrame.rodape.top_bg:SetHeight (128)
+	BaseFrame.rodape.top_bg:SetPoint ("LEFT", BaseFrame.rodape.esquerdo, "RIGHT", -16, -48)
+	BaseFrame.rodape.top_bg:SetPoint ("RIGHT", BaseFrame.rodape.direita, "LEFT", 16, -48)
 
 	local StatusBarLeftAnchor = CreateFrame ("frame", nil, BaseFrame)
-	StatusBarLeftAnchor:SetPoint ("left", BaseFrame.rodape.top_bg, "left", 5, 10)
+	StatusBarLeftAnchor:SetPoint ("left", BaseFrame.rodape.top_bg, "left", 5, 57)
 	StatusBarLeftAnchor:SetWidth (1)
 	StatusBarLeftAnchor:SetHeight (1)
 	BaseFrame.rodape.StatusBarLeftAnchor = StatusBarLeftAnchor
 	
 	local StatusBarCenterAnchor = CreateFrame ("frame", nil, BaseFrame)
-	StatusBarCenterAnchor:SetPoint ("center", BaseFrame.rodape.top_bg, "center", 0, 10)
+	StatusBarCenterAnchor:SetPoint ("center", BaseFrame.rodape.top_bg, "center", 0, 57)
 	StatusBarCenterAnchor:SetWidth (1)
 	StatusBarCenterAnchor:SetHeight (1)
-	
-	--[[	--create a line showing the center point of window
-		local centerLineGuide = StatusBarCenterAnchor:CreateTexture(nil,"overlay")
-		centerLineGuide:SetWidth (1)
-		centerLineGuide:SetHeight (20)
-		centerLineGuide:SetPoint ("center", StatusBarCenterAnchor, "center")
-		centerLineGuide:SetTexture (1, 1, 1, 1)
-	--]]
 	
 	BaseFrame.rodape.StatusBarCenterAnchor = StatusBarCenterAnchor
 	
@@ -2594,7 +2582,7 @@ function _detalhes:DefaultIcons (_mode, _segment, _attributes, _report)
 					_thisIcon:SetPoint ("TOPLEFT", self.consolidateFrame, "TOPLEFT", -3, -5)
 					_thisIcon:SetParent (self.consolidateFrame)
 				else
-					_thisIcon:SetPoint ("BOTTOMLEFT", baseToolbar.ball, "BOTTOMRIGHT", 0 + anchors[index][1], 2 + anchors[index][2])
+					_thisIcon:SetPoint ("BOTTOMLEFT", baseToolbar.ball, "BOTTOMRIGHT", 6 + anchors[index][1], 2 + anchors[index][2])
 					_thisIcon:SetParent (self.baseframe)
 					_thisIcon:SetFrameLevel (self.baseframe.UPFrame:GetFrameLevel()+1)
 				end
@@ -2919,7 +2907,78 @@ local build_segment_list = function (self, elapsed)
 	
 end
 
+local botao_fechar_on_enter = function (self)
+	gump:Fade (self:GetParent().button_stretch, "alpha", 0.3)
+end
+local botao_fechar_on_leave = function (self)
+	gump:Fade (self:GetParent().button_stretch, -1)
+end
 
+function _detalhes:ChangeSkin (skin_name)
+
+	if (not skin_name) then
+		skin_name = self.skin
+	end
+	
+	local this_skin = _detalhes.skins [skin_name]
+	
+	if (not this_skin) then
+		return false --> throw a msg
+	end
+	
+	self.skin = skin_name
+	local skin_file = _detalhes.skin_path .. this_skin.file
+	
+	self.baseframe.cabecalho.ball:SetTexture (skin_file) --> bola esquerda
+	self.baseframe.cabecalho.emenda:SetTexture (skin_file) --> emenda que liga a bola a textura do centro
+	self.baseframe.cabecalho.ball_r:SetTexture (skin_file) --> bola direita onde fica o botão de fechar
+	self.baseframe.cabecalho.top_bg:SetTexture (skin_file) --> top background
+	
+	self.baseframe.barra_esquerda:SetTexture (skin_file) --> barra lateral
+	self.baseframe.barra_direita:SetTexture (skin_file) --> barra lateral
+	
+	self.baseframe.scroll_up:SetTexture (skin_file) --> scrollbar parte de cima
+	self.baseframe.scroll_down:SetTexture (skin_file) --> scrollbar parte de baixo
+	self.baseframe.scroll_middle:SetTexture (skin_file) --> scrollbar parte do meio
+	
+	self.baseframe.rodape.top_bg:SetTexture (skin_file) --> rodape top background
+	self.baseframe.rodape.esquerdo:SetTexture (skin_file) --> rodape esquerdo
+	self.baseframe.rodape.direita:SetTexture (skin_file) --> rodape direito
+	
+	self.baseframe.button_stretch.texture:SetTexture (skin_file) --> botão de esticar a janela
+	
+	self.baseframe.resize_direita.texture:SetTexture (skin_file) --> botão de redimencionar da direita
+	self.baseframe.resize_esquerda.texture:SetTexture (skin_file) --> botão de redimencionar da esquerda
+	
+	self.baseframe.unlock_texture:SetTexture (skin_file) --> cadeado
+	
+	if (self.modo == 1 or self.modo == 4 or self.atributo == 5) then -- alone e raid
+		local icon_anchor = this_skin.icon_anchor_plugins
+		self.baseframe.cabecalho.atributo_icon:SetPoint ("TOPRIGHT", self.baseframe.cabecalho.ball_point, "TOPRIGHT", icon_anchor[1], icon_anchor[2])
+		if (self.modo == 1) then
+			local plugin_index = _detalhes.SoloTables.Mode
+			if (plugin_index > 0 and _detalhes.SoloTables.Menu [plugin_index]) then
+				self:ChangeIcon (_detalhes.SoloTables.Menu [plugin_index] [2])
+			end
+		elseif (self.modo == 4) then
+			local plugin_index = _detalhes.RaidTables.Mode
+			if (plugin_index and _detalhes.RaidTables.Menu [plugin_index]) then
+				self:ChangeIcon (_detalhes.RaidTables.Menu [plugin_index] [2])
+			end
+		end
+	else
+		local icon_anchor = this_skin.icon_anchor_main --> ancora do icone do canto direito superior
+		self.baseframe.cabecalho.atributo_icon:SetPoint ("TOPRIGHT", self.baseframe.cabecalho.ball_point, "TOPRIGHT", icon_anchor[1], icon_anchor[2])
+		self:ChangeIcon()
+	end
+	
+	if (not this_skin.can_change_alpha_head) then
+		self.baseframe.cabecalho.ball:SetAlpha (100)
+	else
+		self.baseframe.cabecalho.ball:SetAlpha (self.color[4])
+	end
+	
+end
 
 function gump:CriaCabecalho (BaseFrame, instancia)
 
@@ -2932,77 +2991,83 @@ function gump:CriaCabecalho (BaseFrame, instancia)
 	BaseFrame.cabecalho.fechar = _CreateFrame ("Button", nil, BaseFrame, "UIPanelCloseButton")
 	BaseFrame.cabecalho.fechar:SetWidth (32)
 	BaseFrame.cabecalho.fechar:SetHeight (32)
-	
-	BaseFrame.cabecalho.fechar:SetPoint ("BOTTOMRIGHT", BaseFrame, "TOPRIGHT", 5, -6)
+	BaseFrame.cabecalho.fechar:SetFrameLevel (5) --> altura mais alta que os demais frames
+	BaseFrame.cabecalho.fechar:SetPoint ("BOTTOMRIGHT", BaseFrame, "TOPRIGHT", 5, -6) --> seta o ponto dele fixando no base frame
 	
 	BaseFrame.cabecalho.fechar:SetScript ("OnClick", function() 
 		BaseFrame.cabecalho.fechar:Disable()
 		instancia:DesativarInstancia() 
-		if (_detalhes.opened_windows == 0) then --> não há mais instâncias abertas, então manda msg alertando...
+		--> não há mais instâncias abertas, então manda msg alertando
+		if (_detalhes.opened_windows == 0) then
 			print (Loc ["STRING_CLOSEALL"])
 		end
 	end)
 	
 	BaseFrame.cabecalho.fechar:SetText ("x")
-	BaseFrame.cabecalho.fechar:SetScript ("OnEnter", function (self) 
-		gump:Fade (BaseFrame.button_stretch, "alpha", 0.3)
-	end)
-	BaseFrame.cabecalho.fechar:SetScript ("OnLeave", function (self) 
-		gump:Fade (BaseFrame.button_stretch, -1)
-	end)	
-	
-	BaseFrame.cabecalho.fechar:SetFrameLevel (5)
+	BaseFrame.cabecalho.fechar:SetScript ("OnEnter", botao_fechar_on_enter)
+	BaseFrame.cabecalho.fechar:SetScript ("OnLeave", botao_fechar_on_leave)	
 
-	--> bola do canto esquedo superior
+	--> bola do canto esquedo superior --> primeiro criar a armação para apoiar as texturas
 	BaseFrame.cabecalho.ball_point = BaseFrame.cabecalho.fechar:CreateTexture (nil, "OVERLAY")
 	BaseFrame.cabecalho.ball_point:SetPoint ("BOTTOMLEFT", BaseFrame, "TOPLEFT", -37, 0)
 	BaseFrame.cabecalho.ball_point:SetWidth (64)
 	BaseFrame.cabecalho.ball_point:SetHeight (32)
-	--BaseFrame.cabecalho.ball_point:SetTexture ("Interface\\AddOns\\Details\\images\\ball_left")
 	
-	--> icone do atributo que esta sendo mostrado
+	--> icone do atributo
 	BaseFrame.cabecalho.atributo_icon = _detalhes.listener:CreateTexture (nil, "ARTWORK")
-	BaseFrame.cabecalho.atributo_icon:SetPoint ("TOPRIGHT", BaseFrame.cabecalho.ball_point, "TOPRIGHT", -1, 1)
-	BaseFrame.cabecalho.atributo_icon:SetTexture ("Interface\\AddOns\\Details\\images\\icon_mainwindow")
+	local icon_anchor = _detalhes.skins ["Default Skin"].icon_anchor_main
+	BaseFrame.cabecalho.atributo_icon:SetPoint ("TOPRIGHT", BaseFrame.cabecalho.ball_point, "TOPRIGHT", icon_anchor[1], icon_anchor[2])
+	--BaseFrame.cabecalho.atributo_icon:SetTexture ("Interface\\AddOns\\Details\\images\\icon_mainwindow")
+	BaseFrame.cabecalho.atributo_icon:SetTexture (DEFAULT_SKIN)
 	BaseFrame.cabecalho.atributo_icon:SetWidth (32)
 	BaseFrame.cabecalho.atributo_icon:SetHeight (32)
 	
+	--> bola overlay
 	BaseFrame.cabecalho.ball = _detalhes.listener:CreateTexture (nil, "OVERLAY")
-	BaseFrame.cabecalho.ball:SetPoint ("BOTTOMLEFT", BaseFrame, "TOPLEFT", -37, 0)
-	BaseFrame.cabecalho.ball:SetWidth (64)
-	BaseFrame.cabecalho.ball:SetHeight (64)
-	BaseFrame.cabecalho.ball:SetTexture ([[Interface\AddOns\Details\images\ball_left]])
+	BaseFrame.cabecalho.ball:SetPoint ("BOTTOMLEFT", BaseFrame, "TOPLEFT", -107, 0)
+	BaseFrame.cabecalho.ball:SetWidth (128)
+	BaseFrame.cabecalho.ball:SetHeight (128)
 	
+	--BaseFrame.cabecalho.ball:SetTexture ([[Interface\AddOns\Details\images\ball_left]])
+	BaseFrame.cabecalho.ball:SetTexture (DEFAULT_SKIN)
+	BaseFrame.cabecalho.ball:SetTexCoord (unpack (COORDS_LEFT_BALL))
+
+	--> emenda
 	BaseFrame.cabecalho.emenda = BaseFrame:CreateTexture (nil, "OVERLAY")
-	BaseFrame.cabecalho.emenda:SetPoint ("bottomright", BaseFrame.cabecalho.ball, "bottomright", 0, 0)
+	BaseFrame.cabecalho.emenda:SetPoint ("bottomleft", BaseFrame.cabecalho.ball, "bottomright")
 	BaseFrame.cabecalho.emenda:SetWidth (8)
-	BaseFrame.cabecalho.emenda:SetHeight (32)
-	BaseFrame.cabecalho.emenda:SetTexture ([[Interface\AddOns\Details\images\emenda_left]])
+	BaseFrame.cabecalho.emenda:SetHeight (128)
+	--BaseFrame.cabecalho.emenda:SetTexture ([[Interface\AddOns\Details\images\emenda_left]])
+	BaseFrame.cabecalho.emenda:SetTexture (DEFAULT_SKIN)
+	BaseFrame.cabecalho.emenda:SetTexCoord (unpack (COORDS_LEFT_CONNECTOR))
 
 	BaseFrame.cabecalho.atributo_icon:Hide()
 	BaseFrame.cabecalho.ball:Hide()
 
 	--> bola do canto direito superior
 	BaseFrame.cabecalho.ball_r = BaseFrame:CreateTexture (nil, "BACKGROUND")
-	BaseFrame.cabecalho.ball_r:SetPoint ("BOTTOMRIGHT", BaseFrame, "TOPRIGHT", 32, 0)
-	BaseFrame.cabecalho.ball_r:SetWidth (64)
-	BaseFrame.cabecalho.ball_r:SetHeight (32)
-	BaseFrame.cabecalho.ball_r:SetTexture ("Interface\\AddOns\\Details\\images\\bar_top_right")
-	
+	BaseFrame.cabecalho.ball_r:SetPoint ("BOTTOMRIGHT", BaseFrame, "TOPRIGHT", 96, 0)
+	BaseFrame.cabecalho.ball_r:SetWidth (128)
+	BaseFrame.cabecalho.ball_r:SetHeight (128)
+	--BaseFrame.cabecalho.ball_r:SetTexture ("Interface\\AddOns\\Details\\images\\bar_top_right")
+	BaseFrame.cabecalho.ball_r:SetTexture (DEFAULT_SKIN)
+	BaseFrame.cabecalho.ball_r:SetTexCoord (unpack (COORDS_RIGHT_BALL))
+
 	--> barra centro
 	BaseFrame.cabecalho.top_bg = BaseFrame:CreateTexture (nil, "BACKGROUND")
-	BaseFrame.cabecalho.top_bg:SetPoint ("LEFT", BaseFrame.cabecalho.ball, "RIGHT", -4, -16)
+	--BaseFrame.cabecalho.top_bg:SetPoint ("LEFT", BaseFrame.cabecalho.ball, "RIGHT", -4, 0)
+	BaseFrame.cabecalho.top_bg:SetPoint ("LEFT", BaseFrame.cabecalho.emenda, "RIGHT", 0, 0)
 	BaseFrame.cabecalho.top_bg:SetPoint ("RIGHT", BaseFrame.cabecalho.ball_r, "LEFT")
-	BaseFrame.cabecalho.top_bg:SetTexture ("Interface\\AddOns\\Details\\images\\bar_top_center")
+	BaseFrame.cabecalho.top_bg:SetTexture (DEFAULT_SKIN)
+	BaseFrame.cabecalho.top_bg:SetTexCoord (unpack (COORDS_TOP_BACKGROUND))
+	BaseFrame.cabecalho.top_bg:SetWidth (512)
+	BaseFrame.cabecalho.top_bg:SetHeight (128)
+	--BaseFrame.cabecalho.top_bg:SetTexture ("Interface\\AddOns\\Details\\images\\bar_top_center")
 
-	--BaseFrame.cabecalho.top_bg:SetTexture ("Interface\\AddOns\\Details\\images\\bar_topdown_center")
-	--BaseFrame.cabecalho.top_bg:SetTexCoord (0, 1, 0, 0.49609375)
-	--BaseFrame.cabecalho.top_bg:SetHeight (31)
-	
 	--> frame invisível
 	BaseFrame.UPFrame = _CreateFrame ("frame", nil, BaseFrame)
-	BaseFrame.UPFrame:SetPoint ("LEFT", BaseFrame.cabecalho.ball, "RIGHT", 0, -25)
-	BaseFrame.UPFrame:SetPoint ("RIGHT", BaseFrame.cabecalho.ball_r, "LEFT", 0, -25)
+	BaseFrame.UPFrame:SetPoint ("LEFT", BaseFrame.cabecalho.ball, "RIGHT", 0, -53)
+	BaseFrame.UPFrame:SetPoint ("RIGHT", BaseFrame.cabecalho.ball_r, "LEFT", 0, -53)
 	BaseFrame.UPFrame:SetHeight (20)
 	
 	BaseFrame.UPFrame:Show()
@@ -3598,7 +3663,7 @@ function gump:CriaCabecalho (BaseFrame, instancia)
 	consolidateButton:SetWidth (16)
 	consolidateButton:SetHeight (16)
 	consolidateButton:SetFrameLevel (BaseFrame.UPFrame:GetFrameLevel()+1)
-	consolidateButton:SetPoint ("BOTTOMLEFT", BaseFrame.cabecalho.ball, "BOTTOMRIGHT", -2, 2)
+	consolidateButton:SetPoint ("BOTTOMLEFT", BaseFrame.cabecalho.ball, "BOTTOMRIGHT", 6, 2)
 
 	local normal_texture = consolidateButton:CreateTexture (nil, "overlay")
 	--normal_texture:SetTexture ("Interface\\AddOns\\Details\\images\\consolidate_frame")
