@@ -288,7 +288,7 @@ end --]]
 		["heal"] = true,
 		["energy"] = false,
 		["miscdata"] = true,
-		["aura"] = false,
+		["aura"] = true,
 		["spellcast"] = true,
 	}
 

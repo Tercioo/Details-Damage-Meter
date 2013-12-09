@@ -207,6 +207,10 @@ function combate:UltimaAcao (tempo)
 	end
 end
 
+function combate:GetDate()
+	return self.data_inicio, self.data_fim
+end
+
 function combate:seta_data (tipo)
 	if (tipo == _detalhes._detalhes_props.DATA_TYPE_START) then
 		self.data_inicio = _date ("%H:%M:%S")

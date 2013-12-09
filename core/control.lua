@@ -296,7 +296,7 @@
 		
 			_detalhes:CatchRaidBuffUptime ("BUFF_UPTIME_OUT")
 			_detalhes:CatchRaidDebuffUptime ("DEBUFF_UPTIME_OUT")
-			--_detalhes:CloseEnemyDebuffsUptime()
+			_detalhes:CloseEnemyDebuffsUptime()
 		
 			--> pega a zona do jogador e vê se foi uma luta contra um Boss -- identifica se a luta foi com um boss
 			if (not _detalhes.tabela_vigente.is_boss) then 
@@ -764,6 +764,8 @@
 				return _detalhes:ToolTipDead (self, objeto, esta_barra) --> instância, [morte], barra
 			elseif (objeto.frags) then
 				return _detalhes:ToolTipFrags (self, objeto, esta_barra)
+			elseif (objeto.boss_debuff) then
+				return _detalhes:ToolTipVoidZones (self, objeto, esta_barra)
 			end
 			
 			local t = objeto:ToolTip (self, qual_barra, esta_barra) --> instância, nº barra, objeto barra

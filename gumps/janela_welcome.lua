@@ -162,18 +162,18 @@ function _detalhes:OpenWelcomeWindow ()
 
 		local texto2 = window:CreateFontString (nil, "overlay", "GameFontNormal")
 		texto2:SetPoint ("topleft", window, "topleft", 20, -80)
-		texto2:SetText ("Damage & Healing per Second Timing:")
+		texto2:SetText ("Choose your DPS and HPS prefered method:")
 		
 		local chronometer = CreateFrame ("CheckButton", "WelcomeWindowChronometer", window, "ChatConfigCheckButtonTemplate")
 		chronometer:SetPoint ("topleft", window, "topleft", 40, -110)
 		local continuous = CreateFrame ("CheckButton", "WelcomeWindowContinuous", window, "ChatConfigCheckButtonTemplate")
 		continuous:SetPoint ("topleft", window, "topleft", 40, -160)
 		
-		_G ["WelcomeWindowChronometerText"]:SetText ("Chronometer"..": ")
-		_G ["WelcomeWindowContinuousText"]:SetText ("Continuous"..": ")
+		_G ["WelcomeWindowChronometerText"]:SetText ("Activity Time"..": ")
+		_G ["WelcomeWindowContinuousText"]:SetText ("Effective Time"..": ")
 		
 		local chronometer_text = window:CreateFontString (nil, "overlay", "GameFontNormal")
-		chronometer_text:SetText ("standard way of measuring time, the timer of each raid member is put on hold if his activity is ceased and back again to count when actor activity is resumed.")
+		chronometer_text:SetText ("the timer of each raid member is put on hold if his activity is ceased and back again to count when is resumed, common way of mensure Dps and Hps.")
 		chronometer_text:SetWidth (360)
 		chronometer_text:SetHeight (40)
 		chronometer_text:SetJustifyH ("left")
@@ -182,8 +182,8 @@ function _detalhes:OpenWelcomeWindow ()
 		chronometer_text:SetPoint ("topleft", _G ["WelcomeWindowChronometerText"], "topright", 0, 0)
 		
 		local continuous_text = window:CreateFontString (nil, "overlay", "GameFontNormal")
-		continuous_text:SetText ("also know as 'effective time', this method uses the elapsed combat time for mensure the Dps and Hps of all raid members.")
-		continuous_text:SetWidth (360)
+		continuous_text:SetText ("used for rankings, this method uses the elapsed combat time for mensure the Dps and Hps of all raid members.")
+		continuous_text:SetWidth (340)
 		continuous_text:SetHeight (40)
 		continuous_text:SetJustifyH ("left")
 		continuous_text:SetJustifyV ("top")
@@ -227,10 +227,10 @@ function _detalhes:OpenWelcomeWindow ()
 		
 		local texto3 = window:CreateFontString (nil, "overlay", "GameFontNormal")
 		texto3:SetPoint ("topleft", window, "topleft", 20, -80)
-		texto3:SetText ("Reading combat data:")
+		texto3:SetText ("Which parts of a fight is important to you?")
 		
 		local data_text = window:CreateFontString (nil, "overlay", "GameFontNormal")
-		data_text:SetText ("Details! reads and calculate combat data in a very fast way, but if you are unconfortable with you compunter performance, you can drop some types of data which isn't important to you:")
+		data_text:SetText ("Details! reads and calculate combat numbers in a very fast way, but if some kind of data is irrelevant for you, you can disable/enable it 'on-the-fly'.")
 		data_text:SetWidth (460)
 		data_text:SetHeight (40)
 		data_text:SetJustifyH ("left")
@@ -313,7 +313,7 @@ function _detalhes:OpenWelcomeWindow ()
 		
 		g:NewSwitch (window, _, "$parentCaptureMiscSlider", "miscCaptureSlider", 60, 20, _, _, _detalhes.capture_real ["miscdata"])
 		window.miscCaptureSlider:SetPoint ("left", window.miscCaptureLabel, "right", 2)
-		window.miscCaptureSlider.tooltip = "Pause or enable capture of:\n- cc breaks\n- dispell\n- interrupts\n- ress\n- deaths"
+		window.miscCaptureSlider.tooltip = "Pause or enable capture of:\n- cc breaks\n- dispell\n- interrupts\n- ress\n- deaths\n- frags"
 		window.miscCaptureSlider.OnSwitch = function (self, _, value)
 			_detalhes:CaptureSet (value, "miscdata", true)
 			switch_icon_color (window.miscCaptureImage, value)
@@ -322,7 +322,7 @@ function _detalhes:OpenWelcomeWindow ()
 		
 		g:NewSwitch (window, _, "$parentCaptureAuraSlider", "auraCaptureSlider", 60, 20, _, _, _detalhes.capture_real ["aura"])
 		window.auraCaptureSlider:SetPoint ("left", window.auraCaptureLabel, "right", 2)
-		window.auraCaptureSlider.tooltip = "Pause or enable capture of:\n- buffs uptime"
+		window.auraCaptureSlider.tooltip = "Pause or enable capture of:\n- buffs uptime\n- debuffs uptime\n- void zones\n- cooldowns"
 		window.auraCaptureSlider.OnSwitch = function (self, _, value)
 			_detalhes:CaptureSet (value, "aura", true)
 			switch_icon_color (window.auraCaptureImage, value)
@@ -355,10 +355,10 @@ function _detalhes:OpenWelcomeWindow ()
 		
 		local texto4 = window:CreateFontString (nil, "overlay", "GameFontNormal")
 		texto4:SetPoint ("topleft", window, "topleft", 20, -80)
-		texto4:SetText ("Interface Tweaks:")
+		texto4:SetText ("Some Cool Interface Tweaks:")
 		
 		local interval_text = window:CreateFontString (nil, "overlay", "GameFontNormal")
-		interval_text:SetText ("You can also adjust the interval (in seconds) between window updates, high values may save some performance.")
+		interval_text:SetText ("Here you can choose the uptime speed of all opened windows. Low values with dance bars enabled may create cool effects, but may consume more cpu.")
 		interval_text:SetWidth (460)
 		interval_text:SetHeight (40)
 		interval_text:SetJustifyH ("left")
@@ -367,13 +367,13 @@ function _detalhes:OpenWelcomeWindow ()
 		interval_text:SetPoint ("topleft", window, "topleft", 30, -110)
 		
 		local dance_text = window:CreateFontString (nil, "overlay", "GameFontNormal")
-		dance_text:SetText ("Keeping 'Dance Bars' disabled also may help with performance.")
+		dance_text:SetText ("Enable 'Dance Bars' for bars animations.")
 		dance_text:SetWidth (460)
 		dance_text:SetHeight (40)
 		dance_text:SetJustifyH ("left")
 		dance_text:SetJustifyV ("top")
 		dance_text:SetTextColor (1, 1, 1, 1)
-		dance_text:SetPoint ("topleft", window, "topleft", 30, -170)
+		dance_text:SetPoint ("topleft", window, "topleft", 30, -175)
 		
 	--------------- Update Speed
 		g:NewLabel (window, _, "$parentUpdateSpeedLabel", "updatespeedLabel", "Update Speed")

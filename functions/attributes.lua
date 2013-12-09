@@ -17,6 +17,7 @@ do
 		"damage", --friendly fire
 		"miscdata", --frags
 		"damage", --enemy damage
+		"aura", --auras
 		
 		"heal", --healing done
 		"heal", --hps
@@ -48,7 +49,7 @@ do
 		
 		--[[ DAMAGE ]]
 			dano = 1,	--> identifier
-			[1] = 6,	-->  sub attributes 
+			[1] = 7,	-->  sub attributes 
 		
 		--[[ HEALING ]]
 			cura = 2,	--> identifier
@@ -87,13 +88,15 @@ do
 			friendly_fire = 4,
 			frags = 5,
 			enemies = 6,
+			voidzones = 7,
 			lista = {	--[[ String Names ]]
 				Loc ["STRING_ATTRIBUTE_DAMAGE_DONE"], 
 				Loc ["STRING_ATTRIBUTE_DAMAGE_DPS"],
 				Loc ["STRING_ATTRIBUTE_DAMAGE_TAKEN"], 
 				Loc ["STRING_ATTRIBUTE_DAMAGE_FRIENDLYFIRE"],
 				Loc ["STRING_ATTRIBUTE_DAMAGE_FRAGS"],
-				Loc ["STRING_ATTRIBUTE_DAMAGE_ENEMIES"]
+				Loc ["STRING_ATTRIBUTE_DAMAGE_ENEMIES"],
+				Loc ["STRING_ATTRIBUTE_DAMAGE_DEBUFFS"],
 			},
 			icones = {
 				{"Interface\\AddOns\\Details\\images\\atributos_icones_damage", {0, .125, 0, 1}},
@@ -101,9 +104,10 @@ do
 				{"Interface\\AddOns\\Details\\images\\atributos_icones_damage", {.25, .375, 0, 1}},
 				{"Interface\\AddOns\\Details\\images\\atributos_icones_damage", {.375, .5, 0, 1}},
 				{"Interface\\AddOns\\Details\\images\\atributos_icones_damage", {.5, 0.625, 0, 1}},
-				{"Interface\\AddOns\\Details\\images\\atributos_icones_damage", {0.625, .75, 0, 1}}
+				{"Interface\\AddOns\\Details\\images\\atributos_icones_damage", {0.625, .75, 0, 1}},
+				{"Interface\\AddOns\\Details\\images\\atributos_icones_damage", {.75, 0.875, 0, 1}}
 			},
-			internal = {"total", "last_dps", "damage_taken", "friendlyfire_total", "frags", "enemies"}
+			internal = {"total", "last_dps", "damage_taken", "friendlyfire_total", "frags", "enemies", "voidzones"}
 		},
 
 		{

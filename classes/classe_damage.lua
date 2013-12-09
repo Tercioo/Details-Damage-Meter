@@ -32,6 +32,7 @@ local container_habilidades = 	_detalhes.container_habilidades
 local container_combatentes = _detalhes.container_combatentes
 local container_pets =		_detalhes.container_pets
 local atributo_damage =	_detalhes.atributo_damage
+local atributo_misc =		_detalhes.atributo_misc
 local habilidade_dano = 	_detalhes.habilidade_dano
 local container_damage_target = _detalhes.container_type.CONTAINER_DAMAGETARGET_CLASS
 
@@ -191,14 +192,6 @@ end
 				for index, player in _ipairs (container) do
 				
 					if (_bit_band (player.flag_original, 0x00000040) ~= 0) then --> é um inimigo
-					
-						-- ele vai contar os inimigos com 0 tbm
-					
-						--if (player[keyName] < 1) then --> dano menor que 1, interromper o loop
-						--	amount = index - 1
-						--	break
-						--end
-						
 						total = total + player [keyName]
 					else
 						amount = index-1
@@ -367,17 +360,15 @@ function atributo_damage:AtualizarFrags (tabela, qual_barra, colocacao, instanci
 	end
 
 	--> ele nao come o texto quando a instância esta muito pequena
-	
 	esta_barra.textura:SetVertexColor (_unpack (_detalhes.class_colors [tabela [3]]))
-	esta_barra.icone_classe:SetTexture ("Interface\\AddOns\\Details\\images\\classes_small")
 	
-	if (tabela [3] == "UNKNOW" or tabela [3] == "UNGROUPPLAYER") then
+	if (tabela [3] == "UNKNOW" or tabela [3] == "UNGROUPPLAYER" or tabela [3] == "ENEMY") then
 		esta_barra.icone_classe:SetTexture ("Interface\\LFGFRAME\\LFGROLE_BW")
 		esta_barra.icone_classe:SetTexCoord (.25, .5, 0, 1)
 		esta_barra.icone_classe:SetVertexColor (1, 1, 1)
 	else
 		esta_barra.icone_classe:SetTexture ("Interface\\AddOns\\Details\\images\\classes_small")
-		esta_barra.icone_classe:SetTexCoord (_unpack (_detalhes.class_coords [tabela [3]])) --very slow method
+		esta_barra.icone_classe:SetTexCoord (_unpack (_detalhes.class_coords [tabela [3]]))
 		esta_barra.icone_classe:SetVertexColor (1, 1, 1)
 	end
 
@@ -387,7 +378,155 @@ function atributo_damage:AtualizarFrags (tabela, qual_barra, colocacao, instanci
 
 end
 
+function atributo_damage:ReportSingleVoidZoneLine (actor, instancia)
+	local barra = instancia.barras [actor.minha_barra]
+
+	local reportar = {"Details! " .. Loc ["STRING_ATTRIBUTE_DAMAGE_DEBUFFS_REPORT"] .. ": " .. actor.nome} --> localize-me
+	for i = 1, GameCooltip:GetNumLines() do 
+		local texto_left, texto_right = GameCooltip:GetText (i)
+		if (texto_left and texto_right) then 
+			texto_left = texto_left:gsub (("|T(.*)|t "), "")
+			reportar [#reportar+1] = ""..texto_left.." "..texto_right..""
+		end
+	end
+
+	return _detalhes:Reportar (reportar, {_no_current = true, _no_inverse = true, _custom = true})
+end
+
+function _detalhes:ToolTipVoidZones (instancia, actor, barra)
+	
+	local damage_actor = instancia.showing[1]:PegarCombatente (_, actor.damage_twin)
+	local habilidade
+	local alvos
+	
+	if (damage_actor) then
+		habilidade = damage_actor.spell_tables._ActorTable [actor.damage_spellid]
+	end
+	
+	if (habilidade) then
+		alvos = habilidade.targets
+	end
+	
+	local container = actor.debuff_uptime_targets._ActorTable
+	
+	for _, alvo in _ipairs (container) do
+		if (alvos) then
+			local damage_alvo = alvos._NameIndexTable [alvo.nome]
+			if (damage_alvo) then
+				damage_alvo = alvos._ActorTable [damage_alvo]
+				alvo.damage = damage_alvo.total
+			else
+				alvo.damage = 0
+			end
+		else
+			alvo.damage = 0
+		end
+	end
+
+	--> sort no container:
+	_table_sort (container, function (tabela1, tabela2)
+		if (tabela1.damage > tabela2.damage) then
+			return true;
+		elseif (tabela1.damage == tabela2.damage) then
+			return tabela1.uptime > tabela2.uptime;
+		end
+		return false;
+	end)
+	
+	actor.debuff_uptime_targets:remapear()
+	
+	--> monta o cooltip
+	
+	local GameCooltip = GameCooltip
+	
+	GameCooltip:Reset()
+	GameCooltip:SetType ("tooltip")
+	GameCooltip:SetOwner (barra)
+	GameCooltip:SetOption ("LeftBorderSize", -5)
+	GameCooltip:SetOption ("RightBorderSize", 5)
+	GameCooltip:SetOption ("StatusBarTexture", [[Interface\WorldStateFrame\WORLDSTATEFINALSCORE-HIGHLIGHT]])
+	
+	for _, alvo in _ipairs (container) do 
+
+		local minutos, segundos = _math_floor (alvo.uptime / 60), _math_floor (alvo.uptime % 60)
+		if (minutos > 0) then
+			GameCooltip:AddLine (alvo.nome, _detalhes:comma_value (alvo.damage) .. " (" .. minutos .. "m " .. segundos .. "s" .. ")")
+		else
+			GameCooltip:AddLine (alvo.nome, _detalhes:comma_value (alvo.damage) .. " (" .. segundos .. "s" .. ")")
+		end
+		
+		local classe = _detalhes:GetClass (alvo.nome)
+		if (classe) then	
+			GameCooltip:AddIcon ([[Interface\AddOns\Details\images\classes_small]], nil, nil, 14, 14, unpack (_detalhes.class_coords [classe]))
+		else
+			GameCooltip:AddIcon ("Interface\\LFGFRAME\\LFGROLE_BW", nil, nil, 14, 14, .25, .5, 0, 1)
+		end
+		
+		GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
+	
+	end
+	
+	GameCooltip:AddLine (Loc ["STRING_REPORT_LEFTCLICK"], nil, 1, "white")
+	GameCooltip:AddIcon ([[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]], 1, 1, 12, 16, 0.015625, 0.13671875, 0.4375, 0.59765625)
+	GameCooltip:ShowCooltip()
+	
+end
+
+local function RefreshBarraVoidZone (tabela, barra, instancia)
+	tabela:AtualizarVoidZone (tabela.minha_barra, barra.colocacao, instancia)
+end
+
+function atributo_misc:AtualizarVoidZone (qual_barra, colocacao, instancia)
+
+	local esta_barra = instancia.barras [qual_barra] --> pega a referência da barra na janela
+	
+	if (not esta_barra) then
+		print ("DEBUG: problema com <instancia.esta_barra> "..qual_barra.." "..lugar)
+		return
+	end
+	
+	self._refresh_window = RefreshBarraVoidZone
+	
+	local tabela_anterior = esta_barra.minha_tabela
+	
+	esta_barra.minha_tabela = self
+	
+	self.minha_barra = qual_barra
+	esta_barra.colocacao = colocacao
+	
+	esta_barra.texto_esquerdo:SetText (colocacao .. ". " .. self.nome)
+	esta_barra.texto_direita:SetText (self.debuff_uptime)
+	
+	--if (colocacao == 1) then
+		esta_barra.statusbar:SetValue (100)
+	--else
+	--	esta_barra.statusbar:SetValue (self.debuff_uptime / instancia.top * 100)
+	--end
+	
+	if (esta_barra.hidden or esta_barra.fading_in or esta_barra.faded) then
+		gump:Fade (esta_barra, "out")
+	end
+	
+	local _, _, icon = GetSpellInfo (self.damage_spellid)
+	local school_color = _detalhes.school_colors [self.spellschool]
+	if (not school_color) then
+		school_color = _detalhes.school_colors ["unknown"]
+	end
+	
+	esta_barra.textura:SetVertexColor (_unpack (school_color))
+	esta_barra.icone_classe:SetTexture (icon)
+	esta_barra.icone_classe:SetTexCoord (0, 1, 0, 1)
+	esta_barra.icone_classe:SetVertexColor (1, 1, 1)
+
+	if (esta_barra.mouse_over and not instancia.baseframe.isMoving) then --> precisa atualizar o tooltip
+		--gump:UpdateTooltip (qual_barra, esta_barra, instancia)
+	end
+
+end
+
 local ntable = {}
+local vtable = {}
+
 function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, exportar)
 	
 	local showing = tabela_do_combate [class_type] --> o que esta sendo mostrado -> [1] - dano [2] - cura --> pega o container com ._NameIndexTable ._ActorTable
@@ -426,6 +565,8 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 				keyName = "frags"
 			elseif (sub_atributo == 6) then --> ENEMIES
 				keyName = "enemies"
+			elseif (sub_atributo == 7) then --> AURAS VOIDZONES
+				keyName = "voidzones"
 			end
 		else
 			keyName = exportar.key
@@ -447,6 +588,8 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 			keyName = "frags"
 		elseif (sub_atributo == 6) then --> ENEMIES
 			keyName = "enemies"
+		elseif (sub_atributo == 7) then --> AURAS VOIDZONES
+			keyName = "voidzones"
 		end
 	end
 	
@@ -459,13 +602,16 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 		
 			index = index + 1
 		
-			local actor_classe = showing._NameIndexTable [fragName] --> get index
-			if (actor_classe) then
-				actor_classe = showing._ActorTable [actor_classe] --> get object
-				actor_classe = actor_classe.classe
+			local fragged_actor = showing._NameIndexTable [fragName] --> get index
+			local actor_classe
+			if (fragged_actor) then
+				fragged_actor = showing._ActorTable [fragged_actor] --> get object
+				actor_classe = fragged_actor.classe
 			end
 			
-			if (not actor_classe) then
+			if (fragged_actor and fragged_actor.monster) then
+				actor_classe = "ENEMY"
+			elseif (not actor_classe) then
 				actor_classe = "UNGROUPPLAYER"
 			end
 			
@@ -523,6 +669,69 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 		
 		return _detalhes:EndRefresh (instancia, total, tabela_do_combate, showing) --> retorna a tabela que precisa ganhar o refresh
 	
+	elseif (keyName == "voidzones") then 
+		
+		local index = 0
+		local misc_container = tabela_do_combate [4]
+		
+		for _, actor in _ipairs (misc_container._ActorTable) do
+			if (actor.boss_debuff) then
+			
+				index = index + 1
+			
+				local twin_damage_actor = showing._NameIndexTable [actor.damage_twin]
+				if (twin_damage_actor) then
+					twin_damage_actor = showing._ActorTable [twin_damage_actor]
+					actor.damage = twin_damage_actor.total
+				else
+					actor.damage = 0
+				end
+				
+				vtable [index] = actor
+				
+			end
+		end
+		
+		local tsize = #vtable
+		if (index < tsize) then
+			for i = index+1, tsize do
+				vtable [i] = nil
+			end
+		end
+		
+		--print ("size: ", tsize)
+		
+		if (tsize > 0 and vtable[1]) then
+			_table_sort (vtable, function (t1, t2) 
+				return t1.damage > t2.damage
+			end)
+			instancia.top = vtable [1].damage
+		end
+		total = index 
+		
+		if (exportar) then 
+			return vtable
+		end
+		
+		if (total < 1) then
+			instancia:EsconderScrollBar()
+			return _detalhes:EndRefresh (instancia, total, tabela_do_combate, showing) --> retorna a tabela que precisa ganhar o refresh
+		end
+		
+		--esta mostrando ALL então posso seguir o padrão correto? primeiro, atualiza a scroll bar...
+		instancia:AtualizarScrollBar (total)
+		
+		--depois faz a atualização normal dele através dos iterators
+		local qual_barra = 1
+		local barras_container = instancia.barras
+
+		for i = instancia.barraS[1], instancia.barraS[2], 1 do --> vai atualizar só o range que esta sendo mostrado
+			vtable[i]:AtualizarVoidZone (qual_barra, i, instancia)
+			qual_barra = qual_barra+1
+		end
+		
+		return _detalhes:EndRefresh (instancia, total, tabela_do_combate, showing) --> retorna a tabela que precisa ganhar o refresh
+		
 	else
 	
 		if (instancia.atributo == 5) then --> custom
@@ -535,6 +744,7 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 		elseif (keyName == "enemies") then 
 		
 			amount, total = _detalhes:ContainerSortEnemies (conteudo, amount, "total")
+			--keyName = "enemies"
 			--> grava o total
 			instancia.top = conteudo[1][keyName]
 			
@@ -831,8 +1041,11 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 		forcar = true
 	end
 	
+
 	if (self.owner) then
 		actor_class_color_r, actor_class_color_g, actor_class_color_b = _unpack (_detalhes.class_colors [self.owner.classe])
+	elseif (self.monster) then
+		actor_class_color_r, actor_class_color_g, actor_class_color_b = _unpack (_detalhes.class_colors.ENEMY)
 	else
 		actor_class_color_r, actor_class_color_g, actor_class_color_b = _unpack (_detalhes.class_colors [self.classe])
 	end
@@ -973,7 +1186,7 @@ end
 		end
 		
 		if (instancia.row_texture_class_colors) then
-			esta_barra.textura:SetVertexColor (240/255, 0, 5/255, 1)
+			esta_barra.textura:SetVertexColor (0.94117, 0, 0.01960, 1)
 		end
 	else
 		esta_barra.texto_esquerdo:SetText (esta_barra.colocacao..". "..self.displayName) --seta o texto da esqueda

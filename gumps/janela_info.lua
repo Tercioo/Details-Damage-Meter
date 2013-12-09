@@ -539,7 +539,7 @@ local function cria_textos (este_gump)
 	
 	este_gump.targets = este_gump:CreateFontString (nil, "OVERLAY", "QuestFont_Large")
 	este_gump.targets:SetPoint ("TOPLEFT", este_gump, "TOPLEFT", 24, -235)
-	este_gump.targets:SetText ("Alvos:")
+	este_gump.targets:SetText (Loc ["STRING_TARGETS"] .. ":")
 end
 
 

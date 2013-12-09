@@ -30,6 +30,7 @@ do
 	function _detalhes.switch:CloseMe()
 		_detalhes.switch.frame:Hide()
 		_detalhes.switch.frame:SetBackdropColor (24/255, 24/255, 24/255, .8)
+		_detalhes.switch.current_instancia:StatusBarAlert (nil)
 	end
 	
 	--> limitação: não tenho como pegar o base frame da instância por aqui
@@ -50,21 +51,23 @@ _detalhes.switch.current_instancia = nil
 _detalhes.switch.current_button = nil
 _detalhes.switch.height_necessary = (30*_detalhes.switch.slots)/2
 
---_detalhes:DelayMsg ("altura necessaria: " .. _detalhes.switch.height_necessary)
---_detalhes:DelayMsg ("slots: " .. _detalhes.switch.slots)
+local right_click_text = {text = Loc ["STRING_SHORTCUT_RIGHTCLICK"], size = 9, color = {.9, .9, .9}}
+local right_click_texture = {[[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]], 14, 14, 0.0019531, 0.1484375, 0.6269531, 0.8222656}
 
 function _detalhes.switch:ShowMe (instancia)
+
 	_detalhes.switch.current_instancia = instancia
+	
 	_detalhes.switch.frame:SetFrameLevel (instancia.baseframe:GetFrameLevel() + 5)
 	_detalhes.switch.frame:SetPoint ("topleft", instancia.baseframe, "topleft", 2, 0)
 	_detalhes.switch.frame:SetPoint ("bottomright", instancia.baseframe, "bottomright", -2, 0)
 	
-	_detalhes.switch.frame:SetBackdropColor (24/255, 24/255, 24/255, .8)
+	_detalhes.switch.frame:SetBackdropColor (0.094, 0.094, 0.094, .8)
 	local _r, _g, _b, _a = _detalhes.switch.frame:GetBackdropColor()
 	gump:GradientEffect (_detalhes.switch.frame, "frame", _r, _g, _b, _a, _r, _g, _b, 1, 1)
 	
 	local altura = instancia.baseframe:GetHeight()
-	local mostrar_quantas = _math_floor (altura / 30)*2
+	local mostrar_quantas = _math_floor (altura / 30) * 2
 	
 	if (_detalhes.switch.mostrar_quantas ~= mostrar_quantas) then 
 		for i = 1, #_detalhes.switch.buttons do
@@ -86,6 +89,7 @@ function _detalhes.switch:ShowMe (instancia)
 	_detalhes.switch:Resize()
 	
 	_detalhes.switch.frame:Show()
+	instancia:StatusBarAlert (right_click_text, right_click_texture) --icon, color, time
 end
 
 function _detalhes.switch:Config (_,_, atributo, sub_atributo)
@@ -111,16 +115,19 @@ function _detalhes:FastSwitch (_this)
 		GameCooltip:SetColor (1, nil)
 		GameCooltip:SetColor (2, nil)
 		GameCooltip:ShowCooltip()
-		
-		--_detalhes.popup:ShowMe (_detalhes.switch.buttons [_this.button], _detalhes.switch.current_instancia, menu, sub_menu, "Interface\\AddOns\\Details\\images\\atributos_icones", 256, _, _, _, {["NoFade"] = true})
+
 	else --> botão esquerdo
 		if (_detalhes.switch.current_instancia.modo == _detalhes._detalhes_props["MODO_ALONE"]) then
 			_detalhes.switch.current_instancia:AlteraModo (_detalhes.switch.current_instancia, _detalhes.switch.current_instancia.LastModo)
+			
 		elseif (_detalhes.switch.current_instancia.modo == _detalhes._detalhes_props["MODO_RAID"]) then
 			_detalhes.switch.current_instancia:AlteraModo (_detalhes.switch.current_instancia, _detalhes.switch.current_instancia.LastModo)
+			
 		end
-		_detalhes.switch.current_instancia:TrocaTabela (_detalhes.switch.current_instancia.segmento, _this.atributo, _this.sub_atributo)
+		
+		_detalhes.switch.current_instancia:TrocaTabela (_detalhes.switch.current_instancia, true, _this.atributo, _this.sub_atributo)
 		_detalhes.switch.CloseMe()
+		
 	end
 end
 

@@ -108,6 +108,29 @@ function SlashCmdList.DETAILS (msg, editbox)
 		print ("GetTime()", GetTime())
 		print ("time()", time())
 
+	elseif (msg == "malkorok") then
+	
+		print ("nome | count | unitCaster | spellId |  isBossDebuff | value1 | value2 | value3")
+	
+		do
+			local name, rank, icon, count, debuffType, duration, expirationTime, unitCaster, isStealable, shouldConsolidate, spellId, canApplyAura, isBossDebuff, value1, value2, value3  = UnitDebuff ("player", 1)
+			if (name) then
+				print (name, " | ", count, " | ", unitCaster, " | ",spellId, " | ", isBossDebuff, " | ", value1, " | ", value2, " | ", value3)
+			end
+		end
+		do
+			local name, rank, icon, count, debuffType, duration, expirationTime, unitCaster, isStealable, shouldConsolidate, spellId, canApplyAura, isBossDebuff, value1, value2, value3  = UnitDebuff ("player", 2)
+			if (name) then
+				print (name, " | ", count, " | ", unitCaster, " | ",spellId, " | ", isBossDebuff, " | ", value1, " | ", value2, " | ", value3)
+			end
+		end
+		do
+			local name, rank, icon, count, debuffType, duration, expirationTime, unitCaster, isStealable, shouldConsolidate, spellId, canApplyAura, isBossDebuff, value1, value2, value3  = UnitDebuff ("player", 3)
+			if (name) then
+				print (name, " | ", count, " | ", unitCaster, " | ",spellId, " | ", isBossDebuff, " | ", value1, " | ", value2, " | ", value3)
+			end
+		end
+		
 	elseif (msg == "copy") then
 		_G.DetailsCopy:Show()
 		_G.DetailsCopy.MyObject.text:HighlightText()

@@ -463,6 +463,8 @@
 				
 					if (tabela._custom) then 
 						tabela (esta_barra, self)
+					elseif (tabela._refresh_window) then
+						tabela:_refresh_window (esta_barra, self)
 					else
 						tabela:RefreshBarra (esta_barra, self, true)
 					end

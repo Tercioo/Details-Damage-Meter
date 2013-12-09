@@ -175,11 +175,18 @@ local read_flag_ = function (novo_objeto, shadow_objeto, dono_do_pet, serial, fl
 		-- 0x00000060 --> inimigo neutro
 		if (_bit_band (flag, 0x00000010) ~= 0) then --> é amigo
 			details_flag = details_flag+0x00000010
+			
 		elseif (_bit_band (flag, 0x00000020) ~= 0) then --> é neutro
 			details_flag = details_flag+0x00000020
 			--print ("neutro -> " .. nome)
+			
 		elseif (_bit_band (flag, 0x00000040) ~= 0) then --> é inimigo
+		
 			details_flag = details_flag+0x00000040
+			
+			if (_bit_band (flag, 0x00000400) == 0 and _bit_band (flag, OBJECT_TYPE_PETGUARDIAN) == 0) then
+				novo_objeto.monster = true
+			end
 			--print ("inimigos -> " .. nome)
 		end
 	else

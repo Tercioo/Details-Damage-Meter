@@ -120,11 +120,11 @@ function _G._detalhes:Start()
 			for classe, tabela_cor in pairs ( RAID_CLASS_COLORS ) do 
 				self.class_colors [classe] = {tabela_cor.r, tabela_cor.g, tabela_cor.b}
 			end
-			--self.class_colors ["UNKNOW"] = {0.3921, 0.0980, 0.0980}
 			self.class_colors ["UNKNOW"] = {0.2, 0.2, 0.2}
 			self.class_colors ["UNGROUPPLAYER"] = {0.4, 0.4, 0.4}
 			self.class_colors ["PET"] = {0.3, 0.4, 0.5}
 		end
+		self.class_colors ["ENEMY"] = self.class_colors ["ENEMY"] or {0.94117, 0, 0.01960, 1}
 		
 		self.class_coords = {}
 		for class, tcoord in pairs (_G.CLASS_ICON_TCOORDS) do
@@ -136,13 +136,25 @@ function _G._detalhes:Start()
 		self.class_coords ["Horde"] = {0.7421875, 0.98828125, 0.75, 1}
 		self.class_coords ["PET"] = {0.25, 0.49609375, 0.75, 1}
 		self.class_coords ["MONSTER"] = {0, 0.25, 0.75, 1}
+		self.class_coords ["ENEMY"] = {0, 0.25, 0.75, 1}
 		
 		self.class_coords ["UNKNOW"] = {0.5, 0.75, 0.75, 1}
 		self.class_coords ["UNGROUPPLAYER"] = {0.5, 0.75, 0.75, 1}
+		
+		self.school_colors = {
+			[1] = {1.00, 1.00, 0.00},
+			[2] = {1.00, 0.90, 0.50},
+			[4] = {1.00, 0.50, 0.00},
+			[8] = {0.30, 1.00, 0.30},
+			[16] = {0.50, 1.00, 1.00},
+			[32] = {0.50, 0.50, 1.00},
+			[64] = {1.00, 0.50, 1.00},
+			["unknown"] = {0.5, 0.75, 0.75, 1}
+		}
 
 	--> single click row function replace
 		--damage, dps, damage taken, friendly fire
-			self.row_singleclick_overwrite [1] = {true, true, true, true, self.atributo_damage.ReportSingleFragsLine, true} 
+			self.row_singleclick_overwrite [1] = {true, true, true, true, self.atributo_damage.ReportSingleFragsLine, true, self.atributo_damage.ReportSingleVoidZoneLine} 
 		--healing, hps, overheal, healing taken
 			self.row_singleclick_overwrite [2] = {true, true, true, true, false, self.atributo_heal.ReportSingleDamagePreventedLine} 
 		--mana, rage, energy, runepower

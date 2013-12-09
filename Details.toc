@@ -14,6 +14,8 @@ locales\Details-enUS.lua
 boot.lua
 core\util.lua
 
+functions\hooks.lua
+functions\skins.lua
 functions\boss.lua
 functions\spells.lua
 functions\events.lua

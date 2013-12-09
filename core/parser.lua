@@ -101,6 +101,9 @@
 		local _recording_buffs_and_debuffs = false
 	--> in combat shortcut
 		local _in_combat = false
+	--> hooks
+		local _hook_cooldowns = false
+		local _hook_cooldowns_container = _detalhes.hooks ["HOOK_COOLDOWN"]
 	
 
 
@@ -671,7 +674,7 @@
 	--> BUFFS & DEBUFFS 	serach key: ~buff ~aura ~shield								|
 -----------------------------------------------------------------------------------------------------------------------------------------
 
-	function parser:buff (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, _, tipo, amount)
+	function parser:buff (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spellschool, tipo, amount)
 
 	--> not yet well know about unnamed buff casters
 		if (not alvo_name) then
@@ -746,8 +749,8 @@
 						--> call record debuffs uptime
 	--[[not tail call, need to fix this]]	parser:add_debuff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, "DEBUFF_UPTIME_IN")
 	
-					--elseif (raid_members_cache [alvo_serial] and _bit_band (who_flags, 0x00000040) ~= 0) then --> alvo é da raide e o caster é inimigo
-	--[[not tail call, need to fix this]]	--parser:add_bad_debuff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, "DEBUFF_UPTIME_IN")
+					elseif (raid_members_cache [alvo_serial] and not raid_members_cache [who_serial]) then --> alvo é da raide é alguem de fora da raide
+	--[[not tail call, need to fix this]]	parser:add_bad_debuff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spellschool, "DEBUFF_UPTIME_IN")
 					end
 				end
 			
@@ -818,7 +821,7 @@
 		end
 	end
 
-	function parser:buff_refresh (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, _, tipo, amount)
+	function parser:buff_refresh (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spellschool, tipo, amount)
 
 	------------------------------------------------------------------------------------------------
 	--> handle shields
@@ -890,8 +893,8 @@
 					if (raid_members_cache [who_serial]) then
 						--> call record debuffs uptime
 	--[[not tail call, need to fix this]]	parser:add_debuff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, "DEBUFF_UPTIME_REFRESH")
-					--elseif (raid_members_cache [alvo_serial] and _bit_band (who_flags, 0x00000040) ~= 0) then --> alvo é da raide e o caster é inimigo
-	--[[not tail call, need to fix this]]	--parser:add_bad_debuff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, "DEBUFF_UPTIME_REFRESH")
+					elseif (raid_members_cache [alvo_serial] and not raid_members_cache [who_serial]) then --> alvo é da raide e o caster é inimigo
+	--[[not tail call, need to fix this]]	parser:add_bad_debuff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spellschool, "DEBUFF_UPTIME_REFRESH")
 					end
 				end
 		
@@ -947,7 +950,7 @@
 		end
 	end
 
-	function parser:unbuff (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, _, tipo, amount)
+	function parser:unbuff (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spellschool, tipo, amount)
 
 	------------------------------------------------------------------------------------------------
 	--> handle shields
@@ -1013,8 +1016,8 @@
 					if (raid_members_cache [who_serial]) then
 						--> call record debuffs uptime
 	--[[not tail call, need to fix this]]	parser:add_debuff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, "DEBUFF_UPTIME_OUT")
-					--elseif (raid_members_cache [alvo_serial] and _bit_band (who_flags, 0x00000040) ~= 0) then --> alvo é da raide e o caster é inimigo
-	--[[not tail call, need to fix this]]	--parser:add_bad_debuff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, "DEBUFF_UPTIME_OUT")
+					elseif (raid_members_cache [alvo_serial] and not raid_members_cache [who_serial]) then --> alvo é da raide e o caster é inimigo
+	--[[not tail call, need to fix this]]	parser:add_bad_debuff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spellschool, "DEBUFF_UPTIME_OUT")
 					end
 				end
 			
@@ -1059,7 +1062,7 @@
 	--> MISC 	search key: ~buffuptime ~buffsuptime									|
 -----------------------------------------------------------------------------------------------------------------------------------------
 
-	function parser:add_bad_debuff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, in_out)
+	function parser:add_bad_debuff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spellschool, in_out)
 		
 		if (not alvo_name) then
 			--> no target name, just quit
@@ -1084,14 +1087,18 @@
 			
 			if (not este_jogador.debuff_uptime) then
 				este_jogador.boss_debuff = true
-				este_jogador.owner = who_name
+				este_jogador.damage_twin = who_name
+				este_jogador.spellschool = spellschool
+				este_jogador.damage_spellid = spellid
 				este_jogador.debuff_uptime = 0
 				este_jogador.debuff_uptime_spell_tables = container_habilidades:NovoContainer (container_misc)
 				este_jogador.debuff_uptime_targets = container_combatentes:NovoContainer (container_enemydebufftarget_target)
 				
 				if (not shadow.debuff_uptime_targets) then
 					shadow.boss_debuff = true
-					shadow.owner = who_name
+					shadow.damage_twin = who_name
+					shadow.spellschool = spellschool
+					shadow.damage_spellid = spellid
 					shadow.debuff_uptime = 0
 					shadow.debuff_uptime_spell_tables = container_habilidades:NovoContainer (container_misc)
 					shadow.debuff_uptime_targets = container_combatentes:NovoContainer (container_enemydebufftarget_target)
@@ -1527,6 +1534,13 @@
 			spell = este_jogador.cooldowns_defensive_spell_tables:PegaHabilidade (spellid, true, token)
 		end
 		
+		if (_hook_cooldowns) then
+			--> send event to registred functions
+			for _, func in _ipairs (_hook_cooldowns_container) do 
+				func (nil, token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname)
+			end
+		end
+		
 		return spell:Add (alvo_serial, alvo_name, alvo_flags, who_name, token, "BUFF_OR_DEBUFF", "COOLDOWN")
 		
 	end
@@ -1960,12 +1974,12 @@
 	
 	------------------------------------------------------------------------------------------------
 	--> early checks and fixes
-
-		if (not cc_spell_list [extraSpellID]) then
-			return
+		if (not cc_spell_list [spellid]) then
+			--return print ("nao ta na lista")
 		end
 
 		if (_bit_band (who_flags, AFFILIATION_GROUP) == 0) then
+			--print (who_name.. " nao eh do grupo")
 			return
 		end
 		
@@ -2037,16 +2051,16 @@
 		shadow.cc_break = shadow.cc_break + 1
 		
 		--> broke what
-		if (not este_jogador.cc_break_oque [extraSpellID]) then
-			este_jogador.cc_break_oque [extraSpellID] = 1
+		if (not este_jogador.cc_break_oque [spellid]) then
+			este_jogador.cc_break_oque [spellid] = 1
 		else
-			este_jogador.cc_break_oque [extraSpellID] = este_jogador.cc_break_oque [extraSpellID] + 1
+			este_jogador.cc_break_oque [spellid] = este_jogador.cc_break_oque [spellid] + 1
 		end
 		
-		if (not shadow.cc_break_oque [extraSpellID]) then
-			shadow.cc_break_oque [extraSpellID] = 1
+		if (not shadow.cc_break_oque [spellid]) then
+			shadow.cc_break_oque [spellid] = 1
 		else
-			shadow.cc_break_oque [extraSpellID] = shadow.cc_break_oque [extraSpellID] + 1
+			shadow.cc_break_oque [spellid] = shadow.cc_break_oque [spellid] + 1
 		end
 		
 		--> actor targets
@@ -2059,11 +2073,11 @@
 		este_alvo.total = este_alvo.total + 1
 
 		--> actor spells table
-		local spell = este_jogador.cc_break_spell_tables._ActorTable [spellid]
+		local spell = este_jogador.cc_break_spell_tables._ActorTable [extraSpellID]
 		if (not spell) then
-			spell = este_jogador.cc_break_spell_tables:PegaHabilidade (spellid, true, token)
+			spell = este_jogador.cc_break_spell_tables:PegaHabilidade (extraSpellID, true, token)
 		end
-		return spell:Add (alvo_serial, alvo_name, alvo_flags, who_name, token, extraSpellID, extraSpellName)
+		return spell:Add (alvo_serial, alvo_name, alvo_flags, who_name, token, spellid, spellname)
 	end
 
 	--serach key: ~dead ~death ~morte
@@ -2716,6 +2730,12 @@
 		--_recording_took_damage = _detalhes.RecordRealTimeTookDamage
 		_recording_ability_with_buffs = _detalhes.RecordPlayerAbilityWithBuffs
 		_in_combat = _detalhes.in_combat
+		
+		if (_detalhes.hooks ["HOOK_COOLDOWN"].enabled) then
+			_hook_cooldowns = true
+		else
+			_hook_cooldowns = false
+		end
 
 		return _detalhes:ClearParserCache()
 	end

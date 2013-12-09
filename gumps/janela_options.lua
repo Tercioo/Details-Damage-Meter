@@ -215,8 +215,8 @@ function _detalhes:OpenOptionsWindow (instance)
 			_detalhes:AtualizaGumpPrincipal (-1, true)
 		end
 		local timetypeOptions = {
-			{value = 1, label = "Chronometer", onclick = onSelectTimeType, icon = "Interface\\Icons\\INV_Misc_PocketWatch_01", desc = "The effective time are based on the actions of the actor\nand his activity time are paused when he is idle during combat."},
-			{value = 2, label = "Continuous", onclick = onSelectTimeType, icon = "Interface\\Icons\\INV_Misc_Gear_03", desc = "Activity time is the same for all the actors where the\ncombat time is used to measure the effectiveness of all actors."}
+			{value = 1, label = "Activity Time", onclick = onSelectTimeType, icon = "Interface\\Icons\\INV_Misc_PocketWatch_01", desc = "Activity time are based on the actions of the actor\nand his activity time are paused when he is idle during combat."},
+			{value = 2, label = "Effective Time", onclick = onSelectTimeType, icon = "Interface\\Icons\\INV_Misc_Gear_03", desc = "The effective time is the same for all the actors where the\ncombat time is used to measure the effectiveness of all actors."}
 		}
 		local buildTimeTypeMenu = function()
 			return timetypeOptions
@@ -298,7 +298,7 @@ function _detalhes:OpenOptionsWindow (instance)
 		
 		g:NewSwitch (window, _, "$parentCaptureAuraSlider", "auraCaptureSlider", 60, 20, _, _, _detalhes.capture_real ["aura"])
 		window.auraCaptureSlider:SetPoint ("left", window.auraCaptureLabel, "right", 2)
-		window.auraCaptureSlider.tooltip = "Pause or enable capture of:\n- buffs uptime"
+		window.auraCaptureSlider.tooltip = "Pause or enable capture of:\n- buffs uptime\n- debuffs uptime\n- void zones\n- cooldowns"
 		window.auraCaptureSlider.OnSwitch = function (self, _, value)
 			_detalhes:CaptureSet (value, "aura", true)
 			switch_icon_color (window.auraCaptureImage, value)
@@ -340,6 +340,7 @@ function _detalhes:OpenOptionsWindow (instance)
 		window.fragsPvpSlider.tooltip = "Only record frags from player characters."
 		
 	--------------- Concatenate Trash
+	--[[
 		g:NewLabel (window, _, "$parentConcatenateTrash", "concatenateTrashLabel", "concatenate clean up segments")
 		window.concatenateTrashLabel:SetPoint (10, -344)
 		--
@@ -349,7 +350,7 @@ function _detalhes:OpenOptionsWindow (instance)
 			_detalhes.trash_concatenate = amount
 		end
 		window.concatenateTrashSlider.tooltip = "Concatenate the next boss segments into only one."
-		
+		--]]
 	--------------- Erase Trash
 		g:NewLabel (window, _, "$parentEraseTrash", "eraseTrashLabel", "remove clean up segments")
 		window.eraseTrashLabel:SetPoint (10, -359)

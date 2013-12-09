@@ -56,7 +56,7 @@ end
 
 --	0.00048828125
 	
-	local DEFAULT_SKIN = _detalhes.skin_path .. _detalhes.skins ["Default Skin"].file
+	local DEFAULT_SKIN = [[Interface\AddOns\Details\images\skins\default_skin]]
 	
 	local COORDS_LEFT_BALL = {0.15673828125, 0.28076171875, 0.08251953125, 0.20654296875} -- x1 160 y1 84 x2 288 y2 212
 	local COORDS_LEFT_CONNECTOR = {0.29541015625, 0.30224609375, 0.08251953125, 0.20654296875} --302 84 310 212
@@ -2452,6 +2452,73 @@ function _detalhes:InstanceColor (red, green, blue, alpha)
 	self.color[1], self.color[2], self.color[3], self.color[4] = red, green, blue, alpha
 end
 
+function _detalhes:StatusBarAlertTime (instance)
+	instance.baseframe.statusbar:Hide()
+end
+
+function _detalhes:StatusBarAlert (text, icon, color, time)
+
+	local statusbar = self.baseframe.statusbar
+	
+	if (text) then
+		if (type (text) == "table") then
+			if (text.color) then
+				statusbar.text:SetTextColor (gump:ParseColors (text.color))
+			else
+				statusbar.text:SetTextColor (1, 1, 1, 1)
+			end
+			
+			statusbar.text:SetText (text.text or "")
+			
+			if (text.size) then
+				_detalhes:SetFontSize (statusbar.text, text.size)
+			else
+				_detalhes:SetFontSize (statusbar.text, 9)
+			end
+		else
+			statusbar.text:SetText (text)
+			statusbar.text:SetTextColor (1, 1, 1, 1)
+			_detalhes:SetFontSize (statusbar.text, 9)
+		end
+	else
+		statusbar.text:SetText ("")
+	end
+	
+	if (icon) then
+		if (type (icon) == "table") then
+			local texture, w, h, l, r, t, b = unpack (icon)
+			statusbar.icon:SetTexture (texture)
+			statusbar.icon:SetWidth (w or 14)
+			statusbar.icon:SetHeight (h or 14)
+			if (l and r and t and b) then
+				statusbar.icon:SetTexCoord (l, r, t, b)
+			end
+		else
+			statusbar.icon:SetTexture (icon)
+			statusbar.icon:SetWidth (14)
+			statusbar.icon:SetHeight (14)
+			statusbar.icon:SetTexCoord (0, 1, 0, 1)
+		end
+	else
+		statusbar.icon:SetTexture (nil)
+	end
+	
+	if (color) then
+		statusbar:SetBackdropColor (gump:ParseColors (color))
+	else
+		statusbar:SetBackdropColor (0, 0, 0, 1)
+	end
+	
+	if (icon or text) then
+		statusbar:Show()
+		if (time) then
+			_detalhes:ScheduleTimer ("StatusBarAlertTime", time, self)
+		end
+	else
+		statusbar:Hide()
+	end
+end
+
 function gump:CriaRodape (BaseFrame, instancia)
 
 	BaseFrame.rodape = {}
@@ -2496,8 +2563,34 @@ function gump:CriaRodape (BaseFrame, instancia)
 	
 	BaseFrame.rodape.StatusBarCenterAnchor = StatusBarCenterAnchor
 	
+	--> display frame
+		BaseFrame.statusbar = _CreateFrame ("frame", nil, BaseFrame.cabecalho.fechar)
+		BaseFrame.statusbar:SetFrameLevel (BaseFrame.cabecalho.fechar:GetFrameLevel()+2)
+		BaseFrame.statusbar:SetPoint ("LEFT", BaseFrame.rodape.esquerdo, "RIGHT", -13, 10)
+		BaseFrame.statusbar:SetPoint ("RIGHT", BaseFrame.rodape.direita, "LEFT", 13, 10)
+		BaseFrame.statusbar:SetHeight (14)
+		
+		local statusbar_icon = BaseFrame.statusbar:CreateTexture (nil, "overlay")
+		statusbar_icon:SetWidth (14)
+		statusbar_icon:SetHeight (14)
+		statusbar_icon:SetPoint ("left", BaseFrame.statusbar, "left")
+		
+		local statusbar_text = BaseFrame.statusbar:CreateFontString (nil, "overlay", "GameFontNormal")
+		statusbar_text:SetPoint ("left", statusbar_icon, "right", 2, 0)
+		
+		BaseFrame.statusbar:SetBackdrop ({
+		bgFile = "Interface\\AddOns\\Details\\images\\background", tile = true, tileSize = 16,
+		insets = {left = 0, right = 0, top = 0, bottom = 0}})
+		BaseFrame.statusbar:SetBackdropColor (0, 0, 0, 1)
+		
+		BaseFrame.statusbar.icon = statusbar_icon
+		BaseFrame.statusbar.text = statusbar_text
+		BaseFrame.statusbar.instancia = instancia
+		
+		BaseFrame.statusbar:Hide()
+	
 	--> frame invisível
-	BaseFrame.DOWNFrame = _CreateFrame ("frame", nil, BaseFrame)	
+	BaseFrame.DOWNFrame = _CreateFrame ("frame", nil, BaseFrame)
 	BaseFrame.DOWNFrame:SetPoint ("LEFT", BaseFrame.rodape.esquerdo, "RIGHT", 0, 10)
 	BaseFrame.DOWNFrame:SetPoint ("RIGHT", BaseFrame.rodape.direita, "LEFT", 0, 10)
 	BaseFrame.DOWNFrame:SetHeight (14)
@@ -2927,10 +3020,11 @@ function _detalhes:ChangeSkin (skin_name)
 	end
 	
 	self.skin = skin_name
-	local skin_file = _detalhes.skin_path .. this_skin.file
+	local skin_file = this_skin.file
 	
 	self.baseframe.cabecalho.ball:SetTexture (skin_file) --> bola esquerda
 	self.baseframe.cabecalho.emenda:SetTexture (skin_file) --> emenda que liga a bola a textura do centro
+	
 	self.baseframe.cabecalho.ball_r:SetTexture (skin_file) --> bola direita onde fica o botão de fechar
 	self.baseframe.cabecalho.top_bg:SetTexture (skin_file) --> top background
 	

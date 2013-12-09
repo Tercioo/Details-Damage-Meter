@@ -224,7 +224,7 @@ function _detalhes:ToolTipDead (instancia, morte, esta_barra)
 
 	if (battleress) then
 		--_table_insert (linhas, 2, {{"Interface\\AddOns\\Details\\images\\small_icons", .75, 1, 0, 1}, morte [6] .. " Morreu", "-- -- -- ", 100, {75/255, 75/255, 75/255, 1}, {noglow = true}}) --> localize-me
-		GameCooltip:AddSpecial ("line", 2, nil, morte [6] .. " Morreu", "-- -- -- ", 1, "white")
+		GameCooltip:AddSpecial ("line", 2, nil, morte [6] .. " " .. Loc ["STRING_TIME_OF_DEATH"] , "-- -- -- ", 1, "white")
 		GameCooltip:AddSpecial ("icon", 2, nil, "Interface\\AddOns\\Details\\images\\small_icons", 1, 1, nil, nil, .75, 1, 0, 1)
 		GameCooltip:AddSpecial ("statusbar", 2, nil, 100, 1, "darkgray", false)
 	else
@@ -842,41 +842,45 @@ function atributo_misc:ToolTipCC (instancia, numero, barra)
 	local meu_total = self ["cc_break"]
 	local habilidades = self.cc_break_spell_tables._ActorTable
 	
---> habilidade usada para dispelar
-	local meus_cc_breaks = {}
+	--> habilidade usada para tirar o CC
+
 	for _spellid, _tabela in _pairs (habilidades) do
-		meus_cc_breaks [#meus_cc_breaks+1] = {_spellid, _tabela.cc_break}
-	end
-	_table_sort (meus_cc_breaks, function(a, b) return a[2] > b[2] end)
-	
-	GameTooltip:AddLine (Loc ["STRING_SPELLS"]..":") 
-	if (#meus_cc_breaks > 0) then
-		for i = 1, _math_min (3, #meus_cc_breaks) do
-			local esta_habilidade = meus_cc_breaks[i]
-			local nome_magia, _, icone_magia = _GetSpellInfo (esta_habilidade[1])
-			GameCooltip:AddLine (nome_magia..": ", esta_habilidade[2].." (".._cstr("%.1f", esta_habilidade[2]/meu_total*100).."%)")
-			GameCooltip:AddIcon (icone_magia, nil, nil, 14, 14)
+		
+		--> quantidade
+		local nome_magia, _, icone_magia = _GetSpellInfo (_spellid)
+		GameCooltip:AddLine (nome_magia, _tabela.cc_break .. " (" .. _cstr ("%.1f", _tabela.cc_break / meu_total * 100) .. "%)")
+		GameCooltip:AddIcon (icone_magia, nil, nil, 14, 14)
+		GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
+		
+		--> o que quebrou
+		local quebrou_oque = _tabela.cc_break_oque
+		for spellid_quebrada, amt_quebrada in _pairs (_tabela.cc_break_oque) do 
+			local nome_magia, _, icone_magia = _GetSpellInfo (spellid_quebrada)
+			GameCooltip:AddLine (nome_magia..": ", amt_quebrada)
+			GameCooltip:AddIcon ([[Interface\Buttons\UI-GroupLoot-Pass-Down]], nil, 1, 14, 14)
+			GameCooltip:AddIcon (icone_magia, nil, 2, 14, 14)
+			GameCooltip:AddStatusBar (100, 1, 1, 0, 0, .2)
 		end
-	else
-		GameTooltip:AddLine (Loc ["STRING_NO_SPELL"])
-	end
-	
---> quais habilidades foram dispaladas
-	local buffs_dispelados = {}
-	for _spellid, amt in _pairs (self.cc_break_oque) do
-		buffs_dispelados [#buffs_dispelados+1] = {_spellid, amt}
-	end
-	_table_sort (buffs_dispelados, function(a, b) return a[2] > b[2] end)
-	
-	GameTooltip:AddLine (Loc ["STRING_CCBROKE"] .. ":") 
-	if (#buffs_dispelados > 0) then
-		for i = 1, _math_min (3, #buffs_dispelados) do
-			local esta_habilidade = buffs_dispelados[i]
-			local nome_magia, _, icone_magia = _GetSpellInfo (esta_habilidade[1])
-			GameCooltip:AddLine (nome_magia..": ", esta_habilidade[2].." (".._cstr("%.1f", esta_habilidade[2]/meu_total*100).."%)")
-			GameCooltip:AddIcon (icone_magia, nil, nil, 14, 14)
+		
+		--> em quem quebrou
+		--GameCooltip:AddLine (Loc ["STRING_TARGETS"] .. ":") 
+		for _, target in _ipairs (_tabela.targets._ActorTable) do
+		
+			GameCooltip:AddLine (target.nome..": ", target.total)
+			
+			local classe = _detalhes:GetClass (target.nome)
+			GameCooltip:AddIcon ([[Interface\AddOns\Details\images\espadas]], nil, 1, 14, 14)
+			if (classe) then	
+				GameCooltip:AddIcon ([[Interface\AddOns\Details\images\classes_small]], nil, 2, 14, 14, unpack (_detalhes.class_coords [classe]))
+			else
+				GameCooltip:AddIcon ("Interface\\LFGFRAME\\LFGROLE_BW", nil, 2, 14, 14, .25, .5, 0, 1)
+			end
+			
+			GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
+			
 		end
 	end
+	
 	
 	return true
 end
@@ -1881,14 +1885,17 @@ local sub_list = {"cc_break", "ress", "interrupt", "cooldowns_defensive", "dispe
 				local somar_alvos = function (container)
 					for index, alvo in _ipairs (actor [container]._ActorTable) do
 						--> cria e soma o valor do total
-						local alvo_shadow = shadow [container]:PegarCombatente (nil, alvo.nome, nil, true)
-						alvo_shadow.total = alvo_shadow.total + alvo.total
-						if (alvo.uptime) then --> boss debuff
-							alvo_shadow.uptime = alvo_shadow.uptime + alvo.uptime
-							alvo_shadow.activedamt = alvo_shadow.activedamt + alvo.activedamt
-						end
+						--if (shadow [container]) then -- index ?? a nil value
+							local alvo_shadow = shadow [container]:PegarCombatente (nil, alvo.nome, nil, true)
+							alvo_shadow.total = alvo_shadow.total + alvo.total
+							if (alvo.uptime) then --> boss debuff
+								alvo_shadow.uptime = alvo_shadow.uptime + alvo.uptime
+								alvo_shadow.activedamt = alvo_shadow.activedamt + alvo.activedamt
+							end
+						--end
 						--> refresh no alvo
 						_detalhes.refresh:r_alvo_da_habilidade (alvo, shadow [container])
+						
 					end
 				end
 			--> somar as habilidades do ator
@@ -1941,9 +1948,6 @@ local sub_list = {"cc_break", "ress", "interrupt", "cooldowns_defensive", "dispe
 					--> soma o total (captura de dados)
 						shadow.debuff_uptime = shadow.debuff_uptime + actor.debuff_uptime
 					--> copia o container de alvos (captura de dados)
-						if (actor.boss_debuff) then
-							actor.debuff_uptime_targets.tipo = _detalhes.container_type.CONTAINER_ENEMYDEBUFFTARGET_CLASS
-						end
 						somar_alvos ("debuff_uptime_targets", shadow)
 					--> copia o container de habilidades (captura de dados)
 						somar_habilidades ("debuff_uptime_spell_tables", shadow)
@@ -2117,10 +2121,19 @@ function _detalhes.refresh:r_atributo_misc (este_jogador, shadow)
 	--> refresh buff uptime
 	if (este_jogador.debuff_uptime_targets) then
 		--> constrói os containers na shadow se não existir
-			if (not shadow.debuff_uptime_spell_targets) then
+			if (not shadow.debuff_uptime_targets) then
 				shadow.debuff_uptime = 0
-				shadow.debuff_uptime_spell_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
-				shadow.debuff_uptime_spell_tables = container_habilidades:NovoContainer (_detalhes.container_type.CONTAINER_MISC_CLASS) --> cria o container das habilidades usadas para interromper
+				if (este_jogador.boss_debuff) then
+					shadow.debuff_uptime_targets = container_combatentes:NovoContainer (_detalhes.container_type.CONTAINER_ENEMYDEBUFFTARGET_CLASS)
+					shadow.boss_debuff = true
+					shadow.damage_twin = este_jogador.damage_twin
+					shadow.spellschool = este_jogador.spellschool
+					shadow.damage_spellid = este_jogador.damage_spellid
+					shadow.debuff_uptime = 0
+				else
+					shadow.debuff_uptime_targets = container_combatentes:NovoContainer (container_damage_target)
+				end
+				shadow.debuff_uptime_spell_tables = container_habilidades:NovoContainer (_detalhes.container_type.CONTAINER_MISC_CLASS)
 			end
 		--> recupera metas e indexes
 			_detalhes.refresh:r_container_combatentes (este_jogador.debuff_uptime_targets, shadow.debuff_uptime_targets)
@@ -2324,9 +2337,19 @@ atributo_misc.__add = function (tabela1, tabela2)
 	if (tabela2.debuff_uptime) then
 	
 		if (not tabela1.debuff_uptime) then
+		
+			if (tabela2.boss_debuff) then
+				tabela1.debuff_uptime_targets = container_combatentes:NovoContainer (_detalhes.container_type.CONTAINER_ENEMYDEBUFFTARGET_CLASS)
+				tabela1.boss_debuff = true
+				tabela1.damage_twin = tabela2.damage_twin
+				tabela1.spellschool = tabela2.spellschool
+				tabela1.damage_spellid = tabela2.damage_spellid
+			else
+				tabela1.debuff_uptime_targets = container_combatentes:NovoContainer (container_damage_target)
+			end
+			
 			tabela1.debuff_uptime = 0
-			tabela1.debuff_uptime_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
-			tabela1.debuff_uptime_spell_tables = container_habilidades:NovoContainer (container_misc) --> cria o container das habilidades usadas
+			tabela1.debuff_uptime_spell_tables = container_habilidades:NovoContainer (container_misc)
 		end
 	
 		tabela1.debuff_uptime = tabela1.debuff_uptime + tabela2.debuff_uptime

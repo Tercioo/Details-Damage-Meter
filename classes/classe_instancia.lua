@@ -1241,6 +1241,7 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 	local atributo_changed = false
 	
 	--> verifica possiveis valores não passados
+	
 	if (not segmento) then
 		segmento = instancia.segmento
 	end
@@ -1548,7 +1549,7 @@ function _detalhes:ChangeIcon (icon)
 			--> normal
 			local half = 0.00048828125
 			local size = 0.03125
-			self.baseframe.cabecalho.atributo_icon:SetTexture (_detalhes.skin_path .. skin.file)
+			self.baseframe.cabecalho.atributo_icon:SetTexture (skin.file)
 			self.baseframe.cabecalho.atributo_icon:SetTexCoord ( (0.03125 * (self.atributo-1)) + half, (0.03125 * self.atributo) - half, 0.35693359375, 0.38720703125)
 			
 			local icon_anchor = skin.icon_anchor_main
