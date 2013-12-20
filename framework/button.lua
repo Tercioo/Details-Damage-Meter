@@ -407,7 +407,7 @@ local ButtonMetaFunctions = {}
 	end
 
 --> custom textures
-	function ButtonMetaFunctions:InstallCustomTexture (texture, rect)
+	function ButtonMetaFunctions:InstallCustomTexture (texture, rect, coords)
 	
 		self.button:SetNormalTexture (nil)
 		self.button:SetPushedTexture (nil)
@@ -424,7 +424,13 @@ local ButtonMetaFunctions = {}
 			self.button.texture:SetPoint ("bottomright", self.button, "bottomright", rect.x2, rect.y2)
 		end
 		
-		self.button.texture:SetTexCoord (0, 1, 0, 0.24609375)
+		if (coords) then
+			self.button.texture.coords = coords
+			self.button.texture:SetTexCoord (_unpack (coords.Normal))
+		else
+			self.button.texture:SetTexCoord (0, 1, 0, 0.24609375)
+		end
+		
 		self.button.texture:SetTexture (texture)
 	end
 
@@ -440,8 +446,14 @@ local ButtonMetaFunctions = {}
 			end
 		end
 	
+		button.MyObject.is_mouse_over = true
+	
 		if (button.texture) then
-			button.texture:SetTexCoord (0, 1, 0.25+(0.0078125/2), 0.5+(0.0078125/2))
+			if (button.texture.coords) then
+				button.texture:SetTexCoord (_unpack (button.texture.coords.Highlight))
+			else
+				button.texture:SetTexCoord (0, 1, 0.24609375, 0.49609375)
+			end
 		end
 	
 		if (button.MyObject.have_tooltip) then 
@@ -466,10 +478,16 @@ local ButtonMetaFunctions = {}
 			end
 		end
 		
-		if (button.texture) then
-			button.texture:SetTexCoord (0, 1, 0, 0.24609375)
+		button.MyObject.is_mouse_over = false
+		
+		if (button.texture and not button.MyObject.is_mouse_down) then
+			if (button.texture.coords) then
+				button.texture:SetTexCoord (_unpack (button.texture.coords.Normal))
+			else		
+				button.texture:SetTexCoord (0, 1, 0, 0.24609375)
+			end
 		end
-	
+		
 		if (button.MyObject.have_tooltip) then 
 			_detalhes.popup:ShowMe (false)
 		end
@@ -512,6 +530,16 @@ local ButtonMetaFunctions = {}
 			end
 		end
 		
+		button.MyObject.is_mouse_down = true
+		
+		if (button.texture) then
+			if (button.texture.coords) then
+				button.texture:SetTexCoord (_unpack (button.texture.coords.Pushed))
+			else		
+				button.texture:SetTexCoord (0, 1, 0.5078125, 0.75)
+			end
+		end
+		
 		button.text:SetPoint ("center", button,"center", 1, -1)
 
 		button.mouse_down = GetTime()
@@ -548,7 +576,25 @@ local ButtonMetaFunctions = {}
 				return
 			end
 		end
+		
+		button.MyObject.is_mouse_down = false
 
+		if (button.texture) then
+			if (button.texture.coords) then
+				if (button.MyObject.is_mouse_over) then
+					button.texture:SetTexCoord (_unpack (button.texture.coords.Highlight))
+				else
+					button.texture:SetTexCoord (_unpack (coords.Normal))
+				end
+			else	
+				if (button.MyObject.is_mouse_over) then
+					button.texture:SetTexCoord (0, 1, 0.24609375, 0.49609375)
+				else
+					button.texture:SetTexCoord (0, 1, 0, 0.24609375)
+				end
+			end
+		end
+		
 		button.text:SetPoint ("center", button,"center", 0, 0)
 		
 		if (button.MyObject.container.isMoving) then

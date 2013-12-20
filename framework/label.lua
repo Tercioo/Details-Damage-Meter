@@ -130,6 +130,17 @@ local LabelMetaFunctions = {}
 		end
 		return _object.label:SetJustifyH (_value)
 	end
+	--> text valign
+	local smember_textvalign = function (_object, _value)
+		if (_value == "^") then
+			_value = "top"
+		elseif (_value == "_") then
+			_value = "bottom"
+		elseif (_value == "|") then
+			_value = "middle"
+		end
+		return _object.label:SetJustifyV (_value)
+	end
 	--> field size width
 	local smember_width = function (_object, _value)
 		return _object.label:SetWidth (_value)
@@ -138,11 +149,16 @@ local LabelMetaFunctions = {}
 	local smember_height = function (_object, _value)
 		return _object.label:SetHeight (_value)
 	end
+	--> outline (shadow)
+	local smember_outline = function (_object, _value)
+		_detalhes:SetFontOutline (_object.label, _value)
+	end
 	
 	local set_members_function_index = {
 		["show"] = smember_show,
 		["hide"] = smember_hide,
 		["align"] = smember_textalign,
+		["valign"] = smember_textvalign,
 		["text"] = smember_text,
 		["width"] = smember_width,
 		["height"] = smember_height,
@@ -152,7 +168,8 @@ local LabelMetaFunctions = {}
 		["fontsize"] = smember_textsize,
 		["textcolor"] = smember_textcolor,
 		["textfont"] = smember_textfont,
-		["textsize"] = smember_textsize
+		["textsize"] = smember_textsize,
+		["shadow"] = smember_outline
 	}
 	
 	LabelMetaFunctions.__newindex = function (_table, _key, _value)

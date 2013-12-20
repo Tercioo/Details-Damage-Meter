@@ -287,6 +287,18 @@
 			_detalhes:SendEvent ("COMBAT_PLAYER_ENTER", nil, _detalhes.tabela_vigente)
 			
 		end
+		
+		function _detalhes:DelayedSyncAlert()
+			local lower_instance = _detalhes:GetLowerInstanceNumber()
+			if (lower_instance) then
+				lower_instance = _detalhes:GetInstance (lower_instance)
+				if (lower_instance) then
+					if (not lower_instance:HaveInstanceAlert()) then
+						lower_instance:InstanceAlert (Loc ["STRING_EQUILIZING"], {[[Interface\COMMON\StreamCircle]], 22, 22, true}, 5, {function() end})
+					end
+				end
+			end
+		end
 
 		function _detalhes:SairDoCombate (bossKilled)
 
@@ -365,13 +377,7 @@
 					--> schedule sync
 					_detalhes:EqualizeActorsSchedule (_detalhes.host_of)
 					if (_detalhes:GetEncounterEqualize (_detalhes.tabela_vigente.is_boss.mapid, _detalhes.tabela_vigente.is_boss.index)) then
-						local lower_instance = _detalhes:GetLowerInstanceNumber()
-						if (lower_instance) then
-							lower_instance = _detalhes:GetInstance (lower_instance)
-							if (lower_instance) then
-								lower_instance:InstanceAlert (Loc ["STRING_EQUILIZING"], {[[Interface\COMMON\StreamCircle]], 22, 22, true}, 5)
-							end
-						end
+						_detalhes:ScheduleTimer ("DelayedSyncAlert", 3)
 					end
 					
 					--> schedule clean up

@@ -3,7 +3,7 @@ if not Loc then return end
 
 --------------------------------------------------------------------------------------------------------------------------------------------
 -- \n\n|cFFFFFF00-|r 
-	Loc ["STRING_VERSION_LOG"] = "|cFFFFFF00v1.7.0|r\n\n- Fixed some colors issues with enimies bars.\n\n|cFFFFFF00-|r Fixed some phrases which isn't still not translated to enUS.\n\n|cFFFFFF00-|r Major rewrite on CC-Breaks, now it's working properly.\n\n|cFFFFFF00-|r Added new sub attribute for damage: Voidzones & Debuffs.|cFFFFFF00v1.6.7|r\n\n- Added support to skins, you can change over options panel.\n\n|cFFFFFF00v1.6.5|r\n\n|cFFFFFF00-|r Added sub attribute 'Enemies' which shows, of course, only enemies.\n\n|cFFFFFF00-|r Fixed issue with successful spell cast.\n\n|cFFFFFF00v1.6.3|r\n\n|cFFFFFF00-|r data capture now runs 4% faster.\n\n|cFFFFFF00-|r Fixed issue with pets were wasn't uptading owner activity time.\n\n|cFFFFFF00-|r Fixed healing being counted even out of combat.\n\n|cFFFFFF00-|r Fixed some problems with multi-boss encountes like Twin Consorts.\n\n|cFFFFFF00-|r Added options for concatenate trash segments.\n\n|cFFFFFF00-|r Added options for auto remove trash segments. \n\n|cFFFFFF00-|r Added options for change bar height. \n\n|cFFFFFF00-|r Encounter Details now display how many interrupted and successful cast of a boss skill.\n\n|cFFFFFF00v1.6.1|r\n\n|cFFFFFF00-|r Fixed:\n- a issue with debuff uptime.\n- overall data dps and hps for overall data on micro display.\n- many bugs involving sword and book menus.\n- garbage collector erasing actors with interactions with your group members.\n\n|cFFFFFF00-|r overall data now always use the combat data for measure dps and hps.\n\n|cFFFFFF00v1.6.0|r\n\n|cFFFFFF00-|r Added debuff uptime at misc attribute.\n\n|cFFFFFF00-|r Disabled attributes now have a darkness effect over sword menu.\n\n|cFFFFFF00-|r Fixed a issue were sometimes you need to /reload before change a talent.\n\n|cFFFFFF00v1.5.3|r\n\n|cFFFFFF00-|r Fixed a issue with report data during combat lockdown.\n\n|cFFFFFF00-|r Improved pet owner recognition and added a ignore list if couldn't find his owner.\n\n|cFFFFFF00-|r Added an option to display only frags on enemy players.\n\n|cFFFFFF00-|r Added class colors for frags.\n\n|cFFFFFF00v1.5.2|r\n\n|cFFFFFF00-|r Fixed a issue were turning off buff uptime was disabling healing done too.\n\n|cFFFFFF00-|r Avoidance statistics will not be recorded for pets, ungrouped players and monsters.\n\n|cFFFFFF00-|r Fixed a issue were sometimes buff uptime was taking too long to save data on logout.\n\n|cFFFFFF00v1.5.1|r\n\n|cFFFFFF00-|r Fixed a issue with report data were sometimes wasn't working.\n\n|cFFFFFF00v1.5.0|r\n\n|cFFFFFF00-|r Buff Uptime was been implemented over Miscellaneous attribute.\n\n|cFFFFFF00-|r Death Logs now also display cooldowns and last cooldown used.\n\n|cFFFFFF00-|r Added this window showing the latest changes.\n\n|cFFFFFF00-|r Fixed the issue were sometimes the instance stops to update when clicking on the attribute name over sword menu.\n\n|cFFFFFF00-|r Disabling Healing now shutdown the absorbs too, disabling auras doesn't interrupt absorbs any more.\n\n|cFFFFFF00-|r Friendly Fire now only track players which is inside a group.\n\n|cFFFFFF00-|r Fixed a issue were pet damage on target isn't added to owner target.\n\n|cFFFFFF00-|r Fixed a bug were refreshing a cooldown isn't counting.\n\n|cFFFFFF00-|r Added absorbs for shammy and monk 2P tier 16.\n\n|cFFFFFF00-|r Added slash command 'worldboss' and 'updates'.\n\n"
+	Loc ["STRING_VERSION_LOG"] = "|cFFFFFF00v1.8.0|r\n\n- Added a new plugin: You Are Not Prepared.\n\n|cFFFFFF00-|r New options panel!\n\n|cFFFFFF00v1.7.0|r\n\n- Fixed some colors issues with enimies bars.\n\n|cFFFFFF00-|r Fixed some phrases which isn't still not translated to enUS.\n\n|cFFFFFF00-|r Major rewrite on CC-Breaks, now it's working properly.\n\n|cFFFFFF00-|r Added new sub attribute for damage: Voidzones & Debuffs.|cFFFFFF00v1.6.7|r\n\n- Added support to skins, you can change over options panel.\n\n|cFFFFFF00v1.6.5|r\n\n|cFFFFFF00-|r Added sub attribute 'Enemies' which shows, of course, only enemies.\n\n|cFFFFFF00-|r Fixed issue with successful spell cast.\n\n|cFFFFFF00v1.6.3|r\n\n|cFFFFFF00-|r data capture now runs 4% faster.\n\n|cFFFFFF00-|r Fixed issue with pets were wasn't uptading owner activity time.\n\n|cFFFFFF00-|r Fixed healing being counted even out of combat.\n\n|cFFFFFF00-|r Fixed some problems with multi-boss encountes like Twin Consorts.\n\n|cFFFFFF00-|r Added options for concatenate trash segments.\n\n|cFFFFFF00-|r Added options for auto remove trash segments. \n\n|cFFFFFF00-|r Added options for change bar height. \n\n|cFFFFFF00-|r Encounter Details now display how many interrupted and successful cast of a boss skill.\n\n|cFFFFFF00v1.6.1|r\n\n|cFFFFFF00-|r Fixed:\n- a issue with debuff uptime.\n- overall data dps and hps for overall data on micro display.\n- many bugs involving sword and book menus.\n- garbage collector erasing actors with interactions with your group members.\n\n|cFFFFFF00-|r overall data now always use the combat data for measure dps and hps.\n\n|cFFFFFF00v1.6.0|r\n\n|cFFFFFF00-|r Added debuff uptime at misc attribute.\n\n|cFFFFFF00-|r Disabled attributes now have a darkness effect over sword menu.\n\n|cFFFFFF00-|r Fixed a issue were sometimes you need to /reload before change a talent.\n\n|cFFFFFF00v1.5.3|r\n\n|cFFFFFF00-|r Fixed a issue with report data during combat lockdown.\n\n|cFFFFFF00-|r Improved pet owner recognition and added a ignore list if couldn't find his owner.\n\n|cFFFFFF00-|r Added an option to display only frags on enemy players.\n\n|cFFFFFF00-|r Added class colors for frags.\n\n|cFFFFFF00v1.5.2|r\n\n|cFFFFFF00-|r Fixed a issue were turning off buff uptime was disabling healing done too.\n\n|cFFFFFF00-|r Avoidance statistics will not be recorded for pets, ungrouped players and monsters.\n\n|cFFFFFF00-|r Fixed a issue were sometimes buff uptime was taking too long to save data on logout.\n\n|cFFFFFF00v1.5.1|r\n\n|cFFFFFF00-|r Fixed a issue with report data were sometimes wasn't working.\n\n|cFFFFFF00v1.5.0|r\n\n|cFFFFFF00-|r Buff Uptime was been implemented over Miscellaneous attribute.\n\n|cFFFFFF00-|r Death Logs now also display cooldowns and last cooldown used.\n\n|cFFFFFF00-|r Added this window showing the latest changes.\n\n|cFFFFFF00-|r Fixed the issue were sometimes the instance stops to update when clicking on the attribute name over sword menu.\n\n|cFFFFFF00-|r Disabling Healing now shutdown the absorbs too, disabling auras doesn't interrupt absorbs any more.\n\n|cFFFFFF00-|r Friendly Fire now only track players which is inside a group.\n\n|cFFFFFF00-|r Fixed a issue were pet damage on target isn't added to owner target.\n\n|cFFFFFF00-|r Fixed a bug were refreshing a cooldown isn't counting.\n\n|cFFFFFF00-|r Added absorbs for shammy and monk 2P tier 16.\n\n|cFFFFFF00-|r Added slash command 'worldboss' and 'updates'.\n\n"
 
 	Loc ["STRING_DETAILS1"] = "|cffffaeaeDetails:|r " --> color and details name
 
@@ -344,10 +344,6 @@ if not Loc then return end
 	Loc ["STRING_HELP_MODEGROUP"] = "Use this option to display only you or players which are in your group or raid."
 	Loc ["STRING_HELP_MODEALL"] = "This mode will show every player, npc, boss with data captured by Details!."
 	Loc ["STRING_HELP_MODERAID"] = "The raid mode is the opposite of self mode, this plugins are intended to work with data captured from your group. You can change the plugin on sword menu."
-
-
-	
---O modo sozinho possui plugins que irão trabalhar apenas em cima dos dados capturados do seu personagem, como o dano que ele causa, os buffs e debuffs que ele possui, entre outros.	
 	
 --> misc
 	
@@ -363,7 +359,168 @@ if not Loc then return end
 	
 	
 	
+-- OPTIONS PANEL -----------------------------------------------------------------------------------------------------------------
+
+	Loc ["STRING_OPTIONS_SWITCHINFO"] = "|cFFF79F81 LEFT DISABLED|r  |cFF81BEF7 RIGHT ENABLED|r"
 	
+	Loc ["STRING_OPTIONS_PICKCOLOR"] = "color"
+	Loc ["STRING_OPTIONS_EDITIMAGE"] = "Edit Image"
+	
+	Loc ["STRING_OPTIONS_PRESETTOOLD"] = "This preset requires a newer version of Details!."
+	Loc ["STRING_OPTIONS_PRESETNONAME"] = "Give a name to your preset."
+	
+	Loc ["STRING_OPTIONS_EDITINSTANCE"] = "Editing Instance:"
+	
+	Loc ["STRING_OPTIONS_GENERAL"] = "General Settings"
+	Loc ["STRING_OPTIONS_APPEARANCE"] = "Appearance"
+	Loc ["STRING_OPTIONS_PERFORMANCE"] = "Performance"
+	Loc ["STRING_OPTIONS_SOCIAL"] = "Social"
+	Loc ["STRING_OPTIONS_SOCIAL_DESC"] = "Tell how do you want to be known in your guild enviorement."
+	Loc ["STRING_OPTIONS_NICKNAME"] = "Nickname"
+	Loc ["STRING_OPTIONS_NICKNAME_DESC"] = "Type your nickname in this box. The chosen nickname will be broadcasted for members of your guild and Details! shown it instead of your character name."
+	Loc ["STRING_OPTIONS_AVATAR"] = "Choose Avatar"
+	Loc ["STRING_OPTIONS_AVATAR_DESC"] = "Your avatar is also broadcasted for your guild mates and Details! show it on the top of tooltips when you mouse over a bar."
+	Loc ["STRING_OPTIONS_REALMNAME"] = "Remove Realm Name"
+	Loc ["STRING_OPTIONS_REALMNAME_DESC"] = "When enabled, the realm name of character isn't displayed with his name.\n\n|cFFFFFFFFExample:|r\n\nCharles-Netherwing |cFFFFFFFF(disabled)|r\nCharles |cFFFFFFFF(enabled)|r"
+	
+	Loc ["STRING_OPTIONS_MAXSEGMENTS"] = "Max. Segments"
+	Loc ["STRING_OPTIONS_MAXSEGMENTS_DESC"] = "This option control how many segments you want to maintain.\n\nRecommended value is |cFFFFFFFF12|r, but feel free to adjust this number to be comfortable for you.\n\nComputers with |cFFFFFFFF2GB|r or less memory ram should keep low segments amount, this can help your system overall."
+	
+	Loc ["STRING_OPTIONS_SCROLLBAR"] = "Scroll Bar"
+	Loc ["STRING_OPTIONS_SCROLLBAR_DESC"] = "Enable ou Disable the scroll bar.\n\nBy default, Details! scroll bars are replaced by a mechanism that stretches the window.\n\nThe |cFFFFFFFFstretch handle|r is outside over instances button/menu (left of close button)."
+	Loc ["STRING_OPTIONS_MAXINSTANCES"] = "Max. Instances"
+	Loc ["STRING_OPTIONS_MAXINSTANCES_DESC"] = "Limit the number of Details! instances which can be created.\n\nYou can open and re-open instances clicking on the instance button |cFFFFFFFF#X|r."
+	Loc ["STRING_OPTIONS_PVPFRAGS"] = "Only Pvp Frags"
+	Loc ["STRING_OPTIONS_PVPFRAGS_DESC"] = "When enabled, only kills against enemy players will be count."
+	Loc ["STRING_OPTIONS_TIMEMEASURE"] = "Time Measure"
+	Loc ["STRING_OPTIONS_TIMEMEASURE_DESC"] = "|cFFFFFFFFActivity|r: the timer of each raid member is put on hold if his activity is ceased and back again to count when is resumed, common way of mensure Dps and Hps.\n\n|cFFFFFFFFEffective|r: used on rankings, this method uses the elapsed combat time for mensure the Dps and Hps of all raid members."
+	
+	Loc ["STRING_OPTIONS_PERFORMANCE1"] = "Performance Tweaks"
+	Loc ["STRING_OPTIONS_PERFORMANCE1_DESC"] = "This options can help save some cpu usage."
+	
+	Loc ["STRING_OPTIONS_MEMORYT"] = "Memory Threshold"
+	Loc ["STRING_OPTIONS_MEMORYT_DESC"] = "Details! have internal mechanisms to handle memory and try adjust it self within the amount of memory avaliable on your system.\n\nAlso is recommeded keep the amount of segments low on systems with |cFFFFFFFF2GB|r or less of memory."
+	
+	Loc ["STRING_OPTIONS_SEGMENTSSAVE"] = "Segments Saved"
+	Loc ["STRING_OPTIONS_SEGMENTSSAVE_DESC"] = "This options controls how many segments you wish save between game sesions.\n\nHigh values can make your character logoff take more time\n\nIf you rarelly use the data of last day, it`s high recommeded leave this option in |cFFFFFFFF1|r."
+	
+	Loc ["STRING_OPTIONS_PANIMODE"] = "Panic Mode"
+	Loc ["STRING_OPTIONS_PANIMODE_DESC"] = "When enabled and you got dropped from the game (by a disconnect, for instance) and you are fighting against a boss encounter, all segments are erased, this make your logoff process faster."
+	
+	Loc ["STRING_OPTIONS_ANIMATEBARS"] = "Animate Bars"
+	Loc ["STRING_OPTIONS_ANIMATEBARS_DESC"] = "Instead of 'jumping' all bars moves to the left or right when this options is activated."
+	
+	Loc ["STRING_OPTIONS_ANIMATESCROLL"] = "Animate Scroll Bar"
+	Loc ["STRING_OPTIONS_ANIMATESCROLL_DESC"] = "When enabled, scrollbar uses a animation when showing up or hiding."
+	
+	Loc ["STRING_OPTIONS_WINDOWSPEED"] = "Update Speed"
+	Loc ["STRING_OPTIONS_WINDOWSPEED_DESC"] = "Seconds between each update on instances (opened windows).\n\n|cFFFFFFFF0.3|r: update about 3 times each second.\n\n|cFFFFFFFF3.0|r: update once every 3 seconds."
+	
+	Loc ["STRING_OPTIONS_CLEANUP"] = "Auto Erase Cleanup Segments"
+	Loc ["STRING_OPTIONS_CLEANUP_DESC"] = "Segments with trash mobs' are considered clean up segments.\n\nThis option enable the auto erase of this segments when possible."
+	
+	Loc ["STRING_OPTIONS_PERFORMANCECAPTURES"] = "Data Collector"
+	Loc ["STRING_OPTIONS_PERFORMANCECAPTURES_DESC"] = "This options are responsible for analysis and collect combat data."
+	
+	
+	Loc ["STRING_OPTIONS_CDAMAGE"] = "Collect Damage"
+	Loc ["STRING_OPTIONS_CHEAL"] = "Collect Heal"
+	Loc ["STRING_OPTIONS_CENERGY"] = "Collect Energy"
+	Loc ["STRING_OPTIONS_CMISC"] = "Collect Misc"
+	Loc ["STRING_OPTIONS_CAURAS"] = "Collect Auras"
+	
+	Loc ["STRING_OPTIONS_CDAMAGE_DESC"] = "Enable capture of:\n\n- |cFFFFFFFFDamage Done|r\n- |cFFFFFFFFDamage Per Second|r\n- |cFFFFFFFFFriendly Fire|r\n- |cFFFFFFFFDamage Taken|r"
+	Loc ["STRING_OPTIONS_CHEAL_DESC"] = "Enable capture of:\n\n- |cFFFFFFFFHealing Done|r\n- |cFFFFFFFFAbsorbs|r\n- |cFFFFFFFFHealing Per Second|r\n- |cFFFFFFFFOverhealing|r\n- |cFFFFFFFFHealing Taken|r\n- |cFFFFFFFFEnemy Healed|r\n- |cFFFFFFFFDamage Prevented|r"
+	Loc ["STRING_OPTIONS_CENERGY_DESC"] = "Enable capture of:\n\n- |cFFFFFFFFMana Restored|r\n- |cFFFFFFFFRage Generated|r\n- |cFFFFFFFFEnergy Generated|r\n- |cFFFFFFFFRunic Power Generated|r"
+	Loc ["STRING_OPTIONS_CMISC_DESC"] = "Enable capture of:\n\n- |cFFFFFFFFCrowd Control Break|r\n- |cFFFFFFFFDispells|r\n- |cFFFFFFFFInterrupts|r\n- |cFFFFFFFFResurrection|r\n- |cFFFFFFFFDeaths|r"
+	Loc ["STRING_OPTIONS_CAURAS_DESC"] = "Enable capture of:\n\n- |cFFFFFFFFBuffs Uptime|r\n- |cFFFFFFFFDebuffs Uptime|r\n- |cFFFFFFFFVoid Zones|r\n-|cFFFFFFFF Cooldowns|r"
+	
+	Loc ["STRING_OPTIONS_CLOUD"] = "Cloud Capture"
+	Loc ["STRING_OPTIONS_CLOUD_DESC"] = "When enabled, the data of disabled collectors are collected within others raid members."
+	
+	
+	Loc ["STRING_OPTIONS_BARS"] = "Bar Settings"
+	Loc ["STRING_OPTIONS_BARS_DESC"] = "This options control the appearance of the instance bars."
 
+	Loc ["STRING_OPTIONS_BAR_TEXTURE"] = "Texture"
+	Loc ["STRING_OPTIONS_BAR_TEXTURE_DESC"] = "Choose the texture of bars."
+	
+	Loc ["STRING_OPTIONS_BAR_BTEXTURE"] = "Background Texture"
+	Loc ["STRING_OPTIONS_BAR_BTEXTURE_DESC"] = "Choose the background texture of bars."
+	
+	Loc ["STRING_OPTIONS_BAR_BCOLOR"] = "Background Color"
+	Loc ["STRING_OPTIONS_BAR_BCOLOR_DESC"] = "Choose the background color of bars."
+	
+	Loc ["STRING_OPTIONS_BAR_HEIGHT"] = "Height"
+	Loc ["STRING_OPTIONS_BAR_HEIGHT_DESC"] = "Change the height of bars."
+	
+	Loc ["STRING_OPTIONS_BAR_COLORBYCLASS"] = "Color By Class"
+	Loc ["STRING_OPTIONS_BAR_COLORBYCLASS_DESC"] = "When enabled, the instance bars have the color of the character class.\n\nDisabled: bars have a fixed color."
+	
+	Loc ["STRING_OPTIONS_BAR_COLORBYCLASS2"] = "Background Color By Class"
+	Loc ["STRING_OPTIONS_BAR_COLORBYCLASS2_DESC"] = "When enabled, the instance bars  background have the color of the character class.\n\nDisabled: bars have a fixed color."
+	--
+	Loc ["STRING_OPTIONS_TEXT"] = "Text Settings"
+	Loc ["STRING_OPTIONS_TEXT_DESC"] = "This options control the appearance of the instance bar texts."
+	
+	Loc ["STRING_OPTIONS_TEXT_SIZE"] = "Size"
+	Loc ["STRING_OPTIONS_TEXT_SIZE_DESC"] = "Change the size of bar texts."
+	
+	Loc ["STRING_OPTIONS_TEXT_FONT"] = "Font"
+	Loc ["STRING_OPTIONS_TEXT_FONT_DESC"] = "Change the font of bar texts."
+	
+	Loc ["STRING_OPTIONS_TEXT_LOUTILINE"] = "Left Text Outline"
+	Loc ["STRING_OPTIONS_TEXT_LOUTILINE_DESC"] = "Enable or Disable the outline for left text."
+	
+	Loc ["STRING_OPTIONS_TEXT_ROUTILINE"] = "Right Text Outline"
+	Loc ["STRING_OPTIONS_TEXT_ROUTILINE_DESC"] = "Enable or Disable the outline for right text."
+	
+	Loc ["STRING_OPTIONS_TEXT_LCLASSCOLOR"] = "Left Text Color By Class"
+	Loc ["STRING_OPTIONS_TEXT_LCLASSCOLOR_DESC"] = "When enabled, the left text uses the class color of the character.\n\nIf disabled, choose the color on the color picker button."
+	
+	Loc ["STRING_OPTIONS_TEXT_RCLASSCOLOR"] = "Right Text Color By Class"
+	Loc ["STRING_OPTIONS_TEXT_RCLASSCOLOR_DESC"] = "When enabled, the right text uses the class color of the character.\n\nIf disabled, choose the color on the color picker button."
+	--
+	Loc ["STRING_OPTIONS_INSTANCE"] = "Instance Settings"
+	Loc ["STRING_OPTIONS_INSTANCE_DESC"] = "This options control the appearance of the instance it self."
+	
+	Loc ["STRING_OPTIONS_INSTANCE_COLOR"] = "Color"
+	Loc ["STRING_OPTIONS_INSTANCE_COLOR_DESC"] = "Change the color of instance window."
+	
+	Loc ["STRING_OPTIONS_INSTANCE_ALPHA"] = "Alpha"
+	Loc ["STRING_OPTIONS_INSTANCE_ALPHA_DESC"] = "This option let you change the color and transparency of instance window background."
+	
+	Loc ["STRING_OPTIONS_INSTANCE_CURRENT"] = "Auto Switch To Current"
+	Loc ["STRING_OPTIONS_INSTANCE_CURRENT_DESC"] = "Whenever a combat start and there is no other instance on current segment, this instance auto switch to current segment."
 
+	Loc ["STRING_OPTIONS_INSTANCE_SKIN"] = "Skin"
+	Loc ["STRING_OPTIONS_INSTANCE_SKIN_DESC"] = "Modify all window textures based on a skin theme."
+	
+	Loc ["STRING_OPTIONS_WP"] = "Wallpaper Settings"
+	Loc ["STRING_OPTIONS_WP_DESC"] = "This options control the wallpaper of instance."
+	
+	Loc ["STRING_OPTIONS_WP_ENABLE"] = "Show"
+	Loc ["STRING_OPTIONS_WP_ENABLE_DESC"] = "Enable or Disable the wallpaper of the instance.\n\nSelect the category and the image you want on the two following boxes."
+	
+	Loc ["STRING_OPTIONS_WP_GROUP"] = "Category"
+	Loc ["STRING_OPTIONS_WP_GROUP_DESC"] = "In this box, you select the group of the wallpaper, the images of this category can be chosen on the next dropbox."
+	
+	Loc ["STRING_OPTIONS_WP_GROUP2"] = "Wallpaper"
+	Loc ["STRING_OPTIONS_WP_GROUP2_DESC"] = "Select the wallpaper, for more, choose a diferent category on the left dropbox."
+	
+	Loc ["STRING_OPTIONS_WP_ALIGN"] = "Align"
+	Loc ["STRING_OPTIONS_WP_ALIGN_DESC"] = "Select how the wallpaper will align within the window instance.\n\n- |cFFFFFFFFFill|r: auto resize and align with all corners.\n\n- |cFFFFFFFFCenter|r: doesn`t resize and align with the center of the window.\n\n-|cFFFFFFFFStretch|r: auto resize on vertical or horizontal and align with left-right or top-bottom sides.\n\n-|cFFFFFFFFFour Corners|r: align with specified corner, no auto resize is made."
+	
+	Loc ["STRING_OPTIONS_WP_EDIT"] = "Edit Image"
+	Loc ["STRING_OPTIONS_WP_EDIT_DESC"] = "Open the image editor to change some wallpaper aspects."
+
+	Loc ["STRING_OPTIONS_SAVELOAD"] = "Save and Load"
+	Loc ["STRING_OPTIONS_SAVELOAD_DESC"] = "This options allow you to save or load predefined settings."
+	
+	Loc ["STRING_OPTIONS_SAVELOAD_PNAME"] = "Preset Name"
+	Loc ["STRING_OPTIONS_SAVELOAD_SAVE"] = "save"
+	Loc ["STRING_OPTIONS_SAVELOAD_LOAD"] = "load"
+	Loc ["STRING_OPTIONS_SAVELOAD_REMOVE"] = "x"
+	Loc ["STRING_OPTIONS_SAVELOAD_RESET"] = "reset to default"
+	Loc ["STRING_OPTIONS_SAVELOAD_APPLYTOALL"] = "apply to all instances"
 

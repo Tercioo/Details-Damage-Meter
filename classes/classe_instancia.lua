@@ -2067,9 +2067,9 @@ function _detalhes:envia_relatorio (linhas, custom)
 	end
 	
 	if (_detalhes.time_type == 2) then
-		linhas[1] = linhas[1] .. " (Co)"
+		linhas[1] = linhas[1] .. " (Ef)"
 	else
-		linhas[1] = linhas[1] .. " (Cr)"
+		linhas[1] = linhas[1] .. " (Ac)"
 	end
 	
 	local editbox = _detalhes.janela_report.editbox

@@ -596,7 +596,6 @@ local siege_of_orgrimmar = {
 		[6] = {
 			boss =	"Iron Juggernaut",
 			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Iron Juggernaut]],
-
 			combat_end = {1, 71466},
 			
 			spell_mechanics = {
@@ -1030,7 +1029,7 @@ local siege_of_orgrimmar = {
 		[11] = {
 			boss =	"Thok the Bloodthirsty",
 			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Thok the Bloodthirsty]],
-
+			
 			combat_end = {1, 71529},
 			
 			spell_mechanics = {

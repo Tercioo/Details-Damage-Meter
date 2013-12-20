@@ -103,7 +103,9 @@
 		local _in_combat = false
 	--> hooks
 		local _hook_cooldowns = false
+		local _hook_deaths = false
 		local _hook_cooldowns_container = _detalhes.hooks ["HOOK_COOLDOWN"]
+		local _hook_deaths_container = _detalhes.hooks ["HOOK_DEATH"]
 	
 
 
@@ -2226,6 +2228,20 @@
 
 				_table_sort (esta_morte, _detalhes.Sort4)
 				
+				if (_hook_deaths) then
+					--> send event to registred functions
+					local death_at = _tempo - _current_combat.start_time
+					local max_health = _UnitHealthMax (alvo_name)
+					
+					local new_death_table = {}
+					for index, t in _ipairs (esta_morte) do 
+						new_death_table [index] = t
+					end
+					for _, func in _ipairs (_hook_deaths_container) do 
+						func (nil, token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, new_death_table, este_jogador.last_cooldown, death_at, max_health)
+					end
+				end				
+				
 				if (_detalhes.deadlog_limit and #esta_morte > _detalhes.deadlog_limit) then 
 					for i = #esta_morte, _detalhes.deadlog_limit+1, -1 do
 						_table_remove (esta_morte, i)
@@ -2265,7 +2281,7 @@
 				--> reseta a pool
 				dano.last_events_table =  _detalhes:CreateActorLastEventTable()
 				cura.last_events_table =  _detalhes:CreateActorLastEventTable()
-				
+
 			end
 		end
 	end
@@ -2735,6 +2751,12 @@
 			_hook_cooldowns = true
 		else
 			_hook_cooldowns = false
+		end
+		
+		if (_detalhes.hooks ["HOOK_DEATH"].enabled) then
+			_hook_deaths = true
+		else
+			_hook_deaths = false
 		end
 
 		return _detalhes:ClearParserCache()

@@ -397,7 +397,7 @@ local APIFrameFunctions
 				frame.isMoving = true
 				frame:StartMoving()
 			end
-			
+		
 		elseif (not frame.MyObject.container.isLocked and frame.MyObject.container:IsMovable()) then
 			if (not frame.isLocked and frame:IsMovable()) then
 				frame.MyObject.container.isMoving = true
@@ -431,7 +431,7 @@ local APIFrameFunctions
 				frame.MyObject.container.isMoving = false
 			end
 		end
-	end	
+	end
 	
 ------------------------------------------------------------------------------------------------------------
 --> object constructor

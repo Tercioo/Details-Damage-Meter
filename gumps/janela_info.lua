@@ -669,6 +669,7 @@ local function cria_container_alvos (este_gump)
 	este_gump.container_alvos = container_alvos_window
 end
 
+--> search key: ~create
 function gump:CriaJanelaInfo()
 
 	--> cria a janela em si

@@ -6,11 +6,13 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 	--[[global]] DETAILS_HOOK_COOLDOWN = "HOOK_COOLDOWN"
+	--[[global]] DETAILS_HOOK_DEATH = "HOOK_DEATH"
 	
 	local _detalhes = _G._detalhes
 	local _
 	
 	_detalhes.hooks ["HOOK_COOLDOWN"] = {}
+	_detalhes.hooks ["HOOK_DEATH"] = {}
 	
 	function _detalhes:InstallHook (hook_type, func)
 	

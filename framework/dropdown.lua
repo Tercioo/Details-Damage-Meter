@@ -239,7 +239,7 @@ local DropDownMetaFunctions = {}
 	end
 
 --> frame stratas
-	function DropDownMetaFunctions:SetFrameStrata()
+	function DropDownMetaFunctions:GetFrameStrata()
 		return self.dropdown:GetFrameStrata()
 	end
 	function DropDownMetaFunctions:SetFrameStrata (strata)
@@ -422,6 +422,13 @@ function DetailsDropDownOnMouseDown (button)
 			local scrollBorder = _G [button:GetName() .. "_Border"]
 			local selectedTexture = _G [button:GetName() .. "_ScrollFrame_ScrollChild_SelectedTexture"]
 			local mouseOverTexture = _G [button:GetName() .. "_ScrollFrame_ScrollChild_MouseOverTexture"]
+			
+			--scrollFrame:SetFrameStrata ("DIALOG")
+			--scrollBorder:SetFrameStrata ("DIALOG")
+			--scrollChild:SetFrameStrata ("DIALOG")
+			
+			--print (scrollFrame:GetFrameStrata())
+			--print (_G ["DetailsOptionsWindow1FragsPvpSlider"]:GetFrameStrata())
 			
 			local i = 1
 			local showing = 0

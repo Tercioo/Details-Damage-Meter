@@ -68,7 +68,10 @@ end
 	
 	local COORDS_SLIDER_TOP = {0.00146484375, 0.03173828125, 0.00244140625, 0.03271484375} -- 1 2 33 34
 	local COORDS_SLIDER_MIDDLE = {0.00146484375, 0.03173828125, 0.03955078125, 0.10107421875} -- 1 40 33 104
-	local COORDS_SLIDER_DOWN = {0.00146484375, 0.03173828125, 0.11767578125, 0.14794921875} -- 1 120 33 152
+	--local COORDS_SLIDER_DOWN = {0.00146484375, 0.03173828125, 0.11767578125, 0.14794921875} -- 1 120 33 152
+	
+	local COORDS_SLIDER_DOWN = {0.00146484375, 0.03173828125, 0.10986328125, 0.14013671875} -- 1 112 33 144
+	
 	
 	local COORDS_STRETCH = {0.00146484375, 0.03173828125, 0.21435546875, 0.22900390625} -- 1 219 33 235
 	local COORDS_RESIZE_RIGHT = {0.00146484375, 0.01611328125, 0.24560546875, 0.26025390625} -- 1 251 17 267
@@ -1585,6 +1588,10 @@ local function iterate_scroll_scripts (BackGroundDisplay, BackGroundFrame, BaseF
 	end)		
 end
 
+function _detalhes:HaveInstanceAlert()
+	return self.alert:IsShown()
+end
+
 function _detalhes:InstanceAlertTime (instance)
 	instance.alert:Hide()
 	instance.alert.rotate:Stop()
@@ -1592,6 +1599,22 @@ function _detalhes:InstanceAlertTime (instance)
 end
 
 function _detalhes:InstanceAlert (msg, icon, time, clickfunc)
+	
+	if (not self.meu_id) then
+		local lower = _detalhes:GetLowerInstanceNumber()
+		if (lower) then
+			self = _detalhes:GetInstance (lower)
+		else
+			return
+		end
+	end
+	
+	if (type (msg) == "boolean" and not msg) then
+		self.alert:Hide()
+		self.alert.rotate:Stop()
+		self.alert_time = nil
+		return
+	end
 	
 	if (msg) then
 		self.alert.text:SetText (msg)

@@ -69,7 +69,7 @@
 	
 		<Frames>
 
-			<Frame name="$Parent_Border" parentKey="dropdownborder" hidden="true">
+			<Frame name="$Parent_Border" parentKey="dropdownborder" hidden="true" frameStrata="DIALOG">
 				<Size x="150" y="170"/>
 				
 				<Anchors>
@@ -99,14 +99,14 @@
 				
 			</Frame>	
 			
-			<ScrollFrame name="$Parent_ScrollFrame" parentKey="dropdownframe" hidden="true">
+			<ScrollFrame name="$Parent_ScrollFrame" parentKey="dropdownframe" hidden="true" frameStrata="DIALOG">
 				<Size x="150" y="150"/>
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$Parent" relativePoint="BOTTOMLEFT" x="0" y="-10" />
 				</Anchors>
 				
 				<ScrollChild>
-					<Frame name="$Parent_ScrollChild">
+					<Frame name="$Parent_ScrollChild" frameStrata="DIALOG">
 					
 						<Size x="150" y="150"/>
 						
@@ -183,7 +183,7 @@
 	
 	</Button>
 
-	<Button  name="DetailsDropDownOptionTemplate" virtual="true">
+	<Button  name="DetailsDropDownOptionTemplate" virtual="true" frameStrata="DIALOG">
 		<Size x="150" y="20" />
 	
 		<Layers>

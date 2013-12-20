@@ -1,0 +1,14 @@
+## Interface: 50400
+## Title: Details You Are Not Prepared (plugin)
+## Notes: Plugin for Details
+## RequiredDeps: Details
+## SavedVariablesPerCharacter: _detalhes_databaseYANP
+## OptionalDeps: Ace3
+
+#@no-lib-strip@
+embeds.xml
+#@end-no-lib-strip@
+
+enUS.lua
+ptBR.lua
+Details_YouAreNotPrepared.lua
