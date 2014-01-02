@@ -298,7 +298,7 @@ local function OnLeaveMainWindow (instancia, self)
 	
 	elseif (instancia.baseframe.isLocked) then
 		gump:Fade (instancia.baseframe.lock_button, 1)
-		gump:Fade (instancia.baseframe.button_stretch, 1)
+		gump:Fade (instancia.baseframe.button_stretch, "ALPHA", 0)
 		
 	end
 end
@@ -314,7 +314,7 @@ local function OnEnterMainWindow (instancia, self)
 		gump:Fade (instancia.baseframe.lock_button, 0)
 		
 		--> stretch button
-		gump:Fade (instancia.baseframe.button_stretch, 0)
+		gump:Fade (instancia.baseframe.button_stretch, "ALPHA", 0.6)
 	
 		--> snaps
 		if (modo == 0) then
@@ -331,7 +331,7 @@ local function OnEnterMainWindow (instancia, self)
 		
 	elseif (instancia.baseframe.isLocked) then
 		gump:Fade (instancia.baseframe.lock_button, 0)
-		gump:Fade (instancia.baseframe.button_stretch, 0)
+		gump:Fade (instancia.baseframe.button_stretch, "ALPHA", 0.6)
 	
 	end
 end
@@ -1328,7 +1328,7 @@ local function button_stretch_scripts (BaseFrame, BackGroundDisplay, instancia)
 
 	button:SetScript ("OnEnter", function (self)
 		self.mouse_over = true
-		gump:Fade (self, 0)
+		gump:Fade (self, "ALPHA", 1)
 	end)
 	button:SetScript ("OnLeave", function (self)
 		self.mouse_over = false
@@ -1898,7 +1898,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 	
 	BaseFrame.button_stretch:SetWidth (32)
 	BaseFrame.button_stretch:SetHeight (16)
-	gump:Fade (BaseFrame.button_stretch, -1)
+	gump:Fade (BaseFrame.button_stretch, "ALPHA", 0)
 	
 	BaseFrame.button_stretch:Show()
 
