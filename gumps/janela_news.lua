@@ -103,7 +103,7 @@ function _detalhes:CreateOrOpenNewsWindow()
 		texto:SetJustifyV ("top")
 		texto:SetTextColor (1, 1, 1)
 		texto:SetWidth (380)
-		texto:SetHeight (1000)
+		texto:SetHeight (1400)
 		
 		function frame:Title (title)
 			titulo:SetText (title or "")
