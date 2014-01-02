@@ -104,8 +104,10 @@
 	--> hooks
 		local _hook_cooldowns = false
 		local _hook_deaths = false
+		local _hook_buffs = false
 		local _hook_cooldowns_container = _detalhes.hooks ["HOOK_COOLDOWN"]
 		local _hook_deaths_container = _detalhes.hooks ["HOOK_DEATH"]
+		local _hook_buffs_container = _detalhes.hooks ["HOOK_BUFF"]
 	
 
 
@@ -692,6 +694,7 @@
 			------------------------------------------------------------------------------------------------
 			--> buff uptime
 				if (_recording_buffs_and_debuffs) then
+					-- jade spirit doesn't send who_name, that's a shame. --print (spellname, who_name, alvo_name)
 					if (who_name == alvo_name and raid_members_cache [who_serial] and _in_combat) then
 						--> call record buffs uptime
 	--[[not tail call, need to fix this]]	parser:add_buff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, "BUFF_UPTIME_IN")
@@ -1283,6 +1286,16 @@
 			este_jogador.buff_uptime_targets.shadow = shadow.buff_uptime_targets
 			este_jogador.buff_uptime_spell_tables.shadow = shadow.buff_uptime_spell_tables
 		end	
+
+	------------------------------------------------------------------------------------------------
+	--> hook
+	
+		if (_hook_buffs) then
+			--> send event to registred functions
+			for _, func in _ipairs (_hook_buffs_container) do 
+				func (nil, token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, in_out)
+			end
+		end
 		
 	------------------------------------------------------------------------------------------------
 	--> add amount
@@ -2601,6 +2614,7 @@
 			--> leave combat start save tables
 				if (_detalhes.in_combat) then 
 					_detalhes:SairDoCombate()
+					_detalhes.can_panic_mode = true
 				end
 				
 				return _detalhes:SaveData()
@@ -2757,6 +2771,12 @@
 			_hook_deaths = true
 		else
 			_hook_deaths = false
+		end
+		
+		if (_detalhes.hooks ["HOOK_BUFF"].enabled) then
+			_hook_buffs = true
+		else
+			_hook_buffs = false
 		end
 
 		return _detalhes:ClearParserCache()

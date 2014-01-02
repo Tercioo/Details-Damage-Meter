@@ -33,8 +33,6 @@ function _detalhes:SaveDataOnLogout()
 		_detalhes_database.window_clamp = _detalhes.window_clamp
 		--> text sizes
 		_detalhes_database.font_sizes = _detalhes.font_sizes
-		--tutorial
-		_detalhes_database.tutorial = _detalhes.tutorial
 		-- max segments
 		_detalhes_database.segments_amount = _detalhes.segments_amount
 		_detalhes_database.segments_amount_to_save = _detalhes.segments_amount_to_save
@@ -126,6 +124,9 @@ function _detalhes:SaveDataOnLogout()
 	_detalhes_global.trash_auto_remove = _detalhes.trash_auto_remove
 	
 	_detalhes_global.SpellOverwriteUser = _detalhes.SpellOverwriteUser
+	
+	--tutorial
+	_detalhes_global.tutorial = _detalhes.tutorial
 	
 	return true
 
@@ -225,8 +226,6 @@ end --]]
 		_detalhes.clear_graphic = _detalhes_database.clear_graphic
 		--> text sizes
 		_detalhes.font_sizes = _detalhes_database.font_sizes
-		--tutorial
-		_detalhes.tutorial = _detalhes_database.tutorial
 		-- row animation
 		_detalhes.use_row_animations = _detalhes_database.use_row_animations
 		_detalhes.animate_scroll = _detalhes_database.animate_scroll
@@ -336,6 +335,9 @@ end --]]
 		_detalhes.trash_auto_remove = _detalhes_global.trash_auto_remove
 	
 		_detalhes.SpellOverwriteUser = _detalhes_global.SpellOverwriteUser or _detalhes.SpellOverwriteUser
+		
+		--tutorial
+		_detalhes.tutorial = _detalhes_global.tutorial
 	else
 		_detalhes.is_first_run = true
 	end

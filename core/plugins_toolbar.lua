@@ -124,14 +124,26 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> internal functions
 
-	function DetailsToolbarButtonOnEnter (button)
+	--[[global]] function DetailsToolbarButtonOnEnter (button)
+	
+		local lower_instance = _detalhes:GetLowerInstanceNumber()
+		if (lower_instance) then
+			_detalhes.OnEnterMainWindow (_detalhes:GetInstance (lower_instance), button, 3)
+		end
+	
 		if (button.tooltip) then
 			GameCooltip:Reset()
 			GameCooltip:AddLine (button.tooltip)
 			GameCooltip:ShowCooltip (button, "tooltip")
 		end
 	end
-	function DetailsToolbarButtonOnLeave (button)
+	--[[global]] function DetailsToolbarButtonOnLeave (button)
+	
+		local lower_instance = _detalhes:GetLowerInstanceNumber()
+		if (lower_instance) then
+			_detalhes.OnLeaveMainWindow (_detalhes:GetInstance (lower_instance), button, 3)
+		end
+	
 		if (button.tooltip) then
 			_detalhes.popup:ShowMe (false)
 		end

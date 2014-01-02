@@ -89,7 +89,17 @@ local ImageMetaFunctions = {}
 	end
 	--> texture
 	local smember_texture = function (_object, _value)
-		return _object.image:SetTexture (_value)
+		if (type (_value) == "table") then
+			local r, g, b, a = gump:ParseColors (_value)
+			_object.image:SetTexture (r, g, b, a or 1)
+		else
+			if (gump:IsHtmlColor (_value)) then
+				local r, g, b, a = gump:ParseColors (_value)
+				_object.image:SetTexture (r, g, b, a or 1)
+			else
+				_object.image:SetTexture (_value)
+			end
+		end
 	end
 	--> width
 	local smember_width = function (_object, _value)
@@ -105,8 +115,25 @@ local ImageMetaFunctions = {}
 	end	
 	--> color
 	local smember_color = function (_object, _value)
-		local _value1, _value2, _value3 = gump:ParseColors (_value)
-		return _object.image:SetTexture (_value1, _value2, _value3)
+		if (type (_value) == "table") then
+			local r, g, b, a = gump:ParseColors (_value)
+			_object.image:SetTexture (r,g,b, a or 1)
+		else
+			if (gump:IsHtmlColor (_value)) then
+				local r, g, b, a = gump:ParseColors (_value)
+				_object.image:SetTexture (r, g, b, a or 1)
+			else
+				_object.image:SetTexture (_value)
+			end
+		end
+	end
+	--> desaturated
+	local smember_desaturated = function (_object, _value)
+		if (_value) then
+			_object:SetDesaturated (true)
+		else
+			_object:SetDesaturated (false)
+		end
 	end
 
 	local set_members_function_index = {
@@ -117,6 +144,7 @@ local ImageMetaFunctions = {}
 		["height"] = smember_height,
 		["texture"] = smember_texture,
 		["color"] = smember_color,
+		["blackwhite"] = smember_desaturated,
 	}
 	
 	ImageMetaFunctions.__newindex = function (_table, _key, _value)
@@ -225,7 +253,17 @@ function gump:NewImage (parent, container, name, member, w, h, texture, layer)
 		ImageObject.image:SetHeight (h)
 	end
 	if (texture) then
-		ImageObject.image:SetTexture (texture)
+		if (type (texture) == "table") then
+			local r, g, b = gump:ParseColors (texture)
+			ImageObject.image:SetTexture (r,g,b)
+		else
+			if (gump:IsHtmlColor (texture)) then
+				local r, g, b = gump:ParseColors (texture)
+				ImageObject.image:SetTexture (r, g, b)
+			else
+				ImageObject.image:SetTexture (texture)
+			end
+		end
 	end
 	
 	setmetatable (ImageObject, ImageMetaFunctions)

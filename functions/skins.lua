@@ -53,3 +53,15 @@ local _
 		icon_plugins_size = {19, 18}
 	})
 	
+	_detalhes:InstallSkin ("Simply Gray", {
+		file = [[Interface\AddOns\Details\images\skins\simplygray_skin]],
+		author = "Details!", 
+		version = "1.0", 
+		site = "unknown", 
+		desc = "a flat skin", 
+		can_change_alpha_head = true, 
+		icon_anchor_main = {-1, -5}, 
+		icon_anchor_plugins = {-7, -13}, 
+		icon_plugins_size = {19, 18}
+	})
+	

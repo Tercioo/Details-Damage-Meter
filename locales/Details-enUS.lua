@@ -3,13 +3,27 @@ if not Loc then return end
 
 --------------------------------------------------------------------------------------------------------------------------------------------
 -- \n\n|cFFFFFF00-|r 
-	Loc ["STRING_VERSION_LOG"] = "|cFFFFFF00v1.8.0|r\n\n- Added a new plugin: You Are Not Prepared.\n\n|cFFFFFF00-|r New options panel!\n\n|cFFFFFF00v1.7.0|r\n\n- Fixed some colors issues with enimies bars.\n\n|cFFFFFF00-|r Fixed some phrases which isn't still not translated to enUS.\n\n|cFFFFFF00-|r Major rewrite on CC-Breaks, now it's working properly.\n\n|cFFFFFF00-|r Added new sub attribute for damage: Voidzones & Debuffs.|cFFFFFF00v1.6.7|r\n\n- Added support to skins, you can change over options panel.\n\n|cFFFFFF00v1.6.5|r\n\n|cFFFFFF00-|r Added sub attribute 'Enemies' which shows, of course, only enemies.\n\n|cFFFFFF00-|r Fixed issue with successful spell cast.\n\n|cFFFFFF00v1.6.3|r\n\n|cFFFFFF00-|r data capture now runs 4% faster.\n\n|cFFFFFF00-|r Fixed issue with pets were wasn't uptading owner activity time.\n\n|cFFFFFF00-|r Fixed healing being counted even out of combat.\n\n|cFFFFFF00-|r Fixed some problems with multi-boss encountes like Twin Consorts.\n\n|cFFFFFF00-|r Added options for concatenate trash segments.\n\n|cFFFFFF00-|r Added options for auto remove trash segments. \n\n|cFFFFFF00-|r Added options for change bar height. \n\n|cFFFFFF00-|r Encounter Details now display how many interrupted and successful cast of a boss skill.\n\n|cFFFFFF00v1.6.1|r\n\n|cFFFFFF00-|r Fixed:\n- a issue with debuff uptime.\n- overall data dps and hps for overall data on micro display.\n- many bugs involving sword and book menus.\n- garbage collector erasing actors with interactions with your group members.\n\n|cFFFFFF00-|r overall data now always use the combat data for measure dps and hps.\n\n|cFFFFFF00v1.6.0|r\n\n|cFFFFFF00-|r Added debuff uptime at misc attribute.\n\n|cFFFFFF00-|r Disabled attributes now have a darkness effect over sword menu.\n\n|cFFFFFF00-|r Fixed a issue were sometimes you need to /reload before change a talent.\n\n|cFFFFFF00v1.5.3|r\n\n|cFFFFFF00-|r Fixed a issue with report data during combat lockdown.\n\n|cFFFFFF00-|r Improved pet owner recognition and added a ignore list if couldn't find his owner.\n\n|cFFFFFF00-|r Added an option to display only frags on enemy players.\n\n|cFFFFFF00-|r Added class colors for frags.\n\n|cFFFFFF00v1.5.2|r\n\n|cFFFFFF00-|r Fixed a issue were turning off buff uptime was disabling healing done too.\n\n|cFFFFFF00-|r Avoidance statistics will not be recorded for pets, ungrouped players and monsters.\n\n|cFFFFFF00-|r Fixed a issue were sometimes buff uptime was taking too long to save data on logout.\n\n|cFFFFFF00v1.5.1|r\n\n|cFFFFFF00-|r Fixed a issue with report data were sometimes wasn't working.\n\n|cFFFFFF00v1.5.0|r\n\n|cFFFFFF00-|r Buff Uptime was been implemented over Miscellaneous attribute.\n\n|cFFFFFF00-|r Death Logs now also display cooldowns and last cooldown used.\n\n|cFFFFFF00-|r Added this window showing the latest changes.\n\n|cFFFFFF00-|r Fixed the issue were sometimes the instance stops to update when clicking on the attribute name over sword menu.\n\n|cFFFFFF00-|r Disabling Healing now shutdown the absorbs too, disabling auras doesn't interrupt absorbs any more.\n\n|cFFFFFF00-|r Friendly Fire now only track players which is inside a group.\n\n|cFFFFFF00-|r Fixed a issue were pet damage on target isn't added to owner target.\n\n|cFFFFFF00-|r Fixed a bug were refreshing a cooldown isn't counting.\n\n|cFFFFFF00-|r Added absorbs for shammy and monk 2P tier 16.\n\n|cFFFFFF00-|r Added slash command 'worldboss' and 'updates'.\n\n"
+	
+	Loc ["STRING_VERSION_LOG"] = "|cFFFFFF00v1.8.3|r\n\n|cFFFFFF00-|r Added new skin: Simple Gray.\n\n|cFFFFFF00-|r Added minimap and interface addon panel buttons.\n\n|cFFFFFF00-|r Added new tutorials bubbles for basic aspects of Details! window.\n\n|cFFFFFF00-|r Fixed a issue with Panic Mode where sometimes his isnt triggered.\n\n|cFFFFFF00v1.8.0|r\n\n|cFFFFFF00-|r Added a new plugin: You Are Not Prepared.\n\n|cFFFFFF00-|r New options panel!\n\n|cFFFFFF00v1.7.0|r\n\n- Fixed some colors issues with enimies bars.\n\n|cFFFFFF00-|r Fixed some phrases which isn't still not translated to enUS.\n\n|cFFFFFF00-|r Major rewrite on CC-Breaks, now it's working properly.\n\n|cFFFFFF00-|r Added new sub attribute for damage: Voidzones & Debuffs.|cFFFFFF00v1.6.7|r\n\n- Added support to skins, you can change over options panel.\n\n|cFFFFFF00v1.6.5|r\n\n|cFFFFFF00-|r Added sub attribute 'Enemies' which shows, of course, only enemies.\n\n|cFFFFFF00-|r Fixed issue with successful spell cast.\n\n|cFFFFFF00v1.6.3|r\n\n|cFFFFFF00-|r data capture now runs 4% faster.\n\n|cFFFFFF00-|r Fixed issue with pets were wasn't uptading owner activity time.\n\n|cFFFFFF00-|r Fixed healing being counted even out of combat.\n\n|cFFFFFF00-|r Fixed some problems with multi-boss encountes like Twin Consorts.\n\n|cFFFFFF00-|r Added options for concatenate trash segments.\n\n|cFFFFFF00-|r Added options for auto remove trash segments. \n\n|cFFFFFF00-|r Added options for change bar height. \n\n|cFFFFFF00-|r Encounter Details now display how many interrupted and successful cast of a boss skill.\n\n|cFFFFFF00v1.6.1|r\n\n|cFFFFFF00-|r Fixed:\n- a issue with debuff uptime.\n- overall data dps and hps for overall data on micro display.\n- many bugs involving sword and book menus.\n- garbage collector erasing actors with interactions with your group members.\n\n|cFFFFFF00-|r overall data now always use the combat data for measure dps and hps.\n\n|cFFFFFF00v1.6.0|r\n\n|cFFFFFF00-|r Added debuff uptime at misc attribute.\n\n|cFFFFFF00-|r Disabled attributes now have a darkness effect over sword menu.\n\n|cFFFFFF00-|r Fixed a issue were sometimes you need to /reload before change a talent.\n\n|cFFFFFF00v1.5.3|r\n\n|cFFFFFF00-|r Fixed a issue with report data during combat lockdown.\n\n|cFFFFFF00-|r Improved pet owner recognition and added a ignore list if couldn't find his owner.\n\n|cFFFFFF00-|r Added an option to display only frags on enemy players.\n\n|cFFFFFF00-|r Added class colors for frags.\n\n|cFFFFFF00v1.5.2|r\n\n|cFFFFFF00-|r Fixed a issue were turning off buff uptime was disabling healing done too.\n\n|cFFFFFF00-|r Avoidance statistics will not be recorded for pets, ungrouped players and monsters.\n\n|cFFFFFF00-|r Fixed a issue were sometimes buff uptime was taking too long to save data on logout.\n\n|cFFFFFF00v1.5.1|r\n\n|cFFFFFF00-|r Fixed a issue with report data were sometimes wasn't working.\n\n|cFFFFFF00v1.5.0|r\n\n|cFFFFFF00-|r Buff Uptime was been implemented over Miscellaneous attribute.\n\n|cFFFFFF00-|r Death Logs now also display cooldowns and last cooldown used.\n\n|cFFFFFF00-|r Added this window showing the latest changes.\n\n|cFFFFFF00-|r Fixed the issue were sometimes the instance stops to update when clicking on the attribute name over sword menu.\n\n|cFFFFFF00-|r Disabling Healing now shutdown the absorbs too, disabling auras doesn't interrupt absorbs any more.\n\n|cFFFFFF00-|r Friendly Fire now only track players which is inside a group.\n\n|cFFFFFF00-|r Fixed a issue were pet damage on target isn't added to owner target.\n\n|cFFFFFF00-|r Fixed a bug were refreshing a cooldown isn't counting.\n\n|cFFFFFF00-|r Added absorbs for shammy and monk 2P tier 16.\n\n|cFFFFFF00-|r Added slash command 'worldboss' and 'updates'.\n\n"
 
 	Loc ["STRING_DETAILS1"] = "|cffffaeaeDetails:|r " --> color and details name
 
 	Loc ["STRING_YES"] = "Yes"
 	Loc ["STRING_NO"] = "No"
 	
+	Loc ["STRING_MINIMAP_TOOLTIP1"] = "|cFFCFCFCFleft click|r: open options panel"
+	Loc ["STRING_MINIMAP_TOOLTIP2"] = "|cFFCFCFCFright click|r: quick menu"
+	
+	Loc ["STRING_MINIMAPMENU_NEWWINDOW"] = "Create New Window"
+	Loc ["STRING_MINIMAPMENU_RESET"] = "Reset"
+	Loc ["STRING_MINIMAPMENU_REOPEN"] = "Reopen Window"
+	Loc ["STRING_MINIMAPMENU_REOPENALL"] = "Reopen All"
+	Loc ["STRING_MINIMAPMENU_UNLOCK"] = "Unlock"
+	Loc ["STRING_MINIMAPMENU_LOCK"] = "Lock"
+	
+	Loc ["STRING_INTERFACE_OPENOPTIONS"] = "Open Options Panel"
+		
+	Loc ["STRING_RIGHTCLICK_TYPEVALUE"] = "right click to type the value"
 	Loc ["STRING_AUTO"] = "auto"
 	Loc ["STRING_LEFT"] = "left"
 	Loc ["STRING_CENTER"] = "center"
@@ -134,7 +148,6 @@ if not Loc then return end
 	
 	Loc ["STRING_OPTIONS_WINDOW"] = "Options Panel"
 	
-
 --> Wait Messages
 	
 	Loc ["STRING_NEWROW"] = "waiting refresh..."
@@ -290,7 +303,6 @@ if not Loc then return end
 --> report frame
 
 	Loc ["STRING_REPORTFRAME_PARTY"] = "Party"
-	--Loc ["STRING_REPORTFRAME_INSTANCE"] = "Instance"
 	Loc ["STRING_REPORTFRAME_RAID"] = "Raid"
 	Loc ["STRING_REPORTFRAME_GUILD"] = "Guild"
 	Loc ["STRING_REPORTFRAME_OFFICERS"] = "Officer Channel"
@@ -524,3 +536,11 @@ if not Loc then return end
 	Loc ["STRING_OPTIONS_SAVELOAD_RESET"] = "reset to default"
 	Loc ["STRING_OPTIONS_SAVELOAD_APPLYTOALL"] = "apply to all instances"
 
+-- Mini Tutorials -----------------------------------------------------------------------------------------------------------------
+
+	Loc ["STRING_MINITUTORIAL_1"] = "Window Instance Button:\n\nClick to open a new Details! window.\n\nMouse over to reopen closed instances."
+	Loc ["STRING_MINITUTORIAL_2"] = "Stretch Button:\n\nClick, hold and pull to stretch the window.\n\nRelease the button to restore normal size."
+	Loc ["STRING_MINITUTORIAL_3"] = "Resize and Lock Buttons:\n\nUse this to change the size of the window.\n\nLocking it, make the window unmovable."
+	Loc ["STRING_MINITUTORIAL_4"] = "Shortcut Panel:\n\nWhen you right click a bar or window background, shortcut panel is shown."
+	Loc ["STRING_MINITUTORIAL_5"] = "Micro Displays:\n\nThese shows important informations.\n\nLeft Click to config.\n\nRight Click to choose other widget."
+	Loc ["STRING_MINITUTORIAL_6"] = "Snap Windows:\n\nMove a window near other to snap both.\n\nAlways snap with previous instance number, example: #5 snap with #4, #2 snap with #1."

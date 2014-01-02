@@ -91,15 +91,32 @@ function gump:NewColor (_colorname, _colortable, _green, _blue, _alpha)
 	return true
 end
 
+function gump:IsHtmlColor (color)
+	return gump.alias_text_colors [color]
+end
+
+local tn = tonumber
 function gump:ParseColors (_arg1, _arg2, _arg3, _arg4)
 	if (_type (_arg1) == "table") then
 		_arg1, _arg2, _arg3, _arg4 = _unpack (_arg1)
+	
 	elseif (_type (_arg1) == "string") then
-		local color = gump.alias_text_colors [_arg1]
-		if (color) then
-			_arg1, _arg2, _arg3, _arg4 = _unpack (color)
+	
+		if (string.find (_arg1, "#")) then
+			_arg1 = _arg1:gsub ("#","")
+			if (string.len (_arg1) == 8) then --alpha
+				_arg1, _arg2, _arg3, _arg4 = tn ("0x" .. _arg1:sub (3, 4))/255, tn ("0x" .. _arg1:sub (5, 6))/255, tn ("0x" .. _arg1:sub (7, 8))/255, tn ("0x" .. _arg1:sub (1, 2))/255
+			else
+				_arg1, _arg2, _arg3, _arg4 = tn ("0x" .. _arg1:sub (1, 2))/255, tn ("0x" .. _arg1:sub (3, 4))/255, tn ("0x" .. _arg1:sub (5, 6))/255, 1
+			end
+		
 		else
-			_arg1, _arg2, _arg3, _arg4 = _unpack (gump.alias_text_colors.none)
+			local color = gump.alias_text_colors [_arg1]
+			if (color) then
+				_arg1, _arg2, _arg3, _arg4 = _unpack (color)
+			else
+				_arg1, _arg2, _arg3, _arg4 = _unpack (gump.alias_text_colors.none)
+			end
 		end
 	end
 	

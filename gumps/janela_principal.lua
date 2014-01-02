@@ -68,11 +68,8 @@ end
 	
 	local COORDS_SLIDER_TOP = {0.00146484375, 0.03173828125, 0.00244140625, 0.03271484375} -- 1 2 33 34
 	local COORDS_SLIDER_MIDDLE = {0.00146484375, 0.03173828125, 0.03955078125, 0.10107421875} -- 1 40 33 104
-	--local COORDS_SLIDER_DOWN = {0.00146484375, 0.03173828125, 0.11767578125, 0.14794921875} -- 1 120 33 152
-	
 	local COORDS_SLIDER_DOWN = {0.00146484375, 0.03173828125, 0.10986328125, 0.14013671875} -- 1 112 33 144
-	
-	
+
 	local COORDS_STRETCH = {0.00146484375, 0.03173828125, 0.21435546875, 0.22900390625} -- 1 219 33 235
 	local COORDS_RESIZE_RIGHT = {0.00146484375, 0.01611328125, 0.24560546875, 0.26025390625} -- 1 251 17 267
 	local COORDS_RESIZE_LEFT = {0.02001953125, 0.03271484375, 0.24560546875, 0.26025390625} -- 20 251 34 267
@@ -283,24 +280,81 @@ function _detalhes:EsconderScrollBar (sem_animacao, force)
 	end
 end
 
-local function resize_fade (instancia, modo)
+local function OnLeaveMainWindow (instancia, self)
+
 	if (instancia.modo ~= _detalhes._detalhes_props["MODO_ALONE"] and not instancia.baseframe.isLocked) then
-		gump:Fade (instancia.baseframe.resize_direita, modo, 1.0)
-		gump:Fade (instancia.baseframe.resize_esquerda, modo, 1.0)
-		gump:Fade (instancia.baseframe.lock_button, modo, 1.0)
+
+		--> resizes and lock button
+		gump:Fade (instancia.baseframe.resize_direita, 1)
+		gump:Fade (instancia.baseframe.resize_esquerda, 1)
+		gump:Fade (instancia.baseframe.lock_button, 1)
 		
-		if (_string_lower (modo) == "out") then
+		--> stretch button
+		--gump:Fade (instancia.baseframe.button_stretch, -1)
+		gump:Fade (instancia.baseframe.button_stretch, "ALPHA", 0)
+		
+		--> snaps
+		gump:Fade (instancia.botao_separar, 1)
+	
+	elseif (instancia.baseframe.isLocked) then
+		gump:Fade (instancia.baseframe.lock_button, 1)
+		gump:Fade (instancia.baseframe.button_stretch, 1)
+		
+	end
+end
+_detalhes.OnLeaveMainWindow = OnLeaveMainWindow
+
+local function OnEnterMainWindow (instancia, self)
+
+	if (instancia.modo ~= _detalhes._detalhes_props["MODO_ALONE"] and not instancia.baseframe.isLocked) then
+
+		--> resizes and lock button
+		gump:Fade (instancia.baseframe.resize_direita, 0)
+		gump:Fade (instancia.baseframe.resize_esquerda, 0)
+		gump:Fade (instancia.baseframe.lock_button, 0)
+		
+		--> stretch button
+		gump:Fade (instancia.baseframe.button_stretch, 0)
+	
+		--> snaps
+		if (modo == 0) then
 			for _, instancia_id in _pairs (instancia.snap) do
 				if (instancia_id) then
 					instancia.botao_separar.texture:Show()
 					instancia.botao_separar.texture:SetTexCoord (unpack (COORDS_UNLOCK_BUTTON))
-					gump:Fade (instancia.botao_separar.texture, modo, 1.0)
-					gump:Fade (instancia.botao_separar, modo, 1.0)
+					gump:Fade (instancia.botao_separar.texture, 0)
+					gump:Fade (instancia.botao_separar, 0)
+					break
+				end
+			end
+		end
+		
+	elseif (instancia.baseframe.isLocked) then
+		gump:Fade (instancia.baseframe.lock_button, 0)
+		gump:Fade (instancia.baseframe.button_stretch, 0)
+	
+	end
+end
+_detalhes.OnEnterMainWindow = OnEnterMainWindow
+
+local function resize_fade (instancia, modo)
+	if (instancia.modo ~= _detalhes._detalhes_props["MODO_ALONE"] and not instancia.baseframe.isLocked) then
+		gump:Fade (instancia.baseframe.resize_direita, modo)
+		gump:Fade (instancia.baseframe.resize_esquerda, modo)
+		gump:Fade (instancia.baseframe.lock_button, modo)
+		
+		if (modo == 0) then
+			for _, instancia_id in _pairs (instancia.snap) do
+				if (instancia_id) then
+					instancia.botao_separar.texture:Show()
+					instancia.botao_separar.texture:SetTexCoord (unpack (COORDS_UNLOCK_BUTTON))
+					gump:Fade (instancia.botao_separar.texture, 0)
+					gump:Fade (instancia.botao_separar, 0)
 					break
 				end
 			end
 		else
-			gump:Fade (instancia.botao_separar, "in", 1.0)
+			gump:Fade (instancia.botao_separar, 1)
 		end
 		
 	end
@@ -557,14 +611,16 @@ end
 
 local function BGFrame_scripts (BG, BaseFrame, instancia)
 
-	BG:SetScript("OnEnter", function(self)
-		resize_fade (instancia, "out")
-		gump:Fade (BaseFrame.button_stretch, "alpha", 0.3)
+	BG:SetScript("OnEnter", function (self)
+		--resize_fade (instancia, 0) --mostrar
+		--gump:Fade (BaseFrame.button_stretch, "alpha", 0.6)
+		OnEnterMainWindow (instancia, self)
 	end)
 	
-	BG:SetScript("OnLeave", function(self)
-		resize_fade (instancia, "in")
-		gump:Fade (BaseFrame.button_stretch, -1)
+	BG:SetScript("OnLeave", function (self)
+		--resize_fade (instancia, 1) --esconder
+		--gump:Fade (BaseFrame.button_stretch, -1)
+		OnLeaveMainWindow (instancia, self)
 	end)
 	
 	BG:SetScript ("OnMouseDown", function (frame, button)
@@ -614,14 +670,16 @@ local function BFrame_scripts (BaseFrame, instancia)
 		_detalhes:SendEvent ("DETAILS_INSTANCE_SIZECHANGED", nil, instancia)
 	end)
 
-	BaseFrame:SetScript("OnEnter", function(self)
-		resize_fade (instancia, "out")
-		gump:Fade (BaseFrame.button_stretch, "alpha", 0.3)
+	BaseFrame:SetScript("OnEnter", function (self)
+		--resize_fade (instancia, 0) --mostrar
+		--gump:Fade (BaseFrame.button_stretch, "alpha", 0.6)
+		OnEnterMainWindow (instancia, self)
 	end)
 	
-	BaseFrame:SetScript("OnLeave", function(self)
-		resize_fade (instancia, "in")
-		gump:Fade (BaseFrame.button_stretch, -1)
+	BaseFrame:SetScript("OnLeave", function (self)
+		--resize_fade (instancia, 1) --esconder
+		--gump:Fade (BaseFrame.button_stretch, -1)
+		OnLeaveMainWindow (instancia, self)
 	end)
 	
 	BaseFrame:SetScript ("OnMouseDown", function (frame, button)
@@ -641,14 +699,16 @@ end
 
 local function BackGroundDisplay_scripts (BackGroundDisplay, BaseFrame, instancia)
 
-	BackGroundDisplay:SetScript ("OnEnter", function(self)
-		resize_fade (instancia, "out")
-		gump:Fade (BaseFrame.button_stretch, "alpha", 0.3)
+	BackGroundDisplay:SetScript ("OnEnter", function (self)
+		--resize_fade (instancia, 0) --mostrar
+		--gump:Fade (BaseFrame.button_stretch, "alpha", 0.6)
+		OnEnterMainWindow (instancia, self)
 	end)
 	
-	BackGroundDisplay:SetScript ("OnLeave", function(self) 
-		resize_fade (instancia, "in")
-		gump:Fade (BaseFrame.button_stretch, -1)
+	BackGroundDisplay:SetScript ("OnLeave", function (self) 
+		--resize_fade (instancia, 1) --esconder
+		--gump:Fade (BaseFrame.button_stretch, -1)
+		OnLeaveMainWindow (instancia, self)
 	end)
 end
 
@@ -1060,9 +1120,11 @@ local function resize_scripts (resizer, instancia, ScrollBar, side, baseframe)
 			end 
 		end)
 		
-	resizer:SetScript ("OnEnter", function(self) 
+	resizer:SetScript ("OnEnter", function (self) 
+	
+		OnEnterMainWindow (instancia, self)
+	
 		if (instancia.modo ~= _detalhes._detalhes_props["MODO_ALONE"] and not instancia.baseframe.isLocked) then
-			gump:Fade (self, "out", 0.1)
 			self.texture:SetBlendMode ("ADD")
 			self.mostrando = true
 			
@@ -1072,13 +1134,13 @@ local function resize_scripts (resizer, instancia, ScrollBar, side, baseframe)
 			_G.GameCooltip:SetOption ("NoLastSelectedBar", true)
 			_G.GameCooltip:SetOwner (resizer)
 			_G.GameCooltip:ShowCooltip()
-			
 		end
 	end)
 	
-	resizer:SetScript ("OnLeave", function(self) 
+	resizer:SetScript ("OnLeave", function (self) 
+
 		if (not self.movendo) then
-			gump:Fade (self, -1, 3.0)
+			OnLeaveMainWindow (instancia, self)
 		end
 
 		self.texture:SetBlendMode ("BLEND")
@@ -1091,17 +1153,22 @@ end
 
 local function lock_button_scripts (button, instancia)
 	button:SetScript ("OnEnter", function(self) 
+	
+		OnEnterMainWindow (instancia, self)
+		
 		if (instancia.modo ~= _detalhes._detalhes_props["MODO_ALONE"]) then
-			gump:Fade (self, "out", 0.1)
 			self.label:SetTextColor (1, 1, 1, .6)
 			self.mostrando = true
 		end
+		
 	end)
 
 	button:SetScript ("OnLeave", function(self) 
-		gump:Fade (self, -1, 3.0)
-		self.label:SetTextColor (.3, .3, .3, .4)
+	
+		OnLeaveMainWindow (instancia, self)
+		self.label:SetTextColor (.3, .3, .3, .6)
 		self.mostrando = false
+		
 	end)
 end
 
@@ -1127,19 +1194,16 @@ local lockFunctionOnClick = function (button)
 		gump:Fade (BaseFrame.resize_esquerda, 1)
 	end
 end
+_detalhes.lock_instance_function = lockFunctionOnClick
 
 local function bota_separar_script (botao, instancia)
 	botao:SetScript ("OnEnter", function (self) 
-		if (instancia.modo ~= _detalhes._detalhes_props["MODO_ALONE"]) then
-			gump:Fade (self, "out", 0.1)
-			self.mostrando = true
-		end
+		OnEnterMainWindow (instancia, self)
+		self.mostrando = true
 	end)
-		
+	
 	botao:SetScript ("OnLeave", function (self) 
-		if (not self.movendo) then
-			gump:Fade (self, "in", 3.0)
-		end
+		OnLeaveMainWindow (instancia, self)
 		self.mostrando = false
 	end)
 end
@@ -1148,8 +1212,9 @@ local function barra_scripts (esta_barra, instancia, i)
 
 	esta_barra:SetScript ("OnEnter", function (self) 
 		self.mouse_over = true
-		resize_fade (instancia, "out")
-		gump:Fade (instancia.baseframe.button_stretch, "alpha", 0.3)
+		--resize_fade (instancia, 0) --mostrar
+		--gump:Fade (instancia.baseframe.button_stretch, "alpha", 0.6)
+		OnEnterMainWindow (instancia, esta_barra)
 
 		instancia:MontaTooltip (self, i)
 		
@@ -1160,10 +1225,11 @@ local function barra_scripts (esta_barra, instancia, i)
 			self:SetBackdropColor (0.588, 0.588, 0.588, 0.7)
 	end)
 
-	esta_barra:SetScript ("OnLeave", function(self) 
+	esta_barra:SetScript ("OnLeave", function (self) 
 		self.mouse_over = false
-		resize_fade (instancia, "in")
-		gump:Fade (instancia.baseframe.button_stretch, -1)
+		--resize_fade (instancia, 1) --esconder
+		--gump:Fade (instancia.baseframe.button_stretch, -1)
+		OnLeaveMainWindow (instancia, self)
 		
 		_GameTooltip:Hide()
 		_detalhes.popup:ShowMe (false)
@@ -1262,11 +1328,11 @@ local function button_stretch_scripts (BaseFrame, BackGroundDisplay, instancia)
 
 	button:SetScript ("OnEnter", function (self)
 		self.mouse_over = true
-		gump:Fade (self, "out")
+		gump:Fade (self, 0)
 	end)
 	button:SetScript ("OnLeave", function (self)
 		self.mouse_over = false
-		gump:Fade (self, -1)
+		gump:Fade (self, "ALPHA", 0)
 	end)	
 
 	button:SetScript ("OnMouseDown", function(self)
@@ -1672,7 +1738,7 @@ function CreateAlertFrame (BaseFrame, instancia)
 	alert_bg:SetFrameStrata ("HIGH")
 	alert_bg:SetFrameLevel (BaseFrame:GetFrameLevel() + 6)
 	alert_bg:Hide()
-	
+
 	local toptexture = alert_bg:CreateTexture (nil, "background")
 	toptexture:SetTexture ([[Interface\Challenges\challenges-main]])
 	--toptexture:SetTexCoord (0.1921484375, 0.523671875, 0.234375, 0.160859375)
@@ -1969,7 +2035,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 	BaseFrame.lock_button:SetHeight (16)
 	BaseFrame.lock_button.label = BaseFrame.lock_button:CreateFontString (nil, "overlay", "GameFontNormal")
 	BaseFrame.lock_button.label:SetPoint ("right", BaseFrame.lock_button, "right")
-	BaseFrame.lock_button.label:SetTextColor (.3, .3, .3, .4)
+	BaseFrame.lock_button.label:SetTextColor (.3, .3, .3, .6)
 	BaseFrame.lock_button.label:SetJustifyH ("right")
 	BaseFrame.lock_button.label:SetText (Loc ["STRING_LOCK_WINDOW"])
 	BaseFrame.lock_button:SetWidth (BaseFrame.lock_button.label:GetStringWidth()+2)
@@ -2587,7 +2653,7 @@ function gump:CriaRodape (BaseFrame, instancia)
 	BaseFrame.rodape.StatusBarCenterAnchor = StatusBarCenterAnchor
 	
 	--> display frame
-		BaseFrame.statusbar = _CreateFrame ("frame", nil, BaseFrame.cabecalho.fechar)
+		BaseFrame.statusbar = CreateFrame ("frame", nil, BaseFrame.cabecalho.fechar)
 		BaseFrame.statusbar:SetFrameLevel (BaseFrame.cabecalho.fechar:GetFrameLevel()+2)
 		BaseFrame.statusbar:SetPoint ("LEFT", BaseFrame.rodape.esquerdo, "RIGHT", -13, 10)
 		BaseFrame.statusbar:SetPoint ("RIGHT", BaseFrame.rodape.direita, "LEFT", 13, 10)
@@ -2613,7 +2679,7 @@ function gump:CriaRodape (BaseFrame, instancia)
 		BaseFrame.statusbar:Hide()
 	
 	--> frame invisível
-	BaseFrame.DOWNFrame = _CreateFrame ("frame", nil, BaseFrame)
+	BaseFrame.DOWNFrame = CreateFrame ("frame", nil, BaseFrame)
 	BaseFrame.DOWNFrame:SetPoint ("LEFT", BaseFrame.rodape.esquerdo, "RIGHT", 0, 10)
 	BaseFrame.DOWNFrame:SetPoint ("RIGHT", BaseFrame.rodape.direita, "LEFT", 0, 10)
 	BaseFrame.DOWNFrame:SetHeight (14)
@@ -2623,7 +2689,7 @@ function gump:CriaRodape (BaseFrame, instancia)
 	BaseFrame.DOWNFrame:SetMovable (true)
 	BaseFrame.DOWNFrame:SetResizable (true)
 	
-	BGFrame_scripts (BaseFrame.DOWNFrame, BaseFrame, instancia)	
+	BGFrame_scripts (BaseFrame.DOWNFrame, BaseFrame, instancia)
 end
 
 function _detalhes:CheckConsolidates()
@@ -3024,10 +3090,10 @@ local build_segment_list = function (self, elapsed)
 end
 
 local botao_fechar_on_enter = function (self)
-	gump:Fade (self:GetParent().button_stretch, "alpha", 0.3)
+	OnEnterMainWindow (self.instancia, self, 3)
 end
 local botao_fechar_on_leave = function (self)
-	gump:Fade (self:GetParent().button_stretch, -1)
+	OnLeaveMainWindow (self.instancia, self, 3)
 end
 
 function _detalhes:ChangeSkin (skin_name)
@@ -3120,6 +3186,7 @@ function gump:CriaCabecalho (BaseFrame, instancia)
 		end
 	end)
 	
+	BaseFrame.cabecalho.fechar.instancia = instancia
 	BaseFrame.cabecalho.fechar:SetText ("x")
 	BaseFrame.cabecalho.fechar:SetScript ("OnEnter", botao_fechar_on_enter)
 	BaseFrame.cabecalho.fechar:SetScript ("OnLeave", botao_fechar_on_leave)	
@@ -3240,7 +3307,9 @@ function gump:CriaCabecalho (BaseFrame, instancia)
 	
 	--> Cooltip raw method for enter/leave show/hide
 	BaseFrame.cabecalho.modo_selecao:SetScript ("OnEnter", function (self)
-		gump:Fade (BaseFrame.button_stretch, "alpha", 0.3)
+	
+		--gump:Fade (BaseFrame.button_stretch, "alpha", 0.3)
+		OnEnterMainWindow (instancia, self, 3)
 		
 		_detalhes.popup.buttonOver = true
 		BaseFrame.cabecalho.button_mouse_over = true
@@ -3270,7 +3339,8 @@ function gump:CriaCabecalho (BaseFrame, instancia)
 	end)
 	
 	BaseFrame.cabecalho.modo_selecao:SetScript ("OnLeave", function (self) 
-		gump:Fade (BaseFrame.button_stretch, -1)
+		--gump:Fade (BaseFrame.button_stretch, -1)
+		OnLeaveMainWindow (instancia, self, 3)
 		
 		_detalhes.popup.buttonOver = false
 		BaseFrame.cabecalho.button_mouse_over = false
@@ -3338,7 +3408,8 @@ function gump:CriaCabecalho (BaseFrame, instancia)
 
 	--> Cooltip raw method for show/hide onenter/onhide
 	BaseFrame.cabecalho.segmento:SetScript ("OnEnter", function (self) 
-		gump:Fade (BaseFrame.button_stretch, "alpha", 0.3)
+		--gump:Fade (BaseFrame.button_stretch, "alpha", 0.3)
+		OnEnterMainWindow (instancia, self, 3)
 		
 		_detalhes.popup.buttonOver = true
 		BaseFrame.cabecalho.button_mouse_over = true
@@ -3355,7 +3426,8 @@ function gump:CriaCabecalho (BaseFrame, instancia)
 	
 	--> Cooltip raw method
 	BaseFrame.cabecalho.segmento:SetScript ("OnLeave", function (self) 
-		gump:Fade (BaseFrame.button_stretch, -1)
+		--gump:Fade (BaseFrame.button_stretch, -1)
+		OnLeaveMainWindow (instancia, self, 3)
 		
 		_detalhes.popup.buttonOver = false
 		BaseFrame.cabecalho.button_mouse_over = false
@@ -3391,8 +3463,8 @@ function gump:CriaCabecalho (BaseFrame, instancia)
 	BaseFrame.cabecalho.atributo.CoolTip = {
 		Type = "menu", --> the type, menu tooltip tooltipbars
 		BuildFunc = BuildAttributeMenu, --> called when user mouse over the frame
-		OnEnterFunc = function() BaseFrame.cabecalho.button_mouse_over = true; gump:Fade (BaseFrame.button_stretch, "alpha", 0.3) end,
-		OnLeaveFunc = function() BaseFrame.cabecalho.button_mouse_over = false; gump:Fade (BaseFrame.button_stretch, -1) end,
+		OnEnterFunc = function() BaseFrame.cabecalho.button_mouse_over = true; OnEnterMainWindow (instancia, BaseFrame.cabecalho.atributo, 3) end,
+		OnLeaveFunc = function() BaseFrame.cabecalho.button_mouse_over = false; OnLeaveMainWindow (instancia, BaseFrame.cabecalho.atributo, 3) end,
 		FixedValue = instancia,
 		ShowSpeed = 0.15,
 		Options = function()
@@ -3410,64 +3482,14 @@ function gump:CriaCabecalho (BaseFrame, instancia)
 			BaseFrame.cabecalho.report = gump:NewDetailsButton (BaseFrame, _, instancia, _detalhes.Reportar, instancia, nil, 16, 16, [[Interface\COMMON\VOICECHAT-ON]])
 			BaseFrame.cabecalho.report:SetPoint ("left", BaseFrame.cabecalho.atributo, "right", -6, 0)
 			BaseFrame.cabecalho.report:SetFrameLevel (BaseFrame.UPFrame:GetFrameLevel()+1)
-			
-			--[[
-			
-			BaseFrame.cabecalho.report:SetScript ("OnEnter", function (self) 
-				gump:Fade (BaseFrame.button_stretch, "alpha", 0.3)
-				
-				_detalhes.popup.buttonOver = true
-				BaseFrame.cabecalho.button_mouse_over = true
-				
-				local passou = 0
-				if (_detalhes.popup.active) then
-					passou = 0.15
-				end
-
-				self:SetScript ("OnUpdate", function (self, elapsed)
-					passou = passou+elapsed
-					if (passou > 0.15) then
-					
-						CoolTip:Reset()
-						CoolTip:SetType ("menu")
-						CoolTip:SetFixedParameter (instancia)
-						CoolTip:SetColor ("main", "transparent")
-					
-						CoolTip:AddLine (Loc ["STRING_REPORTFRAME_PARTY"], _, 1, "white")
-						CoolTip:AddMenu (1, instancia.TrocaTabela, -1)
-					
-						CoolTip:SetOwner (self)
-						CoolTip:ShowCooltip()
-						
-						self:SetScript ("OnUpdate", nil)
-					end
-				end)
+			BaseFrame.cabecalho.report:SetScript ("OnEnter", function (self)
+				OnEnterMainWindow (instancia, self, 3)
+			end)
+			BaseFrame.cabecalho.report:SetScript ("OnLeave", function (self)
+				OnLeaveMainWindow (instancia, self, 3)
 			end)
 			
-			BaseFrame.cabecalho.report:SetScript ("OnLeave", function (self) 
-				gump:Fade (BaseFrame.button_stretch, -1)
-				
-				_detalhes.popup.buttonOver = false
-				BaseFrame.cabecalho.button_mouse_over = false
-				
-				if (_detalhes.popup.active) then
-					local passou = 0
-					self:SetScript ("OnUpdate", function (self, elapsed)
-						passou = passou+elapsed
-						if (passou > 0.3) then
-							if (not _detalhes.popup.mouseOver and not _detalhes.popup.buttonOver) then
-								_detalhes.popup:ShowMe (false)
-							end
-							self:SetScript ("OnUpdate", nil)
-						end
-					end)
-				else
-					self:SetScript ("OnUpdate", nil)
-				end
-			end)	
 
-			--]]
-			
 	--> BOSS INFO ----------------------------------------------------------------------------------------------------------------------------------------------------
 			--BaseFrame.cabecalho.boss_info = gump:NewDetailsButton (BaseFrame, BaseFrame, instancia, _detalhes.AbrirEncounterWindow, instancia, nil, 16, 16,
 			--"Interface\\COMMON\\help-i", "Interface\\COMMON\\help-i", "Interface\\COMMON\\help-i", "Interface\\COMMON\\help-i")
@@ -3481,7 +3503,7 @@ function gump:CriaCabecalho (BaseFrame, instancia)
 	BaseFrame.cabecalho.novo:SetWidth (30)
 	BaseFrame.cabecalho.novo:SetHeight (15)
 	BaseFrame.cabecalho.novo:SetPoint ("RIGHT", BaseFrame.cabecalho.fechar, "LEFT", 1, 0)
-	BaseFrame.cabecalho.novo:SetScript ("OnClick", function() _detalhes:CriarInstancia(_, true); _detalhes.popup:ShowMe (false) end)
+	BaseFrame.cabecalho.novo:SetScript ("OnClick", function() _detalhes:CriarInstancia (_, true); _detalhes.popup:ShowMe (false) end)
 	BaseFrame.cabecalho.novo:SetText ("#"..instancia.meu_id)
 
 	--> cooltip through inject
@@ -3530,7 +3552,7 @@ function gump:CriaCabecalho (BaseFrame, instancia)
 						atributo = _detalhes.RaidTables.Mode or 1
 						local RaidInfo = _detalhes.RaidTables.Menu [atributo]
 						CoolTip:AddMenu (1, OnClickNovoMenu, index, nil, nil, "#".. index .. " " .. RaidInfo [1], _, true)
-						CoolTip:AddIcon (RaidInfo [2], 1, 1, 20, 20, 0, 1, 0, 1)						
+						CoolTip:AddIcon (RaidInfo [2], 1, 1, 20, 20, 0, 1, 0, 1)	
 						
 					else
 					
@@ -3554,9 +3576,9 @@ function gump:CriaCabecalho (BaseFrame, instancia)
 		--> will call for build menu
 		BuildFunc = BuildClosedInstanceMenu, 
 		--> a hook for OnEnterScript
-		OnEnterFunc = function() gump:Fade (BaseFrame.button_stretch, "alpha", 0.3) end,
+		OnEnterFunc = function() OnEnterMainWindow (instancia, BaseFrame.cabecalho.novo, 3) end,
 		--> a hook for OnLeaveScript
-		OnLeaveFunc = function() gump:Fade (BaseFrame.button_stretch, -1) end,
+		OnLeaveFunc = function() OnLeaveMainWindow (instancia, BaseFrame.cabecalho.novo, 3) end,
 		--> default message if there is no option avaliable
 		Default = Loc ["STRING_NOCLOSED_INSTANCES"], 
 		--> instancia is the first parameter sent after click, before parameters
@@ -3612,11 +3634,21 @@ function gump:CriaCabecalho (BaseFrame, instancia)
 		_detalhes.ResetButton:SetText (Loc ["STRING_ERASE"])
 		
 		_detalhes.ResetButton:SetScript ("OnClick", function() _detalhes.tabela_historico:resetar() end)
+		
 		_detalhes.ResetButton:SetScript ("OnEnter", function (self) 
-			gump:Fade (BaseFrame.button_stretch, "alpha", 0.3)
+			local lower_instance = _detalhes:GetLowerInstanceNumber()
+			if (lower_instance) then
+				OnEnterMainWindow (_detalhes:GetInstance (lower_instance), self, 3)
+			end
 		end)
+		
 		_detalhes.ResetButton:SetScript ("OnLeave", function (self) 
-			gump:Fade (BaseFrame.button_stretch, -1)
+		
+			local lower_instance = _detalhes:GetLowerInstanceNumber()
+			if (lower_instance) then
+				OnLeaveMainWindow (_detalhes:GetInstance (lower_instance), self, 3)
+			end
+
 			if (_detalhes.popup.active) then
 				local passou = 0
 				self:SetScript ("OnUpdate", function (self, elapsed)
@@ -3648,10 +3680,19 @@ function gump:CriaCabecalho (BaseFrame, instancia)
 		
 		_detalhes.ResetButton2:SetScript ("OnClick", function() _detalhes.tabela_historico:resetar() end)
 		_detalhes.ResetButton2:SetScript ("OnEnter", function (self) 
-			gump:Fade (BaseFrame.button_stretch, "alpha", 0.3)
+			local lower_instance = _detalhes:GetLowerInstanceNumber()
+			if (lower_instance) then
+				OnEnterMainWindow (_detalhes:GetInstance (lower_instance), self, 3)
+			end
 		end)
+		
 		_detalhes.ResetButton2:SetScript ("OnLeave", function (self) 
-			gump:Fade (BaseFrame.button_stretch, -1)
+		
+			local lower_instance = _detalhes:GetLowerInstanceNumber()
+			if (lower_instance) then
+				OnLeaveMainWindow (_detalhes:GetInstance (lower_instance), self, 3)
+			end
+			
 			if (_detalhes.popup.active) then
 				local passou = 0
 				self:SetScript ("OnUpdate", function (self, elapsed)

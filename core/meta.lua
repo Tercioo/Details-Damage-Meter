@@ -502,32 +502,16 @@
 			
 			
 			--> panic mode
-				if (_detalhes.segments_panic_mode and _detalhes.in_combat) then
+				if (_detalhes.segments_panic_mode and _detalhes.can_panic_mode) then
 					if (_detalhes.tabela_vigente.is_boss) then
 						_detalhes.tabela_historico = _detalhes.historico:NovoHistorico()
 					end
 				end
 			
-			
 			--> Limpa instâncias
 			for _, esta_instancia in _ipairs (_detalhes.tabela_instancias) do
 				--> detona a janela do Solo Mode
 
-				esta_instancia.barras = nil
-				esta_instancia.showing = nil
-				
-				--> apaga os frames
-				esta_instancia.scroll = nil
-				esta_instancia.baseframe = nil
-				esta_instancia.bgframe = nil
-				esta_instancia.bgdisplay = nil
-				esta_instancia.freeze_icon = nil
-				esta_instancia.freeze_texto = nil
-				
-				esta_instancia.agrupada_a = nil
-				esta_instancia.grupada_pos = nil
-				esta_instancia.agrupado = nil
-				
 				if (esta_instancia.StatusBar.left) then
 					esta_instancia.StatusBarSaved = {
 						["left"] = esta_instancia.StatusBar.left.real_name or "NONE",
@@ -536,9 +520,35 @@
 						["options"] = esta_instancia.StatusBar.options
 					}
 				end
+
+				--> erase all widgets frames
+				
+				esta_instancia.scroll = nil
+				esta_instancia.baseframe = nil
+				esta_instancia.bgframe = nil
+				esta_instancia.bgdisplay = nil
+				esta_instancia.freeze_icon = nil
+				esta_instancia.freeze_texto = nil
+				esta_instancia.barras = nil
+				esta_instancia.showing = nil
+				esta_instancia.agrupada_a = nil
+				esta_instancia.grupada_pos = nil
+				esta_instancia.agrupado = nil
+				esta_instancia._version = nil
+				
+				esta_instancia.h_baixo = nil
+				esta_instancia.h_esquerda = nil
+				esta_instancia.h_direita = nil
+				esta_instancia.h_cima = nil
+				esta_instancia.botao_separar = nil
+				esta_instancia.alert = nil
 				
 				esta_instancia.StatusBar = nil
-				
+				esta_instancia.consolidateFrame = nil
+				esta_instancia.consolidateButtonTexture = nil
+				esta_instancia.consolidateButton = nil
+				esta_instancia.lastIcon = nil
+
 			end
 
 		end

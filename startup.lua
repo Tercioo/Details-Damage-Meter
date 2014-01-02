@@ -110,9 +110,26 @@ function _G._detalhes:Start()
 		}
 		
 		self.tutorial = self.tutorial or {}
+		self.tutorial.logons = self.tutorial.logons or 0
 		self.tutorial.unlock_button = self.tutorial.unlock_button or 0
 		self.tutorial.version_announce = self.tutorial.version_announce or 0
 		self.tutorial.main_help_button = self.tutorial.main_help_button or 0
+		
+		--[1] criar nova instancia
+		--[2] esticar janela
+		--[3] resize e trava
+		--[4] shortcut frame
+		--[5] micro displays
+		--[6] snap windows
+		
+		self.tutorial.alert_frames = self.tutorial.alert_frames or {false, false, false, false, false, false}
+		--self.tutorial.alert_frames = {false, false, false, false, false, false}
+		self.tutorial.logons = self.tutorial.logons + 1
+		
+		if (self.tutorial.logons < 5) then
+		--if (self.tutorial.logons < 55) then --debug
+			self:StartTutorial()
+		end
 		
 	--> class colors and tcoords
 		if (not self.class_colors) then
@@ -347,5 +364,116 @@ function _G._detalhes:Start()
 			end
 		end
 	end
+	
+	--> minimap
+	local LDB = LibStub ("LibDataBroker-1.1", true)
+	local LDBIcon = LDB and LibStub ("LibDBIcon-1.0", true)
+	
+	if LDB then
+		local minimapIcon = LDB:NewDataObject ("Details!", {
+			type = "data source",
+			icon = [[Interface\AddOns\Details\images\minimap]],
+			
+			OnClick = function (self, button)
+			
+				if (button == "LeftButton") then
+					local lower_instance = _detalhes:GetLowerInstanceNumber()
+					_detalhes:OpenOptionsWindow (_detalhes:GetInstance (lower_instance))
+					
+				elseif (button == "RightButton") then
+				
+					GameTooltip:Hide()
+					local GameCooltip = GameCooltip
+					
+					GameCooltip:Reset()
+					GameCooltip:SetType ("menu")
+					GameCooltip:SetOption ("ButtonsYMod", -5)
+					GameCooltip:SetOption ("HeighMod", 5)
+					GameCooltip:SetOption ("TextSize", 10)
+
+					--344 427 200 268 0.0009765625
+					--0.672851, 0.833007, 0.391601, 0.522460
+					
+					GameCooltip:SetBannerImage (1, [[Interface\AddOns\Details\images\icons]], 83*.5, 68*.5, {"bottomleft", "topleft", 1, -4}, {0.672851, 0.833007, 0.391601, 0.522460}, nil)
+					GameCooltip:SetBannerImage (2, "Interface\\PetBattles\\Weather-Windy", 512*.35, 128*.3, {"bottomleft", "topleft", -25, -4}, {0, 1, 1, 0})
+					GameCooltip:SetBannerText (1, "Mini Map Menu", {"left", "right", 2, -5}, "white", 10)
+					
+					--> reset
+					GameCooltip:AddMenu (1, _detalhes.tabela_historico.resetar, true, nil, nil, Loc ["STRING_MINIMAPMENU_RESET"], nil, true)
+					GameCooltip:AddIcon ([[Interface\COMMON\VOICECHAT-MUTED]], 1, 1, 14, 14)
+					
+					GameCooltip:AddLine ("$div")
+					
+					--> nova instancai
+					GameCooltip:AddMenu (1, _detalhes.CriarInstancia, true, nil, nil, Loc ["STRING_MINIMAPMENU_NEWWINDOW"], nil, true)
+					GameCooltip:AddIcon ([[Interface\ICONS\Spell_ChargePositive]], 1, 1, 14, 14, 0.0703125, 0.9453125, 0.0546875, 0.9453125)
+					
+					--> reopen window 64: 0.0078125
+					GameCooltip:AddMenu (1, _detalhes.CriarInstancia, true, nil, nil, Loc ["STRING_MINIMAPMENU_REOPEN"], nil, true)
+					GameCooltip:AddIcon ([[Interface\ICONS\Ability_Priest_VoidShift]], 1, 1, 14, 14, 0.0703125, 0.9453125, 0.0546875, 0.9453125)
+					
+					GameCooltip:AddMenu (1, _detalhes.ReabrirTodasInstancias, true, nil, nil, Loc ["STRING_MINIMAPMENU_REOPENALL"], nil, true)
+					GameCooltip:AddIcon ([[Interface\ICONS\Ability_Priest_VoidShift]], 1, 1, 14, 14, 0.0703125, 0.9453125, 0.0546875, 0.9453125, "#ffb400")
+
+					GameCooltip:AddLine ("$div")
+					
+					--> lock
+					GameCooltip:AddMenu (1, _detalhes.TravasInstancias, true, nil, nil, Loc ["STRING_MINIMAPMENU_LOCK"], nil, true)
+					GameCooltip:AddIcon ([[Interface\PetBattles\PetBattle-LockIcon]], 1, 1, 14, 14, 0.0703125, 0.9453125, 0.0546875, 0.9453125)
+					
+					GameCooltip:AddMenu (1, _detalhes.DestravarInstancias, true, nil, nil, Loc ["STRING_MINIMAPMENU_UNLOCK"], nil, true)
+					GameCooltip:AddIcon ([[Interface\PetBattles\PetBattle-LockIcon]], 1, 1, 14, 14, 0.0703125, 0.9453125, 0.0546875, 0.9453125, "gray")
+					
+					GameCooltip:SetOwner (self, "topright", "bottomleft")
+					GameCooltip:ShowCooltip()
+					
+
+				end
+			end,
+			OnTooltipShow = function (tooltip)
+				tooltip:AddLine ("Details!", 1, 1, 1)
+				tooltip:AddLine (Loc ["STRING_MINIMAP_TOOLTIP1"])
+				tooltip:AddLine (Loc ["STRING_MINIMAP_TOOLTIP2"])
+			end,
+		})
+		
+		if (minimapIcon and not LDBIcon:IsRegistered ("Details!")) then
+			LDBIcon:Register ("Details!", minimapIcon, [[Interface\AddOns\Details\images\minimap]])
+		end
+		
+	end
+	
+	--> interface menu
+	local f = CreateFrame ("frame", "DetailsInterfaceOptionsPanel", UIParent)
+	f.name = "Details"
+	f.logo = f:CreateTexture (nil, "overlay")
+	f.logo:SetPoint ("center", f, "center", 0, 0)
+	f.logo:SetPoint ("top", f, "top", 25, 56)
+	f.logo:SetTexture ([[Interface\AddOns\Details\images\logotipo]])
+	f.logo:SetSize (256, 128)
+	InterfaceOptions_AddCategory (f)
+	
+		--> open options panel
+		f.options_button = CreateFrame ("button", nil, f, "OptionsButtonTemplate")
+		f.options_button:SetText (Loc ["STRING_INTERFACE_OPENOPTIONS"])
+		f.options_button:SetPoint ("topleft", f, "topleft", 10, -100)
+		f.options_button:SetWidth (170)
+		f.options_button:SetScript ("OnClick", function (self)
+			local lower_instance = _detalhes:GetLowerInstanceNumber()
+			_detalhes:OpenOptionsWindow (_detalhes:GetInstance (lower_instance))
+		end)
+		
+		--> create new window
+		f.new_window_button = CreateFrame ("button", nil, f, "OptionsButtonTemplate")
+		f.new_window_button:SetText (Loc ["STRING_MINIMAPMENU_NEWWINDOW"])
+		f.new_window_button:SetPoint ("topleft", f, "topleft", 10, -125)
+		f.new_window_button:SetWidth (170)
+		f.new_window_button:SetScript ("OnClick", function (self)
+			_detalhes:CriarInstancia (_, true)
+		end)
+	
+	--> MicroButtonAlertTemplate
+	self.MicroButtonAlert = CreateFrame ("frame", "DetailsMicroButtonAlert", UIParent, "MicroButtonAlertTemplate")
+	self.MicroButtonAlert:Hide()
 	
 end

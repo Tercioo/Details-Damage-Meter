@@ -149,7 +149,6 @@
 			return _detalhes:ScheduleTimer ("SaveMainWindowPosition", 1, self)
 		end
 		
-		-- credits to ckknight (http://www.curseforge.com/profiles/ckknight/) 
 		local _scale = self.baseframe:GetEffectiveScale()
 		local _UIscale = _UIParent:GetScale()
 		local mostrando = self.mostrando
@@ -182,7 +181,6 @@
 
 	function _detalhes:RestoreMainWindowPosition (pre_defined)
 
-		-- credits to ckknight (http://www.curseforge.com/profiles/ckknight/) 
 		local _scale = self.baseframe:GetEffectiveScale() 
 		local _UIscale = _UIParent:GetScale()
 
@@ -210,7 +208,6 @@
 		x = x or 0
 		y = y or 0
 
-		-- credits to ckknight (http://www.curseforge.com/profiles/ckknight/) 
 		local _scale = self.baseframe:GetEffectiveScale() 
 		local _UIscale = _UIParent:GetScale()
 
@@ -569,4 +566,91 @@
 				_detalhes.RaidTables:switch (nil, _detalhes.RaidTables.Mode)
 			end
 		end	
+	end
+
+	do
+	
+		--[1] criar nova instancia
+		--[2] esticar janela
+		--[3] resize e trava
+		--[4] shortcut frame
+		--[5] micro displays
+		--[6] snap windows
+	
+		function _detalhes:run_tutorial()
+		
+			local lower_instance = _detalhes:GetLowerInstanceNumber()
+				if (lower_instance) then
+				local instance = _detalhes:GetInstance (lower_instance)
+			
+				if (not _detalhes.tutorial.alert_frames [1]) then
+				
+					_detalhes.MicroButtonAlert.Text:SetText (Loc ["STRING_MINITUTORIAL_1"])
+					_detalhes.MicroButtonAlert:SetPoint ("bottom", instance.baseframe.cabecalho.novo, "top", 0, 16)
+					_detalhes.MicroButtonAlert:SetHeight (200)
+					_detalhes.MicroButtonAlert:Show()
+					_detalhes.tutorial.alert_frames [1] = true
+					
+				elseif (not _detalhes.tutorial.alert_frames [2]) then
+				
+					_detalhes.MicroButtonAlert.Text:SetText (Loc ["STRING_MINITUTORIAL_2"])
+					_detalhes.MicroButtonAlert:SetPoint ("bottom", instance.baseframe.button_stretch, "top", 0, 15)
+					instance.baseframe.button_stretch:Show()
+					instance.baseframe.button_stretch:SetAlpha (1)
+					_detalhes.MicroButtonAlert:Show()
+					_detalhes.tutorial.alert_frames [2] = true
+				
+				elseif (not _detalhes.tutorial.alert_frames [3]) then
+					_detalhes.MicroButtonAlert.Text:SetText (Loc ["STRING_MINITUTORIAL_3"])
+					_detalhes.MicroButtonAlert:SetPoint ("bottom", instance.baseframe.resize_direita, "top", -8, 16)
+					
+					_detalhes.OnEnterMainWindow (instance)
+					instance.baseframe.button_stretch:SetAlpha (0)
+					
+					_detalhes.MicroButtonAlert:Show()
+					_detalhes.tutorial.alert_frames [3] = true
+				
+				elseif (not _detalhes.tutorial.alert_frames [4]) then
+				
+					_detalhes.MicroButtonAlert.Text:SetText (Loc ["STRING_MINITUTORIAL_4"])
+					_detalhes.MicroButtonAlert:SetPoint ("bottom", instance.baseframe, "center", 0, 16)
+					_detalhes.MicroButtonAlert:Show()
+					_detalhes.tutorial.alert_frames [4] = true
+					
+				elseif (not _detalhes.tutorial.alert_frames [5]) then
+				
+					_detalhes.MicroButtonAlert.Text:SetText (Loc ["STRING_MINITUTORIAL_5"])
+					_detalhes.MicroButtonAlert:SetPoint ("bottom", instance.baseframe.rodape.top_bg, "top", 0, 16)
+					_detalhes.MicroButtonAlert:Show()
+					_detalhes.MicroButtonAlert:SetHeight (220)
+					_detalhes.tutorial.alert_frames [5] = true
+					
+				elseif (not _detalhes.tutorial.alert_frames [6]) then
+				
+					_detalhes.MicroButtonAlert.Text:SetText (Loc ["STRING_MINITUTORIAL_6"])
+					_detalhes.MicroButtonAlert:SetPoint ("bottom", instance.baseframe.barra_direita, "center", -24, 16)
+					_detalhes.MicroButtonAlert:SetHeight (200)
+					_detalhes.MicroButtonAlert:Show()
+					_detalhes.tutorial.alert_frames [6] = true
+				
+				end
+			end
+			--
+			_detalhes:ScheduleTimer ("delay_tutorial", 60)
+		end
+	
+		function _detalhes:delay_tutorial()
+			--verificar algo?
+			_detalhes:run_tutorial()
+		end
+		
+		function _detalhes:StartTutorial()
+			--
+			if (_G ["DetailsWelcomeWindow"] and _G ["DetailsWelcomeWindow"]:IsShown()) then
+				return _detalhes:ScheduleTimer ("StartTutorial", 10)
+			end
+			--
+			_detalhes:ScheduleTimer ("delay_tutorial", 20)
+		end
+	
 	end

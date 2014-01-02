@@ -5,10 +5,10 @@ do
 	local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
 
 	--> Globals
-	DETAILS_ATTRIBUTE_DAMAGE = 1
-	DETAILS_ATTRIBUTE_HEAL = 2
-	DETAILS_ATTRIBUTE_ENERGY = 3
-	DETAILS_ATTRIBUTE_MISC = 4
+	--[[global]] DETAILS_ATTRIBUTE_DAMAGE = 1
+	--[[global]] DETAILS_ATTRIBUTE_HEAL = 2
+	--[[global]] DETAILS_ATTRIBUTE_ENERGY = 3
+	--[[global]] DETAILS_ATTRIBUTE_MISC = 4
 	
 	_detalhes.atributos_capture = {
 		"damage", --damage done

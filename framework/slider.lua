@@ -10,6 +10,8 @@ local _type = type --> lua local
 local _math_floor = math.floor --> lua local
 local loadstring = loadstring --> lua local
 
+local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
+
 local cleanfunction = function() end
 local APISliderFunctions = false
 local SliderMetaFunctions = {}
@@ -74,8 +76,12 @@ local SliderMetaFunctions = {}
 		return _rawget (_object, "lockdown")
 	end
 	--> fractional
-	local gmember_fractional = function (_object, _value)
+	local gmember_fractional = function (_object)
 		return _rawget (_object, "useDecimals")
+	end	
+	--> value
+	local gmember_value = function (_object)
+		return _object()
 	end	
 
 	local get_members_function_index = {
@@ -85,6 +91,7 @@ local SliderMetaFunctions = {}
 		["height"] = gmember_height,
 		["locked"] = gmember_locked,
 		["fractional"] = gmember_fractional,
+		["value"] = gmember_value,
 	}
 
 	SliderMetaFunctions.__index = function (_table, _member_requested)
@@ -148,6 +155,10 @@ local SliderMetaFunctions = {}
 	local smember_fractional = function (_object, _value)
 		return _rawset (_object, "useDecimals", _value)
 	end
+	--> value
+	local smember_value = function (_object, _value)
+		_object (_value)
+	end
 	
 	local set_members_function_index = {
 		["tooltip"] = smember_tooltip,
@@ -158,6 +169,7 @@ local SliderMetaFunctions = {}
 		["height"] = smember_height,
 		["locked"] = smember_locked,
 		["fractional"] = smember_fractional,
+		["value"] = smember_value,
 	}
 	
 	SliderMetaFunctions.__newindex = function (_table, _key, _value)
@@ -340,12 +352,71 @@ local SliderMetaFunctions = {}
 		
 	end
 	
+	function SliderMetaFunctions:TypeValue()
+		if (not self.isSwitch) then
+		
+			if (not SliderMetaFunctions.editbox_typevalue) then
+				local editbox = CreateFrame ("EditBox", "DetailsFrameworkSliderEditBox", UIParent)
+				editbox:SetSize (40, 20)
+				editbox:SetJustifyH ("center")
+				editbox:SetBackdrop ({bgFile = [[Interface\DialogFrame\UI-DialogBox-Background-Dark]],
+				edgeFile = "Interface\\Buttons\\UI-SliderBar-Border", --edgeFile = [[Interface\Tooltips\UI-Tooltip-Border]],
+				tile = true, edgeSize = 8, tileSize = 5})
+				editbox:SetFontObject ("GameFontHighlightSmall")
+
+				editbox:SetScript ("OnEnterPressed", function()
+					editbox:ClearFocus()
+					editbox:Hide()
+					editbox:GetParent().MyObject.value = tonumber (editbox:GetText())
+					editbox:GetParent().MyObject.typing_value = false
+				end)
+				editbox:SetScript ("OnEscapePressed", function()
+					editbox:ClearFocus()
+					editbox:Hide()
+					editbox:GetParent().MyObject.typing_value = false
+				end)
+				
+				SliderMetaFunctions.editbox_typevalue = editbox
+			end
+			
+			self.typing_value = true
+			
+			SliderMetaFunctions.editbox_typevalue:SetSize (self.width, self.height)
+			SliderMetaFunctions.editbox_typevalue:SetPoint ("center", self.widget, "center")
+			SliderMetaFunctions.editbox_typevalue:SetFocus()
+			SliderMetaFunctions.editbox_typevalue:SetParent (self.widget)
+			SliderMetaFunctions.editbox_typevalue:SetFrameLevel (self.widget:GetFrameLevel()+1)
+			
+			if (self.useDecimals) then
+				SliderMetaFunctions.editbox_typevalue:SetText (tostring (string.format ("%.1f", self.value)))
+			else
+				SliderMetaFunctions.editbox_typevalue:SetText (tostring (math.floor (self.value)))
+			end
+			
+			SliderMetaFunctions.editbox_typevalue:HighlightText()
+			
+			SliderMetaFunctions.editbox_typevalue:Show()
+		end
+	end
+	
+	local OnMouseDown = function (slider, button)
+		if (button == "RightButton") then
+			slider.MyObject:TypeValue()
+		end
+	end
+	
 	local OnHide = function (slider)
 		if (slider.MyObject.OnHideHook) then
 			local interrupt = slider.MyObject.OnHideHook (slider)
 			if (interrupt) then
 				return
 			end
+		end
+		
+		if (slider.MyObject.typing_value) then
+			SliderMetaFunctions.editbox_typevalue:ClearFocus()
+			SliderMetaFunctions.editbox_typevalue:SetText ("")
+			slider.MyObject.typing_valu = false
 		end
 	end
 	
@@ -378,7 +449,7 @@ local SliderMetaFunctions = {}
 		else
 			slider.amt:SetText (math.floor (amt))
 		end
-		slider.MyObject.value = amt
+		slider.MyObject.ivalue = amt
 	end
 	
 	
@@ -411,7 +482,7 @@ function gump:NewSwitch (parent, container, name, member, w, h, ltext, rtext, de
 	end
 
 --> build frames
-	local slider = gump:NewSlider (parent, container, name, member, w, h, 1, 2, 1, defaultv)
+	local slider = gump:NewSlider (parent, container, name, member, w, h, 1, 2, 1, defaultv, nil, true)
 	
 	slider:SetBackdrop ({edgeFile = "Interface\\Buttons\\UI-SliderBar-Border", edgeSize = 8,
 	bgFile = [[Interface\AddOns\Details\images\background]], insets = {left = 3, right = 3, top = 5, bottom = 5}})
@@ -442,7 +513,7 @@ function gump:NewSwitch (parent, container, name, member, w, h, ltext, rtext, de
 	return slider
 end
 
-function gump:NewSlider (parent, container, name, member, w, h, min, max, step, defaultv, isDecemal)
+function gump:NewSlider (parent, container, name, member, w, h, min, max, step, defaultv, isDecemal, isSwitch)
 	
 --> early checks
 	if (not name) then
@@ -515,7 +586,7 @@ function gump:NewSlider (parent, container, name, member, w, h, min, max, step, 
 	SliderObject.slider:SetMinMaxValues (min, max)
 	SliderObject.slider:SetValueStep (step)
 	SliderObject.slider:SetValue (defaultv)
-	SliderObject.value = defaultv
+	SliderObject.ivalue = defaultv
 	
 	--SliderObject.amt = _G [name .. "_Amt"]
 	--SliderObject.lock = _G [name .. "_LockTexture"]
@@ -531,6 +602,10 @@ function gump:NewSlider (parent, container, name, member, w, h, min, max, step, 
 	SliderObject.thumb:SetAlpha (0.7)
 	SliderObject.slider:SetThumbTexture (SliderObject.thumb)
 	SliderObject.slider.thumb = SliderObject.thumb
+	
+	if (not isSwitch) then
+		SliderObject.have_tooltip = Loc ["STRING_RIGHTCLICK_TYPEVALUE"]
+	end
 	
 	SliderObject.amt = SliderObject.slider:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
 	
@@ -555,6 +630,8 @@ function gump:NewSlider (parent, container, name, member, w, h, min, max, step, 
 		SliderObject.slider:SetScript ("OnHide", OnHide)
 		SliderObject.slider:SetScript ("OnShow", OnShow)
 		SliderObject.slider:SetScript ("OnValueChanged", OnValueChanged)
+		SliderObject.slider:SetScript ("OnMouseDown", OnMouseDown)
+		
 		
 	_setmetatable (SliderObject, SliderMetaFunctions)
 	

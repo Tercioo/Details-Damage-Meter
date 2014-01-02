@@ -2,14 +2,26 @@ local Loc = LibStub("AceLocale-3.0"):NewLocale("Details", "ptBR")
 if not Loc then return end 
 
 --------------------------------------------------------------------------------------------------------------------------------------------
-
-	Loc ["STRING_VERSION_LOG"] = "|cFFFFFF00v1.8.0|r\n\n- Adicionado novo plugin: You Are Not Prepared.\n\n|cFFFFFF00-|r Novo painel de opcoes!\n\n|cFFFFFF00v1.7.0|r\n\n- Corrigido alguns problemas com as cores das barras de inimigos.\n\n|cFFFFFF00-|r CC Quebrado foi inteiramente reescrito e agora deve funcionar corretamente.\n\n|cFFFFFF00-|r Adicionado novo sub atributo ao dano: Voidzones & Debuffs.|cFFFFFF00v1.6.7|r\n\n- Adicionado suporte a skins, troque ela atraves do painel de opcoes.\n\n|cFFFFFF00v1.6.5|r\n\n|cFFFFFF00-|r Adicionado o sub atributo 'Inimigos' que mostra, eh claro, somente inimigos.\n\n|cFFFFFF00-|r Corrigido um problema na captura das magias conjuradas.|cFFFFFF00v1.6.3|r\n\n|cFFFFFF00-|r captura de dados agora roda 4% mais rapido.\n\n|cFFFFFF00-|r Corrigido problema onde os ajudantes nao atualizavam o tempo de atividade do dono.\n\n|cFFFFFF00-|r Corrigido problema onde o healing era contado mesmo fora do combate.\n\n|cFFFFFF00-|r Corrigido problema com chefes multiplos como Twin Consorts.\n\n|cFFFFFF00-|r Adicionada opcao para juntar os segmentos de trash mobs.\n\n|cFFFFFF00-|r Adicionada opcao para auto remover os segmentos de trash mobs. \n\n|cFFFFFF00-|r Adicionada opcao para alterar a altura das barras.\n\n|cFFFFFF00-|r Plugin Encounter Details agora mostra quantos cast bem sucedidos as magias interrompidas tiveram.\n\n|cFFFFFF00v1.6.1|r\n\n|cFFFFFF00-|r Corrigido:\n- problema com o tempo de debuffs.\n- dps dos dados gerais e o dps no micro display .\n- varios bugs envolvendo o menu da espada e do livro.\n- o coletor de lixo nao ira mais apagar jogadores com vinculo a membros do grupo.\n\n|cFFFFFF00-|r dados gerais agora sempre ira usar o tempo do combate para medir dps e hps.\n\n|cFFFFFF00v1.6.0|r\n\n|cFFFFFF00-|r Adicionado tempo de debuff no atributo miscelanea.\n\n|cFFFFFF00-|r Atributos desativados agora ficam escurecidos no menu da espada.\n\n|cFFFFFF00-|r Corrigido um problema aonde algumas vezes era necessario dar /reload para trocar um talento.\n\n|cFFFFFF00v1.5.3|r\n\n|cFFFFFF00-|r Corrigido problema ao reportar durante o combate.\n\n|cFFFFFF00-|r Melhorado a reconhecimento dos donos de ajudantes.\n\n|cFFFFFF00-|r Adicionada uma opcao para mostrar apenas frags em cima de jogadores inimigos.\n\n|cFFFFFF00-|r Adicionado cor e icone aos frags.\n\n|cFFFFFF00v1.5.2|r\n\n|cFFFFFF00-|r Corrigido problema onde desativando o tempo dos buffs estava desativando tambem a cura feita.\n\n|cFFFFFF00-|r Estatisticas de Avoidance nao seram mais capturadas para pessoas foram do grupo, monstros ou ajudantes.\n\n|cFFFFFF00-|r Corrigido problema onde as vezes estava demorando muito para salvar o tempo dos buffs ao sair do jogo.\n\n|cFFFFFF00v1.5.1|r\n\n|cFFFFFF00-|r Corrigido problema ao reportar o Dps onde as vezes nao mostrava nenhum jogador.\n\n|cFFFFFF00v1.5.0|r\n\n|cFFFFFF00-|r Buff Uptime foi implementado no atributo miscelanea.\n\n|cFFFFFF00-|r Cooldowns usados agora aparecem nos registros da morte.\n\n|cFFFFFF00-|r Implementado esta janela mostrando as atualizacoes.\n\n|cFFFFFF00-|r Corrigido problema onde algumas vezes clicando no nome do atributo fazia a instancia parar de atualizar.\n\n|cFFFFFF00-|r Desativando a cura agora para as absorcoes tambem. Desligando as Auras nao interrompe as absorcoes. \n\n|cFFFFFF00-|r Fogo Amigo agora conta apenas jogadores dentro do grupo.\n\n|cFFFFFF00-|r Corrigido problema onde o dano feito por um ajudando nao estava contando no alvo do dono.\n\n|cFFFFFF00-|r Corrigido problema onde a atualizacao de um cooldown nao estava sendo contada.\n\n|cFFFFFF00-|r Adicionada as magias de absorcao para 2P tier 16.\n\n|cFFFFFF00-|r Adicionado os comandos de barra 'worldboss' e 'updates'.\n\n|cFFFFFF00-|r Corrigido problema ao reportar onde algumas vezes nao estava funcionando."
+	Loc ["STRING_VERSION_LOG"] = "|cFFFFFF00v1.8.3|r\n\n|cFFFFFF00-|r Adicionada nova skin: Simple Gray.\n\n|cFFFFFF00-|r Adicionado botoes para o Details! no minimapa e menu de addons no painel de intercace.\n\n|cFFFFFF00-|r Adicionados novas bolhas de tutoriais para aspectos basicos das janelas do Details!.\n\n|cFFFFFF00-|r Corrigido o Modo Panico aonde as vezes ele nao era disparado.\n\n|cFFFFFF00v1.8.0|r\n\n- Adicionado novo plugin: You Are Not Prepared.\n\n|cFFFFFF00-|r Novo painel de opcoes!\n\n|cFFFFFF00v1.7.0|r\n\n- Corrigido alguns problemas com as cores das barras de inimigos.\n\n|cFFFFFF00-|r CC Quebrado foi inteiramente reescrito e agora deve funcionar corretamente.\n\n|cFFFFFF00-|r Adicionado novo sub atributo ao dano: Voidzones & Debuffs.|cFFFFFF00v1.6.7|r\n\n- Adicionado suporte a skins, troque ela atraves do painel de opcoes.\n\n|cFFFFFF00v1.6.5|r\n\n|cFFFFFF00-|r Adicionado o sub atributo 'Inimigos' que mostra, eh claro, somente inimigos.\n\n|cFFFFFF00-|r Corrigido um problema na captura das magias conjuradas.|cFFFFFF00v1.6.3|r\n\n|cFFFFFF00-|r captura de dados agora roda 4% mais rapido.\n\n|cFFFFFF00-|r Corrigido problema onde os ajudantes nao atualizavam o tempo de atividade do dono.\n\n|cFFFFFF00-|r Corrigido problema onde o healing era contado mesmo fora do combate.\n\n|cFFFFFF00-|r Corrigido problema com chefes multiplos como Twin Consorts.\n\n|cFFFFFF00-|r Adicionada opcao para juntar os segmentos de trash mobs.\n\n|cFFFFFF00-|r Adicionada opcao para auto remover os segmentos de trash mobs. \n\n|cFFFFFF00-|r Adicionada opcao para alterar a altura das barras.\n\n|cFFFFFF00-|r Plugin Encounter Details agora mostra quantos cast bem sucedidos as magias interrompidas tiveram.\n\n|cFFFFFF00v1.6.1|r\n\n|cFFFFFF00-|r Corrigido:\n- problema com o tempo de debuffs.\n- dps dos dados gerais e o dps no micro display .\n- varios bugs envolvendo o menu da espada e do livro.\n- o coletor de lixo nao ira mais apagar jogadores com vinculo a membros do grupo.\n\n|cFFFFFF00-|r dados gerais agora sempre ira usar o tempo do combate para medir dps e hps.\n\n|cFFFFFF00v1.6.0|r\n\n|cFFFFFF00-|r Adicionado tempo de debuff no atributo miscelanea.\n\n|cFFFFFF00-|r Atributos desativados agora ficam escurecidos no menu da espada.\n\n|cFFFFFF00-|r Corrigido um problema aonde algumas vezes era necessario dar /reload para trocar um talento.\n\n|cFFFFFF00v1.5.3|r\n\n|cFFFFFF00-|r Corrigido problema ao reportar durante o combate.\n\n|cFFFFFF00-|r Melhorado a reconhecimento dos donos de ajudantes.\n\n|cFFFFFF00-|r Adicionada uma opcao para mostrar apenas frags em cima de jogadores inimigos.\n\n|cFFFFFF00-|r Adicionado cor e icone aos frags.\n\n|cFFFFFF00v1.5.2|r\n\n|cFFFFFF00-|r Corrigido problema onde desativando o tempo dos buffs estava desativando tambem a cura feita.\n\n|cFFFFFF00-|r Estatisticas de Avoidance nao seram mais capturadas para pessoas foram do grupo, monstros ou ajudantes.\n\n|cFFFFFF00-|r Corrigido problema onde as vezes estava demorando muito para salvar o tempo dos buffs ao sair do jogo.\n\n|cFFFFFF00v1.5.1|r\n\n|cFFFFFF00-|r Corrigido problema ao reportar o Dps onde as vezes nao mostrava nenhum jogador.\n\n|cFFFFFF00v1.5.0|r\n\n|cFFFFFF00-|r Buff Uptime foi implementado no atributo miscelanea.\n\n|cFFFFFF00-|r Cooldowns usados agora aparecem nos registros da morte.\n\n|cFFFFFF00-|r Implementado esta janela mostrando as atualizacoes.\n\n|cFFFFFF00-|r Corrigido problema onde algumas vezes clicando no nome do atributo fazia a instancia parar de atualizar.\n\n|cFFFFFF00-|r Desativando a cura agora para as absorcoes tambem. Desligando as Auras nao interrompe as absorcoes. \n\n|cFFFFFF00-|r Fogo Amigo agora conta apenas jogadores dentro do grupo.\n\n|cFFFFFF00-|r Corrigido problema onde o dano feito por um ajudando nao estava contando no alvo do dono.\n\n|cFFFFFF00-|r Corrigido problema onde a atualizacao de um cooldown nao estava sendo contada.\n\n|cFFFFFF00-|r Adicionada as magias de absorcao para 2P tier 16.\n\n|cFFFFFF00-|r Adicionado os comandos de barra 'worldboss' e 'updates'.\n\n|cFFFFFF00-|r Corrigido problema ao reportar onde algumas vezes nao estava funcionando."
 
 	Loc ["STRING_DETAILS1"] = "|cffffaeaeDetalhes:|r " --> color and details name
 
 	Loc ["STRING_YES"] = "Sim"
 	Loc ["STRING_NO"] = "Nao"
 	
+	Loc ["STRING_MINIMAP_TOOLTIP1"] = "|cFFCFCFCFbotao esquerdo|r: abrir o painel de opcoes"
+	Loc ["STRING_MINIMAP_TOOLTIP2"] = "|cFFCFCFCFbotao direito|r: menu rapido"
+	
+	Loc ["STRING_MINIMAPMENU_NEWWINDOW"] = "Criar Nova Janela"
+	Loc ["STRING_MINIMAPMENU_RESET"] = "Resetar"
+	Loc ["STRING_MINIMAPMENU_REOPEN"] = "Reabrir Janela"
+	Loc ["STRING_MINIMAPMENU_REOPENALL"] = "Reabrir Todas"
+	Loc ["STRING_MINIMAPMENU_UNLOCK"] = "Destravar"
+	Loc ["STRING_MINIMAPMENU_LOCK"] = "Travar"
+	
+	Loc ["STRING_INTERFACE_OPENOPTIONS"] = "Abrir Painel de Opcoes"
+	
+	Loc ["STRING_RIGHTCLICK_TYPEVALUE"] = "botao direito para digitar o valor"
 	Loc ["STRING_AUTO"] = "auto"
 	Loc ["STRING_LEFT"] = "esquerda"
 	Loc ["STRING_CENTER"] = "centro"
@@ -133,7 +145,8 @@ if not Loc then return end
 	Loc ["STRING_MODE_PLUGINS"] = "plugins"
 	
 	Loc ["STRING_OPTIONS_WINDOW"] = "Painel de Opcoes"
--->
+	
+--> Wait Messages
 	
 	Loc ["STRING_NEWROW"] = "esperando atualizar..."
 	Loc ["STRING_WAITPLUGIN"] = "esperando por\nplugins"
@@ -281,7 +294,6 @@ if not Loc then return end
 	Loc ["STRING_REPORT_SINGLE_BUFFUPTIME"] = "duracao dos buffs de"
 	Loc ["STRING_REPORT_SINGLE_DEBUFFUPTIME"]  = "duracao dos debuffs de"
 	Loc ["STRING_NOCLOSED_INSTANCES"] = "Nao ha instancias fechadas,\nclique para abrir uma nova."
-	--Loc ["STRING_REPORT_FRAG"] = 
 	
 --> report frame
 
@@ -335,16 +347,194 @@ if not Loc then return end
 	Loc ["STRING_HELP_RESIZE"] = "Botoes de redimencionar e travar a janela."
 	Loc ["STRING_HELP_STRETCH"] = "Clique, segure e puxe para esticar a janela."
 	
-------------------------------------------------------------------------------------------------------------------------------------
+	Loc ["STRING_HELP_MODESELF"] = "Este modo possui plugins destinados apenas ao seu personagem. Voce pode escolher o plugin que deseja usar no menu da espada."
+	Loc ["STRING_HELP_MODEGROUP"] = "Neste modo somendo é mostrado personagens que estao no seu grupo ou raide."
+	Loc ["STRING_HELP_MODEALL"] = "Nesta opcao os filtros de grupo estao desativados, o Details! mostra tudo o que foi capturado, incluindo monstros, chefes, adds, entre outros."
+	Loc ["STRING_HELP_MODERAID"] = "O modo raide eh o oposto do modo lobo solitario, aqui voce encontra plugins destinados ao seu grupo em geral."
+	
 --> MISC
 
 	Loc ["STRING_PLAYER_DETAILS"] = "Detalhes do Jogador"
 	Loc ["STRING_MELEE"] = "Corpo-a-Corpo"
 	Loc ["STRING_AUTOSHOT"] = "Tiro Automatico"
+	Loc ["STRING_DOT"] = " (DoT)"
 	Loc ["STRING_UNKNOWSPELL"] = "Magia Desconhecida"
 	
 	Loc ["STRING_CCBROKE"] = "CC Quebrados"
 	Loc ["STRING_DISPELLED"] = "Auras Removidas"
 	Loc ["STRING_SPELL_INTERRUPTED"] = "Magias Interrompidas"
 	
-	Loc ["STRING_DOT"] = " (DoT)"
+-- OPTIONS PANEL -----------------------------------------------------------------------------------------------------------------
+
+	Loc ["STRING_OPTIONS_SWITCHINFO"] = "|cFFF79F81 ESQUERDA DESATIVADO|r  |cFF81BEF7 DIREITA ATIVADO|r"
+	
+	Loc ["STRING_OPTIONS_PICKCOLOR"] = "cor"
+	Loc ["STRING_OPTIONS_EDITIMAGE"] = "Editar Imagem"
+	
+	Loc ["STRING_OPTIONS_PRESETTOOLD"] = "Esta predefinicao requer uma versao atualizada do Details!."
+	Loc ["STRING_OPTIONS_PRESETNONAME"] = "De um nome a sua predefinicao."
+	
+	Loc ["STRING_OPTIONS_EDITINSTANCE"] = "Editando a Instancia:"
+	
+	Loc ["STRING_OPTIONS_GENERAL"] = "Configuracoes Gerais"
+	Loc ["STRING_OPTIONS_APPEARANCE"] = "Aparencia"
+	Loc ["STRING_OPTIONS_PERFORMANCE"] = "Performance"
+	Loc ["STRING_OPTIONS_SOCIAL"] = "Social"
+	Loc ["STRING_OPTIONS_SOCIAL_DESC"] = "Diga como voce gostaria de ser conhecido na sua guilda."
+	Loc ["STRING_OPTIONS_NICKNAME"] = "Apelido"
+	Loc ["STRING_OPTIONS_NICKNAME_DESC"] = "Digite o seu apelido neste campo. O apelido escolhido sera enviado aos membros da sua guilda e o Details! ira substituir o nome do personagem pelo aplido."
+	Loc ["STRING_OPTIONS_AVATAR"] = "Escolha o Seu Avatar"
+	Loc ["STRING_OPTIONS_AVATAR_DESC"] = "O avatar tambem eh enviado aos membros da guilda, ele eh mostrado sobre o tooltip quando passa o mouse sobre uma barra."
+	Loc ["STRING_OPTIONS_REALMNAME"] = "Remover o Nome do Reino"
+	Loc ["STRING_OPTIONS_REALMNAME_DESC"] = "Quando ativado, o nome do reino do que o personagem pertence nao eh mostrado.\n\n|cFFFFFFFFExemplo:|r\n\nCharles-Azralon |cFFFFFFFF(desativado)|r\nCharles |cFFFFFFFF(ativado)|r"
+	
+	Loc ["STRING_OPTIONS_MAXSEGMENTS"] = "Max. Segmentos"
+	Loc ["STRING_OPTIONS_MAXSEGMENTS_DESC"] = "Esta opcao controla quantos segmentos voce deseja manter.\n\nO recomendado eh |cFFFFFFFF12|r, mas sinta-se livre para ajustar este numero como desejar.\n\nComputadores com |cFFFFFFFF2GB|r ou menos de memoria ram devem manter um numero de segmentos baixo, isto pode ajudar a preservar a memoria."
+	
+	Loc ["STRING_OPTIONS_SCROLLBAR"] = "Barra de Rolagem"
+	Loc ["STRING_OPTIONS_SCROLLBAR_DESC"] = "Ativa ou desativa a barra de rolagem.\n\nDetails! usa como padrao um mecanismo para estivar a janela.\n\nA |cFFFFFFFFalca|r para estica-lo encontra-se fora da janela em cima do botao de fechar e de criar instancias."
+	Loc ["STRING_OPTIONS_MAXINSTANCES"] = "Max. Instancias"
+	Loc ["STRING_OPTIONS_MAXINSTANCES_DESC"] = "Limita o numero de janelas que podem ser criadas.\n\nVoce pode abrir ou reabrir as janelas atraves do botao de instancia localizado a esquerda do botao de fechar."
+	Loc ["STRING_OPTIONS_PVPFRAGS"] = "Apenas Frags de Pvp"
+	Loc ["STRING_OPTIONS_PVPFRAGS_DESC"] = "Quando ativado, serao registrados apenas mortes de jogadores da faccao inimiga."
+	Loc ["STRING_OPTIONS_TIMEMEASURE"] = "Medidas do Tempo"
+	Loc ["STRING_OPTIONS_TIMEMEASURE_DESC"] = "|cFFFFFFFFTempo de Atividade|r: o tempo de cada membro da raide eh posto em pausa quando ele ficar ocioso e volta a contar o tempo quando ele voltar a atividade, eh a maneira mais comum de medir o Dps e Hps.\n\n|cFFFFFFFFTempo Efetivo|r: muito usado para ranqueamentos, este metodo usa o tempo total da luta para medir o Dps e Hps de todos os membros da raide."
+	
+	Loc ["STRING_OPTIONS_PERFORMANCE1"] = "Ajustes de Performance"
+	Loc ["STRING_OPTIONS_PERFORMANCE1_DESC"] = "Estas opcoes podem ajudar no desempenho deste addon."
+	
+	Loc ["STRING_OPTIONS_MEMORYT"] = "Ajuste de Memoria"
+	Loc ["STRING_OPTIONS_MEMORYT_DESC"] = "Details! possui mecanismos internos que lidam com a memoria e tentam ajustar o uso dela de acordo com a memoria disponivel no seu sistema.\n\nTambem eh recomendado limitar o numero de segmentos se o seu computador tiver |cFFFFFFFF2GB|r ou menos de memoria."
+	
+	Loc ["STRING_OPTIONS_SEGMENTSSAVE"] = "Segmentos Salvos"
+	Loc ["STRING_OPTIONS_SEGMENTSSAVE_DESC"] = "Esta opcao controla quantos segmentos voce deseja salvar entre logouts e loginss.\n\nValores altos podem fazer o tempo de logoff do seu personagem demorar mais.\n\nSe voce raramente olha os dados da raide do dia anterior, eh muito recomendado deixar esta opcao em 1|cFFFFFFFF1|r."
+	
+	Loc ["STRING_OPTIONS_PANIMODE"] = "Modo de Panico"
+	Loc ["STRING_OPTIONS_PANIMODE_DESC"] = "Quando voce cair do jogo durante uma luta contra um Chefe de uma Raide e esta opcao estiver antiva, todos os segmentos sao apagados para o processo de logoff ser rapido."
+	
+	Loc ["STRING_OPTIONS_ANIMATEBARS"] = "Animar as Barras"
+	Loc ["STRING_OPTIONS_ANIMATEBARS_DESC"] = "Quando ativa as barras das janelas sao animadas ao inves de 'pularem'."
+	
+	Loc ["STRING_OPTIONS_ANIMATESCROLL"] = "Animar Barra de Rolagem"
+	Loc ["STRING_OPTIONS_ANIMATESCROLL_DESC"] = "Quanto ativa, a barra de rolagem faz uma animacao ao ser mostrada e escondida."
+	
+	Loc ["STRING_OPTIONS_WINDOWSPEED"] = "Velocidade de Atualizacao"
+	Loc ["STRING_OPTIONS_WINDOWSPEED_DESC"] = "Segundos entre cada atualizacao da janela.\n\n|cFFFFFFFF0.3|r: atualiza cerca de 3 vezes por segundo.\n\n|cFFFFFFFF3.0|r: atualiza a cada 3 segundos."
+	
+	Loc ["STRING_OPTIONS_CLEANUP"] = "Apagar Segmentos de Limpeza"
+	Loc ["STRING_OPTIONS_CLEANUP_DESC"] = "Segmentos com 'trash mobs' sao considerados segmentos de limpeza.\n\nEsta opcao ativa a remocao automatica destes segmetnso quando possivel."
+	
+	Loc ["STRING_OPTIONS_PERFORMANCECAPTURES"] = "Coletor de Informacao do Combate"
+	Loc ["STRING_OPTIONS_PERFORMANCECAPTURES_DESC"] = "Esta opcao controla quais informacoes serao capturadas durante o combate."
+	
+	
+	Loc ["STRING_OPTIONS_CDAMAGE"] = "Coletar Dano"
+	Loc ["STRING_OPTIONS_CHEAL"] = "Coletar Cura"
+	Loc ["STRING_OPTIONS_CENERGY"] = "Coletar Energia"
+	Loc ["STRING_OPTIONS_CMISC"] = "Coletar Misc"
+	Loc ["STRING_OPTIONS_CAURAS"] = "Coletar Auras"
+	
+	Loc ["STRING_OPTIONS_CDAMAGE_DESC"] = "Ativa a Captura de:\n\n- |cFFFFFFFFDano Feito|r\n- |cFFFFFFFFDano Por Segundo|r\n- |cFFFFFFFFFogo Amigo|r\n- |cFFFFFFFFDano Sofrido|r"
+	Loc ["STRING_OPTIONS_CHEAL_DESC"] = "Ativa a Captura de:\n\n- |cFFFFFFFFCura Feita|r\n- |cFFFFFFFFAbsorcoes|r\n- |cFFFFFFFFCura Por Segundo|r\n- |cFFFFFFFFSobre Cura|r\n- |cFFFFFFFFCura Recebida|r\n- |cFFFFFFFFCura Inimiga|r\n- |cFFFFFFFFDano Prevenido|r"
+	Loc ["STRING_OPTIONS_CENERGY_DESC"] = "Ativa a Captura de:\n\n- |cFFFFFFFFMana Restaurada|r\n- |cFFFFFFFFRaiva Gerada|r\n- |cFFFFFFFFEnergia Gerada|r\n- |cFFFFFFFFPoder Runico Gerado|r"
+	Loc ["STRING_OPTIONS_CMISC_DESC"] = "Ativa a Captura de:\n\n- |cFFFFFFFFQuebra de CC|r\n- |cFFFFFFFFDissipacoes|r\n- |cFFFFFFFFInterrupcoes|r\n- |cFFFFFFFFRess|r\n- |cFFFFFFFFMortes|r"
+	Loc ["STRING_OPTIONS_CAURAS_DESC"] = "Ativa a Captura de:\n\n- |cFFFFFFFFTempo de Buffs|r\n- |cFFFFFFFFTempo de Debuffs|r\n- |cFFFFFFFFVoid Zones|r\n-|cFFFFFFFF Cooldowns|r"
+	
+	Loc ["STRING_OPTIONS_CLOUD"] = "Captura Atraves de Nuvem"
+	Loc ["STRING_OPTIONS_CLOUD_DESC"] = "Quando ativado, as informacoes de capturas deligadas eh buscada em outros membros da raide."
+	
+	
+	Loc ["STRING_OPTIONS_BARS"] = "Bar Settings"
+	Loc ["STRING_OPTIONS_BARS_DESC"] = "This options control the appearance of the instance bars."
+
+	Loc ["STRING_OPTIONS_BAR_TEXTURE"] = "Texture"
+	Loc ["STRING_OPTIONS_BAR_TEXTURE_DESC"] = "Choose the texture of bars."
+	
+	Loc ["STRING_OPTIONS_BAR_BTEXTURE"] = "Background Texture"
+	Loc ["STRING_OPTIONS_BAR_BTEXTURE_DESC"] = "Choose the background texture of bars."
+	
+	Loc ["STRING_OPTIONS_BAR_BCOLOR"] = "Background Color"
+	Loc ["STRING_OPTIONS_BAR_BCOLOR_DESC"] = "Choose the background color of bars."
+	
+	Loc ["STRING_OPTIONS_BAR_HEIGHT"] = "Height"
+	Loc ["STRING_OPTIONS_BAR_HEIGHT_DESC"] = "Change the height of bars."
+	
+	Loc ["STRING_OPTIONS_BAR_COLORBYCLASS"] = "Color By Class"
+	Loc ["STRING_OPTIONS_BAR_COLORBYCLASS_DESC"] = "When enabled, the instance bars have the color of the character class.\n\nDisabled: bars have a fixed color."
+	
+	Loc ["STRING_OPTIONS_BAR_COLORBYCLASS2"] = "Background Color By Class"
+	Loc ["STRING_OPTIONS_BAR_COLORBYCLASS2_DESC"] = "When enabled, the instance bars  background have the color of the character class.\n\nDisabled: bars have a fixed color."
+	--
+	Loc ["STRING_OPTIONS_TEXT"] = "Text Settings"
+	Loc ["STRING_OPTIONS_TEXT_DESC"] = "This options control the appearance of the instance bar texts."
+	
+	Loc ["STRING_OPTIONS_TEXT_SIZE"] = "Size"
+	Loc ["STRING_OPTIONS_TEXT_SIZE_DESC"] = "Change the size of bar texts."
+	
+	Loc ["STRING_OPTIONS_TEXT_FONT"] = "Font"
+	Loc ["STRING_OPTIONS_TEXT_FONT_DESC"] = "Change the font of bar texts."
+	
+	Loc ["STRING_OPTIONS_TEXT_LOUTILINE"] = "Left Text Outline"
+	Loc ["STRING_OPTIONS_TEXT_LOUTILINE_DESC"] = "Enable or Disable the outline for left text."
+	
+	Loc ["STRING_OPTIONS_TEXT_ROUTILINE"] = "Right Text Outline"
+	Loc ["STRING_OPTIONS_TEXT_ROUTILINE_DESC"] = "Enable or Disable the outline for right text."
+	
+	Loc ["STRING_OPTIONS_TEXT_LCLASSCOLOR"] = "Left Text Color By Class"
+	Loc ["STRING_OPTIONS_TEXT_LCLASSCOLOR_DESC"] = "When enabled, the left text uses the class color of the character.\n\nIf disabled, choose the color on the color picker button."
+	
+	Loc ["STRING_OPTIONS_TEXT_RCLASSCOLOR"] = "Right Text Color By Class"
+	Loc ["STRING_OPTIONS_TEXT_RCLASSCOLOR_DESC"] = "When enabled, the right text uses the class color of the character.\n\nIf disabled, choose the color on the color picker button."
+	--
+	Loc ["STRING_OPTIONS_INSTANCE"] = "Instance Settings"
+	Loc ["STRING_OPTIONS_INSTANCE_DESC"] = "This options control the appearance of the instance it self."
+	
+	Loc ["STRING_OPTIONS_INSTANCE_COLOR"] = "Color"
+	Loc ["STRING_OPTIONS_INSTANCE_COLOR_DESC"] = "Change the color of instance window."
+	
+	Loc ["STRING_OPTIONS_INSTANCE_ALPHA"] = "Alpha"
+	Loc ["STRING_OPTIONS_INSTANCE_ALPHA_DESC"] = "This option let you change the color and transparency of instance window background."
+	
+	Loc ["STRING_OPTIONS_INSTANCE_CURRENT"] = "Auto Switch To Current"
+	Loc ["STRING_OPTIONS_INSTANCE_CURRENT_DESC"] = "Whenever a combat start and there is no other instance on current segment, this instance auto switch to current segment."
+
+	Loc ["STRING_OPTIONS_INSTANCE_SKIN"] = "Skin"
+	Loc ["STRING_OPTIONS_INSTANCE_SKIN_DESC"] = "Modify all window textures based on a skin theme."
+	
+	Loc ["STRING_OPTIONS_WP"] = "Wallpaper Settings"
+	Loc ["STRING_OPTIONS_WP_DESC"] = "This options control the wallpaper of instance."
+	
+	Loc ["STRING_OPTIONS_WP_ENABLE"] = "Show"
+	Loc ["STRING_OPTIONS_WP_ENABLE_DESC"] = "Enable or Disable the wallpaper of the instance.\n\nSelect the category and the image you want on the two following boxes."
+	
+	Loc ["STRING_OPTIONS_WP_GROUP"] = "Category"
+	Loc ["STRING_OPTIONS_WP_GROUP_DESC"] = "In this box, you select the group of the wallpaper, the images of this category can be chosen on the next dropbox."
+	
+	Loc ["STRING_OPTIONS_WP_GROUP2"] = "Wallpaper"
+	Loc ["STRING_OPTIONS_WP_GROUP2_DESC"] = "Select the wallpaper, for more, choose a diferent category on the left dropbox."
+	
+	Loc ["STRING_OPTIONS_WP_ALIGN"] = "Align"
+	Loc ["STRING_OPTIONS_WP_ALIGN_DESC"] = "Select how the wallpaper will align within the window instance.\n\n- |cFFFFFFFFFill|r: auto resize and align with all corners.\n\n- |cFFFFFFFFCenter|r: doesn`t resize and align with the center of the window.\n\n-|cFFFFFFFFStretch|r: auto resize on vertical or horizontal and align with left-right or top-bottom sides.\n\n-|cFFFFFFFFFour Corners|r: align with specified corner, no auto resize is made."
+	
+	Loc ["STRING_OPTIONS_WP_EDIT"] = "Edit Image"
+	Loc ["STRING_OPTIONS_WP_EDIT_DESC"] = "Open the image editor to change some wallpaper aspects."
+
+	Loc ["STRING_OPTIONS_SAVELOAD"] = "Save and Load"
+	Loc ["STRING_OPTIONS_SAVELOAD_DESC"] = "This options allow you to save or load predefined settings."
+	
+	Loc ["STRING_OPTIONS_SAVELOAD_PNAME"] = "Preset Name"
+	Loc ["STRING_OPTIONS_SAVELOAD_SAVE"] = "save"
+	Loc ["STRING_OPTIONS_SAVELOAD_LOAD"] = "load"
+	Loc ["STRING_OPTIONS_SAVELOAD_REMOVE"] = "x"
+	Loc ["STRING_OPTIONS_SAVELOAD_RESET"] = "reset to default"
+	Loc ["STRING_OPTIONS_SAVELOAD_APPLYTOALL"] = "apply to all instances"
+
+
+-- Mini Tutorials -----------------------------------------------------------------------------------------------------------------
+
+	Loc ["STRING_MINITUTORIAL_1"] = "Botao de Instancias:\n\nClique para abrir uma nova janela do Details!.\n\nPasse o mouse sobre o botao para reabrir janelas fechadas."
+	Loc ["STRING_MINITUTORIAL_2"] = "Botao de Esticar:\n\nClique, segure e puxe para esticar a janela.\n\nSolte o botao para a janela retornar ao tamanho normal."
+	Loc ["STRING_MINITUTORIAL_3"] = "Redimencionar e Trancar:\n\nUse este botao para mudar o tamanho da janela.\n\nTrancando ela, impede que a janela seja movida."
+	Loc ["STRING_MINITUTORIAL_4"] = "Painel de Atalhos:\n\nClicando com o botao direito sobre uma barra ou no fundo da janela, o painel de atalho eh mostrado."
+	Loc ["STRING_MINITUTORIAL_5"] = "Micro Displays:\n\nMostram informacoes importantes a voce.\n\nBotao esquerdo para configura-las.\n\nBotao direito para escolhar outra informacao."
+	Loc ["STRING_MINITUTORIAL_6"] = "Juntar Janelas:\n\nMova uma janela proxima a outra para junta-las.\n\nSempre junte janelas com o numero anterior, exemplo: #5 junta com a #4, #2 junta com a #1, etc."

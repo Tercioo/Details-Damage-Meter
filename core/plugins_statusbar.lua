@@ -191,6 +191,9 @@
 		
 		--|TTexturePath:							size X: size Y: point offset Y X : texture size : coordx1 L : coordx2 R : coordy1 T : coordy2 B |t 
 		-- left click: 0.0019531:0.1484375:0.4257813:0.6210938 right click: 0.0019531:0.1484375:0.6269531:0.8222656
+		
+		_detalhes.OnEnterMainWindow (frame.child.instance)
+		
 		local passou = 0
 		frame:SetScript ("OnUpdate", function (self, elapsed)
 			passou = passou + elapsed
@@ -211,6 +214,9 @@
 
 	--> on leave
 	local OnLeave = function (frame)
+	
+		_detalhes.OnLeaveMainWindow (frame.child.instance)
+	
 		if (_detalhes.popup.active) then
 			local passou = 0
 			frame:SetScript ("OnUpdate", function (self, elapsed)

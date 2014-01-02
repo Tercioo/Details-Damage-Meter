@@ -90,9 +90,12 @@ function DetailsCreateCoolTip()
 			["NoLastSelectedBar"] = true,
 			["SubMenuIsTooltip"] = true,
 			["LeftBorderSize"] = true,
-			["RightBorderSize"] = true
-			
+			["RightBorderSize"] = true,
+			["HeighMod"] = true,
+			["IconBlendMode"] = true,
+			["IconBlendModeHover"] = true,
 		}
+		
 		CoolTip.OptionsTable = {
 			["IconSize"] = nil,
 			["HeightAnchorMod"] = nil,
@@ -122,7 +125,10 @@ function DetailsCreateCoolTip()
 			["NoLastSelectedBar"] = nil,
 			["SubMenuIsTooltip"] = nil,
 			["LeftBorderSize"] = nil,
-			["RightBorderSize"] = nil
+			["RightBorderSize"] = nil,
+			["HeighMod"] = nil,
+			["IconBlendMode"] = nil,
+			["IconBlendModeHover"] = nil,
 		}
 	
 		--cprops
@@ -152,6 +158,7 @@ function DetailsCreateCoolTip()
 		local frame2 = CreateFrame ("Frame", "CoolTipFrame2", UIParent, "CooltipMainFrameTemplate")
 		tinsert (UISpecialFrames, "CoolTipFrame2")
 		gump:CreateFlashAnimation (frame2)
+		frame2:SetClampedToScreen (true)
 		
 		frame2:SetPoint ("bottomleft", frame1, "bottomright")
 	
@@ -377,7 +384,7 @@ function DetailsCreateCoolTip()
 			
 			--> serach key: ~onenter
 			botao:SetScript ("OnEnter", function()
-							if (CoolTip.Type ~= 1 and CoolTip.Type ~= 2) then
+							if (CoolTip.Type ~= 1 and CoolTip.Type ~= 2 and not botao.isDiv) then
 								CoolTip.active = true
 								CoolTip.mouseOver = true
 
@@ -385,6 +392,12 @@ function DetailsCreateCoolTip()
 								frame2:SetScript ("OnUpdate", nil)
 
 								botao.background:Show()
+								
+								if (CoolTip.OptionsTable.IconBlendModeHover) then
+									botao.leftIcon:SetBlendMode (CoolTip.OptionsTable.IconBlendModeHover)
+								else
+									botao.leftIcon:SetBlendMode ("BLEND")
+								end
 
 								if (CoolTip.IndexesSub [botao.index] and CoolTip.IndexesSub [botao.index] > 0) then
 									if (CoolTip.OptionsTable.SubMenuIsTooltip) then
@@ -412,12 +425,20 @@ function DetailsCreateCoolTip()
 						end)
 						
 			botao:SetScript ("OnLeave", function()
-							if (CoolTip.Type ~= 1 and CoolTip.Type ~= 2) then
+							if (CoolTip.Type ~= 1 and CoolTip.Type ~= 2 and not botao.isDiv) then
 								CoolTip.active = false
 								CoolTip.mouseOver = false
 								botao:SetScript ("OnUpdate", nil)
 								
 								botao.background:Hide()
+								
+								if (CoolTip.OptionsTable.IconBlendMode) then
+									botao.leftIcon:SetBlendMode (CoolTip.OptionsTable.IconBlendMode)
+									botao.rightIcon:SetBlendMode (CoolTip.OptionsTable.IconBlendMode)
+								else
+									botao.leftIcon:SetBlendMode ("BLEND")
+									botao.rightIcon:SetBlendMode ("BLEND")
+								end
 								
 								elapsedTime = 0
 								frame1:SetScript ("OnUpdate", OnLeaveUpdateButton)
@@ -460,6 +481,12 @@ function DetailsCreateCoolTip()
 								
 								botao.background:Show()
 								
+								if (CoolTip.OptionsTable.IconBlendModeHover) then
+									botao.leftIcon:SetBlendMode (CoolTip.OptionsTable.IconBlendModeHover)
+								else
+									botao.leftIcon:SetBlendMode ("BLEND")
+								end
+								
 								frame1:SetScript ("OnUpdate", nil)
 								frame2:SetScript ("OnUpdate", nil)
 								
@@ -476,6 +503,14 @@ function DetailsCreateCoolTip()
 								CoolTip.mouseOver = false
 								
 								botao.background:Hide()
+								
+								if (CoolTip.OptionsTable.IconBlendMode) then
+									botao.leftIcon:SetBlendMode (CoolTip.OptionsTable.IconBlendMode)
+									botao.rightIcon:SetBlendMode (CoolTip.OptionsTable.IconBlendMode)
+								else
+									botao.leftIcon:SetBlendMode ("BLEND")
+									botao.rightIcon:SetBlendMode ("BLEND")
+								end
 								
 								elapsedTime = 0
 								frame2:SetScript ("OnUpdate", OnLeaveUpdateButtonSec)
@@ -595,14 +630,19 @@ function DetailsCreateCoolTip()
 				menuButton.leftIcon:SetWidth (leftIconTable [2])
 				menuButton.leftIcon:SetHeight (leftIconTable [3])
 				menuButton.leftIcon:SetTexCoord (leftIconTable [4], leftIconTable [5], leftIconTable [6], leftIconTable [7])
+				
 				local ColorR, ColorG, ColorB, ColorA = gump:ParseColors (leftIconTable [8])
 				menuButton.leftIcon:SetVertexColor (ColorR, ColorG, ColorB, ColorA)
-				--menuButton.leftText:SetPoint ("left", menuButton.leftIcon, "right", 3, 0)
+				
+				if (CoolTip.OptionsTable.IconBlendMode) then
+					menuButton.leftIcon:SetBlendMode (CoolTip.OptionsTable.IconBlendMode)
+				else
+					menuButton.leftIcon:SetBlendMode ("BLEND")
+				end
 			else
 				menuButton.leftIcon:SetTexture (nil)
 				menuButton.leftIcon:SetWidth (3)
 				menuButton.leftIcon:SetHeight (3)
-				--menuButton.leftText:SetPoint ("left", menuButton.leftIcon, "left", -5, 0)
 			end
 			
 			--> right icon
@@ -611,14 +651,19 @@ function DetailsCreateCoolTip()
 				menuButton.rightIcon:SetWidth (rightIconTable [2])
 				menuButton.rightIcon:SetHeight (rightIconTable [3])
 				menuButton.rightIcon:SetTexCoord (rightIconTable [4], rightIconTable [5], rightIconTable [6], rightIconTable [7])
+				
 				local ColorR, ColorG, ColorB, ColorA = gump:ParseColors (rightIconTable [8])
 				menuButton.rightIcon:SetVertexColor (ColorR, ColorG, ColorB, ColorA)
-				--menuButton.rightText:SetPoint ("right", menuButton.rightIcon, "left", -3, 0)
+				
+				if (CoolTip.OptionsTable.IconBlendMode) then
+					menuButton.rightIcon:SetBlendMode (CoolTip.OptionsTable.IconBlendMode)
+				else
+					menuButton.rightIcon:SetBlendMode ("BLEND")
+				end
 			else
 				menuButton.rightIcon:SetTexture (nil)
 				menuButton.rightIcon:SetWidth (1)
 				menuButton.rightIcon:SetHeight (1)
-				--menuButton.rightText:SetPoint ("right", menuButton.rightIcon, "right", 5, 0)
 			end
 			
 			--> overwrite icon size
@@ -1022,6 +1067,14 @@ function DetailsCreateCoolTip()
 		end
 	end
 
+	function CoolTip:CreateDivBar (button)
+		button.divbar = button:CreateTexture (nil, "overlay")
+		button.divbar:SetTexture ("Interface\\TALENTFRAME\\talent-main")
+		button.divbar:SetTexCoord (0, 0.7890625, 0.248046875, 0.264625)
+		button.divbar:SetHeight (3)
+		button.divbar:SetDesaturated (true)
+	end
+	
 	function CoolTip:monta_cooltip (host, instancia, options, sub_menus, icones, tamanho1, tamanho2, font, fontsize)
 
 		if (CoolTip.Indexes == 0) then
@@ -1104,6 +1157,15 @@ function DetailsCreateCoolTip()
 			spacing = CoolTip.OptionsTable.YSpacingMod
 		end
 		
+		if (not CoolTip.OptionsTable.FixedWidth) then
+			if (CoolTip.OptionsTable.MinWidth) then
+				local w = frame1.w + 24
+				frame1:SetWidth (math.max (w, CoolTip.OptionsTable.MinWidth))
+			else
+				frame1:SetWidth (frame1.w + 24)
+			end
+		end
+		
 		--> normalize height of all rows
 		for i = 1, CoolTip.Indexes do 
 			local menuButton = frame1.Lines [i]
@@ -1120,21 +1182,36 @@ function DetailsCreateCoolTip()
 			menuButton:SetPoint ("right", frame1, "right")
 			
 			menuButton:EnableMouse (true)
-		end
-		
-		if (not CoolTip.OptionsTable.FixedWidth) then
-			if (CoolTip.OptionsTable.MinWidth) then
-				local w = frame1.w + 24
-				frame1:SetWidth (math.max (w, CoolTip.OptionsTable.MinWidth))
+			
+			if (menuButton.leftText:GetText() == "$div") then
+			
+				menuButton.leftText:SetText ("")
+				menuButton.isDiv = true
+				
+				if (not menuButton.divbar) then
+					CoolTip:CreateDivBar (menuButton)
+				else
+					menuButton.divbar:Show()
+				end
+				
+				menuButton.divbar:SetPoint ("left", menuButton, "left", frame1:GetWidth()*0.10, 0)
+				menuButton.divbar:SetPoint ("right", menuButton, "right", -frame1:GetWidth()*0.10, 0)
+				
 			else
-				frame1:SetWidth (frame1.w + 24)
+				if (menuButton.divbar) then
+					menuButton.divbar:Hide()
+					menuButton.isDiv = false
+				end
 			end
+			
+			
 		end
-		
+
 		if (CoolTip.OptionsTable.FixedHeight) then
 			frame1:SetHeight (CoolTip.OptionsTable.FixedHeight)
 		else
-			frame1:SetHeight (_math_max ( (frame1.hHeight * CoolTip.Indexes) + 12 + (-spacing), 22 ))
+			local mod = CoolTip.OptionsTable.HeighMod or 0
+			frame1:SetHeight (_math_max ( (frame1.hHeight * CoolTip.Indexes) + 12 + (-spacing) + mod, 22 ))
 		end
 		
 		frame1:ClearAllPoints()
@@ -1266,6 +1343,8 @@ function DetailsCreateCoolTip()
 			end
 			
 			CoolTip.Host = frame
+
+			CoolTip.frame1:SetFrameLevel (frame:GetFrameLevel()+1)
 			
 			--> defaults
 			myPoint = myPoint or CoolTip.OptionsTable.MyAnchor or "bottom"
@@ -1736,7 +1815,8 @@ function DetailsCreateCoolTip()
 			end
 			
 			if (color) then
-				fontstring:SetTextColor (unpack (color))
+				local r, g, b, a = gump:ParseColors (color)
+				fontstring:SetTextColor (r, g, b, a)
 			end
 			
 			local face, size, flags = fontstring:GetFont()

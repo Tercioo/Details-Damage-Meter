@@ -191,6 +191,11 @@ local TextEntryMetaFunctions = {}
 		end
 	end
 
+--> select all text
+	function TextEntryMetaFunctions:SelectAll()
+		self.editbox:HighlightText()
+	end
+	
 --> set labal description
 	function TextEntryMetaFunctions:SetLabelText (text)
 		if (text) then

@@ -290,6 +290,31 @@ local APIFrameFunctions
 		return _rawget (self, "have_tooltip")
 	end
 
+-- frame levels
+	function PanelMetaFunctions:GetFrameLevel()
+		return self.widget:GetFrameLevel()
+	end
+	function PanelMetaFunctions:SetFrameLevel (level, frame)
+		if (not frame) then
+			return self.widget:SetFrameLevel (level)
+		else
+			local framelevel = frame:GetFrameLevel (frame) + level
+			return self.widget:SetFrameLevel (framelevel)
+		end
+	end
+
+-- frame stratas
+	function PanelMetaFunctions:SetFrameStrata()
+		return self.widget:GetFrameStrata()
+	end
+	function PanelMetaFunctions:SetFrameStrata (strata)
+		if (_type (strata) == "table") then
+			self.widget:SetFrameStrata (strata:GetFrameStrata())
+		else
+			self.widget:SetFrameStrata (strata)
+		end
+	end
+	
 -- enable and disable gradients
 	function PanelMetaFunctions:DisableGradient()
 		self.GradientEnabled = false
@@ -525,3 +550,208 @@ function gump:NewPanel (parent, container, name, member, w, h, backdrop, backdro
 
 	return PanelObject
 end
+
+------------color pick
+
+local color_pick_func = function()
+	local r, g, b = ColorPickerFrame:GetColorRGB()
+	local a = OpacitySliderFrame:GetValue()
+	ColorPickerFrame:dcallback (r, g, b, a)
+end
+local color_pick_func_cancel = function()
+	ColorPickerFrame:SetColorRGB (unpack (ColorPickerFrame.previousValues))
+	local r, g, b = ColorPickerFrame:GetColorRGB()
+	local a = OpacitySliderFrame:GetValue()
+	ColorPickerFrame:dcallback (r, g, b, a)
+end
+
+function gump:ColorPick (frame, r, g, b, alpha, callback)
+
+	ColorPickerFrame:SetPoint ("bottomleft", frame, "topright", 0, 0)
+	
+	ColorPickerFrame.dcallback = callback
+	
+	ColorPickerFrame.func = color_pick_func
+	ColorPickerFrame.opacityFunc = color_pick_func
+	ColorPickerFrame.cancelFunc = color_pick_func_cancel
+	
+	ColorPickerFrame.opacity = alpha
+	ColorPickerFrame.hasOpacity = alpha and true
+	
+	ColorPickerFrame.previousValues = {r, g, b}
+	ColorPickerFrame:SetParent (UIParent)
+	ColorPickerFrame:SetFrameStrata ("tooltip")
+	ColorPickerFrame:SetColorRGB (r, g, b)
+	ColorPickerFrame:Show()
+
+end
+
+------------icon pick
+
+function gump:IconPick (callback)
+
+	if (not gump.IconPickFrame) then 
+	
+		gump.IconPickFrame = CreateFrame ("frame", "DetailsIconPickFrame", UIParent)
+		tinsert (UISpecialFrames, "DetailsIconPickFrame")
+		
+		gump.IconPickFrame:SetPoint ("center", UIParent, "center")
+		gump.IconPickFrame:SetWidth (350)
+		gump.IconPickFrame:SetHeight (200)
+		gump.IconPickFrame:EnableMouse (true)
+		gump.IconPickFrame:SetMovable (true)
+		gump.IconPickFrame:SetBackdrop ({bgFile = "Interface\\AddOns\\Details\\images\\background", edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border", 
+		tile = true, tileSize = 32, edgeSize = 32, insets = {left = 5, right = 5, top = 5, bottom = 5}})
+		
+		gump.IconPickFrame:SetBackdropBorderColor (170/255, 170/255, 170/255)
+		gump.IconPickFrame:SetBackdropColor (24/255, 24/255, 24/255, .8)
+		gump.IconPickFrame:SetFrameLevel (1)
+		
+		gump.IconPickFrame.emptyFunction = function() end
+		gump.IconPickFrame.callback = gump.IconPickFrame.emptyFunction
+		
+		--> close button
+		local close_button = CreateFrame ("button", nil, gump.IconPickFrame, "UIPanelCloseButton")
+		close_button:SetWidth (32)
+		close_button:SetHeight (32)
+		close_button:SetPoint ("TOPRIGHT", gump.IconPickFrame, "TOPRIGHT", -3, 20)
+		close_button:SetFrameLevel (close_button:GetFrameLevel()+2)
+		
+		local MACRO_ICON_FILENAMES = {}
+		gump.IconPickFrame:SetScript ("OnShow", function()
+		
+			MACRO_ICON_FILENAMES = {};
+			MACRO_ICON_FILENAMES[1] = "INV_MISC_QUESTIONMARK";
+			local index = 2;
+			local numFlyouts = 0;
+		
+			for i = 1, GetNumSpellTabs() do
+				local tab, tabTex, offset, numSpells, _ = GetSpellTabInfo(i);
+				offset = offset + 1;
+				local tabEnd = offset + numSpells;
+				for j = offset, tabEnd - 1 do
+					--to get spell info by slot, you have to pass in a pet argument
+					local spellType, ID = GetSpellBookItemInfo(j, "player"); 
+					if (spellType ~= "FUTURESPELL") then
+						local spellTexture = strupper(GetSpellBookItemTexture(j, "player"));
+						if ( not string.match( spellTexture, "INTERFACE\\BUTTONS\\") ) then
+							MACRO_ICON_FILENAMES[index] = gsub( spellTexture, "INTERFACE\\ICONS\\", "");
+							index = index + 1;
+						end
+					end
+					if (spellType == "FLYOUT") then
+						local _, _, numSlots, isKnown = GetFlyoutInfo(ID);
+						if (isKnown and numSlots > 0) then
+							for k = 1, numSlots do 
+								local spellID, overrideSpellID, isKnown = GetFlyoutSlotInfo(ID, k)
+								if (isKnown) then
+									MACRO_ICON_FILENAMES[index] = gsub( strupper(GetSpellTexture(spellID)), "INTERFACE\\ICONS\\", ""); 
+									index = index + 1;
+								end
+							end
+						end
+					end
+				end
+			end
+			
+			GetMacroIcons (MACRO_ICON_FILENAMES)
+			GetMacroItemIcons (MACRO_ICON_FILENAMES )
+			
+		end)
+		
+		gump.IconPickFrame:SetScript ("OnHide", function()
+			MACRO_ICON_FILENAMES = nil;
+			collectgarbage()
+		end)
+		
+		gump.IconPickFrame.buttons = {}
+		
+		local OnClickFunction = function (index) 
+			local button = gump.IconPickFrame.buttons [index]
+			local texture = button:GetNormalTexture()
+			gump.IconPickFrame.callback ("INTERFACE\\ICONS\\"..MACRO_ICON_FILENAMES [button.IconID])
+		end
+		
+		for i = 0, 9 do 
+			local newcheck = gump:NewDetailsButton (gump.IconPickFrame, gump.IconPickFrame, _, OnClickFunction, i+1, i+1, 30, 28, "", "", "", "", _, "DetailsIconPickFrameButton"..(i+1))
+			newcheck:SetPoint ("topleft", gump.IconPickFrame, "topleft", 12+(i*30), -13)
+			newcheck:SetID (i+1)
+			gump.IconPickFrame.buttons [#gump.IconPickFrame.buttons+1] = newcheck
+		end
+		for i = 11, 20 do 
+			local newcheck = gump:NewDetailsButton (gump.IconPickFrame, gump.IconPickFrame, _, OnClickFunction, i, i, 30, 28, "", "", "", "", _, "DetailsIconPickFrameButton"..i)
+			newcheck:SetPoint ("topleft", "DetailsIconPickFrameButton"..(i-10), "bottomleft", 0, -1)
+			newcheck:SetID (i)
+			gump.IconPickFrame.buttons [#gump.IconPickFrame.buttons+1] = newcheck
+		end
+		for i = 21, 30 do 
+			local newcheck = gump:NewDetailsButton (gump.IconPickFrame, gump.IconPickFrame, _, OnClickFunction, i, i, 30, 28, "", "", "", "", _, "DetailsIconPickFrameButton"..i)
+			newcheck:SetPoint ("topleft", "DetailsIconPickFrameButton"..(i-10), "bottomleft", 0, -1)
+			newcheck:SetID (i)
+			gump.IconPickFrame.buttons [#gump.IconPickFrame.buttons+1] = newcheck
+		end
+		for i = 31, 40 do 
+			local newcheck = gump:NewDetailsButton (gump.IconPickFrame, gump.IconPickFrame, _, OnClickFunction, i, i, 30, 28, "", "", "", "", _, "DetailsIconPickFrameButton"..i)
+			newcheck:SetPoint ("topleft", "DetailsIconPickFrameButton"..(i-10), "bottomleft", 0, -1)
+			newcheck:SetID (i)
+			gump.IconPickFrame.buttons [#gump.IconPickFrame.buttons+1] = newcheck
+		end
+		for i = 41, 50 do 
+			local newcheck = gump:NewDetailsButton (gump.IconPickFrame, gump.IconPickFrame, _, OnClickFunction, i, i, 30, 28, "", "", "", "", _, "DetailsIconPickFrameButton"..i)
+			newcheck:SetPoint ("topleft", "DetailsIconPickFrameButton"..(i-10), "bottomleft", 0, -1)
+			newcheck:SetID (i)
+			gump.IconPickFrame.buttons [#gump.IconPickFrame.buttons+1] = newcheck
+		end
+		for i = 51, 60 do 
+			local newcheck = gump:NewDetailsButton (gump.IconPickFrame, gump.IconPickFrame, _, OnClickFunction, i, i, 30, 28, "", "", "", "", _, "DetailsIconPickFrameButton"..i)
+			newcheck:SetPoint ("topleft", "DetailsIconPickFrameButton"..(i-10), "bottomleft", 0, -1)
+			newcheck:SetID (i)
+			gump.IconPickFrame.buttons [#gump.IconPickFrame.buttons+1] = newcheck
+		end
+		
+		local scroll = CreateFrame ("ScrollFrame", "DetailsIconPickFrameScroll", gump.IconPickFrame, "ListScrollFrameTemplate")
+
+		local ChecksFrame_Update = function (self)
+			--self = self or MacroPopupFrame;
+			local numMacroIcons = #MACRO_ICON_FILENAMES;
+			local macroPopupIcon, macroPopupButton;
+			local macroPopupOffset = FauxScrollFrame_GetOffset (scroll);
+			local index;
+			
+			-- Icon list
+			local texture;
+			for i = 1, 60 do
+				macroPopupIcon = _G["DetailsIconPickFrameButton"..i];
+				macroPopupButton = _G["DetailsIconPickFrameButton"..i];
+				index = (macroPopupOffset * 10) + i;
+				texture = MACRO_ICON_FILENAMES [index]
+				if ( index <= numMacroIcons and texture ) then
+					macroPopupButton:ChangeIcon ("INTERFACE\\ICONS\\"..texture, "INTERFACE\\ICONS\\"..texture, "INTERFACE\\ICONS\\"..texture, "INTERFACE\\ICONS\\"..texture)
+					macroPopupButton.IconID = index
+					macroPopupButton:Show();
+				else
+					macroPopupButton:Hide();
+				end
+
+			end
+			
+			-- Scrollbar stuff
+			FauxScrollFrame_Update (scroll, ceil (numMacroIcons / 10) , 5, 20 );
+		end
+		
+		
+		scroll:SetPoint ("topleft", gump.IconPickFrame, "topleft", -18, -10)
+		scroll:SetWidth (330)
+		scroll:SetHeight (178)
+		scroll:SetScript ("OnVerticalScroll", function (self, offset) FauxScrollFrame_OnVerticalScroll (scroll, offset, 20, ChecksFrame_Update) end)
+		scroll.update = ChecksFrame_Update
+		gump.IconPickFrameScroll = scroll
+		gump.IconPickFrame:Hide()
+		
+	end
+	
+	gump.IconPickFrame:Show()
+	gump.IconPickFrameScroll.update (gump.IconPickFrameScroll)
+	gump.IconPickFrame.callback = callback or gump.IconPickFrame.emptyFunction
+	
+end	

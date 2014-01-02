@@ -187,16 +187,67 @@ end
 	end
 ------------------------------------------------------------------------------------------------------------------------
 
-function _detalhes:InstanciaFadeBarras (instancia, segmento)
-	local _fadeType, _fadeSpeed = _unpack (_detalhes.row_fade_in)
-	if (segmento) then
-		if (instancia.segmento == segmento) then
+	function _detalhes:InstanciaFadeBarras (instancia, segmento)
+		local _fadeType, _fadeSpeed = _unpack (_detalhes.row_fade_in)
+		if (segmento) then
+			if (instancia.segmento == segmento) then
+				return gump:Fade (instancia, _fadeType, _fadeSpeed, "barras")
+			end
+		else
 			return gump:Fade (instancia, _fadeType, _fadeSpeed, "barras")
 		end
-	else
-		return gump:Fade (instancia, _fadeType, _fadeSpeed, "barras")
 	end
-end
+
+	-- reabre todas as instancias
+	function _detalhes:ReabrirTodasInstancias (temp)
+		for index = #_detalhes.tabela_instancias, 1, -1 do 
+			local instancia = _detalhes:GetInstance (index)
+			instancia:AtivarInstancia (temp)
+		end
+	end
+	
+	function _detalhes:LockInstance (flag)
+		
+		if (type (flag) == "boolean") then
+			self.isLocked = not flag
+		end
+	
+		if (self.isLocked) then
+			self.isLocked = false
+			if (self.baseframe) then
+				self.baseframe.isLocked = false
+				self.baseframe.lock_button.label:SetText (Loc ["STRING_LOCK_WINDOW"])
+				self.baseframe.lock_button:SetWidth (self.baseframe.lock_button.label:GetStringWidth()+2)
+				gump:Fade (self.baseframe.resize_direita, 0)
+				gump:Fade (self.baseframe.resize_esquerda, 0)
+				self.baseframe.lock_button:ClearAllPoints()
+				self.baseframe.lock_button:SetPoint ("right", self.baseframe.resize_direita, "left", -1, 1.5)
+			end
+		else
+			self.isLocked = true
+			if (self.baseframe) then
+				self.baseframe.isLocked = true
+				self.baseframe.lock_button.label:SetText (Loc ["STRING_UNLOCK_WINDOW"])
+				self.baseframe.lock_button:SetWidth (self.baseframe.lock_button.label:GetStringWidth()+2)
+				self.baseframe.lock_button:ClearAllPoints()
+				self.baseframe.lock_button:SetPoint ("bottomright", self.baseframe, "bottomright", -3, 0)
+				gump:Fade (self.baseframe.resize_direita, 1)
+				gump:Fade (self.baseframe.resize_esquerda, 1)
+			end
+		end
+	end
+	
+	function _detalhes:TravasInstancias()
+		for index, instancia in ipairs (_detalhes.tabela_instancias) do 
+			instancia:LockInstance (true)
+		end
+	end
+	
+	function _detalhes:DestravarInstancias()
+		for index, instancia in ipairs (_detalhes.tabela_instancias) do 
+			instancia:LockInstance (false)
+		end
+	end
 
 --> oposto do desativar, ela apenas volta a mostrar a janela
 	function _detalhes:AtivarInstancia (temp)
@@ -680,7 +731,7 @@ end
 		nova_instancia.row_texture_class_colors = true
 		nova_instancia.row_textL_class_colors = false
 		nova_instancia.row_textR_class_colors = false
-		nova_instancia.row_textL_outline = false
+		nova_instancia.row_textL_outline = true
 		nova_instancia.row_textR_outline = false
 		nova_instancia.fixed_row_texture_color = {0, 0, 0}
 		nova_instancia.fixed_row_text_color = {1, 1, 1}
@@ -706,7 +757,6 @@ end
 		nova_instancia.icons = {true, true, true, true}
 
 		--cria a janela da instância
-		--local _janela, _header, _window, _slider, _footer = gump:CriaJanelaPrincipal (ID, nova_instancia, true) --gump:NovaJanelaPrincipal (ID, nova_instancia, true)
 		local _baseframe, _bgframe, _bgframe_display, _scrollframe = gump:CriaJanelaPrincipal (ID, nova_instancia, true)
 		
 		nova_instancia.baseframe = _baseframe

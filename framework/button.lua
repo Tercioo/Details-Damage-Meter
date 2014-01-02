@@ -189,6 +189,19 @@ local ButtonMetaFunctions = {}
 			return
 		end
 	end	
+	--> text align
+	local smember_textalign = function (_object, _value)
+		if (_value == "left" or _value == "<") then
+			_object.button.text:SetPoint ("left", _object.button, "left", 2, 0)
+			_object.capsule_textalign = "left"
+		elseif (_value == "center" or _value == "|") then
+			_object.button.text:SetPoint ("center", _object.button, "center", 0, 0)
+			_object.capsule_textalign = "center"
+		elseif (_value == "right" or _value == ">") then
+			_object.button.text:SetPoint ("right", _object.button, "right", -2, 0)
+			_object.capsule_textalign = "right"
+		end
+	end
 
 	local set_members_function_index = {
 		["tooltip"] = smember_tooltip,
@@ -203,6 +216,7 @@ local ButtonMetaFunctions = {}
 		["textsize"] = smember_textsize,
 		["texture"] = smember_texture,
 		["locked"] = smember_locked,
+		["textalign"] = smember_textalign,
 	}
 	
 	ButtonMetaFunctions.__newindex = function (_table, _key, _value)
@@ -540,7 +554,17 @@ local ButtonMetaFunctions = {}
 			end
 		end
 		
-		button.text:SetPoint ("center", button,"center", 1, -1)
+		if (button.MyObject.capsule_textalign) then
+			if (button.MyObject.capsule_textalign == "left") then
+				button.text:SetPoint ("left", button, "left", 3, -1)
+			elseif (button.MyObject.capsule_textalign == "center") then
+				button.text:SetPoint ("center", button, "center", 1, -1)
+			elseif (button.MyObject.capsule_textalign == "right") then
+				button.text:SetPoint ("right", button, "right", -1, -1)
+			end
+		else
+			button.text:SetPoint ("center", button,"center", 1, -1)
+		end
 
 		button.mouse_down = GetTime()
 		local x, y = GetCursorPosition()
@@ -595,7 +619,17 @@ local ButtonMetaFunctions = {}
 			end
 		end
 		
-		button.text:SetPoint ("center", button,"center", 0, 0)
+		if (button.MyObject.capsule_textalign) then
+			if (button.MyObject.capsule_textalign == "left") then
+				button.text:SetPoint ("left", button, "left", 2, 0)
+			elseif (button.MyObject.capsule_textalign == "center") then
+				button.text:SetPoint ("center", button, "center", 0, 0)
+			elseif (button.MyObject.capsule_textalign == "right") then
+				button.text:SetPoint ("right", button, "right", -2, 0)
+			end
+		else
+			button.text:SetPoint ("center", button,"center", 0, 0)
+		end
 		
 		if (button.MyObject.container.isMoving) then
 			button.MyObject.container:StopMovingOrSizing()
