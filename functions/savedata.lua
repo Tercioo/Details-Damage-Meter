@@ -13,6 +13,12 @@ end
 
 function _detalhes:SaveDataOnLogout()
 
+if (_detalhes.wipe_full_config) then
+	_detalhes_global = nil
+	_detalhes_database = nil
+	return
+end
+
 --> cleanup tables
 	_detalhes:PrepareTablesForSave()
 
@@ -26,6 +32,8 @@ function _detalhes:SaveDataOnLogout()
 	
 	--> save instances (windows)
 		_detalhes_database.tabela_instancias = _detalhes.tabela_instancias
+	--> character info
+		_detalhes_database.character_data = _detalhes.character_data
 	--> options data
 		--window size
 		_detalhes_database.max_window_size = _detalhes.max_window_size
@@ -153,132 +161,135 @@ end --]]
 	
 	if (_detalhes_database) then
 	
-	--> nicktag cache
-		_detalhes.nick_tag_cache = _detalhes_database.nick_tag_cache or {}
-		_detalhes:NickTagSetCache (_detalhes.nick_tag_cache)
-		_detalhes.only_pvp_frags = _detalhes_database.only_pvp_frags
+		--> nicktag cache
+			_detalhes.nick_tag_cache = _detalhes_database.nick_tag_cache or {}
+			_detalhes:NickTagSetCache (_detalhes.nick_tag_cache)
+			_detalhes.only_pvp_frags = _detalhes_database.only_pvp_frags
 
-	--> build basic containers
-		_detalhes.tabela_historico = _detalhes_database.tabela_historico or _detalhes.historico:NovoHistorico() -- segments
-		_detalhes.tabela_overall = _detalhes.combate:NovaTabela() -- overall
-		_detalhes.tabela_pets = _detalhes_database.tabela_pets or _detalhes.container_pets:NovoContainer() -- pets
+		--> character info
+			_detalhes.character_data = _detalhes_database.character_data
+			
+		--> build basic containers
+			_detalhes.tabela_historico = _detalhes_database.tabela_historico or _detalhes.historico:NovoHistorico() -- segments
+			_detalhes.tabela_overall = _detalhes.combate:NovaTabela() -- overall
+			_detalhes.tabela_pets = _detalhes_database.tabela_pets or _detalhes.container_pets:NovoContainer() -- pets
+			
+		--> version
+			_detalhes.last_realversion = _detalhes_database.last_realversion or _detalhes.realversion --> core
+			_detalhes.last_version = _detalhes_database.last_version or "v1.0.0" --> version
+			
+			if (_detalhes.last_realversion < _detalhes.realversion) then
+				--> details was been hard upgraded
+				_detalhes.tabela_historico = _detalhes.historico:NovoHistorico()
+				_detalhes.tabela_pets = _detalhes.container_pets:NovoContainer()
+				_detalhes.tabela_overall = _detalhes.combate:NovaTabela()
+				_detalhes.tabela_vigente = _detalhes.combate:NovaTabela (_, _detalhes.tabela_overall)
+			end
+			
+			if (_detalhes.last_version ~= _detalhes.userversion) then
+				_detalhes.is_version_first_run = true
+			end
+			
+		--> re-build all indexes and metatables
+			_detalhes:RestauraMetaTables()
+			
+		--> instances (windows)
+			_detalhes.tabela_instancias = _detalhes_database.tabela_instancias or {}
 		
-	--> version
-		_detalhes.last_realversion = _detalhes_database.last_realversion or _detalhes.realversion --> core
-		_detalhes.last_version = _detalhes_database.last_version or "v1.0.0" --> version
-		
-		if (_detalhes.last_realversion < _detalhes.realversion) then
-			--> details was been hard upgraded
+		--> get last combat table
+			local historico_UM = _detalhes.tabela_historico.tabelas[1]
+			
+			if (historico_UM) then
+				_detalhes.tabela_vigente = historico_UM --> significa que elas eram a mesma tabela, então aqui elas se tornam a mesma tabela
+			else
+				_detalhes.tabela_vigente = _detalhes.combate:NovaTabela (_, _detalhes.tabela_overall)
+			end
+			
+			_detalhes.combat_id = _detalhes_database.combat_id
+
+			if (_detalhes_database.SoloTables) then
+				if (_detalhes_database.SoloTables.Mode) then
+					_detalhes.SoloTables.Mode = _detalhes_database.SoloTables.Mode
+					_detalhes.SoloTables.LastSelected = _detalhes_database.SoloTables.LastSelected
+				else
+					_detalhes.SoloTables.Mode = 1
+				end
+			end
+			
+			if (_detalhes_database.RaidTables) then
+				if (_detalhes_database.RaidTables.Mode) then
+					_detalhes.RaidTables.Mode = _detalhes_database.RaidTables.Mode
+					_detalhes.RaidTables.LastSelected = _detalhes_database.RaidTables.LastSelected
+				else
+					_detalhes.RaidTables.Mode = 1
+				end
+			end
+			
+		--> load options data
+			--window size
+			_detalhes.max_window_size = _detalhes_database.max_window_size
+			_detalhes.new_window_size = _detalhes_database.new_window_size
+			_detalhes.window_clamp = _detalhes_database.window_clamp
+			-- max segments
+			_detalhes.segments_amount = _detalhes_database.segments_amount
+			_detalhes.instances_amount = _detalhes_database.instances_amount
+			_detalhes.clear_ungrouped = _detalhes_database.clear_ungrouped
+			_detalhes.clear_graphic = _detalhes_database.clear_graphic
+			--> text sizes
+			_detalhes.font_sizes = _detalhes_database.font_sizes
+			-- row animation
+			_detalhes.use_row_animations = _detalhes_database.use_row_animations
+			_detalhes.animate_scroll = _detalhes_database.animate_scroll
+			_detalhes.use_scroll = _detalhes_database.use_scroll
+			-- death log
+			_detalhes.deadlog_limit = _detalhes_database.deadlog_limit
+			-- report
+			_detalhes.report_lines = _detalhes_database.report_lines
+			_detalhes.report_to_who = _detalhes_database.report_to_who
+			-- colors
+			_detalhes.class_colors = _detalhes_database.class_colors
+			_detalhes.default_bg_color = _detalhes_database.default_bg_color
+			_detalhes.default_bg_alpha = _detalhes_database.default_bg_alpha
+			-- fades
+			_detalhes.row_fade_in = _detalhes_database.row_fade_in
+			_detalhes.windows_fade_in = _detalhes_database.windows_fade_in
+			_detalhes.row_fade_out = _detalhes_database.row_fade_out
+			_detalhes.windows_fade_out = _detalhes_database.windows_fade_out
+			-- modes
+			_detalhes.solo = _detalhes_database.solo
+			_detalhes.raid = _detalhes_database.tank
+			-- switch
+			if (_detalhes_database.switch) then 
+				_detalhes.switch.slots = _detalhes_database.switch.slots
+				_detalhes.switch.table = _detalhes_database.switch.table
+			end
+
+		--> buffs
+			_detalhes.savedbuffs = _detalhes_database.savedbuffs
+			_detalhes.Buffs:BuildTables()
+			
+		--> customs
+			_detalhes.custom = _detalhes_database.custom
+
+		--> need refresh for all containers
+			for _, container in ipairs (_detalhes.tabela_overall) do 
+				container.need_refresh = true
+			end
+			for _, container in ipairs (_detalhes.tabela_vigente) do 
+				container.need_refresh = true
+			end
+			
+			_detalhes_database.tabela_vigente = nil
+			_detalhes_database.tabela_historico = nil
+			_detalhes_database.tabela_pets = nil
+
+	else
+			_detalhes.tabela_instancias = {}
 			_detalhes.tabela_historico = _detalhes.historico:NovoHistorico()
 			_detalhes.tabela_pets = _detalhes.container_pets:NovoContainer()
 			_detalhes.tabela_overall = _detalhes.combate:NovaTabela()
 			_detalhes.tabela_vigente = _detalhes.combate:NovaTabela (_, _detalhes.tabela_overall)
-		end
-		
-		if (_detalhes.last_version ~= _detalhes.userversion) then
-			_detalhes.is_version_first_run = true
-		end
-		
-	--> re-build all indexes and metatables
-		_detalhes:RestauraMetaTables()
-		
-	--> instances (windows)
-		_detalhes.tabela_instancias = _detalhes_database.tabela_instancias or {}
-	
-	--> get last combat table
-		local historico_UM = _detalhes.tabela_historico.tabelas[1]
-		
-		if (historico_UM) then
-			_detalhes.tabela_vigente = historico_UM --> significa que elas eram a mesma tabela, então aqui elas se tornam a mesma tabela
-		else
-			_detalhes.tabela_vigente = _detalhes.combate:NovaTabela (_, _detalhes.tabela_overall)
-		end
-		
-		_detalhes.combat_id = _detalhes_database.combat_id
-
-		if (_detalhes_database.SoloTables) then
-			if (_detalhes_database.SoloTables.Mode) then
-				_detalhes.SoloTables.Mode = _detalhes_database.SoloTables.Mode
-				_detalhes.SoloTables.LastSelected = _detalhes_database.SoloTables.LastSelected
-			else
-				_detalhes.SoloTables.Mode = 1
-			end
-		end
-		
-		if (_detalhes_database.RaidTables) then
-			if (_detalhes_database.RaidTables.Mode) then
-				_detalhes.RaidTables.Mode = _detalhes_database.RaidTables.Mode
-				_detalhes.RaidTables.LastSelected = _detalhes_database.RaidTables.LastSelected
-			else
-				_detalhes.RaidTables.Mode = 1
-			end
-		end
-		
-	--> load options data
-		--window size
-		_detalhes.max_window_size = _detalhes_database.max_window_size
-		_detalhes.new_window_size = _detalhes_database.new_window_size
-		_detalhes.window_clamp = _detalhes_database.window_clamp
-		-- max segments
-		_detalhes.segments_amount = _detalhes_database.segments_amount
-		_detalhes.instances_amount = _detalhes_database.instances_amount
-		_detalhes.clear_ungrouped = _detalhes_database.clear_ungrouped
-		_detalhes.clear_graphic = _detalhes_database.clear_graphic
-		--> text sizes
-		_detalhes.font_sizes = _detalhes_database.font_sizes
-		-- row animation
-		_detalhes.use_row_animations = _detalhes_database.use_row_animations
-		_detalhes.animate_scroll = _detalhes_database.animate_scroll
-		_detalhes.use_scroll = _detalhes_database.use_scroll
-		-- death log
-		_detalhes.deadlog_limit = _detalhes_database.deadlog_limit
-		-- report
-		_detalhes.report_lines = _detalhes_database.report_lines
-		_detalhes.report_to_who = _detalhes_database.report_to_who
-		-- colors
-		_detalhes.class_colors = _detalhes_database.class_colors
-		_detalhes.default_bg_color = _detalhes_database.default_bg_color
-		_detalhes.default_bg_alpha = _detalhes_database.default_bg_alpha
-		-- fades
-		_detalhes.row_fade_in = _detalhes_database.row_fade_in
-		_detalhes.windows_fade_in = _detalhes_database.windows_fade_in
-		_detalhes.row_fade_out = _detalhes_database.row_fade_out
-		_detalhes.windows_fade_out = _detalhes_database.windows_fade_out
-		-- modes
-		_detalhes.solo = _detalhes_database.solo
-		_detalhes.raid = _detalhes_database.tank
-		-- switch
-		if (_detalhes_database.switch) then 
-			_detalhes.switch.slots = _detalhes_database.switch.slots
-			_detalhes.switch.table = _detalhes_database.switch.table
-		end
-
-	--> buffs
-		_detalhes.savedbuffs = _detalhes_database.savedbuffs
-		_detalhes.Buffs:BuildTables()
-		
-	--> customs
-		_detalhes.custom = _detalhes_database.custom
-
-	--> need refresh for all containers
-		for _, container in ipairs (_detalhes.tabela_overall) do 
-			container.need_refresh = true
-		end
-		for _, container in ipairs (_detalhes.tabela_vigente) do 
-			container.need_refresh = true
-		end
-		
-		_detalhes_database.tabela_vigente = nil
-		_detalhes_database.tabela_historico = nil
-		_detalhes_database.tabela_pets = nil
-
-	else
-		_detalhes.tabela_instancias = {}
-		_detalhes.tabela_historico = _detalhes.historico:NovoHistorico()
-		_detalhes.tabela_pets = _detalhes.container_pets:NovoContainer()
-		_detalhes.tabela_overall = _detalhes.combate:NovaTabela()
-		_detalhes.tabela_vigente = _detalhes.combate:NovaTabela (_, _detalhes.tabela_overall)
-		_detalhes_database = {}
+			_detalhes_database = {}
 	end
 	
 	-- capture
@@ -343,4 +354,17 @@ end --]]
 	end
 	
 	return true
+end
+
+
+function _detalhes:WipeConfig()
+	
+	local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
+	
+	local b = CreateFrame ("button", nil, UIParent, "OptionsButtonTemplate")
+	b:SetSize (250, 40)
+	b:SetText (Loc ["STRING_SLASH_WIPECONFIG_CONFIRM"])
+	b:SetScript ("OnClick", function() _detalhes.wipe_full_config = true; ReloadUI(); end)
+	b:SetPoint ("center", UIParent, "center", 0, 0)
+	
 end

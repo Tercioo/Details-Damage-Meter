@@ -639,9 +639,17 @@
 			_detalhes:ScheduleTimer ("delay_tutorial", 60)
 		end
 	
+		-- [1] criar nova instancia
+		-- [2] esticar janela
+		-- [3] resize e trava
+		-- [4] shortcut frame
+		-- [5] micro displays
+		-- [6] snap windows
+	
 		function _detalhes:delay_tutorial()
-			--verificar algo?
-			_detalhes:run_tutorial()
+			if (_detalhes.character_data.logons < 2) then
+				_detalhes:run_tutorial()
+			end
 		end
 		
 		function _detalhes:StartTutorial()

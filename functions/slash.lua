@@ -20,6 +20,9 @@ function SlashCmdList.DETAILS (msg, editbox)
 	
 		_detalhes:CriarInstancia()
 		
+	elseif (command == Loc ["STRING_SLASH_WIPECONFIG"]) then
+		_detalhes:WipeConfig()
+	
 	elseif (command == Loc ["STRING_SLASH_SHOW"]) then
 	
 		if (_detalhes.opened_windows == 0) then
@@ -529,6 +532,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_DISABLE"] .. "|r: " .. Loc ["STRING_SLASH_DISABLE_DESC"])
 		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_OPTIONS"] .. "|r|cfffcffb0 <instance number>|r: " .. Loc ["STRING_SLASH_OPTIONS_DESC"])
 		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_CHANGES"] .. "|r: " .. Loc ["STRING_SLASH_CHANGES_DESC"])
+		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_WIPECONFIG"] .. "|r: " .. Loc ["STRING_SLASH_WIPECONFIG_DESC"])
 		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_WORLDBOSS"] .. "|r: " .. Loc ["STRING_SLASH_WORLDBOSS_DESC"])
 		print (" ")
 

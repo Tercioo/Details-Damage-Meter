@@ -114,23 +114,15 @@ function _G._detalhes:Start()
 		self.tutorial.unlock_button = self.tutorial.unlock_button or 0
 		self.tutorial.version_announce = self.tutorial.version_announce or 0
 		self.tutorial.main_help_button = self.tutorial.main_help_button or 0
-		
-		--[1] criar nova instancia
-		--[2] esticar janela
-		--[3] resize e trava
-		--[4] shortcut frame
-		--[5] micro displays
-		--[6] snap windows
-		
 		self.tutorial.alert_frames = self.tutorial.alert_frames or {false, false, false, false, false, false}
-		--self.tutorial.alert_frames = {false, false, false, false, false, false}
 		self.tutorial.logons = self.tutorial.logons + 1
 		
-		if (self.tutorial.logons < 5) then
-		--if (self.tutorial.logons < 55) then --debug
-			self:StartTutorial()
-		end
+		self.character_data = self.character_data or {
+			logons = 0,
+		}
 		
+		self.character_data.logons = self.character_data.logons + 1
+
 	--> class colors and tcoords
 		if (not self.class_colors) then
 			self.class_colors = {}
@@ -353,6 +345,10 @@ function _G._detalhes:Start()
 	
 	if (self.is_first_run) then
 		_detalhes:OpenWelcomeWindow()
+	end
+	
+	if (self.tutorial.logons < 5) then
+		self:StartTutorial()
 	end
 	
 	if (self.is_version_first_run) then
