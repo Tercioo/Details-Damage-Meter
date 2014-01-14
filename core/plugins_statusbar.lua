@@ -28,6 +28,23 @@
 --[[	This file contains Api and Internal functions, plus 4 built-in plugins  
 	You can use this four plugins to learn how they works--]]
 
+	--> hida all micro frames
+	function _detalhes.StatusBar:Hide (instance, side)
+		if (not side) then
+			instance.StatusBar.center.frame:Hide()
+			instance.StatusBar.left.frame:Hide()
+			instance.StatusBar.right.frame:Hide()
+		end
+	end
+	
+	function _detalhes.StatusBar:Show (instance, side)
+		if (not side) then
+			instance.StatusBar.center.frame:Show()
+			instance.StatusBar.left.frame:Show()
+			instance.StatusBar.right.frame:Show()
+		end
+	end
+	
 	--> create a plugin child for an instance
 	function _detalhes.StatusBar:CreateStatusBarChildForInstance (instance, pluginName)
 		local PluginObject = _detalhes.StatusBar.NameTable [pluginName]
@@ -257,6 +274,21 @@
 		return true
 	end
 
+	--> reset micro frames
+	function _detalhes.StatusBar:Reset (instance)
+		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.left, "textcolor", {1, 0.82, 0, 1})
+		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.center, "textcolor", {1, 0.82, 0, 1})
+		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.right, "textcolor", {1, 0.82, 0, 1})
+
+		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.left, "textface", "Friz Quadrata TT")
+		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.center, "textface", "Friz Quadrata TT")
+		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.right, "textface", "Friz Quadrata TT")
+
+		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.left, "textsize", 9)
+		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.center, "textsize", 9)
+		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.right, "textsize", 9)
+	end
+	
 	--> build-in function for create a frame for an plugin child
 	function _detalhes.StatusBar:CreateChildFrame (instance, name, w, h)
 		local frame = _detalhes.gump:NewPanel (instance.baseframe.cabecalho.fechar, nil, name..instance:GetInstanceId(), nil, w or DEFAULT_CHILD_WIDTH, h or DEFAULT_CHILD_HEIGHT, false)
@@ -334,7 +366,8 @@
 			if (value) then
 				child.options.textColor = value
 			end
-			child.text:SetTextColor (unpack (child.options.textColor))
+			local r, g, b, a = _detalhes.gump:ParseColors (child.options.textColor)
+			child.text:SetTextColor (r, g, b, a)
 		elseif (option == "textsize") then
 			if (value) then
 				child.options.textSize = value

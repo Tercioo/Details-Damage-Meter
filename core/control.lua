@@ -808,7 +808,7 @@
 			--> primeira atualização após uma mudança de segmento -->  verifica se há mais barras sendo mostradas do que o necessário	
 			--------------------
 				if (instancia.v_barras) then
-					for barra_numero = instancia.barrasInfo.mostrando+1, instancia.barrasInfo.criadas do
+					for barra_numero = instancia.rows_showing+1, instancia.rows_created do
 						_detalhes.gump:Fade (instancia.barras[barra_numero], "in")
 					end
 					instancia.v_barras = false

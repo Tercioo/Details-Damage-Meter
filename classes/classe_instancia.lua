@@ -218,8 +218,8 @@ end
 				self.baseframe.isLocked = false
 				self.baseframe.lock_button.label:SetText (Loc ["STRING_LOCK_WINDOW"])
 				self.baseframe.lock_button:SetWidth (self.baseframe.lock_button.label:GetStringWidth()+2)
-				gump:Fade (self.baseframe.resize_direita, 0)
-				gump:Fade (self.baseframe.resize_esquerda, 0)
+				self.baseframe.resize_direita:SetAlpha (0)
+				self.baseframe.resize_esquerda:SetAlpha (0)
 				self.baseframe.lock_button:ClearAllPoints()
 				self.baseframe.lock_button:SetPoint ("right", self.baseframe.resize_direita, "left", -1, 1.5)
 			end
@@ -231,8 +231,8 @@ end
 				self.baseframe.lock_button:SetWidth (self.baseframe.lock_button.label:GetStringWidth()+2)
 				self.baseframe.lock_button:ClearAllPoints()
 				self.baseframe.lock_button:SetPoint ("bottomright", self.baseframe, "bottomright", -3, 0)
-				gump:Fade (self.baseframe.resize_direita, 1)
-				gump:Fade (self.baseframe.resize_esquerda, 1)
+				self.baseframe.resize_direita:SetAlpha (1)
+				self.baseframe.resize_esquerda:SetAlpha (1)
 			end
 		end
 	end
@@ -311,9 +311,9 @@ end
 				return _detalhes:Msg (Loc ["STRING_INSTANCE_LIMIT"])
 			end
 			
-			local nova_instancia = _detalhes:NovaInstancia (#_detalhes.tabela_instancias+1)
-			_detalhes.tabela_instancias [#_detalhes.tabela_instancias+1] = nova_instancia
-			return nova_instancia
+			local new_instance = _detalhes:NovaInstancia (#_detalhes.tabela_instancias+1)
+			_detalhes.tabela_instancias [#_detalhes.tabela_instancias+1] = new_instance
+			return new_instance
 			
 		elseif (id) then
 			local instancia = _detalhes.tabela_instancias [id]
@@ -335,16 +335,16 @@ end
 			return _detalhes:Msg (Loc ["STRING_INSTANCE_LIMIT"])
 		end
 		
-		local nova_instancia = _detalhes:NovaInstancia (#_detalhes.tabela_instancias+1)
-		_detalhes.tabela_instancias [#_detalhes.tabela_instancias+1] = nova_instancia
+		local new_instance = _detalhes:NovaInstancia (#_detalhes.tabela_instancias+1)
+		_detalhes.tabela_instancias [#_detalhes.tabela_instancias+1] = new_instance
 		
 		if (not _detalhes.initializing) then
-			_detalhes:SendEvent ("DETAILS_INSTANCE_OPEN", nil, nova_instancia)
+			_detalhes:SendEvent ("DETAILS_INSTANCE_OPEN", nil, new_instance)
 		end
 		
 		_detalhes:GetLowerInstanceNumber()
 		
-		return nova_instancia
+		return new_instance
 	end
 ------------------------------------------------------------------------------------------------------------------------
 
@@ -496,10 +496,10 @@ function _detalhes:agrupar_janelas (lados)
 				self.snap [4] = esta_instancia.meu_id
 				esta_instancia.snap [2] = self.meu_id
 				
-				esta_instancia.baseframe.rodape.StatusBarLeftAnchor:SetPoint ("left", esta_instancia.baseframe.rodape.top_bg, "left", 25, 58)
-				esta_instancia.baseframe.rodape.StatusBarCenterAnchor:SetPoint ("center", esta_instancia.baseframe.rodape.top_bg, "center", 20, 58)
-				esta_instancia.baseframe.rodape.esquerdo:SetTexture ("Interface\\AddOns\\Details\\images\\bar_down_left_snap")
-				esta_instancia.baseframe.rodape.esquerdo.have_snap = true
+				--esta_instancia.baseframe.rodape.StatusBarLeftAnchor:SetPoint ("left", esta_instancia.baseframe.rodape.top_bg, "left", 25, 58)
+				--esta_instancia.baseframe.rodape.StatusBarCenterAnchor:SetPoint ("center", esta_instancia.baseframe.rodape.top_bg, "center", 20, 58)
+				--esta_instancia.baseframe.rodape.esquerdo:SetTexture ("Interface\\AddOns\\Details\\images\\bar_down_left_snap")
+				--esta_instancia.baseframe.rodape.esquerdo.have_snap = true
 
 			elseif (lado == 1) then --> esquerda
 				--> mover frame
@@ -527,10 +527,10 @@ function _detalhes:agrupar_janelas (lados)
 				self.snap [2] = esta_instancia.meu_id
 				esta_instancia.snap [4] = self.meu_id
 				
-				self.baseframe.rodape.StatusBarLeftAnchor:SetPoint ("left", self.baseframe.rodape.top_bg, "left", 25, 58)
-				self.baseframe.rodape.StatusBarCenterAnchor:SetPoint ("center", self.baseframe.rodape.top_bg, "center", 20, 58)
-				self.baseframe.rodape.esquerdo:SetTexture ([[Interface\AddOns\Details\images\bar_down_left_snap]])
-				self.baseframe.rodape.esquerdo.have_snap = true
+				--self.baseframe.rodape.StatusBarLeftAnchor:SetPoint ("left", self.baseframe.rodape.top_bg, "left", 25, 58)
+				--self.baseframe.rodape.StatusBarCenterAnchor:SetPoint ("center", self.baseframe.rodape.top_bg, "center", 20, 58)
+				--self.baseframe.rodape.esquerdo:SetTexture ([[Interface\AddOns\Details\images\bar_down_left_snap]])
+				--self.baseframe.rodape.esquerdo.have_snap = true
 			end
 			
 			if (not esta_instancia.ativa) then
@@ -561,10 +561,10 @@ local function FixSnaps (instancia)
 			esta_instancia =  _detalhes.tabela_instancias [esta_instancia]
 			--_detalhes:DelayMsg ("DEBUG janela "..instancia.meu_id.." com snap "..snap.. " em " .. esta_instancia.meu_id)
 			if (snap == 2) then 
-				instancia.baseframe.rodape.StatusBarLeftAnchor:SetPoint ("left", instancia.baseframe.rodape.top_bg, "left", 25, 10)
-				instancia.baseframe.rodape.StatusBarCenterAnchor:SetPoint ("center", instancia.baseframe.rodape.top_bg, "center", 20, 10)
-				instancia.baseframe.rodape.esquerdo:SetTexture ("Interface\\AddOns\\Details\\images\\bar_down_left_snap")
-				instancia.baseframe.rodape.esquerdo.have_snap = true
+				--instancia.baseframe.rodape.StatusBarLeftAnchor:SetPoint ("left", instancia.baseframe.rodape.top_bg, "left", 25, 10)
+				--instancia.baseframe.rodape.StatusBarCenterAnchor:SetPoint ("center", instancia.baseframe.rodape.top_bg, "center", 20, 10)
+				--instancia.baseframe.rodape.esquerdo:SetTexture ("Interface\\AddOns\\Details\\images\\bar_down_left_snap")
+				--instancia.baseframe.rodape.esquerdo.have_snap = true
 			end
 		end
 	end
@@ -609,10 +609,10 @@ function _detalhes:Desagrupar (instancia, lado)
 					end
 					
 					if (index == 2) then  -- index é o codigo do snap
-						esta_instancia.baseframe.rodape.StatusBarLeftAnchor:SetPoint ("left", esta_instancia.baseframe.rodape.top_bg, "left", 5, 58)
-						esta_instancia.baseframe.rodape.StatusBarCenterAnchor:SetPoint ("center", esta_instancia.baseframe.rodape.top_bg, "center", 0, 58)
-						esta_instancia.baseframe.rodape.esquerdo:SetTexture ("Interface\\AddOns\\Details\\images\\bar_down_left")
-						esta_instancia.baseframe.rodape.esquerdo.have_snap = nil
+						--esta_instancia.baseframe.rodape.StatusBarLeftAnchor:SetPoint ("left", esta_instancia.baseframe.rodape.top_bg, "left", 5, 58)
+						--esta_instancia.baseframe.rodape.StatusBarCenterAnchor:SetPoint ("center", esta_instancia.baseframe.rodape.top_bg, "center", 0, 58)
+						--esta_instancia.baseframe.rodape.esquerdo:SetTexture ("Interface\\AddOns\\Details\\images\\bar_down_left")
+						--esta_instancia.baseframe.rodape.esquerdo.have_snap = nil
 					end
 					
 				end
@@ -668,9 +668,9 @@ function _detalhes:SnapTextures (remove)
 		if (esta_instancia:IsAtiva()) then
 			if (esta_instancia.baseframe.rodape.esquerdo.have_snap) then
 				if (remove) then
-					esta_instancia.baseframe.rodape.esquerdo:SetTexture ("Interface\\AddOns\\Details\\images\\bar_down_left")
+					--esta_instancia.baseframe.rodape.esquerdo:SetTexture ("Interface\\AddOns\\Details\\images\\bar_down_left")
 				else
-					esta_instancia.baseframe.rodape.esquerdo:SetTexture ("Interface\\AddOns\\Details\\images\\bar_down_left_snap")
+					--esta_instancia.baseframe.rodape.esquerdo:SetTexture ("Interface\\AddOns\\Details\\images\\bar_down_left_snap")
 				end
 			end
 		end
@@ -681,279 +681,153 @@ end
 	--> search key: ~new ~nova
 	function _detalhes:NovaInstancia (ID)
 
-		-- Uma nova instância será uma extensão do acetimer somada com uma cópia da classe detalhes_funções
-		local nova_instancia = {}
-		_setmetatable (nova_instancia, _detalhes)
+		local new_instance = {}
+		_setmetatable (new_instance, _detalhes)
 
-		nova_instancia.meu_id = ID
+		--> instance number
+			new_instance.meu_id = ID
+		
+		--> setup all config
+			new_instance:ResetInstanceConfig()
 
-		nova_instancia.skin = "Default Skin"
+		--> internal stuff
+			new_instance.barras = {} --container que irá armazenar todas as barras
+			new_instance.barraS = {nil, nil} --de x até x são as barras que estão sendo mostradas na tela
+			new_instance.rolagem = false --barra de rolagem não esta sendo mostrada
+			new_instance.largura_scroll = 26
+			new_instance.bar_mod = 0
+			new_instance.bgdisplay_loc = 0
 		
-		nova_instancia.barras = {} --container que irá armazenar todas as barras
-		nova_instancia.barraS = {nil, nil} --de x até x são as barras que estão sendo mostradas na tela
-		nova_instancia.rolagem = false --barra de rolagem não esta sendo mostrada
-
-		nova_instancia["barrasInfo"] = {
-			["criadas"] = 0, --quantos frames de barras ja foram criados
-			["mostrando"] = 0, --quantos jogadores que estão sendo mostrados agora
-			["maximo"] = 50, --máximo de barras que pode ser criado
-			["cabem"] = nil, --quantas barras cabem na janela
-			["altura"] = 14,
-			["fontSize"] = 10.5,
-			["font"] = SharedMedia:Fetch ("font", "Arial Narrow"),
-			["fontName"] = "Arial Narrow",
-			["textura"] = _detalhes.default_texture,
-			["texturaBackground"] = _detalhes.default_texture,
-			["texturaBackgroundColor"] = {0, 0, 0, 0},
-			["texturaBackgroundByClass"] = false,
-			["textureName"] = _detalhes.default_texture_name,
-			["textureNameBackground"] = _detalhes.default_texture_name,
-			["textura_mouseover"] = "Interface\\FriendsFrame\\UI-FriendsList-Highlight",
-			["animar"] = true,
-			["fade"] = true,
-			["espaco"] = {
-				["esquerda"] = 3,
-				["direita"] = -5,
-				["entre"] = 1,
-				}
-			}
+		--> displaying row info
+			new_instance.rows_created = 0
+			new_instance.rows_showing = 0
+			new_instance.rows_max = 50
+			new_instance.rows_fit_in_window = nil
 		
-		nova_instancia.largura_scroll = 26
-		nova_instancia.bar_mod = 0
-		nova_instancia.bgdisplay_loc = 0
-		
-		nova_instancia.bg_alpha = _detalhes.default_bg_alpha
-		nova_instancia.bg_r = _detalhes.default_bg_color
-		nova_instancia.bg_g = _detalhes.default_bg_color
-		nova_instancia.bg_b = _detalhes.default_bg_color
-		
-		nova_instancia.auto_current = true
-		nova_instancia.row_texture_class_colors = true
-		nova_instancia.row_textL_class_colors = false
-		nova_instancia.row_textR_class_colors = false
-		nova_instancia.row_textL_outline = true
-		nova_instancia.row_textR_outline = false
-		nova_instancia.fixed_row_texture_color = {0, 0, 0}
-		nova_instancia.fixed_row_text_color = {1, 1, 1}
-		
-		nova_instancia.barrasInfo["alturaReal"] = nova_instancia.barrasInfo.altura+nova_instancia.barrasInfo.espaco.entre
-
-		nova_instancia.posicao = {
-			["normal"] = {},
-			["solo"] = {}
+		--> saved pos for normal mode and lone wolf mode
+			new_instance.posicao = {
+				["normal"] = {},
+				["solo"] = {}
 			}		
+		--> save information about window snaps
+			new_instance.snap = {nil, nil, nil, nil}
 		
-		nova_instancia.tooltip = {
-			["n_habilidades"] = 3, 
-			["n_inimigos"] = 3
-			}
-		
-		nova_instancia.snap = {nil, nil, nil, nil}
-		
-		--janela inicia no frame normal (group ou all)
-		nova_instancia.mostrando = "normal"
-		--menu consolidated
-		nova_instancia.consolidate = false
-		nova_instancia.icons = {true, true, true, true}
+		--> current state starts as normal
+			new_instance.mostrando = "normal"
+		--> menu consolidated
+			new_instance.consolidate = false
+			new_instance.icons = {true, true, true, true}
 
-		--cria a janela da instância
-		local _baseframe, _bgframe, _bgframe_display, _scrollframe = gump:CriaJanelaPrincipal (ID, nova_instancia, true)
-		
-		nova_instancia.baseframe = _baseframe
-		nova_instancia.bgframe = _bgframe
-		nova_instancia.bgdisplay = _bgframe_display
-		nova_instancia.scroll = _scrollframe
+		--> create window frames
+			local _baseframe, _bgframe, _bgframe_display, _scrollframe = gump:CriaJanelaPrincipal (ID, new_instance, true)
+			new_instance.baseframe = _baseframe
+			new_instance.bgframe = _bgframe
+			new_instance.bgdisplay = _bgframe_display
+			new_instance.scroll = _scrollframe
 
-		--status bar
-		nova_instancia.StatusBar = {}
-		nova_instancia.StatusBar.left = nil
-		nova_instancia.StatusBar.center = nil
-		nova_instancia.StatusBar.right = nil
-		nova_instancia.StatusBar.options = {}
+		--> status bar stuff
+			new_instance.StatusBar = {}
+			new_instance.StatusBar.left = nil
+			new_instance.StatusBar.center = nil
+			new_instance.StatusBar.right = nil
+			new_instance.StatusBar.options = {}
 
-		local clock = _detalhes.StatusBar:CreateStatusBarChildForInstance (nova_instancia, "DETAILS_STATUSBAR_PLUGIN_CLOCK")
-		_detalhes.StatusBar:SetCenterPlugin (nova_instancia, clock)
-		
-		local segment = _detalhes.StatusBar:CreateStatusBarChildForInstance (nova_instancia, "DETAILS_STATUSBAR_PLUGIN_PSEGMENT")
-		_detalhes.StatusBar:SetLeftPlugin (nova_instancia, segment)
-		
-		local dps = _detalhes.StatusBar:CreateStatusBarChildForInstance (nova_instancia, "DETAILS_STATUSBAR_PLUGIN_PDPS")
-		_detalhes.StatusBar:SetRightPlugin (nova_instancia, dps)
-		--
-		
-		nova_instancia.color = {1, 1, 1, 1}
-		nova_instancia.wallpaper = {
-			enabled = false,
-			texture = nil,
-			anchor = "all",
-			alpha = 0.5,
-			texcoord = {0, 1, 0, 1},
-			width = 0,
-			height = 0,
-			overlay = {1, 1, 1, 1}
-		}
-		
-		--> salva a altura antiga
-		nova_instancia.alturaAntiga = _baseframe:GetHeight()
-		
-		--atributo que será mostrado na criação do gump será o de dano:
-		nova_instancia.atributo = 1 --> dano 
-		nova_instancia.sub_atributo = 1 --> damage done
-		
-		nova_instancia.sub_atributo_last = {1, 1, 1, 1, 1}
-		
-		nova_instancia.segmento = -1 --> combate atual
-		
-		-- atualiza tabela de historico e atributo
-		_detalhes:TrocaTabela (nova_instancia, 0, 1, 1)
-		
-		nova_instancia:DefaultIcons (true, true, true, true)
-		
-		--nova janela vem sempre com o modo grupo ativado
-		--nova_instancia.modo = _detalhes_props["MODO_GROUP"]
-		nova_instancia.modo = modo_grupo
-		nova_instancia.last_modo = modo_grupo
-		nova_instancia.LastModo = modo_grupo
-		
-		--nova_instancia.janela.gump_cabecalho.Title:SetText (Loc [_detalhes._detalhes_props.modo_nome[nova_instancia.modo]]) --poe o nome do modo no gump
-		--_baseframe.rodape.segmento:SetText ("Segmento: Atual") --> localiza-me
+			local clock = _detalhes.StatusBar:CreateStatusBarChildForInstance (new_instance, "DETAILS_STATUSBAR_PLUGIN_CLOCK")
+			_detalhes.StatusBar:SetCenterPlugin (new_instance, clock)
+			
+			local segment = _detalhes.StatusBar:CreateStatusBarChildForInstance (new_instance, "DETAILS_STATUSBAR_PLUGIN_PSEGMENT")
+			_detalhes.StatusBar:SetLeftPlugin (new_instance, segment)
+			
+			local dps = _detalhes.StatusBar:CreateStatusBarChildForInstance (new_instance, "DETAILS_STATUSBAR_PLUGIN_PDPS")
+			_detalhes.StatusBar:SetRightPlugin (new_instance, dps)
 
-		--mostra o gump na tela
-		nova_instancia.iniciada = true
+		--> internal stuff
+			new_instance.alturaAntiga = _baseframe:GetHeight()
+			new_instance.atributo = 1 --> dano 
+			new_instance.sub_atributo = 1 --> damage done
+			new_instance.sub_atributo_last = {1, 1, 1, 1, 1}
+			new_instance.segmento = -1 --> combate atual
+			new_instance.modo = modo_grupo
+			new_instance.last_modo = modo_grupo
+			new_instance.LastModo = modo_grupo
+			
+		--> change the attribute
+			_detalhes:TrocaTabela (new_instance, 0, 1, 1)
+			
+		--> handle icons
+			new_instance:DefaultIcons (true, true, true, true)
+
+		--> internal stuff
+			new_instance.row_height = new_instance.row_info.height + new_instance.row_info.space.between
+			
+			new_instance.iniciada = true
+			new_instance:SaveMainWindowPosition()
+			new_instance:ReajustaGump()
+			
+			new_instance.rows_fit_in_window = _math_floor (new_instance.posicao[new_instance.mostrando].h / new_instance.row_height)
 		
-		nova_instancia:SaveMainWindowPosition()
-		nova_instancia:ReajustaGump()
-		
-		--> calcula quantas barras cabem na janela
-		nova_instancia.barrasInfo.cabem = _math_floor (nova_instancia.posicao[nova_instancia.mostrando].h / nova_instancia.barrasInfo.alturaReal)
-		
-		nova_instancia:AtivarInstancia()
-		
-		-- instância criada, hora de retorna-la a quem pediu
-		return nova_instancia
+		--> all done
+			new_instance:AtivarInstancia()
+
+		return new_instance
 	end
 ------------------------------------------------------------------------------------------------------------------------
 
 --> ao reiniciar o addon esta função é rodada para recriar a janela da instância
---> search key: ~restaura
+--> search key: ~restaura ~inicio
 function _detalhes:RestauraJanela (index, temp)
 		
-		self.skin = self.skin or "Default Skin"
+	--> load
+		self:LoadInstanceConfig()
 		
-		self.bg_alpha = self.bg_alpha or _detalhes.default_bg_alpha
-		self.bg_r = self.bg_r or _detalhes.default_bg_color
-		self.bg_g = self.bg_g or _detalhes.default_bg_color
-		self.bg_b = self.bg_b or _detalhes.default_bg_color
-		
-		if (self.auto_current == nil) then
-			self.auto_current = true
-		end
-		
-		if (self.row_texture_class_colors == nil) then
-			self.row_texture_class_colors = true
-		end
-		
-		if (self.row_textL_class_colors == nil) then
-			self.row_textL_class_colors = false
-		end
-		if (self.row_textR_class_colors == nil) then
-			self.row_textR_class_colors = false
-		end
-		if (self.row_textL_outline == nil) then
-			self.row_textL_outline = false
-		end
-		if (self.row_textR_outline == nil) then
-			self.row_textR_outline = false
-		end
+	--> reset internal stuff
+		self.sub_atributo_last = self.sub_atributo_last or {1, 1, 1, 1, 1}
+		self.rolagem = false
+		self.need_rolagem = false
+		self.barras = {}
+		self.barraS = {nil, nil}
+		self.rows_fit_in_window = nil
+		self.consolidate = self.consolidate or false
+		self.icons = self.icons or {true, true, true, true}
+		self.rows_created = 0
+		self.rows_showing = 0
+		self.rows_max = 50
+		self.rows_fit_in_window = nil
+		self.largura_scroll = 26
+		self.bar_mod = 0
+		self.bgdisplay_loc = 0
+		self.last_modo = self.last_modo or modo_grupo
 
-		if (self.fixed_row_texture_color == nil) then
-			self.fixed_row_texture_color = {0, 0, 0}
-		end
-		if (self.fixed_row_text_color == nil) then
-			self.fixed_row_text_color = {1, 1, 1}
-		end
+		self.row_height = self.row_info.height + self.row_info.space.between
 		
-		if (not self.barrasInfo.texturaBackground) then
-			self.barrasInfo.texturaBackground = _detalhes.default_texture
-			self.barrasInfo.texturaBackgroundColor = {0, 0, 0, 0}
-			self.barrasInfo.texturaBackgroundByClass = false
-			self.barrasInfo.textureNameBackground = _detalhes.default_texture_name
-		end
-
-		if (not self.sub_atributo_last) then
-			self.sub_atributo_last = {1, 1, 1, 1, 1}
-		end
-		
+	--> create frames
 		local _baseframe, _bgframe, _bgframe_display, _scrollframe = gump:CriaJanelaPrincipal (self.meu_id, self)
-		
 		self.baseframe = _baseframe
 		self.bgframe = _bgframe
 		self.bgdisplay = _bgframe_display
 		self.scroll = _scrollframe		
-
-		--self.barrasInfo.textura = "Interface\\AddOns\\Details\\images\\bar44"
-		--self.barrasInfo.textura = "Interface\\AddOns\\Details\\images\\bar4"
-		--self.barrasInfo.textura = [[Interface\PaperDollInfoFrame\UI-Character-Skills-Bar]]
-		--self.barrasInfo.textura = "Interface\PaperDollInfoFrame\UI-Character-Skills-Bar"
-
-		self.barrasInfo.textura = self.barrasInfo.textura or _detalhes.default_texture
-		self.barrasInfo.textureName = self.barrasInfo.textureName or _detalhes.default_texture_name
-		self.barrasInfo.fontSize = self.barrasInfo.fontSize or 10.5
-		self.barrasInfo.font = self.barrasInfo.font or SharedMedia:Fetch ("font", "Arial Narrow")
-		self.barrasInfo.fontName = self.barrasInfo.fontName or "Arial Narrow"
-		
-		_detalhes:TrocaTabela (self, self.segmento, self.atributo, self.sub_atributo, true) --> passando true no 5º valor para a função ignorar a checagem de valores iguais
-
-		--> resetando as cprops da instância:
-		self.rolagem = false
-		self.need_rolagem = false
 		_baseframe:EnableMouseWheel (false)
+		self.alturaAntiga = _baseframe:GetHeight()
 		
-		self.barras = {}
-		self.barraS = {nil, nil}
-		self.barrasInfo.cabem = nil
-		
-		self.consolidate = self.consolidate or false
-		self.icons = self.icons or {true, true, true, true}
-
-		--> teste
-		--self.barrasInfo.altura = 14
-		
-		self.barrasInfo.mostrando = 0
-		self.barrasInfo.criadas = 0
-		self.barrasInfo.alturaReal = self.barrasInfo.altura+self.barrasInfo.espaco.entre
-		
-		self.color = self.color or {1, 1, 1, 1}
-		self.wallpaper = self.wallpaper or {
-			enabled = false,
-			texture = nil,
-			anchor = "all",
-			alpha = 0.5,
-			texcoord = {0, 1, 0, 1},
-			width = 0,
-			height = 0,
-			overlay = {1, 1, 1, 1}
-		}
-		
+	--> change the attribute
+		_detalhes:TrocaTabela (self, self.segmento, self.atributo, self.sub_atributo, true) --> passando true no 5º valor para a função ignorar a checagem de valores iguais
+	
+	--> set wallpaper
 		if (self.wallpaper.enabled) then
 			self:InstanceWallpaper (true)
 		end
 		
+	--> set the color of this instance window
 		self:InstanceColor (self.color)
 		
-		self.largura_scroll = 26
-		self.bar_mod = 0
+	--> scrollbar
 		self:EsconderScrollBar (true)
-		
-		self.bgdisplay_loc = 0
-		
+	
+	--> check snaps
 		self.snap = self.snap or {nil, nil, nil, nil}
 		FixSnaps (self)
-		
-		---> salva o tamanho antigo da janela
-		self.alturaAntiga = _baseframe:GetHeight()		
-		
-		-- status bar
+
+	--> status bar stuff
 		self.StatusBar = {}
 		self.StatusBar.left = nil
 		self.StatusBar.center = nil
@@ -978,14 +852,8 @@ function _detalhes:RestauraJanela (index, temp)
 		end
 		local dps = _detalhes.StatusBar:CreateStatusBarChildForInstance (self, self.StatusBarSaved.right or "DETAILS_STATUSBAR_PLUGIN_PDPS")
 		_detalhes.StatusBar:SetRightPlugin (self, dps, true)
-		--
-		
-		if (not self.last_modo) then
-			self.last_modo = modo_all
-		end
 
-		self.barrasInfo.altura = self.barrasInfo.altura or 14
-		self.barrasInfo.alturaReal = self.barrasInfo.altura+self.barrasInfo.espaco.entre
+	--> load mode
 
 		if (self.modo == modo_alone) then
 			if (_detalhes.solo and _detalhes.solo ~= self.meu_id) then --> proteção para ter apenas uma instância com a janela SOLO
@@ -1001,6 +869,7 @@ function _detalhes:RestauraJanela (index, temp)
 			self.mostrando = "normal"
 		end
 
+	--> internal stuff
 		self:RestoreMainWindowPosition()
 		self:ReajustaGump()
 		self:SaveMainWindowPosition()
@@ -1011,7 +880,11 @@ function _detalhes:RestauraJanela (index, temp)
 		self:AtivarInstancia (temp)
 		
 		self:ChangeSkin()
-	end
+
+	--> all done
+	
+end
+
 ------------------------------------------------------------------------------------------------------------------------
 
 function _detalhes:InstanceReset (instance)
@@ -1029,40 +902,18 @@ function _detalhes:RefreshBars (instance)
 	if (instance) then
 		self = instance
 	end
-	if (self.barras and self.barras[1]) then
-		
-		local altura = self.barrasInfo.altura
-		
-		for index, row in _ipairs (self.barras) do 
-
-			local y = self.barrasInfo.alturaReal * (row.row_id - 1)
-			y = y*-1
-			row:SetPoint ("TOPLEFT", self.baseframe, "TOPLEFT", self.barrasInfo.espaco.esquerda, y)
-			row:SetHeight (altura)
-			row.icone_classe:SetHeight (altura)
-			row.icone_classe:SetWidth (altura)
-			row.icone_terceiro:SetHeight (altura)
-			row.icone_terceiro:SetWidth (altura)
-		
-			row.textura:SetTexture (self.barrasInfo.textura)
-			
-			row.background:SetTexture (self.barrasInfo.texturaBackground)
-			if (not self.barrasInfo.texturaBackgroundByClass) then
-				local c = self.barrasInfo.texturaBackgroundColor
-				row.background:SetVertexColor (c[1], c[2], c[3], c[4])
-			else
-				local c = self.barrasInfo.texturaBackgroundColor
-				local r, g, b = row.background:GetVertexColor()
-				row.background:SetVertexColor (r, g, b, c[4])
-			end
-			
-			row.texto_esquerdo:SetFont (self.barrasInfo.font or "GameFontHighlight", self.barrasInfo.fontSize or altura * 0.75)
-			row.texto_direita:SetFont (self.barrasInfo.font or "GameFontHighlight", self.barrasInfo.fontSize or altura * 0.75)
-		end
-	end
+	self:InstanceRefreshRows (instancia)
 end
 
 function _detalhes:SetBackgroundColor (...)
+
+	local red = select (1, ...)
+	if (not red) then
+		self.bgdisplay:SetBackdropColor (self.bg_r, self.bg_g, self.bg_b, self.bg_alpha)
+		self.baseframe:SetBackdropColor (self.bg_r, self.bg_g, self.bg_b, self.bg_alpha)
+		return
+	end
+
 	local r, g, b = gump:ParseColors (...)
 	self.bgdisplay:SetBackdropColor (r, g, b, self.bg_alpha or _detalhes.default_bg_alpha)
 	self.baseframe:SetBackdropColor (r, g, b, self.bg_alpha or _detalhes.default_bg_alpha)
@@ -1072,21 +923,15 @@ function _detalhes:SetBackgroundColor (...)
 end
 
 function _detalhes:SetBackgroundAlpha (alpha)
-
-	--self.bgdisplay:SetBackdropColor (1, 1, 1, 1)
-
-	alpha = alpha or _detalhes.default_bg_alpha
-	
-	--print ("antes",alpha)
-	alpha = _detalhes:Scale (0, 1, 0.2, 1, alpha) - 0.8
-	--print ("depois",alpha)
+	if (not alpha) then
+		alpha = self.bg_alpha
+	else
+		alpha = _detalhes:Scale (0, 1, 0.2, 1, alpha) - 0.8
+	end
 	
 	self.bgdisplay:SetBackdropColor (self.bg_r or _detalhes.default_bg_color, self.bg_g or _detalhes.default_bg_color, self.bg_b or _detalhes.default_bg_color, alpha)
 	self.baseframe:SetBackdropColor (self.bg_r or _detalhes.default_bg_color, self.bg_g or _detalhes.default_bg_color, self.bg_b or _detalhes.default_bg_color, alpha)
 	self.bg_alpha = alpha
-	
-	--local r, g, b, a = self.bgdisplay:GetBackdropColor()
-	--print (a)
 end
 
 function _detalhes:GetSize()

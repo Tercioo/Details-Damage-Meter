@@ -72,6 +72,7 @@ classes\classe_energy.lua
 classes\classe_energy_habilidade.lua
 classes\classe_others.lua
 classes\classe_others_habilidade.lua
+classes\classe_instancia_include.lua
 classes\classe_instancia.lua
 classes\classe_target.lua
 classes\classe_custom.lua

@@ -1,6 +1,6 @@
 --[[
 Name: DBIcon-1.0
-Revision: $Rev: 30 $
+Revision: $Rev: 34 $
 Author(s): Rabbit (rabbit.magtheridon@gmail.com)
 Description: Allows addons to register to recieve a lightweight minimap icon as an alternative to more heavy LDB displays.
 Dependencies: LibStub
@@ -33,7 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 --
 
 local DBICON10 = "LibDBIcon-1.0"
-local DBICON10_MINOR = tonumber(("$Rev: 30 $"):match("(%d+)"))
+local DBICON10_MINOR = tonumber(("$Rev: 34 $"):match("(%d+)"))
 if not LibStub then error(DBICON10 .. " requires LibStub.") end
 local ldb = LibStub("LibDataBroker-1.1", true)
 if not ldb then error(DBICON10 .. " requires LibDataBroker-1.1.") end
@@ -43,6 +43,7 @@ if not lib then return end
 lib.disabled = lib.disabled or nil
 lib.objects = lib.objects or {}
 lib.callbackRegistered = lib.callbackRegistered or nil
+lib.callbacks = lib.callbacks or LibStub("CallbackHandler-1.0"):New(lib)
 lib.notCreated = lib.notCreated or {}
 
 function lib:IconCallback(event, name, key, value, dataobj)
@@ -235,6 +236,7 @@ local function createButton(name, object, db)
 		if not db or not db.hide then button:Show()
 		else button:Hide() end
 	end
+	lib.callbacks:Fire("LibDBIcon_IconCreated", button, name) -- Fire 'Icon Created' callback
 end
 
 -- We could use a metatable.__index on lib.objects, but then we'd create

@@ -278,9 +278,18 @@ function atributo_energy:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 	local qual_barra = 1
 	local barras_container = instancia.barras
 
-	for i = instancia.barraS[1], instancia.barraS[2], 1 do --> vai atualizar só o range que esta sendo mostrado
-		conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar) --> instância, index, total, valor da 1º barra
-		qual_barra = qual_barra+1
+	if (instancia.bars_sort_direction == 1) then --top to bottom
+		for i = instancia.barraS[1], instancia.barraS[2], 1 do --> vai atualizar só o range que esta sendo mostrado
+			conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar) --> instância, index, total, valor da 1º barra
+			qual_barra = qual_barra+1
+		end
+		
+	elseif (instancia.bars_sort_direction == 2) then --bottom to top
+		for i = instancia.barraS[2], instancia.barraS[1], 1 do --> vai atualizar só o range que esta sendo mostrado
+			conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar) --> instância, index, total, valor da 1º barra
+			qual_barra = qual_barra+1
+		end
+		
 	end
 	
 	if (instancia.atributo == 5) then --> custom
@@ -297,7 +306,7 @@ function atributo_energy:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 	--> beta, hidar barras não usadas durante um refresh forçado
 	if (forcar) then
 		if (instancia.modo == 2) then --> group
-			for i = qual_barra, instancia.barrasInfo.cabem  do
+			for i = qual_barra, instancia.rows_fit_in_window  do
 				gump:Fade (instancia.barras [i], "in", 0.3)
 			end
 		end
@@ -381,10 +390,10 @@ function atributo_energy:RefreshBarra2 (esta_barra, instancia, tabela_anterior, 
 			esta_barra.statusbar:SetValue (esta_porcentagem)
 			gump:Fade (esta_barra, "out")
 			
-			if (instancia.row_texture_class_colors) then
+			if (instancia.row_info.texture_class_colors) then
 				esta_barra.textura:SetVertexColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
 			end
-			if (instancia.barrasInfo.texturaBackgroundByClass) then
+			if (instancia.row_info.texture_background_class_color) then
 				esta_barra.background:SetVertexColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
 			end
 			
@@ -440,10 +449,10 @@ function atributo_energy:RefreshBarra (esta_barra, instancia, from_resize)
 		end
 	end
 	
-	if (instancia.row_texture_class_colors) then
+	if (instancia.row_info.texture_class_colors) then
 		esta_barra.textura:SetVertexColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
 	end
-	if (instancia.barrasInfo.texturaBackgroundByClass) then
+	if (instancia.row_info.texture_background_class_color) then
 		esta_barra.background:SetVertexColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
 	end
 	
@@ -485,22 +494,22 @@ function atributo_energy:RefreshBarra (esta_barra, instancia, from_resize)
 	
 	if (self.enemy) then
 		if (_detalhes.faction_against == "Horde") then
-			esta_barra.texto_esquerdo:SetText (esta_barra.colocacao..". |TInterface\\AddOns\\Details\\images\\icones_barra:"..instancia.barrasInfo.altura..":"..instancia.barrasInfo.altura..":0:0:256:32:0:32:0:32|t"..self.displayName) --seta o texto da esqueda -- HORDA
+			esta_barra.texto_esquerdo:SetText (esta_barra.colocacao..". |TInterface\\AddOns\\Details\\images\\icones_barra:"..instancia.row_info.height..":"..instancia.row_info.height..":0:0:256:32:0:32:0:32|t"..self.displayName) --seta o texto da esqueda -- HORDA
 		else
-			esta_barra.texto_esquerdo:SetText (esta_barra.colocacao..". |TInterface\\AddOns\\Details\\images\\icones_barra:"..instancia.barrasInfo.altura..":"..instancia.barrasInfo.altura..":0:0:256:32:32:64:0:32|t"..self.displayName) --seta o texto da esqueda -- ALLY
+			esta_barra.texto_esquerdo:SetText (esta_barra.colocacao..". |TInterface\\AddOns\\Details\\images\\icones_barra:"..instancia.row_info.height..":"..instancia.row_info.height..":0:0:256:32:32:64:0:32|t"..self.displayName) --seta o texto da esqueda -- ALLY
 		end
 		
-		if (instancia.row_texture_class_colors) then
+		if (instancia.row_info.texture_class_colors) then
 			esta_barra.textura:SetVertexColor (240/255, 0, 5/255, 1)
 		end
 	else
 		esta_barra.texto_esquerdo:SetText (esta_barra.colocacao..". "..self.displayName) --seta o texto da esqueda
 	end
 	
-	if (instancia.row_textL_class_colors) then
+	if (instancia.row_info.textL_class_colors) then
 		esta_barra.texto_esquerdo:SetTextColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
 	end
-	if (instancia.row_textR_class_colors) then
+	if (instancia.row_info.textR_class_colors) then
 		esta_barra.texto_direita:SetTextColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
 	end
 	

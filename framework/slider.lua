@@ -367,19 +367,24 @@ local SliderMetaFunctions = {}
 				editbox:SetScript ("OnEnterPressed", function()
 					editbox:ClearFocus()
 					editbox:Hide()
-					editbox:GetParent().MyObject.value = tonumber (editbox:GetText())
 					editbox:GetParent().MyObject.typing_value = false
+					editbox:GetParent().MyObject.value = tonumber (editbox:GetText())
 				end)
 				editbox:SetScript ("OnEscapePressed", function()
 					editbox:ClearFocus()
 					editbox:Hide()
 					editbox:GetParent().MyObject.typing_value = false
+					editbox:GetParent().MyObject.value = tonumber (self.typing_value_started)
 				end)
 				
 				SliderMetaFunctions.editbox_typevalue = editbox
 			end
 			
+			local pvalue = self.previous_value [2]
+			self:SetValue (pvalue)
+			
 			self.typing_value = true
+			self.typing_value_started = pvalue
 			
 			SliderMetaFunctions.editbox_typevalue:SetSize (self.width, self.height)
 			SliderMetaFunctions.editbox_typevalue:SetPoint ("center", self.widget, "center")
@@ -403,6 +408,14 @@ local SliderMetaFunctions = {}
 		if (button == "RightButton") then
 			slider.MyObject:TypeValue()
 		end
+	end
+	
+	local OnMouseUp = function (slider, button)
+		--if (button == "RightButton") then
+		--	if (slider.MyObject.typing_value) then
+		--		slider.MyObject:SetValue (slider.MyObject.previous_value [2])
+		--	end
+		--end
 	end
 	
 	local OnHide = function (slider)
@@ -429,10 +442,20 @@ local SliderMetaFunctions = {}
 		end
 	end
 	
+	local table_insert = table.insert
+	local table_remove = table.remove
+	
 	local OnValueChanged = function (slider)
 	
 		local amt = slider:GetValue()
+	
+		if (slider.MyObject.typing_value) then
+			return slider.MyObject:SetValue (slider.MyObject.typing_value_started)
+		end
 
+		table_insert (slider.MyObject.previous_value, 1, amt)
+		table_remove (slider.MyObject.previous_value, 4)
+		
 		if (slider.MyObject.OnValueChangeHook) then
 			local interrupt = slider.MyObject.OnValueChangeHook (slider, slider.MyObject.FixedValue, amt)
 			if (interrupt) then
@@ -457,7 +480,7 @@ local SliderMetaFunctions = {}
 ------------------------------------------------------------------------------------------------------------
 --> object constructor
 
-function gump:NewSwitch (parent, container, name, member, w, h, ltext, rtext, defaultv)
+function gump:NewSwitch (parent, container, name, member, w, h, ltext, rtext, defaultv, color_inverted)
 
 --> early checks
 	if (not name) then
@@ -484,8 +507,10 @@ function gump:NewSwitch (parent, container, name, member, w, h, ltext, rtext, de
 --> build frames
 	local slider = gump:NewSlider (parent, container, name, member, w, h, 1, 2, 1, defaultv, nil, true)
 	
-	slider:SetBackdrop ({edgeFile = "Interface\\Buttons\\UI-SliderBar-Border", edgeSize = 8,
+	slider:SetBackdrop ({edgeFile = [[Interface\Buttons\UI-SliderBar-Border]], edgeSize = 8,
 	bgFile = [[Interface\AddOns\Details\images\background]], insets = {left = 3, right = 3, top = 5, bottom = 5}})
+	
+	slider.invert_colors = color_inverted
 	
 	slider:SetHook ("OnValueChange", function (self)
 		if (slider:GetValue() == 1) then
@@ -493,13 +518,22 @@ function gump:NewSwitch (parent, container, name, member, w, h, ltext, rtext, de
 			if (slider.OnSwitch) then
 				slider.OnSwitch (slider, slider.FixedValue, false)
 			end
-			slider:SetBackdropColor (1, 0, 0, 0.4)
+			if (not slider.invert_colors) then
+				slider:SetBackdropColor (1, 0, 0, 0.4)
+			else
+				slider:SetBackdropColor (0, 0, 1, 0.4)
+			end
 		else
 			slider.amt:SetText (rtext)
 			if (slider.OnSwitch) then
 				slider.OnSwitch (slider, slider.FixedValue, true)
 			end
-			slider:SetBackdropColor (0, 0, 1, 0.4)
+			
+			if (not slider.invert_colors) then
+				slider:SetBackdropColor (0, 0, 1, 0.4)
+			else
+				slider:SetBackdropColor (1, 0, 0, 0.4)
+			end
 		end
 		return true
 	end)
@@ -624,6 +658,8 @@ function gump:NewSlider (parent, container, name, member, w, h, min, max, step, 
 	SliderObject.amt:SetPoint ("center", SliderObject.thumb, "center")
 	SliderObject.slider.amt = SliderObject.amt
 
+	SliderObject.previous_value = {defaultv or 0, 0, 0}
+	
 	--> hooks
 		SliderObject.slider:SetScript ("OnEnter", OnEnter)
 		SliderObject.slider:SetScript ("OnLeave", OnLeave)
@@ -631,6 +667,7 @@ function gump:NewSlider (parent, container, name, member, w, h, min, max, step, 
 		SliderObject.slider:SetScript ("OnShow", OnShow)
 		SliderObject.slider:SetScript ("OnValueChanged", OnValueChanged)
 		SliderObject.slider:SetScript ("OnMouseDown", OnMouseDown)
+		SliderObject.slider:SetScript ("OnMouseUp", OnMouseUp)
 		
 		
 	_setmetatable (SliderObject, SliderMetaFunctions)

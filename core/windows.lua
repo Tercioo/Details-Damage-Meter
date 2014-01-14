@@ -244,9 +244,9 @@
 		end
 
 		instancia.barraS = {nil, nil} --> zera o iterator
-		instancia.barrasInfo.mostrando = 0 --> resetou, então não esta mostranho nenhuma barra
+		instancia.rows_showing = 0 --> resetou, então não esta mostranho nenhuma barra
 		
-		for i = 1, instancia.barrasInfo.criadas, 1 do --> limpa a referência do que estava sendo mostrado na barra
+		for i = 1, instancia.rows_created, 1 do --> limpa a referência do que estava sendo mostrado na barra
 			local esta_barra= instancia.barras[i]
 			esta_barra.minha_tabela = nil
 		end
@@ -264,7 +264,7 @@
 		if (self.mostrando == "normal") then --> somente alterar o tamanho das barras se tiver mostrando o gump normal
 		
 			if (self.meu_id == _detalhes.ResetButtonInstance) then
-				if (self.baseframe:GetWidth() < 215) then
+				if (self.baseframe:GetWidth() < 215 or self.resetbutton_info.always_small) then
 					gump:Fade (_detalhes.ResetButton, 1)
 					gump:Fade (_detalhes.ResetButton2, 0)
 					_detalhes.ResetButtonMode = 2
@@ -321,6 +321,10 @@
 				end
 			end
 			
+			if (self.stretch_button_side == 2) then
+				self:StretchButtonAnchor (2)
+			end
+			
 			if (self.freezed) then
 				--> reajusta o freeze
 				_detalhes:Freeze (self)
@@ -329,50 +333,54 @@
 			-- -4 difere a precisão de quando a barra será adicionada ou apagada da barra
 			self.baseframe.BoxBarrasAltura = self.baseframe:GetHeight()-4
 
-			local T = self.barrasInfo.cabem
+			local T = self.rows_fit_in_window
 			if (not T) then --> primeira vez que o gump esta sendo reajustado
-				T = _math_floor (self.baseframe.BoxBarrasAltura / self.barrasInfo.alturaReal)
+				T = _math_floor (self.baseframe.BoxBarrasAltura / self.row_height)
 				-- o que mais precisa por aqui?
 			end
 			
 			--> reajustar o local do relógio
 			local meio = self.baseframe:GetWidth() / 2
 			local novo_local = meio - 25
-			self.barrasInfo.cabem = _math_floor ( self.baseframe.BoxBarrasAltura / self.barrasInfo.alturaReal)
+			self.rows_fit_in_window = _math_floor ( self.baseframe.BoxBarrasAltura / self.row_height)
 
-			if (self.barrasInfo.cabem > #self.barras) then--> verifica se precisa criar mais barras
-				for i  = #self.barras+1, self.barrasInfo.cabem, 1 do
-					local nova_barra = gump:CriaNovaBarra (self, i, 30) --> cria nova barra
-					nova_barra.texto_esquerdo:SetText (Loc ["STRING_NEWROW"]) --seta o texto da esqueda
-					nova_barra.statusbar:SetValue (100)
-					self.barras [i] = nova_barra
+			--if (not _detalhes.initializing) then
+
+				if (self.rows_fit_in_window > #self.barras) then--> verifica se precisa criar mais barras
+					for i  = #self.barras+1, self.rows_fit_in_window, 1 do
+						local nova_barra = gump:CriaNovaBarra (self, i, 30) --> cria nova barra
+						nova_barra.texto_esquerdo:SetText (Loc ["STRING_NEWROW"]) --seta o texto da esqueda
+						nova_barra.statusbar:SetValue (100)
+						self.barras [i] = nova_barra
+					end
+					self.rows_created = #self.barras
 				end
-				self.barrasInfo.criadas = #self.barras
-			end
-			
-			--> seta a largura das barras
-			if (self.bar_mod and self.bar_mod ~= 0) then
-				for index = 1, self.barrasInfo.cabem do
-					self.barras [index]:SetWidth (self.baseframe:GetWidth()+self.bar_mod)
+				
+				--> seta a largura das barras
+				if (self.bar_mod and self.bar_mod ~= 0) then
+					for index = 1, self.rows_fit_in_window do
+						self.barras [index]:SetWidth (self.baseframe:GetWidth()+self.bar_mod)
+					end
+				else
+					for index = 1, self.rows_fit_in_window do
+						self.barras [index]:SetWidth (self.baseframe:GetWidth()+self.row_info.space.right)
+					end
 				end
-			else
-				for index = 1, self.barrasInfo.cabem do
-					self.barras [index]:SetWidth (self.baseframe:GetWidth()+self.barrasInfo.espaco.direita)
-				end
-			end
+
+			--end
 			
 			local A = self.barraS[1]
 			if (not A) then --> primeira vez que o resize esta sendo usado, no caso no startup do addon ou ao criar uma nova instância
 				--> hida as barras não usadas
-				for i = 1, self.barrasInfo.criadas, 1 do
+				for i = 1, self.rows_created, 1 do
 					gump:Fade (self.barras [i], 1)
 					self.barras [i].on = false
-				end	
+				end
 				return
 			end
 			
-			local X = self.barrasInfo.mostrando
-			local C = self.barrasInfo.cabem
+			local X = self.rows_showing
+			local C = self.rows_fit_in_window
 
 			--> novo iterator
 			local barras_diff = C - T --> aqui pega a quantidade de barras, se aumentou ou diminuiu
@@ -465,31 +473,7 @@
 					else
 						tabela:RefreshBarra (esta_barra, self, true)
 					end
-					
-					if (esta_barra.minha_tabela.enemy) then
-						--if (i == 1) then
-							--print (esta_barra.texto_esquerdo:GetWrappedWidth())
-						--end
-						
-						--esta_barra.texto_esquerdo:SetText (esta_barra.colocacao.."."..esta_barra.minha_tabela.nome.." |TInterface\\PVPFrame\\PVP-Currency-Horde:14:14|t") --seta o texto da esqueda
 
-						--local texto_len = esta_barra.texto_esquerdo:GetStringWidth()
-						--if (esta_barra.texto_esquerdo:IsTruncated()) then
-							--local tamanho = esta_barra:GetWidth()-esta_barra.texto_direita:GetStringWidth()-16-esta_barra:GetHeight()
-							--esta_barra.icone_secundario:SetPoint ("left", esta_barra.texto_esquerdo, "left", tamanho-2, 0)
-							--print ("aqui")
-						--else
-							--print ("aqui")
-							--if (i == 1) then
-								--print (esta_barra.texto_esquerdo:GetStringWidth()) --debug
-								--print (esta_barra.texto_esquerdo:GetText())
-							--end
-							--local fonte, size, flags = esta_barra.texto_esquerdo:GetFont()
-							--print (fonte, size, flags)
-							--esta_barra.icone_secundario:SetPoint ("left", esta_barra.texto_esquerdo, "left", esta_barra.texto_esquerdo:GetStringWidth()+3, 0)
-							--esta_barra.texto_esquerdo:SetText (esta_barra.colocacao.."."..esta_barra.minha_tabela.nome.." |TInterface\\PVPFrame\\PVP-Currency-Horde:14:14|t") --seta o texto da esqueda
-						--end
-					end
 				end
 				
 				qual_barra = qual_barra+1

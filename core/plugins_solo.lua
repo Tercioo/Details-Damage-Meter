@@ -124,16 +124,16 @@
 			end
 			
 			--> calcula se existem barras, etc...
-			if (not self.barrasInfo.cabem) then --> as barras não forma iniciadas ainda
-				self.barrasInfo.cabem = _math_floor (self.baseframe.BoxBarrasAltura / self.barrasInfo.alturaReal)
-				if (self.barrasInfo.criadas < self.barrasInfo.cabem) then
-					for i  = #self.barras+1, self.barrasInfo.cabem do
+			if (not self.rows_fit_in_window) then --> as barras não forma iniciadas ainda
+				self.rows_fit_in_window = _math_floor (self.baseframe.BoxBarrasAltura / self.row_height)
+				if (self.rows_created < self.rows_fit_in_window) then
+					for i  = #self.barras+1, self.rows_fit_in_window do
 						local nova_barra = gump:CriaNovaBarra (self, i, 30) --> cria nova barra
 						nova_barra.texto_esquerdo:SetText (Loc ["STRING_NEWROW"])
 						nova_barra.statusbar:SetValue (100) 
 						self.barras [i] = nova_barra
 					end
-					self.barrasInfo.criadas = #self.barras
+					self.rows_created = #self.barras
 				end
 			end
 		end

@@ -30,8 +30,14 @@ end
 	_detalhes_database.nick_tag_cache = _detalhes.nick_tag_cache
 	_detalhes_database.only_pvp_frags = _detalhes.only_pvp_frags
 	
+	--> minimap
+	_detalhes_database.minimap = _detalhes.minimap
+	
 	--> save instances (windows)
 		_detalhes_database.tabela_instancias = _detalhes.tabela_instancias
+		_detalhes_database.class_icons_small = _detalhes.class_icons_small
+		_detalhes_database.class_coords = _detalhes.class_coords
+		_detalhes_database.class_colors = _detalhes.class_colors
 	--> character info
 		_detalhes_database.character_data = _detalhes.character_data
 	--> options data
@@ -59,7 +65,6 @@ end
 		-- colors
 		_detalhes_database.default_bg_color = _detalhes.default_bg_color
 		_detalhes_database.default_bg_alpha = _detalhes.default_bg_alpha
-		_detalhes_database.class_colors = _detalhes.class_colors
 		-- fades
 		_detalhes_database.row_fade_in = _detalhes.row_fade_in
 		_detalhes_database.windows_fade_in = _detalhes.windows_fade_in
@@ -165,7 +170,10 @@ end --]]
 			_detalhes.nick_tag_cache = _detalhes_database.nick_tag_cache or {}
 			_detalhes:NickTagSetCache (_detalhes.nick_tag_cache)
 			_detalhes.only_pvp_frags = _detalhes_database.only_pvp_frags
-
+			
+			--> minimap
+			_detalhes.minimap = _detalhes_database.minimap
+	
 		--> character info
 			_detalhes.character_data = _detalhes_database.character_data
 			
@@ -195,7 +203,10 @@ end --]]
 			
 		--> instances (windows)
 			_detalhes.tabela_instancias = _detalhes_database.tabela_instancias or {}
-		
+			_detalhes.class_icons_small = _detalhes_database.class_icons_small
+			_detalhes.class_coords = _detalhes_database.class_coords
+			_detalhes.class_colors = _detalhes_database.class_colors
+			
 		--> get last combat table
 			local historico_UM = _detalhes.tabela_historico.tabelas[1]
 			
@@ -247,7 +258,6 @@ end --]]
 			_detalhes.report_lines = _detalhes_database.report_lines
 			_detalhes.report_to_who = _detalhes_database.report_to_who
 			-- colors
-			_detalhes.class_colors = _detalhes_database.class_colors
 			_detalhes.default_bg_color = _detalhes_database.default_bg_color
 			_detalhes.default_bg_alpha = _detalhes_database.default_bg_alpha
 			-- fades
@@ -366,5 +376,114 @@ function _detalhes:WipeConfig()
 	b:SetText (Loc ["STRING_SLASH_WIPECONFIG_CONFIRM"])
 	b:SetScript ("OnClick", function() _detalhes.wipe_full_config = true; ReloadUI(); end)
 	b:SetPoint ("center", UIParent, "center", 0, 0)
+	
+end
+
+function _detalhes:ApplyConfigDataOnLoad()
+	
+	--> basic
+	self.instances_amount = self.instances_amount or 12
+	self.segments_amount = self.segments_amount or 12
+	self.segments_amount_to_save = self.segments_amount_to_save or 5
+	self.memory_threshold = self.memory_threshold or 3
+	self.memory_ram = self.memory_ram or 64
+	self.deadlog_limit = self.deadlog_limit or 12
+	self.minimum_combat_time = self.minimum_combat_time or 5
+	self.update_speed = self.update_speed or 1
+	self.time_type = self.time_type or 1
+	self.row_fade_in = self.row_fade_in or {"in", 0.2}
+	self.row_fade_out = self.row_fade_out or {"out", 0.2}
+	self.windows_fade_in = self.windows_fade_in or {"in", 0.2}
+	self.windows_fade_out = self.windows_fade_out or {"out", 0.2}
+	self.default_bg_color = self.default_bg_color or 0.0941
+	self.default_bg_alpha = self.default_bg_alpha or 0.7
+	self.new_window_size = self.new_window_size or {width = 300, height = 95}
+	self.max_window_size = self.max_window_size or {width = 480, height = 450}
+	self.window_clamp = self.window_clamp or {-8, 0, 21, -14}
+	self.window_clamp = {-8, 0, 21, -14}
+	self.report_lines = self.report_lines or 5
+	self.report_to_who = self.report_to_who or ""
+	self.animate_scroll = self.animate_scroll or false
+	self.use_scroll = self.use_scroll or false
+	self.font_sizes = self.font_sizes or {menus = 10}
+	self.minimap = self.minimap or {hide = false, radius = 160, minimapPos = 220}
+
+	--> tutorial
+	self.tutorial = self.tutorial or {}
+	self.tutorial.logons = self.tutorial.logons or 0
+	self.tutorial.unlock_button = self.tutorial.unlock_button or 0
+	self.tutorial.version_announce = self.tutorial.version_announce or 0
+	self.tutorial.main_help_button = self.tutorial.main_help_button or 0
+	self.tutorial.alert_frames = self.tutorial.alert_frames or {false, false, false, false, false, false}
+	self.tutorial.logons = self.tutorial.logons + 1
+	self.tutorial.main_help_button = self.tutorial.main_help_button + 1
+	self.character_data = self.character_data or {logons = 0}
+	self.character_data.logons = self.character_data.logons + 1
+
+	--> class colors
+	if (not self.class_colors or not self.class_colors.version or self.class_colors.version < self.class_colors_version) then
+		self.class_colors = {version = 1}
+		for classe, tabela_cor in pairs ( RAID_CLASS_COLORS ) do 
+			self.class_colors [classe] = {tabela_cor.r, tabela_cor.g, tabela_cor.b}
+		end
+		self.class_colors ["UNKNOW"] = {0.2, 0.2, 0.2}
+		self.class_colors ["UNGROUPPLAYER"] = {0.4, 0.4, 0.4}
+		self.class_colors ["PET"] = {0.3, 0.4, 0.5}
+		self.class_colors ["ENEMY"] = {0.94117, 0, 0.01960, 1}
+	end
+	
+	self.class_icons_small = self.class_icons_small or [[Interface\AddOns\Details\images\classes_small]]
+	
+	--> class coords
+	if (not self.class_coords or not self.class_coords.version or self.class_coords.version < self.class_coords_version) then
+		self.class_coords = {}
+		for class, tcoord in pairs (_G.CLASS_ICON_TCOORDS) do
+			self.class_coords [class] = tcoord
+		end
+
+		self.class_coords ["Alliance"] = {0.49609375, 0.7421875, 0.75, 1}
+		self.class_coords ["Horde"] = {0.7421875, 0.98828125, 0.75, 1}
+		self.class_coords ["PET"] = {0.25, 0.49609375, 0.75, 1}
+		self.class_coords ["MONSTER"] = {0, 0.25, 0.75, 1}
+		self.class_coords ["ENEMY"] = {0, 0.25, 0.75, 1}
+		self.class_coords ["UNKNOW"] = {0.5, 0.75, 0.75, 1}
+		self.class_coords ["UNGROUPPLAYER"] = {0.5, 0.75, 0.75, 1}	
+	end
+
+	--> booleans
+	if (type (self.trash_concatenate) ~= "boolean") then
+		self.trash_concatenate = false
+	end
+	if (type (self.trash_auto_remove) ~= "boolean") then
+		self.trash_auto_remove = false
+	end
+	
+	if (type (self.only_pvp_frags) ~= "boolean") then
+		self.only_pvp_frags = false
+	end
+	
+	if (type (self.remove_realm_from_name) ~= "boolean") then
+		self.remove_realm_from_name = true
+	end
+	
+	if (type (self.cloud_capture) ~= "boolean") then
+		self.cloud_capture = true
+	end
+	
+	if (type (self.segments_panic_mode) ~= "boolean") then
+		self.segments_panic_mode = true
+	end
+	
+	if (type (self.clear_graphic) ~= "boolean") then
+		self.clear_graphic = self.clear_graphic or true
+	end
+	
+	if (type (self.clear_ungrouped) ~= "boolean") then
+		self.clear_ungrouped = self.clear_ungrouped or true
+	end
+	
+	if (type (self.use_row_animations) ~= "boolean") then
+		self.use_row_animations = self.use_row_animations or false
+	end
 	
 end

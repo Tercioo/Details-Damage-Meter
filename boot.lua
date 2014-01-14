@@ -8,7 +8,7 @@
 		
 		_ = nil
 		_detalhes = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0", "NickTag-1.0")
-		_detalhes.userversion = "v1.8.4"
+		_detalhes.userversion = "v1.9.0"
 		_detalhes.version = "Alpha 013"
 		_detalhes.realversion = 13
 
@@ -90,6 +90,7 @@ do
 				_detalhes.ToolBar = {}
 			--> current showing icons
 				_detalhes.ToolBar.Shown = {} 
+				_detalhes.ToolBar.AllButtons = {} 
 			--> plugin objects
 				_detalhes.ToolBar.Plugins = {} 
 			--> name to plugin object
@@ -207,6 +208,21 @@ do
 			for a,b in pairs (t) do 
 				print (a,b)
 			end
+		end
+		
+	--> global 'table_deepcopy' copies a full table	
+		function table_deepcopy (orig)
+			local orig_type = type(orig)
+			local copy
+			if orig_type == 'table' then
+				copy = {}
+				for orig_key, orig_value in next, orig, nil do
+					copy [table_deepcopy (orig_key)] = table_deepcopy (orig_value)
+				end
+			else
+				copy = orig
+			end
+			return copy
 		end
 	
 	--> delay messages

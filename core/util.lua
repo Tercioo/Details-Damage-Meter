@@ -160,6 +160,7 @@
 				outline = "THICKOUTLINE"
 			end
 		end
+
 		fontString:SetFont (fonte, size, outline)
 	end
 	
@@ -309,7 +310,7 @@
 	--[[ test grayscale ]]
 	function _detalhes:teste_grayscale()
 		local instancia = _detalhes.tabela_instancias[1]
-		for i = 1, instancia.barrasInfo.criadas, 1 do
+		for i = 1, instancia.rows_created, 1 do
 			local barra = instancia.barras[i]
 			local red, green, blue, alpha = barra.textura:GetVertexColor()
 			local grayscale = (red*0.03+green+blue) / 3 --> grayscale lightness method
@@ -467,19 +468,19 @@
 			if (frame.meu_id) then --> ups, é uma instância
 				if (parametros == "barras") then --> hida todas as barras da instância
 					if (velocidade) then
-						for i = 1, frame.barrasInfo.criadas, 1 do
+						for i = 1, frame.rows_created, 1 do
 							gump:Fade (frame.barras[i], tipo, velocidade)
 						end
 						return
 					else
 						velocidade = velocidade or 0.3
-						for i = 1, frame.barrasInfo.criadas, 1 do
+						for i = 1, frame.rows_created, 1 do
 							gump:Fade (frame.barras[i], tipo, 0.3+(i/10))
 						end
 						return
 					end
 				elseif (parametros == "hide_barras") then --> hida todas as barras da instância
-					for i = 1, frame.barrasInfo.criadas, 1 do
+					for i = 1, frame.rows_created, 1 do
 						local esta_barra = frame.barras[i]
 						if (esta_barra.fading_in or esta_barra.fading_out) then
 							esta_barra.fadeInfo.finishedFunc = nil
@@ -505,7 +506,7 @@
 		if (frame == "all") then --> todas as instâncias
 			for _, instancia in _ipairs (_detalhes.tabela_instancias) do
 				if (parametros == "barras") then --> hida todas as barras da instância
-					for i = 1, instancia.barrasInfo.criadas, 1 do
+					for i = 1, instancia.rows_created, 1 do
 						gump:Fade (instancia.barras[i], tipo, velocidade+(i/10))
 					end
 				end

@@ -2,12 +2,20 @@ local Loc = LibStub("AceLocale-3.0"):NewLocale("Details", "ptBR")
 if not Loc then return end 
 
 --------------------------------------------------------------------------------------------------------------------------------------------
-	Loc ["STRING_VERSION_LOG"] = "|cFFFFFF00v1.8.4|r\n\n|cFFFFFF00-|r Adicionado comando 'details reinstalar' no qual limpa a configuracao do Details! em caso de erros.\n\n|cFFFFFF00v1.8.3|r\n\n|cFFFFFF00-|r Adicionada nova skin: Simple Gray.\n\n|cFFFFFF00-|r Adicionado botoes para o Details! no minimapa e menu de addons no painel de intercace.\n\n|cFFFFFF00-|r Adicionados novas bolhas de tutoriais para aspectos basicos das janelas do Details!.\n\n|cFFFFFF00-|r Corrigido o Modo Panico aonde as vezes ele nao era disparado.\n\n|cFFFFFF00v1.8.0|r\n\n- Adicionado novo plugin: You Are Not Prepared.\n\n|cFFFFFF00-|r Novo painel de opcoes!\n\n|cFFFFFF00v1.7.0|r\n\n- Corrigido alguns problemas com as cores das barras de inimigos.\n\n|cFFFFFF00-|r CC Quebrado foi inteiramente reescrito e agora deve funcionar corretamente.\n\n|cFFFFFF00-|r Adicionado novo sub atributo ao dano: Voidzones & Debuffs.|cFFFFFF00v1.6.7|r\n\n- Adicionado suporte a skins, troque ela atraves do painel de opcoes.\n\n|cFFFFFF00v1.6.5|r\n\n|cFFFFFF00-|r Adicionado o sub atributo 'Inimigos' que mostra, eh claro, somente inimigos.\n\n|cFFFFFF00-|r Corrigido um problema na captura das magias conjuradas.|cFFFFFF00v1.6.3|r\n\n|cFFFFFF00-|r captura de dados agora roda 4% mais rapido.\n\n|cFFFFFF00-|r Corrigido problema onde os ajudantes nao atualizavam o tempo de atividade do dono.\n\n|cFFFFFF00-|r Corrigido problema onde o healing era contado mesmo fora do combate.\n\n|cFFFFFF00-|r Corrigido problema com chefes multiplos como Twin Consorts.\n\n|cFFFFFF00-|r Adicionada opcao para juntar os segmentos de trash mobs.\n\n|cFFFFFF00-|r Adicionada opcao para auto remover os segmentos de trash mobs. \n\n|cFFFFFF00-|r Adicionada opcao para alterar a altura das barras.\n\n|cFFFFFF00-|r Plugin Encounter Details agora mostra quantos cast bem sucedidos as magias interrompidas tiveram.\n\n|cFFFFFF00v1.6.1|r\n\n|cFFFFFF00-|r Corrigido:\n- problema com o tempo de debuffs.\n- dps dos dados gerais e o dps no micro display .\n- varios bugs envolvendo o menu da espada e do livro.\n- o coletor de lixo nao ira mais apagar jogadores com vinculo a membros do grupo.\n\n|cFFFFFF00-|r dados gerais agora sempre ira usar o tempo do combate para medir dps e hps.\n\n|cFFFFFF00v1.6.0|r\n\n|cFFFFFF00-|r Adicionado tempo de debuff no atributo miscelanea.\n\n|cFFFFFF00-|r Atributos desativados agora ficam escurecidos no menu da espada.\n\n|cFFFFFF00-|r Corrigido um problema aonde algumas vezes era necessario dar /reload para trocar um talento.\n\n|cFFFFFF00v1.5.3|r\n\n|cFFFFFF00-|r Corrigido problema ao reportar durante o combate.\n\n|cFFFFFF00-|r Melhorado a reconhecimento dos donos de ajudantes.\n\n|cFFFFFF00-|r Adicionada uma opcao para mostrar apenas frags em cima de jogadores inimigos.\n\n|cFFFFFF00-|r Adicionado cor e icone aos frags.\n\n|cFFFFFF00v1.5.2|r\n\n|cFFFFFF00-|r Corrigido problema onde desativando o tempo dos buffs estava desativando tambem a cura feita.\n\n|cFFFFFF00-|r Estatisticas de Avoidance nao seram mais capturadas para pessoas foram do grupo, monstros ou ajudantes.\n\n|cFFFFFF00-|r Corrigido problema onde as vezes estava demorando muito para salvar o tempo dos buffs ao sair do jogo.\n\n|cFFFFFF00v1.5.1|r\n\n|cFFFFFF00-|r Corrigido problema ao reportar o Dps onde as vezes nao mostrava nenhum jogador.\n\n|cFFFFFF00v1.5.0|r\n\n"
+
+	Loc ["STRING_VERSION_LOG"] = "|cFFFFFF00v1.9.0|r\n\n|cFFFFFF00-|r Corrigido o problema de nao movimentar o botao no minimapa.\n\n|cFFFFFF00-|r Suporte a skins foi reescrito e agora ficou mais flexivel.\n\n|cFFFFFF00-|r Adicionadas mais de 20 opcoes de customizacao no painel de opcoes.\n\n|cFFFFFF00v1.8.4|r\n\n|cFFFFFF00-|r Adicionado comando 'details reinstalar' no qual limpa a configuracao do Details! em caso de erros.\n\n|cFFFFFF00v1.8.3|r\n\n|cFFFFFF00-|r Adicionada nova skin: Simple Gray.\n\n|cFFFFFF00-|r Adicionado botoes para o Details! no minimapa e menu de addons no painel de intercace.\n\n|cFFFFFF00-|r Adicionados novas bolhas de tutoriais para aspectos basicos das janelas do Details!.\n\n|cFFFFFF00-|r Corrigido o Modo Panico aonde as vezes ele nao era disparado.\n\n|cFFFFFF00v1.8.0|r\n\n- Adicionado novo plugin: You Are Not Prepared.\n\n|cFFFFFF00-|r Novo painel de opcoes!\n\n|cFFFFFF00v1.7.0|r\n\n- Corrigido alguns problemas com as cores das barras de inimigos.\n\n|cFFFFFF00-|r CC Quebrado foi inteiramente reescrito e agora deve funcionar corretamente.\n\n|cFFFFFF00-|r Adicionado novo sub atributo ao dano: Voidzones & Debuffs.|cFFFFFF00v1.6.7|r\n\n- Adicionado suporte a skins, troque ela atraves do painel de opcoes.\n\n|cFFFFFF00v1.6.5|r\n\n|cFFFFFF00-|r Adicionado o sub atributo 'Inimigos' que mostra, eh claro, somente inimigos.\n\n|cFFFFFF00-|r Corrigido um problema na captura das magias conjuradas.|cFFFFFF00v1.6.3|r\n\n|cFFFFFF00-|r captura de dados agora roda 4% mais rapido.\n\n|cFFFFFF00-|r Corrigido problema onde os ajudantes nao atualizavam o tempo de atividade do dono.\n\n|cFFFFFF00-|r Corrigido problema onde o healing era contado mesmo fora do combate.\n\n|cFFFFFF00-|r Corrigido problema com chefes multiplos como Twin Consorts.\n\n|cFFFFFF00-|r Adicionada opcao para juntar os segmentos de trash mobs.\n\n|cFFFFFF00-|r Adicionada opcao para auto remover os segmentos de trash mobs. \n\n|cFFFFFF00-|r Adicionada opcao para alterar a altura das barras.\n\n|cFFFFFF00-|r Plugin Encounter Details agora mostra quantos cast bem sucedidos as magias interrompidas tiveram.\n\n|cFFFFFF00v1.6.1|r\n\n|cFFFFFF00-|r Corrigido:\n- problema com o tempo de debuffs.\n- dps dos dados gerais e o dps no micro display .\n- varios bugs envolvendo o menu da espada e do livro.\n- o coletor de lixo nao ira mais apagar jogadores com vinculo a membros do grupo.\n\n|cFFFFFF00-|r dados gerais agora sempre ira usar o tempo do combate para medir dps e hps.\n\n|cFFFFFF00v1.6.0|r\n\n|cFFFFFF00-|r Adicionado tempo de debuff no atributo miscelanea.\n\n|cFFFFFF00-|r Atributos desativados agora ficam escurecidos no menu da espada.\n\n|cFFFFFF00-|r Corrigido um problema aonde algumas vezes era necessario dar /reload para trocar um talento.\n\n|cFFFFFF00v1.5.3|r\n\n|cFFFFFF00-|r Corrigido problema ao reportar durante o combate.\n\n|cFFFFFF00-|r Melhorado a reconhecimento dos donos de ajudantes.\n\n|cFFFFFF00-|r Adicionada uma opcao para mostrar apenas frags em cima de jogadores inimigos.\n\n|cFFFFFF00-|r Adicionado cor e icone aos frags.\n\n|cFFFFFF00v1.5.2|r\n\n|cFFFFFF00-|r Corrigido problema onde desativando o tempo dos buffs estava desativando tambem a cura feita.\n\n|cFFFFFF00-|r Estatisticas de Avoidance nao seram mais capturadas para pessoas foram do grupo, monstros ou ajudantes.\n\n|cFFFFFF00-|r Corrigido problema onde as vezes estava demorando muito para salvar o tempo dos buffs ao sair do jogo.\n\n|cFFFFFF00v1.5.1|r\n\n|cFFFFFF00-|r Corrigido problema ao reportar o Dps onde as vezes nao mostrava nenhum jogador.\n\n|cFFFFFF00v1.5.0|r\n\n"
 
 	Loc ["STRING_DETAILS1"] = "|cffffaeaeDetalhes:|r " --> color and details name
 
 	Loc ["STRING_YES"] = "Sim"
 	Loc ["STRING_NO"] = "Nao"
+	
+	Loc ["STRING_TOP"] = "topo"
+	Loc ["STRING_BOTTOM"] = "baixo"
+	Loc ["STRING_AUTO"] = "auto"
+	Loc ["STRING_LEFT"] = "esquerda"
+	Loc ["STRING_CENTER"] = "centro"
+	Loc ["STRING_RIGHT"] = "direita"
 	
 	Loc ["STRING_MINIMAP_TOOLTIP1"] = "|cFFCFCFCFbotao esquerdo|r: abrir o painel de opcoes"
 	Loc ["STRING_MINIMAP_TOOLTIP2"] = "|cFFCFCFCFbotao direito|r: menu rapido"
@@ -19,19 +27,18 @@ if not Loc then return end
 	Loc ["STRING_MINIMAPMENU_UNLOCK"] = "Destravar"
 	Loc ["STRING_MINIMAPMENU_LOCK"] = "Travar"
 	
+	Loc ["STRING_RESETBUTTON_WRONG_INSTANCE"] = "Aviso, o botao de reset nao esta na janela que esta sendo editada."
+	
 	Loc ["STRING_INTERFACE_OPENOPTIONS"] = "Abrir Painel de Opcoes"
 	
 	Loc ["STRING_RIGHTCLICK_TYPEVALUE"] = "botao direito para digitar o valor"
-	Loc ["STRING_AUTO"] = "auto"
-	Loc ["STRING_LEFT"] = "esquerda"
-	Loc ["STRING_CENTER"] = "centro"
-	Loc ["STRING_RIGHT"] = "direita"
 	Loc ["STRING_TOOOLD"] = "nao pode ser instalado pois sua versao do Details! e muito antiga."
 	Loc ["STRING_TOOOLD2"] = "a sua versao do Details! nao e a mesma."
 	Loc ["STRING_CHANGED_TO_CURRENT"] = "Segmento trocado para atual"
 	Loc ["STRING_SEGMENT_TRASH"] = "Caminho do Proximo Boss"
 	Loc ["STRING_VERSION_UPDATE"] = "nova versao: clique para ver o que mudou"
 	Loc ["STRING_NEWS_TITLE"] = "Quais As Novidades Desta Versao"
+	Loc ["STRING_NEWS_REINSTALL"] = "Encontrou problemas apos atualizar? tente o comando '/details reinstall'."
 	Loc ["STRING_TIME_OF_DEATH"] = "Morreu"
 	Loc ["STRING_SHORTCUT_RIGHTCLICK"] = "Menu de Atalho (botao direito para fechar)"
 	
@@ -401,6 +408,8 @@ if not Loc then return end
 	Loc ["STRING_OPTIONS_MAXINSTANCES_DESC"] = "Limita o numero de janelas que podem ser criadas.\n\nVoce pode abrir ou reabrir as janelas atraves do botao de instancia localizado a esquerda do botao de fechar."
 	Loc ["STRING_OPTIONS_PVPFRAGS"] = "Apenas Frags de Pvp"
 	Loc ["STRING_OPTIONS_PVPFRAGS_DESC"] = "Quando ativado, serao registrados apenas mortes de jogadores da faccao inimiga."
+	Loc ["STRING_OPTIONS_MINIMAP"] = "Icone no Mini Mapa"
+	Loc ["STRING_OPTIONS_MINIMAP_DESC"] = "Mostra ou esconde o icone no mini mapa."
 	Loc ["STRING_OPTIONS_TIMEMEASURE"] = "Medidas do Tempo"
 	Loc ["STRING_OPTIONS_TIMEMEASURE_DESC"] = "|cFFFFFFFFTempo de Atividade|r: o tempo de cada membro da raide eh posto em pausa quando ele ficar ocioso e volta a contar o tempo quando ele voltar a atividade, eh a maneira mais comum de medir o Dps e Hps.\n\n|cFFFFFFFFTempo Efetivo|r: muito usado para ranqueamentos, este metodo usa o tempo total da luta para medir o Dps e Hps de todos os membros da raide."
 	
@@ -448,90 +457,164 @@ if not Loc then return end
 	Loc ["STRING_OPTIONS_CLOUD_DESC"] = "Quando ativado, as informacoes de capturas deligadas eh buscada em outros membros da raide."
 	
 	
-	Loc ["STRING_OPTIONS_BARS"] = "Bar Settings"
-	Loc ["STRING_OPTIONS_BARS_DESC"] = "This options control the appearance of the instance bars."
+	Loc ["STRING_OPTIONS_BARS"] = "Configuracoes das Barras"
+	Loc ["STRING_OPTIONS_BARS_DESC"] = "Estas opcoes controlam a aparencia das barra da janela."
 
-	Loc ["STRING_OPTIONS_BAR_TEXTURE"] = "Texture"
-	Loc ["STRING_OPTIONS_BAR_TEXTURE_DESC"] = "Choose the texture of bars."
+	Loc ["STRING_OPTIONS_BAR_TEXTURE"] = "Textura"
+	Loc ["STRING_OPTIONS_BAR_TEXTURE_DESC"] = "Esta opcao altera a textura superior das barras."
 	
-	Loc ["STRING_OPTIONS_BAR_BTEXTURE"] = "Background Texture"
-	Loc ["STRING_OPTIONS_BAR_BTEXTURE_DESC"] = "Choose the background texture of bars."
+	Loc ["STRING_OPTIONS_BAR_BTEXTURE"] = "Textura de Fundo"
+	Loc ["STRING_OPTIONS_BAR_BTEXTURE_DESC"] = "Altere a textura do fundo da barra, lembre-se de alterar a cor da textura e diminuir sua transparencia."
 	
-	Loc ["STRING_OPTIONS_BAR_BCOLOR"] = "Background Color"
-	Loc ["STRING_OPTIONS_BAR_BCOLOR_DESC"] = "Choose the background color of bars."
+	Loc ["STRING_OPTIONS_BAR_BCOLOR"] = "Cor da Textura de Fundo"
+	Loc ["STRING_OPTIONS_BAR_BCOLOR_DESC"] = "Escolha a cor que a textura do fundo da barra tera, no painel, ha um controle de transparencia, nao esqueca de alterar."
 	
-	Loc ["STRING_OPTIONS_BAR_HEIGHT"] = "Height"
-	Loc ["STRING_OPTIONS_BAR_HEIGHT_DESC"] = "Change the height of bars."
+	Loc ["STRING_OPTIONS_BAR_HEIGHT"] = "Altura"
+	Loc ["STRING_OPTIONS_BAR_HEIGHT_DESC"] = "Altera a altura das barras."
 	
-	Loc ["STRING_OPTIONS_BAR_COLORBYCLASS"] = "Color By Class"
-	Loc ["STRING_OPTIONS_BAR_COLORBYCLASS_DESC"] = "When enabled, the instance bars have the color of the character class.\n\nDisabled: bars have a fixed color."
+	Loc ["STRING_OPTIONS_BAR_COLORBYCLASS"] = "Cor da Classe"
+	Loc ["STRING_OPTIONS_BAR_COLORBYCLASS_DESC"] = "Quando ativada, as barras aplicam a cor da classe do personagem na textura superior.\n\nQuando desligado, a barra ira utilizar a cor fixa determinada na caixa a direita."
 	
-	Loc ["STRING_OPTIONS_BAR_COLORBYCLASS2"] = "Background Color By Class"
-	Loc ["STRING_OPTIONS_BAR_COLORBYCLASS2_DESC"] = "When enabled, the instance bars  background have the color of the character class.\n\nDisabled: bars have a fixed color."
+	Loc ["STRING_OPTIONS_BAR_COLORBYCLASS2"] = "Cor da Classe (fundo)"
+	Loc ["STRING_OPTIONS_BAR_COLORBYCLASS2_DESC"] = "Quando ativada, as barras aplicam a cor da classe do personagem na textura de fundo.\n\nQuando desligado, a barra ira utilizar a cor fixa determinada na caixa a direita."
 	--
-	Loc ["STRING_OPTIONS_TEXT"] = "Text Settings"
-	Loc ["STRING_OPTIONS_TEXT_DESC"] = "This options control the appearance of the instance bar texts."
+	Loc ["STRING_OPTIONS_TEXT"] = "Opcoes dos Textos das Barras"
+	Loc ["STRING_OPTIONS_TEXT_DESC"] = "Os ajustes abaixo personalizam os textos mostrados nas barras."
 	
-	Loc ["STRING_OPTIONS_TEXT_SIZE"] = "Size"
-	Loc ["STRING_OPTIONS_TEXT_SIZE_DESC"] = "Change the size of bar texts."
+	Loc ["STRING_OPTIONS_TEXT_SIZE"] = "Tamanho"
+	Loc ["STRING_OPTIONS_TEXT_SIZE_DESC"] = "Altera o tamanho da fonte do texto."
 	
 	Loc ["STRING_OPTIONS_TEXT_FONT"] = "Font"
-	Loc ["STRING_OPTIONS_TEXT_FONT_DESC"] = "Change the font of bar texts."
+	Loc ["STRING_OPTIONS_TEXT_FONT_DESC"] = "Modifica a fonte do texto usado nas barras."
 	
-	Loc ["STRING_OPTIONS_TEXT_LOUTILINE"] = "Left Text Outline"
-	Loc ["STRING_OPTIONS_TEXT_LOUTILINE_DESC"] = "Enable or Disable the outline for left text."
+	Loc ["STRING_OPTIONS_TEXT_LOUTILINE"] = "Sombra do Texto Esquerdo"
+	Loc ["STRING_OPTIONS_TEXT_LOUTILINE_DESC"] = "Quando ativado o texto esquerdo ganhara um efeito de sombra ao seu redor."
 	
-	Loc ["STRING_OPTIONS_TEXT_ROUTILINE"] = "Right Text Outline"
-	Loc ["STRING_OPTIONS_TEXT_ROUTILINE_DESC"] = "Enable or Disable the outline for right text."
+	Loc ["STRING_OPTIONS_TEXT_ROUTILINE"] = "Sombra do Texto Direito"
+	Loc ["STRING_OPTIONS_TEXT_ROUTILINE_DESC"] = "Quando ativado o texto da direita ganhara um efeito de sombra ao seu redor."
 	
-	Loc ["STRING_OPTIONS_TEXT_LCLASSCOLOR"] = "Left Text Color By Class"
-	Loc ["STRING_OPTIONS_TEXT_LCLASSCOLOR_DESC"] = "When enabled, the left text uses the class color of the character.\n\nIf disabled, choose the color on the color picker button."
+	Loc ["STRING_OPTIONS_TEXT_LCLASSCOLOR"] = "Texto Esquerdo Cor da Classe"
+	Loc ["STRING_OPTIONS_TEXT_LCLASSCOLOR_DESC"] = "Quando ativado a cor do texto esquerdo sera automaticamento ajustado para a cor da classe do personagem mostrado.\n\nQuando desligado a cor na caixa a direita eh usado."
 	
-	Loc ["STRING_OPTIONS_TEXT_RCLASSCOLOR"] = "Right Text Color By Class"
-	Loc ["STRING_OPTIONS_TEXT_RCLASSCOLOR_DESC"] = "When enabled, the right text uses the class color of the character.\n\nIf disabled, choose the color on the color picker button."
+	Loc ["STRING_OPTIONS_TEXT_RCLASSCOLOR"] = "Texto Direito Cor da Classe"
+	Loc ["STRING_OPTIONS_TEXT_RCLASSCOLOR_DESC"] = "Quando ativado a cor do texto da direita sera automaticamento ajustado para a cor da classe do personagem mostrado.\n\nQuando desligado a cor na caixa a direita eh usado."
 	--
-	Loc ["STRING_OPTIONS_INSTANCE"] = "Instance Settings"
-	Loc ["STRING_OPTIONS_INSTANCE_DESC"] = "This options control the appearance of the instance it self."
+	Loc ["STRING_OPTIONS_INSTANCE"] = "Configuracoes da Janela"
+	Loc ["STRING_OPTIONS_INSTANCE_DESC"] = "Estes ajustes configuram atributos basicos da janela da instancia."
 	
-	Loc ["STRING_OPTIONS_INSTANCE_COLOR"] = "Color"
-	Loc ["STRING_OPTIONS_INSTANCE_COLOR_DESC"] = "Change the color of instance window."
+	Loc ["STRING_OPTIONS_INSTANCE_COLOR"] = "Cor e Transparencia"
+	Loc ["STRING_OPTIONS_INSTANCE_COLOR_DESC"] = "Altera a cor e a transparencia da janela."
 	
-	Loc ["STRING_OPTIONS_INSTANCE_ALPHA"] = "Alpha"
-	Loc ["STRING_OPTIONS_INSTANCE_ALPHA_DESC"] = "This option let you change the color and transparency of instance window background."
+	Loc ["STRING_OPTIONS_INSTANCE_ALPHA"] = "Transparencia do Fundo"
+	Loc ["STRING_OPTIONS_INSTANCE_ALPHA_DESC"] = "Esta opcao altera a transparencia do fundo da janela."
+	Loc ["STRING_OPTIONS_INSTANCE_ALPHA2"] = "Cor de Fundo"
+	Loc ["STRING_OPTIONS_INSTANCE_ALPHA2_DESC"] = "Seleciona a cor do fundo da janela."
 	
-	Loc ["STRING_OPTIONS_INSTANCE_CURRENT"] = "Auto Switch To Current"
-	Loc ["STRING_OPTIONS_INSTANCE_CURRENT_DESC"] = "Whenever a combat start and there is no other instance on current segment, this instance auto switch to current segment."
+	Loc ["STRING_OPTIONS_INSTANCE_CURRENT"] = "Mudar Para Atual"
+	Loc ["STRING_OPTIONS_INSTANCE_CURRENT_DESC"] = "Quando qualquer combate comecar e nao ha nenhuma instancia no segmento atual, esta instancia automaticamente troca para o segmento atual."
 
-	Loc ["STRING_OPTIONS_INSTANCE_SKIN"] = "Skin"
-	Loc ["STRING_OPTIONS_INSTANCE_SKIN_DESC"] = "Modify all window textures based on a skin theme."
+	Loc ["STRING_OPTIONS_SHOW_SIDEBARS"] = "Mostrar Barras Laterais"
+	Loc ["STRING_OPTIONS_SHOW_SIDEBARS_DESC"] = "Mostrar ou esconder as barras laterais na esquerda e direita da janela."
 	
-	Loc ["STRING_OPTIONS_WP"] = "Wallpaper Settings"
-	Loc ["STRING_OPTIONS_WP_DESC"] = "This options control the wallpaper of instance."
+	Loc ["STRING_OPTIONS_INSTANCE_SKIN"] = "Pele (skin)"
+	Loc ["STRING_OPTIONS_INSTANCE_SKIN_DESC"] = "Modifica todas as texturas e opcoes da janela atraves de um padrao pre definido."
 	
-	Loc ["STRING_OPTIONS_WP_ENABLE"] = "Show"
-	Loc ["STRING_OPTIONS_WP_ENABLE_DESC"] = "Enable or Disable the wallpaper of the instance.\n\nSelect the category and the image you want on the two following boxes."
-	
-	Loc ["STRING_OPTIONS_WP_GROUP"] = "Category"
-	Loc ["STRING_OPTIONS_WP_GROUP_DESC"] = "In this box, you select the group of the wallpaper, the images of this category can be chosen on the next dropbox."
-	
-	Loc ["STRING_OPTIONS_WP_GROUP2"] = "Wallpaper"
-	Loc ["STRING_OPTIONS_WP_GROUP2_DESC"] = "Select the wallpaper, for more, choose a diferent category on the left dropbox."
-	
-	Loc ["STRING_OPTIONS_WP_ALIGN"] = "Align"
-	Loc ["STRING_OPTIONS_WP_ALIGN_DESC"] = "Select how the wallpaper will align within the window instance.\n\n- |cFFFFFFFFFill|r: auto resize and align with all corners.\n\n- |cFFFFFFFFCenter|r: doesn`t resize and align with the center of the window.\n\n-|cFFFFFFFFStretch|r: auto resize on vertical or horizontal and align with left-right or top-bottom sides.\n\n-|cFFFFFFFFFour Corners|r: align with specified corner, no auto resize is made."
-	
-	Loc ["STRING_OPTIONS_WP_EDIT"] = "Edit Image"
-	Loc ["STRING_OPTIONS_WP_EDIT_DESC"] = "Open the image editor to change some wallpaper aspects."
+	Loc ["STRING_OPTIONS_SKIN_A"] = "Ajustes da Pele (Skin)"
+	Loc ["STRING_OPTIONS_SKIN_A_DESC"] = "Estas opcoes alteram as caracteristicas gerais da janela."
 
-	Loc ["STRING_OPTIONS_SAVELOAD"] = "Save and Load"
-	Loc ["STRING_OPTIONS_SAVELOAD_DESC"] = "This options allow you to save or load predefined settings."
+	Loc ["STRING_OPTIONS_TOOLBAR_SETTINGS"] = "Ajustes da Barra de Menus"
+	Loc ["STRING_OPTIONS_TOOLBAR_SETTINGS_DESC"] = "Estas opcoes lidam com a barra de ferramentas."
+		
+	Loc ["STRING_OPTIONS_DESATURATE_MENU"] = "Menu em Preto e Branco"
+	Loc ["STRING_OPTIONS_DESATURATE_MENU_DESC"] = "Ativando esta opcao o menu na barra de ferramentas torna-se preto e branco."
+
+	Loc ["STRING_OPTIONS_HIDE_ICON"] = "Esconder Icone"
+	Loc ["STRING_OPTIONS_HIDE_ICON_DESC"] = "Quando ativado, o icone do atributo na barra de ferramentas eh escondido."
+
+	Loc ["STRING_OPTIONS_MENU_X"] = "Posicao X Do Menu"
+	Loc ["STRING_OPTIONS_MENU_X_DESC"] = "Move a barra de menus para a esquerda ou direita no eixo horizontal."
+
+	Loc ["STRING_OPTIONS_MENU_Y"] = "Posicao Y Do Menu"
+	Loc ["STRING_OPTIONS_MENU_Y_DESC"] = "Move a barra de menus para cima ou para baixo no eixo vertical."
+
+	Loc ["STRING_OPTIONS_RESET_TEXTCOLOR"] = "Cor do Texto (reset)"
+	Loc ["STRING_OPTIONS_RESET_TEXTCOLOR_DESC"] = "Muda a cor do texto do botao de reset.\n\nO botao de reset eh apenas mostrado na janela 'mais baixa' (com o menor numero)."
+
+	Loc ["STRING_OPTIONS_RESET_TEXTFONT"] = "Fonte do Texto (reset)"
+	Loc ["STRING_OPTIONS_RESET_TEXTFONT_DESC"] = "Muda a fonte do texto do botao de reset.\n\nO botao de reset eh apenas mostrado na janela 'mais baixa' (com o menor numero)."
+
+	Loc ["STRING_OPTIONS_RESET_TEXTSIZE"] = "Tamanho do Texto (reset)"
+	Loc ["STRING_OPTIONS_RESET_TEXTSIZE_DESC"] = "Muda o tamanho do texto do botao de reset.\n\nO botao de reset eh apenas mostrado na janela 'mais baixa' (com o menor numero)."
+
+	Loc ["STRING_OPTIONS_RESET_OVERLAY"] = "Overlay (reset)"
+	Loc ["STRING_OPTIONS_RESET_OVERLAY_DESC"] = "Altera a cor do botao de reset.\n\nO botao de reset eh apenas mostrado na janela 'mais baixa' (com o menor numero)."
+
+	Loc ["STRING_OPTIONS_RESET_SMALL"] = "Reset Sempre Pequeno"
+	Loc ["STRING_OPTIONS_RESET_SMALL_DESC"] = "O botao de reset sempre sera mostrado na sua versao pequena.\n\nO botao de reset eh apenas mostrado na janela 'mais baixa' (com o menor numero)."
+
+	Loc ["STRING_OPTIONS_INSTANCE_TEXTCOLOR"] = "Cor do Texto (instancia)"
+	Loc ["STRING_OPTIONS_INSTANCE_TEXTCOLOR_DESC"] = "Altera a cor do texto no botao da instancia."
+
+	Loc ["STRING_OPTIONS_INSTANCE_TEXTFONT"] = "Fonte do Texto (instancia)"
+	Loc ["STRING_OPTIONS_INSTANCE_TEXTFONT_DESC"] = "Altera a fonte do texto no botao da instancia."
+
+	Loc ["STRING_OPTIONS_INSTANCE_TEXTSIZE"] = "Tamanho do Texto (instancia)"
+	Loc ["STRING_OPTIONS_INSTANCE_TEXTSIZE_DESC"] = "Altera o tamanho do texto no botao da instancia."
+
+	Loc ["STRING_OPTIONS_INSTANCE_OVERLAY"] = "Overlay (instancia)"
+	Loc ["STRING_OPTIONS_INSTANCE_OVERLAY_DESC"] = "Altera a cor do botao da instancia."
+
+	Loc ["STRING_OPTIONS_CLOSE_OVERLAY"] = "Cor do Botao de Fechar"
+	Loc ["STRING_OPTIONS_CLOSE_OVERLAY_DESC"] = "Modifica a cor do botao de fechar."
+
+	Loc ["STRING_OPTIONS_STRETCH"] = "Posicao do Botao de Esticar"
+	Loc ["STRING_OPTIONS_STRETCH_DESC"] = "Modifica a posicao do botao de esticar, ele pode ser mostrado em:\n\nTopo: o pegador eh mostrado logo acima do botao da instancia e do botao de fechar.\n\nBaixo: mostrado na parte central e inferior da janela."
+
+	Loc ["STRING_OPTIONS_PICONS_DIRECTION"] = "Direcao dos Icones dos Plugins"
+	Loc ["STRING_OPTIONS_PICONS_DIRECTION_DESC"] = "Altera o lado que os icones dos plugins serao mostrados na barra de ferramentas."
+
+	Loc ["STRING_OPTIONS_INSBUTTON_X"] = "Eixo X Botao da Instancia"
+	Loc ["STRING_OPTIONS_INSBUTTON_X_DESC"] = "Move o botao da instancia para a esquerda ou direita."
+
+	Loc ["STRING_OPTIONS_INSBUTTON_Y"] = "Eixo Y Botao da Instancia"
+	Loc ["STRING_OPTIONS_INSBUTTON_Y_DESC"] = "Move o botao da instancia para cima ou para baixo."
+
+	Loc ["STRING_OPTIONS_TOOLBARSIDE"] = "Posicao Barra de Ferramentas"
+	Loc ["STRING_OPTIONS_TOOLBARSIDE_DESC"] = "Altera aonde sera mostrada a barra de ferramentas, ela pode ser mostrada no topo da janela ou na parte inferior."
+
+	Loc ["STRING_OPTIONS_BARGROW_DIRECTION"] = "Direcao de Crescimento"
+	Loc ["STRING_OPTIONS_BARGROW_DIRECTION_DESC"] = "Altera a posicao em que as barras comecam a serem mostradas, de cima da janela para baixo ou de baixo da janela para cima."
+
+	Loc ["STRING_OPTIONS_BARSORT_DIRECTION"] = "Ordem das Barras"
+	Loc ["STRING_OPTIONS_BARSORT_DIRECTION_DESC"] = "Altera como as barras sao preenchidas, crescente ou decrescente, mas ainda mostrando sempre os primeiros colocados."
+		
+	Loc ["STRING_OPTIONS_WP"] = "Papel de Parede"
+	Loc ["STRING_OPTIONS_WP_DESC"] = "Estas opcoes controlam o papel de parede que eh mostrado no fundo da janela."
 	
-	Loc ["STRING_OPTIONS_SAVELOAD_PNAME"] = "Preset Name"
-	Loc ["STRING_OPTIONS_SAVELOAD_SAVE"] = "save"
-	Loc ["STRING_OPTIONS_SAVELOAD_LOAD"] = "load"
+	Loc ["STRING_OPTIONS_WP_ENABLE"] = "Ativar/Desativar"
+	Loc ["STRING_OPTIONS_WP_ENABLE_DESC"] = "Liga ou desliga o papel de parede.\n\nVoce pode escolher qual papel de parede voce deseja usar nas caixas abaixo."
+	
+	Loc ["STRING_OPTIONS_WP_GROUP"] = "Categoria"
+	Loc ["STRING_OPTIONS_WP_GROUP_DESC"] = "Nesta caixa, selecione o tipo do papel de parede, apos selecionar, a caixa a direita ira mostrar as opcoes da categoria escolhida."
+	
+	Loc ["STRING_OPTIONS_WP_GROUP2"] = "Papel de Parede"
+	Loc ["STRING_OPTIONS_WP_GROUP2_DESC"] = "Selecione qual voce deseja colocar no fundo da janela, para mais opcoes troque de categoria na caixa da esquerda."
+	
+	Loc ["STRING_OPTIONS_WP_ALIGN"] = "Alinhamento"
+	Loc ["STRING_OPTIONS_WP_ALIGN_DESC"] = "Selecione como o papel de parede sera alinhado com a janela.\n\n- |cFFFFFFFFPreencher|r: redimenciona e alinha com os quatro cantos da janela.\n\n- |cFFFFFFFFCentralizado|r: nao redimenciona e alinha com o centro da janeça.\n\n-|cFFFFFFFFEsticado|r: redimenciona na vertical ou horizontal e alinha com os cantos da esquerda-direita ou lado superior-inferior.\n\n-|cFFFFFFFFQuatro Laterais|r: alinha com um canto especifico, nao ha redimencionamento automatico."
+	
+	Loc ["STRING_OPTIONS_WP_EDIT"] = "Editar Imagem"
+	Loc ["STRING_OPTIONS_WP_EDIT_DESC"] = "Abre o editor de imagens para alterar os aspectos do papel de parede escolhido."
+
+	Loc ["STRING_OPTIONS_SAVELOAD"] = "Salvar e Carregar"
+	Loc ["STRING_OPTIONS_SAVELOAD_DESC"] = "Estas opcoes permitem guardar as configuracoes da janela podendo carrega-las em outros personagens."
+	
+	Loc ["STRING_OPTIONS_SAVELOAD_PNAME"] = "Nome"
+	Loc ["STRING_OPTIONS_SAVELOAD_SAVE"] = "salvar"
+	Loc ["STRING_OPTIONS_SAVELOAD_LOAD"] = "carregar"
 	Loc ["STRING_OPTIONS_SAVELOAD_REMOVE"] = "x"
-	Loc ["STRING_OPTIONS_SAVELOAD_RESET"] = "reset to default"
-	Loc ["STRING_OPTIONS_SAVELOAD_APPLYTOALL"] = "apply to all instances"
+	Loc ["STRING_OPTIONS_SAVELOAD_RESET"] = "resetar p/ padroes"
+	Loc ["STRING_OPTIONS_SAVELOAD_APPLYTOALL"] = "aplicar em todas as janelas"
 
 
 -- Mini Tutorials -----------------------------------------------------------------------------------------------------------------

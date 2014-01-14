@@ -642,23 +642,23 @@ function gump:NewScrollBar (master, slave, x, y)
 	slider_gump:SetScript ("OnEnable", function (self)
 		botao_cima:Enable()
 		botao_baixo:Enable()
-	end)	
+	end)
 	
 	master:SetScript ("OnMouseWheel", function (self, delta)
 		if (not slider_gump:IsEnabled()) then
 			return
 		end
-		
+
 		local current = slider_gump:GetValue()
 		if (delta < 0) then 
-			if (current < slider_gump.scrollMax+20) then
-				slider_gump:SetValue (current + 20)
+			if (current < slider_gump.scrollMax + (master.wheel_jump or 20)) then
+				slider_gump:SetValue (current + (master.wheel_jump or 20))
 			else
 				slider_gump:SetValue (slider_gump.scrollMax)
 			end
 		elseif (delta > 0) then
-			if (current+20 > 0) then
-				slider_gump:SetValue (current - 20)
+			if (current + (master.wheel_jump or 20) > 0) then
+				slider_gump:SetValue (current - (master.wheel_jump or 20))
 			else
 				slider_gump:SetValue (0)
 			end

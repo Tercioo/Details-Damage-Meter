@@ -74,16 +74,16 @@
 			instancia:DefaultIcons (true, true, true, true)
 			
 			--> calcula se existem barras, etc...
-			if (not instancia.barrasInfo.cabem) then --> as barras não forma iniciadas ainda
-				instancia.barrasInfo.cabem = _math_floor (instancia.baseframe.BoxBarrasAltura / instancia.barrasInfo.alturaReal)
-				if (instancia.barrasInfo.criadas < instancia.barrasInfo.cabem) then
-					for i  = #instancia.barras+1, instancia.barrasInfo.cabem do
+			if (not instancia.rows_fit_in_window) then --> as barras não forma iniciadas ainda
+				instancia.rows_fit_in_window = _math_floor (instancia.baseframe.BoxBarrasAltura / instancia.row_height)
+				if (instancia.rows_created < instancia.rows_fit_in_window) then
+					for i  = #instancia.barras+1, instancia.rows_fit_in_window do
 						local nova_barra = gump:CriaNovaBarra (instancia, i, 30) --> cria nova barra
 						nova_barra.texto_esquerdo:SetText (Loc ["STRING_NEWROW"])
 						nova_barra.statusbar:SetValue (100) 
 						instancia.barras [i] = nova_barra
 					end
-					instancia.barrasInfo.criadas = #instancia.barras
+					instancia.rows_created = #instancia.barras
 				end
 			end
 			

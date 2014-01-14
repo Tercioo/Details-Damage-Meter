@@ -52,6 +52,10 @@
 		FourCornerAnimeFrame.glow:SetScript ("OnFinished", nil)
 		button.blink = FourCornerAnimeFrame
 		
+		_detalhes.ToolBar.AllButtons [#_detalhes.ToolBar.AllButtons+1] = button
+		
+		
+		
 		return button
 	end
 	
@@ -160,7 +164,7 @@
 		_detalhes.ToolBar:ReorganizeIcons()
 	end
 
-	function _detalhes.ToolBar:ReorganizeIcons (lastIcon) 
+	function _detalhes.ToolBar:ReorganizeIcons (lastIcon)
 
 		--> get the lower number instance
 		local lower_instance = _detalhes:GetLowerInstanceNumber()
@@ -182,25 +186,49 @@
 			local LastIcon
 			
 			local x = 0
-			if (instance.consolidate) then
-				LastIcon = instance.consolidateButtonTexture
-				x = -3
-			else
-				LastIcon = instance.lastIcon or instance.baseframe.cabecalho.report
-			end
+			
+			if (instance.plugins_grow_direction == 2) then --> right direction
+			
+				if (instance.consolidate) then
+					LastIcon = instance.consolidateButtonTexture
+					x = -3
+				else
+					LastIcon = instance.lastIcon or instance.baseframe.cabecalho.report
+				end
+			
+				for _, ThisButton in ipairs (_detalhes.ToolBar.Shown) do 
+					ThisButton:ClearAllPoints()
+					ThisButton:SetPoint ("left", LastIcon, "right", ThisButton.x + x, ThisButton.y)
+					ThisButton:Show()
+					LastIcon = ThisButton
+				end
+			
+			elseif (instance.plugins_grow_direction == 1) then --> left direction
+			
+				if (instance.consolidate) then
+					LastIcon = instance.consolidateButtonTexture
+				else
+					LastIcon = instance.baseframe.cabecalho.modo_selecao.widget
+				end
 				
-			for _, ThisButton in ipairs (_detalhes.ToolBar.Shown) do 
-				ThisButton:SetPoint ("left", LastIcon, "right", ThisButton.x + x, ThisButton.y)
-				ThisButton:Show()
-				LastIcon = ThisButton
+				for _, ThisButton in ipairs (_detalhes.ToolBar.Shown) do 
+					ThisButton:ClearAllPoints()
+					ThisButton:SetPoint ("right", LastIcon, "left", ThisButton.x + x, ThisButton.y)
+					ThisButton:Show()
+					LastIcon = ThisButton
+				end
 			end
+			
+
 		end
 		
 		for _, instancia in pairs (_detalhes.tabela_instancias) do 
 			if (instancia.baseframe and instancia:IsAtiva()) then
-				instancia:ReajustaGump() -- aqui
+				instancia:ReajustaGump()
 			end
 		end
+		
+		instance:ChangeSkin()
 		
 		return true
 	end

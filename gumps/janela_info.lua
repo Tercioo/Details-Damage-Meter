@@ -1252,7 +1252,7 @@ end
 local function CriaTexturaBarra (instancia, barra)
 	barra.textura = _CreateFrame ("StatusBar", nil, barra)
 	barra.textura:SetAllPoints (barra)
-	--barra.textura:SetStatusBarTexture (instancia.barrasInfo.textura)
+	--barra.textura:SetStatusBarTexture (instancia.row_info.texture_file)
 	barra.textura:SetStatusBarTexture (_detalhes.default_texture)
 	barra.textura:SetStatusBarColor(.5, .5, .5, 0)
 	barra.textura:SetMinMaxValues(0,100)

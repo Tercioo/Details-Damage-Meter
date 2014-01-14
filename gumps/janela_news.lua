@@ -50,6 +50,15 @@ function _detalhes:CreateOrOpenNewsWindow()
 		titulo:SetPoint ("center", frame, "center")
 		titulo:SetPoint ("top", frame, "top", 0, -18)
 		
+		--> reinstall textura
+		local textura = _detalhes.gump:NewImage (frame, _, "$parentExclamacao", nil, 64, 64, [[Interface\DialogFrame\DialogAlertIcon]])
+		textura:SetPoint ("topleft", frame, "topleft", 60, -20)
+		--> reinstall aviso
+		local reinstall = _detalhes.gump:NewLabel (frame, nil, "$parentReinstall", nil, "", "GameFontHighlightLeft", 10)
+		reinstall:SetPoint ("left", textura, "right", 2, -2)
+		reinstall.text = Loc ["STRING_NEWS_REINSTALL"]
+		
+		
 		local frame_upper = CreateFrame ("scrollframe", nil, frame)
 		local frame_lower = CreateFrame ("frame", nil, frame_upper)
 		frame_lower:SetSize (380, 390)

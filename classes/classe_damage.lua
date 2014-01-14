@@ -662,6 +662,7 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 		local qual_barra = 1
 		local barras_container = instancia.barras
 
+		
 		for i = instancia.barraS[1], instancia.barraS[2], 1 do --> vai atualizar só o range que esta sendo mostrado
 			atributo_damage:AtualizarFrags (ntable[i], qual_barra, i, instancia)
 			qual_barra = qual_barra+1
@@ -843,7 +844,7 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 	if (amount < 1) then --> não há barras para mostrar
 		if (forcar) then
 			if (instancia.modo == 2) then --> group
-				for i = 1, instancia.barrasInfo.cabem  do
+				for i = 1, instancia.rows_fit_in_window  do
 					gump:Fade (instancia.barras [i], "in", 0.3)
 				end
 			end
@@ -865,10 +866,10 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 		if (myPos) then
 			--testando
 
-			local cima = math.floor (instancia.barrasInfo.cabem/2)
-			local baixo = math.ceil (instancia.barrasInfo.cabem/2)
+			local cima = math.floor (instancia.rows_fit_in_window / 2)
+			local baixo = math.ceil (instancia.rows_fit_in_window / 2)
 			
-			if (instancia.barrasInfo.cabem%2 == 0) then
+			if (instancia.rows_fit_in_window % 2 == 0) then
 				cima = cima - 1
 			end
 			
@@ -890,10 +891,21 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 		end
 	
 		local combat_time = instancia.showing:GetCombatTime()
-		for i = instancia.barraS[1], instancia.barraS[2], 1 do --> vai atualizar só o range que esta sendo mostrado
-			conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time) --> instância, index, total, valor da 1º barra
-			qual_barra = qual_barra+1
-		end	
+		
+		if (instancia.bars_sort_direction == 1) then --top to bottom
+			for i = instancia.barraS[1], instancia.barraS[2], 1 do --> vai atualizar só o range que esta sendo mostrado
+				conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time) --> instância, index, total, valor da 1º barra
+				qual_barra = qual_barra+1
+			end
+			
+		elseif (instancia.bars_sort_direction == 2) then --bottom to top
+			for i = instancia.barraS[2], instancia.barraS[1], -1 do --> vai atualizar só o range que esta sendo mostrado
+				conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time) --> instância, index, total, valor da 1º barra
+				qual_barra = qual_barra+1
+			end
+			
+		end
+		
 	end
 	
 
@@ -912,7 +924,7 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 	--> beta, hidar barras não usadas durante um refresh forçado
 	if (forcar) then
 		if (instancia.modo == 2) then --> group
-			for i = qual_barra, instancia.barrasInfo.cabem  do
+			for i = qual_barra, instancia.rows_fit_in_window  do
 				gump:Fade (instancia.barras [i], "in", 0.3)
 			end
 		end
@@ -1076,10 +1088,10 @@ end
 			esta_barra.statusbar:SetValue (esta_porcentagem)
 			gump:Fade (esta_barra, "out")
 			
-			if (instancia.row_texture_class_colors) then
+			if (instancia.row_info.texture_class_colors) then
 				esta_barra.textura:SetVertexColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
 			end
-			if (instancia.barrasInfo.texturaBackgroundByClass) then
+			if (instancia.row_info.texture_background_class_color) then
 				esta_barra.background:SetVertexColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
 			end
 			
@@ -1135,10 +1147,10 @@ end
 		end
 	end
 	
-	if (instancia.row_texture_class_colors) then
+	if (instancia.row_info.texture_class_colors) then
 		esta_barra.textura:SetVertexColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
 	end
-	if (instancia.barrasInfo.texturaBackgroundByClass) then
+	if (instancia.row_info.texture_background_class_color) then
 		esta_barra.background:SetVertexColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
 	end	
 	
@@ -1180,22 +1192,22 @@ end
 	
 	if (self.enemy) then
 		if (_detalhes.faction_against == "Horde") then
-			esta_barra.texto_esquerdo:SetText (esta_barra.colocacao..". |TInterface\\AddOns\\Details\\images\\icones_barra:"..instancia.barrasInfo.altura..":"..instancia.barrasInfo.altura..":0:0:256:32:0:32:0:32|t"..self.displayName) --seta o texto da esqueda -- HORDA
+			esta_barra.texto_esquerdo:SetText (esta_barra.colocacao..". |TInterface\\AddOns\\Details\\images\\icones_barra:"..instancia.row_info.height..":"..instancia.row_info.height..":0:0:256:32:0:32:0:32|t"..self.displayName) --seta o texto da esqueda -- HORDA
 		else
-			esta_barra.texto_esquerdo:SetText (esta_barra.colocacao..". |TInterface\\AddOns\\Details\\images\\icones_barra:"..instancia.barrasInfo.altura..":"..instancia.barrasInfo.altura..":0:0:256:32:32:64:0:32|t"..self.displayName) --seta o texto da esqueda -- ALLY
+			esta_barra.texto_esquerdo:SetText (esta_barra.colocacao..". |TInterface\\AddOns\\Details\\images\\icones_barra:"..instancia.row_info.height..":"..instancia.row_info.height..":0:0:256:32:32:64:0:32|t"..self.displayName) --seta o texto da esqueda -- ALLY
 		end
 		
-		if (instancia.row_texture_class_colors) then
+		if (instancia.row_info.texture_class_colors) then
 			esta_barra.textura:SetVertexColor (0.94117, 0, 0.01960, 1)
 		end
 	else
 		esta_barra.texto_esquerdo:SetText (esta_barra.colocacao..". "..self.displayName) --seta o texto da esqueda
 	end
 	
-	if (instancia.row_textL_class_colors) then
+	if (instancia.row_info.textL_class_colors) then
 		esta_barra.texto_esquerdo:SetTextColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
 	end
-	if (instancia.row_textR_class_colors) then
+	if (instancia.row_info.textR_class_colors) then
 		esta_barra.texto_direita:SetTextColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
 	end
 	

@@ -232,7 +232,7 @@ function DetailsCreateCoolTip()
 		CoolTip.buttonClicked = false
 		
 		frame1:SetScript ("OnEnter", function (self)
-			if (CoolTip.Type ~= 1 and CoolTip.Type ~= 2) then
+			if (CoolTip.Type ~= 1 and CoolTip.Type ~= 2) then --> menu
 				CoolTip.active = true
 				CoolTip.mouseOver = true
 				self:SetScript ("OnUpdate", nil)
@@ -2359,7 +2359,7 @@ function DetailsCreateCoolTip()
 		end
 	
 		if (self.CoolTip.OnLeaveFunc) then
-			self.CoolTip.OnLeaveFunc()
+			self.CoolTip.OnLeaveFunc (self)
 		end
 		
 		if (self.OldOnLeaveScript) then
@@ -2378,7 +2378,7 @@ function DetailsCreateCoolTip()
 		end
 
 		if (self.CoolTip.OnEnterFunc) then
-			self.CoolTip.OnEnterFunc()
+			self.CoolTip.OnEnterFunc (self)
 		end
 		
 		if (self.OldOnEnterScript) then

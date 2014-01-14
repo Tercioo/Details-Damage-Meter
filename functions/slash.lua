@@ -294,6 +294,18 @@ function SlashCmdList.DETAILS (msg, editbox)
 		print (Loc ["STRING_DETAILS1"] .. "capture has been reseted.")
 
 	--> debug
+	elseif (command == "barra") then 
+	
+		local qual_barra = rest and tonumber (rest) or 1
+	
+		local instancia = _detalhes.tabela_instancias [1]
+		local barra = instancia.barras [qual_barra]
+		
+		for i = 1, barra:GetNumPoints() do 
+			local point, relativeTo, relativePoint, xOfs, yOfs = barra:GetPoint (i)
+			print (point, relativeTo, relativePoint, xOfs, yOfs)
+		end
+	
 	elseif (msg == "opened") then 
 		print ("Instances opened: " .. _detalhes.opened_windows)
 	

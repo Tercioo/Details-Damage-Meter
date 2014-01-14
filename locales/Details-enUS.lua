@@ -4,12 +4,21 @@ if not Loc then return end
 --------------------------------------------------------------------------------------------------------------------------------------------
 -- \n\n|cFFFFFF00-|r 
 	
-	Loc ["STRING_VERSION_LOG"] = "|cFFFFFF00v1.8.4|r\n\n|cFFFFFF00-|r Added slash command 'details reinstall' which cleans Details! config in case of erros.\n\n|cFFFFFF00v1.8.3|r\n\n|cFFFFFF00-|r Added new skin: Simple Gray.\n\n|cFFFFFF00-|r Added minimap and interface addon panel buttons.\n\n|cFFFFFF00-|r Added new tutorials bubbles for basic aspects of Details! window.\n\n|cFFFFFF00-|r Fixed a issue with Panic Mode where sometimes his isnt triggered.\n\n|cFFFFFF00v1.8.0|r\n\n|cFFFFFF00-|r Added a new plugin: You Are Not Prepared.\n\n|cFFFFFF00-|r New options panel!\n\n|cFFFFFF00v1.7.0|r\n\n- Fixed some colors issues with enimies bars.\n\n|cFFFFFF00-|r Fixed some phrases which isn't still not translated to enUS.\n\n|cFFFFFF00-|r Major rewrite on CC-Breaks, now it's working properly.\n\n|cFFFFFF00-|r Added new sub attribute for damage: Voidzones & Debuffs.|cFFFFFF00v1.6.7|r\n\n- Added support to skins, you can change over options panel.\n\n|cFFFFFF00v1.6.5|r\n\n|cFFFFFF00-|r Added sub attribute 'Enemies' which shows, of course, only enemies.\n\n|cFFFFFF00-|r Fixed issue with successful spell cast.\n\n|cFFFFFF00v1.6.3|r\n\n|cFFFFFF00-|r data capture now runs 4% faster.\n\n|cFFFFFF00-|r Fixed issue with pets were wasn't uptading owner activity time.\n\n|cFFFFFF00-|r Fixed healing being counted even out of combat.\n\n|cFFFFFF00-|r Fixed some problems with multi-boss encountes like Twin Consorts.\n\n|cFFFFFF00-|r Added options for concatenate trash segments.\n\n|cFFFFFF00-|r Added options for auto remove trash segments. \n\n|cFFFFFF00-|r Added options for change bar height. \n\n|cFFFFFF00-|r Encounter Details now display how many interrupted and successful cast of a boss skill.\n\n|cFFFFFF00v1.6.1|r\n\n|cFFFFFF00-|r Fixed:\n- a issue with debuff uptime.\n- overall data dps and hps for overall data on micro display.\n- many bugs involving sword and book menus.\n- garbage collector erasing actors with interactions with your group members.\n\n|cFFFFFF00-|r overall data now always use the combat data for measure dps and hps.\n\n|cFFFFFF00v1.6.0|r\n\n|cFFFFFF00-|r Added debuff uptime at misc attribute.\n\n|cFFFFFF00-|r Disabled attributes now have a darkness effect over sword menu.\n\n|cFFFFFF00-|r Fixed a issue were sometimes you need to /reload before change a talent.\n\n|cFFFFFF00v1.5.3|r\n\n|cFFFFFF00-|r Fixed a issue with report data during combat lockdown.\n\n|cFFFFFF00-|r Improved pet owner recognition and added a ignore list if couldn't find his owner.\n\n|cFFFFFF00-|r Added an option to display only frags on enemy players.\n\n|cFFFFFF00-|r Added class colors for frags.\n\n|cFFFFFF00v1.5.2|r\n\n|cFFFFFF00-|r Fixed a issue were turning off buff uptime was disabling healing done too.\n\n|cFFFFFF00-|r Avoidance statistics will not be recorded for pets, ungrouped players and monsters.\n\n|cFFFFFF00-|r Fixed a issue were sometimes buff uptime was taking too long to save data on logout.\n\n|cFFFFFF00v1.5.1|r\n\n|cFFFFFF00-|r Fixed a issue with report data were sometimes wasn't working.\n\n|cFFFFFF00v1.5.0|r"
+	
+	
+	Loc ["STRING_VERSION_LOG"] = "|cFFFFFF00v1.9.0|r\n\n|cFFFFFF00-|r Fixed minimap icon stuck problem.\n\n|cFFFFFF00-|r Skin support has been rewrite and now is more flexibe.\n\n|cFFFFFF00-|r Added up to 20 new customization options over options panel.\n\n|cFFFFFF00v1.8.4|r\n\n|cFFFFFF00-|r Added slash command 'details reinstall' which cleans Details! config in case of erros.\n\n|cFFFFFF00v1.8.3|r\n\n|cFFFFFF00-|r Added new skin: Simple Gray.\n\n|cFFFFFF00-|r Added minimap and interface addon panel buttons.\n\n|cFFFFFF00-|r Added new tutorials bubbles for basic aspects of Details! window.\n\n|cFFFFFF00-|r Fixed a issue with Panic Mode where sometimes his isnt triggered.\n\n|cFFFFFF00v1.8.0|r\n\n|cFFFFFF00-|r Added a new plugin: You Are Not Prepared.\n\n|cFFFFFF00-|r New options panel!\n\n|cFFFFFF00v1.7.0|r\n\n- Fixed some colors issues with enimies bars.\n\n|cFFFFFF00-|r Fixed some phrases which isn't still not translated to enUS.\n\n|cFFFFFF00-|r Major rewrite on CC-Breaks, now it's working properly.\n\n|cFFFFFF00-|r Added new sub attribute for damage: Voidzones & Debuffs.|cFFFFFF00v1.6.7|r\n\n- Added support to skins, you can change over options panel.\n\n|cFFFFFF00v1.6.5|r\n\n|cFFFFFF00-|r Added sub attribute 'Enemies' which shows, of course, only enemies.\n\n|cFFFFFF00-|r Fixed issue with successful spell cast.\n\n|cFFFFFF00v1.6.3|r\n\n|cFFFFFF00-|r data capture now runs 4% faster.\n\n|cFFFFFF00-|r Fixed issue with pets were wasn't uptading owner activity time.\n\n|cFFFFFF00-|r Fixed healing being counted even out of combat.\n\n|cFFFFFF00-|r Fixed some problems with multi-boss encountes like Twin Consorts.\n\n|cFFFFFF00-|r Added options for concatenate trash segments.\n\n|cFFFFFF00-|r Added options for auto remove trash segments. \n\n|cFFFFFF00-|r Added options for change bar height. \n\n|cFFFFFF00-|r Encounter Details now display how many interrupted and successful cast of a boss skill.\n\n|cFFFFFF00v1.6.1|r\n\n|cFFFFFF00-|r Fixed:\n- a issue with debuff uptime.\n- overall data dps and hps for overall data on micro display.\n- many bugs involving sword and book menus.\n- garbage collector erasing actors with interactions with your group members.\n\n|cFFFFFF00-|r overall data now always use the combat data for measure dps and hps.\n\n|cFFFFFF00v1.6.0|r\n\n|cFFFFFF00-|r Added debuff uptime at misc attribute.\n\n|cFFFFFF00-|r Disabled attributes now have a darkness effect over sword menu.\n\n|cFFFFFF00-|r Fixed a issue were sometimes you need to /reload before change a talent.\n\n|cFFFFFF00v1.5.3|r\n\n|cFFFFFF00-|r Fixed a issue with report data during combat lockdown.\n\n|cFFFFFF00-|r Improved pet owner recognition and added a ignore list if couldn't find his owner.\n\n|cFFFFFF00-|r Added an option to display only frags on enemy players.\n\n|cFFFFFF00-|r Added class colors for frags."
 
 	Loc ["STRING_DETAILS1"] = "|cffffaeaeDetails:|r " --> color and details name
 
 	Loc ["STRING_YES"] = "Yes"
 	Loc ["STRING_NO"] = "No"
+	
+	Loc ["STRING_TOP"] = "top"
+	Loc ["STRING_BOTTOM"] = "bottom"
+	Loc ["STRING_AUTO"] = "auto"
+	Loc ["STRING_LEFT"] = "left"
+	Loc ["STRING_CENTER"] = "center"
+	Loc ["STRING_RIGHT"] = "right"
 	
 	Loc ["STRING_MINIMAP_TOOLTIP1"] = "|cFFCFCFCFleft click|r: open options panel"
 	Loc ["STRING_MINIMAP_TOOLTIP2"] = "|cFFCFCFCFright click|r: quick menu"
@@ -21,19 +30,18 @@ if not Loc then return end
 	Loc ["STRING_MINIMAPMENU_UNLOCK"] = "Unlock"
 	Loc ["STRING_MINIMAPMENU_LOCK"] = "Lock"
 	
+	Loc ["STRING_RESETBUTTON_WRONG_INSTANCE"] = "Warning, reset button isn't in the current editing instance."
+	
 	Loc ["STRING_INTERFACE_OPENOPTIONS"] = "Open Options Panel"
 		
 	Loc ["STRING_RIGHTCLICK_TYPEVALUE"] = "right click to type the value"
-	Loc ["STRING_AUTO"] = "auto"
-	Loc ["STRING_LEFT"] = "left"
-	Loc ["STRING_CENTER"] = "center"
-	Loc ["STRING_RIGHT"] = "right"
 	Loc ["STRING_TOOOLD"] = "could not be installed because your Details! version is too old."
 	Loc ["STRING_TOOOLD2"] = "your Details! version isn't the same."
 	Loc ["STRING_CHANGED_TO_CURRENT"] = "Segment changed to current"
 	Loc ["STRING_SEGMENT_TRASH"] = "Next Boss Cleanup"
 	Loc ["STRING_VERSION_UPDATE"] = "new version: what's changed? click here"
 	Loc ["STRING_NEWS_TITLE"] = "What's New In This Version"
+	Loc ["STRING_NEWS_REINSTALL"] = "Found problems after a update? try '/details reinstall' command."
 	Loc ["STRING_TIME_OF_DEATH"] = "Death"
 	Loc ["STRING_SHORTCUT_RIGHTCLICK"] = "Shortcut Menu (right click to close)"
 	
@@ -408,6 +416,8 @@ if not Loc then return end
 	Loc ["STRING_OPTIONS_MAXINSTANCES_DESC"] = "Limit the number of Details! instances which can be created.\n\nYou can open and re-open instances clicking on the instance button |cFFFFFFFF#X|r."
 	Loc ["STRING_OPTIONS_PVPFRAGS"] = "Only Pvp Frags"
 	Loc ["STRING_OPTIONS_PVPFRAGS_DESC"] = "When enabled, only kills against enemy players will be count."
+	Loc ["STRING_OPTIONS_MINIMAP"] = "Minimap Icon"
+	Loc ["STRING_OPTIONS_MINIMAP_DESC"] = "Show or Hide minimap icon."
 	Loc ["STRING_OPTIONS_TIMEMEASURE"] = "Time Measure"
 	Loc ["STRING_OPTIONS_TIMEMEASURE_DESC"] = "|cFFFFFFFFActivity|r: the timer of each raid member is put on hold if his activity is ceased and back again to count when is resumed, common way of mensure Dps and Hps.\n\n|cFFFFFFFFEffective|r: used on rankings, this method uses the elapsed combat time for mensure the Dps and Hps of all raid members."
 	
@@ -454,14 +464,13 @@ if not Loc then return end
 	Loc ["STRING_OPTIONS_CLOUD"] = "Cloud Capture"
 	Loc ["STRING_OPTIONS_CLOUD_DESC"] = "When enabled, the data of disabled collectors are collected within others raid members."
 	
-	
-	Loc ["STRING_OPTIONS_BARS"] = "Bar Settings"
+	Loc ["STRING_OPTIONS_BARS"] = "Bar General Settings"
 	Loc ["STRING_OPTIONS_BARS_DESC"] = "This options control the appearance of the instance bars."
 
 	Loc ["STRING_OPTIONS_BAR_TEXTURE"] = "Texture"
 	Loc ["STRING_OPTIONS_BAR_TEXTURE_DESC"] = "Choose the texture of bars."
 	
-	Loc ["STRING_OPTIONS_BAR_BTEXTURE"] = "Background Texture"
+	Loc ["STRING_OPTIONS_BAR_BTEXTURE"] = "Texture (bg)"
 	Loc ["STRING_OPTIONS_BAR_BTEXTURE_DESC"] = "Choose the background texture of bars."
 	
 	Loc ["STRING_OPTIONS_BAR_BCOLOR"] = "Background Color"
@@ -471,12 +480,12 @@ if not Loc then return end
 	Loc ["STRING_OPTIONS_BAR_HEIGHT_DESC"] = "Change the height of bars."
 	
 	Loc ["STRING_OPTIONS_BAR_COLORBYCLASS"] = "Color By Class"
-	Loc ["STRING_OPTIONS_BAR_COLORBYCLASS_DESC"] = "When enabled, the instance bars have the color of the character class.\n\nDisabled: bars have a fixed color."
+	Loc ["STRING_OPTIONS_BAR_COLORBYCLASS_DESC"] = "When enabled, the instance bars have the color of the character class.\n\nIf disabled, the color chosen on the right box will be used."
 	
-	Loc ["STRING_OPTIONS_BAR_COLORBYCLASS2"] = "Background Color By Class"
-	Loc ["STRING_OPTIONS_BAR_COLORBYCLASS2_DESC"] = "When enabled, the instance bars  background have the color of the character class.\n\nDisabled: bars have a fixed color."
+	Loc ["STRING_OPTIONS_BAR_COLORBYCLASS2"] = "Color By Class (bg)"
+	Loc ["STRING_OPTIONS_BAR_COLORBYCLASS2_DESC"] = "When enabled, the instance bars  background have the color of the character class.\n\nIf disabled, the color chosen on the right box will be used."
 	--
-	Loc ["STRING_OPTIONS_TEXT"] = "Text Settings"
+	Loc ["STRING_OPTIONS_TEXT"] = "Bar Text Settings"
 	Loc ["STRING_OPTIONS_TEXT_DESC"] = "This options control the appearance of the instance bar texts."
 	
 	Loc ["STRING_OPTIONS_TEXT_SIZE"] = "Size"
@@ -500,17 +509,94 @@ if not Loc then return end
 	Loc ["STRING_OPTIONS_INSTANCE"] = "Instance Settings"
 	Loc ["STRING_OPTIONS_INSTANCE_DESC"] = "This options control the appearance of the instance it self."
 	
-	Loc ["STRING_OPTIONS_INSTANCE_COLOR"] = "Color"
-	Loc ["STRING_OPTIONS_INSTANCE_COLOR_DESC"] = "Change the color of instance window."
+	Loc ["STRING_OPTIONS_INSTANCE_COLOR"] = "Color and Transparency"
+	Loc ["STRING_OPTIONS_INSTANCE_COLOR_DESC"] = "Change the color and alpha of instance window."
 	
-	Loc ["STRING_OPTIONS_INSTANCE_ALPHA"] = "Alpha"
-	Loc ["STRING_OPTIONS_INSTANCE_ALPHA_DESC"] = "This option let you change the color and transparency of instance window background."
+	Loc ["STRING_OPTIONS_INSTANCE_ALPHA"] = "Background Alpha"
+	Loc ["STRING_OPTIONS_INSTANCE_ALPHA_DESC"] = "This option let you change the transparency of the instance window background."
+	Loc ["STRING_OPTIONS_INSTANCE_ALPHA2"] = "Background Color"
+	Loc ["STRING_OPTIONS_INSTANCE_ALPHA2_DESC"] = "This option let you change the color of the instance window background."
 	
 	Loc ["STRING_OPTIONS_INSTANCE_CURRENT"] = "Auto Switch To Current"
 	Loc ["STRING_OPTIONS_INSTANCE_CURRENT_DESC"] = "Whenever a combat start and there is no other instance on current segment, this instance auto switch to current segment."
 
+	Loc ["STRING_OPTIONS_SHOW_SIDEBARS"] = "Show Borders"
+	Loc ["STRING_OPTIONS_SHOW_SIDEBARS_DESC"] = "Show or hide window borders."
+	
+	Loc ["STRING_OPTIONS_SHOW_STATUSBAR"] = "Show Statusbar"
+	Loc ["STRING_OPTIONS_SHOW_STATUSBAR_DESC"] = "Show or hide the bottom statusbar."
+	
 	Loc ["STRING_OPTIONS_INSTANCE_SKIN"] = "Skin"
-	Loc ["STRING_OPTIONS_INSTANCE_SKIN_DESC"] = "Modify all window textures based on a skin theme."
+	Loc ["STRING_OPTIONS_INSTANCE_SKIN_DESC"] = "Modify window appearance based on a skin theme."
+	
+Loc ["STRING_OPTIONS_SKIN_A"] = "Skin Settings"
+Loc ["STRING_OPTIONS_SKIN_A_DESC"] = "This options allows you to change the skin."
+
+Loc ["STRING_OPTIONS_TOOLBAR_SETTINGS"] = "Toolbar Settings"
+Loc ["STRING_OPTIONS_TOOLBAR_SETTINGS_DESC"] = "This options change the main menu on the top of the window."
+	
+Loc ["STRING_OPTIONS_DESATURATE_MENU"] = "Desaturate Menu"
+Loc ["STRING_OPTIONS_DESATURATE_MENU_DESC"] = "Enabling this option, all menu icons on toolbar became black and white."
+
+Loc ["STRING_OPTIONS_HIDE_ICON"] = "Hide Icon"
+Loc ["STRING_OPTIONS_HIDE_ICON_DESC"] = "When enabled, the icon on the top left corner isn't draw.\n\nSome skins may prefer remove this icon."
+
+Loc ["STRING_OPTIONS_MENU_X"] = "Menu Pos X"
+Loc ["STRING_OPTIONS_MENU_X_DESC"] = "Slightly move the main menu on tooltip to the left or right direction."
+
+Loc ["STRING_OPTIONS_MENU_Y"] = "Menu Pos Y"
+Loc ["STRING_OPTIONS_MENU_Y_DESC"] = "Slightly move the main menu on tooltip to the up or down direction."
+
+Loc ["STRING_OPTIONS_RESET_TEXTCOLOR"] = "Reset Text Color"
+Loc ["STRING_OPTIONS_RESET_TEXTCOLOR_DESC"] = "Modify the reset button text color.\n\nOnly applied when reset button is hosted by this instance."
+
+Loc ["STRING_OPTIONS_RESET_TEXTFONT"] = "Reset Text Font"
+Loc ["STRING_OPTIONS_RESET_TEXTFONT_DESC"] = "Modify the reset button text font.\n\nOnly applied when reset button is hosted by this instance."
+
+Loc ["STRING_OPTIONS_RESET_TEXTSIZE"] = "Reset Text Size"
+Loc ["STRING_OPTIONS_RESET_TEXTSIZE_DESC"] = "Modify the reset button text size.\n\nOnly applied when reset button is hosted by this instance."
+
+Loc ["STRING_OPTIONS_RESET_OVERLAY"] = "Reset Overlay Color"
+Loc ["STRING_OPTIONS_RESET_OVERLAY_DESC"] = "Modify the reset button overlay color.\n\nOnly applied when reset button is hosted by this instance."
+
+Loc ["STRING_OPTIONS_RESET_SMALL"] = "Reset Always Small"
+Loc ["STRING_OPTIONS_RESET_SMALL_DESC"] = "When enabled, reset button always shown as his smaller size.\n\nOnly applied when reset button is hosted by this instance."
+
+Loc ["STRING_OPTIONS_INSTANCE_TEXTCOLOR"] = "Instance Text Color"
+Loc ["STRING_OPTIONS_INSTANCE_TEXTCOLOR_DESC"] = "Change the instance button text color."
+
+Loc ["STRING_OPTIONS_INSTANCE_TEXTFONT"] = "Instance Text Font"
+Loc ["STRING_OPTIONS_INSTANCE_TEXTFONT_DESC"] = "Change the instance button text font."
+
+Loc ["STRING_OPTIONS_INSTANCE_TEXTSIZE"] = "Instance Text Size"
+Loc ["STRING_OPTIONS_INSTANCE_TEXTSIZE_DESC"] = "Change the instance button text size."
+
+Loc ["STRING_OPTIONS_INSTANCE_OVERLAY"] = "Instance Overlay Color"
+Loc ["STRING_OPTIONS_INSTANCE_OVERLAY_DESC"] = "Change the instance button overlay color."
+
+Loc ["STRING_OPTIONS_CLOSE_OVERLAY"] = "Close Overlay Color"
+Loc ["STRING_OPTIONS_CLOSE_OVERLAY_DESC"] = "Change the close button overlay color."
+
+Loc ["STRING_OPTIONS_STRETCH"] = "Stretch Button Anchor"
+Loc ["STRING_OPTIONS_STRETCH_DESC"] = "Alternate the stretch button position.\n\nTop: the grab is placed on the top right corner.\n\nBottom: the grab is placed on the bottom center."
+
+Loc ["STRING_OPTIONS_PICONS_DIRECTION"] = "Plugin Icons Direction"
+Loc ["STRING_OPTIONS_PICONS_DIRECTION_DESC"] = "Change the direction which plugins icons are displayed on the toolbar."
+
+Loc ["STRING_OPTIONS_INSBUTTON_X"] = "Instance Button X"
+Loc ["STRING_OPTIONS_INSBUTTON_X_DESC"] = "Change the instance button position."
+
+Loc ["STRING_OPTIONS_INSBUTTON_Y"] = "Instance Button Y"
+Loc ["STRING_OPTIONS_INSBUTTON_Y_DESC"] = "Change the instance button position."
+
+Loc ["STRING_OPTIONS_TOOLBARSIDE"] = "Toolbar Anchor"
+Loc ["STRING_OPTIONS_TOOLBARSIDE_DESC"] = "Place the toolbar on the top or bottom side of window."
+
+Loc ["STRING_OPTIONS_BARGROW_DIRECTION"] = "Bar Grow Direction"
+Loc ["STRING_OPTIONS_BARGROW_DIRECTION_DESC"] = "Change the bars grow method.."
+
+Loc ["STRING_OPTIONS_BARSORT_DIRECTION"] = "Bar Sort Direction"
+Loc ["STRING_OPTIONS_BARSORT_DIRECTION_DESC"] = "Change the order which characters are shown within the bars."
 	
 	Loc ["STRING_OPTIONS_WP"] = "Wallpaper Settings"
 	Loc ["STRING_OPTIONS_WP_DESC"] = "This options control the wallpaper of instance."
