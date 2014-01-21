@@ -2,7 +2,7 @@
 	<Script file="cooltip.lua"/>
 
 	<Frame  name="CooltipMainFrameTemplate" virtual="true" frameStrata="TOOLTIP">
-		<Size x="1" y="1"/>
+		<Size x="500" y="500"/>
 		<Anchors>
 			<Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER" x="0" y="0"/>
 		</Anchors>
@@ -23,21 +23,47 @@
 			<OnLoad>
 				self:SetBackdropColor (0.09019, 0.09019, 0.18823, 1)
 				self:SetBackdropBorderColor (1, 1, 1, 1)
+				self.framebackgroundLeft:SetWidth (32)
+				self.framebackgroundRight:SetWidth (32)
 			</OnLoad>
 		  </Scripts>
 		
 		<Layers>
 		
-			<Layer level="BORDER">
-				<!-- frame background -->
-				<Texture name="$parent_FrameBackground" parentKey="framebackground" file = "Interface\AddOns\Details\images\cooltip_selected">
+			<Layer level="BACKGROUND" textureSubLevel="2">
+				<Texture name="$parent_FrameBackgroundCenter" parentKey="framebackgroundCenter" file = "Interface\AddOns\Details\framework\cooltip_background">
 					<Color a = "1" r = "0" g = "1" b = "0" />
 					<Anchors>
-						<Anchor point="TOP" relativeTo="$parent" relativePoint="TOP" x="0" y="-5"/>
-						<Anchor point="BOTTOM" relativeTo="$parent" relativePoint="BOTTOM" x="0" y="5"/>
-						<Anchor point="LEFT" relativeTo="$parent" relativePoint="LEFT" x="3" y="0"/>
-						<Anchor point="RIGHT" relativeTo="$parent" relativePoint="RIGHT" x="-3" y="0"/>
+						<Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT" x="35" y="-3"/>
+						<Anchor point="TOPRIGHT" relativeTo="$parent" relativePoint="TOPRIGHT" x="-35" y="-3"/>
+						<Anchor point="BOTTOMLEFT" relativeTo="$parent" relativePoint="BOTTOMLEFT" x="35" y="3"/>
+						<Anchor point="BOTTOMRIGHT" relativeTo="$parent" relativePoint="BOTTOMRIGHT" x="-35" y="3"/>
 					</Anchors>
+					<TexCoords left="0.10546875" right="0.89453125" top="0" bottom="1"/>
+				</Texture>
+			</Layer>
+			
+			<Layer level="BACKGROUND" textureSubLevel="3">
+				<Texture name="$parent_FrameBackgroundLeft" parentKey="framebackgroundLeft" file = "Interface\AddOns\Details\framework\cooltip_background">
+					<Color a = "1" r = "0" g = "1" b = "0" />
+					
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT" x="3" y="-3"/>
+						<Anchor point="BOTTOMLEFT" relativeTo="$parent" relativePoint="BOTTOMLEFT" x="3" y="3"/>
+					</Anchors>
+
+					<TexCoords left="0" right="0.103515625" top="0" bottom="1"/>
+				</Texture>
+				
+				<Texture name="$parent_FrameBackgroundRight" parentKey="framebackgroundRight" file = "Interface\AddOns\Details\framework\cooltip_background">
+					<Color a = "1" r = "0" g = "1" b = "0" />
+					
+					<Anchors>
+						<Anchor point="TOPRIGHT" relativeTo="$parent" relativePoint="TOPRIGHT" x="-3" y="-3"/>
+						<Anchor point="BOTTOMRIGHT" relativeTo="$parent" relativePoint="BOTTOMRIGHT" x="-3" y="3"/>
+					</Anchors>
+
+					<TexCoords left="0.896484375" right="1" top="0" bottom="1"/>
 				</Texture>
 			</Layer>
 		

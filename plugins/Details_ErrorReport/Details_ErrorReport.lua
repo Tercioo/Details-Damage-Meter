@@ -98,11 +98,6 @@
 		mainFrame:SetWidth (400)
 		mainFrame:SetHeight (400)
 
-		--[[
-			o que falta fazer:
-				- fazer toda parte externa do report com .php talvez e mandando email? acho que sim
-		--]]
-		
 		--> build widgets
 		
 			--background
@@ -182,6 +177,11 @@
 			
 			local c = bg:CreateRightClickLabel ("medium")
 			c:SetPoint ("bottomright", bg, "bottomright", -3, 1)
+			
+			local moreinfo = DetailsFrameWork:NewLabel (bg, _, "DetailsErrorReportMoreInfo", _, "feedback recipient: detailsaddonwow@gmail.com\n")
+			moreinfo:SetPoint ("bottomright", bg, "bottomright", -3, 36)
+			moreinfo.align = ">"
+			moreinfo.valign = "^"
 
 			--send button
 			local sendFunc = function()

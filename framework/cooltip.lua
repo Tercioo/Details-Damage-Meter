@@ -71,6 +71,7 @@ function DetailsCreateCoolTip()
 			["FixedWidthSub"] = true,
 			["FixedHeightSub"] = true,
 			["IgnoreSubMenu"] = true,
+			["IgnoreButtonAutoHeight"] = true,
 			["TextHeightMod"] = true,
 			["ButtonHeightMod"] = true,
 			["ButtonHeightModSub"] = true,
@@ -106,6 +107,7 @@ function DetailsCreateCoolTip()
 			["FixedWidthSub"] = nil,
 			["FixedHeightSub"] = nil,
 			["IgnoreSubMenu"] = nil,
+			["IgnoreButtonAutoHeight"] = nil,
 			["TextHeightMod"] = nil,
 			["ButtonHeightMod"] = nil,
 			["ButtonHeightModSub"] = nil,
@@ -142,6 +144,10 @@ function DetailsCreateCoolTip()
 		
 		CoolTip.LastIndex = 0
 		
+		CoolTip.internal_x_mod = 0
+		CoolTip.internal_y_mod = 0
+		CoolTip.overlap_checked = false
+		
 		--defaults
 		CoolTip.default_height = 20
 		CoolTip.default_text_size = 10.5
@@ -170,6 +176,8 @@ function DetailsCreateCoolTip()
 		--> button containers
 		frame1.Lines = {}
 		frame2.Lines = {}
+		
+		
 
 ----------------------------------------------------------------------
 	--> Title Function 
@@ -583,9 +591,10 @@ function DetailsCreateCoolTip()
 
 			--> set text
 			if (leftTextTable) then
+			
 				menuButton.leftText:SetText (leftTextTable [1])
 				menuButton.leftText:SetTextColor (leftTextTable [2], leftTextTable [3], leftTextTable [4], leftTextTable [5])
-
+				
 				if (CoolTip.OptionsTable.TextSize and not leftTextTable [6]) then
 					_detalhes:SetFontSize (menuButton.leftText, CoolTip.OptionsTable.TextSize)
 				end
@@ -595,10 +604,21 @@ function DetailsCreateCoolTip()
 				end
 				
 				local face, size, flags = menuButton.leftText:GetFont()
-				size = leftTextTable [6] or CoolTip.OptionsTable.TextSize or 10
-				face = leftTextTable [7] or [[Fonts\FRIZQT__.TTF]]
-				flags = leftTextTable [8]
-				menuButton.leftText:SetFont (face, size, flags)
+				
+				if (_G [leftTextTable [7]]) then
+					menuButton.leftText:SetFontObject (leftTextTable [7])
+					local face, size, flags = menuButton.leftText:GetFont()
+					size = leftTextTable [6] or CoolTip.OptionsTable.TextSize or size
+					
+					menuButton.leftText:SetFont (face, size, flags)
+				else
+					size = leftTextTable [6] or CoolTip.OptionsTable.TextSize or 10
+					face = leftTextTable [7] or [[Fonts\FRIZQT__.TTF]]
+					flags = leftTextTable [8]
+
+					menuButton.leftText:SetFont (face, size, flags)
+				end
+
 			else
 				menuButton.leftText:SetText ("")
 			end
@@ -616,10 +636,21 @@ function DetailsCreateCoolTip()
 				end
 				
 				local face, size, flags = menuButton.rightText:GetFont()
-				size = rightTextTable [6] or 10
-				face = rightTextTable [7] or [[Fonts\FRIZQT__.TTF]]
-				flags = rightTextTable [8]
-				menuButton.rightText:SetFont (face, size, flags)
+				
+				if (_G [rightTextTable [7]]) then
+					menuButton.rightText:SetFontObject (rightTextTable [7])
+					local face, size, flags = menuButton.rightText:GetFont()
+					size = rightTextTable [6] or CoolTip.OptionsTable.TextSize or size
+					
+					menuButton.rightText:SetFont (face, size, flags)
+				else
+					size = rightTextTable [6] or 10
+					face = rightTextTable [7] or [[Fonts\FRIZQT__.TTF]]
+					flags = rightTextTable [8]
+					menuButton.rightText:SetFont (face, size, flags)
+				end
+				
+
 			else
 				menuButton.rightText:SetText ("")
 			end
@@ -951,6 +982,7 @@ function DetailsCreateCoolTip()
 		row.leftText:SetHeight (10)
 	end
 
+	--> ~inicio
 	function CoolTip:monta_tooltip()
 		
 		--> hide sub frame
@@ -1006,17 +1038,32 @@ function DetailsCreateCoolTip()
 		end
 		
 		--> normalize height of all rows
+		local temp = -6 + spacing + (CoolTip.OptionsTable.ButtonsYMod or 0)
 		for i = 1, CoolTip.Indexes do 
 			local menuButton = frame1.Lines [i]
-			--> height
-			menuButton:SetHeight (frame1.hHeight + (CoolTip.OptionsTable.ButtonHeightMod or 0))
-			--> points
+			
 			menuButton:ClearAllPoints()
 			menuButton:SetPoint ("center", frame1, "center")
 			menuButton:SetPoint ("left", frame1, "left")
 			menuButton:SetPoint ("right", frame1, "right")
-			menuButton:SetPoint ("top", frame1, "top", 0, ( ( (i-1) * frame1.hHeight) * -1) - 6 + (CoolTip.OptionsTable.ButtonsYMod or 0) + spacing)
-			if (CoolTip.OptionsTable.YSpacingMod) then
+			
+			--> height
+			if (CoolTip.OptionsTable.IgnoreButtonAutoHeight) then
+			
+				local height = _math_max (menuButton.leftText:GetStringHeight(), menuButton.rightText:GetStringHeight(), menuButton.leftIcon:GetHeight(), menuButton.rightIcon:GetHeight())
+				menuButton:SetHeight (height)
+				menuButton:SetPoint ("top", frame1, "top", 0, temp)
+				
+				temp = temp + ( height * -1) + spacing + (CoolTip.OptionsTable.ButtonsYMod or 0)
+				
+			else
+				menuButton:SetHeight (frame1.hHeight + (CoolTip.OptionsTable.ButtonHeightMod or 0))
+				menuButton:SetPoint ("top", frame1, "top", 0, ( ( (i-1) * frame1.hHeight) * -1) - 6 + (CoolTip.OptionsTable.ButtonsYMod or 0) + spacing)
+			end
+			
+			--> points
+			
+			if (CoolTip.OptionsTable.YSpacingMod and not CoolTip.OptionsTable.IgnoreButtonAutoHeight) then
 				spacing = spacing + CoolTip.OptionsTable.YSpacingMod
 			end
 			
@@ -1048,10 +1095,14 @@ function DetailsCreateCoolTip()
 			end
 		end
 		
-		if (not CoolTip.OptionsTable.FixedHeight) then
-			frame1:SetHeight ( _math_max ( (frame1.hHeight * CoolTip.Indexes) + 12, 22 ))
-		else
+		if (CoolTip.OptionsTable.FixedHeight) then
 			frame1:SetHeight (CoolTip.OptionsTable.FixedHeight)
+		else
+			if (CoolTip.OptionsTable.IgnoreButtonAutoHeight) then
+				frame1:SetHeight ( (temp+spacing) * -1)
+			else
+				frame1:SetHeight ( _math_max ( (frame1.hHeight * CoolTip.Indexes) + 12, 22 ))
+			end
 		end
 
 		--> unhide frame
@@ -1075,6 +1126,7 @@ function DetailsCreateCoolTip()
 		button.divbar:SetDesaturated (true)
 	end
 	
+	--> ~inicio
 	function CoolTip:monta_cooltip (host, instancia, options, sub_menus, icones, tamanho1, tamanho2, font, fontsize)
 
 		if (CoolTip.Indexes == 0) then
@@ -1252,11 +1304,13 @@ function DetailsCreateCoolTip()
 				if (center_x+half_x > screen_x_res) then
 					--> out of right side
 					local move_to_left = (center_x + half_x) - screen_x_res
+					CoolTip.internal_x_mod = -move_to_left
 					return CoolTip:SetMyPoint (host, -move_to_left, 0)
 					
 				elseif (center_x-half_x < 0) then
 					--> out of left side
 					local move_to_right = center_x - half_x
+					CoolTip.internal_x_mod = move_to_right*-1
 					return CoolTip:SetMyPoint (host, move_to_right*-1, 0)
 				end
 			end
@@ -1272,16 +1326,44 @@ function DetailsCreateCoolTip()
 				if (center_y+half_y > screen_y_res) then
 					--> out of top side
 					local move_to_down = (center_y + half_y) - screen_y_res
+					CoolTip.internal_y_mod = -move_to_down
 					return CoolTip:SetMyPoint (host, 0, -move_to_down)
 				
 				elseif (center_y-half_y < 0) then
 					--> out of bottom side
 					local move_to_up = center_y - half_y
+					CoolTip.internal_y_mod = move_to_up*-1
 					return CoolTip:SetMyPoint (host, 0, move_to_up*-1)
 					
 				end
 			end
 		end
+		
+		if (frame2:IsShown() and not CoolTip.overlap_checked) then
+
+			local frame_2_center_x = frame2:GetCenter()
+			if (frame_2_center_x) then
+				local frame_2_half_x = frame2:GetWidth() / 2
+				
+				local frame_1_center_x = frame1:GetCenter()
+				if (frame_1_center_x) then
+				
+					local frame_1_half_x = frame1:GetWidth() / 2
+				
+					local f1_end_point = frame_1_center_x + frame_1_half_x - 3
+					local f2_start_point = frame_2_center_x - frame_2_half_x
+				
+					if (f2_start_point < f1_end_point) then
+						local diff = f2_start_point - f1_end_point
+						CoolTip.overlap_checked = true
+						return CoolTip:SetMyPoint (host, CoolTip.internal_x_mod + diff, CoolTip.internal_y_mod)
+					end
+				
+				end
+			end
+			
+		end
+		
 	end	
 	
 	function CoolTip:GetText (buttonIndex)
@@ -1418,9 +1500,15 @@ function DetailsCreateCoolTip()
 		function CoolTip:SetColor (menuType, ...)
 			local ColorR, ColorG, ColorB, ColorA = gump:ParseColors (...)
 			if ((type (menuType) == "string" and menuType == "main") or (type (menuType) == "number" and menuType == 1)) then
-				frame1.framebackground:SetVertexColor (ColorR, ColorG, ColorB, ColorA)
+				frame1.framebackgroundLeft:SetVertexColor (ColorR, ColorG, ColorB, ColorA)
+				frame1.framebackgroundRight:SetVertexColor (ColorR, ColorG, ColorB, ColorA)
+				frame1.framebackgroundCenter:SetVertexColor (ColorR, ColorG, ColorB, ColorA)
+				
 			elseif ((type (menuType) == "string" and menuType == "sec") or (type (menuType) == "number" and menuType == 2)) then
-				frame2.framebackground:SetVertexColor (ColorR, ColorG, ColorB, ColorA)
+				frame2.framebackgroundLeft:SetVertexColor (ColorR, ColorG, ColorB, ColorA)
+				frame2.framebackgroundRight:SetVertexColor (ColorR, ColorG, ColorB, ColorA)
+				frame2.framebackgroundCenter:SetVertexColor (ColorR, ColorG, ColorB, ColorA)
+				
 			else
 				return --> error
 			end
@@ -1476,6 +1564,10 @@ function DetailsCreateCoolTip()
 			CoolTip.Indexes =  0
 			CoolTip.SubIndexes = 0
 			_table_wipe (CoolTip.IndexesSub)
+			
+			CoolTip.internal_x_mod = 0
+			CoolTip.internal_y_mod = 0
+			CoolTip.overlap_checked = false
 			
 			--> 
 			
@@ -2113,7 +2205,7 @@ function DetailsCreateCoolTip()
 			else
 				return --> error
 			end
-
+			
 			lineTable_left [1] = leftText --> line text
 			lineTable_left [2] = ColorR1
 			lineTable_left [3] = ColorG1

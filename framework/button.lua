@@ -724,6 +724,7 @@ function gump:NewButton (parent, container, name, member, w, h, func, param1, pa
 	ButtonObject.button:SetHighlightTexture (texture, "ADD")
 	
 	ButtonObject.button.text:SetText (text)
+	ButtonObject.button.text:SetPoint ("center", ButtonObject.button, "center")
 	
 	ButtonObject.func = func or cleanfunction
 	ButtonObject.funcright = cleanfunction

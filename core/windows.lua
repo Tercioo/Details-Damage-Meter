@@ -515,6 +515,8 @@
 		
 		function _detalhes:WaitForSoloPlugin (instancia)
 		
+			instancia:ChangeIcon ([[Interface\GossipFrame\ActiveQuestIcon]])
+		
 			if (WaitForPluginFrame:IsShown() and WaitForPluginFrame:GetParent() == instancia.baseframe) then
 				return _detalhes:ScheduleTimer ("ExecDelayedPlugin", 5, instancia)
 			end

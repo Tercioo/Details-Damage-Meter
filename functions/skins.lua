@@ -43,7 +43,7 @@ local _
 		-- the four anchors:
 		icon_point_anchor = {-37, 0},
 		left_corner_anchor = {-107, 0},
-		close_button_anchor = {5, -6},
+		close_button_anchor = {5, -7},
 		right_corner_anchor = {96, 0},
 
 		icon_point_anchor_bottom = {-37, 0},

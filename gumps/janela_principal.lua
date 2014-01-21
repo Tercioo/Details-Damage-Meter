@@ -3667,14 +3667,19 @@ function _detalhes:ChangeSkin (skin_name)
 		local icon_anchor = this_skin.icon_anchor_plugins
 		self.baseframe.cabecalho.atributo_icon:SetPoint ("topright", self.baseframe.cabecalho.ball_point, "topright", icon_anchor[1], icon_anchor[2])
 		if (self.modo == 1) then
-			local plugin_index = _detalhes.SoloTables.Mode
-			if (plugin_index > 0 and _detalhes.SoloTables.Menu [plugin_index]) then
-				self:ChangeIcon (_detalhes.SoloTables.Menu [plugin_index] [2])
+			if (_detalhes.SoloTables.Plugins [1] and _detalhes.SoloTables.Mode) then
+				local plugin_index = _detalhes.SoloTables.Mode
+				if (plugin_index > 0 and _detalhes.SoloTables.Menu [plugin_index]) then
+					self:ChangeIcon (_detalhes.SoloTables.Menu [plugin_index] [2])
+				end
 			end
+
 		elseif (self.modo == 4) then
-			local plugin_index = _detalhes.RaidTables.Mode
-			if (plugin_index and _detalhes.RaidTables.Menu [plugin_index]) then
-				self:ChangeIcon (_detalhes.RaidTables.Menu [plugin_index] [2])
+			if (_detalhes.RaidTables.Plugins [1] and _detalhes.RaidTables.Mode) then
+				local plugin_index = _detalhes.RaidTables.Mode
+				if (plugin_index and _detalhes.RaidTables.Menu [plugin_index]) then
+					self:ChangeIcon (_detalhes.RaidTables.Menu [plugin_index] [2])
+				end
 			end
 		end
 	else
