@@ -32,9 +32,13 @@ Loc ["STRING_DEATH_LOG"] = "Death Log"
 Loc ["STRING_FIGHT_SUMMARY"] = "fight details"
 Loc ["STRING_FIGHT_GRAPHIC"] = "performance charts"
 Loc ["STRING_TOOLTIP"] = "Show Encounter Details Window"
-Loc ["STRING_"] = ""
 Loc ["STRING_LAST_COOLDOWN"] = "last cooldown used"
 Loc ["STRING_NOLAST_COOLDOWN"] = "no cooldown used"
+
+Loc ["STRING_ADDS_HELP"] = "Mouse over |cFF00FF00Arrow Up|r for dmg received, |cFFFF0000Arrow Down|r for dmg dealt.\n|cFFFFFF00Click Arrow|r: Report the data shown on tooltip."
+Loc ["STRING_INTERRIPT_HELP"] = "\n\n|cFFFFFF00Click|r on a bar: open report window."
+Loc ["STRING_DISPELL_HELP"] = "\n\n|cFFFFFF00Click|r on a bar: open report window."
+Loc ["STRING_DEATHS_HELP"] = "\n\n|cFFFFFF00Click|r on a bar: open report window."
 
 --> mechanic types
 Loc ["STRING_HEAL"] = "heal"

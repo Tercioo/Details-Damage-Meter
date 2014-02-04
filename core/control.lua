@@ -830,23 +830,23 @@
 				return
 			end
 
-			if (not tabela_do_combate[self.atributo].need_refresh and not forcar) then
+			local need_refresh = tabela_do_combate[self.atributo].need_refresh
+			if (not need_refresh and not forcar) then
 				return --> não precisa de refresh
 			--else
 				--tabela_do_combate[self.atributo].need_refresh = false
 			end
 			
 			if (self.atributo == 1) then --> damage
-				
-				return atributo_damage:RefreshWindow (self, tabela_do_combate, forcar)
+				return atributo_damage:RefreshWindow (self, tabela_do_combate, forcar, nil, need_refresh)
 			elseif (self.atributo == 2) then --> heal
-				return atributo_heal:RefreshWindow (self, tabela_do_combate, forcar)
+				return atributo_heal:RefreshWindow (self, tabela_do_combate, forcar, nil, need_refresh)
 			elseif (self.atributo == 3) then --> energy
-				return atributo_energy:RefreshWindow (self, tabela_do_combate, forcar)
+				return atributo_energy:RefreshWindow (self, tabela_do_combate, forcar, nil, need_refresh)
 			elseif (self.atributo == 4) then --> outros
-				return atributo_misc:RefreshWindow (self, tabela_do_combate, forcar)
+				return atributo_misc:RefreshWindow (self, tabela_do_combate, forcar, nil, need_refresh)
 			elseif (self.atributo == 5) then --> ocustom
-				return atributo_custom:RefreshWindow (self, tabela_do_combate, forcar)
+				return atributo_custom:RefreshWindow (self, tabela_do_combate, forcar, nil, need_refresh)
 			end
 
 		end

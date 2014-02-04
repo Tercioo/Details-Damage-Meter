@@ -113,6 +113,109 @@ function _detalhes:OpenWelcomeWindow ()
 			end
 		end)
 		
+	do
+		local Loc = LibStub ("AceLocale-3.0"):NewLocale ("Details", "enUS", true) 
+		if (Loc) then
+		
+			Loc ["STRING_WELCOME_1"] = "|cFFFFFFFFWelcome to Details! Quick Setup Wizard\n\n|rThis guide will help you with some important configurations.\nYou can skip this at any time just clicking on 'skip' button."
+			Loc ["STRING_WELCOME_2"] = "if you change your mind, you can always modify again through options panel"
+			Loc ["STRING_WELCOME_3"] = "Choose your DPS and HPS prefered method:"
+			Loc ["STRING_WELCOME_4"] = "Activity Time"..": "
+			Loc ["STRING_WELCOME_5"] = "Effective Time"..": "
+			Loc ["STRING_WELCOME_6"] = "the timer of each raid member is put on hold if his activity is ceased and back again to count when is resumed, common way of mensure Dps and Hps."
+			Loc ["STRING_WELCOME_7"] = "used for rankings, this method uses the elapsed combat time for mensure the Dps and Hps of all raid members."
+			Loc ["STRING_WELCOME_8"] = "if you change your mind, you can always modify again through options panel"
+			Loc ["STRING_WELCOME_9"] = "Details! reads and calculate combat numbers in a very fast way, but if some kind of data is irrelevant for you, you can disable/enable it 'on-the-fly'."
+			Loc ["STRING_WELCOME_10"] = "Mouse over each slider to see what they represent."
+			Loc ["STRING_WELCOME_11"] = "if you change your mind, you can always modify again through options panel"
+			Loc ["STRING_WELCOME_12"] = "Here you can choose the update speed of all opened windows. Low values with dance bars enabled may create cool effects, but may consume more cpu."
+			Loc ["STRING_WELCOME_13"] = "Enable 'Dance Bars' for bars animations."
+			Loc ["STRING_WELCOME_14"] = "Update Speed"
+			Loc ["STRING_WELCOME_15"] = "delay between each update,\ncpu usage may |cFFFF9900increase|r with low values\nand |cFF00FF00slight reduce|r with high values."
+			Loc ["STRING_WELCOME_16"] = "Dance Bars"
+			Loc ["STRING_WELCOME_17"] = "dancing bars is a feature which create animations\nto the left and right directions for all bars.\ncpu usage may |cFFFF9900slight increase|r with this turned on."
+			Loc ["STRING_WELCOME_18"] = "if you change your mind, you can always modify again through options panel"
+			Loc ["STRING_WELCOME_19"] = "Memory Adjustments:"
+			Loc ["STRING_WELCOME_20"] = "The amount of memory used by addons doesn't affect framerate, but, saving memory in computers which doesn't have much of it, may help the whole system. Details! try to be as flexible as possible to keep the game smooth even in not high-end hardware."
+			Loc ["STRING_WELCOME_21"] = "max segments"
+			Loc ["STRING_WELCOME_22"] = "How many segments you want to maintain.\nFeel free to adjust this number to be comfortable for you."
+			Loc ["STRING_WELCOME_23"] = "memory threshold"
+			Loc ["STRING_WELCOME_24"] = "Details! try adjust it self with the amount of memory\navaliable on your system.\n\nAlso is recommeded keep the amount of\nsegments low if your system have 2gb ram or less."
+			Loc ["STRING_WELCOME_25"] = "segments saved on logout"
+			Loc ["STRING_WELCOME_26"] = "Using the Interface: Stretch"
+			Loc ["STRING_WELCOME_27"] = "- When you have the mouse over a Details! window, a |cFFFFFF00small hook|r will appear over the instance button. |cFFFFFF00Click, hold and pull|r up to |cFFFFFF00stretch|r the window, releasing the mouse click, the window |cFFFFFF00back to original|r size.\n\n- If you miss a |cFFFFBB00scroll bar|r, you can active it on the options panel."
+			Loc ["STRING_WELCOME_28"] = "Using the Interface: Instance Button"
+			Loc ["STRING_WELCOME_29"] = "Instance button basically do three things:\n\n- show |cFFFFFF00what instance|r is it through the |cFFFFFF00#number|r,\n- open a |cFFFFFF00new instance|r window when clicked.\n- show a menu with |cFFFFFF00closed instances|r which can be reopen at any one."
+			Loc ["STRING_WELCOME_30"] = "Using the Interface: Fast Switch Panel (shortcuts)"
+			Loc ["STRING_WELCOME_31"] = "- Right clicking |cFFFFFF00over a row|r or in the background opens the |cFFFFFF00shortcut menu|r.\n- You can choose which |cFFFFFF00attribute|r the shortcut will have by |cFFFFFF00right clicking|r his icon.\n- Left click |cFFFFFF00selects|r the shortcut attribute and |cFFFFFF00display|r it on the instance\n- Right click anywhere |cFFFFFF00closes|r the switch panel."
+			Loc ["STRING_WELCOME_32"] = "Using the Interface: Snap Instances"
+			Loc ["STRING_WELCOME_33"] = "You can |cFFFFFF00snap windows|r in vertical or horizontal. A window always snap with |cFFFFFF00previous instance number|r: like the image in the right, instance |cFFFFFF00#5|r snapped with |cFFFFFF00#4|r. When a snapped window is stretched, all other instances in the |cFFFFFF00cluster are also|r stretched."
+			Loc ["STRING_WELCOME_34"] = "Using the Interface: Micro Display"
+			Loc ["STRING_WELCOME_35"] = "All instances have three |cFFFFFF00mini widgets|r located at the bottom of window. |cFFFFFF00Right clicking|r pops up a menu and with |cFFFFFF00left click|r displays a options panel for that widget."
+			Loc ["STRING_WELCOME_36"] = "Using the Interface: Plugins"
+			Loc ["STRING_WELCOME_37"] = "|cFFFFFF00Threat, tank avoidance, and others|r are handled by |cFFFFFF00plugins|r. You can open a new instance, select '|cFFFFFF00Widgets|r' and choose what you want at |cFFFFFF00sword|r menu.\n\nTip: click over a bar on |cFFFFFF00Vanguard|r to show avoidance numbers."
+			Loc ["STRING_WELCOME_38"] = "Ready to Raid!"
+			Loc ["STRING_WELCOME_39"] = "Thank you for choosing Details!\n\nFeel free to always send feedbacks and bug reports to us (|cFFBBFFFFuse the fifth button a blue one|r), we appreciate."
+
+			Loc ["STRING_WELCOME_40"] = "Which parts of a fight is important to you?"
+			Loc ["STRING_WELCOME_41"] = "Some Cool Interface Tweaks:"
+			
+		end
+	end
+	
+	do
+		local Loc = LibStub ("AceLocale-3.0"):NewLocale ("Details", "ptBR") 
+		if (Loc) then
+			
+			Loc ["STRING_WELCOME_1"] = "|cFFFFFFFFBem vindo ao Details! Setup Rapido\n\n|rEste guia ira ajuda-la a configurar rapidamente aspectos basicos desde addon.\nVoce pode pular este guia a qualquer momento clicando no botao de cancelar."
+			Loc ["STRING_WELCOME_2"] = "se voce mudar de ideia, voce pode mudar novamente no painel de opcoes"
+			Loc ["STRING_WELCOME_3"] = "Escolha o metodo de DPS e HPS preferido:"
+			Loc ["STRING_WELCOME_4"] = "Atividade"..": "
+			Loc ["STRING_WELCOME_5"] = "Efetividade"..": "
+			Loc ["STRING_WELCOME_6"] = "o tempo do jogador e posto em pausa quando sua atividade e interrompida voltando a contar seu tempo quando voltar a atividade, metodo mais comum."
+			Loc ["STRING_WELCOME_7"] = "usado em rankings, este metodo usa o tempo total da luta para medir o Dps e Hps de todos os membros da raide."
+			Loc ["STRING_WELCOME_8"] = "se voce mudar de ideia, voce pode mudar novamente no painel de opcoes"
+			Loc ["STRING_WELCOME_9"] = "Details! faz a leitura e calculos do combate de uma maneira rapida, mas se algo e irrelevante para voce, e possivel desativa-lo."
+			Loc ["STRING_WELCOME_10"] = "Passe o mouse para saber o que cada um representa"
+			Loc ["STRING_WELCOME_11"] = "se voce mudar de ideia, voce pode mudar novamente no painel de opcoes"
+			Loc ["STRING_WELCOME_12"] = "Aqui voce pode escolher o tempo de intervalo entre cada atualizacao da janela."
+			Loc ["STRING_WELCOME_13"] = "Ative 'Animar Barras' para animar as barras."
+			
+			Loc ["STRING_WELCOME_14"] = "Update Speed"
+			Loc ["STRING_WELCOME_14"] = "Intervalo de Atualizacao"
+			Loc ["STRING_WELCOME_15"] = "tempo entre cada atualizacao,\nuso da cpu pode |cFFFF9900aumentar levemente|r com valores muito baixos\ne |cFF00FF00ter reducao|r com valores mais altos."
+			Loc ["STRING_WELCOME_16"] = "Animar Barras"
+			Loc ["STRING_WELCOME_17"] = "ativa ou desativa as animacoes das barras.\nuso da cpu pode |cFFFF9900aumentar levemente|r com esta opcao ligada."
+			Loc ["STRING_WELCOME_18"] = "se voce mudar de ideia, voce pode mudar novamente no painel de opcoes"
+			Loc ["STRING_WELCOME_19"] = "Ajustes da Memoria:"
+			Loc ["STRING_WELCOME_20"] = "A quantidade de memoria nos addons nao afeta a taxa de quadros por segundo, mas, diminuir seu uso em computadores com pouca memoria, pode ajudar o desempenho em todo o sistema."
+			Loc ["STRING_WELCOME_21"] = "total de segmentos"
+			Loc ["STRING_WELCOME_22"] = "Quantos segmentos voce deseja armazenar."
+			Loc ["STRING_WELCOME_23"] = "limites de memoria"
+			
+			Loc ["STRING_WELCOME_24"] = "Details! tenta auto ajustar a memoria usada de acordo com a memoria disponivel no sistema.\n\nTambem e recomendado limitar a quantidade de segmentos com 2Gb ou menor de memoria ram."
+			Loc ["STRING_WELCOME_25"] = "segmentos salvos no logout"
+			Loc ["STRING_WELCOME_26"] = "Usando a Interface: Stretch"
+			Loc ["STRING_WELCOME_27"] = "- Quando o mouse esta sobre a janela, um |cFFFFFF00gancho|r aparecera no canto direito superior da janela. |cFFFFFF00Clique, segure e arraste|r para cima |cFFFFFF00para esticar|r a janela, soltando o clique o mouse |cFFFFFF00a janela volta ao tamanho original|r.\n\n- Se voce sente falta da |cFFFFBB00barra de rolagem|r, voce pode ativa-la no painel de opcoes."
+			Loc ["STRING_WELCOME_28"] = "Usando a Interface: Botao de Instancias (janelas)"
+			Loc ["STRING_WELCOME_29"] = "Botao de Instancias (janelas) e usado para:\n\n- mostrar |cFFFFFF00qual instancia|r ele eh, atraves do |cFFFFFF00#numero|r,\n- abrir uma |cFFFFFF00nova instancia do Details!|r quando clicado.\n- mostrado um menu das |cFFFFFF00janelas que estao fechadas|r para reabri-las."
+			Loc ["STRING_WELCOME_30"] = "Usando a Interface: Atalhos"
+			Loc ["STRING_WELCOME_31"] = "- Clicando com o Direito |cFFFFFF00em uma barra ou na janela|r abre |cFFFFFF00o menu de atalhos|r.\n- Voce pode escolher o |cFFFFFF00atributo|r que o atalho tera |cFFFFFF00clicando com o botao direito|r no seu icone.\n- Botao esquerdo |cFFFFFF00troca para aquele atributo|r \n- Botao direito fecha o painel de atalhos."
+			Loc ["STRING_WELCOME_32"] = "Usando a Interface: Juntar Instancias"
+			Loc ["STRING_WELCOME_33"] = "Voce pode |cFFFFFF00juntar as janelas|r na vertical ou horizontal. Uma janela grudara com a |cFFFFFF00janela anterior a ela|r: como na imagem a direita, a instancia |cFFFFFF00#5|r grudou na |cFFFFFF00#4|r. Quando grudadas, as janelas redimencionam, esticam e movem-se juntas."
+			Loc ["STRING_WELCOME_34"] = "Usando a Interface: Mini Displays"
+			Loc ["STRING_WELCOME_35"] = "Todas as janelas possuem 3 |cFFFFFF00mini displays|r localizados na parte inferior da janela. |cFFFFFF00Botao Direiro |r abrira um menu para escolher o que deseja mostrar |cFFFFFF00botao esquerdo|r abre as configuracoes."
+			Loc ["STRING_WELCOME_36"] = "Usando a Interface: Plugins"
+			Loc ["STRING_WELCOME_37"] = "|cFFFFFF00Ameaca, avoidance do tank, o muito mais|r podem ser vistos atraves de |cFFFFFF00plugins|r. Voce pode abrir uma nova janela e selecionar '|cFFFFFF00Widgets|r' e escolher o plugin no |cFFFFFF00menu da espada|r."
+			Loc ["STRING_WELCOME_38"] = "Pronto Para Jogar!"
+			Loc ["STRING_WELCOME_39"] = "Obrigado por escolher o Details!\n\nSinta-se a vontade para nos enviar feedbacks do que achou deste addon (|cFFBBFFFFno quinto botao, um azul|r)."
+
+			Loc ["STRING_WELCOME_40"] = "Quais dados sao importantes para voce?"
+			Loc ["STRING_WELCOME_41"] = "Alguns ajustes bacanas na interface:"
+			
+		end
+	end
+		
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> page 1
 		
@@ -128,7 +231,7 @@ function _detalhes:OpenWelcomeWindow ()
 		
 		local texto1 = window:CreateFontString (nil, "overlay", "GameFontNormal")
 		texto1:SetPoint ("topleft", window, "topleft", 13, -150)
-		texto1:SetText ("|cFFFFFFFFWelcome to Details! Quick Setup Wizard\n\n|rThis guide will help you with some important configurations.\nYou can skip this at any time just clicking on 'skip' button.")
+		texto1:SetText (Loc ["STRING_WELCOME_1"])
 		texto1:SetJustifyH ("left")
 		
 		pages [#pages+1] = {texto1, angel}
@@ -155,25 +258,25 @@ function _detalhes:OpenWelcomeWindow ()
 		ampulheta:SetAlpha (.1)
 		ampulheta:SetTexCoord (1, 0, 0, 1)		
 		
-		g:NewLabel (window, _, "$parentChangeMind2Label", "changemind2Label", "if you change your mind, you can always modify again through options panel", "GameFontNormal", 9, "orange")
+		g:NewLabel (window, _, "$parentChangeMind2Label", "changemind2Label", Loc ["STRING_WELCOME_2"], "GameFontNormal", 9, "orange")
 		window.changemind2Label:SetPoint ("center", window, "center")
 		window.changemind2Label:SetPoint ("bottom", window, "bottom", 0, 19)
 		window.changemind2Label.align = "|"
 
 		local texto2 = window:CreateFontString (nil, "overlay", "GameFontNormal")
 		texto2:SetPoint ("topleft", window, "topleft", 20, -80)
-		texto2:SetText ("Choose your DPS and HPS prefered method:")
+		texto2:SetText (Loc ["STRING_WELCOME_3"])
 		
 		local chronometer = CreateFrame ("CheckButton", "WelcomeWindowChronometer", window, "ChatConfigCheckButtonTemplate")
 		chronometer:SetPoint ("topleft", window, "topleft", 40, -110)
 		local continuous = CreateFrame ("CheckButton", "WelcomeWindowContinuous", window, "ChatConfigCheckButtonTemplate")
 		continuous:SetPoint ("topleft", window, "topleft", 40, -160)
 		
-		_G ["WelcomeWindowChronometerText"]:SetText ("Activity Time"..": ")
-		_G ["WelcomeWindowContinuousText"]:SetText ("Effective Time"..": ")
+		_G ["WelcomeWindowChronometerText"]:SetText (Loc ["STRING_WELCOME_4"])
+		_G ["WelcomeWindowContinuousText"]:SetText (Loc ["STRING_WELCOME_5"])
 		
 		local chronometer_text = window:CreateFontString (nil, "overlay", "GameFontNormal")
-		chronometer_text:SetText ("the timer of each raid member is put on hold if his activity is ceased and back again to count when is resumed, common way of mensure Dps and Hps.")
+		chronometer_text:SetText (Loc ["STRING_WELCOME_6"])
 		chronometer_text:SetWidth (360)
 		chronometer_text:SetHeight (40)
 		chronometer_text:SetJustifyH ("left")
@@ -182,7 +285,7 @@ function _detalhes:OpenWelcomeWindow ()
 		chronometer_text:SetPoint ("topleft", _G ["WelcomeWindowChronometerText"], "topright", 0, 0)
 		
 		local continuous_text = window:CreateFontString (nil, "overlay", "GameFontNormal")
-		continuous_text:SetText ("used for rankings, this method uses the elapsed combat time for mensure the Dps and Hps of all raid members.")
+		continuous_text:SetText (Loc ["STRING_WELCOME_7"])
 		continuous_text:SetWidth (340)
 		continuous_text:SetHeight (40)
 		continuous_text:SetJustifyH ("left")
@@ -220,17 +323,17 @@ function _detalhes:OpenWelcomeWindow ()
 		mecanica:SetAlpha (.1)
 		mecanica:SetTexCoord (1, 0, 0, 1)	
 		
-		g:NewLabel (window, _, "$parentChangeMind3Label", "changemind3Label", "if you change your mind, you can always modify again through options panel", "GameFontNormal", 9, "orange")
+		g:NewLabel (window, _, "$parentChangeMind3Label", "changemind3Label", Loc ["STRING_WELCOME_8"], "GameFontNormal", 9, "orange")
 		window.changemind3Label:SetPoint ("center", window, "center")
 		window.changemind3Label:SetPoint ("bottom", window, "bottom", 0, 19)
 		window.changemind3Label.align = "|"
 		
 		local texto3 = window:CreateFontString (nil, "overlay", "GameFontNormal")
 		texto3:SetPoint ("topleft", window, "topleft", 20, -80)
-		texto3:SetText ("Which parts of a fight is important to you?")
+		texto3:SetText (Loc ["STRING_WELCOME_40"])
 		
 		local data_text = window:CreateFontString (nil, "overlay", "GameFontNormal")
-		data_text:SetText ("Details! reads and calculate combat numbers in a very fast way, but if some kind of data is irrelevant for you, you can disable/enable it 'on-the-fly'.")
+		data_text:SetText (Loc ["STRING_WELCOME_9"])
 		data_text:SetWidth (460)
 		data_text:SetHeight (40)
 		data_text:SetJustifyH ("left")
@@ -240,7 +343,7 @@ function _detalhes:OpenWelcomeWindow ()
 		
 		local data_text2 = window:CreateFontString (nil, "overlay", "GameFontNormal")
 		--data_text2:SetText ("Tip: for a best experience, it's recommend leave all turned on.")
-		data_text2:SetText ("Mouse over each slider to see what they represent.")
+		data_text2:SetText (Loc ["STRING_WELCOME_10"])
 		data_text2:SetWidth (460)
 		data_text2:SetHeight (40)
 		data_text2:SetJustifyH ("left")
@@ -348,17 +451,17 @@ function _detalhes:OpenWelcomeWindow ()
 		bg:SetAlpha (.1)
 		bg:SetTexCoord (1, 0, 0, 1)
 		
-		g:NewLabel (window, _, "$parentChangeMind4Label", "changemind4Label", "if you change your mind, you can always modify again through options panel", "GameFontNormal", 9, "orange")
+		g:NewLabel (window, _, "$parentChangeMind4Label", "changemind4Label", Loc ["STRING_WELCOME_11"], "GameFontNormal", 9, "orange")
 		window.changemind4Label:SetPoint ("center", window, "center")
 		window.changemind4Label:SetPoint ("bottom", window, "bottom", 0, 19)
 		window.changemind4Label.align = "|"
 		
 		local texto4 = window:CreateFontString (nil, "overlay", "GameFontNormal")
 		texto4:SetPoint ("topleft", window, "topleft", 20, -80)
-		texto4:SetText ("Some Cool Interface Tweaks:")
+		texto4:SetText (Loc ["STRING_WELCOME_41"])
 		
 		local interval_text = window:CreateFontString (nil, "overlay", "GameFontNormal")
-		interval_text:SetText ("Here you can choose the uptime speed of all opened windows. Low values with dance bars enabled may create cool effects, but may consume more cpu.")
+		interval_text:SetText (Loc ["STRING_WELCOME_12"])
 		interval_text:SetWidth (460)
 		interval_text:SetHeight (40)
 		interval_text:SetJustifyH ("left")
@@ -367,7 +470,7 @@ function _detalhes:OpenWelcomeWindow ()
 		interval_text:SetPoint ("topleft", window, "topleft", 30, -110)
 		
 		local dance_text = window:CreateFontString (nil, "overlay", "GameFontNormal")
-		dance_text:SetText ("Enable 'Dance Bars' for bars animations.")
+		dance_text:SetText (Loc ["STRING_WELCOME_13"])
 		dance_text:SetWidth (460)
 		dance_text:SetHeight (40)
 		dance_text:SetJustifyH ("left")
@@ -376,7 +479,7 @@ function _detalhes:OpenWelcomeWindow ()
 		dance_text:SetPoint ("topleft", window, "topleft", 30, -175)
 		
 	--------------- Update Speed
-		g:NewLabel (window, _, "$parentUpdateSpeedLabel", "updatespeedLabel", "Update Speed")
+		g:NewLabel (window, _, "$parentUpdateSpeedLabel", "updatespeedLabel", Loc ["STRING_WELCOME_14"])
 		window.updatespeedLabel:SetPoint (31, -150)
 		--
 		g:NewSlider (window, _, "$parentSliderUpdateSpeed", "updatespeedSlider", 160, 20, 0.3, 3, 0.1, _detalhes.update_speed, true) --parent, container, name, member, w, h, min, max, step, defaultv
@@ -400,10 +503,10 @@ function _detalhes:OpenWelcomeWindow ()
 		end)
 		updateColor (window.updatespeedSlider, _detalhes.update_speed)
 		
-		window.updatespeedSlider.tooltip = "delay between each update,\ncpu usage may |cFFFF9900increase|r with low values\nand |cFF00FF00slight reduce|r with high values."
+		window.updatespeedSlider.tooltip = Loc ["STRING_WELCOME_15"]
 		
 	--------------- Animate Rows
-		g:NewLabel (window, _, "$parentAnimateLabel", "animateLabel", "Dance Bars")
+		g:NewLabel (window, _, "$parentAnimateLabel", "animateLabel", Loc ["STRING_WELCOME_16"])
 		window.animateLabel:SetPoint (31, -195)
 		--
 		g:NewSwitch (window, _, "$parentAnimateSlider", "animateSlider", 60, 20, _, _, _detalhes.use_row_animations) -- ltext, rtext, defaultv
@@ -411,7 +514,7 @@ function _detalhes:OpenWelcomeWindow ()
 		window.animateSlider.OnSwitch = function (self, _, value) --> slider, fixedValue, sliderValue (false, true)
 			_detalhes.use_row_animations = value
 		end	
-		window.animateSlider.tooltip = "dancing bars is a feature which create animations\nto the left and right directions for all bars.\ncpu usage may |cFFFF9900slight increase|r with this turned on."
+		window.animateSlider.tooltip = Loc ["STRING_WELCOME_17"]
 		
 		pages [#pages+1] = {bg, texto4, interval_text, dance_text, window.updatespeedLabel, window.updatespeedSlider, window.animateLabel, window.animateSlider, window.changemind4Label}
 		
@@ -430,17 +533,17 @@ function _detalhes:OpenWelcomeWindow ()
 		bg44:SetAlpha (.1)
 		bg44:SetTexCoord (1, 0, 0, 1)
 		
-		g:NewLabel (window, _, "$parentChangeMind44Label", "changemind44Label", "if you change your mind, you can always modify again through options panel", "GameFontNormal", 9, "orange")
+		g:NewLabel (window, _, "$parentChangeMind44Label", "changemind44Label", Loc ["STRING_WELCOME_18"], "GameFontNormal", 9, "orange")
 		window.changemind44Label:SetPoint ("center", window, "center")
 		window.changemind44Label:SetPoint ("bottom", window, "bottom", 0, 19)
 		window.changemind44Label.align = "|"
 		
 		local texto44 = window:CreateFontString (nil, "overlay", "GameFontNormal")
 		texto44:SetPoint ("topleft", window, "topleft", 20, -80)
-		texto44:SetText ("Memory Adjustments:")
+		texto44:SetText (Loc ["STRING_WELCOME_19"])
 		
 		local interval_text4 = window:CreateFontString (nil, "overlay", "GameFontNormal")
-		interval_text4:SetText ("The amount of memory used by addons doesn't affect framerate, but, saving memory in computers which doesn't have much of it, may help the whole system. Details! try to be as flexible as possible to keep the game smooth even in not high-end hardware.")
+		interval_text4:SetText (Loc ["STRING_WELCOME_20"])
 		interval_text4:SetWidth (460)
 		interval_text4:SetHeight (60)
 		interval_text4:SetJustifyH ("left")
@@ -459,7 +562,7 @@ function _detalhes:OpenWelcomeWindow ()
 		dance_text:SetPoint ("topleft", window, "topleft", 30, -170)
 		--]]
 	--------------- Max Segments
-		g:NewLabel (window, _, "$parentSliderLabel", "segmentsLabel", "max segments")
+		g:NewLabel (window, _, "$parentSliderLabel", "segmentsLabel", Loc ["STRING_WELCOME_21"])
 		window.segmentsLabel:SetPoint (31, -170)
 		--
 		g:NewSlider (window, _, "$parentSlider", "segmentsSlider", 120, 20, 1, 25, 1, _detalhes.segments_amount) -- min, max, step, defaultv
@@ -467,10 +570,10 @@ function _detalhes:OpenWelcomeWindow ()
 		window.segmentsSlider:SetHook ("OnValueChange", function (self, _, amount) --> slider, fixedValue, sliderValue
 			_detalhes.segments_amount = math.floor (amount)
 		end)
-		window.segmentsSlider.tooltip = "How many segments you want to maintain.\nFeel free to adjust this number to be comfortable for you."
+		window.segmentsSlider.tooltip = Loc ["STRING_WELCOME_22"]
 		
 	--------------- memory
-		g:NewLabel (window, _, "$parentLabelMemory", "memoryLabel", "memory threshold")
+		g:NewLabel (window, _, "$parentLabelMemory", "memoryLabel", Loc ["STRING_WELCOME_23"])
 		window.memoryLabel:SetPoint (31, -185)
 		--
 		g:NewSlider (window, _, "$parentSliderMemory", "memorySlider", 130, 20, 1, 4, 1, _detalhes.memory_threshold) -- min, max, step, defaultv
@@ -496,7 +599,7 @@ function _detalhes:OpenWelcomeWindow ()
 			_detalhes.memory_threshold = amount
 			return true
 		end)
-		window.memorySlider.tooltip = "Details! try adjust it self with the amount of memory\navaliable on your system.\n\nAlso is recommeded keep the amount of\nsegments low if your system have 2gb ram or less."
+		window.memorySlider.tooltip = Loc ["STRING_WELCOME_24"]
 		window.memorySlider.thumb:SetSize (40, 10)
 		window.memorySlider.thumb:SetTexture ([[Interface\Buttons\UI-Listbox-Highlight2]])
 		window.memorySlider.thumb:SetVertexColor (.2, .2, .2, .9)
@@ -506,7 +609,7 @@ function _detalhes:OpenWelcomeWindow ()
 		window.memorySlider:SetValue (t)
 		
 	--------------- Max Segments Saved
-		g:NewLabel (window, _, "$parentLabelSegmentsSave", "segmentsSaveLabel", "segments saved on logout")
+		g:NewLabel (window, _, "$parentLabelSegmentsSave", "segmentsSaveLabel", Loc ["STRING_WELCOME_25"])
 		window.segmentsSaveLabel:SetPoint (31, -200)
 		--
 		g:NewSlider (window, _, "$parentSliderSegmentsSave", "segmentsSliderToSave", 120, 20, 1, 5, 1, _detalhes.segments_amount_to_save) -- min, max, step, defaultv
@@ -535,11 +638,11 @@ function _detalhes:OpenWelcomeWindow ()
 
 		local texto5 = window:CreateFontString (nil, "overlay", "GameFontNormal")
 		texto5:SetPoint ("topleft", window, "topleft", 20, -80)
-		texto5:SetText ("Using the Interface: Stretch")
+		texto5:SetText (Loc ["STRING_WELCOME_26"])
 		
 		local texto_stretch = window:CreateFontString (nil, "overlay", "GameFontNormal")
 		texto_stretch:SetPoint ("topleft", window, "topleft", 181, -105)
-		texto_stretch:SetText ("- When you have the mouse over a Details! window, a |cFFFFFF00small hook|r will appear over the instance button. |cFFFFFF00Click, hold and pull|r up to |cFFFFFF00stretch|r the window, releasing the mouse click, the window |cFFFFFF00back to original|r size.\n\n- If you miss a |cFFFFBB00scroll bar|r, you can active it on the options panel.")
+		texto_stretch:SetText (Loc ["STRING_WELCOME_27"])
 		texto_stretch:SetWidth (310)
 		texto_stretch:SetHeight (100)
 		texto_stretch:SetJustifyH ("left")
@@ -572,11 +675,11 @@ function _detalhes:OpenWelcomeWindow ()
 
 		local texto6 = window:CreateFontString (nil, "overlay", "GameFontNormal")
 		texto6:SetPoint ("topleft", window, "topleft", 20, -80)
-		texto6:SetText ("Using the Interface: Instance Button")
+		texto6:SetText (Loc ["STRING_WELCOME_28"])
 		
 		local texto_instance_button = window:CreateFontString (nil, "overlay", "GameFontNormal")
 		texto_instance_button:SetPoint ("topleft", window, "topleft", 25, -105)
-		texto_instance_button:SetText ("Instance button basically do three things:\n\n- show |cFFFFFF00what instance|r is it through the |cFFFFFF00#number|r,\n- open a |cFFFFFF00new instance|r window when clicked.\n- show a menu with |cFFFFFF00closed instances|r which can be reopen at any one.")
+		texto_instance_button:SetText (Loc ["STRING_WELCOME_29"])
 		texto_instance_button:SetWidth (270)
 		texto_instance_button:SetHeight (100)
 		texto_instance_button:SetJustifyH ("left")
@@ -609,11 +712,11 @@ function _detalhes:OpenWelcomeWindow ()
 
 		local texto7 = window:CreateFontString (nil, "overlay", "GameFontNormal")
 		texto7:SetPoint ("topleft", window, "topleft", 20, -80)
-		texto7:SetText ("Using the Interface: Fast Switch Panel (shortcuts)")
+		texto7:SetText (Loc ["STRING_WELCOME_30"])
 		
 		local texto_shortcut = window:CreateFontString (nil, "overlay", "GameFontNormal")
 		texto_shortcut:SetPoint ("topleft", window, "topleft", 25, -110)
-		texto_shortcut:SetText ("- Right clicking |cFFFFFF00over a row|r or in the background opens the |cFFFFFF00shortcut menu|r.\n- You can choose which |cFFFFFF00attribute|r the shortcut will have by |cFFFFFF00right clicking|r his icon.\n- Left click |cFFFFFF00selects|r the shortcut attribute and |cFFFFFF00display|r it on the instance\n- Right click anywhere |cFFFFFF00closes|r the switch panel.")
+		texto_shortcut:SetText (Loc ["STRING_WELCOME_31"])
 		texto_shortcut:SetWidth (320)
 		texto_shortcut:SetHeight (90)
 		texto_shortcut:SetJustifyH ("left")
@@ -653,11 +756,11 @@ function _detalhes:OpenWelcomeWindow ()
 
 		local texto77 = window:CreateFontString (nil, "overlay", "GameFontNormal")
 		texto77:SetPoint ("topleft", window, "topleft", 20, -80)
-		texto77:SetText ("Using the Interface: Snap Instances")
+		texto77:SetText (Loc ["STRING_WELCOME_32"])
 		
 		local texto_snap = window:CreateFontString (nil, "overlay", "GameFontNormal")
 		texto_snap:SetPoint ("topleft", window, "topleft", 25, -101)
-		texto_snap:SetText ("You can |cFFFFFF00snap windows|r in vertical or horizontal. A window always snap with |cFFFFFF00previous instance number|r: like the image in the right, instance |cFFFFFF00#5|r snapped with |cFFFFFF00#4|r. When a snapped window is stretched, all other instances in the |cFFFFFF00cluster are also|r stretched.")
+		texto_snap:SetText (Loc ["STRING_WELCOME_33"])
 		texto_snap:SetWidth (160)
 		texto_snap:SetHeight (110)
 		texto_snap:SetJustifyH ("left")
@@ -693,11 +796,11 @@ function _detalhes:OpenWelcomeWindow ()
 
 		local texto88 = window:CreateFontString (nil, "overlay", "GameFontNormal")
 		texto88:SetPoint ("topleft", window, "topleft", 20, -80)
-		texto88:SetText ("Using the Interface: Micro Display")
+		texto88:SetText (Loc ["STRING_WELCOME_34"])
 		--|cFFFFFF00
 		local texto_micro_display = window:CreateFontString (nil, "overlay", "GameFontNormal")
 		texto_micro_display:SetPoint ("topleft", window, "topleft", 25, -101)
-		texto_micro_display:SetText ("All instances have three |cFFFFFF00mini widgets|r located at the bottom of window. |cFFFFFF00Right clicking|r pops up a menu and with |cFFFFFF00left click|r displays a options panel for that widget.")
+		texto_micro_display:SetText (Loc ["STRING_WELCOME_35"])
 		texto_micro_display:SetWidth (160)
 		texto_micro_display:SetHeight (110)
 		texto_micro_display:SetJustifyH ("left")
@@ -732,11 +835,11 @@ function _detalhes:OpenWelcomeWindow ()
 
 		local texto11 = window:CreateFontString (nil, "overlay", "GameFontNormal")
 		texto11:SetPoint ("topleft", window, "topleft", 20, -80)
-		texto11:SetText ("Using the Interface: Plugins")
+		texto11:SetText (Loc ["STRING_WELCOME_36"])
 		--|cFFFFFF00
 		local texto_plugins = window:CreateFontString (nil, "overlay", "GameFontNormal")
 		texto_plugins:SetPoint ("topleft", window, "topleft", 25, -101)
-		texto_plugins:SetText ("|cFFFFFF00Threat, tank avoidance, and others|r are handled by |cFFFFFF00plugins|r. You can open a new instance, select '|cFFFFFF00Widgets|r' and choose what you want at |cFFFFFF00sword|r menu.\n\nTip: click over a bar on |cFFFFFF00Vanguard|r to show avoidance numbers.")
+		texto_plugins:SetText (Loc ["STRING_WELCOME_37"])
 		texto_plugins:SetWidth (220)
 		texto_plugins:SetHeight (110)
 		texto_plugins:SetJustifyH ("left")
@@ -771,11 +874,11 @@ function _detalhes:OpenWelcomeWindow ()
 
 		local texto8 = window:CreateFontString (nil, "overlay", "GameFontNormal")
 		texto8:SetPoint ("topleft", window, "topleft", 20, -80)
-		texto8:SetText ("Ready to Raid!")
+		texto8:SetText (Loc ["STRING_WELCOME_38"])
 		
 		local texto = window:CreateFontString (nil, "overlay", "GameFontNormal")
 		texto:SetPoint ("topleft", window, "topleft", 25, -110)
-		texto:SetText ("Thank you for choosing Details!\n\nFeel free to always send feedbacks and bug reports to us (|cFFBBFFFFuse the fifth button a blue one|r), we appreciate.")
+		texto:SetText (Loc ["STRING_WELCOME_39"])
 		texto:SetWidth (410)
 		texto:SetHeight (90)
 		texto:SetJustifyH ("left")

@@ -960,6 +960,7 @@ function EncounterDetails:OpenAndRefresh()
 				if (not barra) then
 					barra = EncounterDetails:CreateRow (index, container)
 					barra:SetWidth (160)
+					
 					barra._no_report = true
 
 					--> criar 2 botão: um para o dano que add deu e outro para o dano que o add tomou
@@ -1017,9 +1018,11 @@ function EncounterDetails:OpenAndRefresh()
 				end
 
 				barra.texto_esquerdo:SetText (addName)
-				barra.texto_direita:SetText (_detalhes:comma_value (esta_tabela.total))
 				
-				_detalhes:name_space (barra)
+				--barra.texto_direita:SetText (_detalhes:comma_value (esta_tabela.total))
+				barra.texto_direita:SetText (_detalhes:ToK (esta_tabela.total))
+				
+				barra.texto_esquerdo:SetSize (barra:GetWidth() - barra.texto_direita:GetStringWidth() - 34, 15)
 				
 				barra.jogador = esta_tabela --> barra.jogador agora tem a tabela com --> [1] total dano causado [2] jogadores que foram alvos [3] jogadores que castaram essa magia [4] ID da magia
 				

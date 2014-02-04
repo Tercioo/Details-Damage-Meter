@@ -259,6 +259,8 @@ function _G._detalhes:Start()
 		_detalhes:OpenWelcomeWindow()
 	end
 	
+	--_detalhes:OpenWelcomeWindow()
+	
 	if (self.tutorial.logons < 5) then
 		self:StartTutorial()
 	end
@@ -401,4 +403,92 @@ function _G._detalhes:Start()
 	end
 	print ("---------------")
 	--]]
+	
+	
+	-- bubble test 
+	local f = CreateFrame ("frame", "DetailsBubble", UIParent)
+	f:SetPoint ("center", UIParent, "center")
+	f:SetSize (100, 100)
+	f:SetFrameStrata ("TOOLTIP")
+	f.isHorizontalFlipped = false
+	f.isVerticalFlipped = false
+	
+	local t = f:CreateTexture (nil, "artwork")
+	t:SetTexture ([[Interface\AddOns\Details\images\icons]])
+	t:SetSize (131 * 1.2, 81 * 1.2)
+	--377 328 508 409  0.0009765625
+	t:SetTexCoord (0.7373046875, 0.9912109375, 0.6416015625, 0.7978515625)
+	t:SetPoint ("center", f, "center")
+	local text = f:CreateFontString (nil, "overlay", "GameFontHighlight")
+	text:SetPoint ("topleft", t, "topleft", 24, -15)
+	_detalhes:SetFontSize (text, 9)
+	text:SetTextColor (.9, .9, .9, 1)
+	text:SetSize (120, 50)
+	text:SetJustifyV ("top")
+	text:SetJustifyH ("left")
+	f.text = text
+	
+	function f:FlipHorizontal()
+		if (not f.isHorizontalFlipped) then
+			if (f.isVerticalFlipped) then
+				t:SetTexCoord (0.9912109375, 0.7373046875, 0.7978515625, 0.6416015625)
+			else
+				t:SetTexCoord (0.9912109375, 0.7373046875, 0.6416015625, 0.7978515625)
+			end
+			f.isHorizontalFlipped = true
+		else
+			if (f.isVerticalFlipped) then
+				t:SetTexCoord (0.7373046875, 0.9912109375, 0.7978515625, 0.6416015625)
+			else
+				t:SetTexCoord (0.7373046875, 0.9912109375, 0.6416015625, 0.7978515625)
+			end
+			f.isHorizontalFlipped = false
+		end
+	end
+	
+	function f:FlipVertical()
+	
+		if (not f.isVerticalFlipped) then
+			if (f.isHorizontalFlipped) then
+				t:SetTexCoord (0.7373046875, 0.9912109375, 0.7978515625, 0.6416015625)
+			else
+				t:SetTexCoord (0.9912109375, 0.7373046875, 0.7978515625, 0.6416015625)
+			end
+			f.isVerticalFlipped = true
+		else
+			if (f.isHorizontalFlipped) then
+				t:SetTexCoord (0.7373046875, 0.9912109375, 0.6416015625, 0.7978515625)
+			else
+				t:SetTexCoord (0.9912109375, 0.7373046875, 0.6416015625, 0.7978515625)
+			end
+			f.isVerticalFlipped = false
+		end
+	end
+	
+	function f:SetBubbleText (text)
+		f.text:SetText (text)
+	end
+	
+	function f:SetOwner (frame, myPoint, hisPoint, x, y)
+		f:ClearAllPoints()
+		f.text:SetText ("")
+		t:SetTexCoord (0.7373046875, 0.9912109375, 0.6416015625, 0.7978515625)
+		f.isHorizontalFlipped = false
+		f.isVerticalFlipped = false
+		f:SetPoint (myPoint or "bottom", frame, hisPoint or "top", x or 0, y or 0)
+	end
+	
+	function f:ShowBubble()
+		f:Show()
+	end
+	
+	function f:HideBubble()
+		f:Hide()
+	end
+	
+	f:SetBubbleText ("Teste do Texto da Bub ble testo texto e mais texto dentro da dubble. continuando o texto dentro da bubble pra ver ate onde ele vai")
+	
+	f:Hide()
+	
 end
+

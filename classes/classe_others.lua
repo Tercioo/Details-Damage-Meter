@@ -372,7 +372,7 @@ function atributo_misc:DeadAtualizarBarra (morte, qual_barra, colocacao, instanc
 	--return self:RefreshBarra2 (esta_barra, instancia, tabela_anterior, forcar, esta_porcentagem)
 end
 
-function atributo_misc:RefreshWindow (instancia, tabela_do_combate, forcar, exportar)
+function atributo_misc:RefreshWindow (instancia, tabela_do_combate, forcar, exportar, refresh_needed)
 	
 	local showing = tabela_do_combate [class_type] --> o que esta sendo mostrado -> [1] - dano [2] - cura --> pega o container com ._NameIndexTable ._ActorTable
 	
@@ -500,7 +500,7 @@ function atributo_misc:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 			instancia.top = conteudo[1][keyName]
 	
 		elseif (modo == modo_ALL) then --> mostrando ALL
-
+		
 			_table_sort (conteudo, _detalhes.SortIfHaveKey)
 			
 			--> não mostrar resultados com zero
@@ -520,8 +520,10 @@ function atributo_misc:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 		
 		elseif (modo == modo_GROUP) then --> mostrando GROUP
 		
-			_table_sort (conteudo, _detalhes.SortGroupIfHaveKey)
-		
+			--if (refresh_needed) then
+				_table_sort (conteudo, _detalhes.SortGroupIfHaveKey)
+			--end
+			
 			for index, player in _ipairs (conteudo) do
 				--if (_bit_band (player.flag, DFLAG_player_group) >= 0x101) then --> é um player e esta em grupo
 				if (player.grupo) then --> é um player e esta em grupo

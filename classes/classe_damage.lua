@@ -527,7 +527,7 @@ end
 local ntable = {}
 local vtable = {}
 
-function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, exportar)
+function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, exportar, refresh_needed)
 	
 	local showing = tabela_do_combate [class_type] --> o que esta sendo mostrado -> [1] - dano [2] - cura --> pega o container com ._NameIndexTable ._ActorTable
 

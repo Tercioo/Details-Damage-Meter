@@ -2268,7 +2268,7 @@ function gump:CriaNovaBarra (instancia, index)
 	esta_barra:RegisterForClicks ("LeftButtonDown", "RightButtonDown")
 
 	esta_barra.statusbar = CreateFrame ("StatusBar", nil, esta_barra)
-	esta_barra.statusbar:SetAllPoints (esta_barra)
+	--esta_barra.statusbar:SetAllPoints (esta_barra)
 	
 	esta_barra.textura = esta_barra.statusbar:CreateTexture (nil, "artwork")
 	esta_barra.textura:SetHorizTile (false)
@@ -2286,25 +2286,22 @@ function gump:CriaNovaBarra (instancia, index)
 	esta_barra.statusbar:SetValue (100)
 
 	local icone_classe = esta_barra.statusbar:CreateTexture (nil, "overlay")
-	icone_classe:SetPoint ("left", esta_barra.statusbar, "left")
 	icone_classe:SetHeight (instancia.row_info.height)
 	icone_classe:SetWidth (instancia.row_info.height)
 	icone_classe:SetTexture ([[Interface\AddOns\Details\images\classes_small]])
 	icone_classe:SetTexCoord (.75, 1, .75, 1)
 	esta_barra.icone_classe = icone_classe
 
+	icone_classe:SetPoint ("left", esta_barra, "left")
+	
+	esta_barra.statusbar:SetPoint ("topleft", icone_classe, "topright")
+	esta_barra.statusbar:SetPoint ("bottomright", esta_barra, "bottomright")
+	
 	esta_barra.texto_esquerdo = esta_barra.statusbar:CreateFontString (nil, "overlay", "GameFontHighlight")
 
 	esta_barra.texto_esquerdo:SetPoint ("left", esta_barra.icone_classe, "right", 3, 0)
 	esta_barra.texto_esquerdo:SetJustifyH ("left")
 	esta_barra.texto_esquerdo:SetNonSpaceWrap (true)
-
-	local icone_terceiro = esta_barra.statusbar:CreateTexture (nil, "overlay")
-	icone_terceiro:SetPoint ("left", esta_barra.statusbar, "left", 2, 0)
-	icone_terceiro:SetHeight (instancia.row_info.height)
-	icone_terceiro:SetWidth (instancia.row_info.height)
-	esta_barra.icone_terceiro = icone_terceiro
-	esta_barra.icone_terceiro:Hide()	
 
 	esta_barra.texto_direita = esta_barra.statusbar:CreateFontString (nil, "overlay", "GameFontHighlight")
 
@@ -2480,8 +2477,6 @@ function _detalhes:InstanceRefreshRows (instancia)
 		row:SetHeight (height)
 		row.icone_classe:SetHeight (height)
 		row.icone_classe:SetWidth (height)
-		row.icone_terceiro:SetHeight (height)
-		row.icone_terceiro:SetWidth (height)
 	
 		if (not self.row_info.texture_background_class_color) then
 			local c = self.row_info.fixed_texture_background_color

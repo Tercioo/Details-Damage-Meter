@@ -821,7 +821,8 @@ local siege_of_orgrimmar = {
 			phases = { 
 				{ --> phase 1: Might of the Kor'kron
 					adds = {
-						71454 --Malkorok
+						71454, --Malkorok
+						71644 --living corruption
 					},
 					spells = {
 						142861, --Ancient Miasma

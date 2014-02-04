@@ -829,10 +829,15 @@ Message: ..\AddOns\Details_EncounterDetails\frames.lua line 156:
 
 		mouseOver_adds_frame:SetScript ("OnEnter", 
 			function() 
+				_G.DetailsBubble:SetOwner (mouseOver_adds_frame.imagem, nil, nil, -45, -22)
+				_G.DetailsBubble:FlipHorizontal()
+				_G.DetailsBubble:SetBubbleText (Loc ["STRING_ADDS_HELP"])
+				_G.DetailsBubble:ShowBubble()
 				mouseOver_adds_frame.imagem:SetTexCoord (0.7734375, 0.99609375, 0.03125, 0.3671875)
 			end)
 		mouseOver_adds_frame:SetScript ("OnLeave", 
 			function() 
+				_G.DetailsBubble:HideBubble()
 				mouseOver_adds_frame.imagem:SetTexCoord (0.52734375, 0.7421875, 0.03125, 0.3671875)
 			end)
 		
@@ -901,10 +906,15 @@ Message: ..\AddOns\Details_EncounterDetails\frames.lua line 156:
 		
 		mouseOver_interrupt_frame:SetScript ("OnEnter", 
 			function()
+				_G.DetailsBubble:SetOwner (mouseOver_interrupt_frame.imagem, nil, nil, 40, -18)
+				--_G.DetailsBubble:FlipHorizontal()
+				_G.DetailsBubble:SetBubbleText (Loc ["STRING_INTERRIPT_HELP"])
+				_G.DetailsBubble:ShowBubble()
 				mouseOver_interrupt_frame.imagem:SetTexCoord (0.6015625, 1, 0.4296875, 0.6953125)
 			end)
 		mouseOver_interrupt_frame:SetScript ("OnLeave", 
 			function()
+				_G.DetailsBubble:HideBubble()
 				mouseOver_interrupt_frame.imagem:SetTexCoord (0.6015625, 1, 0.734375, 0.9765625)
 			end)
 
@@ -973,10 +983,15 @@ Message: ..\AddOns\Details_EncounterDetails\frames.lua line 156:
 		
 		mouseOver_dispell_frame:SetScript ("OnEnter", 
 			function()
+				_G.DetailsBubble:SetOwner (mouseOver_dispell_frame.imagem, nil, nil, -45, -22)
+				_G.DetailsBubble:FlipHorizontal()
+				_G.DetailsBubble:SetBubbleText (Loc ["STRING_DISPELL_HELP"])
+				_G.DetailsBubble:ShowBubble()
 				mouseOver_dispell_frame.imagem:SetTexCoord (0.1796875, 0.3359375, 0.4140625, 0.71875)
 			end)
 		mouseOver_dispell_frame:SetScript ("OnLeave", 
 			function()
+				_G.DetailsBubble:HideBubble()
 				mouseOver_dispell_frame.imagem:SetTexCoord (0, 0.15625, 0.4140625, 0.71875)
 			end)	
 	
@@ -1046,12 +1061,17 @@ Message: ..\AddOns\Details_EncounterDetails\frames.lua line 156:
 		
 		mouseOver_dead_frame:SetScript ("OnEnter", 
 			function()
+				_G.DetailsBubble:SetOwner (mouseOver_dead_frame.imagem, nil, nil, 40, -18)
+				--_G.DetailsBubble:FlipHorizontal()
+				_G.DetailsBubble:SetBubbleText (Loc ["STRING_DEATHS_HELP"])
+				_G.DetailsBubble:ShowBubble()
 				mouseOver_dead_frame.imagem:SetTexCoord (0.171875, 0.3359375, 0.03125, 0.34375)
 			end)
 		mouseOver_dead_frame:SetScript ("OnLeave", 
 			function()
+				_G.DetailsBubble:HideBubble()
 				mouseOver_dead_frame.imagem:SetTexCoord (0, 0.1640625, 0.03125, 0.34375)
-			end)			
+			end)
 		
 		container_dead_frame:SetScript ("OnMouseDown",  mouse_down)
 		container_dead_frame:SetScript ("OnMouseUp", mouse_up)

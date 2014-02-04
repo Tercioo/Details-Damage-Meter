@@ -80,6 +80,7 @@ local function CreatePluginFrames (data)
 			SpellDetails:Refresh()
 			
 		elseif (event == "COMBAT_PLAYER_TIMESTARTED") then --> combat started
+
 			if (not SpellDetailsFrame:GetScript ("OnUpdate")) then
 				_detalhes:RegisterEvent (SpellDetails, "BUFF_UPDATE") --> register buffs on player
 				_detalhes:RegisterEvent (SpellDetails, "BUFF_UPDATE_DEBUFFPOWER") --> register debuffs wich player cast on oponents
@@ -956,10 +957,10 @@ local function CreatePluginFrames (data)
 			
 			local MySelf
 			if (_detalhes.SoloTables.CombatID == _detalhes:NumeroCombate()) then
-				MySelf = _detalhes.tabela_vigente (_detalhes.SoloTables.Attribute, _detalhes.playername)
+				MySelf = _detalhes.tabela_vigente (DETAILS_ATTRIBUTE_DAMAGE, _detalhes.playername)
 			else
 				local vigente = _detalhes.tabela_historico.tabelas[_detalhes:NumeroCombate() - _detalhes.SoloTables.CombatID]
-				MySelf = vigente (_detalhes.SoloTables.Attribute, _detalhes.playername)
+				MySelf = vigente (DETAILS_ATTRIBUTE_DAMAGE, _detalhes.playername)
 			end
 
 			if (MySelf) then
@@ -984,7 +985,7 @@ local function CreatePluginFrames (data)
 	end	
 
 	function SpellDetails:ForceUpdateUpDisplay()
-		local MySelf = _detalhes.tabela_vigente (_detalhes.SoloTables.Attribute, _detalhes.playername)
+		local MySelf = _detalhes.tabela_vigente (DETAILS_ATTRIBUTE_DAMAGE, _detalhes.playername)
 		if (MySelf and MySelf.end_time and MySelf.start_time) then
 			local tempo_in_combat = MySelf.end_time - MySelf.start_time
 			SpellDetails.SummaryLine.time:SetText (Loc ["STRING_TEMPO"]..":".." ".._string_format ("%.1f", tempo_in_combat))
@@ -1036,7 +1037,7 @@ local function CreatePluginFrames (data)
 		end
 
 		-- self.atributo <- retorna o que esta sendo mostrado na instancia
-		local atributo = _detalhes.SoloTables.Attribute
+		local atributo = DETAILS_ATTRIBUTE_DAMAGE
 		local MySelf
 		
 		if (_detalhes.SoloTables.CombatID == _detalhes:NumeroCombate()) then
@@ -1126,7 +1127,7 @@ local function CreatePluginFrames (data)
 		
 		local MySelf
 		if (SoloCombatID == _detalhes:NumeroCombate()) then
-			MySelf = _detalhes.tabela_vigente (_detalhes.SoloTables.Attribute, _detalhes.playername)
+			MySelf = _detalhes.tabela_vigente (DETAILS_ATTRIBUTE_DAMAGE, _detalhes.playername)
 			CombatTable = _detalhes.tabela_vigente
 		else
 			if (_detalhes.SoloTables.CombatID == 0) then
@@ -1138,7 +1139,7 @@ local function CreatePluginFrames (data)
 				--print ("!Vigente> solo_id = "..SoloCombatID.." <> " .. _detalhes:NumeroCombate() .. " table: " .. (_detalhes:NumeroCombate() - SoloCombatID))
 				return
 			end
-			MySelf = vigente (_detalhes.SoloTables.Attribute, _detalhes.playername)
+			MySelf = vigente (DETAILS_ATTRIBUTE_DAMAGE, _detalhes.playername)
 			CombatTable = vigente
 		end
 
