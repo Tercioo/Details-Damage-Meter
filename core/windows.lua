@@ -569,6 +569,10 @@
 				if (lower_instance) then
 				local instance = _detalhes:GetInstance (lower_instance)
 			
+				if (_detalhes.MicroButtonAlert:IsShown()) then
+					return _detalhes:ScheduleTimer ("delay_tutorial", 2)
+				end
+			
 				if (not _detalhes.tutorial.alert_frames [1]) then
 				
 					_detalhes.MicroButtonAlert.Text:SetText (Loc ["STRING_MINITUTORIAL_1"])
@@ -619,10 +623,11 @@
 					_detalhes.MicroButtonAlert:Show()
 					_detalhes.tutorial.alert_frames [6] = true
 				
+					return --> colocando return pra nao rodar o schedule infinitamente
 				end
 			end
 			--
-			_detalhes:ScheduleTimer ("delay_tutorial", 60)
+			_detalhes:ScheduleTimer ("delay_tutorial", 2)
 		end
 	
 		-- [1] criar nova instancia

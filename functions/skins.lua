@@ -128,6 +128,13 @@ local _
 		close_button_anchor_bottom = {-2, 0},
 		right_corner_anchor_bottom = {96, 0},
 
+		--[[ callback function execute after all changes on the window, first argument is this skin table, second is the instance where the skin was applied --]]
+		callback = function (self, instance) end,
+		--[[ control_script is a OnUpdate script, it start right after all changes on the window and also after the callback --]]
+		--[[ control_script_on_start run before the control_script, use it to reset values if needed --]]
+		control_script_on_start = nil,
+		control_script = nil,
+		
 		--instance overwrites
 		--[[ when a skin is selected, all customized properties of the window is reseted and then the overwrites are applied]]
 		--[[ for the complete cprop list see the file classe_instancia_include.lua]]

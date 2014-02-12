@@ -3490,6 +3490,12 @@ function _detalhes:ChangeSkin (skin_name)
 
 	if (not just_updating) then
 
+		--> skin updater
+		if (self.bgframe.skin_script) then
+			self.bgframe:SetScript (nil)
+			self.bgframe.skin_script = false
+		end
+	
 		--> reset all config
 			self:ResetInstanceConfig()
 	
@@ -3741,6 +3747,21 @@ function _detalhes:ChangeSkin (skin_name)
 		if (_G.DetailsOptionsWindow and _G.DetailsOptionsWindow:IsShown()) then
 			_detalhes:OpenOptionsWindow (self)
 		end
+	
+	if (not just_updating) then
+		if (this_skin.callback) then
+			this_skin:callback (self)
+		end
+		
+		if (this_skin.control_script) then
+			if (this_skin.control_script_on_start) then
+				this_skin:control_script_on_start (self)
+			end
+			self.bgframe:SetScript ("OnUpdate", this_skin.control_script)
+			self.bgframe.skin_script = true
+		end
+		
+	end
 	
 end
 

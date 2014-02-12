@@ -768,6 +768,8 @@ end
 		
 		--> all done
 			new_instance:AtivarInstancia()
+			
+		new_instance:ShowSideBars()
 
 		return new_instance
 	end

@@ -106,7 +106,17 @@ function SlashCmdList.DETAILS (msg, editbox)
 		end
 		
 		_detalhes:Msg ("pet table has been saved on current combat.")
+
+	elseif (msg == "move") then
 	
+		print ("moving...")
+		
+		local instance = _detalhes.tabela_instancias [1]
+		instance.baseframe:ClearAllPoints()
+		--instance.baseframe:SetPoint ("CENTER", UIParent, "CENTER", 300, 100)
+		instance.baseframe:SetPoint ("left", DetailsWelcomeWindow, "right", 10, 0)
+	
+		
 	elseif (msg == "time") then
 		print ("GetTime()", GetTime())
 		print ("time()", time())
