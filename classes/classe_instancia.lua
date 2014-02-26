@@ -267,7 +267,7 @@ end
 		--gump:Fade (self.baseframe.cabecalho.ball, _unpack (_detalhes.windows_fade_out))
 		--gump:Fade (self.baseframe, _unpack (_detalhes.windows_fade_out))
 		
-		gump:Fade (self.baseframe.cabecalho.atributo_icon, 0)
+		--gump:Fade (self.baseframe.cabecalho.atributo_icon, 0)
 		gump:Fade (self.baseframe.cabecalho.ball, 0)
 		gump:Fade (self.baseframe, 0)
 		
@@ -876,13 +876,15 @@ function _detalhes:RestauraJanela (index, temp)
 		self:ReajustaGump()
 		self:SaveMainWindowPosition()
 		
+		-- chama 6 vezes a função de mudar skin...
+		
 		self:DefaultIcons (true, true, true, true)
 		
 		self.iniciada = true
 		self:AtivarInstancia (temp)
 		
 		self:ChangeSkin()
-
+		
 	--> all done
 	
 end

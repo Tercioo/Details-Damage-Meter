@@ -128,6 +128,12 @@
 		return 1 + (x - rangeMin) * (scaleMax - scaleMin) / (rangeMax - rangeMin)
 	end
 
+	--> font color
+	function _detalhes:SetFontColor (fontString, r, g, b, a)
+		r, g, b, a = gump:ParseColors (r, g, b, a)
+		fontString:SetTextColor (r, g, b, a)
+	end
+	
 	--> font size
 	function _detalhes:SetFontSize (fontString, ...)
 		local fonte, _, flags = fontString:GetFont()

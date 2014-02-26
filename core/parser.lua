@@ -104,10 +104,12 @@
 	--> hooks
 		local _hook_cooldowns = false
 		local _hook_deaths = false
-		local _hook_buffs = false
+		local _hook_battleress = false
+		local _hook_buffs = false --[[REMOVED]]
 		local _hook_cooldowns_container = _detalhes.hooks ["HOOK_COOLDOWN"]
 		local _hook_deaths_container = _detalhes.hooks ["HOOK_DEATH"]
-		local _hook_buffs_container = _detalhes.hooks ["HOOK_BUFF"]
+		local _hook_battleress_container = _detalhes.hooks ["HOOK_BATTLERESS"]
+		local _hook_buffs_container = _detalhes.hooks ["HOOK_BUFF"] --[[REMOVED]]
 	
 
 
@@ -1963,6 +1965,13 @@
 					end
 				end
 			end
+			
+			if (_hook_battleress) then
+				for _, func in _ipairs (_hook_battleress_container) do 
+					func (nil, token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname)
+				end
+			end
+			
 		end	
 		
 		--> actor targets
@@ -2773,10 +2782,16 @@
 			_hook_deaths = false
 		end
 		
-		if (_detalhes.hooks ["HOOK_BUFF"].enabled) then
+		if (_detalhes.hooks ["HOOK_BUFF"].enabled) then --[[REMOVED]]
 			_hook_buffs = true
 		else
 			_hook_buffs = false
+		end
+		
+		if (_detalhes.hooks ["HOOK_BATTLERESS"].enabled) then
+			_hook_battleress = true
+		else
+			_hook_battleress = false
 		end
 
 		return _detalhes:ClearParserCache()

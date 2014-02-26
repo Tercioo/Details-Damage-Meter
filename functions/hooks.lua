@@ -7,14 +7,19 @@
 
 	--[[global]] DETAILS_HOOK_COOLDOWN = "HOOK_COOLDOWN"
 	--[[global]] DETAILS_HOOK_DEATH = "HOOK_DEATH"
-	--[[global]] DETAILS_HOOK_BUFF = "HOOK_BUFF"
+	--[[global]] DETAILS_HOOK_BATTLERESS = "HOOK_BATTLERESS"
+	
+	--[[global]] DETAILS_HOOK_BUFF = "HOOK_BUFF" --[[REMOVED--]]
+	
 	
 	local _detalhes = _G._detalhes
 	local _
 	
 	_detalhes.hooks ["HOOK_COOLDOWN"] = {}
 	_detalhes.hooks ["HOOK_DEATH"] = {}
-	_detalhes.hooks ["HOOK_BUFF"] = {}
+	_detalhes.hooks ["HOOK_BATTLERESS"] = {}
+	
+	_detalhes.hooks ["HOOK_BUFF"] = {} --[[REMOVED--]]
 	
 	function _detalhes:InstallHook (hook_type, func)
 	

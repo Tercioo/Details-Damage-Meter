@@ -3711,7 +3711,7 @@ function _detalhes:ChangeSkin (skin_name)
 		self:SetCloseButtonSettings()
 	
 	--> update toolbar
-		self:ToolbarSide()
+		self:ToolbarSide() -- aqui
 	
 	--> update stretch button
 		self:StretchButtonAnchor()
@@ -3725,7 +3725,7 @@ function _detalhes:ChangeSkin (skin_name)
 
 	--> update statusbar
 		if (self.show_statusbar) then
-			self:ShowStatusBar()
+			self:ShowStatusBar() -- aqui
 		else
 			self:HideStatusBar()
 		end
@@ -3844,6 +3844,7 @@ function _detalhes:ToolbarSide (side)
 	end
 	
 	self:StretchButtonAnchor()
+	
 	self:HideMainIcon()
 	
 	if (self.show_sidebars) then
@@ -3960,11 +3961,12 @@ end
 
 function _detalhes:HideMainIcon (value)
 
-	if (value == nil) then
+	if (type (value) ~= "boolean") then
 		value = self.hide_icon
 	end
 
 	if (value) then
+	
 		self.hide_icon = true
 		self.baseframe.cabecalho.atributo_icon:Hide()
 		self.baseframe.cabecalho.ball:SetParent (self.baseframe)
