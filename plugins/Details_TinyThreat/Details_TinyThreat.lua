@@ -113,6 +113,10 @@ local function CreatePluginFrames (data)
 		elseif (event == "DETAILS_INSTANCE_ENDSTRETCH") then
 			ThreatMeterFrame:SetFrameStrata ("MEDIUM")
 			
+		elseif (event == "PLUGIN_DISABLED") then
+			
+		elseif (event == "PLUGIN_ENABLED") then
+			
 		end
 	end
 	
@@ -364,7 +368,7 @@ function ThreatMeter:OnEvent (_, event, ...)
 				local MINIMAL_DETAILS_VERSION_REQUIRED = 1
 				
 				--> Install
-				local install = _G._detalhes:InstallPlugin ("TANK", Loc ["STRING_PLUGIN_NAME"], "Interface\\Icons\\Ability_Paladin_ShieldofVengeance", ThreatMeter, "DETAILS_PLUGIN_TINY_THREAT", MINIMAL_DETAILS_VERSION_REQUIRED)
+				local install = _G._detalhes:InstallPlugin ("TANK", Loc ["STRING_PLUGIN_NAME"], "Interface\\Icons\\Ability_Paladin_ShieldofVengeance", ThreatMeter, "DETAILS_PLUGIN_TINY_THREAT", MINIMAL_DETAILS_VERSION_REQUIRED, "Details! Team", "v1.02")
 				if (type (install) == "table" and install.error) then
 					print (install.error)
 				end

@@ -26,7 +26,7 @@ function _detalhes:OpenOptionsWindow (instance)
 	
 		-- Most of details widgets have the same 6 first parameters: parent, container, global name, parent key, width, height
 	
-		window = g:NewPanel (UIParent, _, "DetailsOptionsWindow", _, 717, 373)
+		window = g:NewPanel (UIParent, _, "DetailsOptionsWindow", _, 717, 434)
 		window.instance = instance
 		tinsert (UISpecialFrames, "DetailsOptionsWindow")
 		window:SetPoint ("center", UIParent, "Center")
@@ -34,11 +34,11 @@ function _detalhes:OpenOptionsWindow (instance)
 		window.close_with_right = true
 		window.backdrop = nil
 		
-		local background = g:NewImage (window, _, "$parentBackground", "background", 717, 373, [[Interface\AddOns\Details\images\options_window]])
+		local background = g:NewImage (window, _, "$parentBackground", "background", 717, 434, [[Interface\AddOns\Details\images\options_window]])
 		background:SetPoint (0, 0)
 		background:SetDrawLayer ("border")
-		background:SetTexCoord (0, 0.699707, 0, 0.363769)
-		
+		background:SetTexCoord (0, 0.699707, 0, 0.423828125)
+
 		local bigdog = g:NewImage (window, _, "$parentBackgroundBigDog", "backgroundBigDog", 180, 200, [[Interface\MainMenuBar\UI-MainMenuBar-EndCap-Human]])
 		bigdog:SetPoint ("bottomright", window, "bottomright", -8, 36)
 		bigdog:SetAlpha (.1)
@@ -58,7 +58,7 @@ function _detalhes:OpenOptionsWindow (instance)
 		local editing = g:NewLabel (window, nil, nil, "editing", Loc ["STRING_OPTIONS_GENERAL"], "QuestFont_Large", 20, "white")
 		--editing:SetPoint ("topleft", window, "topleft", 90, -57)
 		editing:SetPoint ("topright", window, "topright", -30, -62)
-		editing.options = {Loc ["STRING_OPTIONS_GENERAL"], Loc ["STRING_OPTIONS_APPEARANCE"], Loc ["STRING_OPTIONS_PERFORMANCE"]}
+		editing.options = {Loc ["STRING_OPTIONS_GENERAL"], Loc ["STRING_OPTIONS_APPEARANCE"], Loc ["STRING_OPTIONS_PERFORMANCE"], Loc ["STRING_OPTIONS_PLUGINS"]}
 		editing.shadow = 2
 		
 		--> edit anchors
@@ -148,7 +148,7 @@ function _detalhes:OpenOptionsWindow (instance)
 		end
 
 		local instances = g:NewDropDown (window, _, "$parentInstanceSelectDropdown", "instanceDropdown", 200, 18, buildInstanceMenu, nil)	
-		instances:SetPoint ("bottomright", window, "bottomright", -17, 13)
+		instances:SetPoint ("bottomright", window, "bottomright", -17, 09)
 		
 		local instances_string = g:NewLabel (window, nil, nil, "instancetext", Loc ["STRING_OPTIONS_EDITINSTANCE"], "GameFontNormal", 12)
 		instances_string:SetPoint ("right", instances, "left", -2)
@@ -158,14 +158,17 @@ function _detalhes:OpenOptionsWindow (instance)
 		
 		--> left panel buttons
 		local select_options = function (options_type)
+		
 			window:hide_options (1)
 			window:hide_options (2)
 			window:hide_options (3)
+			window:hide_options (4)
+			
 			window:un_hide_options (options_type)
 			
 			editing.text = editing.options [options_type]
 			
-			if (options_type == 2) then
+			if (options_type == 1 or options_type == 2) then
 				instances:Show()
 				instances_string:Show()
 			else
@@ -182,6 +185,9 @@ function _detalhes:OpenOptionsWindow (instance)
 				window.options [2][1].slider.scrollMax = 1300
 			elseif (options_type == 3) then
 				window.options [3][1].slider:SetMinMaxValues (0, 180)
+			elseif (options_type == 4) then
+				window.options [4][1].slider:SetMinMaxValues (0, 320)
+				info_text.text = ""
 			end
 			
 		end
@@ -227,10 +233,21 @@ function _detalhes:OpenOptionsWindow (instance)
 		end)		
 		--g_performance:InstallCustomTexture ()
 		
+		local g_plugin = g:NewButton (window, _, "$parentPluginButton", "g_plugin", 150, 18, select_options, 0x4, nil, nil, Loc ["STRING_OPTIONS_PLUGINS"])
+		g_plugin:SetPoint ("topleft", window, "topleft", 35, -320)
+		g_plugin:SetHook ("OnEnter", function() 
+			mouse_over_texture:SetPoint ("topleft", g_plugin, "topleft", -10, 8)
+			mouse_over_texture:Show()
+		end)		
+		g_plugin:SetHook ("OnLeave", function() 
+			mouse_over_texture:Hide()
+		end)
+		
 		window.options = {
 			[1] = {},
 			[2] = {},
 			[3] = {},
+			[4] = {}
 		} --> vai armazenar os frames das opções
 		
 		function window:create_box (n)
@@ -269,12 +286,12 @@ function _detalhes:OpenOptionsWindow (instance)
 			container_slave:SetMovable (true)
 			
 			container_window:SetWidth (480)
-			container_window:SetHeight (250)
+			container_window:SetHeight (311)
 			container_window:SetScrollChild (container_slave)
 			container_window:SetPoint ("TOPLEFT", window.widget, "TOPLEFT", 198, -88)
 
 			g:NewScrollBar (container_window, container_slave, 8, -10)
-			container_window.slider:Altura (225)
+			container_window.slider:Altura (292)
 			container_window.slider:cimaPoint (0, 1)
 			container_window.slider:baixoPoint (0, -3)
 			container_window.wheel_jump = 80
@@ -289,6 +306,7 @@ function _detalhes:OpenOptionsWindow (instance)
 		table.insert (window.options [1], window:create_box (1))
 		table.insert (window.options [2], window:create_box (2))
 		table.insert (window.options [3], window:create_box (3))
+		table.insert (window.options [4], window:create_box (4))
 
 		function window:hide_options (options)
 			for _, widget in ipairs (window.options [options]) do 
@@ -341,6 +359,7 @@ function _detalhes:OpenOptionsWindow (instance)
 		
 		window:hide_options (2)
 		window:hide_options (3)
+		window:hide_options (4)
 		
 		--> general settings:
 		local frame1 = window.options [1][1].gump
@@ -538,6 +557,36 @@ function _detalhes:OpenOptionsWindow (instance)
 		window:create_line_background (frame1, frame1.minimapLabel, frame1.minimapSlider)
 		frame1.minimapSlider:SetHook ("OnEnter", background_on_enter)
 		frame1.minimapSlider:SetHook ("OnLeave", background_on_leave)
+		
+	--------------- hide in combat
+		g:NewLabel (frame1, _, "$parentHideOnCombatLabel", "hideOnCombatLabel", Loc ["STRING_OPTIONS_HIDECOMBAT"])
+		frame1.hideOnCombatLabel:SetPoint (10, -350)
+		
+		g:NewLabel (frame1, _, "$parentHideOnCombatAlphaLabel", "hideOnCombatAlphaLabel", Loc ["STRING_OPTIONS_HIDECOMBATALPHA"])
+		frame1.hideOnCombatAlphaLabel:SetPoint (10, -370)
+
+		g:NewSwitch (frame1, _, "$parentHideOnCombatSlider", "hideOnCombatSlider", 60, 20, _, _, window.instance.hide_in_combat)
+		frame1.hideOnCombatSlider:SetPoint ("left", frame1.hideOnCombatLabel, "right", 2, 0)
+		frame1.hideOnCombatSlider.OnSwitch = function (self, instance, value)
+			instance.hide_in_combat = value
+		end
+		
+		g:NewSlider (frame1, _, "$parentHideOnCombatAlphaSlider", "hideOnCombatAlphaSlider", SLIDER_WIDTH, 20, 0, 100, 1, window.instance.hide_in_combat_alpha) -- min, max, step, defaultv
+		frame1.hideOnCombatAlphaSlider:SetPoint ("left", frame1.hideOnCombatAlphaLabel, "right", 2, 0)
+		frame1.hideOnCombatAlphaSlider:SetHook ("OnValueChange", function (self, instance, amount) --> slider, fixedValue, sliderValue
+			instance.hide_in_combat_alpha = amount
+		end)
+		
+		frame1.hideOnCombatSlider.info = Loc ["STRING_OPTIONS_HIDECOMBAT_DESC"]
+		frame1.hideOnCombatAlphaSlider.info = Loc ["STRING_OPTIONS_HIDECOMBATALPHA_DESC"]
+		
+		window:create_line_background (frame1, frame1.hideOnCombatLabel, frame1.hideOnCombatSlider)
+		frame1.hideOnCombatSlider:SetHook ("OnEnter", background_on_enter)
+		frame1.hideOnCombatSlider:SetHook ("OnLeave", background_on_leave)
+		
+		window:create_line_background (frame1, frame1.hideOnCombatAlphaLabel, frame1.hideOnCombatAlphaSlider)
+		frame1.hideOnCombatAlphaSlider:SetHook ("OnEnter", background_on_enter)
+		frame1.hideOnCombatAlphaSlider:SetHook ("OnLeave", background_on_leave)
 		
 ---------------- appearance
 		local frame2 = window.options [2][1].gump
@@ -2366,11 +2415,228 @@ function _detalhes:OpenOptionsWindow (instance)
 		frame3.concatenateTrashSlider.tooltip = "Concatenate the next boss segments into only one."
 		--]]
 		
-		select_options (1)
+
+	
+-------- plugins
+	local frame4 = window.options [4][1].gump
+	
+	local on_enter = function (self)
+		self:SetBackdropColor (.3, .3, .3, .8)
+	end
+	
+	local on_leave = function (self)
+		self:SetBackdropColor (.3, .3, .3, .3)
+	end
+	
+	local y = -20
+	
+	--toolbar
+	g:NewLabel (frame4, _, "$parentToolbarPluginsLabel", "toolbarLabel", "Toolbar Plugins", "GameFontNormal", 16)
+	frame4.toolbarLabel:SetPoint ("topleft", frame4, "topleft", 10, y)
+	
+	y = y - 30
+	
+	do
+		local descbar = frame4:CreateTexture (nil, "artwork")
+		descbar:SetTexture (.3, .3, .3, .8)
+		descbar:SetPoint ("topleft", frame4, "topleft", 5, y+3)
+		descbar:SetSize (480, 20)
+		g:NewLabel (frame4, _, "$parentDescNameLabel", "descNameLabel", "Name", "GameFontNormal", 12)
+		frame4.descNameLabel:SetPoint ("topleft", frame4, "topleft", 15, y)
+		g:NewLabel (frame4, _, "$parentDescAuthorLabel", "descAuthorLabel", "Author", "GameFontNormal", 12)
+		frame4.descAuthorLabel:SetPoint ("topleft", frame4, "topleft", 180, y)
+		g:NewLabel (frame4, _, "$parentDescVersionLabel", "descVersionLabel", "Version", "GameFontNormal", 12)
+		frame4.descVersionLabel:SetPoint ("topleft", frame4, "topleft", 290, y)
+		g:NewLabel (frame4, _, "$parentDescEnabledLabel", "descEnabledLabel", "Enabled", "GameFontNormal", 12)
+		frame4.descEnabledLabel:SetPoint ("topleft", frame4, "topleft", 400, y)
+	end
+	
+	y = y - 30
+	
+	local i = 1
+	local allplugins_toolbar = _detalhes.ToolBar.NameTable
+	for absName, pluginObject in pairs (allplugins_toolbar) do 
+	
+		local bframe = CreateFrame ("frame", "OptionsPluginToolbarBG", frame4)
+		bframe:SetSize (480, 20)
+		bframe:SetPoint ("topleft", frame4, "topleft", 10, y)
+		bframe:SetBackdrop ({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16, insets = {left = 1, right = 1, top = 0, bottom = 1}})
+		bframe:SetBackdropColor (.3, .3, .3, .3)
+		bframe:SetScript ("OnEnter", on_enter)
+		bframe:SetScript ("OnLeave", on_leave)
+	
+		g:NewImage (bframe, _, "$parentToolbarPluginsIcon"..i, "toolbarPluginsIcon"..i, 18, 18, pluginObject.__icon)
+		bframe ["toolbarPluginsIcon"..i]:SetPoint ("topleft", frame4, "topleft", 10, y)
+	
+		g:NewLabel (bframe, _, "$parentToolbarPluginsLabel"..i, "toolbarPluginsLabel"..i, pluginObject.__name)
+		bframe ["toolbarPluginsLabel"..i]:SetPoint ("left", bframe ["toolbarPluginsIcon"..i], "right", 2, 0)
 		
+		g:NewLabel (bframe, _, "$parentToolbarPluginsLabel2"..i, "toolbarPluginsLabel2"..i, pluginObject.__author)
+		bframe ["toolbarPluginsLabel2"..i]:SetPoint ("topleft", frame4, "topleft", 180, y-4)
+		
+		g:NewLabel (bframe, _, "$parentToolbarPluginsLabel3"..i, "toolbarPluginsLabel3"..i, pluginObject.__version)
+		bframe ["toolbarPluginsLabel3"..i]:SetPoint ("topleft", frame4, "topleft", 290, y-4)
+		
+		local plugin_stable = _detalhes:GetPluginSavedTable (absName)
+		local plugin = _detalhes:GetPlugin (absName)
+		g:NewSwitch (bframe, _, "$parentToolbarSlider"..i, "toolbarPluginsSlider"..i, 60, 20, _, _, plugin_stable.enabled)
+		bframe ["toolbarPluginsSlider"..i]:SetPoint ("topleft", frame4, "topleft", 400, y+1)
+		bframe ["toolbarPluginsSlider"..i].OnSwitch = function (self, _, value)
+			plugin_stable.enabled = value
+			plugin.__enabled = value
+			if (value) then
+				_detalhes:SendEvent ("PLUGIN_ENABLED", plugin)
+			else
+				_detalhes:SendEvent ("PLUGIN_DISABLED", plugin)
+			end
+		end
+		
+		i = i + 1
+		y = y - 20
+	end
+	
+	y = y - 10
+	
+	--raid
+	g:NewLabel (frame4, _, "$parentRaidPluginsLabel", "raidLabel", "Raid Plugins", "GameFontNormal", 16)
+	frame4.raidLabel:SetPoint ("topleft", frame4, "topleft", 10, y)
+	
+	y = y - 30
+	
+	do
+		local descbar = frame4:CreateTexture (nil, "artwork")
+		descbar:SetTexture (.3, .3, .3, .8)
+		descbar:SetPoint ("topleft", frame4, "topleft", 5, y+3)
+		descbar:SetSize (480, 20)
+		g:NewLabel (frame4, _, "$parentDescNameLabel2", "descNameLabel", "Name", "GameFontNormal", 12)
+		frame4.descNameLabel:SetPoint ("topleft", frame4, "topleft", 15, y)
+		g:NewLabel (frame4, _, "$parentDescAuthorLabel2", "descAuthorLabel", "Author", "GameFontNormal", 12)
+		frame4.descAuthorLabel:SetPoint ("topleft", frame4, "topleft", 180, y)
+		g:NewLabel (frame4, _, "$parentDescVersionLabel2", "descVersionLabel", "Version", "GameFontNormal", 12)
+		frame4.descVersionLabel:SetPoint ("topleft", frame4, "topleft", 290, y)
+		g:NewLabel (frame4, _, "$parentDescEnabledLabel2", "descEnabledLabel", "Enabled", "GameFontNormal", 12)
+		frame4.descEnabledLabel:SetPoint ("topleft", frame4, "topleft", 400, y)
+	end
+	
+	y = y - 30
+	
+	local i = 1
+	local allplugins_raid = _detalhes.RaidTables.NameTable
+	for absName, pluginObject in pairs (allplugins_raid) do 
+
+		local bframe = CreateFrame ("frame", "OptionsPluginRaidBG", frame4)
+		bframe:SetSize (480, 20)
+		bframe:SetPoint ("topleft", frame4, "topleft", 10, y)
+		bframe:SetBackdrop ({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16, insets = {left = 1, right = 1, top = 0, bottom = 1}})
+		bframe:SetBackdropColor (.3, .3, .3, .3)
+		bframe:SetScript ("OnEnter", on_enter)
+		bframe:SetScript ("OnLeave", on_leave)
+	
+		g:NewImage (bframe, _, "$parentRaidPluginsIcon"..i, "raidPluginsIcon"..i, 18, 18, pluginObject.__icon)
+		bframe ["raidPluginsIcon"..i]:SetPoint ("topleft", frame4, "topleft", 10, y)
+	
+		g:NewLabel (bframe, _, "$parentRaidPluginsLabel"..i, "raidPluginsLabel"..i, pluginObject.__name)
+		bframe ["raidPluginsLabel"..i]:SetPoint ("left", bframe ["raidPluginsIcon"..i], "right", 2, 0)
+		
+		g:NewLabel (bframe, _, "$parentRaidPluginsLabel2"..i, "raidPluginsLabel2"..i, pluginObject.__author)
+		bframe ["raidPluginsLabel2"..i]:SetPoint ("topleft", frame4, "topleft", 180, y-4)
+		
+		g:NewLabel (bframe, _, "$parentRaidPluginsLabel3"..i, "raidPluginsLabel3"..i, pluginObject.__version)
+		bframe ["raidPluginsLabel3"..i]:SetPoint ("topleft", frame4, "topleft", 290, y-4)
+		
+		local plugin_stable = _detalhes:GetPluginSavedTable (absName)
+		local plugin = _detalhes:GetPlugin (absName)
+		g:NewSwitch (bframe, _, "$parentRaidSlider"..i, "raidPluginsSlider"..i, 60, 20, _, _, plugin_stable.enabled)
+		bframe ["raidPluginsSlider"..i]:SetPoint ("topleft", frame4, "topleft", 400, y+1)
+		bframe ["raidPluginsSlider"..i].OnSwitch = function (self, _, value)
+			plugin_stable.enabled = value
+			plugin.__enabled = value
+			if (not value) then
+				for index, instancia in ipairs (_detalhes.tabela_instancias) do
+					if (instancia.modo == 4) then -- 4 = raid
+						_detalhes:TrocaTabela (instancia, 0, 1, 1, nil, 2)
+					end
+				end
+			end
+		end
+		
+		i = i + 1
+		y = y - 20
+	end
+	
+	y = y - 10
+
+	-- solo
+	g:NewLabel (frame4, _, "$parentSoloPluginsLabel", "soloLabel", "Solo Plugins", "GameFontNormal", 16)
+	frame4.soloLabel:SetPoint ("topleft", frame4, "topleft", 10, y)
+	
+	y = y - 30
+	
+	do
+		local descbar = frame4:CreateTexture (nil, "artwork")
+		descbar:SetTexture (.3, .3, .3, .8)
+		descbar:SetPoint ("topleft", frame4, "topleft", 5, y+3)
+		descbar:SetSize (480, 20)
+		g:NewLabel (frame4, _, "$parentDescNameLabel3", "descNameLabel", "Name", "GameFontNormal", 12)
+		frame4.descNameLabel:SetPoint ("topleft", frame4, "topleft", 15, y)
+		g:NewLabel (frame4, _, "$parentDescAuthorLabel3", "descAuthorLabel", "Author", "GameFontNormal", 12)
+		frame4.descAuthorLabel:SetPoint ("topleft", frame4, "topleft", 180, y)
+		g:NewLabel (frame4, _, "$parentDescVersionLabel3", "descVersionLabel", "Version", "GameFontNormal", 12)
+		frame4.descVersionLabel:SetPoint ("topleft", frame4, "topleft", 290, y)
+		g:NewLabel (frame4, _, "$parentDescEnabledLabel3", "descEnabledLabel", "Enabled", "GameFontNormal", 12)
+		frame4.descEnabledLabel:SetPoint ("topleft", frame4, "topleft", 400, y)
+	end
+	
+	y = y - 30
+	
+	local i = 1
+	local allplugins_solo = _detalhes.SoloTables.NameTable
+	for absName, pluginObject in pairs (allplugins_solo) do 
+	
+		local bframe = CreateFrame ("frame", "OptionsPluginSoloBG", frame4)
+		bframe:SetSize (480, 20)
+		bframe:SetPoint ("topleft", frame4, "topleft", 10, y)
+		bframe:SetBackdrop ({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16, insets = {left = 1, right = 1, top = 0, bottom = 1}})
+		bframe:SetBackdropColor (.3, .3, .3, .3)
+		bframe:SetScript ("OnEnter", on_enter)
+		bframe:SetScript ("OnLeave", on_leave)
+	
+		g:NewImage (bframe, _, "$parentSoloPluginsIcon"..i, "soloPluginsIcon"..i, 18, 18, pluginObject.__icon)
+		bframe ["soloPluginsIcon"..i]:SetPoint ("topleft", frame4, "topleft", 10, y)
+	
+		g:NewLabel (bframe, _, "$parentSoloPluginsLabel"..i, "soloPluginsLabel"..i, pluginObject.__name)
+		bframe ["soloPluginsLabel"..i]:SetPoint ("left", bframe ["soloPluginsIcon"..i], "right", 2, 0)
+		
+		g:NewLabel (bframe, _, "$parentSoloPluginsLabel2"..i, "soloPluginsLabel2"..i, pluginObject.__author)
+		bframe ["soloPluginsLabel2"..i]:SetPoint ("topleft", frame4, "topleft", 180, y-4)
+		
+		g:NewLabel (bframe, _, "$parentSoloPluginsLabel3"..i, "soloPluginsLabel3"..i, pluginObject.__version)
+		bframe ["soloPluginsLabel3"..i]:SetPoint ("topleft", frame4, "topleft", 290, y-4)
+		
+		local plugin_stable = _detalhes:GetPluginSavedTable (absName)
+		local plugin = _detalhes:GetPlugin (absName)
+		g:NewSwitch (bframe, _, "$parentSoloSlider"..i, "soloPluginsSlider"..i, 60, 20, _, _, plugin_stable.enabled)
+		bframe ["soloPluginsSlider"..i]:SetPoint ("topleft", frame4, "topleft", 400, y+1)
+		bframe ["soloPluginsSlider"..i].OnSwitch = function (self, _, value)
+			plugin_stable.enabled = value
+			plugin.__enabled = value
+			if (not value) then
+				for index, instancia in ipairs (_detalhes.tabela_instancias) do
+					if (instancia.modo == 1) then -- 1 = solo
+						_detalhes:TrocaTabela (instancia, 0, 1, 1, nil, 2)
+					end
+				end
+			end
+		end
+		
+		i = i + 1
+		y = y - 20
 	end
 	
 	
+	select_options (1)
+		
+end
 ----------------------------------------------------------------------------------------
 --> Show
 
@@ -2386,6 +2652,11 @@ function _detalhes:OpenOptionsWindow (instance)
 
 	_G.DetailsOptionsWindow2CloseOverlayColorImage.MyObject:SetTexture (unpack (instance.closebutton_info.color_overlay))
 
+	_G.DetailsOptionsWindow1HideOnCombatSlider.MyObject:SetFixedParameter (instance)
+	_G.DetailsOptionsWindow1HideOnCombatAlphaSlider.MyObject:SetFixedParameter (instance)
+	_G.DetailsOptionsWindow1HideOnCombatSlider.MyObject:SetValue (instance.hide_in_combat)
+	_G.DetailsOptionsWindow1HideOnCombatAlphaSlider.MyObject:SetValue (instance.hide_in_combat_alpha)
+	
 	_G.DetailsOptionsWindow2SideBarsSlider.MyObject:SetFixedParameter (instance)
 	_G.DetailsOptionsWindow2SideBarsSlider.MyObject:SetValue (instance.show_sidebars)
 	

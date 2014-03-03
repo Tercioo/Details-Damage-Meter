@@ -41,6 +41,10 @@ local function CreatePluginFrames (data)
 		elseif (event == "COMBAT_PLAYER_ENTER") then --> combat started
 			TimeAttack:ScheduleTimer ("TimeAttackPluginStart", 2)
 
+		elseif (event == "PLUGIN_DISABLED") then
+			
+		elseif (event == "PLUGIN_ENABLED") then
+			
 		end
 	end
 	
@@ -672,7 +676,7 @@ function TimeAttack:OnEvent (_, event, ...)
 				local MINIMAL_DETAILS_VERSION_REQUIRED = 1
 				
 				--> Install
-				local install = _G._detalhes:InstallPlugin ("SOLO", Loc ["STRING_PLUGIN_NAME"], "Interface\\Icons\\SPELL_HOLY_BORROWEDTIME", TimeAttack, "DETAILS_PLUGIN_TIME_ATTACK", MINIMAL_DETAILS_VERSION_REQUIRED)
+				local install = _G._detalhes:InstallPlugin ("SOLO", Loc ["STRING_PLUGIN_NAME"], "Interface\\Icons\\SPELL_HOLY_BORROWEDTIME", TimeAttack, "DETAILS_PLUGIN_TIME_ATTACK", MINIMAL_DETAILS_VERSION_REQUIRED, "Details! Team", "v1.04")
 				if (type (install) == "table" and install.error) then
 					print (install.errortext)
 					return

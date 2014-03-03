@@ -86,11 +86,19 @@
 				end
 			end
 			
-			if (not _detalhes.SoloTables.Plugins [1]) then
+			local first_enabled_plugin, first_enabled_plugin_index
+			for index, plugin in ipairs (_detalhes.SoloTables.Plugins) do
+				if (plugin.__enabled) then
+					first_enabled_plugin = plugin
+					first_enabled_plugin_index = index
+				end
+			end
+			
+			if (not first_enabled_plugin) then
 				_detalhes:WaitForSoloPlugin (self)
 			else
 				if (not _detalhes.SoloTables.Plugins [_detalhes.SoloTables.Mode]) then
-					_detalhes.SoloTables.Mode = 1
+					_detalhes.SoloTables.Mode = first_enabled_plugin_index
 				end
 				_detalhes.SoloTables:switch (nil, _detalhes.SoloTables.Mode)
 			end
@@ -175,7 +183,7 @@
 			end
 		
 			local ThisFrame = _detalhes.SoloTables.Plugins [_detalhes.SoloTables.Mode]
-			if (not ThisFrame) then
+			if (not ThisFrame or not ThisFrame.__enabled) then
 				--> frame not found, try in few second again
 				_detalhes.SoloTables.Mode = _switchTo
 				_detalhes:WaitForSoloPlugin (instancia)

@@ -49,6 +49,8 @@ function DetailsCreateCoolTip()
 		CoolTip.TopIconTableSub = {}
 		CoolTip.StatusBarTable = {}
 		CoolTip.StatusBarTableSub = {}
+		CoolTip.WallpaperTable = {}
+		CoolTip.WallpaperTableSub = {}
 		
 		CoolTip.FunctionsTableMain = {} --> menus
 		CoolTip.FunctionsTableSub = {} --> menus
@@ -84,6 +86,10 @@ function DetailsCreateCoolTip()
 			["StatusBarTexture"] = true,
 			["TextSize"] = true,
 			["TextFont"] = true,
+			["LeftTextWidth"] = true,
+			["RightTextWidth"] = true,
+			["LeftTextHeight"] = true,
+			["RightTextHeight"] = true,
 			["NoFade"] = true,
 			["MyAnchor"] = true,
 			["Anchor"] = true,
@@ -120,6 +126,10 @@ function DetailsCreateCoolTip()
 			["StatusBarTexture"] = nil,
 			["TextSize"] = nil,
 			["TextFont"] = nil,
+			["LeftTextWidth"] = nil,
+			["RightTextWidth"] = nil,
+			["LeftTextHeight"] = nil,
+			["RightTextHeight"] = nil,
 			["NoFade"] = nil,
 			["MyAnchor"] = nil,
 			["Anchor"] = nil,
@@ -599,6 +609,18 @@ function DetailsCreateCoolTip()
 					_detalhes:SetFontSize (menuButton.leftText, CoolTip.OptionsTable.TextSize)
 				end
 				
+				if (CoolTip.OptionsTable.LeftTextWidth) then
+					menuButton.leftText:SetWidth (CoolTip.OptionsTable.LeftTextWidth)
+				else
+					menuButton.leftText:SetWidth (0)
+				end
+				
+				if (CoolTip.OptionsTable.LeftTextHeight) then
+					menuButton.leftText:SetHeight (CoolTip.OptionsTable.LeftTextHeight)
+				else
+					menuButton.leftText:SetHeight (0)
+				end
+				
 				if (CoolTip.OptionsTable.TextFont and not leftTextTable [7]) then
 					menuButton.leftText:SetFontObject (CoolTip.OptionsTable.TextFont)
 				end
@@ -629,6 +651,18 @@ function DetailsCreateCoolTip()
 				
 				if (CoolTip.OptionsTable.TextSize and not rightTextTable [6]) then
 					_detalhes:SetFontSize (menuButton.rightText, CoolTip.OptionsTable.TextSize)
+				end
+				
+				if (CoolTip.OptionsTable.RightTextWidth) then
+					menuButton.rightText:SetWidth (CoolTip.OptionsTable.RightTextWidth)
+				else
+					menuButton.rightText:SetWidth (0)
+				end
+				
+				if (CoolTip.OptionsTable.RightTextHeight) then
+					menuButton.rightText:SetHeight (CoolTip.OptionsTable.RightTextHeight)
+				else
+					menuButton.rightText:SetHeight (0)
 				end
 				
 				if (CoolTip.OptionsTable.TextFont and not rightTextTable [7]) then
@@ -870,6 +904,36 @@ function DetailsCreateCoolTip()
 	
 	-- -- --------------------------------------------------------------------------------------------------------------
 	
+		function CoolTip:SetupWallpaper (wallpaperTable, wallpaper)
+			local texture = wallpaperTable [1]
+			if (gump:IsHtmlColor (texture) or type (texture) == "table") then
+				local r, g, b, a = gump:ParseColors (texture)
+				wallpaper:SetTexture (r, g, b, a)
+			else
+				wallpaper:SetTexture (texture)
+			end
+			
+			wallpaper:SetTexCoord (wallpaperTable[2], wallpaperTable[3], wallpaperTable[4], wallpaperTable[5])
+			
+			local color = wallpaperTable[6]
+			if (color) then
+				local r, g, b, a = gump:ParseColors (color)
+				wallpaper:SetVertexColor (r, g, b, a)
+			else
+				wallpaper:SetVertexColor (1, 1, 1, 1)
+			end
+			
+			if (wallpaperTable[7]) then
+				wallpaper:SetDesaturated (true)
+			else
+				wallpaper:SetDesaturated (false)
+			end
+
+			wallpaper:Show()
+		end
+	
+	-- -- --------------------------------------------------------------------------------------------------------------
+	
 	function CoolTip:ShowSub (index)
 	
 		if (CoolTip.OptionsTable.IgnoreSubMenu) then
@@ -964,6 +1028,12 @@ function DetailsCreateCoolTip()
 			frame2.upperImage:Hide()
 		end
 		
+		if (CoolTip.WallpaperTableSub [index]) then
+			CoolTip:SetupWallpaper (CoolTip.WallpaperTableSub [index], frame2.frameWallpaper)
+		else
+			frame2.frameWallpaper:Hide()
+		end
+
 		if (not CoolTip.OptionsTable.FixedWidthSub) then
 			frame2:SetWidth (frame2.w + 44)
 		end
@@ -982,7 +1052,7 @@ function DetailsCreateCoolTip()
 		row.leftText:SetHeight (10)
 	end
 
-	--> ~inicio
+	--> ~inicio ~start
 	function CoolTip:monta_tooltip()
 		
 		--> hide sub frame
@@ -1105,6 +1175,12 @@ function DetailsCreateCoolTip()
 			end
 		end
 
+		if (CoolTip.WallpaperTable [1]) then
+			CoolTip:SetupWallpaper (CoolTip.WallpaperTable, frame1.frameWallpaper)
+		else
+			frame1.frameWallpaper:Hide()
+		end
+		
 		--> unhide frame
 		gump:Fade (frame1, 0)
 		CoolTip:SetMyPoint (host)
@@ -1126,7 +1202,7 @@ function DetailsCreateCoolTip()
 		button.divbar:SetDesaturated (true)
 	end
 	
-	--> ~inicio
+	--> ~inicio ~start
 	function CoolTip:monta_cooltip (host, instancia, options, sub_menus, icones, tamanho1, tamanho2, font, fontsize)
 
 		if (CoolTip.Indexes == 0) then
@@ -1275,6 +1351,12 @@ function DetailsCreateCoolTip()
 			CoolTip.frame1.titleText:SetText (CoolTip.title_text)
 			CoolTip.frame1.titleIcon:SetWidth (frame1:GetWidth())
 			CoolTip.frame1.titleIcon:SetHeight (40)
+		end
+	
+		if (CoolTip.WallpaperTable [1]) then
+			CoolTip:SetupWallpaper (CoolTip.WallpaperTable, frame1.frameWallpaper)
+		else
+			frame1.frameWallpaper:Hide()
 		end
 	
 		gump:Fade (frame1, 0)
@@ -1552,7 +1634,7 @@ function DetailsCreateCoolTip()
 ----------------------------------------------------------------------
 	--> Reset cooltip
 	
-		--> wipe all data
+		--> wipe all data ~reset
 		function CoolTip:Reset()
 		
 			CoolTip.FixedValue = nil
@@ -1590,6 +1672,9 @@ function DetailsCreateCoolTip()
 			
 			_table_wipe (CoolTip.ParametersTableMain)
 			_table_wipe (CoolTip.ParametersTableSub)
+			
+			_table_wipe (CoolTip.WallpaperTable)
+			_table_wipe (CoolTip.WallpaperTableSub)
 			--]]
 			
 			_table_wipe (CoolTip.TopIconTableSub)
@@ -1601,6 +1686,9 @@ function DetailsCreateCoolTip()
 			frame1.upperImage2:Hide()
 			frame1.upperImageText:Hide()
 			frame1.upperImageText2:Hide()
+			
+			frame1.frameWallpaper:Hide()
+			frame2.frameWallpaper:Hide()
 			
 			frame2.upperImage:Hide()
 
@@ -1887,6 +1975,49 @@ function DetailsCreateCoolTip()
 			
 		end
 
+		frame1.frameWallpaper:Hide()
+		frame2.frameWallpaper:Hide()
+		
+		function CoolTip:SetWallpaper (index, texture, texcoord, color, desaturate)
+		
+			if (CoolTip.Indexes == 0) then
+				return --> return error
+			end
+		
+			local frameTable
+			local wallpaperTable
+			
+			if ( (type (index) == "number" and index == 1) or (type (index) == "string" and index == "main") ) then
+				wallpaperTable = CoolTip.WallpaperTable
+
+			elseif ( (type (index) == "number" and index == 2) or (type (index) == "string" and index == "sub") ) then
+				frameTable = CoolTip.WallpaperTableSub
+				
+				local subMenuContainerWallpapers = frameTable [CoolTip.Indexes]
+				if (not subMenuContainerWallpapers) then
+					subMenuContainerWallpapers = {}
+					frameTable [CoolTip.Indexes] = subMenuContainerWallpapers
+				end
+				
+				wallpaperTable = subMenuContainerWallpapers
+			end
+			
+			wallpaperTable [1] = texture
+			if (texcoord) then
+				wallpaperTable [2] = texcoord [1]
+				wallpaperTable [3] = texcoord [2]
+				wallpaperTable [4] = texcoord [3]
+				wallpaperTable [5] = texcoord [4]
+			else
+				wallpaperTable [2] = 0
+				wallpaperTable [3] = 1
+				wallpaperTable [4] = 0
+				wallpaperTable [5] = 1
+			end
+			wallpaperTable [6] = color
+			wallpaperTable [7] = desaturate
+		end
+		
 		function CoolTip:SetBannerText (index, text, anchor, color, fontsize, fontface, fontflag)
 			local fontstring
 			

@@ -282,7 +282,6 @@ Message: ..\AddOns\Details_EncounterDetails\frames.lua line 156:
 			
 			if (g.max_damage > 0) then
 				local normalizePercent = g.max_damage / dps_max
-				print ("Normalizing: " .. normalizePercent)
 				for dataIndex, Data in ipairs (g.Data) do 
 					local Points = Data.Points
 					for i = 1, #Points do 

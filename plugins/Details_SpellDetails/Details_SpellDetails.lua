@@ -93,6 +93,10 @@ local function CreatePluginFrames (data)
 			--> trigger when a buff is applyed on player
 			SpellDetails:RefreshBuffs()
 		
+		elseif (event == "PLUGIN_DISABLED") then
+			
+		elseif (event == "PLUGIN_ENABLED") then
+		
 		end
 	end
 	
@@ -1272,7 +1276,7 @@ function SpellDetails:OnEvent (_, event, ...)
 				local MINIMAL_DETAILS_VERSION_REQUIRED = 1
 				
 				--> Install plugin inside details
-				local install = _G._detalhes:InstallPlugin ("SOLO", Loc ["PLUGIN_NAME"], "Interface\\Icons\\INV_Fabric_Spellweave", SpellDetails, "DETAILS_PLUGIN_SPELL_DETAILS", MINIMAL_DETAILS_VERSION_REQUIRED)
+				local install = _G._detalhes:InstallPlugin ("SOLO", Loc ["PLUGIN_NAME"], "Interface\\Icons\\INV_Fabric_Spellweave", SpellDetails, "DETAILS_PLUGIN_SPELL_DETAILS", MINIMAL_DETAILS_VERSION_REQUIRED, "Details! Team", "v1.08")
 				if (type (install) == "table" and install.error) then
 					print (install.error)
 				end

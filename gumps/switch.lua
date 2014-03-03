@@ -112,8 +112,8 @@ function _detalhes:FastSwitch (_this)
 		GameCooltip:SetFixedParameter (_detalhes.switch.current_instancia)
 		GameCooltip:SetOwner (_detalhes.switch.buttons [_this.button])
 		_detalhes:MontaAtributosOption (_detalhes.switch.current_instancia, _detalhes.switch.Config)
-		GameCooltip:SetColor (1, nil)
-		GameCooltip:SetColor (2, nil)
+		GameCooltip:SetColor (1, {.1, .1, .1, .3})
+		GameCooltip:SetColor (2, {.1, .1, .1, .3})
 		GameCooltip:ShowCooltip()
 
 	else --> botão esquerdo

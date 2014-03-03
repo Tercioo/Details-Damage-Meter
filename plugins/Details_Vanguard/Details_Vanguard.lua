@@ -139,6 +139,10 @@ local function CreatePluginFrames (data)
 				Vanguard.TankFrames [i].Life (100)
 			end
 			
+		elseif (event == "PLUGIN_DISABLED") then
+			
+		elseif (event == "PLUGIN_ENABLED") then
+			
 		end
 	end
 	
@@ -1210,7 +1214,7 @@ function Vanguard:OnEvent (_, event, ...)
 				local MINIMAL_DETAILS_VERSION_REQUIRED = 1
 				
 				--> Install
-				local install = _G._detalhes:InstallPlugin ("TANK", Loc ["STRING_PLUGIN_NAME"], "Interface\\Icons\\INV_Shield_77", Vanguard, "DETAILS_PLUGIN_VANGUARD", MINIMAL_DETAILS_VERSION_REQUIRED)
+				local install = _G._detalhes:InstallPlugin ("TANK", Loc ["STRING_PLUGIN_NAME"], "Interface\\Icons\\INV_Shield_77", Vanguard, "DETAILS_PLUGIN_VANGUARD", MINIMAL_DETAILS_VERSION_REQUIRED, "Details! Team", "v1.06")
 				if (type (install) == "table" and install.error) then
 					print (install.error)
 				end

@@ -98,6 +98,10 @@ do
 	function _detalhes:GetRaidBackground (mapid)
 		return _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].background
 	end
+	--> return the icon for the raid instance
+	function _detalhes:GetRaidIcon (mapid)
+		return _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].icon
+	end
 	
 	--> return the boss icon
 	function _detalhes:GetBossIcon (mapid, bossindex)

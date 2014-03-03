@@ -219,6 +219,7 @@
 					GameCooltip:Reset()
 					GameCooltip:AddFromTable (onEnterCooltipTexts)
 					GameCooltip:SetOption ("TextSize", 9.5)
+					GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
 					GameCooltip:ShowCooltip (frame, "tooltip")
 				end
 				self:SetScript ("OnUpdate", nil)
@@ -269,6 +270,7 @@
 			end
 			GameCooltip:SetOption ("NoLastSelectedBar", true)
 			GameCooltip:SetOption ("HeightAnchorMod", -12)
+			GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
 			GameCooltip:ShowCooltip (frame, "menu")
 		end
 		return true

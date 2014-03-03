@@ -1318,25 +1318,34 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 end
 
 function _detalhes:MontaRaidOption (instancia)
-	for index, _name_and_icon in _ipairs (_detalhes.RaidTables.Menu) do 
-		GameCooltip:AddMenu (1, _detalhes.RaidTables.switch, index, nil, nil, _name_and_icon [1], _name_and_icon [2], true)
+	for index, ptable in _ipairs (_detalhes.RaidTables.Menu) do
+		if (ptable [3].__enabled) then
+			GameCooltip:AddMenu (1, _detalhes.RaidTables.switch, index, nil, nil, ptable [1], ptable [2], true)
+		end
 	end
-	if (_detalhes.RaidTables.Mode) then
+	
+	if (_detalhes.RaidTables.Mode and _detalhes.RaidTables.Mode == index) then
 		GameCooltip:SetLastSelected (1, _detalhes.RaidTables.Mode)
 	end
-	GameCooltip:SetColor (1, "black")
+	
+	GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
 end
 
 function _detalhes:MontaSoloOption (instancia)
-	for index, _name_and_icon in _ipairs (_detalhes.SoloTables.Menu) do 
-		GameCooltip:AddMenu (1, _detalhes.SoloTables.switch, index, nil, nil, _name_and_icon [1], _name_and_icon [2], true)
+	for index, ptable in _ipairs (_detalhes.SoloTables.Menu) do 
+		if (ptable [3].__enabled) then
+			GameCooltip:AddMenu (1, _detalhes.SoloTables.switch, index, nil, nil, ptable [1], ptable [2], true)
+		end
 	end
+	
 	if (_detalhes.SoloTables.Mode) then
 		GameCooltip:SetLastSelected (1, _detalhes.SoloTables.Mode)
 	end
-	GameCooltip:SetColor (1, "black")
+	
+	GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
 end
 
+-- ~menu
 function _detalhes:MontaAtributosOption (instancia, func)
 
 	func = func or instancia.TrocaTabela
@@ -1369,6 +1378,17 @@ function _detalhes:MontaAtributosOption (instancia, func)
 		
 		CoolTip:AddMenu (1, func, nil, i, nil, atributos.lista[i], nil, true)
 		CoolTip:AddIcon ("Interface\\AddOns\\Details\\images\\atributos_icones", 1, 1, 20, 20, p*(i-1), p*(i), 0, 1)
+		
+		if (i == 1) then
+			CoolTip:SetWallpaper (2, [[Interface\TALENTFRAME\WarlockDestruction-TopLeft]], {1, 0.22, 0, 0.55}, {1, 1, 1, .1})
+		elseif (i == 2) then
+			--CoolTip:SetWallpaper (2, [[Interface\TALENTFRAME\PriestHoly-TopLeft]], {0, .8, 0, 1}, {1, 1, 1, .1})
+			CoolTip:SetWallpaper (2, [[Interface\TALENTFRAME\bg-priest-holy]], {1, .6, 0, .2}, {1, 1, 1, .2})
+		elseif (i == 3) then
+			CoolTip:SetWallpaper (2, [[Interface\TALENTFRAME\ShamanEnhancement-TopLeft]], {0, 1, .2, .6}, {1, 1, 1, .1})
+		elseif (i == 4) then
+			CoolTip:SetWallpaper (2, [[Interface\TALENTFRAME\WarlockCurses-TopLeft]], {.2, 1, 0, 1}, {1, 1, 1, .1})
+		end
 		
 		local options = sub_atributos [i].lista
 		
@@ -1403,8 +1423,11 @@ function _detalhes:MontaAtributosOption (instancia, func)
 	else
 		CoolTip:SetLastSelected (2, 5, instancia.sub_atributo_last [5]+1)
 	end
-	
+
 	CoolTip:SetLastSelected (1, atributo_ativo)
+	
+	CoolTip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
+	--CoolTip:SetWallpaper (1, [[Interface\ACHIEVEMENTFRAME\UI-Achievement-Parchment-Horizontal-Desaturated]], nil, {1, 1, 1, 0.3})
 	
 	return menu_principal, sub_menus
 end

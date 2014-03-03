@@ -2644,8 +2644,26 @@ function _detalhes:InstanceWallpaper (texture, anchor, alpha, texcoord, width, h
 	end
 end
 
+function _detalhes:SetWindowAlpha (alpha, run_instance_color)
+	local current_alpha = self.window_alpha or 1
 
-function _detalhes:InstanceColor (red, green, blue, alpha)
+	if (current_alpha > alpha) then
+		gump:Fade (self.baseframe, "ALPHAANIM", alpha)
+	else
+		gump:Fade (self.baseframe, "ALPHAANIM", alpha)
+	end
+
+	gump:Fade (self.baseframe.cabecalho.ball, "ALPHAANIM", alpha)
+	gump:Fade (self.baseframe.cabecalho.atributo_icon, "ALPHAANIM", alpha)
+	
+	self.window_alpha = alpha
+	
+	if (run_instance_color) then
+		self:InstanceColor()
+	end
+end
+
+function _detalhes:InstanceColor (red, green, blue, alpha, no_save)
 
 	if (not red) then
 		red, green, blue, alpha = unpack (self.color)
@@ -2655,10 +2673,12 @@ function _detalhes:InstanceColor (red, green, blue, alpha)
 		red, green, blue, alpha = gump:ParseColors (red)
 	end
 
-	self.color [1] = red
-	self.color [2] = green
-	self.color [3] = blue
-	self.color [4] = alpha
+	if (not no_save) then
+		self.color [1] = red
+		self.color [2] = green
+		self.color [3] = blue
+		self.color [4] = alpha
+	end
 	
 	local skin = _detalhes.skins [self.skin]
 	
@@ -3144,7 +3164,6 @@ local build_mode_list = function (self, elapsed)
 		CoolTip:SetOption ("ButtonsYMod", -5)
 		CoolTip:SetOption ("YSpacingMod", 1)
 		CoolTip:SetOption ("FixedHeight", 106)
-		--CoolTip:SetOption ("FixedWidth", 138)
 		CoolTip:SetOption ("FixedWidthSub", 146)
 		CoolTip:SetOption ("SubMenuIsTooltip", true)
 		
@@ -3161,6 +3180,10 @@ local build_mode_list = function (self, elapsed)
 				CoolTip:SetOwner (self, "bottom", "top", 0, -7)
 			end
 		end
+		
+		--CoolTip:SetWallpaper (1, [[Interface\ACHIEVEMENTFRAME\UI-Achievement-Parchment-Horizontal-Desaturated]], nil, {1, 1, 1, 0.3})
+		CoolTip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
+		
 		CoolTip:ShowCooltip()
 	end
 end
@@ -3185,6 +3208,10 @@ local build_segment_list = function (self, elapsed)
 		CoolTip:SetFixedParameter (instancia)
 		CoolTip:SetColor ("main", "transparent")
 
+		CoolTip:SetOption ("FixedWidthSub", 175)
+		CoolTip:SetOption ("RightTextWidth", 105)
+		CoolTip:SetOption ("RightTextHeight", 12)
+		
 		----------- segments
 		local menuIndex = 0
 		_detalhes.segments_amount = math.floor (_detalhes.segments_amount)
@@ -3227,6 +3254,12 @@ local build_segment_list = function (self, elapsed)
 							CoolTip:AddIcon (portrait, 2, "top", 128, 64)
 						end
 						CoolTip:AddIcon ([[Interface\AddOns\Details\images\icons]], "main", "left", 16, 16, 0.96875, 1, 0, 0.03125)
+						
+						local background = _detalhes:GetRaidIcon (thisCombat.is_boss.mapid)
+						if (background) then
+							CoolTip:SetWallpaper (2, background, nil, {1, 1, 1, 0.5})
+						end
+						
 					else
 						enemy = thisCombat.enemy
 						if (enemy) then
@@ -3240,6 +3273,9 @@ local build_segment_list = function (self, elapsed)
 						else
 							CoolTip:AddIcon ([[Interface\QUESTFRAME\UI-Quest-BulletPoint]], "main", "left", 16, 16)
 						end
+						
+						CoolTip:SetWallpaper (2, [[Interface\ACHIEVEMENTFRAME\UI-Achievement-StatsBackground]], {0.5078125, 0.1171875, 0.017578125, 0.1953125}, {1, 1, 1, .5})
+						
 					end
 					
 					CoolTip:AddMenu (1, instancia.TrocaTabela, i)
@@ -3259,6 +3295,7 @@ local build_segment_list = function (self, elapsed)
 					CoolTip:AddMenu (1, instancia.TrocaTabela, i)
 					CoolTip:AddIcon ([[Interface\QUESTFRAME\UI-Quest-BulletPoint]], "main", "left", 16, 16, nil, nil, nil, nil, empty_segment_color)
 					CoolTip:AddLine (Loc ["STRING_SEGMENT_EMPTY"], _, 2)
+					CoolTip:AddIcon ([[Interface\CHARACTERFRAME\Disconnect-Icon]], 2, 1, 12, 12, 0.3125, 0.65625, 0.265625, 0.671875)
 				end
 				
 				if (menuIndex) then
@@ -3285,6 +3322,11 @@ local build_segment_list = function (self, elapsed)
 				if (portrait) then
 					CoolTip:AddIcon (portrait, 2, "top", 128, 64)
 				end
+				
+				local background = _detalhes:GetRaidIcon (_detalhes.tabela_vigente.is_boss.mapid)
+				CoolTip:SetWallpaper (2, background, nil, {1, 1, 1, 0.5})
+			else
+				CoolTip:SetWallpaper (2, [[Interface\ACHIEVEMENTFRAME\UI-Achievement-StatsBackground]], {0.5078125, 0.1171875, 0.017578125, 0.1953125}, {1, 1, 1, .5})
 			end					
 			
 			CoolTip:AddLine (Loc ["STRING_SEGMENT_ENEMY"] .. ":", enemy, 2, "white", "white")
@@ -3342,6 +3384,8 @@ local build_segment_list = function (self, elapsed)
 				CoolTip:AddLine (Loc ["STRING_SEGMENT_TIME"] .. ":", minutos.."m "..segundos.."s", 2, "white", "white") 
 			end
 			
+			CoolTip:SetWallpaper (2, [[Interface\ACHIEVEMENTFRAME\UI-Achievement-StatsBackground]], {0.5078125, 0.1171875, 0.017578125, 0.1953125}, {1, 1, 1, .5})
+			
 			local earlyFight = ""
 			for i = _detalhes.segments_amount, 1, -1 do
 				if (_detalhes.tabela_historico.tabelas [i]) then
@@ -3394,6 +3438,9 @@ local build_segment_list = function (self, elapsed)
 		CoolTip:SetOption ("ButtonHeightModSub", 4)
 		CoolTip:SetOption ("ButtonsYModSub", 0)
 		CoolTip:SetOption ("YSpacingModSub", -4)
+		
+		--CoolTip:SetWallpaper (1, [[Interface\ACHIEVEMENTFRAME\UI-Achievement-Parchment-Horizontal-Desaturated]], nil, {1, 1, 1, 0.3})
+		CoolTip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
 		
 		CoolTip:ShowCooltip()
 		
@@ -4484,7 +4531,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 	--> install cooltip
 	_G.GameCooltip:CoolTipInject (baseframe.cabecalho.atributo)
 
-	--> REPORTAR ----------------------------------------------------------------------------------------------------------------------------------------------------
+	--> REPORTAR ~report ----------------------------------------------------------------------------------------------------------------------------------------------------
 			baseframe.cabecalho.report = gump:NewDetailsButton (baseframe, _, instancia, _detalhes.Reportar, instancia, nil, 16, 16, [[Interface\COMMON\VOICECHAT-ON]])
 			baseframe.cabecalho.report:SetPoint ("left", baseframe.cabecalho.atributo, "right", -6, 0)
 			baseframe.cabecalho.report:SetFrameLevel (baseframe.UPFrame:GetFrameLevel()+1)
@@ -4493,12 +4540,20 @@ function gump:CriaCabecalho (baseframe, instancia)
 				if (instancia.desaturated_menu) then
 					self:GetNormalTexture():SetDesaturated (false)
 				end
+				
+				GameCooltip:Reset()
+				GameCooltip:AddLine (Loc ["STRING_REPORT_BUTTON_TOOLTIP"])
+				GameCooltip:SetOwner (baseframe.cabecalho.report)
+				GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
+				GameCooltip:Show()
+				
 			end)
 			baseframe.cabecalho.report:SetScript ("OnLeave", function (self)
 				OnLeaveMainWindow (instancia, self, 3)
 				if (instancia.desaturated_menu) then
 					self:GetNormalTexture():SetDesaturated (true)
 				end
+				GameCooltip:Hide()
 			end)
 
 	--> NOVA INSTANCIA ----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -4579,6 +4634,9 @@ function gump:CriaCabecalho (baseframe, instancia)
 
 			end
 		end
+		
+		GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
+		
 		return ClosedInstances
 	end
 	

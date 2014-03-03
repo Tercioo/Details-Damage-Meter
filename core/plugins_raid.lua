@@ -43,11 +43,19 @@
 			_detalhes.raid = instancia.meu_id
 			instancia:AtualizaGumpPrincipal (true)
 			
-			if (not _detalhes.RaidTables.Plugins [1]) then
+			local first_enabled_plugin, first_enabled_plugin_index
+			for index, plugin in ipairs (_detalhes.RaidTables.Plugins) do
+				if (plugin.__enabled) then
+					first_enabled_plugin = plugin
+					first_enabled_plugin_index = index
+				end
+			end
+			
+			if (not first_enabled_plugin) then
 				_detalhes:WaitForSoloPlugin (instancia)
 			else
 				if (not _detalhes.RaidTables.Plugins [_detalhes.RaidTables.Mode]) then
-					_detalhes.RaidTables.Mode = 1
+					_detalhes.RaidTables.Mode = first_enabled_plugin_index
 				end
 				_detalhes.RaidTables:switch (nil, _detalhes.RaidTables.Mode)
 			end
@@ -127,7 +135,7 @@
 		end
 
 		local ThisFrame = _detalhes.RaidTables.Plugins [_detalhes.RaidTables.Mode]
-		if (not ThisFrame) then
+		if (not ThisFrame or not ThisFrame.__enabled) then
 			--> frame not found, try in few second again
 			_detalhes.RaidTables.Mode = _switchTo
 			_detalhes:WaitForSoloPlugin (_detalhes:GetRaidMode())

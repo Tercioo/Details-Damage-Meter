@@ -123,6 +123,14 @@ local function CreatePluginFrames (data)
 			end
 			EncounterDetails:HideIcon()
 			EncounterDetails:CloseWindow()
+			
+		elseif (event == "PLUGIN_DISABLED") then
+			EncounterDetails:HideIcon()
+			EncounterDetails:CloseWindow()
+			
+		elseif (event == "PLUGIN_ENABLED") then
+			--EncounterDetails:ShowIcon()
+			
 		end
 	end
 	
@@ -182,7 +190,7 @@ local function CreatePluginFrames (data)
 	EncounterDetails.ToolbarButton = _detalhes.ToolBar:NewPluginToolbarButton (EncounterDetails.OpenWindow, "Interface\\Scenarios\\ScenarioIcon-Boss", Loc ["STRING_TOOLTIP"], 12, 12, "ENCOUNTERDETAILS_BUTTON") --"Interface\\COMMON\\help-i"
 	--> setpoint anchors mod if needed
 	EncounterDetails.ToolbarButton.y = 0.5
-	EncounterDetails.ToolbarButton.x = 5
+	EncounterDetails.ToolbarButton.x = 0
 	
 	--> build all frames ans widgets
 	_detalhes.EncounterDetailsTempWindow (EncounterDetails)
@@ -1318,7 +1326,7 @@ function EncounterDetails:OnEvent (_, event, ...)
 				local MINIMAL_DETAILS_VERSION_REQUIRED = 1
 				
 				--> Install
-				local install = _G._detalhes:InstallPlugin ("TOOLBAR", Loc ["STRING_PLUGIN_NAME"], "placeholder string", EncounterDetails, "DETAILS_PLUGIN_ENCOUNTER_DETAILS", MINIMAL_DETAILS_VERSION_REQUIRED)
+				local install, saveddata = _G._detalhes:InstallPlugin ("TOOLBAR", Loc ["STRING_PLUGIN_NAME"], "Interface\\Scenarios\\ScenarioIcon-Boss", EncounterDetails, "DETAILS_PLUGIN_ENCOUNTER_DETAILS", MINIMAL_DETAILS_VERSION_REQUIRED, "Details! Team", "v1.05")
 				if (type (install) == "table" and install.error) then
 					print (install.error)
 				end

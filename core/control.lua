@@ -284,6 +284,15 @@
 			_detalhes:UptadeRaidMembersCache()
 			_detalhes:HaveOneCurrentInstance()
 			
+			--> hide / alpha in combat
+			for index, instancia in ipairs (_detalhes.tabela_instancias) do 
+				if (instancia.ativa) then
+					if (instancia.hide_in_combat) then
+						instancia:SetWindowAlpha (instancia.hide_in_combat_alpha / 100)
+					end
+				end
+			end
+			
 			_detalhes:SendEvent ("COMBAT_PLAYER_ENTER", nil, _detalhes.tabela_vigente)
 			
 		end
@@ -463,6 +472,15 @@
 			_table_wipe (_detalhes.cache_healing_group)
 			
 			_detalhes:UpdateParserGears()
+			
+			--> hide / alpha in combat
+			for index, instancia in ipairs (_detalhes.tabela_instancias) do 
+				if (instancia.ativa) then
+					if (instancia.hide_in_combat) then
+						instancia:SetWindowAlpha (1, true)
+					end
+				end
+			end
 			
 			_detalhes:SendEvent ("COMBAT_PLAYER_LEAVE", nil, _detalhes.tabela_vigente)
 		end
@@ -744,7 +762,7 @@
 			return _detalhes.combat_id
 		end
 
-	--> tooltip fork search key: ~tooltip
+	--> tooltip fork / search key: ~tooltip
 		local avatarPoint = {"bottomleft", "topleft", -3, -4}
 		local backgroundPoint = {{"bottomleft", "topleft", 0, -3}, {"bottomright", "topright", 0, -3}}
 		local textPoint = {"left", "right", -11, -5}
@@ -791,7 +809,7 @@
 						end
 					end
 				end
-				
+
 				return GameCooltip:ShowCooltip()
 			end
 		end

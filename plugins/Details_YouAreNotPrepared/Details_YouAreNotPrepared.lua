@@ -38,6 +38,13 @@ local function CreatePluginFrames()
 			table.wipe (YouAreNotPrepared.deaths_table)
 			YouAreNotPrepared:Clear()
 			
+		elseif (event == "PLUGIN_DISABLED") then
+			table.wipe (YouAreNotPrepared.deaths_table)
+			YouAreNotPrepared:Clear()
+			YouAreNotPreparedFrame:Hide()
+			
+		elseif (event == "PLUGIN_ENABLED") then
+			
 		end
 	end
 	
@@ -364,6 +371,12 @@ end
 
 function YouAreNotPrepared:OnDeath (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, death_table, last_cooldown, time_of_death, max_health)
 
+	--> hooks run inside parser and do not check if the plugin is enabled or not.
+	--> we need to check this here before continue.
+	if (not YouAreNotPrepared.__enabled) then
+		return
+	end
+
 	if (alvo_name == YouAreNotPrepared.playername) then
 
 		--[[ debug mode
@@ -400,7 +413,7 @@ function YouAreNotPrepared:OnEvent (_, event, ...)
 				local MINIMAL_DETAILS_VERSION_REQUIRED = 12
 				
 				--> install
-				local install = _G._detalhes:InstallPlugin ("TOOLBAR", Loc ["STRING_PLUGIN_NAME"], "placeholder string", YouAreNotPrepared, "DETAILS_PLUGIN_YANP", MINIMAL_DETAILS_VERSION_REQUIRED)
+				local install = _G._detalhes:InstallPlugin ("TOOLBAR", Loc ["STRING_PLUGIN_NAME"], [[Interface\ICONS\Achievement_Boss_Illidan]], YouAreNotPrepared, "DETAILS_PLUGIN_YANP", MINIMAL_DETAILS_VERSION_REQUIRED, "Details! Team", "v1.01")
 				if (type (install) == "table" and install.error) then
 					print (install.error)
 				end

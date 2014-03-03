@@ -1000,9 +1000,22 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 	local porcentagem = self [keyName] / total * 100
 	local esta_porcentagem
 
-	if ((_detalhes.time_type == 2 and self.grupo) or not _detalhes:CaptureGet ("damage") or not self.shadow) then
-		dps = damage_total / combat_time
-		self.last_dps = dps
+	--tempo da shadow não é mais calculado pela timemachine
+	if ((_detalhes.time_type == 2 and self.grupo) or not _detalhes:CaptureGet ("damage") or not self.shadow) then --not self.shadow is overall but...
+		if (not self.shadow and combat_time == 0) then
+			local p = _detalhes.tabela_vigente (1, self.nome)
+			if (p) then
+				local t = p:Tempo()
+				dps = damage_total / t
+				self.last_dps = dps
+			else
+				dps = damage_total / combat_time
+				self.last_dps = dps
+			end
+		else
+			dps = damage_total / combat_time
+			self.last_dps = dps
+		end
 	else
 		if (not self.on_hold) then
 			dps = damage_total/self:Tempo() --calcula o dps deste objeto

@@ -542,14 +542,18 @@
 		end
 		
 		function _detalhes:ExecDelayedPlugin (instancia)
+		
 			RotateAnimGroup:Stop()
 			WaitForPluginFrame:Hide()	
 			label:Hide()
 			bgpanel:Hide()
+			
 			if (instancia.meu_id == _detalhes.solo) then
 				_detalhes.SoloTables:switch (nil, _detalhes.SoloTables.Mode)
+				
 			elseif (instancia.meu_id == _detalhes.raid) then
 				_detalhes.RaidTables:switch (nil, _detalhes.RaidTables.Mode)
+				
 			end
 		end	
 	end

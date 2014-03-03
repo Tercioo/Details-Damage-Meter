@@ -75,7 +75,13 @@
 	local BuildReportPanel = function()
 
 		function ErrorReport:OnDetailsEvent (event, ...)
-			return
+			if (event == "PLUGIN_DISABLED") then
+				ErrorReport:HideToolbarIcon (ErrorReport.ToolbarButton)
+				
+			elseif (event == "PLUGIN_ENABLED") then
+				ErrorReport:ShowToolbarIcon (ErrorReport.ToolbarButton)
+				
+			end
 		end
 	
 		--> catch Details! main object
@@ -90,7 +96,7 @@
 		ErrorReport.ToolbarButton = _detalhes.ToolBar:NewPluginToolbarButton (ErrorReport.OpenWindow, "Interface\\HELPFRAME\\HelpIcon-Bug", Loc ["STRING_TOOLTIP"], 20, 20, "DETAILS_ERRORREPORT_BUTTON")
 		--> setpoint anchors mod if needed
 		ErrorReport.ToolbarButton.y = 0
-		ErrorReport.ToolbarButton.x = 1
+		ErrorReport.ToolbarButton.x = 0
 		
 		ErrorReport:ShowToolbarIcon (ErrorReport.ToolbarButton)
 		
@@ -232,7 +238,7 @@
 					BuildReportPanel (data)
 
 					--> Install
-					local install = _G._detalhes:InstallPlugin ("TOOLBAR", Loc ["STRING_PLUGIN_NAME"], "placeholder string", ErrorReport, "DETAILS_PLUGIN_REPORT_ERRORS")
+					local install, saveddata = _G._detalhes:InstallPlugin ("TOOLBAR", Loc ["STRING_PLUGIN_NAME"], "Interface\\HELPFRAME\\HelpIcon-Bug", ErrorReport, "DETAILS_PLUGIN_REPORT_ERRORS", 1, "Details! Team", "v1.03")
 					if (type (install) == "table" and install.error) then
 						print (install.error)
 					end

@@ -4,9 +4,8 @@ if not Loc then return end
 --------------------------------------------------------------------------------------------------------------------------------------------
 -- \n\n|cFFFFFF00-|r 
 	
-	
-	
-	Loc ["STRING_VERSION_LOG"] = "|cFFFFFF00v1.9.5|r\n\n|cFFFFFF00-More fixes on Skins support and new tools for plugins.|r\n\n|cFFFFFF00v1.9.4|r\n\n|cFFFFFF00-|r Minor bug fixes and improvements on Welcome Screen.\n\n|cFFFFFF00v1.9.3|r\n\n|cFFFFFF00-|r The bar now starts after the icon instead of left window border.\n\n|cFFFFFF00-|r Welcome window now is localizated to others languages\n\n|cFFFFFF00-|r Fixed issue with Damage Rank Plugin.\n\n|cFFFFFF00v1.9.1|r\n\n|cFFFFFF00-|r fixed issue with main window icon when no plugin installed. \n\n|cFFFFFF00-|r fixed issue with some options button text which where out of positioning.\n\n|cFFFFFF00-|r fixed sub menu overlap when near right screen edge.\n\n|cFFFFFF00-|r fixed close button position for default skin.\n\n|cFFFFFF00-|r fixed skin error when selecting solo or right plugins.|cFFFFFF00v1.9.0|r\n\n|cFFFFFF00-|r Fixed minimap icon stuck problem.\n\n|cFFFFFF00-|r Skin support has been rewrite and now is more flexibe.\n\n|cFFFFFF00-|r Added up to 20 new customization options over options panel.\n\n|cFFFFFF00v1.8.4|r\n\n|cFFFFFF00-|r Added slash command 'details reinstall' which cleans Details! config in case of erros.\n\n|cFFFFFF00v1.8.3|r\n\n|cFFFFFF00-|r Added new skin: Simple Gray.\n\n|cFFFFFF00-|r Added minimap and interface addon panel buttons.\n\n|cFFFFFF00-|r Added new tutorials bubbles for basic aspects of Details! window.\n\n|cFFFFFF00-|r Fixed a issue with Panic Mode where sometimes his isnt triggered.\n\n|cFFFFFF00v1.8.0|r\n\n|cFFFFFF00-|r Added a new plugin: You Are Not Prepared.\n\n|cFFFFFF00-|r New options panel!\n\n|cFFFFFF00v1.7.0|r\n\n- Fixed some colors issues with enimies bars.\n\n|cFFFFFF00-|r Fixed some phrases which isn't still not translated to enUS.\n\n|cFFFFFF00-|r Major rewrite on CC-Breaks, now it's working properly.\n\n|cFFFFFF00-|r Added new sub attribute for damage: Voidzones & Debuffs.|cFFFFFF00v1.6.7|r\n\n- Added support to skins, you can change over options panel.\n\n|cFFFFFF00v1.6.5|r\n\n|cFFFFFF00-|r Added sub attribute 'Enemies' which shows, of course, only enemies.\n\n|cFFFFFF00-|r Fixed issue with successful spell cast.\n\n|cFFFFFF00v1.6.3|r\n\n|cFFFFFF00-|r data capture now runs 4% faster.\n\n|cFFFFFF00-|r Fixed issue with pets were wasn't uptading owner activity time.\n\n|cFFFFFF00-|r Fixed healing being counted even out of combat.\n\n|cFFFFFF00-|r Fixed some problems with multi-boss encountes like Twin Consorts.\n\n|cFFFFFF00-|r Added options for concatenate trash segments.\n\n|cFFFFFF00-|r Added options for auto remove trash segments. \n\n|cFFFFFF00-|r Added options for change bar height. \n\n|cFFFFFF00-|r Encounter Details now display how many interrupted and successful cast of a boss skill."
+
+	Loc ["STRING_VERSION_LOG"] = "|cFFFFFF00v1.10.0|r\n\n|cFFFFFF00-|r Fixed a issue with overall data Dps when have only one segment.\n\n|cFFFFFF00-|r Changed colors and added some backgrounds for menus.\n\n|cFFFFFF00-|r Options panel has his height size increased.\n\n|cFFFFFF00-|r Added options for hide the window or change the transparency when in combat.\n\n|cFFFFFF00-|r Added a control panel for plugins, where you can enable or disable then.\n\n|cFFFFFF00v1.9.5|r\n\n|cFFFFFF00-|r More fixes on Skins support and new tools for plugins.|r\n\n|cFFFFFF00v1.9.4|r\n\n|cFFFFFF00-|r Minor bug fixes and improvements on Welcome Screen.\n\n|cFFFFFF00v1.9.3|r\n\n|cFFFFFF00-|r The bar now starts after the icon instead of left window border.\n\n|cFFFFFF00-|r Welcome window now is localizated to others languages\n\n|cFFFFFF00-|r Fixed issue with Damage Rank Plugin.\n\n|cFFFFFF00v1.9.1|r\n\n|cFFFFFF00-|r fixed issue with main window icon when no plugin installed. \n\n|cFFFFFF00-|r fixed issue with some options button text which where out of positioning.\n\n|cFFFFFF00-|r fixed sub menu overlap when near right screen edge.\n\n|cFFFFFF00-|r fixed close button position for default skin.\n\n|cFFFFFF00-|r fixed skin error when selecting solo or right plugins.|cFFFFFF00v1.9.0|r\n\n|cFFFFFF00-|r Fixed minimap icon stuck problem.\n\n|cFFFFFF00-|r Skin support has been rewrite and now is more flexibe.\n\n|cFFFFFF00-|r Added up to 20 new customization options over options panel.\n\n|cFFFFFF00v1.8.4|r\n\n|cFFFFFF00-|r Added slash command 'details reinstall' which cleans Details! config in case of erros.\n\n|cFFFFFF00v1.8.3|r\n\n|cFFFFFF00-|r Added new skin: Simple Gray.\n\n|cFFFFFF00-|r Added minimap and interface addon panel buttons.\n\n|cFFFFFF00-|r Added new tutorials bubbles for basic aspects of Details! window.\n\n|cFFFFFF00-|r Fixed a issue with Panic Mode where sometimes his isnt triggered.\n\n|cFFFFFF00v1.8.0|r\n\n|cFFFFFF00-|r Added a new plugin: You Are Not Prepared.\n\n|cFFFFFF00-|r New options panel!\n\n|cFFFFFF00v1.7.0|r\n\n- Fixed some colors issues with enimies bars.\n\n|cFFFFFF00-|r Fixed some phrases which isn't still not translated to enUS.\n\n|cFFFFFF00-|r Major rewrite on CC-Breaks, now it's working properly.\n\n|cFFFFFF00-|r Added new sub attribute for damage: Voidzones & Debuffs.|cFFFFFF00v1.6.7|r\n\n- Added support to skins, you can change over options panel.\n\n|cFFFFFF00v1.6.5|r\n\n|cFFFFFF00-|r Added sub attribute 'Enemies' which shows, of course, only enemies.\n\n|cFFFFFF00-|r Fixed issue with successful spell cast."
 
 	Loc ["STRING_DETAILS1"] = "|cffffaeaeDetails:|r " --> color and details name
 
@@ -49,6 +48,8 @@ if not Loc then return end
 	Loc ["STRING_ISA_PET"] = "This Actor is a Pet"
 	Loc ["STRING_EQUILIZING"] = "Sharing encounter data"
 	Loc ["STRING_LEFT_CLICK_SHARE"] = "Left click to report."
+	
+	Loc ["STRING_REPORT_BUTTON_TOOLTIP"] = "Click to open Report Dialog"
 	
 	Loc ["STRING_LAST_COOLDOWN"] = "last cooldown used"
 	Loc ["STRING_NOLAST_COOLDOWN"] = "no cooldown used"
@@ -398,6 +399,7 @@ if not Loc then return end
 	Loc ["STRING_OPTIONS_GENERAL"] = "General Settings"
 	Loc ["STRING_OPTIONS_APPEARANCE"] = "Appearance"
 	Loc ["STRING_OPTIONS_PERFORMANCE"] = "Performance"
+	Loc ["STRING_OPTIONS_PLUGINS"] = "Plugins"
 	Loc ["STRING_OPTIONS_SOCIAL"] = "Social"
 	Loc ["STRING_OPTIONS_SOCIAL_DESC"] = "Tell how do you want to be known in your guild enviorement."
 	Loc ["STRING_OPTIONS_NICKNAME"] = "Nickname"
@@ -420,6 +422,10 @@ if not Loc then return end
 	Loc ["STRING_OPTIONS_MINIMAP_DESC"] = "Show or Hide minimap icon."
 	Loc ["STRING_OPTIONS_TIMEMEASURE"] = "Time Measure"
 	Loc ["STRING_OPTIONS_TIMEMEASURE_DESC"] = "|cFFFFFFFFActivity|r: the timer of each raid member is put on hold if his activity is ceased and back again to count when is resumed, common way of mensure Dps and Hps.\n\n|cFFFFFFFFEffective|r: used on rankings, this method uses the elapsed combat time for mensure the Dps and Hps of all raid members."
+	Loc ["STRING_OPTIONS_HIDECOMBAT"] = "Hide On Combat"
+	Loc ["STRING_OPTIONS_HIDECOMBAT_DESC"] = "If enabled, this instance window is hidden when you enter in combat."
+	Loc ["STRING_OPTIONS_HIDECOMBATALPHA"] = "Transparency"
+	Loc ["STRING_OPTIONS_HIDECOMBATALPHA_DESC"] = "The window can be completely hidden or just be more transparent."
 	
 	Loc ["STRING_OPTIONS_PERFORMANCE1"] = "Performance Tweaks"
 	Loc ["STRING_OPTIONS_PERFORMANCE1_DESC"] = "This options can help save some cpu usage."

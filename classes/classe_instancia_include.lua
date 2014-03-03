@@ -103,6 +103,9 @@ _detalhes.instance_defaults = {
 		},
 	--instance window color
 		color = {1, 1, 1, 1},
+	--hide in combat
+		hide_in_combat = false,
+		hide_in_combat_alpha = 0,
 	--wallpaper
 		wallpaper = {
 			enabled = false,

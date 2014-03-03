@@ -198,7 +198,11 @@
 			
 				for _, ThisButton in ipairs (_detalhes.ToolBar.Shown) do 
 					ThisButton:ClearAllPoints()
-					ThisButton:SetPoint ("left", LastIcon, "right", ThisButton.x + x, ThisButton.y)
+					if (LastIcon == instance.baseframe.cabecalho.report) then
+						ThisButton:SetPoint ("left", LastIcon, "right", ThisButton.x + x + 4, ThisButton.y)
+					else
+						ThisButton:SetPoint ("left", LastIcon, "right", ThisButton.x + x, ThisButton.y)
+					end
 					ThisButton:Show()
 					LastIcon = ThisButton
 				end

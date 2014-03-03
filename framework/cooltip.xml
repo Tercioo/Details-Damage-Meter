@@ -66,6 +66,15 @@
 					<TexCoords left="0.896484375" right="1" top="0" bottom="1"/>
 				</Texture>
 			</Layer>
+			
+			<Layer level="BACKGROUND" textureSubLevel="4">
+				<Texture name="$parent_FrameWallPaper" parentKey="frameWallpaper">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT" x="3" y="-3"/>
+						<Anchor point="BOTTOMRIGHT" relativeTo="$parent" relativePoint="BOTTOMRIGHT" x="-3" y="3"/>
+					</Anchors>
+				</Texture>
+			</Layer>
 		
 			<Layer level="ARTWORK">
 				<!-- selected bar -->

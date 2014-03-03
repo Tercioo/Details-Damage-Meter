@@ -44,6 +44,13 @@ local function CreatePluginFrames (data)
 			local combat = select (1, ...)
 			--print (combat)
 			DmgRank:Start()
+			
+		elseif (event == "PLUGIN_DISABLED") then
+			DmgRankFrame:SetScript ("OnUpdate", nil) 
+			DmgRank:Cancel()
+			
+		elseif (event == "PLUGIN_ENABLED") then
+			
 
 		end
 	end
@@ -542,7 +549,7 @@ function DmgRank:OnEvent (_, event, ...)
 				local MINIMAL_DETAILS_VERSION_REQUIRED = 1
 
 				--> Install plugin inside details
-				local install = _G._detalhes:InstallPlugin ("SOLO", Loc ["STRING_PLUGIN_NAME"], "Interface\\Icons\\ACHIEVEMENT_GUILDPERK_HONORABLEMENTION_RANK2", DmgRank, "DETAILS_PLUGIN_DAMAGE_RANK", MINIMAL_DETAILS_VERSION_REQUIRED)
+				local install, saveddata = _G._detalhes:InstallPlugin ("SOLO", Loc ["STRING_PLUGIN_NAME"], "Interface\\Icons\\ACHIEVEMENT_GUILDPERK_HONORABLEMENTION_RANK2", DmgRank, "DETAILS_PLUGIN_DAMAGE_RANK", MINIMAL_DETAILS_VERSION_REQUIRED, "Details! Team", "v1.09")
 				if (type (install) == "table" and install.error) then
 					print (install.error)
 				end

@@ -492,11 +492,14 @@
 
 		--> send event to all registred plugins
 		
-		if (not object) then
+		if (event == "PLUGIN_DISABLED" or event == "PLUGIN_ENABLED") then
+			return object:OnDetailsEvent (event, ...)
+		
+		elseif (not object) then
 		
 			for _, PluginObject in ipairs (_detalhes.RegistredEvents[event]) do
 				if (PluginObject.__eventtable) then
-					if (PluginObject [1].Enabled) then
+					if (PluginObject [1].Enabled and PluginObject [1].__enabled) then
 						if (type (PluginObject [2]) == "function") then
 							PluginObject [2] (event, ...)
 						else
@@ -504,7 +507,7 @@
 						end
 					end
 				else
-					if (PluginObject.Enabled) then
+					if (PluginObject.Enabled and PluginObject.__enabled) then
 						PluginObject:OnDetailsEvent (event, ...)
 					end
 				end
@@ -513,20 +516,26 @@
 		elseif (type (object) == "string" and object == "SEND_TO_ALL") then
 			
 			for _, PluginObject in ipairs (_detalhes.RaidTables.Plugins) do 
-				PluginObject:OnDetailsEvent (event)
+				if (PluginObject.__enabled) then
+					PluginObject:OnDetailsEvent (event)
+				end
 			end
 			
 			for _, PluginObject in ipairs (_detalhes.SoloTables.Plugins) do 
-				PluginObject:OnDetailsEvent (event)
+				if (PluginObject.__enabled) then
+					PluginObject:OnDetailsEvent (event)
+				end
 			end
 			
 			for _, PluginObject in ipairs (_detalhes.ToolBar.Plugins) do 
-				PluginObject:OnDetailsEvent (event)
+				if (PluginObject.__enabled) then
+					PluginObject:OnDetailsEvent (event)
+				end
 			end
 		else
 		--> send the event only for requested plugin
-			if (object.Enabled) then
-				object:OnDetailsEvent (event, ...)
+			if (object.Enabled and object.__enabled) then
+				return object:OnDetailsEvent (event, ...)
 			end
 		end
 	end

@@ -464,8 +464,10 @@ function atributo_misc:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 
 		if (instancia.bars_sort_direction == 1) then
 			for i = instancia.barraS[1], instancia.barraS[2], 1 do --> vai atualizar só o range que esta sendo mostrado
-				atributo_misc:DeadAtualizarBarra (mortes[i], qual_barra, i, instancia)
-				qual_barra = qual_barra+1
+				if (mortes[i]) then --> correção para um raro e desconhecido problema onde mortes[i] é nil
+					atributo_misc:DeadAtualizarBarra (mortes[i], qual_barra, i, instancia)
+					qual_barra = qual_barra+1
+				end
 			end
 			
 		elseif (instancia.bars_sort_direction == 2) then

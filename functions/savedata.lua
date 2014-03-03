@@ -33,6 +33,9 @@ end
 	--> minimap
 	_detalhes_database.minimap = _detalhes.minimap
 	
+	--> plugin data
+	_detalhes_database.plugin_database = _detalhes.plugin_database
+	
 	--> save instances (windows)
 		_detalhes_database.tabela_instancias = _detalhes.tabela_instancias
 		_detalhes_database.class_icons_small = _detalhes.class_icons_small
@@ -171,8 +174,11 @@ end --]]
 			_detalhes:NickTagSetCache (_detalhes.nick_tag_cache)
 			_detalhes.only_pvp_frags = _detalhes_database.only_pvp_frags
 			
-			--> minimap
+		--> minimap
 			_detalhes.minimap = _detalhes_database.minimap
+			
+		--> plugin data
+			_detalhes.plugin_database = _detalhes_database.plugin_database
 	
 		--> character info
 			_detalhes.character_data = _detalhes_database.character_data
@@ -408,6 +414,8 @@ function _detalhes:ApplyConfigDataOnLoad()
 	self.font_sizes = self.font_sizes or {menus = 10}
 	self.minimap = self.minimap or {hide = false, radius = 160, minimapPos = 220}
 
+	self.plugin_database = self.plugin_database or {}
+	
 	--> tutorial
 	self.tutorial = self.tutorial or {}
 	self.tutorial.logons = self.tutorial.logons or 0
