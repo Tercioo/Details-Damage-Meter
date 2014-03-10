@@ -416,8 +416,20 @@ function atributo_heal:AtualizaBarra (instancia, barras_container, qual_barra, l
 	local esta_porcentagem
 
 	if ((_detalhes.time_type == 2 and self.grupo) or (not _detalhes:CaptureGet ("heal") and not _detalhes:CaptureGet ("aura")) or not self.shadow) then
-		hps = healing_total / combat_time
-		self.last_hps = hps
+		if (not self.shadow and combat_time == 0) then
+			local p = _detalhes.tabela_vigente (2, self.nome)
+			if (p) then
+				local t = p:Tempo()
+				hps = healing_total / t
+				self.last_hps = hps
+			else
+				hps = healing_total / combat_time
+				self.last_hps = hps
+			end
+		else
+			hps = healing_total / combat_time
+			self.last_hps = hps
+		end
 	else
 		if (not self.on_hold) then
 			hps = healing_total/self:Tempo() --calcula o dps deste objeto
@@ -438,11 +450,27 @@ function atributo_heal:AtualizaBarra (instancia, barras_container, qual_barra, l
 		esta_porcentagem = _math_floor ((self.custom/instancia.top) * 100) --> determina qual o tamanho da barra
 	else	
 		if (sub_atributo == 1) then --> mostrando healing done
-			esta_barra.texto_direita:SetText (_detalhes:ToK (healing_total) .." ".. div_abre .. _math_floor (hps) .. ", ".. _cstr ("%.1f", porcentagem).."%" .. div_fecha) --seta o texto da direita
+		
+			hps = _math_floor (hps)
+			if (_detalhes.ps_abbreviation == 2) then
+				hps = _detalhes:ToK (hps)
+			elseif (_detalhes.ps_abbreviation == 3) then
+				hps = _detalhes:ToK2 (hps)
+			end
+		
+			esta_barra.texto_direita:SetText (_detalhes:ToK (healing_total) .." ".. div_abre .. hps .. ", ".. _cstr ("%.1f", porcentagem).."%" .. div_fecha) --seta o texto da direita
 			esta_porcentagem = _math_floor ((healing_total/instancia.top) * 100) --> determina qual o tamanho da barra
 			
 		elseif (sub_atributo == 2) then --> mostrando hps
-			esta_barra.texto_direita:SetText (_cstr("%.1f", hps) .." ".. div_abre .. _detalhes:ToK (healing_total) .. ", ".._cstr("%.1f", porcentagem).."%" .. div_fecha) --seta o texto da direita
+		
+			hps = _math_floor (hps)
+			if (_detalhes.ps_abbreviation == 2) then
+				esta_barra.texto_direita:SetText (_detalhes:ToK (hps) .." ".. div_abre .. _detalhes:ToK (healing_total) .. ", ".._cstr("%.1f", porcentagem).."%" .. div_fecha) --seta o texto da direita
+			elseif (_detalhes.ps_abbreviation == 2) then
+				esta_barra.texto_direita:SetText (_detalhes:ToK2 (hps) .." ".. div_abre .. _detalhes:ToK (healing_total) .. ", ".._cstr("%.1f", porcentagem).."%" .. div_fecha) --seta o texto da direita
+			else
+				esta_barra.texto_direita:SetText (_cstr("%.1f", hps) .." ".. div_abre .. _detalhes:ToK (healing_total) .. ", ".._cstr("%.1f", porcentagem).."%" .. div_fecha) --seta o texto da direita
+			end
 			esta_porcentagem = _math_floor ((hps/instancia.top) * 100) --> determina qual o tamanho da barra
 			
 		elseif (sub_atributo == 3) then --> mostrando overall
@@ -1220,6 +1248,7 @@ function atributo_heal:MontaInfoHealingDone()
 
 		barra.minha_tabela = self
 		barra.show = tabela[1]
+		barra.spellid = self.nome
 		barra:Show()
 
 		if (self.detalhes and self.detalhes == barra.show) then
@@ -1265,7 +1294,7 @@ function atributo_heal:MontaInfoHealingDone()
 		barra.nome_inimigo = tabela [1]
 		
 		-- no lugar do spell id colocar o que?
-		--barra.spellid = tabela[5]
+		barra.spellid = tabela[5]
 		barra:Show()
 		
 		--if (self.detalhes and self.detalhes == barra.spellid) then
@@ -1398,7 +1427,7 @@ function atributo_heal:MontaDetalhesHealingTaken (nome, barra)
 		end
 
 		barra.texto_esquerdo:SetText (index..instancia.divisores.colocacao..tabela[4]) --seta o texto da esqueda
-		barra.texto_direita:SetText (tabela[2] .." ".. instancia.divisores.abre .._cstr("%.1f", tabela[3]) .."%".. instancia.divisores.fecha) --seta o texto da direita
+		barra.texto_direita:SetText (_detalhes:comma_value (tabela[2]) .." ".. instancia.divisores.abre .._cstr("%.1f", tabela[3]) .."%".. instancia.divisores.fecha) --seta o texto da direita
 		
 		barra.icone:SetTexture (tabela[5])
 

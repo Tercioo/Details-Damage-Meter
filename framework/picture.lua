@@ -135,6 +135,14 @@ local ImageMetaFunctions = {}
 			_object:SetDesaturated (false)
 		end
 	end
+	--> texcoords
+	local smember_texcoord = function (_object, _value)
+		if (_value) then
+			_object:SetTexCoord (unpack (_value))
+		else
+			_object:SetTexCoord (0, 1, 0, 1)
+		end
+	end
 
 	local set_members_function_index = {
 		["show"] = smember_show,
@@ -143,6 +151,7 @@ local ImageMetaFunctions = {}
 		["width"] = smember_width,
 		["height"] = smember_height,
 		["texture"] = smember_texture,
+		["texcoord"] = smember_texcoord,
 		["color"] = smember_color,
 		["blackwhite"] = smember_desaturated,
 	}

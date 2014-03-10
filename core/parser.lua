@@ -2740,6 +2740,13 @@
 		end
 	end
 	
+	function _detalhes:IsInCache (playerguid)
+		return raid_members_cache [playerguid]
+	end
+	function _detalhes:GetParserPlayerCache()
+		return raid_members_cache
+	end
+	
 	--serach key: ~cache
 	function _detalhes:UpdateParserGears()
 

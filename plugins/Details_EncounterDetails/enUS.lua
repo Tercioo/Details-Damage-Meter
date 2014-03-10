@@ -35,10 +35,10 @@ Loc ["STRING_TOOLTIP"] = "Show Encounter Details Window"
 Loc ["STRING_LAST_COOLDOWN"] = "last cooldown used"
 Loc ["STRING_NOLAST_COOLDOWN"] = "no cooldown used"
 
-Loc ["STRING_ADDS_HELP"] = "Mouse over |cFF00FF00Arrow Up|r for dmg received, |cFFFF0000Arrow Down|r for dmg dealt.\n|cFFFFFF00Click Arrow|r: Report the data shown on tooltip."
-Loc ["STRING_INTERRIPT_HELP"] = "\n\n|cFFFFFF00Click|r on a bar: open report window."
-Loc ["STRING_DISPELL_HELP"] = "\n\n|cFFFFFF00Click|r on a bar: open report window."
-Loc ["STRING_DEATHS_HELP"] = "\n\n|cFFFFFF00Click|r on a bar: open report window."
+Loc ["STRING_ADDS_HELP"] = "Mouse over |cFF00FF00Arrow Up|r\nfor dmg received, |cFFFF0000Arrow\n|cFFFF0000Down|r for dmg dealt. |cFFFFFF00Click\n|cFFFFFF00Arrow|r: Report the data\nshown on tooltip."
+Loc ["STRING_INTERRIPT_HELP"] = " |cFFFFFF00Click|r on a bar:\nopen report window.\nIn the right we have the\namount interrupted against\nthe total times casted."
+Loc ["STRING_DISPELL_HELP"] = " \n|cFFFFFF00Click|r on a bar:\nopen report window."
+Loc ["STRING_DEATHS_HELP"] = " \n|cFFFFFF00Click|r on a bar:\nopen report window."
 
 --> mechanic types
 Loc ["STRING_HEAL"] = "heal"

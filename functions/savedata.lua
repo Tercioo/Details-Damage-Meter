@@ -50,6 +50,7 @@ end
 		_detalhes_database.window_clamp = _detalhes.window_clamp
 		--> text sizes
 		_detalhes_database.font_sizes = _detalhes.font_sizes
+		_detalhes_database.ps_abbreviation = _detalhes.ps_abbreviation
 		-- max segments
 		_detalhes_database.segments_amount = _detalhes.segments_amount
 		_detalhes_database.segments_amount_to_save = _detalhes.segments_amount_to_save
@@ -254,6 +255,7 @@ end --]]
 			_detalhes.clear_graphic = _detalhes_database.clear_graphic
 			--> text sizes
 			_detalhes.font_sizes = _detalhes_database.font_sizes
+			_detalhes.ps_abbreviation = _detalhes_database.ps_abbreviation
 			-- row animation
 			_detalhes.use_row_animations = _detalhes_database.use_row_animations
 			_detalhes.animate_scroll = _detalhes_database.animate_scroll
@@ -414,6 +416,8 @@ function _detalhes:ApplyConfigDataOnLoad()
 	self.font_sizes = self.font_sizes or {menus = 10}
 	self.minimap = self.minimap or {hide = false, radius = 160, minimapPos = 220}
 
+	self.ps_abbreviation = self.ps_abbreviation or 1
+	
 	self.plugin_database = self.plugin_database or {}
 	
 	--> tutorial

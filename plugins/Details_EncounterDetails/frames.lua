@@ -13,15 +13,18 @@ do
 	function EncounterDetails:CreateRowTexture (row)
 		row.textura = CreateFrame ("StatusBar", nil, row)
 		row.textura:SetAllPoints (row)
-		row.textura:SetStatusBarTexture ("Interface\\AddOns\\Details\\images\\bar4")
+		local t = row.textura:CreateTexture (nil, "overlay")
+		t:SetTexture ("Interface\\AddOns\\Details\\images\\bar_serenity")
+		row.t = t
+		row.textura:SetStatusBarTexture (t)
 		row.textura:SetStatusBarColor(.5, .5, .5, 0)
 		row.textura:SetMinMaxValues(0,100)
 		
 		row.texto_esquerdo = row.textura:CreateFontString (nil, "OVERLAY", "GameFontHighlightSmall")
-		row.texto_esquerdo:SetPoint ("LEFT", row.textura, "LEFT", 22, 0)
+		row.texto_esquerdo:SetPoint ("LEFT", row.textura, "LEFT", 22, -1)
 		row.texto_esquerdo:SetJustifyH ("LEFT")
 		row.texto_esquerdo:SetTextColor (1,1,1,1)
-		
+
 		row.texto_direita = row.textura:CreateFontString (nil, "OVERLAY", "GameFontHighlightSmall")
 		row.texto_direita:SetPoint ("RIGHT", row.textura, "RIGHT", -2, 0)
 		row.texto_direita:SetJustifyH ("RIGHT")
@@ -533,10 +536,10 @@ Message: ..\AddOns\Details_EncounterDetails\frames.lua line 156:
 				BossFrame["timeamt0"]:Hide()
 			end
 
-			BossFrame.StatusBar_damageicon:Show()
-			BossFrame.StatusBar_healicon:Show()
-			BossFrame.StatusBar_totaldamage:Show()
-			BossFrame.StatusBar_totalheal:Show()
+			--BossFrame.StatusBar_damageicon:Show()
+			--BossFrame.StatusBar_healicon:Show()
+			--BossFrame.StatusBar_totaldamage:Show()
+			--BossFrame.StatusBar_totalheal:Show()
 			
 			BossFrame.ShowType = "main"
 			
@@ -652,7 +655,7 @@ Message: ..\AddOns\Details_EncounterDetails\frames.lua line 156:
 		frame.raid_name:SetPoint ("CENTER", frame.boss_name, "CENTER", 0, 14)
 
 	--> Barra de Status:
-	
+
 		frame.StatusBar_damageicon = frame:CreateTexture (nil, "overlay")
 		frame.StatusBar_damageicon:SetPoint ("bottomleft", frame, "bottomleft", 20, 21)
 		frame.StatusBar_damageicon:SetTexture ("Interface\\AddOns\\Details_EncounterDetails\\images\\boss_icones")
@@ -672,6 +675,35 @@ Message: ..\AddOns\Details_EncounterDetails\frames.lua line 156:
 		
 		DetailsFrameWork:NewLabel (frame, frame, nil, "StatusBar_totalheal", Loc ["STRING_TOTAL_HEAL"], "GameFontHighlightSmall")
 		frame.StatusBar_totalheal:SetPoint ("left", frame.StatusBar_healicon, "right", 2, 0)
+		
+		frame.StatusBar_damageicon:Hide()
+		frame.StatusBar_totaldamage:Hide()
+		frame.StatusBar_healicon:Hide()
+		frame.StatusBar_totalheal:Hide()
+		
+	--> Selecionar o segmento
+	
+		local buildSegmentosMenu = function (self)
+			local historico = _detalhes.tabela_historico.tabelas
+			local return_table = {}
+			
+			for index, combate in ipairs (historico) do 
+				if (combate.is_boss) then
+					local l, r, t, b, icon = _detalhes:GetBossIcon (combate.is_boss.mapid, combate.is_boss.index)
+					return_table [#return_table+1] = {value = index, label = "#" .. index .. " " .. combate.is_boss.name, icon = icon, texcoord = {l, r, t, b}, onclick = EncounterDetails.OpenAndRefresh}
+				end
+			end
+			
+			return return_table
+		end
+		
+		local segmentos_string = DetailsFrameWork:NewLabel (frame, nil, nil, "segmentosString", "Segment:", "GameFontNormal", 12)
+		segmentos_string:SetPoint ("bottomleft", frame, "bottomleft", 20, 17)
+		_detalhes:SetFontColor (segmentos_string, "white")
+		_detalhes:SetFontSize (segmentos_string, 10)
+		
+		local segmentos = DetailsFrameWork:NewDropDown (frame, _, "$parentSegmentsDropdown", "segmentosDropdown", 160, 18, buildSegmentosMenu, nil)	
+		segmentos:SetPoint ("left", segmentos_string, "right", 2, 0)
 	
 	--> Caixa do Dano total tomado pela Raid
 	

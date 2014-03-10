@@ -187,7 +187,7 @@ local function CreatePluginFrames (data)
 	end
 	
 	--> create the button to show on toolbar [1] function OnClick [2] texture [3] tooltip [4] width or 14 [5] height or 14 [6] frame name or nil
-	EncounterDetails.ToolbarButton = _detalhes.ToolBar:NewPluginToolbarButton (EncounterDetails.OpenWindow, "Interface\\Scenarios\\ScenarioIcon-Boss", Loc ["STRING_TOOLTIP"], 12, 12, "ENCOUNTERDETAILS_BUTTON") --"Interface\\COMMON\\help-i"
+	EncounterDetails.ToolbarButton = _detalhes.ToolBar:NewPluginToolbarButton (EncounterDetails.OpenWindow, "Interface\\Scenarios\\ScenarioIcon-Boss", Loc ["STRING_PLUGIN_NAME"], Loc ["STRING_TOOLTIP"], 12, 12, "ENCOUNTERDETAILS_BUTTON") --"Interface\\COMMON\\help-i"
 	--> setpoint anchors mod if needed
 	EncounterDetails.ToolbarButton.y = 0.5
 	EncounterDetails.ToolbarButton.x = 0
@@ -217,6 +217,7 @@ end
 		GameCooltip:SetType ("tooltipbar")
 		GameCooltip:SetOwner (row)
 		
+		
 		for index, event in _ipairs (lastEvents) do 
 		
 			--max hp percent (in case of hp cooldowns)
@@ -229,7 +230,6 @@ end
 				local nome_magia, _, icone_magia = _GetSpellInfo (event [2])
 				
 				if (not event[3] and not battleress) then --> battle ress
-				
 					GameCooltip:AddLine ("+".._cstr ("%.1f", event[4] - timeOfDeath) .."s "..nome_magia.." ("..event[6]..")", "-- -- -- ", 1, "white")
 					GameCooltip:AddIcon ("Interface\\Glues\\CharacterSelect\\Glues-AddOn-Icons", 1, 1, nil, nil, .75, 1, 0, 1)
 					GameCooltip:AddStatusBar (100, 1, "silver", false)
@@ -249,7 +249,7 @@ end
 					_school = _detalhes:trim (_school)
 					local texto_esquerdo
 					if (nome_magia) then
-						texto_esquerdo = "".._cstr ("%.1f", event[4] - timeOfDeath) .."s "..nome_magia.." (".. _school ..")"
+						texto_esquerdo = "".._cstr ("%.1f", event[4] - timeOfDeath) .."s " .. nome_magia .. " (".. event [6] ..")" --" (".. _school ..")"
 						texto_esquerdo = texto_esquerdo:gsub ("(%()%)", "")
 					else
 						texto_esquerdo = ""
@@ -297,7 +297,8 @@ end
 		
 		GameCooltip:SetOption ("StatusBarHeightMod", -6)
 		GameCooltip:SetOption ("FixedWidth", 400)
-		GameCooltip:SetOption ("TextSize", 9.5)
+		GameCooltip:SetOption ("TextSize", 9)
+		GameCooltip:SetOption ("StatusBarTexture", "Interface\\AddOns\\Details\\images\\bar_serenity")
 		GameCooltip:ShowCooltip()
 		
 	end
@@ -588,10 +589,16 @@ function EncounterDetails:SetRowScripts (barra, index, container)
 end
 
 --> Here start the data mine ---------------------------------------------------------------------------------------------------------
-function EncounterDetails:OpenAndRefresh()
+function EncounterDetails:OpenAndRefresh (_, segment)
 	
-	--> small alias
-	local frame = EncounterDetailsFrame
+	local frame = EncounterDetailsFrame --alias
+	local _combat_object = _combat_object
+	
+	if (segment) then
+		_combat_object = _detalhes.tabela_historico.tabelas [segment]
+	else
+		_G [frame:GetName().."SegmentsDropdown"].MyObject:Select (1, true)
+	end
 	
 	--[
 	if (frame.ShowType == "main") then
@@ -666,11 +673,19 @@ function EncounterDetails:OpenAndRefresh()
 				local barra = container.barras [index]
 				if (not barra) then
 					barra = EncounterDetails:CreateRow (index, container)
+					_detalhes:SetFontSize (barra.texto_esquerdo, 9)
+					_detalhes:SetFontSize (barra.texto_direita, 9)
+					_detalhes:SetFontFace (barra.texto_esquerdo, "Arial Narrow")
 					barra.TTT = "damage_taken" -- tool tip type --> damage taken
 					barra.report_text = Loc ["STRING_PLUGIN_NAME"].."! "..Loc ["STRING_DAMAGE_TAKEN_REPORT"] 
 				end
 
-				barra.texto_esquerdo:SetText (jogador.nome)
+				if (jogador.nome:find ("-")) then
+					barra.texto_esquerdo:SetText (jogador.nome:gsub (("-.*"), ""))
+				else
+					barra.texto_esquerdo:SetText (jogador.nome)
+				end
+				
 				barra.texto_direita:SetText (_detalhes:comma_value (jogador.damage_taken))
 				
 				_detalhes:name_space (barra)
@@ -792,6 +807,10 @@ function EncounterDetails:OpenAndRefresh()
 					barra = EncounterDetails:CreateRow (index, container)
 					barra.TTT = "habilidades_inimigas" -- tool tip type --enemy abilities
 					barra.report_text = Loc ["STRING_PLUGIN_NAME"].."! " .. Loc ["STRING_ABILITY_DAMAGE"]
+					_detalhes:SetFontSize (barra.texto_esquerdo, 9)
+					_detalhes:SetFontSize (barra.texto_direita, 9)
+					_detalhes:SetFontFace (barra.texto_esquerdo, "Arial Narrow")
+					barra.t:SetVertexColor (1, .8, .8, .8)
 				end
 				
 				local nome_magia, _, icone_magia = _GetSpellInfo (habilidade[4])
@@ -804,7 +823,7 @@ function EncounterDetails:OpenAndRefresh()
 				barra.jogador = habilidade --> barra.jogador agora tem a tabela com --> [1] total dano causado [2] jogadores que foram alvos [3] jogadores que castaram essa magia [4] ID da magia
 				
 				--barra.textura:SetStatusBarColor (_unpack (_detalhes.class_colors [jogador.classe]))
-				barra.textura:SetStatusBarColor (1, 1, 1, 1) --> a cor pode ser a spell school da magia
+				--barra.textura:SetStatusBarColor (1, 1, 1, 1) --> a cor pode ser a spell school da magia
 				
 				if (index == 1)  then
 					barra.textura:SetValue (100)
@@ -1278,12 +1297,20 @@ function EncounterDetails:OpenAndRefresh()
 			--> {esta_morte, time, este_jogador.nome, este_jogador.classe, _UnitHealthMax (alvo_name), minutos.."m "..segundos.."s",  ["dead"] = true}
 			local barra = container.barras [index]
 			if (not barra) then
-				barra = EncounterDetails:CreateRow (index, container, 3, 3, -4)
+				barra = EncounterDetails:CreateRow (index, container, 3, 0, -4)
 				barra.TTT = "morte" -- tool tip type
 				barra.report_text = "Details! " .. Loc ["STRING_DEAD_LOG"]
+				_detalhes:SetFontSize (barra.texto_esquerdo, 9)
+				_detalhes:SetFontSize (barra.texto_direita, 9)
+				_detalhes:SetFontFace (barra.texto_esquerdo, "Arial Narrow")
 			end
 			
-			barra.texto_esquerdo:SetText (index..". "..tabela [3])
+			if (tabela [3]:find ("-")) then
+				barra.texto_esquerdo:SetText (index..". "..tabela [3]:gsub (("-.*"), ""))
+			else
+				barra.texto_esquerdo:SetText (index..". "..tabela [3])
+			end
+
 			barra.texto_direita:SetText (tabela [6])
 			
 			_detalhes:name_space (barra)

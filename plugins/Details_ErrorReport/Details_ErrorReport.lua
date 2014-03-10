@@ -93,7 +93,7 @@
 			ErrorReport.Frame:SetPoint ("center", UIParent, "center")
 			ErrorReport.Frame:Show()
 		end
-		ErrorReport.ToolbarButton = _detalhes.ToolBar:NewPluginToolbarButton (ErrorReport.OpenWindow, "Interface\\HELPFRAME\\HelpIcon-Bug", Loc ["STRING_TOOLTIP"], 20, 20, "DETAILS_ERRORREPORT_BUTTON")
+		ErrorReport.ToolbarButton = _detalhes.ToolBar:NewPluginToolbarButton (ErrorReport.OpenWindow, "Interface\\HELPFRAME\\HelpIcon-Bug", Loc ["STRING_PLUGIN_NAME"], Loc ["STRING_TOOLTIP"], 20, 20, "DETAILS_ERRORREPORT_BUTTON")
 		--> setpoint anchors mod if needed
 		ErrorReport.ToolbarButton.y = 0
 		ErrorReport.ToolbarButton.x = 0

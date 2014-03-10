@@ -52,8 +52,10 @@
 		PluginObject.__icon = PluginIcon or [[Interface\ICONS\Trade_Engineering]]
 		PluginObject.real_name = PluginAbsoluteName
 		
+		local saved_table
+		
 		if (PluginType ~= "STATUSBAR") then
-			local saved_table = _detalhes.plugin_database [PluginAbsoluteName]
+			saved_table = _detalhes.plugin_database [PluginAbsoluteName]
 			if (not saved_table) then
 				saved_table = {enabled = true, author = Author or "--------"}
 				_detalhes.plugin_database [PluginAbsoluteName] = saved_table

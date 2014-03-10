@@ -266,8 +266,13 @@ end
 		--gump:Fade (self.baseframe.cabecalho.atributo_icon, _unpack (_detalhes.windows_fade_out))
 		--gump:Fade (self.baseframe.cabecalho.ball, _unpack (_detalhes.windows_fade_out))
 		--gump:Fade (self.baseframe, _unpack (_detalhes.windows_fade_out))
+
+		if (self.hide_icon) then
+			gump:Fade (self.baseframe.cabecalho.atributo_icon, 1)
+		else
+			gump:Fade (self.baseframe.cabecalho.atributo_icon, 0)
+		end
 		
-		--gump:Fade (self.baseframe.cabecalho.atributo_icon, 0)
 		gump:Fade (self.baseframe.cabecalho.ball, 0)
 		gump:Fade (self.baseframe, 0)
 		

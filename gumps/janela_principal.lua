@@ -4015,7 +4015,7 @@ function _detalhes:HideMainIcon (value)
 	if (value) then
 	
 		self.hide_icon = true
-		self.baseframe.cabecalho.atributo_icon:Hide()
+		gump:Fade (self.baseframe.cabecalho.atributo_icon, 1)
 		self.baseframe.cabecalho.ball:SetParent (self.baseframe)
 		
 		if (self.toolbar_side == 1) then
@@ -4032,7 +4032,7 @@ function _detalhes:HideMainIcon (value)
 		
 	else
 		self.hide_icon = false
-		self.baseframe.cabecalho.atributo_icon:Show()
+		gump:Fade (self.baseframe.cabecalho.atributo_icon, 0)
 		self.baseframe.cabecalho.ball:SetParent (_detalhes.listener)
 		
 		if (self.toolbar_side == 1) then

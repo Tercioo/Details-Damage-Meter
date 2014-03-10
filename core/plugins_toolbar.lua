@@ -7,6 +7,7 @@
 
 	local _detalhes = _G._detalhes
 	local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
+	local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> local pointers
@@ -16,15 +17,15 @@
 --> details api functions
 
 	--> create a button which will be displayed on tooltip
-	function _detalhes.ToolBar:NewPluginToolbarButton (func, icon, tooltip, w, h, name)
+	function _detalhes.ToolBar:NewPluginToolbarButton (func, icon, pluginname, tooltip, w, h, framename)
 
 		--> random name if nameless
-		if (not name) then
-			name = "DetailsToolbarButton" .. math.random (1, 100000)
+		if (not framename) then
+			framename = "DetailsToolbarButton" .. math.random (1, 100000)
 		end
 
 		--> create button from template
-		local button = CreateFrame ("button", name, _detalhes.listener, "DetailsToolbarButton")
+		local button = CreateFrame ("button", framename, _detalhes.listener, "DetailsToolbarButton")
 		
 		--> sizes
 		if (w) then
@@ -43,9 +44,11 @@
 		button:SetPushedTexture (icon)
 		button:SetDisabledTexture (icon)
 		button:SetHighlightTexture (icon, "ADD")
+		button.__icon = icon
+		button.__name = pluginname
 		
 		--> blizzard built-in animation
-		local FourCornerAnimeFrame = CreateFrame ("frame", name.."Blink", button, "IconIntroAnimTemplate")
+		local FourCornerAnimeFrame = CreateFrame ("frame", framename.."Blink", button, "IconIntroAnimTemplate")
 		FourCornerAnimeFrame:SetPoint ("center", button)
 		FourCornerAnimeFrame:SetWidth (w or 14)
 		FourCornerAnimeFrame:SetHeight (w or 14)
@@ -104,6 +107,8 @@
 			end
 		end
 		
+		_detalhes.ToolBar:ReorganizeIcons (lastIcon)
+		
 		return true
 	end
 
@@ -136,8 +141,19 @@
 		end
 	
 		if (button.tooltip) then
+		
 			GameCooltip:Reset()
-			GameCooltip:AddLine (button.tooltip)
+			
+			--GameCooltip:SetOption ("FixedWidth", 200)
+			GameCooltip:SetOption ("ButtonsYMod", -5)
+			GameCooltip:SetOption ("YSpacingMod", -5)
+			GameCooltip:SetOption ("IgnoreButtonAutoHeight", true)
+			GameCooltip:SetColor (1, 0.5, 0.5, 0.5, 0.5)
+			
+			--[[title]] GameCooltip:AddLine (button.__name, nil, 1, "orange", nil, 12, SharedMedia:Fetch ("font", "Friz Quadrata TT"))
+				GameCooltip:AddIcon (button.__icon, 1, 1, 16, 16)
+			----[[desc]] GameCooltip:AddLine (button.tooltip)
+			
 			GameCooltip:ShowCooltip (button, "tooltip")
 		end
 	end
@@ -206,9 +222,9 @@
 					ThisButton:Show()
 					LastIcon = ThisButton
 				end
-			
+
 			elseif (instance.plugins_grow_direction == 1) then --> left direction
-			
+
 				if (instance.consolidate) then
 					LastIcon = instance.consolidateButtonTexture
 				else

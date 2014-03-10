@@ -34,7 +34,7 @@ Loc ["STRING_TOOLTIP"] = "Mostrar os detalhes do combate"
 Loc ["STRING_LAST_COOLDOWN"] = "ultimo cooldown usado"
 Loc ["STRING_NOLAST_COOLDOWN"] = "nenhum cooldown usado"
 
-Loc ["STRING_ADDS_HELP"] = "Passe o mouse |cFF00FF00Flecha|r dano recebido, |cFFFF0000Flecha|r dano feito.\n|cFFFFFF00Clique|r: Reporta os dados no tooltip."
+Loc ["STRING_ADDS_HELP"] = "Passe o mouse |cFF00FF00Flecha|r\ndano recebido, |cFFFF0000Flecha|r\ndano feito.|cFFFFFF00Clique|r: Reporta\nos dados no tooltip."
 Loc ["STRING_INTERRIPT_HELP"] = "\n\n|cFFFFFF00Clique|r na barra: abre a janela de enviar relatorio."
 Loc ["STRING_DISPELL_HELP"] = "\n\n|cFFFFFF00Clique|r na barra: abre a janela de enviar relatorio."
 Loc ["STRING_DEATHS_HELP"] = "\n\n|cFFFFFF00Clique|r na barra: abre a janela de enviar relatorio."

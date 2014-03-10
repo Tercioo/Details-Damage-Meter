@@ -91,7 +91,7 @@ function _detalhes:OpenOptionsWindow (instance)
 		local info_text = g:NewLabel (window, nil, nil, "infotext", "", "GameFontNormal", 12)
 		info_text:SetPoint ("topleft", window, "topleft", 470, -97)
 		info_text.width = 200
-		info_text.height = 240
+		info_text.height = 280
 		info_text.align = "<"
 		info_text.valign = "^"
 		info_text.active = false
@@ -179,7 +179,7 @@ function _detalhes:OpenOptionsWindow (instance)
 			-- ~altura
 			
 			if (options_type == 1) then
-				window.options [1][1].slider:SetMinMaxValues (0, 110)
+				window.options [1][1].slider:SetMinMaxValues (0, 200)
 			elseif (options_type == 2) then
 				window.options [2][1].slider:SetMinMaxValues (0, 1300)
 				window.options [2][1].slider.scrollMax = 1300
@@ -511,6 +511,13 @@ function _detalhes:OpenOptionsWindow (instance)
 		frame1.fragsPvpSlider:SetHook ("OnLeave", background_on_leave)
 		
 	--------------- Time Type
+	
+		--hide on combat
+		g:NewSwitch (frame1, _, "$parentHideOnCombatSlider", "hideOnCombatSlider", 60, 20, _, _, window.instance.hide_in_combat)
+		--mini map
+		g:NewSwitch (frame1, _, "$parentMinimapSlider", "minimapSlider", 60, 20, _, _, not _detalhes.minimap.hide)
+		
+		--time type
 		g:NewLabel (frame1, _, "$parentTimeTypeLabel", "timetypeLabel", Loc ["STRING_OPTIONS_TIMEMEASURE"])
 		frame1.timetypeLabel:SetPoint (10, -290)
 		--
@@ -539,7 +546,6 @@ function _detalhes:OpenOptionsWindow (instance)
 		g:NewLabel (frame1, _, "$parentMinimapLabel", "minimapLabel", Loc ["STRING_OPTIONS_MINIMAP"])
 		frame1.minimapLabel:SetPoint (10, -310)
 		--
-		g:NewSwitch (frame1, _, "$parentMinimapSlider", "minimapSlider", 60, 20, _, _, not _detalhes.minimap.hide)
 		frame1.minimapSlider:SetPoint ("left", frame1.minimapLabel, "right", 2, 0)
 		frame1.minimapSlider.OnSwitch = function (self, _, value)
 			_detalhes.minimap.hide = not value
@@ -565,7 +571,6 @@ function _detalhes:OpenOptionsWindow (instance)
 		g:NewLabel (frame1, _, "$parentHideOnCombatAlphaLabel", "hideOnCombatAlphaLabel", Loc ["STRING_OPTIONS_HIDECOMBATALPHA"])
 		frame1.hideOnCombatAlphaLabel:SetPoint (10, -370)
 
-		g:NewSwitch (frame1, _, "$parentHideOnCombatSlider", "hideOnCombatSlider", 60, 20, _, _, window.instance.hide_in_combat)
 		frame1.hideOnCombatSlider:SetPoint ("left", frame1.hideOnCombatLabel, "right", 2, 0)
 		frame1.hideOnCombatSlider.OnSwitch = function (self, instance, value)
 			instance.hide_in_combat = value
@@ -587,6 +592,33 @@ function _detalhes:OpenOptionsWindow (instance)
 		window:create_line_background (frame1, frame1.hideOnCombatAlphaLabel, frame1.hideOnCombatAlphaSlider)
 		frame1.hideOnCombatAlphaSlider:SetHook ("OnEnter", background_on_enter)
 		frame1.hideOnCombatAlphaSlider:SetHook ("OnLeave", background_on_leave)
+		
+	--------------- abbreviation type
+		g:NewLabel (frame1, _, "$parentDpsAbbreviateLabel", "dpsAbbreviateLabel", Loc ["STRING_OPTIONS_PS_ABBREVIATE"])
+		frame1.dpsAbbreviateLabel:SetPoint (10, -410)
+		--
+		local onSelectTimeAbbreviation = function (_, _, abbreviationtype)
+			_detalhes.ps_abbreviation = abbreviationtype
+			_detalhes:AtualizaGumpPrincipal (-1, true)
+		end
+		local abbreviationOptions = {
+			{value = 1, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_NONE"], onclick = onSelectTimeAbbreviation, icon = "Interface\\Icons\\Achievement_Guild_Challenge_1"}, --, desc = ""
+			{value = 2, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOK"], onclick = onSelectTimeAbbreviation, icon = "Interface\\Icons\\Achievement_Guild_Challenge_100"}, --, desc = ""
+			{value = 3, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOK2"], onclick = onSelectTimeAbbreviation, icon = "Interface\\Icons\\Achievement_Guild_Challenge_10"} --, desc = ""
+		}
+		local buildAbbreviationMenu = function()
+			return abbreviationOptions
+		end
+		g:NewDropDown (frame1, _, "$parentAbbreviateDropdown", "dpsAbbreviateDropdown", 160, 20, buildAbbreviationMenu, _detalhes.ps_abbreviation) -- func, default
+		frame1.dpsAbbreviateDropdown:SetPoint ("left", frame1.dpsAbbreviateLabel, "right", 2, 0)		
+		frame1.dpsAbbreviateDropdown:SetFrameStrata ("DIALOG")
+		
+		frame1.dpsAbbreviateDropdown.info = Loc ["STRING_OPTIONS_PS_ABBREVIATE_DESC"]
+
+		window:create_line_background (frame1, frame1.dpsAbbreviateLabel, frame1.dpsAbbreviateDropdown)
+		frame1.dpsAbbreviateDropdown:SetHook ("OnEnter", background_on_enter)
+		frame1.dpsAbbreviateDropdown:SetHook ("OnLeave", background_on_leave)
+		
 		
 ---------------- appearance
 		local frame2 = window.options [2][1].gump

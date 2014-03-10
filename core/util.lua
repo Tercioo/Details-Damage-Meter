@@ -55,6 +55,16 @@
 		end
 		return _string_format ("%.1f", numero)
 	end
+	function _detalhes:ToK2 (numero)
+		if (numero > 999999) then
+			return _string_format ("%.2f", numero/1000000) .. "M"
+		elseif (numero > 99999) then
+			return _math_floor (numero/1000) .. "K"
+		elseif (numero > 999) then
+			return _string_format ("%.1f", (numero/1000)) .. "K"
+		end
+		return _string_format ("%.1f", numero)
+	end
 	--> short numbers no numbers after comma
 	function _detalhes:ToK0 (numero)
 		if (numero > 1000000) then

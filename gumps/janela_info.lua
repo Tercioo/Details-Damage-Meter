@@ -1084,6 +1084,7 @@ local function SetBarraScripts (esta_barra, instancia, i)
 				--> talvez devesse escurecer a janela no fundo... pois o tooltip é transparente e pode confundir
 				GameTooltip:SetOwner (self, "ANCHOR_TOPRIGHT")
 				
+				-- ~erro
 				if (self.spellid == "enemies") then --> damage taken enemies
 					if (not self.minha_tabela or not self.minha_tabela:MontaTooltipDamageTaken (self, i)) then  -- > poderia ser aprimerado para uma tailcall
 						return
@@ -1091,6 +1092,7 @@ local function SetBarraScripts (esta_barra, instancia, i)
 				
 				elseif (not self.minha_tabela or not self.minha_tabela:MontaTooltipAlvos (self, i)) then  -- > poderia ser aprimerado para uma tailcall
 					return
+					
 				end
 				GameTooltip:Show()
 				

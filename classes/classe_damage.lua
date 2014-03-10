@@ -1036,11 +1036,24 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 		esta_porcentagem = _math_floor ((self.custom/instancia.top) * 100) --> determina qual o tamanho da barra
 	else
 		if (sub_atributo == 1) then --> mostrando damage done
-			esta_barra.texto_direita:SetText (_detalhes:ToK (damage_total) .." ".. div_abre .. _math_floor (dps) .. ", ".. _cstr ("%.1f", porcentagem).."%" .. div_fecha) --seta o texto da direita
+			dps = _math_floor (dps)
+			if (_detalhes.ps_abbreviation == 2) then
+				dps = _detalhes:ToK (dps)
+			elseif (_detalhes.ps_abbreviation == 3) then
+				dps = _detalhes:ToK2 (dps)
+			end
+			esta_barra.texto_direita:SetText (_detalhes:ToK (damage_total) .." ".. div_abre .. dps .. ", ".. _cstr ("%.1f", porcentagem).."%" .. div_fecha) --seta o texto da direita
 			esta_porcentagem = _math_floor ((damage_total/instancia.top) * 100) --> determina qual o tamanho da barra
 			
 		elseif (sub_atributo == 2) then --> mostrando dps
-			esta_barra.texto_direita:SetText (_cstr("%.1f", dps) .." ".. div_abre .. _detalhes:ToK (damage_total) .. ", ".._cstr("%.1f", porcentagem).."%" .. div_fecha) --seta o texto da direita
+			dps = _math_floor (dps)
+			if (_detalhes.ps_abbreviation == 2) then
+				esta_barra.texto_direita:SetText (_detalhes:ToK (dps) .. " " .. div_abre .. _detalhes:ToK (damage_total) .. ", " .. _cstr ("%.1f", porcentagem) .. "%" .. div_fecha) --seta o texto da direita
+			elseif (_detalhes.ps_abbreviation == 3) then
+				esta_barra.texto_direita:SetText (_detalhes:ToK2 (dps) .. " " .. div_abre .. _detalhes:ToK (damage_total) .. ", " .. _cstr ("%.1f", porcentagem) .. "%" .. div_fecha) --seta o texto da direita
+			else
+				esta_barra.texto_direita:SetText (_cstr ("%.1f", dps) .. " " .. div_abre .. _detalhes:ToK (damage_total) .. ", " .. _cstr ("%.1f", porcentagem) .. "%" .. div_fecha) --seta o texto da direita
+			end
 			esta_porcentagem = _math_floor ((dps/instancia.top) * 100) --> determina qual o tamanho da barra
 			
 		elseif (sub_atributo == 3) then --> mostrando damage taken
@@ -2011,7 +2024,7 @@ function atributo_damage:MontaInfoDamageDone()
 			end
 
 			barra.texto_esquerdo:SetText (index..instancia.divisores.colocacao..tabela[1]) --seta o texto da esqueda
-			barra.texto_direita:SetText (tabela[2] .." ".. instancia.divisores.abre .._cstr("%.1f", tabela[3]) .."%".. instancia.divisores.fecha) --seta o texto da direita
+			barra.texto_direita:SetText (_detalhes:comma_value (tabela[2]) .." ".. instancia.divisores.abre .. _cstr ("%.1f", tabela[3]) .."%".. instancia.divisores.fecha) --seta o texto da direita
 			
 			--barra.icone:SetTexture (tabela[4]) --CLASSE
 			
@@ -2144,7 +2157,7 @@ function atributo_damage:MontaDetalhesFriendlyFire (nome, barra)
 		end
 
 		barra.texto_esquerdo:SetText (index..instancia.divisores.colocacao..tabela[4]) --seta o texto da esqueda
-		barra.texto_direita:SetText (tabela[2] .." ".. instancia.divisores.abre .._cstr("%.1f", tabela[3]) .."%".. instancia.divisores.fecha) --seta o texto da direita
+		barra.texto_direita:SetText (_detalhes:comma_value (tabela[2]) .. " " .. instancia.divisores.abre .. _cstr ("%.1f", tabela[3]) .. "%" .. instancia.divisores.fecha) --seta o texto da direita
 		
 		barra.icone:SetTexture (tabela[5])
 
@@ -2206,7 +2219,7 @@ function atributo_damage:MontaDetalhesEnemy (spellid, barra)
 		_detalhes:name_space_info (barra)
 		
 		if (spell.total > 0) then
-			barra.texto_direita:SetText (tabela[2] .." (".. _cstr("%.1f", tabela[2] / spell.total * 100) .."%)") --seta o texto da direita
+			barra.texto_direita:SetText (_detalhes:comma_value (tabela[2]) .." (".. _cstr("%.1f", tabela[2] / spell.total * 100) .."%)") --seta o texto da direita
 		else
 			barra.texto_direita:SetText (tabela[2] .." (0%)") --seta o texto da direita
 		end
@@ -2295,7 +2308,7 @@ function atributo_damage:MontaDetalhesDamageTaken (nome, barra)
 		barra.texto_esquerdo:SetText (index..instancia.divisores.colocacao..tabela[4]) --seta o texto da esqueda
 		_detalhes:name_space_info (barra)
 		
-		barra.texto_direita:SetText (tabela[2] .." ".. instancia.divisores.abre .._cstr("%.1f", tabela[3]) .."%".. instancia.divisores.fecha) --seta o texto da direita
+		barra.texto_direita:SetText (_detalhes:comma_value (tabela[2]) .." ".. instancia.divisores.abre .._cstr("%.1f", tabela[3]) .."%".. instancia.divisores.fecha) --seta o texto da direita
 		
 		barra.icone:SetTexture (tabela[5])
 

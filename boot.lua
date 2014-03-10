@@ -8,9 +8,9 @@
 		
 		_ = nil
 		_detalhes = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0", "NickTag-1.0")
-		_detalhes.userversion = "v1.10.0"
-		_detalhes.version = "Alpha 013"
-		_detalhes.realversion = 14
+		_detalhes.userversion = "v1.11.0"
+		_detalhes.version = "Alpha 015"
+		_detalhes.realversion = 15
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> initialization stuff
@@ -200,6 +200,7 @@ do
 		local SharedMedia = LibStub:GetLibrary ("LibSharedMedia-3.0")
 		SharedMedia:Register ("statusbar", "Details D'ictum", [[Interface\AddOns\Details\images\bar4]])
 		SharedMedia:Register ("statusbar", "Details D'ictum (reverse)", [[Interface\AddOns\Details\images\bar4_reverse]])
+		SharedMedia:Register ("statusbar", "Details Serenity", [[Interface\AddOns\Details\images\bar_serenity]])
 	
 	--> global 'vardump' for dump table contents over chat panel
 		function vardump (t)

@@ -1,3 +1,5 @@
+--no inicio da luta gravar tabela com os coolsdowns de cada jogador e ir anotando quando eles sao usados.
+
 --File Revision: 1
 --Last Modification: 27/07/2013
 -- Change Log:
@@ -419,14 +421,50 @@ function _G._detalhes:Start()
 	--377 328 508 409  0.0009765625
 	t:SetTexCoord (0.7373046875, 0.9912109375, 0.6416015625, 0.7978515625)
 	t:SetPoint ("center", f, "center")
-	local text = f:CreateFontString (nil, "overlay", "GameFontHighlight")
-	text:SetPoint ("topleft", t, "topleft", 24, -15)
-	_detalhes:SetFontSize (text, 9)
-	text:SetTextColor (.9, .9, .9, 1)
-	text:SetSize (120, 50)
-	text:SetJustifyV ("top")
-	text:SetJustifyH ("left")
-	f.text = text
+	
+	local line1 = f:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+	line1:SetPoint ("topleft", t, "topleft", 24, -10)
+	_detalhes:SetFontSize (line1, 9)
+	line1:SetTextColor (.9, .9, .9, 1)
+	line1:SetSize (110, 12)
+	line1:SetJustifyV ("center")
+	line1:SetJustifyH ("center")
+
+	local line2 = f:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+	line2:SetPoint ("topleft", t, "topleft", 11, -20)
+	_detalhes:SetFontSize (line2, 9)
+	line2:SetTextColor (.9, .9, .9, 1)
+	line2:SetSize (140, 12)
+	line2:SetJustifyV ("center")
+	line2:SetJustifyH ("center")
+	
+	local line3 = f:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+	line3:SetPoint ("topleft", t, "topleft", 7, -30)
+	_detalhes:SetFontSize (line3, 9)
+	line3:SetTextColor (.9, .9, .9, 1)
+	line3:SetSize (144, 12)
+	line3:SetJustifyV ("center")
+	line3:SetJustifyH ("center")
+	
+	local line4 = f:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+	line4:SetPoint ("topleft", t, "topleft", 11, -40)
+	_detalhes:SetFontSize (line4, 9)
+	line4:SetTextColor (.9, .9, .9, 1)
+	line4:SetSize (140, 12)
+	line4:SetJustifyV ("center")
+	line4:SetJustifyH ("center")
+
+	local line5 = f:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+	line5:SetPoint ("topleft", t, "topleft", 24, -50)
+	_detalhes:SetFontSize (line5, 9)
+	line5:SetTextColor (.9, .9, .9, 1)
+	line5:SetSize (110, 12)
+	line5:SetJustifyV ("center")
+	line5:SetJustifyH ("center")
+	
+	f.lines = {line1, line2, line3, line4, line5}
+	
+	--t:SetPoint ("center", UIParent, "center")
 	
 	function f:FlipHorizontal()
 		if (not f.isHorizontalFlipped) then
@@ -465,17 +503,33 @@ function _G._detalhes:Start()
 		end
 	end
 	
-	function f:SetBubbleText (text)
-		f.text:SetText (text)
+	function f:SetBubbleText (line1, line2, line3, line4, line5)
+		if (not line1) then
+			for _, line in ipairs (f.lines) do
+				line:SetText ("")
+			end
+			return
+		end
+		
+		if (line1:find ("\n")) then
+			line1, line2, line3, line4, line5 = strsplit ("\n", line1)
+		end
+		
+		f.lines[1]:SetText (line1)
+		f.lines[2]:SetText (line2)
+		f.lines[3]:SetText (line3)
+		f.lines[4]:SetText (line4)
+		f.lines[5]:SetText (line5)
 	end
 	
-	function f:SetOwner (frame, myPoint, hisPoint, x, y)
+	function f:SetOwner (frame, myPoint, hisPoint, x, y, alpha)
 		f:ClearAllPoints()
-		f.text:SetText ("")
+		f:SetBubbleText (nil)
 		t:SetTexCoord (0.7373046875, 0.9912109375, 0.6416015625, 0.7978515625)
 		f.isHorizontalFlipped = false
 		f.isVerticalFlipped = false
 		f:SetPoint (myPoint or "bottom", frame, hisPoint or "top", x or 0, y or 0)
+		t:SetAlpha (alpha or 1)
 	end
 	
 	function f:ShowBubble()
@@ -486,7 +540,7 @@ function _G._detalhes:Start()
 		f:Hide()
 	end
 	
-	f:SetBubbleText ("Teste do Texto da Bub ble testo texto e mais texto dentro da dubble. continuando o texto dentro da bubble pra ver ate onde ele vai")
+	f:SetBubbleText (nil)
 	
 	f:Hide()
 	
