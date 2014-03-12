@@ -148,3 +148,37 @@ local _
 		
 	})
 	
+	--[[
+	
+	--> install default skins:
+	_detalhes:InstallSkin ("Imperial Skin", {
+		file = "Interface\\AddOns\\Details\\images\\skins\\imperial_skin", 
+		author = "Details!", 
+		version = "1.0", 
+		site = "unknown", 
+		desc = "default skin for Details!", 
+		can_change_alpha_head = false, 
+		icon_anchor_main = {-1, 1}, 
+		icon_anchor_plugins = {-9, -7}, 
+		icon_plugins_size = {19, 19},
+		
+		-- the four anchors:
+		icon_point_anchor = {-37, 0},
+		left_corner_anchor = {-107, 0},
+		close_button_anchor = {5, -7},
+		right_corner_anchor = {96, 0},
+
+		icon_point_anchor_bottom = {-37, 0},
+		left_corner_anchor_bottom = {-107, 0},
+		close_button_anchor_bottom = {5, 6},
+		right_corner_anchor_bottom = {96, 0},
+		
+		instance_cprops = {
+			menu_anchor = {5, 1},
+			hide_icon = true,
+		}
+		
+	})
+	
+	--]]
+	

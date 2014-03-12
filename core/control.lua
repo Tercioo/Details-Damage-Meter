@@ -82,6 +82,11 @@
 	
 	-- try get the current encounter name during the encounter
 		function _detalhes:ReadBossFrames()
+		
+			if (_detalhes.tabela_vigente.is_boss) then
+				return --no need to check
+			end
+		
 			for index = 1, 5, 1 do 
 				if (_UnitExists ("boss"..index)) then 
 					local guid = _UnitGUID ("boss"..index)
@@ -321,7 +326,33 @@
 		
 			--> pega a zona do jogador e vê se foi uma luta contra um Boss -- identifica se a luta foi com um boss
 			if (not _detalhes.tabela_vigente.is_boss) then 
+			
+				--> function which runs after a boss encounter to try recognize a encounter
 				_detalhes.tabela_vigente.is_boss = _detalhes:FindBoss()
+				
+				if (not _detalhes.tabela_vigente.is_boss) then
+				
+					local ZoneName, _, DifficultyID, _, _, _, _, ZoneMapID = _GetInstanceInfo()
+				
+					local findboss = _detalhes:GetRaidBossFindFunction (ZoneMapID)
+					if (findboss) then
+						local BossIndex = findboss()
+						if (BossIndex) then
+							_detalhes.tabela_vigente.is_boss = {
+								index = BossIndex, 
+								name = _detalhes:GetBossName (ZoneMapID, BossIndex),
+								zone = ZoneName, 
+								mapid = ZoneMapID, 
+								encounter = _detalhes:GetBossName (ZoneMapID, BossIndex),
+								diff = DifficultyID
+							}
+							--print ("boss found using findboss function.")
+						else
+							--print ("boss not found")
+						end
+					end
+				end
+
 			end
 			
 			if (_detalhes.tabela_vigente.bossFunction) then

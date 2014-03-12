@@ -170,7 +170,6 @@
 				if (#_detalhes.SoloTables.Plugins > 0) then --> have at least one plugin
 					_detalhes.SoloTables.Plugins [_detalhes.SoloTables.Mode].Frame:Hide()
 				end
-				_detalhes.SoloTables.Plugins [_detalhes.SoloTables.Mode].Frame:Hide()
 				return
 			end
 			

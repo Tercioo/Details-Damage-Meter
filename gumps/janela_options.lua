@@ -131,13 +131,20 @@ function _detalhes:OpenOptionsWindow (instance)
 					if (modo == 1) then --alone
 						atributo = _detalhes.SoloTables.Mode or 1
 						local SoloInfo = _detalhes.SoloTables.Menu [atributo]
-						InstanceList [#InstanceList+1] = {value = index, label = "#".. index .. " " .. SoloInfo [1], onclick = onSelectInstance, icon = SoloInfo [2]}
+						if (SoloInfo) then
+							InstanceList [#InstanceList+1] = {value = index, label = "#".. index .. " " .. SoloInfo [1], onclick = onSelectInstance, icon = SoloInfo [2]}
+						else
+							InstanceList [#InstanceList+1] = {value = index, label = "#".. index .. " unknown", onclick = onSelectInstance, icon = ""}
+						end
 						
 					elseif (modo == 4) then --raid
 						atributo = _detalhes.RaidTables.Mode or 1
 						local RaidInfo = _detalhes.RaidTables.Menu [atributo]
-						InstanceList [#InstanceList+1] = {value = index, label = "#".. index .. " " .. RaidInfo [1], onclick = onSelectInstance, icon = RaidInfo [2]}
-						
+						if (RaidInfo) then
+							InstanceList [#InstanceList+1] = {value = index, label = "#".. index .. " " .. RaidInfo [1], onclick = onSelectInstance, icon = RaidInfo [2]}
+						else
+							InstanceList [#InstanceList+1] = {value = index, label = "#".. index .. " unknown", onclick = onSelectInstance, icon = ""}
+						end
 					else
 						InstanceList [#InstanceList+1] = {value = index, label = "#".. index .. " " .. _detalhes.atributos.lista [atributo] .. " - " .. _detalhes.sub_atributos [atributo].lista [sub_atributo], onclick = onSelectInstance, icon = _detalhes.sub_atributos [atributo].icones[sub_atributo] [1], texcoord = _detalhes.sub_atributos [atributo].icones[sub_atributo] [2]}
 						

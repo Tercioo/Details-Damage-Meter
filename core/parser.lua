@@ -2551,6 +2551,7 @@
 			
 			if (_detalhes.EncounterInformation [_detalhes.zone_id]) then 
 				_detalhes:ScheduleTimer ("ReadBossFrames", 1)
+				_detalhes:ScheduleTimer ("ReadBossFrames", 30)
 			end
 			
 			if (not _detalhes:CaptureGet ("damage")) then

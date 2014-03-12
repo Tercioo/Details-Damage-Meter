@@ -41,6 +41,18 @@ local siege_of_orgrimmar = {
 			"Garrosh Hellscream"
 	},
 	
+	find_boss_encounter = function()
+		--> find galakras (this encounter doesn't have a boss frames before galakras comes into in play)
+		if (_detalhes.tabela_vigente and _detalhes.tabela_vigente[1] and _detalhes.tabela_vigente[1]._ActorTable) then
+			for _, damage_actor in ipairs (_detalhes.tabela_vigente[1]._ActorTable) do
+				local serial = tonumber (damage_actor.serial:sub (6, 10), 16)
+				if (serial == 73909) then --Archmage Aethas Sunreaver
+					return 5 --> galakras boss index
+				end
+			end
+		end
+	end,
+	
 	boss_ids = {
 		-- Vale of Eternal Sorrows
 			[71543]	= 1,	-- Immerseus

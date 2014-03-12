@@ -35,6 +35,11 @@ do
 		return 
 	end
 	
+	--> generic boss find function
+	function _detalhes:GetRaidBossFindFunction (mapid)
+		return _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].find_boss_encounter
+	end
+	
 	--> return if the boss need sync
 	function _detalhes:GetEncounterEqualize (mapid, bossindex)
 		return _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].encounters [bossindex] and _detalhes.EncounterInformation [mapid].encounters [bossindex].equalize
