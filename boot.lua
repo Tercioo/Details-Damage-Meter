@@ -2,13 +2,13 @@
 --Last Modification: 27/07/2013
 -- Change Log:
 	-- 27/07/2013: Finished alpha version.
- 
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> global name declaration
-		 
+		
 		_ = nil
 		_detalhes = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0", "NickTag-1.0")
-		_detalhes.userversion = "v1.11.2"
+		_detalhes.userversion = "v1.11.03"
 		_detalhes.version = "Alpha 015"
 		_detalhes.realversion = 15
 

@@ -154,13 +154,14 @@ local _
 	_detalhes:InstallSkin ("Imperial Skin", {
 		file = "Interface\\AddOns\\Details\\images\\skins\\imperial_skin", 
 		author = "Details!", 
-		version = "1.0", 
+		version = "1.1", 
 		site = "unknown", 
 		desc = "default skin for Details!", 
-		can_change_alpha_head = false, 
-		icon_anchor_main = {-1, 1}, 
-		icon_anchor_plugins = {-9, -7}, 
-		icon_plugins_size = {19, 19},
+		
+		can_change_alpha_head = true, 
+		icon_anchor_main = {-1, -5}, 
+		icon_anchor_plugins = {-7, -13}, 
+		icon_plugins_size = {19, 18},
 		
 		-- the four anchors:
 		icon_point_anchor = {-37, 0},
@@ -176,9 +177,98 @@ local _
 		instance_cprops = {
 			menu_anchor = {5, 1},
 			hide_icon = true,
-		}
+		},
+		
+		--> control scripts for aninations
+		--> on skin change we need create the widgets
+		control_script_on_start = function (skin, instance)
+			
+			if (not instance.baseframe.imperial_skin_texture1) then
+				local texture1 = instance.baseframe:CreateTexture (nil, "artwork")
+				texture1:SetTexture ("Interface\\AddOns\\Details\\images\\skins\\imperial_skin")
+				texture1:SetTexCoord (0, 0.99951171875, 0.61474609375, 0.63623046875)
+				texture1:SetHeight (17)
+				instance.baseframe.imperial_skin_texture1 = texture1
+				texture1:SetPoint ("bottomleft", instance.baseframe.cabecalho.ball, "bottomleft", 108, 1)
+				texture1:SetPoint ("bottomright", instance.baseframe.cabecalho.ball_r, "bottomright", -98, 1)
+			end
+			
+			--> custom parameters for animations
+			instance.imperial_skin_tick_time = 2
+			instance.imperial_skin_tick_elapsed = 0
+			instance.imperial_skin_texture_step = 0
+			
+			if (instance.hide_icon) then
+				instance.baseframe.cabecalho.ball:SetDrawLayer ("background")
+			else
+				instance.baseframe.cabecalho.ball:SetDrawLayer ("overlay")
+			end
+			
+		end,
+		
+		--> do the animation
+		control_script = function (frame, elapsed) 
+		
+			--frame.instance = instance where this skin is applied.
+			--frame.skin = this skin table.
+		
+			frame.instance.imperial_skin_tick_elapsed = frame.instance.imperial_skin_tick_elapsed + elapsed
+
+			if (frame.instance.imperial_skin_tick_elapsed > frame.instance.imperial_skin_tick_time) then
+				
+				frame.instance.imperial_skin_tick_elapsed = 0
+				local step = frame.instance.imperial_skin_texture_step
+				step = step + 1
+
+				local firstpoint = step * 0.00048828125
+				local secondpoint = (firstpoint + 0.99951171875) - 1
+				
+				--print (math.floor (step/2))
+				
+				frame.instance.baseframe.imperial_skin_texture1:SetTexCoord (firstpoint, secondpoint, 0.61474609375, 0.63623046875)
+				
+				if (step == 2047) then
+					step = 0
+				end
+				
+				frame.instance.imperial_skin_texture_step = step
+				
+				--> this is bad, we need a event handler on options panel for sending appearance changes events
+				if (frame.instance.hide_icon) then
+					frame.instance.baseframe.cabecalho.ball:SetDrawLayer ("background")
+				else
+					frame.instance.baseframe.cabecalho.ball:SetDrawLayer ("overlay")
+				end
+				if (frame.instance.toolbar_side == 1) then
+					frame.instance.baseframe.imperial_skin_texture1:SetPoint ("bottomleft", frame.instance.baseframe.cabecalho.ball, "bottomleft", 108, 1)
+					frame.instance.baseframe.imperial_skin_texture1:SetPoint ("bottomright", frame.instance.baseframe.cabecalho.ball_r, "bottomright", -98, 1)
+				else
+					frame.instance.baseframe.imperial_skin_texture1:SetPoint ("bottomleft", frame.instance.baseframe.cabecalho.ball, "bottomleft", 108, 106)
+					frame.instance.baseframe.imperial_skin_texture1:SetPoint ("bottomright", frame.instance.baseframe.cabecalho.ball_r, "bottomright", -98, 106)
+				end
+
+			end
+		
+		end,
 		
 	})
+	--]]
 	
+	--[[
+	local f = CreateFrame ("frame",nil, UIParent)
+	f:SetPoint ("center", UIParent, "center")
+	f:SetSize (200, 200)
+	local t = f:CreateTexture (nil, "overlay")
+	t:SetPoint ("center", f, "center")
+	t:SetSize (200, 200)
+	t:SetTexture ("Interface\ARCHEOLOGY\ARCH-RACE-ORC")
+	
+	local t2 = f:CreateTexture (nil, "overlay")
+	t2:SetPoint ("center", f, "center")
+	t2:SetSize (200, 200)
+	t2:SetTexture ("Interface\ARCHEOLOGY\ARCH-RACE-ORC")
+	
+	t:SetTexCoord (.4, 1, 0, 1)
+	t2:SetTexCoord (0, .4, 0, 1)
 	--]]
 	

@@ -180,11 +180,11 @@
 		_detalhes.ToolBar:ReorganizeIcons()
 	end
 
-	function _detalhes.ToolBar:ReorganizeIcons (lastIcon)
+	function _detalhes.ToolBar:ReorganizeIcons (lastIcon, just_refresh)
 
 		--> get the lower number instance
 		local lower_instance = _detalhes:GetLowerInstanceNumber()
-		
+	
 		if (not lower_instance) then
 			for _, ThisButton in ipairs (_detalhes.ToolBar.Shown) do 
 				ThisButton:Hide()
@@ -193,6 +193,10 @@
 		end
 
 		local instance = _detalhes:GetInstance (lower_instance)
+		
+		if (just_refresh) then
+			
+		end
 		
 		_detalhes:ResetButtonSnapTo (instance)
 		_detalhes.ResetButtonInstance = lower_instance
@@ -214,6 +218,11 @@
 			
 				for _, ThisButton in ipairs (_detalhes.ToolBar.Shown) do 
 					ThisButton:ClearAllPoints()
+					ThisButton:SetParent (instance.baseframe.UPFrame)
+					
+					-- se tiver no listener, ele nao hida quando a janela for fechada.
+					-- se tiver no baseframe não da de clicar.
+					
 					if (LastIcon == instance.baseframe.cabecalho.report) then
 						ThisButton:SetPoint ("left", LastIcon, "right", ThisButton.x + x + 4, ThisButton.y)
 					else
@@ -233,6 +242,8 @@
 				
 				for _, ThisButton in ipairs (_detalhes.ToolBar.Shown) do 
 					ThisButton:ClearAllPoints()
+					ThisButton:SetParent (instance.baseframe.UPFrame)
+					
 					ThisButton:SetPoint ("right", LastIcon, "left", ThisButton.x + x, ThisButton.y)
 					ThisButton:Show()
 					LastIcon = ThisButton
@@ -242,13 +253,15 @@
 
 		end
 		
-		for _, instancia in pairs (_detalhes.tabela_instancias) do 
-			if (instancia.baseframe and instancia:IsAtiva()) then
-				instancia:ReajustaGump()
+		if (not just_refresh) then
+			for _, instancia in pairs (_detalhes.tabela_instancias) do 
+				if (instancia.baseframe and instancia:IsAtiva()) then
+					instancia:ReajustaGump()
+				end
 			end
+
+			instance:ChangeSkin()
 		end
-		
-		instance:ChangeSkin()
 		
 		return true
 	end

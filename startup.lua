@@ -258,7 +258,32 @@ function _G._detalhes:Start()
 	end
 	
 	if (self.is_first_run) then
+	
 		_detalhes:OpenWelcomeWindow()
+		
+		if (#self.custom == 0) then
+			local Healthstone = {
+				["attribute"] = 2,
+				["spell"] = "6262",
+				["name"] = "Healthstone",
+				["sattribute"] = 1,
+				["target"] = "",
+				["source"] = "[raid]",
+				["icon"] = "Interface\\Icons\\warlock_ healthstone",
+			}
+			self.custom [#self.custom+1] = Healthstone
+			
+			local HealingPotion = {
+				["attribute"] = 2,
+				["spell"] = "105708",
+				["name"] = "Healing Potion",
+				["sattribute"] = 1,
+				["target"] = "",
+				["source"] = "[raid]",
+				["icon"] = "Interface\\Icons\\trade_alchemy_potiond3",
+			}
+			self.custom [#self.custom+1] = HealingPotion
+		end
 	end
 	
 	--_detalhes:OpenWelcomeWindow()

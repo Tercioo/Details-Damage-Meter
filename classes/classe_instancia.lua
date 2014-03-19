@@ -155,8 +155,15 @@ end
 --> desativando a instância ela fica em stand by e apenas hida a janela
 	function _detalhes:DesativarInstancia()
 	
+		local lower = _detalhes:GetLowerInstanceNumber()
+
 		self.ativa = false
 		_detalhes:GetLowerInstanceNumber()
+		
+		if (lower == self.meu_id) then
+			--> os icones dos plugins estao hostiados nessa instancia.
+			_detalhes.ToolBar:ReorganizeIcons (nil, true)
+		end
 		
 		if (_detalhes.switch.current_instancia and _detalhes.switch.current_instancia == self) then
 			_detalhes.switch:CloseMe()
@@ -253,7 +260,12 @@ end
 	function _detalhes:AtivarInstancia (temp)
 	
 		self.ativa = true
-		_detalhes:GetLowerInstanceNumber()
+		local lower = _detalhes:GetLowerInstanceNumber()
+		
+		if (lower == self.meu_id) then
+			--> os icones dos plugins precisam ser hostiados nessa instancia.
+			_detalhes.ToolBar:ReorganizeIcons (nil, true)
+		end
 		
 		if (not self.iniciada) then
 			self:RestauraJanela (self.meu_id)

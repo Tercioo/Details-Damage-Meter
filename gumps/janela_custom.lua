@@ -241,6 +241,10 @@ local function CreateCustomWindow()
 		end
 
 		--> 4 atributos principais
+		
+		local half = 0.00048828125
+		local size = 0.03125
+		
 		for i = 1, 4 do
 		
 			local button = gump:NewDetailsButton (frame, frame, _, MainMenu, i, nil, 120, 15, "", "", "", "")
@@ -251,26 +255,28 @@ local function CreateCustomWindow()
 			button.textura:SetPoint ("right", button, "left", 60, 0)
 			button.icon = button:CreateTexture (nil, "background")
 			button.icon:SetPoint ("center", button.textura, "center", 2, 0)
-			button.icon:SetTexture ("Interface\\AddOns\\Details\\images\\icon_mainwindow")
+			button.icon:SetTexture ("Interface\\AddOns\\Details\\images\\skins\\default_skin")
 			button.icon:SetWidth (22)
 			button.icon:SetHeight (22)
 			
+			button.icon:SetTexCoord ( (0.03125 * (i-1)) + half, (0.03125 * i) - half, 0.35693359375, 0.38720703125)
+			
 			if (i == 1) then
 				button.textura:SetTexture ("Interface\\ExtraButton\\ChampionLight")
-				button.icon:SetTexCoord (32/256 * (1-1), 32/256 * 1, 0, 1)
+				--button.icon:SetTexCoord (32/256 * (1-1), 32/256 * 1, 0, 1)
 
 			elseif (i == 2) then
 				button.textura:SetTexture ("Interface\\ExtraButton\\Ysera")
-				button.icon:SetTexCoord (32/256 * (2-1), 32/256 * 2, 0, 1)
-				button.icon:SetPoint ("center", button.textura, "center", 3, 0)
+				--button.icon:SetTexCoord (32/256 * (2-1), 32/256 * 2, 0, 1)
+				--button.icon:SetPoint ("center", button.textura, "center", 3, 0)
 
 			elseif (i == 3) then
 				button.textura:SetTexture ("Interface\\ExtraButton\\FengShroud")
-				button.icon:SetTexCoord (32/256 * (3-1), 32/256 * 3, 0, 1)				
+				--button.icon:SetTexCoord (32/256 * (3-1), 32/256 * 3, 0, 1)				
 			
 			elseif (i == 4) then
 				button.textura:SetTexture ("Interface\\ExtraButton\\BrewmoonKeg")
-				button.icon:SetTexCoord (32/256 * (4-1), 32/256 * 4, 0, 1)				
+				--button.icon:SetTexCoord (32/256 * (4-1), 32/256 * 4, 0, 1)				
 			
 			end
 			
@@ -873,9 +879,9 @@ local function CreateCustomWindow()
 					end
 				elseif (instancia.atributo == 5 and instancia.sub_atributo > CustomIndex) then
 					instancia.sub_atributo = instancia.sub_atributo - 1
-					instancia.m2_last [5] = 1
+					instancia.sub_atributo_last [5] = 1
 				else
-					instancia.m2_last [5] = 1
+					instancia.sub_atributo_last [5] = 1
 				end
 			end
 			if (#_detalhes.custom > 0) then 

@@ -1823,6 +1823,8 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 	local backgrounddisplay = CreateFrame ("frame", "Details_GumpFrame"..ID, backgroundframe) --> background window
 	backgroundframe:SetFrameLevel (3)
 	backgrounddisplay:SetFrameLevel (3)
+	backgroundframe.instance = instancia
+	backgrounddisplay.instance = instancia
 
 	local switchbutton = gump:NewDetailsButton (backgrounddisplay, baseframe, _, function() end, nil, nil, 1, 1, "", "", "", "", 
 	{rightFunc = {func = function() _detalhes.switch:ShowMe (instancia) end, param1 = nil, param2 = nil}})
@@ -3539,7 +3541,7 @@ function _detalhes:ChangeSkin (skin_name)
 
 		--> skin updater
 		if (self.bgframe.skin_script) then
-			self.bgframe:SetScript (nil)
+			self.bgframe:SetScript ("OnUpdate", nil)
 			self.bgframe.skin_script = false
 		end
 	
@@ -3583,6 +3585,7 @@ function _detalhes:ChangeSkin (skin_name)
 		
 		self.baseframe.barra_esquerda:SetTexture (skin_file) --> barra lateral
 		self.baseframe.barra_direita:SetTexture (skin_file) --> barra lateral
+		self.baseframe.barra_fundo:SetTexture (skin_file) --> barra inferior
 		
 		self.baseframe.scroll_up:SetTexture (skin_file) --> scrollbar parte de cima
 		self.baseframe.scroll_down:SetTexture (skin_file) --> scrollbar parte de baixo
@@ -3795,7 +3798,7 @@ function _detalhes:ChangeSkin (skin_name)
 			_detalhes:OpenOptionsWindow (self)
 		end
 	
-	if (not just_updating) then
+	if (not just_updating or _detalhes.initializing) then
 		if (this_skin.callback) then
 			this_skin:callback (self)
 		end
@@ -3806,6 +3809,8 @@ function _detalhes:ChangeSkin (skin_name)
 			end
 			self.bgframe:SetScript ("OnUpdate", this_skin.control_script)
 			self.bgframe.skin_script = true
+			self.bgframe.skin = this_skin
+			--self.bgframe.skin_script_instance = true
 		end
 		
 	end
@@ -4016,7 +4021,7 @@ function _detalhes:HideMainIcon (value)
 	
 		self.hide_icon = true
 		gump:Fade (self.baseframe.cabecalho.atributo_icon, 1)
-		self.baseframe.cabecalho.ball:SetParent (self.baseframe)
+		--self.baseframe.cabecalho.ball:SetParent (self.baseframe)
 		
 		if (self.toolbar_side == 1) then
 			self.baseframe.cabecalho.ball:SetTexCoord (unpack (COORDS_LEFT_BALL_NO_ICON))
@@ -4033,7 +4038,7 @@ function _detalhes:HideMainIcon (value)
 	else
 		self.hide_icon = false
 		gump:Fade (self.baseframe.cabecalho.atributo_icon, 0)
-		self.baseframe.cabecalho.ball:SetParent (_detalhes.listener)
+		--self.baseframe.cabecalho.ball:SetParent (_detalhes.listener)
 		
 		if (self.toolbar_side == 1) then
 
@@ -4106,7 +4111,7 @@ function _detalhes:ShowSideBars (instancia)
 			local l, r, t, b = unpack (COORDS_BOTTOM_SIDE_BAR)
 			self.baseframe.barra_fundo:SetTexCoord (l, r, b, t)
 			self.baseframe.barra_fundo:ClearAllPoints()
-			self.baseframe.barra_fundo:SetPoint ("bottomleft", self.baseframe, "topleft", -1, -6)
+			self.baseframe.barra_fundo:SetPoint ("bottomleft", self.baseframe, "topleft", 0, -6)
 			self.baseframe.barra_fundo:SetPoint ("bottomright", self.baseframe, "topright", -1, -6)
 		else
 			self.baseframe.barra_fundo:Hide()
@@ -4121,12 +4126,12 @@ function _detalhes:ShowSideBars (instancia)
 			local l, r, t, b = unpack (COORDS_BOTTOM_SIDE_BAR)
 			self.baseframe.barra_fundo:SetTexCoord (l, r, b, t)
 			self.baseframe.barra_fundo:ClearAllPoints()
-			self.baseframe.barra_fundo:SetPoint ("bottomleft", self.baseframe, "topleft", -1, -6)
+			self.baseframe.barra_fundo:SetPoint ("bottomleft", self.baseframe, "topleft", 0, -6)
 			self.baseframe.barra_fundo:SetPoint ("bottomright", self.baseframe, "topright", -1, -6)
 		else --tooltbar on top
 			self.baseframe.barra_fundo:SetTexCoord (unpack (COORDS_BOTTOM_SIDE_BAR))
 			self.baseframe.barra_fundo:ClearAllPoints()
-			self.baseframe.barra_fundo:SetPoint ("bottomleft", self.baseframe, "bottomleft", -1, -56)
+			self.baseframe.barra_fundo:SetPoint ("bottomleft", self.baseframe, "bottomleft", 0, -56)
 			self.baseframe.barra_fundo:SetPoint ("bottomright", self.baseframe, "bottomright", -1, -56)
 		end
 	end
@@ -4226,7 +4231,8 @@ function gump:CriaCabecalho (baseframe, instancia)
 	baseframe.cabecalho.ball_point:SetHeight (32)
 	
 	--> icone do atributo
-	baseframe.cabecalho.atributo_icon = _detalhes.listener:CreateTexture (nil, "artwork")
+	--baseframe.cabecalho.atributo_icon = _detalhes.listener:CreateTexture (nil, "artwork")
+	baseframe.cabecalho.atributo_icon = baseframe:CreateTexture (nil, "background")
 	local icon_anchor = _detalhes.skins ["Default Skin"].icon_anchor_main
 	baseframe.cabecalho.atributo_icon:SetPoint ("topright", baseframe.cabecalho.ball_point, "topright", icon_anchor[1], icon_anchor[2])
 	baseframe.cabecalho.atributo_icon:SetTexture (DEFAULT_SKIN)
@@ -4234,7 +4240,8 @@ function gump:CriaCabecalho (baseframe, instancia)
 	baseframe.cabecalho.atributo_icon:SetHeight (32)
 	
 	--> bola overlay
-	baseframe.cabecalho.ball = _detalhes.listener:CreateTexture (nil, "overlay")
+	--baseframe.cabecalho.ball = _detalhes.listener:CreateTexture (nil, "overlay")
+	baseframe.cabecalho.ball = baseframe:CreateTexture (nil, "overlay")
 	baseframe.cabecalho.ball:SetPoint ("bottomleft", baseframe, "topleft", -107, 0)
 	baseframe.cabecalho.ball:SetWidth (128)
 	baseframe.cabecalho.ball:SetHeight (128)
@@ -4243,7 +4250,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 	baseframe.cabecalho.ball:SetTexCoord (unpack (COORDS_LEFT_BALL))
 
 	--> emenda
-	baseframe.cabecalho.emenda = baseframe:CreateTexture (nil, "overlay")
+	baseframe.cabecalho.emenda = baseframe:CreateTexture (nil, "background")
 	baseframe.cabecalho.emenda:SetPoint ("bottomleft", baseframe.cabecalho.ball, "bottomright")
 	baseframe.cabecalho.emenda:SetWidth (8)
 	baseframe.cabecalho.emenda:SetHeight (128)
@@ -4271,7 +4278,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 	baseframe.cabecalho.top_bg:SetHeight (128)
 
 	--> frame invisível
-	baseframe.UPFrame = CreateFrame ("frame", nil, baseframe)
+	baseframe.UPFrame = CreateFrame ("frame", "DetailsUpFrameInstance"..instancia.meu_id, baseframe)
 	baseframe.UPFrame:SetPoint ("left", baseframe.cabecalho.ball, "right", 0, -53)
 	baseframe.UPFrame:SetPoint ("right", baseframe.cabecalho.ball_r, "left", 0, -53)
 	baseframe.UPFrame:SetHeight (20)

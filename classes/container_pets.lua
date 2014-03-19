@@ -114,7 +114,7 @@ function container_pets:PegaDono (pet_serial, pet_nome, pet_flags)
 		if (pet_flags and _bit_band (pet_flags, OBJECT_TYPE_PET) ~= 0) then --> é um pet
 			if (not _detalhes.pets_no_owner [pet_serial] and _bit_band (pet_flags, EM_GRUPO) ~= 0) then
 				_detalhes.pets_no_owner [pet_serial] = {pet_nome, pet_flags}
-				_detalhes:Msg ("PET sem dono:", pet_nome)
+				_detalhes:Msg ("couldn't find the owner of the pet:", pet_nome)
 			end
 		else
 			is_ignored [pet_serial] = true
