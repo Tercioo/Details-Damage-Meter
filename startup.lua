@@ -7,9 +7,10 @@
 
 function _G._detalhes:Start()
 
+-- slider de scale nas opções
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> details defaults
-
 	_detalhes.debug = false
 	local _
 	--> who is
@@ -177,7 +178,7 @@ function _G._detalhes:Start()
 		self.garbagecollect = self:ScheduleRepeatingTimer ("IniciarColetaDeLixo", self.intervalo_coleta)
 		self.memorycleanup = self:ScheduleRepeatingTimer ("CheckMemoryPeriodically", self.intervalo_memoria)
 		self.next_memory_check = time()+self.intervalo_memoria
-		
+
 	--> start parser
 		
 		--> load parser capture options
@@ -242,7 +243,7 @@ function _G._detalhes:Start()
 			end
 		end
 	end
-	
+
 	if (self.tutorial.version_announce < 4) then
 		self:ScheduleTimer ("AnnounceVersion", 20)
 		self.tutorial.version_announce = self.tutorial.version_announce + 1
@@ -253,6 +254,10 @@ function _G._detalhes:Start()
 				instancia._version:SetText ("Details! Alpha " .. _detalhes.userversion .. " (core: " .. self.realversion .. ")")
 				instancia._version:SetPoint ("bottomleft", instancia.baseframe, "bottomleft", 0, 1)
 				self.gump:Fade (instancia._version, "in", 10)
+				
+				if (instancia.auto_switch_to_old) then
+					instancia:SwitchBack()
+				end
 			end
 		end
 	end
@@ -288,8 +293,100 @@ function _G._detalhes:Start()
 	
 	--_detalhes:OpenWelcomeWindow()
 	
-	if (self.tutorial.logons < 5) then
+	if (self.tutorial.logons < 2) then
 		self:StartTutorial()
+	end
+	
+	--> feedback trhead
+	if (self.tutorial.logons > 100 and self.tutorial.logons < 104) then
+	
+		if (not self.tutorial.feedback_window1) then
+			self.tutorial.feedback_window1 = true
+		
+			local feedback_frame = CreateFrame ("FRAME", "DetailsFeedbackWindow", UIParent, "ButtonFrameTemplate")
+			tinsert (UISpecialFrames, "DetailsFeedbackWindow")
+			feedback_frame:SetPoint ("center", UIParent, "center")
+			feedback_frame:SetSize (512, 200)
+			feedback_frame.portrait:SetTexture ([[Interface\CHARACTERFRAME\TEMPORARYPORTRAIT-FEMALE-GNOME]])
+			
+			feedback_frame.TitleText:SetText ("Details! Need Your Help!")
+			
+			feedback_frame.uppertext = feedback_frame:CreateFontString (nil, "artwork", "GameFontNormal")
+			feedback_frame.uppertext:SetText ("Tell us about your experience using Details!, what you liked most, where we could improve, what things you want to see in the future?")
+			feedback_frame.uppertext:SetPoint ("topleft", feedback_frame, "topleft", 60, -32)
+			local font, _, flags = feedback_frame.uppertext:GetFont()
+			feedback_frame.uppertext:SetFont (font, 10, flags)
+			feedback_frame.uppertext:SetTextColor (1, 1, 1, .8)
+			feedback_frame.uppertext:SetWidth (440)
+			
+		
+			local editbox = _detalhes.gump:NewTextEntry (feedback_frame, nil, "$parentTextEntry", "text", 387, 14)
+			editbox:SetPoint (20, -106)
+			editbox:SetAutoFocus (false)
+			editbox:SetHook ("OnEditFocusGained", function() 
+				editbox.text = "http://www.mmo-champion.com/threads/1480721-New-damage-meter-%28Details!%29-need-help-with-tests-and-feedbacks" 
+				editbox:HighlightText()
+			end)
+			editbox:SetHook ("OnEditFocusLost", function() 
+				editbox.text = "http://www.mmo-champion.com/threads/1480721-New-damage-meter-%28Details!%29-need-help-with-tests-and-feedbacks" 
+				editbox:HighlightText()
+			end)
+			editbox:SetHook ("OnChar", function() 
+				editbox.text = "http://www.mmo-champion.com/threads/1480721-New-damage-meter-%28Details!%29-need-help-with-tests-and-feedbacks"
+				editbox:HighlightText()
+			end)
+			editbox.text = "http://www.mmo-champion.com/threads/1480721-New-damage-meter-%28Details!%29-need-help-with-tests-and-feedbacks"
+			
+			
+			feedback_frame.midtext = feedback_frame:CreateFontString (nil, "artwork", "GameFontNormal")
+			feedback_frame.midtext:SetText ("visit the link above and let's make Details! stronger!")
+			feedback_frame.midtext:SetPoint ("center", editbox.widget, "center")
+			feedback_frame.midtext:SetPoint ("top", editbox.widget, "bottom", 0, -2)
+			feedback_frame.midtext:SetJustifyH ("center")
+			local font, _, flags = feedback_frame.midtext:GetFont()
+			feedback_frame.midtext:SetFont (font, 10, flags)
+			--feedback_frame.midtext:SetTextColor (1, 1, 1, 1)
+			feedback_frame.midtext:SetWidth (440)
+			
+			
+			feedback_frame.gnoma = feedback_frame:CreateTexture (nil, "artwork")
+			feedback_frame.gnoma:SetPoint ("topright", feedback_frame, "topright", -1, -59)
+			feedback_frame.gnoma:SetTexture ("Interface\\AddOns\\Details\\images\\icons2")
+			feedback_frame.gnoma:SetSize (105*1.05, 107*1.05)
+			feedback_frame.gnoma:SetTexCoord (0.2021484375, 0, 0.7919921875, 1)
+
+			feedback_frame.close = CreateFrame ("Button", "DetailsFeedbackWindowCloseButton", feedback_frame, "OptionsButtonTemplate")
+			feedback_frame.close:SetPoint ("bottomleft", feedback_frame, "bottomleft", 8, 4)
+			feedback_frame.close:SetText ("Close")
+			feedback_frame.close:SetScript ("OnClick", function (self)
+				editbox:ClearFocus()
+				feedback_frame:Hide()
+			end)
+			
+			feedback_frame.postpone = CreateFrame ("Button", "DetailsFeedbackWindowPostPoneButton", feedback_frame, "OptionsButtonTemplate")
+			feedback_frame.postpone:SetPoint ("bottomright", feedback_frame, "bottomright", -10, 4)
+			feedback_frame.postpone:SetText ("Remind-me Later")
+			feedback_frame.postpone:SetScript ("OnClick", function (self)
+				editbox:ClearFocus()
+				feedback_frame:Hide()
+				_detalhes.tutorial.feedback_window1 = false
+			end)
+			feedback_frame.postpone:SetWidth (130)
+			
+			feedback_frame:SetScript ("OnHide", function() 
+				editbox:ClearFocus()
+			end)
+			
+			--0.0009765625 512
+			function _detalhes:FeedbackSetFocus()
+				DetailsFeedbackWindow:Show()
+				DetailsFeedbackWindowTextEntry.MyObject:SetFocus()
+				DetailsFeedbackWindowTextEntry.MyObject:HighlightText()
+			end
+			_detalhes:ScheduleTimer ("FeedbackSetFocus", 5)
+		
+		end
+		
 	end
 	
 	if (self.is_version_first_run) then
@@ -568,6 +665,8 @@ function _G._detalhes:Start()
 	f:SetBubbleText (nil)
 	
 	f:Hide()
+	
+
 	
 end
 

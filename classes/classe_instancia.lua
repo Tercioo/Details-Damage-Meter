@@ -946,8 +946,9 @@ end
 function _detalhes:SetBackgroundAlpha (alpha)
 	if (not alpha) then
 		alpha = self.bg_alpha
-	else
-		alpha = _detalhes:Scale (0, 1, 0.2, 1, alpha) - 0.8
+--	else
+--		print (alpha)
+--		alpha = _detalhes:Scale (0, 1, 0.2, 1, alpha) - 0.8
 	end
 	
 	self.bgdisplay:SetBackdropColor (self.bg_r or _detalhes.default_bg_color, self.bg_g or _detalhes.default_bg_color, self.bg_b or _detalhes.default_bg_color, alpha)
@@ -1096,6 +1097,7 @@ end
 function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, iniciando_instancia, InstanceMode)
 
 	if (self and self.meu_id and not instancia) then --> self é uma instância
+		InstanceMode = iniciando_instancia
 		iniciando_instancia = sub_atributo
 		sub_atributo = atributo
 		atributo = segmento
@@ -2026,6 +2028,10 @@ function _detalhes:envia_relatorio (linhas, custom)
 		editbox:ClearFocus()
 	end
 
+	if (_detalhes.report_where == "COPY") then
+		return _detalhes:SendReportTextWindow (linhas)
+	end
+	
 	local to_who = _detalhes.report_where
 	local channel = to_who:find ("|")
 	

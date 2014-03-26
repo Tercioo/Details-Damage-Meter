@@ -87,6 +87,52 @@ local _UISpecialFrames = UISpecialFrames --> wow api locals
 		
 		return true
 	end
+	
+	function _detalhes:SendReportTextWindow (lines)
+	
+		if (not _detalhes.copypasteframe) then
+			_detalhes.copypasteframe = CreateFrame ("editbox", "DetailsCopyPasteFrame2", UIParent)
+			_detalhes.copypasteframe:SetFrameStrata ("TOOLTIP")
+			_detalhes.copypasteframe:SetPoint ("CENTER", UIParent, "CENTER", 0, 50)
+			tinsert (UISpecialFrames, "DetailsCopyPasteFrame2")
+			_detalhes.copypasteframe:SetSize (400, 400)
+			_detalhes.copypasteframe:SetBackdrop ({bgFile = "Interface\\ACHIEVEMENTFRAME\\UI-Achievement-Parchment-Horizontal-Desaturated", 
+				edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", 
+				tile = true, tileSize = 16, edgeSize = 8,
+				insets = {left = 0, right = 0, top = 0, bottom = 0},})
+			_detalhes.copypasteframe:SetBackdropColor (0, 0, 0, 0.9)
+			_detalhes.copypasteframe:SetAutoFocus (false)
+			_detalhes.copypasteframe:SetMultiLine (true)
+			_detalhes.copypasteframe:SetFontObject ("GameFontHighlightSmall")
+			_detalhes.copypasteframe:Hide()
+			
+			local title = _detalhes.copypasteframe:CreateFontString (nil, "overlay", "GameFontNormal")
+			title:SetPoint ("bottomleft", _detalhes.copypasteframe, "topleft", 2, 2)
+			title:SetText ("Press Ctrl + C and paste wherever you want, press any key to close.")
+			title:SetJustifyH ("left")
+			
+			local texture = _detalhes.copypasteframe:CreateTexture (nil, "overlay")
+			texture:SetTexture (0, 0, 0, 1)
+			texture:SetSize (400, 25)
+			texture:SetPoint ("bottomleft", _detalhes.copypasteframe, "topleft")
+			
+			_detalhes.copypasteframe:SetScript ("OnEditFocusGained", function() _detalhes.copypasteframe:HighlightText() end)
+			_detalhes.copypasteframe:SetScript ("OnEditFocusLost", function() _detalhes.copypasteframe:Hide() end)
+			_detalhes.copypasteframe:SetScript ("OnEscapePressed", function() _detalhes.copypasteframe:SetFocus (false); _detalhes.copypasteframe:Hide() end)
+			_detalhes.copypasteframe:SetScript ("OnChar", function() _detalhes.copypasteframe:SetFocus (false); _detalhes.copypasteframe:Hide() end)
+		end
+		
+		local s = ""
+		for _, line in ipairs (lines) do 
+			s = s .. line .. "\n"
+		end
+		
+		_detalhes.copypasteframe:Show()
+		_detalhes.copypasteframe:SetText (s)
+		_detalhes.copypasteframe:HighlightText()
+		_detalhes.copypasteframe:SetFocus (true)
+
+	end
 
 	
 --> internal details report functions -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -175,13 +221,14 @@ local _UISpecialFrames = UISpecialFrames --> wow api locals
 			{Loc ["STRING_REPORTFRAME_OFFICERS"], "OFFICER", _IsInGuild}, 
 			{Loc ["STRING_REPORTFRAME_WHISPER"], "WHISPER"}, 
 			{Loc ["STRING_REPORTFRAME_WHISPERTARGET"], "WHISPER2"}, 
-			{Loc ["STRING_REPORTFRAME_SAY"], "SAY"} 
+			{Loc ["STRING_REPORTFRAME_SAY"], "SAY"},
+			{Loc ["STRING_REPORTFRAME_COPY"], "COPY"},
 		}
 		
 		local function initialize (self, level)
 			local info = _UIDropDownMenu_CreateInfo()
 
-			for i = 8, #lista do 
+			for i = 9, #lista do 
 				lista [i] = nil
 			end
 			

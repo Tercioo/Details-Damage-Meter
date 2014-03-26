@@ -64,10 +64,19 @@ end
 	local COORDS_LEFT_CONNECTOR_NO_ICON = {0.58837890625, 0.59423828125, 0.08251953125, 0.20556640625} -- 602 84 609 211 (updated)
 	local COORDS_TOP_BACKGROUND = {0.15673828125, 0.65478515625, 0.22314453125, 0.34619140625} -- 160 228 671 355 (updated)
 	local COORDS_RIGHT_BALL = {0.31591796875, 0.43994140625, 0.08251953125, 0.20556640625} --324 84 451 211 (updated)
-	local COORDS_LEFT_BALL_NO_ICON = {0.44970703125, 0.57275390625, 0.08251953125, 0.20556640625} --460 84 587 211 (updated)
+	
+	--local COORDS_LEFT_BALL_NO_ICON = {0.44970703125, 0.57275390625, 0.08251953125, 0.20556640625} --460 84 587 211 (updated)
+	local COORDS_LEFT_BALL_NO_ICON = {0.44970703125, 0.57275390625, 0.08251953125, 0.20556640625} --460 84 587 211 (updated) 588 212
 
 	local COORDS_LEFT_SIDE_BAR = {0.76611328125, 0.82763671875, 0.00244140625, 0.50146484375} -- 784 2 848 514 (updated)
-	local COORDS_RIGHT_SIDE_BAR = {0.70068359375, 0.76220703125, 0.00244140625, 0.50146484375} -- 717 2 781 514 (updated)
+	--local COORDS_LEFT_SIDE_BAR = {0.76611328125, 0.82666015625, 0.00244140625, 0.50048828125} -- 784 2 848 514 (updated)
+	--local COORDS_LEFT_SIDE_BAR = {0.765625, 0.8291015625, 0.00244140625, 0.5029296875} -- 784 2 848 514 (updated)
+	--784 2 847 513
+	
+	--local COORDS_RIGHT_SIDE_BAR = {0.70068359375, 0.76220703125, 0.00244140625, 0.50146484375} -- 717 2 781 514 (updated)
+	local COORDS_RIGHT_SIDE_BAR = {0.7001953125, 0.763671875, 0.00244140625, 0.50146484375} -- 717 2 781 514 (updated)
+	--717 2 782 515
+	
 	local COORDS_BOTTOM_SIDE_BAR = {0.32861328125, 0.82666015625, 0.50537109375, 0.56494140625} -- 336 517 847 579 (updated)
 	
 	local COORDS_SLIDER_TOP = {0.00146484375, 0.03076171875, 0.00244140625, 0.03173828125} -- 1 2 32 33 -ok
@@ -2071,7 +2080,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 	gump:CriaRodape (baseframe, instancia)
 
 -- left and right side bars ------------------------------------------------------------------------------------------------------------------------------------------------------------
-
+	-- ~barra
 	--> left
 		baseframe.barra_esquerda = baseframe.cabecalho.fechar:CreateTexture (nil, "artwork")
 		baseframe.barra_esquerda:SetTexture (DEFAULT_SKIN)
@@ -2221,6 +2230,7 @@ function _detalhes:SetBarGrowDirection (direction)
 			y = y * -1
 			row:ClearAllPoints()
 			row:SetPoint ("topleft", self.baseframe, "topleft", x, y)
+			
 		end
 		
 	elseif (direction == 2) then --> bottom to top
@@ -2230,6 +2240,17 @@ function _detalhes:SetBarGrowDirection (direction)
 			row:SetPoint ("bottomleft", self.baseframe, "bottomleft", x, y + 2)
 		end
 		
+	end
+	
+	--> update all row width
+	if (self.bar_mod and self.bar_mod ~= 0) then
+		for index = 1, #self.barras do
+			self.barras [index]:SetWidth (self.baseframe:GetWidth() + self.bar_mod)
+		end
+	else
+		for index = 1, #self.barras do
+			self.barras [index]:SetWidth (self.baseframe:GetWidth()+self.row_info.space.right)
+		end
 	end
 end
 
@@ -3529,7 +3550,8 @@ function _detalhes:ChangeSkin (skin_name)
 	local this_skin = _detalhes.skins [skin_name]
 
 	if (not this_skin) then
-		return false --> throw a msg
+		skin_name = "Default Skin"
+		this_skin = _detalhes.skins [skin_name]
 	end
 
 	local just_updating = false
@@ -3548,17 +3570,6 @@ function _detalhes:ChangeSkin (skin_name)
 		--> reset all config
 			self:ResetInstanceConfig()
 	
-		--> overwrites
-			local overwrite_cprops = this_skin.instance_cprops
-			if (overwrite_cprops) then
-				for cprop, value in _pairs (overwrite_cprops) do
-					self [cprop] = value
-				end
-			end
-			
-		--> reset micro frames
-			_detalhes.StatusBar:Reset (self)
-			
 		--> reset instance button
 			self:SetInstanceButtonSettings ("reset")
 		
@@ -3569,7 +3580,28 @@ function _detalhes:ChangeSkin (skin_name)
 			
 		--> reset close button
 			self:SetCloseButtonSettings ("reset")
-		
+			DetailsResetButton2Text2:SetText ("-")
+	
+		--> overwrites
+			local overwrite_cprops = this_skin.instance_cprops
+			if (overwrite_cprops) then
+				for cprop, value in _pairs (overwrite_cprops) do
+					self [cprop] = value
+				end
+			end
+			
+		--> reset instance button
+			self:SetInstanceButtonSettings()
+		--> reset delete button
+			if (_detalhes.ResetButtonInstance == self.meu_id) then
+				self:SetDeleteButtonSettings()
+			end
+		--> reset close button
+			self:SetCloseButtonSettings ()
+			
+		--> reset micro frames
+			_detalhes.StatusBar:Reset (self)
+
 	end
 	
 	self.skin = skin_name
@@ -3689,7 +3721,11 @@ function _detalhes:ChangeSkin (skin_name)
 		self.baseframe.cabecalho.fechar:SetScript ("OnMouseDown", nil)
 		self.baseframe.cabecalho.fechar:SetScript ("OnMouseUp", nil)
 		
-		self.baseframe.cabecalho.fechar:SetSize (32, 32)
+		if (this_skin.close_button_size) then
+			self.baseframe.cabecalho.fechar:SetSize (unpack (this_skin.close_button_size))
+		else
+			self.baseframe.cabecalho.fechar:SetSize (32, 32)
+		end
 	end
 
 ----------> customize micro frames
@@ -4102,6 +4138,10 @@ function _detalhes:ShowSideBars (instancia)
 	self.baseframe.barra_esquerda:Show()
 	self.baseframe.barra_direita:Show()
 	
+	--> set default spacings
+	self.row_info.space.left = 3
+	self.row_info.space.right = -5
+	
 	if (self.show_statusbar) then
 		self.baseframe.barra_esquerda:SetPoint ("bottomleft", self.baseframe, "bottomleft", -56, -14)
 		self.baseframe.barra_direita:SetPoint ("bottomright", self.baseframe, "bottomright", 56, -14)
@@ -4136,6 +4176,8 @@ function _detalhes:ShowSideBars (instancia)
 		end
 	end
 	
+	self:SetBarGrowDirection()
+	
 end
 
 function _detalhes:HideSideBars (instancia)
@@ -4145,10 +4187,14 @@ function _detalhes:HideSideBars (instancia)
 	
 	self.show_sidebars = false
 	
+	self.row_info.space.left = 0
+	self.row_info.space.right = 0
+	
 	self.baseframe.barra_esquerda:Hide()
 	self.baseframe.barra_direita:Hide()
 	self.baseframe.barra_fundo:Hide()
 	
+	self:SetBarGrowDirection()
 end
 
 function _detalhes:HideStatusBar (instancia)

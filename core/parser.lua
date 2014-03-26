@@ -21,6 +21,7 @@
 	local _IsInRaid = IsInRaid --wow api local
 	local _IsInGroup = IsInGroup --wow api local
 	local _GetNumGroupMembers = GetNumGroupMembers --wow api local
+	local _UnitGroupRolesAssigned = UnitGroupRolesAssigned
 
 	local _cstr = string.format --lua local
 	local _table_insert = table.insert --lua local
@@ -80,6 +81,8 @@
 		local misc_cache = setmetatable ({}, _detalhes.weaktable)
 	--> party & raid members
 		local raid_members_cache = setmetatable ({}, _detalhes.weaktable)
+	--> tanks
+		local tanks_members_cache = setmetatable ({}, _detalhes.weaktable)
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> constants
@@ -254,8 +257,45 @@
 			end
 			
 			--> record avoidance only for player actors
-			if (spellid < 3) then --> autoshot melee
-				jogador_alvo.avoidance ["HITS"] = jogador_alvo.avoidance ["HITS"] + 1
+			
+			if (tanks_members_cache [alvo_serial]) then --> autoshot or melee hit
+				--> avoidance
+				local avoidance = jogador_alvo.avoidance
+				local overall = avoidance.overall
+				
+				local mob = avoidance [who_name]
+				if (not mob) then --> if isn't in the table, build on the fly
+					mob =  _detalhes:CreateActorAvoidanceTable (true)
+					avoidance [who_name] = mob
+				end				
+				
+				overall ["ALL"] = overall ["ALL"] + 1  --> qualtipo de hit ou absorb
+				mob ["ALL"] = mob ["ALL"] + 1  --> qualtipo de hit ou absorb
+				
+				if (spellid < 3) then
+					--> overall
+					overall ["HITS"] = overall ["HITS"] + 1
+					mob ["HITS"] = mob ["HITS"] + 1
+				end
+				
+				--> absorbs status
+				if (absorbed) then
+					--> aqui pode ser apenas absorb parcial
+					overall ["ABSORB"] = overall ["ABSORB"] + 1
+					overall ["PARTIAL_ABSORBED"] = overall ["PARTIAL_ABSORBED"] + 1
+					overall ["PARTIAL_ABSORB_AMT"] = overall ["PARTIAL_ABSORB_AMT"] + absorbed
+					overall ["ABSORB_AMT"] = overall ["ABSORB_AMT"] + absorbed
+					mob ["ABSORB"] = mob ["ABSORB"] + 1
+					mob ["PARTIAL_ABSORBED"] = mob ["PARTIAL_ABSORBED"] + 1
+					mob ["PARTIAL_ABSORB_AMT"] = mob ["PARTIAL_ABSORB_AMT"] + absorbed
+					mob ["ABSORB_AMT"] = mob ["ABSORB_AMT"] + absorbed
+				else
+					--> adicionar aos hits sem absorbs
+					overall ["FULL_HIT"] = overall ["FULL_HIT"] + 1
+					overall ["FULL_HIT_AMT"] = overall ["FULL_HIT_AMT"] + amount
+					mob ["FULL_HIT"] = mob ["FULL_HIT"] + 1
+					mob ["FULL_HIT_AMT"] = mob ["FULL_HIT_AMT"] + amount
+				end
 			end
 		end
 		
@@ -417,13 +457,41 @@
 			end
 		end
 
-		--> 'avoider'
-		--> using this method means avoidance of pets will not be tracked
-		local TargetActor = damage_cache [alvo_name]
-		if (TargetActor and TargetActor.grupo) then
-			local missTable = TargetActor.avoidance [missType]
-			if (missTable) then
-				TargetActor.avoidance [missType] = missTable +1
+		if (tanks_members_cache [alvo_serial]) then --> only track tanks
+			local TargetActor = damage_cache [alvo_name]
+			if (TargetActor) then
+			
+				local avoidance = TargetActor.avoidance
+				local missTable = avoidance.overall [missType]
+				
+				if (missTable) then
+					--> overall
+					local overall = avoidance.overall
+					overall [missType] = missTable + 1 --> adicionado a quantidade do miss
+
+					--> from this mob
+					local mob = avoidance [who_name]
+					if (not mob) then --> if isn't in the table, build on the fly
+						mob = _detalhes:CreateActorAvoidanceTable (true)
+						avoidance [who_name] = mob
+					end
+					
+					mob [missType] = mob [missType] + 1
+					
+					if (missType == "ABSORB") then --full absorb
+						overall ["ALL"] = overall ["ALL"] + 1 --> qualtipo de hit ou absorb
+						overall ["FULL_ABSORBED"] = overall ["FULL_ABSORBED"] + 1 --amount
+						overall ["ABSORB_AMT"] = overall ["ABSORB_AMT"] + amountMissed
+						overall ["FULL_ABSORB_AMT"] = overall ["FULL_ABSORB_AMT"] + amountMissed
+						
+						mob ["ALL"] = mob ["ALL"] + 1  --> qualtipo de hit ou absorb
+						mob ["FULL_ABSORBED"] = mob ["FULL_ABSORBED"] + 1 --amount
+						mob ["ABSORB_AMT"] = mob ["ABSORB_AMT"] + amountMissed
+						mob ["FULL_ABSORB_AMT"] = mob ["FULL_ABSORB_AMT"] + amountMissed
+					end
+					
+				end
+
 			end
 		end
 		
@@ -2726,19 +2794,46 @@
 	end
 
 	function _detalhes:UptadeRaidMembersCache()
+	
 		_table_wipe (raid_members_cache)
+		_table_wipe (tanks_members_cache)
+		
 		if (_IsInRaid()) then
 			for i = 1, _GetNumGroupMembers() do 
 				raid_members_cache [_UnitGUID ("raid"..i)] = true
+				local role = _UnitGroupRolesAssigned (GetUnitName ("raid"..i, true))
+				if (role == "TANK") then
+					tanks_members_cache [_UnitGUID ("raid"..i)] = true
+					
+					--print ("tank detected:", GetUnitName ("raid"..i, true))
+				end
 			end
+			
 		elseif (_IsInGroup()) then
 			for i = 1, _GetNumGroupMembers()-1 do 
 				raid_members_cache [_UnitGUID ("party"..i)] = true
+				local role = _UnitGroupRolesAssigned (GetUnitName ("party"..i, true))
+				if (role == "TANK") then
+					tanks_members_cache [_UnitGUID ("party"..i)] = true
+				end
 			end
+			
 			raid_members_cache [_UnitGUID ("player")] = true
+			local role = _UnitGroupRolesAssigned (GetUnitName ("player", true))
+			if (role == "TANK") then
+				tanks_members_cache [_UnitGUID ("player")] = true
+			end
 		else
 			raid_members_cache [_UnitGUID ("player")] = true
+			local role = _UnitGroupRolesAssigned (GetUnitName ("player", true))
+			if (role == "TANK") then
+				tanks_members_cache [_UnitGUID ("player")] = true
+			end
 		end
+	end
+
+	function _detalhes:IsATank (playerguid)
+		return tanks_members_cache [playerguid]
 	end
 	
 	function _detalhes:IsInCache (playerguid)

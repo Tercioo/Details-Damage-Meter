@@ -186,7 +186,7 @@ function _detalhes:OpenOptionsWindow (instance)
 			-- ~altura
 			
 			if (options_type == 1) then
-				window.options [1][1].slider:SetMinMaxValues (0, 200)
+				window.options [1][1].slider:SetMinMaxValues (0, 320)
 			elseif (options_type == 2) then
 				window.options [2][1].slider:SetMinMaxValues (0, 1300)
 				window.options [2][1].slider.scrollMax = 1300
@@ -616,6 +616,69 @@ function _detalhes:OpenOptionsWindow (instance)
 		local buildAbbreviationMenu = function()
 			return abbreviationOptions
 		end
+
+	--------------- auto switch
+		g:NewLabel (frame1, _, "$parentAutoSwitchLabel", "autoSwitchLabel", Loc ["STRING_OPTIONS_AUTO_SWITCH"])
+		frame1.autoSwitchLabel:SetPoint (10, -450)
+		--
+
+		local onSelectAutoSwitch = function (_, _, switch_to)
+			if (switch_to == 0) then
+				window.instance.auto_switch_to = nil
+				return
+			end
+			
+			local selected = window.lastSwitchList [switch_to]
+			
+			if (selected [1] == "raid") then
+				local name = _detalhes.RaidTables.Menu [selected [2]] [1]
+				selected [2] = name
+				window.instance.auto_switch_to = selected
+			else
+				window.instance.auto_switch_to = selected
+			end
+
+		end
+		
+		local buildSwitchMenu = function()
+		
+			window.lastSwitchList = {}
+			local t = {{value = 0, label = "NONE", onclick = onSelectAutoSwitch, icon = [[Interface\COMMON\VOICECHAT-MUTED]]}}
+			
+			local attributes = _detalhes.sub_atributos
+			local i = 1
+			
+			for atributo, sub_atributo in ipairs (attributes) do
+				local icones = sub_atributo.icones
+				for index, att_name in ipairs (sub_atributo.lista) do
+					local texture, texcoord = unpack (icones [index])
+					tinsert (t, {value = i, label = att_name, onclick = onSelectAutoSwitch, icon = texture, texcoord = texcoord})
+					window.lastSwitchList [i] = {atributo, index, i}
+					i = i + 1
+				end
+			end
+			
+			for index, ptable in ipairs (_detalhes.RaidTables.Menu) do
+				tinsert (t, {value = i, label = ptable [1], onclick = onSelectAutoSwitch, icon = ptable [2]})
+				window.lastSwitchList [i] = {"raid", index, i}
+				i = i + 1
+			end
+		
+			return t
+		end
+		
+		g:NewDropDown (frame1, _, "$parentAutoSwitchDropdown", "autoSwitchDropdown", 160, 20, buildSwitchMenu, 1) -- func, default
+		frame1.autoSwitchDropdown:SetPoint ("left", frame1.autoSwitchLabel, "right", 2, 0)		
+		frame1.autoSwitchDropdown:SetFrameStrata ("DIALOG")
+		
+		frame1.autoSwitchDropdown.info = Loc ["STRING_OPTIONS_AUTO_SWITCH_DESC"]
+
+		window:create_line_background (frame1, frame1.autoSwitchLabel, frame1.autoSwitchDropdown)
+		frame1.autoSwitchDropdown:SetHook ("OnEnter", background_on_enter)
+		frame1.autoSwitchDropdown:SetHook ("OnLeave", background_on_leave)
+		
+		
+		--abbreviation
 		g:NewDropDown (frame1, _, "$parentAbbreviateDropdown", "dpsAbbreviateDropdown", 160, 20, buildAbbreviationMenu, _detalhes.ps_abbreviation) -- func, default
 		frame1.dpsAbbreviateDropdown:SetPoint ("left", frame1.dpsAbbreviateLabel, "right", 2, 0)		
 		frame1.dpsAbbreviateDropdown:SetFrameStrata ("DIALOG")
@@ -625,7 +688,6 @@ function _detalhes:OpenOptionsWindow (instance)
 		window:create_line_background (frame1, frame1.dpsAbbreviateLabel, frame1.dpsAbbreviateDropdown)
 		frame1.dpsAbbreviateDropdown:SetHook ("OnEnter", background_on_enter)
 		frame1.dpsAbbreviateDropdown:SetHook ("OnLeave", background_on_leave)
-		
 		
 ---------------- appearance
 		local frame2 = window.options [2][1].gump
@@ -791,7 +853,8 @@ function _detalhes:OpenOptionsWindow (instance)
 				local r, g, b = ColorPickerFrame:GetColorRGB()
 				local a = OpacitySliderFrame:GetValue()
 
-				a = _detalhes:Scale (0, 1, 0.5, 1, a) - 0.5
+				--a = _detalhes:Scale (0, 1, 0.5, 1, a) - 0.5
+				--print (a)
 				
 				frame2.instancecolortexture:SetTexture (r, g, b)
 				frame2.instancecolortexture:SetAlpha (a)
@@ -1580,7 +1643,7 @@ function _detalhes:OpenOptionsWindow (instance)
 		-- Color and Alpha
 		g:NewLabel (frame2, _, "$parentAlphaLabel", "alphaLabel", Loc ["STRING_OPTIONS_INSTANCE_ALPHA"])
 		g:NewLabel (frame2, _, "$parentBackgroundColorLabel", "backgroundColorLabel", Loc ["STRING_OPTIONS_INSTANCE_ALPHA2"])
-		--
+		-- alpha background
 		frame2.alphaSlider:SetPoint ("left", frame2.alphaLabel, "right", 2, 0)
 		frame2.alphaSlider.useDecimals = true
 		frame2.alphaSlider:SetHook ("OnValueChange", function (self, instance, amount) --> slider, fixedValue, sliderValue
@@ -1589,15 +1652,11 @@ function _detalhes:OpenOptionsWindow (instance)
 			return true
 		end)
 		frame2.alphaSlider.thumb:SetSize (30+(120*0.2)+2, 20*1.2)
-
 		frame2.backgroundColorTexture:SetPoint ("left", frame2.backgroundColorLabel, "right", 2)
 		frame2.backgroundColorTexture:SetTexture (1, 1, 1)
-		
 		frame2.backgroundColorButton:SetPoint ("left", frame2.backgroundColorLabel, "right", 2)
 		frame2.backgroundColorButton:InstallCustomTexture()		
-		
-		-- alpha background COLOR????
-		
+
 		frame2.alphaSlider.info = Loc ["STRING_OPTIONS_INSTANCE_ALPHA_DESC"]
 		window:create_line_background (frame2, frame2.alphaLabel, frame2.alphaSlider)
 		frame2.alphaSlider:SetHook ("OnEnter", background_on_enter)
@@ -2737,6 +2796,28 @@ end
 	_G.DetailsOptionsWindow2InstanceButtonAnchorYSlider.MyObject:SetValue (instance.instance_button_anchor[2])
 
 ----------------------------------------------------------------	
+
+	--auto switch
+	local autoswitch = instance.auto_switch_to
+	if (autoswitch) then
+		if (autoswitch [1] == "raid") then
+			_G.DetailsOptionsWindow1AutoSwitchDropdown.MyObject:Select (autoswitch[2])
+			--print (autoswitch[2])
+			--[[
+			for index, ptable in _ipairs (_detalhes.RaidTables.Menu) do
+				GameCooltip:AddMenu (1, _detalhes.RaidTables.switch, index, nil, nil, ptable [1], ptable [2], true)
+				if (ptable[1] == autoswitch [2]) then
+					
+					break
+				end
+			end
+			--]]
+		else
+			_G.DetailsOptionsWindow1AutoSwitchDropdown.MyObject:Select (autoswitch[3]+1, true)
+		end
+	else
+		_G.DetailsOptionsWindow1AutoSwitchDropdown.MyObject:Select (1, true)
+	end
 	
 	--resetTextColor
 	_G.DetailsOptionsWindow2ResetTextFontDropdown.MyObject:SetFixedParameter (instance)

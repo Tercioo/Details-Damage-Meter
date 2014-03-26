@@ -75,6 +75,11 @@
 				for _, combat_table in _ipairs (tabelas_do_historico) do
 					combat_table.__call = _detalhes.call_combate
 				end
+				
+				for i = #tabelas_do_historico-1, 1, -1 do
+					local combat = tabelas_do_historico [i]
+					combat.previous_combat = tabelas_do_historico [i+1]
+				end
 	
 			--> tempo padrao do overall
 				combate_overall.start_time = _tempo
@@ -198,6 +203,9 @@
 				if (_detalhes.clear_graphic) then 
 					_combate.TimeData = {}
 				end
+				
+				--> limpa a referencia do ultimo combate
+				_combate.previous_combat = nil
 			
 				local container_dano = _combate [class_type_dano] or {}
 				local container_cura = _combate [class_type_cura] or {}

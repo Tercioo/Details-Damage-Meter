@@ -9,6 +9,8 @@ local _unpack = unpack --> lua locals
 local _type = type --> lua locals
 local _math_floor = math.floor --> lua locals
 
+local SharedMedia = LibStub:GetLibrary ("LibSharedMedia-3.0")
+
 local cleanfunction = function() end
 local BarMetaFunctions = {}
 local APIBarFunctions
@@ -81,15 +83,15 @@ local APIBarFunctions
 	end
 	--> left color
 	local gmember_color = function (_object)
-		return _object.texture.original_colors
+		return _object._texture.original_colors
 	end
 	--> icon
 	local gmember_icon = function (_object)
-		return _object.icon:GetTexture()
+		return _object._icon:GetTexture()
 	end
 	--> texture
 	local gmember_texture = function (_object)
-		return _object.texture:GetTexture()
+		return _object._texture:GetTexture()
 	end	
 	--> font size
 	local gmember_textsize = function (_object)
@@ -190,19 +192,19 @@ local APIBarFunctions
 		local _value1, _value2, _value3, _value4 = gump:ParseColors (_value)
 		
 		_object.statusbar:SetStatusBarColor (_value1, _value2, _value3, _value4)
-		_object.texture.original_colors = {_value1, _value2, _value3, _value4}
-		return _object.texture:SetVertexColor (_value1, _value2, _value3, _value4)
+		_object._texture.original_colors = {_value1, _value2, _value3, _value4}
+		return _object._texture:SetVertexColor (_value1, _value2, _value3, _value4)
 	end
 	--> icon
 	local smember_icon = function (_object, _value)
 		if (type (_value) == "table") then
 			local _value1, _value2 = _unpack (_value)
-			_object.icon:SetTexture (_value1)
+			_object._icon:SetTexture (_value1)
 			if (_value2) then
-				_object.icon:SetTexCoord (_unpack (_value2))
+				_object._icon:SetTexCoord (_unpack (_value2))
 			end
 		else
-			_object.icon:SetTexture (_value)
+			_object._icon:SetTexture (_value)
 		end
 		return
 	end
@@ -210,12 +212,21 @@ local APIBarFunctions
 	local smember_texture = function (_object, _value)
 		if (type (_value) == "table") then
 			local _value1, _value2 = _unpack (_value)
-			_object.texture:SetTexture (_value1)
+			_object._texture:SetTexture (_value1)
 			if (_value2) then
-				_object.texture:SetTexCoord (_unpack (_value2))
+				_object._texture:SetTexCoord (_unpack (_value2))
 			end
 		else
-			_object.texture:SetTexture (_value)
+			if (_value:find ("\\")) then
+				_object._texture:SetTexture (_value)
+			else
+				local file = SharedMedia:Fetch ("statusbar", _value)
+				if (file) then
+					_object._texture:SetTexture (file)
+				else
+					_object._texture:SetTexture (_value)
+				end
+			end
 		end
 		return
 	end
@@ -235,6 +246,11 @@ local APIBarFunctions
 		_object.textleft:SetTextColor (_value1, _value2, _value3, _value4)
 		return _object.textright:SetTextColor (_value1, _value2, _value3, _value4)
 	end
+	--> outline (shadow)
+	local smember_outline = function (_object, _value)
+		_detalhes:SetFontOutline (_object.textleft, _value)
+		return _detalhes:SetFontOutline (_object.textright, _value)
+	end
 
 	local set_members_function_index = {
 		["tooltip"] = smember_tooltip,
@@ -252,10 +268,13 @@ local APIBarFunctions
 		["fontcolor"] = smember_textcolor,
 		["textsize"] = smember_textsize, --alias
 		["textfont"] = smember_textfont, --alias
-		["textcolor"] = smember_textcolor --alias
+		["textcolor"] = smember_textcolor, --alias
+		["shadow"] = smember_outline,
+		["outline"] = smember_outline, --alias
 	}
 	
 	BarMetaFunctions.__newindex = function (_table, _key, _value)
+	
 		local func = set_members_function_index [_key]
 		if (func) then
 			return func (_table, _value)
@@ -306,7 +325,7 @@ local APIBarFunctions
 
 --> set texture
 	function BarMetaFunctions:SetTexture (texture)
-		self.texture:SetTexture (texture)
+		self._texture:SetTexture (texture)
 	end
 	
 --> set texts
@@ -321,17 +340,17 @@ local APIBarFunctions
 	function BarMetaFunctions:SetColor (r, g, b, a)
 		r, g, b, a = gump:ParseColors (r, g, b, a)
 		
-		self.texture:SetVertexColor (r, g, b, a)
+		self._texture:SetVertexColor (r, g, b, a)
 		self.statusbar:SetStatusBarColor (r, g, b, a)
-		self.texture.original_colors = {r, g, b, a}
+		self._texture.original_colors = {r, g, b, a}
 	end
 	
 --> set icons
 	function BarMetaFunctions:SetIcon (texture, ...)
-		self.icon:SetTexture (texture)
+		self._icon:SetTexture (texture)
 		if (...) then
 			local L, R, U, D = _unpack (...)
-			self.icon:SetTexCoord (L, R, U, D)
+			self._icon:SetTexCoord (L, R, U, D)
 		end
 	end
 
@@ -444,13 +463,13 @@ local APIBarFunctions
 		end
 		
 		if (not frame.MyObject.timer) then
-			local oc = frame.MyObject.texture.original_colors --original colors
-			gump:GradientEffect ( frame.MyObject.texture, "texture", oc[1], oc[2], oc[3], oc[4], oc[1]+0.2, oc[2]+0.2, oc[3]+0.2, oc[4], .2)
+			local oc = frame.MyObject._texture.original_colors --original colors
+			gump:GradientEffect ( frame.MyObject._texture, "texture", oc[1], oc[2], oc[3], oc[4], oc[1]+0.2, oc[2]+0.2, oc[3]+0.2, oc[4], .2)
 			frame.MyObject.div:Show()
 			frame.MyObject.div:SetPoint ("left", frame, "left", frame:GetValue() * (frame:GetWidth()/100) - 16, 0)
 		else
-			local oc = frame.MyObject.texture.original_colors --original colors
-			gump:GradientEffect ( frame.MyObject.texture, "texture", oc[1], oc[2], oc[3], oc[4], oc[1]-0.2, oc[2]-0.2, oc[3]-0.2, oc[4]+.2, .2)
+			local oc = frame.MyObject._texture.original_colors --original colors
+			gump:GradientEffect ( frame.MyObject._texture, "texture", oc[1], oc[2], oc[3], oc[4], oc[1]-0.2, oc[2]-0.2, oc[3]-0.2, oc[4]+.2, .2)
 		end
 		
 		frame.MyObject.background:Show()
@@ -479,11 +498,12 @@ local APIBarFunctions
 		end
 		
 		if (not frame.MyObject.timer) then
-			local oc = frame.MyObject.texture.original_colors --original colors
-			local r, g, b, a = frame.MyObject.texture:GetVertexColor()
-			gump:GradientEffect ( frame.MyObject.texture, "texture", r, g, b, a, oc[1], oc[2], oc[3], oc[4], .2)
+			local oc = frame.MyObject._texture.original_colors --original colors
+			local r, g, b, a = frame.MyObject._texture:GetVertexColor()
+			gump:GradientEffect ( frame.MyObject._texture, "texture", r, g, b, a, oc[1], oc[2], oc[3], oc[4], .2)
 			frame.MyObject.div:Hide()
-			frame.MyObject.background:Hide()
+			
+			--frame.MyObject.background:Hide()
 		else
 			local oc = frame.MyObject.background.original_colors --original colors
 			local r, g, b, a = frame.MyObject.background:GetVertexColor()
@@ -679,9 +699,9 @@ function gump:NewBar (parent, container, name, member, w, h, value)
 		BarObject.timer_texture:SetWidth (w)
 		BarObject.timer_texture:SetHeight (h)
 		
-		BarObject.texture = _G [name .. "_statusbarTexture"]
+		BarObject._texture = _G [name .. "_statusbarTexture"]
 		BarObject.background = _G [name .. "_background"]
-		BarObject.icon = _G [name .. "_icon"]
+		BarObject._icon = _G [name .. "_icon"]
 		BarObject.textleft = _G [name .. "_TextLeft"]
 		BarObject.textright = _G [name .. "_TextRight"]
 		BarObject.div = _G [name .. "_sparkMouseover"]

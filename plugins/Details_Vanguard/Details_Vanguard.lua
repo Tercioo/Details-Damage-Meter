@@ -486,13 +486,13 @@ local function CreatePluginFrames (data)
 						--> members can be found at details/classes/classe_damage line 75
 						local avoidance = actorDamage.avoidance --> table with DODGE, PARRY, HITS members
 
-						local totalAvoid = avoidance.DODGE + avoidance.PARRY
-						local totalOver = totalAvoid + avoidance.HITS
+						local totalAvoid = avoidance.overall.DODGE + avoidance.overall.PARRY
+						local totalOver = totalAvoid + avoidance.overall.HITS
 						
 						if (totalOver > 0) then
-							hitsReceivedAmount.text = avoidance.HITS .. " (" .. _math_floor (avoidance.HITS / totalOver * 100) .. "%)"
-							dodgeAmount.text = avoidance.DODGE .. " (" .. _math_floor (avoidance.DODGE / totalOver * 100) .. "%)"
-							parryAmount.text = avoidance.PARRY .. " (" .. _math_floor (avoidance.PARRY / totalOver * 100) .. "%)"
+							hitsReceivedAmount.text = avoidance.overall.HITS .. " (" .. _math_floor (avoidance.overall.HITS / totalOver * 100) .. "%)"
+							dodgeAmount.text = avoidance.overall.DODGE .. " (" .. _math_floor (avoidance.overall.DODGE / totalOver * 100) .. "%)"
+							parryAmount.text = avoidance.overall.PARRY .. " (" .. _math_floor (avoidance.overall.PARRY / totalOver * 100) .. "%)"
 						else
 							hitsReceivedAmount.text = "0 (0%)"
 							dodgeAmount.text = "0 (0%)"
@@ -1003,21 +1003,21 @@ local function CreatePluginFrames (data)
 			
 			--> capture the amount of hits and avoids
 			
-				_table_insert (hits_taken, 1, _track_player_object.avoidance.HITS - hits_last)
-				hits_now = hits_now + (_track_player_object.avoidance.HITS - hits_last)
+				_table_insert (hits_taken, 1, _track_player_object.avoidance.overall.HITS - hits_last)
+				hits_now = hits_now + (_track_player_object.avoidance.overall.HITS - hits_last)
 				if (#hits_taken > 10) then
 					hits_now = hits_now - hits_taken [11]
 					_table_remove (hits_taken, 11)
 				end
-				hits_last = _track_player_object.avoidance.HITS
+				hits_last = _track_player_object.avoidance.overall.HITS
 				
-				_table_insert (avoid_taken, 1, _track_player_object.avoidance.DODGE + _track_player_object.avoidance.PARRY - avoid_last)
-				avoid_now = avoid_now + (_track_player_object.avoidance.DODGE + _track_player_object.avoidance.PARRY - avoid_last)
+				_table_insert (avoid_taken, 1, _track_player_object.avoidance.overall.DODGE + _track_player_object.avoidance.overall.PARRY - avoid_last)
+				avoid_now = avoid_now + (_track_player_object.avoidance.overall.DODGE + _track_player_object.avoidance.overall.PARRY - avoid_last)
 				if (#avoid_taken > 10) then
 					avoid_now = avoid_now - avoid_taken [11]
 					_table_remove (avoid_taken, 11)
 				end
-				avoid_last = _track_player_object.avoidance.DODGE + _track_player_object.avoidance.PARRY
+				avoid_last = _track_player_object.avoidance.overall.DODGE + _track_player_object.avoidance.overall.PARRY
 				
 			--> compute the hits vs avoid
 				
@@ -1155,6 +1155,12 @@ local function CreatePluginFrames (data)
 			
 			_track_player_name = MyTarget
 			
+			local role = UnitGroupRolesAssigned (_track_player_name)
+			if (role ~= "TANK") then
+				_detalhes:ScheduleTimer ("VanguardWait", 1) 
+				return
+			end
+			
 			if (VanguardFrame.InfoShown) then
 				Vanguard:VanguardRefreshInfoFrame()
 			end
@@ -1167,6 +1173,12 @@ local function CreatePluginFrames (data)
 			end
 			
 			_track_player_name = MyName
+			
+			local role = UnitGroupRolesAssigned (_track_player_name)
+			if (role ~= "TANK") then
+				_detalhes:ScheduleTimer ("VanguardWait", 1) 
+				return
+			end
 			
 			if (VanguardFrame.InfoShown) then
 				Vanguard:VanguardRefreshInfoFrame()

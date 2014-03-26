@@ -573,10 +573,15 @@
 				if (lower_instance) then
 				local instance = _detalhes:GetInstance (lower_instance)
 			
+				_detalhes.times_of_tutorial = _detalhes.times_of_tutorial + 1
+				if (_detalhes.times_of_tutorial > 20) then
+					return
+				end
+			
 				if (_detalhes.MicroButtonAlert:IsShown()) then
 					return _detalhes:ScheduleTimer ("delay_tutorial", 2)
 				end
-			
+
 				if (not _detalhes.tutorial.alert_frames [1]) then
 				
 					_detalhes.MicroButtonAlert.Text:SetText (Loc ["STRING_MINITUTORIAL_1"])
@@ -653,6 +658,7 @@
 				return _detalhes:ScheduleTimer ("StartTutorial", 10)
 			end
 			--
+			_detalhes.times_of_tutorial = 0 
 			_detalhes:ScheduleTimer ("delay_tutorial", 20)
 		end
 	

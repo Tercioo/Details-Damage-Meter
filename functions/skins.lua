@@ -57,6 +57,59 @@ local _
 		
 	})
 
+	_detalhes:InstallSkin ("Minimalistic", {
+		file = [[Interface\AddOns\Details\images\skins\classic_skin]],
+		author = "Details!", 
+		version = "1.0", 
+		site = "unknown", 
+		desc = "classic skin", 
+		
+		micro_frames = {color = {1, 1, 1, 1}, font = "Friz Quadrata TT", size = 10},
+		
+		can_change_alpha_head = true, 
+		icon_anchor_main = {-1, -5}, 
+		icon_anchor_plugins = {-7, -13}, 
+		icon_plugins_size = {19, 18},
+		
+		-- the four anchors:
+		icon_point_anchor = {-37, 0},
+		left_corner_anchor = {-107, 0},
+		close_button_anchor = {4, -3},
+		right_corner_anchor = {96, 0},
+
+		icon_point_anchor_bottom = {-37, 12},
+		left_corner_anchor_bottom = {-107, 0},
+		close_button_anchor_bottom = {5, 3},
+		right_corner_anchor_bottom = {96, 0},
+		
+		close_button_size = {24, 24},
+		
+		--reset button
+		reset_button_coords = {0.01904296875, 0.0673828125, 0.50244140625, 0.51708984375},
+		reset_button_small_coords = {0.11669921875, 0.13720703125, 0.50244140625, 0.51708984375},
+		
+		--instance button
+		instance_button_coords = {0.01904296875, 0.04736328125, 0.48388671875, 0.49853515625},
+		
+		--overwrites
+		instance_cprops = {
+			hide_icon = true,
+			menu_anchor = {-18, 1},
+			instance_button_anchor = {-12, 3},
+			instancebutton_info = {text_color = {.8, .6, .0, 0.8}, text_face = "Friz Quadrata TT", text_size = 10, color_overlay = {1, 1, 1, 1}},
+			resetbutton_info = {text_color = {.8, .8, .8, 0.8}, text_face = "Friz Quadrata TT", text_size = 12, color_overlay = {1, 1, 1, 1}, always_small = true},
+			show_sidebars = false,
+			show_statusbar = false,
+			color = {.3, .3, .3, 1},
+			bg_alpha = 0.2,
+		},
+		
+		callback = function (skin)
+			DetailsResetButton2Text2:SetText ("")
+		end,
+		
+	})
+	
 	_detalhes:InstallSkin ("Flat Color", {
 		file = [[Interface\AddOns\Details\images\skins\flat_skin]],
 		author = "Details!", 
@@ -81,6 +134,9 @@ local _
 		left_corner_anchor_bottom = {-107, 0},
 		close_button_anchor_bottom = {5, 6},
 		right_corner_anchor_bottom = {96, 0},
+		
+		close_button_size = {32, 32},
+		
 	})
 	
 	-- 0.00048828125
@@ -139,8 +195,8 @@ local _
 		--[[ when a skin is selected, all customized properties of the window is reseted and then the overwrites are applied]]
 		--[[ for the complete cprop list see the file classe_instancia_include.lua]]
 		instance_cprops = {
-			resetbutton_info = {text_color = {0.7, 0.7, 0.7, 1}, text_face = "Friz Quadrata TT", text_size = 12, color_overlay = {.5, .5, .5, 1}},
-			instancebutton_info = {text_color = {.7, .7, .7, 1}, text_face = "Friz Quadrata TT", text_size = 12, color_overlay = {.5, .5, .5, 1}},
+			resetbutton_info = {text_color = {0.7, 0.7, 0.7, 1}, text_face = "Friz Quadrata TT", text_size = 12, color_overlay = {1, 1, 1, 1}},
+			instancebutton_info = {text_color = {.7, .7, .7, 1}, text_face = "Friz Quadrata TT", text_size = 12, color_overlay = {1, 1, 1, 1}},
 			menu_anchor = {-18, 1},
 			instance_button_anchor = {-27, 3},
 			hide_icon = true,

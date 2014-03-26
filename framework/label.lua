@@ -163,13 +163,14 @@ local LabelMetaFunctions = {}
 		["width"] = smember_width,
 		["height"] = smember_height,
 		["fontcolor"] = smember_textcolor,
-		["color"] = smember_textcolor,
+		["color"] = smember_textcolor,--alias
 		["fontface"] = smember_textfont,
 		["fontsize"] = smember_textsize,
-		["textcolor"] = smember_textcolor,
-		["textfont"] = smember_textfont,
-		["textsize"] = smember_textsize,
-		["shadow"] = smember_outline
+		["textcolor"] = smember_textcolor,--alias
+		["textfont"] = smember_textfont,--alias
+		["textsize"] = smember_textsize,--alias
+		["shadow"] = smember_outline,
+		["outline"] = smember_outline,--alias
 	}
 	
 	LabelMetaFunctions.__newindex = function (_table, _key, _value)

@@ -42,6 +42,8 @@ function _detalhes:AbreJanelaInfo (jogador)
 	if (info.jogador and info.jogador == jogador) then
 		_detalhes:FechaJanelaInfo() --> se clicou na mesma barra então fecha a janela de detalhes
 		return
+	elseif (not jogador) then
+		return
 	end
 
 	--> vamos passar os parâmetros para dentro da tabela da janela...
@@ -54,9 +56,13 @@ function _detalhes:AbreJanelaInfo (jogador)
 	info.instancia = self --> salva a referência da instância que pediu o info
 	info.mostrando = nil
 	
-	local nome = jogador.nome --> nome do jogador
+	local nome = info.jogador.nome --> nome do jogador
 	local atributo_nome = sub_atributos[info.atributo].lista [info.sub_atributo] .. " " .. Loc ["STRING_ACTORFRAME_REPORTOF"] --> // nome do atributo // precisa ser o sub atributo correto???
 	
+	--> removendo o nome da realm do jogador
+	if (nome:find ("-")) then
+		nome = nome:gsub (("-.*"), "")
+	end
 	info.nome:SetText (nome)
 	
 	if (info.instancia.atributo == 1 and info.instancia.sub_atributo == 6) then --> enemy
@@ -122,6 +128,7 @@ function _detalhes:AbreJanelaInfo (jogador)
 		info.classe_iconePlus:SetTexture()
 	end
 	
+	info:ShowTabs()
 	gump:Fade (info, 0)
 	
 	return jogador:MontaInfo()
@@ -679,15 +686,7 @@ function gump:CriaJanelaInfo()
 	--> fehcar com o esc
 	tinsert (UISpecialFrames, este_gump:GetName())
 	
-	--> fix para dar fadein ao apertar esc
-	este_gump:SetScript ("OnHide", function (self)
-		--[[ avoid taint problems
-		if (not este_gump.hidden) then --> significa que foi fechado com ESC
-			este_gump:Show()
-		end
-		--]]
-		_detalhes:FechaJanelaInfo()
-	end)
+
 	
 	--> propriedades da janela
 	este_gump:SetPoint ("CENTER", UIParent)
@@ -817,7 +816,8 @@ function gump:CriaJanelaInfo()
 	--> botão de reportar da caixa da esquerda, onde fica as barras principais
 	este_gump.report_esquerda = gump:NewDetailsButton (este_gump, este_gump, nil, _detalhes.Reportar, este_gump, 1, 16, 16,
 	"Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON")
-	este_gump.report_esquerda:SetPoint ("BOTTOMLEFT", este_gump.container_barras, "TOPLEFT",  281, 3)
+	--este_gump.report_esquerda:SetPoint ("BOTTOMLEFT", este_gump.container_barras, "TOPLEFT",  281, 3)
+	este_gump.report_esquerda:SetPoint ("BOTTOMLEFT", este_gump.container_barras, "TOPLEFT",  33, 3)
 	este_gump.report_esquerda:SetFrameLevel (este_gump:GetFrameLevel()+2)
 
 	--> botão de reportar da caixa dos alvos
@@ -870,11 +870,683 @@ function gump:CriaJanelaInfo()
 	"Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON")
 	este_gump.report_direita:SetPoint ("TOPRIGHT", este_gump, "TOPRIGHT",  -8, -57)	
 	este_gump.report_direita:Hide()
+
+	--> tabs:
+	--> tab default
+	_detalhes:CreatePlayerDetailsTab ("Summary", --[1] tab name
+			function (tabOBject, playerObject) --[2] condition
+				if (playerObject) then 
+					return true 
+				else 
+					return false 
+				end
+			end, 
+			nil, --[3] fill function
+			function() --[4] onclick
+				for _, tab in _ipairs (_detalhes.player_details_tabs) do
+					tab.frame:Hide()
+				end
+			end,
+			nil --[5] oncreate
+			)
+			
+		local avoidance_create = function (tab, frame)
+		
+		--> MAIN ICON
+			local mainicon = frame:CreateTexture (nil, "artwork")
+			mainicon:SetPoint ("topright", frame, "topright", -12, -12)
+			mainicon:SetTexture ([[Interface\ACHIEVEMENTFRAME\UI-ACHIEVEMENT-SHIELDS]])
+			mainicon:SetTexCoord (0, .5, .5, 1)
+			mainicon:SetSize (64, 64)
+			
+			local tankname = frame:CreateFontString (nil, "artwork", "GameFontNormal")
+			tankname:SetPoint ("right", mainicon, "left", -2, 2)
+			tab.tankname = tankname
+		
+		--> SUMMARY
+			local summary_texture = frame:CreateTexture (nil, "artwork")
+			summary_texture:SetPoint ("topleft", frame, "topleft", 10, -15)
+			summary_texture:SetTexture ([[Interface\ACHIEVEMENTFRAME\UI-Achievement-HorizontalShadow]])
+			summary_texture:SetSize (128, 16)
+			local summary_text = frame:CreateFontString (nil, "artwork", "GameFontNormal")
+			summary_text:SetText ("Summary")
+			summary_text :SetPoint ("left", summary_texture, "left", 2, 0)
+		
+			--total damage received
+			local damagereceived = frame:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			damagereceived:SetPoint ("topleft", frame, "topleft", 15, -35)
+			damagereceived:SetText ("Total Damage Taken:") --> localize-me
+			damagereceived:SetTextColor (.8, .8, .8, 1)
+			local damagereceived_amt = frame:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			damagereceived_amt:SetPoint ("left", damagereceived,  "right", 2, 0)
+			damagereceived_amt:SetText ("0")
+			tab.damagereceived = damagereceived_amt
+		
+			--per second
+			local damagepersecond = frame:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			damagepersecond:SetPoint ("topleft", frame, "topleft", 20, -50)
+			damagepersecond:SetText ("Per Second:") --> localize-me
+			local damagepersecond_amt = frame:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			damagepersecond_amt:SetPoint ("left", damagepersecond,  "right", 2, 0)
+			damagepersecond_amt:SetText ("0")
+			tab.damagepersecond = damagepersecond_amt
+			
+			--total absorbs
+			local absorbstotal = frame:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			absorbstotal:SetPoint ("topleft", frame, "topleft", 15, -65)
+			absorbstotal:SetText ("Total Absorbs:") --> localize-me
+			absorbstotal:SetTextColor (.8, .8, .8, 1)
+			local absorbstotal_amt = frame:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			absorbstotal_amt:SetPoint ("left", absorbstotal,  "right", 2, 0)
+			absorbstotal_amt:SetText ("0")
+			tab.absorbstotal = absorbstotal_amt
+			
+			--per second
+			local absorbstotalpersecond = frame:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			absorbstotalpersecond:SetPoint ("topleft", frame, "topleft", 20, -80)
+			absorbstotalpersecond:SetText ("Per Second:") --> localize-me
+			local absorbstotalpersecond_amt = frame:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			absorbstotalpersecond_amt:SetPoint ("left", absorbstotalpersecond,  "right", 2, 0)
+			absorbstotalpersecond_amt:SetText ("0")
+			tab.absorbstotalpersecond = absorbstotalpersecond_amt
+		
+		--> MELEE
+		
+			local melee_texture = frame:CreateTexture (nil, "artwork")
+			melee_texture:SetPoint ("topleft", frame, "topleft", 10, -100)
+			melee_texture:SetTexture ([[Interface\ACHIEVEMENTFRAME\UI-Achievement-HorizontalShadow]])
+			melee_texture:SetSize (128, 16)
+			local melee_text = frame:CreateFontString (nil, "artwork", "GameFontNormal")
+			melee_text:SetText ("Melee")
+			melee_text :SetPoint ("left", melee_texture, "left", 2, 0)
+			
+			--dodge
+			local dodge = frame:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			dodge:SetPoint ("topleft", frame, "topleft", 15, -120)
+			dodge:SetText ("Dodge:") --> localize-me
+			dodge:SetTextColor (.8, .8, .8, 1)
+			local dodge_amt = frame:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			dodge_amt:SetPoint ("left", dodge,  "right", 2, 0)
+			dodge_amt:SetText ("0")
+			tab.dodge = dodge_amt
+
+			local dodgepersecond = frame:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			dodgepersecond:SetPoint ("topleft", frame, "topleft", 20, -135)
+			dodgepersecond:SetText ("Per Second:") --> localize-me
+			local dodgepersecond_amt = frame:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			dodgepersecond_amt:SetPoint ("left", dodgepersecond,  "right", 2, 0)
+			dodgepersecond_amt:SetText ("0")
+			tab.dodgepersecond = dodgepersecond_amt
+			
+			-- parry
+			local parry = frame:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			parry:SetPoint ("topleft", frame, "topleft", 15, -150)
+			parry:SetText ("Parry:") --> localize-me
+			parry:SetTextColor (.8, .8, .8, 1)
+			local parry_amt = frame:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			parry_amt:SetPoint ("left", parry,  "right", 2, 0)
+			parry_amt:SetText ("0")
+			tab.parry = parry_amt
+			
+			local parrypersecond = frame:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			parrypersecond:SetPoint ("topleft", frame, "topleft", 20, -165)
+			parrypersecond:SetText ("Per Second:") --> localize-me
+			local parrypersecond_amt = frame:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			parrypersecond_amt:SetPoint ("left", parrypersecond,  "right", 2, 0)
+			parrypersecond_amt:SetText ("0")
+			tab.parrypersecond = parrypersecond_amt
+
+		--> ABSORBS
+		
+			local absorb_texture = frame:CreateTexture (nil, "artwork")
+			absorb_texture:SetPoint ("topleft", frame, "topleft", 200, -15)
+			absorb_texture:SetTexture ([[Interface\ACHIEVEMENTFRAME\UI-Achievement-HorizontalShadow]])
+			absorb_texture:SetSize (128, 16)
+			local absorb_text = frame:CreateFontString (nil, "artwork", "GameFontNormal")
+			absorb_text:SetText ("Absorb")
+			absorb_text :SetPoint ("left", absorb_texture, "left", 2, 0)
+		
+			--full absorbs
+			local fullsbsorbed = frame:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			fullsbsorbed:SetPoint ("topleft", frame, "topleft", 205, -35)
+			fullsbsorbed:SetText ("Full Absorbs:") --> localize-me
+			fullsbsorbed:SetTextColor (.8, .8, .8, 1)
+			local fullsbsorbed_amt = frame:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			fullsbsorbed_amt:SetPoint ("left", fullsbsorbed,  "right", 2, 0)
+			fullsbsorbed_amt:SetText ("0")
+			tab.fullsbsorbed = fullsbsorbed_amt
+			
+			--partially absorbs
+			local partiallyabsorbed = frame:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			partiallyabsorbed:SetPoint ("topleft", frame, "topleft", 205, -50)
+			partiallyabsorbed:SetText ("Partially Absorbed:") --> localize-me
+			partiallyabsorbed:SetTextColor (.8, .8, .8, 1)
+			local partiallyabsorbed_amt = frame:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			partiallyabsorbed_amt:SetPoint ("left", partiallyabsorbed,  "right", 2, 0)
+			partiallyabsorbed_amt:SetText ("0")
+			tab.partiallyabsorbed = partiallyabsorbed_amt
+		
+			--partially absorbs per second
+			local partiallyabsorbedpersecond = frame:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			partiallyabsorbedpersecond:SetPoint ("topleft", frame, "topleft", 210, -65)
+			partiallyabsorbedpersecond:SetText ("Average:") --> localize-me
+			local partiallyabsorbedpersecond_amt = frame:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			partiallyabsorbedpersecond_amt:SetPoint ("left", partiallyabsorbedpersecond,  "right", 2, 0)
+			partiallyabsorbedpersecond_amt:SetText ("0")
+			tab.partiallyabsorbedpersecond = partiallyabsorbedpersecond_amt
+			
+			--no absorbs
+			local noabsorbs = frame:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			noabsorbs:SetPoint ("topleft", frame, "topleft", 205, -80)
+			noabsorbs:SetText ("No Absorption:") --> localize-me
+			noabsorbs:SetTextColor (.8, .8, .8, 1)
+			local noabsorbs_amt = frame:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			noabsorbs_amt:SetPoint ("left", noabsorbs,  "right", 2, 0)
+			noabsorbs_amt:SetText ("0")
+			tab.noabsorbs = noabsorbs_amt
+		
+		--> HEALING
+		
+			local healing_texture = frame:CreateTexture (nil, "artwork")
+			healing_texture:SetPoint ("topleft", frame, "topleft", 200, -100)
+			healing_texture:SetTexture ([[Interface\ACHIEVEMENTFRAME\UI-Achievement-HorizontalShadow]])
+			healing_texture:SetSize (128, 16)
+			local healing_text = frame:CreateFontString (nil, "artwork", "GameFontNormal")
+			healing_text:SetText ("Healing")
+			healing_text :SetPoint ("left", healing_texture, "left", 2, 0)
+			
+			--self healing
+			local selfhealing = frame:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			selfhealing:SetPoint ("topleft", frame, "topleft", 205, -120)
+			selfhealing:SetText ("Self Healing:") --> localize-me
+			selfhealing:SetTextColor (.8, .8, .8, 1)
+			local selfhealing_amt = frame:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			selfhealing_amt:SetPoint ("left", selfhealing,  "right", 2, 0)
+			selfhealing_amt:SetText ("0")
+			tab.selfhealing = selfhealing_amt
+
+			--self healing per second
+			local selfhealingpersecond = frame:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			selfhealingpersecond:SetPoint ("topleft", frame, "topleft", 210, -135)
+			selfhealingpersecond:SetText ("Per Second:") --> localize-me
+			local selfhealingpersecond_amt = frame:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			selfhealingpersecond_amt:SetPoint ("left", selfhealingpersecond,  "right", 2, 0)
+			selfhealingpersecond_amt:SetText ("0")
+			tab.selfhealingpersecond = selfhealingpersecond_amt
+		
+			for i = 1, 5 do 
+				local healer = frame:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+				healer:SetPoint ("topleft", frame, "topleft", 205, -160 + ((i-1)*15)*-1)
+				healer:SetText ("healer name:") --> localize-me
+				healer:SetTextColor (.8, .8, .8, 1)
+				local healer_amt = frame:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+				healer_amt:SetPoint ("left", healer,  "right", 2, 0)
+				healer_amt:SetText ("0")
+				tab ["healer" .. i] = {healer, healer_amt}
+			end
+			
+		--SPELLS
+			local spells_texture = frame:CreateTexture (nil, "artwork")
+			spells_texture:SetPoint ("topleft", frame, "topleft", 400, -100)
+			spells_texture:SetTexture ([[Interface\ACHIEVEMENTFRAME\UI-Achievement-HorizontalShadow]])
+			spells_texture:SetSize (128, 16)
+			local spells_text = frame:CreateFontString (nil, "artwork", "GameFontNormal")
+			spells_text:SetText ("Spells")
+			spells_text :SetPoint ("left", spells_texture, "left", 2, 0)
+			
+			for i = 1, 9 do 
+				local icon = frame:CreateTexture (nil, "artwork")
+				icon:SetSize (14, 14)
+				icon:SetPoint ("topleft", frame, "topleft", 405, -120 + ((i-1)*15)*-1)
+				local spell = frame:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+				spell:SetPoint ("left", icon, "right", 2, 0)
+				spell:SetText ("spell name:") --> localize-me
+				spell:SetTextColor (.8, .8, .8, 1)
+				local spell_amt = frame:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+				spell_amt:SetPoint ("left", spell,  "right", 2, 0)
+				spell_amt:SetText ("0")
+				tab ["spell" .. i] = {spell, spell_amt, icon}
+			end
+		
+		end
+		
+		local getpercent = function (value, lastvalue, elapsed_time, inverse)
+			local ps = value / elapsed_time
+			local diff
+			
+			if (lastvalue == 0) then
+				diff = "+0%"
+			else
+				if (ps >= lastvalue) then
+					local d = ps - lastvalue
+					d = d / ps * 100
+					if (inverse) then
+						diff = "|cFF00FF00+" .. _math_floor (math.abs (d)) .. "%|r"
+					else
+						diff = "|cFFFF0000+" .. _math_floor (math.abs (d)) .. "%|r"
+					end
+				else
+					local d = lastvalue - ps
+					d = d / lastvalue * 100
+					if (inverse) then
+						diff = "|cFFFF0000-" .. _math_floor (math.abs (d)) .. "%|r"
+					else
+						diff = "|cFF00FF00-" .. _math_floor (math.abs (d)) .. "%|r"
+					end
+				end
+			end
+			
+			return ps, diff
+		end
+		
+		local spells_by_class = {
+			["DRUID"] = {
+				[132402] = true, --savage defense
+				[135286] = true, -- tooth and claw
+			},
+			["DEATHKNIGHT"] = {
+				[145676] = true, --riposte
+				[77535] = true, --blood shield
+			},
+			["MONK"] = {
+				[118604] = true, --guard
+				[115307] = true, --shuffle
+				[115308] = true, --elusive brew
+			},
+			["PALADIN"] = {
+				[132403] = true, --shield of the righteous
+				[114163] = true, --eternal-flame
+				[20925] = true, --sacred shield
+			},
+			["WARRIOR"] = {
+				[145672] = true, --riposte
+			},
+		}
+		
+		local avoidance_fill = function (tab, player, combat)
+
+			local elapsed_time = combat:GetCombatTime()
+			
+			local last_combat = combat.previous_combat
+			if (not last_combat or not last_combat [1]) then
+				last_combat = combat
+			end
+			local last_actor = last_combat (1, player.nome)
+			local n = player.nome
+			if (n:find ("-")) then
+				n = n:gsub (("-.*"), "")
+			end
+			tab.tankname:SetText ("Avoidance of\n" .. n) --> localize-me
+			
+			--> damage taken
+				local damagetaken = player.damage_taken
+				local last_damage_received = 0
+				if (last_actor) then
+					last_damage_received = last_actor.damage_taken / last_combat:GetCombatTime()
+				end
+				
+				tab.damagereceived:SetText (_detalhes:ToK2 (damagetaken))
+				
+				local ps, diff = getpercent (damagetaken, last_damage_received, elapsed_time)
+				tab.damagepersecond:SetText (_detalhes:comma_value (_math_floor (ps)) .. " (" .. diff .. ")")
+
+			--> absorbs
+				local totalabsorbs = player.avoidance.overall.ABSORB_AMT
+				local incomingtotal = damagetaken + totalabsorbs
+				
+				local last_total_absorbs = 0
+				if (last_actor) then
+					last_total_absorbs = last_actor.avoidance.overall.ABSORB_AMT / last_combat:GetCombatTime()
+				end
+				
+				tab.absorbstotal:SetText (_detalhes:ToK2 (totalabsorbs) .. " (" .. _math_floor (totalabsorbs / incomingtotal * 100) .. "%)")
+				
+				local ps, diff = getpercent (totalabsorbs, last_total_absorbs, elapsed_time, true)
+				tab.absorbstotalpersecond:SetText (_detalhes:comma_value (_math_floor (ps)) .. " (" .. diff .. ")")
+				
+			--> dodge
+				local totaldodge = player.avoidance.overall.DODGE
+				tab.dodge:SetText (totaldodge)
+				
+				local last_total_dodge = 0
+				if (last_actor) then
+					last_total_dodge = last_actor.avoidance.overall.DODGE / last_combat:GetCombatTime()
+				end
+				local ps, diff = getpercent (totaldodge, last_total_dodge, elapsed_time, true)
+				tab.dodgepersecond:SetText ( string.format ("%.2f", ps) .. " (" .. diff .. ")")
+			
+			--> parry
+				local totalparry = player.avoidance.overall.PARRY
+				tab.parry:SetText (totalparry)
+				
+				local last_total_parry = 0
+				if (last_actor) then
+					last_total_parry = last_actor.avoidance.overall.PARRY / last_combat:GetCombatTime()
+				end
+				local ps, diff = getpercent (totalparry, last_total_parry, elapsed_time, true)
+				tab.parrypersecond:SetText (string.format ("%.2f", ps) .. " (" .. diff .. ")")
+				
+			--> absorb
+				local fullabsorb = player.avoidance.overall.FULL_ABSORBED
+				local halfabsorb = player.avoidance.overall.PARTIAL_ABSORBED
+				local halfabsorb_amt = player.avoidance.overall.PARTIAL_ABSORB_AMT
+				local noabsorb = player.avoidance.overall.FULL_HIT
+				
+				tab.fullsbsorbed:SetText (fullabsorb)
+				tab.partiallyabsorbed:SetText (halfabsorb)
+				tab.noabsorbs:SetText (noabsorb)
+				
+				if (halfabsorb_amt > 0) then
+					local average = halfabsorb_amt / halfabsorb --tenho o average
+					local last_average = 0
+					if (last_actor) then
+						last_average = last_actor.avoidance.overall.PARTIAL_ABSORB_AMT / last_actor.avoidance.overall.PARTIAL_ABSORBED
+					end
+					
+					local ps, diff = getpercent (halfabsorb_amt, last_average, halfabsorb, true)
+					tab.partiallyabsorbedpersecond:SetText (_detalhes:comma_value (_math_floor (ps)) .. " (" .. diff .. ")")
+				else
+					tab.partiallyabsorbedpersecond:SetText ("0.00 (0%)")
+				end
+				
+
+				
+			--> healing
+			
+				local actor_heal = combat (2, player.nome)
+				if (not actor_heal) then
+					tab.selfhealing:SetText ("0")
+					tab.selfhealingpersecond:SetText ("0 (0%)")
+				else
+					local last_actor_heal = last_combat (2, player.nome)
+					local este_alvo = actor_heal.targets._NameIndexTable [player.nome]
+					if (este_alvo) then
+						este_alvo = actor_heal.targets._ActorTable [este_alvo]
+						local heal_total = este_alvo.total
+						tab.selfhealing:SetText (_detalhes:ToK2 (heal_total))
+						
+						if (last_actor_heal) then
+							local este_alvo = last_actor_heal.targets._NameIndexTable [player.nome]
+							if (este_alvo) then
+							
+								este_alvo = actor_heal.targets._ActorTable [este_alvo]
+								
+								local last_heal = este_alvo.total / last_combat:GetCombatTime()
+								
+								local ps, diff = getpercent (heal_total, last_heal, elapsed_time, true)
+								tab.selfhealingpersecond:SetText (_detalhes:comma_value (_math_floor (ps)) .. " (" .. diff .. ")")
+								
+							else
+								tab.selfhealingpersecond:SetText ("0 (0%)")
+							end
+						else
+							tab.selfhealingpersecond:SetText ("0 (0%)")
+						end
+						
+					else
+						tab.selfhealing:SetText ("0")
+						tab.selfhealingpersecond:SetText ("0 (0%)")
+					end
+					
+					
+					-- taken from healer
+					local heal_from = actor_heal.healing_from
+					local myReceivedHeal = {}
+					
+					for actorName, _ in pairs (heal_from) do 
+						local thisActor = combat (2, actorName)
+						local targets = thisActor.targets --> targets is a container with target classes
+						local amount = targets:GetAmount (player.nome, "total")
+						myReceivedHeal [#myReceivedHeal+1] = {actorName, amount, thisActor.classe}
+					end
+					
+					table.sort (myReceivedHeal, _detalhes.Sort2) --> Sort2 sort by second index
+					
+					for i = 1, 5 do 
+						local label1, label2 = unpack (tab ["healer" .. i])
+						if (myReceivedHeal [i]) then
+							local name = myReceivedHeal [i][1]
+							if (name:find ("-")) then
+								name = name:gsub (("-.*"), "")
+							end
+							label1:SetText (name .. ":")
+							local class = myReceivedHeal [i][3]
+							if (class) then
+								local c = RAID_CLASS_COLORS [class]
+								if (c) then
+									label1:SetTextColor (c.r, c.g, c.b)
+								end
+							else
+								label1:SetTextColor (.8, .8, .8, 1)
+							end
+							
+							local last_actor = last_combat (2, myReceivedHeal [i][1])
+							if (last_actor) then
+								local targets = last_actor.targets
+								local amount = targets:GetAmount (player.nome, "total")
+								if (amount) then
+									
+									local last_heal = amount
+									
+									local ps, diff = getpercent (myReceivedHeal[i][2], last_heal, 1, true)
+									label2:SetText ( _detalhes:ToK2 (myReceivedHeal[i][2] or 0) .. " (" .. diff .. ")")
+									
+								else
+									label2:SetText ( _detalhes:ToK2 (myReceivedHeal[i][2] or 0))
+								end
+							else
+								label2:SetText ( _detalhes:ToK2 (myReceivedHeal[i][2] or 0))
+							end
+							
+							
+						else
+							label1:SetText ("-- -- -- --")
+							label1:SetTextColor (.8, .8, .8, 1)
+							label2:SetText ("")
+						end
+					end
+				end
+				
+			--> Spells
+				--> cooldowns
+				
+				local index_used = 1
+				
+				local misc_player = combat (4, player.nome)
+				
+				if (misc_player) then
+					if (misc_player.cooldowns_defensive_spell_tables) then
+						local minha_tabela = misc_player.cooldowns_defensive_spell_tables._ActorTable
+						local cooldowns_usados = {}
+						
+						for _spellid, _tabela in pairs (minha_tabela) do
+							cooldowns_usados [#cooldowns_usados+1] = {_spellid, _tabela.counter}
+						end
+						table.sort (cooldowns_usados, function (t1, t2) return t1[2] > t2[2] end)
+						
+						if (#cooldowns_usados > 1) then
+							for i = 1, #cooldowns_usados do
+								local esta_habilidade = cooldowns_usados[i]
+								local nome_magia, _, icone_magia = _GetSpellInfo (esta_habilidade[1])
+								
+								local label1, label2, icon1 = unpack (tab ["spell" .. i])
+								
+								label1:SetText (nome_magia .. ":")
+								label2:SetText (esta_habilidade[2])
+								icon1:SetTexture (icone_magia)
+								icon1:SetTexCoord (0.0625, 0.953125, 0.0625, 0.953125)
+								
+								index_used = index_used + 1
+							end
+						end
+					end
+				end
+				
+
+				
+				--> buffs de druida
+				if (index_used < 9) then
+					if (misc_player.buff_uptime_spell_tables) then
+						local minha_tabela = misc_player.buff_uptime_spell_tables._ActorTable
+						for _spellid, _tabela in pairs (minha_tabela) do
+							if (spells_by_class [player.classe] [_spellid] and index_used < 9) then 
+								local nome_magia, _, icone_magia = GetSpellInfo (_spellid)
+								local label1, label2, icon1 = unpack (tab ["spell" .. index_used])
+								
+								label1:SetText (nome_magia .. ":")
+								local minutos, segundos = _math_floor (_tabela.uptime / 60), _math_floor (_tabela.uptime % 60)
+								label2:SetText (minutos .. "m " .. segundos .. "s")
+								icon1:SetTexture (icone_magia)
+								icon1:SetTexCoord (0.0625, 0.953125, 0.0625, 0.953125)
+								
+								index_used = index_used + 1
+							end
+						end
+					end
+				end
+				
+				for i = index_used, 9 do
+					local label1, label2, icon1 = unpack (tab ["spell" .. i])
+					label1:SetText ("-- -- -- --")
+					label2:SetText ("")
+					icon1:SetTexture (nil)
+				end
+				
+			--> habilidade usada para interromper
+
+				
+				
+			
+--[[
+			
+--]]
+		end
+			
+		_detalhes:CreatePlayerDetailsTab ("Avoidance", --[1] tab name
+			function (tabOBject, playerObject)  --[2] condition
+				if (playerObject.isTank) then 
+					return true 
+				else 
+					return false 
+				end
+			end, 
+			
+			avoidance_fill, --[3] fill function
+			
+			nil, --[4] onclick
+			
+			avoidance_create --[5] oncreate
+			)
 	
+		function este_gump:ShowTabs()
+			local amt_positive = 0
+
+			for index = #_detalhes.player_details_tabs, 1, -1 do
+				
+				local tab = _detalhes.player_details_tabs [index]
+				
+				if (tab:condition (info.jogador, info.atributo, info.sub_atributo)) then
+					tab:Show()
+					amt_positive = amt_positive + 1
+					tab:SetPoint ("BOTTOMLEFT", info.container_barras, "TOPLEFT",  390 - (67 * (amt_positive-1)), 1)
+				else
+					tab.frame:Hide()
+					tab:Hide()
+				end
+			end
+			
+			if (amt_positive < 2) then
+				_detalhes.player_details_tabs[1]:Hide()
+			end
+		end
+
+		este_gump:SetScript ("OnHide", function (self)
+			_detalhes:FechaJanelaInfo()
+			for _, tab in _ipairs (_detalhes.player_details_tabs) do
+				tab:Hide()
+				tab.frame:Hide()
+			end
+		end)
+	
+	--DetailsInfoWindowTab1Text:SetText ("Avoidance")
 	este_gump.tipo = 1 --> tipo da janela // 1 = janela normal
 	
 	return este_gump
 	
+end
+
+_detalhes.player_details_tabs = {}
+
+function _detalhes:CreatePlayerDetailsTab (tabname, condition, fillfunction, onclick, oncreate)
+	if (not tabname) then
+		tabname = "unnamed"
+	end
+
+	local index = #_detalhes.player_details_tabs
+	
+	local newtab = CreateFrame ("button", "DetailsInfoWindowTab" .. index, info, "ChatTabTemplate")
+	newtab:SetText (tabname)
+	newtab:SetFrameStrata ("HIGH")
+	newtab:Hide()
+	
+	newtab.condition = condition
+	newtab.tabname = tabname
+	newtab.onclick = onclick
+	newtab.fillfunction = fillfunction
+	newtab.last_actor = {}
+	
+	--> frame
+	newtab.frame = CreateFrame ("frame", nil, UIParent)
+	newtab.frame:SetFrameStrata ("HIGH")
+	newtab.frame:EnableMouse (true)
+	
+	if (newtab.fillfunction) then
+		newtab.frame:SetScript ("OnShow", function()
+			if (newtab.last_actor == info.jogador) then
+				return
+			end
+			newtab.last_actor = info.jogador
+			newtab:fillfunction (info.jogador, info.instancia.showing)
+		end)
+	end
+	
+	if (oncreate) then
+		oncreate (newtab, newtab.frame)
+	end
+	
+	newtab.frame:SetBackdrop({
+		bgFile = [[Interface\ACHIEVEMENTFRAME\UI-GuildAchievement-Parchment-Horizontal-Desaturated]], tile = true, tileSize = 512,
+		edgeFile = [[Interface\ACHIEVEMENTFRAME\UI-Achievement-WoodBorder]], edgeSize = 32,
+		insets = {left = 0, right = 0, top = 0, bottom = 0}})		
+	newtab.frame:SetBackdropColor (.5, .50, .50, 1)
+	
+	newtab.frame:SetPoint ("TOPLEFT", info, "TOPLEFT", 19, -76)
+	newtab.frame:SetSize (569, 274)
+	
+	newtab.frame:Hide()
+	
+	--> adicionar ao container
+	_detalhes.player_details_tabs [#_detalhes.player_details_tabs+1] = newtab
+	
+	if (not onclick) then
+		--> hide all tabs
+		newtab:SetScript ("OnClick", function() 
+			for _, tab in _ipairs (_detalhes.player_details_tabs) do
+				tab.frame:Hide()
+			end
+			newtab.frame:Show()
+		end)
+	else
+		--> custom
+		newtab:SetScript ("OnClick", onclick)
+	end
+	
+	--> remove os scripts padroes
+	newtab:SetScript ("OnDoubleClick", nil)
+	newtab:SetScript ("OnEnter", nil)
+	newtab:SetScript ("OnLeave", nil)
+	newtab:SetScript ("OnDragStart", nil)
+
 end
 
 function _detalhes.janela_info:monta_relatorio (botao)

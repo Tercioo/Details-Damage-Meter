@@ -171,7 +171,7 @@ local function CreatePluginFrames()
 				if (data[3] and type (data [1]) == "boolean") then --> is a real damage, not a battle ress and its not a last cooldown line
 					bar.statusbar.textleft:SetText (string.format ("%.1f", data [4] - time_of_death) .. "s " .. spellname .. " (" .. data [6] .. ")")
 					bar.statusbar.textright:SetText ("-" .. YouAreNotPrepared:ToK (data [3]) .. " (" .. hp .. "%)")
-					bar.statusbar.icon:SetTexture (icon)
+					bar.statusbar._icon:SetTexture (icon)
 					bar.statusbar.color = "red"
 					bar.statusbar.background:SetVertexColor (1, 0, 0, .2)
 					bar.statusbar.textleft:SetWidth (250 - bar.statusbar.textright:GetStringWidth() - 20)
@@ -181,7 +181,7 @@ local function CreatePluginFrames()
 			else
 				bar.statusbar.textleft:SetText (string.format ("%.1f", data [4] - time_of_death) .. "s " .. spellname .. " (" .. data [6] .. ")")
 				bar.statusbar.textright:SetText ("+" .. YouAreNotPrepared:ToK (data [3]) .. " (" .. hp .. "%)")
-				bar.statusbar.icon:SetTexture (icon)
+				bar.statusbar._icon:SetTexture (icon)
 				bar.statusbar.color = "green"
 				bar.statusbar.background:SetVertexColor (0, 1, 0, .2)
 				bar.statusbar.textleft:SetWidth (250 - bar.statusbar.textright:GetStringWidth() - 20)

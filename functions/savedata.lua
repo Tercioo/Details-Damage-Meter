@@ -416,7 +416,7 @@ function _detalhes:ApplyConfigDataOnLoad()
 	self.font_sizes = self.font_sizes or {menus = 10}
 	self.minimap = self.minimap or {hide = false, radius = 160, minimapPos = 220}
 
-	self.ps_abbreviation = self.ps_abbreviation or 1
+	self.ps_abbreviation = self.ps_abbreviation or 3
 	
 	self.plugin_database = self.plugin_database or {}
 	
