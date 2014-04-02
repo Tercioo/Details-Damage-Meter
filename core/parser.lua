@@ -2650,11 +2650,12 @@
 				return
 			end
 			
-			_detalhes.encounter_table ["end"] = time()
+			_detalhes.encounter_table ["end"] = time() - 0.4
 			
 			local encounterID, encounterName, difficultyID, raidSize, endStatus = _select (1, ...)
 			local _, _, _, _, _, _, _, zoneMapID = _GetInstanceInfo()
 			
+			--[[
 			local encounter_end_table = _detalhes:GetEncounterStartInfo (zoneMapID, encounterID)
 			if (encounter_end_table) then
 				if (encounter_end_table.delay) then
@@ -2664,7 +2665,8 @@
 					encounter_end_table:func (_detalhes.tabela_vigente, endStatus)
 				end
 			end
-
+			--]]
+			
 			if (_in_combat) then
 				if (endStatus == 1) then
 					_detalhes.encounter_table.kill = true

@@ -556,13 +556,13 @@ end
 local color_pick_func = function()
 	local r, g, b = ColorPickerFrame:GetColorRGB()
 	local a = OpacitySliderFrame:GetValue()
-	ColorPickerFrame:dcallback (r, g, b, a)
+	ColorPickerFrame:dcallback (r, g, b, a, ColorPickerFrame.dframe)
 end
 local color_pick_func_cancel = function()
 	ColorPickerFrame:SetColorRGB (unpack (ColorPickerFrame.previousValues))
 	local r, g, b = ColorPickerFrame:GetColorRGB()
 	local a = OpacitySliderFrame:GetValue()
-	ColorPickerFrame:dcallback (r, g, b, a)
+	ColorPickerFrame:dcallback (r, g, b, a, ColorPickerFrame.dframe)
 end
 
 function gump:ColorPick (frame, r, g, b, alpha, callback)
@@ -570,6 +570,7 @@ function gump:ColorPick (frame, r, g, b, alpha, callback)
 	ColorPickerFrame:SetPoint ("bottomleft", frame, "topright", 0, 0)
 	
 	ColorPickerFrame.dcallback = callback
+	ColorPickerFrame.dframe = frame
 	
 	ColorPickerFrame.func = color_pick_func
 	ColorPickerFrame.opacityFunc = color_pick_func

@@ -429,7 +429,7 @@ local ButtonMetaFunctions = {}
 		self.button:SetHighlightTexture (nil)
 		
 		texture = texture or "Interface\\AddOns\\Details\\images\\default_button"
-		self.button.texture = self.button:CreateTexture (nil, "background")
+		self.button.texture = self.button:CreateTexture (nil, "artwork")
 		
 		if (not rect) then 
 			self.button.texture:SetAllPoints (self.button)
@@ -742,5 +742,66 @@ function gump:NewButton (parent, container, name, member, w, h, func, param1, pa
 	_setmetatable (ButtonObject, ButtonMetaFunctions)
 	
 	return ButtonObject
+	
+end
+
+local pickcolor_callback = function (self, r, g, b, a, button)
+	button.MyObject.color_texture:SetVertexColor (r, g, b, a)
+	button.MyObject:color_callback (r, g, b, a)
+end
+local pickcolor = function (alpha, param2, self)
+	local r, g, b, a = self.MyObject.color_texture:GetVertexColor()
+	gump:ColorPick (self, r, g, b, a, pickcolor_callback)
+end
+
+local color_button_height = 16
+local color_button_width = 16
+
+local set_colorpick_color = function (button, r, g, b, a)
+	button.color_texture:SetVertexColor (r, g, b, a)
+end
+
+function gump:NewColorPickButton (parent, name, member, callback, alpha)
+
+	--button
+	local button = gump:NewButton (parent, _, name, member, color_button_width, color_button_height, pickcolor, alpha, "param2")
+	button:InstallCustomTexture()
+	button.color_callback = callback
+	button.SetColor = set_colorpick_color
+	
+	button:SetBackdrop ({edgeFile = [[Interface\Tooltips\UI-Tooltip-Border]], edgeSize = 6,
+	bgFile = [[Interface\AddOns\Details\images\background]], insets = {left = 0, right = 0, top = 0, bottom = 0}})
+	
+	--textura do fundo
+	local background = gump:NewImage (button, _, "$parentBck", nil, color_button_width, color_button_height)
+	background:SetTexture ([[Interface\AddOns\Details\images\icons]])
+	background:SetPoint ("topleft", button.widget, "topleft", 1, -2)
+	background:SetPoint ("bottomright", button.widget, "bottomright", -1, 1)
+	--background:SetTexCoord (0.337890625, 0.5859375, 0.625, 0.685546875) --173 320 300 351
+	background:SetTexCoord (0.337890625, 0.390625, 0.625, 0.658203125) --173 320 200 337
+	background:SetDrawLayer ("background", 1)
+	
+	--textura da cor
+	local img = gump:NewImage (button, _, "$parentTex", "color_texture", color_button_width, color_button_height)
+	img:SetTexture (1, 1, 1)
+	img:SetPoint ("topleft", button.widget, "topleft", 1, -2)
+	img:SetPoint ("bottomright", button.widget, "bottomright", -1, 1)
+	img:SetDrawLayer ("background", 2)
+	
+	--icone do color pick
+	--[[
+	local icon = gump:NewImage (button, _, "$parentIcon", nil, 16, color_button_height)
+	icon:SetTexture ("Interface\\AddOns\\Details\\images\\icons")
+	icon:SetPoint ("topleft", button, "topleft", -1, 0)
+	icon:SetDrawLayer ("border", 3)
+	icon:SetTexCoord (0.640625, 0.6875, 0.630859375, 0.677734375) --328 323 352 347
+
+	text
+	local color_label = gump:NewLabel (button, nil, nil, nil, "color", "GameFontNormal")
+	color_label:SetDrawLayer ("border", 4)
+	color_label:SetPoint ("left", icon, "right", 2, 1)
+	--]]
+	
+	return button
 	
 end

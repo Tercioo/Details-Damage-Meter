@@ -1156,44 +1156,21 @@ function _detalhes:OpenOptionsWindow (instance)
 		titulo_bars_desc.width = 320
 	
 	--> bar background color
-		local selectedRowBackgroundColor = function()
-			local r, g, b = ColorPickerFrame:GetColorRGB()
-			local a = OpacitySliderFrame:GetValue()
-			frame4.rowBackgroundColorTexture:SetTexture (r, g, b, a)
-			
+	
+		local rowcolorbackground_callback = function (button, r, g, b, a)
 			window.instance:SetBarSettings (nil, nil, nil, nil, nil, nil, {r, g, b, a})
 		end
-		
-		local canceledRowBackgroundColor = function()
-			frame4.rowBackgroundColorTexture:SetTexture (unpack (ColorPickerFrame.previousValues))
-			window.instance:SetBarSettings (nil, nil, nil, nil, nil, nil, ColorPickerFrame.previousValues)
-		
-			ColorPickerFrame.func = nil
-			ColorPickerFrame.opacityFunc = nil
-			ColorPickerFrame.cancelFunc = nil
-		end
-		
-		local selectedRowBackgroundAlpha = function()
-			local r, g, b = ColorPickerFrame:GetColorRGB()
-			local a = OpacitySliderFrame:GetValue()
-			frame4.rowBackgroundColorTexture:SetTexture (r, g, b, a)
-			window.instance:SetBarSettings (nil, nil, nil, nil, nil, nil, {r, g, b, a})
-		end
-		
-		local colorpickRowBackground = function()
-			ColorPickerFrame.func = selectedRowBackgroundColor
-			ColorPickerFrame.opacityFunc = selectedRowBackgroundAlpha
-			ColorPickerFrame.cancelFunc = canceledRowBackgroundColor
-			ColorPickerFrame.hasOpacity = true --false
-			ColorPickerFrame.opacity = window.instance.row_info.fixed_texture_background_color[4]
-			ColorPickerFrame.previousValues = window.instance.row_info.fixed_texture_background_color
-			ColorPickerFrame:SetParent (window.widget)
-			ColorPickerFrame:SetColorRGB (unpack (window.instance.row_info.fixed_texture_background_color))
-			ColorPickerFrame:Show()
-		end
+		g:NewColorPickButton (frame4, "$parentRowBackgroundColorPick", "rowBackgroundColorPick", rowcolorbackground_callback)
+		g:NewLabel (frame4, _, "$parentRowBackgroundColorPickLabel", "rowBackgroundPickLabel", Loc ["STRING_OPTIONS_TEXT_ROWCOLOR"], "GameFontHighlightLeft")
+		frame4.rowBackgroundColorPick:SetPoint ("left", frame4.rowBackgroundPickLabel, "right", 2, 0)
 
-		--> bar texture by class color
-			g:NewSwitch (frame4, _, "$parentClassColorSlider", "classColorSlider", 60, 20, _, _, instance.row_info.texture_class_colors)
+		frame4.rowBackgroundColorPick.info = Loc ["STRING_OPTIONS_BAR_BCOLOR_DESC"]
+		window:create_line_background (frame4, frame4.rowBackgroundPickLabel, frame4.rowBackgroundColorPick)
+		frame4.rowBackgroundColorPick:SetHook ("OnEnter", background_on_enter)
+		frame4.rowBackgroundColorPick:SetHook ("OnLeave", background_on_leave)
+
+	--> bar texture by class color
+		g:NewSwitch (frame4, _, "$parentClassColorSlider", "classColorSlider", 60, 20, _, _, instance.row_info.texture_class_colors)
 
 		
 	--> background with class color
@@ -1202,50 +1179,29 @@ function _detalhes:OpenOptionsWindow (instance)
 	--> bar height
 		g:NewSlider (frame4, _, "$parentSliderRowHeight", "rowHeightSlider", SLIDER_WIDTH, 20, 10, 30, 1, tonumber (instance.row_info.height))
 
-		--> bars grow direction
-			g:NewSwitch (frame4, _, "$parentBarGrowDirectionSlider", "barGrowDirectionSlider", 80, 20, Loc ["STRING_TOP"], Loc ["STRING_BOTTOM"], instance.bars_grow_direction, true)
+	--> bars grow direction
+		g:NewSwitch (frame4, _, "$parentBarGrowDirectionSlider", "barGrowDirectionSlider", 80, 20, Loc ["STRING_TOP"], Loc ["STRING_BOTTOM"], instance.bars_grow_direction, true)
 
-		--> bars sort direction
-			g:NewSwitch (frame4, _, "$parentBarSortDirectionSlider", "barSortDirectionSlider", 80, 20, Loc ["STRING_TOP"], Loc ["STRING_BOTTOM"], instance.bars_sort_direction, true)
-					
-		
-		--> row texture color
-			local selectedColorClass = function()
-				local r, g, b = ColorPickerFrame:GetColorRGB()
-				frame4.fixedRowColorTexture:SetTexture (r, g, b)
-				
-				window.instance:SetBarSettings (nil, nil, nil, {r, g, b, 1})
-			end
-			
-			local canceledColorClass = function()
-				local c = ColorPickerFrame.previousValues
-				frame4.fixedRowColorTexture:SetTexture (c[1], c[2], c[3])
-				
-				window.instance:SetBarSettings (nil, nil, nil, {c[1], c[2], c[3], 1})
+	--> bars sort direction
+		g:NewSwitch (frame4, _, "$parentBarSortDirectionSlider", "barSortDirectionSlider", 80, 20, Loc ["STRING_TOP"], Loc ["STRING_BOTTOM"], instance.bars_sort_direction, true)
 
-				ColorPickerFrame.func = nil
-				ColorPickerFrame.cancelFunc = nil
-			end
-			
-			local colorpickClass = function()
-				ColorPickerFrame.func = selectedColorClass
-				ColorPickerFrame.cancelFunc = canceledColorClass
-				ColorPickerFrame.opacityFunc = nil
-				ColorPickerFrame.hasOpacity = false
-				ColorPickerFrame.previousValues = window.instance.row_info.fixed_texture_color
-				ColorPickerFrame:SetParent (window.widget)
-				ColorPickerFrame:SetColorRGB (unpack (window.instance.row_info.fixed_texture_color))
-				ColorPickerFrame:Show()
-			end
+	--> row texture color
+	
+		local rowcolor_callback = function (button, r, g, b, a)
+			window.instance:SetBarSettings (nil, nil, nil, {r, g, b})
+			window.instance.row_info.alpha = a
+			window.instance:SetBarSettings (nil, nil, nil, nil, nil, nil, nil, a)
+		end
+		g:NewColorPickButton (frame4, "$parentRowColorPick", "rowColorPick", rowcolor_callback)
+		g:NewLabel (frame4, _, "$parentRowColorPickLabel", "rowPickColorLabel", Loc ["STRING_OPTIONS_TEXT_ROWCOLOR2"], "GameFontHighlightLeft")
+		frame4.rowColorPick:SetPoint ("left", frame4.rowPickColorLabel, "right", 2, 0)
 
-			g:NewImage (frame4, _, "$parentFixedRowColorTexture", "fixedRowColorTexture", 160, 14)
-			g:NewButton (frame4, _, "$parentFixedRowColorButton", "fixedRowColorButton", 160, 16, colorpickClass, nil, nil, nil, Loc ["STRING_OPTIONS_COLOR"])	
-
-			frame4.fixedRowColorButton.info = Loc ["STRING_OPTIONS_BAR_COLOR_DESC"]
-			window:create_line_background (frame4, frame4.fixedRowColorTexture, frame4.fixedRowColorButton)
-			frame4.fixedRowColorButton:SetHook ("OnEnter", background_on_enter)
-			frame4.fixedRowColorButton:SetHook ("OnLeave", background_on_leave)
-			
+		frame4.rowColorPick.info = Loc ["STRING_OPTIONS_BAR_COLOR_DESC"]
+		window:create_line_background (frame4, frame4.rowPickColorLabel, frame4.rowColorPick)
+		frame4.rowColorPick:SetHook ("OnEnter", background_on_enter)
+		frame4.rowColorPick:SetHook ("OnLeave", background_on_leave)
+	
+	
 		--> bar background
 			local onSelectTextureBackground = function (_, instance, textureName)
 				instance:SetBarSettings (nil, nil, nil, nil, textureName)
@@ -1302,16 +1258,6 @@ function _detalhes:OpenOptionsWindow (instance)
 			window:create_line_background (frame4, frame4.barSortDirectionLabel, frame4.barSortDirectionSlider)
 			frame4.barSortDirectionSlider:SetHook ("OnEnter", background_on_enter)
 			frame4.barSortDirectionSlider:SetHook ("OnLeave", background_on_leave)
-		
-		
-		g:NewImage (frame4, _, "$parentRowBackgroundColor", "rowBackgroundColorTexture", 160, 14)
-		g:NewButton (frame4, _, "$parentRowBackgroundColorButton", "rowBackgroundColorButton", 160, 16, colorpickRowBackground, nil, nil, nil, Loc ["STRING_OPTIONS_COLORANDALPHA"])
-		
-		frame4.rowBackgroundColorButton.info = Loc ["STRING_OPTIONS_BAR_BCOLOR_DESC"]
-		window:create_line_background (frame4, frame4.rowBackgroundColorTexture, frame4.rowBackgroundColorButton)
-		frame4.rowBackgroundColorButton:SetHook ("OnEnter", background_on_enter)
-		frame4.rowBackgroundColorButton:SetHook ("OnLeave", background_on_leave)		
-		
 
 	-- Bar Settings
 	
@@ -1359,10 +1305,6 @@ function _detalhes:OpenOptionsWindow (instance)
 		-- background color
 		g:NewLabel (frame4, _, "$parentRowBackgroundColorLabel", "rowBackgroundColorLabel", Loc ["STRING_OPTIONS_BAR_BCOLOR"], "GameFontHighlightLeft")
 
-		frame4.rowBackgroundColorTexture:SetTexture (1, 1, 1)
-		frame4.rowBackgroundColorButton:SetPoint ("left", frame4.rowBackgroundColorTexture, "left")
-		frame4.rowBackgroundColorButton:InstallCustomTexture()
-
 		-- back background with class color
 		g:NewLabel (frame4, _, "$parentRowBackgroundClassColorLabel", "rowBackgroundColorByClassLabel", Loc ["STRING_OPTIONS_BAR_COLORBYCLASS2"], "GameFontHighlightLeft")
 
@@ -1406,9 +1348,6 @@ function _detalhes:OpenOptionsWindow (instance)
 		frame4.classColorSlider:SetHook ("OnEnter", background_on_enter)
 		frame4.classColorSlider:SetHook ("OnLeave", background_on_leave)		
 
-		frame4.fixedRowColorButton:InstallCustomTexture()
-		frame4.fixedRowColorTexture:SetTexture (1, 1, 1)
-		
 		--icon file
 		g:NewLabel (frame4, _, "$parentIconFileLabel", "iconFileLabel", Loc ["STRING_OPTIONS_BAR_ICONFILE"], "GameFontHighlightLeft")
 		g:NewTextEntry (frame4, _, "$parentIconFileEntry", "iconFileEntry", 260, 20)
@@ -1445,14 +1384,14 @@ function _detalhes:OpenOptionsWindow (instance)
 		frame4.textureLabel:SetPoint (10, -180) --bar texture
 		frame4.rowAlphaLabel:SetPoint (10, -205) --bar alpha slider
 		frame4.classColorsLabel:SetPoint (10, -230) --class color
-		frame4.fixedRowColorTexture:SetPoint (10, -255)
-		frame4.fixedRowColorButton:SetPoint (10, -255)
+		
+		frame4.rowPickColorLabel:SetPoint (10, -255)
 		
 		frame4.rowLowerTextureLabel:SetPoint (10, -290)
 		
 		frame4.rowBackgroundLabel:SetPoint (10, -315) --select background
 		frame4.rowBackgroundColorByClassLabel:SetPoint (10, -340) --class color background
-		frame4.rowBackgroundColorTexture:SetPoint (10, -365) --bar color background		
+		frame4.rowBackgroundPickLabel:SetPoint (10, -365) --bar color background		
 		
 		frame4.iconFileLabel:SetPoint (10, -405)
 		
@@ -1467,45 +1406,21 @@ function _detalhes:OpenOptionsWindow (instance)
 		local titulo_texts_desc = g:NewLabel (frame5, _, "$parentTituloPersona2", "tituloBars2Label", Loc ["STRING_OPTIONS_TEXT_DESC"], "GameFontNormal", 9, "white")
 		titulo_texts_desc.width = 320
 	
+	--> text color
+		local textcolor_callback = function (button, r, g, b, a)
+			window.instance:SetBarTextSettings (nil, nil, {r, g, b, 1})
+		end
+		g:NewColorPickButton (frame5, "$parentFixedTextColor", "fixedTextColor", textcolor_callback, false)
+		local fixedColorText = g:NewLabel (frame5, _, "$parentFixedTextColorLabel", "fixedTextColorLabel", Loc ["STRING_OPTIONS_TEXT_FIXEDCOLOR"], "GameFontHighlightLeft")
+		frame5.fixedTextColor:SetPoint ("left", fixedColorText, "right", 2, 0)
+	
 		--> text size
 			g:NewSlider (frame5, _, "$parentSliderFontSize", "fonsizeSlider", SLIDER_WIDTH, 20, 8, 15, 1, tonumber (instance.row_info.font_size))
-			
 
-		--> text color
-			local selectedTextColor = function()
-				local r, g, b = ColorPickerFrame:GetColorRGB()
-				frame5.fixedRowColorText:SetTexture (r, g, b)
-				window.instance:SetBarTextSettings (nil, nil, {r, g, b, 1})
-			end
-			
-			local canceledTextColor = function()
-				local c = ColorPickerFrame.previousValues
-				frame5.fixedRowColorText:SetTexture (c [1], c [2], c [3])
-				window.instance:SetBarTextSettings (nil, nil, {c [1], c [2], c [3], 1})
-				
-				ColorPickerFrame.func = nil
-				ColorPickerFrame.cancelFunc = nil
-			end
-			
-			local colorpickTextColor = function()
-				ColorPickerFrame.func = selectedTextColor
-				ColorPickerFrame.cancelFunc = canceledTextColor
-				ColorPickerFrame.opacityFunc = nil
-				ColorPickerFrame.hasOpacity = false
-				ColorPickerFrame.previousValues = window.instance.row_info.fixed_text_color
-				ColorPickerFrame:SetParent (window.widget)
-				ColorPickerFrame:SetColorRGB (unpack (window.instance.row_info.fixed_text_color))
-				ColorPickerFrame:Show()
-			end
-
-			g:NewImage (frame5, _, "$parentFixedRowColorTTexture", "fixedRowColorText", 160, 14)
-			g:NewButton (frame5, _, "$parentFixedRowColorTButton", "fixedRowColorTButton", 160, 16, colorpickTextColor, nil, nil, nil, Loc ["STRING_OPTIONS_PICKCOLOR"])
-			
 		--> outline
 			g:NewSwitch (frame5, _, "$parentTextLeftOutlineSlider", "textLeftOutlineSlider", 60, 20, _, _, instance.row_info.textL_outline)
 			g:NewSwitch (frame5, _, "$parentTextRightOutlineSlider", "textRightOutlineSlider", 60, 20, _, _, instance.row_info.textR_outline)
-						
-			
+
 		--> text font
 			local onSelectFont = function (_, instance, fontName)
 				instance:SetBarTextSettings (nil, fontName)
@@ -1570,9 +1485,6 @@ function _detalhes:OpenOptionsWindow (instance)
 		frame5.classColorsRightTextSlider:SetHook ("OnEnter", background_on_enter)
 		frame5.classColorsRightTextSlider:SetHook ("OnLeave", background_on_leave)
 		
-		frame5.fixedRowColorText:SetTexture (1, 1, 1)
-		frame5.fixedRowColorTButton:InstallCustomTexture()	
-
 		-- left outline
 		g:NewLabel (frame5, _, "$parentTextLeftOutlineLabel", "textLeftOutlineLabel", Loc ["STRING_OPTIONS_TEXT_LOUTILINE"], "GameFontHighlightLeft")
 		
@@ -1609,8 +1521,7 @@ function _detalhes:OpenOptionsWindow (instance)
 		frame5.classColorsLeftTextLabel:SetPoint (10, -170) --left color by class
 		frame5.classColorsRightTextLabel:SetPoint (10, -195) --right color by class
 		
-		frame5.fixedRowColorText:SetPoint (10, -220) --right color by class
-		frame5.fixedRowColorTButton:SetPoint (10, -220) --right color by class
+		frame5.fixedTextColorLabel:SetPoint (10, -220)
 		
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Appearance - Window Settings
@@ -1622,89 +1533,38 @@ function _detalhes:OpenOptionsWindow (instance)
 		local titulo_instance = g:NewLabel (frame6, _, "$parentTituloPersona", "tituloBarsLabel", Loc ["STRING_OPTIONS_INSTANCE"], "GameFontNormal", 16)
 		local titulo_instance_desc = g:NewLabel (frame6, _, "$parentTituloPersona2", "tituloBars2Label", Loc ["STRING_OPTIONS_INSTANCE_DESC"], "GameFontNormal", 9, "white")
 		titulo_instance_desc.width = 320
-		
-	--> instance color
-		local selectedColor = function()
-			local r, g, b = ColorPickerFrame:GetColorRGB()
-			local a = OpacitySliderFrame:GetValue()
-			
-			frame6.instancecolortexture:SetTexture (r, g, b)
-			frame6.instancecolortexture:SetAlpha (a)
 
+	--> window color
+		local windowcolor_callback = function (button, r, g, b, a)
 			window.instance:InstanceColor (r, g, b, a)
 		end
-		
-		local canceledColor = function()
-			local c = ColorPickerFrame.previousValues
-			frame6.instancecolortexture:SetTexture (c [1], c [2], c [3])
-			frame6.instancecolortexture:SetAlpha (c [4])
-			
-			window.instance:InstanceColor (c [1], c [2], c [3], c [4])
-			
-			ColorPickerFrame.func = nil
-			ColorPickerFrame.opacityFunc = nil
-			ColorPickerFrame.cancelFunc = nil
-		end
-		
-		local selectedAlpha = function()
-			local r, g, b = ColorPickerFrame:GetColorRGB()
-			local a = OpacitySliderFrame:GetValue()
+		g:NewColorPickButton (frame6, "$parentWindowColorPick", "windowColorPick", windowcolor_callback)
+		g:NewLabel (frame6, _, "$parentWindowColorPickLabel", "windowPickColorLabel", Loc ["STRING_OPTIONS_INSTANCE_COLOR"], "GameFontHighlightLeft")
+		frame6.windowColorPick:SetPoint ("left", frame6.windowPickColorLabel, "right", 2, 0)
 
-			--a = _detalhes:Scale (0, 1, 0.5, 1, a) - 0.5
-			--print (a)
-			
-			frame6.instancecolortexture:SetTexture (r, g, b)
-			frame6.instancecolortexture:SetAlpha (a)
-			
-			window.instance:InstanceColor (r, g, b, a)
+		frame6.windowColorPick.info = Loc ["STRING_OPTIONS_INSTANCE_COLOR_DESC"]
+		window:create_line_background (frame6, frame6.windowPickColorLabel, frame6.windowColorPick)
+		frame6.windowColorPick:SetHook ("OnEnter", background_on_enter)
+		frame6.windowColorPick:SetHook ("OnLeave", background_on_leave)
 
-		end
-		
-		local colorpick = function()
-			ColorPickerFrame.func = selectedColor
-			ColorPickerFrame.opacityFunc = selectedAlpha
-			ColorPickerFrame.cancelFunc = canceledColor
-			ColorPickerFrame.hasOpacity = true --false
-			ColorPickerFrame.opacity = window.instance.color[4] or 1
-			ColorPickerFrame.previousValues = window.instance.color
-			ColorPickerFrame:SetParent (window.widget)
-			ColorPickerFrame:SetColorRGB (unpack (window.instance.color))
-			ColorPickerFrame:Show()
-		end
-
-		g:NewImage (frame6, _, "$parentInstanceColorTexture", "instancecolortexture", COLOR_BUTTON_WIDTH, 12)
-		g:NewButton (frame6, _, "$parentInstanceColorButton", "instancecolorbutton", COLOR_BUTTON_WIDTH, 14, colorpick, nil, nil, nil, Loc ["STRING_OPTIONS_COLORANDALPHA"])
-	
 	--> Transparency
 		g:NewSlider (frame6, _, "$parentAlphaSlider", "alphaSlider", SLIDER_WIDTH, 20, 0.02, 1, 0.02, instance.bg_alpha, true)
-		
-		local selectedBackgroundColor = function()
-			local r, g, b = ColorPickerFrame:GetColorRGB()
+	
+	--> background color
+	
+		local windowbackgroundcolor_callback = function (button, r, g, b, a)
 			window.instance:SetBackgroundColor (r, g, b)
-			frame6.backgroundColorTexture:SetTexture (r, g, b)
+			window.instance:SetBackgroundAlpha (a)
+			frame6.alphaSlider:SetValue (a)
 		end
+		g:NewColorPickButton (frame6, "$parentWindowBackgroundColorPick", "windowBackgroundColorPick", windowbackgroundcolor_callback)
+		g:NewLabel (frame6, _, "$parentWindowBackgroundColorPickLabel", "windowBackgroundPickColorLabel", Loc ["STRING_OPTIONS_INSTANCE_ALPHA2"], "GameFontHighlightLeft")
+		frame6.windowBackgroundColorPick:SetPoint ("left", frame6.windowBackgroundPickColorLabel, "right", 2, 0)
 
-		local canceledBackgroundColor = function()
-			local c = ColorPickerFrame.previousValues
-			window.instance:SetBackgroundColor (unpack (c))
-			frame6.backgroundColorTexture:SetTexture (unpack (c))
-			ColorPickerFrame.func = nil
-			ColorPickerFrame.cancelFunc = nil
-		end
-
-		local colorpickBackgroundColor = function()
-			ColorPickerFrame.func = selectedBackgroundColor
-			ColorPickerFrame.cancelFunc = canceledBackgroundColor
-			ColorPickerFrame.opacityFunc = nil
-			ColorPickerFrame.hasOpacity = false
-			ColorPickerFrame.previousValues = {window.instance.bg_r, window.instance.bg_g, window.instance.bg_b}
-			ColorPickerFrame:SetParent (window.widget)
-			ColorPickerFrame:SetColorRGB (window.instance.bg_r, window.instance.bg_g, window.instance.bg_b)
-			ColorPickerFrame:Show()
-		end
-
-		g:NewImage (frame6, _, "$parentBackgroundColorTexture", "backgroundColorTexture", COLOR_BUTTON_WIDTH, 12)
-		g:NewButton (frame6, _, "$parentBackgroundColorButton", "backgroundColorButton", COLOR_BUTTON_WIDTH, 14, colorpickBackgroundColor, nil, nil, nil, Loc ["STRING_OPTIONS_COLOR"])
+		frame6.windowBackgroundColorPick.info = Loc ["STRING_OPTIONS_INSTANCE_ALPHA2_DESC"]
+		window:create_line_background (frame6, frame6.windowBackgroundPickColorLabel, frame6.windowBackgroundColorPick)
+		frame6.windowBackgroundColorPick:SetHook ("OnEnter", background_on_enter)
+		frame6.windowBackgroundColorPick:SetHook ("OnLeave", background_on_leave)
 
 	--> sidebars statusbar
 		g:NewSwitch (frame6, _, "$parentSideBarsSlider", "sideBarsSlider", 60, 20, _, _, instance.show_sidebars)
@@ -1715,23 +1575,10 @@ function _detalhes:OpenOptionsWindow (instance)
 		
 	-- Instance Settings
 	
-		-- Instance Color
-		g:NewLabel (frame6, _, "$parentInstanceColorLabel", "instancecolor", Loc ["STRING_OPTIONS_INSTANCE_COLOR"], "GameFontHighlightLeft")
-
-		frame6.instancecolortexture:SetPoint ("left", frame6.instancecolor, "right", 2)
-		frame6.instancecolortexture:SetTexture (1, 1, 1)
-		
-		frame6.instancecolorbutton:SetPoint ("left", frame6.instancecolor, "right", 2)
-		frame6.instancecolorbutton:InstallCustomTexture()
-		
-		frame6.instancecolorbutton.info = Loc ["STRING_OPTIONS_INSTANCE_COLOR_DESC"]
-		window:create_line_background (frame6, frame6.instancecolor, frame6.instancecolorbutton)
-		frame6.instancecolorbutton:SetHook ("OnEnter", background_on_enter)
-		frame6.instancecolorbutton:SetHook ("OnLeave", background_on_leave)
-		
 		-- Color and Alpha
 		g:NewLabel (frame6, _, "$parentAlphaLabel", "alphaLabel", Loc ["STRING_OPTIONS_INSTANCE_ALPHA"], "GameFontHighlightLeft")
 		g:NewLabel (frame6, _, "$parentBackgroundColorLabel", "backgroundColorLabel", Loc ["STRING_OPTIONS_INSTANCE_ALPHA2"], "GameFontHighlightLeft")
+		
 		-- alpha background
 		frame6.alphaSlider:SetPoint ("left", frame6.alphaLabel, "right", 2, 0)
 		frame6.alphaSlider.useDecimals = true
@@ -1741,10 +1588,6 @@ function _detalhes:OpenOptionsWindow (instance)
 			return true
 		end)
 		frame6.alphaSlider.thumb:SetSize (30+(120*0.2)+2, 20*1.2)
-		frame6.backgroundColorTexture:SetPoint ("left", frame6.backgroundColorLabel, "right", 2)
-		frame6.backgroundColorTexture:SetTexture (1, 1, 1)
-		frame6.backgroundColorButton:SetPoint ("left", frame6.backgroundColorLabel, "right", 2)
-		frame6.backgroundColorButton:InstallCustomTexture()		
 
 		frame6.alphaSlider.info = Loc ["STRING_OPTIONS_INSTANCE_ALPHA_DESC"]
 		window:create_line_background (frame6, frame6.alphaLabel, frame6.alphaSlider)
@@ -1834,23 +1677,20 @@ function _detalhes:OpenOptionsWindow (instance)
 		frame6.totalBarSlider:SetHook ("OnLeave", background_on_leave)
 		
 		--total bar color
-		local totalbar_color_callback = function (_, r, g, b)
-			window.instance.total_bar.color[1] = r
-			window.instance.total_bar.color[2] = g
-			window.instance.total_bar.color[3] = b
-			frame6.totalBarColorTexture:SetTexture (r, g, b)
-			instance:InstanceReset()
-		end
-		local totalbar_color = function()
-			local r, gg, b = unpack (window.instance.total_bar.color)
-			g:ColorPick (frame6.totalBarColorButton.widget, r, gg, b, false, totalbar_color_callback)
-		end
-		g:NewLabel (frame6, _, "$parentTotalBarColorLabel", "totalBarColorLabel", Loc ["STRING_OPTIONS_COLOR"], "GameFontHighlightLeft")
-		g:NewImage (frame6, _, "$parentTotalBarColorTexture", "totalBarColorTexture", COLOR_BUTTON_WIDTH, 14)
-		g:NewButton (frame6, _, "$parentTotalBarColorButton", "totalBarColorButton", COLOR_BUTTON_WIDTH, 16, totalbar_color, nil, nil, nil, Loc ["STRING_OPTIONS_COLOR"])
-		frame6.totalBarColorButton:InstallCustomTexture()
-		frame6.totalBarColorTexture:SetPoint ("left", frame6.totalBarColorLabel, "right", 2, 0)
-		frame6.totalBarColorButton:SetPoint ("left", frame6.totalBarColorLabel, "right", 2, 0)
+			local totalbarcolor_callback = function (button, r, g, b, a)
+				window.instance.total_bar.color[1] = r
+				window.instance.total_bar.color[2] = g
+				window.instance.total_bar.color[3] = b
+				window.instance:InstanceReset()
+			end
+			g:NewColorPickButton (frame6, "$parentTotalBarColorPick", "totalBarColorPick", totalbarcolor_callback)
+			g:NewLabel (frame6, _, "$parentTotalBarColorPickLabel", "totalBarPickColorLabel", Loc ["STRING_OPTIONS_COLOR"], "GameFontHighlightLeft")
+			frame6.totalBarColorPick:SetPoint ("left", frame6.totalBarPickColorLabel, "right", 2, 0)
+
+			frame6.totalBarColorPick.info = Loc ["STRING_OPTIONS_SHOW_TOTALBAR_COLOR_DESC"]
+			window:create_line_background (frame6, frame6.totalBarPickColorLabel, frame6.totalBarColorPick)
+			frame6.totalBarColorPick:SetHook ("OnEnter", background_on_enter)
+			frame6.totalBarColorPick:SetHook ("OnLeave", background_on_leave)
 		
 		--total bar only in group
 		g:NewLabel (frame6, _, "$parentTotalBarOnlyInGroupLabel", "totalBarOnlyInGroupLabel", Loc ["STRING_OPTIONS_SHOW_TOTALBAR_INGROUP"], "GameFontHighlightLeft")
@@ -1892,9 +1732,9 @@ function _detalhes:OpenOptionsWindow (instance)
 		titulo_instance:SetPoint (10, -10)
 		titulo_instance_desc:SetPoint (10, -30)
 		
-		frame6.instancecolor:SetPoint (10, -70) --window color
-		frame6.alphaLabel:SetPoint (10, -95) --background alpha
-		frame6.backgroundColorLabel:SetPoint (10, -120) --background color
+		frame6.windowPickColorLabel:SetPoint (10, -70) --window color
+		--frame6.alphaLabel:SetPoint (10, -95) --background alpha
+		frame6.windowBackgroundPickColorLabel:SetPoint (10, -95) --background color
 		
 		frame6.instanceToolbarSideLabel:SetPoint (10, -145)
 		frame6.sideBarsLabel:SetPoint (10, -170) --borders
@@ -1903,10 +1743,10 @@ function _detalhes:OpenOptionsWindow (instance)
 		
 		g:NewLabel (frame6, _, "$parentTotalBarAnchor", "totalBarAnchorLabel", "Total Bar", "GameFontNormal")
 		frame6.totalBarAnchorLabel:SetPoint (10, -255)
-		frame6.totalBarLabel:SetPoint (10, -280)
-		frame6.totalBarOnlyInGroupLabel:SetPoint (10, -305)
-		frame6.totalBarIconLabel:SetPoint (10, -330)
-		frame6.totalBarColorLabel:SetPoint (10, -355)
+		frame6.totalBarIconLabel:SetPoint (10, -280)
+		frame6.totalBarPickColorLabel:SetPoint (10, -305)
+		frame6.totalBarLabel:SetPoint (10, -355)
+		frame6.totalBarOnlyInGroupLabel:SetPoint (10, -330)
 		
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Appearance - Top Menu Bar
@@ -2051,29 +1891,32 @@ function _detalhes:OpenOptionsWindow (instance)
 		
 		--> close button
 			--button overlay
-			local close_overlay_color_callback = function (_, r, g, b, a)
-				frame8.closeOverlayColorImage:SetTexture (r, g, b, a)
+			local close_overlay_callback = function (button, r, g, b, a)
 				window.instance:SetCloseButtonSettings ({r, g, b, a})
 			end
-			local close_overlay_color_onclick = function() 
-				local color_table = window.instance.closebutton_info.color_overlay
-				g:ColorPick (frame8.closeOverlayColorButton.widget, color_table[1], color_table[2], color_table[3], color_table[4], close_overlay_color_callback)
-			end
-			g:NewImage (frame8, nil, "$parentCloseOverlayColorImage", "closeOverlayColorImage", COLOR_BUTTON_WIDTH, 12, instance.closebutton_info.color_overlay)
-			g:NewButton (frame8, nil, "$parentCloseOverlayColorButton", "closeOverlayColorButton", COLOR_BUTTON_WIDTH, 14, close_overlay_color_onclick, nil, nil, nil, "color")
+			g:NewColorPickButton (frame8, "$parentCloseButtonColorPick", "closeButtonColorPick", close_overlay_callback)
+			g:NewLabel (frame8, _, "$parentWindowCloseButtonLabel", "closeButtonColorLabel", Loc ["STRING_OPTIONS_CLOSE_OVERLAY"], "GameFontHighlightLeft")
+			frame8.closeButtonColorPick:SetPoint ("left", frame8.closeButtonColorLabel, "right", 2, 0)
+
+			frame8.closeButtonColorPick.info = Loc ["STRING_OPTIONS_CLOSE_OVERLAY_DESC"]
+			window:create_line_background (frame8, frame8.closeButtonColorLabel, frame8.closeButtonColorPick)
+			frame8.closeButtonColorPick:SetHook ("OnEnter", background_on_enter)
+			frame8.closeButtonColorPick:SetHook ("OnLeave", background_on_leave)
 			
 		--> reset button
 			--text color pick
-			local reset_text_color_callback = function (_, r, g, b, a)
-				frame8.resetTextColorImage:SetTexture (r, g, b, a)
+		
+			local reset_textcolor_callback = function (button, r, g, b, a)
 				window.instance:SetDeleteButtonSettings (nil, nil, {r, g, b, a}, nil)
 			end
-			local reset_text_color_onclick = function() 
-				local color_table = window.instance.resetbutton_info.text_color
-				g:ColorPick (frame8.resetTextColorButton.widget, color_table[1], color_table[2], color_table[3], color_table[4], reset_text_color_callback)
-			end
-			g:NewImage (frame8, nil, "$parentResetTextColorImage", "resetTextColorImage", COLOR_BUTTON_WIDTH, 12, instance.resetbutton_info.text_color)
-			g:NewButton (frame8, nil, "$parentResetTextColorButton", "resetTextColorButton", COLOR_BUTTON_WIDTH, 14, reset_text_color_onclick, nil, nil, nil, "color")
+			g:NewColorPickButton (frame8, "$parentResetTextColorPick", "resetTextColorPick", reset_textcolor_callback)
+			g:NewLabel (frame8, _, "$parentResetTextLabel", "resetTextColorPickLabel", Loc ["STRING_OPTIONS_RESET_TEXTCOLOR"], "GameFontHighlightLeft")
+			frame8.resetTextColorPick:SetPoint ("left", frame8.resetTextColorPickLabel, "right", 2, 0)
+
+			frame8.resetTextColorPick.info = Loc ["STRING_OPTIONS_RESET_TEXTCOLOR_DESC"]
+			window:create_line_background (frame8, frame8.resetTextColorPickLabel, frame8.resetTextColorPick)
+			frame8.resetTextColorPick:SetHook ("OnEnter", background_on_enter)
+			frame8.resetTextColorPick:SetHook ("OnLeave", background_on_leave)
 			
 			--text size
 			g:NewSlider (frame8, _, "$parentResetTextSizeSlider", "resetTextSizeSlider", SLIDER_WIDTH, 20, 8, 15, 1, tonumber (instance.resetbutton_info.text_size))
@@ -2081,17 +1924,6 @@ function _detalhes:OpenOptionsWindow (instance)
 				instance:SetDeleteButtonSettings (nil, amount)
 			end)
 			
-			--button overlay
-			local reset_overlay_color_callback = function (_, r, g, b, a)
-				frame8.resetOverlayColorImage:SetTexture (r, g, b, a)
-				window.instance:SetDeleteButtonSettings (nil, nil, nil, {r, g, b, a})
-			end
-			local reset_overlay_color_onclick = function() 
-				local color_table = window.instance.resetbutton_info.color_overlay
-				g:ColorPick (frame8.resetOverlayColorButton.widget, color_table[1], color_table[2], color_table[3], color_table[4], reset_overlay_color_callback)
-			end
-			g:NewImage (frame8, nil, "$parentResetOverlayColorImage", "resetOverlayColorImage", COLOR_BUTTON_WIDTH, 12, instance.resetbutton_info.color_overlay)
-			g:NewButton (frame8, nil, "$parentResetOverlayColorButton", "resetOverlayColorButton", COLOR_BUTTON_WIDTH, 14, reset_overlay_color_onclick, nil, nil, nil, "color")
 			--reset always small
 			g:NewSwitch (frame8, _, "$parentResetAlwaysSmallSlider", "resetAlwaysSmallSlider", 60, 20, _, _, instance.resetbutton_info.always_small)
 			
@@ -2111,32 +1943,13 @@ function _detalhes:OpenOptionsWindow (instance)
 			
 		--> instance button
 			--text color pick
-			local instance_text_color_callback = function (_, r, g, b, a)
-				frame8.instanceTextColorImage:SetTexture (r, g, b, a)
-				window.instance:SetInstanceButtonSettings (nil, nil, {r, g, b, a})
-			end
-			local instance_text_color_onclick = function() 
-				local color_table = window.instance.instancebutton_info.text_color
-				g:ColorPick (frame8.instanceTextColorButton.widget, color_table[1], color_table[2], color_table[3], color_table[4], instance_text_color_callback)
-			end
-			g:NewImage (frame8, nil, "$parentInstanceTextColorImage", "instanceTextColorImage", COLOR_BUTTON_WIDTH, 12, instance.instancebutton_info.text_color)
-			g:NewButton (frame8, nil, "$parentInstanceTextColorButton", "instanceTextColorButton", COLOR_BUTTON_WIDTH, 14, instance_text_color_onclick, nil, nil, nil, "color")
 			--text size
 			g:NewSlider (frame8, _, "$parentInstanceTextSizeSlider", "instanceTextSizeSlider", SLIDER_WIDTH, 20, 8, 15, 1, tonumber (instance.instancebutton_info.text_size))
 			frame8.instanceTextSizeSlider:SetHook ("OnValueChange", function (self, instance, amount) 
 				instance:SetInstanceButtonSettings (nil, amount)
 			end)
 			--button overlay
-			local instance_overlay_color_callback = function (_, r, g, b, a)
-				frame8.instanceOverlayColorImage:SetTexture (r, g, b, a)
-				window.instance:SetInstanceButtonSettings (nil, nil, nil, {r, g, b, a})
-			end
-			local instance_overlay_color_onclick = function() 
-				local color_table = window.instance.instancebutton_info.color_overlay
-				g:ColorPick (frame8.instanceOverlayColorButton.widget, color_table[1], color_table[2], color_table[3], color_table[4], instance_overlay_color_callback)
-			end
-			g:NewImage (frame8, nil, "$parentInstanceOverlayColorImage", "instanceOverlayColorImage", COLOR_BUTTON_WIDTH, 12, instance.instancebutton_info.color_overlay)
-			g:NewButton (frame8, nil, "$parentInstanceOverlayColorButton", "instanceOverlayColorButton", COLOR_BUTTON_WIDTH, 14, instance_overlay_color_onclick, nil, nil, nil, "color")		
+
 			--text face
 			local instance_text_color_onselectfont = function (_, instance, fontName)
 				instance:SetInstanceButtonSettings (fontName)
@@ -2154,19 +1967,7 @@ function _detalhes:OpenOptionsWindow (instance)
 
 		
 		-- reset button
-			-- text color
-			g:NewLabel (frame8, _, "$parentResetTextColorLabel", "resetTextColorLabel", Loc ["STRING_OPTIONS_RESET_TEXTCOLOR"], "GameFontHighlightLeft")
 
-			frame8.resetTextColorImage:SetPoint ("left", frame8.resetTextColorLabel, "right", 2)
-			
-			frame8.resetTextColorButton:SetPoint ("left", frame8.resetTextColorLabel, "right", 2)
-			frame8.resetTextColorButton:InstallCustomTexture()
-			
-			frame8.resetTextColorButton.info = Loc ["STRING_OPTIONS_RESET_TEXTCOLOR_DESC"]
-			window:create_line_background (frame8, frame8.resetTextColorLabel, frame8.resetTextColorButton)
-			frame8.resetTextColorButton:SetHook ("OnEnter", background_on_enter)
-			frame8.resetTextColorButton:SetHook ("OnLeave", background_on_leave)
-			
 			-- text font
 			g:NewLabel (frame8, _, "$parentResetTextFontLabel", "resetTextFontLabel", Loc ["STRING_OPTIONS_RESET_TEXTFONT"], "GameFontHighlightLeft")
 			frame8.resetTextFontDropdown:SetPoint ("left", frame8.resetTextFontLabel, "right", 2)
@@ -2186,18 +1987,18 @@ function _detalhes:OpenOptionsWindow (instance)
 			frame8.resetTextSizeSlider:SetHook ("OnLeave", background_on_leave)
 
 			-- color overlay
-			g:NewLabel (frame8, _, "$parentResetOverlayColorLabel", "resetOverlayColorLabel", Loc ["STRING_OPTIONS_RESET_OVERLAY"], "GameFontHighlightLeft")
+			local reset_overlaycolor_callback = function (button, r, g, b, a)
+				window.instance:SetDeleteButtonSettings (nil, nil, nil, {r, g, b, a})
+			end
+			g:NewColorPickButton (frame8, "$parentResetOverlayColorPick", "resetOverlayColorPick", reset_overlaycolor_callback)
+			g:NewLabel (frame8, _, "$parentResetOverlayLabel", "resetOverlayColorPickLabel", Loc ["STRING_OPTIONS_RESET_OVERLAY"], "GameFontHighlightLeft")
+			frame8.resetOverlayColorPick:SetPoint ("left", frame8.resetOverlayColorPickLabel, "right", 2, 0)
 
-			frame8.resetOverlayColorImage:SetPoint ("left", frame8.resetOverlayColorLabel, "right", 2)
-			
-			frame8.resetOverlayColorButton:SetPoint ("left", frame8.resetOverlayColorLabel, "right", 2)
-			frame8.resetOverlayColorButton:InstallCustomTexture()
-			
-			frame8.resetOverlayColorButton.info = Loc ["STRING_OPTIONS_RESET_OVERLAY_DESC"]
-			window:create_line_background (frame8, frame8.resetOverlayColorLabel, frame8.resetOverlayColorButton)
-			frame8.resetOverlayColorButton:SetHook ("OnEnter", background_on_enter)
-			frame8.resetOverlayColorButton:SetHook ("OnLeave", background_on_leave)
-			
+			frame8.resetOverlayColorPick.info = Loc ["STRING_OPTIONS_RESET_OVERLAY_DESC"]
+			window:create_line_background (frame8, frame8.resetOverlayColorPickLabel, frame8.resetOverlayColorPick)
+			frame8.resetOverlayColorPick:SetHook ("OnEnter", background_on_enter)
+			frame8.resetOverlayColorPick:SetHook ("OnLeave", background_on_leave)
+
 		-- reset always small
 			g:NewLabel (frame8, _, "$parentResetAlwaysSmallLabel", "resetAlwaysSmallLabel", Loc ["STRING_OPTIONS_RESET_SMALL"], "GameFontHighlightLeft")
 			
@@ -2213,23 +2014,24 @@ function _detalhes:OpenOptionsWindow (instance)
 		
 		-- instance button
 			-- text color
-			g:NewLabel (frame8, _, "$parentInstanceTextColorLabel", "instanceTextColorLabel", Loc ["STRING_OPTIONS_INSTANCE_TEXTCOLOR"], "GameFontHighlightLeft")
+			
+			local instance_textcolor_callback = function (button, r, g, b, a)
+				window.instance:SetInstanceButtonSettings (nil, nil, {r, g, b, a})
+			end
+			g:NewColorPickButton (frame8, "$parentInstanceTextColorPick", "instanceTextColorPick", instance_textcolor_callback)
+			g:NewLabel (frame8, _, "$parentInstanceTextLabel", "instanceTextColorPickLabel", Loc ["STRING_OPTIONS_INSTANCE_TEXTCOLOR"], "GameFontHighlightLeft")
+			frame8.instanceTextColorPick:SetPoint ("left", frame8.instanceTextColorPickLabel, "right", 2, 0)
 
-			frame8.instanceTextColorImage:SetPoint ("left", frame8.instanceTextColorLabel, "right", 2)
-			
-			frame8.instanceTextColorButton:SetPoint ("left", frame8.instanceTextColorLabel, "right", 2)
-			frame8.instanceTextColorButton:InstallCustomTexture()
-			
-			frame8.instanceTextColorButton.info = Loc ["STRING_OPTIONS_INSTANCE_TEXTCOLOR_DESC"]
-			window:create_line_background (frame8, frame8.instanceTextColorLabel, frame8.instanceTextColorButton)
-			frame8.instanceTextColorButton:SetHook ("OnEnter", background_on_enter)
-			frame8.instanceTextColorButton:SetHook ("OnLeave", background_on_leave)
+			frame8.instanceTextColorPick.info = Loc ["STRING_OPTIONS_RESET_OVERLAY_DESC"]
+			window:create_line_background (frame8, frame8.instanceTextColorPickLabel, frame8.instanceTextColorPick)
+			frame8.instanceTextColorPick:SetHook ("OnEnter", background_on_enter)
+			frame8.instanceTextColorPick:SetHook ("OnLeave", background_on_leave)
 			
 			-- text font
 			g:NewLabel (frame8, _, "$parentInstanceTextFontLabel", "instanceTextFontLabel", Loc ["STRING_OPTIONS_INSTANCE_TEXTFONT"], "GameFontHighlightLeft")
 			frame8.instanceTextFontDropdown:SetPoint ("left", frame8.instanceTextFontLabel, "right", 2)
 			
-			frame8.instanceTextFontDropdown.info = Loc ["STRING_OPTIONS_INSTANCE_TEXTFONT_DESC"]
+			frame8.instanceTextFontDropdown.info = Loc ["STRING_OPTIONS_INSTANCE_TEXTCOLOR_DESC"]
 			window:create_line_background (frame8, frame8.instanceTextFontLabel, frame8.instanceTextFontDropdown)
 			frame8.instanceTextFontDropdown:SetHook ("OnEnter", background_on_enter)
 			frame8.instanceTextFontDropdown:SetHook ("OnLeave", background_on_leave)
@@ -2244,31 +2046,22 @@ function _detalhes:OpenOptionsWindow (instance)
 			frame8.instanceTextSizeSlider:SetHook ("OnLeave", background_on_leave)
 
 			-- color overlay
-			g:NewLabel (frame8, _, "$parentInstanceOverlayColorLabel", "instanceOverlayColorLabel", Loc ["STRING_OPTIONS_INSTANCE_OVERLAY"], "GameFontHighlightLeft")
 
-			frame8.instanceOverlayColorImage:SetPoint ("left", frame8.instanceOverlayColorLabel, "right", 2)
-			
-			frame8.instanceOverlayColorButton:SetPoint ("left", frame8.instanceOverlayColorLabel, "right", 2)
-			frame8.instanceOverlayColorButton:InstallCustomTexture()
-			
-			frame8.instanceOverlayColorButton.info = Loc ["STRING_OPTIONS_INSTANCE_OVERLAY_DESC"]
-			window:create_line_background (frame8, frame8.instanceOverlayColorLabel, frame8.instanceOverlayColorButton)
-			frame8.instanceOverlayColorButton:SetHook ("OnEnter", background_on_enter)
-			frame8.instanceOverlayColorButton:SetHook ("OnLeave", background_on_leave)
+			local instance_overlaycolor_callback = function (button, r, g, b, a)
+				window.instance:SetInstanceButtonSettings (nil, nil, nil, {r, g, b, a})
+			end
+			g:NewColorPickButton (frame8, "$parentInstanceOverlayColorPick", "instanceOverlayColorPick", instance_overlaycolor_callback)
+			g:NewLabel (frame8, _, "$parentInstanceOverlayLabel", "instanceOverlayColorPickLabel", Loc ["STRING_OPTIONS_INSTANCE_OVERLAY"], "GameFontHighlightLeft")
+			frame8.instanceOverlayColorPick:SetPoint ("left", frame8.instanceOverlayColorPickLabel, "right", 2, 0)
+
+			frame8.instanceOverlayColorPick.info = Loc ["STRING_OPTIONS_INSTANCE_OVERLAY_DESC"]
+			window:create_line_background (frame8, frame8.instanceOverlayColorPickLabel, frame8.instanceOverlayColorPick)
+			frame8.instanceOverlayColorPick:SetHook ("OnEnter", background_on_enter)
+			frame8.instanceOverlayColorPick:SetHook ("OnLeave", background_on_leave)			
 			
 		-- close button
 			-- color overlay
-			g:NewLabel (frame8, _, "$parentCloseOverlayColorLabel", "closeOverlayColorLabel", Loc ["STRING_OPTIONS_CLOSE_OVERLAY"], "GameFontHighlightLeft")
 
-			frame8.closeOverlayColorImage:SetPoint ("left", frame8.closeOverlayColorLabel, "right", 2)
-			
-			frame8.closeOverlayColorButton:SetPoint ("left", frame8.closeOverlayColorLabel, "right", 2)
-			frame8.closeOverlayColorButton:InstallCustomTexture()
-			
-			frame8.closeOverlayColorButton.info = Loc ["STRING_OPTIONS_CLOSE_OVERLAY_DESC"]
-			window:create_line_background (frame8, frame8.closeOverlayColorLabel, frame8.closeOverlayColorButton)
-			frame8.closeOverlayColorButton:SetHook ("OnEnter", background_on_enter)
-			frame8.closeOverlayColorButton:SetHook ("OnLeave", background_on_leave)
 		
 		titulo_toolbar2:SetPoint (10, -10)
 		titulo_toolbar2_desc:SetPoint (10, -30)
@@ -2279,22 +2072,22 @@ function _detalhes:OpenOptionsWindow (instance)
 		
 		frame8.instanceAnchorLabel:SetPoint (10, -75)
 		
-		frame8.instanceTextColorLabel:SetPoint (10, -100)
+		frame8.instanceTextColorPickLabel:SetPoint (10, -100)
 		frame8.instanceTextFontLabel:SetPoint (10, -125)
 		frame8.instanceTextSizeLabel:SetPoint (10, -150)
-		frame8.instanceOverlayColorLabel:SetPoint (10, -175)
+		frame8.instanceOverlayColorPickLabel:SetPoint (10, -175)
 
 		frame8.resetAnchorLabel:SetPoint (10, -210)
 		
-		frame8.resetTextColorLabel:SetPoint (10, -235)
+		frame8.resetTextColorPickLabel:SetPoint (10, -235)
 		frame8.resetTextFontLabel:SetPoint (10, -260)
 		frame8.resetTextSizeLabel:SetPoint (10, -285)
-		frame8.resetOverlayColorLabel:SetPoint (10, -310)
+		frame8.resetOverlayColorPickLabel:SetPoint (10, -310)
 		frame8.resetAlwaysSmallLabel:SetPoint (10, -335)
 
 		frame8.closeAnchorLabel:SetPoint (10, -370)
 		
-		frame8.closeOverlayColorLabel:SetPoint (10, -395)
+		frame8.closeButtonColorLabel:SetPoint (10, -395)
 		
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Appearance - Wallpaper
@@ -3213,17 +3006,17 @@ end
 ----------------------------------------------------------------------------------------
 --> Show
 
-	_G.DetailsOptionsWindow8ResetTextColorImage.MyObject:SetTexture (unpack (instance.resetbutton_info.text_color))
+	_G.DetailsOptionsWindow8ResetTextColorPick.MyObject:SetColor (unpack (instance.resetbutton_info.text_color))
 	_G.DetailsOptionsWindow8ResetTextSizeSlider.MyObject:SetValue (instance.resetbutton_info.text_size)
 	_G.DetailsOptionsWindow8ResetTextFontDropdown.MyObject:Select (instance.resetbutton_info.text_face)
-	_G.DetailsOptionsWindow8ResetOverlayColorImage.MyObject:SetTexture (unpack (instance.resetbutton_info.color_overlay))
+	_G.DetailsOptionsWindow8ResetOverlayColorPick.MyObject:SetColor (unpack (instance.resetbutton_info.color_overlay))
 
-	_G.DetailsOptionsWindow8InstanceTextColorImage.MyObject:SetTexture (unpack (instance.instancebutton_info.text_color))
+	_G.DetailsOptionsWindow8InstanceTextColorPick.MyObject:SetColor (unpack (instance.instancebutton_info.text_color))
 	_G.DetailsOptionsWindow8InstanceTextSizeSlider.MyObject:SetValue (instance.instancebutton_info.text_size)
 	_G.DetailsOptionsWindow8InstanceTextFontDropdown.MyObject:Select (instance.instancebutton_info.text_face)
-	_G.DetailsOptionsWindow8InstanceOverlayColorImage.MyObject:SetTexture (unpack (instance.instancebutton_info.color_overlay))
+	_G.DetailsOptionsWindow8InstanceOverlayColorPick.MyObject:SetColor (unpack (instance.instancebutton_info.color_overlay))
 
-	_G.DetailsOptionsWindow8CloseOverlayColorImage.MyObject:SetTexture (unpack (instance.closebutton_info.color_overlay))
+	_G.DetailsOptionsWindow8CloseButtonColorPick.MyObject:SetColor (unpack (instance.closebutton_info.color_overlay))
 
 	_G.DetailsOptionsWindow2HideOnCombatSlider.MyObject:SetFixedParameter (instance)
 	_G.DetailsOptionsWindow2HideOnCombatAlphaSlider.MyObject:SetFixedParameter (instance)
@@ -3235,7 +3028,9 @@ end
 	
 	_G.DetailsOptionsWindow6TotalBarSlider.MyObject:SetFixedParameter (instance)
 	_G.DetailsOptionsWindow6TotalBarSlider.MyObject:SetValue (instance.total_bar.enabled)
-	_G.DetailsOptionsWindow6TotalBarColorTexture:SetTexture (unpack (instance.total_bar.color))
+	
+	_G.DetailsOptionsWindow6TotalBarColorPick.MyObject:SetColor (unpack (instance.total_bar.color))
+	
 	_G.DetailsOptionsWindow6TotalBarOnlyInGroupSlider.MyObject:SetFixedParameter (instance)
 	_G.DetailsOptionsWindow6TotalBarOnlyInGroupSlider.MyObject:SetValue (instance.total_bar.only_in_group)
 	_G.DetailsOptionsWindow6TotalBarIconTexture.MyObject:SetTexture (instance.total_bar.icon)
@@ -3309,7 +3104,8 @@ end
 	_G.DetailsOptionsWindow4RowBackgroundTextureDropdown.MyObject:SetFixedParameter (instance)
 	_G.DetailsOptionsWindow4TextureDropdown.MyObject:Select (instance.row_info.texture)
 	_G.DetailsOptionsWindow4RowBackgroundTextureDropdown.MyObject:Select (instance.row_info.texture_background)
-	_G.DetailsOptionsWindow4RowBackgroundColor.MyObject:SetTexture (unpack (instance.row_info.fixed_texture_background_color))
+	
+	_G.DetailsOptionsWindow4RowBackgroundColorPick.MyObject:SetColor (unpack (instance.row_info.fixed_texture_background_color))
 	
 	_G.DetailsOptionsWindow4BackgroundClassColorSlider.MyObject:SetFixedParameter (instance)
 	_G.DetailsOptionsWindow4BackgroundClassColorSlider.MyObject:SetValue (instance.row_info.texture_background_class_color)
@@ -3361,10 +3157,15 @@ end
 		_G.DetailsOptionsWindow9UseBackgroundSlider.MyObject:SetValue (1)
 	end
 
-	_G.DetailsOptionsWindow6InstanceColorTexture.MyObject:SetTexture (unpack (instance.color))
-	_G.DetailsOptionsWindow6BackgroundColorTexture.MyObject:SetTexture (instance.bg_r, instance.bg_g, instance.bg_b)
-	_G.DetailsOptionsWindow4FixedRowColorTexture.MyObject:SetTexture (unpack (instance.row_info.fixed_texture_color))
-	_G.DetailsOptionsWindow5FixedRowColorTTexture.MyObject:SetTexture (unpack (instance.row_info.fixed_text_color))
+	_G.DetailsOptionsWindow6WindowColorPick.MyObject:SetColor (unpack (instance.color))
+	--_G.DetailsOptionsWindow6InstanceColorTexture.MyObject:SetTexture (unpack (instance.color))
+	
+	--_G.DetailsOptionsWindow6BackgroundColorTexture.MyObject:SetTexture (instance.bg_r, instance.bg_g, instance.bg_b)
+	_G.DetailsOptionsWindow6WindowBackgroundColorPick.MyObject:SetColor (instance.bg_r, instance.bg_g, instance.bg_b, instance.bg_alpha)
+	
+	_G.DetailsOptionsWindow4RowColorPick.MyObject:SetColor (unpack (instance.row_info.fixed_texture_color))
+	
+	_G.DetailsOptionsWindow5FixedTextColor.MyObject:SetColor (unpack (instance.row_info.fixed_text_color))
 	
 	_G.DetailsOptionsWindow1NicknameEntry.MyObject.text = _detalhes:GetNickname (UnitGUID ("player"), UnitName ("player"), true)
 	_G.DetailsOptionsWindow2TTDropdown.MyObject:Select (_detalhes.time_type, true)

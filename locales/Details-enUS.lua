@@ -492,8 +492,8 @@ if not Loc then return end
 	Loc ["STRING_OPTIONS_BAR_BTEXTURE_DESC"] = "Choose the background texture of bars."
 	
 	Loc ["STRING_OPTIONS_BAR_BCOLOR"] = "Background Color"
-	Loc ["STRING_OPTIONS_BAR_BCOLOR_DESC"] = "Choose the background color of bars."
-	Loc ["STRING_OPTIONS_BAR_COLOR_DESC"] = "Choose the color of bars."
+	Loc ["STRING_OPTIONS_BAR_BCOLOR_DESC"] = "Choose the row background color. This color is only used when color by classe isn't actived."
+	Loc ["STRING_OPTIONS_BAR_COLOR_DESC"] = "Choose the row color. This color is only used when color by class isn't actived."
 	
 	Loc ["STRING_OPTIONS_BAR_HEIGHT"] = "Height"
 	Loc ["STRING_OPTIONS_BAR_HEIGHT_DESC"] = "Change the height of bars."
@@ -527,6 +527,10 @@ if not Loc then return end
 	
 	Loc ["STRING_OPTIONS_TEXT_RCLASSCOLOR"] = "Right Text Color By Class"
 	Loc ["STRING_OPTIONS_TEXT_RCLASSCOLOR_DESC"] = "When enabled, the right text uses the class color of the character.\n\nIf disabled, choose the color on the color picker button."
+	
+	Loc ["STRING_OPTIONS_TEXT_FIXEDCOLOR"] = "Text Color"
+	Loc ["STRING_OPTIONS_TEXT_ROWCOLOR"] = "Row Background Color"
+	Loc ["STRING_OPTIONS_TEXT_ROWCOLOR2"] = "Row Color"
 	--
 	Loc ["STRING_OPTIONS_INSTANCE"] = "Instance Settings"
 	Loc ["STRING_OPTIONS_INSTANCE_DESC"] = "This options control the appearance of the instance it self."
@@ -554,6 +558,7 @@ if not Loc then return end
 	Loc ["STRING_OPTIONS_SHOW_TOTALBAR_INGROUP_DESC"] = "Total bar aren't shown if you isn't in a group."
 	Loc ["STRING_OPTIONS_SHOW_TOTALBAR_ICON"] = "Icon"
 	Loc ["STRING_OPTIONS_SHOW_TOTALBAR_ICON_DESC"] = "Select the icon shown on the total bar."
+	Loc ["STRING_OPTIONS_SHOW_TOTALBAR_COLOR_DESC"] = "Select the color. The transparency value follow the row alpha value."
 	
 	Loc ["STRING_OPTIONS_INSTANCE_SKIN"] = "Skin"
 	Loc ["STRING_OPTIONS_INSTANCE_SKIN_DESC"] = "Modify window appearance based on a skin theme."

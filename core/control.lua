@@ -230,6 +230,7 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> internal functions
 
+		-- ~start
 		function _detalhes:EntrarEmCombate (...)
 
 			if (_detalhes.debug) then
@@ -363,7 +364,8 @@
 				end
 			end
 		end
-
+		
+		-- ~end
 		function _detalhes:SairDoCombate (bossKilled, from_encounter_end)
 
 			if (_detalhes.debug) then
