@@ -21,6 +21,8 @@ local _type = type
 --api locals
 local _GetSpellInfo = _detalhes.getspellinfo
 local GameTooltip = GameTooltip
+local _IsInRaid = IsInRaid
+local _IsInGroup = IsInGroup
 
 local _detalhes = 		_G._detalhes
 local AceLocale = LibStub ("AceLocale-3.0")
@@ -278,18 +280,92 @@ function atributo_energy:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 	local qual_barra = 1
 	local barras_container = instancia.barras
 
+	local combat_time = instancia.showing:GetCombatTime()
+	
+	local use_total_bar = false
+	if (instancia.total_bar.enabled) then
+	
+		use_total_bar = true
+		
+		if (instancia.total_bar.only_in_group and (not _IsInGroup() and not _IsInRaid())) then
+			use_total_bar = false
+		end
+		
+		if (sub_atributo > 4) then --enemies, frags, void zones
+			use_total_bar = false
+		end
+		
+	end
+	
 	if (instancia.bars_sort_direction == 1) then --top to bottom
-		for i = instancia.barraS[1], instancia.barraS[2], 1 do --> vai atualizar só o range que esta sendo mostrado
-			conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar) --> instância, index, total, valor da 1º barra
-			qual_barra = qual_barra+1
+		if (use_total_bar and instancia.barraS[1] == 1) then
+		
+			qual_barra = 2
+			local iter_last = instancia.barraS[2]
+			if (iter_last == instancia.rows_fit_in_window) then
+				iter_last = iter_last - 1
+			end
+			
+			local row1 = barras_container [1]
+			row1.minha_tabela = nil
+			row1.texto_esquerdo:SetText (Loc ["STRING_TOTAL"])
+			row1.texto_direita:SetText (_detalhes:ToK2 (total) .. " (" .. _detalhes:ToK (total / combat_time) .. ")")
+			
+			row1.statusbar:SetValue (100)
+			local r, b, g = unpack (instancia.total_bar.color)
+			row1.textura:SetVertexColor (r, b, g)
+			
+			row1.icone_classe:SetTexture (instancia.total_bar.icon)
+			row1.icone_classe:SetTexCoord (0.0625, 0.9375, 0.0625, 0.9375)
+			
+			gump:Fade (row1, "out")
+			
+			for i = instancia.barraS[1], iter_last, 1 do --> vai atualizar só o range que esta sendo mostrado
+				conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time) --> instância, index, total, valor da 1º barra
+				qual_barra = qual_barra+1
+			end
+		
+		else
+			for i = instancia.barraS[1], instancia.barraS[2], 1 do --> vai atualizar só o range que esta sendo mostrado
+				conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar) --> instância, index, total, valor da 1º barra
+				qual_barra = qual_barra+1
+			end
 		end
 		
 	elseif (instancia.bars_sort_direction == 2) then --bottom to top
-		for i = instancia.barraS[2], instancia.barraS[1], 1 do --> vai atualizar só o range que esta sendo mostrado
-			conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar) --> instância, index, total, valor da 1º barra
-			qual_barra = qual_barra+1
-		end
+		if (use_total_bar and instancia.barraS[1] == 1) then
 		
+			qual_barra = 2
+			local iter_last = instancia.barraS[2]
+			if (iter_last == instancia.rows_fit_in_window) then
+				iter_last = iter_last - 1
+			end
+			
+			local row1 = barras_container [1]
+			row1.minha_tabela = nil
+			row1.texto_esquerdo:SetText (Loc ["STRING_TOTAL"])
+			row1.texto_direita:SetText (_detalhes:ToK2 (total) .. " (" .. _detalhes:ToK (total / combat_time) .. ")")
+			
+			row1.statusbar:SetValue (100)
+			local r, b, g = unpack (instancia.total_bar.color)
+			row1.textura:SetVertexColor (r, b, g)
+			
+			row1.icone_classe:SetTexture (instancia.total_bar.icon)
+			row1.icone_classe:SetTexCoord (0.0625, 0.9375, 0.0625, 0.9375)
+			
+			gump:Fade (row1, "out")
+			
+			for i = iter_last, instancia.barraS[1], -1 do --> vai atualizar só o range que esta sendo mostrado
+				conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time) --> instância, index, total, valor da 1º barra
+				qual_barra = qual_barra+1
+			end
+			
+		else
+			for i = instancia.barraS[2], instancia.barraS[1], 1 do --> vai atualizar só o range que esta sendo mostrado
+				conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar) --> instância, index, total, valor da 1º barra
+				qual_barra = qual_barra+1
+			end
+		end
 	end
 	
 	if (instancia.atributo == 5) then --> custom
@@ -482,12 +558,12 @@ function atributo_energy:RefreshBarra (esta_barra, instancia, from_resize)
 		esta_barra.icone_classe:SetVertexColor (1, 1, 1)
 	
 	elseif (self.classe == "PET") then
-		esta_barra.icone_classe:SetTexture ("Interface\\AddOns\\Details\\images\\classes_small")
+		esta_barra.icone_classe:SetTexture (instancia.row_info.icon_file)
 		esta_barra.icone_classe:SetTexCoord (0.25, 0.49609375, 0.75, 1)
 		esta_barra.icone_classe:SetVertexColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
 
 	else
-		esta_barra.icone_classe:SetTexture ("Interface\\AddOns\\Details\\images\\classes_small")
+		esta_barra.icone_classe:SetTexture (instancia.row_info.icon_file)
 		esta_barra.icone_classe:SetTexCoord (_unpack (CLASS_ICON_TCOORDS [self.classe])) --very slow method
 		esta_barra.icone_classe:SetVertexColor (1, 1, 1)
 	end

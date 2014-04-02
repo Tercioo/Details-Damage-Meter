@@ -328,3 +328,84 @@ local _
 	t2:SetTexCoord (0, .4, 0, 1)
 	--]]
 	
+	
+	_detalhes:InstallSkin ("ElvUI Frame Style", {
+		file = [[Interface\AddOns\Details\images\skins\elvui]],
+		author = "Details!", 
+		version = "1.0", 
+		site = "unknown", 
+		desc = "a flat skin", 
+		
+		--general
+		can_change_alpha_head = true, 
+
+		--icon anchors
+		icon_anchor_main = {-1, -5},
+		icon_anchor_plugins = {-7, -13},
+		icon_plugins_size = {19, 18},
+		
+		--micro frames
+		micro_frames = {color = {.7, .7, .7, 1}, font = "Arial Narrow", size = 11},
+		
+		--reset button
+		reset_button_coords = {0.01904296875, 0.0673828125, 0.50244140625, 0.51708984375},
+		reset_button_small_coords = {0.11669921875, 0.13720703125, 0.50244140625, 0.51708984375},
+		
+		--instance button
+		instance_button_coords = {0.01904296875, 0.04736328125, 0.48388671875, 0.49853515625},
+		
+		--close button
+		close_button_coords = {0.01904296875, 0.03369140625, 0.52197265625, 0.53662109375},
+		close_button_size = {18, 18},
+		
+		-- the four anchors (for when the toolbar is on the top side)
+		icon_point_anchor = {-35, -0.5},
+		left_corner_anchor = {-107, 0},
+		close_button_anchor = {-2, 0},
+		right_corner_anchor = {96, 0},
+		
+		-- the four anchors (for when the toolbar is on the bottom side)
+		icon_point_anchor_bottom = {-37, 12},
+		left_corner_anchor_bottom = {-107, 0},
+		close_button_anchor_bottom = {-2, 0},
+		right_corner_anchor_bottom = {96, 0},
+
+		--[[ callback function execute after all changes on the window, first argument is this skin table, second is the instance where the skin was applied --]]
+		callback = function (self, instance) end,
+		--[[ control_script is a OnUpdate script, it start right after all changes on the window and also after the callback --]]
+		--[[ control_script_on_start run before the control_script, use it to reset values if needed --]]
+		control_script_on_start = nil,
+		control_script = nil,
+		
+		--instance overwrites
+		--[[ when a skin is selected, all customized properties of the window is reseted and then the overwrites are applied]]
+		--[[ for the complete cprop list see the file classe_instancia_include.lua]]
+		instance_cprops = {
+			resetbutton_info = {text_color = {0.7, 0.7, 0.7, 1}, text_face = "Friz Quadrata TT", text_size = 12, color_overlay = {1, 1, 1, 1}},
+			instancebutton_info = {text_color = {.7, .7, .7, 1}, text_face = "Friz Quadrata TT", text_size = 12, color_overlay = {1, 1, 1, 1}},
+			menu_anchor = {-18, 1},
+			instance_button_anchor = {-27, 3},
+			hide_icon = true,
+			desaturated_menu = true,
+			bg_alpha = 0.3,
+			row_info = {texture = "Details D'ictum", 
+					texture_class_colors = false, 
+					alpha = 1, 
+					texture_background_class_color = false,
+					fixed_texture_color = {0, 0, 0},
+					fixed_texture_background_color = {0, 0, 0, 0.30},
+					space = {left = 1, right = -2, between = 0},
+			},
+			wallpaper = {
+				overlay = {0, 0,	0, 0.498038113117218},
+				width = 227.1267691385938,
+				texcoord = {0.001000000014901161, 0.1710000038146973, 0.001000000014901161, 0.3539316177368164},
+				enabled = true,
+				anchor = "all",
+				height = 89.00001440917025,
+				alpha = 0.4980392451398075,
+				texture = "Interface\\Glues\\CREDITS\\Badlands3",
+			}
+		}
+	})
+	

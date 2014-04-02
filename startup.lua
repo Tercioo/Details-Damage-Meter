@@ -200,6 +200,9 @@ function _G._detalhes:Start()
 			self.listener:RegisterEvent ("ZONE_CHANGED_NEW_AREA")
 			self.listener:RegisterEvent ("PLAYER_ENTERING_WORLD")
 		
+			self.listener:RegisterEvent ("ENCOUNTER_START")
+			self.listener:RegisterEvent ("ENCOUNTER_END")
+		
 			--self.listener:RegisterAllEvents()
 		
 	--		self.listener:RegisterEvent ("SPELL_CAST_START")
@@ -219,7 +222,7 @@ function _G._detalhes:Start()
 	self.in_group = IsInGroup() or IsInRaid()
 
 	--> send messages gathered on initialization
-	self:ScheduleTimer ("ShowDelayMsg", 7) 
+	self:ScheduleTimer ("ShowDelayMsg", 10) 
 	
 	--> send instance open signal
 	for index, instancia in ipairs (self.tabela_instancias) do
@@ -298,7 +301,7 @@ function _G._detalhes:Start()
 	end
 	
 	--> feedback trhead
-	if (self.tutorial.logons > 100 and self.tutorial.logons < 104) then
+	if (self.tutorial.logons > 100) then --  and self.tutorial.logons < 104
 	
 		if (not self.tutorial.feedback_window1) then
 			self.tutorial.feedback_window1 = true

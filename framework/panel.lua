@@ -594,6 +594,7 @@ function gump:IconPick (callback)
 	
 		gump.IconPickFrame = CreateFrame ("frame", "DetailsIconPickFrame", UIParent)
 		tinsert (UISpecialFrames, "DetailsIconPickFrame")
+		gump.IconPickFrame:SetFrameStrata ("DIALOG")
 		
 		gump.IconPickFrame:SetPoint ("center", UIParent, "center")
 		gump.IconPickFrame:SetWidth (350)

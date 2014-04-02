@@ -7,6 +7,7 @@ local _
 	window:SetResizable (true)
 	window:SetMovable (true)
 	tinsert (UISpecialFrames, "DetailsImageEdit")
+	window:SetFrameStrata ("TOOLTIP")
 	
 	window.hooks = {}
 	
@@ -155,6 +156,7 @@ local _
 	buttonsBackground:Hide()
 	--buttonsBackground:SetMovable (true)
 	tinsert (UISpecialFrames, "DetailsImageEditButtonsBg")
+	buttonsBackground:SetFrameStrata ("TOOLTIP")
 	
 		local alphaFrameShown = false
 	

@@ -87,6 +87,19 @@
 				return --no need to check
 			end
 		
+			if (_detalhes.encounter_table.name) then
+				_detalhes.tabela_vigente.is_boss = {
+					index = _detalhes.encounter_table.index, 
+					name = _detalhes.encounter_table.name,
+					zone = _detalhes.encounter_table.zone, 
+					mapid = _detalhes.encounter_table.mapid, 
+					encounter = _detalhes.encounter_table.name,
+					diff = _detalhes.encounter_table.diff
+					}
+				_detalhes:SendEvent ("COMBAT_BOSS_FOUND", nil, _detalhes.tabela_vigente.is_boss.index, _detalhes.tabela_vigente.is_boss.name)
+				return _detalhes.tabela_vigente.is_boss
+			end
+		
 			for index = 1, 5, 1 do 
 				if (_UnitExists ("boss"..index)) then 
 					local guid = _UnitGUID ("boss"..index)
@@ -169,10 +182,21 @@
 	--try to get the encounter name after the encounter (can be called during the combat as well)
 		function _detalhes:FindBoss()
 
+			if (_detalhes.encounter_table.name) then
+				return {
+					index = _detalhes.encounter_table.index, 
+					name = _detalhes.encounter_table.name,
+					zone = _detalhes.encounter_table.zone, 
+					mapid = _detalhes.encounter_table.mapid, 
+					encounter = _detalhes.encounter_table.name,
+					diff = _detalhes.encounter_table.diff
+				}
+			end
+		
 			local ZoneName, _, DifficultyID, _, _, _, _, ZoneMapID = _GetInstanceInfo()
 			local BossIds = _detalhes:GetBossIds (ZoneMapID)
 			
-			if (BossIds) then	
+			if (BossIds) then
 				local BossIndex = nil
 				local ActorsContainer = _detalhes.tabela_vigente [class_type_dano]._ActorTable
 				
@@ -340,7 +364,7 @@
 			end
 		end
 
-		function _detalhes:SairDoCombate (bossKilled)
+		function _detalhes:SairDoCombate (bossKilled, from_encounter_end)
 
 			if (_detalhes.debug) then
 				_detalhes:Msg ("(debug) ended a combat.")
@@ -392,6 +416,14 @@
 				_detalhes.tabela_vigente.verifica_combate = nil
 			end
 
+			--> lock timers
+			_detalhes.tabela_vigente:TravarTempos() 
+			
+			_detalhes.tabela_vigente:seta_data (_detalhes._detalhes_props.DATA_TYPE_END) --> salva hora, minuto, segundo do fim da luta
+			_detalhes.tabela_overall:seta_data (_detalhes._detalhes_props.DATA_TYPE_END) --> salva hora, minuto, segundo do fim da luta
+			_detalhes.tabela_vigente:seta_tempo_decorrido() --> salva o end_time
+			_detalhes.tabela_overall:seta_tempo_decorrido() --seta o end_time
+			
 			if (not _detalhes.tabela_vigente.is_boss) then
 			
 				local inimigo = _detalhes:FindEnemy()
@@ -423,6 +455,13 @@
 
 					if (bossKilled) then
 						_detalhes.tabela_vigente.is_boss.killed = true
+					end
+					
+					if (from_encounter_end) then
+
+						--_detalhes.tabela_vigente.start_time = _detalhes.encounter_table ["start"]
+						_detalhes.tabela_vigente.end_time = _detalhes.encounter_table ["end"]
+						
 					end
 
 					--> encounter boss function
@@ -456,13 +495,7 @@
 				end
 			end
 			
-			--> lock timers
-			_detalhes.tabela_vigente:TravarTempos() 
-			
-			_detalhes.tabela_vigente:seta_data (_detalhes._detalhes_props.DATA_TYPE_END) --> salva hora, minuto, segundo do fim da luta
-			_detalhes.tabela_overall:seta_data (_detalhes._detalhes_props.DATA_TYPE_END) --> salva hora, minuto, segundo do fim da luta
-			_detalhes.tabela_vigente:seta_tempo_decorrido() --> salva o end_time
-			_detalhes.tabela_overall:seta_tempo_decorrido() --seta o end_time
+
 
 			if (_detalhes.solo) then
 				--> debuffs need a checkup, not well functional right now

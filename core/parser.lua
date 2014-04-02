@@ -21,7 +21,7 @@
 	local _IsInRaid = IsInRaid --wow api local
 	local _IsInGroup = IsInGroup --wow api local
 	local _GetNumGroupMembers = GetNumGroupMembers --wow api local
-	local _UnitGroupRolesAssigned = UnitGroupRolesAssigned
+	local _UnitGroupRolesAssigned = UnitGroupRolesAssigned --wow api local
 
 	local _cstr = string.format --lua local
 	local _table_insert = table.insert --lua local
@@ -219,6 +219,10 @@
 			end
 			
 		end
+		
+		--if (who_name == "Guardian of Ancient Kings") then --remover
+		--	print ("MELEE GAK 1", meu_dono)
+		--end	
 		
 		--> damager shadow
 		local shadow = este_jogador.shadow
@@ -509,9 +513,12 @@
 -----------------------------------------------------------------------------------------------------------------------------------------
 	--> SUMMON 	serach key: ~summon										|
 -----------------------------------------------------------------------------------------------------------------------------------------
-
 	function parser:summon (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellName)
-
+	
+		--if (alvo_name == "Guardian of Ancient Kings") then --remover
+		--	print ("Summon GAK 1", who_name)
+		--end
+	
 		--> pet summon another pet
 		local sou_pet = _detalhes.tabela_pets.pets [who_serial]
 		if (sou_pet) then --> okey, ja é um pet
@@ -2214,7 +2221,8 @@
 				_current_combat.frags_need_refresh = true
 				_overall_combat.frags_need_refresh = true
 
-			--> encounter end
+			--> encounter end --[[REMOVED]] it's deprecated since encounter end and start replace this
+			--[[
 				local encounter_type = _detalhes.encounter.type
 				if (encounter_type) then
 					if (encounter_type == 1 or encounter_type == 2) then
@@ -2254,7 +2262,8 @@
 						
 					end
 				end
-
+			--]]
+			
 		--> player death
 		elseif (not _UnitIsFeignDeath (alvo_name)) then
 			if (
@@ -2375,8 +2384,6 @@
 			end
 		end
 	end
-
-
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> core
@@ -2597,6 +2604,85 @@
 
 			return
 			
+		elseif (evento == "ENCOUNTER_START") then
+			--~encounter
+			
+			_table_wipe (_detalhes.encounter_table)
+			
+			local encounterID, encounterName, difficultyID, raidSize = _select (1, ...)
+			local zoneName, _, _, _, _, _, _, zoneMapID = _GetInstanceInfo()
+			
+			_detalhes.encounter_table ["start"] = time()
+			_detalhes.encounter_table ["end"] = nil
+			
+			_detalhes.encounter_table.id = encounterID
+			_detalhes.encounter_table.name = encounterName
+			_detalhes.encounter_table.diff = difficultyID
+			_detalhes.encounter_table.size = raidSize
+			_detalhes.encounter_table.zone = zoneName
+			_detalhes.encounter_table.mapid = zoneMapID
+			
+			local encounter_start_table = _detalhes:GetEncounterStartInfo (zoneMapID, encounterID)
+			if (encounter_start_table) then
+				if (encounter_start_table.delay) then
+					if (type (encounter_start_table.delay) == "function") then
+						local delay = encounter_start_table.delay()
+						if (delay) then
+							_detalhes.encounter_table ["start"] = time() + delay
+						end
+					else
+						_detalhes.encounter_table ["start"] = time() + encounter_start_table.delay
+					end
+				end
+				if (encounter_start_table.func) then
+					encounter_start_table:func()
+				end
+			end
+			
+			local encounter_table, boss_index = _detalhes:GetBossEncounterDetailsFromEncounterId (zoneMapID, encounterID)
+			if (encounter_table) then
+				_detalhes.encounter_table.index = boss_index
+			end
+			
+		elseif (evento == "ENCOUNTER_END") then
+			
+			if (not _detalhes.encounter_table.start) then
+				return
+			end
+			
+			_detalhes.encounter_table ["end"] = time()
+			
+			local encounterID, encounterName, difficultyID, raidSize, endStatus = _select (1, ...)
+			local _, _, _, _, _, _, _, zoneMapID = _GetInstanceInfo()
+			
+			local encounter_end_table = _detalhes:GetEncounterStartInfo (zoneMapID, encounterID)
+			if (encounter_end_table) then
+				if (encounter_end_table.delay) then
+					_detalhes.encounter_table ["end"] = _detalhes.encounter_table ["end"] + encounter_end_table.delay
+				end
+				if (encounter_end_table.func) then
+					encounter_end_table:func (_detalhes.tabela_vigente, endStatus)
+				end
+			end
+
+			if (_in_combat) then
+				if (endStatus == 1) then
+					_detalhes.encounter_table.kill = true
+					_detalhes:SairDoCombate (true, true) --killed
+				else
+					_detalhes.encounter_table.kill = false
+					_detalhes:SairDoCombate (false, true) --wipe
+				end
+			else
+				if (_detalhes.tabela_vigente.end_time + 2 >= _detalhes.encounter_table ["end"]) then
+					--_detalhes.tabela_vigente.start_time = _detalhes.encounter_table ["start"]
+					_detalhes.tabela_vigente.end_time = _detalhes.encounter_table ["end"]
+					_detalhes:AtualizaGumpPrincipal (-1, true)
+				end
+			end
+
+			_table_wipe (_detalhes.encounter_table)
+		
 		elseif (evento == "CHAT_MSG_BG_SYSTEM_NEUTRAL") then
 			local frase = _select (1, ...)
 
@@ -2713,7 +2799,7 @@
 	end
 
 	_detalhes.listener:SetScript ("OnEvent", _detalhes.OnEvent)
-	
+
 	function _detalhes:OnParserEvent (evento, time, token, hidding, who_serial, who_name, who_flags, who_flags2, alvo_serial, alvo_name, alvo_flags, alvo_flags2, ...)
 		local funcao = token_list [token]
 		if (funcao) then

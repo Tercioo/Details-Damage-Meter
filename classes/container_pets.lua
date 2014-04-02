@@ -177,11 +177,21 @@ end
 -- 4372 = 1114 -> pet control player -> friendly -> aff raid
 
 function container_pets:Adicionar (pet_serial, pet_nome, pet_flags, dono_serial, dono_nome, dono_flags)
+
+	--if (pet_nome == "Guardian of Ancient Kings") then --remover
+	--	print ("Summon GAK 2", dono_nome)
+	--end
 	
 	if (pet_flags and _bit_band (pet_flags, OBJECT_TYPE_PET) ~= 0 and _bit_band (pet_flags, EM_GRUPO) ~= 0) then
 		self.pets [pet_serial] = {dono_nome, dono_serial, dono_flags, _detalhes._tempo, true}
+		--if (pet_nome == "Guardian of Ancient Kings") then --remover
+		--	print ("Summon GAK 3 - TRUE", dono_nome)
+		--end
 	else
 		self.pets [pet_serial] = {dono_nome, dono_serial, dono_flags, _detalhes._tempo}
+		--if (pet_nome == "Guardian of Ancient Kings") then --remover
+		--	print ("Summon GAK 3 - FALSE", dono_nome)
+		--end
 	end
 	
 	--if (fromSearch) then

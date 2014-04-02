@@ -53,6 +53,29 @@ local siege_of_orgrimmar = {
 		end
 	end,
 	
+	encounter_ids = {
+		-- Vale of Eternal Sorrows
+			[1602] = 1, -- Immerseus
+			[1598] = 2, -- Fallen Protectors
+			[1624] = 3, -- Norushen
+			[1604] = 4, -- Sha of Pride
+		-- Gates of Retribution
+			[1622] = 5, -- Galakras
+			[1600] = 6, -- Iron Juggernaut
+			[1606] = 7, -- Kor'kron Dark Shaman
+			[1603] = 8, -- General Nazgrim
+			
+		-- The Underhold
+			[1595] = 9, -- Malkorok
+			[1594] = 10, -- Spoils of Pandaria
+			[1599] = 11, -- Thok the Bloodthirsty
+			
+		-- Downfall
+			[1601] = 12, -- Siegecrafter Blackfuse
+			[1593] = 13, -- Paragons of Klaxy
+			[1623] = 14, -- Garrosh Hellscream
+	},
+	
 	boss_ids = {
 		-- Vale of Eternal Sorrows
 			[71543]	= 1,	-- Immerseus
@@ -361,7 +384,8 @@ local siege_of_orgrimmar = {
 			boss =	"Norushen",
 			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Norushen]],
 			
-			combat_end = {1, 72276},
+			--combat_end = {1, 72276},
+			encounter_start = {delay = 25},
 			equalize = true,
 			
 			spell_mechanics =	{

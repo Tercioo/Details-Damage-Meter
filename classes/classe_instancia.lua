@@ -788,6 +788,31 @@ end
 			
 		new_instance:ShowSideBars()
 
+		--> apply standard skin if have one saved
+			if (_detalhes.standard_skin) then
+
+				local style = _detalhes.standard_skin
+				local instance = new_instance
+				local skin = style.skin
+				
+				instance.skin = ""
+				instance:ChangeSkin (skin)
+				
+				--> overwrite all instance parameters with saved ones
+				for key, value in pairs (style) do
+					if (key ~= "skin") then
+						if (type (value) == "table") then
+							instance [key] = table_deepcopy (value)
+						else
+							instance [key] = value
+						end
+					end
+				end
+
+				--> apply all changed attributes
+				instance:ChangeSkin()
+			end
+		
 		return new_instance
 	end
 ------------------------------------------------------------------------------------------------------------------------
@@ -916,7 +941,7 @@ function _detalhes:InstanceReset (instance)
 	self:AtualizaSegmentos (self)
 	self:AtualizaSoloMode_AfertReset()
 	self:ResetaGump()
-	_detalhes:AtualizaGumpPrincipal (-1, true) --atualiza todas as instancias
+	_detalhes:AtualizaGumpPrincipal (self, true) --atualiza todas as instancias
 end
 
 function _detalhes:RefreshBars (instance)

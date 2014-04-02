@@ -23,6 +23,30 @@ do
 		return _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].trash_ids
 	end
 	
+	--> return the boss table using a encounter id
+	function _detalhes:GetBossEncounterDetailsFromEncounterId (mapid, encounterid)
+		local bossindex = _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].encounter_ids and _detalhes.EncounterInformation [mapid].encounter_ids [encounterid]
+		if (bossindex) then
+			return _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].encounters [bossindex], bossindex
+		end
+	end
+	
+	--> return the table which contain information about the start of a encounter
+	function _detalhes:GetEncounterStartInfo (mapid, encounterid)
+		local bossindex = _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].encounter_ids and _detalhes.EncounterInformation [mapid].encounter_ids [encounterid]
+		if (bossindex) then
+			return _detalhes.EncounterInformation [mapid].encounters [bossindex] and _detalhes.EncounterInformation [mapid].encounters [bossindex].encounter_start
+		end
+	end
+	
+	--> return the table which contain information about the end of a encounter
+	function _detalhes:GetEncounterEndInfo (mapid, encounterid)
+		local bossindex = _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].encounter_ids and _detalhes.EncounterInformation [mapid].encounter_ids [encounterid]
+		if (bossindex) then
+			return _detalhes.EncounterInformation [mapid].encounters [bossindex] and _detalhes.EncounterInformation [mapid].encounters [bossindex].encounter_end
+		end
+	end
+	
 	--> return the function for the boss
 	function _detalhes:GetEncounterEnd (mapid, bossindex)
 		local t = _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].encounters [bossindex]

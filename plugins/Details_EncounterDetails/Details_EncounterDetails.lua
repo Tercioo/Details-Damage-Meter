@@ -198,6 +198,25 @@ local function CreatePluginFrames (data)
 	
 end
 
+local IsShiftKeyDown = IsShiftKeyDown
+
+local shift_monitor = function (self)
+	if (IsShiftKeyDown()) then
+		local spellname = GetSpellInfo (self.spellid)
+		if (spellname) then
+			GameTooltip:SetOwner (self, "ANCHOR_TOPLEFT")
+			GameTooltip:SetSpellByID (self.spellid)
+			GameTooltip:Show()
+			self.showing_spelldesc = true
+		end
+	else
+		if (self.showing_spelldesc) then
+			self:GetScript ("OnEnter") (self)
+			self.showing_spelldesc = false
+		end
+	end
+end
+
 --> custom tooltip for dead details ---------------------------------------------------------------------------------------------------------
 
 	local function KillInfo (deathTable, row)
@@ -555,21 +574,39 @@ function EncounterDetails:SetRowScripts (barra, index, container)
 			
 			if (self.TTT == "damage_taken") then --> damage taken
 				DamageTakenDetails (self.jogador, barra)
+				
 			elseif (self.TTT == "habilidades_inimigas") then --> enemy abilytes
 				EnemySkills (self.jogador, self)
+				self:SetScript ("OnUpdate", shift_monitor)
+				self.spellid = self.jogador [4]
+				_GameTooltip:AddLine (" ")
+				_GameTooltip:AddLine (Loc ["STRING_HOLDSHIFT"])
+				
 			elseif (self.TTT == "total_interrupt") then
 				KickBy (self.jogador, self)
+				self:SetScript ("OnUpdate", shift_monitor)
+				self.spellid = self.jogador [3]
+				_GameTooltip:AddLine (" ")
+				_GameTooltip:AddLine (Loc ["STRING_HOLDSHIFT"])
+				
 			elseif (self.TTT == "dispell") then
 				DispellInfo (self.jogador, self)
+				self:SetScript ("OnUpdate", shift_monitor)
+				self.spellid = self.jogador [3]
+				_GameTooltip:AddLine (" ")
+				_GameTooltip:AddLine (Loc ["STRING_HOLDSHIFT"])
+				
 			elseif (self.TTT == "morte") then --> deaths
 				KillInfo (self.jogador, self) --> aqui 2
 			end
-			
+
 			GameTooltip:Show()
 		end)
 	
 	barra:SetScript ("OnLeave", --> MOUSE OUT
 		function (self) 
+		
+			self:SetScript ("OnUpdate", nil)
 		
 			if (self.fading_in or self.faded or not self:IsShown() or self.hidden) then
 				return

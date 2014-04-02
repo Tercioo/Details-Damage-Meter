@@ -16,6 +16,17 @@ function _detalhes:LoadInstanceConfig()
 			else
 				self [key] = value
 			end
+			
+		elseif (type (value) == "table") then
+			for key2, value2 in pairs (value) do 
+				if (self [key] [key2] == nil) then
+					if (type (value2) == "table") then
+						self [key] [key2] = table_deepcopy (_detalhes.instance_defaults [key] [key2])
+					else
+						self [key] [key2] = value2
+					end
+				end
+			end
 		end
 	end
 end
@@ -59,12 +70,17 @@ _detalhes.instance_defaults = {
 		menu_anchor = {5, 1},
 	--instance button anchor store the anchor point of instance and delete button
 		instance_button_anchor = {-27, 1},
+	--total bar
+		total_bar = {enabled = false, color = {1, 1, 1}, only_in_group = true, icon = [[Interface\ICONS\INV_Sigil_Thorim]]},
+		
 	--row info
 		row_info = {
 			--if true the texture of the bars will have the color of his actor class
 				texture_class_colors = true,
 			--if texture class color are false, this color will be used
 				fixed_texture_color = {0, 0, 0},
+			--row alpha
+				alpha = 1,
 			--left text class color
 				textL_class_colors = false,
 			--right text class color
@@ -98,7 +114,9 @@ _detalhes.instance_defaults = {
 			--fixed texture color for background texture
 				fixed_texture_background_color = {0, 0, 0, 0},
 			--space between bars
-				space = {left = 3, right = -5, between = 1}
+				space = {left = 3, right = -5, between = 1},
+			--icon file
+				icon_file = [[Interface\AddOns\Details\images\classes_small]],
 				
 		},
 	--instance window color

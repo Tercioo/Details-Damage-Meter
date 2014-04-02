@@ -1728,120 +1728,117 @@ function _detalhes.janela_info:monta_relatorio (botao)
 	return instancia:envia_relatorio (report_lines)
 end
 
+local row_on_enter = function (self)
+	if (info.fading_in or info.faded) then
+		return
+	end
+	
+	self.mouse_over = true
+
+	--> aumenta o tamanho da barra
+	self:SetHeight (17) --> altura determinada pela instância
+	--> poe a barra com alfa 1 ao invés de 0.9
+	self:SetAlpha(1)
+
+	--> troca a cor da barra enquanto o mouse estiver em cima dela
+	self:SetBackdrop({
+		--bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", 
+		edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border", tile = true, tileSize = 16, edgeSize = 10,
+		insets = {left = 1, right = 1, top = 0, bottom = 1},})	
+	self:SetBackdropBorderColor (0.666, 0.666, 0.666)
+	self:SetBackdropColor (0.0941, 0.0941, 0.0941)
+	
+	if (self.isAlvo) then --> monta o tooltip do alvo
+		--> talvez devesse escurecer a janela no fundo... pois o tooltip é transparente e pode confundir
+		GameTooltip:SetOwner (self, "ANCHOR_TOPRIGHT")
+		
+		-- ~erro
+		if (self.spellid == "enemies") then --> damage taken enemies
+			if (not self.minha_tabela or not self.minha_tabela:MontaTooltipDamageTaken (self, self._index)) then  -- > poderia ser aprimerado para uma tailcall
+				return
+			end
+		
+		elseif (not self.minha_tabela or not self.minha_tabela:MontaTooltipAlvos (self, self._index)) then  -- > poderia ser aprimerado para uma tailcall
+			return
+			
+		end
+		GameTooltip:Show()
+		
+	elseif (self.isMain) then
+	
+		if (IsShiftKeyDown()) then
+			if (type (self.show) == "number") then
+				GameTooltip:SetOwner (self, "ANCHOR_TOPRIGHT")
+				GameTooltip:AddLine (Loc ["ABILITY_ID"] .. ": " .. self.show)
+				GameTooltip:Show()	
+			end
+		end
+	
+		--> da zoom no icone
+		self.icone:SetWidth (17)
+		self.icone:SetHeight (17)	
+		--> poe a alfa do icone em 1.0
+		self.icone:SetAlpha (1)
+		
+		--> mostrar temporariamente o conteudo da barra nas caixas de detalhes
+		if (not info.mostrando) then --> não esta mostrando nada na direita
+			info.mostrando = self --> agora o mostrando é igual a esta barra
+			info.mostrando_mouse_over = true --> o conteudo da direta esta sendo mostrado pq o mouse esta passando por cima do bagulho e não pq foi clicado
+			info.showing = self._index --> diz  o index da barra que esta sendo mostrado na direita
+
+			info.jogador.detalhes = self.show --> minha tabela = jogador = jogador.detales = spellid ou nome que esta sendo mostrado na direita
+			info.jogador:MontaDetalhes (self.show, self) --> passa a spellid ou nome e a barra
+		end
+	end
+end
+
+local row_on_leave = function (self)
+	if (self.fading_in or self.faded or not self:IsShown() or self.hidden) then
+		return
+	end
+
+	self.mouse_over = false
+
+	--> diminui o tamanho da barra
+	self:SetHeight (16)
+	--> volta com o alfa antigo da barra que era de 0.9
+	self:SetAlpha(0.9)
+	
+	--> volto o background ao normal
+	self:SetBackdrop({
+		bgFile = "", edgeFile = "", tile = true, tileSize = 16, edgeSize = 32,
+		insets = {left = 1, right = 1, top = 0, bottom = 1},})	
+	self:SetBackdropBorderColor (0, 0, 0, 0)
+	self:SetBackdropColor (0, 0, 0, 0)
+	
+	GameTooltip:Hide() 
+	
+	if (self.isMain) then
+		--> retira o zoom no icone
+		self.icone:SetWidth (14)
+		self.icone:SetHeight (14)
+		--> volta com a alfa antiga da barra
+		self.icone:SetAlpha (0.8)
+		
+		--> remover o conteúdo que estava sendo mostrado na direita
+		if (info.mostrando_mouse_over) then
+			info.mostrando = nil
+			info.mostrando_mouse_over = false
+			info.showing = nil
+			
+			info.jogador.detalhes = nil
+			gump:HidaAllDetalheInfo()
+		end
+	end
+end
+
 local function SetBarraScripts (esta_barra, instancia, i)
 	
-	esta_barra:SetScript ("OnEnter", --> MOUSE OVER
-		function (self) 
+	esta_barra._index = i
 	
-			if (info.fading_in or info.faded) then
-				return
-			end
-			
-			self.mouse_over = true
+	esta_barra:SetScript ("OnEnter", row_on_enter)
+	esta_barra:SetScript ("OnLeave", row_on_leave)
 
-			--> aumenta o tamanho da barra
-			self:SetHeight (17) --> altura determinada pela instância
-			--> poe a barra com alfa 1 ao invés de 0.9
-			self:SetAlpha(1)
-
-			--> troca a cor da barra enquanto o mouse estiver em cima dela
-			self:SetBackdrop({
-				--bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", 
-				edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border", tile = true, tileSize = 16, edgeSize = 10,
-				insets = {left = 1, right = 1, top = 0, bottom = 1},})	
-			self:SetBackdropBorderColor (0.666, 0.666, 0.666)
-			self:SetBackdropColor (0.0941, 0.0941, 0.0941)
-			
-			if (self.isAlvo) then --> monta o tooltip do alvo
-				--> talvez devesse escurecer a janela no fundo... pois o tooltip é transparente e pode confundir
-				GameTooltip:SetOwner (self, "ANCHOR_TOPRIGHT")
-				
-				-- ~erro
-				if (self.spellid == "enemies") then --> damage taken enemies
-					if (not self.minha_tabela or not self.minha_tabela:MontaTooltipDamageTaken (self, i)) then  -- > poderia ser aprimerado para uma tailcall
-						return
-					end
-				
-				elseif (not self.minha_tabela or not self.minha_tabela:MontaTooltipAlvos (self, i)) then  -- > poderia ser aprimerado para uma tailcall
-					return
-					
-				end
-				GameTooltip:Show()
-				
-			elseif (self.isMain) then
-			
-				if (IsShiftKeyDown()) then
-					if (type (self.show) == "number") then
-						GameTooltip:SetOwner (self, "ANCHOR_TOPRIGHT")
-						GameTooltip:AddLine (Loc ["ABILITY_ID"] .. ": " .. self.show)
-						GameTooltip:Show()	
-					end
-				end
-			
-				--> da zoom no icone
-				self.icone:SetWidth (17)
-				self.icone:SetHeight (17)	
-				--> poe a alfa do icone em 1.0
-				self.icone:SetAlpha (1)
-				
-				--> mostrar temporariamente o conteudo da barra nas caixas de detalhes
-				if (not info.mostrando) then --> não esta mostrando nada na direita
-					info.mostrando = self --> agora o mostrando é igual a esta barra
-					info.mostrando_mouse_over = true --> o conteudo da direta esta sendo mostrado pq o mouse esta passando por cima do bagulho e não pq foi clicado
-					info.showing = i --> diz  o index da barra que esta sendo mostrado na direita
-					
-					--self:SetAlpha (1) -- não precisa isso pq ja tem la em cima 
-					--self.minha_tabela.detalhes = self.show --> minha tabela = jogador = jogador.detales = spellid ou nome que esta sendo mostrado na direita
-					info.jogador.detalhes = self.show --> minha tabela = jogador = jogador.detales = spellid ou nome que esta sendo mostrado na direita
-					info.jogador:MontaDetalhes (self.show, self) --> passa a spellid ou nome e a barra
-				end
-			end
-
-		end)
-		
-	esta_barra:SetScript ("OnLeave", --> MOUSE OUT
-		function (self) 
-		
-			if (self.fading_in or self.faded or not self:IsShown() or self.hidden) then
-				return
-			end
-		
-			self.mouse_over = false
-
-			--> diminui o tamanho da barra
-			self:SetHeight (16)
-			--> volta com o alfa antigo da barra que era de 0.9
-			self:SetAlpha(0.9)
-			
-			--> volto o background ao normal
-			self:SetBackdrop({
-				bgFile = "", edgeFile = "", tile = true, tileSize = 16, edgeSize = 32,
-				insets = {left = 1, right = 1, top = 0, bottom = 1},})	
-			self:SetBackdropBorderColor (0, 0, 0, 0)
-			self:SetBackdropColor (0, 0, 0, 0)
-			
-			GameTooltip:Hide() 
-			
-			if (self.isMain) then
-				--> retira o zoom no icone
-				self.icone:SetWidth (14)
-				self.icone:SetHeight (14)
-				--> volta com a alfa antiga da barra
-				self.icone:SetAlpha (0.8)
-				
-				--> remover o conteúdo que estava sendo mostrado na direita
-				if (info.mostrando_mouse_over) then
-					info.mostrando = nil
-					info.mostrando_mouse_over = false
-					info.showing = nil
-					
-					info.jogador.detalhes = nil
-					gump:HidaAllDetalheInfo()
-				end
-			end
-
-		end)
-	
 	esta_barra:SetScript ("OnMouseDown", function (self)
 	
 		if (self.fading_in) then
@@ -1947,6 +1944,26 @@ local function CriaTexturaBarra (instancia, barra)
 	barra.textura:Show()
 end
 
+local miniframe_func_on_enter = function (self)
+	local barra = self:GetParent()
+	if (barra.show and type (barra.show) == "number") then
+		local spellname = GetSpellInfo (barra.show)
+		if (spellname) then
+			GameTooltip:SetOwner (self, "ANCHOR_TOPLEFT")
+			GameTooltip:SetSpellByID (barra.show)
+			GameTooltip:Show()
+		end
+	end
+	
+	barra:GetScript("OnEnter")(barra)
+	
+end
+
+local miniframe_func_on_leave = function (self)
+	GameTooltip:Hide()
+	self:GetParent():GetScript("OnLeave")(self:GetParent())
+end
+
 function gump:CriaNovaBarraInfo1 (instancia, index)
 
 	if (_detalhes.janela_info.barras1 [index]) then
@@ -1974,6 +1991,13 @@ function gump:CriaNovaBarraInfo1 (instancia, index)
 	CriaTexturaBarra (instancia, esta_barra)
 
 	--> icone
+	esta_barra.miniframe = CreateFrame ("frame", nil, esta_barra)
+	esta_barra.miniframe:SetSize (14, 14)
+	esta_barra.miniframe:SetPoint ("RIGHT", esta_barra.textura, "LEFT", 20, 0)
+	
+	esta_barra.miniframe:SetScript ("OnEnter", miniframe_func_on_enter)
+	esta_barra.miniframe:SetScript ("OnLeave", miniframe_func_on_leave)
+	
 	esta_barra.icone = esta_barra.textura:CreateTexture (nil, "OVERLAY")
 	esta_barra.icone:SetWidth (14)
 	esta_barra.icone:SetHeight (14)

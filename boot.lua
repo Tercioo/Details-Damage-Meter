@@ -8,7 +8,7 @@
 		
 		_ = nil
 		_detalhes = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0", "NickTag-1.0")
-		_detalhes.userversion = "v1.11.06"
+		_detalhes.userversion = "v1.11.10"
 		_detalhes.version = "Alpha 016"
 		_detalhes.realversion = 16
 
@@ -63,6 +63,8 @@ do
 			_detalhes.skins = {}
 		--> armazena os hooks das funções do parser
 			_detalhes.hooks = {}
+		--> informações sobre a luta do boss atual
+			_detalhes.encounter_table = {}
 	
 	--> Plugins
 		--> raid -------------------------------------------------------------------

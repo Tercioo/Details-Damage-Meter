@@ -120,6 +120,7 @@ end
 
 	_detalhes_global = _detalhes_global or {}
 	_detalhes_global.savedStyles = _detalhes.savedStyles
+	_detalhes_global.standard_skin = _detalhes.standard_skin
 	_detalhes_global.got_first_run = true
 	--max segments
 	_detalhes_global.segments_amount = _detalhes.segments_amount
@@ -340,7 +341,10 @@ end --]]
 	if (_detalhes_global) then
 		--saved styles
 		--vardump (_detalhes_global.savedStyles)
+		
 		_detalhes.savedStyles = _detalhes_global.savedStyles or _detalhes.savedStyles
+		_detalhes.standard_skin = _detalhes_global.standard_skin
+		
 		if (not _detalhes_global.got_first_run) then
 			_detalhes.is_first_run = true
 		end
@@ -398,7 +402,7 @@ function _detalhes:ApplyConfigDataOnLoad()
 	self.deadlog_limit = self.deadlog_limit or 12
 	self.minimum_combat_time = self.minimum_combat_time or 5
 	self.update_speed = self.update_speed or 1
-	self.time_type = self.time_type or 1
+	self.time_type = self.time_type or 2
 	self.row_fade_in = self.row_fade_in or {"in", 0.2}
 	self.row_fade_out = self.row_fade_out or {"out", 0.2}
 	self.windows_fade_in = self.windows_fade_in or {"in", 0.2}
@@ -467,7 +471,7 @@ function _detalhes:ApplyConfigDataOnLoad()
 		self.trash_concatenate = false
 	end
 	if (type (self.trash_auto_remove) ~= "boolean") then
-		self.trash_auto_remove = false
+		self.trash_auto_remove = true
 	end
 	
 	if (type (self.only_pvp_frags) ~= "boolean") then

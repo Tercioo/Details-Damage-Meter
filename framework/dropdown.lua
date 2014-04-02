@@ -315,6 +315,13 @@ function DropDownMetaFunctions:Selected (_table)
 		else
 			self.icon:SetTexCoord (0, 1, 0, 1)
 		end
+		
+		if (_table.iconcolor) then
+			self.icon:SetVertexColor (unpack (_table.iconcolor))
+		else
+			self.icon:SetVertexColor (1, 1, 1, 1)
+		end
+		
 	else
 		self.label:SetPoint ("left", self.label:GetParent(), "left", 4, 0)
 	end
@@ -464,11 +471,19 @@ function DetailsDropDownOnMouseDown (button)
 					
 					_this_row.icon:SetTexture (_table.icon)
 					if (_table.icon) then
+					
 						_this_row.label:SetPoint ("left", _this_row.icon, "right", 5, 0)
+						
 						if (_table.texcoord) then
 							_this_row.icon:SetTexCoord (unpack (_table.texcoord))
 						else
 							_this_row.icon:SetTexCoord (0, 1, 0, 1)
+						end
+						
+						if (_table.iconcolor) then
+							_this_row.icon:SetVertexColor (unpack (_table.iconcolor))
+						else
+							_this_row.icon:SetVertexColor (1, 1, 1, 1)
 						end
 					else
 						_this_row.label:SetPoint ("left", _this_row.statusbar, "left", 2, 0)

@@ -59,11 +59,16 @@ end
 	
 	local DEFAULT_SKIN = [[Interface\AddOns\Details\images\skins\default_skin]]
 	
-	local COORDS_LEFT_BALL = {0.15673828125, 0.27978515625, 0.08251953125, 0.20556640625} -- 160 84 287 211 (updated)
+	--local COORDS_LEFT_BALL = {0.15673828125, 0.27978515625, 0.08251953125, 0.20556640625} -- 160 84 287 211 (updated)
+	--160 84 287 211
+	local COORDS_LEFT_BALL = {0.15576171875, 0.27978515625, 0.08251953125, 0.20556640625} -- 160 84 287 211 (updated)
+	
 	local COORDS_LEFT_CONNECTOR = {0.29541015625, 0.30126953125, 0.08251953125, 0.20556640625} --302 84 309 211 (updated)
 	local COORDS_LEFT_CONNECTOR_NO_ICON = {0.58837890625, 0.59423828125, 0.08251953125, 0.20556640625} -- 602 84 609 211 (updated)
 	local COORDS_TOP_BACKGROUND = {0.15673828125, 0.65478515625, 0.22314453125, 0.34619140625} -- 160 228 671 355 (updated)
-	local COORDS_RIGHT_BALL = {0.31591796875, 0.43994140625, 0.08251953125, 0.20556640625} --324 84 451 211 (updated)
+	
+	--local COORDS_RIGHT_BALL = {0.31591796875, 0.43994140625, 0.08251953125, 0.20556640625} --324 84 451 211 (updated)
+	local COORDS_RIGHT_BALL = {0.3154296875+0.00048828125, 0.439453125+0.00048828125, 0.08203125, 0.2060546875-0.00048828125} --323 84 450 211 (updated)
 	
 	--local COORDS_LEFT_BALL_NO_ICON = {0.44970703125, 0.57275390625, 0.08251953125, 0.20556640625} --460 84 587 211 (updated)
 	local COORDS_LEFT_BALL_NO_ICON = {0.44970703125, 0.57275390625, 0.08251953125, 0.20556640625} --460 84 587 211 (updated) 588 212
@@ -74,8 +79,8 @@ end
 	--784 2 847 513
 	
 	--local COORDS_RIGHT_SIDE_BAR = {0.70068359375, 0.76220703125, 0.00244140625, 0.50146484375} -- 717 2 781 514 (updated)
-	local COORDS_RIGHT_SIDE_BAR = {0.7001953125, 0.763671875, 0.00244140625, 0.50146484375} -- 717 2 781 514 (updated)
-	--717 2 782 515
+	--local COORDS_RIGHT_SIDE_BAR = {0.7001953125, 0.763671875, 0.00244140625, 0.50146484375} -- 717 2 781 514 (updated)
+	local COORDS_RIGHT_SIDE_BAR = {0.7001953125+0.00048828125, 0.76171875, 0.001953125, 0.5009765625} -- --717 2 780 513
 	
 	local COORDS_BOTTOM_SIDE_BAR = {0.32861328125, 0.82666015625, 0.50537109375, 0.56494140625} -- 336 517 847 579 (updated)
 	
@@ -2080,7 +2085,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 	gump:CriaRodape (baseframe, instancia)
 
 -- left and right side bars ------------------------------------------------------------------------------------------------------------------------------------------------------------
-	-- ~barra
+	-- ~barra ~bordas ~border
 	--> left
 		baseframe.barra_esquerda = baseframe.cabecalho.fechar:CreateTexture (nil, "artwork")
 		baseframe.barra_esquerda:SetTexture (DEFAULT_SKIN)
@@ -2409,7 +2414,17 @@ function _detalhes:SetBarTextSettings (size, font, fixedcolor, leftcolorbyclass,
 	self:InstanceRefreshRows()
 end
 
-function _detalhes:SetBarSettings (height, texture, colorclass, fixedcolor, backgroundtexture, backgroundcolorclass, backgroundfixedcolor)
+function _detalhes:SetBarSettings (height, texture, colorclass, fixedcolor, backgroundtexture, backgroundcolorclass, backgroundfixedcolor, alpha, iconfile)
+	
+	--> icon file
+	if (iconfile) then
+		self.row_info.icon_file = iconfile
+	end
+	
+	--> alpha
+	if (alpha) then
+		self.row_info.alpha = alpha
+	end
 	
 	--> height
 	if (height) then
@@ -2491,7 +2506,10 @@ function _detalhes:InstanceRefreshRows (instancia)
 		end
 		
 		local height = self.row_info.height
-		
+	
+	--alpha
+		local alpha = self.row_info.alpha
+	
 	-- do it
 
 	for _, row in _ipairs (self.barras) do 
@@ -2529,7 +2547,10 @@ function _detalhes:InstanceRefreshRows (instancia)
 		
 		--> texture class color: if true color changes on the fly through class refresh
 		if (not texture_class_color) then
-			row.textura:SetVertexColor (texture_r, texture_g, texture_b)
+			row.textura:SetVertexColor (texture_r, texture_g, texture_b, alpha)
+		else
+			local r, g, b = row.textura:GetVertexColor()
+			row.textura:SetVertexColor (r, g, b, alpha)
 		end
 		
 		--> text class color: if true color changes on the fly through class refresh
@@ -3585,9 +3606,19 @@ function _detalhes:ChangeSkin (skin_name)
 		--> overwrites
 			local overwrite_cprops = this_skin.instance_cprops
 			if (overwrite_cprops) then
-				for cprop, value in _pairs (overwrite_cprops) do
-					self [cprop] = value
+				
+				local copy = table_deepcopy (overwrite_cprops)
+				
+				for cprop, value in _pairs (copy) do
+					if (type (value) == "table") then
+						for cprop2, value2 in _pairs (value) do
+							self [cprop] [cprop2] = value2
+						end
+					else
+						self [cprop] = value
+					end
 				end
+				
 			end
 			
 		--> reset instance button
@@ -3784,6 +3815,7 @@ function _detalhes:ChangeSkin (skin_name)
 	end
 	
 ----------> call widgets handlers	
+		self:SetBarSettings (self.row_info.height)
 	
 	--> refresh instance button
 		self:SetInstanceButtonSettings()
@@ -3819,6 +3851,8 @@ function _detalhes:ChangeSkin (skin_name)
 	--> update wallpaper
 		if (self.wallpaper.enabled) then
 			self:InstanceWallpaper (true)
+		else
+			self:InstanceWallpaper (false)
 		end
 	
 	--> update instance color
@@ -3828,6 +3862,9 @@ function _detalhes:ChangeSkin (skin_name)
 	
 	--> refresh all bars
 		self:InstanceRefreshRows()
+	
+	--> update menu saturation
+		self:DesaturateMenu()
 	
 	--> refresh options panel if opened
 		if (_G.DetailsOptionsWindow and _G.DetailsOptionsWindow:IsShown()) then
@@ -4100,6 +4137,7 @@ function _detalhes:DesaturateMenu (value)
 	end
 
 	if (value) then
+	
 		self.desaturated_menu = true
 		self.baseframe.cabecalho.modo_selecao:GetNormalTexture():SetDesaturated (true)
 		self.baseframe.cabecalho.segmento:GetNormalTexture():SetDesaturated (true)
@@ -4113,6 +4151,7 @@ function _detalhes:DesaturateMenu (value)
 		end
 		
 	else
+	
 		self.desaturated_menu = false
 		self.baseframe.cabecalho.modo_selecao:GetNormalTexture():SetDesaturated (false)
 		self.baseframe.cabecalho.segmento:GetNormalTexture():SetDesaturated (false)
@@ -4139,9 +4178,15 @@ function _detalhes:ShowSideBars (instancia)
 	self.baseframe.barra_direita:Show()
 	
 	--> set default spacings
-	self.row_info.space.left = 3
-	self.row_info.space.right = -5
-	
+	local this_skin = _detalhes.skins [self.skin]
+	if (this_skin.instance_cprops and this_skin.instance_cprops.row_info and this_skin.instance_cprops.row_info.space) then
+		self.row_info.space.left = this_skin.instance_cprops.row_info.space.left
+		self.row_info.space.right = this_skin.instance_cprops.row_info.space.right
+	else
+		self.row_info.space.left = 3
+		self.row_info.space.right = -5
+	end
+
 	if (self.show_statusbar) then
 		self.baseframe.barra_esquerda:SetPoint ("bottomleft", self.baseframe, "bottomleft", -56, -14)
 		self.baseframe.barra_direita:SetPoint ("bottomright", self.baseframe, "bottomright", 56, -14)

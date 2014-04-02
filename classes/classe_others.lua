@@ -362,7 +362,7 @@ function atributo_misc:DeadAtualizarBarra (morte, qual_barra, colocacao, instanc
 		gump:Fade (esta_barra, "out")
 	end
 	esta_barra.textura:SetVertexColor (_unpack (_detalhes.class_colors [morte[4]]))
-	esta_barra.icone_classe:SetTexture ("Interface\\AddOns\\Details\\images\\classes_small")
+	esta_barra.icone_classe:SetTexture (instancia.row_info.icon_file)
 	esta_barra.icone_classe:SetTexCoord (_unpack (CLASS_ICON_TCOORDS [morte[4]]))
 	
 	if (esta_barra.mouse_over and not instancia.baseframe.isMoving) then --> precisa atualizar o tooltip
@@ -777,12 +777,12 @@ function atributo_misc:RefreshBarra (esta_barra, instancia, from_resize)
 		esta_barra.icone_classe:SetVertexColor (1, 1, 1)
 	
 	elseif (self.classe == "PET") then
-		esta_barra.icone_classe:SetTexture ("Interface\\AddOns\\Details\\images\\classes_small")
+		esta_barra.icone_classe:SetTexture (instancia.row_info.icon_file)
 		esta_barra.icone_classe:SetTexCoord (0.25, 0.49609375, 0.75, 1)
 		esta_barra.icone_classe:SetVertexColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
 
 	else
-		esta_barra.icone_classe:SetTexture ("Interface\\AddOns\\Details\\images\\classes_small")
+		esta_barra.icone_classe:SetTexture (instancia.row_info.icon_file)
 		esta_barra.icone_classe:SetTexCoord (_unpack (CLASS_ICON_TCOORDS [self.classe])) --very slow method
 		esta_barra.icone_classe:SetVertexColor (1, 1, 1)
 	end
