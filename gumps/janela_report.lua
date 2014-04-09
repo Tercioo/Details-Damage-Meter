@@ -202,28 +202,86 @@ local _UISpecialFrames = UISpecialFrames --> wow api locals
 
 --> dropdown menus
 
-	local function cria_drop_down (este_gump)
+local function cria_drop_down (este_gump)
 
-		local selecionar = _CreateFrame ("Button", "Details_Report_DropDown", este_gump, "UIDropDownMenuTemplate")
-		este_gump.select = selecionar
-		
-		selecionar:SetPoint ("topleft", este_gump, "topleft", 93, -53)
+		--local selecionar = _CreateFrame ("Button", "Details_Report_DropDown", este_gump, "UIDropDownMenuTemplate")
+		--este_gump.select = selecionar
+		--selecionar:SetPoint ("topleft", este_gump, "topleft", 93, -53)
 
-		local function OnClick (self)
-			_UIDropDownMenu_SetSelectedID (selecionar, self:GetID())
-			_detalhes.report_where = self.value
+		--local function OnClick (self)
+		--	_UIDropDownMenu_SetSelectedID (selecionar, self:GetID())
+		--	_detalhes.report_where = self.value
+		--end
+
+--[[
+Emote: 255 251 255
+Yell: 255 63 64
+Guild Chat: 64 251 64
+Officer Chat: 64 189 64
+Achievement: 255 251 0
+Whisper: 255 126 255
+RealID: 0 251 246
+Party: 170 167 255
+Party Lead: 118 197 255
+Raid: 255 125 0
+Raid Warning: 255 71 0
+Raid Lead: 255 71 9
+BG Leader: 255 216 183
+General/Trade: 255 189 192
+--]]
+
+local iconsize = {16, 16}
+
+local lista = {
+{Loc ["STRING_REPORTFRAME_PARTY"], "PARTY", function() return GetNumSubgroupMembers() > 0 end, {iconsize = iconsize, icon = [[Interface\FriendsFrame\UI-Toast-ToastIcons]], coords = {0.53125, 0.7265625, 0.078125, 0.40625}, color = {0.66, 0.65, 1}}},
+{Loc ["STRING_REPORTFRAME_RAID"], "RAID", _IsInRaid, {iconsize = iconsize, icon = [[Interface\FriendsFrame\UI-Toast-ToastIcons]], coords = {0.53125, 0.7265625, 0.078125, 0.40625}, color = {1, 0.49, 0}}}, 
+{Loc ["STRING_REPORTFRAME_GUILD"], "GUILD", _IsInGuild, {iconsize = iconsize, icon = [[Interface\FriendsFrame\UI-Toast-ToastIcons]], coords = {0.8046875, 0.96875, 0.125, 0.390625}, color = {0.25, 0.98, 0.25}}}, 
+{Loc ["STRING_REPORTFRAME_OFFICERS"], "OFFICER", _IsInGuild, {iconsize = iconsize, icon = [[Interface\FriendsFrame\UI-Toast-ToastIcons]], coords = {0.8046875, 0.96875, 0.125, 0.390625}, color = {0.25, 0.74, 0.25}}}, 
+{Loc ["STRING_REPORTFRAME_WHISPER"], "WHISPER", nil, {iconsize = iconsize, icon = [[Interface\FriendsFrame\UI-Toast-ToastIcons]], coords = {0.0546875, 0.1953125, 0.625, 0.890625}, color = {1, 0.49, 1}}}, 
+{Loc ["STRING_REPORTFRAME_WHISPERTARGET"], "WHISPER2", nil, {iconsize = iconsize, icon = [[Interface\FriendsFrame\UI-Toast-ToastIcons]], coords = {0.0546875, 0.1953125, 0.625, 0.890625}, color = {1, 0.49, 1}}}, 
+{Loc ["STRING_REPORTFRAME_SAY"], "SAY", nil, {iconsize = iconsize, icon = [[Interface\FriendsFrame\UI-Toast-ToastIcons]], coords = {0.0390625, 0.203125, 0.09375, 0.375}, color = {1, 1, 1}}},
+{Loc ["STRING_REPORTFRAME_COPY"], "COPY", nil, {iconsize = iconsize, icon = [[Interface\Buttons\UI-GuildButton-PublicNote-Disabled]], coords = {0, 1, 0, 1}, color = {1, 1, 1}}},
+}
+
+		local on_click = function (self, fixedParam, selectedOutput)
+			_detalhes.report_where = selectedOutput
 		end
+	
+		local build_list = function()
 		
-		local lista = {
-			{Loc ["STRING_REPORTFRAME_PARTY"], "PARTY", function() return GetNumSubgroupMembers() > 0 end},
-			{Loc ["STRING_REPORTFRAME_RAID"], "RAID", _IsInRaid}, 
-			{Loc ["STRING_REPORTFRAME_GUILD"], "GUILD", _IsInGuild}, 
-			{Loc ["STRING_REPORTFRAME_OFFICERS"], "OFFICER", _IsInGuild}, 
-			{Loc ["STRING_REPORTFRAME_WHISPER"], "WHISPER"}, 
-			{Loc ["STRING_REPORTFRAME_WHISPERTARGET"], "WHISPER2"}, 
-			{Loc ["STRING_REPORTFRAME_SAY"], "SAY"},
-			{Loc ["STRING_REPORTFRAME_COPY"], "COPY"},
-		}
+			local output_array = {}
+		
+			for index, case in ipairs (lista) do 
+				if (not case [3] or case [3]()) then
+					output_array [#output_array + 1] = {iconsize = case [4].iconsize, value = case [2], label = case [1], onclick = on_click, icon = case [4].icon, texcoord = case [4].coords, iconcolor = case [4].color}
+				end
+			end
+			
+			local channels = {_GetChannelList()} --> coloca o resultado em uma tabela .. {id1, canal1, id2, canal2}
+			for i = 1, #channels, 2 do --> total de canais
+			
+				output_array [#output_array + 1] = {iconsize = iconsize, value = "CHANNEL|"..channels [i+1], label = channels [i]..". "..channels [i+1], onclick = on_click, icon = [[Interface\FriendsFrame\UI-Toast-ToastIcons]], texcoord = {0.3046875, 0.4453125, 0.109375, 0.390625}, iconcolor = {149/255, 112/255, 112/255}}
+			
+				--lista [#lista+1] = {channels [i]..". "..channels [i+1], "CHANNEL|"..channels [i+1]}
+			end
+			
+			local bnet_friends = {}
+			
+			local BnetFriends = BNGetNumFriends()
+			for i = 1, BnetFriends do 
+				local presenceID, presenceName, battleTag, isBattleTagPresence, toonName, toonID, client, isOnline, lastOnline, isAFK, isDND, messageText, noteText, isRIDFriend, broadcastTime, canSoR = BNGetFriendInfo (i)
+				if (isOnline) then
+					output_array [#output_array + 1] = {iconsize = iconsize, value = "REALID|" .. presenceID, label = presenceName, onclick = on_click, icon = [[Interface\FriendsFrame\Battlenet-Battleneticon]], texcoord = {0.125, 0.875, 0.125, 0.875}, iconcolor = {1, 1, 1}}
+				end
+			end
+
+			return output_array
+		end
+	
+		local select_output = gump:NewDropDown (este_gump, _, "$parentOutputDropdown", "select", 185, 20, build_list, 1)
+		select_output:SetPoint ("topleft", este_gump, "topleft", 107, -55)
+		este_gump.select = select_output.widget
+		
 		
 		local function initialize (self, level)
 			local info = _UIDropDownMenu_CreateInfo()
@@ -236,6 +294,16 @@ local _UISpecialFrames = UISpecialFrames --> wow api locals
 			for i = 1, #channels, 2 do --> total de canais
 				lista [#lista+1] = {channels [i]..". "..channels [i+1], "CHANNEL|"..channels [i+1]}
 			end
+			
+			local BnetFriends = BNGetNumFriends()
+			for i = 1, BnetFriends do 
+				local presenceID, presenceName, battleTag, isBattleTagPresence, toonName, toonID, client, isOnline, lastOnline, isAFK, isDND, messageText, noteText, isRIDFriend, broadcastTime, canSoR = BNGetFriendInfo (i)
+				if (isOnline) then
+					lista [#lista+1] = {presenceName, "REALID|" .. presenceID, nil, [[Interface\FriendsFrame\Battlenet-Battleneticon]]}
+				end
+			end
+			
+			--BNSendWhisper
 
 			for index, v in _pairs (lista) do
 			
@@ -243,18 +311,19 @@ local _UISpecialFrames = UISpecialFrames --> wow api locals
 					info = _UIDropDownMenu_CreateInfo()
 					info.text = v[1]
 					info.value = v[2]
+					
+					if (v[4]) then
+						info.icon = v[4]
+					end
+					
 					info.func = OnClick
 					_UIDropDownMenu_AddButton (info, level)
 				end
 			end
 		end
 
-		_UIDropDownMenu_Initialize (selecionar, initialize)
-		_UIDropDownMenu_SetWidth (selecionar, 165)
-		_UIDropDownMenu_SetButtonWidth (selecionar, 120)
-		_UIDropDownMenu_SetSelectedValue (selecionar, "WHISPER")
 		_detalhes.report_where = "WHISPER"
-		_UIDropDownMenu_JustifyText (selecionar, "LEFT")
+
 	end
 
 --> slider
@@ -331,7 +400,7 @@ local _UISpecialFrames = UISpecialFrames --> wow api locals
 		este_gump.wisp_who:SetText (Loc ["STRING_REPORTFRAME_WHISPER"] .. ":")
 		este_gump.wisp_who:SetTextColor (1, 1, 1, 1)
 		
-		este_gump.wisp_who:SetPoint ("topleft", este_gump.select, "topleft", 28, -30)
+		este_gump.wisp_who:SetPoint ("topleft", este_gump.select, "topleft", 14, -30)
 		
 		_detalhes:SetFontSize (este_gump.wisp_who, 10)
 
@@ -342,7 +411,7 @@ local _UISpecialFrames = UISpecialFrames --> wow api locals
 		editbox:SetAutoFocus (false)
 		editbox:SetFontObject ("GameFontHighlightSmall")
 		
-		editbox:SetPoint ("TOPLEFT", este_gump.select, "TOPLEFT", 78, -28)
+		editbox:SetPoint ("TOPLEFT", este_gump.select, "TOPLEFT", 64, -28)
 		
 		editbox:SetHeight (14)
 		editbox:SetWidth (120)

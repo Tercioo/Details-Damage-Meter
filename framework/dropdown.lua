@@ -293,6 +293,7 @@ function DropDownMetaFunctions:Select (optionName, byOptionNumber)
 	local menu = self.func()
 	
 	if (byOptionNumber and type (optionName) == "number") then
+		--print ("selected", optionName)
 		return self:Selected (menu [optionName])
 	end
 	
@@ -487,6 +488,12 @@ function DetailsDropDownOnMouseDown (button)
 						end
 					else
 						_this_row.label:SetPoint ("left", _this_row.statusbar, "left", 2, 0)
+					end
+					
+					if (_table.iconsize) then
+						_this_row.icon:SetSize (_table.iconsize[1], _table.iconsize[2])
+					else
+						_this_row.icon:SetSize (20, 20)
 					end
 					
 					if (_table.font) then

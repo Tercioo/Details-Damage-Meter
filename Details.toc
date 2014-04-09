@@ -14,6 +14,7 @@ locales\Details-enUS.lua
 boot.lua
 core\util.lua
 
+functions\profiles.lua
 functions\hooks.lua
 functions\skins.lua
 functions\boss.lua
@@ -95,5 +96,7 @@ core\meta.lua
 core\network.lua
 
 core\parser.lua
+
+functions\loaddata.lua
 
 startup.lua

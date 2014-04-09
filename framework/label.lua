@@ -246,6 +246,8 @@ function gump:NewLabel (parent, container, name, member, text, font, size, color
 	LabelObject.label = parent:CreateFontString (name, "OVERLAY", font)
 	LabelObject.widget = LabelObject.label
 	
+	LabelObject.label.MyObject = LabelObject
+	
 	if (not APILabelFunctions) then
 		APILabelFunctions = true
 		local idx = getmetatable (LabelObject.label).__index

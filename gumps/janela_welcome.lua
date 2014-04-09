@@ -319,7 +319,7 @@ function _detalhes:OpenWelcomeWindow ()
 		if (_detalhes.time_type == 1) then --> chronometer
 			chronometer:SetChecked (true)
 			continuous:SetChecked (false)
-		elseif (_detalhes.time_type == 1) then --> continuous
+		elseif (_detalhes.time_type == 2) then --> continuous
 			chronometer:SetChecked (false)
 			continuous:SetChecked (true)
 		end
@@ -700,6 +700,8 @@ function _detalhes:OpenWelcomeWindow ()
 			local skin_label = g:NewLabel (window, _, "$parentSkinLabel", "skinLabel", Loc ["STRING_OPTIONS_INSTANCE_SKIN"])
 			skin_dropdown:SetPoint ("left", skin_label, "right", 2)
 			skin_label:SetPoint ("topleft", window, "topleft", 30, -140)
+			
+			skin_dropdown:Select ("Default Skin")
 			
 		--wallpapper
 			--> agora cria os 2 dropdown da categoria e wallpaper

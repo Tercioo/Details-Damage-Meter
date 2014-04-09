@@ -36,6 +36,10 @@ local sub_atributos = _detalhes.sub_atributos
 local segmentos = _detalhes.segmentos
 
 --> STARTUP reativa as instancias e regenera as tabelas das mesmas
+	function _detalhes:RestartInstances()
+		return _detalhes:ReativarInstancias()
+	end
+	
 	function _detalhes:ReativarInstancias()
 		_detalhes.opened_windows = 0
 		for index = #_detalhes.tabela_instancias, 1, -1 do 
@@ -151,6 +155,10 @@ end
 
 
 ------------------------------------------------------------------------------------------------------------------------
+
+	function _detalhes:ShutDown()
+		return self:DesativarInstancia()
+	end
 
 --> desativando a instância ela fica em stand by e apenas hida a janela
 	function _detalhes:DesativarInstancia()
@@ -320,16 +328,22 @@ end
 ------------------------------------------------------------------------------------------------------------------------
 
 --> cria uma nova instância e a joga para o container de instâncias
+
+	function _detalhes:CreateInstance (id)
+		return _detalhes:CriarInstancia (_, id)
+	end
+
 	function _detalhes:CriarInstancia (_, id)
 
 		if (id and _type (id) == "boolean") then
 			
 			if (#_detalhes.tabela_instancias >= _detalhes.instances_amount) then
-				return _detalhes:Msg (Loc ["STRING_INSTANCE_LIMIT"])
+				_detalhes:Msg (Loc ["STRING_INSTANCE_LIMIT"])
+				return false
 			end
 			
 			local new_instance = _detalhes:NovaInstancia (#_detalhes.tabela_instancias+1)
-			_detalhes.tabela_instancias [#_detalhes.tabela_instancias+1] = new_instance
+			
 			return new_instance
 			
 		elseif (id) then
@@ -353,7 +367,6 @@ end
 		end
 		
 		local new_instance = _detalhes:NovaInstancia (#_detalhes.tabela_instancias+1)
-		_detalhes.tabela_instancias [#_detalhes.tabela_instancias+1] = new_instance
 		
 		if (not _detalhes.initializing) then
 			_detalhes:SendEvent ("DETAILS_INSTANCE_OPEN", nil, new_instance)
@@ -700,7 +713,8 @@ end
 
 		local new_instance = {}
 		_setmetatable (new_instance, _detalhes)
-
+		_detalhes.tabela_instancias [#_detalhes.tabela_instancias+1] = new_instance
+		
 		--> instance number
 			new_instance.meu_id = ID
 		
@@ -788,6 +802,8 @@ end
 			
 		new_instance:ShowSideBars()
 
+		--local skin =  fazer aqui o esquema de resgatar a skin salva no profile.
+		
 		--> apply standard skin if have one saved
 			if (_detalhes.standard_skin) then
 
@@ -818,7 +834,7 @@ end
 ------------------------------------------------------------------------------------------------------------------------
 
 --> ao reiniciar o addon esta função é rodada para recriar a janela da instância
---> search key: ~restaura ~inicio
+--> search key: ~restaura ~inicio ~start
 function _detalhes:RestauraJanela (index, temp)
 		
 	--> load
@@ -845,13 +861,26 @@ function _detalhes:RestauraJanela (index, temp)
 		self.row_height = self.row_info.height + self.row_info.space.between
 		
 	--> create frames
-		local _baseframe, _bgframe, _bgframe_display, _scrollframe = gump:CriaJanelaPrincipal (self.meu_id, self)
-		self.baseframe = _baseframe
-		self.bgframe = _bgframe
-		self.bgdisplay = _bgframe_display
-		self.scroll = _scrollframe		
-		_baseframe:EnableMouseWheel (false)
-		self.alturaAntiga = _baseframe:GetHeight()
+		local instance_baseframe = _G ["DetailsBaseFrame" .. self.meu_id]
+		if (instance_baseframe) then
+			local _baseframe, _bgframe, _bgframe_display, _scrollframe = instance_baseframe, _G ["Details_WindowFrame" .. self.meu_id], _G ["Details_GumpFrame" .. self.meu_id], _G ["Details_ScrollBar" .. self.meu_id]
+			self.baseframe = _baseframe
+			self.bgframe = _bgframe
+			self.bgdisplay = _bgframe_display
+			self.scroll = _scrollframe		
+			_baseframe:EnableMouseWheel (false)
+			self.alturaAntiga = _baseframe:GetHeight()
+		else
+			local _baseframe, _bgframe, _bgframe_display, _scrollframe = gump:CriaJanelaPrincipal (self.meu_id, self)
+			self.baseframe = _baseframe
+			self.bgframe = _bgframe
+			self.bgdisplay = _bgframe_display
+			self.scroll = _scrollframe		
+			_baseframe:EnableMouseWheel (false)
+			self.alturaAntiga = _baseframe:GetHeight()
+		end
+	
+
 		
 	--> change the attribute
 		_detalhes:TrocaTabela (self, self.segmento, self.atributo, self.sub_atributo, true) --> passando true no 5º valor para a função ignorar a checagem de valores iguais
@@ -929,6 +958,52 @@ function _detalhes:RestauraJanela (index, temp)
 		
 	--> all done
 	
+end
+
+function _detalhes:ExportSkin()
+
+	local exported = {
+		version = _detalhes.preset_version --skin version
+	}
+
+	for key, value in pairs (self) do
+		if (_detalhes.instance_defaults [key]) then	
+			if (type (value) == "table") then
+				exported [key] = table_deepcopy (value)
+			else
+				exported [key] = value
+			end
+		end
+	end
+
+	return exported
+	
+end
+
+function _detalhes:ApplySavedSkin (style)
+
+	if (not style.version or _detalhes.preset_version > style.version) then
+		return _detalhes:Msg (Loc ["STRING_OPTIONS_PRESETTOOLD"])
+	end
+	
+	--> set skin preset
+	local skin = style.skin
+	self.skin = ""
+	self:ChangeSkin (skin)
+	
+	--> overwrite all instance parameters with saved ones
+	for key, value in pairs (style) do
+		if (key ~= "skin") then
+			if (type (value) == "table") then
+				self [key] = table_deepcopy (value)
+			else
+				self [key] = value
+			end
+		end
+	end
+	
+	--> apply all changed attributes
+	self:ChangeSkin()
 end
 
 ------------------------------------------------------------------------------------------------------------------------
@@ -1502,15 +1577,17 @@ function _detalhes:ChangeIcon (icon)
 
 		if (self.atributo == 5) then 
 			--> custom
-			local icon = _detalhes.custom [self.sub_atributo].icon
-			self.baseframe.cabecalho.atributo_icon:SetTexture (icon)
-			self.baseframe.cabecalho.atributo_icon:SetTexCoord (5/64, 60/64, 3/64, 62/64)
-			
-			local icon_size = skin.icon_plugins_size
-			self.baseframe.cabecalho.atributo_icon:SetWidth (icon_size[1])
-			self.baseframe.cabecalho.atributo_icon:SetHeight (icon_size[2])
-			local icon_anchor = skin.icon_anchor_plugins
-			self.baseframe.cabecalho.atributo_icon:SetPoint ("TOPRIGHT", self.baseframe.cabecalho.ball_point, "TOPRIGHT", icon_anchor[1], icon_anchor[2])
+			if (_detalhes.custom [self.sub_atributo]) then
+				local icon = _detalhes.custom [self.sub_atributo].icon
+				self.baseframe.cabecalho.atributo_icon:SetTexture (icon)
+				self.baseframe.cabecalho.atributo_icon:SetTexCoord (5/64, 60/64, 3/64, 62/64)
+				
+				local icon_size = skin.icon_plugins_size
+				self.baseframe.cabecalho.atributo_icon:SetWidth (icon_size[1])
+				self.baseframe.cabecalho.atributo_icon:SetHeight (icon_size[2])
+				local icon_anchor = skin.icon_anchor_plugins
+				self.baseframe.cabecalho.atributo_icon:SetPoint ("TOPRIGHT", self.baseframe.cabecalho.ball_point, "TOPRIGHT", icon_anchor[1], icon_anchor[2])
+			end
 		else
 			--> normal
 			local half = 0.00048828125
@@ -1786,11 +1863,18 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 					total, keyName, first = _detalhes.atributo_misc:RefreshWindow (self, self.showing, true, true)
 				end
 			elseif (atributo == 5) then --> custom
-				total, keyName, first = _detalhes.atributo_custom:RefreshWindow (self, self.showing, true, {key = "custom"})
-				total = self.showing.totals [self.customName]
-				atributo = _detalhes.custom [self.sub_atributo].attribute
-				container = self.showing [atributo]._ActorTable
-				
+			
+				if (_detalhes.custom [self.sub_atributo]) then
+					total, keyName, first = _detalhes.atributo_custom:RefreshWindow (self, self.showing, true, {key = "custom"})
+					total = self.showing.totals [self.customName]
+					atributo = _detalhes.custom [self.sub_atributo].attribute
+					container = self.showing [atributo]._ActorTable
+				else
+					total, keyName, first = _detalhes.atributo_damage:RefreshWindow (self, self.showing, true, true)
+					total = 1
+					atributo = 1
+					container = self.showing [atributo]._ActorTable
+				end
 				--print (total, keyName, first, atributo)
 			end
 			
@@ -2058,7 +2142,9 @@ function _detalhes:envia_relatorio (linhas, custom)
 	end
 	
 	local to_who = _detalhes.report_where
-	local channel = to_who:find ("|")
+	
+	local channel = to_who:find ("CHANNEL")
+	local is_btag = to_who:find ("REALID")
 	
 	if (channel) then
 		
@@ -2066,6 +2152,17 @@ function _detalhes:envia_relatorio (linhas, custom)
 
 		for i = 1, #linhas do 
 			_SendChatMessage (linhas[i], "CHANNEL", nil, _GetChannelName (channel))
+		end
+		
+		return
+		
+	elseif (is_btag) then
+	
+		local id = to_who:gsub ((".*|"), "")
+		local presenceID = tonumber (id)
+		
+		for i = 1, #linhas do 
+			BNSendWhisper (presenceID, linhas[i])
 		end
 		
 		return

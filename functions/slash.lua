@@ -69,8 +69,14 @@ function SlashCmdList.DETAILS (msg, editbox)
 			end
 		else
 			local lower_instance = _detalhes:GetLowerInstanceNumber()
-			print (_detalhes:GetInstance (lower_instance))
-			_detalhes:OpenOptionsWindow (_detalhes:GetInstance (lower_instance))
+			if (not lower_instance) then
+				local instance = _detalhes:GetInstance (1)
+				_detalhes.CriarInstancia (_, _, 1)
+				_detalhes:OpenOptionsWindow (instance)
+			else
+				_detalhes:OpenOptionsWindow (_detalhes:GetInstance (lower_instance))
+			end
+			
 		end
 	
 	elseif (command == Loc ["STRING_SLASH_WORLDBOSS"]) then
@@ -418,6 +424,14 @@ function SlashCmdList.DETAILS (msg, editbox)
 				end
 			end
 		end
+		
+	elseif (command == "profile") then
+	
+		local profile = rest:match("^(%S*)%s*(.-)$")
+		
+		print ("Force apply profile: ", profile)
+		
+		_detalhes:ApplyProfile (profile, false)
 	
 	elseif (msg == "users") then
 		_detalhes.users = {}

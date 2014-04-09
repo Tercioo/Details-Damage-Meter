@@ -11,56 +11,9 @@ function _G._detalhes:Start()
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> details defaults
-	_detalhes.debug = false
-	local _
-	--> who is
-		self.playername = UnitName ("player")
-		self.playerserial = UnitGUID ("player")
-		
-		--> player faction and enemy faction
-		self.faction = UnitFactionGroup ("player")
-		if (self.faction == PLAYER_FACTION_GROUP[0]) then --> player is horde
-			self.faction_against = PLAYER_FACTION_GROUP[1] --> ally
-		elseif (self.faction == PLAYER_FACTION_GROUP[1]) then --> player is alliance
-			self.faction_against = PLAYER_FACTION_GROUP[0] --> horde
-		end
-		
-		self.zone_type = nil
-		_detalhes.temp_table1 = {}
-		
-	--> combat
-		self.encounter = {}
-		self.in_combat = false
-		self.combat_id = self.combat_id or 0
-
-	--> instances (windows)
-		self.solo = self.solo or nil 
-		self.raid = self.raid or nil 
-		self.opened_windows = 0
-		
-		self.default_texture = [[Interface\AddOns\Details\images\bar4]]
-		self.default_texture_name = "Details D'ictum"
-
-		self.tooltip_max_targets = 3
-		self.tooltip_max_abilities = 3
-		self.tooltip_max_pets = 1
-
-		self.class_coords_version = 1
-		self.class_colors_version = 1
-		
-		self.school_colors = {
-			[1] = {1.00, 1.00, 0.00},
-			[2] = {1.00, 0.90, 0.50},
-			[4] = {1.00, 0.50, 0.00},
-			[8] = {0.30, 1.00, 0.30},
-			[16] = {0.50, 1.00, 1.00},
-			[32] = {0.50, 0.50, 1.00},
-			[64] = {1.00, 0.50, 1.00},
-			["unknown"] = {0.5, 0.75, 0.75, 1}
-		}
 	
 	--> parse all config
-		_detalhes:ApplyConfigDataOnLoad()
+		--_detalhes:CountDataOnLoad()
 
 	--> single click row function replace
 		--damage, dps, damage taken, friendly fire
@@ -76,8 +29,7 @@ function _G._detalhes:Start()
 --> initialize
 
 	--> build frames
-		--> cooltip
-			self.popup = DetailsCreateCoolTip()
+
 		--> fast switch
 			if (self.switch.InitSwitch) then
 				self.switch:InitSwitch()
@@ -123,7 +75,7 @@ function _G._detalhes:Start()
 		if (self:QuantasInstancias() == 0) then
 			self:CriarInstancia()
 		else
-			self:ReativarInstancias()
+			--self:ReativarInstancias()
 		end
 		self:GetLowerInstanceNumber()
 		self:CheckConsolidates()
@@ -242,15 +194,17 @@ function _G._detalhes:Start()
 	function self:AnnounceVersion()
 		for index, instancia in ipairs (self.tabela_instancias) do
 			if (instancia.ativa) then
-				self.gump:Fade (instancia._version, "in", 5)
+				self.gump:Fade (instancia._version, "in", 0.1)
 			end
 		end
 	end
 
+	--[[
 	if (self.tutorial.version_announce < 4) then
 		self:ScheduleTimer ("AnnounceVersion", 20)
 		self.tutorial.version_announce = self.tutorial.version_announce + 1
 	else
+
 		for index, instancia in ipairs (self.tabela_instancias) do
 			if (instancia.ativa) then
 				self.gump:Fade (instancia._version, 0)
@@ -264,6 +218,7 @@ function _G._detalhes:Start()
 			end
 		end
 	end
+	--]]
 	
 	if (self.is_first_run) then
 	
@@ -296,13 +251,16 @@ function _G._detalhes:Start()
 	
 	--_detalhes:OpenWelcomeWindow()
 	
+	--desligado por preocaução
 	if (self.tutorial.logons < 2) then
-		self:StartTutorial()
+		--self:StartTutorial()
 	end
 	
 	--> feedback trhead
-	if (self.tutorial.logons > 100) then --  and self.tutorial.logons < 104
+	if (self.tutorial.logons > 100 and false) then --  and self.tutorial.logons < 104
 	
+		--desligado por preocaução
+
 		if (not self.tutorial.feedback_window1) then
 			self.tutorial.feedback_window1 = true
 		
@@ -407,6 +365,7 @@ function _G._detalhes:Start()
 	local LDBIcon = LDB and LibStub ("LibDBIcon-1.0", true)
 	
 	if LDB then
+
 		local minimapIcon = LDB:NewDataObject ("Details!", {
 			type = "data source",
 			icon = [[Interface\AddOns\Details\images\minimap]],
@@ -414,8 +373,15 @@ function _G._detalhes:Start()
 			OnClick = function (self, button)
 			
 				if (button == "LeftButton") then
+				
 					local lower_instance = _detalhes:GetLowerInstanceNumber()
-					_detalhes:OpenOptionsWindow (_detalhes:GetInstance (lower_instance))
+					if (not lower_instance) then
+						local instance = _detalhes:GetInstance (1)
+						_detalhes.CriarInstancia (_, _, 1)
+						_detalhes:OpenOptionsWindow (instance)
+					else
+						_detalhes:OpenOptionsWindow (_detalhes:GetInstance (lower_instance))
+					end
 					
 				elseif (button == "RightButton") then
 				
@@ -484,6 +450,7 @@ function _G._detalhes:Start()
 		
 		if (minimapIcon and not LDBIcon:IsRegistered ("Details!")) then
 			LDBIcon:Register ("Details!", minimapIcon, self.minimap)
+
 		end
 		
 	end
@@ -670,6 +637,46 @@ function _G._detalhes:Start()
 	f:Hide()
 	
 
+	local lower = _detalhes:GetLowerInstanceNumber()
+	if (lower) then
+		local instance = _detalhes:GetInstance (lower)
+		if (instance) then
+
+			--in development
+			local dev_icon = instance.bgdisplay:CreateTexture (nil, "overlay")
+			dev_icon:SetWidth (40)
+			dev_icon:SetHeight (40)
+			dev_icon:SetPoint ("bottomleft", instance.baseframe, "bottomleft", 4, 8)
+			dev_icon:SetTexture ([[Interface\DialogFrame\UI-Dialog-Icon-AlertOther]])
+			dev_icon:SetAlpha (.3)
+			
+			local dev_text = instance.bgdisplay:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+			dev_text:SetHeight (64)
+			dev_text:SetPoint ("left", dev_icon, "right", 5, 0)
+			dev_text:SetTextColor (1, 1, 1)
+			dev_text:SetText ("Details is Under\nDevelopment")
+			dev_text:SetAlpha (.3)
+		
+			--version
+			self.gump:Fade (instance._version, 0)
+			instance._version:SetText ("Details! Alpha " .. _detalhes.userversion .. " (core: " .. self.realversion .. ")")
+			instance._version:SetPoint ("bottomleft", instance.baseframe, "bottomleft", 5, 1)
+
+			if (instance.auto_switch_to_old) then
+				instance:SwitchBack()
+			end
+			
+			function _detalhes:FadeStartVersion()
+				_detalhes.gump:Fade (dev_icon, "in", 2)
+				_detalhes.gump:Fade (dev_text, "in", 2)
+				self.gump:Fade (instance._version, "in", 2)
+			end
+			
+			_detalhes:ScheduleTimer ("FadeStartVersion", 7)
+			
+		end
+	end
+	
 	
 end
 

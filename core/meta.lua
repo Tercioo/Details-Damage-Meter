@@ -560,6 +560,50 @@
 			end
 
 		end
+	
+	function _detalhes:ClearInstances()
+		for _, esta_instancia in _ipairs (_detalhes.tabela_instancias) do
+			--> detona a janela do Solo Mode
+
+			if (esta_instancia.StatusBar.left) then
+				esta_instancia.StatusBarSaved = {
+					["left"] = esta_instancia.StatusBar.left.real_name or "NONE",
+					["center"] = esta_instancia.StatusBar.center.real_name or "NONE",
+					["right"] = esta_instancia.StatusBar.right.real_name or "NONE",
+					["options"] = esta_instancia.StatusBar.options
+				}
+			end
+
+			--> erase all widgets frames
+			
+			esta_instancia.scroll = nil
+			esta_instancia.baseframe = nil
+			esta_instancia.bgframe = nil
+			esta_instancia.bgdisplay = nil
+			esta_instancia.freeze_icon = nil
+			esta_instancia.freeze_texto = nil
+			esta_instancia.barras = nil
+			esta_instancia.showing = nil
+			esta_instancia.agrupada_a = nil
+			esta_instancia.grupada_pos = nil
+			esta_instancia.agrupado = nil
+			esta_instancia._version = nil
+			
+			esta_instancia.h_baixo = nil
+			esta_instancia.h_esquerda = nil
+			esta_instancia.h_direita = nil
+			esta_instancia.h_cima = nil
+			esta_instancia.botao_separar = nil
+			esta_instancia.alert = nil
+			
+			esta_instancia.StatusBar = nil
+			esta_instancia.consolidateFrame = nil
+			esta_instancia.consolidateButtonTexture = nil
+			esta_instancia.consolidateButton = nil
+			esta_instancia.lastIcon = nil
+
+		end
+	end
 
 	function _detalhes:reset_window (instancia)
 		if (instancia.segmento == -1) then

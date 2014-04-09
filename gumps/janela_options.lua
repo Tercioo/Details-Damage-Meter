@@ -9,6 +9,7 @@ local LDBIcon = LDB and LibStub ("LibDBIcon-1.0", true)
 local g =	_detalhes.gump
 local _
 local preset_version = 3
+_detalhes.preset_version = preset_version
 
 function _detalhes:OpenOptionsWindow (instance)
 
@@ -128,7 +129,12 @@ function _detalhes:OpenOptionsWindow (instance)
 				
 				if (atributo == 5) then --> custom
 					local CustomObject = _detalhes.custom [sub_atributo]
-					InstanceList [#InstanceList+1] = {value = index, label = _detalhes.atributos.lista [atributo] .. " - " .. CustomObject.name, onclick = onSelectInstance, icon = CustomObject.icon}
+					
+					if (CustomObject) then
+						InstanceList [#InstanceList+1] = {value = index, label = _detalhes.atributos.lista [atributo] .. " - " .. CustomObject.name, onclick = onSelectInstance, icon = CustomObject.icon}
+					else
+						InstanceList [#InstanceList+1] = {value = index, label = "unknown" .. " - " .. " invalid custom", onclick = onSelectInstance, icon = [[Interface\COMMON\VOICECHAT-MUTED]]}
+					end
 					
 				else
 					local modo = _this_instance.modo
@@ -159,6 +165,9 @@ function _detalhes:OpenOptionsWindow (instance)
 			return InstanceList
 		end
 
+		--local profile_string = g:NewLabel (window, nil, nil, "instancetext", "Current Profile:", "GameFontNormal", 12)
+		--profile_string:SetPoint ("bottomleft", window, "bottomleft", 27, 11)
+		
 		local instances = g:NewDropDown (window, _, "$parentInstanceSelectDropdown", "instanceDropdown", 200, 18, buildInstanceMenu, nil)	
 		instances:SetPoint ("bottomright", window, "bottomright", -17, 09)
 		
@@ -169,13 +178,44 @@ function _detalhes:OpenOptionsWindow (instance)
 		--instances_string:Hide()
 		
 		--> left panel buttons
-		local select_options = function (options_type)
+		
+		local menu_indexes = {
+			[1] = "General Settings",
+			[2] = "General Settings",
+			[13] = "General Settings",
+			[3] = "Appearance",
+			[4] = "Appearance",
+			[5] = "Appearance",
+			[6] = "Appearance",
+			[7] = "Appearance",
+			[8] = "Appearance",
+			[9] = "Appearance",
+			[10] = "Performance",
+			[11] = "Performance",
+			[12] = "Skins",
+		}
+		
+		local menus = {
+			{"Display", "Combat", "Profiles"},
+			{"Skin Selection", "Row Settings", "Row Texts", "Window Settings", "Menu Bar", "Reset/Instance/Close", "Wallpaper"},
+			{"Performance Tweaks", "Data Collector"},
+			{"Plugins Management"}
+		}
+		
+		local menus2 = {
+			"Display", "Combat", 
+			"Skin Selection", "Row Settings", "Row Texts", "Window Settings", "Menu Bar", "Reset/Instance/Close", "Wallpaper",
+			"Performance Tweaks", "Data Collector",
+			"Plugins Management", "Profiles"
+		}
+		
+		local select_options = function (options_type, true_index)
 			
 			window:hide_all_options()
 			
 			window:un_hide_options (options_type)
 			
-			editing.text = editing.options [options_type]
+			editing.text = menus2 [options_type]
 			
 			-- ~altura
 			if (options_type == 12) then
@@ -234,13 +274,8 @@ function _detalhes:OpenOptionsWindow (instance)
 			local g_performance_texture = g:NewImage (window, _, "$parentPluginsSettingsTexture", "PluginsSettingsTexture", 160, 33, [[Interface\AddOns\Details\images\options_window]])
 			g_performance_texture:SetTexCoord (0, 0.15625, 0.78515625, 0.8173828125)
 			g_performance_texture:SetPoint ("topleft", g_plugin, "topleft", 0, 0)
-		
-		local menus = {
-			{"Display", "Combat"},
-			{"Skin", "Row", "Row Texts", "Window Settings", "Top Menu Bar", "Reset/Instance/Close", "Wallpaper"},
-			{"Performance Tweaks", "Data Collector"},
-			{"Plugins Management"}
-		}
+
+		local menus_settings = {1, 2, 13, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}
 		
 		--> create menus
 		local anchors = {g_settings, g_appearance, g_performance, g_plugin}
@@ -274,7 +309,7 @@ function _detalhes:OpenOptionsWindow (instance)
 				texture:SetPoint (38, y-2)
 				texture:SetVertexColor (1, 1, 1, .5)
 				
-				local button = g:NewButton (window, _, "$parentButton_" .. index .. "_" .. i, nil, 150, 18, select_options, true_index, nil, "", menus [index] [i])
+				local button = g:NewButton (window, _, "$parentButton_" .. index .. "_" .. i, nil, 150, 18, select_options, menus_settings [true_index], true_index, "", menus [index] [i])
 				button:SetPoint (40, y)
 				button.textalign = "<"
 				button.textcolor = textcolor
@@ -306,6 +341,7 @@ function _detalhes:OpenOptionsWindow (instance)
 			[10] = {},
 			[11] = {},
 			[12] = {},
+			[13] = {}, --profiles
 		} --> vai armazenar os frames das opções
 		
 		
@@ -327,7 +363,7 @@ function _detalhes:OpenOptionsWindow (instance)
 			
 			container:SetBackdrop({
 				edgeFile = "Interface\\DialogFrame\\UI-DialogBox-gold-Border", tile = true, tileSize = 16, edgeSize = 5,
-				insets = {left = 1, right = 1, top = 0, bottom = 1},})		
+				insets = {left = 1, right = 1, top = 0, bottom = 1},})
 			container:SetBackdropBorderColor (0, 0, 0, 0)
 			container:SetBackdropColor (0, 0, 0, 0)
 			
@@ -415,6 +451,7 @@ function _detalhes:OpenOptionsWindow (instance)
 		table.insert (window.options [10], window:create_box_no_scroll (10))
 		table.insert (window.options [11], window:create_box_no_scroll (11))
 		table.insert (window.options [12], window:create_box (12))
+		table.insert (window.options [13], window:create_box_no_scroll (13))
 
 		function window:hide_all_options()
 			for _, frame in ipairs (window.options) do 
@@ -436,6 +473,10 @@ function _detalhes:OpenOptionsWindow (instance)
 			end
 		end
 		
+		--local yellow_point = window:CreateTexture (nil, "overlay")
+		--yellow_point:SetSize (16, 16)
+		--yellow_point:SetTexture ([[Interface\QUESTFRAME\UI-Quest-BulletPoint]])
+		
 		local background_on_enter = function (self)
 			if (self.background_frame) then
 				self = self.background_frame
@@ -445,6 +486,14 @@ function _detalhes:OpenOptionsWindow (instance)
 				info_text.active = true
 				info_text.text = self.parent.info
 			end
+			
+			self.label:SetTextColor (1, .8, 0)
+			
+			--self:SetBackdrop ({edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border", tile = true, tileSize = 16, edgeSize = 8,
+			--insets = {left = 1, right = 1, top = 0, bottom = 1},})
+			
+			--yellow_point:Show()
+			--yellow_point:SetPoint ("right", self, "left", 5, -1)
 		end
 		local background_on_leave = function (self)
 			if (self.background_frame) then
@@ -455,6 +504,13 @@ function _detalhes:OpenOptionsWindow (instance)
 				info_text.active = false
 				--info_text.text = ""
 			end
+			
+			self.label:SetTextColor (1, 1, 1)
+			
+			--self:SetBackdrop (nil)
+			
+			--yellow_point:ClearAllPoints()
+			--yellow_point:Hide()
 		end
 		
 		function window:create_line_background (frameX, label, parent)
@@ -466,6 +522,7 @@ function _detalhes:OpenOptionsWindow (instance)
 			f:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16, insets = {left = 0, right = 0, top = 0, bottom = 0}})		
 			f:SetBackdropColor (0, 0, 0, 0)
 			f.parent = parent
+			f.label = label
 			if (parent.widget) then
 				parent.widget.background_frame = f
 			else
@@ -684,15 +741,65 @@ function _detalhes:OpenOptionsWindow (instance)
 		frame1.avatarPreview2.texcoord = cords
 		frame1.avatarPreview2:SetVertexColor (unpack (color))
 
+	--> animate bars 
+	
+		g:NewLabel (frame1, _, "$parentAnimateLabel", "animateLabel", Loc ["STRING_OPTIONS_ANIMATEBARS"], "GameFontHighlightLeft")
+		g:NewSwitch (frame1, _, "$parentAnimateSlider", "animateSlider", 60, 20, _, _, _detalhes.use_row_animations) -- ltext, rtext, defaultv
+		frame1.animateSlider:SetPoint ("left",frame1.animateLabel, "right", 2, 0)
+		frame1.animateSlider.info = Loc ["STRING_OPTIONS_ANIMATEBARS_DESC"]
+		frame1.animateSlider.OnSwitch = function (self, _, value) --> slider, fixedValue, sliderValue (false, true)
+			_detalhes.use_row_animations = value
+		end
+		
+		window:create_line_background (frame1, frame1.animateLabel, frame1.animateSlider)
+		frame1.animateSlider:SetHook ("OnEnter", background_on_enter)
+		frame1.animateSlider:SetHook ("OnLeave", background_on_leave)
+		
+	--> update speed
+
+		g:NewSlider (frame1, _, "$parentSliderUpdateSpeed", "updatespeedSlider", SLIDER_WIDTH, 20, 0.3, 3, 0.1, _detalhes.update_speed, true)
+		g:NewLabel (frame1, _, "$parentUpdateSpeedLabel", "updatespeedLabel", Loc ["STRING_OPTIONS_WINDOWSPEED"], "GameFontHighlightLeft")
+		--
+		frame1.updatespeedSlider:SetPoint ("left", frame1.updatespeedLabel, "right", 2, 0)
+		frame1.updatespeedSlider:SetThumbSize (50)
+		frame1.updatespeedSlider.useDecimals = true
+		local updateColor = function (slider, value)
+			if (value < 1) then
+				slider.amt:SetTextColor (1, value, 0)
+			elseif (value > 1) then
+				slider.amt:SetTextColor (-(value-3), 1, 0)
+			else
+				slider.amt:SetTextColor (1, 1, 0)
+			end
+		end
+		frame1.updatespeedSlider:SetHook ("OnValueChange", function (self, _, amount) 
+			_detalhes:CancelTimer (_detalhes.atualizador)
+			_detalhes.update_speed = amount
+			_detalhes.atualizador = _detalhes:ScheduleRepeatingTimer ("AtualizaGumpPrincipal", _detalhes.update_speed, -1)
+			updateColor (self, amount)
+		end)
+		updateColor (frame1.updatespeedSlider, _detalhes.update_speed)
+		
+		frame1.updatespeedSlider.info = Loc ["STRING_OPTIONS_WINDOWSPEED_DESC"]
+
+		window:create_line_background (frame1, frame1.updatespeedLabel, frame1.updatespeedSlider)
+		frame1.updatespeedSlider:SetHook ("OnEnter", background_on_enter)
+		frame1.updatespeedSlider:SetHook ("OnLeave", background_on_leave)	
+		
+	--> anchors
+	
 		titulo_display:SetPoint (10, -200)
 		titulo_display_desc:SetPoint (10, -220)
 		
-		frame1.segmentsLabel:SetPoint (10, -260)
-		frame1.scrollLabel:SetPoint (10, -285)
-		frame1.maxInstancesLabel:SetPoint (10, -310)
-		frame1.minimapLabel:SetPoint (10, -335)
-		frame1.dpsAbbreviateLabel:SetPoint (10, -360)
-		frame1.realmNameLabel:SetPoint (10, -385)
+		frame1.animateLabel:SetPoint (10, -260)
+		frame1.updatespeedLabel:SetPoint (10, -285)
+		
+		frame1.segmentsLabel:SetPoint (10, -310)
+		frame1.scrollLabel:SetPoint (10, -335)
+		frame1.maxInstancesLabel:SetPoint (10, -360)
+		frame1.minimapLabel:SetPoint (10, -385)
+		frame1.dpsAbbreviateLabel:SetPoint (10, -410)
+		frame1.realmNameLabel:SetPoint (10, -435)
 		
 		
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -853,7 +960,165 @@ function _detalhes:OpenOptionsWindow (instance)
 		frame2.hideOnCombatAlphaLabel:SetPoint (10, -160)
 		frame2.autoSwitchLabel:SetPoint (10, -195)
 		frame2.autoCurrentLabel:SetPoint (10, -220) --auto current
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- General Settings - Profiles
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	
+	local frame13 = window.options [13][1]
+
+	--> profiles title
+		local titulo_profiles = g:NewLabel (frame13, _, "$parentTituloProfiles", "tituloProfilesLabel", Loc ["STRING_OPTIONS_PROFILES_TITLE"], "GameFontNormal", 16)
+		local titulo_profiles_desc = g:NewLabel (frame13, _, "$parentTituloProfiles2", "tituloProfiles2Label", Loc ["STRING_OPTIONS_PROFILES_TITLE_DESC"], "GameFontNormal", 9, "white")
+		titulo_profiles_desc.width = 320
+
+	--> current profile
+		local current_profile_label = g:NewLabel (frame13, _, "$parentCurrentProfileLabel1", "currentProfileLabel1",  Loc ["STRING_OPTIONS_PROFILES_CURRENT"], "GameFontHighlightLeft")
+		local current_profile_label2 = g:NewLabel (frame13, _, "$parentCurrentProfileLabel2", "currentProfileLabel2",  "", "GameFontNormal")
+		current_profile_label2:SetPoint ("left", current_profile_label, "right", 3, 0)
 		
+		local info_holder_frame = CreateFrame ("frame", nil, frame13.widget or frame13)
+		info_holder_frame:SetPoint ("topleft", current_profile_label.widget, "topleft")
+		info_holder_frame:SetPoint ("bottomright", current_profile_label2.widget, "bottomright")
+		
+		info_holder_frame.info = Loc ["STRING_OPTIONS_PROFILES_CURRENT_DESC"]
+		window:create_line_background (frame13, current_profile_label.widget, info_holder_frame)
+		info_holder_frame:SetScript ("OnEnter", background_on_enter)
+		info_holder_frame:SetScript ("OnLeave", background_on_leave)
+	
+	--> select profile
+		local profile_selected = function (_, instance, profile_name)
+			_detalhes:ApplyProfile (profile_name)
+			_detalhes:Msg ("Profile loaded:", profile_name)
+			_detalhes:OpenOptionsWindow (instance)
+		end
+		local build_profile_menu = function()
+			local menu = {}
+			
+			for index, profile_name in ipairs (_detalhes:GetProfileList()) do 
+				menu [#menu+1] = {value = profile_name, label = profile_name, onclick = profile_selected, icon = "Interface\\MINIMAP\\Vehicle-HammerGold-3"}
+			end
+			
+			return menu
+		end
+		local select_profile_dropdown = g:NewDropDown (frame13, _, "$parentSelectProfileDropdown", "selectProfileDropdown", 160, 20, build_profile_menu, 1)	
+		local select_profile_label = g:NewLabel (frame13, _, "$parentSelectProfileLabel", "selectProfileLabel", Loc ["STRING_OPTIONS_PROFILES_SELECT"], "GameFontHighlightLeft")
+		select_profile_dropdown:SetPoint ("left", select_profile_label, "right", 2, 0)
+	
+		select_profile_dropdown.info = Loc ["STRING_OPTIONS_PROFILES_SELECT_DESC"]
+		window:create_line_background (frame13, select_profile_label, select_profile_dropdown)
+		select_profile_dropdown:SetHook ("OnEnter", background_on_enter)
+		select_profile_dropdown:SetHook ("OnLeave", background_on_leave)
+	
+	--> new profile
+		local profile_name = g:NewTextEntry (frame13, _, "$parentProfileNameEntry", "profileNameEntry", 120, 20)
+		local profile_name_label = g:NewLabel (frame13, _, "$parentProfileNameLabel", "profileNameLabel", Loc ["STRING_OPTIONS_PROFILES_CREATE"], "GameFontHighlightLeft")
+		profile_name:SetPoint ("left", profile_name_label, "right", 2, 0)
+		
+		local create_profile = function()
+			local text = profile_name:GetText()
+			if (text == "") then
+				return _detalhes:Msg ("Name field is empty.")
+			end
+			
+			local new_profile = _detalhes:CreateProfile (text)
+			if (new_profile) then
+				_detalhes:ApplyProfile (text)
+				_detalhes:OpenOptionsWindow (window.instance)
+			else
+				return _detalhes:Msg ("Profile not created.")
+			end
+		end
+		local profile_create_button = g:NewButton (frame13, _, "$parentProfileCreateButton", "profileCreateButton", 50, 19, create_profile, nil, nil, nil, Loc ["STRING_OPTIONS_SAVELOAD_SAVE"])
+		profile_create_button:InstallCustomTexture()
+		profile_create_button:SetPoint ("left", profile_name, "right", 2, 0)
+		
+		profile_name.info = Loc ["STRING_OPTIONS_PROFILES_CREATE_DESC"]
+		window:create_line_background (frame13, profile_name_label, profile_name)
+		profile_name:SetHook ("OnEnter", background_on_enter)
+		profile_name:SetHook ("OnLeave", background_on_leave)
+	
+	
+	--> copy profile
+		local profile_selectedCopy = function (_, instance, profile_name)
+			--copiar o profile
+			local current_instance = window.instance
+			_detalhes:ApplyProfile (profile_name, nil, true)
+			_detalhes:OpenOptionsWindow (current_instance)
+		end
+		local build_copy_menu = function()
+			local menu = {}
+			
+			for index, profile_name in ipairs (_detalhes:GetProfileList()) do 
+				menu [#menu+1] = {value = profile_name, label = profile_name, onclick = profile_selectedCopy, icon = "Interface\\MINIMAP\\Vehicle-HammerGold-2"}
+			end
+			
+			return menu
+		end
+		local select_profileCopy_dropdown = g:NewDropDown (frame13, _, "$parentSelectProfileCopyDropdown", "selectProfileCopyDropdown", 160, 20, build_copy_menu, 1)	
+		local select_profileCopy_label = g:NewLabel (frame13, _, "$parentSelectProfileCopyLabel", "selectProfileCopyLabel", Loc ["STRING_OPTIONS_PROFILES_COPY"], "GameFontHighlightLeft")
+		select_profileCopy_dropdown:SetPoint ("left", select_profileCopy_label, "right", 2, 0)
+	
+		select_profileCopy_dropdown.info = Loc ["STRING_OPTIONS_PROFILES_COPY_DESC"]
+		window:create_line_background (frame13, select_profileCopy_label, select_profileCopy_dropdown)
+		select_profileCopy_dropdown:SetHook ("OnEnter", background_on_enter)
+		select_profileCopy_dropdown:SetHook ("OnLeave", background_on_leave)
+		
+	--> erase profile
+		local profile_selectedErase = function (_, instance, profile_name)
+			local current_instance = window.instance
+			_detalhes:EraseProfile (profile_name)
+			_detalhes:OpenOptionsWindow (current_instance)
+		end
+		local build_erase_menu = function()
+			local menu = {}
+			
+			for index, profile_name in ipairs (_detalhes:GetProfileList()) do 
+				menu [#menu+1] = {value = profile_name, label = profile_name, onclick = profile_selectedErase, icon = "Interface\\MINIMAP\\Vehicle-HammerGold-1", color = {1, 1, 1}, iconcolor = {1, .90, .90}}
+			end
+			
+			return menu
+		end
+		local select_profileErase_dropdown = g:NewDropDown (frame13, _, "$parentSelectProfileEraseDropdown", "selectProfileEraseDropdown", 160, 20, build_erase_menu, 1)	
+		local select_profileErase_label = g:NewLabel (frame13, _, "$parentSelectProfileEraseLabel", "selectProfileLabel", Loc ["STRING_OPTIONS_PROFILES_ERASE"], "GameFontHighlightLeft")
+		select_profileErase_dropdown:SetPoint ("left", select_profileErase_label, "right", 2, 0)
+	
+		select_profileErase_dropdown.info = Loc ["STRING_OPTIONS_PROFILES_ERASE_DESC"]
+		window:create_line_background (frame13, select_profileErase_label, select_profileErase_dropdown)
+		select_profileErase_dropdown:SetHook ("OnEnter", background_on_enter)
+		select_profileErase_dropdown:SetHook ("OnLeave", background_on_leave)
+		
+	--> reset profile
+	
+		local reset_profile = function()
+			local current_instance = window.instance
+			_detalhes:ResetProfile (_detalhes:GetCurrentProfileName())
+			_detalhes:OpenOptionsWindow (current_instance)
+		end
+		
+		local profile_reset_button = g:NewButton (frame13, _, "$parentProfileResetButton", "profileResetButton", 128, 19, reset_profile, nil, nil, nil, Loc ["STRING_OPTIONS_PROFILES_RESET"])
+		profile_reset_button:InstallCustomTexture()
+		
+		local hiddenlabel = g:NewLabel (frame13, _, "$parentProfileResetButtonLabel", "profileResetButtonLabel", "", "GameFontHighlightLeft")
+		hiddenlabel:SetPoint ("left", profile_reset_button, "left")
+		
+		profile_reset_button.info = Loc ["STRING_OPTIONS_PROFILES_RESET_DESC"]
+		window:create_line_background (frame13, hiddenlabel, profile_reset_button)
+		profile_reset_button:SetHook ("OnEnter", background_on_enter)
+		profile_reset_button:SetHook ("OnLeave", background_on_leave)
+		
+		profile_reset_button.button.texture:SetVertexColor (1, .8, 0)
+
+	--> anchors
+		titulo_profiles:SetPoint (10, -10)
+		titulo_profiles_desc:SetPoint (10, -30)
+		
+		current_profile_label:SetPoint (10, -90)
+		select_profile_label:SetPoint (10, -125)
+		profile_name_label:SetPoint (10, -150)
+		select_profileCopy_label:SetPoint (10, -185)
+		select_profileErase_label:SetPoint (10, -210)
+		profile_reset_button:SetPoint (10, -245)
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Appearance - Skin
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2477,8 +2742,7 @@ function _detalhes:OpenOptionsWindow (instance)
 		
 	--------------- Memory		
 		g:NewSlider (frame10, _, "$parentSliderSegmentsSave", "segmentsSliderToSave", SLIDER_WIDTH, 20, 1, 5, 1, _detalhes.segments_amount_to_save)
-		g:NewSlider (frame10, _, "$parentSliderUpdateSpeed", "updatespeedSlider", SLIDER_WIDTH, 20, 0.3, 3, 0.1, _detalhes.update_speed, true)
-	
+
 		g:NewLabel (frame10, _, "$parentLabelMemory", "memoryLabel", Loc ["STRING_OPTIONS_MEMORYT"], "GameFontHighlightLeft")
 
 		g:NewSlider (frame10, _, "$parentSliderMemory", "memorySlider", SLIDER_WIDTH, 20, 1, 4, 1, _detalhes.memory_threshold)
@@ -2551,18 +2815,7 @@ function _detalhes:OpenOptionsWindow (instance)
 		frame10.panicModeSlider:SetHook ("OnLeave", background_on_leave)		
 		
 	--------------- Animate Rows
-		g:NewLabel (frame10, _, "$parentAnimateLabel", "animateLabel", Loc ["STRING_OPTIONS_ANIMATEBARS"], "GameFontHighlightLeft")
-
-		g:NewSwitch (frame10, _, "$parentAnimateSlider", "animateSlider", 60, 20, _, _, _detalhes.use_row_animations) -- ltext, rtext, defaultv
-		frame10.animateSlider:SetPoint ("left",frame10.animateLabel, "right", 2, 0)
-		frame10.animateSlider.info = Loc ["STRING_OPTIONS_ANIMATEBARS_DESC"]
-		frame10.animateSlider.OnSwitch = function (self, _, value) --> slider, fixedValue, sliderValue (false, true)
-			_detalhes.use_row_animations = value
-		end
 		
-		window:create_line_background (frame10, frame10.animateLabel, frame10.animateSlider)
-		frame10.animateSlider:SetHook ("OnEnter", background_on_enter)
-		frame10.animateSlider:SetHook ("OnLeave", background_on_leave)
 		
 	--------------- Animate scroll bar
 		g:NewLabel (frame10, _, "$parentAnimateScrollLabel", "animatescrollLabel", Loc ["STRING_OPTIONS_ANIMATESCROLL"], "GameFontHighlightLeft")
@@ -2580,34 +2833,7 @@ function _detalhes:OpenOptionsWindow (instance)
 		frame10.animatescrollSlider:SetHook ("OnLeave", background_on_leave)		
 		
 	--------------- Update Speed
-		g:NewLabel (frame10, _, "$parentUpdateSpeedLabel", "updatespeedLabel", Loc ["STRING_OPTIONS_WINDOWSPEED"], "GameFontHighlightLeft")
-		
-		--
-		frame10.updatespeedSlider:SetPoint ("left", frame10.updatespeedLabel, "right", 2, 0)
-		frame10.updatespeedSlider:SetThumbSize (50)
-		frame10.updatespeedSlider.useDecimals = true
-		local updateColor = function (slider, value)
-			if (value < 1) then
-				slider.amt:SetTextColor (1, value, 0)
-			elseif (value > 1) then
-				slider.amt:SetTextColor (-(value-3), 1, 0)
-			else
-				slider.amt:SetTextColor (1, 1, 0)
-			end
-		end
-		frame10.updatespeedSlider:SetHook ("OnValueChange", function (self, _, amount) 
-			_detalhes:CancelTimer (_detalhes.atualizador)
-			_detalhes.update_speed = amount
-			_detalhes.atualizador = _detalhes:ScheduleRepeatingTimer ("AtualizaGumpPrincipal", _detalhes.update_speed, -1)
-			updateColor (self, amount)
-		end)
-		updateColor (frame10.updatespeedSlider, _detalhes.update_speed)
-		
-		frame10.updatespeedSlider.info = Loc ["STRING_OPTIONS_WINDOWSPEED_DESC"]
-
-		window:create_line_background (frame10, frame10.updatespeedLabel, frame10.updatespeedSlider)
-		frame10.updatespeedSlider:SetHook ("OnEnter", background_on_enter)
-		frame10.updatespeedSlider:SetHook ("OnLeave", background_on_leave)		
+	
 		
 	--------------- Erase Trash
 		g:NewLabel (frame10, _, "$parentEraseTrash", "eraseTrashLabel", Loc ["STRING_OPTIONS_CLEANUP"], "GameFontHighlightLeft")
@@ -2629,10 +2855,10 @@ function _detalhes:OpenOptionsWindow (instance)
 		frame10.memoryLabel:SetPoint (10, -70)
 		frame10.segmentsSaveLabel:SetPoint (10, -95)
 		frame10.panicModeLabel:SetPoint (10, -120)
-		frame10.animateLabel:SetPoint (10, -145)
+		--frame10.animateLabel:SetPoint (10, -145)
 		--frame10.animatescrollLabel:SetPoint (10, -170)
-		frame10.updatespeedLabel:SetPoint (10, -170)
-		frame10.eraseTrashLabel:SetPoint (10, -195)
+		--frame10.updatespeedLabel:SetPoint (10, -170)
+		frame10.eraseTrashLabel:SetPoint (10, -145)
 		
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Performance - Captures
@@ -3006,6 +3232,41 @@ end
 ----------------------------------------------------------------------------------------
 --> Show
 
+	--> window 1
+	_G.DetailsOptionsWindow1RealmNameSlider.MyObject:SetValue (_detalhes.remove_realm_from_name)
+	_G.DetailsOptionsWindow1Slider.MyObject:SetValue (_detalhes.segments_amount) --segments
+	_G.DetailsOptionsWindow1UseScrollSlider.MyObject:SetValue (_detalhes.use_scroll)
+	_G.DetailsOptionsWindow1SliderMaxInstances.MyObject:SetValue (_detalhes.instances_amount)
+	_G.DetailsOptionsWindow1MinimapSlider.MyObject:SetValue (not _detalhes.minimap.hide)
+	_G.DetailsOptionsWindow1AbbreviateDropdown.MyObject:Select (_detalhes.ps_abbreviation)
+	_G.DetailsOptionsWindow1SliderUpdateSpeed.MyObject:SetValue (_detalhes.update_speed)
+	_G.DetailsOptionsWindow1AnimateSlider.MyObject:SetValue (_detalhes.use_row_animations)
+
+	--> window 2
+	_G.DetailsOptionsWindow2FragsPvpSlider.MyObject:SetValue (_detalhes.only_pvp_frags)
+	_G.DetailsOptionsWindow2TTDropdown.MyObject:Select (_detalhes.time_type)
+	
+	--> window 13
+	_G.DetailsOptionsWindow13SelectProfileDropdown.MyObject:Select (_detalhes:GetCurrentProfileName())
+	_G.DetailsOptionsWindow13SelectProfileDropdown.MyObject:SetFixedParameter (instance)
+	
+	--> window 10	
+	_G.DetailsOptionsWindow10SliderMemory.MyObject:SetValue (_detalhes.memory_threshold)
+	_G.DetailsOptionsWindow10PanicModeSlider.MyObject:SetValue (_detalhes.segments_panic_mode)
+	_G.DetailsOptionsWindow10ClearAnimateScrollSlider.MyObject:SetValue (_detalhes.animate_scroll)
+	_G.DetailsOptionsWindow10SliderSegmentsSave.MyObject:SetValue (_detalhes.segments_amount_to_save)
+	
+	
+	
+	--> window 11
+	_G.DetailsOptionsWindow11CaptureDamageSlider.MyObject:SetValue (_detalhes.capture_real ["damage"])
+	_G.DetailsOptionsWindow11CaptureHealSlider.MyObject:SetValue (_detalhes.capture_real ["heal"])
+	_G.DetailsOptionsWindow11CaptureEnergySlider.MyObject:SetValue (_detalhes.capture_real ["energy"])
+	_G.DetailsOptionsWindow11CaptureMiscSlider.MyObject:SetValue (_detalhes.capture_real ["miscdata"])
+	_G.DetailsOptionsWindow11CaptureAuraSlider.MyObject:SetValue (_detalhes.capture_real ["aura"])
+	_G.DetailsOptionsWindow11CloudAuraSlider.MyObject:SetValue (_detalhes.cloud_capture)
+	
+	----------
 	_G.DetailsOptionsWindow8ResetTextColorPick.MyObject:SetColor (unpack (instance.resetbutton_info.text_color))
 	_G.DetailsOptionsWindow8ResetTextSizeSlider.MyObject:SetValue (instance.resetbutton_info.text_size)
 	_G.DetailsOptionsWindow8ResetTextFontDropdown.MyObject:Select (instance.resetbutton_info.text_face)
@@ -3175,6 +3436,10 @@ end
 	_G.DetailsOptionsWindowInstanceSelectDropdown.MyObject:Select (instance.meu_id, true)
 	
 	_G.DetailsOptionsWindow4IconFileEntry:SetText (instance.row_info.icon_file)
+	
+	--profiles
+	_G.DetailsOptionsWindow13CurrentProfileLabel2.MyObject:SetText (_detalhes_database.active_profile)
+	
 	
 	window:Show()
 	

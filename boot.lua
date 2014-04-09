@@ -8,7 +8,7 @@
 		
 		_ = nil
 		_detalhes = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0", "NickTag-1.0")
-		_detalhes.userversion = "v1.11.10"
+		_detalhes.userversion = "v1.12.00"
 		_detalhes.version = "Alpha 016"
 		_detalhes.realversion = 16
 
@@ -25,6 +25,7 @@ do
 		_detalhes.__index = _detalhes
 		_detalhes._tempo = time()
 		_detalhes.debug = false
+		_detalhes.opened_windows = 0
 		
 	--> containers
 		--> armazenas as funções do parser - All parse functions 
@@ -76,7 +77,7 @@ do
 				_detalhes.RaidTables.Plugins = {} 
 			--> name to plugin object
 				_detalhes.RaidTables.NameTable = {} 
-		
+
 		--> solo -------------------------------------------------------------------
 			--> general functions for solo mode plugins
 				_detalhes.SoloTables = {} 
@@ -245,8 +246,12 @@ do
 	
 	--> print messages
 		function _detalhes:Msg (_string, arg1, arg2, arg3, arg4)
-			
-			print (Loc ["STRING_DETAILS1"] .. _string, arg1 or "", arg2 or "", arg3 or "", arg4 or "")
+			if (self.__name) then
+				--> yes, we have a name!
+				print ("|cffffaeae" .. self.__name .. "|r |cffcc7c7c(plugin)|r: " .. _string, arg1 or "", arg2 or "", arg3 or "", arg4 or "")
+			else
+				print (Loc ["STRING_DETAILS1"] .. _string, arg1 or "", arg2 or "", arg3 or "", arg4 or "")
+			end
 		end
 	
 end

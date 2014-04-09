@@ -61,7 +61,7 @@ _detalhes.instance_defaults = {
 	--sort direction is the direction of results on bars (1 = top to bottom 2 = bottom to top)
 		bars_sort_direction = 1,
 	--reset button info
-		resetbutton_info = {text_color = {1, 0.82, 0, 1}, text_face = "Friz Quadrata TT", text_size = 12, color_overlay = {1, 1, 1, 1}, always_small = false},
+		resetbutton_info = {text_color = {1, 0.82, 0, 1}, text_color_small = {1, 0.82, 0, 1}, text_face = "Friz Quadrata TT", text_size = 12, color_overlay = {1, 1, 1, 1}, always_small = false},
 	--instance button info
 		instancebutton_info = {text_color = {1, 0.82, 0, 1}, text_face = "Friz Quadrata TT", text_size = 12, color_overlay = {1, 1, 1, 1}},
 	--close button info

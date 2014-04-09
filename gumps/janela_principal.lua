@@ -1989,12 +1989,14 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 	
 	--> details version
 		instancia._version = baseframe:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
-			instancia._version:SetPoint ("left", backgrounddisplay, "left", 20, 0)
+			--instancia._version:SetPoint ("left", backgrounddisplay, "left", 20, 0)
 			instancia._version:SetTextColor (1, 1, 1)
 			instancia._version:SetText ("this is a alpha version of Details\nyou can help us sending bug reports\nuse the blue button.")
 			if (not _detalhes.initializing) then
-				instancia._version:Hide()
+				
 			end
+			instancia._version:Hide()
+			
 
 	--> wallpaper
 		baseframe.wallpaper = backgrounddisplay:CreateTexture (nil, "overlay")
@@ -2822,7 +2824,6 @@ function _detalhes:StatusBarAlert (text, icon, color, time)
 end
 
 function _detalhes:SetCloseButtonSettings (overlaycolor)
-
 	if (overlaycolor == "reset") then
 		overlaycolor = {1, 1, 1, 1}
 	end
@@ -2849,7 +2850,7 @@ function _detalhes:SetInstanceButtonSettings (textfont, textsize, textcolor, ove
 		textcolor = {1, 0.81, 0, 1}
 		overlaycolor = {1, 1, 1, 1}
 	end
-
+	
 	--> text color
 	if (textcolor) then
 		local r, g, b, a = gump:ParseColors (textcolor)
@@ -2891,7 +2892,7 @@ function _detalhes:SetInstanceButtonSettings (textfont, textsize, textcolor, ove
 	self.baseframe.cabecalho.novo.Right:SetVertexColor (r, g, b, a)
 end
 
-function _detalhes:SetDeleteButtonSettings (textfont, textsize, textcolor, overlaycolor, alwaysminimized)
+function _detalhes:SetDeleteButtonSettings (textfont, textsize, textcolor, overlaycolor, alwaysminimized, smalltextcolor)
 	
 	if (textfont == "reset") then
 		--print ("text color:", _G.DetailsResetButton1Text:GetTextColor())
@@ -2901,10 +2902,11 @@ function _detalhes:SetDeleteButtonSettings (textfont, textsize, textcolor, overl
 		textfont = "Friz Quadrata TT"
 		textsize = 12
 		textcolor = {1, 0.81, 0, 1}
+		smalltextcolor = {1, 0.81, 0, 1}
 		overlaycolor = {1, 1, 1, 1}
 		alwaysminimized = false
 	end
-	
+
 	--> text color
 	if (textcolor) then
 		local r, g, b, a = gump:ParseColors (textcolor)
@@ -2914,9 +2916,21 @@ function _detalhes:SetDeleteButtonSettings (textfont, textsize, textcolor, overl
 		self.resetbutton_info.text_color [4] = a
 	end
 	
+	if (smalltextcolor) then
+		local r, g, b, a = gump:ParseColors (smalltextcolor)
+		self.resetbutton_info.text_color_small [1] = r
+		self.resetbutton_info.text_color_small [2] = g
+		self.resetbutton_info.text_color_small [3] = b
+		self.resetbutton_info.text_color_small [4] = a
+	end
+	
+	if (not self.resetbutton_info.text_color_small) then
+		self.resetbutton_info.text_color_small = {1, 0.81, 0, 1}
+	end
+	
 	if (_detalhes.ResetButtonInstance == self.meu_id) then
 		_G.DetailsResetButton1Text:SetTextColor (unpack (self.resetbutton_info.text_color))
-		_G.DetailsResetButton2Text2:SetTextColor (unpack (self.resetbutton_info.text_color))
+		_G.DetailsResetButton2Text2:SetTextColor (unpack (self.resetbutton_info.text_color_small))
 	end
 	
 	--> text font
@@ -3561,6 +3575,60 @@ local botao_fechar_on_leave = function (self)
 	OnLeaveMainWindow (self.instancia, self, 3)
 end
 
+function SetCloseButtonAnchors (self, this_skin)
+	if (self.toolbar_side == 1) then --top
+	
+		self.baseframe.cabecalho.fechar:SetScript ("OnMouseDown", function()
+			self.baseframe.cabecalho.fechar:ClearAllPoints()
+			self.baseframe.cabecalho.fechar:SetPoint ("bottomright", self.baseframe, "topright", this_skin.close_button_anchor[1]+1, this_skin.close_button_anchor[2]-1)
+		end)
+		
+		self.baseframe.cabecalho.fechar:SetScript ("OnMouseUp", function()
+			self.baseframe.cabecalho.fechar:ClearAllPoints()
+			self.baseframe.cabecalho.fechar:SetPoint ("bottomright", self.baseframe, "topright", this_skin.close_button_anchor[1], this_skin.close_button_anchor[2])
+
+			self.baseframe.cabecalho.fechar:Disable()
+			self:DesativarInstancia() 
+
+			if (_detalhes.opened_windows == 0) then
+				print (Loc ["STRING_CLOSEALL"])
+			end
+		end)
+	
+	elseif (self.toolbar_side == 2) then --bottom
+	
+		self.baseframe.cabecalho.fechar:SetScript ("OnMouseDown", function()
+			local y = 0
+			if (self.show_statusbar) then
+				y = -14
+			end
+		
+			local _x, _y = unpack (this_skin.close_button_anchor_bottom)
+			self.baseframe.cabecalho.fechar:ClearAllPoints()
+			self.baseframe.cabecalho.fechar:SetPoint ("topright", self.baseframe, "bottomright", _x + 1, _y + y - 1)
+		end)
+		
+		self.baseframe.cabecalho.fechar:SetScript ("OnMouseUp", function()
+			local y = 0
+			if (self.show_statusbar) then
+				y = -14
+			end
+		
+			local _x, _y = unpack (this_skin.close_button_anchor_bottom)
+			self.baseframe.cabecalho.fechar:ClearAllPoints()
+			self.baseframe.cabecalho.fechar:SetPoint ("topright", self.baseframe, "bottomright", _x, _y + y)
+
+			self.baseframe.cabecalho.fechar:Disable()
+			self:DesativarInstancia() 
+
+			if (_detalhes.opened_windows == 0) then
+				print (Loc ["STRING_CLOSEALL"])
+			end
+		end)
+	
+	end
+end
+
 -- ~skin
 function _detalhes:ChangeSkin (skin_name)
 
@@ -3598,10 +3666,10 @@ function _detalhes:ChangeSkin (skin_name)
 			if (_detalhes.ResetButtonInstance == self.meu_id) then
 				self:SetDeleteButtonSettings ("reset")
 			end
+			DetailsResetButton2Text2:SetText ("-")
 			
 		--> reset close button
 			self:SetCloseButtonSettings ("reset")
-			DetailsResetButton2Text2:SetText ("-")
 	
 		--> overwrites
 			local overwrite_cprops = this_skin.instance_cprops
@@ -3686,8 +3754,10 @@ function _detalhes:ChangeSkin (skin_name)
 				_detalhes:DisableUIPanelButton (_detalhes.ResetButton2)
 			end
 		else
-			_detalhes:RestoreUIPanelButton (_detalhes.ResetButton)
-			_detalhes:RestoreUIPanelButton (_detalhes.ResetButton2)
+			if (_detalhes.ResetButtonInstance == self.meu_id) then
+				_detalhes:RestoreUIPanelButton (_detalhes.ResetButton)
+				_detalhes:RestoreUIPanelButton (_detalhes.ResetButton2)
+			end
 		end
 
 ----------> custom instance button
@@ -3731,12 +3801,7 @@ function _detalhes:ChangeSkin (skin_name)
 			self.baseframe.cabecalho.fechar:SetSize (18, 18)
 		end
 		
-		self.baseframe.cabecalho.fechar:SetScript ("OnMouseDown", function()
-			self.baseframe.cabecalho.fechar:SetPoint ("bottomright", self.baseframe, "topright", this_skin.close_button_anchor[1]+1, this_skin.close_button_anchor[2]-1)
-		end)
-		self.baseframe.cabecalho.fechar:SetScript ("OnMouseUp", function()
-			self.baseframe.cabecalho.fechar:SetPoint ("bottomright", self.baseframe, "topright", this_skin.close_button_anchor[1], this_skin.close_button_anchor[2])
-		end)
+		SetCloseButtonAnchors (self, this_skin)
 
 	else
 		self.baseframe.cabecalho.fechar:SetDisabledTexture ([[Interface\Buttons\UI-Panel-MinimizeButton-Disabled]])
@@ -3868,6 +3933,7 @@ function _detalhes:ChangeSkin (skin_name)
 	
 	--> refresh options panel if opened
 		if (_G.DetailsOptionsWindow and _G.DetailsOptionsWindow:IsShown()) then
+			--print (self.meu_id)
 			_detalhes:OpenOptionsWindow (self)
 		end
 	
@@ -3911,6 +3977,9 @@ function _detalhes:ToolbarSide (side)
 		--> botão fechar
 		self.baseframe.cabecalho.fechar:ClearAllPoints()
 		self.baseframe.cabecalho.fechar:SetPoint ("bottomright", self.baseframe, "topright", unpack (skin.close_button_anchor))
+		if (skin.close_button_coords) then
+			SetCloseButtonAnchors (self, skin)
+		end
 		--> ball r
 		self.baseframe.cabecalho.ball_r:SetTexCoord (unpack (COORDS_RIGHT_BALL))
 		self.baseframe.cabecalho.ball_r:ClearAllPoints()
@@ -3948,6 +4017,9 @@ function _detalhes:ToolbarSide (side)
 		self.baseframe.cabecalho.fechar:ClearAllPoints()
 		local _x, _y = unpack (skin.close_button_anchor_bottom)
 		self.baseframe.cabecalho.fechar:SetPoint ("topright", self.baseframe, "bottomright", _x, _y + y)
+		if (skin.close_button_coords) then
+			SetCloseButtonAnchors (self, skin)
+		end
 		--> ball r
 		self.baseframe.cabecalho.ball_r:ClearAllPoints()
 		local _x, _y = unpack (skin.right_corner_anchor_bottom)
@@ -4893,7 +4965,8 @@ function gump:CriaCabecalho (baseframe, instancia)
 
 --> Botão de Ajuda ----------------------------------------------------------------------------------------------------------------------------------------------------
 
-	if (instancia.meu_id == 1 and _detalhes.tutorial.logons < 3) then
+	--> disabled
+	if (instancia.meu_id == 1 and _detalhes.tutorial.logons < 0) then
 	
 		--> help button
 		local helpButton = CreateFrame ("button", "DetailsMainWindowHelpButton", baseframe, "MainHelpPlateButton")

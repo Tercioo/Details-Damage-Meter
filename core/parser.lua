@@ -2566,7 +2566,7 @@
 
 
 	-- PARSER
-	--serach key: ~parser ~event
+	--serach key: ~parser ~event ~start ~inicio
 
 	function _detalhes:OnEvent (evento, ...)
 	
@@ -2783,14 +2783,50 @@
 					_detalhes.can_panic_mode = true
 				end
 				
-				return _detalhes:SaveData()
+				--if (UnitName ("player") == "Tiranaa" or UnitName ("player") == "Triciclo") then
 				
+					_detalhes:SaveConfig()
+					
+					_detalhes:SaveProfile()
+					
+					--_detalhes_global = nil
+					--_detalhes_database = nil
+					
+				--else
+				--	return _detalhes:SaveData()
+				--end
+		
 		elseif (evento == "ADDON_LOADED") then
 		
 			local addon_name = _select (1, ...)
 			
 			if (addon_name == "Details") then
-				_detalhes:LoadData()
+			
+			--> cooltip
+				if (not _G.GameCooltip) then
+					_detalhes.popup = DetailsCreateCoolTip()
+				else
+					_detalhes.popup = _G.GameCooltip
+				end
+			
+				--> write into details object all basic keys
+				_detalhes:ApplyBasicKeys()
+			
+				--if (_detalhes_global and _detalhes_global.profile_pool and _detalhes_global.profile_pool [UnitGUID ("player")]) then
+					--> apply basic startup
+					_detalhes:ApplyBasicKeys()
+					--> check if is first run
+					_detalhes:IsFirstRun()
+					--> load all the saved combats
+					_detalhes:LoadCombatTables()
+					--> load the profiles
+					_detalhes:LoadConfig()
+					
+				--else
+					--> load the addon
+				--	_detalhes:LoadData()
+				--end
+				
 				_detalhes:UpdateParserGears()
 				_detalhes:Start()
 			end

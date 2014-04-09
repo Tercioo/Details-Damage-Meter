@@ -119,6 +119,11 @@ end
 -- On Account
 
 	_detalhes_global = _detalhes_global or {}
+
+	--> profiles
+	_detalhes_global.__profiiles = _detalhes.__profiiles
+
+	--> skins
 	_detalhes_global.savedStyles = _detalhes.savedStyles
 	_detalhes_global.standard_skin = _detalhes.standard_skin
 	_detalhes_global.got_first_run = true
@@ -146,11 +151,15 @@ end
 	--tutorial
 	_detalhes_global.tutorial = _detalhes.tutorial
 	
+	--profiles
+	_detalhes_global.__profiiles = _detalhes.__profiiles
+	
 	return true
 
 end
 
 local force_reset = function()
+	print ("Check Point: Force reset.")
 	_detalhes.tabela_instancias = {}
 	_detalhes.tabela_historico = _detalhes.historico:NovoHistorico()
 	_detalhes.tabela_pets = _detalhes.container_pets:NovoContainer()
@@ -171,20 +180,20 @@ end --]]
 	
 	if (_detalhes_database) then
 	
+	----------------------------------------------------------------------------------------
+	--> fora dos profiles
+	----------------------------------------------------------------------------------------
+	
 		--> nicktag cache
 			_detalhes.nick_tag_cache = _detalhes_database.nick_tag_cache or {}
 			_detalhes:NickTagSetCache (_detalhes.nick_tag_cache)
-			_detalhes.only_pvp_frags = _detalhes_database.only_pvp_frags
-			
-		--> minimap
-			_detalhes.minimap = _detalhes_database.minimap
 			
 		--> plugin data
 			_detalhes.plugin_database = _detalhes_database.plugin_database
-	
+
 		--> character info
 			_detalhes.character_data = _detalhes_database.character_data
-			
+
 		--> build basic containers
 			_detalhes.tabela_historico = _detalhes_database.tabela_historico or _detalhes.historico:NovoHistorico() -- segments
 			_detalhes.tabela_overall = _detalhes.combate:NovaTabela() -- overall
@@ -205,16 +214,10 @@ end --]]
 			if (_detalhes.last_version ~= _detalhes.userversion) then
 				_detalhes.is_version_first_run = true
 			end
-			
+		
 		--> re-build all indexes and metatables
 			_detalhes:RestauraMetaTables()
-			
-		--> instances (windows)
-			_detalhes.tabela_instancias = _detalhes_database.tabela_instancias or {}
-			_detalhes.class_icons_small = _detalhes_database.class_icons_small
-			_detalhes.class_coords = _detalhes_database.class_coords
-			_detalhes.class_colors = _detalhes_database.class_colors
-			
+
 		--> get last combat table
 			local historico_UM = _detalhes.tabela_historico.tabelas[1]
 			
@@ -225,6 +228,22 @@ end --]]
 			end
 			
 			_detalhes.combat_id = _detalhes_database.combat_id
+			
+	----------------------------------------------------------------------------------------
+	--> estão nos profiles
+	----------------------------------------------------------------------------------------
+	
+		--> minimap
+			_detalhes.minimap = _detalhes_database.minimap
+		--> PvP
+			_detalhes.only_pvp_frags = _detalhes_database.only_pvp_frags
+
+		--> instances (windows)
+
+			_detalhes.tabela_instancias = _detalhes_database.tabela_instancias or {}
+			_detalhes.class_icons_small = _detalhes_database.class_icons_small
+			_detalhes.class_coords = _detalhes_database.class_coords
+			_detalhes.class_colors = _detalhes_database.class_colors
 
 			if (_detalhes_database.SoloTables) then
 				if (_detalhes_database.SoloTables.Mode) then
@@ -303,12 +322,12 @@ end --]]
 			_detalhes_database.tabela_pets = nil
 
 	else
-			_detalhes.tabela_instancias = {}
-			_detalhes.tabela_historico = _detalhes.historico:NovoHistorico()
-			_detalhes.tabela_pets = _detalhes.container_pets:NovoContainer()
-			_detalhes.tabela_overall = _detalhes.combate:NovaTabela()
-			_detalhes.tabela_vigente = _detalhes.combate:NovaTabela (_, _detalhes.tabela_overall)
-			_detalhes_database = {}
+		_detalhes.tabela_instancias = {}
+		_detalhes.tabela_historico = _detalhes.historico:NovoHistorico()
+		_detalhes.tabela_pets = _detalhes.container_pets:NovoContainer()
+		_detalhes.tabela_overall = _detalhes.combate:NovaTabela()
+		_detalhes.tabela_vigente = _detalhes.combate:NovaTabela (_, _detalhes.tabela_overall)
+		_detalhes_database = {}
 	end
 	
 	-- capture
@@ -333,7 +352,6 @@ end --]]
 	_detalhes.cloud_capture = _detalhes_database.cloud_capture
 	_detalhes.minimum_combat_time = _detalhes_database.minimum_combat_time
 	
-	
 -- On Account
 
 	local _detalhes_global = _G._detalhes_global
@@ -341,6 +359,8 @@ end --]]
 	if (_detalhes_global) then
 		--saved styles
 		--vardump (_detalhes_global.savedStyles)
+		
+		_detalhes.__profiiles = _detalhes_global.__profiiles
 		
 		_detalhes.savedStyles = _detalhes_global.savedStyles or _detalhes.savedStyles
 		_detalhes.standard_skin = _detalhes_global.standard_skin
@@ -371,6 +391,10 @@ end --]]
 		
 		--tutorial
 		_detalhes.tutorial = _detalhes_global.tutorial
+		
+		--profiles
+		_detalhes.__profiiles = _detalhes_global.__profiiles
+		
 	else
 		_detalhes.is_first_run = true
 	end
@@ -391,115 +415,53 @@ function _detalhes:WipeConfig()
 	
 end
 
-function _detalhes:ApplyConfigDataOnLoad()
-	
-	--> basic
-	self.instances_amount = self.instances_amount or 12
-	self.segments_amount = self.segments_amount or 12
-	self.segments_amount_to_save = self.segments_amount_to_save or 5
-	self.memory_threshold = self.memory_threshold or 3
-	self.memory_ram = self.memory_ram or 64
-	self.deadlog_limit = self.deadlog_limit or 12
-	self.minimum_combat_time = self.minimum_combat_time or 5
-	self.update_speed = self.update_speed or 1
-	self.time_type = self.time_type or 2
-	self.row_fade_in = self.row_fade_in or {"in", 0.2}
-	self.row_fade_out = self.row_fade_out or {"out", 0.2}
-	self.windows_fade_in = self.windows_fade_in or {"in", 0.2}
-	self.windows_fade_out = self.windows_fade_out or {"out", 0.2}
-	self.default_bg_color = self.default_bg_color or 0.0941
-	self.default_bg_alpha = self.default_bg_alpha or 0.7
-	self.new_window_size = self.new_window_size or {width = 300, height = 95}
-	self.max_window_size = self.max_window_size or {width = 480, height = 450}
-	self.window_clamp = self.window_clamp or {-8, 0, 21, -14}
-	self.window_clamp = {-8, 0, 21, -14}
-	self.report_lines = self.report_lines or 5
-	self.report_to_who = self.report_to_who or ""
-	self.animate_scroll = self.animate_scroll or false
-	self.use_scroll = self.use_scroll or false
-	self.font_sizes = self.font_sizes or {menus = 10}
-	self.minimap = self.minimap or {hide = false, radius = 160, minimapPos = 220}
+function _detalhes:SaveConfig()
 
-	self.ps_abbreviation = self.ps_abbreviation or 3
+	--> cleanup
+		_detalhes:PrepareTablesForSave()
+		_detalhes_database.tabela_instancias = _detalhes.tabela_instancias
+		
+	--> buffs
+		_detalhes.Buffs:SaveBuffs()
 	
-	self.plugin_database = self.plugin_database or {}
-	
-	--> tutorial
-	self.tutorial = self.tutorial or {}
-	self.tutorial.logons = self.tutorial.logons or 0
-	self.tutorial.unlock_button = self.tutorial.unlock_button or 0
-	self.tutorial.version_announce = self.tutorial.version_announce or 0
-	self.tutorial.main_help_button = self.tutorial.main_help_button or 0
-	self.tutorial.alert_frames = self.tutorial.alert_frames or {false, false, false, false, false, false}
-	self.tutorial.logons = self.tutorial.logons + 1
-	self.tutorial.main_help_button = self.tutorial.main_help_button + 1
-	self.character_data = self.character_data or {logons = 0}
-	self.character_data.logons = self.character_data.logons + 1
-
-	--> class colors
-	if (not self.class_colors or not self.class_colors.version or self.class_colors.version < self.class_colors_version) then
-		self.class_colors = {version = 1}
-		for classe, tabela_cor in pairs ( RAID_CLASS_COLORS ) do 
-			self.class_colors [classe] = {tabela_cor.r, tabela_cor.g, tabela_cor.b}
+	--> salva o container do personagem
+		for key, value in pairs (_detalhes.default_player_data) do
+			_detalhes_database [key] = _detalhes [key]
 		end
-		self.class_colors ["UNKNOW"] = {0.2, 0.2, 0.2}
-		self.class_colors ["UNGROUPPLAYER"] = {0.4, 0.4, 0.4}
-		self.class_colors ["PET"] = {0.3, 0.4, 0.5}
-		self.class_colors ["ENEMY"] = {0.94117, 0, 0.01960, 1}
-	end
 	
-	self.class_icons_small = self.class_icons_small or [[Interface\AddOns\Details\images\classes_small]]
-	
-	--> class coords
-	if (not self.class_coords or not self.class_coords.version or self.class_coords.version < self.class_coords_version) then
-		self.class_coords = {}
-		for class, tcoord in pairs (_G.CLASS_ICON_TCOORDS) do
-			self.class_coords [class] = tcoord
+	--> salva o container das globais
+		for key, value in pairs (_detalhes.default_global_data) do
+			if (key ~= "__profiles") then
+				_detalhes_global [key] = _detalhes [key]
+			end
 		end
 
-		self.class_coords ["Alliance"] = {0.49609375, 0.7421875, 0.75, 1}
-		self.class_coords ["Horde"] = {0.7421875, 0.98828125, 0.75, 1}
-		self.class_coords ["PET"] = {0.25, 0.49609375, 0.75, 1}
-		self.class_coords ["MONSTER"] = {0, 0.25, 0.75, 1}
-		self.class_coords ["ENEMY"] = {0, 0.25, 0.75, 1}
-		self.class_coords ["UNKNOW"] = {0.5, 0.75, 0.75, 1}
-		self.class_coords ["UNGROUPPLAYER"] = {0.5, 0.75, 0.75, 1}	
-	end
+	--> solo e raid mode
+		if (_detalhes.SoloTables.Mode) then
+			_detalhes_database.SoloTablesSaved = {}
+			_detalhes_database.SoloTablesSaved.Mode = _detalhes.SoloTables.Mode
+			if (_detalhes.SoloTables.Plugins [_detalhes.SoloTables.Mode]) then
+				_detalhes_database.SoloTablesSaved.LastSelected = _detalhes.SoloTables.Plugins [_detalhes.SoloTables.Mode].real_name
+			end
+		end
+		if (_detalhes.RaidTables.Mode) then
+			_detalhes_database.RaidTablesSaved = {}
+			_detalhes_database.RaidTablesSaved.Mode = _detalhes.RaidTables.Mode
+			if (_detalhes.RaidTables.Plugins [_detalhes.RaidTables.Mode]) then
+				_detalhes_database.RaidTablesSaved.LastSelected = _detalhes.RaidTables.Plugins [_detalhes.RaidTables.Mode].real_name
+			end
+		end
+		
+	--> salva switch tables
+		_detalhes_database.switchSaved.slots = _detalhes.switch.slots
+		_detalhes_database.switchSaved.table = _detalhes.switch.table
+	
+	--> last versions
+		_detalhes_database.last_realversion = _detalhes.realversion --> core number
+		_detalhes_database.last_version = _detalhes.userversion --> version
+		_detalhes_global.got_first_run = true
 
-	--> booleans
-	if (type (self.trash_concatenate) ~= "boolean") then
-		self.trash_concatenate = false
-	end
-	if (type (self.trash_auto_remove) ~= "boolean") then
-		self.trash_auto_remove = true
-	end
-	
-	if (type (self.only_pvp_frags) ~= "boolean") then
-		self.only_pvp_frags = false
-	end
-	
-	if (type (self.remove_realm_from_name) ~= "boolean") then
-		self.remove_realm_from_name = true
-	end
-	
-	if (type (self.cloud_capture) ~= "boolean") then
-		self.cloud_capture = true
-	end
-	
-	if (type (self.segments_panic_mode) ~= "boolean") then
-		self.segments_panic_mode = true
-	end
-	
-	if (type (self.clear_graphic) ~= "boolean") then
-		self.clear_graphic = self.clear_graphic or true
-	end
-	
-	if (type (self.clear_ungrouped) ~= "boolean") then
-		self.clear_ungrouped = self.clear_ungrouped or true
-	end
-	
-	if (type (self.use_row_animations) ~= "boolean") then
-		self.use_row_animations = self.use_row_animations or false
-	end
+	--> overwrite spells
+		_detalhes_global.SpellOverwriteUser = _detalhes.SpellOverwriteUser
 	
 end

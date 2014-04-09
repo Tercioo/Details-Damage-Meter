@@ -97,7 +97,7 @@ local _
 			menu_anchor = {-18, 1},
 			instance_button_anchor = {-12, 3},
 			instancebutton_info = {text_color = {.8, .6, .0, 0.8}, text_face = "Friz Quadrata TT", text_size = 10, color_overlay = {1, 1, 1, 1}},
-			resetbutton_info = {text_color = {.8, .8, .8, 0.8}, text_face = "Friz Quadrata TT", text_size = 12, color_overlay = {1, 1, 1, 1}, always_small = true},
+			resetbutton_info = {text_color = {.8, .8, .8, 0.8}, text_color_small = {0, 0, 0, 0}, text_face = "Friz Quadrata TT", text_size = 12, color_overlay = {1, 1, 1, 1}, always_small = true},
 			show_sidebars = false,
 			show_statusbar = false,
 			color = {.3, .3, .3, 1},
@@ -381,7 +381,7 @@ local _
 		--[[ when a skin is selected, all customized properties of the window is reseted and then the overwrites are applied]]
 		--[[ for the complete cprop list see the file classe_instancia_include.lua]]
 		instance_cprops = {
-			resetbutton_info = {text_color = {0.7, 0.7, 0.7, 1}, text_face = "Friz Quadrata TT", text_size = 12, color_overlay = {1, 1, 1, 1}},
+			resetbutton_info = {text_color = {0.7, 0.7, 0.7, 1}, text_color_small = {0, 0, 0, 0}, text_face = "Friz Quadrata TT", text_size = 12, color_overlay = {1, 1, 1, 1}},
 			instancebutton_info = {text_color = {.7, .7, .7, 1}, text_face = "Friz Quadrata TT", text_size = 12, color_overlay = {1, 1, 1, 1}},
 			menu_anchor = {-18, 1},
 			instance_button_anchor = {-27, 3},

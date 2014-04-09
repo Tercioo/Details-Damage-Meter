@@ -385,7 +385,7 @@ local siege_of_orgrimmar = {
 			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Norushen]],
 			
 			--combat_end = {1, 72276},
-			encounter_start = {delay = 25},
+			encounter_start = {delay = 0},
 			equalize = true,
 			
 			spell_mechanics =	{

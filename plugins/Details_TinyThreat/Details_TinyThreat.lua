@@ -288,6 +288,8 @@ local function CreatePluginFrames (data)
 				end
 				
 			else
+			
+				--> player
 				local thisplayer_name = GetUnitName ("player", true)
 				local threat_table_index = ThreatMeter.player_list_hash [thisplayer_name]
 				local threat_table = ThreatMeter.player_list_indexes [threat_table_index]
@@ -299,6 +301,24 @@ local function CreatePluginFrames (data)
 				else
 					threat_table [2] = 0
 					threat_table [3] = false
+				end
+				
+				--> pet
+				if (UnitExists ("pet")) then
+					local thisplayer_name = GetUnitName ("pet", true) .. " *PET*"
+					local threat_table_index = ThreatMeter.player_list_hash [thisplayer_name]
+					local threat_table = ThreatMeter.player_list_indexes [threat_table_index]
+
+					if (threat_table) then
+						local isTanking, status, threatpct, rawthreatpct, threatvalue = _UnitDetailedThreatSituation ("pet", "target")
+						if (status) then
+							threat_table [2] = threatpct
+							threat_table [3] = isTanking
+						else
+							threat_table [2] = 0
+							threat_table [3] = false
+						end
+					end
 				end
 			end
 			
@@ -313,10 +333,6 @@ local function CreatePluginFrames (data)
 				ThreatMeter:HideBars()
 				return
 			end
-			
-			 --and ThreatMeter.player_list_indexes [1] [2] > 0
-			-- ThreatMeter.player_list_indexes = {}
-			-- ThreatMeter.player_list_hash = {}
 			
 			local lastIndex = 0
 			local shownMe = false
@@ -447,9 +463,16 @@ local function CreatePluginFrames (data)
 				ThreatMeter.player_list_indexes [#ThreatMeter.player_list_indexes+1] = t
 				ThreatMeter.player_list_hash [thisplayer_name] = #ThreatMeter.player_list_indexes
 				
+				if (UnitExists ("pet")) then
+					local thispet_name = GetUnitName ("pet", true) .. " *PET*"
+					local role = "DAMAGER"
+					local t = {thispet_name, 0, false, role, class}
+					ThreatMeter.player_list_indexes [#ThreatMeter.player_list_indexes+1] = t
+					ThreatMeter.player_list_hash [thispet_name] = #ThreatMeter.player_list_indexes
+				end
 			end
 			
-			local job_thread = ThreatMeter:ScheduleRepeatingTimer ("Tick", 1)
+			local job_thread = ThreatMeter:ScheduleRepeatingTimer ("Tick", ThreatMeter.options.updatespeed)
 			ThreatMeter.job_thread = job_thread
 		end
 	end
@@ -500,7 +523,7 @@ function ThreatMeter:OnEvent (_, event, ...)
 				local MINIMAL_DETAILS_VERSION_REQUIRED = 1
 				
 				--> Install
-				local install = _G._detalhes:InstallPlugin ("TANK", Loc ["STRING_PLUGIN_NAME"], "Interface\\Icons\\Ability_Paladin_ShieldofVengeance", ThreatMeter, "DETAILS_PLUGIN_TINY_THREAT", MINIMAL_DETAILS_VERSION_REQUIRED, "Details! Team", "v1.02")
+				local install, saveddata = _G._detalhes:InstallPlugin ("TANK", Loc ["STRING_PLUGIN_NAME"], "Interface\\Icons\\Ability_Paladin_ShieldofVengeance", ThreatMeter, "DETAILS_PLUGIN_TINY_THREAT", MINIMAL_DETAILS_VERSION_REQUIRED, "Details! Team", "v1.04")
 				if (type (install) == "table" and install.error) then
 					print (install.error)
 				end
@@ -516,12 +539,57 @@ function ThreatMeter:OnEvent (_, event, ...)
 				ThreatMeterFrame:RegisterEvent ("PLAYER_TARGET_CHANGED")
 				ThreatMeterFrame:RegisterEvent ("PLAYER_REGEN_DISABLED")
 				ThreatMeterFrame:RegisterEvent ("PLAYER_REGEN_ENABLED")
+
+				--> Saved data
+				ThreatMeter.saveddata = saveddata or {}
+				
+				ThreatMeter.saveddata.updatespeed = ThreatMeter.saveddata.updatespeed or 1
+				ThreatMeter.saveddata.animate = ThreatMeter.saveddata.animate or false
+				ThreatMeter.saveddata.showamount = ThreatMeter.saveddata.showamount or false
+
+				ThreatMeter.options = ThreatMeter.saveddata
+				
+				--> Register slash commands
+				SLASH_DETAILS_TINYTHREAT1, SLASH_DETAILS_TINYTHREAT2 = "/tinythreat", "/tt"
+				
+				function SlashCmdList.DETAILS_TINYTHREAT (msg, editbox)
+				
+					local command, rest = msg:match("^(%S*)%s*(.-)$")
+					
+					if (command == Loc ["STRING_SLASH_ANIMATE"]) then
+					
+					elseif (command == Loc ["STRING_SLASH_SPEED"]) then
+					
+						if (rest) then
+							local speed = tonumber (rest)
+							if (speed) then
+								if (speed > 3) then
+									speed = 3
+								elseif (speed < 0.3) then
+									speed = 0.3
+								end
+								
+								ThreatMeter.saveddata.updatespeed = speed
+								ThreatMeter:Msg (Loc ["STRING_SLASH_SPEED_CHANGED"] .. speed)
+							else
+								ThreatMeter:Msg (Loc ["STRING_SLASH_SPEED_CURRENT"] .. ThreatMeter.saveddata.updatespeed)
+							end
+						end
+
+					elseif (command == Loc ["STRING_SLASH_AMOUNT"]) then
+					
+					else
+						
+						ThreatMeter:Msg (Loc ["STRING_COMMAND_LIST"])
+						print ("|cffffaeae/tinythreat " .. Loc ["STRING_SLASH_SPEED"] .. "|r: " .. Loc ["STRING_SLASH_SPEED_DESC"])
+					
+					end
+		
+					
+				end
 				
 			end
 		end
-
-	elseif (event == "PLAYER_LOGOUT") then
-		_detalhes_databaseThreat = ThreatMeter.data
 
 	end
 end
