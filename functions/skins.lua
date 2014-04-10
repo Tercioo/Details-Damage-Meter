@@ -383,17 +383,19 @@ local _
 		instance_cprops = {
 			resetbutton_info = {text_color = {0.7, 0.7, 0.7, 1}, text_color_small = {0, 0, 0, 0}, text_face = "Friz Quadrata TT", text_size = 12, color_overlay = {1, 1, 1, 1}},
 			instancebutton_info = {text_color = {.7, .7, .7, 1}, text_face = "Friz Quadrata TT", text_size = 12, color_overlay = {1, 1, 1, 1}},
-			menu_anchor = {-18, 1},
+			menu_anchor = {-20, 1},
 			instance_button_anchor = {-27, 3},
 			hide_icon = true,
 			desaturated_menu = true,
 			bg_alpha = 0.3,
-			row_info = {texture = "Details D'ictum", 
-					texture_class_colors = false, 
+			row_info = {
+					texture = "Details Serenity",
+					texture_class_colors = true, 
 					alpha = 1, 
 					texture_background_class_color = false,
+					texture_background = "Details D'ictum",
 					fixed_texture_color = {0, 0, 0},
-					fixed_texture_background_color = {0, 0, 0, 0.30},
+					fixed_texture_background_color = {0, 0, 0, 0.471},
 					space = {left = 1, right = -2, between = 0},
 			},
 			wallpaper = {

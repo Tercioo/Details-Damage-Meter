@@ -95,6 +95,8 @@ function _detalhes:IsFirstRun()
 		end
 		
 		for key, value in pairs (_detalhes.default_player_data) do 
+		
+			--> check if key exists
 			if (_detalhes_database [key] == nil) then
 				if (type (value) == "table") then
 					_detalhes_database [key] = table_deepcopy (_detalhes.default_player_data [key])
@@ -103,6 +105,7 @@ function _detalhes:IsFirstRun()
 				end
 			end
 			
+			--> copy the key from saved table to details object
 			if (type (value) == "table") then
 				_detalhes [key] = table_deepcopy (_detalhes_database [key])
 			else
@@ -117,6 +120,8 @@ function _detalhes:IsFirstRun()
 		end
 		
 		for key, value in pairs (_detalhes.default_global_data) do 
+		
+			--> check if key exists
 			if (_detalhes_global [key] == nil) then
 				if (type (value) == "table") then
 					_detalhes_global [key] = table_deepcopy (_detalhes.default_global_data [key])
@@ -125,6 +130,7 @@ function _detalhes:IsFirstRun()
 				end
 			end
 			
+			--> copy the key from saved table to details object
 			if (type (value) == "table") then
 				_detalhes [key] = table_deepcopy (_detalhes_global [key])
 			else
@@ -161,14 +167,14 @@ function _detalhes:LoadCombatTables()
 		_detalhes.tabela_pets = _detalhes_database.tabela_pets or _detalhes.container_pets:NovoContainer()
 		
 	--> if the core revision was incremented, reset all combat data
-		if (_detalhes.last_realversion < _detalhes.realversion) then
+		if (_detalhes_database.last_realversion and _detalhes_database.last_realversion < _detalhes.realversion) then
 			--> details was been hard upgraded
 			_detalhes.tabela_historico = _detalhes.historico:NovoHistorico()
 			_detalhes.tabela_pets = _detalhes.container_pets:NovoContainer()
 			_detalhes.tabela_overall = _detalhes.combate:NovaTabela()
 			_detalhes.tabela_vigente = _detalhes.combate:NovaTabela (_, _detalhes.tabela_overall)
 		end
-			
+
 	--> re-build all indexes and metatables
 		_detalhes:RestauraMetaTables()
 

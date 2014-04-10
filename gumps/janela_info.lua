@@ -1160,6 +1160,9 @@ function gump:CriaJanelaInfo()
 			},
 			["WARRIOR"] = {
 				[145672] = true, --riposte
+				[2565] = true, -- shield Block
+				[871] = true, --shield wall
+				[112048] = true, --shield barrier
 			},
 		}
 		

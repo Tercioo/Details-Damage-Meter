@@ -2783,6 +2783,12 @@
 					_detalhes.can_panic_mode = true
 				end
 				
+				if (_detalhes.wipe_full_config) then
+					_detalhes_global = nil
+					_detalhes_database = nil
+					return
+				end
+				
 				--if (UnitName ("player") == "Tiranaa" or UnitName ("player") == "Triciclo") then
 				
 					_detalhes:SaveConfig()
@@ -2809,11 +2815,11 @@
 					_detalhes.popup = _G.GameCooltip
 				end
 			
-				--> write into details object all basic keys
-				_detalhes:ApplyBasicKeys()
+				
+				--_detalhes:ApplyBasicKeys()
 			
 				--if (_detalhes_global and _detalhes_global.profile_pool and _detalhes_global.profile_pool [UnitGUID ("player")]) then
-					--> apply basic startup
+					--> write into details object all basic keys
 					_detalhes:ApplyBasicKeys()
 					--> check if is first run
 					_detalhes:IsFirstRun()

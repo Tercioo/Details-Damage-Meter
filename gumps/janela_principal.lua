@@ -2488,6 +2488,10 @@ function _detalhes:InstanceRefreshRows (instancia)
 		return
 	end
 	
+	--> texture
+		local texture_file = SharedMedia:Fetch ("statusbar", self.row_info.texture)
+		local texture_file2 = SharedMedia:Fetch ("statusbar", self.row_info.texture_background)
+	
 	--> outline values
 		local left_text_outline = self.row_info.textL_outline
 		local right_text_outline = self.row_info.textR_outline
@@ -2544,8 +2548,8 @@ function _detalhes:InstanceRefreshRows (instancia)
 		end
 		
 		--> texture:
-		row.textura:SetTexture (self.row_info.texture_file)
-		row.background:SetTexture (self.row_info.texture_background_file)
+		row.textura:SetTexture (texture_file)
+		row.background:SetTexture (texture_file2)
 		
 		--> texture class color: if true color changes on the fly through class refresh
 		if (not texture_class_color) then
@@ -3926,8 +3930,9 @@ function _detalhes:ChangeSkin (skin_name)
 		self:SetBackgroundAlpha()
 	
 	--> refresh all bars
+		
 		self:InstanceRefreshRows()
-	
+
 	--> update menu saturation
 		self:DesaturateMenu()
 	
@@ -3953,7 +3958,7 @@ function _detalhes:ChangeSkin (skin_name)
 		end
 		
 	end
-	
+
 end
 
 function _detalhes:ToolbarSide (side)

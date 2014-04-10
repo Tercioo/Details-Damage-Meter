@@ -253,5 +253,12 @@ do
 				print (Loc ["STRING_DETAILS1"] .. _string, arg1 or "", arg2 or "", arg3 or "", arg4 or "")
 			end
 		end
+		
+	--> welcome
+		function _detalhes:WelcomeMsgLogon()
+			_detalhes:Msg ("|cffb0b0b0you can always reset the addon running the command '/details reinstall' if it does fail to load after being updated.|r")
+		end
+		_detalhes:ScheduleTimer ("WelcomeMsgLogon", 8)
+		
 	
 end
