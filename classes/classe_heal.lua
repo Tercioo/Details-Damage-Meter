@@ -152,6 +152,24 @@ function _detalhes:ContainerSortHeal (container, amount, keyName2)
 	end
 end
 
+function atributo_heal:ContainerRefreshHps (container, combat_time)
+
+	if (_detalhes.time_type == 2 or not _detalhes:CaptureGet ("heal")) then
+		for _, actor in _ipairs (container) do
+			if (actor.grupo) then
+				actor.last_hps = actor.total / combat_time
+			else
+				actor.last_hps = actor.total / actor:Tempo()
+			end
+		end
+	else
+		for _, actor in _ipairs (container) do
+			actor.last_hps = actor.total / actor:Tempo()
+		end
+	end
+	
+end
+
 function atributo_heal:ReportSingleDamagePreventedLine (actor, instancia)
 	local barra = instancia.barras [actor.minha_barra]
 
@@ -256,6 +274,11 @@ function atributo_heal:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 		
 			conteudo = _detalhes.cache_healing_group
 
+			if (sub_atributo == 2) then --> hps
+				local combat_time = instancia.showing:GetCombatTime()
+				atributo_heal:ContainerRefreshHps (conteudo, combat_time)
+			end
+			
 			if (#conteudo < 1) then
 				return _detalhes:EsconderBarrasNaoUsadas (instancia, showing)
 			end
@@ -268,11 +291,16 @@ function atributo_heal:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 				instancia.top = conteudo[1][keyName]
 				amount = #conteudo
 			end
-		
+			
 			for i = 1, amount do 
 				total = total + conteudo[i][keyName]
 			end
+			
 		else
+			if (sub_atributo == 2) then --> hps
+				local combat_time = instancia.showing:GetCombatTime()
+				atributo_heal:ContainerRefreshHps (conteudo, combat_time)
+			end
 			--_table_sort (conteudo, _detalhes.SortKeyGroup)
 			_detalhes.SortGroupHeal (conteudo, keyName)
 		end
@@ -538,11 +566,11 @@ function atributo_heal:AtualizaBarra (instancia, barras_container, qual_barra, l
 		
 			hps = _math_floor (hps)
 			if (_detalhes.ps_abbreviation == 2) then
-				esta_barra.texto_direita:SetText (_detalhes:ToK (hps) .." ".. div_abre .. _detalhes:ToK (healing_total) .. ", ".._cstr("%.1f", porcentagem).."%" .. div_fecha) --seta o texto da direita
-			elseif (_detalhes.ps_abbreviation == 2) then
 				esta_barra.texto_direita:SetText (_detalhes:ToK2 (hps) .." ".. div_abre .. _detalhes:ToK (healing_total) .. ", ".._cstr("%.1f", porcentagem).."%" .. div_fecha) --seta o texto da direita
+			elseif (_detalhes.ps_abbreviation == 3) then
+				esta_barra.texto_direita:SetText (_detalhes:ToK2 (hps) .." ".. div_abre .. _detalhes:ToK2 (healing_total) .. ", ".._cstr("%.1f", porcentagem).."%" .. div_fecha) --seta o texto da direita
 			else
-				esta_barra.texto_direita:SetText (_cstr("%.1f", hps) .." ".. div_abre .. _detalhes:ToK (healing_total) .. ", ".._cstr("%.1f", porcentagem).."%" .. div_fecha) --seta o texto da direita
+				esta_barra.texto_direita:SetText (_detalhes:ToK2 (hps) .." ".. div_abre .. healing_total .. ", ".._cstr("%.1f", porcentagem).."%" .. div_fecha) --seta o texto da direita
 			end
 			esta_porcentagem = _math_floor ((hps/instancia.top) * 100) --> determina qual o tamanho da barra
 			

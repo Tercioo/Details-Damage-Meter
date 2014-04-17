@@ -967,6 +967,11 @@ do
 		[115310] = {180, 0, 0}, -- Revival
 		[119582] = {60, 0, 0}, -- Purifying Brew
 		[116844] = {45, 8, 0}, --Ring of Peace
+		[115308] = {0, 6, 0}, --Elusive Brew
+		[122783] = {90, 6}, -- Diffuse Magic
+		[122278] = {90, 45}, -- Dampen Harm
+		[115176] = {180, 8}, -- Zen Meditation
+		[115203] = {180, 20}, -- Fortifying Brew
 		
 		--["PALADIN"] = {},
 		[633] = {600, 0, 0}, --Lay on Hands
@@ -1024,12 +1029,8 @@ do
 		["MAGE"] = {45438},
 		
 		-- Monk
-		[115203] = {180, 20}, -- Fortifying Brew
 		[122470] = {90, 10}, -- Touch of Karma
-		[115176] = {180, 8}, -- Zen Meditation
 		[115213] = {180, 6}, -- Avert Harm
-		[122278] = {90, 45}, -- Dampen Harm
-		[122783] = {90, 6}, -- Diffuse Magic
 		["MONK"] = {115295, 115203, 122470, 115176, 116849, 115213, 122278, 122783},
 		
 		-- Paladin

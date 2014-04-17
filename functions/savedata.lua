@@ -13,6 +13,10 @@ end
 
 function _detalhes:SaveDataOnLogout()
 
+if (true) then
+	return
+end
+
 if (_detalhes.wipe_full_config) then
 	_detalhes_global = nil
 	_detalhes_database = nil
@@ -417,18 +421,28 @@ function _detalhes:WipeConfig()
 	
 end
 
+local is_exception = {
+	["nick_tag_cache"] = true
+}
+
 function _detalhes:SaveConfig()
+
+	--> nicktag cache
+		--_detalhes.copy_nick_tag = table_deepcopy (_detalhes_database.nick_tag_cache)
 
 	--> cleanup
 		_detalhes:PrepareTablesForSave()
 		_detalhes_database.tabela_instancias = _detalhes.tabela_instancias
+		_detalhes_database.tabela_historico = _detalhes.tabela_historico
 		
 	--> buffs
 		_detalhes.Buffs:SaveBuffs()
 	
 	--> salva o container do personagem
 		for key, value in pairs (_detalhes.default_player_data) do
-			_detalhes_database [key] = _detalhes [key]
+			if (not is_exception [key]) then
+				_detalhes_database [key] = _detalhes [key]
+			end
 		end
 	
 	--> salva o container das globais

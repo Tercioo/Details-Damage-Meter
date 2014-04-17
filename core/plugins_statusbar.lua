@@ -293,7 +293,8 @@
 	
 	--> build-in function for create a frame for an plugin child
 	function _detalhes.StatusBar:CreateChildFrame (instance, name, w, h)
-		local frame = _detalhes.gump:NewPanel (instance.baseframe.cabecalho.fechar, nil, name..instance:GetInstanceId(), nil, w or DEFAULT_CHILD_WIDTH, h or DEFAULT_CHILD_HEIGHT, false)
+		--local frame = _detalhes.gump:NewPanel (instance.baseframe.cabecalho.fechar, nil, name..instance:GetInstanceId(), nil, w or DEFAULT_CHILD_WIDTH, h or DEFAULT_CHILD_HEIGHT, false)
+		local frame = _detalhes.gump:NewPanel (instance.baseframe.DOWNFrame, nil, name..instance:GetInstanceId(), nil, w or DEFAULT_CHILD_WIDTH, h or DEFAULT_CHILD_HEIGHT, false)
 
 		--create widgets
 		local text = _detalhes.gump:NewLabel (frame, nil, "$parentText", "text", "0")

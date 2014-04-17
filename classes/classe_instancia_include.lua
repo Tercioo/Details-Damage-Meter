@@ -35,17 +35,19 @@ _detalhes.instance_defaults = {
 
 	--skin
 		skin = "Default Skin",
-	--baseframe backdrop color
+	--baseframe backdrop
 		bg_alpha = 0.7,
 		bg_r = 0.0941,
 		bg_g = 0.0941,
 		bg_b = 0.0941,
+		backdrop_texture = "Details Ground",
 	--auto current
 		auto_current = true,
 	--show sidebars
 		show_sidebars = true,
 	--show bottom statusbar
 		show_statusbar = true,
+		statusbar_info = {alpha = 1, overlay = {1, 1, 1}},
 	--blackwhiite icons
 		desaturated_menu = false,
 	--hide main window attribute icon
@@ -66,13 +68,20 @@ _detalhes.instance_defaults = {
 		instancebutton_info = {text_color = {1, 0.82, 0, 1}, text_face = "Friz Quadrata TT", text_size = 12, color_overlay = {1, 1, 1, 1}},
 	--close button info
 		closebutton_info = {color_overlay = {1, 1, 1, 1}},
-	--menu anchor store the anchor point of main menu
-		menu_anchor = {5, 1},
+	--menus:
+		--anchor store the anchor point of main menu
+		menu_anchor = {5, 1, side = 1},
+		--auto hide window borders
+		menu_alpha = {enabled = false, iconstoo = true, onenter = 1, onleave = 1},
+		--auto hide menu
+		auto_hide_menu = {left = false, right = false},
+		--attribute text
+		attribute_text = {enabled = false, anchor = {5, 1}, text_face = "Friz Quadrata TT", text_size = 12, text_color = {1, 1, 1, 1}, side = 1},
 	--instance button anchor store the anchor point of instance and delete button
 		instance_button_anchor = {-27, 1},
 	--total bar
 		total_bar = {enabled = false, color = {1, 1, 1}, only_in_group = true, icon = [[Interface\ICONS\INV_Sigil_Thorim]]},
-		
+	
 	--row info
 		row_info = {
 			--if true the texture of the bars will have the color of his actor class
@@ -117,10 +126,13 @@ _detalhes.instance_defaults = {
 				space = {left = 3, right = -5, between = 1},
 			--icon file
 				icon_file = [[Interface\AddOns\Details\images\classes_small]],
+				no_icon = false,
+				start_after_icon = true,
 				
 		},
 	--instance window color
 		color = {1, 1, 1, 1},
+		color_buttons = {1, 1, 1, 1},
 	--hide in combat
 		hide_in_combat = false,
 		hide_in_combat_alpha = 0,

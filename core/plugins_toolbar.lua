@@ -57,8 +57,6 @@
 		
 		_detalhes.ToolBar.AllButtons [#_detalhes.ToolBar.AllButtons+1] = button
 		
-		
-		
 		return button
 	end
 	
@@ -171,7 +169,8 @@
 
 	_detalhes:RegisterEvent (_detalhes.ToolBar, "DETAILS_INSTANCE_OPEN", "OnInstanceOpen")
 	_detalhes:RegisterEvent (_detalhes.ToolBar, "DETAILS_INSTANCE_CLOSE", "OnInstanceClose")
-	_detalhes.ToolBar.Enabled = true --> must have this member or will not receive the event
+	_detalhes.ToolBar.Enabled = true --> must have this member or wont receive the event
+	_detalhes.ToolBar.__enabled = true
 
 	function _detalhes.ToolBar:OnInstanceOpen() 
 		_detalhes.ToolBar:ReorganizeIcons()
@@ -194,10 +193,6 @@
 
 		local instance = _detalhes:GetInstance (lower_instance)
 		
-		if (just_refresh) then
-			
-		end
-		
 		_detalhes:ResetButtonSnapTo (instance)
 		_detalhes.ResetButtonInstance = lower_instance
 		
@@ -206,6 +201,7 @@
 			local LastIcon
 			
 			local x = 0
+			local to_alpha = instance:GetInstanceIconsCurrentAlpha()
 			
 			if (instance.plugins_grow_direction == 2) then --> right direction
 			
@@ -228,7 +224,10 @@
 					else
 						ThisButton:SetPoint ("left", LastIcon, "right", ThisButton.x + x, ThisButton.y)
 					end
+					
 					ThisButton:Show()
+					ThisButton:SetAlpha (to_alpha)
+					
 					LastIcon = ThisButton
 				end
 
@@ -245,12 +244,14 @@
 					ThisButton:SetParent (instance.baseframe.UPFrame)
 					
 					ThisButton:SetPoint ("right", LastIcon, "left", ThisButton.x + x, ThisButton.y)
+					
 					ThisButton:Show()
+					ThisButton:SetAlpha (to_alpha)
+					
 					LastIcon = ThisButton
 				end
 			end
 			
-
 		end
 		
 		if (not just_refresh) then
@@ -261,6 +262,8 @@
 			end
 
 			instance:ChangeSkin()
+		else
+			instance:SetMenuAlpha()
 		end
 		
 		return true

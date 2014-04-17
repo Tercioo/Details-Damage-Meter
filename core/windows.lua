@@ -141,23 +141,62 @@
 			self = instance
 		end
 
-		local xOfs, yOfs = self.baseframe:GetCenter() 
+		local mostrando = self.mostrando
+		
+		local baseframe_width = math.floor (self.baseframe:GetWidth())
+		local baseframe_height = math.floor (self.baseframe:GetHeight())
+		
+		if (not baseframe_width) then
+			return _detalhes:ScheduleTimer ("SaveMainWindowPosition", 1, self)
+		end
+		
+		--[[
+		if (baseframe_width % 2 ~= 0) then
+			if (self.posicao[mostrando].w > baseframe_width) then
+				baseframe_width = baseframe_width +1
+			else
+				baseframe_width = baseframe_width -1
+			end
+		end
+		self.baseframe:SetWidth (baseframe_width)
+		if (baseframe_height % 2 ~= 0) then
+			if (self.posicao[mostrando].h > baseframe_height) then
+				baseframe_height = baseframe_height +1
+			else
+				baseframe_height = baseframe_height -1
+			end
+		end
+		self.baseframe:SetHeight (baseframe_height)
+		--]]
+		
+		local xOfs, yOfs = self.baseframe:GetCenter()
 		
 		if (not xOfs) then
 			--> this is a small and unknow bug when resizing all windows throgh crtl key (all) the last window of a horizontal row can't 'GetCenter'.
 			--> so, the trick is we start a timer to save pos later.
 			return _detalhes:ScheduleTimer ("SaveMainWindowPosition", 1, self)
 		end
+
+		--xOfs = math.floor (xOfs)
+		--yOfs = math.floor (yOfs)
+		
+		if (xOfs % 2 ~= 0) then
+			--xOfs = xOfs -1
+		end
+		if (yOfs % 2 ~= 0) then
+			--yOfs = yOfs -1
+		end
+		
+		local q, w = self.baseframe:GetCenter()
 		
 		local _scale = self.baseframe:GetEffectiveScale()
 		local _UIscale = _UIParent:GetScale()
-		local mostrando = self.mostrando
 
 		xOfs = xOfs*_scale - _GetScreenWidth()*_UIscale/2
 		yOfs = yOfs*_scale - _GetScreenHeight()*_UIscale/2
 		
-		local _w = self.baseframe:GetWidth()
-		local _h = self.baseframe:GetHeight()
+		local _w = baseframe_width
+		local _h = baseframe_height
 		local _x = xOfs/_UIscale
 		local _y = yOfs/_UIscale
 		
@@ -267,10 +306,18 @@
 				if (self.baseframe:GetWidth() < 215 or self.resetbutton_info.always_small) then
 					gump:Fade (_detalhes.ResetButton, 1)
 					gump:Fade (_detalhes.ResetButton2, 0)
+					
+					local alpha = self:GetInstanceCurrentAlpha()
+					_detalhes.ResetButton2:SetAlpha (alpha)
+					
 					_detalhes.ResetButtonMode = 2
 				else
 					gump:Fade (_detalhes.ResetButton, 0)
 					gump:Fade (_detalhes.ResetButton2, 1)
+					
+					local alpha = self:GetInstanceCurrentAlpha()
+					_detalhes.ResetButton2:SetAlpha (alpha)
+					
 					_detalhes.ResetButtonMode = 1
 				end
 			end
@@ -405,14 +452,16 @@
 				end
 				
 				for index = T+1, C do
-					if (index <= X) then
-						gump:Fade (self.barras[index], "out")
-					else
-						--gump:Fade (self.barras[index], "in")
-						if (self.baseframe.isStretching or self.auto_resize) then
-							gump:Fade (self.barras[index], 1)
+					local barra = self.barras[index]
+					if (barra) then
+						if (index <= X) then
+							gump:Fade (barra, "out")
 						else
-							gump:Fade (self.barras[index], "in", 0.1)
+							if (self.baseframe.isStretching or self.auto_resize) then
+								gump:Fade (barra, 1)
+							else
+								gump:Fade (barra, "in", 0.1)
+							end
 						end
 					end
 				end
@@ -436,11 +485,13 @@
 					self.barraS[2] = fim_iterator
 					
 					for index = T, C+1, -1 do
-						--gump:Fade (self.barras[index], "in")
-						if (self.baseframe.isStretching or self.auto_resize) then
-							gump:Fade (self.barras[index], 1)
-						else
-							gump:Fade (self.barras[index], "in", 0.1)
+						local barra = self.barras[index]
+						if (barra) then
+							if (self.baseframe.isStretching or self.auto_resize) then
+								gump:Fade (barra, 1)
+							else	
+								gump:Fade (barra, "in", 0.1)
+							end
 						end
 					end
 				end
@@ -663,3 +714,141 @@
 		end
 	
 	end
+
+	
+--> create bubble
+	local f = CreateFrame ("frame", "DetailsBubble", UIParent)
+	f:SetPoint ("center", UIParent, "center")
+	f:SetSize (100, 100)
+	f:SetFrameStrata ("TOOLTIP")
+	f.isHorizontalFlipped = false
+	f.isVerticalFlipped = false
+	
+	local t = f:CreateTexture (nil, "artwork")
+	t:SetTexture ([[Interface\AddOns\Details\images\icons]])
+	t:SetSize (131 * 1.2, 81 * 1.2)
+	--377 328 508 409  0.0009765625
+	t:SetTexCoord (0.7373046875, 0.9912109375, 0.6416015625, 0.7978515625)
+	t:SetPoint ("center", f, "center")
+	
+	local line1 = f:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+	line1:SetPoint ("topleft", t, "topleft", 24, -10)
+	_detalhes:SetFontSize (line1, 9)
+	line1:SetTextColor (.9, .9, .9, 1)
+	line1:SetSize (110, 12)
+	line1:SetJustifyV ("center")
+	line1:SetJustifyH ("center")
+
+	local line2 = f:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+	line2:SetPoint ("topleft", t, "topleft", 11, -20)
+	_detalhes:SetFontSize (line2, 9)
+	line2:SetTextColor (.9, .9, .9, 1)
+	line2:SetSize (140, 12)
+	line2:SetJustifyV ("center")
+	line2:SetJustifyH ("center")
+	
+	local line3 = f:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+	line3:SetPoint ("topleft", t, "topleft", 7, -30)
+	_detalhes:SetFontSize (line3, 9)
+	line3:SetTextColor (.9, .9, .9, 1)
+	line3:SetSize (144, 12)
+	line3:SetJustifyV ("center")
+	line3:SetJustifyH ("center")
+	
+	local line4 = f:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+	line4:SetPoint ("topleft", t, "topleft", 11, -40)
+	_detalhes:SetFontSize (line4, 9)
+	line4:SetTextColor (.9, .9, .9, 1)
+	line4:SetSize (140, 12)
+	line4:SetJustifyV ("center")
+	line4:SetJustifyH ("center")
+
+	local line5 = f:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+	line5:SetPoint ("topleft", t, "topleft", 24, -50)
+	_detalhes:SetFontSize (line5, 9)
+	line5:SetTextColor (.9, .9, .9, 1)
+	line5:SetSize (110, 12)
+	line5:SetJustifyV ("center")
+	line5:SetJustifyH ("center")
+	
+	f.lines = {line1, line2, line3, line4, line5}
+	
+	--t:SetPoint ("center", UIParent, "center")
+	
+	function f:FlipHorizontal()
+		if (not f.isHorizontalFlipped) then
+			if (f.isVerticalFlipped) then
+				t:SetTexCoord (0.9912109375, 0.7373046875, 0.7978515625, 0.6416015625)
+			else
+				t:SetTexCoord (0.9912109375, 0.7373046875, 0.6416015625, 0.7978515625)
+			end
+			f.isHorizontalFlipped = true
+		else
+			if (f.isVerticalFlipped) then
+				t:SetTexCoord (0.7373046875, 0.9912109375, 0.7978515625, 0.6416015625)
+			else
+				t:SetTexCoord (0.7373046875, 0.9912109375, 0.6416015625, 0.7978515625)
+			end
+			f.isHorizontalFlipped = false
+		end
+	end
+	
+	function f:FlipVertical()
+	
+		if (not f.isVerticalFlipped) then
+			if (f.isHorizontalFlipped) then
+				t:SetTexCoord (0.7373046875, 0.9912109375, 0.7978515625, 0.6416015625)
+			else
+				t:SetTexCoord (0.9912109375, 0.7373046875, 0.7978515625, 0.6416015625)
+			end
+			f.isVerticalFlipped = true
+		else
+			if (f.isHorizontalFlipped) then
+				t:SetTexCoord (0.7373046875, 0.9912109375, 0.6416015625, 0.7978515625)
+			else
+				t:SetTexCoord (0.9912109375, 0.7373046875, 0.6416015625, 0.7978515625)
+			end
+			f.isVerticalFlipped = false
+		end
+	end
+	
+	function f:SetBubbleText (line1, line2, line3, line4, line5)
+		if (not line1) then
+			for _, line in ipairs (f.lines) do
+				line:SetText ("")
+			end
+			return
+		end
+		
+		if (line1:find ("\n")) then
+			line1, line2, line3, line4, line5 = strsplit ("\n", line1)
+		end
+		
+		f.lines[1]:SetText (line1)
+		f.lines[2]:SetText (line2)
+		f.lines[3]:SetText (line3)
+		f.lines[4]:SetText (line4)
+		f.lines[5]:SetText (line5)
+	end
+	
+	function f:SetOwner (frame, myPoint, hisPoint, x, y, alpha)
+		f:ClearAllPoints()
+		f:SetBubbleText (nil)
+		t:SetTexCoord (0.7373046875, 0.9912109375, 0.6416015625, 0.7978515625)
+		f.isHorizontalFlipped = false
+		f.isVerticalFlipped = false
+		f:SetPoint (myPoint or "bottom", frame, hisPoint or "top", x or 0, y or 0)
+		t:SetAlpha (alpha or 1)
+	end
+	
+	function f:ShowBubble()
+		f:Show()
+	end
+	
+	function f:HideBubble()
+		f:Hide()
+	end
+	
+	f:SetBubbleText (nil)
+	
+	f:Hide()	

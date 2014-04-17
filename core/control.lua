@@ -320,7 +320,7 @@
 			for index, instancia in ipairs (_detalhes.tabela_instancias) do 
 				if (instancia.ativa) then
 					if (instancia.hide_in_combat) then
-						instancia:SetWindowAlpha (instancia.hide_in_combat_alpha / 100)
+						instancia:SetWindowAlphaForCombat (true)
 					end
 					
 					if (instancia.auto_switch_to) then
@@ -569,7 +569,7 @@
 			for index, instancia in ipairs (_detalhes.tabela_instancias) do 
 				if (instancia.ativa) then
 					if (instancia.hide_in_combat) then
-						instancia:SetWindowAlpha (1, true)
+						instancia:SetWindowAlphaForCombat (false)
 					end
 					if (instancia.auto_switch_to_old) then
 						instancia:SwitchBack()

@@ -95,6 +95,18 @@ function _detalhes:GetLowerInstanceNumber()
 	end
 end
 
+function _detalhes:IsLowerInstance()
+	local lower = _detalhes:GetLowerInstanceNumber()
+	if (lower) then
+		return lower == self.meu_id
+	end
+	return false
+end
+
+function _detalhes:IsInteracting()
+	return self.is_interacting
+end
+
 function _detalhes:GetMode()
 	return self.modo
 end
@@ -295,6 +307,8 @@ end
 		
 		gump:Fade (self.baseframe.cabecalho.ball, 0)
 		gump:Fade (self.baseframe, 0)
+		
+		self:SetMenuAlpha()
 		
 		self.baseframe.cabecalho.fechar:Enable()
 		
@@ -720,6 +734,18 @@ end
 		
 		--> setup all config
 			new_instance:ResetInstanceConfig()
+			--> setup default wallpaper
+			local spec = GetSpecialization()
+			if (spec) then
+				local id, name, description, icon, _background, role = GetSpecializationInfo (spec)
+				if (_background) then
+					local bg = "Interface\\TALENTFRAME\\" .. _background
+					if (new_instance.wallpaper) then
+						new_instance.wallpaper.texture = bg
+						new_instance.wallpaper.texcoord = {0, 1, 0, 0.703125}
+					end
+				end
+			end
 
 		--> internal stuff
 			new_instance.barras = {} --container que irá armazenar todas as barras
@@ -791,6 +817,7 @@ end
 		--> internal stuff
 			new_instance.row_height = new_instance.row_info.height + new_instance.row_info.space.between
 			
+			new_instance.oldwith = new_instance.baseframe:GetWidth()
 			new_instance.iniciada = true
 			new_instance:SaveMainWindowPosition()
 			new_instance:ReajustaGump()
@@ -943,6 +970,7 @@ function _detalhes:RestauraJanela (index, temp)
 		end
 
 	--> internal stuff
+		self.oldwith = self.baseframe:GetWidth()
 		self:RestoreMainWindowPosition()
 		self:ReajustaGump()
 		self:SaveMainWindowPosition()
@@ -967,7 +995,7 @@ function _detalhes:ExportSkin()
 	}
 
 	for key, value in pairs (self) do
-		if (_detalhes.instance_defaults [key]) then	
+		if (_detalhes.instance_defaults [key] ~= nil) then	
 			if (type (value) == "table") then
 				exported [key] = table_deepcopy (value)
 			else
@@ -1051,8 +1079,8 @@ function _detalhes:SetBackgroundAlpha (alpha)
 --		alpha = _detalhes:Scale (0, 1, 0.2, 1, alpha) - 0.8
 	end
 	
-	self.bgdisplay:SetBackdropColor (self.bg_r or _detalhes.default_bg_color, self.bg_g or _detalhes.default_bg_color, self.bg_b or _detalhes.default_bg_color, alpha)
-	self.baseframe:SetBackdropColor (self.bg_r or _detalhes.default_bg_color, self.bg_g or _detalhes.default_bg_color, self.bg_b or _detalhes.default_bg_color, alpha)
+	self.bgdisplay:SetBackdropColor (self.bg_r, self.bg_g, self.bg_b, alpha)
+	self.baseframe:SetBackdropColor (self.bg_r, self.bg_g, self.bg_b, alpha)
 	self.bg_alpha = alpha
 end
 

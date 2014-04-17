@@ -143,7 +143,11 @@ do
 	
 	--> return the boss portrit
 	function _detalhes:GetBossPortrait (mapid, bossindex)
-		return _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].encounters [bossindex].portrait
+		if (mapid and bossindex) then
+			return _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].encounters [bossindex].portrait
+		else
+			return false
+		end
 	end
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

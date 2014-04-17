@@ -53,6 +53,7 @@ local _
 		
 		instance_cprops = {
 			menu_anchor = {5, 1},
+			plugins_grow_direction = 2,
 		}
 		
 	})
@@ -94,7 +95,7 @@ local _
 		--overwrites
 		instance_cprops = {
 			hide_icon = true,
-			menu_anchor = {-18, 1},
+			menu_anchor = {-81, 1, side = 2},
 			instance_button_anchor = {-12, 3},
 			instancebutton_info = {text_color = {.8, .6, .0, 0.8}, text_face = "Friz Quadrata TT", text_size = 10, color_overlay = {1, 1, 1, 1}},
 			resetbutton_info = {text_color = {.8, .8, .8, 0.8}, text_color_small = {0, 0, 0, 0}, text_face = "Friz Quadrata TT", text_size = 12, color_overlay = {1, 1, 1, 1}, always_small = true},
@@ -102,6 +103,12 @@ local _
 			show_statusbar = false,
 			color = {.3, .3, .3, 1},
 			bg_alpha = 0.2,
+			plugins_grow_direction = 1,
+			row_info = {
+				texture = "Blizzard Character Skills Bar",
+				font_face = "Arial Narrow",
+			},
+			attribute_text = {enabled = true, side = 1, text_size = 12, anchor = {-18, 4}, text_color = {1, 1, 1, 1}, text_face = "Arial Narrow"},			
 		},
 		
 		callback = function (skin)
@@ -349,10 +356,14 @@ local _
 		
 		--reset button
 		reset_button_coords = {0.01904296875, 0.0673828125, 0.50244140625, 0.51708984375},
-		reset_button_small_coords = {0.11669921875, 0.13720703125, 0.50244140625, 0.51708984375},
-		
+		--reset_button_small_coords = {0.11669921875, 0.13720703125, 0.50244140625, 0.51708984375},
+		reset_button_small_coords = {0.1162109375, 0.13671875, 0.50390625, 0.5146484375+0.00048828125+0.00048828125}, -- 119 516 140 527
+		reset_button_small_size = {22, 12},
 		--instance button
-		instance_button_coords = {0.01904296875, 0.04736328125, 0.48388671875, 0.49853515625},
+		--instance_button_coords = {0.01904296875, 0.04736328125, 0.48388671875, 0.49853515625},
+		instance_button_coords = {0.0185546875, 0.046875+0.00048828125, 0.4833984375, 0.498046875+0.00048828125},--19 495 48 510
+		instance_button_size = 12,
+		--0.00048828125
 		
 		--close button
 		close_button_coords = {0.01904296875, 0.03369140625, 0.52197265625, 0.53662109375},
@@ -399,15 +410,17 @@ local _
 					space = {left = 1, right = -2, between = 0},
 			},
 			wallpaper = {
-				overlay = {0, 0,	0, 0.498038113117218},
+				overlay = {0, 0,	0},
 				width = 227.1267691385938,
 				texcoord = {0.001000000014901161, 0.1710000038146973, 0.001000000014901161, 0.3539316177368164},
 				enabled = true,
 				anchor = "all",
 				height = 89.00001440917025,
-				alpha = 0.4980392451398075,
+				alpha = 0.6,
 				texture = "Interface\\Glues\\CREDITS\\Badlands3",
 			}
 		}
 	})
+	
+	--alpha = 0.4980392451398075,
 	

@@ -11,6 +11,7 @@ local _math_floor = math.floor --> lua local
 local loadstring = loadstring --> lua local
 
 local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
+local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
 
 local cleanfunction = function() end
 local APISliderFunctions = false
@@ -315,8 +316,11 @@ local SliderMetaFunctions = {}
 		slider.thumb:SetAlpha (1)
 	
 		if (slider.MyObject.have_tooltip) then 
-			GameCooltip:Reset()
+			_detalhes:CooltipPreset (1)
 			GameCooltip:AddLine (slider.MyObject.have_tooltip)
+			if (slider.MyObject.have_tooltip == Loc ["STRING_RIGHTCLICK_TYPEVALUE"]) then
+				GameCooltip:AddIcon ([[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]], 1, 1, 16, 16, 0.015625, 0.15671875, 0.640625, 0.798828125)
+			end
 			GameCooltip:ShowCooltip (slider, "tooltip")
 		end
 		
@@ -474,13 +478,73 @@ local SliderMetaFunctions = {}
 		end
 		slider.MyObject.ivalue = amt
 	end
-	
-	
 
 ------------------------------------------------------------------------------------------------------------
 --> object constructor
 
-function gump:NewSwitch (parent, container, name, member, w, h, ltext, rtext, defaultv, color_inverted)
+local SwitchOnClick = function (self, button, forced_value, value)
+
+	local slider = self.MyObject
+	
+	if (forced_value) then
+		rawset (slider, "value", not value)
+	end
+
+	if (rawget (slider, "value")) then --actived
+	
+		rawset (slider, "value", false)
+		slider._text:SetText (slider._ltext)
+		slider._thumb:ClearAllPoints()
+		
+		slider:SetBackdropColor (1, 0, 0, 0.4)
+		slider._thumb:SetPoint ("left", slider.widget, "left")
+	
+	else
+	
+		rawset (slider, "value", true)
+		slider._text:SetText (slider._rtext)
+		slider._thumb:ClearAllPoints()
+
+		slider:SetBackdropColor (0, 0, 1, 0.4)
+		slider._thumb:SetPoint ("right", slider.widget, "right")
+
+	end
+	
+	if (slider.OnSwitch and not forced_value) then
+		local value = rawget (slider, "value")
+		if (slider.return_func) then
+			value = slider:return_func (value)
+		end
+		slider.OnSwitch (slider, slider.FixedValue, value)
+	end
+	
+end
+
+local default_switch_func = function (self, passed_value)
+	if (self.value) then
+		return false
+	else
+		return true
+	end
+end
+
+local switch_get_value = function (self)
+	return self.value
+end
+
+local switch_set_value = function (self, value)
+	if (self.switch_func) then
+		value = self:switch_func (value)
+	end
+	
+	SwitchOnClick (self.widget, nil, true, value)
+end
+
+local switch_set_fixparameter = function (self, value)
+	_rawset (self, "FixedValue", value)
+end
+
+function gump:NewSwitch (parent, container, name, member, w, h, ltext, rtext, default_value, color_inverted, switch_func, return_func)
 
 --> early checks
 	if (not name) then
@@ -496,54 +560,47 @@ function gump:NewSwitch (parent, container, name, member, w, h, ltext, rtext, de
 	ltext = ltext or "OFF"
 	rtext = rtext or "ON"
 	
-	if (type (defaultv) == "boolean" and not defaultv) then
-		defaultv = 1
-	elseif (type (defaultv) == "boolean" and defaultv) then
-		defaultv = 2
-	else
-		defaultv = defaultv or 1
-	end
-
 --> build frames
-	local slider = gump:NewSlider (parent, container, name, member, w, h, 1, 2, 1, defaultv, nil, true)
+	
+	local slider = gump:NewButton (parent, container, name, member, w, h)
+	
+	slider.switch_func = switch_func
+	slider.return_func = return_func
+	slider.SetValue = switch_set_value
+	slider.GetValue = switch_get_value
+	slider.SetFixedParameter = switch_set_fixparameter
+	
+	if (member) then
+		parent [member] = slider
+	end
 	
 	slider:SetBackdrop ({edgeFile = [[Interface\Buttons\UI-SliderBar-Border]], edgeSize = 8,
 	bgFile = [[Interface\AddOns\Details\images\background]], insets = {left = 3, right = 3, top = 5, bottom = 5}})
 	
+	local thumb = slider:CreateTexture (nil, "artwork")
+	thumb:SetTexture ("Interface\\Buttons\\UI-ScrollBar-Knob")
+	thumb:SetSize (34+(h*0.2), h*1.2)
+	thumb:SetAlpha (0.7)
+	thumb:SetPoint ("left", slider.widget, "left")
+	
+	local text = slider:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+	text:SetTextColor (.8, .8, .8, 1)
+	text:SetPoint ("center", thumb, "center")
+	
+	slider._text = text
+	slider._thumb = thumb
+	slider._ltext = ltext
+	slider._rtext = rtext
+	slider.thumb = thumb
+
 	slider.invert_colors = color_inverted
 	
-	slider:SetHook ("OnValueChange", function (self)
-		if (slider:GetValue() == 1) then
-			slider.amt:SetText (ltext)
-			if (slider.OnSwitch) then
-				slider.OnSwitch (slider, slider.FixedValue, false)
-			end
-			if (not slider.invert_colors) then
-				slider:SetBackdropColor (1, 0, 0, 0.4)
-			else
-				slider:SetBackdropColor (0, 0, 1, 0.4)
-			end
-		else
-			slider.amt:SetText (rtext)
-			if (slider.OnSwitch) then
-				slider.OnSwitch (slider, slider.FixedValue, true)
-			end
-			
-			if (not slider.invert_colors) then
-				slider:SetBackdropColor (0, 0, 1, 0.4)
-			else
-				slider:SetBackdropColor (1, 0, 0, 0.4)
-			end
-		end
-		return true
-	end)
-	
-	slider:SetValue (1)
-	slider:SetValue (2)
-	slider:SetValue (defaultv)
-	
+	slider:SetScript ("OnClick", SwitchOnClick)
+
+	slider:SetValue (default_value)
+
 	slider.isSwitch = true
-	
+
 	return slider
 end
 
@@ -621,17 +678,12 @@ function gump:NewSlider (parent, container, name, member, w, h, min, max, step, 
 	SliderObject.slider:SetValueStep (step)
 	SliderObject.slider:SetValue (defaultv)
 	SliderObject.ivalue = defaultv
-	
-	--SliderObject.amt = _G [name .. "_Amt"]
-	--SliderObject.lock = _G [name .. "_LockTexture"]
-	--SliderObject.thumb = _G [name .. "_ThumbTexture"]
-	
+
 	SliderObject.slider:SetBackdrop ({edgeFile = "Interface\\Buttons\\UI-SliderBar-Border", edgeSize = 8})
 	SliderObject.slider:SetBackdropColor (0.9, 0.7, 0.7, 1.0)
-	
+
 	SliderObject.thumb = SliderObject.slider:CreateTexture (nil, "artwork")
 	SliderObject.thumb:SetTexture ("Interface\\Buttons\\UI-ScrollBar-Knob")
-	--SliderObject.thumb:SetSize (30, 24)
 	SliderObject.thumb:SetSize (30+(h*0.2), h*1.2)
 	SliderObject.thumb:SetAlpha (0.7)
 	SliderObject.slider:SetThumbTexture (SliderObject.thumb)

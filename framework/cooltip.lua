@@ -2,6 +2,7 @@
 local _detalhes = 		_G._detalhes
 local AceLocale = LibStub ("AceLocale-3.0")
 local Loc = AceLocale:GetLocale ( "Details" )
+local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
 
 local gump = 			_detalhes.gump
 local _
@@ -86,6 +87,7 @@ function DetailsCreateCoolTip()
 			["StatusBarTexture"] = true,
 			["TextSize"] = true,
 			["TextFont"] = true,
+			["TextColor"] = true,
 			["LeftTextWidth"] = true,
 			["RightTextWidth"] = true,
 			["LeftTextHeight"] = true,
@@ -126,6 +128,7 @@ function DetailsCreateCoolTip()
 			["StatusBarTexture"] = nil,
 			["TextSize"] = nil,
 			["TextFont"] = nil,
+			["TextColor"] = nil,
 			["LeftTextWidth"] = nil,
 			["RightTextWidth"] = nil,
 			["LeftTextHeight"] = nil,
@@ -592,7 +595,7 @@ function DetailsCreateCoolTip()
 				end
 		
 		function CoolTip:TextAndIcon (index, frame, menuButton, leftTextTable, rightTextTable, leftIconTable, rightIconTable, isSub)
-		
+
 			--> reset width
 			menuButton.leftText:SetWidth (0)
 			menuButton.leftText:SetHeight (0)
@@ -603,7 +606,19 @@ function DetailsCreateCoolTip()
 			if (leftTextTable) then
 			
 				menuButton.leftText:SetText (leftTextTable [1])
-				menuButton.leftText:SetTextColor (leftTextTable [2], leftTextTable [3], leftTextTable [4], leftTextTable [5])
+				
+				local r, g, b, a = leftTextTable [2], leftTextTable [3], leftTextTable [4], leftTextTable [5]
+				
+				if (r == 0 and g == 0 and b == 0 and a == 0) then
+					if (CoolTip.OptionsTable.TextColor) then
+						r, g, b, a = gump:ParseColors (CoolTip.OptionsTable.TextColor)
+						menuButton.leftText:SetTextColor (r, g, b, a)
+					else
+						menuButton.leftText:SetTextColor (1, 1, 1, 1)
+					end
+				else
+					menuButton.leftText:SetTextColor (r, g, b, a)
+				end
 				
 				if (CoolTip.OptionsTable.TextSize and not leftTextTable [6]) then
 					_detalhes:SetFontSize (menuButton.leftText, CoolTip.OptionsTable.TextSize)
@@ -622,22 +637,31 @@ function DetailsCreateCoolTip()
 				end
 				
 				if (CoolTip.OptionsTable.TextFont and not leftTextTable [7]) then
-					menuButton.leftText:SetFontObject (CoolTip.OptionsTable.TextFont)
-				end
 				
-				local face, size, flags = menuButton.leftText:GetFont()
+					if (_G [CoolTip.OptionsTable.TextFont]) then
+						menuButton.leftText:SetFontObject (GameFontRed or CoolTip.OptionsTable.TextFont)
+					else
+						local font = SharedMedia:Fetch ("font", CoolTip.OptionsTable.TextFont)
+						local _, size, flags = menuButton.leftText:GetFont()
+						menuButton.leftText:SetFont (font, size, flags)
+					end
 				
-				if (_G [leftTextTable [7]]) then
-					menuButton.leftText:SetFontObject (leftTextTable [7])
-					local face, size, flags = menuButton.leftText:GetFont()
-					size = leftTextTable [6] or CoolTip.OptionsTable.TextSize or size
-					
-					menuButton.leftText:SetFont (face, size, flags)
+				elseif (leftTextTable [7]) then
+					if (_G [leftTextTable [7]]) then
+						menuButton.leftText:SetFontObject (leftTextTable [7])
+						local face, size, flags = menuButton.leftText:GetFont()
+						size = leftTextTable [6] or CoolTip.OptionsTable.TextSize or size
+						menuButton.leftText:SetFont (face, size, flags)					
+					else
+						local font = SharedMedia:Fetch ("font", leftTextTable [7])
+						local face, size, flags = menuButton.leftText:GetFont()
+						size = leftTextTable [6] or CoolTip.OptionsTable.TextSize or size
+						menuButton.leftText:SetFont (face, size, flags)
+					end
 				else
 					size = leftTextTable [6] or CoolTip.OptionsTable.TextSize or 10
 					face = leftTextTable [7] or [[Fonts\FRIZQT__.TTF]]
 					flags = leftTextTable [8]
-
 					menuButton.leftText:SetFont (face, size, flags)
 				end
 
@@ -647,7 +671,19 @@ function DetailsCreateCoolTip()
 
 			if (rightTextTable) then
 				menuButton.rightText:SetText (rightTextTable [1])
-				menuButton.rightText:SetTextColor (rightTextTable [2], rightTextTable [3], rightTextTable [4], rightTextTable [5])
+				
+				local r, g, b, a = rightTextTable [2], rightTextTable [3], rightTextTable [4], rightTextTable [5]
+				
+				if (r == 0 and g == 0 and b == 0 and a == 0) then
+					if (CoolTip.OptionsTable.TextColor) then
+						r, g, b, a = gump:ParseColors (CoolTip.OptionsTable.TextColor)
+						menuButton.rightText:SetTextColor (r, g, b, a)
+					else
+						menuButton.rightText:SetTextColor (1, 1, 1, 1)
+					end
+				else
+					menuButton.rightText:SetTextColor (r, g, b, a)
+				end
 				
 				if (CoolTip.OptionsTable.TextSize and not rightTextTable [6]) then
 					_detalhes:SetFontSize (menuButton.rightText, CoolTip.OptionsTable.TextSize)
@@ -666,19 +702,29 @@ function DetailsCreateCoolTip()
 				end
 				
 				if (CoolTip.OptionsTable.TextFont and not rightTextTable [7]) then
-					menuButton.rightText:SetFontObject (CoolTip.OptionsTable.TextFont)
-				end
+					if (_G [CoolTip.OptionsTable.TextFont]) then
+						menuButton.rightText:SetFontObject (CoolTip.OptionsTable.TextFont)
+					else
+						local font = SharedMedia:Fetch ("font", CoolTip.OptionsTable.TextFont)
+						local _, size, flags = menuButton.rightText:GetFont()
+						menuButton.rightText:SetFont (font, size, flags)
+					end
 				
-				local face, size, flags = menuButton.rightText:GetFont()
+				elseif (rightTextTable [7]) then
+					if (_G [rightTextTable [7]]) then
+						menuButton.rightText:SetFontObject (rightTextTable [7])
+						local face, size, flags = menuButton.rightText:GetFont()
+						size = rightTextTable [6] or CoolTip.OptionsTable.TextSize or size
+						menuButton.rightText:SetFont (face, size, flags)					
+					else
+						local font = SharedMedia:Fetch ("font", rightTextTable [7])
+						local face, size, flags = menuButton.rightText:GetFont()
+						size = rightTextTable [6] or CoolTip.OptionsTable.TextSize or size
+						menuButton.rightText:SetFont (face, size, flags)
+					end
 				
-				if (_G [rightTextTable [7]]) then
-					menuButton.rightText:SetFontObject (rightTextTable [7])
-					local face, size, flags = menuButton.rightText:GetFont()
-					size = rightTextTable [6] or CoolTip.OptionsTable.TextSize or size
-					
-					menuButton.rightText:SetFont (face, size, flags)
 				else
-					size = rightTextTable [6] or 10
+					size = rightTextTable [6] or CoolTip.OptionsTable.TextSize or 10
 					face = rightTextTable [7] or [[Fonts\FRIZQT__.TTF]]
 					flags = rightTextTable [8]
 					menuButton.rightText:SetFont (face, size, flags)
@@ -1784,10 +1830,10 @@ function DetailsCreateCoolTip()
 						end
 
 						lineTable_left [1] = leftText --> line text
-						lineTable_left [2] = 1
-						lineTable_left [3] = 1
-						lineTable_left [4] = 1
-						lineTable_left [5] = 1
+						lineTable_left [2] = 0
+						lineTable_left [3] = 0
+						lineTable_left [4] = 0
+						lineTable_left [5] = 0
 						lineTable_left [6] = false
 						lineTable_left [7] = false
 						lineTable_left [8] = false
@@ -1876,10 +1922,10 @@ function DetailsCreateCoolTip()
 						end
 						
 						subMenuTablesTexts [1] = leftText --> line text
-						subMenuTablesTexts [2] = 1
-						subMenuTablesTexts [3] = 1
-						subMenuTablesTexts [4] = 1
-						subMenuTablesTexts [5] = 1
+						subMenuTablesTexts [2] = 0
+						subMenuTablesTexts [3] = 0
+						subMenuTablesTexts [4] = 0
+						subMenuTablesTexts [5] = 0
 						subMenuTablesTexts [6] = false
 						subMenuTablesTexts [7] = false
 						subMenuTablesTexts [8] = false
@@ -2233,7 +2279,7 @@ function DetailsCreateCoolTip()
 				ColorR2, ColorG2, ColorB2, ColorA2, fontSize, fontFace, fontFlag = ColorG1, ColorB1, ColorA1, ColorR2, ColorG2, ColorB2, ColorA2
 				
 				if (type (ColorR1) == "boolean" or not ColorR1) then
-					ColorR1, ColorG1, ColorB1, ColorA1 = 1, 1, 1, 1
+					ColorR1, ColorG1, ColorB1, ColorA1 = 0, 0, 0, 0
 				else
 					ColorR1, ColorG1, ColorB1, ColorA1 = gump:ParseColors (ColorR1)
 				end
@@ -2243,7 +2289,7 @@ function DetailsCreateCoolTip()
 				fontSize, fontFace, fontFlag = ColorG2, ColorB2, ColorA2
 				
 				if (type (ColorR2) == "boolean" or not ColorR2) then
-					ColorR2, ColorG2, ColorB2, ColorA2 = 1, 1, 1, 1
+					ColorR2, ColorG2, ColorB2, ColorA2 = 0, 0, 0, 0
 				else
 					ColorR2, ColorG2, ColorB2, ColorA2 = gump:ParseColors (ColorR2)
 				end

@@ -118,10 +118,12 @@ function _G._detalhes:Start()
 			end
 			
 			_detalhes.ToolBar:ReorganizeIcons()
-			
+		
 			self.RefreshAfterStartup = nil
 		end
 		self:ScheduleTimer ("RefreshAfterStartup", 4)
+
+
 		
 	--> start garbage collector
 		self.ultima_coleta = 0
@@ -165,6 +167,24 @@ function _G._detalhes:Start()
 	--		self.listener:RegisterEvent ("UNIT_SPELLCAST_INTERRUPTED")
 	----------------------------------------------------------------------------------------------------------------------------------------
 
+	local SharedMedia = LibStub:GetLibrary ("LibSharedMedia-3.0")
+	
+	function _detalhes:CooltipPreset (preset)
+		
+		local GameCooltip = GameCooltip
+	
+		GameCooltip:Reset()
+		
+		if (preset == 1) then
+			GameCooltip:SetOption ("TextFont", "Friz Quadrata TT")
+			GameCooltip:SetOption ("TextColor", "orange")
+			GameCooltip:SetOption ("TextSize", 12)
+			GameCooltip:SetOption ("ButtonsYMod", -4)
+			GameCooltip:SetOption ("YSpacingMod", -4)
+			GameCooltip:SetOption ("IgnoreButtonAutoHeight", true)
+			GameCooltip:SetColor (1, 0.5, 0.5, 0.5, 0.5)
+		end
+	end
 	
 	--> done
 	self.initializing = nil
@@ -220,6 +240,8 @@ function _G._detalhes:Start()
 	end
 	--]]
 	
+	--_detalhes:OpenWelcomeWindow() --for debug
+	
 	if (self.is_first_run) then
 	
 		_detalhes:OpenWelcomeWindow()
@@ -257,7 +279,7 @@ function _G._detalhes:Start()
 	end
 	
 	--> feedback trhead
-	if (self.tutorial.logons > 100 and false) then --  and self.tutorial.logons < 104
+	if (self.tutorial.logons > 100) then --  and self.tutorial.logons < 104
 	
 		--desligado por preocaução
 
@@ -488,155 +510,6 @@ function _G._detalhes:Start()
 	self.MicroButtonAlert = CreateFrame ("frame", "DetailsMicroButtonAlert", UIParent, "MicroButtonAlertTemplate")
 	self.MicroButtonAlert:Hide()
 
-	--[[
-	print ("primeiro:")
-	local instancia = _detalhes.tabela_instancias [1]
-	for i = 1, instancia.barras [1]:GetNumPoints() do 
-		local point, relativeTo, relativePoint, xOfs, yOfs = instancia.barras [1]:GetPoint (i)
-		print (point, relativeTo, relativePoint, xOfs, yOfs)
-	end
-	print ("---------------")
-	--]]
-	
-	
-	-- bubble test 
-	local f = CreateFrame ("frame", "DetailsBubble", UIParent)
-	f:SetPoint ("center", UIParent, "center")
-	f:SetSize (100, 100)
-	f:SetFrameStrata ("TOOLTIP")
-	f.isHorizontalFlipped = false
-	f.isVerticalFlipped = false
-	
-	local t = f:CreateTexture (nil, "artwork")
-	t:SetTexture ([[Interface\AddOns\Details\images\icons]])
-	t:SetSize (131 * 1.2, 81 * 1.2)
-	--377 328 508 409  0.0009765625
-	t:SetTexCoord (0.7373046875, 0.9912109375, 0.6416015625, 0.7978515625)
-	t:SetPoint ("center", f, "center")
-	
-	local line1 = f:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
-	line1:SetPoint ("topleft", t, "topleft", 24, -10)
-	_detalhes:SetFontSize (line1, 9)
-	line1:SetTextColor (.9, .9, .9, 1)
-	line1:SetSize (110, 12)
-	line1:SetJustifyV ("center")
-	line1:SetJustifyH ("center")
-
-	local line2 = f:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
-	line2:SetPoint ("topleft", t, "topleft", 11, -20)
-	_detalhes:SetFontSize (line2, 9)
-	line2:SetTextColor (.9, .9, .9, 1)
-	line2:SetSize (140, 12)
-	line2:SetJustifyV ("center")
-	line2:SetJustifyH ("center")
-	
-	local line3 = f:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
-	line3:SetPoint ("topleft", t, "topleft", 7, -30)
-	_detalhes:SetFontSize (line3, 9)
-	line3:SetTextColor (.9, .9, .9, 1)
-	line3:SetSize (144, 12)
-	line3:SetJustifyV ("center")
-	line3:SetJustifyH ("center")
-	
-	local line4 = f:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
-	line4:SetPoint ("topleft", t, "topleft", 11, -40)
-	_detalhes:SetFontSize (line4, 9)
-	line4:SetTextColor (.9, .9, .9, 1)
-	line4:SetSize (140, 12)
-	line4:SetJustifyV ("center")
-	line4:SetJustifyH ("center")
-
-	local line5 = f:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
-	line5:SetPoint ("topleft", t, "topleft", 24, -50)
-	_detalhes:SetFontSize (line5, 9)
-	line5:SetTextColor (.9, .9, .9, 1)
-	line5:SetSize (110, 12)
-	line5:SetJustifyV ("center")
-	line5:SetJustifyH ("center")
-	
-	f.lines = {line1, line2, line3, line4, line5}
-	
-	--t:SetPoint ("center", UIParent, "center")
-	
-	function f:FlipHorizontal()
-		if (not f.isHorizontalFlipped) then
-			if (f.isVerticalFlipped) then
-				t:SetTexCoord (0.9912109375, 0.7373046875, 0.7978515625, 0.6416015625)
-			else
-				t:SetTexCoord (0.9912109375, 0.7373046875, 0.6416015625, 0.7978515625)
-			end
-			f.isHorizontalFlipped = true
-		else
-			if (f.isVerticalFlipped) then
-				t:SetTexCoord (0.7373046875, 0.9912109375, 0.7978515625, 0.6416015625)
-			else
-				t:SetTexCoord (0.7373046875, 0.9912109375, 0.6416015625, 0.7978515625)
-			end
-			f.isHorizontalFlipped = false
-		end
-	end
-	
-	function f:FlipVertical()
-	
-		if (not f.isVerticalFlipped) then
-			if (f.isHorizontalFlipped) then
-				t:SetTexCoord (0.7373046875, 0.9912109375, 0.7978515625, 0.6416015625)
-			else
-				t:SetTexCoord (0.9912109375, 0.7373046875, 0.7978515625, 0.6416015625)
-			end
-			f.isVerticalFlipped = true
-		else
-			if (f.isHorizontalFlipped) then
-				t:SetTexCoord (0.7373046875, 0.9912109375, 0.6416015625, 0.7978515625)
-			else
-				t:SetTexCoord (0.9912109375, 0.7373046875, 0.6416015625, 0.7978515625)
-			end
-			f.isVerticalFlipped = false
-		end
-	end
-	
-	function f:SetBubbleText (line1, line2, line3, line4, line5)
-		if (not line1) then
-			for _, line in ipairs (f.lines) do
-				line:SetText ("")
-			end
-			return
-		end
-		
-		if (line1:find ("\n")) then
-			line1, line2, line3, line4, line5 = strsplit ("\n", line1)
-		end
-		
-		f.lines[1]:SetText (line1)
-		f.lines[2]:SetText (line2)
-		f.lines[3]:SetText (line3)
-		f.lines[4]:SetText (line4)
-		f.lines[5]:SetText (line5)
-	end
-	
-	function f:SetOwner (frame, myPoint, hisPoint, x, y, alpha)
-		f:ClearAllPoints()
-		f:SetBubbleText (nil)
-		t:SetTexCoord (0.7373046875, 0.9912109375, 0.6416015625, 0.7978515625)
-		f.isHorizontalFlipped = false
-		f.isVerticalFlipped = false
-		f:SetPoint (myPoint or "bottom", frame, hisPoint or "top", x or 0, y or 0)
-		t:SetAlpha (alpha or 1)
-	end
-	
-	function f:ShowBubble()
-		f:Show()
-	end
-	
-	function f:HideBubble()
-		f:Hide()
-	end
-	
-	f:SetBubbleText (nil)
-	
-	f:Hide()
-	
-
 	local lower = _detalhes:GetLowerInstanceNumber()
 	if (lower) then
 		local instance = _detalhes:GetInstance (lower)
@@ -678,5 +551,23 @@ function _G._detalhes:Start()
 	end
 	
 	
+	--[[
+	local f = CreateFrame ("frame", nil, UIParent)
+	f:SetSize (200, 200)
+	f:SetPoint ("center", UIParent, "center")
+	local t = f:CreateTexture (nil, "overlay")
+	t:SetPoint ("center", f, "center")
+	t:SetTexture (1, 1, 1, 1)
+	t:SetSize (100, 100)
+	
+	f:SetAlpha (.1)
+	t:SetAlpha (1)
+	t:SetVertexColor (1, 1, 1, 1)
+	
+	local b = CreateFrame ("button", "teste", f, "OptionsButtonTemplate")
+	b:SetSize (75, 30)
+	b:SetPoint ("left", f, "left")
+	b:SetAlpha (1)
+	--]]
 end
 

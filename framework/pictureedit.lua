@@ -358,59 +358,11 @@ local _
 	--> flip
 		local flip = function (side)
 			if (side == 1) then
-				if (not haveHFlip) then
-					if (not haveVFlip) then
-						edit_texture:SetTexCoord (1, 0, 0, 1)
-					else
-						edit_texture:SetTexCoord (1, 0, 1, 0)
-					end
-					rightCoordTexture:Hide()
-					leftCoordTexture:Hide()
-					rightSlider:Hide()
-					leftSlider:Hide()
-					leftTexCoordButton:Disable()
-					rightTexCoordButton:Disable()
-				else
-					if (not haveVFlip) then
-						edit_texture:SetTexCoord (0, 1, 0, 1)
-					else
-						edit_texture:SetTexCoord (0, 1, 1, 0)
-					end
-					rightCoordTexture:Show()
-					leftCoordTexture:Show()
-					leftTexCoordButton:Enable()
-					rightTexCoordButton:Enable()
-				end
 				haveHFlip = not haveHFlip
 				if (window.callback_func) then
 					window.accept (true)
 				end
-
-
 			elseif (side == 2) then
-				if (not haveVFlip) then
-					if (not haveHFlip) then
-						edit_texture:SetTexCoord (0, 1, 1, 0)
-					else
-						edit_texture:SetTexCoord (1, 0, 1, 0)
-					end
-					topCoordTexture:Hide()
-					bottomCoordTexture:Hide()
-					topSlider:Hide()
-					bottomSlider:Hide()
-					topTexCoordButton:Disable()
-					bottomTexCoordButton:Disable()
-				else
-					if (not haveHFlip) then
-						edit_texture:SetTexCoord (0, 1, 0, 1)
-					else
-						edit_texture:SetTexCoord (1, 0, 0, 1)
-					end
-					topCoordTexture:Show()
-					bottomCoordTexture:Show()
-					topTexCoordButton:Enable()
-					bottomTexCoordButton:Enable()
-				end
 				haveVFlip = not haveVFlip
 				if (window.callback_func) then
 					window.accept (true)
@@ -437,20 +389,22 @@ local _
 			end
 			
 			local coords = {}
+			local l, r, t, b = leftSlider.value/100, rightSlider.value/100, topSlider.value/100, bottomSlider.value/100
+			
 			if (haveHFlip) then
-				coords [1] = 1
-				coords [2] = 0
+				coords [1] = r
+				coords [2] = l
 			else
-				coords [1] = leftSlider.value/100
-				coords [2] = rightSlider.value /100
+				coords [1] = l
+				coords [2] = r
 			end
 			
 			if (haveVFlip) then
-				coords [3] = 1
-				coords [4] = 0
+				coords [3] = b
+				coords [4] = t
 			else
-				coords [3] = topSlider.value/100
-				coords [4] = bottomSlider.value/100
+				coords [3] = t
+				coords [4] = b
 			end
 
 			return window.callback_func (edit_texture.width, edit_texture.height, {edit_texture:GetVertexColor()}, edit_texture:GetAlpha(), coords, window.extra_param)
@@ -459,22 +413,19 @@ local _
 		local acceptButton = g:NewButton (buttonsBackground, nil, "$parentAcceptButton", nil, 100, 20, window.accept, nil, nil, nil, "DONE")
 		acceptButton:SetPoint ("topleft", window, "topright", 10, -200)
 		acceptButton:InstallCustomTexture()
-
-		-- fazer botao de editar a cor
-		-- fazer botao de editar o tamanho
-		-- fazer botao de okey e retornar os valores
-		
 		
 window:Hide()
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 		
 		local ttexcoord
-		function g:ImageEditor (callback, texture, texcoord, colors, width, height, extraParam)
+		function g:ImageEditor (callback, texture, texcoord, colors, width, height, extraParam, alpha)
 		
 			texcoord = texcoord or {0, 1, 0, 1}
 			ttexcoord = texcoord
 		
 			colors = colors or {1, 1, 1, 1}
+			
+			alpha = alpha or 1
 		
 			edit_texture:SetTexture (texture)
 			edit_texture.width = width
@@ -482,7 +433,7 @@ window:Hide()
 			
 			edit_texture:SetVertexColor (colors [1], colors [2], colors [3])
 			
-			edit_texture:SetAlpha (colors [4] or 1)
+			edit_texture:SetAlpha (alpha)
 
 			_detalhes:ScheduleTimer ("RefreshImageEditor", 0.2)
 			
@@ -499,26 +450,28 @@ window:Hide()
 			window.width = edit_texture.width
 			window.height = edit_texture.height
 			
-			if (ttexcoord[1] == 1 and ttexcoord[2] == 0) then
-				haveHFlip = false
-				flip (1)
-			else
+			local l, r, t, b = unpack (ttexcoord)
+			
+			if (l > r) then
 				haveHFlip = true
-				flip (1)
-				leftSlider:SetValue (ttexcoord[1]*100)
-				rightSlider:SetValue (ttexcoord[2]*100)
-			end
-			
-			if (ttexcoord[3] == 1 and ttexcoord[4] == 0) then
-				haveVFlip = false
-				flip (2)
+				leftSlider:SetValue (r * 100)
+				rightSlider:SetValue (l * 100)
 			else
-				haveVFlip = true
-				flip (2)
-				topSlider:SetValue (ttexcoord[3]*100)
-				bottomSlider:SetValue (ttexcoord[4]*100)
+				haveHFlip = false
+				leftSlider:SetValue (l * 100)
+				rightSlider:SetValue (r * 100)
 			end
 			
+			if (t > b) then
+				haveVFlip = true
+				topSlider:SetValue (b * 100)
+				bottomSlider:SetValue (t * 100)
+			else
+				haveVFlip = false
+				topSlider:SetValue (t * 100)
+				bottomSlider:SetValue (b * 100)
+			end
+
 			if (window.callback_func) then
 				window.accept (true)
 			end

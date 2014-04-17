@@ -250,6 +250,42 @@ function SlashCmdList.DETAILS (msg, editbox)
 		
 		--vardump (_detalhes.ResetButton)
 	
+	elseif (command == "buffsof") then
+		
+		local playername, segment = rest:match("^(%S*)%s*(.-)$")
+		segment = tonumber (segment or 0)
+		print ("dumping buffs of ", playername, segment)
+		
+		local c = _detalhes:GetCombat ("current")
+		if (c) then
+		
+			local playerActor
+		
+			if (segment and segment ~= 0) then
+				local c = _detalhes:GetCombat (segment)
+				playerActor = c (4, playername)
+				print ("using segment", segment, c, "player actor:", playerActor)
+			else
+				playerActor = c (4, playername)
+			end
+			
+			print ("actor table: ", playerActor)
+			
+			if (not playerActor) then
+				print ("actor table not found")
+				return
+			end
+			
+			if (playerActor and playerActor.buff_uptime_spell_tables and playerActor.buff_uptime_spell_tables._ActorTable) then
+				for spellid, spellTable in pairs (playerActor.buff_uptime_spell_tables._ActorTable) do 
+					local spellname = GetSpellInfo (spellid)
+					if (spellname) then
+						print (spellid, spellname, spellTable.uptime)
+					end
+				end
+			end
+		end
+	
 	elseif (msg == "alert") then
 		
 		local instancia = _detalhes.tabela_instancias [1]

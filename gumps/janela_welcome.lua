@@ -171,7 +171,7 @@ function _detalhes:OpenWelcomeWindow ()
 			Loc ["STRING_WELCOME_41"] = "Some Cool Interface Tweaks:"
 			
 			Loc ["STRING_WELCOME_42"] = "Quick Appearance Settings"
-			Loc ["STRING_WELCOME_43"] = "Bellow there is few settings for change the look of window."
+			Loc ["STRING_WELCOME_43"] = "Choose your prefered skin:"
 			Loc ["STRING_WELCOME_44"] = "Wallpaper"
 			Loc ["STRING_WELCOME_45"] = "For more customization options, check the options panel."
 			
@@ -229,7 +229,7 @@ function _detalhes:OpenWelcomeWindow ()
 			Loc ["STRING_WELCOME_41"] = "Alguns ajustes bacanas na interface:"
 			
 			Loc ["STRING_WELCOME_42"] = "Ajustes na Aparencia"
-			Loc ["STRING_WELCOME_43"] = "Abaixo estao algumas opcoes para mudar a aparencia da janela."
+			Loc ["STRING_WELCOME_43"] = "Escolha sua Skin preferida:"
 			Loc ["STRING_WELCOME_44"] = "Papel de Parede"
 			Loc ["STRING_WELCOME_45"] = "Para mais ajustes na aparencia, veja o painel de opcoes."
 
@@ -679,7 +679,12 @@ function _detalhes:OpenWelcomeWindow ()
 		texto_appearance:SetJustifyV ("top")
 		texto_appearance:SetTextColor (1, 1, 1, 1)
 		
-		--> widgets (all raw copy from options panel):
+		local skins_image = window:CreateTexture (nil, "overlay")
+		skins_image:SetTexture ([[Interface\Addons\Details\images\icons2]])
+		skins_image:SetPoint ("topright", window, "topright", -30, -24)
+		skins_image:SetWidth (214)
+		skins_image:SetHeight (133)
+		skins_image:SetTexCoord (0, 0.41796875, 0, 0.259765625) --0, 0, 214 133
 		
 		
 		--skin
@@ -945,7 +950,7 @@ function _detalhes:OpenWelcomeWindow ()
 				end
 			end
 
-		pages [#pages+1] = {bg55, texto55, texto555, changemind, texto_appearance, skin_dropdown, skin_label, wallpaper_label_switch, wallpaper_switch, wallpaper_dropdown1, wallpaper_dropdown2, }
+		pages [#pages+1] = {bg55, texto55, texto555, skins_image, changemind, texto_appearance, skin_dropdown, skin_label, wallpaper_label_switch, wallpaper_switch, wallpaper_dropdown1, wallpaper_dropdown2, }
 		
 		for _, widget in ipairs (pages[#pages]) do 
 			widget:Hide()

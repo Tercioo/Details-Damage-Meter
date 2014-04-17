@@ -167,6 +167,9 @@
 		Frame:RegisterEvent ("ADDON_LOADED")
 		Frame:RegisterEvent ("PLAYER_LOGOUT")
 		Frame:SetScript ("OnEvent", function(event, ...) return NewPlugin:OnEvent (event, ...) end)
+		
+		Frame:SetFrameStrata ("HIGH")
+		Frame:SetFrameLevel (6)
 
 		Frame:Hide()
 		Frame.__parent = NewPlugin

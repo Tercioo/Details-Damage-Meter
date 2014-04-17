@@ -27,6 +27,9 @@ do
 	frame:SetBackdropBorderColor (170/255, 170/255, 170/255)
 	frame:SetBackdropColor (24/255, 24/255, 24/255, .8)
 	
+	frame:SetFrameStrata ("HIGH")
+	frame:SetFrameLevel (8)
+	
 	function _detalhes.switch:CloseMe()
 		_detalhes.switch.frame:Hide()
 		_detalhes.switch.frame:SetBackdropColor (24/255, 24/255, 24/255, .8)
@@ -34,10 +37,10 @@ do
 	end
 	
 	--> limitação: não tenho como pegar o base frame da instância por aqui
-	frame.close = gump:NewDetailsButton (frame, frame, _, function() end, nil, nil, 1, 1, "", "", "", "", {rightFunc = {func = _detalhes.switch.CloseMe, param1 = nil, param2 = nil}})
+	frame.close = gump:NewDetailsButton (frame, frame, _, function() end, nil, nil, 1, 1, "", "", "", "", {rightFunc = {func = _detalhes.switch.CloseMe, param1 = nil, param2 = nil}}, "DetailsSwitchPanelClose")
 	frame.close:SetPoint ("topleft", frame, "topleft")
 	frame.close:SetPoint ("bottomright", frame, "bottomright")
-	frame.close:SetFrameLevel (frame:GetFrameLevel()+1)
+	frame.close:SetFrameLevel (9)
 	frame:Hide()
 	
 	_detalhes.switch.frame = frame
@@ -58,7 +61,7 @@ function _detalhes.switch:ShowMe (instancia)
 
 	_detalhes.switch.current_instancia = instancia
 	
-	_detalhes.switch.frame:SetFrameLevel (instancia.baseframe:GetFrameLevel() + 5)
+	--_detalhes.switch.frame:SetFrameLevel (instancia.baseframe:GetFrameLevel() + 5)
 	_detalhes.switch.frame:SetPoint ("topleft", instancia.baseframe, "topleft", 2, 0)
 	_detalhes.switch.frame:SetPoint ("bottomright", instancia.baseframe, "bottomright", -2, 0)
 	

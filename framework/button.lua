@@ -761,12 +761,17 @@ local set_colorpick_color = function (button, r, g, b, a)
 	button.color_texture:SetVertexColor (r, g, b, a)
 end
 
+local colorpick_cancel = function (self)
+	ColorPickerFrame:Hide()
+end
+
 function gump:NewColorPickButton (parent, name, member, callback, alpha)
 
 	--button
 	local button = gump:NewButton (parent, _, name, member, color_button_width, color_button_height, pickcolor, alpha, "param2")
 	button:InstallCustomTexture()
 	button.color_callback = callback
+	button.Cancel = colorpick_cancel
 	button.SetColor = set_colorpick_color
 	
 	button:SetBackdrop ({edgeFile = [[Interface\Tooltips\UI-Tooltip-Border]], edgeSize = 6,

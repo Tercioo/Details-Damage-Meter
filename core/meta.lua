@@ -556,6 +556,8 @@
 				esta_instancia.consolidateButtonTexture = nil
 				esta_instancia.consolidateButton = nil
 				esta_instancia.lastIcon = nil
+				
+				esta_instancia.menu_attribute_string = nil
 
 			end
 

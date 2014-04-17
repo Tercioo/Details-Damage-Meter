@@ -260,12 +260,9 @@ local TextEntryMetaFunctions = {}
 		end
 	
 		if (textentry.MyObject.have_tooltip) then 
-			GameCooltip:Reset()
-			GameCooltip:SetType ("tooltip")
-			GameCooltip:SetColor ("main", "transparent")
+			_detalhes:CooltipPreset (1)
 			GameCooltip:AddLine (textentry.MyObject.have_tooltip)
-			GameCooltip:SetOwner (textentry)
-			GameCooltip:ShowCooltip()
+			GameCooltip:ShowCooltip (textentry, "tooltip")
 		end
 		
 		textentry.mouse_over = true 

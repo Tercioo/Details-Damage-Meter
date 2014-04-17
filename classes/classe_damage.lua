@@ -796,7 +796,7 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 			
 				conteudo = _detalhes.cache_damage_group
 				
-				if (sub_atributo == 2) then
+				if (sub_atributo == 2) then --> dps
 					local combat_time = instancia.showing:GetCombatTime()
 					atributo_damage:ContainerRefreshDps (conteudo, combat_time)
 				end
@@ -818,7 +818,7 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 					total = total + conteudo[i][keyName]
 				end
 			else
-				if (sub_atributo == 2) then
+				if (sub_atributo == 2) then --> dps
 					local combat_time = instancia.showing:GetCombatTime()
 					atributo_damage:ContainerRefreshDps (conteudo, combat_time)
 				end
@@ -1137,11 +1137,11 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 		elseif (sub_atributo == 2) then --> mostrando dps
 			dps = _math_floor (dps)
 			if (_detalhes.ps_abbreviation == 2) then
-				esta_barra.texto_direita:SetText (_detalhes:ToK (dps) .. " " .. div_abre .. _detalhes:ToK (damage_total) .. ", " .. _cstr ("%.1f", porcentagem) .. "%" .. div_fecha) --seta o texto da direita
-			elseif (_detalhes.ps_abbreviation == 3) then
 				esta_barra.texto_direita:SetText (_detalhes:ToK2 (dps) .. " " .. div_abre .. _detalhes:ToK (damage_total) .. ", " .. _cstr ("%.1f", porcentagem) .. "%" .. div_fecha) --seta o texto da direita
+			elseif (_detalhes.ps_abbreviation == 3) then
+				esta_barra.texto_direita:SetText (_detalhes:ToK2 (dps) .. " " .. div_abre .. _detalhes:ToK2 (damage_total) .. ", " .. _cstr ("%.1f", porcentagem) .. "%" .. div_fecha) --seta o texto da direita
 			else
-				esta_barra.texto_direita:SetText (_cstr ("%.1f", dps) .. " " .. div_abre .. _detalhes:ToK (damage_total) .. ", " .. _cstr ("%.1f", porcentagem) .. "%" .. div_fecha) --seta o texto da direita
+				esta_barra.texto_direita:SetText (_detalhes:ToK2 (dps) .. " " .. div_abre .. damage_total .. ", " .. _cstr ("%.1f", porcentagem) .. "%" .. div_fecha) --seta o texto da direita
 			end
 			esta_porcentagem = _math_floor ((dps/instancia.top) * 100) --> determina qual o tamanho da barra
 			
@@ -1387,6 +1387,7 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra)
 	do
 		--> TOP HABILIDADES
 			local ActorDamage = self.total_without_pet
+			local ActorDamageWithPet = self.total
 			if (ActorDamage == 0) then
 				ActorDamage = 0.00000001
 			end
@@ -1452,7 +1453,7 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra)
 				
 				for i = 1, _math_min (_detalhes.tooltip_max_targets, #ActorTargetsSortTable) do
 					local este_inimigo = ActorTargetsSortTable [i]
-					GameCooltip:AddLine (este_inimigo[1]..": ", _detalhes:comma_value (este_inimigo[2]) .." (".._cstr("%.1f", este_inimigo[2]/ActorDamage*100).."%)")
+					GameCooltip:AddLine (este_inimigo[1]..": ", _detalhes:comma_value (este_inimigo[2]) .." (".._cstr("%.1f", este_inimigo[2]/ActorDamageWithPet*100).."%)")
 					GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\espadas", nil, nil, 14, 14)
 					GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .2)
 				end

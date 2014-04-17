@@ -613,7 +613,12 @@ function DetailsDropDownOnEnter (self)
 		end
 	end
 
-	self:SetBackdropColor (.2, .2, .2, .2)
+	if (self.MyObject.onenter_backdrop) then
+		self:SetBackdropColor (unpack (self.MyObject.onenter_backdrop))
+	else
+		self:SetBackdropColor (.2, .2, .2, .2)
+	end
+	
 	self.arrowTexture2:Show()
 	
 	if (self.MyObject.have_tooltip) then 
@@ -635,15 +640,20 @@ function DetailsDropDownOnEnter (self)
 end
 
 function DetailsDropDownOnLeave (self)
-	self:SetBackdropColor (1, 1, 1, .5)
-	self.arrowTexture2:Hide()
-	
 	if (self.MyObject.OnLeaveHook) then
 		local interrupt = self.MyObject.OnLeaveHook (self)
 		if (interrupt) then
 			return
 		end
 	end
+
+	if (self.MyObject.onleave_backdrop) then
+		self:SetBackdropColor (unpack (self.MyObject.onleave_backdrop))
+	else
+		self:SetBackdropColor (1, 1, 1, .5)
+	end
+	
+	self.arrowTexture2:Hide()
 	
 	if (self.MyObject.have_tooltip) then 
 		_detalhes.popup:ShowMe (false)
@@ -790,16 +800,22 @@ function gump:NewDropDown (parent, container, name, member, w, h, func, default)
 	
 	--> initialize first menu selected
 	local menu = func()
-	for i = default, #menu do 
-		local _table = menu [i]
-		if (not _table) then
-			break
-		end
-		if (isOptionVisible (_table)) then
-			DropDownObject:Selected (_table)
-			break
+	if (type (default) == "string") then
+		DropDownObject:Select (default)
+	else	
+		for i = default, #menu do 
+			local _table = menu [i]
+			if (not _table) then
+				break
+			end
+			if (isOptionVisible (_table)) then
+				DropDownObject:Selected (_table)
+				break
+			end
 		end
 	end
+	
+
 	
 	return DropDownObject	
 

@@ -2790,10 +2790,10 @@
 				end
 				
 				--if (UnitName ("player") == "Tiranaa" or UnitName ("player") == "Triciclo") then
-				
 					_detalhes:SaveConfig()
-					
 					_detalhes:SaveProfile()
+
+					_detalhes_database.nick_tag_cache = table_deepcopy (_detalhes_database.nick_tag_cache)
 					
 					--_detalhes_global = nil
 					--_detalhes_database = nil
@@ -2845,6 +2845,9 @@
 	_detalhes.listener:SetScript ("OnEvent", _detalhes.OnEvent)
 
 	function _detalhes:OnParserEvent (evento, time, token, hidding, who_serial, who_name, who_flags, who_flags2, alvo_serial, alvo_name, alvo_flags, alvo_flags2, ...)
+	
+		--print (alvo_name, alvo_flags2)
+	
 		local funcao = token_list [token]
 		if (funcao) then
 			return funcao (nil, token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, ... )

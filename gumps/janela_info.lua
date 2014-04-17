@@ -63,13 +63,45 @@ function _detalhes:AbreJanelaInfo (jogador)
 	if (nome:find ("-")) then
 		nome = nome:gsub (("-.*"), "")
 	end
-	info.nome:SetText (nome)
-	
+
 	if (info.instancia.atributo == 1 and info.instancia.sub_atributo == 6) then --> enemy
 		atributo_nome = sub_atributos [info.atributo].lista [1] .. " " .. Loc ["STRING_ACTORFRAME_REPORTOF"]
 	end
-	
+
+	info.nome:SetText (nome)
 	info.atributo_nome:SetText (atributo_nome)
+
+	local avatar = NickTag:GetNicknameTable (jogador.serial)
+	if (avatar) then
+		
+		info.avatar:SetTexture (avatar [2])
+		info.avatar_bg:SetTexture (avatar [4])
+		info.avatar_bg:SetTexCoord (unpack (avatar [5]))
+		info.avatar_bg:SetVertexColor (unpack (avatar [6]))
+		
+		info.avatar_nick:SetText (avatar [1] or nome)
+		info.avatar_attribute:SetText (atributo_nome)
+		info.avatar_attribute:SetPoint ("CENTER", info.avatar_nick, "CENTER", 0, 14)
+		
+		info.avatar:Show()
+		info.avatar_bg:Show()
+		info.avatar_nick:Show()
+		info.avatar_attribute:Show()
+		
+		info.nome:Hide()
+		info.atributo_nome:Hide()
+	else
+		info.avatar:Hide()
+		info.avatar_bg:Hide()
+		info.avatar_nick:Hide()
+		info.avatar_attribute:Hide()
+		
+		info.nome:Show()
+		info.atributo_nome:Show()
+	end
+	
+
+	
 	info.atributo_nome:SetPoint ("CENTER", info.nome, "CENTER", 0, 14)
 	
 	gump:TrocaBackgroundInfo (info)
@@ -547,6 +579,25 @@ local function cria_textos (este_gump)
 	este_gump.targets = este_gump:CreateFontString (nil, "OVERLAY", "QuestFont_Large")
 	este_gump.targets:SetPoint ("TOPLEFT", este_gump, "TOPLEFT", 24, -235)
 	este_gump.targets:SetText (Loc ["STRING_TARGETS"] .. ":")
+
+	este_gump.avatar = este_gump:CreateTexture (nil, "overlay")
+	este_gump.avatar_bg = este_gump:CreateTexture (nil, "overlay")
+	este_gump.avatar_attribute = este_gump:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+	este_gump.avatar_nick = este_gump:CreateFontString (nil, "overlay", "QuestFont_Large")
+	este_gump.avatar:SetDrawLayer ("overlay", 3)
+	este_gump.avatar_bg:SetDrawLayer ("overlay", 2)
+	este_gump.avatar_nick:SetDrawLayer ("overlay", 4)
+	
+	este_gump.avatar:SetPoint ("TOPLEFT", este_gump, "TOPLEFT", 70, -10)
+	este_gump.avatar_bg:SetPoint ("TOPLEFT", este_gump, "TOPLEFT", 70, -12)
+	este_gump.avatar_bg:SetSize (275, 60)
+	
+	este_gump.avatar_nick:SetPoint ("TOPLEFT", este_gump, "TOPLEFT", 208, -54)
+	
+	este_gump.avatar:Hide()
+	este_gump.avatar_bg:Hide()
+	este_gump.avatar_nick:Hide()
+	
 end
 
 
@@ -1087,25 +1138,50 @@ function gump:CriaJanelaInfo()
 			
 		--SPELLS
 			local spells_texture = frame:CreateTexture (nil, "artwork")
-			spells_texture:SetPoint ("topleft", frame, "topleft", 400, -100)
+			spells_texture:SetPoint ("topleft", frame, "topleft", 400, -80)
 			spells_texture:SetTexture ([[Interface\ACHIEVEMENTFRAME\UI-Achievement-HorizontalShadow]])
 			spells_texture:SetSize (128, 16)
 			local spells_text = frame:CreateFontString (nil, "artwork", "GameFontNormal")
 			spells_text:SetText ("Spells")
 			spells_text :SetPoint ("left", spells_texture, "left", 2, 0)
 			
-			for i = 1, 9 do 
-				local icon = frame:CreateTexture (nil, "artwork")
+			local frame_tooltip_onenter = function (self)
+				if (self.spellid) then
+					self:SetBackdrop ({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 512, edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border", edgeSize = 8})
+					self:SetBackdropColor (.5, .5, .5, .5)
+					GameTooltip:SetOwner (self, "ANCHOR_TOPLEFT")
+					GameTooltip:SetSpellByID (self.spellid)
+					GameTooltip:Show()
+				end
+			end
+			local frame_tooltip_onleave = function (self)
+				if (self.spellid) then
+					self:SetBackdrop (nil)
+					GameTooltip:Hide()
+				end
+			end
+			
+			for i = 1, 10 do 
+				local frame_tooltip = CreateFrame ("frame", nil, frame)
+				frame_tooltip:SetPoint ("topleft", frame, "topleft", 405, -100 + ((i-1)*15)*-1)
+				frame_tooltip:SetSize (150, 14)
+				frame_tooltip:SetScript ("OnEnter", frame_tooltip_onenter)
+				frame_tooltip:SetScript ("OnLeave", frame_tooltip_onleave)
+				
+				local icon = frame_tooltip:CreateTexture (nil, "artwork")
 				icon:SetSize (14, 14)
-				icon:SetPoint ("topleft", frame, "topleft", 405, -120 + ((i-1)*15)*-1)
-				local spell = frame:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+				icon:SetPoint ("left", frame_tooltip, "left")
+				
+				local spell = frame_tooltip:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
 				spell:SetPoint ("left", icon, "right", 2, 0)
 				spell:SetText ("spell name:") --> localize-me
 				spell:SetTextColor (.8, .8, .8, 1)
-				local spell_amt = frame:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+				
+				local spell_amt = frame_tooltip:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
 				spell_amt:SetPoint ("left", spell,  "right", 2, 0)
 				spell_amt:SetText ("0")
-				tab ["spell" .. i] = {spell, spell_amt, icon}
+				
+				tab ["spell" .. i] = {spell, spell_amt, icon, frame_tooltip}
 			end
 		
 		end
@@ -1139,19 +1215,24 @@ function gump:CriaJanelaInfo()
 			return ps, diff
 		end
 		
-		local spells_by_class = {
+		-- ~buff
+		local spells_by_class = { --buffss uptime
 			["DRUID"] = {
 				[132402] = true, --savage defense
 				[135286] = true, -- tooth and claw
 			},
 			["DEATHKNIGHT"] = {
-				[145676] = true, --riposte
+				[145677] = true, --riposte
 				[77535] = true, --blood shield
+				--[49222] = true, --bone shield
+				[51460] = true, --runic corruption
 			},
 			["MONK"] = {
-				[118604] = true, --guard
+				[115295] = true, --guard
 				[115307] = true, --shuffle
 				[115308] = true, --elusive brew
+				--[128939] = true, --elusive brew
+				[125359] = true, --tiger power
 			},
 			["PALADIN"] = {
 				[132403] = true, --shield of the righteous
@@ -1182,7 +1263,9 @@ function gump:CriaJanelaInfo()
 			tab.tankname:SetText ("Avoidance of\n" .. n) --> localize-me
 			
 			--> damage taken
-				local damagetaken = player.damage_taken
+				local playerdamage = combat (1, player.nome)
+				
+				local damagetaken = playerdamage.damage_taken
 				local last_damage_received = 0
 				if (last_actor) then
 					last_damage_received = last_actor.damage_taken / last_combat:GetCombatTime()
@@ -1194,11 +1277,11 @@ function gump:CriaJanelaInfo()
 				tab.damagepersecond:SetText (_detalhes:comma_value (_math_floor (ps)) .. " (" .. diff .. ")")
 
 			--> absorbs
-				local totalabsorbs = player.avoidance.overall.ABSORB_AMT
+				local totalabsorbs = playerdamage.avoidance.overall.ABSORB_AMT
 				local incomingtotal = damagetaken + totalabsorbs
 				
 				local last_total_absorbs = 0
-				if (last_actor) then
+				if (last_actor and last_actor.avoidance) then
 					last_total_absorbs = last_actor.avoidance.overall.ABSORB_AMT / last_combat:GetCombatTime()
 				end
 				
@@ -1208,32 +1291,32 @@ function gump:CriaJanelaInfo()
 				tab.absorbstotalpersecond:SetText (_detalhes:comma_value (_math_floor (ps)) .. " (" .. diff .. ")")
 				
 			--> dodge
-				local totaldodge = player.avoidance.overall.DODGE
+				local totaldodge = playerdamage.avoidance.overall.DODGE
 				tab.dodge:SetText (totaldodge)
 				
 				local last_total_dodge = 0
-				if (last_actor) then
+				if (last_actor and last_actor.avoidance) then
 					last_total_dodge = last_actor.avoidance.overall.DODGE / last_combat:GetCombatTime()
 				end
 				local ps, diff = getpercent (totaldodge, last_total_dodge, elapsed_time, true)
 				tab.dodgepersecond:SetText ( string.format ("%.2f", ps) .. " (" .. diff .. ")")
 			
 			--> parry
-				local totalparry = player.avoidance.overall.PARRY
+				local totalparry = playerdamage.avoidance.overall.PARRY
 				tab.parry:SetText (totalparry)
 				
 				local last_total_parry = 0
-				if (last_actor) then
+				if (last_actor and last_actor.avoidance) then
 					last_total_parry = last_actor.avoidance.overall.PARRY / last_combat:GetCombatTime()
 				end
 				local ps, diff = getpercent (totalparry, last_total_parry, elapsed_time, true)
 				tab.parrypersecond:SetText (string.format ("%.2f", ps) .. " (" .. diff .. ")")
 				
 			--> absorb
-				local fullabsorb = player.avoidance.overall.FULL_ABSORBED
-				local halfabsorb = player.avoidance.overall.PARTIAL_ABSORBED
-				local halfabsorb_amt = player.avoidance.overall.PARTIAL_ABSORB_AMT
-				local noabsorb = player.avoidance.overall.FULL_HIT
+				local fullabsorb = playerdamage.avoidance.overall.FULL_ABSORBED
+				local halfabsorb = playerdamage.avoidance.overall.PARTIAL_ABSORBED
+				local halfabsorb_amt = playerdamage.avoidance.overall.PARTIAL_ABSORB_AMT
+				local noabsorb = playerdamage.avoidance.overall.FULL_HIT
 				
 				tab.fullsbsorbed:SetText (fullabsorb)
 				tab.partiallyabsorbed:SetText (halfabsorb)
@@ -1242,7 +1325,7 @@ function gump:CriaJanelaInfo()
 				if (halfabsorb_amt > 0) then
 					local average = halfabsorb_amt / halfabsorb --tenho o average
 					local last_average = 0
-					if (last_actor) then
+					if (last_actor and last_actor.avoidance) then
 						last_average = last_actor.avoidance.overall.PARTIAL_ABSORB_AMT / last_actor.avoidance.overall.PARTIAL_ABSORBED
 					end
 					
@@ -1372,7 +1455,8 @@ function gump:CriaJanelaInfo()
 								local esta_habilidade = cooldowns_usados[i]
 								local nome_magia, _, icone_magia = _GetSpellInfo (esta_habilidade[1])
 								
-								local label1, label2, icon1 = unpack (tab ["spell" .. i])
+								local label1, label2, icon1, framebg = unpack (tab ["spell" .. i])
+								framebg.spellid = esta_habilidade[1]
 								
 								label1:SetText (nome_magia .. ":")
 								label2:SetText (esta_habilidade[2])
@@ -1387,18 +1471,24 @@ function gump:CriaJanelaInfo()
 				
 
 				
-				--> buffs de druida
-				if (index_used < 9) then
+				--> buffs uptime
+				if (index_used < 11) then
 					if (misc_player.buff_uptime_spell_tables) then
 						local minha_tabela = misc_player.buff_uptime_spell_tables._ActorTable
+						
+						local encounter_time = combat:GetCombatTime()
+						
 						for _spellid, _tabela in pairs (minha_tabela) do
-							if (spells_by_class [player.classe] [_spellid] and index_used < 9) then 
+							if (spells_by_class [player.classe] [_spellid] and index_used <= 10) then 
 								local nome_magia, _, icone_magia = GetSpellInfo (_spellid)
-								local label1, label2, icon1 = unpack (tab ["spell" .. index_used])
+								local label1, label2, icon1, framebg = unpack (tab ["spell" .. index_used])
 								
+								framebg.spellid = _spellid
+								
+								local t = _tabela.uptime / encounter_time * 100
 								label1:SetText (nome_magia .. ":")
 								local minutos, segundos = _math_floor (_tabela.uptime / 60), _math_floor (_tabela.uptime % 60)
-								label2:SetText (minutos .. "m " .. segundos .. "s")
+								label2:SetText (minutos .. "m " .. segundos .. "s" .. " (" .. _math_floor (t) .. "%)")
 								icon1:SetTexture (icone_magia)
 								icon1:SetTexCoord (0.0625, 0.953125, 0.0625, 0.953125)
 								
@@ -1408,8 +1498,10 @@ function gump:CriaJanelaInfo()
 					end
 				end
 				
-				for i = index_used, 9 do
-					local label1, label2, icon1 = unpack (tab ["spell" .. i])
+				for i = index_used, 10 do
+					local label1, label2, icon1, framebg = unpack (tab ["spell" .. i])
+					
+					framebg.spellid = nil
 					label1:SetText ("-- -- -- --")
 					label2:SetText ("")
 					icon1:SetTexture (nil)
