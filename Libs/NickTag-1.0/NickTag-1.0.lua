@@ -300,9 +300,14 @@ end
 		end
 		
 		local _, numOnlineMembers = GetNumGuildMembers()
+
+		if (NickTag.debug) then
+			NickTag:Msg ("IsOnline(): " .. numOnlineMembers .. " online members.")
+		end
+		
 		for i = 1, numOnlineMembers do
 			local player_name = GetGuildRosterInfo (i)
-			if (player_name == name) then
+			if (player_name:find (name)) then
 				if (isShownOffline) then
 					SetGuildRosterShowOffline (true)
 				end
@@ -344,7 +349,14 @@ end
 				
 				--> check if the player is online
 				if (NickTag:IsOnline (name)) then
+					if (NickTag.debug) then
+						NickTag:Msg ("QUEUE -> " .. name .. " is online, running SendPersona().")
+					end
 					NickTag:SendPersona (name)
+				else
+					if (NickTag.debug) then
+						NickTag:Msg ("QUEUE -> " .. name .. " is offline, cant request his persona.")
+					end
 				end
 				
 				if (#queue_send == 0 and #queue_request == 0) then
@@ -362,7 +374,14 @@ end
 				
 				--> check if the player is online
 				if (NickTag:IsOnline (name)) then
+					if (NickTag.debug) then
+						NickTag:Msg ("QUEUE -> " .. name .. " is online, running RequestPersona().")
+					end
 					NickTag:RequestPersona (name)
+				else
+					if (NickTag.debug) then
+						NickTag:Msg ("QUEUE -> " .. name .. " is offline, cant request his persona.")
+					end
 				end
 				
 				if (#queue_request == 0 and #queue_request == 0) then
@@ -394,6 +413,13 @@ end
 		event_frame:RegisterEvent ("GUILD_ROSTER_UPDATE")
 		if (not NickTag.UpdateRosterTimer) then
 			NickTag.UpdateRosterTimer = NickTag:ScheduleRepeatingTimer ("UpdateRoster", 12)
+			if (NickTag.debug) then
+				NickTag:Msg ("ROSTER -> new update thread created.")
+			end
+		else
+			if (NickTag.debug) then
+				NickTag:Msg ("ROSTER -> a update thread already exists.")
+			end
 		end
 		is_updating = true
 	end
