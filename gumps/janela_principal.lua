@@ -36,7 +36,7 @@ local modo_grupo = _detalhes._detalhes_props["MODO_GROUP"]
 local modo_all = _detalhes._detalhes_props["MODO_ALL"]
 
 --constants
-local baseframe_strata = "HIGH"
+local baseframe_strata = "LOW"
 local gump_fundo_backdrop = {
 	bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 16,
 	insets = {left = 0, right = 0, top = 0, bottom = 0}}
