@@ -85,6 +85,7 @@ function _detalhes:AbreJanelaInfo (jogador)
 		
 		info.avatar:Show()
 		info.avatar_bg:Show()
+		info.avatar_bg:SetAlpha (.65)
 		info.avatar_nick:Show()
 		info.avatar_attribute:Show()
 		
@@ -588,11 +589,11 @@ local function cria_textos (este_gump)
 	este_gump.avatar_bg:SetDrawLayer ("overlay", 2)
 	este_gump.avatar_nick:SetDrawLayer ("overlay", 4)
 	
-	este_gump.avatar:SetPoint ("TOPLEFT", este_gump, "TOPLEFT", 70, -10)
-	este_gump.avatar_bg:SetPoint ("TOPLEFT", este_gump, "TOPLEFT", 70, -12)
+	este_gump.avatar:SetPoint ("TOPLEFT", este_gump, "TOPLEFT", 60, -10)
+	este_gump.avatar_bg:SetPoint ("TOPLEFT", este_gump, "TOPLEFT", 60, -12)
 	este_gump.avatar_bg:SetSize (275, 60)
 	
-	este_gump.avatar_nick:SetPoint ("TOPLEFT", este_gump, "TOPLEFT", 208, -54)
+	este_gump.avatar_nick:SetPoint ("TOPLEFT", este_gump, "TOPLEFT", 195, -54)
 	
 	este_gump.avatar:Hide()
 	este_gump.avatar_bg:Hide()

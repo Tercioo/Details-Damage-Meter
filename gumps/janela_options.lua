@@ -252,8 +252,34 @@ function _detalhes:OpenOptionsWindow (instance)
 		window.Disable3DColorPick:SetPoint ("left", hide_3d_world, "right", 120, 0)
 		window.Disable3DColorPick:SetColor (.5, .5, .5, 1)
 		window.Disable3DColorPick:Hide()
+	
+	--> create bars
+	
+		local fill_bars = function()
+			local current_combat = _detalhes:GetCombat ("current")
+			
+			local actors_name = {"Ragnaros", "Alivecrawler", "Ghostcrawler Hate Ghostbusters",  "The Lich King", "Your Neighbor", "Your Raid Leader", "A Shadow Priest Complaining About Dps", "Parry Hotter", "Your Math Teacher", "King Joffrey", "Batman", UnitName ("player") .. " Snow", "A Drunk Dawrf", "Somebody That You Used To Know", "Low Dps Guy", "Elvis Presley Doesn't Have Death Log", "Walter Can't Be Shadow Priest", "Bolvar Fordragon","Malygos","Akama","Anachronos","Lady Blaumeux","Cairne Bloodhoof","Borivar","C'Thun","Drek'Thar","Durotan","Eonar","Footman Malakai","Bolvar Fordragon","Fritz Fizzlesprocket","Lisa Gallywix","M'uru","High Priestess MacDonnell","Nazgrel","Ner'zhul","Saria Nightwatcher","Chief Ogg'ora","Ogoun","Grimm Onearm","Apothecary Oni'jus","Orman of Stromgarde","General Rajaxx","Baron Rivendare","Roland","Archmage Trelane","Liam Trollbane"}
+			local actors_classes = CLASS_SORT_ORDER
+			
+			for i = 1, 10 do
+				local robot = current_combat[1]:PegarCombatente (0x0000000000000, actors_name [math.random (1, #actors_name)], 0x114, true)
+				robot.grupo = true
+				robot.classe = actors_classes [math.random (1, #actors_classes)]
+				robot.total = math.random (10000000, 60000000)
+			end
+			
+			current_combat.start_time = time()-360
+			current_combat.end_time = time()
+			
+			_G.DetailsOptionsWindow.instance:InstanceReset()
+			
+		end
+		local fillbars = g:NewButton (window, _, "$parentCreateExampleBarsButton", nil, 110, 14, fill_bars, nil, nil, nil, "Create Test Bars")
+		fillbars:SetPoint ("bottomleft", window.widget, "bottomleft", 200, 12)
+		--fillbars:InstallCustomTexture()
+	
 		
-		--> left panel buttons
+	--> left panel buttons
 		
 		local menu_indexes = {
 			[1] = "General Settings",
@@ -1641,10 +1667,6 @@ function window:CreateFrame4()
 		s:SetBackdropColor (unpack (slider_backdrop_color))
 		s:SetThumbSize (50)
 
-
-	--> bars sort direction
-		
-
 	--> row texture color
 	
 		local rowcolor_callback = function (button, r, g, b, a)
@@ -1660,44 +1682,7 @@ function window:CreateFrame4()
 		window:create_line_background (frame4, frame4.rowPickColorLabel, frame4.rowColorPick)
 		frame4.rowColorPick:SetHook ("OnEnter", background_on_enter)
 		frame4.rowColorPick:SetHook ("OnLeave", background_on_leave)
-	
-	
-		--> bar background
-			local onSelectTextureBackground = function (_, instance, textureName)
-				instance:SetBarSettings (nil, nil, nil, nil, textureName)
-			end
-			
-			local textures2 = SharedMedia:HashTable ("statusbar")
-			local texTable2 = {}
-			for name, texturePath in pairs (textures2) do 
-				texTable2[#texTable2+1] = {value = name, label = name, statusbar = texturePath,  onclick = onSelectTextureBackground}
-			end
-			local buildTextureMenu2 = function() return texTable2 end
-			
-			local d = g:NewDropDown (frame4, _, "$parentRowBackgroundTextureDropdown", "rowBackgroundDropdown", DROPDOWN_WIDTH, 20, buildTextureMenu2, nil)			
-			d.onenter_backdrop = dropdown_backdrop_onenter
-			d.onleave_backdrop = dropdown_backdrop_onleave
-			d:SetBackdrop (dropdown_backdrop)
-			d:SetBackdropColor (unpack (dropdown_backdrop_onleave))			
-		
-		--> bar texture
-			local onSelectTexture = function (_, instance, textureName)
-				instance:SetBarSettings (nil, textureName)
-			end
-			
-			local textures = SharedMedia:HashTable ("statusbar")
-			local texTable = {}
-			for name, texturePath in pairs (textures) do 
-				texTable[#texTable+1] = {value = name, label = name, statusbar = texturePath,  onclick = onSelectTexture}
-			end
-			
-			local buildTextureMenu = function() return texTable end
-			local d = g:NewDropDown (frame4, _, "$parentTextureDropdown", "textureDropdown", DROPDOWN_WIDTH, 20, buildTextureMenu, nil)			
-			d.onenter_backdrop = dropdown_backdrop_onenter
-			d.onleave_backdrop = dropdown_backdrop_onleave
-			d:SetBackdrop (dropdown_backdrop)
-			d:SetBackdropColor (unpack (dropdown_backdrop_onleave))			
-		
+
 		--> bar grow direction
 			local grow_switch_func = function (slider, value)
 				if (value == 1) then
@@ -1774,6 +1759,26 @@ function window:CreateFrame4()
 		frame4.rowAlphaSlider:SetHook ("OnLeave", background_on_leave)
 	
 		-- texture
+		local onSelectTexture = function (_, instance, textureName)
+			instance:SetBarSettings (nil, textureName)
+		end
+
+		local buildTextureMenu = function() 
+			local textures = SharedMedia:HashTable ("statusbar")
+			local texTable = {}
+			for name, texturePath in pairs (textures) do 
+				texTable[#texTable+1] = {value = name, label = name, statusbar = texturePath,  onclick = onSelectTexture}
+			end
+			table.sort (texTable, function (t1, t2) return t1.label < t2.label end)
+			return texTable 
+		end
+		
+		local d = g:NewDropDown (frame4, _, "$parentTextureDropdown", "textureDropdown", DROPDOWN_WIDTH, 20, buildTextureMenu, nil)			
+		d.onenter_backdrop = dropdown_backdrop_onenter
+		d.onleave_backdrop = dropdown_backdrop_onleave
+		d:SetBackdrop (dropdown_backdrop)
+		d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+		
 		g:NewLabel (frame4, _, "$parentTextureLabel", "textureLabel", Loc ["STRING_OPTIONS_BAR_TEXTURE"], "GameFontHighlightLeft")
 		--
 		frame4.textureDropdown:SetPoint ("left", frame4.textureLabel, "right", 2)
@@ -1784,6 +1789,28 @@ function window:CreateFrame4()
 		frame4.textureDropdown:SetHook ("OnLeave", background_on_leave)
 		
 		-- background texture
+
+		--> bar background
+		local onSelectTextureBackground = function (_, instance, textureName)
+			instance:SetBarSettings (nil, nil, nil, nil, textureName)
+		end
+
+		local buildTextureMenu2 = function() 
+			local textures2 = SharedMedia:HashTable ("statusbar")
+			local texTable2 = {}
+			for name, texturePath in pairs (textures2) do 
+				texTable2[#texTable2+1] = {value = name, label = name, statusbar = texturePath,  onclick = onSelectTextureBackground}
+			end
+			table.sort (texTable2, function (t1, t2) return t1.label < t2.label end)
+			return texTable2 
+		end
+		
+		local d = g:NewDropDown (frame4, _, "$parentRowBackgroundTextureDropdown", "rowBackgroundDropdown", DROPDOWN_WIDTH, 20, buildTextureMenu2, nil)			
+		d.onenter_backdrop = dropdown_backdrop_onenter
+		d.onleave_backdrop = dropdown_backdrop_onleave
+		d:SetBackdrop (dropdown_backdrop)
+		d:SetBackdropColor (unpack (dropdown_backdrop_onleave))		
+		
 		g:NewLabel (frame4, _, "$parentRowBackgroundTextureLabel", "rowBackgroundLabel", Loc ["STRING_OPTIONS_BAR_TEXTURE"], "GameFontHighlightLeft")
 		--
 		frame4.rowBackgroundDropdown:SetPoint ("left", frame4.rowBackgroundLabel, "right", 2)
@@ -1841,7 +1868,7 @@ function window:CreateFrame4()
 
 		--icon file
 		g:NewLabel (frame4, _, "$parentIconFileLabel", "iconFileLabel", Loc ["STRING_OPTIONS_BAR_ICONFILE"], "GameFontHighlightLeft")
-		g:NewTextEntry (frame4, _, "$parentIconFileEntry", "iconFileEntry", 260, 20)
+		g:NewTextEntry (frame4, _, "$parentIconFileEntry", "iconFileEntry", 240, 20)
 		frame4.iconFileEntry:SetPoint ("left", frame4.iconFileLabel, "right", 2, 0)
 
 		frame4.iconFileEntry.tooltip = "- Press escape to restore default value.\n- Leave empty to hide icons."
@@ -1861,6 +1888,21 @@ function window:CreateFrame4()
 		frame4.iconFileEntry:SetHook ("OnLeave", background_on_leave)
 
 		frame4.iconFileEntry.text = instance.row_info.icon_file
+		
+		g:NewButton (frame4, _, "$parentNoIconButton", "noIconButton", 20, 20, function()
+			if (frame4.iconFileEntry.text == "") then
+				frame4.iconFileEntry.text = [[Interface\AddOns\Details\images\classes_small]]
+				frame4.iconFileEntry:PressEnter()
+			else
+				frame4.iconFileEntry.text = ""
+				frame4.iconFileEntry:PressEnter()
+			end
+		end)
+		frame4.noIconButton:SetPoint ("left", frame4.iconFileEntry, "right", 2, 1)
+		frame4.noIconButton:SetNormalTexture ([[Interface\Buttons\UI-GroupLoot-Pass-Down]])
+		frame4.noIconButton:SetHighlightTexture ([[Interface\Buttons\UI-GROUPLOOT-PASS-HIGHLIGHT]])
+		frame4.noIconButton:SetPushedTexture ([[Interface\Buttons\UI-GroupLoot-Pass-Up]])
+		frame4.noIconButton.tooltip = "Clear icon file."
 
 		--bar start at
 		g:NewSwitch (frame4, _, "$parentBarStartSlider", "barStartSlider", 60, 20, nil, nil, instance.row_info.start_after_icon)
@@ -1955,12 +1997,16 @@ function window:CreateFrame5()
 		local onSelectFont = function (_, instance, fontName)
 			instance:SetBarTextSettings (nil, fontName)
 		end
-		local fontObjects = SharedMedia:HashTable ("font")
-		local fontTable = {}
-		for name, fontPath in pairs (fontObjects) do 
-			fontTable[#fontTable+1] = {value = name, label = name, onclick = onSelectFont, font = fontPath}
+		
+		local buildFontMenu = function() 
+			local fontObjects = SharedMedia:HashTable ("font")
+			local fontTable = {}
+			for name, fontPath in pairs (fontObjects) do 
+				fontTable[#fontTable+1] = {value = name, label = name, onclick = onSelectFont, font = fontPath}
+			end
+			table.sort (fontTable, function (t1, t2) return t1.label < t2.label end)
+			return fontTable 
 		end
-		local buildFontMenu = function() return fontTable end
 		
 		local d = g:NewDropDown (frame5, _, "$parentFontDropdown", "fontDropdown", DROPDOWN_WIDTH, 20, buildFontMenu, nil)		
 		d.onenter_backdrop = dropdown_backdrop_onenter
@@ -2604,6 +2650,7 @@ function window:CreateFrame7()
 					for name, fontPath in pairs (SharedMedia:HashTable ("font")) do 
 						fonts [#fonts+1] = {value = name, label = name, onclick = on_select_attribute_font, font = fontPath}
 					end
+					table.sort (fonts, function (t1, t2) return t1.label < t2.label end)
 					return fonts 
 				end
 
@@ -2772,6 +2819,7 @@ function window:CreateFrame8()
 				for name, fontPath in pairs (fontObjects) do 
 					fontTable[#fontTable+1] = {value = name, label = name, onclick = reset_text_color_onselectfont, font = fontPath}
 				end
+				table.sort (fontTable, function (t1, t2) return t1.label < t2.label end)
 				return fontTable 
 			end
 			local d = g:NewDropDown (frame8, _, "$parentResetTextFontDropdown", "resetTextFontDropdown", DROPDOWN_WIDTH, 20, reset_text_color_build_font_menu, nil)
@@ -2803,6 +2851,7 @@ function window:CreateFrame8()
 				for name, fontPath in pairs (fontObjects) do 
 					fontTable[#fontTable+1] = {value = name, label = name, onclick = instance_text_color_onselectfont, font = fontPath}
 				end
+				table.sort (fontTable, function (t1, t2) return t1.label < t2.label end)
 				return fontTable 
 			end
 			local d = g:NewDropDown (frame8, _, "$parentInstanceTextFontDropdown", "instanceTextFontDropdown", DROPDOWN_WIDTH, 20, instance_text_color_build_font_menu, nil)

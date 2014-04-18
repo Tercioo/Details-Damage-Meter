@@ -471,7 +471,7 @@ local ButtonMetaFunctions = {}
 		end
 	
 		if (button.MyObject.have_tooltip) then 
-			GameCooltip:Reset()
+			_detalhes:CooltipPreset (1)
 			GameCooltip:AddLine (button.MyObject.have_tooltip)
 			GameCooltip:ShowCooltip (button, "tooltip")
 		end

@@ -312,6 +312,8 @@ local SliderMetaFunctions = {}
 				return
 			end
 		end
+		
+		DetailsFrameworkSliderButtons:ShowMe (slider)
 	
 		slider.thumb:SetAlpha (1)
 	
@@ -341,6 +343,8 @@ local SliderMetaFunctions = {}
 			end
 		end
 		
+		DetailsFrameworkSliderButtons:PrepareToHide()
+		
 		slider.thumb:SetAlpha (.7)
 	
 		if (slider.MyObject.have_tooltip) then 
@@ -356,11 +360,201 @@ local SliderMetaFunctions = {}
 		
 	end
 	
+
+	local f = CreateFrame ("frame", "DetailsFrameworkSliderButtons", UIParent)
+	f:Hide()
+	--f:SetBackdrop ({bgFile = [[Interface\DialogFrame\UI-DialogBox-Background-Dark]], tile = true, tileSize = 5})
+	f:SetHeight (18)
+	
+	local t = 0
+	f.is_going_hide = false
+	local going_hide = function (self, elapsed)
+		t = t + elapsed
+		if (t > 0.3) then
+			f:Hide()
+			f:SetScript ("OnUpdate", nil)
+			f.is_going_hide = false
+		end
+	end
+	
+	function f:ShowMe (host)
+		f:SetPoint ("bottomleft", host, "topleft", -3, -5)
+		f:SetPoint ("bottomright", host, "topright", 3, -5)
+		f:SetFrameStrata (host:GetFrameStrata())
+		f:SetFrameLevel (host:GetFrameLevel())
+		f:Show()
+		if (f.is_going_hide) then
+			f:SetScript ("OnUpdate", nil)
+			f.is_going_hide = false
+		end
+		
+		f.host = host.MyObject
+	end
+	
+	function f:PrepareToHide()
+		f.is_going_hide = true
+		t = 0
+		f:SetScript ("OnUpdate", going_hide)
+	end
+	
+	local button_plus = CreateFrame ("button", "DetailsFrameworkSliderButtonsPlusButton", f)
+	local button_minor = CreateFrame ("button", "DetailsFrameworkSliderButtonsMinorButton", f)
+	
+	button_plus:SetScript ("OnEnter", function (self)
+		if (f.is_going_hide) then
+			f:SetScript ("OnUpdate", nil)
+			f.is_going_hide = false
+		end
+	end)
+	button_minor:SetScript ("OnEnter", function (self)
+		if (f.is_going_hide) then
+			f:SetScript ("OnUpdate", nil)
+			f.is_going_hide = false
+		end
+	end)
+	
+	button_plus:SetScript ("OnLeave", function (self)
+		f:PrepareToHide()
+	end)
+	button_minor:SetScript ("OnLeave", function (self)
+		f:PrepareToHide()
+	end)
+	
+	button_plus:SetNormalTexture ([[Interface\Buttons\UI-PlusButton-Up]])
+	button_minor:SetNormalTexture ([[Interface\Buttons\UI-MinusButton-Up]])
+	
+	button_plus:SetPushedTexture ([[Interface\Buttons\UI-PlusButton-Down]])
+	button_minor:SetPushedTexture ([[Interface\Buttons\UI-MinusButton-Down]])
+	
+	button_plus:SetDisabledTexture ([[Interface\Buttons\UI-PlusButton-Disabled]])
+	button_minor:SetDisabledTexture ([[Interface\Buttons\UI-MinusButton-Disabled]])
+	
+	button_plus:SetHighlightTexture ([[Interface\Buttons\UI-PlusButton-Hilight]])
+	button_minor:SetHighlightTexture ([[Interface\Buttons\UI-PlusButton-Hilight]])
+	
+	--button_minor:SetPoint ("bottomleft", f, "bottomleft", -6, -13)
+	--button_plus:SetPoint ("bottomright", f, "bottomright", 6, -13)
+	
+	button_minor:SetPoint ("bottomright", f, "bottomright", 13, -13)
+	button_plus:SetPoint ("left", button_minor, "right", -2, 0)
+	
+	button_plus:SetSize (16, 16)
+	button_minor:SetSize (16, 16)
+	
+	local timer = 0
+	local change_timer = 0
+	
+	-- -- --
+	
+	local plus_button_script = function()
+
+		local current = f.host.value
+		local editbox = SliderMetaFunctions.editbox_typevalue
+		
+		if (f.host.fine_tuning) then
+			f.host:SetValue (current + f.host.fine_tuning)
+			if (editbox and SliderMetaFunctions.editbox_typevalue:IsShown()) then
+				SliderMetaFunctions.editbox_typevalue:SetText (tostring (string.format ("%.1f", current + f.host.fine_tuning)))
+			end
+		else
+			if (f.host.useDecimals) then
+				f.host:SetValue (current + 0.1)
+				if (editbox and SliderMetaFunctions.editbox_typevalue:IsShown()) then
+					SliderMetaFunctions.editbox_typevalue:SetText (string.format ("%.1f", current + 0.1))
+				end
+			else
+				f.host:SetValue (current + 1)
+				if (editbox and SliderMetaFunctions.editbox_typevalue:IsShown()) then
+					SliderMetaFunctions.editbox_typevalue:SetText (tostring (math.floor (current + 1)))
+				end
+			end
+		end
+
+	end
+	
+	button_plus:SetScript ("OnMouseUp", function (self)
+		if (not button_plus.got_click) then
+			plus_button_script()
+		end
+		button_plus.got_click = false
+		self:SetScript ("OnUpdate", nil)
+	end)
+	
+	local on_update = function (self, elapsed)
+		timer = timer + elapsed
+		if (timer > 0.6) then
+			change_timer = change_timer + elapsed
+			if (change_timer > 0.1) then
+				change_timer = 0
+				plus_button_script()
+				button_plus.got_click = true
+			end
+		end
+	end
+	button_plus:SetScript ("OnMouseDown", function (self)
+		timer = 0
+		change_timer = 0
+		self:SetScript ("OnUpdate", on_update)
+	end)
+	
+	-- -- --
+	
+	local minor_button_script = function()
+		local current = f.host.value
+		local editbox = SliderMetaFunctions.editbox_typevalue
+		
+		if (f.host.fine_tuning) then
+			f.host:SetValue (current - f.host.fine_tuning)
+			if (editbox and SliderMetaFunctions.editbox_typevalue:IsShown()) then
+				SliderMetaFunctions.editbox_typevalue:SetText (tostring (string.format ("%.1f", current - f.host.fine_tuning)))
+			end
+		else
+			if (f.host.useDecimals) then
+				f.host:SetValue (current - 0.1)
+				if (editbox and SliderMetaFunctions.editbox_typevalue:IsShown()) then
+					SliderMetaFunctions.editbox_typevalue:SetText (string.format ("%.1f", current - 0.1))
+				end
+			else
+				f.host:SetValue (current - 1)
+				if (editbox and SliderMetaFunctions.editbox_typevalue:IsShown()) then
+					SliderMetaFunctions.editbox_typevalue:SetText (tostring (math.floor (current - 1)))
+				end
+			end
+		end
+	end
+	
+	button_minor:SetScript ("OnMouseUp", function (self)
+		if (not button_minor.got_click) then
+			minor_button_script()
+		end
+		button_minor.got_click = false
+		self:SetScript ("OnUpdate", nil)
+	end)
+	
+	local on_update = function (self, elapsed)
+		timer = timer + elapsed
+		if (timer > 0.6) then
+			change_timer = change_timer + elapsed
+			if (change_timer > 0.1) then
+				change_timer = 0
+				minor_button_script()
+				button_minor.got_click = true
+			end
+		end
+	end
+	button_minor:SetScript ("OnMouseDown", function (self)
+		timer = 0
+		change_timer = 0
+		self:SetScript ("OnUpdate", on_update)
+	end)
+	
 	function SliderMetaFunctions:TypeValue()
 		if (not self.isSwitch) then
 		
 			if (not SliderMetaFunctions.editbox_typevalue) then
+			
 				local editbox = CreateFrame ("EditBox", "DetailsFrameworkSliderEditBox", UIParent)
+				
 				editbox:SetSize (40, 20)
 				editbox:SetJustifyH ("center")
 				editbox:SetBackdrop ({bgFile = [[Interface\DialogFrame\UI-DialogBox-Background-Dark]],
@@ -374,11 +568,22 @@ local SliderMetaFunctions = {}
 					editbox:GetParent().MyObject.typing_value = false
 					editbox:GetParent().MyObject.value = tonumber (editbox:GetText())
 				end)
+				
 				editbox:SetScript ("OnEscapePressed", function()
 					editbox:ClearFocus()
 					editbox:Hide()
 					editbox:GetParent().MyObject.typing_value = false
 					editbox:GetParent().MyObject.value = tonumber (self.typing_value_started)
+				end)
+
+				editbox:SetScript ("OnTextChanged", function()
+					editbox:GetParent().MyObject.typing_can_change = true
+					editbox:GetParent().MyObject.value = tonumber (editbox:GetText())
+					editbox:GetParent().MyObject.typing_can_change = false
+					
+					-- esse self fica como o primeiro a ser alterado
+					--print ("text changed", self:GetName())
+					--print ()
 				end)
 				
 				SliderMetaFunctions.editbox_typevalue = editbox
@@ -453,8 +658,9 @@ local SliderMetaFunctions = {}
 	
 		local amt = slider:GetValue()
 	
-		if (slider.MyObject.typing_value) then
-			return slider.MyObject:SetValue (slider.MyObject.typing_value_started)
+		if (slider.MyObject.typing_value and not slider.MyObject.typing_can_change) then
+			slider.MyObject:SetValue (slider.MyObject.typing_value_started)
+			return
 		end
 
 		table_insert (slider.MyObject.previous_value, 1, amt)
