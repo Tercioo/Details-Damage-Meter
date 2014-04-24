@@ -4195,6 +4195,12 @@ end --> if not window
 ----------------------------------------------------------------------------------------
 --> Show
 
+local strata = {
+	["LOW"] = "Low",
+	["MEDIUM"] = "Medium",
+	["HIGH"] = "High"
+}
+
 function window:update_all (editing_instance)
 
 	--> window 1
@@ -4248,7 +4254,8 @@ function window:update_all (editing_instance)
 	_G.DetailsOptionsWindow6StatusbarColorPick.MyObject:SetColor (r, g, b, editing_instance.statusbar_info.alpha)
 	
 	_G.DetailsOptionsWindow6StrataDropdown.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow6StrataDropdown.MyObject:Select (editing_instance.strata)
+	_G.DetailsOptionsWindow6StrataDropdown.MyObject:Select (strata [editing_instance.strata] or "Low")
+	
 	
 	--> window 7
 	_G.DetailsOptionsWindow7AutoHideRightMenuSwitch.MyObject:SetFixedParameter (editing_instance)
@@ -4458,7 +4465,10 @@ function window:update_all (editing_instance)
 	
 	_G.DetailsOptionsWindow.MyObject.instance = instance
 	
-	_G.DetailsOptionsWindowInstanceSelectDropdown.MyObject:Select (editing_instance.meu_id, true)
+	if (editing_instance.meu_id > _detalhes.instances_amount) then
+	else
+		_G.DetailsOptionsWindowInstanceSelectDropdown.MyObject:Select (editing_instance.meu_id, true)
+	end
 	
 	_G.DetailsOptionsWindow4IconFileEntry:SetText (editing_instance.row_info.icon_file)
 	

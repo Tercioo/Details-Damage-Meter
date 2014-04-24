@@ -589,7 +589,8 @@ function _G._detalhes:Start()
 	end
 	
 	--register lib-hotcorners
-	_detalhes:RegisterHotCornerButton ("TOPLEFT", "DetailsLeftCornerButton", [[Interface\AddOns\Details\images\minimap]], "|cFFFFFFFFDetails!\n|cFF00FF00Left Click:|r clear all segments.", function() _detalhes.tabela_historico:resetar() end)
+	local reset_func = function() _detalhes.tabela_historico:resetar() end
+	_detalhes:RegisterHotCornerButton ("TOPLEFT", "DetailsLeftCornerButton", [[Interface\AddOns\Details\images\minimap]], "|cFFFFFFFFDetails!\n|cFF00FF00Left Click:|r clear all segments.", reset_func, nil, reset_func)
 	
 	
 	--[[

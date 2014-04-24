@@ -164,7 +164,7 @@
 	--> select a new plugin in for an instance anchor
 	local ChoosePlugin = function (_, _, index, current_child, anchor)
 	
-		if (index == -1) then --> hide
+		if (index and index == -1) then --> hide
 			current_child.frame.text:Hide()
 			_detalhes.StatusBar:ApplyOptions (current_child, "hidden", true)
 			return
@@ -174,6 +174,16 @@
 		end
 	
 		local pluginMestre = _detalhes.StatusBar.Plugins [index]
+		if (not pluginMestre) then
+			if (anchor == "left") then
+				pluginMestre = _detalhes.StatusBar.Plugins [2]
+			elseif (anchor == "center") then
+				pluginMestre = _detalhes.StatusBar.Plugins [4]
+			elseif (anchor == "right") then
+				pluginMestre = _detalhes.StatusBar.Plugins [1]
+			end
+		end
+		
 		local instance = current_child.instance -- instance que estamos usando agora
 		
 		local chosenChild = nil
@@ -311,6 +321,12 @@
 		local left_index = _detalhes.StatusBar:GetIndexFromAbsoluteName (left)
 		ChoosePlugin (nil, nil, left_index, instance.StatusBar.left, "left")
 		
+		local center_index = _detalhes.StatusBar:GetIndexFromAbsoluteName (center)
+		ChoosePlugin (nil, nil, center_index, instance.StatusBar.center, "center")
+		
+		local right_index = _detalhes.StatusBar:GetIndexFromAbsoluteName (right)
+		ChoosePlugin (nil, nil, right_index, instance.StatusBar.right, "right")
+		
 		instance.StatusBar.left.options = table_deepcopy (instance.StatusBarSaved.options [left])
 		instance.StatusBar.center.options = table_deepcopy (instance.StatusBarSaved.options [center])
 		instance.StatusBar.right.options = table_deepcopy (instance.StatusBarSaved.options [right])
@@ -318,6 +334,14 @@
 		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.left, "textcolor")
 		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.left, "textsize")
 		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.left, "textface")
+		
+		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.center, "textcolor")
+		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.center, "textsize")
+		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.center, "textface")
+		
+		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.right, "textcolor")
+		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.right, "textsize")
+		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.right, "textface")
 
 	end
 	
@@ -563,9 +587,11 @@ do
 			return
 		end
 
-		function PSegment:Change()
+		function PSegment:Change (combat_table, segment_number)
 			for index, child in _ipairs (PSegment.childs) do
+			
 				if (child.enabled and child.instance:IsEnabled()) then
+				
 					if (child.instance.segmento == -1) then --> overall
 						child.text:SetText (Loc ["STRING_OVERALL"])
 						
@@ -575,24 +601,83 @@ do
 							child.text:SetText (Loc ["STRING_CURRENT"])
 							
 						elseif (child.options.segmentType == 2) then
+						
 							if (child.instance.showing.is_boss) then
 								child.text:SetText (child.instance.showing.is_boss.encounter)
+								
 							elseif (_detalhes.encounter_table and _detalhes.encounter_table.name) then
 								child.text:SetText (_detalhes.encounter_table.name)
+								
 							else
 								child.text:SetText (child.instance.showing.enemy or "Unknown")
 							end
+							
+						elseif (child.options.segmentType == 3) then
+						
+							if (not segment_number) then -- received "COMBAT_PLAYER_ENTER"
+								segment_number = child.instance:GetSegment()
+							end
+						
+							local number_
+							if (segment_number == 0) then
+								number_ = " (#1)"
+							else
+								number_ = " (#" .. segment_number .. ")"
+							end
+							
+							if (child.instance.showing.is_boss) then
+								child.text:SetText (child.instance.showing.is_boss.encounter .. number_)
+								
+							elseif (child.instance.showing.is_trash) then
+								child.text:SetText (Loc ["STRING_SEGMENT_TRASH"] .. number_)
+								
+							elseif (_detalhes.encounter_table and _detalhes.encounter_table.name) then
+								child.text:SetText (_detalhes.encounter_table.name .. number_)
+								
+							else
+								child.text:SetText (child.instance.showing.enemy or "Unknown")
+							end
+							
 						end
 						
 					else --> alguma tabela do histórico
 						if (child.options.segmentType == 1) then
-							child.text:SetText (Loc ["STRING_FIGHTNUMBER"]..child.instance.segmento)
+							child.text:SetText (Loc ["STRING_FIGHTNUMBER"] .. child.instance.segmento)
+							
 						elseif (child.options.segmentType == 2) then
+						
 							if (child.instance.showing.is_boss) then
 								child.text:SetText (child.instance.showing.is_boss.encounter)
 							else
 								child.text:SetText (child.instance.showing.enemy or "Unknown")
 							end
+						
+						elseif (child.options.segmentType == 3) then
+						
+							if (not segment_number) then -- received "COMBAT_PLAYER_ENTER"
+								segment_number = child.instance:GetSegment()
+							end
+						
+							local number_
+							if (segment_number == 0) then
+								number_ = " (#1)"
+							else
+								number_ = " (#" .. segment_number .. ")"
+							end
+							
+							if (child.instance.showing.is_boss) then
+								child.text:SetText (child.instance.showing.is_boss.encounter .. number_)
+							
+							elseif (child.instance.showing.is_trash) then
+								child.text:SetText (Loc ["STRING_SEGMENT_TRASH"] .. number_)
+							
+							elseif (_detalhes.encounter_table and _detalhes.encounter_table.name) then
+								child.text:SetText (_detalhes.encounter_table.name .. number_)
+								
+							else
+								child.text:SetText (child.instance.showing.enemy or "Unknown")
+							end
+						
 						end
 					end
 				end
@@ -618,6 +703,7 @@ do
 				local segmentTypes = {
 					{value = 1, label = Loc ["STRING_PLUGIN_SEGMENTTYPE_1"], onclick = onSelectSegmentType, icon = [[Interface\ICONS\Ability_Rogue_KidneyShot]]},
 					{value = 2, label = Loc ["STRING_PLUGIN_SEGMENTTYPE_2"], onclick = onSelectSegmentType, icon = [[Interface\ICONS\Achievement_Boss_Ra_Den]]},
+					{value = 3, label = Loc ["STRING_PLUGIN_SEGMENTTYPE_3"], onclick = onSelectSegmentType, icon = [[Interface\ICONS\Achievement_Boss_Durumu]]},
 				}
 				
 				_detalhes.gump:NewDropDown (window, nil, "$parentSegmentTypeDropdown", "segmentTypeDropdown", 200, 20, function() return segmentTypes end, 1) -- func, default
@@ -1180,7 +1266,7 @@ do
 		end
 		
 		function PTime:OnDisable()
-			self:CancelTimer (self.srt)
+			self:CancelTimer (self.srt, true)
 		end
 
 		function PTime:OnEnable()

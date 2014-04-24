@@ -214,10 +214,15 @@
 			
 				for _, ThisButton in ipairs (_detalhes.ToolBar.Shown) do 
 					ThisButton:ClearAllPoints()
-					ThisButton:SetParent (instance.baseframe.UPFrame)
+					--ThisButton:SetParent (instance.baseframe.UPFrame)
 					
 					-- se tiver no listener, ele nao hida quando a janela for fechada.
 					-- se tiver no baseframe não da de clicar.
+					-- se tiver no UPFrame ele muda de alpha junto com a janela.
+					
+					-- mudei para o baseframe aumentando o level.
+					ThisButton:SetParent (instance.baseframe)
+					ThisButton:SetFrameLevel (instance.baseframe:GetFrameLevel()+5)
 					
 					if (LastIcon == instance.baseframe.cabecalho.report) then
 						ThisButton:SetPoint ("left", LastIcon, "right", ThisButton.x + x + 4, ThisButton.y)
@@ -241,7 +246,9 @@
 				
 				for _, ThisButton in ipairs (_detalhes.ToolBar.Shown) do 
 					ThisButton:ClearAllPoints()
-					ThisButton:SetParent (instance.baseframe.UPFrame)
+
+					ThisButton:SetParent (instance.baseframe)
+					ThisButton:SetFrameLevel (instance.baseframe:GetFrameLevel()+5)
 					
 					ThisButton:SetPoint ("right", LastIcon, "left", ThisButton.x + x, ThisButton.y)
 					

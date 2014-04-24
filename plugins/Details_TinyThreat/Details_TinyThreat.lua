@@ -21,6 +21,8 @@ local ThreatMeter = _detalhes:NewPluginObject ("Details_Threat")
 --> Main Frame
 local ThreatMeterFrame = ThreatMeter.Frame
 
+local _
+
 local function CreatePluginFrames (data)
 	
 	--> catch Details! main object
@@ -175,7 +177,7 @@ local function CreatePluginFrames (data)
 	end
 	
 	function ThreatMeter:NewRow (i)
-		local newrow = DetailsFrameWork:NewBar (ThreatMeterFrame, _, "DetailsThreatRow"..i, _, 300, 14)
+		local newrow = DetailsFrameWork:NewBar (ThreatMeterFrame, nil, "DetailsThreatRow"..i, nil, 300, 14)
 		newrow:SetPoint (3, -((i-1)*15))
 		newrow.lefttext = "bar " .. i
 		newrow.color = "skyblue"

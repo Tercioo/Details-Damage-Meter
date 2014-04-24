@@ -1899,7 +1899,38 @@ function _detalhes:InstanceMsg (text, icon, textcolor, icontexture, iconcoords, 
 	end
 end
 
---> inicio ~janela ~window
+function _detalhes:schedule_hide_anti_overlap (self)
+	self:Hide()
+	self.schdule = nil
+end
+local function hide_anti_overlap (self)
+	if (self.schdule) then
+		_detalhes:CancelTimer (self.schdule)
+		self.schdule = nil
+	end
+	local schdule = _detalhes:ScheduleTimer ("schedule_hide_anti_overlap", 0.3, self)
+	self.schdule = schdule
+end
+
+local function show_anti_overlap (instance, host, side)
+
+	local anti_menu_overlap = instance.baseframe.anti_menu_overlap
+
+	if (anti_menu_overlap.schdule) then
+		_detalhes:CancelTimer (anti_menu_overlap.schdule)
+		anti_menu_overlap.schdule = nil
+	end
+
+	anti_menu_overlap:ClearAllPoints()
+	if (side == "top") then
+		anti_menu_overlap:SetPoint ("bottom", host, "top")
+	elseif (side == "bottom") then
+		anti_menu_overlap:SetPoint ("top", host, "bottom")
+	end
+	anti_menu_overlap:Show()
+end
+
+--> ~inicio ~janela ~window
 function gump:CriaJanelaPrincipal (ID, instancia, criando)
 
 -- main frames -----------------------------------------------------------------------------------------------------------------------------------------------
@@ -1928,6 +1959,14 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 	switchbutton:SetPoint ("topleft", backgrounddisplay, "topleft")
 	switchbutton:SetPoint ("bottomright", backgrounddisplay, "bottomright")
 	switchbutton:SetFrameLevel (backgrounddisplay:GetFrameLevel()+1)
+	
+	local anti_menu_overlap = CreateFrame ("frame", "Details_WindowFrameAntiMenuOverlap" .. ID, baseframe)
+	anti_menu_overlap:SetSize (100, 13)
+	anti_menu_overlap:SetFrameStrata ("DIALOG")
+	anti_menu_overlap:EnableMouse (true)
+	anti_menu_overlap:Hide()
+	--anti_menu_overlap:SetBackdrop (gump_fundo_backdrop)
+	baseframe.anti_menu_overlap = anti_menu_overlap
 
 -- scroll bar -----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -3018,7 +3057,7 @@ function _detalhes:InstanceColor (red, green, blue, alpha, no_save, change_statu
 		--> not saving
 		self:StatusBarColor (nil, nil, nil, alpha, true)
 	end
-	
+
 	local skin = _detalhes.skins [self.skin]
 	
 	--[[
@@ -3032,9 +3071,10 @@ function _detalhes:InstanceColor (red, green, blue, alpha, no_save, change_statu
 	
 	self.baseframe.cabecalho.ball_r:SetVertexColor (red, green, blue)
 		self.baseframe.cabecalho.ball_r:SetAlpha (alpha)
+		
 	self.baseframe.cabecalho.ball:SetVertexColor (red, green, blue)
-
 	self.baseframe.cabecalho.ball:SetAlpha (alpha)
+	
 	self.baseframe.cabecalho.atributo_icon:SetAlpha (alpha)
 
 	self.baseframe.cabecalho.emenda:SetVertexColor (red, green, blue)
@@ -3050,7 +3090,7 @@ function _detalhes:InstanceColor (red, green, blue, alpha, no_save, change_statu
 		self.baseframe.barra_fundo:SetAlpha (alpha)
 		
 	self.baseframe.UPFrame:SetAlpha (alpha)
-		
+
 	--self.color[1], self.color[2], self.color[3], self.color[4] = red, green, blue, alpha
 end
 
@@ -3533,13 +3573,15 @@ local build_mode_list = function (self, elapsed)
 			if (instancia.toolbar_side == 1) then
 				CoolTip:SetOwner (self)
 			elseif (instancia.toolbar_side == 2) then --> bottom
-				CoolTip:SetOwner (self, "bottom", "top", 0, -7)
+				CoolTip:SetOwner (self, "bottom", "top", 0, 0) -- -7
 			end
 		end
 		
 		--CoolTip:SetWallpaper (1, [[Interface\ACHIEVEMENTFRAME\UI-Achievement-Parchment-Horizontal-Desaturated]], nil, {1, 1, 1, 0.3})
 		CoolTip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
-		
+
+		show_anti_overlap (instancia, self, "top")
+
 		CoolTip:ShowCooltip()
 	end
 end
@@ -3780,7 +3822,7 @@ local build_segment_list = function (self, elapsed)
 			if (instancia.toolbar_side == 1) then
 				CoolTip:SetOwner (self)
 			elseif (instancia.toolbar_side == 2) then --> bottom
-				CoolTip:SetOwner (self, "bottom", "top", 0, -7)
+				CoolTip:SetOwner (self, "bottom", "top", 0, 0) -- -7
 			end
 		end
 		
@@ -3797,6 +3839,8 @@ local build_segment_list = function (self, elapsed)
 		
 		--CoolTip:SetWallpaper (1, [[Interface\ACHIEVEMENTFRAME\UI-Achievement-Parchment-Horizontal-Desaturated]], nil, {1, 1, 1, 0.3})
 		CoolTip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
+		
+		show_anti_overlap (instancia, self, "top")
 		
 		CoolTip:ShowCooltip()
 		
@@ -3999,6 +4043,25 @@ function _detalhes:ChangeSkin (skin_name)
 		--> reset micro frames
 			_detalhes.StatusBar:Reset (self)
 
+		--> customize micro frames
+			if (this_skin.micro_frames) then
+				if (this_skin.micro_frames.color) then
+					_detalhes.StatusBar:ApplyOptions (self.StatusBar.left, "textcolor", this_skin.micro_frames.color)
+					_detalhes.StatusBar:ApplyOptions (self.StatusBar.center, "textcolor", this_skin.micro_frames.color)
+					_detalhes.StatusBar:ApplyOptions (self.StatusBar.right, "textcolor", this_skin.micro_frames.color)
+				end
+				if (this_skin.micro_frames.font) then
+					_detalhes.StatusBar:ApplyOptions (self.StatusBar.left, "textface", this_skin.micro_frames.font)
+					_detalhes.StatusBar:ApplyOptions (self.StatusBar.center, "textface", this_skin.micro_frames.font)
+					_detalhes.StatusBar:ApplyOptions (self.StatusBar.right, "textface", this_skin.micro_frames.font)
+				end
+				if (this_skin.micro_frames.size) then
+					_detalhes.StatusBar:ApplyOptions (self.StatusBar.left, "textsize", this_skin.micro_frames.size)
+					_detalhes.StatusBar:ApplyOptions (self.StatusBar.center, "textsize", this_skin.micro_frames.size)
+					_detalhes.StatusBar:ApplyOptions (self.StatusBar.right, "textsize", this_skin.micro_frames.size)
+				end
+			end
+			
 	end
 	
 	self.skin = skin_name
@@ -4129,26 +4192,6 @@ function _detalhes:ChangeSkin (skin_name)
 		end
 	end
 
-----------> customize micro frames
-	
-	if (this_skin.micro_frames) then
-		if (this_skin.micro_frames.color) then
-			_detalhes.StatusBar:ApplyOptions (self.StatusBar.left, "textcolor", this_skin.micro_frames.color)
-			_detalhes.StatusBar:ApplyOptions (self.StatusBar.center, "textcolor", this_skin.micro_frames.color)
-			_detalhes.StatusBar:ApplyOptions (self.StatusBar.right, "textcolor", this_skin.micro_frames.color)
-		end
-		if (this_skin.micro_frames.font) then
-			_detalhes.StatusBar:ApplyOptions (self.StatusBar.left, "textface", this_skin.micro_frames.font)
-			_detalhes.StatusBar:ApplyOptions (self.StatusBar.center, "textface", this_skin.micro_frames.font)
-			_detalhes.StatusBar:ApplyOptions (self.StatusBar.right, "textface", this_skin.micro_frames.font)
-		end
-		if (this_skin.micro_frames.size) then
-			_detalhes.StatusBar:ApplyOptions (self.StatusBar.left, "textsize", this_skin.micro_frames.size)
-			_detalhes.StatusBar:ApplyOptions (self.StatusBar.center, "textsize", this_skin.micro_frames.size)
-			_detalhes.StatusBar:ApplyOptions (self.StatusBar.right, "textsize", this_skin.micro_frames.size)
-		end
-	end
-	
 ----------> icon anchor and size
 	
 	if (self.modo == 1 or self.modo == 4 or self.atributo == 5) then -- alone e raid
@@ -5231,6 +5274,8 @@ function gump:CriaCabecalho (baseframe, instancia)
 	baseframe.cabecalho.modo_selecao:SetScript ("OnLeave", function (self) 
 		OnLeaveMainWindow (instancia, self, 3)
 		
+		hide_anti_overlap (instancia.baseframe.anti_menu_overlap)
+		
 		if (instancia.desaturated_menu) then
 			self:GetNormalTexture():SetDesaturated (true)
 		end
@@ -5325,6 +5370,8 @@ function gump:CriaCabecalho (baseframe, instancia)
 	baseframe.cabecalho.segmento:SetScript ("OnLeave", function (self) 
 		--gump:Fade (baseframe.button_stretch, -1)
 		OnLeaveMainWindow (instancia, self, 3)
+
+		hide_anti_overlap (instancia.baseframe.anti_menu_overlap)
 		
 		if (instancia.desaturated_menu) then
 			self:GetNormalTexture():SetDesaturated (true)
@@ -5367,6 +5414,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 		OnEnterFunc = function (self) 
 			baseframe.cabecalho.button_mouse_over = true; 
 			OnEnterMainWindow (instancia, baseframe.cabecalho.atributo, 3) 
+			show_anti_overlap (instancia, self, "top")
 			if (instancia.desaturated_menu) then
 				self:GetNormalTexture():SetDesaturated (false)
 			end
@@ -5374,6 +5422,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 		OnLeaveFunc = function (self) 
 			baseframe.cabecalho.button_mouse_over = false; 
 			OnLeaveMainWindow (instancia, baseframe.cabecalho.atributo, 3) 
+			hide_anti_overlap (instancia.baseframe.anti_menu_overlap)
 			if (instancia.desaturated_menu) then
 				self:GetNormalTexture():SetDesaturated (true)
 			end
@@ -5387,7 +5436,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 				if (instancia.toolbar_side == 1) then --top
 					return {TextSize = _detalhes.font_sizes.menus}
 				elseif (instancia.toolbar_side == 2) then --bottom
-					return {TextSize = _detalhes.font_sizes.menus, HeightAnchorMod = -7}
+					return {TextSize = _detalhes.font_sizes.menus, HeightAnchorMod = 0} -- -7
 				end
 			end
 		end}

@@ -23,19 +23,22 @@ end
 	local CallbackHandler = LibStub:GetLibrary ("CallbackHandler-1.0")
 	LibHotCorners.callbacks = LibHotCorners.callbacks or CallbackHandler:New (LibHotCorners)
 
-	LibHotCorners.topleft = {widgets = {}}
+	LibHotCorners.topleft = {widgets = {}, fastcorner = false}
 	LibHotCorners.bottomleft = {}
 	LibHotCorners.topright = {}
 	LibHotCorners.bottomright = {}
 
-	function LibHotCorners:RegisterHotCornerButton (corner, name, icon, tooltip, clickfunc, menus)
+	function LibHotCorners:RegisterHotCornerButton (corner, name, icon, tooltip, clickfunc, menus, fastcorner)
 		corner = string.lower (corner)
 		assert (corner == "topleft" or corner == "bottomleft" or corner == "topright" or corner == "bottomright", "LibHotCorners:RegisterAddon expects a corner on #1 argument.")
 		tinsert (LibHotCorners [corner], {name = name, icon = icon, tooltip = tooltip, click = clickfunc, menus = menus})
+		if (fastcorner) then
+			LibHotCorners [corner].fastcorner = fastcorner
+		end
 	end
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---> top left corner
+--> create top left corner
 
 	local TopLeftCorner = CreateFrame ("frame", "LibHotCornersTopLeft", UIParent)
 
@@ -43,6 +46,15 @@ end
 	TopLeftCorner:SetFrameStrata ("fullscreen")
 	TopLeftCorner:SetPoint ("TopLeft", UIParent, "TopLeft", 0, 0)
 
+	local FastCornerButton = CreateFrame ("button", "LibHotCornersTopLeftFastButton", TopLeftCorner)
+	FastCornerButton:SetPoint ("topleft", TopLeftCorner, "topleft")
+	FastCornerButton:SetSize (1, 1)
+	FastCornerButton:SetScript ("OnClick", function (self) 
+		if (LibHotCorners.topleft.fastcorner) then
+			LibHotCorners.topleft.fastcorner()
+		end
+	end)
+	
 	local TopLeftCornerBackdrop = {bgFile = [[Interface\DialogFrame\UI-DialogBox-Background]], tile = true, tileSize = 40}
 	
 	--> on enter
