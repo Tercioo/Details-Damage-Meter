@@ -250,6 +250,38 @@ function SlashCmdList.DETAILS (msg, editbox)
 		
 		--vardump (_detalhes.ResetButton)
 	
+	elseif (command == "mini") then
+		local instance = _detalhes.tabela_instancias [1]
+		--vardump ()
+		--print (instance, instance.StatusBar.options, instance.StatusBar.left)
+		print (instance.StatusBar.options [instance.StatusBar.left.mainPlugin.real_name].textSize)
+		print (instance.StatusBar.left.options.textSize)
+	
+	elseif (command == "owner") then
+	
+		local petname = rest:match ("^(%S*)%s*(.-)$")
+
+		if (not _G.DetailsScanTooltip) then
+			local scanTool = CreateFrame ("GameTooltip", "DetailsScanTooltip", nil, "GameTooltipTemplate")
+			scanTool:SetOwner (WorldFrame, "ANCHOR_NONE")
+		end
+		
+		function getPetOwner (petName)
+			local scanTool = _G.DetailsScanTooltip
+			local scanText = _G ["DetailsScanTooltipTextLeft2"] -- This is the line with <[Player]'s Pet>
+			
+			scanTool:ClearLines()
+			scanTool:SetUnit (petName)
+			local ownerText = scanText:GetText()
+			if not ownerText then return nil end
+			local owner, _ = string.split("'",ownerText)
+
+			return owner -- This is the pet's owner
+		end
+		
+		print (getPetOwner (petname))
+
+	
 	elseif (command == "buffsof") then
 		
 		local playername, segment = rest:match("^(%S*)%s*(.-)$")

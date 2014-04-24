@@ -104,24 +104,6 @@ local function CreatePluginFrames (data)
 	ThreatMeterFrame:SetWidth (300)
 	ThreatMeterFrame:SetHeight (100)
 	
-	--[[
-	ThreatMeterFrame:SetBackdrop ({
-		bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", 
-		tile = true, tileSize = 16,
-		insets = {left = 1, right = 1, top = 0, bottom = 1},})
-	ThreatMeterFrame:SetBackdropColor (.3, .3, .3, .3)
-	
-	local icon1 = DetailsFrameWork:NewImage (ThreatMeterFrame, nil, nil, "titleIcon", 64, 64, "Interface\\HELPFRAME\\HelpIcon-ItemRestoration")
-	icon1:SetPoint (10, -10)
-	local title = DetailsFrameWork:NewLabel (ThreatMeterFrame, nil, nil, "titleText", "Tiny Threat", "CoreAbilityFont", 26)
-	title:SetPoint ("left", icon1, "right", 2)
-	title.color = "white"
-	DetailsFrameWork:Fade (icon1, 1)
-	DetailsFrameWork:Fade (title, 1)
-	local title2 = DetailsFrameWork:NewLabel (ThreatMeterFrame, nil, nil, "titleText2", "A (very) small threat meter.", "GameFontHighlightSmall", 9)
-	title2:SetPoint ("bottomright", title, "bottomright", 0, -10)
---]]
-
 	function ThreatMeter:UpdateContainers()
 		for _, row in _ipairs (ThreatMeter.Rows) do 
 			row:SetContainer (instance.baseframe)

@@ -204,13 +204,10 @@ local ImageMetaFunctions = {}
 ------------------------------------------------------------------------------------------------------------
 --> object constructor
 
-function gump:NewImage (parent, container, name, member, w, h, texture, layer)
+function gump:NewImage (parent, texture, w, h, layer, coords, member, name)
 
 	if (not parent) then
 		return nil
-	end
-	if (not container) then
-		container = parent
 	end
 	
 	if (not name) then
@@ -230,9 +227,6 @@ function gump:NewImage (parent, container, name, member, w, h, texture, layer)
 	
 	if (parent.dframework) then
 		parent = parent.widget
-	end
-	if (container.dframework) then
-		container = container.widget
 	end
 
 	texture = texture or ""

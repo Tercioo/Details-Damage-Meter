@@ -61,6 +61,10 @@ local div_abre = _detalhes.divisores.abre
 local div_fecha = _detalhes.divisores.fecha
 local div_lugar = _detalhes.divisores.colocacao
 
+local ToKFunctions = _detalhes.ToKFunctions
+local SelectedToKFunction = ToKFunctions [1]
+local UsingCustomRightText = false
+
 local info = _detalhes.janela_info
 local keyName
 
@@ -281,6 +285,7 @@ function atributo_energy:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 	local barras_container = instancia.barras
 
 	local combat_time = instancia.showing:GetCombatTime()
+	UsingCustomRightText = instancia.row_info.textR_enable_custom_text
 	
 	local use_total_bar = false
 	if (instancia.total_bar.enabled) then
@@ -429,7 +434,13 @@ function atributo_energy:AtualizaBarra (instancia, barras_container, qual_barra,
 	local porcentagem = esta_e_energy_total / total * 100
 	local esta_porcentagem = _math_floor ((esta_e_energy_total/instancia.top) * 100)
 
-	esta_barra.texto_direita:SetText (_detalhes:ToK (esta_e_energy_total) .. " " .. div_abre .. _cstr ("%.1f", porcentagem).."%" .. div_fecha) --seta o texto da direita
+	local formated_energy = SelectedToKFunction (_, esta_e_energy_total)
+	
+	if (UsingCustomRightText) then
+		esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_energy, "", _cstr ("%.1f", porcentagem)))
+	else
+		esta_barra.texto_direita:SetText (formated_energy .. " " .. div_abre .. _cstr ("%.1f", porcentagem) .. "%" .. div_fecha) --seta o texto da direita
+	end
 	
 	if (esta_barra.mouse_over and not instancia.baseframe.isMoving) then --> precisa atualizar o tooltip
 		gump:UpdateTooltip (qual_barra, esta_barra, instancia)
@@ -945,6 +956,11 @@ end
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> core functions
+
+	--> atualize a funcao de abreviacao
+		function atributo_energy:UpdateSelectedToKFunction()
+			SelectedToKFunction = ToKFunctions [_detalhes.ps_abbreviation]
+		end
 
 	--> subtract total from a combat table
 		function atributo_energy:subtract_total (combat_table)

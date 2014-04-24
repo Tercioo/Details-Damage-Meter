@@ -361,7 +361,7 @@ local function CreatePluginFrames (data)
 			local healPerSecondNumber = DetailsFrameWork:NewLabel (infoFrame, nil, "VanguardInfoHealHealHpsAmount", nil, "0", "GameFontHighlightSmall", 9.5)
 			healPerSecondNumber:SetPoint ("left", healPerSecond, "right", 2)
 			
-			local icon1 = DetailsFrameWork:NewImage (infoFrame, nil, "VanguardInfoHealTop1Icon", nil, 14, 14)
+			local icon1 = DetailsFrameWork:NewImage (infoFrame, nil, 14, 14, nil, nil, nil, "VanguardInfoHealTop1Icon")
 			local topHealer1 = DetailsFrameWork:NewLabel (infoFrame, nil, "VanguardInfoHealTop1", nil, "", "GameFontHighlightSmall", 9.5)
 			topHealer1:SetWidth (80)
 			topHealer1:SetHeight (10)
@@ -370,7 +370,7 @@ local function CreatePluginFrames (data)
 			topHealer1:SetPoint ("left", icon1, "right", 2)
 			topHealer1Amount:SetPoint ("left", topHealer1, "right", 2)
 			
-			local icon2 = DetailsFrameWork:NewImage (infoFrame, nil, "VanguardInfoHealTop2Icon", nil, 14, 14)
+			local icon2 = DetailsFrameWork:NewImage (infoFrame, nil, 14, 14, nil, nil, nil, "VanguardInfoHealTop2Icon")
 			local topHealer2 = DetailsFrameWork:NewLabel (infoFrame, nil, "VanguardInfoHealTop2", nil, "", "GameFontHighlightSmall", 9.5)
 			topHealer2:SetWidth (80)
 			topHealer2:SetHeight (10)
@@ -379,7 +379,7 @@ local function CreatePluginFrames (data)
 			topHealer2:SetPoint ("left", icon2, "right", 2)
 			topHealer2Amount:SetPoint ("left", topHealer2, "right", 2)
 			
-			local icon3 = DetailsFrameWork:NewImage (infoFrame, nil, "VanguardInfoHealTop3Icon", nil, 14, 14)
+			local icon3 = DetailsFrameWork:NewImage (infoFrame, nil, 14, 14, nil, nil, nil, "VanguardInfoHealTop3Icon")
 			local topHealer3 = DetailsFrameWork:NewLabel (infoFrame, nil, "VanguardInfoHealTop3", nil, "", "GameFontHighlightSmall", 9.5)
 			topHealer3:SetWidth (80)
 			topHealer3:SetHeight (10)
@@ -388,7 +388,7 @@ local function CreatePluginFrames (data)
 			topHealer3:SetPoint ("left", icon3, "right", 2)
 			topHealer3Amount:SetPoint ("left", topHealer3, "right", 2)
 			
-			local icon4 = DetailsFrameWork:NewImage (infoFrame, nil, "VanguardInfoHealTop4Icon", nil, 14, 14)
+			local icon4 = DetailsFrameWork:NewImage (infoFrame, nil, 14, 14, nil, nil, nil, "VanguardInfoHealTop4Icon")
 			local topHealer4 = DetailsFrameWork:NewLabel (infoFrame, nil, "VanguardInfoHealTop4", nil, "", "GameFontHighlightSmall", 9.5)
 			topHealer4:SetWidth (80)
 			topHealer4:SetHeight (10)
@@ -758,7 +758,7 @@ local function CreatePluginFrames (data)
 			life:SetFrameLevel (-1, Frame)
 			ThisBoxObject.Life = life
 			
-			local tanknameTexture = DetailsFrameWork:NewImage (Frame, Frame, "DetailsVanguardTankName"..i.."bG", "tanknamebg", 80, 10, "Interface\\ACHIEVEMENTFRAME\\UI-Achievement-Parchment-Highlight")
+			local tanknameTexture = DetailsFrameWork:NewImage (Frame, "Interface\\ACHIEVEMENTFRAME\\UI-Achievement-Parchment-Highlight", 80, 10, nil, nil, "tanknamebg", "DetailsVanguardTankName"..i.."bG" )
 			
 			tanknameTexture:SetTexCoord (0.15234375, 0.82421875, 0, 0.2734375)
 			tanknameTexture:SetPoint ("center", Frame)
@@ -772,7 +772,7 @@ local function CreatePluginFrames (data)
 
 			-------------------------------------------------------------------------------------
 			
-			local Icon1 = DetailsFrameWork:NewImage (Frame, Vanguard, "DetailsVanguardFrameBox"..i.."Icon1", nil, 24, 24, "Interface\\ICONS\\Ability_Creature_Amber_02")
+			local Icon1 = DetailsFrameWork:NewImage (Frame, "Interface\\ICONS\\Ability_Creature_Amber_02", 24, 24, nil, nil, nil, "DetailsVanguardFrameBox"..i.."Icon1")
 			Icon1:SetDrawLayer ("overlay", 1)
 			Icon1:SetPoint ("bottomleft", ThisBoxObject.Frame.frame, 4, 3)
 
@@ -786,7 +786,7 @@ local function CreatePluginFrames (data)
 			local Icon1Text = DetailsFrameWork:NewLabel (ThisBoxObject.Frame.frame, Vanguard, "DetailsVanguardFrameBox"..i.."Text1", nil, "25", "GameFontHighlightLarge", 18, {1, 1, 0, 1})
 			Icon1Text:SetPoint ("center", Icon1, "center")
 			
-			local blackbg1 = DetailsFrameWork:NewImage (Frame, Vanguard, "DetailsVanguardFrameBox"..i.."BlackBG1", nil, 12, 12)
+			local blackbg1 = DetailsFrameWork:NewImage (Frame, nil, 12, 12, nil, nil, nil, "DetailsVanguardFrameBox"..i.."BlackBG1")
 			blackbg1:SetDrawLayer ("overlay", 2)
 			blackbg1:SetTexture (0, 0, 0, 1)
 			blackbg1:SetPoint ("bottomright", Icon1, 5, -5)
@@ -802,7 +802,7 @@ local function CreatePluginFrames (data)
 			
 			-------------------------------------------------------------------------------------
 			
-			local Icon2 = DetailsFrameWork:NewImage (Frame, Vanguard, "DetailsVanguardFrameBox"..i.."Icon2", nil, 24, 24, "Interface\\ICONS\\Ability_Creature_Amber_02")
+			local Icon2 = DetailsFrameWork:NewImage (Frame, "Interface\\ICONS\\Ability_Creature_Amber_02", 24, 24, nil, nil, nil, "DetailsVanguardFrameBox"..i.."Icon2")
 			Icon2:SetDrawLayer ("overlay", 1)
 			Icon2:SetPoint ("bottomleft", Frame, 37, 3)
 			
@@ -816,7 +816,7 @@ local function CreatePluginFrames (data)
 			local Icon2Text = DetailsFrameWork:NewLabel (Frame, Vanguard, "DetailsVanguardFrameBox"..i.."Text2", nil, "3", "GameFontHighlightLarge", 18, {1, 1, 0, 1})
 			Icon2Text:SetPoint ("center", Icon2, "center")
 			
-			local blackbg2 = DetailsFrameWork:NewImage (Frame, Vanguard, "DetailsVanguardFrameBox"..i.."BlackBG2", nil, 12, 12)
+			local blackbg2 = DetailsFrameWork:NewImage (Frame, nil, 12, 12, nil, nil, nil, "DetailsVanguardFrameBox"..i.."BlackBG2")
 			blackbg2:SetDrawLayer ("overlay", 2)
 			blackbg2:SetTexture (0, 0, 0, 1)
 			blackbg2:SetPoint ("bottomright", Icon2, 5, -5)
@@ -832,7 +832,7 @@ local function CreatePluginFrames (data)
 			
 			-------------------------------------------------------------------------------------
 			
-			local Icon3 = DetailsFrameWork:NewImage (Frame, Vanguard, "DetailsVanguardFrameBox"..i.."Icon3", nil, 24, 24, "Interface\\ICONS\\Ability_Creature_Amber_02")
+			local Icon3 = DetailsFrameWork:NewImage (Frame, "Interface\\ICONS\\Ability_Creature_Amber_02", 24, 24, nil, nil, nil, "DetailsVanguardFrameBox"..i.."Icon3")
 			Icon3:SetDrawLayer ("overlay", 1)
 			Icon3:SetPoint ("bottomleft", ThisBoxObject.Frame.frame, 70, 3)
 			
@@ -846,7 +846,7 @@ local function CreatePluginFrames (data)
 			local Icon3Text = DetailsFrameWork:NewLabel (ThisBoxObject.Frame.frame, Vanguard, "DetailsVanguardFrameBox"..i.."Text3", nil, "5", "GameFontHighlightLarge", 18, {1, 1, 0, 1})
 			Icon3Text:SetPoint ("center", Icon3, "center")
 			
-			local blackbg3 = DetailsFrameWork:NewImage (Frame, Vanguard, "DetailsVanguardFrameBox"..i.."BlackBG3", nil, 12, 12)
+			local blackbg3 = DetailsFrameWork:NewImage (Frame, nil, 12, 12, nil, nil, nil, "DetailsVanguardFrameBox"..i.."BlackBG3")
 			blackbg3:SetDrawLayer ("overlay", 2)
 			blackbg3:SetTexture (0, 0, 0, 1)
 			blackbg3:SetPoint ("bottomright", Icon3, 5, -5)

@@ -7,10 +7,10 @@
 --> global name declaration
 		
 		_ = nil
-		_detalhes = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0", "NickTag-1.0")
-		_detalhes.userversion = "v1.12.4"
-		_detalhes.version = "Alpha 016"
-		_detalhes.realversion = 16
+		_detalhes = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0", "NickTag-1.0", "LibHotCorners")
+		_detalhes.userversion = "v1.13.0"
+		_detalhes.version = "Alpha 017"
+		_detalhes.realversion = 17
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> initialization stuff

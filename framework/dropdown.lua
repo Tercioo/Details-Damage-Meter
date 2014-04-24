@@ -392,12 +392,12 @@ end
 
 function DetailsDropDownOptionOnEnter (frame)
 	if (frame.table.desc) then
-		GameCooltip:Reset()
-		GameCooltip:SetType ("tooltip")
-		GameCooltip:SetColor ("main", "transparent")
+		_detalhes:CooltipPreset (1)
 		GameCooltip:AddLine (frame.table.desc)
-		GameCooltip:SetOwner (frame:GetParent():GetParent():GetParent())
-		GameCooltip:ShowCooltip()
+		if (frame.table.descfont) then
+			GameCooltip:SetOption ("TextFont", frame.table.descfont)
+		end
+		GameCooltip:ShowCooltip(frame:GetParent():GetParent():GetParent(), "tooltip")
 		frame.tooltip = true
 	end
 	frame:GetParent().mouseover:SetPoint ("left", frame)

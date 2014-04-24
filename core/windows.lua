@@ -129,10 +129,15 @@
 		local metade_largura = _w/2
 		local metade_altura = _h/2
 		
-		self.ponto1 = {x = _x - metade_largura, y = _y + metade_altura}
-		self.ponto2 = {x = _x - metade_largura, y = _y - metade_altura}
-		self.ponto3 = {x = _x + metade_largura, y = _y - metade_altura}
-		self.ponto4 = {x = _x + metade_largura, y = _y + metade_altura}
+		local statusbar_y_mod = 0
+		if (not self.show_statusbar) then
+			statusbar_y_mod = 14
+		end
+		
+		self.ponto1 = {x = _x - metade_largura, y = _y + metade_altura + (statusbar_y_mod*-1)} --topleft
+		self.ponto2 = {x = _x - metade_largura, y = _y - metade_altura + statusbar_y_mod} --bottomleft
+		self.ponto3 = {x = _x + metade_largura, y = _y - metade_altura + statusbar_y_mod} --bottomright
+		self.ponto4 = {x = _x + metade_largura, y = _y + metade_altura + (statusbar_y_mod*-1)} --topright
 	end
 
 	function _detalhes:SaveMainWindowPosition (instance)
@@ -208,10 +213,15 @@
 		local metade_largura = _w/2
 		local metade_altura = _h/2
 		
-		self.ponto1 = {x = _x - metade_largura, y = _y + metade_altura}
-		self.ponto2 = {x = _x - metade_largura, y = _y - metade_altura}
-		self.ponto3 = {x = _x + metade_largura, y = _y - metade_altura}
-		self.ponto4 = {x = _x + metade_largura, y = _y + metade_altura}
+		local statusbar_y_mod = 0
+		if (not self.show_statusbar) then
+			statusbar_y_mod = 14
+		end
+		
+		self.ponto1 = {x = _x - metade_largura, y = _y + metade_altura + (statusbar_y_mod*-1)} --topleft
+		self.ponto2 = {x = _x - metade_largura, y = _y - metade_altura + statusbar_y_mod} --bottomleft
+		self.ponto3 = {x = _x + metade_largura, y = _y - metade_altura + statusbar_y_mod} --bottomright
+		self.ponto4 = {x = _x + metade_largura, y = _y + metade_altura + (statusbar_y_mod*-1)} --topright
 		
 		self.baseframe.BoxBarrasAltura = self.baseframe:GetHeight()-4 --> isso aqui não sei o que esta fazendo aqui
 		
@@ -389,6 +399,7 @@
 			--> reajustar o local do relógio
 			local meio = self.baseframe:GetWidth() / 2
 			local novo_local = meio - 25
+			
 			self.rows_fit_in_window = _math_floor ( self.baseframe.BoxBarrasAltura / self.row_height)
 
 			--if (not _detalhes.initializing) then

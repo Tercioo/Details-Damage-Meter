@@ -11,11 +11,11 @@ local _
 	
 	window.hooks = {}
 	
-	local background = g:NewImage (window, nil, "$parentBackground", nil, nil, nil, nil, "background")
+	local background = g:NewImage (window, nil, nil, nil, "background", nil, nil, "$parentBackground")
 	background:SetAllPoints()
 	background:SetTexture (0, 0, 0, .8)
 	
-	local edit_texture = g:NewImage (window, nil, "$parentImage", nil, 300, 250, nil, "artwork")
+	local edit_texture = g:NewImage (window, nil, 300, 250, "artwork", nil, nil, "$parentImage")
 	edit_texture:SetPoint ("center", window, "center")
 	
 	local haveHFlip = false
@@ -23,7 +23,7 @@ local _
 	
 --> Top Slider
 	
-		local topCoordTexture = g:NewImage (window, nil, "$parentImageTopCoord", nil, nil, nil, nil, "overlay")
+		local topCoordTexture = g:NewImage (window, nil, nil, nil, "overlay", nil, nil, "$parentImageTopCoord")
 		topCoordTexture:SetPoint ("topleft", window, "topleft")
 		topCoordTexture:SetPoint ("topright", window, "topright")
 		topCoordTexture.color = "red"
@@ -55,7 +55,7 @@ local _
 
 --> Bottom Slider
 
-		local bottomCoordTexture = g:NewImage (window, nil, "$parentImageBottomCoord", nil, nil, nil, nil, "overlay")
+		local bottomCoordTexture = g:NewImage (window, nil, nil, nil, "overlay", nil, nil, "$parentImageBottomCoord")
 		bottomCoordTexture:SetPoint ("bottomleft", window, "bottomleft", 0, 0)
 		bottomCoordTexture:SetPoint ("bottomright", window, "bottomright", 0, 0)
 		bottomCoordTexture.color = "red"
@@ -88,7 +88,7 @@ local _
 		
 --> Left Slider
 		
-		local leftCoordTexture = g:NewImage (window, nil, "$parentImageLeftCoord", nil, nil, nil, nil, "overlay")
+		local leftCoordTexture = g:NewImage (window, nil, nil, nil, "overlay", nil, nil, "$parentImageLeftCoord")
 		leftCoordTexture:SetPoint ("topleft", window, "topleft", 0, 0)
 		leftCoordTexture:SetPoint ("bottomleft", window, "bottomleft", 0, 0)
 		leftCoordTexture.color = "red"
@@ -119,7 +119,7 @@ local _
 		
 --> Right Slider
 		
-		local rightCoordTexture = g:NewImage (window, nil, "$parentImageRightCoord", nil, nil, nil, nil, "overlay")
+		local rightCoordTexture = g:NewImage (window, nil, nil, nil, "overlay", nil, nil, "$parentImageRightCoord")
 		rightCoordTexture:SetPoint ("topright", window, "topright", 0, 0)
 		rightCoordTexture:SetPoint ("bottomright", window, "bottomright", 0, 0)
 		rightCoordTexture.color = "red"

@@ -115,6 +115,9 @@ function _detalhes:GetInstance (id)
 	return _detalhes.tabela_instancias [id]
 end
 
+function _detalhes:GetId()
+	return self.meu_id
+end
 function _detalhes:GetInstanceId()
 	return self.meu_id
 end
@@ -191,9 +194,12 @@ end
 		
 		_detalhes.opened_windows = _detalhes.opened_windows-1
 		self:ResetaGump()
-		gump:Fade (self.baseframe.cabecalho.atributo_icon, _unpack (_detalhes.windows_fade_in))
+		
+		--gump:Fade (self.baseframe.cabecalho.atributo_icon, _unpack (_detalhes.windows_fade_in))
 		gump:Fade (self.baseframe.cabecalho.ball, _unpack (_detalhes.windows_fade_in))
 		gump:Fade (self.baseframe, _unpack (_detalhes.windows_fade_in))
+		gump:Fade (self.rowframe, _unpack (_detalhes.windows_fade_in))
+		
 		self:Desagrupar (-1)
 		
 		if (self.modo == modo_raid) then
@@ -307,6 +313,7 @@ end
 		
 		gump:Fade (self.baseframe.cabecalho.ball, 0)
 		gump:Fade (self.baseframe, 0)
+		gump:Fade (self.rowframe, 0)
 		
 		self:SetMenuAlpha()
 		
@@ -431,15 +438,27 @@ function _detalhes:BaseFrameSnap()
 	for lado, snap_to in _pairs (self.snap) do
 		--print ("DEBUG instancia " .. snap_to .. " lado "..lado)
 		local instancia_alvo = _detalhes.tabela_instancias [snap_to]
-		
+
 		if (lado == 1) then --> a esquerda
 			instancia_alvo.baseframe:SetPoint ("TOPRIGHT", my_baseframe, "TOPLEFT")
+			
 		elseif (lado == 2) then --> em baixo
-			instancia_alvo.baseframe:SetPoint ("TOPLEFT", my_baseframe, "BOTTOMLEFT", 0, -34)
+			local statusbar_y_mod = 0
+			if (not self.show_statusbar) then
+				statusbar_y_mod = 14
+			end
+			instancia_alvo.baseframe:SetPoint ("TOPLEFT", my_baseframe, "BOTTOMLEFT", 0, -34 + statusbar_y_mod)
+			
 		elseif (lado == 3) then --> a direita
 			instancia_alvo.baseframe:SetPoint ("BOTTOMLEFT", my_baseframe, "BOTTOMRIGHT")
+			
 		elseif (lado == 4) then --> em cima
-			instancia_alvo.baseframe:SetPoint ("BOTTOMLEFT", my_baseframe, "TOPLEFT", 0, 34)
+			local statusbar_y_mod = 0
+			if (not instancia_alvo.show_statusbar) then
+				statusbar_y_mod = -14
+			end
+			instancia_alvo.baseframe:SetPoint ("BOTTOMLEFT", my_baseframe, "TOPLEFT", 0, 34 + statusbar_y_mod)
+
 		end
 	end
 
@@ -467,16 +486,32 @@ function _detalhes:BaseFrameSnap()
 					elseif (lado == 4) then
 						lado_reverso = 2
 					end
-					
+
 					--> fazer os setpoints
 					if (lado_reverso == 1) then --> a esquerda
 						instancia_alvo.baseframe:SetPoint ("BOTTOMLEFT", instancia.baseframe, "BOTTOMRIGHT")
+						
 					elseif (lado_reverso == 2) then --> em baixo
-						instancia_alvo.baseframe:SetPoint ("BOTTOMLEFT", instancia.baseframe, "TOPLEFT", 0, 34)
+					
+						local statusbar_y_mod = 0
+						if (not instancia_alvo.show_statusbar) then
+							statusbar_y_mod = -14
+						end
+						
+						instancia_alvo.baseframe:SetPoint ("BOTTOMLEFT", instancia.baseframe, "TOPLEFT", 0, 34 + statusbar_y_mod) -- + (statusbar_y_mod*-1)
+						
 					elseif (lado_reverso == 3) then --> a direita
 						instancia_alvo.baseframe:SetPoint ("TOPRIGHT", instancia.baseframe, "TOPLEFT")
+						
 					elseif (lado_reverso == 4) then --> em cima
-						instancia_alvo.baseframe:SetPoint ("TOPLEFT", instancia.baseframe, "BOTTOMLEFT", 0, -34)
+					
+						local statusbar_y_mod = 0
+						if (not instancia.show_statusbar) then
+							statusbar_y_mod = 14
+						end
+					
+						instancia_alvo.baseframe:SetPoint ("TOPLEFT", instancia.baseframe, "BOTTOMLEFT", 0, -34 + statusbar_y_mod)
+						
 					end
 				end
 			end
@@ -492,12 +527,26 @@ function _detalhes:BaseFrameSnap()
 					
 					if (lado == 1) then --> a esquerda
 						instancia_alvo.baseframe:SetPoint ("TOPRIGHT", instancia.baseframe, "TOPLEFT")
+						
 					elseif (lado == 2) then --> em baixo
-						instancia_alvo.baseframe:SetPoint ("TOPLEFT", instancia.baseframe, "BOTTOMLEFT", 0, -34)
+						local statusbar_y_mod = 0
+						if (not instancia.show_statusbar) then
+							statusbar_y_mod = 14
+						end
+						instancia_alvo.baseframe:SetPoint ("TOPLEFT", instancia.baseframe, "BOTTOMLEFT", 0, -34 + statusbar_y_mod)
+						
 					elseif (lado == 3) then --> a direita
 						instancia_alvo.baseframe:SetPoint ("BOTTOMLEFT", instancia.baseframe, "BOTTOMRIGHT")
+						
 					elseif (lado == 4) then --> em cima
-						instancia_alvo.baseframe:SetPoint ("BOTTOMLEFT", instancia.baseframe, "TOPLEFT", 0, 34)
+					
+						local statusbar_y_mod = 0
+						if (not instancia_alvo.show_statusbar) then
+							statusbar_y_mod = -14
+						end
+					
+						instancia_alvo.baseframe:SetPoint ("BOTTOMLEFT", instancia.baseframe, "TOPLEFT", 0, 34 + statusbar_y_mod)
+						
 					end
 				end
 			end
@@ -529,9 +578,15 @@ function _detalhes:agrupar_janelas (lados)
 				
 			elseif (lado == 4) then --> cima
 				--> mover frame
-				instancia.baseframe:SetPoint ("TOPLEFT", esta_instancia.baseframe, "BOTTOMLEFT", 0, -34)
-				instancia.baseframe:SetPoint ("TOP", esta_instancia.baseframe, "BOTTOM", 0, -34)
-				instancia.baseframe:SetPoint ("TOPRIGHT", esta_instancia.baseframe, "BOTTOMRIGHT", 0, -34)
+				
+				local statusbar_y_mod = 0
+				if (not esta_instancia.show_statusbar) then
+					statusbar_y_mod = 14
+				end
+				
+				instancia.baseframe:SetPoint ("TOPLEFT", esta_instancia.baseframe, "BOTTOMLEFT", 0, -34 + statusbar_y_mod)
+				instancia.baseframe:SetPoint ("TOP", esta_instancia.baseframe, "BOTTOM", 0, -34 + statusbar_y_mod)
+				instancia.baseframe:SetPoint ("TOPRIGHT", esta_instancia.baseframe, "BOTTOMRIGHT", 0, -34 + statusbar_y_mod)
 				
 				local _, height = esta_instancia:GetSize()
 				instancia:SetSize (nil, height)
@@ -560,9 +615,15 @@ function _detalhes:agrupar_janelas (lados)
 				
 			elseif (lado == 2) then --> baixo
 				--> mover frame
-				instancia.baseframe:SetPoint ("BOTTOMLEFT", esta_instancia.baseframe, "TOPLEFT", 0, 34)
-				instancia.baseframe:SetPoint ("BOTTOM", esta_instancia.baseframe, "TOP", 0, 34)
-				instancia.baseframe:SetPoint ("BOTTOMRIGHT", esta_instancia.baseframe, "TOPRIGHT", 0, 34)
+				
+				local statusbar_y_mod = 0
+				if (not instancia.show_statusbar) then
+					statusbar_y_mod = -14
+				end
+				
+				instancia.baseframe:SetPoint ("BOTTOMLEFT", esta_instancia.baseframe, "TOPLEFT", 0, 34 + statusbar_y_mod)
+				instancia.baseframe:SetPoint ("BOTTOM", esta_instancia.baseframe, "TOP", 0, 34 + statusbar_y_mod)
+				instancia.baseframe:SetPoint ("BOTTOMRIGHT", esta_instancia.baseframe, "TOPRIGHT", 0, 34 + statusbar_y_mod)
 				
 				local _, height = esta_instancia:GetSize()
 				instancia:SetSize (nil, height)
@@ -979,6 +1040,7 @@ function _detalhes:RestauraJanela (index, temp)
 		
 		self:DefaultIcons (true, true, true, true)
 		
+
 		self.iniciada = true
 		self:AtivarInstancia (temp)
 		
@@ -990,10 +1052,12 @@ end
 
 function _detalhes:ExportSkin()
 
+	--create the table
 	local exported = {
 		version = _detalhes.preset_version --skin version
 	}
 
+	--export the keys
 	for key, value in pairs (self) do
 		if (_detalhes.instance_defaults [key] ~= nil) then	
 			if (type (value) == "table") then
@@ -1002,6 +1066,24 @@ function _detalhes:ExportSkin()
 				exported [key] = value
 			end
 		end
+	end
+	
+	--export mini displays
+	if (self.StatusBar and self.StatusBar.left) then
+		exported.StatusBarSaved = {
+			["left"] = self.StatusBar.left.real_name or "NONE",
+			["center"] = self.StatusBar.center.real_name or "NONE",
+			["right"] = self.StatusBar.right.real_name or "NONE",
+		}
+		exported.StatusBarSaved.options = {
+			[self.StatusBarSaved.left] = table_deepcopy (self.StatusBar.left.options),
+			[self.StatusBarSaved.center] = table_deepcopy (self.StatusBar.center.options),
+			[self.StatusBarSaved.right] = table_deepcopy (self.StatusBar.right.options)
+		}
+
+	elseif (self.StatusBarSaved) then
+		exported.StatusBarSaved = table_deepcopy (self.StatusBarSaved)
+		
 	end
 
 	return exported
@@ -1019,6 +1101,8 @@ function _detalhes:ApplySavedSkin (style)
 	self.skin = ""
 	self:ChangeSkin (skin)
 	
+	-- /script print (_detalhes.tabela_instancias[1].baseframe:GetAlpha())
+
 	--> overwrite all instance parameters with saved ones
 	for key, value in pairs (style) do
 		if (key ~= "skin") then
@@ -1029,6 +1113,25 @@ function _detalhes:ApplySavedSkin (style)
 			end
 		end
 	end
+	
+	--> check for new keys inside tables
+	for key, value in pairs (_detalhes.instance_defaults) do 
+		if (type (value) == "table") then
+			for key2, value2 in pairs (value) do 
+				if (self [key] [key2] == nil) then
+					if (type (value2) == "table") then
+						self [key] [key2] = table_deepcopy (_detalhes.instance_defaults [key] [key2])
+					else
+						self [key] [key2] = value2
+					end
+				end
+			end
+		end
+	end	
+	
+	self.StatusBarSaved = style.StatusBarSaved and table_deepcopy (style.StatusBarSaved) or {options = {}}
+	self.StatusBar.options = self.StatusBarSaved.options
+	_detalhes.StatusBar:UpdateChilds (self)
 	
 	--> apply all changed attributes
 	self:ChangeSkin()

@@ -304,7 +304,7 @@ end
 local function OnLeaveMainWindow (instancia, self)
 
 	instancia.is_interacting = false
-	instancia:SetMenuAlpha (nil, nil, nil, true)
+	instancia:SetMenuAlpha (nil, nil, nil, nil, true)
 	instancia:SetAutoHideMenu (nil, nil, true)
 	
 	if (instancia.modo ~= _detalhes._detalhes_props["MODO_ALONE"] and not instancia.baseframe.isLocked) then
@@ -333,7 +333,7 @@ _detalhes.OnLeaveMainWindow = OnLeaveMainWindow
 local function OnEnterMainWindow (instancia, self)
 
 	instancia.is_interacting = true
-	instancia:SetMenuAlpha (nil, nil, nil, true)
+	instancia:SetMenuAlpha (nil, nil, nil, nil, true)
 	instancia:SetAutoHideMenu (nil, nil, true)
 
 	if (instancia.modo ~= _detalhes._detalhes_props["MODO_ALONE"] and not instancia.baseframe.isLocked) then
@@ -519,12 +519,16 @@ local function move_janela (baseframe, iniciando, instancia)
 				if (instancia_alvo:IsSoloMode()) then
 					_detalhes.SoloTables:switch()
 				end
-				instancia_alvo.ativa = false --> isso não ta legal
+				
+				instancia_alvo.ativa = false
+				
 				instancia_alvo:SaveMainWindowPosition()
 				instancia_alvo:RestoreMainWindowPosition()
+				
 				gump:Fade (instancia_alvo.baseframe, 1)
+				gump:Fade (instancia_alvo.rowframe, 1)
 				gump:Fade (instancia_alvo.baseframe.cabecalho.ball, 1)
-				gump:Fade (instancia_alvo.baseframe.cabecalho.atributo_icon, 1)
+				
 				need_start = false
 			end
 			
@@ -1219,6 +1223,47 @@ local function bota_separar_script (botao, instancia)
 	end)
 end
 
+local shift_monitor = function (self)
+	if (_IsShiftKeyDown()) then
+		if (not self.showing_allspells) then
+			self.showing_allspells = true
+			local instancia = _detalhes:GetInstance (self.instance_id)
+			instancia:MontaTooltip (self, self.row_id, "shift")
+		end
+		
+	elseif (self.showing_allspells) then
+		self.showing_allspells = false
+		local instancia = _detalhes:GetInstance (self.instance_id)
+		instancia:MontaTooltip (self, self.row_id)
+	end
+	
+	if (_IsControlKeyDown()) then
+		if (not self.showing_alltargets) then
+			self.showing_alltargets = true
+			local instancia = _detalhes:GetInstance (self.instance_id)
+			instancia:MontaTooltip (self, self.row_id, "ctrl")
+		end
+		
+	elseif (self.showing_alltargets) then
+		self.showing_alltargets = false
+		local instancia = _detalhes:GetInstance (self.instance_id)
+		instancia:MontaTooltip (self, self.row_id)
+	end
+	
+	if (_IsAltKeyDown()) then
+		if (not self.showing_allpets) then
+			self.showing_allpets = true
+			local instancia = _detalhes:GetInstance (self.instance_id)
+			instancia:MontaTooltip (self, self.row_id, "alt")
+		end
+		
+	elseif (self.showing_allpets) then
+		self.showing_allpets = false
+		local instancia = _detalhes:GetInstance (self.instance_id)
+		instancia:MontaTooltip (self, self.row_id)
+	end
+end
+
 local function barra_scripts (esta_barra, instancia, i)
 
 	esta_barra:SetScript ("OnEnter", function (self) 
@@ -1232,6 +1277,9 @@ local function barra_scripts (esta_barra, instancia, i)
 			tile = true, tileSize = 16,
 			insets = {left = 1, right = 1, top = 0, bottom = 1},})	
 			self:SetBackdropColor (0.588, 0.588, 0.588, 0.7)
+			
+		self:SetScript ("OnUpdate", shift_monitor)
+			
 	end)
 
 	esta_barra:SetScript ("OnLeave", function (self) 
@@ -1247,6 +1295,10 @@ local function barra_scripts (esta_barra, instancia, i)
 
 			self:SetBackdropBorderColor (0, 0, 0, 0)
 			self:SetBackdropColor (0, 0, 0, 0)
+		
+		self.showing_allspells = false
+		self:SetScript ("OnUpdate", nil)
+		
 	end)
 
 	esta_barra:SetScript ("OnMouseDown", function (self, button)
@@ -1361,6 +1413,7 @@ local function button_stretch_scripts (baseframe, backgrounddisplay, instancia)
 		baseframe.isResizing = true
 		baseframe.isStretching = true
 		baseframe:SetFrameStrata ("TOOLTIP")
+		instancia.rowframe:SetFrameStrata ("TOOLTIP")
 		
 		local _r, _g, _b, _a = baseframe:GetBackdropColor()
 		gump:GradientEffect ( baseframe, "frame", _r, _g, _b, _a, _r, _g, _b, 0.9, 1.5)
@@ -1408,6 +1461,7 @@ local function button_stretch_scripts (baseframe, backgrounddisplay, instancia)
 				esta_instancia.baseframe.isResizing = true
 				esta_instancia.baseframe.isStretching = true
 				esta_instancia.baseframe:SetFrameStrata ("TOOLTIP")
+				esta_instancia.rowframe:SetFrameStrata ("TOOLTIP")
 				
 				local _r, _g, _b, _a = esta_instancia.baseframe:GetBackdropColor()
 				gump:GradientEffect ( esta_instancia.baseframe, "frame", _r, _g, _b, _a, _r, _g, _b, 0.9, 1.5)
@@ -1466,6 +1520,7 @@ local function button_stretch_scripts (baseframe, backgrounddisplay, instancia)
 					end
 					
 					esta_instancia.baseframe:SetFrameStrata (baseframe_strata)
+					esta_instancia.rowframe:SetFrameStrata (baseframe_strata)
 					esta_instancia.baseframe.button_stretch:SetFrameStrata ("FULLSCREEN")
 					_detalhes:SendEvent ("DETAILS_INSTANCE_ENDSTRETCH", nil, esta_instancia.baseframe)
 				end
@@ -1483,6 +1538,7 @@ local function button_stretch_scripts (baseframe, backgrounddisplay, instancia)
 		end
 		
 		baseframe:SetFrameStrata (baseframe_strata)
+		instancia.rowframe:SetFrameStrata (baseframe_strata)
 		baseframe.button_stretch:SetFrameStrata ("FULLSCREEN")
 		
 		_detalhes:SnapTextures (false)
@@ -1843,7 +1899,7 @@ function _detalhes:InstanceMsg (text, icon, textcolor, icontexture, iconcoords, 
 	end
 end
 
---> inicio
+--> inicio ~janela ~window
 function gump:CriaJanelaPrincipal (ID, instancia, criando)
 
 -- main frames -----------------------------------------------------------------------------------------------------------------------------------------------
@@ -1860,6 +1916,12 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 	backgroundframe.instance = instancia
 	backgrounddisplay.instance = instancia
 
+	local rowframe = CreateFrame ("frame", "DetailsRowFrame"..ID, _UIParent) --> main frame
+	rowframe:SetAllPoints (baseframe)
+	rowframe:SetFrameStrata (baseframe_strata)
+	rowframe:SetFrameLevel (2)
+	instancia.rowframe = rowframe
+	
 	local switchbutton = gump:NewDetailsButton (backgrounddisplay, baseframe, _, function() end, nil, nil, 1, 1, "", "", "", "", 
 	{rightFunc = {func = function() _detalhes.switch:ShowMe (instancia) end, param1 = nil, param2 = nil}})
 	
@@ -2297,8 +2359,11 @@ _detalhes.barras_criadas = 0
 function gump:CriaNovaBarra (instancia, index)
 
 	local baseframe = instancia.baseframe
-	local esta_barra = CreateFrame ("button", "DetailsBarra_"..instancia.meu_id.."_"..index, baseframe)
+	local rowframe = instancia.rowframe
+	
+	local esta_barra = CreateFrame ("button", "DetailsBarra_"..instancia.meu_id.."_"..index, rowframe)
 	esta_barra.row_id = index
+	esta_barra.instance_id = instancia.meu_id
 	local y = instancia.row_height*(index-1)
 
 	if (instancia.bars_grow_direction == 1) then
@@ -2393,13 +2458,14 @@ function gump:CriaNovaBarra (instancia, index)
 
 	--> inicia os scripts da barra
 	barra_scripts (esta_barra, instancia, index)
-	
-	gump:Fade (esta_barra, 1) --> hida a barra
-	
+
+	--> hida a barra
+	gump:Fade (esta_barra, 1) 
+
 	return esta_barra
 end
 
-function _detalhes:SetBarTextSettings (size, font, fixedcolor, leftcolorbyclass, rightcolorbyclass, leftoutline, rightoutline)
+function _detalhes:SetBarTextSettings (size, font, fixedcolor, leftcolorbyclass, rightcolorbyclass, leftoutline, rightoutline, customrighttextenabled, customrighttext)
 	
 	--> size
 	if (size) then
@@ -2437,6 +2503,14 @@ function _detalhes:SetBarTextSettings (size, font, fixedcolor, leftcolorbyclass,
 	--> right text outline
 	if (type (rightoutline) == "boolean") then
 		self.row_info.textR_outline = rightoutline
+	end
+	
+	--custom right text
+	if (type (customrighttextenabled) == "boolean") then
+		self.row_info.textR_enable_custom_text = customrighttextenabled
+	end
+	if (customrighttext) then
+		self.row_info.textR_custom_text = customrighttext
 	end
 	
 	self:InstanceReset()
@@ -2557,7 +2631,11 @@ function _detalhes:InstanceRefreshRows (instancia)
 		local no_icon = self.row_info.no_icon
 		local icon_texture = self.row_info.icon_file
 		local start_after_icon = self.row_info.start_after_icon
-		
+	
+	--custom right text
+		local custom_right_text_enabled = self.row_info.textR_enable_custom_text
+		local custom_right_text = self.row_info.textR_custom_text
+
 	-- do it
 
 	for _, row in _ipairs (self.barras) do 
@@ -2772,41 +2850,71 @@ end
 
 function _detalhes:SetWindowAlphaForInteract (alpha)
 	
+	local ignorebars = self.menu_alpha.ignorebars
+	
 	if (self.is_interacting) then
 		--> entrou
 		self.baseframe:SetAlpha (alpha)
+		
+		if (ignorebars) then
+			self.rowframe:SetAlpha (1)
+		else
+			self.rowframe:SetAlpha (alpha)
+		end
 	else
 		--> saiu
 		if (self.combat_changes_alpha) then --> combat alpha
 			self.baseframe:SetAlpha (self.combat_changes_alpha)
+			self.rowframe:SetAlpha (self.combat_changes_alpha) --alpha do combate é absoluta
 		else
 			self.baseframe:SetAlpha (alpha)
+			if (ignorebars) then
+				self.rowframe:SetAlpha (1)
+			else
+				self.rowframe:SetAlpha (alpha)
+			end
 		end
+
 	end
 	
 end
 
 function _detalhes:SetWindowAlphaForCombat (entering_in_combat)
 
-	local amount
+	local amount, rowsamount
 
+	--get the values
 	if (entering_in_combat) then
 		amount = self.hide_in_combat_alpha / 100
 		self.combat_changes_alpha = amount
+		rowsamount = amount
 	else
 		if (self.menu_alpha.enabled) then --auto transparency
 			if (self.is_interacting) then
 				amount = self.menu_alpha.onenter
+				if (self.menu_alpha.ignorebars) then
+					rowsamount = 1
+				else
+					rowsamount = amount
+				end
 			else
 				amount = self.menu_alpha.onleave
+				if (self.menu_alpha.ignorebars) then
+					rowsamount = 1
+				else
+					rowsamount = amount
+				end
 			end
 		else
 			amount = self.color [4]
+			rowsamount = 1
 		end
 		self.combat_changes_alpha = nil
 	end
 
+	--apply
 	gump:Fade (self.baseframe, "ALPHAANIM", amount)
+	gump:Fade (self.rowframe, "ALPHAANIM", rowsamount)
 	
 	if (self.show_statusbar) then
 		self.baseframe.barra_fundo:Hide()
@@ -4075,6 +4183,13 @@ function _detalhes:ChangeSkin (skin_name)
 	else
 		self.baseframe.cabecalho.ball:SetAlpha (self.color[4])
 	end
+
+----------> update abbreviation function on the class files
+	
+	_detalhes.atributo_damage:UpdateSelectedToKFunction()
+	_detalhes.atributo_heal:UpdateSelectedToKFunction()
+	_detalhes.atributo_energy:UpdateSelectedToKFunction()
+	_detalhes.atributo_misc:UpdateSelectedToKFunction()
 	
 ----------> call widgets handlers	
 		self:SetBarSettings (self.row_info.height)
@@ -4138,6 +4253,10 @@ function _detalhes:ChangeSkin (skin_name)
 		self:AttributeMenu()
 		self:LeftMenuAnchorSide()
 		
+	--> update window strata level
+		self:SetFrameStrata()
+		
+	--> update icons
 		_detalhes.ToolBar:ReorganizeIcons (nil, true) --call self:SetMenuAlpha()
 		
 	--> refresh options panel if opened
@@ -4148,7 +4267,7 @@ function _detalhes:ChangeSkin (skin_name)
 	
 	if (not just_updating or _detalhes.initializing) then
 		if (this_skin.callback) then
-			this_skin:callback (self)
+			this_skin:callback (self, just_updating)
 		end
 		
 		if (this_skin.control_script) then
@@ -4165,6 +4284,19 @@ function _detalhes:ChangeSkin (skin_name)
 
 end
 
+function _detalhes:SetFrameStrata (strata)
+	
+	if (not strata) then
+		strata = self.strata
+	end
+	
+	self.strata = strata
+	
+	self.rowframe:SetFrameStrata (strata)
+	self.baseframe:SetFrameStrata (strata)
+	
+end
+
 function _detalhes:LeftMenuAnchorSide (side)
 	
 	if (not side) then
@@ -4177,8 +4309,8 @@ function _detalhes:LeftMenuAnchorSide (side)
 	
 end
 
--- ~attributemenu
-function _detalhes:AttributeMenu (enabled, pos_x, pos_y, font, size, color, side)
+-- ~attributemenu (text with attribute name)
+function _detalhes:AttributeMenu (enabled, pos_x, pos_y, font, size, color, side, shadow)
 
 	if (type (enabled) ~= "boolean") then
 		enabled = self.attribute_text.enabled
@@ -4207,6 +4339,10 @@ function _detalhes:AttributeMenu (enabled, pos_x, pos_y, font, size, color, side
 		side = self.attribute_text.side
 	end
 	
+	if (type (shadow) ~= "boolean") then
+		shadow = self.attribute_text.shadow
+	end
+	
 	self.attribute_text.enabled = enabled
 	self.attribute_text.anchor [1] = pos_x
 	self.attribute_text.anchor [2] = pos_y
@@ -4214,12 +4350,18 @@ function _detalhes:AttributeMenu (enabled, pos_x, pos_y, font, size, color, side
 	self.attribute_text.text_size = size
 	self.attribute_text.text_color = color
 	self.attribute_text.side = side
+	self.attribute_text.shadow = shadow
 
 	--> enabled
 	if (not enabled and self.menu_attribute_string) then
 		return self.menu_attribute_string:Hide()
 	elseif (not enabled) then
 		return
+	end
+	
+	--> protection against failed clean up framework table
+	if (self.menu_attribute_string and not getmetatable (self.menu_attribute_string)) then
+		self.menu_attribute_string = nil
 	end
 	
 	if (not self.menu_attribute_string) then
@@ -4241,7 +4383,7 @@ function _detalhes:AttributeMenu (enabled, pos_x, pos_y, font, size, color, side
 		_detalhes:RegisterEvent (self.menu_attribute_string, "DETAILS_INSTANCE_CHANGEATTRIBUTE", self.menu_attribute_string.OnEvent)
 
 	end
-	
+
 	self.menu_attribute_string:Show()
 	
 	--> anchor
@@ -4277,6 +4419,9 @@ function _detalhes:AttributeMenu (enabled, pos_x, pos_y, font, size, color, side
 	--color
 	_detalhes:SetFontColor (self.menu_attribute_string, color)
 	
+	--shadow
+	_detalhes:SetFontOutline (self.menu_attribute_string, shadow)
+	
 end
 
 -- ~backdrop
@@ -4303,7 +4448,7 @@ function _detalhes:SetBackdropTexture (texturename)
 	
 end
 
--- ~alpha
+-- ~alpha (transparency of buttons on the toolbar)
 function _detalhes:SetAutoHideMenu (left, right, interacting)
 
 	if (interacting) then
@@ -4366,7 +4511,9 @@ function _detalhes:SetAutoHideMenu (left, right, interacting)
 	--auto_hide_menu = {left = false, right = false},
 
 end
-function _detalhes:SetMenuAlpha (enabled, onenter, onleave, interacting)
+
+-- transparency for toolbar, borders and statusbar
+function _detalhes:SetMenuAlpha (enabled, onenter, onleave, ignorebars, interacting)
 
 	if (interacting) then --> called from a onenter or onleave script
 		if (self.menu_alpha.enabled) then
@@ -4379,6 +4526,8 @@ function _detalhes:SetMenuAlpha (enabled, onenter, onleave, interacting)
 		return
 	end
 
+	--ignorebars
+	
 	if (enabled == nil) then
 		enabled = self.menu_alpha.enabled
 	end
@@ -4388,13 +4537,25 @@ function _detalhes:SetMenuAlpha (enabled, onenter, onleave, interacting)
 	if (not onleave) then
 		onleave = self.menu_alpha.onleave
 	end
+	if (ignorebars == nil) then
+		ignorebars = self.menu_alpha.ignorebars
+	end
 
 	self.menu_alpha.enabled = enabled
 	self.menu_alpha.onenter = onenter
 	self.menu_alpha.onleave = onleave
+	self.menu_alpha.ignorebars = ignorebars
 	
 	if (not enabled) then
-		return self:SetWindowAlphaForInteract (self.color [4])
+		--> aqui esta mandando setar a alpha do baseframe
+		self.baseframe:SetAlpha (1)
+		return self:InstanceColor (unpack (self.color))
+		--return self:SetWindowAlphaForInteract (self.color [4])
+	else
+		local r, g, b = unpack (self.color)
+		self:InstanceColor (r, g, b, 1)
+		r, g, b = unpack (self.statusbar_info.overlay)
+		self:StatusBarColor (r, g, b, 1)
 	end
 
 	if (self.is_interacting) then
@@ -5283,7 +5444,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 	
 		local ClosedInstances = {}
 		
-		for index = 1, #_detalhes.tabela_instancias, 1 do 
+		for index = 1, math.min (#_detalhes.tabela_instancias, _detalhes.instances_amount), 1 do 
 		
 			local _this_instance = _detalhes.tabela_instancias [index]
 			
@@ -5331,6 +5492,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 					
 						CoolTip:AddMenu (1, OnClickNovoMenu, index, nil, nil, "#".. index .. " " .. _detalhes.atributos.lista [atributo] .. " - " .. _detalhes.sub_atributos [atributo].lista [sub_atributo], _, true)
 						CoolTip:AddIcon (_detalhes.sub_atributos [atributo].icones[sub_atributo] [1], 1, 1, 20, 20, unpack (_detalhes.sub_atributos [atributo].icones[sub_atributo] [2]))
+						
 					end
 				end
 

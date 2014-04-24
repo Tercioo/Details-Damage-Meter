@@ -111,8 +111,12 @@ local _
 			attribute_text = {enabled = true, side = 1, text_size = 12, anchor = {-18, 4}, text_color = {1, 1, 1, 1}, text_face = "Arial Narrow"},			
 		},
 		
-		callback = function (skin)
+		callback = function (skin, instance, just_updating)
 			DetailsResetButton2Text2:SetText ("")
+
+			if (not just_updating and not instance:IsLowerInstance()) then
+				instance:MenuAnchor (-67)
+			end
 		end,
 		
 	})

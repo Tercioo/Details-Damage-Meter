@@ -482,7 +482,7 @@ local SliderMetaFunctions = {}
 	
 	local on_update = function (self, elapsed)
 		timer = timer + elapsed
-		if (timer > 0.6) then
+		if (timer > 0.4) then
 			change_timer = change_timer + elapsed
 			if (change_timer > 0.1) then
 				change_timer = 0
@@ -533,7 +533,7 @@ local SliderMetaFunctions = {}
 	
 	local on_update = function (self, elapsed)
 		timer = timer + elapsed
-		if (timer > 0.6) then
+		if (timer > 0.4) then
 			change_timer = change_timer + elapsed
 			if (change_timer > 0.1) then
 				change_timer = 0

@@ -507,7 +507,7 @@ local default_profile = {
 		segments_amount_to_save = 5,
 		segments_panic_mode = true,
 	--> max instances
-		instances_amount = 12,
+		instances_amount = 5,
 	--> if clear ungroup characters when logout
 		clear_ungrouped = true,
 	--> if clear graphic data when logout
@@ -516,6 +516,7 @@ local default_profile = {
 	--> text sizes
 		font_sizes = {menus = 10},
 		ps_abbreviation = 3,
+		total_abbreviation = 2,
 	
 	--> performance
 		use_row_animations = false,

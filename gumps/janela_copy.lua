@@ -12,7 +12,7 @@ do
 		panel:SetPoint ("center", UIParent, "center")
 		panel.locked = false
 		
-		DetailsFrameWork:NewImage (panel, _, "$parentBackGround", "background", 512, 128, "Interface\\AddOns\\Details\\images\\copy", "background")
+		DetailsFrameWork:NewImage (panel, "Interface\\AddOns\\Details\\images\\copy", 512, 128, "background", nil, "background", "$parentBackGround")
 		panel.background:SetPoint()
 		
 		--> title

@@ -30,6 +30,7 @@ functions\slash.lua
 functions\playerclass.lua
 functions\timedata.lua
 functions\report.lua
+functions\rowanimation.lua
 
 core\timemachine.lua
 

@@ -7,8 +7,40 @@
 
 function _G._detalhes:Start()
 
--- slider de scale nas opções
-
+--teste de box
+--[[
+	local f = CreateFrame ("frame", "TestBoxFrame", UIParent)
+	f:SetPoint ("center", UIParent, "center")
+	f:SetSize (256, 256)
+	f:SetMovable (true)
+	
+	local t = f:CreateTexture (nil, "artwork")
+	t:SetSize (90, 90)
+	t:SetPoint ("topleft", f, "topleft")
+	t:SetTexture ("Interface\\Addons\\Details\\box")
+	t:SetTexCoord (0.29296875, 0.64453125, 0.265625-0.001953125, 0.6171875+0.001953125) -- 75 68 165 158 0.001953125 // 
+	
+	local left = f:CreateFontString (nil, "overlay", "GameFontNormal")
+	local right = f:CreateFontString (nil, "overlay", "GameFontNormal")
+	local top = f:CreateFontString (nil, "overlay", "GameFontNormal")
+	local bottom = f:CreateFontString (nil, "overlay", "GameFontNormal")
+	
+	left:SetPoint ("right", t, "left", -20, 0)
+	right:SetPoint ("left", t, "right", 20, 0)
+	top:SetPoint ("bottom", t, "top", 0, 20)
+	bottom:SetPoint ("top", t, "bottom", 0, -20)
+	
+	function f:UpdateLeftRight()
+		left:SetText ("left: " .. string.format ("%.3f", t:GetLeft()))
+		right:SetText ("right: " .. string.format ("%.3f", t:GetRight()))
+		top:SetText ("top: " .. string.format ("%.3f", t:GetTop()))
+		bottom:SetText ("bottom: " .. string.format ("%.3f", t:GetBottom()))
+	end
+	f:UpdateLeftRight()
+	
+	f:SetScript ("OnMouseDown", function() f:StartMoving(); f:SetScript("OnUpdate", function() f:UpdateLeftRight() end) end)
+	f:SetScript ("OnMouseUp", function() f:StopMovingOrSizing(); f:SetScript("OnUpdate", nil); f:UpdateLeftRight() end)
+--]]	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> details defaults
 	
@@ -82,6 +114,12 @@ function _G._detalhes:Start()
 		
 	--> start time machine
 		self.timeMachine:Ligar()
+	
+	--> update abbreviation shorcut
+		self.atributo_damage:UpdateSelectedToKFunction()
+		self.atributo_heal:UpdateSelectedToKFunction()
+		self.atributo_energy:UpdateSelectedToKFunction()
+		self.atributo_misc:UpdateSelectedToKFunction()
 		
 	--> start instances updater
 		self:AtualizaGumpPrincipal (-1, true)
@@ -549,6 +587,9 @@ function _G._detalhes:Start()
 			
 		end
 	end
+	
+	--register lib-hotcorners
+	_detalhes:RegisterHotCornerButton ("TOPLEFT", "DetailsLeftCornerButton", [[Interface\AddOns\Details\images\minimap]], "|cFFFFFFFFDetails!\n|cFF00FF00Left Click:|r clear all segments.", function() _detalhes.tabela_historico:resetar() end)
 	
 	
 	--[[

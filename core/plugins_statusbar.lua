@@ -291,6 +291,36 @@
 		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.right, "textsize", 9)
 	end
 	
+	function _detalhes.StatusBar:GetIndexFromAbsoluteName (AbsName)
+		for index, object in ipairs (_detalhes.StatusBar.Plugins) do
+			if (object.real_name == AbsName) then
+				return index
+			end
+		end
+	end
+	
+	function _detalhes.StatusBar:UpdateChilds (instance)
+	
+		local left = instance.StatusBarSaved.left
+		local center = instance.StatusBarSaved.center
+		local right = instance.StatusBarSaved.right
+
+		--print (instance.StatusBarSaved.options [left].textSize)
+		--print (instance.StatusBar.options [left].textSize)
+		
+		local left_index = _detalhes.StatusBar:GetIndexFromAbsoluteName (left)
+		ChoosePlugin (nil, nil, left_index, instance.StatusBar.left, "left")
+		
+		instance.StatusBar.left.options = table_deepcopy (instance.StatusBarSaved.options [left])
+		instance.StatusBar.center.options = table_deepcopy (instance.StatusBarSaved.options [center])
+		instance.StatusBar.right.options = table_deepcopy (instance.StatusBarSaved.options [right])
+		
+		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.left, "textcolor")
+		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.left, "textsize")
+		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.left, "textface")
+
+	end
+	
 	--> build-in function for create a frame for an plugin child
 	function _detalhes.StatusBar:CreateChildFrame (instance, name, w, h)
 		--local frame = _detalhes.gump:NewPanel (instance.baseframe.cabecalho.fechar, nil, name..instance:GetInstanceId(), nil, w or DEFAULT_CHILD_WIDTH, h or DEFAULT_CHILD_HEIGHT, false)
@@ -533,24 +563,87 @@ do
 			return
 		end
 
-		function PSegment:Change ()
+		function PSegment:Change()
 			for index, child in _ipairs (PSegment.childs) do
 				if (child.enabled and child.instance:IsEnabled()) then
 					if (child.instance.segmento == -1) then --> overall
 						child.text:SetText (Loc ["STRING_OVERALL"])
+						
 					elseif (child.instance.segmento == 0) then --> combate atual
-						child.text:SetText (Loc ["STRING_CURRENT"])
+					
+						if (child.options.segmentType == 1) then
+							child.text:SetText (Loc ["STRING_CURRENT"])
+							
+						elseif (child.options.segmentType == 2) then
+							if (child.instance.showing.is_boss) then
+								child.text:SetText (child.instance.showing.is_boss.encounter)
+							elseif (_detalhes.encounter_table and _detalhes.encounter_table.name) then
+								child.text:SetText (_detalhes.encounter_table.name)
+							else
+								child.text:SetText (child.instance.showing.enemy or "Unknown")
+							end
+						end
+						
 					else --> alguma tabela do histórico
-						child.text:SetText (Loc ["STRING_FIGHTNUMBER"]..child.instance.segmento)
+						if (child.options.segmentType == 1) then
+							child.text:SetText (Loc ["STRING_FIGHTNUMBER"]..child.instance.segmento)
+						elseif (child.options.segmentType == 2) then
+							if (child.instance.showing.is_boss) then
+								child.text:SetText (child.instance.showing.is_boss.encounter)
+							else
+								child.text:SetText (child.instance.showing.enemy or "Unknown")
+							end
+						end
 					end
 				end
 			end
+		end
+		
+		function PSegment:ExtraOptions()
+			
+			--> all widgets need to be placed on a table
+			local widgets = {}
+			--> reference of extra window for custom options
+			local window = _G.DetailsStatusBarOptions2.MyObject
+			
+			--> build all your widgets -----------------------------------------------------------------------------------------------------------------------------
+				_detalhes.gump:NewLabel (window, nil, "$parentSegmentOptionLabel", "segmentOptionLabel", Loc ["STRING_PLUGIN_SEGMENTTYPE"])
+				window.segmentOptionLabel:SetPoint (10, -15)
+				
+				local onSelectSegmentType = function (_, child, thistype)
+					child.options.segmentType = thistype
+					PSegment:Change()
+				end
+				
+				local segmentTypes = {
+					{value = 1, label = Loc ["STRING_PLUGIN_SEGMENTTYPE_1"], onclick = onSelectSegmentType, icon = [[Interface\ICONS\Ability_Rogue_KidneyShot]]},
+					{value = 2, label = Loc ["STRING_PLUGIN_SEGMENTTYPE_2"], onclick = onSelectSegmentType, icon = [[Interface\ICONS\Achievement_Boss_Ra_Den]]},
+				}
+				
+				_detalhes.gump:NewDropDown (window, nil, "$parentSegmentTypeDropdown", "segmentTypeDropdown", 200, 20, function() return segmentTypes end, 1) -- func, default
+				window.segmentTypeDropdown:SetPoint ("left", window.segmentOptionLabel, "right", 2)
+			-----------------------------------------------------------------------------------------------------------------------------
+			
+			--> now we insert all widgets created on widgets table
+			table.insert (widgets, window.segmentOptionLabel)
+			table.insert (widgets, window.segmentTypeDropdown)
+
+			--> after first call we replace this function with widgets table
+			PSegment.ExtraOptions = widgets
+		end
+		
+		--> ExtraOptionsOnOpen is called when options are opened and plugin have custom options
+		--> here we setup options widgets for get the values of clicked child and also for tell options window what child we are configuring
+		function PSegment:ExtraOptionsOnOpen (child)
+			_G.DetailsStatusBarOptions2SegmentTypeDropdown.MyObject:SetFixedParameter (child)
+			_G.DetailsStatusBarOptions2SegmentTypeDropdown.MyObject:Select (child.options.segmentType, true)
 		end
 		
 		--> Create Plugin Frames (must have)
 		function PSegment:CreateChildObject (instance)
 			local myframe = _detalhes.StatusBar:CreateChildFrame (instance, "DetailsPSegmentInstance" .. instance:GetInstanceId(), DEFAULT_CHILD_WIDTH, DEFAULT_CHILD_HEIGHT)
 			local new_child = _detalhes.StatusBar:CreateChildTable (instance, PSegment, myframe)
+			new_child.options.segmentType = new_child.options.segmentType or 1
 			return new_child
 		end
 		
@@ -563,6 +656,7 @@ do
 		
 		--> Register needed events
 		_detalhes:RegisterEvent (PSegment, "DETAILS_INSTANCE_CHANGESEGMENT", PSegment.Change)
+		_detalhes:RegisterEvent (PSegment, "COMBAT_PLAYER_ENTER", PSegment.Change)
 		
 end
 
@@ -1208,7 +1302,7 @@ end)
 		ColorPickerFrame:Show()
 	end
 
-	_detalhes.gump:NewImage (window, _, "$parentTextColorTexture", "textcolortexture", 150, 16)
+	_detalhes.gump:NewImage (window, nil, 150, 16, nil, nil, "textcolortexture", "$parentTextColorTexture")
 	window.textcolortexture:SetPoint ("left", window.textcolor, "right", 2)
 	window.textcolortexture:SetTexture (1, 1, 1)
 	
@@ -1232,7 +1326,7 @@ end)
 	_detalhes.gump:NewSlider (window, _, "$parentSliderFontSize", "fonsizeSlider", 170, 20, 9, 15, .5, 1)
 	window.fonsizeSlider:SetPoint ("left", window.fonsizeLabel, "right", 2)
 	window.fonsizeSlider:SetThumbSize (50)
-	window.fonsizeSlider.useDecimals = true
+	--window.fonsizeSlider.useDecimals = true
 	window.fonsizeSlider:SetHook ("OnValueChange", function (self, child, amount) 
 		_detalhes.StatusBar:ApplyOptions (child, "textsize", amount)
 	end)

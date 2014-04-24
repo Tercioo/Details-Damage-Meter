@@ -51,7 +51,7 @@ function _detalhes:CreateOrOpenNewsWindow()
 		titulo:SetPoint ("top", frame, "top", 0, -18)
 		
 		--> reinstall textura
-		local textura = _detalhes.gump:NewImage (frame, _, "$parentExclamacao", nil, 64, 64, [[Interface\DialogFrame\DialogAlertIcon]])
+		local textura = _detalhes.gump:NewImage (frame, [[Interface\DialogFrame\DialogAlertIcon]], 64, 64, nil, nil, nil, "$parentExclamacao")
 		textura:SetPoint ("topleft", frame, "topleft", 60, -20)
 		--> reinstall aviso
 		local reinstall = _detalhes.gump:NewLabel (frame, nil, "$parentReinstall", nil, "", "GameFontHighlightLeft", 10)

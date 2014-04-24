@@ -72,16 +72,17 @@ _detalhes.instance_defaults = {
 		--anchor store the anchor point of main menu
 		menu_anchor = {5, 1, side = 1},
 		--auto hide window borders
-		menu_alpha = {enabled = false, iconstoo = true, onenter = 1, onleave = 1},
+		menu_alpha = {enabled = false, iconstoo = true, onenter = 1, onleave = 1, ignorebars = false},
 		--auto hide menu
 		auto_hide_menu = {left = false, right = false},
 		--attribute text
-		attribute_text = {enabled = false, anchor = {5, 1}, text_face = "Friz Quadrata TT", text_size = 12, text_color = {1, 1, 1, 1}, side = 1},
+		attribute_text = {enabled = false, anchor = {5, 1}, text_face = "Friz Quadrata TT", text_size = 12, text_color = {1, 1, 1, 1}, side = 1, shadow = false},
 	--instance button anchor store the anchor point of instance and delete button
 		instance_button_anchor = {-27, 1},
 	--total bar
 		total_bar = {enabled = false, color = {1, 1, 1}, only_in_group = true, icon = [[Interface\ICONS\INV_Sigil_Thorim]]},
-	
+	--row animation when show
+		row_show_animation = {anim = "Fade", options = {}},
 	--row info
 		row_info = {
 			--if true the texture of the bars will have the color of his actor class
@@ -94,6 +95,9 @@ _detalhes.instance_defaults = {
 				textL_class_colors = false,
 			--right text class color
 				textR_class_colors = false,
+			--right text informations
+				textR_enable_custom_text = false,
+				textR_custom_text = "{data1} ({data2}, {data3}%)",
 			--if text class color are false, this color will be used
 				fixed_text_color = {1, 1, 1},
 			--left text outline effect
@@ -136,6 +140,8 @@ _detalhes.instance_defaults = {
 	--hide in combat
 		hide_in_combat = false,
 		hide_in_combat_alpha = 0,
+	--strata
+		strata = "LOW",
 	--wallpaper
 		wallpaper = {
 			enabled = false,

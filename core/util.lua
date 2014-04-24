@@ -74,7 +74,57 @@
 		end
 		return _string_format ("%.0f", numero)
 	end
+	
+	function _detalhes:ToKMin (numero)
+		if (numero > 1000000) then
+			return _string_format ("%.2f", numero/1000000) .."m"
+		elseif (numero > 1000) then
+			return _string_format ("%.1f", numero/1000) .."k"
+		end
+		return _string_format ("%.1f", numero)
+	end
+	function _detalhes:ToK2Min (numero)
+		if (numero > 999999) then
+			return _string_format ("%.2f", numero/1000000) .. "m"
+		elseif (numero > 99999) then
+			return _math_floor (numero/1000) .. "k"
+		elseif (numero > 999) then
+			return _string_format ("%.1f", (numero/1000)) .. "k"
+		end
+		return _string_format ("%.1f", numero)
+	end
+	--> short numbers no numbers after comma
+	function _detalhes:ToK0Min (numero)
+		if (numero > 1000000) then
+			return _string_format ("%.0f", numero/1000000) .."m"
+		elseif (numero > 1000) then
+			return _string_format ("%.0f", numero/1000) .."k"
+		end
+		return _string_format ("%.0f", numero)
+	end
+	--> no changes
+	function _detalhes:NoToK (numero)
+		return numero
+	end
+	
+	_detalhes.ToKFunctions = {_detalhes.NoToK, _detalhes.ToK, _detalhes.ToK2, _detalhes.ToK0, _detalhes.ToKMin, _detalhes.ToK2Min, _detalhes.ToK0Min}
 
+	function string:ReplaceData (...)
+		local args = {...}
+		local function getarg (i) 
+			local n = tonumber (i) 
+			if (n) then 
+				return args [tonumber(i)] 
+			else 
+				return loadstring (i)() 
+			end 
+		end
+		return (self:gsub('{data(%d+)}', getarg):gsub ('{func(.-)}', getarg)) 
+	end
+
+	--local usertext = "i got the time: {data2}, {data3}% of {data1} minutes"
+	--local expanded = usertext:expand(50000, 1000, 20)
+	
 	--> remove a index from a hash table
 	function _detalhes:tableRemove (tabela, indexName)
 		local newtable = {}

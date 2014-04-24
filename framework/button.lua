@@ -778,7 +778,7 @@ function gump:NewColorPickButton (parent, name, member, callback, alpha)
 	bgFile = [[Interface\AddOns\Details\images\background]], insets = {left = 0, right = 0, top = 0, bottom = 0}})
 	
 	--textura do fundo
-	local background = gump:NewImage (button, _, "$parentBck", nil, color_button_width, color_button_height)
+	local background = gump:NewImage (button, nil, color_button_width, color_button_height, nil, nil, nil, "$parentBck")
 	background:SetTexture ([[Interface\AddOns\Details\images\icons]])
 	background:SetPoint ("topleft", button.widget, "topleft", 1, -2)
 	background:SetPoint ("bottomright", button.widget, "bottomright", -1, 1)
@@ -787,7 +787,7 @@ function gump:NewColorPickButton (parent, name, member, callback, alpha)
 	background:SetDrawLayer ("background", 1)
 	
 	--textura da cor
-	local img = gump:NewImage (button, _, "$parentTex", "color_texture", color_button_width, color_button_height)
+	local img = gump:NewImage (button, nil, color_button_width, color_button_height, nil, nil, "color_texture", "$parentTex")
 	img:SetTexture (1, 1, 1)
 	img:SetPoint ("topleft", button.widget, "topleft", 1, -2)
 	img:SetPoint ("bottomright", button.widget, "bottomright", -1, 1)
@@ -795,7 +795,7 @@ function gump:NewColorPickButton (parent, name, member, callback, alpha)
 	
 	--icone do color pick
 	--[[
-	local icon = gump:NewImage (button, _, "$parentIcon", nil, 16, color_button_height)
+	local icon = gump:NewImage (button, nil, "$parentIcon", nil, 16, color_button_height)
 	icon:SetTexture ("Interface\\AddOns\\Details\\images\\icons")
 	icon:SetPoint ("topleft", button, "topleft", -1, 0)
 	icon:SetDrawLayer ("border", 3)

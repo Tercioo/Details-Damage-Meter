@@ -57,6 +57,10 @@ local div_abre = _detalhes.divisores.abre
 local div_fecha = _detalhes.divisores.fecha
 local div_lugar = _detalhes.divisores.colocacao
 
+local ToKFunctions = _detalhes.ToKFunctions
+local SelectedToKFunction = ToKFunctions [1]
+local UsingCustomRightText = false
+
 local info = _detalhes.janela_info
 local keyName
 
@@ -362,6 +366,7 @@ function atributo_heal:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 	--print (sub_atributo, total, keyName)
 	
 	local combat_time = instancia.showing:GetCombatTime()
+	UsingCustomRightText = instancia.row_info.textR_enable_custom_text
 	
 	local use_total_bar = false
 	if (instancia.total_bar.enabled) then
@@ -553,41 +558,71 @@ function atributo_heal:AtualizaBarra (instancia, barras_container, qual_barra, l
 		if (sub_atributo == 1) then --> mostrando healing done
 		
 			hps = _math_floor (hps)
-			if (_detalhes.ps_abbreviation == 2) then
-				hps = _detalhes:ToK (hps)
-			elseif (_detalhes.ps_abbreviation == 3) then
-				hps = _detalhes:ToK2 (hps)
-			end
+			local formated_heal = SelectedToKFunction (_, healing_total)
+			local formated_hps = SelectedToKFunction (_, hps)
 		
-			esta_barra.texto_direita:SetText (_detalhes:ToK (healing_total) .." ".. div_abre .. hps .. ", ".. _cstr ("%.1f", porcentagem).."%" .. div_fecha) --seta o texto da direita
+			if (UsingCustomRightText) then
+				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_heal, formated_hps, _cstr ("%.1f", porcentagem)))
+			else
+				esta_barra.texto_direita:SetText (formated_heal .." ".. div_abre .. formated_hps .. ", " .. _cstr ("%.1f", porcentagem) .. "%" .. div_fecha) --seta o texto da direita
+			end
 			esta_porcentagem = _math_floor ((healing_total/instancia.top) * 100) --> determina qual o tamanho da barra
 			
 		elseif (sub_atributo == 2) then --> mostrando hps
 		
 			hps = _math_floor (hps)
-			if (_detalhes.ps_abbreviation == 2) then
-				esta_barra.texto_direita:SetText (_detalhes:ToK2 (hps) .." ".. div_abre .. _detalhes:ToK (healing_total) .. ", ".._cstr("%.1f", porcentagem).."%" .. div_fecha) --seta o texto da direita
-			elseif (_detalhes.ps_abbreviation == 3) then
-				esta_barra.texto_direita:SetText (_detalhes:ToK2 (hps) .." ".. div_abre .. _detalhes:ToK2 (healing_total) .. ", ".._cstr("%.1f", porcentagem).."%" .. div_fecha) --seta o texto da direita
-			else
-				esta_barra.texto_direita:SetText (_detalhes:ToK2 (hps) .." ".. div_abre .. healing_total .. ", ".._cstr("%.1f", porcentagem).."%" .. div_fecha) --seta o texto da direita
+			local formated_heal = SelectedToKFunction (_, healing_total)
+			local formated_hps = SelectedToKFunction (_, hps)
+			
+			if (UsingCustomRightText) then
+				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_hps, formated_heal, _cstr ("%.1f", porcentagem)))
+			else			
+				esta_barra.texto_direita:SetText (formated_hps .. " " .. div_abre .. formated_heal .. ", " .. _cstr ("%.1f", porcentagem) .. "%" .. div_fecha) --seta o texto da direita
 			end
 			esta_porcentagem = _math_floor ((hps/instancia.top) * 100) --> determina qual o tamanho da barra
 			
 		elseif (sub_atributo == 3) then --> mostrando overall
-			esta_barra.texto_direita:SetText (_detalhes:ToK (self.totalover) .." ".. div_abre .._cstr("%.1f", porcentagem).."%" .. div_fecha) --seta o texto da direita --_cstr("%.1f", dps) .. " - ".. DPS do damage taken não será possivel correto?
+		
+			local formated_overheal = SelectedToKFunction (_, self.totalover)
+			
+			if (UsingCustomRightText) then
+				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_overheal, "", _cstr ("%.1f", porcentagem)))
+			else
+				esta_barra.texto_direita:SetText (formated_overheal .." " .. div_abre .. _cstr ("%.1f", porcentagem) .. "%" .. div_fecha) --seta o texto da direita --_cstr("%.1f", dps) .. " - ".. DPS do damage taken não será possivel correto?
+			end
 			esta_porcentagem = _math_floor ((self.totalover/instancia.top) * 100) --> determina qual o tamanho da barra
 			
 		elseif (sub_atributo == 4) then --> mostrando healing take
-			esta_barra.texto_direita:SetText (_detalhes:ToK (self.healing_taken) .." ".. div_abre .._cstr("%.1f", porcentagem).."%" .. div_fecha) --seta o texto da direita --_cstr("%.1f", dps) .. " - ".. DPS do damage taken não será possivel correto?
+		
+			local formated_healtaken = SelectedToKFunction (_, self.healing_taken)
+			
+			if (UsingCustomRightText) then
+				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_healtaken, "", _cstr ("%.1f", porcentagem)))
+			else		
+				esta_barra.texto_direita:SetText (formated_healtaken .. " " .. div_abre .. _cstr ("%.1f", porcentagem) .. "%" .. div_fecha) --seta o texto da direita --_cstr("%.1f", dps) .. " - ".. DPS do damage taken não será possivel correto?
+			end
 			esta_porcentagem = _math_floor ((self.healing_taken/instancia.top) * 100) --> determina qual o tamanho da barra
 		
 		elseif (sub_atributo == 5) then --> mostrando enemy heal
-			esta_barra.texto_direita:SetText (_detalhes:ToK (self.heal_enemy_amt) .." ".. div_abre .._cstr("%.1f", porcentagem).."%" .. div_fecha) --seta o texto da direita --_cstr("%.1f", dps) .. " - ".. DPS do damage taken não será possivel correto?
+		
+			local formated_enemyheal = SelectedToKFunction (_, self.heal_enemy_amt)
+		
+			if (UsingCustomRightText) then
+				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_enemyheal, "", _cstr ("%.1f", porcentagem)))
+			else
+				esta_barra.texto_direita:SetText (formated_enemyheal .. " " .. div_abre .. _cstr ("%.1f", porcentagem) .. "%" .. div_fecha) --seta o texto da direita --_cstr("%.1f", dps) .. " - ".. DPS do damage taken não será possivel correto?
+			end
 			esta_porcentagem = _math_floor ((self.heal_enemy_amt/instancia.top) * 100) --> determina qual o tamanho da barra
 			
-		elseif (sub_atributo == 6) then --> mostrando enemy heal
-			esta_barra.texto_direita:SetText (_detalhes:ToK (self.totalabsorb) .." ".. div_abre .._cstr("%.1f", porcentagem).."%" .. div_fecha) --seta o texto da direita --_cstr("%.1f", dps) .. " - ".. DPS do damage taken não será possivel correto?
+		elseif (sub_atributo == 6) then --> mostrando damage prevented
+		
+			local formated_absorbs = SelectedToKFunction (_, self.totalabsorb)
+		
+			if (UsingCustomRightText) then
+				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_absorbs, "", _cstr ("%.1f", porcentagem)))
+			else
+				esta_barra.texto_direita:SetText (formated_absorbs .. " " .. div_abre .. _cstr ("%.1f", porcentagem) .. "%" .. div_fecha) --seta o texto da direita --_cstr("%.1f", dps) .. " - ".. DPS do damage taken não será possivel correto?
+			end
 			esta_porcentagem = _math_floor ((self.totalabsorb/instancia.top) * 100) --> determina qual o tamanho da barra
 		end
 	end
@@ -758,7 +793,7 @@ end
 
 
 ---------> TOOLTIPS BIFURCAÇÃO
-function atributo_heal:ToolTip (instancia, numero, barra)
+function atributo_heal:ToolTip (instancia, numero, barra, keydown)
 	--> seria possivel aqui colocar o icone da classe dele?
 
 	if (instancia.atributo == 5) then --> custom
@@ -767,11 +802,11 @@ function atributo_heal:ToolTip (instancia, numero, barra)
 		--GameTooltip:ClearLines()
 		--GameTooltip:AddLine (barra.colocacao..". "..self.nome)
 		if (instancia.sub_atributo <= 3) then --> healing done, HPS or Overheal
-			return self:ToolTip_HealingDone (instancia, numero, barra)
+			return self:ToolTip_HealingDone (instancia, numero, barra, keydown)
 		elseif (instancia.sub_atributo == 6) then --> healing done, HPS or Overheal	
-			return self:ToolTip_HealingDone (instancia, numero, barra)
+			return self:ToolTip_HealingDone (instancia, numero, barra, keydown)
 		elseif (instancia.sub_atributo == 4) then --> healing taken
-			return self:ToolTip_HealingTaken (instancia, numero, barra)
+			return self:ToolTip_HealingTaken (instancia, numero, barra, keydown)
 		end
 	end
 end
@@ -779,9 +814,11 @@ end
 local r, g, b
 local headerColor = "yellow"
 local barAlha = .6
+local key_overlay = {1, 1, 1, .1}
+local key_overlay_press = {1, 1, 1, .2}
 
 ---------> HEALING TAKEN
-function atributo_heal:ToolTip_HealingTaken (instancia, numero, barra)
+function atributo_heal:ToolTip_HealingTaken (instancia, numero, barra, keydown)
 
 	local owner = self.owner
 	if (owner and owner.classe) then
@@ -810,17 +847,30 @@ function atributo_heal:ToolTip_HealingTaken (instancia, numero, barra)
 	end
 	
 	GameCooltip:AddLine (Loc ["STRING_FROM"], nil, nil, headerColor, nil, 12)
-	--GameCooltip:AddIcon ([[Interface\Addons\Details\images\icons]], 1, 1, 14, 14, 0.03515625, 0.087890625, 0.0234375, 0.09765625, _detalhes.class_colors [self.classe])
+
 	GameCooltip:AddIcon ([[Interface\TUTORIALFRAME\UI-TutorialFrame-LevelUp]], 1, 1, 14, 14, 0.10546875, 0.89453125, 0.05859375, 0.6796875)
 	GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
+
+	if (keydown == "shift") then
+		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay_press)
+		GameCooltip:AddStatusBar (100, 1, r, g, b, 1)
+	else
+		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay)
+		GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
+	end
+
 	
 	_table_sort (meus_curadores, function (a, b) return a[2] > b[2] end)
 	local max = #meus_curadores
 	if (max > 6) then
 		max = 6
 	end
+	
+	if (keydown == "shift") then
+		max = 99
+	end
 
-	for i = 1, max do
+	for i = 1, _math_min (max, #meus_curadores) do
 		GameCooltip:AddLine (meus_curadores[i][1]..": ", _detalhes:comma_value (meus_curadores[i][2]).." (".._cstr ("%.1f", (meus_curadores[i][2]/total_curado) * 100).."%)")
 		local classe = meus_curadores[i][3]
 		if (not classe) then
@@ -839,7 +889,7 @@ end
 
 ---------> HEALING DONE / HPS / OVERHEAL
 local background_heal_vs_absorbs = {value = 100, color = {1, 1, 0, .25}, specialSpark = false, texture = [[Interface\AddOns\Details\images\bar4_glass]]}
-function atributo_heal:ToolTip_HealingDone (instancia, numero, barra)
+function atributo_heal:ToolTip_HealingDone (instancia, numero, barra, keydown)
 
 	local owner = self.owner
 	if (owner and owner.classe) then
@@ -884,12 +934,22 @@ function atributo_heal:ToolTip_HealingDone (instancia, numero, barra)
 	--> Mostra as habilidades no tooltip
 	GameCooltip:AddLine (Loc ["STRING_SPELLS"], nil, nil, headerColor, nil, 12) --> localiza-me
 	GameCooltip:AddIcon ([[Interface\RAIDFRAME\Raid-Icon-Rez]], 1, 1, 14, 14, 0.109375, 0.890625, 0.0625, 0.90625)
-	GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)	
+
+	if (keydown == "shift") then
+		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay_press)
+		GameCooltip:AddStatusBar (100, 1, r, g, b, 1)
+	else
+		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay)
+		GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
+	end
 
 	local tooltip_max_abilities = _detalhes.tooltip_max_abilities
-	
 	if (instancia.sub_atributo == 3 or instancia.sub_atributo == 2) then
 		tooltip_max_abilities = 6
+	end
+
+	if (keydown == "shift") then
+		tooltip_max_abilities = 99
 	end
 	
 	for i = 1, _math_min (tooltip_max_abilities, #ActorHealingTable) do
@@ -921,15 +981,32 @@ function atributo_heal:ToolTip_HealingDone (instancia, numero, barra)
 	
 		GameCooltip:AddLine (Loc ["STRING_TARGETS"].."", nil, nil, headerColor, nil, 12)
 		GameCooltip:AddIcon ([[Interface\TUTORIALFRAME\UI-TutorialFrame-LevelUp]], 1, 1, 14, 14, 0.10546875, 0.89453125, 0.05859375, 0.6796875)
-		GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
+
+		if (keydown == "ctrl") then
+			GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_ctrl]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay_press)
+			GameCooltip:AddStatusBar (100, 1, r, g, b, 1)
+		else
+			GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_ctrl]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay)
+			GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
+		end
 		
-		for i = 1, _math_min (tooltip_max_abilities, #ActorHealingTargets) do
+		local tooltip_max_abilities2 = _detalhes.tooltip_max_abilities
+		if (keydown == "ctrl") then
+			tooltip_max_abilities2 = 99
+		end
+		
+		for i = 1, _math_min (tooltip_max_abilities2, #ActorHealingTargets) do
 			if (ActorHealingTargets[i][2] < 1) then
 				break
 			end
 			
-			GameCooltip:AddLine (ActorHealingTargets[i][1]..": ", _detalhes:comma_value (ActorHealingTargets[i][2]) .." (".._cstr ("%.1f", ActorHealingTargets[i][3]).."%)")
-			GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
+			if (tooltip_max_abilities2 == 99 and ActorHealingTargets[i][1]:find (_detalhes.playername)) then
+				GameCooltip:AddLine (ActorHealingTargets[i][1]..": ", _detalhes:comma_value (ActorHealingTargets[i][2]) .." (".._cstr ("%.1f", ActorHealingTargets[i][3]).."%)", nil, "yellow")
+				GameCooltip:AddStatusBar (100, 1, .5, .5, .5, .7)
+			else
+				GameCooltip:AddLine (ActorHealingTargets[i][1]..": ", _detalhes:comma_value (ActorHealingTargets[i][2]) .." (".._cstr ("%.1f", ActorHealingTargets[i][3]).."%)")
+				GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
+			end
 			
 			local targetActor = container:PegarCombatente (nil, ActorHealingTargets[i][1])
 			
@@ -1002,16 +1079,24 @@ function atributo_heal:ToolTip_HealingDone (instancia, numero, barra)
 
 		_table_sort (totais, _detalhes.Sort2)
 		
-		for _, _table in _ipairs (totais) do
+		for index, _table in _ipairs (totais) do
 			
-			if (_table [2] > 0) then
+			if (_table [2] > 0 and (index < 3 or keydown == "alt")) then
 			
 				if (not added_logo) then
 					added_logo = true
 					GameCooltip:AddLine (Loc ["STRING_PETS"].."", nil, nil, headerColor, nil, 12)
-					--GameCooltip:AddIcon ([[Interface\Addons\Details\images\icons]], 1, 1, 14, 14, 0.03515625, 0.087890625, 0.0234375, 0.09765625, _detalhes.class_colors [self.classe])
+
 					GameCooltip:AddIcon ([[Interface\COMMON\friendship-heart]], 1, 1, 14, 14, 0.21875, 0.78125, 0.09375, 0.6875)
-					GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
+
+					if (keydown == "alt") then
+						GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_alt]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay_press)
+						GameCooltip:AddStatusBar (100, 1, r, g, b, 1)
+					else
+						GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_alt]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay)
+						GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
+					end
+					
 				end
 			
 				local n = _table [1]:gsub (("%s%<.*"), "")
@@ -1719,6 +1804,11 @@ end
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> core functions
+
+	--> atualize a funcao de abreviacao
+		function atributo_heal:UpdateSelectedToKFunction()
+			SelectedToKFunction = ToKFunctions [_detalhes.ps_abbreviation]
+		end
 
 	--> subtract total from a combat table
 		function atributo_heal:subtract_total (combat_table)

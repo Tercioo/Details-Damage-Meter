@@ -35,6 +35,8 @@ Loc ["STRING_TOOLTIP"] = "Show Encounter Details Window"
 Loc ["STRING_LAST_COOLDOWN"] = "last cooldown used"
 Loc ["STRING_NOLAST_COOLDOWN"] = "no cooldown used"
 
+Loc ["STRING_BOSS_NOT_REGISTRED"] = "This encounter isn't registred on Details!\nMake sure this raid is enabled over addon control panel on the character selection screen."
+
 Loc ["STRING_HOLDSHIFT"] = "SHIFT For Spell Description"
 
 Loc ["STRING_ADDS_HELP"] = "Mouse over |cFF00FF00Arrow Up|r\nfor dmg received, |cFFFF0000Arrow\n|cFFFF0000Down|r for dmg dealt. |cFFFFFF00Click\n|cFFFFFF00Arrow|r: Report the data\nshown on tooltip."

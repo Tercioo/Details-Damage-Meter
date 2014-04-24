@@ -21,11 +21,12 @@ local _GetSpellInfo = _detalhes.getspellinfo
 local GameTooltip = GameTooltip
 local _IsInRaid = IsInRaid
 local _IsInGroup = IsInGroup
-	
+
 local _detalhes = 		_G._detalhes
 local AceLocale = LibStub ("AceLocale-3.0")
 local Loc = AceLocale:GetLocale ( "Details" )
 
+--constants
 local gump = 			_detalhes.gump
 local _
 
@@ -58,6 +59,11 @@ local DFLAG_player_group = _detalhes.flags.player_in_group
 local div_abre = _detalhes.divisores.abre
 local div_fecha = _detalhes.divisores.fecha
 local div_lugar = _detalhes.divisores.colocacao
+
+local ToKFunctions = _detalhes.ToKFunctions
+local SelectedToKFunction = ToKFunctions [1]
+local UsingCustomRightText = false
+
 
 local CLASS_ICON_TCOORDS = _G.CLASS_ICON_TCOORDS
 
@@ -907,6 +913,7 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 		end
 	
 		local combat_time = instancia.showing:GetCombatTime()
+		UsingCustomRightText = instancia.row_info.textR_enable_custom_text
 		
 		local use_total_bar = false
 		if (instancia.total_bar.enabled) then
@@ -1124,38 +1131,68 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 		esta_barra.texto_direita:SetText (_detalhes:ToK (self.custom) .." ".. div_abre .. _cstr ("%.1f", porcentagem).."%" .. div_fecha) --seta o texto da direita
 		esta_porcentagem = _math_floor ((self.custom/instancia.top) * 100) --> determina qual o tamanho da barra
 	else
+	
 		if (sub_atributo == 1) then --> mostrando damage done
+		
 			dps = _math_floor (dps)
-			if (_detalhes.ps_abbreviation == 2) then
-				dps = _detalhes:ToK (dps)
-			elseif (_detalhes.ps_abbreviation == 3) then
-				dps = _detalhes:ToK2 (dps)
-			end
-			esta_barra.texto_direita:SetText (_detalhes:ToK (damage_total) .." ".. div_abre .. dps .. ", ".. _cstr ("%.1f", porcentagem).."%" .. div_fecha) --seta o texto da direita
-			esta_porcentagem = _math_floor ((damage_total/instancia.top) * 100) --> determina qual o tamanho da barra
-			
-		elseif (sub_atributo == 2) then --> mostrando dps
-			dps = _math_floor (dps)
-			if (_detalhes.ps_abbreviation == 2) then
-				esta_barra.texto_direita:SetText (_detalhes:ToK2 (dps) .. " " .. div_abre .. _detalhes:ToK (damage_total) .. ", " .. _cstr ("%.1f", porcentagem) .. "%" .. div_fecha) --seta o texto da direita
-			elseif (_detalhes.ps_abbreviation == 3) then
-				esta_barra.texto_direita:SetText (_detalhes:ToK2 (dps) .. " " .. div_abre .. _detalhes:ToK2 (damage_total) .. ", " .. _cstr ("%.1f", porcentagem) .. "%" .. div_fecha) --seta o texto da direita
+			local formated_damage = SelectedToKFunction (_, damage_total)
+			local formated_dps = SelectedToKFunction (_, dps)
+
+			if (UsingCustomRightText) then
+				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_damage, formated_dps, _cstr ("%.1f", porcentagem)))
 			else
-				esta_barra.texto_direita:SetText (_detalhes:ToK2 (dps) .. " " .. div_abre .. damage_total .. ", " .. _cstr ("%.1f", porcentagem) .. "%" .. div_fecha) --seta o texto da direita
+				esta_barra.texto_direita:SetText (formated_damage .." ".. div_abre .. formated_dps .. ", ".. _cstr ("%.1f", porcentagem).."%" .. div_fecha) --seta o texto da direita
+			end
+			esta_porcentagem = _math_floor ((damage_total/instancia.top) * 100) --> determina qual o tamanho da barra
+
+		elseif (sub_atributo == 2) then --> mostrando dps
+		
+			dps = _math_floor (dps)
+			local formated_damage = SelectedToKFunction (_, damage_total)
+			local formated_dps = SelectedToKFunction (_, dps)
+		
+			if (UsingCustomRightText) then
+				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_dps, formated_damage, _cstr ("%.1f", porcentagem)))
+			else		
+				esta_barra.texto_direita:SetText (formated_dps .. " " .. div_abre .. formated_damage .. ", " .. _cstr ("%.1f", porcentagem) .. "%" .. div_fecha) --seta o texto da direita
 			end
 			esta_porcentagem = _math_floor ((dps/instancia.top) * 100) --> determina qual o tamanho da barra
 			
 		elseif (sub_atributo == 3) then --> mostrando damage taken
-			esta_barra.texto_direita:SetText (_detalhes:ToK (self.damage_taken) .." ".. div_abre .._cstr("%.1f", porcentagem).."%" .. div_fecha) --seta o texto da direita --_cstr("%.1f", dps) .. " - ".. DPS do damage taken não será possivel correto?
+
+			local formated_damage_taken = SelectedToKFunction (_, self.damage_taken)
+
+			if (UsingCustomRightText) then
+				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_damage_taken, "", _cstr ("%.1f", porcentagem)))
+			else
+				esta_barra.texto_direita:SetText (formated_damage_taken .." ".. div_abre .. _cstr ("%.1f", porcentagem) .. "%" .. div_fecha) --seta o texto da direita --
+			end
 			esta_porcentagem = _math_floor ((self.damage_taken/instancia.top) * 100) --> determina qual o tamanho da barra
 			
 		elseif (sub_atributo == 4) then --> mostrando friendly fire
-			esta_barra.texto_direita:SetText (_detalhes:ToK (self.friendlyfire_total) .." ".. div_abre .._cstr("%.1f", porcentagem).."%" .. div_fecha) --seta o texto da direita --_cstr("%.1f", dps) .. " - ".. DPS do damage taken não será possivel correto?
+		
+			local formated_friendly_fire = SelectedToKFunction (_, self.friendlyfire_total)
+
+			if (UsingCustomRightText) then
+				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_friendly_fire, "", _cstr ("%.1f", porcentagem)))
+			else			
+				esta_barra.texto_direita:SetText (formated_friendly_fire .. " " .. div_abre .. _cstr ("%.1f", porcentagem) .. "%" .. div_fecha) --seta o texto da direita --
+			end
 			esta_porcentagem = _math_floor ((self.friendlyfire_total/instancia.top) * 100) --> determina qual o tamanho da barra
 		
-		elseif (sub_atributo == 6) then --> mostrando friendly fire
-			esta_barra.texto_direita:SetText (_detalhes:ToK (damage_total) .." ".. div_abre .. _math_floor (dps) .. ", ".. _cstr ("%.1f", porcentagem).."%" .. div_fecha) --seta o texto da direita
+		elseif (sub_atributo == 6) then --> mostrando enemies
+		
+			dps = _math_floor (dps)
+			local formated_damage = SelectedToKFunction (_, damage_total)
+			local formated_dps = SelectedToKFunction (_, dps)
+		
+			if (UsingCustomRightText) then
+				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_damage, formated_dps, _cstr ("%.1f", porcentagem)))
+			else		
+				esta_barra.texto_direita:SetText (formated_damage .. " " .. div_abre .. formated_dps .. ", " .. _cstr ("%.1f", porcentagem) .. "%" .. div_fecha) --seta o texto da direita
+			end
 			esta_porcentagem = _math_floor ((damage_total/instancia.top) * 100) --> determina qual o tamanho da barra
+			
 		end
 	end
 
@@ -1341,18 +1378,18 @@ end
 
 ---------> TOOLTIPS BIFURCAÇÃO
 
-function atributo_damage:ToolTip (instancia, numero, barra)
+function atributo_damage:ToolTip (instancia, numero, barra, keydown)
 	--> seria possivel aqui colocar o icone da classe dele?
 
 	if (instancia.atributo == 5) then --> custom
 		return self:TooltipForCustom (barra)
 	else
 		if (instancia.sub_atributo == 1 or instancia.sub_atributo == 2 or instancia.sub_atributo == 6) then --> damage done or Dps or enemy
-			return self:ToolTip_DamageDone (instancia, numero, barra)
+			return self:ToolTip_DamageDone (instancia, numero, barra, keydown)
 		elseif (instancia.sub_atributo == 3) then --> damage taken
-			return self:ToolTip_DamageTaken (instancia, numero, barra)
+			return self:ToolTip_DamageTaken (instancia, numero, barra, keydown)
 		elseif (instancia.sub_atributo == 4) then --> friendly fire
-			return self:ToolTip_FriendlyFire (instancia, numero, barra)
+			return self:ToolTip_FriendlyFire (instancia, numero, barra, keydown)
 		end
 	end
 end
@@ -1375,7 +1412,10 @@ local barAlha = .6
 			end
 
 ---------> DAMAGE DONE & DPS
-function atributo_damage:ToolTip_DamageDone (instancia, numero, barra)
+local key_overlay = {1, 1, 1, .1}
+local key_overlay_press = {1, 1, 1, .2}
+
+function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 	
 	local owner = self.owner
 	if (owner and owner.classe) then
@@ -1416,18 +1456,29 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra)
 				ActorTargetsSortTable [#ActorTargetsSortTable+1] = {_target.nome, _target.total}
 			end
 			_table_sort (ActorTargetsSortTable, _detalhes.Sort2)
-		
-		--> MOSTRA HABILIDADES
-			GameCooltip:AddLine (Loc ["STRING_SPELLS"].."", nil, nil, headerColor, nil, 12)
-			--GameCooltip:AddIcon ([[Interface\HELPFRAME\HotIssueIcon]], 1, 1, 14, 14, 0.0625, 0.90625, 0, 1)
-			GameCooltip:AddIcon ([[Interface\ICONS\Spell_Shaman_BlessingOfTheEternals]], 1, 1, 14, 14, 0.90625, 0.109375, 0.15625, 0.875)
-			GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
 
+			
 			local tooltip_max_abilities = _detalhes.tooltip_max_abilities
-
 			if (instancia.sub_atributo == 2) then
 				tooltip_max_abilities = 6
 			end
+			if (keydown == "shift") then
+				tooltip_max_abilities = 99
+			end
+			
+		--> MOSTRA HABILIDADES
+			GameCooltip:AddLine (Loc ["STRING_SPELLS"].."", nil, nil, headerColor, nil, 12)
+			GameCooltip:AddIcon ([[Interface\ICONS\Spell_Shaman_BlessingOfTheEternals]], 1, 1, 14, 14, 0.90625, 0.109375, 0.15625, 0.875)
+			
+			if (tooltip_max_abilities == 99) then
+				GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay_press)
+				GameCooltip:AddStatusBar (100, 1, r, g, b, 1)
+			else
+				GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay)
+				GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
+			end
+			--habilidades
+
 			
 			if (#ActorSkillsSortTable > 0) then
 				for i = 1, _math_min (tooltip_max_abilities, #ActorSkillsSortTable) do
@@ -1448,10 +1499,22 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra)
 		--> MOSTRA INIMIGOS
 			if (instancia.sub_atributo == 1 or instancia.sub_atributo == 6) then
 				GameCooltip:AddLine (Loc ["STRING_TARGETS"].."", nil, nil, headerColor, nil, 12)
-				GameCooltip:AddIcon ([[Interface\Addons\Details\images\icons]], 1, 1, 14, 14, 0, 0.03125, 0.126953125, 0.15625)
-				GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
+
+				local max_targets = _detalhes.tooltip_max_targets
+				if (keydown == "ctrl") then
+					max_targets = 99
+				end
 				
-				for i = 1, _math_min (_detalhes.tooltip_max_targets, #ActorTargetsSortTable) do
+				GameCooltip:AddIcon ([[Interface\Addons\Details\images\icons]], 1, 1, 14, 14, 0, 0.03125, 0.126953125, 0.15625)
+				if (max_targets == 99) then
+					GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_ctrl]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay_press)
+					GameCooltip:AddStatusBar (100, 1, r, g, b, 1)
+				else
+					GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_ctrl]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay)
+					GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
+				end
+
+				for i = 1, _math_min (max_targets, #ActorTargetsSortTable) do
 					local este_inimigo = ActorTargetsSortTable [i]
 					GameCooltip:AddLine (este_inimigo[1]..": ", _detalhes:comma_value (este_inimigo[2]) .." (".._cstr("%.1f", este_inimigo[2]/ActorDamageWithPet*100).."%)")
 					GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\espadas", nil, nil, 14, 14)
@@ -1516,85 +1579,44 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra)
 		local added_logo = false
 		_table_sort (totais, _detalhes.Sort2)
 		
-		if (true) then
+		for index, _table in _ipairs (totais) do
 			
-			for _, _table in _ipairs (totais) do
-				
-				if (_table [2] > 0) then
-				
-					if (not added_logo) then
-						added_logo = true
-						GameCooltip:AddLine (Loc ["STRING_PETS"].."", nil, nil, headerColor, nil, 12)
-						
-						--GameCooltip:AddIcon ([[Interface\Addons\Details\images\icons]], 1, 1, 14, 14, 0.03515625, 0.087890625, 0.0234375, 0.09765625, _detalhes.class_colors [self.classe])
-						GameCooltip:AddIcon ([[Interface\COMMON\friendship-heart]], 1, 1, 14, 14, 0.21875, 0.78125, 0.09375, 0.6875)
-						
+			if (_table [2] > 0 and (index < 3 or keydown == "alt")) then
+			
+				if (not added_logo) then
+					added_logo = true
+					GameCooltip:AddLine (Loc ["STRING_PETS"].."", nil, nil, headerColor, nil, 12)
+					
+					GameCooltip:AddIcon ([[Interface\COMMON\friendship-heart]], 1, 1, 14, 14, 0.21875, 0.78125, 0.09375, 0.6875)
+					
+					if (keydown == "alt") then
+						GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_alt]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay_press)
+						GameCooltip:AddStatusBar (100, 1, r, g, b, 1)
+					else
+						GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_alt]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay)
 						GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
 					end
-				
-					local n = _table [1]:gsub (("%s%<.*"), "")
-					if (instancia.sub_atributo == 1) then
-						GameCooltip:AddLine (n, _detalhes:comma_value (_table [2]) .. " (" .. _math_floor (_table [2]/self.total*100) .. "%)")
-					else
-						GameCooltip:AddLine (n, _detalhes:comma_value ( _math_floor (_table [3])) .. " (" .. _math_floor (_table [2]/self.total*100) .. "%)")
-					end
-					GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
-					GameCooltip:AddIcon ([[Interface\AddOns\Details\images\classes_small]], 1, 1, 14, 14, 0.25, 0.49609375, 0.75, 1)
-				end
-			end
-			
-		else
-			--> old pet display mode
-			for nome, meus_danos in _pairs (danos) do --> um pet de cada vez
-				local n = nome:gsub (("%s%<.*"), "")
-				--GameTooltip:AddDoubleLine ("Ajudante: ", "x"..quantidade[nome].." "..n.." (".._math_floor (totais [nome]/self.total*100).."%)", nil, nil, nil, 1, 1, 1) 
-				--> pintar o nome do pet com a cor da classe do jogador
-				
-				local cor = self.cor
-				GameCooltip:AddLine (Loc ["STRING_PET"]..":", n.." (".._math_floor (totais [nome]/self.total*100).."%)", 1, 1, 1, 1, _unpack (_detalhes.class_colors [self.classe])) --> removido a quantidade
-				--GameCooltip:AddLine (Loc ["STRING_SPELLS"]) 
-				--GameTooltip:AddDoubleLine (Loc ["STRING_PET"]..":", n.." (".._math_floor (totais [nome]/self.total*100).."%)", nil, nil, nil, _unpack (_detalhes.class_colors [self.classe])) --> removido a quantidade
-				--GameTooltip:AddLine (Loc ["STRING_SPELLS"]) 
-				for i = 1, 3 do
-					if (meus_danos[i]) then
-						--> meus_danos =  { [1] = spellid [2] = total [3] = % [4] = { [1] = nome [2] = rank [3] = icone } }
-						GameCooltip:AddLine (meus_danos[i][4][1]..": ", _detalhes:comma_value (meus_danos[i][2]).." (".._cstr("%.1f", meus_danos[i][3]).."%)")
-						GameCooltip:AddIcon (meus_danos[i][4][3], nil, nil, 14, 14)
-						GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .2)
-						--GameTooltip:AddDoubleLine (meus_danos[i][4][1]..": ", _detalhes:comma_value (meus_danos[i][2]).." (".._cstr("%.1f", meus_danos[i][3]).."%)", 1, 1, 1, 1, 1, 1)
-						--GameTooltip:AddTexture (meus_danos[i][4][3])
-					end
-				end
-				
-				GameTooltip:AddLine (Loc ["STRING_TARGETS"]) 
-				for i = 1, 3 do
-					local meus_inimigos = alvos [nome]
-					if (meus_inimigos[i]) then
-						GameTooltip:AddLine (meus_inimigos[i][1]..": ", _detalhes:comma_value (meus_inimigos[i][2]).." (".._cstr("%.1f", meus_inimigos[i][3]).."%)")
-						--GameTooltip:AddDoubleLine (meus_inimigos[i][1]..": ", _detalhes:comma_value (meus_inimigos[i][2]).." (".._cstr("%.1f", meus_inimigos[i][3]).."%)", 1, 1, 1, 1, 1, 1)
-						--GameTooltip:AddTexture ("Interface\\GossipFrame\\BattleMasterGossipIcon.blp")
 
-						GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\espadas", nil, nil, 14, 14)
-						GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .2)
-						--GameTooltip:AddTexture ("Interface\\AddOns\\Details\\images\\espadas")
-					end
 				end
-				
-				--GameTooltip:AddLine (" ")
-				
-				_quantidade = _quantidade + 1
-				if (_quantidade >= _detalhes.tooltip_max_pets) then
-					return true
+			
+				local n = _table [1]:gsub (("%s%<.*"), "")
+				if (instancia.sub_atributo == 1) then
+					GameCooltip:AddLine (n, _detalhes:comma_value (_table [2]) .. " (" .. _math_floor (_table [2]/self.total*100) .. "%)")
+				else
+					GameCooltip:AddLine (n, _detalhes:comma_value ( _math_floor (_table [3])) .. " (" .. _math_floor (_table [2]/self.total*100) .. "%)")
 				end
+				GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
+				GameCooltip:AddIcon ([[Interface\AddOns\Details\images\classes_small]], 1, 1, 14, 14, 0.25, 0.49609375, 0.75, 1)
 			end
 		end
+			
 	end
 	
 	return true
 end
 
 ---------> DAMAGE TAKEN
-function atributo_damage:ToolTip_DamageTaken (instancia, numero, barra)
+function atributo_damage:ToolTip_DamageTaken (instancia, numero, barra, keydown)
 
 	local owner = self.owner
 	if (owner and owner.classe) then
@@ -1623,17 +1645,28 @@ function atributo_damage:ToolTip_DamageTaken (instancia, numero, barra)
 	end
 
 	_table_sort (meus_agressores, function (a, b) return a[2] > b[2] end)
-
-	GameCooltip:AddLine (Loc ["STRING_FROM"], nil, nil, headerColor, nil, 12)
-	--GameCooltip:AddIcon ([[Interface\Addons\Details\images\icons]], 1, 1, 14, 14, 0.03515625, 0.087890625, 0.0234375, 0.09765625, _detalhes.class_colors [self.classe])
-	GameCooltip:AddIcon ([[Interface\Addons\Details\images\icons]], 1, 1, 14, 14, 0.126953125, 0.1796875, 0, 0.0546875)
-	GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
-			
+	
 	local max = #meus_agressores
 	if (max > 6) then
 		max = 6
 	end
+	
+	if (keydown == "shift") then
+		max = #meus_agressores
+	end
 
+	GameCooltip:AddLine (Loc ["STRING_FROM"], nil, nil, headerColor, nil, 12)
+
+	GameCooltip:AddIcon ([[Interface\Addons\Details\images\icons]], 1, 1, 14, 14, 0.126953125, 0.1796875, 0, 0.0546875)
+	
+	if (keydown == "shift") then
+		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay_press)
+		GameCooltip:AddStatusBar (100, 1, r, g, b, 1)
+	else
+		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay)
+		GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
+	end	
+	
 	for i = 1, max do
 		GameCooltip:AddLine (meus_agressores[i][1]..": ", _detalhes:comma_value (meus_agressores[i][2]).." (".._cstr("%.1f", (meus_agressores[i][2]/damage_taken) * 100).."%)")
 		local classe = meus_agressores[i][3]
@@ -1654,7 +1687,7 @@ function atributo_damage:ToolTip_DamageTaken (instancia, numero, barra)
 end
 
 ---------> FRIENDLY FIRE
-function atributo_damage:ToolTip_FriendlyFire (instancia, numero, barra)
+function atributo_damage:ToolTip_FriendlyFire (instancia, numero, barra, keydown)
 
 	local owner = self.owner
 	if (owner and owner.classe) then
@@ -1686,11 +1719,23 @@ function atributo_damage:ToolTip_FriendlyFire (instancia, numero, barra)
 	_table_sort (Skills, _detalhes.Sort2)
 
 	GameCooltip:AddLine (Loc ["STRING_TARGETS"].."", nil, nil, headerColor, nil, 12)
-	--GameCooltip:AddIcon ([[Interface\Addons\Details\images\icons]], 1, 1, 14, 14, 0.03515625, 0.087890625, 0.0234375, 0.09765625, _detalhes.class_colors [self.classe])
+	
 	GameCooltip:AddIcon ([[Interface\Addons\Details\images\icons]], 1, 1, 14, 14, 0.126953125, 0.224609375, 0.056640625, 0.140625)
-	GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
-		
-	for i = 1, _math_min (_detalhes.tooltip_max_abilities, #DamagedPlayers) do
+	
+	if (keydown == "shift") then
+		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay_press)
+		GameCooltip:AddStatusBar (100, 1, r, g, b, 1)
+	else
+		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay)
+		GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
+	end
+	
+	local max_abilities = _detalhes.tooltip_max_abilities
+	if (keydown == "shift") then
+		max_abilities = 99
+	end
+	
+	for i = 1, _math_min (max_abilities, #DamagedPlayers) do
 		local classe = DamagedPlayers[i][3]
 		if (not classe) then
 			classe = "UNKNOW"
@@ -1709,11 +1754,23 @@ function atributo_damage:ToolTip_FriendlyFire (instancia, numero, barra)
 	end
 	
 	GameCooltip:AddLine (Loc ["STRING_SPELLS"].."", nil, nil, headerColor, nil, 12)
-	--GameCooltip:AddIcon ([[Interface\Addons\Details\images\icons]], 1, 1, 14, 14, 0.03515625, 0.087890625, 0.0234375, 0.09765625, _detalhes.class_colors [self.classe])
+
 	GameCooltip:AddIcon ([[Interface\PVPFrame\bg-down-on]], 1, 1, 14, 14, 0, 1, 0, 1)
-	GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
 	
-	for i = 1, _math_min (_detalhes.tooltip_max_abilities, #Skills) do
+	if (keydown == "ctrl") then
+		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_ctrl]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay_press)
+		GameCooltip:AddStatusBar (100, 1, r, g, b, 1)
+	else
+		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_ctrl]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay)
+		GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
+	end
+	
+	local max_abilities2 = _detalhes.tooltip_max_abilities
+	if (keydown == "ctrl") then
+		max_abilities2 = 99
+	end
+	
+	for i = 1, _math_min (max_abilities2, #Skills) do
 		local nome, _, icone = _GetSpellInfo (Skills[i][1])
 		GameCooltip:AddLine (nome.." (x".. Skills[i][3].."): ", _detalhes:comma_value (Skills[i][2]).." (".._cstr("%.1f", Skills[i][2]/FriendlyFireTotal*100).."%)")
 		GameCooltip:AddIcon (icone, nil, nil, 14, 14)
@@ -2717,6 +2774,11 @@ end
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> core functions
 
+	--> atualize a funcao de abreviacao
+		function atributo_damage:UpdateSelectedToKFunction()
+			SelectedToKFunction = ToKFunctions [_detalhes.ps_abbreviation]
+		end
+
 	--> diminui o total das tabelas do combate
 		function atributo_damage:subtract_total (combat_table)
 			combat_table.totals [class_type] = combat_table.totals [class_type] - self.total
@@ -3047,3 +3109,6 @@ end
 		-- local grayscale = (_math_max (cor[1], cor[2], cor[3]) + _math_min (cor[1], cor[2], cor[3])) / 2 -- average
 		-- local grayscale = cor[1]*0.21 + cor[2]*0.71  + cor[3]*0.07
 		--(max(R, G, B) + min(R, G, B)) / 2
+
+		
+		

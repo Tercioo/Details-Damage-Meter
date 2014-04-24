@@ -105,7 +105,7 @@ local function CreatePluginFrames()
 	c:SetFrameLevel (YouAreNotPreparedFrame:GetFrameLevel()+1)
 	
 	--background image	
-	local b = DetailsFrameWork:NewImage (YouAreNotPreparedFrame, nil, "$parentBackground", nil, 512, 256, [[Interface\AddOns\Details_YouAreNotPrepared\background]])
+	local b = DetailsFrameWork:NewImage (YouAreNotPreparedFrame, [[Interface\AddOns\Details_YouAreNotPrepared\background]], 512, 256, nil, nil, nil, "$parentBackground")
 	b:SetPoint ("topleft", YouAreNotPreparedFrame, "topleft")
 	
 	--title
@@ -256,7 +256,7 @@ local function CreatePluginFrames()
 		b_texture:SetDesaturated (true)
 		button.widget.b_texture = b_texture
 
-		local icon = DetailsFrameWork:NewImage (button, _, "$parentIcon", "icon", 20, 20)
+		local icon = DetailsFrameWork:NewImage (button, nil, 20, 20, nil, nil, "icon", "$parentIcon")
 		icon:SetTexCoord (0, 0.4921875, 0, 0.4921875) --0.0078125
 		icon:SetPoint ("left", button, "left", 1, 0)
 		icon.texture = [[Interface\WorldStateFrame\SkullBones]]

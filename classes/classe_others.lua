@@ -61,6 +61,10 @@ local div_abre = _detalhes.divisores.abre
 local div_fecha = _detalhes.divisores.fecha
 local div_lugar = _detalhes.divisores.colocacao
 
+local ToKFunctions = _detalhes.ToKFunctions
+local SelectedToKFunction = ToKFunctions [1]
+local UsingCustomRightText = false
+
 local info = _detalhes.janela_info
 local keyName
 
@@ -566,6 +570,8 @@ function atributo_misc:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 	local qual_barra = 1
 	local barras_container = instancia.barras
 	
+	UsingCustomRightText = instancia.row_info.textR_enable_custom_text
+	
 	if (instancia.bars_sort_direction == 1) then --top to bottom
 		for i = instancia.barraS[1], instancia.barraS[2], 1 do --> vai atualizar só o range que esta sendo mostrado
 			conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName) --> instância, index, total, valor da 1º barra
@@ -648,7 +654,11 @@ function atributo_misc:AtualizaBarra (instancia, barras_container, qual_barra, l
 	local porcentagem = meu_total / total * 100
 	local esta_porcentagem = _math_floor ((meu_total/instancia.top) * 100)
 
-	esta_barra.texto_direita:SetText (meu_total .." ".. div_abre .. _cstr ("%.1f", porcentagem).."%" .. div_fecha) --seta o texto da direita
+	if (UsingCustomRightText) then
+		esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (meu_total, "", _cstr ("%.1f", porcentagem)))
+	else
+		esta_barra.texto_direita:SetText (meu_total .." ".. div_abre .. _cstr ("%.1f", porcentagem).."%" .. div_fecha) --seta o texto da direita
+	end
 	
 	if (esta_barra.mouse_over and not instancia.baseframe.isMoving) then --> precisa atualizar o tooltip
 		gump:UpdateTooltip (qual_barra, esta_barra, instancia)
@@ -1841,7 +1851,13 @@ end
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> core functions
 
-local sub_list = {"cc_break", "ress", "interrupt", "cooldowns_defensive", "dispell", "dead"}
+	--> atualize a funcao de abreviacao
+		function atributo_misc:UpdateSelectedToKFunction()
+			SelectedToKFunction = ToKFunctions [_detalhes.ps_abbreviation]
+		end
+		
+
+	local sub_list = {"cc_break", "ress", "interrupt", "cooldowns_defensive", "dispell", "dead"}
 
 	--> subtract total from a combat table
 		function atributo_misc:subtract_total (combat_table)

@@ -372,23 +372,23 @@ function _detalhes:OpenWelcomeWindow ()
 		data_text2:SetPoint ("topleft", window, "topleft", 30, -201)
 		
 	--------------- Captures
-		g:NewImage (window, _, "$parentCaptureDamage", "damageCaptureImage", 20, 20, [[Interface\AddOns\Details\images\atributos_captures]])
+		g:NewImage (window, [[Interface\AddOns\Details\images\atributos_captures]], 20, 20, nil, nil, "damageCaptureImage", "$parentCaptureDamage2")
 		window.damageCaptureImage:SetPoint (35, -155)
 		window.damageCaptureImage:SetTexCoord (0, 0.125, 0, 1)
 		
-		g:NewImage (window, _, "$parentCaptureHeal", "healCaptureImage", 20, 20, [[Interface\AddOns\Details\images\atributos_captures]])
+		g:NewImage (window, [[Interface\AddOns\Details\images\atributos_captures]], 20, 20, nil, nil, "healCaptureImage", "$parentCaptureHeal2")
 		window.healCaptureImage:SetPoint (170, -155)
 		window.healCaptureImage:SetTexCoord (0.125, 0.25, 0, 1)
 		
-		g:NewImage (window, _, "$parentCaptureEnergy", "energyCaptureImage", 20, 20, [[Interface\AddOns\Details\images\atributos_captures]])
+		g:NewImage (window, [[Interface\AddOns\Details\images\atributos_captures]], 20, 20, nil, nil, "energyCaptureImage", "$parentCaptureEnergy2")
 		window.energyCaptureImage:SetPoint (305, -155)
 		window.energyCaptureImage:SetTexCoord (0.25, 0.375, 0, 1)
 		
-		g:NewImage (window, _, "$parentCaptureMisc", "miscCaptureImage", 20, 20, [[Interface\AddOns\Details\images\atributos_captures]])
+		g:NewImage (window, [[Interface\AddOns\Details\images\atributos_captures]], 20, 20, nil, nil, "miscCaptureImage", "$parentCaptureMisc2")
 		window.miscCaptureImage:SetPoint (35, -175)
 		window.miscCaptureImage:SetTexCoord (0.375, 0.5, 0, 1)
 		
-		g:NewImage (window, _, "$parentCaptureAura", "auraCaptureImage", 20, 20, [[Interface\AddOns\Details\images\atributos_captures]])
+		g:NewImage (window, [[Interface\AddOns\Details\images\atributos_captures]], 20, 20, nil, nil, "auraCaptureImage", "$parentCaptureAura2")
 		window.auraCaptureImage:SetPoint (170, -175)
 		window.auraCaptureImage:SetTexCoord (0.5, 0.625, 0, 1)
 		

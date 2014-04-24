@@ -22,6 +22,10 @@
 	local _GetInstanceInfo = GetInstanceInfo --wow api local
 	local _UnitExists = UnitExists --wow api local
 	local _UnitGUID = UnitGUID --wow api local
+
+	local _IsAltKeyDown = IsAltKeyDown
+	local _IsShiftKeyDown = IsShiftKeyDown
+	local _IsControlKeyDown = IsControlKeyDown
 	
 	local atributo_damage = _detalhes.atributo_damage --details local
 	local atributo_heal = _detalhes.atributo_heal --details local
@@ -887,7 +891,7 @@
 		local backgroundPoint = {{"bottomleft", "topleft", 0, -3}, {"bottomright", "topright", 0, -3}}
 		local textPoint = {"left", "right", -11, -5}
 		
-		function _detalhes:MontaTooltip (frame, qual_barra)
+		function _detalhes:MontaTooltip (frame, qual_barra, keydown)
 
 			GameCooltip:Reset()
 			GameCooltip:SetType ("tooltip")
@@ -912,7 +916,7 @@
 				return _detalhes:ToolTipVoidZones (self, objeto, esta_barra)
 			end
 			
-			local t = objeto:ToolTip (self, qual_barra, esta_barra) --> instância, nº barra, objeto barra
+			local t = objeto:ToolTip (self, qual_barra, esta_barra, keydown) --> instância, nº barra, objeto barra, keydown
 			if (t) then
 			
 				if (esta_barra.minha_tabela.serial and esta_barra.minha_tabela.serial ~= "") then
@@ -935,7 +939,15 @@
 		end
 		
 		function _detalhes.gump:UpdateTooltip (qual_barra, esta_barra, instancia)
-			return instancia:MontaTooltip (esta_barra, qual_barra)
+			if (_IsShiftKeyDown()) then
+				return instancia:MontaTooltip (esta_barra, qual_barra, "shift")
+			elseif (_IsControlKeyDown()) then
+				return instancia:MontaTooltip (esta_barra, qual_barra, "ctrl")
+			elseif (_IsAltKeyDown()) then
+				return instancia:MontaTooltip (esta_barra, qual_barra, "alt")
+			else
+				return instancia:MontaTooltip (esta_barra, qual_barra)
+			end
 		end
 
 		function _detalhes:EndRefresh (instancia, total, tabela_do_combate, showing)

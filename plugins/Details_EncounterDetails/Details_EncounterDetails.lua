@@ -670,6 +670,10 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 	map_id = _combat_object.is_boss.mapid
 	boss_info = _detalhes:GetBossDetails (_combat_object.is_boss.mapid, _combat_object.is_boss.index)
 
+	if (not boss_info) then
+		return EncounterDetails:Msg (Loc ["STRING_BOSS_NOT_REGISTRED"])
+	end
+	
 -------------- set boss name and zone name --------------
 	EncounterDetailsFrame.boss_name:SetText (_combat_object.is_boss.encounter)
 	EncounterDetailsFrame.raid_name:SetText (_combat_object.is_boss.zone)
