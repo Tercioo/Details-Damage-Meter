@@ -327,9 +327,15 @@
 		local right_index = _detalhes.StatusBar:GetIndexFromAbsoluteName (right)
 		ChoosePlugin (nil, nil, right_index, instance.StatusBar.right, "right")
 		
-		instance.StatusBar.left.options = table_deepcopy (instance.StatusBarSaved.options [left])
-		instance.StatusBar.center.options = table_deepcopy (instance.StatusBarSaved.options [center])
-		instance.StatusBar.right.options = table_deepcopy (instance.StatusBarSaved.options [right])
+		if (instance.StatusBarSaved.options and instance.StatusBarSaved.options [left]) then
+			instance.StatusBar.left.options = table_deepcopy (instance.StatusBarSaved.options [left])
+		end
+		if (instance.StatusBarSaved.options and instance.StatusBarSaved.options [center]) then
+			instance.StatusBar.center.options = table_deepcopy (instance.StatusBarSaved.options [center])
+		end
+		if (instance.StatusBarSaved.options and instance.StatusBarSaved.options [right]) then
+			instance.StatusBar.right.options = table_deepcopy (instance.StatusBarSaved.options [right])
+		end
 		
 		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.left, "textcolor")
 		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.left, "textsize")
@@ -591,6 +597,10 @@ do
 			for index, child in _ipairs (PSegment.childs) do
 			
 				if (child.enabled and child.instance:IsEnabled()) then
+				
+					if (not child.instance.showing) then
+						return child.text:SetText ("Unknown")
+					end
 				
 					if (child.instance.segmento == -1) then --> overall
 						child.text:SetText (Loc ["STRING_OVERALL"])

@@ -256,8 +256,9 @@ if not Loc then return end
 	Loc ["STRING_PLUGIN_SECONLY"] = "Seconds Only"
 	Loc ["STRING_PLUGIN_TIMEDIFF"] = "Last Combat Difference"
 	
-	Loc ["STRING_PLUGIN_SEGMENTTYPE_1"] = "Show Fight #X"
-	Loc ["STRING_PLUGIN_SEGMENTTYPE_2"] = "Show Encounter Name"
+	Loc ["STRING_PLUGIN_SEGMENTTYPE_1"] = "Fight #X"
+	Loc ["STRING_PLUGIN_SEGMENTTYPE_2"] = "Encounter Name"
+	Loc ["STRING_PLUGIN_SEGMENTTYPE_3"] = "Encounter Name Plus Segment"
 	
 	Loc ["STRING_PLUGIN_TOOLTIP_LEFTBUTTON"] = "Config current plugin"
 	Loc ["STRING_PLUGIN_TOOLTIP_RIGHTBUTTON"] = "Choose another plugin"

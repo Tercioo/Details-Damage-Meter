@@ -1076,9 +1076,9 @@ function _detalhes:ExportSkin()
 			["right"] = self.StatusBar.right.real_name or "NONE",
 		}
 		exported.StatusBarSaved.options = {
-			[self.StatusBarSaved.left] = table_deepcopy (self.StatusBar.left.options),
-			[self.StatusBarSaved.center] = table_deepcopy (self.StatusBar.center.options),
-			[self.StatusBarSaved.right] = table_deepcopy (self.StatusBar.right.options)
+			[exported.StatusBarSaved.left] = table_deepcopy (self.StatusBar.left.options),
+			[exported.StatusBarSaved.center] = table_deepcopy (self.StatusBar.center.options),
+			[exported.StatusBarSaved.right] = table_deepcopy (self.StatusBar.right.options)
 		}
 
 	elseif (self.StatusBarSaved) then
