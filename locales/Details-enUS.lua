@@ -2,7 +2,8 @@ local Loc = LibStub("AceLocale-3.0"):NewLocale("Details", "enUS", true)
 if not Loc then return end 
 
 --------------------------------------------------------------------------------------------------------------------------------------------
-	Loc ["STRING_VERSION_LOG"] = "|cFFFFFF00v1.13.0|r\n\n|cFFFFFF00-|r Added four more abbreviation types.\n\n|cFFFFFF00-|r Fixed issue where the instance menu wasnt respecting the amount limit of instances.\n\n|cFFFFFF00-|r Added options for cutomize the right text of a row.\n\n|cFFFFFF00-|r Added a option to be able to chance the framestrata of an window.\n\n|cFFFFFF00-|r Added shift, ctrl, alt interaction for rows which shows all spells, targets or pets when pressed.\n\n|cFFFFFF00-|r Fixed a issue where changing the alpha of a window makes it disappear on the next logon.\n\n|cFFFFFF00-|r Added a option for auto transparency to ignore rows.\n\n|cFFFFFF00-|r Added option to be able to set shadow on the attribute text.\n\n|cFFFFFF00-|r Fixed a issue with window snap where disabled statusbar makes a gap between the windows.\n\n|cFFFFFF00-|r Added a hidden menu on the top left corner (experimental).\n\n|cFFFFFF00v1.12.3|r\n\n|cFFFFFF00-|r - Fixed 'Healing Per Second' which wasn't working at all.\n\n|cFFFFFF00-|r - Fixed the percent amount for target of damage done where sometimes it pass 100%.\n\n|cFFFFFF00-|r - Changes on Skins: 'Minimalistic' and 'Elm UI Frame Style'. It's necessary re-apply.\n\n|cFFFFFF00-|r - Added more cooldowns and spells for Monk tank over avoidance panel.\n\n|cFFFFFF00-|r - Player avatar now is also shown on the Player Details window.\n\n|cFFFFFF00-|r - Leaving empty the the icon file box, make details use no icons on bars.\n\n|cFFFFFF00-|r - Added new feature: Auto Transparency, hide or show menus, statusbar and borders when mouse enter or leaves the window.\n\n|cFFFFFF00-|r - Added new feature: Attribute Text, shows on the toolbar or statusbar the current attribute shown.\n\n|cFFFFFF00-|r - Added new fueature: Auto Hide Menu, which hide or show the menus when mouse enter or leaves the window.\n\n|cFFFFFF00-|r - Image Editor now can Flip the image without messing with the crop.\n\n|cFFFFFF00v1.12.0|r\n\n|cFFFFFF00-|r Added support to Profiles, now you can share the same config between two or more characters.\n\n|cFFFFFF00-|r - Options window now can be opened while in combat without triggering 'script ran too long' error.\n\n|cFFFFFF00-|r Added support for BattleTag friends over report window.\n\n|cFFFFFF00-|r Added pet threat to Tiny Threat plugin when out of a party or raid group.\n\n|cFFFFFF00-|r Fixed a issue with close button where it disappear without close the window when toolbar is in bottom side.\n\n|cFFFFFF00-|r Also fixed a issue where swapping toolbar positioning was sometimes making close button disappear.\n\n|cFFFFFF00-|r Fixed a problem opening options panel through minimap when there is no window opened.\n\n|cFFFFFF00v1.11.10|r\n\n|cFFFFFF00-|r Accuracy with warcraftlogs.com now is very high and okey with worldoflogs.com. Make sure the option |cFFFFDD00Time Measure|r under General Settings -> Combat is set to |cFFFFDD00Effective Time|r.\n\n|cFFFFFF00-|r Options Window has been revamped, again.\n\n|cFFFFFF00-|r Added a option for change the class icons.\n\n|cFFFFFF00-|r Added options for show Total Bar and configure it.\n\n|cFFFFFF00-|r Added a option for save a Standard Skin, new windows opened use this skin.\n\n|cFFFFFF00-|r Added a new skin: ElvUI Frame Style.\n\n|cFFFFFF00-|r When hover a spell icon under Player Details Window, the spell description is shown.\n\n|cFFFFFF00-|r Pressing Shift key on a spell bar over the Encounter Details Window, shows up the spell description.\n\n|cFFFFFF00v1.11.6|r\n\n|cFFFFFF00-|r Added new skin: Minimalistic, a very clean one.\n\n|cFFFFFF00-|r Added a new tab called avoidance on Player Details window for tanks.\n\n|cFFFFFF00-|r Added Copy & Paste option on report window. Now you can share your dps on twitter and facebook!\n\n|cFFFFFF00-|r Added a new option for auto switch what a window shows when you enter in a combat.\n\n|cFFFFFF00-|r Fixed issue with window background alpha which was changing the value everytime the options window is opened.\n\n|cFFFFFF00-|r Fixed the gap between the bar and the window background when disabling borders.\n\n|cFFFFFF00-|r Make some improvements on Tiny Threat plugin.\n\n|cFFFFFF00v1.11.3|r\n\n|cFFFFFF00-|r Fixed more known issues with skins.\n\n|cFFFFFF00-|r Fixed an issue where plugin icons wasn't hiding after close all windows.\n\n|cFFFFFF00v1.11.2|r\n\n|cFFFFFF00-|r Fixed bugs where Details! stop working if no plugin is actived on Wow addon panel.\n\n|cFFFFFF00v1.11.0|r\n\n|cFFFFFF00-|r Added an option for abbreviate Dps and Hps.\n\n|cFFFFFF00-|r Fixed issue where the window icon fade away when reopening the window.\n\n|cFFFFFF00-|r Improvements in class recognition.\n\n|cFFFFFF00-|r Added follow spells as defensive cooldowns:\nHealing Tide Totem, Spirit Link Totem, Demoralizing Banner, Mass Spell Reflection and Shield Block.\n\n|cFFFFFF00-|r More improvements done in Encounter Details plugin.\n\n|cFFFFFF00-|r Improvements made in the downloadable plugins: Timeline and Advanced Death Logs."
+
+	Loc ["STRING_VERSION_LOG"] = "|cFFFFFF00v1.13.5|r\n\n|cFFFFFF00-|r Added keybinds to reset segments and scroll up/down.\n\n|cFFFFFF00-|r Added Spell Customization options where icon and the name of a spell can be changed.\n\n|cFFFFFF00-|r Added option to change the micro displays side, now it can be shown on the window top side.\n\n|cFFFFFF00-|r Added options to change the transparency when out of combat and out of a group.\n\n|cFFFFFF00-|r Added and Still under development the panel for create data captures for charts.\n\n|cFFFFFF00-|r Fixed a issue with flat skin where the close button was just too big.\n\n|cFFFFFF00v1.13.0|r\n\n|cFFFFFF00-|r Added four more abbreviation types.\n\n|cFFFFFF00-|r Fixed issue where the instance menu wasnt respecting the amount limit of instances.\n\n|cFFFFFF00-|r Added options for cutomize the right text of a row.\n\n|cFFFFFF00-|r Added a option to be able to chance the framestrata of an window.\n\n|cFFFFFF00-|r Added shift, ctrl, alt interaction for rows which shows all spells, targets or pets when pressed.\n\n|cFFFFFF00-|r Fixed a issue where changing the alpha of a window makes it disappear on the next logon.\n\n|cFFFFFF00-|r Added a option for auto transparency to ignore rows.\n\n|cFFFFFF00-|r Added option to be able to set shadow on the attribute text.\n\n|cFFFFFF00-|r Fixed a issue with window snap where disabled statusbar makes a gap between the windows.\n\n|cFFFFFF00-|r Added a hidden menu on the top left corner (experimental).\n\n|cFFFFFF00v1.12.3|r\n\n|cFFFFFF00-|r - Fixed 'Healing Per Second' which wasn't working at all.\n\n|cFFFFFF00-|r - Fixed the percent amount for target of damage done where sometimes it pass 100%.\n\n|cFFFFFF00-|r - Changes on Skins: 'Minimalistic' and 'Elm UI Frame Style'. It's necessary re-apply.\n\n|cFFFFFF00-|r - Added more cooldowns and spells for Monk tank over avoidance panel.\n\n|cFFFFFF00-|r - Player avatar now is also shown on the Player Details window.\n\n|cFFFFFF00-|r - Leaving empty the the icon file box, make details use no icons on bars.\n\n|cFFFFFF00-|r - Added new feature: Auto Transparency, hide or show menus, statusbar and borders when mouse enter or leaves the window.\n\n|cFFFFFF00-|r - Added new feature: Attribute Text, shows on the toolbar or statusbar the current attribute shown.\n\n|cFFFFFF00-|r - Added new fueature: Auto Hide Menu, which hide or show the menus when mouse enter or leaves the window.\n\n|cFFFFFF00-|r - Image Editor now can Flip the image without messing with the crop.\n\n|cFFFFFF00v1.12.0|r\n\n|cFFFFFF00-|r Added support to Profiles, now you can share the same config between two or more characters.\n\n|cFFFFFF00-|r - Options window now can be opened while in combat without triggering 'script ran too long' error.\n\n|cFFFFFF00-|r Added support for BattleTag friends over report window.\n\n|cFFFFFF00-|r Added pet threat to Tiny Threat plugin when out of a party or raid group.\n\n|cFFFFFF00-|r Fixed a issue with close button where it disappear without close the window when toolbar is in bottom side.\n\n|cFFFFFF00-|r Also fixed a issue where swapping toolbar positioning was sometimes making close button disappear.\n\n|cFFFFFF00-|r Fixed a problem opening options panel through minimap when there is no window opened.\n\n|cFFFFFF00v1.11.10|r\n\n|cFFFFFF00-|r Accuracy with warcraftlogs.com now is very high and okey with worldoflogs.com. Make sure the option |cFFFFDD00Time Measure|r under General Settings -> Combat is set to |cFFFFDD00Effective Time|r.\n\n|cFFFFFF00-|r Options Window has been revamped, again.\n\n|cFFFFFF00-|r Added a option for change the class icons.\n\n|cFFFFFF00-|r Added options for show Total Bar and configure it.\n\n|cFFFFFF00-|r Added a option for save a Standard Skin, new windows opened use this skin.\n\n|cFFFFFF00-|r Added a new skin: ElvUI Frame Style.\n\n|cFFFFFF00-|r When hover a spell icon under Player Details Window, the spell description is shown.\n\n|cFFFFFF00-|r Pressing Shift key on a spell bar over the Encounter Details Window, shows up the spell description.\n\n|cFFFFFF00v1.11.6|r\n\n|cFFFFFF00-|r Added new skin: Minimalistic, a very clean one.\n\n|cFFFFFF00-|r Added a new tab called avoidance on Player Details window for tanks.\n\n|cFFFFFF00-|r Added Copy & Paste option on report window. Now you can share your dps on twitter and facebook!\n\n|cFFFFFF00-|r Added a new option for auto switch what a window shows when you enter in a combat.\n\n|cFFFFFF00-|r Fixed issue with window background alpha which was changing the value everytime the options window is opened.\n\n|cFFFFFF00-|r Fixed the gap between the bar and the window background when disabling borders.\n\n|cFFFFFF00-|r Make some improvements on Tiny Threat plugin.\n\n|cFFFFFF00v1.11.3|r\n\n|cFFFFFF00-|r Fixed more known issues with skins.\n\n|cFFFFFF00-|r Fixed an issue where plugin icons wasn't hiding after close all windows.\n\n|cFFFFFF00v1.11.2|r\n\n|cFFFFFF00-|r Fixed bugs where Details! stop working if no plugin is actived on Wow addon panel.\n\n|cFFFFFF00v1.11.0|r\n\n|cFFFFFF00-|r Added an option for abbreviate Dps and Hps.\n\n|cFFFFFF00-|r Fixed issue where the window icon fade away when reopening the window."
 
 	Loc ["STRING_DETAILS1"] = "|cffffaeaeDetails:|r " --> color and details name
 
@@ -413,6 +414,7 @@ if not Loc then return end
 	Loc ["STRING_OPTIONS_APPEARANCE"] = "Appearance"
 	Loc ["STRING_OPTIONS_PERFORMANCE"] = "Performance"
 	Loc ["STRING_OPTIONS_PLUGINS"] = "Plugins"
+	Loc ["STRING_OPTIONS_ADVANCED"] = "Advanced"
 	Loc ["STRING_OPTIONS_SOCIAL"] = "Social"
 	Loc ["STRING_OPTIONS_SOCIAL_DESC"] = "Tell how do you want to be known in your guild enviorement."
 	Loc ["STRING_OPTIONS_NICKNAME"] = "Nickname"
@@ -435,10 +437,16 @@ if not Loc then return end
 	Loc ["STRING_OPTIONS_MINIMAP_DESC"] = "Show or Hide minimap icon."
 	Loc ["STRING_OPTIONS_TIMEMEASURE"] = "Time Measure"
 	Loc ["STRING_OPTIONS_TIMEMEASURE_DESC"] = "|cFFFFFF00Activity|r: the timer of each raid member is put on hold if his activity is ceased and back again to count when is resumed, common way of measure Dps and Hps.\n\n|cFFFFFF00Effective|r: used on rankings, this method uses the elapsed combat time for measure the Dps and Hps of all raid members."
-	Loc ["STRING_OPTIONS_HIDECOMBAT"] = "Hide On Combat"
-	Loc ["STRING_OPTIONS_HIDECOMBAT_DESC"] = "If enabled, this instance window is hidden when you enter in combat."
-	Loc ["STRING_OPTIONS_HIDECOMBATALPHA"] = "Transparency"
-	Loc ["STRING_OPTIONS_HIDECOMBATALPHA_DESC"] = "The window can be completely hidden or just be more transparent."
+	
+	Loc ["STRING_OPTIONS_COMBAT_ALPHA"] = "Modify Type"
+	Loc ["STRING_OPTIONS_COMBAT_ALPHA_1"] = "No Changes"
+	Loc ["STRING_OPTIONS_COMBAT_ALPHA_2"] = "While In Combat"
+	Loc ["STRING_OPTIONS_COMBAT_ALPHA_3"] = "While Out of Combat"
+	Loc ["STRING_OPTIONS_COMBAT_ALPHA_4"] = "While Out of a Group"
+	Loc ["STRING_OPTIONS_COMBAT_ALPHA_DESC"] = "Select how combat affect the instance transparency.\n\n|cFFFF8800No Changes|r: Doesn't modify the alpha.\n\n|cFFFF8800While In Combat|r: When your character enter in a combat, the alpha chosen is applied on the window.\n\n|cFFFF8800While Out of Combat|r: The alpha is applied whenever your character isn't in combat.\n\n|cFFFF8800While Out of a Group|r: When you aren't in party or a raid group, the instance assumes the selected alpha.\n\n|cFFFF8800Important|r: This option overwrite the alpha determined by Auto Transparency feature."
+	Loc ["STRING_OPTIONS_HIDECOMBATALPHA"] = "Modify To"
+	Loc ["STRING_OPTIONS_HIDECOMBATALPHA_DESC"] = "Changes the transparency to this value when your character matches with the chosen rule.\n\n|cFFFF8800Zero|r: fully hidden, can't interact within the window.\n\n|cFFFF88001 - 100|r: not hidden, only the transparency is changed, you can interact with the window."
+	
 	Loc ["STRING_OPTIONS_AUTO_SWITCH"] = "Auto Switch"
 	Loc ["STRING_OPTIONS_AUTO_SWITCH_DESC"] = "When you enter in combat, this window change for the selected attribute or plugin.\n\nLeaving the combat, it switch back."
 	Loc ["STRING_OPTIONS_PS_ABBREVIATE"] = "Abbreviation Type"
@@ -548,8 +556,12 @@ if not Loc then return end
 	Loc ["STRING_OPTIONS_TEXT_ROWCOLOR"] = "Alpha and Color When Not By Class"
 	Loc ["STRING_OPTIONS_TEXT_ROWCOLOR2"] = "Color When Not By Class"
 	--
-	Loc ["STRING_OPTIONS_INSTANCE"] = "Instance Settings"
-	Loc ["STRING_OPTIONS_INSTANCE_DESC"] = "This options control the appearance of the instance it self."
+	
+	Loc ["STRING_OPTIONS_WINDOW_TITLE"] = "Window Settings"
+	Loc ["STRING_OPTIONS_WINDOW_TITLE_DESC"] = "This options control the window appearance of selected instance."
+	
+	Loc ["STRING_OPTIONS_SHOWHIDE"] = "Show & Hide settings"
+	Loc ["STRING_OPTIONS_SHOWHIDE_DESC"] = "This options controls when a window should hide or\nappear on the screen."
 	
 	Loc ["STRING_OPTIONS_INSTANCE_COLOR"] = "Window Color"
 	Loc ["STRING_OPTIONS_INSTANCE_COLOR_DESC"] = "Change the color and alpha of this window.\n\n|cFFFF8800Important|r: the alpha chosen here are overwritten with |cFFFFFF00Auto Transparency|r values when enabled.\n\n|cFFFF8800Important|r: selecting the instance window color overwrite any color customization over the statusbar."
@@ -610,6 +622,13 @@ Loc ["STRING_OPTIONS_MENU_Y_DESC"] = "Slightly move the main menu on tooltip to 
 Loc ["STRING_OPTIONS_MENU_ANCHOR"] = "Menu Anchor Side"
 Loc ["STRING_OPTIONS_MENU_ANCHOR_DESC"] = "Change if the left menu is attached within left side of window or in the right side."
 
+Loc ["STRING_OPTIONS_CUSTOMSPELL_ADD"] = "Add Spell"
+Loc ["STRING_OPTIONS_CUSTOMSPELLTITLE"] = "Edit Spells Settings"
+Loc ["STRING_OPTIONS_CUSTOMSPELLTITLE_DESC"] = "This panel alows you modify the name and icon of spells."
+
+Loc ["STRING_OPTIONS_DATACHARTTITLE"] = "Create Timed Data for Charts"
+Loc ["STRING_OPTIONS_DATACHARTTITLE_DESC"] = "This panel alows you to create customized data captures for charts creation."
+
 Loc ["STRING_OPTIONS_ATTRIBUTE_TEXT"] = "Attribute Text Settings"
 Loc ["STRING_OPTIONS_ATTRIBUTE_TEXT_DESC"] = "This options controls the attribute text basic settings."
 
@@ -643,7 +662,7 @@ Loc ["STRING_OPTIONS_INSTANCE_STATUSBAR_ANCHOR"] = "Statusbar"
 Loc ["STRING_OPTIONS_INSTANCE_STATUSBARCOLOR"] = "Color and Transparency"
 Loc ["STRING_OPTIONS_INSTANCE_STATUSBARCOLOR_DESC"] = "Select the color used by the statusbar.\n\n|cFFFF8800Important|r: this option overwrite the color and transparency chosen over Window Color."
 
-Loc ["STRING_OPTIONS_MENU_ALPHA"] = "Auto Transparency:"
+Loc ["STRING_OPTIONS_MENU_ALPHA"] = "Interact Auto Transparency:"
 Loc ["STRING_OPTIONS_MENU_ALPHAENABLED"] = "Enabled"
 Loc ["STRING_OPTIONS_MENU_ALPHAENTER"] = "When Interacting"
 Loc ["STRING_OPTIONS_MENU_ALPHALEAVE"] = "Stand by"
@@ -703,6 +722,10 @@ Loc ["STRING_OPTIONS_INSBUTTON_X_DESC"] = "Change the instance button position."
 
 Loc ["STRING_OPTIONS_INSBUTTON_Y"] = "Instance Button Y"
 Loc ["STRING_OPTIONS_INSBUTTON_Y_DESC"] = "Change the instance button position."
+
+Loc ["STRING_OPTIONS_MICRODISPLAYSSIDE"] = "Micro Displays Anchor"
+Loc ["STRING_OPTIONS_MICRODISPLAYSSIDE_DESC"] = "Place the micro displays on the top of the window or on the bottom side."
+Loc ["STRING_OPTIONS_MICRODISPLAYWARNING"] = "Micro displays isn't shown because statusbar is disabled."
 
 Loc ["STRING_OPTIONS_TOOLBARSIDE"] = "Toolbar Anchor"
 Loc ["STRING_OPTIONS_TOOLBARSIDE_DESC"] = "Place the toolbar on the top or bottom side of window."
