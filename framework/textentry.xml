@@ -33,4 +33,30 @@
 		</Layers>
 		
 	</EditBox>
+	
+	<ScrollFrame name="DetailsEditBoxMultiLineTemplate" inherits="UIPanelScrollFrameTemplate" virtual="true">
+		<Size x="232" y="20"/>
+		<ScrollChild>
+			<EditBox name="$parentEditBox" multiLine="true" letters="255" autoFocus="false" countInvisibleLetters="true" parentKey="editbox">
+				<Size x="232" y="20"/>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT" />
+					<Anchor point="BOTTOMLEFT" relativeTo="$parent" relativePoint="BOTTOMLEFT" />
+					<Anchor point="TOPRIGHT" relativeTo="$parent" relativePoint="TOPRIGHT" />
+					<Anchor point="BOTTOMRIGHT" relativeTo="$parent" relativePoint="BOTTOMRIGHT" />
+				</Anchors>
+				<Scripts>
+					<OnTextChanged>
+						<!-- ScrollingEdit_OnTextChanged (self, self:GetParent()); -->
+					</OnTextChanged>
+					<OnCursorChanged function="ScrollingEdit_OnCursorChanged"/>
+					<OnUpdate>
+						<!-- ScrollingEdit_OnUpdate (self, elapsed, self:GetParent());-->
+					</OnUpdate>
+					<OnEscapePressed function="EditBox_ClearFocus"/>
+				</Scripts>
+				<FontString inherits="GameFontHighlightSmall"/>
+			</EditBox>
+		</ScrollChild>
+	</ScrollFrame>
 </Ui>

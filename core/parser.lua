@@ -2740,6 +2740,7 @@
 					_detalhes:IniciarColetaDeLixo (true)
 					_detalhes:WipePets()
 					_detalhes:SchedulePetUpdate (1)
+					_detalhes:InstanceCall (_detalhes.SetCombatAlpha, nil, nil, true)
 				end
 			else
 				_detalhes.in_group = IsInGroup() or IsInRaid()
@@ -2749,6 +2750,7 @@
 					_detalhes:WipePets()
 					_detalhes:SchedulePetUpdate (1)
 					_table_wipe (_detalhes.details_users)
+					_detalhes:InstanceCall (_detalhes.SetCombatAlpha, nil, nil, true)
 				else
 					_detalhes:SchedulePetUpdate (2)
 					_detalhes:CheckDetailsUsers()
@@ -2815,6 +2817,7 @@
 					_detalhes.popup = _G.GameCooltip
 				end
 			
+				_detalhes.in_group = IsInGroup() or IsInRaid()
 				
 				--_detalhes:ApplyBasicKeys()
 			
@@ -2822,7 +2825,7 @@
 					--> write into details object all basic keys
 					_detalhes:ApplyBasicKeys()
 					--> check if is first run
-					_detalhes:IsFirstRun()
+					_detalhes:LoadGlobalAndCharacterData()
 					--> load all the saved combats
 					_detalhes:LoadCombatTables()
 					--> load the profiles

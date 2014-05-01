@@ -5,10 +5,10 @@
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> global name declaration
-		
+
 		_ = nil
 		_detalhes = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0", "NickTag-1.0", "LibHotCorners")
-		_detalhes.userversion = "v1.13.1"
+		_detalhes.userversion = "v1.13.5" --options iniciando junto
 		_detalhes.version = "Alpha 017"
 		_detalhes.realversion = 17
 
@@ -34,8 +34,6 @@ do
 			_detalhes.parser_frame:Hide()
 		--> armazena os escudos - Shields information for absorbs
 			_detalhes.escudos = {} 
-		--> armazena os overwirtes de spells pelo usuario
-			_detalhes.SpellOverwriteUser = {}
 		--> armazena as funções dos frames - Frames functions
 			_detalhes.gump = {} 
 		--> armazena as funções para inicialização dos dados - Metatable functions
@@ -260,6 +258,13 @@ do
 			_detalhes:Msg ("|cffb0b0b0you can always reset the addon running the command '/details reinstall' if it does fail to load after being updated.|r")
 		end
 		_detalhes:ScheduleTimer ("WelcomeMsgLogon", 8)
-		
+	
+	--> key binds
+		--> header
+			_G ["BINDING_HEADER_Details"] = "Details!"
+		--> keys
+			_G ["BINDING_NAME_DETAILS_RESET_SEGMENTS"] = "Reset Segments"
+			_G ["BINDING_NAME_DETAILS_SCROLL_UP"] = "Scroll Up All Windows"
+			_G ["BINDING_NAME_DETAILS_SCROLL_DOWN"] = "Scroll Down All Windows"
 	
 end

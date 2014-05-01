@@ -791,7 +791,7 @@ end
 			elseif (not _table) then
 				return "", {0, 1, 0, 1}
 			end
-			return _table [CONST_INDEX_AVATAR_PATH] or default "", _table [CONST_INDEX_AVATAR_TEXCOORD] or {0, 1, 0, 1}
+			return _table [CONST_INDEX_AVATAR_PATH] or default or "", _table [CONST_INDEX_AVATAR_TEXCOORD] or {0, 1, 0, 1}
 		end
 	end
 

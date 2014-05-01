@@ -54,6 +54,8 @@ _detalhes.instance_defaults = {
 		hide_icon = false,
 	--anchor side of main window toolbar (1 = top 2 = bottom)
 		toolbar_side = 1,
+	--micro displays side
+		micro_displays_side = 2,
 	--stretch button anchor side (1 = top 2 = bottom)
 		stretch_button_side = 1,
 	--where plugins icon will be placed on main window toolbar (1 = left 2 = right)
@@ -139,6 +141,9 @@ _detalhes.instance_defaults = {
 		color_buttons = {1, 1, 1, 1},
 	--hide in combat
 		hide_in_combat = false,
+		hide_out_of_combat = false,
+		
+		hide_in_combat_type = 1,
 		hide_in_combat_alpha = 0,
 	--strata
 		strata = "LOW",

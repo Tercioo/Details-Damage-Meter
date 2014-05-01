@@ -283,10 +283,10 @@ local ButtonMetaFunctions = {}
 				_rawset (self, "func", cleanfunction)
 			end
 			
-			if (param1) then
+			if (param1 ~= nil) then
 				_rawset (self, "param1", param1)
 			end
-			if (param2) then
+			if (param2 ~= nil) then
 				_rawset (self, "param2", param2)
 			end
 			

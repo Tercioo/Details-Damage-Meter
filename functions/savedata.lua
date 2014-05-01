@@ -435,6 +435,8 @@ function _detalhes:SaveConfig()
 		_detalhes_database.tabela_instancias = _detalhes.tabela_instancias
 		_detalhes_database.tabela_historico = _detalhes.tabela_historico
 		
+		_detalhes:TimeDataCleanUpTemporary()
+		
 	--> buffs
 		_detalhes.Buffs:SaveBuffs()
 	
@@ -476,8 +478,5 @@ function _detalhes:SaveConfig()
 		_detalhes_database.last_realversion = _detalhes.realversion --> core number
 		_detalhes_database.last_version = _detalhes.userversion --> version
 		_detalhes_global.got_first_run = true
-
-	--> overwrite spells
-		_detalhes_global.SpellOverwriteUser = _detalhes.SpellOverwriteUser
 	
 end

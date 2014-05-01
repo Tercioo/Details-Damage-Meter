@@ -61,7 +61,16 @@ local segmentos = _detalhes.segmentos
 	
 ------------------------------------------------------------------------------------------------------------------------
 
---> chama a função para ser executada em todas as instâncias	
+--> API: call a function to all enabled instances
+function _detalhes:InstanceCall (funcao, ...)
+	for index, instance in _ipairs (_detalhes.tabela_instancias) do
+		if (instance:IsAtiva()) then --> only enabled
+			funcao (instance, ...)
+		end
+	end
+end
+
+--> chama a função para ser executada em todas as instâncias	(internal)
 function _detalhes:InstanciaCallFunction (funcao, ...)
 	for index, instancia in _ipairs (_detalhes.tabela_instancias) do
 		if (instancia:IsAtiva()) then --> só reabre se ela estiver ativa
@@ -70,7 +79,7 @@ function _detalhes:InstanciaCallFunction (funcao, ...)
 	end
 end
 
---> chama a função para ser executada em todas as instâncias	
+--> chama a função para ser executada em todas as instâncias	(internal)	
 function _detalhes:InstanciaCallFunctionOffline (funcao, ...)
 	for index, instancia in _ipairs (_detalhes.tabela_instancias) do
 		funcao (_, instancia, ...)
@@ -329,6 +338,12 @@ end
 				self:SoloMode (true)
 			end
 		end
+		
+		self:SetCombatAlpha (nil, nil, true)
+		
+		--if (self.hide_out_of_combat and not UnitAffectingCombat ("player")) then
+		--	self:SetWindowAlphaForCombat (true, true)
+		--end
 		
 		if (not temp and not _detalhes.initializing) then
 			_detalhes:SendEvent ("DETAILS_INSTANCE_OPEN", nil, self)

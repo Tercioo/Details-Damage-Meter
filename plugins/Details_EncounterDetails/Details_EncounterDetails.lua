@@ -97,7 +97,45 @@ local function CreatePluginFrames (data)
 				--> check if was a boss fight
 				EncounterDetails:WasEncounter()
 			end
-			_detalhes:RegisterTimeCapture (1)
+			
+			local damage_done_func = function (support_table, time_table, tick_second)
+
+				local current_total_damage = _detalhes.tabela_vigente.totals_grupo[1]
+				
+				local current_damage = current_total_damage - support_table.last_damage
+				
+				time_table [tick_second] = current_damage
+				
+				if (current_damage > support_table.max_damage) then
+					support_table.max_damage = current_damage
+					time_table.max_damage = current_damage
+				end
+				
+				support_table.last_damage = current_total_damage
+			
+			end
+			
+			local string_damage_done_func = [[
+			
+				-- this script takes the current combat and request the total of damage done by the group.
+			
+				-- first lets take the current combat and name it "current_combat".
+				local current_combat = _detalhes:GetCombat ("current") --> getting the current combat
+				
+				-- now lets ask the combat for the total damage done by the raide group.
+				local total_damage = current_combat:GetTotal ( DETAILS_ATTRIBUTE_DAMAGE, nil, DETAILS_TOTALS_ONLYGROUP )
+			
+				-- checks if the result is valid
+				if (not total_damage) then
+					return 0
+				end
+			
+				-- with the  number in hands, lets finish the code returning the amount
+				return total_damage
+			]]
+			
+			--_detalhes:TimeDataRegister ("Raid Damage Done", damage_done_func, {last_damage = 0, max_damage = 0}, "Encounter Details", "v1.0", [[Interface\ICONS\Ability_DualWield]], true)
+			_detalhes:TimeDataRegister ("Raid Damage Done", string_damage_done_func, nil, "Encounter Details", "v1.0", [[Interface\ICONS\Ability_DualWield]], true, true)
 		
 		elseif (event == "COMBAT_PLAYER_ENTER") then --> combat started
 			if (EncounterDetails.showing) then

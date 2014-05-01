@@ -258,7 +258,7 @@
 	--> is in combat yet?
 	function _detalhes:EstaEmCombate()
 
-		_detalhes.tabela_vigente.TimeData:Record()
+		_detalhes:TimeDataTick()
 
 		if (_detalhes.zone_type == "pvp" or _InCombatLockdown()) then
 			return true

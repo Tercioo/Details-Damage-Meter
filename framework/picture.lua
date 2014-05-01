@@ -269,6 +269,10 @@ function gump:NewImage (parent, texture, w, h, layer, coords, member, name)
 		end
 	end
 	
+	if (coords and type (coords) == "table" and coords [4]) then
+		ImageObject.image:SetTexCoord (unpack (coords))
+	end
+	
 	setmetatable (ImageObject, ImageMetaFunctions)
 	
 	return ImageObject

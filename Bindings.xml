@@ -1,0 +1,11 @@
+<Bindings>
+	<Binding name="DETAILS_RESET_SEGMENTS" description="Clear all segments." header="Details">
+		_detalhes.tabela_historico:resetar()
+	</Binding>
+	<Binding name="DETAILS_SCROLL_DOWN" description="Scroll down the window which you have the mouse over." header="Details">
+		DetailsKeyBindScrollDown()
+	</Binding>
+	<Binding name="DETAILS_SCROLL_UP" description="Scroll up the window which you have the mouse over." header="Details">
+		DetailsKeyBindScrollUp()
+	</Binding>
+</Bindings>

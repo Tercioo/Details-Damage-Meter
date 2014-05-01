@@ -95,7 +95,7 @@ do
 	function EncounterDetails:BuildDpsGraphic()
 
 		EncounterDetails.LastGraphicDrew = EncounterDetails.LastGraphicDrew or {}
-		local graphicData = _detalhes.tabela_vigente:GetTimeData()
+		local graphicData = _detalhes.tabela_vigente:GetTimeData ("Raid Damage Done")
 		
 		if (not graphicData or not _detalhes.tabela_vigente.start_time or not _detalhes.tabela_vigente.end_time) then
 			return
@@ -105,7 +105,7 @@ do
 			EncounterDetails.LastGraphicDrew = graphicData
 		end
 		
-		if (graphicData.damageMax == 0 or not graphicData.damage) then
+		if (graphicData.max_value == 0) then
 			return
 		end
 		
@@ -233,12 +233,12 @@ do
 		lastBoss = _detalhes.tabela_vigente.is_boss and _detalhes.tabela_vigente.is_boss.index
 		
 		local _data = {}
-		local dps_max = graphicData.damageMax
-		local amount = #graphicData.damage
+		local dps_max = graphicData.max_value
+		local amount = #graphicData
 		
 		local scaleW = 1/670
 
-		local content = graphicData.damage
+		local content = graphicData
 		table.insert (content, 1, 0)
 		table.insert (content, 1, 0)
 		table.insert (content, #content+1, 0)
@@ -688,7 +688,7 @@ Message: ..\AddOns\Details_EncounterDetails\frames.lua line 156:
 			local return_table = {}
 			
 			for index, combate in ipairs (historico) do 
-				if (combate.is_boss) then
+				if (combate.is_boss and combate.is_boss.index) then
 					local l, r, t, b, icon = _detalhes:GetBossIcon (combate.is_boss.mapid, combate.is_boss.index)
 					return_table [#return_table+1] = {value = index, label = "#" .. index .. " " .. combate.is_boss.name, icon = icon, texcoord = {l, r, t, b}, onclick = EncounterDetails.OpenAndRefresh}
 				end

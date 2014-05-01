@@ -551,8 +551,286 @@ function gump:NewPanel (parent, container, name, member, w, h, backdrop, backdro
 	return PanelObject
 end
 
-------------color pick
+------------fill panel
 
+local button_on_enter = function (self)
+	self.MyObject._icon:SetBlendMode ("ADD")
+end
+local button_on_leave = function (self)
+	self.MyObject._icon:SetBlendMode ("BLEND")
+end
+
+function gump:NewFillPanel (parent, rows, name, member, w, h, total_lines, fill_row, autowidth, options)
+	
+	local panel = gump:NewPanel (parent, parent, name, member, w, h)
+	panel.backdrop = nil
+	
+	options = options or {rowheight = 20}
+	panel.rows = {}
+
+	for index, t in ipairs (rows) do 
+		local thisrow = gump:NewPanel (panel, panel, "$parentHeader_" .. name .. index, nil, 1, 20)
+		thisrow.backdrop = {bgFile = [[Interface\DialogFrame\UI-DialogBox-Gold-Background]]}
+		thisrow.color = "silver"
+		thisrow.type = t.type
+		thisrow.func = t.func
+		thisrow.name = t.name
+		thisrow.notext = t.notext
+		thisrow.icon = t.icon
+		thisrow.iconalign = t.iconalign
+		
+		local text = gump:NewLabel (thisrow, nil, name .. "$parentLabel", "text")
+		text:SetPoint ("left", thisrow, "left", 2, 0)
+		text:SetText (t.name)
+
+		tinsert (panel.rows, thisrow)
+	end
+
+	local cur_width = 0
+	local row_width = w / #rows
+	
+	local anchors = {}
+	
+	for index, row in ipairs (panel.rows) do
+		if (autowidth) then
+			row:SetWidth (row_width)
+			row:SetPoint ("topleft", panel, "topleft", cur_width, 0)
+			tinsert (anchors, cur_width)
+			cur_width = cur_width + row_width + 1
+		else
+			row:SetPoint ("topleft", panel, "topleft", cur_width, 0)
+			row.width = rows [index].width
+			tinsert (anchors, cur_width)
+			cur_width = cur_width + rows [index].width + 1
+		end
+	end
+	
+	if (autowidth) then
+		panel.rows [#panel.rows]:SetWidth (row_width - #rows + 1)
+	else
+		panel.rows [#panel.rows]:SetWidth (rows [#rows].width - #rows + 1)
+	end
+	
+	local refresh_fillbox = function (self)
+		local offset = FauxScrollFrame_GetOffset (self)
+		local filled_lines = total_lines()
+		
+		for index = 1, #self.lines do
+		
+			local row = self.lines [index]
+			if (index <= filled_lines) then
+			
+				local real_index = index + offset
+			
+				local results = fill_row (real_index)
+				
+				if (results [1]) then
+				
+					row:Show()
+					
+					for i = 1, #row.row_widgets do
+					
+						row.row_widgets [i].index = real_index
+						
+						if (panel.rows [i].type == "icon") then
+
+							local result = results [i]:gsub (".-%\\", "")
+							row.row_widgets [i].icon.texture = results [i]
+						
+						elseif (panel.rows [i].type == "button") then
+						
+							if (type (results [i]) == "table") then
+							
+								if (results [i].text) then
+									row.row_widgets [i]:SetText (results [i].text)
+								end
+								
+								if (results [i].icon) then
+									row.row_widgets [i]._icon:SetTexture (results [i].icon)
+								end
+								
+								if (results [i].func) then
+									row.row_widgets [i]:SetClickFunction (results [i].func, real_index, results [i].value)
+								end
+
+							else
+								row.row_widgets [i]:SetText (results [i])
+							end
+							
+						else
+							--< text
+							row.row_widgets [i]:SetText (results [i])
+							
+						end
+					end
+					
+				else
+					row:Hide()
+					for i = 1, #row.row_widgets do
+						row.row_widgets [i]:SetText ("")
+						if (panel.rows [i].type == "icon") then
+							row.row_widgets [i].icon.texture = ""
+						end
+					end
+				end
+			else
+				row:Hide()
+				for i = 1, #row.row_widgets do
+					row.row_widgets [i]:SetText ("")
+					if (panel.rows [i].type == "icon") then
+						row.row_widgets [i].icon.texture = ""
+					end
+				end
+			end
+		end
+	end
+	
+	function panel:Refresh()
+		local filled_lines = total_lines()
+		local scroll_total_lines = #panel.scrollframe
+		local line_height = options.rowheight
+		
+		FauxScrollFrame_Update (panel.scrollframe, filled_lines, scroll_total_lines, line_height)
+		refresh_fillbox (panel.scrollframe)
+	end
+	
+	local scrollframe = CreateFrame ("scrollframe", name .. "Scroll", panel.widget, "FauxScrollFrameTemplate")
+	scrollframe:SetScript ("OnVerticalScroll", function (self, offset) FauxScrollFrame_OnVerticalScroll (self, offset, 20, panel.Refresh) end)
+	scrollframe:SetPoint ("topleft", panel.widget, "topleft", 0, -21)
+	scrollframe:SetPoint ("topright", panel.widget, "topright", -23, -21)
+	scrollframe:SetPoint ("bottomleft", panel.widget, "bottomleft")
+	scrollframe:SetPoint ("bottomright", panel.widget, "bottomright", -23, 0)
+	scrollframe:SetSize (w, h)
+	panel.scrollframe = scrollframe
+	scrollframe.lines = {}
+	
+	--create lines
+	local size = options.rowheight
+	local amount = math.floor (((h-21) / size))
+	
+	
+	for i = 1, amount do
+	
+		local row = gump:NewPanel (scrollframe, nil, "$parentRow_" .. i, nil, 1, size)
+		row.backdrop = {bgFile = [[Interface\DialogFrame\UI-DialogBox-Background]]}
+		row.color = {1, 1, 1, .2}
+		row:SetPoint ("topleft", scrollframe, "topleft", 0, (i-1) * size * -1)
+		row:SetPoint ("topright", scrollframe, "topright", 0, (i-1) * size * -1)
+		tinsert (scrollframe.lines, row)
+		
+		row.row_widgets = {}
+		
+		for o = 1, #rows do
+		
+			local _type = panel.rows [o].type
+
+			if (_type == "text") then
+			
+				--> create text
+				local text = gump:NewLabel (row, nil, name .. "$parentLabel" .. o, "text" .. o)
+				text:SetPoint ("left", row, "left", anchors [o], 0)
+				
+				--> insert in the table
+				tinsert (row.row_widgets, text)
+			
+			elseif (_type == "entry") then
+			
+				--> create editbox
+				local editbox = gump:NewTextEntry (row, nil, "$parentEntry" .. o, "entry", panel.rows [o].width, 20, panel.rows [o].func, i, o)
+				editbox.align = "left"
+				editbox:SetHook ("OnEnterPressed", function()
+					editbox.widget.focuslost = true
+					editbox:ClearFocus()
+					editbox.func (editbox.index, editbox.text)
+					return true
+				end) 
+				editbox:SetPoint ("left", row, "left", anchors [o], 0)
+				editbox:SetBackdrop ({bgFile = [[Interface\DialogFrame\UI-DialogBox-Background]], edgeFile = "Interface\\ChatFrame\\ChatFrameBackground", edgeSize = 1})
+				editbox:SetBackdropColor (1, 1, 1, 0.1)
+				editbox:SetBackdropBorderColor (1, 1, 1, 0.1)
+				
+				--> insert in the table
+				tinsert (row.row_widgets, editbox)
+			
+			elseif (_type == "button") then
+			
+				--> create button
+				local button = gump:NewButton (row, nil, "$parentButton" .. o, "button", 60, 20)
+				
+				--[
+				local func = function()
+					panel.rows [o].func (button.index, o)
+					panel:Refresh()
+				end
+				button:SetClickFunction (func)
+				--]]
+				
+				button:SetPoint ("left", row, "left", anchors [o], 0)
+				
+				--> create icon and the text
+				local icon = gump:NewImage (button, nil, 20, 20)
+				local text = gump:NewLabel (button)
+				
+				button._icon = icon
+				button._text = text
+
+				button:SetHook ("OnEnter", button_on_enter)
+				button:SetHook ("OnLeave", button_on_leave)
+
+				if (panel.rows [o].icon) then
+					icon.texture = panel.rows [o].icon
+					if (panel.rows [o].iconalign) then
+						if (panel.rows [o].iconalign == "center") then
+							icon:SetPoint ("center", button, "center")
+						elseif (panel.rows [o].iconalign == "right") then
+							icon:SetPoint ("right", button, "right")
+						end
+					else
+						icon:SetPoint ("left", button, "left")
+					end
+				end
+				
+				if (panel.rows [o].name and not panel.rows [o].notext) then
+					text:SetPoint ("left", icon, "right", 2, 0)
+					text.text = panel.rows [o].name
+				end
+
+				--> inser in the table
+				tinsert (row.row_widgets, button)
+			
+			elseif (_type == "icon") then
+			
+				--> create button and icon
+				local iconbutton = gump:NewButton (row, nil, "$parentIconButton" .. o, "iconbutton", 20, 20)
+				iconbutton:InstallCustomTexture()
+				local icon = gump:NewImage (iconbutton, nil, 20, 20, "artwork", nil, "icon", "$parentIcon" .. o)
+				iconbutton:SetPoint ("left", row, "left", anchors [o], 0)
+				icon:SetPoint ("left", iconbutton, "left", 0, 0)
+				
+				--> set functions
+				local function iconcallback (texture)
+					iconbutton.icon.texture = texture
+					panel.rows [o].func (iconbutton.index, texture)
+				end
+				
+				iconbutton:SetClickFunction (function()
+					gump:IconPick (iconcallback)
+					return true
+				end)
+				
+				--> insert in the table
+				tinsert (row.row_widgets, iconbutton)
+				
+			end
+
+		end
+	end
+	
+	return panel
+end
+
+
+------------color pick
 local color_pick_func = function()
 	local r, g, b = ColorPickerFrame:GetColorRGB()
 	local a = OpacitySliderFrame:GetValue()
@@ -588,7 +866,6 @@ function gump:ColorPick (frame, r, g, b, alpha, callback)
 end
 
 ------------icon pick
-
 function gump:IconPick (callback)
 
 	if (not gump.IconPickFrame) then 

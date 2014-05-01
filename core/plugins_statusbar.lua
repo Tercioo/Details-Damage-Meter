@@ -78,7 +78,14 @@
 	--> functions to set the three statusbar places: left, center and right
 		function _detalhes.StatusBar:SetCenterPlugin (instance, childObject, fromStartup)
 			childObject.frame:Show()
-			childObject.frame:SetPoint ("center", instance.baseframe.rodape.StatusBarCenterAnchor, "center")
+			childObject.frame:ClearAllPoints()
+			
+			if (instance.micro_displays_side == 2) then --> default - bottom
+				childObject.frame:SetPoint ("center", instance.baseframe.rodape.StatusBarCenterAnchor, "center")
+			elseif (instance.micro_displays_side == 1) then --> top side
+				childObject.frame:SetPoint ("center", instance.baseframe.cabecalho.StatusBarCenterAnchor, "center")
+			end
+			
 			_detalhes.StatusBar:AlignPluginText (childObject, 2)
 			
 			instance.StatusBar.center = childObject
@@ -102,7 +109,14 @@
 			end
 		
 			childObject.frame:Show()
-			childObject.frame:SetPoint ("left", instance.baseframe.rodape.StatusBarLeftAnchor,  "left")
+			childObject.frame:ClearAllPoints()
+			
+			if (instance.micro_displays_side == 2) then --> default - bottom
+				childObject.frame:SetPoint ("left", instance.baseframe.rodape.StatusBarLeftAnchor,  "left")
+			elseif (instance.micro_displays_side == 1) then --> top side
+				childObject.frame:SetPoint ("left", instance.baseframe.cabecalho.StatusBarLeftAnchor,  "left")
+			end
+			
 			_detalhes.StatusBar:AlignPluginText (childObject, 1)
 			
 			instance.StatusBar.left = childObject
@@ -121,7 +135,14 @@
 
 		function _detalhes.StatusBar:SetRightPlugin (instance, childObject, fromStartup)
 			childObject.frame:Show()
-			childObject.frame:SetPoint ("right", instance.baseframe.rodape.direita, "right", -20, 10)
+			childObject.frame:ClearAllPoints()
+			
+			if (instance.micro_displays_side == 2) then --> default - bottom
+				childObject.frame:SetPoint ("right", instance.baseframe.rodape.direita, "right", -20, 10)
+			elseif (instance.micro_displays_side == 1) then --> top side
+				childObject.frame:SetPoint ("right", instance.baseframe.cabecalho.StatusBarRightAnchor, "right")
+			end
+			
 			_detalhes.StatusBar:AlignPluginText (childObject, 3)
 			
 			instance.StatusBar.right = childObject

@@ -323,9 +323,8 @@
 			--> hide / alpha in combat
 			for index, instancia in ipairs (_detalhes.tabela_instancias) do 
 				if (instancia.ativa) then
-					if (instancia.hide_in_combat) then
-						instancia:SetWindowAlphaForCombat (true)
-					end
+				
+					instancia:SetCombatAlpha (nil, nil, true)
 					
 					if (instancia.auto_switch_to) then
 						--salva o estado atual
@@ -572,9 +571,9 @@
 			--> hide / alpha in combat
 			for index, instancia in ipairs (_detalhes.tabela_instancias) do 
 				if (instancia.ativa) then
-					if (instancia.hide_in_combat) then
-						instancia:SetWindowAlphaForCombat (false)
-					end
+				
+					instancia:SetCombatAlpha (nil, nil, true)
+					
 					if (instancia.auto_switch_to_old) then
 						instancia:SwitchBack()
 					end

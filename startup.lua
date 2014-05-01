@@ -40,6 +40,12 @@ function _G._detalhes:Start()
 	
 	f:SetScript ("OnMouseDown", function() f:StartMoving(); f:SetScript("OnUpdate", function() f:UpdateLeftRight() end) end)
 	f:SetScript ("OnMouseUp", function() f:StopMovingOrSizing(); f:SetScript("OnUpdate", nil); f:UpdateLeftRight() end)
+	
+	function _detalhes:updatetestbox()
+		f:UpdateLeftRight()
+	end
+	_detalhes:ScheduleTimer("updatetestbox", 5)
+	
 --]]	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> details defaults
@@ -307,6 +313,9 @@ function _G._detalhes:Start()
 			}
 			self.custom [#self.custom+1] = HealingPotion
 		end
+		
+		_detalhes:FillUserCustomSpells()
+		
 	end
 	
 	--_detalhes:OpenWelcomeWindow()
@@ -418,6 +427,8 @@ function _G._detalhes:Start()
 				lower_instance:InstanceAlert (Loc ["STRING_VERSION_UPDATE"], {[[Interface\GossipFrame\AvailableQuestIcon]], 16, 16, false}, 20, {_detalhes.OpenNewsWindow})
 			end
 		end
+		
+		_detalhes:FillUserCustomSpells()
 	end
 	
 	--> minimap
@@ -587,11 +598,13 @@ function _G._detalhes:Start()
 			
 		end
 	end
-	
+
 	--register lib-hotcorners
 	local reset_func = function() _detalhes.tabela_historico:resetar() end
 	_detalhes:RegisterHotCornerButton ("TOPLEFT", "DetailsLeftCornerButton", [[Interface\AddOns\Details\images\minimap]], "|cFFFFFFFFDetails!\n|cFF00FF00Left Click:|r clear all segments.", reset_func, nil, reset_func)
 	
+	--> register time captures
+	--_detalhes:LoadUserTimeCaptures()
 	
 	--[[
 	local f = CreateFrame ("frame", nil, UIParent)
@@ -611,5 +624,12 @@ function _G._detalhes:Start()
 	b:SetPoint ("left", f, "left")
 	b:SetAlpha (1)
 	--]]
+
+	--function _detalhes:OpenOptionsWindowAtStart()
+		--_detalhes:OpenOptionsWindow (_detalhes.tabela_instancias[1])
+	--end
+	--_detalhes:ScheduleTimer ("OpenOptionsWindowAtStart", 2)
+	
+	
 end
 

@@ -49,15 +49,73 @@ do
 		end
 		
 		--> user overwrites
-		for spellId, spellTable in pairs (_detalhes.SpellOverwriteUser) do
-			local name, _, icon = _GetSpellInfo (spellId)
-			_rawset (_detalhes.spellcache, spellId, {spellTable.name or name, 1, spellTable.icon or icon})
+		-- [1] spellid [2] spellname [3] spellicon
+		for index, spellTable in ipairs (_detalhes.savedCustomSpells) do
+			_rawset (_detalhes.spellcache, spellTable [1], {spellTable [2], 1, spellTable [3]})
 		end
 	end
 
-	--> initialize spell cache
-	_detalhes:ClearSpellCache() 
-
+	function _detalhes:UserCustomSpellUpdate (index, name, icon)
+		local t = _detalhes.savedCustomSpells [index]
+		if (t) then
+			t [2], t [3] = name or t [2], icon or t [3]
+			return _rawset (_detalhes.spellcache, t [1], {t [2], 1, t [3]})
+		else
+			return false
+		end
+	end
+	
+	function _detalhes:FillUserCustomSpells()
+		local spells = {
+			[124464] = {name = GetSpellInfo (124464) .. " (" .. Loc ["STRING_MASTERY"] .. ")"}, --> shadow word: pain mastery proc (priest)
+			[124465] = {name = GetSpellInfo (124465) .. " (" .. Loc ["STRING_MASTERY"] .. ")"}, --> vampiric touch mastery proc (priest)
+			[124468] = {name = GetSpellInfo (124468) .. " (" .. Loc ["STRING_MASTERY"] .. ")"}, --> mind flay mastery proc (priest)
+			
+			[121414] = {name = GetSpellInfo (121414) .. " (Glaive #1)"}, --> glaive toss (hunter)
+			[120761] = {name = GetSpellInfo (120761) .. " (Glaive #2)"}, --> glaive toss (hunter)
+			
+			[77451] = {name = GetSpellInfo (77451) .. " (" .. Loc ["STRING_MASTERY"] .. ")"}, --> lava burst (shaman)
+			[45284] = {name = GetSpellInfo (45284) .. " (" .. Loc ["STRING_MASTERY"] .. ")"}, --> lightningbolt (shaman)
+			
+			[131079] = {name = GetSpellInfo (131079) .. " (Icy Veins)"}, --> frostbolt with icy veins glyph (mage)
+			[131080] = {name = GetSpellInfo (131080) .. " (Icy Veins)"}, --> ice lance with icy veins glyph (mage)
+			[131081] = {name = GetSpellInfo (131081) .. " (Icy Veins)"}, --> frostfire with icy veins glyph (mage)
+		}
+		
+		for spellid, t in pairs (spells) do 
+			local _, _, icon = GetSpellInfo (spellid)
+			_detalhes:UserCustomSpellAdd (spellid, t.name, icon)
+		end
+	end
+	
+	function _detalhes:UserCustomSpellAdd (spellid, name, icon)
+		local is_overwrite = false
+		for index, t in ipairs (_detalhes.savedCustomSpells) do 
+			if (t [1] == spellid) then
+				t[2] = name
+				t[3] = icon
+				is_overwrite = true
+				break
+			end
+		end
+		if (not is_overwrite) then
+			tinsert (_detalhes.savedCustomSpells, {spellid, name, icon})
+		end
+		return _rawset (_detalhes.spellcache, spellid, {name, 1, icon})
+	end
+	
+	function _detalhes:UserCustomSpellRemove (index)
+		local t = _detalhes.savedCustomSpells [index]
+		if (t) then
+			local spellid = t [1]
+			local name, _, icon = _GetSpellInfo (spellid)
+			_rawset (_detalhes.spellcache, spellid, {name, 1, icon})
+			return tremove (_detalhes.savedCustomSpells, index)
+		end
+		
+		return false
+	end
+	
 	--> overwrite for API GetSpellInfo function 
 	_detalhes.getspellinfo = function (spellid) return _unpack (_detalhes.spellcache[spellid]) end 
 
@@ -69,6 +127,72 @@ do
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> Cache All Spells
+
+	function _detalhes:BuildSpellListSlow()
+
+		local load_frame = _G.DetailsLoadSpellCache
+		if (load_frame and (load_frame.completed or load_frame.inprogress)) then
+			return false
+		end
+	
+		local step = 1
+		local max = 160000
+		
+		if (not load_frame) then
+			load_frame = CreateFrame ("frame", "DetailsLoadSpellCache", UIParent)
+			load_frame:SetFrameStrata ("DIALOG")
+			
+			local progress_label = load_frame:CreateFontString ("DetailsLoadSpellCacheProgress", "overlay", "GameFontHighlightSmall")
+			progress_label:SetText ("Loading Spells: 0%")
+			function _detalhes:BuildSpellListSlowTick()
+				progress_label:SetText ("Loading Spells: " .. load_frame:GetProgress() .. "%")
+			end
+			load_frame.tick = _detalhes:ScheduleRepeatingTimer ("BuildSpellListSlowTick", 1)
+			
+			function load_frame:GetProgress()
+				return math.floor (step / max * 100)
+			end
+		end
+		
+		local SpellCache = {a={}, b={}, c={}, d={}, e={}, f={}, g={}, h={}, i={}, j={}, k={}, l={}, m={}, n={}, o={}, p={}, q={}, r={}, s={}, t={}, u={}, v={}, w={}, x={}, y={}, z={}}
+		local _string_lower = string.lower
+		local _string_sub = string.sub
+		local blizzGetSpellInfo = GetSpellInfo
+		
+		load_frame.inprogress = true
+		
+		_detalhes.spellcachefull = SpellCache
+
+		load_frame:SetScript ("OnUpdate", function()
+			for spellid = step, step+500 do
+				local name, _, icon = blizzGetSpellInfo (spellid)
+				if (name) then
+					local LetterIndex = _string_lower (_string_sub (name, 1, 1)) --> get the first letter
+					local CachedIndex = SpellCache [LetterIndex]
+					if (CachedIndex) then
+						CachedIndex [spellid] = {name, icon}
+					end
+				end
+			end
+			
+			step = step + 500
+			
+			if (step > max) then
+				step = max
+				_G.DetailsLoadSpellCache.completed = true
+				_G.DetailsLoadSpellCache.inprogress = false
+				_detalhes:CancelTimer (_G.DetailsLoadSpellCache.tick)
+				DetailsLoadSpellCacheProgress:Hide()
+				load_frame:SetScript ("OnUpdate", nil)
+			end
+			
+		end)
+		
+
+		
+		return true
+	end
+
 	function _detalhes:BuildSpellList()
 	
 		local SpellCache = {a={}, b={}, c={}, d={}, e={}, f={}, g={}, h={}, i={}, j={}, k={}, l={}, m={}, n={}, o={}, p={}, q={}, r={}, s={}, t={}, u={}, v={}, w={}, x={}, y={}, z={}}
@@ -95,5 +219,7 @@ do
 		_detalhes.spellcachefull = nil
 		collectgarbage()
 	end
+	
+
 	
 end

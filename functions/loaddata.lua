@@ -81,9 +81,9 @@ end
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> On Details! Load:
-	--> check if this is a first run, reset, or else.
+	--> check if this is a first run, reset, or just load the saved data.
 
-function _detalhes:IsFirstRun()
+function _detalhes:LoadGlobalAndCharacterData()
 
 	--> check and build the default container for character database
 		if (not _detalhes_database) then
@@ -270,15 +270,15 @@ function _detalhes:LoadConfig()
 		--> custom
 			_detalhes.custom = _detalhes_global.custom
 		
-		--> parser
+		--> initialize parser
 			_detalhes.capture_current = {}
 			for captureType, captureValue in pairs (_detalhes.capture_real) do 
 				_detalhes.capture_current [captureType] = captureValue
 			end
-			
-		--> spells overwrite
-			_detalhes.SpellOverwriteUser = _detalhes_global.SpellOverwriteUser or _detalhes.SpellOverwriteUser
 
+		--> initialize spell cache
+			_detalhes:ClearSpellCache() 
+			
 		--> version first run
 			if (not _detalhes_database.last_version or _detalhes_database.last_version ~= _detalhes.userversion) then
 				_detalhes.is_version_first_run = true

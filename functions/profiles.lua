@@ -605,6 +605,8 @@ local default_global_data = {
 		__profiles = {},
 		custom = {},
 		savedStyles = {},
+		savedCustomSpells = {},
+		savedTimeCaptures = {},
 		tutorial = {logons = 0, unlock_button = 0, version_announce = 0, main_help_button = 0, alert_frames = {false, false, false, false, false, false}, },
 }
 

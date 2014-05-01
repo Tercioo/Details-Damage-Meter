@@ -394,6 +394,16 @@ function SlashCmdList.DETAILS (msg, editbox)
 		print ("Instances opened: " .. _detalhes.opened_windows)
 	
 	--> debug, get a guid of something
+	elseif (command == "backdrop") then --> localize-me
+		local f = MacroFrameTextBackground
+		local backdrop = MacroFrameTextBackground:GetBackdrop()
+		
+		vardump (backdrop)
+		vardump (backdrop.insets)
+		
+		print ("bgcolor:",f:GetBackdropColor())
+		print ("bordercolor",f:GetBackdropBorderColor())
+	
 	elseif (command == "myguid") then --> localize-me
 	
 		local g = UnitGUID ("player")
@@ -405,6 +415,10 @@ function SlashCmdList.DETAILS (msg, editbox)
 		print (serial)
 		
 		--tonumber((UnitGUID("target")):sub(-12, -9), 16))
+		
+	elseif (command == "callfunction") then
+	
+		_detalhes:InstanceCall (_detalhes.SetCombatAlpha, nil, nil, true)
 	
 	elseif (command == "guid") then --> localize-me
 	

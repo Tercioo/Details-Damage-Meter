@@ -268,6 +268,7 @@ local TextEntryMetaFunctions = {}
 		textentry.mouse_over = true 
 
 		if (textentry:IsEnabled()) then 
+			textentry.current_bordercolor = textentry.current_bordercolor or {textentry:GetBackdropBorderColor()}
 			textentry:SetBackdropBorderColor (0.5, 0.5, 0.5, 1)
 		end
 		
@@ -295,7 +296,7 @@ local TextEntryMetaFunctions = {}
 		textentry.mouse_over = false 
 		
 		if (textentry:IsEnabled()) then 
-			textentry:SetBackdropBorderColor(0.3, 0.3, 0.3, 0.8)
+			textentry:SetBackdropBorderColor (unpack (textentry.current_bordercolor))
 		end
 		
 		local parent = textentry:GetParent().MyObject
@@ -360,8 +361,8 @@ local TextEntryMetaFunctions = {}
 			end
 		end
 	
-		textentry:SetText("") 
-		textentry.MyObject.currenttext = ""
+		--textentry:SetText("") 
+		--textentry.MyObject.currenttext = ""
 		textentry.focuslost = true
 		textentry:ClearFocus() 
 	end
@@ -491,9 +492,11 @@ function gump:NewTextEntry (parent, container, name, member, w, h, func, param1,
 		--> misc
 		TextEntryObject.container = container
 		TextEntryObject.have_tooltip = nil
-		
+
 	TextEntryObject.editbox = CreateFrame ("EditBox", name, parent, "DetailsEditBoxTemplate2")
 	TextEntryObject.widget = TextEntryObject.editbox
+	
+	TextEntryObject.editbox:SetTextInsets (3, 0, 0, -3)
 
 	if (not APITextEntryFunctions) then
 		APITextEntryFunctions = true
@@ -559,4 +562,138 @@ function gump:NewTextEntry (parent, container, name, member, w, h, func, param1,
 	
 	return TextEntryObject	
 	
+end
+
+local SpellEntryOnEditFocusGained = 	function (self)
+	local start_build_cache = _detalhes:BuildSpellListSlow()
+	if (start_build_cache) then
+		DetailsLoadSpellCacheProgress:SetPoint ("left", self, "right", 2, 0)
+	end
+end
+
+local SpellEntryOnClickMenu = function (_, _, SpellID, editbox)
+	editbox:SetText (SpellID)
+	editbox:PressEnter()
+	editbox.HaveMenu = false
+	GameCooltip:ShowMe (false)
+end
+
+local SpellEntryOnTextChanged = function (editbox, userChanged)
+
+	if (not userChanged) then
+		return
+	elseif (not _detalhes.spellcachefull) then
+		return
+	end
+	
+	editbox = editbox.MyObject
+	
+	local text = editbox:GetText()
+	text = _detalhes:trim (text)
+	text = string.lower (text)
+	
+	local LetterIndex = string.sub (text, 1, 1)
+	local LetterIndex_CacheContainer = _detalhes.spellcachefull [LetterIndex]
+	
+	if (LetterIndex_CacheContainer) then
+	
+		local GameCooltip = _G.GameCooltip
+	
+		_detalhes:CooltipPreset (1)
+		GameCooltip:SetType ("menu")
+		GameCooltip:SetOwner (editbox.widget)
+		GameCooltip:SetOption ("NoLastSelectedBar", true)
+		GameCooltip:SetOption ("TextSize", 9)
+		
+		local i = 1
+
+		for SpellID, SpellTable in pairs (LetterIndex_CacheContainer) do 
+			if (string.lower (SpellTable[1]):find (text)) then 
+			
+				GameCooltip:AddMenu (1, SpellEntryOnClickMenu, SpellID, editbox, nil, SpellID..": "..SpellTable[1], SpellTable[2], true)
+				
+				if (i > 20) then
+					break
+				else
+					i = i + 1
+				end
+			end
+		end
+		
+		editbox.HaveMenu = true
+		GameCooltip.buttonOver = true
+		GameCooltip:ShowCooltip()
+	end
+	
+end
+
+function gump:NewSpellEntry (parent, func, w, h, param1, param2, member, name)
+	local editbox = gump:NewTextEntry (parent, parent, name, member, w, h, func, param1, param2)
+	
+	editbox:SetHook ("OnEditFocusGained", SpellEntryOnEditFocusGained)
+	editbox:SetHook ("OnTextChanged", SpellEntryOnTextChanged)
+	
+	return editbox	
+end
+
+
+local function_gettext = function (self)
+	return self.editbox:GetText()
+end
+local function_settext = function (self, text)
+	return self.editbox:SetText (text)
+end
+local function_clearfocus = function (self)
+	return self.editbox:ClearFocus()
+end
+local function_setfocus = function (self)
+	return self.editbox:SetFocus (true)
+end
+
+function gump:NewSpecialLuaEditorEntry (parent, w, h, member, name, nointent)
+	
+	if (name:find ("$parent")) then
+		name = name:gsub ("$parent", parent:GetName())
+	end
+	
+	local borderframe = CreateFrame ("Frame", name, parent)
+	borderframe:SetSize (w, h)
+
+	if (member) then
+		parent [member] = borderframe
+	end
+	
+	local scrollframe = CreateFrame ("ScrollFrame", name, borderframe, "DetailsEditBoxMultiLineTemplate")
+
+	scrollframe:SetScript ("OnSizeChanged", function (self)
+		scrollframe.editbox:SetSize (self:GetSize())
+	end)
+	
+	scrollframe:SetPoint ("topleft", borderframe, "topleft", 10, -10)
+	scrollframe:SetPoint ("bottomright", borderframe, "bottomright", -30, 10)
+	
+	scrollframe.editbox:SetMultiLine (true)
+	scrollframe.editbox:SetJustifyH ("left")
+	scrollframe.editbox:SetJustifyV ("top")
+	scrollframe.editbox:SetMaxBytes (40960)
+	scrollframe.editbox:SetMaxLetters (20000)
+	
+	borderframe.GetText = function_gettext
+	borderframe.SetText = function_settext
+	borderframe.ClearFocus = function_clearfocus
+	borderframe.SetFocus = function_setfocus
+	
+	if (not nointent) then
+		IndentationLib.enable (scrollframe.editbox, nil, 4)
+	end
+	
+	borderframe:SetBackdrop ({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], edgeFile = [[Interface\Tooltips\UI-Tooltip-Border]], 
+		tile = 1, tileSize = 16, edgeSize = 16, insets = {left = 5, right = 5, top = 5, bottom = 5}})
+	borderframe:SetBackdropColor (0.090195, 0.090195, 0.188234, 1)
+	borderframe:SetBackdropBorderColor (1, 1, 1, 1)
+	
+	borderframe.scroll = scrollframe
+	borderframe.editbox = scrollframe.editbox
+	
+	return borderframe
 end

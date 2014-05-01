@@ -12,6 +12,7 @@ locales\Details-ptBR.lua
 locales\Details-enUS.lua
 
 boot.lua
+indent.lua
 core\util.lua
 
 functions\profiles.lua

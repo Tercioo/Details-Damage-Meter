@@ -1,162 +1,226 @@
---File Revision: 1
---Last Modification: 27/07/2013
--- Change Log:
-	-- 27/07/2013: Finished alpha version.
+
+
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> basic stuff
+
+	local _
+	local _detalhes = _G._detalhes
+	
+	--> mantain the enabled time captures
+	_detalhes.timeContainer = {}
+	_detalhes.timeContainer.Exec = {}
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-	local _detalhes = _G._detalhes
-	local _
-	_detalhes.timeContainer = {
-		damage_recording = 0,
-		healing_recording = 0,
-		
-		have_custom = false,
-		custom_functions = {},
-		custom_attributes = {},
-		
-		current_table = {} --> place holder
-	}
-	_detalhes.timeContainer.__index = _detalhes.timeContainer
-
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> local pointers
-
-	local _pairs = pairs
+	local ipairs = ipairs
+	local time = time
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---> details api functions
+--> constants
 
-	--> remove a capture previous registred
-	function _detalhes:UnregisterTimeCapture (captureType)
-		if (type (captureType) == "number" and captureType == 1) then
-			if (_detalhes.timeContainer.damage_recording > 1) then
-				_detalhes.timeContainer.damage_recording = _detalhes.timeContainer.damage_recording - 1
-			end
-			
-		elseif (type (captureType) == "number" and captureType == 2) then
-			if (_detalhes.timeContainer.healing_recording > 1) then
-				_detalhes.timeContainer.healing_recording = _detalhes.timeContainer.healing_recording - 1
-			end
-			
-		elseif (type (captureType) == "string") then
-			if (_detalhes.timeContainer.have_custom) then
-				if (_detalhes.timeContainer.custom_functions [captureType]) then
-					_detalhes.timeContainer.custom_functions [captureType] = nil
+	local INDEX_NAME = 1
+	local INDEX_FUNCTION = 2
+	local INDEX_MATRIX = 3
+	local INDEX_AUTHOR = 4
+	local INDEX_VERSION = 5
+	local INDEX_ICON = 6
+	local INDEX_ENABLED = 7
+	
+	local DEFAULT_USER_MATRIX = {max_value = 0, last_value = 0}
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> register and unregister captures
+
+
+	function _detalhes:TimeDataUpdate (index_or_name, name, func, matrix, author, version, icon, is_enabled)
+		
+		local this_capture
+		if (type (index_or_name) == "number") then
+			this_capture = _detalhes.savedTimeCaptures [index_or_name]
+		else
+			for index, t in ipairs (_detalhes.savedTimeCaptures) do
+				if (t [INDEX_NAME] == index_or_name) then
+					this_capture = t
 				end
 			end
 		end
-	end
-
-	--> register a new capture
-	function _detalhes:RegisterTimeCapture (captureType, customName, attributes)
-
-		if (type (captureType) == "number" and captureType == 1) then
-			if (_detalhes.timeContainer.damage_recording < 1) then
-				_detalhes.timeContainer.current_table.damage = {}
-				_detalhes.timeContainer.current_table.damageLast = 0
-				_detalhes.timeContainer.current_table.damageMax = 0
-			end
-			_detalhes.timeContainer.damage_recording = _detalhes.timeContainer.damage_recording + 1
-			
-		elseif (type (captureType) == "number" and captureType == 2) then
-			if (_detalhes.timeContainer.healing_recording < 1) then
-				_detalhes.timeContainer.current_table.healing = {}
-				_detalhes.timeContainer.current_table.healingLast = 0
-				_detalhes.timeContainer.current_table.healingMax = 0
-			end
-			_detalhes.timeContainer.healing_recording = _detalhes.timeContainer.healing_recording + 1
-			
-		elseif (type (captureType) == "function") then
-			if (customName) then
-				_detalhes.timeContainer.have_custom = true
-				_detalhes.timeContainer.custom_functions [customName] = captureType
-				_detalhes.timeContainer.custom_attributes [customName] = attributes or {}
-				_detalhes.timeContainer.current_table [customName .. "Data"] = {}
-				_detalhes.timeContainer.current_table [customName .. "Attributes"] = {}
-				if (attributes) then
-					for k, v in pairs (attributes) do 
-						_detalhes.timeContainer.current_table [customName .. "Attributes"][k] = v
-					end
-				end
-			end
+		
+		if (not this_capture) then
+			return false
+		end
+		
+		if (this_capture.do_not_save) then
+			return _detalhes:Msg ("This capture belongs to a plugin and cannot be edited.")
+		end
+		
+		this_capture [INDEX_NAME] = name or this_capture [INDEX_NAME]
+		this_capture [INDEX_FUNCTION] = func or this_capture [INDEX_FUNCTION]
+		this_capture [INDEX_MATRIX] = matrix or this_capture [INDEX_MATRIX]
+		this_capture [INDEX_AUTHOR] = author or this_capture [INDEX_AUTHOR]
+		this_capture [INDEX_VERSION] = version or this_capture [INDEX_VERSION]
+		this_capture [INDEX_ICON] = icon or this_capture [INDEX_ICON]
+		
+		if (is_enabled ~= nil) then
+			this_capture [INDEX_ENABLED] = is_enabled
+		else
+			this_capture [INDEX_ENABLED] = this_capture [INDEX_ENABLED]
 		end
 		
 		return true
+		
 	end
 
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---> internal functions
+	function _detalhes:TimeDataRegister (name, func, matrix, author, version, icon, is_enabled, force_no_save)
 	
-	function _detalhes.timeContainer:CreateTimeTable()
-		local _t = {}
-		setmetatable (_t, _detalhes.timeContainer)
-		_t.timeIndex = 1
-		--
-		if (_detalhes.timeContainer.damage_recording > 0) then
-			_t.damage = {}
-			_t.damageLast = 0
-			_t.damageMax = 0
+		--> check name
+		if (not name) then
+			return "Couldn't register the time capture, name was nil."
 		end
-		--
-		if (_detalhes.timeContainer.healing_recording > 0) then
-			_t.healing = {}
-			_t.healingLast = 0
-			_t.healingMax = 0
+		
+		--> check if the name already exists
+		for index, t in ipairs (_detalhes.savedTimeCaptures) do
+			if (t [INDEX_NAME] == name) then
+				return "Couldn't register the time capture, name already registred."
+			end
 		end
-		--
-		if (_detalhes.timeContainer.have_custom) then
-			for customName, customFunction in _pairs (_detalhes.timeContainer.custom_functions) do 
-				if (customFunction) then
-					_t [customName .. "Data"] = {}
-					_t [customName .. "Attributes"] = {}
-					
-					local attributes = _detalhes.timeContainer.custom_attributes [customName]
-					local attributeTable = _t [customName .. "Attributes"]
-					for k, v in pairs (attributes) do 
-						attributeTable [k] = v
+		
+		--> check function
+		if (not func) then
+			return "Couldn't register the time capture, invalid function."
+		end
+		
+		local no_save = nil
+		--> passed a function means that this isn't came from a user
+		--> so the plugin register the capture every time it loads.
+		if (type (func) == "function") then
+			no_save = true
+		
+		--> this a custom capture from a user, so we register a default user table for matrix
+		elseif (type (func) == "string") then
+			matrix = DEFAULT_USER_MATRIX
+			
+		end
+		
+		if (not no_save and force_no_save) then
+			no_save = true
+		end
+		
+		--> check matrix
+		if (not matrix or type (matrix) ~= "table") then
+			return "Couldn't register the time capture, matrix was invalid."
+		end
+		
+		author = author or "Unknown"
+		version = version or "v1.0"
+		icon = icon or [[Interface\InventoryItems\WoWUnknownItem01]]
+		
+		tinsert (_detalhes.savedTimeCaptures, {name, func, matrix, author, version, icon, is_enabled, do_not_save = no_save})
+		
+		return true
+		
+	end
+	
+	--> unregister
+	function _detalhes:TimeDataUnregister (name)
+		if (type (name) == "number") then
+			return tremove (_detalhes.savedTimeCaptures, name)
+		else
+			for index, t in ipairs (_detalhes.savedTimeCaptures) do
+				if (t [INDEX_NAME] == name) then
+					tremove (_detalhes.savedTimeCaptures, index)
+					return true
+				end
+			end
+			return false
+		end
+	end
+	
+	--> cleanup when logout
+	function _detalhes:TimeDataCleanUpTemporary()
+		local new_table = {}
+		for index, t in ipairs (_detalhes.savedTimeCaptures) do
+			if (not t.do_not_save) then
+				tinsert (new_table, t)
+			end
+		end
+		_detalhes.savedTimeCaptures = new_table
+	end
+
+	local tick_time = 0
+	
+	--> starting a combat
+	function _detalhes:TimeDataCreateCombatTables()
+		
+		--> create capture table
+		local data_captured = {}
+	
+		--> drop the last capture exec table without wiping
+		local exec = {}
+		_detalhes.timeContainer.Exec = exec
+		
+		--> build the exec table
+		for index, t in ipairs (_detalhes.savedTimeCaptures) do
+			if (t [INDEX_ENABLED]) then
+			
+				local data = {}
+				data_captured [t [INDEX_NAME]] = data
+			
+				if (type (t [INDEX_FUNCTION]) == "string") then
+					--> user
+					local func = loadstring (t [INDEX_FUNCTION])
+					if (func) then
+						tinsert (exec, { func = func, data = data, attributes = table_deepcopy (t [INDEX_MATRIX]), is_user = true })
 					end
-					
+				else
+					--> plugin
+					tinsert (exec, { func = t [INDEX_FUNCTION], data = data, attributes = table_deepcopy (t [INDEX_MATRIX]) })
 				end
+			
 			end
 		end
-		
-		_detalhes.timeContainer.current_table = _t
-		
-		return _t
+	
+		tick_time = 0
+	
+		--> return the capture table the to combat object
+		return data_captured
 	end
-
-	function _detalhes.timeContainer:Record()
-
-		if (self.damage_recording > 0) then
-			--> record damage
-			local currentDamage = _detalhes.tabela_vigente.totals_grupo[1]
-			local thisDamage = currentDamage - self.damageLast
-			self.damage [self.timeIndex] = thisDamage
-			if (thisDamage > self.damageMax) then
-				self.damageMax = thisDamage
-			end
-			self.damageLast = currentDamage
+	
+	local exec_user_func = function (func, attributes, data, this_second)
+		
+		local result = func()
+		
+		local current = result - attributes.last_value
+		data [this_second] = current
+		
+		if (current > attributes.max_value) then
+			attributes.max_value = current
+			data.max_value = current
 		end
 		
-		if (self.healing_recording > 0) then
-			--> record healing
-			local currentHealing = _detalhes.tabela_vigente.totals_grupo[2]
-			self.healing [self.timeIndex] = currentHealing - self.healingLast
-			if (currentHealing > self.healingMax) then
-				self.healingMax = currentHealing
-			end
-			self.healingLast = currentHealing
-		end
+		attributes.last_value = result
 		
-		if (self.have_custom) then
-			--> record unknow, handled by function
-			for customName, customFunction in _pairs (self.custom_functions) do 
-				if (customFunction) then
-					customFunction (self.timeIndex, self [customName .. "Data"], self [customName .. "Attributes"])
-				end
-			end
-		end
-		
-		self.timeIndex = self.timeIndex + 1
 	end
+	
+	function _detalhes:TimeDataTick()
+	
+		tick_time = tick_time + 1
+	
+		for index, t in ipairs (_detalhes.timeContainer.Exec) do 
+		
+			if (t.is_user) then
+				--> by a user
+				exec_user_func (t.func, t.attributes, t.data, tick_time)
+				
+			else
+				--> by a plugin
+				t.func (t.attributes, t.data, tick_time)
+				
+			end
+		
+		end
+	
+	end
+	
+	

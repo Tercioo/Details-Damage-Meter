@@ -89,7 +89,7 @@ function combate:NovaTabela (iniciada, _tabela_overall, combatId, ...)
 	esta_tabela.frags_need_refresh = false
 	
 	--> time data container
-	esta_tabela.TimeData = _detalhes.timeContainer:CreateTimeTable()
+	esta_tabela.TimeData = _detalhes:TimeDataCreateCombatTables()
 	
 	--> Skill cache (not used)
 	esta_tabela.CombatSkillCache = {}
@@ -165,10 +165,10 @@ function combate:NovaTabela (iniciada, _tabela_overall, combatId, ...)
 	return esta_tabela
 end
 
-function combate:GetTimeData (dataType)
-	--if (not dataType) then
-		return self.TimeData
-	--end
+function combate:GetTimeData (name)
+
+	return self.TimeData [name]
+	
 end
 
 function combate:TravarTempos()
@@ -235,6 +235,8 @@ function combate:GetCombatTime()
 		return 0
 	end
 end
+
+--[[global]] DETAILS_TOTALS_ONLYGROUP = true
 
 function combate:GetTotal (attribute, subAttribute, onlyGroup)
 	if (attribute == 1 or attribute == 2) then

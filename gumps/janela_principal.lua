@@ -1583,6 +1583,7 @@ end
 local function button_up_scripts (main_frame, backgrounddisplay, instancia, scrollbar)
 
 	main_frame.button_up:SetScript ("OnMouseDown", function(self) 
+
 		if (not scrollbar:IsEnabled()) then
 			return
 		end
@@ -1619,6 +1620,61 @@ local function button_up_scripts (main_frame, backgrounddisplay, instancia, scro
 			main_frame.button_up:Disable()
 		end
 	end)
+end
+
+function DetailsKeyBindScrollUp()
+
+	local last_key_pressed = _detalhes.KeyBindScrollUpLastPressed or GetTime()-0.3
+	
+	local to_top = false
+	if (last_key_pressed+0.2 > GetTime()) then
+		to_top = true
+	end
+	
+	_detalhes.KeyBindScrollUpLastPressed = GetTime()
+	
+	for index, instance in ipairs (_detalhes.tabela_instancias) do
+		if (instance:IsEnabled()) then
+			
+			local scrollbar = instance.scroll
+			
+			local A = instance.barraS[1]
+			if (A and A > 1) then
+				if (to_top) then
+					scrollbar:SetValue (0)
+					scrollbar.ultimo = 0
+					instance.baseframe.button_up:Disable()
+				else
+					scrollbar:SetValue (scrollbar:GetValue() - instance.row_height*2)
+				end
+			elseif (A) then
+				scrollbar:SetValue (0)
+				scrollbar.ultimo = 0
+				instance.baseframe.button_up:Disable()
+			end
+			
+		end
+	end
+end
+
+function DetailsKeyBindScrollDown()
+	for index, instance in ipairs (_detalhes.tabela_instancias) do
+		if (instance:IsEnabled()) then
+			
+			local scrollbar = instance.scroll
+			
+			local B = instance.barraS[2]
+			if (B and B < instance.rows_showing) then
+				scrollbar:SetValue (scrollbar:GetValue() + instance.row_height*2)
+			elseif (B) then
+				local _, maxValue = scrollbar:GetMinMaxValues()
+				scrollbar:SetValue (maxValue)
+				scrollbar.ultimo = maxValue
+				instance.baseframe.button_down:Disable()
+			end
+			
+		end
+	end
 end
 
 local function iterate_scroll_scripts (backgrounddisplay, backgroundframe, baseframe, scrollbar, instancia)
@@ -1930,7 +1986,7 @@ local function show_anti_overlap (instance, host, side)
 	anti_menu_overlap:Show()
 end
 
---> ~inicio ~janela ~window
+--> ~inicio ~janela ~window ~nova
 function gump:CriaJanelaPrincipal (ID, instancia, criando)
 
 -- main frames -----------------------------------------------------------------------------------------------------------------------------------------------
@@ -2918,7 +2974,7 @@ function _detalhes:SetWindowAlphaForInteract (alpha)
 	
 end
 
-function _detalhes:SetWindowAlphaForCombat (entering_in_combat)
+function _detalhes:SetWindowAlphaForCombat (entering_in_combat, true_hide)
 
 	local amount, rowsamount
 
@@ -2952,8 +3008,13 @@ function _detalhes:SetWindowAlphaForCombat (entering_in_combat)
 	end
 
 	--apply
-	gump:Fade (self.baseframe, "ALPHAANIM", amount)
-	gump:Fade (self.rowframe, "ALPHAANIM", rowsamount)
+	if (true_hide and amount == 0) then
+		gump:Fade (self.baseframe, _unpack (_detalhes.windows_fade_in))
+		gump:Fade (self.rowframe, _unpack (_detalhes.windows_fade_in))
+	else
+		gump:Fade (self.baseframe, "ALPHAANIM", amount)
+		gump:Fade (self.rowframe, "ALPHAANIM", rowsamount)
+	end
 	
 	if (self.show_statusbar) then
 		self.baseframe.barra_fundo:Hide()
@@ -4261,13 +4322,16 @@ function _detalhes:ChangeSkin (skin_name)
 			self:HideSideBars()
 		end
 
+	--> refresh the side of the micro displays
+		self:MicroDisplaysSide()
+		
 	--> update statusbar
 		if (self.show_statusbar) then
 			self:ShowStatusBar()
 		else
 			self:HideStatusBar()
 		end
-	
+
 	--> update wallpaper
 		if (self.wallpaper.enabled) then
 			self:InstanceWallpaper (true)
@@ -4298,6 +4362,9 @@ function _detalhes:ChangeSkin (skin_name)
 		
 	--> update window strata level
 		self:SetFrameStrata()
+	
+	--> update the combat alphas
+		self:SetCombatAlpha (nil, nil, true)
 		
 	--> update icons
 		_detalhes.ToolBar:ReorganizeIcons (nil, true) --call self:SetMenuAlpha()
@@ -4325,6 +4392,57 @@ function _detalhes:ChangeSkin (skin_name)
 
 	end
 
+end
+
+function _detalhes:SetCombatAlpha (modify_type, alpha_amount, interacting)
+
+	if (interacting) then
+		
+		if (self.hide_in_combat_type == 1) then --None
+			return
+			
+		elseif (self.hide_in_combat_type == 2) then --While In Combat
+			if (UnitAffectingCombat ("player") or InCombatLockdown()) then
+				self:SetWindowAlphaForCombat (true, true) --> hida a janela
+			else
+				self:SetWindowAlphaForCombat (false) --> deshida a janela
+			end
+			
+		elseif (self.hide_in_combat_type == 3) then --"While Out of Combat"
+			if (UnitAffectingCombat ("player") or InCombatLockdown()) then
+				self:SetWindowAlphaForCombat (false) --> deshida a janela
+			else
+				self:SetWindowAlphaForCombat (true, true) --> hida a janela
+			end
+			
+		elseif (self.hide_in_combat_type == 4) then --"While Out of a Group"
+			if (_detalhes.in_group) then
+				self:SetWindowAlphaForCombat (false) --> deshida a janela
+			else
+				self:SetWindowAlphaForCombat (true, true) --> hida a janela
+			end
+		end
+		
+		return
+	end
+
+	if (not modify_type) then
+		modify_type = self.hide_in_combat_type
+	else
+		if (modify_type == 1) then --> changed to none
+			self:SetWindowAlphaForCombat (false)
+		end
+	end
+	
+	if (not alpha_amount) then
+		alpha_amount = self.hide_in_combat_alpha
+	end
+	
+	self.hide_in_combat_type = modify_type
+	self.hide_in_combat_alpha = alpha_amount
+	
+	self:SetCombatAlpha (nil, nil, true)
+	
 end
 
 function _detalhes:SetFrameStrata (strata)
@@ -4631,6 +4749,28 @@ function _detalhes:GetInstanceIconsCurrentAlpha()
 	else
 		return 1
 	end
+end
+
+function _detalhes:MicroDisplaysSide (side, fromuser)
+	if (not side) then
+		side = self.micro_displays_side
+	end
+	
+	self.micro_displays_side = side
+	
+	_detalhes.StatusBar:ReloadAnchors (self)
+	
+	if (self.micro_displays_side == 2 and not self.show_statusbar) then --> bottom side
+		_detalhes.StatusBar:Hide (self)
+		if (fromuser) then
+			_detalhes:Msg (Loc ["STRING_OPTIONS_MICRODISPLAYWARNING"])
+		end
+	elseif (self.micro_displays_side == 2) then
+		_detalhes.StatusBar:Show (self)
+	elseif (self.micro_displays_side == 1) then
+		_detalhes.StatusBar:Show (self)
+	end
+	
 end
 
 function _detalhes:ToolbarSide (side)
@@ -5042,7 +5182,9 @@ function _detalhes:HideStatusBar (instancia)
 	
 	self:StretchButtonAnchor()
 	
-	_detalhes.StatusBar:Hide (self) --> mini displays widgets
+	if (self.micro_displays_side == 2) then --> bottom side
+		_detalhes.StatusBar:Hide (self) --> mini displays widgets
+	end
 end
 
 function _detalhes:StatusBarColor (r, g, b, a, no_save)
@@ -5084,7 +5226,9 @@ function _detalhes:ShowStatusBar (instancia)
 	self:ToolbarSide()
 	self:StretchButtonAnchor()
 	
-	_detalhes.StatusBar:Show (self) --> mini displays widgets
+	if (self.micro_displays_side == 2) then --> bottom side
+		_detalhes.StatusBar:Show (self) --> mini displays widgets
+	end
 end
 
 function gump:CriaCabecalho (baseframe, instancia)
@@ -5190,6 +5334,26 @@ function gump:CriaCabecalho (baseframe, instancia)
 	baseframe.UPFrameConnect:SetMovable (true)
 	baseframe.UPFrameConnect:SetResizable (true)
 	BGFrame_scripts (baseframe.UPFrameConnect, baseframe, instancia)
+	
+	--> anchors para os micro displays no lado de cima da janela
+	local StatusBarLeftAnchor = CreateFrame ("frame", nil, baseframe)
+	StatusBarLeftAnchor:SetPoint ("bottomleft", baseframe, "topleft", 0, 9)
+	StatusBarLeftAnchor:SetWidth (1)
+	StatusBarLeftAnchor:SetHeight (1)
+	baseframe.cabecalho.StatusBarLeftAnchor = StatusBarLeftAnchor
+	
+	local StatusBarCenterAnchor = CreateFrame ("frame", nil, baseframe)
+	StatusBarCenterAnchor:SetPoint ("center", baseframe, "center")
+	StatusBarCenterAnchor:SetPoint ("bottom", baseframe, "top", 0, 9)
+	StatusBarCenterAnchor:SetWidth (1)
+	StatusBarCenterAnchor:SetHeight (1)
+	baseframe.cabecalho.StatusBarCenterAnchor = StatusBarCenterAnchor	
+
+	local StatusBarRightAnchor = CreateFrame ("frame", nil, baseframe)
+	StatusBarRightAnchor:SetPoint ("bottomright", baseframe, "topright", 0, 9)
+	StatusBarRightAnchor:SetWidth (1)
+	StatusBarRightAnchor:SetHeight (1)
+	baseframe.cabecalho.StatusBarRightAnchor = StatusBarRightAnchor
 	
 -- botões	
 ------------------------------------------------------------------------------------------------------------------------------------------------- 	

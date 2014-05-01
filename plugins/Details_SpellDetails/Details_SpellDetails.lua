@@ -41,40 +41,79 @@ local function CreatePluginFrames (data)
 	SpellDetails.data = data or {}
 	SpellDetails.updating = false
 
-	local timeCaptureFunction = function (second, myTimeTable, myAttributesTable)
-		--> second: number of the tick
-		--> myTimeTable: is the table wich will contain the data
-		--> myAttributesTable: table wich your custom parameters
+	local player_damage_done = function (support_table, time_table, tick_second)
 		
-		if (SpellDetails.playerActor) then
-			--> get player total damage
-			local actorTotalDamage = SpellDetails.playerActor.total
-			--> calculate the diferente between last tick
-			local currentDamage = actorTotalDamage - myAttributesTable.lastDamage
-			--> record damage
-			myTimeTable [second] = currentDamage
-			--> check if this tick was greater then before
-			if (currentDamage > myAttributesTable.maxDamage) then
-				myAttributesTable.maxDamage = currentDamage
+		local player = _detalhes.tabela_vigente (1, _detalhes.playername)
+		
+		if (player) then
+			
+			local total_damage = player.total
+			
+			local current_damage = total_damage - support_table.last_damage
+			
+			time_table [tick_second] = current_damage
+			
+			if (current_damage > support_table.max_damage) then
+				support_table.max_damage = current_damage
+				time_table.max_damage = current_damage
 			end
-			--> record tick total damage
-			myAttributesTable.lastDamage = actorTotalDamage
+			
+			support_table.last_damage = total_damage
+			
+		else
+			time_table [tick_second] = 0
 		end
+		
 	end
 	
+	local string_player_damage_done = [[
+	
+		-- the goal of this script is get the current combat then get your character and extract your damage done.
+		-- the first thing to do is get the combat, so, we use here the command "_detalhes:GetCombat ( "overall" "current" or "segment number")"
+		
+		local current_combat = _detalhes:GetCombat ("current") --> getting the current combat
+		
+		-- the next step is request your character from the combat
+		-- to do this, we take the combat which here we named "current_combat" and tells what we want inside parentheses.
+		
+		local my_self = current_combat (DETAILS_ATTRIBUTE_DAMAGE, _detalhes.playername)
+		
+		-- _detalhes.playername holds the name of your character.
+		-- DETAILS_ATTRIBUTE_DAMAGE means we want the damage table, _HEAL _ENERGY _MISC is the other 3 tables.
+		
+		-- before we proceed, the result needs to be checked to make sure its a valid result.
+		
+		if (not my_self) then
+			return 0 -- the combat doesnt have *you*, this happens when you didn't deal any damage in the combat yet.
+		end
+		
+		-- now its time to get the total damage.
+		
+		local my_damage = my_self.total
+		
+		-- then finally return the amount to the capture.
+		
+		return my_damage
+		
+	]]
+	
 	function SpellDetails:OnDetailsEvent (event, ...)
+
 		if (event == "SHOW") then --> plugin shown on screen, actived
 		
 			--> register a custom time capture // time capture is a custom function wich will run every second and grab any kind of data.
 			--> here we want to capture the damage of "player".
 			--> _detalhes:RegisterTimeCapture ( function, give a name, parameters table )
-
-			_detalhes:RegisterTimeCapture (timeCaptureFunction, "SpellDetails_PlayerDamage", {lastDamage = 0, maxDamage = 0})
 			
 		elseif (event == "HIDE") then --> plugin hidded, disabled
 			SpellDetailsFrame:SetScript ("OnUpdate", nil)
-			_detalhes:UnregisterTimeCapture ("SpellDetails_PlayerDamage")
+
 			SpellDetails.playerActor = nil
+		
+		elseif (event == "DETAILS_STARTED") then
+		
+			-- _detalhes:TimeDataRegister ("Player Damage Done", player_damage_done, {last_damage = 0, max_damage = 0}, "Spell Details", "v1.0", [[Interface\ICONS\Achievement_Leader_Tyrande_Whisperwind]], true)
+			_detalhes:TimeDataRegister ("Player Damage Done", string_player_damage_done, nil, "Spell Details", "v1.0", [[Interface\ICONS\Achievement_Leader_Tyrande_Whisperwind]], true, true)
 		
 		elseif (event == "REFRESH") then --> requested a refresh window
 			SpellDetails:Refresh()
@@ -318,21 +357,25 @@ local function CreatePluginFrames (data)
 		end
 		
 		SpellDetails.LastGraphicDrew = SpellDetails.LastGraphicDrew or {}
-		local graphicData = _detalhes.tabela_vigente:GetTimeData()
+		
+		local graphicData = _detalhes.tabela_vigente:GetTimeData ("Player Damage Done")
+		
+		if (not graphicData) then
+			print ("No graphic available for this segment.")
+			return
+		end
 		
 		if (graphicData == SpellDetails.LastGraphicDrew) then
 			return
 		else
 			SpellDetails.LastGraphicDrew = SpellDetails.LastGraphicDrew
 		end
-		
-		if (not graphicData ["SpellDetails_PlayerDamageAttributes"]) then
-			return
-		elseif (graphicData ["SpellDetails_PlayerDamageAttributes"].maxDamage == 0) then
+
+		if (graphicData.max_damage == 0) then
 			return
 		end
 		
-		if (#graphicData ["SpellDetails_PlayerDamageData"] < 2) then
+		if (#graphicData < 2) then
 			local timetooshort = SpellDetails.graphic.fundo.timetooshot or DetailsFrameWork:NewLabel (SpellDetails.graphic.fundo, SpellDetails.graphic.fundo, nil, "timetooshort", Loc ["STRING_TOOSHORT"], "GameFontHighlightSmall")
 			timetooshort:SetPoint ("TOPLEFT", SpellDetails.graphic.fundo, "TOPLEFT", 40, -55)
 			_detalhes:SetFontSize (timetooshort, 10)
@@ -346,12 +389,12 @@ local function CreatePluginFrames (data)
 		GraphicObject:ResetData()
 		
 		local _data = {}
-		local dps_max = graphicData ["SpellDetails_PlayerDamageAttributes"].maxDamage
-		local amount = #graphicData ["SpellDetails_PlayerDamageData"]
+		local dps_max = graphicData.max_value
+		local amount = #graphicData
 		
 		local scaleW = 1/288
 
-		local content = graphicData ["SpellDetails_PlayerDamageData"]
+		local content = graphicData
 		table.insert (content, 1, 0)
 		table.insert (content, 1, 0)
 		table.insert (content, #content+1, 0)
@@ -528,6 +571,8 @@ local function CreatePluginFrames (data)
 	
 	--> botão para o gráfico:
 	local SwitchButton = DetailsFrameWork:NewDetailsButton (SpellDetailsFrame, SpellDetailsFrame, _, SpellDetails.ShowGraphic, _, _, 110, 15)
+	SwitchButton:SetFrameStrata ("TOOLTIP")
+	SwitchButton:SetFrameLevel (50)
 	SwitchButton:SetPoint ("TOPLEFT", SpellDetailsFrame, "TOPLEFT", 10, -274)
 	SwitchButton:SetFrameLevel (6)
 	SwitchButton:InstallCustomTexture()
