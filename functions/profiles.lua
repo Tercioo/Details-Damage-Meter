@@ -494,6 +494,9 @@ local default_profile = {
 		
 	--> minimap
 		minimap = {hide = false, radius = 160, minimapPos = 220},
+	--> horcorner
+		hotcorner_topleft = {hide = false, topleft_quick_click = true},
+		
 	--> PvP
 		only_pvp_frags = false,
 

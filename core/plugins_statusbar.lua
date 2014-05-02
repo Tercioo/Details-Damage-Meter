@@ -97,6 +97,9 @@
 			
 			if (fromStartup and childObject.options.isHidden) then
 				childObject.frame.text:Hide()
+				if (childObject.frame.texture) then
+					childObject.frame.texture:Hide()
+				end
 			end
 			
 			return true
@@ -128,6 +131,9 @@
 			
 			if (fromStartup and childObject.options.isHidden) then
 				childObject.frame.text:Hide()
+				if (childObject.frame.texture) then
+					childObject.frame.texture:Hide()
+				end
 			end
 			
 			return true
@@ -154,6 +160,9 @@
 			
 			if (fromStartup and childObject.options.isHidden) then
 				childObject.frame.text:Hide()
+				if (childObject.frame.texture) then
+					childObject.frame.texture:Hide()
+				end
 			end
 			
 			return true
@@ -185,13 +194,24 @@
 	--> select a new plugin in for an instance anchor
 	local ChoosePlugin = function (_, _, index, current_child, anchor)
 	
+		GameCooltip:Close()
+		
+		local byuser = false
+		
+		if (type (index) == "table") then
+			index, current_child, anchor = unpack (index)
+			byuser = true
+		end
+	
 		if (index and index == -1) then --> hide
-			current_child.frame.text:Hide()
 			_detalhes.StatusBar:ApplyOptions (current_child, "hidden", true)
 			return
 		else
 			_detalhes.StatusBar:ApplyOptions (current_child, "hidden", false)
 			current_child.frame.text:Show()
+			if (current_child.frame.texture) then
+				current_child.frame.texture:Show()
+			end
 		end
 	
 		local pluginMestre = _detalhes.StatusBar.Plugins [index]
@@ -209,6 +229,7 @@
 		
 		local chosenChild = nil
 		
+		--procura pra ver se ja tem uma criada
 		for _, child_created in _ipairs (instance.StatusBar) do 
 			if (child_created.mainPlugin == pluginMestre) then
 				chosenChild = child_created
@@ -216,18 +237,29 @@
 			end
 		end
 		
+		--se nao tiver cria uma
 		if (not chosenChild) then
 			chosenChild = _detalhes.StatusBar:CreateStatusBarChildForInstance (current_child.instance, pluginMestre.real_name)
 		end
 
 		instance.StatusBar [anchor] = chosenChild
+		--> copia os atributos do current para o chosen
+		local options_current = table_deepcopy (current_child.options)
+		
 		if (chosenChild.anchor) then
+			--o widget escolhido ja estava sendo mostrado...
+			-- copia os atributos do chosen para o current
+			
+			current_child.options = table_deepcopy (chosenChild.options)
 			instance.StatusBar [chosenChild.anchor] = current_child
 		end
 		
-		_detalhes.StatusBar:ReloadAnchors (instance)
+		chosenChild.options = options_current
 		
-		_detalhes.popup:ShowMe (false)
+		_detalhes.StatusBar:ReloadAnchors (instance)
+
+		_detalhes.StatusBar:UpdateOptions (instance)
+		
 	end
 
 	--> on enter
@@ -295,11 +327,29 @@
 			frame.child:Setup()
 		else
 			GameCooltip:Reset()
+			GameCooltip:SetType ("menu")
+			
 			GameCooltip:AddMenu (1, ChoosePlugin, -1, frame.child, frame.child.anchor, Loc ["STRING_PLUGIN_CLEAN"], [[Interface\Buttons\UI-GroupLoot-Pass-Down]], true)
+			
+			local current
+			
 			for index, _name_and_icon in _ipairs (_detalhes.StatusBar.Menu) do 
-				GameCooltip:AddMenu (1, ChoosePlugin, index, frame.child, frame.child.anchor, _name_and_icon [1], _name_and_icon [2], true)
+				GameCooltip:AddMenu (1, ChoosePlugin, {index, frame.child, frame.child.anchor}, nil, nil, _name_and_icon [1], _name_and_icon [2], true)
+				
+				local pluginMestre = _detalhes.StatusBar.Plugins [index]
+				
+				if (pluginMestre and pluginMestre.real_name == frame.child.mainPlugin.real_name) then
+					current = index+1
+				end
 			end
-			GameCooltip:SetOption ("NoLastSelectedBar", true)
+			
+			if (current) then
+				GameCooltip:SetLastSelected (1, current)
+			else
+				GameCooltip:SetOption ("NoLastSelectedBar", true)
+			end
+
+			
 			GameCooltip:SetOption ("HeightAnchorMod", -12)
 			GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
 			GameCooltip:ShowCooltip (frame, "menu")
@@ -330,15 +380,35 @@
 		end
 	end
 	
+	function _detalhes.StatusBar:UpdateOptions (instance)
+		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.left, "textcolor")
+		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.left, "textsize")
+		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.left, "textface")
+		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.left, "textxmod")
+		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.left, "textymod")
+		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.left, "hidden")
+		
+		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.center, "textcolor")
+		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.center, "textsize")
+		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.center, "textface")
+		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.center, "textxmod")
+		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.center, "textymod")
+		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.center, "hidden")
+		
+		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.right, "textcolor")
+		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.right, "textsize")
+		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.right, "textface")
+		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.right, "textxmod")
+		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.right, "textymod")
+		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.right, "hidden")
+	end
+	
 	function _detalhes.StatusBar:UpdateChilds (instance)
 	
 		local left = instance.StatusBarSaved.left
 		local center = instance.StatusBarSaved.center
 		local right = instance.StatusBarSaved.right
 
-		--print (instance.StatusBarSaved.options [left].textSize)
-		--print (instance.StatusBar.options [left].textSize)
-		
 		local left_index = _detalhes.StatusBar:GetIndexFromAbsoluteName (left)
 		ChoosePlugin (nil, nil, left_index, instance.StatusBar.left, "left")
 		
@@ -361,14 +431,23 @@
 		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.left, "textcolor")
 		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.left, "textsize")
 		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.left, "textface")
+		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.left, "textxmod")
+		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.left, "textymod")
+		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.left, "hidden")
 		
 		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.center, "textcolor")
 		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.center, "textsize")
 		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.center, "textface")
+		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.center, "textxmod")
+		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.center, "textymod")
+		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.center, "hidden")
 		
 		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.right, "textcolor")
 		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.right, "textsize")
 		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.right, "textface")
+		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.right, "textxmod")
+		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.right, "textymod")
+		_detalhes.StatusBar:ApplyOptions (instance.StatusBar.right, "hidden")
 
 	end
 	
@@ -437,33 +516,70 @@
 		option = string.lower (option)
 		
 		if (option == "textxmod") then
-			if (value) then
-				child.options.textXMod = value
+		
+			if (value == nil) then
+				value = child.options.textXMod
 			end
+
+			child.options.textXMod = value
 			_detalhes.StatusBar:ReloadAnchors (child.instance)
+			
 		elseif (option == "textymod") then
-			if (value) then
-				child.options.textYMod = value
+		
+			if (value == nil) then
+				value = child.options.textYMod
 			end
+
+			child.options.textYMod = value
 			_detalhes.StatusBar:ReloadAnchors (child.instance)
+			
 		elseif (option == "textcolor") then
-			if (value) then
-				child.options.textColor = value
+		
+			if (value == nil) then
+				value = child.options.textColor
 			end
+		
+			child.options.textColor = value
 			local r, g, b, a = _detalhes.gump:ParseColors (child.options.textColor)
 			child.text:SetTextColor (r, g, b, a)
+			
 		elseif (option == "textsize") then
-			if (value) then
-				child.options.textSize = value
+		
+			if (value == nil) then
+				value = child.options.textSize
 			end
+		
+			child.options.textSize = value
 			child:SetFontSize (child.text, child.options.textSize)
+			
 		elseif (option == "textface") then
-			if (value) then
-				child.options.textFace = value
+		
+			if (value == nil) then
+				value = child.options.textFace
 			end
+		
+			child.options.textFace = value
 			child:SetFontFace (child.text, SharedMedia:Fetch ("font", child.options.textFace))
+			
 		elseif (option == "hidden") then
+		
+			if (value == nil) then
+				value = child.options.isHidden
+			end
+		
 			child.options.isHidden = value
+			
+			if (value) then
+				child.frame.text:Hide()
+				if (child.frame.texture) then
+					child.frame.texture:Hide()
+				end
+			else
+				child.frame.text:Show()
+				if (child.frame.texture) then
+					child.frame.texture:Show()
+				end
+			end
 		else
 			if (child [option] and type (child [option]) == "function") then
 				child [option] (nil, child, value)
@@ -881,7 +997,6 @@ do
 								child.text:SetText (currentCombatTime .. "s")
 							end
 						end
-						
 
 					end
 				end
@@ -947,12 +1062,13 @@ do
 			local texture = myframe:CreateTexture (nil, "overlay")
 			texture:SetTexture ("Interface\\AddOns\\Details\\images\\clock")
 			texture:SetPoint ("right", myframe.text.widget, "left")
+			myframe.texture = texture
 
 			local new_child = _detalhes.StatusBar:CreateChildTable (instance, Clock, myframe)
 			
 			--> default text
 			new_child.text:SetText ("0m 0s")
-			
+
 			--> some changes from default options
 			if (new_child.options.textXMod == 0) then
 				new_child.options.textXMod = 6
@@ -1076,7 +1192,7 @@ do
 		end
 		
 		function PFps:OnDisable()
-			self:CancelTimer (self.srt)
+			self:CancelTimer (self.srt, true)
 		end
 
 		function PFps:OnEnable()
@@ -1115,7 +1231,7 @@ do
 		end
 		
 		function PLatency:OnDisable()
-			self:CancelTimer (self.srt)
+			self:CancelTimer (self.srt, true)
 		end
 
 		function PLatency:OnEnable()
@@ -1200,6 +1316,7 @@ do
 			texture:SetWidth (10)
 			texture:SetHeight (10)
 			texture:SetTexCoord (0.216796875, 0.26171875, 0.0078125, 0.052734375)
+			myframe.texture = texture
 			
 			myframe.widget:SetScript ("OnEvent", function()
 				new_child:UpdateDurability()
@@ -1254,6 +1371,7 @@ do
 			texture:SetPoint ("right", myframe.text.widget, "left")
 			texture:SetWidth (12)
 			texture:SetHeight (12)
+			myframe.texture = texture
 			
 			myframe.widget:RegisterEvent ("PLAYER_MONEY")
 			myframe.widget:RegisterEvent ("PLAYER_ENTERING_WORLD")

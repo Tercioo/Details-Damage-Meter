@@ -600,8 +600,27 @@ function _G._detalhes:Start()
 	end
 
 	--register lib-hotcorners
-	local reset_func = function() _detalhes.tabela_historico:resetar() end
-	_detalhes:RegisterHotCornerButton ("TOPLEFT", "DetailsLeftCornerButton", [[Interface\AddOns\Details\images\minimap]], "|cFFFFFFFFDetails!\n|cFF00FF00Left Click:|r clear all segments.", reset_func, nil, reset_func)
+	local reset_func = function (frame, button) _detalhes.tabela_historico:resetar() end
+	
+	_detalhes:RegisterHotCornerButton (
+		--> absolute name
+		"Details!",
+		--> corner
+		"TOPLEFT", 
+		--> config table
+		self.hotcorner_topleft,
+		--> frame _G name
+		"DetailsLeftCornerButton", 
+		--> icon
+		[[Interface\AddOns\Details\images\minimap]], 
+		--> tooltip
+		"|cFFFFFFFFDetails!\n|cFF00FF00Left Click:|r clear all segments.",
+		--> click function
+		reset_func, 
+		--> menus
+		nil, 
+		--> quick click
+		reset_func)
 	
 	--> register time captures
 	--_detalhes:LoadUserTimeCaptures()

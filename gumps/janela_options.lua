@@ -1027,7 +1027,7 @@ function window:CreateFrame16()
 			{name = "Version", width = 65, type = "entry", func = edit_version},
 			{name = "Enabled", width = 50, type = "button", func = edit_enabled, icon = [[Interface\COMMON\Indicator-Green]], notext = true, iconalign = "center"},
 			{name = "Export", width = 50, type = "button", func = export_function, icon = [[Interface\Buttons\UI-GuildButton-PublicNote-Up]], notext = true, iconalign = "center"},
-			{name = "Remove", width = 70, type = "button", func = remove_capture, icon = [[Interface\COMMON\VOICECHAT-MUTED]], notext = true, iconalign = "center"},
+			{name = "Remove", width = 70, type = "button", func = remove_capture, icon = [[Interface\Glues\LOGIN\Glues-CheckBox-Check]], notext = true, iconalign = "center"},
 		}
 		
 		local total_lines = function()
@@ -1287,6 +1287,9 @@ function window:CreateFrame15()
 		local remove_func = function (index)
 			_detalhes:UserCustomSpellRemove (index)
 		end
+		local reset_func = function (index)
+			_detalhes:UserCustomSpellReset (index)
+		end
 	
 	--> custom spells panel
 		local header = {
@@ -1294,7 +1297,8 @@ function window:CreateFrame15()
 			{name = "Name", width = 310, type = "entry", func = name_entry_func}, 
 			{name = "Icon", width = 50, type = "icon", func = icon_func}, 
 			{name = "Spell ID", width = 100, type = "text"},
-			{name = "Remove", width = 125, type = "button", func = remove_func, icon = [[Interface\COMMON\VOICECHAT-MUTED]]}, 
+			{name = "Reset", width = 50, type = "button", func = reset_func, icon = [[Interface\Buttons\UI-RefreshButton]], notext = true, iconalign = "center"}, 
+			{name = "Remove", width = 75, type = "button", func = remove_func, icon = [[Interface\Glues\LOGIN\Glues-CheckBox-Check]], notext = true, iconalign = "center"}, 
 		}
 		--local header = {{name = "Index", type = "text"}, {name = "Name", type = "entry"}, {name = "Icon", type = "icon"}, {name = "Author", type = "text"}, {name = "Version", type = "text"}}
 		
@@ -2014,7 +2018,7 @@ function window:CreateFrame2()
 		local buildSwitchMenu = function()
 		
 			window.lastSwitchList = {}
-			local t = {{value = 0, label = "NONE", onclick = onSelectAutoSwitch, icon = [[Interface\COMMON\VOICECHAT-MUTED]]}}
+			local t = {{value = 0, label = "NONE", onclick = onSelectAutoSwitch, icon = [[Interface\Glues\LOGIN\Glues-CheckBox-Check]]}}
 			
 			local attributes = _detalhes.sub_atributos
 			local i = 1
@@ -2803,7 +2807,7 @@ function window:CreateFrame4()
 
 		--icon file
 		g:NewLabel (frame4, _, "$parentIconFileLabel", "iconFileLabel", Loc ["STRING_OPTIONS_BAR_ICONFILE"], "GameFontHighlightLeft")
-		g:NewTextEntry (frame4, _, "$parentIconFileEntry", "iconFileEntry", 240, 20)
+		g:NewTextEntry (frame4, _, "$parentIconFileEntry", "iconFileEntry", 180, 20)
 		frame4.iconFileEntry:SetPoint ("left", frame4.iconFileLabel, "right", 2, 0)
 
 		frame4.iconFileEntry.tooltip = "- Press escape to restore default value.\n- Leave empty to hide icons."
@@ -2824,7 +2828,7 @@ function window:CreateFrame4()
 
 		frame4.iconFileEntry.text = instance.row_info.icon_file
 		
-		g:NewButton (frame4, _, "$parentNoIconButton", "noIconButton", 20, 20, function()
+		g:NewButton (frame4.iconFileEntry, _, "$parentNoIconButton", "noIconButton", 20, 20, function()
 			if (frame4.iconFileEntry.text == "") then
 				frame4.iconFileEntry.text = [[Interface\AddOns\Details\images\classes_small]]
 				frame4.iconFileEntry:PressEnter()
@@ -2833,10 +2837,15 @@ function window:CreateFrame4()
 				frame4.iconFileEntry:PressEnter()
 			end
 		end)
-		frame4.noIconButton:SetPoint ("left", frame4.iconFileEntry, "right", 2, 1)
-		frame4.noIconButton:SetNormalTexture ([[Interface\Buttons\UI-GroupLoot-Pass-Down]])
-		frame4.noIconButton:SetHighlightTexture ([[Interface\Buttons\UI-GROUPLOOT-PASS-HIGHLIGHT]])
-		frame4.noIconButton:SetPushedTexture ([[Interface\Buttons\UI-GroupLoot-Pass-Up]])
+		
+		frame4.noIconButton = frame4.iconFileEntry.noIconButton
+		frame4.noIconButton:SetPoint ("left", frame4.iconFileEntry, "right", 2, 0)
+		frame4.noIconButton:SetNormalTexture ([[Interface\Glues\LOGIN\Glues-CheckBox-Check]] or [[Interface\Buttons\UI-GroupLoot-Pass-Down]])
+		frame4.noIconButton:SetHighlightTexture ([[Interface\Glues\LOGIN\Glues-CheckBox-Check]] or [[Interface\Buttons\UI-GROUPLOOT-PASS-HIGHLIGHT]])
+		frame4.noIconButton:SetPushedTexture ([[Interface\Glues\LOGIN\Glues-CheckBox-Check]] or [[Interface\Buttons\UI-GroupLoot-Pass-Up]])
+		frame4.noIconButton:GetNormalTexture():SetDesaturated (true)
+		--frame4.noIconButton:GetHighlightTexture()
+		--frame4.noIconButton:GetPushedTexture()
 		frame4.noIconButton.tooltip = "Clear icon file."
 
 		--bar start at
@@ -2876,8 +2885,8 @@ function window:CreateFrame4()
 		frame4.rowBackgroundPickLabel:SetPoint (10, -365) --bar color background		
 		
 		frame4.rowIconsLabel:SetPoint (10, -405)
-		frame4.iconFileLabel:SetPoint (10, -430)
-		frame4.barStartLabel:SetPoint (10, -455)
+		frame4.iconFileLabel:SetPoint (10, -455)
+		frame4.barStartLabel:SetPoint (10, -430)
 		
 end
 
@@ -3023,7 +3032,7 @@ function window:CreateFrame5()
 		
 		--text entry
 		g:NewLabel (frame5, _, "$parentCutomRightText2Label", "cutomRightTextEntryLabel", Loc ["STRING_OPTIONS_BARRIGHTTEXTCUSTOM2"], "GameFontHighlightLeft")
-		g:NewTextEntry (frame5, _, "$parentCutomRightTextEntry", "cutomRightTextEntry", 240, 20)
+		g:NewTextEntry (frame5, _, "$parentCutomRightTextEntry", "cutomRightTextEntry", 180, 20)
 		frame5.cutomRightTextEntry:SetPoint ("left", frame5.cutomRightTextEntryLabel, "right", 2, 0)
 
 		--frame5.cutomRightTextEntry.tooltip = "type the customized text"
@@ -3056,16 +3065,18 @@ function window:CreateFrame5()
 
 		frame5.cutomRightTextEntry.text = instance.row_info.textR_custom_text
 		
-		g:NewButton (frame5, _, "$parentResetCustomRightTextButton", "customRightTextButton", 20, 20, function()
+		g:NewButton (frame5.cutomRightTextEntry, _, "$parentResetCustomRightTextButton", "customRightTextButton", 20, 20, function()
 			frame5.cutomRightTextEntry.text = _detalhes.instance_defaults.row_info.textR_custom_text
 			frame5.cutomRightTextEntry:PressEnter()
 		end)
+		frame5.customRightTextButton = frame5.cutomRightTextEntry.customRightTextButton
 		frame5.customRightTextButton:SetPoint ("left", frame5.cutomRightTextEntry, "right", 2, 1)
-		frame5.customRightTextButton:SetNormalTexture ([[Interface\Buttons\UI-GroupLoot-Pass-Down]])
-		frame5.customRightTextButton:SetHighlightTexture ([[Interface\Buttons\UI-GROUPLOOT-PASS-HIGHLIGHT]])
-		frame5.customRightTextButton:SetPushedTexture ([[Interface\Buttons\UI-GroupLoot-Pass-Up]])
+		frame5.customRightTextButton:SetNormalTexture ([[Interface\Glues\LOGIN\Glues-CheckBox-Check]] or [[Interface\Buttons\UI-GroupLoot-Pass-Down]])
+		frame5.customRightTextButton:SetHighlightTexture ([[Interface\Glues\LOGIN\Glues-CheckBox-Check]] or [[Interface\Buttons\UI-GROUPLOOT-PASS-HIGHLIGHT]])
+		frame5.customRightTextButton:SetPushedTexture ([[Interface\Glues\LOGIN\Glues-CheckBox-Check]] or [[Interface\Buttons\UI-GroupLoot-Pass-Up]])
+		frame5.customRightTextButton:GetNormalTexture():SetDesaturated (true)
 		frame5.customRightTextButton.tooltip = "Reset to Default"
-	
+		
 	--> show total bar
 		
 		g:NewLabel (frame5, _, "$parentTotalBarLabel", "totalBarLabel", Loc ["STRING_OPTIONS_SHOW_TOTALBAR"], "GameFontHighlightLeft")

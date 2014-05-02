@@ -39,8 +39,8 @@ do
 				end})
 
 		--> default overwrites
-		_rawset (_detalhes.spellcache, 1, {Loc ["STRING_MELEE"], 1, "Interface\\AddOns\\Details\\images\\melee.tga"})
-		_rawset (_detalhes.spellcache, 2, {Loc ["STRING_AUTOSHOT"], 1, "Interface\\AddOns\\Details\\images\\autoshot.tga"})
+		--_rawset (_detalhes.spellcache, 1, {Loc ["STRING_MELEE"], 1, "Interface\\AddOns\\Details\\images\\melee.tga"})
+		--_rawset (_detalhes.spellcache, 2, {Loc ["STRING_AUTOSHOT"], 1, "Interface\\AddOns\\Details\\images\\autoshot.tga"})
 		
 		--> built-in overwrites
 		for spellId, spellTable in pairs (_detalhes.SpellOverwrite) do
@@ -54,6 +54,26 @@ do
 			_rawset (_detalhes.spellcache, spellTable [1], {spellTable [2], 1, spellTable [3]})
 		end
 	end
+	
+	local default_user_spells = {
+		[1] = {name = Loc ["STRING_MELEE"], icon = [[Interface\AddOns\Details\images\melee.tga]]},
+		[2] = {name = Loc ["STRING_AUTOSHOT"], icon = [[Interface\AddOns\Details\images\autoshot.tga]]},
+		
+		[124464] = {name = GetSpellInfo (124464) .. " (" .. Loc ["STRING_MASTERY"] .. ")"}, --> shadow word: pain mastery proc (priest)
+		[124465] = {name = GetSpellInfo (124465) .. " (" .. Loc ["STRING_MASTERY"] .. ")"}, --> vampiric touch mastery proc (priest)
+		[124468] = {name = GetSpellInfo (124468) .. " (" .. Loc ["STRING_MASTERY"] .. ")"}, --> mind flay mastery proc (priest)
+		
+		[121414] = {name = GetSpellInfo (121414) .. " (Glaive #1)"}, --> glaive toss (hunter)
+		[120761] = {name = GetSpellInfo (120761) .. " (Glaive #2)"}, --> glaive toss (hunter)
+		
+		[77451] = {name = GetSpellInfo (77451) .. " (" .. Loc ["STRING_MASTERY"] .. ")"}, --> lava burst (shaman)
+		[45284] = {name = GetSpellInfo (45284) .. " (" .. Loc ["STRING_MASTERY"] .. ")"}, --> lightningbolt (shaman)
+		[45297] = {name = GetSpellInfo (45297) .. " (" .. Loc ["STRING_MASTERY"] .. ")"}, --> chain lightning (shaman)
+		
+		[131079] = {name = GetSpellInfo (131079) .. " (Icy Veins)"}, --> frostbolt with icy veins glyph (mage)
+		[131080] = {name = GetSpellInfo (131080) .. " (Icy Veins)"}, --> ice lance with icy veins glyph (mage)
+		[131081] = {name = GetSpellInfo (131081) .. " (Icy Veins)"}, --> frostfire with icy veins glyph (mage)
+	}
 
 	function _detalhes:UserCustomSpellUpdate (index, name, icon)
 		local t = _detalhes.savedCustomSpells [index]
@@ -65,27 +85,49 @@ do
 		end
 	end
 	
-	function _detalhes:FillUserCustomSpells()
-		local spells = {
-			[124464] = {name = GetSpellInfo (124464) .. " (" .. Loc ["STRING_MASTERY"] .. ")"}, --> shadow word: pain mastery proc (priest)
-			[124465] = {name = GetSpellInfo (124465) .. " (" .. Loc ["STRING_MASTERY"] .. ")"}, --> vampiric touch mastery proc (priest)
-			[124468] = {name = GetSpellInfo (124468) .. " (" .. Loc ["STRING_MASTERY"] .. ")"}, --> mind flay mastery proc (priest)
+	function _detalhes:UserCustomSpellReset (index)
+		local t = _detalhes.savedCustomSpells [index]
+		if (t) then
+			local spellid = t [1]
+			local name, _, icon = _GetSpellInfo (spellid)
 			
-			[121414] = {name = GetSpellInfo (121414) .. " (Glaive #1)"}, --> glaive toss (hunter)
-			[120761] = {name = GetSpellInfo (120761) .. " (Glaive #2)"}, --> glaive toss (hunter)
+			if (default_user_spells [spellid]) then
+				name = default_user_spells [spellid].name
+				icon = default_user_spells [spellid].icon or icon or [[Interface\InventoryItems\WoWUnknownItem01]]
+			end
 			
-			[77451] = {name = GetSpellInfo (77451) .. " (" .. Loc ["STRING_MASTERY"] .. ")"}, --> lava burst (shaman)
-			[45284] = {name = GetSpellInfo (45284) .. " (" .. Loc ["STRING_MASTERY"] .. ")"}, --> lightningbolt (shaman)
+			if (not name) then
+				name = "Unknown"
+			end
+			if (not icon) then
+				icon = [[Interface\InventoryItems\WoWUnknownItem01]]
+			end
 			
-			[131079] = {name = GetSpellInfo (131079) .. " (Icy Veins)"}, --> frostbolt with icy veins glyph (mage)
-			[131080] = {name = GetSpellInfo (131080) .. " (Icy Veins)"}, --> ice lance with icy veins glyph (mage)
-			[131081] = {name = GetSpellInfo (131081) .. " (Icy Veins)"}, --> frostfire with icy veins glyph (mage)
-		}
-		
-		for spellid, t in pairs (spells) do 
-			local _, _, icon = GetSpellInfo (spellid)
-			_detalhes:UserCustomSpellAdd (spellid, t.name, icon)
+			_rawset (_detalhes.spellcache, spellid, {name, 1, icon})
+			
+			t[2] = name
+			t[3] = icon
 		end
+	end
+	
+	function _detalhes:FillUserCustomSpells()
+	
+		for spellid, t in pairs (default_user_spells) do 
+		
+			local already_have
+			for index, spelltable in ipairs (_detalhes.savedCustomSpells) do 
+				if (spelltable [1] == spellid) then
+					already_have = spelltable
+				end
+			end
+		
+			if (not already_have) then
+				local name, _, icon = GetSpellInfo (spellid)
+				_detalhes:UserCustomSpellAdd (spellid, t.name or name or "Unknown", t.icon or icon or [[Interface\InventoryItems\WoWUnknownItem01]])	
+			end
+			
+		end
+		
 	end
 	
 	function _detalhes:UserCustomSpellAdd (spellid, name, icon)
