@@ -1521,7 +1521,8 @@ local function button_stretch_scripts (baseframe, backgrounddisplay, instancia)
 					
 					esta_instancia.baseframe:SetFrameStrata (baseframe_strata)
 					esta_instancia.rowframe:SetFrameStrata (baseframe_strata)
-					--esta_instancia.baseframe.button_stretch:SetFrameStrata ("FULLSCREEN")
+					esta_instancia:StretchButtonAlwaysOnTop()
+					
 					_detalhes:SendEvent ("DETAILS_INSTANCE_ENDSTRETCH", nil, esta_instancia.baseframe)
 				end
 				instancia.stretchToo = nil
@@ -1539,7 +1540,7 @@ local function button_stretch_scripts (baseframe, backgrounddisplay, instancia)
 		
 		baseframe:SetFrameStrata (baseframe_strata)
 		instancia.rowframe:SetFrameStrata (baseframe_strata)
-		--baseframe.button_stretch:SetFrameStrata ("FULLSCREEN")
+		instancia:StretchButtonAlwaysOnTop()
 		
 		_detalhes:SnapTextures (false)
 		
@@ -1858,7 +1859,7 @@ end
 
 function CreateAlertFrame (baseframe, instancia)
 
-	local alert_bg = CreateFrame ("frame", nil, baseframe)
+	local alert_bg = CreateFrame ("frame", "DetailsAlertFrame" .. instancia.meu_id, baseframe)
 	alert_bg:SetPoint ("bottom", baseframe, "bottom")
 	alert_bg:SetPoint ("left", baseframe, "left", 3, 0)
 	alert_bg:SetPoint ("right", baseframe, "right", -3, 0)
@@ -1884,7 +1885,7 @@ function CreateAlertFrame (baseframe, instancia)
 	_detalhes:SetFontSize (text, 10)
 	text:SetTextColor (1, 1, 1, 1)
 	
-	local rotate_frame = CreateFrame ("frame", nil, alert_bg)
+	local rotate_frame = CreateFrame ("frame", "DetailsAlertFrameRotate" .. instancia.meu_id, alert_bg)
 	rotate_frame:SetWidth (12)
 	rotate_frame:SetPoint ("right", alert_bg, "right", -2, 0)
 	rotate_frame:SetHeight (alert_bg:GetWidth())
@@ -2054,8 +2055,8 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 		baseframe.scroll_middle:SetHeight (64)
 	
 	--> scroll widgets
-		baseframe.button_up = CreateFrame ("button", nil, backgrounddisplay)
-		baseframe.button_down = CreateFrame ("button", nil, backgrounddisplay)
+		baseframe.button_up = CreateFrame ("button", "DetailsScrollUp" .. instancia.meu_id, backgrounddisplay)
+		baseframe.button_down = CreateFrame ("button", "DetailsScrollDown" .. instancia.meu_id, backgrounddisplay)
 	
 		baseframe.button_up:SetWidth (29)
 		baseframe.button_up:SetHeight (32)
@@ -2098,9 +2099,10 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 	
 -- stretch button -----------------------------------------------------------------------------------------------------------------------------------------------
 
-		baseframe.button_stretch = CreateFrame ("button", nil, baseframe)
+		baseframe.button_stretch = CreateFrame ("button", "DetailsButtonStretch" .. instancia.meu_id, baseframe)
 		baseframe.button_stretch:SetPoint ("bottom", baseframe, "top", 0, 20)
 		baseframe.button_stretch:SetPoint ("right", baseframe, "right", -27, 0)
+		baseframe.button_stretch:SetFrameLevel (15)
 		--baseframe.button_stretch:SetFrameStrata ("FULLSCREEN")
 	
 		local stretch_texture = baseframe.button_stretch:CreateTexture (nil, "overlay")
@@ -2328,7 +2330,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 -- side bars highlights ------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 	--> top
-		local fcima = CreateFrame ("frame", nil, baseframe.cabecalho.fechar)
+		local fcima = CreateFrame ("frame", "DetailsTopSideBarHighlight" .. instancia.meu_id, baseframe.cabecalho.fechar)
 		fcima:SetPoint ("topleft", baseframe.cabecalho.top_bg, "bottomleft", -10, 37)
 		fcima:SetPoint ("topright", baseframe.cabecalho.ball_r, "bottomright", -33, 37)
 		gump:CreateFlashAnimation (fcima)
@@ -2342,7 +2344,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 		instancia.h_cima = fcima
 		
 	--> bottom
-		local fbaixo = CreateFrame ("frame", nil, baseframe.cabecalho.fechar)
+		local fbaixo = CreateFrame ("frame", "DetailsBottomSideBarHighlight" .. instancia.meu_id, baseframe.cabecalho.fechar)
 		fbaixo:SetPoint ("topleft", baseframe.rodape.esquerdo, "bottomleft", 16, 17)
 		fbaixo:SetPoint ("topright", baseframe.rodape.direita, "bottomright", -16, 17)
 		gump:CreateFlashAnimation (fbaixo)
@@ -2356,7 +2358,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 		instancia.h_baixo = fbaixo
 		
 	--> left
-		local fesquerda = CreateFrame ("frame", nil, baseframe.cabecalho.fechar)
+		local fesquerda = CreateFrame ("frame", "DetailsLeftSideBarHighlight" .. instancia.meu_id, baseframe.cabecalho.fechar)
 		fesquerda:SetPoint ("topleft", baseframe.barra_esquerda, "topleft", -8, 0)
 		fesquerda:SetPoint ("bottomleft", baseframe.barra_esquerda, "bottomleft", -8, 0)
 		gump:CreateFlashAnimation (fesquerda)
@@ -2370,7 +2372,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 		instancia.h_esquerda = fesquerda
 		
 	--> right
-		local fdireita = CreateFrame ("frame", nil, baseframe.cabecalho.fechar)
+		local fdireita = CreateFrame ("frame", "DetailsRightSideBarHighlight" .. instancia.meu_id, baseframe.cabecalho.fechar)
 		fdireita:SetPoint ("topleft", baseframe.barra_direita, "topleft", 8, 18)
 		fdireita:SetPoint ("bottomleft", baseframe.barra_direita, "bottomleft", 8, 0)
 		gump:CreateFlashAnimation (fdireita)	
@@ -3411,20 +3413,20 @@ function gump:CriaRodape (baseframe, instancia)
 	baseframe.rodape.top_bg:SetPoint ("left", baseframe.rodape.esquerdo, "right", -16, -48)
 	baseframe.rodape.top_bg:SetPoint ("right", baseframe.rodape.direita, "left", 16, -48)
 
-	local StatusBarLeftAnchor = CreateFrame ("frame", nil, baseframe)
+	local StatusBarLeftAnchor = CreateFrame ("frame", "DetailsStatusBarAnchorLeft" .. instancia.meu_id, baseframe)
 	StatusBarLeftAnchor:SetPoint ("left", baseframe.rodape.top_bg, "left", 5, 57)
 	StatusBarLeftAnchor:SetWidth (1)
 	StatusBarLeftAnchor:SetHeight (1)
 	baseframe.rodape.StatusBarLeftAnchor = StatusBarLeftAnchor
 	
-	local StatusBarCenterAnchor = CreateFrame ("frame", nil, baseframe)
+	local StatusBarCenterAnchor = CreateFrame ("frame", "DetailsStatusBarAnchorCenter" .. instancia.meu_id, baseframe)
 	StatusBarCenterAnchor:SetPoint ("center", baseframe.rodape.top_bg, "center", 0, 57)
 	StatusBarCenterAnchor:SetWidth (1)
 	StatusBarCenterAnchor:SetHeight (1)
 	baseframe.rodape.StatusBarCenterAnchor = StatusBarCenterAnchor
 	
 	--> display frame
-		baseframe.statusbar = CreateFrame ("frame", nil, baseframe.cabecalho.fechar)
+		baseframe.statusbar = CreateFrame ("frame", "DetailsStatusBar" .. instancia.meu_id, baseframe.cabecalho.fechar)
 		baseframe.statusbar:SetFrameLevel (baseframe.cabecalho.fechar:GetFrameLevel()+2)
 		baseframe.statusbar:SetPoint ("left", baseframe.rodape.esquerdo, "right", -13, 10)
 		baseframe.statusbar:SetPoint ("right", baseframe.rodape.direita, "left", 13, 10)
@@ -3450,7 +3452,7 @@ function gump:CriaRodape (baseframe, instancia)
 		baseframe.statusbar:Hide()
 	
 	--> frame invisível
-	baseframe.DOWNFrame = CreateFrame ("frame", nil, baseframe)
+	baseframe.DOWNFrame = CreateFrame ("frame", "DetailsDownFrame" .. instancia.meu_id, baseframe)
 	baseframe.DOWNFrame:SetPoint ("left", baseframe.rodape.esquerdo, "right", 0, 10)
 	baseframe.DOWNFrame:SetPoint ("right", baseframe.rodape.direita, "left", 0, 10)
 	baseframe.DOWNFrame:SetHeight (14)
@@ -4479,6 +4481,8 @@ function _detalhes:SetFrameStrata (strata)
 	self.rowframe:SetFrameStrata (strata)
 	self.baseframe:SetFrameStrata (strata)
 	
+	self:StretchButtonAlwaysOnTop()
+	
 end
 
 function _detalhes:LeftMenuAnchorSide (side)
@@ -4892,6 +4896,22 @@ function _detalhes:ToolbarSide (side)
 	
 end
 
+function _detalhes:StretchButtonAlwaysOnTop (on_top)
+	
+	if (type (on_top) ~= "boolean") then
+		on_top = self.grab_on_top
+	end
+	
+	self.grab_on_top = on_top
+	
+	if (self.grab_on_top) then
+		self.baseframe.button_stretch:SetFrameStrata ("FULLSCREEN")
+	else
+		self.baseframe.button_stretch:SetFrameStrata (self.strata)
+	end
+	
+end
+
 function _detalhes:StretchButtonAnchor (side)
 	
 	if (not side) then
@@ -5178,6 +5198,7 @@ function _detalhes:HideStatusBar (instancia)
 	self.baseframe.rodape.top_bg:Hide()
 	self.baseframe.rodape.StatusBarLeftAnchor:Hide()
 	self.baseframe.rodape.StatusBarCenterAnchor:Hide()
+	self.baseframe.DOWNFrame:Hide()
 	
 	if (self.toolbar_side == 2) then
 		self:ToolbarSide()
@@ -5229,6 +5250,7 @@ function _detalhes:ShowStatusBar (instancia)
 	self.baseframe.rodape.top_bg:Show()
 	self.baseframe.rodape.StatusBarLeftAnchor:Show()
 	self.baseframe.rodape.StatusBarCenterAnchor:Show()
+	self.baseframe.DOWNFrame:Show()
 	
 	self:ToolbarSide()
 	self:StretchButtonAnchor()
@@ -5246,7 +5268,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 	baseframe.cabecalho = {}
 	
 	--> FECHAR INSTANCIA ----------------------------------------------------------------------------------------------------------------------------------------------------
-	baseframe.cabecalho.fechar = CreateFrame ("button", nil, baseframe, "UIPanelCloseButton")
+	baseframe.cabecalho.fechar = CreateFrame ("button", "DetailsCloseInstanceButton" .. instancia.meu_id, baseframe, "UIPanelCloseButton")
 	baseframe.cabecalho.fechar:SetWidth (32)
 	baseframe.cabecalho.fechar:SetHeight (32)
 	baseframe.cabecalho.fechar:SetFrameLevel (5) --> altura mais alta que os demais frames
@@ -5351,20 +5373,20 @@ function gump:CriaCabecalho (baseframe, instancia)
 	BGFrame_scripts (baseframe.UPFrameLeftPart, baseframe, instancia)
 
 	--> anchors para os micro displays no lado de cima da janela
-	local StatusBarLeftAnchor = CreateFrame ("frame", nil, baseframe)
+	local StatusBarLeftAnchor = CreateFrame ("frame", "DetailsStatusBarLeftAnchor" .. instancia.meu_id, baseframe)
 	StatusBarLeftAnchor:SetPoint ("bottomleft", baseframe, "topleft", 0, 9)
 	StatusBarLeftAnchor:SetWidth (1)
 	StatusBarLeftAnchor:SetHeight (1)
 	baseframe.cabecalho.StatusBarLeftAnchor = StatusBarLeftAnchor
 	
-	local StatusBarCenterAnchor = CreateFrame ("frame", nil, baseframe)
+	local StatusBarCenterAnchor = CreateFrame ("frame", "DetailsStatusBarCenterAnchor" .. instancia.meu_id, baseframe)
 	StatusBarCenterAnchor:SetPoint ("center", baseframe, "center")
 	StatusBarCenterAnchor:SetPoint ("bottom", baseframe, "top", 0, 9)
 	StatusBarCenterAnchor:SetWidth (1)
 	StatusBarCenterAnchor:SetHeight (1)
 	baseframe.cabecalho.StatusBarCenterAnchor = StatusBarCenterAnchor	
 
-	local StatusBarRightAnchor = CreateFrame ("frame", nil, baseframe)
+	local StatusBarRightAnchor = CreateFrame ("frame", "DetailsStatusBarRightAnchor" .. instancia.meu_id, baseframe)
 	StatusBarRightAnchor:SetPoint ("bottomright", baseframe, "topright", 0, 9)
 	StatusBarRightAnchor:SetWidth (1)
 	StatusBarRightAnchor:SetHeight (1)

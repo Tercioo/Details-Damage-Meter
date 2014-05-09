@@ -3429,7 +3429,24 @@ function window:CreateFrame6()
 			frame6.stretchAnchorSlider.info = Loc ["STRING_OPTIONS_STRETCH_DESC"]
 			window:create_line_background (frame6, frame6.stretchAnchorLabel, frame6.stretchAnchorSlider)
 			frame6.stretchAnchorSlider:SetHook ("OnEnter", background_on_enter)
-			frame6.stretchAnchorSlider:SetHook ("OnLeave", background_on_leave)		
+			frame6.stretchAnchorSlider:SetHook ("OnLeave", background_on_leave)
+
+		--stretch button always on top
+			g:NewSwitch (frame6, _, "$parentStretchAlwaysOnTopSlider", "stretchAlwaysOnTopSlider", 60, 20, _, _, instance.grab_on_top)
+			g:NewLabel (frame6, _, "$parentStretchAlwaysOnTopLabel", "stretchAlwaysOnTopLabel", Loc ["STRING_OPTIONS_STRETCHTOP"], "GameFontHighlightLeft")
+			
+			frame6.stretchAlwaysOnTopSlider:SetPoint ("left", frame6.stretchAlwaysOnTopLabel, "right", 2, 0)
+		
+			frame6.stretchAlwaysOnTopSlider.OnSwitch = function (self, instance, value)
+				instance:StretchButtonAlwaysOnTop (value)
+			end
+		
+			frame6.stretchAlwaysOnTopSlider.info = Loc ["STRING_OPTIONS_STRETCHTOP_DESC"]
+			window:create_line_background (frame6, frame6.stretchAlwaysOnTopLabel, frame6.stretchAlwaysOnTopSlider)
+			frame6.stretchAlwaysOnTopSlider:SetHook ("OnEnter", background_on_enter)
+			frame6.stretchAlwaysOnTopSlider:SetHook ("OnLeave", background_on_leave)
+		
+			
 		
 		-- instance toolbar side
 			g:NewSwitch (frame6, _, "$parentInstanceToolbarSideSlider", "instanceToolbarSideSlider", 80, 20, Loc ["STRING_BOTTOM"], Loc ["STRING_TOP"], instance.toolbar_side, nil, grow_switch_func, grow_return_func)
@@ -3530,9 +3547,11 @@ function window:CreateFrame6()
 				instance:SetFrameStrata (strataName)
 			end
 			local strataTable = {
+				{value = "BACKGROUND", label = "Background", onclick = onStrataSelect, icon = [[Interface\Buttons\UI-MicroStream-Green]], iconcolor = {0, .5, 0, .8}, texcoord = nil}, --Interface\Buttons\UI-MicroStream-Green UI-MicroStream-Red UI-MicroStream-Yellow
 				{value = "LOW", label = "Low", onclick = onStrataSelect, icon = [[Interface\Buttons\UI-MicroStream-Green]] , texcoord = nil}, --Interface\Buttons\UI-MicroStream-Green UI-MicroStream-Red UI-MicroStream-Yellow
 				{value = "MEDIUM", label = "Medium", onclick = onStrataSelect, icon = [[Interface\Buttons\UI-MicroStream-Yellow]] , texcoord = nil}, --Interface\Buttons\UI-MicroStream-Green UI-MicroStream-Red UI-MicroStream-Yellow
-				{value = "HIGH", label = "High", onclick = onStrataSelect, icon = [[Interface\Buttons\UI-MicroStream-Red]] , texcoord = nil}, --Interface\Buttons\UI-MicroStream-Green UI-MicroStream-Red UI-MicroStream-Yellow
+				{value = "HIGH", label = "High", onclick = onStrataSelect, icon = [[Interface\Buttons\UI-MicroStream-Yellow]] , iconcolor = {1, .7, 0, 1}, texcoord = nil}, --Interface\Buttons\UI-MicroStream-Green UI-MicroStream-Red UI-MicroStream-Yellow
+				{value = "DIALOG", label = "Dialog", onclick = onStrataSelect, icon = [[Interface\Buttons\UI-MicroStream-Red]] , iconcolor = {1, 0, 0, 1},  texcoord = nil}, --Interface\Buttons\UI-MicroStream-Green UI-MicroStream-Red UI-MicroStream-Yellow
 			}
 			local buildStrataMenu = function() return strataTable end
 			
@@ -3582,10 +3601,11 @@ function window:CreateFrame6()
 		frame6.instanceMicroDisplaysSideLabel:SetPoint (10, -195)
 		frame6.backdropLabel:SetPoint (10, -220)
 		frame6.strataLabel:SetPoint (10, -245)
+		frame6.stretchAlwaysOnTopLabel:SetPoint (10, -270)
 
-		frame6.statusbarAnchorLabel:SetPoint (10, -280)
-		frame6.statusbarLabel:SetPoint (10, -305) --statusbar
-		frame6.statusbarColorLabel:SetPoint (10, -330)
+		frame6.statusbarAnchorLabel:SetPoint (10, -305)
+		frame6.statusbarLabel:SetPoint (10, -330) --statusbar
+		frame6.statusbarColorLabel:SetPoint (10, -355)
 		
 
 end
@@ -5138,9 +5158,11 @@ end --> if not window
 --> Show
 
 local strata = {
+	["BACKGROUND"] = "Background",
 	["LOW"] = "Low",
 	["MEDIUM"] = "Medium",
-	["HIGH"] = "High"
+	["HIGH"] = "High",
+	["DIALOG"] = "Dialog"
 }
 
 function window:update_all (editing_instance)
@@ -5184,6 +5206,9 @@ function window:update_all (editing_instance)
 	
 	_G.DetailsOptionsWindow6StrataDropdown.MyObject:SetFixedParameter (editing_instance)
 	_G.DetailsOptionsWindow6StrataDropdown.MyObject:Select (strata [editing_instance.strata] or "Low")
+	
+	_G.DetailsOptionsWindow6StretchAlwaysOnTopSlider.MyObject:SetFixedParameter (editing_instance)
+	_G.DetailsOptionsWindow6StretchAlwaysOnTopSlider.MyObject:SetValue (editing_instance.grab_on_top)
 	
 	_G.DetailsOptionsWindow6InstanceMicroDisplaysSideSlider.MyObject:SetFixedParameter (editing_instance)
 	_G.DetailsOptionsWindow6InstanceMicroDisplaysSideSlider.MyObject:SetValue (editing_instance.micro_displays_side)

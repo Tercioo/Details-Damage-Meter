@@ -153,6 +153,7 @@ _detalhes.instance_defaults = {
 		hide_in_combat_alpha = 0,
 	--strata
 		strata = "LOW",
+		grab_on_top = false,
 	--wallpaper
 		wallpaper = {
 			enabled = false,

@@ -482,7 +482,7 @@ local function CreatePluginFrames (data)
 				
 				--> Get damage actor
 					local actorDamage = Vanguard:GetActor ("current", DETAILS_ATTRIBUTE_DAMAGE, _track_player_name) --> [1] combat [2] attribute [3] name
-					if (actorDamage) then
+					if (actorDamage and actorDamage.avoidance) then
 						--> members can be found at details/classes/classe_damage line 75
 						local avoidance = actorDamage.avoidance --> table with DODGE, PARRY, HITS members
 
@@ -999,7 +999,7 @@ local function CreatePluginFrames (data)
 			on_second_tick = 0
 		end
 		
-		if (half_second_tick > 0.5) then
+		if (half_second_tick > 0.5 and _track_player_object.avoidance) then
 			
 			--> capture the amount of hits and avoids
 			
@@ -1133,6 +1133,7 @@ local function CreatePluginFrames (data)
 	function Vanguard:Start()
 		
 		if (not Vanguard.Running) then
+			--print ("return 1")
 			return
 		else
 			--> reset widgets
@@ -1150,16 +1151,18 @@ local function CreatePluginFrames (data)
 			if (not _track_player_object) then
 				--print ("Vanguard: Object not found 1.")
 				_detalhes:ScheduleTimer ("VanguardWait", 1)
+				--print ("return 2")
 				return
 			end
 			
 			_track_player_name = MyTarget
 			
 			local role = UnitGroupRolesAssigned (_track_player_name)
-			if (role ~= "TANK") then
-				_detalhes:ScheduleTimer ("VanguardWait", 1) 
-				return
-			end
+			--if (role ~= "TANK") then
+			--	_detalhes:ScheduleTimer ("VanguardWait", 1) 
+			--	print ("return 3")
+			--	return
+			--end
 			
 			if (VanguardFrame.InfoShown) then
 				Vanguard:VanguardRefreshInfoFrame()
@@ -1169,16 +1172,18 @@ local function CreatePluginFrames (data)
 			if (not _track_player_object) then
 				--print ("Vanguard: Object not found 2.")
 				_detalhes:ScheduleTimer ("VanguardWait", 1) 
+				--print ("return 4")
 				return
 			end
 			
 			_track_player_name = MyName
 			
 			local role = UnitGroupRolesAssigned (_track_player_name)
-			if (role ~= "TANK") then
-				_detalhes:ScheduleTimer ("VanguardWait", 1) 
-				return
-			end
+			--if (role ~= "TANK") then
+			--	_detalhes:ScheduleTimer ("VanguardWait", 1) 
+			--	print ("return 5")
+			--	return
+			--end
 			
 			if (VanguardFrame.InfoShown) then
 				Vanguard:VanguardRefreshInfoFrame()
@@ -1199,6 +1204,7 @@ local function CreatePluginFrames (data)
 		damage_now = 0
 		damage_taken = {}
 	
+		--print ("vanguard starting... 3 ...")
 		VanguardFrame:SetScript ("OnUpdate", onupdate)
 		
 	end
