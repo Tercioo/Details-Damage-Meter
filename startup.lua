@@ -424,7 +424,7 @@ function _G._detalhes:Start()
 		if (lower_instance) then
 			lower_instance = _detalhes:GetInstance (lower_instance)
 			if (lower_instance) then
-				lower_instance:InstanceAlert (Loc ["STRING_VERSION_UPDATE"], {[[Interface\GossipFrame\AvailableQuestIcon]], 16, 16, false}, 20, {_detalhes.OpenNewsWindow})
+				lower_instance:InstanceAlert (Loc ["STRING_VERSION_UPDATE"], {[[Interface\GossipFrame\AvailableQuestIcon]], 16, 16, false}, 60, {_detalhes.OpenNewsWindow})
 			end
 		end
 		
