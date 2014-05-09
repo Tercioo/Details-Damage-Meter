@@ -1,6 +1,0 @@
-## Interface: 50400
-## Title: Details Save Data
-## Notes: Save Details database
-## RequiredDeps: Details
-
-Details_SaveData.xml

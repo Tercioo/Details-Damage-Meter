@@ -28,6 +28,17 @@ do
 		end
 	end
 	
+	function _detalhes:GetClassColor (class)
+		if (self.classe) then
+			return _detalhes.class_colors [class.classe]
+			
+		elseif (type (class) == "table" and class.classe) then
+			return _detalhes.class_colors [class.classe]
+			
+		end
+		return _detalhes.class_colors [class]
+	end
+	
 	function _detalhes:GuessClass (t)
 	
 		local Actor, container, tries = t[1], t[2], t[3]

@@ -219,6 +219,30 @@ function combate:seta_data (tipo)
 	end
 end
 
+function combate:GetCombatName (try_find)
+	if (self.is_pvp) then
+		return self.is_pvp.name
+		
+	elseif (self.is_boss) then
+		return self.is_boss.encounter
+	
+	elseif (self.is_tras) then
+		return Loc ["STRING_SEGMENT_TRASH"]
+		
+	else
+		if (self.enemy) then
+			return self.enemy
+		end
+		
+		if (try_find) then
+			return _detalhes:FindEnemy()
+		end
+		
+	end
+	
+	return Loc ["STRING_UNKNOW"]
+end
+
 function combate:GetActorList (container)
 	return self [container]._ActorTable
 end

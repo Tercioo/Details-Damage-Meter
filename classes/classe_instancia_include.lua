@@ -73,6 +73,10 @@ _detalhes.instance_defaults = {
 	--menus:
 		--anchor store the anchor point of main menu
 		menu_anchor = {5, 1, side = 1},
+		--icons on menu
+		menu_icons = {true, true, true, true},
+		--menu icons size multiplicator factor
+		menu_icons_size = 1.0,
 		--auto hide window borders
 		menu_alpha = {enabled = false, iconstoo = true, onenter = 1, onleave = 1, ignorebars = false},
 		--auto hide menu
@@ -134,6 +138,8 @@ _detalhes.instance_defaults = {
 				icon_file = [[Interface\AddOns\Details\images\classes_small]],
 				no_icon = false,
 				start_after_icon = true,
+			--percent type
+				percent_type = 1,
 				
 		},
 	--instance window color

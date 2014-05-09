@@ -2586,7 +2586,7 @@
 					_detalhes:EntrarEmCombate()
 					--> sinaliza que esse combate é pvp
 					_current_combat.pvp = true
-					_current_combat.is_boss = {index = 0, name = zoneName, zone = ZoneName, mapid = ZoneMapID, encounter = zoneType} 
+					_current_combat.is_pvp = {name = zoneName, zone = ZoneName, mapid = ZoneMapID}
 					_detalhes.listener:RegisterEvent ("CHAT_MSG_BG_SYSTEM_NEUTRAL")
 				end
 			else

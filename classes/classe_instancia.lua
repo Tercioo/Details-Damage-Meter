@@ -74,12 +74,12 @@ end
 function _detalhes:InstanciaCallFunction (funcao, ...)
 	for index, instancia in _ipairs (_detalhes.tabela_instancias) do
 		if (instancia:IsAtiva()) then --> só reabre se ela estiver ativa
-			funcao (_, instancia, ...) -- > ? seria isso?
+			funcao (_, instancia, ...) 
 		end
 	end
 end
 
---> chama a função para ser executada em todas as instâncias	(internal)	
+--> chama a função para ser executada em todas as instâncias	(internal)
 function _detalhes:InstanciaCallFunctionOffline (funcao, ...)
 	for index, instancia in _ipairs (_detalhes.tabela_instancias) do
 		funcao (_, instancia, ...)
@@ -194,7 +194,7 @@ end
 		
 		if (lower == self.meu_id) then
 			--> os icones dos plugins estao hostiados nessa instancia.
-			_detalhes.ToolBar:ReorganizeIcons (nil, true)
+			_detalhes.ToolBar:ReorganizeIcons (true) --não precisa recarregar toda a skin
 		end
 		
 		if (_detalhes.switch.current_instancia and _detalhes.switch.current_instancia == self) then
@@ -299,7 +299,7 @@ end
 		
 		if (lower == self.meu_id) then
 			--> os icones dos plugins precisam ser hostiados nessa instancia.
-			_detalhes.ToolBar:ReorganizeIcons (nil, true)
+			_detalhes.ToolBar:ReorganizeIcons (true) --> não precisa recarregar toda a skin
 		end
 		
 		if (not self.iniciada) then
@@ -363,6 +363,43 @@ end
 	end
 ------------------------------------------------------------------------------------------------------------------------
 
+	function _detalhes:DeleteInstance (id)
+	
+		local instance = _detalhes:GetInstance (id)
+		
+		if (not instance) then
+			return false
+		end
+		
+		--verifica se esta aberta
+		if (instance:IsEnabled()) then
+			instance:ShutDown()
+		end
+
+		--fixas os snaps nas janelas superiores
+		for i = id+1, #_detalhes.tabela_instancias do
+			local this_instance = _detalhes:GetInstance (i)
+			
+			--down the id
+			this_instance.meu_id = i-1
+			
+			--fix the snaps
+			for index, id in _pairs (this_instance.snap) do
+				if (id == i+1) then --snap na proxima instancia
+					this_instance.snap [index] = i
+				elseif (id == i-1) then --snap na instancia anterior
+					this_instance.snap [index] = i-2
+				end
+			end
+		end
+		
+		--remover do container tabela_instancias
+		tremove (_detalhes.tabela_instancias, id)
+		
+	end
+
+
+------------------------------------------------------------------------------------------------------------------------
 --> cria uma nova instância e a joga para o container de instâncias
 
 	function _detalhes:CreateInstance (id)
@@ -887,9 +924,6 @@ end
 		--> change the attribute
 			_detalhes:TrocaTabela (new_instance, 0, 1, 1)
 			
-		--> handle icons
-			new_instance:DefaultIcons (true, true, true, true)
-
 		--> internal stuff
 			new_instance.row_height = new_instance.row_info.height + new_instance.row_info.space.between
 			
@@ -928,13 +962,19 @@ end
 					end
 				end
 
-				--> apply all changed attributes
-				instance:ChangeSkin()
 			end
+		
+		--> apply all changed attributes
+		new_instance:ChangeSkin()
 		
 		return new_instance
 	end
 ------------------------------------------------------------------------------------------------------------------------
+
+	function _detalhes:FixToolbarMenu (instance)
+		--print ("fixing...", instance.meu_id)
+		--instance:ToolbarMenuButtons()
+	end
 
 --> ao reiniciar o addon esta função é rodada para recriar a janela da instância
 --> search key: ~restaura ~inicio ~start
@@ -1051,11 +1091,6 @@ function _detalhes:RestauraJanela (index, temp)
 		self:ReajustaGump()
 		self:SaveMainWindowPosition()
 		
-		-- chama 6 vezes a função de mudar skin...
-		
-		self:DefaultIcons (true, true, true, true)
-		
-
 		self.iniciada = true
 		self:AtivarInstancia (temp)
 		
@@ -1937,9 +1972,9 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 	local report_lines = {}
 
 	if (self.atributo == 5) then --> custom
-		report_lines [#report_lines+1] = "Details! " .. Loc ["STRING_CUSTOM_REPORT"] .. " " .. self.customName 
+		report_lines [#report_lines+1] = "Details!: " .. self.customName .. " " .. Loc ["STRING_CUSTOM_REPORT"]
 	else
-		report_lines [#report_lines+1] = "Details! " .. Loc ["STRING_REPORT"] .. " " .. _detalhes.sub_atributos [self.atributo].lista [self.sub_atributo]
+		report_lines [#report_lines+1] = "Details!: " .. _detalhes.sub_atributos [self.atributo].lista [self.sub_atributo]
 	end
 	
 	local barras = self.barras
@@ -2046,7 +2081,7 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 								stringlen = _detalhes.fontstring_len:GetStringWidth()
 							end
 
-							report_lines [#report_lines+1] = i..". ".. name .." ".. _cstr ("%.2f", amount/total*100) .. "% (" .. _math_floor (dps) .. ", " .. _detalhes:ToK ( _math_floor (amount) ) .. ")"
+							report_lines [#report_lines+1] = i..". ".. name .." ".. _cstr ("%.2f", amount/total*100) .. "% (" .. _detalhes:comma_value (_math_floor (dps)) .. ", " .. _detalhes:ToK ( _math_floor (amount) ) .. ")"
 						else
 							report_lines [#report_lines+1] = i..". ".. _thisActor.nome.."   ".. _detalhes:comma_value ( _math_floor (amount) ).." (".._cstr ("%.1f", amount/total*100).."%)"
 						end
@@ -2148,7 +2183,7 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 								stringlen = _detalhes.fontstring_len:GetStringWidth()
 							end
 
-							report_lines [#report_lines+1] = i..". ".. name .." ".. _cstr ("%.2f", amount/total*100) .. "% (" .. _math_floor (dps) .. ", " .. _detalhes:ToK ( _math_floor (amount) ) .. ")"
+							report_lines [#report_lines+1] = i..". ".. name .." ".. _cstr ("%.2f", amount/total*100) .. "% (" .. _detalhes:comma_value (_math_floor (dps)) .. ", " .. _detalhes:ToK ( _math_floor (amount) ) .. ")"
 						else
 							report_lines [#report_lines+1] = i..".".. _thisActor.nome.."   ".. _detalhes:comma_value ( _math_floor (amount) ).." (".._cstr ("%.1f", amount/total*100).."%)"
 						end
@@ -2199,18 +2234,25 @@ function _detalhes:envia_relatorio (linhas, custom)
 	if (not custom) then
 		if (segmento == -1) then --overall
 			luta = Loc ["STRING_REPORT_LAST"] .. " " .. #_detalhes.tabela_historico.tabelas .. " " .. Loc ["STRING_REPORT_FIGHTS"]
+			
 		elseif (segmento == 0) then --current
 		
 			if (_detalhes.tabela_vigente.is_boss) then
 				local encounterName = _detalhes.tabela_vigente.is_boss.name
 				if (encounterName) then
-					luta = _detalhes.segmentos.current .. " " .. Loc ["STRING_AGAINST"] .. " " .. encounterName
+					luta = encounterName
+				end
+				
+			elseif (_detalhes.tabela_vigente.is_pvp) then
+				local battleground_name = _detalhes.tabela_vigente.is_pvp.name
+				if (battleground_name) then
+					luta = battleground_name
 				end
 			end
 			
 			if (not luta) then
 				if (_detalhes.tabela_vigente.enemy) then
-					luta = _detalhes.segmentos.current .. " " .. Loc ["STRING_AGAINST"] .. " " .. _detalhes.tabela_vigente.enemy
+					luta = _detalhes.tabela_vigente.enemy
 				end
 			end
 			
@@ -2223,13 +2265,19 @@ function _detalhes:envia_relatorio (linhas, custom)
 				if (_detalhes.tabela_historico.tabelas[1].is_boss) then
 					local encounterName = _detalhes.tabela_historico.tabelas[1].is_boss.name
 					if (encounterName) then
-						luta = Loc ["STRING_REPORT_LASTFIGHT"] .. " " .. Loc ["STRING_AGAINST"] .. " " .. encounterName
+						luta = encounterName .. " (" .. Loc ["STRING_REPORT_LASTFIGHT"]  .. ")"
+					end
+					
+				elseif (_detalhes.tabela_historico.tabelas[1].is_pvp) then
+					local battleground_name = _detalhes.tabela_historico.tabelas[1].is_pvp.name
+					if (battleground_name) then
+						luta = battleground_name .. " (" .. Loc ["STRING_REPORT_LASTFIGHT"]  .. ")"
 					end
 				end
 				
 				if (not luta) then
 					if (_detalhes.tabela_historico.tabelas[1].enemy) then
-						luta = Loc ["STRING_REPORT_LASTFIGHT"] .. " " .. Loc ["STRING_AGAINST"] .. " " .. _detalhes.tabela_historico.tabelas[1].enemy
+						luta = _detalhes.tabela_historico.tabelas[1].enemy .. " (" .. Loc ["STRING_REPORT_LASTFIGHT"]  .. ")"
 					end
 				end
 			
@@ -2242,23 +2290,29 @@ function _detalhes:envia_relatorio (linhas, custom)
 				if (_detalhes.tabela_historico.tabelas[segmento].is_boss) then
 					local encounterName = _detalhes.tabela_historico.tabelas[segmento].is_boss.name
 					if (encounterName) then
-						luta = segmento .. " " .. Loc ["STRING_REPORT_PREVIOUSFIGHTS"] .. " " .. Loc ["STRING_AGAINST"] .. " " .. encounterName
+						luta = encounterName .. " (" .. segmento .. " " .. Loc ["STRING_REPORT_PREVIOUSFIGHTS"] .. ")"
+					end
+					
+				elseif (_detalhes.tabela_historico.tabelas[segmento].is_pvp) then
+					local battleground_name = _detalhes.tabela_historico.tabelas[segmento].is_pvp.name
+					if (battleground_name) then
+						luta = battleground_name .. " (" .. Loc ["STRING_REPORT_LASTFIGHT"]  .. ")"
 					end
 				end
 				
 				if (not luta) then
 					if (_detalhes.tabela_historico.tabelas[segmento].enemy) then
-						luta = segmento .. " " .. Loc ["STRING_REPORT_PREVIOUSFIGHTS"] .. " " .. Loc ["STRING_AGAINST"] .. " " .. _detalhes.tabela_historico.tabelas[segmento].enemy
+						luta = _detalhes.tabela_historico.tabelas[segmento].enemy .. " (" .. segmento .. " " .. Loc ["STRING_REPORT_PREVIOUSFIGHTS"] .. ")"
 					end
 				end
 			
 				if (not luta) then
-					luta = segmento .. " " .. Loc ["STRING_REPORT_PREVIOUSFIGHTS"]
+					luta = " (" .. segmento .. " " .. Loc ["STRING_REPORT_PREVIOUSFIGHTS"] .. ")"
 				end
 			end
 		end
 
-		linhas[1] = linhas[1] .. ". " .. Loc ["STRING_REPORT_FIGHT"] .. ": " .. luta
+		linhas[1] = linhas[1] .. " " .. Loc ["STRING_REPORT"] .. " " .. luta
 
 	end
 	

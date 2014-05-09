@@ -283,6 +283,7 @@ function atributo_energy:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 
 	local qual_barra = 1
 	local barras_container = instancia.barras
+	local percentage_type = instancia.row_info.percent_type
 
 	local combat_time = instancia.showing:GetCombatTime()
 	UsingCustomRightText = instancia.row_info.textR_enable_custom_text
@@ -326,13 +327,13 @@ function atributo_energy:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 			gump:Fade (row1, "out")
 			
 			for i = instancia.barraS[1], iter_last, 1 do --> vai atualizar só o range que esta sendo mostrado
-				conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time) --> instância, index, total, valor da 1º barra
+				conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type) --> instância, index, total, valor da 1º barra
 				qual_barra = qual_barra+1
 			end
 		
 		else
 			for i = instancia.barraS[1], instancia.barraS[2], 1 do --> vai atualizar só o range que esta sendo mostrado
-				conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar) --> instância, index, total, valor da 1º barra
+				conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type) --> instância, index, total, valor da 1º barra
 				qual_barra = qual_barra+1
 			end
 		end
@@ -361,13 +362,13 @@ function atributo_energy:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 			gump:Fade (row1, "out")
 			
 			for i = iter_last, instancia.barraS[1], -1 do --> vai atualizar só o range que esta sendo mostrado
-				conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time) --> instância, index, total, valor da 1º barra
+				conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type) --> instância, index, total, valor da 1º barra
 				qual_barra = qual_barra+1
 			end
 			
 		else
 			for i = instancia.barraS[2], instancia.barraS[1], 1 do --> vai atualizar só o range que esta sendo mostrado
-				conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar) --> instância, index, total, valor da 1º barra
+				conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type) --> instância, index, total, valor da 1º barra
 				qual_barra = qual_barra+1
 			end
 		end
@@ -413,7 +414,7 @@ end
 
 local actor_class_color_r, actor_class_color_g, actor_class_color_b
 
-function atributo_energy:AtualizaBarra (instancia, barras_container, qual_barra, lugar, total, sub_atributo, forcar)
+function atributo_energy:AtualizaBarra (instancia, barras_container, qual_barra, lugar, total, sub_atributo, forcar, keyName, combat_time, percentage_type)
 
 	local esta_barra = instancia.barras[qual_barra] --> pega a referência da barra na janela
 	
@@ -431,15 +432,23 @@ function atributo_energy:AtualizaBarra (instancia, barras_container, qual_barra,
 	self.colocacao = lugar
 
 	local esta_e_energy_total = self [keyName] --> total de dano que este jogador deu
-	local porcentagem = esta_e_energy_total / total * 100
+	
+--	local porcentagem = esta_e_energy_total / total * 100
+	local porcentagem
+	if (percentage_type == 1) then
+		porcentagem = _cstr ("%.1f", esta_e_energy_total / total * 100)
+	elseif (percentage_type == 2) then
+		porcentagem = _cstr ("%.1f", esta_e_energy_total / instancia.top * 100)
+	end
+
 	local esta_porcentagem = _math_floor ((esta_e_energy_total/instancia.top) * 100)
 
 	local formated_energy = SelectedToKFunction (_, esta_e_energy_total)
 	
 	if (UsingCustomRightText) then
-		esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_energy, "", _cstr ("%.1f", porcentagem)))
+		esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_energy, "", porcentagem))
 	else
-		esta_barra.texto_direita:SetText (formated_energy .. " " .. div_abre .. _cstr ("%.1f", porcentagem) .. "%" .. div_fecha) --seta o texto da direita
+		esta_barra.texto_direita:SetText (formated_energy .. " (" .. porcentagem .. "%)") --seta o texto da direita
 	end
 	
 	if (esta_barra.mouse_over and not instancia.baseframe.isMoving) then --> precisa atualizar o tooltip

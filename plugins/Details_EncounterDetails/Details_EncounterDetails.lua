@@ -225,7 +225,8 @@ local function CreatePluginFrames (data)
 	end
 	
 	--> create the button to show on toolbar [1] function OnClick [2] texture [3] tooltip [4] width or 14 [5] height or 14 [6] frame name or nil
-	EncounterDetails.ToolbarButton = _detalhes.ToolBar:NewPluginToolbarButton (EncounterDetails.OpenWindow, "Interface\\Scenarios\\ScenarioIcon-Boss", Loc ["STRING_PLUGIN_NAME"], Loc ["STRING_TOOLTIP"], 12, 12, "ENCOUNTERDETAILS_BUTTON") --"Interface\\COMMON\\help-i"
+	--EncounterDetails.ToolbarButton = _detalhes.ToolBar:NewPluginToolbarButton (EncounterDetails.OpenWindow, "Interface\\Scenarios\\ScenarioIcon-Boss", Loc ["STRING_PLUGIN_NAME"], Loc ["STRING_TOOLTIP"], 12, 12, "ENCOUNTERDETAILS_BUTTON") --"Interface\\COMMON\\help-i"
+	EncounterDetails.ToolbarButton = _detalhes.ToolBar:NewPluginToolbarButton (EncounterDetails.OpenWindow, "Interface\\AddOns\\Details_EncounterDetails\\images\\icon", Loc ["STRING_PLUGIN_NAME"], Loc ["STRING_TOOLTIP"], 16, 16, "ENCOUNTERDETAILS_BUTTON") --"Interface\\COMMON\\help-i"
 	--> setpoint anchors mod if needed
 	EncounterDetails.ToolbarButton.y = 0.5
 	EncounterDetails.ToolbarButton.x = 0

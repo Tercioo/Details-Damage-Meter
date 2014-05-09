@@ -465,6 +465,7 @@ function atributo_misc:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 		--depois faz a atualização normal dele através dos iterators
 		local qual_barra = 1
 		local barras_container = instancia.barras
+		local percentage_type = instancia.row_info.percent_type
 
 		if (instancia.bars_sort_direction == 1) then
 			for i = instancia.barraS[1], instancia.barraS[2], 1 do --> vai atualizar só o range que esta sendo mostrado
@@ -569,18 +570,19 @@ function atributo_misc:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 	--depois faz a atualização normal dele através dos iterators
 	local qual_barra = 1
 	local barras_container = instancia.barras
+	local percentage_type = instancia.row_info.percent_type
 	
 	UsingCustomRightText = instancia.row_info.textR_enable_custom_text
 	
 	if (instancia.bars_sort_direction == 1) then --top to bottom
 		for i = instancia.barraS[1], instancia.barraS[2], 1 do --> vai atualizar só o range que esta sendo mostrado
-			conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName) --> instância, index, total, valor da 1º barra
+			conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, nil, percentage_type) --> instância, index, total, valor da 1º barra
 			qual_barra = qual_barra+1
 		end
 		
 	elseif (instancia.bars_sort_direction == 2) then --bottom to top
 		for i = instancia.barraS[2], instancia.barraS[1], 1 do --> vai atualizar só o range que esta sendo mostrado
-			conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName) --> instância, index, total, valor da 1º barra
+			conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, nil, percentage_type) --> instância, index, total, valor da 1º barra
 			qual_barra = qual_barra+1
 		end
 		
@@ -628,7 +630,7 @@ end
 
 local actor_class_color_r, actor_class_color_g, actor_class_color_b
 
-function atributo_misc:AtualizaBarra (instancia, barras_container, qual_barra, lugar, total, sub_atributo, forcar, keyName, is_dead)
+function atributo_misc:AtualizaBarra (instancia, barras_container, qual_barra, lugar, total, sub_atributo, forcar, keyName, is_dead, percentage_type)
 
 	--print (self.ress)
 
@@ -651,13 +653,20 @@ function atributo_misc:AtualizaBarra (instancia, barras_container, qual_barra, l
 	if (not meu_total) then
 		return
 	end
-	local porcentagem = meu_total / total * 100
+	
+	--local porcentagem = meu_total / total * 100
+	if (not percentage_type or percentage_type == 1) then
+		porcentagem = _cstr ("%.1f", meu_total / total * 100)
+	elseif (percentage_type == 2) then
+		porcentagem = _cstr ("%.1f", meu_total / instancia.top * 100)
+	end
+	
 	local esta_porcentagem = _math_floor ((meu_total/instancia.top) * 100)
 
 	if (UsingCustomRightText) then
-		esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (meu_total, "", _cstr ("%.1f", porcentagem)))
+		esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (meu_total, "", porcentagem))
 	else
-		esta_barra.texto_direita:SetText (meu_total .." ".. div_abre .. _cstr ("%.1f", porcentagem).."%" .. div_fecha) --seta o texto da direita
+		esta_barra.texto_direita:SetText (meu_total .." (" .. porcentagem .. "%)") --seta o texto da direita
 	end
 	
 	if (esta_barra.mouse_over and not instancia.baseframe.isMoving) then --> precisa atualizar o tooltip

@@ -364,12 +364,13 @@
 				end
 			end
 			
+			--[ --disabled consolidate menu
 			if (_detalhes.lower_instance == self.meu_id or self.consolidate) then
 				if (not self.consolidate) then
-					if (self.baseframe:GetWidth() < 180) then
+					--if (self.baseframe:GetWidth() < 180) then
 						--> consolidate menus
-						self:ConsolidateIcons()
-					end
+						--self:ConsolidateIcons() --disabled
+					--end
 				else
 					if (self.baseframe:GetWidth() > 180 or _detalhes.lower_instance ~= self.meu_id) then
 						--> un consolidade menus
@@ -377,6 +378,7 @@
 					end
 				end
 			end
+			--]]
 			
 			if (self.stretch_button_side == 2) then
 				self:StretchButtonAnchor (2)

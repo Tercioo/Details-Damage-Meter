@@ -60,7 +60,6 @@
 				self.mostrando = "solo"
 			end
 			
-			self:DefaultIcons (true, false, true, false)
 			_detalhes.SoloTables.instancia = self
 			
 			--> default plugin
@@ -115,7 +114,6 @@
 			_detalhes.solo = nil --> destranca a janela solo para ser usada em outras  instâncias
 			self.mostrando = "normal"
 			self:RestoreMainWindowPosition()
-			self:DefaultIcons (true, true, true, true)
 			
 			if (_G.DetailsWaitForPluginFrame:IsShown()) then
 				_detalhes:CancelWaitForPlugin()

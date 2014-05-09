@@ -64,7 +64,6 @@ local ToKFunctions = _detalhes.ToKFunctions
 local SelectedToKFunction = ToKFunctions [1]
 local UsingCustomRightText = false
 
-
 local CLASS_ICON_TCOORDS = _G.CLASS_ICON_TCOORDS
 
 local info = _detalhes.janela_info
@@ -875,13 +874,12 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 		return _detalhes:EndRefresh (instancia, total, tabela_do_combate, showing) --> retorna a tabela que precisa ganhar o refresh
 	end
 
-	--estra mostrando ALL então posso seguir o padrão correto? primeiro, atualiza a scroll bar...
 	--print ("AMOUT: " .. amount)
 	instancia:AtualizarScrollBar (amount)
 
-	--depois faz a atualização normal dele através dos iterators
 	local qual_barra = 1
 	local barras_container = instancia.barras --> evita buscar N vezes a key .barras dentro da instância
+	local percentage_type = instancia.row_info.percent_type
 
 	if (not true) then --> follow tests, not working atm.
 		local myPos = showing._NameIndexTable [_detalhes.playername]
@@ -901,7 +899,7 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 			print (myPos, cima, baixo)
 			
 			for i = cima, baixo, 1 do --> vai atualizar só o range que esta sendo mostrado
-				conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName) --> instância, index, total, valor da 1º barra
+				conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type) --> instância, index, total, valor da 1º barra
 				qual_barra = qual_barra+1
 			end	
 
@@ -955,13 +953,13 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 				gump:Fade (row1, "out")
 				
 				for i = instancia.barraS[1], iter_last, 1 do --> vai atualizar só o range que esta sendo mostrado
-					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time) --> instância, index, total, valor da 1º barra
+					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type) --> instância, index, total, valor da 1º barra
 					qual_barra = qual_barra+1
 				end
 			
 			else
 				for i = instancia.barraS[1], instancia.barraS[2], 1 do --> vai atualizar só o range que esta sendo mostrado
-					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time) --> instância, index, total, valor da 1º barra
+					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type) --> instância, index, total, valor da 1º barra
 					qual_barra = qual_barra+1
 				end
 			end
@@ -991,13 +989,13 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 				gump:Fade (row1, "out")
 				
 				for i = iter_last, instancia.barraS[1], -1 do --> vai atualizar só o range que esta sendo mostrado
-					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time) --> instância, index, total, valor da 1º barra
+					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type) --> instância, index, total, valor da 1º barra
 					qual_barra = qual_barra+1
 				end
 			
 			else
 				for i = instancia.barraS[2], instancia.barraS[1], -1 do --> vai atualizar só o range que esta sendo mostrado
-					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time) --> instância, index, total, valor da 1º barra
+					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type) --> instância, index, total, valor da 1º barra
 					qual_barra = qual_barra+1
 				end
 			end
@@ -1073,7 +1071,7 @@ end
 local actor_class_color_r, actor_class_color_g, actor_class_color_b
 
 --self = esta classe de dano
-function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra, lugar, total, sub_atributo, forcar, keyName, combat_time)
+function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra, lugar, total, sub_atributo, forcar, keyName, combat_time, percentage_type)
 							-- instância, container das barras, qual barra, colocação, total?, sub atributo, forçar refresh, key
 	
 	local esta_barra = barras_container [qual_barra] --> pega a referência da barra na janela
@@ -1093,8 +1091,15 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 	
 	local damage_total = self.total --> total de dano que este jogador deu
 	local dps
-	local porcentagem = self [keyName] / total * 100
+	
+	local porcentagem
 	local esta_porcentagem
+	
+	if (percentage_type == 1) then
+		porcentagem = _cstr ("%.1f", self [keyName] / total * 100)
+	elseif (percentage_type == 2) then
+		porcentagem = _cstr ("%.1f", self [keyName] / instancia.top * 100)
+	end
 
 	--tempo da shadow não é mais calculado pela timemachine
 	if ((_detalhes.time_type == 2 and self.grupo) or not _detalhes:CaptureGet ("damage") or not self.shadow) then --not self.shadow is overall but...
@@ -1128,7 +1133,7 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 	
 	-- >>>>>>>>>>>>>>> texto da direita
 	if (instancia.atributo == 5) then --> custom
-		esta_barra.texto_direita:SetText (_detalhes:ToK (self.custom) .." ".. div_abre .. _cstr ("%.1f", porcentagem).."%" .. div_fecha) --seta o texto da direita
+		esta_barra.texto_direita:SetText (_detalhes:ToK (self.custom) .." (" .. porcentagem .. "%)") --seta o texto da direita
 		esta_porcentagem = _math_floor ((self.custom/instancia.top) * 100) --> determina qual o tamanho da barra
 	else
 	
@@ -1139,9 +1144,9 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 			local formated_dps = SelectedToKFunction (_, dps)
 
 			if (UsingCustomRightText) then
-				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_damage, formated_dps, _cstr ("%.1f", porcentagem)))
+				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_damage, formated_dps, porcentagem))
 			else
-				esta_barra.texto_direita:SetText (formated_damage .." ".. div_abre .. formated_dps .. ", ".. _cstr ("%.1f", porcentagem).."%" .. div_fecha) --seta o texto da direita
+				esta_barra.texto_direita:SetText (formated_damage .. " (" .. formated_dps .. ", " .. porcentagem .. "%)") --seta o texto da direita
 			end
 			esta_porcentagem = _math_floor ((damage_total/instancia.top) * 100) --> determina qual o tamanho da barra
 
@@ -1152,9 +1157,9 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 			local formated_dps = SelectedToKFunction (_, dps)
 		
 			if (UsingCustomRightText) then
-				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_dps, formated_damage, _cstr ("%.1f", porcentagem)))
+				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_dps, formated_damage, porcentagem))
 			else		
-				esta_barra.texto_direita:SetText (formated_dps .. " " .. div_abre .. formated_damage .. ", " .. _cstr ("%.1f", porcentagem) .. "%" .. div_fecha) --seta o texto da direita
+				esta_barra.texto_direita:SetText (formated_dps .. " (" .. formated_damage .. ", " .. porcentagem .. "%)") --seta o texto da direita
 			end
 			esta_porcentagem = _math_floor ((dps/instancia.top) * 100) --> determina qual o tamanho da barra
 			
@@ -1163,9 +1168,9 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 			local formated_damage_taken = SelectedToKFunction (_, self.damage_taken)
 
 			if (UsingCustomRightText) then
-				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_damage_taken, "", _cstr ("%.1f", porcentagem)))
+				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_damage_taken, "", porcentagem))
 			else
-				esta_barra.texto_direita:SetText (formated_damage_taken .." ".. div_abre .. _cstr ("%.1f", porcentagem) .. "%" .. div_fecha) --seta o texto da direita --
+				esta_barra.texto_direita:SetText (formated_damage_taken .." (" .. porcentagem .. "%)") --seta o texto da direita --
 			end
 			esta_porcentagem = _math_floor ((self.damage_taken/instancia.top) * 100) --> determina qual o tamanho da barra
 			
@@ -1174,9 +1179,9 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 			local formated_friendly_fire = SelectedToKFunction (_, self.friendlyfire_total)
 
 			if (UsingCustomRightText) then
-				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_friendly_fire, "", _cstr ("%.1f", porcentagem)))
+				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_friendly_fire, "", porcentagem))
 			else			
-				esta_barra.texto_direita:SetText (formated_friendly_fire .. " " .. div_abre .. _cstr ("%.1f", porcentagem) .. "%" .. div_fecha) --seta o texto da direita --
+				esta_barra.texto_direita:SetText (formated_friendly_fire .. " (" .. porcentagem .. "%)") --seta o texto da direita --
 			end
 			esta_porcentagem = _math_floor ((self.friendlyfire_total/instancia.top) * 100) --> determina qual o tamanho da barra
 		
@@ -1187,9 +1192,9 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 			local formated_dps = SelectedToKFunction (_, dps)
 		
 			if (UsingCustomRightText) then
-				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_damage, formated_dps, _cstr ("%.1f", porcentagem)))
+				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_damage, formated_dps, porcentagem))
 			else		
-				esta_barra.texto_direita:SetText (formated_damage .. " " .. div_abre .. formated_dps .. ", " .. _cstr ("%.1f", porcentagem) .. "%" .. div_fecha) --seta o texto da direita
+				esta_barra.texto_direita:SetText (formated_damage .. " (" .. formated_dps .. ", " .. porcentagem .. "%)") --seta o texto da direita
 			end
 			esta_porcentagem = _math_floor ((damage_total/instancia.top) * 100) --> determina qual o tamanho da barra
 			
@@ -2097,10 +2102,21 @@ function atributo_damage:MontaInfoDamageDone()
 
 	--> add pets
 	local ActorPets = self.pets
+	--local class_color = RAID_CLASS_COLORS [self.classe] and RAID_CLASS_COLORS [self.classe].colorStr
+	local class_color = "FFDDDDDD"
 	for _, PetName in _ipairs (ActorPets) do
 		local PetActor = instancia.showing (class_type, PetName)
 		if (PetActor) then 
-			_table_insert (ActorSkillsSortTable, {PetName, PetActor.total, PetActor.total/ActorTotalDamage*100, PetName:gsub ((" <.*"), ""), "Interface\\AddOns\\Details\\images\\classes_small"})
+			local PetSkillsContainer = PetActor.spell_tables._ActorTable
+			for _spellid, _skill in _pairs (PetSkillsContainer) do --> da foreach em cada spellid do container
+				local nome, _, icone = _GetSpellInfo (_spellid)
+				if (class_color) then
+					_table_insert (ActorSkillsSortTable, {_spellid, _skill.total, _skill.total/ActorTotalDamage*100, nome .. " (|c" .. class_color .. PetName:gsub ((" <.*"), "") .. "|r)", icone, PetActor})
+				else
+					_table_insert (ActorSkillsSortTable, {_spellid, _skill.total, _skill.total/ActorTotalDamage*100, nome .. " (" .. PetName:gsub ((" <.*"), "") .. ")", icone, PetActor})
+				end
+			end
+			--_table_insert (ActorSkillsSortTable, {PetName, PetActor.total, PetActor.total/ActorTotalDamage*100, PetName:gsub ((" <.*"), ""), "Interface\\AddOns\\Details\\images\\classes_small"})
 		end
 	end
 	
@@ -2120,6 +2136,7 @@ function atributo_damage:MontaInfoDamageDone()
 		self:FocusLock (barra, tabela[1])
 		
 		self:UpdadeInfoBar (barra, index, tabela[1], tabela[4], tabela[2], max_, tabela[3], tabela[5], true)
+		barra.other_actor = tabela [6]
 	end
 	
 	--> TOP INIMIGOS
@@ -2196,12 +2213,14 @@ function atributo_damage:MontaInfoDamageDone()
 		end
 	else
 		local meus_inimigos = {}
-		conteudo = self.targets._ActorTable
 		
+		--> my target container
+		conteudo = self.targets._ActorTable
 		for _, tabela in _ipairs (conteudo) do
 			_table_insert (meus_inimigos, {tabela.nome, tabela.total, tabela.total/total*100})
 		end
 		
+		--> sort
 		_table_sort (meus_inimigos, function(a, b) return a[2] > b[2] end )	
 		
 		local amt_alvos = #meus_inimigos
@@ -2236,7 +2255,7 @@ function atributo_damage:MontaInfoDamageDone()
 				if (barra.isAlvo) then
 					GameTooltip:Hide() 
 					GameTooltip:SetOwner (barra, "ANCHOR_TOPRIGHT")
-					if (not barra.minha_tabela:MontaTooltipAlvos (barra, index)) then
+					if (not barra.minha_tabela:MontaTooltipAlvos (barra, index, instancia)) then
 						return
 					end
 					GameTooltip:Show()
@@ -2469,7 +2488,7 @@ function atributo_damage:MontaDetalhesDamageTaken (nome, barra)
 end
 
 ------ Detalhe Info Damage Done e Dps
-function atributo_damage:MontaDetalhesDamageDone (spellid, barra)
+function atributo_damage:MontaDetalhesDamageDone (spellid, barra, instancia)
 
 	if (_type (spellid) == "string") then 
 	
@@ -2535,11 +2554,18 @@ function atributo_damage:MontaDetalhesDamageDone (spellid, barra)
 		return
 	end
 
-	local esta_magia = self.spell_tables._ActorTable [spellid]
+	
+	local esta_magia
+	if (barra.other_actor) then
+		esta_magia = barra.other_actor.spell_tables._ActorTable [spellid]
+	else
+		esta_magia = self.spell_tables._ActorTable [spellid]
+	end
+
 	if (not esta_magia) then
 		return
 	end
-
+	
 	--> icone direito superior
 	local nome, rank, icone = _GetSpellInfo (spellid)
 	local infospell = {nome, rank, icone}
@@ -2709,14 +2735,15 @@ function atributo_damage:MontaTooltipDamageTaken (esta_barra, index)
 	
 end
 
-function atributo_damage:MontaTooltipAlvos (esta_barra, index)
+function atributo_damage:MontaTooltipAlvos (esta_barra, index, instancia)
 	-- eu ja sei quem é o alvo a mostrar os detalhes
 	-- dar foreach no container de habilidades -- pegar os alvos da habilidade -- e ver se dentro do container tem o meu alvo.
 	
 	local inimigo = esta_barra.nome_inimigo
 	local container = self.spell_tables._ActorTable
 	local habilidades = {}
-	local total = self.total_without_pet
+	--local total = self.total_without_pet
+	local total = self.total
 	
 	for spellid, tabela in _pairs (container) do
 		--> tabela = classe_damage_habilidade
@@ -2724,10 +2751,24 @@ function atributo_damage:MontaTooltipAlvos (esta_barra, index)
 		for _, tabela in _ipairs (alvos) do
 			--> tabela = classe_target
 			if (tabela.nome == inimigo) then
-				habilidades [#habilidades+1] = {spellid, tabela.total}
+				local nome, _, icone = _GetSpellInfo (spellid)
+				habilidades [#habilidades+1] = {nome, tabela.total, icone}
 			end
 		end
 	end
+	
+	--> add pets
+	local ActorPets = self.pets
+	for _, PetName in _ipairs (ActorPets) do
+		local PetActor = instancia.showing (class_type, PetName)
+		if (PetActor) then 
+			local PetSkillsContainer = PetActor.spell_tables._ActorTable
+			for _spellid, _skill in _pairs (PetSkillsContainer) do --> da foreach em cada spellid do container
+				local nome, _, icone = _GetSpellInfo (_spellid)
+				habilidades [#habilidades+1] = {nome .. " (" .. PetName:gsub ((" <.*"), "") .. ")", _skill.total, icone}
+			end
+		end
+	end	
 	
 	table.sort (habilidades, function (a, b) return a[2] > b[2] end)
 	
@@ -2736,12 +2777,12 @@ function atributo_damage:MontaTooltipAlvos (esta_barra, index)
 	GameTooltip:AddLine (" ")
 	
 	for index, tabela in _ipairs (habilidades) do
-		local nome, rank, icone = _GetSpellInfo (tabela[1])
+		
 		if (index < 8) then
-			GameTooltip:AddDoubleLine (index..". |T"..icone..":0|t "..nome, _detalhes:comma_value (tabela[2]).." (".._cstr("%.1f", tabela[2]/total*100).."%)", 1, 1, 1, 1, 1, 1)
+			GameTooltip:AddDoubleLine (index..". |T"..tabela[3]..":0|t "..tabela[1], _detalhes:comma_value (tabela[2]).." (".._cstr("%.1f", tabela[2]/total*100).."%)", 1, 1, 1, 1, 1, 1)
 			--GameTooltip:AddTexture (icone)
 		else
-			GameTooltip:AddDoubleLine (index..". "..nome, _detalhes:comma_value (tabela[2]).." (".._cstr("%.1f", tabela[2]/total*100).."%)", .65, .65, .65, .65, .65, .65)
+			GameTooltip:AddDoubleLine (index..". "..tabela[1], _detalhes:comma_value (tabela[2]).." (".._cstr("%.1f", tabela[2]/total*100).."%)", .65, .65, .65, .65, .65, .65)
 		end
 	end
 	

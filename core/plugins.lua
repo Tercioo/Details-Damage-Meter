@@ -109,12 +109,10 @@
 		end
 		
 		if (PluginObject.__enabled) then
-			_detalhes:SendEvent ("PLUGIN_ENABLED", PluginObject)
+			return true, saved_table, true
 		else
-			_detalhes:SendEvent ("PLUGIN_DISABLED", PluginObject)
+			return true, saved_table, false
 		end
-		
-		return true, saved_table
 		
 	end
 

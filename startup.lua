@@ -161,7 +161,7 @@ function _G._detalhes:Start()
 				end
 			end
 			
-			_detalhes.ToolBar:ReorganizeIcons()
+			_detalhes.ToolBar:ReorganizeIcons() --> refresh all skin
 		
 			self.RefreshAfterStartup = nil
 		end
@@ -438,8 +438,10 @@ function _G._detalhes:Start()
 	if LDB then
 
 		local minimapIcon = LDB:NewDataObject ("Details!", {
-			type = "data source",
+			type = "launcher",
 			icon = [[Interface\AddOns\Details\images\minimap]],
+			
+			HotCornerIgnore = true,
 			
 			OnClick = function (self, button)
 			
@@ -648,7 +650,6 @@ function _G._detalhes:Start()
 		--_detalhes:OpenOptionsWindow (_detalhes.tabela_instancias[1])
 	--end
 	--_detalhes:ScheduleTimer ("OpenOptionsWindowAtStart", 2)
-	
 	
 end
 

@@ -35,6 +35,9 @@
 			button:SetHeight (h)
 		end
 		
+		button.x = 0
+		button.y = 0
+		
 		--> tooltip and function on click
 		button.tooltip = tooltip
 		button:SetScript ("OnClick", func)
@@ -90,7 +93,7 @@
 		end
 
 		_detalhes.ToolBar.Shown [#_detalhes.ToolBar.Shown+1] = Button
-		Button:SetPoint ("left", LastIcon, "right", Button.x + x, Button.y)
+		Button:SetPoint ("left", LastIcon.widget or LastIcon, "right", Button.x + x, Button.y)
 		Button:Show()
 		
 		if (Effect) then
@@ -105,7 +108,7 @@
 			end
 		end
 		
-		_detalhes.ToolBar:ReorganizeIcons (lastIcon)
+		_detalhes.ToolBar:ReorganizeIcons (true)
 		
 		return true
 	end
@@ -124,7 +127,7 @@
 		table.remove (_detalhes.ToolBar.Shown, index)
 		
 		--> reorganize icons
-		_detalhes.ToolBar:ReorganizeIcons()
+		_detalhes.ToolBar:ReorganizeIcons (true)
 		
 	end
 
@@ -173,14 +176,13 @@
 	_detalhes.ToolBar.__enabled = true
 
 	function _detalhes.ToolBar:OnInstanceOpen() 
-		_detalhes.ToolBar:ReorganizeIcons()
+		_detalhes.ToolBar:ReorganizeIcons (true)
 	end
 	function _detalhes.ToolBar:OnInstanceClose() 
-		_detalhes.ToolBar:ReorganizeIcons()
+		_detalhes.ToolBar:ReorganizeIcons (true)
 	end
 
-	function _detalhes.ToolBar:ReorganizeIcons (lastIcon, just_refresh)
-
+	function _detalhes.ToolBar:ReorganizeIcons (just_refresh)
 		--> get the lower number instance
 		local lower_instance = _detalhes:GetLowerInstanceNumber()
 	
@@ -192,74 +194,9 @@
 		end
 
 		local instance = _detalhes:GetInstance (lower_instance)
-		
+
 		_detalhes:ResetButtonSnapTo (instance)
 		_detalhes.ResetButtonInstance = lower_instance
-		
-		if (#_detalhes.ToolBar.Shown > 0) then
-			
-			local LastIcon
-			
-			local x = 0
-			local to_alpha = instance:GetInstanceIconsCurrentAlpha()
-			
-			if (instance.plugins_grow_direction == 2) then --> right direction
-			
-				if (instance.consolidate) then
-					LastIcon = instance.consolidateButtonTexture
-					x = -3
-				else
-					LastIcon = instance.lastIcon or instance.baseframe.cabecalho.report
-				end
-			
-				for _, ThisButton in ipairs (_detalhes.ToolBar.Shown) do 
-					ThisButton:ClearAllPoints()
-					--ThisButton:SetParent (instance.baseframe.UPFrame)
-					
-					-- se tiver no listener, ele nao hida quando a janela for fechada.
-					-- se tiver no baseframe não da de clicar.
-					-- se tiver no UPFrame ele muda de alpha junto com a janela.
-					
-					-- mudei para o baseframe aumentando o level.
-					ThisButton:SetParent (instance.baseframe)
-					ThisButton:SetFrameLevel (instance.baseframe:GetFrameLevel()+5)
-					
-					if (LastIcon == instance.baseframe.cabecalho.report) then
-						ThisButton:SetPoint ("left", LastIcon, "right", ThisButton.x + x + 4, ThisButton.y)
-					else
-						ThisButton:SetPoint ("left", LastIcon, "right", ThisButton.x + x, ThisButton.y)
-					end
-					
-					ThisButton:Show()
-					ThisButton:SetAlpha (to_alpha)
-					
-					LastIcon = ThisButton
-				end
-
-			elseif (instance.plugins_grow_direction == 1) then --> left direction
-
-				if (instance.consolidate) then
-					LastIcon = instance.consolidateButtonTexture
-				else
-					LastIcon = instance.baseframe.cabecalho.modo_selecao.widget
-				end
-				
-				for _, ThisButton in ipairs (_detalhes.ToolBar.Shown) do 
-					ThisButton:ClearAllPoints()
-
-					ThisButton:SetParent (instance.baseframe)
-					ThisButton:SetFrameLevel (instance.baseframe:GetFrameLevel()+5)
-					
-					ThisButton:SetPoint ("right", LastIcon, "left", ThisButton.x + x, ThisButton.y)
-					
-					ThisButton:Show()
-					ThisButton:SetAlpha (to_alpha)
-					
-					LastIcon = ThisButton
-				end
-			end
-			
-		end
 		
 		if (not just_refresh) then
 			for _, instancia in pairs (_detalhes.tabela_instancias) do 
@@ -270,7 +207,8 @@
 
 			instance:ChangeSkin()
 		else
-			instance:SetMenuAlpha()
+			--instance:SetMenuAlpha()
+			instance:ToolbarMenuButtons()
 		end
 		
 		return true

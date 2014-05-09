@@ -62,6 +62,7 @@ do
 		[124464] = {name = GetSpellInfo (124464) .. " (" .. Loc ["STRING_MASTERY"] .. ")"}, --> shadow word: pain mastery proc (priest)
 		[124465] = {name = GetSpellInfo (124465) .. " (" .. Loc ["STRING_MASTERY"] .. ")"}, --> vampiric touch mastery proc (priest)
 		[124468] = {name = GetSpellInfo (124468) .. " (" .. Loc ["STRING_MASTERY"] .. ")"}, --> mind flay mastery proc (priest)
+		[124469] = {name = GetSpellInfo (124469) .. " (" .. Loc ["STRING_MASTERY"] .. ")"}, --> mind sear mastery proc (priest)
 		
 		[121414] = {name = GetSpellInfo (121414) .. " (Glaive #1)"}, --> glaive toss (hunter)
 		[120761] = {name = GetSpellInfo (120761) .. " (Glaive #2)"}, --> glaive toss (hunter)

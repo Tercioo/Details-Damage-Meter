@@ -1521,7 +1521,7 @@ local function button_stretch_scripts (baseframe, backgrounddisplay, instancia)
 					
 					esta_instancia.baseframe:SetFrameStrata (baseframe_strata)
 					esta_instancia.rowframe:SetFrameStrata (baseframe_strata)
-					esta_instancia.baseframe.button_stretch:SetFrameStrata ("FULLSCREEN")
+					--esta_instancia.baseframe.button_stretch:SetFrameStrata ("FULLSCREEN")
 					_detalhes:SendEvent ("DETAILS_INSTANCE_ENDSTRETCH", nil, esta_instancia.baseframe)
 				end
 				instancia.stretchToo = nil
@@ -1539,7 +1539,7 @@ local function button_stretch_scripts (baseframe, backgrounddisplay, instancia)
 		
 		baseframe:SetFrameStrata (baseframe_strata)
 		instancia.rowframe:SetFrameStrata (baseframe_strata)
-		baseframe.button_stretch:SetFrameStrata ("FULLSCREEN")
+		--baseframe.button_stretch:SetFrameStrata ("FULLSCREEN")
 		
 		_detalhes:SnapTextures (false)
 		
@@ -2101,7 +2101,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 		baseframe.button_stretch = CreateFrame ("button", nil, baseframe)
 		baseframe.button_stretch:SetPoint ("bottom", baseframe, "top", 0, 20)
 		baseframe.button_stretch:SetPoint ("right", baseframe, "right", -27, 0)
-		baseframe.button_stretch:SetFrameStrata ("FULLSCREEN")
+		--baseframe.button_stretch:SetFrameStrata ("FULLSCREEN")
 	
 		local stretch_texture = baseframe.button_stretch:CreateTexture (nil, "overlay")
 		stretch_texture:SetTexture (DEFAULT_SKIN)
@@ -2560,7 +2560,7 @@ function gump:CriaNovaBarra (instancia, index)
 	return esta_barra
 end
 
-function _detalhes:SetBarTextSettings (size, font, fixedcolor, leftcolorbyclass, rightcolorbyclass, leftoutline, rightoutline, customrighttextenabled, customrighttext)
+function _detalhes:SetBarTextSettings (size, font, fixedcolor, leftcolorbyclass, rightcolorbyclass, leftoutline, rightoutline, customrighttextenabled, customrighttext, percentage_type)
 	
 	--> size
 	if (size) then
@@ -2600,12 +2600,17 @@ function _detalhes:SetBarTextSettings (size, font, fixedcolor, leftcolorbyclass,
 		self.row_info.textR_outline = rightoutline
 	end
 	
-	--custom right text
+	--> custom right text
 	if (type (customrighttextenabled) == "boolean") then
 		self.row_info.textR_enable_custom_text = customrighttextenabled
 	end
 	if (customrighttext) then
 		self.row_info.textR_custom_text = customrighttext
+	end
+	
+	--> percent type
+	if (percentage_type) then
+		self.row_info.percent_type = percentage_type
 	end
 	
 	self:InstanceReset()
@@ -3472,7 +3477,7 @@ function _detalhes:ConsolidateIcons()
 	
 	self.consolidateButton:Show()
 	
-	self:DefaultIcons()
+	self:ToolbarMenuButtons()
 	
 	return self:MenuAnchor()
 end
@@ -3482,108 +3487,126 @@ function _detalhes:UnConsolidateIcons()
 	self.consolidate = false
 	
 	if (not self.consolidateButton) then
-		return self:DefaultIcons()
+		return self:ToolbarMenuButtons()
 	end
 	
 	self.consolidateButton:Hide()
 	
-	self:DefaultIcons()
+	self:ToolbarMenuButtons()
 	
 	return self:MenuAnchor()
 end
 
+function _detalhes:GetMenuAnchorPoint()
+	local toolbar_side = self.toolbar_side
+	local menu_side = self.menu_anchor.side
+	
+	if (menu_side == 1) then --left
+		if (toolbar_side == 1) then --top
+			return self.menu_points [1], "bottomleft", "bottomright"
+		elseif (toolbar_side == 2) then --bottom
+			return self.menu_points [1], "topleft", "topright"
+		end
+	elseif (menu_side == 2) then --right
+		if (toolbar_side == 1) then --top
+			return self.menu_points [2], "topleft", "bottomleft"
+		elseif (toolbar_side == 2) then --bottom
+			return self.menu_points [2], "topleft", "topleft"
+		end
+	end
+end
+
 --> search key: ~icon
-function _detalhes:DefaultIcons (_mode, _segment, _attributes, _report)
+function _detalhes:ToolbarMenuButtonsSize (size)
+	size = size or self.menu_icons_size
+	self.menu_icons_size = size
+	return self:ToolbarMenuButtons()
+end
+function _detalhes:ToolbarMenuButtons (_mode, _segment, _attributes, _report)
 
 	if (_mode == nil) then
-		_mode = self.icons[1]
+		_mode = self.menu_icons[1]
 	end
 	if (_segment == nil) then
-		_segment = self.icons[2]
+		_segment = self.menu_icons[2]
 	end
 	if (_attributes == nil) then
-		_attributes = self.icons[3]
+		_attributes = self.menu_icons[3]
 	end
 	if (_report == nil) then
-		_report = self.icons[4]
+		_report = self.menu_icons[4]
 	end	
 
-	if (self.consolidate and not self.consolidateButton:IsShown()) then
-		self.consolidateButton:Show()
-	elseif (not self.consolidate and self.consolidateButton:IsShown()) then
-		self.consolidateButton:Hide()
-	end
-
-	local baseToolbar = self.baseframe.cabecalho
-	local icons = {baseToolbar.modo_selecao, baseToolbar.segmento, baseToolbar.atributo, baseToolbar.report}
-	local options = {_mode, _segment, _attributes, _report}
-	local anchors = {{0, 0}, {0, 0}, {0, 0}, {-6, 0}}
+	self.menu_icons[1] = _mode
+	self.menu_icons[2] = _segment
+	self.menu_icons[3] = _attributes
+	self.menu_icons[4] = _report
 	
-	for index = 1, #icons do
-		if (type (options[index]) == "boolean") then
-			if (options[index]) then
-				icons [index]:Show()
-				self.icons[index] = true
+	local buttons = {self.baseframe.cabecalho.modo_selecao, self.baseframe.cabecalho.segmento, self.baseframe.cabecalho.atributo, self.baseframe.cabecalho.report}
+	
+	local anchor_frame, point1, point2 = self:GetMenuAnchorPoint()
+	local got_anchor = false
+	self.lastIcon = nil
+	
+	local size = self.menu_icons_size
+	
+	--> normal buttons
+	for index, button in ipairs (buttons) do
+		if (self.menu_icons [index]) then
+			button:ClearAllPoints()
+			if (got_anchor) then
+				button:SetPoint ("left", self.lastIcon, "right")
 			else
-				icons [index]:Hide()
-				self.icons[index] = false
+				button:SetPoint (point1, anchor_frame, point2)
+				got_anchor = button
 			end
+			self.lastIcon = button
+			button:SetParent (self.baseframe)
+			button:SetFrameLevel (self.baseframe.UPFrame:GetFrameLevel()+1)
+			button:Show()
+			
+			if (buttons[4] == button) then
+				button:SetSize (8*size, 16*size)
+			else
+				button:SetSize (16*size, 16*size)
+			end
+		else
+			button:Hide()
 		end
 	end
-
-	local _gotFirst = false
-	for index = 1, #icons do 
-		local _thisIcon = icons [index]
-		if (_thisIcon:IsShown()) then
-			if (not _gotFirst) then
-				
-				_thisIcon:ClearAllPoints()
-
-				if (self.consolidate) then
-					_thisIcon:SetPoint ("topleft", self.consolidateFrame, "topleft", -3, -5)
-					_thisIcon:SetParent (self.consolidateFrame)
-				else
-					_thisIcon:SetPoint ("bottomleft", baseToolbar.ball, "bottomright", anchors[index][1] + self.menu_anchor [1], anchors[index][2] + self.menu_anchor [2])
-					_thisIcon:SetParent (self.baseframe)
-					_thisIcon:SetFrameLevel (self.baseframe.UPFrame:GetFrameLevel()+1)
-
-				end
-				
-				_gotFirst = true
-			else
-				for dex = index-1, 1, -1 do
-					local _thisIcon2 = icons [dex]
-					if (_thisIcon2:IsShown()) then
-					
-						_thisIcon:ClearAllPoints()
-						
-						if (self.consolidate) then
-							_thisIcon:SetPoint ("topleft", _thisIcon2.widget or _thisIcon2, "bottomleft", anchors[index][1], anchors[index][2]-2)
-							_thisIcon:SetParent (self.consolidateFrame)
+	
+	--> plugins buttons
+	if (self:IsLowerInstance()) then
+		if (#_detalhes.ToolBar.Shown > 0) then
+			for index, button in ipairs (_detalhes.ToolBar.Shown) do 
+				button:ClearAllPoints()
+				if (got_anchor) then
+					if (self.plugins_grow_direction == 2) then --right (default)
+						if (self.lastIcon == buttons[4]) then
+							button:SetPoint ("left", self.lastIcon.widget or self.lastIcon, "right", 2, 0) --, button.x, button.y
 						else
-							_thisIcon:SetPoint ("left", _thisIcon2.widget or _thisIcon2, "right", 0 + anchors[index][1], 0 + anchors[index][2])
-							_thisIcon:SetParent (self.baseframe)
-							_thisIcon:SetFrameLevel (self.baseframe.UPFrame:GetFrameLevel()+1)
+							button:SetPoint ("left", self.lastIcon.widget or self.lastIcon, "right") --, button.x, button.y
 						end
-						break
+					elseif (self.plugins_grow_direction == 1) then --left
+						if (index == 1) then
+							button:SetPoint ("right", got_anchor.widget or got_anchor, "left") --, button.x, button.y
+						else
+							button:SetPoint ("right", self.lastIcon.widget or self.lastIcon, "left") --, button.x, button.y
+						end
 					end
+				else
+					button:SetPoint (point1, anchor_frame, point2)
+					got_anchor = button
 				end
+				self.lastIcon = button
+				button:SetParent (self.baseframe)
+				button:SetFrameLevel (self.baseframe.UPFrame:GetFrameLevel()+1)
+				button:Show()
+				
+				button:SetSize (16*size, 16*size)
 			end
 		end
 	end
-	
-	for index = #icons, 1, -1 do 
-		if (icons [index]:IsShown()) then
-			self.lastIcon = icons [index]
-			break
-		end
-	end
-	
-	if (not self.lastIcon) then
-		self.lastIcon = baseToolbar.ball
-	end
-	
-	_detalhes.ToolBar:ReorganizeIcons()
 	
 	return true
 end
@@ -3930,7 +3953,7 @@ end
 
 function _detalhes:RestoreUIPanelButton (button)
 	--> restaura o botão
-	button.Left:SetTexture ([[Interface\Buttons\UI-Panel-Button-Down]])
+	button.Left:SetTexture ([[Interface\Buttons\UI-Panel-Button-Up]])
 	button.Left:SetTexCoord (0, 0.0937, 0, 0.6875)
 	button.Left:SetSize (12, 22)
 	button.Right:Show()
@@ -4166,16 +4189,16 @@ function _detalhes:ChangeSkin (skin_name)
 				_detalhes.ResetButton.Left:SetTexture (skin_file)
 				_detalhes.ResetButton.Left:SetTexCoord (unpack (this_skin.reset_button_coords))
 				_detalhes.ResetButton.Left:SetSize (_detalhes.ResetButton:GetSize())
-				
-				_detalhes.ResetButton2.Left:SetTexture (skin_file)
-				_detalhes.ResetButton2.Left:SetTexCoord (unpack (this_skin.reset_button_small_coords or this_skin.reset_button_coords))
-				_detalhes.ResetButton2.Left:SetSize (_detalhes.ResetButton2:GetSize())
-				
+
 				if (this_skin.reset_button_small_size) then
 					_detalhes.ResetButton2:SetSize (unpack (this_skin.reset_button_small_size))
 				else
 					_detalhes.ResetButton2:SetSize (22, 15)
 				end
+				
+				_detalhes.ResetButton2.Left:SetTexture (skin_file)
+				_detalhes.ResetButton2.Left:SetTexCoord (unpack (this_skin.reset_button_small_coords or this_skin.reset_button_coords))
+				_detalhes.ResetButton2.Left:SetSize (_detalhes.ResetButton2:GetSize())
 				
 				--> remove propriedades do botão da blizzard
 				_detalhes:DisableUIPanelButton (_detalhes.ResetButton)
@@ -4367,7 +4390,7 @@ function _detalhes:ChangeSkin (skin_name)
 		self:SetCombatAlpha (nil, nil, true)
 		
 	--> update icons
-		_detalhes.ToolBar:ReorganizeIcons (nil, true) --call self:SetMenuAlpha()
+		_detalhes.ToolBar:ReorganizeIcons (true) --call self:SetMenuAlpha()
 		
 	--> refresh options panel if opened
 		if (_G.DetailsOptionsWindow and _G.DetailsOptionsWindow:IsShown()) then
@@ -4951,54 +4974,38 @@ function _detalhes:MenuAnchor (x, y)
 	self.menu_anchor [1] = x
 	self.menu_anchor [2] = y
 	
+	local menu_points = self.menu_points -- = {MenuAnchorLeft, MenuAnchorRight}
+	
 	if (self.menu_anchor.side == 1) then --> left
-		if (self.consolidate) then
-			self.consolidateButton:ClearAllPoints()
+		--self.baseframe.cabecalho.modo_selecao:ClearAllPoints()
+	
+		menu_points [1]:ClearAllPoints()
+		if (self.toolbar_side == 1) then --> top
+			--self.baseframe.cabecalho.modo_selecao:SetPoint ("bottomleft", self.baseframe.cabecalho.ball, "bottomright", x, y)
+			menu_points [1]:SetPoint ("bottomleft", self.baseframe.cabecalho.ball, "bottomright", x, y)
 			
-			if (self.toolbar_side == 1) then --> top
-				self.consolidateButton:SetPoint ("bottomleft", self.baseframe.cabecalho.ball, "bottomright", x, y)
-				
-			else --> bottom
-			
-				self.consolidateButton:SetPoint ("topleft", self.baseframe.cabecalho.ball, "topright", x, y*-1)
-			end
-			
-		else --> not consolidated
-			self.baseframe.cabecalho.modo_selecao:ClearAllPoints()
-		
-			if (self.toolbar_side == 1) then --> top
-				self.baseframe.cabecalho.modo_selecao:SetPoint ("bottomleft", self.baseframe.cabecalho.ball, "bottomright", x, y)
-				
-			else --> bottom
-				self.baseframe.cabecalho.modo_selecao:SetPoint ("topleft", self.baseframe.cabecalho.ball, "topright", x, y*-1)
+		else --> bottom
+			--self.baseframe.cabecalho.modo_selecao:SetPoint ("topleft", self.baseframe.cabecalho.ball, "topright", x, y*-1)
+			menu_points [1]:SetPoint ("topleft", self.baseframe.cabecalho.ball, "topright", x, y*-1)
 
-			end
 		end
 	
 	elseif (self.menu_anchor.side == 2) then --> right
-		if (self.consolidate) then
-			self.consolidateButton:ClearAllPoints()
+		--self.baseframe.cabecalho.modo_selecao:ClearAllPoints()
+		menu_points [2]:ClearAllPoints()
+		if (self.toolbar_side == 1) then --> top
+			--self.baseframe.cabecalho.modo_selecao:SetPoint ("topleft", self.baseframe.cabecalho.ball_r, "bottomleft", x, y+16)
+			menu_points [2]:SetPoint ("topleft", self.baseframe.cabecalho.ball_r, "bottomleft", x, y+16)
 			
-			if (self.toolbar_side == 1) then --> top
-				self.consolidateButton:SetPoint ("bottomright", self.baseframe, "topright", x, y)
-				
-			else --> bottom
-			
-				self.consolidateButton:SetPoint ("topleft", self.baseframe.cabecalho.ball, "topright", x, y*-1)
-			end
-			
-		else --> not consolidated
-			self.baseframe.cabecalho.modo_selecao:ClearAllPoints()
-		
-			if (self.toolbar_side == 1) then --> top
-				self.baseframe.cabecalho.modo_selecao:SetPoint ("topleft", self.baseframe.cabecalho.ball_r, "bottomleft", x, y+16)
-				
-			else --> bottom
-				self.baseframe.cabecalho.modo_selecao:SetPoint ("topleft", self.baseframe.cabecalho.ball_r, "topleft", x, y*-1)
+		else --> bottom
+			--self.baseframe.cabecalho.modo_selecao:SetPoint ("topleft", self.baseframe.cabecalho.ball_r, "topleft", x, y*-1)
+			menu_points [2]:SetPoint ("topleft", self.baseframe.cabecalho.ball_r, "topleft", x, y*-1)
 
-			end
 		end
 	end
+	
+	self:ToolbarMenuButtons()
+	
 end
 
 function _detalhes:HideMainIcon (value)
@@ -5335,6 +5342,14 @@ function gump:CriaCabecalho (baseframe, instancia)
 	baseframe.UPFrameConnect:SetResizable (true)
 	BGFrame_scripts (baseframe.UPFrameConnect, baseframe, instancia)
 	
+	baseframe.UPFrameLeftPart = CreateFrame ("frame", "DetailsUpFrameLeftPart"..instancia.meu_id, baseframe)
+	baseframe.UPFrameLeftPart:SetPoint ("bottomleft", baseframe, "topleft", 0, 0)
+	baseframe.UPFrameLeftPart:SetSize (22, 20)
+	baseframe.UPFrameLeftPart:EnableMouse (true)
+	baseframe.UPFrameLeftPart:SetMovable (true)
+	baseframe.UPFrameLeftPart:SetResizable (true)
+	BGFrame_scripts (baseframe.UPFrameLeftPart, baseframe, instancia)
+
 	--> anchors para os micro displays no lado de cima da janela
 	local StatusBarLeftAnchor = CreateFrame ("frame", nil, baseframe)
 	StatusBarLeftAnchor:SetPoint ("bottomleft", baseframe, "topleft", 0, 9)
@@ -5354,6 +5369,14 @@ function gump:CriaCabecalho (baseframe, instancia)
 	StatusBarRightAnchor:SetWidth (1)
 	StatusBarRightAnchor:SetHeight (1)
 	baseframe.cabecalho.StatusBarRightAnchor = StatusBarRightAnchor
+	
+	local MenuAnchorLeft = CreateFrame ("frame", "DetailsMenuAnchorLeft"..instancia.meu_id, baseframe)
+	MenuAnchorLeft:SetSize (1, 1)
+	
+	local MenuAnchorRight = CreateFrame ("frame", "DetailsMenuAnchorRight"..instancia.meu_id, baseframe)
+	MenuAnchorRight:SetSize (1, 1)
+	
+	instancia.menu_points = {MenuAnchorLeft, MenuAnchorRight}
 	
 -- botões	
 ------------------------------------------------------------------------------------------------------------------------------------------------- 	
@@ -5553,7 +5576,8 @@ function gump:CriaCabecalho (baseframe, instancia)
 	end)	
 
 	--> SELECIONAR O ATRIBUTO  ----------------------------------------------------------------------------------------------------------------------------------------------------
-	baseframe.cabecalho.atributo = gump:NewDetailsButton (baseframe, _, instancia, instancia.TrocaTabela, instancia, -3, 16, 16, [[Interface\AddOns\Details\images\sword]])
+	baseframe.cabecalho.atributo = gump:NewButton (baseframe, nil, "DetailsAttributeButton"..instancia.meu_id, nil, 16, 16, instancia.TrocaTabela, instancia, -3, [[Interface\AddOns\Details\images\sword]])
+	--baseframe.cabecalho.atributo = gump:NewDetailsButton (baseframe, _, instancia, instancia.TrocaTabela, instancia, -3, 16, 16, [[Interface\AddOns\Details\images\sword]])
 	baseframe.cabecalho.atributo:SetFrameLevel (baseframe.UPFrame:GetFrameLevel()+1)
 	baseframe.cabecalho.atributo:SetPoint ("left", baseframe.cabecalho.segmento.widget, "right", 0, 0)
 
@@ -5609,7 +5633,8 @@ function gump:CriaCabecalho (baseframe, instancia)
 	_G.GameCooltip:CoolTipInject (baseframe.cabecalho.atributo)
 
 	--> REPORTAR ~report ----------------------------------------------------------------------------------------------------------------------------------------------------
-			baseframe.cabecalho.report = gump:NewDetailsButton (baseframe, _, instancia, _detalhes.Reportar, instancia, nil, 16, 16, [[Interface\COMMON\VOICECHAT-ON]])
+			baseframe.cabecalho.report = gump:NewButton (baseframe, nil, "DetailsReportButton"..instancia.meu_id, nil, 8, 16, _detalhes.Reportar, instancia, nil, [[Interface\Addons\Details\Images\report_button]])
+			--baseframe.cabecalho.report = gump:NewDetailsButton (baseframe, _, instancia, _detalhes.Reportar, instancia, nil, 16, 16, [[Interface\COMMON\VOICECHAT-ON]])
 			baseframe.cabecalho.report:SetPoint ("left", baseframe.cabecalho.atributo, "right", -6, 0)
 			baseframe.cabecalho.report:SetFrameLevel (baseframe.UPFrame:GetFrameLevel()+1)
 			baseframe.cabecalho.report:SetScript ("OnEnter", function (self)
@@ -5620,7 +5645,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 				
 				GameCooltip:Reset()
 				GameCooltip:AddLine (Loc ["STRING_REPORT_BUTTON_TOOLTIP"])
-				GameCooltip:SetOwner (baseframe.cabecalho.report)
+				GameCooltip:SetOwner (baseframe.cabecalho.report.widget)
 				GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
 				GameCooltip:Show()
 				

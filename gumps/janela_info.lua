@@ -1850,11 +1850,11 @@ local row_on_enter = function (self)
 		
 		-- ~erro
 		if (self.spellid == "enemies") then --> damage taken enemies
-			if (not self.minha_tabela or not self.minha_tabela:MontaTooltipDamageTaken (self, self._index)) then  -- > poderia ser aprimerado para uma tailcall
+			if (not self.minha_tabela or not self.minha_tabela:MontaTooltipDamageTaken (self, self._index, info.instancia)) then  -- > poderia ser aprimerado para uma tailcall
 				return
 			end
 		
-		elseif (not self.minha_tabela or not self.minha_tabela:MontaTooltipAlvos (self, self._index)) then  -- > poderia ser aprimerado para uma tailcall
+		elseif (not self.minha_tabela or not self.minha_tabela:MontaTooltipAlvos (self, self._index, info.instancia)) then  -- > poderia ser aprimerado para uma tailcall
 			return
 			
 		end
@@ -1883,7 +1883,7 @@ local row_on_enter = function (self)
 			info.showing = self._index --> diz  o index da barra que esta sendo mostrado na direita
 
 			info.jogador.detalhes = self.show --> minha tabela = jogador = jogador.detales = spellid ou nome que esta sendo mostrado na direita
-			info.jogador:MontaDetalhes (self.show, self) --> passa a spellid ou nome e a barra
+			info.jogador:MontaDetalhes (self.show, self, info.instancia) --> passa a spellid ou nome e a barra
 		end
 	end
 end

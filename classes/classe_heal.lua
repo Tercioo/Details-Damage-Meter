@@ -362,6 +362,7 @@ function atributo_heal:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 	--depois faz a atualização normal dele através dos iterators
 	local qual_barra = 1
 	local barras_container = instancia.barras --> evita buscar N vezes a key .barras dentro da instância
+	local percentage_type = instancia.row_info.percent_type
 	
 	--print (sub_atributo, total, keyName)
 	
@@ -407,7 +408,7 @@ function atributo_heal:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 			gump:Fade (row1, "out")
 			
 			for i = instancia.barraS[1], iter_last, 1 do --> vai atualizar só o range que esta sendo mostrado
-				conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time) --> instância, index, total, valor da 1º barra
+				conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type) --> instância, index, total, valor da 1º barra
 				qual_barra = qual_barra+1
 			end	
 		else
@@ -435,12 +436,12 @@ function atributo_heal:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 				gump:Fade (row1, "out")
 				
 				for i = iter_last, instancia.barraS[1], -1 do --> vai atualizar só o range que esta sendo mostrado
-					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time) --> instância, index, total, valor da 1º barra
+					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type) --> instância, index, total, valor da 1º barra
 					qual_barra = qual_barra+1
 				end
 			else
 				for i = instancia.barraS[1], instancia.barraS[2], 1 do --> vai atualizar só o range que esta sendo mostrado
-					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time) --> instância, index, total, valor da 1º barra
+					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type) --> instância, index, total, valor da 1º barra
 					qual_barra = qual_barra+1
 				end
 			end
@@ -448,7 +449,7 @@ function atributo_heal:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 		
 	elseif (instancia.bars_sort_direction == 2) then --bottom to top
 		for i = instancia.barraS[2], instancia.barraS[1], 1 do --> vai atualizar só o range que esta sendo mostrado
-			conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time) --> instância, index, total, valor da 1º barra
+			conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type) --> instância, index, total, valor da 1º barra
 			qual_barra = qual_barra+1
 		end
 
@@ -499,7 +500,7 @@ end
 local actor_class_color_r, actor_class_color_g, actor_class_color_b
 
 --function atributo_heal:AtualizaBarra (instancia, qual_barra, lugar, total, sub_atributo, forcar)
-function atributo_heal:AtualizaBarra (instancia, barras_container, qual_barra, lugar, total, sub_atributo, forcar, keyName, combat_time)
+function atributo_heal:AtualizaBarra (instancia, barras_container, qual_barra, lugar, total, sub_atributo, forcar, keyName, combat_time, percentage_type)
 
 	local esta_barra = instancia.barras[qual_barra] --> pega a referência da barra na janela
 	
@@ -518,8 +519,16 @@ function atributo_heal:AtualizaBarra (instancia, barras_container, qual_barra, l
 	
 	local healing_total = self.total --> total de dano que este jogador deu
 	local hps
-	local porcentagem = self [keyName] / total * 100
+	
+	--local porcentagem = self [keyName] / total * 100
+	local porcentagem
 	local esta_porcentagem
+	
+	if (percentage_type == 1) then
+		porcentagem = _cstr ("%.1f", self [keyName] / total * 100)
+	elseif (percentage_type == 2) then
+		porcentagem = _cstr ("%.1f", self [keyName] / instancia.top * 100)
+	end
 
 	if ((_detalhes.time_type == 2 and self.grupo) or (not _detalhes:CaptureGet ("heal") and not _detalhes:CaptureGet ("aura")) or not self.shadow) then
 		if (not self.shadow and combat_time == 0) then
@@ -552,7 +561,7 @@ function atributo_heal:AtualizaBarra (instancia, barras_container, qual_barra, l
 	
 	-- >>>>>>>>>>>>>>> texto da direita
 	if (instancia.atributo == 5) then --> custom
-		esta_barra.texto_direita:SetText (_detalhes:ToK (self.custom) .." ".. div_abre .. _cstr ("%.1f", porcentagem).."%" .. div_fecha) --seta o texto da direita
+		esta_barra.texto_direita:SetText (_detalhes:ToK (self.custom) .. " (" .. porcentagem .. "%)") --seta o texto da direita
 		esta_porcentagem = _math_floor ((self.custom/instancia.top) * 100) --> determina qual o tamanho da barra
 	else	
 		if (sub_atributo == 1) then --> mostrando healing done
@@ -562,9 +571,9 @@ function atributo_heal:AtualizaBarra (instancia, barras_container, qual_barra, l
 			local formated_hps = SelectedToKFunction (_, hps)
 		
 			if (UsingCustomRightText) then
-				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_heal, formated_hps, _cstr ("%.1f", porcentagem)))
+				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_heal, formated_hps, porcentagem))
 			else
-				esta_barra.texto_direita:SetText (formated_heal .." ".. div_abre .. formated_hps .. ", " .. _cstr ("%.1f", porcentagem) .. "%" .. div_fecha) --seta o texto da direita
+				esta_barra.texto_direita:SetText (formated_heal .." (" .. formated_hps .. ", " .. porcentagem .. "%)") --seta o texto da direita
 			end
 			esta_porcentagem = _math_floor ((healing_total/instancia.top) * 100) --> determina qual o tamanho da barra
 			
@@ -575,9 +584,9 @@ function atributo_heal:AtualizaBarra (instancia, barras_container, qual_barra, l
 			local formated_hps = SelectedToKFunction (_, hps)
 			
 			if (UsingCustomRightText) then
-				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_hps, formated_heal, _cstr ("%.1f", porcentagem)))
+				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_hps, formated_heal, porcentagem))
 			else			
-				esta_barra.texto_direita:SetText (formated_hps .. " " .. div_abre .. formated_heal .. ", " .. _cstr ("%.1f", porcentagem) .. "%" .. div_fecha) --seta o texto da direita
+				esta_barra.texto_direita:SetText (formated_hps .. " (" .. formated_heal .. ", " .. porcentagem .. "%)") --seta o texto da direita
 			end
 			esta_porcentagem = _math_floor ((hps/instancia.top) * 100) --> determina qual o tamanho da barra
 			
@@ -586,9 +595,9 @@ function atributo_heal:AtualizaBarra (instancia, barras_container, qual_barra, l
 			local formated_overheal = SelectedToKFunction (_, self.totalover)
 			
 			if (UsingCustomRightText) then
-				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_overheal, "", _cstr ("%.1f", porcentagem)))
+				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_overheal, "", porcentagem))
 			else
-				esta_barra.texto_direita:SetText (formated_overheal .." " .. div_abre .. _cstr ("%.1f", porcentagem) .. "%" .. div_fecha) --seta o texto da direita --_cstr("%.1f", dps) .. " - ".. DPS do damage taken não será possivel correto?
+				esta_barra.texto_direita:SetText (formated_overheal .." (" .. porcentagem .. "%)") --seta o texto da direita --_cstr("%.1f", dps) .. " - ".. DPS do damage taken não será possivel correto?
 			end
 			esta_porcentagem = _math_floor ((self.totalover/instancia.top) * 100) --> determina qual o tamanho da barra
 			
@@ -597,9 +606,9 @@ function atributo_heal:AtualizaBarra (instancia, barras_container, qual_barra, l
 			local formated_healtaken = SelectedToKFunction (_, self.healing_taken)
 			
 			if (UsingCustomRightText) then
-				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_healtaken, "", _cstr ("%.1f", porcentagem)))
+				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_healtaken, "", porcentagem))
 			else		
-				esta_barra.texto_direita:SetText (formated_healtaken .. " " .. div_abre .. _cstr ("%.1f", porcentagem) .. "%" .. div_fecha) --seta o texto da direita --_cstr("%.1f", dps) .. " - ".. DPS do damage taken não será possivel correto?
+				esta_barra.texto_direita:SetText (formated_healtaken .. " (" .. porcentagem .. "%)") --seta o texto da direita --_cstr("%.1f", dps) .. " - ".. DPS do damage taken não será possivel correto?
 			end
 			esta_porcentagem = _math_floor ((self.healing_taken/instancia.top) * 100) --> determina qual o tamanho da barra
 		
@@ -608,9 +617,9 @@ function atributo_heal:AtualizaBarra (instancia, barras_container, qual_barra, l
 			local formated_enemyheal = SelectedToKFunction (_, self.heal_enemy_amt)
 		
 			if (UsingCustomRightText) then
-				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_enemyheal, "", _cstr ("%.1f", porcentagem)))
+				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_enemyheal, "", porcentagem))
 			else
-				esta_barra.texto_direita:SetText (formated_enemyheal .. " " .. div_abre .. _cstr ("%.1f", porcentagem) .. "%" .. div_fecha) --seta o texto da direita --_cstr("%.1f", dps) .. " - ".. DPS do damage taken não será possivel correto?
+				esta_barra.texto_direita:SetText (formated_enemyheal .. " (" .. porcentagem .. "%)") --seta o texto da direita --_cstr("%.1f", dps) .. " - ".. DPS do damage taken não será possivel correto?
 			end
 			esta_porcentagem = _math_floor ((self.heal_enemy_amt/instancia.top) * 100) --> determina qual o tamanho da barra
 			
@@ -619,9 +628,9 @@ function atributo_heal:AtualizaBarra (instancia, barras_container, qual_barra, l
 			local formated_absorbs = SelectedToKFunction (_, self.totalabsorb)
 		
 			if (UsingCustomRightText) then
-				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_absorbs, "", _cstr ("%.1f", porcentagem)))
+				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_absorbs, "", porcentagem))
 			else
-				esta_barra.texto_direita:SetText (formated_absorbs .. " " .. div_abre .. _cstr ("%.1f", porcentagem) .. "%" .. div_fecha) --seta o texto da direita --_cstr("%.1f", dps) .. " - ".. DPS do damage taken não será possivel correto?
+				esta_barra.texto_direita:SetText (formated_absorbs .. " (" .. porcentagem .. "%)") --seta o texto da direita --_cstr("%.1f", dps) .. " - ".. DPS do damage taken não será possivel correto?
 			end
 			esta_porcentagem = _math_floor ((self.totalabsorb/instancia.top) * 100) --> determina qual o tamanho da barra
 		end

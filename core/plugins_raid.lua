@@ -38,7 +38,6 @@
 			end
 			
 			_detalhes:ResetaGump (instancia)
-			instancia:DefaultIcons (true, false, true, false)
 			
 			_detalhes.raid = instancia.meu_id
 			instancia:AtualizaGumpPrincipal (true)
@@ -78,8 +77,6 @@
 				--> precisa verificar se ele precisa a rolagem certo?
 				instancia:ReajustaGump()
 			end
-			
-			instancia:DefaultIcons (true, true, true, true)
 			
 			--> calcula se existem barras, etc...
 			if (not instancia.rows_fit_in_window) then --> as barras não forma iniciadas ainda

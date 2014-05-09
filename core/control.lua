@@ -79,6 +79,17 @@
 						end
 					end
 				end
+				
+			end
+			
+			for _, actor in _ipairs (_detalhes.tabela_vigente[class_type_dano]._ActorTable) do 
+			
+				if (actor.grupo and not actor.owner) then
+					for index, target in _ipairs (actor.targets._ActorTable) do 
+						return target.nome
+					end
+				end
+				
 			end
 			
 			return Loc ["STRING_UNKNOW"]

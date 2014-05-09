@@ -454,13 +454,13 @@ local SliderMetaFunctions = {}
 		if (f.host.fine_tuning) then
 			f.host:SetValue (current + f.host.fine_tuning)
 			if (editbox and SliderMetaFunctions.editbox_typevalue:IsShown()) then
-				SliderMetaFunctions.editbox_typevalue:SetText (tostring (string.format ("%.1f", current + f.host.fine_tuning)))
+				SliderMetaFunctions.editbox_typevalue:SetText (tostring (string.format ("%.2f", current + f.host.fine_tuning)))
 			end
 		else
 			if (f.host.useDecimals) then
 				f.host:SetValue (current + 0.1)
 				if (editbox and SliderMetaFunctions.editbox_typevalue:IsShown()) then
-					SliderMetaFunctions.editbox_typevalue:SetText (string.format ("%.1f", current + 0.1))
+					SliderMetaFunctions.editbox_typevalue:SetText (string.format ("%.2f", current + 0.1))
 				end
 			else
 				f.host:SetValue (current + 1)
@@ -506,13 +506,13 @@ local SliderMetaFunctions = {}
 		if (f.host.fine_tuning) then
 			f.host:SetValue (current - f.host.fine_tuning)
 			if (editbox and SliderMetaFunctions.editbox_typevalue:IsShown()) then
-				SliderMetaFunctions.editbox_typevalue:SetText (tostring (string.format ("%.1f", current - f.host.fine_tuning)))
+				SliderMetaFunctions.editbox_typevalue:SetText (tostring (string.format ("%.2f", current - f.host.fine_tuning)))
 			end
 		else
 			if (f.host.useDecimals) then
 				f.host:SetValue (current - 0.1)
 				if (editbox and SliderMetaFunctions.editbox_typevalue:IsShown()) then
-					SliderMetaFunctions.editbox_typevalue:SetText (string.format ("%.1f", current - 0.1))
+					SliderMetaFunctions.editbox_typevalue:SetText (string.format ("%.2f", current - 0.1))
 				end
 			else
 				f.host:SetValue (current - 1)
@@ -678,7 +678,7 @@ local SliderMetaFunctions = {}
 		end
 		
 		if (slider.MyObject.useDecimals) then
-			slider.amt:SetText (string.format ("%.1f", amt))
+			slider.amt:SetText (string.format ("%.2f", amt))
 		else
 			slider.amt:SetText (math.floor (amt))
 		end

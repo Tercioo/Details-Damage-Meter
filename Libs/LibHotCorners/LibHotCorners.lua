@@ -5,6 +5,10 @@ if (not LibHotCorners) then
 	return
 end
 
+local LBD = LibStub ("LibDataBroker-1.1")
+
+local debug = false
+
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> main function
 
@@ -13,6 +17,7 @@ end
 		"RegisterHotCornerButton",
 		"HideHotCornerButton"
 	}
+	
 	function LibHotCorners:Embed (target)
 		for k, v in pairs (embed_functions) do
 			target[v] = self[v]
@@ -24,7 +29,7 @@ end
 	local CallbackHandler = LibStub:GetLibrary ("CallbackHandler-1.0")
 	LibHotCorners.callbacks = LibHotCorners.callbacks or CallbackHandler:New (LibHotCorners)
 
-	LibHotCorners.topleft = {widgets = {}, quickclick = false, is_enabled = false, map = {}}
+	LibHotCorners.topleft = LibHotCorners.topleft or {widgets = {}, quickclick = false, is_enabled = false, map = {}}
 	LibHotCorners.bottomleft = {}
 	LibHotCorners.topright = {}
 	LibHotCorners.bottomright = {}
@@ -33,11 +38,11 @@ end
 		assert (corner == "topleft" or corner == "bottomleft" or corner == "topright" or corner == "bottomright", "LibHotCorners:RegisterAddon expects a corner on #1 argument.")
 	end
 	
-	function LibHotCorners:RegisterHotCornerButton (name, corner, savedtable, fname, icon, tooltip, clickfunc, menus, quickfunc)
+	function LibHotCorners:RegisterHotCornerButton (name, corner, savedtable, fname, icon, tooltip, clickfunc, menus, quickfunc, onenter, onleave)
 		corner = string.lower (corner)
 		test (corner)
 		
-		tinsert (LibHotCorners [corner], {name = name, fname = fname, savedtable = savedtable, icon = icon, tooltip = tooltip, click = clickfunc, menus = menus, quickfunc = quickclick})
+		tinsert (LibHotCorners [corner], {name = name, fname = fname, savedtable = savedtable, icon = icon, tooltip = tooltip, click = clickfunc, menus = menus, quickfunc = quickclick, onenter = onenter, onleave = onleave})
 		LibHotCorners [corner].map [name] = #LibHotCorners [corner]
 		
 		if (not savedtable.hide) then
@@ -88,7 +93,8 @@ end
 		local addon_table = corner_table [corner_table.map [name]]
 		
 		addon_table.savedtable.hide = value
-		
+
+		print (LibHotCorners, corner)
 		LibHotCorners [corner].is_enabled = false
 		
 		for index, button_table in ipairs (corner_table) do 
@@ -100,112 +106,176 @@ end
 		
 		return true
 	end
+	
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> data broker stuff
+	function LibHotCorners:DataBrokerCallback (event, name, dataobj)
+		if (not name or not dataobj or not dataobj.type) then
+			return
+		end
+		if (dataobj.icon and dataobj.OnClick and not dataobj.HotCornerIgnore) then
+			LibHotCorners:RegisterHotCornerButton (name, "TopLeft", {}, name .. "HotCornerLauncher", dataobj.icon, dataobj.OnTooltipShow, dataobj.OnClick, nil, nil, dataobj.OnEnter, dataobj.OnLeave)
+		end
+	end
+	LBD.RegisterCallback (LibHotCorners, "DataBrokerCallback")
+
+	local f = CreateFrame ("frame")
+	f:RegisterEvent ("PLAYER_LOGIN")
+	f:SetScript ("OnEvent", function()
+		for name, dataobj in LBD:DataObjectIterator() do
+			if (dataobj.type and dataobj.icon and dataobj.OnClick and not dataobj.HotCornerIgnore) then
+				LibHotCorners:RegisterHotCornerButton (name, "TopLeft", {}, name .. "HotCornerLauncher", dataobj.icon, dataobj.OnTooltipShow, dataobj.OnClick, nil, nil, dataobj.OnEnter, dataobj.OnLeave)
+			end
+		end
+		--for k, v in pairs (LBD.attributestorage) do 
+		--	print (k, v.type)
+		--end
+		f:UnregisterEvent ("PLAYER_LOGIN")
+	end)
+	
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> scripts
+
+	--> set size
+		local function set_size (self)
+			if (self.position == "topleft" or self.position == "topright") then
+				self:SetSize (40, GetScreenHeight())
+			else
+				self:SetSize (GetScreenWidth(), 40)
+			end
+		end
+		
+	--> show tooltip
+		local show_tooltip = function (self)
+			if (self.table.tooltip) then
+				if (type (self.table.tooltip) == "function") then
+					GameTooltip:SetOwner (self, "ANCHOR_RIGHT")
+					self.table.tooltip (GameTooltip)
+					GameTooltip:Show()
+				elseif (type (self.table.tooltip) == "string") then
+					GameTooltip:SetOwner (self, "ANCHOR_RIGHT")
+					GameTooltip:AddLine (self.table.tooltip)
+					GameTooltip:Show()
+				end
+			elseif (self.table.onenter) then
+				self.table.onenter (self)
+			end
+		end
+		
+	--> corner frame on enter
+		function HotCornersOnEnter (self)
+			if (not LibHotCorners [self.position].is_enabled) then
+				return
+			end
+		
+			set_size (self)
+			
+			local i = 1
+			
+			for index, button_table in ipairs (LibHotCorners [self.position]) do 
+				if (not button_table.widget) then
+					LibHotCorners:CreateAddonWidget (self, button_table, index, self.position)
+				end
+				
+				if (not button_table.savedtable.hide) then
+					if (self.position == "topleft" or self.position == "topright") then
+						local y = i * 35 * -1
+						button_table.widget:SetPoint ("topleft", self, "topleft", 4, y)
+						button_table.widget.y = y
+					else
+						local x = i * 35
+						button_table.widget:SetPoint ("topleft", self, "topleft", x, -4)
+						button_table.widget.x = x
+					end
+
+					button_table.widget:Show()
+					i = i + 1
+				else
+					button_table.widget:Hide()
+				end
+			end
+		end
+
+	--> corner frame on leave
+		function HotCornersOnLeave (self)
+			self:SetSize (1, 1)
+			for index, button_table in ipairs (LibHotCorners [self.position]) do 
+				button_table.widget:Hide()
+			end
+		end
+		
+	--> quick corner on click
+		function HotCornersOnQuickClick (self, button)
+			local parent_position = self:GetParent().position
+			if (LibHotCorners [parent_position].quickfunc) then
+				LibHotCorners [parent_position].quickfunc (self, button)
+			end
+		end
+
+	--> button onenter
+		function HotCornersButtonOnEnter (self)
+			set_size (self:GetParent())
+			for index, button_table in ipairs (LibHotCorners [self:GetParent().position]) do 
+				button_table.widget:Show()
+			end
+			show_tooltip (self)
+		end
+	
+	--> button onleave
+		function HotCornersButtonOnLeave (self)
+			GameTooltip:Hide()
+			if (self.table.onleave) then
+				self.table.onleave (self)
+			end
+			self:GetParent():GetScript("OnLeave")(self:GetParent())
+		end
+
+	--> button onmousedown
+		function HotCornersButtonOnMouseDown (self, button)
+			if (self:GetParent().position == "topleft" or self:GetParent().position == "topright") then
+				self:SetPoint ("topleft", self:GetParent(), "topleft", 5, self.y - 1)
+			else
+				self:SetPoint ("topleft", self:GetParent(), "topleft", self.x+1, -6)
+			end
+		end
+		
+	--> button onmouseup
+		function HotCornersButtonOnMouseUp (self, button)
+			if (self:GetParent().position == "topleft" or self:GetParent().position == "topright") then
+				self:SetPoint ("topleft", self:GetParent(), "topleft", 4, self.y)
+			else
+				self:SetPoint ("topleft", self:GetParent(), "topleft", self.x, -4)
+			end
+			if (self.table.click) then
+				self.table.click (self, button)
+			end
+		end
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> create top left corner
 
-	local TopLeftCorner = CreateFrame ("frame", "LibHotCornersTopLeft", UIParent)
-
-	TopLeftCorner:SetSize (1, 1)
-	TopLeftCorner:SetFrameStrata ("fullscreen")
-	TopLeftCorner:SetPoint ("TopLeft", UIParent, "TopLeft", 0, 0)
-
-	local TopLeftCornerBackdrop = {bgFile = [[Interface\DialogFrame\UI-DialogBox-Background]], tile = true, tileSize = 40}
-	
-	--> on enter
-	local TopLeftCornerOnEnter = function (self)
-	
-		if (not LibHotCorners.topleft.is_enabled) then
-			return
-		end
-	
-		self:SetSize (40, GetScreenHeight())
-		TopLeftCorner:SetBackdrop (TopLeftCornerBackdrop)
-		
-		local i = 1
-		
-		for index, button_table in ipairs (LibHotCorners.topleft) do 
-			if (not button_table.widget) then
-				LibHotCorners:CreateAddonWidget (TopLeftCorner, button_table, index, "TopLeft")
-			end
-			
-			if (not button_table.savedtable.hide) then
-				button_table.widget:SetPoint ("topleft", self, "topleft", 4, i * 32 * -1)
-				button_table.widget:Show()
-				i = i + 1
-			else
-				button_table.widget:Hide()
-			end
-			
-		end
-
-	end
-
-	--> on leave
-	local TopLeftCornerOnLeave = function (self)
-		self:SetSize (1, 1)
-		TopLeftCorner:SetBackdrop (nil)
-		for index, button_table in ipairs (LibHotCorners.topleft) do 
-			button_table.widget:Hide()
-		end
-	end
-
-	TopLeftCorner:SetScript ("OnEnter", TopLeftCornerOnEnter)
-	TopLeftCorner:SetScript ("OnLeave", TopLeftCornerOnLeave)
+	local TopLeftCorner = CreateFrame ("Frame", "LibHotCornersTopLeft", nil, "HotCornersFrameCornerTemplate")
+	TopLeftCorner:SetPoint ("topleft", UIParent, "topleft", 0, 0)
+	TopLeftCorner.position = "topleft"
 	
 	--fast corner button
-	local QuickClickButton = CreateFrame ("button", "LibHotCornersTopLeftFastButton", TopLeftCorner)
-	QuickClickButton:SetPoint ("topleft", TopLeftCorner, "topleft")
-	QuickClickButton:SetSize (1, 1)
-	QuickClickButton:SetScript ("OnClick", function (self, button)
-		if (LibHotCorners.topleft.quickfunc) then
-			LibHotCorners.topleft.quickfunc (self, button)
-		end
-	end)
-
-	QuickClickButton:SetScript ("OnEnter", function() 
-		TopLeftCornerOnEnter (TopLeftCorner)
-	end)
+	local QuickClickButton = CreateFrame ("button", "LibHotCornersTopLeftFastButton", TopLeftCorner, "HotCornersQuickCornerButtonTemplate")
+	
+	if (debug) then
+		QuickClickButton:SetSize (20, 20)
+		QuickClickButton:SetBackdrop ({bgFile = [[Interface\DialogFrame\UI-DialogBox-Gold-Background]], tile = true, tileSize = 40})
+		QuickClickButton:SetBackdropColor (1, 0, 0, 1)
+	end
 	
 	LibHotCorners.topleft.quickbutton = QuickClickButton
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> buttons 
 
-	local ShowTooltip = function (self)
-		if (self.table.tooltip) then
-			GameTooltip:SetOwner (self, "ANCHOR_RIGHT")
-			GameTooltip:AddLine (self.table.tooltip)
-			GameTooltip:Show()
-		end
-	end
-
-	local WidgetOnEnter = function (self)
-		self.parent:GetScript("OnEnter")(self.parent)
-		ShowTooltip (self)
-	end
-	local WidgetOnLeave = function (self)
-		self:SetPoint ("topleft", self.parent, "topleft", 4, self.index*32*-1)
-		self.parent:GetScript("OnLeave")(self.parent)
-		GameTooltip:Hide()
-	end
-	local WidgetOnMouseDown = function (self)
-		self:SetPoint ("topleft", self.parent, "topleft", 5, self.index*33*-1)
-	end
-	local WidgetOnMouseUp = function (self, button)
-		self:SetPoint ("topleft", self.parent, "topleft", 4, self.index*32*-1)
-		
-		--> if the widget have a click function, run it
-		if (self.table.click) then
-			self.table.click (self, button)
-		end
-	end
-	
 	function LibHotCorners:CreateAddonWidget (frame, button_table, index, side)
 	
 		--> create the button
-		local button = CreateFrame ("button", "LibHotCorners" .. side .. button_table.fname, frame)
-		button:SetFrameLevel (frame:GetFrameLevel()+1)
+		local button = CreateFrame ("button", "LibHotCorners" .. side .. button_table.fname, frame, "HotCornersButtonTemplate")
 		
 		--> write some attributes
 		button.index = index
@@ -217,15 +287,10 @@ end
 		button:SetNormalTexture (button_table.icon)
 		button:SetHighlightTexture (button_table.icon)
 		
-		--> set the point and size
-		button:SetSize (32, 32)
-		button:Hide()
-		
-		--> set the scripts
-		button:SetScript ("OnEnter", WidgetOnEnter)
-		button:SetScript ("OnLeave", WidgetOnLeave)
-		button:SetScript ("OnMouseDown", WidgetOnMouseDown)
-		button:SetScript ("OnMouseUp", WidgetOnMouseUp)
+		if (string.lower (button_table.icon):find ([[\icons\]])) then
+			button:GetNormalTexture():SetTexCoord (0.078125, 0.9375, 0.078125, 0.9375)
+			button:GetHighlightTexture():SetTexCoord (0.078125, 0.9375, 0.078125, 0.9375)
+		end
 		
 		return button
 	end

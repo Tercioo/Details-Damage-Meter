@@ -667,17 +667,9 @@ do
 		
 		--> Create Plugin Frames
 		function PDps:CreateChildObject (instance)
-		
 			--> create main frame and widgets
 			--> a statusbar frame is made of a panel with a member called 'text' which is a label
 			local myframe = _detalhes.StatusBar:CreateChildFrame (instance, "DetailsStatusBarDps", DEFAULT_CHILD_WIDTH, DEFAULT_CHILD_HEIGHT)
-
-			--> create the table for the child
-			--> a child table are the table which will hold parameters, default members: 
-			-- ["instance"] = instance where this child are, 
-			-- ["frame"] = myframe, 
-			-- ["text"] = myframe.text, 
-			-- ["mainPlugin"] = parent plugin
 			local new_child = _detalhes.StatusBar:CreateChildTable (instance, PDps, myframe)
 			
 			return new_child
@@ -687,22 +679,7 @@ do
 		function PDps:OnDetailsEvent (event)
 			return
 		end
-	
-		--> standard on enable and disable functions, this is for hook model. If isn't declared, details will auto modify member .enabled state
-		--function PDps:OnEnable()
-		--	self.enabled = true
-		--end
-		--function PDps:OnDisable()
-		--	self.enabled = false
-		--end
-		
-		--> setup function runs when player click with left mouse over plugin frame
-		--> this is internal, but member Setup can be overwrite
-		--> for exclude any options panel, set Setup to nil
-		--function PDps:Setup()
-		--	_detalhes.StatusBar:OpenOptionsForChild (self)
-		--end
-		
+
 		--> Install
 		-- _detalhes:InstallPlugin ( Plugin Type | Plugin Display Name | Plugin Icon | Plugin Object | Plugin Real Name )
 		local install = _detalhes:InstallPlugin ("STATUSBAR", Loc ["STRING_PLUGIN_PDPSNAME"], "Interface\\Icons\\Achievement_brewery_3", PDps, "DETAILS_STATUSBAR_PLUGIN_PDPS")
@@ -714,9 +691,9 @@ do
 		--> Register needed events
 		-- here we are redirecting the event to an specified function, otherwise events need to be handle inside "PDps:OnDetailsEvent (event)"
 		_detalhes:RegisterEvent (PDps, "DETAILS_INSTANCE_CHANGESEGMENT", PDps.ChangeSegment)
+		_detalhes:RegisterEvent (PDps, "DETAILS_DATA_RESET", PDps.DataReset)
 		_detalhes:RegisterEvent (PDps, "COMBAT_PLAYER_ENTER", PDps.PlayerEnterCombat)
 		_detalhes:RegisterEvent (PDps, "COMBAT_PLAYER_LEAVE", PDps.PlayerLeaveCombat)
-		_detalhes:RegisterEvent (PDps, "DETAILS_DATA_RESET", PDps.DataReset)
 
 end
 
@@ -729,102 +706,74 @@ do
 		function PSegment:OnDetailsEvent (event)
 			return
 		end
+		
+		function PSegment:NewCombat (combat_table)
+			PSegment.can_schedule = 1
+			PSegment:Change()
+		end
 
+		function PSegment:SchduleGetName()
+			PSegment:Change()
+		end
+		
 		function PSegment:Change (combat_table, segment_number)
+		
 			for index, child in _ipairs (PSegment.childs) do
 			
 				if (child.enabled and child.instance:IsEnabled()) then
-				
+					
+					child.options.segmentType = child.options.segmentType or 1
+
 					if (not child.instance.showing) then
-						return child.text:SetText ("Unknown")
+						return child.text:SetText (Loc ["STRING_EMPTY_SEGMENT"])
 					end
 				
 					if (child.instance.segmento == -1) then --> overall
 						child.text:SetText (Loc ["STRING_OVERALL"])
 						
 					elseif (child.instance.segmento == 0) then --> combate atual
-					
+
 						if (child.options.segmentType == 1) then
 							child.text:SetText (Loc ["STRING_CURRENT"])
-							
-						elseif (child.options.segmentType == 2) then
-						
-							if (child.instance.showing.is_boss) then
-								child.text:SetText (child.instance.showing.is_boss.encounter)
-								
-							elseif (_detalhes.encounter_table and _detalhes.encounter_table.name) then
-								child.text:SetText (_detalhes.encounter_table.name)
-								
+						else
+							local name = _detalhes.tabela_vigente:GetCombatName (true)
+
+							if (name and name ~= Loc ["STRING_UNKNOW"]) then
+								if (child.options.segmentType == 2) then
+									child.text:SetText (name)
+								elseif (child.options.segmentType == 3) then
+									child.text:SetText (name)
+								end
 							else
-								child.text:SetText (child.instance.showing.enemy or "Unknown")
+								child.text:SetText (Loc ["STRING_CURRENT"])
+								if (_detalhes.in_combat and PSegment.can_schedule <= 2) then
+									PSegment:ScheduleTimer ("SchduleGetName", 2)
+									PSegment.can_schedule = PSegment.can_schedule + 1
+									return
+								end
 							end
-							
-						elseif (child.options.segmentType == 3) then
-						
-							if (not segment_number) then -- received "COMBAT_PLAYER_ENTER"
-								segment_number = child.instance:GetSegment()
-							end
-						
-							local number_
-							if (segment_number == 0) then
-								number_ = " (#1)"
-							else
-								number_ = " (#" .. segment_number .. ")"
-							end
-							
-							if (child.instance.showing.is_boss) then
-								child.text:SetText (child.instance.showing.is_boss.encounter .. number_)
-								
-							elseif (child.instance.showing.is_trash) then
-								child.text:SetText (Loc ["STRING_SEGMENT_TRASH"] .. number_)
-								
-							elseif (_detalhes.encounter_table and _detalhes.encounter_table.name) then
-								child.text:SetText (_detalhes.encounter_table.name .. number_)
-								
-							else
-								child.text:SetText (child.instance.showing.enemy or "Unknown")
-							end
-							
 						end
 						
 					else --> alguma tabela do histórico
+					
 						if (child.options.segmentType == 1) then
 							child.text:SetText (Loc ["STRING_FIGHTNUMBER"] .. child.instance.segmento)
 							
-						elseif (child.options.segmentType == 2) then
-						
-							if (child.instance.showing.is_boss) then
-								child.text:SetText (child.instance.showing.is_boss.encounter)
+						else
+							local name = child.instance.showing:GetCombatName (true)
+							if (name ~= Loc ["STRING_UNKNOW"]) then
+								if (child.options.segmentType == 2) then
+									child.text:SetText (name)
+								elseif (child.options.segmentType == 3) then
+									child.text:SetText (name .. " #" .. child.instance.segmento)
+								end
 							else
-								child.text:SetText (child.instance.showing.enemy or "Unknown")
+								if (child.options.segmentType == 2) then
+									child.text:SetText (Loc ["STRING_UNKNOW"])
+								elseif (child.options.segmentType == 3) then
+									child.text:SetText (Loc ["STRING_UNKNOW"] .. " #" .. child.instance.segmento)
+								end
 							end
-						
-						elseif (child.options.segmentType == 3) then
-						
-							if (not segment_number) then -- received "COMBAT_PLAYER_ENTER"
-								segment_number = child.instance:GetSegment()
-							end
-						
-							local number_
-							if (segment_number == 0) then
-								number_ = " (#1)"
-							else
-								number_ = " (#" .. segment_number .. ")"
-							end
-							
-							if (child.instance.showing.is_boss) then
-								child.text:SetText (child.instance.showing.is_boss.encounter .. number_)
-							
-							elseif (child.instance.showing.is_trash) then
-								child.text:SetText (Loc ["STRING_SEGMENT_TRASH"] .. number_)
-							
-							elseif (_detalhes.encounter_table and _detalhes.encounter_table.name) then
-								child.text:SetText (_detalhes.encounter_table.name .. number_)
-								
-							else
-								child.text:SetText (child.instance.showing.enemy or "Unknown")
-							end
-						
 						end
 					end
 				end
@@ -889,7 +838,8 @@ do
 		
 		--> Register needed events
 		_detalhes:RegisterEvent (PSegment, "DETAILS_INSTANCE_CHANGESEGMENT", PSegment.Change)
-		_detalhes:RegisterEvent (PSegment, "COMBAT_PLAYER_ENTER", PSegment.Change)
+		_detalhes:RegisterEvent (PSegment, "DETAILS_DATA_RESET", PSegment.Change)
+		_detalhes:RegisterEvent (PSegment, "COMBAT_PLAYER_ENTER", PSegment.NewCombat)
 		
 end
 
@@ -1523,7 +1473,8 @@ end)
 		_detalhes.StatusBar:ApplyOptions (window.child, "textcolor", {r, g, b, a})
 	end
 	local canceledColor = function()
-		window.textcolortexture:SetTexture (unpack (ColorPickerFrame.previousValues))
+		local r, g, b, a = unpack (ColorPickerFrame.previousValues)
+		window.textcolortexture:SetTexture (r, g, b, a)
 		_detalhes.StatusBar:ApplyOptions (window.child, "textcolor", {r, g, b, a})
 	end
 	local colorpick = function()
