@@ -450,7 +450,7 @@ function _G._detalhes:Start()
 			resetwarning_frame.TitleText:SetText ("Noooooooooooo!!!")
 
 			resetwarning_frame.midtext = resetwarning_frame:CreateFontString (nil, "artwork", "GameFontNormal")
-			resetwarning_frame.midtext:SetText ("A pack of murlocs has attacked Details! tech center, our gnomes engineers are working on fixing the damage.\n\n If something is messed in your Details!, you can click on the 'Reset Skin' button.")
+			resetwarning_frame.midtext:SetText ("A pack of murlocs has attacked Details! tech center, our gnomes engineers are working on fixing the damage.\n\n If something is messed in your Details!, especially the close, instance and reset buttons, you can either 'Reset Skin' or access the options panel.")
 			resetwarning_frame.midtext:SetPoint ("topleft", resetwarning_frame, "topleft", 10, -90)
 			resetwarning_frame.midtext:SetJustifyH ("center")
 			resetwarning_frame.midtext:SetWidth (370)
@@ -480,7 +480,7 @@ function _G._detalhes:Start()
 			resetwarning_frame.see_updates:SetWidth (130)
 			
 			resetwarning_frame.reset_skin = CreateFrame ("Button", "DetailsResetWindowResetSkinButton", resetwarning_frame, "OptionsButtonTemplate")
-			resetwarning_frame.reset_skin:SetPoint ("right", resetwarning_frame.see_updates, "left", -10, 0)
+			resetwarning_frame.reset_skin:SetPoint ("right", resetwarning_frame.see_updates, "left", -5, 0)
 			resetwarning_frame.reset_skin:SetText ("Reset Skin")
 			resetwarning_frame.reset_skin:SetScript ("OnClick", function (self)
 				--do the reset
@@ -501,6 +501,21 @@ function _G._detalhes:Start()
 				end
 			end)
 			resetwarning_frame.reset_skin:SetWidth (130)
+			
+			resetwarning_frame.open_options = CreateFrame ("Button", "DetailsResetWindowOpenOptionsButton", resetwarning_frame, "OptionsButtonTemplate")
+			resetwarning_frame.open_options:SetPoint ("right", resetwarning_frame.reset_skin, "left", -5, 0)
+			resetwarning_frame.open_options:SetText ("Options Panel")
+			resetwarning_frame.open_options:SetScript ("OnClick", function (self)
+				local lower_instance = _detalhes:GetLowerInstanceNumber()
+				if (not lower_instance) then
+					local instance = _detalhes:GetInstance (1)
+					_detalhes.CriarInstancia (_, _, 1)
+					_detalhes:OpenOptionsWindow (instance)
+				else
+					_detalhes:OpenOptionsWindow (_detalhes:GetInstance (lower_instance))
+				end
+			end)
+			resetwarning_frame.open_options:SetWidth (130)
 		
 			function _detalhes:ResetWarningDialog()
 				DetailsResetConfigWarningDialog:Show()

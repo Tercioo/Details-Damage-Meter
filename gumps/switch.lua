@@ -27,7 +27,7 @@ do
 	frame:SetBackdropBorderColor (170/255, 170/255, 170/255)
 	frame:SetBackdropColor (24/255, 24/255, 24/255, .8)
 	
-	frame:SetFrameStrata ("DIALOG")
+	frame:SetFrameStrata ("FULLSCREEN")
 	frame:SetFrameLevel (16)
 	
 	function _detalhes.switch:CloseMe()

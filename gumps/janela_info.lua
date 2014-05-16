@@ -72,26 +72,36 @@ function _detalhes:AbreJanelaInfo (jogador)
 	info.atributo_nome:SetText (atributo_nome)
 
 	local avatar = NickTag:GetNicknameTable (jogador.serial)
-	if (avatar) then
-		
+	
+	if (avatar and avatar [1]) then
+		info.nome:SetText (avatar [1] or nome)
+	end
+	
+	if (avatar and avatar [2]) then
+
 		info.avatar:SetTexture (avatar [2])
 		info.avatar_bg:SetTexture (avatar [4])
-		info.avatar_bg:SetTexCoord (unpack (avatar [5]))
-		info.avatar_bg:SetVertexColor (unpack (avatar [6]))
+		if (avatar [5]) then
+			info.avatar_bg:SetTexCoord (unpack (avatar [5]))
+		end
+		if (avatar [6]) then
+			info.avatar_bg:SetVertexColor (unpack (avatar [6]))
+		end
 		
 		info.avatar_nick:SetText (avatar [1] or nome)
 		info.avatar_attribute:SetText (atributo_nome)
-		info.avatar_attribute:SetPoint ("CENTER", info.avatar_nick, "CENTER", 0, 14)
 		
+		info.avatar_attribute:SetPoint ("CENTER", info.avatar_nick, "CENTER", 0, 14)
 		info.avatar:Show()
 		info.avatar_bg:Show()
 		info.avatar_bg:SetAlpha (.65)
 		info.avatar_nick:Show()
 		info.avatar_attribute:Show()
-		
 		info.nome:Hide()
 		info.atributo_nome:Hide()
+		
 	else
+	
 		info.avatar:Hide()
 		info.avatar_bg:Hide()
 		info.avatar_nick:Hide()
@@ -100,8 +110,6 @@ function _detalhes:AbreJanelaInfo (jogador)
 		info.nome:Show()
 		info.atributo_nome:Show()
 	end
-	
-
 	
 	info.atributo_nome:SetPoint ("CENTER", info.nome, "CENTER", 0, 14)
 	

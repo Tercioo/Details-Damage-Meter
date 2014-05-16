@@ -94,6 +94,21 @@ function _detalhes:CreateOrOpenNewsWindow()
 		texto:SetTextColor (1, 1, 1)
 		texto:SetWidth (450)
 		texto:SetHeight (1400)
+		-- /script _detalhes.OpenNewsWindow()
+		--> forum text
+		local forum_button = CreateFrame ("Button", "DetailsNewsWindowForumButton", frame, "OptionsButtonTemplate")
+		forum_button:SetPoint ("bottomleft", frame, "bottomleft", 10, 4)
+		forum_button:SetText ("Forum Thread")
+		forum_button:SetScript ("OnClick", function (self)
+			--> copy and paste
+			_detalhes:CopyPaste ("http://www.mmo-champion.com/threads/1480721-New-damage-meter-%28Details!%29-need-help-with-tests-and-feedbacks")
+		end)
+		forum_button:SetWidth (130)
+		
+		local forum_button_texto = frame:CreateFontString ("DetailsNewsWindowForumButtonText", "overlay", "GameFontHighlightSmall")
+		forum_button_texto:SetPoint ("left", forum_button, "right", 3, 0)
+		forum_button_texto:SetText ("on mmo-champions, for feedback, feature request, bug report.")
+		forum_button_texto:SetTextColor (.7, .7, .7, 1)
 		
 		function frame:Title (title)
 			frame.TitleText:SetText (title or "")

@@ -8,8 +8,8 @@
 
 		_ = nil
 		_detalhes = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0", "NickTag-1.0", "LibHotCorners")
-		_detalhes.userversion = "v1.14.0"
-		_detalhes.version = "Alpha 017"
+		_detalhes.userversion = "v1.14.0b"
+		_detalhes.version = "Alpha 018"
 		_detalhes.realversion = 18
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

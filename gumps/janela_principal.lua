@@ -336,6 +336,10 @@ local function OnEnterMainWindow (instancia, self)
 	instancia:SetMenuAlpha (nil, nil, nil, nil, true)
 	instancia:SetAutoHideMenu (nil, nil, true)
 
+	if (instancia.baseframe:GetFrameLevel() > instancia.rowframe:GetFrameLevel()) then
+		instancia.rowframe:SetFrameLevel (instancia.baseframe:GetFrameLevel())
+	end
+	
 	if (instancia.modo ~= _detalhes._detalhes_props["MODO_ALONE"] and not instancia.baseframe.isLocked) then
 
 		--> resizes and lock button

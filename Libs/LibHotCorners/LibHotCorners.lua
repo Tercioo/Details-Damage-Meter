@@ -209,6 +209,8 @@ local tinsert = tinsert
 					LibHotCorners:CreateAddonWidget (self, button_table, index, self.position)
 				end
 				
+				button_table.widget:ClearAllPoints()
+				
 				if (not button_table.savedtable.hide) then
 					if (self.position == "topleft" or self.position == "topright") then
 						local y = i * 35 * -1
@@ -248,7 +250,9 @@ local tinsert = tinsert
 		function HotCornersButtonOnEnter (self)
 			set_size (self:GetParent())
 			for index, button_table in ipairs (LibHotCorners [self:GetParent().position]) do 
-				button_table.widget:Show()
+				if (not button_table.savedtable.hide) then
+					button_table.widget:Show()
+				end
 			end
 			show_tooltip (self)
 		end
