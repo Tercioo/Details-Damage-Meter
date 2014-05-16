@@ -3,7 +3,7 @@ if not Loc then return end
 
 --------------------------------------------------------------------------------------------------------------------------------------------
 
-	Loc ["STRING_VERSION_LOG"] = "|cFFFFFF00v1.13.8 - v1.13.8a\n\n|cFFFFFF00-|r Fixed issue with Vanguard where it wasn't showing debuffs stacks on the tanks if you are a healer os dps.\n\n|cFFFFFF00-|r Added option for put stretch button on the fullscreen strata which makes it always on top of others frames.\n\n|cFFFFFF00-|r Added background and dialog stratas.\n\n|cFFFFFF00-|r Added option for percentage: follow the combat totals or the first player total.\n\n|cFFFFFF00-|r Added option for show or hide the left buttons on menu bar.\n\n|cFFFFFF00-|r Added option for change the left buttons size in the menu bar.\n\n|cFFFFFF00-|r Added option for delete a instance.\n\n|cFFFFFF00-|r Instance Segment Mini display now is more accuracy about telling the enemy in the segment.\n\n|cFFFFFF00-|r Player Details Window now show all pet abilities instead of just the total pet damage.\n\n|cFFFFFF00-|r Rework done on report texts, now the title is more shorter and also format Dps and Hps numbers.\n\n|cFFFFFF00-|r Simple Gray and again ElvUI skins got some rework.\n\n|cFFFFFF00-|r Lib HotCorner now is data broker based and shows up all broker plugins in the bar.\n\n|cFFFFFF00v1.13.5 / v1.13.5a|r\n\n|cFFFFFF00-|r Added keybinds to reset segments and scroll up/down.\n\n|cFFFFFF00-|r Added Spell Customization options where icon and the name of a spell can be changed.\n\n|cFFFFFF00-|r Added option to change the micro displays side, now it can be shown on the window top side.\n\n|cFFFFFF00-|r Micro Displays, also, should now give less problems and be more dynamic.\n\n|cFFFFFF00-|r Added options to change the transparency when out of combat and out of a group.\n\n|cFFFFFF00-|r Added and Still under development the panel for create data captures for charts.\n\n|cFFFFFF00-|r Fixed a issue with flat skin where the close button was just too big.\n\n|cFFFFFF00v1.13.0|r\n\n|cFFFFFF00-|r Added four more abbreviation types.\n\n|cFFFFFF00-|r Fixed issue where the instance menu wasnt respecting the amount limit of instances.\n\n|cFFFFFF00-|r Added options for cutomize the right text of a row.\n\n|cFFFFFF00-|r Added a option to be able to chance the framestrata of an window.\n\n|cFFFFFF00-|r Added shift, ctrl, alt interaction for rows which shows all spells, targets or pets when pressed.\n\n|cFFFFFF00-|r Fixed a issue where changing the alpha of a window makes it disappear on the next logon.\n\n|cFFFFFF00-|r Added a option for auto transparency to ignore rows.\n\n|cFFFFFF00-|r Added option to be able to set shadow on the attribute text.\n\n|cFFFFFF00-|r Fixed a issue with window snap where disabled statusbar makes a gap between the windows.\n\n|cFFFFFF00-|r Added a hidden menu on the top left corner (experimental).\n\n|cFFFFFF00v1.12.3|r\n\n|cFFFFFF00-|r - Fixed 'Healing Per Second' which wasn't working at all.\n\n|cFFFFFF00-|r - Fixed the percent amount for target of damage done where sometimes it pass 100%.\n\n|cFFFFFF00-|r - Changes on Skins: 'Minimalistic' and 'Elm UI Frame Style'. It's necessary re-apply.\n\n|cFFFFFF00-|r - Added more cooldowns and spells for Monk tank over avoidance panel.\n\n|cFFFFFF00-|r - Player avatar now is also shown on the Player Details window.\n\n|cFFFFFF00-|r - Leaving empty the the icon file box, make details use no icons on bars.\n\n|cFFFFFF00-|r - Added new feature: Auto Transparency, hide or show menus, statusbar and borders when mouse enter or leaves the window.\n\n|cFFFFFF00-|r - Added new feature: Attribute Text, shows on the toolbar or statusbar the current attribute shown.\n\n|cFFFFFF00-|r - Added new fueature: Auto Hide Menu, which hide or show the menus when mouse enter or leaves the window.\n\n|cFFFFFF00-|r - Image Editor now can Flip the image without messing with the crop.\n\n|cFFFFFF00v1.12.0|r\n\n|cFFFFFF00-|r Added support to Profiles, now you can share the same config between two or more characters.\n\n|cFFFFFF00-|r - Options window now can be opened while in combat without triggering 'script ran too long' error.\n\n|cFFFFFF00-|r Added support for BattleTag friends over report window.\n\n|cFFFFFF00-|r Added pet threat to Tiny Threat plugin when out of a party or raid group.\n\n|cFFFFFF00-|r Fixed a issue with close button where it disappear without close the window when toolbar is in bottom side.\n\n|cFFFFFF00-|r Also fixed a issue where swapping toolbar positioning was sometimes making close button disappear.\n\n|cFFFFFF00-|r Fixed a problem opening options panel through minimap when there is no window opened.\n\n|cFFFFFF00v1.11.10|r\n\n|cFFFFFF00-|r Accuracy with warcraftlogs.com now is very high and okey with worldoflogs.com. Make sure the option |cFFFFDD00Time Measure|r under General Settings -> Combat is set to |cFFFFDD00Effective Time|r.\n\n|cFFFFFF00-|r Options Window has been revamped, again.\n\n|cFFFFFF00-|r Added a option for change the class icons.\n\n|cFFFFFF00-|r Added options for show Total Bar and configure it.\n\n|cFFFFFF00-|r Added a option for save a Standard Skin, new windows opened use this skin.\n\n|cFFFFFF00-|r Added a new skin: ElvUI Frame Style.\n\n|cFFFFFF00-|r When hover a spell icon under Player Details Window, the spell description is shown.\n\n|cFFFFFF00-|r Pressing Shift key on a spell bar over the Encounter Details Window, shows up the spell description.\n\n|cFFFFFF00v1.11.6|r\n\n|cFFFFFF00-|r Added new skin: Minimalistic, a very clean one.\n\n|cFFFFFF00-|r Added a new tab called avoidance on Player Details window for tanks.\n\n|cFFFFFF00-|r Added Copy & Paste option on report window. Now you can share your dps on twitter and facebook!\n\n|cFFFFFF00-|r Added a new option for auto switch what a window shows when you enter in a combat.\n\n|cFFFFFF00-|r Fixed issue with window background alpha which was changing the value everytime the options window is opened.\n\n|cFFFFFF00-|r Fixed the gap between the bar and the window background when disabling borders."
+	Loc ["STRING_VERSION_LOG"] = "|cFFFFFF00v1.14.0\n\n|cFFFFFF00-|r Added a new tab on options panel for tooltip configuration.\n\n|cFFFFFF00-|r Added a new tab on options panel for broker config.\n\n|cFFFFFF00-|r Added new abbreviation method called comma.\n\n|cFFFFFF00-|r All instances now have a delete button.\n\n|cFFFFFF00-|r Full re-write on the instance, delete and close buttons.\n\n|cFFFFFF00-|r HotCorners now sort icons according with most used.\n\n|cFFFFFF00-|r Few changes on all skins in order to fit on the new right menu buttons.\n\n|cFFFFFF00-|r Added Horde avatars.\n\n|cFFFFFF00-|r Fixed issue where shortcut panel shows below thw windows when its in Dialog strata.\n\n|cFFFFFF00v1.13.8 - v1.13.8a\n\n|cFFFFFF00-|r Fixed issue with Vanguard where it wasn't showing debuffs stacks on the tanks if you are a healer os dps.\n\n|cFFFFFF00-|r Added option for put stretch button on the fullscreen strata which makes it always on top of others frames.\n\n|cFFFFFF00-|r Added background and dialog stratas.\n\n|cFFFFFF00-|r Added option for percentage: follow the combat totals or the first player total.\n\n|cFFFFFF00-|r Added option for show or hide the left buttons on menu bar.\n\n|cFFFFFF00-|r Added option for change the left buttons size in the menu bar.\n\n|cFFFFFF00-|r Added option for delete a instance.\n\n|cFFFFFF00-|r Instance Segment Mini display now is more accuracy about telling the enemy in the segment.\n\n|cFFFFFF00-|r Player Details Window now show all pet abilities instead of just the total pet damage.\n\n|cFFFFFF00-|r Rework done on report texts, now the title is more shorter and also format Dps and Hps numbers.\n\n|cFFFFFF00-|r Simple Gray and again ElvUI skins got some rework.\n\n|cFFFFFF00-|r Lib HotCorner now is data broker based and shows up all broker plugins in the bar.\n\n|cFFFFFF00v1.13.5 / v1.13.5a|r\n\n|cFFFFFF00-|r Added keybinds to reset segments and scroll up/down.\n\n|cFFFFFF00-|r Added Spell Customization options where icon and the name of a spell can be changed.\n\n|cFFFFFF00-|r Added option to change the micro displays side, now it can be shown on the window top side.\n\n|cFFFFFF00-|r Micro Displays, also, should now give less problems and be more dynamic.\n\n|cFFFFFF00-|r Added options to change the transparency when out of combat and out of a group.\n\n|cFFFFFF00-|r Added and Still under development the panel for create data captures for charts.\n\n|cFFFFFF00-|r Fixed a issue with flat skin where the close button was just too big.\n\n|cFFFFFF00v1.13.0|r\n\n|cFFFFFF00-|r Added four more abbreviation types.\n\n|cFFFFFF00-|r Fixed issue where the instance menu wasnt respecting the amount limit of instances.\n\n|cFFFFFF00-|r Added options for cutomize the right text of a row.\n\n|cFFFFFF00-|r Added a option to be able to chance the framestrata of an window.\n\n|cFFFFFF00-|r Added shift, ctrl, alt interaction for rows which shows all spells, targets or pets when pressed.\n\n|cFFFFFF00-|r Fixed a issue where changing the alpha of a window makes it disappear on the next logon.\n\n|cFFFFFF00-|r Added a option for auto transparency to ignore rows.\n\n|cFFFFFF00-|r Added option to be able to set shadow on the attribute text.\n\n|cFFFFFF00-|r Fixed a issue with window snap where disabled statusbar makes a gap between the windows.\n\n|cFFFFFF00-|r Added a hidden menu on the top left corner (experimental).\n\n|cFFFFFF00v1.12.3|r\n\n|cFFFFFF00-|r - Fixed 'Healing Per Second' which wasn't working at all.\n\n|cFFFFFF00-|r - Fixed the percent amount for target of damage done where sometimes it pass 100%.\n\n|cFFFFFF00-|r - Changes on Skins: 'Minimalistic' and 'Elm UI Frame Style'. It's necessary re-apply.\n\n|cFFFFFF00-|r - Added more cooldowns and spells for Monk tank over avoidance panel.\n\n|cFFFFFF00-|r - Player avatar now is also shown on the Player Details window.\n\n|cFFFFFF00-|r - Leaving empty the the icon file box, make details use no icons on bars.\n\n|cFFFFFF00-|r - Added new feature: Auto Transparency, hide or show menus, statusbar and borders when mouse enter or leaves the window.\n\n|cFFFFFF00-|r - Added new feature: Attribute Text, shows on the toolbar or statusbar the current attribute shown.\n\n|cFFFFFF00-|r - Added new fueature: Auto Hide Menu, which hide or show the menus when mouse enter or leaves the window.\n\n|cFFFFFF00-|r - Image Editor now can Flip the image without messing with the crop.\n\n|cFFFFFF00v1.12.0|r\n\n|cFFFFFF00-|r Added support to Profiles, now you can share the same config between two or more characters.\n\n|cFFFFFF00-|r - Options window now can be opened while in combat without triggering 'script ran too long' error.\n\n|cFFFFFF00-|r Added support for BattleTag friends over report window.\n\n|cFFFFFF00-|r Added pet threat to Tiny Threat plugin when out of a party or raid group.\n\n|cFFFFFF00-|r Fixed a issue with close button where it disappear without close the window when toolbar is in bottom side.\n\n|cFFFFFF00-|r Also fixed a issue where swapping toolbar positioning was sometimes making close button disappear.\n\n|cFFFFFF00-|r Fixed a problem opening options panel through minimap when there is no window opened.\n\n|cFFFFFF00v1.11.10|r\n\n|cFFFFFF00-|r Accuracy with warcraftlogs.com now is very high and okey with worldoflogs.com. Make sure the option |cFFFFDD00Time Measure|r under General Settings -> Combat is set to |cFFFFDD00Effective Time|r.\n\n|cFFFFFF00-|r Options Window has been revamped, again."
 
 	Loc ["STRING_DETAILS1"] = "|cffffaeaeDetails:|r " --> color and details name
 
@@ -18,6 +18,7 @@ if not Loc then return end
 	Loc ["STRING_RIGHT"] = "right"
 	
 	Loc ["STRING_MINIMAP_TOOLTIP1"] = "|cFFCFCFCFleft click|r: open options panel"
+	Loc ["STRING_MINIMAP_TOOLTIP11"] = "|cFFCFCFCFleft click|r: clear all segments"
 	Loc ["STRING_MINIMAP_TOOLTIP2"] = "|cFFCFCFCFright click|r: quick menu"
 	
 	Loc ["STRING_MINIMAPMENU_NEWWINDOW"] = "Create New Window"
@@ -159,8 +160,8 @@ if not Loc then return end
 	Loc ["STRING_MODE_GROUP"] = "Group & Raid"
 	Loc ["STRING_MODE_ALL"] = "Everything"
 	
-	Loc ["STRING_MODE_SELF"] = "Lone Wolf"
-	Loc ["STRING_MODE_RAID"] = "Widgets"
+	Loc ["STRING_MODE_SELF"] = "Plugins: Solo Play"
+	Loc ["STRING_MODE_RAID"] = "Plugins: Raid"
 	Loc ["STRING_MODE_PLUGINS"] = "plugins"
 	
 	Loc ["STRING_OPTIONS_WINDOW"] = "Options Panel"
@@ -404,6 +405,39 @@ if not Loc then return end
 	Loc ["STRING_OPTIONS_COMBATTWEEKS"] = "Combat Tweeks"
 	Loc ["STRING_OPTIONS_COMBATTWEEKS_DESC"] = "Behavioral adjustments on how Details! deal with some combat aspects."
 
+	Loc ["STRING_OPTIONS_PROFILE_LOADED"] = "Profile loaded:"
+	Loc ["STRING_OPTIONS_PROFILE_FIELDEMPTY"] = "Name field is empty."
+	Loc ["STRING_OPTIONS_PROFILE_NOTCREATED"] = "Profile not created."
+	Loc ["STRING_OPTIONS_PROFILE_COPYOKEY"] = "Profile successful copied."
+	Loc ["STRING_OPTIONS_PROFILE_REMOVEOKEY"] = "Profile successful removed."
+	Loc ["STRING_OPTIONS_PROFILE_SELECT"] = "select a profile."
+	
+	Loc ["STRING_OPTIONS_TOOLTIPS_TITLE"] = "Tooltips"
+	Loc ["STRING_OPTIONS_TOOLTIPS_TITLE_DESC"] = "This options controls the appearance of tooltips."
+	
+	Loc ["STRING_OPTIONS_TOOLTIPS_FONTFACE"] = "Text Font"
+	Loc ["STRING_OPTIONS_TOOLTIPS_FONTFACE_DESC"] = "Choose the font used on tooltip texts."
+	Loc ["STRING_OPTIONS_TOOLTIPS_FONTSIZE"] = "Text Size"
+	Loc ["STRING_OPTIONS_TOOLTIPS_FONTSIZE_DESC"] = "Increase or decrease the size of tooltip texts"
+	Loc ["STRING_OPTIONS_TOOLTIPS_FONTCOLOR"] = "Text Color"
+	Loc ["STRING_OPTIONS_TOOLTIPS_FONTCOLOR_DESC"] = "Change the color used on tooltip texts."
+	Loc ["STRING_OPTIONS_TOOLTIPS_FONTSHADOW"] = "Text Shadow"
+	Loc ["STRING_OPTIONS_TOOLTIPS_FONTSHADOW_DESC"] = "Enable or disable the shadow in the text."
+	Loc ["STRING_OPTIONS_TOOLTIPS_MAXIMIZE"] = "Maximize Method"
+	Loc ["STRING_OPTIONS_TOOLTIPS_MAXIMIZE_DESC"] = "Select the method used to expand the information shown on the tooltip.\n\n|cFFFF8800 On Control Keys|r: tooltip box is expanded when Shift, Ctrl or Alt keys is pressed.\n\n|cFFFF8800 Always Maximized|r: the tooltip always show all information without any amount limitations.\n\n|cFFFF8800 Only Shift Block|r: the first block on the tooltip is always expanded by default.\n\n|cFFFF8800 Only Ctrl Block|r: the second block is always expanded by default.\n\n|cFFFF8800 Only Alt Block|r: the third block is always expanded by default."
+	Loc ["STRING_OPTIONS_TOOLTIPS_ABBREVIATION"] = "Abbreviation Type"
+	Loc ["STRING_OPTIONS_TOOLTIPS_ABBREVIATION_DESC"] = "Choose how the numbers displayed on tooltips are formated."
+	Loc ["STRING_OPTIONS_TOOLTIPS_BACKGROUNDCOLOR"] = "Background Color"
+	Loc ["STRING_OPTIONS_TOOLTIPS_BACKGROUNDCOLOR_DESC"] = "Choose the color used on the background."
+	Loc ["STRING_OPTIONS_TOOLTIPS_MAXIMIZE1"] = "On Shift Ctrl Alt"
+	Loc ["STRING_OPTIONS_TOOLTIPS_MAXIMIZE2"] = "Always Maximized"
+	Loc ["STRING_OPTIONS_TOOLTIPS_MAXIMIZE3"] = "Only Shift Block"
+	Loc ["STRING_OPTIONS_TOOLTIPS_MAXIMIZE4"] = "Only Ctrl Block"
+	Loc ["STRING_OPTIONS_TOOLTIPS_MAXIMIZE5"] = "Only Alt Block"
+	
+	Loc ["STRING_OPTIONS_EXTERNALS_TITLE"] = "Externals Widgets"
+	Loc ["STRING_OPTIONS_EXTERNALS_TITLE2"] = "This options controls the behavior of many foreign widgets."
+	
 	Loc ["STRING_OPTIONS_SWITCHINFO"] = "|cFFF79F81 LEFT DISABLED|r  |cFF81BEF7 RIGHT ENABLED|r"
 	
 	Loc ["STRING_OPTIONS_PICKCOLOR"] = "color"
@@ -415,7 +449,7 @@ if not Loc then return end
 	Loc ["STRING_OPTIONS_EDITINSTANCE"] = "Editing Instance:"
 	Loc ["STRING_OPTIONS_INSTANCES"] = "Instances:"
 	
-	Loc ["STRING_OPTIONS_INSTANCE_DELETE"] = "Delete Instance"
+	Loc ["STRING_OPTIONS_INSTANCE_DELETE"] = "Delete"
 	Loc ["STRING_OPTIONS_INSTANCE_DELETE_DESC"] = "Remove permanently a instance window.\nYour game screen may reload during the erase process."
 	
 	Loc ["STRING_OPTIONS_GENERAL"] = "General Settings"
@@ -426,25 +460,56 @@ if not Loc then return end
 	Loc ["STRING_OPTIONS_SOCIAL"] = "Social"
 	Loc ["STRING_OPTIONS_SOCIAL_DESC"] = "Tell how do you want to be known in your guild enviorement."
 	Loc ["STRING_OPTIONS_NICKNAME"] = "Nickname"
-	Loc ["STRING_OPTIONS_NICKNAME_DESC"] = "Type your nickname in this box. The chosen nickname will be broadcasted for members of your guild and Details! shown it instead of your character name."
+	Loc ["STRING_OPTIONS_NICKNAME_DESC"] = "Type your nickname in this box.\n\nThe chosen nickname will be broadcasted for members of your guild and Details! shown it instead of your character name."
 	Loc ["STRING_OPTIONS_AVATAR"] = "Choose Avatar"
-	Loc ["STRING_OPTIONS_AVATAR_DESC"] = "Your avatar is also broadcasted for your guild mates and Details! show it on the top of tooltips when you mouse over a bar."
+	Loc ["STRING_OPTIONS_AVATAR_DESC"] = "Avatars is also broadcasted for your guild mates and shown on the top of tooltips when hover over a bar and in the player details window."
 	Loc ["STRING_OPTIONS_REALMNAME"] = "Remove Realm Name"
-	Loc ["STRING_OPTIONS_REALMNAME_DESC"] = "When enabled, the realm name of character isn't displayed with his name.\n\n|cFFFFFF00Example:|r\n\nCharles-Netherwing |cFFFFFF00(disabled)|r\nCharles |cFFFFFF00(enabled)|r"
+	Loc ["STRING_OPTIONS_REALMNAME_DESC"] = "When enabled, the realm name of character isn't displayed with the name, see the example below:\n\n|cFFFF8800Disabled|r: Charles-Netherwing\n|cFFFF8800Enabled|r: Charles"
+	
+	Loc ["STRING_OPTIONS_PLUGINS_TOOLBAR_ANCHOR"] = "Toolbar Plugins"
+	Loc ["STRING_OPTIONS_PLUGINS_RAID_ANCHOR"] = "Raid Plugins"
+	Loc ["STRING_OPTIONS_PLUGINS_SOLO_ANCHOR"] = "Solo Plugins"
+	Loc ["STRING_OPTIONS_PLUGINS_NAME"] = "Name"
+	Loc ["STRING_OPTIONS_PLUGINS_AUTHOR"] = "Author"
+	Loc ["STRING_OPTIONS_PLUGINS_VERSION"] = "Version"
+	Loc ["STRING_OPTIONS_PLUGINS_ENABLED"] = "Enabled"
 	
 	Loc ["STRING_OPTIONS_MAXSEGMENTS"] = "Max. Segments"
-	Loc ["STRING_OPTIONS_MAXSEGMENTS_DESC"] = "This option control how many segments you want to maintain.\n\nRecommended value is |cFFFFFF0012|r, but feel free to adjust this number to be comfortable for you.\n\nComputers with |cFFFFFF002GB|r or less memory ram should keep low segments amount, this can help your system overall."
+	Loc ["STRING_OPTIONS_MAXSEGMENTS_DESC"] = "This option control how many segments you want to maintain.\n\nRecommended value is |cFFFF880012|r, but feel free to adjust this number to be comfortable for you.\n\nComputers with |cFFFF88002GB|r or less memory ram should keep low segments amount, this can help your system overall."
 	
 	Loc ["STRING_OPTIONS_SCROLLBAR"] = "Scroll Bar"
-	Loc ["STRING_OPTIONS_SCROLLBAR_DESC"] = "Enable ou Disable the scroll bar.\n\nBy default, Details! scroll bars are replaced by a mechanism that stretches the window.\n\nThe |cFFFFFF00stretch handle|r is outside over instances button/menu (left of close button)."
+	Loc ["STRING_OPTIONS_SCROLLBAR_DESC"] = "Enable ou Disable the scroll bar.\n\nBy default, Details! scroll bars are replaced by a mechanism that stretches the window.\n\nThe |cFFFF8800stretch handle|r is outside over instances button/menu (left of close button)."
 	Loc ["STRING_OPTIONS_MAXINSTANCES"] = "Max. Instances"
-	Loc ["STRING_OPTIONS_MAXINSTANCES_DESC"] = "Limit the number of Details! instances which can be created and the amount displayed on the instance button.\n\nYou can open and re-open instances clicking on the instance button |cFFFFFF00#X|r."
+	Loc ["STRING_OPTIONS_MAXINSTANCES_DESC"] = "Limit the number of Details! instances which can be created and the amount displayed on the instance button.\n\nYou can open and re-open instances clicking on the instance button |cFFFF8800#X|r."
 	Loc ["STRING_OPTIONS_PVPFRAGS"] = "Only Pvp Frags"
 	Loc ["STRING_OPTIONS_PVPFRAGS_DESC"] = "When enabled, only kills against enemy players will be count."
-	Loc ["STRING_OPTIONS_MINIMAP"] = "Minimap Icon"
+	
+	Loc ["STRING_OPTIONS_MINIMAP_ANCHOR"] = "Minimap:"
+	Loc ["STRING_OPTIONS_MINIMAP"] = "Show Icon"
 	Loc ["STRING_OPTIONS_MINIMAP_DESC"] = "Show or Hide minimap icon."
+	Loc ["STRING_OPTIONS_MINIMAP_ACTION"] = "On Click"
+	Loc ["STRING_OPTIONS_MINIMAP_ACTION_DESC"] = "Select what to do when the icon on the minimap is clicked with the left mouse button."
+	Loc ["STRING_OPTIONS_MINIMAP_ACTION1"] = "Open Options Panel"
+	Loc ["STRING_OPTIONS_MINIMAP_ACTION2"] = "Reset Segments"
+	
+	Loc ["STRING_OPTIONS_HOTCORNER_ANCHOR"] = "Hotcorner:"
+	Loc ["STRING_OPTIONS_HOTCORNER"] = "Show button"
+	Loc ["STRING_OPTIONS_HOTCORNER_DESC"] = "Show or hide the button over Hotcorner panel."
+	Loc ["STRING_OPTIONS_HOTCORNER_ACTION"] = "On Click"
+	Loc ["STRING_OPTIONS_HOTCORNER_ACTION_DESC"] = "Select what to do when the button on the Hotcorner bar is clicked with the left mouse button."
+	Loc ["STRING_OPTIONS_HOTCORNER_QUICK_CLICK"] = "Enable Quick Click"
+	Loc ["STRING_OPTIONS_HOTCORNER_QUICK_CLICK_DESC"] = "Enable oe disable the Quick Click feature for Hotcorners.\n\nQuick button is localized at the further top left pixel, moving your mouse all the way to there, activities the top left hot corner and if clicked an action is performed."
+	Loc ["STRING_OPTIONS_HOTCORNER_QUICK_CLICK_FUNC"] = "Quick Click On Click"
+	Loc ["STRING_OPTIONS_HOTCORNER_QUICK_CLICK_FUNC_DESC"] = "Select what to do when the Quick Click button on Hotcorner is clicked."
+	
+	Loc ["STRING_OPTIONS_DATABROKER"] = "Data Broker:"
+	Loc ["STRING_OPTIONS_DATABROKER_TEXT"] = "Text"
+	Loc ["STRING_OPTIONS_DATABROKER_TEXT_DESC"] = "Select what value is exported for data broker plugins."
+	Loc ["STRING_OPTIONS_DATABROKER_TEXT1"] = "Raid DPS"
+	Loc ["STRING_OPTIONS_DATABROKER_TEXT2"] = "Raid HPS"
+	
 	Loc ["STRING_OPTIONS_TIMEMEASURE"] = "Time Measure"
-	Loc ["STRING_OPTIONS_TIMEMEASURE_DESC"] = "|cFFFFFF00Activity|r: the timer of each raid member is put on hold if his activity is ceased and back again to count when is resumed, common way of measure Dps and Hps.\n\n|cFFFFFF00Effective|r: used on rankings, this method uses the elapsed combat time for measure the Dps and Hps of all raid members."
+	Loc ["STRING_OPTIONS_TIMEMEASURE_DESC"] = "|cFFFF8800Activity|r: the timer of each raid member is put on hold if his activity is ceased and back again to count when is resumed, common way of measure Dps and Hps.\n\n|cFFFF8800Effective|r: used on rankings, this method uses the elapsed combat time for measure the Dps and Hps of all raid members."
 	
 	Loc ["STRING_OPTIONS_COMBAT_ALPHA"] = "Modify Type"
 	Loc ["STRING_OPTIONS_COMBAT_ALPHA_1"] = "No Changes"
@@ -458,7 +523,7 @@ if not Loc then return end
 	Loc ["STRING_OPTIONS_AUTO_SWITCH"] = "Auto Switch"
 	Loc ["STRING_OPTIONS_AUTO_SWITCH_DESC"] = "When you enter in combat, this window change for the selected attribute or plugin.\n\nLeaving the combat, it switch back."
 	Loc ["STRING_OPTIONS_PS_ABBREVIATE"] = "Abbreviation Type"
-	Loc ["STRING_OPTIONS_PS_ABBREVIATE_DESC"] = "Choose the abbreviation method.\n\n|cFFFFFF00None|r: no abbreviation, the raw number is shown.\n\n|cFFFFFF00ToK I|r: the number is abbreviated showing the fractional-part.\n\n59874 = 59.8K\n520.600 = 520.6K\n19.530.000 = 19.53M\n\n|cFFFFFF00ToK II|r: Is the same as ToK I, but, numbers between one hundred and one million doesn't show fractional-part.\n\n59874 = 59.8K\n520.600 = 520K\n19.530.000 = 19.53M\n\n|cFFFFFF00ToM I|r: Numbers equals or biggest of one million doesn't show the fractional-part.\n\n59874 = 59.8K\n520.600 = 520.6K\n19.530.000 = 19M\n\n|cFFFFFF00Lower|r: The letters K and M are lowercase.\n\n|cFFFFFF00Upper|r: The letter K and M are uppercase."
+	Loc ["STRING_OPTIONS_PS_ABBREVIATE_DESC"] = "Choose the abbreviation method.\n\n|cFFFF8800None|r: no abbreviation, the raw number is shown.\n\n|cFFFF8800ToK I|r: the number is abbreviated showing the fractional-part.\n\n59874 = 59.8K\n520.600 = 520.6K\n19.530.000 = 19.53M\n\n|cFFFF8800ToK II|r: Is the same as ToK I, but, numbers between one hundred and one million doesn't show fractional-part.\n\n59874 = 59.8K\n520.600 = 520K\n19.530.000 = 19.53M\n\n|cFFFF8800ToM I|r: Numbers equals or biggest of one million doesn't show the fractional-part.\n\n59874 = 59.8K\n520.600 = 520.6K\n19.530.000 = 19M\n\n|cFFFF8800Lower|r: The letters K and M are lowercase.\n\n|cFFFF8800Upper|r: The letter K and M are uppercase."
 	
 	Loc ["STRING_OPTIONS_PS_ABBREVIATE_NONE"] = "None"
 	Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOK"] = "ToK I Upper"
@@ -467,15 +532,16 @@ if not Loc then return end
 	Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOKMIN"] = "ToK I Lower"
 	Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOK2MIN"] = "ToK II Lower"
 	Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOK0MIN"] = "ToM I Lower"
+	Loc ["STRING_OPTIONS_PS_ABBREVIATE_COMMA"] = "Comma"
 	
 	Loc ["STRING_OPTIONS_PERFORMANCE1"] = "Performance Tweaks"
 	Loc ["STRING_OPTIONS_PERFORMANCE1_DESC"] = "This options can help save some cpu usage."
 	
 	Loc ["STRING_OPTIONS_MEMORYT"] = "Memory Threshold"
-	Loc ["STRING_OPTIONS_MEMORYT_DESC"] = "Details! have internal mechanisms to handle memory and try adjust it self within the amount of memory avaliable on your system.\n\nAlso is recommeded keep the amount of segments low on systems with |cFFFFFF002GB|r or less of memory."
+	Loc ["STRING_OPTIONS_MEMORYT_DESC"] = "Details! have internal mechanisms to handle memory and try adjust it self within the amount of memory avaliable on your system.\n\nAlso is recommeded keep the amount of segments low on systems with |cFFFF88002GB|r or less of memory."
 	
 	Loc ["STRING_OPTIONS_SEGMENTSSAVE"] = "Segments Saved"
-	Loc ["STRING_OPTIONS_SEGMENTSSAVE_DESC"] = "This options controls how many segments you wish save between game sesions.\n\nHigh values can make your character logoff take more time\n\nIf you rarelly use the data of last day, it`s high recommeded leave this option in |cFFFFFF001|r."
+	Loc ["STRING_OPTIONS_SEGMENTSSAVE_DESC"] = "This options controls how many segments you wish save between game sesions.\n\nHigh values can make your character logoff take more time\n\nIf you rarelly use the data of last day, it`s high recommeded leave this option in |cFFFF88001|r."
 	
 	Loc ["STRING_OPTIONS_PANIMODE"] = "Panic Mode"
 	Loc ["STRING_OPTIONS_PANIMODE_DESC"] = "When enabled and you got dropped from the game (by a disconnect, for instance) and you are fighting against a boss encounter, all segments are erased, this make your logoff process faster."
@@ -487,7 +553,7 @@ if not Loc then return end
 	Loc ["STRING_OPTIONS_ANIMATESCROLL_DESC"] = "When enabled, scrollbar uses a animation when showing up or hiding."
 	
 	Loc ["STRING_OPTIONS_WINDOWSPEED"] = "Update Speed"
-	Loc ["STRING_OPTIONS_WINDOWSPEED_DESC"] = "Seconds between each update on instances (opened windows).\n\n|cFFFFFF000.3|r: update about 3 times each second.\n\n|cFFFFFF003.0|r: update once every 3 seconds."
+	Loc ["STRING_OPTIONS_WINDOWSPEED_DESC"] = "Seconds between each update on instances (opened windows).\n\n|cFFFF88000.3|r: update about 3 times each second.\n\n|cFFFF88003.0|r: update once every 3 seconds."
 	
 	Loc ["STRING_OPTIONS_CLEANUP"] = "Auto Erase Cleanup Segments"
 	Loc ["STRING_OPTIONS_CLEANUP_DESC"] = "Segments with trash mobs' are considered clean up segments.\n\nThis option enable the auto erase of this segments when possible."
@@ -502,11 +568,11 @@ if not Loc then return end
 	Loc ["STRING_OPTIONS_CMISC"] = "Collect Misc"
 	Loc ["STRING_OPTIONS_CAURAS"] = "Collect Auras"
 	
-	Loc ["STRING_OPTIONS_CDAMAGE_DESC"] = "Enable capture of:\n\n- |cFFFFFF00Damage Done|r\n- |cFFFFFF00Damage Per Second|r\n- |cFFFFFF00Friendly Fire|r\n- |cFFFFFF00Damage Taken|r"
-	Loc ["STRING_OPTIONS_CHEAL_DESC"] = "Enable capture of:\n\n- |cFFFFFF00Healing Done|r\n- |cFFFFFF00Absorbs|r\n- |cFFFFFF00Healing Per Second|r\n- |cFFFFFF00Overhealing|r\n- |cFFFFFF00Healing Taken|r\n- |cFFFFFF00Enemy Healed|r\n- |cFFFFFF00Damage Prevented|r"
-	Loc ["STRING_OPTIONS_CENERGY_DESC"] = "Enable capture of:\n\n- |cFFFFFF00Mana Restored|r\n- |cFFFFFF00Rage Generated|r\n- |cFFFFFF00Energy Generated|r\n- |cFFFFFF00Runic Power Generated|r"
-	Loc ["STRING_OPTIONS_CMISC_DESC"] = "Enable capture of:\n\n- |cFFFFFF00Crowd Control Break|r\n- |cFFFFFF00Dispells|r\n- |cFFFFFF00Interrupts|r\n- |cFFFFFF00Resurrection|r\n- |cFFFFFF00Deaths|r"
-	Loc ["STRING_OPTIONS_CAURAS_DESC"] = "Enable capture of:\n\n- |cFFFFFF00Buffs Uptime|r\n- |cFFFFFF00Debuffs Uptime|r\n- |cFFFFFF00Void Zones|r\n-|cFFFFFF00 Cooldowns|r"
+	Loc ["STRING_OPTIONS_CDAMAGE_DESC"] = "Enable capture of:\n\n- |cFFFF8800Damage Done|r\n- |cFFFF8800Damage Per Second|r\n- |cFFFF8800Friendly Fire|r\n- |cFFFF8800Damage Taken|r"
+	Loc ["STRING_OPTIONS_CHEAL_DESC"] = "Enable capture of:\n\n- |cFFFF8800Healing Done|r\n- |cFFFF8800Absorbs|r\n- |cFFFF8800Healing Per Second|r\n- |cFFFF8800Overhealing|r\n- |cFFFF8800Healing Taken|r\n- |cFFFF8800Enemy Healed|r\n- |cFFFF8800Damage Prevented|r"
+	Loc ["STRING_OPTIONS_CENERGY_DESC"] = "Enable capture of:\n\n- |cFFFF8800Mana Restored|r\n- |cFFFF8800Rage Generated|r\n- |cFFFF8800Energy Generated|r\n- |cFFFF8800Runic Power Generated|r"
+	Loc ["STRING_OPTIONS_CMISC_DESC"] = "Enable capture of:\n\n- |cFFFF8800Crowd Control Break|r\n- |cFFFF8800Dispells|r\n- |cFFFF8800Interrupts|r\n- |cFFFF8800Resurrection|r\n- |cFFFF8800Deaths|r"
+	Loc ["STRING_OPTIONS_CAURAS_DESC"] = "Enable capture of:\n\n- |cFFFF8800Buffs Uptime|r\n- |cFFFF8800Debuffs Uptime|r\n- |cFFFF8800Void Zones|r\n-|cFFFF8800 Cooldowns|r"
 	
 	Loc ["STRING_OPTIONS_CLOUD"] = "Cloud Capture"
 	Loc ["STRING_OPTIONS_CLOUD_DESC"] = "When enabled, the data of disabled collectors are collected within others raid members."
@@ -521,20 +587,20 @@ if not Loc then return end
 	Loc ["STRING_OPTIONS_BAR_BTEXTURE_DESC"] = "Choose the background texture of bars."
 	
 	Loc ["STRING_OPTIONS_BAR_BCOLOR"] = "Background Color"
-	Loc ["STRING_OPTIONS_BAR_BCOLOR_DESC"] = "Choose the row background color. This color is only used when color by classe isn't actived."
-	Loc ["STRING_OPTIONS_BAR_COLOR_DESC"] = "Choose the row color. This color is only used when color by class isn't actived."
+	Loc ["STRING_OPTIONS_BAR_BCOLOR_DESC"] = "Choose the background texture color.\nThis color is ignored if by class slider is actived."
+	Loc ["STRING_OPTIONS_BAR_COLOR_DESC"] = "Choose the texture color.\nThis color is ignored if by class slider is actived."
 	
 	Loc ["STRING_OPTIONS_BAR_HEIGHT"] = "Height"
 	Loc ["STRING_OPTIONS_BAR_HEIGHT_DESC"] = "Change the height of bars."
 	
 	Loc ["STRING_OPTIONS_BAR_COLORBYCLASS"] = "Color By Class"
-	Loc ["STRING_OPTIONS_BAR_COLORBYCLASS_DESC"] = "When enabled, the instance bars have the color of the character class.\n\nIf disabled, the color chosen on the right box will be used."
+	Loc ["STRING_OPTIONS_BAR_COLORBYCLASS_DESC"] = "When enabled, the color chosen is ignored and the color of the actor class which is currently showing in the bar is used instead."
 	
-	Loc ["STRING_OPTIONS_BAR_COLORBYCLASS2"] = "Color By Class"
-	Loc ["STRING_OPTIONS_BAR_COLORBYCLASS2_DESC"] = "When enabled, the instance bars  background have the color of the character class.\n\nIf disabled, the color chosen on the right box will be used."
+	Loc ["STRING_OPTIONS_BAR_COLORBYCLASS2"] = "By Class"
+	Loc ["STRING_OPTIONS_BAR_COLORBYCLASS2_DESC"] = "When enabled, the color chosen is ignored and the color of the actor class which is currently showing in the bar is used instead."
 	
 	Loc ["STRING_OPTIONS_BAR_ICONFILE"] = "Icon File"
-	Loc ["STRING_OPTIONS_BAR_ICONFILE_DESC"] = "This option load a image responsable for the class icons in each row.\nThe image file need to be a .tga file with alpha channel.\n\nDetails! have three image icon files:\n\n- |cFFFFFF00classes|r\n- |cFFFFFF00classes_small|r\n- |cFFFFFF00classes_small_alpha|r\n\nAlso there is files inside wow which can be used:\n\n- |cFFFFFF00Interface\\ARENAENEMYFRAME\\UI-CLASSES-CIRCLES|r\n- |cFFFFFF00Interface\\Glues\\CHARACTERCREATE\\UI-CHARACTERCREATE-CLASSES|r\n\nLeave the field empty to hide all icons."
+	Loc ["STRING_OPTIONS_BAR_ICONFILE_DESC"] = "This option load a image responsable for the class icons in each row.\nThe image file need to be a .tga file with alpha channel.\n\nDetails! have three image icon files:\n\n- |cFFFF8800classes|r\n- |cFFFF8800classes_small|r\n- |cFFFF8800classes_small_alpha|r\n\nAlso there is files inside wow which can be used:\n\n- |cFFFF8800Interface\\ARENAENEMYFRAME\\UI-CLASSES-CIRCLES|r\n- |cFFFF8800Interface\\Glues\\CHARACTERCREATE\\UI-CHARACTERCREATE-CLASSES|r\n\nLeave the field empty to hide all icons."
 	
 	Loc ["STRING_OPTIONS_BARSTART"] = "Bar Start After Icon"
 	Loc ["STRING_OPTIONS_BARSTART_DESC"] = "Control if the bar starts on the right side of the icon or on the left side.\n\nThis is useful when using icons with some transparency."
@@ -560,9 +626,14 @@ if not Loc then return end
 	Loc ["STRING_OPTIONS_TEXT_RCLASSCOLOR"] = "Right Text Color By Class"
 	Loc ["STRING_OPTIONS_TEXT_RCLASSCOLOR_DESC"] = "When enabled, the right text uses the class color of the character.\n\nIf disabled, choose the color on the color picker button."
 	
+	Loc ["STRING_OPTIONS_TEXT_TEXTUREU_ANCHOR"] = "Upper Texture:"
+	Loc ["STRING_OPTIONS_TEXT_TEXTUREL_ANCHOR"] = "Lower Texture:"
 	Loc ["STRING_OPTIONS_TEXT_FIXEDCOLOR"] = "Text Color"
-	Loc ["STRING_OPTIONS_TEXT_ROWCOLOR"] = "Alpha and Color When Not By Class"
-	Loc ["STRING_OPTIONS_TEXT_ROWCOLOR2"] = "Color When Not By Class"
+	Loc ["STRING_OPTIONS_TEXT_ROWCOLOR"] = "Color"
+	Loc ["STRING_OPTIONS_TEXT_ROWCOLOR2"] = "Color"
+	Loc ["STRING_OPTIONS_TEXT_ROWCOLOR_NOTCLASS"] = "By Class"
+	
+	Loc ["STRING_OPTIONS_TEXT_ROWICONS_ANCHOR"] = "Icons:"
 	
 	Loc ["STRING_OPTIONS_PERCENT_TYPE"] = "Percentage Type"
 	Loc ["STRING_OPTIONS_PERCENT_TYPE_DESC"] = "Changes the percentagem method:\n\n|cFFFF8800Relative Total|r: the percentage shows the actor fraction of total amount made by all raid members.\n\n|cFFFF8800Relative Top Player|r: the percentage is relative within the amount score of the top player."
@@ -575,7 +646,7 @@ if not Loc then return end
 	Loc ["STRING_OPTIONS_SHOWHIDE_DESC"] = "This options controls when a window should hide or\nappear on the screen."
 	
 	Loc ["STRING_OPTIONS_INSTANCE_COLOR"] = "Window Color"
-	Loc ["STRING_OPTIONS_INSTANCE_COLOR_DESC"] = "Change the color and alpha of this window.\n\n|cFFFF8800Important|r: the alpha chosen here are overwritten with |cFFFFFF00Auto Transparency|r values when enabled.\n\n|cFFFF8800Important|r: selecting the instance window color overwrite any color customization over the statusbar."
+	Loc ["STRING_OPTIONS_INSTANCE_COLOR_DESC"] = "Change the color and alpha of this window.\n\n|cFFFF8800Important|r: the alpha chosen here are overwritten with |cFFFF8800Auto Transparency|r values when enabled.\n\n|cFFFF8800Important|r: selecting the instance window color overwrite any color customization over the statusbar."
 	
 	Loc ["STRING_OPTIONS_INSTANCE_BACKDROP"] = "Background Texture"
 	Loc ["STRING_OPTIONS_INSTANCE_BACKDROP_DESC"] = "Select the background texture used by this window.\n\n|cFFFF8800Default|r: Details Background."
@@ -602,6 +673,7 @@ if not Loc then return end
 	Loc ["STRING_OPTIONS_SHOW_TOTALBAR_ICON_DESC"] = "Select the icon shown on the total bar."
 	Loc ["STRING_OPTIONS_SHOW_TOTALBAR_COLOR_DESC"] = "Select the color. The transparency value follow the row alpha value."
 	
+	Loc ["STRING_OPTIONS_BARRIGHTTEXTCUSTOM_ANCHOR"] = "Custom Right Text:"
 	Loc ["STRING_OPTIONS_BARRIGHTTEXTCUSTOM2"] = "Text"
 	Loc ["STRING_OPTIONS_BARRIGHTTEXTCUSTOM2_DESC"] = "The customized text shown on the right side of the bars.\n\n|cFFFF8800{data1}|r: is the first number passed, generally this number represents the total done.\n\n|cFFFF8800{data2}|r: is the second number passed, most of the times represents the per second average.\n\n|cFFFF8800{data3}|r: third number passed, normally is the percentage. \n\n|cFFFF8800{func}|r: runs a customized Lua function adding its return value to the text.\nExample: \n{func return 'hello azeroth'}\n\n|cFFFF8800Scape Sequences|r: use to change color or add textures. Search 'UI escape sequences' for more information."
 	Loc ["STRING_OPTIONS_BARRIGHTTEXTCUSTOM"] = "Custom Right Text Enabled"
@@ -609,6 +681,10 @@ if not Loc then return end
 
 	Loc ["STRING_OPTIONS_INSTANCE_SKIN"] = "Skin"
 	Loc ["STRING_OPTIONS_INSTANCE_SKIN_DESC"] = "Modify window appearance based on a skin theme."
+	
+	Loc ["STRING_OPTIONS_SKIN_SELECT"] = "select a skin"
+	Loc ["STRING_OPTIONS_SKIN_LOADED"] = "skin successful loaded."
+	Loc ["STRING_OPTIONS_SKIN_REMOVED"] = "skin removed."
 	
 Loc ["STRING_OPTIONS_SKIN_A"] = "Skin Settings"
 Loc ["STRING_OPTIONS_SKIN_A_DESC"] = "This options allows you to change the skin."
@@ -625,10 +701,14 @@ Loc ["STRING_OPTIONS_HIDE_ICON"] = "Hide Icon"
 Loc ["STRING_OPTIONS_HIDE_ICON_DESC"] = "When enabled, the icon on the top left corner isn't draw.\n\nSome skins may prefer remove this icon."
 
 Loc ["STRING_OPTIONS_MENU_X"] = "Menu Pos X"
-Loc ["STRING_OPTIONS_MENU_X_DESC"] = "Move the left menu position, the first slider changes the horizontal axis, the second changes the vertical axis.\n\nIf menu anchor is set to right side, use -67 if this instance isn't hosting the reset button."
-
+Loc ["STRING_OPTIONS_MENU_X_DESC"] = "Change the position of all left menu buttons, the first slider changes the horizontal axis, the second changes the vertical axis."
 Loc ["STRING_OPTIONS_MENU_Y"] = "Menu Pos Y"
-Loc ["STRING_OPTIONS_MENU_Y_DESC"] = "Slightly move the main menu on tooltip to the up or down direction."
+Loc ["STRING_OPTIONS_MENU_Y_DESC"] = "Change the position of all left menu buttons, the first slider changes the horizontal axis, the second changes the vertical axis."
+
+Loc ["STRING_OPTIONS_MENU2_X"] = "Menu Pos X"
+Loc ["STRING_OPTIONS_MENU2_X_DESC"] = "Change the position of all right menu buttons, the first slider changes the horizontal axis, the second changes the vertical axis."
+Loc ["STRING_OPTIONS_MENU2_Y"] = "Menu Pos Y"
+Loc ["STRING_OPTIONS_MENU2_Y_DESC"] = "Change the position of all right menu buttons, the first slider changes the horizontal axis, the second changes the vertical axis."
 
 Loc ["STRING_OPTIONS_MENU_ANCHOR"] = "Menu Anchor Side"
 Loc ["STRING_OPTIONS_MENU_ANCHOR_DESC"] = "Change if the left menu is attached within left side of window or in the right side."
@@ -668,11 +748,11 @@ Loc ["STRING_OPTIONS_INSTANCE_STRATA"] = "Layer Strata"
 Loc ["STRING_OPTIONS_INSTANCE_STRATA_DESC"] = "Selects the layer height that the frame will be placed on.\n\nLow layer is the default and makes the window stay behind of the most interface panels.\n\nUsing high layer the window might stay in front of the major others panels.\n\nWhen changing the layer height you may find some conflict with others panels, overlapping each other."
 
 Loc ["STRING_OPTIONS_MENU_AUTOHIDE_ANCHOR"] = "Auto Hide Menu Buttons"
-Loc ["STRING_OPTIONS_MENU_AUTOHIDE_LEFT"] = "Left Menu"
-Loc ["STRING_OPTIONS_MENU_AUTOHIDE_RIGHT"] = "Right Menu"
-Loc ["STRING_OPTIONS_MENU_AUTOHIDE_DESC"] = "When enabled the chosen menu automatically hides itself when the mouse leaves the Details! window and shows up when you are interacting with it again."
+Loc ["STRING_OPTIONS_MENU_AUTOHIDE_LEFT"] = "Auto Hide Menu"
+Loc ["STRING_OPTIONS_MENU_AUTOHIDE_RIGHT"] = "Auto Hide Menu"
+Loc ["STRING_OPTIONS_MENU_AUTOHIDE_DESC"] = "When enabled the menu automatically hides it self when the mouse leaves the window and shows up when you are interacting with it again."
 
-Loc ["STRING_OPTIONS_INSTANCE_STATUSBAR_ANCHOR"] = "Statusbar"
+Loc ["STRING_OPTIONS_INSTANCE_STATUSBAR_ANCHOR"] = "Statusbar:"
 Loc ["STRING_OPTIONS_INSTANCE_STATUSBARCOLOR"] = "Color and Transparency"
 Loc ["STRING_OPTIONS_INSTANCE_STATUSBARCOLOR_DESC"] = "Select the color used by the statusbar.\n\n|cFFFF8800Important|r: this option overwrite the color and transparency chosen over Window Color."
 
@@ -729,10 +809,10 @@ Loc ["STRING_OPTIONS_CLOSE_OVERLAY"] = "Overlay Color"
 Loc ["STRING_OPTIONS_CLOSE_OVERLAY_DESC"] = "Change the close button overlay color."
 
 Loc ["STRING_OPTIONS_STRETCH"] = "Stretch Button Anchor"
-Loc ["STRING_OPTIONS_STRETCH_DESC"] = "Alternate the stretch button position.\n\n|cFFFFFF00Top|r: the grab is placed on the top right corner.\n\n|cFFFFFF00Bottom|r: the grab is placed on the bottom center."
+Loc ["STRING_OPTIONS_STRETCH_DESC"] = "Alternate the stretch button position.\n\n|cFFFF8800Top|r: the grab is placed on the top right corner.\n\n|cFFFF8800Bottom|r: the grab is placed on the bottom center."
 
 Loc ["STRING_OPTIONS_STRETCHTOP"] = "Stretch Button Always On Top"
-Loc ["STRING_OPTIONS_STRETCHTOP_DESC"] = "The stretch button will be placed on the FULLSCREEN strata and always stay higher than the others frames.\n\n|cFFFFFF00Important|r: Moving the grab for a high layer, it might stay in front of others frames like backpacks, use only if you really need."
+Loc ["STRING_OPTIONS_STRETCHTOP_DESC"] = "The stretch button will be placed on the FULLSCREEN strata and always stay higher than the others frames.\n\n|cFFFF8800Important|r: Moving the grab for a high layer, it might stay in front of others frames like backpacks, use only if you really need."
 
 Loc ["STRING_OPTIONS_PICONS_DIRECTION"] = "Plugin Icons Direction"
 Loc ["STRING_OPTIONS_PICONS_DIRECTION_DESC"] = "Change the direction which plugins icons are displayed on the toolbar."
@@ -790,7 +870,7 @@ Loc ["STRING_OPTIONS_PROFILES_RESET_DESC"] = "Reset all settings."
 	Loc ["STRING_OPTIONS_WP_GROUP2_DESC"] = "Select the wallpaper, for more, choose a diferent category on the left dropbox."
 	
 	Loc ["STRING_OPTIONS_WP_ALIGN"] = "Align"
-	Loc ["STRING_OPTIONS_WP_ALIGN_DESC"] = "Select how the wallpaper will align within the window instance.\n\n- |cFFFFFF00Fill|r: auto resize and align with all corners.\n\n- |cFFFFFF00Center|r: doesn`t resize and align with the center of the window.\n\n-|cFFFFFF00Stretch|r: auto resize on vertical or horizontal and align with left-right or top-bottom sides.\n\n-|cFFFFFF00Four Corners|r: align with specified corner, no auto resize is made."
+	Loc ["STRING_OPTIONS_WP_ALIGN_DESC"] = "Select how the wallpaper will align within the window instance.\n\n- |cFFFF8800Fill|r: auto resize and align with all corners.\n\n- |cFFFF8800Center|r: doesn`t resize and align with the center of the window.\n\n-|cFFFF8800Stretch|r: auto resize on vertical or horizontal and align with left-right or top-bottom sides.\n\n-|cFFFF8800Four Corners|r: align with specified corner, no auto resize is made."
 	
 	Loc ["STRING_OPTIONS_WP_EDIT"] = "Edit Image"
 	Loc ["STRING_OPTIONS_WP_EDIT_DESC"] = "Open the image editor to change some wallpaper aspects."
