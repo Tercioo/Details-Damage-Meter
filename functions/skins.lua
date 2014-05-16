@@ -35,6 +35,7 @@ local _
 		version = "1.0", 
 		site = "unknown", 
 		desc = "default skin for Details!", 
+		
 		can_change_alpha_head = false, 
 		icon_anchor_main = {-1, 1}, 
 		icon_anchor_plugins = {-9, -7}, 
@@ -43,17 +44,43 @@ local _
 		-- the four anchors:
 		icon_point_anchor = {-37, 0},
 		left_corner_anchor = {-107, 0},
-		close_button_anchor = {5, -7},
 		right_corner_anchor = {96, 0},
 
 		icon_point_anchor_bottom = {-37, 0},
 		left_corner_anchor_bottom = {-107, 0},
-		close_button_anchor_bottom = {5, 6},
 		right_corner_anchor_bottom = {96, 0},
 		
+		micro_frames = {left = "DETAILS_STATUSBAR_PLUGIN_PATTRIBUTE"},
+		
 		instance_cprops = {
-			menu_anchor = {5, 1},
+		
+			hide_icon = false,
+			menu_anchor = {5, -1, side = 1},
+			menu_anchor_down = {5, -1},
+			menu2_anchor = {37, 10},
+			menu2_anchor_down = {22, -6},
+			menu_icons_size = 1,
 			plugins_grow_direction = 2,
+			bg_alpha = 0.5,
+			
+		--instance button			
+			instancebutton_config = {size = {22, 14}, anchor = {-2, -1}, textcolor = {.8, .6, .0, 0.8}, textsize = 10, textfont = "Friz Quadrata TT", 
+			normal_texture = [[Interface\AddOns\Details\images\skins\default_skin]], 
+			normal_texcoord = {0.0087890625, 0.0322265625, 0.4140625, 0.4296875}, 
+			highlight_texture = [[Interface\Buttons\UI-Panel-MinimizeButton-Highlight]], 
+			pushed_texture = [[Interface\AddOns\Details\images\skins\default_skin]], 
+			pushed_texcoord = {0.0673828125, 0.0908203125, 0.4140625, 0.4296875}
+			},
+		--reset button
+			resetbutton_config = {size = {22, 14}, anchor = {1, 0}, 
+			normal_texture = [[Interface\AddOns\Details\images\skins\default_skin]], 
+			normal_texcoord = {0.0380859375, 0.0615234375, 0.4140625, 0.4296875},
+			highlight_texture = [[Interface\Buttons\UI-Panel-MinimizeButton-Highlight]], 
+			pushed_texture = [[Interface\AddOns\Details\images\skins\default_skin]], 
+			pushed_texcoord = {0.0966796875, 0.1201171875, 0.4140625, 0.4296875}
+			},
+		--close button
+			closebutton_config = {size = {32, 32}},
 		}
 		
 	})
@@ -72,51 +99,45 @@ local _
 		icon_anchor_plugins = {-7, -13}, 
 		icon_plugins_size = {19, 18},
 		
-		-- the four anchors:
+		--anchors:
 		icon_point_anchor = {-37, 0},
 		left_corner_anchor = {-107, 0},
-		close_button_anchor = {4, -3},
 		right_corner_anchor = {96, 0},
 
 		icon_point_anchor_bottom = {-37, 12},
 		left_corner_anchor_bottom = {-107, 0},
-		close_button_anchor_bottom = {5, 3},
 		right_corner_anchor_bottom = {96, 0},
-		
-		close_button_size = {24, 24},
-		
-		--reset button
-		reset_button_coords = {0.01904296875, 0.0673828125, 0.50244140625, 0.51708984375},
-		reset_button_small_coords = {0.11669921875, 0.13720703125, 0.50244140625, 0.51708984375},
-		
-		--instance button
-		instance_button_coords = {0.01904296875, 0.04736328125, 0.48388671875, 0.49853515625},
 		
 		--overwrites
 		instance_cprops = {
 			hide_icon = true,
-			menu_anchor = {-81, 2, side = 2},
-			instance_button_anchor = {-12, 3},
-			instancebutton_info = {text_color = {.8, .6, .0, 0.8}, text_face = "Friz Quadrata TT", text_size = 10, color_overlay = {1, 1, 1, 1}},
-			resetbutton_info = {text_color = {.8, .8, .8, 0.8}, text_color_small = {0, 0, 0, 0}, text_face = "Friz Quadrata TT", text_size = 12, color_overlay = {1, 1, 1, 1}, always_small = true},
+			
+			menu_anchor = {-55, -1, side = 2},
+			menu_anchor_down = {-55, -1},
+			menu2_anchor = {32, 2},
+			menu2_anchor_down = {32, 2},
+			
+			menu_icons_size = 0.8,
+			plugins_grow_direction = 1,
+			
+			instancebutton_config = {size = {20, 16}, anchor = {5, 0}, textcolor = {.8, .6, .0, 0.8}, textsize = 10, textfont = "Friz Quadrata TT", highlight_texture = [[Interface\Buttons\UI-Panel-MinimizeButton-Highlight]]},
+			resetbutton_config = {size = {8, 16}, anchor = {1, 0}},
+			closebutton_config = {size = {17, 17}},
+			
 			show_sidebars = false,
 			show_statusbar = false,
 			color = {.3, .3, .3, 1},
 			bg_alpha = 0.2,
-			plugins_grow_direction = 1,
+			
 			row_info = {
 				texture = "Blizzard Character Skills Bar",
 				font_face = "Arial Narrow",
 			},
-			attribute_text = {enabled = true, side = 1, text_size = 12, anchor = {-18, 4}, text_color = {1, 1, 1, 1}, text_face = "Arial Narrow"},			
+			attribute_text = {enabled = true, side = 1, text_size = 11, anchor = {-18, 3}, text_color = {1, 1, 1, 1}, text_face = "Arial Narrow"},			
 		},
 		
 		callback = function (skin, instance, just_updating)
-			DetailsResetButton2Text2:SetText ("")
-
-			if (not just_updating and not instance:IsLowerInstance()) then
-				instance:MenuAnchor (-64)
-			end
+			--none
 		end,
 		
 	})
@@ -128,9 +149,10 @@ local _
 		site = "unknown", 
 		desc = "a simple skin with opaque colors.", 
 		
-		micro_frames = {color = {1, 1, 1, 1}, font = "Friz Quadrata TT", size = 10},
+		micro_frames = {color = {1, 1, 1, 1}, font = "Friz Quadrata TT", size = 10, left = "DETAILS_STATUSBAR_PLUGIN_PATTRIBUTE"},
 		
 		can_change_alpha_head = true, 
+		
 		icon_anchor_main = {-1, -5}, 
 		icon_anchor_plugins = {-7, -13}, 
 		icon_plugins_size = {19, 18},
@@ -138,19 +160,33 @@ local _
 		-- the four anchors:
 		icon_point_anchor = {-37, 0},
 		left_corner_anchor = {-107, 0},
-		close_button_anchor = {3, -5},
 		right_corner_anchor = {96, 0},
 
 		icon_point_anchor_bottom = {-37, 12},
 		left_corner_anchor_bottom = {-107, 0},
-		close_button_anchor_bottom = {5, 6},
 		right_corner_anchor_bottom = {96, 0},
 		
-		close_button_size = {26, 26},
-		
 		instance_cprops = {
-			resetbutton_info = {always_small = true},
-			instance_button_anchor = {-19, 1},
+		
+			row_info = {
+				textL_outline = false,
+				textR_outline = false,
+				texture = "Blizzard Character Skills Bar",
+				texture_background = "Details Serenity",
+				texture_background_class_color = false,
+				fixed_texture_background_color = {0, 0, 0, .2},
+			},
+		
+			menu_anchor = {2, -2, side = 1},
+			menu_anchor_down = {2, -4},
+			menu2_anchor = {32, 2},
+			menu2_anchor_down = {32, 2},
+		
+			instancebutton_config = {size = {20, 16}, anchor = {5, 1}, textcolor = {.9, .9, .9, 1}, textsize = 10, textfont = "Friz Quadrata TT", highlight_texture = [[Interface\Buttons\UI-Panel-MinimizeButton-Highlight]]},
+			resetbutton_config = {size = {8, 16}, anchor = {1, -1}},
+		
+			bg_alpha = 0.3,
+		
 		}
 	})
 	
@@ -174,30 +210,16 @@ local _
 		icon_plugins_size = {19, 18},
 		
 		--micro frames
-		micro_frames = {color = {.7, .7, .7, 1}, font = "Arial Narrow", size = 11},
-		
-		--reset button
-		reset_button_coords = {0.01904296875, 0.0673828125, 0.50244140625, 0.51708984375},
-		reset_button_small_coords = {0.11669921875, 0.13720703125, 0.50244140625, 0.51708984375},
-		reset_button_small_size = {14, 12},
-		
-		--instance button
-		instance_button_coords = {0.01904296875, 0.04736328125, 0.48388671875, 0.49853515625},
-		
-		--close button
-		close_button_coords = {0.01904296875, 0.03369140625, 0.52197265625, 0.53662109375},
-		close_button_size = {18, 18},
-		
+		micro_frames = {color = {.7, .7, .7, 1}, font = "Arial Narrow", size = 11, left = "DETAILS_STATUSBAR_PLUGIN_PATTRIBUTE"},
+
 		-- the four anchors (for when the toolbar is on the top side)
 		icon_point_anchor = {-37, 0},
 		left_corner_anchor = {-107, 0},
-		close_button_anchor = {-2, 0},
 		right_corner_anchor = {96, 0},
 		
 		-- the four anchors (for when the toolbar is on the bottom side)
 		icon_point_anchor_bottom = {-37, 12},
 		left_corner_anchor_bottom = {-107, 0},
-		close_button_anchor_bottom = {-2, 0},
 		right_corner_anchor_bottom = {96, 0},
 
 		--[[ callback function execute after all changes on the window, first argument is this skin table, second is the instance where the skin was applied --]]
@@ -221,17 +243,23 @@ local _
 				texture_background_class_color = false,
 				fixed_texture_background_color = {0, 0, 0, .2},
 			},
-			resetbutton_info = {text_color = {0.7, 0.7, 0.7, 1}, text_color_small = {0, 0, 0, 0}, text_face = "Friz Quadrata TT", text_size = 12, color_overlay = {1, 1, 1, 1}},
-			instancebutton_info = {text_color = {.7, .7, .7, 1}, text_face = "Friz Quadrata TT", text_size = 12, color_overlay = {1, 1, 1, 1}},
-			menu_anchor = {-18, 1},
-			instance_button_anchor = {-27, 3},
+
+			instancebutton_config = {size = {20, 16}, anchor = {5, 0}, textcolor = {.7, .7, .7, 1}, textsize = 10, textfont = "Friz Quadrata TT", highlight_texture = [[Interface\Buttons\UI-Panel-MinimizeButton-Highlight]]},
+			resetbutton_config = {size = {8, 16}, anchor = {1, 0}},
+			closebutton_config = {size = {22, 22}},
+			
+			menu_anchor = {-19, -1, side = 1},
+			menu_anchor_down = {-58, 0},
+			menu2_anchor = {32, 5},
+			menu2_anchor_down = {32, 2},
+			
 			hide_icon = true,
 			bg_alpha = 0.3,
 			wallpaper = {
 				enabled = true,
 				width = 244.0000362689358,
 				height = 96.00000674770899,
-				texcoord = {0.001000000014901161, 0.3424842834472656, 0.5739999771118164, 1},
+				texcoord = {0.001000000014901161, 0.3424842834472656, 1, 0.5739999771118164},
 				overlay = {0, 0, 0, 0.498038113117218},
 				anchor = "all",
 				alpha = 0.4980392451398075,
@@ -384,32 +412,14 @@ local _
 		--micro frames
 		micro_frames = {color = {0.525490, 0.525490, 0.525490, 1}, font = "Arial Narrow", size = 11},
 		
-		--reset button
-		reset_button_coords = {0.01904296875, 0.0673828125, 0.50244140625, 0.51708984375},
-		--reset_button_small_coords = {0.11669921875, 0.13720703125, 0.50244140625, 0.51708984375},
-		reset_button_small_coords = {0.1162109375, 0.13671875, 0.50390625, 0.5146484375+0.00048828125+0.00048828125}, -- 119 516 140 527
-		reset_button_small_size = {22, 12},
-		--instance button
-		--instance_button_coords = {0.01904296875, 0.04736328125, 0.48388671875, 0.49853515625},
-		instance_button_coords = {0.0185546875, 0.046875+0.00048828125, 0.4833984375, 0.498046875+0.00048828125},--19 495 48 510
-		instance_button_size = 12,
-		--0.00048828125
-		
-		--close button
-		close_button_coords = {0.01904296875, 0.03369140625, 0.52197265625, 0.53662109375},
-		close_button_size = {18, 18},
-		reset_button_small_size = {22, 15},
-		
 		-- the four anchors (for when the toolbar is on the top side)
 		icon_point_anchor = {-35, -0.5},
 		left_corner_anchor = {-107, 0},
-		close_button_anchor = {-2, 0},
 		right_corner_anchor = {96, 0},
 		
 		-- the four anchors (for when the toolbar is on the bottom side)
 		icon_point_anchor_bottom = {-37, 12},
 		left_corner_anchor_bottom = {-107, 0},
-		close_button_anchor_bottom = {-2, 0},
 		right_corner_anchor_bottom = {96, 0},
 
 		--[[ callback function execute after all changes on the window, first argument is this skin table, second is the instance where the skin was applied --]]
@@ -423,13 +433,27 @@ local _
 		--[[ when a skin is selected, all customized properties of the window is reseted and then the overwrites are applied]]
 		--[[ for the complete cprop list see the file classe_instancia_include.lua]]
 		instance_cprops = {
-			resetbutton_info = {text_color = {0.7, 0.7, 0.7, 1}, text_color_small = {0, 0, 0, 0}, text_face = "Friz Quadrata TT", text_size = 12, color_overlay = {1, 1, 1, 1}, always_small = true},
-			instancebutton_info = {text_color = {.7, .7, .7, 1}, text_face = "Friz Quadrata TT", text_size = 12, color_overlay = {1, 1, 1, 1}},
-			menu_anchor = {-20, 1},
-			instance_button_anchor = {-17, 3},
+
+			instancebutton_config = {size = {20, 16}, anchor = {5, 0}, textcolor = {.7, .7, .7, 1}, textsize = 10, textfont = "Friz Quadrata TT", highlight_texture = [[Interface\Buttons\UI-Panel-MinimizeButton-Highlight]]},
+			resetbutton_config = {size = {8, 16}, anchor = {1, 0}},
+			closebutton_config = {size = {17, 17}},
+
+			menu_icons_size = 0.85,
+			menu_anchor = {-58, 0, side = 2},
+			menu_anchor_down = {-58, 0},
+			menu2_anchor = {32, 2},
+			menu2_anchor_down = {32, 2},
+			plugins_grow_direction = 1,
+			
+			attribute_text = {enabled = true, anchor = {-20, 4}, text_face = "Friz Quadrata TT", text_size = 10, text_color = {1, 1, 1, .7}, side = 1, shadow = true},
+			
 			hide_icon = true,
 			desaturated_menu = true,
+			desaturated_menu2 = true,
+			
 			bg_alpha = 0.3,
+			show_statusbar = false,
+			
 			row_info = {
 					texture = "Details Serenity",
 					texture_class_colors = true, 
@@ -447,7 +471,7 @@ local _
 				enabled = true,
 				anchor = "all",
 				height = 89.00001440917025,
-				alpha = 0.6,
+				alpha = 0.8,
 				texture = "Interface\\Glues\\CREDITS\\Badlands3",
 			}
 		}

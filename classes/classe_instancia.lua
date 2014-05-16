@@ -941,6 +941,9 @@ end
 
 		--local skin =  fazer aqui o esquema de resgatar a skin salva no profile.
 		
+		new_instance:ChangeSkin ("Minimalistic")
+		new_instance:ChangeSkin ("Default Skin")
+		
 		--> apply standard skin if have one saved
 			if (_detalhes.standard_skin) then
 

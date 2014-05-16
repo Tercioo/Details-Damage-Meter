@@ -30,14 +30,17 @@
 			
 			<Layer level="ARTWORK">
 				<!-- icon texture -->
-				<Texture name="$parent_IconTexture" parentKey="icon" file = "Interface\ICONS\Spell_ChargePositive">
+				<Texture name="$parent_IconTexture" parentKey="icon" file = "Interface\COMMON\UI-ModelControlPanel">
+					<Color r="1" g="1" b="1" a="0.4"/>
+					<TexCoords left="0.625" right="0.78125" top="0.328125" bottom="0.390625"/>
 					<Size x="20" y="20" />
 					<Anchors>
 						<Anchor point="LEFT" relativeTo="$parent" relativePoint="LEFT" x="2" y="0"/>
 					</Anchors>
 				</Texture>
 				<!-- text -->
-				<FontString name="$parent_Text" parentKey="text" inherits="GameFontHighlightSmall" justifyH="LEFT" nonspacewrap="true">
+				<FontString name="$parent_Text" parentKey="text" inherits="GameFontHighlightSmall" justifyH="LEFT" nonspacewrap="true" text="no option selected">
+					<Color r="1" g="1" b="1" a="0.4"/>
 					<FontHeight val="10.5"/>
 					<Anchors>
 						<Anchor point="LEFT" relativeTo="$parent_IconTexture" relativePoint="RIGHT" x="5" y="0"/>

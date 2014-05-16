@@ -61,7 +61,7 @@ local function CreateCustomWindow()
 	frame.fundo:SetTexture ("Interface\\AddOns\\Details\\images\\custom_bg")
 	frame.fundo:SetPoint ("topleft", frame, "topleft")
 	
-	frame.move = gump:NewDetailsButton (frame, frame, _, function() end, nil, nil, 1, 1, "", "", "", "")
+	frame.move = gump:NewDetailsButton (frame, frame, _, function() end, nil, nil, 1, 1, "", "", "", "", nil, "DetailsCustomPanelMoveFrame")
 	frame.move:SetPoint ("topleft", frame, "topleft")
 	frame.move:SetPoint ("bottomright", frame, "bottomright")
 	frame.move:SetFrameLevel (frame:GetFrameLevel()+1)
@@ -162,7 +162,7 @@ local function CreateCustomWindow()
 	LeftButtons:SetDrawLayer ("overlay", 4)
 	
 	--> botão de deletar um custom
-	local DeleteButton = gump:NewDetailsButton (frame, frame, _, function()end, nil, nil, 60, 15, "", "", "", "")
+	local DeleteButton = gump:NewDetailsButton (frame, frame, _, function()end, nil, nil, 60, 15, "", "", "", "", nil, "DetailsCustomPanelDeleteButton")
 	DeleteButton.text:SetText (Loc ["STRING_CUSTOM_REMOVE"])
 	DeleteButton.text:SetJustifyH ("left")
 	DeleteButton.text:SetPoint ("left", DeleteButton, "left", 0, -1)
@@ -180,7 +180,7 @@ local function CreateCustomWindow()
 	removeTexture:SetDrawLayer ("overlay", 3)
 	
 	--> botão de dar broadcast em um custom
-	local BroadcastButton = gump:NewDetailsButton (frame, frame, _, function()end, nil, nil, 60, 15, "", "", "", "")
+	local BroadcastButton = gump:NewDetailsButton (frame, frame, _, function()end, nil, nil, 60, 15, "", "", "", "", nil, "DetailsCustomPanelBroadcastButton")
 	BroadcastButton.text:SetText (Loc ["STRING_CUSTOM_BROADCAST"])
 	BroadcastButton.text:SetJustifyH ("left")
 	BroadcastButton.text:SetPoint ("left", BroadcastButton, "left", 0, -1)
@@ -247,7 +247,7 @@ local function CreateCustomWindow()
 		
 		for i = 1, 4 do
 		
-			local button = gump:NewDetailsButton (frame, frame, _, MainMenu, i, nil, 120, 15, "", "", "", "")
+			local button = gump:NewDetailsButton (frame, frame, _, MainMenu, i, nil, 120, 15, "", "", "", "", nil, "DetailsCustomPanelAttributeButton"..i)
 			button.MouseOnEnterHook = OnEnterHook
 			button.MouseOnLeaveHook = OnLeaveHook
 			
@@ -839,7 +839,7 @@ local function CreateCustomWindow()
 		reset()
 	end	
 
-	local IconButton = gump:NewDetailsButton (frame, frame, _, ChooseIcon, nil, nil, 80, 15, "", "", "", "")
+	local IconButton = gump:NewDetailsButton (frame, frame, _, ChooseIcon, nil, nil, 80, 15, "", "", "", "", nil, "DetailsCustomPanelIconButton")
 	IconButton.text:SetText (Loc ["STRING_CUSTOM_ICON"])
 	IconButton.text:SetPoint ("left", IconButton, "left", 3, 0)
 	IconButton:SetPoint ("topleft", frame, "topleft", xStart+21, -118)
@@ -854,7 +854,7 @@ local function CreateCustomWindow()
 	Icon:SetHeight (22)
 	frame.icon = Icon
 
-	local CreateButton = gump:NewDetailsButton (frame, frame, _, CreateFunction, nil, nil, 80, 15, "", "", "", "")
+	local CreateButton = gump:NewDetailsButton (frame, frame, _, CreateFunction, nil, nil, 80, 15, "", "", "", "", nil, "DetailsCustomPanelCreateButton")
 	CreateButton.text:SetText (Loc ["STRING_CUSTOM_CREATE"])
 	CreateButton:SetPoint ("topleft", frame, "topleft", 413, -118)
 	CreateButton:SetFrameLevel (frame:GetFrameLevel()+2)

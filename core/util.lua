@@ -106,8 +106,14 @@
 	function _detalhes:NoToK (numero)
 		return numero
 	end
+	--> put points in numbers
+	-- thanks http://richard.warburton.it
+	function _detalhes:comma_value(n)
+		local left,num,right = _string_match (n,'^([^%d]*%d)(%d*)(.-)$')
+		return left..(num:reverse():gsub('(%d%d%d)','%1,'):reverse())..right
+	end
 	
-	_detalhes.ToKFunctions = {_detalhes.NoToK, _detalhes.ToK, _detalhes.ToK2, _detalhes.ToK0, _detalhes.ToKMin, _detalhes.ToK2Min, _detalhes.ToK0Min}
+	_detalhes.ToKFunctions = {_detalhes.NoToK, _detalhes.ToK, _detalhes.ToK2, _detalhes.ToK0, _detalhes.ToKMin, _detalhes.ToK2Min, _detalhes.ToK0Min, _detalhes.comma_value}
 
 	function string:ReplaceData (...)
 		local args = {...}
@@ -168,13 +174,6 @@
 			end
 		end
 		return unpack (values)
-	end
-
-	--> put points in numbers
-	-- thanks http://richard.warburton.it
-	function _detalhes:comma_value(n) 
-		local left,num,right = _string_match (n,'^([^%d]*%d)(%d*)(.-)$')
-		return left..(num:reverse():gsub('(%d%d%d)','%1,'):reverse())..right
 	end
 
 	--> trim thanks from http://lua-users.org/wiki/StringTrim
@@ -259,6 +258,7 @@
 	function _detalhes:EstaEmCombate()
 
 		_detalhes:TimeDataTick()
+		_detalhes:BrokerTick()
 
 		if (_detalhes.zone_type == "pvp" or _InCombatLockdown()) then
 			return true
@@ -278,7 +278,6 @@
 			end
 		end
 
-		LastDps = 0
 		_detalhes:SairDoCombate()
 	end
 	

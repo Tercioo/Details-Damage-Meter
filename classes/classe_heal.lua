@@ -61,6 +61,9 @@ local ToKFunctions = _detalhes.ToKFunctions
 local SelectedToKFunction = ToKFunctions [1]
 local UsingCustomRightText = false
 
+local FormatTooltipNumber = ToKFunctions [8]
+local TooltipMaximizedMethod = 1
+
 local info = _detalhes.janela_info
 local keyName
 
@@ -860,27 +863,29 @@ function atributo_heal:ToolTip_HealingTaken (instancia, numero, barra, keydown)
 	GameCooltip:AddIcon ([[Interface\TUTORIALFRAME\UI-TutorialFrame-LevelUp]], 1, 1, 14, 14, 0.10546875, 0.89453125, 0.05859375, 0.6796875)
 	GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
 
-	if (keydown == "shift") then
+	local ismaximized = false
+	
+	if (keydown == "shift" or TooltipMaximizedMethod == 2 or TooltipMaximizedMethod == 3) then
 		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay_press)
 		GameCooltip:AddStatusBar (100, 1, r, g, b, 1)
+		ismaximized = true
 	else
 		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay)
 		GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
 	end
 
-	
 	_table_sort (meus_curadores, function (a, b) return a[2] > b[2] end)
 	local max = #meus_curadores
 	if (max > 6) then
 		max = 6
 	end
 	
-	if (keydown == "shift") then
+	if (ismaximized) then
 		max = 99
 	end
 
 	for i = 1, _math_min (max, #meus_curadores) do
-		GameCooltip:AddLine (meus_curadores[i][1]..": ", _detalhes:comma_value (meus_curadores[i][2]).." (".._cstr ("%.1f", (meus_curadores[i][2]/total_curado) * 100).."%)")
+		GameCooltip:AddLine (meus_curadores[i][1]..": ", FormatTooltipNumber (_, meus_curadores[i][2]).." (".._cstr ("%.1f", (meus_curadores[i][2]/total_curado) * 100).."%)")
 		local classe = meus_curadores[i][3]
 		if (not classe) then
 			classe = "UNKNOW"
@@ -890,7 +895,7 @@ function atributo_heal:ToolTip_HealingTaken (instancia, numero, barra, keydown)
 		else
 			GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small", nil, nil, 14, 14, _unpack (_detalhes.class_coords [classe]))
 		end
-		GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
+		_detalhes:AddTooltipBackgroundStatusbar()
 	end
 	
 	return true
@@ -898,6 +903,7 @@ end
 
 ---------> HEALING DONE / HPS / OVERHEAL
 local background_heal_vs_absorbs = {value = 100, color = {1, 1, 0, .25}, specialSpark = false, texture = [[Interface\AddOns\Details\images\bar4_glass]]}
+
 function atributo_heal:ToolTip_HealingDone (instancia, numero, barra, keydown)
 
 	local owner = self.owner
@@ -944,9 +950,11 @@ function atributo_heal:ToolTip_HealingDone (instancia, numero, barra, keydown)
 	GameCooltip:AddLine (Loc ["STRING_SPELLS"], nil, nil, headerColor, nil, 12) --> localiza-me
 	GameCooltip:AddIcon ([[Interface\RAIDFRAME\Raid-Icon-Rez]], 1, 1, 14, 14, 0.109375, 0.890625, 0.0625, 0.90625)
 
-	if (keydown == "shift") then
+	local ismaximized = false
+	if (keydown == "shift" or TooltipMaximizedMethod == 2 or TooltipMaximizedMethod == 3) then
 		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay_press)
 		GameCooltip:AddStatusBar (100, 1, r, g, b, 1)
+		ismaximized = true
 	else
 		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay)
 		GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
@@ -957,7 +965,7 @@ function atributo_heal:ToolTip_HealingDone (instancia, numero, barra, keydown)
 		tooltip_max_abilities = 6
 	end
 
-	if (keydown == "shift") then
+	if (ismaximized) then
 		tooltip_max_abilities = 99
 	end
 	
@@ -966,16 +974,16 @@ function atributo_heal:ToolTip_HealingDone (instancia, numero, barra, keydown)
 			break
 		end
 		if (instancia.sub_atributo == 2) then --> hps
-			GameCooltip:AddLine (ActorHealingTable[i][4][1]..": ", _detalhes:comma_value ( _math_floor (ActorHealingTable[i][5])).." (".._cstr ("%.1f", ActorHealingTable[i][3]).."%)")
+			GameCooltip:AddLine (ActorHealingTable[i][4][1]..": ", FormatTooltipNumber (_,  _math_floor (ActorHealingTable[i][5])).." (".._cstr ("%.1f", ActorHealingTable[i][3]).."%)")
 		elseif (instancia.sub_atributo == 3) then --> overheal
 			local overheal = ActorHealingTable[i][2]
 			local total = ActorHealingTable[i][6]
-			GameCooltip:AddLine (ActorHealingTable[i][4][1] .." (|cFFFF3333" .. _math_floor ( (overheal / (overheal+total)) *100)  .. "%|r):", _detalhes:comma_value ( _math_floor (ActorHealingTable[i][5])).." (".._cstr ("%.1f", ActorHealingTable[i][3]).."%)")
+			GameCooltip:AddLine (ActorHealingTable[i][4][1] .." (|cFFFF3333" .. _math_floor ( (overheal / (overheal+total)) *100)  .. "%|r):", FormatTooltipNumber (_,  _math_floor (ActorHealingTable[i][5])).." (".._cstr ("%.1f", ActorHealingTable[i][3]).."%)")
 		else
-			GameCooltip:AddLine (ActorHealingTable[i][4][1]..": ", _detalhes:comma_value (ActorHealingTable[i][2]).." (".._cstr ("%.1f", ActorHealingTable[i][3]).."%)")
+			GameCooltip:AddLine (ActorHealingTable[i][4][1]..": ", FormatTooltipNumber (_, ActorHealingTable[i][2]).." (".._cstr ("%.1f", ActorHealingTable[i][3]).."%)")
 		end
 		GameCooltip:AddIcon (ActorHealingTable[i][4][3], nil, nil, 14, 14)
-		GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
+		_detalhes:AddTooltipBackgroundStatusbar()
 	end
 	
 	if (instancia.sub_atributo == 6) then
@@ -991,16 +999,18 @@ function atributo_heal:ToolTip_HealingDone (instancia, numero, barra, keydown)
 		GameCooltip:AddLine (Loc ["STRING_TARGETS"].."", nil, nil, headerColor, nil, 12)
 		GameCooltip:AddIcon ([[Interface\TUTORIALFRAME\UI-TutorialFrame-LevelUp]], 1, 1, 14, 14, 0.10546875, 0.89453125, 0.05859375, 0.6796875)
 
-		if (keydown == "ctrl") then
+		local ismaximized = false
+		if (keydown == "ctrl" or TooltipMaximizedMethod == 2 or TooltipMaximizedMethod == 4) then
 			GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_ctrl]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay_press)
 			GameCooltip:AddStatusBar (100, 1, r, g, b, 1)
+			ismaximized = true
 		else
 			GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_ctrl]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay)
 			GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
 		end
 		
 		local tooltip_max_abilities2 = _detalhes.tooltip_max_abilities
-		if (keydown == "ctrl") then
+		if (ismaximized) then
 			tooltip_max_abilities2 = 99
 		end
 		
@@ -1009,12 +1019,12 @@ function atributo_heal:ToolTip_HealingDone (instancia, numero, barra, keydown)
 				break
 			end
 			
-			if (tooltip_max_abilities2 == 99 and ActorHealingTargets[i][1]:find (_detalhes.playername)) then
-				GameCooltip:AddLine (ActorHealingTargets[i][1]..": ", _detalhes:comma_value (ActorHealingTargets[i][2]) .." (".._cstr ("%.1f", ActorHealingTargets[i][3]).."%)", nil, "yellow")
+			if (ismaximized and ActorHealingTargets[i][1]:find (_detalhes.playername)) then
+				GameCooltip:AddLine (ActorHealingTargets[i][1]..": ", FormatTooltipNumber (_, ActorHealingTargets[i][2]) .." (".._cstr ("%.1f", ActorHealingTargets[i][3]).."%)", nil, "yellow")
 				GameCooltip:AddStatusBar (100, 1, .5, .5, .5, .7)
 			else
-				GameCooltip:AddLine (ActorHealingTargets[i][1]..": ", _detalhes:comma_value (ActorHealingTargets[i][2]) .." (".._cstr ("%.1f", ActorHealingTargets[i][3]).."%)")
-				GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
+				GameCooltip:AddLine (ActorHealingTargets[i][1]..": ", FormatTooltipNumber (_, ActorHealingTargets[i][2]) .." (".._cstr ("%.1f", ActorHealingTargets[i][3]).."%)")
+				_detalhes:AddTooltipBackgroundStatusbar()
 			end
 			
 			local targetActor = container:PegarCombatente (nil, ActorHealingTargets[i][1])
@@ -1088,9 +1098,14 @@ function atributo_heal:ToolTip_HealingDone (instancia, numero, barra, keydown)
 
 		_table_sort (totais, _detalhes.Sort2)
 		
+		local ismaximized = false
+		if (keydown == "alt" or TooltipMaximizedMethod == 2 or TooltipMaximizedMethod == 5) then
+			ismaximized = true
+		end
+		
 		for index, _table in _ipairs (totais) do
 			
-			if (_table [2] > 0 and (index < 3 or keydown == "alt")) then
+			if (_table [2] > 0 and (index < 3 or ismaximized)) then
 			
 				if (not added_logo) then
 					added_logo = true
@@ -1098,7 +1113,7 @@ function atributo_heal:ToolTip_HealingDone (instancia, numero, barra, keydown)
 
 					GameCooltip:AddIcon ([[Interface\COMMON\friendship-heart]], 1, 1, 14, 14, 0.21875, 0.78125, 0.09375, 0.6875)
 
-					if (keydown == "alt") then
+					if (ismaximized) then
 						GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_alt]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay_press)
 						GameCooltip:AddStatusBar (100, 1, r, g, b, 1)
 					else
@@ -1110,11 +1125,11 @@ function atributo_heal:ToolTip_HealingDone (instancia, numero, barra, keydown)
 			
 				local n = _table [1]:gsub (("%s%<.*"), "")
 				if (instancia.sub_atributo == 2) then
-					GameCooltip:AddLine (n, _detalhes:comma_value ( _math_floor (_table [3])) .. " (" .. _math_floor (_table [2]/self.total*100) .. "%)")
+					GameCooltip:AddLine (n, FormatTooltipNumber (_,  _math_floor (_table [3])) .. " (" .. _math_floor (_table [2]/self.total*100) .. "%)")
 				else
-					GameCooltip:AddLine (n, _detalhes:comma_value (_table [2]) .. " (" .. _math_floor (_table [2]/self.total*100) .. "%)")
+					GameCooltip:AddLine (n, FormatTooltipNumber (_, _table [2]) .. " (" .. _math_floor (_table [2]/self.total*100) .. "%)")
 				end
-				GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
+				_detalhes:AddTooltipBackgroundStatusbar()
 				GameCooltip:AddIcon ([[Interface\AddOns\Details\images\classes_small]], 1, 1, 14, 14, 0.25, 0.49609375, 0.75, 1)
 			end
 		end
@@ -1817,6 +1832,8 @@ end
 	--> atualize a funcao de abreviacao
 		function atributo_heal:UpdateSelectedToKFunction()
 			SelectedToKFunction = ToKFunctions [_detalhes.ps_abbreviation]
+			FormatTooltipNumber = ToKFunctions [_detalhes.tooltip.abbreviation]
+			TooltipMaximizedMethod = _detalhes.tooltip.maximize_method
 		end
 
 	--> subtract total from a combat table

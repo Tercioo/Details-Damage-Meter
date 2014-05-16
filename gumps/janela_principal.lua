@@ -644,7 +644,11 @@ local function BGFrame_scripts (BG, baseframe, instancia)
 		if (not baseframe.isLocked and button == "LeftButton") then
 			move_janela (baseframe, true, instancia) --> novo movedor da janela
 		elseif (button == "RightButton") then
-			_detalhes.switch:ShowMe (instancia)
+			if (_detalhes.switch.current_instancia and _detalhes.switch.current_instancia == instancia) then
+				_detalhes.switch:CloseMe()
+			else
+				_detalhes.switch:ShowMe (instancia)
+			end
 		end
 	end)
 
@@ -2010,8 +2014,8 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 	rowframe:SetFrameLevel (2)
 	instancia.rowframe = rowframe
 	
-	local switchbutton = gump:NewDetailsButton (backgrounddisplay, baseframe, _, function() end, nil, nil, 1, 1, "", "", "", "", 
-	{rightFunc = {func = function() _detalhes.switch:ShowMe (instancia) end, param1 = nil, param2 = nil}})
+	local switchbutton = gump:NewDetailsButton (backgrounddisplay, baseframe, nil, function() end, nil, nil, 1, 1, "", "", "", "", 
+	{rightFunc = {func = function() _detalhes.switch:ShowMe (instancia) end, param1 = nil, param2 = nil}}, "Details_SwitchButtonFrame" ..  ID)
 	
 	switchbutton:SetPoint ("topleft", backgrounddisplay, "topleft")
 	switchbutton:SetPoint ("bottomright", backgrounddisplay, "bottomright")
@@ -3068,12 +3072,7 @@ function _detalhes:InstanceButtonsColors (red, green, blue, alpha, no_save, only
 		
 	elseif (only_right) then
 	
-		local icons = {baseToolbar.novo, baseToolbar.fechar}
-		
-		if (self.meu_id == _detalhes.ResetButtonInstance) then
-			tinsert (icons, _detalhes.ResetButton)
-			tinsert (icons, _detalhes.ResetButton2)
-		end
+		local icons = {baseToolbar.novo, baseToolbar.fechar, baseToolbar.reset}
 		
 		for _, button in _ipairs (icons) do 
 			button:SetAlpha (alpha)
@@ -3081,12 +3080,7 @@ function _detalhes:InstanceButtonsColors (red, green, blue, alpha, no_save, only
 
 	else
 		
-		local icons = {baseToolbar.modo_selecao, baseToolbar.segmento, baseToolbar.atributo, baseToolbar.report, baseToolbar.novo, baseToolbar.fechar}
-		
-		if (self.meu_id == _detalhes.ResetButtonInstance) then
-			tinsert (icons, _detalhes.ResetButton)
-			tinsert (icons, _detalhes.ResetButton2)
-		end
+		local icons = {baseToolbar.modo_selecao, baseToolbar.segmento, baseToolbar.atributo, baseToolbar.report, baseToolbar.novo, baseToolbar.fechar, baseToolbar.reset}
 		
 		for _, button in _ipairs (icons) do 
 			button:SetAlpha (alpha)
@@ -3229,160 +3223,6 @@ function _detalhes:StatusBarAlert (text, icon, color, time)
 	end
 end
 
-function _detalhes:SetCloseButtonSettings (overlaycolor)
-	if (overlaycolor == "reset") then
-		overlaycolor = {1, 1, 1, 1}
-	end
-
-	if (overlaycolor) then
-		local r, g, b, a = gump:ParseColors (overlaycolor)
-		self.closebutton_info.color_overlay [1] = r
-		self.closebutton_info.color_overlay [2] = g
-		self.closebutton_info.color_overlay [3] = b
-		self.closebutton_info.color_overlay [4] = a
-	end
-
-	local r, g, b, a = unpack (self.closebutton_info.color_overlay)
-	self.baseframe.cabecalho.fechar:GetNormalTexture():SetVertexColor (r, g, b, a)
-	self.baseframe.cabecalho.fechar:GetPushedTexture():SetVertexColor (r, g, b, a)
-	self.baseframe.cabecalho.fechar:GetHighlightTexture():SetVertexColor (r, g, b, a)
-end
-
-function _detalhes:SetInstanceButtonSettings (textfont, textsize, textcolor, overlaycolor)
-
-	if (textfont == "reset") then
-		textfont = "Friz Quadrata TT"
-		textsize = 12
-		textcolor = {1, 0.81, 0, 1}
-		overlaycolor = {1, 1, 1, 1}
-	end
-	
-	--> text color
-	if (textcolor) then
-		local r, g, b, a = gump:ParseColors (textcolor)
-		self.instancebutton_info.text_color [1] = r
-		self.instancebutton_info.text_color [2] = g
-		self.instancebutton_info.text_color [3] = b
-		self.instancebutton_info.text_color [4] = a
-	end
-	
-	_G [self.baseframe.cabecalho.novo:GetName().."Text"]:SetTextColor (unpack (self.instancebutton_info.text_color))
-	
-	--> text font
-	if (textfont) then
-		self.instancebutton_info.text_face = textfont
-	end
-	
-	local font = SharedMedia:Fetch ("font", self.instancebutton_info.text_face)
-	_detalhes:SetFontFace (_G [self.baseframe.cabecalho.novo:GetName().."Text"], font)
-	
-	--> text size
-	if (textsize) then
-		self.instancebutton_info.text_size = textsize
-	end
-	
-	_detalhes:SetFontSize (_G [self.baseframe.cabecalho.novo:GetName().."Text"], self.instancebutton_info.text_size)
-	
-	--> overlay color
-	if (overlaycolor) then
-		local r, g, b, a = gump:ParseColors (overlaycolor)
-		self.instancebutton_info.color_overlay [1] = r
-		self.instancebutton_info.color_overlay [2] = g
-		self.instancebutton_info.color_overlay [3] = b
-		self.instancebutton_info.color_overlay [4] = a
-	end
-
-	local r, g, b, a = unpack (self.instancebutton_info.color_overlay)
-	self.baseframe.cabecalho.novo.Left:SetVertexColor (r, g, b, a)
-	self.baseframe.cabecalho.novo.Middle:SetVertexColor (r, g, b, a)
-	self.baseframe.cabecalho.novo.Right:SetVertexColor (r, g, b, a)
-end
-
-function _detalhes:SetDeleteButtonSettings (textfont, textsize, textcolor, overlaycolor, alwaysminimized, smalltextcolor)
-	
-	if (textfont == "reset") then
-		--print ("text color:", _G.DetailsResetButton1Text:GetTextColor())
-		--print ("text font:", _detalhes:GetFontFace (_G.DetailsResetButton1Text))
-		--print ("text size:", _detalhes:GetFontSize (_G.DetailsResetButton1Text))
-		--print ("vertex color", _detalhes.ResetButton.Left:GetVertexColor())
-		textfont = "Friz Quadrata TT"
-		textsize = 12
-		textcolor = {1, 0.81, 0, 1}
-		smalltextcolor = {1, 0.81, 0, 1}
-		overlaycolor = {1, 1, 1, 1}
-		alwaysminimized = false
-	end
-
-	--> text color
-	if (textcolor) then
-		local r, g, b, a = gump:ParseColors (textcolor)
-		self.resetbutton_info.text_color [1] = r
-		self.resetbutton_info.text_color [2] = g
-		self.resetbutton_info.text_color [3] = b
-		self.resetbutton_info.text_color [4] = a
-	end
-	
-	if (smalltextcolor) then
-		local r, g, b, a = gump:ParseColors (smalltextcolor)
-		self.resetbutton_info.text_color_small [1] = r
-		self.resetbutton_info.text_color_small [2] = g
-		self.resetbutton_info.text_color_small [3] = b
-		self.resetbutton_info.text_color_small [4] = a
-	end
-	
-	if (not self.resetbutton_info.text_color_small) then
-		self.resetbutton_info.text_color_small = {1, 0.81, 0, 1}
-	end
-	
-	if (_detalhes.ResetButtonInstance == self.meu_id) then
-		_G.DetailsResetButton1Text:SetTextColor (unpack (self.resetbutton_info.text_color))
-		_G.DetailsResetButton2Text2:SetTextColor (unpack (self.resetbutton_info.text_color_small))
-	end
-	
-	--> text font
-	if (textfont) then
-		self.resetbutton_info.text_face = textfont
-	end
-	
-	local font = SharedMedia:Fetch ("font", self.resetbutton_info.text_face)
-	_detalhes:SetFontFace (_G.DetailsResetButton1Text, font)
-	_detalhes:SetFontFace (_G.DetailsResetButton2Text2, font)
-	
-	--> text size
-	if (textsize) then
-		self.resetbutton_info.text_size = textsize
-	end
-	
-	_detalhes:SetFontSize (_G.DetailsResetButton1Text, self.resetbutton_info.text_size)
-	_detalhes:SetFontSize (_G.DetailsResetButton2Text2, self.resetbutton_info.text_size)
-	
-	--> overlay color
-	if (overlaycolor) then
-		local r, g, b, a = gump:ParseColors (overlaycolor)
-		self.resetbutton_info.color_overlay [1] = r
-		self.resetbutton_info.color_overlay [2] = g
-		self.resetbutton_info.color_overlay [3] = b
-		self.resetbutton_info.color_overlay [4] = a
-	end
-	
-	if (_detalhes.ResetButtonInstance == self.meu_id) then
-		local r, g, b, a = unpack (self.resetbutton_info.color_overlay)
-		_detalhes.ResetButton.Left:SetVertexColor (r, g, b, a)
-		_detalhes.ResetButton.Middle:SetVertexColor (r, g, b, a)
-		_detalhes.ResetButton.Right:SetVertexColor (r, g, b, a)
-		_detalhes.ResetButton2.Left:SetVertexColor (r, g, b, a)
-		_detalhes.ResetButton2.Middle:SetVertexColor (r, g, b, a)
-		_detalhes.ResetButton2.Right:SetVertexColor (r, g, b, a)
-	end
-	
-	--> always minimized
-	if (type (alwaysminimized) == "boolean") then
-		self.resetbutton_info.always_small = alwaysminimized
-	end
-	
-	self:ReajustaGump()
-end
-
 
 function gump:CriaRodape (baseframe, instancia)
 
@@ -3517,12 +3357,25 @@ function _detalhes:GetMenuAnchorPoint()
 		end
 	end
 end
+function _detalhes:GetMenu2AnchorPoint()
+	local toolbar_side = self.toolbar_side
+	if (toolbar_side == 1) then --top
+		return self.menu2_points [1], "topright", "bottomleft"
+	elseif (toolbar_side == 2) then --bottom
+		return self.menu2_points [1], "topleft", "topleft"
+	end
+end
 
 --> search key: ~icon
 function _detalhes:ToolbarMenuButtonsSize (size)
 	size = size or self.menu_icons_size
 	self.menu_icons_size = size
 	return self:ToolbarMenuButtons()
+end
+function _detalhes:ToolbarMenu2ButtonsSize (size)
+	size = size or self.menu2_icons_size
+	self.menu2_icons_size = size
+	return self:ToolbarMenu2Buttons()
 end
 function _detalhes:ToolbarMenuButtons (_mode, _segment, _attributes, _report)
 
@@ -3611,6 +3464,151 @@ function _detalhes:ToolbarMenuButtons (_mode, _segment, _attributes, _report)
 	end
 	
 	return true
+end
+
+function _detalhes:ToolbarMenu2Buttons (_close, _instance, _reset)
+	if (_close == nil) then
+		_close = self.menu2_icons[1]
+	end
+	if (_instance == nil) then
+		_instance = self.menu2_icons[2]
+	end
+	if (_reset == nil) then
+		_reset = self.menu2_icons[3]
+	end
+	
+	self.menu2_icons[1] = _close
+	self.menu2_icons[2] = _instance
+	self.menu2_icons[3] = _reset
+	
+	local buttons = {self.baseframe.cabecalho.fechar, self.baseframe.cabecalho.novo, self.baseframe.cabecalho.reset}
+	local config = {self.closebutton_config, self.instancebutton_config, self.resetbutton_config}
+	
+	local anchor_frame, point1, point2 = self:GetMenu2AnchorPoint() -- self.menu2_points [1], "topleft", "bottomleft"
+	local got_anchor = false
+	local lastIcon = nil
+	
+	local size = self.menu2_icons_size
+	local default_texcoord = {0, 1, 0, 1}
+	local default_vertexcolor = {1, 1, 1, 1}
+	--> normal buttons
+	for index, button in ipairs (buttons) do
+		if (self.menu2_icons [index]) then
+
+			local button_config = config [index]
+			button:ClearAllPoints()
+			
+			if (got_anchor) then
+				button:SetPoint ("right", lastIcon, "left", button_config.anchor [1], button_config.anchor [2])
+			else
+				button:SetPoint (point1, anchor_frame, point2, button_config.anchor [1], button_config.anchor [2])
+				got_anchor = button
+			end
+			
+			button:SetSize (button_config.size[1] * size, button_config.size[2] * size)
+			
+			local normal_texture = button:GetNormalTexture()
+			local highlight_texture = button:GetHighlightTexture()
+			local pushed_texture = button:GetPushedTexture()
+			
+			normal_texture:SetTexture (button_config.normal_texture)
+			highlight_texture:SetTexture (button_config.highlight_texture or button_config.normal_texture)
+			pushed_texture:SetTexture (button_config.pushed_texture or button_config.normal_texture)
+			
+			if (button_config.normal_texcoord) then
+				normal_texture:SetTexCoord (unpack (button_config.normal_texcoord))
+			else
+				normal_texture:SetTexCoord (unpack (default_texcoord))
+			end
+
+			if (button_config.highlight_texcoord) then
+				highlight_texture:SetTexCoord (unpack (button_config.highlight_texcoord))
+			else
+				if (button_config.normal_texcoord and button_config.normal_texture == button_config.highlight_texture) then
+					highlight_texture:SetTexCoord (unpack (button_config.normal_texcoord))
+				else
+					highlight_texture:SetTexCoord (unpack (default_texcoord))
+				end
+			end
+			
+			if (button_config.pushed_texcoord) then
+				pushed_texture:SetTexCoord (unpack (button_config.pushed_texcoord))
+			else
+				if (button_config.normal_texcoord and (not button_config.pushed_texture or button_config.normal_texture == button_config.pushed_texture)) then
+					pushed_texture:SetTexCoord (unpack (button_config.normal_texcoord))
+				else
+					pushed_texture:SetTexCoord (unpack (default_texcoord))
+				end
+			end
+			
+			if (button_config.normal_vertexcolor) then
+				normal_texture:SetVertexColor (unpack (button_config.normal_vertexcolor))
+			else
+				normal_texture:SetVertexColor (unpack (default_vertexcolor))
+			end
+			
+			if (button_config.highlight_vertexcolor) then
+				highlight_texture:SetVertexColor (unpack (button_config.highlight_vertexcolor))
+			else
+				if (button_config.normal_vertexcolor and button_config.normal_texture == button_config.highlight_texture) then
+					highlight_texture:SetVertexColor (unpack (button_config.normal_vertexcolor))
+				else
+					highlight_texture:SetVertexColor (unpack (default_vertexcolor))
+				end
+			end
+			
+			if (button_config.pushed_vertexcolor) then
+				pushed_texture:SetVertexColor (unpack (button_config.pushed_vertexcolor))
+			else
+				if (button_config.normal_vertexcolor and button_config.normal_texture == button_config.pushed_texture) then
+					pushed_texture:SetVertexColor (unpack (button_config.normal_vertexcolor))
+				else
+					pushed_texture:SetVertexColor (unpack (default_vertexcolor))
+				end
+			end
+
+			lastIcon = button
+			button:SetParent (self.baseframe)
+			button:SetFrameLevel (self.baseframe.UPFrame:GetFrameLevel()+1)
+			button:Show()
+			
+		else
+			button:Hide()
+		end
+	end
+	
+	self:ToolbarMenu2InstanceButtonSettings()
+	
+	return true
+end
+
+function _detalhes:ToolbarMenu2InstanceButtonSettings (color, font, size, shadow)
+	
+	if (not color) then
+		color = self.instancebutton_config.textcolor
+	end
+	if (not font) then
+		font = self.instancebutton_config.textfont
+	end
+	if (not size) then
+		size = self.instancebutton_config.textsize
+	end
+	if (shadow == nil) then
+		shadow = self.instancebutton_config.textshadow
+	end
+	
+	self.instancebutton_config.textcolor = color
+	self.instancebutton_config.textfont = font
+	self.instancebutton_config.textsize = size
+	self.instancebutton_config.textshadow = shadow
+	
+	local fontstring = self.baseframe.cabecalho.novo:GetFontString()
+	
+	_detalhes:SetFontSize (fontstring, size)
+	_detalhes:SetFontFace (fontstring, SharedMedia:Fetch ("font", font))
+	_detalhes:SetFontColor (fontstring, color)
+	_detalhes:SetFontOutline (fontstring, shadow)
+
 end
 
 local parameters_table = {}
@@ -3935,126 +3933,11 @@ local build_segment_list = function (self, elapsed)
 	
 end
 
-function _detalhes:DisableUIPanelButton (button)
-	button.Right:Hide()
-	button.Middle:Hide()
-	
-	button:SetScript ("OnMouseDown", function()
-		button.Left:SetPoint ("topleft", button, "topleft", 1, -1)
-		button.Left:SetPoint ("bottomleft", button, "bottomleft", 1, -1)
-	end)
-	
-	button:SetScript ("OnMouseUp", function()
-		button.Left:SetPoint ("topleft", button, "topleft")
-		button.Left:SetPoint ("bottomleft", button, "bottomleft")
-	end)
-	button:SetScript ("OnShow", function()end)
-	button:SetScript ("OnDisable", function()end)
-	button:SetScript ("OnEnable", function()end)
-end
-
-function _detalhes:RestoreUIPanelButton (button)
-	--> restaura o botão
-	button.Left:SetTexture ([[Interface\Buttons\UI-Panel-Button-Up]])
-	button.Left:SetTexCoord (0, 0.0937, 0, 0.6875)
-	button.Left:SetSize (12, 22)
-	button.Right:Show()
-	button.Middle:Show()
-	
-	button:SetScript ("OnMouseDown", function (self)
-		if ( self:IsEnabled() ) then
-			self.Left:SetTexture([[Interface\Buttons\UI-Panel-Button-Down]]);
-			self.Middle:SetTexture([[Interface\Buttons\UI-Panel-Button-Down]]);
-			self.Right:SetTexture([[Interface\Buttons\UI-Panel-Button-Down]]);
-		end
-	end)
-	
-	button:SetScript ("OnMouseUp", function (self)
-		if ( self:IsEnabled() ) then
-			self.Left:SetTexture([[Interface\Buttons\UI-Panel-Button-Up]]);
-			self.Middle:SetTexture([[Interface\Buttons\UI-Panel-Button-Up]]);
-			self.Right:SetTexture([[Interface\Buttons\UI-Panel-Button-Up]]);
-		end
-	end)
-	
-	button:SetScript ("OnShow", function (self)
-		if ( self:IsEnabled() ) then
-			self.Left:SetTexture([[Interface\Buttons\UI-Panel-Button-Up]]);
-			self.Middle:SetTexture([[Interface\Buttons\UI-Panel-Button-Up]]);
-			self.Right:SetTexture([[Interface\Buttons\UI-Panel-Button-Up]]);
-		end
-	end)
-	button:SetScript ("OnDisable", function (self)
-		self.Left:SetTexture([[Interface\Buttons\UI-Panel-Button-Disabled]]);
-		self.Middle:SetTexture([[Interface\Buttons\UI-Panel-Button-Disabled]]);
-		self.Right:SetTexture([[Interface\Buttons\UI-Panel-Button-Disabled]]);
-	end)
-	button:SetScript ("OnEnable", function (self)
-		self.Left:SetTexture([[Interface\Buttons\UI-Panel-Button-Up]]);
-		self.Middle:SetTexture([[Interface\Buttons\UI-Panel-Button-Up]]);
-		self.Right:SetTexture([[Interface\Buttons\UI-Panel-Button-Up]]);
-	end)
-end
-
 local botao_fechar_on_enter = function (self)
 	OnEnterMainWindow (self.instancia, self, 3)
 end
 local botao_fechar_on_leave = function (self)
 	OnLeaveMainWindow (self.instancia, self, 3)
-end
-
-function SetCloseButtonAnchors (self, this_skin)
-	if (self.toolbar_side == 1) then --top
-	
-		self.baseframe.cabecalho.fechar:SetScript ("OnMouseDown", function()
-			self.baseframe.cabecalho.fechar:ClearAllPoints()
-			self.baseframe.cabecalho.fechar:SetPoint ("bottomright", self.baseframe, "topright", this_skin.close_button_anchor[1]+1, this_skin.close_button_anchor[2]-1)
-		end)
-		
-		self.baseframe.cabecalho.fechar:SetScript ("OnMouseUp", function()
-			self.baseframe.cabecalho.fechar:ClearAllPoints()
-			self.baseframe.cabecalho.fechar:SetPoint ("bottomright", self.baseframe, "topright", this_skin.close_button_anchor[1], this_skin.close_button_anchor[2])
-
-			self.baseframe.cabecalho.fechar:Disable()
-			self:DesativarInstancia() 
-
-			if (_detalhes.opened_windows == 0) then
-				print (Loc ["STRING_CLOSEALL"])
-			end
-		end)
-	
-	elseif (self.toolbar_side == 2) then --bottom
-	
-		self.baseframe.cabecalho.fechar:SetScript ("OnMouseDown", function()
-			local y = 0
-			if (self.show_statusbar) then
-				y = -14
-			end
-		
-			local _x, _y = unpack (this_skin.close_button_anchor_bottom)
-			self.baseframe.cabecalho.fechar:ClearAllPoints()
-			self.baseframe.cabecalho.fechar:SetPoint ("topright", self.baseframe, "bottomright", _x + 1, _y + y - 1)
-		end)
-		
-		self.baseframe.cabecalho.fechar:SetScript ("OnMouseUp", function()
-			local y = 0
-			if (self.show_statusbar) then
-				y = -14
-			end
-		
-			local _x, _y = unpack (this_skin.close_button_anchor_bottom)
-			self.baseframe.cabecalho.fechar:ClearAllPoints()
-			self.baseframe.cabecalho.fechar:SetPoint ("topright", self.baseframe, "bottomright", _x, _y + y)
-
-			self.baseframe.cabecalho.fechar:Disable()
-			self:DesativarInstancia() 
-
-			if (_detalhes.opened_windows == 0) then
-				print (Loc ["STRING_CLOSEALL"])
-			end
-		end)
-	
-	end
 end
 
 -- ~skin
@@ -4087,18 +3970,6 @@ function _detalhes:ChangeSkin (skin_name)
 		--> reset all config
 			self:ResetInstanceConfig()
 	
-		--> reset instance button
-			self:SetInstanceButtonSettings ("reset")
-		
-		--> reset delete button
-			if (_detalhes.ResetButtonInstance == self.meu_id) then
-				self:SetDeleteButtonSettings ("reset")
-			end
-			DetailsResetButton2Text2:SetText ("-")
-			
-		--> reset close button
-			self:SetCloseButtonSettings ("reset")
-	
 		--> overwrites
 			local overwrite_cprops = this_skin.instance_cprops
 			if (overwrite_cprops) then
@@ -4117,20 +3988,14 @@ function _detalhes:ChangeSkin (skin_name)
 				
 			end
 			
-		--> reset instance button
-			self:SetInstanceButtonSettings()
-		--> reset delete button
-			if (_detalhes.ResetButtonInstance == self.meu_id) then
-				self:SetDeleteButtonSettings()
-			end
-		--> reset close button
-			self:SetCloseButtonSettings ()
-			
 		--> reset micro frames
 			_detalhes.StatusBar:Reset (self)
 
 		--> customize micro frames
 			if (this_skin.micro_frames) then
+				if (this_skin.micro_frames.left) then
+					_detalhes.StatusBar:SetPlugin (self, this_skin.micro_frames.left, "left")
+				end
 				if (this_skin.micro_frames.color) then
 					_detalhes.StatusBar:ApplyOptions (self.StatusBar.left, "textcolor", this_skin.micro_frames.color)
 					_detalhes.StatusBar:ApplyOptions (self.StatusBar.center, "textcolor", this_skin.micro_frames.color)
@@ -4182,101 +4047,6 @@ function _detalhes:ChangeSkin (skin_name)
 		self.botao_separar:SetDisabledTexture (skin_file)
 		self.botao_separar:SetHighlightTexture (skin_file, "ADD")
 		self.botao_separar:SetPushedTexture (skin_file)
-		
-
-----------> custom reset button
-		if (this_skin.reset_button_coords) then
-			if (_detalhes.ResetButtonInstance == self.meu_id) then
-				--> seta o botão
-				_detalhes.ResetButton.Left:SetTexture (skin_file)
-				_detalhes.ResetButton.Left:SetTexCoord (unpack (this_skin.reset_button_coords))
-				_detalhes.ResetButton.Left:SetSize (_detalhes.ResetButton:GetSize())
-
-				if (this_skin.reset_button_small_size) then
-					_detalhes.ResetButton2:SetSize (unpack (this_skin.reset_button_small_size))
-				else
-					_detalhes.ResetButton2:SetSize (22, 15)
-				end
-				
-				_detalhes.ResetButton2.Left:SetTexture (skin_file)
-				_detalhes.ResetButton2.Left:SetTexCoord (unpack (this_skin.reset_button_small_coords or this_skin.reset_button_coords))
-				_detalhes.ResetButton2.Left:SetSize (_detalhes.ResetButton2:GetSize())
-				
-				--> remove propriedades do botão da blizzard
-				_detalhes:DisableUIPanelButton (_detalhes.ResetButton)
-				_detalhes:DisableUIPanelButton (_detalhes.ResetButton2)
-			end
-		else
-			if (_detalhes.ResetButtonInstance == self.meu_id) then
-				_detalhes:RestoreUIPanelButton (_detalhes.ResetButton)
-				_detalhes:RestoreUIPanelButton (_detalhes.ResetButton2)
-				_detalhes.ResetButton2:SetSize (22, 15)
-			end
-		end
-
-----------> custom instance button
-
-	if (this_skin.instance_button_coords) then
-		
-		--> seta o botão
-		self.baseframe.cabecalho.novo:SetHeight (this_skin.instance_button_size or 12)
-		self.baseframe.cabecalho.novo.Left:SetTexture (skin_file)
-		self.baseframe.cabecalho.novo.Left:SetTexCoord (unpack (this_skin.instance_button_coords))
-		self.baseframe.cabecalho.novo.Left:SetSize (self.baseframe.cabecalho.novo:GetSize())
-
-		--> remove propriedades do botão da blizzard
-		_detalhes:DisableUIPanelButton (self.baseframe.cabecalho.novo)
-		
-	else
-		self.baseframe.cabecalho.novo:SetHeight (15)
-		_detalhes:RestoreUIPanelButton (self.baseframe.cabecalho.novo)
-	end
-	
-----------> custom close button
-
-	if (this_skin.close_button_coords) then
-	
-		--> textures
-		self.baseframe.cabecalho.fechar:SetDisabledTexture (skin_file)
-		self.baseframe.cabecalho.fechar:SetNormalTexture (skin_file)
-		self.baseframe.cabecalho.fechar:SetPushedTexture (skin_file)
-		self.baseframe.cabecalho.fechar:SetHighlightTexture (skin_file)
-		
-		--> texcoords
-		self.baseframe.cabecalho.fechar:GetDisabledTexture():SetTexCoord (unpack (this_skin.close_button_coords))
-		self.baseframe.cabecalho.fechar:GetNormalTexture():SetTexCoord (unpack (this_skin.close_button_coords))
-		self.baseframe.cabecalho.fechar:GetPushedTexture():SetTexCoord (unpack (this_skin.close_button_coords))
-		self.baseframe.cabecalho.fechar:GetHighlightTexture():SetTexCoord (unpack (this_skin.close_button_coords))
-		
-		--> if the custom close button have a specified size
-		if (this_skin.close_button_size) then
-			self.baseframe.cabecalho.fechar:SetSize (unpack (this_skin.close_button_size))
-		else
-			self.baseframe.cabecalho.fechar:SetSize (18, 18)
-		end
-		
-		SetCloseButtonAnchors (self, this_skin)
-
-	else
-		self.baseframe.cabecalho.fechar:SetDisabledTexture ([[Interface\Buttons\UI-Panel-MinimizeButton-Disabled]])
-		self.baseframe.cabecalho.fechar:SetNormalTexture ([[Interface\Buttons\UI-Panel-MinimizeButton-Up]])
-		self.baseframe.cabecalho.fechar:SetPushedTexture ([[Interface\Buttons\UI-Panel-MinimizeButton-Down]])
-		self.baseframe.cabecalho.fechar:SetHighlightTexture ([[Interface\Buttons\UI-Panel-MinimizeButton-Highlight]])
-		
-		self.baseframe.cabecalho.fechar:GetDisabledTexture():SetTexCoord (0, 1, 0, 1)
-		self.baseframe.cabecalho.fechar:GetNormalTexture():SetTexCoord (0, 1, 0, 1)
-		self.baseframe.cabecalho.fechar:GetPushedTexture():SetTexCoord (0, 1, 0, 1)
-		self.baseframe.cabecalho.fechar:GetHighlightTexture():SetTexCoord (0, 1, 0, 1)
-		
-		self.baseframe.cabecalho.fechar:SetScript ("OnMouseDown", nil)
-		self.baseframe.cabecalho.fechar:SetScript ("OnMouseUp", nil)
-		
-		if (this_skin.close_button_size) then
-			self.baseframe.cabecalho.fechar:SetSize (unpack (this_skin.close_button_size))
-		else
-			self.baseframe.cabecalho.fechar:SetSize (32, 32)
-		end
-	end
 
 ----------> icon anchor and size
 	
@@ -4323,17 +4093,6 @@ function _detalhes:ChangeSkin (skin_name)
 ----------> call widgets handlers	
 		self:SetBarSettings (self.row_info.height)
 	
-	--> refresh instance button
-		self:SetInstanceButtonSettings()
-	
-	--> refresh delete button
-		if (_detalhes.ResetButtonInstance == self.meu_id) then
-			self:SetDeleteButtonSettings()
-		end
-	
-	--> refresh close button
-		self:SetCloseButtonSettings()
-	
 	--> update toolbar
 		self:ToolbarSide()
 	
@@ -4370,20 +4129,24 @@ function _detalhes:ChangeSkin (skin_name)
 		self:SetBackgroundAlpha()
 		self:SetAutoHideMenu()
 		self:SetBackdropTexture()
-		
+
 	--> refresh all bars
 		
 		self:InstanceRefreshRows()
 
 	--> update menu saturation
 		self:DesaturateMenu()
+		self:DesaturateMenu2()
 	
 	--> update statusbar color
 		self:StatusBarColor()
 	
 	--> update attribute string
 		self:AttributeMenu()
+	
+	--> update top menus
 		self:LeftMenuAnchorSide()
+		self:Menu2Anchor()
 		
 	--> update window strata level
 		self:SetFrameStrata()
@@ -4396,7 +4159,6 @@ function _detalhes:ChangeSkin (skin_name)
 		
 	--> refresh options panel if opened
 		if (_G.DetailsOptionsWindow and _G.DetailsOptionsWindow:IsShown()) then
-			--print (self.meu_id)
 			_detalhes:OpenOptionsWindow (self)
 		end
 	
@@ -4818,27 +4580,15 @@ function _detalhes:ToolbarSide (side)
 		self.baseframe.cabecalho.ball:SetTexCoord (unpack (COORDS_LEFT_BALL))
 		self.baseframe.cabecalho.ball:ClearAllPoints()
 		self.baseframe.cabecalho.ball:SetPoint ("bottomleft", self.baseframe, "topleft", unpack (skin.left_corner_anchor))
-		--> botão fechar
-		self.baseframe.cabecalho.fechar:ClearAllPoints()
-		self.baseframe.cabecalho.fechar:SetPoint ("bottomright", self.baseframe, "topright", unpack (skin.close_button_anchor))
-		if (skin.close_button_coords) then
-			SetCloseButtonAnchors (self, skin)
-		end
+
 		--> ball r
 		self.baseframe.cabecalho.ball_r:SetTexCoord (unpack (COORDS_RIGHT_BALL))
 		self.baseframe.cabecalho.ball_r:ClearAllPoints()
 		self.baseframe.cabecalho.ball_r:SetPoint ("bottomright", self.baseframe, "topright", unpack (skin.right_corner_anchor))
-		
-		--> instance
-		self:InstanceButtonAnchor()
 
 		--> tex coords
 		self.baseframe.cabecalho.emenda:SetTexCoord (unpack (COORDS_LEFT_CONNECTOR))
 		self.baseframe.cabecalho.top_bg:SetTexCoord (unpack (COORDS_TOP_BACKGROUND))
-		
-		--> menu
-		self:MenuAnchor()
-
 		
 	else --> bottom
 	
@@ -4857,13 +4607,7 @@ function _detalhes:ToolbarSide (side)
 		self.baseframe.cabecalho.ball:SetPoint ("topleft", self.baseframe, "bottomleft", _x, _y + y)
 		local l, r, t, b = unpack (COORDS_LEFT_BALL)
 		self.baseframe.cabecalho.ball:SetTexCoord (l, r, b, t)
-		--> botão fechar
-		self.baseframe.cabecalho.fechar:ClearAllPoints()
-		local _x, _y = unpack (skin.close_button_anchor_bottom)
-		self.baseframe.cabecalho.fechar:SetPoint ("topright", self.baseframe, "bottomright", _x, _y + y)
-		if (skin.close_button_coords) then
-			SetCloseButtonAnchors (self, skin)
-		end
+
 		--> ball r
 		self.baseframe.cabecalho.ball_r:ClearAllPoints()
 		local _x, _y = unpack (skin.right_corner_anchor_bottom)
@@ -4876,13 +4620,12 @@ function _detalhes:ToolbarSide (side)
 		self.baseframe.cabecalho.emenda:SetTexCoord (l, r, b, t)
 		local l, r, t, b = unpack (COORDS_TOP_BACKGROUND)
 		self.baseframe.cabecalho.top_bg:SetTexCoord (l, r, b, t)
-		
-		--> instance button
-		self:InstanceButtonAnchor()
-		
-		--> menu buttons
-		self:MenuAnchor()
+
 	end
+	
+	--> update top menus
+		self:LeftMenuAnchorSide()
+		self:Menu2Anchor()
 	
 	self:StretchButtonAnchor()
 	
@@ -4956,43 +4699,28 @@ function _detalhes:StretchButtonAnchor (side)
 	
 end
 
-function _detalhes:InstanceButtonAnchor (x, y)
-
-	if (not x) then
-		x = self.instance_button_anchor [1]
-	end
-	if (not y) then
-		y = self.instance_button_anchor [2]
-	end
-
-	self.instance_button_anchor [1] = x
-	self.instance_button_anchor [2] = y
-
-	self.baseframe.cabecalho.novo:ClearAllPoints()
-	
-	if (self.toolbar_side == 2) then --> bottom
-		local y_mod = 0
-		if (self.show_statusbar) then
-			y_mod = 14
-		end
-		self.baseframe.cabecalho.novo:SetPoint ("topright", self.baseframe, "bottomright", x, (y + y_mod) * -1)
-	else
-		self.baseframe.cabecalho.novo:SetPoint ("bottomright", self.baseframe, "topright", x, y)
-	end
-
-end
-
 function _detalhes:MenuAnchor (x, y)
 
-	if (not x) then
-		x = self.menu_anchor [1]
+	if (self.toolbar_side == 1) then --top
+		if (not x) then
+			x = self.menu_anchor [1]
+		end
+		if (not y) then
+			y = self.menu_anchor [2]
+		end
+		self.menu_anchor [1] = x
+		self.menu_anchor [2] = y
+		
+	elseif (self.toolbar_side == 2) then --bottom
+		if (not x) then
+			x = self.menu_anchor_down [1]
+		end
+		if (not y) then
+			y = self.menu_anchor_down [2]
+		end
+		self.menu_anchor_down [1] = x
+		self.menu_anchor_down [2] = y
 	end
-	if (not y) then
-		y = self.menu_anchor [2]
-	end
-
-	self.menu_anchor [1] = x
-	self.menu_anchor [2] = y
 	
 	local menu_points = self.menu_points -- = {MenuAnchorLeft, MenuAnchorRight}
 	
@@ -5002,11 +4730,11 @@ function _detalhes:MenuAnchor (x, y)
 		menu_points [1]:ClearAllPoints()
 		if (self.toolbar_side == 1) then --> top
 			--self.baseframe.cabecalho.modo_selecao:SetPoint ("bottomleft", self.baseframe.cabecalho.ball, "bottomright", x, y)
-			menu_points [1]:SetPoint ("bottomleft", self.baseframe.cabecalho.ball, "bottomright", x, y)
+			menu_points [1]:SetPoint ("bottomleft", self.baseframe.cabecalho.ball, "bottomright", x, y+2)
 			
 		else --> bottom
 			--self.baseframe.cabecalho.modo_selecao:SetPoint ("topleft", self.baseframe.cabecalho.ball, "topright", x, y*-1)
-			menu_points [1]:SetPoint ("topleft", self.baseframe.cabecalho.ball, "topright", x, y*-1)
+			menu_points [1]:SetPoint ("topleft", self.baseframe.cabecalho.ball, "topright", x, (y*-1) - 4)
 
 		end
 	
@@ -5019,12 +4747,50 @@ function _detalhes:MenuAnchor (x, y)
 			
 		else --> bottom
 			--self.baseframe.cabecalho.modo_selecao:SetPoint ("topleft", self.baseframe.cabecalho.ball_r, "topleft", x, y*-1)
-			menu_points [2]:SetPoint ("topleft", self.baseframe.cabecalho.ball_r, "topleft", x, y*-1)
+			menu_points [2]:SetPoint ("topleft", self.baseframe.cabecalho.ball_r, "topleft", x, (y*-1) - 4)
 
 		end
 	end
 	
 	self:ToolbarMenuButtons()
+	
+end
+
+function _detalhes:Menu2Anchor (x, y)
+
+	if (self.toolbar_side == 1) then --top
+		if (not x) then
+			x = self.menu2_anchor [1]
+		end
+		if (not y) then
+			y = self.menu2_anchor [2]
+		end
+		self.menu2_anchor [1] = x
+		self.menu2_anchor [2] = y
+		
+	elseif (self.toolbar_side== 2) then --bottom
+		if (not x) then
+			x = self.menu2_anchor_down [1]
+		end
+		if (not y) then
+			y = self.menu2_anchor_down [2]
+		end
+		self.menu2_anchor_down [1] = x
+		self.menu2_anchor_down [2] = y
+	end
+	
+	local anchor = self.menu2_points [1]
+	anchor:ClearAllPoints()
+	
+	if (self.toolbar_side == 1) then --> top
+		anchor:SetPoint ("topleft", self.baseframe.cabecalho.ball_r, "bottomleft", x, y+16)
+		
+	else --> bottom
+		anchor:SetPoint ("topleft", self.baseframe.cabecalho.ball_r, "topleft", x-17, (y*-1) + 1)
+
+	end
+	
+	self:ToolbarMenu2Buttons()
 	
 end
 
@@ -5108,6 +4874,25 @@ function _detalhes:DesaturateMenu (value)
 			end
 		end
 		
+	end
+end
+
+function _detalhes:DesaturateMenu2 (value)
+
+	if (value == nil) then
+		value = self.desaturated_menu2
+	end
+
+	if (value) then
+		self.desaturated_menu2 = true
+		self.baseframe.cabecalho.fechar:GetNormalTexture():SetDesaturated (true)
+		self.baseframe.cabecalho.novo:GetNormalTexture():SetDesaturated (true)
+		self.baseframe.cabecalho.reset:GetNormalTexture():SetDesaturated (true)
+	else
+		self.desaturated_menu2 = false
+		self.baseframe.cabecalho.fechar:GetNormalTexture():SetDesaturated (false)
+		self.baseframe.cabecalho.novo:GetNormalTexture():SetDesaturated (false)
+		self.baseframe.cabecalho.reset:GetNormalTexture():SetDesaturated (false)
 	end
 end
 
@@ -5260,19 +5045,31 @@ function _detalhes:ShowStatusBar (instancia)
 	end
 end
 
+--> reset button functions
+	local reset_button_onenter = function (self)
+		OnEnterMainWindow (self.instance, self)
+	end
+	local reset_button_onleave = function (self)
+		OnLeaveMainWindow (self.instance, self)
+	end
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> build upper menu bar
+
 function gump:CriaCabecalho (baseframe, instancia)
 
--- texturas da barra superior
-------------------------------------------------------------------------------------------------------------------------------------------------- 	
-	
 	baseframe.cabecalho = {}
 	
 	--> FECHAR INSTANCIA ----------------------------------------------------------------------------------------------------------------------------------------------------
-	baseframe.cabecalho.fechar = CreateFrame ("button", "DetailsCloseInstanceButton" .. instancia.meu_id, baseframe, "UIPanelCloseButton")
-	baseframe.cabecalho.fechar:SetWidth (32)
-	baseframe.cabecalho.fechar:SetHeight (32)
+	baseframe.cabecalho.fechar = CreateFrame ("button", "DetailsCloseInstanceButton" .. instancia.meu_id, baseframe) --, "UIPanelCloseButton"
+	baseframe.cabecalho.fechar:SetWidth (18)
+	baseframe.cabecalho.fechar:SetHeight (18)
 	baseframe.cabecalho.fechar:SetFrameLevel (5) --> altura mais alta que os demais frames
 	baseframe.cabecalho.fechar:SetPoint ("bottomright", baseframe, "topright", 5, -6) --> seta o ponto dele fixando no base frame
+	
+	baseframe.cabecalho.fechar:SetNormalTexture ([[Interface\Buttons\UI-Panel-MinimizeButton-Up]])
+	baseframe.cabecalho.fechar:SetHighlightTexture ([[Interface\Buttons\UI-Panel-MinimizeButton-Highlight]])
+	baseframe.cabecalho.fechar:SetPushedTexture ([[Interface\Buttons\UI-Panel-MinimizeButton-Down]])
 	
 	baseframe.cabecalho.fechar:SetScript ("OnClick", function() 
 		baseframe.cabecalho.fechar:Disable()
@@ -5284,7 +5081,6 @@ function gump:CriaCabecalho (baseframe, instancia)
 	end)
 	
 	baseframe.cabecalho.fechar.instancia = instancia
-	baseframe.cabecalho.fechar:SetText ("x")
 	baseframe.cabecalho.fechar:SetScript ("OnEnter", botao_fechar_on_enter)
 	baseframe.cabecalho.fechar:SetScript ("OnLeave", botao_fechar_on_leave)	
 
@@ -5398,7 +5194,11 @@ function gump:CriaCabecalho (baseframe, instancia)
 	local MenuAnchorRight = CreateFrame ("frame", "DetailsMenuAnchorRight"..instancia.meu_id, baseframe)
 	MenuAnchorRight:SetSize (1, 1)
 	
+	local Menu2AnchorRight = CreateFrame ("frame", "DetailsMenu2AnchorRight"..instancia.meu_id, baseframe)
+	Menu2AnchorRight:SetSize (1, 1)
+	
 	instancia.menu_points = {MenuAnchorLeft, MenuAnchorRight}
+	instancia.menu2_points = {Menu2AnchorRight}
 	
 -- botões	
 ------------------------------------------------------------------------------------------------------------------------------------------------- 	
@@ -5426,13 +5226,13 @@ function gump:CriaCabecalho (baseframe, instancia)
 		{text = Loc ["STRING_HELP_MODEALL"], type = 2},
 		{icon = [[Interface\TUTORIALFRAME\TutorialFrame-QuestionMark]], type = 2, width = 16, height = 16, l = 8/64, r = 1 - (8/64), t = 8/64, b = 1 - (8/64)},		
 	
-		{text = Loc ["STRING_MODE_SELF"] .. " (|cffa0a0a0" .. Loc ["STRING_MODE_PLUGINS"] .. "|r)"},
+		{text = Loc ["STRING_MODE_SELF"]}, -- .. " (|cffa0a0a0" .. Loc ["STRING_MODE_PLUGINS"] .. "|r)"
 		{func = instancia.AlteraModo, param1 = 1},
 		{icon = [[Interface\AddOns\Details\images\modo_icones]], l = 0, r = 32/256, t = 0, b = 1, width = 20, height = 20},
 		{text = Loc ["STRING_HELP_MODESELF"], type = 2},
 		{icon = [[Interface\TUTORIALFRAME\TutorialFrame-QuestionMark]], type = 2, width = 16, height = 16, l = 8/64, r = 1 - (8/64), t = 8/64, b = 1 - (8/64)},
 
-		{text = Loc ["STRING_MODE_RAID"] .. " (|cffa0a0a0" .. Loc ["STRING_MODE_PLUGINS"] .. "|r)"},
+		{text = Loc ["STRING_MODE_RAID"]}, -- .. " (|cffa0a0a0" .. Loc ["STRING_MODE_PLUGINS"] .. "|r)"
 		{func = instancia.AlteraModo, param1 = 4},
 		{icon = [[Interface\AddOns\Details\images\modo_icones]], l = 32/256*3, r = 32/256*4, t = 0, b = 1, width = 20, height = 20},
 		{text = Loc ["STRING_HELP_MODERAID"], type = 2},
@@ -5681,16 +5481,21 @@ function gump:CriaCabecalho (baseframe, instancia)
 			end)
 
 	--> NOVA INSTANCIA ----------------------------------------------------------------------------------------------------------------------------------------------------
-	baseframe.cabecalho.novo = CreateFrame ("button", "DetailsInstanceButton"..instancia.meu_id, baseframe, "OptionsButtonTemplate")
+	baseframe.cabecalho.novo = CreateFrame ("button", "DetailsInstanceButton"..instancia.meu_id, baseframe) --, "OptionsButtonTemplate"
 	baseframe.cabecalho.novo:SetFrameLevel (baseframe.UPFrame:GetFrameLevel()+1)
 	
-	baseframe.cabecalho.novo:SetWidth (30)
-	baseframe.cabecalho.novo:SetHeight (15)
+	baseframe.cabecalho.novo:SetNormalTexture (1, 1, 1, 1)
+	baseframe.cabecalho.novo:SetHighlightTexture ([[Interface\Buttons\UI-Panel-MinimizeButton-Highlight]])
+	baseframe.cabecalho.novo:SetPushedTexture (1, 1, 1, 1)
+	
+	baseframe.cabecalho.novo:SetWidth (20)
+	baseframe.cabecalho.novo:SetHeight (16)
 
 	baseframe.cabecalho.novo:SetPoint ("bottomright", baseframe, "topright", instancia.instance_button_anchor [1], instancia.instance_button_anchor [2])
 	
 	baseframe.cabecalho.novo:SetScript ("OnClick", function() _detalhes:CriarInstancia (_, true); _G.GameCooltip:ShowMe (false) end)
 	baseframe.cabecalho.novo:SetText ("#"..instancia.meu_id)
+	baseframe.cabecalho.novo:SetNormalFontObject ("GameFontHighlightSmall")
 
 	--> cooltip through inject
 	--> OnClick Function [1] caller [2] fixed param [3] param1 [4] param2
@@ -5793,126 +5598,39 @@ function gump:CriaCabecalho (baseframe, instancia)
 	--> Inject
 	_G.GameCooltip:CoolTipInject (baseframe.cabecalho.novo)
 	
+	-- ~delete ~erase
 	--> RESETAR HISTORICO ----------------------------------------------------------------------------------------------------------------------------------------------------
-	if (not _detalhes.ResetButton) then
-	
-		_detalhes.ResetButtonInstance = instancia.meu_id
-		_detalhes.ResetButtonMode = 1
-	
-		function _detalhes:ResetButtonSnapTo (instancia)
-			if (type (instancia) == "number") then
-				instancia = _detalhes:GetInstance (instancia)
-			end
-			
-			if (instancia.baseframe:GetWidth() < 215 or instancia.resetbutton_info.always_small) then
-				_detalhes.ResetButtonMode = 2
-			else
-				_detalhes.ResetButtonMode = 1
-			end
-			
-			_detalhes.ResetButton:SetParent (instancia.baseframe)
-			_detalhes.ResetButton2:SetParent (instancia.baseframe)
-			_detalhes.ResetButton:SetPoint ("right", instancia.baseframe.cabecalho.novo, "left")
-			_detalhes.ResetButton2:SetPoint ("right", instancia.baseframe.cabecalho.novo, "left", 3, 0)
-			_detalhes.ResetButton:SetFrameLevel (instancia.baseframe.UPFrame:GetFrameLevel()+1)
-			_detalhes.ResetButton2:SetFrameLevel (instancia.baseframe.UPFrame:GetFrameLevel()+1)
-			
-			if (_detalhes.ResetButtonMode == 1) then
-				gump:Fade (_detalhes.ResetButton, 0)
-				gump:Fade (_detalhes.ResetButton2, 1)
-			else
-				gump:Fade (_detalhes.ResetButton, 1)
-				gump:Fade (_detalhes.ResetButton2, 0)
-			end
-			
-		end
-	
------------------> big button
-		_detalhes.ResetButton = CreateFrame ("button", "DetailsResetButton1", baseframe, "UIPanelButtonTemplate")
-		_detalhes.ResetButton:SetFrameLevel (baseframe.UPFrame:GetFrameLevel()+1)
-		_detalhes.ResetButton:SetWidth (50)
-		_detalhes.ResetButton:SetHeight (12)
-		_detalhes.ResetButton:SetPoint ("right", baseframe.cabecalho.novo, "left")
-		
-		_detalhes.ResetButton:SetText (Loc ["STRING_ERASE"])
-		
-		_detalhes.ResetButton:SetScript ("OnClick", function() _detalhes.tabela_historico:resetar() end)
-		
-		_detalhes.ResetButton:SetScript ("OnEnter", function (self) 
-			local lower_instance = _detalhes:GetLowerInstanceNumber()
-			if (lower_instance) then
-				OnEnterMainWindow (_detalhes:GetInstance (lower_instance), self, 3)
-			end
-		end)
-		
-		_detalhes.ResetButton:SetScript ("OnLeave", function (self) 
-		
-			local lower_instance = _detalhes:GetLowerInstanceNumber()
-			if (lower_instance) then
-				OnLeaveMainWindow (_detalhes:GetInstance (lower_instance), self, 3)
-			end
 
-			if (_G.GameCooltip.active) then
-				local passou = 0
-				self:SetScript ("OnUpdate", function (self, elapsed)
-					passou = passou+elapsed
-					if (passou > 0.3) then
-						if (not _G.GameCooltip.mouse_over and not _G.GameCooltip.button_over) then
-							_G.GameCooltip:ShowMe (false)
-						end
-						self:SetScript ("OnUpdate", nil)
-					end
-				end)
-			else
-				self:SetScript ("OnUpdate", nil)
-			end		
-		end)	
-		
-----------------> small button
-		_detalhes.ResetButton2 = CreateFrame ("button", "DetailsResetButton2", baseframe, "OptionsButtonTemplate")
-		_detalhes.ResetButton2:SetFrameLevel (baseframe.UPFrame:GetFrameLevel()+1)
-		_detalhes.ResetButton2:SetWidth (22)
-		_detalhes.ResetButton2:SetHeight (15)
-		_detalhes.ResetButton2:SetPoint ("right", baseframe.cabecalho.novo, "left", 2, 0)
-
-		local text = _detalhes.ResetButton2:CreateFontString ("DetailsResetButton2Text2", "overlay", "GameFont_Gigantic")
-		text:SetText ("-")
-		_detalhes.ResetButton2:SetFontString (text)
-		_detalhes.ResetButton2:SetNormalFontObject ("GameFont_Gigantic")
-		_detalhes.ResetButton2:SetHighlightFontObject ("GameFont_Gigantic")
-		
-		_detalhes.ResetButton2:SetScript ("OnClick", function() _detalhes.tabela_historico:resetar() end)
-		_detalhes.ResetButton2:SetScript ("OnEnter", function (self) 
-			local lower_instance = _detalhes:GetLowerInstanceNumber()
-			if (lower_instance) then
-				OnEnterMainWindow (_detalhes:GetInstance (lower_instance), self, 3)
-			end
-		end)
-		
-		_detalhes.ResetButton2:SetScript ("OnLeave", function (self) 
-		
-			local lower_instance = _detalhes:GetLowerInstanceNumber()
-			if (lower_instance) then
-				OnLeaveMainWindow (_detalhes:GetInstance (lower_instance), self, 3)
-			end
-			
-			if (_G.GameCooltip.active) then
-				local passou = 0
-				self:SetScript ("OnUpdate", function (self, elapsed)
-					passou = passou+elapsed
-					if (passou > 0.3) then
-						if (not _G.GameCooltip.mouse_over and not _G.GameCooltip.button_over) then
-							_G.GameCooltip:ShowMe (false)
-						end
-						self:SetScript ("OnUpdate", nil)
-					end
-				end)
-			else
-				self:SetScript ("OnUpdate", nil)
-			end		
-		end)	
+	baseframe.cabecalho.reset = CreateFrame ("button", "DetailsClearSegmentsButton" .. instancia.meu_id, baseframe)
+	baseframe.cabecalho.reset:SetFrameLevel (baseframe.UPFrame:GetFrameLevel()+1)
+	baseframe.cabecalho.reset:SetSize (10, 16)
+	baseframe.cabecalho.reset:SetPoint ("right", baseframe.cabecalho.novo, "left")
+	baseframe.cabecalho.reset.instance = instancia
+	baseframe.cabecalho.reset:SetScript ("OnClick", function() _detalhes.tabela_historico:resetar() end)
+	baseframe.cabecalho.reset:SetScript ("OnEnter", reset_button_onenter)
+	baseframe.cabecalho.reset:SetScript ("OnLeave", reset_button_onleave)
 	
-	end
+	baseframe.cabecalho.reset:SetNormalTexture ([[Interface\Addons\Details\Images\reset_button]])
+	baseframe.cabecalho.reset:SetHighlightTexture ([[Interface\Addons\Details\Images\reset_button]])
+	baseframe.cabecalho.reset:SetPushedTexture ([[Interface\Addons\Details\Images\reset_button]])
+	
+--[[
+		if (_G.GameCooltip.active) then
+			local passou = 0
+			self:SetScript ("OnUpdate", function (self, elapsed)
+				passou = passou+elapsed
+				if (passou > 0.3) then
+					if (not _G.GameCooltip.mouse_over and not _G.GameCooltip.button_over) then
+						_G.GameCooltip:ShowMe (false)
+					end
+					self:SetScript ("OnUpdate", nil)
+				end
+			end)
+		else
+			self:SetScript ("OnUpdate", nil)
+		end		
+	end)	
+--]]
 	
 --> fim botão reset
 
@@ -5999,7 +5717,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 
 ---------> consolidate frame ----------------------------------------------------------------------------------------------------------------------------------------------------
 
-	local consolidateFrame = CreateFrame ("frame", nil, _detalhes.listener)
+	local consolidateFrame = CreateFrame ("frame", "DetailsConsolidateFrame" .. instancia.meu_id, _detalhes.listener)
 	consolidateFrame:SetWidth (21)
 	consolidateFrame:SetHeight (83)
 	consolidateFrame:SetFrameLevel (baseframe:GetFrameLevel()-1)
@@ -6019,7 +5737,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 	
 ---------> consolidate button
 
-	local consolidateButton = CreateFrame ("button", nil, baseframe)
+	local consolidateButton = CreateFrame ("button", "DetailsConsolidateButton" .. instancia.meu_id, baseframe)
 	consolidateButton:SetWidth (16)
 	consolidateButton:SetHeight (16)
 	consolidateButton:SetFrameLevel (baseframe.UPFrame:GetFrameLevel()+1)

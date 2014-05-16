@@ -35,13 +35,6 @@
 		_detalhes.SoloTables.Attribute = SoloInstance.atributo
 	end
 
-	--> details can call a refresh for an plugin window
-	function _detalhes:RefreshSolo()
-		if (_detalhes.SoloTables.Plugins [_detalhes.SoloTables.Mode].Refresh) then
-			_detalhes.SoloTables.Plugins [_detalhes.SoloTables.Mode].Refresh (nil, SoloInstance)
-		end
-	end
-
 	--> enable and disable Solo Mode for an Instance
 	function _detalhes:SoloMode (show)
 		if (show) then
@@ -104,6 +97,9 @@
 
 		else
 		
+			--print ("--------------------------------")
+			--print (debugstack())
+		
 			if (_detalhes.PluginCount.SOLO > 0) then
 				local solo_frame = _detalhes.SoloTables.Plugins [_detalhes.SoloTables.Mode].Frame
 				if (solo_frame) then
@@ -152,9 +148,7 @@
 
 		_detalhes.SoloTables.SpellCastTable = {} --> not used
 		_detalhes.SoloTables.TimeTable = {} --> not used
-		
 
-		
 		_detalhes.SoloTables.Mode = _detalhes.SoloTables.Mode or 1 --> solo mode
 		
 		function _detalhes.SoloTables:GetActiveIndex()
@@ -201,15 +195,6 @@
 		end
 		
 		return true
-	end
-
-	function _detalhes:SoloCastTime (spell, start, tempo)
-		if (start) then
-			_detalhes.CastStart = tempo
-		else
-			local tempoGasto = _detalhes.CastStart - tempo
-			_detalhes.CastStart = nil
-		end
 	end
 
 	function _detalhes:CloseSoloDebuffs()
@@ -273,6 +258,7 @@
 		if (not instancia) then
 			instancia = self
 		end
+		
 		
 		if (instancia.modo == modo_alone) then
 			--print ("arrumando a instancia "..instancia.meu_id)

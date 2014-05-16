@@ -8,6 +8,7 @@
 
 	local _detalhes = 		_G._detalhes
 	local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
+	local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
 	local _tempo = time()
 	local _
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -553,7 +554,6 @@
 						if (_detalhes.SoloTables.CombatIDLast and _detalhes.SoloTables.CombatIDLast ~= 0) then --> volta os dados da luta anterior
 						
 							_detalhes.SoloTables.CombatID = _detalhes.SoloTables.CombatIDLast
-							_detalhes:RefreshSolo()
 						
 						else
 							_detalhes:RefreshSolo()
@@ -900,11 +900,23 @@
 		local avatarPoint = {"bottomleft", "topleft", -3, -4}
 		local backgroundPoint = {{"bottomleft", "topleft", 0, -3}, {"bottomright", "topright", 0, -3}}
 		local textPoint = {"left", "right", -11, -5}
+		local avatarTexCoord = {0, 1, 0, 1}
+		
+		function _detalhes:AddTooltipBackgroundStatusbar()
+			GameCooltip:AddStatusBar (100, 1, unpack (_detalhes.tooltip.background))
+		end
 		
 		function _detalhes:MontaTooltip (frame, qual_barra, keydown)
-
+			
+			local GameCooltip = GameCooltip
 			GameCooltip:Reset()
 			GameCooltip:SetType ("tooltip")
+			
+			GameCooltip:SetOption ("TextSize", _detalhes.tooltip.fontsize)
+			GameCooltip:SetOption ("TextFont",  _detalhes.tooltip.fontface)
+			GameCooltip:SetOption ("TextColor", _detalhes.tooltip.fontcolor)
+			GameCooltip:SetOption ("TextShadow", _detalhes.tooltip.fontshadow and "OUTLINE")
+			
 			GameCooltip:SetOption ("LeftBorderSize", -5)
 			GameCooltip:SetOption ("RightBorderSize", 5)
 			GameCooltip:SetOption ("MinWidth", 180)
@@ -919,21 +931,22 @@
 
 			--verifica por tooltips especiais:
 			if (objeto.dead) then --> é uma barra de dead
-				return _detalhes:ToolTipDead (self, objeto, esta_barra) --> instância, [morte], barra
+				return _detalhes:ToolTipDead (self, objeto, esta_barra, keydown) --> instância, [morte], barra
 			elseif (objeto.frags) then
-				return _detalhes:ToolTipFrags (self, objeto, esta_barra)
+				return _detalhes:ToolTipFrags (self, objeto, esta_barra, keydown)
 			elseif (objeto.boss_debuff) then
-				return _detalhes:ToolTipVoidZones (self, objeto, esta_barra)
+				return _detalhes:ToolTipVoidZones (self, objeto, esta_barra, keydown)
 			end
 			
 			local t = objeto:ToolTip (self, qual_barra, esta_barra, keydown) --> instância, nº barra, objeto barra, keydown
+			
 			if (t) then
 			
 				if (esta_barra.minha_tabela.serial and esta_barra.minha_tabela.serial ~= "") then
 					local avatar = NickTag:GetNicknameTable (esta_barra.minha_tabela.serial)
 					if (avatar) then
 						if (avatar [2]) then
-							GameCooltip:SetBannerImage (1, avatar [2], 80, 40, avatarPoint, nil, nil) --> overlay [2] avatar path
+							GameCooltip:SetBannerImage (1, avatar [2], 80, 40, avatarPoint, avatarTexCoord, nil) --> overlay [2] avatar path
 						end
 						if (avatar [4]) then
 							GameCooltip:SetBannerImage (2, avatar [4], 200, 55, backgroundPoint, avatar [5], avatar [6]) --> background
@@ -944,7 +957,7 @@
 					end
 				end
 
-				return GameCooltip:ShowCooltip()
+				GameCooltip:ShowCooltip()
 			end
 		end
 		

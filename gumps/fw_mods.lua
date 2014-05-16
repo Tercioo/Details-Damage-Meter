@@ -45,7 +45,7 @@ function gump:NewDetailsButton (parent, container, instancia, func, param1, para
 	w = w or 16
 	h = h or 16
 	options = options or {}
-	
+
 	local new_button = CreateFrame ("Button", FrameName, parent)
 	new_button:SetWidth (w)
 	new_button:SetHeight (h)

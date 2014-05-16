@@ -64,7 +64,13 @@ local ToKFunctions = _detalhes.ToKFunctions
 local SelectedToKFunction = ToKFunctions [1]
 local UsingCustomRightText = false
 
+local FormatTooltipNumber = ToKFunctions [8]
+local TooltipMaximizedMethod = 1
+
 local CLASS_ICON_TCOORDS = _G.CLASS_ICON_TCOORDS
+
+local key_overlay = {1, 1, 1, .1}
+local key_overlay_press = {1, 1, 1, .2}
 
 local info = _detalhes.janela_info
 local keyName
@@ -241,19 +247,12 @@ function atributo_damage:ContainerRefreshDps (container, combat_time)
 	
 end
 
-function _detalhes:ToolTipFrags (instancia, frag, esta_barra)
+function _detalhes:ToolTipFrags (instancia, frag, esta_barra, keydown)
 	
 	--vardump (frag)
 	
 	local name = frag [1]
 	local GameCooltip = GameCooltip
-	
-	GameCooltip:Reset()
-	GameCooltip:SetType ("tooltip")
-	GameCooltip:SetOwner (esta_barra)
-	GameCooltip:SetOption ("LeftBorderSize", -5)
-	GameCooltip:SetOption ("RightBorderSize", 5)
-	GameCooltip:SetOption ("StatusBarTexture", [[Interface\WorldStateFrame\WORLDSTATEFINALSCORE-HIGHLIGHT]])
 	
 	--> mantendo a função o mais low level possível
 	local damage_container = instancia.showing [1]
@@ -288,23 +287,39 @@ function _detalhes:ToolTipFrags (instancia, frag, esta_barra)
 			
 			GameCooltip:AddLine (Loc ["STRING_FROM"], nil, nil, headerColor, nil, 12)
 			GameCooltip:AddIcon ([[Interface\Addons\Details\images\icons]], 1, 1, 14, 14, 0.126953125, 0.1796875, 0, 0.0546875)
-			GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
 		
-			for i = 1, math.min (6, #damage_taken_table) do 
+			local min = 6
+			local ismaximized = false
+			if (keydown == "shift" or TooltipMaximizedMethod == 2 or TooltipMaximizedMethod == 3) then
+				min = 99
+				ismaximized = true
+			end
+			
+			if (ismaximized) then
+				--highlight shift key
+				GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay_press)
+				GameCooltip:AddStatusBar (100, 1, .1, .1, .1, 1)
+			else
+				GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay)
+				GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
+			end
+		
+			for i = 1, math.min (min, #damage_taken_table) do 
 			
 				local t = damage_taken_table [i]
 			
-				GameCooltip:AddLine (t [1], _detalhes:comma_value (t [2]))
+				GameCooltip:AddLine (t [1], FormatTooltipNumber (_, t [2]))
 				local classe = t [3]
 				if (not classe) then
 					classe = "UNKNOW"
 				end
+				
 				if (classe == "UNKNOW") then
 					GameCooltip:AddIcon ("Interface\\LFGFRAME\\LFGROLE_BW", nil, nil, 14, 14, .25, .5, 0, 1)
 				else
 					GameCooltip:AddIcon (instancia.row_info.icon_file, nil, nil, 14, 14, _unpack (_detalhes.class_coords [classe]))
 				end
-				GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
+				_detalhes:AddTooltipBackgroundStatusbar()
 			end
 			
 			GameCooltip:AddLine (Loc ["STRING_REPORT_LEFTCLICK"], nil, 1, "white")
@@ -414,7 +429,7 @@ function atributo_damage:ReportSingleVoidZoneLine (actor, instancia)
 	return _detalhes:Reportar (reportar, {_no_current = true, _no_inverse = true, _custom = true})
 end
 
-function _detalhes:ToolTipVoidZones (instancia, actor, barra)
+function _detalhes:ToolTipVoidZones (instancia, actor, barra, keydown)
 	
 	local damage_actor = instancia.showing[1]:PegarCombatente (_, actor.damage_twin)
 	local habilidade
@@ -460,20 +475,13 @@ function _detalhes:ToolTipVoidZones (instancia, actor, barra)
 	
 	local GameCooltip = GameCooltip
 	
-	GameCooltip:Reset()
-	GameCooltip:SetType ("tooltip")
-	GameCooltip:SetOwner (barra)
-	GameCooltip:SetOption ("LeftBorderSize", -5)
-	GameCooltip:SetOption ("RightBorderSize", 5)
-	GameCooltip:SetOption ("StatusBarTexture", [[Interface\WorldStateFrame\WORLDSTATEFINALSCORE-HIGHLIGHT]])
-	
 	for _, alvo in _ipairs (container) do 
 
 		local minutos, segundos = _math_floor (alvo.uptime / 60), _math_floor (alvo.uptime % 60)
 		if (minutos > 0) then
-			GameCooltip:AddLine (alvo.nome, _detalhes:comma_value (alvo.damage) .. " (" .. minutos .. "m " .. segundos .. "s" .. ")")
+			GameCooltip:AddLine (alvo.nome, FormatTooltipNumber (_, alvo.damage) .. " (" .. minutos .. "m " .. segundos .. "s" .. ")")
 		else
-			GameCooltip:AddLine (alvo.nome, _detalhes:comma_value (alvo.damage) .. " (" .. segundos .. "s" .. ")")
+			GameCooltip:AddLine (alvo.nome, FormatTooltipNumber (_, alvo.damage) .. " (" .. segundos .. "s" .. ")")
 		end
 		
 		local classe = _detalhes:GetClass (alvo.nome)
@@ -483,7 +491,7 @@ function _detalhes:ToolTipVoidZones (instancia, actor, barra)
 			GameCooltip:AddIcon ("Interface\\LFGFRAME\\LFGROLE_BW", nil, nil, 14, 14, .25, .5, 0, 1)
 		end
 		
-		GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
+		_detalhes:AddTooltipBackgroundStatusbar()
 	
 	end
 	
@@ -1417,8 +1425,7 @@ local barAlha = .6
 			end
 
 ---------> DAMAGE DONE & DPS
-local key_overlay = {1, 1, 1, .1}
-local key_overlay_press = {1, 1, 1, .2}
+
 
 function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 	
@@ -1431,6 +1438,8 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 	
 	do
 		--> TOP HABILIDADES
+		
+			--get variables
 			local ActorDamage = self.total_without_pet
 			local ActorDamageWithPet = self.total
 			if (ActorDamage == 0) then
@@ -1439,6 +1448,7 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 			local ActorSkillsContainer = self.spell_tables._ActorTable
 			local ActorSkillsSortTable = {}
 			
+			--get time type
 			local meu_tempo
 			if (_detalhes.time_type == 1 or not self.grupo) then
 				meu_tempo = self:Tempo()
@@ -1446,56 +1456,60 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 				meu_tempo = self:GetCombatTime()
 			end
 			
+			--add and sort
 			for _spellid, _skill in _pairs (ActorSkillsContainer) do
 				ActorSkillsSortTable [#ActorSkillsSortTable+1] = {_spellid, _skill.total, _skill.total/meu_tempo}
-				--local nome_magia, _, icone_magia = _GetSpellInfo (_spellid)
-				--print ("==============")
-				--print (nome_magia, _skill.total)
 			end
 			_table_sort (ActorSkillsSortTable, _detalhes.Sort2)
 		
 		--> TOP INIMIGOS
+			--get variables
 			local ActorTargetsContainer = self.targets._ActorTable
 			local ActorTargetsSortTable = {}
+			
+			--add and sort
 			for _, _target in _ipairs (ActorTargetsContainer) do
 				ActorTargetsSortTable [#ActorTargetsSortTable+1] = {_target.nome, _target.total}
 			end
 			_table_sort (ActorTargetsSortTable, _detalhes.Sort2)
 
-			
+			--tooltip stuff
 			local tooltip_max_abilities = _detalhes.tooltip_max_abilities
 			if (instancia.sub_atributo == 2) then
 				tooltip_max_abilities = 6
 			end
-			if (keydown == "shift") then
+			
+			local is_maximized = false
+			if (keydown == "shift" or TooltipMaximizedMethod == 2 or TooltipMaximizedMethod == 3) then
 				tooltip_max_abilities = 99
+				is_maximized = true
 			end
 			
 		--> MOSTRA HABILIDADES
 			GameCooltip:AddLine (Loc ["STRING_SPELLS"].."", nil, nil, headerColor, nil, 12)
 			GameCooltip:AddIcon ([[Interface\ICONS\Spell_Shaman_BlessingOfTheEternals]], 1, 1, 14, 14, 0.90625, 0.109375, 0.15625, 0.875)
 			
-			if (tooltip_max_abilities == 99) then
+			if (is_maximized) then
+				--highlight shift key
 				GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay_press)
 				GameCooltip:AddStatusBar (100, 1, r, g, b, 1)
 			else
 				GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay)
 				GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
 			end
-			--habilidades
-
 			
+			--habilidades
 			if (#ActorSkillsSortTable > 0) then
 				for i = 1, _math_min (tooltip_max_abilities, #ActorSkillsSortTable) do
 					local SkillTable = ActorSkillsSortTable [i]
 					local nome_magia, _, icone_magia = _GetSpellInfo (SkillTable [1])
 					if (instancia.sub_atributo == 1 or instancia.sub_atributo == 6) then
-						GameCooltip:AddLine (nome_magia..": ", _detalhes:comma_value (SkillTable [2]) .." (".._cstr("%.1f", SkillTable [2]/ActorDamage*100).."%)")
+						GameCooltip:AddLine (nome_magia..": ", FormatTooltipNumber (_, SkillTable [2]) .." (".._cstr("%.1f", SkillTable [2]/ActorDamage*100).."%)")
 					else
-						GameCooltip:AddLine (nome_magia..": ", _detalhes:comma_value (_math_floor (SkillTable [3])) .." (".._cstr("%.1f", SkillTable [2]/ActorDamage*100).."%)")
+						GameCooltip:AddLine (nome_magia..": ", FormatTooltipNumber (_, _math_floor (SkillTable [3])) .." (".._cstr("%.1f", SkillTable [2]/ActorDamage*100).."%)")
 					end
 					GameCooltip:AddIcon (icone_magia, nil, nil, 14, 14)
-					GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
+					_detalhes:AddTooltipBackgroundStatusbar()
 				end
 			else
 				GameCooltip:AddLine (Loc ["STRING_NO_SPELL"])
@@ -1506,12 +1520,16 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 				GameCooltip:AddLine (Loc ["STRING_TARGETS"].."", nil, nil, headerColor, nil, 12)
 
 				local max_targets = _detalhes.tooltip_max_targets
-				if (keydown == "ctrl") then
+				local is_maximized = false
+				if (keydown == "ctrl" or TooltipMaximizedMethod == 2 or TooltipMaximizedMethod == 4) then
 					max_targets = 99
+					is_maximized = true
 				end
 				
 				GameCooltip:AddIcon ([[Interface\Addons\Details\images\icons]], 1, 1, 14, 14, 0, 0.03125, 0.126953125, 0.15625)
-				if (max_targets == 99) then
+				
+				if (is_maximized) then
+					--highlight
 					GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_ctrl]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay_press)
 					GameCooltip:AddStatusBar (100, 1, r, g, b, 1)
 				else
@@ -1521,9 +1539,9 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 
 				for i = 1, _math_min (max_targets, #ActorTargetsSortTable) do
 					local este_inimigo = ActorTargetsSortTable [i]
-					GameCooltip:AddLine (este_inimigo[1]..": ", _detalhes:comma_value (este_inimigo[2]) .." (".._cstr("%.1f", este_inimigo[2]/ActorDamageWithPet*100).."%)")
+					GameCooltip:AddLine (este_inimigo[1]..": ", FormatTooltipNumber (_, este_inimigo[2]) .." (".._cstr("%.1f", este_inimigo[2]/ActorDamageWithPet*100).."%)")
 					GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\espadas", nil, nil, 14, 14)
-					GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .2)
+					_detalhes:AddTooltipBackgroundStatusbar()
 				end
 			end
 	end
@@ -1582,11 +1600,17 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 		
 		local _quantidade = 0
 		local added_logo = false
+		
 		_table_sort (totais, _detalhes.Sort2)
+		
+		local ismaximized = false
+		if (keydown == "alt" or TooltipMaximizedMethod == 2 or TooltipMaximizedMethod == 5) then
+			ismaximized = true
+		end
 		
 		for index, _table in _ipairs (totais) do
 			
-			if (_table [2] > 0 and (index < 3 or keydown == "alt")) then
+			if (_table [2] > 0 and (index < 3 or ismaximized)) then
 			
 				if (not added_logo) then
 					added_logo = true
@@ -1594,7 +1618,7 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 					
 					GameCooltip:AddIcon ([[Interface\COMMON\friendship-heart]], 1, 1, 14, 14, 0.21875, 0.78125, 0.09375, 0.6875)
 					
-					if (keydown == "alt") then
+					if (ismaximized) then
 						GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_alt]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay_press)
 						GameCooltip:AddStatusBar (100, 1, r, g, b, 1)
 					else
@@ -1606,11 +1630,11 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 			
 				local n = _table [1]:gsub (("%s%<.*"), "")
 				if (instancia.sub_atributo == 1) then
-					GameCooltip:AddLine (n, _detalhes:comma_value (_table [2]) .. " (" .. _math_floor (_table [2]/self.total*100) .. "%)")
+					GameCooltip:AddLine (n, FormatTooltipNumber (_, _table [2]) .. " (" .. _math_floor (_table [2]/self.total*100) .. "%)")
 				else
-					GameCooltip:AddLine (n, _detalhes:comma_value ( _math_floor (_table [3])) .. " (" .. _math_floor (_table [2]/self.total*100) .. "%)")
+					GameCooltip:AddLine (n, FormatTooltipNumber (_,  _math_floor (_table [3])) .. " (" .. _math_floor (_table [2]/self.total*100) .. "%)")
 				end
-				GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
+				_detalhes:AddTooltipBackgroundStatusbar()
 				GameCooltip:AddIcon ([[Interface\AddOns\Details\images\classes_small]], 1, 1, 14, 14, 0.25, 0.49609375, 0.75, 1)
 			end
 		end
@@ -1656,15 +1680,18 @@ function atributo_damage:ToolTip_DamageTaken (instancia, numero, barra, keydown)
 		max = 6
 	end
 	
-	if (keydown == "shift") then
+	local ismaximized = false
+	if (keydown == "shift" or TooltipMaximizedMethod == 2 or TooltipMaximizedMethod == 3) then
 		max = #meus_agressores
+		ismaximized = true
 	end
 
 	GameCooltip:AddLine (Loc ["STRING_FROM"], nil, nil, headerColor, nil, 12)
 
 	GameCooltip:AddIcon ([[Interface\Addons\Details\images\icons]], 1, 1, 14, 14, 0.126953125, 0.1796875, 0, 0.0546875)
 	
-	if (keydown == "shift") then
+	if (ismaximized) then
+		--highlight
 		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay_press)
 		GameCooltip:AddStatusBar (100, 1, r, g, b, 1)
 	else
@@ -1673,7 +1700,7 @@ function atributo_damage:ToolTip_DamageTaken (instancia, numero, barra, keydown)
 	end	
 	
 	for i = 1, max do
-		GameCooltip:AddLine (meus_agressores[i][1]..": ", _detalhes:comma_value (meus_agressores[i][2]).." (".._cstr("%.1f", (meus_agressores[i][2]/damage_taken) * 100).."%)")
+		GameCooltip:AddLine (meus_agressores[i][1]..": ", FormatTooltipNumber (_, meus_agressores[i][2]).." (".._cstr("%.1f", (meus_agressores[i][2]/damage_taken) * 100).."%)")
 		local classe = meus_agressores[i][3]
 		
 		if (not classe) then
@@ -1685,7 +1712,7 @@ function atributo_damage:ToolTip_DamageTaken (instancia, numero, barra, keydown)
 		else
 			GameCooltip:AddIcon (instancia.row_info.icon_file, nil, nil, 14, 14, _unpack (_detalhes.class_coords [classe]))
 		end
-		GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
+		_detalhes:AddTooltipBackgroundStatusbar()
 	end
 	
 	return true
@@ -1727,16 +1754,18 @@ function atributo_damage:ToolTip_FriendlyFire (instancia, numero, barra, keydown
 	
 	GameCooltip:AddIcon ([[Interface\Addons\Details\images\icons]], 1, 1, 14, 14, 0.126953125, 0.224609375, 0.056640625, 0.140625)
 	
-	if (keydown == "shift") then
+	local ismaximized = false
+	if (keydown == "shift" or TooltipMaximizedMethod == 2 or TooltipMaximizedMethod == 3) then
 		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay_press)
 		GameCooltip:AddStatusBar (100, 1, r, g, b, 1)
+		ismaximized = true
 	else
 		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay)
 		GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
 	end
 	
 	local max_abilities = _detalhes.tooltip_max_abilities
-	if (keydown == "shift") then
+	if (ismaximized) then
 		max_abilities = 99
 	end
 	
@@ -1746,9 +1775,9 @@ function atributo_damage:ToolTip_FriendlyFire (instancia, numero, barra, keydown
 			classe = "UNKNOW"
 		end
 
-		GameCooltip:AddLine (DamagedPlayers[i][1]..": ", _detalhes:comma_value (DamagedPlayers[i][2]).." (".._cstr("%.1f", DamagedPlayers[i][2]/FriendlyFireTotal*100).."%)")
+		GameCooltip:AddLine (DamagedPlayers[i][1]..": ", FormatTooltipNumber (_, DamagedPlayers[i][2]).." (".._cstr("%.1f", DamagedPlayers[i][2]/FriendlyFireTotal*100).."%)")
 		GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\espadas", nil, nil, 14, 14)
-		GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
+		_detalhes:AddTooltipBackgroundStatusbar()
 		
 		if (classe == "UNKNOW") then
 			GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small", nil, nil, 14, 14, _unpack (_detalhes.class_coords ["UNKNOW"]))
@@ -1762,24 +1791,26 @@ function atributo_damage:ToolTip_FriendlyFire (instancia, numero, barra, keydown
 
 	GameCooltip:AddIcon ([[Interface\PVPFrame\bg-down-on]], 1, 1, 14, 14, 0, 1, 0, 1)
 	
-	if (keydown == "ctrl") then
+	local ismaximized = false
+	if (keydown == "ctrl" or TooltipMaximizedMethod == 2 or TooltipMaximizedMethod == 4) then
 		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_ctrl]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay_press)
 		GameCooltip:AddStatusBar (100, 1, r, g, b, 1)
+		ismaximized = true
 	else
 		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_ctrl]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay)
 		GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
 	end
 	
 	local max_abilities2 = _detalhes.tooltip_max_abilities
-	if (keydown == "ctrl") then
+	if (ismaximized) then
 		max_abilities2 = 99
 	end
 	
 	for i = 1, _math_min (max_abilities2, #Skills) do
 		local nome, _, icone = _GetSpellInfo (Skills[i][1])
-		GameCooltip:AddLine (nome.." (x".. Skills[i][3].."): ", _detalhes:comma_value (Skills[i][2]).." (".._cstr("%.1f", Skills[i][2]/FriendlyFireTotal*100).."%)")
+		GameCooltip:AddLine (nome.." (x".. Skills[i][3].."): ", FormatTooltipNumber (_, Skills[i][2]).." (".._cstr("%.1f", Skills[i][2]/FriendlyFireTotal*100).."%)")
 		GameCooltip:AddIcon (icone, nil, nil, 14, 14)
-		GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
+		_detalhes:AddTooltipBackgroundStatusbar()
 	end	
 	
 	return true
@@ -2818,6 +2849,8 @@ end
 	--> atualize a funcao de abreviacao
 		function atributo_damage:UpdateSelectedToKFunction()
 			SelectedToKFunction = ToKFunctions [_detalhes.ps_abbreviation]
+			FormatTooltipNumber = ToKFunctions [_detalhes.tooltip.abbreviation]
+			TooltipMaximizedMethod = _detalhes.tooltip.maximize_method
 		end
 
 	--> diminui o total das tabelas do combate

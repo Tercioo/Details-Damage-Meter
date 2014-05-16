@@ -27,13 +27,14 @@ do
 	frame:SetBackdropBorderColor (170/255, 170/255, 170/255)
 	frame:SetBackdropColor (24/255, 24/255, 24/255, .8)
 	
-	frame:SetFrameStrata ("HIGH")
-	frame:SetFrameLevel (8)
+	frame:SetFrameStrata ("DIALOG")
+	frame:SetFrameLevel (16)
 	
 	function _detalhes.switch:CloseMe()
 		_detalhes.switch.frame:Hide()
 		_detalhes.switch.frame:SetBackdropColor (24/255, 24/255, 24/255, .8)
 		_detalhes.switch.current_instancia:StatusBarAlert (nil)
+		_detalhes.switch.current_instancia = nil
 	end
 	
 	--> limitação: não tenho como pegar o base frame da instância por aqui
@@ -58,6 +59,10 @@ local right_click_text = {text = Loc ["STRING_SHORTCUT_RIGHTCLICK"], size = 9, c
 local right_click_texture = {[[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]], 14, 14, 0.0019531, 0.1484375, 0.6269531, 0.8222656}
 
 function _detalhes.switch:ShowMe (instancia)
+
+	if (_detalhes.switch.current_instancia) then
+		_detalhes.switch.current_instancia:StatusBarAlert (nil)
+	end
 
 	_detalhes.switch.current_instancia = instancia
 	
@@ -282,7 +287,7 @@ function _detalhes.switch:NewSwitchButton (frame, index, x, y, rightButton)
 		}
 
 	local button = gump:NewDetailsButton (frame, frame, _, _detalhes.FastSwitch, nil, paramTable, 15, 15, "", "", "", "", 
-	{rightFunc = {func = _detalhes.FastSwitch, param1 = nil, param2 = {atributo = nil, button = index}}, OnGrab = "PassClick"})
+	{rightFunc = {func = _detalhes.FastSwitch, param1 = nil, param2 = {atributo = nil, button = index}}, OnGrab = "PassClick"}, "DetailsSwitchPanelButton_1_"..index)
 	button:SetPoint ("topleft", frame, "topleft", x, -y)
 	button.rightButton = rightButton
 	
@@ -308,7 +313,7 @@ function _detalhes.switch:NewSwitchButton (frame, index, x, y, rightButton)
 	button.line2:SetPoint ("left", button, "right", 0, -3)
 	
 	local button2 = gump:NewDetailsButton (button, button, _, _detalhes.FastSwitch, nil, paramTable, 1, 1, button.line, "", "", button.line2, 
-	{rightFunc = {func = _detalhes.switch.CloseMe, param1 = nil, param2 = nil}, OnGrab = "PassClick"})
+	{rightFunc = {func = _detalhes.switch.CloseMe, param1 = nil, param2 = nil}, OnGrab = "PassClick"}, "DetailsSwitchPanelButton_2_"..index)
 	button2:SetPoint ("topleft", button, "topright", 1, 0)
 	button2:SetPoint ("bottomright", button, "bottomright", 90, 0)
 	button.button2 = button2

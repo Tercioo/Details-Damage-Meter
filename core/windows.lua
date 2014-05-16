@@ -312,26 +312,6 @@
 		
 		if (self.mostrando == "normal") then --> somente alterar o tamanho das barras se tiver mostrando o gump normal
 		
-			if (self.meu_id == _detalhes.ResetButtonInstance) then
-				if (self.baseframe:GetWidth() < 215 or self.resetbutton_info.always_small) then
-					gump:Fade (_detalhes.ResetButton, 1)
-					gump:Fade (_detalhes.ResetButton2, 0)
-					
-					local alpha = self:GetInstanceCurrentAlpha()
-					_detalhes.ResetButton2:SetAlpha (alpha)
-					
-					_detalhes.ResetButtonMode = 2
-				else
-					gump:Fade (_detalhes.ResetButton, 0)
-					gump:Fade (_detalhes.ResetButton2, 1)
-					
-					local alpha = self:GetInstanceCurrentAlpha()
-					_detalhes.ResetButton2:SetAlpha (alpha)
-					
-					_detalhes.ResetButtonMode = 1
-				end
-			end
-			
 			if (not self.baseframe.isStretching and self.stretchToo and #self.stretchToo > 0) then
 				if (self.eh_horizontal or self.eh_tudo or (self.verticalSnap and not self.eh_vertical)) then
 					for _, instancia in _ipairs (self.stretchToo) do 
@@ -825,6 +805,18 @@
 		end
 	end
 	
+	function f:TextConfig (fontsize, fontface, fontcolor)
+		for i = 1, 5 do
+		
+			local line = f.lines [i]
+			
+			_detalhes:SetFontSize (line, fontsize or 9)
+			_detalhes:SetFontFace (line, fontface or [[Fonts\FRIZQT__.TTF]])
+			_detalhes:SetFontColor (line, fontcolor or {.9, .9, .9, 1})
+
+		end
+	end
+	
 	function f:SetBubbleText (line1, line2, line3, line4, line5)
 		if (not line1) then
 			for _, line in ipairs (f.lines) do
@@ -846,6 +838,7 @@
 	
 	function f:SetOwner (frame, myPoint, hisPoint, x, y, alpha)
 		f:ClearAllPoints()
+		f:TextConfig()
 		f:SetBubbleText (nil)
 		t:SetTexCoord (0.7373046875, 0.9912109375, 0.6416015625, 0.7978515625)
 		f.isHorizontalFlipped = false

@@ -223,4 +223,24 @@
 	
 	end
 	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> broker dps stuff
+
+	function _detalhes:BrokerTick()
+		local texttype = _detalhes.minimap.text_type
+		if (texttype == 1) then --dps
+			_detalhes.databroker.text = _detalhes.tabela_vigente.totals_grupo[1]
+			
+		elseif (texttype == 2) then --hps
+			_detalhes.databroker.text = _detalhes.tabela_vigente.totals_grupo[2]
+			
+		else
+			if (_detalhes.minimap.text_func) then
+				_detalhes.databroker.text = _detalhes.minimap.text_func()
+			else
+				_detalhes.databroker.text = 0
+			end
+		end
+		
+	end
 	

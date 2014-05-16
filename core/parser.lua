@@ -627,8 +627,8 @@
 	--> group checks
 
 		if (este_jogador.grupo) then 
-			_current_combat.totals_grupo[2] = _current_combat.totals_grupo[2]+amount
-			_overall_combat.totals_grupo[2] = _overall_combat.totals_grupo[2]+amount	
+			_current_combat.totals_grupo[2] = _current_combat.totals_grupo[2] + cura_efetiva
+			_overall_combat.totals_grupo[2] = _overall_combat.totals_grupo[2] + cura_efetiva	
 		end
 		
 		if (jogador_alvo.grupo) then

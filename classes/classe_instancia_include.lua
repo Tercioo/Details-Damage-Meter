@@ -48,8 +48,6 @@ _detalhes.instance_defaults = {
 	--show bottom statusbar
 		show_statusbar = true,
 		statusbar_info = {alpha = 1, overlay = {1, 1, 1}},
-	--blackwhiite icons
-		desaturated_menu = false,
 	--hide main window attribute icon
 		hide_icon = false,
 	--anchor side of main window toolbar (1 = top 2 = bottom)
@@ -65,24 +63,32 @@ _detalhes.instance_defaults = {
 	--sort direction is the direction of results on bars (1 = top to bottom 2 = bottom to top)
 		bars_sort_direction = 1,
 	--reset button info
-		resetbutton_info = {text_color = {1, 0.82, 0, 1}, text_color_small = {1, 0.82, 0, 1}, text_face = "Friz Quadrata TT", text_size = 12, color_overlay = {1, 1, 1, 1}, always_small = false},
+		resetbutton_config = {size = {10, 16}, anchor = {2, 0}, normal_texture = [[Interface\Addons\Details\Images\reset_button]], highlight_texture = [[Interface\Addons\Details\Images\reset_button]], normal_texcoord = {0, 1, 0, 1}, highlight_texcoord = {0, 1, 0, 1}, normal_vertexcolor = {1, 1, 1, 1}, highlight_vertexcolor = {1, 1, 1, 1}},
 	--instance button info
-		instancebutton_info = {text_color = {1, 0.82, 0, 1}, text_face = "Friz Quadrata TT", text_size = 12, color_overlay = {1, 1, 1, 1}},
+		instancebutton_config = {size = {20, 16}, anchor = {2, 0}, highlight_texture = [[Interface\Buttons\UI-Panel-MinimizeButton-Highlight]], textcolor = {1, 1, 1, 1}, textsize = 11, textfont = "Friz Quadrata TT", textshadow = false},
 	--close button info
-		closebutton_info = {color_overlay = {1, 1, 1, 1}},
+		closebutton_config = {size = {18, 18}, anchor = {0, 0}, normal_texture = [[Interface\Buttons\UI-Panel-MinimizeButton-Up]], highlight_texture = [[Interface\Buttons\UI-Panel-MinimizeButton-Highlight]], pushed_texture = [[Interface\Buttons\UI-Panel-MinimizeButton-Down]]},
 	--menus:
 		--anchor store the anchor point of main menu
-		menu_anchor = {5, 1, side = 1},
+		menu_anchor = {5, 1, side = 1}, --mode segment attribute report on top position
+		menu_anchor_down = {5, 1}, --mode segment attribute report on bottom position
+		menu2_anchor = {14, 3}, --close instance erase on top position
+		menu2_anchor_down = {14, 3}, --close instance erase on bottom position
+		--blackwhiite icons
+		desaturated_menu = false, --mode segment attribute report
+		desaturated_menu2 = false, --reset instance close
 		--icons on menu
-		menu_icons = {true, true, true, true},
+		menu_icons = {true, true, true, true}, --mode segment attribute report
+		menu2_icons = {true, true, true}, --reset instance close
 		--menu icons size multiplicator factor
-		menu_icons_size = 1.0,
-		--auto hide window borders
-		menu_alpha = {enabled = false, iconstoo = true, onenter = 1, onleave = 1, ignorebars = false},
-		--auto hide menu
+		menu_icons_size = 1.0, --mode segment attribute report
+		menu2_icons_size = 1.0, --reset instance close
+		--auto hide menu buttons
 		auto_hide_menu = {left = false, right = false},
 		--attribute text
 		attribute_text = {enabled = false, anchor = {5, 1}, text_face = "Friz Quadrata TT", text_size = 12, text_color = {1, 1, 1, 1}, side = 1, shadow = false},
+	--auto hide window borders statusbar main menu
+		menu_alpha = {enabled = false, iconstoo = true, onenter = 1, onleave = 1, ignorebars = false},
 	--instance button anchor store the anchor point of instance and delete button
 		instance_button_anchor = {-27, 1},
 	--total bar

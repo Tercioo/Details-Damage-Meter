@@ -8,6 +8,7 @@ end
 local LBD = LibStub ("LibDataBroker-1.1")
 
 local debug = false
+local tinsert = tinsert
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> main function
@@ -15,7 +16,8 @@ local debug = false
 	LibHotCorners.embeds = LibHotCorners.embeds or {}
 	local embed_functions = {
 		"RegisterHotCornerButton",
-		"HideHotCornerButton"
+		"HideHotCornerButton",
+		"QuickHotCornerEnable"
 	}
 	
 	function LibHotCorners:Embed (target)
@@ -39,8 +41,24 @@ local debug = false
 	end
 	
 	function LibHotCorners:RegisterHotCornerButton (name, corner, savedtable, fname, icon, tooltip, clickfunc, menus, quickfunc, onenter, onleave)
+	
 		corner = string.lower (corner)
 		test (corner)
+		
+		if (savedtable and not LibHotCorners.options) then
+			if (not savedtable.__cachedoptions) then
+				savedtable.__cachedoptions = {age = 0, clicks = {}, disabled = {}}
+			end
+			LibHotCorners.options = savedtable.__cachedoptions
+			LibHotCorners.options.age = LibHotCorners.options.age + 1
+		elseif (savedtable) then
+			if (LibHotCorners.options.age < savedtable.__cachedoptions.age) then
+				LibHotCorners.options = savedtable.__cachedoptions
+				LibHotCorners.options.age = LibHotCorners.options.age + 1
+			end
+		end
+		
+		savedtable = savedtable or {}
 		
 		tinsert (LibHotCorners [corner], {name = name, fname = fname, savedtable = savedtable, icon = icon, tooltip = tooltip, click = clickfunc, menus = menus, quickfunc = quickclick, onenter = onenter, onleave = onleave})
 		LibHotCorners [corner].map [name] = #LibHotCorners [corner]
@@ -94,7 +112,7 @@ local debug = false
 		
 		addon_table.savedtable.hide = value
 
-		print (LibHotCorners, corner)
+		--print (LibHotCorners, corner)
 		LibHotCorners [corner].is_enabled = false
 		
 		for index, button_table in ipairs (corner_table) do 
@@ -114,7 +132,7 @@ local debug = false
 			return
 		end
 		if (dataobj.icon and dataobj.OnClick and not dataobj.HotCornerIgnore) then
-			LibHotCorners:RegisterHotCornerButton (name, "TopLeft", {}, name .. "HotCornerLauncher", dataobj.icon, dataobj.OnTooltipShow, dataobj.OnClick, nil, nil, dataobj.OnEnter, dataobj.OnLeave)
+			LibHotCorners:RegisterHotCornerButton (name, "TopLeft", nil, name .. "HotCornerLauncher", dataobj.icon, dataobj.OnTooltipShow, dataobj.OnClick, nil, nil, dataobj.OnEnter, dataobj.OnLeave)
 		end
 	end
 	LBD.RegisterCallback (LibHotCorners, "DataBrokerCallback")
@@ -124,12 +142,15 @@ local debug = false
 	f:SetScript ("OnEvent", function()
 		for name, dataobj in LBD:DataObjectIterator() do
 			if (dataobj.type and dataobj.icon and dataobj.OnClick and not dataobj.HotCornerIgnore) then
-				LibHotCorners:RegisterHotCornerButton (name, "TopLeft", {}, name .. "HotCornerLauncher", dataobj.icon, dataobj.OnTooltipShow, dataobj.OnClick, nil, nil, dataobj.OnEnter, dataobj.OnLeave)
+				LibHotCorners:RegisterHotCornerButton (name, "TopLeft", nil, name .. "HotCornerLauncher", dataobj.icon, dataobj.OnTooltipShow, dataobj.OnClick, nil, nil, dataobj.OnEnter, dataobj.OnLeave)
 			end
 		end
-		--for k, v in pairs (LBD.attributestorage) do 
-		--	print (k, v.type)
-		--end
+		for k, v in pairs (LBD.attributestorage) do 
+			--print (k, v)
+			--print ("----------------")
+			--vardump (v)
+			
+		end
 		f:UnregisterEvent ("PLAYER_LOGIN")
 	end)
 	
@@ -163,6 +184,10 @@ local debug = false
 		end
 		
 	--> corner frame on enter
+		local more_clicked = function (t1, t2)
+			return t1[1] > t2[1]
+		end
+		
 		function HotCornersOnEnter (self)
 			if (not LibHotCorners [self.position].is_enabled) then
 				return
@@ -172,7 +197,14 @@ local debug = false
 			
 			local i = 1
 			
+			local sort = {}
 			for index, button_table in ipairs (LibHotCorners [self.position]) do 
+				tinsert (sort, {LibHotCorners.options.clicks [button_table.name] or 0, button_table})
+			end
+			table.sort (sort, more_clicked)
+
+			for index, button_table in ipairs (sort) do 
+				button_table = button_table [2]
 				if (not button_table.widget) then
 					LibHotCorners:CreateAddonWidget (self, button_table, index, self.position)
 				end
@@ -247,6 +279,8 @@ local debug = false
 				self:SetPoint ("topleft", self:GetParent(), "topleft", self.x, -4)
 			end
 			if (self.table.click) then
+				LibHotCorners.options.clicks [self.table.name] = LibHotCorners.options.clicks [self.table.name] or 0
+				LibHotCorners.options.clicks [self.table.name] = LibHotCorners.options.clicks [self.table.name] + 1
 				self.table.click (self, button)
 			end
 		end

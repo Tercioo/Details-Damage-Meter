@@ -278,6 +278,8 @@ local DropDownMetaFunctions = {}
 ------------------------------------------------------------------------------------------------------------
 --> scripts
 
+local last_opened = false
+
 local function isOptionVisible (thisOption)
 	if (_type (thisOption.shown) == "boolean" or _type (thisOption.shown) == "function") then
 		if (not thisOption.shown) then
@@ -289,23 +291,116 @@ local function isOptionVisible (thisOption)
 	return true
 end
 
-function DropDownMetaFunctions:Select (optionName, byOptionNumber)
+function DropDownMetaFunctions:Refresh()
 	local menu = self.func()
+	if (#menu == 0) then
+		self:NoOption (true)
+		self.no_options = true
+		return false
+	elseif (self.no_options) then
+		self.no_options = false
+		self:NoOption (false)
+		self:NoOptionSelected()
+		return true
+	end
+	
+	return true
+end
+
+function DropDownMetaFunctions:NoOptionSelected()
+	self.label:SetText (self.empty_text or "no option selected")
+	self.label:SetTextColor (1, 1, 1, 0.4)
+	if (self.empty_icon) then
+		self.icon:SetTexture (self.empty_icon)
+	else
+		self.icon:SetTexture ([[Interface\COMMON\UI-ModelControlPanel]])
+		self.icon:SetTexCoord (0.625, 0.78125, 0.328125, 0.390625)
+	end
+	self.icon:SetVertexColor (1, 1, 1, 0.4)
+	
+	self.last_select = nil
+end
+
+function DropDownMetaFunctions:NoOption (state)
+	if (state) then
+		self:Disable()
+		self:SetAlpha (0.5)
+		
+		self.label:SetText ("no options")
+		self.label:SetTextColor (1, 1, 1, 0.4)
+		self.icon:SetTexture ([[Interface\CHARACTERFRAME\UI-Player-PlayTimeUnhealthy]])
+		self.icon:SetTexCoord (0, 1, 0, 1)
+		self.icon:SetVertexColor (1, 1, 1, 0.4)		
+	else
+		self:Enable()
+		self:SetAlpha (1)
+	end
+end
+
+function DropDownMetaFunctions:Select (optionName, byOptionNumber)
+
+	if (type (optionName) == "boolean" and not optionName) then
+		self:NoOptionSelected()
+		return false
+	end
+
+	local menu = self.func()
+
+	if (#menu == 0) then
+		self:NoOption (true)
+		return true
+	else
+		self:NoOption (false)
+	end
 	
 	if (byOptionNumber and type (optionName) == "number") then
-		--print ("selected", optionName)
-		return self:Selected (menu [optionName])
+		if (not menu [optionName]) then --> invalid index
+			self:NoOptionSelected()
+			return false
+		end
+		self:Selected (menu [optionName])
+		return true
 	end
 	
 	for _, thisMenu in ipairs (menu) do 
 		if (thisMenu.label == optionName and isOptionVisible (thisMenu)) then
-			return self:Selected (thisMenu)
+			self:Selected (thisMenu)
+			return true
 		end
 	end
+	
+	return false
+end
+
+function DropDownMetaFunctions:SetEmptyTextAndIcon (text, icon)
+	if (text) then
+		self.empty_text = text
+	end
+	if (icon) then
+		self.empty_icon = icon
+	end
+
+	self:Selected (self.last_select)
 end
 
 function DropDownMetaFunctions:Selected (_table)
 
+	if (not _table) then
+
+		--> there is any options?
+		if (not self:Refresh()) then
+			self.last_select = nil
+			return
+		end
+
+		--> exists options but none selected
+		self:NoOptionSelected()
+		return
+	end
+	
+	self.last_select = _table
+	self:NoOption (false)
+	
 	self.label:SetText (_table.label)
 	self.icon:SetTexture (_table.icon)
 	
@@ -337,9 +432,9 @@ function DropDownMetaFunctions:Selected (_table)
 	end
 	
 	if (_table.font) then
-		self.label:SetFont (_table.font, 10.5)
+		self.label:SetFont (_table.font, 10)
 	else
-		self.label:SetFont ("GameFontHighlightSmall", 10.5)
+		self.label:SetFont ("GameFontHighlightSmall", 10)
 	end
 	
 	self:SetValue (_table.value)
@@ -368,6 +463,10 @@ function DropDownMetaFunctions:Open()
 	self.dropdown.dropdownborder:Show()
 	self.dropdown.arrowTexture:SetTexture ("Interface\\Buttons\\UI-ScrollBar-ScrollDownButton-Down")
 	self.opened = true
+	if (last_opened) then
+		last_opened:Close()
+	end
+	last_opened = self
 end
 
 function DropDownMetaFunctions:Close()
@@ -383,6 +482,7 @@ function DropDownMetaFunctions:Close()
 	selectedTexture:Hide()
 	
 	self.opened = false
+	last_opened = false
 end
 
 --> close by escape key
@@ -799,24 +899,16 @@ function gump:NewDropDown (parent, container, name, member, w, h, func, default)
 	_setmetatable (DropDownObject, DropDownMetaFunctions)
 	
 	--> initialize first menu selected
-	local menu = func()
+	
 	if (type (default) == "string") then
 		DropDownObject:Select (default)
-	else	
-		for i = default, #menu do 
-			local _table = menu [i]
-			if (not _table) then
-				break
-			end
-			if (isOptionVisible (_table)) then
-				DropDownObject:Selected (_table)
-				break
-			end
+		
+	elseif (type (default) == "number") then
+		if (not DropDownObject:Select (default)) then
+			DropDownObject:Select (default, true)
 		end
 	end
-	
 
-	
 	return DropDownObject	
 
 end

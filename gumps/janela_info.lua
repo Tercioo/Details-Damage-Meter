@@ -430,7 +430,7 @@ function gump:CriaDetalheInfo (index)
 	
 	info.bg.reportar = gump:NewDetailsButton (info.bg, nil, nil, _detalhes.Reportar, _detalhes.janela_info, 10+index, 16, 16,
 	--_detalhes.icones.report.up, _detalhes.icones.report.down, _detalhes.icones.report.disabled)
-	"Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON")
+	"Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", nil, "DetailsJanelaInfoReport1")
 	info.bg.reportar:SetPoint ("BOTTOMLEFT", info.bg.overlay, "BOTTOMRIGHT",  -33, 10)
 	gump:Fade (info.bg.reportar, 1)
 	
@@ -737,9 +737,7 @@ function gump:CriaJanelaInfo()
 	
 	--> fehcar com o esc
 	tinsert (UISpecialFrames, este_gump:GetName())
-	
 
-	
 	--> propriedades da janela
 	este_gump:SetPoint ("CENTER", UIParent)
 	--este_gump:SetWidth (640)
@@ -774,9 +772,12 @@ function gump:CriaJanelaInfo()
 	este_gump.bg1:SetPoint ("TOPLEFT", este_gump, "TOPLEFT", 0, 0)
 	--este_gump.bg1:SetWidth (512)
 	--este_gump.bg1:SetHeight (256)
-	este_gump.bg1:SetTexture ("Interface\\AddOns\\Details\\images\\info_bg_part1") 
-	este_gump.bg1:SetTexture ("Interface\\AddOns\\Details\\images\\info_window_background")
 	este_gump.bg1:SetDrawLayer ("BORDER", 1)
+	
+	function _detalhes:SetPlayerDetailsWindowTexture (texture)
+		este_gump.bg1:SetTexture (texture)
+	end
+	_detalhes:SetPlayerDetailsWindowTexture ("Interface\\AddOns\\Details\\images\\info_window_background")
 	
 	este_gump.bg1_sec_texture = este_gump:CreateTexture (nil, "BORDER")
 	este_gump.bg1_sec_texture:SetDrawLayer ("BORDER", 2)
@@ -828,7 +829,7 @@ function gump:CriaJanelaInfo()
 		end
 	end
 	
-	este_gump.grab = gump:NewDetailsButton (este_gump, este_gump, _, este_gump.ToFront, nil, nil, 590, 73, "", "", "", "", {OnGrab = "PassClick"})
+	este_gump.grab = gump:NewDetailsButton (este_gump, este_gump, _, este_gump.ToFront, nil, nil, 590, 73, "", "", "", "", {OnGrab = "PassClick"}, "DetailsJanelaInfoGrab")
 	este_gump.grab:SetPoint ("topleft",este_gump, "topleft")
 	este_gump.grab:SetFrameLevel (este_gump:GetFrameLevel()+1)
 	
@@ -867,14 +868,14 @@ function gump:CriaJanelaInfo()
 
 	--> botão de reportar da caixa da esquerda, onde fica as barras principais
 	este_gump.report_esquerda = gump:NewDetailsButton (este_gump, este_gump, nil, _detalhes.Reportar, este_gump, 1, 16, 16,
-	"Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON")
+	"Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", nil, "DetailsJanelaInfoReport2")
 	--este_gump.report_esquerda:SetPoint ("BOTTOMLEFT", este_gump.container_barras, "TOPLEFT",  281, 3)
 	este_gump.report_esquerda:SetPoint ("BOTTOMLEFT", este_gump.container_barras, "TOPLEFT",  33, 3)
 	este_gump.report_esquerda:SetFrameLevel (este_gump:GetFrameLevel()+2)
 
 	--> botão de reportar da caixa dos alvos
 	este_gump.report_alvos = gump:NewDetailsButton (este_gump, este_gump, nil, _detalhes.Reportar, este_gump, 3, 16, 16,
-	"Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON")
+	"Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", nil, "DetailsJanelaInfoReport3")
 	este_gump.report_alvos:SetPoint ("BOTTOMRIGHT", este_gump.container_alvos, "TOPRIGHT",  -2, -1)
 	este_gump.report_alvos:SetFrameLevel (3) --> solved inactive problem
 
@@ -919,7 +920,7 @@ function gump:CriaJanelaInfo()
 
 	--> botão de reportar da caixa da direita, onde estão os 5 quadrados
 	este_gump.report_direita = gump:NewDetailsButton (este_gump, este_gump, nil, _detalhes.Reportar, este_gump, 2, 16, 16,
-	"Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON")
+	"Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", nil, "DetailsJanelaInfoReport4")
 	este_gump.report_direita:SetPoint ("TOPRIGHT", este_gump, "TOPRIGHT",  -8, -57)	
 	este_gump.report_direita:Hide()
 

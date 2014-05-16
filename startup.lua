@@ -420,6 +420,9 @@ function _G._detalhes:Start()
 	end
 	
 	if (self.is_version_first_run) then
+	
+		local enable_reset_warning = true
+	
 		local lower_instance = _detalhes:GetLowerInstanceNumber()
 		if (lower_instance) then
 			lower_instance = _detalhes:GetInstance (lower_instance)
@@ -429,103 +432,89 @@ function _G._detalhes:Start()
 		end
 		
 		_detalhes:FillUserCustomSpells()
-	end
-	
-	--> minimap
-	local LDB = LibStub ("LibDataBroker-1.1", true)
-	local LDBIcon = LDB and LibStub ("LibDBIcon-1.0", true)
-	
-	if LDB then
+		
+		if (_detalhes_database.last_realversion and _detalhes_database.last_realversion < 18 and enable_reset_warning) then
+			
+			--print ("Last Version:", _detalhes_database.last_version, "Last Interval Version:", _detalhes_database.last_realversion)
 
-		local minimapIcon = LDB:NewDataObject ("Details!", {
-			type = "launcher",
-			icon = [[Interface\AddOns\Details\images\minimap]],
+			local resetwarning_frame = CreateFrame ("FRAME", "DetailsResetConfigWarningDialog", UIParent, "ButtonFrameTemplate")
+			resetwarning_frame:SetFrameStrata ("LOW")
+			tinsert (UISpecialFrames, "DetailsResetConfigWarningDialog")
+			resetwarning_frame:SetPoint ("center", UIParent, "center")
+			resetwarning_frame:SetSize (512, 200)
+			resetwarning_frame.portrait:SetTexture ([[Interface\CHARACTERFRAME\TEMPORARYPORTRAIT-FEMALE-GNOME]])
+			resetwarning_frame:SetScript ("OnHide", function()
+				DetailsBubble:HideBubble()
+			end)
 			
-			HotCornerIgnore = true,
+			resetwarning_frame.TitleText:SetText ("Noooooooooooo!!!")
+
+			resetwarning_frame.midtext = resetwarning_frame:CreateFontString (nil, "artwork", "GameFontNormal")
+			resetwarning_frame.midtext:SetText ("A pack of murlocs has attacked Details! tech center, our gnomes engineers are working on fixing the damage.\n\n If something is messed in your Details!, you can click on the 'Reset Skin' button.")
+			resetwarning_frame.midtext:SetPoint ("topleft", resetwarning_frame, "topleft", 10, -90)
+			resetwarning_frame.midtext:SetJustifyH ("center")
+			resetwarning_frame.midtext:SetWidth (370)
 			
-			OnClick = function (self, button)
+			resetwarning_frame.gnoma = resetwarning_frame:CreateTexture (nil, "artwork")
+			resetwarning_frame.gnoma:SetPoint ("topright", resetwarning_frame, "topright", -3, -80)
+			resetwarning_frame.gnoma:SetTexture ("Interface\\AddOns\\Details\\images\\icons2")
+			resetwarning_frame.gnoma:SetSize (89*1.00, 97*1.00)
+			--resetwarning_frame.gnoma:SetTexCoord (0.212890625, 0.494140625, 0.798828125, 0.99609375) -- 109 409 253 510
+			resetwarning_frame.gnoma:SetTexCoord (0.17578125, 0.001953125, 0.59765625, 0.787109375) -- 1 306 90 403
 			
-				if (button == "LeftButton") then
-				
-					local lower_instance = _detalhes:GetLowerInstanceNumber()
-					if (not lower_instance) then
-						local instance = _detalhes:GetInstance (1)
-						_detalhes.CriarInstancia (_, _, 1)
-						_detalhes:OpenOptionsWindow (instance)
+			resetwarning_frame.close = CreateFrame ("Button", "DetailsFeedbackWindowCloseButton", resetwarning_frame, "OptionsButtonTemplate")
+			resetwarning_frame.close:SetPoint ("bottomleft", resetwarning_frame, "bottomleft", 8, 4)
+			resetwarning_frame.close:SetText ("Close")
+			resetwarning_frame.close:SetScript ("OnClick", function (self)
+				resetwarning_frame:Hide()
+			end)
+		
+			resetwarning_frame.see_updates = CreateFrame ("Button", "DetailsResetWindowSeeUpdatesButton", resetwarning_frame, "OptionsButtonTemplate")
+			resetwarning_frame.see_updates:SetPoint ("bottomright", resetwarning_frame, "bottomright", -10, 4)
+			resetwarning_frame.see_updates:SetText ("Update Info")
+			resetwarning_frame.see_updates:SetScript ("OnClick", function (self)
+				_detalhes.OpenNewsWindow()
+				DetailsBubble:HideBubble()
+				--resetwarning_frame:Hide()
+			end)
+			resetwarning_frame.see_updates:SetWidth (130)
+			
+			resetwarning_frame.reset_skin = CreateFrame ("Button", "DetailsResetWindowResetSkinButton", resetwarning_frame, "OptionsButtonTemplate")
+			resetwarning_frame.reset_skin:SetPoint ("right", resetwarning_frame.see_updates, "left", -10, 0)
+			resetwarning_frame.reset_skin:SetText ("Reset Skin")
+			resetwarning_frame.reset_skin:SetScript ("OnClick", function (self)
+				--do the reset
+				for index, instance in ipairs (_detalhes.tabela_instancias) do 
+					if (not instance.iniciada) then
+						instance:RestauraJanela()
+						local skin = instance.skin
+						instance:ChangeSkin ("Default Skin")
+						instance:ChangeSkin ("Minimalistic")
+						instance:ChangeSkin (skin)
+						instance:DesativarInstancia()
 					else
-						_detalhes:OpenOptionsWindow (_detalhes:GetInstance (lower_instance))
+						local skin = instance.skin
+						instance:ChangeSkin ("Default Skin")
+						instance:ChangeSkin ("Minimalistic")
+						instance:ChangeSkin (skin)
 					end
-					
-				elseif (button == "RightButton") then
-				
-					GameTooltip:Hide()
-					local GameCooltip = GameCooltip
-					
-					GameCooltip:Reset()
-					GameCooltip:SetType ("menu")
-					GameCooltip:SetOption ("ButtonsYMod", -5)
-					GameCooltip:SetOption ("HeighMod", 5)
-					GameCooltip:SetOption ("TextSize", 10)
-
-					--344 427 200 268 0.0009765625
-					--0.672851, 0.833007, 0.391601, 0.522460
-					
-					GameCooltip:SetBannerImage (1, [[Interface\AddOns\Details\images\icons]], 83*.5, 68*.5, {"bottomleft", "topleft", 1, -4}, {0.672851, 0.833007, 0.391601, 0.522460}, nil)
-					GameCooltip:SetBannerImage (2, "Interface\\PetBattles\\Weather-Windy", 512*.35, 128*.3, {"bottomleft", "topleft", -25, -4}, {0, 1, 1, 0})
-					GameCooltip:SetBannerText (1, "Mini Map Menu", {"left", "right", 2, -5}, "white", 10)
-					
-					--> reset
-					GameCooltip:AddMenu (1, _detalhes.tabela_historico.resetar, true, nil, nil, Loc ["STRING_MINIMAPMENU_RESET"], nil, true)
-					GameCooltip:AddIcon ([[Interface\COMMON\VOICECHAT-MUTED]], 1, 1, 14, 14)
-					
-					GameCooltip:AddLine ("$div")
-					
-					--> nova instancai
-					GameCooltip:AddMenu (1, _detalhes.CriarInstancia, true, nil, nil, Loc ["STRING_MINIMAPMENU_NEWWINDOW"], nil, true)
-					GameCooltip:AddIcon ([[Interface\ICONS\Spell_ChargePositive]], 1, 1, 14, 14, 0.0703125, 0.9453125, 0.0546875, 0.9453125)
-					
-					--> reopen window 64: 0.0078125
-					local reopen = function()
-						for _, instance in ipairs (_detalhes.tabela_instancias) do 
-							if (not instance:IsAtiva()) then
-								_detalhes:CriarInstancia (instance.meu_id)
-								return
-							end
-						end
-					end
-					GameCooltip:AddMenu (1, reopen, nil, nil, nil, Loc ["STRING_MINIMAPMENU_REOPEN"], nil, true)
-					GameCooltip:AddIcon ([[Interface\ICONS\Ability_Priest_VoidShift]], 1, 1, 14, 14, 0.0703125, 0.9453125, 0.0546875, 0.9453125)
-					
-					GameCooltip:AddMenu (1, _detalhes.ReabrirTodasInstancias, true, nil, nil, Loc ["STRING_MINIMAPMENU_REOPENALL"], nil, true)
-					GameCooltip:AddIcon ([[Interface\ICONS\Ability_Priest_VoidShift]], 1, 1, 14, 14, 0.0703125, 0.9453125, 0.0546875, 0.9453125, "#ffb400")
-
-					GameCooltip:AddLine ("$div")
-					
-					--> lock
-					GameCooltip:AddMenu (1, _detalhes.TravasInstancias, true, nil, nil, Loc ["STRING_MINIMAPMENU_LOCK"], nil, true)
-					GameCooltip:AddIcon ([[Interface\PetBattles\PetBattle-LockIcon]], 1, 1, 14, 14, 0.0703125, 0.9453125, 0.0546875, 0.9453125)
-					
-					GameCooltip:AddMenu (1, _detalhes.DestravarInstancias, true, nil, nil, Loc ["STRING_MINIMAPMENU_UNLOCK"], nil, true)
-					GameCooltip:AddIcon ([[Interface\PetBattles\PetBattle-LockIcon]], 1, 1, 14, 14, 0.0703125, 0.9453125, 0.0546875, 0.9453125, "gray")
-					
-					GameCooltip:SetOwner (self, "topright", "bottomleft")
-					GameCooltip:ShowCooltip()
-					
-
 				end
-			end,
-			OnTooltipShow = function (tooltip)
-				tooltip:AddLine ("Details!", 1, 1, 1)
-				tooltip:AddLine (Loc ["STRING_MINIMAP_TOOLTIP1"])
-				tooltip:AddLine (Loc ["STRING_MINIMAP_TOOLTIP2"])
-			end,
-		})
+			end)
+			resetwarning_frame.reset_skin:SetWidth (130)
 		
-		if (minimapIcon and not LDBIcon:IsRegistered ("Details!")) then
-			LDBIcon:Register ("Details!", minimapIcon, self.minimap)
+			function _detalhes:ResetWarningDialog()
+				DetailsResetConfigWarningDialog:Show()
+				DetailsBubble:SetOwner (resetwarning_frame.gnoma, "bottomright", "topleft", 30, -37, 1)
+				DetailsBubble:FlipHorizontal()
+				DetailsBubble:SetBubbleText ("", "", "WWHYYYYYYYYY!!!!", "", "")
+				DetailsBubble:TextConfig (14, nil, "deeppink")
+				DetailsBubble:ShowBubble()
 
+
+			end
+			_detalhes:ScheduleTimer ("ResetWarningDialog", 7)
+			
 		end
-		
 	end
 	
 	--> interface menu
@@ -599,10 +588,166 @@ function _G._detalhes:Start()
 			_detalhes:ScheduleTimer ("FadeStartVersion", 7)
 			
 		end
+	end	
+	
+	--> minimap
+	local LDB = LibStub ("LibDataBroker-1.1", true)
+	local LDBIcon = LDB and LibStub ("LibDBIcon-1.0", true)
+	
+	if LDB then
+
+		local databroker = LDB:NewDataObject ("Details!", {
+			type = "launcher",
+			icon = [[Interface\AddOns\Details\images\minimap]],
+			text = "0",
+			
+			HotCornerIgnore = true,
+			
+			OnClick = function (self, button)
+			
+				if (button == "LeftButton") then
+				
+					--> 1 = open options panel
+					if (_detalhes.minimap.onclick_what_todo == 1) then
+						local lower_instance = _detalhes:GetLowerInstanceNumber()
+						if (not lower_instance) then
+							local instance = _detalhes:GetInstance (1)
+							_detalhes.CriarInstancia (_, _, 1)
+							_detalhes:OpenOptionsWindow (instance)
+						else
+							_detalhes:OpenOptionsWindow (_detalhes:GetInstance (lower_instance))
+						end
+					
+					--> 2 = reset data
+					elseif (_detalhes.minimap.onclick_what_todo == 2) then
+						_detalhes.tabela_historico:resetar()
+					
+					--> 3 = unknown
+					elseif (_detalhes.minimap.onclick_what_todo == 3) then
+					
+					end
+					
+				elseif (button == "RightButton") then
+				
+					GameTooltip:Hide()
+					local GameCooltip = GameCooltip
+					
+					GameCooltip:Reset()
+					GameCooltip:SetType ("menu")
+					GameCooltip:SetOption ("ButtonsYMod", -5)
+					GameCooltip:SetOption ("HeighMod", 5)
+					GameCooltip:SetOption ("TextSize", 10)
+
+					--344 427 200 268 0.0009765625
+					--0.672851, 0.833007, 0.391601, 0.522460
+					
+					GameCooltip:SetBannerImage (1, [[Interface\AddOns\Details\images\icons]], 83*.5, 68*.5, {"bottomleft", "topleft", 1, -4}, {0.672851, 0.833007, 0.391601, 0.522460}, nil)
+					GameCooltip:SetBannerImage (2, "Interface\\PetBattles\\Weather-Windy", 512*.35, 128*.3, {"bottomleft", "topleft", -25, -4}, {0, 1, 1, 0})
+					GameCooltip:SetBannerText (1, "Mini Map Menu", {"left", "right", 2, -5}, "white", 10)
+					
+					--> reset
+					GameCooltip:AddMenu (1, _detalhes.tabela_historico.resetar, true, nil, nil, Loc ["STRING_MINIMAPMENU_RESET"], nil, true)
+					GameCooltip:AddIcon ([[Interface\COMMON\VOICECHAT-MUTED]], 1, 1, 14, 14)
+					
+					GameCooltip:AddLine ("$div")
+					
+					--> nova instancai
+					GameCooltip:AddMenu (1, _detalhes.CriarInstancia, true, nil, nil, Loc ["STRING_MINIMAPMENU_NEWWINDOW"], nil, true)
+					GameCooltip:AddIcon ([[Interface\ICONS\Spell_ChargePositive]], 1, 1, 14, 14, 0.0703125, 0.9453125, 0.0546875, 0.9453125)
+					
+					--> reopen window 64: 0.0078125
+					local reopen = function()
+						for _, instance in ipairs (_detalhes.tabela_instancias) do 
+							if (not instance:IsAtiva()) then
+								_detalhes:CriarInstancia (instance.meu_id)
+								return
+							end
+						end
+					end
+					GameCooltip:AddMenu (1, reopen, nil, nil, nil, Loc ["STRING_MINIMAPMENU_REOPEN"], nil, true)
+					GameCooltip:AddIcon ([[Interface\ICONS\Ability_Priest_VoidShift]], 1, 1, 14, 14, 0.0703125, 0.9453125, 0.0546875, 0.9453125)
+					
+					GameCooltip:AddMenu (1, _detalhes.ReabrirTodasInstancias, true, nil, nil, Loc ["STRING_MINIMAPMENU_REOPENALL"], nil, true)
+					GameCooltip:AddIcon ([[Interface\ICONS\Ability_Priest_VoidShift]], 1, 1, 14, 14, 0.0703125, 0.9453125, 0.0546875, 0.9453125, "#ffb400")
+
+					GameCooltip:AddLine ("$div")
+					
+					--> lock
+					GameCooltip:AddMenu (1, _detalhes.TravasInstancias, true, nil, nil, Loc ["STRING_MINIMAPMENU_LOCK"], nil, true)
+					GameCooltip:AddIcon ([[Interface\PetBattles\PetBattle-LockIcon]], 1, 1, 14, 14, 0.0703125, 0.9453125, 0.0546875, 0.9453125)
+					
+					GameCooltip:AddMenu (1, _detalhes.DestravarInstancias, true, nil, nil, Loc ["STRING_MINIMAPMENU_UNLOCK"], nil, true)
+					GameCooltip:AddIcon ([[Interface\PetBattles\PetBattle-LockIcon]], 1, 1, 14, 14, 0.0703125, 0.9453125, 0.0546875, 0.9453125, "gray")
+					
+					GameCooltip:SetOwner (self, "topright", "bottomleft")
+					GameCooltip:ShowCooltip()
+					
+
+				end
+			end,
+			OnTooltipShow = function (tooltip)
+				tooltip:AddLine ("Details!", 1, 1, 1)
+				if (_detalhes.minimap.onclick_what_todo == 1) then
+					tooltip:AddLine (Loc ["STRING_MINIMAP_TOOLTIP1"])
+				elseif (_detalhes.minimap.onclick_what_todo == 2) then
+					tooltip:AddLine (Loc ["STRING_MINIMAP_TOOLTIP11"])
+				end
+				tooltip:AddLine (Loc ["STRING_MINIMAP_TOOLTIP2"])
+			end,
+		})
+		
+		if (databroker and not LDBIcon:IsRegistered ("Details!")) then
+			LDBIcon:Register ("Details!", databroker, self.minimap)
+		end
+		
+		_detalhes.databroker = databroker
+		
 	end
 
 	--register lib-hotcorners
-	local reset_func = function (frame, button) _detalhes.tabela_historico:resetar() end
+	local on_click_on_hotcorner_button = function (frame, button) 
+		if (_detalhes.hotcorner_topleft.onclick_what_todo == 1) then
+			local lower_instance = _detalhes:GetLowerInstanceNumber()
+			if (not lower_instance) then
+				local instance = _detalhes:GetInstance (1)
+				_detalhes.CriarInstancia (_, _, 1)
+				_detalhes:OpenOptionsWindow (instance)
+			else
+				_detalhes:OpenOptionsWindow (_detalhes:GetInstance (lower_instance))
+			end
+			
+		elseif (_detalhes.hotcorner_topleft.onclick_what_todo == 2) then
+			_detalhes.tabela_historico:resetar()
+		end
+	end
+	
+	local on_click_on_quickclick_button = function (frame, button) 
+	
+		if (_detalhes.hotcorner_topleft.quickclick_what_todo == 1) then
+			local lower_instance = _detalhes:GetLowerInstanceNumber()
+			if (not lower_instance) then
+				local instance = _detalhes:GetInstance (1)
+				_detalhes.CriarInstancia (_, _, 1)
+				_detalhes:OpenOptionsWindow (instance)
+			else
+				_detalhes:OpenOptionsWindow (_detalhes:GetInstance (lower_instance))
+			end
+			
+		elseif (_detalhes.hotcorner_topleft.quickclick_what_todo == 2) then
+			_detalhes.tabela_historico:resetar()
+		end
+	end
+	
+	local tooltip_hotcorner = function()
+		GameTooltip:AddLine ("Details!", 1, 1, 1, 1)
+		if (_detalhes.hotcorner_topleft.onclick_what_todo == 1) then
+			GameTooltip:AddLine ("|cFF00FF00Left Click:|r open options panel.", 1, 1, 1, 1)
+			
+		elseif (_detalhes.hotcorner_topleft.onclick_what_todo == 2) then
+			GameTooltip:AddLine ("|cFF00FF00Left Click:|r clear all segments.", 1, 1, 1, 1)
+			
+		end
+	end
 	
 	_detalhes:RegisterHotCornerButton (
 		--> absolute name
@@ -616,13 +761,13 @@ function _G._detalhes:Start()
 		--> icon
 		[[Interface\AddOns\Details\images\minimap]], 
 		--> tooltip
-		"|cFFFFFFFFDetails!\n|cFF00FF00Left Click:|r clear all segments.",
+		tooltip_hotcorner,
 		--> click function
-		reset_func, 
+		on_click_on_hotcorner_button, 
 		--> menus
 		nil, 
 		--> quick click
-		reset_func)
+		on_click_on_quickclick_button)
 	
 	--> register time captures
 	--_detalhes:LoadUserTimeCaptures()
@@ -646,10 +791,11 @@ function _G._detalhes:Start()
 	b:SetAlpha (1)
 	--]]
 
-	--function _detalhes:OpenOptionsWindowAtStart()
+	function _detalhes:OpenOptionsWindowAtStart()
 		--_detalhes:OpenOptionsWindow (_detalhes.tabela_instancias[1])
-	--end
-	--_detalhes:ScheduleTimer ("OpenOptionsWindowAtStart", 2)
+		--print (_G ["DetailsClearSegmentsButton1"]:GetSize())
+	end
+	_detalhes:ScheduleTimer ("OpenOptionsWindowAtStart", 2)
 	
 end
 

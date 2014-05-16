@@ -16,9 +16,11 @@ end
 function _detalhes:CreateOrOpenNewsWindow()
 	local frame = _G.DetailsNewsWindow
 
+	-- /script _detalhes.OpenNewsWindow()
+	
 	if (not frame) then
 		--> construir a janela de news
-		frame = CreateFrame ("frame", "DetailsNewsWindow", UIParent)
+		frame = CreateFrame ("frame", "DetailsNewsWindow", UIParent, "ButtonFrameTemplate")
 		frame:SetPoint ("center", UIParent, "center")
 		frame:SetFrameStrata ("HIGH")
 		frame:SetMovable (true)
@@ -28,31 +30,10 @@ function _detalhes:CreateOrOpenNewsWindow()
 		
 		frame:SetScript ("OnMouseDown", function() frame:StartMoving() end)
 		frame:SetScript ("OnMouseUp", function() frame:StopMovingOrSizing() end)
-	
-		--> fundo
-		local fundo = frame:CreateTexture (nil, "border")
-		fundo:SetTexture ("Interface\\Addons\\Details\\images\\whatsnew")
-		fundo:SetAllPoints (frame)
-		
-		--> fechar
-		local close = CreateFrame ("Button", "DetailsNewsWindowClose", frame, "UIPanelCloseButton")
-		close:SetWidth (32)
-		close:SetHeight (32)
-		close:SetPoint ("bottomright", frame, "topright", 3, -40)
-		close:SetScript ("OnClick", function() frame:Hide() end)
-		
-		--> avatar
-		local avatar = frame:CreateTexture (nil, "background")
-		avatar:SetPoint ("topleft", frame, "topleft", 5, -5)
-		
-		--> titulo
-		local titulo = _detalhes.gump:NewLabel (frame, nil, "$parentTitle", nil, "", "GameFontHighlightLeft", 12, {227/255, 186/255, 4/255})
-		titulo:SetPoint ("center", frame, "center")
-		titulo:SetPoint ("top", frame, "top", 0, -18)
 		
 		--> reinstall textura
 		local textura = _detalhes.gump:NewImage (frame, [[Interface\DialogFrame\DialogAlertIcon]], 64, 64, nil, nil, nil, "$parentExclamacao")
-		textura:SetPoint ("topleft", frame, "topleft", 60, -20)
+		textura:SetPoint ("topleft", frame, "topleft", 60, -10)
 		--> reinstall aviso
 		local reinstall = _detalhes.gump:NewLabel (frame, nil, "$parentReinstall", nil, "", "GameFontHighlightLeft", 10)
 		reinstall:SetPoint ("left", textura, "right", 2, -2)
@@ -61,10 +42,10 @@ function _detalhes:CreateOrOpenNewsWindow()
 		
 		local frame_upper = CreateFrame ("scrollframe", nil, frame)
 		local frame_lower = CreateFrame ("frame", nil, frame_upper)
-		frame_lower:SetSize (380, 390)
-		frame_upper:SetPoint ("topleft", frame, "topleft", 85, -100)
-		frame_upper:SetWidth (395)
-		frame_upper:SetHeight (370)
+		frame_lower:SetSize (450, 390)
+		frame_upper:SetPoint ("topleft", frame, "topleft", 15, -70)
+		frame_upper:SetWidth (465)
+		frame_upper:SetHeight (400)
 		frame_upper:SetBackdrop({
 				bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", 
 				tile = true, tileSize = 16,
@@ -83,7 +64,7 @@ function _detalhes:CreateOrOpenNewsWindow()
 		
 		slider:SetThumbTexture (slider.thumb)
 		slider:SetOrientation ("vertical");
-		slider:SetSize (16, 369)
+		slider:SetSize (16, 399)
 		slider:SetPoint ("topleft", frame_upper, "topright")
 		slider:SetMinMaxValues (0, 1000)
 		slider:SetValue(0)
@@ -111,11 +92,11 @@ function _detalhes:CreateOrOpenNewsWindow()
 		texto:SetJustifyH ("left")
 		texto:SetJustifyV ("top")
 		texto:SetTextColor (1, 1, 1)
-		texto:SetWidth (380)
+		texto:SetWidth (450)
 		texto:SetHeight (1400)
 		
 		function frame:Title (title)
-			titulo:SetText (title or "")
+			frame.TitleText:SetText (title or "")
 		end
 		
 		function frame:Text (text)
@@ -123,7 +104,7 @@ function _detalhes:CreateOrOpenNewsWindow()
 		end
 		
 		function frame:Icon (path)
-			avatar:SetTexture (path or nil)
+			frame.portrait:SetTexture (path or nil)
 		end
 		
 		frame:Hide()

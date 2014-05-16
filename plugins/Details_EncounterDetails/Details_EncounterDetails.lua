@@ -954,7 +954,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 		for index, jogador in _ipairs (DamageContainer._ActorTable) do
 		
 			--> só estou interessado nos adds, conferir pelo nome
-			if (adds_pool [tonumber (jogador.serial:sub(6, 10), 16)]) then
+			if (adds_pool [tonumber (jogador.serial:sub(6, 10), 16)] or (jogador.flag_original and bit.band (jogador.flag_original, 0x00000040) ~= 0)) then --> é um inimigo) then
 				
 				local nome = jogador.nome
 				local tabela = {total = 0, dano_em = {}, dano_em_total = 0, damage_from = {}, damage_from_total = 0}

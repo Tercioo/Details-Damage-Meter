@@ -195,9 +195,6 @@
 
 		local instance = _detalhes:GetInstance (lower_instance)
 
-		_detalhes:ResetButtonSnapTo (instance)
-		_detalhes.ResetButtonInstance = lower_instance
-		
 		if (not just_refresh) then
 			for _, instancia in pairs (_detalhes.tabela_instancias) do 
 				if (instancia.baseframe and instancia:IsAtiva()) then

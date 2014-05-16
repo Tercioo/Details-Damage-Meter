@@ -88,6 +88,7 @@ function DetailsCreateCoolTip()
 			["TextSize"] = true,
 			["TextFont"] = true,
 			["TextColor"] = true,
+			["TextShadow"] = true,
 			["LeftTextWidth"] = true,
 			["RightTextWidth"] = true,
 			["LeftTextHeight"] = true,
@@ -129,6 +130,7 @@ function DetailsCreateCoolTip()
 			["TextSize"] = nil,
 			["TextFont"] = nil,
 			["TextColor"] = nil,
+			["TextShadow"] = nil,
 			["LeftTextWidth"] = nil,
 			["RightTextWidth"] = nil,
 			["LeftTextHeight"] = nil,
@@ -636,13 +638,15 @@ function DetailsCreateCoolTip()
 					menuButton.leftText:SetHeight (0)
 				end
 				
-				if (CoolTip.OptionsTable.TextFont and not leftTextTable [7]) then
+				if (CoolTip.OptionsTable.TextFont and not leftTextTable [7]) then --font
 				
 					if (_G [CoolTip.OptionsTable.TextFont]) then
 						menuButton.leftText:SetFontObject (GameFontRed or CoolTip.OptionsTable.TextFont)
 					else
 						local font = SharedMedia:Fetch ("font", CoolTip.OptionsTable.TextFont)
 						local _, size, flags = menuButton.leftText:GetFont()
+						flags = leftTextTable [8] or CoolTip.OptionsTable.TextShadow or nil
+						size = leftTextTable [6] or CoolTip.OptionsTable.TextSize or size
 						menuButton.leftText:SetFont (font, size, flags)
 					end
 				
@@ -650,18 +654,20 @@ function DetailsCreateCoolTip()
 					if (_G [leftTextTable [7]]) then
 						menuButton.leftText:SetFontObject (leftTextTable [7])
 						local face, size, flags = menuButton.leftText:GetFont()
+						flags = leftTextTable [8] or CoolTip.OptionsTable.TextShadow or nil
 						size = leftTextTable [6] or CoolTip.OptionsTable.TextSize or size
 						menuButton.leftText:SetFont (face, size, flags)					
 					else
 						local font = SharedMedia:Fetch ("font", leftTextTable [7])
 						local face, size, flags = menuButton.leftText:GetFont()
+						flags = leftTextTable [8] or CoolTip.OptionsTable.TextShadow or nil
 						size = leftTextTable [6] or CoolTip.OptionsTable.TextSize or size
 						menuButton.leftText:SetFont (face, size, flags)
 					end
 				else
 					size = leftTextTable [6] or CoolTip.OptionsTable.TextSize or 10
 					face = leftTextTable [7] or [[Fonts\FRIZQT__.TTF]]
-					flags = leftTextTable [8]
+					flags = leftTextTable [8] or CoolTip.OptionsTable.TextShadow or nil
 					menuButton.leftText:SetFont (face, size, flags)
 				end
 
@@ -707,6 +713,8 @@ function DetailsCreateCoolTip()
 					else
 						local font = SharedMedia:Fetch ("font", CoolTip.OptionsTable.TextFont)
 						local _, size, flags = menuButton.rightText:GetFont()
+						flags = rightTextTable [8] or CoolTip.OptionsTable.TextShadow or nil
+						size = rightTextTable [6] or CoolTip.OptionsTable.TextSize or size
 						menuButton.rightText:SetFont (font, size, flags)
 					end
 				
@@ -714,11 +722,13 @@ function DetailsCreateCoolTip()
 					if (_G [rightTextTable [7]]) then
 						menuButton.rightText:SetFontObject (rightTextTable [7])
 						local face, size, flags = menuButton.rightText:GetFont()
+						flags = rightTextTable [8] or CoolTip.OptionsTable.TextShadow or nil
 						size = rightTextTable [6] or CoolTip.OptionsTable.TextSize or size
 						menuButton.rightText:SetFont (face, size, flags)					
 					else
 						local font = SharedMedia:Fetch ("font", rightTextTable [7])
 						local face, size, flags = menuButton.rightText:GetFont()
+						flags = rightTextTable [8] or CoolTip.OptionsTable.TextShadow or nil
 						size = rightTextTable [6] or CoolTip.OptionsTable.TextSize or size
 						menuButton.rightText:SetFont (face, size, flags)
 					end
@@ -726,7 +736,7 @@ function DetailsCreateCoolTip()
 				else
 					size = rightTextTable [6] or CoolTip.OptionsTable.TextSize or 10
 					face = rightTextTable [7] or [[Fonts\FRIZQT__.TTF]]
-					flags = rightTextTable [8]
+					flags = rightTextTable [8] or CoolTip.OptionsTable.TextShadow or nil
 					menuButton.rightText:SetFont (face, size, flags)
 				end
 				

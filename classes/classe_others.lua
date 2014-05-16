@@ -65,6 +65,9 @@ local ToKFunctions = _detalhes.ToKFunctions
 local SelectedToKFunction = ToKFunctions [1]
 local UsingCustomRightText = false
 
+local FormatTooltipNumber = ToKFunctions [8]
+local TooltipMaximizedMethod = 1
+
 local info = _detalhes.janela_info
 local keyName
 
@@ -152,7 +155,7 @@ function atributo_misc:NovaTabela (serial, nome, link)
 	return _new_miscActor
 end
 
-function _detalhes:ToolTipDead (instancia, morte, esta_barra)
+function _detalhes:ToolTipDead (instancia, morte, esta_barra, keydown)
 	
 	local eventos = morte [1]
 	local hora_da_morte = morte [2]
@@ -835,34 +838,34 @@ end
 
 
 ---------> TOOLTIPS BIFURCAÇÃO
-function atributo_misc:ToolTip (instancia, numero, barra)
+function atributo_misc:ToolTip (instancia, numero, barra, keydown)
 	--> seria possivel aqui colocar o icone da classe dele?
 	GameTooltip:ClearLines()
 	GameTooltip:AddLine (barra.colocacao..". "..self.nome)
 	
 	if (instancia.sub_atributo == 3) then --> interrupt
-		return self:ToolTipInterrupt (instancia, numero, barra)
+		return self:ToolTipInterrupt (instancia, numero, barra, keydown)
 	elseif (instancia.sub_atributo == 1) then --> cc_break
-		return self:ToolTipCC (instancia, numero, barra)
+		return self:ToolTipCC (instancia, numero, barra, keydown)
 	elseif (instancia.sub_atributo == 2) then --> ress 
-		return self:ToolTipRess (instancia, numero, barra)
+		return self:ToolTipRess (instancia, numero, barra, keydown)
 	elseif (instancia.sub_atributo == 4) then --> dispell
-		return self:ToolTipDispell (instancia, numero, barra)
+		return self:ToolTipDispell (instancia, numero, barra, keydown)
 	elseif (instancia.sub_atributo == 5) then --> mortes
-		return self:ToolTipDead (instancia, numero, barra)
+		return self:ToolTipDead (instancia, numero, barra, keydown)
 	elseif (instancia.sub_atributo == 6) then --> defensive cooldowns
-		return self:ToolTipDefensiveCooldowns (instancia, numero, barra)
+		return self:ToolTipDefensiveCooldowns (instancia, numero, barra, keydown)
 	elseif (instancia.sub_atributo == 7) then --> buff uptime
-		return self:ToolTipBuffUptime (instancia, numero, barra)
+		return self:ToolTipBuffUptime (instancia, numero, barra, keydown)
 	elseif (instancia.sub_atributo == 8) then --> debuff uptime
-		return self:ToolTipDebuffUptime (instancia, numero, barra)
+		return self:ToolTipDebuffUptime (instancia, numero, barra, keydown)
 	end
 end
+
 --> tooltip locals
 local r, g, b
 local headerColor = "yellow"
 local barAlha = .6
-
 
 function atributo_misc:ToolTipDead (instancia, numero, barra)
 	
@@ -951,7 +954,7 @@ function atributo_misc:ToolTipDispell (instancia, numero, barra)
 	GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
 	
 	if (#meus_dispells > 0) then
-		for i = 1, _math_min (3, #meus_dispells) do
+		for i = 1, _math_min (25, #meus_dispells) do
 			local esta_habilidade = meus_dispells[i]
 			local nome_magia, _, icone_magia = _GetSpellInfo (esta_habilidade[1])
 			GameCooltip:AddLine (nome_magia..": ", esta_habilidade[2].." (".._cstr("%.1f", esta_habilidade[2]/meu_total*100).."%)")
@@ -974,7 +977,7 @@ function atributo_misc:ToolTipDispell (instancia, numero, barra)
 	GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
 
 	if (#buffs_dispelados > 0) then
-		for i = 1, _math_min (3, #buffs_dispelados) do
+		for i = 1, _math_min (25, #buffs_dispelados) do
 			local esta_habilidade = buffs_dispelados[i]
 			local nome_magia, _, icone_magia = _GetSpellInfo (esta_habilidade[1])
 			GameCooltip:AddLine (nome_magia..": ", esta_habilidade[2].." (".._cstr("%.1f", esta_habilidade[2]/meu_total*100).."%)")
@@ -993,7 +996,7 @@ function atributo_misc:ToolTipDispell (instancia, numero, barra)
 	end
 	_table_sort (alvos_dispelados, _detalhes.Sort2)
 	
-	for i = 1, _math_min (3, #alvos_dispelados) do
+	for i = 1, _math_min (25, #alvos_dispelados) do
 		if (alvos_dispelados[i][2] < 1) then
 			break
 		end
@@ -1365,7 +1368,7 @@ function atributo_misc:ToolTipDefensiveCooldowns (instancia, numero, barra)
 	GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
 	
 	if (#cooldowns_usados > 0) then
-		for i = 1, _math_min (15, #cooldowns_usados) do
+		for i = 1, _math_min (25, #cooldowns_usados) do
 			local esta_habilidade = cooldowns_usados[i]
 			local nome_magia, _, icone_magia = _GetSpellInfo (esta_habilidade[1])
 			GameCooltip:AddLine (nome_magia..": ", esta_habilidade[2].." (".._cstr("%.1f", esta_habilidade[2]/meu_total*100).."%)")
@@ -1390,7 +1393,7 @@ function atributo_misc:ToolTipDefensiveCooldowns (instancia, numero, barra)
 	GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
 	
 	if (#alvos > 0) then
-		for i = 1, _math_min (3, #alvos) do
+		for i = 1, _math_min (25, #alvos) do
 			GameCooltip:AddLine (alvos[i][1]..": ", alvos[i][2], 1, "white", "white")
 			GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
 			
@@ -1517,7 +1520,7 @@ function atributo_misc:ToolTipInterrupt (instancia, numero, barra)
 	GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
 	
 	if (#meus_interrupts > 0) then
-		for i = 1, _math_min (3, #meus_interrupts) do
+		for i = 1, _math_min (25, #meus_interrupts) do
 			local esta_habilidade = meus_interrupts[i]
 			local nome_magia, _, icone_magia = _GetSpellInfo (esta_habilidade[1])
 			GameCooltip:AddLine (nome_magia..": ", esta_habilidade[2].." (".._cstr("%.1f", esta_habilidade[2]/meu_total*100).."%)")
@@ -1541,7 +1544,7 @@ function atributo_misc:ToolTipInterrupt (instancia, numero, barra)
 	GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
 	
 	if (#habilidades_interrompidas > 0) then
-		for i = 1, _math_min (3, #habilidades_interrompidas) do
+		for i = 1, _math_min (25, #habilidades_interrompidas) do
 			local esta_habilidade = habilidades_interrompidas[i]
 			local nome_magia, _, icone_magia = _GetSpellInfo (esta_habilidade[1])
 			GameCooltip:AddLine (nome_magia..": ", esta_habilidade[2].." (".._cstr("%.1f", esta_habilidade[2]/meu_total*100).."%)")
@@ -1863,6 +1866,8 @@ end
 	--> atualize a funcao de abreviacao
 		function atributo_misc:UpdateSelectedToKFunction()
 			SelectedToKFunction = ToKFunctions [_detalhes.ps_abbreviation]
+			FormatTooltipNumber = ToKFunctions [_detalhes.tooltip.abbreviation]
+			TooltipMaximizedMethod = _detalhes.tooltip.maximize_method
 		end
 		
 

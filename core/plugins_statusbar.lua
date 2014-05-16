@@ -190,7 +190,9 @@
 			_detalhes.StatusBar:SetLeftPlugin (instance, instance.StatusBar.left)
 		end
 	end
+	
 
+	
 	--> select a new plugin in for an instance anchor
 	local ChoosePlugin = function (_, _, index, current_child, anchor)
 	
@@ -262,6 +264,14 @@
 		
 	end
 
+	function _detalhes.StatusBar:SetPlugin (instance, absolute_name, anchor)
+		local index = _detalhes.StatusBar:GetIndexFromAbsoluteName (absolute_name)
+		if (index and anchor) then
+			anchor = string.lower (anchor)
+			ChoosePlugin (nil, nil, index, instance.StatusBar [anchor], anchor)
+		end
+	end
+	
 	--> on enter
 	local onEnterCooltipTexts = { 
 			{text = "|TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:14:14:0:1:512:512:8:70:224:306|t " .. Loc ["STRING_PLUGIN_TOOLTIP_LEFTBUTTON"]},
@@ -1009,10 +1019,10 @@ do
 			local myframe = _detalhes.StatusBar:CreateChildFrame (instance, "DetailsClockInstance"..instance:GetInstanceId(), DEFAULT_CHILD_WIDTH, DEFAULT_CHILD_HEIGHT)
 			
 			--> we place custom frame, widgets inside this function
-			local texture = myframe:CreateTexture (nil, "overlay")
-			texture:SetTexture ("Interface\\AddOns\\Details\\images\\clock")
-			texture:SetPoint ("right", myframe.text.widget, "left")
-			myframe.texture = texture
+			--local texture = myframe:CreateTexture (nil, "overlay")
+			--texture:SetTexture ("Interface\\AddOns\\Details\\images\\clock")
+			--texture:SetPoint ("right", myframe.text.widget, "left")
+			--myframe.texture = texture
 
 			local new_child = _detalhes.StatusBar:CreateChildTable (instance, Clock, myframe)
 			

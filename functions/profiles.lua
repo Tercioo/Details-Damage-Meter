@@ -491,11 +491,11 @@ local default_profile = {
 				0.23, -- [3]
 			},
 			},
-		
+
 	--> minimap
-		minimap = {hide = false, radius = 160, minimapPos = 220},
+		minimap = {hide = false, radius = 160, minimapPos = 220, onclick_what_todo = 1, text_type = 1},
 	--> horcorner
-		hotcorner_topleft = {hide = false, topleft_quick_click = true},
+		hotcorner_topleft = {hide = false, onclick_what_todo = 1, quickclick = true, quickclick_what_todo = 2},
 		
 	--> PvP
 		only_pvp_frags = false,
@@ -568,9 +568,9 @@ local default_profile = {
 	--> skins
 		standard_skin = false, --?
 		skin = "Default Skin", --?
-	--> modes
-	
-	--> switch
+		
+	--> tooltip
+		tooltip = {fontface = "Friz Quadrata TT", fontsize = 10, fontcolor = {1, 1, 1, 1}, fontshadow = false, background = {.1, .1, .1, .3}, abbreviation = 8, maximize_method = 1, commands = {}},
 	
 }
 

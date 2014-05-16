@@ -65,6 +65,9 @@ local ToKFunctions = _detalhes.ToKFunctions
 local SelectedToKFunction = ToKFunctions [1]
 local UsingCustomRightText = false
 
+local FormatTooltipNumber = ToKFunctions [8]
+local TooltipMaximizedMethod = 1
+
 local info = _detalhes.janela_info
 local keyName
 
@@ -686,11 +689,11 @@ end
 
 
 ---------> TOOLTIPS BIFURCAÇÃO
-function atributo_energy:ToolTip (instancia, numero, barra)
+function atributo_energy:ToolTip (instancia, numero, barra, keydown)
 	--> seria possivel aqui colocar o icone da classe dele?
 	--GameCooltip:AddLine (barra.colocacao..". "..self.nome)
 	if (instancia.sub_atributo <= 4) then
-		return self:ToolTipRegenRecebido (instancia, numero, barra)
+		return self:ToolTipRegenRecebido (instancia, numero, barra, keydown)
 	end
 end
 --> tooltip locals
@@ -698,7 +701,10 @@ local r, g, b
 local headerColor = "yellow"
 local barAlha = .6
 
-function atributo_energy:ToolTipRegenRecebido (instancia, numero, barra)
+local key_overlay = {1, 1, 1, .1}
+local key_overlay_press = {1, 1, 1, .2}
+
+function atributo_energy:ToolTipRegenRecebido (instancia, numero, barra, keydown)
 	
 	local owner = self.owner
 	if (owner and owner.classe) then
@@ -720,33 +726,60 @@ function atributo_energy:ToolTipRegenRecebido (instancia, numero, barra)
 -----------------------------------------------------------------	
 	GameCooltip:AddLine (Loc ["STRING_SPELLS"], nil, nil, headerColor, nil, 12) --> localiza-me
 	GameCooltip:AddIcon ([[Interface\HELPFRAME\ReportLagIcon-Spells]], 1, 1, 14, 14, 0.21875, 0.78125, 0.21875, 0.78125)
-	GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)	
+	
+	local ismaximized = false
+	if (keydown == "shift" or TooltipMaximizedMethod == 2 or TooltipMaximizedMethod == 3) then
+		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay_press)
+		GameCooltip:AddStatusBar (100, 1, r, g, b, 1)
+		ismaximized = true
+	else
+		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay)
+		GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
+	end
 	
 	local max = #habilidades
 	if (max > 3) then
 		max = 3
 	end
+	
+	if (ismaximized) then
+		max = 99
+	end
 
-	for i = 1, max do
+	for i = 1, math.min (#habilidades, max) do
 		local nome_magia, _, icone_magia = _GetSpellInfo (habilidades[i][1])
-		GameCooltip:AddLine (nome_magia..": ", _detalhes:comma_value (habilidades[i][2]).." (".._cstr("%.1f", (habilidades[i][2]/total_regenerado) * 100).."%)")
+		GameCooltip:AddLine (nome_magia..": ", FormatTooltipNumber (_,  habilidades[i][2]).." (".._cstr("%.1f", (habilidades[i][2]/total_regenerado) * 100).."%)")
 		GameCooltip:AddIcon (icone_magia)
-		GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
+		_detalhes:AddTooltipBackgroundStatusbar()
 	end
 	
 -----------------------------------------------------------------
+
 	GameCooltip:AddLine (Loc ["STRING_PLAYERS"], nil, nil, headerColor, nil, 12) --> localiza-me
 	GameCooltip:AddIcon ([[Interface\HELPFRAME\HelpIcon-HotIssues]], 1, 1, 14, 14, 0.21875, 0.78125, 0.21875, 0.78125)
-	GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)	
+	
+	local ismaximized = false
+	if (keydown == "ctrl" or TooltipMaximizedMethod == 2 or TooltipMaximizedMethod == 4) then
+		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_ctrl]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay_press)
+		GameCooltip:AddStatusBar (100, 1, r, g, b, 1)
+		ismaximized = true
+	else
+		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_ctrl]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay)
+		GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
+	end
 	
 	max = #fontes
 	if (max > 3) then
 		max = 3
 	end
 	
-	for i = 1, max do
-		GameCooltip:AddLine (fontes[i][1]..": ", _detalhes:comma_value (fontes[i][2]).." (".._cstr("%.1f", (fontes[i][2]/total_regenerado) * 100).."%)")
-		GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
+	if (ismaximized) then
+		max = 99
+	end
+	
+	for i = 1, math.min (#fontes, max) do
+		GameCooltip:AddLine (fontes[i][1]..": ", FormatTooltipNumber (_,  fontes[i][2]).." (".._cstr("%.1f", (fontes[i][2]/total_regenerado) * 100).."%)")
+		_detalhes:AddTooltipBackgroundStatusbar()
 		
 		local classe = fontes[i][3]
 		if (not classe) then
@@ -969,6 +1002,8 @@ end
 	--> atualize a funcao de abreviacao
 		function atributo_energy:UpdateSelectedToKFunction()
 			SelectedToKFunction = ToKFunctions [_detalhes.ps_abbreviation]
+			FormatTooltipNumber = ToKFunctions [_detalhes.tooltip.abbreviation]
+			TooltipMaximizedMethod = _detalhes.tooltip.maximize_method
 		end
 
 	--> subtract total from a combat table
