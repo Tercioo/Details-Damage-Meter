@@ -305,7 +305,7 @@ function _detalhes:OpenOptionsWindow (instance)
 				robot.totalover = math.random (10000000, 60000000)
 				robot.totalabsorb = math.random (10000000, 60000000)
 				robot.healing_taken = math.random (10000000, 60000000)
-				robot.heal_enemy = math.random (10000000, 60000000)
+				
 				
 			end
 			
@@ -813,7 +813,7 @@ function window:CreateFrame20()
 		local s = g:NewSlider (frame20, _, "$parentTooltipTextSizeSlider", "TooltipTextSizeSlider", SLIDER_WIDTH, 20, 8, 25, 1, tonumber (_detalhes.tooltip.fontsize))
 		s:SetBackdrop (slider_backdrop)
 		s:SetBackdropColor (unpack (slider_backdrop_color))
-		s:SetThumbSize (50)			
+		s:SetThumbSize (50)
 	
 		frame20.TooltipTextSizeSlider:SetPoint ("left", frame20.TooltipTextSizeLabel, "right", 2)
 		frame20.TooltipTextSizeSlider:SetHook ("OnValueChange", function (self, _, amount)
@@ -3245,6 +3245,20 @@ function window:CreateFrame4()
 		end
 		frame4.barSortDirectionSlider.thumb:SetSize (50, 12)
 		window:CreateLineBackground (frame4, "barSortDirectionSlider", "barSortDirectionLabel", Loc ["STRING_OPTIONS_BARSORT_DIRECTION_DESC"])
+		
+	-- spacement
+		g:NewLabel (frame4, _, "$parentBarSpacementLabel", "BarSpacementLabel", Loc ["STRING_OPTIONS_BAR_SPACING"], "GameFontHighlightLeft")
+		local s = g:NewSlider (frame4, _, "$parentBarSpacementSizeSlider", "BarSpacementSlider", SLIDER_WIDTH, 20, 0, 10, 1, instance.row_info.space.between, true)
+		s:SetThumbSize (50)
+		s:SetBackdrop (slider_backdrop)
+		s:SetBackdropColor (unpack (slider_backdrop_color))
+		s.fine_tuning = 0.2
+	
+		frame4.BarSpacementSlider:SetPoint ("left", frame4.BarSpacementLabel, "right", 2)
+		frame4.BarSpacementSlider:SetHook ("OnValueChange", function (self, instancia, amount)
+			instancia:SetBarSettings (nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, amount)
+		end)
+		window:CreateLineBackground (frame4, "BarSpacementSlider", "BarSpacementLabel", Loc ["STRING_OPTIONS_BAR_SPACING_DESC"])
 	
 	--> Top Texture
 		--anchor
@@ -3422,20 +3436,19 @@ function window:CreateFrame4()
 		frame4.rowHeightLabel:SetPoint (10, -70) --bar height
 		frame4.barGrowDirectionLabel:SetPoint (10, -95) --grow direction
 		frame4.barSortDirectionLabel:SetPoint (10, -120) --sort direction
+		frame4.BarSpacementLabel:SetPoint (10, -145) --spacement
 		
-		frame4.rowUpperTextureLabel:SetPoint (10, -155) --anchor
-		frame4.textureLabel:SetPoint (10, -180) --bar texture
-		frame4.rowPickColorLabel:SetPoint (10, -205) --color pick
+		frame4.rowUpperTextureLabel:SetPoint (10, -180) --anchor
+		frame4.textureLabel:SetPoint (10, -205) --bar texture
+		frame4.rowPickColorLabel:SetPoint (10, -230) --color pick
 		
-		frame4.rowLowerTextureLabel:SetPoint (10, -240)
-		frame4.rowBackgroundLabel:SetPoint (10, -265) --select background
-		frame4.rowBackgroundPickLabel:SetPoint (10, -290) --bar color background
+		frame4.rowLowerTextureLabel:SetPoint (10, -265)
+		frame4.rowBackgroundLabel:SetPoint (10, -290) --select background
+		frame4.rowBackgroundPickLabel:SetPoint (10, -315) --bar color background
 		
-		--frame4.rowBackgroundColorByClassLabel:SetPoint (10, -340) --class color background
-		
-		frame4.rowIconsLabel:SetPoint (10, -325)
-		frame4.iconFileLabel:SetPoint (10, -350)
-		frame4.barStartLabel:SetPoint (10, -375)
+		frame4.rowIconsLabel:SetPoint (10, -350)
+		frame4.iconFileLabel:SetPoint (10, -375)
+		frame4.barStartLabel:SetPoint (10, -400)
 		
 end
 
@@ -5557,6 +5570,9 @@ function window:update_all (editing_instance)
 	_G.DetailsOptionsWindow3SkinDropdown.MyObject:Select (editing_instance.skin)
 	
 	--> window 4
+	_G.DetailsOptionsWindow4BarSpacementSizeSlider.MyObject:SetFixedParameter (editing_instance)
+	_G.DetailsOptionsWindow4BarSpacementSizeSlider.MyObject:SetValue (editing_instance.row_info.space.between)
+	
 	_G.DetailsOptionsWindow4BarStartSlider.MyObject:SetFixedParameter (editing_instance)
 	_G.DetailsOptionsWindow4BarStartSlider.MyObject:SetValue (editing_instance.row_info.start_after_icon)
 	

@@ -61,7 +61,7 @@ local _
 			menu2_anchor_down = {22, -6},
 			menu_icons_size = 1,
 			plugins_grow_direction = 2,
-			bg_alpha = 0.5,
+			bg_alpha = 0.7,
 			
 		--instance button			
 			instancebutton_config = {size = {22, 14}, anchor = {-2, -1}, textcolor = {.8, .6, .0, 0.8}, textsize = 10, textfont = "Friz Quadrata TT", 

@@ -2627,7 +2627,7 @@ function _detalhes:SetBarTextSettings (size, font, fixedcolor, leftcolorbyclass,
 	self:InstanceRefreshRows()
 end
 
-function _detalhes:SetBarSettings (height, texture, colorclass, fixedcolor, backgroundtexture, backgroundcolorclass, backgroundfixedcolor, alpha, iconfile, barstart)
+function _detalhes:SetBarSettings (height, texture, colorclass, fixedcolor, backgroundtexture, backgroundcolorclass, backgroundfixedcolor, alpha, iconfile, barstart, spacement)
 	
 	--> bar start
 	if (type (barstart) == "boolean") then
@@ -2653,6 +2653,12 @@ function _detalhes:SetBarSettings (height, texture, colorclass, fixedcolor, back
 	if (height) then
 		self.row_info.height = height
 		self.row_height = height + self.row_info.space.between
+	end
+	
+	--> spacement
+	if (spacement) then
+		self.row_info.space.between = spacement
+		self.row_height = self.row_info.height + spacement
 	end
 	
 	--> texture
