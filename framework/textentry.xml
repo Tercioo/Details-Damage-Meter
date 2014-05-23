@@ -5,15 +5,15 @@
 	<EditBox name="DetailsEditBoxTemplate2" virtual="true">
 		<Size x="232" y="20"/>
 		
-		<Backdrop bgFile="Interface\\ChatFrame\\ChatFrameBackground" edgeFile="Interface\\ChatFrame\\ChatFrameBackground" tile="true">
+		<Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background" edgeFile="Interface\DialogFrame\UI-DialogBox-Border" tile="true">
 			<EdgeSize>
-				<AbsValue val="1"/>
+				<AbsValue val="10"/>
 			</EdgeSize>
 			<TileSize>
 				<AbsValue val="16"/>
 			</TileSize>
 			<BackgroundInsets>
-				<AbsInset left="0" right="0" top="0" bottom="0"/>
+				<AbsInset left="1" right="1" top="0" bottom="1"/>
 			</BackgroundInsets>
 		</Backdrop>
 		

@@ -74,39 +74,31 @@
 	function _detalhes:AnimarBarra (esta_barra, fim)
 		esta_barra.inicio = esta_barra.statusbar:GetValue()
 		esta_barra.fim = fim
-		esta_barra.proximo_update = 0
 		esta_barra.tem_animacao = 1
-		esta_barra:SetScript ("OnUpdate", self.FazerAnimacao)
+		
+		if (esta_barra.fim > esta_barra.inicio) then
+			esta_barra:SetScript ("OnUpdate", self.FazerAnimacao_Direita)
+		else
+			esta_barra:SetScript ("OnUpdate", self.FazerAnimacao_Esquerda)
+		end
 	end
 
-	function _detalhes:FazerAnimacao (elapsed)
+	function _detalhes:FazerAnimacao_Esquerda (elapsed)
+		self.inicio = self.inicio - 0.8
+		self.statusbar:SetValue (self.inicio)
+		if (self.inicio-1 <= self.fim) then
+			self.tem_animacao = 0
+			self:SetScript ("OnUpdate", nil)
+		end
+	end
 	
-		local velocidade = 0.8
-		--[[
-		local velocidade = 0.1
-		local distancia = self.inicio - self.fim
-		if (distancia > 40 or distancia < -40) then
-			velocidade = 0.8
-		elseif (distancia > 20 or distancia < -20) then
-			velocidade = 0.4
+	function _detalhes:FazerAnimacao_Direita (elapsed)
+		self.inicio = self.inicio + 0.8
+		self.statusbar:SetValue (self.inicio)
+		if (self.inicio+1 >= self.fim) then
+			self.tem_animacao = 0
+			self:SetScript ("OnUpdate", nil)
 		end
-		--]]
-		if (self.fim > self.inicio) then
-			self.inicio = self.inicio+velocidade
-			self.statusbar:SetValue (self.inicio)
-			if (self.inicio+1 >= self.fim) then
-				self.tem_animacao = 0
-				self:SetScript ("OnUpdate", nil)
-			end
-		else
-			self.inicio = self.inicio-velocidade
-			self.statusbar:SetValue (self.inicio)
-			if (self.inicio-1 <= self.fim) then
-				self.tem_animacao = 0
-				self:SetScript ("OnUpdate", nil)
-			end
-		end
-		self.proximo_update = 0
 	end
 
 	function _detalhes:AtualizaPontos()
@@ -530,6 +522,86 @@
 	end
 
 	--> cria o frame de wait for plugin
+	
+	function _detalhes:CreateWaitForPlugin()
+	
+		local WaitForPluginFrame = CreateFrame ("frame", "DetailsWaitForPluginFrame" .. self.meu_id, UIParent)
+		local WaitTexture = WaitForPluginFrame:CreateTexture (nil, "overlay")
+		WaitTexture:SetTexture ("Interface\\UNITPOWERBARALT\\Mechanical_Circular_Frame")
+		WaitTexture:SetPoint ("center", WaitForPluginFrame)
+		WaitTexture:SetWidth (180)
+		WaitTexture:SetHeight (180)
+		WaitForPluginFrame.wheel = WaitTexture
+		local RotateAnimGroup = WaitForPluginFrame:CreateAnimationGroup()
+		local rotate = RotateAnimGroup:CreateAnimation ("Rotation")
+		rotate:SetDegrees (360)
+		rotate:SetDuration (60)
+		RotateAnimGroup:SetLooping ("repeat")
+		
+		local bgpanel = gump:NewPanel (UIParent, UIParent, "DetailsWaitFrameBG"..self.meu_id, nil, 120, 30, false, false, false)
+		bgpanel:SetPoint ("center", WaitForPluginFrame, "center")
+		bgpanel:SetBackdrop ({bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background"})
+		bgpanel:SetBackdropColor (.2, .2, .2, 1)
+		
+		local label = gump:NewLabel (UIParent, UIParent, nil, nil, Loc ["STRING_WAITPLUGIN"]) --> localize-me
+		label.color = "silver"
+		label:SetPoint ("center", WaitForPluginFrame, "center")
+		label:SetJustifyH ("center")
+		label:Hide()
+
+		WaitForPluginFrame:Hide()	
+		self.wait_for_plugin_created = true
+		
+		function self:WaitForPlugin()
+		
+			self:ChangeIcon ([[Interface\GossipFrame\ActiveQuestIcon]])
+		
+			if (WaitForPluginFrame:IsShown() and WaitForPluginFrame:GetParent() == self.baseframe) then
+				self.waiting_pid = self:ScheduleTimer ("ExecDelayedPlugin1", 5, self)
+			end
+		
+			WaitForPluginFrame:SetParent (self.baseframe)
+			WaitForPluginFrame:SetAllPoints (self.baseframe)
+			local size = math.max (self.baseframe:GetHeight()* 0.35, 100) 
+			WaitForPluginFrame.wheel:SetWidth (size)
+			WaitForPluginFrame.wheel:SetHeight (size)
+			WaitForPluginFrame:Show()
+			label:Show()
+			bgpanel:Show()
+			RotateAnimGroup:Play()
+			
+			self.waiting_raid_plugin = true
+			
+			self.waiting_pid = self:ScheduleTimer ("ExecDelayedPlugin1", 5, self)
+		end
+		
+		function self:CancelWaitForPlugin()
+			RotateAnimGroup:Stop()
+			WaitForPluginFrame:Hide()	
+			label:Hide()
+			bgpanel:Hide()
+		end
+		
+		function self:ExecDelayedPlugin1()
+		
+			self.waiting_raid_plugin = nil
+			self.waiting_pid = nil
+		
+			RotateAnimGroup:Stop()
+			WaitForPluginFrame:Hide()	
+			label:Hide()
+			bgpanel:Hide()
+			
+			if (self.meu_id == _detalhes.solo) then
+				_detalhes.SoloTables:switch (nil, _detalhes.SoloTables.Mode)
+				
+			elseif (self.modo == _detalhes._detalhes_props["MODO_RAID"]) then
+				_detalhes.RaidTables:EnableRaidMode (self)
+				
+			end
+		end	
+	end
+	
 	do
 		local WaitForPluginFrame = CreateFrame ("frame", "DetailsWaitForPluginFrame", UIParent)
 		local WaitTexture = WaitForPluginFrame:CreateTexture (nil, "overlay")

@@ -146,6 +146,8 @@ _detalhes.instance_defaults = {
 				start_after_icon = true,
 			--percent type
 				percent_type = 1,
+			--backdrop
+				backdrop = {enabled = false, size = 12, color = {1, 1, 1, 1}, texture = "Details BarBorder 2"}
 				
 		},
 	--instance window color

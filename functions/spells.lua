@@ -906,6 +906,7 @@ do
 			[116888]	=	true, --Shroud of Purgatory (talent)
 			[51052]	=	true, --Anti-Magic Zone (talent)
 			[77535]	=	true, --Blood Shield
+			[115635]	=	true, --death barrier
 			
 		--shaman
 			[114893]	=	true, --Stone Bulwark (stone bulwark totem)

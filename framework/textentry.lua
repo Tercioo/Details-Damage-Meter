@@ -251,7 +251,7 @@ local TextEntryMetaFunctions = {}
 ------------------------------------------------------------------------------------------------------------
 --> scripts
 	local OnEnter = function (textentry)
-	
+
 		if (textentry.MyObject.OnEnterHook) then
 			local interrupt = textentry.MyObject.OnEnterHook (textentry)
 			if (interrupt) then
@@ -527,11 +527,14 @@ function gump:NewTextEntry (parent, container, name, member, w, h, func, param1,
 	TextEntryObject.editbox:SetJustifyH ("center")
 	TextEntryObject.editbox:EnableMouse (true)
 	TextEntryObject.editbox:SetText ("")
-	TextEntryObject.editbox:SetBackdrop ({bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
-	edgeFile = "Interface\\ChatFrame\\ChatFrameBackground",
-	tile = true, edgeSize = 1, tileSize = 5})
-	TextEntryObject.editbox:SetBackdropColor (0, 0, 0, 0.5)
-	TextEntryObject.editbox:SetBackdropBorderColor (0.3, 0.3, 0.30, 0.80)
+	
+	--TextEntryObject.editbox:SetBackdrop ({bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
+	--edgeFile = "Interface\\ChatFrame\\ChatFrameBackground",
+	--tile = true, edgeSize = 1, tileSize = 5})
+	
+	--TextEntryObject.editbox:SetBackdropColor (0, 0, 0, 0.5)
+	--TextEntryObject.editbox:SetBackdropBorderColor (0.3, 0.3, 0.30, 0.80)
+	TextEntryObject.editbox.current_bordercolor = {1, 1, 1, 1}
 	TextEntryObject.editbox:SetAutoFocus (false)
 	TextEntryObject.editbox:SetFontObject ("GameFontHighlightSmall")
 	

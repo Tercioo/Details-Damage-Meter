@@ -145,13 +145,15 @@ function _G._detalhes:Start()
 			self:AtualizaGumpPrincipal (-1, true)
 			
 			local lower_instance = _detalhes:GetLowerInstanceNumber()
-			
+
 			for index = 1, #self.tabela_instancias do
 				local instance = self.tabela_instancias [index]
 				if (instance:IsAtiva()) then
 					--> refresh wallpaper
 					if (instance.wallpaper.enabled) then
 						instance:InstanceWallpaper (true)
+					else
+						instance:InstanceWallpaper (false)
 					end
 					
 					--> refresh desaturated icons if is lower instance
@@ -164,8 +166,21 @@ function _G._detalhes:Start()
 			_detalhes.ToolBar:ReorganizeIcons() --> refresh all skin
 		
 			self.RefreshAfterStartup = nil
+			
+			function _detalhes:CheckWallpaperAfterStartup()
+				for _, instance in ipairs (self.tabela_instancias) do
+					if (not instance.wallpaper.enabled) then
+						if (instance:IsAtiva()) then
+							instance:InstanceWallpaper (false)
+						end
+					end
+				end
+				self.CheckWallpaperAfterStartup = nil
+			end
+			_detalhes:ScheduleTimer ("CheckWallpaperAfterStartup", 5)
+			
 		end
-		self:ScheduleTimer ("RefreshAfterStartup", 4)
+		self:ScheduleTimer ("RefreshAfterStartup", 5)
 
 
 		
@@ -211,8 +226,6 @@ function _G._detalhes:Start()
 	--		self.listener:RegisterEvent ("UNIT_SPELLCAST_INTERRUPTED")
 	----------------------------------------------------------------------------------------------------------------------------------------
 
-	local SharedMedia = LibStub:GetLibrary ("LibSharedMedia-3.0")
-	
 	function _detalhes:CooltipPreset (preset)
 		
 		local GameCooltip = GameCooltip
@@ -227,6 +240,17 @@ function _G._detalhes:Start()
 			GameCooltip:SetOption ("YSpacingMod", -4)
 			GameCooltip:SetOption ("IgnoreButtonAutoHeight", true)
 			GameCooltip:SetColor (1, 0.5, 0.5, 0.5, 0.5)
+			
+		elseif (preset == 2) then
+			GameCooltip:SetOption ("TextFont", "Friz Quadrata TT")
+			GameCooltip:SetOption ("TextColor", "orange")
+			GameCooltip:SetOption ("TextSize", 12)
+			GameCooltip:SetOption ("FixedWidth", 220)
+			GameCooltip:SetOption ("ButtonsYMod", -4)
+			GameCooltip:SetOption ("YSpacingMod", -4)
+			GameCooltip:SetOption ("IgnoreButtonAutoHeight", true)
+			GameCooltip:SetColor (1, 0.5, 0.5, 0.5, 0.5)
+			
 		end
 	end
 	
@@ -806,6 +830,206 @@ function _G._detalhes:Start()
 	b:SetAlpha (1)
 	--]]
 
+	local panel = self.gump:NewPanel (UIParent, nil, "DetailsWindowOptionsBarTextEditor", nil, 650, 200)
+	panel:SetPoint ("center", UIParent, "center")
+	panel:Hide()
+	panel:SetFrameStrata ("FULLSCREEN")
+	panel:SetBackdrop ({	bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 64, edgeFile="Interface\\Tooltips\\UI-Tooltip-Border", edgeSize=16, insets = {left=3, right=3, top=3, bottom=3}})
+	panel:DisableGradient()
+	panel:SetBackdropColor (0, 0, 0, 1)
+	
+	function panel.widget:Open (text, callback, host)
+		if (host) then
+			panel:SetPoint ("center", host, "center")
+		end
+		
+		text = text:gsub ("||", "|")
+		panel.default_text = text
+		panel.widget.editbox:SetText (text)
+		panel.callback = callback
+		panel:Show()
+	end
+	
+	local textentry = self.gump:NewSpecialLuaEditorEntry (panel.widget, 450, 180, "editbox", "$parentEntry", true)
+	textentry:SetPoint ("topleft", panel.widget, "topleft", 10, -10)
+	
+	local arg1_button = self.gump:NewButton (panel, nil, "$parentButton1", nil, 80, 20, function() textentry.editbox:Insert ("{data1}") end, nil, nil, nil, "{data1}")
+	local arg2_button = self.gump:NewButton (panel, nil, "$parentButton2", nil, 80, 20, function() textentry.editbox:Insert ("{data2}") end, nil, nil, nil, "{data2}")
+	local arg3_button = self.gump:NewButton (panel, nil, "$parentButton3", nil, 80, 20, function() textentry.editbox:Insert ("{data3}") end, nil, nil, nil, "{data3}")
+	arg1_button:SetPoint ("topright", panel, "topright", -10, -14)
+	arg2_button:SetPoint ("topright", panel, "topright", -10, -36)
+	arg3_button:SetPoint ("topright", panel, "topright", -10, -58)
+	arg1_button:InstallCustomTexture()
+	arg2_button:InstallCustomTexture()
+	arg3_button:InstallCustomTexture()
+	
+	-- code author Saiket from  http://www.wowinterface.com/forums/showpost.php?p=245759&postcount=6
+	--- @return StartPos, EndPos of highlight in this editbox.
+	local function GetTextHighlight ( self )
+		local Text, Cursor = self:GetText(), self:GetCursorPosition();
+		self:Insert( "" ); -- Delete selected text
+		local TextNew, CursorNew = self:GetText(), self:GetCursorPosition();
+		-- Restore previous text
+		self:SetText( Text );
+		self:SetCursorPosition( Cursor );
+		local Start, End = CursorNew, #Text - ( #TextNew - CursorNew );
+		self:HighlightText( Start, End );
+		return Start, End;
+	end
+      
+	local StripColors;
+	do
+		local CursorPosition, CursorDelta;
+		--- Callback for gsub to remove unescaped codes.
+		local function StripCodeGsub ( Escapes, Code, End )
+			if ( #Escapes % 2 == 0 ) then -- Doesn't escape Code
+				if ( CursorPosition and CursorPosition >= End - 1 ) then
+					CursorDelta = CursorDelta - #Code;
+				end
+				return Escapes;
+			end
+		end
+		--- Removes a single escape sequence.
+		local function StripCode ( Pattern, Text, OldCursor )
+			CursorPosition, CursorDelta = OldCursor, 0;
+			return Text:gsub( Pattern, StripCodeGsub ), OldCursor and CursorPosition + CursorDelta;
+		end
+		--- Strips Text of all color escape sequences.
+		-- @param Cursor  Optional cursor position to keep track of.
+		-- @return Stripped text, and the updated cursor position if Cursor was given.
+		function StripColors ( Text, Cursor )
+			Text, Cursor = StripCode( "(|*)(|c%x%x%x%x%x%x%x%x)()", Text, Cursor );
+			return StripCode( "(|*)(|r)()", Text, Cursor );
+		end
+	end
+	
+	local COLOR_END = "|r";
+	--- Wraps this editbox's selected text with the given color.
+	local function ColorSelection ( self, ColorCode )
+		local Start, End = GetTextHighlight( self );
+		local Text, Cursor = self:GetText(), self:GetCursorPosition();
+		if ( Start == End ) then -- Nothing selected
+			--Start, End = Cursor, Cursor; -- Wrap around cursor
+			return; -- Wrapping the cursor in a color code and hitting backspace crashes the client!
+		end
+		-- Find active color code at the end of the selection
+		local ActiveColor;
+		if ( End < #Text ) then -- There is text to color after the selection
+			local ActiveEnd;
+			local CodeEnd, _, Escapes, Color = 0;
+			while ( true ) do
+				_, CodeEnd, Escapes, Color = Text:find( "(|*)(|c%x%x%x%x%x%x%x%x)", CodeEnd + 1 );
+				if ( not CodeEnd or CodeEnd > End ) then
+					break;
+				end
+				if ( #Escapes % 2 == 0 ) then -- Doesn't escape Code
+					ActiveColor, ActiveEnd = Color, CodeEnd;
+				end
+			end
+       
+			if ( ActiveColor ) then
+				-- Check if color gets terminated before selection ends
+				CodeEnd = 0;
+				while ( true ) do
+					_, CodeEnd, Escapes = Text:find( "(|*)|r", CodeEnd + 1 );
+					if ( not CodeEnd or CodeEnd > End ) then
+						break;
+					end
+					if ( CodeEnd > ActiveEnd and #Escapes % 2 == 0 ) then -- Terminates ActiveColor
+						ActiveColor = nil;
+						break;
+					end
+				end
+			end
+		end
+     
+		local Selection = Text:sub( Start + 1, End );
+		-- Remove color codes from the selection
+		local Replacement, CursorReplacement = StripColors( Selection, Cursor - Start );
+     
+		self:SetText( ( "" ):join(
+			Text:sub( 1, Start ),
+			ColorCode, Replacement, COLOR_END,
+			ActiveColor or "", Text:sub( End + 1 )
+		) );
+     
+		-- Restore cursor and highlight, adjusting for wrapper text
+		Cursor = Start + CursorReplacement;
+		if ( CursorReplacement > 0 ) then -- Cursor beyond start of color code
+			Cursor = Cursor + #ColorCode;
+		end
+		if ( CursorReplacement >= #Replacement ) then -- Cursor beyond end of color
+			Cursor = Cursor + #COLOR_END;
+		end
+		
+		self:SetCursorPosition( Cursor );
+		-- Highlight selection and wrapper
+		self:HighlightText( Start, #ColorCode + ( #Replacement - #Selection ) + #COLOR_END + End );
+	end
+	
+	local color_func = function (_, r, g, b, a)
+		local hex = _detalhes:hex (a*255).._detalhes:hex (r*255).._detalhes:hex (g*255).._detalhes:hex (b*255)
+		ColorSelection ( textentry.editbox, "|c" .. hex)
+	end
+	
+	local func_button = self.gump:NewButton (panel, nil, "$parentButton4", nil, 80, 20, function() textentry.editbox:Insert ("{func local player = ...; return 0;}") end, nil, nil, nil, Loc ["STRING_OPTIONS_TEXTEDITOR_FUNC"])
+	local color_button = self.gump:NewColorPickButton (panel, "$parentButton5", nil, color_func)
+	color_button:SetSize (80, 20)
+	func_button:SetPoint ("topright", panel, "topright", -10, -80)
+	color_button:SetPoint ("topright", panel, "topright", -10, -102)
+	func_button:InstallCustomTexture()
+	
+	color_button.tooltip = Loc ["STRING_OPTIONS_TEXTEDITOR_COLOR_TOOLTIP"]
+	func_button.tooltip = Loc ["STRING_OPTIONS_TEXTEDITOR_FUNC_TOOLTIP"]
+	
+	--color_button:InstallCustomTexture()
+	
+	local comma_button = self.gump:NewButton (panel, nil, "$parentButtonComma", nil, 80, 20, function() textentry.editbox:Insert ("_detalhes:comma_value ( )") end, nil, nil, nil, Loc ["STRING_OPTIONS_TEXTEDITOR_COMMA"])
+	local tok_button = self.gump:NewButton (panel, nil, "$parentButtonTok", nil, 80, 20, function() textentry.editbox:Insert ("_detalhes:ToK2 ( )") end, nil, nil, nil, Loc ["STRING_OPTIONS_TEXTEDITOR_TOK"])
+	comma_button:InstallCustomTexture()
+	tok_button:InstallCustomTexture()
+	comma_button.tooltip = Loc ["STRING_OPTIONS_TEXTEDITOR_COMMA_TOOLTIP"]
+	tok_button.tooltip = Loc ["STRING_OPTIONS_TEXTEDITOR_TOK_TOOLTIP"]
+	
+	comma_button:SetPoint ("topright", panel, "topright", -100, -14)
+	tok_button:SetPoint ("topright", panel, "topright", -100, -36)
+	
+	local done = function()
+		local text = panel.widget.editbox:GetText()
+		text = text:gsub ("\n", "")
+		
+		local test = text
+	
+		local function errorhandler(err)
+			return geterrorhandler()(err)
+		end
+	
+		local code = [[local str = "STR"; str = str:ReplaceData (100, 50, 75, {nome = "you", total = 10, total_without_pet = 5, damage_taken = 7, last_dps = 1, friendlyfire_total = 6, totalover = 2, totalabsorb = 4, totalover_without_pet = 6, healing_taken = 1, heal_enemy_amt = 2});]]
+		code = code:gsub ("STR", test)
+
+		local f = loadstring (code)
+		local err, two = xpcall (f, errorhandler)
+		
+		if (not err) then
+			return
+		end
+		
+		panel.callback (text)
+		panel:Hide()
+	end
+	
+	local ok_button = self.gump:NewButton (panel, nil, "$parentButtonOk", nil, 80, 20, done, nil, nil, nil, "DONE")
+	ok_button:InstallCustomTexture()
+	ok_button:SetPoint ("topright", panel, "topright", -10, -174)
+	
+	local reset_button = self.gump:NewButton (panel, nil, "$parentDefaultOk", nil, 80, 20, function() textentry.editbox:SetText (_detalhes.instance_defaults.row_info.textR_custom_text) end, nil, nil, nil, "Default")
+	reset_button:InstallCustomTexture()
+	reset_button:SetPoint ("topright", panel, "topright", -100, -152)
+	
+	local cancel_button = self.gump:NewButton (panel, nil, "$parentDefaultCancel", nil, 80, 20, function() textentry.editbox:SetText (panel.default_text); done(); end, nil, nil, nil, "Cancel")
+	cancel_button:InstallCustomTexture()
+	cancel_button:SetPoint ("topright", panel, "topright", -100, -174)
+	
 	function _detalhes:OpenOptionsWindowAtStart()
 		--_detalhes:OpenOptionsWindow (_detalhes.tabela_instancias[1])
 		--print (_G ["DetailsClearSegmentsButton1"]:GetSize())

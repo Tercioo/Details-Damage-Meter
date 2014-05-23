@@ -176,25 +176,22 @@
 			if (_detalhes.segments_amount_to_save and _detalhes.segments_amount_to_save < _detalhes.segments_amount) then
 				for i = _detalhes.segments_amount, _detalhes.segments_amount_to_save+1, -1  do
 					if (_detalhes.tabela_historico.tabelas [i]) then
-						--_detalhes.tabela_historico.tabelas [i] = nil
 						table.remove (_detalhes.tabela_historico.tabelas, i)
 					end
 				end
 			end
 			
-			--local tabela_overall = _detalhes.tabela_overall
-			_detalhes.tabela_overall = nil
+			--tabela do combate atual
+			local tabela_atual = _detalhes.tabela_vigente or _detalhes.combate:NovaTabela (_, _detalhes.tabela_overall)
 			
-			local tabela_atual = _detalhes.tabela_vigente or {}
+			--limpa a tabela overall
+			_detalhes.tabela_overall = nil			
 			
 			for _, _tabela in _ipairs (historico_tabelas) do
 				tabelas_de_combate [#tabelas_de_combate+1] = _tabela
 			end
-			
-			--tabelas_de_combate [#tabelas_de_combate+1] = tabela_atual --não salva mais a atual
-			--tabelas_de_combate [#tabelas_de_combate+1] = tabela_overall --não salva mais a overall
 
-			--> make sure details database exists
+			--verifica se a database existe mesmo
 			_detalhes_database = _detalhes_database or {}
 			
 			for tabela_index, _combate in _ipairs (tabelas_de_combate) do
@@ -238,9 +235,6 @@
 							
 							if (_iter.data.grupo or _iter.data.boss or _iter.data.boss_fight_component or IsBossEncounter) then
 								can_erase = false
-								--if (class_type == 1) then
-								--	print ("SAVE ",  _iter.data.nome, tabela_index)
-								--end
 							else
 								local owner = _iter.data.owner
 								if (owner) then 
@@ -563,6 +557,10 @@
 				esta_instancia.lastIcon = nil
 				
 				esta_instancia.menu_attribute_string = nil
+				
+				esta_instancia.wait_for_plugin_created = nil
+				esta_instancia.waiting_raid_plugin = nil
+				esta_instancia.waiting_pid = nil
 
 			end
 

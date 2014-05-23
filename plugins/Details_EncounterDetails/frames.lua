@@ -375,7 +375,6 @@ Message: ..\AddOns\Details_EncounterDetails\frames.lua line 156:
 						GameCooltip:SetOption ("TextSize", 9.5)
 						GameCooltip:SetOption ("IconSize", 12)
 						GameCooltip:SetOption ("HeightAnchorMod", -15)
-						GameCooltip:SetOption ("TextHeightMod", -2)
 						
 						GameCooltip:ShowCooltip (frame, "tooltip")
 					end

@@ -306,23 +306,25 @@ local SliderMetaFunctions = {}
 
 	local OnEnter = function (slider)
 	
+		DetailsFrameworkSliderButtons:ShowMe (slider)
+	
 		if (slider.MyObject.OnEnterHook) then
 			local interrupt = slider.MyObject.OnEnterHook (slider)
 			if (interrupt) then
 				return
 			end
 		end
-		
-		DetailsFrameworkSliderButtons:ShowMe (slider)
-	
+
 		slider.thumb:SetAlpha (1)
 	
-		if (slider.MyObject.have_tooltip) then 
-			_detalhes:CooltipPreset (1)
+		if (slider.MyObject.have_tooltip and slider.MyObject.have_tooltip ~= Loc ["STRING_RIGHTCLICK_TYPEVALUE"]) then
+			GameCooltip:Reset()
 			GameCooltip:AddLine (slider.MyObject.have_tooltip)
-			if (slider.MyObject.have_tooltip == Loc ["STRING_RIGHTCLICK_TYPEVALUE"]) then
-				GameCooltip:AddIcon ([[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]], 1, 1, 16, 16, 0.015625, 0.15671875, 0.640625, 0.798828125)
-			end
+			GameCooltip:ShowCooltip (slider, "tooltip")
+		else
+			_detalhes:CooltipPreset (1)
+			GameCooltip:AddLine (Loc ["STRING_RIGHTCLICK_TYPEVALUE"])
+			GameCooltip:AddIcon ([[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]], 1, 1, 16, 16, 0.015625, 0.15671875, 0.640625, 0.798828125)
 			GameCooltip:ShowCooltip (slider, "tooltip")
 		end
 		
@@ -336,14 +338,15 @@ local SliderMetaFunctions = {}
 	end
 	
 	local OnLeave = function (slider)
+	
+		DetailsFrameworkSliderButtons:PrepareToHide()
+	
 		if (slider.MyObject.OnLeaveHook) then
 			local interrupt = slider.MyObject.OnLeaveHook (slider)
 			if (interrupt) then
 				return
 			end
 		end
-		
-		DetailsFrameworkSliderButtons:PrepareToHide()
 		
 		slider.thumb:SetAlpha (.7)
 	

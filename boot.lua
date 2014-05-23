@@ -8,7 +8,7 @@
 
 		_ = nil
 		_detalhes = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0", "NickTag-1.0", "LibHotCorners")
-		_detalhes.userversion = "v1.14.1"
+		_detalhes.userversion = "v1.14.5"
 		_detalhes.version = "Alpha 018"
 		_detalhes.realversion = 18
 
@@ -75,6 +75,9 @@ do
 				_detalhes.RaidTables.Plugins = {} 
 			--> name to plugin object
 				_detalhes.RaidTables.NameTable = {} 
+			--> using by
+				_detalhes.RaidTables.InstancesInUse = {} 
+				_detalhes.RaidTables.PluginsInUse = {} 
 
 		--> solo -------------------------------------------------------------------
 			--> general functions for solo mode plugins
@@ -203,6 +206,8 @@ do
 		SharedMedia:Register ("statusbar", "Details D'ictum (reverse)", [[Interface\AddOns\Details\images\bar4_reverse]])
 		SharedMedia:Register ("statusbar", "Details Serenity", [[Interface\AddOns\Details\images\bar_serenity]])
 		SharedMedia:Register ("background", "Details Ground", [[Interface\AddOns\Details\images\background]])
+		SharedMedia:Register ("border", "Details BarBorder 1", [[Interface\AddOns\Details\images\border_1]])
+		SharedMedia:Register ("border", "Details BarBorder 2", [[Interface\AddOns\Details\images\border_2]])
 	
 	--> global 'vardump' for dump table contents over chat panel
 		function vardump (t)

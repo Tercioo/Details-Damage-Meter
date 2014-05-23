@@ -870,7 +870,7 @@ do
 			
 			for index, child in _ipairs (PAttribute.childs) do
 				if (child.instance == instance and child.enabled and child.instance:IsEnabled()) then
-					local sName = _detalhes:GetSubAttributeName (attribute, subAttribute)
+					local sName = child.instance:GetInstanceAttributeText()
 					child.text:SetText (sName)
 				end
 			end

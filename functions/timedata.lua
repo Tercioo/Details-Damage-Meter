@@ -229,10 +229,20 @@
 	function _detalhes:BrokerTick()
 		local texttype = _detalhes.minimap.text_type
 		if (texttype == 1) then --dps
-			_detalhes.databroker.text = _detalhes.tabela_vigente.totals_grupo[1]
+			local time = _detalhes.tabela_vigente:GetCombatTime()
+			if (not time or time == 0) then
+				_detalhes.databroker.text = 0
+			else
+				_detalhes.databroker.text = _detalhes.tabela_vigente.totals_grupo[1] / time
+			end
 			
 		elseif (texttype == 2) then --hps
-			_detalhes.databroker.text = _detalhes.tabela_vigente.totals_grupo[2]
+			local time = _detalhes.tabela_vigente:GetCombatTime()
+			if (not time or time == 0) then
+				_detalhes.databroker.text = 0
+			else
+				_detalhes.databroker.text = _detalhes.tabela_vigente.totals_grupo[2] / time
+			end
 			
 		else
 			if (_detalhes.minimap.text_func) then

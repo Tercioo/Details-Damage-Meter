@@ -362,13 +362,15 @@ function DetailsCreateCoolTip()
 ----------------------------------------------------------------------
 	
 		function GameCooltipButtonMouseDown (button)
-			button.leftText:SetPoint ("center", button.leftIcon, "center", 0, 0)
-			button.leftText:SetPoint ("left", button.leftIcon, "right", 4, -1)
+			local mod = CoolTip.OptionsTable.TextHeightMod or 0
+			button.leftText:SetPoint ("center", button.leftIcon, "center", 0, 0+mod)
+			button.leftText:SetPoint ("left", button.leftIcon, "right", 4, -1+mod)
 		end
 		
 		function GameCooltipButtonMouseUp (button)
-			button.leftText:SetPoint ("center", button.leftIcon, "center", 0, 0)
-			button.leftText:SetPoint ("left", button.leftIcon, "right", 3, 0)
+			local mod = CoolTip.OptionsTable.TextHeightMod or 0
+			button.leftText:SetPoint ("center", button.leftIcon, "center", 0, 0+mod)
+			button.leftText:SetPoint ("left", button.leftIcon, "right", 3, 0+mod)
 		end
 	
 		function CoolTip:CreateButton (index, frame, name)
@@ -670,6 +672,10 @@ function DetailsCreateCoolTip()
 					flags = leftTextTable [8] or CoolTip.OptionsTable.TextShadow or nil
 					menuButton.leftText:SetFont (face, size, flags)
 				end
+				
+				local height_mod = CoolTip.OptionsTable.TextHeightMod or 0				
+				menuButton.leftText:SetPoint ("center", menuButton.leftIcon, "center", 0, 0+height_mod)
+				menuButton.leftText:SetPoint ("left", menuButton.leftIcon, "right", 3, 0+height_mod)
 
 			else
 				menuButton.leftText:SetText ("")
@@ -1551,6 +1557,10 @@ function DetailsCreateCoolTip()
 	--> frame [, x mod, y mod]
 	
 		--> alias
+		function CoolTip:GetOwner()
+			return CoolTip.Host
+		end
+		
 		function CoolTip:SetOwner (frame, myPoint, hisPoint, x, y)
 			return CoolTip:SetHost (frame, myPoint, hisPoint, x, y)
 		end
@@ -2543,22 +2553,20 @@ function DetailsCreateCoolTip()
 	
 	function CoolTip:Close()
 		CoolTip.active = false
+		CoolTip.Host = nil
 		gump:Fade (frame1, 1)
 		gump:Fade (frame2, 1)
 	end
 	
 	--> old function call
 	function CoolTip:ShowMe (host, arg2)
-	
 		--> ignore if mouse is up me
 		if (CoolTip.mouseOver) then
 			return
 		end
 	
 		if (not host or not arg2) then --> hideme
-			CoolTip.active = false
-			gump:Fade (frame1, 1)
-			gump:Fade (frame2, 1)
+			CoolTip:Close()
 		end
 	end
 	

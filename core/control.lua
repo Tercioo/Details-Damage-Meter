@@ -340,19 +340,11 @@
 					
 					if (instancia.auto_switch_to) then
 						--salva o estado atual
-						instancia.auto_switch_to_old = {instancia.modo, instancia.atributo, instancia.sub_atributo, instancia.segmento, _detalhes.RaidTables.Mode, _detalhes.SoloTables.Mode}
+						instancia.auto_switch_to_old = {instancia.modo, instancia.atributo, instancia.sub_atributo, instancia.segmento, instancia:GetRaidPluginName(), _detalhes.SoloTables.Mode}
 						
 						--muda para um plugin de raid
 						if (instancia.auto_switch_to [1] == "raid") then
-							for index, ptable in _ipairs (_detalhes.RaidTables.Menu) do
-								if (ptable[1] == instancia.auto_switch_to [2]) then
-									if (instancia.modo ~= _detalhes._detalhes_props ["MODO_RAID"]) then
-										_detalhes:AlteraModo (instancia, _detalhes._detalhes_props ["MODO_RAID"])
-									end
-									_detalhes.RaidTables:switch (nil, index)
-									break
-								end
-							end
+							_detalhes.RaidTables:EnableRaidMode (instancia, instancia.auto_switch_to [2])
 						else
 							--muda para um atributo normal
 							if (instancia.modo ~= _detalhes._detalhes_props["MODO_GROUP"]) then
@@ -511,8 +503,6 @@
 					end
 				end
 			end
-			
-
 
 			if (_detalhes.solo) then
 				--> debuffs need a checkup, not well functional right now
@@ -534,8 +524,8 @@
 				end
 				
 				_detalhes.tabela_overall = _detalhes.tabela_overall - _detalhes.tabela_vigente --> isso aqui é novo, ele vai subtrair da overall qualquer dado adicionado na tabela descardata
-				_table_wipe (_detalhes.tabela_vigente) --> descarta ela, não será mais usada
 				
+				--_table_wipe (_detalhes.tabela_vigente) --> descarta ela, não será mais usada
 				_detalhes.tabela_vigente = _detalhes.tabela_historico.tabelas[1] --> pega a tabela do ultimo combate
 
 				if (_detalhes.tabela_vigente.start_time == 0) then
@@ -607,7 +597,7 @@
 			end
 			
 			if (self.modo == _detalhes._detalhes_props["MODO_RAID"]) then
-				_detalhes.RaidTables:switch (nil, self.auto_switch_to_old [5])
+				_detalhes.RaidTables:switch (nil, self.auto_switch_to_old [5], self)
 				
 			elseif (self.modo == _detalhes._detalhes_props["MODO_ALONE"]) then
 				_detalhes.SoloTables:switch (nil, self.auto_switch_to_old [6])
@@ -945,13 +935,9 @@
 				if (esta_barra.minha_tabela.serial and esta_barra.minha_tabela.serial ~= "") then
 					local avatar = NickTag:GetNicknameTable (esta_barra.minha_tabela.serial)
 					if (avatar) then
-						if (avatar [2]) then
+						if (avatar [2] and avatar [4] and avatar [1]) then
 							GameCooltip:SetBannerImage (1, avatar [2], 80, 40, avatarPoint, avatarTexCoord, nil) --> overlay [2] avatar path
-						end
-						if (avatar [4]) then
 							GameCooltip:SetBannerImage (2, avatar [4], 200, 55, backgroundPoint, avatar [5], avatar [6]) --> background
-						end
-						if (avatar [1]) then
 							GameCooltip:SetBannerText (1, avatar [1], textPoint) --> text [1] nickname
 						end
 					end

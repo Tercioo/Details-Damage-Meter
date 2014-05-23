@@ -19,135 +19,224 @@
 --> constants
 
 	local modo_raid = _detalhes._detalhes_props["MODO_RAID"]
+	local modo_alone = _detalhes._detalhes_props["MODO_ALONE"]
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> internal functions	
-
-	function _detalhes:RaidMode (enable, instancia)
-		if (enable) then
-
-			_detalhes.RaidTables.instancia = instancia
-			_detalhes.RaidTables.Mode = _detalhes.RaidTables.Mode or 1 --> solo mode
-
-			instancia.modo = _detalhes._detalhes_props["MODO_RAID"]
-			
-			gump:Fade (instancia, 1, nil, "barras")
-			
-			if (instancia.rolagem) then
-				instancia:EsconderScrollBar (true) --> hida a scrollbar
-			end
-			
-			_detalhes:ResetaGump (instancia)
-			
-			_detalhes.raid = instancia.meu_id
-			instancia:AtualizaGumpPrincipal (true)
-			
-			local first_enabled_plugin, first_enabled_plugin_index
-			for index, plugin in ipairs (_detalhes.RaidTables.Plugins) do
-				if (plugin.__enabled) then
-					first_enabled_plugin = plugin
-					first_enabled_plugin_index = index
-				end
-			end
-			
-			if (not first_enabled_plugin) then
-				_detalhes:WaitForSoloPlugin (instancia)
-			else
-				if (not _detalhes.RaidTables.Plugins [_detalhes.RaidTables.Mode]) then
-					_detalhes.RaidTables.Mode = first_enabled_plugin_index
-				end
-				_detalhes.RaidTables:switch (nil, _detalhes.RaidTables.Mode)
-			end
+	
+	function _detalhes.RaidTables:DisableRaidMode (instance)
+		--free
+		self:SetInUse (instance.current_raid_plugin, nil)
+		--hide
+		local current_plugin_object = _detalhes:GetPlugin (instance.current_raid_plugin)
+		if (current_plugin_object) then
+			current_plugin_object.Frame:Hide()
+		end
+		instance.current_raid_plugin = nil
 		
+		--[[
+		if (_G.DetailsWaitForPluginFrame:IsShown()) then
+			_detalhes:CancelWaitForPlugin()
+		end
+		gump:Fade (instancia, 1, nil, "barras")
+		gump:Fade (instancia.scroll, 0)
+		
+		if (instancia.need_rolagem) then
+			instancia:MostrarScrollBar (true)
 		else
-			
-			_detalhes.RaidTables:switch()
-			_detalhes.raid = nil
+			--> precisa verificar se ele precisa a rolagem certo?
+			instancia:ReajustaGump()
+		end
+		
+		--> calcula se existem barras, etc...
+		if (not instancia.rows_fit_in_window) then --> as barras não forma iniciadas ainda
+			instancia.rows_fit_in_window = _math_floor (instancia.baseframe.BoxBarrasAltura / instancia.row_height)
+			if (instancia.rows_created < instancia.rows_fit_in_window) then
+				for i  = #instancia.barras+1, instancia.rows_fit_in_window do
+					local nova_barra = gump:CriaNovaBarra (instancia, i, 30) --> cria nova barra
+					nova_barra.texto_esquerdo:SetText (Loc ["STRING_NEWROW"])
+					nova_barra.statusbar:SetValue (100) 
+					instancia.barras [i] = nova_barra
+				end
+				instancia.rows_created = #instancia.barras
+			end
+		end
+		--]]
+	end
+	
+	function _detalhes:RaidPluginInstalled (plugin_name)
+		if (self.waiting_raid_plugin) then
+			--print (self.meu_id, 2, self.last_raid_plugin, " == ", plugin_name)
+			if (self.last_raid_plugin == plugin_name) then
+				if (self.waiting_pid) then
+					self:CancelTimer (self.waiting_pid, true)
+				end
+				self:CancelWaitForPlugin()
+				_detalhes.RaidTables:EnableRaidMode (self, plugin_name)
+			end
+		end
+	end
+	
+	function _detalhes.RaidTables:EnableRaidMode (instance, plugin_name)
 
-			if (_G.DetailsWaitForPluginFrame:IsShown()) then
-				_detalhes:CancelWaitForPlugin()
-			end
-			
-			gump:Fade (instancia, 1, nil, "barras")
-			gump:Fade (instancia.scroll, 0)
-			
-			if (instancia.need_rolagem) then
-				instancia:MostrarScrollBar (true)
-			else
-				--> precisa verificar se ele precisa a rolagem certo?
-				instancia:ReajustaGump()
-			end
-			
-			--> calcula se existem barras, etc...
-			if (not instancia.rows_fit_in_window) then --> as barras não forma iniciadas ainda
-				instancia.rows_fit_in_window = _math_floor (instancia.baseframe.BoxBarrasAltura / instancia.row_height)
-				if (instancia.rows_created < instancia.rows_fit_in_window) then
-					for i  = #instancia.barras+1, instancia.rows_fit_in_window do
-						local nova_barra = gump:CriaNovaBarra (instancia, i, 30) --> cria nova barra
-						nova_barra.texto_esquerdo:SetText (Loc ["STRING_NEWROW"])
-						nova_barra.statusbar:SetValue (100) 
-						instancia.barras [i] = nova_barra
-					end
-					instancia.rows_created = #instancia.barras
+		--> set the mode
+		if (instance.modo == modo_alone) then
+			instance:SoloMode (false)
+		end
+		instance.modo = modo_raid
+		
+		--> hide rows, scrollbar
+		gump:Fade (instance, 1, nil, "barras")
+		if (instance.rolagem) then
+			instance:EsconderScrollBar (true) --> hida a scrollbar
+		end
+		_detalhes:ResetaGump (instance)
+		instance:AtualizaGumpPrincipal (true)
+		
+		--> get the plugin name
+		
+		--if the desired plugin isn't passed, try to get the latest used.
+		if (not plugin_name) then
+			local last_plugin_used = instance.last_raid_plugin
+			if (last_plugin_used) then
+				if (self:IsAvailable (last_plugin_used, instance)) then
+					plugin_name = last_plugin_used
 				end
 			end
+		end
+
+		--if we still doesnt have a name, try to get the first available
+		if (not plugin_name) then
+			local available = self:GetAvailablePlugins()
+			if (#available == 0) then
+				if (not instance.wait_for_plugin_created or not instance.WaitForPlugin) then
+					instance:CreateWaitForPlugin()
+				end
+				return instance:WaitForPlugin()
+			end
 			
+			plugin_name = available [1] [4]
 		end
+
+		--last check if the name is okey
+		if (self:IsAvailable (plugin_name, instance)) then
+			self:switch (nil, plugin_name, instance)
+		else
+			if (not instance.wait_for_plugin) then
+				instance:CreateWaitForPlugin()
+			end
+			return instance:WaitForPlugin()
+		end
+
 	end
 
-	function _detalhes:InstanciaCheckForDisabledRaid (instancia)
-
-		if (not instancia) then
-			instancia = self
-		end
-		
-		if (instancia.modo == modo_raid) then
-			if (instancia.iniciada) then
-				_detalhes:AlteraModo (instancia, _detalhes._detalhes_props["MODO_GROUP"])
-				instancia:RaidMode (false, instancia)
-				_detalhes:ResetaGump (instancia)
-			else
-				instancia.modo = _detalhes._detalhes_props["MODO_GROUP"]
-				instancia.last_modo = _detalhes._detalhes_props["MODO_GROUP"]
+	function _detalhes.RaidTables:GetAvailablePlugins()
+		local available = {}
+		for index, plugin in ipairs (self.Menu) do
+			if (not self.PluginsInUse [ plugin [4] ] and plugin [3].__enabled) then -- 3 = plugin object 4 = absolute name
+				tinsert (available, plugin)
 			end
 		end
+		return available
 	end
+	
+	function _detalhes.RaidTables:IsAvailable (plugin_name, instance)
+		--check if is installed
+		if (not self.NameTable [plugin_name]) then
+			return false
+		end
 
-	function _detalhes.RaidTables:switch (_, _switchTo)
-
-		--> just hide all
-		if (not _switchTo) then 
-			if (#_detalhes.RaidTables.Plugins > 0) then --> have at least one plugin
-				_detalhes.RaidTables.Plugins [_detalhes.RaidTables.Mode].Frame:Hide()
+		--check if is enabled
+		if (not self.NameTable [plugin_name].__enabled) then
+			return false
+		end
+		
+		--check if is available
+		local in_use = self.PluginsInUse [ plugin_name ]
+		
+		-- print (instance:GetId() .. " In Use By Instance: ", in_use )
+		
+		if (in_use and in_use ~= instance:GetId()) then
+			return false
+		else
+			return true
+		end
+	end
+	
+	function _detalhes.RaidTables:SetInUse (absolute_name, instance_number)
+		if (absolute_name) then
+			self.PluginsInUse [ absolute_name ] = instance_number
+		end
+	end
+	
+	
+	----------------
+	
+	function _detalhes.RaidTables:switch (_, plugin_name, instance)
+	
+		local update_menu = false
+		if (not self) then --came from cooltip
+			self = _detalhes.RaidTables
+			update_menu = true
+		end
+	
+		--only hide the current plugin shown
+		if (not plugin_name) then
+			if (instance.current_raid_plugin) then
+				--free
+				self:SetInUse (instance.current_raid_plugin, nil)
+				--hide
+				local current_plugin_object = _detalhes:GetPlugin (instance.current_raid_plugin)
+				if (current_plugin_object) then
+					current_plugin_object.Frame:Hide()
+				end
+				instance.current_raid_plugin = nil
 			end
 			return
 		end
 		
-		--> jump to the next
-		if (_switchTo == -1) then
-			_switchTo = _detalhes.RaidTables.Mode + 1
-			if (_switchTo > #_detalhes.RaidTables.Plugins) then
-				_switchTo = 1
+		--check if is realy available
+		if (not self:IsAvailable (plugin_name, instance)) then
+			instance.last_raid_plugin = plugin_name
+			if (not instance.wait_for_plugin) then
+				instance:CreateWaitForPlugin()
+			end
+			return instance:WaitForPlugin()
+		end
+		
+		--hide current shown plugin
+		if (instance.current_raid_plugin) then
+			--free
+			self:SetInUse (instance.current_raid_plugin, nil)
+			--hide
+			local current_plugin_object = _detalhes:GetPlugin (instance.current_raid_plugin)
+			if (current_plugin_object) then
+				current_plugin_object.Frame:Hide()
 			end
 		end
+		
+		local plugin_object = _detalhes:GetPlugin (plugin_name)
 
-		local ThisFrame = _detalhes.RaidTables.Plugins [_detalhes.RaidTables.Mode]
-		if (not ThisFrame or not ThisFrame.__enabled) then
-			--> frame not found, try in few second again
-			_detalhes.RaidTables.Mode = _switchTo
-			_detalhes:WaitForSoloPlugin (_detalhes:GetRaidMode())
-			return
+		if (plugin_object and plugin_object.__enabled and plugin_object.Frame) then
+			instance.last_raid_plugin = plugin_name
+			instance.current_raid_plugin = plugin_name
+			
+			self:SetInUse (plugin_name, instance:GetId())
+			plugin_object.instance_id = instance:GetId()
+			plugin_object.Frame:SetPoint ("TOPLEFT", instance.bgframe)
+			plugin_object.Frame:Show()
+			instance:ChangeIcon (plugin_object.__icon)--; print (instance:GetId(),"icon",plugin_object.__icon)
+			_detalhes:SendEvent ("DETAILS_INSTANCE_CHANGEATTRIBUTE", nil, instance, instance.atributo, instance.sub_atributo)
+			
+			if (update_menu) then
+				GameCooltip:ExecFunc (instance.baseframe.cabecalho.atributo)
+				--instance _detalhes.popup:ExecFunc (DeleteButton)
+			end
+		else
+			if (not instance.wait_for_plugin) then
+				instance:CreateWaitForPlugin()
+			end
+			return instance:WaitForPlugin()
 		end
 
-		--> hide current frame
-		_detalhes.RaidTables.Plugins [_detalhes.RaidTables.Mode].Frame:Hide()
-		--> switch mode
-		_detalhes.RaidTables.Mode = _switchTo
-		--> show and setpoint new frame
-
-		_detalhes.RaidTables.Plugins [_detalhes.RaidTables.Mode].Frame:Show()
-		_detalhes.RaidTables.Plugins [_detalhes.RaidTables.Mode].Frame:SetPoint ("TOPLEFT",_detalhes.RaidTables.instancia.bgframe)
-		
-		_detalhes.RaidTables.instancia:ChangeIcon (_detalhes.RaidTables.Menu [_detalhes.RaidTables.Mode] [2])
-		
 	end

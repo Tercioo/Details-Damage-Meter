@@ -574,7 +574,7 @@ function atributo_heal:AtualizaBarra (instancia, barras_container, qual_barra, l
 			local formated_hps = SelectedToKFunction (_, hps)
 		
 			if (UsingCustomRightText) then
-				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_heal, formated_hps, porcentagem))
+				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_heal, formated_hps, porcentagem, self))
 			else
 				esta_barra.texto_direita:SetText (formated_heal .." (" .. formated_hps .. ", " .. porcentagem .. "%)") --seta o texto da direita
 			end
@@ -587,7 +587,7 @@ function atributo_heal:AtualizaBarra (instancia, barras_container, qual_barra, l
 			local formated_hps = SelectedToKFunction (_, hps)
 			
 			if (UsingCustomRightText) then
-				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_hps, formated_heal, porcentagem))
+				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_hps, formated_heal, porcentagem, self))
 			else			
 				esta_barra.texto_direita:SetText (formated_hps .. " (" .. formated_heal .. ", " .. porcentagem .. "%)") --seta o texto da direita
 			end
@@ -598,7 +598,7 @@ function atributo_heal:AtualizaBarra (instancia, barras_container, qual_barra, l
 			local formated_overheal = SelectedToKFunction (_, self.totalover)
 			
 			if (UsingCustomRightText) then
-				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_overheal, "", porcentagem))
+				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_overheal, "", porcentagem, self))
 			else
 				esta_barra.texto_direita:SetText (formated_overheal .." (" .. porcentagem .. "%)") --seta o texto da direita --_cstr("%.1f", dps) .. " - ".. DPS do damage taken não será possivel correto?
 			end
@@ -609,7 +609,7 @@ function atributo_heal:AtualizaBarra (instancia, barras_container, qual_barra, l
 			local formated_healtaken = SelectedToKFunction (_, self.healing_taken)
 			
 			if (UsingCustomRightText) then
-				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_healtaken, "", porcentagem))
+				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_healtaken, "", porcentagem, self))
 			else		
 				esta_barra.texto_direita:SetText (formated_healtaken .. " (" .. porcentagem .. "%)") --seta o texto da direita --_cstr("%.1f", dps) .. " - ".. DPS do damage taken não será possivel correto?
 			end
@@ -620,7 +620,7 @@ function atributo_heal:AtualizaBarra (instancia, barras_container, qual_barra, l
 			local formated_enemyheal = SelectedToKFunction (_, self.heal_enemy_amt)
 		
 			if (UsingCustomRightText) then
-				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_enemyheal, "", porcentagem))
+				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_enemyheal, "", porcentagem, self))
 			else
 				esta_barra.texto_direita:SetText (formated_enemyheal .. " (" .. porcentagem .. "%)") --seta o texto da direita --_cstr("%.1f", dps) .. " - ".. DPS do damage taken não será possivel correto?
 			end
@@ -631,7 +631,7 @@ function atributo_heal:AtualizaBarra (instancia, barras_container, qual_barra, l
 			local formated_absorbs = SelectedToKFunction (_, self.totalabsorb)
 		
 			if (UsingCustomRightText) then
-				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_absorbs, "", porcentagem))
+				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_absorbs, "", porcentagem, self))
 			else
 				esta_barra.texto_direita:SetText (formated_absorbs .. " (" .. porcentagem .. "%)") --seta o texto da direita --_cstr("%.1f", dps) .. " - ".. DPS do damage taken não será possivel correto?
 			end
@@ -978,7 +978,7 @@ function atributo_heal:ToolTip_HealingDone (instancia, numero, barra, keydown)
 		elseif (instancia.sub_atributo == 3) then --> overheal
 			local overheal = ActorHealingTable[i][2]
 			local total = ActorHealingTable[i][6]
-			GameCooltip:AddLine (ActorHealingTable[i][4][1] .." (|cFFFF3333" .. _math_floor ( (overheal / (overheal+total)) *100)  .. "%|r):", FormatTooltipNumber (_,  _math_floor (ActorHealingTable[i][5])).." (".._cstr ("%.1f", ActorHealingTable[i][3]).."%)")
+			GameCooltip:AddLine (ActorHealingTable[i][4][1] .." (|cFFFF3333" .. _math_floor ( (overheal / (overheal+total)) *100)  .. "%|r):", FormatTooltipNumber (_,  _math_floor (ActorHealingTable[i][2])).." (".._cstr ("%.1f", ActorHealingTable[i][3]).."%)")
 		else
 			GameCooltip:AddLine (ActorHealingTable[i][4][1]..": ", FormatTooltipNumber (_, ActorHealingTable[i][2]).." (".._cstr ("%.1f", ActorHealingTable[i][3]).."%)")
 		end

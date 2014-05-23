@@ -146,8 +146,8 @@
 			GameCooltip:Reset()
 			
 			--GameCooltip:SetOption ("FixedWidth", 200)
-			GameCooltip:SetOption ("ButtonsYMod", -5)
-			GameCooltip:SetOption ("YSpacingMod", -5)
+			GameCooltip:SetOption ("ButtonsYMod", -3)
+			GameCooltip:SetOption ("YSpacingMod", -3)
 			GameCooltip:SetOption ("IgnoreButtonAutoHeight", true)
 			GameCooltip:SetColor (1, 0.5, 0.5, 0.5, 0.5)
 			

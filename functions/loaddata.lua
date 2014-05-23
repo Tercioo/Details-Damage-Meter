@@ -152,10 +152,8 @@ function _detalhes:LoadCombatTables()
 	--> if isn't nothing saved, build a new one
 		if (not _detalhes_database.tabela_historico) then
 			_detalhes.tabela_historico = _detalhes.historico:NovoHistorico()
-			_detalhes.tabela_pets = _detalhes.container_pets:NovoContainer()
 			_detalhes.tabela_overall = _detalhes.combate:NovaTabela()
 			_detalhes.tabela_vigente = _detalhes.combate:NovaTabela (_, _detalhes.tabela_overall)
-			
 		else
 
 	--> build basic containers
@@ -164,7 +162,10 @@ function _detalhes:LoadCombatTables()
 		-- overall
 		_detalhes.tabela_overall = _detalhes.combate:NovaTabela()
 		-- pets
-		_detalhes.tabela_pets = _detalhes_database.tabela_pets or _detalhes.container_pets:NovoContainer()
+		_detalhes.tabela_pets = _detalhes.container_pets:NovoContainer()
+		if (_detalhes_database.tabela_pets) then
+			_detalhes.tabela_pets.pets = _detalhes_database.tabela_pets
+		end
 		
 	--> if the core revision was incremented, reset all combat data
 		if (_detalhes_database.last_realversion and _detalhes_database.last_realversion < _detalhes.realversion) then
@@ -250,14 +251,21 @@ function _detalhes:LoadConfig()
 				end
 			end
 			
-			if (_detalhes_database.RaidTablesSaved) then
-				if (_detalhes_database.RaidTablesSaved.Mode) then
-					_detalhes.RaidTables.Mode = _detalhes_database.RaidTablesSaved.Mode
-					_detalhes.RaidTables.LastSelected = _detalhes_database.RaidTablesSaved.LastSelected
-				else
-					_detalhes.RaidTables.Mode = 1
-				end
-			end
+			--if (_detalhes_database.RaidTablesSaved) then
+			
+				--for id, instance in ipairs (_detalhes.tabela_instancias) do
+				--	if (instance.modo == _detalhes._detalhes_props["MODO_RAID"]) then
+				--		_detalhes:AlteraModo (instance, _detalhes._detalhes_props["MODO_GROUP"])
+				--	end
+				--end
+			
+				--if (_detalhes_database.RaidTablesSaved.Mode) then
+				--	_detalhes.RaidTables.Mode = _detalhes_database.RaidTablesSaved.Mode
+				--	_detalhes.RaidTables.LastSelected = _detalhes_database.RaidTablesSaved.LastSelected
+				--else
+				--	_detalhes.RaidTables.Mode = 1
+				--end
+			--end
 		
 		--> switch tables
 			_detalhes.switch.slots = _detalhes_database.switchSaved.slots

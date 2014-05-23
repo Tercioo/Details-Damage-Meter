@@ -137,10 +137,14 @@ local _UISpecialFrames = UISpecialFrames --> wow api locals
 	
 --> internal details report functions -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-	function _detalhes:Reportar (param2, options)
+	function _detalhes:Reportar (param2, options, arg3)
 
 		if (not _detalhes.janela_report) then
 			_detalhes.janela_report = gump:CriaJanelaReport()
+		end
+		
+		if (options.meu_id) then
+			self = options
 		end
 		
 		--> trabalha com as opções:
@@ -163,7 +167,7 @@ local _UISpecialFrames = UISpecialFrames --> wow api locals
 		_detalhes.janela_report.slider:Enable()
 		_detalhes.janela_report.slider.lockTexture:Hide()
 		_detalhes.janela_report.slider.amt:Show()
-
+		
 		if (options) then
 			_detalhes.janela_report.enviar:SetScript ("OnClick", function() self:monta_relatorio (param2, options._custom) end)
 		else

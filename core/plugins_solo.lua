@@ -192,6 +192,8 @@
 			
 			_detalhes.SoloTables.instancia:ChangeIcon (_detalhes.SoloTables.Menu [_detalhes.SoloTables.Mode] [2])
 			
+			_detalhes:SendEvent ("DETAILS_INSTANCE_CHANGEATTRIBUTE", nil, _detalhes.SoloTables.instancia, _detalhes.SoloTables.instancia.atributo, _detalhes.SoloTables.instancia.sub_atributo)
+			
 		end
 		
 		return true

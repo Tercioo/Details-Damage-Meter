@@ -63,6 +63,9 @@ local segmentos = _detalhes.segmentos
 
 --> API: call a function to all enabled instances
 function _detalhes:InstanceCall (funcao, ...)
+	if (type (funcao) == "string") then
+		funcao = _detalhes [funcao]
+	end
 	for index, instance in _ipairs (_detalhes.tabela_instancias) do
 		if (instance:IsAtiva()) then --> only enabled
 			funcao (instance, ...)
@@ -151,11 +154,7 @@ function _detalhes:IsSoloMode()
 end
 
 function _detalhes:IsRaidMode()
-	if (not _detalhes.raid) then
-		return false
-	else
-		return _detalhes.raid == self:GetInstanceId()
-	end
+	return self.modo == _detalhes._detalhes_props["MODO_RAID"]
 end
 
 function _detalhes:IsNormalMode()
@@ -212,8 +211,7 @@ end
 		self:Desagrupar (-1)
 		
 		if (self.modo == modo_raid) then
-			_detalhes.RaidTables:switch()
-			_detalhes.raid = nil
+			_detalhes.RaidTables:DisableRaidMode (self)
 			
 		elseif (self.modo == modo_alone) then
 			_detalhes.SoloTables:switch()
@@ -332,7 +330,7 @@ end
 
 		if (not temp) then
 			if (self.modo == modo_raid) then
-				_detalhes:RaidMode (true, self)
+				_detalhes.RaidTables:EnableRaidMode (self)
 				
 			elseif (self.modo == modo_alone) then
 				self:SoloMode (true)
@@ -407,7 +405,7 @@ end
 	end
 
 	function _detalhes:CriarInstancia (_, id)
-
+	
 		if (id and _type (id) == "boolean") then
 			
 			if (#_detalhes.tabela_instancias >= _detalhes.instances_amount) then
@@ -1520,15 +1518,7 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 			return _detalhes.SoloTables.switch (nil, nil, -1)
 	
 		elseif ( (instancia.modo == modo_raid) and not (_detalhes.initializing or iniciando_instancia) ) then --> raid
-			if (_detalhes.RaidTables.Mode == #_detalhes.RaidTables.Plugins) then
-				_detalhes.popup:Select (1, 1)
-			else
-				if (_detalhes.PluginCount.RAID > 0) then
-					_detalhes.popup:Select (1, _detalhes.RaidTables.Mode+1)
-				end
-				
-			end
-			return _detalhes.RaidTables.switch (nil, nil, -1)
+			return --nao faz nada quando clicar no botão
 		end
 		
 		atributo_changed = true
@@ -1620,18 +1610,67 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 
 end
 
-function _detalhes:MontaRaidOption (instancia)
-	for index, ptable in _ipairs (_detalhes.RaidTables.Menu) do
-		if (ptable [3].__enabled) then
-			GameCooltip:AddMenu (1, _detalhes.RaidTables.switch, index, nil, nil, ptable [1], ptable [2], true)
+function _detalhes:GetRaidPluginName()
+	return self.current_raid_plugin or self.last_raid_plugin
+end
+
+function _detalhes:GetInstanceAttributeText()
+	
+	if (self.modo == modo_grupo or self.modo == modo_all) then
+		local attribute = self.atributo
+		local sub_attribute = self.sub_atributo
+		local name = _detalhes:GetSubAttributeName (attribute, sub_attribute)
+		return name or "Unknown"
+		
+	elseif (self.modo == modo_raid) then
+		local plugin_name = self.current_raid_plugin or self.last_raid_plugin
+		if (plugin_name) then
+			local plugin_object = _detalhes:GetPlugin (plugin_name)
+			if (plugin_object) then
+				return plugin_object.__name
+			else
+				return "Unknown Plugin"
+			end
+		else
+			return "Unknown Plugin"
+		end
+	
+	elseif (self.modo == modo_alone) then
+		local atributo = _detalhes.SoloTables.Mode or 1
+		local SoloInfo = _detalhes.SoloTables.Menu [atributo]
+		if (SoloInfo) then
+			return SoloInfo [1]
+		else
+			return "Unknown Plugin"
 		end
 	end
 	
-	if (_detalhes.RaidTables.Mode and _detalhes.RaidTables.Mode == index) then
-		GameCooltip:SetLastSelected (1, _detalhes.RaidTables.Mode)
+end
+
+function _detalhes:MontaRaidOption (instancia)
+
+	local available_plugins = _detalhes.RaidTables:GetAvailablePlugins()
+
+	if (#available_plugins == 0) then
+		return false
 	end
 	
+	local amount = 0
+	for index, ptable in _ipairs (available_plugins) do
+		if (ptable [3].__enabled) then
+			GameCooltip:AddMenu (1, _detalhes.RaidTables.switch, ptable [4], instancia, nil, ptable [1], ptable [2], true) --PluginName, PluginIcon, PluginObject, PluginAbsoluteName
+			amount = amount + 1
+		end
+	end
+
+	if (amount == 0) then
+		return false
+	end
+	
+	GameCooltip:SetOption ("NoLastSelectedBar", true)
+	
 	GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
+	return true
 end
 
 function _detalhes:MontaSoloOption (instancia)
@@ -1646,6 +1685,8 @@ function _detalhes:MontaSoloOption (instancia)
 	end
 	
 	GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
+	
+	return true
 end
 
 -- ~menu
@@ -1742,6 +1783,8 @@ function _detalhes:ChangeIcon (icon)
 	
 	local skin = _detalhes.skins [self.skin]
 
+	--print (debugstack())
+	
 	if (icon) then
 		
 		--> plugin chamou uma troca de icone
@@ -1824,11 +1867,11 @@ function _detalhes:AlteraModo (instancia, qual)
 		if (not instancia.atributo) then
 			instancia.atributo = 1
 			instancia.sub_atributo = 1
-			print ("Details found a internal probleam and fixed: 'instancia.atributo' were null, now is 1.")
+			--print ("Details found a internal probleam and fixed: 'instancia.atributo' were null, now is 1.")
 		end
 		if (not instancia.showing[instancia.atributo]) then
 			instancia.showing = _detalhes.tabela_vigente
-			print ("Details found a internal problem and fixed: container for instancia.showing were null, now is current combat.")
+			--print ("Details found a internal problem and fixed: container for instancia.showing were null, now is current combat.")
 		end
 		instancia.atributo = instancia.atributo or 1
 		instancia.showing[instancia.atributo].need_refresh = true
@@ -1839,7 +1882,7 @@ function _detalhes:AlteraModo (instancia, qual)
 		instancia.LastModo = instancia.modo
 	
 		if (instancia:IsRaidMode()) then
-			instancia:RaidMode (false, instancia)
+			_detalhes.RaidTables:DisableRaidMode (instancia)
 		end
 
 		--> verifica se ja tem alguma instancia desativada em solo e remove o solo dela
@@ -1859,12 +1902,13 @@ function _detalhes:AlteraModo (instancia, qual)
 			instancia:SoloMode (false)
 		end
 
-		_detalhes:InstanciaCallFunctionOffline (_detalhes.InstanciaCheckForDisabledRaid)
-		
+		--_detalhes:InstanciaCallFunctionOffline (_detalhes.InstanciaCheckForDisabledRaid)
+
 		instancia.modo = modo_raid
 		instancia:ChangeIcon()
 		
-		_detalhes:RaidMode (true, instancia)
+		_detalhes.RaidTables:EnableRaidMode (instancia)
+		
 		_detalhes:SendEvent ("DETAILS_INSTANCE_CHANGEMODE", nil, instancia, modo_raid)
 	
 	elseif (qual == modo_grupo) then
@@ -1875,7 +1919,7 @@ function _detalhes:AlteraModo (instancia, qual)
 			--instancia.modo = modo_grupo
 			instancia:SoloMode (false)
 		elseif (instancia:IsRaidMode()) then
-			instancia:RaidMode (false, instancia)
+			_detalhes.RaidTables:DisableRaidMode (instancia)
 		end
 		
 		_detalhes:ResetaGump (instancia)
@@ -1887,6 +1931,7 @@ function _detalhes:AlteraModo (instancia, qual)
 		instancia:AtualizaGumpPrincipal (true)
 		instancia.last_modo = modo_grupo
 		_detalhes:SendEvent ("DETAILS_INSTANCE_CHANGEMODE", nil, instancia, modo_grupo)
+		_detalhes:SendEvent ("DETAILS_INSTANCE_CHANGEATTRIBUTE", nil, instancia, instancia.atributo, instancia.sub_atributo)
 
 	elseif (qual == modo_all) then
 	
@@ -1897,7 +1942,7 @@ function _detalhes:AlteraModo (instancia, qual)
 			instancia:SoloMode (false)
 
 		elseif (instancia:IsRaidMode()) then
-			instancia:RaidMode (false, instancia)
+			_detalhes.RaidTables:DisableRaidMode (instancia)
 		end
 		
 		instancia.modo = modo_all
@@ -1906,6 +1951,7 @@ function _detalhes:AlteraModo (instancia, qual)
 		instancia:AtualizaGumpPrincipal (true)
 		instancia.last_modo = modo_all
 		_detalhes:SendEvent ("DETAILS_INSTANCE_CHANGEMODE", nil, instancia, modo_all)
+		_detalhes:SendEvent ("DETAILS_INSTANCE_CHANGEATTRIBUTE", nil, instancia, instancia.atributo, instancia.sub_atributo)
 	end
 	
 	local checked

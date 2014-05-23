@@ -20,6 +20,7 @@
 	local _math_max = math.max --lua local
 	local _type = type --lua local
 	local _string_match = string.match --lua local
+	local loadstring = loadstring --lua local
 	
 	local _UnitClass = UnitClass --wow api local
 	local _IsInRaid = IsInRaid --wow api local
@@ -115,17 +116,18 @@
 	
 	_detalhes.ToKFunctions = {_detalhes.NoToK, _detalhes.ToK, _detalhes.ToK2, _detalhes.ToK0, _detalhes.ToKMin, _detalhes.ToK2Min, _detalhes.ToK0Min, _detalhes.comma_value}
 
+	--> replacing data
+	local args
+	local replace_arg = function (i)
+		return args [tonumber(i)]
+	end
+	local run_function = function (str)
+		local r = loadstring (str)(args[4])
+		return r or 0
+	end
 	function string:ReplaceData (...)
-		local args = {...}
-		local function getarg (i) 
-			local n = tonumber (i) 
-			if (n) then 
-				return args [tonumber(i)] 
-			else 
-				return loadstring (i)() 
-			end 
-		end
-		return (self:gsub('{data(%d+)}', getarg):gsub ('{func(.-)}', getarg)) 
+		args = {...}
+		return (self:gsub ("{data(%d+)}", replace_arg):gsub ("{func(.-)}", run_function)) 
 	end
 
 	--local usertext = "i got the time: {data2}, {data3}% of {data1} minutes"
@@ -160,7 +162,10 @@
 			s = string.sub(hexstr, mod+1, mod+1) .. s
 			num = math.floor(num / 16)
 		end
-		if s == '' then s = '0' end
+		if s == '' then s = '00' end
+		if (string.len (s) == 1) then
+			s = "0"..s
+		end
 		return s
 	end
 

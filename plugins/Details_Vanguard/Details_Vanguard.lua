@@ -66,7 +66,8 @@ local function CreatePluginFrames (data)
 			
 		elseif (event == "SHOW") then --> plugin shown, enabled
 		
-			instancia = _detalhes.RaidTables.instancia
+			instancia = Vanguard:GetInstance (Vanguard.instance_id)
+			
 			for index, tankframe in _ipairs (Vanguard.TankFrames) do 
 				DetailsFrameWork:RegisterForDetailsMove (tankframe.Frame.frame, instancia)
 			end
@@ -85,7 +86,7 @@ local function CreatePluginFrames (data)
 			Vanguard:IdentifyTanks()
 			
 			if (Vanguard:IsInCombat()) then
-				instancia = _detalhes.RaidTables.instancia
+				instancia = Vanguard:GetInstance (Vanguard.instance_id)
 				_combat_object = _detalhes.tabela_vigente
 				_track_player_object = nil
 				_track_player_name = nil
@@ -101,7 +102,8 @@ local function CreatePluginFrames (data)
 
 		elseif (event == "COMBAT_PLAYER_ENTER") then --> a new combat has been started
 		
-			instancia = _detalhes.RaidTables.instancia
+			--instancia = _detalhes.RaidTables.instancia
+			instancia = Vanguard:GetInstance (Vanguard.instance_id)
 			_combat_object = select (1, ...)
 			_track_player_object = nil
 			_track_player_name = nil
@@ -127,7 +129,7 @@ local function CreatePluginFrames (data)
 			_combat_object = select (1, ...)
 			
 			Vanguard.Running = false
-			VanguardFrame:SetScript ("OnUpdate", onupdate)
+			VanguardFrame:SetScript ("OnUpdate", nil)
 			
 			Vanguard:ResetBars()
 			Vanguard:ResetDamage()
@@ -1188,6 +1190,11 @@ local function CreatePluginFrames (data)
 			if (VanguardFrame.InfoShown) then
 				Vanguard:VanguardRefreshInfoFrame()
 			end
+		end
+		
+		if (not _track_player_object) then
+			_detalhes:ScheduleTimer ("VanguardWait", 1)
+			return
 		end
 		
 		--print ("Vanguard: playername: ".. _track_player_name)

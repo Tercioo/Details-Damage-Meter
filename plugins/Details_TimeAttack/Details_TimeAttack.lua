@@ -347,7 +347,6 @@ local function CreatePluginFrames (data)
 			GameCooltip:AddLine (string.format ("%.1f", TimeObject.FinishIlevel))
 			GameCooltip:AddIcon ("Interface\\TARGETINGFRAME\\PetBadge-Humanoid")
 
-			GameCooltip:SetOption ("TextHeightMod", -4)
 			GameCooltip:ShowCooltip (self.background, "tooltip")
 			
 		else --> history
@@ -368,7 +367,6 @@ local function CreatePluginFrames (data)
 			GameCooltip:AddLine (string.format ("%.1f", TimeObject.ItemLevel))
 			GameCooltip:AddIcon ("Interface\\TARGETINGFRAME\\PetBadge-Humanoid")
 			
-			GameCooltip:SetOption ("TextHeightMod", -4)
 			GameCooltip:ShowCooltip (self.background, "tooltip")
 		end
 	end

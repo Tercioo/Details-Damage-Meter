@@ -260,6 +260,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 	elseif (command == "owner") then
 	
 		local petname = rest:match ("^(%S*)%s*(.-)$")
+		local petGUID = UnitGUID ("target")
 
 		if (not _G.DetailsScanTooltip) then
 			local scanTool = CreateFrame ("GameTooltip", "DetailsScanTooltip", nil, "GameTooltipTemplate")
@@ -271,15 +272,21 @@ function SlashCmdList.DETAILS (msg, editbox)
 			local scanText = _G ["DetailsScanTooltipTextLeft2"] -- This is the line with <[Player]'s Pet>
 			
 			scanTool:ClearLines()
+			
+			print (petName)
 			scanTool:SetUnit (petName)
+			
 			local ownerText = scanText:GetText()
-			if not ownerText then return nil end
-			local owner, _ = string.split("'",ownerText)
+			if (not ownerText) then 
+				return nil 
+			end
+			local owner, _ = string.split ("'", ownerText)
 
 			return owner -- This is the pet's owner
 		end
 		
-		print (getPetOwner (petname))
+		--print (getPetOwner (petname))
+		print (getPetOwner (petGUID))
 
 	
 	elseif (command == "buffsof") then

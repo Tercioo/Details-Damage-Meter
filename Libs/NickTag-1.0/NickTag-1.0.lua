@@ -35,9 +35,9 @@ end
 	local CONST_COMM_LOGONREVISION = 2
 	local CONST_COMM_REQUESTPERSONA = 3
 	
-	NICKTAG_DEFAULT_AVATAR = [[Interface\EncounterJournal\UI-EJ-BOSS-Default]]
-	NICKTAG_DEFAULT_BACKGROUND = [[Interface\PetBattles\Weather-ArcaneStorm]]
-	NICKTAG_DEFAULT_BACKGROUND_CORDS = {0.129609375, 1, 1, 0}
+	--[[global]] NICKTAG_DEFAULT_AVATAR = [[Interface\EncounterJournal\UI-EJ-BOSS-Default]]
+	--[[global]] NICKTAG_DEFAULT_BACKGROUND = [[Interface\PetBattles\Weather-ArcaneStorm]]
+	--[[global]] NICKTAG_DEFAULT_BACKGROUND_CORDS = {0.129609375, 1, 1, 0}
 	
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 --> library stuff

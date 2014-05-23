@@ -752,6 +752,7 @@ function gump:NewFillPanel (parent, rows, name, member, w, h, total_lines, fill_
 				editbox:SetBackdrop ({bgFile = [[Interface\DialogFrame\UI-DialogBox-Background]], edgeFile = "Interface\\ChatFrame\\ChatFrameBackground", edgeSize = 1})
 				editbox:SetBackdropColor (1, 1, 1, 0.1)
 				editbox:SetBackdropBorderColor (1, 1, 1, 0.1)
+				editbox.editbox.current_bordercolor = {1, 1, 1, 0.1}
 				
 				--> insert in the table
 				tinsert (row.row_widgets, editbox)

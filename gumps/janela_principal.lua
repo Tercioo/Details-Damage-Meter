@@ -1151,6 +1151,7 @@ local function resize_scripts (resizer, instancia, scrollbar, side, baseframe)
 			_G.GameCooltip:SetType ("tooltip")
 			_G.GameCooltip:AddFromTable (resizeTooltip)
 			_G.GameCooltip:SetOption ("NoLastSelectedBar", true)
+			_G.GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
 			_G.GameCooltip:SetOwner (resizer)
 			_G.GameCooltip:ShowCooltip()
 		end
@@ -2467,6 +2468,7 @@ function gump:CriaNovaBarra (instancia, index)
 	local rowframe = instancia.rowframe
 	
 	local esta_barra = CreateFrame ("button", "DetailsBarra_"..instancia.meu_id.."_"..index, rowframe)
+	
 	esta_barra.row_id = index
 	esta_barra.instance_id = instancia.meu_id
 	local y = instancia.row_height*(index-1)
@@ -2476,9 +2478,7 @@ function gump:CriaNovaBarra (instancia, index)
 		esta_barra:SetPoint ("topleft", baseframe, "topleft", instancia.row_info.space.left, y)
 		
 	elseif (instancia.bars_grow_direction == 2) then
-		--y = y*-1
 		esta_barra:SetPoint ("bottomleft", baseframe, "bottomleft", instancia.row_info.space.left, y + 2)
-		
 	end
 	
 	esta_barra:SetHeight (instancia.row_info.height) --> altura determinada pela instância
@@ -2493,7 +2493,19 @@ function gump:CriaNovaBarra (instancia, index)
 	esta_barra:RegisterForClicks ("LeftButtonDown", "RightButtonDown")
 
 	esta_barra.statusbar = CreateFrame ("StatusBar", "DetailsBarra_Statusbar_"..instancia.meu_id.."_"..index, esta_barra)
-	--esta_barra.statusbar:SetAllPoints (esta_barra)
+	
+	esta_barra.border = CreateFrame ("Frame", "DetailsBarra_Border_" .. instancia.meu_id .. "_" .. index, esta_barra.statusbar)
+	esta_barra.border:SetFrameLevel (esta_barra.statusbar:GetFrameLevel()+1)
+	esta_barra.border:SetAllPoints (esta_barra)
+
+	local backdrop = instancia.row_info.backdrop.enabled
+	if (backdrop) then
+		esta_barra.border:SetBackdrop ({edgeFile = SharedMedia:Fetch ("border", instancia.row_info.backdrop.texture), edgeSize = instancia.row_info.backdrop.size})
+		esta_barra.border:SetBackdropBorderColor (_unpack (instancia.row_info.backdrop.color))
+	end
+	
+	esta_barra.border:SetBackdrop ({edgeFile = [[Interface\AddOns\Details\images\border_2]], edgeSize = 12})
+	esta_barra.border:SetBackdropBorderColor (0, 0, 0, 1)
 	
 	esta_barra.textura = esta_barra.statusbar:CreateTexture (nil, "artwork")
 	esta_barra.textura:SetHorizTile (false)
@@ -2627,6 +2639,31 @@ function _detalhes:SetBarTextSettings (size, font, fixedcolor, leftcolorbyclass,
 	self:InstanceRefreshRows()
 end
 
+function _detalhes:SetBarBackdropSettings (enabled, size, color, texture)
+
+	if (type (enabled) ~= "boolean") then
+		enabled = self.row_info.backdrop.enabled
+	end
+	if (not size) then
+		size = self.row_info.backdrop.size
+	end
+	if (not color) then
+		color = self.row_info.backdrop.color
+	end
+	if (not texture) then
+		texture = self.row_info.backdrop.texture
+	end
+	
+	self.row_info.backdrop.enabled = enabled
+	self.row_info.backdrop.size = size
+	self.row_info.backdrop.color = color
+	self.row_info.backdrop.texture = texture
+	
+	self:InstanceReset()
+	self:InstanceRefreshRows()
+	self:ReajustaGump()
+end
+
 function _detalhes:SetBarSettings (height, texture, colorclass, fixedcolor, backgroundtexture, backgroundcolorclass, backgroundfixedcolor, alpha, iconfile, barstart, spacement)
 	
 	--> bar start
@@ -2752,6 +2789,14 @@ function _detalhes:InstanceRefreshRows (instancia)
 		local custom_right_text_enabled = self.row_info.textR_enable_custom_text
 		local custom_right_text = self.row_info.textR_custom_text
 
+	--backdrop
+		local backdrop = self.row_info.backdrop.enabled
+		local backdrop_color
+		if (backdrop) then
+			backdrop = {edgeFile = SharedMedia:Fetch ("border", self.row_info.backdrop.texture), edgeSize = self.row_info.backdrop.size}
+			backdrop_color = self.row_info.backdrop.color
+		end
+		
 	-- do it
 
 	for _, row in _ipairs (self.barras) do 
@@ -2829,6 +2874,14 @@ function _detalhes:InstanceRefreshRows (instancia)
 		_detalhes:SetFontFace (row.texto_esquerdo, self.row_info.font_face_file or "GameFontHighlight")
 		_detalhes:SetFontFace (row.texto_direita, self.row_info.font_face_file or "GameFontHighlight")
 
+		--backdrop
+		if (backdrop) then
+			row.border:SetBackdrop (backdrop)
+			row.border:SetBackdropBorderColor (_unpack (backdrop_color))
+		else
+			row.border:SetBackdrop (nil)
+		end
+		
 	end
 	
 	self:SetBarGrowDirection()
@@ -3626,7 +3679,7 @@ local parameters_table = {}
 local on_leave_menu = function (self, elapsed)
 	parameters_table[2] = parameters_table[2] + elapsed
 	if (parameters_table[2] > 0.3) then
-		if (not _G.GameCooltip.mouseOver and not _G.GameCooltip.buttonOver) then
+		if (not _G.GameCooltip.mouseOver and not _G.GameCooltip.buttonOver and (not _G.GameCooltip:GetOwner() or _G.GameCooltip:GetOwner() == self)) then
 			_G.GameCooltip:ShowMe (false)
 		end
 		self:SetScript ("OnUpdate", nil)
@@ -4072,12 +4125,12 @@ function _detalhes:ChangeSkin (skin_name)
 			end
 
 		elseif (self.modo == 4) then
-			if (_detalhes.RaidTables.Plugins [1] and _detalhes.RaidTables.Mode) then
-				local plugin_index = _detalhes.RaidTables.Mode
-				if (plugin_index and _detalhes.RaidTables.Menu [plugin_index]) then
-					self:ChangeIcon (_detalhes.RaidTables.Menu [plugin_index] [2])
-				end
-			end
+			--if (_detalhes.RaidTables.Plugins [1] and _detalhes.RaidTables.Mode) then
+			--	local plugin_index = _detalhes.RaidTables.Mode
+			--	if (plugin_index and _detalhes.RaidTables.Menu [plugin_index]) then
+					--self:ChangeIcon (_detalhes.RaidTables.Menu [plugin_index] [2])
+			--	end
+			--end
 		end
 	else
 		local icon_anchor = this_skin.icon_anchor_main --> ancora do icone do canto direito superior
@@ -4102,6 +4155,7 @@ function _detalhes:ChangeSkin (skin_name)
 	
 ----------> call widgets handlers	
 		self:SetBarSettings (self.row_info.height)
+		self:SetBarBackdropSettings()
 	
 	--> update toolbar
 		self:ToolbarSide()
@@ -4336,11 +4390,13 @@ function _detalhes:AttributeMenu (enabled, pos_x, pos_y, font, size, color, side
 		
 		function self.menu_attribute_string:OnEvent (instance, attribute, subAttribute)
 			if (instance == label.owner_instance) then
-				label.text = _detalhes:GetSubAttributeName (attribute, subAttribute)
+				local sName = instance:GetInstanceAttributeText()
+				label.text = sName
 			end
 		end
 		
 		_detalhes:RegisterEvent (self.menu_attribute_string, "DETAILS_INSTANCE_CHANGEATTRIBUTE", self.menu_attribute_string.OnEvent)
+		_detalhes:RegisterEvent (self.menu_attribute_string, "DETAILS_INSTANCE_CHANGEMODE", self.menu_attribute_string.OnEvent)
 
 	end
 
@@ -5057,10 +5113,44 @@ end
 
 --> reset button functions
 	local reset_button_onenter = function (self)
+	
 		OnEnterMainWindow (self.instance, self)
+		GameCooltip.buttonOver = true
+		self.instance.baseframe.cabecalho.button_mouse_over = true
+		
+		GameCooltip:Reset()
+		GameCooltip:SetOption ("ButtonsYMod", -2)
+		GameCooltip:SetOption ("YSpacingMod", 0)
+		GameCooltip:SetOption ("TextHeightMod", 0)
+		GameCooltip:SetOption ("IgnoreButtonAutoHeight", false)
+		
+		GameCooltip:AddLine (Loc ["STRING_ERASE_DATA"], nil, 1, "white", nil, 10, SharedMedia:Fetch ("font", "Friz Quadrata TT"))
+		--GameCooltip:AddIcon ([[Interface\Buttons\UI-MinusButton-Up]], 1, 1)
+		GameCooltip:AddIcon ([[Interface\PetBattles\DeadPetIcon]], 1, 1)
+		GameCooltip:AddMenu (1, _detalhes.tabela_historico.resetar)
+		
+		GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
+		
+		show_anti_overlap (self.instance, self, "top")
+		
+		GameCooltip:ShowCooltip (self, "menu")
 	end
+	
 	local reset_button_onleave = function (self)
 		OnLeaveMainWindow (self.instance, self)
+		
+		hide_anti_overlap (self.instance.baseframe.anti_menu_overlap)
+		
+		GameCooltip.buttonOver = false
+		self.instance.baseframe.cabecalho.button_mouse_over = false
+		
+		if (GameCooltip.active) then
+			parameters_table [2] = 0
+			self:SetScript ("OnUpdate", on_leave_menu)
+		else
+			self:SetScript ("OnUpdate", nil)
+		end
+		
 	end
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -5235,12 +5325,6 @@ function gump:CriaCabecalho (baseframe, instancia)
 		{icon = [[Interface\AddOns\Details\images\modo_icones]], l = 32/256*2, r = 32/256*3, t = 0, b = 1, width = 20, height = 20},
 		{text = Loc ["STRING_HELP_MODEALL"], type = 2},
 		{icon = [[Interface\TUTORIALFRAME\TutorialFrame-QuestionMark]], type = 2, width = 16, height = 16, l = 8/64, r = 1 - (8/64), t = 8/64, b = 1 - (8/64)},		
-	
-		{text = Loc ["STRING_MODE_SELF"]}, -- .. " (|cffa0a0a0" .. Loc ["STRING_MODE_PLUGINS"] .. "|r)"
-		{func = instancia.AlteraModo, param1 = 1},
-		{icon = [[Interface\AddOns\Details\images\modo_icones]], l = 0, r = 32/256, t = 0, b = 1, width = 20, height = 20},
-		{text = Loc ["STRING_HELP_MODESELF"], type = 2},
-		{icon = [[Interface\TUTORIALFRAME\TutorialFrame-QuestionMark]], type = 2, width = 16, height = 16, l = 8/64, r = 1 - (8/64), t = 8/64, b = 1 - (8/64)},
 
 		{text = Loc ["STRING_MODE_RAID"]}, -- .. " (|cffa0a0a0" .. Loc ["STRING_MODE_PLUGINS"] .. "|r)"
 		{func = instancia.AlteraModo, param1 = 4},
@@ -5248,6 +5332,12 @@ function gump:CriaCabecalho (baseframe, instancia)
 		{text = Loc ["STRING_HELP_MODERAID"], type = 2},
 		{icon = [[Interface\TUTORIALFRAME\TutorialFrame-QuestionMark]], type = 2, width = 16, height = 16, l = 8/64, r = 1 - (8/64), t = 8/64, b = 1 - (8/64)},
 		
+		{text = Loc ["STRING_MODE_SELF"]}, -- .. " (|cffa0a0a0" .. Loc ["STRING_MODE_PLUGINS"] .. "|r)"
+		{func = instancia.AlteraModo, param1 = 1},
+		{icon = [[Interface\AddOns\Details\images\modo_icones]], l = 0, r = 32/256, t = 0, b = 1, width = 20, height = 20},
+		{text = Loc ["STRING_HELP_MODESELF"], type = 2},
+		{icon = [[Interface\TUTORIALFRAME\TutorialFrame-QuestionMark]], type = 2, width = 16, height = 16, l = 8/64, r = 1 - (8/64), t = 8/64, b = 1 - (8/64)},
+
 		{text = Loc ["STRING_OPTIONS_WINDOW"]},
 		{func = _detalhes.OpenOptionsWindow},
 		{icon = [[Interface\AddOns\Details\images\modo_icones]], l = 32/256*4, r = 32/256*5, t = 0, b = 1, width = 20, height = 20},
@@ -5273,13 +5363,13 @@ function gump:CriaCabecalho (baseframe, instancia)
 
 		local checked
 		if (instancia.modo == 1) then
-			checked = 3
+			checked = 4
 		elseif (instancia.modo == 2) then
 			checked = 1
 		elseif (instancia.modo == 3) then
 			checked = 2
 		elseif (instancia.modo == 4) then
-			checked = 4
+			checked = 3
 		end
 
 		parameters_table [1] = instancia
@@ -5419,8 +5509,18 @@ function gump:CriaCabecalho (baseframe, instancia)
 	local BuildAttributeMenu = function()
 		if (_detalhes.solo and _detalhes.solo == instancia.meu_id) then
 			return _detalhes:MontaSoloOption (instancia)
-		elseif (_detalhes.raid and _detalhes.raid == instancia.meu_id) then
-			return _detalhes:MontaRaidOption (instancia)
+		elseif (instancia:IsRaidMode()) then
+			local have_plugins = _detalhes:MontaRaidOption (instancia)
+			if (not have_plugins) then
+				GameCooltip:SetType ("tooltip")
+				GameCooltip:SetOption ("ButtonsYMod", 0)
+				GameCooltip:SetOption ("YSpacingMod", 0)
+				GameCooltip:SetOption ("TextHeightMod", 0)
+				GameCooltip:SetOption ("IgnoreButtonAutoHeight", false)
+				GameCooltip:AddLine ("All raid plugins already\nin use or disabled.", nil, 1, "white", nil, 10, SharedMedia:Fetch ("font", "Friz Quadrata TT"))
+				GameCooltip:AddIcon ([[Interface\GROUPFRAME\UI-GROUP-ASSISTANTICON]], 1, 1)
+				GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
+			end
 		else
 			return _detalhes:MontaAtributosOption (instancia)
 		end
@@ -5475,19 +5575,46 @@ function gump:CriaCabecalho (baseframe, instancia)
 					self:GetNormalTexture():SetDesaturated (false)
 				end
 				
+				GameCooltip.buttonOver = true
+				baseframe.cabecalho.button_mouse_over = true
+				
 				GameCooltip:Reset()
-				GameCooltip:AddLine (Loc ["STRING_REPORT_BUTTON_TOOLTIP"])
-				GameCooltip:SetOwner (baseframe.cabecalho.report.widget)
+				GameCooltip:SetOption ("ButtonsYMod", -3)
+				GameCooltip:SetOption ("YSpacingMod", 0)
+				GameCooltip:SetOption ("TextHeightMod", 0)
+				GameCooltip:SetOption ("IgnoreButtonAutoHeight", false)
+				
+				GameCooltip:AddLine ("Report Results", nil, 1, "white", nil, 10, SharedMedia:Fetch ("font", "Friz Quadrata TT"))
+				GameCooltip:AddIcon ([[Interface\Addons\Details\Images\report_button]], 1, 1, 12, 19)
+				GameCooltip:AddMenu (1, _detalhes.Reportar, instancia)
+				
 				GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
-				GameCooltip:Show()
+				
+				show_anti_overlap (instancia, self, "top")
+				
+				GameCooltip:ShowCooltip (self, "menu")
 				
 			end)
 			baseframe.cabecalho.report:SetScript ("OnLeave", function (self)
+			
 				OnLeaveMainWindow (instancia, self, 3)
+				
+				hide_anti_overlap (instancia.baseframe.anti_menu_overlap)
+				
+				GameCooltip.buttonOver = false
+				baseframe.cabecalho.button_mouse_over = false
+				
 				if (instancia.desaturated_menu) then
 					self:GetNormalTexture():SetDesaturated (true)
 				end
-				GameCooltip:Hide()
+				
+				if (GameCooltip.active) then
+					parameters_table [2] = 0
+					self:SetScript ("OnUpdate", on_leave_menu)
+				else
+					self:SetScript ("OnUpdate", nil)
+				end
+
 			end)
 
 	--> NOVA INSTANCIA ----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -5517,7 +5644,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 	--> Build Menu Function
 	local BuildClosedInstanceMenu = function() 
 	
-		local ClosedInstances = {}
+		local ClosedInstances = 0
 		
 		for index = 1, math.min (#_detalhes.tabela_instancias, _detalhes.instances_amount), 1 do 
 		
@@ -5528,6 +5655,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 				--> pegar o que ela ta mostrando
 				local atributo = _this_instance.atributo
 				local sub_atributo = _this_instance.sub_atributo
+				ClosedInstances = ClosedInstances + 1
 				
 				if (atributo == 5) then --> custom
 				
@@ -5554,11 +5682,15 @@ function gump:CriaCabecalho (baseframe, instancia)
 						
 					elseif (modo == 4) then --raid
 					
-						atributo = _detalhes.RaidTables.Mode or 1
-						local RaidInfo = _detalhes.RaidTables.Menu [atributo]
-						if (RaidInfo) then
-							CoolTip:AddMenu (1, OnClickNovoMenu, index, nil, nil, "#".. index .. " " .. RaidInfo [1], _, true)
-							CoolTip:AddIcon (RaidInfo [2], 1, 1, 20, 20, 0, 1, 0, 1)	
+						local plugin_name = _this_instance.current_raid_plugin or _this_instance.last_raid_plugin
+						if (plugin_name) then
+							local plugin_object = _detalhes:GetPlugin (plugin_name)
+							if (plugin_object) then
+								CoolTip:AddMenu (1, OnClickNovoMenu, index, nil, nil, "#".. index .. " " .. plugin_object.__name, _, true)
+								CoolTip:AddIcon (plugin_object.__icon, 1, 1, 20, 20, 0, 1, 0, 1)	
+							else
+								CoolTip:AddMenu (1, OnClickNovoMenu, index, nil, nil, "#".. index .. " Unknown Plugin", _, true)
+							end
 						else
 							CoolTip:AddMenu (1, OnClickNovoMenu, index, nil, nil, "#".. index .. " Unknown Plugin", _, true)
 						end
@@ -5573,6 +5705,11 @@ function gump:CriaCabecalho (baseframe, instancia)
 
 
 			end
+		end
+		
+		if (ClosedInstances == 0) then
+			CoolTip:AddMenu (1, _detalhes.CriarInstancia, true, nil, nil, Loc ["STRING_NOCLOSED_INSTANCES"], _, true)
+			CoolTip:AddIcon ([[Interface\Buttons\UI-AttributeButton-Encourage-Up]], 1, 1, 16, 16)
 		end
 		
 		GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
@@ -5593,12 +5730,12 @@ function gump:CriaCabecalho (baseframe, instancia)
 		--> a hook for OnLeaveScript
 		OnLeaveFunc = function() OnLeaveMainWindow (instancia, baseframe.cabecalho.novo, 3) end,
 		--> default message if there is no option avaliable
-		Default = Loc ["STRING_NOCLOSED_INSTANCES"], 
+		Default = Loc ["STRING_NOCLOSED_INSTANCES"],
 		--> instancia is the first parameter sent after click, before parameters
 		FixedValue = instancia,
 		Options = function()
 			if (instancia.toolbar_side == 1) then --top
-				return {TextSize = 10, NoLastSelectedBar = true}
+				return {TextSize = 10, NoLastSelectedBar = true, ButtonsYMod = -2}
 			elseif (instancia.toolbar_side == 2) then --bottom
 				return {HeightAnchorMod = -7, TextSize = 10, NoLastSelectedBar = true}
 			end

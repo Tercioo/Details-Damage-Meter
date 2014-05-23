@@ -1152,7 +1152,7 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 			local formated_dps = SelectedToKFunction (_, dps)
 
 			if (UsingCustomRightText) then
-				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_damage, formated_dps, porcentagem))
+				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_damage, formated_dps, porcentagem, self))
 			else
 				esta_barra.texto_direita:SetText (formated_damage .. " (" .. formated_dps .. ", " .. porcentagem .. "%)") --seta o texto da direita
 			end
@@ -1165,7 +1165,7 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 			local formated_dps = SelectedToKFunction (_, dps)
 		
 			if (UsingCustomRightText) then
-				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_dps, formated_damage, porcentagem))
+				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_dps, formated_damage, porcentagem, self))
 			else		
 				esta_barra.texto_direita:SetText (formated_dps .. " (" .. formated_damage .. ", " .. porcentagem .. "%)") --seta o texto da direita
 			end
@@ -1176,7 +1176,7 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 			local formated_damage_taken = SelectedToKFunction (_, self.damage_taken)
 
 			if (UsingCustomRightText) then
-				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_damage_taken, "", porcentagem))
+				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_damage_taken, "", porcentagem, self))
 			else
 				esta_barra.texto_direita:SetText (formated_damage_taken .." (" .. porcentagem .. "%)") --seta o texto da direita --
 			end
@@ -1187,7 +1187,7 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 			local formated_friendly_fire = SelectedToKFunction (_, self.friendlyfire_total)
 
 			if (UsingCustomRightText) then
-				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_friendly_fire, "", porcentagem))
+				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_friendly_fire, "", porcentagem, self))
 			else			
 				esta_barra.texto_direita:SetText (formated_friendly_fire .. " (" .. porcentagem .. "%)") --seta o texto da direita --
 			end
@@ -1200,7 +1200,7 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 			local formated_dps = SelectedToKFunction (_, dps)
 		
 			if (UsingCustomRightText) then
-				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_damage, formated_dps, porcentagem))
+				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_damage, formated_dps, porcentagem, self))
 			else		
 				esta_barra.texto_direita:SetText (formated_damage .. " (" .. formated_dps .. ", " .. porcentagem .. "%)") --seta o texto da direita
 			end

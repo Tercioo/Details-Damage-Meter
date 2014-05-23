@@ -435,6 +435,12 @@ function _detalhes:SaveConfig()
 		_detalhes_database.tabela_instancias = _detalhes.tabela_instancias
 		_detalhes_database.tabela_historico = _detalhes.tabela_historico
 		
+		local name, ttype, difficulty, difficultyName, maxPlayers, playerDifficulty, isDynamicInstance, mapID, instanceGroupSize = GetInstanceInfo()
+		if (ttype == "party" or ttype == "raid") then
+			--> salvar container de pet
+			_detalhes_database.tabela_pets = _detalhes.tabela_pets.pets
+		end
+		
 		_detalhes:TimeDataCleanUpTemporary()
 		
 	--> buffs
@@ -462,13 +468,15 @@ function _detalhes:SaveConfig()
 				_detalhes_database.SoloTablesSaved.LastSelected = _detalhes.SoloTables.Plugins [_detalhes.SoloTables.Mode].real_name
 			end
 		end
-		if (_detalhes.RaidTables.Mode) then
-			_detalhes_database.RaidTablesSaved = {}
-			_detalhes_database.RaidTablesSaved.Mode = _detalhes.RaidTables.Mode
-			if (_detalhes.RaidTables.Plugins [_detalhes.RaidTables.Mode]) then
-				_detalhes_database.RaidTablesSaved.LastSelected = _detalhes.RaidTables.Plugins [_detalhes.RaidTables.Mode].real_name
-			end
-		end
+		
+		--if (_detalhes.RaidTables.Mode) then
+		--	_detalhes_database.RaidTablesSaved = {}
+		--	_detalhes_database.RaidTablesSaved.Mode = _detalhes.RaidTables.Mode
+		--	if (_detalhes.RaidTables.Plugins [_detalhes.RaidTables.Mode]) then
+		--		_detalhes_database.RaidTablesSaved.LastSelected = _detalhes.RaidTables.Plugins [_detalhes.RaidTables.Mode].real_name
+		--	end
+		--end
+		_detalhes_database.RaidTablesSaved = nil
 		
 	--> salva switch tables
 		_detalhes_database.switchSaved.slots = _detalhes.switch.slots

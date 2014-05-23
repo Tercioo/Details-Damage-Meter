@@ -25,6 +25,10 @@
 			print (PluginName, Loc ["STRING_TOOOLD"])
 			return _detalhes:NewError ("Details version is out of date.")
 		end
+		
+		if (PluginType == "TANK") then
+			PluginType = "RAID"
+		end
 	
 		if (not PluginType) then
 			return _detalhes:NewError ("InstallPlugin parameter 1 (plugin type) not especified")
@@ -77,7 +81,7 @@
 			
 			_detalhes.PluginCount.SOLO = _detalhes.PluginCount.SOLO + 1
 
-		elseif (PluginType == "TANK") then
+		elseif (PluginType == "RAID") then
 			
 			--> Install Plugin
 			_detalhes.RaidTables.Plugins [#_detalhes.RaidTables.Plugins+1] = PluginObject
@@ -86,6 +90,8 @@
 			_detalhes:SendEvent ("INSTALL_OKEY", PluginObject)
 			
 			_detalhes.PluginCount.RAID = _detalhes.PluginCount.RAID + 1
+			
+			_detalhes:InstanceCall ("RaidPluginInstalled", PluginAbsoluteName)
 			
 		elseif (PluginType == "TOOLBAR") then
 			

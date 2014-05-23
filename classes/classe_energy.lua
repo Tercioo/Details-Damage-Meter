@@ -449,7 +449,7 @@ function atributo_energy:AtualizaBarra (instancia, barras_container, qual_barra,
 	local formated_energy = SelectedToKFunction (_, esta_e_energy_total)
 	
 	if (UsingCustomRightText) then
-		esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_energy, "", porcentagem))
+		esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_energy, "", porcentagem, self))
 	else
 		esta_barra.texto_direita:SetText (formated_energy .. " (" .. porcentagem .. "%)") --seta o texto da direita
 	end
