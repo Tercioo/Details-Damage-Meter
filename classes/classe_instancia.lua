@@ -1493,6 +1493,50 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 
 		_detalhes:SendEvent ("DETAILS_INSTANCE_CHANGESEGMENT", nil, instancia, segmento)
 		
+		if (_detalhes.instances_segments_locked and not iniciando_instancia) then
+			for _, instance in ipairs (_detalhes.tabela_instancias) do
+				if (instance.meu_id ~= instancia.meu_id and instance.ativa) then
+					if (instance.modo == 2 or instance.modo == 3) then
+						--> na troca de segmento, conferir se a instancia esta frozen
+						if (instance.freezed) then
+							if (not iniciando_instancia) then
+								instance:UnFreeze()
+							else
+								instance.freezed = false
+							end
+						end
+						
+						instance.segmento = segmento
+					
+						if (segmento == -1) then --> overall
+							instance.showing = _detalhes.tabela_overall
+						elseif (segmento == 0) then --> combate atual
+							instance.showing = _detalhes.tabela_vigente
+						else --> alguma tabela do histórico
+							instance.showing = _detalhes.tabela_historico.tabelas [segmento]
+						end
+						
+						if (not instance.showing) then
+							if (not iniciando_instancia) then
+								instance:Freeze()
+							end
+							return
+						end
+						
+						instance.v_barras = true
+						instance.showing [atributo].need_refresh = true
+						
+						if (not _detalhes.initializing and not iniciando_instancia) then
+							instance:ResetaGump()
+							instance:AtualizaGumpPrincipal (true)
+						end
+						
+						_detalhes:SendEvent ("DETAILS_INSTANCE_CHANGESEGMENT", nil, instance, segmento)
+					end
+				end
+			end
+		end
+		
 	end
 
 	--> Muda o atributo caso  necessário

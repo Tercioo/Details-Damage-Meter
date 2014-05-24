@@ -896,6 +896,14 @@
 			GameCooltip:AddStatusBar (100, 1, unpack (_detalhes.tooltip.background))
 		end
 		
+		function _detalhes:AddTooltipSpellHeaderText (headerText, headerColor, r, g, b, amount)
+			if (_detalhes.tooltip.show_amount) then
+				GameCooltip:AddLine (headerText, "x" .. amount .. "", nil, headerColor, r, g, b, .2, 12)
+			else
+				GameCooltip:AddLine (headerText, nil, nil, headerColor, nil, 12)
+			end
+		end
+		
 		function _detalhes:MontaTooltip (frame, qual_barra, keydown)
 			
 			local GameCooltip = GameCooltip

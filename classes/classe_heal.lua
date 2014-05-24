@@ -852,13 +852,13 @@ function atributo_heal:ToolTip_HealingTaken (instancia, numero, barra, keydown)
 		if (este_curador) then --> checagem por causa do total e do garbage collector que não limpa os nomes que deram dano
 			local alvos = este_curador.targets
 			local este_alvo = alvos._ActorTable[alvos._NameIndexTable[self.nome]]
-			if (este_alvo) then
+			if (este_alvo and este_alvo.total > 0) then
 				meus_curadores [#meus_curadores+1] = {nome, este_alvo.total, este_curador.classe}
 			end
 		end
 	end
 	
-	GameCooltip:AddLine (Loc ["STRING_FROM"], nil, nil, headerColor, nil, 12)
+	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_FROM"], headerColor, r, g, b, #meus_curadores)
 
 	GameCooltip:AddIcon ([[Interface\TUTORIALFRAME\UI-TutorialFrame-LevelUp]], 1, 1, 14, 14, 0.10546875, 0.89453125, 0.05859375, 0.6796875)
 	GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
@@ -935,19 +935,23 @@ function atributo_heal:ToolTip_HealingDone (instancia, numero, barra, keydown)
 	
 	for _spellid, _skill in _pairs (ActorSkillsContainer) do 
 		local SkillName, _, SkillIcon = _GetSpellInfo (_spellid)
-		_table_insert (ActorHealingTable, {_spellid, _skill [skill_key], _skill [skill_key]/ActorTotal*100, {SkillName, nil, SkillIcon}, _skill [skill_key]/meu_tempo, _skill.total})
+		if (_skill [skill_key] > 0) then
+			_table_insert (ActorHealingTable, {_spellid, _skill [skill_key], _skill [skill_key]/ActorTotal*100, {SkillName, nil, SkillIcon}, _skill [skill_key]/meu_tempo, _skill.total})
+		end
 	end
 	_table_sort (ActorHealingTable, _detalhes.Sort2)
 	
 	--> TOP Curados
 	ActorSkillsContainer = self.targets._ActorTable
 	for _, TargetTable in _ipairs (ActorSkillsContainer) do
-		_table_insert (ActorHealingTargets, {TargetTable.nome, TargetTable.total, TargetTable.total/ActorTotal*100})
+		if (TargetTable.total > 0) then
+			_table_insert (ActorHealingTargets, {TargetTable.nome, TargetTable.total, TargetTable.total/ActorTotal*100})
+		end
 	end
 	_table_sort (ActorHealingTargets, _detalhes.Sort2)
 
 	--> Mostra as habilidades no tooltip
-	GameCooltip:AddLine (Loc ["STRING_SPELLS"], nil, nil, headerColor, nil, 12) --> localiza-me
+	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_SPELLS"], headerColor, r, g, b, #ActorHealingTable)
 	GameCooltip:AddIcon ([[Interface\RAIDFRAME\Raid-Icon-Rez]], 1, 1, 14, 14, 0.109375, 0.890625, 0.0625, 0.90625)
 
 	local ismaximized = false
@@ -996,7 +1000,7 @@ function atributo_heal:ToolTip_HealingDone (instancia, numero, barra, keydown)
 	
 	if (instancia.sub_atributo == 1) then -- 1 or 2 -> healing done or hps
 	
-		GameCooltip:AddLine (Loc ["STRING_TARGETS"].."", nil, nil, headerColor, nil, 12)
+		_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_TARGETS"], headerColor, r, g, b, #ActorHealingTargets)
 		GameCooltip:AddIcon ([[Interface\TUTORIALFRAME\UI-TutorialFrame-LevelUp]], 1, 1, 14, 14, 0.10546875, 0.89453125, 0.05859375, 0.6796875)
 
 		local ismaximized = false
@@ -1109,7 +1113,7 @@ function atributo_heal:ToolTip_HealingDone (instancia, numero, barra, keydown)
 			
 				if (not added_logo) then
 					added_logo = true
-					GameCooltip:AddLine (Loc ["STRING_PETS"].."", nil, nil, headerColor, nil, 12)
+					_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_PETS"], headerColor, r, g, b, #totais)
 
 					GameCooltip:AddIcon ([[Interface\COMMON\friendship-heart]], 1, 1, 14, 14, 0.21875, 0.78125, 0.09375, 0.6875)
 

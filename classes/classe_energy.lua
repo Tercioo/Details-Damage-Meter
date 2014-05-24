@@ -724,7 +724,8 @@ function atributo_energy:ToolTipRegenRecebido (instancia, numero, barra, keydown
 	local fontes, habilidades = self:Fontes_e_Habilidades (recebido_from, showing, keyName)
 
 -----------------------------------------------------------------	
-	GameCooltip:AddLine (Loc ["STRING_SPELLS"], nil, nil, headerColor, nil, 12) --> localiza-me
+	
+	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_SPELLS"], headerColor, r, g, b, #habilidades)
 	GameCooltip:AddIcon ([[Interface\HELPFRAME\ReportLagIcon-Spells]], 1, 1, 14, 14, 0.21875, 0.78125, 0.21875, 0.78125)
 	
 	local ismaximized = false
@@ -755,7 +756,7 @@ function atributo_energy:ToolTipRegenRecebido (instancia, numero, barra, keydown
 	
 -----------------------------------------------------------------
 
-	GameCooltip:AddLine (Loc ["STRING_PLAYERS"], nil, nil, headerColor, nil, 12) --> localiza-me
+	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_PLAYERS"], headerColor, r, g, b, #fontes)
 	GameCooltip:AddIcon ([[Interface\HELPFRAME\HelpIcon-HotIssues]], 1, 1, 14, 14, 0.21875, 0.78125, 0.21875, 0.78125)
 	
 	local ismaximized = false

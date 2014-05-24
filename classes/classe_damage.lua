@@ -1486,7 +1486,8 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 			end
 			
 		--> MOSTRA HABILIDADES
-			GameCooltip:AddLine (Loc ["STRING_SPELLS"].."", nil, nil, headerColor, nil, 12)
+			_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_SPELLS"], headerColor, r, g, b, #ActorSkillsSortTable)
+			
 			GameCooltip:AddIcon ([[Interface\ICONS\Spell_Shaman_BlessingOfTheEternals]], 1, 1, 14, 14, 0.90625, 0.109375, 0.15625, 0.875)
 			
 			if (is_maximized) then
@@ -1517,7 +1518,8 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 			
 		--> MOSTRA INIMIGOS
 			if (instancia.sub_atributo == 1 or instancia.sub_atributo == 6) then
-				GameCooltip:AddLine (Loc ["STRING_TARGETS"].."", nil, nil, headerColor, nil, 12)
+				
+				_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_TARGETS"], headerColor, r, g, b, #ActorTargetsSortTable)
 
 				local max_targets = _detalhes.tooltip_max_targets
 				local is_maximized = false
@@ -1614,7 +1616,8 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 			
 				if (not added_logo) then
 					added_logo = true
-					GameCooltip:AddLine (Loc ["STRING_PETS"].."", nil, nil, headerColor, nil, 12)
+					
+					_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_PETS"], headerColor, r, g, b, #totais)
 					
 					GameCooltip:AddIcon ([[Interface\COMMON\friendship-heart]], 1, 1, 14, 14, 0.21875, 0.78125, 0.09375, 0.6875)
 					
@@ -1686,7 +1689,7 @@ function atributo_damage:ToolTip_DamageTaken (instancia, numero, barra, keydown)
 		ismaximized = true
 	end
 
-	GameCooltip:AddLine (Loc ["STRING_FROM"], nil, nil, headerColor, nil, 12)
+	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_FROM"], headerColor, r, g, b, #meus_agressores)
 
 	GameCooltip:AddIcon ([[Interface\Addons\Details\images\icons]], 1, 1, 14, 14, 0.126953125, 0.1796875, 0, 0.0546875)
 	
@@ -1750,7 +1753,7 @@ function atributo_damage:ToolTip_FriendlyFire (instancia, numero, barra, keydown
 	_table_sort (DamagedPlayers, _detalhes.Sort2)
 	_table_sort (Skills, _detalhes.Sort2)
 
-	GameCooltip:AddLine (Loc ["STRING_TARGETS"].."", nil, nil, headerColor, nil, 12)
+	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_TARGETS"], headerColor, r, g, b, #DamagedPlayers)
 	
 	GameCooltip:AddIcon ([[Interface\Addons\Details\images\icons]], 1, 1, 14, 14, 0.126953125, 0.224609375, 0.056640625, 0.140625)
 	

@@ -1076,6 +1076,17 @@ function window:CreateFrame20()
 		
 		window:CreateLineBackground2 (frame20, "TooltipMaximizeDropdown", "TooltipMaximizeLabel", Loc ["STRING_OPTIONS_TOOLTIPS_MAXIMIZE_DESC"])
 		
+		--show amount
+		g:NewLabel (frame20, _, "$parentTooltipShowAmountLabel", "TooltipShowAmountLabel", Loc ["STRING_OPTIONS_TOOLTIPS_SHOWAMT"], "GameFontHighlightLeft")
+		g:NewSwitch (frame20, _, "$parentTooltipShowAmountSlider", "TooltipShowAmountSlider", 60, 20, _, _, _detalhes.tooltip.show_amount)
+		frame20.TooltipShowAmountSlider:SetPoint ("left", frame20.TooltipShowAmountLabel, "right", 2)
+
+		frame20.TooltipShowAmountSlider.OnSwitch = function (self, _, value)
+			_detalhes.tooltip.show_amount = value
+		end
+		
+		window:CreateLineBackground2 (frame20, "TooltipShowAmountSlider", "TooltipShowAmountLabel", Loc ["STRING_OPTIONS_TOOLTIPS_SHOWAMT_DESC"])
+		
 	--> anchors:
 	
 		--general anchor
@@ -1097,6 +1108,7 @@ function window:CreateFrame20()
 			{"TooltipBackgroundColorLabel", 7},
 			{"TooltipdpsAbbreviateLabel", 8},
 			{"TooltipMaximizeLabel", 9},
+			{"TooltipShowAmountLabel", 10},
 
 		}
 		
@@ -2541,7 +2553,19 @@ function window:CreateFrame1()
 		end)
 		
 		window:CreateLineBackground2 (frame1, "segmentsSlider", "segmentsLabel", Loc ["STRING_OPTIONS_MAXSEGMENTS_DESC"])
+	
+	--> Segments Locked
+	
+		g:NewLabel (frame1, _, "$parentSegmentsLockedLabel", "SegmentsLockedLabel", Loc ["STRING_OPTIONS_LOCKSEGMENTS"], "GameFontHighlightLeft")
+		g:NewSwitch (frame1, _, "$parentSegmentsLockedSlider", "SegmentsLockedSlider", 60, 20, _, _, _detalhes.instances_segments_locked)
+		frame1.SegmentsLockedSlider:SetPoint ("left", frame1.SegmentsLockedLabel, "right", 2)
+
+		frame1.SegmentsLockedSlider.OnSwitch = function (self, _, value)
+			_detalhes.instances_segments_locked = value
+		end
 		
+		window:CreateLineBackground2 (frame1, "SegmentsLockedSlider", "SegmentsLockedLabel", Loc ["STRING_OPTIONS_LOCKSEGMENTS_DESC"])
+	
 	--> Use Scroll Bar
 		g:NewLabel (frame1, _, "$parentUseScrollLabel", "scrollLabel", Loc ["STRING_OPTIONS_SCROLLBAR"], "GameFontHighlightLeft")
 		--
@@ -2699,9 +2723,10 @@ function window:CreateFrame1()
 			{"animateLabel", 2},
 			{"updatespeedLabel", 3},
 			{"segmentsLabel", 4},
-			{"scrollLabel", 5},
-			{"maxInstancesLabel", 6},
-			{"dpsAbbreviateLabel", 7},
+			{"scrollLabel", 6},
+			{"maxInstancesLabel", 7},
+			{"dpsAbbreviateLabel", 8},
+			{"SegmentsLockedLabel", 5},
 		}
 		
 		window:arrange_menu (frame1, left_side, window.left_start_at, window.top_start_at)
@@ -5730,6 +5755,7 @@ function window:update_all (editing_instance)
 	--> window 1
 	_G.DetailsOptionsWindow1RealmNameSlider.MyObject:SetValue (_detalhes.remove_realm_from_name)
 	_G.DetailsOptionsWindow1Slider.MyObject:SetValue (_detalhes.segments_amount) --segments
+	_G.DetailsOptionsWindow1SegmentsLockedSlider.MyObject:SetValue (_detalhes.instances_segments_locked) --locked segments
 	
 	_G.DetailsOptionsWindow1UseScrollSlider.MyObject:SetValue (_detalhes.use_scroll)
 	
@@ -5945,7 +5971,7 @@ function window:update_all (editing_instance)
 	_G.DetailsOptionsWindow20TooltipBackgroundColorPick.MyObject:SetColor (unpack (_detalhes.tooltip.background))
 	_G.DetailsOptionsWindow20TooltipAbbreviateDropdown.MyObject:Select (_detalhes.tooltip.abbreviation, true)
 	_G.DetailsOptionsWindow20TooltipMaximizeDropdown.MyObject:Select (_detalhes.tooltip.maximize_method, true)
-	
+	_G.DetailsOptionsWindow20TooltipShowAmountSlider.MyObject:SetValue (_detalhes.tooltip.show_amount)
 	----------
 
 

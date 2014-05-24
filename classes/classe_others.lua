@@ -947,9 +947,8 @@ function atributo_misc:ToolTipDispell (instancia, numero, barra)
 	end
 	_table_sort (meus_dispells, function(a, b) return a[2] > b[2] end)
 	
-	GameCooltip:AddLine (Loc ["STRING_SPELLS"].."", nil, nil, headerColor, nil, 12)
-	--GameCooltip:AddIcon ([[Interface\ICONS\inv_emberweavebandage2]], 1, 1, 14, 14, 0.078125, 0.9375, 0.078125, 0.953125)
-	--GameCooltip:AddIcon ([[Interface\ICONS\INV_Enchant_Disenchant]], 1, 1, 14, 14, 0.078125, 0.9375, 0.078125, 0.953125)
+	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_SPELLS"], headerColor, r, g, b, #meus_dispells)
+
 	GameCooltip:AddIcon ([[Interface\ICONS\Spell_Arcane_ArcaneTorrent]], 1, 1, 14, 14, 0.078125, 0.9375, 0.078125, 0.953125)
 	GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
 	
@@ -972,7 +971,8 @@ function atributo_misc:ToolTipDispell (instancia, numero, barra)
 	end
 	_table_sort (buffs_dispelados, function(a, b) return a[2] > b[2] end)
 	
-	GameCooltip:AddLine (Loc ["STRING_DISPELLED"] .. ":", nil, nil, headerColor, nil, 12)
+	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_DISPELLED"], headerColor, r, g, b, #buffs_dispelados)
+
 	GameCooltip:AddIcon ([[Interface\ICONS\Spell_Arcane_ManaTap]], 1, 1, 14, 14, 0.078125, 0.9375, 0.078125, 0.953125)
 	GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
 
@@ -986,15 +986,15 @@ function atributo_misc:ToolTipDispell (instancia, numero, barra)
 		end
 	end
 	
-	GameCooltip:AddLine (Loc ["STRING_TARGETS"].."", nil, nil, headerColor, nil, 12)
-	GameCooltip:AddIcon ([[Interface\ICONS\ACHIEVEMENT_GUILDPERK_EVERYONES A HERO_RANK2]], 1, 1, 14, 14, 0.078125, 0.9375, 0.078125, 0.953125)
-	GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
-	
 	local alvos_dispelados = {}
 	for _, TargetTable in _ipairs (self.dispell_targets._ActorTable) do
 		alvos_dispelados [#alvos_dispelados + 1] = {TargetTable.nome, TargetTable.total, TargetTable.total/meu_total*100}
 	end
 	_table_sort (alvos_dispelados, _detalhes.Sort2)
+
+	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_TARGETS"], headerColor, r, g, b, #alvos_dispelados)
+	GameCooltip:AddIcon ([[Interface\ICONS\ACHIEVEMENT_GUILDPERK_EVERYONES A HERO_RANK2]], 1, 1, 14, 14, 0.078125, 0.9375, 0.078125, 0.953125)
+	GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
 	
 	for i = 1, _math_min (25, #alvos_dispelados) do
 		if (alvos_dispelados[i][2] < 1) then
@@ -1251,7 +1251,7 @@ function atributo_misc:ToolTipDebuffUptime (instancia, numero, barra)
 	--_table_sort (debuffs_usados, Sort2Reverse)
 	_table_sort (debuffs_usados, _detalhes.Sort2)
 	
-	GameCooltip:AddLine (Loc ["STRING_SPELLS"].."", nil, nil, headerColor, nil, 12)
+	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_SPELLS"], headerColor, r, g, b, #debuffs_usados)
 	GameCooltip:AddIcon ([[Interface\ICONS\Ability_Warrior_Safeguard]], 1, 1, 14, 14, 0.9375, 0.078125, 0.078125, 0.953125)
 	GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
 
@@ -1308,7 +1308,7 @@ function atributo_misc:ToolTipBuffUptime (instancia, numero, barra)
 	--_table_sort (buffs_usados, Sort2Reverse)
 	_table_sort (buffs_usados, _detalhes.Sort2)
 	
-	GameCooltip:AddLine (Loc ["STRING_SPELLS"].."", nil, nil, headerColor, nil, 12)
+	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_SPELLS"], headerColor, r, g, b, #buffs_usados)
 	GameCooltip:AddIcon ([[Interface\ICONS\Ability_Warrior_Safeguard]], 1, 1, 14, 14, 0.9375, 0.078125, 0.078125, 0.953125)
 	GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
 
@@ -1362,8 +1362,7 @@ function atributo_misc:ToolTipDefensiveCooldowns (instancia, numero, barra)
 	end
 	_table_sort (cooldowns_usados, function(a, b) return a[2] > b[2] end)
 	
-	
-	GameCooltip:AddLine (Loc ["STRING_SPELLS"].."", nil, nil, headerColor, nil, 12)
+	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_SPELLS"], headerColor, r, g, b, #cooldowns_usados)
 	GameCooltip:AddIcon ([[Interface\ICONS\Ability_Warrior_Safeguard]], 1, 1, 14, 14, 0.9375, 0.078125, 0.078125, 0.953125)
 	GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
 	
@@ -1388,7 +1387,7 @@ function atributo_misc:ToolTipDefensiveCooldowns (instancia, numero, barra)
 	end
 	_table_sort (alvos, function(a, b) return a[2] > b[2] end)
 	
-	GameCooltip:AddLine (Loc ["STRING_TARGETS"].."", nil, nil, headerColor, nil, 12)
+	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_TARGETS"], headerColor, r, g, b, #alvos)
 	GameCooltip:AddIcon ([[Interface\ICONS\Ability_Warrior_DefensiveStance]], 1, 1, 14, 14, 0.9375, 0.125, 0.0625, 0.9375)
 	GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
 	
@@ -1439,7 +1438,7 @@ function atributo_misc:ToolTipRess (instancia, numero, barra)
 	end
 	_table_sort (meus_ress, function(a, b) return a[2] > b[2] end)
 	
-	GameCooltip:AddLine (Loc ["STRING_SPELLS"].."", nil, nil, headerColor, nil, 12)
+	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_SPELLS"], headerColor, r, g, b, #meus_ress)
 	GameCooltip:AddIcon ([[Interface\ICONS\Ability_Paladin_BlessedMending]], 1, 1, 14, 14, 0.098125, 0.828125, 0.953125, 0.168125)
 	GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
 	
@@ -1464,7 +1463,7 @@ function atributo_misc:ToolTipRess (instancia, numero, barra)
 	end
 	_table_sort (alvos, function(a, b) return a[2] > b[2] end)
 	
-	GameCooltip:AddLine (Loc ["STRING_TARGETS"].."", nil, nil, headerColor, nil, 12)
+	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_TARGETS"], headerColor, r, g, b, #alvos)
 	--GameCooltip:AddIcon ([[Interface\ICONS\Ability_DeathKnight_IcyGrip]], 1, 1, 14, 14, 0.9375, 0.078125, 0.953125, 0.078125)
 	
 	GameCooltip:AddIcon ([[Interface\ICONS\Ability_Priest_Cascade]], 1, 1, 14, 14, 0.9375, 0.0625, 0.0625, 0.9375)
@@ -1515,7 +1514,7 @@ function atributo_misc:ToolTipInterrupt (instancia, numero, barra)
 	end
 	_table_sort (meus_interrupts, function(a, b) return a[2] > b[2] end)
 	
-	GameCooltip:AddLine (Loc ["STRING_SPELLS"].."", nil, nil, headerColor, nil, 12)
+	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_SPELLS"], headerColor, r, g, b, #meus_interrupts)
 	GameCooltip:AddIcon ([[Interface\ICONS\Ability_Warrior_PunishingBlow]], 1, 1, 14, 14, 0.9375, 0.078125, 0.078125, 0.953125)
 	GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
 	
@@ -1539,7 +1538,7 @@ function atributo_misc:ToolTipInterrupt (instancia, numero, barra)
 	end
 	_table_sort (habilidades_interrompidas, function(a, b) return a[2] > b[2] end)
 	
-	GameCooltip:AddLine (Loc ["STRING_SPELL_INTERRUPTED"] .. ":", nil, nil, headerColor, nil, 12)
+	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_SPELL_INTERRUPTED"] .. ":", headerColor, r, g, b, #habilidades_interrompidas)
 	GameCooltip:AddIcon ([[Interface\ICONS\Ability_Warrior_Sunder]], 1, 1, 14, 14, 0.078125, 0.9375, 0.128125, 0.913125)
 	GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
 	

@@ -509,8 +509,10 @@ local default_profile = {
 		segments_amount = 12,
 		segments_amount_to_save = 5,
 		segments_panic_mode = true,
-	--> max instances
+	--> instances
 		instances_amount = 5,
+		instances_segments_locked = false,
+		
 	--> if clear ungroup characters when logout
 		clear_ungrouped = true,
 	--> if clear graphic data when logout
@@ -570,7 +572,7 @@ local default_profile = {
 		skin = "Default Skin", --?
 		
 	--> tooltip
-		tooltip = {fontface = "Friz Quadrata TT", fontsize = 10, fontcolor = {1, 1, 1, 1}, fontshadow = false, background = {.1, .1, .1, .3}, abbreviation = 8, maximize_method = 1, commands = {}},
+		tooltip = {fontface = "Friz Quadrata TT", fontsize = 10, fontcolor = {1, 1, 1, 1}, fontshadow = false, background = {.1, .1, .1, .3}, abbreviation = 8, maximize_method = 1, show_amount = false, commands = {}},
 	
 }
 
