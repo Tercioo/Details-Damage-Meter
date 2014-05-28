@@ -775,7 +775,7 @@
 			end
 			--
 			_detalhes.times_of_tutorial = 0 
-			_detalhes:ScheduleTimer ("delay_tutorial", 20)
+			_detalhes:ScheduleTimer ("delay_tutorial", 5)
 		end
 	
 	end

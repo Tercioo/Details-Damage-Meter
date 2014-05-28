@@ -835,7 +835,7 @@ do
 		function PSegment:CreateChildObject (instance)
 			local myframe = _detalhes.StatusBar:CreateChildFrame (instance, "DetailsPSegmentInstance" .. instance:GetInstanceId(), DEFAULT_CHILD_WIDTH, DEFAULT_CHILD_HEIGHT)
 			local new_child = _detalhes.StatusBar:CreateChildTable (instance, PSegment, myframe)
-			new_child.options.segmentType = new_child.options.segmentType or 1
+			new_child.options.segmentType = new_child.options.segmentType or 2
 			return new_child
 		end
 		
@@ -919,12 +919,17 @@ do
 			_detalhes:CancelTimer (Clock.tick)
 		end
 		
+		function _detalhes:ClockPluginTickOnSegment()
+			_detalhes:ClockPluginTick (true)
+		end
+		
 		--1 sec tick
-		function _detalhes:ClockPluginTick()
+		function _detalhes:ClockPluginTick (force)
+
 			for index, child in _ipairs (Clock.childs) do
 				local instance = child.instance
 				if (child.enabled and instance:IsEnabled()) then
-					if (instance.showing) then
+					if (instance.showing and ( (instance.segmento ~= -1) or (instance.segmento == -1 and not _detalhes.in_combat) or force) ) then
 						
 						local timeType = child.options.timeType
 						if (timeType == 1) then
@@ -1050,7 +1055,7 @@ do
 		--> Register needed events
 		_detalhes:RegisterEvent (Clock, "COMBAT_PLAYER_ENTER", Clock.PlayerEnterCombat)
 		_detalhes:RegisterEvent (Clock, "COMBAT_PLAYER_LEAVE", Clock.PlayerLeaveCombat)
-		_detalhes:RegisterEvent (Clock, "DETAILS_INSTANCE_CHANGESEGMENT", _detalhes.ClockPluginTick)
+		_detalhes:RegisterEvent (Clock, "DETAILS_INSTANCE_CHANGESEGMENT", _detalhes.ClockPluginTickOnSegment)
 		_detalhes:RegisterEvent (Clock, "DETAILS_DATA_SEGMENTREMOVED", _detalhes.ClockPluginTick)
 		_detalhes:RegisterEvent (Clock, "DETAILS_DATA_RESET", Clock.DataReset)
 

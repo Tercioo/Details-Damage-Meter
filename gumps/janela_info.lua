@@ -26,34 +26,58 @@ local classe_icones = _G.CLASS_ICON_TCOORDS
 --self = instancia
 --jogador = classe_damage ou classe_heal
 
-function _detalhes:AbreJanelaInfo (jogador)
+function _detalhes:AbreJanelaInfo (jogador, from_att_change)
 
 	if (not _detalhes.row_singleclick_overwrite [self.atributo] or not _detalhes.row_singleclick_overwrite [self.atributo][self.sub_atributo]) then
+		_detalhes:FechaJanelaInfo()
 		return
 	elseif (_type (_detalhes.row_singleclick_overwrite [self.atributo][self.sub_atributo]) == "function") then
+		if (from_att_change) then
+			_detalhes:FechaJanelaInfo()
+			return
+		end
 		return _detalhes.row_singleclick_overwrite [self.atributo][self.sub_atributo] (_, jogador, self)
 	end
 	
 	if (self.modo == _detalhes._detalhes_props["MODO_RAID"]) then
+		_detalhes:FechaJanelaInfo()
 		return
 	end
 
 	--> _detalhes.info_jogador armazena o jogador que esta sendo mostrado na janela de detalhes
-	if (info.jogador and info.jogador == jogador) then
+	if (info.jogador and info.jogador == jogador and self and info.atributo and self.atributo == info.atributo and self.sub_atributo == info.sub_atributo) then
 		_detalhes:FechaJanelaInfo() --> se clicou na mesma barra então fecha a janela de detalhes
 		return
 	elseif (not jogador) then
+		_detalhes:FechaJanelaInfo()
 		return
 	end
 
+	if (info.barras1) then
+		for index, barra in ipairs (info.barras1) do 
+			barra.other_actor = nil
+		end
+	end
+	
+	if (info.barras2) then
+		for index, barra in ipairs (info.barras2) do 
+			barra.icone:SetTexture (nil)
+			barra.icone:SetTexCoord (0, 1, 0, 1)
+		end
+	end
+	
 	--> vamos passar os parâmetros para dentro da tabela da janela...
 
 	info.ativo = true --> sinaliza o addon que a janela esta aberta
 	info.atributo = self.atributo --> instancia.atributo -> grava o atributo (damage, heal, etc)
 	info.sub_atributo = self.sub_atributo --> instancia.sub_atributo -> grava o sub atributo (damage done, dps, damage taken, etc)
-	
 	info.jogador = jogador --> de qual jogador (objeto classe_damage)
 	info.instancia = self --> salva a referência da instância que pediu o info
+	
+	info.target_text = Loc ["STRING_TARGETS"] .. ":"
+	info.target_member = "total"
+	info.target_persecond = false
+	
 	info.mostrando = nil
 	
 	local nome = info.jogador.nome --> nome do jogador
@@ -71,7 +95,11 @@ function _detalhes:AbreJanelaInfo (jogador)
 	info.nome:SetText (nome)
 	info.atributo_nome:SetText (atributo_nome)
 
-	local avatar = NickTag:GetNicknameTable (jogador.serial)
+	local serial = jogador.serial
+	local avatar
+	if (serial ~= "") then
+		avatar = NickTag:GetNicknameTable (serial)
+	end
 	
 	if (avatar and avatar [1]) then
 		info.nome:SetText (avatar [1] or nome)
@@ -113,6 +141,8 @@ function _detalhes:AbreJanelaInfo (jogador)
 	
 	info.atributo_nome:SetPoint ("CENTER", info.nome, "CENTER", 0, 14)
 	
+	info.no_targets:Hide()
+	info.no_targets.text:Hide()
 	gump:TrocaBackgroundInfo (info)
 	
 	gump:HidaAllBarrasInfo()
@@ -177,88 +207,98 @@ end
 
 -- for beta todo: info background need a major rewrite
 function gump:TrocaBackgroundInfo()
+
 	if (info.atributo == 1) then --> DANO
+	
 		if (info.sub_atributo == 1 or info.sub_atributo == 2) then --> damage done / dps
 			if (info.tipo ~= 1) then --> janela com as divisorias
-			
 				info.bg1:SetTexture ([[Interface\AddOns\Details\images\info_window_background]])
 				info.bg1_sec_texture:SetTexture (nil)
-				info.targets:SetText (Loc ["STRING_TARGETS"] .. ":")
 				info.tipo = 1
 			end
+			
+			if (info.sub_atributo == 2) then
+				info.targets:SetText (Loc ["STRING_TARGETS"] .. " " .. Loc ["STRING_ATTRIBUTE_DAMAGE_DPS"] .. ":")
+				info.target_persecond = true
+			else
+				info.targets:SetText (Loc ["STRING_TARGETS"] .. ":")
+			end
+			
 		elseif (info.sub_atributo == 3) then --> damage taken
 			if (info.tipo ~= 2) then --> janela com fundo diferente
 				info.bg1:SetTexture ([[Interface\AddOns\Details\images\info_window_background]])
 				info.bg1_sec_texture:SetTexture ([[Interface\AddOns\Details\images\info_window_damagetaken]])
-				info.targets:SetText (Loc ["STRING_TARGETS"] .. ":")
 				info.tipo = 2
 			end
+			
+			info.targets:SetText (Loc ["STRING_TARGETS"] .. ":")
+			info.no_targets:Show()
+			info.no_targets.text:Show()
+			
 		elseif (info.sub_atributo == 4) then --> friendly fire
 			if (info.tipo ~= 3) then --> janela com fundo diferente
 				info.bg1:SetTexture ([[Interface\AddOns\Details\images\info_window_background]])
-				info.bg1_sec_texture:SetTexture ([[Interface\AddOns\Details\images\info_window_friendlyfire]])
-				info.targets:SetText (Loc ["STRING_SPELLS"] .. ":")
+				info.bg1_sec_texture:SetTexture ([[Interface\AddOns\Details\images\info_window_damagetaken]])
 				info.tipo = 3
 			end
+			info.targets:SetText (Loc ["STRING_SPELLS"] .. ":")
+			
 		elseif (info.sub_atributo == 6) then --> enemies
 			if (info.tipo ~= 3) then --> janela com fundo diferente
 				info.bg1:SetTexture ([[Interface\AddOns\Details\images\info_window_background]])
 				info.bg1_sec_texture:SetTexture ([[Interface\AddOns\Details\images\info_window_damagetaken]])
-				info.targets:SetText (Loc ["STRING_DAMAGE_TAKEN_FROM"])
 				info.tipo = 3
 			end
+			info.targets:SetText (Loc ["STRING_DAMAGE_TAKEN_FROM"])
 		end
+		
 	elseif (info.atributo == 2) then --> HEALING
 		if (info.sub_atributo == 1 or info.sub_atributo == 2 or info.sub_atributo == 3) then --> damage done / dps
 			if (info.tipo ~= 1) then --> janela com as divisorias
-				--info.bg1:SetTexture ("Interface\\AddOns\\Details\\images\\info_bg_part1") --> top left
-				--info.bg3:SetTexture ("Interface\\AddOns\\Details\\images\\info_bg_part3") --> bottom left
-				--info.bg2:SetTexture ("Interface\\AddOns\\Details\\images\\info_bg_part2") --> top right
-				--info.bg4:SetTexture ("Interface\\AddOns\\Details\\images\\info_bg_part4") --> bottom right
-				
 				info.bg1:SetTexture ([[Interface\AddOns\Details\images\info_window_background]])
 				info.bg1_sec_texture:SetTexture (nil)
-				info.targets:SetText (Loc ["STRING_TARGETS"] .. ":")
 				info.tipo = 1
 			end
+			
+			if (info.sub_atributo == 3) then
+				info.targets:SetText (Loc ["STRING_OVERHEALED"] .. ":")
+				info.target_member = "overheal"
+				info.target_text = Loc ["STRING_OVERHEALED"] .. ":"
+			elseif (info.sub_atributo == 2) then
+				info.targets:SetText (Loc ["STRING_TARGETS"] .. " " .. Loc ["STRING_ATTRIBUTE_HEAL_HPS"] .. ":")
+				info.target_persecond = true
+			else
+				info.targets:SetText (Loc ["STRING_TARGETS"] .. ":")
+			end
+			
 		elseif (info.sub_atributo == 4) then --> Healing taken
-			if (info.tipo ~= 2) then --> janela com fundo diferente
-				--info.bg1:SetTexture ("Interface\\AddOns\\Details\\images\\bg_part1_sr") --> top left
-				--info.bg3:SetTexture ("Interface\\AddOns\\Details\\images\\bg_part3_sr") --> bottom left
-				--info.bg2:SetTexture ("Interface\\AddOns\\Details\\images\\bg_part2_sr") --> top right
-				--info.bg4:SetTexture ("Interface\\AddOns\\Details\\images\\bg_part4_sr") --> bottom right
-				
+			if (info.tipo ~= 2) then --> janela com fundo diferente			
 				info.bg1:SetTexture ([[Interface\AddOns\Details\images\info_window_background]])
 				info.bg1_sec_texture:SetTexture ([[Interface\AddOns\Details\images\info_window_damagetaken]])
-				info.targets:SetText (Loc ["STRING_TARGETS"] .. ":")
 				info.tipo = 2
 			end
+			
+			info.targets:SetText (Loc ["STRING_TARGETS"] .. ":")
+			info.no_targets:Show()
+			info.no_targets.text:Show()
 		end
+		
 	elseif (info.atributo == 3) then --> REGEN
 		if (info.tipo ~= 2) then --> janela com fundo diferente
-			--info.bg1:SetTexture ("Interface\\AddOns\\Details\\images\\bg_part1_sr") --> top left
-			--info.bg3:SetTexture ("Interface\\AddOns\\Details\\images\\bg_part3_sr") --> bottom left
-			--info.bg2:SetTexture ("Interface\\AddOns\\Details\\images\\bg_part2_sr") --> top right
-			--info.bg4:SetTexture ("Interface\\AddOns\\Details\\images\\bg_part4_sr") --> bottom right
-			
 			info.bg1:SetTexture ([[Interface\AddOns\Details\images\info_window_background]])
 			info.bg1_sec_texture:SetTexture (nil)
-			info.targets:SetText ("Vindo de:")
 			info.tipo = 2
 		end
+		info.targets:SetText ("Vindo de:")
 	
 	elseif (info.atributo == 4) then --> MISC
 		if (info.tipo ~= 2) then --> janela com fundo diferente
-			--info.bg1:SetTexture ("Interface\\AddOns\\Details\\images\\bg_part1_sr") --> top left
-			--info.bg3:SetTexture ("Interface\\AddOns\\Details\\images\\bg_part3_sr") --> bottom left
-			--info.bg2:SetTexture ("Interface\\AddOns\\Details\\images\\bg_part2_sr") --> top right
-			--info.bg4:SetTexture ("Interface\\AddOns\\Details\\images\\bg_part4_sr") --> bottom right
-			
 			info.bg1:SetTexture ([[Interface\AddOns\Details\images\info_window_background]])
 			info.bg1_sec_texture:SetTexture (nil)
-			info.targets:SetText (Loc ["STRING_TARGETS"] .. ":")
 			info.tipo = 2
 		end
+		info.targets:SetText (Loc ["STRING_TARGETS"] .. ":")
+		
 	end
 end
 
@@ -710,10 +750,10 @@ local function cria_container_alvos (este_gump)
 		insets = {left = 1, right = 1, top = 0, bottom = 1},})		
 	container_alvos_window:SetBackdropBorderColor (0,0,0,0)
 	
-	container_alvos:SetBackdrop({
-		bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16,
-		insets = {left = 1, right = 1, top = 0, bottom = 1},})		
-	container_alvos:SetBackdropColor (50/255, 50/255, 50/255, 0.6)
+	--container_alvos:SetBackdrop({
+	--	bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16,
+	--	insets = {left = 1, right = 1, top = 0, bottom = 1},})		
+	--container_alvos:SetBackdropColor (50/255, 50/255, 50/255, 0.6)
 	
 	container_alvos:SetAllPoints (container_alvos_window)
 	container_alvos:SetWidth (300)
@@ -789,9 +829,10 @@ function gump:CriaJanelaInfo()
 	
 	este_gump.bg1_sec_texture = este_gump:CreateTexture (nil, "BORDER")
 	este_gump.bg1_sec_texture:SetDrawLayer ("BORDER", 2)
-	este_gump.bg1_sec_texture:SetPoint ("topleft", este_gump.bg1, "topleft", 356, -86)
+	--este_gump.bg1_sec_texture:SetPoint ("topleft", este_gump.bg1, "topleft", 356, -86)
+	este_gump.bg1_sec_texture:SetPoint ("topleft", este_gump.bg1, "topleft", 348, -86)
 	este_gump.bg1_sec_texture:SetHeight (262)
-	este_gump.bg1_sec_texture:SetWidth (258)
+	este_gump.bg1_sec_texture:SetWidth (264)
 
 	--> bottom left
 	este_gump.bg3 = este_gump:CreateTexture (nil, "BORDER")
@@ -828,6 +869,19 @@ function gump:CriaJanelaInfo()
 	este_gump.fechar:SetText ("X")
 	este_gump.fechar:SetFrameLevel (este_gump:GetFrameLevel()+2)
 
+	este_gump.no_targets = este_gump:CreateTexture (nil, "overlay")
+	este_gump.no_targets:SetPoint ("BOTTOMLEFT", este_gump, "BOTTOMLEFT", 20, 6)
+	este_gump.no_targets:SetSize (301, 100)
+	este_gump.no_targets:SetTexture ([[Interface\QUESTFRAME\UI-QUESTLOG-EMPTY-TOPLEFT]])
+	este_gump.no_targets:SetTexCoord (0.015625, 1, 0.01171875, 0.390625)
+	este_gump.no_targets:SetDesaturated (true)
+	este_gump.no_targets:SetAlpha (.7)
+	este_gump.no_targets.text = este_gump:CreateFontString (nil, "overlay", "GameFontNormal")
+	este_gump.no_targets.text:SetPoint ("center", este_gump.no_targets, "center")
+	este_gump.no_targets.text:SetText (Loc ["STRING_NO_TARGET_BOX"])
+	este_gump.no_targets.text:SetTextColor (1, 1, 1, .4)
+	este_gump.no_targets:Hide()
+	
 	function este_gump:ToFront()
 		if (_detalhes.bosswindow) then
 			if (_detalhes.bosswindow:GetFrameLevel() > este_gump:GetFrameLevel()) then 
@@ -1561,8 +1615,12 @@ function gump:CriaJanelaInfo()
 			end
 			
 			if (amt_positive < 2) then
-				_detalhes.player_details_tabs[1]:Hide()
+				--_detalhes.player_details_tabs[1]:Hide()
+				_detalhes.player_details_tabs[1]:SetPoint ("BOTTOMLEFT", info.container_barras, "TOPLEFT",  390 - (67 * (2-1)), 1)
 			end
+			
+			_detalhes.player_details_tabs[1]:Click()
+			
 		end
 
 		este_gump:SetScript ("OnHide", function (self)
@@ -1638,12 +1696,32 @@ function _detalhes:CreatePlayerDetailsTab (tabname, condition, fillfunction, onc
 		newtab:SetScript ("OnClick", function() 
 			for _, tab in _ipairs (_detalhes.player_details_tabs) do
 				tab.frame:Hide()
+				tab.leftSelectedTexture:SetVertexColor (1, 1, 1, 1)
+				tab.middleSelectedTexture:SetVertexColor (1, 1, 1, 1)
+				tab.rightSelectedTexture:SetVertexColor (1, 1, 1, 1)
 			end
+			
+			newtab.leftSelectedTexture:SetVertexColor (1, .7, 0, 1)
+			newtab.middleSelectedTexture:SetVertexColor (1, .7, 0, 1)
+			newtab.rightSelectedTexture:SetVertexColor (1, .7, 0, 1)
 			newtab.frame:Show()
 		end)
 	else
 		--> custom
-		newtab:SetScript ("OnClick", onclick)
+		newtab:SetScript ("OnClick", function() 
+			for _, tab in _ipairs (_detalhes.player_details_tabs) do
+				tab.frame:Hide()
+				tab.leftSelectedTexture:SetVertexColor (1, 1, 1, 1)
+				tab.middleSelectedTexture:SetVertexColor (1, 1, 1, 1)
+				tab.rightSelectedTexture:SetVertexColor (1, 1, 1, 1)
+			end
+			
+			newtab.leftSelectedTexture:SetVertexColor (1, .7, 0, 1)
+			newtab.middleSelectedTexture:SetVertexColor (1, .7, 0, 1)
+			newtab.rightSelectedTexture:SetVertexColor (1, .7, 0, 1)
+			
+			onclick()
+		end)
 	end
 	
 	--> remove os scripts padroes
@@ -2030,8 +2108,13 @@ local function CriaTexturaBarra (instancia, barra)
 	barra.textura:SetAllPoints (barra)
 	--barra.textura:SetStatusBarTexture (instancia.row_info.texture_file)
 	barra.textura:SetStatusBarTexture (_detalhes.default_texture)
-	barra.textura:SetStatusBarColor(.5, .5, .5, 0)
-	barra.textura:SetMinMaxValues(0,100)
+	barra.textura:SetStatusBarColor (.5, .5, .5, 0)
+	barra.textura:SetMinMaxValues (0,100)
+	
+	if (barra.targets) then
+		barra.targets:SetParent (barra.textura)
+		barra.targets:SetFrameLevel (barra.textura:GetFrameLevel()+2)
+	end
 	
 	barra.texto_esquerdo = barra.textura:CreateFontString (nil, "OVERLAY", "GameFontHighlightSmall")
 	barra.texto_esquerdo:SetPoint ("LEFT", barra.textura, "LEFT", 22, 0)
@@ -2042,7 +2125,11 @@ local function CriaTexturaBarra (instancia, barra)
 	barra.texto_esquerdo:SetWordWrap (false)
 	
 	barra.texto_direita = barra.textura:CreateFontString (nil, "OVERLAY", "GameFontHighlightSmall")
-	barra.texto_direita:SetPoint ("RIGHT", barra.textura, "RIGHT", -2)
+	if (barra.targets) then
+		barra.texto_direita:SetPoint ("RIGHT", barra.targets, "LEFT", -2, 0)
+	else
+		barra.texto_direita:SetPoint ("RIGHT", barra, "RIGHT", -2, 0)
+	end
 	barra.texto_direita:SetJustifyH ("RIGHT")
 	barra.texto_direita:SetTextColor (1,1,1,1)
 	
@@ -2059,14 +2146,93 @@ local miniframe_func_on_enter = function (self)
 			GameTooltip:Show()
 		end
 	end
-	
 	barra:GetScript("OnEnter")(barra)
-	
 end
 
 local miniframe_func_on_leave = function (self)
 	GameTooltip:Hide()
 	self:GetParent():GetScript("OnLeave")(self:GetParent())
+end
+
+local target_on_enter = function (self)
+
+	local barra = self:GetParent():GetParent()
+	
+	if (barra.show and type (barra.show) == "number") then
+		local actor = barra.other_actor or info.jogador
+		local spell = actor.spell_tables:PegaHabilidade (barra.show)
+		if (spell) then
+			local ActorTargetsContainer = spell.targets._ActorTable
+			local ActorTargetsSortTable = {}
+			--add and sort
+			for _, _target in _ipairs (ActorTargetsContainer) do
+				ActorTargetsSortTable [#ActorTargetsSortTable+1] = {_target.nome, _target [info.target_member] or _target.total or 0}
+			end
+			table.sort (ActorTargetsSortTable, _detalhes.Sort2)
+			
+			local spellname = _GetSpellInfo (barra.show)
+			
+			GameTooltip:SetOwner (self, "ANCHOR_TOPRIGHT")
+			GameTooltip:AddLine (barra.index .. ". " .. spellname)
+			GameTooltip:AddLine (info.target_text)
+			GameTooltip:AddLine (" ")
+			
+			--get time type
+			local meu_tempo
+			if (_detalhes.time_type == 1 or not actor.grupo) then
+				meu_tempo = actor:Tempo()
+			elseif (_detalhes.time_type == 2) then
+				meu_tempo = info.instancia.showing:GetCombatTime()
+			end
+			
+			for index, target in ipairs (ActorTargetsSortTable) do 
+				if (target [2] > 0) then
+					local class = _detalhes:GetClass (target [1])
+					if (class and _detalhes.class_coords [class]) then
+						local cords = _detalhes.class_coords [class]
+						if (info.target_persecond) then
+							GameTooltip:AddDoubleLine (index .. ". |TInterface\\AddOns\\Details\\images\\classes_small_alpha:14:14:0:0:128:128:"..cords[1]*128 ..":"..cords[2]*128 ..":"..cords[3]*128 ..":"..cords[4]*128 .."|t " .. target [1], _detalhes:comma_value ( _math_floor (target [2] / meu_tempo) ), 1, 1, 1, 1, 1, 1)
+						else
+							GameTooltip:AddDoubleLine (index .. ". |TInterface\\AddOns\\Details\\images\\classes_small_alpha:14:14:0:0:128:128:"..cords[1]*128 ..":"..cords[2]*128 ..":"..cords[3]*128 ..":"..cords[4]*128 .."|t " .. target [1], _detalhes:comma_value (target [2]), 1, 1, 1, 1, 1, 1)
+						end
+					else
+						if (info.target_persecond) then
+							GameTooltip:AddDoubleLine (index .. ". " .. target [1], _detalhes:comma_value ( _math_floor (target [2] / meu_tempo)), 1, 1, 1, 1, 1, 1)
+						else
+							GameTooltip:AddDoubleLine (index .. ". " .. target [1], _detalhes:comma_value (target [2]), 1, 1, 1, 1, 1, 1)
+						end
+					end
+				end
+			end
+			
+			GameTooltip:Show()
+		else
+			GameTooltip:SetOwner (self, "ANCHOR_TOPRIGHT")
+			GameTooltip:AddLine (barra.index .. ". " .. barra.show)
+			GameTooltip:AddLine (info.target_text)
+			GameTooltip:AddLine (Loc ["STRING_NO_TARGET"], 1, 1, 1)
+			GameTooltip:AddLine (Loc ["STRING_MORE_INFO"], 1, 1, 1)
+			GameTooltip:Show()
+		end
+	else
+		GameTooltip:SetOwner (self, "ANCHOR_TOPRIGHT")
+		GameTooltip:AddLine (barra.index .. ". " .. barra.show)
+		GameTooltip:AddLine (info.target_text)
+		GameTooltip:AddLine (Loc ["STRING_NO_TARGET"], 1, 1, 1)
+		GameTooltip:AddLine (Loc ["STRING_MORE_INFO"], 1, 1, 1)
+		GameTooltip:Show()
+	end
+	
+	self.texture:SetAlpha (1)
+	self:SetAlpha (1)
+	barra:GetScript("OnEnter")(barra)
+end
+
+local target_on_leave = function (self)
+	GameTooltip:Hide()
+	self:GetParent():GetParent():GetScript("OnLeave")(self:GetParent():GetParent())
+	self.texture:SetAlpha (.7)
+	self:SetAlpha (.7)
 end
 
 function gump:CriaNovaBarraInfo1 (instancia, index)
@@ -2081,6 +2247,7 @@ function gump:CriaNovaBarraInfo1 (instancia, index)
 	local esta_barra = _CreateFrame ("Button", "Details_infobox1_bar_"..index, info.container_barras.gump)
 	esta_barra:SetWidth (300) --> tamanho da barra de acordo com o tamanho da janela
 	esta_barra:SetHeight (16) --> altura determinada pela instância
+	esta_barra.index = index
 
 	local y = (index-1)*17 --> 17 é a altura da barra
 	y = y*-1 --> baixo
@@ -2093,8 +2260,20 @@ function gump:CriaNovaBarraInfo1 (instancia, index)
 	esta_barra:EnableMouse (true)
 	esta_barra:RegisterForClicks ("LeftButtonDown","RightButtonUp")	
 	
+	esta_barra.targets = CreateFrame ("frame", "Details_infobox1_bar_"..index.."Targets", esta_barra)
+	esta_barra.targets:SetPoint ("right", esta_barra, "right")
+	esta_barra.targets:SetSize (15, 15)
+	esta_barra.targets.texture = esta_barra.targets:CreateTexture (nil, overlay)
+	esta_barra.targets.texture:SetTexture ([[Interface\MINIMAP\TRACKING\Target]])
+	esta_barra.targets.texture:SetAllPoints()
+	esta_barra.targets.texture:SetDesaturated (true)
+	esta_barra.targets:SetAlpha (.7)
+	esta_barra.targets.texture:SetAlpha (.7)
+	esta_barra.targets:SetScript ("OnEnter", target_on_enter)
+	esta_barra.targets:SetScript ("OnLeave", target_on_leave)
+	
 	CriaTexturaBarra (instancia, esta_barra)
-
+	
 	--> icone
 	esta_barra.miniframe = CreateFrame ("frame", nil, esta_barra)
 	esta_barra.miniframe:SetSize (14, 14)

@@ -44,6 +44,7 @@ local OBJECT_TYPE_PET =		0x00001000
 local OBJECT_TYPE_NPC =		0x00000800
 local OBJECT_TYPE_PLAYER =	0x00000400
 local OBJECT_TYPE_PETS = 		OBJECT_TYPE_PET + OBJECT_TYPE_GUARDIAN
+local EM_GRUPO = 0x00000007
 
 local REACTION_HOSTILE = COMBATLOG_OBJECT_REACTION_HOSTILE or 0x00000040
 
@@ -66,8 +67,7 @@ function container_combatentes:NovoContainer (tipo_do_container, combatTable, co
 	return _newContainer
 end
 
-local function get_class_ (novo_objeto, nome, flag)
-
+local function get_actor_class (novo_objeto, nome, flag)
 	local _, engClass = _UnitClass (nome)
 
 	if (engClass) then
@@ -75,14 +75,11 @@ local function get_class_ (novo_objeto, nome, flag)
 		return
 	else	
 		if (flag) then
-			--print ("tem flag: " .. flag)
 			--> conferir se o jogador é um player
 			if (_bit_band (flag, OBJECT_TYPE_PLAYER) ~= 0) then
-				--print ("eh um player sem grupo: "..novo_objeto.nome)
 				novo_objeto.classe = "UNGROUPPLAYER"
 				return
 			elseif (_bit_band (flag, OBJECT_TYPE_PETGUARDIAN) ~= 0) then
-				--print ("eh um pet: "..novo_objeto.nome)
 				novo_objeto.classe = "PET"
 				return
 			end
@@ -90,21 +87,6 @@ local function get_class_ (novo_objeto, nome, flag)
 		novo_objeto.classe = "UNKNOW"
 		return
 	end
-end
-
-local EM_GRUPO = 0x00000007
-
-function container_combatentes:Dupe (who)
-	local novo_objeto = {}
-	if (_getmetatable (who)) then 
-		_setmetatable (novo_objeto, _getmetatable (who))
-	end
-	
-	for cprop, value in _pairs (who) do 
-		novo_objeto[cprop] = value
-	end
-	
-	return novo_objeto
 end
 
 function container_combatentes:GetAmount (actorName, key)
@@ -117,7 +99,7 @@ function container_combatentes:GetAmount (actorName, key)
 	end
 end
 
-local read_flag_ = function (novo_objeto, shadow_objeto, dono_do_pet, serial, flag, nome)
+local read_actor_flag = function (novo_objeto, shadow_objeto, dono_do_pet, serial, flag, nome)
 	-- converte a flag do wow em flag do details
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------		
 	
@@ -261,8 +243,8 @@ function container_combatentes:PegarCombatente (serial, nome, flag, criar, isOwn
 		
 		if (self.tipo == container_damage) then --> CONTAINER DAMAGE
 
-			get_class_ (novo_objeto, nome, flag)
-			read_flag_ (novo_objeto, shadow_objeto, dono_do_pet, serial, flag, nome)
+			get_actor_class (novo_objeto, nome, flag)
+			read_actor_flag (novo_objeto, shadow_objeto, dono_do_pet, serial, flag, nome)
 			
 			if (dono_do_pet) then
 				dono_do_pet.pets [#dono_do_pet.pets+1] = nome
@@ -294,8 +276,8 @@ function container_combatentes:PegarCombatente (serial, nome, flag, criar, isOwn
 			
 		elseif (self.tipo == container_heal) then --> CONTAINER HEALING
 			
-			get_class_ (novo_objeto, nome, flag)
-			read_flag_ (novo_objeto, shadow_objeto, dono_do_pet, serial, flag, nome)
+			get_actor_class (novo_objeto, nome, flag)
+			read_actor_flag (novo_objeto, shadow_objeto, dono_do_pet, serial, flag, nome)
 			
 			if (dono_do_pet) then
 				dono_do_pet.pets [#dono_do_pet.pets+1] = nome
@@ -324,8 +306,8 @@ function container_combatentes:PegarCombatente (serial, nome, flag, criar, isOwn
 			
 		elseif (self.tipo == container_energy) then --> CONTAINER ENERGY
 			
-			get_class_ (novo_objeto, nome, flag)
-			read_flag_ (novo_objeto, shadow_objeto, dono_do_pet, serial, flag, nome)
+			get_actor_class (novo_objeto, nome, flag)
+			read_actor_flag (novo_objeto, shadow_objeto, dono_do_pet, serial, flag, nome)
 			
 			if (dono_do_pet) then
 				dono_do_pet.pets [#dono_do_pet.pets+1] = nome
@@ -350,8 +332,8 @@ function container_combatentes:PegarCombatente (serial, nome, flag, criar, isOwn
 			
 		elseif (self.tipo == container_misc) then --> CONTAINER MISC
 			
-			get_class_ (novo_objeto, nome, flag)
-			read_flag_ (novo_objeto, shadow_objeto, dono_do_pet, serial, flag, nome)
+			get_actor_class (novo_objeto, nome, flag)
+			read_actor_flag (novo_objeto, shadow_objeto, dono_do_pet, serial, flag, nome)
 			
 			--local teste_classe = 
 			
@@ -420,7 +402,7 @@ function container_combatentes:PegarCombatente (serial, nome, flag, criar, isOwn
 			
 		elseif (self.tipo == container_friendlyfire) then --> CONTAINER FRIENDLY FIRE
 			
-			get_class_ (novo_objeto, nome)
+			get_actor_class (novo_objeto, nome)
 			
 			if (shadow_objeto) then
 				novo_objeto.shadow = shadow_objeto

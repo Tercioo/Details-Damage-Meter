@@ -51,21 +51,14 @@
 	
 	--> current combat and overall pointers
 		local _current_combat = _detalhes.tabela_vigente or {} --> placeholder table
-		local _overall_combat = _detalhes.tabela_overall or {} --> placeholder table
 	--> total container pointers
 		local _current_total = _current_combat.totals
 		local _current_gtotal = _current_combat.totals_grupo
-		local _overall_total = _overall_combat.totals
-		local _overall_gtotal = _overall_combat.totals_grupo
 	--> actors container pointers
 		local _current_damage_container = _current_combat [1]
-		local _overall_damage_container = _overall_combat [1]
 		local _current_heal_container = _current_combat [2]
-		local _overall_heal_container = _overall_combat [2]
 		local _current_energy_container = _current_combat [3]
-		local _overall_energy_container = _overall_combat [3]
 		local _current_misc_container = _current_combat [4]
-		local _overall_misc_container = _overall_combat [4]
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> cache
@@ -171,7 +164,6 @@
 		end
 		
 		_current_damage_container.need_refresh = true
-		_overall_damage_container.need_refresh = true
 		
 	------------------------------------------------------------------------------------------------
 	--> get actors
@@ -220,14 +212,6 @@
 			
 		end
 		
-		--if (who_name == "Guardian of Ancient Kings") then --remover
-		--	print ("MELEE GAK 1", meu_dono)
-		--end	
-		
-		--> damager shadow
-		local shadow = este_jogador.shadow
-		local shadow_of_target = jogador_alvo.shadow
-		
 		--> last event
 		este_jogador.last_event = _tempo
 		
@@ -236,7 +220,6 @@
 
 		if (este_jogador.grupo) then 
 			_current_gtotal [1] = _current_gtotal [1]+amount
-			_overall_gtotal [1] = _overall_gtotal [1]+amount
 			
 		elseif (jogador_alvo.grupo) then
 		
@@ -312,12 +295,6 @@
 			jogador_alvo.damage_from [who_name] = true
 		end
 		
-		--> his shadow
-		shadow_of_target.damage_taken = shadow_of_target.damage_taken + amount --> adiciona o dano tomado
-		if (not shadow_of_target.damage_from [who_name]) then --> adiciona a pool de dano tomado de quem
-			shadow_of_target.damage_from [who_name] = true
-		end
-		
 	------------------------------------------------------------------------------------------------
 	--> time start 
 
@@ -329,7 +306,6 @@
 				meu_dono:Iniciar (true)
 				if (meu_dono.end_time) then
 					meu_dono.end_time = nil
-					meu_dono.shadow.end_time = nil
 				else
 					meu_dono:IniciarTempo (_tempo-3.0, meu_dono.shadow)
 				end
@@ -337,9 +313,8 @@
 			
 			if (este_jogador.end_time) then
 				este_jogador.end_time = nil
-				shadow.end_time = nil
 			else
-				este_jogador:IniciarTempo (_tempo-3.0, shadow)
+				este_jogador:IniciarTempo (_tempo-3.0, este_jogador.shadow)
 			end
 
 			if (este_jogador.nome == _detalhes.playername and token ~= "SPELL_PERIODIC_DAMAGE") then --> iniciando o dps do "PLAYER"
@@ -361,7 +336,6 @@
 		if (raid_members_cache [who_serial] and raid_members_cache [alvo_serial]) then
 
 			este_jogador.friendlyfire_total = este_jogador.friendlyfire_total + amount
-			shadow.friendlyfire_total = shadow.friendlyfire_total + amount
 			
 			local amigo = este_jogador.friendlyfire._NameIndexTable [alvo_name]
 			if (not amigo) then
@@ -371,7 +345,6 @@
 			end
 
 			amigo.total = amigo.total + amount
-			amigo.shadow.total = amigo.shadow.total + amount
 
 			local spell = amigo.spell_tables._ActorTable [spellid]
 			if (not spell) then
@@ -381,7 +354,6 @@
 			return spell:AddFF (amount) --adiciona a classe da habilidade, a classe da habilidade se encarrega de adicionar aos alvos dela
 		else
 			_current_total [1] = _current_total [1]+amount
-			_overall_total [1] = _overall_total [1]+amount
 			
 		end
 		
@@ -391,7 +363,6 @@
 		--> actor owner (if any)
 		if (meu_dono) then --> se for dano de um Pet
 			meu_dono.total = meu_dono.total + amount --> e adiciona o dano ao pet
-			meu_dono.shadow.total = meu_dono.shadow.total + amount --> e adiciona o dano ao pet
 			
 			--> add owner targets
 			local owner_target = meu_dono.targets._NameIndexTable [alvo_name]
@@ -407,11 +378,9 @@
 
 		--> actor
 		este_jogador.total = este_jogador.total + amount
-		shadow.total = shadow.total + amount
 		
 		--> actor without pets
 		este_jogador.total_without_pet = este_jogador.total_without_pet + amount
-		shadow.total_without_pet = shadow.total_without_pet + amount
 
 		--> actor targets
 		local este_alvo = este_jogador.targets._NameIndexTable [alvo_name]
@@ -421,7 +390,6 @@
 			este_alvo = este_jogador.targets._ActorTable [este_alvo]
 		end
 		este_alvo.total = este_alvo.total + amount
-		este_alvo.shadow.total = este_alvo.shadow.total + amount
 
 		--> actor spells table
 		local spell = este_jogador.spell_tables._ActorTable [spellid]
@@ -515,10 +483,6 @@
 -----------------------------------------------------------------------------------------------------------------------------------------
 	function parser:summon (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellName)
 	
-		--if (alvo_name == "Guardian of Ancient Kings") then --remover
-		--	print ("Summon GAK 1", who_name)
-		--end
-	
 		--> pet summon another pet
 		local sou_pet = _detalhes.tabela_pets.pets [who_serial]
 		if (sou_pet) then --> okey, ja é um pet
@@ -575,7 +539,6 @@
 		end
 		
 		_current_heal_container.need_refresh = true
-		_overall_heal_container.need_refresh = true
 	
 	------------------------------------------------------------------------------------------------
 	--> get actors
@@ -595,9 +558,6 @@
 				healing_cache [alvo_name] = jogador_alvo
 			end
 		end
-
-		local shadow = este_jogador.shadow
-		local shadow_of_target = jogador_alvo.shadow
 		
 		este_jogador.last_event = _tempo
 
@@ -611,14 +571,7 @@
 				este_jogador.heal_enemy [spellid] = este_jogador.heal_enemy [spellid] + cura_efetiva
 			end
 			
-			if (not este_jogador.shadow.heal_enemy [spellid]) then 
-				shadow.heal_enemy [spellid] = cura_efetiva
-			else
-				shadow.heal_enemy [spellid] = shadow.heal_enemy [spellid] + cura_efetiva
-			end
-			
 			este_jogador.heal_enemy_amt = este_jogador.heal_enemy_amt + cura_efetiva
-			shadow.heal_enemy_amt = shadow.heal_enemy_amt + cura_efetiva
 			
 			return
 		end	
@@ -628,7 +581,6 @@
 
 		if (este_jogador.grupo) then 
 			_current_combat.totals_grupo[2] = _current_combat.totals_grupo[2] + cura_efetiva
-			_overall_combat.totals_grupo[2] = _overall_combat.totals_grupo[2] + cura_efetiva	
 		end
 		
 		if (jogador_alvo.grupo) then
@@ -659,9 +611,9 @@
 			este_jogador:Iniciar (true) --inicia o dps do jogador
 			if (este_jogador.end_time) then --> o combate terminou, reabrir o tempo
 				este_jogador.end_time = nil
-				shadow.end_time = nil --> não tenho certeza se isso aqui não pode dar merda
+				este_jogador.shadow.end_time = nil --> não tenho certeza se isso aqui não pode dar merda
 			else
-				este_jogador:IniciarTempo (_tempo-3.0, shadow)
+				este_jogador:IniciarTempo (_tempo-3.0, este_jogador.shadow)
 			end
 		end
 
@@ -680,7 +632,6 @@
 		
 			--> combat total
 			_current_total [2] = _current_total [2] + cura_efetiva
-			_overall_total [2] = _overall_total [2] + cura_efetiva
 		
 			--> healing taken 
 			jogador_alvo.healing_taken = jogador_alvo.healing_taken + cura_efetiva --> adiciona o dano tomado
@@ -688,28 +639,18 @@
 				jogador_alvo.healing_from [who_name] = true
 			end
 			
-			--> healing taken shadow
-			shadow_of_target.healing_taken = shadow_of_target.healing_taken+cura_efetiva --> adiciona o dano tomado
-			if (not shadow_of_target.healing_from [who_name]) then --> adiciona a pool de dano tomado de quem
-				shadow_of_target.healing_from [who_name] = true
-			end
-			
 			--> actor healing amount
 			este_jogador.total = este_jogador.total + cura_efetiva
-			shadow.total = shadow.total + cura_efetiva
 			
 			if (is_shield) then
 				este_jogador.totalabsorb = este_jogador.totalabsorb + cura_efetiva
-				shadow.totalabsorb = shadow.totalabsorb + cura_efetiva
 			end
 
 			este_jogador.total_without_pet = este_jogador.total_without_pet + cura_efetiva
-			shadow.total_without_pet = shadow.total_without_pet + cura_efetiva
 			
 			--> pet
 			if (meu_dono) then
 				meu_dono.total = meu_dono.total + cura_efetiva --> heal do pet
-				meu_dono.shadow.total = meu_dono.shadow.total + cura_efetiva --> heal do pet na shadow
 				
 				local owner_target = meu_dono.targets._NameIndexTable [alvo_name]
 				if (not owner_target) then
@@ -718,21 +659,17 @@
 					owner_target = meu_dono.targets._ActorTable [owner_target]
 				end
 				owner_target.total = owner_target.total + amount
-				
 			end
 			
 			--> target amount
 			este_alvo.total = este_alvo.total + cura_efetiva
-			este_alvo.shadow.total = este_alvo.shadow.total + cura_efetiva
 		end
 		
 		if (overhealing > 0) then
 			este_jogador.totalover = este_jogador.totalover + overhealing
-			shadow.totalover = shadow.totalover + overhealing
 			este_alvo.overheal = este_alvo.overheal + overhealing
 			if (meu_dono) then
 				meu_dono.totalover = meu_dono.totalover + overhealing
-				meu_dono.shadow.totalover = meu_dono.shadow.totalover + overhealing
 			end
 		end
 
@@ -1162,7 +1099,6 @@
 				este_jogador = _current_misc_container:PegarCombatente (who_serial, spellname, who_flags, true)
 				misc_cache [spellname] = este_jogador
 			end
-			local shadow = este_jogador.shadow
 		
 		------------------------------------------------------------------------------------------------
 		--> build containers on the fly
@@ -1176,18 +1112,19 @@
 				este_jogador.debuff_uptime_spell_tables = container_habilidades:NovoContainer (container_misc)
 				este_jogador.debuff_uptime_targets = container_combatentes:NovoContainer (container_enemydebufftarget_target)
 				
-				if (not shadow.debuff_uptime_targets) then
-					shadow.boss_debuff = true
-					shadow.damage_twin = who_name
-					shadow.spellschool = spellschool
-					shadow.damage_spellid = spellid
-					shadow.debuff_uptime = 0
-					shadow.debuff_uptime_spell_tables = container_habilidades:NovoContainer (container_misc)
-					shadow.debuff_uptime_targets = container_combatentes:NovoContainer (container_enemydebufftarget_target)
+				if (not este_jogador.shadow.debuff_uptime_targets) then
+					este_jogador.shadow.boss_debuff = true
+					este_jogador.shadow.damage_twin = who_name
+					este_jogador.shadow.spellschool = spellschool
+					este_jogador.shadow.damage_spellid = spellid
+					este_jogador.shadow.debuff_uptime = 0
+					este_jogador.shadow.debuff_uptime_spell_tables = container_habilidades:NovoContainer (container_misc)
+					este_jogador.shadow.debuff_uptime_targets = container_combatentes:NovoContainer (container_enemydebufftarget_target)
 				end
 				
-				este_jogador.debuff_uptime_targets.shadow = shadow.debuff_uptime_targets
-				este_jogador.debuff_uptime_spell_tables.shadow = shadow.debuff_uptime_spell_tables
+				este_jogador.debuff_uptime_targets.shadow = este_jogador.shadow.debuff_uptime_targets
+				este_jogador.debuff_uptime_spell_tables.shadow = este_jogador.shadow.debuff_uptime_spell_tables
+				
 			end
 		
 		------------------------------------------------------------------------------------------------
@@ -1213,30 +1150,7 @@
 				end
 				este_alvo.actived_at = _tempo
 				
-				--> shadows
-				este_alvo = este_alvo.shadow
-				este_jogador = este_jogador.shadow
-				
-				este_alvo.actived = true
-				este_alvo.activedamt = este_alvo.activedamt + 1
-				if (este_alvo.actived_at and este_alvo.actived) then
-					este_alvo.uptime = este_alvo.uptime + _tempo - este_alvo.actived_at
-					este_jogador.debuff_uptime = este_jogador.debuff_uptime + _tempo - este_alvo.actived_at
-				end
-				este_alvo.actived_at = _tempo
-				
 			elseif (in_out == "DEBUFF_UPTIME_REFRESH") then
-				if (este_alvo.actived_at and este_alvo.actived) then
-					este_alvo.uptime = este_alvo.uptime + _tempo - este_alvo.actived_at
-					este_jogador.debuff_uptime = este_jogador.debuff_uptime + _tempo - este_alvo.actived_at
-				end
-				este_alvo.actived_at = _tempo
-				este_alvo.actived = true
-				
-				--> shadows
-				este_alvo = este_alvo.shadow
-				este_jogador = este_jogador.shadow
-				
 				if (este_alvo.actived_at and este_alvo.actived) then
 					este_alvo.uptime = este_alvo.uptime + _tempo - este_alvo.actived_at
 					este_jogador.debuff_uptime = este_jogador.debuff_uptime + _tempo - este_alvo.actived_at
@@ -1258,25 +1172,6 @@
 				else
 					este_alvo.actived_at = _tempo
 				end
-				
-				--> shadows
-				este_alvo = este_alvo.shadow
-				este_jogador = este_jogador.shadow
-			
-				if (este_alvo.actived_at and este_alvo.actived) then
-					este_alvo.uptime = este_alvo.uptime + _detalhes._tempo - este_alvo.actived_at
-					este_jogador.debuff_uptime = este_jogador.debuff_uptime + _tempo - este_alvo.actived_at --> token = actor misc object
-				end
-				
-				este_alvo.activedamt = este_alvo.activedamt - 1
-				
-				if (este_alvo.activedamt == 0) then
-					este_alvo.actived = false
-					este_alvo.actived_at = nil
-				else
-					este_alvo.actived_at = _tempo
-				end
-			
 			end
 	end
 
@@ -1285,7 +1180,6 @@
 	--> early checks and fixes
 		
 		_current_misc_container.need_refresh = true
-		_overall_misc_container.need_refresh = true
 		
 	------------------------------------------------------------------------------------------------
 	--> get actors
@@ -1294,7 +1188,6 @@
 			este_jogador = _current_misc_container:PegarCombatente (who_serial, who_name, who_flags, true)
 			misc_cache [who_name] = este_jogador
 		end
-		local shadow = este_jogador.shadow
 		
 	------------------------------------------------------------------------------------------------
 	--> build containers on the fly
@@ -1304,14 +1197,14 @@
 			este_jogador.debuff_uptime_spell_tables = container_habilidades:NovoContainer (container_misc)
 			este_jogador.debuff_uptime_targets = container_combatentes:NovoContainer (container_damage_target)
 			
-			if (not shadow.debuff_uptime_targets) then
-				shadow.debuff_uptime = 0
-				shadow.debuff_uptime_spell_tables = container_habilidades:NovoContainer (container_misc)
-				shadow.debuff_uptime_targets = container_combatentes:NovoContainer (container_damage_target)
+			if (not este_jogador.shadow.debuff_uptime_targets) then
+				este_jogador.shadow.debuff_uptime = 0
+				este_jogador.shadow.debuff_uptime_spell_tables = container_habilidades:NovoContainer (container_misc)
+				este_jogador.shadow.debuff_uptime_targets = container_combatentes:NovoContainer (container_damage_target)
 			end
 			
-			este_jogador.debuff_uptime_targets.shadow = shadow.debuff_uptime_targets
-			este_jogador.debuff_uptime_spell_tables.shadow = shadow.debuff_uptime_spell_tables
+			este_jogador.debuff_uptime_targets.shadow = este_jogador.shadow.debuff_uptime_targets
+			este_jogador.debuff_uptime_spell_tables.shadow = este_jogador.shadow.debuff_uptime_spell_tables
 		end
 	
 	------------------------------------------------------------------------------------------------
@@ -1335,7 +1228,6 @@
 	--> early checks and fixes
 		
 		_current_misc_container.need_refresh = true
-		_overall_misc_container.need_refresh = true
 		
 	------------------------------------------------------------------------------------------------
 	--> get actors
@@ -1344,7 +1236,6 @@
 			este_jogador = _current_misc_container:PegarCombatente (who_serial, who_name, who_flags, true)
 			misc_cache [who_name] = este_jogador
 		end
-		local shadow = este_jogador.shadow
 		
 	------------------------------------------------------------------------------------------------
 	--> build containers on the fly
@@ -1354,14 +1245,14 @@
 			este_jogador.buff_uptime_spell_tables = container_habilidades:NovoContainer (container_misc)
 			este_jogador.buff_uptime_targets = container_combatentes:NovoContainer (container_damage_target)
 			
-			if (not shadow.buff_uptime_targets) then
-				shadow.buff_uptime = 0
-				shadow.buff_uptime_spell_tables = container_habilidades:NovoContainer (container_misc)
-				shadow.buff_uptime_targets = container_combatentes:NovoContainer (container_damage_target)
+			if (not este_jogador.shadow.buff_uptime_targets) then
+				este_jogador.shadow.buff_uptime = 0
+				este_jogador.shadow.buff_uptime_spell_tables = container_habilidades:NovoContainer (container_misc)
+				este_jogador.shadow.buff_uptime_targets = container_combatentes:NovoContainer (container_damage_target)
 			end
 			
-			este_jogador.buff_uptime_targets.shadow = shadow.buff_uptime_targets
-			este_jogador.buff_uptime_spell_tables.shadow = shadow.buff_uptime_spell_tables
+			este_jogador.buff_uptime_targets.shadow = este_jogador.shadow.buff_uptime_targets
+			este_jogador.buff_uptime_spell_tables.shadow = este_jogador.shadow.buff_uptime_spell_tables
 		end	
 
 	------------------------------------------------------------------------------------------------
@@ -1433,7 +1324,6 @@
 		end
 		
 		_current_energy_container.need_refresh = true
-		_overall_energy_container.need_refresh = true
 		
 	------------------------------------------------------------------------------------------------
 	--> get actors
@@ -1464,9 +1354,6 @@
 			este_alvo = este_jogador.targets._ActorTable [este_alvo]
 		end
 		
-		local shadow = este_jogador.shadow
-		local shadow_of_target = jogador_alvo.shadow
-		
 		este_jogador.last_event = _tempo
 
 	------------------------------------------------------------------------------------------------
@@ -1474,34 +1361,26 @@
 		
 		--> combat total
 		_current_total [3] [key_regenType] = _current_total [3] [key_regenType] + amount
-		_overall_total [3] [key_regenType] = _overall_total [3] [key_regenType] + amount
 		
 		if (este_jogador.grupo) then 
 			_current_gtotal [3] [key_regenType] = _current_gtotal [3] [key_regenType] + amount
-			_overall_gtotal [3] [key_regenType] = _overall_gtotal [3] [key_regenType] + amount
 		end
 
 		--> regen produced amount
 		este_jogador [key_regenType] = este_jogador [key_regenType] + amount
-		shadow [key_regenType] = shadow [key_regenType] + amount
 		este_alvo [key_regenType] = este_alvo [key_regenType] + amount
 		
 		--> target regenerated amount
 		jogador_alvo [key_regenDone] = jogador_alvo [key_regenDone] + amount
-		shadow_of_target [key_regenDone] = shadow_of_target [key_regenDone] + amount
 		
 		--> regen from
 		if (not jogador_alvo [key_regenFrom] [who_name]) then
 			jogador_alvo [key_regenFrom] [who_name] = true
 		end
-		if (not shadow_of_target [key_regenFrom] [who_name]) then
-			shadow_of_target [key_regenFrom] [who_name] = true
-		end
 		
 		--> owner
 		if (meu_dono) then
 			meu_dono [key_regenType] = meu_dono [key_regenType] + amount --> e adiciona o dano ao pet
-			meu_dono.shadow [key_regenType] = meu_dono.shadow [key_regenType] + amount --> e adiciona o dano ao pet
 		end
 
 		--> actor spells table
@@ -1526,7 +1405,6 @@
 	--> early checks and fixes
 		
 		_current_misc_container.need_refresh = true
-		_overall_misc_container.need_refresh = true
 		
 	------------------------------------------------------------------------------------------------
 	--> get actors
@@ -1539,7 +1417,6 @@
 				misc_cache [who_name] = este_jogador
 			end
 		end
-		local shadow = este_jogador.shadow
 		
 	------------------------------------------------------------------------------------------------
 	--> build containers on the fly
@@ -1548,15 +1425,15 @@
 			este_jogador.cooldowns_defensive = 0
 			este_jogador.cooldowns_defensive_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
 			este_jogador.cooldowns_defensive_spell_tables = container_habilidades:NovoContainer (container_misc) --> cria o container das habilidades
-
-			if (not shadow.cooldowns_defensive_targets) then
-				shadow.cooldowns_defensive = 0
-				shadow.cooldowns_defensive_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
-				shadow.cooldowns_defensive_spell_tables = container_habilidades:NovoContainer (container_misc) --> cria o container das habilidades usadas
+			
+			if (not este_jogador.shadow.cooldowns_defensive_targets) then
+				este_jogador.shadow.cooldowns_defensive = 0
+				este_jogador.shadow.cooldowns_defensive_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
+				este_jogador.shadow.cooldowns_defensive_spell_tables = container_habilidades:NovoContainer (container_misc) --> cria o container das habilidades usadas
 			end
 
-			este_jogador.cooldowns_defensive_targets.shadow = shadow.cooldowns_defensive_targets
-			este_jogador.cooldowns_defensive_spell_tables.shadow = shadow.cooldowns_defensive_spell_tables
+			este_jogador.cooldowns_defensive_targets.shadow = este_jogador.shadow.cooldowns_defensive_targets
+			este_jogador.cooldowns_defensive_spell_tables.shadow = este_jogador.shadow.cooldowns_defensive_spell_tables
 		end	
 		
 	------------------------------------------------------------------------------------------------
@@ -1564,15 +1441,12 @@
 
 		--> actor cooldowns used
 		este_jogador.cooldowns_defensive = este_jogador.cooldowns_defensive + 1
-		shadow.cooldowns_defensive = shadow.cooldowns_defensive + 1
 
 		--> combat totals
 		_current_total [4].cooldowns_defensive = _current_total [4].cooldowns_defensive + 1
-		_overall_total [4].cooldowns_defensive = _overall_total [4].cooldowns_defensive + 1
 		
 		if (este_jogador.grupo) then
 			_current_gtotal [4].cooldowns_defensive = _current_gtotal [4].cooldowns_defensive + 1
-			_overall_gtotal [4].cooldowns_defensive = _overall_gtotal [4].cooldowns_defensive + 1
 			
 			if (who_name == alvo_name) then
 			
@@ -1651,7 +1525,6 @@
 		end
 		
 		_current_misc_container.need_refresh = true
-		_overall_misc_container.need_refresh = true
 
 	------------------------------------------------------------------------------------------------
 	--> get actors
@@ -1664,7 +1537,6 @@
 				misc_cache [who_name] = este_jogador
 			end
 		end
-		local shadow = este_jogador.shadow
 		
 	------------------------------------------------------------------------------------------------
 	--> build containers on the fly
@@ -1674,16 +1546,17 @@
 			este_jogador.interrupt_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
 			este_jogador.interrupt_spell_tables = container_habilidades:NovoContainer (container_misc) --> cria o container das habilidades usadas para interromper
 			este_jogador.interrompeu_oque = {}
-
-			if (not shadow.interrupt_targets) then
-				shadow.interrupt = 0
-				shadow.interrupt_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
-				shadow.interrupt_spell_tables = container_habilidades:NovoContainer (container_misc) --> cria o container das habilidades usadas para interromper
-				shadow.interrompeu_oque = {}
+			
+			if (not este_jogador.shadow.interrupt_targets) then
+				este_jogador.shadow.interrupt = 0
+				este_jogador.shadow.interrupt_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
+				este_jogador.shadow.interrupt_spell_tables = container_habilidades:NovoContainer (container_misc) --> cria o container das habilidades usadas para interromper
+				este_jogador.shadow.interrompeu_oque = {}
 			end
 
-			este_jogador.interrupt_targets.shadow = shadow.interrupt_targets
-			este_jogador.interrupt_spell_tables.shadow = shadow.interrupt_spell_tables
+			este_jogador.interrupt_targets.shadow = este_jogador.shadow.interrupt_targets
+			este_jogador.interrupt_spell_tables.shadow = este_jogador.shadow.interrupt_spell_tables
+			
 		end	
 		
 	------------------------------------------------------------------------------------------------
@@ -1691,15 +1564,12 @@
 
 		--> actor interrupt amount
 		este_jogador.interrupt = este_jogador.interrupt + 1
-		shadow.interrupt = shadow.interrupt + 1
 
 		--> combat totals
 		_current_total [4].interrupt = _current_total [4].interrupt + 1
-		_overall_total [4].interrupt = _overall_total [4].interrupt + 1
 		
 		if (este_jogador.grupo) then
 			_current_gtotal [4].interrupt = _current_gtotal [4].interrupt + 1
-			_overall_gtotal [4].interrupt = _overall_gtotal [4].interrupt + 1
 		end
 
 		--> update last event
@@ -1711,12 +1581,6 @@
 			este_jogador.interrompeu_oque [extraSpellID] = 1
 		else
 			este_jogador.interrompeu_oque [extraSpellID] = este_jogador.interrompeu_oque [extraSpellID] + 1
-		end
-		
-		if (not shadow.interrompeu_oque [extraSpellID]) then
-			shadow.interrompeu_oque [extraSpellID] = 1
-		else
-			shadow.interrompeu_oque [extraSpellID] = shadow.interrompeu_oque [extraSpellID] + 1
 		end
 		
 		--> actor targets
@@ -1780,6 +1644,8 @@
 			return
 		end
 		
+		
+	-- para aqui --
 	------------------------------------------------------------------------------------------------
 	--> record how many times the spell has been casted successfully
 
@@ -1792,7 +1658,6 @@
 		end
 		
 		_current_misc_container.need_refresh = true
-		_overall_misc_container.need_refresh = true
 
 	------------------------------------------------------------------------------------------------
 	--> get actors
@@ -1816,13 +1681,13 @@
 			este_jogador.spellcast = 0
 			este_jogador.spellcast_spell_tables = container_habilidades:NovoContainer (container_misc)
 
-			if (not shadow.spellcast_targets) then
-				shadow.spellcast = 0
-				shadow.spellcast_spell_tables = container_habilidades:NovoContainer (container_misc)
+			if (not este_jogador.shadow.spellcast_targets) then
+				este_jogador.shadow.spellcast = 0
+				este_jogador.shadow.spellcast_spell_tables = container_habilidades:NovoContainer (container_misc)
 			end
 
-			este_jogador.spellcast_targets.shadow = shadow.spellcast_targets
-			este_jogador.spellcast_spell_tables.shadow = shadow.spellcast_spell_tables
+			este_jogador.spellcast_targets.shadow = este_jogador.shadow.spellcast_targets
+			este_jogador.spellcast_spell_tables.shadow = este_jogador.shadow.spellcast_spell_tables
 		end
 		
 	------------------------------------------------------------------------------------------------
@@ -1860,7 +1725,6 @@
 		end
 		
 		_current_misc_container.need_refresh = true
-		_overall_misc_container.need_refresh = true
 		
 	------------------------------------------------------------------------------------------------
 	--> get actors
@@ -1879,7 +1743,6 @@
 			end
 		end
 		--]]
-		local shadow = este_jogador.shadow
 
 	------------------------------------------------------------------------------------------------
 	--> build containers on the fly
@@ -1890,16 +1753,16 @@
 			este_jogador.dispell_targets = container_combatentes:NovoContainer (container_damage_target)
 			este_jogador.dispell_spell_tables = container_habilidades:NovoContainer (container_misc)
 			este_jogador.dispell_oque = {}
-
-			if (not shadow.dispell_targets) then
-				shadow.dispell = 0
-				shadow.dispell_targets = container_combatentes:NovoContainer (container_damage_target)
-				shadow.dispell_spell_tables = container_habilidades:NovoContainer (container_misc)
-				shadow.dispell_oque = {}
+			
+			if (not este_jogador.shadow.dispell_targets) then
+				este_jogador.shadow.dispell = 0
+				este_jogador.shadow.dispell_targets = container_combatentes:NovoContainer (container_damage_target)
+				este_jogador.shadow.dispell_spell_tables = container_habilidades:NovoContainer (container_misc)
+				este_jogador.shadow.dispell_oque = {}
 			end
 
-			este_jogador.dispell_targets.shadow = shadow.dispell_targets
-			este_jogador.dispell_spell_tables.shadow = shadow.dispell_spell_tables
+			este_jogador.dispell_targets.shadow = este_jogador.shadow.dispell_targets
+			este_jogador.dispell_spell_tables.shadow = este_jogador.shadow.dispell_spell_tables
 		end
 
 	------------------------------------------------------------------------------------------------
@@ -1911,16 +1774,13 @@
 
 		--> total dispells in combat
 		_current_total [4].dispell = _current_total [4].dispell + 1
-		_overall_total [4].dispell = _overall_total [4].dispell + 1
 		
 		if (este_jogador.grupo) then
 			_current_gtotal [4].dispell = _current_gtotal [4].dispell + 1
-			_overall_gtotal [4].dispell = _overall_gtotal [4].dispell + 1
 		end
 
 		--> actor dispell amount
 		este_jogador.dispell = este_jogador.dispell + 1
-		shadow.dispell = shadow.dispell + 1
 		
 		--> dispell what
 		if (extraSpellID) then
@@ -1928,12 +1788,6 @@
 				este_jogador.dispell_oque [extraSpellID] = 1
 			else
 				este_jogador.dispell_oque [extraSpellID] = este_jogador.dispell_oque [extraSpellID] + 1
-			end
-			
-			if (not shadow.dispell_oque [extraSpellID]) then
-				shadow.dispell_oque [extraSpellID] = 1
-			else
-				shadow.dispell_oque [extraSpellID] = shadow.dispell_oque [extraSpellID] + 1
 			end
 		end
 		
@@ -1965,7 +1819,6 @@
 		end
 		
 		_current_misc_container.need_refresh = true
-		_overall_misc_container.need_refresh = true
 
 	------------------------------------------------------------------------------------------------
 	--> get actors
@@ -1978,8 +1831,6 @@
 				misc_cache [who_name] = este_jogador
 			end
 		end
-		
-		local shadow = este_jogador.shadow
 
 	------------------------------------------------------------------------------------------------
 	--> build containers on the fly
@@ -1989,15 +1840,15 @@
 			este_jogador.ress = 0
 			este_jogador.ress_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
 			este_jogador.ress_spell_tables = container_habilidades:NovoContainer (container_misc) --> cria o container das habilidades usadas para interromper
-
-			if (not shadow.ress_targets) then
-				shadow.ress = 0
-				shadow.ress_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
-				shadow.ress_spell_tables = container_habilidades:NovoContainer (container_misc) --> cria o container das habilidades usadas para interromper
+			
+			if (not este_jogador.shadow.ress_targets) then
+				este_jogador.shadow.ress = 0
+				este_jogador.shadow.ress_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
+				este_jogador.shadow.ress_spell_tables = container_habilidades:NovoContainer (container_misc) --> cria o container das habilidades usadas para interromper
 			end
 
-			este_jogador.ress_targets.shadow = shadow.ress_targets
-			este_jogador.ress_spell_tables.shadow = shadow.ress_spell_tables
+			este_jogador.ress_targets.shadow = este_jogador.shadow.ress_targets
+			este_jogador.ress_spell_tables.shadow = este_jogador.shadow.ress_spell_tables
 		end
 		
 	------------------------------------------------------------------------------------------------
@@ -2009,16 +1860,13 @@
 
 		--> combat ress total
 		_current_total [4].ress = _current_total [4].ress + 1
-		_overall_total [4].ress = _overall_total [4].ress + 1
 		
 		if (este_jogador.grupo) then
 			_current_combat.totals_grupo[4].ress = _current_combat.totals_grupo[4].ress+1
-			_overall_combat.totals_grupo[4].ress = _overall_combat.totals_grupo[4].ress+1
 		end	
 
 		--> add ress amount
 		este_jogador.ress = este_jogador.ress + 1
-		shadow.ress = shadow.ress + 1
 		
 		--> add battle ress
 		if (_UnitAffectingCombat (who_name)) then 
@@ -2087,7 +1935,6 @@
 		end	
 
 		_current_misc_container.need_refresh = true
-		_overall_misc_container.need_refresh = true
 
 	------------------------------------------------------------------------------------------------
 	--> get actors
@@ -2106,7 +1953,6 @@
 			end
 		end
 		--]]
-		local shadow = este_jogador.shadow
 		
 	------------------------------------------------------------------------------------------------
 	--> build containers on the fly
@@ -2118,15 +1964,15 @@
 			este_jogador.cc_break_spell_tables = container_habilidades:NovoContainer (container_misc) --> cria o container das habilidades usadas para interromper
 			este_jogador.cc_break_oque = {}
 			
-			if (not shadow.cc_break) then
-				shadow.cc_break = 0
-				shadow.cc_break_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
-				shadow.cc_break_spell_tables = container_habilidades:NovoContainer (container_misc) --> cria o container das habilidades usadas para interromper
-				shadow.cc_break_oque = {}
+			if (not este_jogador.shadow.cc_break) then
+				este_jogador.shadow.cc_break = 0
+				este_jogador.shadow.cc_break_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
+				este_jogador.shadow.cc_break_spell_tables = container_habilidades:NovoContainer (container_misc) --> cria o container das habilidades usadas para interromper
+				este_jogador.shadow.cc_break_oque = {}
 			end
 
-			este_jogador.cc_break_targets.shadow = shadow.cc_break_targets
-			este_jogador.cc_break_spell_tables.shadow = shadow.cc_break_spell_tables
+			este_jogador.cc_break_targets.shadow = este_jogador.shadow.cc_break_targets
+			este_jogador.cc_break_spell_tables.shadow = este_jogador.shadow.cc_break_spell_tables
 		end
 		
 	------------------------------------------------------------------------------------------------
@@ -2138,28 +1984,19 @@
 		
 		--> combat cc break total
 		_current_total [4].cc_break = _current_total [4].cc_break + 1
-		_overall_total [4].cc_break = _overall_total [4].cc_break + 1
 
 		if (este_jogador.grupo) then
 			_current_combat.totals_grupo[4].cc_break = _current_combat.totals_grupo[4].cc_break+1
-			_overall_combat.totals_grupo[4].cc_break = _overall_combat.totals_grupo[4].cc_break+1
 		end	
 		
 		--> add amount
 		este_jogador.cc_break = este_jogador.cc_break + 1
-		shadow.cc_break = shadow.cc_break + 1
 		
 		--> broke what
 		if (not este_jogador.cc_break_oque [spellid]) then
 			este_jogador.cc_break_oque [spellid] = 1
 		else
 			este_jogador.cc_break_oque [spellid] = este_jogador.cc_break_oque [spellid] + 1
-		end
-		
-		if (not shadow.cc_break_oque [spellid]) then
-			shadow.cc_break_oque [spellid] = 1
-		else
-			shadow.cc_break_oque [spellid] = shadow.cc_break_oque [spellid] + 1
 		end
 		
 		--> actor targets
@@ -2212,58 +2049,8 @@
 					_current_combat.frags [alvo_name] = _current_combat.frags [alvo_name] + 1
 				end
 				
-				if (not _overall_combat.frags [alvo_name]) then
-					_overall_combat.frags [alvo_name] = 1
-				else
-					_overall_combat.frags [alvo_name] = _overall_combat.frags [alvo_name] + 1
-				end
-				
 				_current_combat.frags_need_refresh = true
-				_overall_combat.frags_need_refresh = true
 
-			--> encounter end --[[REMOVED]] it's deprecated since encounter end and start replace this
-			--[[
-				local encounter_type = _detalhes.encounter.type
-				if (encounter_type) then
-					if (encounter_type == 1 or encounter_type == 2) then
-					
-						local npcTable = _detalhes.encounter.data
-						local serial = tonumber (alvo_serial:sub (6, 10), 16)
-
-						--vardump (npcTable)
-						
-						if (npcTable [serial] ~= nil) then --> ~= default false
-						
-							_detalhes.encounter.data [serial] = true
-
-							--> check if it's done
-							local its_done = true
-							for npcID, killed in pairs (_detalhes.encounter.data) do 
-								if (not killed) then
-									its_done = false
-									--print ("npc",npcID,"NAO esta morto","quem morreu:",alvo_name)
-									break
-								else
-									--print ("npc",npcID,"esta morto","quem morreu:",alvo_name)
-								end
-							end
-							
-							--> combat finished
-							if (its_done) then
-								if (_detalhes.debug) then
-									_detalhes:Msg ("(debug) combat finished: encounter objective is completed")
-								end
-								
-								--print ("saindo do combate")
-								
-								_detalhes:SairDoCombate (true)
-							end
-						end
-						
-					end
-				end
-			--]]
-			
 		--> player death
 		elseif (not _UnitIsFeignDeath (alvo_name)) then
 			if (
@@ -2280,13 +2067,10 @@
 				--_detalhes:ScheduleTimer ("TrueDead", 1, {time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags}) 
 				
 				_current_misc_container.need_refresh = true
-				_overall_misc_container.need_refresh = true
 				
 				--> combat totals
 				_current_total [4].dead = _current_total [4].dead + 1
-				_overall_total [4].dead = _overall_total [4].dead + 1
 				_current_gtotal [4].dead = _current_gtotal [4].dead + 1
-				_overall_gtotal [4].dead = _overall_gtotal [4].dead + 1
 				
 				--> main actor no container de misc que irá armazenar a morte
 				local este_jogador, meu_dono = misc_cache [alvo_name]
@@ -2375,7 +2159,6 @@
 				--print ("A morte teve "..#esta_morte.." eventos")
 				
 				_table_insert (_current_combat.last_events_tables, #_current_combat.last_events_tables+1, t)
-				_table_insert (_overall_combat.last_events_tables, #_current_combat.last_events_tables+1, t)
 
 				--> reseta a pool
 				dano.last_events_table =  _detalhes:CreateActorLastEventTable()
@@ -2612,6 +2395,8 @@
 			local encounterID, encounterName, difficultyID, raidSize = _select (1, ...)
 			local zoneName, _, _, _, _, _, _, zoneMapID = _GetInstanceInfo()
 			
+			--print (encounterID, encounterName, difficultyID, raidSize)
+			
 			_detalhes.encounter_table ["start"] = time()
 			_detalhes.encounter_table ["end"] = nil
 			
@@ -2729,6 +2514,29 @@
 					_detalhes.SoloTables.Plugins [_detalhes.SoloTables.Mode].Stop()
 				end
 			end
+			
+			if (_detalhes.schedule_flag_boss_components) then
+				_detalhes.schedule_flag_boss_components = false
+				_detalhes:FlagActorsOnBossFight()
+			end
+
+			if (_detalhes.schedule_remove_overall) then
+				if (_detalhes.debug) then
+					_detalhes:Msg ("(debug) found schedule overall data deletion.")
+				end
+				_detalhes.schedule_remove_overall = false
+				_detalhes.tabela_historico:resetar_overall()
+			end
+			
+			if (_detalhes.schedule_add_to_overall) then
+				if (_detalhes.debug) then
+					_detalhes:Msg ("(debug) found schedule overall data addition.")
+				end
+				_detalhes.schedule_add_to_overall = false
+
+				_detalhes.historico:adicionar_overall (_detalhes.tabela_vigente)
+			end
+			
 			return
 			
 		elseif (evento == "GROUP_ROSTER_UPDATE") then
@@ -2773,7 +2581,17 @@
 		elseif (evento == "INSTANCE_ENCOUNTER_ENGAGE_UNIT") then
 			--> Nothing to do here
 			return 
-			
+		
+		elseif (evento == "START_TIMER") then
+		
+			if (C_Scenario.IsChallengeMode() and _detalhes.overall_clear_newchallenge) then
+				_detalhes.historico:resetar_overall()
+			end
+		
+		elseif (evento == "WORLD_STATE_TIMER_START") then
+			--> Nothing to do here
+			return
+		
 		elseif (evento == "PLAYER_LOGOUT") then
 			
 			--> close info window
@@ -2984,23 +2802,17 @@
 
 		--> refresh combat tables
 		_current_combat = _detalhes.tabela_vigente
-		_overall_combat = _detalhes.tabela_overall
 
 		--> refresh total containers
 		_current_total = _current_combat.totals
 		_current_gtotal = _current_combat.totals_grupo
-		_overall_total = _overall_combat.totals
-		_overall_gtotal = _overall_combat.totals_grupo
 		
 		--> refresh actors containers
 		_current_damage_container = _current_combat [1]
-		_overall_damage_container = _overall_combat [1]	
+
 		_current_heal_container = _current_combat [2]
-		_overall_heal_container = _overall_combat [2]
 		_current_energy_container = _current_combat [3]
-		_overall_energy_container = _overall_combat [3]
 		_current_misc_container = _current_combat [4]
-		_overall_misc_container = _overall_combat [4]
 		
 		--> refresh data capture options
 		_recording_self_buffs = _detalhes.RecordPlayerSelfBuffs

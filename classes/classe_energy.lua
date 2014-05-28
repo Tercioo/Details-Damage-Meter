@@ -856,7 +856,7 @@ function atributo_energy:MontaInfoRegenRecebido()
 		end
 
 		self:FocusLock (barra, tabela[1])
-		self:UpdadeInfoBar (barra, index, tabela[1], tabela[4], tabela[2], max_, tabela[3], tabela[5], true)
+		self:UpdadeInfoBar (barra, index, tabela[1], tabela[4], tabela[2], _detalhes:comma_value (tabela[2]), max_, tabela[3], tabela[5], true)
 
 		barra.minha_tabela = self
 		barra.show = tabela[1]
@@ -1036,11 +1036,8 @@ end
 		end
 		
 	--> restaura e liga o ator com a sua shadow durante a inicialização
-		function atributo_energy:r_connect_shadow (actor)
-		
-			if (not actor) then
-				actor = self
-			end
+	
+		function atributo_energy:r_onlyrefresh_shadow (actor)
 		
 			--> criar uma shadow desse ator se ainda não tiver uma
 				local overall_energy = _detalhes.tabela_overall [3]
@@ -1054,6 +1051,50 @@ end
 			
 			--> restaura a meta e indexes ao ator
 				_detalhes.refresh:r_atributo_energy (actor, shadow)
+			
+			--> copia o container de alvos (captura de dados)
+				for index, alvo in _ipairs (actor.targets._ActorTable) do
+					--> cria e soma o valor do total
+					local alvo_shadow = shadow.targets:PegarCombatente (nil, alvo.nome, nil, true)
+					--> refresh no alvo
+					_detalhes.refresh:r_alvo_da_habilidade (alvo, shadow.targets)
+				end
+			
+			--> copia o container de habilidades (captura de dados)
+				for spellid, habilidade in _pairs (actor.spell_tables._ActorTable) do
+					--> cria e soma o valor
+					local habilidade_shadow = shadow.spell_tables:PegaHabilidade (spellid, true, nil, true)
+					--> refresh e soma os valores dos alvos
+					for index, alvo in _ipairs (habilidade.targets._ActorTable) do 
+						--> cria e soma o valor do total
+						local alvo_shadow = habilidade_shadow.targets:PegarCombatente (nil, alvo.nome, nil, true)
+						--> refresh no alvo da habilidade
+						_detalhes.refresh:r_alvo_da_habilidade (alvo, habilidade_shadow.targets)
+					end
+
+					--> refresh na meta e indexes
+					_detalhes.refresh:r_habilidade_e_energy (habilidade, shadow.spell_tables)
+				end
+
+			return shadow
+		end
+	
+		function atributo_energy:r_connect_shadow (actor, no_refresh)
+		
+			--> criar uma shadow desse ator se ainda não tiver uma
+				local overall_energy = _detalhes.tabela_overall [3]
+				local shadow = overall_energy._ActorTable [overall_energy._NameIndexTable [actor.nome]]
+
+				if (not shadow) then 
+					shadow = overall_energy:PegarCombatente (actor.serial, actor.nome, actor.flag_original, true)
+					shadow.classe = actor.classe
+					shadow.grupo = actor.grupo
+				end
+			
+			--> restaura a meta e indexes ao ator
+				if (not no_refresh) then
+					_detalhes.refresh:r_atributo_energy (actor, shadow)
+				end
 			
 			--> total das energias (captura de dados)
 				shadow.mana = shadow.mana + actor.mana
@@ -1089,7 +1130,9 @@ end
 					local alvo_shadow = shadow.targets:PegarCombatente (nil, alvo.nome, nil, true)
 					alvo_shadow.total = alvo_shadow.total + alvo.total
 					--> refresh no alvo
-					_detalhes.refresh:r_alvo_da_habilidade (alvo, shadow.targets)
+					if (not no_refresh) then
+						_detalhes.refresh:r_alvo_da_habilidade (alvo, shadow.targets)
+					end
 				end
 			
 			--> copia o container de habilidades (captura de dados)
@@ -1102,7 +1145,9 @@ end
 						local alvo_shadow = habilidade_shadow.targets:PegarCombatente (nil, alvo.nome, nil, true)
 						alvo_shadow.total = alvo_shadow.total + alvo.total
 						--> refresh no alvo da habilidade
-						_detalhes.refresh:r_alvo_da_habilidade (alvo, habilidade_shadow.targets)
+						if (not no_refresh) then
+							_detalhes.refresh:r_alvo_da_habilidade (alvo, habilidade_shadow.targets)
+						end
 					end
 					--> soma todos os demais valores
 					for key, value in _pairs (habilidade) do 
@@ -1116,7 +1161,9 @@ end
 						end
 					end
 					--> refresh na meta e indexes
-					_detalhes.refresh:r_habilidade_e_energy (habilidade, shadow.spell_tables)
+					if (not no_refresh) then
+						_detalhes.refresh:r_habilidade_e_energy (habilidade, shadow.spell_tables)
+					end
 				end
 
 			return shadow

@@ -271,6 +271,9 @@ function _detalhes:LoadConfig()
 			_detalhes.switch.slots = _detalhes_database.switchSaved.slots
 			_detalhes.switch.table = _detalhes_database.switchSaved.table
 		
+		--> last boss
+			_detalhes.last_encounter = _detalhes_database.last_encounter
+		
 		--> buffs
 			_detalhes.savedbuffs = _detalhes_database.savedbuffs
 			_detalhes.Buffs:BuildTables()

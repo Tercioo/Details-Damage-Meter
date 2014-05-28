@@ -1633,6 +1633,20 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 		_detalhes:SendEvent ("DETAILS_INSTANCE_CHANGEATTRIBUTE", nil, instancia, atributo, sub_atributo)
 	end
 
+	if (_detalhes.janela_info:IsShown() and instancia == _detalhes.janela_info.instancia) then	
+		if (not instancia.showing) then
+			_detalhes:FechaJanelaInfo()
+		else
+			local actor = instancia.showing (instancia.atributo, _detalhes.janela_info.jogador.nome)
+			if (actor) then
+				instancia:AbreJanelaInfo (actor, true)
+			else
+				_detalhes:FechaJanelaInfo()
+			end
+		end
+		--_detalhes:FechaJanelaInfo()
+	end
+	
 	if (not instancia.showing) then
 		if (not iniciando_instancia) then
 			instancia:Freeze()

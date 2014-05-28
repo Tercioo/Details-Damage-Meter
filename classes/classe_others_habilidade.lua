@@ -70,10 +70,6 @@ function habilidade_misc:Add (serial, nome, flag, who_nome, token, spellID, spel
 			self.actived_at = _detalhes._tempo
 			self.actived = true
 			
-			if (self.shadow) then
-				return self.shadow:Add (serial, nome, flag, who_nome, token.shadow, spellID, spellName)
-			end
-			
 		elseif (spellName == "BUFF_UPTIME_OUT") then	
 			if (self.actived_at and self.actived) then
 				self.uptime = self.uptime + _detalhes._tempo - self.actived_at
@@ -81,10 +77,6 @@ function habilidade_misc:Add (serial, nome, flag, who_nome, token, spellID, spel
 			end
 			self.actived = false
 			self.actived_at = nil
-			
-			if (self.shadow) then
-				return self.shadow:Add (serial, nome, flag, who_nome, token.shadow, spellID, spellName)
-			end
 			
 		elseif (spellName == "BUFF_UPTIME_IN" or spellName == "DEBUFF_UPTIME_IN") then
 			self.actived = true
@@ -98,10 +90,6 @@ function habilidade_misc:Add (serial, nome, flag, who_nome, token, spellID, spel
 			
 			self.actived_at = _detalhes._tempo
 			
-			if (self.shadow) then
-				return self.shadow:Add (serial, nome, flag, who_nome, token.shadow, spellID, spellName)
-			end
-			
 		elseif (spellName == "DEBUFF_UPTIME_REFRESH") then
 			if (self.actived_at and self.actived) then
 				self.uptime = self.uptime + _detalhes._tempo - self.actived_at
@@ -109,10 +97,6 @@ function habilidade_misc:Add (serial, nome, flag, who_nome, token, spellID, spel
 			end
 			self.actived_at = _detalhes._tempo
 			self.actived = true
-			
-			if (self.shadow) then
-				return self.shadow:Add (serial, nome, flag, who_nome, token.shadow, spellID, spellName)
-			end
 
 		elseif (spellName == "DEBUFF_UPTIME_OUT") then	
 			if (self.actived_at and self.actived) then
@@ -127,10 +111,6 @@ function habilidade_misc:Add (serial, nome, flag, who_nome, token, spellID, spel
 				self.actived_at = nil
 			else
 				self.actived_at = _detalhes._tempo
-			end
-			
-			if (self.shadow) then
-				return self.shadow:Add (serial, nome, flag, who_nome, token.shadow, spellID, spellName)
 			end
 
 		end
@@ -217,10 +197,6 @@ function habilidade_misc:Add (serial, nome, flag, who_nome, token, spellID, spel
 		alvo.total = alvo.total + 1
 	end
 
-	if (self.shadow) then
-		return self.shadow:Add (serial, nome, flag, who_nome, token, spellID, spellName)
-	end
-	
 end
 
 --> habilidade atual e o container de habilidades da shadow

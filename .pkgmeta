@@ -4,6 +4,7 @@ move-folders:
     Details/plugins/Details_EncounterDetails: Details_EncounterDetails
     Details/plugins/Details_RaidInfo-ThroneOfThunder: Details_RaidInfo-ThroneOfThunder
     Details/plugins/Details_RaidInfo-SiegeOfOrgrimmar: Details_RaidInfo-SiegeOfOrgrimmar
+    Details/plugins/Details_DungeonInfo-Pandaria: Details_DungeonInfo-Pandaria
     Details/plugins/Details_SaveData: Details_SaveData
     Details/plugins/Details_SpellDetails: Details_SpellDetails
     Details/plugins/Details_TimeAttack: Details_TimeAttack

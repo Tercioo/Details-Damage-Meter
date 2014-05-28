@@ -2783,6 +2783,113 @@ function window:CreateFrame2()
 
 		window:CreateLineBackground2 (frame2, "timetypeDropdown", "timetypeLabel", Loc ["STRING_OPTIONS_TIMEMEASURE_DESC"])
 
+	--> Overall Data
+		g:NewLabel (frame2, _, "$parentOverallDataAnchor", "OverallDataLabel", Loc ["STRING_OPTIONS_OVERALL_ANCHOR"], "GameFontNormal")
+		
+		--raid boss
+		g:NewLabel (frame2, _, "$parentOverallDataRaidBossLabel", "OverallDataRaidBossLabel", Loc ["STRING_OPTIONS_OVERALL_RAIDBOSS"], "GameFontHighlightLeft")
+		--
+		g:NewSwitch (frame2, _, "$parentOverallDataRaidBossSlider", "OverallDataRaidBossSlider", 60, 20, _, _, false)
+		frame2.OverallDataRaidBossSlider:SetPoint ("left", frame2.OverallDataRaidBossLabel, "right", 2, 0)
+		--
+		frame2.OverallDataRaidBossSlider.OnSwitch = function (self, _, value)
+			if (value) then
+				_detalhes.overall_flag = _detalhes.overall_flag + 0x1
+			else
+				_detalhes.overall_flag = _detalhes.overall_flag - 0x1
+			end
+		end
+		--
+		window:CreateLineBackground2 (frame2, "OverallDataRaidBossSlider", "OverallDataRaidBossLabel", Loc ["STRING_OPTIONS_OVERALL_RAIDBOSS_DESC"])
+		
+		--raid cleanup
+		g:NewLabel (frame2, _, "$parentOverallDataRaidCleaupLabel", "OverallDataRaidCleaupLabel", Loc ["STRING_OPTIONS_OVERALL_RAIDCLEAN"], "GameFontHighlightLeft")
+		--
+		g:NewSwitch (frame2, _, "$parentOverallDataRaidCleaupSlider", "OverallDataRaidCleaupSlider", 60, 20, _, _, false)
+		frame2.OverallDataRaidCleaupSlider:SetPoint ("left", frame2.OverallDataRaidCleaupLabel, "right", 2, 0)
+		--
+		frame2.OverallDataRaidCleaupSlider.OnSwitch = function (self, _, value)
+			if (value) then
+				_detalhes.overall_flag = _detalhes.overall_flag + 0x2
+			else
+				_detalhes.overall_flag = _detalhes.overall_flag - 0x2
+			end
+		end
+		--
+		window:CreateLineBackground2 (frame2, "OverallDataRaidCleaupSlider", "OverallDataRaidCleaupLabel", Loc ["STRING_OPTIONS_OVERALL_RAIDCLEAN_DESC"])
+		
+		--dungeon boss
+		g:NewLabel (frame2, _, "$parentOverallDataDungeonBossLabel", "OverallDataDungeonBossLabel", Loc ["STRING_OPTIONS_OVERALL_DUNGEONBOSS"], "GameFontHighlightLeft")
+		--
+		g:NewSwitch (frame2, _, "$parentOverallDataDungeonBossSlider", "OverallDataDungeonBossSlider", 60, 20, _, _, false)
+		frame2.OverallDataDungeonBossSlider:SetPoint ("left", frame2.OverallDataDungeonBossLabel, "right", 2, 0)
+		--
+		frame2.OverallDataDungeonBossSlider.OnSwitch = function (self, _, value)
+			if (value) then
+				_detalhes.overall_flag = _detalhes.overall_flag + 0x4
+			else
+				_detalhes.overall_flag = _detalhes.overall_flag - 0x4
+			end
+		end
+		--
+		window:CreateLineBackground2 (frame2, "OverallDataDungeonBossSlider", "OverallDataDungeonBossLabel", Loc ["STRING_OPTIONS_OVERALL_DUNGEONBOSS_DESC"])
+		
+		--dungeon cleanup
+		g:NewLabel (frame2, _, "$parentOverallDataDungeonCleaupLabel", "OverallDataDungeonCleaupLabel", Loc ["STRING_OPTIONS_OVERALL_DUNGEONCLEAN"], "GameFontHighlightLeft")
+		--
+		g:NewSwitch (frame2, _, "$parentOverallDataDungeonCleaupSlider", "OverallDataDungeonCleaupSlider", 60, 20, _, _, false)
+		frame2.OverallDataDungeonCleaupSlider:SetPoint ("left", frame2.OverallDataDungeonCleaupLabel, "right", 2, 0)
+		--
+		frame2.OverallDataDungeonCleaupSlider.OnSwitch = function (self, _, value)
+			if (value) then
+				_detalhes.overall_flag = _detalhes.overall_flag + 0x8
+			else
+				_detalhes.overall_flag = _detalhes.overall_flag - 0x8
+			end
+		end
+		--
+		window:CreateLineBackground2 (frame2, "OverallDataDungeonCleaupSlider", "OverallDataDungeonCleaupLabel", Loc ["STRING_OPTIONS_OVERALL_DUNGEONCLEAN_DESC"])
+		
+		--everything
+		g:NewLabel (frame2, _, "$parentOverallDataAllLabel", "OverallDataAllLabel", Loc ["STRING_OPTIONS_OVERALL_ALL"], "GameFontHighlightLeft")
+		--
+		g:NewSwitch (frame2, _, "$parentOverallDataAllSlider", "OverallDataAllSlider", 60, 20, _, _, false)
+		frame2.OverallDataAllSlider:SetPoint ("left", frame2.OverallDataAllLabel, "right", 2, 0)
+		--
+		frame2.OverallDataAllSlider.OnSwitch = function (self, _, value)
+			if (value) then
+				_detalhes.overall_flag = _detalhes.overall_flag + 0x10
+			else
+				_detalhes.overall_flag = _detalhes.overall_flag - 0x10
+			end
+		end
+		--
+		window:CreateLineBackground2 (frame2, "OverallDataAllSlider", "OverallDataAllLabel", Loc ["STRING_OPTIONS_OVERALL_ALL_DESC"])
+		
+		--erase on new boss
+		g:NewLabel (frame2, _, "$parentOverallNewBossLabel", "OverallNewBossLabel", Loc ["STRING_OPTIONS_OVERALL_NEWBOSS"], "GameFontHighlightLeft")
+		--
+		g:NewSwitch (frame2, _, "$parentOverallNewBossSlider", "OverallNewBossSlider", 60, 20, _, _, false)
+		frame2.OverallNewBossSlider:SetPoint ("left", frame2.OverallNewBossLabel, "right", 2, 0)
+		--
+		frame2.OverallNewBossSlider.OnSwitch = function (self, _, value)
+			_detalhes:OverallOptions (value)
+		end
+		--
+		window:CreateLineBackground2 (frame2, "OverallNewBossSlider", "OverallNewBossLabel", Loc ["STRING_OPTIONS_OVERALL_NEWBOSS_DESC"])
+
+		--erase on challenge mode
+		g:NewLabel (frame2, _, "$parentOverallNewChallengeLabel", "OverallNewChallengeLabel", Loc ["STRING_OPTIONS_OVERALL_CHALLENGE"], "GameFontHighlightLeft")
+		--
+		g:NewSwitch (frame2, _, "$parentOverallNewChallengeSlider", "OverallNewChallengeSlider", 60, 20, _, _, false)
+		frame2.OverallNewChallengeSlider:SetPoint ("left", frame2.OverallNewChallengeLabel, "right", 2, 0)
+		--
+		frame2.OverallNewChallengeSlider.OnSwitch = function (self, _, value)
+			_detalhes:OverallOptions (nil, value)
+		end
+		--
+		window:CreateLineBackground2 (frame2, "OverallNewChallengeSlider", "OverallNewChallengeLabel", Loc ["STRING_OPTIONS_OVERALL_CHALLENGE_DESC"])
+		
 	--> anchors
 		--general anchor
 		g:NewLabel (frame2, _, "$parentGeneralAnchor", "GeneralAnchorLabel", Loc ["STRING_OPTIONS_GENERAL_ANCHOR"], "GameFontNormal")
@@ -2796,6 +2903,15 @@ function window:CreateFrame2()
 			{"GeneralAnchorLabel", 1, true},
 			{"fragsPvpLabel", 2},
 			{"timetypeLabel", 3},
+			
+			{"OverallDataLabel", 4, true},
+			{"OverallDataRaidBossLabel", 5},
+			{"OverallDataRaidCleaupLabel", 6},
+			{"OverallDataDungeonBossLabel", 7},
+			{"OverallDataDungeonCleaupLabel", 8},
+			{"OverallDataAllLabel", 9},
+			{"OverallNewBossLabel", 10},
+			{"OverallNewChallengeLabel", 11},
 		}
 		
 		window:arrange_menu (frame2, left_side, x, window.top_start_at)
@@ -5767,6 +5883,15 @@ function window:update_all (editing_instance)
 	--> window 2
 	_G.DetailsOptionsWindow2FragsPvpSlider.MyObject:SetValue (_detalhes.only_pvp_frags)
 	_G.DetailsOptionsWindow2TTDropdown.MyObject:Select (_detalhes.time_type)
+	
+	_G.DetailsOptionsWindow2OverallDataRaidBossSlider.MyObject:SetValue (bit.band (_detalhes.overall_flag, 0x1) ~= 0)
+	_G.DetailsOptionsWindow2OverallDataRaidCleaupSlider.MyObject:SetValue (bit.band (_detalhes.overall_flag, 0x2) ~= 0)
+	_G.DetailsOptionsWindow2OverallDataDungeonBossSlider.MyObject:SetValue (bit.band (_detalhes.overall_flag, 0x4) ~= 0)
+	_G.DetailsOptionsWindow2OverallDataDungeonCleaupSlider.MyObject:SetValue (bit.band (_detalhes.overall_flag, 0x8) ~= 0)
+	_G.DetailsOptionsWindow2OverallDataAllSlider.MyObject:SetValue (bit.band (_detalhes.overall_flag, 0x10) ~= 0)
+	
+	_G.DetailsOptionsWindow2OverallNewBossSlider.MyObject:SetValue (_detalhes.overall_clear_newboss)
+	_G.DetailsOptionsWindow2OverallNewChallengeSlider.MyObject:SetValue (_detalhes.overall_clear_newchallenge)
 	
 	--> window 3
 	_G.DetailsOptionsWindow3SkinDropdown.MyObject:SetFixedParameter (editing_instance)

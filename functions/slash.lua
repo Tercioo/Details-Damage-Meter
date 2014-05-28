@@ -92,6 +92,66 @@ function SlashCmdList.DETAILS (msg, editbox)
 	
 -------- debug ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+	elseif (msg == "addcombat") then
+		
+		local combat = _detalhes.combate:NovaTabela (true, _detalhes.tabela_overall, 1)
+		local self = combat[1]:PegarCombatente (UnitGUID ("player"), UnitName ("player"), 1297, true)
+		self.total = 100000
+		self.total_without_pet = 100000
+		
+		if (not _detalhes.um___) then
+			_detalhes.um___ = 0
+			_detalhes.next_um = 3
+		end
+		
+		local cima = true
+		
+		_detalhes.um___ = _detalhes.um___ + 1
+		
+		if (_detalhes.um___ == _detalhes.next_um) then
+			_detalhes.next_um = _detalhes.next_um + 3
+			cima = false
+		end
+		
+		if (cima) then
+			local frostbolt = self.spell_tables:PegaHabilidade (116, true, "SPELL_DAMAGE")
+			local frostfirebolt = self.spell_tables:PegaHabilidade (44614, true, "SPELL_DAMAGE")
+			local icelance = self.spell_tables:PegaHabilidade (30455, true, "SPELL_DAMAGE")
+			
+			self.spell_tables._ActorTable [116].total = 50000
+			self.spell_tables._ActorTable [44614].total = 25000
+			self.spell_tables._ActorTable [30455].total = 25000
+		else
+			local frostbolt = self.spell_tables:PegaHabilidade (84721, true, "SPELL_DAMAGE")
+			local frostfirebolt = self.spell_tables:PegaHabilidade (113092, true, "SPELL_DAMAGE")
+			local icelance = self.spell_tables:PegaHabilidade (122, true, "SPELL_DAMAGE")
+			
+			self.spell_tables._ActorTable [84721].total = 50000
+			self.spell_tables._ActorTable [113092].total = 25000
+			self.spell_tables._ActorTable [122].total = 25000
+		end
+		
+		combat.start_time = time()-30
+		combat.end_time = time()
+		
+		combat.totals_grupo [1] = 100000
+		combat.totals [1] = 100000
+	
+		--combat.instance_type = "raid"
+		--combat.is_trash = true
+	
+		_detalhes.tabela_vigente = combat
+		
+		_detalhes.tabela_historico:adicionar (combat)
+	
+		_detalhes:InstanciaCallFunction (_detalhes.gump.Fade, "in", nil, "barras")
+		_detalhes:InstanciaCallFunction (_detalhes.AtualizaSegmentos) -- atualiza o instancia.showing para as novas tabelas criadas
+		_detalhes:InstanciaCallFunction (_detalhes.AtualizaSoloMode_AfertReset) -- verifica se precisa zerar as tabela da janela solo mode
+		_detalhes:InstanciaCallFunction (_detalhes.ResetaGump) --_detalhes:ResetaGump ("de todas as instancias")
+		_detalhes:AtualizaGumpPrincipal (-1, true) --atualiza todas as instancias
+		
+		
+
 	elseif (msg == "pets") then
 		local f = _detalhes:CreateListPanel()
 		

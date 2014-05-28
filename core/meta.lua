@@ -117,20 +117,35 @@
 								local shadow
 
 								if (class_type == class_type_dano) then
-									shadow = atributo_damage:r_connect_shadow (esta_classe)
+									if (combate.overall_added) then
+										shadow = atributo_damage:r_connect_shadow (esta_classe)
+									else
+										shadow = atributo_damage:r_onlyrefresh_shadow (esta_classe)
+									end
 
 								elseif (class_type == class_type_cura) then
-									shadow = atributo_heal:r_connect_shadow (esta_classe)
+									if (combate.overall_added) then
+										shadow = atributo_heal:r_connect_shadow (esta_classe)
+									else
+										shadow = atributo_heal:r_onlyrefresh_shadow (esta_classe)
+									end
 									
 								elseif (class_type == class_type_e_energy) then
-									shadow = atributo_energy:r_connect_shadow (esta_classe)
+									if (combate.overall_added) then
+										shadow = atributo_energy:r_connect_shadow (esta_classe)
+									else
+										shadow = atributo_energy:r_onlyrefresh_shadow (esta_classe)
+									end
 									
 								elseif (class_type == class_type_misc) then
-									shadow = atributo_misc:r_connect_shadow (esta_classe)
-
+									if (combate.overall_added) then
+										shadow = atributo_misc:r_connect_shadow (esta_classe)
+									else
+										shadow = atributo_misc:r_onlyrefresh_shadow (esta_classe)
+									end
 								end
 
-								shadow:FazLinkagem (esta_classe)
+								--shadow:FazLinkagem (esta_classe)
 
 							end
 						end
@@ -578,7 +593,7 @@
 	function _detalhes:CheckMemoryAfterCombat()
 		if (_detalhes.next_memory_check < time()) then
 			if (_detalhes.debug) then
-				_detalhes:Msg ("checking memory after combat.")
+				_detalhes:Msg ("(debug) checking memory after combat.")
 			end
 			_detalhes.next_memory_check = time()+_detalhes.intervalo_memoria
 			UpdateAddOnMemoryUsage()
@@ -594,11 +609,11 @@
 			UpdateAddOnMemoryUsage()
 			local memory = GetAddOnMemoryUsage ("Details")
 			if (_detalhes.debug) then
-				_detalhes:Msg ("checking memory periodically. Using: ",math.floor (memory), "of", _detalhes.memory_ram)
+				_detalhes:Msg ("(debug) checking memory periodically. Using: ",math.floor (memory), "of", _detalhes.memory_ram * 1000)
 			end
-			if (memory > _detalhes.memory_ram) then
+			if (memory > _detalhes.memory_ram * 1000) then
 				if (_detalhes.debug) then
-					_detalhes:Msg ("Memory is too high, starting garbage collector")
+					_detalhes:Msg ("(debug) Memory is too high, starting garbage collector")
 				end
 				_detalhes:IniciarColetaDeLixo (1, 60) --> sending 1 only check for combat and ignore garbage collect cooldown
 			end
@@ -612,7 +627,7 @@
 				return
 			elseif (_detalhes.in_combat or _InCombatLockdown() or _detalhes:IsInInstance()) then 
 				if (_detalhes.debug) then
-					_detalhes:Msg ("garbage collect queued due combatlockdown (forced false)")
+					_detalhes:Msg ("(debug) garbage collect queued due combatlockdown (forced false)")
 				end
 				_detalhes:ScheduleTimer ("IniciarColetaDeLixo", 5) 
 				return
@@ -622,7 +637,7 @@
 				if (forcar == 1) then
 					if (_detalhes.in_combat or _InCombatLockdown()) then
 						if (_detalhes.debug) then
-							_detalhes:Msg ("garbage collect queued due combatlockdown (forced 1)")
+							_detalhes:Msg ("(debug) garbage collect queued due combatlockdown (forced 1)")
 						end
 						_detalhes:ScheduleTimer ("IniciarColetaDeLixo", 5, forcar) 
 						return
@@ -633,9 +648,9 @@
 
 		if (_detalhes.debug) then
 			if (forcar) then
-				_detalhes:Msg ("collecting garbage with forced state: ", forcar)
+				_detalhes:Msg ("(debug) collecting garbage with forced state: ", forcar)
 			else
-				_detalhes:Msg ("collecting garbage.")
+				_detalhes:Msg ("(debug) collecting garbage.")
 			end
 		end
 		
@@ -672,7 +687,7 @@
 		
 		--> print cache states
 		if (_detalhes.debug) then
-			_detalhes:Msg ("removed: damage "..damage.." heal "..heal.." energy "..energy.." misc "..misc)
+			_detalhes:Msg ("(debug) removed: damage "..damage.." heal "..heal.." energy "..energy.." misc "..misc)
 		end
 		
 		--> elimina pets antigos
@@ -687,11 +702,10 @@
 			collectgarbage()
 			UpdateAddOnMemoryUsage()
 			local memory2 = GetAddOnMemoryUsage ("Details")
-			_detalhes:Msg ("memory antes: "..memory.." memory depois: "..memory2)
+			_detalhes:Msg ("(debug) memory before: "..memory.." memory after: "..memory2)
 		end
 		
 	end
-
 
 	--> combates Normais
 	local function FazColeta (_combate, tipo, intervalo_overwrite)
@@ -700,7 +714,7 @@
 		local _iter = {index = 1, data = conteudo[1], cleaned = 0}
 		local _tempo  = _time()
 		
-		local links_removed = 0
+		--local links_removed = 0
 		
 		while (_iter.data) do
 		
@@ -714,7 +728,7 @@
 				t = _actor.last_event + _detalhes.intervalo_coleta
 			end
 			
-			if (not _actor.grupo and not _actor.boss and not _actor.fight_component and not _actor.boss_fight_component and t < _tempo) then 
+			if (t < _tempo and not _actor.grupo and not _actor.boss and not _actor.fight_component and not _actor.boss_fight_component) then 
 				local owner = _actor.owner
 				if (owner) then 
 					local owner_actor = _combate (tipo, owner.nome)
@@ -732,6 +746,7 @@
 				end
 			
 				--> fix para a weak table
+				--[[
 				local shadow = _actor.shadow
 				local _it = {index = 1, link = shadow.links [1]}
 				while (_it.link) do
@@ -743,7 +758,8 @@
 						_it.link = shadow.links [_it.index]
 					end
 				end
-			
+				--]]
+				
 				_iter.cleaned = _iter.cleaned+1
 				
 				if (_actor.tipo == 1 or _actor.tipo == 2) then
@@ -774,6 +790,8 @@
 	--> Combate overall
 	function _detalhes:ColetarLixo (tipo, lastevent)
 
+		--print ("fazendo coleta...")
+	
 		local _tempo  = _time()
 		local limpados = 0
 
@@ -791,7 +809,7 @@
 			limpados = limpados + FazColeta (_combate, tipo, lastevent)
 		end
 
-		--> limpa a tabela overall
+		--> limpa a tabela overall para o atributo atual (limpa para os 4, um de cada vez através do ipairs)
 		local _overall_combat = _detalhes.tabela_overall	
 		local conteudo = _overall_combat [tipo]._ActorTable
 		local _iter = {index = 1, data = conteudo[1], cleaned = 0} --> ._ActorTable[1] para pegar o primeiro index
@@ -800,6 +818,7 @@
 		
 			local _actor = _iter.data
 		
+		--[[
 			local meus_links = _rawget (_actor, "links")
 			local can_garbage = true
 			local new_weak_table = _setmetatable ({}, _detalhes.weaktable) --> precisa da nova weak table para remover os NILS da tabela antiga
@@ -813,8 +832,17 @@
 				end
 				_table_wipe (meus_links)
 			end
-
-			if (can_garbage or not meus_links) then --> não há referências a este objeto
+		--]]
+		
+			local can_garbage = false
+			if (not _actor.grupo and not _actor.owner and not _actor.boss_fight_component and not _actor.fight_component) then
+				can_garbage = true
+			end
+		
+			--if (can_garbage or not meus_links) then --> não há referências a este objeto
+			if (can_garbage) then --> não há referências a este objeto
+				
+				--print ("garbaged:", _actor.nome)
 				
 				if (not _actor.owner) then --> pet
 					_actor:subtract_total (_overall_combat)
@@ -823,11 +851,11 @@
 				--> apaga a referência deste jogador na tabela overall
 				_iter.cleaned = _iter.cleaned+1
 				
-				if (_detalhes.debug) then
-					if (#_actor.links > 0) then
-						_detalhes:Msg (_actor.nome, " has been garbaged but have links: ", #_actor.links)
-					end
-				end
+				--if (_detalhes.debug) then
+				--	if (#_actor.links > 0) then
+				--		_detalhes:Msg ("(debug) " .. _actor.nome, " has been garbaged but have links: ", #_actor.links)
+				--	end
+				--end
 				
 				if (_actor.tipo == 1 or _actor.tipo == 2) then
 					_actor:DesregistrarNaTimeMachine()
@@ -836,7 +864,7 @@
 
 				_iter.data = conteudo [_iter.index]
 			else
-				_actor.links = new_weak_table
+				--_actor.links = new_weak_table
 				_iter.index = _iter.index + 1
 				_iter.data = conteudo [_iter.index]
 			end

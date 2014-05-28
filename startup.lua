@@ -63,6 +63,8 @@ function _G._detalhes:Start()
 		--cc breaks, ress, interrupts, dispells, deaths
 			self.row_singleclick_overwrite [4] = {true, true, true, true, self.atributo_misc.ReportSingleDeadLine, self.atributo_misc.ReportSingleCooldownLine, self.atributo_misc.ReportSingleBuffUptimeLine, self.atributo_misc.ReportSingleDebuffUptimeLine} 
 		
+		self.click_to_report_color = {1, 0.8, 0, 1}
+		--self.click_to_report_color = {0, 1, 0, 1}
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> initialize
 
@@ -187,7 +189,9 @@ function _G._detalhes:Start()
 	--> start garbage collector
 		self.ultima_coleta = 0
 		self.intervalo_coleta = 720
+		--self.intervalo_coleta = 10
 		self.intervalo_memoria = 180
+		--self.intervalo_memoria = 20
 		self.garbagecollect = self:ScheduleRepeatingTimer ("IniciarColetaDeLixo", self.intervalo_coleta)
 		self.memorycleanup = self:ScheduleRepeatingTimer ("CheckMemoryPeriodically", self.intervalo_memoria)
 		self.next_memory_check = time()+self.intervalo_memoria
@@ -342,11 +346,11 @@ function _G._detalhes:Start()
 		
 	end
 	
-	--_detalhes:OpenWelcomeWindow()
+	-- _detalhes:OpenWelcomeWindow()
 	
-	--desligado por preocaução
-	if (self.tutorial.logons < 2) then
-		--self:StartTutorial()
+	--desligado por precaução
+	if (self.tutorial.logons < 2 and self.is_first_run) then
+		self:StartTutorial()
 	end
 	
 	--> feedback trhead

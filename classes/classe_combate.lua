@@ -27,6 +27,12 @@ local _table_remove = table.remove
 local _tempo = time()
 local _
 
+--constants
+	local class_type_dano = _detalhes.atributos.dano
+	local class_type_cura = _detalhes.atributos.cura
+	local class_type_e_energy = _detalhes.atributos.e_energy
+	local class_type_misc = _detalhes.atributos.misc
+
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 --[[ 	__call function, get an actor from current combat.
@@ -301,7 +307,7 @@ end
 
 combate.__sub = function (combate1, combate2)
 
-	if (combate1~= _detalhes.tabela_overall) then
+	if (combate1 ~= _detalhes.tabela_overall) then
 		return
 	end
 
@@ -366,62 +372,42 @@ end
 
 combate.__add = function (combate1, combate2)
 
-	if (combate1 == _detalhes.tabela_overall or combate2 == _detalhes.tabela_overall) then
-		return
-	end
-
-	--> add dano
-		for index, actor_T2 in _ipairs (combate2[1]._ActorTable) do
-			local actor_T1 = combate1[1]:PegarCombatente (actor_T2.serial, actor_T2.nome, actor_T2.flag_original, true)
-			actor_T1 = actor_T1 + actor_T2
-			actor_T1:add_total (combate1)
-			actor_T1:add_total (_detalhes.tabela_overall)
-		end
-		combate1 [1].need_refresh = true
-		
-	--> add heal
-		for index, actor_T2 in _ipairs (combate2[2]._ActorTable) do
-			local actor_T1 = combate1[2]:PegarCombatente (actor_T2.serial, actor_T2.nome, actor_T2.flag_original, true)
-			actor_T1 = actor_T1 + actor_T2
-			actor_T1:add_total (combate1)
-			actor_T1:add_total (_detalhes.tabela_overall)
-		end
-		combate1 [2].need_refresh = true
-		
-	--> add energy
-		for index, actor_T2 in _ipairs (combate2[3]._ActorTable) do
-			local actor_T1 = combate1[3]:PegarCombatente (actor_T2.serial, actor_T2.nome, actor_T2.flag_original, true)
-			actor_T1 = actor_T1 + actor_T2
-			actor_T1:add_total (combate1)
-			actor_T1:add_total (_detalhes.tabela_overall)
-		end
-		combate1 [3].need_refresh = true
-		
-	--> add misc
-		for index, actor_T2 in _ipairs (combate2[4]._ActorTable) do
-			local actor_T1 = combate1[4]:PegarCombatente (actor_T2.serial, actor_T2.nome, actor_T2.flag_original, true)
-			actor_T1 = actor_T1 + actor_T2
-			actor_T1:add_total (combate1)
-			actor_T1:add_total (_detalhes.tabela_overall)
-		end
-		combate1 [4].need_refresh = true
-
-	--> aumenta o tempo 
-		combate1.start_time = combate1.start_time - (combate2.end_time - combate2.start_time)
-	--> frags
-		for fragName, fragAmount in pairs (combate2.frags) do 
-			if (fragAmount) then
-				if (combate1.frags [fragName]) then
-					combate1.frags [fragName] = combate1.frags [fragName] + fragAmount
-				else
-					combate1.frags [fragName] = fragAmount
-				end
-			end
-		end
-		combate1.frags_need_refresh = true
-		
-	return combate1
+	local all_containers = {combate2 [class_type_dano]._ActorTable, combate2 [class_type_cura]._ActorTable, combate2 [class_type_e_energy]._ActorTable, combate2 [class_type_misc]._ActorTable}
 	
+	--actor.boss_fight_component
+	--actor.fight_component
+	--combat.is_boss
+	--combat.instance_type -- party raid
+	
+	for class_type, actor_container in ipairs (all_containers) do
+		for _, actor in ipairs (actor_container) do
+			local shadow
+			
+			if (class_type == class_type_dano) then
+				shadow = _detalhes.atributo_damage:r_connect_shadow (actor, true)
+			elseif (class_type == class_type_cura) then
+				shadow = _detalhes.atributo_heal:r_connect_shadow (actor, true)
+			elseif (class_type == class_type_e_energy) then
+				shadow = _detalhes.atributo_energy:r_connect_shadow (actor, true)
+			elseif (class_type == class_type_misc) then
+				shadow = _detalhes.atributo_misc:r_connect_shadow (actor, true)
+			end
+			
+			shadow.boss_fight_component = actor.boss_fight_component
+			shadow.fight_component = actor.fight_component
+			shadow.grupo = actor.grupo
+			
+			--if (shadow:EstaoLinkados (actor)) then
+			--	shadow:FazLinkagem (actor)
+			--end
+		end
+	end
+	
+	--if (combate2.end_time and combate2.start_time) then 
+	--	combate1.start_time = combate1.start_time - (combate1.end_time - combate1.start_time)
+	--end
+	
+	return combate1
 end
 
 function _detalhes:UpdateCombat()

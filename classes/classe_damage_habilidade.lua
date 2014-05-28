@@ -98,9 +98,6 @@ end
 function habilidade_dano:AddFF (amount)
 	self.counter = self.counter + 1
 	self.total = self.total + amount
-	if (self.shadow) then
-		return self.shadow:AddFF (amount)
-	end
 end
 
 function habilidade_dano:Add (serial, nome, flag, amount, who_nome, resisted, blocked, absorbed, critical, glacing, token)
@@ -157,61 +154,56 @@ function habilidade_dano:Add (serial, nome, flag, amount, who_nome, resisted, bl
 		end
 	--end
 	
-	if (self.shadow) then
-	
-		if (_recording_ability_with_buffs) then
-			if (who_nome == _detalhes.playername) then --aqui ele vai detalhar tudo sobre a magia usada
+	if (_recording_ability_with_buffs) then
+		if (who_nome == _detalhes.playername) then --aqui ele vai detalhar tudo sobre a magia usada
+		
+			local buffsNames = _detalhes.SoloTables.BuffsTableNameCache
 			
-				local buffsNames = _detalhes.SoloTables.BuffsTableNameCache
-				
-				local SpellBuffDetails = self.BuffTable
-				if (not SpellBuffDetails) then
-					self.BuffTable = {}
-					SpellBuffDetails = self.BuffTable
-				end
-				
-				if (token == "SPELL_PERIODIC_DAMAGE") then
-					--> precisa ver se ele tinha na hora que aplicou
-					local SoloDebuffPower = _detalhes.tabela_vigente.SoloDebuffPower
-					if (SoloDebuffPower) then
-						local ThisDebuff = SoloDebuffPower [self.id]
-						if (ThisDebuff) then
-							local ThisDebuffOnTarget = ThisDebuff [serial]
-							if (ThisDebuffOnTarget) then
-								for index, buff_name in _ipairs (ThisDebuffOnTarget.buffs) do
-									local buff_info = SpellBuffDetails [buff_name] or {["counter"] = 0, ["total"] = 0, ["critico"] = 0, ["critico_dano"] = 0}
-									buff_info.counter = buff_info.counter+1
-									buff_info.total = buff_info.total+amount
-									if (critical ~= nil) then
-										buff_info.critico = buff_info.critico+1
-										buff_info.critico_dano = buff_info.critico_dano+amount
-									end
-									SpellBuffDetails [buff_name] = buff_info
+			local SpellBuffDetails = self.BuffTable
+			if (not SpellBuffDetails) then
+				self.BuffTable = {}
+				SpellBuffDetails = self.BuffTable
+			end
+			
+			if (token == "SPELL_PERIODIC_DAMAGE") then
+				--> precisa ver se ele tinha na hora que aplicou
+				local SoloDebuffPower = _detalhes.tabela_vigente.SoloDebuffPower
+				if (SoloDebuffPower) then
+					local ThisDebuff = SoloDebuffPower [self.id]
+					if (ThisDebuff) then
+						local ThisDebuffOnTarget = ThisDebuff [serial]
+						if (ThisDebuffOnTarget) then
+							for index, buff_name in _ipairs (ThisDebuffOnTarget.buffs) do
+								local buff_info = SpellBuffDetails [buff_name] or {["counter"] = 0, ["total"] = 0, ["critico"] = 0, ["critico_dano"] = 0}
+								buff_info.counter = buff_info.counter+1
+								buff_info.total = buff_info.total+amount
+								if (critical ~= nil) then
+									buff_info.critico = buff_info.critico+1
+									buff_info.critico_dano = buff_info.critico_dano+amount
 								end
+								SpellBuffDetails [buff_name] = buff_info
 							end
 						end
 					end
-					
-				else
+				end
+				
+			else
 
-					for BuffName, _ in _pairs (_detalhes.Buffs.BuffsTable) do
-						local name = _UnitAura ("player", BuffName)
-						if (name ~= nil) then
-							local buff_info = SpellBuffDetails [name] or {["counter"] = 0, ["total"] = 0, ["critico"] = 0, ["critico_dano"] = 0}
-							buff_info.counter = buff_info.counter+1
-							buff_info.total = buff_info.total+amount
-							if (critical ~= nil) then
-								buff_info.critico = buff_info.critico+1
-								buff_info.critico_dano = buff_info.critico_dano+amount
-							end
-							SpellBuffDetails [name] = buff_info
+				for BuffName, _ in _pairs (_detalhes.Buffs.BuffsTable) do
+					local name = _UnitAura ("player", BuffName)
+					if (name ~= nil) then
+						local buff_info = SpellBuffDetails [name] or {["counter"] = 0, ["total"] = 0, ["critico"] = 0, ["critico_dano"] = 0}
+						buff_info.counter = buff_info.counter+1
+						buff_info.total = buff_info.total+amount
+						if (critical ~= nil) then
+							buff_info.critico = buff_info.critico+1
+							buff_info.critico_dano = buff_info.critico_dano+amount
 						end
+						SpellBuffDetails [name] = buff_info
 					end
 				end
 			end
 		end
-	
-		return self.shadow:Add (serial, nome, flag, amount, who_nome, resisted, blocked, absorbed, critical, glacing, token)
 	end
 
 end

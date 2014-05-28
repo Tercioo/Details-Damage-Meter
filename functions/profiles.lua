@@ -564,8 +564,12 @@ local default_profile = {
 	
 	--> cloud capture
 		cloud_capture = true,
-	--> combat time mim
+		
+	--> combat
 		minimum_combat_time = 5,
+		overall_flag = 0xD,
+		overall_clear_newboss = true,
+		overall_clear_newchallenge = true,
 	
 	--> skins
 		standard_skin = false, --?

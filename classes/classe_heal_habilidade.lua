@@ -109,10 +109,7 @@ function habilidade_cura:Add (serial, nome, flag, amount, who_nome, absorbed, cr
 	else
 		alvo:AddQuantidade (0)
 	end
-	
-	if (self.shadow) then
-		return self.shadow:Add (serial, nome, flag, amount, who_nome, absorbed, critical, overhealing)
-	end
+
 end
 
 function _detalhes.refresh:r_habilidade_cura (habilidade, shadow)

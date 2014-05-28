@@ -3788,7 +3788,9 @@ local build_segment_list = function (self, elapsed)
 
 					if (thisCombat.is_boss and thisCombat.is_boss.name) then
 					
-						if (thisCombat.is_boss.killed) then
+						if (thisCombat.instance_type == "party") then
+							CoolTip:AddLine (thisCombat.is_boss.name .." (#"..i..")", _, 1, {170/255, 167/255, 255/255, 1})
+						elseif (thisCombat.is_boss.killed) then
 							CoolTip:AddLine (thisCombat.is_boss.name .." (#"..i..")", _, 1, "lime")
 						else
 							CoolTip:AddLine (thisCombat.is_boss.name .." (#"..i..")", _, 1, "red")
@@ -3803,6 +3805,14 @@ local build_segment_list = function (self, elapsed)
 						local background = _detalhes:GetRaidIcon (thisCombat.is_boss.mapid)
 						if (background) then
 							CoolTip:SetWallpaper (2, background, nil, {1, 1, 1, 0.5})
+						elseif (thisCombat.instance_type == "party") then
+							local ej_id = thisCombat.is_boss.ej_instance_id
+							if (ej_id) then
+								local name, description, bgImage, buttonImage, loreImage, dungeonAreaMapID, link = EJ_GetInstanceInfo (ej_id)
+								if (bgImage) then
+									CoolTip:SetWallpaper (2, bgImage, {0.09, 0.698125, 0, 0.833984375}, {1, 1, 1, 0.5})
+								end
+							end
 						end
 						
 					else
@@ -3869,7 +3879,17 @@ local build_segment_list = function (self, elapsed)
 				end
 				
 				local background = _detalhes:GetRaidIcon (_detalhes.tabela_vigente.is_boss.mapid)
-				CoolTip:SetWallpaper (2, background, nil, {1, 1, 1, 0.5})
+				if (background) then
+					CoolTip:SetWallpaper (2, background, nil, {1, 1, 1, 0.5})
+				elseif (_detalhes.tabela_vigente.instance_type == "party") then
+					local ej_id = _detalhes.tabela_vigente.is_boss.ej_instance_id
+					if (ej_id) then
+						local name, description, bgImage, buttonImage, loreImage, dungeonAreaMapID, link = EJ_GetInstanceInfo (ej_id)
+						if (bgImage) then
+							CoolTip:SetWallpaper (2, bgImage, {0.09, 0.698125, 0, 0.833984375}, {1, 1, 1, 0.5})
+						end
+					end
+				end
 			else
 				CoolTip:SetWallpaper (2, [[Interface\ACHIEVEMENTFRAME\UI-Achievement-StatsBackground]], {0.5078125, 0.1171875, 0.017578125, 0.1953125}, {1, 1, 1, .5})
 			end					
@@ -5124,10 +5144,15 @@ end
 		GameCooltip:SetOption ("TextHeightMod", 0)
 		GameCooltip:SetOption ("IgnoreButtonAutoHeight", false)
 		
-		GameCooltip:AddLine (Loc ["STRING_ERASE_DATA"], nil, 1, "white", nil, 10, SharedMedia:Fetch ("font", "Friz Quadrata TT"))
-		--GameCooltip:AddIcon ([[Interface\Buttons\UI-MinusButton-Up]], 1, 1)
-		GameCooltip:AddIcon ([[Interface\PetBattles\DeadPetIcon]], 1, 1)
+		local font = SharedMedia:Fetch ("font", "Friz Quadrata TT")
+		
+		GameCooltip:AddLine (Loc ["STRING_ERASE_DATA"], nil, 1, "white", nil, 10, font)
+		GameCooltip:AddIcon ([[Interface\Buttons\UI-StopButton]], 1, 1, 14, 14, 0, 1, 0, 1, "red")
 		GameCooltip:AddMenu (1, _detalhes.tabela_historico.resetar)
+		
+		GameCooltip:AddLine (Loc ["STRING_ERASE_DATA_OVERALL"], nil, 1, "white", nil, 10, font)
+		GameCooltip:AddIcon ([[Interface\Buttons\UI-StopButton]], 1, 1, 14, 14, 0, 1, 0, 1, "orange")
+		GameCooltip:AddMenu (1, _detalhes.tabela_historico.resetar_overall)
 		
 		GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
 		
@@ -5760,24 +5785,6 @@ function gump:CriaCabecalho (baseframe, instancia)
 	baseframe.cabecalho.reset:SetNormalTexture ([[Interface\Addons\Details\Images\reset_button]])
 	baseframe.cabecalho.reset:SetHighlightTexture ([[Interface\Addons\Details\Images\reset_button]])
 	baseframe.cabecalho.reset:SetPushedTexture ([[Interface\Addons\Details\Images\reset_button]])
-	
---[[
-		if (_G.GameCooltip.active) then
-			local passou = 0
-			self:SetScript ("OnUpdate", function (self, elapsed)
-				passou = passou+elapsed
-				if (passou > 0.3) then
-					if (not _G.GameCooltip.mouse_over and not _G.GameCooltip.button_over) then
-						_G.GameCooltip:ShowMe (false)
-					end
-					self:SetScript ("OnUpdate", nil)
-				end
-			end)
-		else
-			self:SetScript ("OnUpdate", nil)
-		end		
-	end)	
---]]
 	
 --> fim botão reset
 

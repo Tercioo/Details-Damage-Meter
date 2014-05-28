@@ -482,6 +482,9 @@ function _detalhes:SaveConfig()
 		_detalhes_database.switchSaved.slots = _detalhes.switch.slots
 		_detalhes_database.switchSaved.table = _detalhes.switch.table
 	
+	--> last boss
+		_detalhes_database.last_encounter = _detalhes.last_encounter
+	
 	--> last versions
 		_detalhes_database.last_realversion = _detalhes.realversion --> core number
 		_detalhes_database.last_version = _detalhes.userversion --> version

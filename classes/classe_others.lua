@@ -1895,11 +1895,8 @@ end
 		end
 		
 	--> restaura e liga o ator com a sua shadow durante a inicialização
-		function atributo_misc:r_connect_shadow (actor)
-		
-			if (not actor) then
-				actor = self
-			end
+	
+		function atributo_misc:r_onlyrefresh_shadow (actor)
 		
 			--> criar uma shadow desse ator se ainda não tiver uma
 				local overall_misc = _detalhes.tabela_overall [4]
@@ -1917,6 +1914,133 @@ end
 
 			--> aplica a meta e indexes
 				_detalhes.refresh:r_atributo_misc (actor, shadow)
+
+			--> somar os alvos do ator
+				local somar_alvos = function (container)
+					for index, alvo in _ipairs (actor [container]._ActorTable) do
+						--> cria e soma o valor do total
+						local alvo_shadow = shadow [container]:PegarCombatente (nil, alvo.nome, nil, true)
+						--> refresh no alvo
+						_detalhes.refresh:r_alvo_da_habilidade (alvo, shadow [container])
+					end
+				end
+			--> somar as habilidades do ator
+				local somar_habilidades = function (container, shadow)
+					for spellid, habilidade in _pairs (actor [container]._ActorTable) do 
+						--> cria e soma o valor
+						local habilidade_shadow = shadow [container]:PegaHabilidade (spellid, true, nil, true)
+						--> refresh e soma os valores dos alvos
+						for index, alvo in _ipairs (habilidade.targets._ActorTable) do 
+							--> cria e soma o valor do total
+							local alvo_shadow = habilidade_shadow.targets:PegarCombatente (nil, alvo.nome, nil, true)
+							--> refresh no alvo da habilidade
+							_detalhes.refresh:r_alvo_da_habilidade (alvo, habilidade_shadow.targets)
+						end
+						--> refresh na habilidade
+						_detalhes.refresh:r_habilidade_misc (habilidade, shadow [container])
+					end
+				end
+				
+			--> cooldowns
+				if (actor.cooldowns_defensive) then
+					--> copia o container de alvos (captura de dados)
+						somar_alvos ("cooldowns_defensive_targets", shadow)
+					--> copia o container de habilidades (captura de dados)
+						somar_habilidades ("cooldowns_defensive_spell_tables", shadow)
+				end
+				
+			--> buff uptime
+				if (actor.buff_uptime) then
+					--> copia o container de alvos (captura de dados)
+						somar_alvos ("buff_uptime_targets", shadow)
+					--> copia o container de habilidades (captura de dados)
+						somar_habilidades ("buff_uptime_spell_tables", shadow)
+				end
+				
+			--> debuff uptime
+				if (actor.debuff_uptime) then
+					--> copia o container de alvos (captura de dados)
+						somar_alvos ("debuff_uptime_targets", shadow)
+					--> copia o container de habilidades (captura de dados)
+						somar_habilidades ("debuff_uptime_spell_tables", shadow)
+				end
+				
+			--> interrupt
+				if (actor.interrupt) then
+					--> copia o container de alvos (captura de dados)
+						somar_alvos ("interrupt_targets", shadow)
+					--> copia o container de habilidades (captura de dados)	
+						somar_habilidades ("interrupt_spell_tables", shadow)
+					--> copia o que cada habilidade interrompeu
+						for spellid, habilidade in _pairs (actor.interrupt_spell_tables._ActorTable) do 
+							--> pega o actor da shadow
+							local habilidade_shadow = shadow.interrupt_spell_tables:PegaHabilidade (spellid, true, nil, true)
+							--> copia as habilidades interrompidas
+							habilidade_shadow.interrompeu_oque = habilidade_shadow.interrompeu_oque or {}
+						end
+				end
+
+			--> ress
+				if (actor.ress) then
+					--> copia o container de alvos (captura de dados)
+						somar_alvos ("ress_targets", shadow)
+					--> copia o container de habilidades (captura de dados)	
+						somar_habilidades ("ress_spell_tables", shadow)
+				end
+
+			--> dispell
+				if (actor.dispell) then
+					--> copia o container de alvos (captura de dados)
+						somar_alvos ("dispell_targets", shadow)
+					--> copia o container de habilidades (captura de dados)	
+						somar_habilidades ("dispell_spell_tables", shadow)
+					--> copia o que cada habilidade dispelou
+						for spellid, habilidade in _pairs (actor.dispell_spell_tables._ActorTable) do 
+							--> pega o actor da shadow
+							local habilidade_shadow = shadow.dispell_spell_tables:PegaHabilidade (spellid, true, nil, true)
+							--> copia as habilidades dispeladas
+							habilidade_shadow.dispell_oque = habilidade_shadow.dispell_oque or {}
+						end
+				end
+			--> cc break
+				if (actor.cc_break) then
+					--> copia o container de alvos (captura de dados)
+						somar_alvos ("cc_break_targets", shadow)
+					--> copia o container de habilidades (captura de dados)	
+						somar_habilidades ("cc_break_spell_tables", shadow)
+					--> copia o que cada habilidade quebrou
+						for spellid, habilidade in _pairs (actor.cc_break_spell_tables._ActorTable) do 
+							--> pega o actor da shadow
+							local habilidade_shadow = shadow.cc_break_spell_tables:PegaHabilidade (spellid, true, nil, true)
+							--> copia as habilidades quebradas
+							habilidade_shadow.cc_break_oque = habilidade_shadow.cc_break_oque or {}
+						end
+				end
+
+			return shadow
+		
+		end
+	
+		function atributo_misc:r_connect_shadow (actor, no_refresh)
+		
+			--> criar uma shadow desse ator se ainda não tiver uma
+				local overall_misc = _detalhes.tabela_overall [4]
+				local shadow = overall_misc._ActorTable [overall_misc._NameIndexTable [actor.nome]]
+			
+				if (not actor.nome) then
+					actor.nome = "unknown"
+				end
+				
+				if (not shadow) then 
+					shadow = overall_misc:PegarCombatente (actor.serial, actor.nome, actor.flag_original, true)
+					shadow.classe = actor.classe
+					shadow.grupo = actor.grupo
+				end
+
+			--> aplica a meta e indexes
+				if (not no_refresh) then
+					_detalhes.refresh:r_atributo_misc (actor, shadow)
+				end
 
 			--> somar as keys das habilidades
 				local somar_keys = function (habilidade, habilidade_shadow)
@@ -1944,7 +2068,9 @@ end
 							end
 						--end
 						--> refresh no alvo
-						_detalhes.refresh:r_alvo_da_habilidade (alvo, shadow [container])
+						if (not no_refresh) then
+							_detalhes.refresh:r_alvo_da_habilidade (alvo, shadow [container])
+						end
 						
 					end
 				end
@@ -1959,17 +2085,29 @@ end
 							local alvo_shadow = habilidade_shadow.targets:PegarCombatente (nil, alvo.nome, nil, true)
 							alvo_shadow.total = alvo_shadow.total + alvo.total
 							--> refresh no alvo da habilidade
-							_detalhes.refresh:r_alvo_da_habilidade (alvo, habilidade_shadow.targets)
+							if (not no_refresh) then
+								_detalhes.refresh:r_alvo_da_habilidade (alvo, habilidade_shadow.targets)
+							end
 						end
 						--> soma todos os demais valores
 						somar_keys (habilidade, habilidade_shadow)
 						--> refresh na habilidade
-						_detalhes.refresh:r_habilidade_misc (habilidade, shadow [container])
+						if (not no_refresh) then
+							_detalhes.refresh:r_habilidade_misc (habilidade, shadow [container])
+						end
 					end
 				end
 				
 			--> cooldowns
 				if (actor.cooldowns_defensive) then
+				
+					--> verifica se tem o container
+						if (not shadow.cooldowns_defensive_targets) then
+							shadow.cooldowns_defensive = 0
+							shadow.cooldowns_defensive_targets = container_combatentes:NovoContainer (container_damage_target)
+							shadow.cooldowns_defensive_spell_tables = container_habilidades:NovoContainer (_detalhes.container_type.CONTAINER_MISC_CLASS)
+						end
+				
 					--> soma o total (captura de dados)
 						shadow.cooldowns_defensive = shadow.cooldowns_defensive + actor.cooldowns_defensive
 					--> total no combate overall (captura de dados)
@@ -1985,6 +2123,14 @@ end
 				
 			--> buff uptime
 				if (actor.buff_uptime) then
+				
+					--> verifica se tem o container
+						if (not shadow.buff_uptime_spell_targets) then
+							shadow.buff_uptime = 0
+							shadow.buff_uptime_spell_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
+							shadow.buff_uptime_spell_tables = container_habilidades:NovoContainer (_detalhes.container_type.CONTAINER_MISC_CLASS) --> cria o container das habilidades usadas para interromper
+						end
+				
 					--> soma o total (captura de dados)
 						shadow.buff_uptime = shadow.buff_uptime + actor.buff_uptime
 					--> copia o container de alvos (captura de dados)
@@ -1995,6 +2141,23 @@ end
 				
 			--> debuff uptime
 				if (actor.debuff_uptime) then
+				
+					--> verifica se tem o container
+						if (not shadow.debuff_uptime_targets) then
+							shadow.debuff_uptime = 0
+							if (actor.boss_debuff) then
+								shadow.debuff_uptime_targets = container_combatentes:NovoContainer (_detalhes.container_type.CONTAINER_ENEMYDEBUFFTARGET_CLASS)
+								shadow.boss_debuff = true
+								shadow.damage_twin = actor.damage_twin
+								shadow.spellschool = actor.spellschool
+								shadow.damage_spellid = actor.damage_spellid
+								shadow.debuff_uptime = 0
+							else
+								shadow.debuff_uptime_targets = container_combatentes:NovoContainer (container_damage_target)
+							end
+							shadow.debuff_uptime_spell_tables = container_habilidades:NovoContainer (_detalhes.container_type.CONTAINER_MISC_CLASS)
+						end
+				
 					--> soma o total (captura de dados)
 						shadow.debuff_uptime = shadow.debuff_uptime + actor.debuff_uptime
 					--> copia o container de alvos (captura de dados)
@@ -2005,6 +2168,15 @@ end
 				
 			--> interrupt
 				if (actor.interrupt) then
+				
+					--verifica se tem o container
+						if (not shadow.interrupt_targets) then
+							shadow.interrupt = 0
+							shadow.interrupt_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
+							shadow.interrupt_spell_tables = container_habilidades:NovoContainer (_detalhes.container_type.CONTAINER_MISC_CLASS) --> cria o container das habilidades usadas para interromper
+							shadow.interrompeu_oque = {}
+						end
+				
 					--> soma o total (captura de dados)
 						shadow.interrupt = shadow.interrupt + actor.interrupt
 					--> total no combate overall (captura de dados)
@@ -2041,6 +2213,14 @@ end
 
 			--> ress
 				if (actor.ress) then
+					
+					--> verifica se tem o container
+						if (not shadow.ress_targets) then
+							shadow.ress = 0
+							shadow.ress_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
+							shadow.ress_spell_tables = container_habilidades:NovoContainer (_detalhes.container_type.CONTAINER_MISC_CLASS) --> cria o container das habilidades usadas para interromper
+						end
+				
 					--> soma o total (captura de dados)
 						shadow.ress = shadow.ress + actor.ress
 					--> total no combate overall (captura de dados)
@@ -2056,6 +2236,15 @@ end
 
 			--> dispell
 				if (actor.dispell) then
+				
+					--> verifica se tem o container
+						if (not shadow.dispell_targets) then
+							shadow.dispell = 0
+							shadow.dispell_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
+							shadow.dispell_spell_tables = container_habilidades:NovoContainer (_detalhes.container_type.CONTAINER_MISC_CLASS) --> cria o container das habilidades usadas para interromper
+							shadow.dispell_oque = {}
+						end
+				
 					--> soma o total (captura de dados)
 						shadow.dispell = shadow.dispell + actor.dispell
 					--> total no combate overall (captura de dados)	
@@ -2092,6 +2281,15 @@ end
 				end
 			--> cc break
 				if (actor.cc_break) then
+				
+					--> verifica se tem o container
+						if (not shadow.cc_break) then
+							shadow.cc_break = 0
+							shadow.cc_break_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
+							shadow.cc_break_spell_tables = container_habilidades:NovoContainer (_detalhes.container_type.CONTAINER_MISC_CLASS) --> cria o container das habilidades usadas para interromper
+							shadow.cc_break_oque = {}
+						end
+				
 					--> soma o total (captura de dados)
 						shadow.cc_break = shadow.cc_break + actor.cc_break
 					--> total no combate overall (captura de dados)	

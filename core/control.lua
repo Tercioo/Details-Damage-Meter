@@ -49,6 +49,12 @@
 	--> try to find the opponent of last fight, can be called during a fight as well
 		function _detalhes:FindEnemy()
 			
+			local ZoneName, InstanceType, DifficultyID, _, _, _, _, ZoneMapID = _GetInstanceInfo()
+			if (InstanceType == "party" or InstanceType == "raid") then
+				_detalhes.tabela_vigente.is_trash = true
+				return Loc ["STRING_SEGMENT_TRASH"]
+			end
+			
 			local trash_list
 			if (_detalhes.in_group and _detalhes.last_instance) then
 				trash_list = _detalhes:GetInstanceTrashInfo (_detalhes.last_instance)
@@ -97,6 +103,25 @@
 		end
 	
 	-- try get the current encounter name during the encounter
+	
+		local boss_found = function (index, name, zone, mapid, diff)
+			local boss_table = {
+				index = index,
+				name = name,
+				encounter = name,
+				zone = zone,
+				mapid = mapid,
+				diff = diff,
+				ej_instance_id = EJ_GetCurrentInstance(),
+			}
+			
+			_detalhes.tabela_vigente.is_boss = boss_table
+			
+			_detalhes:SendEvent ("COMBAT_BOSS_FOUND", nil, index, name)
+			
+			return boss_table
+		end
+	
 		function _detalhes:ReadBossFrames()
 		
 			if (_detalhes.tabela_vigente.is_boss) then
@@ -104,16 +129,8 @@
 			end
 		
 			if (_detalhes.encounter_table.name) then
-				_detalhes.tabela_vigente.is_boss = {
-					index = _detalhes.encounter_table.index, 
-					name = _detalhes.encounter_table.name,
-					zone = _detalhes.encounter_table.zone, 
-					mapid = _detalhes.encounter_table.mapid, 
-					encounter = _detalhes.encounter_table.name,
-					diff = _detalhes.encounter_table.diff
-					}
-				_detalhes:SendEvent ("COMBAT_BOSS_FOUND", nil, _detalhes.tabela_vigente.is_boss.index, _detalhes.tabela_vigente.is_boss.name)
-				return _detalhes.tabela_vigente.is_boss
+				local encounter_table = _detalhes.encounter_table
+				return boss_found (encounter_table.index, encounter_table.name, encounter_table.zone, encounter_table.mapid, encounter_table.diff)
 			end
 		
 			for index = 1, 5, 1 do 
@@ -176,17 +193,9 @@
 											end
 										end
 									end
-								
-									_detalhes.tabela_vigente.is_boss = {
-										index = BossIndex, 
-										name = _detalhes:GetBossName (ZoneMapID, BossIndex),
-										zone = ZoneName, 
-										mapid = ZoneMapID, 
-										encounter = _detalhes:GetBossName (ZoneMapID, BossIndex),
-										diff = DifficultyID
-										}
-									_detalhes:SendEvent ("COMBAT_BOSS_FOUND", nil, _detalhes.tabela_vigente.is_boss.index, _detalhes.tabela_vigente.is_boss.name)
-									return _detalhes.tabela_vigente.is_boss
+									
+									return boss_found (BossIndex, _detalhes:GetBossName (ZoneMapID, BossIndex), ZoneName, ZoneMapID, DifficultyID)
+									
 								end
 							end
 						end
@@ -199,17 +208,11 @@
 		function _detalhes:FindBoss()
 
 			if (_detalhes.encounter_table.name) then
-				return {
-					index = _detalhes.encounter_table.index, 
-					name = _detalhes.encounter_table.name,
-					zone = _detalhes.encounter_table.zone, 
-					mapid = _detalhes.encounter_table.mapid, 
-					encounter = _detalhes.encounter_table.name,
-					diff = _detalhes.encounter_table.diff
-				}
+				local encounter_table = _detalhes.encounter_table
+				return boss_found (encounter_table.index, encounter_table.name, encounter_table.zone, encounter_table.mapid, encounter_table.diff)
 			end
 		
-			local ZoneName, _, DifficultyID, _, _, _, _, ZoneMapID = _GetInstanceInfo()
+			local ZoneName, InstanceType, DifficultyID, _, _, _, _, ZoneMapID = _GetInstanceInfo()
 			local BossIds = _detalhes:GetBossIds (ZoneMapID)
 			
 			if (BossIds) then
@@ -219,20 +222,13 @@
 				if (ActorsContainer) then
 					for index, Actor in _ipairs (ActorsContainer) do 
 						if (not Actor.grupo) then
-							local serial = tonumber (Actor.serial:sub(6, 10), 16)
+							local serial = tonumber (Actor.serial:sub (6, 10), 16)
 							if (serial) then
 								BossIndex = BossIds [serial]
 								if (BossIndex) then
 									Actor.boss = true
 									Actor.shadow.boss = true
-									return {
-										index = BossIndex, 
-										name =_detalhes:GetBossName (ZoneMapID, BossIndex), 
-										zone = ZoneName, 
-										mapid = ZoneMapID, 
-										encounter = _detalhes:GetBossName (ZoneMapID, BossIndex),
-										diff = DifficultyID
-									}
+									return boss_found (BossIndex, _detalhes:GetBossName (ZoneMapID, BossIndex), ZoneName, ZoneMapID, DifficultyID)
 								end
 							end
 						end
@@ -378,36 +374,31 @@
 			if (_detalhes.debug) then
 				_detalhes:Msg ("(debug) ended a combat.")
 			end
+			
+			if (_detalhes.schedule_remove_overall and not from_encounter_end and not InCombatLockdown()) then
+				if (_detalhes.debug) then
+					_detalhes:Msg ("(debug) found schedule overall data deletion.")
+				end
+				_detalhes.schedule_remove_overall = false
+				_detalhes.tabela_historico:resetar_overall()
+			end
 		
 			_detalhes:CatchRaidBuffUptime ("BUFF_UPTIME_OUT")
 			_detalhes:CatchRaidDebuffUptime ("DEBUFF_UPTIME_OUT")
 			_detalhes:CloseEnemyDebuffsUptime()
-		
+			
 			--> pega a zona do jogador e vê se foi uma luta contra um Boss -- identifica se a luta foi com um boss
 			if (not _detalhes.tabela_vigente.is_boss) then 
-			
 				--> function which runs after a boss encounter to try recognize a encounter
-				_detalhes.tabela_vigente.is_boss = _detalhes:FindBoss()
+				_detalhes:FindBoss()
 				
 				if (not _detalhes.tabela_vigente.is_boss) then
-				
 					local ZoneName, _, DifficultyID, _, _, _, _, ZoneMapID = _GetInstanceInfo()
-				
 					local findboss = _detalhes:GetRaidBossFindFunction (ZoneMapID)
 					if (findboss) then
 						local BossIndex = findboss()
 						if (BossIndex) then
-							_detalhes.tabela_vigente.is_boss = {
-								index = BossIndex, 
-								name = _detalhes:GetBossName (ZoneMapID, BossIndex),
-								zone = ZoneName, 
-								mapid = ZoneMapID, 
-								encounter = _detalhes:GetBossName (ZoneMapID, BossIndex),
-								diff = DifficultyID
-							}
-							--print ("boss found using findboss function.")
-						else
-							--print ("boss not found")
+							boss_found (BossIndex, _detalhes:GetBossName (ZoneMapID, BossIndex), ZoneName, ZoneMapID, DifficultyID)
 						end
 					end
 				end
@@ -433,6 +424,10 @@
 			_detalhes.tabela_vigente:seta_tempo_decorrido() --> salva o end_time
 			_detalhes.tabela_overall:seta_tempo_decorrido() --seta o end_time
 			
+			--> flag instance type
+			local _, InstanceType = _GetInstanceInfo()
+			_detalhes.tabela_vigente.instance_type = InstanceType
+			
 			if (not _detalhes.tabela_vigente.is_boss) then
 			
 				local inimigo = _detalhes:FindEnemy()
@@ -456,21 +451,28 @@
 				
 			else
 			
-				_detalhes:FlagActorsOnBossFight()
-			
+				if (not InCombatLockdown() and not UnitAffectingCombat ("player")) then
+					_detalhes:FlagActorsOnBossFight()
+				else
+					_detalhes.schedule_flag_boss_components = true
+				end
+
 				if (_detalhes:GetBossDetails (_detalhes.tabela_vigente.is_boss.mapid, _detalhes.tabela_vigente.is_boss.index)) then
 				
 					_detalhes.tabela_vigente.enemy = _detalhes.tabela_vigente.is_boss.encounter
 
+					if (_detalhes.tabela_vigente.instance_type == "raid") then
+						_detalhes.last_encounter2 = _detalhes.last_encounter
+						_detalhes.last_encounter = _detalhes.tabela_vigente.is_boss.name
+					end
+					
 					if (bossKilled) then
 						_detalhes.tabela_vigente.is_boss.killed = true
 					end
 					
 					if (from_encounter_end) then
-
 						--_detalhes.tabela_vigente.start_time = _detalhes.encounter_table ["start"]
 						_detalhes.tabela_vigente.end_time = _detalhes.encounter_table ["end"]
-						
 					end
 
 					--> encounter boss function
@@ -495,7 +497,7 @@
 					end
 					
 					--> schedule clean up
-					_detalhes:ScheduleTimer ("IniciarColetaDeLixo", 15, true)
+					--_detalhes:ScheduleTimer ("IniciarColetaDeLixo", 15, true)
 					
 				else
 					if (_detalhes.debug) then
@@ -517,14 +519,6 @@
 			else
 				--> this is a little bit complicated, need a specific function for combat cancellation
 			
-				if (_detalhes.tabela_overall.end_time) then --> no inicio do combate o tempo do overall vai pra NIL o.0
-					_detalhes.tabela_overall.start_time = _detalhes.tabela_overall.start_time + tempo_do_combate --> assim ele descarta o tempo de combate na tabela do everall
-				else
-					_detalhes.tabela_overall.start_time = 0 --> tempo inicio igual a zero pois se o end_time é NIL significa que é a primeira vez que ocorre o combate na tabela overall
-				end
-				
-				_detalhes.tabela_overall = _detalhes.tabela_overall - _detalhes.tabela_vigente --> isso aqui é novo, ele vai subtrair da overall qualquer dado adicionado na tabela descardata
-				
 				--_table_wipe (_detalhes.tabela_vigente) --> descarta ela, não será mais usada
 				_detalhes.tabela_vigente = _detalhes.tabela_historico.tabelas[1] --> pega a tabela do ultimo combate
 
@@ -794,9 +788,8 @@
 			for class_type, container in _ipairs (_detalhes.tabela_vigente) do 
 				for _, actor in _ipairs (container._ActorTable) do 
 					actor.boss_fight_component = true
-					local shadow = _detalhes.tabela_overall (class_type, actor.nome)
-					if (shadow) then 
-						shadow.boss_fight_component = true
+					if (actor.shadow) then 
+						actor.shadow.boss_fight_component = true
 					end
 				end
 			end
@@ -806,10 +799,16 @@
 			local on_energy = energy_container._ActorTable [energy_container._NameIndexTable [name]]
 			if (on_energy) then
 				on_energy.fight_component = true
+				if (on_energy.shadow) then
+					on_energy.shadow.fight_component = true
+				end
 			end
 			local on_misc = misc_container._ActorTable [misc_container._NameIndexTable [name]]
 			if (on_misc) then
 				on_misc.fight_component = true
+				if (on_misc.shadow) then
+					on_misc.shadow.fight_component = true
+				end
 			end
 		end
 		
@@ -829,6 +828,9 @@
 								local target_object = container._ActorTable [container._NameIndexTable [target_actor.nome]]
 								if (target_object) then
 									target_object.fight_component = true
+									if (target_object.shadow) then
+										target_object.shadow.fight_component = true
+									end
 									fight_component (energy_container, misc_container, target_actor.nome)
 								end
 							end
@@ -837,6 +839,9 @@
 									local target_object = container._ActorTable [container._NameIndexTable [damager_actor]]
 									if (target_object) then
 										target_object.fight_component = true
+										if (target_object.shadow) then
+											target_object.shadow.fight_component = true
+										end
 										fight_component (energy_container, misc_container, damager_actor)
 									end
 								end
@@ -845,6 +850,9 @@
 									local target_object = container._ActorTable [container._NameIndexTable [healer_actor]]
 									if (target_object) then
 										target_object.fight_component = true
+										if (target_object.shadow) then
+											target_object.shadow.fight_component = true
+										end
 										fight_component (energy_container, misc_container, healer_actor)
 									end
 								end

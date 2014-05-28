@@ -67,9 +67,6 @@ function habilidade_energy:Add (serial, nome, flag, amount, who_nome, powertype)
 		alvo.runepower = alvo.runepower + amount
 	end
 
-	if (self.shadow) then
-		return self.shadow:Add (serial, nome, flag, amount, who_nome, powertype)
-	end
 end
 
 function _detalhes.refresh:r_habilidade_e_energy (habilidade, shadow) --recebeu o container shadow

@@ -1,0 +1,6 @@
+## Interface: 50400
+## Title: Details: Mists of Pandaria Dungeons
+## Notes: Plugin for Details
+## RequiredDeps: Details
+
+Details_DungeonInfo-Pandaria.lua
