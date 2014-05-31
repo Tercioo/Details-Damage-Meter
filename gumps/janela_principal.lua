@@ -2099,14 +2099,13 @@ do
 
 	local tooltip_anchor = CreateFrame ("frame", "DetailsTooltipAnchor", UIParent)
 	tooltip_anchor:SetSize (140, 20)
-	tooltip_anchor:EnableMouse (false)
 	tooltip_anchor:SetAlpha (0)
 	tooltip_anchor:SetMovable (false)
 	tooltip_anchor:SetClampedToScreen (true)
 	tooltip_anchor.locked = true
 	tooltip_anchor:SetBackdrop ({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], edgeFile = [[Interface\DialogFrame\UI-DialogBox-Border]], edgeSize = 10, insets = {left = 1, right = 1, top = 2, bottom = 1}})
 	tooltip_anchor:SetBackdropColor (0, 0, 0, 1)
-	
+
 	tooltip_anchor:SetScript ("OnEnter", function (self)
 		tooltip_anchor.alert.animIn:Stop()
 		tooltip_anchor.alert.animOut:Play()
@@ -2190,6 +2189,7 @@ do
 	text:SetPoint ("left", icon, "right", 6, 0)
 	text:SetText (Loc ["STRING_OPTIONS_TOOLTIPS_ANCHOR_TEXT"])
 	
+	tooltip_anchor:EnableMouse (false)
 
 end
 

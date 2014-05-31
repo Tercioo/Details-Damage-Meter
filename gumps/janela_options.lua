@@ -6265,7 +6265,7 @@ function window:update_all (editing_instance)
 	
 	_G.DetailsOptionsWindow20TooltipAnchorDropdown.MyObject:Select (_detalhes.tooltip.anchored_to)
 	_G.DetailsOptionsWindow20TooltipAnchorSideDropdown.MyObject:Select (_detalhes.tooltip.anchor_point)
-	_G.DetailsOptionsWindow20TooltipAnchorSideDropdown.MyObject:Select (_detalhes.tooltip.anchor_relative)
+	_G.DetailsOptionsWindow20TooltipRelativeSideDropdown.MyObject:Select (_detalhes.tooltip.anchor_relative)
 	_G.DetailsOptionsWindow20TooltipOffsetXSlider.MyObject:SetValue (_detalhes.tooltip.anchor_offset[1])
 	_G.DetailsOptionsWindow20TooltipOffsetYSlider.MyObject:SetValue (_detalhes.tooltip.anchor_offset[2])
 	
