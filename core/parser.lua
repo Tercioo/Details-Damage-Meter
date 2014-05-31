@@ -190,6 +190,10 @@
 			
 		end
 		
+		--if (who_name:find ("Guardian of Ancient Kings")) then --remover
+		--	print ("PARSER:", who_name, este_jogador.nome, este_jogador.owner, meu_dono.nome)
+		--end
+		
 		--> his target
 		local jogador_alvo, alvo_dono = damage_cache [alvo_name] or damage_cache_pets [alvo_serial], damage_cache_petsOwners [alvo_serial]
 		
@@ -483,14 +487,24 @@
 -----------------------------------------------------------------------------------------------------------------------------------------
 	function parser:summon (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellName)
 	
+		--if (alvo_name == "Guardian of Ancient Kings") then
+		--	print ("SUMMON", who_name, alvo_serial)
+		--end
+	
 		--> pet summon another pet
 		local sou_pet = _detalhes.tabela_pets.pets [who_serial]
 		if (sou_pet) then --> okey, ja é um pet
+			--if (alvo_name == "Guardian of Ancient Kings") then
+			--	print ("SUMMON", "inverteu")
+			--end
 			who_name, who_serial, who_flags = sou_pet[1], sou_pet[2], sou_pet[3]
 		end
 		
 		local alvo_pet = _detalhes.tabela_pets.pets [alvo_serial]
 		if (alvo_pet) then
+			--if (alvo_name == "Guardian of Ancient Kings") then
+			--	print ("SUMMON", "inverteu 2")
+			--end
 			who_name, who_serial, who_flags = alvo_pet[1], alvo_pet[2], alvo_pet[3]
 		end
 
@@ -755,10 +769,6 @@
 
 		elseif (tipo == "DEBUFF") then
 			
-			--if (who_name == "Ditador") then
-			--	print (spellname, alvo_name, "IN")
-			--end
-			
 			if (_in_combat) then
 			
 			------------------------------------------------------------------------------------------------
@@ -862,8 +872,6 @@
 					
 					if (escudo [alvo_name] and escudo [alvo_name][spellid] and escudo [alvo_name][spellid][who_name]) then
 					
-						--print ("refresh", escudo [alvo_name][spellid][who_name], amount)
-					
 						local absorb = escudo [alvo_name][spellid][who_name] - amount
 						local overheal = amount - absorb
 						escudo [alvo_name][spellid][who_name] = amount
@@ -900,10 +908,6 @@
 	--> recording debuffs applied by player
 
 		elseif (tipo == "DEBUFF") then
-		
-			--if (who_name == "Ditador") then
-			--	print (spellname, alvo_name, "REFRESH")
-			--end
 		
 			if (_in_combat) then
 			------------------------------------------------------------------------------------------------
@@ -992,8 +996,6 @@
 						if (amount) then
 							-- o amount é o que sobrou do escudo
 							local escudo_antigo = escudo [alvo_name][spellid][who_name] --> quantidade total do escudo que foi colocado
-							--print (escudo_antigo, amount)
-							--if (escudo_antigo and escudo_antigo > amount) then 
 							
 							local absorb = escudo_antigo - amount
 							local overheal = escudo_antigo - absorb
@@ -1023,10 +1025,6 @@
 	------------------------------------------------------------------------------------------------
 	--> recording debuffs applied by player
 		elseif (tipo == "DEBUFF") then
-		
-			--if (who_name == "Ditador") then
-			--	print (spellname, alvo_name, "OUT")
-			--end
 		
 			if (_in_combat) then
 			------------------------------------------------------------------------------------------------
@@ -1917,8 +1915,6 @@
 	--serach key: ~cc
 	function parser:break_cc (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, extraSpellID, extraSpellName, extraSchool, auraType)
 
-	--print ("CCBREAK: ",spellid, spellname,extraSpellID, extraSpellName, auraType)
-	
 	------------------------------------------------------------------------------------------------
 	--> early checks and fixes
 		if (not cc_spell_list [spellid]) then
@@ -1926,7 +1922,6 @@
 		end
 
 		if (_bit_band (who_flags, AFFILIATION_GROUP) == 0) then
-			--print (who_name.. " nao eh do grupo")
 			return
 		end
 		
@@ -1944,7 +1939,7 @@
 		--[[
 		local este_jogador, meu_dono, who_name = _current_misc_container:PegarCombatente (who_serial, who_name, who_flags, true)
 		--]]
-		--[		
+		--[
 		local este_jogador, meu_dono = misc_cache [who_name]
 		if (not este_jogador) then --> pode ser um desconhecido ou um pet
 			este_jogador, meu_dono, who_name = _current_misc_container:PegarCombatente (who_serial, who_name, who_flags, true)
@@ -2109,7 +2104,30 @@
 					end
 				end
 
-				_table_sort (esta_morte, _detalhes.Sort4)
+				--_table_sort (esta_morte, _detalhes.Sort4)
+				_table_sort (esta_morte, function (table1, table2)
+				
+					if (not table1) then return false end
+					if (not table2) then return true end
+					
+					if (table1 [4] == table2 [4]) then --> os 2 tem o mesmo tempo
+						if (type (table1 [1]) == "boolean" and table1 [1] and type (table2 [1]) == "boolean" and table2) then --> ambos sao dano
+							return table1 [5] > table2 [5] --> joga pra cima quem tem mais vida
+						elseif (type (table1 [1]) == "boolean" and not table1 [1] and type (table2 [1]) == "boolean" and not table2) then --> ambos sao cura
+							return table1 [5] < table2 [5] --> joga pra cima quem tem menos vida
+						else
+							if (type (table1 [1]) == "boolean" and table1 and type (table2 [1]) == "boolean" and table2) then --> primeiro é dano e segundo é heal
+								return true --> passa o dano pra frente
+							elseif (type (table2 [1]) == "boolean" and table2 and type (table1 [1]) == "boolean" and table1) then --> primeiro é heal e o segundo é dano
+								return false --> passa o heal pra frente
+							else
+								return table1 [5] < table2 [5] --> passa quem tem menos vida
+							end
+						end
+					else
+						return table1 [4] < table2 [4]
+					end
+				end)
 				
 				if (_hook_deaths) then
 					--> send event to registred functions
@@ -2351,324 +2369,276 @@
 	-- PARSER
 	--serach key: ~parser ~event ~start ~inicio
 
-	function _detalhes:OnEvent (evento, ...)
+	_detalhes.parser_functions = {}
 	
-		--print (evento, select (1, ...))
-
-		if (evento == "ZONE_CHANGED_NEW_AREA" or evento == "PLAYER_ENTERING_WORLD") then
+	function _detalhes.parser_functions:ZONE_CHANGED_NEW_AREA (...)
+		local zoneName, zoneType, _, _, _, _, _, zoneMapID = _GetInstanceInfo()
 		
-			local zoneName, zoneType, _, _, _, _, _, zoneMapID = _GetInstanceInfo()
+		_detalhes.zone_type = zoneType
+		_detalhes.zone_id = zoneMapID
+		_detalhes.zone_name = zoneName
+		
+		if (zoneType == "pvp") then
+			if (not _current_combat.pvp) then
 			
-			_detalhes.zone_type = zoneType
-			_detalhes.zone_id = zoneMapID
-			_detalhes.zone_name = zoneName
-			
-			if (zoneType == "pvp") then
-				if (not _current_combat.pvp) then
-					--print ("Battleground found, starting new combat table")
-					_detalhes:EntrarEmCombate()
-					--> sinaliza que esse combate é pvp
-					_current_combat.pvp = true
-					_current_combat.is_pvp = {name = zoneName, zone = ZoneName, mapid = ZoneMapID}
-					_detalhes.listener:RegisterEvent ("CHAT_MSG_BG_SYSTEM_NEUTRAL")
-				end
-			else
-				
-				if (_detalhes:IsInInstance()) then
-					_detalhes.last_instance = zoneMapID
+				if (_detalhes.debug) then
+					_detalhes:Msg ("(debug) battleground found, starting new combat table.")
 				end
 				
-				if (_current_combat.pvp) then 
-					_current_combat.pvp = false
-				end
+				_detalhes:EntrarEmCombate()
+				--> sinaliza que esse combate é pvp
+				_current_combat.pvp = true
+				_current_combat.is_pvp = {name = zoneName, zone = ZoneName, mapid = ZoneMapID}
+				_detalhes.listener:RegisterEvent ("CHAT_MSG_BG_SYSTEM_NEUTRAL")
+			end
+		else
+			if (_detalhes:IsInInstance()) then
+				_detalhes.last_instance = zoneMapID
 			end
 			
-			_detalhes:SchedulePetUpdate (7)
-
-			return
-			
-		elseif (evento == "ENCOUNTER_START") then
-			--~encounter
-			
-			_table_wipe (_detalhes.encounter_table)
-			
-			local encounterID, encounterName, difficultyID, raidSize = _select (1, ...)
-			local zoneName, _, _, _, _, _, _, zoneMapID = _GetInstanceInfo()
-			
-			--print (encounterID, encounterName, difficultyID, raidSize)
-			
-			_detalhes.encounter_table ["start"] = time()
-			_detalhes.encounter_table ["end"] = nil
-			
-			_detalhes.encounter_table.id = encounterID
-			_detalhes.encounter_table.name = encounterName
-			_detalhes.encounter_table.diff = difficultyID
-			_detalhes.encounter_table.size = raidSize
-			_detalhes.encounter_table.zone = zoneName
-			_detalhes.encounter_table.mapid = zoneMapID
-			
-			local encounter_start_table = _detalhes:GetEncounterStartInfo (zoneMapID, encounterID)
-			if (encounter_start_table) then
-				if (encounter_start_table.delay) then
-					if (type (encounter_start_table.delay) == "function") then
-						local delay = encounter_start_table.delay()
-						if (delay) then
-							_detalhes.encounter_table ["start"] = time() + delay
-						end
-					else
-						_detalhes.encounter_table ["start"] = time() + encounter_start_table.delay
+			if (_current_combat.pvp) then 
+				_current_combat.pvp = false
+			end
+		end
+		
+		_detalhes:SchedulePetUpdate (7)
+	end
+	
+	function _detalhes.parser_functions:PLAYER_ENTERING_WORLD (...)
+		return _detalhes.parser_functions:ZONE_CHANGED_NEW_AREA (...)
+	end
+	
+	function _detalhes.parser_functions:ENCOUNTER_START (...)
+		_table_wipe (_detalhes.encounter_table)
+		
+		local encounterID, encounterName, difficultyID, raidSize = _select (1, ...)
+		local zoneName, _, _, _, _, _, _, zoneMapID = _GetInstanceInfo()
+		
+		--print (encounterID, encounterName, difficultyID, raidSize)
+		
+		_detalhes.encounter_table ["start"] = time()
+		_detalhes.encounter_table ["end"] = nil
+		
+		_detalhes.encounter_table.id = encounterID
+		_detalhes.encounter_table.name = encounterName
+		_detalhes.encounter_table.diff = difficultyID
+		_detalhes.encounter_table.size = raidSize
+		_detalhes.encounter_table.zone = zoneName
+		_detalhes.encounter_table.mapid = zoneMapID
+		
+		local encounter_start_table = _detalhes:GetEncounterStartInfo (zoneMapID, encounterID)
+		if (encounter_start_table) then
+			if (encounter_start_table.delay) then
+				if (type (encounter_start_table.delay) == "function") then
+					local delay = encounter_start_table.delay()
+					if (delay) then
+						_detalhes.encounter_table ["start"] = time() + delay
 					end
-				end
-				if (encounter_start_table.func) then
-					encounter_start_table:func()
+				else
+					_detalhes.encounter_table ["start"] = time() + encounter_start_table.delay
 				end
 			end
-			
-			local encounter_table, boss_index = _detalhes:GetBossEncounterDetailsFromEncounterId (zoneMapID, encounterID)
-			if (encounter_table) then
-				_detalhes.encounter_table.index = boss_index
+			if (encounter_start_table.func) then
+				encounter_start_table:func()
+			end
+		end
+		
+		local encounter_table, boss_index = _detalhes:GetBossEncounterDetailsFromEncounterId (zoneMapID, encounterID)
+		if (encounter_table) then
+			_detalhes.encounter_table.index = boss_index
+		end
+	end
+	
+	function _detalhes.parser_functions:ENCOUNTER_END (...)
+		if (not _detalhes.encounter_table.start) then
+			return
+		end
+		
+		_detalhes.encounter_table ["end"] = time() - 0.4
+		
+		local encounterID, encounterName, difficultyID, raidSize, endStatus = _select (1, ...)
+		local _, _, _, _, _, _, _, zoneMapID = _GetInstanceInfo()
+		
+		if (_in_combat) then
+			if (endStatus == 1) then
+				_detalhes.encounter_table.kill = true
+				_detalhes:SairDoCombate (true, true) --killed
+			else
+				_detalhes.encounter_table.kill = false
+				_detalhes:SairDoCombate (false, true) --wipe
+			end
+		else
+			if (_detalhes.tabela_vigente.end_time + 2 >= _detalhes.encounter_table ["end"]) then
+				--_detalhes.tabela_vigente.start_time = _detalhes.encounter_table ["start"]
+				_detalhes.tabela_vigente.end_time = _detalhes.encounter_table ["end"]
+				_detalhes:AtualizaGumpPrincipal (-1, true)
+			end
+		end
+
+		_table_wipe (_detalhes.encounter_table)
+	end
+	
+	function _detalhes.parser_functions:CHAT_MSG_BG_SYSTEM_NEUTRAL (...)
+		local frase = _select (1, ...)
+		--> reset combat timer
+		if ( (frase:find ("The battle") and frase:find ("has begun!") ) and _current_combat.pvp) then
+			local tempo_do_combate = _tempo - _current_combat.start_time
+			_detalhes.tabela_overall.start_time = _detalhes.tabela_overall.start_time + tempo_do_combate
+			_current_combat.start_time = _tempo
+			_detalhes.listener:UnregisterEvent ("CHAT_MSG_BG_SYSTEM_NEUTRAL")
+		end
+	end
+	
+	function _detalhes.parser_functions:UNIT_PET (...)
+		_detalhes:SchedulePetUpdate (1)
+	end
+
+	function _detalhes.parser_functions:PLAYER_REGEN_DISABLED (...)
+		if (_detalhes.EncounterInformation [_detalhes.zone_id]) then 
+			_detalhes:ScheduleTimer ("ReadBossFrames", 1)
+			_detalhes:ScheduleTimer ("ReadBossFrames", 30)
+		end
+		
+		if (not _detalhes:CaptureGet ("damage")) then
+			_detalhes:EntrarEmCombate()
+		end
+
+		--> essa parte do solo mode ainda sera usada?
+		if (_detalhes.solo and _detalhes.PluginCount.SOLO > 0) then --> solo mode
+			local esta_instancia = _detalhes.tabela_instancias[_detalhes.solo]
+			esta_instancia.atualizando = true
+		end
+	end
+
+	function _detalhes.parser_functions:PLAYER_REGEN_ENABLED (...)
+		--> aqui, tentativa de fazer o timer da janela do Solo funcionar corretamente:
+		if (_detalhes.solo and _detalhes.PluginCount.SOLO > 0) then
+			if (_detalhes.SoloTables.Plugins [_detalhes.SoloTables.Mode].Stop) then
+				_detalhes.SoloTables.Plugins [_detalhes.SoloTables.Mode].Stop()
+			end
+		end
+		
+		if (_detalhes.schedule_flag_boss_components) then
+			_detalhes.schedule_flag_boss_components = false
+			_detalhes:FlagActorsOnBossFight()
+		end
+
+		if (_detalhes.schedule_remove_overall) then
+			if (_detalhes.debug) then
+				_detalhes:Msg ("(debug) found schedule overall data deletion.")
+			end
+			_detalhes.schedule_remove_overall = false
+			_detalhes.tabela_historico:resetar_overall()
+		end
+		
+		if (_detalhes.schedule_add_to_overall) then
+			if (_detalhes.debug) then
+				_detalhes:Msg ("(debug) found schedule overall data addition.")
+			end
+			_detalhes.schedule_add_to_overall = false
+
+			_detalhes.historico:adicionar_overall (_detalhes.tabela_vigente)
+		end
+	end
+
+	function _detalhes.parser_functions:GROUP_ROSTER_UPDATE (...)
+		if (not _detalhes.in_group) then
+			_detalhes.in_group = IsInGroup() or IsInRaid()
+			if (_detalhes.in_group) then
+				--> entrou num grupo
+				_detalhes:IniciarColetaDeLixo (true)
+				_detalhes:WipePets()
+				_detalhes:SchedulePetUpdate (1)
+				_detalhes:InstanceCall (_detalhes.SetCombatAlpha, nil, nil, true)
+			end
+		else
+			_detalhes.in_group = IsInGroup() or IsInRaid()
+			if (not _detalhes.in_group) then
+				--> saiu do grupo
+				_detalhes:IniciarColetaDeLixo (true)
+				_detalhes:WipePets()
+				_detalhes:SchedulePetUpdate (1)
+				_table_wipe (_detalhes.details_users)
+				_detalhes:InstanceCall (_detalhes.SetCombatAlpha, nil, nil, true)
+			else
+				_detalhes:SchedulePetUpdate (2)
+				_detalhes:CheckDetailsUsers()
+			end
+		end
+		
+		_detalhes:SchedulePetUpdate (6)
+	end
+
+	function _detalhes.parser_functions:START_TIMER (...)
+		if (C_Scenario.IsChallengeMode() and _detalhes.overall_clear_newchallenge) then
+			_detalhes.historico:resetar_overall()
+		end
+	end
+
+	function _detalhes.parser_functions:PLAYER_LOGOUT (...)
+		--> close info window
+			_detalhes:FechaJanelaInfo()
+
+		--> leave combat start save tables
+			if (_detalhes.in_combat) then 
+				_detalhes:SairDoCombate()
+				_detalhes.can_panic_mode = true
 			end
 			
-		elseif (evento == "ENCOUNTER_END") then
-			
-			if (not _detalhes.encounter_table.start) then
+			if (_detalhes.wipe_full_config) then
+				_detalhes_global = nil
+				_detalhes_database = nil
 				return
 			end
 			
-			_detalhes.encounter_table ["end"] = time() - 0.4
-			
-			local encounterID, encounterName, difficultyID, raidSize, endStatus = _select (1, ...)
-			local _, _, _, _, _, _, _, zoneMapID = _GetInstanceInfo()
-			
-			--[[
-			local encounter_end_table = _detalhes:GetEncounterStartInfo (zoneMapID, encounterID)
-			if (encounter_end_table) then
-				if (encounter_end_table.delay) then
-					_detalhes.encounter_table ["end"] = _detalhes.encounter_table ["end"] + encounter_end_table.delay
-				end
-				if (encounter_end_table.func) then
-					encounter_end_table:func (_detalhes.tabela_vigente, endStatus)
-				end
-			end
-			--]]
-			
-			if (_in_combat) then
-				if (endStatus == 1) then
-					_detalhes.encounter_table.kill = true
-					_detalhes:SairDoCombate (true, true) --killed
-				else
-					_detalhes.encounter_table.kill = false
-					_detalhes:SairDoCombate (false, true) --wipe
-				end
-			else
-				if (_detalhes.tabela_vigente.end_time + 2 >= _detalhes.encounter_table ["end"]) then
-					--_detalhes.tabela_vigente.start_time = _detalhes.encounter_table ["start"]
-					_detalhes.tabela_vigente.end_time = _detalhes.encounter_table ["end"]
-					_detalhes:AtualizaGumpPrincipal (-1, true)
-				end
-			end
+			_detalhes:SaveConfig()
+			_detalhes:SaveProfile()
 
-			_table_wipe (_detalhes.encounter_table)
+			_detalhes_database.nick_tag_cache = table_deepcopy (_detalhes_database.nick_tag_cache)
+	end
+
+	function _detalhes.parser_functions:ADDON_LOADED (...)
+	
+		local addon_name = _select (1, ...)
 		
-		elseif (evento == "CHAT_MSG_BG_SYSTEM_NEUTRAL") then
-			local frase = _select (1, ...)
-
-			--> reset combat timer
-			if ( (frase:find ("The battle") and frase:find ("has begun!") ) and _current_combat.pvp) then
-				local tempo_do_combate = _tempo - _current_combat.start_time
-				_detalhes.tabela_overall.start_time = _detalhes.tabela_overall.start_time + tempo_do_combate
-				_current_combat.start_time = _tempo
-				_detalhes.listener:UnregisterEvent ("CHAT_MSG_BG_SYSTEM_NEUTRAL")
-			end
-			
-			return
-			
-		elseif (evento == "UNIT_PET") then
-			--_detalhes.container_pets:BuscarPets()
-			_detalhes:SchedulePetUpdate (1)
+		if (addon_name == "Details") then
 		
-		elseif (evento == "PLAYER_REGEN_DISABLED") then -- Entrou em Combate
-			--> inicia um timer para pegar qual é a luta:
-			
-			if (_detalhes.EncounterInformation [_detalhes.zone_id]) then 
-				_detalhes:ScheduleTimer ("ReadBossFrames", 1)
-				_detalhes:ScheduleTimer ("ReadBossFrames", 30)
-			end
-			
-			if (not _detalhes:CaptureGet ("damage")) then
-				_detalhes:EntrarEmCombate()
-			end
-
-			--> essa parte do solo mode ainda sera usada?
-			if (_detalhes.solo and _detalhes.PluginCount.SOLO > 0) then --> solo mode
-				local esta_instancia = _detalhes.tabela_instancias[_detalhes.solo]
-				esta_instancia.atualizando = true
-			end
-			
-			return
-			
-		elseif (evento == "PLAYER_REGEN_ENABLED") then
-			--> essa parte do solo mode ainda sera usada?
-			if (_detalhes.solo and _detalhes.PluginCount.SOLO > 0) then --> aqui, tentativa de fazer o timer da janela do Solo funcionar corretamente:
-				if (_detalhes.SoloTables.Plugins [_detalhes.SoloTables.Mode].Stop) then
-					_detalhes.SoloTables.Plugins [_detalhes.SoloTables.Mode].Stop()
-				end
-			end
-			
-			if (_detalhes.schedule_flag_boss_components) then
-				_detalhes.schedule_flag_boss_components = false
-				_detalhes:FlagActorsOnBossFight()
-			end
-
-			if (_detalhes.schedule_remove_overall) then
-				if (_detalhes.debug) then
-					_detalhes:Msg ("(debug) found schedule overall data deletion.")
-				end
-				_detalhes.schedule_remove_overall = false
-				_detalhes.tabela_historico:resetar_overall()
-			end
-			
-			if (_detalhes.schedule_add_to_overall) then
-				if (_detalhes.debug) then
-					_detalhes:Msg ("(debug) found schedule overall data addition.")
-				end
-				_detalhes.schedule_add_to_overall = false
-
-				_detalhes.historico:adicionar_overall (_detalhes.tabela_vigente)
-			end
-			
-			return
-			
-		elseif (evento == "GROUP_ROSTER_UPDATE") then
-
-			if (not _detalhes.in_group) then
-				_detalhes.in_group = IsInGroup() or IsInRaid()
-				if (_detalhes.in_group) then
-					--> entrou num grupo
-					_detalhes:IniciarColetaDeLixo (true)
-					_detalhes:WipePets()
-					_detalhes:SchedulePetUpdate (1)
-					_detalhes:InstanceCall (_detalhes.SetCombatAlpha, nil, nil, true)
-				end
-			else
-				_detalhes.in_group = IsInGroup() or IsInRaid()
-				if (not _detalhes.in_group) then
-					--> saiu do grupo
-					_detalhes:IniciarColetaDeLixo (true)
-					_detalhes:WipePets()
-					_detalhes:SchedulePetUpdate (1)
-					_table_wipe (_detalhes.details_users)
-					_detalhes:InstanceCall (_detalhes.SetCombatAlpha, nil, nil, true)
-				else
-					_detalhes:SchedulePetUpdate (2)
-					_detalhes:CheckDetailsUsers()
-				end
-			end
-			
-			--_detalhes.container_pets:BuscarPets()
-			_detalhes:SchedulePetUpdate (6)
-			
-			return
-
-		elseif (evento == "PARTY_MEMBERS_CHANGED") then
-			--> Nothing to do here
-			return
-			
-		elseif (evento == "PARTY_CONVERTED_TO_RAID") then
-			--> Nothing to do here
-			return
-			
-		elseif (evento == "INSTANCE_ENCOUNTER_ENGAGE_UNIT") then
-			--> Nothing to do here
-			return 
-		
-		elseif (evento == "START_TIMER") then
-		
-			if (C_Scenario.IsChallengeMode() and _detalhes.overall_clear_newchallenge) then
-				_detalhes.historico:resetar_overall()
-			end
-		
-		elseif (evento == "WORLD_STATE_TIMER_START") then
-			--> Nothing to do here
-			return
-		
-		elseif (evento == "PLAYER_LOGOUT") then
-			
-			--> close info window
-				_detalhes:FechaJanelaInfo()
-
-			--> leave combat start save tables
-				if (_detalhes.in_combat) then 
-					_detalhes:SairDoCombate()
-					_detalhes.can_panic_mode = true
-				end
-				
-				if (_detalhes.wipe_full_config) then
-					_detalhes_global = nil
-					_detalhes_database = nil
-					return
-				end
-				
-				--if (UnitName ("player") == "Tiranaa" or UnitName ("player") == "Triciclo") then
-					_detalhes:SaveConfig()
-					_detalhes:SaveProfile()
-
-					_detalhes_database.nick_tag_cache = table_deepcopy (_detalhes_database.nick_tag_cache)
-					
-					--_detalhes_global = nil
-					--_detalhes_database = nil
-					
-				--else
-				--	return _detalhes:SaveData()
-				--end
-		
-		elseif (evento == "ADDON_LOADED") then
-		
-			local addon_name = _select (1, ...)
-			
-			if (addon_name == "Details") then
-			
 			--> cooltip
-				if (not _G.GameCooltip) then
-					_detalhes.popup = DetailsCreateCoolTip()
-				else
-					_detalhes.popup = _G.GameCooltip
-				end
-			
-				_detalhes.in_group = IsInGroup() or IsInRaid()
-				
-				--_detalhes:ApplyBasicKeys()
-			
-				--if (_detalhes_global and _detalhes_global.profile_pool and _detalhes_global.profile_pool [UnitGUID ("player")]) then
-					--> write into details object all basic keys
-					_detalhes:ApplyBasicKeys()
-					--> check if is first run
-					_detalhes:LoadGlobalAndCharacterData()
-					--> load all the saved combats
-					_detalhes:LoadCombatTables()
-					--> load the profiles
-					_detalhes:LoadConfig()
-					
-				--else
-					--> load the addon
-				--	_detalhes:LoadData()
-				--end
-				
-				_detalhes:UpdateParserGears()
-				_detalhes:Start()
+			if (not _G.GameCooltip) then
+				_detalhes.popup = DetailsCreateCoolTip()
+			else
+				_detalhes.popup = _G.GameCooltip
 			end
-			
-			return
-			
+		
+			--> check group
+			_detalhes.in_group = IsInGroup() or IsInRaid()
+		
+			--> write into details object all basic keys
+			_detalhes:ApplyBasicKeys()
+			--> check if is first run
+			_detalhes:LoadGlobalAndCharacterData()
+			--> load all the saved combats
+			_detalhes:LoadCombatTables()
+			--> load the profiles
+			_detalhes:LoadConfig()
+
+			_detalhes:UpdateParserGears()
+			_detalhes:Start()
+		end	
+	end
+	
+	local parser_functions = _detalhes.parser_functions
+	
+	function _detalhes:OnEvent (evento, ...)
+		local func = parser_functions [evento]
+		if (func) then
+			return func (nil, ...)
 		end
 	end
 
 	_detalhes.listener:SetScript ("OnEvent", _detalhes.OnEvent)
 
 	function _detalhes:OnParserEvent (evento, time, token, hidding, who_serial, who_name, who_flags, who_flags2, alvo_serial, alvo_name, alvo_flags, alvo_flags2, ...)
-	
-		--print (alvo_name, alvo_flags2)
-	
 		local funcao = token_list [token]
 		if (funcao) then
 			return funcao (nil, token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, ... )

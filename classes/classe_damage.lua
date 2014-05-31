@@ -196,8 +196,8 @@ end
 			end
 
 local sortEnemies = function (t1, t2)
-	local a = _bit_band (t1.flag_original, 0x00000040)
-	local b = _bit_band (t2.flag_original, 0x00000040)
+	local a = _bit_band (t1.flag_original, 0x00000060)
+	local b = _bit_band (t2.flag_original, 0x00000060)
 	
 	if (a ~= 0 and b ~= 0) then
 		return t1.total > t2.total
@@ -219,8 +219,7 @@ end
 				local total = 0
 				
 				for index, player in _ipairs (container) do
-				
-					if (_bit_band (player.flag_original, 0x00000040) ~= 0) then --> é um inimigo
+					if (_bit_band (player.flag_original, 0x00000060) ~= 0) then --> é um inimigo
 						total = total + player [keyName]
 					else
 						amount = index-1
@@ -1226,13 +1225,18 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 		forcar = true
 	end
 	
-
 	if (self.owner) then
 		actor_class_color_r, actor_class_color_g, actor_class_color_b = _unpack (_detalhes.class_colors [self.owner.classe])
+		
 	elseif (self.monster) then
 		actor_class_color_r, actor_class_color_g, actor_class_color_b = _unpack (_detalhes.class_colors.ENEMY)
+		
 	else
-		actor_class_color_r, actor_class_color_g, actor_class_color_b = _unpack (_detalhes.class_colors [self.classe])
+		if (_bit_band (self.flag_original, 0x00000020) ~= 0) then --> neutral
+			actor_class_color_r, actor_class_color_g, actor_class_color_b = 1, 1, 0
+		else
+			actor_class_color_r, actor_class_color_g, actor_class_color_b = _unpack (_detalhes.class_colors [self.classe])
+		end
 	end
 	
 	return self:RefreshBarra2 (esta_barra, instancia, tabela_anterior, forcar, esta_porcentagem, qual_barra, barras_container)
@@ -1318,7 +1322,11 @@ end
 		elseif (self.monster) then
 			actor_class_color_r, actor_class_color_g, actor_class_color_b = _unpack (_detalhes.class_colors.ENEMY)
 		else
-			actor_class_color_r, actor_class_color_g, actor_class_color_b = _unpack (_detalhes.class_colors [self.classe])
+			if (_bit_band (self.flag_original, 0x00000020) ~= 0) then --> neutral
+				actor_class_color_r, actor_class_color_g, actor_class_color_b = 1, 1, 0
+			else
+				actor_class_color_r, actor_class_color_g, actor_class_color_b = _unpack (_detalhes.class_colors [self.classe])
+			end
 		end
 	end
 	

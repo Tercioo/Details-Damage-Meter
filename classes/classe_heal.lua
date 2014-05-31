@@ -18,9 +18,12 @@ local _table_insert = table.insert
 local _bit_band = bit.band
 local _math_min = math.min
 --api locals
+local GetSpellInfo = GetSpellInfo
 local _GetSpellInfo = _detalhes.getspellinfo
 local _IsInRaid = IsInRaid
 local _IsInGroup = IsInGroup
+local _UnitName = UnitName
+local _GetNumGroupMembers = GetNumGroupMembers
 
 local _detalhes = 		_G._detalhes
 local _
@@ -799,6 +802,36 @@ function atributo_heal:RefreshBarra (esta_barra, instancia, from_resize)
 	
 	esta_barra.texto_esquerdo:SetSize (esta_barra:GetWidth() - esta_barra.texto_direita:GetStringWidth() - 20, 15)
 	
+end
+
+function _detalhes:CloseShields()
+
+	if (not _IsInRaid()) then
+		return
+	end
+
+	local name_table = {}
+	for i = 1, _GetNumGroupMembers() do
+		name_table [_UnitName ("raid" .. i)] = "raid" .. i
+	end
+	
+	local spells_table = {}
+
+	--não da de fechar os escudos, precisa saber o total dele, unitaura nao retorna o valor do escudo
+	for alvo_name, spellid_table in _pairs (escudos) do
+		for spellid, caster_table in _pairs (spellid_table) do
+			if (not spells_table [spellid]) then
+				local spellname = GetSpellInfo (spellid)
+				spells_table [spellid] = spellname
+			end
+			for caster_name, amount in _pairs (caster_table) do
+				local name, _, _, _, _, _, _, unitCaster, _, _, spellid  = _UnitAura (name_table [alvo_name], buffIndex, nil, "HELPFUL")
+				
+			end
+		end
+	end
+
+	--escudo [alvo_name] [spellid] [who_name]
 end
 
 --------------------------------------------- // TOOLTIPS // ---------------------------------------------

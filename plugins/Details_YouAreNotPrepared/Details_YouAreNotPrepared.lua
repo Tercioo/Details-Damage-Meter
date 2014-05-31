@@ -346,7 +346,7 @@ local function CreatePluginFrames()
 		
 		YouAreNotPrepared:UpdateButtons()
 
-		_detalhes:InstanceAlert (Loc ["STRING_PLUGIN_ALERT"], {[[Interface\ICONS\Achievement_Boss_Illidan]], 14, 14, false, 0.8984375, 0.0546875, 0.0546875, 0.8984375}, 20, {YouAreNotPrepared.ShowMeFromInstanceAlert})
+		_detalhes:InstanceAlert (Loc ["STRING_PLUGIN_ALERT"], {[[Interface\ICONS\Achievement_Boss_Illidan]], 14, 14, false, 0.8984375, 0.0546875, 0.0546875, 0.8984375}, 30, {YouAreNotPrepared.ShowMeFromInstanceAlert})
 	end
 	--YouAreNotPrepared:ScheduleTimer (YouAreNotPrepared.ShowMe, 3)	
 	

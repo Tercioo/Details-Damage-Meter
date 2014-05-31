@@ -387,6 +387,18 @@
 			_detalhes:CatchRaidDebuffUptime ("DEBUFF_UPTIME_OUT")
 			_detalhes:CloseEnemyDebuffsUptime()
 			
+			--> ugly fix for warlocks soul link, need to rewrite friendly fire code.
+			for index, actor in pairs (_detalhes.tabela_vigente[1]._ActorTable) do
+				if (actor.classe == "WARLOCK") then
+					local soullink = actor.spell_tables._ActorTable [108446]
+					if (soullink) then
+						actor.total = actor.total - soullink.total
+						actor.total_without_pet = actor.total_without_pet - soullink.total
+						soullink.total = 0
+					end
+				end
+			end
+			
 			--> pega a zona do jogador e vê se foi uma luta contra um Boss -- identifica se a luta foi com um boss
 			if (not _detalhes.tabela_vigente.is_boss) then 
 				--> function which runs after a boss encounter to try recognize a encounter
@@ -927,7 +939,17 @@
 			GameCooltip:SetOption ("RightBorderSize", 5)
 			GameCooltip:SetOption ("MinWidth", 180)
 			GameCooltip:SetOption ("StatusBarTexture", [[Interface\WorldStateFrame\WORLDSTATEFINALSCORE-HIGHLIGHT]]) --[[Interface\Addons\Details\images\bar_flat]]
-			GameCooltip:SetOwner (frame)
+			
+			local myPoint = _detalhes.tooltip.anchor_point
+			local anchorPoint = _detalhes.tooltip.anchor_relative
+			local x_Offset = _detalhes.tooltip.anchor_offset[1]
+			local y_Offset = _detalhes.tooltip.anchor_offset[2]
+			
+			if (_detalhes.tooltip.anchored_to == 1) then
+				GameCooltip:SetHost (frame, myPoint, anchorPoint, x_Offset, y_Offset)
+			else
+				GameCooltip:SetHost (DetailsTooltipAnchor, myPoint, anchorPoint, x_Offset, y_Offset)
+			end
 			
 			local esta_barra = self.barras [qual_barra] --> barra que o mouse passou em cima e irá mostrar o tooltip
 			local objeto = esta_barra.minha_tabela --> pega a referencia da tabela --> retorna a classe_damage ou classe_heal

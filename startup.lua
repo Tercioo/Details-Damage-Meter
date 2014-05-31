@@ -290,6 +290,9 @@ function _G._detalhes:Start()
 			end
 		end
 	end
+	
+	--> cooltip anchor
+	DetailsTooltipAnchor:Restore()
 
 	--[[
 	if (self.tutorial.version_announce < 4) then
@@ -765,7 +768,6 @@ function _G._detalhes:Start()
 	end
 	
 	local on_click_on_quickclick_button = function (frame, button) 
-	
 		if (_detalhes.hotcorner_topleft.quickclick_what_todo == 1) then
 			local lower_instance = _detalhes:GetLowerInstanceNumber()
 			if (not lower_instance) then

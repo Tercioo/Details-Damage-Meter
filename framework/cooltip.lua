@@ -2504,7 +2504,7 @@ function DetailsCreateCoolTip()
 				elseif (menu.statusbar) then
 					CoolTip:AddStatusBar (menu.value, menu.type or 1, menu.color, true)
 				elseif (menu.icon) then
-					CoolTip:AddIcon (menu.icon, menu.type or 1, menu.side or 1, menu.width, menu.height, menu.l, menu.r, menu.t, menu.b)
+					CoolTip:AddIcon (menu.icon, menu.type or 1, menu.side or 1, menu.width, menu.height, menu.l, menu.r, menu.t, menu.b, menu.color)
 				elseif (menu.textleft or menu.textright or menu.text) then
 					CoolTip:AddLine (menu.text, "", menu.type, menu.color, menu.color)
 				end

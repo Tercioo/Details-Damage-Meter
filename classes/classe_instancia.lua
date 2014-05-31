@@ -695,7 +695,7 @@ function _detalhes:agrupar_janelas (lados)
 		end
 	end
 	
-	gump:Fade (instancia.botao_separar, 0)
+	instancia.botao_separar:Show()
 	
 	if (_detalhes.tutorial.unlock_button < 4) then
 	
@@ -703,7 +703,7 @@ function _detalhes:agrupar_janelas (lados)
 		_detalhes.temp_table1.TextHeightMod = -6
 		_detalhes.popup:ShowMe (instancia.botao_separar, "tooltip", "Interface\\Buttons\\LockButton-Unlocked-Up", Loc ["STRING_UNLOCK"], 150, _detalhes.temp_table1)
 		
-		UIFrameFlash (instancia.botao_separar, .5, .5, 5, false, 0, 0)
+		--UIFrameFlash (instancia.botao_separar, .5, .5, 5, false, 0, 0)
 		_detalhes.tutorial.unlock_button = _detalhes.tutorial.unlock_button + 1
 	end
 	
@@ -774,7 +774,7 @@ function _detalhes:Desagrupar (instancia, lado)
 			end
 		end
 		
-		gump:Fade (instancia.botao_separar, 1)
+		instancia.botao_separar:Hide()
 		
 		instancia.verticalSnap = false
 		instancia.horizontalSnap = false
@@ -800,7 +800,7 @@ function _detalhes:Desagrupar (instancia, lado)
 		esta_instancia.snap [2] = nil
 	end
 
-	gump:Fade (instancia.botao_separar, 1)
+	instancia.botao_separar:Hide()
 	
 	if (instancia.iniciada) then
 		instancia:SaveMainWindowPosition()

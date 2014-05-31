@@ -2,13 +2,13 @@
 --Last Modification: 27/07/2013
 -- Change Log:
 	-- 27/07/2013: Finished alpha version.
- 
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> global name declaration
 
 		_ = nil
 		_detalhes = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0", "NickTag-1.0", "LibHotCorners")
-		_detalhes.userversion = "v1.15.0"
+		_detalhes.userversion = "v1.15.3" --tirar guardian of ancient kingss
 		_detalhes.version = "Alpha 019"
 		_detalhes.realversion = 19
 
@@ -203,6 +203,7 @@ do
 	--> register textures and fonts for shared media
 		local SharedMedia = LibStub:GetLibrary ("LibSharedMedia-3.0")
 		SharedMedia:Register ("statusbar", "Details D'ictum", [[Interface\AddOns\Details\images\bar4]])
+		SharedMedia:Register ("statusbar", "Details Vidro", [[Interface\AddOns\Details\images\bar4_vidro]])
 		SharedMedia:Register ("statusbar", "Details D'ictum (reverse)", [[Interface\AddOns\Details\images\bar4_reverse]])
 		SharedMedia:Register ("statusbar", "Details Serenity", [[Interface\AddOns\Details\images\bar_serenity]])
 		SharedMedia:Register ("background", "Details Ground", [[Interface\AddOns\Details\images\background]])

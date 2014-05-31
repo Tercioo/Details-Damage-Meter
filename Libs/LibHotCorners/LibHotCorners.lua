@@ -60,14 +60,14 @@ local tinsert = tinsert
 		
 		savedtable = savedtable or {}
 		
-		tinsert (LibHotCorners [corner], {name = name, fname = fname, savedtable = savedtable, icon = icon, tooltip = tooltip, click = clickfunc, menus = menus, quickfunc = quickclick, onenter = onenter, onleave = onleave})
+		tinsert (LibHotCorners [corner], {name = name, fname = fname, savedtable = savedtable, icon = icon, tooltip = tooltip, click = clickfunc, menus = menus, quickfunc = quickfunc, onenter = onenter, onleave = onleave})
 		LibHotCorners [corner].map [name] = #LibHotCorners [corner]
 		
 		if (not savedtable.hide) then
 			LibHotCorners [corner].is_enabled = true
 		end
 		
-		if (quickfunc and savedtable [corner .. "_quick_click"]) then
+		if (quickfunc and savedtable [corner .. "_quickclick"]) then
 			LibHotCorners [corner].quickfunc = quickfunc
 		end
 		
@@ -82,8 +82,8 @@ local tinsert = tinsert
 		local corner_table = LibHotCorners [corner]
 		local addon_table = corner_table [corner_table.map [name]]
 		
-		addon_table.savedtable.quickclick = value
-		
+		addon_table.savedtable [corner .. "_quickclick"] = value
+
 		if (value and addon_table.quickfunc) then
 			corner_table.quickfunc = addon_table.quickfunc
 		else
@@ -157,6 +157,16 @@ local tinsert = tinsert
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> scripts
 
+	--> background (window mode fix)
+	function HotCornersBackgroundOnEnter (self)
+		if (LibHotCornersTopLeft and LibHotCornersTopLeft:IsShown()) then
+			if (LibHotCornersTopLeft:GetWidth() > 2) then
+				HotCornersOnLeave (LibHotCornersTopLeft)
+			end
+		end
+		self:EnableMouse (false)
+	end
+
 	--> set size
 		local function set_size (self)
 			if (self.position == "topleft" or self.position == "topright") then
@@ -194,6 +204,8 @@ local tinsert = tinsert
 			end
 		
 			set_size (self)
+			
+			HotCornersBackgroundFrame:EnableMouse (true)
 			
 			local i = 1
 			

@@ -467,9 +467,7 @@
 
 	end
 	
-	
 	--> work around to solve the UI Frame Flashes
-	
 	local onFinish = function (self)
 		if (self.showWhenDone) then
 			self.frame:SetAlpha (1)
@@ -477,57 +475,66 @@
 			self.frame:SetAlpha (0)
 			self.frame:Hide()
 		end
-	end
-	
-	local onLoop = function (self)
-		if (self.finishAt < GetTime()) then
-			self:Stop()
+		
+		if (frame.FlashAnimation.onFinishFunc) then
+			frame.FlashAnimation:onFinishFunc (frame)
 		end
 	end
+	
+	local stop = function (self)
+		local FlashAnimation = self.FlashAnimation
+		FlashAnimation:Stop()
+	end
 
-	local flash = function (self, fadeInTime, fadeOutTime, flashDuration, showWhenDone, flashInHoldTime, flashOutHoldTime)
+	local flash = function (self, fadeInTime, fadeOutTime, flashDuration, showWhenDone, flashInHoldTime, flashOutHoldTime, loopType)
 		
 		local FlashAnimation = self.FlashAnimation
+		
 		local fadeIn = FlashAnimation.fadeIn
 		local fadeOut = FlashAnimation.fadeOut
+		
+		fadeIn:Stop()
+		fadeOut:Stop()
 	
-		fadeIn:SetDuration (fadeInTime)
+		fadeIn:SetDuration (fadeInTime or 1)
 		fadeIn:SetEndDelay (flashInHoldTime or 0)
 		
-		fadeOut:SetDuration (fadeOutTime)
+		fadeOut:SetDuration (fadeOutTime or 1)
 		fadeOut:SetEndDelay (flashOutHoldTime or 0)
-		
-		fadeIn:SetOrder (1)
-		fadeOut:SetOrder (2)		
-		
-		fadeIn:SetChange (-1)
-		fadeOut:SetChange (1)
-		
+
 		FlashAnimation.duration = flashDuration
 		FlashAnimation.loopTime = FlashAnimation:GetDuration()
 		FlashAnimation.finishAt = GetTime() + flashDuration
 		FlashAnimation.showWhenDone = showWhenDone
 		
-		FlashAnimation:SetLooping ("REPEAT")
+		FlashAnimation:SetLooping (loopType or "REPEAT")
 		
 		self:Show()
+		self:SetAlpha (0)
 		FlashAnimation:Play()
 	end
 	
-	function gump:CreateFlashAnimation (frame)
+	function gump:CreateFlashAnimation (frame, onFinishFunc, onLoopFunc)
 	
 		local FlashAnimation = frame:CreateAnimationGroup() 
 		
-		FlashAnimation.fadeIn = FlashAnimation:CreateAnimation ("Alpha") --> fade in anime
 		FlashAnimation.fadeOut = FlashAnimation:CreateAnimation ("Alpha") --> fade out anime
+		FlashAnimation.fadeOut:SetOrder (1)
+		FlashAnimation.fadeOut:SetChange (1)
+		
+		FlashAnimation.fadeIn = FlashAnimation:CreateAnimation ("Alpha") --> fade in anime
+		FlashAnimation.fadeIn:SetOrder (2)
+		FlashAnimation.fadeIn:SetChange (-1)
 		
 		frame.FlashAnimation = FlashAnimation
 		FlashAnimation.frame = frame
+		FlashAnimation.onFinishFunc = onFinishFunc
 		
-		FlashAnimation:SetScript ("OnLoop", onLoop)
+		FlashAnimation:SetScript ("OnLoop", onLoopFunc)
 		FlashAnimation:SetScript ("OnFinished", onFinish)
 		
 		frame.Flash = flash
+		frame.Stop = stop
 	
 	end
 

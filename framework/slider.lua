@@ -695,13 +695,17 @@ local SwitchOnClick = function (self, button, forced_value, value)
 
 	local slider = self.MyObject
 	
+	if (_rawget (slider, "lockdown")) then
+		return
+	end
+	
 	if (forced_value) then
-		rawset (slider, "value", not value)
+		_rawset (slider, "value", not value)
 	end
 
-	if (rawget (slider, "value")) then --actived
+	if (_rawget (slider, "value")) then --actived
 	
-		rawset (slider, "value", false)
+		_rawset (slider, "value", false)
 		slider._text:SetText (slider._ltext)
 		slider._thumb:ClearAllPoints()
 		
@@ -710,7 +714,7 @@ local SwitchOnClick = function (self, button, forced_value, value)
 	
 	else
 	
-		rawset (slider, "value", true)
+		_rawset (slider, "value", true)
 		slider._text:SetText (slider._rtext)
 		slider._thumb:ClearAllPoints()
 
@@ -720,7 +724,7 @@ local SwitchOnClick = function (self, button, forced_value, value)
 	end
 	
 	if (slider.OnSwitch and not forced_value) then
-		local value = rawget (slider, "value")
+		local value = _rawget (slider, "value")
 		if (slider.return_func) then
 			value = slider:return_func (value)
 		end
@@ -753,6 +757,25 @@ local switch_set_fixparameter = function (self, value)
 	_rawset (self, "FixedValue", value)
 end
 
+local switch_disable = function (self)	
+	if (not self.lock_texture) then
+		gump:NewImage (self, [[Interface\PetBattles\PetBattle-LockIcon]], 12, 12, "overlay", {0.0546875, 0.9453125, 0.0703125, 0.9453125}, "lock_texture", "$parentLockTexture")
+		self.lock_texture:SetDesaturated (true)
+		self.lock_texture:SetPoint ("center", self._thumb, "center")
+	end
+	
+	self.lock_texture:Show()
+	self._text:Hide()
+	self:SetAlpha (.4)
+	_rawset (self, "lockdown", true)
+end
+local switch_enable = function (self)
+	self.lock_texture:Hide()
+	self._text:Show()
+	self:SetAlpha (1)
+	return _rawset (self, "lockdown", false)
+end
+
 function gump:NewSwitch (parent, container, name, member, w, h, ltext, rtext, default_value, color_inverted, switch_func, return_func)
 
 --> early checks
@@ -778,6 +801,8 @@ function gump:NewSwitch (parent, container, name, member, w, h, ltext, rtext, de
 	slider.SetValue = switch_set_value
 	slider.GetValue = switch_get_value
 	slider.SetFixedParameter = switch_set_fixparameter
+	slider.Disable = switch_disable
+	slider.Enable = switch_enable
 	
 	if (member) then
 		parent [member] = slider

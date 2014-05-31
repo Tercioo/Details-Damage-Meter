@@ -319,12 +319,12 @@ local function OnLeaveMainWindow (instancia, self)
 		gump:Fade (instancia.baseframe.button_stretch, "ALPHA", 0)
 		
 		--> snaps
-		instancia.botao_separar:SetAlpha (0)
+		instancia.botao_separar:Hide()
 	
 	elseif (instancia.modo ~= _detalhes._detalhes_props["MODO_ALONE"] and instancia.baseframe.isLocked) then
 		gump:Fade (instancia.baseframe.lock_button, 1)
 		gump:Fade (instancia.baseframe.button_stretch, "ALPHA", 0)
-		instancia.botao_separar:SetAlpha (0)
+		instancia.botao_separar:Hide()
 		
 	end
 end
@@ -354,7 +354,7 @@ local function OnEnterMainWindow (instancia, self)
 		--> snaps
 		for _, instancia_id in _pairs (instancia.snap) do
 			if (instancia_id) then
-				instancia.botao_separar:SetAlpha (1)
+				instancia.botao_separar:Show()
 				break
 			end
 		end
@@ -366,7 +366,7 @@ local function OnEnterMainWindow (instancia, self)
 		--> snaps
 		for _, instancia_id in _pairs (instancia.snap) do
 			if (instancia_id) then
-				instancia.botao_separar:SetAlpha (1)
+				instancia.botao_separar:Show()
 				break
 			end
 		end
@@ -423,7 +423,7 @@ local function VPT (instancia, esta_instancia)
 	return nil
 end
 
-local tempo_movendo, precisa_ativar, instancia_alvo, tempo_fades, nao_anexados
+local tempo_movendo, precisa_ativar, instancia_alvo, tempo_fades, nao_anexados, flash_bounce
 local movement_onupdate = function (self, elapsed) 
 
 				if (tempo_movendo and tempo_movendo < 0) then
@@ -437,16 +437,40 @@ local movement_onupdate = function (self, elapsed)
 						precisa_ativar = false
 						
 					elseif (tempo_fades) then
-						for lado, livre in _ipairs (nao_anexados) do
-							if (livre) then
-								if (lado == 1) then
-									instancia_alvo.h_esquerda:Flash (tempo_fades, tempo_fades, 2.0, false, 0, 0)
-								elseif (lado == 2) then
-									instancia_alvo.h_baixo:Flash (tempo_fades, tempo_fades, 2.0, false, 0, 0)
-								elseif (lado == 3) then
-									instancia_alvo.h_direita:Flash (tempo_fades, tempo_fades, 2.0, false, 0, 0)
-								elseif (lado == 4) then
-									instancia_alvo.h_cima:Flash (tempo_fades, tempo_fades, 2.0, false, 0, 0)
+					
+						if (flash_bounce == 0) then
+						
+							flash_bounce = 1
+
+							local tem_livre = false
+							
+							for lado, livre in _ipairs (nao_anexados) do
+								if (livre) then
+									if (lado == 1) then
+										instancia_alvo.h_esquerda:Flash (1, 1, 2.0, false, 0, 0)
+										tem_livre = true
+									elseif (lado == 2) then
+										instancia_alvo.h_baixo:Flash (1, 1, 2.0, false, 0, 0)
+										tem_livre = true
+									elseif (lado == 3) then
+										instancia_alvo.h_direita:Flash (1, 1, 2.0, false, 0, 0)
+										tem_livre = true
+									elseif (lado == 4) then
+										instancia_alvo.h_cima:Flash (1, 1, 2.0, false, 0, 0)
+										tem_livre = true
+									end
+								end
+							end
+							
+							if (tem_livre) then
+								if (not _detalhes.snap_alert.playing) then
+									instancia_alvo:SnapAlert()
+									_detalhes.snap_alert.playing = true
+									
+									_detalhes.MicroButtonAlert.Text:SetText (string.format (Loc ["STRING_ATACH_DESC"], self.instance.meu_id, instancia_alvo.meu_id))
+									_detalhes.MicroButtonAlert:SetPoint ("bottom", instancia_alvo.baseframe.cabecalho.novo, "top", 0, 18)
+									_detalhes.MicroButtonAlert:SetHeight (200)
+									_detalhes.MicroButtonAlert:Show()
 								end
 							end
 						end
@@ -489,6 +513,7 @@ local function move_janela (baseframe, iniciando, instancia)
 			tempo_fades = 1.0
 			nao_anexados = {true, true, true, true}
 			tempo_movendo = 1
+			flash_bounce = 0
 			
 			for lado, snap_to in _pairs (instancia_alvo.snap) do
 				if (snap_to) then
@@ -625,6 +650,20 @@ local function move_janela (baseframe, iniciando, instancia)
 				end
 			end
 		end
+--# /tar Disassembled Crawler
+--# /tar Deactivated Laser Turrets
+		_detalhes.snap_alert.playing = false
+		_detalhes.snap_alert.animIn:Stop()
+		_detalhes.snap_alert.animOut:Play()
+		_detalhes.MicroButtonAlert:Hide()
+
+		if (instancia_alvo) then
+			instancia_alvo.h_esquerda:Stop()
+			instancia_alvo.h_baixo:Stop()
+			instancia_alvo.h_direita:Stop()
+			instancia_alvo.h_cima:Stop()
+		end
+		
 	end
 end
 
@@ -1174,26 +1213,31 @@ local function resize_scripts (resizer, instancia, scrollbar, side, baseframe)
 	end)
 end
 
+local lockButtonTooltip = {
+	{text = Loc ["STRING_LOCK_DESC"]},
+	{icon = [[Interface\PetBattles\PetBattle-LockIcon]], width = 14, height = 14, l = 0.0703125, r = 0.9453125, t = 0.0546875, b = 0.9453125, color = "orange"},
+}
 
-local function lock_button_scripts (button, instancia)
-	button:SetScript ("OnEnter", function (self) 
+local lockFunctionOnEnter = function (self)
+	OnEnterMainWindow (self.instancia, self)
 	
-		OnEnterMainWindow (instancia, self)
+	if (self.instancia.modo ~= _detalhes._detalhes_props["MODO_ALONE"]) then
+		self.label:SetTextColor (1, 1, 1, .6)
+		self.mostrando = true
 		
-		if (instancia.modo ~= _detalhes._detalhes_props["MODO_ALONE"]) then
-			self.label:SetTextColor (1, 1, 1, .6)
-			self.mostrando = true
-		end
+		GameCooltip:Reset()
+		GameCooltip:AddFromTable (lockButtonTooltip)
+		GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
+		GameCooltip:ShowCooltip (self, "tooltip")
 		
-	end)
-
-	button:SetScript ("OnLeave", function (self) 
-	
-		OnLeaveMainWindow (instancia, self)
-		self.label:SetTextColor (.3, .3, .3, .6)
-		self.mostrando = false
-		
-	end)
+	end
+end
+ 
+local lockFunctionOnLeave = function (self)
+	OnLeaveMainWindow (self.instancia, self)
+	self.label:SetTextColor (.3, .3, .3, .6)
+	self.mostrando = false
+	GameCooltip:Hide()
 end
 
 local lockFunctionOnClick = function (button)
@@ -1220,16 +1264,26 @@ local lockFunctionOnClick = function (button)
 end
 _detalhes.lock_instance_function = lockFunctionOnClick
 
-local function bota_separar_script (botao, instancia)
-	botao:SetScript ("OnEnter", function (self) 
-		OnEnterMainWindow (instancia, self)
-		self.mostrando = true
-	end)
+local unSnapButtonTooltip = {
+	{text = Loc ["STRING_DETACH_DESC"]},
+	{icon = [[Interface\CURSOR\CURSORICONSNEW]], width = 14, height = 14, l = 4/128, r = 24/128, t = 34/256, b = 60/256, color = "orange"},
+}
+
+local unSnapButtonOnEnter = function (self)
+	OnEnterMainWindow (self.instancia, self)
+	self.mostrando = true
 	
-	botao:SetScript ("OnLeave", function (self) 
-		OnLeaveMainWindow (instancia, self)
-		self.mostrando = false
-	end)
+	GameCooltip:Reset()
+	GameCooltip:AddFromTable (unSnapButtonTooltip)
+	GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
+	GameCooltip:ShowCooltip (self, "tooltip")
+	
+end
+
+local unSnapButtonOnLeave = function (self)
+	OnLeaveMainWindow (self.instancia, self)
+	self.mostrando = false
+	GameCooltip:Hide()
 end
 
 local shift_monitor = function (self)
@@ -1863,12 +1917,29 @@ function _detalhes:InstanceAlert (msg, icon, time, clickfunc)
 		_detalhes:ScheduleTimer ("InstanceAlertTime", time, self)
 	end
 	
+	self.alert:SetPoint ("bottom", self.baseframe, "bottom", 0, -12)
+	self.alert:SetPoint ("left", self.baseframe, "left", 3, 0)
+	self.alert:SetPoint ("right", self.baseframe, "right", -3, 0)
+	
 	self.alert:Show()
+	self.alert:Play()
 end
 
 function CreateAlertFrame (baseframe, instancia)
 
-	local alert_bg = CreateFrame ("frame", "DetailsAlertFrame" .. instancia.meu_id, baseframe)
+	local frame_upper = CreateFrame ("scrollframe", "DetailsAlertFrameScroll" .. instancia.meu_id, baseframe)
+	frame_upper:SetPoint ("bottom", baseframe, "bottom")
+	frame_upper:SetPoint ("left", baseframe, "left", 3, 0)
+	frame_upper:SetPoint ("right", baseframe, "right", -3, 0)
+	frame_upper:SetHeight (13)
+	
+	local frame_lower = CreateFrame ("frame", "DetailsAlertFrameScrollChild" .. instancia.meu_id, frame_upper)
+	frame_lower:SetHeight (25)
+	frame_lower:SetPoint ("left", frame_upper, "left")
+	frame_lower:SetPoint ("right", frame_upper, "right")
+	frame_upper:SetScrollChild (frame_lower)
+
+	local alert_bg = CreateFrame ("frame", "DetailsAlertFrame" .. instancia.meu_id, frame_lower)
 	alert_bg:SetPoint ("bottom", baseframe, "bottom")
 	alert_bg:SetPoint ("left", baseframe, "left", 3, 0)
 	alert_bg:SetPoint ("right", baseframe, "right", -3, 0)
@@ -1914,7 +1985,23 @@ function CreateAlertFrame (baseframe, instancia)
 	rotate:SetDuration (6)
 	RotateAnimGroup:SetLooping ("repeat")
 	
-	alert_bg:Hide()	
+	alert_bg:Hide()
+	
+	local anime = alert_bg:CreateAnimationGroup()
+	anime.group = anime:CreateAnimation ("Translation")
+	anime.group:SetDuration (0.15)
+	--anime.group:SetSmoothing ("OUT")
+	anime.group:SetOffset (0, 10)
+	anime:SetScript ("OnFinished", function(self) 
+		alert_bg:Show()
+		alert_bg:SetPoint ("bottom", baseframe, "bottom", 0, 0)
+		alert_bg:SetPoint ("left", baseframe, "left", 3, 0)
+		alert_bg:SetPoint ("right", baseframe, "right", -3, 0)
+	end)
+	
+	function alert_bg:Play()
+		anime:Play()
+	end
 	
 	alert_bg.text = text
 	alert_bg.icon = icon
@@ -1994,6 +2081,116 @@ local function show_anti_overlap (instance, host, side)
 		anti_menu_overlap:SetPoint ("top", host, "bottom")
 	end
 	anti_menu_overlap:Show()
+end
+
+_detalhes.snap_alert = CreateFrame ("frame", "DetailsSnapAlertFrame", UIParent, "ActionBarButtonSpellActivationAlert")
+_detalhes.snap_alert:Hide()
+_detalhes.snap_alert:SetFrameStrata ("FULLSCREEN")
+
+function _detalhes:SnapAlert()
+	_detalhes.snap_alert:ClearAllPoints()
+	_detalhes.snap_alert:SetPoint ("topleft", self.baseframe.cabecalho.novo, "topleft", -8, 6)
+	_detalhes.snap_alert:SetPoint ("bottomright", self.baseframe.cabecalho.novo, "bottomright", 8, -6)
+	_detalhes.snap_alert.animOut:Stop()
+	_detalhes.snap_alert.animIn:Play()
+end
+
+do
+
+	local tooltip_anchor = CreateFrame ("frame", "DetailsTooltipAnchor", UIParent)
+	tooltip_anchor:SetSize (140, 20)
+	tooltip_anchor:EnableMouse (false)
+	tooltip_anchor:SetAlpha (0)
+	tooltip_anchor:SetMovable (false)
+	tooltip_anchor:SetClampedToScreen (true)
+	tooltip_anchor.locked = true
+	tooltip_anchor:SetBackdrop ({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], edgeFile = [[Interface\DialogFrame\UI-DialogBox-Border]], edgeSize = 10, insets = {left = 1, right = 1, top = 2, bottom = 1}})
+	tooltip_anchor:SetBackdropColor (0, 0, 0, 1)
+	
+	tooltip_anchor:SetScript ("OnEnter", function (self)
+		tooltip_anchor.alert.animIn:Stop()
+		tooltip_anchor.alert.animOut:Play()
+		GameTooltip:SetOwner (self, "ANCHOR_TOPLEFT")
+		GameTooltip:ClearLines()
+		GameTooltip:AddLine (Loc ["STRING_OPTIONS_TOOLTIPS_ANCHOR_TEXT_DESC"])
+		GameTooltip:Show()
+	end)
+	
+	tooltip_anchor:SetScript ("OnLeave", function (self)
+		GameTooltip:Hide()
+	end)
+	
+	tooltip_anchor:SetScript ("OnMouseDown", function (self, button)
+		if (not self.moving and button == "LeftButton") then
+			self:StartMoving()
+			self.moving = true
+		end
+	end)
+	
+	tooltip_anchor:SetScript ("OnMouseUp", function (self, button)
+		if (self.moving) then
+			self:StopMovingOrSizing()
+			self.moving = false
+			local xofs, yofs = self:GetCenter() 
+			local scale = self:GetEffectiveScale()
+			local UIscale = UIParent:GetScale()
+			xofs = xofs * scale - GetScreenWidth() * UIscale / 2
+			yofs = yofs * scale - GetScreenHeight() * UIscale / 2
+			_detalhes.tooltip.anchor_screen_pos[1] = xofs / UIscale
+			_detalhes.tooltip.anchor_screen_pos[2] = yofs / UIscale
+			
+		elseif (button == "RightButton" and not self.moving) then
+			tooltip_anchor:MoveAnchor()
+		end
+	end)
+	
+	function tooltip_anchor:MoveAnchor()
+		if (self.locked) then
+			self:SetAlpha (1)
+			self:EnableMouse (true)
+			self:SetMovable (true)
+			self:SetFrameStrata ("FULLSCREEN")
+			self.locked = false
+			tooltip_anchor.alert.animOut:Stop()
+			tooltip_anchor.alert.animIn:Play()
+		else
+			self:SetAlpha (0)
+			self:EnableMouse (false)
+			self:SetFrameStrata ("MEDIUM")
+			self:SetMovable (false)
+			self.locked = true
+			tooltip_anchor.alert.animIn:Stop()
+			tooltip_anchor.alert.animOut:Play()
+		end
+	end
+	
+	function tooltip_anchor:Restore()
+		local x, y = _detalhes.tooltip.anchor_screen_pos[1], _detalhes.tooltip.anchor_screen_pos[2]
+		local scale = self:GetEffectiveScale() 
+		local UIscale = UIParent:GetScale()
+		x = x * UIscale / scale
+		y = y * UIscale / scale
+		self:ClearAllPoints()
+		self:SetParent (UIParent)
+		self:SetPoint ("center", UIParent, "center", x, y)
+	end
+	
+	tooltip_anchor.alert = CreateFrame ("frame", "DetailsTooltipAnchorAlert", UIParent, "ActionBarButtonSpellActivationAlert")
+	tooltip_anchor.alert:SetFrameStrata ("FULLSCREEN")
+	tooltip_anchor.alert:Hide()
+	tooltip_anchor.alert:SetPoint ("topleft", tooltip_anchor, "topleft", -60, 6)
+	tooltip_anchor.alert:SetPoint ("bottomright", tooltip_anchor, "bottomright", 40, -6)
+
+	local icon = tooltip_anchor:CreateTexture (nil, "overlay")
+	icon:SetTexture ([[Interface\AddOns\Details\images\minimap]])
+	icon:SetPoint ("left", tooltip_anchor, "left", 4, 0)
+	icon:SetSize (18, 18)
+	
+	local text = tooltip_anchor:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+	text:SetPoint ("left", icon, "right", 6, 0)
+	text:SetText (Loc ["STRING_OPTIONS_TOOLTIPS_ANCHOR_TEXT"])
+	
+
 end
 
 --> ~inicio ~janela ~window ~nova
@@ -2227,9 +2424,12 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 		baseframe.lock_button.label:SetText (Loc ["STRING_LOCK_WINDOW"])
 		baseframe.lock_button:SetWidth (baseframe.lock_button.label:GetStringWidth()+2)
 		baseframe.lock_button:SetScript ("OnClick", lockFunctionOnClick)
+		baseframe.lock_button:SetScript ("OnEnter", lockFunctionOnEnter)
+		baseframe.lock_button:SetScript ("OnLeave", lockFunctionOnLeave)
 		baseframe.lock_button:SetFrameStrata ("HIGH")
 		baseframe.lock_button:SetFrameLevel (baseframe:GetFrameLevel() + 6)
-	
+		baseframe.lock_button.instancia = instancia
+		
 	--> left resizer
 		baseframe.resize_esquerda = CreateFrame ("button", "Details_Resize_Esquerda"..ID, baseframe)
 		
@@ -2313,9 +2513,15 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 		instancia.botao_separar:SetFrameLevel (baseframe:GetFrameLevel() + 5)
 		instancia.botao_separar:SetSize (13, 13)
 		
+		instancia.botao_separar.instancia = instancia
+		
 		instancia.botao_separar:SetScript ("OnClick", function()
 			instancia:Desagrupar (-1)
 		end)
+		
+		instancia.botao_separar:SetScript ("OnEnter", unSnapButtonOnEnter)
+		instancia.botao_separar:SetScript ("OnLeave", unSnapButtonOnLeave)
+		
 
 		instancia.botao_separar:SetNormalTexture (DEFAULT_SKIN)
 		instancia.botao_separar:SetDisabledTexture (DEFAULT_SKIN)
@@ -2327,14 +2533,12 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 		instancia.botao_separar:GetHighlightTexture():SetTexCoord (unpack (COORDS_UNLOCK_BUTTON))
 		instancia.botao_separar:GetPushedTexture():SetTexCoord (unpack (COORDS_UNLOCK_BUTTON))
 		
-		instancia.botao_separar:SetAlpha (0)
+		instancia.botao_separar:Hide()
 	
 -- scripts ------------------------------------------------------------------------------------------------------------------------------------------------------------	
 	
 		resize_scripts (baseframe.resize_direita, instancia, scrollbar, ">", baseframe)
 		resize_scripts (baseframe.resize_esquerda, instancia, scrollbar, "<", baseframe)
-		lock_button_scripts (baseframe.lock_button, instancia)
-		bota_separar_script (instancia.botao_separar, instancia)
 	
 -- side bars highlights ------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -2499,14 +2703,20 @@ function gump:CriaNovaBarra (instancia, index)
 	esta_barra.border:SetAllPoints (esta_barra)
 
 	local backdrop = instancia.row_info.backdrop.enabled
+	local backdrop_color
 	if (backdrop) then
-		esta_barra.border:SetBackdrop ({edgeFile = SharedMedia:Fetch ("border", instancia.row_info.backdrop.texture), edgeSize = instancia.row_info.backdrop.size})
-		esta_barra.border:SetBackdropBorderColor (_unpack (instancia.row_info.backdrop.color))
+		backdrop = {edgeFile = SharedMedia:Fetch ("border", instancia.row_info.backdrop.texture), edgeSize = instancia.row_info.backdrop.size}
+		backdrop_color = instancia.row_info.backdrop.color
 	end
 	
-	esta_barra.border:SetBackdrop ({edgeFile = [[Interface\AddOns\Details\images\border_2]], edgeSize = 12})
-	esta_barra.border:SetBackdropBorderColor (0, 0, 0, 1)
-	
+	--backdrop
+	if (backdrop) then
+		esta_barra.border:SetBackdrop (backdrop)
+		esta_barra.border:SetBackdropBorderColor (_unpack (backdrop_color))
+	else
+		esta_barra.border:SetBackdrop (nil)
+	end
+
 	esta_barra.textura = esta_barra.statusbar:CreateTexture (nil, "artwork")
 	esta_barra.textura:SetHorizTile (false)
 	esta_barra.textura:SetVertTile (false)
@@ -4326,6 +4536,38 @@ function _detalhes:SetFrameStrata (strata)
 	
 	self.rowframe:SetFrameStrata (strata)
 	self.baseframe:SetFrameStrata (strata)
+	
+	if (strata == "BACKGROUND") then
+		self.botao_separar:SetFrameStrata ("LOW")
+		self.baseframe.resize_esquerda:SetFrameStrata ("LOW")
+		self.baseframe.resize_direita:SetFrameStrata ("LOW")
+		self.baseframe.lock_button:SetFrameStrata ("LOW")
+		
+	elseif (strata == "LOW") then
+		self.botao_separar:SetFrameStrata ("MEDIUM")
+		self.baseframe.resize_esquerda:SetFrameStrata ("MEDIUM")
+		self.baseframe.resize_direita:SetFrameStrata ("MEDIUM")
+		self.baseframe.lock_button:SetFrameStrata ("MEDIUM")
+		
+	elseif (strata == "MEDIUM") then
+		self.botao_separar:SetFrameStrata ("HIGH")
+		self.baseframe.resize_esquerda:SetFrameStrata ("HIGH")
+		self.baseframe.resize_direita:SetFrameStrata ("HIGH")
+		self.baseframe.lock_button:SetFrameStrata ("HIGH")
+		
+	elseif (strata == "HIGH") then
+		self.botao_separar:SetFrameStrata ("DIALOG")
+		self.baseframe.resize_esquerda:SetFrameStrata ("DIALOG")
+		self.baseframe.resize_direita:SetFrameStrata ("DIALOG")
+		self.baseframe.lock_button:SetFrameStrata ("DIALOG")
+		
+	elseif (strata == "DIALOG") then
+		self.botao_separar:SetFrameStrata ("FULLSCREEN")
+		self.baseframe.resize_esquerda:SetFrameStrata ("FULLSCREEN")
+		self.baseframe.resize_direita:SetFrameStrata ("FULLSCREEN")
+		self.baseframe.lock_button:SetFrameStrata ("FULLSCREEN")
+		
+	end
 	
 	self:StretchButtonAlwaysOnTop()
 	

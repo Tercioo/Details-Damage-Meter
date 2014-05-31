@@ -134,6 +134,8 @@ _detalhes:InstallEncounter (StormsStoutBrewery)
 local ScarletHalls = {
 
 	id = 1001,
+	ej_id = 311,
+	
 	name = "Scarlet Halls",
 	boss_names = {
 		"Houndmaster Braun",
@@ -142,9 +144,9 @@ local ScarletHalls = {
 	},
 	
 	boss_ids = {
-		[0] = 1, --
-		[0] = 2, --
-		[0] = 3, --
+		[59303] = 1, --Houndmaster Braun
+		[58632] = 2, --Armsmaster Harlan
+		[59150] = 3, --Flameweaver Koegler
 	},
 	
 	encounters = {
@@ -165,9 +167,47 @@ local ScarletHalls = {
 
 _detalhes:InstallEncounter (ScarletHalls)
 
+local ScarletMonastery = {
+
+	id = 1004,
+	ej_id = 316,
+	
+	name = "Scarlet Monastery",
+	boss_names = {
+		"Thalnos the Soulrender",
+		"Brother Korloff",
+		"High Inquisitor Whitemane",
+	},
+	
+	boss_ids = {
+		[59789] = 1, --Thalnos the Soulrender
+		[60040] = 2, --Commander Durand
+		[3977] = 2, --High Inquisitor Whitemane
+	},
+	
+	encounters = {
+		[1] = {
+			boss =	"Thalnos the Soulrender",
+			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Thalnos the Soulrender]],
+		},
+		[2] = {
+			boss =	"Brother Korloff",
+			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Brother Korloff]],
+		},
+		[3] = {
+			boss =	"High Inquisitor Whitemane",
+			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-High Inquisitor Whitemane]],
+		},
+	},
+}
+
+_detalhes:InstallEncounter (ScarletMonastery)
+
 local ShadoPanMonastery = {
 
 	id = 959,
+	ej_id = 312,
+	
 	name = "Shado-Pan Monastery",
 	boss_names = {
 		"Gu Cloudstrike",
@@ -177,9 +217,10 @@ local ShadoPanMonastery = {
 	},
 	
 	boss_ids = {
-		[0] = 1, --
-		[0] = 2, --
-		[0] = 3, --
+		[56747] = 1, --Gu Cloudstrike
+		[56541] = 2, --Master Snowdrift
+		[56719] = 3, --Sha of Violence
+		[56884] = 4, --Taran Zhu
 	},
 	
 	encounters = {
@@ -204,43 +245,10 @@ local ShadoPanMonastery = {
 
 _detalhes:InstallEncounter (ShadoPanMonastery)
 
-local ScarletMonastery = {
-
-	id = 1004,
-	name = "Scarlet Monastery",
-	boss_names = {
-		"Thalnos the Soulrender",
-		"Brother Korloff",
-		"High Inquisitor Whitemane",
-	},
-	
-	boss_ids = {
-		[0] = 1, --
-		[0] = 2, --
-		[0] = 3, --
-	},
-	
-	encounters = {
-		[1] = {
-			boss =	"Thalnos the Soulrender",
-			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Thalnos the Soulrender]],
-		},
-		[2] = {
-			boss =	"Brother Korloff",
-			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Brother Korloff]],
-		},
-		[3] = {
-			boss =	"High Inquisitor Whitemane",
-			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-High Inquisitor Whitemane]],
-		},
-	},
-}
-
-_detalhes:InstallEncounter (ScarletMonastery)
-
 local SiegeOfNiuzaoTemple = {
 
 	id = 1011,
+	ej_id = 324,
 	name = "Siege of Niuzao Temple",
 	boss_names = {
 		"Vizier Jin'bak",
@@ -250,9 +258,10 @@ local SiegeOfNiuzaoTemple = {
 	},
 	
 	boss_ids = {
-		[0] = 1, --
-		[0] = 2, --
-		[0] = 3, --
+		[61567] = 1, --Vizier Jin'Bak
+		[61634] = 2, --commander Vojak
+		[61485] = 3, --General Pa'valak
+		[62205] = 4, --Wing Leader Neronok
 	},
 	
 	encounters = {
@@ -280,6 +289,8 @@ _detalhes:InstallEncounter (SiegeOfNiuzaoTemple)
 local GateOfSettingSun = {
 
 	id = 962,
+	ej_id = 303,
+	
 	name = "Gate of the Setting Sun",
 	boss_names = {
 		"Saboteur Kip'tilak",
@@ -289,9 +300,11 @@ local GateOfSettingSun = {
 	},
 	
 	boss_ids = {
-		[0] = 1, --
-		[0] = 2, --
-		[0] = 3, --
+		[56906] = 1, --Saboteur Kiptilak
+		[56589] = 2, --Striker Ga'dok
+		[56636] = 3, --Commander Rimok
+		[56877] = 4, --Raigonn
+		[56895] = 4, --Weak Spot (Raigonn)
 	},
 	
 	encounters = {
@@ -319,6 +332,8 @@ _detalhes:InstallEncounter (GateOfSettingSun)
 local Scholomance = {
 
 	id = 1007,
+	ej_id = 246,
+	
 	name = "Scholomance",
 	boss_names = {
 		"Instructor Chillheart",
@@ -329,9 +344,12 @@ local Scholomance = {
 	},
 	
 	boss_ids = {
-		[0] = 1, --
-		[0] = 2, --
-		[0] = 3, --
+		[58633] = 1, --Instructor Chillheart
+		[58664] = 1, --Instructor Chillheart Phylactery
+		[59184] = 2, --Jandice Barov
+		[59153] = 3, --Rattlegore
+		[58722] = 4, --Lilian Voss
+		[59080] = 5, --Darkmaster Gandling
 	},
 	
 	encounters = {

@@ -58,15 +58,8 @@ function container_pets:PegaDono (pet_serial, pet_nome, pet_flags)
 				local nome, realm = _UnitName ("raid"..i)
 				if (realm and realm ~= "") then
 					nome = nome.."-"..realm
-					--print ("tem realm: ", realm, nome)
 				end
 				dono_nome = nome
-				
-				--if (nome:find ("Unknown")) then
-					--print ("owner name with Unknown: ", nome)
-				--end
-				
-				--print ("Dono encontrado na raide",nome,realm)
 			end
 		end
 		
@@ -78,13 +71,10 @@ function container_pets:PegaDono (pet_serial, pet_nome, pet_flags)
 				
 				local nome, realm = _UnitName ("party"..i)
 				if (realm and realm ~= "") then
-					--print ("tem realm: ", realm)
 					nome = nome.."-"..realm
 				end
 				
 				dono_nome = nome
-				--print ("Dono encontrado na party",nome,realm)
-				--print ("DEBUG Dono encontrado na party")
 			end
 		end
 	end
@@ -102,14 +92,9 @@ function container_pets:PegaDono (pet_serial, pet_nome, pet_flags)
 	end
 	
 	if (dono_nome) then
-		--print ("dono encontrado, adicionando ao cache")
 		self.pets [pet_serial] = {dono_nome, dono_serial, dono_flags, _detalhes._tempo, true} --> adicionada a flag emulada
 		return pet_nome .." <"..dono_nome..">", dono_nome, dono_serial, dono_flags
 	else
-		--if (_GetNumGroupMembers() > 0) then
-			--print ("DEBUG: Pet sem dono: "..pet_nome)
-		--end
-		--print ("DEBUG Nao foi possivel achar o dono de "..pet_nome)
 		
 		if (pet_flags and _bit_band (pet_flags, OBJECT_TYPE_PET) ~= 0) then --> é um pet
 			if (not _detalhes.pets_no_owner [pet_serial] and _bit_band (pet_flags, EM_GRUPO) ~= 0) then
@@ -138,14 +123,10 @@ function container_pets:BuscarPets()
 					local nome, realm = _UnitName ("raid"..i)
 					if (nome == "Unknown Entity") then
 						_detalhes:SchedulePetUpdate (1)
-						--print ("unknown owner name, rescheduling...")
 					else
 						if (realm and realm ~= "") then
 							nome = nome.."-"..realm
-							--print ("tem realm: ", realm, nome)
 						end
-						--print ("pet found: ", nome)
-						--print ("bp dono encontrado na raide:",nome, realm)
 						_detalhes.tabela_pets:Adicionar (pet_serial, _UnitName ("raidpet"..i), 0x1114, _UnitGUID ("raid"..i), nome, 0x514)
 					end
 				end
@@ -159,13 +140,10 @@ function container_pets:BuscarPets()
 					local nome, realm = _UnitName ("party"..i)
 					if (nome == "Unknown Entity") then
 						_detalhes:SchedulePetUpdate (1)
-						--print ("unknown owner name, rescheduling...")
 					else
 						if (realm and realm ~= "") then
 							nome = nome.."-"..realm
 						end
-						--print ("pet found: ", nome)
-						--print ("bp dono encontrado no grupo:",nome, realm)
 						_detalhes.tabela_pets:Adicionar (pet_serial, _UnitName ("partypet"..i), 0x1114, _UnitGUID ("party"..i), nome, 0x514) 
 					end
 				end
@@ -178,31 +156,18 @@ end
 
 function container_pets:Adicionar (pet_serial, pet_nome, pet_flags, dono_serial, dono_nome, dono_flags)
 
-	--if (pet_nome == "Guardian of Ancient Kings") then --remover
-	--	print ("Summon GAK 2", dono_nome)
-	--end
-	
 	if (pet_flags and _bit_band (pet_flags, OBJECT_TYPE_PET) ~= 0 and _bit_band (pet_flags, EM_GRUPO) ~= 0) then
-		self.pets [pet_serial] = {dono_nome, dono_serial, dono_flags, _detalhes._tempo, true}
+		self.pets [pet_serial] = {dono_nome, dono_serial, dono_flags, _detalhes._tempo, true, pet_nome, pet_serial}
 		--if (pet_nome == "Guardian of Ancient Kings") then --remover
-		--	print ("Summon GAK 3 - TRUE", dono_nome)
+		--	print ("SUMMON", "Adicionou ao container")
 		--end
 	else
-		self.pets [pet_serial] = {dono_nome, dono_serial, dono_flags, _detalhes._tempo}
+		self.pets [pet_serial] = {dono_nome, dono_serial, dono_flags, _detalhes._tempo, false, pet_nome, pet_serial}
 		--if (pet_nome == "Guardian of Ancient Kings") then --remover
-		--	print ("Summon GAK 3 - FALSE", dono_nome)
+		--	print ("SUMMON", "Adicionou ao container")
 		--end
 	end
 	
-	--if (fromSearch) then
-	--	local d = self.pets [pet_serial]
-		--print ("dono nome:",d[1], "dono serial:", d[2], "dono flags:", d[3], "tempo:", d[4])
-	--end
-	
-	--if (self.pets [dono_serial]) then
-		--print ("debug: a owner is a pet, Owner: ", dono_nome, " Pet: ", pet_nome)
-	--end
-
 end
 
 function _detalhes:WipePets()

@@ -452,16 +452,16 @@ local ButtonMetaFunctions = {}
 --> scripts
 
 	local OnEnter = function (button)
-	
+
 		if (button.MyObject.OnEnterHook) then
 			local interrupt = button.MyObject.OnEnterHook (button)
 			if (interrupt) then
 				return
 			end
 		end
-	
+
 		button.MyObject.is_mouse_over = true
-	
+
 		if (button.texture) then
 			if (button.texture.coords) then
 				button.texture:SetTexCoord (_unpack (button.texture.coords.Highlight))
@@ -469,7 +469,7 @@ local ButtonMetaFunctions = {}
 				button.texture:SetTexCoord (0, 1, 0.24609375, 0.49609375)
 			end
 		end
-	
+
 		if (button.MyObject.have_tooltip) then 
 			_detalhes:CooltipPreset (1)
 			GameCooltip:AddLine (button.MyObject.have_tooltip)

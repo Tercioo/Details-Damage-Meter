@@ -363,7 +363,7 @@ function DropDownMetaFunctions:Select (optionName, byOptionNumber)
 	end
 	
 	for _, thisMenu in ipairs (menu) do 
-		if (thisMenu.label == optionName and isOptionVisible (thisMenu)) then
+		if ( ( thisMenu.label == optionName or thisMenu.value == optionName ) and isOptionVisible (thisMenu)) then
 			self:Selected (thisMenu)
 			return true
 		end

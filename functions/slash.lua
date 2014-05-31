@@ -157,8 +157,10 @@ function SlashCmdList.DETAILS (msg, editbox)
 		
 		local i = 1
 		for k, v in pairs (_detalhes.tabela_pets.pets) do
-			_detalhes.ListPanel:add (k..": " ..  v[1] .. " | " .. v[2] .. " | " .. v[3], i)
-			i = i + 1
+			if (v[6] == "Guardian of Ancient Kings") then
+				_detalhes.ListPanel:add ( k.. ": " ..  v[1] .. " | " .. v[2] .. " | " .. v[3] .. " | " .. v[6], i)
+				i = i + 1
+			end
 		end
 		
 		f:Show()

@@ -162,14 +162,18 @@ function _detalhes:ToolTipDead (instancia, morte, esta_barra, keydown)
 	local hp_max = morte [5]
 	
 	local battleress = false
+	local lastcooldown = false
 	
 	local GameCooltip = GameCooltip
 	
 	GameCooltip:Reset()
 	GameCooltip:SetType ("tooltipbar")
 	GameCooltip:SetOwner (esta_barra)
-
 	
+	GameCooltip:AddLine (Loc ["STRING_REPORT_LEFTCLICK"], nil, 1, _unpack (self.click_to_report_color))
+	GameCooltip:AddIcon ([[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]], 1, 1, 12, 16, 0.015625, 0.13671875, 0.4375, 0.59765625)
+	GameCooltip:AddStatusBar (0, 1, 1, 1, 1, 1, false, {value = 100, color = {.3, .3, .3, 1}, specialSpark = false, texture = [[Interface\AddOns\Details\images\bar_serenity]]})
+
 	for index, evento in _ipairs (eventos) do 
 	
 		local hp = _math_floor (evento[5]/hp_max*100)
@@ -177,7 +181,7 @@ function _detalhes:ToolTipDead (instancia, morte, esta_barra, keydown)
 			hp = 100
 		end
 		
-		if (evento [1]) then --> DANO
+		if (evento [1]) then --> Dano
 			--print ("DANO|"..evento [4]-hora_da_morte.."|"..evento [2].."|"..evento [3]) --> {true, spellid, amount, _tempo}
 			local nome_magia, _, icone_magia = _GetSpellInfo (evento [2])
 			
@@ -190,17 +194,12 @@ function _detalhes:ToolTipDead (instancia, morte, esta_barra, keydown)
 				end
 				
 				if (type (evento [1]) ~= "boolean" and evento [1] == 2) then --> last cooldown
-					if (evento[3] == 1) then 
-						GameCooltip:AddLine (_cstr ("%.1f", evento[4] - hora_da_morte) .. "s " .. nome_magia .. " (" .. Loc ["STRING_LAST_COOLDOWN"] .. ")")
-						GameCooltip:AddIcon (icone_magia)
-					else
-						GameCooltip:AddLine (Loc ["STRING_NOLAST_COOLDOWN"])
-					end
+					lastcooldown = evento
 				else
 					--> [1] left text [2] right text [3] main 1 or sub 2 [...] color
 					GameCooltip:AddLine ("".._cstr ("%.1f", evento[4] - hora_da_morte) .."s "..amt_golpes..nome_magia.." ("..evento[6]..")", "-".._detalhes:ToK (evento[3]).." (".. hp .."%)", 1, "white", "white")
 					--> [1] icon [2] main 1 or sub 2 [3] left or right [4,5] width height [...] texcoord
-					GameCooltip:AddIcon (icone_magia)
+					GameCooltip:AddIcon (icone_magia) --, 1, 1, nil, nil, 0.078125, 0.921875, 0.078125, 0.921875
 					
 					--> [1] value [2] main 1 or sub 2 [...] color [4] glow
 					if (type (evento [1]) ~= "boolean" and evento [1] == 1) then --> cooldown
@@ -211,35 +210,47 @@ function _detalhes:ToolTipDead (instancia, morte, esta_barra, keydown)
 				end
 
 			elseif (not battleress) then --> battle ress
-				GameCooltip:AddLine ("+".._cstr ("%.1f", evento[4] - hora_da_morte) .."s "..nome_magia.." ("..evento[6]..")", "", 1, "white")
-				GameCooltip:AddIcon ("Interface\\Glues\\CharacterSelect\\Glues-AddOn-Icons", 1, 1, nil, nil, .75, 1, 0, 1)
-				GameCooltip:AddStatusBar (100, 1, "silver", false)
-				battleress = true
+				battleress = evento
 				
 			end
-		else
+			
+		else --> Cura
 			local nome_magia, _, icone_magia = _GetSpellInfo (evento [2])
 			GameCooltip:AddLine ("".._cstr ("%.1f", evento[4] - hora_da_morte) .."s "..nome_magia.." ("..evento[6]..")", "+".._detalhes:ToK (evento[3]).." (".. hp .."%)", 1, "white", "white")
-			GameCooltip:AddIcon (icone_magia, 1, 1)
+			GameCooltip:AddIcon (icone_magia) --, 1, 1, nil, nil, 0.0625, 0.9375, 0.0625, 0.9375
 			GameCooltip:AddStatusBar (hp, 1, "green", true)
 		end
 	end
 	
-	--GameCooltip:AddLine (" ", " ", 1, "white", "white")
-	GameCooltip:AddLine (Loc ["STRING_REPORT_LEFTCLICK"], nil, 1, "white")
-	GameCooltip:AddIcon ([[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]], 1, 1, 12, 16, 0.015625, 0.13671875, 0.4375, 0.59765625)
 
+	--_table_insert (linhas, 2, {{"Interface\\AddOns\\Details\\images\\small_icons", .75, 1, 0, 1}, morte [6] .. " Morreu", "-- -- -- ", 100, {75/255, 75/255, 75/255, 1}, {noglow = true}}) --> localize-me
+	GameCooltip:AddLine (morte [6] .. " " .. Loc ["STRING_TIME_OF_DEATH"] , "-- -- -- ", 1, "white")
+	GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\small_icons", 1, 1, nil, nil, .75, 1, 0, 1)
+	GameCooltip:AddStatusBar (0, 1, .5, .5, .5, .5, false, {value = 100, color = {.5, .5, .5, 1}, specialSpark = false, texture = [[Interface\AddOns\Details\images\bar4_vidro]]})
+	--GameCooltip:AddSpecial ("line", 2, nil, morte [6] .. " " .. Loc ["STRING_TIME_OF_DEATH"] , "-- -- -- ", 1, "white")
+	--GameCooltip:AddSpecial ("icon", 2, nil, "Interface\\AddOns\\Details\\images\\small_icons", 1, 1, nil, nil, .75, 1, 0, 1)
+	--GameCooltip:AddSpecial ("statusbar", 2, nil, 100, 1, "darkgray", false)
+	
 	if (battleress) then
-		--_table_insert (linhas, 2, {{"Interface\\AddOns\\Details\\images\\small_icons", .75, 1, 0, 1}, morte [6] .. " Morreu", "-- -- -- ", 100, {75/255, 75/255, 75/255, 1}, {noglow = true}}) --> localize-me
-		GameCooltip:AddSpecial ("line", 2, nil, morte [6] .. " " .. Loc ["STRING_TIME_OF_DEATH"] , "-- -- -- ", 1, "white")
-		GameCooltip:AddSpecial ("icon", 2, nil, "Interface\\AddOns\\Details\\images\\small_icons", 1, 1, nil, nil, .75, 1, 0, 1)
-		GameCooltip:AddSpecial ("statusbar", 2, nil, 100, 1, "darkgray", false)
-	else
-		GameCooltip:AddSpecial ("line", 1, nil, morte [6] .. " Morreu", "-- -- -- ", 1, "white")
-		GameCooltip:AddSpecial ("icon", 1, nil, "Interface\\AddOns\\Details\\images\\small_icons", 1, 1, nil, nil, .75, 1, 0, 1)
-		GameCooltip:AddSpecial ("statusbar", 1, nil, 100, 1, "darkgray", false)
-		--_table_insert (linhas, 1, {{, .75, 1, 0, 1}, , 100, {75/255, 75/255, 75/255, 1}, {noglow = true}}) --> localize-me
+		local nome_magia, _, icone_magia = _GetSpellInfo (battleress [2])
+		GameCooltip:AddLine ("+" .. _cstr ("%.1f", battleress[4] - hora_da_morte) .. "s " .. nome_magia .. " (" .. battleress[6] .. ")", "", 1, "white")
+		GameCooltip:AddIcon ("Interface\\Glues\\CharacterSelect\\Glues-AddOn-Icons", 1, 1, nil, nil, .75, 1, 0, 1)
+		GameCooltip:AddStatusBar (0, 1, .5, .5, .5, .5, false, {value = 100, color = {.5, .5, .5, 1}, specialSpark = false, texture = [[Interface\AddOns\Details\images\bar4_vidro]]})
 	end
+	
+	if (lastcooldown) then
+		if (lastcooldown[3] == 1) then 
+			local nome_magia, _, icone_magia = _GetSpellInfo (lastcooldown [2])
+			GameCooltip:AddLine (_cstr ("%.1f", lastcooldown[4] - hora_da_morte) .. "s " .. nome_magia .. " (" .. Loc ["STRING_LAST_COOLDOWN"] .. ")")
+			GameCooltip:AddIcon (icone_magia)
+		else
+			GameCooltip:AddLine (Loc ["STRING_NOLAST_COOLDOWN"])
+			GameCooltip:AddIcon ([[Interface\CHARACTERFRAME\UI-Player-PlayTimeUnhealthy]], 1, 1, 18, 18)
+		end
+			GameCooltip:AddStatusBar (0, 1, 1, 1, 1, 1, false, {value = 100, color = {.3, .3, .3, 1}, specialSpark = false, texture = [[Interface\AddOns\Details\images\bar_serenity]]})
+	end
+
+	--GameCooltip:AddLine (" ", " ", 1, "white", "white")
 
 	GameCooltip:SetOption ("StatusBarHeightMod", -6)
 	GameCooltip:SetOption ("FixedWidth", 300)
@@ -247,6 +258,7 @@ function _detalhes:ToolTipDead (instancia, morte, esta_barra, keydown)
 	GameCooltip:SetOption ("LeftBorderSize", -4)
 	GameCooltip:SetOption ("RightBorderSize", 5)
 	GameCooltip:SetOption ("StatusBarTexture", [[Interface\AddOns\Details\images\bar4_reverse]])
+	GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0.64453125, 0}, {.8, .8, .8, 0.2}, true)
 	
 	GameCooltip:ShowCooltip()
 	

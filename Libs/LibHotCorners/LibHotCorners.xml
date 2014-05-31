@@ -1,5 +1,22 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
 
+	<Frame name="HotCornersBackgroundFrame" frameStrata="MEDIUM" parent="UIParent">
+		<Anchors>
+			<Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT" x="0" y="0"/>
+			<Anchor point="BOTTOMRIGHT" relativeTo="$parent" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+		</Anchors>
+		
+		<Scripts>
+			<OnLoad>
+				self:EnableMouse (false)
+			</OnLoad>
+			<OnEnter>
+				HotCornersBackgroundOnEnter (self)
+			</OnEnter>
+		</Scripts>
+		
+	</Frame>
+
 	<Frame name="HotCornersFrameCornerTemplate" frameStrata="FULLSCREEN" virtual="true" parent="UIParent">
 		<Size x="1" y="1"/>
 		<Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background" tile="true">
@@ -42,7 +59,6 @@
 	
 	<Frame name="HotCornersButtonTemplate" frameStrata="FULLSCREEN" hidden="true" virtual="true">
 		<Size x="32" y="32"/>
-	
 		<Scripts>
 			<OnCreate>
 				self:SetFrameLevel (self:GetParent():GetFrameLevel()+2)

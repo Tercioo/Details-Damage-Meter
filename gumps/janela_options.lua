@@ -1087,11 +1087,151 @@ function window:CreateFrame20()
 		
 		window:CreateLineBackground2 (frame20, "TooltipShowAmountSlider", "TooltipShowAmountLabel", Loc ["STRING_OPTIONS_TOOLTIPS_SHOWAMT_DESC"])
 		
+	--> tooltip anchors
+
+		--unlock screen anchor
+			g:NewLabel (frame20, _, "$parentUnlockAnchorButtonLabel", "UnlockAnchorButtonLabel", "", "GameFontHighlightLeft")
+			
+			local unlock_function = function()
+				DetailsTooltipAnchor:MoveAnchor()
+			end
+			local unlock_anchor_button = g:NewButton (frame20, nil, "$parentUnlockAnchorButton", "UnlockAnchorButton", 160, 20, unlock_function, nil, nil, nil, Loc ["STRING_OPTIONS_TOOLTIPS_ANCHOR_TO_CHOOSE"])
+			unlock_anchor_button:InstallCustomTexture()
+	
+			if (_detalhes.tooltip.anchored_to == 1) then
+				unlock_anchor_button:Disable()
+			else
+				unlock_anchor_button:Enable()
+			end
+			
+			frame20.UnlockAnchorButton:SetPoint ("left", frame20.UnlockAnchorButtonLabel, "right", 0, 0)
+			window:CreateLineBackground2 (frame20, "UnlockAnchorButton", "UnlockAnchorButtonLabel", Loc ["STRING_OPTIONS_TOOLTIPS_ANCHOR_TO_CHOOSE_DESC"])
+
+		--main anchor
+			g:NewLabel (frame20, _, "$parentTooltipAnchorLabel", "TooltipAnchorLabel", Loc ["STRING_OPTIONS_TOOLTIPS_ANCHOR_TO"], "GameFontHighlightLeft")
+			local onSelectAnchor = function (_, _, selected_anchor)
+				_detalhes.tooltip.anchored_to = selected_anchor
+				if (selected_anchor == 1) then
+					unlock_anchor_button:Disable()
+				else
+					unlock_anchor_button:Enable()
+				end
+			end
+			
+			local anchorOptions = {
+				{value = 1, label = Loc ["STRING_OPTIONS_TOOLTIPS_ANCHOR_TO1"], onclick = onSelectAnchor, icon = [[Interface\Buttons\UI-GuildButton-OfficerNote-Disabled]]},
+				{value = 2, label = Loc ["STRING_OPTIONS_TOOLTIPS_ANCHOR_TO2"], onclick = onSelectAnchor, icon = [[Interface\Buttons\UI-GuildButton-OfficerNote-Disabled]]},
+			}
+			local buildAnchorMenu = function()
+				return anchorOptions
+			end
+			
+			local d = g:NewDropDown (frame20, _, "$parentTooltipAnchorDropdown", "TooltipAnchorDropdown", 160, 20, buildAnchorMenu, _detalhes.tooltip.anchored_to)
+			d.onenter_backdrop = dropdown_backdrop_onenter
+			d.onleave_backdrop = dropdown_backdrop_onleave
+			d:SetBackdrop (dropdown_backdrop)
+			d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+			
+			frame20.TooltipAnchorDropdown:SetPoint ("left", frame20.TooltipAnchorLabel, "right", 2, 0)
+			
+			window:CreateLineBackground2 (frame20, "TooltipAnchorDropdown", "TooltipAnchorLabel", Loc ["STRING_OPTIONS_TOOLTIPS_ANCHOR_TO_DESC"])
+
+			unlock_anchor_button:SetWidth (frame20.TooltipAnchorLabel:GetStringWidth() + 2 + frame20.TooltipAnchorDropdown:GetWidth())
+			
+		--tooltip side
+			g:NewLabel (frame20, _, "$parentTooltipAnchorSideLabel", "TooltipAnchorSideLabel", Loc ["STRING_OPTIONS_TOOLTIPS_ANCHOR_ATTACH"], "GameFontHighlightLeft")
+			local onSelectAnchorPoint = function (_, _, selected_anchor)
+				_detalhes.tooltip.anchor_point = selected_anchor
+			end
+			
+			local anchorPointOptions = {
+				{value = "top", label = Loc ["STRING_ANCHOR_TOP"], onclick = onSelectAnchorPoint, icon = [[Interface\Buttons\Arrow-Up-Up]], texcoord = {0, 0.8125, 0.1875, 0.875}},
+				{value = "bottom", label = Loc ["STRING_ANCHOR_BOTTOM"], onclick = onSelectAnchorPoint, icon = [[Interface\Buttons\Arrow-Up-Up]], texcoord = {0, 0.875, 1, 0.1875}},
+				{value = "left", label = Loc ["STRING_ANCHOR_LEFT"], onclick = onSelectAnchorPoint, icon = [[Interface\CHATFRAME\UI-InChatFriendsArrow]], texcoord = {0.5, 0, 0, 0.8125}},
+				{value = "right", label = Loc ["STRING_ANCHOR_RIGHT"], onclick = onSelectAnchorPoint, icon = [[Interface\CHATFRAME\UI-InChatFriendsArrow]], texcoord = {0, 0.5, 0, 0.8125}},
+				{value = "topleft", label = Loc ["STRING_ANCHOR_TOPLEFT"], onclick = onSelectAnchorPoint, icon = [[Interface\Buttons\UI-AutoCastableOverlay]], texcoord = {0.796875, 0.609375, 0.1875, 0.375}},
+				{value = "bottomleft", label = Loc ["STRING_ANCHOR_BOTTOMLEFT"], onclick = onSelectAnchorPoint, icon = [[Interface\Buttons\UI-AutoCastableOverlay]], texcoord = {0.796875, 0.609375, 0.375, 0.1875}},
+				{value = "topright", label = Loc ["STRING_ANCHOR_TOPRIGHT"], onclick = onSelectAnchorPoint, icon = [[Interface\Buttons\UI-AutoCastableOverlay]], texcoord = {0.609375, 0.796875, 0.1875, 0.375}},
+				{value = "bottomright", label = Loc ["STRING_ANCHOR_BOTTOMRIGHT"], onclick = onSelectAnchorPoint, icon = [[Interface\Buttons\UI-AutoCastableOverlay]], texcoord = {0.609375, 0.796875, 0.375, 0.1875}},
+			}
+			
+			local buildAnchorPointMenu = function()
+				return anchorPointOptions
+			end
+			
+			local d = g:NewDropDown (frame20, _, "$parentTooltipAnchorSideDropdown", "TooltipAnchorSideDropdown", 160, 20, buildAnchorPointMenu, _detalhes.tooltip.anchor_point)
+			d.onenter_backdrop = dropdown_backdrop_onenter
+			d.onleave_backdrop = dropdown_backdrop_onleave
+			d:SetBackdrop (dropdown_backdrop)
+			d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+			
+			frame20.TooltipAnchorSideDropdown:SetPoint ("left", frame20.TooltipAnchorSideLabel, "right", 2, 0)		
+			
+			window:CreateLineBackground2 (frame20, "TooltipAnchorSideDropdown", "TooltipAnchorSideLabel", Loc ["STRING_OPTIONS_TOOLTIPS_ANCHOR_ATTACH_DESC"])
+
+		--tooltip relative side
+			g:NewLabel (frame20, _, "$parentTooltipRelativeSideLabel", "TooltipRelativeSideLabel", Loc ["STRING_OPTIONS_TOOLTIPS_ANCHOR_RELATIVE"], "GameFontHighlightLeft")
+			local onSelectAnchorRelative = function (_, _, selected_anchor)
+				_detalhes.tooltip.anchor_relative = selected_anchor
+			end
+			
+			local anchorRelativeOptions = {
+				{value = "top", label = Loc ["STRING_ANCHOR_TOP"], onclick = onSelectAnchorRelative, icon = [[Interface\Buttons\Arrow-Up-Up]], texcoord = {0, 0.8125, 0.1875, 0.875}},
+				{value = "bottom", label = Loc ["STRING_ANCHOR_BOTTOM"], onclick = onSelectAnchorRelative, icon = [[Interface\Buttons\Arrow-Up-Up]], texcoord = {0, 0.875, 1, 0.1875}},
+				{value = "left", label = Loc ["STRING_ANCHOR_LEFT"], onclick = onSelectAnchorRelative, icon = [[Interface\CHATFRAME\UI-InChatFriendsArrow]], texcoord = {0.5, 0, 0, 0.8125}},
+				{value = "right", label = Loc ["STRING_ANCHOR_RIGHT"], onclick = onSelectAnchorRelative, icon = [[Interface\CHATFRAME\UI-InChatFriendsArrow]], texcoord = {0, 0.5, 0, 0.8125}},
+				{value = "topleft", label = Loc ["STRING_ANCHOR_TOPLEFT"], onclick = onSelectAnchorRelative, icon = [[Interface\Buttons\UI-AutoCastableOverlay]], texcoord = {0.796875, 0.609375, 0.1875, 0.375}},
+				{value = "bottomleft", label = Loc ["STRING_ANCHOR_BOTTOMLEFT"], onclick = onSelectAnchorRelative, icon = [[Interface\Buttons\UI-AutoCastableOverlay]], texcoord = {0.796875, 0.609375, 0.375, 0.1875}},
+				{value = "topright", label = Loc ["STRING_ANCHOR_TOPRIGHT"], onclick = onSelectAnchorRelative, icon = [[Interface\Buttons\UI-AutoCastableOverlay]], texcoord = {0.609375, 0.796875, 0.1875, 0.375}},
+				{value = "bottomright", label = Loc ["STRING_ANCHOR_BOTTOMRIGHT"], onclick = onSelectAnchorRelative, icon = [[Interface\Buttons\UI-AutoCastableOverlay]], texcoord = {0.609375, 0.796875, 0.375, 0.1875}},
+			}
+			
+			local buildAnchorRelativeMenu = function()
+				return anchorRelativeOptions
+			end
+			
+			local d = g:NewDropDown (frame20, _, "$parentTooltipRelativeSideDropdown", "TooltipRelativeSideDropdown", 160, 20, buildAnchorRelativeMenu, _detalhes.tooltip.anchor_relative)
+			d.onenter_backdrop = dropdown_backdrop_onenter
+			d.onleave_backdrop = dropdown_backdrop_onleave
+			d:SetBackdrop (dropdown_backdrop)
+			d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+			
+			frame20.TooltipRelativeSideDropdown:SetPoint ("left", frame20.TooltipRelativeSideLabel, "right", 2, 0)		
+			
+			window:CreateLineBackground2 (frame20, "TooltipRelativeSideDropdown", "TooltipRelativeSideLabel", Loc ["STRING_OPTIONS_TOOLTIPS_ANCHOR_RELATIVE_DESC"])
+
+		--tooltip offset
+			g:NewLabel (frame20, _, "$parentTooltipOffsetXLabel", "TooltipOffsetXLabel", Loc ["STRING_OPTIONS_TOOLTIPS_OFFSETX"], "GameFontHighlightLeft")
+			local s = g:NewSlider (frame20, _, "$parentTooltipOffsetXSlider", "TooltipOffsetXSlider", SLIDER_WIDTH, 20, -100, 100, 1, tonumber (_detalhes.tooltip.anchor_offset[1]))
+			s:SetBackdrop (slider_backdrop)
+			s:SetBackdropColor (unpack (slider_backdrop_color))
+			s:SetThumbSize (50)
+		
+			frame20.TooltipOffsetXSlider:SetPoint ("left", frame20.TooltipOffsetXLabel, "right", 2)
+			frame20.TooltipOffsetXSlider:SetHook ("OnValueChange", function (self, _, amount)
+				_detalhes.tooltip.anchor_offset[1] = amount
+			end)
+			window:CreateLineBackground2 (frame20, "TooltipOffsetXSlider", "TooltipOffsetXLabel", Loc ["STRING_OPTIONS_TOOLTIPS_OFFSETX_DESC"])
+			
+			g:NewLabel (frame20, _, "$parentTooltipOffsetYLabel", "TooltipOffsetYLabel", Loc ["STRING_OPTIONS_TOOLTIPS_OFFSETY"], "GameFontHighlightLeft")
+			local s = g:NewSlider (frame20, _, "$parentTooltipOffsetYSlider", "TooltipOffsetYSlider", SLIDER_WIDTH, 20, -100, 100, 1, tonumber (_detalhes.tooltip.anchor_offset[2]))
+			s:SetBackdrop (slider_backdrop)
+			s:SetBackdropColor (unpack (slider_backdrop_color))
+			s:SetThumbSize (50)
+		
+			frame20.TooltipOffsetYSlider:SetPoint ("left", frame20.TooltipOffsetYLabel, "right", 2)
+			frame20.TooltipOffsetYSlider:SetHook ("OnValueChange", function (self, _, amount)
+				_detalhes.tooltip.anchor_offset[2] = amount
+			end)
+			window:CreateLineBackground2 (frame20, "TooltipOffsetYSlider", "TooltipOffsetYLabel", Loc ["STRING_OPTIONS_TOOLTIPS_OFFSETY_DESC"])
+
 	--> anchors:
 	
 		--general anchor
 		g:NewLabel (frame20, _, "$parentTooltipsTextsAnchor", "TooltipsTextsAnchorLabel", Loc ["STRING_OPTIONS_TOOLTIP_ANCHORTEXTS"], "GameFontNormal")
 		g:NewLabel (frame20, _, "$parentTooltipsAnchor", "TooltipsAnchorLabel", Loc ["STRING_OPTIONS_TOOLTIP_ANCHOR"], "GameFontNormal")
+		
+		g:NewLabel (frame20, _, "$parentTooltipsAnchorPoint", "TooltipsAnchorPointLabel", Loc ["STRING_OPTIONS_TOOLTIPS_ANCHOR_POINT"], "GameFontNormal")
 		
 		local x = window.left_start_at
 		
@@ -1113,6 +1253,20 @@ function window:CreateFrame20()
 		}
 		
 		window:arrange_menu (frame20, left_side, x, -90)
+		
+		x = window.right_start_at
+		
+		local right_side = {
+			{"TooltipsAnchorPointLabel", 1, true},
+			{"TooltipAnchorLabel", 2},
+			{"UnlockAnchorButtonLabel", 3, true},
+			{"TooltipAnchorSideLabel", 4},
+			{"TooltipRelativeSideLabel", 5},
+			{"TooltipOffsetXLabel", 6},
+			{"TooltipOffsetYLabel", 7},
+		}
+		
+		window:arrange_menu (frame20, right_side, x, -90)
 		
 end
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2734,7 +2888,7 @@ function window:CreateFrame1()
 end		
 		
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- General Settings - Combat ~2
+-- General Settings - Combat ~2 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	
 function window:CreateFrame2()
@@ -2793,9 +2947,9 @@ function window:CreateFrame2()
 		frame2.OverallDataRaidBossSlider:SetPoint ("left", frame2.OverallDataRaidBossLabel, "right", 2, 0)
 		--
 		frame2.OverallDataRaidBossSlider.OnSwitch = function (self, _, value)
-			if (value) then
+			if (value and bit.band (_detalhes.overall_flag, 0x1) == 0) then
 				_detalhes.overall_flag = _detalhes.overall_flag + 0x1
-			else
+			elseif (not value and bit.band (_detalhes.overall_flag, 0x1) ~= 0) then
 				_detalhes.overall_flag = _detalhes.overall_flag - 0x1
 			end
 		end
@@ -2805,13 +2959,13 @@ function window:CreateFrame2()
 		--raid cleanup
 		g:NewLabel (frame2, _, "$parentOverallDataRaidCleaupLabel", "OverallDataRaidCleaupLabel", Loc ["STRING_OPTIONS_OVERALL_RAIDCLEAN"], "GameFontHighlightLeft")
 		--
-		g:NewSwitch (frame2, _, "$parentOverallDataRaidCleaupSlider", "OverallDataRaidCleaupSlider", 60, 20, _, _, false)
+		local raid_cleanup = g:NewSwitch (frame2, _, "$parentOverallDataRaidCleaupSlider", "OverallDataRaidCleaupSlider", 60, 20, _, _, false)
 		frame2.OverallDataRaidCleaupSlider:SetPoint ("left", frame2.OverallDataRaidCleaupLabel, "right", 2, 0)
 		--
 		frame2.OverallDataRaidCleaupSlider.OnSwitch = function (self, _, value)
-			if (value) then
+			if (value and bit.band (_detalhes.overall_flag, 0x2) == 0) then
 				_detalhes.overall_flag = _detalhes.overall_flag + 0x2
-			else
+			elseif (not value and bit.band (_detalhes.overall_flag, 0x2) ~= 0) then
 				_detalhes.overall_flag = _detalhes.overall_flag - 0x2
 			end
 		end
@@ -2825,9 +2979,9 @@ function window:CreateFrame2()
 		frame2.OverallDataDungeonBossSlider:SetPoint ("left", frame2.OverallDataDungeonBossLabel, "right", 2, 0)
 		--
 		frame2.OverallDataDungeonBossSlider.OnSwitch = function (self, _, value)
-			if (value) then
+			if (value and bit.band (_detalhes.overall_flag, 0x4) == 0) then
 				_detalhes.overall_flag = _detalhes.overall_flag + 0x4
-			else
+			elseif (not value and bit.band (_detalhes.overall_flag, 0x4) ~= 0) then
 				_detalhes.overall_flag = _detalhes.overall_flag - 0x4
 			end
 		end
@@ -2841,9 +2995,9 @@ function window:CreateFrame2()
 		frame2.OverallDataDungeonCleaupSlider:SetPoint ("left", frame2.OverallDataDungeonCleaupLabel, "right", 2, 0)
 		--
 		frame2.OverallDataDungeonCleaupSlider.OnSwitch = function (self, _, value)
-			if (value) then
+			if (value and bit.band (_detalhes.overall_flag, 0x8) == 0) then
 				_detalhes.overall_flag = _detalhes.overall_flag + 0x8
-			else
+			elseif (not value and bit.band (_detalhes.overall_flag, 0x8) ~= 0) then
 				_detalhes.overall_flag = _detalhes.overall_flag - 0x8
 			end
 		end
@@ -2857,10 +3011,21 @@ function window:CreateFrame2()
 		frame2.OverallDataAllSlider:SetPoint ("left", frame2.OverallDataAllLabel, "right", 2, 0)
 		--
 		frame2.OverallDataAllSlider.OnSwitch = function (self, _, value)
-			if (value) then
+			if (value and bit.band (_detalhes.overall_flag, 0x10) == 0) then
 				_detalhes.overall_flag = _detalhes.overall_flag + 0x10
-			else
+				
+				frame2.OverallDataRaidBossSlider:Disable()
+				frame2.OverallDataRaidCleaupSlider:Disable()
+				frame2.OverallDataDungeonBossSlider:Disable()
+				frame2.OverallDataDungeonCleaupSlider:Disable()
+				
+			elseif (not value and bit.band (_detalhes.overall_flag, 0x10) ~= 0) then
 				_detalhes.overall_flag = _detalhes.overall_flag - 0x10
+				
+				frame2.OverallDataRaidBossSlider:Enable()
+				frame2.OverallDataRaidCleaupSlider:Enable()
+				frame2.OverallDataDungeonBossSlider:Enable()
+				frame2.OverallDataDungeonCleaupSlider:Enable()
 			end
 		end
 		--
@@ -3658,7 +3823,7 @@ function window:CreateFrame4()
 		frame4.noIconButton:SetHighlightTexture ([[Interface\Glues\LOGIN\Glues-CheckBox-Check]] or [[Interface\Buttons\UI-GROUPLOOT-PASS-HIGHLIGHT]])
 		frame4.noIconButton:SetPushedTexture ([[Interface\Glues\LOGIN\Glues-CheckBox-Check]] or [[Interface\Buttons\UI-GroupLoot-Pass-Up]])
 		frame4.noIconButton:GetNormalTexture():SetDesaturated (true)
-		frame4.noIconButton.tooltip = "Clear icon file."
+		frame4.noIconButton.tooltip = "Clear icon file / Restore default"
 
 		--bar start at
 		g:NewSwitch (frame4, _, "$parentBarStartSlider", "barStartSlider", 60, 20, nil, nil, instance.row_info.start_after_icon)
@@ -5806,7 +5971,7 @@ end
 		local percent_string = g:NewLabel (window, nil, nil, "percent_string", "loading: 0%", "GameFontNormal", 12)
 		percent_string.textcolor = "white"
 		percent_string:SetPoint ("bottomleft", window, "bottomleft", 340, 12)
-		local step = 5.8823
+		local step = 5 -- 100/quantidade de menus
 		
 		function _detalhes:create_options_panels()
 		
@@ -6083,7 +6248,7 @@ function window:update_all (editing_instance)
 	_G.DetailsOptionsWindow19MinimapActionDropdown.MyObject:Select (_detalhes.minimap.onclick_what_todo)
 	_G.DetailsOptionsWindow19HotcornerSlider.MyObject:SetValue (not _detalhes.hotcorner_topleft.hide)
 	_G.DetailsOptionsWindow19HotcornerActionDropdown.MyObject:Select (_detalhes.hotcorner_topleft.onclick_what_todo)
-	_G.DetailsOptionsWindow19HotcornerQuickClickSlider.MyObject:SetValue (_detalhes.hotcorner_topleft.topleft_quick_click)
+	_G.DetailsOptionsWindow19HotcornerQuickClickSlider.MyObject:SetValue (_detalhes.hotcorner_topleft.topleft_quickclick)
 	_G.DetailsOptionsWindow19QuickClickDropdown.MyObject:Select (_detalhes.hotcorner_topleft.quickclick_what_todo)
 	_G.DetailsOptionsWindow19BrokerTextDropdown.MyObject:Select (_detalhes.minimap.text_type)
 	
@@ -6097,6 +6262,13 @@ function window:update_all (editing_instance)
 	_G.DetailsOptionsWindow20TooltipAbbreviateDropdown.MyObject:Select (_detalhes.tooltip.abbreviation, true)
 	_G.DetailsOptionsWindow20TooltipMaximizeDropdown.MyObject:Select (_detalhes.tooltip.maximize_method, true)
 	_G.DetailsOptionsWindow20TooltipShowAmountSlider.MyObject:SetValue (_detalhes.tooltip.show_amount)
+	
+	_G.DetailsOptionsWindow20TooltipAnchorDropdown.MyObject:Select (_detalhes.tooltip.anchored_to)
+	_G.DetailsOptionsWindow20TooltipAnchorSideDropdown.MyObject:Select (_detalhes.tooltip.anchor_point)
+	_G.DetailsOptionsWindow20TooltipAnchorSideDropdown.MyObject:Select (_detalhes.tooltip.anchor_relative)
+	_G.DetailsOptionsWindow20TooltipOffsetXSlider.MyObject:SetValue (_detalhes.tooltip.anchor_offset[1])
+	_G.DetailsOptionsWindow20TooltipOffsetYSlider.MyObject:SetValue (_detalhes.tooltip.anchor_offset[2])
+	
 	----------
 
 
