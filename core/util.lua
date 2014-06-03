@@ -308,11 +308,6 @@
 		return nil
 	end
 
-	--> Armazena uma label recém criada - Store a new label on the pool
-	function _detalhes.font_pool:add (_fontstring)
-		self [#self+1] = _fontstring
-	end
-
 	local function frame_task (self, elapsed)
 
 		self.FrameTime = self.FrameTime + elapsed

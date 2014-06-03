@@ -1500,7 +1500,11 @@ function DetailsCreateCoolTip()
 					if (f2_start_point < f1_end_point) then
 						local diff = f2_start_point - f1_end_point
 						CoolTip.overlap_checked = true
-						return CoolTip:SetMyPoint (host, CoolTip.internal_x_mod + diff, CoolTip.internal_y_mod)
+						
+						frame2:ClearAllPoints()
+						frame2:SetPoint ("bottomright", frame1, "bottomleft")
+						--+ diff
+						return CoolTip:SetMyPoint (host, CoolTip.internal_x_mod , CoolTip.internal_y_mod)
 					end
 				
 				end
@@ -1702,6 +1706,9 @@ function DetailsCreateCoolTip()
 	
 		--> wipe all data ~reset
 		function CoolTip:Reset()
+
+			frame2:ClearAllPoints()
+			frame2:SetPoint ("bottomleft", frame1, "bottomright")
 		
 			CoolTip.FixedValue = nil
 			CoolTip.HaveSubMenu = false

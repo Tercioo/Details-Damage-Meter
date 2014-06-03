@@ -99,4 +99,12 @@ do
 		CONTAINER_MISCTARGET_CLASS = 10,
 		CONTAINER_ENEMYDEBUFFTARGET_CLASS = 11
 	}
+	
+	function _detalhes:Name (actor)
+		return self.nome or actor.nome
+	end
+	function _detalhes:GetName (actor)
+		return actor.nome or self.nome
+	end
+	
 end

@@ -1,132 +1,73 @@
---why do a cleanup on classes today if i can do tomorrow?
+-- damage object
 
---lua locals
-local _cstr = string.format
-local _math_floor = math.floor
-local _table_sort = table.sort
-local _table_insert = table.insert
-local _table_size = table.getn
-local _setmetatable = setmetatable
-local _getmetatable = getmetatable
-local _ipairs = ipairs
-local _pairs = pairs
-local _rawget= rawget
-local _math_min = math.min
-local _math_max = math.max
-local _bit_band = bit.band
-local _unpack = unpack
-local _type = type
---api locals
-local _GetSpellInfo = _detalhes.getspellinfo
-local GameTooltip = GameTooltip
-local _IsInRaid = IsInRaid
-local _IsInGroup = IsInGroup
+	local _detalhes = 		_G._detalhes
+	local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
+	local gump = 			_detalhes.gump
+	local _
 
-local _detalhes = 		_G._detalhes
-local AceLocale = LibStub ("AceLocale-3.0")
-local Loc = AceLocale:GetLocale ( "Details" )
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> local pointers
 
---constants
-local gump = 			_detalhes.gump
-local _
+	local _cstr = string.format --lua local
+	local _math_floor = math.floor --lua local
+	local _table_sort = table.sort --lua local
+	local _table_insert = table.insert --lua local
+	local _table_size = table.getn --lua local
+	local _setmetatable = setmetatable --lua local
+	local _getmetatable = getmetatable --lua local
+	local _ipairs = ipairs --lua local
+	local _pairs = pairs --lua local
+	local _rawget= rawget --lua local
+	local _math_min = math.min --lua local
+	local _math_max = math.max --lua local
+	local _bit_band = bit.band --lua local
+	local _unpack = unpack --lua local
+	local _type = type --lua local
+	local GameTooltip = GameTooltip --api local
+	local _IsInRaid = IsInRaid --api local
+	local _IsInGroup = IsInGroup --api local
+	local _GetSpellInfo = _detalhes.getspellinfo --details api
 
-local alvo_da_habilidade = 	_detalhes.alvo_da_habilidade
-local container_habilidades = 	_detalhes.container_habilidades
-local container_combatentes = _detalhes.container_combatentes
-local container_pets =		_detalhes.container_pets
-local atributo_damage =	_detalhes.atributo_damage
-local atributo_misc =		_detalhes.atributo_misc
-local habilidade_dano = 	_detalhes.habilidade_dano
-local container_damage_target = _detalhes.container_type.CONTAINER_DAMAGETARGET_CLASS
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> constants
 
-local container_playernpc = _detalhes.container_type.CONTAINER_PLAYERNPC
-local container_damage = _detalhes.container_type.CONTAINER_DAMAGE_CLASS
-local container_friendlyfire = _detalhes.container_type.CONTAINER_FRIENDLYFIRE
+	local alvo_da_habilidade	= 	_detalhes.alvo_da_habilidade
+	local container_habilidades	= 	_detalhes.container_habilidades
+	local container_combatentes =	_detalhes.container_combatentes
+	local atributo_damage	=	_detalhes.atributo_damage
+	local atributo_misc		=	_detalhes.atributo_misc
+	local habilidade_dano		=	_detalhes.habilidade_dano
+	local container_damage_target =	_detalhes.container_type.CONTAINER_DAMAGETARGET_CLASS
+	local container_damage	=	_detalhes.container_type.CONTAINER_DAMAGE_CLASS
+	local container_friendlyfire	=	_detalhes.container_type.CONTAINER_FRIENDLYFIRE
 
-local modo_ALONE = _detalhes.modos.alone
-local modo_GROUP = _detalhes.modos.group
-local modo_ALL = _detalhes.modos.all
+	local modo_GROUP = _detalhes.modos.group
+	local modo_ALL = _detalhes.modos.all
 
-local class_type = _detalhes.atributos.dano
+	local class_type = _detalhes.atributos.dano
 
-local DATA_TYPE_START = _detalhes._detalhes_props.DATA_TYPE_START
-local DATA_TYPE_END = _detalhes._detalhes_props.DATA_TYPE_END
+	local ToKFunctions = _detalhes.ToKFunctions
+	local SelectedToKFunction = ToKFunctions [1]
+	local UsingCustomRightText = false
+	local FormatTooltipNumber = ToKFunctions [8]
+	local TooltipMaximizedMethod = 1
 
-local DFLAG_player = _detalhes.flags.player
-local DFLAG_group = _detalhes.flags.in_group
-local DFLAG_player_group = _detalhes.flags.player_in_group
+	local CLASS_ICON_TCOORDS = _G.CLASS_ICON_TCOORDS
 
-local div_abre = _detalhes.divisores.abre
-local div_fecha = _detalhes.divisores.fecha
-local div_lugar = _detalhes.divisores.colocacao
+	local key_overlay = {1, 1, 1, .1}
+	local key_overlay_press = {1, 1, 1, .2}
+	local headerColor = "yellow"
 
-local ToKFunctions = _detalhes.ToKFunctions
-local SelectedToKFunction = ToKFunctions [1]
-local UsingCustomRightText = false
+	local info = _detalhes.janela_info
+	local keyName
 
-local FormatTooltipNumber = ToKFunctions [8]
-local TooltipMaximizedMethod = 1
-
-local CLASS_ICON_TCOORDS = _G.CLASS_ICON_TCOORDS
-
-local key_overlay = {1, 1, 1, .1}
-local key_overlay_press = {1, 1, 1, .2}
-
-local headerColor = "yellow"
-
-local info = _detalhes.janela_info
-local keyName
-
-function atributo_damage:NovaTabela (serial, nome, link)
-
-	--> constructor
-	local _new_damageActor = {
-		
-		--> dps do objeto inicia sempre desligado
-		tipo = class_type, --> atributo 1 = dano
-		
-		total = 0,
-		total_without_pet = 0,
-		custom = 0,
-		
-		damage_taken = 0, --> total de dano que este jogador levou
-		damage_from = {}, --> armazena os nomes que deram dano neste jogador
-		
-		dps_started = false,
-		last_event = 0,
-		on_hold = false,
-		delay = 0,
-		last_value = nil, --> ultimo valor que este jogador teve, salvo quando a barra dele é atualizada
-		last_dps = 0,
-
-		end_time = nil,
-		start_time = 0,
-		
-		pets = {}, --> armazena os nomes dos pets já com a tag do dono: pet name <owner nome>
-		
-		friendlyfire_total = 0,
-		friendlyfire = container_combatentes:NovoContainer (container_friendlyfire),
-
-		--container armazenará os seriais dos alvos que o player aplicou dano
-		targets = container_combatentes:NovoContainer (container_damage_target),
-
-		--container armazenará os IDs das habilidades usadas por este jogador
-		spell_tables = container_habilidades:NovoContainer (container_damage)
-	}
+	local OBJECT_TYPE_PLAYER =	0x00000400
 	
-	_setmetatable (_new_damageActor, atributo_damage)
-	
-	if (link) then --> se não for a shadow
-		_new_damageActor.last_events_table = _detalhes:CreateActorLastEventTable()
-		_new_damageActor.last_events_table.original = true
-		
-		_new_damageActor.targets.shadow = link.targets
-		_new_damageActor.spell_tables.shadow = link.spell_tables
-		_new_damageActor.friendlyfire.shadow = link.friendlyfire
-	end
-	
-	return _new_damageActor
-end
+	local ntable = {} --temp
+	local vtable = {} --temp
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> exported functions
 
 --[[exported]]	function _detalhes:CreateActorLastEventTable()
 				local t = { {}, {}, {}, {}, {}, {}, {}, {} }
@@ -187,28 +128,13 @@ end
 			end
 			
 --[[ exported]] 	function _detalhes:IsPlayer()
-				if (self.flags) then
-					if (_bit_band (self.flag, 0x00000001) ~= 0) then
+				if (self.flag_original) then
+					if (_bit_band (self.flag_original, OBJECT_TYPE_PLAYER) ~= 0) then
 						return true
 					end
 				end
 				return false
 			end
-
-local sortEnemies = function (t1, t2)
-	local a = _bit_band (t1.flag_original, 0x00000060)
-	local b = _bit_band (t2.flag_original, 0x00000060)
-	
-	if (a ~= 0 and b ~= 0) then
-		return t1.total > t2.total
-	elseif (a ~= 0 and b == 0) then
-		return true
-	elseif (a == 0 and b ~= 0) then
-		return false
-	end
-	
-	return false
-end
 
 --[[exported]] 	function _detalhes:ContainerSortEnemies (container, amount, keyName2)
 
@@ -230,338 +156,428 @@ end
 				return amount, total
 			end
 
-function atributo_damage:ContainerRefreshDps (container, combat_time)
+--[[Exported]] 	function _detalhes:TooltipForCustom (barra)
+				GameCooltip:AddLine (Loc ["STRING_LEFT_CLICK_SHARE"])
+				return true
+			end
 
-	if (_detalhes.time_type == 2 or not _detalhes:CaptureGet ("damage")) then
-		for _, actor in _ipairs (container) do
-			if (actor.grupo) then
-				actor.last_dps = actor.total / combat_time
-			else
+--[[exported]]	function _detalhes.Sort1 (table1, table2)
+				return table1 [1] > table2 [1]
+			end
+			
+--[[exported]]	function _detalhes.Sort2 (table1, table2)
+				return table1 [2] > table2 [2]
+			end
+			
+--[[exported]]	function _detalhes.Sort3 (table1, table2)
+				return table1 [3] > table2 [3]
+			end
+			
+--[[exported]]	function _detalhes.Sort4 (table1, table2)
+				return table1 [4] > table2 [4]
+			end
+			
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> internals
+
+	function atributo_damage:NovaTabela (serial, nome, link)
+
+		--> constructor
+		local _new_damageActor = {
+			
+			tipo = class_type,
+			
+			total = 0,
+			total_without_pet = 0,
+			custom = 0,
+			
+			damage_taken = 0,
+			damage_from = {},
+			
+			dps_started = false,
+			last_event = 0,
+			on_hold = false,
+			delay = 0,
+			last_value = nil,
+			last_dps = 0,
+
+			end_time = nil,
+			start_time = 0,
+			
+			pets = {},
+			
+			friendlyfire_total = 0,
+			friendlyfire = container_combatentes:NovoContainer (container_friendlyfire),
+
+			targets = container_combatentes:NovoContainer (container_damage_target),
+			spell_tables = container_habilidades:NovoContainer (container_damage)
+		}
+		
+		_setmetatable (_new_damageActor, atributo_damage)
+		
+		if (link) then
+			_new_damageActor.last_events_table = _detalhes:CreateActorLastEventTable()
+			_new_damageActor.last_events_table.original = true
+			
+			_new_damageActor.targets.shadow = link.targets
+			_new_damageActor.spell_tables.shadow = link.spell_tables
+			_new_damageActor.friendlyfire.shadow = link.friendlyfire
+		end
+		
+		return _new_damageActor
+	end
+	
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> special cases
+
+	-- enemies (sort function)
+	local sortEnemies = function (t1, t2)
+		local a = _bit_band (t1.flag_original, 0x00000060)
+		local b = _bit_band (t2.flag_original, 0x00000060)
+		
+		if (a ~= 0 and b ~= 0) then
+			return t1.total > t2.total
+		elseif (a ~= 0 and b == 0) then
+			return true
+		elseif (a == 0 and b ~= 0) then
+			return false
+		end
+		
+		return false
+	end
+
+	-- dps (calculate dps for actors)
+	function atributo_damage:ContainerRefreshDps (container, combat_time)
+		if (_detalhes.time_type == 2 or not _detalhes:CaptureGet ("damage")) then
+			for _, actor in _ipairs (container) do
+				if (actor.grupo) then
+					actor.last_dps = actor.total / combat_time
+				else
+					actor.last_dps = actor.total / actor:Tempo()
+				end
+			end
+		else
+			for _, actor in _ipairs (container) do
 				actor.last_dps = actor.total / actor:Tempo()
 			end
 		end
-	else
-		for _, actor in _ipairs (container) do
-			actor.last_dps = actor.total / actor:Tempo()
-		end
 	end
-	
-end
 
-function _detalhes:ToolTipFrags (instancia, frag, esta_barra, keydown)
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> frags
 	
-	--vardump (frag)
-	
-	local name = frag [1]
-	local GameCooltip = GameCooltip
-	
-	--> mantendo a função o mais low level possível
-	local damage_container = instancia.showing [1]
-	
-	local frag_actor = damage_container._ActorTable [damage_container._NameIndexTable [ name ]]
+	function _detalhes:ToolTipFrags (instancia, frag, esta_barra, keydown)
 
-	if (frag_actor) then
+		local name = frag [1]
+		local GameCooltip = GameCooltip
 		
-		local damage_taken_table = {}
-
-		local took_damage_from = frag_actor.damage_from
-		local total_damage_taken = frag_actor.damage_taken
-
-		for aggressor, _ in _pairs (took_damage_from) do
+		--> mantendo a função o mais low level possível
+		local damage_container = instancia.showing [1]
 		
-			local damager_actor = damage_container._ActorTable [damage_container._NameIndexTable [ aggressor ]]
+		local frag_actor = damage_container._ActorTable [damage_container._NameIndexTable [ name ]]
+
+		if (frag_actor) then
 			
-			if (damager_actor and not damager_actor.owner) then --> checagem por causa do total e do garbage collector que não limpa os names que deram dano
+			local damage_taken_table = {}
+
+			local took_damage_from = frag_actor.damage_from
+			local total_damage_taken = frag_actor.damage_taken
+
+			for aggressor, _ in _pairs (took_damage_from) do
 			
-				local targets = damager_actor.targets
+				local damager_actor = damage_container._ActorTable [damage_container._NameIndexTable [ aggressor ]]
 				
-				local specific_target = targets._ActorTable [targets._NameIndexTable [ name ]] --> é ele mesmo
-				if (specific_target) then
-					damage_taken_table [#damage_taken_table+1] = {aggressor, specific_target.total, damager_actor.classe}
+				if (damager_actor and not damager_actor.owner) then --> checagem por causa do total e do garbage collector que não limpa os names que deram dano
+				
+					local targets = damager_actor.targets
+					
+					local specific_target = targets._ActorTable [targets._NameIndexTable [ name ]] --> é ele mesmo
+					if (specific_target) then
+						damage_taken_table [#damage_taken_table+1] = {aggressor, specific_target.total, damager_actor.classe}
+					end
 				end
 			end
-		end
 
-		if (#damage_taken_table > 0) then
+			if (#damage_taken_table > 0) then
+				
+				_table_sort (damage_taken_table, _detalhes.Sort2)
+				
+				GameCooltip:AddLine (Loc ["STRING_DAMAGE_FROM"], nil, nil, headerColor, nil, 12)
+				GameCooltip:AddIcon ([[Interface\Addons\Details\images\icons]], 1, 1, 14, 14, 0.126953125, 0.1796875, 0, 0.0546875)
 			
-			_table_sort (damage_taken_table, _detalhes.Sort2)
-			
-			GameCooltip:AddLine (Loc ["STRING_DAMAGE_FROM"], nil, nil, headerColor, nil, 12)
-			GameCooltip:AddIcon ([[Interface\Addons\Details\images\icons]], 1, 1, 14, 14, 0.126953125, 0.1796875, 0, 0.0546875)
-		
-			local min = 6
-			local ismaximized = false
-			if (keydown == "shift" or TooltipMaximizedMethod == 2 or TooltipMaximizedMethod == 3) then
-				min = 99
-				ismaximized = true
-			end
-			
-			if (ismaximized) then
-				--highlight shift key
-				GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay_press)
-				GameCooltip:AddStatusBar (100, 1, .1, .1, .1, 1)
-			else
-				GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay)
-				GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
-			end
-		
-			for i = 1, math.min (min, #damage_taken_table) do 
-			
-				local t = damage_taken_table [i]
-			
-				GameCooltip:AddLine (t [1], FormatTooltipNumber (_, t [2]))
-				local classe = t [3]
-				if (not classe) then
-					classe = "UNKNOW"
+				local min = 6
+				local ismaximized = false
+				if (keydown == "shift" or TooltipMaximizedMethod == 2 or TooltipMaximizedMethod == 3) then
+					min = 99
+					ismaximized = true
 				end
 				
-				if (classe == "UNKNOW") then
-					GameCooltip:AddIcon ("Interface\\LFGFRAME\\LFGROLE_BW", nil, nil, 14, 14, .25, .5, 0, 1)
+				if (ismaximized) then
+					--highlight shift key
+					GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay_press)
+					GameCooltip:AddStatusBar (100, 1, .1, .1, .1, 1)
 				else
-					GameCooltip:AddIcon (instancia.row_info.icon_file, nil, nil, 14, 14, _unpack (_detalhes.class_coords [classe]))
+					GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay)
+					GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
 				end
-				_detalhes:AddTooltipBackgroundStatusbar()
+			
+				for i = 1, math.min (min, #damage_taken_table) do 
+				
+					local t = damage_taken_table [i]
+				
+					GameCooltip:AddLine (t [1], FormatTooltipNumber (_, t [2]))
+					local classe = t [3]
+					if (not classe) then
+						classe = "UNKNOW"
+					end
+					
+					if (classe == "UNKNOW") then
+						GameCooltip:AddIcon ("Interface\\LFGFRAME\\LFGROLE_BW", nil, nil, 14, 14, .25, .5, 0, 1)
+					else
+						GameCooltip:AddIcon (instancia.row_info.icon_file, nil, nil, 14, 14, _unpack (_detalhes.class_coords [classe]))
+					end
+					_detalhes:AddTooltipBackgroundStatusbar()
+				end
+				
+				GameCooltip:AddLine ("")
+				GameCooltip:AddLine (Loc ["STRING_REPORT_LEFTCLICK"], nil, 1, _unpack (self.click_to_report_color))
+				GameCooltip:AddIcon ([[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]], 1, 1, 12, 16, 0.015625, 0.13671875, 0.4375, 0.59765625)
+				GameCooltip:ShowCooltip()
+			
+			else
+				GameCooltip:AddLine (Loc ["STRING_NO_DATA"], nil, 1, "white")
+				GameCooltip:AddIcon (instancia.row_info.icon_file, nil, nil, 14, 14, _unpack (_detalhes.class_coords ["UNKNOW"]))
+				GameCooltip:ShowCooltip()
 			end
 			
-			GameCooltip:AddLine ("")
-			GameCooltip:AddLine (Loc ["STRING_REPORT_LEFTCLICK"], nil, 1, _unpack (self.click_to_report_color))
-			GameCooltip:AddIcon ([[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]], 1, 1, 12, 16, 0.015625, 0.13671875, 0.4375, 0.59765625)
-			GameCooltip:ShowCooltip()
-		
 		else
 			GameCooltip:AddLine (Loc ["STRING_NO_DATA"], nil, 1, "white")
 			GameCooltip:AddIcon (instancia.row_info.icon_file, nil, nil, 14, 14, _unpack (_detalhes.class_coords ["UNKNOW"]))
 			GameCooltip:ShowCooltip()
 		end
 		
-	else
-		GameCooltip:AddLine (Loc ["STRING_NO_DATA"], nil, 1, "white")
-		GameCooltip:AddIcon (instancia.row_info.icon_file, nil, nil, 14, 14, _unpack (_detalhes.class_coords ["UNKNOW"]))
-		GameCooltip:ShowCooltip()
 	end
-	
-end
 
-local function RefreshBarraFrags (tabela, barra, instancia)
-	atributo_damage:AtualizarFrags (tabela, tabela.minha_barra, barra.colocacao, instancia)
-end
+	local function RefreshBarraFrags (tabela, barra, instancia)
+		atributo_damage:AtualizarFrags (tabela, tabela.minha_barra, barra.colocacao, instancia)
+	end
 
-function atributo_damage:ReportSingleFragsLine (frag, instancia)
-	local barra = instancia.barras [frag.minha_barra]
+	function atributo_damage:ReportSingleFragsLine (frag, instancia)
+		local barra = instancia.barras [frag.minha_barra]
 
-	local reportar = {"Details! " .. Loc ["STRING_ATTRIBUTE_DAMAGE_TAKEN"].. ": " .. frag [1]} --> localize-me
-	for i = 1, GameCooltip:GetNumLines() do 
-		local texto_left, texto_right = GameCooltip:GetText (i)
-		if (texto_left and texto_right) then 
-			texto_left = texto_left:gsub (("|T(.*)|t "), "")
-			reportar [#reportar+1] = ""..texto_left.." "..texto_right..""
+		local reportar = {"Details! " .. Loc ["STRING_ATTRIBUTE_DAMAGE_TAKEN"].. ": " .. frag [1]} --> localize-me
+		for i = 1, GameCooltip:GetNumLines() do 
+			local texto_left, texto_right = GameCooltip:GetText (i)
+			if (texto_left and texto_right) then 
+				texto_left = texto_left:gsub (("|T(.*)|t "), "")
+				reportar [#reportar+1] = ""..texto_left.." "..texto_right..""
+			end
 		end
+
+		return _detalhes:Reportar (reportar, {_no_current = true, _no_inverse = true, _custom = true})
 	end
 
-	return _detalhes:Reportar (reportar, {_no_current = true, _no_inverse = true, _custom = true})
-end
+	function atributo_damage:AtualizarFrags (tabela, qual_barra, colocacao, instancia)
 
-function atributo_damage:AtualizarFrags (tabela, qual_barra, colocacao, instancia)
-
-	tabela ["frags"] = true --> marca que esta tabela é uma tabela de frags, usado no controla na hora de montar o tooltip
-	local esta_barra = instancia.barras [qual_barra] --> pega a referência da barra na janela
-	
-	if (not esta_barra) then
-		print ("DEBUG: problema com <instancia.esta_barra> "..qual_barra.." "..lugar)
-		return
-	end
-	
-	local tabela_anterior = esta_barra.minha_tabela
-	
-	esta_barra.minha_tabela = tabela
-	
-	tabela.nome = tabela [1] --> evita dar erro ao redimencionar a janela
-	tabela.minha_barra = qual_barra
-	esta_barra.colocacao = colocacao
-	
-	if (not _getmetatable (tabela)) then 
-		_setmetatable (tabela, {__call = RefreshBarraFrags}) 
-		tabela._custom = true
-	end
-
-	esta_barra.texto_esquerdo:SetText (colocacao .. ". " .. tabela [1])
-	esta_barra.texto_direita:SetText (tabela [2])
-	
-	if (colocacao == 1) then
-		esta_barra.statusbar:SetValue (100)
-	else
-		esta_barra.statusbar:SetValue (tabela [2] / instancia.top * 100)
-	end
-	
-	if (esta_barra.hidden or esta_barra.fading_in or esta_barra.faded) then
-		gump:Fade (esta_barra, "out")
-	end
-
-	--> ele nao come o texto quando a instância esta muito pequena
-	esta_barra.textura:SetVertexColor (_unpack (_detalhes.class_colors [tabela [3]]))
-	
-	if (tabela [3] == "UNKNOW" or tabela [3] == "UNGROUPPLAYER" or tabela [3] == "ENEMY") then
-		esta_barra.icone_classe:SetTexture ("Interface\\LFGFRAME\\LFGROLE_BW")
-		esta_barra.icone_classe:SetTexCoord (.25, .5, 0, 1)
-		esta_barra.icone_classe:SetVertexColor (1, 1, 1)
-	else
-		esta_barra.icone_classe:SetTexture (instancia.row_info.icon_file)
-		esta_barra.icone_classe:SetTexCoord (_unpack (_detalhes.class_coords [tabela [3]]))
-		esta_barra.icone_classe:SetVertexColor (1, 1, 1)
-	end
-
-	if (esta_barra.mouse_over and not instancia.baseframe.isMoving) then --> precisa atualizar o tooltip
-		--gump:UpdateTooltip (qual_barra, esta_barra, instancia)
-	end
-
-end
-
-function atributo_damage:ReportSingleVoidZoneLine (actor, instancia)
-	local barra = instancia.barras [actor.minha_barra]
-
-	local reportar = {"Details! " .. Loc ["STRING_ATTRIBUTE_DAMAGE_DEBUFFS_REPORT"] .. ": " .. actor.nome} --> localize-me
-	for i = 1, GameCooltip:GetNumLines() do 
-		local texto_left, texto_right = GameCooltip:GetText (i)
-		if (texto_left and texto_right) then 
-			texto_left = texto_left:gsub (("|T(.*)|t "), "")
-			reportar [#reportar+1] = ""..texto_left.." "..texto_right..""
+		tabela ["frags"] = true --> marca que esta tabela é uma tabela de frags, usado no controla na hora de montar o tooltip
+		local esta_barra = instancia.barras [qual_barra] --> pega a referência da barra na janela
+		
+		if (not esta_barra) then
+			print ("DEBUG: problema com <instancia.esta_barra> "..qual_barra.." "..lugar)
+			return
 		end
+		
+		local tabela_anterior = esta_barra.minha_tabela
+		
+		esta_barra.minha_tabela = tabela
+		
+		tabela.nome = tabela [1] --> evita dar erro ao redimencionar a janela
+		tabela.minha_barra = qual_barra
+		esta_barra.colocacao = colocacao
+		
+		if (not _getmetatable (tabela)) then 
+			_setmetatable (tabela, {__call = RefreshBarraFrags}) 
+			tabela._custom = true
+		end
+
+		esta_barra.texto_esquerdo:SetText (colocacao .. ". " .. tabela [1])
+		esta_barra.texto_direita:SetText (tabela [2])
+		
+		if (colocacao == 1) then
+			esta_barra.statusbar:SetValue (100)
+		else
+			esta_barra.statusbar:SetValue (tabela [2] / instancia.top * 100)
+		end
+		
+		if (esta_barra.hidden or esta_barra.fading_in or esta_barra.faded) then
+			gump:Fade (esta_barra, "out")
+		end
+
+		--> ele nao come o texto quando a instância esta muito pequena
+		esta_barra.textura:SetVertexColor (_unpack (_detalhes.class_colors [tabela [3]]))
+		
+		if (tabela [3] == "UNKNOW" or tabela [3] == "UNGROUPPLAYER" or tabela [3] == "ENEMY") then
+			esta_barra.icone_classe:SetTexture ("Interface\\LFGFRAME\\LFGROLE_BW")
+			esta_barra.icone_classe:SetTexCoord (.25, .5, 0, 1)
+			esta_barra.icone_classe:SetVertexColor (1, 1, 1)
+		else
+			esta_barra.icone_classe:SetTexture (instancia.row_info.icon_file)
+			esta_barra.icone_classe:SetTexCoord (_unpack (_detalhes.class_coords [tabela [3]]))
+			esta_barra.icone_classe:SetVertexColor (1, 1, 1)
+		end
+
+		if (esta_barra.mouse_over and not instancia.baseframe.isMoving) then --> precisa atualizar o tooltip
+			--gump:UpdateTooltip (qual_barra, esta_barra, instancia)
+		end
+
+	end
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> void zones
+
+	function atributo_damage:ReportSingleVoidZoneLine (actor, instancia)
+		local barra = instancia.barras [actor.minha_barra]
+
+		local reportar = {"Details! " .. Loc ["STRING_ATTRIBUTE_DAMAGE_DEBUFFS_REPORT"] .. ": " .. actor.nome} --> localize-me
+		for i = 1, GameCooltip:GetNumLines() do 
+			local texto_left, texto_right = GameCooltip:GetText (i)
+			if (texto_left and texto_right) then 
+				texto_left = texto_left:gsub (("|T(.*)|t "), "")
+				reportar [#reportar+1] = ""..texto_left.." "..texto_right..""
+			end
+		end
+
+		return _detalhes:Reportar (reportar, {_no_current = true, _no_inverse = true, _custom = true})
 	end
 
-	return _detalhes:Reportar (reportar, {_no_current = true, _no_inverse = true, _custom = true})
-end
-
-function _detalhes:ToolTipVoidZones (instancia, actor, barra, keydown)
-	
-	local damage_actor = instancia.showing[1]:PegarCombatente (_, actor.damage_twin)
-	local habilidade
-	local alvos
-	
-	if (damage_actor) then
-		habilidade = damage_actor.spell_tables._ActorTable [actor.damage_spellid]
-	end
-	
-	if (habilidade) then
-		alvos = habilidade.targets
-	end
-	
-	local container = actor.debuff_uptime_targets._ActorTable
-	
-	for _, alvo in _ipairs (container) do
-		if (alvos) then
-			local damage_alvo = alvos._NameIndexTable [alvo.nome]
-			if (damage_alvo) then
-				damage_alvo = alvos._ActorTable [damage_alvo]
-				alvo.damage = damage_alvo.total
+	function _detalhes:ToolTipVoidZones (instancia, actor, barra, keydown)
+		
+		local damage_actor = instancia.showing[1]:PegarCombatente (_, actor.damage_twin)
+		local habilidade
+		local alvos
+		
+		if (damage_actor) then
+			habilidade = damage_actor.spell_tables._ActorTable [actor.damage_spellid]
+		end
+		
+		if (habilidade) then
+			alvos = habilidade.targets
+		end
+		
+		local container = actor.debuff_uptime_targets._ActorTable
+		
+		for _, alvo in _ipairs (container) do
+			if (alvos) then
+				local damage_alvo = alvos._NameIndexTable [alvo.nome]
+				if (damage_alvo) then
+					damage_alvo = alvos._ActorTable [damage_alvo]
+					alvo.damage = damage_alvo.total
+				else
+					alvo.damage = 0
+				end
 			else
 				alvo.damage = 0
 			end
-		else
-			alvo.damage = 0
 		end
-	end
 
-	--> sort no container:
-	_table_sort (container, function (tabela1, tabela2)
-		if (tabela1.damage > tabela2.damage) then
-			return true;
-		elseif (tabela1.damage == tabela2.damage) then
-			return tabela1.uptime > tabela2.uptime;
-		end
-		return false;
-	end)
-	
-	actor.debuff_uptime_targets:remapear()
-	
-	--> monta o cooltip
-	
-	local GameCooltip = GameCooltip
-	
-	GameCooltip:AddLine (Loc ["STRING_VOIDZONE_TOOLTIP"], nil, nil, headerColor, nil, 12)
-	GameCooltip:AddIcon ([[Interface\Addons\Details\images\icons]], 1, 1, 14, 14, 0.126953125, 0.1796875, 0, 0.0546875)
-	
-	for _, alvo in _ipairs (container) do 
+		--> sort no container:
+		_table_sort (container, function (tabela1, tabela2)
+			if (tabela1.damage > tabela2.damage) then
+				return true;
+			elseif (tabela1.damage == tabela2.damage) then
+				return tabela1.uptime > tabela2.uptime;
+			end
+			return false;
+		end)
+		
+		actor.debuff_uptime_targets:remapear()
+		
+		--> monta o cooltip
+		local GameCooltip = GameCooltip
+		
+		GameCooltip:AddLine (Loc ["STRING_VOIDZONE_TOOLTIP"], nil, nil, headerColor, nil, 12)
+		GameCooltip:AddIcon ([[Interface\Addons\Details\images\icons]], 1, 1, 14, 14, 0.126953125, 0.1796875, 0, 0.0546875)
+		
+		for _, alvo in _ipairs (container) do 
 
-		local minutos, segundos = _math_floor (alvo.uptime / 60), _math_floor (alvo.uptime % 60)
-		if (minutos > 0) then
-			GameCooltip:AddLine (alvo.nome, FormatTooltipNumber (_, alvo.damage) .. " (" .. minutos .. "m " .. segundos .. "s" .. ")")
-		else
-			GameCooltip:AddLine (alvo.nome, FormatTooltipNumber (_, alvo.damage) .. " (" .. segundos .. "s" .. ")")
+			local minutos, segundos = _math_floor (alvo.uptime / 60), _math_floor (alvo.uptime % 60)
+			if (minutos > 0) then
+				GameCooltip:AddLine (alvo.nome, FormatTooltipNumber (_, alvo.damage) .. " (" .. minutos .. "m " .. segundos .. "s" .. ")")
+			else
+				GameCooltip:AddLine (alvo.nome, FormatTooltipNumber (_, alvo.damage) .. " (" .. segundos .. "s" .. ")")
+			end
+			
+			local classe = _detalhes:GetClass (alvo.nome)
+			if (classe) then	
+				GameCooltip:AddIcon ([[Interface\AddOns\Details\images\classes_small]], nil, nil, 14, 14, unpack (_detalhes.class_coords [classe]))
+			else
+				GameCooltip:AddIcon ("Interface\\LFGFRAME\\LFGROLE_BW", nil, nil, 14, 14, .25, .5, 0, 1)
+			end
+			
+			_detalhes:AddTooltipBackgroundStatusbar()
+		
 		end
 		
-		local classe = _detalhes:GetClass (alvo.nome)
-		if (classe) then	
-			GameCooltip:AddIcon ([[Interface\AddOns\Details\images\classes_small]], nil, nil, 14, 14, unpack (_detalhes.class_coords [classe]))
-		else
-			GameCooltip:AddIcon ("Interface\\LFGFRAME\\LFGROLE_BW", nil, nil, 14, 14, .25, .5, 0, 1)
+		GameCooltip:AddLine ("")
+		GameCooltip:AddLine (Loc ["STRING_REPORT_LEFTCLICK"], nil, 1, _unpack (self.click_to_report_color))
+		GameCooltip:AddIcon ([[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]], 1, 1, 12, 16, 0.015625, 0.13671875, 0.4375, 0.59765625)
+		
+		GameCooltip:ShowCooltip()
+		
+	end
+
+	local function RefreshBarraVoidZone (tabela, barra, instancia)
+		tabela:AtualizarVoidZone (tabela.minha_barra, barra.colocacao, instancia)
+	end
+
+	function atributo_misc:AtualizarVoidZone (qual_barra, colocacao, instancia)
+
+		--> pega a referência da barra na janela
+		local esta_barra = instancia.barras [qual_barra]
+		
+		if (not esta_barra) then
+			print ("DEBUG: problema com <instancia.esta_barra> "..qual_barra.." "..lugar)
+			return
 		end
 		
-		_detalhes:AddTooltipBackgroundStatusbar()
-	
-	end
-	
-	GameCooltip:AddLine ("")
-	GameCooltip:AddLine (Loc ["STRING_REPORT_LEFTCLICK"], nil, 1, _unpack (self.click_to_report_color))
-	GameCooltip:AddIcon ([[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]], 1, 1, 12, 16, 0.015625, 0.13671875, 0.4375, 0.59765625)
-	
-	GameCooltip:ShowCooltip()
-	
-end
-
-local function RefreshBarraVoidZone (tabela, barra, instancia)
-	tabela:AtualizarVoidZone (tabela.minha_barra, barra.colocacao, instancia)
-end
-
-function atributo_misc:AtualizarVoidZone (qual_barra, colocacao, instancia)
-
-	local esta_barra = instancia.barras [qual_barra] --> pega a referência da barra na janela
-	
-	if (not esta_barra) then
-		print ("DEBUG: problema com <instancia.esta_barra> "..qual_barra.." "..lugar)
-		return
-	end
-	
-	self._refresh_window = RefreshBarraVoidZone
-	
-	local tabela_anterior = esta_barra.minha_tabela
-	
-	esta_barra.minha_tabela = self
-	
-	self.minha_barra = qual_barra
-	esta_barra.colocacao = colocacao
-	
-	esta_barra.texto_esquerdo:SetText (colocacao .. ". " .. self.nome)
-	esta_barra.texto_direita:SetText (self.debuff_uptime)
-	
-	--if (colocacao == 1) then
+		self._refresh_window = RefreshBarraVoidZone
+		
+		local tabela_anterior = esta_barra.minha_tabela
+		
+		esta_barra.minha_tabela = self
+		
+		self.minha_barra = qual_barra
+		esta_barra.colocacao = colocacao
+		
+		esta_barra.texto_esquerdo:SetText (colocacao .. ". " .. self.nome)
+		esta_barra.texto_direita:SetText (self.debuff_uptime)
+		
 		esta_barra.statusbar:SetValue (100)
-	--else
-	--	esta_barra.statusbar:SetValue (self.debuff_uptime / instancia.top * 100)
-	--end
-	
-	if (esta_barra.hidden or esta_barra.fading_in or esta_barra.faded) then
-		gump:Fade (esta_barra, "out")
-	end
-	
-	local _, _, icon = GetSpellInfo (self.damage_spellid)
-	local school_color = _detalhes.school_colors [self.spellschool]
-	if (not school_color) then
-		school_color = _detalhes.school_colors ["unknown"]
-	end
-	
-	esta_barra.textura:SetVertexColor (_unpack (school_color))
-	esta_barra.icone_classe:SetTexture (icon)
-	esta_barra.icone_classe:SetTexCoord (0, 1, 0, 1)
-	esta_barra.icone_classe:SetVertexColor (1, 1, 1)
+		
+		if (esta_barra.hidden or esta_barra.fading_in or esta_barra.faded) then
+			gump:Fade (esta_barra, "out")
+		end
+		
+		local _, _, icon = GetSpellInfo (self.damage_spellid)
+		local school_color = _detalhes.school_colors [self.spellschool]
+		if (not school_color) then
+			school_color = _detalhes.school_colors ["unknown"]
+		end
+		
+		esta_barra.textura:SetVertexColor (_unpack (school_color))
+		esta_barra.icone_classe:SetTexture (icon)
+		esta_barra.icone_classe:SetTexCoord (0, 1, 0, 1)
+		esta_barra.icone_classe:SetVertexColor (1, 1, 1)
 
-	if (esta_barra.mouse_over and not instancia.baseframe.isMoving) then --> precisa atualizar o tooltip
-		--gump:UpdateTooltip (qual_barra, esta_barra, instancia)
+		if (esta_barra.mouse_over and not instancia.baseframe.isMoving) then
+			--need call a refresh function
+		end
+
 	end
 
-end
-
-local ntable = {}
-local vtable = {}
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> main refresh function
 
 function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, exportar, refresh_needed)
 	
@@ -849,7 +865,6 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 			
 			if (not using_cache) then
 				for index, player in _ipairs (conteudo) do
-					--if (_bit_band (player.flag, DFLAG_player_group) >= 0x101) then --> é um player e esta em grupo
 					if (player.grupo) then --> é um player e esta em grupo
 						if (player[keyName] < 1) then --> dano menor que 1, interromper o loop
 							amount = index - 1
@@ -1401,11 +1416,7 @@ end
 
 --------------------------------------------- // TOOLTIPS // ---------------------------------------------
 
---[[Exported]] function _detalhes:TooltipForCustom (barra)
-		--GameCooltip:AddLine (barra.colocacao..". "..self.nome)
-		GameCooltip:AddLine (Loc ["STRING_LEFT_CLICK_SHARE"])
-		return true
-end
+
 
 ---------> TOOLTIPS BIFURCAÇÃO
 
@@ -1428,18 +1439,7 @@ end
 local r, g, b
 local barAlha = .6
 
---[[exported]]	function _detalhes.Sort1 (table1, table2)
-				return table1 [1] > table2 [1]
-			end
---[[exported]]	function _detalhes.Sort2 (table1, table2)
-				return table1 [2] > table2 [2]
-			end
---[[exported]]	function _detalhes.Sort3 (table1, table2)
-				return table1 [3] > table2 [3]
-			end
---[[exported]]	function _detalhes.Sort4 (table1, table2)
-				return table1 [4] > table2 [4]
-			end
+
 
 ---------> DAMAGE DONE & DPS
 

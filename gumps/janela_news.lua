@@ -42,7 +42,7 @@ function _detalhes:CreateOrOpenNewsWindow()
 		
 		local frame_upper = CreateFrame ("scrollframe", nil, frame)
 		local frame_lower = CreateFrame ("frame", nil, frame_upper)
-		frame_lower:SetSize (450, 390)
+		frame_lower:SetSize (450, 2000)
 		frame_upper:SetPoint ("topleft", frame, "topleft", 15, -70)
 		frame_upper:SetWidth (465)
 		frame_upper:SetHeight (400)
@@ -66,7 +66,7 @@ function _detalhes:CreateOrOpenNewsWindow()
 		slider:SetOrientation ("vertical");
 		slider:SetSize (16, 399)
 		slider:SetPoint ("topleft", frame_upper, "topright")
-		slider:SetMinMaxValues (0, 1000)
+		slider:SetMinMaxValues (0, 2000)
 		slider:SetValue(0)
 		slider:SetScript("OnValueChanged", function (self)
 		      frame_upper:SetVerticalScroll (self:GetValue())
@@ -78,8 +78,8 @@ function _detalhes:CreateOrOpenNewsWindow()
 		      if (IsShiftKeyDown() and (delta > 0)) then
 				slider:SetValue(0)
 		      elseif (IsShiftKeyDown() and (delta < 0)) then
-				slider:SetValue (1000)
-		      elseif ((delta < 0) and (current < 1000)) then
+				slider:SetValue (2000)
+		      elseif ((delta < 0) and (current < 2000)) then
 				slider:SetValue (current + 20)
 		      elseif ((delta > 0) and (current > 1)) then
 				slider:SetValue (current - 20)
@@ -93,7 +93,7 @@ function _detalhes:CreateOrOpenNewsWindow()
 		texto:SetJustifyV ("top")
 		texto:SetTextColor (1, 1, 1)
 		texto:SetWidth (450)
-		texto:SetHeight (1400)
+		texto:SetHeight (2500)
 		-- /script _detalhes.OpenNewsWindow()
 		--> forum text
 		local forum_button = CreateFrame ("Button", "DetailsNewsWindowForumButton", frame, "OptionsButtonTemplate")

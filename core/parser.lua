@@ -339,6 +339,27 @@
 		--if (_bit_band (who_flags, REACTION_FRIENDLY) ~= 0 and _bit_band (alvo_flags, REACTION_FRIENDLY) ~= 0) then (old friendly check)
 		if (raid_members_cache [who_serial] and raid_members_cache [alvo_serial]) then
 
+			--> record death log
+			local t = jogador_alvo.last_events_table
+			local i = t.n
+
+			t.n = i + 1
+			
+			t = t [i]
+			
+			t [1] = true --> true if this is a damage || false for healing
+			t [2] = spellid --> spellid || false if this is a battle ress line
+			t [3] = amount --> amount of damage or healing
+			t [4] = time --> parser time
+			t [5] = _UnitHealth (alvo_name) --> current unit heal
+			t [6] = who_name --> source name
+			
+			i = i + 1
+			if (i == 9) then
+				jogador_alvo.last_events_table.n = 1
+			end
+		
+			--> faz a adução do friendly fire
 			este_jogador.friendlyfire_total = este_jogador.friendlyfire_total + amount
 			
 			local amigo = este_jogador.friendlyfire._NameIndexTable [alvo_name]
@@ -1462,7 +1483,7 @@
 
 				t = t [i]
 				
-				t [1] = 1 --> true if this is a damage || false for healing || 1 for cooldown?
+				t [1] = 1 --> true if this is a damage || false for healing || 1 for cooldown
 				t [2] = spellid --> spellid || false if this is a battle ress line
 				t [3] = 1 --> amount of damage or healing
 				t [4] = time --> parser time
@@ -2104,30 +2125,42 @@
 					end
 				end
 
-				--_table_sort (esta_morte, _detalhes.Sort4)
+				_table_sort (esta_morte, _detalhes.Sort4)
+				--[[
 				_table_sort (esta_morte, function (table1, table2)
-				
-					if (not table1) then return false end
-					if (not table2) then return true end
-					
-					if (table1 [4] == table2 [4]) then --> os 2 tem o mesmo tempo
+					if (not table1) then 
+						print (1)
+						return false 
+						
+					elseif (not table2) then 
+						print (2)
+						return false
+						
+					elseif (table1 [4] == table2 [4]) then --> os 2 tem o mesmo tempo
 						if (type (table1 [1]) == "boolean" and table1 [1] and type (table2 [1]) == "boolean" and table2) then --> ambos sao dano
+							print (3)
 							return table1 [5] > table2 [5] --> joga pra cima quem tem mais vida
 						elseif (type (table1 [1]) == "boolean" and not table1 [1] and type (table2 [1]) == "boolean" and not table2) then --> ambos sao cura
+							print (4)
 							return table1 [5] < table2 [5] --> joga pra cima quem tem menos vida
 						else
 							if (type (table1 [1]) == "boolean" and table1 and type (table2 [1]) == "boolean" and table2) then --> primeiro é dano e segundo é heal
+								print (5)
 								return true --> passa o dano pra frente
 							elseif (type (table2 [1]) == "boolean" and table2 and type (table1 [1]) == "boolean" and table1) then --> primeiro é heal e o segundo é dano
+								print (6)
 								return false --> passa o heal pra frente
 							else
+								print (7)
 								return table1 [5] < table2 [5] --> passa quem tem menos vida
 							end
 						end
 					else
+						print (8)
 						return table1 [4] < table2 [4]
 					end
 				end)
+				--]]
 				
 				if (_hook_deaths) then
 					--> send event to registred functions
@@ -2625,6 +2658,23 @@
 			_detalhes:UpdateParserGears()
 			_detalhes:Start()
 		end	
+	end
+	
+	function _detalhes.parser_functions:PET_BATTLE_OPENING_START (...)
+		_detalhes.pet_battle = true
+		for index, instance in _ipairs (_detalhes.tabela_instancias) do
+			if (instance.ativa) then
+				instance:SetWindowAlphaForCombat (true, true)
+			end
+		end
+	end
+	function _detalhes.parser_functions:PET_BATTLE_CLOSE (...)
+		_detalhes.pet_battle = false
+		for index, instance in _ipairs (_detalhes.tabela_instancias) do
+			if (instance.ativa) then
+				instance:SetWindowAlphaForCombat()
+			end
+		end
 	end
 	
 	local parser_functions = _detalhes.parser_functions

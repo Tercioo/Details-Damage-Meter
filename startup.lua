@@ -219,6 +219,9 @@ function _G._detalhes:Start()
 		
 			self.listener:RegisterEvent ("ENCOUNTER_START")
 			self.listener:RegisterEvent ("ENCOUNTER_END")
+			
+			self.listener:RegisterEvent ("PET_BATTLE_OPENING_START")
+			self.listener:RegisterEvent ("PET_BATTLE_CLOSE")
 		
 			--self.listener:RegisterAllEvents()
 		
@@ -1039,6 +1042,7 @@ function _G._detalhes:Start()
 	function _detalhes:OpenOptionsWindowAtStart()
 		--_detalhes:OpenOptionsWindow (_detalhes.tabela_instancias[1])
 		--print (_G ["DetailsClearSegmentsButton1"]:GetSize())
+		--_detalhes:OpenCustomWindow()
 	end
 	_detalhes:ScheduleTimer ("OpenOptionsWindowAtStart", 2)
 	

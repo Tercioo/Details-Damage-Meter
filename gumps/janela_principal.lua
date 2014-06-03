@@ -1932,6 +1932,7 @@ function CreateAlertFrame (baseframe, instancia)
 	frame_upper:SetPoint ("left", baseframe, "left", 3, 0)
 	frame_upper:SetPoint ("right", baseframe, "right", -3, 0)
 	frame_upper:SetHeight (13)
+	frame_upper:SetFrameStrata ("fullscreen")
 	
 	local frame_lower = CreateFrame ("frame", "DetailsAlertFrameScrollChild" .. instancia.meu_id, frame_upper)
 	frame_lower:SetHeight (25)
@@ -2759,11 +2760,9 @@ function gump:CriaNovaBarra (instancia, index)
 	
 	instancia:SetFontSize (esta_barra.texto_esquerdo, instancia.row_info.font_size)
 	instancia:SetFontFace (esta_barra.texto_esquerdo, instancia.row_info.font_face_file)
-	--_detalhes.font_pool:add (esta_barra.texto_esquerdo)
 	
 	instancia:SetFontSize (esta_barra.texto_direita, instancia.row_info.font_size)
 	instancia:SetFontFace (esta_barra.texto_direita, instancia.row_info.font_face_file)
-	--_detalhes.font_pool:add (esta_barra.texto_direita)
 	
 	if (instancia.row_info.textL_outline) then
 		instancia:SetFontOutline (esta_barra.texto_esquerdo, instancia.row_info.textL_outline)
@@ -3267,6 +3266,10 @@ function _detalhes:SetWindowAlphaForCombat (entering_in_combat, true_hide)
 		amount = self.hide_in_combat_alpha / 100
 		self.combat_changes_alpha = amount
 		rowsamount = amount
+		if (_detalhes.pet_battle) then
+			amount = 0
+			rowsamount = 0
+		end
 	else
 		if (self.menu_alpha.enabled) then --auto transparency
 			if (self.is_interacting) then

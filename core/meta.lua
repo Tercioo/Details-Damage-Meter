@@ -41,7 +41,6 @@
 	local class_type_cura = _detalhes.atributos.cura
 	local class_type_e_energy = _detalhes.atributos.e_energy
 	local class_type_misc = _detalhes.atributos.misc
-	local DFLAG_pet = _detalhes.flags.pet
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> core

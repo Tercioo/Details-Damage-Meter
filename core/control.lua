@@ -62,7 +62,7 @@
 			
 			for _, actor in _ipairs (_detalhes.tabela_vigente[class_type_dano]._ActorTable) do 
 			
-				if (not actor.grupo and not actor.owner and not actor.nome:find ("[*]") and _bit_band (actor.flag, 0x00000060) ~= 0) then --> 0x20+0x40 neutral + enemy reaction
+				if (not actor.grupo and not actor.owner and not actor.nome:find ("[*]") and _bit_band (actor.flag_original, 0x00000060) ~= 0) then --> 0x20+0x40 neutral + enemy reaction
 				
 					if (trash_list) then
 						local serial = tonumber (actor.serial:sub(6, 10), 16)

@@ -50,12 +50,28 @@ local function CreateCustomWindow()
 		insets = {left = 0, right = 0, top = 0, bottom = 0}}
 
 	local frame = CreateFrame ("frame", "DetailsCustomPanel", UIParent)
-	frame:SetPoint ("center", UIParent, "center", 100, -300)
+	frame:SetPoint ("center", UIParent, "center", 100, -100)
 	frame:SetWidth (512)
-	frame:SetHeight (150)
+	frame:SetHeight (183)
 	frame:EnableMouse (true)
 	frame:SetMovable (true)
 	frame:SetFrameLevel (1)
+	
+	local frameD = CreateFrame ("frame", "DetailsCustomPanelDisable", frame)
+	frameD:SetPoint ("center", frame, "center")
+	frameD:SetWidth (512)
+	frameD:SetHeight (183)
+	frameD:EnableMouse (true)
+	frameD:SetFrameStrata ("fullscreen")
+	frameD:SetBackdrop ({
+		bgFile = "Interface\\AddOns\\Details\\images\\background", 
+		edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border", 
+		tile = true, tileSize = 16, edgeSize = 4})
+	frameD:SetBackdropColor (0, 0, 0, .8)
+	frameD.string = frameD:CreateFontString (nil, "overlay", "GameFontNormal")
+	frameD.string:SetPoint ("center", frameD, "center")
+	frameD.string:SetText ("There is a problem connecting some nether tubes\nOur ethereal engineers are already working to fix this issue,\n\nTo avoid mana wyrms proliferation, this panel is disabled for now.\n(Press Escape To Close)")
+	--frameD:Hide()
 	
 	frame.fundo = frame:CreateTexture (nil, "border")
 	frame.fundo:SetTexture ("Interface\\AddOns\\Details\\images\\custom_bg")
@@ -210,16 +226,7 @@ local function CreateCustomWindow()
 		
 		fundoBrilha:SetPoint ("left", frame.MainMenu [atributo].icon , "right", -20, -10)
 		
-		--[[
-		for i = 1, 5 do 
-			if (sub_atributos [atributo].lista[i]) then
-				frame.SubMenu [i].text:SetText (sub_atributos [atributo].lista[i])
-				frame.SubMenu [i]:Show()
-			else
-				frame.SubMenu [i]:Hide()
-			end
-		end
-		--]]
+		frame.selectAttributeDropdown:Select (1, true)
 	end
 	
 	frame.MainMenu = {}
@@ -244,6 +251,8 @@ local function CreateCustomWindow()
 		
 		local half = 0.00048828125
 		local size = 0.03125
+		
+		local att_names = {Loc ["STRING_CUSTOM_ATT1"], Loc ["STRING_CUSTOM_ATT2"], Loc ["STRING_CUSTOM_ATT3"], Loc ["STRING_CUSTOM_ATT4"]}
 		
 		for i = 1, 4 do
 		
@@ -282,8 +291,8 @@ local function CreateCustomWindow()
 			
 			button.textura:SetWidth (76)
 			button.textura:SetHeight (40)
-			button:SetPoint ("topleft", frame, "topleft", x, i*-25 + (y))
-			button.text:SetText (atributos.lista [i])
+			button:SetPoint ("topleft", frame, "topleft", x, i*-33 + (y))
+			button.text:SetText (att_names [i])
 			button.text:SetPoint ("left", button, "left", 65, 0)
 			button:SetFrameLevel (frame:GetFrameLevel()+2)
 			
@@ -309,20 +318,52 @@ local function CreateCustomWindow()
 	end
 	
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-	--> Edit Boxes
+--> Edit Boxes
 	
 	local xStart = 290
 	local WidthMax = 220
+
+--> labels	
+	local name_text = gump:NewLabel (frame, nil, "$parentNameBoxLabel", nil, Loc ["STRING_CUSTOM_NAME"], "GameFontHighlightLeft", 11)
+	local spell_text = gump:NewLabel (frame, nil, "$parentSpellBoxLabel", nil, Loc ["STRING_CUSTOM_SPELLID"])
+	local source_text = gump:NewLabel (frame, nil, "$parentSourceBoxLabel", nil, Loc ["STRING_CUSTOM_SOURCE"])
+	local target_text = gump:NewLabel (frame, nil, "$parentTargetBoxLabel", nil, Loc ["STRING_CUSTOM_TARGET"])
+	local subattribute_text = gump:NewLabel (frame, nil, "$parentSubAttributeBoxLabel", nil, Loc ["STRING_CUSTOM_ATTRIBUTE"])
 	
-----------> The name of the custom
-	local MyNameSelected = function (param1, param2, texto, editbox) --print (param1, param2, texto, editbox) 
+	name_text:SetPoint ("topleft", frame, "topleft", xStart, -45)
+	subattribute_text:SetPoint ("topleft", frame, "topleft", xStart, -65)
+	source_text:SetPoint ("topleft", frame, "topleft", xStart, -85)
+	target_text:SetPoint ("topleft", frame, "topleft", xStart, -105)
+	spell_text:SetPoint ("topleft", frame, "topleft", xStart, -125)
+
+--> name entry
+	local name_entry = gump:NewTextEntry (frame, frame, "$parentNameEntry", "TextMyNameEntry", 140, 20)
+	name_entry:SetFrameLevel (frame:GetFrameLevel()+2)
+	name_entry:SetPoint ("left", name_text, "right", 2, 0)
+
+--> sub attribute
+
+	local on_choose_attribute = function (_, _, attribute_number)
+		frame.sub_atributo = attribute_number
 	end
-	gump:NewTextBox (frame, frame, "TextMyNameEntry", SpellIDSelected, "param_1", "param_2", 100, 15, {TabOnEnterPress = true, MySpace = WidthMax})
-	frame ["TextMyNameEntry"]:SetFrameLevel (frame:GetFrameLevel()+2)
-	frame ["TextMyNameEntry"]:SetPointAndSpace ("topleft", frame, "topleft", xStart, -45, WidthMax)
-	frame ["TextMyNameEntry"]:SetLabelText (Loc ["STRING_CUSTOM_NAME"]..":")
+	local build_attribute_menu = function()
+		local menu = {}
+		
+		local attributes = _detalhes.sub_atributos [frame.atributo].lista
+		local icons = _detalhes.sub_atributos [frame.atributo].icones
+		
+		for index, attribute_name in ipairs (attributes) do
+			menu [#menu+1] = {value = index, label = attribute_name, onclick = on_choose_attribute, icon = icons [index] [1], texcoord = icons [index] [2]}
+		end
+		
+		return menu
+	end
 	
-----------> Spell Name ou ID
+	local select_attribute = gump:NewDropDown (frame, frame, "$parentAttributeDropdown", "selectAttributeDropdown", 140, 20, build_attribute_menu)
+	select_attribute:SetFrameLevel (frame:GetFrameLevel()+2)
+	select_attribute:SetPoint ("left", subattribute_text, "right", 2, 0)
+	
+--> spell id entry
 	local SpellIDSelected = function (param1, param2, texto, editbox) 
 		local _ThisSpellName, _, _ThisSpellIcon  = _GetSpellInfo (tonumber (texto))
 		if (_ThisSpellName) then 
@@ -336,17 +377,12 @@ local function CreateCustomWindow()
 		end
 	end
 	
-	gump:NewTextBox (frame, frame, "TextSpellIDEntry", SpellIDSelected, "param_1", "param_2", 80, 15, {TabOnEnterPress = true, MySpace = WidthMax-20})
+	local spellid_entry = gump:NewSpellEntry (frame, SpellIDSelected, 140, 20, nil, nil, "TextSpellIDEntry", "$parentSpellidEntry")
+	spellid_entry:SetPoint ("left", spell_text, "right", 2, 0)
 	frame ["TextSpellIDEntry"]:SetFrameLevel (frame:GetFrameLevel()+2)
-	frame ["TextSpellIDEntry"]:SetPointAndSpace ("topleft", frame, "topleft", xStart, -62, WidthMax-20)
-	frame ["TextSpellIDEntry"]:SetLabelText (Loc ["STRING_CUSTOM_SPELLID"])
-	
-	local openSpellEncounter = function() 
-		
-	end
-	
+
 	local frameEncounterSkill = CreateFrame ("frame", nil, frame)
-	frameEncounterSkill:SetPoint ("left", frame ["TextSpellIDEntry"], "right")
+	frameEncounterSkill:SetPoint ("left", frame ["TextSpellIDEntry"].widget, "right")
 	frameEncounterSkill:SetWidth (20)
 	frameEncounterSkill:SetHeight (20)
 	frameEncounterSkill:SetFrameLevel (frame:GetFrameLevel()+2)
@@ -479,8 +515,6 @@ local function CreateCustomWindow()
 		
 		GameCooltip:SetOption ("HeightAnchorMod", -10)
 		GameCooltip:ShowCooltip()
-		
-		--_detalhes.EncounterInformation [instanceTable.id] = InstanceTable
 	end
 	
 	frameEncounterSkill:SetScript ("OnEnter", function() 
@@ -492,100 +526,17 @@ local function CreateCustomWindow()
 		frameEncounterSkillImage:SetBlendMode ("BLEND")
 	end)
 	
-	frame ["TextSpellIDEntry"].HaveMenu = false
-	
-	frame ["TextSpellIDEntry"].OnLeaveHook = function()
-		_detalhes.popup.buttonOver = false
-		if (_detalhes.popup.ativo) then
-			local passou = 0
-			frame ["TextSpellIDEntry"]:SetScript ("OnUpdate", function (self, elapsed)
-				passou = passou+elapsed
-				if (passou > 0.3) then
-					if (not _detalhes.popup.mouseOver and not _detalhes.popup.buttonOver) then
-						_detalhes.popup:ShowMe (false)
-					end
-					frame ["TextSpellIDEntry"]:SetScript ("OnUpdate", nil)
-				end
-			end)
-		else
-			frame ["TextSpellIDEntry"]:SetScript ("OnUpdate", nil)
-		end
-	end
-	
-	frame ["TextSpellIDEntry"].OnFocusLostHook = function()
-		frame ["TextSpellIDEntry"].HaveMenu = false
-	end
-
-	local OnClickMenu = function (_, _, SpellID)
-		frame ["TextSpellIDEntry"]:SetText (SpellID)
-		frame ["TextSpellIDEntry"]:PressEnter()
-		frame ["TextSpellIDEntry"].HaveMenu = false
-		_detalhes.popup:ShowMe (false)
-	end
-	
 	local _string_lower = string.lower
 	local _string_sub = string.sub
 	
-	frame ["TextSpellIDEntry"].TextChangeedHook = function (userChanged) 
-		if (not userChanged) then
-			return
-		end
-		
-		local texto = frame ["TextSpellIDEntry"]:GetText()
-		texto = _detalhes:trim (texto)
-		texto = _string_lower (texto)
-		
-		local index = _string_sub (texto, 1, 1)
-		local cached = _detalhes.spellcachefull [index]
-
-		if (cached) then
-		
-			local CoolTip = _G.GameCooltip
-		
-			CoolTip:Reset()
-			CoolTip:SetType ("menu")
-			CoolTip:SetColor ("main", "transparent")
-			CoolTip:SetOwner (frame ["TextSpellIDEntry"])
-			CoolTip:SetOption ("NoLastSelectedBar", true)
-			CoolTip:SetOption ("TextSize", 9.5)
-		
-			local CoolTipTable = {}
-			local texcoord = {0, 1, 0, 1}
-			local i = 1
-
-			for SpellID, SpellTable in _pairs (cached) do 
-				
-				if (_string_lower (SpellTable[1]):find (texto)) then 
-					local rank = SpellTable[3]
-					if (not rank or rank == "") then
-						rank = ""
-					else
-						rank = " ("..rank..")"
-					end
-					
-					CoolTip:AddMenu (1, OnClickMenu, SpellID, nil, nil, SpellID..": "..SpellTable[1]..rank, SpellTable[2], true)
-					
-					if (i > 20) then
-						break
-					else
-						i = i + 1
-					end
-				end
-
-			end
-			
-			frame ["TextSpellIDEntry"].HaveMenu = true
-			CoolTip.buttonOver = true
-			CoolTip:ShowCooltip()
-		end
-	end
-	
-----------> Source
+--> source
 	local SourceSelected = function (param1, param2, texto, editbox) end
-	gump:NewTextBox (frame, frame, "TextSourceEntry", SourceSelected, "param_1", "param_2", 100, 15, {TabOnEnterPress = true, MySpace = WidthMax})
+	
+	local source_entry = gump:NewTextEntry (frame, frame, "$parentSourceEntry", "TextSourceEntry", 140, 20)
+	
 	frame ["TextSourceEntry"]:SetFrameLevel (frame:GetFrameLevel()+2)
-	frame ["TextSourceEntry"]:SetPointAndSpace ("topleft", frame, "topleft", xStart, -79, WidthMax)
-	frame ["TextSourceEntry"]:SetLabelText (Loc ["STRING_CUSTOM_SOURCE"]..":")
+	frame ["TextSourceEntry"]:SetPoint ("left", source_text, "right", 2, 0)
+	
 	frame ["TextSourceEntry"].InputHook = function() 
 		local texto = frame ["TextSourceEntry"]:GetText()
 		texto:gsub ("[raid]", "|cFFFF00FF|r[raid]")
@@ -604,26 +555,24 @@ local function CreateCustomWindow()
 		end
 	end
 	
----------> Actor Name
-	local ActorNameSelected = function (param1, param2, texto, editbox) end
-	gump:NewTextBox (frame, frame, "TextActorNameEntry", ActorNameSelected, "param_1", "param_2", 100, 15, {TabOnEnterPress = true})
-	frame ["TextActorNameEntry"]: SetFrameLevel (frame:GetFrameLevel()+2)
-	frame ["TextActorNameEntry"]:SetPointAndSpace ("topleft", frame, "topleft", xStart, -96, WidthMax)
-	frame ["TextActorNameEntry"]:SetLabelText (Loc ["STRING_CUSTOM_TARGET"]..":")
+--> target
+
+	local target_entry = gump:NewTextEntry (frame, frame, "$parentTargetEntry", "TextActorNameEntry", 140, 20)
+	frame ["TextActorNameEntry"]:SetFrameLevel (frame:GetFrameLevel()+2)
+	frame ["TextActorNameEntry"]:SetPoint ("left", target_text, "right", 2, 0)
 	
 	--> Tab Order
-	frame ["TextMyNameEntry"]:SetNext (frame ["TextSpellIDEntry"])
-	frame ["TextSpellIDEntry"]:SetNext (frame ["TextSourceEntry"])
+	frame ["TextMyNameEntry"]:SetNext (frame ["TextSourceEntry"])
 	frame ["TextSourceEntry"]:SetNext (frame ["TextActorNameEntry"])
-	frame ["TextActorNameEntry"]:SetNext (frame ["TextMyNameEntry"])
-	frame ["TextActorNameEntry"]:Disable()
+	frame ["TextActorNameEntry"]:SetNext (frame ["TextSpellIDEntry"])
+	frame ["TextSpellIDEntry"]:SetNext (frame ["TextMyNameEntry"])
 
 	--> Tooltips
 	--> localize-me
 	frame ["TextMyNameEntry"].tooltip = Loc ["STRING_CUSTOM_TOOLTIPNAME"]
 	frame ["TextSpellIDEntry"].tooltip = Loc ["STRING_CUSTOM_TOOLTIPSPELL"]
 	frame ["TextSourceEntry"].tooltip = Loc ["STRING_CUSTOM_TOOLTIPSOURCE"]
-	frame ["TextActorNameEntry"].tooltip = Loc ["STRING_CUSTOM_TOOLTIPTARGET"].."\n|cFFFF0000"..Loc ["STRING_CUSTOM_TOOLTIPNOTWORKING"]
+	frame ["TextActorNameEntry"].tooltip = Loc ["STRING_CUSTOM_TOOLTIPTARGET"] -- .."\n|cFFFF0000"..Loc ["STRING_CUSTOM_TOOLTIPNOTWORKING"]
 	
 	frame.IconTexture = "Interface\\Icons\\TEMP"
 	
@@ -810,7 +759,7 @@ local function CreateCustomWindow()
 		end
 		
 		local CustomName = frame ["TextMyNameEntry"].text
-		local SpellID = frame ["TextSpellIDEntry"].text
+		local SpellID = tonumber (frame ["TextSpellIDEntry"].text)
 		local Actor = frame ["TextActorNameEntry"].text
 		local Source = frame ["TextSourceEntry"].text
 
@@ -826,15 +775,16 @@ local function CreateCustomWindow()
 			return
 		end
 		
-		if (string.len (SpellID) < 1) then
-			--print ("Sem id da magia")
-			print (Loc ["STRING_CUSTOM_NOSPELL"])
-			frame ["TextSpellIDEntry"]:Blink()
-			return
-		end
+		--if (string.len (SpellID) < 1) then
+		--	--print ("Sem id da magia")
+		--	print (Loc ["STRING_CUSTOM_NOSPELL"])
+		--	frame ["TextSpellIDEntry"]:Blink()
+		--	return
+		--end
 		
-		_detalhes.custom [#_detalhes.custom+1] = {name = CustomName, spell = SpellID, target = Actor, source = Source, inout = InOut, icon = frame.IconTexture, attribute = Atributo, sattribute = SubAtributo}
-		print (Loc ["STRING_CUSTOM_CREATED"])
+		_detalhes.custom [#_detalhes.custom+1] = {name = CustomName, spell = SpellID, target = Actor, source = Source, icon = frame.IconTexture, attribute = Atributo, sattribute = SubAtributo}
+		--print (CustomName, Actor, Source, SpellID, frame.IconTexture, Atributo, SubAtributo)
+		_detalhes:Msg (Loc ["STRING_CUSTOM_CREATED"])
 		_detalhes:CloseCustomWindow()
 		reset()
 	end	
@@ -842,7 +792,7 @@ local function CreateCustomWindow()
 	local IconButton = gump:NewDetailsButton (frame, frame, _, ChooseIcon, nil, nil, 80, 15, "", "", "", "", nil, "DetailsCustomPanelIconButton")
 	IconButton.text:SetText (Loc ["STRING_CUSTOM_ICON"])
 	IconButton.text:SetPoint ("left", IconButton, "left", 3, 0)
-	IconButton:SetPoint ("topleft", frame, "topleft", xStart+21, -118)
+	IconButton:SetPoint ("topleft", frame, "topleft", xStart+21, -158)
 	IconButton:SetFrameLevel (frame:GetFrameLevel()+2)
 	IconButton:InstallCustomTexture (_, {x1 = -20, x2 = 0, y1 = 0, y2 = 0})
 	frame.iconbutton = IconButton
@@ -856,7 +806,7 @@ local function CreateCustomWindow()
 
 	local CreateButton = gump:NewDetailsButton (frame, frame, _, CreateFunction, nil, nil, 80, 15, "", "", "", "", nil, "DetailsCustomPanelCreateButton")
 	CreateButton.text:SetText (Loc ["STRING_CUSTOM_CREATE"])
-	CreateButton:SetPoint ("topleft", frame, "topleft", 413, -118)
+	CreateButton:SetPoint ("topleft", frame, "topleft", 413, -158)
 	CreateButton:SetFrameLevel (frame:GetFrameLevel()+2)
 	CreateButton:InstallCustomTexture (_, {x1 = -20, x2 = 0, y1 = 0, y2 = 0})
 	
@@ -970,21 +920,21 @@ function _detalhes:InitCustom()
 end
 
 function _detalhes:OpenCustomWindow()
-	if (InCombatLockdown()) then
-		print ("|cffFF2222"..Loc ["STRING_CUSTOM_INCOMBAT"])
-		return
-	end
+	--if (InCombatLockdown()) then
+	--	print ("|cffFF2222"..Loc ["STRING_CUSTOM_INCOMBAT"])
+	--	return
+	--end
 	
 	if (not _detalhes.CustomFrame.oponed) then
 		_detalhes.CustomFrame.oponed = true
-		_detalhes:BuildSpellList()
+		--_detalhes:BuildSpellList()
 		_detalhes.CustomFrame:Show()
 	end
 end
 
 function _detalhes:CloseCustomWindow()
 	_detalhes.CustomFrame.oponed = false
-	_detalhes:ClearSpellList()
+	--_detalhes:ClearSpellList()
 	_detalhes.CustomFrame:Hide()
 end
 

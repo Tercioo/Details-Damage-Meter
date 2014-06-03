@@ -8,7 +8,7 @@
 
 		_ = nil
 		_detalhes = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0", "NickTag-1.0", "LibHotCorners")
-		_detalhes.userversion = "v1.15.3a" --tirar guardian of ancient kingss
+		_detalhes.userversion = "v1.15.3b" --tirar guardian of ancient kingss
 		_detalhes.version = "Alpha 019"
 		_detalhes.realversion = 19
 
@@ -40,8 +40,6 @@ do
 			_detalhes.refresh = {} 
 		--> armazena as funções para limpar e guardas os dados - Metatable functions
 			_detalhes.clear = {} 
-		--> armazena as fontstring usadas no addon - Store labels (fontstrings)
-			_detalhes.font_pool = {} 
 		--> armazena a config do painel de fast switch
 			_detalhes.switch = {} 
 		--> armazena os estilos salvos
@@ -127,6 +125,7 @@ do
 			all = 3,	--> Everything
 			raid = 4	--> Raid
 		}
+		--[[
 		_detalhes.flags = { 
 			--> Player and Pet
 			player = 0x00000001,--> player character
@@ -141,7 +140,7 @@ do
 			neutral = 0x00000020,--> neutral
 			enemy = 0x00000040--> enemy
 		}
-		
+		--]]
 		_detalhes.divisores = {
 			abre = "(",	--> open
 			fecha = ")",	--> close
