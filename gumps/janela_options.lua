@@ -3561,6 +3561,12 @@ function window:CreateFrame3()
 
 		window:CreateLineBackground2 (frame3, "customSkinSelectToRemoveDropdown", "removeCustomSkinLabel", Loc ["STRING_OPTIONS_SAVELOAD_ERASE_DESC"])
 		
+	--> extra Options
+		g:NewLabel (frame3, _, "$parentSkinExtraOptionsAnchor", "SkinExtraOptionsAnchor", Loc ["STRING_OPTIONS_SKIN_EXTRA_OPTIONS_ANCHOR"], "GameFontNormal")
+		frame3.SkinExtraOptionsAnchor:Hide()
+		frame3.SkinExtraOptionsAnchor:SetPoint (window.right_start_at, -90)
+		frame3.ExtraOptions = {}
+		
 	--> Anchors
 		
 		--general anchor
@@ -6059,8 +6065,60 @@ function window:update_all (editing_instance)
 	_G.DetailsOptionsWindow2OverallNewChallengeSlider.MyObject:SetValue (_detalhes.overall_clear_newchallenge)
 	
 	--> window 3
+	
+	local skin = editing_instance.skin
+	local frame3 = _G.DetailsOptionsWindow3
+	
 	_G.DetailsOptionsWindow3SkinDropdown.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow3SkinDropdown.MyObject:Select (editing_instance.skin)
+	_G.DetailsOptionsWindow3SkinDropdown.MyObject:Select (skin)
+	
+	local skin_object = _detalhes:GetSkin (skin)
+	local skin_name_formated = skin:gsub (" ", "")
+	
+	--> hide all
+	for name, _ in pairs (_detalhes.skins) do
+		local name = name:gsub (" ", "")
+		for index, t in ipairs (frame3.ExtraOptions [name] or {}) do
+			t[1]:Hide()
+			t[2]:Hide()
+		end
+	end
+	frame3.SkinExtraOptionsAnchor:Hide()
+	
+	--> create or show options if necessary
+	if (skin_object.skin_options and not skin_object.options_created) then
+		skin_object.options_created = true
+
+		frame3.ExtraOptions [skin_name_formated] = {}
+		
+		for index, widget in ipairs (skin_object.skin_options) do 
+			local type = widget.type
+			
+			if (type == "button") then
+				local button = g:NewButton (frame3, _, "$parent" .. skin_name_formated .. "Button" .. index, skin_name_formated .. "Button" .. index, 160, 18, widget.func, nil, nil, nil, widget.text)
+				button:InstallCustomTexture()
+
+				local label = g:NewLabel (frame3, _, "$parent" .. skin_name_formated .. "ButtonLabel" .. index, skin_name_formated .. "ButtonLabel" .. index, "", "GameFontHighlightLeft")
+				label:SetPoint ("left", button, "left")
+				
+				local desc = window:CreateLineBackground2 (frame3, skin_name_formated .. "Button" .. index, skin_name_formated .. "ButtonLabel" .. index, widget.desc)
+				desc:SetWidth (1)
+				
+				tinsert (frame3.ExtraOptions [skin_name_formated], {button, label})
+				
+				button:SetPoint (window.right_start_at, window.top_start_at + (index * 1 * 25 * -1))
+			end
+		end
+		
+		frame3.SkinExtraOptionsAnchor:Show()
+		
+	elseif (skin_object.skin_options) then
+		for index, t in ipairs (frame3.ExtraOptions [skin_name_formated]) do
+			t[1]:Show()
+			t[2]:Show()
+		end
+		frame3.SkinExtraOptionsAnchor:Show()
+	end
 	
 	--> window 4
 	_G.DetailsOptionsWindow4BarSpacementSizeSlider.MyObject:SetFixedParameter (editing_instance)

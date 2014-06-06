@@ -483,7 +483,6 @@
 					end
 					
 					if (from_encounter_end) then
-						--_detalhes.tabela_vigente.start_time = _detalhes.encounter_table ["start"]
 						_detalhes.tabela_vigente.end_time = _detalhes.encounter_table ["end"]
 					end
 
@@ -499,8 +498,10 @@
 					if (_detalhes.debug) then
 						_detalhes:Msg ("(debug) found encounter on last fight, freezing parser for 30 seconds.")
 					end
-					_detalhes:CaptureSet (false, "damage", false, 30)
-					_detalhes:CaptureSet (false, "heal", false, 30)
+					
+					if (_detalhes.tabela_vigente.instance_type == "raid") then
+						_detalhes:CaptureSet (false, "damage", false, 30)
+					end
 					
 					--> schedule sync
 					_detalhes:EqualizeActorsSchedule (_detalhes.host_of)

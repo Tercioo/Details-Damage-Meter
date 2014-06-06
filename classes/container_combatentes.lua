@@ -169,11 +169,13 @@
 
 		--> verifica se é um pet, se for confere se tem o nome do dono, se não tiver, precisa por
 		local dono_do_pet
-		if (flag and _bit_band (flag, OBJECT_TYPE_PETS) ~= 0) then --> é um pet
+		
+		--if (flag and _bit_band (flag, OBJECT_TYPE_PETS) ~= 0) then --> é um pet
+		if (_detalhes.tabela_pets.pets [serial]) then --> é um pet
 			--> aqui ele precisaria achar as tag < > pra saber se o nome passado já não veio com o dono imbutido, se não tiver as tags, terá que ser posto aqui
 			if (not nome:find ("<") or not nome:find (">")) then --> find é lento, não teria outra forma de fazer isso?
 				local nome_dele, dono_nome, dono_serial, dono_flag = _detalhes.tabela_pets:PegaDono (serial, nome, flag)
-				if (nome_dele) then
+				if (nome_dele and dono_nome) then
 					nome = nome_dele
 					dono_do_pet = self:PegarCombatente (dono_serial, dono_nome, dono_flag, true, nome)
 				end

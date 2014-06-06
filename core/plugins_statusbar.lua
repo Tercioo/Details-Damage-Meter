@@ -732,7 +732,7 @@ do
 			
 				if (child.enabled and child.instance:IsEnabled()) then
 					
-					child.options.segmentType = child.options.segmentType or 1
+					child.options.segmentType = child.options.segmentType or 2
 
 					if (not child.instance.showing) then
 						return child.text:SetText (Loc ["STRING_EMPTY_SEGMENT"])

@@ -135,6 +135,22 @@
 				end
 				return false
 			end
+			
+			-- enemies (sort function)
+			local sortEnemies = function (t1, t2)
+				local a = _bit_band (t1.flag_original, 0x00000060)
+				local b = _bit_band (t2.flag_original, 0x00000060)
+				
+				if (a ~= 0 and b ~= 0) then
+					return t1.total > t2.total
+				elseif (a ~= 0 and b == 0) then
+					return true
+				elseif (a == 0 and b ~= 0) then
+					return false
+				end
+				
+				return false
+			end
 
 --[[exported]] 	function _detalhes:ContainerSortEnemies (container, amount, keyName2)
 
@@ -231,21 +247,7 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> special cases
 
-	-- enemies (sort function)
-	local sortEnemies = function (t1, t2)
-		local a = _bit_band (t1.flag_original, 0x00000060)
-		local b = _bit_band (t2.flag_original, 0x00000060)
-		
-		if (a ~= 0 and b ~= 0) then
-			return t1.total > t2.total
-		elseif (a ~= 0 and b == 0) then
-			return true
-		elseif (a == 0 and b ~= 0) then
-			return false
-		end
-		
-		return false
-	end
+
 
 	-- dps (calculate dps for actors)
 	function atributo_damage:ContainerRefreshDps (container, combat_time)
@@ -1860,7 +1862,7 @@ function atributo_damage:MontaDetalhes (spellid, barra)
 	elseif (info.sub_atributo == 4) then
 		return self:MontaDetalhesFriendlyFire (spellid, barra)
 	elseif (info.sub_atributo == 6) then
-		if (_bit_band (self.serial, 0x00000400) ~= 0) then --é um jogador
+		if (_bit_band (self.flag_original, 0x00000400) ~= 0) then --é um jogador
 			return self:MontaDetalhesDamageDone (spellid, barra)
 		end
 		return self:MontaDetalhesEnemy (spellid, barra)

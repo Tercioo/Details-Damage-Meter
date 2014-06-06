@@ -143,7 +143,7 @@ local _UISpecialFrames = UISpecialFrames --> wow api locals
 			_detalhes.janela_report = gump:CriaJanelaReport()
 		end
 		
-		if (options.meu_id) then
+		if (options and options.meu_id) then
 			self = options
 		end
 		

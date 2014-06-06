@@ -318,7 +318,7 @@ function _G._detalhes:Start()
 	end
 	--]]
 	
-	--_detalhes:OpenWelcomeWindow() --for debug
+	
 	
 	if (self.is_first_run) then
 	
@@ -634,7 +634,7 @@ function _G._detalhes:Start()
 				self.gump:Fade (instance._version, "in", 2)
 			end
 			
-			_detalhes:ScheduleTimer ("FadeStartVersion", 7)
+			_detalhes:ScheduleTimer ("FadeStartVersion", 12)
 			
 		end
 	end	
@@ -1043,6 +1043,7 @@ function _G._detalhes:Start()
 		--_detalhes:OpenOptionsWindow (_detalhes.tabela_instancias[1])
 		--print (_G ["DetailsClearSegmentsButton1"]:GetSize())
 		--_detalhes:OpenCustomWindow()
+		--_detalhes:OpenWelcomeWindow() --for debug
 	end
 	_detalhes:ScheduleTimer ("OpenOptionsWindowAtStart", 2)
 	

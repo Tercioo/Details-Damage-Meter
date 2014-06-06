@@ -1877,6 +1877,12 @@ function _detalhes:ChangeIcon (icon)
 			--> normal
 			local half = 0.00048828125
 			local size = 0.03125
+			
+			--normal icons
+			--local icones = _detalhes.sub_atributos [self.atributo].icones
+			--self.baseframe.cabecalho.atributo_icon:SetTexture (icones [self.sub_atributo] [1])
+			--self.baseframe.cabecalho.atributo_icon:SetTexCoord ( unpack (icones [self.sub_atributo] [2]) )
+			
 			self.baseframe.cabecalho.atributo_icon:SetTexture (skin.file)
 			self.baseframe.cabecalho.atributo_icon:SetTexCoord ( (0.03125 * (self.atributo-1)) + half, (0.03125 * self.atributo) - half, 0.35693359375, 0.38720703125)
 			
@@ -2190,7 +2196,7 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 
 							report_lines [#report_lines+1] = i..". ".. name .." ".. _cstr ("%.2f", amount/total*100) .. "% (" .. _detalhes:comma_value (_math_floor (dps)) .. ", " .. _detalhes:ToK ( _math_floor (amount) ) .. ")"
 						else
-							report_lines [#report_lines+1] = i..". ".. _thisActor.nome.."   ".. _detalhes:comma_value ( _math_floor (amount) ).." (".._cstr ("%.1f", amount/total*100).."%)"
+							report_lines [#report_lines+1] = i..". ".. _thisActor.nome.."   " .. _detalhes:ToKReport (amount).." (".._cstr ("%.1f", amount/total*100).."%)"
 						end
 					elseif (_type (amount) == "string") then
 						report_lines [#report_lines+1] = i..". ".. _thisActor.nome.."   ".. amount

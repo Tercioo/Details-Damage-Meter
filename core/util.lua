@@ -103,6 +103,15 @@
 		end
 		return _string_format ("%.0f", numero)
 	end
+	--> short numbers no numbers after comma
+	function _detalhes:ToKReport (numero)
+		if (numero > 1000000) then
+			return _string_format ("%.2f", numero/1000000) .."M"
+		elseif (numero > 1000) then
+			return _string_format ("%.1f", numero/1000) .."K"
+		end
+		return numero
+	end
 	--> no changes
 	function _detalhes:NoToK (numero)
 		return numero
@@ -187,6 +196,8 @@
 		return from > #s and "" or s:match(".*%S", from)
 	end
 
+--	/script print (_detalhes:Scale (0, 3, 1, 1000, math.abs (1.654-3)))
+	
 	--> scale
 	function _detalhes:Scale (rangeMin, rangeMax, scaleMin, scaleMax, x)
 		return 1 + (x - rangeMin) * (scaleMax - scaleMin) / (rangeMax - rangeMin)

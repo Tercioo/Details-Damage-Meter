@@ -27,6 +27,10 @@ local _
 		_detalhes.skins [skin_name] = skin_table
 		return true
 	end
+	
+	function _detalhes:GetSkin (skin_name)
+		return _detalhes.skins [skin_name]
+	end
 
 	--> install default skins:
 	_detalhes:InstallSkin ("Default Skin", {
@@ -62,6 +66,18 @@ local _
 			menu_icons_size = 1,
 			plugins_grow_direction = 2,
 			bg_alpha = 0.7,
+			
+		--rows
+			row_info = {
+				texture = "Details D'ictum",
+				texture_class_colors = true,
+				alpha = 1, 
+				texture_background_class_color = false,
+				texture_background = "Details Serenity",
+				fixed_texture_background_color = {0.619607, 0.619607, 0.619607, 0.116164},
+				space = {left = 3, right = -5, between = 2},
+				backdrop = {enabled = false, size = 6, color = {0, 0, 0, 0.305214}, texture = "Details BarBorder 2"}
+			},
 			
 		--instance button			
 			instancebutton_config = {size = {22, 14}, anchor = {-2, -1}, textcolor = {.8, .6, .0, 0.8}, textsize = 10, textfont = "Friz Quadrata TT", 
@@ -393,6 +409,37 @@ local _
 	t2:SetTexCoord (0, .4, 0, 1)
 	--]]
 	
+	local align_right_chat = function()
+	
+		if (not RightChatPanel or not RightChatPanel:IsShown()) then
+			_detalhes:Msg ("Right Chat Panel isn't shown.")
+			return
+		end
+		
+		local wight, height = RightChatPanel:GetSize()
+	
+		local instance1 = _detalhes.tabela_instancias [1]
+		local instance2 = _detalhes.tabela_instancias [2]
+		if (not instance2) then
+			instance2 = _detalhes:CriarInstancia()
+			instance2:ChangeSkin ("ElvUI Frame Style")
+		elseif (not instance2.ativa) then
+			instance2:AtivarInstancia()
+			instance2:ChangeSkin ("ElvUI Frame Style")
+		end
+	
+		instance1.baseframe:ClearAllPoints()
+		instance2.baseframe:ClearAllPoints()
+
+		instance1.baseframe:SetSize (wight/2 - 4, height-20-21-8)
+		instance2.baseframe:SetSize (wight/2 - 4, height-20-21-8)
+		
+		instance1.baseframe:SetPoint ("bottomleft", RightChatDataPanel, "topleft", 1, 1)
+		instance2.baseframe:SetPoint ("bottomright", RightChatToggleButton, "topright", -1, 1)
+	
+	end
+	
+
 	
 	_detalhes:InstallSkin ("ElvUI Frame Style", {
 		file = [[Interface\AddOns\Details\images\skins\elvui]],
@@ -405,7 +452,7 @@ local _
 		can_change_alpha_head = true, 
 
 		--icon anchors
-		icon_anchor_main = {-1, -5},
+		icon_anchor_main = {-4, -5},
 		icon_anchor_plugins = {-7, -13},
 		icon_plugins_size = {19, 18},
 		
@@ -451,7 +498,10 @@ local _
 			desaturated_menu = true,
 			desaturated_menu2 = true,
 			
-			bg_alpha = 0.3,
+			bg_alpha = 0.51,
+			bg_r = 0.3294,
+			bg_g = 0.3294,
+			bg_b = 0.3294,
 			show_statusbar = false,
 			
 			row_info = {
@@ -462,7 +512,8 @@ local _
 					texture_background = "Details D'ictum",
 					fixed_texture_color = {0, 0, 0},
 					fixed_texture_background_color = {0, 0, 0, 0.471},
-					space = {left = 1, right = -2, between = 0},
+					space = {left = 1, right = -2, between = 1},
+					backdrop = {enabled = true, size = 4, color = {0, 0, 0, 1}, texture = "Details BarBorder 2"}
 			},
 			wallpaper = {
 				overlay = {0, 0,	0},
@@ -474,6 +525,10 @@ local _
 				alpha = 0.8,
 				texture = "Interface\\Glues\\CREDITS\\Badlands3",
 			}
+		},
+		
+		skin_options = {
+			{type = "button", label = "", text = "Align Within Right Chat", func = align_right_chat, desc = "Move and resize the windows #1 and #2 placing over the right chat window.\nThis process doesn't lock nor snap the two windows."}
 		}
 	})
 	

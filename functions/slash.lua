@@ -92,6 +92,23 @@ function SlashCmdList.DETAILS (msg, editbox)
 	
 -------- debug ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+	elseif (msg == "align") then
+		local c = RightChatPanel
+		local w,h = c:GetSize()
+		print (w,h)
+		
+		local instance1 = _detalhes.tabela_instancias [1]
+		local instance2 = _detalhes.tabela_instancias [2]
+		
+		instance1.baseframe:ClearAllPoints()
+		instance2.baseframe:ClearAllPoints()
+
+		instance1.baseframe:SetSize (w/2 - 4, h-20-21-8)
+		instance2.baseframe:SetSize (w/2 - 4, h-20-21-8)
+		
+		instance1.baseframe:SetPoint ("bottomleft", RightChatDataPanel, "topleft", 1, 1)
+		instance2.baseframe:SetPoint ("bottomright", RightChatToggleButton, "topright", -1, 1)
+		
 	elseif (msg == "addcombat") then
 		
 		local combat = _detalhes.combate:NovaTabela (true, _detalhes.tabela_overall, 1)

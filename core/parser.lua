@@ -229,6 +229,12 @@
 		
 			--> record death log
 			local t = jogador_alvo.last_events_table
+			
+			if (not t) then
+				jogador_alvo.last_events_table = _detalhes:CreateActorLastEventTable()
+				t = jogador_alvo.last_events_table
+			end
+			
 			local i = t.n
 
 			t.n = i + 1
@@ -341,6 +347,11 @@
 
 			--> record death log
 			local t = jogador_alvo.last_events_table
+			if (not t) then
+				jogador_alvo.last_events_table = _detalhes:CreateActorLastEventTable()
+				t = jogador_alvo.last_events_table
+			end
+			
 			local i = t.n
 
 			t.n = i + 1
@@ -621,6 +632,11 @@
 		if (jogador_alvo.grupo) then
 		
 			local t = jogador_alvo.last_events_table
+			if (not t) then
+				jogador_alvo.last_events_table = _detalhes:CreateActorLastEventTable()
+				t = jogador_alvo.last_events_table
+			end
+			
 			local i = t.n
 			t.n = i + 1
 
@@ -1476,8 +1492,14 @@
 						damage_cache [who_name] = damage_actor
 					end
 				end
-			
+
 				local t = damage_actor.last_events_table
+				
+				if (not t) then
+					damage_actor.last_events_table = _detalhes:CreateActorLastEventTable()
+					t = damage_actor.last_events_table
+				end
+			
 				local i = t.n
 				t.n = i + 1
 

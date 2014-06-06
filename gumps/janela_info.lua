@@ -987,6 +987,9 @@ function gump:CriaJanelaInfo()
 	este_gump.report_direita:SetPoint ("TOPRIGHT", este_gump, "TOPRIGHT",  -8, -57)	
 	este_gump.report_direita:Hide()
 
+	local red = "FFFFAAAA"
+	local green = "FFAAFFAA"
+	
 	--> tabs:
 	--> tab default
 	_detalhes:CreatePlayerDetailsTab ("Summary", --[1] tab name
@@ -1262,17 +1265,17 @@ function gump:CriaJanelaInfo()
 					local d = ps - lastvalue
 					d = d / ps * 100
 					if (inverse) then
-						diff = "|cFF00FF00+" .. _math_floor (math.abs (d)) .. "%|r"
+						diff = "|c" .. green .. "+" .. _math_floor (math.abs (d)) .. "%|r"
 					else
-						diff = "|cFFFF0000+" .. _math_floor (math.abs (d)) .. "%|r"
+						diff = "|c" .. red .. "+" .. _math_floor (math.abs (d)) .. "%|r"
 					end
 				else
 					local d = lastvalue - ps
 					d = d / lastvalue * 100
 					if (inverse) then
-						diff = "|cFFFF0000-" .. _math_floor (math.abs (d)) .. "%|r"
+						diff = "|c" .. red .. "-" .. _math_floor (math.abs (d)) .. "%|r"
 					else
-						diff = "|cFF00FF00-" .. _math_floor (math.abs (d)) .. "%|r"
+						diff = "|c" .. green .. "-" .. _math_floor (math.abs (d)) .. "%|r"
 					end
 				end
 			end
@@ -1533,9 +1536,7 @@ function gump:CriaJanelaInfo()
 						end
 					end
 				end
-				
 
-				
 				--> buffs uptime
 				if (index_used < 11) then
 					if (misc_player.buff_uptime_spell_tables) then
@@ -1599,7 +1600,238 @@ function gump:CriaJanelaInfo()
 			)
 	
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-	
+
+		local target_texture = [[Interface\MINIMAP\TRACKING\Target]]
+		local empty_text = ""
+
+		local fill_compare_targets = function (self, player, other_players, target_pool)
+			
+			local offset = FauxScrollFrame_GetOffset (self)
+			
+			local frame2 = DetailsPlayerComparisonTarget2
+			local frame3 = DetailsPlayerComparisonTarget3
+			
+			local total = player.total_without_pet
+			
+			if (not target_pool [1]) then
+				for i = 1, 4 do 
+					local bar = self.bars [i]
+					local bar_2 = frame2.bars [i]
+					local bar_3 = frame3.bars [i]
+					
+					bar [1]:SetTexture (nil)
+					bar [2].lefttext:SetText (empty_text)
+					bar [2].lefttext:SetTextColor (.5, .5, .5, 1)
+					bar [2].righttext:SetText ("")
+					bar [2]:SetValue (0)
+					bar [3][4] = nil
+					bar_2 [1]:SetTexture (nil)
+					bar_2 [2].lefttext:SetText (empty_text)
+					bar_2 [2].lefttext:SetTextColor (.5, .5, .5, 1)
+					bar_2 [2].righttext:SetText ("")
+					bar_2 [2]:SetValue (0)
+					bar_2 [3][4] = nil
+					bar_3 [1]:SetTexture (nil)
+					bar_3 [2].lefttext:SetText (empty_text)
+					bar_3 [2].lefttext:SetTextColor (.5, .5, .5, 1)
+					bar_3 [2].righttext:SetText ("")
+					bar_3 [2]:SetValue (0)
+					bar_3 [3][4] = nil
+				end
+				
+				return
+			end
+			
+			local top = target_pool [1] [2]
+			
+			--player 2
+			local player_2 = other_players [1]
+			local player_2_target_pool
+			local player_2_top
+			if (player_2) then
+				local player_2_target = player_2.targets._ActorTable
+				player_2_target_pool = {}
+				for index, target in _ipairs (player_2_target) do 
+					player_2_target_pool [#player_2_target_pool+1] = {target.nome, target.total}
+				end
+				table.sort (player_2_target_pool, function (t1, t2) return t1[2] > t2[2] end)
+				player_2_top = player_2_target_pool [1] [2]
+				--1 skill, 
+			end
+
+			--player 3
+			local player_3 = other_players [2]
+			local player_3_target_pool
+			local player_3_top
+			if (player_3) then
+				local player_3_target = player_3.targets._ActorTable
+				player_3_target_pool = {}
+				for index, target in _ipairs (player_3_target) do 
+					player_3_target_pool [#player_3_target_pool+1] = {target.nome, target.total}
+				end
+				table.sort (player_3_target_pool, function (t1, t2) return t1[2] > t2[2] end)
+				player_3_top = player_3_target_pool [1] [2]
+			end
+
+			for i = 1, 4 do 
+				local bar = self.bars [i]
+				local bar_2 = frame2.bars [i]
+				local bar_3 = frame3.bars [i]
+				
+				local index = i + offset
+				local data = target_pool [index]
+				
+				if (data) then --[name] [total]
+				
+					local target_name = data [1]
+					
+					bar [1]:SetTexture (target_texture)
+					bar [1]:SetDesaturated (true)
+					bar [1]:SetAlpha (.7)
+					
+					bar [2].lefttext:SetText (index .. ". " .. target_name)
+					bar [2].lefttext:SetTextColor (1, 1, 1, 1)
+					bar [2].righttext:SetText (_detalhes:ToK2Min (data [2])) -- .. " (" .. _math_floor (data [2] / total * 100) .. "%)"
+					bar [2]:SetValue (data [2] / top * 100)
+					bar [3][1] = player.nome --name
+					bar [3][2] = target_name
+					bar [3][3] = data [2] --total
+					bar [3][4] = player
+					
+					-- 2
+					if (player_2) then
+
+						local player_2_target_total
+						local player_2_target_index
+						
+						for index, t in _ipairs (player_2_target_pool) do
+							if (t[1] == target_name) then
+								player_2_target_total = t[2]
+								player_2_target_index = index
+								break
+							end
+						end
+						
+						if (player_2_target_total) then
+							bar_2 [1]:SetTexture (target_texture)
+							bar_2 [1]:SetDesaturated (true)
+							bar_2 [1]:SetAlpha (.7)
+							
+							bar_2 [2].lefttext:SetText (player_2_target_index .. ". " .. target_name)
+							bar_2 [2].lefttext:SetTextColor (1, 1, 1, 1)
+							
+							if (data [2] > player_2_target_total) then
+								local diff = data [2] - player_2_target_total
+								local up = diff / data [2] * 100
+								bar_2 [2].righttext:SetText (_detalhes:ToK2Min (player_2_target_total) .. " |c" .. red .. "-(" .. _math_floor (up) .. "%)|r")
+							else
+								local diff = player_2_target_total - data [2]
+								local down = diff / player_2_target_total * 100
+								bar_2 [2].righttext:SetText (_detalhes:ToK2Min (player_2_target_total) .. " |c" .. green .. "+(" .. _math_floor (down) .. "%)|r")
+							end
+							
+							bar_2 [2]:SetValue (player_2_target_total / player_2_top * 100)
+							bar_2 [3][1] = player_2.nome
+							bar_2 [3][2] = target_name
+							bar_2 [3][3] = player_2_target_total
+							bar_2 [3][4] = player_2
+							
+						else
+							bar_2 [1]:SetTexture (nil)
+							bar_2 [2].lefttext:SetText (empty_text)
+							bar_2 [2].lefttext:SetTextColor (.5, .5, .5, 1)
+							bar_2 [2].righttext:SetText ("")
+							bar_2 [2]:SetValue (0)
+							bar_2 [3][4] = nil
+						end
+					else
+						bar_2 [1]:SetTexture (nil)
+						bar_2 [2].lefttext:SetText (empty_text)
+						bar_2 [2].lefttext:SetTextColor (.5, .5, .5, 1)
+						bar_2 [2].righttext:SetText ("")
+						bar_2 [2]:SetValue (0)
+						bar_2 [3][4] = nil
+					end
+					
+					-- 3
+					if (player_3) then
+
+						local player_3_target_total
+						local player_3_target_index
+						
+						for index, t in _ipairs (player_3_target_pool) do
+							if (t[1] == target_name) then
+								player_3_target_total = t[2]
+								player_3_target_index = index
+								break
+							end
+						end
+						
+						if (player_3_target_total) then
+							bar_3 [1]:SetTexture (target_texture)
+							bar_3 [1]:SetDesaturated (true)
+							bar_3 [1]:SetAlpha (.7)
+							
+							bar_3 [2].lefttext:SetText (player_3_target_index .. ". " .. target_name)
+							bar_3 [2].lefttext:SetTextColor (1, 1, 1, 1)
+							
+							if (data [2] > player_3_target_total) then
+								local diff = data [2] - player_3_target_total
+								local up = diff / data [2] * 100
+								bar_3 [2].righttext:SetText (_detalhes:ToK2Min (player_3_target_total) .. " |c" .. red .. "-(" .. _math_floor (up) .. "%)|r")
+							else
+								local diff = player_3_target_total - data [2]
+								local down = diff / player_3_target_total * 100
+								bar_3 [2].righttext:SetText (_detalhes:ToK2Min (player_3_target_total) .. " |c" .. green .. "+(" .. _math_floor (down) .. "%)|r")
+							end
+							
+							bar_3 [2]:SetValue (player_3_target_total / player_3_top * 100)
+							bar_3 [3][1] = player_3.nome
+							bar_3 [3][2] = target_name
+							bar_3 [3][3] = player_3_target_total
+							bar_3 [3][4] = player_3
+							
+						else
+							bar_3 [1]:SetTexture (nil)
+							bar_3 [2].lefttext:SetText (empty_text)
+							bar_3 [2].lefttext:SetTextColor (.5, .5, .5, 1)
+							bar_3 [2].righttext:SetText ("")
+							bar_3 [2]:SetValue (0)
+							bar_3 [3][4] = nil
+						end
+					else
+						bar_3 [1]:SetTexture (nil)
+						bar_3 [2].lefttext:SetText (empty_text)
+						bar_3 [2].lefttext:SetTextColor (.5, .5, .5, 1)
+						bar_3 [2].righttext:SetText ("")
+						bar_3 [2]:SetValue (0)
+						bar_3 [3][4] = nil
+					end
+					
+				else
+					bar [1]:SetTexture (nil)
+					bar [2].lefttext:SetText (empty_text)
+					bar [2].lefttext:SetTextColor (.5, .5, .5, 1)
+					bar [2].righttext:SetText ("")
+					bar [2]:SetValue (0)
+					bar [3][4] = nil
+					bar_2 [1]:SetTexture (nil)
+					bar_2 [2].lefttext:SetText (empty_text)
+					bar_2 [2].lefttext:SetTextColor (.5, .5, .5, 1)
+					bar_2 [2].righttext:SetText ("")
+					bar_2 [2]:SetValue (0)
+					bar_2 [3][4] = nil
+					bar_3 [1]:SetTexture (nil)
+					bar_3 [2].lefttext:SetText (empty_text)
+					bar_3 [2].lefttext:SetTextColor (.5, .5, .5, 1)
+					bar_3 [2].righttext:SetText ("")
+					bar_3 [2]:SetValue (0)
+					bar_3 [3][4] = nil
+				end
+			end
+			
+		end
+
 		local fill_compare_actors = function (self, player, other_players)
 			
 			--primeiro preenche a nossa barra
@@ -1677,22 +1909,27 @@ function gump:CriaJanelaInfo()
 						bar_2 [1]:SetTexture (icon)
 						bar_2 [2].lefttext:SetText (player_2_spell_info [spellid] .. ". " .. name)
 						bar_2 [2].lefttext:SetTextColor (1, 1, 1, 1)
-						if (data [2] > spell.total) then
+						
+						if (spell.total == 0 and data [2] == 0) then
+							bar_2 [2].righttext:SetText ("0 +(0%)")
+							
+						elseif (data [2] > spell.total) then
 							local diff = data [2] - spell.total
 							local up = diff / data [2] * 100
-							bar_2 [2].righttext:SetText (_detalhes:ToK2Min (spell.total) .. " |cFFFF0000-(" .. _math_floor (up) .. "%)|r")
+							bar_2 [2].righttext:SetText (_detalhes:ToK2Min (spell.total) .. " |c" .. red .. "-(" .. _math_floor (up) .. "%)|r")
 						else
 							local diff = spell.total - data [2]
 							local down = diff / spell.total * 100
-							bar_2 [2].righttext:SetText (_detalhes:ToK2Min (spell.total) .. " |cFF00FF00+(" .. _math_floor (down) .. "%)|r")
+							bar_2 [2].righttext:SetText (_detalhes:ToK2Min (spell.total) .. " |c" .. green .. "+(" .. _math_floor (down) .. "%)|r")
 						end
+						
 						bar_2 [2]:SetValue (spell.total / player_2_top * 100)
 						bar_2 [3][1] = spell.counter --tooltip hits
 						bar_2 [3][2] = spell.total / spell.counter --tooltip average
 						bar_2 [3][3] = _math_floor (spell.c_amt / spell.counter * 100) --tooltip critical
 					else
-						bar_2 [1]:SetTexture ([[Interface\InventoryItems\WoWUnknownItem01]])
-						bar_2 [2].lefttext:SetText ("-- x -- x --")
+						bar_2 [1]:SetTexture (nil)
+						bar_2 [2].lefttext:SetText (empty_text)
 						bar_2 [2].lefttext:SetTextColor (.5, .5, .5, 1)
 						bar_2 [2].righttext:SetText ("")
 						bar_2 [2]:SetValue (0)
@@ -1709,48 +1946,53 @@ function gump:CriaJanelaInfo()
 							bar_3 [1]:SetTexture (icon)
 							bar_3 [2].lefttext:SetText (player_3_spell_info [spellid] .. ". " .. name)
 							bar_3 [2].lefttext:SetTextColor (1, 1, 1, 1)
-							if (data [2] > spell.total) then
+							
+							if (spell.total == 0 and data [2] == 0) then
+								bar_3 [2].righttext:SetText ("0 +(0%)")
+								
+							elseif (data [2] > spell.total) then
 								local diff = data [2] - spell.total
 								local up = diff / data [2] * 100
-								bar_3 [2].righttext:SetText (_detalhes:ToK2Min (spell.total) .. " |cFFFF0000-(" .. _math_floor (up) .. "%)|r")
+								bar_3 [2].righttext:SetText (_detalhes:ToK2Min (spell.total) .. " |c" .. red .. "-(" .. _math_floor (up) .. "%)|r")
 							else
 								local diff = spell.total - data [2]
 								local down = diff / spell.total * 100
-								bar_3 [2].righttext:SetText (_detalhes:ToK2Min (spell.total) .. " |cFF00FF00+(" .. _math_floor (down) .. "%)|r")
+								bar_3 [2].righttext:SetText (_detalhes:ToK2Min (spell.total) .. " |c" .. green .. "+(" .. _math_floor (down) .. "%)|r")
 							end
-							bar_3 [2]:SetValue (spell.total / player_2_top * 100)
+							
+							bar_3 [2]:SetValue (spell.total / player_3_top * 100)
 							bar_3 [3][1] = spell.counter --tooltip hits
 							bar_3 [3][2] = spell.total / spell.counter --tooltip average
 							bar_3 [3][3] = _math_floor (spell.c_amt / spell.counter * 100) --tooltip critical
 						else
-							bar_3 [1]:SetTexture ([[Interface\InventoryItems\WoWUnknownItem01]])
-							bar_3 [2].lefttext:SetText ("-- x -- x --")
+							bar_3 [1]:SetTexture (nil)
+							bar_3 [2].lefttext:SetText (empty_text)
 							bar_3 [2].lefttext:SetTextColor (.5, .5, .5, 1)
 							bar_3 [2].righttext:SetText ("")
 							bar_3 [2]:SetValue (0)
 						end
 					else
-						bar_3 [1]:SetTexture ([[Interface\InventoryItems\WoWUnknownItem01]])
-						bar_3 [2].lefttext:SetText ("-- x -- x --")
+						bar_3 [1]:SetTexture (nil)
+						bar_3 [2].lefttext:SetText (empty_text)
 						bar_3 [2].lefttext:SetTextColor (.5, .5, .5, 1)
 						bar_3 [2].righttext:SetText ("")
 						bar_3 [2]:SetValue (0)
 					end
 				else
-					bar [1]:SetTexture ([[Interface\InventoryItems\WoWUnknownItem01]])
-					bar [2].lefttext:SetText ("-- x -- x --")
+					bar [1]:SetTexture (nil)
+					bar [2].lefttext:SetText (empty_text)
 					bar [2].lefttext:SetTextColor (.5, .5, .5, 1)
 					bar [2].righttext:SetText ("")
 					bar [2]:SetValue (0)
 					local bar_2 = frame2.bars [i]
-					bar_2 [1]:SetTexture ([[Interface\InventoryItems\WoWUnknownItem01]])
-					bar_2 [2].lefttext:SetText ("-- x -- x --")
+					bar_2 [1]:SetTexture (nil)
+					bar_2 [2].lefttext:SetText (empty_text)
 					bar_2 [2].lefttext:SetTextColor (.5, .5, .5, 1)
 					bar_2 [2].righttext:SetText ("")
 					bar_2 [2]:SetValue (0)
 					local bar_3 = frame3.bars [i]
-					bar_3 [1]:SetTexture ([[Interface\InventoryItems\WoWUnknownItem01]])
-					bar_3 [2].lefttext:SetText ("-- x -- x --")
+					bar_3 [1]:SetTexture (nil)
+					bar_3 [2].lefttext:SetText (empty_text)
 					bar_3 [2].lefttext:SetTextColor (.5, .5, .5, 1)
 					bar_3 [2].righttext:SetText ("")
 					bar_3 [2]:SetValue (0)
@@ -1765,19 +2007,26 @@ function gump:CriaJanelaInfo()
 		end
 	
 		local refresh_comparison_box = function (self)
-
 			--atualiza a scroll
 			FauxScrollFrame_Update (self, math.max (self.tab.spells_amt, 10), 9, 15)
 			fill_compare_actors (self, self.tab.player, self.tab.players)
-			
 		end
-	
+		
 		local refresh_target_box = function (self)
 			
-		end
-		
+			--player 1 targets
+			local my_targets = self.tab.player.targets._ActorTable
+			local target_pool = {}
+			for index, target in _ipairs (my_targets) do 
+				target_pool [#target_pool+1] = {target.nome, target.total}
+			end
+			table.sort (target_pool, function (t1, t2) return t1[2] > t2[2] end)
+			
+			FauxScrollFrame_Update (self, math.max (#target_pool, 5), 4, 14)
 
-		
+			fill_compare_targets (self, self.tab.player, self.tab.players, target_pool)
+		end
+	
 		local compare_fill = function (tab, player, combat)
 			local players_to_compare = tab.players
 			
@@ -1796,6 +2045,217 @@ function gump:CriaJanelaInfo()
 			end
 			
 			refresh_comparison_box (DetailsPlayerComparisonBox1)
+			refresh_target_box (DetailsPlayerComparisonTarget1)
+			
+		end
+	
+		local on_enter_target = function (self)
+		
+			local frame1 = DetailsPlayerComparisonTarget1
+			local frame2 = DetailsPlayerComparisonTarget2
+			local frame3 = DetailsPlayerComparisonTarget3
+		
+			local bar1 = frame1.bars [self.index]
+			local bar2 = frame2.bars [self.index]
+			local bar3 = frame3.bars [self.index]
+
+			local player_1 = bar1 [3] [4]
+			if (not player_1) then
+				return
+			end
+			local player_2 = bar2 [3] [4]
+			local player_3 = bar3 [3] [4]
+			
+			local target_name = bar1 [3] [2]
+			
+			frame1.tooltip:SetPoint ("bottomleft", bar1[2], "topleft", -18, 5)
+			frame2.tooltip:SetPoint ("bottomleft", bar2[2], "topleft", -18, 5)
+			frame3.tooltip:SetPoint ("bottomleft", bar3[2], "topleft", -18, 5)
+
+			local actor1_total = bar1 [3] [3]
+			local actor2_total = bar1 [3] [3]
+			local actor3_total = bar1 [3] [3]
+			
+			-- player 1
+			local player_1_skills = {}
+			for spellid, spell in _pairs (player_1.spell_tables._ActorTable) do
+				for index, target in _ipairs (spell.targets._ActorTable) do
+					if (target.nome == target_name) then
+						player_1_skills [#player_1_skills+1] = {spellid, target.total}
+					end
+				end
+			end
+			table.sort (player_1_skills, _detalhes.Sort2)
+			local player_1_top = player_1_skills [1] [2]
+			
+			-- player 2
+			local player_2_skills = {}
+			local player_2_top
+			if (player_2) then
+				for spellid, spell in _pairs (player_2.spell_tables._ActorTable) do
+					for index, target in _ipairs (spell.targets._ActorTable) do
+						if (target.nome == target_name) then
+							player_2_skills [#player_2_skills+1] = {spellid, target.total}
+						end
+					end
+				end
+				table.sort (player_2_skills, _detalhes.Sort2)
+				player_2_top = player_2_skills [1] [2]
+			end
+			
+			-- player 3
+			local player_3_skills = {}
+			local player_3_top
+			if (player_3) then
+				for spellid, spell in _pairs (player_3.spell_tables._ActorTable) do
+					for index, target in _ipairs (spell.targets._ActorTable) do
+						if (target.nome == target_name) then
+							player_3_skills [#player_3_skills+1] = {spellid, target.total}
+						end
+					end
+				end
+				table.sort (player_3_skills, _detalhes.Sort2)
+				player_3_top = player_3_skills [1] [2]
+			end
+			
+			-- build tooltip
+			frame1.tooltip:Reset()
+			frame2.tooltip:Reset()
+			frame3.tooltip:Reset()
+			
+			frame1.tooltip:Show()
+			frame2.tooltip:Show()
+			frame3.tooltip:Show()
+			
+			local frame2_gotresults = false
+			local frame3_gotresults = false
+			
+			for index, spell in _ipairs (player_1_skills) do
+				local bar = frame1.tooltip.bars [index]
+				if (not bar) then
+					bar = frame1.tooltip:CreateBar()
+				end
+				
+				local name, _, icon = _GetSpellInfo (spell[1])
+				bar [1]:SetTexture (icon)
+				bar [2].lefttext:SetText (index .. ". " .. name)
+				bar [2].righttext:SetText (_detalhes:ToK2Min (spell [2]))
+				bar [2]:SetValue (spell [2]/player_1_top*100)
+				
+				if (player_2) then
+					local player_2_skill
+					local found_skill = false
+					for this_index, this_spell in _ipairs (player_2_skills) do
+						if (spell [1] == this_spell[1]) then
+							local bar = frame2.tooltip.bars [index]
+							if (not bar) then
+								bar = frame2.tooltip:CreateBar (index)
+							end
+							
+							bar [1]:SetTexture (icon)
+							bar [2].lefttext:SetText (this_index .. ". " .. name)
+							
+							if (spell [2] > this_spell [2]) then
+								local diff = spell [2] - this_spell [2]
+								local up = diff / spell [2] * 100
+								bar [2].righttext:SetText (_detalhes:ToK2Min (this_spell [2]) .. " |c" .. red .. "-(" .. _math_floor (up) .. "%)|r")
+							else
+								local diff = this_spell [2] - spell [2]
+								local down = diff / this_spell [2] * 100
+								bar [2].righttext:SetText (_detalhes:ToK2Min (this_spell [2]) .. " |c" .. green .. "+(" .. _math_floor (down) .. "%)|r")
+							end
+
+							bar [2]:SetValue (this_spell [2]/player_2_top*100)
+							found_skill = true
+							frame2_gotresults = true
+							break
+						end
+					end
+					if (not found_skill) then
+						local bar = frame2.tooltip.bars [index]
+						if (not bar) then
+							bar = frame2.tooltip:CreateBar (index)
+						end
+						bar [1]:SetTexture (nil)
+						bar [2].lefttext:SetText ("")
+						bar [2].righttext:SetText ("")
+					end
+				end
+				
+				if (player_3) then
+					local player_3_skill
+					local found_skill = false
+					for this_index, this_spell in _ipairs (player_3_skills) do
+						if (spell [1] == this_spell[1]) then
+							local bar = frame3.tooltip.bars [index]
+							if (not bar) then
+								bar = frame3.tooltip:CreateBar (index)
+							end
+							
+							bar [1]:SetTexture (icon)
+							bar [2].lefttext:SetText (this_index .. ". " .. name)
+							
+							if (spell [2] > this_spell [2]) then
+								local diff = spell [2] - this_spell [2]
+								local up = diff / spell [2] * 100
+								bar [2].righttext:SetText (_detalhes:ToK2Min (this_spell [2]) .. " |c" .. red .. "-(" .. _math_floor (up) .. "%)|r")
+							else
+								local diff = this_spell [2] - spell [2]
+								local down = diff / this_spell [2] * 100
+								bar [2].righttext:SetText (_detalhes:ToK2Min (this_spell [2]) .. " |c" .. green .. "+(" .. _math_floor (down) .. "%)|r")
+							end
+
+							bar [2]:SetValue (this_spell [2]/player_3_top*100)
+							found_skill = true
+							frame3_gotresults = true
+							break
+						end
+					end
+					if (not found_skill) then
+						local bar = frame3.tooltip.bars [index]
+						if (not bar) then
+							bar = frame3.tooltip:CreateBar (index)
+						end
+						bar [1]:SetTexture (nil)
+						bar [2].lefttext:SetText ("")
+						bar [2].righttext:SetText ("")
+					end
+				end
+				
+			end
+			
+			frame1.tooltip:SetHeight ( (#player_1_skills*15) + 10)
+			frame2.tooltip:SetHeight ( (#player_1_skills*15) + 10)
+			frame3.tooltip:SetHeight ( (#player_1_skills*15) + 10)
+			
+			if (not frame2_gotresults) then
+				frame2.tooltip:Hide()
+			end
+			if (not frame3_gotresults) then
+				frame3.tooltip:Hide()
+			end
+
+		end
+		
+		local on_leave_target = function (self)
+			local frame1 = DetailsPlayerComparisonTarget1
+			local frame2 = DetailsPlayerComparisonTarget2
+			local frame3 = DetailsPlayerComparisonTarget3
+		
+			local bar1 = frame1.bars [self.index]
+			local bar2 = frame2.bars [self.index]
+			local bar3 = frame3.bars [self.index]
+		
+			bar1[2]:SetStatusBarColor (.5, .5, .5, 1)
+			bar1[2].icon:SetTexCoord (0, 1, 0, 1)
+			bar2[2]:SetStatusBarColor (.5, .5, .5, 1)
+			bar2[2].icon:SetTexCoord (0, 1, 0, 1)
+			bar3[2]:SetStatusBarColor (.5, .5, .5, 1)
+			bar3[2].icon:SetTexCoord (0, 1, 0, 1)
+			
+			frame1.tooltip:Hide()
+			frame2.tooltip:Hide()
+			frame3.tooltip:Hide()
 		end
 	
 		local on_enter = function (self)
@@ -1857,31 +2317,31 @@ function gump:CriaJanelaInfo()
 				if (hits > bar2[3][1]) then
 					local diff = hits - bar2[3][1]
 					local up = diff / hits * 100
-					frame2.tooltip.hits_label2:SetText (bar2[3][1] .. " |cFFFF0000-(" .. _math_floor (up) .. "%)|r")
+					frame2.tooltip.hits_label2:SetText (bar2[3][1] .. " |c" .. red .. "-(" .. _math_floor (up) .. "%)|r")
 				else
 					local diff = bar2[3][1] - hits
 					local down = diff / bar2[3][1] * 100
-					frame2.tooltip.hits_label2:SetText (bar2[3][1] .. " |cFF00FF00+(" .. _math_floor (down) .. "%)|r")
+					frame2.tooltip.hits_label2:SetText (bar2[3][1] .. " |c" .. green .. "+(" .. _math_floor (down) .. "%)|r")
 				end
 				
 				if (average > bar2[3][2]) then
 					local diff = average - bar2[3][2]
 					local up = diff / average * 100
-					frame2.tooltip.average_label2:SetText (_detalhes:ToK2Min (bar2[3][2]) .. " |cFFFF0000-(" .. _math_floor (up) .. "%)|r")
+					frame2.tooltip.average_label2:SetText (_detalhes:ToK2Min (bar2[3][2]) .. " |c" .. red .. "-(" .. _math_floor (up) .. "%)|r")
 				else
 					local diff = bar2[3][2] - average
 					local down = diff / bar2[3][2] * 100
-					frame2.tooltip.average_label2:SetText (_detalhes:ToK2Min (bar2[3][2]) .. " |cFF00FF00+(" .. _math_floor (down) .. "%)|r")
+					frame2.tooltip.average_label2:SetText (_detalhes:ToK2Min (bar2[3][2]) .. " |c" .. green .. "+(" .. _math_floor (down) .. "%)|r")
 				end
 				
 				if (critical > bar2[3][3]) then
 					local diff = critical - bar2[3][3]
 					local up = diff / critical * 100
-					frame2.tooltip.crit_label2:SetText (bar2[3][3] .. "%" .. " |cFFFF0000-(" .. _math_floor (up) .. "%)|r")
+					frame2.tooltip.crit_label2:SetText (bar2[3][3] .. "%" .. " |c" .. red .. "-(" .. _math_floor (up) .. "%)|r")
 				else
 					local diff = bar2[3][3] - critical
 					local down = diff / bar2[3][3] * 100
-					frame2.tooltip.crit_label2:SetText (bar2[3][3] .. "%" .. " |cFF00FF00+(" .. _math_floor (down) .. "%)|r")
+					frame2.tooltip.crit_label2:SetText (bar2[3][3] .. "%" .. " |c" .. green .. "+(" .. _math_floor (down) .. "%)|r")
 				end
 				
 				if (player2_misc) then
@@ -1891,7 +2351,7 @@ function gump:CriaJanelaInfo()
 						if (player1_uptime > spell.uptime) then
 							local diff = player1_uptime - spell.uptime
 							local up = diff / player1_uptime * 100
-							frame2.tooltip.uptime_label2:SetText (minutos .. "m" .. segundos .. "s |cFFFF0000-(" .. _math_floor (up) .. "%)|r")
+							frame2.tooltip.uptime_label2:SetText (minutos .. "m" .. segundos .. "s |c" .. red .. "-(" .. _math_floor (up) .. "%)|r")
 						else
 							local diff = spell.uptime - player1_uptime
 							local down = diff / spell.uptime * 100
@@ -1914,31 +2374,31 @@ function gump:CriaJanelaInfo()
 				if (hits > bar3[3][1]) then
 					local diff = hits - bar3[3][1]
 					local up = diff / hits * 100
-					frame3.tooltip.hits_label2:SetText (bar3[3][1] .. " |cFFFF0000-(" .. _math_floor (up) .. "%)|r")
+					frame3.tooltip.hits_label2:SetText (bar3[3][1] .. " |c" .. red .. "-(" .. _math_floor (up) .. "%)|r")
 				else
 					local diff = bar3[3][1] - hits
 					local down = diff / bar3[3][1] * 100
-					frame3.tooltip.hits_label2:SetText (bar3[3][1] .. " |cFF00FF00+(" .. _math_floor (down) .. "%)|r")
+					frame3.tooltip.hits_label2:SetText (bar3[3][1] .. " |c" .. green .. "+(" .. _math_floor (down) .. "%)|r")
 				end
 
 				if (average > bar3[3][2]) then
 					local diff = average - bar3[3][2]
 					local up = diff / average * 100
-					frame3.tooltip.average_label2:SetText (_detalhes:ToK2Min (bar3[3][2]) .. " |cFFFF0000-(" .. _math_floor (up) .. "%)|r")
+					frame3.tooltip.average_label2:SetText (_detalhes:ToK2Min (bar3[3][2]) .. " |c" .. red .. "-(" .. _math_floor (up) .. "%)|r")
 				else
 					local diff = bar3[3][2] - average
 					local down = diff / bar3[3][2] * 100
-					frame3.tooltip.average_label2:SetText (_detalhes:ToK2Min (bar3[3][2]) .. " |cFF00FF00+(" .. _math_floor (down) .. "%)|r")
+					frame3.tooltip.average_label2:SetText (_detalhes:ToK2Min (bar3[3][2]) .. " |c" .. green .. "+(" .. _math_floor (down) .. "%)|r")
 				end
 				
 				if (critical > bar3[3][3]) then
 					local diff = critical - bar3[3][3]
 					local up = diff / critical * 100
-					frame3.tooltip.crit_label2:SetText (bar3[3][3] .. "%" .. " |cFFFF0000-(" .. _math_floor (up) .. "%)|r")
+					frame3.tooltip.crit_label2:SetText (bar3[3][3] .. "%" .. " |c" .. red .. "-(" .. _math_floor (up) .. "%)|r")
 				else
 					local diff = bar3[3][3] - critical
 					local down = diff / bar3[3][3] * 100
-					frame3.tooltip.crit_label2:SetText (bar3[3][3] .. "%" .. " |cFF00FF00+(" .. _math_floor (down) .. "%)|r")
+					frame3.tooltip.crit_label2:SetText (bar3[3][3] .. "%" .. " |c" .. green .. "+(" .. _math_floor (down) .. "%)|r")
 				end
 
 				if (player3_misc) then
@@ -1948,11 +2408,11 @@ function gump:CriaJanelaInfo()
 						if (player1_uptime > spell.uptime) then
 							local diff = player1_uptime - spell.uptime
 							local up = diff / player1_uptime * 100
-							frame3.tooltip.uptime_label2:SetText (minutos .. "m" .. segundos .. "s |cFFFF0000-(" .. _math_floor (up) .. "%)|r")
+							frame3.tooltip.uptime_label2:SetText (minutos .. "m" .. segundos .. "s |c" .. red .. "-(" .. _math_floor (up) .. "%)|r")
 						else
 							local diff = spell.uptime - player1_uptime
 							local down = diff / spell.uptime * 100
-							frame3.tooltip.uptime_label2:SetText (minutos .. "m" .. segundos .. "s |cFF00FF00+(" .. _math_floor (down) .. "%)|r")
+							frame3.tooltip.uptime_label2:SetText (minutos .. "m" .. segundos .. "s |c" .. green .. "+(" .. _math_floor (down) .. "%)|r")
 						end
 					else
 						frame3.tooltip.uptime_label2:SetText ("--x--x--")
@@ -1988,7 +2448,7 @@ function gump:CriaJanelaInfo()
 	
 		local compare_create = function (tab, frame)
 		
-			local create_bar = function (name, parent, index, main)
+			local create_bar = function (name, parent, index, main, is_target)
 				local y = ((index-1) * -15) - 7
 			
 				local spellicon = parent:CreateTexture (nil, "overlay")
@@ -2000,21 +2460,26 @@ function gump:CriaJanelaInfo()
 				bar.index = index
 				bar:SetPoint ("topleft", spellicon, "topright", 0, 0)
 				bar:SetPoint ("topright", parent, "topright", -4, y)
-				bar:SetStatusBarTexture (_detalhes.default_texture)
+				bar:SetStatusBarTexture ([[Interface\AddOns\Details\images\bar_serenity]])
 				bar:SetStatusBarColor (.5, .5, .5, 1)
 				bar:SetMinMaxValues (0, 100)
 				bar:SetValue (100)
 				bar:SetHeight (14)
 				bar.icon = spellicon
 				
-				bar:SetScript ("OnEnter", on_enter)
-				bar:SetScript ("OnLeave", on_leave)
+				if (is_target) then
+					bar:SetScript ("OnEnter", on_enter_target)
+					bar:SetScript ("OnLeave", on_leave_target)
+				else
+					bar:SetScript ("OnEnter", on_enter)
+					bar:SetScript ("OnLeave", on_leave)
+				end
 				
 				bar.lefttext = bar:CreateFontString (nil, "OVERLAY", "GameFontHighlightSmall")
 
 				local _, size, flags = bar.lefttext:GetFont()
 				local font = SharedMedia:Fetch ("font", "Arial Narrow")
-				bar.lefttext:SetFont (font, 11, "outline")
+				bar.lefttext:SetFont (font, 11)
 				
 				bar.lefttext:SetPoint ("left", bar, "left", 2, 0)
 				bar.lefttext:SetJustifyH ("left")
@@ -2028,6 +2493,11 @@ function gump:CriaJanelaInfo()
 				end
 				
 				bar.righttext = bar:CreateFontString (nil, "OVERLAY", "GameFontHighlightSmall")
+				
+				local _, size, flags = bar.righttext:GetFont()
+				local font = SharedMedia:Fetch ("font", "Arial Narrow")
+				bar.righttext:SetFont (font, 11)
+				
 				bar.righttext:SetPoint ("right", bar, "right", -2, 0)
 				bar.righttext:SetJustifyH ("right")
 				bar.righttext:SetTextColor (1, 1, 1, 1)
@@ -2087,6 +2557,92 @@ function gump:CriaJanelaInfo()
 				
 				return tooltip
 			end
+
+			local create_tooltip_target = function (name)
+				local tooltip = CreateFrame ("frame", name, UIParent)
+				tooltip:SetBackdrop({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], edgeFile = [[Interface\Tooltips\UI-Tooltip-Border]], tile = true, tileSize = 16, edgeSize = 12, insets = {left = 1, right = 1, top = 1, bottom = 1},})	
+				tooltip:SetBackdropColor (0, 0, 0, 1)
+				tooltip:SetSize (175, 67)
+				tooltip:SetFrameStrata ("tooltip")
+				tooltip.bars = {}
+				
+				function tooltip:Reset()
+					for index, bar in _ipairs (tooltip.bars) do 
+						bar [1]:SetTexture (nil)
+						bar [2].lefttext:SetText ("")
+						bar [2].righttext:SetText ("")
+						bar [2]:SetValue (0)
+					end
+				end
+				
+				function tooltip:CreateBar (index)
+				
+					if (index) then
+						if (index > #tooltip.bars+1) then
+							for i = #tooltip.bars+1, index-1 do
+								tooltip:CreateBar()
+							end
+						end
+					end
+				
+					local index = #tooltip.bars+1
+					local y = ((index-1) * -15) - 7
+					local parent = tooltip
+				
+					local spellicon = parent:CreateTexture (nil, "overlay")
+					spellicon:SetSize (14, 14)
+					spellicon:SetPoint ("topleft", parent, "topleft", 4, y)
+					spellicon:SetTexture ([[Interface\InventoryItems\WoWUnknownItem01]])
+				
+					local bar = CreateFrame ("StatusBar", name .. "Bar" .. index, parent)
+					bar.index = index
+					bar:SetPoint ("topleft", spellicon, "topright", 0, 0)
+					bar:SetPoint ("topright", parent, "topright", -4, y)
+					bar:SetStatusBarTexture ([[Interface\AddOns\Details\images\bar_serenity]])
+					bar:SetStatusBarColor (.5, .5, .5, 1)
+					bar:SetMinMaxValues (0, 100)
+					bar:SetValue (0)
+					bar:SetHeight (14)
+					bar.icon = spellicon
+		
+					bar.lefttext = bar:CreateFontString (nil, "OVERLAY", "GameFontHighlightSmall")
+					local _, size, flags = bar.lefttext:GetFont()
+					local font = SharedMedia:Fetch ("font", "Arial Narrow")
+					bar.lefttext:SetFont (font, 11)					
+					bar.lefttext:SetPoint ("left", bar, "left", 2, 0)
+					bar.lefttext:SetJustifyH ("left")
+					bar.lefttext:SetTextColor (1, 1, 1, 1)
+					bar.lefttext:SetNonSpaceWrap (true)
+					bar.lefttext:SetWordWrap (false)
+					
+					if (name:find ("1")) then
+						bar.lefttext:SetWidth (110)
+					else
+						bar.lefttext:SetWidth (80)
+					end
+					
+					bar.righttext = bar:CreateFontString (nil, "OVERLAY", "GameFontHighlightSmall")	
+					local _, size, flags = bar.righttext:GetFont()
+					local font = SharedMedia:Fetch ("font", "Arial Narrow")
+					bar.righttext:SetFont (font, 11)					
+					bar.righttext:SetPoint ("right", bar, "right", -2, 0)
+					bar.righttext:SetJustifyH ("right")
+					bar.righttext:SetTextColor (1, 1, 1, 1)
+					
+					local object = {spellicon, bar}
+					tinsert (tooltip.bars, object)
+					return object
+				end
+				
+				local background = tooltip:CreateTexture (nil, "artwork")
+				background:SetTexture ([[Interface\SPELLBOOK\Spellbook-Page-1]])
+				background:SetTexCoord (.6, 0.1, 0, 0.64453125)
+				background:SetVertexColor (0, 0, 0, 0.6)
+				background:SetPoint ("topleft", tooltip, "topleft", 2, -4)
+				background:SetPoint ("bottomright", tooltip, "bottomright", -4, 2)
+				
+				return tooltip
+			end
 			
 			local frame1 = CreateFrame ("scrollframe", "DetailsPlayerComparisonBox1", frame, "FauxScrollFrameTemplate")
 			frame1:SetScript ("OnVerticalScroll", function (self, offset) FauxScrollFrame_OnVerticalScroll (self, offset, 14, refresh_comparison_box) end)			
@@ -2107,9 +2663,7 @@ function gump:CriaJanelaInfo()
 			for i = 1, 9 do
 				create_bar ("DetailsPlayerComparisonBox1Bar"..i, frame1, i, true)
 			end
-			
 
-			
 			--cria o box dos targets
 			local target1 = CreateFrame ("scrollframe", "DetailsPlayerComparisonTarget1", frame, "FauxScrollFrameTemplate")
 			target1:SetScript ("OnVerticalScroll", function (self, offset) FauxScrollFrame_OnVerticalScroll (self, offset, 14, refresh_target_box) end)			
@@ -2119,10 +2673,11 @@ function gump:CriaJanelaInfo()
 			target1:SetBackdropColor (0, 0, 0, .7)
 			target1.bars = {}
 			target1.tab = tab
+			target1.tooltip = create_tooltip_target ("DetailsPlayerComparisonTarget1Tooltip")
 			
 			--criar as barras do target1
 			for i = 1, 4 do
-				create_bar ("DetailsPlayerComparisonTarget1Bar"..i, target1, i, true)
+				create_bar ("DetailsPlayerComparisonTarget1Bar"..i, target1, i, true, true)
 			end
 			
 --------------------------------------------
@@ -2153,10 +2708,11 @@ function gump:CriaJanelaInfo()
 			target2:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border", tile = true, tileSize = 16, edgeSize = 10, insets = {left = 1, right = 1, top = 0, bottom = 1},})	
 			target2:SetBackdropColor (0, 0, 0, .7)
 			target2.bars = {}
+			target2.tooltip = create_tooltip_target ("DetailsPlayerComparisonTarget2Tooltip")
 			
 			--criar as barras do target2
 			for i = 1, 4 do
-				create_bar ("DetailsPlayerComparisonTarget2Bar"..i, target2, i)
+				create_bar ("DetailsPlayerComparisonTarget2Bar"..i, target2, i, nil, true)
 			end
 			
 			frame3:SetPoint ("topleft", frame2, "topright", 5, 0)
@@ -2183,10 +2739,11 @@ function gump:CriaJanelaInfo()
 			target3:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border", tile = true, tileSize = 16, edgeSize = 10, insets = {left = 1, right = 1, top = 0, bottom = 1},})	
 			target3:SetBackdropColor (0, 0, 0, .7)
 			target3.bars = {}
+			target3.tooltip = create_tooltip_target ("DetailsPlayerComparisonTarget3Tooltip")
 			
 			--criar as barras do target1
 			for i = 1, 4 do
-				create_bar ("DetailsPlayerComparisonTarget3Bar"..i, target3, i)
+				create_bar ("DetailsPlayerComparisonTarget3Bar"..i, target3, i, nil, true)
 			end
 		end
 

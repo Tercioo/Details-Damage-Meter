@@ -176,14 +176,17 @@ local function CreatePluginFrames (data)
 
 		--> check if last combat was a boss encounter fight
 		if (not debugmode) then
+		
 			if (not _combat_object.is_boss) then
-				_combat_object.is_boss = EncounterDetails:FindBoss()
-				if (not _combat_object.is_boss) then
-					return
-				end
+				return
 			elseif (_combat_object.is_boss.encounter == "pvp") then 
 				return
 			end
+			
+			if (_combat_object.instance_type ~= "raid") then
+				return
+			end
+			
 		end
 
 		--> boss found, we need to show the icon

@@ -2703,27 +2703,9 @@ function gump:CriaNovaBarra (instancia, index)
 	esta_barra.border:SetFrameLevel (esta_barra.statusbar:GetFrameLevel()+1)
 	esta_barra.border:SetAllPoints (esta_barra)
 
-	local backdrop = instancia.row_info.backdrop.enabled
-	local backdrop_color
-	if (backdrop) then
-		backdrop = {edgeFile = SharedMedia:Fetch ("border", instancia.row_info.backdrop.texture), edgeSize = instancia.row_info.backdrop.size}
-		backdrop_color = instancia.row_info.backdrop.color
-	end
-	
-	--backdrop
-	if (backdrop) then
-		esta_barra.border:SetBackdrop (backdrop)
-		esta_barra.border:SetBackdropBorderColor (_unpack (backdrop_color))
-	else
-		esta_barra.border:SetBackdrop (nil)
-	end
-
 	esta_barra.textura = esta_barra.statusbar:CreateTexture (nil, "artwork")
 	esta_barra.textura:SetHorizTile (false)
 	esta_barra.textura:SetVertTile (false)
-	
-	local current_texture = SharedMedia:Fetch ("statusbar", instancia.row_info.texture)
-	esta_barra.textura:SetTexture (current_texture)
 	
 	esta_barra.background = esta_barra:CreateTexture (nil, "background")
 	esta_barra.background:SetTexture()
@@ -2758,36 +2740,14 @@ function gump:CriaNovaBarra (instancia, index)
 	esta_barra.texto_direita:SetPoint ("right", esta_barra.statusbar, "right")
 	esta_barra.texto_direita:SetJustifyH ("right")
 	
-	instancia:SetFontSize (esta_barra.texto_esquerdo, instancia.row_info.font_size)
-	instancia:SetFontFace (esta_barra.texto_esquerdo, instancia.row_info.font_face_file)
-	
-	instancia:SetFontSize (esta_barra.texto_direita, instancia.row_info.font_size)
-	instancia:SetFontFace (esta_barra.texto_direita, instancia.row_info.font_face_file)
-	
-	if (instancia.row_info.textL_outline) then
-		instancia:SetFontOutline (esta_barra.texto_esquerdo, instancia.row_info.textL_outline)
-	end
-	if (instancia.row_info.textR_outline) then
-		instancia:SetFontOutline (esta_barra.texto_direita, instancia.row_info.textR_outline)
-	end
-	
-	if (not instancia.row_info.texture_class_colors) then
-		esta_barra.textura:SetVertexColor (_unpack (instancia.row_info.fixed_texture_color))
-	end
-	
-	if (not instancia.row_info.textL_class_colors) then
-		esta_barra.texto_esquerdo:SetTextColor (_unpack (instancia.row_info.fixed_text_color))
-	end
-	if (not instancia.row_info.textR_class_colors) then
-		esta_barra.texto_direita:SetTextColor (_unpack (instancia.row_info.fixed_text_color))
-	end
-
 	--> inicia os scripts da barra
 	barra_scripts (esta_barra, instancia, index)
 
 	--> hida a barra
 	gump:Fade (esta_barra, 1) 
 
+	instancia:InstanceRefreshRows()
+	
 	return esta_barra
 end
 

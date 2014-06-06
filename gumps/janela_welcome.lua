@@ -92,9 +92,6 @@ function _detalhes:OpenWelcomeWindow ()
 				end
 				backward:Enable()
 			end
-			
-
-			
 		end)
 		
 		backward:SetScript ("OnClick", function()
@@ -122,8 +119,75 @@ function _detalhes:OpenWelcomeWindow ()
 			instance.baseframe:SetPoint ("left", DetailsWelcomeWindow, "right", 10, 0)
 		end
 		_detalhes:ScheduleTimer ("WelcomeSetLoc", 5)
+
+--/script local f=CreateFrame("frame");local g=false;f:SetScript("OnUpdate",function(s,e)if not g then local r=math.random for i=1,5000000 do local a=r(1,1000000);a=a+1 end g=true else print(string.format("cpu: %.3f",e));f:SetScript("OnUpdate",nil)end end)
+	
+	function _detalhes:CalcCpuPower()
+		local f = CreateFrame ("frame")
+		local got = false
+		
+		f:SetScript ("OnUpdate", function (self, elapsed)
+			if (not got and not InCombatLockdown()) then
+				local r = math.random
+				for i = 1, 2500000 do 
+					local a = r (1, 1000000)
+					a = a + 1
+				end
+				got = true
+				
+			elseif (not InCombatLockdown()) then
+				--print ("process time:", elapsed)
+				
+				if (elapsed < 0.375) then
+					_detalhes.use_row_animations = true
+					_detalhes.update_speed = 0.3
+					
+				elseif (elapsed < 0.475) then
+					_detalhes.use_row_animations = true
+					_detalhes.update_speed = 0.5
+					
+				elseif (elapsed < 0.525) then
+					_detalhes.update_speed = 0.5
+					
+				end
+			
+				DetailsWelcomeWindowSliderUpdateSpeed.MyObject:SetValue (_detalhes.update_speed)
+				DetailsWelcomeWindowAnimateSlider.MyObject:SetValue (_detalhes.use_row_animations)
+
+				f:SetScript ("OnUpdate", nil)
+			end
+		end)
+	end
+	
+	_detalhes:ScheduleTimer ("CalcCpuPower", 10)
+
+	--detect ElvUI
+	local ElvUI = _G.ElvUI
+	if (ElvUI) then
+		--active elvui skin
+		local instance = _detalhes.tabela_instancias [1]
+		if (instance and instance.ativa) then
+			if (instance.skin ~= "ElvUI Frame Style") then
+				instance:ChangeSkin ("ElvUI Frame Style")
+			end
+		end
+
+		--save standard
+		local savedObject = {}
+		for key, value in pairs (instance) do
+			if (_detalhes.instance_defaults [key]) then	
+				if (type (value) == "table") then
+					savedObject [key] = table_deepcopy (value)
+				else
+					savedObject [key] = value
+				end
+			end
+		end
+		_detalhes.standard_skin = savedObject
+	end
 		
 	do
+
 		local Loc = LibStub ("AceLocale-3.0"):NewLocale ("Details", "enUS", true) 
 		if (Loc) then
 		
@@ -132,18 +196,18 @@ function _detalhes:OpenWelcomeWindow ()
 			Loc ["STRING_WELCOME_3"] = "Choose your DPS and HPS prefered method:"
 			Loc ["STRING_WELCOME_4"] = "Activity Time"..": "
 			Loc ["STRING_WELCOME_5"] = "Effective Time"..": "
-			Loc ["STRING_WELCOME_6"] = "the timer of each raid member is put on hold if his activity is ceased and back again to count when is resumed, common way of measure Dps and Hps."
+			Loc ["STRING_WELCOME_6"] = "the timer of each raid member is put on hold if his activity is ceased and back again to count when is resumed."
 			Loc ["STRING_WELCOME_7"] = "used for rankings, this method uses the elapsed combat time for measure the Dps and Hps of all raid members."
 			Loc ["STRING_WELCOME_8"] = "if you change your mind, you can always modify again through options panel"
 			Loc ["STRING_WELCOME_9"] = "Details! reads and calculate combat numbers in a very fast way, but if some kind of data is irrelevant for you, you can disable/enable it 'on-the-fly'."
 			Loc ["STRING_WELCOME_10"] = "Mouse over each slider to see what they represent."
 			Loc ["STRING_WELCOME_11"] = "if you change your mind, you can always modify again through options panel"
-			Loc ["STRING_WELCOME_12"] = "Here you can choose the update speed of all opened windows. Low values with dance bars enabled may create cool effects, but may consume more cpu."
-			Loc ["STRING_WELCOME_13"] = "Enable 'Dance Bars' for bars animations."
+			Loc ["STRING_WELCOME_12"] = "In this page you can choose the update speed desired and also enable animations."
+			Loc ["STRING_WELCOME_13"] = ""
 			Loc ["STRING_WELCOME_14"] = "Update Speed"
-			Loc ["STRING_WELCOME_15"] = "delay between each update,\ncpu usage may |cFFFF9900increase|r with low values\nand |cFF00FF00slight reduce|r with high values."
-			Loc ["STRING_WELCOME_16"] = "Dance Bars"
-			Loc ["STRING_WELCOME_17"] = "dancing bars is a feature which create animations\nto the left and right directions for all bars.\ncpu usage may |cFFFF9900slight increase|r with this turned on."
+			Loc ["STRING_WELCOME_15"] = "This is the delay length between each update in the window,\nthe standard value is 1 second,\nbut you may decrease to 0.3 for more dinamyc updates."
+			Loc ["STRING_WELCOME_16"] = "Enable Animations"
+			Loc ["STRING_WELCOME_17"] = "Enable or Disable bar animations."
 			Loc ["STRING_WELCOME_18"] = "if you change your mind, you can always modify again through options panel"
 			Loc ["STRING_WELCOME_19"] = "Memory Adjustments:"
 			Loc ["STRING_WELCOME_20"] = "The amount of memory used by addons doesn't affect framerate, but, saving memory in computers which doesn't have much of it, may help the whole system. Details! try to be as flexible as possible to keep the game smooth even in not high-end hardware."
@@ -194,7 +258,7 @@ function _detalhes:OpenWelcomeWindow ()
 			Loc ["STRING_WELCOME_10"] = "Passe o mouse para saber o que cada um representa"
 			Loc ["STRING_WELCOME_11"] = "se voce mudar de ideia, voce pode mudar novamente no painel de opcoes"
 			Loc ["STRING_WELCOME_12"] = "Aqui voce pode escolher o tempo de intervalo entre cada atualizacao da janela."
-			Loc ["STRING_WELCOME_13"] = "Ative 'Animar Barras' para animar as barras."
+			Loc ["STRING_WELCOME_13"] = ""
 			
 			Loc ["STRING_WELCOME_14"] = "Update Speed"
 			Loc ["STRING_WELCOME_14"] = "Intervalo de Atualizacao"
@@ -256,397 +320,12 @@ function _detalhes:OpenWelcomeWindow ()
 		
 		pages [#pages+1] = {texto1, angel}
 		
+		
+		
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---> page 2
-		
-		--ampulheta:SetTexture ([[Interface\Timer\Challenges-Logo]])
-		--[[
-		local ampulheta = window:CreateTexture (nil, "overlay")
-		
-		ampulheta:SetPoint ("topright", window, "topright", 60, 57)
-		ampulheta:SetHeight (125*3)--125
-		ampulheta:SetWidth (89*3)--82
-		ampulheta:SetAlpha (.1)
-		ampulheta:SetDesaturated (true)
-		--]]
-		
-		local ampulheta = window:CreateTexture (nil, "overlay")
-		ampulheta:SetTexture ([[Interface\MainMenuBar\UI-MainMenuBar-EndCap-Human]])
-		ampulheta:SetPoint ("bottomright", window, "bottomright", -10, 10)
-		ampulheta:SetHeight (125*3)--125
-		ampulheta:SetWidth (89*3)--82
-		ampulheta:SetAlpha (.1)
-		ampulheta:SetTexCoord (1, 0, 0, 1)		
-		
-		g:NewLabel (window, _, "$parentChangeMind2Label", "changemind2Label", Loc ["STRING_WELCOME_2"], "GameFontNormal", 9, "orange")
-		window.changemind2Label:SetPoint ("center", window, "center")
-		window.changemind2Label:SetPoint ("bottom", window, "bottom", 0, 19)
-		window.changemind2Label.align = "|"
+--> Skins Page
 
-		local texto2 = window:CreateFontString (nil, "overlay", "GameFontNormal")
-		texto2:SetPoint ("topleft", window, "topleft", 20, -80)
-		texto2:SetText (Loc ["STRING_WELCOME_3"])
-		
-		local chronometer = CreateFrame ("CheckButton", "WelcomeWindowChronometer", window, "ChatConfigCheckButtonTemplate")
-		chronometer:SetPoint ("topleft", window, "topleft", 40, -110)
-		local continuous = CreateFrame ("CheckButton", "WelcomeWindowContinuous", window, "ChatConfigCheckButtonTemplate")
-		continuous:SetPoint ("topleft", window, "topleft", 40, -160)
-		
-		_G ["WelcomeWindowChronometerText"]:SetText (Loc ["STRING_WELCOME_4"])
-		_G ["WelcomeWindowContinuousText"]:SetText (Loc ["STRING_WELCOME_5"])
-		
-		local chronometer_text = window:CreateFontString (nil, "overlay", "GameFontNormal")
-		chronometer_text:SetText (Loc ["STRING_WELCOME_6"])
-		chronometer_text:SetWidth (360)
-		chronometer_text:SetHeight (40)
-		chronometer_text:SetJustifyH ("left")
-		chronometer_text:SetJustifyV ("top")
-		chronometer_text:SetTextColor (.8, .8, .8, 1)
-		chronometer_text:SetPoint ("topleft", _G ["WelcomeWindowChronometerText"], "topright", 0, 0)
-		
-		local continuous_text = window:CreateFontString (nil, "overlay", "GameFontNormal")
-		continuous_text:SetText (Loc ["STRING_WELCOME_7"])
-		continuous_text:SetWidth (340)
-		continuous_text:SetHeight (40)
-		continuous_text:SetJustifyH ("left")
-		continuous_text:SetJustifyV ("top")
-		continuous_text:SetTextColor (.8, .8, .8, 1)
-		continuous_text:SetPoint ("topleft", _G ["WelcomeWindowContinuousText"], "topright", 0, 0)
-		
-		chronometer:SetHitRectInsets (0, -70, 0, 0)
-		continuous:SetHitRectInsets (0, -70, 0, 0)
-		
-		if (_detalhes.time_type == 1) then --> chronometer
-			chronometer:SetChecked (true)
-			continuous:SetChecked (false)
-		elseif (_detalhes.time_type == 2) then --> continuous
-			chronometer:SetChecked (false)
-			continuous:SetChecked (true)
-		end
-		
-		chronometer:SetScript ("OnClick", function() continuous:SetChecked (false); _detalhes.time_type = 1 end)
-		continuous:SetScript ("OnClick", function() chronometer:SetChecked (false); _detalhes.time_type = 2 end)
-		
-		pages [#pages+1] = {ampulheta, texto2, chronometer, continuous, chronometer_text, continuous_text, window.changemind2Label}
-		for _, widget in ipairs (pages[#pages]) do 
-			widget:Hide()
-		end
-
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---> page 3
-
-		local mecanica = window:CreateTexture (nil, "overlay")
-		mecanica:SetTexture ([[Interface\MainMenuBar\UI-MainMenuBar-EndCap-Human]])
-		mecanica:SetPoint ("bottomright", window, "bottomright", -10, 10)
-		mecanica:SetHeight (125*3)--125
-		mecanica:SetWidth (89*3)--82
-		mecanica:SetAlpha (.1)
-		mecanica:SetTexCoord (1, 0, 0, 1)	
-		
-		g:NewLabel (window, _, "$parentChangeMind3Label", "changemind3Label", Loc ["STRING_WELCOME_8"], "GameFontNormal", 9, "orange")
-		window.changemind3Label:SetPoint ("center", window, "center")
-		window.changemind3Label:SetPoint ("bottom", window, "bottom", 0, 19)
-		window.changemind3Label.align = "|"
-		
-		local texto3 = window:CreateFontString (nil, "overlay", "GameFontNormal")
-		texto3:SetPoint ("topleft", window, "topleft", 20, -80)
-		texto3:SetText (Loc ["STRING_WELCOME_40"])
-		
-		local data_text = window:CreateFontString (nil, "overlay", "GameFontNormal")
-		data_text:SetText (Loc ["STRING_WELCOME_9"])
-		data_text:SetWidth (460)
-		data_text:SetHeight (40)
-		data_text:SetJustifyH ("left")
-		data_text:SetJustifyV ("top")
-		data_text:SetTextColor (1, 1, 1, 1)
-		data_text:SetPoint ("topleft", window, "topleft", 30, -105)
-		
-		local data_text2 = window:CreateFontString (nil, "overlay", "GameFontNormal")
-		--data_text2:SetText ("Tip: for a best experience, it's recommend leave all turned on.")
-		data_text2:SetText (Loc ["STRING_WELCOME_10"])
-		data_text2:SetWidth (460)
-		data_text2:SetHeight (40)
-		data_text2:SetJustifyH ("left")
-		data_text2:SetJustifyV ("top")
-		data_text2:SetTextColor (1, 1, 1, 1)
-		data_text2:SetPoint ("topleft", window, "topleft", 30, -201)
-		
-	--------------- Captures
-		g:NewImage (window, [[Interface\AddOns\Details\images\atributos_captures]], 20, 20, nil, nil, "damageCaptureImage", "$parentCaptureDamage2")
-		window.damageCaptureImage:SetPoint (35, -155)
-		window.damageCaptureImage:SetTexCoord (0, 0.125, 0, 1)
-		
-		g:NewImage (window, [[Interface\AddOns\Details\images\atributos_captures]], 20, 20, nil, nil, "healCaptureImage", "$parentCaptureHeal2")
-		window.healCaptureImage:SetPoint (170, -155)
-		window.healCaptureImage:SetTexCoord (0.125, 0.25, 0, 1)
-		
-		g:NewImage (window, [[Interface\AddOns\Details\images\atributos_captures]], 20, 20, nil, nil, "energyCaptureImage", "$parentCaptureEnergy2")
-		window.energyCaptureImage:SetPoint (305, -155)
-		window.energyCaptureImage:SetTexCoord (0.25, 0.375, 0, 1)
-		
-		g:NewImage (window, [[Interface\AddOns\Details\images\atributos_captures]], 20, 20, nil, nil, "miscCaptureImage", "$parentCaptureMisc2")
-		window.miscCaptureImage:SetPoint (35, -175)
-		window.miscCaptureImage:SetTexCoord (0.375, 0.5, 0, 1)
-		
-		g:NewImage (window, [[Interface\AddOns\Details\images\atributos_captures]], 20, 20, nil, nil, "auraCaptureImage", "$parentCaptureAura2")
-		window.auraCaptureImage:SetPoint (170, -175)
-		window.auraCaptureImage:SetTexCoord (0.5, 0.625, 0, 1)
-		
-		g:NewLabel (window, _, "$parentCaptureDamageLabel", "damageCaptureLabel", "Damage")
-		window.damageCaptureLabel:SetPoint ("left", window.damageCaptureImage, "right", 2)
-		g:NewLabel (window, _, "$parentCaptureDamageLabel", "healCaptureLabel", "Healing")
-		window.healCaptureLabel:SetPoint ("left", window.healCaptureImage, "right", 2)
-		g:NewLabel (window, _, "$parentCaptureDamageLabel", "energyCaptureLabel", "Energy")
-		window.energyCaptureLabel:SetPoint ("left", window.energyCaptureImage, "right", 2)
-		g:NewLabel (window, _, "$parentCaptureDamageLabel", "miscCaptureLabel", "Misc")
-		window.miscCaptureLabel:SetPoint ("left", window.miscCaptureImage, "right", 2)
-		g:NewLabel (window, _, "$parentCaptureDamageLabel", "auraCaptureLabel", "Auras")
-		window.auraCaptureLabel:SetPoint ("left", window.auraCaptureImage, "right", 2)
-		
-		local switch_icon_color = function (icon, on_off)
-			icon:SetDesaturated (not on_off)
-		end
-		
-		g:NewSwitch (window, _, "$parentCaptureDamageSlider", "damageCaptureSlider", 60, 20, _, _, _detalhes.capture_real ["damage"])
-		window.damageCaptureSlider:SetPoint ("left", window.damageCaptureLabel, "right", 2)
-		window.damageCaptureSlider.tooltip = "Pause or enable capture of:\n- damage done\n- damage per second\n- friendly fire\n- damage taken"
-		window.damageCaptureSlider.OnSwitch = function (self, _, value)
-			_detalhes:CaptureSet (value, "damage", true)
-			switch_icon_color (window.damageCaptureImage, value)
-		end
-		switch_icon_color (window.damageCaptureImage, _detalhes.capture_real ["damage"])
-		
-		g:NewSwitch (window, _, "$parentCaptureHealSlider", "healCaptureSlider", 60, 20, _, _, _detalhes.capture_real ["heal"])
-		window.healCaptureSlider:SetPoint ("left", window.healCaptureLabel, "right", 2)
-		window.healCaptureSlider.tooltip = "Pause or enable capture of:\n- healing done\n- absorbs\n- healing per second\n- overheal\n- healing taken\n- enemy healed"
-		window.healCaptureSlider.OnSwitch = function (self, _, value)
-			_detalhes:CaptureSet (value, "heal", true)
-			switch_icon_color (window.healCaptureImage, value)
-		end
-		switch_icon_color (window.healCaptureImage, _detalhes.capture_real ["heal"])
-		
-		g:NewSwitch (window, _, "$parentCaptureEnergySlider", "energyCaptureSlider", 60, 20, _, _, _detalhes.capture_real ["energy"])
-		window.energyCaptureSlider:SetPoint ("left", window.energyCaptureLabel, "right", 2)
-		window.energyCaptureSlider.tooltip = "Pause or enable capture of:\n- mana restored\n- rage generated\n- energy generated\n- runic power generated"
-		window.energyCaptureSlider.OnSwitch = function (self, _, value)
-			_detalhes:CaptureSet (value, "energy", true)
-			switch_icon_color (window.energyCaptureImage, value)
-		end
-		switch_icon_color (window.energyCaptureImage, _detalhes.capture_real ["energy"])
-		
-		g:NewSwitch (window, _, "$parentCaptureMiscSlider", "miscCaptureSlider", 60, 20, _, _, _detalhes.capture_real ["miscdata"])
-		window.miscCaptureSlider:SetPoint ("left", window.miscCaptureLabel, "right", 2)
-		window.miscCaptureSlider.tooltip = "Pause or enable capture of:\n- cc breaks\n- dispell\n- interrupts\n- ress\n- deaths\n- frags"
-		window.miscCaptureSlider.OnSwitch = function (self, _, value)
-			_detalhes:CaptureSet (value, "miscdata", true)
-			switch_icon_color (window.miscCaptureImage, value)
-		end
-		switch_icon_color (window.miscCaptureImage, _detalhes.capture_real ["miscdata"])
-		
-		g:NewSwitch (window, _, "$parentCaptureAuraSlider", "auraCaptureSlider", 60, 20, _, _, _detalhes.capture_real ["aura"])
-		window.auraCaptureSlider:SetPoint ("left", window.auraCaptureLabel, "right", 2)
-		window.auraCaptureSlider.tooltip = "Pause or enable capture of:\n- buffs uptime\n- debuffs uptime\n- void zones\n- cooldowns"
-		window.auraCaptureSlider.OnSwitch = function (self, _, value)
-			_detalhes:CaptureSet (value, "aura", true)
-			switch_icon_color (window.auraCaptureImage, value)
-		end
-		switch_icon_color (window.auraCaptureImage, _detalhes.capture_real ["aura"])		
-		
-		pages [#pages+1] = {mecanica, texto3, data_text, window.damageCaptureImage, window.healCaptureImage, window.energyCaptureImage, window.miscCaptureImage,
-		window.auraCaptureImage, window.damageCaptureSlider, window.healCaptureSlider, window.energyCaptureSlider, window.miscCaptureSlider, window.auraCaptureSlider, 
-		window.damageCaptureLabel, window.healCaptureLabel, window.energyCaptureLabel, window.miscCaptureLabel, window.auraCaptureLabel, data_text2, window.changemind3Label}
-		
-		for _, widget in ipairs (pages[#pages]) do 
-			widget:Hide()
-		end
-		
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---> page 4
-		
-		local bg = window:CreateTexture (nil, "overlay")
-		bg:SetTexture ([[Interface\MainMenuBar\UI-MainMenuBar-EndCap-Human]])
-		bg:SetPoint ("bottomright", window, "bottomright", -10, 10)
-		bg:SetHeight (125*3)--125
-		bg:SetWidth (89*3)--82
-		bg:SetAlpha (.1)
-		bg:SetTexCoord (1, 0, 0, 1)
-		
-		g:NewLabel (window, _, "$parentChangeMind4Label", "changemind4Label", Loc ["STRING_WELCOME_11"], "GameFontNormal", 9, "orange")
-		window.changemind4Label:SetPoint ("center", window, "center")
-		window.changemind4Label:SetPoint ("bottom", window, "bottom", 0, 19)
-		window.changemind4Label.align = "|"
-		
-		local texto4 = window:CreateFontString (nil, "overlay", "GameFontNormal")
-		texto4:SetPoint ("topleft", window, "topleft", 20, -80)
-		texto4:SetText (Loc ["STRING_WELCOME_41"])
-		
-		local interval_text = window:CreateFontString (nil, "overlay", "GameFontNormal")
-		interval_text:SetText (Loc ["STRING_WELCOME_12"])
-		interval_text:SetWidth (460)
-		interval_text:SetHeight (40)
-		interval_text:SetJustifyH ("left")
-		interval_text:SetJustifyV ("top")
-		interval_text:SetTextColor (1, 1, 1, 1)
-		interval_text:SetPoint ("topleft", window, "topleft", 30, -110)
-		
-		local dance_text = window:CreateFontString (nil, "overlay", "GameFontNormal")
-		dance_text:SetText (Loc ["STRING_WELCOME_13"])
-		dance_text:SetWidth (460)
-		dance_text:SetHeight (40)
-		dance_text:SetJustifyH ("left")
-		dance_text:SetJustifyV ("top")
-		dance_text:SetTextColor (1, 1, 1, 1)
-		dance_text:SetPoint ("topleft", window, "topleft", 30, -175)
-		
-	--------------- Update Speed
-		g:NewLabel (window, _, "$parentUpdateSpeedLabel", "updatespeedLabel", Loc ["STRING_WELCOME_14"])
-		window.updatespeedLabel:SetPoint (31, -150)
-		--
-		g:NewSlider (window, _, "$parentSliderUpdateSpeed", "updatespeedSlider", 160, 20, 0.3, 3, 0.1, _detalhes.update_speed, true) --parent, container, name, member, w, h, min, max, step, defaultv
-		window.updatespeedSlider:SetPoint ("left", window.updatespeedLabel, "right", 2, 0)
-		window.updatespeedSlider:SetThumbSize (50)
-		window.updatespeedSlider.useDecimals = true
-		local updateColor = function (slider, value)
-			if (value < 1) then
-				slider.amt:SetTextColor (1, value, 0)
-			elseif (value > 1) then
-				slider.amt:SetTextColor (-(value-3), 1, 0)
-			else
-				slider.amt:SetTextColor (1, 1, 0)
-			end
-		end
-		window.updatespeedSlider:SetHook ("OnValueChange", function (self, _, amount) 
-			_detalhes:CancelTimer (_detalhes.atualizador)
-			_detalhes.update_speed = amount
-			_detalhes.atualizador = _detalhes:ScheduleRepeatingTimer ("AtualizaGumpPrincipal", _detalhes.update_speed, -1)
-			updateColor (self, amount)
-		end)
-		updateColor (window.updatespeedSlider, _detalhes.update_speed)
-		
-		window.updatespeedSlider.tooltip = Loc ["STRING_WELCOME_15"]
-		
-	--------------- Animate Rows
-		g:NewLabel (window, _, "$parentAnimateLabel", "animateLabel", Loc ["STRING_WELCOME_16"])
-		window.animateLabel:SetPoint (31, -195)
-		--
-		g:NewSwitch (window, _, "$parentAnimateSlider", "animateSlider", 60, 20, _, _, _detalhes.use_row_animations) -- ltext, rtext, defaultv
-		window.animateSlider:SetPoint ("left",window.animateLabel, "right", 2, 0)
-		window.animateSlider.OnSwitch = function (self, _, value) --> slider, fixedValue, sliderValue (false, true)
-			_detalhes.use_row_animations = value
-		end	
-		window.animateSlider.tooltip = Loc ["STRING_WELCOME_17"]
-		
-		pages [#pages+1] = {bg, texto4, interval_text, dance_text, window.updatespeedLabel, window.updatespeedSlider, window.animateLabel, window.animateSlider, window.changemind4Label}
-		
-		for _, widget in ipairs (pages[#pages]) do 
-			widget:Hide()
-		end
-		
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---> page 5
-
-		local bg44 = window:CreateTexture (nil, "overlay")
-		bg44:SetTexture ([[Interface\MainMenuBar\UI-MainMenuBar-EndCap-Human]])
-		bg44:SetPoint ("bottomright", window, "bottomright", -10, 10)
-		bg44:SetHeight (125*3)--125
-		bg44:SetWidth (89*3)--82
-		bg44:SetAlpha (.1)
-		bg44:SetTexCoord (1, 0, 0, 1)
-		
-		g:NewLabel (window, _, "$parentChangeMind44Label", "changemind44Label", Loc ["STRING_WELCOME_18"], "GameFontNormal", 9, "orange")
-		window.changemind44Label:SetPoint ("center", window, "center")
-		window.changemind44Label:SetPoint ("bottom", window, "bottom", 0, 19)
-		window.changemind44Label.align = "|"
-		
-		local texto44 = window:CreateFontString (nil, "overlay", "GameFontNormal")
-		texto44:SetPoint ("topleft", window, "topleft", 20, -80)
-		texto44:SetText (Loc ["STRING_WELCOME_19"])
-		
-		local interval_text4 = window:CreateFontString (nil, "overlay", "GameFontNormal")
-		interval_text4:SetText (Loc ["STRING_WELCOME_20"])
-		interval_text4:SetWidth (460)
-		interval_text4:SetHeight (60)
-		interval_text4:SetJustifyH ("left")
-		interval_text4:SetJustifyV ("top")
-		interval_text4:SetTextColor (1, 1, 1, 1)
-		interval_text4:SetPoint ("topleft", window, "topleft", 30, -110)
-		
-		--[[
-		local dance_text = window:CreateFontString (nil, "overlay", "GameFontNormal")
-		dance_text:SetText ("Low amount of segments can keep memory .")
-		dance_text:SetWidth (460)
-		dance_text:SetHeight (40)
-		dance_text:SetJustifyH ("left")
-		dance_text:SetJustifyV ("top")
-		dance_text:SetTextColor (1, 1, 1, 1)
-		dance_text:SetPoint ("topleft", window, "topleft", 30, -170)
-		--]]
-	--------------- Max Segments
-		g:NewLabel (window, _, "$parentSliderLabel", "segmentsLabel", Loc ["STRING_WELCOME_21"])
-		window.segmentsLabel:SetPoint (31, -170)
-		--
-		g:NewSlider (window, _, "$parentSlider", "segmentsSlider", 120, 20, 1, 25, 1, _detalhes.segments_amount) -- min, max, step, defaultv
-		window.segmentsSlider:SetPoint ("left", window.segmentsLabel, "right", 2, 0)
-		window.segmentsSlider:SetHook ("OnValueChange", function (self, _, amount) --> slider, fixedValue, sliderValue
-			_detalhes.segments_amount = math.floor (amount)
-		end)
-		window.segmentsSlider.tooltip = Loc ["STRING_WELCOME_22"]
-		
-	--------------- memory
-		g:NewLabel (window, _, "$parentLabelMemory", "memoryLabel", Loc ["STRING_WELCOME_23"])
-		window.memoryLabel:SetPoint (31, -185)
-		--
-		g:NewSlider (window, _, "$parentSliderMemory", "memorySlider", 130, 20, 1, 4, 1, _detalhes.memory_threshold) -- min, max, step, defaultv
-		window.memorySlider:SetPoint ("left", window.memoryLabel, "right", 2, 0)
-		window.memorySlider:SetHook ("OnValueChange", function (slider, _, amount) --> slider, fixedValue, sliderValue
-			
-			amount = math.floor (amount)
-			
-			if (amount == 1) then
-				slider.amt:SetText ("<= 1gb")
-				_detalhes.memory_ram = 16
-			elseif (amount == 2) then
-				slider.amt:SetText ("2gb")
-				_detalhes.memory_ram = 32
-			elseif (amount == 3) then
-				slider.amt:SetText ("4gb")
-				_detalhes.memory_ram = 64
-			elseif (amount == 4) then
-				slider.amt:SetText (">= 6gb")
-				_detalhes.memory_ram = 128
-			end
-			
-			_detalhes.memory_threshold = amount
-			return true
-		end)
-		window.memorySlider.tooltip = Loc ["STRING_WELCOME_24"]
-		window.memorySlider.thumb:SetSize (40, 10)
-		window.memorySlider.thumb:SetTexture ([[Interface\Buttons\UI-Listbox-Highlight2]])
-		window.memorySlider.thumb:SetVertexColor (.2, .2, .2, .9)
-		local t = _detalhes.memory_threshold
-		window.memorySlider:SetValue (1)
-		window.memorySlider:SetValue (2)
-		window.memorySlider:SetValue (t)
-		
-	--------------- Max Segments Saved
-		g:NewLabel (window, _, "$parentLabelSegmentsSave", "segmentsSaveLabel", Loc ["STRING_WELCOME_25"])
-		window.segmentsSaveLabel:SetPoint (31, -200)
-		--
-		g:NewSlider (window, _, "$parentSliderSegmentsSave", "segmentsSliderToSave", 120, 20, 1, 5, 1, _detalhes.segments_amount_to_save) -- min, max, step, defaultv
-		window.segmentsSliderToSave:SetPoint ("left", window.segmentsSaveLabel, "right")
-		window.segmentsSliderToSave:SetHook ("OnValueChange", function (self, _, amount) --> slider, fixedValue, sliderValue
-			_detalhes.segments_amount_to_save = math.floor (amount)
-		end)
-		window.segmentsSliderToSave.tooltip = "High values may increase the time between a\nlogout button click and your character selection screen.\n\nIf you rarely check 'last day data', it`s high recommeded save only 1."
-		
-		pages [#pages+1] = {bg44, window.changemind44Label, texto44, interval_text4, window.memorySlider, window.memoryLabel, window.segmentsLabel, window.segmentsSlider, window.segmentsSaveLabel, window.segmentsSliderToSave}
-		
-		for _, widget in ipairs (pages[#pages]) do 
-			widget:Hide()
-		end
-		
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---> page 5.5
+	--SKINS
 
 		local bg55 = window:CreateTexture (nil, "overlay")
 		bg55:SetTexture ([[Interface\MainMenuBar\UI-MainMenuBar-EndCap-Human]])
@@ -943,6 +622,8 @@ function _detalhes:OpenWelcomeWindow ()
 						end
 						instance.wallpaper.texcoord = {0, 1, 0, 0.703125}
 					end
+					
+					instance.wallpaper.alpha = 0.35
 
 					instance:InstanceWallpaper (true)
 				else
@@ -955,6 +636,405 @@ function _detalhes:OpenWelcomeWindow ()
 		for _, widget in ipairs (pages[#pages]) do 
 			widget:Hide()
 		end
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> page 2
+		
+	-- DPS effective or active
+		
+		local ampulheta = window:CreateTexture (nil, "overlay")
+		ampulheta:SetTexture ([[Interface\MainMenuBar\UI-MainMenuBar-EndCap-Human]])
+		ampulheta:SetPoint ("bottomright", window, "bottomright", -10, 10)
+		ampulheta:SetHeight (125*3)--125
+		ampulheta:SetWidth (89*3)--82
+		ampulheta:SetAlpha (.1)
+		ampulheta:SetTexCoord (1, 0, 0, 1)		
+		
+		g:NewLabel (window, _, "$parentChangeMind2Label", "changemind2Label", Loc ["STRING_WELCOME_2"], "GameFontNormal", 9, "orange")
+		window.changemind2Label:SetPoint ("center", window, "center")
+		window.changemind2Label:SetPoint ("bottom", window, "bottom", 0, 19)
+		window.changemind2Label.align = "|"
+
+		local texto2 = window:CreateFontString (nil, "overlay", "GameFontNormal")
+		texto2:SetPoint ("topleft", window, "topleft", 20, -80)
+		texto2:SetText (Loc ["STRING_WELCOME_3"])
+		
+		local chronometer = CreateFrame ("CheckButton", "WelcomeWindowChronometer", window, "ChatConfigCheckButtonTemplate")
+		chronometer:SetPoint ("topleft", window, "topleft", 40, -110)
+		local continuous = CreateFrame ("CheckButton", "WelcomeWindowContinuous", window, "ChatConfigCheckButtonTemplate")
+		continuous:SetPoint ("topleft", window, "topleft", 40, -160)
+		
+		_G ["WelcomeWindowChronometerText"]:SetText (Loc ["STRING_WELCOME_4"])
+		_G ["WelcomeWindowContinuousText"]:SetText (Loc ["STRING_WELCOME_5"])
+		
+		local chronometer_text = window:CreateFontString (nil, "overlay", "GameFontNormal")
+		chronometer_text:SetText (Loc ["STRING_WELCOME_6"])
+		chronometer_text:SetWidth (360)
+		chronometer_text:SetHeight (40)
+		chronometer_text:SetJustifyH ("left")
+		chronometer_text:SetJustifyV ("top")
+		chronometer_text:SetTextColor (.8, .8, .8, 1)
+		chronometer_text:SetPoint ("topleft", _G ["WelcomeWindowChronometerText"], "topright", 0, 0)
+		
+		local continuous_text = window:CreateFontString (nil, "overlay", "GameFontNormal")
+		continuous_text:SetText (Loc ["STRING_WELCOME_7"])
+		continuous_text:SetWidth (340)
+		continuous_text:SetHeight (40)
+		continuous_text:SetJustifyH ("left")
+		continuous_text:SetJustifyV ("top")
+		continuous_text:SetTextColor (.8, .8, .8, 1)
+		continuous_text:SetPoint ("topleft", _G ["WelcomeWindowContinuousText"], "topright", 0, 0)
+		
+		chronometer:SetHitRectInsets (0, -70, 0, 0)
+		continuous:SetHitRectInsets (0, -70, 0, 0)
+		
+		if (_detalhes.time_type == 1) then --> chronometer
+			chronometer:SetChecked (true)
+			continuous:SetChecked (false)
+		elseif (_detalhes.time_type == 2) then --> continuous
+			chronometer:SetChecked (false)
+			continuous:SetChecked (true)
+		end
+		
+		chronometer:SetScript ("OnClick", function() continuous:SetChecked (false); _detalhes.time_type = 1 end)
+		continuous:SetScript ("OnClick", function() chronometer:SetChecked (false); _detalhes.time_type = 2 end)
+		
+		pages [#pages+1] = {ampulheta, texto2, chronometer, continuous, chronometer_text, continuous_text, window.changemind2Label}
+		for _, widget in ipairs (pages[#pages]) do 
+			widget:Hide()
+		end
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> page 3
+
+	--CAPTURES
+
+		local mecanica = window:CreateTexture (nil, "overlay")
+		mecanica:SetTexture ([[Interface\MainMenuBar\UI-MainMenuBar-EndCap-Human]])
+		mecanica:SetPoint ("bottomright", window, "bottomright", -10, 10)
+		mecanica:SetHeight (125*3)--125
+		mecanica:SetWidth (89*3)--82
+		mecanica:SetAlpha (.1)
+		mecanica:SetTexCoord (1, 0, 0, 1)	
+		
+		g:NewLabel (window, _, "$parentChangeMind3Label", "changemind3Label", Loc ["STRING_WELCOME_8"], "GameFontNormal", 9, "orange")
+		window.changemind3Label:SetPoint ("center", window, "center")
+		window.changemind3Label:SetPoint ("bottom", window, "bottom", 0, 19)
+		window.changemind3Label.align = "|"
+		
+		local texto3 = window:CreateFontString (nil, "overlay", "GameFontNormal")
+		texto3:SetPoint ("topleft", window, "topleft", 20, -80)
+		texto3:SetText (Loc ["STRING_WELCOME_40"])
+		
+		local data_text = window:CreateFontString (nil, "overlay", "GameFontNormal")
+		data_text:SetText (Loc ["STRING_WELCOME_9"])
+		data_text:SetWidth (460)
+		data_text:SetHeight (40)
+		data_text:SetJustifyH ("left")
+		data_text:SetJustifyV ("top")
+		data_text:SetTextColor (1, 1, 1, 1)
+		data_text:SetPoint ("topleft", window, "topleft", 30, -105)
+		
+		local data_text2 = window:CreateFontString (nil, "overlay", "GameFontNormal")
+		--data_text2:SetText ("Tip: for a best experience, it's recommend leave all turned on.")
+		data_text2:SetText (Loc ["STRING_WELCOME_10"])
+		data_text2:SetWidth (460)
+		data_text2:SetHeight (40)
+		data_text2:SetJustifyH ("left")
+		data_text2:SetJustifyV ("top")
+		data_text2:SetTextColor (1, 1, 1, 1)
+		data_text2:SetPoint ("topleft", window, "topleft", 30, -201)
+		
+	--------------- Captures
+		g:NewImage (window, [[Interface\AddOns\Details\images\atributos_captures]], 20, 20, nil, nil, "damageCaptureImage", "$parentCaptureDamage2")
+		window.damageCaptureImage:SetPoint (35, -155)
+		window.damageCaptureImage:SetTexCoord (0, 0.125, 0, 1)
+		
+		g:NewImage (window, [[Interface\AddOns\Details\images\atributos_captures]], 20, 20, nil, nil, "healCaptureImage", "$parentCaptureHeal2")
+		window.healCaptureImage:SetPoint (170, -155)
+		window.healCaptureImage:SetTexCoord (0.125, 0.25, 0, 1)
+		
+		g:NewImage (window, [[Interface\AddOns\Details\images\atributos_captures]], 20, 20, nil, nil, "energyCaptureImage", "$parentCaptureEnergy2")
+		window.energyCaptureImage:SetPoint (305, -155)
+		window.energyCaptureImage:SetTexCoord (0.25, 0.375, 0, 1)
+		
+		g:NewImage (window, [[Interface\AddOns\Details\images\atributos_captures]], 20, 20, nil, nil, "miscCaptureImage", "$parentCaptureMisc2")
+		window.miscCaptureImage:SetPoint (35, -175)
+		window.miscCaptureImage:SetTexCoord (0.375, 0.5, 0, 1)
+		
+		g:NewImage (window, [[Interface\AddOns\Details\images\atributos_captures]], 20, 20, nil, nil, "auraCaptureImage", "$parentCaptureAura2")
+		window.auraCaptureImage:SetPoint (170, -175)
+		window.auraCaptureImage:SetTexCoord (0.5, 0.625, 0, 1)
+		
+		g:NewLabel (window, _, "$parentCaptureDamageLabel", "damageCaptureLabel", "Damage")
+		window.damageCaptureLabel:SetPoint ("left", window.damageCaptureImage, "right", 2)
+		g:NewLabel (window, _, "$parentCaptureDamageLabel", "healCaptureLabel", "Healing")
+		window.healCaptureLabel:SetPoint ("left", window.healCaptureImage, "right", 2)
+		g:NewLabel (window, _, "$parentCaptureDamageLabel", "energyCaptureLabel", "Energy")
+		window.energyCaptureLabel:SetPoint ("left", window.energyCaptureImage, "right", 2)
+		g:NewLabel (window, _, "$parentCaptureDamageLabel", "miscCaptureLabel", "Misc")
+		window.miscCaptureLabel:SetPoint ("left", window.miscCaptureImage, "right", 2)
+		g:NewLabel (window, _, "$parentCaptureDamageLabel", "auraCaptureLabel", "Auras")
+		window.auraCaptureLabel:SetPoint ("left", window.auraCaptureImage, "right", 2)
+		
+		local switch_icon_color = function (icon, on_off)
+			icon:SetDesaturated (not on_off)
+		end
+		
+		g:NewSwitch (window, _, "$parentCaptureDamageSlider", "damageCaptureSlider", 60, 20, _, _, _detalhes.capture_real ["damage"])
+		window.damageCaptureSlider:SetPoint ("left", window.damageCaptureLabel, "right", 2)
+		window.damageCaptureSlider.tooltip = "Pause or enable capture of:\n- damage done\n- damage per second\n- friendly fire\n- damage taken"
+		window.damageCaptureSlider.OnSwitch = function (self, _, value)
+			_detalhes:CaptureSet (value, "damage", true)
+			switch_icon_color (window.damageCaptureImage, value)
+		end
+		switch_icon_color (window.damageCaptureImage, _detalhes.capture_real ["damage"])
+		
+		g:NewSwitch (window, _, "$parentCaptureHealSlider", "healCaptureSlider", 60, 20, _, _, _detalhes.capture_real ["heal"])
+		window.healCaptureSlider:SetPoint ("left", window.healCaptureLabel, "right", 2)
+		window.healCaptureSlider.tooltip = "Pause or enable capture of:\n- healing done\n- absorbs\n- healing per second\n- overheal\n- healing taken\n- enemy healed"
+		window.healCaptureSlider.OnSwitch = function (self, _, value)
+			_detalhes:CaptureSet (value, "heal", true)
+			switch_icon_color (window.healCaptureImage, value)
+		end
+		switch_icon_color (window.healCaptureImage, _detalhes.capture_real ["heal"])
+		
+		g:NewSwitch (window, _, "$parentCaptureEnergySlider", "energyCaptureSlider", 60, 20, _, _, _detalhes.capture_real ["energy"])
+		window.energyCaptureSlider:SetPoint ("left", window.energyCaptureLabel, "right", 2)
+		window.energyCaptureSlider.tooltip = "Pause or enable capture of:\n- mana restored\n- rage generated\n- energy generated\n- runic power generated"
+		window.energyCaptureSlider.OnSwitch = function (self, _, value)
+			_detalhes:CaptureSet (value, "energy", true)
+			switch_icon_color (window.energyCaptureImage, value)
+		end
+		switch_icon_color (window.energyCaptureImage, _detalhes.capture_real ["energy"])
+		
+		g:NewSwitch (window, _, "$parentCaptureMiscSlider", "miscCaptureSlider", 60, 20, _, _, _detalhes.capture_real ["miscdata"])
+		window.miscCaptureSlider:SetPoint ("left", window.miscCaptureLabel, "right", 2)
+		window.miscCaptureSlider.tooltip = "Pause or enable capture of:\n- cc breaks\n- dispell\n- interrupts\n- ress\n- deaths\n- frags"
+		window.miscCaptureSlider.OnSwitch = function (self, _, value)
+			_detalhes:CaptureSet (value, "miscdata", true)
+			switch_icon_color (window.miscCaptureImage, value)
+		end
+		switch_icon_color (window.miscCaptureImage, _detalhes.capture_real ["miscdata"])
+		
+		g:NewSwitch (window, _, "$parentCaptureAuraSlider", "auraCaptureSlider", 60, 20, _, _, _detalhes.capture_real ["aura"])
+		window.auraCaptureSlider:SetPoint ("left", window.auraCaptureLabel, "right", 2)
+		window.auraCaptureSlider.tooltip = "Pause or enable capture of:\n- buffs uptime\n- debuffs uptime\n- void zones\n- cooldowns"
+		window.auraCaptureSlider.OnSwitch = function (self, _, value)
+			_detalhes:CaptureSet (value, "aura", true)
+			switch_icon_color (window.auraCaptureImage, value)
+		end
+		switch_icon_color (window.auraCaptureImage, _detalhes.capture_real ["aura"])		
+		
+		pages [#pages+1] = {mecanica, texto3, data_text, window.damageCaptureImage, window.healCaptureImage, window.energyCaptureImage, window.miscCaptureImage,
+		window.auraCaptureImage, window.damageCaptureSlider, window.healCaptureSlider, window.energyCaptureSlider, window.miscCaptureSlider, window.auraCaptureSlider, 
+		window.damageCaptureLabel, window.healCaptureLabel, window.energyCaptureLabel, window.miscCaptureLabel, window.auraCaptureLabel, data_text2, window.changemind3Label}
+		
+		for _, widget in ipairs (pages[#pages]) do 
+			widget:Hide()
+		end
+		
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> page 4
+
+	-- UPDATE SPEED
+		
+		local bg = window:CreateTexture (nil, "overlay")
+		bg:SetTexture ([[Interface\MainMenuBar\UI-MainMenuBar-EndCap-Human]])
+		bg:SetPoint ("bottomright", window, "bottomright", -10, 10)
+		bg:SetHeight (125*3)--125
+		bg:SetWidth (89*3)--82
+		bg:SetAlpha (.1)
+		bg:SetTexCoord (1, 0, 0, 1)
+		
+		g:NewLabel (window, _, "$parentChangeMind4Label", "changemind4Label", Loc ["STRING_WELCOME_11"], "GameFontNormal", 9, "orange")
+		window.changemind4Label:SetPoint ("center", window, "center")
+		window.changemind4Label:SetPoint ("bottom", window, "bottom", 0, 19)
+		window.changemind4Label.align = "|"
+		
+		local texto4 = window:CreateFontString (nil, "overlay", "GameFontNormal")
+		texto4:SetPoint ("topleft", window, "topleft", 20, -80)
+		texto4:SetText (Loc ["STRING_WELCOME_41"])
+		
+		local interval_text = window:CreateFontString (nil, "overlay", "GameFontNormal")
+		interval_text:SetText (Loc ["STRING_WELCOME_12"])
+		interval_text:SetWidth (460)
+		interval_text:SetHeight (40)
+		interval_text:SetJustifyH ("left")
+		interval_text:SetJustifyV ("top")
+		interval_text:SetTextColor (1, 1, 1, 1)
+		interval_text:SetPoint ("topleft", window, "topleft", 30, -110)
+		
+		local dance_text = window:CreateFontString (nil, "overlay", "GameFontNormal")
+		dance_text:SetText (Loc ["STRING_WELCOME_13"])
+		dance_text:SetWidth (460)
+		dance_text:SetHeight (40)
+		dance_text:SetJustifyH ("left")
+		dance_text:SetJustifyV ("top")
+		dance_text:SetTextColor (1, 1, 1, 1)
+		dance_text:SetPoint ("topleft", window, "topleft", 30, -175)
+		
+	--------------- Update Speed
+		g:NewLabel (window, _, "$parentUpdateSpeedLabel", "updatespeedLabel", Loc ["STRING_WELCOME_14"])
+		window.updatespeedLabel:SetPoint (31, -150)
+		--
+		
+		g:NewSlider (window, _, "$parentSliderUpdateSpeed", "updatespeedSlider", 160, 20, 0.3, 3, 0.1, _detalhes.update_speed, true) --parent, container, name, member, w, h, min, max, step, defaultv
+		window.updatespeedSlider:SetPoint ("left", window.updatespeedLabel, "right", 2, 0)
+		window.updatespeedSlider:SetThumbSize (50)
+		window.updatespeedSlider.useDecimals = true
+		local updateColor = function (slider, value)
+			if (value < 1) then
+				slider.amt:SetTextColor (1, value, 0)
+			elseif (value > 1) then
+				slider.amt:SetTextColor (-(value-3), 1, 0)
+			else
+				slider.amt:SetTextColor (1, 1, 0)
+			end
+		end
+		window.updatespeedSlider:SetHook ("OnValueChange", function (self, _, amount) 
+			_detalhes:CancelTimer (_detalhes.atualizador)
+			_detalhes.update_speed = amount
+			_detalhes.atualizador = _detalhes:ScheduleRepeatingTimer ("AtualizaGumpPrincipal", _detalhes.update_speed, -1)
+			updateColor (self, amount)
+		end)
+		updateColor (window.updatespeedSlider, _detalhes.update_speed)
+		
+		window.updatespeedSlider:SetHook ("OnEnter", function()
+			_detalhes:CooltipPreset (1)
+			GameCooltip:AddLine (Loc ["STRING_WELCOME_15"])
+			GameCooltip:ShowCooltip (window.updatespeedSlider, "tooltip")
+			return true
+		end)
+		
+		window.updatespeedSlider.tooltip = Loc ["STRING_WELCOME_15"]
+		
+	--------------- Animate Rows
+		g:NewLabel (window, _, "$parentAnimateLabel", "animateLabel", Loc ["STRING_WELCOME_16"])
+		window.animateLabel:SetPoint (31, -175)
+		--
+		g:NewSwitch (window, _, "$parentAnimateSlider", "animateSlider", 60, 20, _, _, _detalhes.use_row_animations) -- ltext, rtext, defaultv
+		window.animateSlider:SetPoint ("left",window.animateLabel, "right", 2, 0)
+		window.animateSlider.OnSwitch = function (self, _, value) --> slider, fixedValue, sliderValue (false, true)
+			_detalhes.use_row_animations = value
+		end	
+		window.animateSlider.tooltip = Loc ["STRING_WELCOME_17"]
+		
+		pages [#pages+1] = {bg, texto4, interval_text, dance_text, window.updatespeedLabel, window.updatespeedSlider, window.animateLabel, window.animateSlider, window.changemind4Label}
+		
+		for _, widget in ipairs (pages[#pages]) do 
+			widget:Hide()
+		end
+		
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> page 5
+
+	--max segments, memory
+
+		local bg44 = window:CreateTexture (nil, "overlay")
+		bg44:SetTexture ([[Interface\MainMenuBar\UI-MainMenuBar-EndCap-Human]])
+		bg44:SetPoint ("bottomright", window, "bottomright", -10, 10)
+		bg44:SetHeight (125*3)--125
+		bg44:SetWidth (89*3)--82
+		bg44:SetAlpha (.1)
+		bg44:SetTexCoord (1, 0, 0, 1)
+		
+		g:NewLabel (window, _, "$parentChangeMind44Label", "changemind44Label", Loc ["STRING_WELCOME_18"], "GameFontNormal", 9, "orange")
+		window.changemind44Label:SetPoint ("center", window, "center")
+		window.changemind44Label:SetPoint ("bottom", window, "bottom", 0, 19)
+		window.changemind44Label.align = "|"
+		
+		local texto44 = window:CreateFontString (nil, "overlay", "GameFontNormal")
+		texto44:SetPoint ("topleft", window, "topleft", 20, -80)
+		texto44:SetText (Loc ["STRING_WELCOME_19"])
+		
+		local interval_text4 = window:CreateFontString (nil, "overlay", "GameFontNormal")
+		interval_text4:SetText (Loc ["STRING_WELCOME_20"])
+		interval_text4:SetWidth (460)
+		interval_text4:SetHeight (60)
+		interval_text4:SetJustifyH ("left")
+		interval_text4:SetJustifyV ("top")
+		interval_text4:SetTextColor (1, 1, 1, 1)
+		interval_text4:SetPoint ("topleft", window, "topleft", 30, -110)
+		
+		--[[
+		local dance_text = window:CreateFontString (nil, "overlay", "GameFontNormal")
+		dance_text:SetText ("Low amount of segments can keep memory .")
+		dance_text:SetWidth (460)
+		dance_text:SetHeight (40)
+		dance_text:SetJustifyH ("left")
+		dance_text:SetJustifyV ("top")
+		dance_text:SetTextColor (1, 1, 1, 1)
+		dance_text:SetPoint ("topleft", window, "topleft", 30, -170)
+		--]]
+	--------------- Max Segments
+		g:NewLabel (window, _, "$parentSliderLabel", "segmentsLabel", Loc ["STRING_WELCOME_21"])
+		window.segmentsLabel:SetPoint (31, -170)
+		--
+		g:NewSlider (window, _, "$parentSlider", "segmentsSlider", 120, 20, 1, 25, 1, _detalhes.segments_amount) -- min, max, step, defaultv
+		window.segmentsSlider:SetPoint ("left", window.segmentsLabel, "right", 2, 0)
+		window.segmentsSlider:SetHook ("OnValueChange", function (self, _, amount) --> slider, fixedValue, sliderValue
+			_detalhes.segments_amount = math.floor (amount)
+		end)
+		window.segmentsSlider.tooltip = Loc ["STRING_WELCOME_22"]
+		
+	--------------- memory
+		g:NewLabel (window, _, "$parentLabelMemory", "memoryLabel", Loc ["STRING_WELCOME_23"])
+		window.memoryLabel:SetPoint (31, -185)
+		--
+		g:NewSlider (window, _, "$parentSliderMemory", "memorySlider", 130, 20, 1, 4, 1, _detalhes.memory_threshold) -- min, max, step, defaultv
+		window.memorySlider:SetPoint ("left", window.memoryLabel, "right", 2, 0)
+		window.memorySlider:SetHook ("OnValueChange", function (slider, _, amount) --> slider, fixedValue, sliderValue
+			
+			amount = math.floor (amount)
+			
+			if (amount == 1) then
+				slider.amt:SetText ("<= 1gb")
+				_detalhes.memory_ram = 16
+			elseif (amount == 2) then
+				slider.amt:SetText ("2gb")
+				_detalhes.memory_ram = 32
+			elseif (amount == 3) then
+				slider.amt:SetText ("4gb")
+				_detalhes.memory_ram = 64
+			elseif (amount == 4) then
+				slider.amt:SetText (">= 6gb")
+				_detalhes.memory_ram = 128
+			end
+			
+			_detalhes.memory_threshold = amount
+			return true
+		end)
+		window.memorySlider.tooltip = Loc ["STRING_WELCOME_24"]
+		window.memorySlider.thumb:SetSize (40, 10)
+		window.memorySlider.thumb:SetTexture ([[Interface\Buttons\UI-Listbox-Highlight2]])
+		window.memorySlider.thumb:SetVertexColor (.2, .2, .2, .9)
+		local t = _detalhes.memory_threshold
+		window.memorySlider:SetValue (1)
+		window.memorySlider:SetValue (2)
+		window.memorySlider:SetValue (t)
+		
+	--------------- Max Segments Saved
+		g:NewLabel (window, _, "$parentLabelSegmentsSave", "segmentsSaveLabel", Loc ["STRING_WELCOME_25"])
+		window.segmentsSaveLabel:SetPoint (31, -200)
+		--
+		g:NewSlider (window, _, "$parentSliderSegmentsSave", "segmentsSliderToSave", 120, 20, 1, 5, 1, _detalhes.segments_amount_to_save) -- min, max, step, defaultv
+		window.segmentsSliderToSave:SetPoint ("left", window.segmentsSaveLabel, "right")
+		window.segmentsSliderToSave:SetHook ("OnValueChange", function (self, _, amount) --> slider, fixedValue, sliderValue
+			_detalhes.segments_amount_to_save = math.floor (amount)
+		end)
+		window.segmentsSliderToSave.tooltip = "High values may increase the time between a\nlogout button click and your character selection screen.\n\nIf you rarely check 'last day data', it`s high recommeded save only 1."
+		
+		pages [#pages+1] = {bg44, window.changemind44Label, texto44, interval_text4, window.memorySlider, window.memoryLabel, window.segmentsLabel, window.segmentsSlider, window.segmentsSaveLabel, window.segmentsSliderToSave}
+		
+		for _, widget in ipairs (pages[#pages]) do 
+			widget:Hide()
+		end
+		
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> page 5.5
+
+
 		
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> page 6
@@ -1243,7 +1323,7 @@ function _detalhes:OpenWelcomeWindow ()
 		--forward:Click()
 		--forward:Click()
 		--]]
-		
+
 	end
 	
 end
