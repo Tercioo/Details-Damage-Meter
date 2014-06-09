@@ -120,7 +120,7 @@ function _detalhes:OpenWelcomeWindow ()
 		end
 		_detalhes:ScheduleTimer ("WelcomeSetLoc", 5)
 
---/script local f=CreateFrame("frame");local g=false;f:SetScript("OnUpdate",function(s,e)if not g then local r=math.random for i=1,5000000 do local a=r(1,1000000);a=a+1 end g=true else print(string.format("cpu: %.3f",e));f:SetScript("OnUpdate",nil)end end)
+--/script local f=CreateFrame("frame");local g=false;f:SetScript("OnUpdate",function(s,e)if not g then local r=math.random for i=1,2500000 do local a=r(1,1000000);a=a+1 end g=true else print(string.format("cpu: %.3f",e));f:SetScript("OnUpdate",nil)end end)
 	
 	function _detalhes:CalcCpuPower()
 		local f = CreateFrame ("frame")
@@ -138,7 +138,11 @@ function _detalhes:OpenWelcomeWindow ()
 			elseif (not InCombatLockdown()) then
 				--print ("process time:", elapsed)
 				
-				if (elapsed < 0.375) then
+				if (elapsed < 0.295) then
+					_detalhes.use_row_animations = true
+					_detalhes.update_speed = 0.05
+				
+				elseif (elapsed < 0.375) then
 					_detalhes.use_row_animations = true
 					_detalhes.update_speed = 0.3
 					
@@ -879,7 +883,7 @@ function _detalhes:OpenWelcomeWindow ()
 		window.updatespeedLabel:SetPoint (31, -150)
 		--
 		
-		g:NewSlider (window, _, "$parentSliderUpdateSpeed", "updatespeedSlider", 160, 20, 0.3, 3, 0.1, _detalhes.update_speed, true) --parent, container, name, member, w, h, min, max, step, defaultv
+		g:NewSlider (window, _, "$parentSliderUpdateSpeed", "updatespeedSlider", 160, 20, 0.050, 3, 0.050, _detalhes.update_speed, true) --parent, container, name, member, w, h, min, max, step, defaultv
 		window.updatespeedSlider:SetPoint ("left", window.updatespeedLabel, "right", 2, 0)
 		window.updatespeedSlider:SetThumbSize (50)
 		window.updatespeedSlider.useDecimals = true

@@ -501,7 +501,7 @@ function atributo_energy:RefreshBarra2 (esta_barra, instancia, tabela_anterior, 
 			
 				esta_barra.last_value = esta_porcentagem --> reseta o ultimo valor da barra
 				
-				if (instancia.use_row_animations and forcar) then
+				if (_detalhes.is_using_row_animations and forcar) then
 					esta_barra.tem_animacao = 0
 					esta_barra:SetScript ("OnUpdate", nil)
 				end
@@ -510,7 +510,7 @@ function atributo_energy:RefreshBarra2 (esta_barra, instancia, tabela_anterior, 
 				
 			elseif (esta_porcentagem ~= esta_barra.last_value) then --> continua mostrando a mesma tabela então compara a porcentagem
 				--> apenas atualizar
-				if (instancia.use_row_animations) then
+				if (_detalhes.is_using_row_animations) then
 					
 					local upRow = barras_container [qual_barra-1]
 					if (upRow) then

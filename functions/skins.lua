@@ -437,6 +437,9 @@ local _
 		instance1.baseframe:SetPoint ("bottomleft", RightChatDataPanel, "topleft", 1, 1)
 		instance2.baseframe:SetPoint ("bottomright", RightChatToggleButton, "topright", -1, 1)
 	
+		instance1:SaveMainWindowPosition()
+		instance2:SaveMainWindowPosition()
+	
 	end
 	
 

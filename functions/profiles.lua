@@ -572,8 +572,9 @@ local default_profile = {
 		overall_clear_newchallenge = true,
 	
 	--> skins
-		standard_skin = false, --?
-		skin = "Default Skin", --?
+		standard_skin = false,
+		skin = "Default Skin",
+		profile_save_pos = false,
 		
 	--> tooltip
 		tooltip = {
@@ -633,6 +634,16 @@ local default_global_data = {
 		savedCustomSpells = {},
 		savedTimeCaptures = {},
 		tutorial = {logons = 0, unlock_button = 0, version_announce = 0, main_help_button = 0, alert_frames = {false, false, false, false, false, false}, },
+		performance_profiles = {
+			["RaidFinder"] = {enabled = false, update_speed = 1, use_row_animations = false, damage = true, heal = true, aura = true, energy = false, miscdata = true},
+			["Raid15"] = {enabled = false, update_speed = 1, use_row_animations = false, damage = true, heal = true, aura = true, energy = false, miscdata = true},
+			["Raid30"] = {enabled = false, update_speed = 1, use_row_animations = false, damage = true, heal = true, aura = true, energy = false, miscdata = true},
+			["Mythic"] = {enabled = false, update_speed = 1, use_row_animations = false, damage = true, heal = true, aura = true, energy = false, miscdata = true},
+			["Battleground15"] = {enabled = false, update_speed = 1, use_row_animations = false, damage = true, heal = true, aura = true, energy = false, miscdata = true},
+			["Battleground40"] = {enabled = false, update_speed = 1, use_row_animations = false, damage = true, heal = true, aura = true, energy = false, miscdata = true},
+			["Arena"] = {enabled = false, update_speed = 1, use_row_animations = false, damage = true, heal = true, aura = true, energy = false, miscdata = true},
+			["Dungeon"] = {enabled = false, update_speed = 1, use_row_animations = false, damage = true, heal = true, aura = true, energy = false, miscdata = true},
+		}
 }
 
 _detalhes.default_global_data = default_global_data

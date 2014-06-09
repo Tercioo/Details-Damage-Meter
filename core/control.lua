@@ -5,12 +5,12 @@
 
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
 	local _detalhes = 		_G._detalhes
 	local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
 	local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
 	local _tempo = time()
 	local _
+	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> local pointers
 	
@@ -328,27 +328,11 @@
 			_detalhes:UptadeRaidMembersCache()
 			_detalhes:HaveOneCurrentInstance()
 			
-			--> hide / alpha in combat
+			--> hide / alpha / switch in combat
 			for index, instancia in ipairs (_detalhes.tabela_instancias) do 
 				if (instancia.ativa) then
-				
 					instancia:SetCombatAlpha (nil, nil, true)
-					
-					if (instancia.auto_switch_to) then
-						--salva o estado atual
-						instancia.auto_switch_to_old = {instancia.modo, instancia.atributo, instancia.sub_atributo, instancia.segmento, instancia:GetRaidPluginName(), _detalhes.SoloTables.Mode}
-						
-						--muda para um plugin de raid
-						if (instancia.auto_switch_to [1] == "raid") then
-							_detalhes.RaidTables:EnableRaidMode (instancia, instancia.auto_switch_to [2])
-						else
-							--muda para um atributo normal
-							if (instancia.modo ~= _detalhes._detalhes_props["MODO_GROUP"]) then
-								_detalhes:AlteraModo (instancia, _detalhes._detalhes_props["MODO_GROUP"])
-							end
-							_detalhes:TrocaTabela (instancia, nil, instancia.auto_switch_to [1], instancia.auto_switch_to [2])
-						end
-					end
+					instancia:CheckSwitchOnCombatStart()
 				end
 			end
 			
@@ -583,39 +567,16 @@
 					instancia:SetCombatAlpha (nil, nil, true)
 					
 					if (instancia.auto_switch_to_old) then
-						instancia:SwitchBack()
+						instancia:CheckSwitchOnCombatEnd()
 					end
 				end
 			end
 			
+			_table_wipe (_detalhes.encounter_table)
+			
 			_detalhes:SendEvent ("COMBAT_PLAYER_LEAVE", nil, _detalhes.tabela_vigente)
 		end
 		
-		--backtable indexes: [1]: mode [2]: attribute [3]: sub attribute [4]: segment [5]: raidmode index [6]: solomode index
-		
-		function _detalhes:SwitchBack()
-			local backtable = self.auto_switch_to_old
-			if (not backtable) then
-				return
-			end
-			
-			if (self.modo ~= self.auto_switch_to_old [1]) then
-				_detalhes:AlteraModo (self, self.auto_switch_to_old [1])
-			end
-			
-			if (self.modo == _detalhes._detalhes_props["MODO_RAID"]) then
-				_detalhes.RaidTables:switch (nil, self.auto_switch_to_old [5], self)
-				
-			elseif (self.modo == _detalhes._detalhes_props["MODO_ALONE"]) then
-				_detalhes.SoloTables:switch (nil, self.auto_switch_to_old [6])
-				
-			else
-				_detalhes:TrocaTabela (self, self.auto_switch_to_old [4], self.auto_switch_to_old [2], self.auto_switch_to_old [3])
-			end
-			
-			self.auto_switch_to_old = nil
-		end
-
 		function _detalhes:MakeEqualizeOnActor (player, realm, receivedActor)
 		
 			local combat = _detalhes:GetCombat ("current")

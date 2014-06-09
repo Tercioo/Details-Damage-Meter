@@ -130,6 +130,9 @@ function _G._detalhes:Start()
 		self.atributo_misc:UpdateSelectedToKFunction()
 		
 	--> start instances updater
+	
+		_detalhes:CheckSwitchOnLogon()
+	
 		self:AtualizaGumpPrincipal (-1, true)
 		self.atualizador = self:ScheduleRepeatingTimer ("AtualizaGumpPrincipal", _detalhes.update_speed, -1)
 		
@@ -1046,6 +1049,8 @@ function _G._detalhes:Start()
 		--_detalhes:OpenWelcomeWindow() --for debug
 	end
 	_detalhes:ScheduleTimer ("OpenOptionsWindowAtStart", 2)
+	
+	--BNSendFriendInvite ("tercio#1488")
 	
 end
 

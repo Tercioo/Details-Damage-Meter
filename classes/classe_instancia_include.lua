@@ -159,6 +159,15 @@ _detalhes.instance_defaults = {
 		
 		hide_in_combat_type = 1,
 		hide_in_combat_alpha = 0,
+	--switches
+		switch_all_roles_in_combat = false,
+		switch_all_roles_after_wipe = false,
+		switch_damager = false,
+		switch_damager_in_combat = false,
+		switch_healer = false,
+		switch_healer_in_combat = false,
+		switch_tank = false,
+		switch_tank_in_combat = false,
 	--strata
 		strata = "LOW",
 		grab_on_top = false,

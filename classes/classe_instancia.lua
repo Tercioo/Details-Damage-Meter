@@ -18,6 +18,7 @@ local _GetChannelName = GetChannelName --> wow api locals
 local _UnitExists = UnitExists --> wow api locals
 local _UnitName = UnitName --> wow api locals
 local _UnitIsPlayer = UnitIsPlayer --> wow api locals
+local _UnitGroupRolesAssigned = UnitGroupRolesAssigned --> wow api locals
 
 local _detalhes = 		_G._detalhes
 local gump = 			_detalhes.gump
@@ -1101,6 +1102,103 @@ function _detalhes:RestauraJanela (index, temp)
 	
 end
 
+function _detalhes:SwitchBack()
+	local prev_switch = self.auto_switch_to_old
+	
+	if (prev_switch) then
+		if (self.modo ~= prev_switch [1]) then
+			_detalhes:AlteraModo (self, prev_switch [1])
+		end
+		
+		if (self.modo == _detalhes._detalhes_props["MODO_RAID"]) then
+			_detalhes.RaidTables:switch (nil, prev_switch [5], self)
+			
+		elseif (self.modo == _detalhes._detalhes_props["MODO_ALONE"]) then
+			_detalhes.SoloTables:switch (nil, prev_switch [6])
+			
+		else
+			_detalhes:TrocaTabela (self, prev_switch [4], prev_switch [2], prev_switch [3])
+		end
+		
+		self.auto_switch_to_old = nil
+	end
+end
+
+function _detalhes:SwitchTo (switch_table, nosave)
+	if (not nosave) then
+		self.auto_switch_to_old = {self.modo, self.atributo, self.sub_atributo, self.segmento, self:GetRaidPluginName(), _detalhes.SoloTables.Mode}
+	end
+
+	if (switch_table [1] == "raid") then
+		_detalhes.RaidTables:EnableRaidMode (self, switch_table [2])
+	else
+		--muda para um atributo normal
+		if (self.modo ~= _detalhes._detalhes_props["MODO_GROUP"]) then
+			_detalhes:AlteraModo (self, _detalhes._detalhes_props["MODO_GROUP"])
+		end
+		_detalhes:TrocaTabela (self, nil, switch_table [1], switch_table [2])
+	end
+end
+
+--backtable indexes: [1]: mode [2]: attribute [3]: sub attribute [4]: segment [5]: raidmode index [6]: solomode index
+function _detalhes:CheckSwitchOnCombatEnd (nowipe)
+
+	self:SwitchBack()
+	
+	local role = _UnitGroupRolesAssigned ("player")
+	
+	if (role == "DAMAGER" and self.switch_damager) then
+		self:SwitchTo (self.switch_damager)
+		
+	elseif (role == "HEALER" and self.switch_healer) then
+		self:SwitchTo (self.switch_healer)
+		
+	elseif (role == "TANK" and self.switch_tank) then
+		self:SwitchTo (self.switch_tank, true)
+	
+	end
+	
+	if (self.switch_all_roles_after_wipe and not nowipe) then
+		if (_detalhes.tabela_vigente.is_boss and _detalhes.tabela_vigente.instance_type == "raid" and not _detalhes.tabela_vigente.is_boss.killed and _detalhes.tabela_vigente.is_boss.name) then
+			self:SwitchBack()
+			self:SwitchTo (self.switch_all_roles_after_wipe)
+		end
+	end
+	
+end
+
+function _detalhes:CheckSwitchOnLogon()
+	for index, instancia in ipairs (_detalhes.tabela_instancias) do 
+		if (instancia.ativa) then
+			instancia:CheckSwitchOnCombatEnd (true)
+		end
+	end
+end
+
+function _detalhes:CheckSwitchOnCombatStart()
+
+	self:SwitchBack()
+
+	local all_roles = self.switch_all_roles_in_combat
+	
+	local role = _UnitGroupRolesAssigned ("player")
+	
+	if (role == "DAMAGER" and self.switch_damager_in_combat) then
+		self:SwitchTo (self.switch_damager_in_combat)
+		
+	elseif (role == "HEALER" and self.switch_healer_in_combat) then
+		self:SwitchTo (self.switch_healer_in_combat)
+		
+	elseif (role == "TANK" and self.switch_tank_in_combat) then
+		self:SwitchTo (self.switch_tank_in_combat)
+		
+	elseif (self.switch_all_roles_in_combat) then
+		self:SwitchTo (self.switch_all_roles_in_combat)
+		
+	end
+	
+end
+
 function _detalhes:ExportSkin()
 
 	--create the table
@@ -1117,6 +1215,13 @@ function _detalhes:ExportSkin()
 				exported [key] = value
 			end
 		end
+	end
+	
+	--export size and positioning
+	if (_detalhes.profile_save_pos) then
+		exported.posicao = self.posicao
+	else
+		exported.posicao = nil
 	end
 	
 	--export mini displays
@@ -1186,6 +1291,15 @@ function _detalhes:ApplySavedSkin (style)
 	
 	--> apply all changed attributes
 	self:ChangeSkin()
+	
+	--export size and positioning
+	if (_detalhes.profile_save_pos) then
+		self.posicao = style.posicao
+		self:RestoreMainWindowPosition()
+	else
+		self.posicao = table_deepcopy (self.posicao)
+	end
+	
 end
 
 ------------------------------------------------------------------------------------------------------------------------

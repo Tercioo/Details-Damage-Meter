@@ -294,6 +294,9 @@ function _detalhes:LoadConfig()
 			for captureType, captureValue in pairs (_detalhes.capture_real) do 
 				_detalhes.capture_current [captureType] = captureValue
 			end
+			
+		--> row animations
+			_detalhes:SetUseAnimations()
 
 		--> initialize spell cache
 			_detalhes:ClearSpellCache() 

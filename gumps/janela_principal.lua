@@ -1885,7 +1885,7 @@ function _detalhes:InstanceAlert (msg, icon, time, clickfunc)
 	
 	if (icon) then
 		if (type (icon) == "table") then
-			local texture, w, h, animate, l, r, t, b = unpack (icon)
+			local texture, w, h, animate, l, r, t, b, r, g, b, a = unpack (icon)
 			
 			self.alert.icon:SetTexture (texture)
 			self.alert.icon:SetWidth (w or 14)
@@ -1896,10 +1896,14 @@ function _detalhes:InstanceAlert (msg, icon, time, clickfunc)
 			if (animate) then
 				self.alert.rotate:Play()
 			end
+			if (r and g and b) then
+				self.alert.icon:SetVertexColor (r, g, b, a or 1)
+			end
 		else
 			self.alert.icon:SetWidth (14)
 			self.alert.icon:SetHeight (14)
 			self.alert.icon:SetTexture (icon)
+			self.alert.icon:SetVertexColor (1, 1, 1, 1)
 			self.alert.icon:SetTexCoord (0, 1, 0, 1)
 		end
 	else

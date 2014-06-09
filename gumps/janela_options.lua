@@ -823,6 +823,14 @@ local menus = { --labels nos menus
 			
 			self.label:SetTextColor (1, .8, 0)
 			
+			if (self.have_icon) then
+				self.have_icon:SetBlendMode ("ADD")
+			end
+			
+			if (self.MyObject and self.MyObject.have_icon) then
+				self.MyObject.have_icon:SetBlendMode ("ADD")
+			end
+			
 			if (self.parent and self.parent.info) then
 				_detalhes:CooltipPreset (2)
 				GameCooltip:AddLine (self.parent.info)
@@ -837,12 +845,19 @@ local menus = { --labels nos menus
 				self = self.background_frame
 			end
 			
+			if (self.have_icon) then
+				self.have_icon:SetBlendMode ("BLEND")
+			end
+			if (self.MyObject and self.MyObject.have_icon) then
+				self.MyObject.have_icon:SetBlendMode ("BLEND")
+			end
+			
 			GameCooltip:Hide()
 			
 			self.label:SetTextColor (1, 1, 1)
 		end
 		
-		function window:create_line_background2 (frameX, label, parent)
+		function window:create_line_background2 (frameX, label, parent, icon)
 			local f = CreateFrame ("frame", nil, frameX)
 			f:SetPoint ("left", label.widget or label, "left", -2, 0)
 			f:SetSize (260, 16)
@@ -854,6 +869,7 @@ local menus = { --labels nos menus
 			f:SetBackdropColor (0, 0, 0, 0)
 			f.parent = parent
 			f.label = label
+			f.have_icon = icon
 			if (parent.widget) then
 				parent.widget.background_frame = f
 			else
@@ -872,12 +888,13 @@ local menus = { --labels nos menus
 			return f
 		end		
 		
-		function window:CreateLineBackground2 (frame, widget_name, label_name, desc_loc)
+		function window:CreateLineBackground2 (frame, widget_name, label_name, desc_loc, icon)
 		
 			if (type (widget_name) == "table") then
 				widget_name.info = desc_loc
 				widget_name.have_tooltip = desc_loc
-				local f = window:create_line_background2 (frame, label_name, widget_name)
+				widget_name.have_icon = icon
+				local f = window:create_line_background2 (frame, label_name, widget_name, icon)
 				if (widget_name.SetHook) then
 					widget_name:SetHook ("OnEnter", background_on_enter2)
 					widget_name:SetHook ("OnLeave", background_on_leave2)
@@ -890,7 +907,8 @@ local menus = { --labels nos menus
 		
 			frame [widget_name].info = desc_loc
 			frame [widget_name].have_tooltip = desc_loc
-			local f = window:create_line_background2 (frame, frame [label_name], frame [widget_name])
+			frame [widget_name].have_icon = icon
+			local f = window:create_line_background2 (frame, frame [label_name], frame [widget_name], icon)
 			frame [widget_name]:SetHook ("OnEnter", background_on_enter2)
 			frame [widget_name]:SetHook ("OnLeave", background_on_leave2)
 			return f
@@ -916,7 +934,7 @@ local menus = { --labels nos menus
 				if (istitle and y ~= y_start) then
 					y = y - 10
 				end
-				
+
 				if (type (widget) == "string") then
 					widget = frame [widget]
 				end
@@ -1453,30 +1471,12 @@ function window:CreateFrame18()
 		titulo_misc_settings_desc.width = 350
 		titulo_misc_settings_desc.height = 20
 	
-	--> auto switch
-		g:NewLabel (frame18, _, "$parentAutoSwitchLabel", "autoSwitchLabel", Loc ["STRING_OPTIONS_AUTO_SWITCH"], "GameFontHighlightLeft")
-		--
-		local onSelectAutoSwitch = function (_, _, switch_to)
-			if (switch_to == 0) then
-				_G.DetailsOptionsWindow.instance.auto_switch_to = nil
-				return
-			end
-			
-			local selected = window.lastSwitchList [switch_to]
-			_G.DetailsOptionsWindow.instance.auto_switch_to = selected
-			
-			--if (selected [1] == "raid") then
-				
-			--else
-			--	_G.DetailsOptionsWindow.instance.auto_switch_to = selected
-			--end
-
-		end
-		
-		local buildSwitchMenu = function()
+		local Current_Switch_Func = function()end
+	
+		local BuildSwitchMenu = function()
 		
 			window.lastSwitchList = {}
-			local t = {{value = 0, label = "NONE", onclick = onSelectAutoSwitch, icon = [[Interface\Glues\LOGIN\Glues-CheckBox-Check]]}}
+			local t = {{value = 0, label = "NONE", onclick = Current_Switch_Func, icon = [[Interface\Glues\LOGIN\Glues-CheckBox-Check]]}}
 			
 			local attributes = _detalhes.sub_atributos
 			local i = 1
@@ -1485,30 +1485,262 @@ function window:CreateFrame18()
 				local icones = sub_atributo.icones
 				for index, att_name in ipairs (sub_atributo.lista) do
 					local texture, texcoord = unpack (icones [index])
-					tinsert (t, {value = i, label = att_name, onclick = onSelectAutoSwitch, icon = texture, texcoord = texcoord})
+					tinsert (t, {value = i, label = att_name, onclick = Current_Switch_Func, icon = texture, texcoord = texcoord})
 					window.lastSwitchList [i] = {atributo, index, i}
 					i = i + 1
 				end
 			end
 			
 			for index, ptable in ipairs (_detalhes.RaidTables.Menu) do
-				tinsert (t, {value = i, label = ptable [1], onclick = onSelectAutoSwitch, icon = ptable [2]})
+				tinsert (t, {value = i, label = ptable [1], onclick = Current_Switch_Func, icon = ptable [2]})
 				window.lastSwitchList [i] = {"raid", ptable [4], i}
 				i = i + 1
 			end
 		
 			return t
 		end
+	
+		local healer_icon1 = g:NewImage (frame18, [[Interface\LFGFRAME\UI-LFG-ICON-ROLES]], 20, 20, nil, {GetTexCoordsForRole("HEALER")}, "HealerIcon1", "$parentHealerIcon1")
+		local healer_icon2 = g:NewImage (frame18, [[Interface\LFGFRAME\UI-LFG-ICON-ROLES]], 20, 20, nil, {GetTexCoordsForRole("HEALER")}, "HealerIcon2", "$parentHealerIcon2")
+
+		local dps_icon1 = g:NewImage (frame18, [[Interface\LFGFRAME\UI-LFG-ICON-ROLES]], 20, 20, nil, {GetTexCoordsForRole("DAMAGER")}, "DpsIcon1", "$parentDpsIcon1")
+		local dps_icon2 = g:NewImage (frame18, [[Interface\LFGFRAME\UI-LFG-ICON-ROLES]], 20, 20, nil, {GetTexCoordsForRole("DAMAGER")}, "DpsIcon2", "$parentDpsIcon2")
 		
-		local d = g:NewDropDown (frame18, _, "$parentAutoSwitchDropdown", "autoSwitchDropdown", 160, 20, buildSwitchMenu, 1) -- func, default
-		d.onenter_backdrop = dropdown_backdrop_onenter
-		d.onleave_backdrop = dropdown_backdrop_onleave
-		d:SetBackdrop (dropdown_backdrop)
-		d:SetBackdropColor (unpack (dropdown_backdrop_onleave))		
+		local tank_icon1 = g:NewImage (frame18, [[Interface\LFGFRAME\UI-LFG-ICON-ROLES]], 20, 20, nil, {GetTexCoordsForRole("TANK")}, "TankIcon1", "$parentTankIcon1")
+		local tank_icon2 = g:NewImage (frame18, [[Interface\LFGFRAME\UI-LFG-ICON-ROLES]], 20, 20, nil, {GetTexCoordsForRole("TANK")}, "TankIcon2", "$parentTankIcon2")
+	
+		-- auto switch all roles in combat
+			g:NewLabel (frame18, _, "$parentAutoSwitchLabel", "autoSwitchLabel", Loc ["STRING_OPTIONS_AUTO_SWITCH"], "GameFontHighlightLeft")
+			--
+			local OnSelectAutoSwitchOnCombatAllRoles = function (_, _, switch_to)
+				if (switch_to == 0) then
+					_G.DetailsOptionsWindow.instance.switch_all_roles_in_combat = false
+					return
+				end
+				
+				local selected = window.lastSwitchList [switch_to]
+				_G.DetailsOptionsWindow.instance.switch_all_roles_in_combat = selected
+			end
+
+			local BuildThisMenu = function()
+				Current_Switch_Func = OnSelectAutoSwitchOnCombatAllRoles
+				return BuildSwitchMenu()
+			end
+			
+			local d = g:NewDropDown (frame18, _, "$parentAutoSwitchDropdown", "autoSwitchDropdown", 160, 20, BuildThisMenu, 1)
+			d.onenter_backdrop = dropdown_backdrop_onenter
+			d.onleave_backdrop = dropdown_backdrop_onleave
+			d:SetBackdrop (dropdown_backdrop)
+			d:SetBackdropColor (unpack (dropdown_backdrop_onleave))		
+			
+			frame18.autoSwitchDropdown:SetPoint ("left", frame18.autoSwitchLabel, "right", 2, 0)		
+			
+			window:CreateLineBackground2 (frame18, "autoSwitchDropdown", "autoSwitchLabel", Loc ["STRING_OPTIONS_AUTO_SWITCH_DESC"])
 		
-		frame18.autoSwitchDropdown:SetPoint ("left", frame18.autoSwitchLabel, "right", 2, 0)		
+		-- auto switch after a wipe
+			g:NewLabel (frame18, _, "$parentAutoSwitchWipeLabel", "AutoSwitchWipeLabel", Loc ["STRING_OPTIONS_AUTO_SWITCH_WIPE"], "GameFontHighlightLeft")
+			--
+			local OnSelectAutoSwitchWipe = function (_, _, switch_to)
+				if (switch_to == 0) then
+					_G.DetailsOptionsWindow.instance.switch_all_roles_after_wipe = false
+					return
+				end
+				
+				local selected = window.lastSwitchList [switch_to]
+				_G.DetailsOptionsWindow.instance.switch_all_roles_after_wipe = selected
+			end
+			
+			local BuildThisMenu = function()
+				Current_Switch_Func = OnSelectAutoSwitchWipe
+				return BuildSwitchMenu()
+			end
+			
+			local d = g:NewDropDown (frame18, _, "$parentAutoSwitchWipeDropdown", "autoSwitchWipeDropdown", 160, 20, BuildThisMenu, 1) -- func, default
+			d.onenter_backdrop = dropdown_backdrop_onenter
+			d.onleave_backdrop = dropdown_backdrop_onleave
+			d:SetBackdrop (dropdown_backdrop)
+			d:SetBackdropColor (unpack (dropdown_backdrop_onleave))		
+			
+			frame18.autoSwitchWipeDropdown:SetPoint ("left", frame18.AutoSwitchWipeLabel, "right", 2, 0)		
+			
+			window:CreateLineBackground2 (frame18, "autoSwitchWipeDropdown", "AutoSwitchWipeLabel", Loc ["STRING_OPTIONS_AUTO_SWITCH_WIPE_DESC"])
+
+		-- auto switch damage no in combat
+			g:NewLabel (frame18, _, "$parentAutoSwitchDamageNoCombatLabel", "AutoSwitchDamageNoCombatLabel", "", "GameFontHighlightLeft")
+			--
+			local OnSelectAutoSwitchDamageNoCombat = function (_, _, switch_to)
+				if (switch_to == 0) then
+					_G.DetailsOptionsWindow.instance.switch_damager = false
+					return
+				end
+				
+				local selected = window.lastSwitchList [switch_to]
+				_G.DetailsOptionsWindow.instance.switch_damager = selected
+			end
+			
+			local BuildThisMenu = function()
+				Current_Switch_Func = OnSelectAutoSwitchDamageNoCombat
+				return BuildSwitchMenu()
+			end
+			
+			local d = g:NewDropDown (frame18, _, "$parentAutoSwitchDamageNoCombatDropdown", "AutoSwitchDamageNoCombatDropdown", 160, 20, BuildThisMenu, 1) -- func, default
+			d.onenter_backdrop = dropdown_backdrop_onenter
+			d.onleave_backdrop = dropdown_backdrop_onleave
+			d:SetBackdrop (dropdown_backdrop)
+			d:SetBackdropColor (unpack (dropdown_backdrop_onleave))		
+			
+			frame18.AutoSwitchDamageNoCombatDropdown:SetPoint ("left", dps_icon1, "right", 2, 0)
+			frame18.AutoSwitchDamageNoCombatLabel:SetPoint ("left", dps_icon1, "left", 0, 0)
+			
+			window:CreateLineBackground2 (frame18, "AutoSwitchDamageNoCombatDropdown", "AutoSwitchDamageNoCombatLabel", Loc ["STRING_OPTIONS_AUTO_SWITCH_DAMAGER_DESC"], dps_icon1)
+
+		-- auto switch damage in combat
+			g:NewLabel (frame18, _, "$parentAutoSwitchDamageCombatLabel", "AutoSwitchDamageCombatLabel", Loc ["STRING_OPTIONS_AUTO_SWITCH_COMBAT"], "GameFontHighlightLeft")
+			--
+			local OnSelectAutoSwitchDamageCombat = function (_, _, switch_to)
+				if (switch_to == 0) then
+					_G.DetailsOptionsWindow.instance.switch_damager_in_combat = false
+					return
+				end
+				
+				local selected = window.lastSwitchList [switch_to]
+				_G.DetailsOptionsWindow.instance.switch_damager_in_combat = selected
+			end
+			
+			local BuildThisMenu = function()
+				Current_Switch_Func = OnSelectAutoSwitchDamageCombat
+				return BuildSwitchMenu()
+			end
+			
+			local d = g:NewDropDown (frame18, _, "$parentAutoSwitchDamageCombatDropdown", "AutoSwitchDamageCombatDropdown", 160, 20, BuildThisMenu, 1) -- func, default
+			d.onenter_backdrop = dropdown_backdrop_onenter
+			d.onleave_backdrop = dropdown_backdrop_onleave
+			d:SetBackdrop (dropdown_backdrop)
+			d:SetBackdropColor (unpack (dropdown_backdrop_onleave))		
+			
+			frame18.AutoSwitchDamageCombatDropdown:SetPoint ("left", frame18.AutoSwitchDamageCombatLabel, "right", 2, -1)		
+			frame18.AutoSwitchDamageCombatLabel:SetPoint ("left", dps_icon2, "right", 2, 1)
+			
+			window:CreateLineBackground2 (frame18, "AutoSwitchDamageCombatDropdown", "AutoSwitchDamageCombatLabel", Loc ["STRING_OPTIONS_AUTO_SWITCH_DAMAGER_DESC"], dps_icon2)
+
+		-- auto switch heal in no combat
+			g:NewLabel (frame18, _, "$parentAutoSwitchHealNoCombatLabel", "AutoSwitchHealNoCombatLabel", "", "GameFontHighlightLeft")
+			--
+			local OnSelectAutoSwitchHealNoCombat = function (_, _, switch_to)
+				if (switch_to == 0) then
+					_G.DetailsOptionsWindow.instance.switch_healer = false
+					return
+				end
+				
+				local selected = window.lastSwitchList [switch_to]
+				_G.DetailsOptionsWindow.instance.switch_healer = selected
+			end
+			
+			local BuildThisMenu = function()
+				Current_Switch_Func = OnSelectAutoSwitchHealNoCombat
+				return BuildSwitchMenu()
+			end
+			
+			local d = g:NewDropDown (frame18, _, "$parentAutoSwitchHealNoCombatDropdown", "AutoSwitchHealNoCombatDropdown", 160, 20, BuildThisMenu, 1) -- func, default
+			d.onenter_backdrop = dropdown_backdrop_onenter
+			d.onleave_backdrop = dropdown_backdrop_onleave
+			d:SetBackdrop (dropdown_backdrop)
+			d:SetBackdropColor (unpack (dropdown_backdrop_onleave))		
+			
+			--frame18.AutoSwitchHealNoCombatDropdown:SetPoint ("left", frame18.AutoSwitchHealNoCombatLabel, "right", 2, 0)		
+			frame18.AutoSwitchHealNoCombatDropdown:SetPoint ("left", healer_icon1, "right", 2, 0)
+			frame18.AutoSwitchHealNoCombatLabel:SetPoint ("left", healer_icon1, "left", 0, 0)
+			
+			window:CreateLineBackground2 (frame18, "AutoSwitchHealNoCombatDropdown", "AutoSwitchHealNoCombatLabel", Loc ["STRING_OPTIONS_AUTO_SWITCH_HEALER_DESC"], healer_icon1)
+
+		-- auto switch heal in combat
+			g:NewLabel (frame18, _, "$parentAutoSwitchHealCombatLabel", "AutoSwitchHealCombatLabel", Loc ["STRING_OPTIONS_AUTO_SWITCH_COMBAT"], "GameFontHighlightLeft")
+			--
+			local OnSelectAutoSwitchHealCombat = function (_, _, switch_to)
+				if (switch_to == 0) then
+					_G.DetailsOptionsWindow.instance.switch_healer_in_combat = false
+					return
+				end
+				
+				local selected = window.lastSwitchList [switch_to]
+				_G.DetailsOptionsWindow.instance.switch_healer_in_combat = selected
+			end
+			
+			local BuildThisMenu = function()
+				Current_Switch_Func = OnSelectAutoSwitchHealCombat
+				return BuildSwitchMenu()
+			end
+			
+			local d = g:NewDropDown (frame18, _, "$parentAutoSwitchHealCombatDropdown", "AutoSwitchHealCombatDropdown", 160, 20, BuildThisMenu, 1) -- func, default
+			d.onenter_backdrop = dropdown_backdrop_onenter
+			d.onleave_backdrop = dropdown_backdrop_onleave
+			d:SetBackdrop (dropdown_backdrop)
+			d:SetBackdropColor (unpack (dropdown_backdrop_onleave))		
+			
+			--frame18.AutoSwitchHealCombatDropdown:SetPoint ("left", frame18.AutoSwitchHealCombatLabel, "right", 2, 0)		
+			frame18.AutoSwitchHealCombatDropdown:SetPoint ("left", frame18.AutoSwitchHealCombatLabel, "right", 2, -1)
+			frame18.AutoSwitchHealCombatLabel:SetPoint ("left", healer_icon2, "right", 2, 1)
+			
+			window:CreateLineBackground2 (frame18, "AutoSwitchHealCombatDropdown", "AutoSwitchHealCombatLabel", Loc ["STRING_OPTIONS_AUTO_SWITCH_HEALER_DESC"], healer_icon2)
+			
+		-- auto switch tank in no combat
+			g:NewLabel (frame18, _, "$parentAutoSwitchTankNoCombatLabel", "AutoSwitchTankNoCombatLabel", "", "GameFontHighlightLeft")
+			--
+			local OnSelectAutoSwitchTankNoCombat = function (_, _, switch_to)
+				if (switch_to == 0) then
+					_G.DetailsOptionsWindow.instance.switch_tank = false
+					return
+				end
+				
+				local selected = window.lastSwitchList [switch_to]
+				_G.DetailsOptionsWindow.instance.switch_tank = selected
+			end
+			
+			local BuildThisMenu = function()
+				Current_Switch_Func = OnSelectAutoSwitchTankNoCombat
+				return BuildSwitchMenu()
+			end
+			
+			local d = g:NewDropDown (frame18, _, "$parentAutoSwitchTankNoCombatDropdown", "AutoSwitchTankNoCombatDropdown", 160, 20, BuildThisMenu, 1) -- func, default
+			d.onenter_backdrop = dropdown_backdrop_onenter
+			d.onleave_backdrop = dropdown_backdrop_onleave
+			d:SetBackdrop (dropdown_backdrop)
+			d:SetBackdropColor (unpack (dropdown_backdrop_onleave))		
+			
+			frame18.AutoSwitchTankNoCombatDropdown:SetPoint ("left", tank_icon1, "right", 2, 0)		
+			frame18.AutoSwitchTankNoCombatLabel:SetPoint ("left", tank_icon1, "left", 0, 0)
+			
+			window:CreateLineBackground2 (frame18, "AutoSwitchTankNoCombatDropdown", "AutoSwitchTankNoCombatLabel", Loc ["STRING_OPTIONS_AUTO_SWITCH_TANK_DESC"], tank_icon1)
+
+		-- auto switch tank in combat
+			g:NewLabel (frame18, _, "$parentAutoSwitchTankCombatLabel", "AutoSwitchTankCombatLabel", Loc ["STRING_OPTIONS_AUTO_SWITCH_COMBAT"], "GameFontHighlightLeft")
+			--
+			local OnSelectAutoSwitchTankCombat = function (_, _, switch_to)
+				if (switch_to == 0) then
+					_G.DetailsOptionsWindow.instance.switch_tank_in_combat = false
+					return
+				end
+				
+				local selected = window.lastSwitchList [switch_to]
+				_G.DetailsOptionsWindow.instance.switch_tank_in_combat = selected
+			end
+			
+			local BuildThisMenu = function()
+				Current_Switch_Func = OnSelectAutoSwitchTankCombat
+				return BuildSwitchMenu()
+			end
+			
+			local d = g:NewDropDown (frame18, _, "$parentAutoSwitchTankCombatDropdown", "AutoSwitchTankCombatDropdown", 160, 20, BuildThisMenu, 1) -- func, default
+			d.onenter_backdrop = dropdown_backdrop_onenter
+			d.onleave_backdrop = dropdown_backdrop_onleave
+			d:SetBackdrop (dropdown_backdrop)
+			d:SetBackdropColor (unpack (dropdown_backdrop_onleave))		
+			
+			frame18.AutoSwitchTankCombatDropdown:SetPoint ("left", frame18.AutoSwitchTankCombatLabel, "right", 2, -1)
+			frame18.AutoSwitchTankCombatLabel:SetPoint ("left", tank_icon2, "right", 2, 1)
+			
+			window:CreateLineBackground2 (frame18, "AutoSwitchTankCombatDropdown", "AutoSwitchTankCombatLabel", Loc ["STRING_OPTIONS_AUTO_SWITCH_TANK_DESC"], tank_icon2)
 		
-		window:CreateLineBackground2 (frame18, "autoSwitchDropdown", "autoSwitchLabel", Loc ["STRING_OPTIONS_AUTO_SWITCH_DESC"])
 		
 		--> auto current segment
 		g:NewSwitch (frame18, _, "$parentAutoCurrentSlider", "autoCurrentSlider", 60, 20, _, _, instance.auto_current)
@@ -1679,13 +1911,21 @@ function window:CreateFrame18()
 		local left_side = {
 			{"switchesAnchorLabel", 1, true},
 			{"autoSwitchLabel", 2},
-			{"autoCurrentLabel", 3},
+			{"AutoSwitchWipeLabel", 3},
+			{dps_icon1, 7},
+			{healer_icon1, 6},
+			{tank_icon1, 5},
+			{dps_icon2, 9},
+			{healer_icon2, 8},
+			{tank_icon2, 7},
 			
-			{"totalBarAnchorLabel", 4, true},
-			{"totalBarIconLabel", 5},
-			{"totalBarPickColorLabel", 6},
-			{"totalBarLabel", 7},
-			{"totalBarOnlyInGroupLabel", 8},
+			{"autoCurrentLabel", 10},
+			
+			{"totalBarAnchorLabel", 11, true},
+			{"totalBarIconLabel", 12},
+			{"totalBarPickColorLabel", 13},
+			{"totalBarLabel", 14},
+			{"totalBarOnlyInGroupLabel", 15},
 		}
 		
 		window:arrange_menu (frame18, left_side, x, -90)
@@ -2814,14 +3054,14 @@ function window:CreateFrame1()
 		g:NewSwitch (frame1, _, "$parentAnimateSlider", "animateSlider", 60, 20, _, _, _detalhes.use_row_animations) -- ltext, rtext, defaultv
 		frame1.animateSlider:SetPoint ("left",frame1.animateLabel, "right", 2, 0)
 		frame1.animateSlider.OnSwitch = function (self, _, value) --> slider, fixedValue, sliderValue (false, true)
-			_detalhes.use_row_animations = value
+			_detalhes:SetUseAnimations (value)
 		end
 		
 		window:CreateLineBackground2 (frame1, "animateSlider", "animateLabel", Loc ["STRING_OPTIONS_ANIMATEBARS_DESC"])
 		
 	--> update speed
 
-		local s = g:NewSlider (frame1, _, "$parentSliderUpdateSpeed", "updatespeedSlider", SLIDER_WIDTH, 20, 0.3, 3, 0.1, _detalhes.update_speed, true)
+		local s = g:NewSlider (frame1, _, "$parentSliderUpdateSpeed", "updatespeedSlider", SLIDER_WIDTH, 20, 0.050, 3, 0.050, _detalhes.update_speed, true)
 		s:SetBackdrop (slider_backdrop)
 		s:SetBackdropColor (unpack (slider_backdrop_color))
 		
@@ -2832,17 +3072,16 @@ function window:CreateFrame1()
 		frame1.updatespeedSlider.useDecimals = true
 		local updateColor = function (slider, value)
 			if (value < 1) then
-				slider.amt:SetTextColor (1, value, 0)
+				slider.amt:SetTextColor (1, value, .2)
 			elseif (value > 1) then
 				slider.amt:SetTextColor (-(value-3), 1, 0)
 			else
 				slider.amt:SetTextColor (1, 1, 0)
 			end
 		end
+		
 		frame1.updatespeedSlider:SetHook ("OnValueChange", function (self, _, amount) 
-			_detalhes:CancelTimer (_detalhes.atualizador)
-			_detalhes.update_speed = amount
-			_detalhes.atualizador = _detalhes:ScheduleRepeatingTimer ("AtualizaGumpPrincipal", _detalhes.update_speed, -1)
+			_detalhes:SetWindowUpdateSpeed (amount)
 			updateColor (self, amount)
 		end)
 		updateColor (frame1.updatespeedSlider, _detalhes.update_speed)
@@ -3260,6 +3499,15 @@ function window:CreateFrame13()
 		
 		--profile_reset_button.button.texture:SetVertexColor (1, .8, 0)
 
+		g:NewLabel (frame13, _, "$parentSavePosAndSizeLabel", "PosAndSizeLabel", Loc ["STRING_OPTIONS_PROFILE_POSSIZE"], "GameFontHighlightLeft")
+		g:NewSwitch (frame13, _, "$parentPosAndSizeSlider", "PosAndSizeSlider", 60, 20, _, _, _detalhes.profile_save_pos)
+		frame13.PosAndSizeSlider:SetPoint ("left", frame13.PosAndSizeLabel, "right", 2, -1)
+		frame13.PosAndSizeSlider.OnSwitch = function (self, _, value)
+			_detalhes.profile_save_pos = value
+		end
+		frame13.PosAndSizeSlider:SetPoint ("left", frame13.PosAndSizeLabel, "right", 3, 0)
+		window:CreateLineBackground2 (frame13, "PosAndSizeSlider", "PosAndSizeLabel", Loc ["STRING_OPTIONS_PROFILE_POSSIZE_DESC"])
+		
 	--> anchors
 	
 		--general anchor
@@ -3278,6 +3526,7 @@ function window:CreateFrame13()
 			{select_profileCopy_label, 5},
 			{select_profileErase_label, 6},
 			{profile_reset_button, 7},
+			{"PosAndSizeLabel", 8, true},
 		}
 		
 		window:arrange_menu (frame13, left_side, x, window.top_start_at)	
@@ -5573,6 +5822,248 @@ function window:CreateFrame10()
 		
 		window:CreateLineBackground2 (frame10, "removeTrashSlider", "eraseTrashLabel", Loc ["STRING_OPTIONS_CLEANUP_DESC"])
 
+	--> performance profiles
+	
+		--enabled func
+		local function unlock_profile (settings)
+			frame10.animateSlider:Enable()
+			frame10.animateLabel:SetTextColor (1, 1, 1, 1)
+			frame10.animateSlider:SetValue (settings.use_row_animations)
+			
+			frame10.updatespeedSlider:Enable()
+			frame10.updatespeedLabel:SetTextColor (1, 1, 1, 1)
+			frame10.updatespeedSlider:SetValue (settings.update_speed)
+			
+			frame10.damageCaptureSlider:Enable()
+			frame10.damageCaptureSlider:SetValue (settings.damage)
+			
+			frame10.healCaptureSlider:Enable()
+			frame10.healCaptureSlider:SetValue (settings.heal)
+			
+			frame10.energyCaptureSlider:Enable()
+			frame10.energyCaptureSlider:SetValue (settings.energy)
+			
+			frame10.miscCaptureSlider:Enable()
+			frame10.miscCaptureSlider:SetValue (settings.miscdata)
+			
+			frame10.auraCaptureSlider:Enable()
+			frame10.auraCaptureSlider:SetValue (settings.aura)
+
+			frame10.damageCaptureLabel:SetTextColor (1, 1, 1, 1)
+			frame10.healCaptureLabel:SetTextColor (1, 1, 1, 1)
+			frame10.energyCaptureLabel:SetTextColor (1, 1, 1, 1)
+			frame10.miscCaptureLabel:SetTextColor (1, 1, 1, 1)
+			frame10.auraCaptureLabel:SetTextColor (1, 1, 1, 1)
+		end
+		
+		--disable func
+		local function lock_profile()
+			frame10.animateSlider:Disable()
+			frame10.animateLabel:SetTextColor (.4, .4, .4, 1)
+			
+			frame10.updatespeedSlider:Disable()
+			frame10.updatespeedLabel:SetTextColor (.4, .4, .4, 1)
+			
+			frame10.damageCaptureSlider:Disable()
+			frame10.healCaptureSlider:Disable()
+			frame10.energyCaptureSlider:Disable()
+			frame10.miscCaptureSlider:Disable()
+			frame10.auraCaptureSlider:Disable()
+			
+			frame10.damageCaptureLabel:SetTextColor (.4, .4, .4, 1)
+			frame10.healCaptureLabel:SetTextColor (.4, .4, .4, 1)
+			frame10.energyCaptureLabel:SetTextColor (.4, .4, .4, 1)
+			frame10.miscCaptureLabel:SetTextColor (.4, .4, .4, 1)
+			frame10.auraCaptureLabel:SetTextColor (.4, .4, .4, 1)
+		end
+	
+		local editing = nil
+		local modify_setting = function (config, value)
+			
+		end
+	
+		g:NewLabel (frame10, _, "$parentPerformanceProfilesAnchor", "PerformanceProfilesAnchorLabel", Loc ["STRING_OPTIONS_PERFORMANCEPROFILES_ANCHOR"], "GameFontNormal")
+		
+		--type dropdown
+		g:NewLabel (frame10, _, "$parentProfileTypeLabel", "ProfileTypeLabel", Loc ["STRING_OPTIONS_PERFORMANCE_TYPES"], "GameFontHighlightLeft")
+		local OnSelectProfileType = function (_, _, selected)
+			--enable enable button
+			frame10.ProfileTypeEnabledSlider:Enable()
+			frame10.ProfileTypeEnabledLabel:SetTextColor (1, 1, 1, 1)
+			
+			editing = _detalhes.performance_profiles [selected]
+			
+			if (editing.enabled) then
+				frame10.ProfileTypeEnabledSlider:SetValue (true)
+				unlock_profile (editing)
+			else
+				frame10.ProfileTypeEnabledSlider:SetValue (false)
+				lock_profile()
+			end
+		end
+		
+		local PerformanceProfileOptions = {
+			{value = "RaidFinder", label = Loc ["STRING_OPTIONS_PERFORMANCE_RF"], onclick = OnSelectProfileType, icon = [[Interface\PvPRankBadges\PvPRank15]], texcoord = {0, 1, 0, 1}},
+			{value = "Raid15", label = Loc ["STRING_OPTIONS_PERFORMANCE_RAID15"], onclick = OnSelectProfileType, icon = [[Interface\PvPRankBadges\PvPRank15]], iconcolor = {1, .8, 0, 1}, texcoord = {0, 1, 0, 1}},
+			{value = "Raid30", label = Loc ["STRING_OPTIONS_PERFORMANCE_RAID30"], onclick = OnSelectProfileType, icon = [[Interface\PvPRankBadges\PvPRank15]], iconcolor = {1, .8, 0, 1}, texcoord = {0, 1, 0, 1}},
+			{value = "Mythic", label = Loc ["STRING_OPTIONS_PERFORMANCE_MYTHIC"], onclick = OnSelectProfileType, icon = [[Interface\PvPRankBadges\PvPRank15]], iconcolor = {1, .4, 0, 1}, texcoord = {0, 1, 0, 1}},
+			{value = "Battleground15", label = Loc ["STRING_OPTIONS_PERFORMANCE_BG15"], onclick = OnSelectProfileType, icon = [[Interface\PvPRankBadges\PvPRank07]], texcoord = {0, 1, 0, 1}},
+			{value = "Battleground40", label = Loc ["STRING_OPTIONS_PERFORMANCE_BG40"], onclick = OnSelectProfileType, icon = [[Interface\PvPRankBadges\PvPRank07]], texcoord = {0, 1, 0, 1}},
+			{value = "Arena", label = Loc ["STRING_OPTIONS_PERFORMANCE_ARENA"], onclick = OnSelectProfileType, icon = [[Interface\PvPRankBadges\PvPRank12]], texcoord = {0, 1, 0, 1}},
+			{value = "Dungeon", label = Loc ["STRING_OPTIONS_PERFORMANCE_DUNGEON"], onclick = OnSelectProfileType, icon = [[Interface\PvPRankBadges\PvPRank01]], texcoord = {0, 1, 0, 1}},
+		}
+		
+		local BuildPerformanceProfileMenu = function()
+			return PerformanceProfileOptions
+		end
+		
+		local d = g:NewDropDown (frame10, _, "$parentProfileTypeDropdown", "ProfileTypeDropdown", 160, 20, BuildPerformanceProfileMenu, 0)
+		d.onenter_backdrop = dropdown_backdrop_onenter
+		d.onleave_backdrop = dropdown_backdrop_onleave
+		d:SetBackdrop (dropdown_backdrop)
+		d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+		
+		frame10.ProfileTypeDropdown:SetPoint ("left", frame10.ProfileTypeLabel, "right", 2)
+		
+		window:CreateLineBackground2 (frame10, "ProfileTypeDropdown", "ProfileTypeLabel", Loc ["STRING_OPTIONS_PERFORMANCE_TYPES_DESC"])
+
+		--enabled slider
+		g:NewLabel (frame10, _, "$parenttProfileTypeEnabledLabel", "ProfileTypeEnabledLabel", Loc ["STRING_OPTIONS_PERFORMANCE_ENABLE"], "GameFontHighlightLeft")
+		g:NewSwitch (frame10, _, "$parentProfileTypeEnabledSlider", "ProfileTypeEnabledSlider", 60, 20, _, _, false)
+		frame10.ProfileTypeEnabledSlider:SetPoint ("left", frame10.ProfileTypeEnabledLabel, "right", 2)
+		frame10.ProfileTypeEnabledSlider.OnSwitch = function (self, _, value)
+			if (editing)  then
+				editing.enabled = value
+				if (value) then
+					unlock_profile (editing)
+				else
+					lock_profile()
+				end
+			end
+		end
+		
+		frame10.ProfileTypeEnabledSlider:Disable()
+		frame10.ProfileTypeEnabledLabel:SetTextColor (.4, .4, .4, 1)		
+		
+		--window:CreateLineBackground2 (frame10, "ProfileTypeEnabledSlider", "ProfileTypeEnabledLabel", Loc ["STRING_OPTIONS_PERFORMANCE_ENABLE_DESC"])
+		
+		--animate bars
+		g:NewLabel (frame10, _, "$parentAnimateLabel", "animateLabel", Loc ["STRING_OPTIONS_ANIMATEBARS"], "GameFontHighlightLeft")
+
+		g:NewSwitch (frame10, _, "$parentAnimateSlider", "animateSlider", 60, 20, _, _, _detalhes.use_row_animations) -- ltext, rtext, defaultv
+		frame10.animateSlider:SetPoint ("left",frame10.animateLabel, "right", 2, 0)
+		frame10.animateSlider.OnSwitch = function (self, _, value) --> slider, fixedValue, sliderValue (false, true)
+			if (editing)  then
+				editing.use_row_animations = value
+				_detalhes:CheckForPerformanceProfile()
+			end
+		end
+		
+		--window:CreateLineBackground2 (frame10, "animateSlider", "animateLabel", Loc ["STRING_OPTIONS_ANIMATEBARS_DESC"])
+		
+		--update speed
+		local s = g:NewSlider (frame10, _, "$parentSliderUpdateSpeed", "updatespeedSlider", SLIDER_WIDTH, 20, 0.050, 3, 0.050, _detalhes.update_speed, true)
+		s:SetBackdrop (slider_backdrop)
+		s:SetBackdropColor (unpack (slider_backdrop_color))
+		
+		g:NewLabel (frame10, _, "$parentUpdateSpeedLabel", "updatespeedLabel", Loc ["STRING_OPTIONS_WINDOWSPEED"], "GameFontHighlightLeft")
+		--
+		frame10.updatespeedSlider:SetPoint ("left", frame10.updatespeedLabel, "right", 2, -1)
+		frame10.updatespeedSlider:SetThumbSize (50)
+		frame10.updatespeedSlider.useDecimals = true
+		local updateColor = function (slider, value)
+			if (value < 1) then
+				slider.amt:SetTextColor (1, value, 0)
+			elseif (value > 1) then
+				slider.amt:SetTextColor (-(value-3), 1, 0)
+			else
+				slider.amt:SetTextColor (1, 1, 0)
+			end
+		end
+		frame10.updatespeedSlider:SetHook ("OnValueChange", function (self, _, amount) 
+			if (editing)  then
+				editing.update_speed = amount
+				_detalhes:CheckForPerformanceProfile()
+			end
+			--_detalhes:CancelTimer (_detalhes.atualizador)
+			--_detalhes.update_speed = amount
+			--_detalhes.atualizador = _detalhes:ScheduleRepeatingTimer ("AtualizaGumpPrincipal", _detalhes.update_speed, -1)
+			updateColor (self, amount)
+		end)
+		updateColor (frame10.updatespeedSlider, _detalhes.update_speed)
+		
+		--window:CreateLineBackground2 (frame10, "updatespeedSlider", "updatespeedLabel", Loc ["STRING_OPTIONS_WINDOWSPEED_DESC"])
+		
+		-- captures
+		g:NewLabel (frame10, _, "$parentCaptureDamageLabel", "damageCaptureLabel", Loc ["STRING_OPTIONS_CDAMAGE"], "GameFontHighlightLeft")
+		g:NewLabel (frame10, _, "$parentCaptureHealLabel", "healCaptureLabel", Loc ["STRING_OPTIONS_CHEAL"], "GameFontHighlightLeft")
+		g:NewLabel (frame10, _, "$parentCaptureEnergyLabel", "energyCaptureLabel", Loc ["STRING_OPTIONS_CENERGY"], "GameFontHighlightLeft")
+		g:NewLabel (frame10, _, "$parentCaptureMiscLabel", "miscCaptureLabel", Loc ["STRING_OPTIONS_CMISC"], "GameFontHighlightLeft")
+		g:NewLabel (frame10, _, "$parentCaptureAuraLabel", "auraCaptureLabel", Loc ["STRING_OPTIONS_CAURAS"], "GameFontHighlightLeft")
+
+		-- damage
+		g:NewSwitch (frame10, _, "$parentCaptureDamageSlider", "damageCaptureSlider", 60, 20, _, _, false)
+		frame10.damageCaptureSlider:SetPoint ("left", frame10.damageCaptureLabel, "right", 2)
+		frame10.damageCaptureSlider.OnSwitch = function (self, _, value)
+			if (editing)  then
+				editing.damage = value
+				_detalhes:CheckForPerformanceProfile()
+			end
+		end
+		
+		--window:CreateLineBackground2 (frame10, "damageCaptureSlider", "damageCaptureLabel", Loc ["STRING_OPTIONS_CDAMAGE_DESC"])
+		
+		--heal
+		g:NewSwitch (frame10, _, "$parentCaptureHealSlider", "healCaptureSlider", 60, 20, _, _, false)
+		frame10.healCaptureSlider:SetPoint ("left", frame10.healCaptureLabel, "right", 2)
+		frame10.healCaptureSlider.OnSwitch = function (self, _, value)
+			if (editing)  then
+				editing.heal = value
+				_detalhes:CheckForPerformanceProfile()
+			end
+		end
+		
+		--window:CreateLineBackground2 (frame10, "healCaptureSlider", "healCaptureLabel", Loc ["STRING_OPTIONS_CHEAL_DESC"])
+		
+		--energy
+		g:NewSwitch (frame10, _, "$parentCaptureEnergySlider", "energyCaptureSlider", 60, 20, _, _, false)
+		frame10.energyCaptureSlider:SetPoint ("left", frame10.energyCaptureLabel, "right", 2)
+
+		frame10.energyCaptureSlider.OnSwitch = function (self, _, value)
+			if (editing)  then
+				editing.energy = value
+				_detalhes:CheckForPerformanceProfile()
+			end
+		end
+		
+		--window:CreateLineBackground2 (frame10, "energyCaptureSlider", "energyCaptureLabel", Loc ["STRING_OPTIONS_CENERGY_DESC"])
+		
+		--misc
+		g:NewSwitch (frame10, _, "$parentCaptureMiscSlider", "miscCaptureSlider", 60, 20, _, _, false)
+		frame10.miscCaptureSlider:SetPoint ("left", frame10.miscCaptureLabel, "right", 2)
+		frame10.miscCaptureSlider.OnSwitch = function (self, _, value)
+			if (editing)  then
+				editing.miscdata = value
+				_detalhes:CheckForPerformanceProfile()
+			end
+		end
+		
+		--window:CreateLineBackground2 (frame10, "miscCaptureSlider", "miscCaptureLabel", Loc ["STRING_OPTIONS_CMISC_DESC"])
+		
+		--aura
+		g:NewSwitch (frame10, _, "$parentCaptureAuraSlider", "auraCaptureSlider", 60, 20, _, _, false)
+		frame10.auraCaptureSlider:SetPoint ("left", frame10.auraCaptureLabel, "right", 2)
+		frame10.auraCaptureSlider.OnSwitch = function (self, _, value)
+			if (editing)  then
+				editing.aura = value
+				_detalhes:CheckForPerformanceProfile()
+			end
+		end
+		
+		--window:CreateLineBackground2 (frame10, "auraCaptureSlider", "auraCaptureLabel", Loc ["STRING_OPTIONS_CAURAS_DESC"])
+		
+		lock_profile()
+		
 	--> Anchors
 	
 		--general anchor
@@ -5584,6 +6075,21 @@ function window:CreateFrame10()
 		titulo_performance_general_desc:SetPoint (x, -50)
 		
 		local left_side = {
+			{"PerformanceProfilesAnchorLabel", 1, true},
+			{"ProfileTypeLabel", 2},
+			{"ProfileTypeEnabledLabel", 3},
+			{"animateLabel", 4},
+			{"updatespeedLabel", 5},
+			{"damageCaptureLabel", 6},
+			{"healCaptureLabel", 7},
+			{"energyCaptureLabel", 8},
+			{"miscCaptureLabel", 9},
+			{"auraCaptureLabel", 10},
+		}
+		
+		window:arrange_menu (frame10, left_side, window.left_start_at, -90)
+		
+		local right_side = {
 			{"PerformanceAnchorLabel", 1, true},
 			{"memoryLabel", 2},
 			{"segmentsSaveLabel", 3},
@@ -5591,7 +6097,7 @@ function window:CreateFrame10()
 			{"eraseTrashLabel", 5},
 		}
 		
-		window:arrange_menu (frame10, left_side, x, -90)
+		window:arrange_menu (frame10, right_side, window.right_start_at, -90)
 
 end
 
@@ -5627,16 +6133,16 @@ function window:CreateFrame11()
 		g:NewLabel (frame11, _, "$parentCaptureDamageLabel", "damageCaptureLabel", Loc ["STRING_OPTIONS_CDAMAGE"], "GameFontHighlightLeft")
 		frame11.damageCaptureLabel:SetPoint ("left", frame11.damageCaptureImage, "right", 2)
 		
-		g:NewLabel (frame11, _, "$parentCaptureDamageLabel", "healCaptureLabel", Loc ["STRING_OPTIONS_CHEAL"], "GameFontHighlightLeft")
+		g:NewLabel (frame11, _, "$parentCaptureHealLabel", "healCaptureLabel", Loc ["STRING_OPTIONS_CHEAL"], "GameFontHighlightLeft")
 		frame11.healCaptureLabel:SetPoint ("left", frame11.healCaptureImage, "right", 2)
 		
-		g:NewLabel (frame11, _, "$parentCaptureDamageLabel", "energyCaptureLabel", Loc ["STRING_OPTIONS_CENERGY"], "GameFontHighlightLeft")
+		g:NewLabel (frame11, _, "$parentCaptureEnergyLabel", "energyCaptureLabel", Loc ["STRING_OPTIONS_CENERGY"], "GameFontHighlightLeft")
 		frame11.energyCaptureLabel:SetPoint ("left", frame11.energyCaptureImage, "right", 2)
 		
-		g:NewLabel (frame11, _, "$parentCaptureDamageLabel", "miscCaptureLabel", Loc ["STRING_OPTIONS_CMISC"], "GameFontHighlightLeft")
+		g:NewLabel (frame11, _, "$parentCaptureMiscLabel", "miscCaptureLabel", Loc ["STRING_OPTIONS_CMISC"], "GameFontHighlightLeft")
 		frame11.miscCaptureLabel:SetPoint ("left", frame11.miscCaptureImage, "right", 2)
 		
-		g:NewLabel (frame11, _, "$parentCaptureDamageLabel", "auraCaptureLabel", Loc ["STRING_OPTIONS_CAURAS"], "GameFontHighlightLeft")
+		g:NewLabel (frame11, _, "$parentCaptureAuraLabel", "auraCaptureLabel", Loc ["STRING_OPTIONS_CAURAS"], "GameFontHighlightLeft")
 		frame11.auraCaptureLabel:SetPoint ("left", frame11.auraCaptureImage, "right", 2)
 		
 		local switch_icon_color = function (icon, on_off)
@@ -5651,7 +6157,7 @@ function window:CreateFrame11()
 		end
 		switch_icon_color (frame11.damageCaptureImage, _detalhes.capture_real ["damage"])
 		
-		window:CreateLineBackground2 (frame11, "damageCaptureSlider", "damageCaptureLabel", Loc ["STRING_OPTIONS_CDAMAGE_DESC"])
+		window:CreateLineBackground2 (frame11, "damageCaptureSlider", "damageCaptureLabel", Loc ["STRING_OPTIONS_CDAMAGE_DESC"], frame11.damageCaptureImage)
 		
 		g:NewSwitch (frame11, _, "$parentCaptureHealSlider", "healCaptureSlider", 60, 20, _, _, _detalhes.capture_real ["heal"])
 		frame11.healCaptureSlider:SetPoint ("left", frame11.healCaptureLabel, "right", 2)
@@ -5661,7 +6167,7 @@ function window:CreateFrame11()
 		end
 		switch_icon_color (frame11.healCaptureImage, _detalhes.capture_real ["heal"])
 		
-		window:CreateLineBackground2 (frame11, "healCaptureSlider", "healCaptureLabel", Loc ["STRING_OPTIONS_CHEAL_DESC"])
+		window:CreateLineBackground2 (frame11, "healCaptureSlider", "healCaptureLabel", Loc ["STRING_OPTIONS_CHEAL_DESC"], frame11.healCaptureImage)
 		
 		g:NewSwitch (frame11, _, "$parentCaptureEnergySlider", "energyCaptureSlider", 60, 20, _, _, _detalhes.capture_real ["energy"])
 		frame11.energyCaptureSlider:SetPoint ("left", frame11.energyCaptureLabel, "right", 2)
@@ -5672,7 +6178,7 @@ function window:CreateFrame11()
 		end
 		switch_icon_color (frame11.energyCaptureImage, _detalhes.capture_real ["energy"])
 		
-		window:CreateLineBackground2 (frame11, "energyCaptureSlider", "energyCaptureLabel", Loc ["STRING_OPTIONS_CENERGY_DESC"])
+		window:CreateLineBackground2 (frame11, "energyCaptureSlider", "energyCaptureLabel", Loc ["STRING_OPTIONS_CENERGY_DESC"], frame11.energyCaptureImage)
 		
 		g:NewSwitch (frame11, _, "$parentCaptureMiscSlider", "miscCaptureSlider", 60, 20, _, _, _detalhes.capture_real ["miscdata"])
 		frame11.miscCaptureSlider:SetPoint ("left", frame11.miscCaptureLabel, "right", 2)
@@ -5682,7 +6188,7 @@ function window:CreateFrame11()
 		end
 		switch_icon_color (frame11.miscCaptureImage, _detalhes.capture_real ["miscdata"])
 		
-		window:CreateLineBackground2 (frame11, "miscCaptureSlider", "miscCaptureLabel", Loc ["STRING_OPTIONS_CMISC_DESC"])
+		window:CreateLineBackground2 (frame11, "miscCaptureSlider", "miscCaptureLabel", Loc ["STRING_OPTIONS_CMISC_DESC"], frame11.miscCaptureImage)
 		
 		g:NewSwitch (frame11, _, "$parentCaptureAuraSlider", "auraCaptureSlider", 60, 20, _, _, _detalhes.capture_real ["aura"])
 		frame11.auraCaptureSlider:SetPoint ("left", frame11.auraCaptureLabel, "right", 2)
@@ -5692,7 +6198,7 @@ function window:CreateFrame11()
 		end
 		switch_icon_color (frame11.auraCaptureImage, _detalhes.capture_real ["aura"])
 		
-		window:CreateLineBackground2 (frame11, "auraCaptureSlider", "auraCaptureLabel", Loc ["STRING_OPTIONS_CAURAS_DESC"])
+		window:CreateLineBackground2 (frame11, "auraCaptureSlider", "auraCaptureLabel", Loc ["STRING_OPTIONS_CAURAS_DESC"], frame11.auraCaptureImage)
 		
 	--------------- Cloud Capture
 	
@@ -6236,6 +6742,8 @@ function window:update_all (editing_instance)
 	_G.DetailsOptionsWindow13SelectProfileDropdown.MyObject:Select (_detalhes:GetCurrentProfileName())
 	_G.DetailsOptionsWindow13SelectProfileDropdown.MyObject:SetFixedParameter (editing_instance)
 	
+	_G.DetailsOptionsWindow13PosAndSizeSlider.MyObject:SetValue (_detalhes.profile_save_pos)
+
 	--> window 14
 
 	_G.DetailsOptionsWindow14AttributeEnabledSwitch.MyObject:SetFixedParameter (editing_instance)
@@ -6273,7 +6781,120 @@ function window:update_all (editing_instance)
 	
 	--> window 18
 	--auto switch
-	local autoswitch = instance.auto_switch_to
+	
+	local switch_tank_in_combat = editing_instance.switch_tank_in_combat
+	if (switch_tank_in_combat) then
+		if (switch_tank_in_combat [1] == "raid") then
+			local plugin_object = _detalhes:GetPlugin (switch_tank_in_combat[2])
+			if (plugin_object) then
+				_G.DetailsOptionsWindow18AutoSwitchTankCombatDropdown.MyObject:Select (plugin_object.__name)
+			else
+				_G.DetailsOptionsWindow18AutoSwitchTankCombatDropdown.MyObject:Select (1, true)
+			end
+		else
+			_G.DetailsOptionsWindow18AutoSwitchTankCombatDropdown.MyObject:Select (switch_tank_in_combat[3]+1, true)
+		end
+	else
+		_G.DetailsOptionsWindow18AutoSwitchTankCombatDropdown.MyObject:Select (1, true)
+	end
+	
+	local switch_tank = editing_instance.switch_tank
+	if (switch_tank) then
+		if (switch_tank [1] == "raid") then
+			local plugin_object = _detalhes:GetPlugin (switch_tank[2])
+			if (plugin_object) then
+				_G.DetailsOptionsWindow18AutoSwitchTankNoCombatDropdown.MyObject:Select (plugin_object.__name)
+			else
+				_G.DetailsOptionsWindow18AutoSwitchTankNoCombatDropdown.MyObject:Select (1, true)
+			end
+		else
+			_G.DetailsOptionsWindow18AutoSwitchTankNoCombatDropdown.MyObject:Select (switch_tank[3]+1, true)
+		end
+	else
+		_G.DetailsOptionsWindow18AutoSwitchTankNoCombatDropdown.MyObject:Select (1, true)
+	end
+	
+	local switch_healer_in_combat = editing_instance.switch_healer_in_combat
+	if (switch_healer_in_combat) then
+		if (switch_healer_in_combat [1] == "raid") then
+			local plugin_object = _detalhes:GetPlugin (switch_healer_in_combat[2])
+			if (plugin_object) then
+				_G.DetailsOptionsWindow18AutoSwitchHealCombatDropdown.MyObject:Select (plugin_object.__name)
+			else
+				_G.DetailsOptionsWindow18AutoSwitchHealCombatDropdown.MyObject:Select (1, true)
+			end
+		else
+			_G.DetailsOptionsWindow18AutoSwitchHealCombatDropdown.MyObject:Select (switch_healer_in_combat[3]+1, true)
+		end
+	else
+		_G.DetailsOptionsWindow18AutoSwitchHealCombatDropdown.MyObject:Select (1, true)
+	end
+	
+	local switch_healer = editing_instance.switch_healer
+	if (switch_healer) then
+		if (switch_healer [1] == "raid") then
+			local plugin_object = _detalhes:GetPlugin (switch_healer[2])
+			if (plugin_object) then
+				_G.DetailsOptionsWindow18AutoSwitchHealNoCombatDropdown.MyObject:Select (plugin_object.__name)
+			else
+				_G.DetailsOptionsWindow18AutoSwitchHealNoCombatDropdown.MyObject:Select (1, true)
+			end
+		else
+			_G.DetailsOptionsWindow18AutoSwitchHealNoCombatDropdown.MyObject:Select (switch_healer[3]+1, true)
+		end
+	else
+		_G.DetailsOptionsWindow18AutoSwitchHealNoCombatDropdown.MyObject:Select (1, true)
+	end
+	
+	local switch_damager_in_combat = editing_instance.switch_damager_in_combat
+	if (switch_damager_in_combat) then
+		if (switch_damager_in_combat [1] == "raid") then
+			local plugin_object = _detalhes:GetPlugin (switch_damager_in_combat[2])
+			if (plugin_object) then
+				_G.DetailsOptionsWindow18AutoSwitchDamageCombatDropdown.MyObject:Select (plugin_object.__name)
+			else
+				_G.DetailsOptionsWindow18AutoSwitchDamageCombatDropdown.MyObject:Select (1, true)
+			end
+		else
+			_G.DetailsOptionsWindow18AutoSwitchDamageCombatDropdown.MyObject:Select (switch_damager_in_combat[3]+1, true)
+		end
+	else
+		_G.DetailsOptionsWindow18AutoSwitchDamageCombatDropdown.MyObject:Select (1, true)
+	end
+	
+	local switch_damager = editing_instance.switch_damager
+	if (switch_damager) then
+		if (switch_damager [1] == "raid") then
+			local plugin_object = _detalhes:GetPlugin (switch_damager[2])
+			if (plugin_object) then
+				_G.DetailsOptionsWindow18AutoSwitchDamageNoCombatDropdown.MyObject:Select (plugin_object.__name)
+			else
+				_G.DetailsOptionsWindow18AutoSwitchDamageNoCombatDropdown.MyObject:Select (1, true)
+			end
+		else
+			_G.DetailsOptionsWindow18AutoSwitchDamageNoCombatDropdown.MyObject:Select (switch_damager[3]+1, true)
+		end
+	else
+		_G.DetailsOptionsWindow18AutoSwitchDamageNoCombatDropdown.MyObject:Select (1, true)
+	end
+	
+	local switch_all_roles_after_wipe = editing_instance.switch_all_roles_after_wipe
+	if (switch_all_roles_after_wipe) then
+		if (switch_all_roles_after_wipe [1] == "raid") then
+			local plugin_object = _detalhes:GetPlugin (switch_all_roles_after_wipe[2])
+			if (plugin_object) then
+				_G.DetailsOptionsWindow18AutoSwitchWipeDropdown.MyObject:Select (plugin_object.__name)
+			else
+				_G.DetailsOptionsWindow18AutoSwitchWipeDropdown.MyObject:Select (1, true)
+			end
+		else
+			_G.DetailsOptionsWindow18AutoSwitchWipeDropdown.MyObject:Select (switch_all_roles_after_wipe[3]+1, true)
+		end
+	else
+		_G.DetailsOptionsWindow18AutoSwitchWipeDropdown.MyObject:Select (1, true)
+	end
+	
+	local autoswitch = editing_instance.switch_all_roles_in_combat
 	if (autoswitch) then
 		if (autoswitch [1] == "raid") then
 			local plugin_object = _detalhes:GetPlugin (autoswitch[2])

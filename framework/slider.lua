@@ -281,14 +281,30 @@ local SliderMetaFunctions = {}
 	end
 	function SliderMetaFunctions:Enable()
 		self.slider:Enable()
-		self.slider.lock:Hide()
+		if (not self.lock_texture) then
+			gump:NewImage (self, [[Interface\PetBattles\PetBattle-LockIcon]], 12, 12, "overlay", {0.0546875, 0.9453125, 0.0703125, 0.9453125}, "lock_texture", "$parentLockTexture")
+			self.lock_texture:SetDesaturated (true)
+			self.lock_texture:SetPoint ("center", self.amt, "center")
+		end
+		self.lock_texture:Hide()
 		self.slider.amt:Show()
+		self:SetAlpha (1)
 		return _rawset (self, "lockdown", false)
 	end
+	
 	function SliderMetaFunctions:Disable()
+	
 		self.slider:Disable()
-		self.slider.lock:Show()
 		self.slider.amt:Hide()
+		self:SetAlpha (.4)
+		
+		if (not self.lock_texture) then
+			gump:NewImage (self, [[Interface\PetBattles\PetBattle-LockIcon]], 12, 12, "overlay", {0.0546875, 0.9453125, 0.0703125, 0.9453125}, "lock_texture", "$parentLockTexture")
+			self.lock_texture:SetDesaturated (true)
+			self.lock_texture:SetPoint ("center", self.amt, "center")
+		end
+		self.lock_texture:Show()
+		
 		return _rawset (self, "lockdown", true)
 	end
 
@@ -305,6 +321,10 @@ local SliderMetaFunctions = {}
 --> scripts
 
 	local OnEnter = function (slider)
+	
+		if (_rawget (slider.MyObject, "lockdown")) then
+			return
+		end
 	
 		DetailsFrameworkSliderButtons:ShowMe (slider)
 	
@@ -338,6 +358,10 @@ local SliderMetaFunctions = {}
 	end
 	
 	local OnLeave = function (slider)
+	
+		if (_rawget (slider.MyObject, "lockdown")) then
+			return
+		end
 	
 		DetailsFrameworkSliderButtons:PrepareToHide()
 	
@@ -770,6 +794,12 @@ local switch_disable = function (self)
 	_rawset (self, "lockdown", true)
 end
 local switch_enable = function (self)
+	if (not self.lock_texture) then
+		gump:NewImage (self, [[Interface\PetBattles\PetBattle-LockIcon]], 12, 12, "overlay", {0.0546875, 0.9453125, 0.0703125, 0.9453125}, "lock_texture", "$parentLockTexture")
+		self.lock_texture:SetDesaturated (true)
+		self.lock_texture:SetPoint ("center", self._thumb, "center")
+	end
+	
 	self.lock_texture:Hide()
 	self._text:Show()
 	self:SetAlpha (1)

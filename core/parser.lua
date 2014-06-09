@@ -2457,6 +2457,7 @@
 		end
 		
 		_detalhes:SchedulePetUpdate (7)
+		_detalhes:CheckForPerformanceProfile()
 	end
 	
 	function _detalhes.parser_functions:PLAYER_ENTERING_WORLD (...)
@@ -2605,6 +2606,7 @@
 				_detalhes:WipePets()
 				_detalhes:SchedulePetUpdate (1)
 				_detalhes:InstanceCall (_detalhes.SetCombatAlpha, nil, nil, true)
+				_detalhes:CheckSwitchOnLogon()
 			end
 		else
 			_detalhes.in_group = IsInGroup() or IsInRaid()
@@ -2615,6 +2617,7 @@
 				_detalhes:SchedulePetUpdate (1)
 				_table_wipe (_detalhes.details_users)
 				_detalhes:InstanceCall (_detalhes.SetCombatAlpha, nil, nil, true)
+				_detalhes:CheckSwitchOnLogon()
 			else
 				_detalhes:SchedulePetUpdate (2)
 				_detalhes:CheckDetailsUsers()
@@ -2639,6 +2642,8 @@
 				_detalhes:SairDoCombate()
 				_detalhes.can_panic_mode = true
 			end
+			
+			_detalhes:CheckSwitchOnLogon() --eh logon mesmo
 			
 			if (_detalhes.wipe_full_config) then
 				_detalhes_global = nil
@@ -2764,6 +2769,13 @@
 		
 		print ("group damage", #_detalhes.cache_damage_group)
 		print ("group damage", #_detalhes.cache_healing_group)
+	end
+	
+	function _detalhes:GetActorsOnDamageCache()
+		return _detalhes.cache_damage_group
+	end
+	function _detalhes:GetActorsOnHealingCache()
+		return _detalhes.cache_damage_group
 	end
 	
 	function _detalhes:ClearParserCache()
