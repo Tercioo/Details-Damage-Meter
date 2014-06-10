@@ -395,7 +395,7 @@
 		
 	------------------------------------------------------------------------------------------------
 	--> amount add
-		
+
 		--> actor owner (if any)
 		if (meu_dono) then --> se for dano de um Pet
 			meu_dono.total = meu_dono.total + amount --> e adiciona o dano ao pet
@@ -1597,8 +1597,7 @@
 
 			este_jogador.interrupt_targets.shadow = este_jogador.shadow.interrupt_targets
 			este_jogador.interrupt_spell_tables.shadow = este_jogador.shadow.interrupt_spell_tables
-			
-		end	
+		end
 		
 	------------------------------------------------------------------------------------------------
 	--> add amount
@@ -1638,7 +1637,50 @@
 		if (not spell) then
 			spell = este_jogador.interrupt_spell_tables:PegaHabilidade (spellid, true, token)
 		end
-		return spell:Add (alvo_serial, alvo_name, alvo_flags, who_name, token, extraSpellID, extraSpellName)
+		spell:Add (alvo_serial, alvo_name, alvo_flags, who_name, token, extraSpellID, extraSpellName)
+		
+		--> verifica se tem dono e adiciona o interrupt para o dono
+		if (meu_dono) then
+			
+			if (not meu_dono.interrupt) then
+				meu_dono.interrupt = 0
+				meu_dono.interrupt_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
+				meu_dono.interrupt_spell_tables = container_habilidades:NovoContainer (container_misc) --> cria o container das habilidades usadas para interromper
+				meu_dono.interrompeu_oque = {}
+				
+				if (not meu_dono.shadow.interrupt_targets) then
+					meu_dono.shadow.interrupt = 0
+					meu_dono.shadow.interrupt_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
+					meu_dono.shadow.interrupt_spell_tables = container_habilidades:NovoContainer (container_misc) --> cria o container das habilidades usadas para interromper
+					meu_dono.shadow.interrompeu_oque = {}
+				end
+
+				meu_dono.interrupt_targets.shadow = meu_dono.shadow.interrupt_targets
+				meu_dono.interrupt_spell_tables.shadow = meu_dono.shadow.interrupt_spell_tables
+			end
+			
+			-- adiciona ao total
+			meu_dono.interrupt = meu_dono.interrupt + 1
+			
+			-- adiciona aos alvos
+			local este_alvo = meu_dono.interrupt_targets._NameIndexTable [alvo_name]
+			if (not este_alvo) then
+				este_alvo = meu_dono.interrupt_targets:PegarCombatente (alvo_serial, alvo_name, alvo_flags, true)
+			else
+				este_alvo = meu_dono.interrupt_targets._ActorTable [este_alvo]
+			end
+			este_alvo.total = este_alvo.total + 1
+			
+			-- update last event
+			meu_dono.last_event = _tempo
+			
+			-- spells interrupted
+			if (not meu_dono.interrompeu_oque [extraSpellID]) then
+				meu_dono.interrompeu_oque [extraSpellID] = 1
+			else
+				meu_dono.interrompeu_oque [extraSpellID] = meu_dono.interrompeu_oque [extraSpellID] + 1
+			end
+		end
 
 	end
 	
@@ -1846,7 +1888,52 @@
 		if (not spell) then
 			spell = este_jogador.dispell_spell_tables:PegaHabilidade (spellid, true, token)
 		end
-		return spell:Add (alvo_serial, alvo_name, alvo_flags, who_name, token, extraSpellID, extraSpellName)
+		spell:Add (alvo_serial, alvo_name, alvo_flags, who_name, token, extraSpellID, extraSpellName)
+		
+		--> verifica se tem dono e adiciona o interrupt para o dono
+		if (meu_dono) then
+			
+			if (not meu_dono.dispell) then
+				--> constrói aqui a tabela dele
+				meu_dono.dispell = 0
+				meu_dono.dispell_targets = container_combatentes:NovoContainer (container_damage_target)
+				meu_dono.dispell_spell_tables = container_habilidades:NovoContainer (container_misc)
+				meu_dono.dispell_oque = {}
+				
+				if (not meu_dono.shadow.dispell_targets) then
+					meu_dono.shadow.dispell = 0
+					meu_dono.shadow.dispell_targets = container_combatentes:NovoContainer (container_damage_target)
+					meu_dono.shadow.dispell_spell_tables = container_habilidades:NovoContainer (container_misc)
+					meu_dono.shadow.dispell_oque = {}
+				end
+
+				meu_dono.dispell_targets.shadow = meu_dono.shadow.dispell_targets
+				meu_dono.dispell_spell_tables.shadow = meu_dono.shadow.dispell_spell_tables
+			end
+			
+			-- adiciona ao total
+			meu_dono.dispell = meu_dono.dispell + 1
+			
+			-- adiciona aos alvos
+			local este_alvo = meu_dono.dispell_targets._NameIndexTable [alvo_name]
+			if (not este_alvo) then
+				este_alvo = meu_dono.dispell_targets:PegarCombatente (alvo_serial, alvo_name, alvo_flags, true)
+			else
+				este_alvo = meu_dono.dispell_targets._ActorTable [este_alvo]
+			end
+			este_alvo.total = este_alvo.total + 1
+			
+			-- update last event
+			meu_dono.last_event = _tempo
+			
+			-- spells interrupted
+			if (not meu_dono.dispell_oque [extraSpellID]) then
+				meu_dono.dispell_oque [extraSpellID] = 1
+			else
+				meu_dono.dispell_oque [extraSpellID] = meu_dono.dispell_oque [extraSpellID] + 1
+			end
+		end		
+		
 	end
 
 	--serach key: ~ress

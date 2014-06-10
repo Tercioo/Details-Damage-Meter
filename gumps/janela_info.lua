@@ -1655,7 +1655,11 @@ function gump:CriaJanelaInfo()
 					player_2_target_pool [#player_2_target_pool+1] = {target.nome, target.total}
 				end
 				table.sort (player_2_target_pool, function (t1, t2) return t1[2] > t2[2] end)
-				player_2_top = player_2_target_pool [1] [2]
+				if (player_2_target_pool [1]) then
+					player_2_top = player_2_target_pool [1] [2]
+				else
+					player_2_top = 0
+				end
 				--1 skill, 
 			end
 
@@ -1670,7 +1674,11 @@ function gump:CriaJanelaInfo()
 					player_3_target_pool [#player_3_target_pool+1] = {target.nome, target.total}
 				end
 				table.sort (player_3_target_pool, function (t1, t2) return t1[2] > t2[2] end)
-				player_3_top = player_3_target_pool [1] [2]
+				if (player_3_target_pool [1]) then
+					player_3_top = player_3_target_pool [1] [2]
+				else
+					player_3_top = 0
+				end
 			end
 
 			for i = 1, 4 do 
@@ -2751,6 +2759,10 @@ function gump:CriaJanelaInfo()
 		_detalhes:CreatePlayerDetailsTab ("Compare", --[1] tab name
 			function (tabOBject, playerObject)  --[2] condition
 			
+				if (info.atributo > 2) then
+					return false
+				end
+
 				local same_class = {}
 				local class = playerObject.classe
 				local my_spells = {}

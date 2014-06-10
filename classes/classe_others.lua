@@ -952,7 +952,7 @@ function atributo_misc:ToolTipDispell (instancia, numero, barra)
 	for _spellid, _tabela in _pairs (habilidades) do
 		meus_dispells [#meus_dispells+1] = {_spellid, _tabela.dispell}
 	end
-	_table_sort (meus_dispells, function(a, b) return a[2] > b[2] end)
+	_table_sort (meus_dispells, _detalhes.Sort2)
 	
 	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_SPELLS"], headerColor, r, g, b, #meus_dispells)
 
@@ -976,7 +976,7 @@ function atributo_misc:ToolTipDispell (instancia, numero, barra)
 	for _spellid, amt in _pairs (self.dispell_oque) do
 		buffs_dispelados [#buffs_dispelados+1] = {_spellid, amt}
 	end
-	_table_sort (buffs_dispelados, function(a, b) return a[2] > b[2] end)
+	_table_sort (buffs_dispelados, _detalhes.Sort2)
 	
 	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_DISPELLED"], headerColor, r, g, b, #buffs_dispelados)
 
@@ -1024,6 +1024,59 @@ function atributo_misc:ToolTipDispell (instancia, numero, barra)
 				GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small", nil, nil, 14, 14, _unpack (_detalhes.class_coords [classe]))
 			end
 		end
+	end
+	
+--> Pet
+	local meus_pets = self.pets
+	if (#meus_pets > 0) then --> teve ajudantes
+		
+		local quantidade = {} --> armazena a quantidade de pets iguais
+		local interrupts = {} --> armazena as habilidades
+		local alvos = {} --> armazena os alvos
+		local totais = {} --> armazena o dano total de cada objeto
+		
+		for index, nome in _ipairs (meus_pets) do
+			if (not quantidade [nome]) then
+				quantidade [nome] = 1
+				
+				local my_self = instancia.showing[class_type]:PegarCombatente (nil, nome)
+				if (my_self) then
+					totais [#totais+1] = {nome, my_self.dispell}
+				end
+			else
+				quantidade [nome] = quantidade [nome]+1
+			end
+		end
+	
+		local _quantidade = 0
+		local added_logo = false
+		
+		_table_sort (totais, _detalhes.Sort2)
+		
+		local ismaximized = false
+		if (keydown == "alt" or TooltipMaximizedMethod == 2 or TooltipMaximizedMethod == 5) then
+			ismaximized = true
+		end
+		
+		for index, _table in _ipairs (totais) do
+			
+			if (_table [2] > 0 and (index < 3 or ismaximized)) then
+			
+				if (not added_logo) then
+					added_logo = true
+
+					_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_PETS"], headerColor, r, g, b, #totais)
+					GameCooltip:AddIcon ([[Interface\COMMON\friendship-heart]], 1, 1, 14, 14, 0.21875, 0.78125, 0.09375, 0.6875)
+					GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
+				end
+			
+				local n = _table [1]:gsub (("%s%<.*"), "")
+				GameCooltip:AddLine (n, _table [2] .. " (" .. _math_floor (_table [2]/self.dispell*100) .. "%)")
+				_detalhes:AddTooltipBackgroundStatusbar()
+				GameCooltip:AddIcon ([[Interface\AddOns\Details\images\classes_small]], 1, 1, 14, 14, 0.25, 0.49609375, 0.75, 1)
+			end
+		end
+			
 	end
 	
 	return true
@@ -1367,7 +1420,7 @@ function atributo_misc:ToolTipDefensiveCooldowns (instancia, numero, barra)
 	for _spellid, _tabela in _pairs (minha_tabela) do
 		cooldowns_usados [#cooldowns_usados+1] = {_spellid, _tabela.counter}
 	end
-	_table_sort (cooldowns_usados, function(a, b) return a[2] > b[2] end)
+	_table_sort (cooldowns_usados, _detalhes.Sort2)
 	
 	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_SPELLS"], headerColor, r, g, b, #cooldowns_usados)
 	GameCooltip:AddIcon ([[Interface\ICONS\Ability_Warrior_Safeguard]], 1, 1, 14, 14, 0.9375, 0.078125, 0.078125, 0.953125)
@@ -1392,7 +1445,7 @@ function atributo_misc:ToolTipDefensiveCooldowns (instancia, numero, barra)
 	for _, _tabela in _ipairs (meus_alvos) do
 		alvos [#alvos+1] = {_tabela.nome, _tabela.total}
 	end
-	_table_sort (alvos, function(a, b) return a[2] > b[2] end)
+	_table_sort (alvos, _detalhes.Sort2)
 	
 	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_TARGETS"], headerColor, r, g, b, #alvos)
 	GameCooltip:AddIcon ([[Interface\ICONS\Ability_Warrior_DefensiveStance]], 1, 1, 14, 14, 0.9375, 0.125, 0.0625, 0.9375)
@@ -1443,7 +1496,7 @@ function atributo_misc:ToolTipRess (instancia, numero, barra)
 	for _spellid, _tabela in _pairs (minha_tabela) do
 		meus_ress [#meus_ress+1] = {_spellid, _tabela.ress}
 	end
-	_table_sort (meus_ress, function(a, b) return a[2] > b[2] end)
+	_table_sort (meus_ress, _detalhes.Sort2)
 	
 	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_SPELLS"], headerColor, r, g, b, #meus_ress)
 	GameCooltip:AddIcon ([[Interface\ICONS\Ability_Paladin_BlessedMending]], 1, 1, 14, 14, 0.098125, 0.828125, 0.953125, 0.168125)
@@ -1468,7 +1521,7 @@ function atributo_misc:ToolTipRess (instancia, numero, barra)
 	for _, _tabela in _ipairs (meus_alvos) do
 		alvos [#alvos+1] = {_tabela.nome, _tabela.total}
 	end
-	_table_sort (alvos, function(a, b) return a[2] > b[2] end)
+	_table_sort (alvos, _detalhes.Sort2)
 	
 	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_TARGETS"], headerColor, r, g, b, #alvos)
 	--GameCooltip:AddIcon ([[Interface\ICONS\Ability_DeathKnight_IcyGrip]], 1, 1, 14, 14, 0.9375, 0.078125, 0.953125, 0.078125)
@@ -1519,7 +1572,7 @@ function atributo_misc:ToolTipInterrupt (instancia, numero, barra)
 	for _spellid, _tabela in _pairs (minha_tabela) do
 		meus_interrupts [#meus_interrupts+1] = {_spellid, _tabela.counter}
 	end
-	_table_sort (meus_interrupts, function(a, b) return a[2] > b[2] end)
+	_table_sort (meus_interrupts, _detalhes.Sort2)
 	
 	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_SPELLS"], headerColor, r, g, b, #meus_interrupts)
 	GameCooltip:AddIcon ([[Interface\ICONS\Ability_Warrior_PunishingBlow]], 1, 1, 14, 14, 0.9375, 0.078125, 0.078125, 0.953125)
@@ -1543,7 +1596,7 @@ function atributo_misc:ToolTipInterrupt (instancia, numero, barra)
 	for _spellid, amt in _pairs (self.interrompeu_oque) do
 		habilidades_interrompidas [#habilidades_interrompidas+1] = {_spellid, amt}
 	end
-	_table_sort (habilidades_interrompidas, function(a, b) return a[2] > b[2] end)
+	_table_sort (habilidades_interrompidas, _detalhes.Sort2)
 	
 	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_SPELL_INTERRUPTED"] .. ":", headerColor, r, g, b, #habilidades_interrompidas)
 	GameCooltip:AddIcon ([[Interface\ICONS\Ability_Warrior_Sunder]], 1, 1, 14, 14, 0.078125, 0.9375, 0.128125, 0.913125)
@@ -1557,6 +1610,59 @@ function atributo_misc:ToolTipInterrupt (instancia, numero, barra)
 			GameCooltip:AddIcon (icone_magia, nil, nil, 14, 14)
 			GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
 		end
+	end
+	
+--> Pet
+	local meus_pets = self.pets
+	if (#meus_pets > 0) then --> teve ajudantes
+		
+		local quantidade = {} --> armazena a quantidade de pets iguais
+		local interrupts = {} --> armazena as habilidades
+		local alvos = {} --> armazena os alvos
+		local totais = {} --> armazena o dano total de cada objeto
+		
+		for index, nome in _ipairs (meus_pets) do
+			if (not quantidade [nome]) then
+				quantidade [nome] = 1
+				
+				local my_self = instancia.showing[class_type]:PegarCombatente (nil, nome)
+				if (my_self) then
+					totais [#totais+1] = {nome, my_self.interrupt}
+				end
+			else
+				quantidade [nome] = quantidade [nome]+1
+			end
+		end
+	
+		local _quantidade = 0
+		local added_logo = false
+		
+		_table_sort (totais, _detalhes.Sort2)
+		
+		local ismaximized = false
+		if (keydown == "alt" or TooltipMaximizedMethod == 2 or TooltipMaximizedMethod == 5) then
+			ismaximized = true
+		end
+		
+		for index, _table in _ipairs (totais) do
+			
+			if (_table [2] > 0 and (index < 3 or ismaximized)) then
+			
+				if (not added_logo) then
+					added_logo = true
+
+					_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_PETS"], headerColor, r, g, b, #totais)
+					GameCooltip:AddIcon ([[Interface\COMMON\friendship-heart]], 1, 1, 14, 14, 0.21875, 0.78125, 0.09375, 0.6875)
+					GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
+				end
+			
+				local n = _table [1]:gsub (("%s%<.*"), "")
+				GameCooltip:AddLine (n, _table [2] .. " (" .. _math_floor (_table [2]/self.interrupt*100) .. "%)")
+				_detalhes:AddTooltipBackgroundStatusbar()
+				GameCooltip:AddIcon ([[Interface\AddOns\Details\images\classes_small]], 1, 1, 14, 14, 0.25, 0.49609375, 0.75, 1)
+			end
+		end
+			
 	end
 	
 	return true
@@ -1583,26 +1689,6 @@ end
 ------ Interrupt
 function atributo_misc:MontaInfoInterrupt()
 
---[[
---> quais habilidades foram interrompidas
-	local habilidades_interrompidas = {}
-	
-	for _spellid, amt in _pairs (self.interrompeu_oque) do
-		habilidades_interrompidas [#habilidades_interrompidas+1] = {_spellid, amt}
-	end
-	_table_sort (habilidades_interrompidas, function(a, b) return a[2] > b[2] end)
-	
-	GameTooltip:AddLine ("Habilidades Interrompidas:") 
-	if (#habilidades_interrompidas > 0) then
-		for i = 1, _math_min (3, #habilidades_interrompidas) do
-			local esta_habilidade = habilidades_interrompidas[i]
-			local nome_magia, _, icone_magia = _GetSpellInfo (esta_habilidade[1])
-			GameTooltip:AddDoubleLine (nome_magia..": ", esta_habilidade[2].." (".._cstr("%.1f", esta_habilidade[2]/meu_total*100).."%)", 1, 1, 1, 1, 1, 1)
-			GameTooltip:AddTexture (icone_magia)
-		end
-	end
---]]
-
 	local meu_total = self ["interrupt"]
 	local minha_tabela = self.interrupt_spell_tables._ActorTable
 
@@ -1611,12 +1697,26 @@ function atributo_misc:MontaInfoInterrupt()
 	
 	local meus_interrupts = {}
 
+	--player
 	for _spellid, _tabela in _pairs (minha_tabela) do --> da foreach em cada spellid do container
 		local nome, _, icone = _GetSpellInfo (_spellid)
 		_table_insert (meus_interrupts, {_spellid, _tabela.counter, _tabela.counter/meu_total*100, nome, icone})
 	end
-
-	_table_sort (meus_interrupts, function(a, b) return a[2] > b[2] end)
+	--pet
+	local ActorPets = self.pets
+	local class_color = "FFDDDDDD"
+	for _, PetName in _ipairs (ActorPets) do
+		local PetActor = instancia.showing (class_type, PetName)
+		if (PetActor and PetActor.interrupt and PetActor.interrupt > 0) then 
+			local PetSkillsContainer = PetActor.interrupt_spell_tables._ActorTable
+			for _spellid, _skill in _pairs (PetSkillsContainer) do --> da foreach em cada spellid do container
+				local nome, _, icone = _GetSpellInfo (_spellid)
+				_table_insert (meus_interrupts, {_spellid, _skill.counter, _skill.counter/meu_total*100, nome .. " (|c" .. class_color .. PetName:gsub ((" <.*"), "") .. "|r)", icone, PetActor})
+			end
+		end
+	end
+	
+	_table_sort (meus_interrupts, _detalhes.Sort2)
 
 	local amt = #meus_interrupts
 	gump:JI_AtualizaContainerBarras (amt)
@@ -1684,7 +1784,7 @@ function atributo_misc:MontaInfoInterrupt()
 	for _, tabela in _pairs (self.interrupt_targets._ActorTable) do
 		meus_alvos [#meus_alvos+1] = {tabela.nome, tabela.total}
 	end
-	_table_sort (meus_alvos, function(a, b) return a[2] > b[2] end)
+	_table_sort (meus_alvos, _detalhes.Sort2)
 	
 	local amt_alvos = #meus_alvos
 	if (amt_alvos < 1) then
@@ -1776,7 +1876,7 @@ function atributo_misc:MontaDetalhesInterrupt (spellid, barra)
 	for spellid, amt in pairs (esta_magia.interrompeu_oque) do 
 		habilidades_alvos [#habilidades_alvos+1] = {spellid, amt}
 	end
-	_table_sort (habilidades_alvos, function(a, b) return a[2] > b[2] end)
+	_table_sort (habilidades_alvos, _detalhes.Sort2)
 	local max_ = habilidades_alvos[1][2]
 	
 	local barra
