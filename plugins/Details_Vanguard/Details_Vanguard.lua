@@ -96,6 +96,9 @@ local function CreatePluginFrames (data)
 				
 				Vanguard:Start()
 			end
+
+			VanguardFrame:SetFrameStrata (instancia.strata)
+			VanguardFrame:SetFrameLevel (instancia.baseframe:GetFrameLevel()+5)
 			
 		elseif (event == "REFRESH") then --> requested a refresh window
 			-->
@@ -121,7 +124,9 @@ local function CreatePluginFrames (data)
 			VanguardFrame:SetFrameLevel (instancia.baseframe:GetFrameLevel()+1)
 
 		elseif (event == "DETAILS_INSTANCE_ENDSTRETCH") then
-			VanguardFrame:SetFrameStrata ("MEDIUM")
+			local instance = Vanguard:GetInstance (Vanguard.instance_id)
+			VanguardFrame:SetFrameStrata (instance.strata)
+			VanguardFrame:SetFrameLevel (instance.baseframe:GetFrameLevel()+5)
 			Vanguard:OnResize()
 		
 		elseif (event == "COMBAT_PLAYER_LEAVE") then --> current combat has finished

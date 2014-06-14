@@ -140,8 +140,10 @@
 
 		local mostrando = self.mostrando
 		
-		local baseframe_width = math.floor (self.baseframe:GetWidth())
-		local baseframe_height = math.floor (self.baseframe:GetHeight())
+		--local baseframe_width = math.floor (self.baseframe:GetWidth())
+		--local baseframe_height = math.floor (self.baseframe:GetHeight())
+		local baseframe_width = self.baseframe:GetWidth()
+		local baseframe_height = self.baseframe:GetHeight()
 		
 		if (not baseframe_width) then
 			return _detalhes:ScheduleTimer ("SaveMainWindowPosition", 1, self)
@@ -380,10 +382,7 @@
 
 				if (self.rows_fit_in_window > #self.barras) then--> verifica se precisa criar mais barras
 					for i  = #self.barras+1, self.rows_fit_in_window, 1 do
-						local nova_barra = gump:CriaNovaBarra (self, i, 30) --> cria nova barra
-						nova_barra.texto_esquerdo:SetText (Loc ["STRING_NEWROW"]) --seta o texto da esqueda
-						nova_barra.statusbar:SetValue (100)
-						self.barras [i] = nova_barra
+						gump:CriaNovaBarra (self, i, 30) --> cria nova barra
 					end
 					self.rows_created = #self.barras
 				end

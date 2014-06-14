@@ -1604,8 +1604,8 @@ function gump:CriaJanelaInfo()
 		local target_texture = [[Interface\MINIMAP\TRACKING\Target]]
 		local empty_text = ""
 		
-		local plus = red .. "+(" 
-		local minor = green .. "-("
+		local plus = red .. "-(" 
+		local minor = green .. "+("
 
 		local fill_compare_targets = function (self, player, other_players, target_pool)
 			

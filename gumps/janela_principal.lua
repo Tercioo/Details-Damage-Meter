@@ -1582,8 +1582,8 @@ local function button_stretch_scripts (baseframe, backgrounddisplay, instancia)
 						gump:GradientEffect (esta_instancia.baseframe.wallpaper, "texture", _r, _g, _b, _a, _r, _g, _b, esta_instancia.baseframe.wallpaper.alpha, 1.0)
 					end
 					
-					esta_instancia.baseframe:SetFrameStrata (baseframe_strata)
-					esta_instancia.rowframe:SetFrameStrata (baseframe_strata)
+					esta_instancia.baseframe:SetFrameStrata (esta_instancia.strata)
+					esta_instancia.rowframe:SetFrameStrata (esta_instancia.strata)
 					esta_instancia:StretchButtonAlwaysOnTop()
 					
 					_detalhes:SendEvent ("DETAILS_INSTANCE_ENDSTRETCH", nil, esta_instancia.baseframe)
@@ -1601,8 +1601,8 @@ local function button_stretch_scripts (baseframe, backgrounddisplay, instancia)
 			gump:GradientEffect (baseframe.wallpaper, "texture", _r, _g, _b, _a, _r, _g, _b, instancia.wallpaper.alpha, 1.0)
 		end
 		
-		baseframe:SetFrameStrata (baseframe_strata)
-		instancia.rowframe:SetFrameStrata (baseframe_strata)
+		baseframe:SetFrameStrata (instancia.strata)
+		instancia.rowframe:SetFrameStrata (instancia.strata)
 		instancia:StretchButtonAlwaysOnTop()
 		
 		_detalhes:SnapTextures (false)
@@ -2750,6 +2750,13 @@ function gump:CriaNovaBarra (instancia, index)
 	--> hida a barra
 	gump:Fade (esta_barra, 1) 
 
+	--> adiciona ela ao container de barras
+	instancia.barras [index] = esta_barra
+	
+	--> seta o texto da esqueda
+	esta_barra.texto_esquerdo:SetText (Loc ["STRING_NEWROW"])
+	esta_barra.statusbar:SetValue (100)
+	
 	instancia:InstanceRefreshRows()
 	
 	return esta_barra
@@ -2913,6 +2920,7 @@ function _detalhes:SetBarSettings (height, texture, colorclass, fixedcolor, back
 
 end
 
+--/script _detalhes:InstanceRefreshRows (_detalhes.tabela_instancias[1])
 
 -- search key: ~row
 function _detalhes:InstanceRefreshRows (instancia)
