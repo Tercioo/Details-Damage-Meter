@@ -118,6 +118,10 @@
 		
 		tinsert (_detalhes.savedTimeCaptures, {name, func, matrix, author, version, icon, is_enabled, do_not_save = no_save})
 		
+		if (_G.DetailsOptionsWindow and _G.DetailsOptionsWindow:IsShown()) then
+			_G.DetailsOptionsWindow16UserTimeCapturesFillPanel.MyObject:Refresh()
+		end
+		
 		return true
 		
 	end

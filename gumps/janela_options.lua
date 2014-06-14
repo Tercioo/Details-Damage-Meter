@@ -6764,6 +6764,9 @@ function window:update_all (editing_instance)
 	_G.DetailsOptionsWindow14AttributeSideSwitch.MyObject:SetFixedParameter (editing_instance)
 	_G.DetailsOptionsWindow14AttributeSideSwitch.MyObject:SetValue (editing_instance.attribute_text.side)
 	
+	--> window 16
+	_G.DetailsOptionsWindow16UserTimeCapturesFillPanel.MyObject:Refresh()
+	
 	--> window 17
 	_G.DetailsOptionsWindow17CombatAlphaDropdown.MyObject:Select (editing_instance.hide_in_combat_type, true)
 	_G.DetailsOptionsWindow17HideOnCombatAlphaSlider.MyObject:SetFixedParameter (editing_instance)

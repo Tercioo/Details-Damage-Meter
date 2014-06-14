@@ -53,6 +53,7 @@
 	local TooltipMaximizedMethod = 1
 
 	local CLASS_ICON_TCOORDS = _G.CLASS_ICON_TCOORDS
+	local is_player_class = _detalhes.player_class
 
 	local key_overlay = {1, 1, 1, .1}
 	local key_overlay_press = {1, 1, 1, .2}
@@ -193,6 +194,30 @@
 				return table1 [4] > table2 [4]
 			end
 			
+--[[exported]]	function _detalhes:GetBarColor (actor)
+				actor = actor or self
+				
+				if (actor.owner) then
+					return _unpack (_detalhes.class_colors [actor.owner.classe])
+					
+				elseif (actor.monster) then
+					return _unpack (_detalhes.class_colors.ENEMY)
+
+				elseif (actor.arena_enemy) then
+					return _unpack (_detalhes.class_colors.ARENA_ENEMY)
+				
+				elseif (actor.arena_ally) then
+					return _unpack (_detalhes.class_colors.ARENA_ALLY)
+				
+				else
+					if (not is_player_class [actor.classe] and _bit_band (actor.flag_original, 0x00000020) ~= 0) then --> neutral
+						return _unpack (_detalhes.class_colors.NEUTRAL)
+					else
+						return _unpack (_detalhes.class_colors [actor.classe])
+					end
+				end
+			end
+			
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> internals
 
@@ -251,6 +276,9 @@
 
 	-- dps (calculate dps for actors)
 	function atributo_damage:ContainerRefreshDps (container, combat_time)
+	
+		local total = 0
+		
 		if (_detalhes.time_type == 2 or not _detalhes:CaptureGet ("damage")) then
 			for _, actor in _ipairs (container) do
 				if (actor.grupo) then
@@ -258,13 +286,17 @@
 				else
 					actor.last_dps = actor.total / actor:Tempo()
 				end
+				total = total + actor.last_dps
 			end
 		else
 			for _, actor in _ipairs (container) do
 				actor.last_dps = actor.total / actor:Tempo()
+				total = total + actor.last_dps
 			end
 		end
-	end
+		
+		return total
+	end	
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> frags
@@ -803,21 +835,19 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 			--> grava o total
 			instancia.top = conteudo[1][keyName]
 			
-			--print ("aqui", amount, total, instancia.top)
-
 		elseif (modo == modo_ALL) then --> mostrando ALL
 		
 			--> faz o sort da categoria e retorna o amount corrigido
 			--print (keyName)
 			if (sub_atributo == 2) then
 				local combat_time = instancia.showing:GetCombatTime()
-				atributo_damage:ContainerRefreshDps (conteudo, combat_time)
+				total = atributo_damage:ContainerRefreshDps (conteudo, combat_time)
+			else
+				--> pega o total ja aplicado na tabela do combate
+				total = tabela_do_combate.totals [class_type]
 			end
 			
 			amount = _detalhes:ContainerSort (conteudo, amount, keyName)
-			
-			--> pega o total ja aplicado na tabela do combate
-			total = tabela_do_combate.totals [class_type]
 			
 			--> grava o total
 			instancia.top = conteudo[1][keyName]
@@ -864,7 +894,6 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 				_table_sort (conteudo, _detalhes.SortKeyGroup)
 			end
 			--
-			
 			if (not using_cache) then
 				for index, player in _ipairs (conteudo) do
 					if (player.grupo) then --> é um player e esta em grupo
@@ -882,6 +911,7 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 					end
 				end
 			end
+
 		end
 	end
 	
@@ -891,7 +921,7 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 	end
 	
 	if (exportar) then 
-		return total, keyName, instancia.top
+		return total, keyName, instancia.top, amount
 	end
 
 	if (amount < 1) then --> não há barras para mostrar
@@ -1242,19 +1272,7 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 		forcar = true
 	end
 	
-	if (self.owner) then
-		actor_class_color_r, actor_class_color_g, actor_class_color_b = _unpack (_detalhes.class_colors [self.owner.classe])
-		
-	elseif (self.monster) then
-		actor_class_color_r, actor_class_color_g, actor_class_color_b = _unpack (_detalhes.class_colors.ENEMY)
-		
-	else
-		if (_bit_band (self.flag_original, 0x00000020) ~= 0) then --> neutral
-			actor_class_color_r, actor_class_color_g, actor_class_color_b = 1, 1, 0
-		else
-			actor_class_color_r, actor_class_color_g, actor_class_color_b = _unpack (_detalhes.class_colors [self.classe])
-		end
-	end
+	actor_class_color_r, actor_class_color_g, actor_class_color_b = self:GetBarColor()
 	
 	return self:RefreshBarra2 (esta_barra, instancia, tabela_anterior, forcar, esta_porcentagem, qual_barra, barras_container)
 
@@ -1334,17 +1352,7 @@ end
 --[[ exported]] function _detalhes:RefreshBarra (esta_barra, instancia, from_resize)
 	
 	if (from_resize) then
-		if (self.owner) then
-			actor_class_color_r, actor_class_color_g, actor_class_color_b = _unpack (_detalhes.class_colors [self.owner.classe])
-		elseif (self.monster) then
-			actor_class_color_r, actor_class_color_g, actor_class_color_b = _unpack (_detalhes.class_colors.ENEMY)
-		else
-			if (_bit_band (self.flag_original, 0x00000020) ~= 0) then --> neutral
-				actor_class_color_r, actor_class_color_g, actor_class_color_b = 1, 1, 0
-			else
-				actor_class_color_r, actor_class_color_g, actor_class_color_b = _unpack (_detalhes.class_colors [self.classe])
-			end
-		end
+		actor_class_color_r, actor_class_color_g, actor_class_color_b = self:GetBarColor()
 	end
 	
 	if (instancia.row_info.texture_class_colors) then
@@ -1389,19 +1397,28 @@ end
 		esta_barra.icone_classe:SetTexCoord (_unpack (CLASS_ICON_TCOORDS [self.classe])) --very slow method
 		esta_barra.icone_classe:SetVertexColor (1, 1, 1)
 	end
-	
+
 	if (self.enemy) then
-		if (_detalhes.faction_against == "Horde") then
-			esta_barra.texto_esquerdo:SetText (esta_barra.colocacao..". |TInterface\\AddOns\\Details\\images\\icones_barra:"..instancia.row_info.height..":"..instancia.row_info.height..":0:0:256:32:0:32:0:32|t"..self.displayName) --seta o texto da esqueda -- HORDA
+		if (self.arena_enemy) then
+			esta_barra.texto_esquerdo:SetText (esta_barra.colocacao .. ".|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. instancia.row_info.height .. ":" .. instancia.row_info.height .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t" .. self.displayName)
+			esta_barra.textura:SetVertexColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
 		else
-			esta_barra.texto_esquerdo:SetText (esta_barra.colocacao..". |TInterface\\AddOns\\Details\\images\\icones_barra:"..instancia.row_info.height..":"..instancia.row_info.height..":0:0:256:32:32:64:0:32|t"..self.displayName) --seta o texto da esqueda -- ALLY
-		end
-		
-		if (instancia.row_info.texture_class_colors) then
-			esta_barra.textura:SetVertexColor (0.94117, 0, 0.01960, 1)
+			if (_detalhes.faction_against == "Horde") then
+				esta_barra.texto_esquerdo:SetText (esta_barra.colocacao..". |TInterface\\AddOns\\Details\\images\\icones_barra:"..instancia.row_info.height..":"..instancia.row_info.height..":0:0:256:32:0:32:0:32|t"..self.displayName) --seta o texto da esqueda -- HORDA
+			else
+				esta_barra.texto_esquerdo:SetText (esta_barra.colocacao..". |TInterface\\AddOns\\Details\\images\\icones_barra:"..instancia.row_info.height..":"..instancia.row_info.height..":0:0:256:32:32:64:0:32|t"..self.displayName) --seta o texto da esqueda -- ALLY
+			end
+			
+			if (instancia.row_info.texture_class_colors) then
+				esta_barra.textura:SetVertexColor (0.94117, 0, 0.01960, 1)
+			end
 		end
 	else
-		esta_barra.texto_esquerdo:SetText (esta_barra.colocacao..". "..self.displayName) --seta o texto da esqueda
+		if (self.arena_ally) then
+			esta_barra.texto_esquerdo:SetText (esta_barra.colocacao .. ".|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. instancia.row_info.height .. ":" .. instancia.row_info.height .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t" .. self.displayName)
+		else
+			esta_barra.texto_esquerdo:SetText (esta_barra.colocacao..". "..self.displayName) --seta o texto da esqueda
+		end
 	end
 	
 	if (instancia.row_info.textL_class_colors) then

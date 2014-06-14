@@ -33,35 +33,6 @@
 			current_plugin_object.Frame:Hide()
 		end
 		instance.current_raid_plugin = nil
-		
-		--[[
-		if (_G.DetailsWaitForPluginFrame:IsShown()) then
-			_detalhes:CancelWaitForPlugin()
-		end
-		gump:Fade (instancia, 1, nil, "barras")
-		gump:Fade (instancia.scroll, 0)
-		
-		if (instancia.need_rolagem) then
-			instancia:MostrarScrollBar (true)
-		else
-			--> precisa verificar se ele precisa a rolagem certo?
-			instancia:ReajustaGump()
-		end
-		
-		--> calcula se existem barras, etc...
-		if (not instancia.rows_fit_in_window) then --> as barras não forma iniciadas ainda
-			instancia.rows_fit_in_window = _math_floor (instancia.baseframe.BoxBarrasAltura / instancia.row_height)
-			if (instancia.rows_created < instancia.rows_fit_in_window) then
-				for i  = #instancia.barras+1, instancia.rows_fit_in_window do
-					local nova_barra = gump:CriaNovaBarra (instancia, i, 30) --> cria nova barra
-					nova_barra.texto_esquerdo:SetText (Loc ["STRING_NEWROW"])
-					nova_barra.statusbar:SetValue (100) 
-					instancia.barras [i] = nova_barra
-				end
-				instancia.rows_created = #instancia.barras
-			end
-		end
-		--]]
 	end
 	
 	function _detalhes:RaidPluginInstalled (plugin_name)
@@ -77,8 +48,15 @@
 		end
 	end
 	
-	function _detalhes.RaidTables:EnableRaidMode (instance, plugin_name)
+	function _detalhes.RaidTables:EnableRaidMode (instance, plugin_name, from_cooltip, from_mode_menu)
 
+		--> check if came from cooltip
+		if (from_cooltip) then
+			self = _detalhes.RaidTables
+			instance = plugin_name
+			plugin_name = from_cooltip
+		end
+	
 		--> set the mode
 		if (instance.modo == modo_alone) then
 			instance:SoloMode (false)
@@ -121,6 +99,11 @@
 		--last check if the name is okey
 		if (self:IsAvailable (plugin_name, instance)) then
 			self:switch (nil, plugin_name, instance)
+			
+			if (from_mode_menu) then
+				--refresh
+				instance.baseframe.cabecalho.modo_selecao:GetScript ("OnEnter")(instance.baseframe.cabecalho.modo_selecao)
+			end
 		else
 			if (not instance.wait_for_plugin) then
 				instance:CreateWaitForPlugin()
@@ -154,8 +137,6 @@
 		--check if is available
 		local in_use = self.PluginsInUse [ plugin_name ]
 		
-		-- print (instance:GetId() .. " In Use By Instance: ", in_use )
-		
 		if (in_use and in_use ~= instance:GetId()) then
 			return false
 		else
@@ -168,8 +149,7 @@
 			self.PluginsInUse [ absolute_name ] = instance_number
 		end
 	end
-	
-	
+
 	----------------
 	
 	function _detalhes.RaidTables:switch (_, plugin_name, instance)

@@ -23,6 +23,7 @@
 	local _GetInstanceInfo = GetInstanceInfo --wow api local
 	local _UnitExists = UnitExists --wow api local
 	local _UnitGUID = UnitGUID --wow api local
+	local _UnitName = UnitName --wow api local
 
 	local _IsAltKeyDown = IsAltKeyDown
 	local _IsShiftKeyDown = IsShiftKeyDown
@@ -117,6 +118,47 @@
 			
 			_detalhes.tabela_vigente.is_boss = boss_table
 			
+			if (_detalhes.in_combat and not _detalhes.leaving_combat) then
+			
+				--> catch boss function if any
+				local bossFunction, bossFunctionType = _detalhes:GetBossFunction (ZoneMapID, BossIndex)
+				if (bossFunction) then
+					if (_bit_band (bossFunctionType, 0x1) ~= 0) then --realtime
+						_detalhes.bossFunction = bossFunction
+						_detalhes.tabela_vigente.bossFunction = _detalhes:ScheduleTimer ("bossFunction", 1)
+					end
+				end
+				
+				if (_detalhes.zone_type ~= "raid") then
+					local endType, endData = _detalhes:GetEncounterEnd (ZoneMapID, BossIndex)
+					if (endType and endData) then
+					
+						if (_detalhes.debug) then
+							_detalhes:Msg ("(debug) setting boss end type to:", endType)
+						end
+					
+						_detalhes.encounter_end_table.type = endType
+						_detalhes.encounter_end_table.killed = {}
+						_detalhes.encounter_end_table.data = {}
+						
+						if (type (endData) == "table") then
+							if (_detalhes.debug) then
+								_detalhes:Msg ("(debug) boss type is table:", endType)
+							end
+							if (endType == 1 or endType == 2) then
+								for _, npcID in ipairs (endData) do 
+									_detalhes.encounter_end_table.data [npcID] = false
+								end
+							end
+						else
+							if (endType == 1 or endType == 2) then
+								_detalhes.encounter_end_table.data [endData] = false
+							end
+						end
+					end
+				end
+			end
+			
 			_detalhes:SendEvent ("COMBAT_BOSS_FOUND", nil, index, name)
 			
 			return boss_table
@@ -148,54 +190,11 @@
 								local BossIndex = BossIds [serial]
 
 								if (BossIndex) then 
-								
 									if (_detalhes.debug) then
 										_detalhes:Msg ("(debug) boss found:",_detalhes:GetBossName (ZoneMapID, BossIndex))
 									end
-								
-									if (_detalhes.in_combat) then
-									
-										--> catch boss function if any
-										local bossFunction, bossFunctionType = _detalhes:GetBossFunction (ZoneMapID, BossIndex)
-										if (bossFunction) then
-											if (_bit_band (bossFunctionType, 0x1) ~= 0) then --realtime
-												_detalhes.bossFunction = bossFunction
-												local combat = _detalhes:GetCombat ("current")
-												combat.bossFunction = _detalhes:ScheduleTimer ("bossFunction", 1)
-											end
-										end
-										
-										--> catch boss end if any
-										local endType, endData = _detalhes:GetEncounterEnd (ZoneMapID, BossIndex)
-										if (endType and endData) then
-										
-											if (_detalhes.debug) then
-												_detalhes:Msg ("(debug) setting boss end type to:", endType)
-											end
-										
-											_detalhes.encounter.type = endType
-											_detalhes.encounter.killed = {}
-											_detalhes.encounter.data = {}
-											
-											if (type (endData) == "table") then
-												if (_detalhes.debug) then
-													_detalhes:Msg ("(debug) boss type is table:", endType)
-												end
-												if (endType == 1 or endType == 2) then
-													for _, npcID in ipairs (endData) do 
-														_detalhes.encounter.data [npcID] = false
-													end
-												end
-											else
-												if (endType == 1 or endType == 2) then
-													_detalhes.encounter.data [endData] = false
-												end
-											end
-										end
-									end
 									
 									return boss_found (BossIndex, _detalhes:GetBossName (ZoneMapID, BossIndex), ZoneName, ZoneMapID, DifficultyID)
-									
 								end
 							end
 						end
@@ -249,7 +248,7 @@
 				_detalhes:Msg ("(debug) started a new combat.")
 			end
 
-			--> não tem historico, addon foi resetado, a primeira tabela é descartada -- Erase first table is does not have a firts segment history, this occour after reset or first run
+			--> não tem historico, addon foi resetado, a primeira tabela é descartada -- Erase first table is do es not have a firts segment history, this occour after reset or first run
 			if (not _detalhes.tabela_historico.tabelas[1]) then 
 				--> precisa zerar aqui a tabela overall
 				_table_wipe (_detalhes.tabela_overall)
@@ -291,7 +290,7 @@
 			--> é o timer que ve se o jogador ta em combate ou não -- check if any party or raid members are in combat
 			_detalhes.tabela_vigente.verifica_combate = _detalhes:ScheduleRepeatingTimer ("EstaEmCombate", 1) 
 
-			_table_wipe (_detalhes.encounter)
+			_table_wipe (_detalhes.encounter_end_table)
 			
 			_table_wipe (_detalhes.pets_ignored)
 			_table_wipe (_detalhes.pets_no_owner)
@@ -358,6 +357,8 @@
 			if (_detalhes.debug) then
 				_detalhes:Msg ("(debug) ended a combat.")
 			end
+			
+			_detalhes.leaving_combat = true
 			
 			if (_detalhes.schedule_remove_overall and not from_encounter_end and not InCombatLockdown()) then
 				if (_detalhes.debug) then
@@ -554,6 +555,7 @@
 			end
 			
 			_detalhes.in_combat = false --sinaliza ao addon que não há combate no momento
+			_detalhes.leaving_combat = false --sinaliza que não esta mais saindo do combate
 			
 			_table_wipe (_detalhes.cache_damage_group)
 			_table_wipe (_detalhes.cache_healing_group)
@@ -575,6 +577,80 @@
 			_table_wipe (_detalhes.encounter_table)
 			
 			_detalhes:SendEvent ("COMBAT_PLAYER_LEAVE", nil, _detalhes.tabela_vigente)
+		end
+
+		function _detalhes:GetPlayersInArena()
+			local aliados = GetNumGroupMembers (LE_PARTY_CATEGORY_HOME)
+			for i = 1, aliados-1 do
+				local role = UnitGroupRolesAssigned ("party" .. i)
+				if (role ~= "NONE") then
+					local name = GetUnitName ("party" .. i, true)
+					_detalhes.arena_table [name] = {role = role}
+				end
+			end
+			
+			local role = UnitGroupRolesAssigned ("player")
+			if (role ~= "NONE") then
+				local name = GetUnitName ("player", true)
+				_detalhes.arena_table [name] = {role = role}
+			end
+			if (_detalhes.debug) then
+				_detalhes:Msg ("(debug) Found", oponentes, "enemies and", aliados, "allies")
+			end
+		end
+		
+		function _detalhes:CreateArenaSegment()
+		
+			_detalhes:GetPlayersInArena()
+		
+			_detalhes.arena_begun = true
+			_detalhes.start_arena = nil
+		
+			if (_detalhes.in_combat) then
+				_detalhes:SairDoCombate()
+			end
+		
+			--> inicia um novo combate
+			_detalhes:EntrarEmCombate()
+		
+			--> sinaliza que esse combate é arena
+			_detalhes.tabela_vigente.arena = true
+			_detalhes.tabela_vigente.is_arena = {name = _detalhes.zone_name, zone = _detalhes.zone_name, mapid = _detalhes.zone_id}
+		end
+		
+		function _detalhes:StartArenaSegment (...)
+			if (_detalhes.debug) then
+				_detalhes:Msg ("(debug) starting a new arena segment.")
+			end
+			
+			local timerType, timeSeconds, totalTime = select (1, ...)
+			
+			if (_detalhes.start_arena) then
+				_detalhes:CancelTimer (_detalhes.start_arena, true)
+			end
+			_detalhes.start_arena = _detalhes:ScheduleTimer ("CreateArenaSegment", timeSeconds)
+			_detalhes:GetPlayersInArena()
+		end
+
+		function _detalhes:EnteredInArena()
+
+			if (_detalhes.debug) then
+				_detalhes:Msg ("(debug) arena detected.")
+			end
+		
+			_detalhes.arena_begun = false
+
+			_detalhes:GetPlayersInArena()
+		end
+		
+		function _detalhes:LeftArena()
+		
+			_detalhes.is_in_arena = false
+			_detalhes.arena_begun = false
+		
+			if (_detalhes.start_arena) then
+				_detalhes:CancelTimer (_detalhes.start_arena, true)
+			end
 		end
 		
 		function _detalhes:MakeEqualizeOnActor (player, realm, receivedActor)

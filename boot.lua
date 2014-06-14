@@ -8,7 +8,7 @@
 
 		_ = nil
 		_detalhes = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0", "NickTag-1.0", "LibHotCorners")
-		_detalhes.userversion = "v1.16.1"
+		_detalhes.userversion = "v1.16.3"
 		_detalhes.version = "Alpha 019"
 		_detalhes.realversion = 19
 
@@ -30,6 +30,7 @@ do
 	--> containers
 		--> armazenas as funções do parser - All parse functions 
 			_detalhes.parser = {} 
+			_detalhes.parser_functions = {}
 			_detalhes.parser_frame = CreateFrame ("Frame", nil, _UIParent)
 			_detalhes.parser_frame:Hide()
 		--> armazena os escudos - Shields information for absorbs
@@ -61,8 +62,27 @@ do
 		--> armazena os hooks das funções do parser
 			_detalhes.hooks = {}
 		--> informações sobre a luta do boss atual
+			_detalhes.encounter_end_table = {}
 			_detalhes.encounter_table = {}
-	
+		--> informações sobre a arena atual
+			_detalhes.arena_table = {}
+			_detalhes.arena_info = {
+				[562] = {file = "LoadScreenBladesEdgeArena", coords = {0, 1, 0.29296875, 0.9375}}, -- Circle of Blood Arena
+				[617] = {file = "LoadScreenDalaranSewersArena", coords = {0, 1, 0.29296875, 0.857421875}}, --Dalaran Arena
+				[559] = {file = "LoadScreenNagrandArenaBattlegrounds", coords = {0, 1, 0.341796875, 1}}, --Ring of Trials
+				[980] = {file = "LoadScreenTolvirArena", coords = {0, 1, 0.29296875, 0.857421875}}, --Tol'Viron Arena
+				[572] = {file = "LoadScreenRuinsofLordaeronBattlegrounds", coords = {0, 1, 0.341796875, 1}}, --Ruins of Lordaeron
+				[1134] = {file = "LoadingScreen_Shadowpan_bg", coords = {0, 1, 0.29296875, 0.857421875}}, -- Tiger's Peak
+				--"LoadScreenOrgrimmarArena", --Ring of Valor 
+			}
+			
+			function _detalhes:GetArenaInfo (mapid)
+				local t = _detalhes.arena_info [mapid]
+				if (t) then
+					return t.file, t.coords
+				end
+			end
+			
 	--> Plugins
 		--> raid -------------------------------------------------------------------
 			--> general function for raid mode plugins
@@ -145,6 +165,27 @@ do
 			abre = "(",	--> open
 			fecha = ")",	--> close
 			colocacao = ". " --> dot
+		}
+		
+		_detalhes.role_texcoord = {
+			DAMAGER = "72:130:69:127",
+			HEALER = "72:130:2:60",
+			TANK = "5:63:69:127",
+			NONE = "139:196:69:127",
+		}
+		
+		_detalhes.player_class = {
+			["HUNTER"] = true,
+			["WARRIOR"] = true,
+			["PALADIN"] = true,
+			["SHAMAN"] = true,
+			["MAGE"] = true,
+			["ROGUE"] = true,
+			["PRIEST"] = true,
+			["WARLOCK"] = true,
+			["DRUID"] = true,
+			["MONK"] = true,
+			["DEATHKNIGHT"] = true,
 		}
 		
 		local Loc = LibStub ("AceLocale-3.0"):GetLocale ("Details")

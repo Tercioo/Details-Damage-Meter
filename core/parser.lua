@@ -2175,6 +2175,18 @@
 				end
 				
 				_current_combat.frags_need_refresh = true
+				
+			--> detect dungeon boss
+				--if (_detalhes.zone_type == "party") then
+				--	local npcID = tonumber (alvo_serial:sub (6, 10), 16)
+				--	local boss_ids = _detalhes:GetBossIds (_detalhes.zone_id)
+					
+				--	if (boss_ids) then
+				--		if (_detalhes.zone_id [npcID]) then
+							
+				--		end
+				--	end
+				--end
 
 		--> player death
 		elseif (not _UnitIsFeignDeath (alvo_name)) then
@@ -2510,8 +2522,9 @@
 
 	-- PARSER
 	--serach key: ~parser ~event ~start ~inicio
-
-	_detalhes.parser_functions = {}
+	
+	
+	
 	
 	function _detalhes.parser_functions:ZONE_CHANGED_NEW_AREA (...)
 		local zoneName, zoneType, _, _, _, _, _, zoneMapID = _GetInstanceInfo()
@@ -2519,6 +2532,14 @@
 		_detalhes.zone_type = zoneType
 		_detalhes.zone_id = zoneMapID
 		_detalhes.zone_name = zoneName
+		
+		if (_detalhes.debug) then
+			_detalhes:Msg ("(debug) zone change:", _detalhes.zone_name, "is a", _detalhes.zone_type, "zone.")
+		end
+		
+		if (_detalhes.is_in_arena and zoneType ~= "arena") then
+			_detalhes:LeftArena()
+		end
 		
 		if (zoneType == "pvp") then
 			if (not _current_combat.pvp) then
@@ -2533,6 +2554,16 @@
 				_current_combat.is_pvp = {name = zoneName, zone = ZoneName, mapid = ZoneMapID}
 				_detalhes.listener:RegisterEvent ("CHAT_MSG_BG_SYSTEM_NEUTRAL")
 			end
+		
+		elseif (zoneType == "arena") then
+		
+			if (_detalhes.debug) then
+				_detalhes:Msg ("(debug) zone type is arena.")
+			end
+		
+			_detalhes.is_in_arena = true
+			_detalhes:EnteredInArena()
+			
 		else
 			if (_detalhes:IsInInstance()) then
 				_detalhes.last_instance = zoneMapID
@@ -2715,8 +2746,22 @@
 	end
 
 	function _detalhes.parser_functions:START_TIMER (...)
+	
+		if (_detalhes.debug) then
+			_detalhes:Msg ("(debug) found a timer.")
+		end
+	
 		if (C_Scenario.IsChallengeMode() and _detalhes.overall_clear_newchallenge) then
 			_detalhes.historico:resetar_overall()
+			if (_detalhes.debug) then
+				_detalhes:Msg ("(debug) timer is a challenge mode start.")
+			end
+			
+		elseif (_detalhes.is_in_arena) then
+			_detalhes:StartArenaSegment (...)
+			if (_detalhes.debug) then
+				_detalhes:Msg ("(debug) timer is a arena countdown.")
+			end
 		end
 	end
 
@@ -2862,7 +2907,7 @@
 		return _detalhes.cache_damage_group
 	end
 	function _detalhes:GetActorsOnHealingCache()
-		return _detalhes.cache_damage_group
+		return _detalhes.cache_healing_group
 	end
 	
 	function _detalhes:ClearParserCache()

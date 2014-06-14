@@ -160,6 +160,8 @@ end
 
 function atributo_heal:ContainerRefreshHps (container, combat_time)
 
+	local total = 0
+	
 	if (_detalhes.time_type == 2 or not _detalhes:CaptureGet ("heal")) then
 		for _, actor in _ipairs (container) do
 			if (actor.grupo) then
@@ -167,13 +169,16 @@ function atributo_heal:ContainerRefreshHps (container, combat_time)
 			else
 				actor.last_hps = actor.total / actor:Tempo()
 			end
+			total = total + actor.last_hps
 		end
 	else
 		for _, actor in _ipairs (container) do
 			actor.last_hps = actor.total / actor:Tempo()
+			total = total + actor.last_hps
 		end
 	end
 	
+	return total
 end
 
 function atributo_heal:ReportSingleDamagePreventedLine (actor, instancia)
@@ -264,9 +269,14 @@ function atributo_heal:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 	
 		amount = _detalhes:ContainerSortHeal (conteudo, amount, keyName)
 
-		--> pega o total ja aplicado na tabela do combate
-		total = tabela_do_combate.totals [class_type]
-		
+		if (sub_atributo == 2) then --hps
+			local combat_time = instancia.showing:GetCombatTime()
+			total = atributo_heal:ContainerRefreshHps (conteudo, combat_time)
+		else
+			--> pega o total ja aplicado na tabela do combate
+			total = tabela_do_combate.totals [class_type]
+		end
+
 		--> grava o total
 		instancia.top = conteudo[1][keyName]
 		
@@ -641,11 +651,7 @@ function atributo_heal:AtualizaBarra (instancia, barras_container, qual_barra, l
 		gump:UpdateTooltip (qual_barra, esta_barra, instancia)
 	end
 
-	if (self.owner) then
-		actor_class_color_r, actor_class_color_g, actor_class_color_b = _unpack (_detalhes.class_colors [self.owner.classe])
-	else
-		actor_class_color_r, actor_class_color_g, actor_class_color_b = _unpack (_detalhes.class_colors [self.classe])
-	end	
+	actor_class_color_r, actor_class_color_g, actor_class_color_b = self:GetBarColor()
 	
 	return self:RefreshBarra2 (esta_barra, instancia, tabela_anterior, forcar, esta_porcentagem, qual_barra, barras_container)	
 end
@@ -724,11 +730,7 @@ end
 function atributo_heal:RefreshBarra (esta_barra, instancia, from_resize)
 	
 	if (from_resize) then
-		if (self.owner) then
-			actor_class_color_r, actor_class_color_g, actor_class_color_b = _unpack (_detalhes.class_colors [self.owner.classe])
-		else
-			actor_class_color_r, actor_class_color_g, actor_class_color_b = _unpack (_detalhes.class_colors [self.classe])
-		end
+		actor_class_color_r, actor_class_color_g, actor_class_color_b = self:GetBarColor()
 	end
 	
 	if (instancia.row_info.texture_class_colors) then
@@ -775,17 +777,26 @@ function atributo_heal:RefreshBarra (esta_barra, instancia, from_resize)
 	end
 	
 	if (self.enemy) then
-		if (_detalhes.faction_against == "Horde") then
-			esta_barra.texto_esquerdo:SetText (esta_barra.colocacao..". |TInterface\\AddOns\\Details\\images\\icones_barra:" .. instancia.row_info.height .. ":" .. instancia.row_info.height .. ":0:0:256:32:0:32:0:32|t"..self.displayName) --seta o texto da esqueda -- HORDA
+		if (self.arena_enemy) then
+			esta_barra.texto_esquerdo:SetText (esta_barra.colocacao .. ".|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. instancia.row_info.height .. ":" .. instancia.row_info.height .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t" .. self.displayName)
+			esta_barra.textura:SetVertexColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
 		else
-			esta_barra.texto_esquerdo:SetText (esta_barra.colocacao..". |TInterface\\AddOns\\Details\\images\\icones_barra:" .. instancia.row_info.height .. ":" .. instancia.row_info.height .. ":0:0:256:32:32:64:0:32|t"..self.displayName) --seta o texto da esqueda -- ALLY
-		end
-		
-		if (instancia.row_info.texture_class_colors) then
-			esta_barra.textura:SetVertexColor (240/255, 0, 5/255, 1)
+			if (_detalhes.faction_against == "Horde") then
+				esta_barra.texto_esquerdo:SetText (esta_barra.colocacao..". |TInterface\\AddOns\\Details\\images\\icones_barra:"..instancia.row_info.height..":"..instancia.row_info.height..":0:0:256:32:0:32:0:32|t"..self.displayName) --seta o texto da esqueda -- HORDA
+			else
+				esta_barra.texto_esquerdo:SetText (esta_barra.colocacao..". |TInterface\\AddOns\\Details\\images\\icones_barra:"..instancia.row_info.height..":"..instancia.row_info.height..":0:0:256:32:32:64:0:32|t"..self.displayName) --seta o texto da esqueda -- ALLY
+			end
+			
+			if (instancia.row_info.texture_class_colors) then
+				esta_barra.textura:SetVertexColor (0.94117, 0, 0.01960, 1)
+			end
 		end
 	else
-		esta_barra.texto_esquerdo:SetText (esta_barra.colocacao..". "..self.displayName) --seta o texto da esqueda
+		if (self.arena_ally) then
+			esta_barra.texto_esquerdo:SetText (esta_barra.colocacao .. ".|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. instancia.row_info.height .. ":" .. instancia.row_info.height .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t" .. self.displayName)
+		else
+			esta_barra.texto_esquerdo:SetText (esta_barra.colocacao..". "..self.displayName) --seta o texto da esqueda
+		end
 	end
 	
 	if (instancia.row_info.textL_class_colors) then

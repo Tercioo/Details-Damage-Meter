@@ -2,6 +2,10 @@ do
 
 	local _detalhes = 		_G._detalhes
 	
+	_detalhes.SpecSpellList = {
+		
+	}
+	
 	_detalhes.ClassSpellList = {
 
 		--death knight

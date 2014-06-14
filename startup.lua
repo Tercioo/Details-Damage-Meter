@@ -223,6 +223,10 @@ function _G._detalhes:Start()
 			self.listener:RegisterEvent ("ENCOUNTER_START")
 			self.listener:RegisterEvent ("ENCOUNTER_END")
 			
+			self.listener:RegisterEvent ("START_TIMER")
+			--self.listener:RegisterEvent ("ARENA_PREP_OPPONENT_SPECIALIZATIONS")
+			--self.listener:RegisterEvent ("ARENA_OPPONENT_UPDATE")
+			
 			self.listener:RegisterEvent ("PET_BATTLE_OPENING_START")
 			self.listener:RegisterEvent ("PET_BATTLE_CLOSE")
 		

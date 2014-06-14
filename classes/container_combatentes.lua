@@ -108,12 +108,13 @@
 	end
 
 	--> read the actor flag
-	local read_actor_flag = function (novo_objeto, shadow_objeto, dono_do_pet, serial, flag, nome)
+	local read_actor_flag = function (novo_objeto, shadow_objeto, dono_do_pet, serial, flag, nome, container_type)
 
 		if (flag) then
 
 			--> é um player
 			if (_bit_band (flag, OBJECT_TYPE_PLAYER) ~= 0) then
+			
 				novo_objeto.displayName = _detalhes:GetNickname (serial, false, true) --> serial, default, silent
 				if (not novo_objeto.displayName) then
 					if (_IsInInstance() and _detalhes.remove_realm_from_name) then
@@ -123,7 +124,7 @@
 					end
 				end
 				
-				if (_bit_band (flag, IS_GROUP_OBJECT) ~= 0 and novo_objeto.classe ~= "UNGROUPPLAYER") then --> faz parte do grupo
+				if ( (_bit_band (flag, IS_GROUP_OBJECT) ~= 0 and novo_objeto.classe ~= "UNGROUPPLAYER")) then --> faz parte do grupo
 					novo_objeto.grupo = true
 
 					if (shadow_objeto) then
@@ -136,6 +137,68 @@
 							shadow_objeto.isTank = true
 						end
 					end
+				end
+				
+				if (_detalhes.is_in_arena) then
+				
+					if (novo_objeto.grupo) then --> is ally
+						novo_objeto.arena_ally = true
+						
+					else --> is enemy
+						novo_objeto.arena_enemy = true
+						
+					end
+					
+					local arena_props = _detalhes.arena_table [nome]
+					if (nome == "Ditador") then
+						print ("Arena Cprops: ", arena_props)
+					end
+					
+					if (arena_props) then
+						novo_objeto.role = arena_props.role
+						
+						if (arena_props.role == "NONE") then
+							local role = UnitGroupRolesAssigned (nome)
+							if (role ~= "NONE") then
+								novo_objeto.role = role
+							end
+						end
+						
+						print ("TEM CPROPS", novo_objeto.role)
+					else
+						local oponentes = GetNumArenaOpponentSpecs()
+						local found = false
+						for i = 1, oponentes do
+							local name = GetUnitName ("arena" .. i, true)
+							if (name == nome) then
+								local spec = GetArenaOpponentSpec (i)
+								if (spec) then
+									local id, name, description, icon, background, role, class = GetSpecializationInfoByID (spec)
+									novo_objeto.role = role
+									novo_objeto.classe = class
+									novo_objeto.enemy = true
+									novo_objeto.arena_enemy = true
+									found = true
+								end
+							end
+						end
+						
+						local role = UnitGroupRolesAssigned (nome)
+						if (role ~= "NONE") then
+							novo_objeto.role = role
+							found = true
+						end
+						
+						if (not found and nome == _detalhes.playername) then						
+							local role = UnitGroupRolesAssigned ("player")
+							if (role ~= "NONE") then
+								novo_objeto.role = role
+							end
+						end
+						
+					end
+				
+					novo_objeto.grupo = true
 				end
 			
 			--> é um pet
@@ -217,7 +280,7 @@
 			if (self.tipo == container_damage) then --> CONTAINER DAMAGE
 
 				get_actor_class (novo_objeto, nome, flag)
-				read_actor_flag (novo_objeto, shadow_objeto, dono_do_pet, serial, flag, nome)
+				read_actor_flag (novo_objeto, shadow_objeto, dono_do_pet, serial, flag, nome, "damage")
 				
 				if (dono_do_pet) then
 					dono_do_pet.pets [#dono_do_pet.pets+1] = nome
@@ -249,7 +312,7 @@
 			elseif (self.tipo == container_heal) then --> CONTAINER HEALING
 				
 				get_actor_class (novo_objeto, nome, flag)
-				read_actor_flag (novo_objeto, shadow_objeto, dono_do_pet, serial, flag, nome)
+				read_actor_flag (novo_objeto, shadow_objeto, dono_do_pet, serial, flag, nome, "heal")
 				
 				if (dono_do_pet) then
 					dono_do_pet.pets [#dono_do_pet.pets+1] = nome
@@ -278,7 +341,7 @@
 			elseif (self.tipo == container_energy) then --> CONTAINER ENERGY
 				
 				get_actor_class (novo_objeto, nome, flag)
-				read_actor_flag (novo_objeto, shadow_objeto, dono_do_pet, serial, flag, nome)
+				read_actor_flag (novo_objeto, shadow_objeto, dono_do_pet, serial, flag, nome, "energy")
 				
 				if (dono_do_pet) then
 					dono_do_pet.pets [#dono_do_pet.pets+1] = nome
@@ -303,7 +366,7 @@
 			elseif (self.tipo == container_misc) then --> CONTAINER MISC
 				
 				get_actor_class (novo_objeto, nome, flag)
-				read_actor_flag (novo_objeto, shadow_objeto, dono_do_pet, serial, flag, nome)
+				read_actor_flag (novo_objeto, shadow_objeto, dono_do_pet, serial, flag, nome, "misc")
 				
 				--local teste_classe = 
 				

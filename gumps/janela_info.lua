@@ -1603,6 +1603,9 @@ function gump:CriaJanelaInfo()
 
 		local target_texture = [[Interface\MINIMAP\TRACKING\Target]]
 		local empty_text = ""
+		
+		local plus = red .. "+(" 
+		local minor = green .. "-("
 
 		local fill_compare_targets = function (self, player, other_players, target_pool)
 			
@@ -1731,11 +1734,11 @@ function gump:CriaJanelaInfo()
 							if (data [2] > player_2_target_total) then
 								local diff = data [2] - player_2_target_total
 								local up = diff / data [2] * 100
-								bar_2 [2].righttext:SetText (_detalhes:ToK2Min (player_2_target_total) .. " |c" .. red .. "-(" .. _math_floor (up) .. "%)|r")
+								bar_2 [2].righttext:SetText (_detalhes:ToK2Min (player_2_target_total) .. " |c" .. minor .. _math_floor (up) .. "%)|r")
 							else
 								local diff = player_2_target_total - data [2]
 								local down = diff / player_2_target_total * 100
-								bar_2 [2].righttext:SetText (_detalhes:ToK2Min (player_2_target_total) .. " |c" .. green .. "+(" .. _math_floor (down) .. "%)|r")
+								bar_2 [2].righttext:SetText (_detalhes:ToK2Min (player_2_target_total) .. " |c" .. plus .. _math_floor (down) .. "%)|r")
 							end
 							
 							bar_2 [2]:SetValue (player_2_target_total / player_2_top * 100)
@@ -1786,11 +1789,11 @@ function gump:CriaJanelaInfo()
 							if (data [2] > player_3_target_total) then
 								local diff = data [2] - player_3_target_total
 								local up = diff / data [2] * 100
-								bar_3 [2].righttext:SetText (_detalhes:ToK2Min (player_3_target_total) .. " |c" .. red .. "-(" .. _math_floor (up) .. "%)|r")
+								bar_3 [2].righttext:SetText (_detalhes:ToK2Min (player_3_target_total) .. " |c" .. minor .. _math_floor (up) .. "%)|r")
 							else
 								local diff = player_3_target_total - data [2]
 								local down = diff / player_3_target_total * 100
-								bar_3 [2].righttext:SetText (_detalhes:ToK2Min (player_3_target_total) .. " |c" .. green .. "+(" .. _math_floor (down) .. "%)|r")
+								bar_3 [2].righttext:SetText (_detalhes:ToK2Min (player_3_target_total) .. " |c" .. plus .. _math_floor (down) .. "%)|r")
 							end
 							
 							bar_3 [2]:SetValue (player_3_target_total / player_3_top * 100)
@@ -1924,11 +1927,11 @@ function gump:CriaJanelaInfo()
 						elseif (data [2] > spell.total) then
 							local diff = data [2] - spell.total
 							local up = diff / data [2] * 100
-							bar_2 [2].righttext:SetText (_detalhes:ToK2Min (spell.total) .. " |c" .. red .. "-(" .. _math_floor (up) .. "%)|r")
+							bar_2 [2].righttext:SetText (_detalhes:ToK2Min (spell.total) .. " |c" .. minor .. _math_floor (up) .. "%)|r")
 						else
 							local diff = spell.total - data [2]
 							local down = diff / spell.total * 100
-							bar_2 [2].righttext:SetText (_detalhes:ToK2Min (spell.total) .. " |c" .. green .. "+(" .. _math_floor (down) .. "%)|r")
+							bar_2 [2].righttext:SetText (_detalhes:ToK2Min (spell.total) .. " |c" .. plus .. _math_floor (down) .. "%)|r")
 						end
 						
 						bar_2 [2]:SetValue (spell.total / player_2_top * 100)
@@ -1961,11 +1964,11 @@ function gump:CriaJanelaInfo()
 							elseif (data [2] > spell.total) then
 								local diff = data [2] - spell.total
 								local up = diff / data [2] * 100
-								bar_3 [2].righttext:SetText (_detalhes:ToK2Min (spell.total) .. " |c" .. red .. "-(" .. _math_floor (up) .. "%)|r")
+								bar_3 [2].righttext:SetText (_detalhes:ToK2Min (spell.total) .. " |c" .. minor .. _math_floor (up) .. "%)|r")
 							else
 								local diff = spell.total - data [2]
 								local down = diff / spell.total * 100
-								bar_3 [2].righttext:SetText (_detalhes:ToK2Min (spell.total) .. " |c" .. green .. "+(" .. _math_floor (down) .. "%)|r")
+								bar_3 [2].righttext:SetText (_detalhes:ToK2Min (spell.total) .. " |c" .. plus .. _math_floor (down) .. "%)|r")
 							end
 							
 							bar_3 [2]:SetValue (spell.total / player_3_top * 100)
@@ -2166,11 +2169,11 @@ function gump:CriaJanelaInfo()
 							if (spell [2] > this_spell [2]) then
 								local diff = spell [2] - this_spell [2]
 								local up = diff / spell [2] * 100
-								bar [2].righttext:SetText (_detalhes:ToK2Min (this_spell [2]) .. " |c" .. red .. "-(" .. _math_floor (up) .. "%)|r")
+								bar [2].righttext:SetText (_detalhes:ToK2Min (this_spell [2]) .. " |c" .. minor .. _math_floor (up) .. "%)|r")
 							else
 								local diff = this_spell [2] - spell [2]
 								local down = diff / this_spell [2] * 100
-								bar [2].righttext:SetText (_detalhes:ToK2Min (this_spell [2]) .. " |c" .. green .. "+(" .. _math_floor (down) .. "%)|r")
+								bar [2].righttext:SetText (_detalhes:ToK2Min (this_spell [2]) .. " |c" .. plus .. _math_floor (down) .. "%)|r")
 							end
 
 							bar [2]:SetValue (this_spell [2]/player_2_top*100)
@@ -2206,11 +2209,11 @@ function gump:CriaJanelaInfo()
 							if (spell [2] > this_spell [2]) then
 								local diff = spell [2] - this_spell [2]
 								local up = diff / spell [2] * 100
-								bar [2].righttext:SetText (_detalhes:ToK2Min (this_spell [2]) .. " |c" .. red .. "-(" .. _math_floor (up) .. "%)|r")
+								bar [2].righttext:SetText (_detalhes:ToK2Min (this_spell [2]) .. " |c" .. minor .. _math_floor (up) .. "%)|r")
 							else
 								local diff = this_spell [2] - spell [2]
 								local down = diff / this_spell [2] * 100
-								bar [2].righttext:SetText (_detalhes:ToK2Min (this_spell [2]) .. " |c" .. green .. "+(" .. _math_floor (down) .. "%)|r")
+								bar [2].righttext:SetText (_detalhes:ToK2Min (this_spell [2]) .. " |c" .. plus .. _math_floor (down) .. "%)|r")
 							end
 
 							bar [2]:SetValue (this_spell [2]/player_3_top*100)
@@ -2325,31 +2328,31 @@ function gump:CriaJanelaInfo()
 				if (hits > bar2[3][1]) then
 					local diff = hits - bar2[3][1]
 					local up = diff / hits * 100
-					frame2.tooltip.hits_label2:SetText (bar2[3][1] .. " |c" .. red .. "-(" .. _math_floor (up) .. "%)|r")
+					frame2.tooltip.hits_label2:SetText (bar2[3][1] .. " |c" .. minor .. _math_floor (up) .. "%)|r")
 				else
 					local diff = bar2[3][1] - hits
 					local down = diff / bar2[3][1] * 100
-					frame2.tooltip.hits_label2:SetText (bar2[3][1] .. " |c" .. green .. "+(" .. _math_floor (down) .. "%)|r")
+					frame2.tooltip.hits_label2:SetText (bar2[3][1] .. " |c" .. plus .. _math_floor (down) .. "%)|r")
 				end
 				
 				if (average > bar2[3][2]) then
 					local diff = average - bar2[3][2]
 					local up = diff / average * 100
-					frame2.tooltip.average_label2:SetText (_detalhes:ToK2Min (bar2[3][2]) .. " |c" .. red .. "-(" .. _math_floor (up) .. "%)|r")
+					frame2.tooltip.average_label2:SetText (_detalhes:ToK2Min (bar2[3][2]) .. " |c" .. minor .. _math_floor (up) .. "%)|r")
 				else
 					local diff = bar2[3][2] - average
 					local down = diff / bar2[3][2] * 100
-					frame2.tooltip.average_label2:SetText (_detalhes:ToK2Min (bar2[3][2]) .. " |c" .. green .. "+(" .. _math_floor (down) .. "%)|r")
+					frame2.tooltip.average_label2:SetText (_detalhes:ToK2Min (bar2[3][2]) .. " |c" .. plus .. _math_floor (down) .. "%)|r")
 				end
 				
 				if (critical > bar2[3][3]) then
 					local diff = critical - bar2[3][3]
 					local up = diff / critical * 100
-					frame2.tooltip.crit_label2:SetText (bar2[3][3] .. "%" .. " |c" .. red .. "-(" .. _math_floor (up) .. "%)|r")
+					frame2.tooltip.crit_label2:SetText (bar2[3][3] .. "%" .. " |c" .. minor .. _math_floor (up) .. "%)|r")
 				else
 					local diff = bar2[3][3] - critical
 					local down = diff / bar2[3][3] * 100
-					frame2.tooltip.crit_label2:SetText (bar2[3][3] .. "%" .. " |c" .. green .. "+(" .. _math_floor (down) .. "%)|r")
+					frame2.tooltip.crit_label2:SetText (bar2[3][3] .. "%" .. " |c" .. plus .. _math_floor (down) .. "%)|r")
 				end
 				
 				if (player2_misc) then
@@ -2359,11 +2362,11 @@ function gump:CriaJanelaInfo()
 						if (player1_uptime > spell.uptime) then
 							local diff = player1_uptime - spell.uptime
 							local up = diff / player1_uptime * 100
-							frame2.tooltip.uptime_label2:SetText (minutos .. "m" .. segundos .. "s |c" .. red .. "-(" .. _math_floor (up) .. "%)|r")
+							frame2.tooltip.uptime_label2:SetText (minutos .. "m" .. segundos .. "s |c" .. minor .. _math_floor (up) .. "%)|r")
 						else
 							local diff = spell.uptime - player1_uptime
 							local down = diff / spell.uptime * 100
-							frame2.tooltip.uptime_label2:SetText (minutos .. "m" .. segundos .. "s |cFF00FF00+(" .. _math_floor (down) .. "%)|r")
+							frame2.tooltip.uptime_label2:SetText (minutos .. "m" .. segundos .. "s |c" .. plus .. _math_floor (down) .. "%)|r")
 						end
 					else
 						frame2.tooltip.uptime_label2:SetText ("--x--x--")
@@ -2382,31 +2385,31 @@ function gump:CriaJanelaInfo()
 				if (hits > bar3[3][1]) then
 					local diff = hits - bar3[3][1]
 					local up = diff / hits * 100
-					frame3.tooltip.hits_label2:SetText (bar3[3][1] .. " |c" .. red .. "-(" .. _math_floor (up) .. "%)|r")
+					frame3.tooltip.hits_label2:SetText (bar3[3][1] .. " |c" .. minor .. _math_floor (up) .. "%)|r")
 				else
 					local diff = bar3[3][1] - hits
 					local down = diff / bar3[3][1] * 100
-					frame3.tooltip.hits_label2:SetText (bar3[3][1] .. " |c" .. green .. "+(" .. _math_floor (down) .. "%)|r")
+					frame3.tooltip.hits_label2:SetText (bar3[3][1] .. " |c" .. plus .. _math_floor (down) .. "%)|r")
 				end
 
 				if (average > bar3[3][2]) then
 					local diff = average - bar3[3][2]
 					local up = diff / average * 100
-					frame3.tooltip.average_label2:SetText (_detalhes:ToK2Min (bar3[3][2]) .. " |c" .. red .. "-(" .. _math_floor (up) .. "%)|r")
+					frame3.tooltip.average_label2:SetText (_detalhes:ToK2Min (bar3[3][2]) .. " |c" .. minor .. _math_floor (up) .. "%)|r")
 				else
 					local diff = bar3[3][2] - average
 					local down = diff / bar3[3][2] * 100
-					frame3.tooltip.average_label2:SetText (_detalhes:ToK2Min (bar3[3][2]) .. " |c" .. green .. "+(" .. _math_floor (down) .. "%)|r")
+					frame3.tooltip.average_label2:SetText (_detalhes:ToK2Min (bar3[3][2]) .. " |c" .. plus .. _math_floor (down) .. "%)|r")
 				end
 				
 				if (critical > bar3[3][3]) then
 					local diff = critical - bar3[3][3]
 					local up = diff / critical * 100
-					frame3.tooltip.crit_label2:SetText (bar3[3][3] .. "%" .. " |c" .. red .. "-(" .. _math_floor (up) .. "%)|r")
+					frame3.tooltip.crit_label2:SetText (bar3[3][3] .. "%" .. " |c" .. minor .. _math_floor (up) .. "%)|r")
 				else
 					local diff = bar3[3][3] - critical
 					local down = diff / bar3[3][3] * 100
-					frame3.tooltip.crit_label2:SetText (bar3[3][3] .. "%" .. " |c" .. green .. "+(" .. _math_floor (down) .. "%)|r")
+					frame3.tooltip.crit_label2:SetText (bar3[3][3] .. "%" .. " |c" .. plus .. _math_floor (down) .. "%)|r")
 				end
 
 				if (player3_misc) then
@@ -2416,11 +2419,11 @@ function gump:CriaJanelaInfo()
 						if (player1_uptime > spell.uptime) then
 							local diff = player1_uptime - spell.uptime
 							local up = diff / player1_uptime * 100
-							frame3.tooltip.uptime_label2:SetText (minutos .. "m" .. segundos .. "s |c" .. red .. "-(" .. _math_floor (up) .. "%)|r")
+							frame3.tooltip.uptime_label2:SetText (minutos .. "m" .. segundos .. "s |c" .. minor .. _math_floor (up) .. "%)|r")
 						else
 							local diff = spell.uptime - player1_uptime
 							local down = diff / spell.uptime * 100
-							frame3.tooltip.uptime_label2:SetText (minutos .. "m" .. segundos .. "s |c" .. green .. "+(" .. _math_floor (down) .. "%)|r")
+							frame3.tooltip.uptime_label2:SetText (minutos .. "m" .. segundos .. "s |c" .. plus .. _math_floor (down) .. "%)|r")
 						end
 					else
 						frame3.tooltip.uptime_label2:SetText ("--x--x--")

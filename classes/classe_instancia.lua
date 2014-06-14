@@ -2012,7 +2012,7 @@ function _detalhes:ChangeIcon (icon)
 	end
 end
 
-function _detalhes:AlteraModo (instancia, qual)
+function _detalhes:AlteraModo (instancia, qual, from_mode_menu)
 
 	if (_type (instancia) == "number") then
 		qual = instancia
@@ -2134,16 +2134,20 @@ function _detalhes:AlteraModo (instancia, qual)
 	
 	local checked
 	if (instancia.modo == 1) then
-		checked = 3
+		checked = 4
 	elseif (instancia.modo == 2) then
 		checked = 1
 	elseif (instancia.modo == 3) then
 		checked = 2
 	elseif (instancia.modo == 4) then
-		checked = 4
+		checked = 3
 	end	
 	
 	_detalhes.popup:Select (1, checked)
+	
+	if (from_mode_menu) then
+		instancia.baseframe.cabecalho.modo_selecao:GetScript ("OnEnter")(instancia.baseframe.cabecalho.modo_selecao)
+	end
 end
 
 local function GetDpsHps (_thisActor, key)
@@ -2229,7 +2233,7 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 	
 		if (not is_current) then 
 			--> assumindo que self é sempre uma instância aqui.
-			local total, keyName, keyNameSec, first
+			local total, keyName, keyNameSec, first, container_amount
 			local atributo = self.atributo
 			local container = self.showing [atributo]._ActorTable
 			
@@ -2246,18 +2250,20 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 					container = reportarFrags
 					keyName = "frag"
 				else
-					total, keyName, first = _detalhes.atributo_damage:RefreshWindow (self, self.showing, true, true)
+					total, keyName, first, container_amount = _detalhes.atributo_damage:RefreshWindow (self, self.showing, true, true)
 					if (self.sub_atributo == 1) then
 						keyNameSec = "dps"
+					elseif (self.sub_atributo == 2) then
+						
 					end
 				end
 			elseif (atributo == 2) then --> heal
-				total, keyName, first = _detalhes.atributo_heal:RefreshWindow (self, self.showing, true, true)
+				total, keyName, first, container_amount = _detalhes.atributo_heal:RefreshWindow (self, self.showing, true, true)
 				if (self.sub_atributo == 1) then
 					keyNameSec = "hps"
 				end
 			elseif (atributo == 3) then --> energy
-				total, keyName, first = _detalhes.atributo_energy:RefreshWindow (self, self.showing, true, true)
+				total, keyName, first, container_amount = _detalhes.atributo_energy:RefreshWindow (self, self.showing, true, true)
 			elseif (atributo == 4) then --> misc
 				if (self.sub_atributo == 5) then --> mortes
 					local mortes = self.showing.last_events_tables
@@ -2268,52 +2274,58 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 					container = reportarMortes
 					keyName = "dead"
 				else
-					total, keyName, first = _detalhes.atributo_misc:RefreshWindow (self, self.showing, true, true)
+					total, keyName, first, container_amount = _detalhes.atributo_misc:RefreshWindow (self, self.showing, true, true)
 				end
 			elseif (atributo == 5) then --> custom
 			
 				if (_detalhes.custom [self.sub_atributo]) then
-					total, keyName, first = _detalhes.atributo_custom:RefreshWindow (self, self.showing, true, {key = "custom"})
+					total, keyName, first, container_amount = _detalhes.atributo_custom:RefreshWindow (self, self.showing, true, {key = "custom"})
 					total = self.showing.totals [self.customName]
 					atributo = _detalhes.custom [self.sub_atributo].attribute
 					container = self.showing [atributo]._ActorTable
 				else
-					total, keyName, first = _detalhes.atributo_damage:RefreshWindow (self, self.showing, true, true)
+					total, keyName, first, container_amount = _detalhes.atributo_damage:RefreshWindow (self, self.showing, true, true)
 					total = 1
 					atributo = 1
 					container = self.showing [atributo]._ActorTable
 				end
-				--print (total, keyName, first, atributo)
+				--print (total, keyName, first, atributo, container_amount)
 			end
 			
+			amt = math.min (amt, container_amount)
+
 			for i = 1, amt do 
 				local _thisActor = container [i]
 				if (_thisActor) then 
+				
 					local amount = _thisActor [keyName]
+					
+					local name = _thisActor.nome.." "
+					if (_detalhes.remove_realm_from_name and name:find ("-")) then
+						name = name:gsub (("%-.*"), "")
+					end
+					
+					_detalhes.fontstring_len:SetText (name)
+					local stringlen = _detalhes.fontstring_len:GetStringWidth()
+					
+					while (stringlen < default_len) do 
+						name = name .. "."
+						_detalhes.fontstring_len:SetText (name)
+						stringlen = _detalhes.fontstring_len:GetStringWidth()
+					end
+					
 					if (_type (amount) == "number" and amount > 0) then --1236
 						if (keyNameSec) then
 							local dps = GetDpsHps (_thisActor, keyNameSec)
-							
-							local name = _thisActor.nome.." "
-							if (_detalhes.remove_realm_from_name and name:find ("-")) then
-								name = name:gsub (("%-.*"), "")
-							end
-							
-							_detalhes.fontstring_len:SetText (name)
-							local stringlen = _detalhes.fontstring_len:GetStringWidth()
-							
-							while (stringlen < default_len) do 
-								name = name .. "."
-								_detalhes.fontstring_len:SetText (name)
-								stringlen = _detalhes.fontstring_len:GetStringWidth()
-							end
-
-							report_lines [#report_lines+1] = i..". ".. name .." ".. _cstr ("%.2f", amount/total*100) .. "% (" .. _detalhes:comma_value (_math_floor (dps)) .. ", " .. _detalhes:ToK ( _math_floor (amount) ) .. ")"
+							report_lines [#report_lines+1] = i .. ". " .. name .. " " .. _cstr ("%.2f", amount/total*100) .. "% (" .. _detalhes:comma_value (_math_floor (dps)) .. ", " .. _detalhes:ToK ( _math_floor (amount) ) .. ")"
 						else
-							report_lines [#report_lines+1] = i..". ".. _thisActor.nome.."   " .. _detalhes:ToKReport (amount).." (".._cstr ("%.1f", amount/total*100).."%)"
+							report_lines [#report_lines+1] = i .. ". " .. name .. "   " .. _detalhes:ToKReport (amount).." (".._cstr ("%.1f", amount/total*100).."%)"
 						end
+						
 					elseif (_type (amount) == "string") then
-						report_lines [#report_lines+1] = i..". ".. _thisActor.nome.."   ".. amount
+					
+						report_lines [#report_lines+1] = i .. ". " .. name .. "   " .. amount
+						
 					else
 						break
 					end
@@ -2342,7 +2354,7 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 		
 		if (not is_current) then 
 			--> assumindo que self é sempre uma instância aqui.
-			local total, keyName, first
+			local total, keyName, first, container_amount
 			local atributo = self.atributo
 			
 			local container = self.showing [atributo]._ActorTable
@@ -2362,15 +2374,15 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 					if (self.sub_atributo == 1) then
 						keyNameSec = "dps"
 					end
-					total, keyName, first = _detalhes.atributo_damage:RefreshWindow (self, self.showing, true, true)
+					total, keyName, first, container_amount = _detalhes.atributo_damage:RefreshWindow (self, self.showing, true, true)
 				end
 			elseif (atributo == 2) then --> heal
-				total, keyName, first = _detalhes.atributo_heal:RefreshWindow (self, self.showing, true, true)
+				total, keyName, first, container_amount = _detalhes.atributo_heal:RefreshWindow (self, self.showing, true, true)
 				if (self.sub_atributo == 1) then
 					keyNameSec = "hps"
 				end
 			elseif (atributo == 3) then --> energy
-				total, keyName, first = _detalhes.atributo_energy:RefreshWindow (self, self.showing, true, true)
+				total, keyName, first, container_amount = _detalhes.atributo_energy:RefreshWindow (self, self.showing, true, true)
 			elseif (atributo == 4) then --> misc
 				if (self.sub_atributo == 5) then --> mortes
 					local mortes = self.showing.last_events_tables
@@ -2381,46 +2393,49 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 					container = reportarMortes
 					keyName = "dead"
 				else
-					total, keyName, first = _detalhes.atributo_misc:RefreshWindow (self, self.showing, true, true)
+					total, keyName, first, container_amount = _detalhes.atributo_misc:RefreshWindow (self, self.showing, true, true)
 				end
 			elseif (atributo == 5) then --> custom
-				total, keyName, first = _detalhes.atributo_custom:RefreshWindow (self, self.showing, true, {key = "custom"})
+				total, keyName, first, container_amount = _detalhes.atributo_custom:RefreshWindow (self, self.showing, true, {key = "custom"})
 				total = self.showing.totals [self.customName]
 				atributo = _detalhes.custom [self.sub_atributo].attribute
 			end
+			
+			local this_amt = math.min (#container, container_amount, amt)
+			this_amt = #container - this_amt
 
-			for i = #container, 1, -1 do 
+			for i = container_amount, this_amt, -1 do 
 				
 				local _thisActor = container [i]
 				local amount = _thisActor [keyName]
+				
+				local name = _thisActor.nome.." "
+				
+				_detalhes.fontstring_len:SetText (name)
+				local stringlen = _detalhes.fontstring_len:GetStringWidth()
+				
+				while (stringlen < default_len) do 
+					name = name .. "."
+					_detalhes.fontstring_len:SetText (name)
+					stringlen = _detalhes.fontstring_len:GetStringWidth()
+				end				
 				
 				if (_type (amount) == "number") then
 					if (amount > 0) then 
 						if (keyNameSec) then
 							local dps = GetDpsHps (_thisActor, keyNameSec)
-							
-							local name = _thisActor.nome.." "
-							
-							_detalhes.fontstring_len:SetText (name)
-							local stringlen = _detalhes.fontstring_len:GetStringWidth()
-							
-							while (stringlen < default_len) do 
-								name = name .. "."
-								_detalhes.fontstring_len:SetText (name)
-								stringlen = _detalhes.fontstring_len:GetStringWidth()
-							end
-
-							report_lines [#report_lines+1] = i..". ".. name .." ".. _cstr ("%.2f", amount/total*100) .. "% (" .. _detalhes:comma_value (_math_floor (dps)) .. ", " .. _detalhes:ToK ( _math_floor (amount) ) .. ")"
+							report_lines [#report_lines+1] = i .. ". " .. name .. " " .. _cstr ("%.2f", amount/total*100) .. "% (" .. _detalhes:comma_value (_math_floor (dps)) .. ", " .. _detalhes:ToK ( _math_floor (amount) ) .. ")"
 						else
-							report_lines [#report_lines+1] = i..".".. _thisActor.nome.."   ".. _detalhes:comma_value ( _math_floor (amount) ).." (".._cstr ("%.1f", amount/total*100).."%)"
+							report_lines [#report_lines+1] = i .. "." .. name .. "   " .. _detalhes:comma_value ( _math_floor (amount) ).." (".._cstr ("%.1f", amount/total*100).."%)"
 						end
+						
 						quantidade = quantidade + 1
 						if (quantidade == amt) then
 							break
 						end
 					end
 				elseif (_type (amount) == "string") then
-					report_lines [#report_lines+1] = i..".".. _thisActor.nome.."   ".. amount
+					report_lines [#report_lines+1] = i .. ". " .. name .. "   " .. amount
 				else
 					break
 				end

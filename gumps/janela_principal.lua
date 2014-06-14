@@ -3874,22 +3874,77 @@ local build_mode_list = function (self, elapsed)
 		
 		CoolTip:Reset()
 		CoolTip:SetType ("menu")
-		CoolTip:AddFromTable (parameters_table [4])
 		CoolTip:SetLastSelected ("main", parameters_table [3])
 		CoolTip:SetFixedParameter (instancia)
 		CoolTip:SetColor ("main", "transparent")
 		
 		CoolTip:SetOption ("TextSize", _detalhes.font_sizes.menus)
+		CoolTip:SetOption ("ButtonHeightModSub", -5)
 		CoolTip:SetOption ("ButtonHeightMod", -5)
+		CoolTip:SetOption ("ButtonsYModSub", -5)
 		CoolTip:SetOption ("ButtonsYMod", -5)
+		CoolTip:SetOption ("YSpacingModSub", 1)
 		CoolTip:SetOption ("YSpacingMod", 1)
 		CoolTip:SetOption ("FixedHeight", 106)
 		CoolTip:SetOption ("FixedWidthSub", 146)
-		CoolTip:SetOption ("SubMenuIsTooltip", true)
 		
-		if (_detalhes.tutorial.logons > 9) then
-			CoolTip:SetOption ("IgnoreSubMenu", true)
+		--CoolTip:SetOption ("SubMenuIsTooltip", true)
+		
+		--if (_detalhes.tutorial.logons > 9) then
+			--CoolTip:SetOption ("IgnoreSubMenu", true)
+		--end
+		
+		CoolTip:AddLine (Loc ["STRING_MODE_GROUP"])
+		CoolTip:AddMenu (1, instancia.AlteraModo, 2, true)
+		CoolTip:AddIcon ([[Interface\AddOns\Details\images\modo_icones]], 1, 1, 20, 20, 32/256, 32/256*2, 0, 1)
+		--CoolTip:AddLine (Loc ["STRING_HELP_MODEGROUP"], nil, 2)
+		--CoolTip:AddIcon ([[Interface\TUTORIALFRAME\TutorialFrame-QuestionMark]], 2, 1, 16, 16, 8/64, 1 - (8/64), 8/64, 1 - (8/64))
+		
+		CoolTip:AddLine (Loc ["STRING_MODE_ALL"])
+		CoolTip:AddMenu (1, instancia.AlteraModo, 3, true)
+		CoolTip:AddIcon ([[Interface\AddOns\Details\images\modo_icones]], 1, 1, 20, 20, 32/256*2, 32/256*3, 0, 1)
+		--CoolTip:AddLine (Loc ["STRING_HELP_MODEALL"], nil, 2)
+		--CoolTip:AddIcon ([[Interface\TUTORIALFRAME\TutorialFrame-QuestionMark]], 2, 1, 16, 16, 8/64, 1 - (8/64), 8/64, 1 - (8/64))
+	
+		CoolTip:AddLine (Loc ["STRING_MODE_RAID"])
+		CoolTip:AddMenu (1, instancia.AlteraModo, 4, true)
+		CoolTip:AddIcon ([[Interface\AddOns\Details\images\modo_icones]], 1, 1, 20, 20, 32/256*3, 32/256*4, 0, 1)
+		--CoolTip:AddLine (Loc ["STRING_HELP_MODERAID"], nil, 2)
+		--CoolTip:AddIcon ([[Interface\TUTORIALFRAME\TutorialFrame-QuestionMark]], 2, 1, 16, 16, 8/64, 1 - (8/64), 8/64, 1 - (8/64))
+
+		--build raid plugins list
+		local available_plugins = _detalhes.RaidTables:GetAvailablePlugins()
+
+		if (#available_plugins >= 0) then
+			local amt = 0
+			
+			for index, ptable in _ipairs (available_plugins) do
+				if (ptable [3].__enabled) then
+					CoolTip:AddMenu (2, _detalhes.RaidTables.EnableRaidMode, instancia, ptable [4], true, ptable [1], ptable [2], true) --PluginName, PluginIcon, PluginObject, PluginAbsoluteName
+					amt = amt + 1
+				end
+			end
+			
+			CoolTip:SetWallpaper (2, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
+			
+			if (amt <= 3) then
+				CoolTip:SetOption ("SubFollowButton", true)
+			end
 		end
+		
+		CoolTip:AddLine (Loc ["STRING_MODE_SELF"])
+		CoolTip:AddMenu (1, instancia.AlteraModo, 1, true)
+		CoolTip:AddIcon ([[Interface\AddOns\Details\images\modo_icones]], 1, 1, 20, 20, 0, 32/256, 0, 1)
+		--CoolTip:AddLine (Loc ["STRING_HELP_MODESELF"], nil, 2)
+		--CoolTip:AddIcon ([[Interface\TUTORIALFRAME\TutorialFrame-QuestionMark]], 2, 1, 16, 16, 8/64, 1 - (8/64), 8/64, 1 - (8/64))
+
+		--build self plugins list
+		
+		CoolTip:AddLine (Loc ["STRING_OPTIONS_WINDOW"])
+		CoolTip:AddMenu (1, _detalhes.OpenOptionsWindow)
+		CoolTip:AddIcon ([[Interface\AddOns\Details\images\modo_icones]], 1, 1, 20, 20, 32/256*4, 32/256*5, 0, 1)
+
+		--CoolTip:AddFromTable (parameters_table [4])
 		
 		if (instancia.consolidate) then
 			CoolTip:SetOwner (self, "topleft", "topright", 3)
@@ -3990,6 +4045,25 @@ local build_segment_list = function (self, elapsed)
 									CoolTip:SetWallpaper (2, bgImage, {0.09, 0.698125, 0, 0.833984375}, {1, 1, 1, 0.5})
 								end
 							end
+						else
+							CoolTip:SetWallpaper (2, [[Interface\BlackMarket\HotItemBanner]], {0.14453125, 0.9296875, 0.2625, 0.6546875}, {1, 1, 1, 0.5}, true)
+						end
+					
+					elseif (thisCombat.is_arena) then
+						
+						local file, coords = _detalhes:GetArenaInfo (thisCombat.is_arena.mapid)
+						
+						enemy = thisCombat.is_arena.name
+
+						CoolTip:AddLine (thisCombat.is_arena.name, _, 1, "yellow")
+						
+						--131 105 157 127
+						--0.255859375 0.306640625 0.205078125 0.248046875
+						CoolTip:AddIcon ([[Interface\AddOns\Details\images\icons]], "main", "left", 16, 12, 0.251953125, 0.306640625, 0.205078125, 0.248046875)
+						--CoolTip:AddIcon ([[Interface\WorldStateFrame\CombatSwords]], "main", "left", 12, 12, 0, 0.453125, 0.015625, 0.46875)
+						
+						if (file) then
+							CoolTip:SetWallpaper (2, "Interface\\Glues\\LOADINGSCREENS\\" .. file, coords, {1, 1, 1, 0.4})
 						end
 						
 					else
@@ -4028,6 +4102,7 @@ local build_segment_list = function (self, elapsed)
 					CoolTip:AddIcon ([[Interface\QUESTFRAME\UI-Quest-BulletPoint]], "main", "left", 16, 16, nil, nil, nil, nil, empty_segment_color)
 					CoolTip:AddLine (Loc ["STRING_SEGMENT_EMPTY"], _, 2)
 					CoolTip:AddIcon ([[Interface\CHARACTERFRAME\Disconnect-Icon]], 2, 1, 12, 12, 0.3125, 0.65625, 0.265625, 0.671875)
+					CoolTip:SetWallpaper (2, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
 				end
 				
 				if (menuIndex) then
@@ -4191,13 +4266,6 @@ local build_segment_list = function (self, elapsed)
 		self:SetScript ("OnUpdate", nil)
 	end	
 	
-end
-
-local botao_fechar_on_enter = function (self)
-	OnEnterMainWindow (self.instancia, self, 3)
-end
-local botao_fechar_on_leave = function (self)
-	OnLeaveMainWindow (self.instancia, self, 3)
 end
 
 -- ~skin
@@ -5386,7 +5454,78 @@ end
 		end
 		
 	end
+	
+--> close button functions
 
+	local close_button_onclick = function (self, _, button)
+		self = self or button
+	
+		self:Disable()
+		self.instancia:DesativarInstancia() 
+		
+		--> não há mais instâncias abertas, então manda msg alertando
+		if (_detalhes.opened_windows == 0) then
+			_detalhes:Msg (Loc ["STRING_CLOSEALL"])
+		end
+		
+		GameCooltip:Hide()
+	end
+
+	local close_button_onenter = function (self)
+		OnEnterMainWindow (self.instance, self, 3)
+
+		GameCooltip.buttonOver = true
+		self.instance.baseframe.cabecalho.button_mouse_over = true
+		
+		GameCooltip:Reset()
+		GameCooltip:SetOption ("ButtonsYMod", -2)
+		GameCooltip:SetOption ("ButtonsYModSub", -2)
+		GameCooltip:SetOption ("YSpacingMod", 0)
+		GameCooltip:SetOption ("YSpacingModSub", -3)
+		GameCooltip:SetOption ("TextHeightMod", 0)
+		GameCooltip:SetOption ("TextHeightModSub", 0)
+		GameCooltip:SetOption ("IgnoreButtonAutoHeight", false)
+		GameCooltip:SetOption ("IgnoreButtonAutoHeightSub", false)
+		GameCooltip:SetOption ("SubMenuIsTooltip", true)
+		GameCooltip:SetOption ("FixedWidthSub", 180)
+		
+		local font = SharedMedia:Fetch ("font", "Friz Quadrata TT")
+		GameCooltip:AddLine (Loc ["STRING_MENU_CLOSE_INSTANCE"], nil, 1, "white", nil, 10, font)
+		GameCooltip:AddIcon ([[Interface\Buttons\UI-Panel-MinimizeButton-Up]], 1, 1, 14, 14, 0.2, 0.8, 0.2, 0.8)
+		GameCooltip:AddMenu (1, close_button_onclick, self)
+		
+		GameCooltip:AddLine (Loc ["STRING_MENU_CLOSE_INSTANCE_DESC"], nil, 2, "white", nil, 10, font)
+		GameCooltip:AddIcon ([[Interface\CHATFRAME\UI-ChatIcon-Minimize-Up]], 2, 1, 18, 18)
+		
+		GameCooltip:AddLine (Loc ["STRING_MENU_CLOSE_INSTANCE_DESC2"], nil, 2, "white", nil, 10, font)
+		GameCooltip:AddIcon ([[Interface\PaperDollInfoFrame\UI-GearManager-LeaveItem-Transparent]], 2, 1, 18, 18)
+		
+		GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
+		GameCooltip:SetWallpaper (2, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
+		
+		
+		show_anti_overlap (self.instance, self, "top")
+		
+		GameCooltip:ShowCooltip (self, "menu")
+	end
+	
+	local close_button_onleave = function (self)
+		OnLeaveMainWindow (self.instance, self, 3)
+
+		hide_anti_overlap (self.instance.baseframe.anti_menu_overlap)
+		
+		GameCooltip.buttonOver = false
+		self.instance.baseframe.cabecalho.button_mouse_over = false
+		
+		if (GameCooltip.active) then
+			parameters_table [2] = 0
+			self:SetScript ("OnUpdate", on_leave_menu)
+		else
+			self:SetScript ("OnUpdate", nil)
+		end
+		
+	end
+	
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> build upper menu bar
 
@@ -5405,18 +5544,13 @@ function gump:CriaCabecalho (baseframe, instancia)
 	baseframe.cabecalho.fechar:SetHighlightTexture ([[Interface\Buttons\UI-Panel-MinimizeButton-Highlight]])
 	baseframe.cabecalho.fechar:SetPushedTexture ([[Interface\Buttons\UI-Panel-MinimizeButton-Down]])
 	
-	baseframe.cabecalho.fechar:SetScript ("OnClick", function() 
-		baseframe.cabecalho.fechar:Disable()
-		instancia:DesativarInstancia() 
-		--> não há mais instâncias abertas, então manda msg alertando
-		if (_detalhes.opened_windows == 0) then
-			print (Loc ["STRING_CLOSEALL"])
-		end
-	end)
-	
 	baseframe.cabecalho.fechar.instancia = instancia
-	baseframe.cabecalho.fechar:SetScript ("OnEnter", botao_fechar_on_enter)
-	baseframe.cabecalho.fechar:SetScript ("OnLeave", botao_fechar_on_leave)	
+	baseframe.cabecalho.fechar.instance = instancia
+	
+	baseframe.cabecalho.fechar:SetScript ("OnEnter", close_button_onenter)
+	baseframe.cabecalho.fechar:SetScript ("OnLeave", close_button_onleave)
+	
+	baseframe.cabecalho.fechar:SetScript ("OnClick", close_button_onclick)
 
 	--> bola do canto esquedo superior --> primeiro criar a armação para apoiar as texturas
 	baseframe.cabecalho.ball_point = baseframe.cabecalho.fechar:CreateTexture (nil, "overlay")

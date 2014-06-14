@@ -276,7 +276,7 @@
 		_detalhes:TimeDataTick()
 		_detalhes:BrokerTick()
 
-		if (_detalhes.zone_type == "pvp" or _InCombatLockdown()) then
+		if (_detalhes.zone_type == "pvp" or _detalhes.zone_type == "arena" or _InCombatLockdown()) then
 			return true
 		elseif (_UnitAffectingCombat("player")) then
 			return true

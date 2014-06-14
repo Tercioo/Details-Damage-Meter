@@ -62,7 +62,6 @@ function DetailsCreateCoolTip()
 		CoolTip.SelectedIndexMain = nil --> menus
 		CoolTip.SelectedIndexSec = {} --> menus
 
-	
 	--options table
 		CoolTip.OptionsList = {
 			["IconSize"] = true,
@@ -104,49 +103,10 @@ function DetailsCreateCoolTip()
 			["HeighMod"] = true,
 			["IconBlendMode"] = true,
 			["IconBlendModeHover"] = true,
+			["SubFollowButton"] = true,
 		}
 		
-		CoolTip.OptionsTable = {
-			["IconSize"] = nil,
-			["HeightAnchorMod"] = nil,
-			["WidthAnchorMod"] = nil,
-			["MinWidth"] = nil,
-			["FixedWidth"] = nil,
-			["FixedHeight"] = nil,
-			["FixedWidthSub"] = nil,
-			["FixedHeightSub"] = nil,
-			["IgnoreSubMenu"] = nil,
-			["IgnoreButtonAutoHeight"] = nil,
-			["TextHeightMod"] = nil,
-			["ButtonHeightMod"] = nil,
-			["ButtonHeightModSub"] = nil,
-			["YSpacingMod"] = nil,
-			["YSpacingModSub"] = nil,
-			["ButtonsYMod"] = nil,
-			["ButtonsYModSub"] = nil,
-			["IconHeightMod"] = nil,
-			["StatusBarHeightMod"] = nil,
-			["StatusBarTexture"] = nil,
-			["TextSize"] = nil,
-			["TextFont"] = nil,
-			["TextColor"] = nil,
-			["TextShadow"] = nil,
-			["LeftTextWidth"] = nil,
-			["RightTextWidth"] = nil,
-			["LeftTextHeight"] = nil,
-			["RightTextHeight"] = nil,
-			["NoFade"] = nil,
-			["MyAnchor"] = nil,
-			["Anchor"] = nil,
-			["RelativeAnchor"] = nil,
-			["NoLastSelectedBar"] = nil,
-			["SubMenuIsTooltip"] = nil,
-			["LeftBorderSize"] = nil,
-			["RightBorderSize"] = nil,
-			["HeighMod"] = nil,
-			["IconBlendMode"] = nil,
-			["IconBlendModeHover"] = nil,
-		}
+		CoolTip.OptionsTable = {}
 	
 		--cprops
 		CoolTip.Indexes = 0 --> amount of lines current on shown
@@ -1102,6 +1062,28 @@ function DetailsCreateCoolTip()
 		
 		gump:Fade (frame2, 0)
 		
+		if (CoolTip.OptionsTable.SubFollowButton and not CoolTip.frame2_leftside) then
+		
+			local button = frame1.Lines [index]
+		
+			frame2:ClearAllPoints()
+			frame2:SetPoint ("left", button, "right")
+			
+		elseif (CoolTip.OptionsTable.SubFollowButton and CoolTip.frame2_leftside) then
+		
+			local button = frame1.Lines [index]
+		
+			frame2:ClearAllPoints()
+			frame2:SetPoint ("right", button, "left")
+			
+		elseif (CoolTip.frame2_leftside) then
+			frame2:ClearAllPoints()
+			frame2:SetPoint ("bottomright", frame1, "bottomleft")
+		else
+			frame2:ClearAllPoints()
+			frame2:SetPoint ("bottomleft", frame1, "bottomright")
+		end
+		
 	end
 	
 	function CoolTip:HideSub()
@@ -1285,12 +1267,10 @@ function DetailsCreateCoolTip()
 		
 		frame1:EnableMouse (true)
 		
-		--CoolTip.IndexesSub [CoolTip.Indexes]
-		
 		if (CoolTip.HaveSubMenu) then --> zera o segundo frame
 			frame2.w = 0
 			frame2:SetHeight (6)
-			if (CoolTip.SelectedIndexMain) then
+			if (CoolTip.SelectedIndexMain and CoolTip.IndexesSub [CoolTip.SelectedIndexMain] and CoolTip.IndexesSub [CoolTip.SelectedIndexMain] > 0) then
 				gump:Fade (frame2, 0)
 			else
 				gump:Fade (frame2, 1)
@@ -1311,7 +1291,7 @@ function DetailsCreateCoolTip()
 			CoolTip:SetupMainButton (menuButton, i)
 			
 			if (CoolTip.SelectedIndexMain and CoolTip.SelectedIndexMain == i) then
-				if (CoolTip.HaveSubMenu) then
+				if (CoolTip.HaveSubMenu and CoolTip.IndexesSub [i] and CoolTip.IndexesSub [i] > 0) then
 					CoolTip:ShowSub (i)
 				end
 			end
@@ -1503,6 +1483,7 @@ function DetailsCreateCoolTip()
 						
 						frame2:ClearAllPoints()
 						frame2:SetPoint ("bottomright", frame1, "bottomleft")
+						CoolTip.frame2_leftside = true
 						--+ diff
 						return CoolTip:SetMyPoint (host, CoolTip.internal_x_mod , CoolTip.internal_y_mod)
 					end
@@ -1723,6 +1704,8 @@ function DetailsCreateCoolTip()
 			CoolTip.internal_x_mod = 0
 			CoolTip.internal_y_mod = 0
 			CoolTip.overlap_checked = false
+			
+			CoolTip.frame2_leftside = nil
 			
 			--> 
 			
