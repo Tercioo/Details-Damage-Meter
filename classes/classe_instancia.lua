@@ -2144,9 +2144,11 @@ function _detalhes:AlteraModo (instancia, qual, from_mode_menu)
 	end	
 	
 	_detalhes.popup:Select (1, checked)
-	
 	if (from_mode_menu) then
 		instancia.baseframe.cabecalho.modo_selecao:GetScript ("OnEnter")(instancia.baseframe.cabecalho.modo_selecao)
+		if (instancia.desaturated_menu) then
+			instancia.baseframe.cabecalho.modo_selecao:GetNormalTexture():SetDesaturated (true)
+		end
 	end
 end
 

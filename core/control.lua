@@ -367,7 +367,7 @@
 				_detalhes.schedule_remove_overall = false
 				_detalhes.tabela_historico:resetar_overall()
 			end
-		
+			
 			_detalhes:CatchRaidBuffUptime ("BUFF_UPTIME_OUT")
 			_detalhes:CatchRaidDebuffUptime ("DEBUFF_UPTIME_OUT")
 			_detalhes:CloseEnemyDebuffsUptime()

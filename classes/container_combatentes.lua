@@ -150,10 +150,7 @@
 					end
 					
 					local arena_props = _detalhes.arena_table [nome]
-					if (nome == "Ditador") then
-						print ("Arena Cprops: ", arena_props)
-					end
-					
+
 					if (arena_props) then
 						novo_objeto.role = arena_props.role
 						
@@ -163,8 +160,6 @@
 								novo_objeto.role = role
 							end
 						end
-						
-						print ("TEM CPROPS", novo_objeto.role)
 					else
 						local oponentes = GetNumArenaOpponentSpecs()
 						local found = false

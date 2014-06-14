@@ -610,7 +610,7 @@
 	------------------------------------------------------------------------------------------------
 	--> an enemy healing enemy or an player actor healing a enemy
 
-		if (_bit_band (alvo_flags, REACTION_FRIENDLY) == 0) then
+		if (_bit_band (alvo_flags, REACTION_FRIENDLY) == 0 and not _detalhes.is_in_arena) then
 			if (not este_jogador.heal_enemy [spellid]) then 
 				este_jogador.heal_enemy [spellid] = cura_efetiva
 			else
@@ -2482,25 +2482,24 @@
 			token_list ["SWING_MISSED"] = parser.swingmissed
 			token_list ["SPELL_MISSED"] = parser.missed
 
-			
 		elseif (capture_type == "heal") then
 			token_list ["SPELL_HEAL"] = parser.heal
 			token_list ["SPELL_PERIODIC_HEAL"] = parser.heal
 			_recording_healing = true
-		
+
 		elseif (capture_type == "aura") then
 			token_list ["SPELL_AURA_APPLIED"] = parser.buff
 			token_list ["SPELL_AURA_REMOVED"] = parser.unbuff
 			token_list ["SPELL_AURA_REFRESH"] = parser.buff_refresh
 			_recording_buffs_and_debuffs = true
-			
+
 		elseif (capture_type == "energy") then
 			token_list ["SPELL_ENERGIZE"] = parser.energize
 			token_list ["SPELL_PERIODIC_ENERGIZE"] = parser.energize
-		
+
 		elseif (capture_type == "spellcast") then
 			token_list ["SPELL_CAST_SUCCESS"] = parser.spellcast
-		
+
 		elseif (capture_type == "miscdata") then
 			-- dispell
 			token_list ["SPELL_DISPEL"] = parser.dispell
@@ -2522,10 +2521,6 @@
 
 	-- PARSER
 	--serach key: ~parser ~event ~start ~inicio
-	
-	
-	
-	
 	function _detalhes.parser_functions:ZONE_CHANGED_NEW_AREA (...)
 		local zoneName, zoneType, _, _, _, _, _, zoneMapID = _GetInstanceInfo()
 		

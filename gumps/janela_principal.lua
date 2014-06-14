@@ -3937,13 +3937,13 @@ local build_mode_list = function (self, elapsed)
 		CoolTip:AddIcon ([[Interface\AddOns\Details\images\modo_icones]], 1, 1, 20, 20, 0, 32/256, 0, 1)
 		--CoolTip:AddLine (Loc ["STRING_HELP_MODESELF"], nil, 2)
 		--CoolTip:AddIcon ([[Interface\TUTORIALFRAME\TutorialFrame-QuestionMark]], 2, 1, 16, 16, 8/64, 1 - (8/64), 8/64, 1 - (8/64))
-
+		
 		--build self plugins list
 		
 		CoolTip:AddLine (Loc ["STRING_OPTIONS_WINDOW"])
 		CoolTip:AddMenu (1, _detalhes.OpenOptionsWindow)
 		CoolTip:AddIcon ([[Interface\AddOns\Details\images\modo_icones]], 1, 1, 20, 20, 32/256*4, 32/256*5, 0, 1)
-
+		
 		--CoolTip:AddFromTable (parameters_table [4])
 		
 		if (instancia.consolidate) then
@@ -3958,9 +3958,9 @@ local build_mode_list = function (self, elapsed)
 		
 		--CoolTip:SetWallpaper (1, [[Interface\ACHIEVEMENTFRAME\UI-Achievement-Parchment-Horizontal-Desaturated]], nil, {1, 1, 1, 0.3})
 		CoolTip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
-
+		
 		show_anti_overlap (instancia, self, "top")
-
+		
 		CoolTip:ShowCooltip()
 	end
 end
