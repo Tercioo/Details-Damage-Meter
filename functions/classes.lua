@@ -104,7 +104,13 @@ do
 		return self.nome or actor.nome
 	end
 	function _detalhes:GetName (actor)
-		return actor.nome or self.nome
+		return self.nome or actor.nome
+	end
+	function _detalhes:GetDisplayName (actor)
+		return self.displayName or actor.displayName
+	end
+	function _detalhes:Class (actor)
+		return self.classe or actor.classe
 	end
 	
 end

@@ -566,7 +566,7 @@ function atributo_misc:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 	showing:remapear()
 
 	if (exportar) then 
-		return total, keyName, instancia.top
+		return total, keyName, instancia.top, amount
 	end
 	
 	if (amount < 1) then --> não há barras para mostrar

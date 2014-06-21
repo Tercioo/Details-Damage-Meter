@@ -1,5 +1,3 @@
---no inicio da luta gravar tabela com os coolsdowns de cada jogador e ir anotando quando eles sao usados.
-
 --File Revision: 1
 --Last Modification: 27/07/2013
 -- Change Log:
@@ -7,51 +5,10 @@
 
 function _G._detalhes:Start()
 
---teste de box
---[[
-	local f = CreateFrame ("frame", "TestBoxFrame", UIParent)
-	f:SetPoint ("center", UIParent, "center")
-	f:SetSize (256, 256)
-	f:SetMovable (true)
-	
-	local t = f:CreateTexture (nil, "artwork")
-	t:SetSize (90, 90)
-	t:SetPoint ("topleft", f, "topleft")
-	t:SetTexture ("Interface\\Addons\\Details\\box")
-	t:SetTexCoord (0.29296875, 0.64453125, 0.265625-0.001953125, 0.6171875+0.001953125) -- 75 68 165 158 0.001953125 // 
-	
-	local left = f:CreateFontString (nil, "overlay", "GameFontNormal")
-	local right = f:CreateFontString (nil, "overlay", "GameFontNormal")
-	local top = f:CreateFontString (nil, "overlay", "GameFontNormal")
-	local bottom = f:CreateFontString (nil, "overlay", "GameFontNormal")
-	
-	left:SetPoint ("right", t, "left", -20, 0)
-	right:SetPoint ("left", t, "right", 20, 0)
-	top:SetPoint ("bottom", t, "top", 0, 20)
-	bottom:SetPoint ("top", t, "bottom", 0, -20)
-	
-	function f:UpdateLeftRight()
-		left:SetText ("left: " .. string.format ("%.3f", t:GetLeft()))
-		right:SetText ("right: " .. string.format ("%.3f", t:GetRight()))
-		top:SetText ("top: " .. string.format ("%.3f", t:GetTop()))
-		bottom:SetText ("bottom: " .. string.format ("%.3f", t:GetBottom()))
-	end
-	f:UpdateLeftRight()
-	
-	f:SetScript ("OnMouseDown", function() f:StartMoving(); f:SetScript("OnUpdate", function() f:UpdateLeftRight() end) end)
-	f:SetScript ("OnMouseUp", function() f:StopMovingOrSizing(); f:SetScript("OnUpdate", nil); f:UpdateLeftRight() end)
-	
-	function _detalhes:updatetestbox()
-		f:UpdateLeftRight()
-	end
-	_detalhes:ScheduleTimer("updatetestbox", 5)
-	
---]]	
+	local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> details defaults
-	
-	--> parse all config
-		--_detalhes:CountDataOnLoad()
 
 	--> single click row function replace
 		--damage, dps, damage taken, friendly fire
@@ -64,7 +21,7 @@ function _G._detalhes:Start()
 			self.row_singleclick_overwrite [4] = {true, true, true, true, self.atributo_misc.ReportSingleDeadLine, self.atributo_misc.ReportSingleCooldownLine, self.atributo_misc.ReportSingleBuffUptimeLine, self.atributo_misc.ReportSingleDebuffUptimeLine} 
 		
 		self.click_to_report_color = {1, 0.8, 0, 1}
-		--self.click_to_report_color = {0, 1, 0, 1}
+		
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> initialize
 
@@ -74,60 +31,38 @@ function _G._detalhes:Start()
 			if (self.switch.InitSwitch) then
 				self.switch:InitSwitch()
 			end
+			
 		--> custom window
 			self.custom = self.custom or {}
-			self:InitCustom()
+			--self:InitCustom()
+			
 		--> actor info
 			self.janela_info = self.gump:CriaJanelaInfo()
 			self.gump:Fade (self.janela_info, 1)
+			
 		--> copy and paste window
 			self:CreateCopyPasteWindow()
 			self.CreateCopyPasteWindow = nil
-		--> yesno frame
-			self.yesNo = self.gump:NewPanel (UIParent, _, "DetailsYesNoWindow", _, 500, 80)
-			self.yesNo:SetPoint ("center", UIParent, "center")
-			self.gump:NewLabel (self.yesNo, _, "$parentAsk", "ask", "")
-			self.yesNo ["ask"]:SetPoint ("center", self.yesNo, "center", 0, 25)
-			self.yesNo ["ask"]:SetWidth (480)
-			self.yesNo ["ask"]:SetJustifyH ("center")
-			self.yesNo ["ask"]:SetHeight (22)
-			local Loc = LibStub ("AceLocale-3.0"):GetLocale ("Details")
-			self.gump:NewButton (self.yesNo, _, "$parentNo", "no", 100, 30, function() self.yesNo:Hide() end, nil, nil, nil, Loc ["STRING_NO"])
-			self.gump:NewButton (self.yesNo, _, "$parentYes", "yes", 100, 30, nil, nil, nil, nil, Loc ["STRING_YES"])
-			self.yesNo ["no"]:SetPoint (10, -45)
-			self.yesNo ["yes"]:SetPoint (390, -45)
-			self.yesNo ["no"]:InstallCustomTexture()
-			self.yesNo ["yes"]:InstallCustomTexture()
-			self.yesNo ["yes"]:SetHook ("OnMouseUp", function() self.yesNo:Hide() end)
-			function _detalhes:Ask (msg, func, ...)
-				self.yesNo ["ask"].text = msg
-				local p1, p2 = ...
-				self.yesNo ["yes"]:SetClickFunction (func, p1, p2)
-				self.yesNo:Show()
-			end
-			self.yesNo:Hide()
-
+			
 	--> start instances
-	
-		--_detalhes.custom = {}
-		--_detalhes.tabela_instancias = {}
 	
 		if (self:QuantasInstancias() == 0) then
 			self:CriarInstancia()
-		else
-			--self:ReativarInstancias()
 		end
 		self:GetLowerInstanceNumber()
 		self:CheckConsolidates()
 		
 	--> start time machine
+	
 		self.timeMachine:Ligar()
 	
 	--> update abbreviation shorcut
+	
 		self.atributo_damage:UpdateSelectedToKFunction()
 		self.atributo_heal:UpdateSelectedToKFunction()
 		self.atributo_energy:UpdateSelectedToKFunction()
 		self.atributo_misc:UpdateSelectedToKFunction()
+		self.atributo_custom:UpdateSelectedToKFunction()
 		
 	--> start instances updater
 	
@@ -187,9 +122,9 @@ function _G._detalhes:Start()
 		end
 		self:ScheduleTimer ("RefreshAfterStartup", 5)
 
-
 		
 	--> start garbage collector
+	
 		self.ultima_coleta = 0
 		self.intervalo_coleta = 720
 		--self.intervalo_coleta = 10
@@ -204,8 +139,7 @@ function _G._detalhes:Start()
 		--> load parser capture options
 			self:CaptureRefresh()
 		--> register parser events
-			--self.listener:RegisterEvent ("COMBAT_LOG_EVENT_UNFILTERED")
-			self.parser_frame:RegisterEvent ("COMBAT_LOG_EVENT_UNFILTERED")
+			
 			self.listener:RegisterEvent ("PLAYER_REGEN_DISABLED")
 			self.listener:RegisterEvent ("PLAYER_REGEN_ENABLED")
 			self.listener:RegisterEvent ("SPELL_SUMMON")
@@ -224,354 +158,277 @@ function _G._detalhes:Start()
 			self.listener:RegisterEvent ("ENCOUNTER_END")
 			
 			self.listener:RegisterEvent ("START_TIMER")
-			--self.listener:RegisterEvent ("ARENA_PREP_OPPONENT_SPECIALIZATIONS")
-			--self.listener:RegisterEvent ("ARENA_OPPONENT_UPDATE")
-			
+			self.listener:RegisterEvent ("UNIT_NAME_UPDATE")
+
 			self.listener:RegisterEvent ("PET_BATTLE_OPENING_START")
 			self.listener:RegisterEvent ("PET_BATTLE_CLOSE")
-		
-			--self.listener:RegisterAllEvents()
-		
-	--		self.listener:RegisterEvent ("SPELL_CAST_START")
-	--		self.listener:RegisterEvent ("UNIT_SPELLCAST_STOP")
-	--		self.listener:RegisterEvent ("UNIT_SPELLCAST_SUCCEEDED")
-	--		self.listener:RegisterEvent ("UNIT_SPELLCAST_FAILED")
-	--		self.listener:RegisterEvent ("UNIT_SPELLCAST_FAILED_QUIET")
-	--		self.listener:RegisterEvent ("UNIT_SPELLCAST_INTERRUPTED")
-	----------------------------------------------------------------------------------------------------------------------------------------
+			
+			self.parser_frame:RegisterEvent ("COMBAT_LOG_EVENT_UNFILTERED")
 
-	function _detalhes:CooltipPreset (preset)
-		
-		local GameCooltip = GameCooltip
-	
-		GameCooltip:Reset()
-		
-		if (preset == 1) then
-			GameCooltip:SetOption ("TextFont", "Friz Quadrata TT")
-			GameCooltip:SetOption ("TextColor", "orange")
-			GameCooltip:SetOption ("TextSize", 12)
-			GameCooltip:SetOption ("ButtonsYMod", -4)
-			GameCooltip:SetOption ("YSpacingMod", -4)
-			GameCooltip:SetOption ("IgnoreButtonAutoHeight", true)
-			GameCooltip:SetColor (1, 0.5, 0.5, 0.5, 0.5)
-			
-		elseif (preset == 2) then
-			GameCooltip:SetOption ("TextFont", "Friz Quadrata TT")
-			GameCooltip:SetOption ("TextColor", "orange")
-			GameCooltip:SetOption ("TextSize", 12)
-			GameCooltip:SetOption ("FixedWidth", 220)
-			GameCooltip:SetOption ("ButtonsYMod", -4)
-			GameCooltip:SetOption ("YSpacingMod", -4)
-			GameCooltip:SetOption ("IgnoreButtonAutoHeight", true)
-			GameCooltip:SetColor (1, 0.5, 0.5, 0.5, 0.5)
-			
-		end
-	end
-	
-	--> done
-	self.initializing = nil
-	
 	--> group
-	self.details_users = {}
-	self.in_group = IsInGroup() or IsInRaid()
-
+		self.details_users = {}
+		self.in_group = IsInGroup() or IsInRaid()
+		
+	--> done
+		self.initializing = nil
+	
+	--> scan pets
+		_detalhes:SchedulePetUpdate (1)
+	
 	--> send messages gathered on initialization
-	self:ScheduleTimer ("ShowDelayMsg", 10) 
+		self:ScheduleTimer ("ShowDelayMsg", 10) 
 	
 	--> send instance open signal
-	for index, instancia in ipairs (self.tabela_instancias) do
-		if (instancia.ativa) then
-			self:SendEvent ("DETAILS_INSTANCE_OPEN", nil, instancia)
-			--instancia:SetBarGrowDirection()
+		for index, instancia in ipairs (self.tabela_instancias) do
+			if (instancia.ativa) then
+				self:SendEvent ("DETAILS_INSTANCE_OPEN", nil, instancia)
+			end
 		end
-	end
 
-	--> all done, send started signal and we are ready
-	function self:AnnounceStartup()
-		self:SendEvent ("DETAILS_STARTED", "SEND_TO_ALL")
-	end
-	self:ScheduleTimer ("AnnounceStartup", 5)
-	
+	--> send details startup done signal
+		function self:AnnounceStartup()
+			self:SendEvent ("DETAILS_STARTED", "SEND_TO_ALL")
+		end
+		self:ScheduleTimer ("AnnounceStartup", 5)
+		
 	--> announce alpha version
-	function self:AnnounceVersion()
-		for index, instancia in ipairs (self.tabela_instancias) do
-			if (instancia.ativa) then
-				self.gump:Fade (instancia._version, "in", 0.1)
+		function self:AnnounceVersion()
+			for index, instancia in ipairs (self.tabela_instancias) do
+				if (instancia.ativa) then
+					self.gump:Fade (instancia._version, "in", 0.1)
+				end
 			end
 		end
-	end
+		
+	--> restore cooltip anchor position
+		DetailsTooltipAnchor:Restore()
 	
-	--> cooltip anchor
-	DetailsTooltipAnchor:Restore()
+	--> check is this is the first run
+		if (self.is_first_run) then
+			_detalhes:OpenWelcomeWindow()
+			
+			if (#self.custom == 0) then
+				_detalhes:AddDefaultCustomDisplays()
+			end
+			
+			_detalhes:FillUserCustomSpells()
+		end
+	
+	--> start tutorial if this is first run
+		if (self.tutorial.logons < 2 and self.is_first_run) then
+			self:StartTutorial()
+		end
+	
+	--> send feedback panel if the user got 100 or more logons with details
+		if (self.tutorial.logons > 100) then --  and self.tutorial.logons < 104
 
-	--[[
-	if (self.tutorial.version_announce < 4) then
-		self:ScheduleTimer ("AnnounceVersion", 20)
-		self.tutorial.version_announce = self.tutorial.version_announce + 1
-	else
-
-		for index, instancia in ipairs (self.tabela_instancias) do
-			if (instancia.ativa) then
-				self.gump:Fade (instancia._version, 0)
-				instancia._version:SetText ("Details! Alpha " .. _detalhes.userversion .. " (core: " .. self.realversion .. ")")
-				instancia._version:SetPoint ("bottomleft", instancia.baseframe, "bottomleft", 0, 1)
-				self.gump:Fade (instancia._version, "in", 10)
+			if (not self.tutorial.feedback_window1) then
+				self.tutorial.feedback_window1 = true
+			
+				local feedback_frame = CreateFrame ("FRAME", "DetailsFeedbackWindow", UIParent, "ButtonFrameTemplate")
+				tinsert (UISpecialFrames, "DetailsFeedbackWindow")
+				feedback_frame:SetPoint ("center", UIParent, "center")
+				feedback_frame:SetSize (512, 200)
+				feedback_frame.portrait:SetTexture ([[Interface\CHARACTERFRAME\TEMPORARYPORTRAIT-FEMALE-GNOME]])
 				
-				if (instancia.auto_switch_to_old) then
-					instancia:SwitchBack()
-				end
-			end
-		end
-	end
-	--]]
-	
-	
-	
-	if (self.is_first_run) then
-	
-		_detalhes:OpenWelcomeWindow()
-		
-		if (#self.custom == 0) then
-			local Healthstone = {
-				["attribute"] = 2,
-				["spell"] = "6262",
-				["name"] = "Healthstone",
-				["sattribute"] = 1,
-				["target"] = "",
-				["source"] = "[raid]",
-				["icon"] = "Interface\\Icons\\warlock_ healthstone",
-			}
-			self.custom [#self.custom+1] = Healthstone
+				feedback_frame.TitleText:SetText ("Details! Need Your Help!")
+				
+				feedback_frame.uppertext = feedback_frame:CreateFontString (nil, "artwork", "GameFontNormal")
+				feedback_frame.uppertext:SetText ("Tell us about your experience using Details!, what you liked most, where we could improve, what things you want to see in the future?")
+				feedback_frame.uppertext:SetPoint ("topleft", feedback_frame, "topleft", 60, -32)
+				local font, _, flags = feedback_frame.uppertext:GetFont()
+				feedback_frame.uppertext:SetFont (font, 10, flags)
+				feedback_frame.uppertext:SetTextColor (1, 1, 1, .8)
+				feedback_frame.uppertext:SetWidth (440)
+				
 			
-			local HealingPotion = {
-				["attribute"] = 2,
-				["spell"] = "105708",
-				["name"] = "Healing Potion",
-				["sattribute"] = 1,
-				["target"] = "",
-				["source"] = "[raid]",
-				["icon"] = "Interface\\Icons\\trade_alchemy_potiond3",
-			}
-			self.custom [#self.custom+1] = HealingPotion
-		end
-		
-		_detalhes:FillUserCustomSpells()
-		
-	end
-	
-	-- _detalhes:OpenWelcomeWindow()
-	
-	--desligado por precaução
-	if (self.tutorial.logons < 2 and self.is_first_run) then
-		self:StartTutorial()
-	end
-	
-	--> feedback trhead
-	if (self.tutorial.logons > 100) then --  and self.tutorial.logons < 104
-	
-		--desligado por preocaução
-
-		if (not self.tutorial.feedback_window1) then
-			self.tutorial.feedback_window1 = true
-		
-			local feedback_frame = CreateFrame ("FRAME", "DetailsFeedbackWindow", UIParent, "ButtonFrameTemplate")
-			tinsert (UISpecialFrames, "DetailsFeedbackWindow")
-			feedback_frame:SetPoint ("center", UIParent, "center")
-			feedback_frame:SetSize (512, 200)
-			feedback_frame.portrait:SetTexture ([[Interface\CHARACTERFRAME\TEMPORARYPORTRAIT-FEMALE-GNOME]])
-			
-			feedback_frame.TitleText:SetText ("Details! Need Your Help!")
-			
-			feedback_frame.uppertext = feedback_frame:CreateFontString (nil, "artwork", "GameFontNormal")
-			feedback_frame.uppertext:SetText ("Tell us about your experience using Details!, what you liked most, where we could improve, what things you want to see in the future?")
-			feedback_frame.uppertext:SetPoint ("topleft", feedback_frame, "topleft", 60, -32)
-			local font, _, flags = feedback_frame.uppertext:GetFont()
-			feedback_frame.uppertext:SetFont (font, 10, flags)
-			feedback_frame.uppertext:SetTextColor (1, 1, 1, .8)
-			feedback_frame.uppertext:SetWidth (440)
-			
-		
-			local editbox = _detalhes.gump:NewTextEntry (feedback_frame, nil, "$parentTextEntry", "text", 387, 14)
-			editbox:SetPoint (20, -106)
-			editbox:SetAutoFocus (false)
-			editbox:SetHook ("OnEditFocusGained", function() 
-				editbox.text = "http://www.mmo-champion.com/threads/1480721-New-damage-meter-%28Details!%29-need-help-with-tests-and-feedbacks" 
-				editbox:HighlightText()
-			end)
-			editbox:SetHook ("OnEditFocusLost", function() 
-				editbox.text = "http://www.mmo-champion.com/threads/1480721-New-damage-meter-%28Details!%29-need-help-with-tests-and-feedbacks" 
-				editbox:HighlightText()
-			end)
-			editbox:SetHook ("OnChar", function() 
+				local editbox = _detalhes.gump:NewTextEntry (feedback_frame, nil, "$parentTextEntry", "text", 387, 14)
+				editbox:SetPoint (20, -106)
+				editbox:SetAutoFocus (false)
+				editbox:SetHook ("OnEditFocusGained", function() 
+					editbox.text = "http://www.mmo-champion.com/threads/1480721-New-damage-meter-%28Details!%29-need-help-with-tests-and-feedbacks" 
+					editbox:HighlightText()
+				end)
+				editbox:SetHook ("OnEditFocusLost", function() 
+					editbox.text = "http://www.mmo-champion.com/threads/1480721-New-damage-meter-%28Details!%29-need-help-with-tests-and-feedbacks" 
+					editbox:HighlightText()
+				end)
+				editbox:SetHook ("OnChar", function() 
+					editbox.text = "http://www.mmo-champion.com/threads/1480721-New-damage-meter-%28Details!%29-need-help-with-tests-and-feedbacks"
+					editbox:HighlightText()
+				end)
 				editbox.text = "http://www.mmo-champion.com/threads/1480721-New-damage-meter-%28Details!%29-need-help-with-tests-and-feedbacks"
-				editbox:HighlightText()
-			end)
-			editbox.text = "http://www.mmo-champion.com/threads/1480721-New-damage-meter-%28Details!%29-need-help-with-tests-and-feedbacks"
-			
-			
-			feedback_frame.midtext = feedback_frame:CreateFontString (nil, "artwork", "GameFontNormal")
-			feedback_frame.midtext:SetText ("visit the link above and let's make Details! stronger!")
-			feedback_frame.midtext:SetPoint ("center", editbox.widget, "center")
-			feedback_frame.midtext:SetPoint ("top", editbox.widget, "bottom", 0, -2)
-			feedback_frame.midtext:SetJustifyH ("center")
-			local font, _, flags = feedback_frame.midtext:GetFont()
-			feedback_frame.midtext:SetFont (font, 10, flags)
-			--feedback_frame.midtext:SetTextColor (1, 1, 1, 1)
-			feedback_frame.midtext:SetWidth (440)
-			
-			
-			feedback_frame.gnoma = feedback_frame:CreateTexture (nil, "artwork")
-			feedback_frame.gnoma:SetPoint ("topright", feedback_frame, "topright", -1, -59)
-			feedback_frame.gnoma:SetTexture ("Interface\\AddOns\\Details\\images\\icons2")
-			feedback_frame.gnoma:SetSize (105*1.05, 107*1.05)
-			feedback_frame.gnoma:SetTexCoord (0.2021484375, 0, 0.7919921875, 1)
+				
+				
+				feedback_frame.midtext = feedback_frame:CreateFontString (nil, "artwork", "GameFontNormal")
+				feedback_frame.midtext:SetText ("visit the link above and let's make Details! stronger!")
+				feedback_frame.midtext:SetPoint ("center", editbox.widget, "center")
+				feedback_frame.midtext:SetPoint ("top", editbox.widget, "bottom", 0, -2)
+				feedback_frame.midtext:SetJustifyH ("center")
+				local font, _, flags = feedback_frame.midtext:GetFont()
+				feedback_frame.midtext:SetFont (font, 10, flags)
+				--feedback_frame.midtext:SetTextColor (1, 1, 1, 1)
+				feedback_frame.midtext:SetWidth (440)
+				
+				
+				feedback_frame.gnoma = feedback_frame:CreateTexture (nil, "artwork")
+				feedback_frame.gnoma:SetPoint ("topright", feedback_frame, "topright", -1, -59)
+				feedback_frame.gnoma:SetTexture ("Interface\\AddOns\\Details\\images\\icons2")
+				feedback_frame.gnoma:SetSize (105*1.05, 107*1.05)
+				feedback_frame.gnoma:SetTexCoord (0.2021484375, 0, 0.7919921875, 1)
 
-			feedback_frame.close = CreateFrame ("Button", "DetailsFeedbackWindowCloseButton", feedback_frame, "OptionsButtonTemplate")
-			feedback_frame.close:SetPoint ("bottomleft", feedback_frame, "bottomleft", 8, 4)
-			feedback_frame.close:SetText ("Close")
-			feedback_frame.close:SetScript ("OnClick", function (self)
-				editbox:ClearFocus()
-				feedback_frame:Hide()
-			end)
+				feedback_frame.close = CreateFrame ("Button", "DetailsFeedbackWindowCloseButton", feedback_frame, "OptionsButtonTemplate")
+				feedback_frame.close:SetPoint ("bottomleft", feedback_frame, "bottomleft", 8, 4)
+				feedback_frame.close:SetText ("Close")
+				feedback_frame.close:SetScript ("OnClick", function (self)
+					editbox:ClearFocus()
+					feedback_frame:Hide()
+				end)
+				
+				feedback_frame.postpone = CreateFrame ("Button", "DetailsFeedbackWindowPostPoneButton", feedback_frame, "OptionsButtonTemplate")
+				feedback_frame.postpone:SetPoint ("bottomright", feedback_frame, "bottomright", -10, 4)
+				feedback_frame.postpone:SetText ("Remind-me Later")
+				feedback_frame.postpone:SetScript ("OnClick", function (self)
+					editbox:ClearFocus()
+					feedback_frame:Hide()
+					_detalhes.tutorial.feedback_window1 = false
+				end)
+				feedback_frame.postpone:SetWidth (130)
+				
+				feedback_frame:SetScript ("OnHide", function() 
+					editbox:ClearFocus()
+				end)
+				
+				--0.0009765625 512
+				function _detalhes:FeedbackSetFocus()
+					DetailsFeedbackWindow:Show()
+					DetailsFeedbackWindowTextEntry.MyObject:SetFocus()
+					DetailsFeedbackWindowTextEntry.MyObject:HighlightText()
+				end
+				_detalhes:ScheduleTimer ("FeedbackSetFocus", 5)
 			
-			feedback_frame.postpone = CreateFrame ("Button", "DetailsFeedbackWindowPostPoneButton", feedback_frame, "OptionsButtonTemplate")
-			feedback_frame.postpone:SetPoint ("bottomright", feedback_frame, "bottomright", -10, 4)
-			feedback_frame.postpone:SetText ("Remind-me Later")
-			feedback_frame.postpone:SetScript ("OnClick", function (self)
-				editbox:ClearFocus()
-				feedback_frame:Hide()
-				_detalhes.tutorial.feedback_window1 = false
-			end)
-			feedback_frame.postpone:SetWidth (130)
-			
-			feedback_frame:SetScript ("OnHide", function() 
-				editbox:ClearFocus()
-			end)
-			
-			--0.0009765625 512
-			function _detalhes:FeedbackSetFocus()
-				DetailsFeedbackWindow:Show()
-				DetailsFeedbackWindowTextEntry.MyObject:SetFocus()
-				DetailsFeedbackWindowTextEntry.MyObject:HighlightText()
 			end
-			_detalhes:ScheduleTimer ("FeedbackSetFocus", 5)
-		
+			
 		end
+	
+	--> check is this is the first run of this version
+		if (self.is_version_first_run) then
 		
-	end
-	
-	if (self.is_version_first_run) then
-	
-		local enable_reset_warning = true
-	
-		local lower_instance = _detalhes:GetLowerInstanceNumber()
-		if (lower_instance) then
-			lower_instance = _detalhes:GetInstance (lower_instance)
+			local enable_reset_warning = true
+		
+			local lower_instance = _detalhes:GetLowerInstanceNumber()
 			if (lower_instance) then
-				lower_instance:InstanceAlert (Loc ["STRING_VERSION_UPDATE"], {[[Interface\GossipFrame\AvailableQuestIcon]], 16, 16, false}, 60, {_detalhes.OpenNewsWindow})
+				lower_instance = _detalhes:GetInstance (lower_instance)
+				if (lower_instance) then
+					lower_instance:InstanceAlert (Loc ["STRING_VERSION_UPDATE"], {[[Interface\GossipFrame\AvailableQuestIcon]], 16, 16, false}, 60, {_detalhes.OpenNewsWindow})
+				end
 			end
-		end
-		
-		_detalhes:FillUserCustomSpells()
-		
-		if (_detalhes_database.last_realversion and _detalhes_database.last_realversion < 18 and enable_reset_warning) then
 			
-			--print ("Last Version:", _detalhes_database.last_version, "Last Interval Version:", _detalhes_database.last_realversion)
+			_detalhes:FillUserCustomSpells()
+			
+			if (_detalhes_database.last_realversion and _detalhes_database.last_realversion < 20 and enable_reset_warning) then
+				table.wipe (self.custom)
+				_detalhes:AddDefaultCustomDisplays()
+			end
+			
+			if (_detalhes_database.last_realversion and _detalhes_database.last_realversion < 18 and enable_reset_warning) then
+				
+				--print ("Last Version:", _detalhes_database.last_version, "Last Interval Version:", _detalhes_database.last_realversion)
 
-			local resetwarning_frame = CreateFrame ("FRAME", "DetailsResetConfigWarningDialog", UIParent, "ButtonFrameTemplate")
-			resetwarning_frame:SetFrameStrata ("LOW")
-			tinsert (UISpecialFrames, "DetailsResetConfigWarningDialog")
-			resetwarning_frame:SetPoint ("center", UIParent, "center")
-			resetwarning_frame:SetSize (512, 200)
-			resetwarning_frame.portrait:SetTexture ([[Interface\CHARACTERFRAME\TEMPORARYPORTRAIT-FEMALE-GNOME]])
-			resetwarning_frame:SetScript ("OnHide", function()
-				DetailsBubble:HideBubble()
-			end)
-			
-			resetwarning_frame.TitleText:SetText ("Noooooooooooo!!!")
+				local resetwarning_frame = CreateFrame ("FRAME", "DetailsResetConfigWarningDialog", UIParent, "ButtonFrameTemplate")
+				resetwarning_frame:SetFrameStrata ("LOW")
+				tinsert (UISpecialFrames, "DetailsResetConfigWarningDialog")
+				resetwarning_frame:SetPoint ("center", UIParent, "center")
+				resetwarning_frame:SetSize (512, 200)
+				resetwarning_frame.portrait:SetTexture ([[Interface\CHARACTERFRAME\TEMPORARYPORTRAIT-FEMALE-GNOME]])
+				resetwarning_frame:SetScript ("OnHide", function()
+					DetailsBubble:HideBubble()
+				end)
+				
+				resetwarning_frame.TitleText:SetText ("Noooooooooooo!!!")
 
-			resetwarning_frame.midtext = resetwarning_frame:CreateFontString (nil, "artwork", "GameFontNormal")
-			resetwarning_frame.midtext:SetText ("A pack of murlocs has attacked Details! tech center, our gnomes engineers are working on fixing the damage.\n\n If something is messed in your Details!, especially the close, instance and reset buttons, you can either 'Reset Skin' or access the options panel.")
-			resetwarning_frame.midtext:SetPoint ("topleft", resetwarning_frame, "topleft", 10, -90)
-			resetwarning_frame.midtext:SetJustifyH ("center")
-			resetwarning_frame.midtext:SetWidth (370)
+				resetwarning_frame.midtext = resetwarning_frame:CreateFontString (nil, "artwork", "GameFontNormal")
+				resetwarning_frame.midtext:SetText ("A pack of murlocs has attacked Details! tech center, our gnomes engineers are working on fixing the damage.\n\n If something is messed in your Details!, especially the close, instance and reset buttons, you can either 'Reset Skin' or access the options panel.")
+				resetwarning_frame.midtext:SetPoint ("topleft", resetwarning_frame, "topleft", 10, -90)
+				resetwarning_frame.midtext:SetJustifyH ("center")
+				resetwarning_frame.midtext:SetWidth (370)
+				
+				resetwarning_frame.gnoma = resetwarning_frame:CreateTexture (nil, "artwork")
+				resetwarning_frame.gnoma:SetPoint ("topright", resetwarning_frame, "topright", -3, -80)
+				resetwarning_frame.gnoma:SetTexture ("Interface\\AddOns\\Details\\images\\icons2")
+				resetwarning_frame.gnoma:SetSize (89*1.00, 97*1.00)
+				--resetwarning_frame.gnoma:SetTexCoord (0.212890625, 0.494140625, 0.798828125, 0.99609375) -- 109 409 253 510
+				resetwarning_frame.gnoma:SetTexCoord (0.17578125, 0.001953125, 0.59765625, 0.787109375) -- 1 306 90 403
+				
+				resetwarning_frame.close = CreateFrame ("Button", "DetailsFeedbackWindowCloseButton", resetwarning_frame, "OptionsButtonTemplate")
+				resetwarning_frame.close:SetPoint ("bottomleft", resetwarning_frame, "bottomleft", 8, 4)
+				resetwarning_frame.close:SetText ("Close")
+				resetwarning_frame.close:SetScript ("OnClick", function (self)
+					resetwarning_frame:Hide()
+				end)
 			
-			resetwarning_frame.gnoma = resetwarning_frame:CreateTexture (nil, "artwork")
-			resetwarning_frame.gnoma:SetPoint ("topright", resetwarning_frame, "topright", -3, -80)
-			resetwarning_frame.gnoma:SetTexture ("Interface\\AddOns\\Details\\images\\icons2")
-			resetwarning_frame.gnoma:SetSize (89*1.00, 97*1.00)
-			--resetwarning_frame.gnoma:SetTexCoord (0.212890625, 0.494140625, 0.798828125, 0.99609375) -- 109 409 253 510
-			resetwarning_frame.gnoma:SetTexCoord (0.17578125, 0.001953125, 0.59765625, 0.787109375) -- 1 306 90 403
-			
-			resetwarning_frame.close = CreateFrame ("Button", "DetailsFeedbackWindowCloseButton", resetwarning_frame, "OptionsButtonTemplate")
-			resetwarning_frame.close:SetPoint ("bottomleft", resetwarning_frame, "bottomleft", 8, 4)
-			resetwarning_frame.close:SetText ("Close")
-			resetwarning_frame.close:SetScript ("OnClick", function (self)
-				resetwarning_frame:Hide()
-			end)
-		
-			resetwarning_frame.see_updates = CreateFrame ("Button", "DetailsResetWindowSeeUpdatesButton", resetwarning_frame, "OptionsButtonTemplate")
-			resetwarning_frame.see_updates:SetPoint ("bottomright", resetwarning_frame, "bottomright", -10, 4)
-			resetwarning_frame.see_updates:SetText ("Update Info")
-			resetwarning_frame.see_updates:SetScript ("OnClick", function (self)
-				_detalhes.OpenNewsWindow()
-				DetailsBubble:HideBubble()
-				--resetwarning_frame:Hide()
-			end)
-			resetwarning_frame.see_updates:SetWidth (130)
-			
-			resetwarning_frame.reset_skin = CreateFrame ("Button", "DetailsResetWindowResetSkinButton", resetwarning_frame, "OptionsButtonTemplate")
-			resetwarning_frame.reset_skin:SetPoint ("right", resetwarning_frame.see_updates, "left", -5, 0)
-			resetwarning_frame.reset_skin:SetText ("Reset Skin")
-			resetwarning_frame.reset_skin:SetScript ("OnClick", function (self)
-				--do the reset
-				for index, instance in ipairs (_detalhes.tabela_instancias) do 
-					if (not instance.iniciada) then
-						instance:RestauraJanela()
-						local skin = instance.skin
-						instance:ChangeSkin ("Default Skin")
-						instance:ChangeSkin ("Minimalistic")
-						instance:ChangeSkin (skin)
-						instance:DesativarInstancia()
-					else
-						local skin = instance.skin
-						instance:ChangeSkin ("Default Skin")
-						instance:ChangeSkin ("Minimalistic")
-						instance:ChangeSkin (skin)
+				resetwarning_frame.see_updates = CreateFrame ("Button", "DetailsResetWindowSeeUpdatesButton", resetwarning_frame, "OptionsButtonTemplate")
+				resetwarning_frame.see_updates:SetPoint ("bottomright", resetwarning_frame, "bottomright", -10, 4)
+				resetwarning_frame.see_updates:SetText ("Update Info")
+				resetwarning_frame.see_updates:SetScript ("OnClick", function (self)
+					_detalhes.OpenNewsWindow()
+					DetailsBubble:HideBubble()
+					--resetwarning_frame:Hide()
+				end)
+				resetwarning_frame.see_updates:SetWidth (130)
+				
+				resetwarning_frame.reset_skin = CreateFrame ("Button", "DetailsResetWindowResetSkinButton", resetwarning_frame, "OptionsButtonTemplate")
+				resetwarning_frame.reset_skin:SetPoint ("right", resetwarning_frame.see_updates, "left", -5, 0)
+				resetwarning_frame.reset_skin:SetText ("Reset Skin")
+				resetwarning_frame.reset_skin:SetScript ("OnClick", function (self)
+					--do the reset
+					for index, instance in ipairs (_detalhes.tabela_instancias) do 
+						if (not instance.iniciada) then
+							instance:RestauraJanela()
+							local skin = instance.skin
+							instance:ChangeSkin ("Default Skin")
+							instance:ChangeSkin ("Minimalistic")
+							instance:ChangeSkin (skin)
+							instance:DesativarInstancia()
+						else
+							local skin = instance.skin
+							instance:ChangeSkin ("Default Skin")
+							instance:ChangeSkin ("Minimalistic")
+							instance:ChangeSkin (skin)
+						end
 					end
-				end
-			end)
-			resetwarning_frame.reset_skin:SetWidth (130)
+				end)
+				resetwarning_frame.reset_skin:SetWidth (130)
+				
+				resetwarning_frame.open_options = CreateFrame ("Button", "DetailsResetWindowOpenOptionsButton", resetwarning_frame, "OptionsButtonTemplate")
+				resetwarning_frame.open_options:SetPoint ("right", resetwarning_frame.reset_skin, "left", -5, 0)
+				resetwarning_frame.open_options:SetText ("Options Panel")
+				resetwarning_frame.open_options:SetScript ("OnClick", function (self)
+					local lower_instance = _detalhes:GetLowerInstanceNumber()
+					if (not lower_instance) then
+						local instance = _detalhes:GetInstance (1)
+						_detalhes.CriarInstancia (_, _, 1)
+						_detalhes:OpenOptionsWindow (instance)
+					else
+						_detalhes:OpenOptionsWindow (_detalhes:GetInstance (lower_instance))
+					end
+				end)
+				resetwarning_frame.open_options:SetWidth (130)
 			
-			resetwarning_frame.open_options = CreateFrame ("Button", "DetailsResetWindowOpenOptionsButton", resetwarning_frame, "OptionsButtonTemplate")
-			resetwarning_frame.open_options:SetPoint ("right", resetwarning_frame.reset_skin, "left", -5, 0)
-			resetwarning_frame.open_options:SetText ("Options Panel")
-			resetwarning_frame.open_options:SetScript ("OnClick", function (self)
-				local lower_instance = _detalhes:GetLowerInstanceNumber()
-				if (not lower_instance) then
-					local instance = _detalhes:GetInstance (1)
-					_detalhes.CriarInstancia (_, _, 1)
-					_detalhes:OpenOptionsWindow (instance)
-				else
-					_detalhes:OpenOptionsWindow (_detalhes:GetInstance (lower_instance))
+				function _detalhes:ResetWarningDialog()
+					DetailsResetConfigWarningDialog:Show()
+					DetailsBubble:SetOwner (resetwarning_frame.gnoma, "bottomright", "topleft", 30, -37, 1)
+					DetailsBubble:FlipHorizontal()
+					DetailsBubble:SetBubbleText ("", "", "WWHYYYYYYYYY!!!!", "", "")
+					DetailsBubble:TextConfig (14, nil, "deeppink")
+					DetailsBubble:ShowBubble()
+
+
 				end
-			end)
-			resetwarning_frame.open_options:SetWidth (130)
-		
-			function _detalhes:ResetWarningDialog()
-				DetailsResetConfigWarningDialog:Show()
-				DetailsBubble:SetOwner (resetwarning_frame.gnoma, "bottomright", "topleft", 30, -37, 1)
-				DetailsBubble:FlipHorizontal()
-				DetailsBubble:SetBubbleText ("", "", "WWHYYYYYYYYY!!!!", "", "")
-				DetailsBubble:TextConfig (14, nil, "deeppink")
-				DetailsBubble:ShowBubble()
-
-
+				_detalhes:ScheduleTimer ("ResetWarningDialog", 7)
+				
 			end
-			_detalhes:ScheduleTimer ("ResetWarningDialog", 7)
-			
 		end
-	end
 	
 	--> interface menu
 	local f = CreateFrame ("frame", "DetailsInterfaceOptionsPanel", UIParent)
@@ -1053,6 +910,7 @@ function _G._detalhes:Start()
 		--_detalhes:OpenWelcomeWindow() --for debug
 	end
 	_detalhes:ScheduleTimer ("OpenOptionsWindowAtStart", 2)
+	--_detalhes:OpenCustomDisplayWindow()
 	
 	--BNSendFriendInvite ("tercio#1488")
 	

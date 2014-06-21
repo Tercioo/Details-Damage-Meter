@@ -288,6 +288,7 @@ function _detalhes:LoadConfig()
 		
 		--> custom
 			_detalhes.custom = _detalhes_global.custom
+			_detalhes.refresh:r_atributo_custom()
 		
 		--> initialize parser
 			_detalhes.capture_current = {}

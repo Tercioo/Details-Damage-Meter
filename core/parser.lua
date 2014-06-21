@@ -9,6 +9,7 @@
 	local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
 	local _tempo = time()
 	local _
+	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> local pointers
 
@@ -16,7 +17,8 @@
 	local _UnitHealth = UnitHealth --wow api local
 	local _UnitHealthMax = UnitHealthMax --wow api local
 	local _UnitIsFeignDeath = UnitIsFeignDeath --wow api local
-	local _UnitGUID = UnitGUID
+	local _UnitGUID = UnitGUID --wow api local
+	local _GetUnitName = GetUnitName --wow api local
 	local _GetInstanceInfo = GetInstanceInfo --wow api local
 	local _IsInRaid = IsInRaid --wow api local
 	local _IsInGroup = IsInGroup --wow api local
@@ -34,7 +36,7 @@
 	local _table_sort = table.sort --lua local
 	local _type = type --lua local
 	local _math_ceil = math.ceil --lua local
-	local _table_wipe = table.wipe
+	local _table_wipe = table.wipe --lua local
 
 	local escudo = _detalhes.escudos --details local
 	local parser = _detalhes.parser --details local
@@ -2822,6 +2824,7 @@
 			end
 		end
 	end
+	
 	function _detalhes.parser_functions:PET_BATTLE_CLOSE (...)
 		_detalhes.pet_battle = false
 		for index, instance in _ipairs (_detalhes.tabela_instancias) do
@@ -2829,6 +2832,10 @@
 				instance:SetWindowAlphaForCombat()
 			end
 		end
+	end
+	
+	function _detalhes.parser_functions:UNIT_NAME_UPDATE (...)
+		_detalhes:SchedulePetUpdate (5)
 	end
 	
 	local parser_functions = _detalhes.parser_functions
@@ -2933,34 +2940,52 @@
 		_table_wipe (raid_members_cache)
 		_table_wipe (tanks_members_cache)
 		
+		local roster = _detalhes.tabela_vigente.raid_roster
+		
 		if (_IsInRaid()) then
 			for i = 1, _GetNumGroupMembers() do 
+				local name = _GetUnitName ("raid"..i, true)
+				
 				raid_members_cache [_UnitGUID ("raid"..i)] = true
-				local role = _UnitGroupRolesAssigned (GetUnitName ("raid"..i, true))
+				roster [name] = true
+				
+				local role = _UnitGroupRolesAssigned (name)
 				if (role == "TANK") then
 					tanks_members_cache [_UnitGUID ("raid"..i)] = true
-					
-					--print ("tank detected:", GetUnitName ("raid"..i, true))
 				end
 			end
 			
 		elseif (_IsInGroup()) then
+			--party
 			for i = 1, _GetNumGroupMembers()-1 do 
+				local name = _GetUnitName ("party"..i, true)
+				
 				raid_members_cache [_UnitGUID ("party"..i)] = true
-				local role = _UnitGroupRolesAssigned (GetUnitName ("party"..i, true))
+				roster [name] = true
+				
+				local role = _UnitGroupRolesAssigned (name)
 				if (role == "TANK") then
 					tanks_members_cache [_UnitGUID ("party"..i)] = true
 				end
 			end
 			
+			--player
+			local name = GetUnitName ("player", true)
+			
 			raid_members_cache [_UnitGUID ("player")] = true
-			local role = _UnitGroupRolesAssigned (GetUnitName ("player", true))
+			roster [name] = true
+			
+			local role = _UnitGroupRolesAssigned (name)
 			if (role == "TANK") then
 				tanks_members_cache [_UnitGUID ("player")] = true
 			end
 		else
+			local name = GetUnitName ("player", true)
+			
 			raid_members_cache [_UnitGUID ("player")] = true
-			local role = _UnitGroupRolesAssigned (GetUnitName ("player", true))
+			roster [name] = true
+			
+			local role = _UnitGroupRolesAssigned (name)
 			if (role == "TANK") then
 				tanks_members_cache [_UnitGUID ("player")] = true
 			end

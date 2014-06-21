@@ -1,12 +1,7 @@
---File Revision: 1
---Last Modification: 27/07/2013
--- Change Log:
-	-- 27/07/2013: Finished alpha version.
+--> this file controls the window position, size and others panels
 	
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-	local _detalhes = _G._detalhes
-	local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
+	local _detalhes =	_G._detalhes
+	local Loc =			LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> local pointers
@@ -25,7 +20,6 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> core
 
-
 	function _detalhes:AnimarSplit (barra, goal)
 		barra.inicio = barra.split.barra:GetValue()
 		barra.fim = goal
@@ -35,16 +29,6 @@
 	end
 
 	function _detalhes:FazerAnimacaoSplit (elapsed)
-
-	--[[
-		local velocidade = 0.1
-		local distancia = self.inicio - self.fim
-		if (distancia > 40 or distancia < -40) then
-			velocidade = 0.8
-		elseif (distancia > 20 or distancia < -20) then
-			velocidade = 0.4
-		end
-	--]]
 		local velocidade = 0.8
 		
 		if (self.fim > self.inicio) then
@@ -137,60 +121,23 @@
 		if (instance) then
 			self = instance
 		end
-
 		local mostrando = self.mostrando
 		
-		--local baseframe_width = math.floor (self.baseframe:GetWidth())
-		--local baseframe_height = math.floor (self.baseframe:GetHeight())
+		--
 		local baseframe_width = self.baseframe:GetWidth()
 		local baseframe_height = self.baseframe:GetHeight()
-		
 		if (not baseframe_width) then
 			return _detalhes:ScheduleTimer ("SaveMainWindowPosition", 1, self)
 		end
-		
-		--[[
-		if (baseframe_width % 2 ~= 0) then
-			if (self.posicao[mostrando].w > baseframe_width) then
-				baseframe_width = baseframe_width +1
-			else
-				baseframe_width = baseframe_width -1
-			end
-		end
-		self.baseframe:SetWidth (baseframe_width)
-		if (baseframe_height % 2 ~= 0) then
-			if (self.posicao[mostrando].h > baseframe_height) then
-				baseframe_height = baseframe_height +1
-			else
-				baseframe_height = baseframe_height -1
-			end
-		end
-		self.baseframe:SetHeight (baseframe_height)
-		--]]
-		
+		--
 		local xOfs, yOfs = self.baseframe:GetCenter()
-		
 		if (not xOfs) then
-			--> this is a small and unknow bug when resizing all windows throgh crtl key (all) the last window of a horizontal row can't 'GetCenter'.
-			--> so, the trick is we start a timer to save pos later.
 			return _detalhes:ScheduleTimer ("SaveMainWindowPosition", 1, self)
 		end
-
-		--xOfs = math.floor (xOfs)
-		--yOfs = math.floor (yOfs)
-		
-		if (xOfs % 2 ~= 0) then
-			--xOfs = xOfs -1
-		end
-		if (yOfs % 2 ~= 0) then
-			--yOfs = yOfs -1
-		end
-		
-		local q, w = self.baseframe:GetCenter()
-		
+		--
 		local _scale = self.baseframe:GetEffectiveScale()
 		local _UIscale = _UIParent:GetScale()
-
+		--
 		xOfs = xOfs*_scale - _GetScreenWidth()*_UIscale/2
 		yOfs = yOfs*_scale - _GetScreenHeight()*_UIscale/2
 		
@@ -217,7 +164,7 @@
 		self.ponto3 = {x = _x + metade_largura, y = _y - metade_altura + statusbar_y_mod} --bottomright
 		self.ponto4 = {x = _x + metade_largura, y = _y + metade_altura + (statusbar_y_mod*-1)} --topright
 		
-		self.baseframe.BoxBarrasAltura = self.baseframe:GetHeight()-4 --> isso aqui não sei o que esta fazendo aqui
+		self.baseframe.BoxBarrasAltura = self.baseframe:GetHeight()-4 --> checar isso
 		
 		return {altura = self.baseframe:GetHeight(), largura = self.baseframe:GetWidth(), x = xOfs/_UIscale, y = yOfs/_UIscale}
 	end
@@ -243,7 +190,7 @@
 		self.baseframe:SetWidth (self.posicao[self.mostrando].w) --slider frame
 		self.baseframe:SetHeight (self.posicao[self.mostrando].h)
 
-		self.baseframe.BoxBarrasAltura = self.baseframe:GetHeight()-4 --> ?????
+		self.baseframe.BoxBarrasAltura = self.baseframe:GetHeight()-4 --> checar isso
 	end
 
 	function _detalhes:RestoreMainWindowPositionNoResize (pre_defined, x, y)
@@ -266,7 +213,7 @@
 
 		self.baseframe:ClearAllPoints()
 		self.baseframe:SetPoint ("CENTER", _UIParent, "CENTER", novo_x + x, novo_y + y)
-		self.baseframe.BoxBarrasAltura = self.baseframe:GetHeight()-4 --> ?????
+		self.baseframe.BoxBarrasAltura = self.baseframe:GetHeight()-4 --> checar isso
 	end
 
 	function _detalhes:ResetaGump (instancia, tipo, segmento)
@@ -338,28 +285,12 @@
 				end
 			end
 			
-			--[ --disabled consolidate menu
-			if (_detalhes.lower_instance == self.meu_id or self.consolidate) then
-				if (not self.consolidate) then
-					--if (self.baseframe:GetWidth() < 180) then
-						--> consolidate menus
-						--self:ConsolidateIcons() --disabled
-					--end
-				else
-					if (self.baseframe:GetWidth() > 180 or _detalhes.lower_instance ~= self.meu_id) then
-						--> un consolidade menus
-						self:UnConsolidateIcons()
-					end
-				end
-			end
-			--]]
-			
 			if (self.stretch_button_side == 2) then
 				self:StretchButtonAnchor (2)
 			end
 			
+			--> reajusta o freeze
 			if (self.freezed) then
-				--> reajusta o freeze
 				_detalhes:Freeze (self)
 			end
 		
@@ -369,7 +300,6 @@
 			local T = self.rows_fit_in_window
 			if (not T) then --> primeira vez que o gump esta sendo reajustado
 				T = _math_floor (self.baseframe.BoxBarrasAltura / self.row_height)
-				-- o que mais precisa por aqui?
 			end
 			
 			--> reajustar o local do relógio
@@ -378,28 +308,26 @@
 			
 			self.rows_fit_in_window = _math_floor ( self.baseframe.BoxBarrasAltura / self.row_height)
 
-			--if (not _detalhes.initializing) then
-
-				if (self.rows_fit_in_window > #self.barras) then--> verifica se precisa criar mais barras
-					for i  = #self.barras+1, self.rows_fit_in_window, 1 do
-						gump:CriaNovaBarra (self, i, 30) --> cria nova barra
-					end
-					self.rows_created = #self.barras
+			--> verifica se precisa criar mais barras
+			if (self.rows_fit_in_window > #self.barras) then--> verifica se precisa criar mais barras
+				for i  = #self.barras+1, self.rows_fit_in_window, 1 do
+					gump:CriaNovaBarra (self, i, 30) --> cria nova barra
 				end
-				
-				--> seta a largura das barras
-				if (self.bar_mod and self.bar_mod ~= 0) then
-					for index = 1, self.rows_fit_in_window do
-						self.barras [index]:SetWidth (self.baseframe:GetWidth()+self.bar_mod)
-					end
-				else
-					for index = 1, self.rows_fit_in_window do
-						self.barras [index]:SetWidth (self.baseframe:GetWidth()+self.row_info.space.right)
-					end
-				end
-
-			--end
+				self.rows_created = #self.barras
+			end
 			
+			--> seta a largura das barras
+			if (self.bar_mod and self.bar_mod ~= 0) then
+				for index = 1, self.rows_fit_in_window do
+					self.barras [index]:SetWidth (self.baseframe:GetWidth()+self.bar_mod)
+				end
+			else
+				for index = 1, self.rows_fit_in_window do
+					self.barras [index]:SetWidth (self.baseframe:GetWidth()+self.row_info.space.right)
+				end
+			end
+
+			--> verifica se precisa esconder ou mostrar alguma barra
 			local A = self.barraS[1]
 			if (not A) then --> primeira vez que o resize esta sendo usado, no caso no startup do addon ou ao criar uma nova instância
 				--> hida as barras não usadas
@@ -520,8 +448,64 @@
 		end	
 	end
 
-	--> cria o frame de wait for plugin
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> panels
+
+--> cooltip presets
+	function _detalhes:CooltipPreset (preset)
+		local GameCooltip = GameCooltip
 	
+		GameCooltip:Reset()
+		
+		if (preset == 1) then
+			GameCooltip:SetOption ("TextFont", "Friz Quadrata TT")
+			GameCooltip:SetOption ("TextColor", "orange")
+			GameCooltip:SetOption ("TextSize", 12)
+			GameCooltip:SetOption ("ButtonsYMod", -4)
+			GameCooltip:SetOption ("YSpacingMod", -4)
+			GameCooltip:SetOption ("IgnoreButtonAutoHeight", true)
+			GameCooltip:SetColor (1, 0.5, 0.5, 0.5, 0.5)
+			
+		elseif (preset == 2) then
+			GameCooltip:SetOption ("TextFont", "Friz Quadrata TT")
+			GameCooltip:SetOption ("TextColor", "orange")
+			GameCooltip:SetOption ("TextSize", 12)
+			GameCooltip:SetOption ("FixedWidth", 220)
+			GameCooltip:SetOption ("ButtonsYMod", -4)
+			GameCooltip:SetOption ("YSpacingMod", -4)
+			GameCooltip:SetOption ("IgnoreButtonAutoHeight", true)
+			GameCooltip:SetColor (1, 0.5, 0.5, 0.5, 0.5)
+			
+		end
+	end
+
+--> yes no panel
+
+	do
+		_detalhes.yesNo = _detalhes.gump:NewPanel (UIParent, _, "DetailsYesNoWindow", _, 500, 80)
+		_detalhes.yesNo:SetPoint ("center", UIParent, "center")
+		_detalhes.gump:NewLabel (_detalhes.yesNo, _, "$parentAsk", "ask", "")
+		_detalhes.yesNo ["ask"]:SetPoint ("center", _detalhes.yesNo, "center", 0, 25)
+		_detalhes.yesNo ["ask"]:SetWidth (480)
+		_detalhes.yesNo ["ask"]:SetJustifyH ("center")
+		_detalhes.yesNo ["ask"]:SetHeight (22)
+		_detalhes.gump:NewButton (_detalhes.yesNo, _, "$parentNo", "no", 100, 30, function() _detalhes.yesNo:Hide() end, nil, nil, nil, Loc ["STRING_NO"])
+		_detalhes.gump:NewButton (_detalhes.yesNo, _, "$parentYes", "yes", 100, 30, nil, nil, nil, nil, Loc ["STRING_YES"])
+		_detalhes.yesNo ["no"]:SetPoint (10, -45)
+		_detalhes.yesNo ["yes"]:SetPoint (390, -45)
+		_detalhes.yesNo ["no"]:InstallCustomTexture()
+		_detalhes.yesNo ["yes"]:InstallCustomTexture()
+		_detalhes.yesNo ["yes"]:SetHook ("OnMouseUp", function() _detalhes.yesNo:Hide() end)
+		function _detalhes:Ask (msg, func, ...)
+			_detalhes.yesNo ["ask"].text = msg
+			local p1, p2 = ...
+			_detalhes.yesNo ["yes"]:SetClickFunction (func, p1, p2)
+			_detalhes.yesNo:Show()
+		end
+		_detalhes.yesNo:Hide()
+	end
+	
+--> cria o frame de wait for plugin
 	function _detalhes:CreateWaitForPlugin()
 	
 		local WaitForPluginFrame = CreateFrame ("frame", "DetailsWaitForPluginFrame" .. self.meu_id, UIParent)
@@ -673,8 +657,8 @@
 		end	
 	end
 
+--> tutorial bubbles
 	do
-	
 		--[1] criar nova instancia
 		--[2] esticar janela
 		--[3] resize e trava
@@ -781,151 +765,151 @@
 
 	
 --> create bubble
-	local f = CreateFrame ("frame", "DetailsBubble", UIParent)
-	f:SetPoint ("center", UIParent, "center")
-	f:SetSize (100, 100)
-	f:SetFrameStrata ("TOOLTIP")
-	f.isHorizontalFlipped = false
-	f.isVerticalFlipped = false
-	
-	local t = f:CreateTexture (nil, "artwork")
-	t:SetTexture ([[Interface\AddOns\Details\images\icons]])
-	t:SetSize (131 * 1.2, 81 * 1.2)
-	--377 328 508 409  0.0009765625
-	t:SetTexCoord (0.7373046875, 0.9912109375, 0.6416015625, 0.7978515625)
-	t:SetPoint ("center", f, "center")
-	
-	local line1 = f:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
-	line1:SetPoint ("topleft", t, "topleft", 24, -10)
-	_detalhes:SetFontSize (line1, 9)
-	line1:SetTextColor (.9, .9, .9, 1)
-	line1:SetSize (110, 12)
-	line1:SetJustifyV ("center")
-	line1:SetJustifyH ("center")
-
-	local line2 = f:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
-	line2:SetPoint ("topleft", t, "topleft", 11, -20)
-	_detalhes:SetFontSize (line2, 9)
-	line2:SetTextColor (.9, .9, .9, 1)
-	line2:SetSize (140, 12)
-	line2:SetJustifyV ("center")
-	line2:SetJustifyH ("center")
-	
-	local line3 = f:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
-	line3:SetPoint ("topleft", t, "topleft", 7, -30)
-	_detalhes:SetFontSize (line3, 9)
-	line3:SetTextColor (.9, .9, .9, 1)
-	line3:SetSize (144, 12)
-	line3:SetJustifyV ("center")
-	line3:SetJustifyH ("center")
-	
-	local line4 = f:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
-	line4:SetPoint ("topleft", t, "topleft", 11, -40)
-	_detalhes:SetFontSize (line4, 9)
-	line4:SetTextColor (.9, .9, .9, 1)
-	line4:SetSize (140, 12)
-	line4:SetJustifyV ("center")
-	line4:SetJustifyH ("center")
-
-	local line5 = f:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
-	line5:SetPoint ("topleft", t, "topleft", 24, -50)
-	_detalhes:SetFontSize (line5, 9)
-	line5:SetTextColor (.9, .9, .9, 1)
-	line5:SetSize (110, 12)
-	line5:SetJustifyV ("center")
-	line5:SetJustifyH ("center")
-	
-	f.lines = {line1, line2, line3, line4, line5}
-	
-	--t:SetPoint ("center", UIParent, "center")
-	
-	function f:FlipHorizontal()
-		if (not f.isHorizontalFlipped) then
-			if (f.isVerticalFlipped) then
-				t:SetTexCoord (0.9912109375, 0.7373046875, 0.7978515625, 0.6416015625)
-			else
-				t:SetTexCoord (0.9912109375, 0.7373046875, 0.6416015625, 0.7978515625)
-			end
-			f.isHorizontalFlipped = true
-		else
-			if (f.isVerticalFlipped) then
-				t:SetTexCoord (0.7373046875, 0.9912109375, 0.7978515625, 0.6416015625)
-			else
-				t:SetTexCoord (0.7373046875, 0.9912109375, 0.6416015625, 0.7978515625)
-			end
-			f.isHorizontalFlipped = false
-		end
-	end
-	
-	function f:FlipVertical()
-	
-		if (not f.isVerticalFlipped) then
-			if (f.isHorizontalFlipped) then
-				t:SetTexCoord (0.7373046875, 0.9912109375, 0.7978515625, 0.6416015625)
-			else
-				t:SetTexCoord (0.9912109375, 0.7373046875, 0.7978515625, 0.6416015625)
-			end
-			f.isVerticalFlipped = true
-		else
-			if (f.isHorizontalFlipped) then
-				t:SetTexCoord (0.7373046875, 0.9912109375, 0.6416015625, 0.7978515625)
-			else
-				t:SetTexCoord (0.9912109375, 0.7373046875, 0.6416015625, 0.7978515625)
-			end
-			f.isVerticalFlipped = false
-		end
-	end
-	
-	function f:TextConfig (fontsize, fontface, fontcolor)
-		for i = 1, 5 do
-		
-			local line = f.lines [i]
-			
-			_detalhes:SetFontSize (line, fontsize or 9)
-			_detalhes:SetFontFace (line, fontface or [[Fonts\FRIZQT__.TTF]])
-			_detalhes:SetFontColor (line, fontcolor or {.9, .9, .9, 1})
-
-		end
-	end
-	
-	function f:SetBubbleText (line1, line2, line3, line4, line5)
-		if (not line1) then
-			for _, line in ipairs (f.lines) do
-				line:SetText ("")
-			end
-			return
-		end
-		
-		if (line1:find ("\n")) then
-			line1, line2, line3, line4, line5 = strsplit ("\n", line1)
-		end
-		
-		f.lines[1]:SetText (line1)
-		f.lines[2]:SetText (line2)
-		f.lines[3]:SetText (line3)
-		f.lines[4]:SetText (line4)
-		f.lines[5]:SetText (line5)
-	end
-	
-	function f:SetOwner (frame, myPoint, hisPoint, x, y, alpha)
-		f:ClearAllPoints()
-		f:TextConfig()
-		f:SetBubbleText (nil)
-		t:SetTexCoord (0.7373046875, 0.9912109375, 0.6416015625, 0.7978515625)
+	do 
+		local f = CreateFrame ("frame", "DetailsBubble", UIParent)
+		f:SetPoint ("center", UIParent, "center")
+		f:SetSize (100, 100)
+		f:SetFrameStrata ("TOOLTIP")
 		f.isHorizontalFlipped = false
 		f.isVerticalFlipped = false
-		f:SetPoint (myPoint or "bottom", frame, hisPoint or "top", x or 0, y or 0)
-		t:SetAlpha (alpha or 1)
-	end
-	
-	function f:ShowBubble()
-		f:Show()
-	end
-	
-	function f:HideBubble()
+		
+		local t = f:CreateTexture (nil, "artwork")
+		t:SetTexture ([[Interface\AddOns\Details\images\icons]])
+		t:SetSize (131 * 1.2, 81 * 1.2)
+		--377 328 508 409  0.0009765625
+		t:SetTexCoord (0.7373046875, 0.9912109375, 0.6416015625, 0.7978515625)
+		t:SetPoint ("center", f, "center")
+		
+		local line1 = f:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+		line1:SetPoint ("topleft", t, "topleft", 24, -10)
+		_detalhes:SetFontSize (line1, 9)
+		line1:SetTextColor (.9, .9, .9, 1)
+		line1:SetSize (110, 12)
+		line1:SetJustifyV ("center")
+		line1:SetJustifyH ("center")
+
+		local line2 = f:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+		line2:SetPoint ("topleft", t, "topleft", 11, -20)
+		_detalhes:SetFontSize (line2, 9)
+		line2:SetTextColor (.9, .9, .9, 1)
+		line2:SetSize (140, 12)
+		line2:SetJustifyV ("center")
+		line2:SetJustifyH ("center")
+		
+		local line3 = f:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+		line3:SetPoint ("topleft", t, "topleft", 7, -30)
+		_detalhes:SetFontSize (line3, 9)
+		line3:SetTextColor (.9, .9, .9, 1)
+		line3:SetSize (144, 12)
+		line3:SetJustifyV ("center")
+		line3:SetJustifyH ("center")
+		
+		local line4 = f:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+		line4:SetPoint ("topleft", t, "topleft", 11, -40)
+		_detalhes:SetFontSize (line4, 9)
+		line4:SetTextColor (.9, .9, .9, 1)
+		line4:SetSize (140, 12)
+		line4:SetJustifyV ("center")
+		line4:SetJustifyH ("center")
+
+		local line5 = f:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+		line5:SetPoint ("topleft", t, "topleft", 24, -50)
+		_detalhes:SetFontSize (line5, 9)
+		line5:SetTextColor (.9, .9, .9, 1)
+		line5:SetSize (110, 12)
+		line5:SetJustifyV ("center")
+		line5:SetJustifyH ("center")
+		
+		f.lines = {line1, line2, line3, line4, line5}
+		
+		function f:FlipHorizontal()
+			if (not f.isHorizontalFlipped) then
+				if (f.isVerticalFlipped) then
+					t:SetTexCoord (0.9912109375, 0.7373046875, 0.7978515625, 0.6416015625)
+				else
+					t:SetTexCoord (0.9912109375, 0.7373046875, 0.6416015625, 0.7978515625)
+				end
+				f.isHorizontalFlipped = true
+			else
+				if (f.isVerticalFlipped) then
+					t:SetTexCoord (0.7373046875, 0.9912109375, 0.7978515625, 0.6416015625)
+				else
+					t:SetTexCoord (0.7373046875, 0.9912109375, 0.6416015625, 0.7978515625)
+				end
+				f.isHorizontalFlipped = false
+			end
+		end
+		
+		function f:FlipVertical()
+		
+			if (not f.isVerticalFlipped) then
+				if (f.isHorizontalFlipped) then
+					t:SetTexCoord (0.7373046875, 0.9912109375, 0.7978515625, 0.6416015625)
+				else
+					t:SetTexCoord (0.9912109375, 0.7373046875, 0.7978515625, 0.6416015625)
+				end
+				f.isVerticalFlipped = true
+			else
+				if (f.isHorizontalFlipped) then
+					t:SetTexCoord (0.7373046875, 0.9912109375, 0.6416015625, 0.7978515625)
+				else
+					t:SetTexCoord (0.9912109375, 0.7373046875, 0.6416015625, 0.7978515625)
+				end
+				f.isVerticalFlipped = false
+			end
+		end
+		
+		function f:TextConfig (fontsize, fontface, fontcolor)
+			for i = 1, 5 do
+			
+				local line = f.lines [i]
+				
+				_detalhes:SetFontSize (line, fontsize or 9)
+				_detalhes:SetFontFace (line, fontface or [[Fonts\FRIZQT__.TTF]])
+				_detalhes:SetFontColor (line, fontcolor or {.9, .9, .9, 1})
+
+			end
+		end
+		
+		function f:SetBubbleText (line1, line2, line3, line4, line5)
+			if (not line1) then
+				for _, line in ipairs (f.lines) do
+					line:SetText ("")
+				end
+				return
+			end
+			
+			if (line1:find ("\n")) then
+				line1, line2, line3, line4, line5 = strsplit ("\n", line1)
+			end
+			
+			f.lines[1]:SetText (line1)
+			f.lines[2]:SetText (line2)
+			f.lines[3]:SetText (line3)
+			f.lines[4]:SetText (line4)
+			f.lines[5]:SetText (line5)
+		end
+		
+		function f:SetOwner (frame, myPoint, hisPoint, x, y, alpha)
+			f:ClearAllPoints()
+			f:TextConfig()
+			f:SetBubbleText (nil)
+			t:SetTexCoord (0.7373046875, 0.9912109375, 0.6416015625, 0.7978515625)
+			f.isHorizontalFlipped = false
+			f.isVerticalFlipped = false
+			f:SetPoint (myPoint or "bottom", frame, hisPoint or "top", x or 0, y or 0)
+			t:SetAlpha (alpha or 1)
+		end
+		
+		function f:ShowBubble()
+			f:Show()
+		end
+		
+		function f:HideBubble()
+			f:Hide()
+		end
+		
+		f:SetBubbleText (nil)
+		
 		f:Hide()
 	end
-	
-	f:SetBubbleText (nil)
-	
-	f:Hide()	

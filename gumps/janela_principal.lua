@@ -4425,6 +4425,7 @@ function _detalhes:ChangeSkin (skin_name)
 	_detalhes.atributo_heal:UpdateSelectedToKFunction()
 	_detalhes.atributo_energy:UpdateSelectedToKFunction()
 	_detalhes.atributo_misc:UpdateSelectedToKFunction()
+	_detalhes.atributo_custom:UpdateSelectedToKFunction()
 	
 ----------> call widgets handlers	
 		self:SetBarSettings (self.row_info.height)
@@ -6037,11 +6038,17 @@ function gump:CriaCabecalho (baseframe, instancia)
 				
 					local CustomObject = _detalhes.custom [sub_atributo]
 					
-					--> as addmenu dont support textcoords we need to add in parts, first adding text and menu, after we add the icon
-					--> text and menu can be added in one call if doesnt need more details like color or right text
-					CoolTip:AddMenu (1, OnClickNovoMenu, index, nil, nil, "#".. index .. " " .. _detalhes.atributos.lista [atributo] .. " - " .. CustomObject.name, _, true)
-					CoolTip:AddIcon (CustomObject.icon, 1, 1, 20, 20, 0, 1, 0, 1)
-					
+					if (not CustomObject) then
+						_this_instance:ResetAttribute()
+						atributo = _this_instance.atributo
+						sub_atributo = _this_instance.sub_atributo
+						CoolTip:AddMenu (1, OnClickNovoMenu, index, nil, nil, "#".. index .. " " .. _detalhes.atributos.lista [atributo] .. " - " .. _detalhes.sub_atributos [atributo].lista [sub_atributo], _, true)
+						CoolTip:AddIcon (_detalhes.sub_atributos [atributo].icones[sub_atributo] [1], 1, 1, 20, 20, unpack (_detalhes.sub_atributos [atributo].icones[sub_atributo] [2]))
+					else
+						CoolTip:AddMenu (1, OnClickNovoMenu, index, nil, nil, "#".. index .. " " .. _detalhes.atributos.lista [atributo] .. " - " .. CustomObject:GetName(), _, true)
+						CoolTip:AddIcon (CustomObject.icon, 1, 1, 20, 20, 0, 1, 0, 1)
+					end
+
 				else
 					local modo = _this_instance.modo
 					

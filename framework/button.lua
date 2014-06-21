@@ -502,8 +502,10 @@ local ButtonMetaFunctions = {}
 			end
 		end
 		
-		if (button.MyObject.have_tooltip) then 
-			_detalhes.popup:ShowMe (false)
+		if (button.MyObject.have_tooltip) then
+			if (GameCooltip:GetText (1) == button.MyObject.have_tooltip) then
+				GameCooltip:Hide()
+			end
 		end
 		
 		local parent = button:GetParent().MyObject

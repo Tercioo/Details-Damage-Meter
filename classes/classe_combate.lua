@@ -148,6 +148,9 @@
 		--> record last event before dead
 		esta_tabela.last_events_tables = {}
 		
+		--> players in the raid
+		esta_tabela.raid_roster = {}
+		
 		--> frags
 		esta_tabela.frags = {}
 		esta_tabela.frags_need_refresh = false

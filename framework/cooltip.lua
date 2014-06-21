@@ -805,7 +805,7 @@ function DetailsCreateCoolTip()
 		end
 		
 		function CoolTip:StatusBar (menuButton, StatusBar)
-		
+
 			if (StatusBar) then
 			
 				menuButton.statusbar:SetValue (StatusBar [1])
@@ -899,7 +899,8 @@ function DetailsCreateCoolTip()
 			CoolTip.LeftIconTableSub [mainMenuIndex] and CoolTip.LeftIconTableSub [mainMenuIndex] [index], 
 			CoolTip.RightIconTableSub [mainMenuIndex] and CoolTip.RightIconTableSub [mainMenuIndex] [index], true)
 			--> setup statusbar
-			CoolTip:StatusBar (menuButton, CoolTip.StatusBarTable [mainMenuIndex] and CoolTip.StatusBarTable [mainMenuIndex] [index])
+			CoolTip:StatusBar (menuButton, CoolTip.StatusBarTableSub [mainMenuIndex] and CoolTip.StatusBarTableSub [mainMenuIndex] [index])
+
 
 			--> click
 			menuButton:RegisterForClicks ("LeftButtonDown")
@@ -1493,7 +1494,7 @@ function DetailsCreateCoolTip()
 			
 		end
 		
-	end	
+	end
 	
 	function CoolTip:GetText (buttonIndex)
 		local button1 = frame1.Lines [buttonIndex]

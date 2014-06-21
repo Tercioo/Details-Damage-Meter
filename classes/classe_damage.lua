@@ -127,6 +127,10 @@
 					return amount
 				end
 			end
+
+--[[ exported]]	function _detalhes:IsGroupPlayer()
+				return self.grupo
+			end
 			
 --[[ exported]] 	function _detalhes:IsPlayer()
 				if (self.flag_original) then
@@ -210,7 +214,7 @@
 					return _unpack (_detalhes.class_colors.ARENA_ALLY)
 				
 				else
-					if (not is_player_class [actor.classe] and _bit_band (actor.flag_original, 0x00000020) ~= 0) then --> neutral
+					if (not is_player_class [actor.classe] and actor.flag_original and _bit_band (actor.flag_original, 0x00000020) ~= 0) then --> neutral
 						return _unpack (_detalhes.class_colors.NEUTRAL)
 					else
 						return _unpack (_detalhes.class_colors [actor.classe])

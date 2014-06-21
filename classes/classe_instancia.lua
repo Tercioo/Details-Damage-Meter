@@ -158,11 +158,28 @@ function _detalhes:IsRaidMode()
 	return self.modo == _detalhes._detalhes_props["MODO_RAID"]
 end
 
+function _detalhes:IsGroupMode()
+	return self.modo == _detalhes._detalhes_props["MODO_GROUP"]
+end
+
 function _detalhes:IsNormalMode()
 	if (self:GetInstanceId() == 2 or self:GetInstanceId() == 3) then
 		return true
 	else
 		return false
+	end
+end
+
+function _detalhes:GetCustomObject()
+	return _detalhes.custom [self.sub_atributo]
+end
+
+function _detalhes:ResetAttribute()
+	if (self.iniciada) then 
+		self:TrocaTabela (nil, 1, 1, true)
+	else
+		self.atributo = 1
+		self.sub_atributo = 1
 	end
 end
 
@@ -1312,7 +1329,10 @@ function _detalhes:InstanceReset (instance)
 	self:AtualizaSegmentos (self)
 	self:AtualizaSoloMode_AfertReset()
 	self:ResetaGump()
-	_detalhes:AtualizaGumpPrincipal (self, true) --atualiza todas as instancias
+	
+	if (not _detalhes.initializing) then
+		_detalhes:AtualizaGumpPrincipal (self, true) --atualiza todas as instancias
+	end
 end
 
 function _detalhes:RefreshBars (instance)
@@ -1737,6 +1757,7 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 		instancia.sub_atributo = sub_atributo
 		
 		if (sub_attribute_click) then
+			--print ("aqui", instancia.sub_atributo)
 			instancia.sub_atributo_last [instancia.atributo] = instancia.sub_atributo
 		end
 		
@@ -1928,21 +1949,32 @@ function _detalhes:MontaAtributosOption (instancia, func)
 	--> custom
 	CoolTip:AddMenu (1, func, nil, 5, nil, atributos.lista[5], nil, true)
 	CoolTip:AddIcon ("Interface\\AddOns\\Details\\images\\atributos_icones", 1, 1, 20, 20, p*(5-1), p*(5), 0, 1)
-	CoolTip:AddMenu (2, _detalhes.OpenCustomWindow, nil, nil, nil, Loc ["STRING_CUSTOM_NEW"], "Interface\\PaperDollInfoFrame\\Character-Plus", true)
+	CoolTip:AddMenu (2, _detalhes.OpenCustomDisplayWindow, nil, nil, nil, Loc ["STRING_CUSTOM_NEW"], "Interface\\PaperDollInfoFrame\\Character-Plus", true)
 	
 	for index, custom in _ipairs (_detalhes.custom) do 
-		CoolTip:AddMenu (2, func, nil, 5, index, custom.name, custom.icon, true)
+		CoolTip:AddLine (custom.name, nil, 2)
+		CoolTip:AddMenu (2, func, true, 5, index)
+		CoolTip:AddIcon (custom.icon, 2, 1, 16, 16)
 	end
+	
+	--> set the wallpaper on custom
+	GameCooltip:SetWallpaper (2, [[Interface\TALENTFRAME\WarriorArm-TopLeft]], {1, 0, 0, 1}, {1, 1, 1, 0.1})
 
 	if (#_detalhes.custom == 0) then
 		CoolTip:SetLastSelected (2, 5, 1)
 	else
-		CoolTip:SetLastSelected (2, 5, instancia.sub_atributo_last [5]+1)
+		if (instancia.atributo == 5) then
+			CoolTip:SetLastSelected (2, 5, instancia.sub_atributo+1)
+		else
+			CoolTip:SetLastSelected (2, 5, instancia.sub_atributo_last [5]+1)
+		end
 	end
 
+	CoolTip:SetOption ("StatusBarTexture", [[Interface\AddOns\Details\images\bar4_vidro]])
+	
 	CoolTip:SetLastSelected (1, atributo_ativo)
 	
-	CoolTip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
+	CoolTip:SetWallpaper (1, [[Interface\SPELLBOOK\DeathKnightBlood-TopLeft]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
 	--CoolTip:SetWallpaper (1, [[Interface\ACHIEVEMENTFRAME\UI-Achievement-Parchment-Horizontal-Desaturated]], nil, {1, 1, 1, 0.3})
 	
 	return menu_principal, sub_menus
@@ -2235,7 +2267,8 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 	
 		if (not is_current) then 
 			--> assumindo que self é sempre uma instância aqui.
-			local total, keyName, keyNameSec, first, container_amount
+			local total, keyName, keyNameSec, first
+			local container_amount = 0
 			local atributo = self.atributo
 			local container = self.showing [atributo]._ActorTable
 			
@@ -2261,6 +2294,7 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 				end
 			elseif (atributo == 2) then --> heal
 				total, keyName, first, container_amount = _detalhes.atributo_heal:RefreshWindow (self, self.showing, true, true)
+
 				if (self.sub_atributo == 1) then
 					keyNameSec = "hps"
 				end
@@ -2281,10 +2315,8 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 			elseif (atributo == 5) then --> custom
 			
 				if (_detalhes.custom [self.sub_atributo]) then
-					total, keyName, first, container_amount = _detalhes.atributo_custom:RefreshWindow (self, self.showing, true, {key = "custom"})
-					total = self.showing.totals [self.customName]
-					atributo = _detalhes.custom [self.sub_atributo].attribute
-					container = self.showing [atributo]._ActorTable
+					total, container, first, container_amount = _detalhes.atributo_custom:RefreshWindow (self, self.showing, true, true)
+					keyName = "value"
 				else
 					total, keyName, first, container_amount = _detalhes.atributo_damage:RefreshWindow (self, self.showing, true, true)
 					total = 1
@@ -2294,10 +2326,11 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 				--print (total, keyName, first, atributo, container_amount)
 			end
 			
-			amt = math.min (amt, container_amount)
+			amt = math.min (amt, container_amount or 0)
 
 			for i = 1, amt do 
 				local _thisActor = container [i]
+
 				if (_thisActor) then 
 				
 					local amount = _thisActor [keyName]
@@ -2403,7 +2436,7 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 				atributo = _detalhes.custom [self.sub_atributo].attribute
 			end
 			
-			local this_amt = math.min (#container, container_amount, amt)
+			local this_amt = math.min (#container, container_amount or 0, amt)
 			this_amt = #container - this_amt
 
 			for i = container_amount, this_amt, -1 do 

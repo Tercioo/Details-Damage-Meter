@@ -1,940 +1,1623 @@
-local _detalhes = 		_G._detalhes
+--> custom window
 
-local AceComm = LibStub ("AceComm-3.0")
-local AceSerializer = LibStub ("AceSerializer-3.0")
-
-local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
-
-local gump = 			_detalhes.gump
-local _
-local atributos = _detalhes.atributos
-local sub_atributos = _detalhes.sub_atributos
---lua locals
-local _cstr = string.format
-local _math_ceil = math.ceil
-local _math_floor = math.floor
-local _ipairs = ipairs
-local _pairs = pairs
-local _string_lower = string.lower
-local _table_sort = table.sort
-local _table_insert = table.insert
-local _unpack = unpack
-
---api locals
-local _GetSpellInfo = _detalhes.getspellinfo
-local _CreateFrame = CreateFrame
-local _GetTime = GetTime
-local _GetCursorPosition = GetCursorPosition
-local _GameTooltip = GameTooltip
-local _UIParent = UIParent
-local _GetScreenWidth = GetScreenWidth
-local _GetScreenHeight = GetScreenHeight
-local _IsAltKeyDown = IsAltKeyDown
-local _IsShiftKeyDown = IsShiftKeyDown
-local _IsControlKeyDown = IsControlKeyDown
-
-local CLASS_ICON_TCOORDS = _G.CLASS_ICON_TCOORDS
-
-local class_type_dano = _detalhes.atributos.dano
-local class_type_misc = _detalhes.atributos.misc
-local tabela_do_combate
-
-local master_container
-
-local function CreateCustomWindow()
+	local _detalhes = 		_G._detalhes
+	local gump = 			_detalhes.gump
+	local _
 	
-	local gump_fundo_backdrop = {
-		bgFile = "Interface\\AddOns\\Details\\images\\background", 
-		edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border", 
-		tile = true, tileSize = 16, edgeSize = 4,
-		insets = {left = 0, right = 0, top = 0, bottom = 0}}
+	local AceComm = LibStub ("AceComm-3.0")
+	local AceSerializer = LibStub ("AceSerializer-3.0")
+	local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
 
-	local frame = CreateFrame ("frame", "DetailsCustomPanel", UIParent)
-	frame:SetPoint ("center", UIParent, "center", 100, -100)
-	frame:SetWidth (512)
-	frame:SetHeight (183)
-	frame:EnableMouse (true)
-	frame:SetMovable (true)
-	frame:SetFrameLevel (1)
-	
-	local frameD = CreateFrame ("frame", "DetailsCustomPanelDisable", frame)
-	frameD:SetPoint ("center", frame, "center")
-	frameD:SetWidth (512)
-	frameD:SetHeight (183)
-	frameD:EnableMouse (true)
-	frameD:SetFrameStrata ("fullscreen")
-	frameD:SetBackdrop ({
-		bgFile = "Interface\\AddOns\\Details\\images\\background", 
-		edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border", 
-		tile = true, tileSize = 16, edgeSize = 4})
-	frameD:SetBackdropColor (0, 0, 0, .8)
-	frameD.string = frameD:CreateFontString (nil, "overlay", "GameFontNormal")
-	frameD.string:SetPoint ("center", frameD, "center")
-	frameD.string:SetText ("There is a problem connecting some nether tubes\nOur ethereal engineers are already working to fix this issue,\n\nTo avoid mana wyrms proliferation, this panel is disabled for now.\n(Press Escape To Close)")
-	--frameD:Hide()
-	
-	frame.fundo = frame:CreateTexture (nil, "border")
-	frame.fundo:SetTexture ("Interface\\AddOns\\Details\\images\\custom_bg")
-	frame.fundo:SetPoint ("topleft", frame, "topleft")
-	
-	frame.move = gump:NewDetailsButton (frame, frame, _, function() end, nil, nil, 1, 1, "", "", "", "", nil, "DetailsCustomPanelMoveFrame")
-	frame.move:SetPoint ("topleft", frame, "topleft")
-	frame.move:SetPoint ("bottomright", frame, "bottomright")
-	frame.move:SetFrameLevel (frame:GetFrameLevel()+1)
-	
-	--> botão de fechar
-	frame.fechar = _CreateFrame ("Button", nil, frame, "UIPanelCloseButton")
-	frame.fechar:SetWidth (32)
-	frame.fechar:SetHeight (32)
-	frame.fechar:SetPoint ("TOPRIGHT", frame, "TOPRIGHT", -1, -8)
-	frame.fechar:SetText ("X")
-	frame.fechar:SetFrameLevel (frame:GetFrameLevel()+2)
-	
-	frame.fechar:SetScript ("OnClick", function() 
-		_detalhes:CloseCustomWindow()
-	end)
-	
-	frame:SetScript ("OnHide", function()
-		_detalhes:CloseCustomWindow()
-	end)
-	
-	--> help button
-	local helpButton = CreateFrame ("button", "DetailsCustomPanelHelpButton", frame, "MainHelpPlateButton")
-	helpButton:SetWidth (36)
-	helpButton:SetHeight (36)
-	helpButton.I:SetWidth (25)
-	helpButton.I:SetHeight (25)
-	helpButton.Ring:SetWidth (36)
-	helpButton.Ring:SetHeight (36)
-	helpButton.Ring:SetPoint ("center", 7, -7)
-	helpButton:SetPoint ("topright", frame, "topright", -20, -7)
-	helpButton:SetFrameLevel (frame.fechar:GetFrameLevel())
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> local pointers
 
-	local customHelp =  {
-		FramePos = {x = 0, y = -30},
-		FrameSize = {width = 512, height = 120},
-		
-		[1] ={HighLightBox = {x = 15, y = -39, width = 100, height = 70},
-			ButtonPos = { x = 43, y = -50},
-			ToolTipDir = "LEFT",
-			ToolTipText = Loc ["STRING_CUSTOM_HELP1"]
-		},
-		[2] ={HighLightBox = {x = 120, y = -9, width = 170, height = 95},
-			ButtonPos = { x = 182, y = -30},
-			ToolTipDir = "RIGHT",
-			ToolTipText = Loc ["STRING_CUSTOM_HELP2"]
-		},
-		[3] ={HighLightBox = {x = 295, y = -9, width = 170, height = 75},
-			ButtonPos = { x = 363, y = -25},
-			ToolTipDir = "RIGHT",
-			ToolTipText = Loc ["STRING_CUSTOM_HELP3"]
-		},
-		[4] ={HighLightBox = {x = 470, y = -25, width = 30, height = 25},
-			ButtonPos = { x = 485, y = -15},
-			ToolTipDir = "RIGHT",
-			ToolTipText = Loc ["STRING_CUSTOM_HELP4"]
-		}
-	}
 	
-	helpButton:SetScript ("OnClick", function() 
-		if (not HelpPlate_IsShowing (customHelp)) then
-			HelpPlate_Show (customHelp, frame, helpButton, true)
-		else
-			HelpPlate_Hide (true)
+	local _cstr = string.format --lua local
+	local _math_ceil = math.ceil --lua local
+	local _math_floor = math.floor --lua local
+	local _ipairs = ipairs --lua local
+	local _pairs = pairs --lua local
+	local _string_lower = string.lower --lua local
+	local _table_sort = table.sort --lua local
+	local _table_insert = table.insert --lua local
+	local _unpack = unpack --lua local
+	local _setmetatable = setmetatable --lua local
+
+	local _GetSpellInfo = _detalhes.getspellinfo --api local
+	local _CreateFrame = CreateFrame --api local
+	local _GetTime = GetTime --api local
+	local _GetCursorPosition = GetCursorPosition --api local
+	local _GameTooltip = GameTooltip --api local
+	local _UIParent = UIParent --api local
+	local _GetScreenWidth = GetScreenWidth --api local
+	local _GetScreenHeight = GetScreenHeight --api local
+	local _IsAltKeyDown = IsAltKeyDown --api local
+	local _IsShiftKeyDown = IsShiftKeyDown --api local
+	local _IsControlKeyDown = IsControlKeyDown --api local
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> constants
+	
+	local atributos = _detalhes.atributos
+	local sub_atributos = _detalhes.sub_atributos
+
+	local CLASS_ICON_TCOORDS = _G.CLASS_ICON_TCOORDS
+
+	local class_type_dano = _detalhes.atributos.dano
+	local class_type_misc = _detalhes.atributos.misc
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> create the window
+
+	function _detalhes:CloseCustomDisplayWindow()
+	
+		--> cancel editing or creation
+		if (DetailsCustomPanel.CodeEditing) then
+			DetailsCustomPanel:CancelFunc()
 		end
-	end)
-	
-	--> titulo
-	gump:NewLabel (frame, frame, nil, "titulo", "Custom Display", "GameFontHighlightLeft", 12, {227/255, 186/255, 4/255})
-	frame.titulo:SetPoint ("center", frame, "center")
-	frame.titulo:SetPoint ("top", frame, "top", 0, -18)
-	
-	--> icone no canto esquerdo superior
-	frame.classe_icone = frame:CreateTexture (nil, "BACKGROUND")
-	frame.classe_icone:SetPoint ("TOPLEFT", frame, "TOPLEFT", 4, 0)
-	frame.classe_icone:SetWidth (64)
-	frame.classe_icone:SetHeight (64)
-	frame.classe_icone:SetDrawLayer ("BACKGROUND", 1)
-	frame.classe_icone:SetTexture ("Interface\\AddOns\\Details\\images\\classes_plus")
-	frame.classe_icone:SetTexCoord (0, 0.25, 0.25, 0.5)
-	
-	--------------------------------------------------------------------------------------------------------------------------------------------------------
-	
-	frame.atributo = nil
-	frame.sub_atributo = nil
-
-	local SubMenu = function (atributo) 
-		frame.sub_atributo = atributo
-
-	end
-	
-	
-	local LeftButtons = frame.fechar:CreateTexture (nil, "overlay")
-	LeftButtons:SetWidth (56)
-	LeftButtons:SetHeight (70)
-	LeftButtons:SetPoint ("left", frame, "left", 15, -29)
-	LeftButtons:SetTexture ("Interface\\Glues\\CHARACTERCREATE\\AlternateForm")
-	LeftButtons:SetTexCoord (0, 1, 0, 0.62890625)
-	LeftButtons:SetDrawLayer ("overlay", 4)
-	
-	--> botão de deletar um custom
-	local DeleteButton = gump:NewDetailsButton (frame, frame, _, function()end, nil, nil, 60, 15, "", "", "", "", nil, "DetailsCustomPanelDeleteButton")
-	DeleteButton.text:SetText (Loc ["STRING_CUSTOM_REMOVE"])
-	DeleteButton.text:SetJustifyH ("left")
-	DeleteButton.text:SetPoint ("left", DeleteButton, "left", 0, -1)
-	DeleteButton:SetPoint ("topleft", LeftButtons, "topleft", 34, -10)
-	DeleteButton:SetFrameLevel (frame:GetFrameLevel()+2)
-	DeleteButton:InstallCustomTexture (_, {x1 = -20, x2 = 0, y1 = -2, y2 = -2})
-	--DeleteButton.
-	
-	local removeTexture = frame.fechar:CreateTexture (nil, "overlay")
-	removeTexture:SetWidth (23)
-	removeTexture:SetHeight (23)
-	removeTexture:SetTexture ("Interface\\ICONS\\Spell_BrokenHeart")
-	removeTexture:SetTexCoord (5/64, 60/64, 4/64, 62/64)
-	removeTexture:SetPoint ("topleft", LeftButtons, "topleft", 6, -8)
-	removeTexture:SetDrawLayer ("overlay", 3)
-	
-	--> botão de dar broadcast em um custom
-	local BroadcastButton = gump:NewDetailsButton (frame, frame, _, function()end, nil, nil, 60, 15, "", "", "", "", nil, "DetailsCustomPanelBroadcastButton")
-	BroadcastButton.text:SetText (Loc ["STRING_CUSTOM_BROADCAST"])
-	BroadcastButton.text:SetJustifyH ("left")
-	BroadcastButton.text:SetPoint ("left", BroadcastButton, "left", 0, -1)
-	BroadcastButton:SetPoint ("topleft", LeftButtons, "topleft", 34, -42)
-	BroadcastButton:SetFrameLevel (frame:GetFrameLevel()+2)
-	BroadcastButton:InstallCustomTexture (_, {x1 = -20, x2 = 0, y1 = -2, y2 = -2})
-	
-	local broadcastTexture = frame.fechar:CreateTexture (nil, "overlay")
-	broadcastTexture:SetWidth (23)
-	broadcastTexture:SetHeight (23)
-	broadcastTexture:SetTexture ("Interface\\ICONS\\Ability_Warrior_RallyingCry")
-	broadcastTexture:SetTexCoord (5/64, 60/64, 4/64, 62/64)
-	broadcastTexture:SetPoint ("topleft", LeftButtons, "topleft", 6, -40)
-	broadcastTexture:SetDrawLayer ("overlay", 3)
-	
-	
-	local fundoBrilha = frame:CreateTexture (nil, "overlay")
-	fundoBrilha:SetWidth (140)
-	fundoBrilha:SetHeight (36)
-	fundoBrilha:SetTexture ("Interface\\PetBattles\\Weather-Sunlight")
-	fundoBrilha:SetTexCoord (.3, 1, 0, 1)	
-	
-	local MainMenu = function (atributo) 
-		
-		frame.atributo = atributo
-		frame.sub_atributo = 1
-		
-		fundoBrilha:SetPoint ("left", frame.MainMenu [atributo].icon , "right", -20, -10)
-		
-		frame.selectAttributeDropdown:Select (1, true)
-	end
-	
-	frame.MainMenu = {}
-	frame.SubMenu = {}
-
-	do
-	
-		local x = 140
-		local x2 = 170
-		
-		local y = -17
-		
-		local OnEnterHook = function (button)
-			button.text:SetTextColor (1, 1, 1)
+		if (DetailsCustomPanel.IsEditing) then
+			DetailsCustomPanel:CancelFunc()
 		end
 		
-		local OnLeaveHook = function (button)
-			button.text:SetTextColor (button.textColor.r, button.textColor.g, button.textColor.b )
-		end
-
-		--> 4 atributos principais
+		DetailsCustomPanel:Reset()
 		
-		local half = 0.00048828125
-		local size = 0.03125
-		
-		local att_names = {Loc ["STRING_CUSTOM_ATT1"], Loc ["STRING_CUSTOM_ATT2"], Loc ["STRING_CUSTOM_ATT3"], Loc ["STRING_CUSTOM_ATT4"]}
-		
-		for i = 1, 4 do
-		
-			local button = gump:NewDetailsButton (frame, frame, _, MainMenu, i, nil, 120, 15, "", "", "", "", nil, "DetailsCustomPanelAttributeButton"..i)
-			button.MouseOnEnterHook = OnEnterHook
-			button.MouseOnLeaveHook = OnLeaveHook
-			
-			button.textura = button:CreateTexture (nil, "overlay")
-			button.textura:SetPoint ("right", button, "left", 60, 0)
-			button.icon = button:CreateTexture (nil, "background")
-			button.icon:SetPoint ("center", button.textura, "center", 2, 0)
-			button.icon:SetTexture ("Interface\\AddOns\\Details\\images\\skins\\default_skin")
-			button.icon:SetWidth (22)
-			button.icon:SetHeight (22)
-			
-			button.icon:SetTexCoord ( (0.03125 * (i-1)) + half, (0.03125 * i) - half, 0.35693359375, 0.38720703125)
-			
-			if (i == 1) then
-				button.textura:SetTexture ("Interface\\ExtraButton\\ChampionLight")
-				--button.icon:SetTexCoord (32/256 * (1-1), 32/256 * 1, 0, 1)
-
-			elseif (i == 2) then
-				button.textura:SetTexture ("Interface\\ExtraButton\\Ysera")
-				--button.icon:SetTexCoord (32/256 * (2-1), 32/256 * 2, 0, 1)
-				--button.icon:SetPoint ("center", button.textura, "center", 3, 0)
-
-			elseif (i == 3) then
-				button.textura:SetTexture ("Interface\\ExtraButton\\FengShroud")
-				--button.icon:SetTexCoord (32/256 * (3-1), 32/256 * 3, 0, 1)				
-			
-			elseif (i == 4) then
-				button.textura:SetTexture ("Interface\\ExtraButton\\BrewmoonKeg")
-				--button.icon:SetTexCoord (32/256 * (4-1), 32/256 * 4, 0, 1)				
-			
-			end
-			
-			button.textura:SetWidth (76)
-			button.textura:SetHeight (40)
-			button:SetPoint ("topleft", frame, "topleft", x, i*-33 + (y))
-			button.text:SetText (att_names [i])
-			button.text:SetPoint ("left", button, "left", 65, 0)
-			button:SetFrameLevel (frame:GetFrameLevel()+2)
-			
-			frame.MainMenu [i] = button
-		end
-		
-		frame.atributo = 1
-		frame.sub_atributo = 1
-		fundoBrilha:SetPoint ("left", frame.MainMenu [1].icon , "right", -20, -10)
-		
-		--> 5 atributos secundarios
-		
-		--[[
-		for i = 1, 5 do 
-			local button = gump:NewDetailsButton (frame, frame, _, SubMenu, i, nil, 60, 15, "", "", "", "")
-			button:SetPoint ("topleft", frame, "topleft", x2, i*-15)
-			button.text:SetPoint ("left", button, "left", 5, 0)
-			button.text:SetText ("sub menu "..i)
-			button:SetFrameLevel (frame:GetFrameLevel()+2)
-			frame.SubMenu [i] = button
-		end
-		--]]
+		--> hide the frame
+		_G.DetailsCustomPanel:Hide()
 	end
-	
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---> Edit Boxes
-	
-	local xStart = 290
-	local WidthMax = 220
 
---> labels	
-	local name_text = gump:NewLabel (frame, nil, "$parentNameBoxLabel", nil, Loc ["STRING_CUSTOM_NAME"], "GameFontHighlightLeft", 11)
-	local spell_text = gump:NewLabel (frame, nil, "$parentSpellBoxLabel", nil, Loc ["STRING_CUSTOM_SPELLID"])
-	local source_text = gump:NewLabel (frame, nil, "$parentSourceBoxLabel", nil, Loc ["STRING_CUSTOM_SOURCE"])
-	local target_text = gump:NewLabel (frame, nil, "$parentTargetBoxLabel", nil, Loc ["STRING_CUSTOM_TARGET"])
-	local subattribute_text = gump:NewLabel (frame, nil, "$parentSubAttributeBoxLabel", nil, Loc ["STRING_CUSTOM_ATTRIBUTE"])
-	
-	name_text:SetPoint ("topleft", frame, "topleft", xStart, -45)
-	subattribute_text:SetPoint ("topleft", frame, "topleft", xStart, -65)
-	source_text:SetPoint ("topleft", frame, "topleft", xStart, -85)
-	target_text:SetPoint ("topleft", frame, "topleft", xStart, -105)
-	spell_text:SetPoint ("topleft", frame, "topleft", xStart, -125)
+	function _detalhes:OpenCustomDisplayWindow()
 
---> name entry
-	local name_entry = gump:NewTextEntry (frame, frame, "$parentNameEntry", "TextMyNameEntry", 140, 20)
-	name_entry:SetFrameLevel (frame:GetFrameLevel()+2)
-	name_entry:SetPoint ("left", name_text, "right", 2, 0)
-
---> sub attribute
-
-	local on_choose_attribute = function (_, _, attribute_number)
-		frame.sub_atributo = attribute_number
-	end
-	local build_attribute_menu = function()
-		local menu = {}
-		
-		local attributes = _detalhes.sub_atributos [frame.atributo].lista
-		local icons = _detalhes.sub_atributos [frame.atributo].icones
-		
-		for index, attribute_name in ipairs (attributes) do
-			menu [#menu+1] = {value = index, label = attribute_name, onclick = on_choose_attribute, icon = icons [index] [1], texcoord = icons [index] [2]}
-		end
-		
-		return menu
-	end
+		if (not _G.DetailsCustomPanel) then
 	
-	local select_attribute = gump:NewDropDown (frame, frame, "$parentAttributeDropdown", "selectAttributeDropdown", 140, 20, build_attribute_menu)
-	select_attribute:SetFrameLevel (frame:GetFrameLevel()+2)
-	select_attribute:SetPoint ("left", subattribute_text, "right", 2, 0)
+			local GameCooltip = GameCooltip
 	
---> spell id entry
-	local SpellIDSelected = function (param1, param2, texto, editbox) 
-		local _ThisSpellName, _, _ThisSpellIcon  = _GetSpellInfo (tonumber (texto))
-		if (_ThisSpellName) then 
-			frame.IconTexture = _ThisSpellIcon
-			frame.icon:SetTexture (frame.IconTexture)
+			--> main frame
+			local custom_window = _CreateFrame ("frame", "DetailsCustomPanel", UIParent)
+			custom_window:SetPoint ("center", UIParent, "center")
+			custom_window:SetSize (850, 370)
+			custom_window:EnableMouse (true)
+			custom_window:SetMovable (true)
+			custom_window:SetScript ("OnMouseDown", function (self)
+				if (not self.moving) then
+					self.moving = true
+					self:StartMoving()
+				end
+			end)
+			custom_window:SetScript ("OnMouseUp", function (self)
+				if (self.moving) then
+					self.moving = false
+					self:StopMovingOrSizing()
+				end
+			end)
+			custom_window:SetScript ("OnShow", function()
+				GameCooltip:Hide()
+			end)
 			
-			if (frame ["TextMyNameEntry"].text == "") then 
-				frame ["TextMyNameEntry"].text = _ThisSpellName
-				frame ["TextMyNameEntry"]:SetText (_ThisSpellName) 
-			end
-		end
-	end
-	
-	local spellid_entry = gump:NewSpellEntry (frame, SpellIDSelected, 140, 20, nil, nil, "TextSpellIDEntry", "$parentSpellidEntry")
-	spellid_entry:SetPoint ("left", spell_text, "right", 2, 0)
-	frame ["TextSpellIDEntry"]:SetFrameLevel (frame:GetFrameLevel()+2)
-
-	local frameEncounterSkill = CreateFrame ("frame", nil, frame)
-	frameEncounterSkill:SetPoint ("left", frame ["TextSpellIDEntry"].widget, "right")
-	frameEncounterSkill:SetWidth (20)
-	frameEncounterSkill:SetHeight (20)
-	frameEncounterSkill:SetFrameLevel (frame:GetFrameLevel()+2)
-	local frameEncounterSkillImage = frameEncounterSkill:CreateTexture (nil, "overlay")
-	frameEncounterSkillImage:SetPoint ("center", frameEncounterSkill)
-	frameEncounterSkillImage:SetTexture ("Interface\\Buttons\\UI-MicroButton-Raid-Up")
-	frameEncounterSkillImage:SetTexCoord (0.046875, 0.90625, 0.40625, 0.953125)
-	frameEncounterSkillImage:SetWidth (20)
-	frameEncounterSkillImage:SetHeight (16)
-	
-	local GameCooltip = GameCooltip
-	
-	local spellsFrame = gump:NewPanel (frame, _, "DetailsCustomSpellsFrame", "spellsFrame", 1, 1)
-	spellsFrame:SetPoint ("bottomleft", frame, "topleft", 62, -14)
-	spellsFrame:Hide()
-	
-	local selectedEncounterSpell = function (spellId)
-		local nome_magia, _, icone_magia = _GetSpellInfo (spellId)
-		frame ["TextMyNameEntry"]:SetText (nome_magia)
-		frame ["TextMyNameEntry"]:PressEnter()
-		frame ["TextSpellIDEntry"]:SetText (spellId)
-		frame ["TextSpellIDEntry"]:PressEnter()
-		frame ["TextSourceEntry"]:SetText ("[all]")
-		frame ["TextSourceEntry"]:PressEnter()
-		frame.icon:SetTexture (icone_magia)
-		spellsFrame:Hide()
-	end
-	
-	local spellsFrameButtons = {}
-
-	local buttonMouseOver = function (button)
-		button.MyObject.image:SetBlendMode ("ADD")
-		button.MyObject.line:SetBlendMode ("ADD")
-		button.MyObject.label:SetTextColor (1, 1, 1, 1)
-		local OnEnterColors = button:GetParent().Gradient.OnEnter
-		local _r, _g, _b, _a = button:GetParent():GetBackdropColor()
-		gump:GradientEffect (button:GetParent(), "frame", _r, _g, _b, _a, OnEnterColors[1], OnEnterColors[2], OnEnterColors[3], OnEnterColors[4], .3)
-	end
-	local buttonMouseOut = function (button)
-		button.MyObject.image:SetBlendMode ("BLEND")
-		button.MyObject.line:SetBlendMode ("BLEND")
-		button.MyObject.label:SetTextColor (.8, .8, .8, .8)
-		local _r, _g, _b, _a = button:GetParent():GetBackdropColor()
-		if (_r) then
-			local OnLeaveColors = button:GetParent().Gradient.OnLeave
-			gump:GradientEffect (button:GetParent(), "frame", _r, _g, _b, _a, OnLeaveColors[1], OnLeaveColors[2], OnLeaveColors[3], OnLeaveColors[4], .3)
-		end
-	end
-	
-	local EncounterSelect = function (_, _, instanceId, bossIndex)
-		
-		spellsFrame:Show()
-		
-		local spells = _detalhes:GetEncounterSpells (instanceId, bossIndex)
-		
-		local x = 10
-		local y = 10
-		local i = 1
-		
-		for spell, _ in pairs (spells) do 
-		
-			local thisButton = spellsFrameButtons [i]
+			tinsert (UISpecialFrames, "DetailsCustomPanel")
 			
-			if (not thisButton) then
-				thisButton = gump:NewButton (spellsFrame.frame, spellsFrame.frame, "DetailsCustomSpellsFrameButton"..i, "button"..i, 80, 20, selectedEncounterSpell)
-				thisButton:SetPoint ("topleft", "DetailsCustomSpellsFrame", "topleft", x, -y)
-				local t = gump:NewImage (thisButton, nil, 20, 20, nil, nil, "image", "DetailsCustomEncounterImageButton"..i)
-				t:SetPoint ("left", thisButton)
-				thisButton:SetHook ("OnEnter", buttonMouseOver)
-				thisButton:SetHook ("OnLeave", buttonMouseOut)
+			--> background texture
+			custom_window.background = custom_window:CreateTexture (nil, "border")
+			custom_window.background:SetTexture ([[Interface\AddOns\Details\images\custom_bg]])
+			custom_window.background:SetPoint ("topleft", custom_window, "topleft")
+			--custom_window.background:Hide()
+			
+			local bigdog = gump:NewImage (custom_window, [[Interface\MainMenuBar\UI-MainMenuBar-EndCap-Human]], 180*0.7, 200*0.7, "overlay", {0, 1, 0, 1}, "backgroundBigDog", "$parentBackgroundBigDog")
+			bigdog:SetPoint ("bottomleft", custom_window, "bottomleft", 15, 9)
+			bigdog:SetAlpha (0.5)
 
-				local text = gump:NewLabel (thisButton, nil, "DetailsCustomSpellsFrameButton"..i.."Label", "label", "Spell", nil, 9.5, {.8, .8, .8, .8})
-				text:SetPoint ("left", t.image, "right", 2, 0)
-				text:SetWidth (73)
-				text:SetHeight (10)
+			--> close button
+			custom_window.close = _CreateFrame ("button", nil, custom_window, "UIPanelCloseButton")
+			custom_window.close:SetSize (32, 32)
+			custom_window.close:SetPoint ("topright", custom_window, "topright", 5, -8)
+			custom_window.close:SetFrameLevel (custom_window:GetFrameLevel()+2)
+			custom_window.close:SetScript ("OnClick", function() 
+				_detalhes:CloseCustomDisplayWindow()
+			end)
+			custom_window.close:SetScript ("OnHide", function()
+				_detalhes:CloseCustomDisplayWindow()
+			end)
+
+			--> title
+			custom_window.title = gump:NewLabel (custom_window, nil, nil, nil, "Custom Display", "GameFontHighlightLeft", 12, {227/255, 186/255, 4/255})
+			custom_window.title:SetPoint ("center", custom_window, "center")
+			custom_window.title:SetPoint ("top", custom_window, "top", 0, -18)
+			
+			--> icon
+			custom_window.icon = custom_window:CreateTexture (nil, "background")
+			custom_window.icon:SetPoint ("topleft", custom_window, "topleft", 4, 0)
+			custom_window.icon:SetSize (64, 64)
+			custom_window.icon:SetDrawLayer ("background", 1)
+			custom_window.icon:SetTexture ([[Interface\AddOns\Details\images\classes_plus]])
+			custom_window.icon:SetTexCoord (0, 0.25, 0.25, 0.5)
+
+			DetailsCustomPanel.BoxType = 1
+			DetailsCustomPanel.IsEditing = false
+			DetailsCustomPanel.CodeEditing = false
+			DetailsCustomPanel.current_attribute = "damagedone"
+			
+			DetailsCustomPanel.code1_default = [[
+							--get the parameters passed
+							local combat, instance_container, instance = ...
+							--declade the values to return
+							local total, top, amount = 0, 0, 0
+							
+							--do the loop
+							
+							--loop end
+							
+							--return the values
+							return total, top, amount
+						]]
+			DetailsCustomPanel.code1 = DetailsCustomPanel.code1_default
+			
+			DetailsCustomPanel.code2_default = [[
+							--get the parameters passed
+							local actor, combat, instance = ...
+							
+							--get the cooltip object (we dont use the convencional GameTooltip here)
+							local GameCooltip = GameCooltip
+							
+							--Cooltip code
+						]]
+			DetailsCustomPanel.code2 = DetailsCustomPanel.code2_default
+			
+			function DetailsCustomPanel:Reset()
+				self.name_field:SetText ("")
+				self.icon_image:SetTexture ([[Interface\ICONS\TEMP]])
+				self.desc_field:SetText ("")
 				
-				local border = gump:NewImage (thisButton, "Interface\\SPELLBOOK\\Spellbook-Parts", 40, 38, nil, nil, "border", "DetailsCustomEncounterBorderButton"..i)
-				border:SetTexCoord (0.00390625, 0.27734375, 0.44140625,0.69531250)
-				border:SetDrawLayer ("background")
-				border:SetPoint ("topleft", thisButton.button, "topleft", -9, 9)
+				self.author_field:SetText (UnitName ("player") .. "-" .. GetRealmName())
+				self.author_field:Enable()
 				
-				local line = gump:NewImage (thisButton, "Interface\\SPELLBOOK\\Spellbook-Parts", 84, 25, nil, nil, "line", "DetailsCustomEncounterLineButton"..i)
-				line:SetTexCoord (0.31250000, 0.96484375, 0.37109375, 0.52343750)
-				line:SetDrawLayer ("background")
-				line:SetPoint ("left", thisButton.button, "right", -60, -3)
+				self.source_dropdown:Select (1, true)
+				self.source_field:SetText ("")
 				
-				table.insert (spellsFrameButtons, #spellsFrameButtons+1, thisButton)
+				self.target_dropdown:Select (1, true)
+				self.target_field:SetText ("")
+				
+				self.spellid_entry:SetText ("")
+				
+				DetailsCustomPanel.code1 = DetailsCustomPanel.code1_default
+				DetailsCustomPanel.code2 = DetailsCustomPanel.code2_default
+				
+				DetailsCustomPanel.current_attribute = "damagedone"
+				DetailsCustomPanelAttributeMenu1:Click()
 			end
 			
-			y = y + 20
-			if (y >= 110) then
-				y = 10
-				x = x + 100
-			end
-			
-			local nome_magia, _, icone_magia = _GetSpellInfo (spell)
-			thisButton.image:SetTexture (icone_magia)
-			thisButton.label:SetText (nome_magia)
-			thisButton:SetClickFunction (selectedEncounterSpell, spell)
-			thisButton:Show()
-			i = i + 1
-		end
-		
-		for maxIndex = i, #spellsFrameButtons do
-			spellsFrameButtons [maxIndex]:Hide()
-		end
-		
-		i = i-1
-		spellsFrame:SetSize (math.ceil (i/5)*110, math.min (i*20 + 10, 120))
-		
-	end
-	
-	local BuildEncounterMenu = function()
-	
-		GameCooltip:Reset()
-		GameCooltip:SetType ("menu")
-		GameCooltip:SetOwner (frameEncounterSkill)
-		
-		for instanceId, instanceTable in pairs (_detalhes.EncounterInformation) do 
-		
-			GameCooltip:AddLine (instanceTable.name, _, 1, "white")
-			GameCooltip:AddIcon (instanceTable.icon, 1, 1, 64, 32)
-
-			for index, encounterName in ipairs (instanceTable.boss_names) do 
-				GameCooltip:AddMenu (2, EncounterSelect, instanceId, index, nil, encounterName, nil, true)
-				local L, R, T, B, Texture = _detalhes:GetBossIcon (instanceId, index)
-				GameCooltip:AddIcon (Texture, 2, 1, 20, 20, L, R, T, B)
-			end
-		end
-		
-		GameCooltip:SetOption ("HeightAnchorMod", -10)
-		GameCooltip:ShowCooltip()
-	end
-	
-	frameEncounterSkill:SetScript ("OnEnter", function() 
-		frameEncounterSkillImage:SetBlendMode ("ADD")
-		BuildEncounterMenu()
-	end)
-	
-	frameEncounterSkill:SetScript ("OnLeave", function() 
-		frameEncounterSkillImage:SetBlendMode ("BLEND")
-	end)
-	
-	local _string_lower = string.lower
-	local _string_sub = string.sub
-	
---> source
-	local SourceSelected = function (param1, param2, texto, editbox) end
-	
-	local source_entry = gump:NewTextEntry (frame, frame, "$parentSourceEntry", "TextSourceEntry", 140, 20)
-	
-	frame ["TextSourceEntry"]:SetFrameLevel (frame:GetFrameLevel()+2)
-	frame ["TextSourceEntry"]:SetPoint ("left", source_text, "right", 2, 0)
-	
-	frame ["TextSourceEntry"].InputHook = function() 
-		local texto = frame ["TextSourceEntry"]:GetText()
-		texto:gsub ("[raid]", "|cFFFF00FF|r[raid]")
-		texto:gsub ("[all]", "|cFF0000FF|r[all]")
-		texto:gsub ("[player]", "|cFFFF0000|r[player]")
-		frame ["TextSourceEntry"]:SetText (texto)
-	end
-	frame ["TextSourceEntry"].EnterHook = function() 
-		local texto = frame ["TextSourceEntry"]:GetText()
-		if (texto:find ("%[raid%]")) then
-			frame ["TextSourceEntry"]:SetText ("[raid]")
-		elseif (texto:find ("%[all%]")) then
-			frame ["TextSourceEntry"]:SetText ("[all]")
-		elseif (texto:find ("%[player%]")) then
-			frame ["TextSourceEntry"]:SetText ("[player]")
-		end
-	end
-	
---> target
-
-	local target_entry = gump:NewTextEntry (frame, frame, "$parentTargetEntry", "TextActorNameEntry", 140, 20)
-	frame ["TextActorNameEntry"]:SetFrameLevel (frame:GetFrameLevel()+2)
-	frame ["TextActorNameEntry"]:SetPoint ("left", target_text, "right", 2, 0)
-	
-	--> Tab Order
-	frame ["TextMyNameEntry"]:SetNext (frame ["TextSourceEntry"])
-	frame ["TextSourceEntry"]:SetNext (frame ["TextActorNameEntry"])
-	frame ["TextActorNameEntry"]:SetNext (frame ["TextSpellIDEntry"])
-	frame ["TextSpellIDEntry"]:SetNext (frame ["TextMyNameEntry"])
-
-	--> Tooltips
-	--> localize-me
-	frame ["TextMyNameEntry"].tooltip = Loc ["STRING_CUSTOM_TOOLTIPNAME"]
-	frame ["TextSpellIDEntry"].tooltip = Loc ["STRING_CUSTOM_TOOLTIPSPELL"]
-	frame ["TextSourceEntry"].tooltip = Loc ["STRING_CUSTOM_TOOLTIPSOURCE"]
-	frame ["TextActorNameEntry"].tooltip = Loc ["STRING_CUSTOM_TOOLTIPTARGET"] -- .."\n|cFFFF0000"..Loc ["STRING_CUSTOM_TOOLTIPNOTWORKING"]
-	
-	frame.IconTexture = "Interface\\Icons\\TEMP"
-	
-	local ChooseIcon = function()
-		if (not frame.IconFrame) then 
-		
-			frame.IconFrame = CreateFrame ("frame", "DetailsCustomPanelIcons", frame)
-			
-			frame.IconFrame:SetPoint ("bottomright", frame, "topright", 0, 0)
-			frame.IconFrame:SetWidth (182)
-			frame.IconFrame:SetHeight (160)
-			frame.IconFrame:EnableMouse (true)
-			frame.IconFrame:SetMovable (true)
-			frame.IconFrame:SetBackdrop (gump_fundo_backdrop)
-			frame.IconFrame:SetBackdropBorderColor (170/255, 170/255, 170/255)
-			frame.IconFrame:SetBackdropColor (24/255, 24/255, 24/255, .8)
-			frame.IconFrame:SetFrameLevel (1)
-			
-			local MACRO_ICON_FILENAMES = {};
-			frame.IconFrame:SetScript ("OnShow", function()
-			
-				MACRO_ICON_FILENAMES = {};
-				MACRO_ICON_FILENAMES[1] = "INV_MISC_QUESTIONMARK";
-				local index = 2;
-				local numFlyouts = 0;
-			
-				for i = 1, GetNumSpellTabs() do
-					local tab, tabTex, offset, numSpells, _ = GetSpellTabInfo(i);
-					offset = offset + 1;
-					local tabEnd = offset + numSpells;
-					for j = offset, tabEnd - 1 do
-						--to get spell info by slot, you have to pass in a pet argument
-						local spellType, ID = GetSpellBookItemInfo(j, "player"); 
-						if (spellType ~= "FUTURESPELL") then
-							local spellTexture = strupper(GetSpellBookItemTexture(j, "player"));
-							if ( not string.match( spellTexture, "INTERFACE\\BUTTONS\\") ) then
-								MACRO_ICON_FILENAMES[index] = gsub( spellTexture, "INTERFACE\\ICONS\\", "");
-								index = index + 1;
-							end
-						end
-						if (spellType == "FLYOUT") then
-							local _, _, numSlots, isKnown = GetFlyoutInfo(ID);
-							if (isKnown and numSlots > 0) then
-								for k = 1, numSlots do 
-									local spellID, overrideSpellID, isKnown = GetFlyoutSlotInfo(ID, k)
-									if (isKnown) then
-										MACRO_ICON_FILENAMES[index] = gsub( strupper(GetSpellTexture(spellID)), "INTERFACE\\ICONS\\", ""); 
-										index = index + 1;
-									end
-								end
-							end
-						end
+			function DetailsCustomPanel:RemoveDisplay (custom_object, index)
+				table.remove (_detalhes.custom, index)
+				
+				for _, instance in _ipairs (_detalhes.tabela_instancias) do 
+					if (instance.atributo == 5 and instance.sub_atributo == index) then 
+						instance:ResetAttribute()
+					elseif (instance.atributo == 5 and instance.sub_atributo > index) then
+						instance.sub_atributo = instance.sub_atributo - 1
+						instance.sub_atributo_last [5] = 1
+					else
+						instance.sub_atributo_last [5] = 1
 					end
 				end
 				
-				GetMacroIcons (MACRO_ICON_FILENAMES)
-				GetMacroItemIcons (MACRO_ICON_FILENAMES )
+				_detalhes.switch:OnRemoveCustom (index)
+			end
+			
+			function DetailsCustomPanel:StartEdit (custom_object)
 				
-			end)
-			
-			frame.IconFrame:SetScript ("OnHide", function()
-				MACRO_ICON_FILENAMES = nil;
-				collectgarbage()
-			end)
-			
-			frame.IconFrame.buttons = {}
-			
-			local OnClickFunction = function (index) 
-				local button = frame.IconFrame.buttons [index]
-				local texture = button:GetNormalTexture()
-				frame.IconTexture = "INTERFACE\\ICONS\\"..MACRO_ICON_FILENAMES [button.IconID]
-				frame.icon:SetTexture (frame.IconTexture)
-				frame.IconFrame:Hide()
-			end
-			
-			for i = 0, 4 do 
-				local newcheck = gump:NewDetailsButton (frame.IconFrame, frame.IconFrame, _, OnClickFunction, i+1, i+1, 30, 28, "", "", "", "", _, "DetailsIconCheckFrame"..(i+1))
-				newcheck:SetPoint ("topleft", frame.IconFrame, "topleft", 3+(i*30), -13)
-				newcheck:SetID (i+1)
-				frame.IconFrame.buttons [#frame.IconFrame.buttons+1] = newcheck
-			end
-			for i = 6, 10 do 
-				local newcheck = gump:NewDetailsButton (frame.IconFrame, frame.IconFrame, _, OnClickFunction, i, i, 30, 28, "", "", "", "", _, "DetailsIconCheckFrame"..i)
-				newcheck:SetPoint ("topleft", "DetailsIconCheckFrame"..(i-5), "bottomleft", 0, -1)
-				newcheck:SetID (i)
-				frame.IconFrame.buttons [#frame.IconFrame.buttons+1] = newcheck
-			end
-			for i = 11, 15 do 
-				local newcheck = gump:NewDetailsButton (frame.IconFrame, frame.IconFrame, _, OnClickFunction, i, i, 30, 28, "", "", "", "", _, "DetailsIconCheckFrame"..i)
-				newcheck:SetPoint ("topleft", "DetailsIconCheckFrame"..(i-5), "bottomleft", 0, -1)
-				newcheck:SetID (i)
-				frame.IconFrame.buttons [#frame.IconFrame.buttons+1] = newcheck
-			end
-			for i = 16, 20 do 
-				local newcheck = gump:NewDetailsButton (frame.IconFrame, frame.IconFrame, _, OnClickFunction, i, i, 30, 28, "", "", "", "", _, "DetailsIconCheckFrame"..i)
-				newcheck:SetPoint ("topleft", "DetailsIconCheckFrame"..(i-5), "bottomleft", 0, -1)
-				newcheck:SetID (i)
-				frame.IconFrame.buttons [#frame.IconFrame.buttons+1] = newcheck
-			end
-			for i = 21, 25 do 
-				local newcheck = gump:NewDetailsButton (frame.IconFrame, frame.IconFrame, _, OnClickFunction, i, i, 30, 28, "", "", "", "", _, "DetailsIconCheckFrame"..i)
-				newcheck:SetPoint ("topleft", "DetailsIconCheckFrame"..(i-5), "bottomleft", 0, -1)
-				newcheck:SetID (i)
-				frame.IconFrame.buttons [#frame.IconFrame.buttons+1] = newcheck
-			end
-			
-			local scroll = CreateFrame ("ScrollFrame", "DetailsIconsFrame", frame.IconFrame, "ListScrollFrameTemplate")
-
-			local ChecksFrame_Update = function (self)
-				--self = self or MacroPopupFrame;
-				local numMacroIcons = #MACRO_ICON_FILENAMES;
-				local macroPopupIcon, macroPopupButton;
-				local macroPopupOffset = FauxScrollFrame_GetOffset (scroll);
-				local index;
+				DetailsCustomPanel:Reset()
+				DetailsCustomPanel.IsEditing = custom_object
 				
-				-- Icon list
-				local texture;
-				for i = 1, 25 do
-					macroPopupIcon = _G["DetailsIconCheckFrame"..i];
-					macroPopupButton = _G["DetailsIconCheckFrame"..i];
-					index = (macroPopupOffset * 5) + i;
-					texture = MACRO_ICON_FILENAMES [index]
-					if ( index <= numMacroIcons and texture ) then
-						macroPopupButton:ChangeIcon ("INTERFACE\\ICONS\\"..texture, "INTERFACE\\ICONS\\"..texture, "INTERFACE\\ICONS\\"..texture, "INTERFACE\\ICONS\\"..texture)
-						macroPopupButton.IconID = index
-						macroPopupButton:Show();
-					else
-						macroPopupButton:Hide();
-					end
-
-				end
+				self.name_field:SetText (custom_object:GetName())
+				self.desc_field:SetText (custom_object:GetDesc())
+				self.icon_image:SetTexture (custom_object:GetIcon())
 				
-				-- Scrollbar stuff
-				FauxScrollFrame_Update (scroll, ceil (numMacroIcons / 5) , 5, 20 );
-			end
-			
-			
-			scroll:SetPoint ("topleft", frame.IconFrame, "topleft", -18, -10)
-			scroll:SetWidth (170)
-			scroll:SetHeight (148)
-			scroll:SetScript ("OnVerticalScroll", function (self, offset) FauxScrollFrame_OnVerticalScroll (scroll, offset, 20, ChecksFrame_Update) end)
-			scroll.update = ChecksFrame_Update
-			frame.IconFrameScroll = scroll
-			frame.IconFrame:Hide()
-		end
-		
-		frame.IconFrame:Show()
-		frame.IconFrameScroll.update (frame.IconFrameScroll)
-		
-	end
-
-	local Icon
-	
-	local reset = function()
-		frame ["TextMyNameEntry"]:SetText ("")
-		frame ["TextSpellIDEntry"]:SetText ("")
-		frame ["TextActorNameEntry"]:SetText ("")
-		frame ["TextSourceEntry"]:SetText ("")
-		Icon:SetTexture ("Interface\\Icons\\TEMP")
-		frame.atributo = 1
-		frame.sub_atributo = 1
-		fundoBrilha:SetPoint ("left", frame.MainMenu [1].icon , "right", -20, -10)
-	end	
-	
-	--> Create Button
-	local CreateFunction = function()
-
-		local Atributo = frame.atributo --> healing
-		local SubAtributo = frame.sub_atributo --> healing done
-		
-		if (not Atributo or not SubAtributo) then 
-			print (Loc ["STRING_CUSTOM_NOATTRIBUTO"])
-			return
-		end
-		
-		if (frame ["TextMyNameEntry"]:HasFocus()) then
-			frame ["TextMyNameEntry"]:PressEnter()
-		elseif (frame ["TextSpellIDEntry"]:HasFocus())then
-			frame ["TextSpellIDEntry"]:PressEnter()
-		elseif (frame ["TextActorNameEntry"]:HasFocus())then
-			frame ["TextActorNameEntry"]:PressEnter()
-		elseif (frame ["TextSourceEntry"]:HasFocus())then
-			frame ["TextSourceEntry"]:PressEnter()
-		end
-		
-		local CustomName = frame ["TextMyNameEntry"].text
-		local SpellID = tonumber (frame ["TextSpellIDEntry"].text)
-		local Actor = frame ["TextActorNameEntry"].text
-		local Source = frame ["TextSourceEntry"].text
-
-		if (not CustomName or string.len (CustomName) < 5) then 
-			print (Loc ["STRING_CUSTOM_SHORTNAME"])
-			--print ("Nome da customizacao precisa ter pelo menos 5 letras")
-			frame ["TextMyNameEntry"]:Blink()
-			return
-		elseif (string.len (CustomName) > 32) then
-			--print ("Nome da customizacao nao pode ter mais de 32 letras")
-			print (Loc ["STRING_CUSTOM_LONGNAME"])
-			frame ["TextMyNameEntry"]:Blink()
-			return
-		end
-		
-		--if (string.len (SpellID) < 1) then
-		--	--print ("Sem id da magia")
-		--	print (Loc ["STRING_CUSTOM_NOSPELL"])
-		--	frame ["TextSpellIDEntry"]:Blink()
-		--	return
-		--end
-		
-		_detalhes.custom [#_detalhes.custom+1] = {name = CustomName, spell = SpellID, target = Actor, source = Source, icon = frame.IconTexture, attribute = Atributo, sattribute = SubAtributo}
-		--print (CustomName, Actor, Source, SpellID, frame.IconTexture, Atributo, SubAtributo)
-		_detalhes:Msg (Loc ["STRING_CUSTOM_CREATED"])
-		_detalhes:CloseCustomWindow()
-		reset()
-	end	
-
-	local IconButton = gump:NewDetailsButton (frame, frame, _, ChooseIcon, nil, nil, 80, 15, "", "", "", "", nil, "DetailsCustomPanelIconButton")
-	IconButton.text:SetText (Loc ["STRING_CUSTOM_ICON"])
-	IconButton.text:SetPoint ("left", IconButton, "left", 3, 0)
-	IconButton:SetPoint ("topleft", frame, "topleft", xStart+21, -158)
-	IconButton:SetFrameLevel (frame:GetFrameLevel()+2)
-	IconButton:InstallCustomTexture (_, {x1 = -20, x2 = 0, y1 = 0, y2 = 0})
-	frame.iconbutton = IconButton
-	
-	Icon = IconButton:CreateTexture (nil, "overlay")
-	Icon:SetTexture (frame.IconTexture)
-	Icon:SetPoint ("right", IconButton, "left", 0, 0)
-	Icon:SetWidth (22)
-	Icon:SetHeight (22)
-	frame.icon = Icon
-
-	local CreateButton = gump:NewDetailsButton (frame, frame, _, CreateFunction, nil, nil, 80, 15, "", "", "", "", nil, "DetailsCustomPanelCreateButton")
-	CreateButton.text:SetText (Loc ["STRING_CUSTOM_CREATE"])
-	CreateButton:SetPoint ("topleft", frame, "topleft", 413, -158)
-	CreateButton:SetFrameLevel (frame:GetFrameLevel()+2)
-	CreateButton:InstallCustomTexture (_, {x1 = -20, x2 = 0, y1 = 0, y2 = 0})
-	
-	local CreateIcon = CreateButton:CreateTexture (nil, "overlay")
-	CreateIcon:SetTexture ("Interface\\Icons\\Ability_Paladin_HammeroftheRighteous")
-	CreateIcon:SetWidth (22)
-	CreateIcon:SetHeight (22)
-	CreateIcon:SetPoint ("right", CreateButton, "left")
-	
---------> Install CoolTip on Remove Button
-		local DeleteFunc = function (_, _, CustomIndex) 
-			table.remove (_detalhes.custom, CustomIndex)
-			for _, instancia in _ipairs (_detalhes.tabela_instancias) do 
-				if (instancia.atributo == 5 and instancia.sub_atributo == CustomIndex) then 
-					if (instancia.iniciada) then 
-						instancia:TrocaTabela (nil, 1, 1, true)
-					else
-						instancia.atributo = 1
-						instancia.sub_atributo = 1
-					end
-				elseif (instancia.atributo == 5 and instancia.sub_atributo > CustomIndex) then
-					instancia.sub_atributo = instancia.sub_atributo - 1
-					instancia.sub_atributo_last [5] = 1
+				self.author_field:SetText (custom_object:GetAuthor())
+				self.author_field:Disable()
+				
+				if (custom_object:IsScripted()) then
+				
+					custom_window.script_button_attribute:Click()
+					
+					DetailsCustomPanel.code1 = custom_object:GetScript()
+					DetailsCustomPanel.code2 = custom_object:GetScriptToolip()
+					
 				else
-					instancia.sub_atributo_last [5] = 1
+				
+					local attribute = custom_object:GetAttribute()
+					if (attribute == "damagedone") then
+						DetailsCustomPanelAttributeMenu1:Click()
+					elseif (attribute == "healdone") then
+						DetailsCustomPanelAttributeMenu2:Click()
+					end
+				
+					local source = custom_object:GetSource()
+					if (source == "[all]") then
+						self.source_dropdown:Select (1, true)
+						self.source_field:SetText ("")
+						self.source_field:Disable()
+					elseif (source == "[raid]") then
+						self.source_dropdown:Select (2, true)
+						self.source_field:SetText ("")
+						self.source_field:Disable()
+					elseif (source == "[player]") then
+						self.source_dropdown:Select (3, true)
+						self.source_field:SetText ("")
+						self.source_field:Disable()
+					else
+						self.source_dropdown:Select (4, true)
+						self.source_field:SetText (source)
+						self.source_field:Enable()
+					end
+					
+					local target = custom_object:GetTarget()
+					
+					if (not target) then
+						self.target_dropdown:Select (5, true)
+						self.target_field:SetText ("")
+						self.target_field:Disable()
+					elseif (target == "[all]") then
+						self.target_dropdown:Select (1, true)
+						self.target_field:SetText ("")
+						self.target_field:Disable()
+					elseif (target == "[raid]") then
+						self.target_dropdown:Select (2, true)
+						self.target_field:SetText ("")
+						self.target_field:Disable()
+					elseif (target == "[player]") then
+						self.target_dropdown:Select (3, true)
+						self.target_field:SetText ("")
+						self.target_field:Disable()
+					else
+						self.target_dropdown:Select (4, true)
+						self.target_field:SetText (target)
+						self.target_field:Enable()
+					end
+					
+					self.spellid_entry:SetText (custom_object:GetSpellId() or "")
+					
 				end
+				
+				DetailsCustomPanel:SetAcceptButtonText (Loc ["STRING_CUSTOM_SAVE"])
 			end
-			if (#_detalhes.custom > 0) then 
-				_detalhes.popup:ExecFunc (DeleteButton)
-			else
-				GameCooltip:Close()
-			end
-			_detalhes.switch:OnRemoveCustom (CustomIndex)
-		end
+			
+			function DetailsCustomPanel:CreateNewCustom()
+			
+				local name = self.name_field:GetText()
+				
+				if (string.len (name) < 5) then
+					return false, _detalhes:Msg (Loc ["STRING_CUSTOM_SHORTNAME"])
+				elseif (string.len (name) > 32) then
+					return false, _detalhes:Msg (Loc ["STRING_CUSTOM_LONGNAME"])
+				end
+				
+				local icon = self.icon_image:GetTexture()
+				local desc = self.desc_field:GetText()
+				local author = self.author_field:GetText()
+				
+				if (DetailsCustomPanel.BoxType == 1) then
+					local source = self.source_dropdown:GetValue()
+					local target = self.target_dropdown:GetValue()
+					local spellid = self.spellid_entry:GetText()
+					
+					if (not source) then
+						source = self.source_field:GetText()
+					end
+					
+					if (not target) then
+						target = self.target_field:GetText()
+					elseif (target == "[none]") then
+						target = false
+					end
+					
+					if (spellid == "") then
+						spellid = false
+					end
 
-		local CreateCustomList = function() 
-			for index, custom in _ipairs (_detalhes.custom) do 
-				GameCooltip:AddMenu (1, DeleteFunc, index, nil, nil, custom.name, _, true)
-				GameCooltip:AddIcon (custom.icon, 1, 1, 20, 20, 0, 1, 0, 1)
-			end
-		end
-		
-		DeleteButton.CoolTip = { 
-			Type = "menu",
-			BuildFunc = CreateCustomList, 
-			Options = {NoLastSelectedBar = true, TextSize = 9.5, HeightAnchorMod = -10}}
-		_detalhes.popup:CoolTipInject (DeleteButton, true)
+					if (DetailsCustomPanel.IsEditing) then
+						local object = DetailsCustomPanel.IsEditing
+						object.name = name
+						object.icon = icon
+						object.desc = desc
+						object.author = author
+						object.attribute = DetailsCustomPanel.current_attribute
+						object.source = source
+						object.target = target
+						object.spellid = tonumber (spellid)
+						object.script = false
+						object.tooltip = false
+						
+						DetailsCustomPanel.IsEditing = false
+						_detalhes:Msg (Loc ["STRING_CUSTOM_SAVED"])
+						self.author_field:Enable()
+						return true
+					else
+						local new_custom_object = {
+							["name"] = name,
+							["icon"] = icon,
+							["desc"] = desc,
+							["author"] = author,
+							["attribute"] = DetailsCustomPanel.current_attribute,
+							["source"] = source,
+							["target"] = target,
+							["spellid"] = tonumber (spellid),
+							["script"] = false,
+							["tooltip"] = false,
+						}
+					
+						tinsert (_detalhes.custom, new_custom_object)
+						_setmetatable (new_custom_object, _detalhes.atributo_custom)
+						new_custom_object.__index = _detalhes.atributo_custom
+						_detalhes:Msg (Loc ["STRING_CUSTOM_CREATED"])
+					end
+					
+					DetailsCustomPanel:Reset()
+					
+				elseif (DetailsCustomPanel.BoxType == 2) then
+					
+					local main_code = DetailsCustomPanel.code1
+					local tooltip_code = DetailsCustomPanel.code2
+					
+					if (DetailsCustomPanel.IsEditing) then
+						local object = DetailsCustomPanel.IsEditing
+						object.name = name
+						object.icon = icon
+						object.desc = desc
+						object.author = author
+						object.attribute = false
+						object.source = false
+						object.target = false
+						object.spellid = false
+						object.script = main_code
+						object.tooltip = tooltip_code
+						
+						DetailsCustomPanel.IsEditing = false
+						_detalhes:Msg (Loc ["STRING_CUSTOM_SAVED"])
+						self.author_field:Enable()
+						return true
+					else
+						local new_custom_object = {
+							["name"] = name,
+							["icon"] = icon,
+							["desc"] = desc,
+							["author"] = author,
+							["attribute"] = false,
+							["source"] = false,
+							["target"] = false,
+							["spellid"] = false,
+							["script"] = main_code,
+							["tooltip"] = tooltip_code,
+						}
+						
+						tinsert (_detalhes.custom, new_custom_object)
+						_setmetatable (new_custom_object, _detalhes.atributo_custom)
+						new_custom_object.__index = _detalhes.atributo_custom
+						_detalhes:Msg (Loc ["STRING_CUSTOM_CREATED"])
+					end
+					
+					DetailsCustomPanel:Reset()
+					
+				end
 
-	-------------------------
-	
-	-------------------------> Install CoolTip on Shout Button
-
-		local addCustomReceived = function (param1)
-			_detalhes.custom [#_detalhes.custom+1] = param1
-			print (Loc ["STRING_CUSTOM_CREATED"])
-		end
-	
-		function _detalhes:OnReceiveCustom (source, realm, dversion, _customTable)
-		
-			if (dversion ~= _detalhes.realversion) then
-				print (Loc ["STRING_TOOOLD2"])
-				return
 			end
-		
-			for index, custom in _ipairs (_detalhes.custom) do 
-				if (_customTable.name == custom.name) then
+			
+			function DetailsCustomPanel:AcceptFunc()
+				
+				if (DetailsCustomPanel.CodeEditing) then
+					--> close the edit box saving the text
+					if (DetailsCustomPanel.CodeEditing == 1) then
+						DetailsCustomPanel.code1 = custom_window.codeeditor:GetText()
+					elseif (DetailsCustomPanel.CodeEditing == 2) then
+						DetailsCustomPanel.code2 = custom_window.codeeditor:GetText()
+					end
+					
+					DetailsCustomPanel.CodeEditing = false
+					if (DetailsCustomPanel.IsEditing) then
+						DetailsCustomPanel:SetAcceptButtonText (Loc ["STRING_CUSTOM_SAVE"])
+					else
+						DetailsCustomPanel:SetAcceptButtonText (Loc ["STRING_CUSTOM_CREATE"])
+					end
+					custom_window.codeeditor:Hide()
+				
+				elseif (DetailsCustomPanel.IsEditing) then
+				
+					local succesful_edit = DetailsCustomPanel:CreateNewCustom()
+					if (succesful_edit) then
+						DetailsCustomPanel.IsEditing = false
+						DetailsCustomPanel:SetAcceptButtonText (Loc ["STRING_CUSTOM_CREATE"])
+						DetailsCustomPanel:Reset()
+					end
+				else
+					DetailsCustomPanel:CreateNewCustom()
+				end
+				
+			end
+			
+			function DetailsCustomPanel:CancelFunc()
+				
+				if (DetailsCustomPanel.CodeEditing) then
+					--> close the edit box without save
+					custom_window.codeeditor:Hide()
+					DetailsCustomPanel.CodeEditing = false
+					
+					if (DetailsCustomPanel.IsEditing) then
+						DetailsCustomPanel:SetAcceptButtonText (Loc ["STRING_CUSTOM_SAVE"])
+					else
+						DetailsCustomPanel:SetAcceptButtonText (Loc ["STRING_CUSTOM_CREATE"])
+					end
+					
+				elseif (DetailsCustomPanel.IsEditing) then
+					DetailsCustomPanel.IsEditing = false
+					DetailsCustomPanel:SetAcceptButtonText (Loc ["STRING_CUSTOM_CREATE"])
+					DetailsCustomPanel:Reset()
+					
+				else
+					_detalhes:CloseCustomDisplayWindow()
+				end
+				
+			end
+			
+			function DetailsCustomPanel:SetAcceptButtonText (text)
+				custom_window.box0.acceptbutton:SetText (text)
+			end
+
+			function select_attribute (self)
+			
+				if (not self.attribute_table) then
 					return
 				end
-			end
-			_detalhes:Ask (source .. "-" .. realm .. " " .. Loc ["STRING_CUSTOM_ACCETP_CUSTOM"], addCustomReceived, _customTable)
-		end
-	
-		--> testing
-		local ShoutFunc = function (_, _, CustomIndex)
-			GameCooltip:Close()
-			_detalhes:SendRaidData ("custom_broadcast", _detalhes.custom [CustomIndex])
-			print (Loc ["STRING_CUSTOM_BROADCASTSENT"])
-		end
-
-		local CreateCustomListForShout = function() 
-			for index, custom in _ipairs (_detalhes.custom) do 
-				GameCooltip:AddMenu (1, ShoutFunc, index, nil, nil, custom.name, _, true)
-				GameCooltip:AddIcon (custom.icon, 1, 1, 20, 20, 0, 1, 0, 1)
-			end
-		end
-		
-		BroadcastButton.CoolTip = { 
-			Type = "menu",
-			BuildFunc = CreateCustomListForShout, 
-			Options = {NoLastSelectedBar = true, TextSize = 9.5, HeightAnchorMod = -10}}
+				
+				custom_window.selected_left:SetPoint ("topleft", self, "topleft")
+				custom_window.selected_right:SetPoint ("topright", self, "topright")
+				
+				DetailsCustomPanel.current_attribute = self.attribute_table.attribute
 			
-		GameCooltip:CoolTipInject (BroadcastButton, true)
+				if (not self.attribute_table.attribute) then
+					--is scripted
+					DetailsCustomPanel.BoxType = 2
+					custom_window.box1:Hide()
+					custom_window.box2:Show()
 
-		function _detalhes:CommReceive (prefix, Msgs, distribution, target)
-			--print (prefix, Msgs, distribution, target)
+				else
+					--no scripted
+					--> check if is editing the code
+					if (DetailsCustomPanel.CodeEditing) then
+						DetailsCustomPanel.AcceptFunc()
+					end
+					
+					DetailsCustomPanel.BoxType = 1
+					custom_window.box1:Show()
+					custom_window.box2:Hide()
+					custom_window.codeeditor:Hide()
+				end
+			end
+
+			function DetailsCustomPanel.StartEditCode (code)
+				if (code == 1) then --> edit main code
+				
+					custom_window.codeeditor:SetText (DetailsCustomPanel.code1)
+					
+				elseif (code == 2) then --> edit tooltip code
+				
+					custom_window.codeeditor:SetText (DetailsCustomPanel.code2)
+					
+				end
+				
+				custom_window.codeeditor:Show()
+				DetailsCustomPanel.CodeEditing = code
+				DetailsCustomPanel:SetAcceptButtonText (Loc ["STRING_CUSTOM_DONE"])
+			end
+			
+
+			
+			--> left menu
+			custom_window.menu = {}
+			local menu_start = -50
+			local menu_up_frame = _CreateFrame ("frame", nil, custom_window)
+			menu_up_frame:SetFrameLevel (custom_window:GetFrameLevel()+2)
+			
+			local onenter = function (self)
+				self.icontexture:SetVertexColor (1, 1, 1, 1)
+			end
+			local onleave = function (self)
+				self.icontexture:SetVertexColor (.9, .9, .9, 1)
+			end
+			
+			function custom_window:CreateMenuButton (label, icon, clickfunc, param1, param2, tooltip, name, coords)
+			
+				local index = #custom_window.menu+1
+				
+				local circle = menu_up_frame:CreateTexture (nil, "overlay")
+				circle:SetSize (128*0.5, 82*0.5)
+				circle:SetPoint ("topleft", self, "topleft", 13, ((82*0.5)*index*-1) + menu_start)
+				circle:SetTexture ("Interface\\Glues\\CHARACTERCREATE\\AlternateForm")
+				circle:SetTexCoord (0, 1, 0, 0.3203125)
+				circle:SetDrawLayer ("overlay", 4)
+				
+				local texture = menu_up_frame:CreateTexture (nil, "overlay")
+				texture:SetSize (128*0.23, 82*0.32)
+				texture:SetTexture (icon)
+				--texture:SetDesaturated (true)
+				texture:SetVertexColor (.9, .9, .9, 1)
+				if (coords) then
+					texture:SetTexCoord (unpack (coords))
+				else
+					texture:SetTexCoord (5/64, 60/64, 4/64, 62/64)
+				end
+				texture:SetPoint ("topleft", circle, "topleft", 5, -9)
+				texture:SetDrawLayer ("overlay", 3)
+				
+				local fillgap = menu_up_frame:CreateTexture (nil, "overlay")
+				fillgap:SetDrawLayer ("overlay", 2)
+				fillgap:SetTexture (0, 0, 0, 1)
+				fillgap:SetSize (2, 10)
+				fillgap:SetPoint ("left", texture, "right")
+				
+				local button = gump:NewButton (self, nil, "$parent" .. name, nil, 110, 20, clickfunc, param1, param2, nil, label)
+				button:SetPoint ("topleft", circle, "topright", -32, -14)
+				button:InstallCustomTexture()
+				button:SetHook ("OnEnter", onenter)
+				button:SetHook ("OnLeave", onleave)
+				button.widget.icontexture = texture
+				button.tooltip = tooltip
+
+				custom_window.menu [index] = {circle = circle, icon = texture, button = button}
+			end
+			
+			local build_menu = function (func, param2, self)
+				GameCooltip:Reset()
+				
+				for index, custom_object in _ipairs (_detalhes.custom) do
+					GameCooltip:AddLine (custom_object:GetName())
+					GameCooltip:AddIcon (custom_object:GetIcon())
+					GameCooltip:AddMenu (1, func, custom_object, index, true)
+				end
+				
+				GameCooltip:SetOption ("ButtonsYMod", -2)
+				GameCooltip:SetOption ("YSpacingMod", 0)
+				GameCooltip:SetOption ("TextHeightMod", 0)
+				GameCooltip:SetOption ("IgnoreButtonAutoHeight", false)
+				GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
+				
+				GameCooltip:SetType ("menu")
+				GameCooltip:SetHost (self, "left", "right", -7, 0)
+				GameCooltip:Show()
+			end
+			
+			--> edit button
+			local start_edit = function (_, _, custom_object, index)
+				GameCooltip:Hide()
+				DetailsCustomPanel:StartEdit (custom_object)
+			end
+			--custom_window:CreateMenuButton ("Edit", "Interface\\ICONS\\INV_Feather_06", build_menu, start_edit, nil, "Select a display to edit.", "Edit", {0.93, 0.07, 0.07, 0.93}) --> localize
+			custom_window:CreateMenuButton (Loc ["STRING_CUSTOM_EDIT"], "Interface\\ICONS\\INV_Inscription_RunescrollOfFortitude_Red", build_menu, start_edit, nil, nil, "Edit", {0.07, 0.93, 0.07, 0.93}) --> localize
+			
+			--> remove button
+			local remove_display = function (_, _, custom_object, index)
+				GameCooltip:Hide()
+				DetailsCustomPanel:RemoveDisplay (custom_object, index)
+			end
+			custom_window:CreateMenuButton (Loc ["STRING_CUSTOM_REMOVE"], "Interface\\ICONS\\Spell_BrokenHeart", build_menu, remove_display, nil, nil, "Remove", {1, 0, 0, 1}) --> localize
+			
+			--> export button
+			local export_display = function (_, _, custom_object, index)
+				GameCooltip:Hide()
+				--DetailsCustomPanel:RemoveDisplay (custom_object, index)
+			end
+			custom_window:CreateMenuButton (Loc ["STRING_CUSTOM_EXPORT"], "Interface\\ICONS\\INV_Misc_Gift_01", build_menu, export_display, nil, nil, "Export", {0.00, 0.9, 0.07, 0.93}) --> localize
+			DetailsCustomPanelExport:Disable()
+
+			--> import buttonRaceChange
+			local import_display = function (_, _, custom_object, index)
+				GameCooltip:Hide()
+				--DetailsCustomPanel:RemoveDisplay (custom_object, index)
+			end
+			custom_window:CreateMenuButton (Loc ["STRING_CUSTOM_IMPORT"], "Interface\\ICONS\\INV_MISC_NOTE_02", build_menu, import_display, nil, nil, "Import", {0.00, 0.9, 0.07, 0.93}) --> localize
+			DetailsCustomPanelImport:Disable()
+			
+			local box_types = {
+				{}, --normal
+				{}, --custom script
+			}
+			
+			local attributes = {
+				{icon = [[Interface\ICONS\Spell_Fire_Fireball02]], label = Loc ["STRING_CUSTOM_ATTRIBUTE_DAMAGE"], box = 1, attribute = "damagedone", boxtype = 1},
+				{icon = [[Interface\ICONS\SPELL_NATURE_HEALINGTOUCH]], label = Loc ["STRING_CUSTOM_ATTRIBUTE_HEAL"], box = 1, attribute = "healdone", boxtype = 1},
+				{icon = [[Interface\ICONS\INV_Inscription_Scroll]], label = Loc ["STRING_CUSTOM_ATTRIBUTE_SCRIPT"], box = 2, attribute = false, boxtype = 2},
+				
+				--{icon = [[Interface\ICONS\INV_Inscription_Scroll]], label = "Custom Script", box = 2, attribute = false, boxtype = 2},
+				--{icon = [[Interface\ICONS\INV_Inscription_Scroll]], label = "Custom Script", box = 2, attribute = false, boxtype = 2},
+				--{icon = [[Interface\ICONS\INV_Inscription_Scroll]], label = "Custom Script", box = 2, attribute = false, boxtype = 2},
+				--{icon = [[Interface\ICONS\INV_Inscription_Scroll]], label = "Custom Script", box = 2, attribute = false, boxtype = 2},
+				--{icon = [[Interface\ICONS\INV_Inscription_Scroll]], label = "Custom Script", box = 2, attribute = false, boxtype = 2},
+				--{icon = [[Interface\ICONS\INV_Inscription_Scroll]], label = "Custom Script", box = 2, attribute = false, boxtype = 2},
+				--{icon = [[Interface\ICONS\INV_Inscription_Scroll]], label = "Custom Script", box = 2, attribute = false, boxtype = 2},
+				--{icon = [[Interface\ICONS\INV_Inscription_Scroll]], label = "Custom Script", box = 2, attribute = false, boxtype = 2},
+				--{icon = [[Interface\ICONS\INV_Inscription_Scroll]], label = "Custom Script", box = 2, attribute = false, boxtype = 2},
+			}
+
+			--> create box
+			local attribute_box = _CreateFrame ("frame", nil, custom_window)
+			attribute_box:SetPoint ("topleft", custom_window, "topleft", 200, -60)
+			attribute_box:SetSize (180, 260)
+			--attribute_box:SetBackdrop ({
+			--	bgFile = "Interface\\AddOns\\Details\\images\\background", 
+			--	tile = true, tileSize = 16})
+			--attribute_box:SetBackdropColor (1, 1, 1, 1)
+			
+			local button_onenter = function (self)
+				self:SetBackdropColor (.3, .3, .3, .3)
+				self.icon:SetBlendMode ("ADD")
+			end
+			local button_onleave = function (self)
+				self:SetBackdropColor (0, 0, 0, .2)
+				self.icon:SetBlendMode ("BLEND")
+			end
+
+			--960 1020 68 101
+			
+			local selected_left = attribute_box:CreateTexture (nil, "overlay")
+			selected_left:SetTexture ([[Interface\Store\Store-Main]])
+			selected_left:SetSize (50, 20)
+			selected_left:SetVertexColor (1, .8, 0, 1)
+			selected_left:SetTexCoord (960/1024, 1020/1024, 68/1024, 101/1024)
+			custom_window.selected_left = selected_left
+			
+			local selected_right = attribute_box:CreateTexture (nil, "overlay")
+			selected_right:SetTexture ([[Interface\Store\Store-Main]])
+			selected_right:SetSize (31, 20)
+			selected_right:SetVertexColor (1, .8, 0, 1)
+			selected_right:SetTexCoord (270/1024, 311/1024, 873/1024, 906/1024)
+			custom_window.selected_right = selected_right
+			
+			local selected_center = attribute_box:CreateTexture (nil, "overlay")
+			selected_center:SetTexture ([[Interface\Store\Store-Main]])
+			selected_center:SetSize (49, 20)
+			selected_center:SetVertexColor (1, .8, 0, 1)
+			selected_center:SetTexCoord (956/1024, 1004/1024, 164/1024, 197/1024)
+			
+			selected_center:SetPoint ("left", selected_left, "right")
+			selected_center:SetPoint ("right", selected_right, "left")
+			
+			--selected_center:SetHorizTile (true)
+			--selected_center:SetVertTile (true)
+			
+			local p = 0.0625 --> 32/512
+			
+			for i = 1, 10 do
+			
+				if (attributes [i]) then
+			
+				local button = _CreateFrame ("button", "DetailsCustomPanelAttributeMenu" .. i, attribute_box)
+				button:SetPoint ("topleft", attribute_box, "topleft", 2, ((i-1)*23*-1) + (-26))
+				button:SetPoint ("topright", attribute_box, "topright", 2, ((i-1)*23*-1) + (-26))
+				button:SetHeight (20)
+				
+				button:SetBackdrop ({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tile = true, tileSize = 16})
+				button:SetBackdropColor (0, 0, 0, .2)
+				
+				button:SetScript ("OnEnter", button_onenter)
+				button:SetScript ("OnLeave", button_onleave)
+				
+				button.attribute_table = attributes [i]
+				
+				if (attributes [i] and not attributes [i].attribute) then
+					custom_window.script_button_attribute = button
+				end
+				
+				button:SetScript ("OnClick", select_attribute)
+				
+				button.icon = button:CreateTexture (nil, "overlay")
+				button.icon:SetPoint ("left", button, "left", 6, 0)
+				button.icon:SetSize (22, 22)
+				button.icon:SetTexture ([[Interface\AddOns\Details\images\custom_icones]])
+				button.icon:SetTexCoord (p*(i-1), p*(i), 0, 1)
+				
+				button.text = button:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+				button.text:SetPoint ("left", button.icon, "right", 4, 0)
+				button.text:SetText (attributes [i] and attributes [i].label or "")
+				button.text:SetTextColor (.9, .9, .9, 1)
+				
+				end
+			end
+			
+			--> create box 0, holds the name, author, desc and icon
+			local box0 = _CreateFrame ("frame", "DetailsCustomPanelBox0", custom_window)
+			custom_window.box0 = box0
+			box0:SetSize (450, 360)
+			--box0:SetBackdrop ({
+			--	bgFile = "Interface\\AddOns\\Details\\images\\background", 
+			--	edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border", 
+			--	tile = true, tileSize = 16, edgeSize = 12})
+			--box0:SetBackdropColor (0, 0, 0, .5)
+			box0:SetPoint ("topleft", attribute_box, "topright", 26, 10)
+			
+			--name
+				local name_label = gump:NewLabel (box0, box0, "$parenNameLabel", "name", Loc ["STRING_CUSTOM_NAME"], "GameFontHighlightLeft") --> localize-me
+				name_label:SetPoint ("topleft", box0, "topleft", 10, -20)
+				
+				local name_field = gump:NewTextEntry (box0, nil, "$parentNameEntry", "nameentry", 200, 20)
+				name_field:SetPoint ("left", name_label, "left", 62, 0)
+				custom_window.name_field = name_field
+				
+			--author
+				local author_label = gump:NewLabel (box0, box0, "$parenAuthorLabel", "author", Loc ["STRING_CUSTOM_AUTHOR"], "GameFontHighlightLeft") --> localize-me
+				author_label:SetPoint ("topleft", name_label, "bottomleft", 0, -12)
+				
+				local author_field = gump:NewTextEntry (box0, nil, "$parentAuthorEntry", "authorentry", 200, 20)
+				author_field:SetPoint ("left", author_label, "left", 62, 0)
+				author_field:SetText (UnitName ("player") .. "-" .. GetRealmName())
+				custom_window.author_field = author_field
+				
+			--description
+				local desc_label = gump:NewLabel (box0, box0, "$parenDescLabel", "desc", Loc ["STRING_CUSTOM_DESCRIPTION"], "GameFontHighlightLeft") --> localize-me
+				desc_label:SetPoint ("topleft", author_label, "bottomleft", 0, -12)
+				
+				local desc_field = gump:NewTextEntry (box0, nil, "$parentDescEntry", "descentry", 200, 20)
+				desc_field:SetPoint ("left", desc_label, "left", 62, 0)
+				custom_window.desc_field = desc_field
+				
+			--icon
+				local icon_label = gump:NewLabel (box0, box0, "$parenIconLabel", "icon", Loc ["STRING_CUSTOM_ICON"], "GameFontHighlightLeft") --> localize-me
+				icon_label:SetPoint ("topleft", desc_label, "bottomleft", 0, -12)
+				
+				local pickicon_callback = function (texture)
+					box0.icontexture:SetTexture (texture)
+				end
+				local pickicon = function()
+					gump:IconPick (pickicon_callback, true)
+				end
+				local icon_image = gump:NewImage (box0, [[Interface\ICONS\TEMP]], 20, 20, nil, nil, "icontexture", "$parentIconTexture")
+				local icon_button = gump:NewButton (box0, nil, "$parentIconButton", "IconButton", 20, 20, pickicon)
+				icon_button:InstallCustomTexture()
+				icon_button:SetPoint ("left", icon_label, "left", 64, 0)
+				icon_image:SetPoint ("left", icon_label, "left", 64, 0)
+				custom_window.icon_image = icon_image
+
+			--cancel
+				local cancel_button = gump:NewButton (box0, nil, "$parentCancelButton", "cancelbutton", 130, 20, DetailsCustomPanel.CancelFunc, nil, nil, nil, Loc ["STRING_CUSTOM_CANCEL"])
+				cancel_button:SetPoint ("bottomleft", attribute_box, "bottomright", 37, -10)
+				cancel_button:InstallCustomTexture()
+				
+			--accept
+				local accept_button = gump:NewButton (box0, nil, "$parentAcceptButton", "acceptbutton", 130, 20, DetailsCustomPanel.AcceptFunc, nil, nil, nil, Loc ["STRING_CUSTOM_CREATE"])
+				accept_button:SetPoint ("left", cancel_button, "right", 2, 0)
+				accept_button:InstallCustomTexture()
+				
+
+			
+			--> create box type 1
+				local box1 = _CreateFrame ("frame", "DetailsCustomPanelBox1", custom_window)
+				custom_window.box1 = box1
+				box1:SetSize (450, 180)
+				--box1:SetBackdrop ({
+				--	bgFile = "Interface\\AddOns\\Details\\images\\background", 
+				--	edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border", 
+				--	tile = true, tileSize = 16, edgeSize = 12})
+				--box1:SetBackdropColor (1, 0, 0, .9)
+				box1:SetPoint ("topleft", icon_label.widget, "bottomleft", -10, -20)
+				
+				box1:SetFrameLevel (box0:GetFrameLevel()+1)
+			
+				--source
+					local source_label = gump:NewLabel (box1, box1, "$parenSourceLabel", "source", Loc ["STRING_CUSTOM_SOURCE"], "GameFontHighlightLeft") --> localize-me
+					source_label:SetPoint ("topleft", box1, "topleft", 10, 0)
+					
+					local disable_source_field = function()
+						box1.sourceentry:Disable()
+					end
+					local enable_source_field = function()
+						box1.sourceentry:Enable()
+						box1.sourceentry:SetFocus (true)
+					end
+					
+					local source_icon = [[Interface\COMMON\Indicator-Yellow]]
+					
+					local targeting_options = {
+						{value = "[all]", label = "All Characters", desc = "Search for matches in all characters.", onclick = disable_source_field, icon = source_icon},
+						{value = "[raid]", label = "Raid or Party Group", desc = "Search for matches in all characters which is part of your party or raid group.", onclick = disable_source_field, icon = source_icon},
+						{value = "[player]", label = "Only You", desc = "Search for matches only in your character.", onclick = disable_source_field, icon = source_icon},
+						{value = false, label = "Specific Character", desc = "Type the name of the character used to search.", onclick = enable_source_field, icon = source_icon},
+					}
+					local build_source_list = function() return targeting_options end
+					local source_dropdown = gump:NewDropDown (box1, nil, "$parentSourceDropdown", "sourcedropdown", 178, 20, build_source_list, 1)
+					source_dropdown:SetPoint ("left", source_label, "left", 62, 0)
+					custom_window.source_dropdown = source_dropdown
+					
+					local source_field = gump:NewTextEntry (box1, nil, "$parentSourceEntry", "sourceentry", 201, 20)
+					source_field:SetPoint ("topleft", source_dropdown, "bottomleft", 0, -2)
+					source_field:Disable()
+					custom_window.source_field = source_field
+					
+					local adds_boss = CreateFrame ("frame", nil, box1)
+					adds_boss:SetPoint ("left", source_dropdown.widget, "right", 2, 0)
+					adds_boss:SetSize (20, 20)
+					
+					local adds_boss_image = adds_boss:CreateTexture (nil, "overlay")
+					adds_boss_image:SetPoint ("center", adds_boss)
+					adds_boss_image:SetTexture ("Interface\\Buttons\\UI-MicroButton-Raid-Up")
+					adds_boss_image:SetTexCoord (0.046875, 0.90625, 0.40625, 0.953125)
+					adds_boss_image:SetWidth (20)
+					adds_boss_image:SetHeight (16)
+
+					local actorsFrame = gump:NewPanel (custom_window, _, "DetailsCustomActorsFrame2", "actorsFrame", 1, 1)
+					actorsFrame:SetPoint ("topleft", custom_window, "topright", 5, -60)
+					actorsFrame:Hide()
+					
+					local modelFrame = _CreateFrame ("playermodel", "DetailsCustomActorsFrame2Model", custom_window)
+					modelFrame:SetSize (138, 261)
+					modelFrame:SetPoint ("topright", actorsFrame.widget, "topleft", -15, -8)
+					modelFrame:Hide()
+					local modelFrameTexture = modelFrame:CreateTexture (nil, "background")
+					modelFrameTexture:SetAllPoints()
+					
+					local modelFrameBackground = custom_window:CreateTexture (nil, "artwork")
+					modelFrameBackground:SetSize (138, 261)
+					modelFrameBackground:SetPoint ("topright", actorsFrame.widget, "topleft", -15, -8)
+					modelFrameBackground:SetTexture ([[Interface\ACHIEVEMENTFRAME\UI-GuildAchievement-Parchment-Horizontal-Desaturated]])
+					modelFrameBackground:SetRotation (90)
+					modelFrameBackground:SetVertexColor (.5, .5, .5, 0.5)
+					
+					local modelFrameBackgroundIcon = custom_window:CreateTexture (nil, "overlay")
+					modelFrameBackgroundIcon:SetPoint ("center", modelFrameBackground, "center")
+					modelFrameBackgroundIcon:SetTexture ([[Interface\CHARACTERFRAME\Disconnect-Icon]])
+					modelFrameBackgroundIcon:SetVertexColor (.5, .5, .5, 0.7)
+					
+					
+					local selectedEncounterActor = function (actorName, model)
+						source_field:SetText (actorName)
+						source_dropdown:Select (4, true)
+						box1.sourceentry:Enable()
+						actorsFrame:Hide()
+						GameCooltip:Hide()
+					end
+					
+					local actorsFrameButtons = {}
+
+					local buttonMouseOver = function (button)
+						button.MyObject.image:SetBlendMode ("ADD")
+						button.MyObject.line:SetBlendMode ("ADD")
+						button.MyObject.label:SetTextColor (1, 1, 1, 1)
+						local OnEnterColors = button:GetParent().Gradient.OnEnter
+						local _r, _g, _b, _a = button:GetParent():GetBackdropColor()
+						gump:GradientEffect (button:GetParent(), "frame", _r, _g, _b, _a, OnEnterColors[1], OnEnterColors[2], OnEnterColors[3], OnEnterColors[4], .3)
+						GameTooltip:SetOwner (button, "ANCHOR_TOPLEFT")
+						GameTooltip:AddLine (button.MyObject.actor)
+						GameTooltip:Show()
+						
+						local name, description, bgImage, buttonImage, loreImage, dungeonAreaMapID, link = EJ_GetInstanceInfo (button.MyObject.ej_id)
+						
+						modelFrameTexture:SetTexture (bgImage)
+						modelFrameTexture:SetTexCoord (3/512, 370/512, 5/512, 429/512)
+						modelFrame:Show()
+						
+						modelFrame:SetDisplayInfo (button.MyObject.model)
+					end
+					local buttonMouseOut = function (button)
+						button.MyObject.image:SetBlendMode ("BLEND")
+						button.MyObject.line:SetBlendMode ("BLEND")
+						button.MyObject.label:SetTextColor (.8, .8, .8, .8)
+						local _r, _g, _b, _a = button:GetParent():GetBackdropColor()
+						if (_r) then
+							local OnLeaveColors = button:GetParent().Gradient.OnLeave
+							gump:GradientEffect (button:GetParent(), "frame", _r, _g, _b, _a, OnLeaveColors[1], OnLeaveColors[2], OnLeaveColors[3], OnLeaveColors[4], .3)
+						end
+						GameTooltip:Hide()
+						modelFrame:Hide()
+					end
+					
+					local EncounterSelect = function (_, _, instanceId, bossIndex, ej_id)
+						
+						DetailsCustomSpellsFrame:Hide()
+						DetailsCustomActorsFrame:Hide()
+						DetailsCustomActorsFrame2:Show()
+						GameCooltip:Hide()
+						
+						local encounterID = _detalhes:GetEncounterIdFromBossIndex (instanceId, bossIndex)
+						
+						if (encounterID) then
+							local actors = _detalhes:GetEncounterActorsName (encounterID)
+
+							local x = 10
+							local y = 10
+							local i = 1
+							
+							for actor, actorTable in pairs (actors) do 
+							
+								local thisButton = actorsFrameButtons [i]
+								
+								if (not thisButton) then
+									thisButton = gump:NewButton (actorsFrame.frame, actorsFrame.frame, "DetailsCustomActorsFrame2Button"..i, "button"..i, 130, 20, selectedEncounterSpell)
+									thisButton:SetPoint ("topleft", "DetailsCustomActorsFrame2", "topleft", x, -y)
+									thisButton:SetHook ("OnEnter", buttonMouseOver)
+									thisButton:SetHook ("OnLeave", buttonMouseOut)
+									
+									local t = gump:NewImage (thisButton, nil, 20, 20, nil, nil, "image", "DetailsCustomActors2EncounterImageButton"..i)
+									t:SetPoint ("left", thisButton)
+									t:SetTexture ([[Interface\MINIMAP\TRACKING\Target]])
+									t:SetDesaturated (true)
+									t:SetSize (20, 20)
+									t:SetAlpha (0.7)
+									
+									local text = gump:NewLabel (thisButton, nil, "DetailsCustomActorsFrame2Button"..i.."Label", "label", "Spell", nil, 9.5, {.8, .8, .8, .8})
+									text:SetPoint ("left", t.image, "right", 2, 0)
+									text:SetWidth (123)
+									text:SetHeight (10)
+									
+									local border = gump:NewImage (thisButton, "Interface\\SPELLBOOK\\Spellbook-Parts", 40, 38, nil, nil, "border", "DetailsCustomActors2EncounterBorderButton"..i)
+									border:SetTexCoord (0.00390625, 0.27734375, 0.44140625,0.69531250)
+									border:SetDrawLayer ("background")
+									border:SetPoint ("topleft", thisButton.button, "topleft", -9, 9)
+									
+									local line = gump:NewImage (thisButton, "Interface\\SPELLBOOK\\Spellbook-Parts", 134, 25, nil, nil, "line", "DetailsCustomActors2EncounterLineButton"..i)
+									line:SetTexCoord (0.31250000, 0.96484375, 0.37109375, 0.52343750)
+									line:SetDrawLayer ("background")
+									line:SetPoint ("left", thisButton.button, "right", -110, -3)
+									
+									table.insert (actorsFrameButtons, #actorsFrameButtons+1, thisButton)
+								end
+								
+								y = y + 20
+								if (y >= 260) then
+									y = 10
+									x = x + 150
+								end
+								
+								thisButton.label:SetText (actor)
+								thisButton:SetClickFunction (selectedEncounterActor, actor, actorTable.model)
+								thisButton.actor = actor
+								thisButton.ej_id = ej_id
+								thisButton.model = actorTable.model
+								thisButton:Show()
+								i = i + 1
+							end
+							
+							for maxIndex = i, #actorsFrameButtons do
+								actorsFrameButtons [maxIndex]:Hide()
+							end
+							
+							i = i-1
+							actorsFrame:SetSize (math.ceil (i/13)*160, math.min (i*20 + 20, 280))
+						
+						end
+					end
+					
+					local BuildEncounterMenu = function()
+					
+						GameCooltip:Reset()
+						GameCooltip:SetType ("menu")
+						GameCooltip:SetOwner (adds_boss)
+
+						for instanceId, instanceTable in pairs (_detalhes.EncounterInformation) do 
+						
+							if (_detalhes:InstanceIsRaid (instanceId)) then
+						
+								GameCooltip:AddLine (instanceTable.name, _, 1, "white")
+								GameCooltip:AddIcon (instanceTable.icon, 1, 1, 64, 32)
+
+								for index, encounterName in ipairs (instanceTable.boss_names) do 
+									GameCooltip:AddMenu (2, EncounterSelect, instanceId, index, instanceTable.ej_id, encounterName, nil, true)
+									local L, R, T, B, Texture = _detalhes:GetBossIcon (instanceId, index)
+									GameCooltip:AddIcon (Texture, 2, 1, 20, 20, L, R, T, B)
+								end
+								
+								GameCooltip:SetWallpaper (2, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
+							
+							end
+						end
+						
+						GameCooltip:SetOption ("HeightAnchorMod", -10)
+						GameCooltip:SetOption ("ButtonsYMod", -2)
+						GameCooltip:SetOption ("YSpacingMod", 0)
+						GameCooltip:SetOption ("TextHeightMod", 0)
+						GameCooltip:SetOption ("IgnoreButtonAutoHeight", false)
+						GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
+						
+						GameCooltip:ShowCooltip()
+					end
+					
+					adds_boss:SetScript ("OnEnter", function() 
+						adds_boss_image:SetBlendMode ("ADD")
+						BuildEncounterMenu()
+					end)
+					
+					adds_boss:SetScript ("OnLeave", function() 
+						adds_boss_image:SetBlendMode ("BLEND")
+					end)
+					
+				--target
+					local target_label = gump:NewLabel (box1, box1, "$parenTargetLabel", "target", Loc ["STRING_CUSTOM_TARGET"], "GameFontHighlightLeft")
+					target_label:SetPoint ("topleft", source_label, "bottomleft", 0, -40)
+					
+					local disable_target_field = function()
+						box1.targetentry:Disable()
+					end
+					local enable_target_field = function()
+						box1.targetentry:Enable()
+						box1.targetentry:SetFocus (true)
+					end
+					
+					local target_icon = [[Interface\COMMON\Indicator-Yellow]]
+					local target_icon2 = [[Interface\COMMON\Indicator-Gray]]
+					
+					local targeting_options = {
+						{value = "[all]", label = "All Characters", desc = "Search for matches in all characters.", onclick = disable_target_field, icon = target_icon},
+						{value = "[raid]", label = "Raid or Party Group", desc = "Search for matches in all characters which is part of your party or raid group.", onclick = disable_target_field, icon = target_icon},
+						{value = "[player]", label = "Only You", desc = "Search for matches only in your character.", onclick = disable_target_field, icon = target_icon},
+						{value = false, label = "Specific Character", desc = "Type the name of the character used to search.", onclick = enable_target_field, icon = target_icon},
+						{value = "[none]", label = "No Target", desc = "Do not search for targets.", onclick = disable_target_field, icon = target_icon2},
+					}
+					local build_target_list = function() return targeting_options end
+					local target_dropdown = gump:NewDropDown (box1, nil, "$parentTargetDropdown", "targetdropdown", 178, 20, build_target_list, 1)
+					target_dropdown:SetPoint ("left", target_label, "left", 62, 0)
+					custom_window.target_dropdown = target_dropdown
+					
+					local target_field = gump:NewTextEntry (box1, nil, "$parentTargetEntry", "targetentry", 201, 20)
+					target_field:SetPoint ("topleft", target_dropdown, "bottomleft", 0, -2)
+					target_field:Disable()
+					custom_window.target_field = target_field
+					--
+					
+					local adds_boss = CreateFrame ("frame", nil, box1)
+					adds_boss:SetPoint ("left", target_dropdown.widget, "right", 2, 0)
+					adds_boss:SetSize (20, 20)
+					local adds_boss_image = adds_boss:CreateTexture (nil, "overlay")
+					adds_boss_image:SetPoint ("center", adds_boss)
+					adds_boss_image:SetTexture ("Interface\\Buttons\\UI-MicroButton-Raid-Up")
+					adds_boss_image:SetTexCoord (0.046875, 0.90625, 0.40625, 0.953125)
+					adds_boss_image:SetWidth (20)
+					adds_boss_image:SetHeight (16)
+					
+					local actorsFrame = gump:NewPanel (custom_window, _, "DetailsCustomActorsFrame", "actorsFrame", 1, 1)
+					actorsFrame:SetPoint ("topleft", custom_window, "topright", 5, -60)
+					actorsFrame:Hide()
+					
+					local modelFrame = _CreateFrame ("playermodel", "DetailsCustomActorsFrameModel", custom_window)
+					modelFrame:SetSize (138, 261)
+					modelFrame:SetPoint ("topright", actorsFrame.widget, "topleft", -15, -8)
+					modelFrame:Hide()
+					local modelFrameTexture = modelFrame:CreateTexture (nil, "background")
+					modelFrameTexture:SetAllPoints()
+					
+					local selectedEncounterActor = function (actorName)
+						target_field:SetText (actorName)
+						target_dropdown:Select (4, true)
+						box1.targetentry:Enable()
+						actorsFrame:Hide()
+						GameCooltip:Hide()
+					end
+					
+					local actorsFrameButtons = {}
+
+					local buttonMouseOver = function (button)
+						button.MyObject.image:SetBlendMode ("ADD")
+						button.MyObject.line:SetBlendMode ("ADD")
+						button.MyObject.label:SetTextColor (1, 1, 1, 1)
+						local OnEnterColors = button:GetParent().Gradient.OnEnter
+						local _r, _g, _b, _a = button:GetParent():GetBackdropColor()
+						gump:GradientEffect (button:GetParent(), "frame", _r, _g, _b, _a, OnEnterColors[1], OnEnterColors[2], OnEnterColors[3], OnEnterColors[4], .3)
+						GameTooltip:SetOwner (button, "ANCHOR_TOPLEFT")
+						GameTooltip:AddLine (button.MyObject.actor)
+						GameTooltip:Show()
+						
+						local name, description, bgImage, buttonImage, loreImage, dungeonAreaMapID, link = EJ_GetInstanceInfo (button.MyObject.ej_id)
+						
+						modelFrameTexture:SetTexture (bgImage)
+						modelFrameTexture:SetTexCoord (3/512, 370/512, 5/512, 429/512)
+						modelFrame:Show()
+						
+						modelFrame:SetDisplayInfo (button.MyObject.model)
+					end
+					local buttonMouseOut = function (button)
+						button.MyObject.image:SetBlendMode ("BLEND")
+						button.MyObject.line:SetBlendMode ("BLEND")
+						button.MyObject.label:SetTextColor (.8, .8, .8, .8)
+						local _r, _g, _b, _a = button:GetParent():GetBackdropColor()
+						if (_r) then
+							local OnLeaveColors = button:GetParent().Gradient.OnLeave
+							gump:GradientEffect (button:GetParent(), "frame", _r, _g, _b, _a, OnLeaveColors[1], OnLeaveColors[2], OnLeaveColors[3], OnLeaveColors[4], .3)
+						end
+						GameTooltip:Hide()
+						
+						modelFrame:Hide()
+					end
+					
+					local EncounterSelect = function (_, _, instanceId, bossIndex, ej_id)
+						
+						DetailsCustomSpellsFrame:Hide()
+						DetailsCustomActorsFrame:Show()
+						DetailsCustomActorsFrame2:Hide()
+						GameCooltip:Hide()
+						
+						local encounterID = _detalhes:GetEncounterIdFromBossIndex (instanceId, bossIndex)
+						if (encounterID) then
+							local actors = _detalhes:GetEncounterActorsName (encounterID)
+
+							local x = 10
+							local y = 10
+							local i = 1
+							
+							for actor, actorTable in pairs (actors) do 
+							
+								local thisButton = actorsFrameButtons [i]
+								
+								if (not thisButton) then
+									thisButton = gump:NewButton (actorsFrame.frame, actorsFrame.frame, "DetailsCustomActorsFrameButton"..i, "button"..i, 130, 20, selectedEncounterSpell)
+									thisButton:SetPoint ("topleft", "DetailsCustomActorsFrame", "topleft", x, -y)
+									thisButton:SetHook ("OnEnter", buttonMouseOver)
+									thisButton:SetHook ("OnLeave", buttonMouseOut)
+									
+									local t = gump:NewImage (thisButton, nil, 20, 20, nil, nil, "image", "DetailsCustomActorsEncounterImageButton"..i)
+									t:SetPoint ("left", thisButton)
+									t:SetTexture ([[Interface\MINIMAP\TRACKING\Target]])
+									t:SetDesaturated (true)
+									t:SetSize (20, 20)
+									t:SetAlpha (0.7)
+									
+									local text = gump:NewLabel (thisButton, nil, "DetailsCustomActorsFrameButton"..i.."Label", "label", "Spell", nil, 9.5, {.8, .8, .8, .8})
+									text:SetPoint ("left", t.image, "right", 2, 0)
+									text:SetWidth (123)
+									text:SetHeight (10)
+									
+									local border = gump:NewImage (thisButton, "Interface\\SPELLBOOK\\Spellbook-Parts", 40, 38, nil, nil, "border", "DetailsCustomActorsEncounterBorderButton"..i)
+									border:SetTexCoord (0.00390625, 0.27734375, 0.44140625,0.69531250)
+									border:SetDrawLayer ("background")
+									border:SetPoint ("topleft", thisButton.button, "topleft", -9, 9)
+									
+									local line = gump:NewImage (thisButton, "Interface\\SPELLBOOK\\Spellbook-Parts", 84, 25, nil, nil, "line", "DetailsCustomActorsEncounterLineButton"..i)
+									line:SetTexCoord (0.31250000, 0.96484375, 0.37109375, 0.52343750)
+									line:SetDrawLayer ("background")
+									line:SetPoint ("left", thisButton.button, "right", -110, -3)
+									
+									table.insert (actorsFrameButtons, #actorsFrameButtons+1, thisButton)
+								end
+								
+								y = y + 20
+								if (y >= 260) then
+									y = 10
+									x = x + 150
+								end
+								
+								thisButton.label:SetText (actor)
+								thisButton:SetClickFunction (selectedEncounterActor, actor)
+								thisButton.actor = actor
+								thisButton.ej_id = ej_id
+								thisButton.model = actorTable.model
+								thisButton:Show()
+								i = i + 1
+							end
+							
+							for maxIndex = i, #actorsFrameButtons do
+								actorsFrameButtons [maxIndex]:Hide()
+							end
+							
+							i = i-1
+							actorsFrame:SetSize (math.ceil (i/13)*160, math.min (i*20 + 20, 280))
+						
+						end
+					end
+					
+					local BuildEncounterMenu = function()
+					
+						GameCooltip:Reset()
+						GameCooltip:SetType ("menu")
+						GameCooltip:SetOwner (adds_boss)
+						
+						for instanceId, instanceTable in pairs (_detalhes.EncounterInformation) do 
+						
+							if (_detalhes:InstanceIsRaid (instanceId)) then
+						
+								GameCooltip:AddLine (instanceTable.name, _, 1, "white")
+								GameCooltip:AddIcon (instanceTable.icon, 1, 1, 64, 32)
+
+								for index, encounterName in ipairs (instanceTable.boss_names) do 
+									GameCooltip:AddMenu (2, EncounterSelect, instanceId, index, instanceTable.ej_id, encounterName, nil, true)
+									local L, R, T, B, Texture = _detalhes:GetBossIcon (instanceId, index)
+									GameCooltip:AddIcon (Texture, 2, 1, 20, 20, L, R, T, B)
+								end
+								
+								GameCooltip:SetWallpaper (2, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
+							
+							end
+						end
+						
+						GameCooltip:SetOption ("HeightAnchorMod", -10)
+						GameCooltip:SetOption ("ButtonsYMod", -2)
+						GameCooltip:SetOption ("YSpacingMod", 0)
+						GameCooltip:SetOption ("TextHeightMod", 0)
+						GameCooltip:SetOption ("IgnoreButtonAutoHeight", false)
+						GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
+						GameCooltip:ShowCooltip()
+					end
+					
+					adds_boss:SetScript ("OnEnter", function() 
+						adds_boss_image:SetBlendMode ("ADD")
+						BuildEncounterMenu()
+					end)
+					
+					adds_boss:SetScript ("OnLeave", function() 
+						adds_boss_image:SetBlendMode ("BLEND")
+					end)					
+					
+				--spellid
+					local spellid_label = gump:NewLabel (box1, box1, "$parenSpellidLabel", "spellid", Loc ["STRING_CUSTOM_SPELLID"], "GameFontHighlightLeft") --> localize-me
+					spellid_label:SetPoint ("topleft", target_label, "bottomleft", 0, -40)
+					
+					local spellid_entry = gump:NewSpellEntry (box1, function()end, 178, 20, nil, nil, "spellidentry", "$parentSpellIdEntry")
+					spellid_entry:SetPoint ("left", spellid_label, "left", 62, 0)
+					custom_window.spellid_entry = spellid_entry
+			
+					local spell_id_boss = CreateFrame ("frame", nil, box1)
+					spell_id_boss:SetPoint ("left", spellid_entry.widget, "right", 2, 0)
+					spell_id_boss:SetSize (20, 20)
+					local spell_id_boss_image = spell_id_boss:CreateTexture (nil, "overlay")
+					spell_id_boss_image:SetPoint ("center", spell_id_boss)
+					spell_id_boss_image:SetTexture ("Interface\\Buttons\\UI-MicroButton-Raid-Up")
+					spell_id_boss_image:SetTexCoord (0.046875, 0.90625, 0.40625, 0.953125)
+					spell_id_boss_image:SetWidth (20)
+					spell_id_boss_image:SetHeight (16)
+					
+					local spellsFrame = gump:NewPanel (custom_window, _, "DetailsCustomSpellsFrame", "spellsFrame", 1, 1)
+					spellsFrame:SetPoint ("topleft", custom_window, "topright", 5, 0)
+					spellsFrame:Hide()
+					
+					local selectedEncounterSpell = function (spellId)
+						local _, _, icon = _GetSpellInfo (spellId)
+						spellid_entry:SetText (spellId)
+						box0.icontexture:SetTexture (icon)
+						spellsFrame:Hide()
+						GameCooltip:Hide()
+					end
+					
+					local spellsFrameButtons = {}
+
+					local buttonMouseOver = function (button)
+						button.MyObject.image:SetBlendMode ("ADD")
+						button.MyObject.line:SetBlendMode ("ADD")
+						button.MyObject.label:SetTextColor (1, 1, 1, 1)
+						local OnEnterColors = button:GetParent().Gradient.OnEnter
+						local _r, _g, _b, _a = button:GetParent():GetBackdropColor()
+						gump:GradientEffect (button:GetParent(), "frame", _r, _g, _b, _a, OnEnterColors[1], OnEnterColors[2], OnEnterColors[3], OnEnterColors[4], .3)
+
+						GameTooltip:SetOwner (button, "ANCHOR_TOPLEFT")
+						GameTooltip:SetSpellByID (button.MyObject.spellid)
+						GameTooltip:Show()
+					end
+					local buttonMouseOut = function (button)
+						button.MyObject.image:SetBlendMode ("BLEND")
+						button.MyObject.line:SetBlendMode ("BLEND")
+						button.MyObject.label:SetTextColor (.8, .8, .8, .8)
+						local _r, _g, _b, _a = button:GetParent():GetBackdropColor()
+						if (_r) then
+							local OnLeaveColors = button:GetParent().Gradient.OnLeave
+							gump:GradientEffect (button:GetParent(), "frame", _r, _g, _b, _a, OnLeaveColors[1], OnLeaveColors[2], OnLeaveColors[3], OnLeaveColors[4], .3)
+						end
+						GameTooltip:Hide()
+					end
+					
+					local EncounterSelect = function (_, _, instanceId, bossIndex)
+						
+						DetailsCustomSpellsFrame:Show()
+						DetailsCustomActorsFrame:Hide()
+						DetailsCustomActorsFrame2:Hide()
+						
+						GameCooltip:Hide()
+						
+						local spells = _detalhes:GetEncounterSpells (instanceId, bossIndex)
+						
+						local x = 10
+						local y = 10
+						local i = 1
+						
+						for spell, _ in pairs (spells) do 
+						
+							local thisButton = spellsFrameButtons [i]
+							
+							if (not thisButton) then
+								thisButton = gump:NewButton (spellsFrame.frame, spellsFrame.frame, "DetailsCustomSpellsFrameButton"..i, "button"..i, 80, 20, selectedEncounterSpell)
+								thisButton:SetPoint ("topleft", "DetailsCustomSpellsFrame", "topleft", x, -y)
+								thisButton:SetHook ("OnEnter", buttonMouseOver)
+								thisButton:SetHook ("OnLeave", buttonMouseOut)
+								
+								local t = gump:NewImage (thisButton, nil, 20, 20, nil, nil, "image", "DetailsCustomEncounterImageButton"..i)
+								t:SetPoint ("left", thisButton)
+								
+								local text = gump:NewLabel (thisButton, nil, "DetailsCustomSpellsFrameButton"..i.."Label", "label", "Spell", nil, 9.5, {.8, .8, .8, .8})
+								text:SetPoint ("left", t.image, "right", 2, 0)
+								text:SetWidth (73)
+								text:SetHeight (10)
+								
+								local border = gump:NewImage (thisButton, "Interface\\SPELLBOOK\\Spellbook-Parts", 40, 38, nil, nil, "border", "DetailsCustomEncounterBorderButton"..i)
+								border:SetTexCoord (0.00390625, 0.27734375, 0.44140625,0.69531250)
+								border:SetDrawLayer ("background")
+								border:SetPoint ("topleft", thisButton.button, "topleft", -9, 9)
+								
+								local line = gump:NewImage (thisButton, "Interface\\SPELLBOOK\\Spellbook-Parts", 84, 25, nil, nil, "line", "DetailsCustomEncounterLineButton"..i)
+								line:SetTexCoord (0.31250000, 0.96484375, 0.37109375, 0.52343750)
+								line:SetDrawLayer ("background")
+								line:SetPoint ("left", thisButton.button, "right", -60, -3)
+								
+								table.insert (spellsFrameButtons, #spellsFrameButtons+1, thisButton)
+							end
+							
+							y = y + 20
+							if (y >= 400) then
+								y = 10
+								x = x + 100
+							end
+							
+							local nome_magia, _, icone_magia = _GetSpellInfo (spell)
+							thisButton.image:SetTexture (icone_magia)
+							thisButton.label:SetText (nome_magia)
+							thisButton:SetClickFunction (selectedEncounterSpell, spell)
+							thisButton.spellid = spell
+							thisButton:Show()
+							i = i + 1
+						end
+						
+						for maxIndex = i, #spellsFrameButtons do
+							spellsFrameButtons [maxIndex]:Hide()
+						end
+						
+						i = i-1
+						spellsFrame:SetSize (math.ceil (i/20)*110, math.min (i*20 + 20, 420))
+						
+					end
+					
+					local BuildEncounterMenu = function()
+					
+						GameCooltip:Reset()
+						GameCooltip:SetType ("menu")
+						GameCooltip:SetOwner (spell_id_boss)
+						
+						for instanceId, instanceTable in pairs (_detalhes.EncounterInformation) do 
+						
+							if (_detalhes:InstanceisRaid (instanceId)) then
+						
+								GameCooltip:AddLine (instanceTable.name, _, 1, "white")
+								GameCooltip:AddIcon (instanceTable.icon, 1, 1, 64, 32)
+
+								for index, encounterName in ipairs (instanceTable.boss_names) do 
+									GameCooltip:AddMenu (2, EncounterSelect, instanceId, index, nil, encounterName, nil, true)
+									local L, R, T, B, Texture = _detalhes:GetBossIcon (instanceId, index)
+									GameCooltip:AddIcon (Texture, 2, 1, 20, 20, L, R, T, B)
+								end
+							
+								GameCooltip:SetWallpaper (2, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
+							
+							end
+						end
+						
+						GameCooltip:SetOption ("ButtonsYMod", -2)
+						GameCooltip:SetOption ("YSpacingMod", 0)
+						GameCooltip:SetOption ("TextHeightMod", 0)
+						GameCooltip:SetOption ("IgnoreButtonAutoHeight", false)
+						GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
+						
+						GameCooltip:SetOption ("HeightAnchorMod", -10)
+						GameCooltip:ShowCooltip()
+					end
+					
+					spell_id_boss:SetScript ("OnEnter", function() 
+						spell_id_boss_image:SetBlendMode ("ADD")
+						BuildEncounterMenu()
+					end)
+					
+					spell_id_boss:SetScript ("OnLeave", function() 
+						spell_id_boss_image:SetBlendMode ("BLEND")
+					end)
+			
+			--select target
+			--select spell
+			
+			--> create box type 2
+				local box2 = _CreateFrame ("frame", "DetailsCustomPanelBox2", custom_window)
+				custom_window.box2 = box2
+				box2:SetSize (450, 180)
+				--box2:SetBackdrop ({
+				--	bgFile = "Interface\\AddOns\\Details\\images\\background", 
+				--	edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border", 
+				--	tile = true, tileSize = 16, edgeSize = 12})
+				--box2:SetBackdropColor (1, 0, 0, .9)
+				box2:SetPoint ("topleft", icon_label.widget, "bottomleft", -10, -20)
+				
+				box2:SetFrameLevel (box0:GetFrameLevel()+1)
+			
+				--edit main code
+				local maincode_button = gump:NewButton (box2, nil, "$parentMainCodeButton", "maiccodebutton", 160, 20, DetailsCustomPanel.StartEditCode, 1, nil, nil, Loc ["STRING_CUSTOM_EDIT_SEARCH_CODE"])
+				maincode_button:SetPoint ("topleft", box2, "topleft", 10, -25)
+				maincode_button:InstallCustomTexture()
+				
+				--edit tooltip code
+				local tooltipcode_button = gump:NewButton (box2, nil, "$parentTooltipCodeButton", "tooltipcodebutton", 160, 20, DetailsCustomPanel.StartEditCode, 2, nil, nil, Loc ["STRING_CUSTOM_EDIT_TOOLTIP_CODE"])
+				tooltipcode_button:SetPoint ("topleft", maincode_button, "bottomleft", 0, -10)
+				tooltipcode_button:InstallCustomTexture()
+				
+				box2:Hide()
+			
+			--> create the code editbox
+				local code_editor = gump:NewSpecialLuaEditorEntry (custom_window, 420, 238, "codeeditor", "$parentCodeEditor")
+				code_editor:SetPoint ("topleft", attribute_box, "topright", 30, 0)
+				code_editor:SetFrameLevel (custom_window:GetFrameLevel()+4)
+				code_editor:SetBackdrop ({bgFile = [[Interface\AddOns\Details\images\background]], edgeFile = [[Interface\Tooltips\UI-Tooltip-Border]], 
+				tile = 1, tileSize = 16, edgeSize = 16, insets = {left = 5, right = 5, top = 5, bottom = 5}})
+				code_editor:SetBackdropColor (0, 0, 0, 1)
+				code_editor:Hide()
+				
+			--> select damage
+				DetailsCustomPanelAttributeMenu1:Click()
+		else
+			_G.DetailsCustomPanel:Show()
 		end
-		_detalhes:RegisterComm ("DETAILS", "CommReceive")
+	end
+	
+	--[[
+--init:
+local combat, instance_container, instance = ...
+local total, top, amount = 0, 0, 0
+
+--get the misc actor container
+local misc_container = combat:GetActorList ( DETAILS_ATTRIBUTE_MISC )
+
+--do the loop:
+for _, player in ipairs ( misc_container ) do 
+	
+	--only player in group
+	if (player:IsGroupPlayer()) then
+	
+		local found_potion = false
+	
+		--get the spell debuff uptime container
+		local debuff_uptime_container = player.debuff_uptime and player.debuff_uptime_spell_tables and player.debuff_uptime_spell_tables._ActorTable
+		if (debuff_uptime_container) then
+			--potion of focus (can't use as pre-potion, so, its amount is always 1)
+			local focus_potion = debuff_uptime_container [105701]
+			if (focus_potion) then
+				total = total + 1
+				found_potion = true
+				if (top < 1) then
+					top = 1
+				end
+				--add amount to the player 
+				instance_container:AddValue (player, 1)
+			end
+		end
 		
-	-------------------------
-	
-	_detalhes.CustomFrame = frame
-	
-	tinsert (UISpecialFrames, "DetailsCustomPanel")
-	_detalhes.CustomFrame.oponed = false
-	frame:Hide()
-end
+		--get the spell buff uptime container
+		local buff_uptime_container = player.buff_uptime and player.buff_uptime_spell_tables and player.buff_uptime_spell_tables._ActorTable
+		if (buff_uptime_container) then
 
-function _detalhes:InitCustom()
-	CreateCustomWindow()
-	return true
-end
+			--potion of the jade serpent
+			local jade_serpent_potion = buff_uptime_container [105702]
+			if (jade_serpent_potion) then
+				local used = jade_serpent_potion.activedamt
+				if (used > 0) then
+					total = total + used
+					found_potion = true
+					if (used > top) then
+						top = used
+					end
+					--add amount to the player 
+					instance_container:AddValue (player, used)
+				end
+			end
+			
+			--potion of mogu power
+			local mogu_power_potion = buff_uptime_container [105706]
+			if (mogu_power_potion) then
+				local used = mogu_power_potion.activedamt
+				if (used > 0) then
+					total = total + used
+					found_potion = true
+					if (used > top) then
+						top = used
+					end
+					--add amount to the player 
+					instance_container:AddValue (player, used)
+				end
+			end
 
-function _detalhes:OpenCustomWindow()
-	--if (InCombatLockdown()) then
-	--	print ("|cffFF2222"..Loc ["STRING_CUSTOM_INCOMBAT"])
-	--	return
-	--end
+			--virmen's bite
+			local virmens_bite_potion = buff_uptime_container [105697]
+			if (virmens_bite_potion) then
+				local used = virmens_bite_potion.activedamt
+				if (used > 0) then
+					total = total + used
+					found_potion = true
+					if (used > top) then
+						top = used
+					end
+					--add amount to the player 
+					instance_container:AddValue (player, used)
+				end
+			end
+			
+			--potion of the mountains
+			local mountains_potion = buff_uptime_container [105698]
+			if (mountains_potion) then
+				local used = mountains_potion.activedamt
+				if (used > 0) then
+					total = total + used
+					found_potion = true
+					if (used > top) then
+						top = used
+					end
+					--add amount to the player 
+					instance_container:AddValue (player, used)
+				end
+			end
+		end
 	
-	if (not _detalhes.CustomFrame.oponed) then
-		_detalhes.CustomFrame.oponed = true
-		--_detalhes:BuildSpellList()
-		_detalhes.CustomFrame:Show()
+		if (found_potion) then
+			amount = amount + 1
+		end	
 	end
 end
 
-function _detalhes:CloseCustomWindow()
-	_detalhes.CustomFrame.oponed = false
-	--_detalhes:ClearSpellList()
-	_detalhes.CustomFrame:Hide()
-end
+--return:
+return total, top, amount
+	
+tooltip = 
+	--init:
+	local player, combat, instance = ...
+	
+	--get the debuff container for potion of focus
+	local debuff_uptime_container = player.debuff_uptime and player.debuff_uptime_spell_tables and player.debuff_uptime_spell_tables._ActorTable
+	if (debuff_uptime_container) then
+		local focus_potion = debuff_uptime_container [105701]
+		if (focus_potion) then
+			local name, _, icon = GetSpellInfo (105701)
+			GameCooltip:AddLine (name, 1) --> can use only 1 focus potion (can't be pre-potion)
+			_detalhes:AddTooltipBackgroundStatusbar()
+			GameCooltip:AddIcon (icon, 1, 1, 14, 14)
+		end
+	end
+	
+	--get the buff container for all the others potions
+	local buff_uptime_container = player.buff_uptime and player.buff_uptime_spell_tables and player.buff_uptime_spell_tables._ActorTable
+	if (buff_uptime_container) then
+		--potion of the jade serpent
+		local jade_serpent_potion = buff_uptime_container [105702]
+		if (jade_serpent_potion) then
+			local name, _, icon = GetSpellInfo (105702)
+			GameCooltip:AddLine (name, jade_serpent_potion.activedamt)
+			_detalhes:AddTooltipBackgroundStatusbar()
+			GameCooltip:AddIcon (icon, 1, 1, 14, 14)
+		end
+		
+		--potion of mogu power
+		local mogu_power_potion = buff_uptime_container [105706]
+		if (mogu_power_potion) then
+			local name, _, icon = GetSpellInfo (105706)
+			GameCooltip:AddLine (name, mogu_power_potion.activedamt)
+			_detalhes:AddTooltipBackgroundStatusbar()
+			GameCooltip:AddIcon (icon, 1, 1, 14, 14)
+		end
 
+		--virmen's bite
+		local virmens_bite_potion = buff_uptime_container [105697]
+		if (virmens_bite_potion) then
+			local name, _, icon = GetSpellInfo (105697)
+			GameCooltip:AddLine (name, virmens_bite_potion.activedamt)
+			_detalhes:AddTooltipBackgroundStatusbar()
+			GameCooltip:AddIcon (icon, 1, 1, 14, 14)
+		end
+		
+		--potion of the mountains
+		local mountains_potion = buff_uptime_container [105698]
+		if (mountains_potion) then
+			local name, _, icon = GetSpellInfo (105698)
+			GameCooltip:AddLine (name, mountains_potion.activedamt)
+			_detalhes:AddTooltipBackgroundStatusbar()
+			GameCooltip:AddIcon (icon, 1, 1, 14, 14)
+		end
+	end
+	
+	local spell = actor.spell_tables._ActorTable [15407]
+	spell.targets:SortByKey ("total")
+	for _, target in ipairs (spell.targets._ActorTable) do
+		GameCooltip:AddLine (target.nome, _detalhes.ToKFunctions [_detalhes.tooltip.abbreviation] (_, target.total))
+		_detalhes:AddTooltipBackgroundStatusbar()
+		GameCooltip:AddIcon ("Interface\\FriendsFrame\\StatusIcon-Offline", 1, 1, 14, 14)
+	end
+					
+	
+	--]]

@@ -8,6 +8,7 @@ do
 	local _ipairs = ipairs
 	local _UnitClass = UnitClass
 	local _select = select
+	local _unpack = unpack
 
 	-- try get the class from actor name
 	function _detalhes:GetClass (name)
@@ -28,15 +29,46 @@ do
 		end
 	end
 	
+	local CLASS_ICON_TCOORDS = CLASS_ICON_TCOORDS
+	function _detalhes:GetClassIcon (class)
+	
+		local c
+	
+		if (self.classe) then
+			c = self.classe
+		elseif (type (class) == "table" and class.classe) then
+			c = class.classe
+		elseif (type (class) == "string") then
+			c = class
+		else
+			c = "UNKNOW"
+		end
+		
+		if (c == "UNKNOW") then
+			return [[Interface\LFGFRAME\LFGROLE_BW]], 0.25, 0.5, 0, 1
+		elseif (c == "UNGROUPPLAYER") then
+			return [[Interface\ICONS\Achievement_Character_Orc_Male]], 0, 1, 0, 1
+		elseif (c == "PET") then
+			return [[Interface\AddOns\Details\images\classes_small]], 0.25, 0.49609375, 0.75, 1
+		else
+			return [[Interface\AddOns\Details\images\classes_small]], _unpack (CLASS_ICON_TCOORDS [c])
+		end
+	end
+	
+	local default_color = {1, 1, 1, 1}
 	function _detalhes:GetClassColor (class)
 		if (self.classe) then
-			return _detalhes.class_colors [class.classe]
+			return unpack (_detalhes.class_colors [self.classe] or default_color)
 			
 		elseif (type (class) == "table" and class.classe) then
-			return _detalhes.class_colors [class.classe]
+			return unpack (_detalhes.class_colors [class.classe] or default_color)
+		
+		elseif (type (class) == "string") then
+			return unpack (_detalhes.class_colors [class] or default_color)
 			
+		else
+			unpack (default_color)
 		end
-		return _detalhes.class_colors [class]
 	end
 	
 	function _detalhes:GuessClass (t)

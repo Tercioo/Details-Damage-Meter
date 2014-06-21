@@ -31,6 +31,11 @@ do
 		end
 	end
 	
+	--> return the EJ boss id
+	function _detalhes:GetEncounterIdFromBossIndex (mapid, index)
+		return _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].encounter_ids and _detalhes.EncounterInformation [mapid].encounter_ids [index]
+	end
+	
 	--> return the table which contain information about the start of a encounter
 	function _detalhes:GetEncounterStartInfo (mapid, encounterid)
 		local bossindex = _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].encounter_ids and _detalhes.EncounterInformation [mapid].encounter_ids [encounterid]
@@ -83,6 +88,11 @@ do
 		return _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].encounters [bossindex]
 	end
 	
+	--> return a table with all names of boss enemies
+	function _detalhes:GetEncounterActors (mapid, bossindex)
+		
+	end
+	
 	--> return a table with spells id of specified encounter
 	function _detalhes:GetEncounterSpells (mapid, bossindex)
 		local encounter = _detalhes:GetBossDetails (mapid, bossindex)
@@ -106,6 +116,13 @@ do
 	--> return a table with all boss ids from a raid instance
 	function _detalhes:GetBossIds (mapid)
 		return _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].boss_ids
+	end
+	
+	function _detalhes:InstanceIsRaid (mapid)
+		return _detalhes:InstanceisRaid (mapid)
+	end
+	function _detalhes:InstanceisRaid (mapid)
+		return _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].is_raid
 	end
 	
 	--> return a table with all encounter names present in raid instance
@@ -148,6 +165,24 @@ do
 		else
 			return false
 		end
+	end
+	
+	--> return a list with names of adds and bosses
+	function _detalhes:GetEncounterActorsName (EJ_EncounterID)
+		--code snippet from wowpedia
+		local actors = {}
+		local stack, encounter, _, _, curSectionID = {}, EJ_GetEncounterInfo (EJ_EncounterID)
+		repeat
+			local title, description, depth, abilityIcon, displayInfo, siblingID, nextSectionID, filteredByDifficulty, link, startsOpen, flag1, flag2, flag3, flag4 = EJ_GetSectionInfo (curSectionID)
+			if (displayInfo ~= 0 and abilityIcon == "") then
+				actors [title] = {model = displayInfo, info = description}
+			end
+			table.insert (stack, siblingID)
+			table.insert (stack, nextSectionID)
+			curSectionID = table.remove (stack)
+		until not curSectionID
+		
+		return actors
 	end
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

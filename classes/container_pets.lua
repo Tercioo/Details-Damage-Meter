@@ -132,6 +132,7 @@ function container_pets:BuscarPets()
 				end
 			end
 		end
+		
 	elseif (_IsInGroup()) then
 		for i = 1, _GetNumGroupMembers()-1, 1 do 
 			local pet_serial = _UnitGUID ("partypet"..i)
@@ -147,6 +148,21 @@ function container_pets:BuscarPets()
 						_detalhes.tabela_pets:Adicionar (pet_serial, _UnitName ("partypet"..i), 0x1114, _UnitGUID ("party"..i), nome, 0x514) 
 					end
 				end
+			end
+		end
+		
+		local pet_serial = _UnitGUID ("pet")
+		if (pet_serial) then
+			if (not _detalhes.tabela_pets.pets [pet_serial]) then
+				_detalhes.tabela_pets:Adicionar (pet_serial, _UnitName ("pet"), 0x1114, _UnitGUID ("player"), _detalhes.playername, 0x514)
+			end
+		end
+		
+	else
+		local pet_serial = _UnitGUID ("pet")
+		if (pet_serial) then
+			if (not _detalhes.tabela_pets.pets [pet_serial]) then
+				_detalhes.tabela_pets:Adicionar (pet_serial, _UnitName ("pet"), 0x1114, _UnitGUID ("player"), _detalhes.playername, 0x514)
 			end
 		end
 	end

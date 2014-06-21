@@ -12,6 +12,7 @@
 	local _setmetatable = setmetatable --lua local
 	local _getmetatable = getmetatable --lua local
 	local _bit_band = bit.band --lua local
+	local _table_sort = table.sort --lua local
 	local _ipairs = ipairs --lua local
 	local _pairs = pairs --lua local
 	
@@ -61,6 +62,29 @@
 		else
 			return 0
 		end
+	end
+	
+	function container_combatentes:GetTotal (key)
+		local total = 0
+		key = key or "total"
+		for _, actor in _ipairs (self._ActorTable) do
+			total = total + (actor [key] or 0)
+		end
+		
+		return total
+	end
+	
+	function container_combatentes:GetTotalOnRaid (key, combat)
+		local total = 0
+		key = key or "total"
+		local roster = combat.raid_roster
+		for _, actor in _ipairs (self._ActorTable) do
+			if (roster [actor.nome]) then
+				total = total + (actor [key] or 0)
+			end
+		end
+		
+		return total
 	end
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -435,7 +459,6 @@
 		
 	------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	-- grava o objeto no mapa do container
-
 			local size = #self._ActorTable+1
 			self._ActorTable [size] = novo_objeto --> grava na tabela de indexes
 			self._NameIndexTable [nome] = size --> grava no hash map o index deste jogador
@@ -490,6 +513,21 @@
 		end
 	end
 
+	local bykey
+	local sort = function (t1, t2)
+		return t1 [bykey] > t2 [bykey]
+	end
+	
+	function container_combatentes:SortByKey (key)
+		bykey = key
+		_table_sort (self._ActorTable, sort)
+		self:remapear()
+	end
+	
+	function container_combatentes:Remap()
+		return self:remapear()
+	end
+	
 	function container_combatentes:remapear()
 		local mapa = self._NameIndexTable
 		local conteudo = self._ActorTable

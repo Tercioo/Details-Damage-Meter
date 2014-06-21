@@ -57,6 +57,8 @@
 	--> reaplica indexes e metatables
 		function _detalhes:RestauraMetaTables()
 			
+				_detalhes.refresh:r_atributo_custom()
+			
 			--> container de pets e histórico
 				_detalhes.refresh:r_container_pets (_detalhes.tabela_pets)
 				_detalhes.refresh:r_historico (_detalhes.tabela_historico)
@@ -577,6 +579,8 @@
 				esta_instancia.waiting_pid = nil
 
 			end
+			
+			_detalhes.clear:c_atributo_custom()
 
 		end
 	

@@ -183,14 +183,18 @@ function _detalhes:OpenOptionsWindow (instance)
 				local sub_atributo = _this_instance.sub_atributo
 				
 				if (atributo == 5) then --> custom
+				
 					local CustomObject = _detalhes.custom [sub_atributo]
 					
-					if (CustomObject) then
-						InstanceList [#InstanceList+1] = {value = index, label = _detalhes.atributos.lista [atributo] .. " - " .. CustomObject.name, onclick = onSelectInstance, icon = CustomObject.icon}
+					if (not CustomObject) then
+						_this_instance:ResetAttribute()
+						atributo = _this_instance.atributo
+						sub_atributo = _this_instance.sub_atributo
+						InstanceList [#InstanceList+1] = {value = index, label = "#".. index .. " " .. _detalhes.atributos.lista [atributo] .. " - " .. _detalhes.sub_atributos [atributo].lista [sub_atributo], onclick = onSelectInstance, icon = _detalhes.sub_atributos [atributo].icones[sub_atributo] [1], texcoord = _detalhes.sub_atributos [atributo].icones[sub_atributo] [2]}
 					else
-						InstanceList [#InstanceList+1] = {value = index, label = "unknown" .. " - " .. " invalid custom", onclick = onSelectInstance, icon = [[Interface\COMMON\VOICECHAT-MUTED]]}
+						InstanceList [#InstanceList+1] = {value = index, label = "#".. index .. " " .. CustomObject.name, onclick = onSelectInstance, icon = CustomObject.icon}
 					end
-					
+
 				else
 					local modo = _this_instance.modo
 					
@@ -1031,6 +1035,7 @@ function window:CreateFrame20()
 			_detalhes.atributo_heal:UpdateSelectedToKFunction()
 			_detalhes.atributo_energy:UpdateSelectedToKFunction()
 			_detalhes.atributo_misc:UpdateSelectedToKFunction()
+			_detalhes.atributo_custom:UpdateSelectedToKFunction()
 		end
 		
 		local icon = [[Interface\COMMON\mini-hourglass]]
@@ -1067,6 +1072,7 @@ function window:CreateFrame20()
 			_detalhes.atributo_heal:UpdateSelectedToKFunction()
 			_detalhes.atributo_energy:UpdateSelectedToKFunction()
 			_detalhes.atributo_misc:UpdateSelectedToKFunction()
+			_detalhes.atributo_custom:UpdateSelectedToKFunction()
 		end
 		
 		local icon = [[Interface\Buttons\UI-Panel-BiggerButton-Up]]
@@ -3010,6 +3016,7 @@ function window:CreateFrame1()
 			_detalhes.atributo_heal:UpdateSelectedToKFunction()
 			_detalhes.atributo_energy:UpdateSelectedToKFunction()
 			_detalhes.atributo_misc:UpdateSelectedToKFunction()
+			_detalhes.atributo_custom:UpdateSelectedToKFunction()
 			
 			_detalhes:AtualizaGumpPrincipal (-1, true)
 		end
@@ -3294,10 +3301,115 @@ function window:CreateFrame2()
 		--
 		window:CreateLineBackground2 (frame2, "OverallNewChallengeSlider", "OverallNewChallengeLabel", Loc ["STRING_OPTIONS_OVERALL_CHALLENGE_DESC"])
 		
+	--> captures
+			
+		--> icons
+		g:NewImage (frame2, [[Interface\AddOns\Details\images\atributos_captures]], 20, 20, nil, nil, "damageCaptureImage", "$parentCaptureDamage")
+		frame2.damageCaptureImage:SetTexCoord (0, 0.125, 0, 1)
+		
+		g:NewImage (frame2, [[Interface\AddOns\Details\images\atributos_captures]], 20, 20, nil, nil, "healCaptureImage", "$parentCaptureHeal")
+		frame2.healCaptureImage:SetTexCoord (0.125, 0.25, 0, 1)
+		
+		g:NewImage (frame2, [[Interface\AddOns\Details\images\atributos_captures]], 20, 20, nil, nil, "energyCaptureImage", "$parentCaptureEnergy")
+		frame2.energyCaptureImage:SetTexCoord (0.25, 0.375, 0, 1)
+		
+		g:NewImage (frame2, [[Interface\AddOns\Details\images\atributos_captures]], 20, 20, nil, nil, "miscCaptureImage", "$parentCaptureMisc")
+		frame2.miscCaptureImage:SetTexCoord (0.375, 0.5, 0, 1)
+		
+		g:NewImage (frame2, [[Interface\AddOns\Details\images\atributos_captures]], 20, 20, nil, nil, "auraCaptureImage", "$parentCaptureAura")
+		frame2.auraCaptureImage:SetTexCoord (0.5, 0.625, 0, 1)
+		
+		--> labels
+		g:NewLabel (frame2, _, "$parentCaptureDamageLabel", "damageCaptureLabel", Loc ["STRING_OPTIONS_CDAMAGE"], "GameFontHighlightLeft")
+		frame2.damageCaptureLabel:SetPoint ("left", frame2.damageCaptureImage, "right", 2)
+		
+		g:NewLabel (frame2, _, "$parentCaptureHealLabel", "healCaptureLabel", Loc ["STRING_OPTIONS_CHEAL"], "GameFontHighlightLeft")
+		frame2.healCaptureLabel:SetPoint ("left", frame2.healCaptureImage, "right", 2)
+		
+		g:NewLabel (frame2, _, "$parentCaptureEnergyLabel", "energyCaptureLabel", Loc ["STRING_OPTIONS_CENERGY"], "GameFontHighlightLeft")
+		frame2.energyCaptureLabel:SetPoint ("left", frame2.energyCaptureImage, "right", 2)
+		
+		g:NewLabel (frame2, _, "$parentCaptureMiscLabel", "miscCaptureLabel", Loc ["STRING_OPTIONS_CMISC"], "GameFontHighlightLeft")
+		frame2.miscCaptureLabel:SetPoint ("left", frame2.miscCaptureImage, "right", 2)
+		
+		g:NewLabel (frame2, _, "$parentCaptureAuraLabel", "auraCaptureLabel", Loc ["STRING_OPTIONS_CAURAS"], "GameFontHighlightLeft")
+		frame2.auraCaptureLabel:SetPoint ("left", frame2.auraCaptureImage, "right", 2)
+		
+		--> switches
+		
+		local switch_icon_color = function (icon, on_off)
+			icon:SetDesaturated (not on_off)
+		end
+		
+		g:NewSwitch (frame2, _, "$parentCaptureDamageSlider", "damageCaptureSlider", 60, 20, _, _, _detalhes.capture_real ["damage"])
+		frame2.damageCaptureSlider:SetPoint ("left", frame2.damageCaptureLabel, "right", 2)
+		frame2.damageCaptureSlider.OnSwitch = function (self, _, value)
+			_detalhes:CaptureSet (value, "damage", true)
+			switch_icon_color (frame2.damageCaptureImage, value)
+		end
+		switch_icon_color (frame2.damageCaptureImage, _detalhes.capture_real ["damage"])
+		
+		window:CreateLineBackground2 (frame2, "damageCaptureSlider", "damageCaptureLabel", Loc ["STRING_OPTIONS_CDAMAGE_DESC"], frame2.damageCaptureImage)
+		
+		g:NewSwitch (frame2, _, "$parentCaptureHealSlider", "healCaptureSlider", 60, 20, _, _, _detalhes.capture_real ["heal"])
+		frame2.healCaptureSlider:SetPoint ("left", frame2.healCaptureLabel, "right", 2)
+		frame2.healCaptureSlider.OnSwitch = function (self, _, value)
+			_detalhes:CaptureSet (value, "heal", true)
+			switch_icon_color (frame2.healCaptureImage, value)
+		end
+		switch_icon_color (frame2.healCaptureImage, _detalhes.capture_real ["heal"])
+		
+		window:CreateLineBackground2 (frame2, "healCaptureSlider", "healCaptureLabel", Loc ["STRING_OPTIONS_CHEAL_DESC"], frame2.healCaptureImage)
+		
+		g:NewSwitch (frame2, _, "$parentCaptureEnergySlider", "energyCaptureSlider", 60, 20, _, _, _detalhes.capture_real ["energy"])
+		frame2.energyCaptureSlider:SetPoint ("left", frame2.energyCaptureLabel, "right", 2)
+
+		frame2.energyCaptureSlider.OnSwitch = function (self, _, value)
+			_detalhes:CaptureSet (value, "energy", true)
+			switch_icon_color (frame2.energyCaptureImage, value)
+		end
+		switch_icon_color (frame2.energyCaptureImage, _detalhes.capture_real ["energy"])
+		
+		window:CreateLineBackground2 (frame2, "energyCaptureSlider", "energyCaptureLabel", Loc ["STRING_OPTIONS_CENERGY_DESC"], frame2.energyCaptureImage)
+		
+		g:NewSwitch (frame2, _, "$parentCaptureMiscSlider", "miscCaptureSlider", 60, 20, _, _, _detalhes.capture_real ["miscdata"])
+		frame2.miscCaptureSlider:SetPoint ("left", frame2.miscCaptureLabel, "right", 2)
+		frame2.miscCaptureSlider.OnSwitch = function (self, _, value)
+			_detalhes:CaptureSet (value, "miscdata", true)
+			switch_icon_color (frame2.miscCaptureImage, value)
+		end
+		switch_icon_color (frame2.miscCaptureImage, _detalhes.capture_real ["miscdata"])
+		
+		window:CreateLineBackground2 (frame2, "miscCaptureSlider", "miscCaptureLabel", Loc ["STRING_OPTIONS_CMISC_DESC"], frame2.miscCaptureImage)
+		
+		g:NewSwitch (frame2, _, "$parentCaptureAuraSlider", "auraCaptureSlider", 60, 20, _, _, _detalhes.capture_real ["aura"])
+		frame2.auraCaptureSlider:SetPoint ("left", frame2.auraCaptureLabel, "right", 2)
+		frame2.auraCaptureSlider.OnSwitch = function (self, _, value)
+			_detalhes:CaptureSet (value, "aura", true)
+			switch_icon_color (frame2.auraCaptureImage, value)
+		end
+		switch_icon_color (frame2.auraCaptureImage, _detalhes.capture_real ["aura"])
+		
+		window:CreateLineBackground2 (frame2, "auraCaptureSlider", "auraCaptureLabel", Loc ["STRING_OPTIONS_CAURAS_DESC"], frame2.auraCaptureImage)
+			
+		--> cloud capture
+		g:NewLabel (frame2, _, "$parentCloudCaptureLabel", "cloudCaptureLabel", Loc ["STRING_OPTIONS_CLOUD"], "GameFontHighlightLeft")
+
+		g:NewSwitch (frame2, _, "$parentCloudAuraSlider", "cloudCaptureSlider", 60, 20, _, _, _detalhes.cloud_capture)
+		frame2.cloudCaptureSlider:SetPoint ("left", frame2.cloudCaptureLabel, "right", 2)
+		frame2.cloudCaptureSlider.OnSwitch = function (self, _, value)
+			_detalhes.cloud_capture = value
+		end
+		
+		window:CreateLineBackground2 (frame2, "cloudCaptureSlider", "cloudCaptureLabel", Loc ["STRING_OPTIONS_CLOUD_DESC"] )
+
 	--> anchors
+	
 		--general anchor
 		g:NewLabel (frame2, _, "$parentGeneralAnchor", "GeneralAnchorLabel", Loc ["STRING_OPTIONS_GENERAL_ANCHOR"], "GameFontNormal")
-
+		--captures anchor
+		g:NewLabel (frame2, _, "$parentDataCollectAnchor", "DataCollectAnchorLabel", Loc ["STRING_OPTIONS_DATACOLLECT_ANCHOR"], "GameFontNormal")
+		
 		local x = window.left_start_at
 		
 		titulo_combattweeks:SetPoint (x, -30)
@@ -3320,6 +3432,20 @@ function window:CreateFrame2()
 		
 		window:arrange_menu (frame2, left_side, x, window.top_start_at)
 
+		local x = window.right_start_at
+		
+		local right_side = {
+			{"DataCollectAnchorLabel", 1, true},
+			{"damageCaptureImage", 2},
+			{"healCaptureImage", 3},
+			{"energyCaptureImage", 4},
+			{"miscCaptureImage", 5},
+			{"auraCaptureImage", 6},
+			{"cloudCaptureLabel", 7, true},
+		}
+		
+		window:arrange_menu (frame2, right_side, x, -90)
+		
 end
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- General Settings - Profiles ~13
@@ -6110,131 +6236,7 @@ function window:CreateFrame11()
 	local frame10 = window.options [10][1]
 	local frame11 = window.options [11][1]
 
-		local titulo_performance_captures = g:NewLabel (frame11, _, "$parentTituloPerformanceCaptures", "tituloPerformanceCaptures", Loc ["STRING_OPTIONS_PERFORMANCECAPTURES"], "GameFontNormal", 16)
-		local titulo_performance_captures_desc = g:NewLabel (frame11, _, "$parentTituloPersonaCaptures2", "tituloPersonaCaptures2Label", Loc ["STRING_OPTIONS_PERFORMANCECAPTURES_DESC"], "GameFontNormal", 9, "white")
-		titulo_performance_captures_desc.width = 320
-		
-	--------------- Captures
-		g:NewImage (frame11, [[Interface\AddOns\Details\images\atributos_captures]], 20, 20, nil, nil, "damageCaptureImage", "$parentCaptureDamage")
-		frame11.damageCaptureImage:SetTexCoord (0, 0.125, 0, 1)
-		
-		g:NewImage (frame11, [[Interface\AddOns\Details\images\atributos_captures]], 20, 20, nil, nil, "healCaptureImage", "$parentCaptureHeal")
-		frame11.healCaptureImage:SetTexCoord (0.125, 0.25, 0, 1)
-		
-		g:NewImage (frame11, [[Interface\AddOns\Details\images\atributos_captures]], 20, 20, nil, nil, "energyCaptureImage", "$parentCaptureEnergy")
-		frame11.energyCaptureImage:SetTexCoord (0.25, 0.375, 0, 1)
-		
-		g:NewImage (frame11, [[Interface\AddOns\Details\images\atributos_captures]], 20, 20, nil, nil, "miscCaptureImage", "$parentCaptureMisc")
-		frame11.miscCaptureImage:SetTexCoord (0.375, 0.5, 0, 1)
-		
-		g:NewImage (frame11, [[Interface\AddOns\Details\images\atributos_captures]], 20, 20, nil, nil, "auraCaptureImage", "$parentCaptureAura")
-		frame11.auraCaptureImage:SetTexCoord (0.5, 0.625, 0, 1)
-		
-		g:NewLabel (frame11, _, "$parentCaptureDamageLabel", "damageCaptureLabel", Loc ["STRING_OPTIONS_CDAMAGE"], "GameFontHighlightLeft")
-		frame11.damageCaptureLabel:SetPoint ("left", frame11.damageCaptureImage, "right", 2)
-		
-		g:NewLabel (frame11, _, "$parentCaptureHealLabel", "healCaptureLabel", Loc ["STRING_OPTIONS_CHEAL"], "GameFontHighlightLeft")
-		frame11.healCaptureLabel:SetPoint ("left", frame11.healCaptureImage, "right", 2)
-		
-		g:NewLabel (frame11, _, "$parentCaptureEnergyLabel", "energyCaptureLabel", Loc ["STRING_OPTIONS_CENERGY"], "GameFontHighlightLeft")
-		frame11.energyCaptureLabel:SetPoint ("left", frame11.energyCaptureImage, "right", 2)
-		
-		g:NewLabel (frame11, _, "$parentCaptureMiscLabel", "miscCaptureLabel", Loc ["STRING_OPTIONS_CMISC"], "GameFontHighlightLeft")
-		frame11.miscCaptureLabel:SetPoint ("left", frame11.miscCaptureImage, "right", 2)
-		
-		g:NewLabel (frame11, _, "$parentCaptureAuraLabel", "auraCaptureLabel", Loc ["STRING_OPTIONS_CAURAS"], "GameFontHighlightLeft")
-		frame11.auraCaptureLabel:SetPoint ("left", frame11.auraCaptureImage, "right", 2)
-		
-		local switch_icon_color = function (icon, on_off)
-			icon:SetDesaturated (not on_off)
-		end
-		
-		g:NewSwitch (frame11, _, "$parentCaptureDamageSlider", "damageCaptureSlider", 60, 20, _, _, _detalhes.capture_real ["damage"])
-		frame11.damageCaptureSlider:SetPoint ("left", frame11.damageCaptureLabel, "right", 2)
-		frame11.damageCaptureSlider.OnSwitch = function (self, _, value)
-			_detalhes:CaptureSet (value, "damage", true)
-			switch_icon_color (frame11.damageCaptureImage, value)
-		end
-		switch_icon_color (frame11.damageCaptureImage, _detalhes.capture_real ["damage"])
-		
-		window:CreateLineBackground2 (frame11, "damageCaptureSlider", "damageCaptureLabel", Loc ["STRING_OPTIONS_CDAMAGE_DESC"], frame11.damageCaptureImage)
-		
-		g:NewSwitch (frame11, _, "$parentCaptureHealSlider", "healCaptureSlider", 60, 20, _, _, _detalhes.capture_real ["heal"])
-		frame11.healCaptureSlider:SetPoint ("left", frame11.healCaptureLabel, "right", 2)
-		frame11.healCaptureSlider.OnSwitch = function (self, _, value)
-			_detalhes:CaptureSet (value, "heal", true)
-			switch_icon_color (frame11.healCaptureImage, value)
-		end
-		switch_icon_color (frame11.healCaptureImage, _detalhes.capture_real ["heal"])
-		
-		window:CreateLineBackground2 (frame11, "healCaptureSlider", "healCaptureLabel", Loc ["STRING_OPTIONS_CHEAL_DESC"], frame11.healCaptureImage)
-		
-		g:NewSwitch (frame11, _, "$parentCaptureEnergySlider", "energyCaptureSlider", 60, 20, _, _, _detalhes.capture_real ["energy"])
-		frame11.energyCaptureSlider:SetPoint ("left", frame11.energyCaptureLabel, "right", 2)
 
-		frame11.energyCaptureSlider.OnSwitch = function (self, _, value)
-			_detalhes:CaptureSet (value, "energy", true)
-			switch_icon_color (frame11.energyCaptureImage, value)
-		end
-		switch_icon_color (frame11.energyCaptureImage, _detalhes.capture_real ["energy"])
-		
-		window:CreateLineBackground2 (frame11, "energyCaptureSlider", "energyCaptureLabel", Loc ["STRING_OPTIONS_CENERGY_DESC"], frame11.energyCaptureImage)
-		
-		g:NewSwitch (frame11, _, "$parentCaptureMiscSlider", "miscCaptureSlider", 60, 20, _, _, _detalhes.capture_real ["miscdata"])
-		frame11.miscCaptureSlider:SetPoint ("left", frame11.miscCaptureLabel, "right", 2)
-		frame11.miscCaptureSlider.OnSwitch = function (self, _, value)
-			_detalhes:CaptureSet (value, "miscdata", true)
-			switch_icon_color (frame11.miscCaptureImage, value)
-		end
-		switch_icon_color (frame11.miscCaptureImage, _detalhes.capture_real ["miscdata"])
-		
-		window:CreateLineBackground2 (frame11, "miscCaptureSlider", "miscCaptureLabel", Loc ["STRING_OPTIONS_CMISC_DESC"], frame11.miscCaptureImage)
-		
-		g:NewSwitch (frame11, _, "$parentCaptureAuraSlider", "auraCaptureSlider", 60, 20, _, _, _detalhes.capture_real ["aura"])
-		frame11.auraCaptureSlider:SetPoint ("left", frame11.auraCaptureLabel, "right", 2)
-		frame11.auraCaptureSlider.OnSwitch = function (self, _, value)
-			_detalhes:CaptureSet (value, "aura", true)
-			switch_icon_color (frame11.auraCaptureImage, value)
-		end
-		switch_icon_color (frame11.auraCaptureImage, _detalhes.capture_real ["aura"])
-		
-		window:CreateLineBackground2 (frame11, "auraCaptureSlider", "auraCaptureLabel", Loc ["STRING_OPTIONS_CAURAS_DESC"], frame11.auraCaptureImage)
-		
-	--------------- Cloud Capture
-	
-		g:NewLabel (frame11, _, "$parentCloudCaptureLabel", "cloudCaptureLabel", Loc ["STRING_OPTIONS_CLOUD"], "GameFontHighlightLeft")
-
-		g:NewSwitch (frame11, _, "$parentCloudAuraSlider", "cloudCaptureSlider", 60, 20, _, _, _detalhes.cloud_capture)
-		frame11.cloudCaptureSlider:SetPoint ("left", frame11.cloudCaptureLabel, "right", 2)
-		frame11.cloudCaptureSlider.OnSwitch = function (self, _, value)
-			_detalhes.cloud_capture = value
-		end
-		
-		window:CreateLineBackground2 (frame11, "cloudCaptureSlider", "cloudCaptureLabel", Loc ["STRING_OPTIONS_CLOUD_DESC"] )
-		
-	--> Anchors
-	
-		--general anchor
-		g:NewLabel (frame11, _, "$parentDataCollectAnchor", "DataCollectAnchorLabel", Loc ["STRING_OPTIONS_DATACOLLECT_ANCHOR"], "GameFontNormal")
-		
-		local x = window.left_start_at
-		
-		titulo_performance_captures:SetPoint (x, -30)
-		titulo_performance_captures_desc:SetPoint (x, -50)
-		
-		local left_side = {
-			{"DataCollectAnchorLabel", 1, true},
-			{"damageCaptureImage", 2},
-			{"healCaptureImage", 3},
-			{"energyCaptureImage", 4},
-			{"miscCaptureImage", 5},
-			{"auraCaptureImage", 6},
-			{"cloudCaptureLabel", 7, true},
-		}
-		
-		window:arrange_menu (frame11, left_side, x, -90)
-	
-	-- end
 	window.creating = nil
 end
 		
@@ -6570,6 +6572,13 @@ function window:update_all (editing_instance)
 	_G.DetailsOptionsWindow2OverallNewBossSlider.MyObject:SetValue (_detalhes.overall_clear_newboss)
 	_G.DetailsOptionsWindow2OverallNewChallengeSlider.MyObject:SetValue (_detalhes.overall_clear_newchallenge)
 	
+	_G.DetailsOptionsWindow2CaptureDamageSlider.MyObject:SetValue (_detalhes.capture_real ["damage"])
+	_G.DetailsOptionsWindow2CaptureHealSlider.MyObject:SetValue (_detalhes.capture_real ["heal"])
+	_G.DetailsOptionsWindow2CaptureEnergySlider.MyObject:SetValue (_detalhes.capture_real ["energy"])
+	_G.DetailsOptionsWindow2CaptureMiscSlider.MyObject:SetValue (_detalhes.capture_real ["miscdata"])
+	_G.DetailsOptionsWindow2CaptureAuraSlider.MyObject:SetValue (_detalhes.capture_real ["aura"])
+	_G.DetailsOptionsWindow2CloudAuraSlider.MyObject:SetValue (_detalhes.cloud_capture)
+	
 	--> window 3
 	
 	local skin = editing_instance.skin
@@ -6731,12 +6740,7 @@ function window:update_all (editing_instance)
 	_G.DetailsOptionsWindow10SliderSegmentsSave.MyObject:SetValue (_detalhes.segments_amount_to_save)
 	
 	--> window 11
-	_G.DetailsOptionsWindow11CaptureDamageSlider.MyObject:SetValue (_detalhes.capture_real ["damage"])
-	_G.DetailsOptionsWindow11CaptureHealSlider.MyObject:SetValue (_detalhes.capture_real ["heal"])
-	_G.DetailsOptionsWindow11CaptureEnergySlider.MyObject:SetValue (_detalhes.capture_real ["energy"])
-	_G.DetailsOptionsWindow11CaptureMiscSlider.MyObject:SetValue (_detalhes.capture_real ["miscdata"])
-	_G.DetailsOptionsWindow11CaptureAuraSlider.MyObject:SetValue (_detalhes.capture_real ["aura"])
-	_G.DetailsOptionsWindow11CloudAuraSlider.MyObject:SetValue (_detalhes.cloud_capture)	
+
 	
 	--> window 13
 	_G.DetailsOptionsWindow13SelectProfileDropdown.MyObject:Select (_detalhes:GetCurrentProfileName())

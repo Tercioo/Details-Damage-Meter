@@ -248,6 +248,29 @@ local TextEntryMetaFunctions = {}
 		end
 	end
 	
+	function TextEntryMetaFunctions:Enable()
+		if (not self.editbox:IsEnabled()) then
+			self.editbox:Enable()
+			self.editbox:SetBackdropBorderColor (unpack (self.enabled_border_color))
+			self.editbox:SetBackdropColor (unpack (self.enabled_backdrop_color))
+			self.editbox:SetTextColor (unpack (self.enabled_text_color))
+		end
+	end
+	
+	function TextEntryMetaFunctions:Disable()
+		if (self.editbox:IsEnabled()) then
+			self.enabled_border_color = {self.editbox:GetBackdropBorderColor()}
+			self.enabled_backdrop_color = {self.editbox:GetBackdropColor()}
+			self.enabled_text_color = {self.editbox:GetTextColor()}
+
+			self.editbox:Disable()
+
+			self.editbox:SetBackdropBorderColor (.5, .5, .5, .5)
+			self.editbox:SetBackdropColor (.5, .5, .5, .5)
+			self.editbox:SetTextColor (.5, .5, .5, .5)
+		end
+	end
+	
 ------------------------------------------------------------------------------------------------------------
 --> scripts
 	local OnEnter = function (textentry)
@@ -269,7 +292,7 @@ local TextEntryMetaFunctions = {}
 
 		if (textentry:IsEnabled()) then 
 			textentry.current_bordercolor = textentry.current_bordercolor or {textentry:GetBackdropBorderColor()}
-			textentry:SetBackdropBorderColor (0.5, 0.5, 0.5, 1)
+			textentry:SetBackdropBorderColor (1, 1, 1, 1)
 		end
 		
 		local parent = textentry:GetParent().MyObject
@@ -527,16 +550,15 @@ function gump:NewTextEntry (parent, container, name, member, w, h, func, param1,
 	TextEntryObject.editbox:SetJustifyH ("center")
 	TextEntryObject.editbox:EnableMouse (true)
 	TextEntryObject.editbox:SetText ("")
-	
-	--TextEntryObject.editbox:SetBackdrop ({bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
-	--edgeFile = "Interface\\ChatFrame\\ChatFrameBackground",
-	--tile = true, edgeSize = 1, tileSize = 5})
-	
-	--TextEntryObject.editbox:SetBackdropColor (0, 0, 0, 0.5)
-	--TextEntryObject.editbox:SetBackdropBorderColor (0.3, 0.3, 0.30, 0.80)
-	TextEntryObject.editbox.current_bordercolor = {1, 1, 1, 1}
+
 	TextEntryObject.editbox:SetAutoFocus (false)
 	TextEntryObject.editbox:SetFontObject ("GameFontHighlightSmall")
+
+	TextEntryObject.editbox.current_bordercolor = {1, 1, 1, 0.7}
+	TextEntryObject.editbox:SetBackdropBorderColor (1, 1, 1, 0.7)
+	TextEntryObject.enabled_border_color = {TextEntryObject.editbox:GetBackdropBorderColor()}
+	TextEntryObject.enabled_backdrop_color = {TextEntryObject.editbox:GetBackdropColor()}
+	TextEntryObject.enabled_text_color = {TextEntryObject.editbox:GetTextColor()}
 	
 	TextEntryObject.func = func
 	TextEntryObject.param1 = param1

@@ -201,6 +201,55 @@ function SlashCmdList.DETAILS (msg, editbox)
 		--instance.baseframe:SetPoint ("CENTER", UIParent, "CENTER", 300, 100)
 		instance.baseframe:SetPoint ("left", DetailsWelcomeWindow, "right", 10, 0)
 	
+	elseif (msg == "model") then
+		local frame = CreateFrame ("PlayerModel");
+		frame:SetPoint("center",UIParent,"center");
+		frame:SetHeight(600);
+		frame:SetWidth(300);
+		frame:SetDisplayInfo (49585);
+		
+	elseif (msg == "ej2") then
+	
+		--[[ get the EJ_ raid id
+		local wantRaids = true -- set false to get 5-man list
+		for i=1,1000 do
+		    instanceID,name,description,bgImage,buttonImage,loreImage, dungeonAreaMapID, link = EJ_GetInstanceByIndex(i,wantRaids)
+		    if not instanceID then break end
+		    DEFAULT_CHAT_FRAME:AddMessage(      instanceID.." "..name ,1,0.7,0.5)
+		end
+		--]]
+		
+		local iid=362
+
+		for i=1, 100 do
+		    local name, description, encounterID, rootSectionID, link = EJ_GetEncounterInfoByIndex (i, iid)
+
+		    if not encounterID then break end
+		    local msg = encounterID .. " , " ..  name .. ", ".. rootSectionID.. ", "..link
+		    DEFAULT_CHAT_FRAME:AddMessage(msg, 1,0.7,0.5)
+		end
+		
+	elseif (msg == "ej") then
+		function PrintAllEncounterSections(encounterID, difficultyID)
+			EJ_SetDifficulty(difficultyID)
+			local stack, encounter, _, _, curSectionID = {}, EJ_GetEncounterInfo(encounterID)
+			print(stack, encounter, _, _, curSectionID)
+			repeat
+				local title, desc, depth, icon, model, siblingID, nextSectionID, filteredByDifficulty, link, _, f1, f2, f3, f4 = EJ_GetSectionInfo(curSectionID)
+				if not filteredByDifficulty then
+					--print(("  "):rep(depth) .. link .. ": " .. desc)
+					--npcs nao tem icone e possuel modelo diferente de zero.
+					--spells tem icone e possuel modelo = zero
+					print (title, icon, model, siblingID)
+				end
+				table.insert(stack, siblingID)
+				table.insert(stack, nextSectionID)
+				curSectionID = table.remove(stack)
+			until not curSectionID
+		end
+		
+		-- Print everything in 25-man Normal Madness of Deathwing:
+		PrintAllEncounterSections (869, 4)		
 		
 	elseif (msg == "time") then
 		print ("GetTime()", GetTime())
