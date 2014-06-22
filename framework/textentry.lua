@@ -283,7 +283,7 @@ local TextEntryMetaFunctions = {}
 		end
 	
 		if (textentry.MyObject.have_tooltip) then 
-			_detalhes:CooltipPreset (1)
+			_detalhes:CooltipPreset (2)
 			GameCooltip:AddLine (textentry.MyObject.have_tooltip)
 			GameCooltip:ShowCooltip (textentry, "tooltip")
 		end

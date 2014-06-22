@@ -171,6 +171,17 @@ if not Loc then return end
 	Loc ["STRING_CUSTOM_HEALTHSTONE_DEFAULT"] = "Healthstone Used"
 	Loc ["STRING_CUSTOM_HEALTHSTONE_DEFAULT_DESC"] = "Show who in your raid group used the healthstone."
 	
+	Loc ["STRING_CUSTOM_NAME_DESC"] = "Insert the name of your new custom display."
+	Loc ["STRING_CUSTOM_AUTHOR_DESC"] = "Who created this display."
+	Loc ["STRING_CUSTOM_DESCRIPTION_DESC"] = "Description about what this display does."
+	
+	Loc ["STRING_CUSTOM_SOURCE_DESC"] = "Who is triggering the effect.\n\nThe button in the right shows a list of npcs from raid encounters."
+	Loc ["STRING_CUSTOM_TARGET_DESC"] = "This is the target of the source.\n\nThe button in the right shows a list of npcs from raid encounters."
+	Loc ["STRING_CUSTOM_SPELLID_DESC"] = "Opcional, is the spell used by the source to apply the effect on the target.\n\nThe button in the right shows a list of spells from raid encounters."
+	
+	Loc ["STRING_CUSTOM_EDITCODE_DESC"] = "This is a advanced function where the user can create its own display code."
+	Loc ["STRING_CUSTOM_EDITTOOLTIP_DESC"] = "This is the code which runs after the used hover over a row using this display."
+	
 --> Switch Window
 
 	Loc ["STRING_SWITCH_CLICKME"] = "left click me"

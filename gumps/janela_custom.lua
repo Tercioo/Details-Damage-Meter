@@ -736,6 +736,7 @@
 				
 				local name_field = gump:NewTextEntry (box0, nil, "$parentNameEntry", "nameentry", 200, 20)
 				name_field:SetPoint ("left", name_label, "left", 62, 0)
+				name_field.tooltip = Loc ["STRING_CUSTOM_NAME_DESC"]
 				custom_window.name_field = name_field
 				
 			--author
@@ -744,6 +745,7 @@
 				
 				local author_field = gump:NewTextEntry (box0, nil, "$parentAuthorEntry", "authorentry", 200, 20)
 				author_field:SetPoint ("left", author_label, "left", 62, 0)
+				author_field.tooltip = Loc ["STRING_CUSTOM_AUTHOR_DESC"]
 				author_field:SetText (UnitName ("player") .. "-" .. GetRealmName())
 				custom_window.author_field = author_field
 				
@@ -753,6 +755,7 @@
 				
 				local desc_field = gump:NewTextEntry (box0, nil, "$parentDescEntry", "descentry", 200, 20)
 				desc_field:SetPoint ("left", desc_label, "left", 62, 0)
+				desc_field.tooltip = Loc ["STRING_CUSTOM_DESCRIPTION_DESC"]
 				custom_window.desc_field = desc_field
 				
 			--icon
@@ -820,6 +823,7 @@
 					local build_source_list = function() return targeting_options end
 					local source_dropdown = gump:NewDropDown (box1, nil, "$parentSourceDropdown", "sourcedropdown", 178, 20, build_source_list, 1)
 					source_dropdown:SetPoint ("left", source_label, "left", 62, 0)
+					source_dropdown.tooltip = Loc ["STRING_CUSTOM_SOURCE_DESC"]
 					custom_window.source_dropdown = source_dropdown
 					
 					local source_field = gump:NewTextEntry (box1, nil, "$parentSourceEntry", "sourceentry", 201, 20)
@@ -1048,6 +1052,7 @@
 					local build_target_list = function() return targeting_options end
 					local target_dropdown = gump:NewDropDown (box1, nil, "$parentTargetDropdown", "targetdropdown", 178, 20, build_target_list, 1)
 					target_dropdown:SetPoint ("left", target_label, "left", 62, 0)
+					target_dropdown.tooltip = Loc ["STRING_CUSTOM_TARGET_DESC"]
 					custom_window.target_dropdown = target_dropdown
 					
 					local target_field = gump:NewTextEntry (box1, nil, "$parentTargetEntry", "targetentry", 201, 20)
@@ -1243,6 +1248,7 @@
 					
 					local spellid_entry = gump:NewSpellEntry (box1, function()end, 178, 20, nil, nil, "spellidentry", "$parentSpellIdEntry")
 					spellid_entry:SetPoint ("left", spellid_label, "left", 62, 0)
+					spellid_entry.tooltip = Loc ["STRING_CUSTOM_SPELLID_DESC"]
 					custom_window.spellid_entry = spellid_entry
 			
 					local spell_id_boss = CreateFrame ("frame", nil, box1)
@@ -1424,11 +1430,13 @@
 				--edit main code
 				local maincode_button = gump:NewButton (box2, nil, "$parentMainCodeButton", "maiccodebutton", 160, 20, DetailsCustomPanel.StartEditCode, 1, nil, nil, Loc ["STRING_CUSTOM_EDIT_SEARCH_CODE"])
 				maincode_button:SetPoint ("topleft", box2, "topleft", 10, -25)
+				maincode_button.tooltip = Loc ["STRING_CUSTOM_EDITCODE_DESC"]
 				maincode_button:InstallCustomTexture()
 				
 				--edit tooltip code
 				local tooltipcode_button = gump:NewButton (box2, nil, "$parentTooltipCodeButton", "tooltipcodebutton", 160, 20, DetailsCustomPanel.StartEditCode, 2, nil, nil, Loc ["STRING_CUSTOM_EDIT_TOOLTIP_CODE"])
 				tooltipcode_button:SetPoint ("topleft", maincode_button, "bottomleft", 0, -10)
+				tooltipcode_button.tooltip = Loc ["STRING_CUSTOM_EDITTOOLTIP_DESC"]
 				tooltipcode_button:InstallCustomTexture()
 				
 				box2:Hide()
