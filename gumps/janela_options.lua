@@ -1,5 +1,28 @@
 --[[ options panel file --]]
 
+--[[
+	1 - general
+	2 - combat
+	3 - skin
+	4 - row settings
+	5 - row texts
+	6 - window settings
+	7 - left menu
+	8 - right menu
+	9 - wallpaper
+	10 - performance teaks
+	11 - captures
+	12 - plugins
+	13 - profiles
+	14 - attribute text
+	15 - custom spells
+	16 - data for charts
+	17 - hide and show
+	18 - misc settings
+	19 - externals widgets
+	20 - tooltip
+--]]
+
 local _detalhes = 		_G._detalhes
 local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
 local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
@@ -935,8 +958,10 @@ local menus = { --labels nos menus
 				local widget = _table [1]
 				local istitle = _table [3]
 
-				if (istitle and y ~= y_start) then
+				if (type (istitle) == "boolean" and istitle and y ~= y_start) then
 					y = y - 10
+				elseif (type (istitle) == "boolean" and not istitle and y ~= y_start) then
+					y = y + 5 
 				end
 
 				if (type (widget) == "string") then
@@ -1482,7 +1507,7 @@ function window:CreateFrame18()
 		local BuildSwitchMenu = function()
 		
 			window.lastSwitchList = {}
-			local t = {{value = 0, label = "NONE", onclick = Current_Switch_Func, icon = [[Interface\Glues\LOGIN\Glues-CheckBox-Check]]}}
+			local t = {{value = 0, label = "do not switch", color = {.7, .7, .7, 1}, onclick = Current_Switch_Func, icon = [[Interface\Glues\LOGIN\Glues-CheckBox-Check]]}}
 			
 			local attributes = _detalhes.sub_atributos
 			local i = 1
@@ -1916,13 +1941,13 @@ function window:CreateFrame18()
 		
 		local left_side = {
 			{"switchesAnchorLabel", 1, true},
-			{"autoSwitchLabel", 2},
-			{"AutoSwitchWipeLabel", 3},
-			{dps_icon1, 7},
-			{healer_icon1, 6},
-			{tank_icon1, 5},
-			{dps_icon2, 9},
-			{healer_icon2, 8},
+			{"autoSwitchLabel", 8},
+			{"AutoSwitchWipeLabel", 9},
+			{dps_icon1, 2},
+			{healer_icon1, 3},
+			{tank_icon1, 4},
+			{dps_icon2, 5},
+			{healer_icon2, 6},
 			{tank_icon2, 7},
 			
 			{"autoCurrentLabel", 10},
@@ -5393,9 +5418,18 @@ function window:CreateFrame9()
 				local wp = tinstance.wallpaper
 
 				if (wp.texture:find ("TALENTFRAME")) then
-					g:ImageEditor (callmeback, wp.texture, wp.texcoord, wp.overlay, tinstance.baseframe.wallpaper:GetWidth(), tinstance.baseframe.wallpaper:GetHeight(), nil, wp.alpha)
+					if (wp.anchor == "all") then
+						g:ImageEditor (callmeback, wp.texture, wp.texcoord, wp.overlay, tinstance.baseframe.wallpaper:GetWidth(), tinstance.baseframe.wallpaper:GetHeight(), nil, wp.alpha, true)
+					else
+						g:ImageEditor (callmeback, wp.texture, wp.texcoord, wp.overlay, tinstance.baseframe.wallpaper:GetWidth(), tinstance.baseframe.wallpaper:GetHeight(), nil, wp.alpha)
+					end
+					
 				else
-					g:ImageEditor (callmeback, wp.texture, wp.texcoord, wp.overlay, tinstance.baseframe.wallpaper:GetWidth(), tinstance.baseframe.wallpaper:GetHeight(), nil, wp.alpha)
+					if (wp.anchor == "all") then
+						g:ImageEditor (callmeback, wp.texture, wp.texcoord, wp.overlay, tinstance.baseframe.wallpaper:GetWidth(), tinstance.baseframe.wallpaper:GetHeight(), nil, wp.alpha, true)
+					else
+						g:ImageEditor (callmeback, wp.texture, wp.texcoord, wp.overlay, tinstance.baseframe.wallpaper:GetWidth(), tinstance.baseframe.wallpaper:GetHeight(), nil, wp.alpha)
+					end
 				end
 			end
 			g:NewButton (frame9, _, "$parentEditImage", "editImage", 200, 18, startImageEdit, nil, nil, nil, Loc ["STRING_OPTIONS_EDITIMAGE"])
@@ -5430,9 +5464,37 @@ function window:CreateFrame9()
 			local onSelectSecTexture = function (self, instance, texturePath) 
 				
 				if (texturePath:find ("TALENTFRAME")) then
-					instance:InstanceWallpaper (texturePath, nil, nil, {0, 1, 0, 0.703125})
+					instance:InstanceWallpaper (texturePath, nil, nil, {0, 1, 0, 0.703125}, nil, nil, {1, 1, 1, 1})
+					if (DetailsImageEdit and DetailsImageEdit:IsShown()) then
+						local wp = instance.wallpaper
+						if (wp.anchor == "all") then
+							g:ImageEditor (callmeback, wp.texture, wp.texcoord, wp.overlay, instance.baseframe.wallpaper:GetWidth(), instance.baseframe.wallpaper:GetHeight(), nil, wp.alpha, true)
+						else
+							g:ImageEditor (callmeback, wp.texture, wp.texcoord, wp.overlay, instance.baseframe.wallpaper:GetWidth(), instance.baseframe.wallpaper:GetHeight(), nil, wp.alpha)
+						end
+					end
+				
+				elseif (texturePath:find ("EncounterJournal")) then
+					instance:InstanceWallpaper (texturePath, nil, nil, {0.06, 0.68, 0.1, 0.57}, nil, nil, {1, 1, 1, 1})
+					if (DetailsImageEdit and DetailsImageEdit:IsShown()) then
+						local wp = instance.wallpaper
+						if (wp.anchor == "all") then
+							g:ImageEditor (callmeback, wp.texture, wp.texcoord, wp.overlay, instance.baseframe.wallpaper:GetWidth(), instance.baseframe.wallpaper:GetHeight(), nil, wp.alpha, true)
+						else
+							g:ImageEditor (callmeback, wp.texture, wp.texcoord, wp.overlay, instance.baseframe.wallpaper:GetWidth(), instance.baseframe.wallpaper:GetHeight(), nil, wp.alpha)
+						end
+					end
+				
 				else
-					instance:InstanceWallpaper (texturePath, nil, nil, {0, 1, 0, 1})
+					instance:InstanceWallpaper (texturePath, nil, nil, {0, 1, 0, 1}, nil, nil, {1, 1, 1, 1})
+					if (DetailsImageEdit and DetailsImageEdit:IsShown()) then
+						local wp = instance.wallpaper
+						if (wp.anchor == "all") then
+							g:ImageEditor (callmeback, wp.texture, wp.texcoord, wp.overlay, instance.baseframe.wallpaper:GetWidth(), instance.baseframe.wallpaper:GetHeight(), nil, wp.alpha, true)
+						else
+							g:ImageEditor (callmeback, wp.texture, wp.texcoord, wp.overlay, instance.baseframe.wallpaper:GetWidth(), instance.baseframe.wallpaper:GetHeight(), nil, wp.alpha)
+						end
+					end
 				end
 				
 				window:update_wallpaper_info()
@@ -5466,6 +5528,42 @@ function window:CreateFrame9()
 					{value = [[Interface\ARCHEOLOGY\ArchRare-ZinRokhDestroyer]], label = "ZinRokh Destroyer", onclick = onSelectSecTexture, icon = [[Interface\ARCHEOLOGY\ArchRare-ZinRokhDestroyer]], texcoord = nil},
 				},
 			
+				["RAIDS"] = {
+					{value = [[Interface\EncounterJournal\UI-EJ-LOREBG-BlackrockCaverns]], label = "Blackrock Caverns", onclick = onSelectSecTexture, icon = [[Interface\EncounterJournal\UI-EJ-LOREBG-BlackrockCaverns]], texcoord = nil},
+					{value = [[Interface\EncounterJournal\UI-EJ-LOREBG-BlackrockSpire]], label = "Blackrock Spire", onclick = onSelectSecTexture, icon = [[Interface\EncounterJournal\UI-EJ-LOREBG-BlackrockSpire]], texcoord = nil},
+					{value = [[Interface\EncounterJournal\UI-EJ-LOREBG-DragonSoul]], label = "Dragon Soul", onclick = onSelectSecTexture, icon = [[Interface\EncounterJournal\UI-EJ-LOREBG-DragonSoul]], texcoord = nil},
+					{value = [[Interface\EncounterJournal\UI-EJ-LOREBG-EndTime]], label = "End Time", onclick = onSelectSecTexture, icon = [[Interface\EncounterJournal\UI-EJ-LOREBG-EndTime]], texcoord = nil},
+					{value = [[Interface\EncounterJournal\UI-EJ-LOREBG-Firelands1]], label = "Firelands", onclick = onSelectSecTexture, icon = [[Interface\EncounterJournal\UI-EJ-LOREBG-Firelands1]], texcoord = nil},
+					{value = [[Interface\EncounterJournal\UI-EJ-LOREBG-HallsofReflection]], label = "Halls of Reflection", onclick = onSelectSecTexture, icon = [[Interface\EncounterJournal\UI-EJ-LOREBG-HallsofReflection]], texcoord = nil},
+					{value = [[Interface\EncounterJournal\UI-EJ-LOREBG-HellfireCitadel]], label = "Hellfire Citadel", onclick = onSelectSecTexture, icon = [[Interface\EncounterJournal\UI-EJ-LOREBG-HellfireCitadel]], texcoord = nil},
+					{value = [[Interface\EncounterJournal\UI-EJ-LOREBG-Pandaria]], label = "Pandaria", onclick = onSelectSecTexture, icon = [[Interface\EncounterJournal\UI-EJ-LOREBG-Pandaria]], texcoord = nil},
+					{value = [[Interface\EncounterJournal\UI-EJ-LOREBG-RagefireChasm]], label = "Ragefire Chasm", onclick = onSelectSecTexture, icon = [[Interface\EncounterJournal\UI-EJ-LOREBG-RagefireChasm]], texcoord = nil},
+					{value = [[Interface\EncounterJournal\UI-EJ-LOREBG-SiegeofOrgrimmar]], label = "Siege of Orgrimmar", onclick = onSelectSecTexture, icon = [[Interface\EncounterJournal\UI-EJ-LOREBG-SiegeofOrgrimmar]], texcoord = nil},
+					{value = [[Interface\EncounterJournal\UI-EJ-LOREBG-TheNexus]], label = "The Nexus", onclick = onSelectSecTexture, icon = [[Interface\EncounterJournal\UI-EJ-LOREBG-TheNexus]], texcoord = nil},
+					{value = [[Interface\EncounterJournal\UI-EJ-LOREBG-TheOculus]], label = "The Oculus", onclick = onSelectSecTexture, icon = [[Interface\EncounterJournal\UI-EJ-LOREBG-TheOculus]], texcoord = nil},
+					{value = [[Interface\EncounterJournal\UI-EJ-LOREBG-TheStonecore]], label = "The Stonecore", onclick = onSelectSecTexture, icon = [[Interface\EncounterJournal\UI-EJ-LOREBG-TheStonecore]], texcoord = nil},
+					{value = [[Interface\EncounterJournal\UI-EJ-LOREBG-ThunderKingRaid]], label = "Throne of Thunder", onclick = onSelectSecTexture, icon = [[Interface\EncounterJournal\UI-EJ-LOREBG-ThunderKingRaid]], texcoord = nil},
+				},
+			
+				["LOGOS"] = {
+					{value = [[Interface\Timer\Alliance-Logo]], label = "For the Alliance", onclick = onSelectSecTexture, icon = [[Interface\Timer\Alliance-Logo]], texcoord = nil},
+					{value = [[Interface\Timer\Horde-Logo]], label = "For the Horde", onclick = onSelectSecTexture, icon = [[Interface\Timer\Horde-Logo]], texcoord = nil},
+					{value = [[Interface\Destiny\EndscreenImage]], label = "Pandaria Logo", onclick = onSelectSecTexture, icon = [[Interface\Destiny\EndscreenImage]], texcoord = nil},
+					{value = [[Interface\ARCHEOLOGY\ARCH-RACE-ORC]], label = "Orc Crest", onclick = onSelectSecTexture, icon = [[Interface\ARCHEOLOGY\ARCH-RACE-ORC]], texcoord = nil},
+					{value = [[Interface\ARCHEOLOGY\ARCH-RACE-DWARF]], label = "Dwarf Crest", onclick = onSelectSecTexture, icon = [[Interface\ARCHEOLOGY\ARCH-RACE-DWARF]], texcoord = nil},
+					{value = [[Interface\ARCHEOLOGY\ARCH-RACE-NIGHTELF]], label = "Night Elf Crest", onclick = onSelectSecTexture, icon = [[Interface\ARCHEOLOGY\ARCH-RACE-NIGHTELF]], texcoord = nil},
+					{value = [[Interface\ARCHEOLOGY\Arch-Race-Pandaren]], label = "Padaren Crest", onclick = onSelectSecTexture, icon = [[Interface\ARCHEOLOGY\Arch-Race-Pandaren]], texcoord = nil},
+					{value = [[Interface\ARCHEOLOGY\ARCH-RACE-TROLL]], label = "Troll Crest", onclick = onSelectSecTexture, icon = [[Interface\ARCHEOLOGY\ARCH-RACE-TROLL]], texcoord = nil},
+					{value = [[Interface\FlavorImages\BloodElfLogo-small]], label = "Blood Elf Crest", onclick = onSelectSecTexture, icon = [[Interface\FlavorImages\BloodElfLogo-small]], texcoord = nil},
+					{value = [[Interface\Glues\COMMON\Glues-Logo]], label = "Wow Logo", onclick = onSelectSecTexture, icon = [[Interface\Glues\COMMON\Glues-Logo]], texcoord = nil},
+					{value = [[Interface\Glues\COMMON\GLUES-WOW-BCLOGO]], label = "Burning Cruzade Logo", onclick = onSelectSecTexture, icon = [[Interface\Glues\COMMON\GLUES-WOW-BCLOGO]], texcoord = nil},
+					{value = [[Interface\Glues\COMMON\GLUES-WOW-CCLOGO]], label = "Cataclysm Logo", onclick = onSelectSecTexture, icon = [[Interface\Glues\COMMON\GLUES-WOW-CCLOGO]], texcoord = nil},
+					{value = [[Interface\Glues\COMMON\Glues-WOW-WoltkLogo]], label = "WotLK Logo", onclick = onSelectSecTexture, icon = [[Interface\Glues\COMMON\Glues-WOW-WoltkLogo]], texcoord = nil},
+
+
+					--{value = [[]], label = "", onclick = onSelectSecTexture, icon = [[]], texcoord = nil},
+				},
+				
 				["CREDITS"] = {
 					{value = [[Interface\Glues\CREDITS\Arakkoa2]], label = "Arakkoa", onclick = onSelectSecTexture, icon = [[Interface\Glues\CREDITS\Arakkoa2]], texcoord = nil},
 					{value = [[Interface\Glues\CREDITS\Arcane_Golem2]], label = "Arcane Golem", onclick = onSelectSecTexture, icon = [[Interface\Glues\CREDITS\Arcane_Golem2]], texcoord = nil},
@@ -5500,7 +5598,7 @@ function window:CreateFrame9()
 					{value = [[Interface\Glues\CREDITS\Terrokkar6]], label = "Terrokkar", onclick = onSelectSecTexture, icon = [[Interface\Glues\CREDITS\Terrokkar6]], texcoord = nil},
 					{value = [[Interface\Glues\CREDITS\ThousandNeedles2]], label = "Thousand Needles", onclick = onSelectSecTexture, icon = [[Interface\Glues\CREDITS\ThousandNeedles2]], texcoord = nil},
 					{value = [[Interface\Glues\CREDITS\Troll2]], label = "Troll", onclick = onSelectSecTexture, icon = [[Interface\Glues\CREDITS\Troll2]], texcoord = nil},
-					{value = [[Interface\Glues\CREDITS\LESSERELEMENTAL_FIRE_03B1]], label = "Fire Elemental", onclick = onSelectSecTexture, icon = [[Interface\Glues\CREDITS\LESSERELEMENTAL_FIRE_03B1]], texcoord = nil},
+					{value = [[Interface\Glues\CREDITS\CATACLYSM\LESSERELEMENTAL_FIRE_03B1]], label = "Fire Elemental", onclick = onSelectSecTexture, icon = [[Interface\Glues\CREDITS\CATACLYSM\LESSERELEMENTAL_FIRE_03B1]], texcoord = nil},
 				},
 			
 				["DEATHKNIGHT"] = {
@@ -5599,8 +5697,10 @@ function window:CreateFrame9()
 			local backgroundTable = {
 				{value = "ARCHEOLOGY", label = "Archeology", onclick = onSelectMainTexture, icon = [[Interface\ARCHEOLOGY\Arch-Icon-Marker]]},
 				{value = "CREDITS", label = "Burning Crusade", onclick = onSelectMainTexture, icon = [[Interface\ICONS\TEMP]]},
-				{value = "DEATHKNIGHT", label = "Death Knight", onclick = onSelectMainTexture, icon = _detalhes.class_icons_small, texcoord = _detalhes.class_coords ["DEATHKNIGHT"]},
+				{value = "LOGOS", label = "Logos", onclick = onSelectMainTexture, icon = [[Interface\WorldStateFrame\ColumnIcon-FlagCapture0]]},
 				{value = "DRESSUP", label = "Race Background", onclick = onSelectMainTexture, icon = [[Interface\ICONS\INV_Chest_Cloth_17]]},
+				{value = "RAIDS", label = "Dungeons & Raids", onclick = onSelectMainTexture, icon = [[Interface\COMMON\friendship-FistHuman]]},
+				{value = "DEATHKNIGHT", label = "Death Knight", onclick = onSelectMainTexture, icon = _detalhes.class_icons_small, texcoord = _detalhes.class_coords ["DEATHKNIGHT"]},
 				{value = "DRUID", label = "Druid", onclick = onSelectMainTexture, icon = _detalhes.class_icons_small, texcoord = _detalhes.class_coords ["DRUID"]},
 				{value = "HUNTER", label = "Hunter", onclick = onSelectMainTexture, icon = _detalhes.class_icons_small, texcoord = _detalhes.class_coords ["HUNTER"]},
 				{value = "MAGE", label = "Mage", onclick = onSelectMainTexture, icon = _detalhes.class_icons_small, texcoord = _detalhes.class_coords ["MAGE"]},
@@ -5615,12 +5715,15 @@ function window:CreateFrame9()
 			local buildBackgroundMenu = function() return backgroundTable end		
 			
 			g:NewSwitch (frame9, _, "$parentUseBackgroundSlider", "useBackgroundSlider", 60, 20, _, _, _G.DetailsOptionsWindow.instance.wallpaper.enabled)
+			
+			--category
 			local d = g:NewDropDown (frame9, _, "$parentBackgroundDropdown", "backgroundDropdown", DROPDOWN_WIDTH, 20, buildBackgroundMenu, nil)
 			d.onenter_backdrop = dropdown_backdrop_onenter
 			d.onleave_backdrop = dropdown_backdrop_onleave
 			d:SetBackdrop (dropdown_backdrop)
 			d:SetBackdropColor (unpack (dropdown_backdrop_onleave))			
 			
+			--wallpaper
 			local d = g:NewDropDown (frame9, _, "$parentBackgroundDropdown2", "backgroundDropdown2", DROPDOWN_WIDTH, 20, buildBackgroundMenu2, nil)
 			d.onenter_backdrop = dropdown_backdrop_onenter
 			d.onleave_backdrop = dropdown_backdrop_onleave
@@ -5663,8 +5766,8 @@ function window:CreateFrame9()
 			
 		end
 		
-		g:NewLabel (frame9, _, "$parentBackgroundLabel", "wallpapergroupLabel", Loc ["STRING_OPTIONS_WP_GROUP"], "GameFontHighlightLeft")
-		g:NewLabel (frame9, _, "$parentBackgroundLabel", "selectwallpaperLabel", Loc ["STRING_OPTIONS_WP_GROUP2"], "GameFontHighlightLeft")
+		g:NewLabel (frame9, _, "$parentBackgroundLabel1", "wallpapergroupLabel", Loc ["STRING_OPTIONS_WP_GROUP"], "GameFontHighlightLeft")
+		g:NewLabel (frame9, _, "$parentBackgroundLabel2", "selectwallpaperLabel", Loc ["STRING_OPTIONS_WP_GROUP2"], "GameFontHighlightLeft")
 		g:NewLabel (frame9, _, "$parentAnchorLabel", "anchorLabel", Loc ["STRING_OPTIONS_WP_ALIGN"], "GameFontHighlightLeft")
 		--
 		frame9.anchorDropdown:SetPoint ("left", frame9.anchorLabel, "right", 2)
@@ -5787,15 +5890,130 @@ function window:CreateFrame9()
 			preview:SetTexCoord (unpack (w.texcoord))
 			preview:SetVertexColor (unpack (w.overlay))
 			preview:SetAlpha (w.alpha)
-			
-			frame9.wallpaperCurrentLabel.text = "Texture File: " .. (w.texture or "-- -- --") .. "\nAlpha: " .. a .. "\nOverlay: |cFFFFAAAAred|r: " .. math.floor(red/255*100) .. "% |cFFAAFFAAgreen|r: " .. math.floor(green/255*100) .. "% |cFFAAAAFFblue|r: " .. math.floor(blue/255*100) .. "%\nCut (|cFFC0C0C0top|r): " .. t .. "\nCut (|cFFC0C0C0bottom|r): " .. b .. "\nCut (|cFFC0C0C0left|r): " .. l .. "\nCut (|cFFC0C0C0right|r): " .. r
+
+			frame9.wallpaperCurrentLabel1text.text = w.texture or "-- -- --"
+			frame9.wallpaperCurrentLabel2text.text = a
+			frame9.wallpaperCurrentLabel3text.text = red
+			frame9.wallpaperCurrentLabel4text.text = green
+			frame9.wallpaperCurrentLabel5text.text = blue
+			frame9.wallpaperCurrentLabel6text.text = t
+			frame9.wallpaperCurrentLabel7text.text = b
+			frame9.wallpaperCurrentLabel8text.text = l
+			frame9.wallpaperCurrentLabel9text.text = r
 		end
 		
 	--current settings
 		g:NewLabel (frame9, _, "$parentWallpaperCurrentAnchor", "wallpaperCurrentAnchorLabel", "Current:", "GameFontNormal")
-		g:NewLabel (frame9, _, "$parentWallpaperCurrentLabel", "wallpaperCurrentLabel", "", "GameFontHighlightSmall")
+		
+		g:NewLabel (frame9, _, "$parentWallpaperCurrentLabel1", "wallpaperCurrentLabel1", Loc ["STRING_OPTIONS_WALLPAPER_FILE"], "GameFontHighlightLeft")
+		g:NewLabel (frame9, _, "$parentWallpaperCurrentLabel2", "wallpaperCurrentLabel2", Loc ["STRING_OPTIONS_WALLPAPER_ALPHA"], "GameFontHighlightLeft")
+		g:NewLabel (frame9, _, "$parentWallpaperCurrentLabel3", "wallpaperCurrentLabel3", Loc ["STRING_OPTIONS_WALLPAPER_RED"], "GameFontHighlightLeft")
+		g:NewLabel (frame9, _, "$parentWallpaperCurrentLabel4", "wallpaperCurrentLabel4", Loc ["STRING_OPTIONS_WALLPAPER_GREEN"], "GameFontHighlightLeft")
+		g:NewLabel (frame9, _, "$parentWallpaperCurrentLabel5", "wallpaperCurrentLabel5", Loc ["STRING_OPTIONS_WALLPAPER_BLUE"], "GameFontHighlightLeft")
+		g:NewLabel (frame9, _, "$parentWallpaperCurrentLabel6", "wallpaperCurrentLabel6", Loc ["STRING_OPTIONS_WALLPAPER_CTOP"], "GameFontHighlightLeft")
+		g:NewLabel (frame9, _, "$parentWallpaperCurrentLabel7", "wallpaperCurrentLabel7", Loc ["STRING_OPTIONS_WALLPAPER_CBOTTOM"], "GameFontHighlightLeft")
+		g:NewLabel (frame9, _, "$parentWallpaperCurrentLabel8", "wallpaperCurrentLabel8", Loc ["STRING_OPTIONS_WALLPAPER_CLEFT"], "GameFontHighlightLeft")
+		g:NewLabel (frame9, _, "$parentWallpaperCurrentLabel9", "wallpaperCurrentLabel9", Loc ["STRING_OPTIONS_WALLPAPER_CRIGHT"], "GameFontHighlightLeft")
+		
+		g:NewLabel (frame9, _, "$parentWallpaperCurrentLabel1text", "wallpaperCurrentLabel1text", "", "GameFontHighlightSmall")
+		frame9.wallpaperCurrentLabel1text:SetPoint ("left", frame9.wallpaperCurrentLabel1, "right", 2, 0)
+		g:NewLabel (frame9, _, "$parentWallpaperCurrentLabel2text", "wallpaperCurrentLabel2text", "", "GameFontHighlightSmall")
+		frame9.wallpaperCurrentLabel2text:SetPoint ("left", frame9.wallpaperCurrentLabel2, "right", 2, 0)
+		g:NewLabel (frame9, _, "$parentWallpaperCurrentLabel3text", "wallpaperCurrentLabel3text", "", "GameFontHighlightSmall")
+		frame9.wallpaperCurrentLabel3text:SetPoint ("left", frame9.wallpaperCurrentLabel3, "right", 2, 0)
+		g:NewLabel (frame9, _, "$parentWallpaperCurrentLabel4text", "wallpaperCurrentLabel4text", "", "GameFontHighlightSmall")
+		frame9.wallpaperCurrentLabel4text:SetPoint ("left", frame9.wallpaperCurrentLabel4, "right", 2, 0)
+		g:NewLabel (frame9, _, "$parentWallpaperCurrentLabel5text", "wallpaperCurrentLabel5text", "", "GameFontHighlightSmall")
+		frame9.wallpaperCurrentLabel5text:SetPoint ("left", frame9.wallpaperCurrentLabel5, "right", 2, 0)
+		g:NewLabel (frame9, _, "$parentWallpaperCurrentLabel6text", "wallpaperCurrentLabel6text", "", "GameFontHighlightSmall")
+		frame9.wallpaperCurrentLabel6text:SetPoint ("left", frame9.wallpaperCurrentLabel6, "right", 2, 0)
+		g:NewLabel (frame9, _, "$parentWallpaperCurrentLabel7text", "wallpaperCurrentLabel7text", "", "GameFontHighlightSmall")
+		frame9.wallpaperCurrentLabel7text:SetPoint ("left", frame9.wallpaperCurrentLabel7, "right", 2, 0)
+		g:NewLabel (frame9, _, "$parentWallpaperCurrentLabel8text", "wallpaperCurrentLabel8text", "", "GameFontHighlightSmall")
+		frame9.wallpaperCurrentLabel8text:SetPoint ("left", frame9.wallpaperCurrentLabel8, "right", 2, 0)
+		g:NewLabel (frame9, _, "$parentWallpaperCurrentLabel9text", "wallpaperCurrentLabel9text", "", "GameFontHighlightSmall")
+		frame9.wallpaperCurrentLabel9text:SetPoint ("left", frame9.wallpaperCurrentLabel9, "right", 2, 0)
+	
+	--> Load Wallpaper
+	
+		g:NewLabel (frame9, _, "$parentWallpaperLoadTitleAnchor", "WallpaperLoadTitleAnchor", Loc ["STRING_OPTIONS_WALLPAPER_LOAD_TITLE"], "GameFontNormal")
+	
+		local load_image = function()
+			if (not DetailsLoadWallpaperImage) then
+				
+				local f = CreateFrame ("frame", "DetailsLoadWallpaperImage", UIParent)
+				f:SetPoint ("center", UIParent, "center")
+				f:SetFrameStrata ("FULLSCREEN")
+				f:SetSize (512, 150)
+				f:EnableMouse (true)
+				f:SetMovable (true)
+				f:SetScript ("OnMouseDown", function() f:StartMoving() end)
+				f:SetScript ("OnMouseUp", function() f:StopMovingOrSizing() end)
+				
+				local bg = f:CreateTexture (nil, "background")
+				bg:SetAllPoints()
+				bg:SetTexture ([[Interface\AddOns\Details\images\welcome]])
+				
+				tinsert (UISpecialFrames, "DetailsLoadWallpaperImage")
+				
+				local t = f:CreateFontString (nil, "overlay", "GameFontNormal")
+				t:SetText (Loc ["STRING_OPTIONS_WALLPAPER_LOAD_EXCLAMATION"])
+				t:SetPoint ("topleft", f, "topleft", 15, -15)
+				t:SetJustifyH ("left")
+				f.t = t
+				
+				local filename = f:CreateFontString (nil, "overlay", "GameFontHighlightLeft")
+				filename:SetPoint ("topleft", f, "topleft", 15, -120)
+				filename:SetText (Loc ["STRING_OPTIONS_WALLPAPER_LOAD_FILENAME"])
+				
+				local editbox = g:NewTextEntry (f, nil, "$parentFileName", "FileName", 160, 20, function() end)
+				editbox:SetPoint ("left", filename, "right", 2, 0)
+				editbox.tooltip = Loc ["STRING_OPTIONS_WALLPAPER_LOAD_FILENAME_DESC"]
+				
+				local close = CreateFrame ("button", "DetailsLoadWallpaperImageOkey", f, "UIPanelCloseButton")
+				close:SetSize (32, 32)
+				close:SetPoint ("topright", f, "topright", -3, -1)
+
+				local okey = CreateFrame ("button", "DetailsLoadWallpaperImageOkey", f, "OptionsButtonTemplate")
+				okey:SetPoint ("left", editbox.widget, "right", 2, 0)
+				okey:SetText (Loc ["STRING_OPTIONS_WALLPAPER_LOAD_OKEY"])
+				okey:SetScript ("OnClick", function() 
+					local text = editbox:GetText()
+					if (text == "") then
+						return
+					end
+					
+					local instance = _G.DetailsOptionsWindow.instance
+					local path = "Interface\\" .. text
+					editbox:ClearFocus()
+					instance:InstanceWallpaper (path, "all", 0.50, {0, 1, 0, 1}, 256, 256, {1, 1, 1, 1})
+					_detalhes:OpenOptionsWindow (instance)
+					window:update_wallpaper_info()
+				end)
+				
+				local throubleshoot = CreateFrame ("button", "DetailsLoadWallpaperImageOkey", f, "OptionsButtonTemplate")
+				throubleshoot:SetPoint ("left", okey, "right", 2, 0)
+				throubleshoot:SetText (Loc ["STRING_OPTIONS_WALLPAPER_LOAD_TROUBLESHOOT"])
+				throubleshoot:SetScript ("OnClick", function() 
+					if (t:GetText() == Loc ["STRING_OPTIONS_WALLPAPER_LOAD_EXCLAMATION"]) then
+						t:SetText (Loc ["STRING_OPTIONS_WALLPAPER_LOAD_TROUBLESHOOT_TEXT"])
+					else
+						DetailsLoadWallpaperImage.t:SetText (Loc ["STRING_OPTIONS_WALLPAPER_LOAD_EXCLAMATION"])
+					end
+				end)
+			end
+			
+			DetailsLoadWallpaperImage.t:SetText (Loc ["STRING_OPTIONS_WALLPAPER_LOAD_EXCLAMATION"])
+			DetailsLoadWallpaperImage:Show()
+		end
+		
+		g:NewButton (frame9, _, "$parentLoadImage", "LoadImage", 200, 18, load_image, nil, nil, nil, Loc ["STRING_OPTIONS_WALLPAPER_LOAD"])
+		frame9.LoadImage:InstallCustomTexture()
+		window:CreateLineBackground2 (frame9, "LoadImage", "LoadImage", Loc ["STRING_OPTIONS_WALLPAPER_LOAD_DESC"])
 		
 	--> Anchors
+	
+--		/script local f=CreateFrame("frame",nil,UIParent);f:SetSize(256,256);local t=f:CreateTexture(nil,"overlay");t:SetAllPoints();t:SetTexture([[Interface\wallpaper]]);f:SetPoint("center",UIParent,"center")
 	
 		frame9.backgroundDropdown:SetPoint ("left", frame9.wallpapergroupLabel, "right", 2, 0)
 		frame9.backgroundDropdown2:SetPoint ("left", frame9.selectwallpaperLabel, "right", 2, 0)
@@ -5816,18 +6034,29 @@ function window:CreateFrame9()
 			{"anchorLabel", 5},
 			{"editImage", 6},
 			{"wallpaperCurrentAnchorLabel", 7, true},
-			{"wallpaperCurrentLabel", 8},
-
+			{"wallpaperCurrentLabel1", 8},
+			{"wallpaperCurrentLabel2", 9, false},
+			{"wallpaperCurrentLabel3", 10, false},
+			{"wallpaperCurrentLabel4", 11, false},
+			{"wallpaperCurrentLabel5", 12, false},
+			{"wallpaperCurrentLabel6", 13, false},
+			{"wallpaperCurrentLabel7", 14, false},
+			{"wallpaperCurrentLabel8", 15, false},
+			{"wallpaperCurrentLabel9", 16, false},
 		}
 		
 		window:arrange_menu (frame9, left_side, x, -90)
 		
 		local right_side = {
 			{"wallpaperPreviewAnchorLabel", 1, true},
-			--{"", 2},
 		}
 		window:arrange_menu (frame9, right_side, window.right_start_at, -90)
 	
+		local right_side2 = {
+			{"WallpaperLoadTitleAnchor", 1, true},
+			{"LoadImage", 2},
+		}
+		window:arrange_menu (frame9, right_side2, window.right_start_at, -250)
 		
 	--> wallpaper settings
 
@@ -6702,13 +6931,13 @@ function window:update_all (editing_instance)
 	
 	_G.DetailsOptionsWindow7MenuAnchorXSlider.MyObject:SetFixedParameter (editing_instance)
 	_G.DetailsOptionsWindow7MenuAnchorYSlider.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow7:update_menuanchor_xy (instance)
+	_G.DetailsOptionsWindow7:update_menuanchor_xy (editing_instance)
 
 	--> window 8
 	
 	_G.DetailsOptionsWindow8MenuAnchorXSlider.MyObject:SetFixedParameter (editing_instance)
 	_G.DetailsOptionsWindow8MenuAnchorYSlider.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow8:update_menuanchor_xy (instance)
+	_G.DetailsOptionsWindow8:update_menuanchor_xy (editing_instance)
 	
 	_G.DetailsOptionsWindow8DesaturateMenuSlider.MyObject:SetFixedParameter (editing_instance)
 	_G.DetailsOptionsWindow8DesaturateMenuSlider.MyObject:SetValue (editing_instance.desaturated_menu2)

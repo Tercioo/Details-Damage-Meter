@@ -1589,6 +1589,24 @@ function DetailsCreateCoolTip()
 	--> set cooltip type
 	--> parameters: type (1 = tooltip | 2 = tooltip with bars | 3 = menu)
 	
+		function CoolTip:IsMenu()
+			return CoolTip.frame1:IsShown() and CoolTip.Type == 3
+		end
+		
+		function CoolTip:IsTooltip()
+			return CoolTip.frame1:IsShown() and (CoolTip.Type == 1 or CoolTip.Type == 2)
+		end
+	
+		function CoolTip:GetType()
+			if (CoolTip.Type == 1 or CoolTip.Type == 2) then
+				return "tooltip"
+			elseif (CoolTip.Type == 3) then
+				return "menu"
+			else
+				return "none"
+			end
+		end
+	
 		function CoolTip:SetType (newType)
 			if (type (newType) == "string") then
 				if (newType == "tooltip") then
@@ -2547,6 +2565,7 @@ function DetailsCreateCoolTip()
 		CoolTip.Host = nil
 		gump:Fade (frame1, 1)
 		gump:Fade (frame2, 1)
+		
 	end
 	
 	--> old function call

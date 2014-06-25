@@ -15,8 +15,8 @@ do
 
 	local gump_fundo_backdrop = {
 		bgFile = "Interface\\AddOns\\Details\\images\\background", 
-		edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border", 
-		tile = true, tileSize = 16, edgeSize = 4,
+		--edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border", 
+		tile = true, tileSize = 16, --edgeSize = 4,
 		insets = {left = 0, right = 0, top = 0, bottom = 0}}
 
 	local frame = _CreateFrame ("frame", "DetailsSwitchPanel", _UIParent)
@@ -32,6 +32,7 @@ do
 	
 	function _detalhes.switch:CloseMe()
 		_detalhes.switch.frame:Hide()
+		GameCooltip:Hide()
 		_detalhes.switch.frame:SetBackdropColor (24/255, 24/255, 24/255, .8)
 		_detalhes.switch.current_instancia:StatusBarAlert (nil)
 		_detalhes.switch.current_instancia = nil
@@ -45,6 +46,7 @@ do
 	frame:Hide()
 	
 	_detalhes.switch.frame = frame
+	_detalhes.switch.button_height = 20
 end
 
 _detalhes.switch.buttons = {}
@@ -53,7 +55,7 @@ _detalhes.switch.showing = 0
 _detalhes.switch.table = _detalhes.switch.table or {}
 _detalhes.switch.current_instancia = nil
 _detalhes.switch.current_button = nil
-_detalhes.switch.height_necessary = (30*_detalhes.switch.slots)/2
+_detalhes.switch.height_necessary = (_detalhes.switch.button_height * _detalhes.switch.slots) / 2
 
 local right_click_text = {text = Loc ["STRING_SHORTCUT_RIGHTCLICK"], size = 9, color = {.9, .9, .9}}
 local right_click_texture = {[[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]], 14, 14, 0.0019531, 0.1484375, 0.6269531, 0.8222656}
@@ -67,15 +69,15 @@ function _detalhes.switch:ShowMe (instancia)
 	_detalhes.switch.current_instancia = instancia
 	
 	--_detalhes.switch.frame:SetFrameLevel (instancia.baseframe:GetFrameLevel() + 5)
-	_detalhes.switch.frame:SetPoint ("topleft", instancia.baseframe, "topleft", 2, 0)
-	_detalhes.switch.frame:SetPoint ("bottomright", instancia.baseframe, "bottomright", -2, 0)
+	_detalhes.switch.frame:SetPoint ("topleft", instancia.baseframe, "topleft", 0, 0)
+	_detalhes.switch.frame:SetPoint ("bottomright", instancia.baseframe, "bottomright", 0, 0)
 	
 	_detalhes.switch.frame:SetBackdropColor (0.094, 0.094, 0.094, .8)
 	local _r, _g, _b, _a = _detalhes.switch.frame:GetBackdropColor()
 	gump:GradientEffect (_detalhes.switch.frame, "frame", _r, _g, _b, _a, _r, _g, _b, 1, 1)
 	
 	local altura = instancia.baseframe:GetHeight()
-	local mostrar_quantas = _math_floor (altura / 30) * 2
+	local mostrar_quantas = _math_floor (altura / _detalhes.switch.button_height) * 2
 	
 	if (_detalhes.switch.mostrar_quantas ~= mostrar_quantas) then 
 		for i = 1, #_detalhes.switch.buttons do
@@ -122,6 +124,7 @@ function _detalhes:FastSwitch (_this)
 		_detalhes:MontaAtributosOption (_detalhes.switch.current_instancia, _detalhes.switch.Config)
 		GameCooltip:SetColor (1, {.1, .1, .1, .3})
 		GameCooltip:SetColor (2, {.1, .1, .1, .3})
+		GameCooltip:SetOption ("HeightAnchorMod", -7)
 		GameCooltip:ShowCooltip()
 
 	else --> botão esquerdo
@@ -162,7 +165,7 @@ function _detalhes.switch:Update()
 
 	local slots = _detalhes.switch.slots
 	local x = 10
-	local y = 10
+	local y = 5
 	local jump = false
 
 	for i = 1, slots do
@@ -229,7 +232,7 @@ function _detalhes.switch:Update()
 
 		if (jump) then 
 			x = x - 125
-			y = y + 30
+			y = y + _detalhes.switch.button_height
 			jump = false
 		else
 			x = x + 125
@@ -241,8 +244,8 @@ end
 
 function _detalhes.switch:Resize()
 
-	local x = 10
-	local y = 10
+	local x = 7
+	local y = 5
 	local xPlus = (_detalhes.switch.current_instancia:GetSize()/2)-5
 	local frame = _detalhes.switch.frame
 	
@@ -258,7 +261,7 @@ function _detalhes.switch:Resize()
 			button.line:SetWidth (xPlus - 15)
 			button.line2:SetWidth (xPlus - 15)
 			x = x - xPlus
-			y = y + 30
+			y = y + _detalhes.switch.button_height
 			jump = false
 		else
 			button:SetPoint ("topleft", frame, "topleft", x, -y)
@@ -277,6 +280,45 @@ function _detalhes.switch:Resize()
 	end
 end
 
+local onenter = function (self)
+	self.texto:SetTextColor (1, 1, 1, 1)
+	self.border:SetBlendMode ("ADD")
+	GameCooltip:Hide()
+end
+
+local onleave = function (self)
+	self.texto:SetTextColor (.8, .8, .8, 1)
+	self.border:SetBlendMode ("BLEND")
+end
+
+local oniconenter = function (self)
+
+	if (GameCooltip:IsMenu()) then
+		return
+	end
+
+	GameCooltip:Reset()
+	_detalhes:CooltipPreset (1)
+	GameCooltip:AddLine ("select attribute")
+	GameCooltip:AddIcon ([[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]], 1, 1, 12, 14, 0.0019531, 0.1484375, 0.6269531, 0.8222656)
+	
+	GameCooltip:SetOwner (self)
+	GameCooltip:SetType ("tooltip")
+	
+	GameCooltip:SetOption ("TextSize", 10)
+	GameCooltip:SetOption ("ButtonsYMod", 0)
+	GameCooltip:SetOption ("YSpacingMod", 0)
+	GameCooltip:SetOption ("IgnoreButtonAutoHeight", false)
+	
+	GameCooltip:Show()
+end
+
+local oniconleave = function (self)
+	if (GameCooltip:IsTooltip()) then
+		GameCooltip:Hide()
+	end
+end
+
 function _detalhes.switch:NewSwitchButton (frame, index, x, y, rightButton)
 
 	local paramTable = {
@@ -286,56 +328,73 @@ function _detalhes.switch:NewSwitchButton (frame, index, x, y, rightButton)
 			["sub_atributo"] = nil
 		}
 
+	--botao dentro da caixa
 	local button = gump:NewDetailsButton (frame, frame, _, _detalhes.FastSwitch, nil, paramTable, 15, 15, "", "", "", "", 
 	{rightFunc = {func = _detalhes.FastSwitch, param1 = nil, param2 = {atributo = nil, button = index}}, OnGrab = "PassClick"}, "DetailsSwitchPanelButton_1_"..index)
 	button:SetPoint ("topleft", frame, "topleft", x, -y)
 	button.rightButton = rightButton
 	
-	button.fundo = button:CreateTexture (nil, "background")
+	button.MouseOnEnterHook = oniconenter
+	button.MouseOnLeaveHook = oniconleave
+	
+	--borda
+	button.fundo = button:CreateTexture (nil, "overlay")
 	button.fundo:SetTexture ("Interface\\SPELLBOOK\\Spellbook-Parts")
 	button.fundo:SetTexCoord (0.00390625, 0.27734375, 0.44140625,0.69531250)
-	button.fundo:SetWidth (34)
-	button.fundo:SetHeight (32)
-	button.fundo:SetPoint ("topleft", button, "topleft", -9, 9)
+	button.fundo:SetWidth (26)
+	button.fundo:SetHeight (24)
+	button.fundo:SetPoint ("topleft", button, "topleft", -5, 5)
 	
+	--fundo marrom
+	local fundo_x = -3
+	local fundo_y = -5
 	button.line = button:CreateTexture (nil, "background")
 	button.line:SetTexture ("Interface\\SPELLBOOK\\Spellbook-Parts")
 	button.line:SetTexCoord (0.31250000, 0.96484375, 0.37109375, 0.52343750)
 	button.line:SetWidth (85)
-	button.line:SetHeight (25)
-	button.line:SetPoint ("left", button, "right", 0, -3)
+	button.line:SetPoint ("topleft", button, "topright", fundo_x, 0)
+	button.line:SetPoint ("bottomleft", button, "bottomright", fundo_x, fundo_y)
 	
+	--fundo marrom 2
 	button.line2 = button:CreateTexture (nil, "background")
 	button.line2:SetTexture ("Interface\\SPELLBOOK\\Spellbook-Parts")
 	button.line2:SetTexCoord (0.31250000, 0.96484375, 0.37109375, 0.52343750)
 	button.line2:SetWidth (85)
-	button.line2:SetHeight (25)
-	button.line2:SetPoint ("left", button, "right", 0, -3)
+	button.line2:SetPoint ("topleft", button, "topright", fundo_x, 0)
+	button.line2:SetPoint ("bottomleft", button, "bottomright", fundo_x, fundo_y)
 	
+	--botao do fundo marrom
 	local button2 = gump:NewDetailsButton (button, button, _, _detalhes.FastSwitch, nil, paramTable, 1, 1, button.line, "", "", button.line2, 
 	{rightFunc = {func = _detalhes.switch.CloseMe, param1 = nil, param2 = nil}, OnGrab = "PassClick"}, "DetailsSwitchPanelButton_2_"..index)
 	button2:SetPoint ("topleft", button, "topright", 1, 0)
 	button2:SetPoint ("bottomright", button, "bottomright", 90, 0)
 	button.button2 = button2
 	
-	button.textureNormal = frame:CreateTexture (nil, "overlay")
-	button.textureNormal:SetWidth (15)
-	button.textureNormal:SetHeight (15)
-	button.textureNormal:SetPoint ("topleft", frame, "topleft", x, -y)
+	--icone
+	button.textureNormal = button:CreateTexture (nil, "background")
+	button.textureNormal:SetAllPoints (button)
 	
-	button.texturePushed = frame:CreateTexture (nil, "overlay")
-	button.texturePushed:SetWidth (15)
-	button.texturePushed:SetHeight (15)
-	button.texturePushed:SetPoint ("topleft", frame, "topleft", x, -y)
-
-	button.textureH = frame:CreateTexture (nil, "overlay")
-	button.textureH:SetWidth (15)
-	button.textureH:SetHeight (15)
-	button.textureH:SetPoint ("topleft", frame, "topleft", x, -y)	
+	--icone pushed
+	button.texturePushed = button:CreateTexture (nil, "background")
+	button.texturePushed:SetAllPoints (button)
 	
+	--highlight
+	button.textureH = button:CreateTexture (nil, "background")
+	button.textureH:SetAllPoints (button)
+	
+	--texto do atributo
 	gump:NewLabel (button2, button2, nil, "texto", "", "GameFontHighlightSmall")
-	button2.texto:SetPoint ("left", button, "right", 4, -1)
+	button2.texto:SetPoint ("left", button, "right", 5, -1)
 	button2.texto:SetNonSpaceWrap (true)
+	button2.texto:SetTextColor (.8, .8, .8, 1)
+	
+	button2.button1_icon = button.textureNormal
+	button2.button1_icon2 = button.texturePushed
+	button2.button1_icon3 = button.textureH
+	button2.border = button.fundo
+	
+	button2.MouseOnEnterHook = onenter
+	button2.MouseOnLeaveHook = onleave
 	
 	_detalhes.switch.buttons [index] = button
 	

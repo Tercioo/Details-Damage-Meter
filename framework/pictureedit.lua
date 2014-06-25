@@ -9,6 +9,8 @@ local _
 	tinsert (UISpecialFrames, "DetailsImageEdit")
 	window:SetFrameStrata ("TOOLTIP")
 	
+	window:SetMaxResize (266, 226)
+	
 	window.hooks = {}
 	
 	local background = g:NewImage (window, nil, nil, nil, "background", nil, nil, "$parentBackground")
@@ -16,7 +18,26 @@ local _
 	background:SetTexture (0, 0, 0, .8)
 	
 	local edit_texture = g:NewImage (window, nil, 300, 250, "artwork", nil, nil, "$parentImage")
-	edit_texture:SetPoint ("center", window, "center")
+	edit_texture:SetAllPoints()
+	
+	local background_frame = CreateFrame ("frame", "DetailsImageEditBackground", DetailsImageEdit)
+	background_frame:SetPoint ("topleft", DetailsImageEdit, "topleft", -10, 12)
+	background_frame:SetFrameStrata ("DIALOG")
+	background_frame:SetSize (400, 252)
+	
+	background_frame:SetResizable (true)
+	background_frame:SetMovable (true)
+	
+	background_frame:SetScript ("OnMouseDown", function()
+		window:StartMoving()
+	end)
+	background_frame:SetScript ("OnMouseUp", function()
+		window:StopMovingOrSizing()
+	end)
+	
+	local background_frame_image = background_frame:CreateTexture (nil, "background")
+	background_frame_image:SetAllPoints (background_frame)
+	background_frame_image:SetTexture ([[Interface\AddOns\Details\images\welcome]])
 	
 	local haveHFlip = false
 	local haveVFlip = false
@@ -151,8 +172,9 @@ local _
 		
 --> Edit Buttons
 
-	local buttonsBackground = g:NewPanel (UIParent, nil, "DetailsImageEditButtonsBg", nil, 115, 225)
-	buttonsBackground:SetPoint ("topleft", window, "topright", 2, 0)
+	local buttonsBackground = g:NewPanel (UIParent, nil, "DetailsImageEditButtonsBg", nil, 115, 230)
+	--buttonsBackground:SetPoint ("topleft", window, "topright", 2, 0)
+	buttonsBackground:SetPoint ("topright", background_frame, "topright", -8, -10)
 	buttonsBackground:Hide()
 	--buttonsBackground:SetMovable (true)
 	tinsert (UISpecialFrames, "DetailsImageEditButtonsBg")
@@ -198,20 +220,20 @@ local _
 		end
 		
 		local leftTexCoordButton = g:NewButton (buttonsBackground, nil, "$parentLeftTexButton", nil, 100, 20, enableTexEdit, "left", nil, nil, "Crop Left")
-		leftTexCoordButton:SetPoint ("topleft", window, "topright", 10, -10)
+		leftTexCoordButton:SetPoint ("topright", buttonsBackground, "topright", -8, -10)
 		local rightTexCoordButton = g:NewButton (buttonsBackground, nil, "$parentRightTexButton", nil, 100, 20, enableTexEdit, "right", nil, nil, "Crop Right")
-		rightTexCoordButton:SetPoint ("topleft", window, "topright", 10, -30)
+		rightTexCoordButton:SetPoint ("topright", buttonsBackground, "topright", -8, -30)
 		local topTexCoordButton = g:NewButton (buttonsBackground, nil, "$parentTopTexButton", nil, 100, 20, enableTexEdit, "top", nil, nil, "Crop Top")
-		topTexCoordButton:SetPoint ("topleft", window, "topright", 10, -50)
+		topTexCoordButton:SetPoint ("topright", buttonsBackground, "topright", -8, -50)
 		local bottomTexCoordButton = g:NewButton (buttonsBackground, nil, "$parentBottomTexButton", nil, 100, 20, enableTexEdit, "bottom", nil, nil, "Crop Bottom")
-		bottomTexCoordButton:SetPoint ("topleft", window, "topright", 10, -70)
+		bottomTexCoordButton:SetPoint ("topright", buttonsBackground, "topright", -8, -70)
 		leftTexCoordButton:InstallCustomTexture()
 		rightTexCoordButton:InstallCustomTexture()
 		topTexCoordButton:InstallCustomTexture()
 		bottomTexCoordButton:InstallCustomTexture()
 		
 		local Alpha = g:NewButton (buttonsBackground, nil, "$parentBottomAlphaButton", nil, 100, 20, alpha, nil, nil, nil, "Transparency")
-		Alpha:SetPoint ("topleft", window, "topright", 10, -110)
+		Alpha:SetPoint ("topright", buttonsBackground, "topright", -8, -115)
 		Alpha:InstallCustomTexture()
 		
 	--> overlay color
@@ -262,7 +284,7 @@ local _
 		end
 		
 		local changeColorButton = g:NewButton (buttonsBackground, nil, "$parentOverlayColorButton", nil, 100, 20, changeColor, nil, nil, nil, "Overlay Color")
-		changeColorButton:SetPoint ("topleft", window, "topright", 10, -90)
+		changeColorButton:SetPoint ("topright", buttonsBackground, "topright", -8, -95)
 		changeColorButton:InstallCustomTexture()
 		
 		alphaFrame = g:NewPanel (buttonsBackground, nil, "DetailsImageEditAlphaBg", nil, 40, 225)
@@ -310,8 +332,10 @@ local _
 		end)
 
 		local resizer = CreateFrame ("Button", nil, window.widget)
-		resizer:SetNormalTexture ("Interface\\AddOns\\Details\\images\\ResizeGripD")
-		resizer:SetHighlightTexture ("Interface\\AddOns\\Details\\images\\ResizeGripD")
+		resizer:SetNormalTexture ([[Interface\AddOns\Details\images\skins\default_skin]])
+		resizer:SetHighlightTexture ([[Interface\AddOns\Details\images\skins\default_skin]])
+		resizer:GetNormalTexture():SetTexCoord (0.00146484375, 0.01513671875, 0.24560546875, 0.25927734375)
+		resizer:GetHighlightTexture():SetTexCoord (0.00146484375, 0.01513671875, 0.24560546875, 0.25927734375)
 		resizer:SetWidth (16)
 		resizer:SetHeight (16)
 		resizer:SetPoint ("BOTTOMRIGHT", window.widget, "BOTTOMRIGHT", 0, 0)
@@ -351,9 +375,7 @@ local _
 			end
 		end)
 		
-	--> change size
-		local resizeLabel = g:NewLabel (window, nil, "$parentResizerIndicator", nil, "RESIZE", nil, 9)
-		resizeLabel:SetPoint ("right", resizer, "left", -2, 0)
+
 		
 	--> flip
 		local flip = function (side)
@@ -371,11 +393,11 @@ local _
 		end
 		
 		local flipButtonH = g:NewButton (buttonsBackground, nil, "$parentFlipButton", nil, 100, 20, flip, 1, nil, nil, "Flip Horizontal")
-		flipButtonH:SetPoint ("topleft", window, "topright", 10, -140)
+		flipButtonH:SetPoint ("topright", buttonsBackground, "topright", -8, -140)
 		flipButtonH:InstallCustomTexture()
 		--
 		local flipButtonV = g:NewButton (buttonsBackground, nil, "$parentFlipButton2", nil, 100, 20, flip, 2, nil, nil, "Flip Vertical")
-		flipButtonV:SetPoint ("topleft", window, "topright", 10, -160)
+		flipButtonV:SetPoint ("topright", buttonsBackground, "topright", -8, -160)
 		flipButtonV:InstallCustomTexture()
 		
 	--> accept
@@ -411,14 +433,16 @@ local _
 		end
 		
 		local acceptButton = g:NewButton (buttonsBackground, nil, "$parentAcceptButton", nil, 100, 20, window.accept, nil, nil, nil, "DONE")
-		acceptButton:SetPoint ("topleft", window, "topright", 10, -200)
+		acceptButton:SetPoint ("topright", buttonsBackground, "topright", -8, -200)
 		acceptButton:InstallCustomTexture()
 		
+
+
 window:Hide()
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 		
 		local ttexcoord
-		function g:ImageEditor (callback, texture, texcoord, colors, width, height, extraParam, alpha)
+		function g:ImageEditor (callback, texture, texcoord, colors, width, height, extraParam, alpha, maximize)
 		
 			texcoord = texcoord or {0, 1, 0, 1}
 			ttexcoord = texcoord
@@ -430,6 +454,7 @@ window:Hide()
 			edit_texture:SetTexture (texture)
 			edit_texture.width = width
 			edit_texture.height = height
+			edit_texture.maximize = maximize
 			
 			edit_texture:SetVertexColor (colors [1], colors [2], colors [3])
 			
@@ -447,8 +472,11 @@ window:Hide()
 		
 		function _detalhes:RefreshImageEditor()
 		
-			window.width = edit_texture.width
-			window.height = edit_texture.height
+			if (edit_texture.maximize) then
+				DetailsImageEdit:SetSize (266, 226)
+			else
+				DetailsImageEdit:SetSize (edit_texture.width, edit_texture.height)
+			end
 			
 			local l, r, t, b = unpack (ttexcoord)
 			

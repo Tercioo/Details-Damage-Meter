@@ -140,7 +140,7 @@ function _detalhes:OpenWelcomeWindow ()
 				
 				if (elapsed < 0.295) then
 					_detalhes.use_row_animations = true
-					_detalhes.update_speed = 0.05
+					_detalhes.update_speed = 0.2
 				
 				elseif (elapsed < 0.375) then
 					_detalhes.use_row_animations = true
@@ -389,7 +389,7 @@ function _detalhes:OpenWelcomeWindow ()
 			skin_dropdown:SetPoint ("left", skin_label, "right", 2)
 			skin_label:SetPoint ("topleft", window, "topleft", 30, -140)
 			
-			skin_dropdown:Select ("Default Skin")
+			--skin_dropdown:Select ("Default Skin")
 			
 		--wallpapper
 			--> agora cria os 2 dropdown da categoria e wallpaper

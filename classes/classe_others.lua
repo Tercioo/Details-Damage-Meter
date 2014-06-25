@@ -659,7 +659,7 @@ function atributo_misc:AtualizaBarra (instancia, barras_container, qual_barra, l
 	self.minha_barra = esta_barra
 	self.colocacao = lugar
 	
-	local meu_total = self [keyName] --> total de dano que este jogador deu
+	local meu_total = _math_floor (self [keyName] or 0) --> total
 	if (not meu_total) then
 		return
 	end

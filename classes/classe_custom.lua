@@ -965,7 +965,7 @@ end
 			local new_actor = _setmetatable ({
 			nome = actor.nome,
 			classe = actor.classe,
-			value = 0,
+			value = _detalhes:GetAlphabeticalOrderNumber (actor.nome),
 			}, atributo_custom.mt)
 			
 			new_actor.displayName = new_actor.nome

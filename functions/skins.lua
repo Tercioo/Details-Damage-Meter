@@ -69,7 +69,7 @@ local _
 			
 		--rows
 			row_info = {
-				texture = "Details D'ictum",
+				texture = "Details Serenity",
 				texture_class_colors = true,
 				alpha = 1, 
 				texture_background_class_color = false,
@@ -128,17 +128,17 @@ local _
 		instance_cprops = {
 			hide_icon = true,
 			
-			menu_anchor = {-55, -1, side = 2},
+			menu_anchor = {-60, 0, side = 2},
 			menu_anchor_down = {-55, -1},
-			menu2_anchor = {32, 2},
+			menu2_anchor = {32, 3},
 			menu2_anchor_down = {32, 2},
 			
 			menu_icons_size = 0.8,
 			plugins_grow_direction = 1,
 			
-			instancebutton_config = {size = {20, 16}, anchor = {5, 0}, textcolor = {.8, .6, .0, 0.8}, textsize = 10, textfont = "Friz Quadrata TT", highlight_texture = [[Interface\Buttons\UI-Panel-MinimizeButton-Highlight]]},
-			resetbutton_config = {size = {8, 16}, anchor = {1, 0}},
-			closebutton_config = {size = {17, 17}},
+			instancebutton_config = {size = {20, 16}, anchor = {5, 0}, textcolor = {.8, .6, .0, 0.8}, textsize = 11, textfont = "Friz Quadrata TT", highlight_texture = [[Interface\Buttons\UI-Panel-MinimizeButton-Highlight]]},
+			resetbutton_config = {size = {13, 13}, anchor = {2, 0}, normal_texture = [[Interface\Addons\Details\Images\reset_button2]], highlight_texture = [[Interface\Addons\Details\Images\reset_button2]]},
+			closebutton_config = {size = {19, 19}, alpha = 0.8},
 			
 			show_sidebars = false,
 			show_statusbar = false,
@@ -149,7 +149,7 @@ local _
 				texture = "Blizzard Character Skills Bar",
 				font_face = "Arial Narrow",
 			},
-			attribute_text = {enabled = true, side = 1, text_size = 11, anchor = {-18, 3}, text_color = {1, 1, 1, 1}, text_face = "Arial Narrow"},			
+			attribute_text = {enabled = true, side = 1, text_size = 11, anchor = {-18, 4}, text_color = {1, 1, 1, 1}, text_face = "Arial Narrow"},			
 		},
 		
 		callback = function (skin, instance, just_updating)
@@ -484,15 +484,16 @@ local _
 		--[[ for the complete cprop list see the file classe_instancia_include.lua]]
 		instance_cprops = {
 
-			instancebutton_config = {size = {20, 16}, anchor = {5, 0}, textcolor = {.7, .7, .7, 1}, textsize = 10, textfont = "Friz Quadrata TT", highlight_texture = [[Interface\Buttons\UI-Panel-MinimizeButton-Highlight]]},
-			resetbutton_config = {size = {8, 16}, anchor = {1, 0}},
-			closebutton_config = {size = {17, 17}},
+			instancebutton_config = {size = {20, 16}, anchor = {7, 0}, textcolor = {.7, .7, .7, 1}, textsize = 10, textfont = "Friz Quadrata TT", highlight_texture = [[Interface\Buttons\UI-Panel-MinimizeButton-Highlight]]},
+			resetbutton_config = {size = {8, 16}, anchor = {2, 0}},
+			closebutton_config = {size = {17, 17}, alpha = 0.60, anchor = {1, 0}},
 
-			menu_icons_size = 0.85,
-			menu_anchor = {-58, 0, side = 2},
-			menu_anchor_down = {-58, 0},
-			menu2_anchor = {32, 2},
-			menu2_anchor_down = {32, 2},
+			menu_icons_size = 0.80,
+			menu2_icons_size = 1.10,
+			menu_anchor = {-55, 0, side = 2},
+			menu_anchor_down = {-60, 0},
+			menu2_anchor = {32, 3},
+			menu2_anchor_down = {32, 3},
 			plugins_grow_direction = 1,
 			
 			attribute_text = {enabled = true, anchor = {-20, 4}, text_face = "Friz Quadrata TT", text_size = 10, text_color = {1, 1, 1, .7}, side = 1, shadow = true},

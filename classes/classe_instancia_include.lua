@@ -34,7 +34,7 @@ end
 _detalhes.instance_defaults = {
 
 	--skin
-		skin = "Default Skin",
+		skin = "Minimalistic",
 	--baseframe backdrop
 		bg_alpha = 0.7,
 		bg_r = 0.0941,
@@ -67,7 +67,7 @@ _detalhes.instance_defaults = {
 	--instance button info
 		instancebutton_config = {size = {20, 16}, anchor = {2, 0}, highlight_texture = [[Interface\Buttons\UI-Panel-MinimizeButton-Highlight]], textcolor = {1, 1, 1, 1}, textsize = 11, textfont = "Friz Quadrata TT", textshadow = false},
 	--close button info
-		closebutton_config = {size = {18, 18}, anchor = {0, 0}, normal_texture = [[Interface\Buttons\UI-Panel-MinimizeButton-Up]], highlight_texture = [[Interface\Buttons\UI-Panel-MinimizeButton-Highlight]], pushed_texture = [[Interface\Buttons\UI-Panel-MinimizeButton-Down]]},
+		closebutton_config = {size = {18, 18}, alpha = 1, anchor = {0, 0}, normal_texture = [[Interface\Buttons\UI-Panel-MinimizeButton-Up]], highlight_texture = [[Interface\Buttons\UI-Panel-MinimizeButton-Highlight]], pushed_texture = [[Interface\Buttons\UI-Panel-MinimizeButton-Down]]},
 	--menus:
 		--anchor store the anchor point of main menu
 		menu_anchor = {5, 1, side = 1}, --mode segment attribute report on top position

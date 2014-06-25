@@ -957,8 +957,8 @@ end
 
 		--local skin =  fazer aqui o esquema de resgatar a skin salva no profile.
 		
-		new_instance:ChangeSkin ("Minimalistic")
 		new_instance:ChangeSkin ("Default Skin")
+		new_instance:ChangeSkin ("Minimalistic")
 		
 		--> apply standard skin if have one saved
 			if (_detalhes.standard_skin) then
@@ -2333,7 +2333,7 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 
 				if (_thisActor) then 
 				
-					local amount = _thisActor [keyName]
+					local amount = _math_floor (_thisActor [keyName])
 					
 					local name = _thisActor.nome.." "
 					if (_detalhes.remove_realm_from_name and name:find ("-")) then
@@ -2442,7 +2442,7 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 			for i = container_amount, this_amt, -1 do 
 				
 				local _thisActor = container [i]
-				local amount = _thisActor [keyName]
+				local amount = _math_floor (_thisActor [keyName])
 				
 				local name = _thisActor.nome.." "
 				

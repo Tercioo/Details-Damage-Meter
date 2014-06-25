@@ -18,8 +18,10 @@
 	local _string_format = string.format --lua local
 	local _math_floor = math.floor --lua local
 	local _math_max = math.max --lua local
+	local _math_abs = math.abs --lua local
 	local _type = type --lua local
 	local _string_match = string.match --lua local
+	local _string_byte = string.byte
 	local loadstring = loadstring --lua local
 	
 	local _UnitClass = UnitClass --wow api local
@@ -36,6 +38,11 @@
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> details api functions
+
+	--> get the fractional number representing the alphabetical letter
+	function _detalhes:GetAlphabeticalOrderNumber (who_name)
+		return _math_abs (_string_byte (_upper (who_name))-91)/1000000
+	end
 
 	--> set all table keys to lower
 	local temptable = {}
@@ -482,8 +489,8 @@
 			self.frame:Hide()
 		end
 		
-		if (frame.FlashAnimation.onFinishFunc) then
-			frame.FlashAnimation:onFinishFunc (frame)
+		if (self.onFinishFunc) then
+			self:onFinishFunc (self.frame)
 		end
 	end
 	

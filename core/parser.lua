@@ -1457,14 +1457,14 @@
 		
 	------------------------------------------------------------------------------------------------
 	--> build containers on the fly
-		
+
 		if (not este_jogador.cooldowns_defensive) then
-			este_jogador.cooldowns_defensive = 0
+			este_jogador.cooldowns_defensive = _detalhes:GetAlphabeticalOrderNumber (who_name)
 			este_jogador.cooldowns_defensive_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
 			este_jogador.cooldowns_defensive_spell_tables = container_habilidades:NovoContainer (container_misc) --> cria o container das habilidades
 			
 			if (not este_jogador.shadow.cooldowns_defensive_targets) then
-				este_jogador.shadow.cooldowns_defensive = 0
+				este_jogador.shadow.cooldowns_defensive = _detalhes:GetAlphabeticalOrderNumber (who_name)
 				este_jogador.shadow.cooldowns_defensive_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
 				este_jogador.shadow.cooldowns_defensive_spell_tables = container_habilidades:NovoContainer (container_misc) --> cria o container das habilidades usadas
 			end
@@ -2345,9 +2345,15 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> core
 
+	--test
+	--function parser:spell_fail (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spellschool, error, msg2, msg3)
+	--	print (token, who_name, spellid, spellname, spellschool, error, msg2, msg3)
+	--end
+
 	local token_list = {
 		-- neutral
 		["SPELL_SUMMON"] = parser.summon,
+		--["SPELL_CAST_FAILED"] = parser.spell_fail
 	}
 
 	--serach key: ~capture
@@ -2679,6 +2685,12 @@
 			local esta_instancia = _detalhes.tabela_instancias[_detalhes.solo]
 			esta_instancia.atualizando = true
 		end
+		
+		for index, instancia in ipairs (_detalhes.tabela_instancias) do 
+			if (instancia.ativa) then
+				instancia:SetCombatAlpha (nil, nil, true)
+			end
+		end
 	end
 
 	function _detalhes.parser_functions:PLAYER_REGEN_ENABLED (...)
@@ -2709,6 +2721,12 @@
 			_detalhes.schedule_add_to_overall = false
 
 			_detalhes.historico:adicionar_overall (_detalhes.tabela_vigente)
+		end
+		
+		for index, instancia in ipairs (_detalhes.tabela_instancias) do 
+			if (instancia.ativa) then
+				instancia:SetCombatAlpha (nil, nil, true)
+			end
 		end
 	end
 
@@ -2851,6 +2869,9 @@
 
 	function _detalhes:OnParserEvent (evento, time, token, hidding, who_serial, who_name, who_flags, who_flags2, alvo_serial, alvo_name, alvo_flags, alvo_flags2, ...)
 		local funcao = token_list [token]
+		
+		--print (token, ...)
+		
 		if (funcao) then
 			return funcao (nil, token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, ... )
 		else

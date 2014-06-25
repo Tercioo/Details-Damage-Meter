@@ -683,9 +683,14 @@ local function BGFrame_scripts (BG, baseframe, instancia)
 			instancia:SaveMainWindowPosition()
 			return
 		end
-
+		
 		if (not baseframe.isLocked and button == "LeftButton") then
 			move_janela (baseframe, true, instancia) --> novo movedor da janela
+			if (BG.is_toolbar) then
+				if (instancia.attribute_text.enabled and instancia.attribute_text.side == 1 and instancia.toolbar_side == 1) then
+					instancia.menu_attribute_string:SetPoint ("bottomleft", instancia.baseframe.cabecalho.ball, "bottomright", instancia.attribute_text.anchor [1]+1, instancia.attribute_text.anchor [2]-1)
+				end
+			end
 		elseif (button == "RightButton") then
 			if (_detalhes.switch.current_instancia and _detalhes.switch.current_instancia == instancia) then
 				_detalhes.switch:CloseMe()
@@ -699,9 +704,15 @@ local function BGFrame_scripts (BG, baseframe, instancia)
 		if (baseframe.isMoving) then
 			move_janela (baseframe, false, instancia) --> novo movedor da janela
 			instancia:SaveMainWindowPosition()
+			if (BG.is_toolbar) then
+				if (instancia.attribute_text.enabled and instancia.attribute_text.side == 1 and instancia.toolbar_side == 1) then
+					instancia.menu_attribute_string:SetPoint ("bottomleft", instancia.baseframe.cabecalho.ball, "bottomright", instancia.attribute_text.anchor [1], instancia.attribute_text.anchor [2])
+				end
+			end
 		end
 	end)	
 end
+
 
 function gump:RegisterForDetailsMove (frame, instancia)
 
@@ -1465,8 +1476,12 @@ local function button_stretch_scripts (baseframe, backgrounddisplay, instancia)
 		gump:Fade (self, "ALPHA", 0)
 	end)	
 
-	button:SetScript ("OnMouseDown", function (self)
+	button:SetScript ("OnMouseDown", function (self, button)
 
+		if (button ~= "LeftButton") then
+			return
+		end
+	
 		if (instancia:IsSoloMode()) then
 			return
 		end
@@ -1544,7 +1559,11 @@ local function button_stretch_scripts (baseframe, backgrounddisplay, instancia)
 		_detalhes:SendEvent ("DETAILS_INSTANCE_STARTSTRETCH", nil, instancia)
 	end)
 	
-	button:SetScript ("OnMouseUp", function(self) 
+	button:SetScript ("OnMouseUp", function (self, button)
+	
+		if (button ~= "LeftButton") then
+			return
+		end
 	
 		if (instancia:IsSoloMode()) then
 			return
@@ -2314,8 +2333,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 		baseframe.button_stretch:SetPoint ("bottom", baseframe, "top", 0, 20)
 		baseframe.button_stretch:SetPoint ("right", baseframe, "right", -27, 0)
 		baseframe.button_stretch:SetFrameLevel (15)
-		--baseframe.button_stretch:SetFrameStrata ("FULLSCREEN")
-	
+		
 		local stretch_texture = baseframe.button_stretch:CreateTexture (nil, "overlay")
 		stretch_texture:SetTexture (DEFAULT_SKIN)
 		stretch_texture:SetTexCoord (unpack (COORDS_STRETCH))
@@ -3815,6 +3833,12 @@ function _detalhes:ToolbarMenu2Buttons (_close, _instance, _reset)
 				end
 			end
 
+			if (button_config.alpha) then
+				button:GetNormalTexture():SetAlpha (button_config.alpha)
+				button:GetHighlightTexture():SetAlpha (button_config.alpha)
+				button:GetPushedTexture():SetAlpha (button_config.alpha)
+			end
+			
 			lastIcon = button
 			button:SetParent (self.baseframe)
 			button:SetFrameLevel (self.baseframe.UPFrame:GetFrameLevel()+1)
@@ -4499,7 +4523,7 @@ function _detalhes:ChangeSkin (skin_name)
 		if (_G.DetailsOptionsWindow and _G.DetailsOptionsWindow:IsShown()) then
 			_detalhes:OpenOptionsWindow (self)
 		end
-	
+
 	if (not just_updating or _detalhes.initializing) then
 		if (this_skin.callback) then
 			this_skin:callback (self, just_updating)
@@ -4519,6 +4543,22 @@ function _detalhes:ChangeSkin (skin_name)
 
 end
 
+function _detalhes:DelayedCheckCombatAlpha (instance)
+	if (UnitAffectingCombat ("player") or InCombatLockdown()) then
+		instance:SetWindowAlphaForCombat (true, true) --> hida a janela
+	else
+		instance:SetWindowAlphaForCombat (false) --> deshida a janela
+	end
+end
+
+function _detalhes:DelayedCheckOutOfCombatAlpha (instance)
+	if (UnitAffectingCombat ("player") or InCombatLockdown()) then
+		instance:SetWindowAlphaForCombat (false) --> deshida a janela
+	else
+		instance:SetWindowAlphaForCombat (true, true) --> hida a janela
+	end
+end
+
 function _detalhes:SetCombatAlpha (modify_type, alpha_amount, interacting)
 
 	if (interacting) then
@@ -4527,18 +4567,10 @@ function _detalhes:SetCombatAlpha (modify_type, alpha_amount, interacting)
 			return
 			
 		elseif (self.hide_in_combat_type == 2) then --While In Combat
-			if (UnitAffectingCombat ("player") or InCombatLockdown()) then
-				self:SetWindowAlphaForCombat (true, true) --> hida a janela
-			else
-				self:SetWindowAlphaForCombat (false) --> deshida a janela
-			end
+			_detalhes:ScheduleTimer ("DelayedCheckCombatAlpha", 0.5, self)
 			
 		elseif (self.hide_in_combat_type == 3) then --"While Out of Combat"
-			if (UnitAffectingCombat ("player") or InCombatLockdown()) then
-				self:SetWindowAlphaForCombat (false) --> deshida a janela
-			else
-				self:SetWindowAlphaForCombat (true, true) --> hida a janela
-			end
+			_detalhes:ScheduleTimer ("DelayedCheckOutOfCombatAlpha", 0.5, self)
 			
 		elseif (self.hide_in_combat_type == 4) then --"While Out of a Group"
 			if (_detalhes.in_group) then
@@ -5619,6 +5651,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 	baseframe.UPFrame:SetPoint ("left", baseframe.cabecalho.ball, "right", 0, -53)
 	baseframe.UPFrame:SetPoint ("right", baseframe.cabecalho.ball_r, "left", 0, -53)
 	baseframe.UPFrame:SetHeight (20)
+	baseframe.UPFrame.is_toolbar = true
 	
 	baseframe.UPFrame:Show()
 	baseframe.UPFrame:EnableMouse (true)
@@ -5635,6 +5668,8 @@ function gump:CriaCabecalho (baseframe, instancia)
 	baseframe.UPFrameConnect:EnableMouse (true)
 	baseframe.UPFrameConnect:SetMovable (true)
 	baseframe.UPFrameConnect:SetResizable (true)
+	baseframe.UPFrameConnect.is_toolbar = true
+	
 	BGFrame_scripts (baseframe.UPFrameConnect, baseframe, instancia)
 	
 	baseframe.UPFrameLeftPart = CreateFrame ("frame", "DetailsUpFrameLeftPart"..instancia.meu_id, baseframe)
@@ -5643,6 +5678,8 @@ function gump:CriaCabecalho (baseframe, instancia)
 	baseframe.UPFrameLeftPart:EnableMouse (true)
 	baseframe.UPFrameLeftPart:SetMovable (true)
 	baseframe.UPFrameLeftPart:SetResizable (true)
+	baseframe.UPFrameLeftPart.is_toolbar = true
+	
 	BGFrame_scripts (baseframe.UPFrameLeftPart, baseframe, instancia)
 
 	--> anchors para os micro displays no lado de cima da janela
@@ -5684,7 +5721,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 
 	--> SELEÇÃO DO MODO ----------------------------------------------------------------------------------------------------------------------------------------------------
 	
-	baseframe.cabecalho.modo_selecao = gump:NewButton (baseframe, nil, "DetailsModeButton"..instancia.meu_id, nil, 16, 16, _detalhes.empty_function, nil, nil, [[Interface\GossipFrame\HealerGossipIcon]])
+	baseframe.cabecalho.modo_selecao = gump:NewButton (baseframe, nil, "DetailsModeButton"..instancia.meu_id, nil, 16, 16, _detalhes.empty_function, nil, nil, [[Interface\AddOns\Details\images\modo_icone]])
 	baseframe.cabecalho.modo_selecao:SetPoint ("bottomleft", baseframe.cabecalho.ball, "bottomright", instancia.menu_anchor [1], instancia.menu_anchor [2])
 	baseframe.cabecalho.modo_selecao:SetFrameLevel (baseframe:GetFrameLevel()+5)
 	
@@ -5778,7 +5815,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 	end)
 	
 	--> SELECIONAR O SEGMENTO  ----------------------------------------------------------------------------------------------------------------------------------------------------
-	baseframe.cabecalho.segmento = gump:NewButton (baseframe, nil, "DetailsSegmentButton"..instancia.meu_id, nil, 16, 16, _detalhes.empty_function, nil, nil, [[Interface\GossipFrame\TrainerGossipIcon]])
+	baseframe.cabecalho.segmento = gump:NewButton (baseframe, nil, "DetailsSegmentButton"..instancia.meu_id, nil, 16, 16, _detalhes.empty_function, nil, nil, [[Interface\AddOns\Details\images\segmentos_icone]])
 	baseframe.cabecalho.segmento:SetFrameLevel (baseframe.UPFrame:GetFrameLevel()+1)
 
 	baseframe.cabecalho.segmento:SetHook ("OnMouseUp", function (button, buttontype)
@@ -6128,8 +6165,8 @@ function gump:CriaCabecalho (baseframe, instancia)
 	--> Inject
 	_G.GameCooltip:CoolTipInject (baseframe.cabecalho.novo)
 	
-	-- ~delete ~erase
-	--> RESETAR HISTORICO ----------------------------------------------------------------------------------------------------------------------------------------------------
+-- ~delete ~erase
+--> RESETAR HISTORICO ----------------------------------------------------------------------------------------------------------------------------------------------------
 
 	baseframe.cabecalho.reset = CreateFrame ("button", "DetailsClearSegmentsButton" .. instancia.meu_id, baseframe)
 	baseframe.cabecalho.reset:SetFrameLevel (baseframe.UPFrame:GetFrameLevel()+1)
@@ -6140,9 +6177,9 @@ function gump:CriaCabecalho (baseframe, instancia)
 	baseframe.cabecalho.reset:SetScript ("OnEnter", reset_button_onenter)
 	baseframe.cabecalho.reset:SetScript ("OnLeave", reset_button_onleave)
 	
-	baseframe.cabecalho.reset:SetNormalTexture ([[Interface\Addons\Details\Images\reset_button]])
-	baseframe.cabecalho.reset:SetHighlightTexture ([[Interface\Addons\Details\Images\reset_button]])
-	baseframe.cabecalho.reset:SetPushedTexture ([[Interface\Addons\Details\Images\reset_button]])
+	baseframe.cabecalho.reset:SetNormalTexture ([[Interface\Addons\Details\Images\reset_button2]])
+	baseframe.cabecalho.reset:SetHighlightTexture ([[Interface\Addons\Details\Images\reset_button2]])
+	baseframe.cabecalho.reset:SetPushedTexture ([[Interface\Addons\Details\Images\reset_button2]])
 	
 --> fim botão reset
 

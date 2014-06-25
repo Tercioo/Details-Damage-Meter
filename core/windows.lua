@@ -16,6 +16,11 @@
 	local _UIParent = UIParent --wow api local
 	
 	local gump = _detalhes.gump --details local
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> constants
+
+	local end_window_spacement = 1
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> core
@@ -164,7 +169,7 @@
 		self.ponto3 = {x = _x + metade_largura, y = _y - metade_altura + statusbar_y_mod} --bottomright
 		self.ponto4 = {x = _x + metade_largura, y = _y + metade_altura + (statusbar_y_mod*-1)} --topright
 		
-		self.baseframe.BoxBarrasAltura = self.baseframe:GetHeight()-4 --> checar isso
+		self.baseframe.BoxBarrasAltura = self.baseframe:GetHeight() - end_window_spacement --> espaço para o final da janela
 		
 		return {altura = self.baseframe:GetHeight(), largura = self.baseframe:GetWidth(), x = xOfs/_UIscale, y = yOfs/_UIscale}
 	end
@@ -190,7 +195,7 @@
 		self.baseframe:SetWidth (self.posicao[self.mostrando].w) --slider frame
 		self.baseframe:SetHeight (self.posicao[self.mostrando].h)
 
-		self.baseframe.BoxBarrasAltura = self.baseframe:GetHeight()-4 --> checar isso
+		self.baseframe.BoxBarrasAltura = self.baseframe:GetHeight() - end_window_spacement --> espaço para o final da janela
 	end
 
 	function _detalhes:RestoreMainWindowPositionNoResize (pre_defined, x, y)
@@ -213,7 +218,7 @@
 
 		self.baseframe:ClearAllPoints()
 		self.baseframe:SetPoint ("CENTER", _UIParent, "CENTER", novo_x + x, novo_y + y)
-		self.baseframe.BoxBarrasAltura = self.baseframe:GetHeight()-4 --> checar isso
+		self.baseframe.BoxBarrasAltura = self.baseframe:GetHeight() - end_window_spacement --> espaço para o final da janela
 	end
 
 	function _detalhes:ResetaGump (instancia, tipo, segmento)
@@ -295,7 +300,7 @@
 			end
 		
 			-- -4 difere a precisão de quando a barra será adicionada ou apagada da barra
-			self.baseframe.BoxBarrasAltura = self.baseframe:GetHeight()-4
+			self.baseframe.BoxBarrasAltura = self.baseframe:GetHeight() - end_window_spacement
 
 			local T = self.rows_fit_in_window
 			if (not T) then --> primeira vez que o gump esta sendo reajustado
