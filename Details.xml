@@ -3,11 +3,11 @@
  xsi:schemaLocation="http://www.blizzard.com/wow/ui/ 
  ..\..\FrameXML\UI.xsd">
 
+	<!-- event listener -->
 	<Frame name="_detalhes_listener">
 		<Scripts>
 			<OnLoad>
 				self:RegisterEvent ("ADDON_LOADED");
-				self:RegisterEvent ("PLAYER_LOGOUT");
 			</OnLoad>
 			<OnEvent>
 				_detalhes.OnEvent (self, event, ...);

@@ -17,29 +17,16 @@ function SlashCmdList.DETAILS (msg, editbox)
 	local command, rest = msg:match("^(%S*)%s*(.-)$")
 	
 	if (command == Loc ["STRING_SLASH_NEW"]) then
-	
-		_detalhes:CriarInstancia()
+		_detalhes:CriarInstancia (nil, true)
 		
+	elseif (command == Loc ["STRING_SLASH_HIDE"] or command == Loc ["STRING_SLASH_HIDE_ALIAS1"]) then
+		_detalhes:ShutDownAllInstances()
+	
+	elseif (command == Loc ["STRING_SLASH_SHOW"] or command == Loc ["STRING_SLASH_SHOW_ALIAS1"]) then
+		_detalhes:ReabrirTodasInstancias()
+	
 	elseif (command == Loc ["STRING_SLASH_WIPECONFIG"]) then
 		_detalhes:WipeConfig()
-	
-	elseif (command == Loc ["STRING_SLASH_SHOW"]) then
-	
-		if (_detalhes.opened_windows == 0) then
-			_detalhes:CriarInstancia()
-		else
-			-- ter certeza que não bugou a contagem
-			local have_opened = false
-			for _, instance in ipairs (_detalhes.tabela_instancias) do 
-				if (instance.baseframe:IsShown()) then
-					have_opened = true
-					break
-				end
-			end
-			if (not have_opened) then
-				_detalhes:CriarInstancia()
-			end
-		end
 	
 	elseif (command == Loc ["STRING_SLASH_DISABLE"]) then
 	
@@ -87,7 +74,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 			print (format ("%s: \124cff%s\124r", _table [1], IsQuestFlaggedCompleted (_table [2]) and "ff0000"..Loc ["STRING_KILLED"] or "00ff00"..Loc ["STRING_ALIVE"]))
 		end
 		
-	elseif (command == Loc ["STRING_SLASH_CHANGES"]) then
+	elseif (command == Loc ["STRING_SLASH_CHANGES"] or command == Loc ["STRING_SLASH_CHANGES_ALIAS1"] or command == Loc ["STRING_SLASH_CHANGES_ALIAS2"]) then
 		_detalhes:OpenNewsWindow()
 	
 -------- debug ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -781,6 +768,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 		print (Loc ["STRING_DETAILS1"] .. "(" .. _detalhes.userversion .. ") " ..  Loc ["STRING_COMMAND_LIST"])
 		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_NEW"] .. "|r: " .. Loc ["STRING_SLASH_NEW_DESC"])
 		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_SHOW"] .. "|r: " .. Loc ["STRING_SLASH_SHOW_DESC"])
+		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_HIDE"] .. "|r: " .. Loc ["STRING_SLASH_HIDE_DESC"])
 		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_ENABLE"] .. "|r: " .. Loc ["STRING_SLASH_ENABLE_DESC"])
 		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_DISABLE"] .. "|r: " .. Loc ["STRING_SLASH_DISABLE_DESC"])
 		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_OPTIONS"] .. "|r|cfffcffb0 <instance number>|r: " .. Loc ["STRING_SLASH_OPTIONS_DESC"])

@@ -42,22 +42,47 @@ local segmentos = _detalhes.segmentos
 	end
 	
 	function _detalhes:ReativarInstancias()
+	
 		_detalhes.opened_windows = 0
-		for index = #_detalhes.tabela_instancias, 1, -1 do 
+		
+		--> set metatables
+		for index = 1, #_detalhes.tabela_instancias do 
 			local instancia = _detalhes.tabela_instancias [index]
 			if (not _getmetatable (instancia)) then
 				_setmetatable (_detalhes.tabela_instancias[index], _detalhes)
 			end
-			if (instancia:IsAtiva()) then --> só reabre se ela estiver ativa
-				instancia:RestauraJanela (index)
-				if (not _detalhes.initializing) then
-					_detalhes:SendEvent ("DETAILS_INSTANCE_OPEN", nil, instancia)
-				end
+		end
+		
+		--> create frames
+		for index = 1, #_detalhes.tabela_instancias do 
+			local instancia = _detalhes.tabela_instancias [index]
+			if (instancia:IsEnabled()) then
+				_detalhes.opened_windows = _detalhes.opened_windows + 1
+				instancia:RestauraJanela (index, nil, true)
 			else
 				instancia.iniciada = false
 			end
 		end
-		--print ("Abertas: " .. _detalhes.opened_windows)
+		
+		--> load
+		for index = 1, #_detalhes.tabela_instancias do 
+			local instancia = _detalhes.tabela_instancias [index]
+			if (instancia:IsEnabled()) then
+				instancia.iniciada = true
+				instancia:AtivarInstancia()
+				instancia:ChangeSkin()
+			end
+		end
+		
+		--> send open event
+		for index = 1, #_detalhes.tabela_instancias do 
+			local instancia = _detalhes.tabela_instancias [index]
+			if (instancia:IsEnabled()) then
+				if (not _detalhes.initializing) then
+					_detalhes:SendEvent ("DETAILS_INSTANCE_OPEN", nil, instancia)
+				end
+			end
+		end
 	end
 	
 ------------------------------------------------------------------------------------------------------------------------
@@ -196,6 +221,14 @@ end
 
 
 ------------------------------------------------------------------------------------------------------------------------
+
+	function _detalhes:ShutDownAllInstances()
+		for index, instance in _ipairs (_detalhes.tabela_instancias) do
+			if (instance:IsEnabled()) then
+				instance:ShutDown()
+			end
+		end
+	end
 
 	function _detalhes:ShutDown()
 		return self:DesativarInstancia()
@@ -997,7 +1030,7 @@ end
 
 --> ao reiniciar o addon esta função é rodada para recriar a janela da instância
 --> search key: ~restaura ~inicio ~start
-function _detalhes:RestauraJanela (index, temp)
+function _detalhes:RestauraJanela (index, temp, load_only)
 		
 	--> load
 		self:LoadInstanceConfig()
@@ -1023,26 +1056,13 @@ function _detalhes:RestauraJanela (index, temp)
 		self.row_height = self.row_info.height + self.row_info.space.between
 		
 	--> create frames
-		local instance_baseframe = _G ["DetailsBaseFrame" .. self.meu_id]
-		if (instance_baseframe) then
-			local _baseframe, _bgframe, _bgframe_display, _scrollframe = instance_baseframe, _G ["Details_WindowFrame" .. self.meu_id], _G ["Details_GumpFrame" .. self.meu_id], _G ["Details_ScrollBar" .. self.meu_id]
-			self.baseframe = _baseframe
-			self.bgframe = _bgframe
-			self.bgdisplay = _bgframe_display
-			self.scroll = _scrollframe		
-			_baseframe:EnableMouseWheel (false)
-			self.alturaAntiga = _baseframe:GetHeight()
-		else
-			local _baseframe, _bgframe, _bgframe_display, _scrollframe = gump:CriaJanelaPrincipal (self.meu_id, self)
-			self.baseframe = _baseframe
-			self.bgframe = _bgframe
-			self.bgdisplay = _bgframe_display
-			self.scroll = _scrollframe		
-			_baseframe:EnableMouseWheel (false)
-			self.alturaAntiga = _baseframe:GetHeight()
-		end
-	
-
+		local _baseframe, _bgframe, _bgframe_display, _scrollframe = gump:CriaJanelaPrincipal (self.meu_id, self)
+		self.baseframe = _baseframe
+		self.bgframe = _bgframe
+		self.bgdisplay = _bgframe_display
+		self.scroll = _scrollframe		
+		_baseframe:EnableMouseWheel (false)
+		self.alturaAntiga = _baseframe:GetHeight()
 		
 	--> change the attribute
 		_detalhes:TrocaTabela (self, self.segmento, self.atributo, self.sub_atributo, true) --> passando true no 5º valor para a função ignorar a checagem de valores iguais
@@ -1110,13 +1130,14 @@ function _detalhes:RestauraJanela (index, temp)
 		self:ReajustaGump()
 		self:SaveMainWindowPosition()
 		
-		self.iniciada = true
-		self:AtivarInstancia (temp)
-		
-		self:ChangeSkin()
+		if (not load_only) then
+			self.iniciada = true
+			self:AtivarInstancia (temp)
+			self:ChangeSkin()
+		end
 		
 	--> all done
-	
+	return
 end
 
 function _detalhes:SwitchBack()

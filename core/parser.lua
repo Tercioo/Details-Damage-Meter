@@ -2780,30 +2780,6 @@
 		end
 	end
 
-	function _detalhes.parser_functions:PLAYER_LOGOUT (...)
-		--> close info window
-			_detalhes:FechaJanelaInfo()
-
-		--> leave combat start save tables
-			if (_detalhes.in_combat) then 
-				_detalhes:SairDoCombate()
-				_detalhes.can_panic_mode = true
-			end
-			
-			_detalhes:CheckSwitchOnLogon() --eh logon mesmo
-			
-			if (_detalhes.wipe_full_config) then
-				_detalhes_global = nil
-				_detalhes_database = nil
-				return
-			end
-			
-			_detalhes:SaveConfig()
-			_detalhes:SaveProfile()
-
-			_detalhes_database.nick_tag_cache = table_deepcopy (_detalhes_database.nick_tag_cache)
-	end
-
 	function _detalhes.parser_functions:ADDON_LOADED (...)
 	
 		local addon_name = _select (1, ...)
@@ -2866,6 +2842,44 @@
 	end
 
 	_detalhes.listener:SetScript ("OnEvent", _detalhes.OnEvent)
+	
+	--> protected logout function
+		function _detalhes:PLAYER_LOGOUT (...)
+		
+			--> close info window
+				if (_detalhes.FechaJanelaInfo) then
+					_detalhes:FechaJanelaInfo()
+				end
+
+			--> leave combat start save tables
+				if (_detalhes.in_combat and _detalhes.tabela_vigente) then 
+					_detalhes:SairDoCombate()
+					_detalhes.can_panic_mode = true
+				end
+				
+				if (_detalhes.CheckSwitchOnLogon and _detalhes.tabela_instancias[1] and getmetatable (_detalhes.tabela_instancias[1])) then
+					_detalhes:CheckSwitchOnLogon()
+				end
+				
+				if (_detalhes.wipe_full_config) then
+					_detalhes_global = nil
+					_detalhes_database = nil
+					return
+				end
+			
+			--> save the config
+				_detalhes:SaveConfig()
+				_detalhes:SaveProfile()
+
+			--> save the nicktag cache
+				_detalhes_database.nick_tag_cache = table_deepcopy (_detalhes_database.nick_tag_cache)
+		end
+		
+		local saver = CreateFrame ("frame", "_detalhes_saver_frame", UIParent)
+		saver:RegisterEvent ("PLAYER_LOGOUT")
+		saver:SetScript ("OnEvent", _detalhes.PLAYER_LOGOUT)
+		
+	--> end
 
 	function _detalhes:OnParserEvent (evento, time, token, hidding, who_serial, who_name, who_flags, who_flags2, alvo_serial, alvo_name, alvo_flags, alvo_flags2, ...)
 		local funcao = token_list [token]

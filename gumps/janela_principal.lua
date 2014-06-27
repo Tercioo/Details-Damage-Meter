@@ -3222,7 +3222,9 @@ function _detalhes:SetWindowAlphaForInteract (alpha)
 	
 	if (self.is_interacting) then
 		--> entrou
-		self.baseframe:SetAlpha (alpha)
+		--self.baseframe:SetAlpha (alpha)
+		self:InstanceAlpha (alpha)
+		self:SetIconAlpha (alpha, nil, true)
 		
 		if (ignorebars) then
 			self.rowframe:SetAlpha (1)
@@ -3232,10 +3234,15 @@ function _detalhes:SetWindowAlphaForInteract (alpha)
 	else
 		--> saiu
 		if (self.combat_changes_alpha) then --> combat alpha
-			self.baseframe:SetAlpha (self.combat_changes_alpha)
+			--self.baseframe:SetAlpha (self.combat_changes_alpha)
+			self:InstanceAlpha (self.combat_changes_alpha)
+			self:SetIconAlpha (self.combat_changes_alpha, nil, true)
 			self.rowframe:SetAlpha (self.combat_changes_alpha) --alpha do combate é absoluta
 		else
-			self.baseframe:SetAlpha (alpha)
+			--self.baseframe:SetAlpha (alpha)
+			self:InstanceAlpha (alpha)
+			self:SetIconAlpha (alpha, nil, true)
+			
 			if (ignorebars) then
 				self.rowframe:SetAlpha (1)
 			else
@@ -3249,21 +3256,24 @@ end
 
 function _detalhes:SetWindowAlphaForCombat (entering_in_combat, true_hide)
 
-	local amount, rowsamount
+	local amount, rowsamount, menuamount
 
 	--get the values
 	if (entering_in_combat) then
 		amount = self.hide_in_combat_alpha / 100
 		self.combat_changes_alpha = amount
 		rowsamount = amount
+		menuamount = amount
 		if (_detalhes.pet_battle) then
 			amount = 0
 			rowsamount = 0
+			menuamount = 0
 		end
 	else
 		if (self.menu_alpha.enabled) then --auto transparency
 			if (self.is_interacting) then
 				amount = self.menu_alpha.onenter
+				menuamount = self.menu_alpha.onenter
 				if (self.menu_alpha.ignorebars) then
 					rowsamount = 1
 				else
@@ -3271,6 +3281,7 @@ function _detalhes:SetWindowAlphaForCombat (entering_in_combat, true_hide)
 				end
 			else
 				amount = self.menu_alpha.onleave
+				menuamount = self.menu_alpha.onleave
 				if (self.menu_alpha.ignorebars) then
 					rowsamount = 1
 				else
@@ -3279,18 +3290,28 @@ function _detalhes:SetWindowAlphaForCombat (entering_in_combat, true_hide)
 			end
 		else
 			amount = self.color [4]
+			menuamount = 1
 			rowsamount = 1
 		end
 		self.combat_changes_alpha = nil
 	end
 
+	--print ("baseframe:",amount,"rowframe:",rowsamount,"menu:",menuamount)
+	
 	--apply
 	if (true_hide and amount == 0) then
 		gump:Fade (self.baseframe, _unpack (_detalhes.windows_fade_in))
 		gump:Fade (self.rowframe, _unpack (_detalhes.windows_fade_in))
+		self:SetIconAlpha (nil, true)
 	else
-		gump:Fade (self.baseframe, "ALPHAANIM", amount)
+	
+		self.baseframe:Show()
+		self.baseframe:SetAlpha (1)
+		
+		--gump:Fade (self.baseframe, "ALPHAANIM", amount)
+		self:InstanceAlpha (amount)
 		gump:Fade (self.rowframe, "ALPHAANIM", rowsamount)
+		self:SetIconAlpha (menuamount)
 	end
 	
 	if (self.show_statusbar) then
@@ -3359,6 +3380,18 @@ function _detalhes:InstanceButtonsColors (red, green, blue, alpha, no_save, only
 		end
 	
 	end
+end
+
+function _detalhes:InstanceAlpha (alpha)
+	self.baseframe.cabecalho.ball_r:SetAlpha (alpha)
+	self.baseframe.cabecalho.ball:SetAlpha (alpha)
+	self.baseframe.cabecalho.atributo_icon:SetAlpha (alpha)
+	self.baseframe.cabecalho.emenda:SetAlpha (alpha)
+	self.baseframe.cabecalho.top_bg:SetAlpha (alpha)
+	self.baseframe.barra_esquerda:SetAlpha (alpha)
+	self.baseframe.barra_direita:SetAlpha (alpha)
+	self.baseframe.barra_fundo:SetAlpha (alpha)
+	self.baseframe.UPFrame:SetAlpha (alpha)
 end
 
 function _detalhes:InstanceColor (red, green, blue, alpha, no_save, change_statusbar)
@@ -3643,6 +3676,65 @@ function _detalhes:ToolbarMenu2ButtonsSize (size)
 	self.menu2_icons_size = size
 	return self:ToolbarMenu2Buttons()
 end
+
+local SetIconAlphaCacheButtonsTable = {}
+function _detalhes:SetIconAlpha (alpha, hide, no_animations)
+	
+	table.wipe (SetIconAlphaCacheButtonsTable)
+	
+	if (self.attribute_text.enabled) then
+		if (not self.menu_attribute_string) then --> create on demand
+			self:AttributeMenu()
+		end
+		
+		if (hide) then
+			gump:Fade (self.menu_attribute_string.widget, _unpack (_detalhes.windows_fade_in))
+		else
+			if (no_animations) then
+				self.menu_attribute_string:SetAlpha (alpha)
+			else
+				gump:Fade (self.menu_attribute_string.widget, "ALPHAANIM", alpha)
+			end
+		end
+	end
+	
+	SetIconAlphaCacheButtonsTable [1] = self.baseframe.cabecalho.modo_selecao
+	SetIconAlphaCacheButtonsTable [2] = self.baseframe.cabecalho.segmento
+	SetIconAlphaCacheButtonsTable [3] = self.baseframe.cabecalho.atributo
+	SetIconAlphaCacheButtonsTable [4] = self.baseframe.cabecalho.report
+	SetIconAlphaCacheButtonsTable [5] = self.baseframe.cabecalho.fechar
+	SetIconAlphaCacheButtonsTable [6] = self.baseframe.cabecalho.novo
+	SetIconAlphaCacheButtonsTable [7] = self.baseframe.cabecalho.reset	
+	
+	for index, button in _ipairs (SetIconAlphaCacheButtonsTable) do
+		if (hide) then
+			gump:Fade (button, _unpack (_detalhes.windows_fade_in))	
+		else
+			if (no_animations) then
+				button:SetAlpha (alpha)
+			else
+				gump:Fade (button, "ALPHAANIM", alpha)
+			end
+		end
+	end
+	
+	if (self:IsLowerInstance()) then
+		if (#_detalhes.ToolBar.Shown > 0) then
+			for index, button in ipairs (_detalhes.ToolBar.Shown) do
+				if (hide) then
+					gump:Fade (button, _unpack (_detalhes.windows_fade_in))		
+				else
+					if (no_animations) then
+						button:SetAlpha (alpha)
+					else
+						gump:Fade (button, "ALPHAANIM", alpha)
+					end
+				end
+			end
+		end
+	end
+end
+
 function _detalhes:ToolbarMenuButtons (_mode, _segment, _attributes, _report)
 
 	if (_mode == nil) then
@@ -3672,7 +3764,7 @@ function _detalhes:ToolbarMenuButtons (_mode, _segment, _attributes, _report)
 	local size = self.menu_icons_size
 	
 	--> normal buttons
-	for index, button in ipairs (buttons) do
+	for index, button in _ipairs (buttons) do
 		if (self.menu_icons [index]) then
 			button:ClearAllPoints()
 			if (got_anchor) then
@@ -4524,6 +4616,15 @@ function _detalhes:ChangeSkin (skin_name)
 			_detalhes:OpenOptionsWindow (self)
 		end
 
+	--> check if is interacting
+		if (self.menu_alpha.enabled) then
+			if (_detalhes.in_combat) then
+				self:SetWindowAlphaForCombat (true)
+			else
+				self:SetWindowAlphaForCombat()
+			end
+		end
+		
 	if (not just_updating or _detalhes.initializing) then
 		if (this_skin.callback) then
 			this_skin:callback (self, just_updating)
@@ -4538,7 +4639,6 @@ function _detalhes:ChangeSkin (skin_name)
 			self.bgframe.skin = this_skin
 			--self.bgframe.skin_script_instance = true
 		end
-
 	end
 
 end
@@ -4567,10 +4667,10 @@ function _detalhes:SetCombatAlpha (modify_type, alpha_amount, interacting)
 			return
 			
 		elseif (self.hide_in_combat_type == 2) then --While In Combat
-			_detalhes:ScheduleTimer ("DelayedCheckCombatAlpha", 0.5, self)
+			_detalhes:ScheduleTimer ("DelayedCheckCombatAlpha", 0.3, self)
 			
 		elseif (self.hide_in_combat_type == 3) then --"While Out of Combat"
-			_detalhes:ScheduleTimer ("DelayedCheckOutOfCombatAlpha", 0.5, self)
+			_detalhes:ScheduleTimer ("DelayedCheckOutOfCombatAlpha", 0.3, self)
 			
 		elseif (self.hide_in_combat_type == 4) then --"While Out of a Group"
 			if (_detalhes.in_group) then
@@ -4716,7 +4816,7 @@ function _detalhes:AttributeMenu (enabled, pos_x, pos_y, font, size, color, side
 		self.menu_attribute_string = nil
 	end
 	
-	if (not self.menu_attribute_string) then
+	if (not self.menu_attribute_string) then 
 
 		local label = gump:NewLabel (self.floatingframe, nil, "DetailsAttributeStringInstance" .. self.meu_id, nil, "", "GameFontHighlightSmall")
 		self.menu_attribute_string = label
@@ -4903,6 +5003,9 @@ function _detalhes:SetMenuAlpha (enabled, onenter, onleave, ignorebars, interact
 	if (not enabled) then
 		--> aqui esta mandando setar a alpha do baseframe
 		self.baseframe:SetAlpha (1)
+		self.rowframe:SetAlpha (1)
+		self:InstanceAlpha (self.color[4])
+		self:SetIconAlpha (1, nil, true)
 		return self:InstanceColor (unpack (self.color))
 		--return self:SetWindowAlphaForInteract (self.color [4])
 	else
