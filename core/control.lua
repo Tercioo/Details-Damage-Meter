@@ -331,7 +331,7 @@
 			for index, instancia in ipairs (_detalhes.tabela_instancias) do 
 				if (instancia.ativa) then
 					--instancia:SetCombatAlpha (nil, nil, true) --passado para o regen disable
-					instancia:CheckSwitchOnCombatStart()
+					instancia:CheckSwitchOnCombatStart (true)
 				end
 			end
 			

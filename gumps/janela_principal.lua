@@ -1230,25 +1230,33 @@ local lockButtonTooltip = {
 }
 
 local lockFunctionOnEnter = function (self)
-	OnEnterMainWindow (self.instancia, self)
-	
-	if (self.instancia.modo ~= _detalhes._detalhes_props["MODO_ALONE"]) then
-		self.label:SetTextColor (1, 1, 1, .6)
+	if (self.instancia.modo ~= _detalhes._detalhes_props["MODO_ALONE"] and not self.mostrando) then
+		OnEnterMainWindow (self.instancia, self)
+		
 		self.mostrando = true
 		
+		self.label:SetTextColor (1, 1, 1, .6)
+
 		GameCooltip:Reset()
+		GameCooltip:SetType ("tooltip")
 		GameCooltip:AddFromTable (lockButtonTooltip)
 		GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
-		GameCooltip:ShowCooltip (self, "tooltip")
-		
+		GameCooltip:SetOwner (self)
+		GameCooltip:ShowCooltip()
 	end
 end
  
 local lockFunctionOnLeave = function (self)
-	OnLeaveMainWindow (self.instancia, self)
-	self.label:SetTextColor (.3, .3, .3, .6)
-	self.mostrando = false
-	GameCooltip:Hide()
+
+	if (self.mostrando) then
+	
+		OnLeaveMainWindow (self.instancia, self)
+		self.label:SetTextColor (.3, .3, .3, .6)
+		self.mostrando = false
+		_G.GameCooltip:ShowMe (false)
+		
+	end
+	
 end
 
 local lockFunctionOnClick = function (button)
@@ -3679,9 +3687,7 @@ end
 
 local SetIconAlphaCacheButtonsTable = {}
 function _detalhes:SetIconAlpha (alpha, hide, no_animations)
-	
-	table.wipe (SetIconAlphaCacheButtonsTable)
-	
+
 	if (self.attribute_text.enabled) then
 		if (not self.menu_attribute_string) then --> create on demand
 			self:AttributeMenu()
@@ -3698,22 +3704,41 @@ function _detalhes:SetIconAlpha (alpha, hide, no_animations)
 		end
 	end
 	
+	table.wipe (SetIconAlphaCacheButtonsTable)
 	SetIconAlphaCacheButtonsTable [1] = self.baseframe.cabecalho.modo_selecao
 	SetIconAlphaCacheButtonsTable [2] = self.baseframe.cabecalho.segmento
 	SetIconAlphaCacheButtonsTable [3] = self.baseframe.cabecalho.atributo
 	SetIconAlphaCacheButtonsTable [4] = self.baseframe.cabecalho.report
-	SetIconAlphaCacheButtonsTable [5] = self.baseframe.cabecalho.fechar
-	SetIconAlphaCacheButtonsTable [6] = self.baseframe.cabecalho.novo
-	SetIconAlphaCacheButtonsTable [7] = self.baseframe.cabecalho.reset	
+
+	for index, button in _ipairs (SetIconAlphaCacheButtonsTable) do
+		if (self.menu_icons [index]) then
+			if (hide) then
+				gump:Fade (button, _unpack (_detalhes.windows_fade_in))	
+			else
+				if (no_animations) then
+					button:SetAlpha (alpha)
+				else
+					gump:Fade (button, "ALPHAANIM", alpha)
+				end
+			end
+		end
+	end
+	
+	table.wipe (SetIconAlphaCacheButtonsTable)
+	SetIconAlphaCacheButtonsTable [1] = self.baseframe.cabecalho.fechar
+	SetIconAlphaCacheButtonsTable [2] = self.baseframe.cabecalho.novo
+	SetIconAlphaCacheButtonsTable [3] = self.baseframe.cabecalho.reset
 	
 	for index, button in _ipairs (SetIconAlphaCacheButtonsTable) do
-		if (hide) then
-			gump:Fade (button, _unpack (_detalhes.windows_fade_in))	
-		else
-			if (no_animations) then
-				button:SetAlpha (alpha)
+		if (self.menu2_icons [index]) then
+			if (hide) then
+				gump:Fade (button, _unpack (_detalhes.windows_fade_in))	
 			else
-				gump:Fade (button, "ALPHAANIM", alpha)
+				if (no_animations) then
+					button:SetAlpha (alpha)
+				else
+					gump:Fade (button, "ALPHAANIM", alpha)
+				end
 			end
 		end
 	end
@@ -5695,6 +5720,10 @@ function gump:CriaCabecalho (baseframe, instancia)
 	baseframe.cabecalho.fechar:SetScript ("OnLeave", close_button_onleave)
 	
 	baseframe.cabecalho.fechar:SetScript ("OnClick", close_button_onclick)
+	
+	baseframe.cabecalho.fechar:SetScript ("OnShow", function()
+		--print (debugstack())
+	end)
 
 	--> bola do canto esquedo superior --> primeiro criar a armação para apoiar as texturas
 	baseframe.cabecalho.ball_point = baseframe.cabecalho.fechar:CreateTexture (nil, "overlay")

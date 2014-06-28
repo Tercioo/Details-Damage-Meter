@@ -134,6 +134,9 @@ function _G._detalhes:Start()
 		self.memorycleanup = self:ScheduleRepeatingTimer ("CheckMemoryPeriodically", self.intervalo_memoria)
 		self.next_memory_check = time()+self.intervalo_memoria
 
+	--> role
+		self.last_assigned_role = UnitGroupRolesAssigned ("player")
+		
 	--> start parser
 		
 		--> load parser capture options
@@ -162,6 +165,9 @@ function _G._detalhes:Start()
 
 			self.listener:RegisterEvent ("PET_BATTLE_OPENING_START")
 			self.listener:RegisterEvent ("PET_BATTLE_CLOSE")
+			
+			self.listener:RegisterEvent ("PLAYER_ROLES_ASSIGNED")
+			self.listener:RegisterEvent ("ROLE_CHANGED_INFORM")
 			
 			self.parser_frame:RegisterEvent ("COMBAT_LOG_EVENT_UNFILTERED")
 

@@ -1179,21 +1179,35 @@ function _detalhes:SwitchTo (switch_table, nosave)
 end
 
 --backtable indexes: [1]: mode [2]: attribute [3]: sub attribute [4]: segment [5]: raidmode index [6]: solomode index
-function _detalhes:CheckSwitchOnCombatEnd (nowipe)
+function _detalhes:CheckSwitchOnCombatEnd (nowipe, warning)
 
 	self:SwitchBack()
 	
 	local role = _UnitGroupRolesAssigned ("player")
 	
+	local got_switch = false
+	
 	if (role == "DAMAGER" and self.switch_damager) then
 		self:SwitchTo (self.switch_damager)
+		got_switch = true
 		
 	elseif (role == "HEALER" and self.switch_healer) then
 		self:SwitchTo (self.switch_healer)
+		got_switch = true
 		
 	elseif (role == "TANK" and self.switch_tank) then
 		self:SwitchTo (self.switch_tank, true)
+		got_switch = true
+		
+	elseif (role == "NONE" and _detalhes.last_assigned_role ~= "NONE") then
+		self:SwitchBack()
+		got_switch = true
+		
+	end
 	
+	if (warning and got_switch) then
+		local attribute_name = self:GetInstanceAttributeText()
+		self:InstanceAlert (string.format (Loc ["STRING_SWITCH_WARNING"], attribute_name), {[[Interface\AddOns\Details\images\sword]], 18, 18, false}, 4)
 	end
 	
 	if (self.switch_all_roles_after_wipe and not nowipe) then
@@ -1205,34 +1219,49 @@ function _detalhes:CheckSwitchOnCombatEnd (nowipe)
 	
 end
 
-function _detalhes:CheckSwitchOnLogon()
+function _detalhes:CheckSwitchOnLogon (warning)
 	for index, instancia in ipairs (_detalhes.tabela_instancias) do 
 		if (instancia.ativa) then
-			instancia:CheckSwitchOnCombatEnd (true)
+			instancia:CheckSwitchOnCombatEnd (true, warning)
 		end
 	end
 end
 
-function _detalhes:CheckSwitchOnCombatStart()
+function _detalhes:CheckSegmentForSwitchOnCombatStart()
+	
+end
+
+function _detalhes:CheckSwitchOnCombatStart (check_segment)
 
 	self:SwitchBack()
 
 	local all_roles = self.switch_all_roles_in_combat
 	
 	local role = _UnitGroupRolesAssigned ("player")
+	local got_switch = false
 	
 	if (role == "DAMAGER" and self.switch_damager_in_combat) then
 		self:SwitchTo (self.switch_damager_in_combat)
+		got_switch = true
 		
 	elseif (role == "HEALER" and self.switch_healer_in_combat) then
 		self:SwitchTo (self.switch_healer_in_combat)
+		got_switch = true
 		
 	elseif (role == "TANK" and self.switch_tank_in_combat) then
 		self:SwitchTo (self.switch_tank_in_combat)
+		got_switch = true
 		
 	elseif (self.switch_all_roles_in_combat) then
 		self:SwitchTo (self.switch_all_roles_in_combat)
+		got_switch = true
 		
+	end
+	
+	if (check_segment and got_switch) then
+		if (self:GetSegment() ~= 0) then
+			self:TrocaTabela (0)
+		end
 	end
 	
 end

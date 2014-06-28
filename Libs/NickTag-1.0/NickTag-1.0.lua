@@ -4,7 +4,7 @@
 -- NickTag:SetNickname (name) -> set the player nick name, after set nicktag will broadcast the nick over addon guild channel.
 -- 
 
-local major, minor = "NickTag-1.0", 5
+local major, minor = "NickTag-1.0", 6
 local NickTag, oldminor = LibStub:NewLibrary (major, minor)
 
 if (not NickTag) then 
@@ -231,12 +231,15 @@ end
 					storedPersona [CONST_INDEX_REVISION] = receivedPersona [CONST_INDEX_REVISION]
 					
 					--> we need to check if the received nickname fit in our rules.
-					local allowNickName = NickTag:CheckName (receivedPersona [CONST_INDEX_NICKNAME])
-					if (allowNickName) then
-						storedPersona [CONST_INDEX_NICKNAME] = receivedPersona [CONST_INDEX_NICKNAME]
-					else
-						storedPersona [CONST_INDEX_NICKNAME] = LibStub ("AceLocale-3.0"):GetLocale ("NickTag-1.0")["STRING_INVALID_NAME"]
-					end
+					--local allowNickName = NickTag:CheckName (receivedPersona [CONST_INDEX_NICKNAME])
+					--if (allowNickName) then
+					--	storedPersona [CONST_INDEX_NICKNAME] = receivedPersona [CONST_INDEX_NICKNAME]
+					--else
+						--storedPersona [CONST_INDEX_NICKNAME] = LibStub ("AceLocale-3.0"):GetLocale ("NickTag-1.0")["STRING_INVALID_NAME"]
+					--end
+					
+					storedPersona [CONST_INDEX_NICKNAME] = receivedPersona [CONST_INDEX_NICKNAME]
+					
 					--> update the rest
 					storedPersona [CONST_INDEX_AVATAR_PATH] = receivedPersona [CONST_INDEX_AVATAR_PATH]
 					storedPersona [CONST_INDEX_AVATAR_TEXCOORD] = receivedPersona [CONST_INDEX_AVATAR_TEXCOORD]

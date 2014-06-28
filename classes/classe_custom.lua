@@ -129,7 +129,7 @@ function atributo_custom:RefreshWindow (instance, combat, force, export)
 		total = atributo_custom._TargetActorsProcessedTotal
 		top = atributo_custom._TargetActorsProcessedTop
 	end
-	
+
 	if (amount == 0) then
 		if (force) then
 			if (instance:IsGroupMode()) then
@@ -163,7 +163,6 @@ end
 --> refresh functions
 
 	function atributo_custom:Refresh (instance, instance_container, combat, force, total, top)
-	
 		local qual_barra = 1
 		local barras_container = instance.barras
 		local percentage_type = instance.row_info.percent_type
@@ -277,7 +276,6 @@ end
 			atributo_custom._TargetActorsProcessedAmt = 0
 			atributo_custom._TargetActorsProcessedTotal = 0
 			atributo_custom._TargetActorsProcessedTop = 0
-			
 			instance_container:ResetCustomActorContainer()
 		end
 		
@@ -321,6 +319,7 @@ end
 						
 						instance_container:SetValue (actor, actortotal)
 					end
+					
 				end
 			end
 			
@@ -465,7 +464,7 @@ end
 						for _, targetactor in _ipairs (spell.targets._ActorTable) do 
 							if (roster [targetactor.nome]) then
 								--> add amount
-								instance_container:AddValue (targetactor, targetactor.total)
+								instance_container:AddValue (targetactor, targetactor.total, true)
 								atributo_custom._TargetActorsProcessedTotal = atributo_custom._TargetActorsProcessedTotal + targetactor.total
 								--> add to processed container
 								if (not atributo_custom._TargetActorsProcessed [targetactor.nome]) then
@@ -481,7 +480,7 @@ end
 						if (targetactor) then
 							targetactor = spell.targets._ActorTable [targetactor]
 							--> add amount
-							instance_container:AddValue (targetactor, targetactor.total)
+							instance_container:AddValue (targetactor, targetactor.total, true)
 							atributo_custom._TargetActorsProcessedTotal = atributo_custom._TargetActorsProcessedTotal + targetactor.total
 							--> add to processed container
 							if (not atributo_custom._TargetActorsProcessed [targetactor.nome]) then
@@ -496,7 +495,7 @@ end
 						if (targetactor) then
 							targetactor = spell.targets._ActorTable [targetactor]
 							--> add amount
-							instance_container:AddValue (targetactor, targetactor.total)
+							instance_container:AddValue (targetactor, targetactor.total, true)
 							atributo_custom._TargetActorsProcessedTotal = atributo_custom._TargetActorsProcessedTotal + targetactor.total
 							--> add to processed container
 							if (not atributo_custom._TargetActorsProcessed [targetactor.nome]) then
@@ -644,7 +643,7 @@ end
 						for _, targetactor in _ipairs (spell.targets._ActorTable) do 
 							if (roster [targetactor.nome]) then
 								--> add amount
-								instance_container:AddValue (targetactor, targetactor.total)
+								instance_container:AddValue (targetactor, targetactor.total, true)
 								atributo_custom._TargetActorsProcessedTotal = atributo_custom._TargetActorsProcessedTotal + targetactor.total
 								--> add to processed container
 								if (not atributo_custom._TargetActorsProcessed [targetactor.nome]) then
@@ -660,7 +659,7 @@ end
 						if (targetactor) then
 							targetactor = spell.targets._ActorTable [targetactor]
 							--> add amount
-							instance_container:AddValue (targetactor, targetactor.total)
+							instance_container:AddValue (targetactor, targetactor.total, true)
 							atributo_custom._TargetActorsProcessedTotal = atributo_custom._TargetActorsProcessedTotal + targetactor.total
 							--> add to processed container
 							if (not atributo_custom._TargetActorsProcessed [targetactor.nome]) then
@@ -675,7 +674,7 @@ end
 						if (targetactor) then
 							targetactor = spell.targets._ActorTable [targetactor]
 							--> add amount
-							instance_container:AddValue (targetactor, targetactor.total)
+							instance_container:AddValue (targetactor, targetactor.total, true)
 							atributo_custom._TargetActorsProcessedTotal = atributo_custom._TargetActorsProcessedTotal + targetactor.total
 							--> add to processed container
 							if (not atributo_custom._TargetActorsProcessed [targetactor.nome]) then
@@ -754,9 +753,9 @@ end
 		end
 		
 		local row_value = _math_floor ((self.value / top) * 100)
-		
-		--tooltip function--
-		
+
+		-- update tooltip function--
+
 		actor_class_color_r, actor_class_color_g, actor_class_color_b = self:GetBarColor()
 		
 		self:RefreshBarra2 (row, instance, previous_table, is_forced, row_value, index, row_container)
@@ -926,7 +925,7 @@ end
 	
 	function atributo_custom:ResetCustomActorContainer()
 		for _, actor in _ipairs (self._ActorTable) do
-			actor.value = 0
+			actor.value = _detalhes:GetAlphabeticalOrderNumber (actor.nome)
 		end
 	end
 	
@@ -936,6 +935,7 @@ end
 	end
 
 	function atributo_custom:AddValue (actor, actortotal, checktop)
+	--print (debugstack())
 		local actor_table = self:GetActorTable (actor)
 		actor_table.my_actor = actor
 		actor_table.value = actor_table.value + actortotal

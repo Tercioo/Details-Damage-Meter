@@ -2730,6 +2730,20 @@
 		end
 	end
 
+	function _detalhes.parser_functions:ROLE_CHANGED_INFORM (...)
+		if (_detalhes.last_assigned_role ~= _UnitGroupRolesAssigned ("player")) then
+			_detalhes:CheckSwitchOnLogon (true)
+			_detalhes.last_assigned_role = _UnitGroupRolesAssigned ("player")
+		end
+	end
+	
+	function _detalhes.parser_functions:PLAYER_ROLES_ASSIGNED (...)
+		if (_detalhes.last_assigned_role ~= _UnitGroupRolesAssigned ("player")) then
+			_detalhes:CheckSwitchOnLogon (true)
+			_detalhes.last_assigned_role = _UnitGroupRolesAssigned ("player")
+		end
+	end
+	
 	function _detalhes.parser_functions:GROUP_ROSTER_UPDATE (...)
 		if (not _detalhes.in_group) then
 			_detalhes.in_group = IsInGroup() or IsInRaid()

@@ -953,6 +953,8 @@ do
 	
 	_detalhes.DefensiveCooldownSpellsNoBuff = {
 		
+		[6262] = {120, 1, 1}, --healthstone
+		
 		--["DEATHKNIGHT"] = {},
 		[48707] = {45, 5, 1}, -- Anti-Magic Shell
 		[48743] = {120, 0, 1}, --Death Pact
@@ -1001,8 +1003,9 @@ do
 		[6229] = {30, 30, 1}, -- Twilight Ward  1 = self
 		
 		--["WARRIOR"] = {},
-		[114203] = {180, 15}, -- Demoralizing Banner
+		[114203]	= {180, 15}, -- Demoralizing Banner
 		[114028]	= {60, 5}, -- Mass Spell Reflection
+		[97462]	= {180, 10}, -- Rallying Cry
 	}
 	
 	_detalhes.DefensiveCooldownSpells = {
