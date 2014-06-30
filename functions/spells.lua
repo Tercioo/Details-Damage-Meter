@@ -981,7 +981,8 @@ do
 		[115203] = {180, 20}, -- Fortifying Brew
 		
 		--["PALADIN"] = {},
-		[633] = {600, 0, 0}, --Lay on Hands
+		[633]	=	{600, 0, 0}, --Lay on Hands
+		[31821]	=	{180, 6, 0},-- Devotion Aura
 		
 		--["PRIEST"] = {},
 		[62618] = {180, 10, 0}, --Power Word: Barrier

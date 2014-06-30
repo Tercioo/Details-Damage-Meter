@@ -41,13 +41,9 @@
 
 	--> get the fractional number representing the alphabetical letter
 	function _detalhes:GetAlphabeticalOrderNumber (who_name)
-		--local name = _upper (who_name)
-		--local byte = _string_byte (name)
-		--local abs = _math_abs (byte-91)
-		--local n = math.floor (abs)/1000000
-		--print (name, byte, abs, n)
-		--return n
-		return _math_abs (_string_byte (_upper (who_name))-91)/1000000
+		local name = _upper (who_name)
+		local byte1 = _math_abs (_string_byte (name, 2)-91)/1000000
+		return byte1 + _math_abs (_string_byte (name, 1)-91)/10000
 	end
 	
 	--/script print (tonumber (4/1000000)) - 4e-006

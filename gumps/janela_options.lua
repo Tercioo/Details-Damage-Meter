@@ -53,7 +53,11 @@ function _detalhes:SetOptionsWindowTexture (texture)
 	end
 end
 
-function _detalhes:OpenOptionsWindow (instance)
+function _detalhes:OpenOptionsWindow (instance, no_reopen)
+
+	if (not instance.meu_id) then
+		instance, no_reopen = unpack (instance)
+	end
 
 	GameCooltip:Close()
 	local window = _G.DetailsOptionsWindow
@@ -62,6 +66,10 @@ function _detalhes:OpenOptionsWindow (instance)
 	
 	if (_G.DetailsOptionsWindow) then
 		_G.DetailsOptionsWindow.instance = instance
+	end
+	
+	if (not no_reopen and not instance:IsEnabled() or not instance:IsStarted()) then
+		_detalhes.CriarInstancia (_, _, instance:GetId())
 	end
 	
 	if (_G.DetailsOptionsWindow and _G.DetailsOptionsWindow.full_created) then
@@ -88,13 +96,12 @@ function _detalhes:OpenOptionsWindow (instance)
 		window.backdrop = nil
 		_G.DetailsOptionsWindow.instance = instance
 		
-		window.creating = true
-		
 		window:SetHook ("OnHide", function()
 			DetailsDisable3D:Hide()
 			DetailsOptionsWindowDisable3D:SetChecked (false)
 			window.Disable3DColorPick:Hide()
 			window.Disable3DColorPick:Cancel()
+			GameCooltip:Hide()
 		end)
 		
 		--x 9 897 y 9 592
@@ -185,12 +192,8 @@ function _detalhes:OpenOptionsWindow (instance)
 		
 			local this_instance = _detalhes.tabela_instancias [instance]
 			
-			if (not this_instance.iniciada) then
-				this_instance:RestauraJanela (_G.DetailsOptionsWindow.instance)
-				
-			elseif (not this_instance:IsEnabled()) then
+			if (not this_instance:IsEnabled() or not this_instance:IsStarted()) then
 				_detalhes.CriarInstancia (_, _, this_instance.meu_id)
-				
 			end
 			
 			_detalhes:OpenOptionsWindow (this_instance)
@@ -848,7 +851,11 @@ local menus = { --labels nos menus
 				self = self.background_frame
 			end
 			
-			self.label:SetTextColor (1, .8, 0)
+			if (self.is_button) then
+				self.label:SetTextColor ("white")
+			else
+				self.label:SetTextColor (1, .8, 0)
+			end
 			
 			if (self.have_icon) then
 				self.have_icon:SetBlendMode ("ADD")
@@ -881,13 +888,18 @@ local menus = { --labels nos menus
 			
 			GameCooltip:Hide()
 			
-			self.label:SetTextColor (1, 1, 1)
+			if (self.is_button) then
+				self.label:SetTextColor ({1, 0.8, 0})
+			else
+				self.label:SetTextColor (1, 1, 1)
+			end
 		end
 		
-		function window:create_line_background2 (frameX, label, parent, icon)
+		function window:create_line_background2 (frameX, label, parent, icon, is_button)
 			local f = CreateFrame ("frame", nil, frameX)
 			f:SetPoint ("left", label.widget or label, "left", -2, 0)
 			f:SetSize (260, 16)
+			f.is_button = is_button
 			f:SetScript ("OnEnter", background_on_enter2)
 			f:SetScript ("OnLeave", background_on_leave2)
 			f:SetScript ("OnMouseDown", background_on_mouse_down)
@@ -915,7 +927,7 @@ local menus = { --labels nos menus
 			return f
 		end		
 		
-		function window:CreateLineBackground2 (frame, widget_name, label_name, desc_loc, icon)
+		function window:CreateLineBackground2 (frame, widget_name, label_name, desc_loc, icon, is_button)
 		
 			if (type (widget_name) == "table") then
 				widget_name.info = desc_loc
@@ -935,9 +947,11 @@ local menus = { --labels nos menus
 			frame [widget_name].info = desc_loc
 			frame [widget_name].have_tooltip = desc_loc
 			frame [widget_name].have_icon = icon
-			local f = window:create_line_background2 (frame, frame [label_name], frame [widget_name], icon)
+			local f = window:create_line_background2 (frame, frame [label_name], frame [widget_name], icon, is_button)
 			frame [widget_name]:SetHook ("OnEnter", background_on_enter2)
 			frame [widget_name]:SetHook ("OnLeave", background_on_leave2)
+			f.is_button = is_button
+			frame [widget_name].is_button = is_button
 			return f
 		end
 		
@@ -2932,7 +2946,7 @@ function window:CreateFrame1()
 			_G.AvatarPickFrame:Show()
 		end
 		
-		g:NewButton (frame1, _, "$parentAvatarFrame", "chooseAvatarButton", frame1.nicknameLabel:GetStringWidth() + SLIDER_WIDTH + 2, 14, openAtavarPickFrame, nil, nil, nil, Loc ["STRING_OPTIONS_AVATAR"])
+		g:NewButton (frame1, _, "$parentAvatarFrame", "chooseAvatarButton", frame1.nicknameLabel:GetStringWidth() + SLIDER_WIDTH + 2, 18, openAtavarPickFrame, nil, nil, nil, Loc ["STRING_OPTIONS_AVATAR"])
 		frame1.chooseAvatarButton:InstallCustomTexture()
 		
 		window:CreateLineBackground2 (frame1, "chooseAvatarButton", "chooseAvatarButton", Loc ["STRING_OPTIONS_AVATAR_DESC"])
@@ -3120,10 +3134,34 @@ function window:CreateFrame1()
 		
 		window:CreateLineBackground2 (frame1, "updatespeedSlider", "updatespeedLabel", Loc ["STRING_OPTIONS_WINDOWSPEED_DESC"])
 		
+	--> window controls
+		
+		--lock unlock
+			g:NewButton (frame1, _, "$parentLockButton", "LockButton", 160, 18, _detalhes.lock_instance_function, nil, nil, nil, Loc ["STRING_OPTIONS_WC_LOCK"])
+			frame1.LockButton:InstallCustomTexture()
+			window:CreateLineBackground2 (frame1, "LockButton", "LockButton", Loc ["STRING_OPTIONS_WC_LOCK_DESC"], nil, true)
+			
+		--break snap
+			g:NewButton (frame1, _, "$parentBreakSnapButton", "BreakSnapButton", 160, 18, _G.DetailsOptionsWindow.instance.Desagrupar, -1, nil, nil, Loc ["STRING_OPTIONS_WC_UNSNAP"])
+			frame1.BreakSnapButton:InstallCustomTexture()
+			window:CreateLineBackground2 (frame1, "BreakSnapButton", "BreakSnapButton", Loc ["STRING_OPTIONS_WC_UNSNAP_DESC"], nil, true)
+		
+		--close
+			g:NewButton (frame1, _, "$parentCloseButton", "CloseButton", 160, 18, _detalhes.close_instancia_func, _G.DetailsOptionsWindow.instance, nil, nil, Loc ["STRING_OPTIONS_WC_CLOSE"])
+			frame1.CloseButton:InstallCustomTexture()
+			window:CreateLineBackground2 (frame1, "CloseButton", "CloseButton", Loc ["STRING_OPTIONS_WC_CLOSE_DESC"], nil, true)
+		
+		--create
+			g:NewButton (frame1, _, "$parentCreateWindowButton", "CreateWindowButton", 160, 18, function() _detalhes.CriarInstancia (nil, nil, true) end, nil, nil, nil, Loc ["STRING_OPTIONS_WC_CREATE"])
+			frame1.CreateWindowButton:InstallCustomTexture()
+			window:CreateLineBackground2 (frame1, "CreateWindowButton", "CreateWindowButton", Loc ["STRING_OPTIONS_WC_CREATE_DESC"], nil, true)
+		
 	--> anchors
 	
 		g:NewLabel (frame1, _, "$parentGeneralAnchor", "GeneralAnchorLabel", Loc ["STRING_OPTIONS_GENERAL_ANCHOR"], "GameFontNormal")
 		g:NewLabel (frame1, _, "$parentIdentityAnchor", "GeneralIdentityLabel", Loc ["STRING_OPTIONS_AVATAR_ANCHOR"], "GameFontNormal")
+		
+		g:NewLabel (frame1, _, "$parentWindowControlsAnchor", "WindowControlsLabel", Loc ["STRING_OPTIONS_WC_ANCHOR"], "GameFontNormal")
 
 		local w_start = 10
 	
@@ -3152,6 +3190,11 @@ function window:CreateFrame1()
 			{"maxInstancesLabel", 7},
 			{"dpsAbbreviateLabel", 8},
 			{"SegmentsLockedLabel", 5},
+			{"WindowControlsLabel", 9, true},
+			{"LockButton", 10},
+			{"BreakSnapButton", 12},
+			{"CloseButton", 11},
+			{"CreateWindowButton", 13, true},
 		}
 		
 		window:arrange_menu (frame1, left_side, window.left_start_at, window.top_start_at)
@@ -6462,27 +6505,18 @@ end
 
 function window:CreateFrame11()
 
-	local frame10 = window.options [10][1]
 	local frame11 = window.options [11][1]
 
-
-	window.creating = nil
+	local label = g:NewLabel (frame11, _, "$parentMovedWarningLabel", "MovedWarningLabel", "This sectiong has been moved to Combat, under General Settings bracket.", "GameFontNormal")
+	local image = g:NewImage (frame11, [[Interface\DialogFrame\UI-Dialog-Icon-AlertNew]])
+	
+	label:SetPoint ("center", frame11, "center", 32, 0)
+	image:SetPoint ("right", label, "left", -7, 0)
+	
+	
 end
-		
-	--------------- Concatenate Trash
-	--[[
-		g:NewLabel (frame3, _, "$parentConcatenateTrash", "concatenateTrashLabel", "concatenate clean up segments")
-		frame3.concatenateTrashLabel:SetPoint (10, -344)
-		--
-		g:NewSwitch (frame3, _, "$parentConcatenateTrashSlider", "concatenateTrashSlider", 60, 20, _, _, _detalhes.trash_concatenate)
-		frame3.concatenateTrashSlider:SetPoint ("left", frame3.concatenateTrashLabel, "right")
-		frame3.concatenateTrashSlider.OnSwitch = function (self, _, amount) --> slider, fixedValue, sliderValue
-			_detalhes.trash_concatenate = amount
-		end
-		frame3.concatenateTrashSlider.tooltip = "Concatenate the next boss segments into only one."
-		--]]
 
-		
+
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Advanced Plugins Config ~12
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -6774,6 +6808,15 @@ local strata = {
 	["DIALOG"] = "Dialog"
 }
 
+function _detalhes:DelayUpdateWindowControls (editing_instance)
+	_G.DetailsOptionsWindow1LockButton.MyObject:SetClickFunction (_detalhes.lock_instance_function, editing_instance.baseframe.lock_button)
+	if (editing_instance.baseframe.isLocked) then
+		_G.DetailsOptionsWindow1LockButton.MyObject:SetText (Loc ["STRING_OPTIONS_WC_UNLOCK"])
+	else
+		_G.DetailsOptionsWindow1LockButton.MyObject:SetText (Loc ["STRING_OPTIONS_WC_LOCK"])
+	end
+end
+
 function window:update_all (editing_instance)
 
 	--> window 1
@@ -6788,6 +6831,37 @@ function window:update_all (editing_instance)
 	_G.DetailsOptionsWindow1SliderUpdateSpeed.MyObject:SetValue (_detalhes.update_speed)
 	_G.DetailsOptionsWindow1AnimateSlider.MyObject:SetValue (_detalhes.use_row_animations)
 
+	_G.DetailsOptionsWindow1WindowControlsAnchor:SetText (string.format (Loc ["STRING_OPTIONS_WC_ANCHOR"], editing_instance.meu_id))
+	
+	if (not editing_instance.baseframe) then
+		_detalhes:ScheduleTimer ("DelayUpdateWindowControls", 1, editing_instance)
+	else
+		_G.DetailsOptionsWindow1LockButton.MyObject:SetClickFunction (_detalhes.lock_instance_function, editing_instance.baseframe.lock_button)
+		if (editing_instance.baseframe.isLocked) then
+			_G.DetailsOptionsWindow1LockButton.MyObject:SetText (Loc ["STRING_OPTIONS_WC_UNLOCK"])
+		else
+			_G.DetailsOptionsWindow1LockButton.MyObject:SetText (Loc ["STRING_OPTIONS_WC_LOCK"])
+		end
+	end
+	
+	_G.DetailsOptionsWindow1BreakSnapButton.MyObject:Disable()
+	
+	for side, have_snap in pairs (editing_instance.snap) do 
+		if (have_snap) then
+			_G.DetailsOptionsWindow1BreakSnapButton.MyObject:Enable()
+			_G.DetailsOptionsWindow1BreakSnapButton.MyObject:SetClickFunction (editing_instance.Desagrupar, editing_instance, -1)
+			break
+		end
+	end
+
+	if (editing_instance.ativa) then
+		_G.DetailsOptionsWindow1CloseButton.MyObject:SetText (Loc ["STRING_OPTIONS_WC_CLOSE"])
+		_G.DetailsOptionsWindow1CloseButton.MyObject:SetClickFunction (_detalhes.close_instancia_func, editing_instance.baseframe.cabecalho.fechar)
+	else
+		_G.DetailsOptionsWindow1CloseButton.MyObject:SetText (Loc ["STRING_OPTIONS_WC_REOPEN"])
+		_G.DetailsOptionsWindow1CloseButton.MyObject:SetClickFunction (function() _detalhes:CriarInstancia (_, editing_instance.meu_id) end)
+	end
+	
 	--> window 2
 	_G.DetailsOptionsWindow2FragsPvpSlider.MyObject:SetValue (_detalhes.only_pvp_frags)
 	_G.DetailsOptionsWindow2TTDropdown.MyObject:Select (_detalhes.time_type)
@@ -7285,6 +7359,10 @@ function window:update_all (editing_instance)
 	if (editing_instance.meu_id > _detalhes.instances_amount) then
 	else
 		_G.DetailsOptionsWindowInstanceSelectDropdown.MyObject:Select (editing_instance.meu_id, true)
+		GameCooltip:Reset()
+		--_detalhes:CooltipPreset (1)
+		GameCooltip:AddLine ("editing window:", editing_instance.meu_id)
+		GameCooltip:ShowCooltip (_G.DetailsOptionsWindowInstanceSelectDropdown, "tooltip")
 	end
 	
 	_G.DetailsOptionsWindow4IconFileEntry:SetText (editing_instance.row_info.icon_file)

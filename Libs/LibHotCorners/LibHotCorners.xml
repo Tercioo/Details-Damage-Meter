@@ -8,10 +8,10 @@
 		
 		<Scripts>
 			<OnLoad>
-				self:EnableMouse (false)
+				self:EnableMouse (false);
 			</OnLoad>
 			<OnEnter>
-				HotCornersBackgroundOnEnter (self)
+				HotCornersBackgroundOnEnter (self);
 			</OnEnter>
 		</Scripts>
 		
@@ -30,10 +30,10 @@
 
 		<Scripts>
 			<OnEnter>
-				HotCornersOnEnter (self)
+				HotCornersOnEnter (self);
 			</OnEnter>
 			<OnLeave>
-				HotCornersOnLeave (self)
+				HotCornersOnLeave (self);
 			</OnLeave>
 		</Scripts>
 	</Frame>
@@ -45,14 +45,14 @@
 		</Anchors>
 		
 		<Scripts>
-			<OnCreate>
-				self:SetFrameLevel (self:GetParent():GetFrameLevel()+2)
-			</OnCreate>
+			<OnLoad>
+				self:SetFrameLevel (self:GetParent():GetFrameLevel()+2);
+			</OnLoad>
 			<OnClick>
-				HotCornersOnQuickClick (self, button)
+				HotCornersOnQuickClick (self, button);
 			</OnClick>
 			<OnEnter>
-				HotCornersOnEnter (self:GetParent())
+				HotCornersOnEnter (self:GetParent());
 			</OnEnter>
 		</Scripts>
 	</Frame>
@@ -60,20 +60,101 @@
 	<Frame name="HotCornersButtonTemplate" frameStrata="FULLSCREEN" hidden="true" virtual="true">
 		<Size x="32" y="32"/>
 		<Scripts>
-			<OnCreate>
-				self:SetFrameLevel (self:GetParent():GetFrameLevel()+2)
-			</OnCreate>
+			<OnLoad>
+				self:SetFrameLevel (self:GetParent():GetFrameLevel()+2);
+			</OnLoad>
 			<OnEnter>
-				HotCornersButtonOnEnter (self)
+				HotCornersButtonOnEnter (self);
 			</OnEnter>
 			<OnLeave>
-				HotCornersButtonOnLeave (self)
+				HotCornersButtonOnLeave (self);
 			</OnLeave>
 			<OnMouseDown>
-				HotCornersButtonOnMouseDown (self, button)
+				HotCornersButtonOnMouseDown (self, button);
 			</OnMouseDown>
 			<OnMouseUp>
-				HotCornersButtonOnMouseUp (self, button)
+				HotCornersButtonOnMouseUp (self, button);
+			</OnMouseUp>
+		</Scripts>
+	</Frame>
+	
+	<Button name="HotCornersOptionsButtonTemplate" frameStrata="FULLSCREEN" hidden="false" virtual="true">
+		<Size x="32" y="32"/>
+		
+		<Layers>
+			<Layer level="OVERLAY">
+				<FontString text="options" name="$parentText" inherits="GameFontHighlightSmall" justifyH="LEFT" nonspacewrap="true" parentKey="text">
+					<Anchors>
+						<Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER"/>
+					</Anchors>
+					<Color r="0.8" g="0.8" b="0.8" a="0.8"/>
+				</FontString>
+			</Layer>
+		</Layers>
+		
+		<Scripts>
+			<OnLoad>
+				self:SetFrameLevel (self:GetParent():GetFrameLevel()+2);
+			</OnLoad>
+			<OnEnter>
+				HotCornersOptionsButtonOnEnter (self);
+				self.text:SetTextColor (1, 1, 1, 1);
+			</OnEnter>
+			<OnLeave>
+				HotCornersOptionsButtonOnLeave (self);
+				self.text:SetTextColor (0.8, 0.8, 0.8, 0.8);
+			</OnLeave>
+			<OnMouseDown>
+				self.text:SetPoint ("center", self, "center", 1, -1);
+			</OnMouseDown>
+			<OnMouseUp>
+				self.text:SetPoint ("center", self, "center");
+				HotCornersOpenOptions (self:GetParent());
+			</OnMouseUp>
+		</Scripts>
+	</Button>
+
+	<Frame name="HotCornersOptionsFrame" frameStrata="HIGH" movable="true" hidden="true" parent="UIParent" inherits="ButtonFrameTemplate">
+		<Size>
+			<AbsDimension x="400" y="200"/>
+		</Size>
+		
+		<Anchors>
+			<Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER" x="0" y="0"/>
+		</Anchors>
+		
+		<Frames>
+			<CheckButton name="$parentEnableCheckBox" inherits="ChatConfigCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT" x="30" y="-70"/>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						_G [self:GetName() .. "Text"]:SetText ("Enabled");
+						self.tooltip = "Enable or Disable HorCorners";
+						tinsert (UISpecialFrames, "HotCornersOptionsFrame");
+					</OnLoad>
+					<PostClick>
+						if (self:GetChecked()) then
+							HotCornersSetEnabled (true);
+						else
+							HotCornersSetEnabled (false);
+						end
+					</PostClick>
+				</Scripts>
+			</CheckButton>
+		</Frames>
+		
+		<Scripts>
+			<OnLoad>
+				self.TitleText:SetText ("HotCorners Options");
+				self.portrait:SetTexture ([[Interface\FriendsFrame\FriendsFrameScrollIcon]]);
+			</OnLoad>
+			<OnMouseDown>
+				self:StartMoving();
+			</OnMouseDown>
+			<OnMouseUp>
+				self:StopMovingOrSizing();
 			</OnMouseUp>
 		</Scripts>
 	</Frame>

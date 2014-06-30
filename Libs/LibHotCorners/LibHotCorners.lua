@@ -1,4 +1,4 @@
-local major, minor = "LibHotCorners", 5
+local major, minor = "LibHotCorners", 6
 local LibHotCorners, oldminor = LibStub:NewLibrary (major, minor)
 
 if (not LibHotCorners) then 
@@ -47,14 +47,24 @@ local tinsert = tinsert
 		
 		if (savedtable and not LibHotCorners.options) then
 			if (not savedtable.__cachedoptions) then
-				savedtable.__cachedoptions = {age = 0, clicks = {}, disabled = {}}
+				savedtable.__cachedoptions = {age = 0, clicks = {}, disabled = {}, is_enabled = true}
 			end
 			LibHotCorners.options = savedtable.__cachedoptions
 			LibHotCorners.options.age = LibHotCorners.options.age + 1
+			
+			--> version 6
+			if (type (LibHotCorners.options.is_enabled) ~= "boolean") then
+				LibHotCorners.options.is_enabled = true
+			end
 		elseif (savedtable) then
 			if (LibHotCorners.options.age < savedtable.__cachedoptions.age) then
 				LibHotCorners.options = savedtable.__cachedoptions
 				LibHotCorners.options.age = LibHotCorners.options.age + 1
+			end
+			
+			--> version 6
+			if (type (LibHotCorners.options.is_enabled) ~= "boolean") then
+				LibHotCorners.options.is_enabled = true
 			end
 		end
 		
@@ -140,6 +150,12 @@ local tinsert = tinsert
 	local f = CreateFrame ("frame")
 	f:RegisterEvent ("PLAYER_LOGIN")
 	f:SetScript ("OnEvent", function()
+	
+		SLASH_HOTCORNER1, SLASH_HOTCORNER2 = "/hotcorners", "/hotcorner"
+		function SlashCmdList.HOTCORNER (msg, editbox)
+			HotCornersOpenOptions (self);
+		end
+	
 		for name, dataobj in LBD:DataObjectIterator() do
 			if (dataobj.type and dataobj.icon and dataobj.OnClick and not dataobj.HotCornerIgnore) then
 				LibHotCorners:RegisterHotCornerButton (name, "TopLeft", nil, name .. "HotCornerLauncher", dataobj.icon, dataobj.OnTooltipShow, dataobj.OnClick, nil, nil, dataobj.OnEnter, dataobj.OnLeave)
@@ -197,12 +213,17 @@ local tinsert = tinsert
 		local more_clicked = function (t1, t2)
 			return t1[1] > t2[1]
 		end
-		
+
 		function HotCornersOnEnter (self)
+		
+			if (not LibHotCorners.options.is_enabled) then
+				return
+			end
+			
 			if (not LibHotCorners [self.position].is_enabled) then
 				return
 			end
-		
+	
 			set_size (self)
 			
 			HotCornersBackgroundFrame:EnableMouse (true)
@@ -215,6 +236,8 @@ local tinsert = tinsert
 			end
 			table.sort (sort, more_clicked)
 
+			local last_button
+			
 			for index, button_table in ipairs (sort) do 
 				button_table = button_table [2]
 				if (not button_table.widget) then
@@ -235,11 +258,19 @@ local tinsert = tinsert
 					end
 
 					button_table.widget:Show()
+					last_button = button_table.widget
+					
 					i = i + 1
 				else
 					button_table.widget:Hide()
 				end
 			end
+			
+			local OptionsButton = LibHotCorners [self.position].optionsbutton
+			local y = i * 35 * -1
+			OptionsButton:SetPoint ("top", self, "top", 0, y)
+			OptionsButton:Show()
+			
 		end
 
 	--> corner frame on leave
@@ -248,6 +279,8 @@ local tinsert = tinsert
 			for index, button_table in ipairs (LibHotCorners [self.position]) do 
 				button_table.widget:Hide()
 			end
+			local OptionsButton = LibHotCorners [self.position].optionsbutton
+			OptionsButton:Hide()
 		end
 		
 	--> quick corner on click
@@ -258,6 +291,31 @@ local tinsert = tinsert
 			end
 		end
 
+	--> options button onenter
+		function HotCornersOptionsButtonOnEnter (self)
+			set_size (self:GetParent())
+			for index, button_table in ipairs (LibHotCorners [self:GetParent().position]) do 
+				if (not button_table.savedtable.hide) then
+					button_table.widget:Show()
+				end
+			end
+			self:Show()
+		end
+		
+		function HotCornersOpenOptions (self)
+			HotCornersOptionsFrame:Show()
+			HotCornersOptionsFrameEnableCheckBox:SetChecked (LibHotCorners.options.is_enabled)
+		end
+		
+		function HotCornersSetEnabled (state)
+			LibHotCorners.options.is_enabled = state
+		end
+	
+	--> options button onleave
+		function HotCornersOptionsButtonOnLeave (self)
+			self:GetParent():GetScript("OnLeave")(self:GetParent())
+		end
+	
 	--> button onenter
 		function HotCornersButtonOnEnter (self)
 			set_size (self:GetParent())
@@ -267,6 +325,8 @@ local tinsert = tinsert
 				end
 			end
 			show_tooltip (self)
+			local OptionsButton = LibHotCorners [self:GetParent().position].optionsbutton
+			OptionsButton:Show()
 		end
 	
 	--> button onleave
@@ -276,6 +336,8 @@ local tinsert = tinsert
 				self.table.onleave (self)
 			end
 			self:GetParent():GetScript("OnLeave")(self:GetParent())
+			local OptionsButton = LibHotCorners [self:GetParent().position].optionsbutton
+			OptionsButton:Hide()
 		end
 
 	--> button onmousedown
@@ -311,6 +373,9 @@ local tinsert = tinsert
 	--fast corner button
 	local QuickClickButton = CreateFrame ("button", "LibHotCornersTopLeftFastButton", TopLeftCorner, "HotCornersQuickCornerButtonTemplate")
 	
+	--options button
+	local OptionsButton = CreateFrame ("button", "LibHotCornersTopLeftOptionsButton", TopLeftCorner, "HotCornersOptionsButtonTemplate")
+	
 	if (debug) then
 		QuickClickButton:SetSize (20, 20)
 		QuickClickButton:SetBackdrop ({bgFile = [[Interface\DialogFrame\UI-DialogBox-Gold-Background]], tile = true, tileSize = 40})
@@ -318,6 +383,7 @@ local tinsert = tinsert
 	end
 	
 	LibHotCorners.topleft.quickbutton = QuickClickButton
+	LibHotCorners.topleft.optionsbutton = OptionsButton
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> buttons 

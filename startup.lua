@@ -497,11 +497,36 @@ function _G._detalhes:Start()
 			if (instance.auto_switch_to_old) then
 				instance:SwitchBack()
 			end
-			
+
 			function _detalhes:FadeStartVersion()
 				_detalhes.gump:Fade (dev_icon, "in", 2)
 				_detalhes.gump:Fade (dev_text, "in", 2)
 				self.gump:Fade (instance._version, "in", 2)
+				
+				if (_detalhes.switch.table) then
+				
+					local have_bookmark
+					
+					for index, t in ipairs (_detalhes.switch.table) do
+						if (t.atributo) then
+							have_bookmark = true
+							break
+						end
+					end
+					
+					if (not have_bookmark) then
+						function _detalhes:WarningAddBookmark()
+							instance._version:SetText ("right click to set bookmarks.")
+							self.gump:Fade (instance._version, "out", 1)
+							function _detalhes:FadeBookmarkWarning()
+								self.gump:Fade (instance._version, "in", 2)
+							end
+							_detalhes:ScheduleTimer ("FadeBookmarkWarning", 5)
+						end
+						_detalhes:ScheduleTimer ("WarningAddBookmark", 2)
+					end
+				end
+				
 			end
 			
 			_detalhes:ScheduleTimer ("FadeStartVersion", 12)

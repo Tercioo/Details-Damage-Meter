@@ -128,6 +128,17 @@ function _detalhes:LoadGlobalAndCharacterData()
 				else
 					_detalhes_global [key] = value
 				end
+				
+			elseif (type (_detalhes_global [key]) == "table") then
+				for key2, value2 in pairs (_detalhes.default_global_data [key]) do 
+					if (_detalhes_global [key] [key2] == nil) then
+						if (type (value2) == "table") then
+							_detalhes_global [key] [key2] = table_deepcopy (_detalhes.default_global_data [key] [key2])
+						else
+							_detalhes_global [key] [key2] = value2
+						end
+					end
+				end
 			end
 			
 			--> copy the key from saved table to details object

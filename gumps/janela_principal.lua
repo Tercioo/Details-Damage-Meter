@@ -1259,6 +1259,12 @@ local lockFunctionOnLeave = function (self)
 	
 end
 
+function _detalhes:DelayOptionsRefresh (instance, no_reopen)
+	if (_G.DetailsOptionsWindow and _G.DetailsOptionsWindow:IsShown()) then
+		_detalhes:ScheduleTimer ("OpenOptionsWindow", 0.1, {instance or _G.DetailsOptionsWindow.instance, no_reopen})
+	end
+end
+
 local lockFunctionOnClick = function (button)
 	local baseframe = button:GetParent()
 	if (baseframe.isLocked) then
@@ -1280,6 +1286,9 @@ local lockFunctionOnClick = function (button)
 		baseframe.resize_direita:SetAlpha (0)
 		baseframe.resize_esquerda:SetAlpha (0)
 	end
+	
+	_detalhes:DelayOptionsRefresh()
+	
 end
 _detalhes.lock_instance_function = lockFunctionOnClick
 
@@ -2706,6 +2715,9 @@ function gump:CriaNovaBarra (instancia, index)
 	
 	esta_barra.row_id = index
 	esta_barra.instance_id = instancia.meu_id
+	esta_barra.animacao_fim = 0
+	esta_barra.animacao_fim2 = 0
+	
 	local y = instancia.row_height*(index-1)
 
 	if (instancia.bars_grow_direction == 1) then
@@ -2745,7 +2757,7 @@ function gump:CriaNovaBarra (instancia, index)
 	esta_barra.statusbar:SetStatusBarTexture (esta_barra.textura)
 	
 	esta_barra.statusbar:SetMinMaxValues (0, 100)
-	esta_barra.statusbar:SetValue (100)
+	esta_barra.statusbar:SetValue (0)
 
 	local icone_classe = esta_barra.statusbar:CreateTexture (nil, "overlay")
 	icone_classe:SetHeight (instancia.row_info.height)
@@ -2781,7 +2793,6 @@ function gump:CriaNovaBarra (instancia, index)
 	
 	--> seta o texto da esqueda
 	esta_barra.texto_esquerdo:SetText (Loc ["STRING_NEWROW"])
-	esta_barra.statusbar:SetValue (100)
 	
 	instancia:InstanceRefreshRows()
 	
@@ -5639,6 +5650,7 @@ end
 		
 		GameCooltip:Hide()
 	end
+	_detalhes.close_instancia_func = close_button_onclick
 
 	local close_button_onenter = function (self)
 		OnEnterMainWindow (self.instance, self, 3)

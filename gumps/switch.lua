@@ -23,13 +23,50 @@ do
 	frame:SetPoint ("center", _UIParent, "center", 500, -300)
 	frame:SetWidth (250)
 	frame:SetHeight (100)
-	frame:SetBackdrop (gump_fundo_backdrop)
+	--frame:SetBackdrop (gump_fundo_backdrop)
 	frame:SetBackdropBorderColor (170/255, 170/255, 170/255)
 	frame:SetBackdropColor (24/255, 24/255, 24/255, .8)
 	
 	frame:SetFrameStrata ("FULLSCREEN")
 	frame:SetFrameLevel (16)
 	
+	frame.background = frame:CreateTexture (nil, "background")
+	frame.background:SetTexture ([[Interface\Store\Store-Splash]])
+	frame.background:SetTexCoord (16/1024, 561/1024, 8/1024, 263/1024)
+	frame.background:SetAllPoints()
+	frame.background:SetDesaturated (true)
+	frame.background:SetVertexColor (.5, .5, .5, .85)
+	
+	frame.topbg = frame:CreateTexture (nil, "background")
+	frame.topbg:SetTexture ([[Interface\Scenarios\ScenariosParts]])
+	frame.topbg:SetTexCoord (100/512, 267/512, 143/512, 202/512)
+	frame.topbg:SetPoint ("bottomleft", frame, "topleft")
+	frame.topbg:SetPoint ("bottomright", frame, "topright")
+	frame.topbg:SetHeight (20)
+	frame.topbg:SetDesaturated (true)
+	frame.topbg:SetVertexColor (.3, .3, .3, 0.8)
+	
+	frame.topbg_frame = CreateFrame ("frame", nil, frame)
+	frame.topbg_frame:SetPoint ("bottomleft", frame, "topleft")
+	frame.topbg_frame:SetPoint ("bottomright", frame, "topright")
+	frame.topbg_frame:SetHeight (20)
+	frame.topbg_frame:EnableMouse (true)
+	frame.topbg_frame:SetScript ("OnMouseDown", function (self, button)
+		if (button == "RightButton") then
+			_detalhes.switch:CloseMe()
+		end
+	end)
+	
+	frame.star = frame:CreateTexture (nil, "overlay")
+	frame.star:SetTexture ([[Interface\Glues\CharacterSelect\Glues-AddOn-Icons]])
+	frame.star:SetTexCoord (0.75, 1, 0, 1)
+	frame.star:SetSize (16, 16)
+	frame.star:SetPoint ("bottomleft", frame, "topleft", 4, 0)
+	
+	frame.title_label = frame:CreateFontString (nil, "overlay", "GameFontNormal")
+	frame.title_label:SetPoint ("left", frame.star, "right", 4, -1)
+	frame.title_label:SetText ("Bookmark")
+
 	function _detalhes.switch:CloseMe()
 		_detalhes.switch.frame:Hide()
 		GameCooltip:Hide()
@@ -69,12 +106,12 @@ function _detalhes.switch:ShowMe (instancia)
 	_detalhes.switch.current_instancia = instancia
 	
 	--_detalhes.switch.frame:SetFrameLevel (instancia.baseframe:GetFrameLevel() + 5)
-	_detalhes.switch.frame:SetPoint ("topleft", instancia.baseframe, "topleft", 0, 0)
-	_detalhes.switch.frame:SetPoint ("bottomright", instancia.baseframe, "bottomright", 0, 0)
+	_detalhes.switch.frame:SetPoint ("topleft", instancia.baseframe, "topleft", 0, 1)
+	_detalhes.switch.frame:SetPoint ("bottomright", instancia.baseframe, "bottomright", 0, 1)
 	
 	_detalhes.switch.frame:SetBackdropColor (0.094, 0.094, 0.094, .8)
-	local _r, _g, _b, _a = _detalhes.switch.frame:GetBackdropColor()
-	gump:GradientEffect (_detalhes.switch.frame, "frame", _r, _g, _b, _a, _r, _g, _b, 1, 1)
+	--local _r, _g, _b, _a = _detalhes.switch.frame:GetBackdropColor()
+	--gump:GradientEffect (_detalhes.switch.frame, "frame", _r, _g, _b, _a, _r, _g, _b, 1, 1)
 	
 	local altura = instancia.baseframe:GetHeight()
 	local mostrar_quantas = _math_floor (altura / _detalhes.switch.button_height) * 2
@@ -97,9 +134,52 @@ function _detalhes.switch:ShowMe (instancia)
 	end
 	
 	_detalhes.switch:Resize()
-	
 	_detalhes.switch.frame:Show()
-	instancia:StatusBarAlert (right_click_text, right_click_texture) --icon, color, time
+	
+	if (not _detalhes.tutorial.bookmark_tutorial) then
+	
+		if (not SwitchPanelTutorial) then
+			local tutorial_frame = CreateFrame ("frame", "SwitchPanelTutorial", _detalhes.switch.frame)
+			tutorial_frame:SetFrameStrata ("FULLSCREEN_DIALOG")
+			tutorial_frame:SetAllPoints()
+			tutorial_frame:EnableMouse (true)
+			tutorial_frame:SetBackdrop ({bgFile = "Interface\\AddOns\\Details\\images\\background", tile = true, tileSize = 16 })
+			tutorial_frame:SetBackdropColor (0.05, 0.05, 0.05, 0.9)
+
+			tutorial_frame.info_label = tutorial_frame:CreateFontString (nil, "overlay", "GameFontNormal")
+			tutorial_frame.info_label:SetPoint ("topleft", tutorial_frame, "topleft", 10, -10)
+			tutorial_frame.info_label:SetText ("Bookmarks gives quick access to favorite displays.")
+			tutorial_frame.info_label:SetJustifyH ("left")
+			
+			tutorial_frame.mouse = tutorial_frame:CreateTexture (nil, "overlay")
+			tutorial_frame.mouse:SetTexture ([[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]])
+			tutorial_frame.mouse:SetTexCoord (0.0019531, 0.1484375, 0.6269531, 0.8222656)
+			tutorial_frame.mouse:SetSize (20, 22)
+			tutorial_frame.mouse:SetPoint ("topleft", tutorial_frame.info_label, "bottomleft", 0, -20)
+
+			tutorial_frame.close_label = tutorial_frame:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+			tutorial_frame.close_label:SetPoint ("left", tutorial_frame.mouse, "right", 4, 0)
+			tutorial_frame.close_label:SetText ("Use right click to close the bookmark panel.")
+			tutorial_frame.close_label:SetJustifyH ("left")
+			
+			local checkbox = CreateFrame ("CheckButton", "SwitchPanelTutorialCheckBox", tutorial_frame, "ChatConfigCheckButtonTemplate")
+			checkbox:SetPoint ("topleft", tutorial_frame.mouse, "bottomleft", 0, -10)
+			_G [checkbox:GetName().."Text"]:SetText ("Don't show this again.")
+			
+			tutorial_frame:SetScript ("OnMouseDown", function()
+				if (checkbox:GetChecked()) then
+					_detalhes.tutorial.bookmark_tutorial = true
+				end
+				tutorial_frame:Hide()
+			end)
+		end
+		
+		SwitchPanelTutorial:Show()
+		SwitchPanelTutorial.info_label:SetWidth (_detalhes.switch.frame:GetWidth()-30)
+		SwitchPanelTutorial.close_label:SetWidth (_detalhes.switch.frame:GetWidth()-30)
+	end
+	
+	--instancia:StatusBarAlert (right_click_text, right_click_texture) --icon, color, time
 end
 
 function _detalhes.switch:Config (_,_, atributo, sub_atributo)
@@ -281,12 +361,33 @@ function _detalhes.switch:Resize()
 end
 
 local onenter = function (self)
+	if (not _detalhes.switch.table [self.index].atributo) then
+		GameCooltip:Reset()
+		_detalhes:CooltipPreset (1)
+		GameCooltip:AddLine ("add bookmark")
+		GameCooltip:AddIcon ([[Interface\Glues\CharacterSelect\Glues-AddOn-Icons]], 1, 1, 16, 16, 0.75, 1, 0, 1, {0, 1, 0})
+
+		GameCooltip:SetOwner (self)
+		GameCooltip:SetType ("tooltip")
+		
+		GameCooltip:SetOption ("TextSize", 10)
+		GameCooltip:SetOption ("ButtonsYMod", 0)
+		GameCooltip:SetOption ("YSpacingMod", 0)
+		GameCooltip:SetOption ("IgnoreButtonAutoHeight", false)
+		
+		GameCooltip:Show()
+	else
+		GameCooltip:Hide()
+	end
+	
 	self.texto:SetTextColor (1, 1, 1, 1)
 	self.border:SetBlendMode ("ADD")
-	GameCooltip:Hide()
 end
 
 local onleave = function (self)
+	if (GameCooltip:IsTooltip()) then
+		GameCooltip:Hide()
+	end
 	self.texto:SetTextColor (.8, .8, .8, 1)
 	self.border:SetBlendMode ("BLEND")
 end
@@ -299,7 +400,7 @@ local oniconenter = function (self)
 
 	GameCooltip:Reset()
 	_detalhes:CooltipPreset (1)
-	GameCooltip:AddLine ("select attribute")
+	GameCooltip:AddLine ("select bookmark")
 	GameCooltip:AddIcon ([[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]], 1, 1, 12, 14, 0.0019531, 0.1484375, 0.6269531, 0.8222656)
 	
 	GameCooltip:SetOwner (self)
@@ -397,6 +498,8 @@ function _detalhes.switch:NewSwitchButton (frame, index, x, y, rightButton)
 	button2.MouseOnLeaveHook = onleave
 	
 	_detalhes.switch.buttons [index] = button
+	button.index = index
+	button2.index = index
 	
 	return button
 end

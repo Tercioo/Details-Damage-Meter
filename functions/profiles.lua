@@ -648,7 +648,14 @@ local default_global_data = {
 		savedStyles = {},
 		savedCustomSpells = {},
 		savedTimeCaptures = {},
-		tutorial = {logons = 0, unlock_button = 0, version_announce = 0, main_help_button = 0, alert_frames = {false, false, false, false, false, false}, },
+		tutorial = {
+			logons = 0, 
+			unlock_button = 0, 
+			version_announce = 0, 
+			main_help_button = 0, 
+			alert_frames = {false, false, false, false, false, false}, 
+			bookmark_tutorial = false,
+		},
 		performance_profiles = {
 			["RaidFinder"] = {enabled = false, update_speed = 1, use_row_animations = false, damage = true, heal = true, aura = true, energy = false, miscdata = true},
 			["Raid15"] = {enabled = false, update_speed = 1, use_row_animations = false, damage = true, heal = true, aura = true, energy = false, miscdata = true},

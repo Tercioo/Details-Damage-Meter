@@ -317,40 +317,27 @@ function atributo_heal:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 				local combat_time = instancia.showing:GetCombatTime()
 				atributo_heal:ContainerRefreshHps (conteudo, combat_time)
 			end
-			--_table_sort (conteudo, _detalhes.SortKeyGroup)
+
 			_detalhes.SortGroupHeal (conteudo, keyName)
 		end
-		
-		--_table_sort (conteudo, _detalhes.SortKeyGroup)
-		
-		
-		--[[_table_sort (conteudo, function (a, b)
-				if (a.grupo and b.grupo) then
-					return a[keyName] > b[keyName]
-				elseif (a.grupo and not b.grupo) then
-					return true
-				elseif (not a.grupo and b.grupo) then
-					return false
+		--
+		if (not using_cache) then
+			for index, player in _ipairs (conteudo) do
+				if (player.grupo) then --> é um player e esta em grupo
+					if (player[keyName] < 1) then --> dano menor que 1, interromper o loop
+						amount = index - 1
+						break
+					elseif (index == 1) then --> esse IF aqui, precisa mesmo ser aqui? não daria pra pega-lo com uma chave [1] nad grupo == true?
+						instancia.top = conteudo[1][keyName]
+					end
+					
+					total = total + player[keyName]
 				else
-					return a[keyName] > b[keyName]
-				end
-			end)--]]
-
-		for index, player in _ipairs (conteudo) do
-			if (player.grupo) then --> é um player e esta em grupo
-				if (player[keyName] < 1) then --> dano menor que 1, interromper o loop
-					amount = index - 1
+					amount = index-1
 					break
-				elseif (index == 1) then --> esse IF aqui, precisa mesmo ser aqui? não daria pra pega-lo com uma chave [1] nad grupo == true?
-					instancia.top = conteudo[1][keyName]
 				end
-				
-				total = total + player[keyName]
-			else
-				amount = index-1
-				break
 			end
-		end		
+		end
 		
 	end
 	

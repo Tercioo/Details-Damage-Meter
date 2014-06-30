@@ -1069,6 +1069,10 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 		end
 		
 	end
+	
+	if (_detalhes.is_using_row_animations) then
+		instancia:fazer_animacoes()
+	end
 
 	if (instancia.atributo == 5) then --> custom
 		--> zerar o .custom dos Actors
@@ -1301,7 +1305,15 @@ end
 
 		if (esta_barra.hidden or esta_barra.fading_in or esta_barra.faded) then
 		
-			esta_barra.statusbar:SetValue (esta_porcentagem)
+			--esta_barra.statusbar:SetValue (esta_porcentagem)
+			
+			if (_detalhes.is_using_row_animations and not forcar) then
+				esta_barra.animacao_fim = esta_porcentagem
+			else
+				esta_barra.statusbar:SetValue (esta_porcentagem)
+				esta_barra.animacao_ignorar = true
+			end
+				
 			gump:Fade (esta_barra, "out")
 			
 			if (instancia.row_info.texture_class_colors) then
@@ -1317,31 +1329,26 @@ end
 			--> agora esta comparando se a tabela da barra é diferente da tabela na atualização anterior
 			if (not tabela_anterior or tabela_anterior ~= esta_barra.minha_tabela or forcar) then --> aqui diz se a barra do jogador mudou de posição ou se ela apenas será atualizada
 			
-				esta_barra.statusbar:SetValue (esta_porcentagem)
+				if (_detalhes.is_using_row_animations and not forcar) then
+					esta_barra.animacao_fim = esta_porcentagem
+				else
+					esta_barra.statusbar:SetValue (esta_porcentagem)
+					esta_barra.animacao_ignorar = true
+				end
 			
 				esta_barra.last_value = esta_porcentagem --> reseta o ultimo valor da barra
 				
-				if (_detalhes.is_using_row_animations and forcar) then
-					esta_barra.tem_animacao = 0
-					esta_barra:SetScript ("OnUpdate", nil)
-				end
+				--if (_detalhes.is_using_row_animations and forcar) then
+				--	esta_barra.tem_animacao = false
+				--	esta_barra:SetScript ("OnUpdate", nil)
+				--end
 				
 				return self:RefreshBarra (esta_barra, instancia)
 				
 			elseif (esta_porcentagem ~= esta_barra.last_value) then --> continua mostrando a mesma tabela então compara a porcentagem
 				--> apenas atualizar
 				if (_detalhes.is_using_row_animations) then
-					
-					local upRow = barras_container [qual_barra-1]
-					if (upRow) then
-						if (upRow.statusbar:GetValue() < esta_barra.statusbar:GetValue()) then
-							esta_barra.statusbar:SetValue (esta_porcentagem)
-						else
-							instancia:AnimarBarra (esta_barra, esta_porcentagem)
-						end
-					else
-						instancia:AnimarBarra (esta_barra, esta_porcentagem)
-					end
+					esta_barra.animacao_fim = esta_porcentagem
 				else
 					esta_barra.statusbar:SetValue (esta_porcentagem)
 				end

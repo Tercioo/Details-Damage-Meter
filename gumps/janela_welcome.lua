@@ -140,11 +140,11 @@ function _detalhes:OpenWelcomeWindow ()
 				
 				if (elapsed < 0.295) then
 					_detalhes.use_row_animations = true
-					_detalhes.update_speed = 0.2
+					_detalhes.update_speed = 0.30
 				
 				elseif (elapsed < 0.375) then
 					_detalhes.use_row_animations = true
-					_detalhes.update_speed = 0.3
+					_detalhes.update_speed = 0.40
 					
 				elseif (elapsed < 0.475) then
 					_detalhes.use_row_animations = true

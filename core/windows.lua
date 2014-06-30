@@ -29,7 +29,7 @@
 		barra.inicio = barra.split.barra:GetValue()
 		barra.fim = goal
 		barra.proximo_update = 0
-		barra.tem_animacao = 1
+		barra.tem_animacao = true
 		barra:SetScript ("OnUpdate", self.FazerAnimacaoSplit)
 	end
 
@@ -43,7 +43,7 @@
 			self.split.div:SetPoint ("left", self.split.barra, "left", self.split.barra:GetValue()* (self.split.barra:GetWidth()/100) - 4, 0)
 			
 			if (self.inicio+1 >= self.fim) then
-				self.tem_animacao = 0
+				self.tem_animacao = false
 				self:SetScript ("OnUpdate", nil)
 			end
 		else
@@ -53,17 +53,59 @@
 			self.split.div:SetPoint ("left", self.split.barra, "left", self.split.barra:GetValue()* (self.split.barra:GetWidth()/100) - 4, 0)
 			
 			if (self.inicio-1 <= self.fim) then
-				self.tem_animacao = 0
+				self.tem_animacao = false
 				self:SetScript ("OnUpdate", nil)
 			end
 		end
 		self.proximo_update = 0
 	end
 
+	function _detalhes:fazer_animacoes()
+		
+		--[
+		for i = 2, self.rows_fit_in_window do
+			--local row_anterior = self.barras [i-1]
+			local row = self.barras [i]
+			local row_proxima = self.barras [i+1]
+			
+			if (row_proxima) then
+				local v = row.statusbar:GetValue()
+				local v_proxima = row_proxima.statusbar:GetValue()
+				
+				if (v_proxima > v) then
+					if (row.animacao_fim >= v_proxima) then
+						row.statusbar:SetValue (v_proxima)
+					else
+						row.statusbar:SetValue (row.animacao_fim)
+						row_proxima.statusbar:SetValue (row.animacao_fim)
+					end
+				end
+			end
+		end
+		--]]
+		
+		for i = 2, self.rows_fit_in_window do
+			local row = self.barras [i]
+			if (row.animacao_ignorar) then
+				row.animacao_ignorar = nil
+				if (row.tem_animacao) then
+					row.tem_animacao = false
+					row:SetScript ("OnUpdate", nil)
+				end
+			else
+				if (row.animacao_fim ~= row.animacao_fim2) then
+					_detalhes:AnimarBarra (row, row.animacao_fim)
+					row.animacao_fim2 = row.animacao_fim
+				end
+			end
+		end
+		
+	end
+	
 	function _detalhes:AnimarBarra (esta_barra, fim)
 		esta_barra.inicio = esta_barra.statusbar:GetValue()
 		esta_barra.fim = fim
-		esta_barra.tem_animacao = 1
+		esta_barra.tem_animacao = true
 		
 		if (esta_barra.fim > esta_barra.inicio) then
 			esta_barra:SetScript ("OnUpdate", self.FazerAnimacao_Direita)
@@ -73,19 +115,19 @@
 	end
 
 	function _detalhes:FazerAnimacao_Esquerda (elapsed)
-		self.inicio = self.inicio - 0.8
+		self.inicio = self.inicio - 1
 		self.statusbar:SetValue (self.inicio)
 		if (self.inicio-1 <= self.fim) then
-			self.tem_animacao = 0
+			self.tem_animacao = false
 			self:SetScript ("OnUpdate", nil)
 		end
 	end
 	
 	function _detalhes:FazerAnimacao_Direita (elapsed)
-		self.inicio = self.inicio + 0.8
+		self.inicio = self.inicio + 1
 		self.statusbar:SetValue (self.inicio)
 		if (self.inicio+1 >= self.fim) then
-			self.tem_animacao = 0
+			self.tem_animacao = false
 			self:SetScript ("OnUpdate", nil)
 		end
 	end
@@ -244,6 +286,8 @@
 		for i = 1, instancia.rows_created, 1 do --> limpa a referência do que estava sendo mostrado na barra
 			local esta_barra= instancia.barras[i]
 			esta_barra.minha_tabela = nil
+			esta_barra.animacao_fim = 0
+			esta_barra.animacao_fim2 = 0
 		end
 		
 		if (instancia.rolagem) then
@@ -316,7 +360,7 @@
 			--> verifica se precisa criar mais barras
 			if (self.rows_fit_in_window > #self.barras) then--> verifica se precisa criar mais barras
 				for i  = #self.barras+1, self.rows_fit_in_window, 1 do
-					gump:CriaNovaBarra (self, i, 30) --> cria nova barra
+					gump:CriaNovaBarra (self, i) --> cria nova barra
 				end
 				self.rows_created = #self.barras
 			end

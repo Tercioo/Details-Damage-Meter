@@ -219,6 +219,10 @@ function _detalhes:IsEnabled()
 	return self.ativa
 end
 
+function _detalhes:IsStarted()
+	return self.iniciada
+end
+
 
 ------------------------------------------------------------------------------------------------------------------------
 
@@ -456,7 +460,7 @@ end
 	end
 
 	function _detalhes:CriarInstancia (_, id)
-	
+		
 		if (id and _type (id) == "boolean") then
 			
 			if (#_detalhes.tabela_instancias >= _detalhes.instances_amount) then
@@ -472,6 +476,7 @@ end
 			local instancia = _detalhes.tabela_instancias [id]
 			if (instancia and not instancia:IsAtiva()) then
 				instancia:AtivarInstancia()
+				_detalhes:DelayOptionsRefresh (instancia)
 				return
 			end
 		end
@@ -758,6 +763,8 @@ function _detalhes:agrupar_janelas (lados)
 		_detalhes.tutorial.unlock_button = _detalhes.tutorial.unlock_button + 1
 	end
 	
+	_detalhes:DelayOptionsRefresh()
+	
 end
 
 local function FixSnaps (instancia)
@@ -787,6 +794,8 @@ function _detalhes:Desagrupar (instancia, lado)
 	if (_type (instancia) == "number") then --> significa que passou o número da instância
 		instancia =  _detalhes.tabela_instancias [instancia]
 	end
+	
+	_detalhes:DelayOptionsRefresh (nil, true)
 	
 	if (not lado) then
 		--print ("DEBUG: Desagrupar esta sem lado")
