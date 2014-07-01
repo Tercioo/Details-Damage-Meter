@@ -2,6 +2,13 @@ do
 
 	local _detalhes = 		_G._detalhes
 	
+	_detalhes.PotionList = {
+		[105702] = true, --jade serpent
+		[105706] = true, --mogu power
+		[105697] = true, --virmen's bite
+		[105698] = true, --montains
+	}
+	
 	_detalhes.SpecSpellList = {
 		
 	}
