@@ -2,7 +2,7 @@
 --Last Modification: 27/07/2013
 -- Change Log:
 	-- 27/07/2013: Finished alpha version.
-
+ 
 function _G._detalhes:Start()
 
 	local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
