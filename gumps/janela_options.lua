@@ -392,7 +392,7 @@ function _detalhes:OpenOptionsWindow (instance, no_reopen)
 	--> left panel buttons
 		
 local menus = { --labels nos menus
-	{"Display", "Combat", "Tooltips", "Externals", "Profiles"},
+	{"Display", "Combat", "Tooltips", "Data Feed", "Profiles"},
 	{"Skin Selection", "Row Settings", "Row Texts", "Show & Hide Settings", "Window Settings", "Title Text", "Menus: Left Buttons", "Menus: Right Buttons", "Wallpaper", "Miscellaneous"},
 	{"Data Collector", "Performance Tweaks", "Plugins Management", "Spell Customization", "Data for Charts"}
 }
@@ -416,7 +416,7 @@ local menus = { --labels nos menus
 			"Data for Charts", --16
 			"Show & Hide Settings", --17
 			"Miscellaneous", --18
-			"Externals", --19
+			"Data Feed", --19
 			"Tooltip", --20
 		}
 		
@@ -600,7 +600,7 @@ local menus = { --labels nos menus
 			[16] = {}, --charts data
 			[17] = {}, --instance settings
 			[18] = {}, --miscellaneous settings
-			[19] = {}, --externals widgets
+			[19] = {}, --data feed widgets
 			[20] = {}, --tooltips
 		} --> vai armazenar os frames das opções
 		
@@ -1333,7 +1333,7 @@ function window:CreateFrame20()
 		
 end
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- Advanced Settings - Externals Widgets ~19
+-- Advanced Settings - Data Feed Widgets ~19
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 function window:CreateFrame19()
 	

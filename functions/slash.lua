@@ -79,6 +79,10 @@ function SlashCmdList.DETAILS (msg, editbox)
 	
 -------- debug ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+	elseif (msg == "chatmsg") then
+	
+		SendChatMessage("[RCELVA]"..RC.version.."_"..id.."_announce_"..time().."_", "CHANNEL", nil, RC:getChanID(GetChannelList()))
+	
 	elseif (msg == "chaticon") then
 		_detalhes:Msg ("|TInterface\\AddOns\\Details\\images\\icones_barra:" .. 14 .. ":" .. 14 .. ":0:0:256:32:0:32:0:32|tteste")
 	
@@ -245,6 +249,28 @@ function SlashCmdList.DETAILS (msg, editbox)
 		print ("GetTime()", GetTime())
 		print ("time()", time())
 
+	elseif (msg == "buffs") then
+	
+		for buffIndex = 1, 41 do
+		
+			--local name, _, _, _, _, _, _, unitCaster, _, _, spellid  = UnitAura ("player", buffIndex, nil, "HELPFUL")
+			--if (name) then
+			--	print (name, unitCaster, spellid)
+			--end
+			
+			local name, _, _, _, _, _, _, unitCaster, _, _, spellid  = UnitAura ("raid1", buffIndex, nil, "HELPFUL")
+			if (name) then
+				print (name, unitCaster, spellid)
+			end
+			
+			local name, _, _, _, _, _, _, unitCaster, _, _, spellid  = UnitAura ("raid2", buffIndex, nil, "HELPFUL")
+			if (name) then
+				print (name, unitCaster, spellid)
+			end
+		
+		end
+	
+		
 	elseif (msg == "malkorok") then
 	
 		print ("nome | count | unitCaster | spellId |  isBossDebuff | value1 | value2 | value3")

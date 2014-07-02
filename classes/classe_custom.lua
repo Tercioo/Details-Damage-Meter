@@ -1124,9 +1124,55 @@ end
 	function atributo_custom:IsSpellTarget()
 		return self.spellid and self.target and true
 	end
-
+	
+	function atributo_custom:RemoveCustom (index)
+	
+		if (not _detalhes.tabela_instancias) then
+			--> do not remove customs while the addon is loading.
+			return
+		end
+	
+		table.remove (_detalhes.custom, index)
+		
+		for _, instance in _ipairs (_detalhes.tabela_instancias) do 
+			if (instance.atributo == 5 and instance.sub_atributo == index) then 
+				instance:ResetAttribute()
+			elseif (instance.atributo == 5 and instance.sub_atributo > index) then
+				instance.sub_atributo = instance.sub_atributo - 1
+				instance.sub_atributo_last [5] = 1
+			else
+				instance.sub_atributo_last [5] = 1
+			end
+		end
+		
+		_detalhes.switch:OnRemoveCustom (index)
+	end
+	
 	function _detalhes.refresh:r_atributo_custom()
-		for _, custom_object in _ipairs (_detalhes.custom) do
+	
+		--> check for non used temp displays
+		if (_detalhes.tabela_instancias) then
+			for i = #_detalhes.custom, 1, -1 do
+				local custom_object = _detalhes.custom [i]
+				if (custom_object.temp) then
+					--> check if there is a instance showing this custom
+					local showing = false
+					
+					for index, instance in _ipairs (_detalhes.tabela_instancias) do
+						if (instance.atributo == 5 and instance.sub_atributo == i) then 
+							showing = true
+						end
+					end
+					
+					if (not showing) then
+						atributo_custom:RemoveCustom (i)
+					end
+				end
+			end
+		end
+	
+		--> restore metatable and indexes
+		for index, custom_object in _ipairs (_detalhes.custom) do
 			_setmetatable (custom_object, atributo_custom)
 			custom_object.__index = atributo_custom
 		end

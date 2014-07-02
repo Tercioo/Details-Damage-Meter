@@ -362,3 +362,211 @@
 			end
 		end
 	end
+
+
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> update
+
+	function _detalhes:CheckVersion()
+
+		local room_name = "DetailsVCheck"
+		
+		local CONST_VERSION_CHECK = "VCHECK"
+		local CONST_VERSION = "VERSION"
+		local CONST_SEND_OWNER = "SOWNER"
+		local CONST_OWNER_OUTDATE = "OWNEROUT"
+		
+		local waiting_version = false
+		local waiting_owner = false
+		
+		--entrar na sala
+		JoinChannelByName (room_name)
+		
+		function _detalhes:GetChannelId()
+			local list = {GetChannelList()}
+			for i = 1, #list, 2 do
+				if (list [i+1] == room_name) then
+					return list [i]
+				end
+			end
+			return nil
+		end
+		
+		function _detalhes:GetChannelInternalId()
+			for id = 1, GetNumDisplayChannels() do 
+				local name = GetChannelDisplayInfo (id)
+				if (name == room_name) then
+					return id
+				end
+			end 
+		end
+
+		function _detalhes:IamOwner()
+
+			local channel_id = _detalhes:GetChannelId()
+			local channel_id_internal = _detalhes:GetChannelInternalId()
+
+			if (not channel_id or not channel_id_internal) then
+				return
+			end
+			
+			SetSelectedDisplayChannel (channel_id)
+			
+			local name, _, _, _, count = GetChannelDisplayInfo (channel_id_internal)
+			
+			if (name ~= room_name) then
+				return
+			end
+
+			for i = 1, count do
+				local name, owner = GetChannelRosterInfo (channel_id_internal, i)
+				
+				if (name and name == _detalhes.playername) then
+					return owner
+				end
+			end
+		end
+		
+		function _detalhes:LeaveChannel (force_leave)
+			if (_detalhes:IamOwner() and not force_leave) then
+				if (_detalhes.debug) then
+					_detalhes:Msg ("(debug) fail to leave the channel, we are the owner.")
+				end
+				return
+			end
+			
+			if (_detalhes.debug) then
+				_detalhes:Msg ("(debug) leaving the update channel.")
+			end
+			
+			LeaveChannelByName (room_name)
+		end
+	
+		function _detalhes:CheckVersionChannel()
+		
+			local channel_id = _detalhes:GetChannelId()
+			
+			if (_detalhes.debug) then
+				_detalhes:Msg ("(debug) requesting version on update channel: ", channel_id)
+			end
+			
+			if (not channel_id) then
+				return
+			end
+			
+			waiting_version = true
+			SendChatMessage (room_name .. CONST_VERSION_CHECK .. " " .. _detalhes.build_counter, "CHANNEL", nil, channel_id)
+		end
+		
+		_detalhes:ScheduleTimer ("CheckVersionChannel", 4)
+
+		self.listener:RegisterEvent ("CHAT_MSG_CHANNEL")
+		function _detalhes.parser_functions:CHAT_MSG_CHANNEL (...)
+			
+			local channel_id = _detalhes:GetChannelId()
+			
+			if (not channel_id) then
+				return
+			end
+			
+			local message, sender, language, channelString, target, flags, unknown, channelNumber, channelName, unknown, counter, guid = ...
+			
+			if (channelName == room_name) then
+				local key, value, extra = message:gsub (room_name, ""):match ("^(%S*)%s*(.-)$")
+				value, extra = value:match ("^(%S*)%s*(.-)$")
+				
+				if (_detalhes.debug) then
+					_detalhes:Msg ("(debug) update channel received command: ", key, value, extra)
+				end
+				
+				--> send version
+				if (key == CONST_VERSION_CHECK) then
+					if (_detalhes:IamOwner()) then
+						if (IsInRaid() or IsInGroup()) then
+							SendChatMessage (room_name .. CONST_VERSION .. " " .. _detalhes.build_counter .. " 1", "CHANNEL", nil, channel_id)
+							waiting_owner = true
+							if (_detalhes.debug) then
+								_detalhes:Msg ("(debug) version sent (we need a new owner).")
+							end
+						else
+							SendChatMessage (room_name .. CONST_VERSION .. " " .. _detalhes.build_counter, "CHANNEL", nil, channel_id)
+							if (_detalhes.debug) then
+								_detalhes:Msg ("(debug) version sent.")
+							end
+						end
+					end
+				
+				elseif (key == CONST_VERSION and waiting_version) then
+					waiting_version = false
+					value = tonumber (value)
+					
+					if (value > _detalhes.build_counter) then
+						--> nova versao encontrada
+						-- avisar o jogador
+						_detalhes:ScheduleTimer ("LeaveChannel", 5)
+						
+						local lower_instance = _detalhes:GetLowerInstanceNumber()
+						if (lower_instance) then
+							lower_instance = _detalhes:GetInstance (lower_instance)
+							if (lower_instance) then
+								lower_instance:InstanceAlert ("Update Available!", {[[Interface\GossipFrame\AvailableQuestIcon]], 16, 16, false}, 60, {function() _detalhes:Msg ("Check curse client to download the newer version.") end})
+							end
+						end
+			
+						if (_detalhes.debug) then
+							_detalhes:Msg ("(debug) found a new version.")
+						end
+						
+					elseif (value == _detalhes.build_counter) then
+						--> mesma versao
+						
+						if (_detalhes.debug) then
+							_detalhes:Msg ("(debug) no newer version found.")
+						end
+						
+						if (extra and tonumber (extra)) then
+							if (not IsInRaid() and not IsInGroup()) then
+								if (_detalhes.debug) then
+									_detalhes:Msg ("(debug) owner need to leave, we can be the new owner.")
+								end
+								SendChatMessage (room_name .. CONST_SEND_OWNER, "CHANNEL", nil, channel_id)
+							end
+						end
+						
+						_detalhes:ScheduleTimer ("LeaveChannel", 10)
+						
+					elseif (value < _detalhes.build_counter) then
+						--> a versao do owner esta desatualizada
+						SendChatMessage (room_name .. CONST_OWNER_OUTDATE, "CHANNEL", nil, channel_id)
+						if (_detalhes.debug) then
+							_detalhes:Msg ("(debug) owner have a out date version, warning him.")
+						end
+					end
+					
+				elseif (key == CONST_SEND_OWNER) then
+					if (_detalhes:IamOwner() and waiting_owner) then
+						SetChannelOwner (room_name, sender)
+						waiting_owner = false
+						_detalhes:ScheduleTimer ("LeaveChannel", 5)
+						
+						if (_detalhes.debug) then
+							_detalhes:Msg ("(debug) we found a new owner, leaving the channel.")
+						end
+					end
+					
+				elseif (key == CONST_OWNER_OUTDATE) then
+					if (_detalhes:IamOwner()) then
+						_detalhes:ScheduleTimer ("LeaveChannel", 5, true)
+						if (_detalhes.debug) then
+							_detalhes:Msg ("(debug) Oh ho, we are owner and our version is old, leaving...")
+						end
+					end
+					
+				end
+				
+			end
+		end
+	
+	end
+

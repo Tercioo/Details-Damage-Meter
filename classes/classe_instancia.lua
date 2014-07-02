@@ -2011,7 +2011,12 @@ function _detalhes:MontaAtributosOption (instancia, func)
 	CoolTip:AddMenu (2, _detalhes.OpenCustomDisplayWindow, nil, nil, nil, Loc ["STRING_CUSTOM_NEW"], "Interface\\PaperDollInfoFrame\\Character-Plus", true)
 	
 	for index, custom in _ipairs (_detalhes.custom) do 
-		CoolTip:AddLine (custom.name, nil, 2)
+		if (custom.temp) then
+			CoolTip:AddLine (custom.name .. Loc ["STRING_CUSTOM_TEMPORARILY"], nil, 2)
+		else
+			CoolTip:AddLine (custom.name, nil, 2)
+		end
+		
 		CoolTip:AddMenu (2, func, true, 5, index)
 		CoolTip:AddIcon (custom.icon, 2, 1, 16, 16)
 	end

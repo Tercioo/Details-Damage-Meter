@@ -206,6 +206,9 @@ function _G._detalhes:Start()
 			end
 		end
 		
+	--> check version
+		_detalhes:CheckVersion()
+		
 	--> restore cooltip anchor position
 		DetailsTooltipAnchor:Restore()
 	

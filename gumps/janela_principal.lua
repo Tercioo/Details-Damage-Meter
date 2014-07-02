@@ -1397,9 +1397,47 @@ local function barra_scripts (esta_barra, instancia, i)
 		if (esta_barra.fading_in) then
 			return
 		end
-
+		
 		if (button == "RightButton") then
 			return _detalhes.switch:ShowMe (instancia)
+		
+		elseif (button == "MiddleButton") then
+			--> verifica se é damage taken
+			if (instancia.atributo == 1 and instancia.sub_atributo == 6) then --> enemies
+			
+				local inimigo = esta_barra.minha_tabela.nome
+				local custom_name = inimigo .. Loc ["STRING_CUSTOM_ENEMY_DT"]
+			
+				--> procura se já tem um custom:
+				for index, CustomObject in _ipairs (_detalhes.custom) do
+					if (CustomObject:GetName() == custom_name) then
+						return instancia:TrocaTabela (instancia.segmento, 5, index)
+					end
+				end
+
+				--> criar um custom para este actor.
+				local new_custom_object = {
+					name = custom_name,
+					icon = [[Interface\ICONS\Pet_Type_Undead]],
+					attribute = "damagedone",
+					author = _detalhes.playername,
+					desc = inimigo .. " Damage Taken",
+					source = "[raid]",
+					target = inimigo,
+					script = false,
+					tooltip = false,
+					temp = true
+				}
+		
+				tinsert (_detalhes.custom, new_custom_object)
+				setmetatable (new_custom_object, _detalhes.atributo_custom)
+				new_custom_object.__index = _detalhes.atributo_custom
+
+				instancia:TrocaTabela (instancia.segmento, 5, #_detalhes.custom)
+				--func, true, 5, index
+				
+			end
+			
 		end
 	
 		esta_barra.texto_direita:SetPoint ("right", esta_barra.statusbar, "right", 1, -1)

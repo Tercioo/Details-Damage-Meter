@@ -1691,6 +1691,13 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 			
 	end
 	
+	--> enemies
+	if (instancia.sub_atributo == 6) then
+		GameCooltip:AddLine (" ")
+		GameCooltip:AddLine ("|cFFFFCC00middle button|r: real-time damage taken")
+		GameCooltip:AddIcon ([[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]], 1, 1, 12, 16, 14/512, 64/512, 127/512, 204/512)
+	end
+	
 	return true
 end
 

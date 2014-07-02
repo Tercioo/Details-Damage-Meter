@@ -461,6 +461,11 @@
 					if (_detalhes.tabela_vigente.instance_type == "raid") then
 						_detalhes.last_encounter2 = _detalhes.last_encounter
 						_detalhes.last_encounter = _detalhes.tabela_vigente.is_boss.name
+						
+						--debug
+						_detalhes:Msg (_detalhes.debug_pots1 or "")
+						_detalhes:Msg (_detalhes.debug_pots2 or "")
+						
 					end
 					
 					if (bossKilled) then
