@@ -21,6 +21,7 @@ local GameTooltip = GameTooltip
 local _IsInRaid = IsInRaid
 local _IsInGroup = IsInGroup
 local _GetNumGroupMembers = GetNumGroupMembers
+local _GetNumSubgroupMembers = GetNumSubgroupMembers
 local _UnitAura = UnitAura
 local _UnitGUID = UnitGUID
 local _UnitName = UnitName
@@ -1138,7 +1139,7 @@ function _detalhes:CatchRaidDebuffUptime (in_or_out) -- "DEBUFF_UPTIME_IN"
 				
 				checked [his_target] = true
 				
-				for debuffIndex = 1, 40 do
+				for debuffIndex = 1, 41 do
 					local name, _, _, _, _, _, _, unitCaster, _, _, spellid  = UnitDebuff ("raid"..raidIndex.."target", debuffIndex)
 					if (name and unitCaster) then
 						local playerName, realmName = _UnitName (unitCaster)
@@ -1217,41 +1218,49 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 	if (_IsInRaid()) then
 	
 		local pot_usage = {}
-		local pot_usage_test = {}
 	
+		--> raid groups
 		for raidIndex = 1, _GetNumGroupMembers() do
 			for buffIndex = 1, 41 do
 				local name, _, _, _, _, _, _, unitCaster, _, _, spellid  = _UnitAura ("raid"..raidIndex, buffIndex, nil, "HELPFUL")
 				
-				if (in_or_out == "BUFF_UPTIME_IN") then
-					if (_detalhes.PotionList [spellid]) then
-						print ("Pre Potion Found on raidIndex", raidIndex, unitCaster, spellid)
-						local playerName, realmName = _UnitName ("raid"..raidIndex)
-						if (realmName and realmName ~= "") then
-							playerName = playerName .. "-" .. realmName
-						end
-						pot_usage_test [playerName] = spellid
-					end
-				end
-				
-				--print (name, unitCaster, "==", "raid"..raidIndex)
 				if (name and unitCaster == "raid"..raidIndex) then
-					
 					local playerName, realmName = _UnitName ("raid"..raidIndex)
 					if (realmName and realmName ~= "") then
 						playerName = playerName .. "-" .. realmName
 					end
+					
+					_detalhes.parser:add_buff_uptime (nil, GetTime(), _UnitGUID ("raid"..raidIndex), playerName, 0x00000514, _UnitGUID ("raid"..raidIndex), playerName, 0x00000514, spellid, name, in_or_out)
 					
 					if (in_or_out == "BUFF_UPTIME_IN") then
 						if (_detalhes.PotionList [spellid]) then
 							pot_usage [playerName] = spellid
 						end
 					end
+				end
+			end
+		end
+		
+--		/run print (GetNumSubgroupMembers());for i=1,GetNumSubgroupMembers()do print (UnitName("party"..i))end
+		
+		--> player sub group
+		for partyIndex = 1, _GetNumSubgroupMembers() do
+			for buffIndex = 1, 41 do
+				local name, _, _, _, _, _, _, unitCaster, _, _, spellid  = _UnitAura ("party"..partyIndex, buffIndex, nil, "HELPFUL")
+				
+				if (name and unitCaster == "party"..partyIndex) then
+					local playerName, realmName = _UnitName ("party"..partyIndex)
+					if (realmName and realmName ~= "") then
+						playerName = playerName .. "-" .. realmName
+					end
 					
-					_detalhes.parser:add_buff_uptime (nil, GetTime(), _UnitGUID ("raid"..raidIndex), playerName, 0x00000514, _UnitGUID ("raid"..raidIndex), playerName, 0x00000514, spellid, name, in_or_out)
+					_detalhes.parser:add_buff_uptime (nil, GetTime(), _UnitGUID ("party"..partyIndex), playerName, 0x00000514, _UnitGUID ("party"..partyIndex), playerName, 0x00000514, spellid, name, in_or_out)
 					
-				else
-					--break
+					if (in_or_out == "BUFF_UPTIME_IN") then
+						if (_detalhes.PotionList [spellid]) then
+							pot_usage [playerName] = spellid
+						end
+					end
 				end
 			end
 		end
@@ -1275,16 +1284,6 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 		end
 		
 		if (in_or_out == "BUFF_UPTIME_IN") then
-
-			local string_output = "pre-potion raw: "			
-			for playername, potspellid in _pairs (pot_usage_test) do
-				local name, _, icon = _GetSpellInfo (potspellid)
-				local _, class = UnitClass (playername)
-				local class_color = RAID_CLASS_COLORS [class].colorStr
-				string_output = string_output .. "|c" .. class_color .. playername .. "|r |T" .. icon .. ":14:14:0:0:64:64:0:64:0:64|t "
-			end
-			_detalhes.debug_pots1 = string_output
-			
 			local string_output = "pre-potion: "
 			for playername, potspellid in _pairs (pot_usage) do
 				local name, _, icon = _GetSpellInfo (potspellid)
@@ -1293,7 +1292,6 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 				string_output = string_output .. "|c" .. class_color .. playername .. "|r |T" .. icon .. ":14:14:0:0:64:64:0:64:0:64|t "
 			end
 			_detalhes.debug_pots2 = string_output
-		
 		end
 		
 	elseif (_IsInGroup()) then

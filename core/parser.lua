@@ -2754,6 +2754,7 @@
 				_detalhes:SchedulePetUpdate (1)
 				_detalhes:InstanceCall (_detalhes.SetCombatAlpha, nil, nil, true)
 				_detalhes:CheckSwitchOnLogon()
+				_detalhes:CheckVersion()
 			end
 		else
 			_detalhes.in_group = IsInGroup() or IsInRaid()

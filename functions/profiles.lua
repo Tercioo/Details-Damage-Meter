@@ -648,6 +648,7 @@ local default_global_data = {
 		savedStyles = {},
 		savedCustomSpells = {},
 		savedTimeCaptures = {},
+		lastUpdateWarning = 0,
 		tutorial = {
 			logons = 0, 
 			unlock_button = 0, 
