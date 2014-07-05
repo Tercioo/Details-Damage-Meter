@@ -354,6 +354,8 @@
 		-- ~end
 		function _detalhes:SairDoCombate (bossKilled, from_encounter_end)
 
+			--print ("=== Saiu de Combate! ===", _tempo)
+		
 			if (_detalhes.debug) then
 				_detalhes:Msg ("(debug) ended a combat.")
 			end
@@ -829,10 +831,10 @@
 
 			--> envia os dados do proprio host pra ele antes
 			if (host_of) then
-				_detalhes:SendCustomRaidData ("equalize_actors", host_of, nil, data)
+				_detalhes:SendRaidDataAs (_detalhes.network.ids.CLOUD_EQUALIZE, host_of, nil, data)
 				_detalhes:EqualizeActors()
 			else
-				_detalhes:SendRaidData ("equalize_actors", data)
+				_detalhes:SendRaidData (_detalhes.network.ids.CLOUD_EQUALIZE, data)
 			end
 			
 		end

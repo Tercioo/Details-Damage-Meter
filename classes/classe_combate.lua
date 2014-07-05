@@ -269,7 +269,16 @@
 	end
 
 	function combate:seta_tempo_decorrido()
-		self.end_time = _tempo
+		if (self.playing_solo) then
+			local damage_actor = self (1, _detalhes.playername)
+			if (damage_actor) then
+				self.end_time = damage_actor.last_event or _tempo
+			else
+				self.end_time = _tempo
+			end
+		else
+			self.end_time = _tempo
+		end
 	end
 
 	function _detalhes.refresh:r_combate (tabela_combate, shadow)

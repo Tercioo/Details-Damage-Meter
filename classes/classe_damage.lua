@@ -223,7 +223,7 @@
 			end
 			
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---> internals
+--> class constructor
 
 	function atributo_damage:NovaTabela (serial, nome, link)
 
@@ -275,8 +275,6 @@
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> special cases
-
-
 
 	-- dps (calculate dps for actors)
 	function atributo_damage:ContainerRefreshDps (container, combat_time)
@@ -1502,6 +1500,8 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 			elseif (_detalhes.time_type == 2) then
 				meu_tempo = instancia.showing:GetCombatTime()
 			end
+			
+			--print ("time:", meu_tempo)
 			
 			--add and sort
 			for _spellid, _skill in _pairs (ActorSkillsContainer) do

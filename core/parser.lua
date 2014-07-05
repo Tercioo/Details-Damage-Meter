@@ -153,13 +153,15 @@
 	--> check if need start an combat
 
 		if (not _in_combat) then
-			if (		token ~= "SPELL_PERIODIC_DAMAGE" and 
+			if (	token ~= "SPELL_PERIODIC_DAMAGE" and 
 				( 
 					(who_flags and _bit_band (who_flags, AFFILIATION_GROUP) ~= 0 and _UnitAffectingCombat (who_name) )
 					or 
 					(alvo_flags and _bit_band (alvo_flags, AFFILIATION_GROUP) ~= 0 and _UnitAffectingCombat (alvo_name) ) 
-				)) then 
-				
+					or
+					(not _detalhes.in_group and who_flags and _bit_band (who_flags, AFFILIATION_GROUP) ~= 0)
+				)
+			) then 
 				--> não entra em combate se for DOT
 				_detalhes:EntrarEmCombate (who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags)
 			end
@@ -191,10 +193,6 @@
 			end
 			
 		end
-		
-		--if (who_name:find ("Guardian of Ancient Kings")) then --remover
-		--	print ("PARSER:", who_name, este_jogador.nome, este_jogador.owner, meu_dono.nome)
-		--end
 		
 		--> his target
 		local jogador_alvo, alvo_dono = damage_cache [alvo_name] or damage_cache_pets [alvo_serial], damage_cache_petsOwners [alvo_serial]
@@ -319,14 +317,14 @@
 				if (meu_dono.end_time) then
 					meu_dono.end_time = nil
 				else
-					meu_dono:IniciarTempo (_tempo-3.0, meu_dono.shadow)
+					meu_dono:IniciarTempo (_tempo-2.5, meu_dono.shadow)
 				end
 			end
 			
 			if (este_jogador.end_time) then
 				este_jogador.end_time = nil
 			else
-				este_jogador:IniciarTempo (_tempo-3.0, este_jogador.shadow)
+				este_jogador:IniciarTempo (_tempo-2.5, este_jogador.shadow)
 			end
 
 			if (este_jogador.nome == _detalhes.playername and token ~= "SPELL_PERIODIC_DAMAGE") then --> iniciando o dps do "PLAYER"
@@ -521,24 +519,14 @@
 -----------------------------------------------------------------------------------------------------------------------------------------
 	function parser:summon (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellName)
 	
-		--if (alvo_name == "Guardian of Ancient Kings") then
-		--	print ("SUMMON", who_name, alvo_serial)
-		--end
-	
 		--> pet summon another pet
 		local sou_pet = _detalhes.tabela_pets.pets [who_serial]
 		if (sou_pet) then --> okey, ja é um pet
-			--if (alvo_name == "Guardian of Ancient Kings") then
-			--	print ("SUMMON", "inverteu")
-			--end
 			who_name, who_serial, who_flags = sou_pet[1], sou_pet[2], sou_pet[3]
 		end
 		
 		local alvo_pet = _detalhes.tabela_pets.pets [alvo_serial]
 		if (alvo_pet) then
-			--if (alvo_name == "Guardian of Ancient Kings") then
-			--	print ("SUMMON", "inverteu 2")
-			--end
 			who_name, who_serial, who_flags = alvo_pet[1], alvo_pet[2], alvo_pet[3]
 		end
 
@@ -761,7 +749,7 @@
 			------------------------------------------------------------------------------------------------
 			--> buff uptime
 				if (_recording_buffs_and_debuffs) then
-					-- jade spirit doesn't send who_name, that's a shame. --print (spellname, who_name, alvo_name)
+					-- jade spirit doesn't send who_name, that's a shame. 
 					if (who_name == alvo_name and raid_members_cache [who_serial] and _in_combat) then
 						--> call record buffs uptime
 	--[[not tail call, need to fix this]]	parser:add_buff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, "BUFF_UPTIME_IN")
@@ -2003,7 +1991,7 @@
 			--> procura a última morte do alvo na tabela do combate:
 			for i = 1, #_current_combat.last_events_tables do 
 				if (_current_combat.last_events_tables [i] [3] == alvo_name) then
-					--print ("Adicionando Bres para "..alvo_name)
+
 					local deadLog = _current_combat.last_events_tables [i] [1]
 					local jaTem = false
 					for _, evento in _ipairs (deadLog) do 
@@ -2165,8 +2153,6 @@
 			--> frags
 			
 				if (_detalhes.only_pvp_frags and (_bit_band (alvo_flags, 0x00000400) == 0 or (_bit_band (alvo_flags, 0x00000040) == 0 and _bit_band (alvo_flags, 0x00000020) == 0))) then --byte 2 = 4 (HOSTILE) byte 3 = 4 (OBJECT_TYPE_PLAYER)
-					-- 10528 // 66856
-					-- print ("recusando actor ",alvo_name, " flag: ", _detalhes:hex (alvo_flags), " sem hex: ", alvo_flags)
 					return
 				end
 			
@@ -2228,7 +2214,6 @@
 				
 				--> adiciona a tabela da morte apenas os DANOS recentes
 				for index, tabela in _ipairs (dano.last_events_table) do 
-					--print ("PARSER 3 dano", unpack (tabela))
 					if (tabela [4]) then
 						if (tabela [4] + 12 > time) then --> mostra apenas eventos recentes
 							esta_morte [#esta_morte+1] = tabela
@@ -2239,7 +2224,6 @@
 				--> adiciona a tabela da morte apenas as CURAS recentes
 				if (cura.last_events_table) then
 					for index, tabela in _ipairs (cura.last_events_table) do 
-						--print ("PARSER 3 cura", unpack (tabela))
 						if (tabela [4]) then
 							if (tabela [4] + 12 > time) then
 								esta_morte [#esta_morte+1] = tabela
@@ -2330,8 +2314,6 @@
 				
 				local t = {esta_morte, time, este_jogador.nome, este_jogador.classe, _UnitHealthMax (alvo_name), minutos.."m "..segundos.."s",  ["dead"] = true}
 				
-				--print ("A morte teve "..#esta_morte.." eventos")
-				
 				_table_insert (_current_combat.last_events_tables, #_current_combat.last_events_tables+1, t)
 
 				--> reseta a pool
@@ -2344,11 +2326,6 @@
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> core
-
-	--test
-	--function parser:spell_fail (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spellschool, error, msg2, msg3)
-	--	print (token, who_name, spellid, spellname, spellschool, error, msg2, msg3)
-	--end
 
 	local token_list = {
 		-- neutral
@@ -2694,6 +2671,13 @@
 	end
 
 	function _detalhes.parser_functions:PLAYER_REGEN_ENABLED (...)
+	
+		--> playing alone, just finish the combat right now
+		if (not _IsInGroup() and not IsInRaid()) then	
+			_detalhes.tabela_vigente.playing_solo = true
+			_detalhes:SairDoCombate()
+		end
+		
 		--> aqui, tentativa de fazer o timer da janela do Solo funcionar corretamente:
 		if (_detalhes.solo and _detalhes.PluginCount.SOLO > 0) then
 			if (_detalhes.SoloTables.Plugins [_detalhes.SoloTables.Mode].Stop) then
@@ -2728,6 +2712,7 @@
 				instancia:SetCombatAlpha (nil, nil, true)
 			end
 		end
+
 	end
 
 	function _detalhes.parser_functions:ROLE_CHANGED_INFORM (...)
@@ -2768,7 +2753,6 @@
 				_detalhes:CheckSwitchOnLogon()
 			else
 				_detalhes:SchedulePetUpdate (2)
-				_detalhes:CheckDetailsUsers()
 			end
 		end
 		

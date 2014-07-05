@@ -669,7 +669,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 	elseif (msg == "users") then
 		_detalhes.users = {}
 		_detalhes.sent_highfive = GetTime()
-		_detalhes:SendRaidData ("highfive")
+		_detalhes:SendRaidData (_detalhes.network.ids.HIGHFIVE_REQUEST)
 		print (Loc ["STRING_DETAILS1"] .. "highfive sent.")
 	
 	elseif (command == "showusers") then

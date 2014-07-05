@@ -175,8 +175,6 @@ function _G._detalhes:Start()
 		self.details_users = {}
 		self.in_group = IsInGroup() or IsInRaid()
 		
-		_detalhes:SendGuildData ("check_version", _detalhes.build_counter)
-		
 	--> done
 		self.initializing = nil
 	
@@ -209,7 +207,7 @@ function _G._detalhes:Start()
 		end
 		
 	--> check version
-		_detalhes:CheckVersion()
+		_detalhes:CheckVersion (true)
 		
 	--> restore cooltip anchor position
 		DetailsTooltipAnchor:Restore()
@@ -251,8 +249,7 @@ function _G._detalhes:Start()
 				feedback_frame.uppertext:SetFont (font, 10, flags)
 				feedback_frame.uppertext:SetTextColor (1, 1, 1, .8)
 				feedback_frame.uppertext:SetWidth (440)
-				
-			
+
 				local editbox = _detalhes.gump:NewTextEntry (feedback_frame, nil, "$parentTextEntry", "text", 387, 14)
 				editbox:SetPoint (20, -106)
 				editbox:SetAutoFocus (false)
@@ -950,5 +947,70 @@ function _G._detalhes:Start()
 	
 	--BNSendFriendInvite ("tercio#1488")
 	
+	function _detalhes:OpenUpdateWindow()
+	
+		if (not _G.DetailsUpdateDialog) then
+			local updatewindow_frame = CreateFrame ("frame", "DetailsUpdateDialog", UIParent, "ButtonFrameTemplate")
+			updatewindow_frame:SetFrameStrata ("LOW")
+			tinsert (UISpecialFrames, "DetailsUpdateDialog")
+			updatewindow_frame:SetPoint ("center", UIParent, "center")
+			updatewindow_frame:SetSize (512, 200)
+			updatewindow_frame.portrait:SetTexture ([[Interface\CHARACTERFRAME\TEMPORARYPORTRAIT-FEMALE-GNOME]])
+			
+			updatewindow_frame.TitleText:SetText ("A New Version Is Available!")
+
+			updatewindow_frame.midtext = updatewindow_frame:CreateFontString (nil, "artwork", "GameFontNormal")
+			updatewindow_frame.midtext:SetText ("Good news everyone!\nA new version has been forged and is waiting to be looted.")
+			updatewindow_frame.midtext:SetPoint ("topleft", updatewindow_frame, "topleft", 10, -90)
+			updatewindow_frame.midtext:SetJustifyH ("center")
+			updatewindow_frame.midtext:SetWidth (370)
+			
+			updatewindow_frame.gnoma = updatewindow_frame:CreateTexture (nil, "artwork")
+			updatewindow_frame.gnoma:SetPoint ("topright", updatewindow_frame, "topright", -3, -59)
+			updatewindow_frame.gnoma:SetTexture ("Interface\\AddOns\\Details\\images\\icons2")
+			updatewindow_frame.gnoma:SetSize (105*1.05, 107*1.05)
+			updatewindow_frame.gnoma:SetTexCoord (0.2021484375, 0, 0.7919921875, 1)
+			
+			local editbox = _detalhes.gump:NewTextEntry (updatewindow_frame, nil, "$parentTextEntry", "text", 387, 14)
+			editbox:SetPoint (20, -136)
+			editbox:SetAutoFocus (false)
+			editbox:SetHook ("OnEditFocusGained", function() 
+				editbox.text = "http://www.curse.com/addons/wow/details"
+				editbox:HighlightText()
+			end)
+			editbox:SetHook ("OnEditFocusLost", function() 
+				editbox.text = "http://www.curse.com/addons/wow/details"
+				editbox:HighlightText()
+			end)
+			editbox:SetHook ("OnChar", function() 
+				editbox.text = "http://www.curse.com/addons/wow/details"
+				editbox:HighlightText()
+			end)
+			editbox.text = "http://www.curse.com/addons/wow/details"
+			
+			updatewindow_frame.close = CreateFrame ("Button", "DetailsUpdateDialogCloseButton", updatewindow_frame, "OptionsButtonTemplate")
+			updatewindow_frame.close:SetPoint ("bottomleft", updatewindow_frame, "bottomleft", 8, 4)
+			updatewindow_frame.close:SetText ("Close")
+			
+			updatewindow_frame.close:SetScript ("OnClick", function (self)
+				DetailsUpdateDialog:Hide()
+				editbox:ClearFocus()
+			end)
+			
+			updatewindow_frame:SetScript ("OnHide", function()
+				editbox:ClearFocus()
+			end)
+			
+			function _detalhes:UpdateDialogSetFocus()
+				DetailsUpdateDialog:Show()
+				DetailsUpdateDialogTextEntry.MyObject:SetFocus()
+				DetailsUpdateDialogTextEntry.MyObject:HighlightText()
+			end
+			_detalhes:ScheduleTimer ("UpdateDialogSetFocus", 1)
+			
+		end
+		
+	end
+
 end
 
