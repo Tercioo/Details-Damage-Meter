@@ -639,7 +639,7 @@ function gump:NewFillPanel (parent, rows, name, member, w, h, total_lines, fill_
 						if (panel.rows [i].type == "icon") then
 
 							local result = results [i]:gsub (".-%\\", "")
-							row.row_widgets [i].icon.texture = results [i]
+							row.row_widgets [i]._icon.texture = results [i]
 						
 						elseif (panel.rows [i].type == "button") then
 						
@@ -673,7 +673,7 @@ function gump:NewFillPanel (parent, rows, name, member, w, h, total_lines, fill_
 					for i = 1, #row.row_widgets do
 						row.row_widgets [i]:SetText ("")
 						if (panel.rows [i].type == "icon") then
-							row.row_widgets [i].icon.texture = ""
+							row.row_widgets [i]._icon.texture = ""
 						end
 					end
 				end
@@ -682,7 +682,7 @@ function gump:NewFillPanel (parent, rows, name, member, w, h, total_lines, fill_
 				for i = 1, #row.row_widgets do
 					row.row_widgets [i]:SetText ("")
 					if (panel.rows [i].type == "icon") then
-						row.row_widgets [i].icon.texture = ""
+						row.row_widgets [i]._icon.texture = ""
 					end
 				end
 			end
@@ -804,26 +804,27 @@ function gump:NewFillPanel (parent, rows, name, member, w, h, total_lines, fill_
 			elseif (_type == "icon") then
 			
 				--> create button and icon
-				local iconbutton = gump:NewButton (row, nil, "$parentIconButton" .. o, "iconbutton", panel.rows [o].width, 20)
+				local iconbutton = gump:NewButton (row, nil, "$parentIconButton" .. o, "iconbutton", 22, 20)
+				iconbutton:InstallCustomTexture()
 				
 				iconbutton:SetHook ("OnEnter", button_on_enter)
 				iconbutton:SetHook ("OnLeave", button_on_leave)
 				
 				--iconbutton:InstallCustomTexture()
-				local icon = gump:NewImage (iconbutton, nil, 20, 20, "artwork", nil, "icon", "$parentIcon" .. o)
+				local icon = gump:NewImage (iconbutton, nil, 20, 20, "artwork", nil, "_icon", "$parentIcon" .. o)
 				iconbutton._icon = icon
 				
-				iconbutton:SetPoint ("left", row, "left", anchors [o], 0)
+				iconbutton:SetPoint ("left", row, "left", anchors [o] + ( (panel.rows [o].width - 22) / 2), 0)
 				icon:SetPoint ("center", iconbutton, "center", 0, 0)
 				
 				--> set functions
 				local function iconcallback (texture)
-					iconbutton.icon.texture = texture
+					iconbutton._icon.texture = texture
 					panel.rows [o].func (iconbutton.index, texture)
 				end
 				
 				iconbutton:SetClickFunction (function()
-					gump:IconPick (iconcallback)
+					gump:IconPick (iconcallback, true)
 					return true
 				end)
 				

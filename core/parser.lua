@@ -2596,17 +2596,25 @@
 				encounter_start_table:func()
 			end
 		end
-		
+
 		local encounter_table, boss_index = _detalhes:GetBossEncounterDetailsFromEncounterId (zoneMapID, encounterID)
 		if (encounter_table) then
 			_detalhes.encounter_table.index = boss_index
 		end
+		
 	end
 	
 	function _detalhes.parser_functions:ENCOUNTER_END (...)
+	
 		if (not _detalhes.encounter_table.start) then
 			return
 		end
+		
+		_detalhes.latest_ENCOUNTER_END = _detalhes.latest_ENCOUNTER_END or 0
+		if (_detalhes.latest_ENCOUNTER_END + 15 > _detalhes._tempo) then
+			return
+		end
+		_detalhes.latest_ENCOUNTER_END = _detalhes._tempo
 		
 		_detalhes.encounter_table ["end"] = time() - 0.4
 		

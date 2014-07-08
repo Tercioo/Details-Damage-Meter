@@ -312,20 +312,18 @@ local function OnLeaveMainWindow (instancia, self)
 		--> resizes and lock button
 		instancia.baseframe.resize_direita:SetAlpha (0)
 		instancia.baseframe.resize_esquerda:SetAlpha (0)
-		gump:Fade (instancia.baseframe.lock_button, 1)
+		instancia.baseframe.lock_button:SetAlpha (0)
+		instancia.break_snap_button:SetAlpha (0)
 		
 		--> stretch button
 		--gump:Fade (instancia.baseframe.button_stretch, -1)
 		gump:Fade (instancia.baseframe.button_stretch, "ALPHA", 0)
-		
-		--> snaps
-		instancia.botao_separar:Hide()
 	
 	elseif (instancia.modo ~= _detalhes._detalhes_props["MODO_ALONE"] and instancia.baseframe.isLocked) then
-		gump:Fade (instancia.baseframe.lock_button, 1)
+		instancia.baseframe.lock_button:SetAlpha (0)
 		gump:Fade (instancia.baseframe.button_stretch, "ALPHA", 0)
-		instancia.botao_separar:Hide()
-		
+		instancia.break_snap_button:SetAlpha (0)
+
 	end
 end
 _detalhes.OnLeaveMainWindow = OnLeaveMainWindow
@@ -345,8 +343,7 @@ local function OnEnterMainWindow (instancia, self)
 		--> resizes and lock button
 		instancia.baseframe.resize_direita:SetAlpha (1)
 		instancia.baseframe.resize_esquerda:SetAlpha (1)
-
-		gump:Fade (instancia.baseframe.lock_button, 0)
+		instancia.baseframe.lock_button:SetAlpha (1)
 		
 		--> stretch button
 		gump:Fade (instancia.baseframe.button_stretch, "ALPHA", 0.6)
@@ -354,19 +351,19 @@ local function OnEnterMainWindow (instancia, self)
 		--> snaps
 		for _, instancia_id in _pairs (instancia.snap) do
 			if (instancia_id) then
-				instancia.botao_separar:Show()
+				instancia.break_snap_button:SetAlpha (1)
 				break
 			end
 		end
 		
 	elseif (instancia.modo ~= _detalhes._detalhes_props["MODO_ALONE"] and instancia.baseframe.isLocked) then
-		gump:Fade (instancia.baseframe.lock_button, 0)
+		instancia.baseframe.lock_button:SetAlpha (1)
 		gump:Fade (instancia.baseframe.button_stretch, "ALPHA", 0.6)
 		
 		--> snaps
 		for _, instancia_id in _pairs (instancia.snap) do
 			if (instancia_id) then
-				instancia.botao_separar:Show()
+				instancia.break_snap_button:SetAlpha (1)
 				break
 			end
 		end
@@ -1240,6 +1237,7 @@ local lockFunctionOnEnter = function (self)
 		GameCooltip:Reset()
 		GameCooltip:SetType ("tooltip")
 		GameCooltip:AddFromTable (lockButtonTooltip)
+		GameCooltip:SetOption ("NoLastSelectedBar", true)
 		GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
 		GameCooltip:SetOwner (self)
 		GameCooltip:ShowCooltip()
@@ -1247,16 +1245,20 @@ local lockFunctionOnEnter = function (self)
 end
  
 local lockFunctionOnLeave = function (self)
-
 	if (self.mostrando) then
-	
+		self.going_hide = true
 		OnLeaveMainWindow (self.instancia, self)
 		self.label:SetTextColor (.3, .3, .3, .6)
 		self.mostrando = false
 		_G.GameCooltip:ShowMe (false)
-		
 	end
-	
+end
+
+local lockFunctionOnHide = function (self)
+	if (self.going_hide) then
+		GameCooltip:ShowMe (false)
+		self.going_hide = nil
+	end
 end
 
 function _detalhes:DelayOptionsRefresh (instance, no_reopen)
@@ -1294,10 +1296,25 @@ _detalhes.lock_instance_function = lockFunctionOnClick
 
 local unSnapButtonTooltip = {
 	{text = Loc ["STRING_DETACH_DESC"]},
-	{icon = [[Interface\CURSOR\CURSORICONSNEW]], width = 14, height = 14, l = 4/128, r = 24/128, t = 34/256, b = 60/256, color = "orange"},
+	{icon = [[Interface\AddOns\Details\images\icons]], width = 14, height = 14, l = 160/512, r = 179/512, t = 142/512, b = 162/512},
 }
 
 local unSnapButtonOnEnter = function (self)
+
+	local have_snap = false
+	for _, instancia_id in _pairs (self.instancia.snap) do
+		if (instancia_id) then
+			have_snap = true
+			break
+		end
+	end
+	
+	if (not have_snap) then
+		OnEnterMainWindow (self.instancia, self)
+		self.mostrando = true
+		return
+	end
+
 	OnEnterMainWindow (self.instancia, self)
 	self.mostrando = true
 	
@@ -1309,9 +1326,11 @@ local unSnapButtonOnEnter = function (self)
 end
 
 local unSnapButtonOnLeave = function (self)
-	OnLeaveMainWindow (self.instancia, self)
-	self.mostrando = false
-	GameCooltip:Hide()
+	if (self.mostrando) then
+		OnLeaveMainWindow (self.instancia, self)
+		self.mostrando = false
+		GameCooltip:Hide()
+	end
 end
 
 local shift_monitor = function (self)
@@ -2504,6 +2523,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 		baseframe.lock_button:SetScript ("OnClick", lockFunctionOnClick)
 		baseframe.lock_button:SetScript ("OnEnter", lockFunctionOnEnter)
 		baseframe.lock_button:SetScript ("OnLeave", lockFunctionOnLeave)
+		baseframe.lock_button:SetScript ("OnHide", lockFunctionOnHide)
 		baseframe.lock_button:SetFrameStrata ("HIGH")
 		baseframe.lock_button:SetFrameLevel (baseframe:GetFrameLevel() + 6)
 		baseframe.lock_button.instancia = instancia
@@ -2586,32 +2606,31 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 
 -- break snap button ----------------------------------------------------------------------------------------------------------------------------------------------------------
 
-		instancia.botao_separar = CreateFrame ("button", "DetailsBreakSnapButton" .. ID, baseframe.cabecalho.fechar)
-		instancia.botao_separar:SetPoint ("bottom", baseframe.resize_direita, "top", -1, 0)
-		instancia.botao_separar:SetFrameLevel (baseframe:GetFrameLevel() + 5)
-		instancia.botao_separar:SetSize (13, 13)
+		instancia.break_snap_button = CreateFrame ("button", "DetailsBreakSnapButton" .. ID, baseframe.cabecalho.fechar)
+		instancia.break_snap_button:SetPoint ("bottom", baseframe.resize_direita, "top", -1, 0)
+		instancia.break_snap_button:SetFrameLevel (baseframe:GetFrameLevel() + 5)
+		instancia.break_snap_button:SetSize (13, 13)
+		instancia.break_snap_button:SetAlpha (0)
 		
-		instancia.botao_separar.instancia = instancia
+		instancia.break_snap_button.instancia = instancia
 		
-		instancia.botao_separar:SetScript ("OnClick", function()
+		instancia.break_snap_button:SetScript ("OnClick", function()
 			instancia:Desagrupar (-1)
 		end)
 		
-		instancia.botao_separar:SetScript ("OnEnter", unSnapButtonOnEnter)
-		instancia.botao_separar:SetScript ("OnLeave", unSnapButtonOnLeave)
+		instancia.break_snap_button:SetScript ("OnEnter", unSnapButtonOnEnter)
+		instancia.break_snap_button:SetScript ("OnLeave", unSnapButtonOnLeave)
 		
 
-		instancia.botao_separar:SetNormalTexture (DEFAULT_SKIN)
-		instancia.botao_separar:SetDisabledTexture (DEFAULT_SKIN)
-		instancia.botao_separar:SetHighlightTexture (DEFAULT_SKIN, "ADD")
-		instancia.botao_separar:SetPushedTexture (DEFAULT_SKIN)
+		instancia.break_snap_button:SetNormalTexture (DEFAULT_SKIN)
+		instancia.break_snap_button:SetDisabledTexture (DEFAULT_SKIN)
+		instancia.break_snap_button:SetHighlightTexture (DEFAULT_SKIN, "ADD")
+		instancia.break_snap_button:SetPushedTexture (DEFAULT_SKIN)
 		
-		instancia.botao_separar:GetNormalTexture():SetTexCoord (unpack (COORDS_UNLOCK_BUTTON))
-		instancia.botao_separar:GetDisabledTexture():SetTexCoord (unpack (COORDS_UNLOCK_BUTTON))
-		instancia.botao_separar:GetHighlightTexture():SetTexCoord (unpack (COORDS_UNLOCK_BUTTON))
-		instancia.botao_separar:GetPushedTexture():SetTexCoord (unpack (COORDS_UNLOCK_BUTTON))
-		
-		instancia.botao_separar:Hide()
+		instancia.break_snap_button:GetNormalTexture():SetTexCoord (unpack (COORDS_UNLOCK_BUTTON))
+		instancia.break_snap_button:GetDisabledTexture():SetTexCoord (unpack (COORDS_UNLOCK_BUTTON))
+		instancia.break_snap_button:GetHighlightTexture():SetTexCoord (unpack (COORDS_UNLOCK_BUTTON))
+		instancia.break_snap_button:GetPushedTexture():SetTexCoord (unpack (COORDS_UNLOCK_BUTTON))
 	
 -- scripts ------------------------------------------------------------------------------------------------------------------------------------------------------------	
 	
@@ -4569,10 +4588,10 @@ function _detalhes:ChangeSkin (skin_name)
 		self.baseframe.resize_direita.texture:SetTexture (skin_file) --> botão de redimencionar da direita
 		self.baseframe.resize_esquerda.texture:SetTexture (skin_file) --> botão de redimencionar da esquerda
 		
-		self.botao_separar:SetNormalTexture (skin_file) --> cadeado
-		self.botao_separar:SetDisabledTexture (skin_file)
-		self.botao_separar:SetHighlightTexture (skin_file, "ADD")
-		self.botao_separar:SetPushedTexture (skin_file)
+		self.break_snap_button:SetNormalTexture (skin_file) --> cadeado
+		self.break_snap_button:SetDisabledTexture (skin_file)
+		self.break_snap_button:SetHighlightTexture (skin_file, "ADD")
+		self.break_snap_button:SetPushedTexture (skin_file)
 
 ----------> icon anchor and size
 	
@@ -4788,31 +4807,31 @@ function _detalhes:SetFrameStrata (strata)
 	self.baseframe:SetFrameStrata (strata)
 	
 	if (strata == "BACKGROUND") then
-		self.botao_separar:SetFrameStrata ("LOW")
+		self.break_snap_button:SetFrameStrata ("LOW")
 		self.baseframe.resize_esquerda:SetFrameStrata ("LOW")
 		self.baseframe.resize_direita:SetFrameStrata ("LOW")
 		self.baseframe.lock_button:SetFrameStrata ("LOW")
 		
 	elseif (strata == "LOW") then
-		self.botao_separar:SetFrameStrata ("MEDIUM")
+		self.break_snap_button:SetFrameStrata ("MEDIUM")
 		self.baseframe.resize_esquerda:SetFrameStrata ("MEDIUM")
 		self.baseframe.resize_direita:SetFrameStrata ("MEDIUM")
 		self.baseframe.lock_button:SetFrameStrata ("MEDIUM")
 		
 	elseif (strata == "MEDIUM") then
-		self.botao_separar:SetFrameStrata ("HIGH")
+		self.break_snap_button:SetFrameStrata ("HIGH")
 		self.baseframe.resize_esquerda:SetFrameStrata ("HIGH")
 		self.baseframe.resize_direita:SetFrameStrata ("HIGH")
 		self.baseframe.lock_button:SetFrameStrata ("HIGH")
 		
 	elseif (strata == "HIGH") then
-		self.botao_separar:SetFrameStrata ("DIALOG")
+		self.break_snap_button:SetFrameStrata ("DIALOG")
 		self.baseframe.resize_esquerda:SetFrameStrata ("DIALOG")
 		self.baseframe.resize_direita:SetFrameStrata ("DIALOG")
 		self.baseframe.lock_button:SetFrameStrata ("DIALOG")
 		
 	elseif (strata == "DIALOG") then
-		self.botao_separar:SetFrameStrata ("FULLSCREEN")
+		self.break_snap_button:SetFrameStrata ("FULLSCREEN")
 		self.baseframe.resize_esquerda:SetFrameStrata ("FULLSCREEN")
 		self.baseframe.resize_direita:SetFrameStrata ("FULLSCREEN")
 		self.baseframe.lock_button:SetFrameStrata ("FULLSCREEN")

@@ -563,7 +563,7 @@
 				esta_instancia.h_esquerda = nil
 				esta_instancia.h_direita = nil
 				esta_instancia.h_cima = nil
-				esta_instancia.botao_separar = nil
+				esta_instancia.break_snap_button = nil
 				esta_instancia.alert = nil
 				
 				esta_instancia.StatusBar = nil

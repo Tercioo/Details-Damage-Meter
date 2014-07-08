@@ -411,6 +411,9 @@ end
 ------------------------------------------------------------------------------------------------------------------------
 
 --> retorna quantas instância há no momento
+	function _detalhes:GetNumInstancesAmount()
+		return #_detalhes.tabela_instancias
+	end
 	function _detalhes:QuantasInstancias()
 		return #_detalhes.tabela_instancias
 	end
@@ -751,15 +754,15 @@ function _detalhes:agrupar_janelas (lados)
 		end
 	end
 	
-	instancia.botao_separar:Show()
+	instancia.break_snap_button:SetAlpha (1)
 	
 	if (_detalhes.tutorial.unlock_button < 4) then
 	
 		_detalhes.temp_table1.IconSize = 32
 		_detalhes.temp_table1.TextHeightMod = -6
-		_detalhes.popup:ShowMe (instancia.botao_separar, "tooltip", "Interface\\Buttons\\LockButton-Unlocked-Up", Loc ["STRING_UNLOCK"], 150, _detalhes.temp_table1)
+		_detalhes.popup:ShowMe (instancia.break_snap_button, "tooltip", "Interface\\Buttons\\LockButton-Unlocked-Up", Loc ["STRING_UNLOCK"], 150, _detalhes.temp_table1)
 		
-		--UIFrameFlash (instancia.botao_separar, .5, .5, 5, false, 0, 0)
+		--UIFrameFlash (instancia.break_snap_button, .5, .5, 5, false, 0, 0)
 		_detalhes.tutorial.unlock_button = _detalhes.tutorial.unlock_button + 1
 	end
 	
@@ -834,7 +837,7 @@ function _detalhes:Desagrupar (instancia, lado)
 			end
 		end
 		
-		instancia.botao_separar:Hide()
+		instancia.break_snap_button:SetAlpha (0)
 		
 		instancia.verticalSnap = false
 		instancia.horizontalSnap = false
@@ -860,7 +863,8 @@ function _detalhes:Desagrupar (instancia, lado)
 		esta_instancia.snap [2] = nil
 	end
 
-	instancia.botao_separar:Hide()
+	instancia.break_snap_button:SetAlpha (0)
+	
 	
 	if (instancia.iniciada) then
 		instancia:SaveMainWindowPosition()

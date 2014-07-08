@@ -5,6 +5,7 @@
 
 
 local _detalhes = _G._detalhes
+local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
 local _
 
 	--> install skin function:
@@ -484,13 +485,15 @@ local _
 		--[[ for the complete cprop list see the file classe_instancia_include.lua]]
 		instance_cprops = {
 
-			instancebutton_config = {size = {20, 16}, anchor = {7, 0}, textcolor = {.7, .7, .7, 1}, textsize = 10, textfont = "Friz Quadrata TT", highlight_texture = [[Interface\Buttons\UI-Panel-MinimizeButton-Highlight]]},
-			resetbutton_config = {size = {8, 16}, anchor = {2, 0}},
-			closebutton_config = {size = {17, 17}, alpha = 0.60, anchor = {1, 0}},
+			closebutton_config = {size = {20, 20}, alpha = 0.60, anchor = {1, 2}},
+			instancebutton_config = {size = {20, 16}, anchor = {8, 0}, textcolor = {.7, .7, .7, 1}, textsize = 10, textfont = "Friz Quadrata TT", highlight_texture = [[Interface\Buttons\UI-Panel-MinimizeButton-Highlight]]},
+			resetbutton_config = {size = {12, 12}, anchor = {4, 0}, normal_texture = [[Interface\Addons\Details\Images\reset_button2]], highlight_texture = [[Interface\Addons\Details\Images\reset_button2]]},
+			
+			--resetbutton_config = {size = {8, 16}, anchor = {2, 0}},
 
 			menu_icons_size = 0.80,
 			menu2_icons_size = 1.10,
-			menu_anchor = {-55, 0, side = 2},
+			menu_anchor = {-58, 0, side = 2},
 			menu_anchor_down = {-60, 0},
 			menu2_anchor = {32, 3},
 			menu2_anchor_down = {32, 3},
@@ -519,20 +522,21 @@ local _
 					space = {left = 1, right = -2, between = 1},
 					backdrop = {enabled = true, size = 4, color = {0, 0, 0, 1}, texture = "Details BarBorder 2"}
 			},
+
 			wallpaper = {
-				overlay = {0, 0,	0},
-				width = 227.1267691385938,
-				texcoord = {0.001000000014901161, 0.1710000038146973, 0.001000000014901161, 0.3539316177368164},
+				overlay = {1, 1,	1},
+				width = 256,
+				texcoord = {49/1024, 305/1024, 646/1024, 774/1024},
 				enabled = true,
 				anchor = "all",
-				height = 89.00001440917025,
+				height = 128,
 				alpha = 0.8,
-				texture = "Interface\\Glues\\CREDITS\\Badlands3",
+				texture = [[Interface\AddOns\Details\images\skins\elvui]],
 			}
 		},
 		
 		skin_options = {
-			{type = "button", label = "", text = "Align Within Right Chat", func = align_right_chat, desc = "Move and resize the windows #1 and #2 placing over the right chat window.\nThis process doesn't lock nor snap the two windows."}
+			{type = "button", label = "", text = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON1"], func = align_right_chat, desc = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON1_DESC"]}
 		}
 	})
 	

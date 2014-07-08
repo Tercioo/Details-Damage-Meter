@@ -700,8 +700,8 @@ function gump:NewSpecialLuaEditorEntry (parent, w, h, member, name, nointent)
 	scrollframe.editbox:SetMultiLine (true)
 	scrollframe.editbox:SetJustifyH ("left")
 	scrollframe.editbox:SetJustifyV ("top")
-	scrollframe.editbox:SetMaxBytes (40960)
-	scrollframe.editbox:SetMaxLetters (20000)
+	scrollframe.editbox:SetMaxBytes (1024000)
+	scrollframe.editbox:SetMaxLetters (128000)
 	
 	borderframe.GetText = function_gettext
 	borderframe.SetText = function_settext

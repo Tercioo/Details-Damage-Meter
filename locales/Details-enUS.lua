@@ -3,12 +3,7 @@ if not Loc then return end
 
 --------------------------------------------------------------------------------------------------------------------------------------------
 
---|cFFFFFF00a1.18.2 (|cFFFFCC00Jul 03, 2014|r|cFFFFFF00)|r:\n\n|cFFFFFF00-|r |cFFFFFF00-|r Possible fix for pre-potion issue.\n\n-- |cFFFFFF00-|r Advancements in the version checker code.\n\n|cFFFFFF00-|r An Enemy Damage Taken now can be shown clicking with middle button over a enemy bar.\n\n
--- |cFFFFFF00-|r Possible fix for pre-potion issue.\n\n
--- |cFFFFFF00-|r Debug: added early code for test new version checker.\n\n
--- |cFFFFFF00-|r An Enemy Damage Taken now can be shown clicking with middle button over a enemy bar.\n\n
-
-	Loc ["STRING_VERSION_LOG"] = "|cFFFFFF00a1.18.2 (|cFFFFCC00Jul 03, 2014|r|cFFFFFF00)|r:\n\n|cFFFFFF00-|r Fixed dps inacuracy when outside a party or raid group.\n\n|cFFFFFF00-|r Possible fix for pre-potion issue.\n\n|cFFFFFF00-|r Added a version checker, it check if there is a new version once per day.\n\n|cFFFFFF00-|r An Enemy Damage Taken now can be shown clicking with middle button over a enemy bar.\n\n|cFFFFFF00v1.17.5 (|cFFFFCC00Jun 30, 2014|r|cFFFFFF00)|r:\n\n|cFFFFFF00-|r Shortcut panel is now known as Bookmarks and a revamp has done on its panel.\n\n|cFFFFFF00-|r NickTag now doesnt check anymore if a received nickname from other guild member is invalid.\n\n|cFFFFFF00-|r Healthstone now is considered a cooldown.\n\n|cFFFFFF00-|r Few improvements on Default Skin, Minimalistic Skin and ElvUI Frame Style Skin.\n\n|cFFFFFF00-|r Revamp on Image Editor, many bugs solves and now it is usable.\n\n|cFFFFFF00-|r 'Hide' slash command now hides all opened windows; 'Show', open all closed windows and 'New' create a new window.\n\n|cFFFFFF00-|r Added Devotion Aura, Rallying Cry as cooldowns.\n\n|cFFFFFF00-|r Added options for lock, unlock, break snap, close, reopen and create new window.\n\n|cFFFFFF00-|r Added a options panel for HotCorners, access it through options button or slash hotcorner command.\n\n|cFFFFFF00-|r Added 'Logos' and 'Raid & Dungeons' sections for Wallpapers. \n\n|cFFFFFF00-|r Added a option to load a image from the computer to use as wallpaper.\n\n|cFFFFFF00-|r Fixed the percent issue with Healing Done and HPS while in combat.\n\n|cFFFFFF00-|r Fixed non-combat switch by role where changing role wasnt changing the shown attribute.\n\n|cFFFFFF00-|r Fixed 'While in Combat' hiding schema |cFF999999(thanks @skmzarn-mmochampion forum)|r.\n\n|cFFFFFF00-|r Fixed several bugs on Interact Auto Transparency.\n\n|cFFFFFF00-|r Fixed the report window alert when opening the report window and it already is opened |cFF999999(thanks @Rasstapp-mmochampion forum)|r.\n\n|cFFFFFF00-|r Fixed the gap between last row created and the end of the window.\n\n|cFFFFFF00-|r Fixed all tooltips bugs on Wallpaper Section on Options Panel.\n\n|cFFFFFF00a1.17.0 (|cFFFFCC00Jun 21, 2014|r|cFFFFFF00)|r:\n\n|cFFFFFF00-|r Support for Custom Displays has been rewrited, to access the new panel go to Sword Menu -> Custom -> Create New Display.\n\n|cFFFFFF00-|r Added a custom display for show potion usage.\n\n|cFFFFFF00-|r Fixed a bug where the player pet wasnt being tracked after logon in the game. This bug was affecting directly classes with pets playing out of a raid group.\n\n|cFFFFFF00-|r Fixed the report bug on healing, energy and misc attributes |cFF999999(thanks @skmzarn-mmochampion forum)|r.\n\n|cFFFFFF00a1.16.0 - a1.16.1 - a1.16.3b (|cFFFFCC00Jun 14, 2014|r|cFFFFFF00)|r:\n\n|cFFFFFF00-|r Fixed row creation while resizing where sometimes it was broking the last row in the window.\n\n|cFFFFFF00-|r Fixed small involuntary resizes after resizing a window. |cFF999999(thanks @Morimvudu-Nemesis)|r\n\n|cFFFFFF00-|r Fixed frame strata after stretching the window where was setting its strata to Medium.\n\n|cFFFFFF00-|r Fixed Vanguard strata where it wasnt following the strata from its host window.\n\n|cFFFFFF00-|r Mode menu now have a sub menu for raid plugins.\n\n|cFFFFFF00-|r Red and Green colors under comparison frame has been inverted. |cFF999999(thanks @skmzarn-mmochampion forum)|r\n\n|cFFFFFF00-|r Fixed some report issues with dps and hps, also almost all reports now have guide lines. |cFF999999(thanks @sosleapy-mmochampion forum)|r\n\n|cFFFFFF00-|r Pet dispell and interrupt count also for its owner as well. |cFF999999(thanks @skmzarn-mmochampion forum)|r\n\n|cFFFFFF00-|r Few fixes on comparison panel over Player Details Window.\n\n|cFFFFFF00-|r Added option to be able to save the windows size and position within the profile. |cFF999999(thanks @Torchler-mmochampion forum)|r\n\n|cFFFFFF00-|r Added performance profile settings. |cFF999999(thanks @SlippyCheeze-mmochampion forum)|r\n\n|cFFFFFF00-|r Added auto switch based on group roles also a switch for wipe. |cFF999999(thanks @SlippyCheeze-mmochampion forum)|r\n\n|cFFFFFF00-|r Fixed a bug where sometimes all non boss segments was considered boss encounters.\n\n|cFFFFFF00v1.15.4 (|cFFFFCC00Jun 06, 2014|r|cFFFFFF00)|r:\n\n|cFFFFFF00-|r Added a compare tab under Player Details Window:\nThis new tab showns up when there is too characters with the same class and spec.\nIts useful to compare skills used, uptimes and targets.\n\n|cFFFFFF00-|r Few improvements on Default and ElvUI skins.\n\n|cFFFFFF00-|r Added a button for auto align two windows within right chat window when ElvUI skin is active.\n\n|cFFFFFF00-|r Fixed problem with Damage -> Enemies display.\n\n|cFFFFFF00-|r Fixed report Player Detail Window report buttons.\n\n|cFFFFFF00-|r Fixed some report lines where the numbers wasnt properly formatted.\n\n|cFFFFFF00-|r Fixed a rare bug where the owner of some pets wasnt detected.\n\n|cFFFFFF00-|r Fixed issue in dungeons where capture data get paused after a boss kill.\n\n|cFFFFFF00-|r Fixed issue with Encounter Details showing its icon for dungeons bosses.\n\n|cFFFFFF00-|r Fixed a rare bug where the capture of damage stops after erasing a trash segment.\n\n|cFFFFFF00v1.15.0 - v1.15.3 - v1.15.3b (|cFFFFCC00Jun 03, 2014|r|cFFFFFF00)|r:\n\n|cFFFFFF00-|r Emergencial fix for death logs which sometimes was breaking the addon data capture.\n\n|cFFFFFF00-|r Fixed window alerts which was showing behind the bars.\n\n|cFFFFFF00-|r Fixed death log issue with friendly fire hits.\n\n|cFFFFFF00-|r Fixed a issue where Details! windows wasn't hidden when a pet battle starts.\n\n|cFFFFFF00-|r Fixed a issue with segments menu when a window is placed on the right side of the screen.\n\n|cFFFFFF00-|r Damage -> Enemies now also show neutral creatures.\n\n|cFFFFFF00-|r Added support to dungeons, bosses and trash mobs are now recognized.\n\n|cFFFFFF00-|r Added target information for each spell in Player Detail Window.\n\n|cFFFFFF00-|r Added options for change the location of tooltips.\n\n|cFFFFFF00-|r Added options for change the Overall Data functionality.\n\n|cFFFFFF00-|r Added tooltips for lock and detach buttons.\n\n|cFFFFFF00-|r Added new row texture: Details Vidro.\n\n|cFFFFFF00-|r Revamp on death log tooltips.\n\n|cFFFFFF00-|r Improved the visual effect for the instance which current moving window can snap to.\n\n|cFFFFFF00v1.14.5 - 1.14.6 (|cFFFFCC00May 24, 2014|r|cFFFFFF00):|r\n\n|cFFFFFF00-|r Added option for lock segments display, so, when a segment is chosen, the other windows also change it.\n\n|cFFFFFF00-|r Added option for show the total amount of spells, targets and pets in tooltips.\n\n|cFFFFFF00-|r Finished another revamp on options panel.\n\n|cFFFFFF00-|r Now its possible open more then 1 Raid Plugins at once on diferent windows.\n\n|cFFFFFF00-|r Added a large text editor for make changes on custom texts.\n\n|cFFFFFF00-|r Added new option for enable borders on the bars.\n\n|cFFFFFF00-|r Added Death Barrier as a absorb spell.\n\n|cFFFFFF00-|r Fixed a bug on overheal tooltip where was showing the Hps instead of overheal.\n\n|cFFFFFF00v1.14.0 - v1.14.0b (|cFFFFCC00May 17, 2014|r|cFFFFFF00):\n\n|cFFFFFF00-|r Added a new tab on options panel for tooltip configuration.\n\n|cFFFFFF00-|r Added a new tab on options panel for broker config."
+	Loc ["STRING_VERSION_LOG"] = "|cFFFFFF00v1.18.4 (|cFFFFCC00Jul 08, 2014|r|cFFFFFF00)|r:\n\n|cFFFFFF00-|r Added new version tracker which should alert you when a newer Details! version is found.\n\n|cFFFFFF00-|r Added Enemy Damage Taken by clicking with middle mouse button over a enemy bar (enemies display).\n\n|cFFFFFF00-|r Added import/export for saved skins and custom displays created.\n\n|cFFFFFF00-|r Small changes on ElvUI Frame Style skin (need reaply).\n\n|cFFFFFF00-|r Fixed the death recognition for bosses, now it should show the correct color over segments menu.\n\n|cFFFFFF00-|r Fixed Dps inacuracy when plyaing solo (no party or raid group).\n\n|cFFFFFF00-|r Fixed the duration time of buffs applied before the pull, like pre-potions.\n\n|cFFFFFF00v1.17.5 (|cFFFFCC00Jun 30, 2014|r|cFFFFFF00)|r:\n\n|cFFFFFF00-|r Shortcut panel is now known as Bookmarks and a revamp has done on its panel.\n\n|cFFFFFF00-|r NickTag now doesnt check anymore if a received nickname from other guild member is invalid.\n\n|cFFFFFF00-|r Healthstone now is considered a cooldown.\n\n|cFFFFFF00-|r Few improvements on Default Skin, Minimalistic Skin and ElvUI Frame Style Skin.\n\n|cFFFFFF00-|r Revamp on Image Editor, many bugs solves and now it is usable.\n\n|cFFFFFF00-|r 'Hide' slash command now hides all opened windows; 'Show', open all closed windows and 'New' create a new window.\n\n|cFFFFFF00-|r Added Devotion Aura, Rallying Cry as cooldowns.\n\n|cFFFFFF00-|r Added options for lock, unlock, break snap, close, reopen and create new window.\n\n|cFFFFFF00-|r Added a options panel for HotCorners, access it through options button or slash hotcorner command.\n\n|cFFFFFF00-|r Added 'Logos' and 'Raid & Dungeons' sections for Wallpapers. \n\n|cFFFFFF00-|r Added a option to load a image from the computer to use as wallpaper.\n\n|cFFFFFF00-|r Fixed the percent issue with Healing Done and HPS while in combat.\n\n|cFFFFFF00-|r Fixed non-combat switch by role where changing role wasnt changing the shown attribute.\n\n|cFFFFFF00-|r Fixed 'While in Combat' hiding schema |cFF999999(thanks @skmzarn-mmochampion forum)|r.\n\n|cFFFFFF00-|r Fixed several bugs on Interact Auto Transparency.\n\n|cFFFFFF00-|r Fixed the report window alert when opening the report window and it already is opened |cFF999999(thanks @Rasstapp-mmochampion forum)|r.\n\n|cFFFFFF00-|r Fixed the gap between last row created and the end of the window.\n\n|cFFFFFF00-|r Fixed all tooltips bugs on Wallpaper Section on Options Panel.\n\n|cFFFFFF00a1.17.0 (|cFFFFCC00Jun 21, 2014|r|cFFFFFF00)|r:\n\n|cFFFFFF00-|r Support for Custom Displays has been rewrited, to access the new panel go to Sword Menu -> Custom -> Create New Display.\n\n|cFFFFFF00-|r Added a custom display for show potion usage.\n\n|cFFFFFF00-|r Fixed a bug where the player pet wasnt being tracked after logon in the game. This bug was affecting directly classes with pets playing out of a raid group.\n\n|cFFFFFF00-|r Fixed the report bug on healing, energy and misc attributes |cFF999999(thanks @skmzarn-mmochampion forum)|r.\n\n|cFFFFFF00a1.16.0 - a1.16.1 - a1.16.3b (|cFFFFCC00Jun 14, 2014|r|cFFFFFF00)|r:\n\n|cFFFFFF00-|r Fixed row creation while resizing where sometimes it was broking the last row in the window.\n\n|cFFFFFF00-|r Fixed small involuntary resizes after resizing a window. |cFF999999(thanks @Morimvudu-Nemesis)|r\n\n|cFFFFFF00-|r Fixed frame strata after stretching the window where was setting its strata to Medium.\n\n|cFFFFFF00-|r Fixed Vanguard strata where it wasnt following the strata from its host window.\n\n|cFFFFFF00-|r Mode menu now have a sub menu for raid plugins.\n\n|cFFFFFF00-|r Red and Green colors under comparison frame has been inverted. |cFF999999(thanks @skmzarn-mmochampion forum)|r\n\n|cFFFFFF00-|r Fixed some report issues with dps and hps, also almost all reports now have guide lines. |cFF999999(thanks @sosleapy-mmochampion forum)|r\n\n|cFFFFFF00-|r Pet dispell and interrupt count also for its owner as well. |cFF999999(thanks @skmzarn-mmochampion forum)|r\n\n|cFFFFFF00-|r Few fixes on comparison panel over Player Details Window.\n\n|cFFFFFF00-|r Added option to be able to save the windows size and position within the profile. |cFF999999(thanks @Torchler-mmochampion forum)|r\n\n|cFFFFFF00-|r Added performance profile settings. |cFF999999(thanks @SlippyCheeze-mmochampion forum)|r\n\n|cFFFFFF00-|r Added auto switch based on group roles also a switch for wipe. |cFF999999(thanks @SlippyCheeze-mmochampion forum)|r\n\n|cFFFFFF00-|r Fixed a bug where sometimes all non boss segments was considered boss encounters.\n\n|cFFFFFF00v1.15.4 (|cFFFFCC00Jun 06, 2014|r|cFFFFFF00)|r:\n\n|cFFFFFF00-|r Added a compare tab under Player Details Window:\nThis new tab showns up when there is too characters with the same class and spec.\nIts useful to compare skills used, uptimes and targets.\n\n|cFFFFFF00-|r Few improvements on Default and ElvUI skins.\n\n|cFFFFFF00-|r Added a button for auto align two windows within right chat window when ElvUI skin is active.\n\n|cFFFFFF00-|r Fixed problem with Damage -> Enemies display.\n\n|cFFFFFF00-|r Fixed report Player Detail Window report buttons.\n\n|cFFFFFF00-|r Fixed some report lines where the numbers wasnt properly formatted.\n\n|cFFFFFF00-|r Fixed a rare bug where the owner of some pets wasnt detected.\n\n|cFFFFFF00-|r Fixed issue in dungeons where capture data get paused after a boss kill.\n\n|cFFFFFF00-|r Fixed issue with Encounter Details showing its icon for dungeons bosses.\n\n|cFFFFFF00-|r Fixed a rare bug where the capture of damage stops after erasing a trash segment.\n\n|cFFFFFF00v1.15.0 - v1.15.3 - v1.15.3b (|cFFFFCC00Jun 03, 2014|r|cFFFFFF00)|r:\n\n|cFFFFFF00-|r Emergencial fix for death logs which sometimes was breaking the addon data capture.\n\n|cFFFFFF00-|r Fixed window alerts which was showing behind the bars.\n\n|cFFFFFF00-|r Fixed death log issue with friendly fire hits.\n\n|cFFFFFF00-|r Fixed a issue where Details! windows wasn't hidden when a pet battle starts.\n\n|cFFFFFF00-|r Fixed a issue with segments menu when a window is placed on the right side of the screen.\n\n|cFFFFFF00-|r Damage -> Enemies now also show neutral creatures.\n\n|cFFFFFF00-|r Added support to dungeons, bosses and trash mobs are now recognized.\n\n|cFFFFFF00-|r Added target information for each spell in Player Detail Window.\n\n|cFFFFFF00-|r Added options for change the location of tooltips.\n\n|cFFFFFF00-|r Added options for change the Overall Data functionality.\n\n|cFFFFFF00-|r Added tooltips for lock and detach buttons.\n\n|cFFFFFF00-|r Added new row texture: Details Vidro.\n\n|cFFFFFF00-|r Revamp on death log tooltips.\n\n|cFFFFFF00-|r Improved the visual effect for the instance which current moving window can snap to.\n\n|cFFFFFF00v1.14.5 - 1.14.6 (|cFFFFCC00May 24, 2014|r|cFFFFFF00):|r\n\n|cFFFFFF00-|r Added option for lock segments display, so, when a segment is chosen, the other windows also change it."
 
 	Loc ["STRING_DETAILS1"] = "|cffffaeaeDetails:|r " --> color and details name
 
@@ -59,7 +54,7 @@ if not Loc then return end
 	Loc ["STRING_NOLAST_COOLDOWN"] = "no cooldown used"
 	
 	Loc ["STRING_ATACH_DESC"] = "Window #%d attaches with the window #%d."
-	Loc ["STRING_DETACH_DESC"] = "Detach windows"
+	Loc ["STRING_DETACH_DESC"] = "Break Snap"
 	Loc ["STRING_LOCK_DESC"] = "Lock or unlock the window"
 	
 	Loc ["STRING_INSTANCE_LIMIT"] = "max window amount has been reached, you can modify this limit on options panel."
@@ -152,6 +147,9 @@ if not Loc then return end
 	--Loc ["STRING_CUSTOM_EXPORT_DESC"] = "Select a display to edit."
 	--Loc ["STRING_CUSTOM_IMPORT_DESC"] = "Select a display to edit."
 	
+	Loc ["STRING_CUSTOM_PASTE"] = "Paste Here:"
+	Loc ["STRING_CUSTOM_IMPORT_BUTTON"] = "Import"
+	
 	Loc ["STRING_CUSTOM_NAME"] = "Name:"
 	Loc ["STRING_CUSTOM_AUTHOR"] = "Author:"
 	Loc ["STRING_CUSTOM_DESCRIPTION"] = "Desc:"
@@ -173,8 +171,12 @@ if not Loc then return end
 	Loc ["STRING_CUSTOM_ATTRIBUTE_HEAL"] = "Heal"
 	Loc ["STRING_CUSTOM_ATTRIBUTE_SCRIPT"] = "Custom Script"
 	
+	Loc ["STRING_CUSTOM_IMPORT_ERROR"] = "Import failed, invalid string."
+	Loc ["STRING_CUSTOM_IMPORT_ALERT"] = "Display loaded, click Import to confirm."
+	
 	Loc ["STRING_CUSTOM_CREATED"] = "The new display has been created."
 	Loc ["STRING_CUSTOM_SAVED"] = "The display has been saved."
+	Loc ["STRING_CUSTOM_IMPORTED"] = "The display has been successful imported."
 
 	Loc ["STRING_CUSTOM_SHORTNAME"] = "Name need at least 5 characters."
 	Loc ["STRING_CUSTOM_LONGNAME"] = "Name too long, maximum allowed 32 characters."
@@ -534,27 +536,7 @@ if not Loc then return end
 	Loc ["STRING_OPTIONS_DATABROKER_TEXT1"] = "Raid DPS"
 	Loc ["STRING_OPTIONS_DATABROKER_TEXT2"] = "Raid HPS"
 	
-	Loc ["STRING_OPTIONS_COMBAT_ALPHA"] = "Modify Type"
-	Loc ["STRING_OPTIONS_COMBAT_ALPHA_1"] = "No Changes"
-	Loc ["STRING_OPTIONS_COMBAT_ALPHA_2"] = "While In Combat"
-	Loc ["STRING_OPTIONS_COMBAT_ALPHA_3"] = "While Out of Combat"
-	Loc ["STRING_OPTIONS_COMBAT_ALPHA_4"] = "While Out of a Group"
-	Loc ["STRING_OPTIONS_COMBAT_ALPHA_DESC"] = "Select how combat affect the window transparency.\n\n|cFFFFFF00No Changes|r: Doesn't modify the alpha.\n\n|cFFFFFF00While In Combat|r: When your character enter in a combat, the alpha chosen is applied on the window.\n\n|cFFFFFF00While Out of Combat|r: The alpha is applied whenever your character isn't in combat.\n\n|cFFFFFF00While Out of a Group|r: When you aren't in party or a raid group, the window assumes the selected alpha.\n\n|cFFFFFF00Important|r: This option overwrite the alpha determined by Auto Transparency feature."
-	Loc ["STRING_OPTIONS_HIDECOMBATALPHA"] = "Modify To"
-	Loc ["STRING_OPTIONS_HIDECOMBATALPHA_DESC"] = "Changes the transparency to this value when your character matches with the chosen rule.\n\n|cFFFFFF00Zero|r: fully hidden, can't interact within the window.\n\n|cFFFFFF001 - 100|r: not hidden, only the transparency is changed, you can interact with the window."
-	
-	Loc ["STRING_SWITCH_WARNING"] = "Role changed. Switching: |cFFFFAA00%s|r  "
-	
-	Loc ["STRING_OPTIONS_AUTO_SWITCH_COMBAT"] = "|cFFFFAA00(in combat)|r"
-	Loc ["STRING_OPTIONS_AUTO_SWITCH"] = "All Roles (in combat)"
-	Loc ["STRING_OPTIONS_AUTO_SWITCH_DESC"] = "When you enter in combat, this window show the selected attribute or plugin.\n\n|cFFFFFF00Important|r: The individual attribute chosen for each role overwrites the attribute selected here."
-	
-	Loc ["STRING_OPTIONS_AUTO_SWITCH_WIPE"] = "After Encounter Wipe"
-	Loc ["STRING_OPTIONS_AUTO_SWITCH_WIPE_DESC"] = "After a fail attempt in defeat a raid encounter, this window automatically show this attribute."
 
-	Loc ["STRING_OPTIONS_AUTO_SWITCH_DAMAGER_DESC"] = "When in damager specialization, this window show the selected attribute or plugin."
-	Loc ["STRING_OPTIONS_AUTO_SWITCH_HEALER_DESC"] = "When in healer specialization, this window show the selected attribute or plugin."
-	Loc ["STRING_OPTIONS_AUTO_SWITCH_TANK_DESC"] = "When in tank specialization, this window show the selected attribute or plugin."
 	
 	Loc ["STRING_OPTIONS_PERFORMANCE1"] = "Performance Tweaks"
 	Loc ["STRING_OPTIONS_PERFORMANCE1_DESC"] = "This options can help save some cpu usage."
@@ -637,7 +619,7 @@ if not Loc then return end
 	Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOK0MIN"] = "ToM I Lower"
 	Loc ["STRING_OPTIONS_PS_ABBREVIATE_COMMA"] = "Comma"
 	
-	Loc ["STRING_OPTIONS_WC_ANCHOR"] = "Window Control (#%s):"
+	Loc ["STRING_OPTIONS_WC_ANCHOR"] = "Quick Window Control (#%s):"
 	Loc ["STRING_OPTIONS_WC_LOCK"] = "Lock"
 	Loc ["STRING_OPTIONS_WC_UNLOCK"] = "Unlock"
 	Loc ["STRING_OPTIONS_WC_LOCK_DESC"] = "Lock or Unlock the window.\n\nWhen locked, the window can not be moved."
@@ -739,13 +721,23 @@ if not Loc then return end
 	Loc ["STRING_OPTIONS_TEXT_DESC"] = "This options control the appearance of the window row texts."
 	
 	Loc ["STRING_OPTIONS_TEXTEDITOR_COMMA"] = "Comma"
-	Loc ["STRING_OPTIONS_TEXTEDITOR_COMMA_TOOLTIP"] = "Add a comma function call for use inside functions on return values."
+	Loc ["STRING_OPTIONS_TEXTEDITOR_COMMA_TOOLTIP"] = "Add a function to format numbers separating with commas.\nExample: 1000000 to 1.000.000."
 	Loc ["STRING_OPTIONS_TEXTEDITOR_TOK"] = "ToK"
-	Loc ["STRING_OPTIONS_TEXTEDITOR_TOK_TOOLTIP"] = "Add a abbreviation function call for use inside functions on return values."
+	Loc ["STRING_OPTIONS_TEXTEDITOR_TOK_TOOLTIP"] = "Add a function to format numbers abbreviating its values.\nExample: 1500000 to 1.5kk."
 	Loc ["STRING_OPTIONS_TEXTEDITOR_COLOR"] = "Color"
 	Loc ["STRING_OPTIONS_TEXTEDITOR_COLOR_TOOLTIP"] = "Select the text and then click on the color button to change selected text color."
 	Loc ["STRING_OPTIONS_TEXTEDITOR_FUNC"] = "Function"
-	Loc ["STRING_OPTIONS_TEXTEDITOR_FUNC_TOOLTIP"] = "Adds a function, functions always have to return a number."
+	Loc ["STRING_OPTIONS_TEXTEDITOR_FUNC_TOOLTIP"] = "Add a empty function.\nFunctions must always return a number."
+
+	Loc ["STRING_OPTIONS_TEXTEDITOR_DATA"] = "[Data %s]"
+	Loc ["STRING_OPTIONS_TEXTEDITOR_DATA_TOOLTIP"] = "Add a data feed:\n\n|cFFFFFF00Data 1|r: normaly represents the total done by the actor.\n\n|cFFFFFF00Data 2|r: in most cases represents the DPS and HPS.\n\n|cFFFFFF00Data 3|r: represents the percent done by the actor."
+	
+	Loc ["STRING_OPTIONS_TEXTEDITOR_DONE"] = "Done"
+	Loc ["STRING_OPTIONS_TEXTEDITOR_DONE_TOOLTIP"] = "Finish the editing and save the code."
+	Loc ["STRING_OPTIONS_TEXTEDITOR_RESET"] = "Reset"
+	Loc ["STRING_OPTIONS_TEXTEDITOR_RESET_TOOLTIP"] = "Clear all code and add the default code."
+	Loc ["STRING_OPTIONS_TEXTEDITOR_CANCEL"] = "Cancel"
+	Loc ["STRING_OPTIONS_TEXTEDITOR_CANCEL_TOOLTIP"] = "Finish the editing and ignore any change in the code."
 	
 	Loc ["STRING_OPTIONS_TEXT_SIZE"] = "Text Size"
 	Loc ["STRING_OPTIONS_TEXT_SIZE_DESC"] = "Change the size of both left and right texts."
@@ -902,7 +894,7 @@ if not Loc then return end
 	Loc ["STRING_OPTIONS_INSTANCE_SKIN_DESC"] = "Modify window appearance based on a skin theme."
 	
 	Loc ["STRING_OPTIONS_SKIN_SELECT_ANCHOR"] = "Skin Selection:"
-	Loc ["STRING_OPTIONS_SKIN_PRESETS_ANCHOR"] = "Save Presets:"
+	Loc ["STRING_OPTIONS_SKIN_PRESETS_ANCHOR"] = "Save Skin:"
 	
 	Loc ["STRING_OPTIONS_SKIN_SELECT"] = "select a skin"
 	Loc ["STRING_OPTIONS_SKIN_LOADED"] = "skin successful loaded."
@@ -911,23 +903,32 @@ if not Loc then return end
 	Loc ["STRING_OPTIONS_SKIN_A"] = "Skin Settings"
 	Loc ["STRING_OPTIONS_SKIN_A_DESC"] = "This options allows you to change the skin."
 
-	Loc ["STRING_OPTIONS_SAVELOAD_PNAME"] = "Custom Skin Name"
-	Loc ["STRING_OPTIONS_SAVELOAD_SAVE"] = "create"
-	Loc ["STRING_OPTIONS_SAVELOAD_LOAD"] = "Load Custom Skin"
+	Loc ["STRING_OPTIONS_SAVELOAD_PNAME"] = "Name"
+	Loc ["STRING_OPTIONS_SAVELOAD_SAVE"] = "save"
+	Loc ["STRING_OPTIONS_SAVELOAD_LOAD"] = "Apply"
+	Loc ["STRING_OPTIONS_SAVELOAD_EXPORT"] = "Export"
+	Loc ["STRING_OPTIONS_SAVELOAD_EXPORT_COPY"] = "Press CTRL + C"
+	Loc ["STRING_OPTIONS_SAVELOAD_EXPORT_DESC"] = "Saves the skin in text format."
+	Loc ["STRING_OPTIONS_SAVELOAD_IMPORT"] = "Import"
+	Loc ["STRING_OPTIONS_SAVELOAD_IMPORT_DESC"] = "Import a skin in text format."
+	Loc ["STRING_OPTIONS_SAVELOAD_IMPORT_OKEY"] = "Skin successful imported."
 	Loc ["STRING_OPTIONS_SAVELOAD_LOAD_DESC"] = "Choose one of the previous saved skins to apply on the current selected window."
 	Loc ["STRING_OPTIONS_SAVELOAD_CREATE_DESC"] = "Type the custom skin name on the field and click on create button.\n\nThis process create a custom skin which you can load on others windows or just save for another time."
-	Loc ["STRING_OPTIONS_SAVELOAD_REMOVE"] = "Erase Custom Skin"
+	Loc ["STRING_OPTIONS_SAVELOAD_REMOVE"] = "Erase"
 	Loc ["STRING_OPTIONS_SAVELOAD_RESET"] = "Load Default Skin"
 	Loc ["STRING_OPTIONS_SAVELOAD_APPLYTOALL"] = "Apply in all Windows"
-	Loc ["STRING_OPTIONS_SAVELOAD_MAKEDEFAULT"] = "Save Standard Skin"
+	Loc ["STRING_OPTIONS_SAVELOAD_MAKEDEFAULT"] = "Set Standard"
 	Loc ["STRING_OPTIONS_SAVELOAD_ERASE_DESC"] = "This option erase a previous saved skin."
 	Loc ["STRING_OPTIONS_SAVELOAD_STDSAVE"] = "Standard Skin has been saved, new windows will be using this skin by default."
 	Loc ["STRING_OPTIONS_SAVELOAD_APPLYALL"] = "The current skin has been applied in all other windows."
 	Loc ["STRING_OPTIONS_SAVELOAD_SKINCREATED"] = "Skin created."
-	Loc ["STRING_OPTIONS_SAVELOAD_STD_DESC"] = "Standard skin is applied on all new windows created."
+	Loc ["STRING_OPTIONS_SAVELOAD_STD_DESC"] = "Set the current appearance as Standard Skin.\n\nThis skin is applied on all new windows created."
 	Loc ["STRING_OPTIONS_SAVELOAD_APPLYALL_DESC"] = "Apply the current skin on all windows created."
 	
 	Loc ["STRING_OPTIONS_SKIN_EXTRA_OPTIONS_ANCHOR"] = "Skin Options:"
+	
+	Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON1"] = "Align Within Right Chat"
+	Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON1_DESC"] = "Move and resize the windows |cFFFFFF00#1|r and |cFFFFFF00#2|r placing over the right chat window.\n\nThis process doesn't lock nor snap the two windows."
 	
 	
 	-- options window Window Settings ~6
@@ -1018,7 +1019,101 @@ if not Loc then return end
 	Loc ["STRING_OPTIONS_SHOW_TOTALBAR_ICON_DESC"] = "Select the icon shown on the total bar."
 	Loc ["STRING_OPTIONS_SHOW_TOTALBAR_COLOR_DESC"] = "Select the color. The transparency value follow the row alpha value."
 	
+	-- options window Spell Customization ~15
+	Loc ["STRING_OPTIONS_SPELL_INDEX"] = "Index"
+	Loc ["STRING_OPTIONS_SPELL_NAME"] = "Name"
+	Loc ["STRING_OPTIONS_SPELL_ICON"] = "Icon"
+	Loc ["STRING_OPTIONS_SPELL_SPELLID"] = "Spell ID"
+	Loc ["STRING_OPTIONS_SPELL_RESET"] = "Reset"
+	Loc ["STRING_OPTIONS_SPELL_REMOVE"] = "Remove"
+	
+	Loc ["STRING_OPTIONS_SPELL_SPELLID_DESC"] = "A ID is a unique number to identify the spell inside World of Warcraft. There is many ways to get the number:\n\n- On the Player Details Window, hold shift while hover over spells bars.\n- Type the spell name in the SpellId field, a tooltip is shown with suggested spells.\n- Community web sites, most of them have the spellid on the address link.\n- Browsing the spell cache below:"
+	Loc ["STRING_OPTIONS_SPELL_ADDNAME"] = "New Name: "
+	Loc ["STRING_OPTIONS_SPELL_ADDICON"] = "New Icon: "
+	Loc ["STRING_OPTIONS_SPELL_ADDSPELLID"] = "SpellId: "
+	
+	Loc ["STRING_OPTIONS_SPELL_NOTFOUND"] = "Spell not found."
+	Loc ["STRING_OPTIONS_SPELL_IDERROR"] = "Invalid spell id."
+	Loc ["STRING_OPTIONS_SPELL_NAMEERROR"] = "Invalid spell name."
+	
+	Loc ["STRING_OPTIONS_SPELL_CLOSE"] = "Close"
+	Loc ["STRING_OPTIONS_SPELL_ADD"] = "Add"
+	Loc ["STRING_OPTIONS_SPELL_ADDSPELL"] = "Add Spell"
+	
+	-- options window Data for Charts ~16
+	Loc ["STRING_OPTIONS_CHART_PLUGINWARNING"] = "Install Chart Viewer Plugin for display custom charts."
+	
+	Loc ["STRING_OPTIONS_CHART_SAVE"] = "Save"
+	Loc ["STRING_OPTIONS_CHART_CANCEL"] = "Cancel"
+	Loc ["STRING_OPTIONS_CHART_CLOSE"] = "Close"
+	Loc ["STRING_OPTIONS_CHART_ADD2"] = "Add"
+	
+	Loc ["STRING_OPTIONS_CHART_CODELOADED"] = "The code is already loaded and cannot be displayed."
+	Loc ["STRING_OPTIONS_CHART_NAME"] = "Name"
+	Loc ["STRING_OPTIONS_CHART_EDIT"] = "Edit Code"
+	Loc ["STRING_OPTIONS_CHART_ICON"] = "Icon"
+	Loc ["STRING_OPTIONS_CHART_AUTHOR"] = "Author"
+	Loc ["STRING_OPTIONS_CHART_VERSION"] = "Version"
+	Loc ["STRING_OPTIONS_CHART_ENABLED"] = "Enabled"
+	Loc ["STRING_OPTIONS_CHART_EXPORT"] = "Export"
+	Loc ["STRING_OPTIONS_CHART_REMOVE"] = "Remove"
+	
+	Loc ["STRING_OPTIONS_CHART_ADDNAME"] = "Name: "
+	Loc ["STRING_OPTIONS_CHART_ADDCODE"] = "Code: "
+	Loc ["STRING_OPTIONS_CHART_ADDICON"] = "Icon: "
+	Loc ["STRING_OPTIONS_CHART_ADDAUTHOR"] = "Author: "
+	Loc ["STRING_OPTIONS_CHART_ADDVERSION"] = "Version: "
+	
+	Loc ["STRING_OPTIONS_CHART_ADD"] = "Add Data"
+	
+	Loc ["STRING_OPTIONS_CHART_IMPORTERROR"] = "The import string is invalid."
+	Loc ["STRING_OPTIONS_CHART_IMPORT"] = "Import"
+	Loc ["STRING_OPTIONS_CHART_NAMEERROR"] = "The name is invalid."
+	Loc ["STRING_OPTIONS_CHART_AUTHORERROR"] = "Author name is invalid."
+	Loc ["STRING_OPTIONS_CHART_VERSIONERROR"] = "Version is invalid."
+	Loc ["STRING_OPTIONS_CHART_FUNCERROR"] = "Function is invalid."
+	
+	-- options window Show and Hide ~17
+	Loc ["STRING_OPTIONS_ALPHAMOD_ANCHOR"] = "Transparency Modifiers:"
+	
+	Loc ["STRING_OPTIONS_COMBAT_ALPHA"] = "Modify When"
+	Loc ["STRING_OPTIONS_COMBAT_ALPHA_1"] = "No Changes"
+	Loc ["STRING_OPTIONS_COMBAT_ALPHA_2"] = "While In Combat"
+	Loc ["STRING_OPTIONS_COMBAT_ALPHA_3"] = "While Out of Combat"
+	Loc ["STRING_OPTIONS_COMBAT_ALPHA_4"] = "While Out of a Group"
+	Loc ["STRING_OPTIONS_COMBAT_ALPHA_DESC"] = "Select how combat affect the window transparency.\n\n|cFFFFFF00No Changes|r: Doesn't modify the alpha.\n\n|cFFFFFF00While In Combat|r: When your character enter in a combat, the alpha chosen is applied on the window.\n\n|cFFFFFF00While Out of Combat|r: The alpha is applied whenever your character isn't in combat.\n\n|cFFFFFF00While Out of a Group|r: When you aren't in party or a raid group, the window assumes the selected alpha.\n\n|cFFFFFF00Important|r: This option overwrite the alpha determined by Auto Transparency feature."
+	Loc ["STRING_OPTIONS_HIDECOMBATALPHA"] = "Modify To"
+	Loc ["STRING_OPTIONS_HIDECOMBATALPHA_DESC"] = "Changes the transparency to this value when your character matches with the chosen rule.\n\n|cFFFFFF00Zero|r: fully hidden, can't interact within the window.\n\n|cFFFFFF001 - 100|r: not hidden, only the transparency is changed, you can interact with the window."	
 
+	Loc ["STRING_OPTIONS_MENU_ALPHA"] = "Transparency When Interacting:"
+	Loc ["STRING_OPTIONS_MENU_ALPHAENABLED"] = "Enabled"
+	Loc ["STRING_OPTIONS_MENU_ALPHAENTER"] = "When Interacting"
+	Loc ["STRING_OPTIONS_MENU_ALPHALEAVE"] = "Stand by"
+	Loc ["STRING_OPTIONS_MENU_ALPHAICONSTOO"] = "Affect Buttons"
+	Loc ["STRING_OPTIONS_MENU_IGNOREBARS"] = "Ignore Rows"
+	
+	Loc ["STRING_OPTIONS_MENU_IGNOREBARS_DESC"] = "When enabled, all rows on this window aren't affected by this mechanism."
+	Loc ["STRING_OPTIONS_MENU_ALPHAENABLED_DESC"] = "When enabled, the transparency changes automatically when you hover and leave the window.\n\n|cFFFFFF00Important|r: This settings overwrites the alpha selected on Window Color option under Window Settings section."
+	Loc ["STRING_OPTIONS_MENU_ALPHAENTER_DESC"] = "When you have the mouse over the window, the transparency changes to this value."
+	Loc ["STRING_OPTIONS_MENU_ALPHALEAVE_DESC"] = "When you don't have the mouse over the window, the transparency changes to this value."
+	Loc ["STRING_OPTIONS_MENU_ALPHAICONSTOO_DESC"] = "If enabled, all icons, buttons, also have their alpha affected by this feature."
+
+	Loc ["STRING_OPTIONS_MENU_ALPHAWARNING"] = "Auto Transparency is enabled, alpha may not be affected."
+	
+	-- options window Miscellaneous ~18
+	Loc ["STRING_SWITCH_WARNING"] = "Role changed. Switching: |cFFFFAA00%s|r  "
+	
+	Loc ["STRING_OPTIONS_AUTO_SWITCH_COMBAT"] = "|cFFFFAA00(in combat)|r"
+	Loc ["STRING_OPTIONS_AUTO_SWITCH"] = "All Roles |cFFFFAA00(in combat)|r"
+	Loc ["STRING_OPTIONS_AUTO_SWITCH_DESC"] = "When you enter in combat, this window show the selected attribute or plugin.\n\n|cFFFFFF00Important|r: The individual attribute chosen for each role overwrites the attribute selected here."
+	
+	Loc ["STRING_OPTIONS_AUTO_SWITCH_WIPE"] = "After Wipe"
+	Loc ["STRING_OPTIONS_AUTO_SWITCH_WIPE_DESC"] = "After a fail attempt in defeat a raid encounter, this window automatically show this attribute."
+
+	Loc ["STRING_OPTIONS_AUTO_SWITCH_DAMAGER_DESC"] = "When in damager specialization, this window show the selected attribute or plugin."
+	Loc ["STRING_OPTIONS_AUTO_SWITCH_HEALER_DESC"] = "When in healer specialization, this window show the selected attribute or plugin."
+	Loc ["STRING_OPTIONS_AUTO_SWITCH_TANK_DESC"] = "When in tank specialization, this window show the selected attribute or plugin."
+	
 
 Loc ["STRING_OPTIONS_TOOLBAR_SETTINGS"] = "Left Menu Settings"
 Loc ["STRING_OPTIONS_TOOLBAR_SETTINGS_DESC"] = "This options change the main menu on the top of the window."
@@ -1068,23 +1163,8 @@ Loc ["STRING_OPTIONS_INSTANCE_STATUSBAR_ANCHOR"] = "Statusbar:"
 Loc ["STRING_OPTIONS_INSTANCE_STATUSBARCOLOR"] = "Color and Transparency"
 Loc ["STRING_OPTIONS_INSTANCE_STATUSBARCOLOR_DESC"] = "Select the color used by the statusbar.\n\n|cFFFFFF00Important|r: this option overwrite the color and transparency chosen over Window Color."
 
-Loc ["STRING_OPTIONS_MENU_ALPHA"] = "Interact Auto Transparency:"
-Loc ["STRING_OPTIONS_MENU_ALPHAENABLED"] = "Enabled"
-Loc ["STRING_OPTIONS_MENU_ALPHAENTER"] = "When Interacting"
-Loc ["STRING_OPTIONS_MENU_ALPHALEAVE"] = "Stand by"
-Loc ["STRING_OPTIONS_MENU_ALPHAICONSTOO"] = "Affect Buttons"
-Loc ["STRING_OPTIONS_MENU_IGNOREBARS"] = "Ignore Rows"
-
 Loc ["STRING_OPTIONS_MENU_SHOWBUTTONS"] = "Show Buttons"
 Loc ["STRING_OPTIONS_MENU_SHOWBUTTONS_DESC"] = "Choose which buttons are shown on the toolbar."
-
-Loc ["STRING_OPTIONS_MENU_IGNOREBARS_DESC"] = "When enabled, all rows on this window aren't affected by this mechanism."
-Loc ["STRING_OPTIONS_MENU_ALPHAENABLED_DESC"] = "Enable or disable the auto transparency. When enabled, the alpha changes automatically when you hover and leave the window.\n\n|cFFFFFF00Important|r: This settings overwrites the alpha selected over Window Color."
-Loc ["STRING_OPTIONS_MENU_ALPHAENTER_DESC"] = "When you have the mouse over the window, the transparency changes to this value."
-Loc ["STRING_OPTIONS_MENU_ALPHALEAVE_DESC"] = "When you don't have the mouse over the window, the transparency changes to this value."
-Loc ["STRING_OPTIONS_MENU_ALPHAICONSTOO_DESC"] = "If enabled, all icons, buttons, also have their alpha affected by this feature."
-
-Loc ["STRING_OPTIONS_MENU_ALPHAWARNING"] = "Auto Transparency is enabled, alpha may not be affected."
 
 Loc ["STRING_OPTIONS_INSTANCE_BUTTON_ANCHOR"] = "Window Button:"
 Loc ["STRING_OPTIONS_RESET_BUTTON_ANCHOR"] = "Reset Button:"

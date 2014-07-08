@@ -45,6 +45,19 @@
 
 	local class_type_dano = _detalhes.atributos.dano
 	local class_type_misc = _detalhes.atributos.misc
+	
+	local object_keys = {
+		["name"] = true,
+		["icon"] = true,
+		["attribute"] = true,
+		["spellid"] = true,
+		["author"] = true,
+		["desc"] = true,
+		["source"] = true,
+		["target"] = true,
+		["script"] = true,
+		["tooltip"] = true,
+	}
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> create the window
@@ -60,6 +73,7 @@
 		end
 		
 		DetailsCustomPanel:Reset()
+		DetailsCustomPanel:ClearFocus()
 		
 		--> hide the frame
 		_G.DetailsCustomPanel:Hide()
@@ -132,6 +146,7 @@
 
 			DetailsCustomPanel.BoxType = 1
 			DetailsCustomPanel.IsEditing = false
+			DetailsCustomPanel.IsImporting = false
 			DetailsCustomPanel.CodeEditing = false
 			DetailsCustomPanel.current_attribute = "damagedone"
 			
@@ -161,6 +176,12 @@
 						]]
 			DetailsCustomPanel.code2 = DetailsCustomPanel.code2_default
 			
+			function DetailsCustomPanel:ClearFocus()
+				custom_window.desc_field:ClearFocus()
+				custom_window.name_field:ClearFocus()
+				custom_window.author_field:ClearFocus()
+			end
+			
 			function DetailsCustomPanel:Reset()
 				self.name_field:SetText ("")
 				self.icon_image:SetTexture ([[Interface\ICONS\TEMP]])
@@ -182,6 +203,8 @@
 				
 				DetailsCustomPanel.current_attribute = "damagedone"
 				DetailsCustomPanelAttributeMenu1:Click()
+				
+				DetailsCustomPanel:ClearFocus()
 			end
 			
 			function DetailsCustomPanel:RemoveDisplay (custom_object, index)
@@ -201,10 +224,13 @@
 				_detalhes.switch:OnRemoveCustom (index)
 			end
 			
-			function DetailsCustomPanel:StartEdit (custom_object)
+			function DetailsCustomPanel:StartEdit (custom_object, import)
 				
 				DetailsCustomPanel:Reset()
+				DetailsCustomPanel:ClearFocus()
+				
 				DetailsCustomPanel.IsEditing = custom_object
+				DetailsCustomPanel.IsImporting = import
 				
 				self.name_field:SetText (custom_object:GetName())
 				self.desc_field:SetText (custom_object:GetDesc())
@@ -276,19 +302,25 @@
 					
 				end
 				
-				DetailsCustomPanel:SetAcceptButtonText (Loc ["STRING_CUSTOM_SAVE"])
+				if (import) then
+					DetailsCustomPanel:SetAcceptButtonText (Loc ["STRING_CUSTOM_IMPORT_BUTTON"])
+				else
+					DetailsCustomPanel:SetAcceptButtonText (Loc ["STRING_CUSTOM_SAVE"])
+				end
 			end
 			
 			function DetailsCustomPanel:CreateNewCustom()
 			
 				local name = self.name_field:GetText()
+				DetailsCustomPanel:ClearFocus()
+				_detalhes.MicroButtonAlert:Hide()
 				
 				if (string.len (name) < 5) then
 					return false, _detalhes:Msg (Loc ["STRING_CUSTOM_SHORTNAME"])
 				elseif (string.len (name) > 32) then
 					return false, _detalhes:Msg (Loc ["STRING_CUSTOM_LONGNAME"])
 				end
-				
+
 				local icon = self.icon_image:GetTexture()
 				local desc = self.desc_field:GetText()
 				local author = self.author_field:GetText()
@@ -324,9 +356,19 @@
 						object.spellid = tonumber (spellid)
 						object.script = false
 						object.tooltip = false
+
+						if (DetailsCustomPanel.IsImporting) then
+							_detalhes:Msg (Loc ["STRING_CUSTOM_IMPORTED"])
+						else
+							_detalhes:Msg (Loc ["STRING_CUSTOM_SAVED"])
+						end
+						
+						if (DetailsCustomPanel.IsImporting) then
+							tinsert (_detalhes.custom, object)
+						end
 						
 						DetailsCustomPanel.IsEditing = false
-						_detalhes:Msg (Loc ["STRING_CUSTOM_SAVED"])
+						DetailsCustomPanel.IsImporting = false
 						self.author_field:Enable()
 						return true
 					else
@@ -369,8 +411,18 @@
 						object.script = main_code
 						object.tooltip = tooltip_code
 						
+						if (DetailsCustomPanel.IsImporting) then
+							_detalhes:Msg (Loc ["STRING_CUSTOM_IMPORTED"])
+						else
+							_detalhes:Msg (Loc ["STRING_CUSTOM_SAVED"])
+						end
+						
+						if (DetailsCustomPanel.IsImporting) then
+							tinsert (_detalhes.custom, object)
+						end
+						
 						DetailsCustomPanel.IsEditing = false
-						_detalhes:Msg (Loc ["STRING_CUSTOM_SAVED"])
+						DetailsCustomPanel.IsImporting = false
 						self.author_field:Enable()
 						return true
 					else
@@ -401,6 +453,8 @@
 			
 			function DetailsCustomPanel:AcceptFunc()
 				
+				_detalhes.MicroButtonAlert:Hide()
+				
 				if (DetailsCustomPanel.CodeEditing) then
 					--> close the edit box saving the text
 					if (DetailsCustomPanel.CodeEditing == 1) then
@@ -410,7 +464,10 @@
 					end
 					
 					DetailsCustomPanel.CodeEditing = false
-					if (DetailsCustomPanel.IsEditing) then
+					
+					if (DetailsCustomPanel.IsImporting) then
+						DetailsCustomPanel:SetAcceptButtonText (Loc ["STRING_CUSTOM_IMPORT_BUTTON"])
+					elseif (DetailsCustomPanel.IsEditing) then
 						DetailsCustomPanel:SetAcceptButtonText (Loc ["STRING_CUSTOM_SAVE"])
 					else
 						DetailsCustomPanel:SetAcceptButtonText (Loc ["STRING_CUSTOM_CREATE"])
@@ -422,6 +479,7 @@
 					local succesful_edit = DetailsCustomPanel:CreateNewCustom()
 					if (succesful_edit) then
 						DetailsCustomPanel.IsEditing = false
+						DetailsCustomPanel.IsImporting = false
 						DetailsCustomPanel:SetAcceptButtonText (Loc ["STRING_CUSTOM_CREATE"])
 						DetailsCustomPanel:Reset()
 					end
@@ -433,12 +491,17 @@
 			
 			function DetailsCustomPanel:CancelFunc()
 				
+				DetailsCustomPanel:ClearFocus()
+				_detalhes.MicroButtonAlert:Hide()
+				
 				if (DetailsCustomPanel.CodeEditing) then
 					--> close the edit box without save
 					custom_window.codeeditor:Hide()
 					DetailsCustomPanel.CodeEditing = false
 					
-					if (DetailsCustomPanel.IsEditing) then
+					if (DetailsCustomPanel.IsImporting) then
+						DetailsCustomPanel:SetAcceptButtonText (Loc ["STRING_CUSTOM_IMPORT_BUTTON"])
+					elseif (DetailsCustomPanel.IsEditing) then
 						DetailsCustomPanel:SetAcceptButtonText (Loc ["STRING_CUSTOM_SAVE"])
 					else
 						DetailsCustomPanel:SetAcceptButtonText (Loc ["STRING_CUSTOM_CREATE"])
@@ -446,6 +509,7 @@
 					
 				elseif (DetailsCustomPanel.IsEditing) then
 					DetailsCustomPanel.IsEditing = false
+					DetailsCustomPanel.IsImporting = false
 					DetailsCustomPanel:SetAcceptButtonText (Loc ["STRING_CUSTOM_CREATE"])
 					DetailsCustomPanel:Reset()
 					
@@ -464,6 +528,8 @@
 				if (not self.attribute_table) then
 					return
 				end
+				
+				DetailsCustomPanel:ClearFocus()
 				
 				custom_window.selected_left:SetPoint ("topleft", self, "topleft")
 				custom_window.selected_right:SetPoint ("topright", self, "topright")
@@ -600,18 +666,120 @@
 			--> export button
 			local export_display = function (_, _, custom_object, index)
 				GameCooltip:Hide()
-				--DetailsCustomPanel:RemoveDisplay (custom_object, index)
+
+				local export_object = {}
+				
+				for key, value in pairs (custom_object) do
+					if (object_keys [key]) then
+						if (type (value) == "table") then
+							export_object [key] = table_deepcopy (value)
+						else
+							export_object [key] = value
+						end
+					end
+				end
+				
+				local serialized_table = _detalhes:Serialize (export_object)
+				--local zip = LibStub:GetLibrary ("LibCompress"):CompressHuffman (serialized_table)
+				--local encoded = _detalhes._encode:Encode (zip)
+				local encoded = _detalhes._encode:Encode (serialized_table)
+				
+				if (not custom_window.ExportBox) then
+					local editbox = _detalhes.gump:NewTextEntry (custom_window, nil, "$parentExportBox", "ExportBox", 842, 20)
+					editbox:SetPoint ("topleft", DetailsCustomPanel, "bottomleft", 10, 0)
+					editbox:SetPoint ("topright", DetailsCustomPanel, "bottomright")
+					editbox:SetAutoFocus (false)
+					editbox:SetHook ("OnEditFocusLost", function() 
+						editbox:Hide()
+					end)
+					editbox:SetHook ("OnChar", function() 
+						editbox:Hide()
+					end)
+				end
+				
+				if (custom_window.ImportBox) then
+					custom_window.ImportBox:Hide()
+					custom_window.exportLabel:Hide()
+					custom_window.ImportConfirm:Hide()
+				end
+				
+				custom_window.ExportBox:Show()
+				custom_window.ExportBox:SetText (encoded)
+				custom_window.ExportBox:HighlightText()
+				custom_window.ExportBox:SetFocus()
+				
 			end
 			custom_window:CreateMenuButton (Loc ["STRING_CUSTOM_EXPORT"], "Interface\\ICONS\\INV_Misc_Gift_01", build_menu, export_display, nil, nil, "Export", {0.00, 0.9, 0.07, 0.93}) --> localize
-			DetailsCustomPanelExport:Disable()
 
 			--> import buttonRaceChange
 			local import_display = function (_, _, custom_object, index)
 				GameCooltip:Hide()
-				--DetailsCustomPanel:RemoveDisplay (custom_object, index)
+				
+				if (not custom_window.ImportBox) then
+				
+					local export_string = gump:NewLabel (custom_window, custom_window, "$parenImportLabel", "exportLabel", Loc ["STRING_CUSTOM_PASTE"], "GameFontNormal")
+					export_string:SetPoint ("topleft", DetailsCustomPanel, "bottomleft", 10, -5)
+				
+					local editbox = _detalhes.gump:NewTextEntry (custom_window, nil, "$parentImportBox", "ImportBox", 772 - export_string.width - 2, 20)
+					editbox:SetPoint ("left", export_string, "right", 2, 0)
+					editbox:SetAutoFocus (false)
+					
+					local import = function()
+						local text = editbox:GetText()
+						
+						local decode = _detalhes._encode:Decode (text)
+						--local unzip = LibStub:GetLibrary ("LibCompress"):DecompressHuffman (decode)
+						--local deserialized_object = select (2, _detalhes:Deserialize (unzip))
+						
+						if (type (decode) ~= "string") then
+							_detalhes:Msg (Loc ["STRING_CUSTOM_IMPORT_ERROR"])
+							return
+						end
+						
+						local deserialized_object = select (2, _detalhes:Deserialize (decode))
+
+						if (DetailsCustomPanel.CodeEditing) then
+							DetailsCustomPanel:CancelFunc()
+						end
+
+						if (type (deserialized_object) == "string") then
+							_detalhes:Msg (Loc ["STRING_CUSTOM_IMPORT_ERROR"])
+							return
+						end
+						
+						setmetatable (deserialized_object, _detalhes.atributo_custom)
+						deserialized_object.__index = _detalhes.atributo_custom
+						
+						_detalhes.MicroButtonAlert.Text:SetText (Loc ["STRING_CUSTOM_IMPORT_ALERT"])
+						_detalhes.MicroButtonAlert:SetPoint ("bottom", custom_window.box0.acceptbutton.widget, "top", 0, 20)
+						_detalhes.MicroButtonAlert:SetHeight (200)
+						_detalhes.MicroButtonAlert:Show()
+						
+						DetailsCustomPanel:StartEdit (deserialized_object, true)
+						
+						custom_window.ImportBox:ClearFocus()
+						custom_window.ImportBox:Hide()
+						custom_window.exportLabel:Hide()
+						custom_window.ImportConfirm:Hide()
+					end
+					
+					local okey_button = gump:NewButton (custom_window, nil, "$parentImportConfirm", "ImportConfirm", 65, 18, import, nil, nil, nil, Loc ["STRING_CUSTOM_IMPORT_BUTTON"])
+					okey_button:InstallCustomTexture()
+					okey_button:SetPoint ("left", editbox, "right", 2, 0)
+				end
+				
+				if (custom_window.ExportBox) then
+					custom_window.ExportBox:Hide()
+				end
+				
+				custom_window.ImportBox:SetText ("")
+				custom_window.ImportBox:Show()
+				custom_window.exportLabel:Show()
+				custom_window.ImportConfirm:Show()
+				custom_window.ImportBox:SetFocus()
+				
 			end
-			custom_window:CreateMenuButton (Loc ["STRING_CUSTOM_IMPORT"], "Interface\\ICONS\\INV_MISC_NOTE_02", build_menu, import_display, nil, nil, "Import", {0.00, 0.9, 0.07, 0.93}) --> localize
-			DetailsCustomPanelImport:Disable()
+			custom_window:CreateMenuButton (Loc ["STRING_CUSTOM_IMPORT"], "Interface\\ICONS\\INV_MISC_NOTE_02", import_display, nil, nil, nil, "Import", {0.00, 0.9, 0.07, 0.93}) --> localize
 			
 			local box_types = {
 				{}, --normal
@@ -757,7 +925,7 @@
 				desc_field:SetPoint ("left", desc_label, "left", 62, 0)
 				desc_field.tooltip = Loc ["STRING_CUSTOM_DESCRIPTION_DESC"]
 				custom_window.desc_field = desc_field
-				
+
 			--icon
 				local icon_label = gump:NewLabel (box0, box0, "$parenIconLabel", "icon", Loc ["STRING_CUSTOM_ICON"], "GameFontHighlightLeft") --> localize-me
 				icon_label:SetPoint ("topleft", desc_label, "bottomleft", 0, -12)

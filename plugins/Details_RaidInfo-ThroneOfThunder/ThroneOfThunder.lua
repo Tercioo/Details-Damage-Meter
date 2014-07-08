@@ -9,13 +9,17 @@ local Loc = LibStub ("AceLocale-3.0"):GetLocale ("Details_RaidInfo-ThroneOfThund
 local _detalhes = 		_G._detalhes
 
 local throne_of_thunder = {
+
 	id = 1098,
+	ej_id = 362,
 	
 	name = Loc ["STRING_RAID_NAME"],
 	
 	icons = "Interface\\AddOns\\Details_RaidInfo-ThroneOfThunder\\images\\tot",
 	
 	icon = "Interface\\AddOns\\Details_RaidInfo-ThroneOfThunder\\images\\icon256x128",
+	
+	is_raid = true,
 	
 	background = "Interface\\AddOns\\Details_RaidInfo-ThroneOfThunder\\images\\raid_tot",
 	backgroundEJ = [[Interface\EncounterJournal\UI-EJ-LOREBG-ThunderKingRaid]],
@@ -34,6 +38,24 @@ local throne_of_thunder = {
 		"Lu'lin",
 		"Lei Shen",
 		"Ra-den"
+	},
+	
+	encounter_ids = {
+		--> Ids by Index
+			827, 819, 816, 825, 821, 828, 818, 820, 824, 817, 829, 832,
+			[827] = 1, -- Jin'rokh the Breaker
+			[819] = 2, -- Horridon
+			[816] = 3, -- Frost King Malakk
+			[825] = 4, -- Tortos
+			[821] = 5, -- Magaera
+			[828] = 6, -- Ji-Kun
+			[818] = 7, -- Durumu the Forgotten
+			[820] = 8, -- Primordius
+			[824] = 9, -- Dark Animus
+			[817] = 10, -- Iron Qon
+			[829] = 11, -- Lu'lin
+			[832] = 12, -- Lei Shen
+			--[] = 13, -- Ra-den
 	},
 	
 	boss_ids = {

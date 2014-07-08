@@ -353,8 +353,6 @@
 		
 		-- ~end
 		function _detalhes:SairDoCombate (bossKilled, from_encounter_end)
-
-			--print ("=== Saiu de Combate! ===", _tempo)
 		
 			if (_detalhes.debug) then
 				_detalhes:Msg ("(debug) ended a combat.")
@@ -388,6 +386,7 @@
 			
 			--> pega a zona do jogador e vê se foi uma luta contra um Boss -- identifica se a luta foi com um boss
 			if (not _detalhes.tabela_vigente.is_boss) then 
+		
 				--> function which runs after a boss encounter to try recognize a encounter
 				_detalhes:FindBoss()
 				
@@ -401,7 +400,6 @@
 						end
 					end
 				end
-
 			end
 			
 			if (_detalhes.tabela_vigente.bossFunction) then
@@ -457,17 +455,19 @@
 				end
 
 				if (_detalhes:GetBossDetails (_detalhes.tabela_vigente.is_boss.mapid, _detalhes.tabela_vigente.is_boss.index)) then
-				
+					
 					_detalhes.tabela_vigente.enemy = _detalhes.tabela_vigente.is_boss.encounter
 
 					if (_detalhes.tabela_vigente.instance_type == "raid") then
+					
 						_detalhes.last_encounter2 = _detalhes.last_encounter
 						_detalhes.last_encounter = _detalhes.tabela_vigente.is_boss.name
 						
 						--debug
-						_detalhes:Msg (_detalhes.debug_pots1 or "")
-						_detalhes:Msg (_detalhes.debug_pots2 or "")
-						
+						if (_detalhes.pre_pot_used) then
+							_detalhes:Msg (_detalhes.pre_pot_used or "")
+							_detalhes.pre_pot_used = nil
+						end
 					end
 					
 					if (bossKilled) then
@@ -486,13 +486,12 @@
 						end
 					end
 					
-					--> schedule captures off
-					if (_detalhes.debug) then
-						_detalhes:Msg ("(debug) found encounter on last fight, freezing parser for 30 seconds.")
-					end
-					
 					if (_detalhes.tabela_vigente.instance_type == "raid") then
-						_detalhes:CaptureSet (false, "damage", false, 30)
+						--> schedule captures off
+						_detalhes:CaptureSet (false, "damage", false, 15)
+						if (_detalhes.debug) then
+							_detalhes:Msg ("(debug) freezing parser for 15 seconds.")
+						end
 					end
 					
 					--> schedule sync
@@ -500,9 +499,6 @@
 					if (_detalhes:GetEncounterEqualize (_detalhes.tabela_vigente.is_boss.mapid, _detalhes.tabela_vigente.is_boss.index)) then
 						_detalhes:ScheduleTimer ("DelayedSyncAlert", 3)
 					end
-					
-					--> schedule clean up
-					--_detalhes:ScheduleTimer ("IniciarColetaDeLixo", 15, true)
 					
 				else
 					if (_detalhes.debug) then

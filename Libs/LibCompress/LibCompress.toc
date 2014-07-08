@@ -1,0 +1,15 @@
+﻿## Interface: 40000
+## X-Curse-Packaged-Version: r49
+## X-Curse-Project-Name: LibCompress
+## X-Curse-Project-ID: libcompress
+## X-Curse-Repository-ID: wow/libcompress/mainline
+
+## Title: Lib: Compress
+## Notes: Compression and Decompression library
+## Author: JJSheets and Galmok at Stormrage-EU (Horde)
+## X-Website: http://www.wowace.com
+## X-Category: Library
+## X-eMail: sheets DOT jeff AT gmail DOT com, galmok AT gmail DOT com
+## X-License: LGPL v2.1
+
+lib.xml

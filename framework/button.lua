@@ -377,6 +377,32 @@ local ButtonMetaFunctions = {}
 		end
 	end
 
+-- icon
+	function ButtonMetaFunctions:SetIcon (texture, width, height, layout, texcoord, overlay, textdistance)
+		if (not self.icon) then
+			self.icon = self:CreateTexture (nil, "artwork")
+			self.icon:SetSize (self.height*0.8, self.height*0.8)
+			self.icon:SetPoint ("left", self.widget, "left", 4, 0)
+			
+			self.widget.text:ClearAllPoints()
+			self.widget.text:SetPoint ("left", self.icon, "right", textdistance or 2, 0)
+		end
+		
+		self.icon:SetTexture (texture)
+		self.icon:SetSize (width or self.height*0.8, height or self.height*0.8)
+		self.icon:SetDrawLayer (layout or "artwork")
+		if (texcoord) then
+			self.icon:SetTexCoord (unpack (texcoord))
+		else
+			self.icon:SetTexCoord (0, 1, 0, 1)
+		end
+		if (overlay) then
+			self.icon:SetVertexColor (unpack (overlay))
+		else
+			self.icon:SetVertexColor (1, 1, 1, 1)
+		end
+	end
+	
 -- frame stratas
 	function ButtonMetaFunctions:SetFrameStrata()
 		return self.button:GetFrameStrata()
@@ -557,7 +583,9 @@ local ButtonMetaFunctions = {}
 		end
 		
 		if (button.MyObject.capsule_textalign) then
-			if (button.MyObject.capsule_textalign == "left") then
+			if (button.MyObject.icon) then
+				button.MyObject.icon:SetPoint ("left", button, "left", 5, -1)
+			elseif (button.MyObject.capsule_textalign == "left") then
 				button.text:SetPoint ("left", button, "left", 3, -1)
 			elseif (button.MyObject.capsule_textalign == "center") then
 				button.text:SetPoint ("center", button, "center", 1, -1)
@@ -565,7 +593,11 @@ local ButtonMetaFunctions = {}
 				button.text:SetPoint ("right", button, "right", -1, -1)
 			end
 		else
-			button.text:SetPoint ("center", button,"center", 1, -1)
+			if (button.MyObject.icon) then
+				button.MyObject.icon:SetPoint ("left", button, "left", 7, -2)
+			else
+				button.text:SetPoint ("center", button,"center", 1, -1)
+			end
 		end
 
 		button.mouse_down = GetTime()
@@ -622,7 +654,9 @@ local ButtonMetaFunctions = {}
 		end
 		
 		if (button.MyObject.capsule_textalign) then
-			if (button.MyObject.capsule_textalign == "left") then
+			if (button.MyObject.icon) then
+				button.MyObject.icon:SetPoint ("left", button, "left", 4, 0)
+			elseif (button.MyObject.capsule_textalign == "left") then
 				button.text:SetPoint ("left", button, "left", 2, 0)
 			elseif (button.MyObject.capsule_textalign == "center") then
 				button.text:SetPoint ("center", button, "center", 0, 0)
@@ -630,7 +664,11 @@ local ButtonMetaFunctions = {}
 				button.text:SetPoint ("right", button, "right", -2, 0)
 			end
 		else
-			button.text:SetPoint ("center", button,"center", 0, 0)
+			if (button.MyObject.icon) then
+				button.MyObject.icon:SetPoint ("left", button, "left", 4, 0)
+			else
+				button.text:SetPoint ("center", button,"center", 0, 0)
+			end
 		end
 		
 		if (button.MyObject.container.isMoving) then

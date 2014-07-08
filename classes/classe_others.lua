@@ -1291,7 +1291,7 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 				local class_color = RAID_CLASS_COLORS [class].colorStr
 				string_output = string_output .. "|c" .. class_color .. playername .. "|r |T" .. icon .. ":14:14:0:0:64:64:0:64:0:64|t "
 			end
-			_detalhes.debug_pots2 = string_output
+			_detalhes.pre_pot_used = string_output
 		end
 		
 	elseif (_IsInGroup()) then

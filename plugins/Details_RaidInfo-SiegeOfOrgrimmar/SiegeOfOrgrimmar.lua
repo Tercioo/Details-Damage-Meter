@@ -9,13 +9,17 @@ local Loc = LibStub ("AceLocale-3.0"):GetLocale ("Details_RaidInfo-SiegeOfOrgrim
 local _detalhes = 		_G._detalhes
 
 local siege_of_orgrimmar = {
+
 	id = 1136,
+	ej_id = 369,
 	
 	name = Loc ["STRING_RAID_NAME"],
 	
 	icons = "Interface\\AddOns\\Details_RaidInfo-SiegeOfOrgrimmar\\images\\boss_faces",
 	
 	icon = "Interface\\AddOns\\Details_RaidInfo-SiegeOfOrgrimmar\\images\\icon256x128",
+	
+	is_raid = true,
 	
 	background = "Interface\\AddOns\\Details_RaidInfo-SiegeOfOrgrimmar\\images\\wallpaper",
 	backgroundEJ = [[Interface\EncounterJournal\UI-EJ-LOREBG-SiegeofOrgrimmar]],
@@ -54,6 +58,31 @@ local siege_of_orgrimmar = {
 	end,
 	
 	encounter_ids = {
+		--> Ids by Index
+			852, 849, 866, 867, 881, 864, 856, 850, 846, 870, 851, 865, 853, 869,
+		-- Vale of Eternal Sorrows
+			[852] = 1, -- Immerseus
+			[849] = 2, -- Fallen Protectors
+			[866] = 3, -- Norushen
+			[867] = 4, -- Sha of Pride
+		-- Gates of Retribution
+			[881] = 5, -- Galakras
+			[864] = 6, -- Iron Juggernaut
+			[856] = 7, -- Kor'kron Dark Shaman
+			[850] = 8, -- General Nazgrim
+			
+		-- The Underhold
+			[846] = 9, -- Malkorok
+			[870] = 10, -- Spoils of Pandaria
+			[851] = 11, -- Thok the Bloodthirsty
+			
+		-- Downfall
+			[865] = 12, -- Siegecrafter Blackfuse
+			[853] = 13, -- Paragons of Klaxy
+			[869] = 14, -- Garrosh Hellscream
+	},
+	
+	encounter_ids2 = {
 		-- Vale of Eternal Sorrows
 			[1602] = 1, -- Immerseus
 			[1598] = 2, -- Fallen Protectors

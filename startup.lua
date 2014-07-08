@@ -1,14 +1,10 @@
---File Revision: 1
---Last Modification: 27/07/2013
--- Change Log:
-	-- 27/07/2013: Finished alpha version.
 
 function _G._detalhes:Start()
 
 	local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---> details defaults
+--> row single click
 
 	--> single click row function replace
 		--damage, dps, damage taken, friendly fire
@@ -20,6 +16,15 @@ function _G._detalhes:Start()
 		--cc breaks, ress, interrupts, dispells, deaths
 			self.row_singleclick_overwrite [4] = {true, true, true, true, self.atributo_misc.ReportSingleDeadLine, self.atributo_misc.ReportSingleCooldownLine, self.atributo_misc.ReportSingleBuffUptimeLine, self.atributo_misc.ReportSingleDebuffUptimeLine} 
 		
+		function self:ReplaceRowSingleClickFunction (attribute, sub_attribute, func)
+			assert (type (attribute) == "number" and attribute >= 1 and attribute <= 4, "ReplaceRowSingleClickFunction expects a attribute index on #1 argument.")
+			assert (type (sub_attribute) == "number" and sub_attribute >= 1 and sub_attribute <= 10, "ReplaceRowSingleClickFunction expects a sub attribute index on #2 argument.")
+			assert (type (func) == "function", "ReplaceRowSingleClickFunction expects a function on #3 argument.")
+			
+			self.row_singleclick_overwrite [attribute] [sub_attribute] = func
+			return true
+		end
+		
 		self.click_to_report_color = {1, 0.8, 0, 1}
 		
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -27,16 +32,19 @@ function _G._detalhes:Start()
 
 	--> build frames
 
-		--> fast switch
+		--> bookmarks
 			if (self.switch.InitSwitch) then
 				self.switch:InitSwitch()
 			end
 			
 		--> custom window
 			self.custom = self.custom or {}
-			--self:InitCustom()
 			
-		--> actor info
+		--> micro button alert
+			self.MicroButtonAlert = CreateFrame ("frame", "DetailsMicroButtonAlert", UIParent, "MicroButtonAlertTemplate")
+			self.MicroButtonAlert:Hide()
+			
+		--> actor details window
 			self.janela_info = self.gump:CriaJanelaInfo()
 			self.gump:Fade (self.janela_info, 1)
 			
@@ -45,15 +53,13 @@ function _G._detalhes:Start()
 			self.CreateCopyPasteWindow = nil
 			
 	--> start instances
-	
-		if (self:QuantasInstancias() == 0) then
+		if (self:GetNumInstancesAmount() == 0) then
 			self:CriarInstancia()
 		end
 		self:GetLowerInstanceNumber()
 		self:CheckConsolidates()
 		
 	--> start time machine
-	
 		self.timeMachine:Ligar()
 	
 	--> update abbreviation shorcut
@@ -230,93 +236,10 @@ function _G._detalhes:Start()
 	
 	--> send feedback panel if the user got 100 or more logons with details
 		if (self.tutorial.logons > 100) then --  and self.tutorial.logons < 104
-
 			if (not self.tutorial.feedback_window1) then
 				self.tutorial.feedback_window1 = true
-			
-				local feedback_frame = CreateFrame ("FRAME", "DetailsFeedbackWindow", UIParent, "ButtonFrameTemplate")
-				tinsert (UISpecialFrames, "DetailsFeedbackWindow")
-				feedback_frame:SetPoint ("center", UIParent, "center")
-				feedback_frame:SetSize (512, 200)
-				feedback_frame.portrait:SetTexture ([[Interface\CHARACTERFRAME\TEMPORARYPORTRAIT-FEMALE-GNOME]])
-				
-				feedback_frame.TitleText:SetText ("Details! Need Your Help!")
-				
-				feedback_frame.uppertext = feedback_frame:CreateFontString (nil, "artwork", "GameFontNormal")
-				feedback_frame.uppertext:SetText ("Tell us about your experience using Details!, what you liked most, where we could improve, what things you want to see in the future?")
-				feedback_frame.uppertext:SetPoint ("topleft", feedback_frame, "topleft", 60, -32)
-				local font, _, flags = feedback_frame.uppertext:GetFont()
-				feedback_frame.uppertext:SetFont (font, 10, flags)
-				feedback_frame.uppertext:SetTextColor (1, 1, 1, .8)
-				feedback_frame.uppertext:SetWidth (440)
-
-				local editbox = _detalhes.gump:NewTextEntry (feedback_frame, nil, "$parentTextEntry", "text", 387, 14)
-				editbox:SetPoint (20, -106)
-				editbox:SetAutoFocus (false)
-				editbox:SetHook ("OnEditFocusGained", function() 
-					editbox.text = "http://www.mmo-champion.com/threads/1480721-New-damage-meter-%28Details!%29-need-help-with-tests-and-feedbacks" 
-					editbox:HighlightText()
-				end)
-				editbox:SetHook ("OnEditFocusLost", function() 
-					editbox.text = "http://www.mmo-champion.com/threads/1480721-New-damage-meter-%28Details!%29-need-help-with-tests-and-feedbacks" 
-					editbox:HighlightText()
-				end)
-				editbox:SetHook ("OnChar", function() 
-					editbox.text = "http://www.mmo-champion.com/threads/1480721-New-damage-meter-%28Details!%29-need-help-with-tests-and-feedbacks"
-					editbox:HighlightText()
-				end)
-				editbox.text = "http://www.mmo-champion.com/threads/1480721-New-damage-meter-%28Details!%29-need-help-with-tests-and-feedbacks"
-				
-				
-				feedback_frame.midtext = feedback_frame:CreateFontString (nil, "artwork", "GameFontNormal")
-				feedback_frame.midtext:SetText ("visit the link above and let's make Details! stronger!")
-				feedback_frame.midtext:SetPoint ("center", editbox.widget, "center")
-				feedback_frame.midtext:SetPoint ("top", editbox.widget, "bottom", 0, -2)
-				feedback_frame.midtext:SetJustifyH ("center")
-				local font, _, flags = feedback_frame.midtext:GetFont()
-				feedback_frame.midtext:SetFont (font, 10, flags)
-				--feedback_frame.midtext:SetTextColor (1, 1, 1, 1)
-				feedback_frame.midtext:SetWidth (440)
-				
-				
-				feedback_frame.gnoma = feedback_frame:CreateTexture (nil, "artwork")
-				feedback_frame.gnoma:SetPoint ("topright", feedback_frame, "topright", -1, -59)
-				feedback_frame.gnoma:SetTexture ("Interface\\AddOns\\Details\\images\\icons2")
-				feedback_frame.gnoma:SetSize (105*1.05, 107*1.05)
-				feedback_frame.gnoma:SetTexCoord (0.2021484375, 0, 0.7919921875, 1)
-
-				feedback_frame.close = CreateFrame ("Button", "DetailsFeedbackWindowCloseButton", feedback_frame, "OptionsButtonTemplate")
-				feedback_frame.close:SetPoint ("bottomleft", feedback_frame, "bottomleft", 8, 4)
-				feedback_frame.close:SetText ("Close")
-				feedback_frame.close:SetScript ("OnClick", function (self)
-					editbox:ClearFocus()
-					feedback_frame:Hide()
-				end)
-				
-				feedback_frame.postpone = CreateFrame ("Button", "DetailsFeedbackWindowPostPoneButton", feedback_frame, "OptionsButtonTemplate")
-				feedback_frame.postpone:SetPoint ("bottomright", feedback_frame, "bottomright", -10, 4)
-				feedback_frame.postpone:SetText ("Remind-me Later")
-				feedback_frame.postpone:SetScript ("OnClick", function (self)
-					editbox:ClearFocus()
-					feedback_frame:Hide()
-					_detalhes.tutorial.feedback_window1 = false
-				end)
-				feedback_frame.postpone:SetWidth (130)
-				
-				feedback_frame:SetScript ("OnHide", function() 
-					editbox:ClearFocus()
-				end)
-				
-				--0.0009765625 512
-				function _detalhes:FeedbackSetFocus()
-					DetailsFeedbackWindow:Show()
-					DetailsFeedbackWindowTextEntry.MyObject:SetFocus()
-					DetailsFeedbackWindowTextEntry.MyObject:HighlightText()
-				end
-				_detalhes:ScheduleTimer ("FeedbackSetFocus", 5)
-			
+				_detalhes:ShowFeedbackRequestWindow()
 			end
-			
 		end
 	
 	--> check is this is the first run of this version
@@ -341,136 +264,25 @@ function _G._detalhes:Start()
 			
 			if (_detalhes_database.last_realversion and _detalhes_database.last_realversion < 18 and enable_reset_warning) then
 				
-				--print ("Last Version:", _detalhes_database.last_version, "Last Interval Version:", _detalhes_database.last_realversion)
-
-				local resetwarning_frame = CreateFrame ("FRAME", "DetailsResetConfigWarningDialog", UIParent, "ButtonFrameTemplate")
-				resetwarning_frame:SetFrameStrata ("LOW")
-				tinsert (UISpecialFrames, "DetailsResetConfigWarningDialog")
-				resetwarning_frame:SetPoint ("center", UIParent, "center")
-				resetwarning_frame:SetSize (512, 200)
-				resetwarning_frame.portrait:SetTexture ([[Interface\CHARACTERFRAME\TEMPORARYPORTRAIT-FEMALE-GNOME]])
-				resetwarning_frame:SetScript ("OnHide", function()
-					DetailsBubble:HideBubble()
-				end)
-				
-				resetwarning_frame.TitleText:SetText ("Noooooooooooo!!!")
-
-				resetwarning_frame.midtext = resetwarning_frame:CreateFontString (nil, "artwork", "GameFontNormal")
-				resetwarning_frame.midtext:SetText ("A pack of murlocs has attacked Details! tech center, our gnomes engineers are working on fixing the damage.\n\n If something is messed in your Details!, especially the close, instance and reset buttons, you can either 'Reset Skin' or access the options panel.")
-				resetwarning_frame.midtext:SetPoint ("topleft", resetwarning_frame, "topleft", 10, -90)
-				resetwarning_frame.midtext:SetJustifyH ("center")
-				resetwarning_frame.midtext:SetWidth (370)
-				
-				resetwarning_frame.gnoma = resetwarning_frame:CreateTexture (nil, "artwork")
-				resetwarning_frame.gnoma:SetPoint ("topright", resetwarning_frame, "topright", -3, -80)
-				resetwarning_frame.gnoma:SetTexture ("Interface\\AddOns\\Details\\images\\icons2")
-				resetwarning_frame.gnoma:SetSize (89*1.00, 97*1.00)
-				--resetwarning_frame.gnoma:SetTexCoord (0.212890625, 0.494140625, 0.798828125, 0.99609375) -- 109 409 253 510
-				resetwarning_frame.gnoma:SetTexCoord (0.17578125, 0.001953125, 0.59765625, 0.787109375) -- 1 306 90 403
-				
-				resetwarning_frame.close = CreateFrame ("Button", "DetailsFeedbackWindowCloseButton", resetwarning_frame, "OptionsButtonTemplate")
-				resetwarning_frame.close:SetPoint ("bottomleft", resetwarning_frame, "bottomleft", 8, 4)
-				resetwarning_frame.close:SetText ("Close")
-				resetwarning_frame.close:SetScript ("OnClick", function (self)
-					resetwarning_frame:Hide()
-				end)
-			
-				resetwarning_frame.see_updates = CreateFrame ("Button", "DetailsResetWindowSeeUpdatesButton", resetwarning_frame, "OptionsButtonTemplate")
-				resetwarning_frame.see_updates:SetPoint ("bottomright", resetwarning_frame, "bottomright", -10, 4)
-				resetwarning_frame.see_updates:SetText ("Update Info")
-				resetwarning_frame.see_updates:SetScript ("OnClick", function (self)
-					_detalhes.OpenNewsWindow()
-					DetailsBubble:HideBubble()
-					--resetwarning_frame:Hide()
-				end)
-				resetwarning_frame.see_updates:SetWidth (130)
-				
-				resetwarning_frame.reset_skin = CreateFrame ("Button", "DetailsResetWindowResetSkinButton", resetwarning_frame, "OptionsButtonTemplate")
-				resetwarning_frame.reset_skin:SetPoint ("right", resetwarning_frame.see_updates, "left", -5, 0)
-				resetwarning_frame.reset_skin:SetText ("Reset Skin")
-				resetwarning_frame.reset_skin:SetScript ("OnClick", function (self)
-					--do the reset
-					for index, instance in ipairs (_detalhes.tabela_instancias) do 
-						if (not instance.iniciada) then
-							instance:RestauraJanela()
-							local skin = instance.skin
-							instance:ChangeSkin ("Default Skin")
-							instance:ChangeSkin ("Minimalistic")
-							instance:ChangeSkin (skin)
-							instance:DesativarInstancia()
-						else
-							local skin = instance.skin
-							instance:ChangeSkin ("Default Skin")
-							instance:ChangeSkin ("Minimalistic")
-							instance:ChangeSkin (skin)
-						end
-					end
-				end)
-				resetwarning_frame.reset_skin:SetWidth (130)
-				
-				resetwarning_frame.open_options = CreateFrame ("Button", "DetailsResetWindowOpenOptionsButton", resetwarning_frame, "OptionsButtonTemplate")
-				resetwarning_frame.open_options:SetPoint ("right", resetwarning_frame.reset_skin, "left", -5, 0)
-				resetwarning_frame.open_options:SetText ("Options Panel")
-				resetwarning_frame.open_options:SetScript ("OnClick", function (self)
-					local lower_instance = _detalhes:GetLowerInstanceNumber()
-					if (not lower_instance) then
-						local instance = _detalhes:GetInstance (1)
-						_detalhes.CriarInstancia (_, _, 1)
-						_detalhes:OpenOptionsWindow (instance)
+				for index, instance in ipairs (_detalhes.tabela_instancias) do 
+					if (not instance.iniciada) then
+						instance:RestauraJanela()
+						local skin = instance.skin
+						instance:ChangeSkin ("Default Skin")
+						instance:ChangeSkin ("Minimalistic")
+						instance:ChangeSkin (skin)
+						instance:DesativarInstancia()
 					else
-						_detalhes:OpenOptionsWindow (_detalhes:GetInstance (lower_instance))
+						local skin = instance.skin
+						instance:ChangeSkin ("Default Skin")
+						instance:ChangeSkin ("Minimalistic")
+						instance:ChangeSkin (skin)
 					end
-				end)
-				resetwarning_frame.open_options:SetWidth (130)
-			
-				function _detalhes:ResetWarningDialog()
-					DetailsResetConfigWarningDialog:Show()
-					DetailsBubble:SetOwner (resetwarning_frame.gnoma, "bottomright", "topleft", 30, -37, 1)
-					DetailsBubble:FlipHorizontal()
-					DetailsBubble:SetBubbleText ("", "", "WWHYYYYYYYYY!!!!", "", "")
-					DetailsBubble:TextConfig (14, nil, "deeppink")
-					DetailsBubble:ShowBubble()
-
-
 				end
-				_detalhes:ScheduleTimer ("ResetWarningDialog", 7)
-				
 			end
+
 		end
 	
-	--> interface menu
-	local f = CreateFrame ("frame", "DetailsInterfaceOptionsPanel", UIParent)
-	f.name = "Details"
-	f.logo = f:CreateTexture (nil, "overlay")
-	f.logo:SetPoint ("center", f, "center", 0, 0)
-	f.logo:SetPoint ("top", f, "top", 25, 56)
-	f.logo:SetTexture ([[Interface\AddOns\Details\images\logotipo]])
-	f.logo:SetSize (256, 128)
-	InterfaceOptions_AddCategory (f)
-	
-		--> open options panel
-		f.options_button = CreateFrame ("button", nil, f, "OptionsButtonTemplate")
-		f.options_button:SetText (Loc ["STRING_INTERFACE_OPENOPTIONS"])
-		f.options_button:SetPoint ("topleft", f, "topleft", 10, -100)
-		f.options_button:SetWidth (170)
-		f.options_button:SetScript ("OnClick", function (self)
-			local lower_instance = _detalhes:GetLowerInstanceNumber()
-			_detalhes:OpenOptionsWindow (_detalhes:GetInstance (lower_instance))
-		end)
-		
-		--> create new window
-		f.new_window_button = CreateFrame ("button", nil, f, "OptionsButtonTemplate")
-		f.new_window_button:SetText (Loc ["STRING_MINIMAPMENU_NEWWINDOW"])
-		f.new_window_button:SetPoint ("topleft", f, "topleft", 10, -125)
-		f.new_window_button:SetWidth (170)
-		f.new_window_button:SetScript ("OnClick", function (self)
-			_detalhes:CriarInstancia (_, true)
-		end)
-	
-	--> MicroButtonAlertTemplate
-	self.MicroButtonAlert = CreateFrame ("frame", "DetailsMicroButtonAlert", UIParent, "MicroButtonAlertTemplate")
-	self.MicroButtonAlert:Hide()
-
 	local lower = _detalhes:GetLowerInstanceNumber()
 	if (lower) then
 		local instance = _detalhes:GetInstance (lower)
@@ -537,409 +349,13 @@ function _G._detalhes:Start()
 	end	
 	
 	--> minimap
-	local LDB = LibStub ("LibDataBroker-1.1", true)
-	local LDBIcon = LDB and LibStub ("LibDBIcon-1.0", true)
-	
-	if LDB then
+		_detalhes:RegisterMinimapAndHotCorner()
 
-		local databroker = LDB:NewDataObject ("Details!", {
-			type = "launcher",
-			icon = [[Interface\AddOns\Details\images\minimap]],
-			text = "0",
-			
-			HotCornerIgnore = true,
-			
-			OnClick = function (self, button)
-			
-				if (button == "LeftButton") then
-				
-					--> 1 = open options panel
-					if (_detalhes.minimap.onclick_what_todo == 1) then
-						local lower_instance = _detalhes:GetLowerInstanceNumber()
-						if (not lower_instance) then
-							local instance = _detalhes:GetInstance (1)
-							_detalhes.CriarInstancia (_, _, 1)
-							_detalhes:OpenOptionsWindow (instance)
-						else
-							_detalhes:OpenOptionsWindow (_detalhes:GetInstance (lower_instance))
-						end
-					
-					--> 2 = reset data
-					elseif (_detalhes.minimap.onclick_what_todo == 2) then
-						_detalhes.tabela_historico:resetar()
-					
-					--> 3 = unknown
-					elseif (_detalhes.minimap.onclick_what_todo == 3) then
-					
-					end
-					
-				elseif (button == "RightButton") then
-				
-					GameTooltip:Hide()
-					local GameCooltip = GameCooltip
-					
-					GameCooltip:Reset()
-					GameCooltip:SetType ("menu")
-					GameCooltip:SetOption ("ButtonsYMod", -5)
-					GameCooltip:SetOption ("HeighMod", 5)
-					GameCooltip:SetOption ("TextSize", 10)
-
-					--344 427 200 268 0.0009765625
-					--0.672851, 0.833007, 0.391601, 0.522460
-					
-					GameCooltip:SetBannerImage (1, [[Interface\AddOns\Details\images\icons]], 83*.5, 68*.5, {"bottomleft", "topleft", 1, -4}, {0.672851, 0.833007, 0.391601, 0.522460}, nil)
-					GameCooltip:SetBannerImage (2, "Interface\\PetBattles\\Weather-Windy", 512*.35, 128*.3, {"bottomleft", "topleft", -25, -4}, {0, 1, 1, 0})
-					GameCooltip:SetBannerText (1, "Mini Map Menu", {"left", "right", 2, -5}, "white", 10)
-					
-					--> reset
-					GameCooltip:AddMenu (1, _detalhes.tabela_historico.resetar, true, nil, nil, Loc ["STRING_MINIMAPMENU_RESET"], nil, true)
-					GameCooltip:AddIcon ([[Interface\COMMON\VOICECHAT-MUTED]], 1, 1, 14, 14)
-					
-					GameCooltip:AddLine ("$div")
-					
-					--> nova instancai
-					GameCooltip:AddMenu (1, _detalhes.CriarInstancia, true, nil, nil, Loc ["STRING_MINIMAPMENU_NEWWINDOW"], nil, true)
-					GameCooltip:AddIcon ([[Interface\ICONS\Spell_ChargePositive]], 1, 1, 14, 14, 0.0703125, 0.9453125, 0.0546875, 0.9453125)
-					
-					--> reopen window 64: 0.0078125
-					local reopen = function()
-						for _, instance in ipairs (_detalhes.tabela_instancias) do 
-							if (not instance:IsAtiva()) then
-								_detalhes:CriarInstancia (instance.meu_id)
-								return
-							end
-						end
-					end
-					GameCooltip:AddMenu (1, reopen, nil, nil, nil, Loc ["STRING_MINIMAPMENU_REOPEN"], nil, true)
-					GameCooltip:AddIcon ([[Interface\ICONS\Ability_Priest_VoidShift]], 1, 1, 14, 14, 0.0703125, 0.9453125, 0.0546875, 0.9453125)
-					
-					GameCooltip:AddMenu (1, _detalhes.ReabrirTodasInstancias, true, nil, nil, Loc ["STRING_MINIMAPMENU_REOPENALL"], nil, true)
-					GameCooltip:AddIcon ([[Interface\ICONS\Ability_Priest_VoidShift]], 1, 1, 14, 14, 0.0703125, 0.9453125, 0.0546875, 0.9453125, "#ffb400")
-
-					GameCooltip:AddLine ("$div")
-					
-					--> lock
-					GameCooltip:AddMenu (1, _detalhes.TravasInstancias, true, nil, nil, Loc ["STRING_MINIMAPMENU_LOCK"], nil, true)
-					GameCooltip:AddIcon ([[Interface\PetBattles\PetBattle-LockIcon]], 1, 1, 14, 14, 0.0703125, 0.9453125, 0.0546875, 0.9453125)
-					
-					GameCooltip:AddMenu (1, _detalhes.DestravarInstancias, true, nil, nil, Loc ["STRING_MINIMAPMENU_UNLOCK"], nil, true)
-					GameCooltip:AddIcon ([[Interface\PetBattles\PetBattle-LockIcon]], 1, 1, 14, 14, 0.0703125, 0.9453125, 0.0546875, 0.9453125, "gray")
-					
-					GameCooltip:SetOwner (self, "topright", "bottomleft")
-					GameCooltip:ShowCooltip()
-					
-
-				end
-			end,
-			OnTooltipShow = function (tooltip)
-				tooltip:AddLine ("Details!", 1, 1, 1)
-				if (_detalhes.minimap.onclick_what_todo == 1) then
-					tooltip:AddLine (Loc ["STRING_MINIMAP_TOOLTIP1"])
-				elseif (_detalhes.minimap.onclick_what_todo == 2) then
-					tooltip:AddLine (Loc ["STRING_MINIMAP_TOOLTIP11"])
-				end
-				tooltip:AddLine (Loc ["STRING_MINIMAP_TOOLTIP2"])
-			end,
-		})
 		
-		if (databroker and not LDBIcon:IsRegistered ("Details!")) then
-			LDBIcon:Register ("Details!", databroker, self.minimap)
-		end
-		
-		_detalhes.databroker = databroker
-		
-	end
-
-	--register lib-hotcorners
-	local on_click_on_hotcorner_button = function (frame, button) 
-		if (_detalhes.hotcorner_topleft.onclick_what_todo == 1) then
-			local lower_instance = _detalhes:GetLowerInstanceNumber()
-			if (not lower_instance) then
-				local instance = _detalhes:GetInstance (1)
-				_detalhes.CriarInstancia (_, _, 1)
-				_detalhes:OpenOptionsWindow (instance)
-			else
-				_detalhes:OpenOptionsWindow (_detalhes:GetInstance (lower_instance))
-			end
-			
-		elseif (_detalhes.hotcorner_topleft.onclick_what_todo == 2) then
-			_detalhes.tabela_historico:resetar()
-		end
-	end
-	
-	local on_click_on_quickclick_button = function (frame, button) 
-		if (_detalhes.hotcorner_topleft.quickclick_what_todo == 1) then
-			local lower_instance = _detalhes:GetLowerInstanceNumber()
-			if (not lower_instance) then
-				local instance = _detalhes:GetInstance (1)
-				_detalhes.CriarInstancia (_, _, 1)
-				_detalhes:OpenOptionsWindow (instance)
-			else
-				_detalhes:OpenOptionsWindow (_detalhes:GetInstance (lower_instance))
-			end
-			
-		elseif (_detalhes.hotcorner_topleft.quickclick_what_todo == 2) then
-			_detalhes.tabela_historico:resetar()
-		end
-	end
-	
-	local tooltip_hotcorner = function()
-		GameTooltip:AddLine ("Details!", 1, 1, 1, 1)
-		if (_detalhes.hotcorner_topleft.onclick_what_todo == 1) then
-			GameTooltip:AddLine ("|cFF00FF00Left Click:|r open options panel.", 1, 1, 1, 1)
-			
-		elseif (_detalhes.hotcorner_topleft.onclick_what_todo == 2) then
-			GameTooltip:AddLine ("|cFF00FF00Left Click:|r clear all segments.", 1, 1, 1, 1)
-			
-		end
-	end
-	
-	_detalhes:RegisterHotCornerButton (
-		--> absolute name
-		"Details!",
-		--> corner
-		"TOPLEFT", 
-		--> config table
-		self.hotcorner_topleft,
-		--> frame _G name
-		"DetailsLeftCornerButton", 
-		--> icon
-		[[Interface\AddOns\Details\images\minimap]], 
-		--> tooltip
-		tooltip_hotcorner,
-		--> click function
-		on_click_on_hotcorner_button, 
-		--> menus
-		nil, 
-		--> quick click
-		on_click_on_quickclick_button)
-	
-	--> register time captures
-	--_detalhes:LoadUserTimeCaptures()
-	
-	--[[
-	local f = CreateFrame ("frame", nil, UIParent)
-	f:SetSize (200, 200)
-	f:SetPoint ("center", UIParent, "center")
-	local t = f:CreateTexture (nil, "overlay")
-	t:SetPoint ("center", f, "center")
-	t:SetTexture (1, 1, 1, 1)
-	t:SetSize (100, 100)
-	
-	f:SetAlpha (.1)
-	t:SetAlpha (1)
-	t:SetVertexColor (1, 1, 1, 1)
-	
-	local b = CreateFrame ("button", "teste", f, "OptionsButtonTemplate")
-	b:SetSize (75, 30)
-	b:SetPoint ("left", f, "left")
-	b:SetAlpha (1)
-	--]]
-
-	local panel = self.gump:NewPanel (UIParent, nil, "DetailsWindowOptionsBarTextEditor", nil, 650, 200)
-	panel:SetPoint ("center", UIParent, "center")
-	panel:Hide()
-	panel:SetFrameStrata ("FULLSCREEN")
-	panel:SetBackdrop ({	bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 64, edgeFile="Interface\\Tooltips\\UI-Tooltip-Border", edgeSize=16, insets = {left=3, right=3, top=3, bottom=3}})
-	panel:DisableGradient()
-	panel:SetBackdropColor (0, 0, 0, 1)
-	
-	function panel.widget:Open (text, callback, host)
-		if (host) then
-			panel:SetPoint ("center", host, "center")
-		end
-		
-		text = text:gsub ("||", "|")
-		panel.default_text = text
-		panel.widget.editbox:SetText (text)
-		panel.callback = callback
-		panel:Show()
-	end
-	
-	local textentry = self.gump:NewSpecialLuaEditorEntry (panel.widget, 450, 180, "editbox", "$parentEntry", true)
-	textentry:SetPoint ("topleft", panel.widget, "topleft", 10, -10)
-	
-	local arg1_button = self.gump:NewButton (panel, nil, "$parentButton1", nil, 80, 20, function() textentry.editbox:Insert ("{data1}") end, nil, nil, nil, "{data1}")
-	local arg2_button = self.gump:NewButton (panel, nil, "$parentButton2", nil, 80, 20, function() textentry.editbox:Insert ("{data2}") end, nil, nil, nil, "{data2}")
-	local arg3_button = self.gump:NewButton (panel, nil, "$parentButton3", nil, 80, 20, function() textentry.editbox:Insert ("{data3}") end, nil, nil, nil, "{data3}")
-	arg1_button:SetPoint ("topright", panel, "topright", -10, -14)
-	arg2_button:SetPoint ("topright", panel, "topright", -10, -36)
-	arg3_button:SetPoint ("topright", panel, "topright", -10, -58)
-	arg1_button:InstallCustomTexture()
-	arg2_button:InstallCustomTexture()
-	arg3_button:InstallCustomTexture()
-	
-	-- code author Saiket from  http://www.wowinterface.com/forums/showpost.php?p=245759&postcount=6
-	--- @return StartPos, EndPos of highlight in this editbox.
-	local function GetTextHighlight ( self )
-		local Text, Cursor = self:GetText(), self:GetCursorPosition();
-		self:Insert( "" ); -- Delete selected text
-		local TextNew, CursorNew = self:GetText(), self:GetCursorPosition();
-		-- Restore previous text
-		self:SetText( Text );
-		self:SetCursorPosition( Cursor );
-		local Start, End = CursorNew, #Text - ( #TextNew - CursorNew );
-		self:HighlightText( Start, End );
-		return Start, End;
-	end
-      
-	local StripColors;
-	do
-		local CursorPosition, CursorDelta;
-		--- Callback for gsub to remove unescaped codes.
-		local function StripCodeGsub ( Escapes, Code, End )
-			if ( #Escapes % 2 == 0 ) then -- Doesn't escape Code
-				if ( CursorPosition and CursorPosition >= End - 1 ) then
-					CursorDelta = CursorDelta - #Code;
-				end
-				return Escapes;
-			end
-		end
-		--- Removes a single escape sequence.
-		local function StripCode ( Pattern, Text, OldCursor )
-			CursorPosition, CursorDelta = OldCursor, 0;
-			return Text:gsub( Pattern, StripCodeGsub ), OldCursor and CursorPosition + CursorDelta;
-		end
-		--- Strips Text of all color escape sequences.
-		-- @param Cursor  Optional cursor position to keep track of.
-		-- @return Stripped text, and the updated cursor position if Cursor was given.
-		function StripColors ( Text, Cursor )
-			Text, Cursor = StripCode( "(|*)(|c%x%x%x%x%x%x%x%x)()", Text, Cursor );
-			return StripCode( "(|*)(|r)()", Text, Cursor );
-		end
-	end
-	
-	local COLOR_END = "|r";
-	--- Wraps this editbox's selected text with the given color.
-	local function ColorSelection ( self, ColorCode )
-		local Start, End = GetTextHighlight( self );
-		local Text, Cursor = self:GetText(), self:GetCursorPosition();
-		if ( Start == End ) then -- Nothing selected
-			--Start, End = Cursor, Cursor; -- Wrap around cursor
-			return; -- Wrapping the cursor in a color code and hitting backspace crashes the client!
-		end
-		-- Find active color code at the end of the selection
-		local ActiveColor;
-		if ( End < #Text ) then -- There is text to color after the selection
-			local ActiveEnd;
-			local CodeEnd, _, Escapes, Color = 0;
-			while ( true ) do
-				_, CodeEnd, Escapes, Color = Text:find( "(|*)(|c%x%x%x%x%x%x%x%x)", CodeEnd + 1 );
-				if ( not CodeEnd or CodeEnd > End ) then
-					break;
-				end
-				if ( #Escapes % 2 == 0 ) then -- Doesn't escape Code
-					ActiveColor, ActiveEnd = Color, CodeEnd;
-				end
-			end
-       
-			if ( ActiveColor ) then
-				-- Check if color gets terminated before selection ends
-				CodeEnd = 0;
-				while ( true ) do
-					_, CodeEnd, Escapes = Text:find( "(|*)|r", CodeEnd + 1 );
-					if ( not CodeEnd or CodeEnd > End ) then
-						break;
-					end
-					if ( CodeEnd > ActiveEnd and #Escapes % 2 == 0 ) then -- Terminates ActiveColor
-						ActiveColor = nil;
-						break;
-					end
-				end
-			end
-		end
-     
-		local Selection = Text:sub( Start + 1, End );
-		-- Remove color codes from the selection
-		local Replacement, CursorReplacement = StripColors( Selection, Cursor - Start );
-     
-		self:SetText( ( "" ):join(
-			Text:sub( 1, Start ),
-			ColorCode, Replacement, COLOR_END,
-			ActiveColor or "", Text:sub( End + 1 )
-		) );
-     
-		-- Restore cursor and highlight, adjusting for wrapper text
-		Cursor = Start + CursorReplacement;
-		if ( CursorReplacement > 0 ) then -- Cursor beyond start of color code
-			Cursor = Cursor + #ColorCode;
-		end
-		if ( CursorReplacement >= #Replacement ) then -- Cursor beyond end of color
-			Cursor = Cursor + #COLOR_END;
-		end
-		
-		self:SetCursorPosition( Cursor );
-		-- Highlight selection and wrapper
-		self:HighlightText( Start, #ColorCode + ( #Replacement - #Selection ) + #COLOR_END + End );
-	end
-	
-	local color_func = function (_, r, g, b, a)
-		local hex = _detalhes:hex (a*255).._detalhes:hex (r*255).._detalhes:hex (g*255).._detalhes:hex (b*255)
-		ColorSelection ( textentry.editbox, "|c" .. hex)
-	end
-	
-	local func_button = self.gump:NewButton (panel, nil, "$parentButton4", nil, 80, 20, function() textentry.editbox:Insert ("{func local player = ...; return 0;}") end, nil, nil, nil, Loc ["STRING_OPTIONS_TEXTEDITOR_FUNC"])
-	local color_button = self.gump:NewColorPickButton (panel, "$parentButton5", nil, color_func)
-	color_button:SetSize (80, 20)
-	func_button:SetPoint ("topright", panel, "topright", -10, -80)
-	color_button:SetPoint ("topright", panel, "topright", -10, -102)
-	func_button:InstallCustomTexture()
-	
-	color_button.tooltip = Loc ["STRING_OPTIONS_TEXTEDITOR_COLOR_TOOLTIP"]
-	func_button.tooltip = Loc ["STRING_OPTIONS_TEXTEDITOR_FUNC_TOOLTIP"]
-	
-	--color_button:InstallCustomTexture()
-	
-	local comma_button = self.gump:NewButton (panel, nil, "$parentButtonComma", nil, 80, 20, function() textentry.editbox:Insert ("_detalhes:comma_value ( )") end, nil, nil, nil, Loc ["STRING_OPTIONS_TEXTEDITOR_COMMA"])
-	local tok_button = self.gump:NewButton (panel, nil, "$parentButtonTok", nil, 80, 20, function() textentry.editbox:Insert ("_detalhes:ToK2 ( )") end, nil, nil, nil, Loc ["STRING_OPTIONS_TEXTEDITOR_TOK"])
-	comma_button:InstallCustomTexture()
-	tok_button:InstallCustomTexture()
-	comma_button.tooltip = Loc ["STRING_OPTIONS_TEXTEDITOR_COMMA_TOOLTIP"]
-	tok_button.tooltip = Loc ["STRING_OPTIONS_TEXTEDITOR_TOK_TOOLTIP"]
-	
-	comma_button:SetPoint ("topright", panel, "topright", -100, -14)
-	tok_button:SetPoint ("topright", panel, "topright", -100, -36)
-	
-	local done = function()
-		local text = panel.widget.editbox:GetText()
-		text = text:gsub ("\n", "")
-		
-		local test = text
-	
-		local function errorhandler(err)
-			return geterrorhandler()(err)
-		end
-	
-		local code = [[local str = "STR"; str = str:ReplaceData (100, 50, 75, {nome = "you", total = 10, total_without_pet = 5, damage_taken = 7, last_dps = 1, friendlyfire_total = 6, totalover = 2, totalabsorb = 4, totalover_without_pet = 6, healing_taken = 1, heal_enemy_amt = 2});]]
-		code = code:gsub ("STR", test)
-
-		local f = loadstring (code)
-		local err, two = xpcall (f, errorhandler)
-		
-		if (not err) then
-			return
-		end
-		
-		panel.callback (text)
-		panel:Hide()
-	end
-	
-	local ok_button = self.gump:NewButton (panel, nil, "$parentButtonOk", nil, 80, 20, done, nil, nil, nil, "DONE")
-	ok_button:InstallCustomTexture()
-	ok_button:SetPoint ("topright", panel, "topright", -10, -174)
-	
-	local reset_button = self.gump:NewButton (panel, nil, "$parentDefaultOk", nil, 80, 20, function() textentry.editbox:SetText (_detalhes.instance_defaults.row_info.textR_custom_text) end, nil, nil, nil, "Default")
-	reset_button:InstallCustomTexture()
-	reset_button:SetPoint ("topright", panel, "topright", -100, -152)
-	
-	local cancel_button = self.gump:NewButton (panel, nil, "$parentDefaultCancel", nil, 80, 20, function() textentry.editbox:SetText (panel.default_text); done(); end, nil, nil, nil, "Cancel")
-	cancel_button:InstallCustomTexture()
-	cancel_button:SetPoint ("topright", panel, "topright", -100, -174)
-	
 	function _detalhes:OpenOptionsWindowAtStart()
 		--_detalhes:OpenOptionsWindow (_detalhes.tabela_instancias[1])
 		--print (_G ["DetailsClearSegmentsButton1"]:GetSize())
-		--_detalhes:OpenCustomWindow()
+		--_detalhes:OpenCustomDisplayWindow()
 		--_detalhes:OpenWelcomeWindow() --for debug
 	end
 	_detalhes:ScheduleTimer ("OpenOptionsWindowAtStart", 2)
@@ -947,70 +363,9 @@ function _G._detalhes:Start()
 	
 	--BNSendFriendInvite ("tercio#1488")
 	
-	function _detalhes:OpenUpdateWindow()
+	--encode test
 	
-		if (not _G.DetailsUpdateDialog) then
-			local updatewindow_frame = CreateFrame ("frame", "DetailsUpdateDialog", UIParent, "ButtonFrameTemplate")
-			updatewindow_frame:SetFrameStrata ("LOW")
-			tinsert (UISpecialFrames, "DetailsUpdateDialog")
-			updatewindow_frame:SetPoint ("center", UIParent, "center")
-			updatewindow_frame:SetSize (512, 200)
-			updatewindow_frame.portrait:SetTexture ([[Interface\CHARACTERFRAME\TEMPORARYPORTRAIT-FEMALE-GNOME]])
-			
-			updatewindow_frame.TitleText:SetText ("A New Version Is Available!")
-
-			updatewindow_frame.midtext = updatewindow_frame:CreateFontString (nil, "artwork", "GameFontNormal")
-			updatewindow_frame.midtext:SetText ("Good news everyone!\nA new version has been forged and is waiting to be looted.")
-			updatewindow_frame.midtext:SetPoint ("topleft", updatewindow_frame, "topleft", 10, -90)
-			updatewindow_frame.midtext:SetJustifyH ("center")
-			updatewindow_frame.midtext:SetWidth (370)
-			
-			updatewindow_frame.gnoma = updatewindow_frame:CreateTexture (nil, "artwork")
-			updatewindow_frame.gnoma:SetPoint ("topright", updatewindow_frame, "topright", -3, -59)
-			updatewindow_frame.gnoma:SetTexture ("Interface\\AddOns\\Details\\images\\icons2")
-			updatewindow_frame.gnoma:SetSize (105*1.05, 107*1.05)
-			updatewindow_frame.gnoma:SetTexCoord (0.2021484375, 0, 0.7919921875, 1)
-			
-			local editbox = _detalhes.gump:NewTextEntry (updatewindow_frame, nil, "$parentTextEntry", "text", 387, 14)
-			editbox:SetPoint (20, -136)
-			editbox:SetAutoFocus (false)
-			editbox:SetHook ("OnEditFocusGained", function() 
-				editbox.text = "http://www.curse.com/addons/wow/details"
-				editbox:HighlightText()
-			end)
-			editbox:SetHook ("OnEditFocusLost", function() 
-				editbox.text = "http://www.curse.com/addons/wow/details"
-				editbox:HighlightText()
-			end)
-			editbox:SetHook ("OnChar", function() 
-				editbox.text = "http://www.curse.com/addons/wow/details"
-				editbox:HighlightText()
-			end)
-			editbox.text = "http://www.curse.com/addons/wow/details"
-			
-			updatewindow_frame.close = CreateFrame ("Button", "DetailsUpdateDialogCloseButton", updatewindow_frame, "OptionsButtonTemplate")
-			updatewindow_frame.close:SetPoint ("bottomleft", updatewindow_frame, "bottomleft", 8, 4)
-			updatewindow_frame.close:SetText ("Close")
-			
-			updatewindow_frame.close:SetScript ("OnClick", function (self)
-				DetailsUpdateDialog:Hide()
-				editbox:ClearFocus()
-			end)
-			
-			updatewindow_frame:SetScript ("OnHide", function()
-				editbox:ClearFocus()
-			end)
-			
-			function _detalhes:UpdateDialogSetFocus()
-				DetailsUpdateDialog:Show()
-				DetailsUpdateDialogTextEntry.MyObject:SetFocus()
-				DetailsUpdateDialogTextEntry.MyObject:HighlightText()
-			end
-			_detalhes:ScheduleTimer ("UpdateDialogSetFocus", 1)
-			
-		end
-		
-	end
-
+	--local box1 = 
+	
 end
 

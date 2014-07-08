@@ -179,7 +179,7 @@ function _detalhes:OpenWelcomeWindow ()
 		--save standard
 		local savedObject = {}
 		for key, value in pairs (instance) do
-			if (_detalhes.instance_defaults [key]) then	
+			if (_detalhes.instance_defaults [key] ~= nil) then	
 				if (type (value) == "table") then
 					savedObject [key] = table_deepcopy (value)
 				else

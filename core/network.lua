@@ -68,6 +68,8 @@
 			_detalhes:Msg ("(debug) received version alert ", build_number)
 		end
 	
+		build_number = tonumber (build_number)
+	
 		if (not _detalhes.build_counter or not _detalhes.lastUpdateWarning or not build_number) then
 			return
 		end
@@ -281,6 +283,7 @@
 		assert (type (prefix) == "string" and string.len (prefix) == 2, "RegisterPluginComm expects a string with 2 characters on #2 argument.")
 		assert (type (func) == "function", "RegisterPluginComm expects a function on #3 argument.")
 		assert (plugins_registred [prefix] == nil, "Prefix " .. prefix .. " already in use.")
+		assert (_detalhes.network.functions [prefix] == nil, "Prefix " .. prefix .. " already in use.")
 		
 		plugins_registred [prefix] = {func, name, version}
 	end
@@ -409,4 +412,3 @@
 			_detalhes:SendGuildData (_detalhes.network.ids.VERSION_CHECK, _detalhes.build_counter)
 		end
 	end
-

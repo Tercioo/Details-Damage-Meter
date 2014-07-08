@@ -1,18 +1,13 @@
---File Revision: 1
---Last Modification: 27/07/2013
--- Change Log:
-	-- 27/07/2013: Finished alpha version.
-
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> global name declaration
  
 		_ = nil
 		_detalhes = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0", "NickTag-1.0", "LibHotCorners")
 		
-		_detalhes.version = "v1.18.2 (core 20)"
-		_detalhes.userversion = "v1.18.3"
-		_detalhes.build_counter = 5
-		_detalhes.realversion = 21
+		_detalhes.version = "v1.18.4 (core 22)"
+		_detalhes.userversion = "v1.18.4"
+		_detalhes.build_counter = 7
+		_detalhes.realversion = 22
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> initialization stuff
@@ -147,22 +142,7 @@ do
 			all = 3,	--> Everything
 			raid = 4	--> Raid
 		}
-		--[[
-		_detalhes.flags = { 
-			--> Player and Pet
-			player = 0x00000001,--> player character
-			pet = 0x00000002,	--> pet mobile
-			--> Group
-			in_group = 0x00000100,--> in group
-			player_in_group = 0x00000101, --> player in group
-			--> Friendship
-			friend = 0x00000010,--> friend (same faction)
-			friend_in_group = 0x00000110, --> friend in group
-			--> Enemies
-			neutral = 0x00000020,--> neutral
-			enemy = 0x00000040--> enemy
-		}
-		--]]
+
 		_detalhes.divisores = {
 			abre = "(",	--> open
 			fecha = ")",	--> close
