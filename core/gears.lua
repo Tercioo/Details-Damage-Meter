@@ -121,7 +121,7 @@ function _detalhes:GetPerformanceRaidType()
 		
 		--flex
 		if (difficulty == 14) then
-			if (GetNumGroupMembers > 15) then
+			if (GetNumGroupMembers() > 15) then
 				return "Raid30"
 			else
 				return "Raid15"

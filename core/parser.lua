@@ -38,6 +38,7 @@
 	local _math_ceil = math.ceil --lua local
 	local _table_wipe = table.wipe --lua local
 
+	local _GetSpellInfo = _detalhes.getspellinfo --details api
 	local escudo = _detalhes.escudos --details local
 	local parser = _detalhes.parser --details local
 	local absorb_spell_list = _detalhes.AbsorbSpells --details local
@@ -189,6 +190,12 @@
 			else
 				if (who_flags) then --> ter certeza que não é um pet
 					damage_cache [who_name] = este_jogador
+					--> se for spell actor
+					if (who_name:find ("[*]")) then
+						local _, _, icon = _GetSpellInfo (spellid or 1)
+						este_jogador.spellicon = icon
+						--print ("spell actor:", who_name, "icon:", icon)
+					end
 				end
 			end
 			

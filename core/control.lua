@@ -488,7 +488,13 @@
 					
 					if (_detalhes.tabela_vigente.instance_type == "raid") then
 						--> schedule captures off
+						
 						_detalhes:CaptureSet (false, "damage", false, 15)
+						_detalhes:CaptureSet (false, "energy", false, 15)
+						_detalhes:CaptureSet (false, "aura", false, 15)
+						_detalhes:CaptureSet (false, "energy", false, 15)
+						_detalhes:CaptureSet (false, "spellcast", false, 15)
+						
 						if (_detalhes.debug) then
 							_detalhes:Msg ("(debug) freezing parser for 15 seconds.")
 						end

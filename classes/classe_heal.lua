@@ -68,20 +68,22 @@ local keyName
 
 function atributo_heal:NovaTabela (serial, nome, link)
 
+	local alphabetical = _detalhes:GetAlphabeticalOrderNumber (nome)
+
 	--> constructor
 	local _new_healActor = {
 
 		tipo = class_type, --> atributo 2 = cura
 		
-		total = 0,
-		totalover = 0,
-		totalabsorb = 0,
+		total = alphabetical,
+		totalover = alphabetical,
+		totalabsorb = alphabetical,
 		custom = 0,
 		
-		total_without_pet = 0,
-		totalover_without_pet = 0,
+		total_without_pet = alphabetical,
+		totalover_without_pet = alphabetical,
 		
-		healing_taken = 0, --> total de cura que este jogador recebeu
+		healing_taken = alphabetical, --> total de cura que este jogador recebeu
 		healing_from = {}, --> armazena os nomes que deram cura neste jogador
 
 		iniciar_hps = false,  --> dps_started

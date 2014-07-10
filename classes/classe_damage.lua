@@ -227,16 +227,18 @@
 
 	function atributo_damage:NovaTabela (serial, nome, link)
 
+		local alphabetical = _detalhes:GetAlphabeticalOrderNumber (nome)
+	
 		--> constructor
 		local _new_damageActor = {
 			
 			tipo = class_type,
 			
-			total = 0,
-			total_without_pet = 0,
+			total = alphabetical,
+			total_without_pet = alphabetical,
 			custom = 0,
 			
-			damage_taken = 0,
+			damage_taken = alphabetical,
 			damage_from = {},
 			
 			dps_started = false,
@@ -1371,9 +1373,23 @@ end
 		esta_barra.background:SetVertexColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
 	end	
 	
-	if (self.classe == "UNKNOW") then
-		esta_barra.icone_classe:SetTexture ("Interface\\LFGFRAME\\LFGROLE_BW")
-		esta_barra.icone_classe:SetTexCoord (.25, .5, 0, 1)
+	--icon
+
+	if (self.spellicon) then
+		esta_barra.icone_classe:SetTexture (self.spellicon)
+		esta_barra.icone_classe:SetTexCoord (0.078125, 0.921875, 0.078125, 0.921875)
+		esta_barra.icone_classe:SetVertexColor (1, 1, 1)
+		
+	elseif (self.classe == "UNKNOW") then
+		--esta_barra.icone_classe:SetTexture ("Interface\\LFGFRAME\\LFGROLE")
+		--esta_barra.icone_classe:SetTexCoord (.25, .5, 0, 1)
+		
+		--esta_barra.icone_classe:SetTexture ([[Interface\TARGETINGFRAME\PetBadge-Undead]])
+		--esta_barra.icone_classe:SetTexCoord (0.09375, 0.90625, 0.09375, 0.90625)
+		
+		esta_barra.icone_classe:SetTexture ([[Interface\AddOns\Details\images\classes_plus]])
+		esta_barra.icone_classe:SetTexCoord (0.50390625, 0.62890625, 0, 0.125)
+		
 		esta_barra.icone_classe:SetVertexColor (1, 1, 1)
 	
 	elseif (self.classe == "UNGROUPPLAYER") then
@@ -1407,6 +1423,8 @@ end
 		esta_barra.icone_classe:SetVertexColor (1, 1, 1)
 	end
 
+	--texture and text
+	
 	if (self.enemy) then
 		if (self.arena_enemy) then
 			esta_barra.texto_esquerdo:SetText (esta_barra.colocacao .. ".|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. instancia.row_info.height .. ":" .. instancia.row_info.height .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t" .. self.displayName)

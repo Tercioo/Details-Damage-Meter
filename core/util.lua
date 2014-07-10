@@ -15,13 +15,14 @@
 	local _upper = string.upper --lua local
 	local _ipairs = ipairs --lua local
 	local _pairs = pairs --lua local
-	local _string_format = string.format --lua local
 	local _math_floor = math.floor --lua local
 	local _math_max = math.max --lua local
 	local _math_abs = math.abs --lua local
 	local _type = type --lua local
 	local _string_match = string.match --lua local
-	local _string_byte = string.byte
+	local _string_byte = string.byte --lua local
+	local _string_len = string.lenv
+	local _string_format = string.format --lua local
 	local loadstring = loadstring --lua local
 	
 	local _UnitClass = UnitClass --wow api local
@@ -41,7 +42,7 @@
 
 	--> get the fractional number representing the alphabetical letter
 	function _detalhes:GetAlphabeticalOrderNumber (who_name)
-		local name = _upper (who_name)
+		local name = _upper (who_name .. "zz")
 		local byte1 = _math_abs (_string_byte (name, 2)-91)/1000000
 		return byte1 + _math_abs (_string_byte (name, 1)-91)/10000
 	end
