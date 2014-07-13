@@ -362,10 +362,31 @@ function _G._detalhes:Start()
 	--_detalhes:OpenCustomDisplayWindow()
 	
 	--BNSendFriendInvite ("tercio#1488")
+
+	function _detalhes:EnterChatChannel()
 	
-	--encode test
+		local realm = GetRealmName()
+		realm = realm or ""
+		
+		if (realm ~= "Azralon") then
+			return
+		end
 	
-	--local box1 = 
+		--> room name
+		local room_name = "Details"
+		
+		--> already in?
+		for room_index = 1, 10 do
+			local _, name = GetChannelName (room_index)
+			if (name == room_name) then
+				return --> already in the room
+			end
+		end
+		
+		--> enter
+		JoinChannelByName (room_name)
+	end
+	_detalhes:ScheduleTimer ("EnterChatChannel", 30)
 	
 end
 

@@ -128,9 +128,9 @@
 	function _detalhes:NoToK (numero)
 		return numero
 	end
-	--> put points in numbers
 	-- thanks http://richard.warburton.it
-	function _detalhes:comma_value(n)
+	function _detalhes:comma_value (n)
+		n = _math_floor (n)
 		local left,num,right = _string_match (n,'^([^%d]*%d)(%d*)(.-)$')
 		return left..(num:reverse():gsub('(%d%d%d)','%1,'):reverse())..right
 	end

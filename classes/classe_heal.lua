@@ -59,6 +59,7 @@ local div_lugar = _detalhes.divisores.colocacao
 local ToKFunctions = _detalhes.ToKFunctions
 local SelectedToKFunction = ToKFunctions [1]
 local UsingCustomRightText = false
+local UsingCustomLeftText = false
 
 local FormatTooltipNumber = ToKFunctions [8]
 local TooltipMaximizedMethod = 1
@@ -367,6 +368,7 @@ function atributo_heal:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 	--print (sub_atributo, total, keyName)
 	
 	local combat_time = instancia.showing:GetCombatTime()
+	UsingCustomLeftText = instancia.row_info.textL_enable_custom_text
 	UsingCustomRightText = instancia.row_info.textR_enable_custom_text
 	
 	local use_total_bar = false
@@ -452,10 +454,12 @@ function atributo_heal:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 			conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type) --> instância, index, total, valor da 1º barra
 			qual_barra = qual_barra+1
 		end
-
-		
 	end
 
+	if (_detalhes.is_using_row_animations) then
+		instancia:fazer_animacoes()
+	end
+	
 	if (instancia.atributo == 5) then --> custom
 		--> zerar o .custom dos Actors
 		for index, player in _ipairs (conteudo) do
@@ -664,7 +668,15 @@ function atributo_heal:RefreshBarra2 (esta_barra, instancia, tabela_anterior, fo
 
 		if (esta_barra.hidden or esta_barra.fading_in or esta_barra.faded) then
 		
-			esta_barra.statusbar:SetValue (esta_porcentagem)
+			--esta_barra.statusbar:SetValue (esta_porcentagem)
+			
+			if (_detalhes.is_using_row_animations and not forcar) then
+				esta_barra.animacao_fim = esta_porcentagem
+			else
+				esta_barra.statusbar:SetValue (esta_porcentagem)
+				esta_barra.animacao_ignorar = true
+			end
+				
 			gump:Fade (esta_barra, "out")
 			
 			if (instancia.row_info.texture_class_colors) then
@@ -672,7 +684,7 @@ function atributo_heal:RefreshBarra2 (esta_barra, instancia, tabela_anterior, fo
 			end
 			if (instancia.row_info.texture_background_class_color) then
 				esta_barra.background:SetVertexColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
-			end			
+			end
 			
 			return self:RefreshBarra (esta_barra, instancia)
 			
@@ -680,31 +692,26 @@ function atributo_heal:RefreshBarra2 (esta_barra, instancia, tabela_anterior, fo
 			--> agora esta comparando se a tabela da barra é diferente da tabela na atualização anterior
 			if (not tabela_anterior or tabela_anterior ~= esta_barra.minha_tabela or forcar) then --> aqui diz se a barra do jogador mudou de posição ou se ela apenas será atualizada
 			
-				esta_barra.statusbar:SetValue (esta_porcentagem)
+				if (_detalhes.is_using_row_animations and not forcar) then
+					esta_barra.animacao_fim = esta_porcentagem
+				else
+					esta_barra.statusbar:SetValue (esta_porcentagem)
+					esta_barra.animacao_ignorar = true
+				end
 			
 				esta_barra.last_value = esta_porcentagem --> reseta o ultimo valor da barra
 				
-				if (_detalhes.is_using_row_animations and forcar) then
-					esta_barra.tem_animacao = 0
-					esta_barra:SetScript ("OnUpdate", nil)
-				end
+				--if (_detalhes.is_using_row_animations and forcar) then
+				--	esta_barra.tem_animacao = false
+				--	esta_barra:SetScript ("OnUpdate", nil)
+				--end
 				
 				return self:RefreshBarra (esta_barra, instancia)
 				
 			elseif (esta_porcentagem ~= esta_barra.last_value) then --> continua mostrando a mesma tabela então compara a porcentagem
 				--> apenas atualizar
 				if (_detalhes.is_using_row_animations) then
-					
-					local upRow = barras_container [qual_barra-1]
-					if (upRow) then
-						if (upRow.statusbar:GetValue() < esta_barra.statusbar:GetValue()) then
-							esta_barra.statusbar:SetValue (esta_porcentagem)
-						else
-							instancia:AnimarBarra (esta_barra, esta_porcentagem)
-						end
-					else
-						instancia:AnimarBarra (esta_barra, esta_porcentagem)
-					end
+					esta_barra.animacao_fim = esta_porcentagem
 				else
 					esta_barra.statusbar:SetValue (esta_porcentagem)
 				end
@@ -727,11 +734,25 @@ function atributo_heal:RefreshBarra (esta_barra, instancia, from_resize)
 	end
 	if (instancia.row_info.texture_background_class_color) then
 		esta_barra.background:SetVertexColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
-	end		
+	end	
 	
-	if (self.classe == "UNKNOW") then
-		esta_barra.icone_classe:SetTexture ("Interface\\LFGFRAME\\LFGROLE_BW")
-		esta_barra.icone_classe:SetTexCoord (.25, .5, 0, 1)
+	--icon
+
+	if (self.spellicon) then
+		esta_barra.icone_classe:SetTexture (self.spellicon)
+		esta_barra.icone_classe:SetTexCoord (0.078125, 0.921875, 0.078125, 0.921875)
+		esta_barra.icone_classe:SetVertexColor (1, 1, 1)
+		
+	elseif (self.classe == "UNKNOW") then
+		--esta_barra.icone_classe:SetTexture ("Interface\\LFGFRAME\\LFGROLE")
+		--esta_barra.icone_classe:SetTexCoord (.25, .5, 0, 1)
+		
+		--esta_barra.icone_classe:SetTexture ([[Interface\TARGETINGFRAME\PetBadge-Undead]])
+		--esta_barra.icone_classe:SetTexCoord (0.09375, 0.90625, 0.09375, 0.90625)
+		
+		esta_barra.icone_classe:SetTexture ([[Interface\AddOns\Details\images\classes_plus]])
+		esta_barra.icone_classe:SetTexCoord (0.50390625, 0.62890625, 0, 0.125)
+		
 		esta_barra.icone_classe:SetVertexColor (1, 1, 1)
 	
 	elseif (self.classe == "UNGROUPPLAYER") then
@@ -764,16 +785,35 @@ function atributo_heal:RefreshBarra (esta_barra, instancia, from_resize)
 		esta_barra.icone_classe:SetTexCoord (_unpack (CLASS_ICON_TCOORDS [self.classe])) --very slow method
 		esta_barra.icone_classe:SetVertexColor (1, 1, 1)
 	end
+
+	--texture and text
+	
+	local bar_number = ""
+	if (instancia.row_info.textL_show_number) then
+		bar_number = esta_barra.colocacao .. ". "
+	end
 	
 	if (self.enemy) then
 		if (self.arena_enemy) then
-			esta_barra.texto_esquerdo:SetText (esta_barra.colocacao .. ".|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. instancia.row_info.height .. ":" .. instancia.row_info.height .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t" .. self.displayName)
+			if (UsingCustomLeftText) then
+				esta_barra.texto_esquerdo:SetText (instancia.row_info.textL_custom_text:ReplaceData (esta_barra.colocacao, self.displayName, "|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. instancia.row_info.height .. ":" .. instancia.row_info.height .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t"))
+			else
+				esta_barra.texto_esquerdo:SetText (bar_number .. "|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. instancia.row_info.height .. ":" .. instancia.row_info.height .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t" .. self.displayName)
+			end
 			esta_barra.textura:SetVertexColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
 		else
 			if (_detalhes.faction_against == "Horde") then
-				esta_barra.texto_esquerdo:SetText (esta_barra.colocacao..". |TInterface\\AddOns\\Details\\images\\icones_barra:"..instancia.row_info.height..":"..instancia.row_info.height..":0:0:256:32:0:32:0:32|t"..self.displayName) --seta o texto da esqueda -- HORDA
+				if (UsingCustomLeftText) then
+					esta_barra.texto_esquerdo:SetText (instancia.row_info.textL_custom_text:ReplaceData (esta_barra.colocacao, self.displayName, "|TInterface\\AddOns\\Details\\images\\icones_barra:"..instancia.row_info.height..":"..instancia.row_info.height..":0:0:256:32:0:32:0:32|t"))
+				else
+					esta_barra.texto_esquerdo:SetText (bar_number .. "|TInterface\\AddOns\\Details\\images\\icones_barra:"..instancia.row_info.height..":"..instancia.row_info.height..":0:0:256:32:0:32:0:32|t"..self.displayName) --seta o texto da esqueda -- HORDA
+				end
 			else
-				esta_barra.texto_esquerdo:SetText (esta_barra.colocacao..". |TInterface\\AddOns\\Details\\images\\icones_barra:"..instancia.row_info.height..":"..instancia.row_info.height..":0:0:256:32:32:64:0:32|t"..self.displayName) --seta o texto da esqueda -- ALLY
+				if (UsingCustomLeftText) then
+					esta_barra.texto_esquerdo:SetText (instancia.row_info.textL_custom_text:ReplaceData (esta_barra.colocacao, self.displayName, "|TInterface\\AddOns\\Details\\images\\icones_barra:"..instancia.row_info.height..":"..instancia.row_info.height..":0:0:256:32:32:64:0:32|t"))
+				else
+					esta_barra.texto_esquerdo:SetText (bar_number .. "|TInterface\\AddOns\\Details\\images\\icones_barra:"..instancia.row_info.height..":"..instancia.row_info.height..":0:0:256:32:32:64:0:32|t"..self.displayName) --seta o texto da esqueda -- ALLY
+				end
 			end
 			
 			if (instancia.row_info.texture_class_colors) then
@@ -782,17 +822,18 @@ function atributo_heal:RefreshBarra (esta_barra, instancia, from_resize)
 		end
 	else
 		if (self.arena_ally) then
-			esta_barra.texto_esquerdo:SetText (esta_barra.colocacao .. ".|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. instancia.row_info.height .. ":" .. instancia.row_info.height .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t" .. self.displayName)
+			if (UsingCustomLeftText) then
+				esta_barra.texto_esquerdo:SetText (instancia.row_info.textL_custom_text:ReplaceData (esta_barra.colocacao, self.displayName, "|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. instancia.row_info.height .. ":" .. instancia.row_info.height .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t"))
+			else
+				esta_barra.texto_esquerdo:SetText (bar_number .. "|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. instancia.row_info.height .. ":" .. instancia.row_info.height .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t" .. self.displayName)
+			end
 		else
-			esta_barra.texto_esquerdo:SetText (esta_barra.colocacao..". "..self.displayName) --seta o texto da esqueda
+			if (UsingCustomLeftText) then
+				esta_barra.texto_esquerdo:SetText (instancia.row_info.textL_custom_text:ReplaceData (esta_barra.colocacao, self.displayName, ""))
+			else
+				esta_barra.texto_esquerdo:SetText (bar_number .. self.displayName) --seta o texto da esqueda
+			end
 		end
-	end
-	
-	if (instancia.row_info.textL_class_colors) then
-		esta_barra.texto_esquerdo:SetTextColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
-	end
-	if (instancia.row_info.textR_class_colors) then
-		esta_barra.texto_direita:SetTextColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
 	end
 	
 	esta_barra.texto_esquerdo:SetSize (esta_barra:GetWidth() - esta_barra.texto_direita:GetStringWidth() - 20, 15)

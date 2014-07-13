@@ -48,7 +48,10 @@
 
 	local ToKFunctions = _detalhes.ToKFunctions
 	local SelectedToKFunction = ToKFunctions [1]
+	
+	local UsingCustomLeftText = false
 	local UsingCustomRightText = false
+	
 	local FormatTooltipNumber = ToKFunctions [8]
 	local TooltipMaximizedMethod = 1
 
@@ -977,6 +980,8 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 		end
 	
 		local combat_time = instancia.showing:GetCombatTime()
+		
+		UsingCustomLeftText = instancia.row_info.textL_enable_custom_text
 		UsingCustomRightText = instancia.row_info.textR_enable_custom_text
 		
 		local use_total_bar = false
@@ -1425,15 +1430,32 @@ end
 
 	--texture and text
 	
+	local bar_number = ""
+	if (instancia.row_info.textL_show_number) then
+		bar_number = esta_barra.colocacao .. ". "
+	end
+
 	if (self.enemy) then
 		if (self.arena_enemy) then
-			esta_barra.texto_esquerdo:SetText (esta_barra.colocacao .. ".|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. instancia.row_info.height .. ":" .. instancia.row_info.height .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t" .. self.displayName)
+			if (UsingCustomLeftText) then
+				esta_barra.texto_esquerdo:SetText (instancia.row_info.textL_custom_text:ReplaceData (esta_barra.colocacao, self.displayName, "|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. instancia.row_info.height .. ":" .. instancia.row_info.height .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t"))
+			else
+				esta_barra.texto_esquerdo:SetText (bar_number .. "|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. instancia.row_info.height .. ":" .. instancia.row_info.height .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t" .. self.displayName)
+			end
 			esta_barra.textura:SetVertexColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
 		else
 			if (_detalhes.faction_against == "Horde") then
-				esta_barra.texto_esquerdo:SetText (esta_barra.colocacao..". |TInterface\\AddOns\\Details\\images\\icones_barra:"..instancia.row_info.height..":"..instancia.row_info.height..":0:0:256:32:0:32:0:32|t"..self.displayName) --seta o texto da esqueda -- HORDA
+				if (UsingCustomLeftText) then
+					esta_barra.texto_esquerdo:SetText (instancia.row_info.textL_custom_text:ReplaceData (esta_barra.colocacao, self.displayName, "|TInterface\\AddOns\\Details\\images\\icones_barra:"..instancia.row_info.height..":"..instancia.row_info.height..":0:0:256:32:0:32:0:32|t"))
+				else
+					esta_barra.texto_esquerdo:SetText (bar_number .. "|TInterface\\AddOns\\Details\\images\\icones_barra:"..instancia.row_info.height..":"..instancia.row_info.height..":0:0:256:32:0:32:0:32|t"..self.displayName) --seta o texto da esqueda -- HORDA
+				end
 			else
-				esta_barra.texto_esquerdo:SetText (esta_barra.colocacao..". |TInterface\\AddOns\\Details\\images\\icones_barra:"..instancia.row_info.height..":"..instancia.row_info.height..":0:0:256:32:32:64:0:32|t"..self.displayName) --seta o texto da esqueda -- ALLY
+				if (UsingCustomLeftText) then
+					esta_barra.texto_esquerdo:SetText (instancia.row_info.textL_custom_text:ReplaceData (esta_barra.colocacao, self.displayName, "|TInterface\\AddOns\\Details\\images\\icones_barra:"..instancia.row_info.height..":"..instancia.row_info.height..":0:0:256:32:32:64:0:32|t"))
+				else
+					esta_barra.texto_esquerdo:SetText (bar_number .. "|TInterface\\AddOns\\Details\\images\\icones_barra:"..instancia.row_info.height..":"..instancia.row_info.height..":0:0:256:32:32:64:0:32|t"..self.displayName) --seta o texto da esqueda -- ALLY
+				end
 			end
 			
 			if (instancia.row_info.texture_class_colors) then
@@ -1442,9 +1464,17 @@ end
 		end
 	else
 		if (self.arena_ally) then
-			esta_barra.texto_esquerdo:SetText (esta_barra.colocacao .. ".|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. instancia.row_info.height .. ":" .. instancia.row_info.height .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t" .. self.displayName)
+			if (UsingCustomLeftText) then
+				esta_barra.texto_esquerdo:SetText (instancia.row_info.textL_custom_text:ReplaceData (esta_barra.colocacao, self.displayName, "|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. instancia.row_info.height .. ":" .. instancia.row_info.height .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t"))
+			else
+				esta_barra.texto_esquerdo:SetText (bar_number .. "|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. instancia.row_info.height .. ":" .. instancia.row_info.height .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t" .. self.displayName)
+			end
 		else
-			esta_barra.texto_esquerdo:SetText (esta_barra.colocacao..". "..self.displayName) --seta o texto da esqueda
+			if (UsingCustomLeftText) then
+				esta_barra.texto_esquerdo:SetText (instancia.row_info.textL_custom_text:ReplaceData (esta_barra.colocacao, self.displayName, ""))
+			else
+				esta_barra.texto_esquerdo:SetText (bar_number .. self.displayName) --seta o texto da esqueda
+			end
 		end
 	end
 	

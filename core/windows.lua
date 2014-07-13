@@ -20,7 +20,7 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> constants
 
-	local end_window_spacement = 1
+	local end_window_spacement = 0
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> core
@@ -1091,7 +1091,7 @@
 	bg_texture:SetPoint ("topleft", panel, "topleft")
 	bg_texture:SetPoint ("bottomright", panel, "bottomright")
 	
-	function panel.widget:Open (text, callback, host)
+	function panel.widget:Open (text, callback, host, default)
 		if (host) then
 			panel:SetPoint ("center", host, "center")
 		end
@@ -1100,6 +1100,7 @@
 		panel.default_text = text
 		panel.widget.editbox:SetText (text)
 		panel.callback = callback
+		panel.default = default or ""
 		panel:Show()
 	end
 	
@@ -1280,7 +1281,7 @@
 	ok_button:InstallCustomTexture()
 	ok_button:SetPoint ("topright", panel, "topright", -10, -174)
 	
-	local reset_button = _detalhes.gump:NewButton (panel, nil, "$parentDefaultOk", nil, 80, 20, function() textentry.editbox:SetText (_detalhes.instance_defaults.row_info.textR_custom_text) end, nil, nil, nil, Loc ["STRING_OPTIONS_TEXTEDITOR_RESET"])
+	local reset_button = _detalhes.gump:NewButton (panel, nil, "$parentDefaultOk", nil, 80, 20, function() textentry.editbox:SetText (panel.default) end, nil, nil, nil, Loc ["STRING_OPTIONS_TEXTEDITOR_RESET"])
 	reset_button.tooltip = Loc ["STRING_OPTIONS_TEXTEDITOR_RESET_TOOLTIP"]
 	reset_button:InstallCustomTexture()
 	reset_button:SetPoint ("topright", panel, "topright", -100, -152)

@@ -3,8 +3,12 @@ local _detalhes = 		_G._detalhes
 local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
 
 function _detalhes:ResetInstanceConfig()
-	for key, value in pairs (table_deepcopy (_detalhes.instance_defaults)) do 
-		self [key] = value
+	for key, value in pairs (_detalhes.instance_defaults) do 
+		if (type (value) == "table") then
+			self [key] = table_deepcopy (value)
+		else
+			self [key] = value
+		end
 	end
 end
 
@@ -107,9 +111,15 @@ _detalhes.instance_defaults = {
 				textL_class_colors = false,
 			--right text class color
 				textR_class_colors = false,
-			--right text informations
+			--left text customization
+				textL_enable_custom_text = false,
+				textL_custom_text = "{data1}. {data3}{data2}",
+			--right text customization
 				textR_enable_custom_text = false,
 				textR_custom_text = "{data1} ({data2}, {data3}%)",
+			--left text bar number
+				textL_show_number = true,
+				
 			--if text class color are false, this color will be used
 				fixed_text_color = {1, 1, 1},
 			--left text outline effect

@@ -4737,6 +4737,17 @@ function window:CreateFrame5()
 		
 		window:CreateLineBackground2 (frame5, "textLeftOutlineSlider", "textLeftOutlineLabel", Loc ["STRING_OPTIONS_TEXT_LOUTILINE_DESC"])
 		
+	--> left show positio number
+		g:NewSwitch (frame5, _, "$parentPositionNumberSlider", "PositionNumberSlider", 60, 20, _, _, instance.row_info.textL_show_number)
+		g:NewLabel (frame5, _, "$parentPositionNumberLabel", "PositionNumberLabel", Loc ["STRING_OPTIONS_TEXT_LPOSITION"], "GameFontHighlightLeft")
+		
+		frame5.PositionNumberSlider:SetPoint ("left", frame5.PositionNumberLabel, "right", 2)
+		frame5.PositionNumberSlider.OnSwitch = function (self, instance, value)
+			instance:SetBarTextSettings (nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, value)
+		end
+		
+		window:CreateLineBackground2 (frame5, "PositionNumberSlider", "PositionNumberLabel", Loc ["STRING_OPTIONS_TEXT_LPOSITION_DESC"])
+		
 	--> right outline
 		g:NewSwitch (frame5, _, "$parentTextRightOutlineSlider", "textRightOutlineSlider", 60, 20, _, _, instance.row_info.textR_outline)
 		g:NewLabel (frame5, _, "$parentTextRightOutlineLabel", "textRightOutlineLabel", Loc ["STRING_OPTIONS_TEXT_ROUTILINE"], "GameFontHighlightLeft")
@@ -4789,7 +4800,6 @@ function window:CreateFrame5()
 		g:NewTextEntry (frame5, _, "$parentCutomRightTextEntry", "cutomRightTextEntry", 180, 20)
 		frame5.cutomRightTextEntry:SetPoint ("left", frame5.cutomRightTextEntryLabel, "right", 2, -1)
 
-		--frame5.cutomRightTextEntry.tooltip = "type the customized text"
 		frame5.cutomRightTextEntry:SetHook ("OnTextChanged", function (self, byUser)
 		
 			if (not frame5.cutomRightTextEntry.text:find ("{func")) then
@@ -4841,7 +4851,7 @@ function window:CreateFrame5()
 			frame5.cutomRightTextEntry:PressEnter()
 		end
 		g:NewButton (frame5.cutomRightTextEntry, _, "$parentOpenTextBarEditorButton", "TextBarEditorButton", 22, 22, function()
-			DetailsWindowOptionsBarTextEditor:Open (frame5.cutomRightTextEntry.text, callback, _G.DetailsOptionsWindow)
+			DetailsWindowOptionsBarTextEditor:Open (frame5.cutomRightTextEntry.text, callback, _G.DetailsOptionsWindow, _detalhes.instance_defaults.row_info.textR_custom_text)
 		end)
 		frame5.TextBarEditorButton = frame5.cutomRightTextEntry.TextBarEditorButton
 		frame5.TextBarEditorButton:SetPoint ("left", frame5.cutomRightTextEntry, "right", 2, 1)
@@ -4863,6 +4873,96 @@ function window:CreateFrame5()
 		frame5.customRightTextButton:GetNormalTexture():SetDesaturated (true)
 		frame5.customRightTextButton.tooltip = "Reset to Default"
 		
+	--> left text customization
+	
+		g:NewLabel (frame5, _, "$parentCutomLeftTextLabel", "cutomLeftTextLabel", Loc ["STRING_OPTIONS_BARLEFTTEXTCUSTOM"], "GameFontHighlightLeft")
+		g:NewSwitch (frame5, _, "$parentCutomLeftTextSlider", "cutomLeftTextSlider", 60, 20, _, _, instance.row_info.textL_enable_custom_text)
+
+		frame5.cutomLeftTextSlider:SetPoint ("left", frame5.cutomLeftTextLabel, "right", 2)
+		frame5.cutomLeftTextSlider.OnSwitch = function (self, instance, value)
+			_G.DetailsOptionsWindow.instance:SetBarTextSettings (nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, value)
+		end
+
+		window:CreateLineBackground2 (frame5, "cutomLeftTextSlider", "cutomLeftTextLabel", Loc ["STRING_OPTIONS_BARLEFTTEXTCUSTOM_DESC"])
+		
+		--text entry
+		g:NewLabel (frame5, _, "$parentCutomLeftText2Label", "cutomLeftTextEntryLabel", Loc ["STRING_OPTIONS_BARLEFTTEXTCUSTOM2"], "GameFontHighlightLeft")
+		g:NewTextEntry (frame5, _, "$parentCutomLeftTextEntry", "cutomLeftTextEntry", 180, 20)
+		frame5.cutomLeftTextEntry:SetPoint ("left", frame5.cutomLeftTextEntryLabel, "right", 2, -1)
+
+		frame5.cutomLeftTextEntry:SetHook ("OnTextChanged", function (self, byUser)
+		
+			if (not frame5.cutomLeftTextEntry.text:find ("{func")) then
+			
+				if (frame5.cutomLeftTextEntry.changing and not byUser) then
+					frame5.cutomLeftTextEntry.changing = false
+					return
+				elseif (frame5.cutomLeftTextEntry.changing and byUser) then
+					frame5.cutomLeftTextEntry.changing = false
+				end
+
+				if (byUser) then
+					local t = frame5.cutomLeftTextEntry.text
+					t = t:gsub ("||", "|")
+					_G.DetailsOptionsWindow.instance:SetBarTextSettings (nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, t)
+				else
+					local t = frame5.cutomLeftTextEntry.text
+					t = t:gsub ("|", "||")
+					frame5.cutomLeftTextEntry.changing = true
+					frame5.cutomLeftTextEntry.text = t
+				end
+			end
+		end)
+		
+		frame5.cutomLeftTextEntry:SetHook ("OnChar", function()
+			if (frame5.cutomLeftTextEntry.text:find ("{func")) then
+				GameCooltip:Reset()
+				GameCooltip:AddLine ("'func' keyword found, auto update disabled.")
+				GameCooltip:Show (frame5.cutomLeftTextEntry.widget)
+			end
+		end)
+
+		frame5.cutomLeftTextEntry:SetHook ("OnEnterPressed", function()
+			local t = frame5.cutomLeftTextEntry.text
+			t = t:gsub ("||", "|")
+			_G.DetailsOptionsWindow.instance:SetBarTextSettings (nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, t)
+		end)
+		frame5.cutomLeftTextEntry:SetHook ("OnEscapePressed", function()
+			frame5.cutomLeftTextEntry:ClearFocus()
+			return true
+		end)
+
+		window:CreateLineBackground2 (frame5, "cutomLeftTextEntry", "cutomLeftTextEntryLabel", Loc ["STRING_OPTIONS_BARLEFTTEXTCUSTOM2_DESC"])
+		
+		frame5.cutomLeftTextEntry.text = instance.row_info.textL_custom_text
+		
+		local callback = function (text)
+			frame5.cutomLeftTextEntry.text = text
+			frame5.cutomLeftTextEntry:PressEnter()
+		end
+		g:NewButton (frame5.cutomLeftTextEntry, _, "$parentOpenTextBarEditorButton", "TextBarEditorButton", 22, 22, function()
+			DetailsWindowOptionsBarTextEditor:Open (frame5.cutomLeftTextEntry.text, callback, _G.DetailsOptionsWindow, _detalhes.instance_defaults.row_info.textL_custom_text)
+		end)
+		frame5.TextBarEditorButton = frame5.cutomLeftTextEntry.TextBarEditorButton
+		frame5.TextBarEditorButton:SetPoint ("left", frame5.cutomLeftTextEntry, "right", 2, 1)
+		frame5.TextBarEditorButton:SetNormalTexture ([[Interface\HELPFRAME\OpenTicketIcon]])
+		frame5.TextBarEditorButton:SetHighlightTexture ([[Interface\HELPFRAME\OpenTicketIcon]])
+		frame5.TextBarEditorButton:SetPushedTexture ([[Interface\HELPFRAME\OpenTicketIcon]])
+		frame5.TextBarEditorButton:GetNormalTexture():SetDesaturated (true)
+		frame5.TextBarEditorButton.tooltip = "Row Text Editor"
+		
+		g:NewButton (frame5.cutomLeftTextEntry, _, "$parentResetCustomLeftTextButton", "customLeftTextButton", 20, 20, function()
+			frame5.cutomLeftTextEntry.text = _detalhes.instance_defaults.row_info.textL_custom_text
+			frame5.cutomLeftTextEntry:PressEnter()
+		end)
+		frame5.customLeftTextButton = frame5.cutomLeftTextEntry.customLeftTextButton
+		frame5.customLeftTextButton:SetPoint ("left", frame5.TextBarEditorButton, "right", 0, 0)
+		frame5.customLeftTextButton:SetNormalTexture ([[Interface\Glues\LOGIN\Glues-CheckBox-Check]] or [[Interface\Buttons\UI-GroupLoot-Pass-Down]])
+		frame5.customLeftTextButton:SetHighlightTexture ([[Interface\Glues\LOGIN\Glues-CheckBox-Check]] or [[Interface\Buttons\UI-GROUPLOOT-PASS-HIGHLIGHT]])
+		frame5.customLeftTextButton:SetPushedTexture ([[Interface\Glues\LOGIN\Glues-CheckBox-Check]] or [[Interface\Buttons\UI-GroupLoot-Pass-Up]])
+		frame5.customLeftTextButton:GetNormalTexture():SetDesaturated (true)
+		frame5.customLeftTextButton.tooltip = "Reset to Default"		
+		
 	--> anchors
 	
 		--general anchor
@@ -4882,11 +4982,15 @@ function window:CreateFrame5()
 			{"LeftTextAnchorLabel", 1, true},
 			{"textLeftOutlineLabel", 2},
 			{"classColorsLeftTextLabel", 3},
-			{"RightTextAnchorLabel", 4, true},
-			{"textRightOutlineLabel", 5},
-			{"classColorsRightTextLabel", 6},
-			{"cutomRightTextLabel", 7},
-			{"cutomRightTextEntryLabel", 8},
+			{"PositionNumberLabel", 4},
+			{"cutomLeftTextLabel", 5},
+			{"cutomLeftTextEntryLabel", 6},
+			{"RightTextAnchorLabel", 7, true},
+			{"textRightOutlineLabel", 8},
+			{"classColorsRightTextLabel", 9},
+			{"cutomRightTextLabel", 10},
+			{"cutomRightTextEntryLabel", 11},
+			
 		}
 		
 		window:arrange_menu (frame5, left_side, x, window.top_start_at)
@@ -6791,6 +6895,8 @@ function window:CreateFrame12()
 		frame4.descVersionLabel:SetPoint ("topleft", frame4, "topleft", 290, y)
 		g:NewLabel (frame4, _, "$parentDescEnabledLabel", "descEnabledLabel", Loc ["STRING_OPTIONS_PLUGINS_ENABLED"], "GameFontNormal", 12)
 		frame4.descEnabledLabel:SetPoint ("topleft", frame4, "topleft", 400, y)
+		g:NewLabel (frame4, _, "$parentDescOptionsLabel", "descOptionsLabel", Loc ["STRING_OPTIONS_PLUGINS_OPTIONS"], "GameFontNormal", 12)
+		frame4.descOptionsLabel:SetPoint ("topleft", frame4, "topleft", 510, y)
 	end
 	
 	y = y - 30
@@ -6833,6 +6939,12 @@ function window:CreateFrame12()
 			end
 		end
 		
+		if (pluginObject.OpenOptionsPanel) then
+			g:NewButton (bframe, nil, "$parentOptionsButton"..i, "OptionsButton"..i, 86, 16, pluginObject.OpenOptionsPanel, nil, nil, nil, Loc ["STRING_OPTIONS_PLUGINS_OPTIONS"])
+			bframe ["OptionsButton"..i]:SetPoint ("topleft", frame4, "topleft", 510, y-2)
+			bframe ["OptionsButton"..i]:InstallCustomTexture()
+		end
+		
 		i = i + 1
 		y = y - 20
 	end
@@ -6858,6 +6970,8 @@ function window:CreateFrame12()
 		frame4.descVersionLabel:SetPoint ("topleft", frame4, "topleft", 290, y)
 		g:NewLabel (frame4, _, "$parentDescEnabledLabel2", "descEnabledLabel", Loc ["STRING_OPTIONS_PLUGINS_ENABLED"], "GameFontNormal", 12)
 		frame4.descEnabledLabel:SetPoint ("topleft", frame4, "topleft", 400, y)
+		g:NewLabel (frame4, _, "$parentDescOptionsLabel2", "descOptionsLabel", Loc ["STRING_OPTIONS_PLUGINS_OPTIONS"], "GameFontNormal", 12)
+		frame4.descOptionsLabel:SetPoint ("topleft", frame4, "topleft", 510, y)
 	end
 	
 	y = y - 30
@@ -6927,6 +7041,8 @@ function window:CreateFrame12()
 		frame4.descVersionLabel:SetPoint ("topleft", frame4, "topleft", 290, y)
 		g:NewLabel (frame4, _, "$parentDescEnabledLabel3", "descEnabledLabel", Loc ["STRING_OPTIONS_PLUGINS_ENABLED"], "GameFontNormal", 12)
 		frame4.descEnabledLabel:SetPoint ("topleft", frame4, "topleft", 400, y)
+		g:NewLabel (frame4, _, "$parentDescOptionsLabel3", "descOptionsLabel", Loc ["STRING_OPTIONS_PLUGINS_OPTIONS"], "GameFontNormal", 12)
+		frame4.descOptionsLabel:SetPoint ("topleft", frame4, "topleft", 510, y)
 	end
 	
 	y = y - 30
@@ -7194,12 +7310,20 @@ function window:update_all (editing_instance)
 	_G.DetailsOptionsWindow5PercentDropdown.MyObject:SetFixedParameter (editing_instance)
 	_G.DetailsOptionsWindow5PercentDropdown.MyObject:Select (editing_instance.row_info.percent_type)
 	
+	_G.DetailsOptionsWindow5CutomLeftTextSlider.MyObject:SetFixedParameter (editing_instance)
+	_G.DetailsOptionsWindow5CutomLeftTextSlider.MyObject:SetValue (editing_instance.row_info.textL_enable_custom_text)
+	
 	_G.DetailsOptionsWindow5CutomRightTextSlider.MyObject:SetFixedParameter (editing_instance)
 	_G.DetailsOptionsWindow5CutomRightTextSlider.MyObject:SetValue (editing_instance.row_info.textR_enable_custom_text)
+
+	local text = editing_instance.row_info.textL_custom_text
+	_G.DetailsOptionsWindow5CutomLeftTextEntry.MyObject:SetText (text)
 	
 	local text = editing_instance.row_info.textR_custom_text
-	--text = text:gsub ("|", "||")
 	_G.DetailsOptionsWindow5CutomRightTextEntry.MyObject:SetText (text)
+	
+	_G.DetailsOptionsWindow5PositionNumberSlider.MyObject:SetFixedParameter (editing_instance)
+	_G.DetailsOptionsWindow5PositionNumberSlider.MyObject:SetValue (editing_instance.row_info.textL_show_number)
 	
 	--> window 6
 	_G.DetailsOptionsWindow6BackdropDropdown.MyObject:SetFixedParameter (editing_instance)

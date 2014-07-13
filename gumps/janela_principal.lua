@@ -2856,7 +2856,7 @@ function gump:CriaNovaBarra (instancia, index)
 	return esta_barra
 end
 
-function _detalhes:SetBarTextSettings (size, font, fixedcolor, leftcolorbyclass, rightcolorbyclass, leftoutline, rightoutline, customrighttextenabled, customrighttext, percentage_type)
+function _detalhes:SetBarTextSettings (size, font, fixedcolor, leftcolorbyclass, rightcolorbyclass, leftoutline, rightoutline, customrighttextenabled, customrighttext, percentage_type, showposition, customlefttextenabled, customlefttext)
 	
 	--> size
 	if (size) then
@@ -2896,6 +2896,14 @@ function _detalhes:SetBarTextSettings (size, font, fixedcolor, leftcolorbyclass,
 		self.row_info.textR_outline = rightoutline
 	end
 	
+	--> custom left text
+	if (type (customlefttextenabled) == "boolean") then
+		self.row_info.textL_enable_custom_text = customlefttextenabled
+	end
+	if (customlefttext) then
+		self.row_info.textL_custom_text = customlefttext
+	end
+
 	--> custom right text
 	if (type (customrighttextenabled) == "boolean") then
 		self.row_info.textR_enable_custom_text = customrighttextenabled
@@ -2907,6 +2915,11 @@ function _detalhes:SetBarTextSettings (size, font, fixedcolor, leftcolorbyclass,
 	--> percent type
 	if (percentage_type) then
 		self.row_info.percent_type = percentage_type
+	end
+	
+	--> show position number
+	if (type (showposition) == "boolean") then
+		self.row_info.textL_show_number = showposition
 	end
 	
 	self:InstanceReset()
@@ -4498,7 +4511,7 @@ function _detalhes:ChangeSkin (skin_name)
 		skin_name = "Default Skin"
 		this_skin = _detalhes.skins [skin_name]
 	end
-
+	
 	local just_updating = false
 	if (self.skin == skin_name) then
 		just_updating = true
@@ -4578,7 +4591,7 @@ function _detalhes:ChangeSkin (skin_name)
 		self.baseframe.scroll_up:SetTexture (skin_file) --> scrollbar parte de cima
 		self.baseframe.scroll_down:SetTexture (skin_file) --> scrollbar parte de baixo
 		self.baseframe.scroll_middle:SetTexture (skin_file) --> scrollbar parte do meio
-		
+
 		self.baseframe.rodape.top_bg:SetTexture (skin_file) --> rodape top background
 		self.baseframe.rodape.esquerdo:SetTexture (skin_file) --> rodape esquerdo
 		self.baseframe.rodape.direita:SetTexture (skin_file) --> rodape direito
