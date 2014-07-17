@@ -135,3 +135,48 @@ function gump:ParseColors (_arg1, _arg2, _arg3, _arg4)
 	
 	return _arg1, _arg2, _arg3, _arg4
 end
+
+function gump:BuildMenu (parent, menu, x_offset, y_offset, height)
+	
+	local cur_x = x_offset
+	local cur_y = y_offset
+	local max_x = 0
+	
+	for index, widget_table in ipairs (menu) do 
+	
+		if (widget_table.type == "select" or widget_table.type == "dropdown") then
+			local dropdown = self:NewDropDown (parent, nil, "$parentWidget" .. index, nil, 140, 18, widget_table.values, widget_table.get())
+			dropdown.tooltip = widget_table.desc
+			local label = self:NewLabel (parent, nil, "$parentLabel" .. index, nil, widget_table.name, "GameFontNormal", 12)
+			dropdown:SetPoint ("left", label, "right", 2)
+			label:SetPoint (cur_x, cur_y)
+			
+			local size = label.widget:GetStringWidth() + 140 + 4
+			if (size > max_x) then
+				max_x = size
+			end
+			
+		elseif (widget_table.type == "toggle" or widget_table.type == "switch") then
+			local switch = self:NewSwitch (parent, nil, "$parentWidget" .. index, nil, 60, 20, nil, nil, widget_table.get())
+			switch.tooltip = widget_table.desc
+			switch.OnSwitch = widget_table.set
+			
+			local label = self:NewLabel (parent, nil, "$parentLabel" .. index, nil, widget_table.name, "GameFontNormal", 12)
+			switch:SetPoint ("left", label, "right", 2)
+			label:SetPoint (cur_x, cur_y)
+			
+			local size = label.widget:GetStringWidth() + 60 + 4
+			if (size > max_x) then
+				max_x = size
+			end
+		end
+	
+		cur_y = cur_y - 20
+		if (cur_y > height) then
+			cur_y = y_offset
+			cur_x = max_x
+		end
+	
+	end
+	
+end

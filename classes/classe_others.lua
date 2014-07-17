@@ -268,10 +268,85 @@ local function RefreshBarraMorte (morte, barra, instancia)
 	atributo_misc:DeadAtualizarBarra (morte, morte.minha_barra, barra.colocacao, instancia)
 end
 
+--objeto death:
+--[1] tabela [2] time [3] nome [4] classe [5] maxhealth [6] time of death
+--[1] true damage/ false heal [2] spellid [3] amount [4] time [5] current health [6] source
+
 function atributo_misc:ReportSingleDeadLine (morte, instancia)
 
 	local barra = instancia.barras [morte.minha_barra]
+	
+	local max_health = morte [5]
+	local time_of_death = morte [2]
+	
+	do
+		if (not _detalhes.fontstring_len) then
+			_detalhes.fontstring_len = _detalhes.listener:CreateFontString (nil, "background", "GameFontNormal")
+		end
+		local _, fontSize = FCF_GetChatWindowInfo (1)
+		if (fontSize < 1) then
+			fontSize = 10
+		end
+		local fonte, _, flags = _detalhes.fontstring_len:GetFont()
+		_detalhes.fontstring_len:SetFont (fonte, fontSize, flags)
+		_detalhes.fontstring_len:SetText ("thisisspacement")
+	end
+	local default_len = _detalhes.fontstring_len:GetStringWidth()
+	
+	local reportar = {"Details! " .. Loc ["STRING_REPORT_SINGLE_DEATH"] .. " " .. morte [3] .. " " .. Loc ["STRING_ACTORFRAME_REPORTAT"] .. " " .. morte [6]}
+	
+	local report_array = {}
+	
+	for index, evento in _ipairs (morte [1]) do
+		if (evento [1] and type (evento [1]) == "boolean") then --> damage
+			if (evento [3]) then
+				local elapsed = _cstr ("%.1f", evento [4] - time_of_death) .."s"
+				local spelllink = GetSpellLink (evento [2])
+				local source = _detalhes:GetOnlyName (evento [6])
+				local spellname, _, spellicon = _GetSpellInfo (evento [2])
+				local amount = evento [3]
+				local hp = _math_floor (evento [5] / max_health * 100)
+				if (hp > 100) then 
+					hp = 100
+				end
+				
+				tinsert (report_array, {elapsed .. " ", spelllink, " (" .. source .. ")", "-" .. _detalhes:ToK (amount) .. " (" .. hp .. "%) "})
+			end
+			
+		elseif (not evento [1]) then --> heal
+			local elapsed = _cstr ("%.1f", evento [4] - time_of_death) .."s"
+			local spelllink = GetSpellLink (evento [2])
+			local source = _detalhes:GetOnlyName (evento [6])
+			local spellname, _, spellicon = _GetSpellInfo (evento [2])
+			local amount = evento [3]
+			local hp = _math_floor (evento [5] / max_health * 100)
+			if (hp > 100) then 
+				hp = 100
+			end
 
+			tinsert (report_array, {elapsed .. " ", spellname, " (" .. source .. ")", "+" .. _detalhes:ToK (amount) .. " (" .. hp .. "%) "})
+		end
+	end
+	
+	-- ELAPSED | HP | LINK | SOURCE
+	local bigger_len = 0
+	for index, table in _ipairs (report_array) do
+		local spell = table [2] --[[
+		_detalhes.fontstring_len:SetText (spell)
+		local stringlen = _detalhes.fontstring_len:GetStringWidth()
+		while (stringlen < default_len) do
+			spell = spell .. " "
+			_detalhes.fontstring_len:SetText (spell)
+			stringlen = _detalhes.fontstring_len:GetStringWidth()
+		end
+		table [2] = spell--]]
+		reportar [#reportar+1] = table [1] .. table [4] .. spell .. table [3]
+	end
+	
+	return _detalhes:Reportar (reportar, {_no_current = true, _no_inverse = true, _custom = true})
+	
+	--[[
+	local barra = instancia.barras [morte.minha_barra]
 	local reportar = {"Details! " .. Loc ["STRING_REPORT_SINGLE_DEATH"] .. " " .. morte [3] .. " " .. barra.texto_esquerdo:GetText()} --> localize-me
 	for i = 1, GameCooltip:GetNumLines() do 
 		local texto_left, texto_right = GameCooltip:GetText (i)
@@ -281,8 +356,8 @@ function atributo_misc:ReportSingleDeadLine (morte, instancia)
 			reportar [#reportar+1] = ""..texto_left.." "..texto_right..""
 		end
 	end
-
 	return _detalhes:Reportar (reportar, {_no_current = true, _no_inverse = true, _custom = true})
+	--]]
 end
 
 function atributo_misc:ReportSingleCooldownLine (misc_actor, instancia)

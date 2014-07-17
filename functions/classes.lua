@@ -109,6 +109,12 @@ do
 	function _detalhes:GetDisplayName (actor)
 		return self.displayName or actor.displayName
 	end
+	function _detalhes:GetOnlyName (string)
+		if (string) then
+			return string:gsub (("%-.*"), "")
+		end
+		return self.nome:gsub (("%-.*"), "")
+	end
 	function _detalhes:Class (actor)
 		return self.classe or actor.classe
 	end

@@ -44,6 +44,13 @@ function historico:adicionar_overall (tabela)
 	_detalhes:ClockPluginTickOnSegment()
 end
 
+function _detalhes:GetCurrentCombat()
+	return _detalhes.tabela_vigente
+end
+function _detalhes:GetCombatSegments()
+	return _detalhes.tabela_historico.tabelas
+end
+
 --> sai do combate, chamou adicionar a tabela ao histórico
 function historico:adicionar (tabela)
 

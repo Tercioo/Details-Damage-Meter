@@ -200,6 +200,17 @@ function _G._detalhes:Start()
 	--> send details startup done signal
 		function self:AnnounceStartup()
 			self:SendEvent ("DETAILS_STARTED", "SEND_TO_ALL")
+			
+			if (_detalhes.in_group) then
+				_detalhes:SendEvent ("GROUP_ONENTER")
+			else
+				_detalhes:SendEvent ("GROUP_ONLEAVE")
+			end
+			
+			_detalhes.last_zone_type = "INIT"
+			_detalhes.parser_functions:ZONE_CHANGED_NEW_AREA()
+			
+			_detalhes.AnnounceStartup = nil
 		end
 		self:ScheduleTimer ("AnnounceStartup", 5)
 		

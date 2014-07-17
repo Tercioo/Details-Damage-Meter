@@ -9,7 +9,110 @@ do
 	local _GetSpellInfo = _detalhes.getspellinfo
 	
 	_detalhes.EncounterDetailsTempWindow = function (EncounterDetails)
-
+	
+	--> options panel
+	
+	function EncounterDetails:AutoShowIcon()
+		local found_boss = false
+		for _, combat in ipairs (EncounterDetails:GetCombatSegments()) do 
+			if (combat.is_boss) then
+				EncounterDetails:ShowIcon()
+				found_boss = true
+			end
+		end
+		if (EncounterDetails:GetCurrentCombat().is_boss) then
+			EncounterDetails:ShowIcon()
+			found_boss = true
+		end
+		if (not found_boss) then
+			EncounterDetails:HideIcon()
+		end
+	end
+	
+	local build_options_panel = function()
+		local options_frame = CreateFrame ("frame", "EncounterDetailsOptionsWindow", UIParent, "ButtonFrameTemplate")
+		tinsert (UISpecialFrames, "EncounterDetailsOptionsWindow")
+		options_frame:SetSize (500, 200)
+		options_frame:SetFrameStrata ("HIGH")
+		options_frame:SetScript ("OnMouseDown", function(self) self:StartMoving()end)
+		options_frame:SetScript ("OnMouseUp", function(self) self:StopMovingOrSizing()end)
+		options_frame:SetMovable (true)
+		options_frame:EnableMouse (true)
+		options_frame:Hide()
+		options_frame:SetPoint ("center", UIParent, "center")
+		options_frame.TitleText:SetText ("Encounter Details Options")
+		options_frame.portrait:SetTexture ([[Interface\CHARACTERFRAME\TEMPORARYPORTRAIT-FEMALE-BLOODELF]])
+		
+-- 1 = only when inside a raid map
+-- 2 = only when in raid group
+-- 3 = only after a boss encounter
+-- 4 = always show
+		
+		local set = function (_, _, value) 
+			EncounterDetails.db.show_icon = value 
+			if (value == 1) then
+				if (EncounterDetails:GetZoneType() == "raid") then
+					EncounterDetails:ShowIcon()
+				else
+					EncounterDetails:HideIcon()
+				end
+			elseif (value == 2) then
+				if (EncounterDetails:InGroup()) then
+					EncounterDetails:ShowIcon()
+				else
+					EncounterDetails:HideIcon()
+				end
+			elseif (value == 3) then
+				if (EncounterDetails:GetCurrentCombat().is_boss) then
+					EncounterDetails:ShowIcon()
+				else
+					EncounterDetails:HideIcon()
+				end
+			elseif (value == 4) then
+				EncounterDetails:ShowIcon()
+			elseif (value == 5) then
+				EncounterDetails:AutoShowIcon()
+			end
+		end
+		local on_show_menu = {
+			{value = 1, label = "Inside Raid", onclick = set, desc = "Only show the icon while inside a raid."},
+			{value = 2, label = "In Group", onclick = set, desc = "Only show the icon while in group."},
+			{value = 3, label = "After Encounter", onclick = set, desc = "Show the icon after a raid boss encounter."},
+			{value = 4, label = "Always", onclick = set, desc = "Always show the icon."},
+			{value = 5, label = "Auto", onclick = set, desc = "The plugin decides when the icon needs to be shown."},
+		}
+		
+--		/dump DETAILS_PLUGIN_ENCOUNTER_DETAILS.db.show_icon
+		
+		local menu = {
+			--show when dropdown
+			{
+				type = "select",
+				get = function() return EncounterDetails.db.show_icon end,
+				values = function() return on_show_menu end,
+				desc = "When the icon is shown in the Details! tooltip.",
+				name = "Show Icon"
+			},
+			{
+				type = "toggle",
+				get = function() return EncounterDetails.db.hide_on_combat end,
+				set = function (self, fixedparam, value) EncounterDetails.db.hide_on_combat = value end,
+				desc = "Encounter Details window automatically close when you enter in combat.",
+				name = "Hide on Combat"
+			},
+		}
+		
+		DetailsFrameWork:BuildMenu (options_frame, menu, 15, -75, 260)
+		
+	end
+	
+	EncounterDetails.OpenOptionsPanel = function()
+		if (not EncounterDetailsOptionsWindow) then
+			build_options_panel()
+		end
+		EncounterDetailsOptionsWindow:Show()
+	end
+	
 	function EncounterDetails:CreateRowTexture (row)
 		row.textura = CreateFrame ("StatusBar", nil, row)
 		row.textura:SetAllPoints (row)
@@ -646,11 +749,11 @@ Message: ..\AddOns\Details_EncounterDetails\frames.lua line 156:
 	local backdrop = {edgeFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16, edgeSize = 1, insets = {left = 1, right = 1, top = 0, bottom = 1}}
 	
 	--> Nome do Encontro
-		DetailsFrameWork:NewLabel (frame, frame, nil, "boss_name", "Nome do Boss Aqui", "QuestFont_Large")
+		DetailsFrameWork:NewLabel (frame, frame, nil, "boss_name", "Unknown Encounter", "QuestFont_Large")
 		frame.boss_name:SetPoint ("TOPLEFT", frame, "TOPLEFT", 100, -51)
 
 	--> Nome da Raid
-		DetailsFrameWork:NewLabel (frame, frame, nil, "raid_name", "Throne of Thunder", "GameFontHighlightSmall")
+		DetailsFrameWork:NewLabel (frame, frame, nil, "raid_name", "Unknown Raid", "GameFontHighlightSmall")
 		frame.raid_name:SetPoint ("CENTER", frame.boss_name, "CENTER", 0, 14)
 
 	--> Barra de Status:
@@ -703,6 +806,10 @@ Message: ..\AddOns\Details_EncounterDetails\frames.lua line 156:
 		
 		local segmentos = DetailsFrameWork:NewDropDown (frame, _, "$parentSegmentsDropdown", "segmentosDropdown", 160, 18, buildSegmentosMenu, nil)	
 		segmentos:SetPoint ("left", segmentos_string, "right", 2, 0)
+		
+		local options_button = DetailsFrameWork:NewButton (frame, _, "$parentOptionsButton", nil, 100, 18, EncounterDetails.OpenOptionsPanel, nil, nil, nil, "Options")
+		options_button:SetPoint ("left", segmentos, "right", 14, 0)
+		options_button.textalign = "<"
 	
 	--> Caixa do Dano total tomado pela Raid
 	
@@ -893,14 +1000,14 @@ Message: ..\AddOns\Details_EncounterDetails\frames.lua line 156:
 		container_adds_frame:SetMovable (true)
 		
 		container_adds_window:SetWidth (170)
-		container_adds_window:SetHeight (67)
+		container_adds_window:SetHeight (65)
 		container_adds_window:SetScrollChild (container_adds_frame)
-		container_adds_window:SetPoint ("TOPLEFT", frame, "TOPLEFT", 260, -117)
+		container_adds_window:SetPoint ("TOPLEFT", frame, "TOPLEFT", 260, -113)
 
 		DetailsFrameWork:NewLabel (container_adds_window, container_adds_window, nil, "titulo", Loc ["STRING_ADDS"], "QuestFont_Large", 16, {1, 1, 1})
 		container_adds_window.titulo:SetPoint ("bottomleft", container_adds_window, "topleft", 0, 4)
 		
-		DetailsFrameWork:NewScrollBar (container_adds_window, container_adds_frame, 4, -9)
+		DetailsFrameWork:NewScrollBar (container_adds_window, container_adds_frame, 4, -13)
 		container_adds_window.slider:Altura (45)
 		container_adds_window.slider:cimaPoint (0, 1)
 		container_adds_window.slider:baixoPoint (0, -1)
@@ -970,14 +1077,14 @@ Message: ..\AddOns\Details_EncounterDetails\frames.lua line 156:
 		container_interrupt_frame:SetMovable (true)
 		
 		container_interrupt_window:SetWidth (170)
-		container_interrupt_window:SetHeight (67)
+		container_interrupt_window:SetHeight (65)
 		container_interrupt_window:SetScrollChild (container_interrupt_frame)
-		container_interrupt_window:SetPoint ("TOPLEFT", frame, "TOPLEFT", 480, -117)
+		container_interrupt_window:SetPoint ("TOPLEFT", frame, "TOPLEFT", 480, -113)
 
 		DetailsFrameWork:NewLabel (container_interrupt_window, container_interrupt_window, nil, "titulo", Loc ["STRING_INTERRUPTS"], "QuestFont_Large", 16, {1, 1, 1})
 		container_interrupt_window.titulo:SetPoint ("bottomleft", container_interrupt_window, "topleft", 0, 4)
 		
-		DetailsFrameWork:NewScrollBar (container_interrupt_window, container_interrupt_frame, 4, -9)
+		DetailsFrameWork:NewScrollBar (container_interrupt_window, container_interrupt_frame, 4, -13)
 		container_interrupt_window.slider:Altura (45)
 		container_interrupt_window.slider:cimaPoint (0, 1)
 		container_interrupt_window.slider:baixoPoint (0, -1)
@@ -1041,20 +1148,20 @@ Message: ..\AddOns\Details_EncounterDetails\frames.lua line 156:
 		
 		container_dispell_frame:SetAllPoints (container_dispell_window)
 		container_dispell_frame:SetWidth (170)
-		container_dispell_frame:SetHeight (67)
+		container_dispell_frame:SetHeight (62)
 		container_dispell_frame:EnableMouse (true)
 		container_dispell_frame:SetResizable (false)
 		container_dispell_frame:SetMovable (true)
 		
 		container_dispell_window:SetWidth (170)
-		container_dispell_window:SetHeight (70)
+		container_dispell_window:SetHeight (68)
 		container_dispell_window:SetScrollChild (container_dispell_frame)
-		container_dispell_window:SetPoint ("TOPLEFT", frame, "TOPLEFT", 260, -235)
+		container_dispell_window:SetPoint ("TOPLEFT", frame, "TOPLEFT", 260, -231)
 
 		DetailsFrameWork:NewLabel (container_dispell_window, container_dispell_window, nil, "titulo", Loc ["STRING_DISPELLS"], "QuestFont_Large", 16, {1, 1, 1})
 		container_dispell_window.titulo:SetPoint ("bottomleft", container_dispell_window, "topleft", 0, 4)
 		
-		DetailsFrameWork:NewScrollBar (container_dispell_window, container_dispell_frame, 4, -9)
+		DetailsFrameWork:NewScrollBar (container_dispell_window, container_dispell_frame, 4, -13)
 		container_dispell_window.slider:Altura (45)
 		container_dispell_window.slider:cimaPoint (0, 1)
 		container_dispell_window.slider:baixoPoint (0, -1)

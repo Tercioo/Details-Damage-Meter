@@ -1054,7 +1054,7 @@ function window:CreateFrame20()
 			_detalhes.tooltip.fontshadow = value
 		end
 		window:CreateLineBackground2 (frame20, "TooltipShadowSwitch", "TooltipShadowLabel", Loc ["STRING_OPTIONS_TOOLTIPS_FONTSHADOW_DESC"])
-			
+		
 		-- background color
 		local tooltip_background_color_callback = function (button, r, g, b, a)
 			_detalhes.tooltip.background = {r, g, b, a}
@@ -3349,6 +3349,15 @@ function window:CreateFrame2()
 
 		window:CreateLineBackground2 (frame2, "timetypeDropdown", "timetypeLabel", Loc ["STRING_OPTIONS_TIMEMEASURE_DESC"])
 
+	--> Erase Chart Data
+		g:NewLabel (frame2, _, "$parentEraseChartDataLabel", "EraseChartDataLabel", Loc ["STRING_OPTIONS_ERASECHARTDATA"], "GameFontHighlightLeft")
+		g:NewSwitch (frame2, _, "$parentEraseChartDataSlider", "EraseChartDataSlider", 60, 20, _, _, false)
+		frame2.EraseChartDataSlider:SetPoint ("left", frame2.EraseChartDataLabel, "right", 2, 0)
+		frame2.EraseChartDataSlider.OnSwitch = function (self, _, value)
+			_detalhes.clear_graphic = value
+		end
+		window:CreateLineBackground2 (frame2, "EraseChartDataSlider", "EraseChartDataLabel", Loc ["STRING_OPTIONS_ERASECHARTDATA_DESC"])
+		
 	--> Overall Data
 		g:NewLabel (frame2, _, "$parentOverallDataAnchor", "OverallDataLabel", Loc ["STRING_OPTIONS_OVERALL_ANCHOR"], "GameFontNormal")
 		
@@ -3585,15 +3594,16 @@ function window:CreateFrame2()
 			{"GeneralAnchorLabel", 1, true},
 			{"fragsPvpLabel", 2},
 			{"timetypeLabel", 3},
+			{"EraseChartDataLabel", 4},
 			
-			{"OverallDataLabel", 4, true},
-			{"OverallDataRaidBossLabel", 5},
-			{"OverallDataRaidCleaupLabel", 6},
-			{"OverallDataDungeonBossLabel", 7},
-			{"OverallDataDungeonCleaupLabel", 8},
-			{"OverallDataAllLabel", 9},
-			{"OverallNewBossLabel", 10},
-			{"OverallNewChallengeLabel", 11},
+			{"OverallDataLabel", 5, true},
+			{"OverallDataRaidBossLabel", 6},
+			{"OverallDataRaidCleaupLabel", 7},
+			{"OverallDataDungeonBossLabel", 8},
+			{"OverallDataDungeonCleaupLabel", 9},
+			{"OverallDataAllLabel", 10},
+			{"OverallNewBossLabel", 11},
+			{"OverallNewChallengeLabel", 12},
 		}
 		
 		window:arrange_menu (frame2, left_side, x, window.top_start_at)
@@ -7217,7 +7227,9 @@ function window:update_all (editing_instance)
 	--> window 2
 	_G.DetailsOptionsWindow2FragsPvpSlider.MyObject:SetValue (_detalhes.only_pvp_frags)
 	_G.DetailsOptionsWindow2TTDropdown.MyObject:Select (_detalhes.time_type)
-	
+
+	_G.DetailsOptionsWindow2EraseChartDataSlider.MyObject:SetValue (_detalhes.clear_graphic)
+
 	_G.DetailsOptionsWindow2OverallDataRaidBossSlider.MyObject:SetValue (bit.band (_detalhes.overall_flag, 0x1) ~= 0)
 	_G.DetailsOptionsWindow2OverallDataRaidCleaupSlider.MyObject:SetValue (bit.band (_detalhes.overall_flag, 0x2) ~= 0)
 	_G.DetailsOptionsWindow2OverallDataDungeonBossSlider.MyObject:SetValue (bit.band (_detalhes.overall_flag, 0x4) ~= 0)

@@ -90,6 +90,7 @@ local function CreatePluginFrames (data)
 		
 		--> when details finish his startup and are ready to work
 		elseif (event == "DETAILS_STARTED") then
+		
 			--> check if details are in combat, if not check if the last fight was a boss fight
 			if (not EncounterDetails:IsInCombat()) then
 				--> get the current combat table
@@ -136,10 +137,16 @@ local function CreatePluginFrames (data)
 			
 			--_detalhes:TimeDataRegister ("Raid Damage Done", damage_done_func, {last_damage = 0, max_damage = 0}, "Encounter Details", "v1.0", [[Interface\ICONS\Ability_DualWield]], true)
 			_detalhes:TimeDataRegister ("Raid Damage Done", string_damage_done_func, nil, "Encounter Details", "v1.0", [[Interface\ICONS\Ability_DualWield]], true, true)
+			
+			if (EncounterDetails.db.show_icon == 4) then
+				EncounterDetails:ShowIcon()
+			elseif (EncounterDetails.db.show_icon == 5) then
+				EncounterDetails:AutoShowIcon()
+			end
 		
 		elseif (event == "COMBAT_PLAYER_ENTER") then --> combat started
-			if (EncounterDetails.showing) then
-				EncounterDetails:HideIcon()
+			if (EncounterDetails.showing and EncounterDetails.db.hide_on_combat) then
+				--EncounterDetails:HideIcon()
 				EncounterDetails:CloseWindow()
 			end
 		
@@ -151,24 +158,58 @@ local function CreatePluginFrames (data)
 			if (EncounterDetails.combat_boss_found) then
 				EncounterDetails.combat_boss_found = false
 			end
+			if (EncounterDetails.db.show_icon == 5) then
+				EncounterDetails:AutoShowIcon()
+			end
 			
 		elseif (event == "COMBAT_BOSS_FOUND") then
 			EncounterDetails.combat_boss_found = true
+			if (EncounterDetails.db.show_icon == 5) then
+				EncounterDetails:AutoShowIcon()
+			end
 
 		elseif (event == "DETAILS_DATA_RESET") then
 			if (_G.DetailsRaidDpsGraph) then
 				_G.DetailsRaidDpsGraph:ResetData()
 			end
-			EncounterDetails:HideIcon()
+			if (EncounterDetails.db.show_icon == 5) then
+				EncounterDetails:AutoShowIcon()
+			end
+			--EncounterDetails:HideIcon()
 			EncounterDetails:CloseWindow()
 			
+			--drop last combat table
+			EncounterDetails.LastSegmentShown = nil
+	
+		elseif (event == "GROUP_ONENTER") then
+			if (EncounterDetails.db.show_icon == 2) then
+				EncounterDetails:ShowIcon()
+			end
+			
+		elseif (event == "GROUP_ONLEAVE") then
+			if (EncounterDetails.db.show_icon == 2) then
+				EncounterDetails:HideIcon()
+			end
+			
+		elseif (event == "ZONE_TYPE_CHANGED") then
+			if (EncounterDetails.db.show_icon == 1) then
+				if (select (1, ...) == "raid") then
+					EncounterDetails:ShowIcon()
+				else
+					EncounterDetails:HideIcon()
+				end
+			end
+		
 		elseif (event == "PLUGIN_DISABLED") then
 			EncounterDetails:HideIcon()
 			EncounterDetails:CloseWindow()
 			
 		elseif (event == "PLUGIN_ENABLED") then
-			--EncounterDetails:ShowIcon()
-			
+			if (EncounterDetails.db.show_icon == 5) then
+				EncounterDetails:AutoShowIcon()
+			elseif (EncounterDetails.db.show_icon == 4) then
+				EncounterDetails:ShowIcon()
+			end
 		end
 	end
 	
@@ -216,6 +257,8 @@ local function CreatePluginFrames (data)
 		EncounterDetails:OpenAndRefresh()
 		--> show
 		EncounterDetailsFrame:Show()
+		EncounterDetails.open = true
+		
 		if (EncounterDetailsFrame.ShowType == "graph") then
 			EncounterDetails:BuildDpsGraphic()
 		end
@@ -223,6 +266,7 @@ local function CreatePluginFrames (data)
 	end
 	
 	function EncounterDetails:CloseWindow()
+		EncounterDetails.open = false
 		EncounterDetailsFrame:Hide()
 		return true
 	end
@@ -674,26 +718,12 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 	local _combat_object = _combat_object
 	
 	if (segment) then
-		_combat_object = _detalhes.tabela_historico.tabelas [segment]
+		--get combat segment, 1 more recently ...25 oldest
+		_combat_object = EncounterDetails:GetCombat (segment)
 	else
 		_G [frame:GetName().."SegmentsDropdown"].MyObject:Select (1, true)
 	end
 	
-	--[
-	if (frame.ShowType == "main") then
-		--frame.buttonSwitchNormal:Disable()
-
-		--if (_combat_object.DpsGraphic[1]) then
-			--frame.buttonSwitchGraphic:Enable()
-		--else
-		--	frame.buttonSwitchGraphic:Disable()
-		--end
-	elseif (frame.ShowType == "graph") then
-		--frame.buttonSwitchNormal:Enable()
-		--frame.buttonSwitchGraphic:Disable()
-	end
-	--]]
-
 	local boss_id
 	local map_id
 	local boss_info
@@ -708,13 +738,35 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 		}
 	end
 	
+	if (not _combat_object.is_boss) then
+		for _, combat in _ipairs (EncounterDetails:GetCombatSegments()) do 
+			if (combat.is_boss and EncounterDetails:GetBossDetails (combat.is_boss.mapid, combat.is_boss.index)) then
+				_combat_object = combat
+				break
+			end
+		end
+		if (not _combat_object.is_boss) then
+			if (EncounterDetails.LastSegmentShown) then
+				_combat_object = EncounterDetails.LastSegmentShown
+			else
+				return
+			end
+		end
+	end
+	
 	boss_id = _combat_object.is_boss.index
 	map_id = _combat_object.is_boss.mapid
 	boss_info = _detalhes:GetBossDetails (_combat_object.is_boss.mapid, _combat_object.is_boss.index)
 
 	if (not boss_info) then
-		return EncounterDetails:Msg (Loc ["STRING_BOSS_NOT_REGISTRED"])
+		if (EncounterDetails.LastSegmentShown) then
+			_combat_object = EncounterDetails.LastSegmentShown
+		else
+			return EncounterDetails:Msg (Loc ["STRING_BOSS_NOT_REGISTRED"])
+		end
 	end
+	
+	EncounterDetails.LastSegmentShown = _combat_object
 	
 -------------- set boss name and zone name --------------
 	EncounterDetailsFrame.boss_name:SetText (_combat_object.is_boss.encounter)
@@ -957,10 +1009,10 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 		for index, jogador in _ipairs (DamageContainer._ActorTable) do
 		
 			--> só estou interessado nos adds, conferir pelo nome
-			if (adds_pool [tonumber (jogador.serial:sub(6, 10), 16)] or (jogador.flag_original and bit.band (jogador.flag_original, 0x00000040) ~= 0)) then --> é um inimigo) then
+			if (adds_pool [tonumber (jogador.serial:sub(6, 10), 16)] or (jogador.flag_original and bit.band (jogador.flag_original, 0x00000060) ~= 0)) then --> é um inimigo ou neutro
 				
 				local nome = jogador.nome
-				local tabela = {total = 0, dano_em = {}, dano_em_total = 0, damage_from = {}, damage_from_total = 0}
+				local tabela = {nome = nome, total = 0, dano_em = {}, dano_em_total = 0, damage_from = {}, damage_from_total = 0}
 			
 				--> total de dano que ele causou
 				tabela.total = jogador.total
@@ -1006,7 +1058,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 									end
 								end)
 				
-				adds [nome] = tabela
+				tinsert (adds, tabela)
 				
 			end
 			
@@ -1029,6 +1081,9 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 				local coords = CLASS_ICON_TCOORDS [esta_tabela[3]]
 				GameTooltip:AddDoubleLine ("|TInterface\\AddOns\\Details\\images\\classes_small:14:14:0:0:128:128:"..(coords[1]*128)..":"..(coords[2]*128)..":"..(coords[3]*128)..":"..(coords[4]*128).."|t "..esta_tabela[1]..": ", _detalhes:comma_value(esta_tabela[2]).." (".. _cstr ("%.1f", esta_tabela[2]/dano_em_total*100) .."%)", 1, 1, 1, 1, 1, 1)
 			end
+			
+			GameTooltip:AddLine (" ")
+			GameTooltip:AddLine ("CLICK to Report")
 			
 			GameTooltip:Show()	
 		end
@@ -1055,6 +1110,9 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 				end
 			end
 			
+			GameTooltip:AddLine (" ")
+			GameTooltip:AddLine ("CLICK to Report")
+			
 			GameTooltip:Show()	
 		end
 		
@@ -1064,7 +1122,11 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 		local index = 1
 		quantidade = 0
 		
-		for addName, esta_tabela in _pairs (adds) do 
+		table.sort (adds, function (t1, t2) return t1.nome < t2.nome end)
+		
+		for index, esta_tabela in _ipairs (adds) do 
+		
+				local addName = esta_tabela.nome
 		
 				local barra = container.barras [index]
 				if (not barra) then
@@ -1433,13 +1495,43 @@ function EncounterDetails:OnEvent (_, event, ...)
 				--> create widgets
 				CreatePluginFrames (data)
 
-				local MINIMAL_DETAILS_VERSION_REQUIRED = 1
+				local PLUGIN_MINIMAL_DETAILS_VERSION_REQUIRED = 1
+				local PLUGIN_TYPE = "TOOLBAR"
+				local PLUGIN_LOCALIZED_NAME = Loc ["STRING_PLUGIN_NAME"]
+				local PLUGIN_REAL_NAME = "DETAILS_PLUGIN_ENCOUNTER_DETAILS"
+				local PLUGIN_ICON = [[Interface\Scenarios\ScenarioIcon-Boss]]
+				local PLUGIN_AUTHOR = "Details! Team"
+				local PLUGIN_VERSION = "v1.05"
+				
+				local default_settings = {
+					show_icon = 5, --automatic
+					hide_on_combat = false, --hide the window when a new combat start
+				}
+				
+				-- 1 = only when inside a raid map
+				-- 2 = only when in raid group
+				-- 3 = only after a boss encounter
+				-- 4 = always show
+				-- 5 = automatic show when have at least 1 encounter with boss
 				
 				--> Install
-				local install, saveddata = _G._detalhes:InstallPlugin ("TOOLBAR", Loc ["STRING_PLUGIN_NAME"], "Interface\\Scenarios\\ScenarioIcon-Boss", EncounterDetails, "DETAILS_PLUGIN_ENCOUNTER_DETAILS", MINIMAL_DETAILS_VERSION_REQUIRED, "Details! Team", "v1.05")
+				local install, saveddata, is_enabled = _G._detalhes:InstallPlugin (
+					PLUGIN_TYPE,
+					PLUGIN_LOCALIZED_NAME,
+					PLUGIN_ICON,
+					EncounterDetails, 
+					PLUGIN_REAL_NAME,
+					PLUGIN_MINIMAL_DETAILS_VERSION_REQUIRED, 
+					PLUGIN_AUTHOR, 
+					PLUGIN_VERSION, 
+					default_settings
+				)
+				
 				if (type (install) == "table" and install.error) then
 					print (install.error)
 				end
+				
+				EncounterDetails.db = saveddata
 				
 				--> Register needed events
 				_G._detalhes:RegisterEvent (EncounterDetails, "COMBAT_PLAYER_ENTER")
@@ -1447,10 +1539,13 @@ function EncounterDetails:OnEvent (_, event, ...)
 				_G._detalhes:RegisterEvent (EncounterDetails, "COMBAT_BOSS_FOUND")
 				_G._detalhes:RegisterEvent (EncounterDetails, "DETAILS_DATA_RESET")
 				
+				_G._detalhes:RegisterEvent (EncounterDetails, "GROUP_ONENTER")
+				_G._detalhes:RegisterEvent (EncounterDetails, "GROUP_ONLEAVE")
+				
+				_G._detalhes:RegisterEvent (EncounterDetails, "ZONE_TYPE_CHANGED")
+				
 			end
 		end
 		
-	elseif (event == "PLAYER_LOGOUT") then
-		_detalhes_databaseEncounterDetails = EncounterDetails.data
 	end
 end

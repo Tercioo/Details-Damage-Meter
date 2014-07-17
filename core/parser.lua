@@ -2510,11 +2510,18 @@
 		end
 	end
 
-
 	-- PARSER
 	--serach key: ~parser ~event ~start ~inicio
+	function _detalhes:GetZoneType()
+		return _detalhes.zone_type
+	end
 	function _detalhes.parser_functions:ZONE_CHANGED_NEW_AREA (...)
 		local zoneName, zoneType, _, _, _, _, _, zoneMapID = _GetInstanceInfo()
+		
+		if (_detalhes.last_zone_type ~= zoneType) then
+			_detalhes:SendEvent ("ZONE_TYPE_CHANGED", nil, zoneType)
+			_detalhes.last_zone_type = zoneType
+		end
 		
 		_detalhes.zone_type = zoneType
 		_detalhes.zone_id = zoneMapID
@@ -2744,6 +2751,9 @@
 		end
 	end
 	
+	function _detalhes:InGroup()
+		return _detalhes.in_group
+	end
 	function _detalhes.parser_functions:GROUP_ROSTER_UPDATE (...)
 		if (not _detalhes.in_group) then
 			_detalhes.in_group = IsInGroup() or IsInRaid()
@@ -2755,6 +2765,7 @@
 				_detalhes:InstanceCall (_detalhes.SetCombatAlpha, nil, nil, true)
 				_detalhes:CheckSwitchOnLogon()
 				_detalhes:CheckVersion()
+				_detalhes:SendEvent ("GROUP_ONENTER")
 			end
 		else
 			_detalhes.in_group = IsInGroup() or IsInRaid()
@@ -2766,6 +2777,7 @@
 				_table_wipe (_detalhes.details_users)
 				_detalhes:InstanceCall (_detalhes.SetCombatAlpha, nil, nil, true)
 				_detalhes:CheckSwitchOnLogon()
+				_detalhes:SendEvent ("GROUP_ONLEAVE")
 			else
 				_detalhes:SchedulePetUpdate (2)
 			end

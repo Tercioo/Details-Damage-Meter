@@ -18,8 +18,26 @@
 	function _detalhes:GetPluginSavedTable (PluginAbsoluteName)
 		return _detalhes.plugin_database [PluginAbsoluteName]
 	end
+	
+	function _detalhes:CheckDefaultTable (current, default)
+		for key, value in pairs (default) do 
+			if (type (value) == "table") then
+				if (type (current [key]) ~= "table") then
+					current [key] = table_deepcopy (value)
+				else
+					_detalhes:CheckDefaultTable (current [key], value)
+				end
+			else
+				if (current [key] == nil) then
+					current [key] = value
+				elseif (type (current [key]) ~= type (value)) then
+					current [key] = value
+				end
+			end
+		end
+	end
 
-	function _detalhes:InstallPlugin (PluginType, PluginName, PluginIcon, PluginObject, PluginAbsoluteName, MinVersion, Author, Version)
+	function _detalhes:InstallPlugin (PluginType, PluginName, PluginIcon, PluginObject, PluginAbsoluteName, MinVersion, Author, Version, DefaultSavedTable)
 
 		if (MinVersion and MinVersion > _detalhes.realversion) then
 			print (PluginName, Loc ["STRING_TOOOLD"])
@@ -60,9 +78,14 @@
 		
 		if (PluginType ~= "STATUSBAR") then
 			saved_table = _detalhes.plugin_database [PluginAbsoluteName]
+			
 			if (not saved_table) then
 				saved_table = {enabled = true, author = Author or "--------"}
 				_detalhes.plugin_database [PluginAbsoluteName] = saved_table
+			end
+			
+			if (DefaultSavedTable) then
+				_detalhes:CheckDefaultTable (saved_table, DefaultSavedTable)
 			end
 			
 			PluginObject.__enabled = saved_table.enabled

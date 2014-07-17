@@ -15,6 +15,7 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> local pointers
 	local ipairs = ipairs
+	local _math_floor = math.floor
 	local time = time
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -237,7 +238,7 @@
 			if (not time or time == 0) then
 				_detalhes.databroker.text = 0
 			else
-				_detalhes.databroker.text = _detalhes.tabela_vigente.totals_grupo[1] / time
+				_detalhes.databroker.text = _detalhes:comma_value (_math_floor (_detalhes.tabela_vigente.totals_grupo[1] / time))
 			end
 			
 		elseif (texttype == 2) then --hps
@@ -245,7 +246,7 @@
 			if (not time or time == 0) then
 				_detalhes.databroker.text = 0
 			else
-				_detalhes.databroker.text = _detalhes.tabela_vigente.totals_grupo[2] / time
+				_detalhes.databroker.text = _detalhes:comma_value (_math_floor (_detalhes.tabela_vigente.totals_grupo[2] / time))
 			end
 			
 		else

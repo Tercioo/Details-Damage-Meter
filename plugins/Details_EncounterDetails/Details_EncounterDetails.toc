@@ -1,7 +1,6 @@
 ## Interface: 50400
 ## Title: Details Encounter (plugin)
 ## Notes: Plugin for Details
-## SavedVariablesPerCharacter: _detalhes_databaseEncounterDetails
 ## RequiredDeps: Details
 ## OptionalDeps: Ace3
 
