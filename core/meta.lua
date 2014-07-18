@@ -189,6 +189,15 @@
 			
 			local historico_tabelas = _detalhes.tabela_historico.tabelas or {}
 			
+			--> remove os segmentos de trash
+			for i = #historico_tabelas, 1, -1  do
+				local combate = historico_tabelas [i]
+				if (combate:IsTrash()) then
+					table.remove (historico_tabelas, i)
+				end
+			end
+			
+			--> remove os segmentos > que o limite permitido para salvar
 			if (_detalhes.segments_amount_to_save and _detalhes.segments_amount_to_save < _detalhes.segments_amount) then
 				for i = _detalhes.segments_amount, _detalhes.segments_amount_to_save+1, -1  do
 					if (_detalhes.tabela_historico.tabelas [i]) then
@@ -518,7 +527,7 @@
 					end
 				end	
 			
-			
+				
 			--> panic mode
 				if (_detalhes.segments_panic_mode and _detalhes.can_panic_mode) then
 					if (_detalhes.tabela_vigente.is_boss) then

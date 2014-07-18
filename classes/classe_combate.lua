@@ -52,6 +52,10 @@
 		return self.TimeData [name]
 	end
 	
+	function combate:IsTrash()
+		return self.is_trash
+	end
+	
 	--return the name of the encounter or enemy
 	function combate:GetCombatName (try_find)
 		if (self.is_pvp) then

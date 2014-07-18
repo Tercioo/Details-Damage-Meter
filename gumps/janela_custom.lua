@@ -222,6 +222,7 @@
 				end
 				
 				_detalhes.switch:OnRemoveCustom (index)
+				_detalhes:ResetCustomFunctionsCache()
 			end
 			
 			function DetailsCustomPanel:StartEdit (custom_object, import)
@@ -320,6 +321,8 @@
 				elseif (string.len (name) > 32) then
 					return false, _detalhes:Msg (Loc ["STRING_CUSTOM_LONGNAME"])
 				end
+				
+				_detalhes:ResetCustomFunctionsCache()
 
 				local icon = self.icon_image:GetTexture()
 				local desc = self.desc_field:GetText()

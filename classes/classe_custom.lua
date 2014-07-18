@@ -4,6 +4,8 @@
 	local gump = 			_detalhes.gump
 	local _
 	
+	_detalhes.custom_function_cache = {}
+	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> local pointers
 
@@ -99,11 +101,19 @@ function atributo_custom:RefreshWindow (instance, combat, force, export)
 		--> be save reseting the values on every refresh
 		instance_container:ResetCustomActorContainer()
 	
-		--> todo: cache custom scripts
-		local func = loadstring (custom_object.script)
+		local func
+		if (_detalhes.custom_function_cache [instance.customName]) then
+			func = _detalhes.custom_function_cache [instance.customName]
+		else
+			func = loadstring (custom_object.script)
+			if (not func) then
+				_detalhes.custom_function_cache [instance.customName] = func
+			end
+		end
 		
 		if (not func) then
-			print ("error building the function.", func)
+			_detalhes:Msg (Loc ["STRING_CUSTOM_FUNC_INVALID"], func)
+			_detalhes:EndRefresh (instance, 0, combat, combat [1])
 		end
 		
 		--> call the loop function
@@ -399,9 +409,9 @@ end
 				GameCooltip:AddLine (name)
 				GameCooltip:AddIcon (icon, 1, 1, 14, 14)
 				
-				GameCooltip:AddLine ("Damage: ", spell.total) --> localize-me
-				GameCooltip:AddLine ("Hits: ", spell.counter) --> localize-me
-				GameCooltip:AddLine ("Critical Hits: ", spell.c_amt) --> localize-me
+				GameCooltip:AddLine (Loc ["STRING_DAMAGE"] .. ": ", spell.total)
+				GameCooltip:AddLine (Loc ["STRING_HITS"] .. ": ", spell.counter)
+				GameCooltip:AddLine (Loc ["STRING_CRITICAL_HITS"] .. ": ", spell.c_amt)
 			end
 		
 		elseif (target) then
@@ -577,9 +587,9 @@ end
 				GameCooltip:AddLine (name)
 				GameCooltip:AddIcon (icon, 1, 1, 14, 14)
 				
-				GameCooltip:AddLine ("Healing: ", spell.total) --> localize-me
-				GameCooltip:AddLine ("Hits: ", spell.counter) --> localize-me
-				GameCooltip:AddLine ("Critical Hits: ", spell.c_amt) --> localize-me
+				GameCooltip:AddLine (Loc ["STRING_HEAL"] .. ": ", spell.total)
+				GameCooltip:AddLine (Loc ["STRING_HITS"] .. ": ", spell.counter)
+				GameCooltip:AddLine (Loc ["STRING_CRITICAL_HITS"] .. ": ", spell.c_amt)
 			end
 		
 		elseif (target) then
@@ -1175,6 +1185,10 @@ end
 		end
 		
 		_detalhes.switch:OnRemoveCustom (index)
+	end
+	
+	function _detalhes:ResetCustomFunctionsCache()
+		table.wipe (_detalhes.custom_function_cache)
 	end
 	
 	function _detalhes.refresh:r_atributo_custom()

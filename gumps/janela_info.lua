@@ -1796,7 +1796,7 @@ function gump:CriaJanelaInfo()
 							
 							if (data [2] > player_3_target_total) then
 								local diff = data [2] - player_3_target_total
-								local up = diff / player_3_target_total [2] * 100
+								local up = diff / player_3_target_total * 100
 								up = _math_floor (up)
 								if (up > 999) then
 									up = ">" .. 999
@@ -2431,9 +2431,13 @@ function gump:CriaJanelaInfo()
 				
 				if (player2_misc) then
 					local spell = player2_misc.debuff_uptime_spell_tables and player2_misc.debuff_uptime_spell_tables._ActorTable and player2_misc.debuff_uptime_spell_tables._ActorTable [spellid]
-					if (spell and spell.uptime and player1_uptime) then
+					if (spell and spell.uptime) then
 						local minutos, segundos = _math_floor (spell.uptime/60), _math_floor (spell.uptime%60)
-						if (player1_uptime > spell.uptime) then
+						
+						if (not player1_uptime) then
+							frame2.tooltip.uptime_label2:SetText (minutos .. "m" .. segundos .. "s (0%)|r")
+						
+						elseif (player1_uptime > spell.uptime) then
 							local diff = player1_uptime - spell.uptime
 							local up = diff / spell.uptime * 100
 							up = _math_floor (up)
@@ -2524,7 +2528,11 @@ function gump:CriaJanelaInfo()
 					local spell = player3_misc.debuff_uptime_spell_tables and player3_misc.debuff_uptime_spell_tables._ActorTable and player3_misc.debuff_uptime_spell_tables._ActorTable [spellid]
 					if (spell and spell.uptime) then
 						local minutos, segundos = _math_floor (spell.uptime/60), _math_floor (spell.uptime%60)
-						if (player1_uptime > spell.uptime) then
+						
+						if (not player1_uptime) then
+							frame3.tooltip.uptime_label2:SetText (minutos .. "m" .. segundos .. "s (0%)|r")
+							
+						elseif (player1_uptime > spell.uptime) then
 							local diff = player1_uptime - spell.uptime
 							local up = diff / spell.uptime * 100
 							up = _math_floor (up)

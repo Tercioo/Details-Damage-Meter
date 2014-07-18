@@ -33,7 +33,7 @@ do
 		local options_frame = CreateFrame ("frame", "EncounterDetailsOptionsWindow", UIParent, "ButtonFrameTemplate")
 		tinsert (UISpecialFrames, "EncounterDetailsOptionsWindow")
 		options_frame:SetSize (500, 200)
-		options_frame:SetFrameStrata ("HIGH")
+		options_frame:SetFrameStrata ("DIALOG")
 		options_frame:SetScript ("OnMouseDown", function(self) self:StartMoving()end)
 		options_frame:SetScript ("OnMouseUp", function(self) self:StopMovingOrSizing()end)
 		options_frame:SetMovable (true)
