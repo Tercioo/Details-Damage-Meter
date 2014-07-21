@@ -2239,43 +2239,9 @@
 					end
 				end
 
+				--parser:safe_sort_dead (esta_morte)
 				_table_sort (esta_morte, _detalhes.Sort4)
-				--[[
-				_table_sort (esta_morte, function (table1, table2)
-					if (not table1) then 
-						print (1)
-						return false 
-						
-					elseif (not table2) then 
-						print (2)
-						return false
-						
-					elseif (table1 [4] == table2 [4]) then --> os 2 tem o mesmo tempo
-						if (type (table1 [1]) == "boolean" and table1 [1] and type (table2 [1]) == "boolean" and table2) then --> ambos sao dano
-							print (3)
-							return table1 [5] > table2 [5] --> joga pra cima quem tem mais vida
-						elseif (type (table1 [1]) == "boolean" and not table1 [1] and type (table2 [1]) == "boolean" and not table2) then --> ambos sao cura
-							print (4)
-							return table1 [5] < table2 [5] --> joga pra cima quem tem menos vida
-						else
-							if (type (table1 [1]) == "boolean" and table1 and type (table2 [1]) == "boolean" and table2) then --> primeiro é dano e segundo é heal
-								print (5)
-								return true --> passa o dano pra frente
-							elseif (type (table2 [1]) == "boolean" and table2 and type (table1 [1]) == "boolean" and table1) then --> primeiro é heal e o segundo é dano
-								print (6)
-								return false --> passa o heal pra frente
-							else
-								print (7)
-								return table1 [5] < table2 [5] --> passa quem tem menos vida
-							end
-						end
-					else
-						print (8)
-						return table1 [4] < table2 [4]
-					end
-				end)
-				--]]
-				
+
 				if (_hook_deaths) then
 					--> send event to registred functions
 					local death_at = _tempo - _current_combat.start_time
@@ -2331,6 +2297,57 @@
 		end
 	end
 
+	local sort_dead = function (table1, table2)
+			if (not table1) then 
+				--print (1)
+				return false 
+				
+			elseif (not table2) then 
+				--print (2)
+				return false
+				
+			elseif (table1 [4] == table2 [4]) then --> os 2 tem o mesmo tempo
+				if (type (table1 [1]) == "boolean" and table1 [1] and type (table2 [1]) == "boolean" and table2) then --> ambos sao dano
+					--print (3)
+					return table1 [5] > table2 [5] --> joga pra cima quem tem mais vida
+				elseif (type (table1 [1]) == "boolean" and not table1 [1] and type (table2 [1]) == "boolean" and not table2) then --> ambos sao cura
+					--print (4)
+					return table1 [5] < table2 [5] --> joga pra cima quem tem menos vida
+				else
+					if (type (table1 [1]) == "boolean" and table1 and type (table2 [1]) == "boolean" and table2) then --> primeiro é dano e segundo é heal
+						--print (5)
+						return true --> passa o dano pra frente
+					elseif (type (table2 [1]) == "boolean" and table2 and type (table1 [1]) == "boolean" and table1) then --> primeiro é heal e o segundo é dano
+						--print (6)
+						return false --> passa o heal pra frente
+					else
+						--print (7)
+						return table1 [5] < table2 [5] --> passa quem tem menos vida
+					end
+				end
+			else
+				--print (8)
+				return table1 [4] < table2 [4]
+			end
+		end
+	
+	local function sort_error (error)
+		return error
+	end
+	
+	local death_table
+	function do_death_sort()
+		_table_sort (death_table, sort_dead)
+	end
+	
+	function parser:safe_sort_dead (t)
+		death_table = t
+		local status, error = xpcall (do_death_sort, sort_error)
+		if (not status) then
+			_table_sort (t, _detalhes.Sort4)
+		end
+	end
+	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> core
 
@@ -2517,7 +2534,6 @@
 	end
 	function _detalhes.parser_functions:ZONE_CHANGED_NEW_AREA (...)
 		local zoneName, zoneType, _, _, _, _, _, zoneMapID = _GetInstanceInfo()
-		
 		if (_detalhes.last_zone_type ~= zoneType) then
 			_detalhes:SendEvent ("ZONE_TYPE_CHANGED", nil, zoneType)
 			_detalhes.last_zone_type = zoneType

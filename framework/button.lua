@@ -401,6 +401,30 @@ local ButtonMetaFunctions = {}
 		else
 			self.icon:SetVertexColor (1, 1, 1, 1)
 		end
+		
+		local w = self.button:GetWidth()
+		local iconw = self.icon:GetWidth()
+		local text_width = self.button.text:GetStringWidth()
+		if (text_width > w-15-iconw) then
+			if (not short_method) then
+				local new_width = text_width+15+iconw
+				self.button:SetWidth (new_width)
+			elseif (short_method == 1) then
+				local loop = true
+				local textsize = 11
+				while (loop) do
+					if (text_width+15+iconw < w or textsize < 8) then
+						loop = false
+						break
+					else
+						_detalhes:SetFontSize (self.button.text, textsize)
+						text_width = self.button.text:GetStringWidth()
+						textsize = textsize - 1
+					end
+				end
+			end
+		end
+		
 	end
 	
 -- frame stratas
@@ -691,7 +715,7 @@ local ButtonMetaFunctions = {}
 ------------------------------------------------------------------------------------------------------------
 --> object constructor
 
-function gump:NewButton (parent, container, name, member, w, h, func, param1, param2, texture, text)
+function gump:NewButton (parent, container, name, member, w, h, func, param1, param2, texture, text, short_method)
 	
 	if (not name) then
 		return nil
@@ -766,10 +790,33 @@ function gump:NewButton (parent, container, name, member, w, h, func, param1, pa
 	ButtonObject.button.text:SetText (text)
 	ButtonObject.button.text:SetPoint ("center", ButtonObject.button, "center")
 	
+	local text_width = ButtonObject.button.text:GetStringWidth()
+	if (text_width > w-15) then
+		if (not short_method) then
+			local new_width = text_width+15
+			ButtonObject.button:SetWidth (new_width)
+		elseif (short_method == 1) then
+			local loop = true
+			local textsize = 11
+			while (loop) do
+				if (text_width+15 < w or textsize < 8) then
+					loop = false
+					break
+				else
+					_detalhes:SetFontSize (ButtonObject.button.text, textsize)
+					text_width = ButtonObject.button.text:GetStringWidth()
+					textsize = textsize - 1
+				end
+			end
+		end
+	end
+	
 	ButtonObject.func = func or cleanfunction
 	ButtonObject.funcright = cleanfunction
 	ButtonObject.param1 = param1
 	ButtonObject.param2 = param2
+	
+	ButtonObject.short_method = short_method
 	
 	--> hooks
 		ButtonObject.button:SetScript ("OnEnter", OnEnter)

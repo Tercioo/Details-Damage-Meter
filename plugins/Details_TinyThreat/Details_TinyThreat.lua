@@ -9,11 +9,14 @@ local _UnitDetailedThreatSituation = UnitDetailedThreatSituation
 local _IsInRaid = IsInRaid --> wow api
 local _IsInGroup = IsInGroup --> wow api
 local _UnitGroupRolesAssigned = UnitGroupRolesAssigned --> wow api
+local GetUnitName = GetUnitName
 
 local _ipairs = ipairs --> lua api
 local _table_sort = table.sort --> lua api
 local _cstr = string.format --> lua api
 local _unpack = unpack
+local _math_floor = math.floor
+local _math_abs = math.abs
 local RAID_CLASS_COLORS = RAID_CLASS_COLORS
 
 --> Create the plugin Object
@@ -56,6 +59,7 @@ local function CreatePluginFrames (data)
 			ThreatMeter:Cancel()
 		
 		elseif (event == "SHOW") then
+		
 			instance = ThreatMeter:GetInstance (ThreatMeter.instance_id)
 			
 			ThreatMeter.RowWidth = instance.baseframe:GetWidth()-6
@@ -70,6 +74,9 @@ local function CreatePluginFrames (data)
 			ThreatMeter.Actived = false
 
 			if (ThreatMeter:IsInCombat() or UnitAffectingCombat ("player")) then
+				if (not ThreatMeter.initialized) then
+					return
+				end
 				ThreatMeter.Actived = true
 				ThreatMeter:Start()
 			end
@@ -200,14 +207,6 @@ local function CreatePluginFrames (data)
 			return false
 		end
 	end
-	--[[
-						local percent = threat_actor [2]
-						if (percentagem >= 50) then
-							thisRow:SetColor ( percent/100, 1, 0, 1)
-						else
-							thisRow:SetColor ( 1, percent/100, 0, 1)
-						end	
---]]
 
 	local Threater = function()
 
@@ -229,9 +228,11 @@ local function CreatePluginFrames (data)
 					if (status) then
 						threat_table [2] = threatpct
 						threat_table [3] = isTanking
+						threat_table [6] = threatvalue
 					else
 						threat_table [2] = 0
 						threat_table [3] = false
+						threat_table [6] = 0
 					end
 
 				end
@@ -252,9 +253,11 @@ local function CreatePluginFrames (data)
 					if (status) then
 						threat_table [2] = threatpct
 						threat_table [3] = isTanking
+						threat_table [6] = threatvalue
 					else
 						threat_table [2] = 0
 						threat_table [3] = false
+						threat_table [6] = 0
 					end
 				end
 				
@@ -266,9 +269,11 @@ local function CreatePluginFrames (data)
 				if (status) then
 					threat_table [2] = threatpct
 					threat_table [3] = isTanking
+					threat_table [6] = threatvalue
 				else
 					threat_table [2] = 0
 					threat_table [3] = false
+					threat_table [6] = 0
 				end
 				
 			else
@@ -282,9 +287,11 @@ local function CreatePluginFrames (data)
 				if (status) then
 					threat_table [2] = threatpct
 					threat_table [3] = isTanking
+					threat_table [6] = threatvalue
 				else
 					threat_table [2] = 0
 					threat_table [3] = false
+					threat_table [6] = 0
 				end
 				
 				--> pet
@@ -298,9 +305,11 @@ local function CreatePluginFrames (data)
 						if (status) then
 							threat_table [2] = threatpct
 							threat_table [3] = isTanking
+							threat_table [6] = threatvalue
 						else
 							threat_table [2] = 0
 							threat_table [3] = false
+							threat_table [6] = 0
 						end
 					end
 				end
@@ -321,9 +330,39 @@ local function CreatePluginFrames (data)
 			local lastIndex = 0
 			local shownMe = false
 			
-			for index = 1, #ThreatMeter.ShownRows do
+			local pullRow = ThreatMeter.ShownRows [1]
+			local me = ThreatMeter.player_list_indexes [ ThreatMeter.player_list_hash [player] ]
+			if (me) then
+			
+				local myThreat = me [6] or 0
+				local myRole = me [4]
+				
+				local topThreat = ThreatMeter.player_list_indexes [1]
+				local aggro = topThreat [6] * (CheckInteractDistance ("target", 3) and 1.1 or 1.3)
+				
+				pullRow:SetLeftText ("Pull Aggro At")
+				local realPercent = _math_floor (aggro / topThreat [6] * 100)
+				pullRow:SetRightText ("+" .. ThreatMeter:ToK2 (aggro - myThreat) .. " (" .. _math_floor (_math_abs ((myThreat / aggro * 100) - realPercent)) .. "%)") --
+				--thisRow.textleft:SetTextColor ()
+				pullRow:SetValue (100)
+				
+				local myPercentToAggro = myThreat / aggro * 100
+				local r, g = myPercentToAggro / 100, (100-myPercentToAggro) / 100
+				pullRow:SetColor (r, g, 0)
+				pullRow._icon:SetTexture ([[Interface\PVPFrame\Icon-Combat]])
+				--pullRow._icon:SetVertexColor (r, g, 0)
+				pullRow._icon:SetTexCoord (0, 1, 0, 1)
+				
+				pullRow:Show()
+			else
+				if (pullRow) then
+					pullRow:Hide()
+				end
+			end
+			
+			for index = 2, #ThreatMeter.ShownRows do
 				local thisRow = ThreatMeter.ShownRows [index]
-				local threat_actor = ThreatMeter.player_list_indexes [index]
+				local threat_actor = ThreatMeter.player_list_indexes [index-1]
 				
 				if (threat_actor) then
 					local role = threat_actor [4]
@@ -336,15 +375,15 @@ local function CreatePluginFrames (data)
 					
 					local pct = threat_actor [2]
 					
-					thisRow:SetRightText (_cstr ("%.1f", pct).."%")
+					thisRow:SetRightText (ThreatMeter:ToK2 (threat_actor [6]) .. " (" .. _cstr ("%.1f", pct) .. "%)")
 					thisRow:SetValue (pct)
 					
-					if (index == 1) then
-						thisRow:SetColor (pct*0.01, math.abs (pct-100)*0.01, 0, 1)
+					if (index == 2) then
+						thisRow:SetColor (pct*0.01, _math_abs (pct-100)*0.01, 0, 1)
 					else
-						thisRow:SetColor (pct*0.01, math.abs (pct-100)*0.01, 0, .3)
+						thisRow:SetColor (pct*0.01, _math_abs (pct-100)*0.01, 0, .3)
 						if (pct >= 50) then
-							thisRow:SetColor ( 1, math.abs (pct - 100)/100, 0, 1)
+							thisRow:SetColor ( 1, _math_abs (pct - 100)/100, 0, 1)
 						else
 							thisRow:SetColor (pct/100, 1, 0, 1)
 						end
@@ -371,9 +410,9 @@ local function CreatePluginFrames (data)
 						--thisRow.textleft:SetTextColor (unpack (RAID_CLASS_COLORS [threat_actor [5]]))
 						local role = threat_actor [4]
 						thisRow._icon:SetTexCoord (_unpack (RoleIconCoord [role]))
-						thisRow:SetRightText (_cstr ("%.1f", threat_actor [2]).."%")
+						thisRow:SetRightText (ThreatMeter:ToK2 (threat_actor [6]) .. " (" .. _cstr ("%.1f", threat_actor [2]) .. "%)")
 						thisRow:SetValue (threat_actor [2])
-						thisRow:SetColor (threat_actor [2]*0.01, math.abs (threat_actor [2]-100)*0.01, 0, .3)
+						thisRow:SetColor (threat_actor [2]*0.01, _math_abs (threat_actor [2]-100)*0.01, 0, .3)
 					end
 				end
 			end
@@ -418,7 +457,7 @@ local function CreatePluginFrames (data)
 					local thisplayer_name = GetUnitName ("raid"..i, true)
 					local role = _UnitGroupRolesAssigned (thisplayer_name)
 					local _, class = UnitClass (thisplayer_name)
-					local t = {thisplayer_name, 0, false, role, class}
+					local t = {thisplayer_name, 0, false, role, class, 0}
 					ThreatMeter.player_list_indexes [#ThreatMeter.player_list_indexes+1] = t
 					ThreatMeter.player_list_hash [thisplayer_name] = #ThreatMeter.player_list_indexes
 				end
@@ -428,14 +467,14 @@ local function CreatePluginFrames (data)
 					local thisplayer_name = GetUnitName ("party"..i, true)
 					local role = _UnitGroupRolesAssigned (thisplayer_name)
 					local _, class = UnitClass (thisplayer_name)
-					local t = {thisplayer_name, 0, false, role, class}
+					local t = {thisplayer_name, 0, false, role, class, 0}
 					ThreatMeter.player_list_indexes [#ThreatMeter.player_list_indexes+1] = t
 					ThreatMeter.player_list_hash [thisplayer_name] = #ThreatMeter.player_list_indexes
 				end
 				local thisplayer_name = GetUnitName ("player", true)
 				local role = _UnitGroupRolesAssigned (thisplayer_name)
 				local _, class = UnitClass (thisplayer_name)
-				local t = {thisplayer_name, 0, false, role, class}
+				local t = {thisplayer_name, 0, false, role, class, 0}
 				ThreatMeter.player_list_indexes [#ThreatMeter.player_list_indexes+1] = t
 				ThreatMeter.player_list_hash [thisplayer_name] = #ThreatMeter.player_list_indexes
 				
@@ -443,14 +482,14 @@ local function CreatePluginFrames (data)
 				local thisplayer_name = GetUnitName ("player", true)
 				local role = _UnitGroupRolesAssigned (thisplayer_name)
 				local _, class = UnitClass (thisplayer_name)
-				local t = {thisplayer_name, 0, false, role, class}
+				local t = {thisplayer_name, 0, false, role, class, 0}
 				ThreatMeter.player_list_indexes [#ThreatMeter.player_list_indexes+1] = t
 				ThreatMeter.player_list_hash [thisplayer_name] = #ThreatMeter.player_list_indexes
 				
 				if (UnitExists ("pet")) then
 					local thispet_name = GetUnitName ("pet", true) .. " *PET*"
 					local role = "DAMAGER"
-					local t = {thispet_name, 0, false, role, class}
+					local t = {thispet_name, 0, false, role, class, 0}
 					ThreatMeter.player_list_indexes [#ThreatMeter.player_list_indexes+1] = t
 					ThreatMeter.player_list_hash [thispet_name] = #ThreatMeter.player_list_indexes
 				end
@@ -478,6 +517,74 @@ local function CreatePluginFrames (data)
 		ThreatMeter.Actived = false
 	end
 	
+end
+
+local build_options_panel = function()
+	local options_frame = CreateFrame ("frame", "ThreatMeterOptionsWindow", UIParent)
+	tinsert (UISpecialFrames, "ThreatMeterOptionsWindow")
+	options_frame:SetSize (500, 200)
+	options_frame:SetFrameStrata ("DIALOG")
+	options_frame:SetScript ("OnMouseDown", function(self, button)
+		if (button == "RightButton") then
+			if (self.moving) then 
+				self.moving = false
+				self:StopMovingOrSizing()
+			end
+			return options_frame:Hide()
+		elseif (button == "LeftButton" and not self.moving) then
+			self.moving = true
+			self:StartMoving()
+		end
+	end)
+	options_frame:SetScript ("OnMouseUp", function(self)
+		if (self.moving) then 
+			self.moving = false
+			self:StopMovingOrSizing()
+		end
+	end)
+	options_frame:SetMovable (true)
+	options_frame:EnableMouse (true)
+	options_frame:Hide()
+	options_frame:SetPoint ("center", UIParent, "center")
+	
+	options_frame:SetBackdrop ({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16,
+		edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", edgeSize = 32,
+		insets = {left = 5, right = 5, top = 5, bottom = 5}})
+	options_frame:SetBackdropColor (.3, .3, .3, .3)
+	
+	local title = ThreatMeter.gump:NewLabel (options_frame, nil, "$parentTitle", nil, "Tiny Threat Options", nil, 20, "yellow")
+	title:SetPoint (12, -13)
+	ThreatMeter:SetFontOutline (title, true)
+	
+	local c = CreateFrame ("Button", nil, options_frame, "UIPanelCloseButton")
+	c:SetWidth (32)
+	c:SetHeight (32)
+	c:SetPoint ("TOPRIGHT",  options_frame, "TOPRIGHT", -3, -3)
+	c:SetFrameLevel (options_frame:GetFrameLevel()+1)
+	
+	local menu = {
+		{
+			type = "range",
+			get = function() return ThreatMeter.saveddata.updatespeed end,
+			set = function (self, fixedparam, value) ThreatMeter.saveddata.updatespeed = value end,
+			min = 0.2,
+			max = 3,
+			step = 0.2,
+			desc = "How fast the window get updates.",
+			name = "Update Speed",
+			usedecimals = true,
+		},
+	}
+	
+	_detalhes.gump:BuildMenu (options_frame, menu, 15, -65, 260)
+
+end
+
+ThreatMeter.OpenOptionsPanel = function()
+	if (not ThreatMeterOptionsWindow) then
+		build_options_panel()
+	end
+	ThreatMeterOptionsWindow:Show()
 end
 
 function ThreatMeter:OnEvent (_, event, ...)
@@ -571,6 +678,8 @@ function ThreatMeter:OnEvent (_, event, ...)
 		
 					
 				end
+				
+				ThreatMeter.initialized = true
 				
 			end
 		end

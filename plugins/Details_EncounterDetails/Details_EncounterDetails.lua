@@ -1507,13 +1507,7 @@ function EncounterDetails:OnEvent (_, event, ...)
 					show_icon = 5, --automatic
 					hide_on_combat = false, --hide the window when a new combat start
 				}
-				
-				-- 1 = only when inside a raid map
-				-- 2 = only when in raid group
-				-- 3 = only after a boss encounter
-				-- 4 = always show
-				-- 5 = automatic show when have at least 1 encounter with boss
-				
+
 				--> Install
 				local install, saveddata, is_enabled = _G._detalhes:InstallPlugin (
 					PLUGIN_TYPE,

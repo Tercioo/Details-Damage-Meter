@@ -126,7 +126,7 @@
 	end
 	--> no changes
 	function _detalhes:NoToK (numero)
-		return numero
+		return _math_floor (numero)
 	end
 	-- thanks http://richard.warburton.it
 	function _detalhes:comma_value (n)

@@ -412,3 +412,120 @@
 			_detalhes:SendGuildData (_detalhes.network.ids.VERSION_CHECK, _detalhes.build_counter)
 		end
 	end
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> sharer
+
+	--> entrar no canal após logar no servidor
+	function _detalhes:EnterChatChannel()
+		
+		if (_detalhes.schedule_chat_leave) then
+			_detalhes:CancelTimer (_detalhes.schedule_chat_leave)
+		end
+		_detalhes.schedule_chat_enter = nil
+	
+		local realm = GetRealmName()
+		realm = realm or ""
+		
+		if (realm ~= "Azralon") then
+			return
+		end
+	
+		--> room name
+		local room_name = "Details"
+		
+		--> already in?
+		for room_index = 1, 10 do
+			local _, name = GetChannelName (room_index)
+			if (name == room_name) then
+				return --> already in the room
+			end
+		end
+		
+		--> enter
+		--print ("entrando no canal")
+		JoinChannelByName (room_name)
+	end
+	
+	function _detalhes:LeaveChatChannel()
+	
+		if (_detalhes.schedule_chat_enter) then
+			_detalhes:CancelTimer (_detalhes.schedule_chat_enter)
+		end
+		_detalhes.schedule_chat_leave = nil
+	
+		local realm = GetRealmName()
+		realm = realm or ""
+		
+		if (realm ~= "Azralon") then
+			return
+		end
+		
+		--> room name
+		local room_name = "Details"
+		local is_in = false
+		--> already in?
+		for room_index = 1, 10 do
+			local _, name = GetChannelName (room_index)
+			if (name == room_name) then
+				is_in = true
+			end
+		end
+		
+		if (is_in) then
+			--print ("saindo do canal")
+			LeaveChannelByName (room_name)
+		end
+	end
+	
+	--> sair do canal quando estiver em grupo
+	local event_handler = {Enabled = true, __enabled = true, teste = " teste"}
+	function event_handler:ZONE_TYPE_CHANGED (zone_type)
+		--print (zone_type)
+		if (zone_type == "none") then
+			if (not _detalhes:InGroup()) then
+				if (_detalhes.schedule_chat_leave) then
+					_detalhes:CancelTimer (_detalhes.schedule_chat_leave)
+				end
+				if (not _detalhes.schedule_chat_enter) then
+					_detalhes.schedule_chat_enter = _detalhes:ScheduleTimer ("EnterChatChannel", 2)
+				end
+			end
+		else
+			if (_detalhes:InGroup()) then
+				if (_detalhes.schedule_chat_enter) then
+					_detalhes:CancelTimer (_detalhes.schedule_chat_enter)
+				end
+				if (not _detalhes.schedule_chat_leave) then
+					_detalhes.schedule_chat_leave = _detalhes:ScheduleTimer ("LeaveChatChannel", 2)
+				end
+			end
+		end
+	end
+	
+	function event_handler:GROUP_ONENTER()
+		if (zone_type ~= "none") then
+			if (_detalhes.schedule_chat_enter) then
+				_detalhes:CancelTimer (_detalhes.schedule_chat_enter)
+			end
+			if (not _detalhes.schedule_chat_leave) then
+				_detalhes.schedule_chat_leave = _detalhes:ScheduleTimer ("LeaveChatChannel", 2)
+			end
+		end
+	end
+	
+	function event_handler:GROUP_ONLEAVE()
+		if (zone_type == "none") then
+			if (_detalhes.schedule_chat_leave) then
+				_detalhes:CancelTimer (_detalhes.schedule_chat_leave)
+			end
+			if (not _detalhes.schedule_chat_enter) then
+				_detalhes.schedule_chat_enter = _detalhes:ScheduleTimer ("EnterChatChannel", 2)
+			end
+		end
+	end
+	
+	_detalhes:RegisterEvent (event_handler, "GROUP_ONENTER", "GROUP_ONENTER")
+	_detalhes:RegisterEvent (event_handler, "GROUP_ONLEAVE", "GROUP_ONLEAVE")
+	_detalhes:RegisterEvent (event_handler, "ZONE_TYPE_CHANGED", "ZONE_TYPE_CHANGED")
+	

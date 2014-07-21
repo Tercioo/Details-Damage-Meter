@@ -7,6 +7,7 @@
 
 	local _
 	local _detalhes = _G._detalhes
+	local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
 	
 	--> mantain the enabled time captures
 	_detalhes.timeContainer = {}
@@ -231,31 +232,70 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> broker dps stuff
 
-	function _detalhes:BrokerTick()
-		local texttype = _detalhes.minimap.text_type
-		if (texttype == 1) then --dps
-			local time = _detalhes.tabela_vigente:GetCombatTime()
+	local broker_functions = {
+		-- raid dps [1]
+		function()
+			local combat = _detalhes.tabela_vigente
+			local time = combat:GetCombatTime()
 			if (not time or time == 0) then
-				_detalhes.databroker.text = 0
+				return 0
 			else
-				_detalhes.databroker.text = _detalhes:comma_value (_math_floor (_detalhes.tabela_vigente.totals_grupo[1] / time))
+				return _detalhes:comma_value (_math_floor (combat.totals_grupo[1] / time))
 			end
-			
-		elseif (texttype == 2) then --hps
-			local time = _detalhes.tabela_vigente:GetCombatTime()
+		end,
+		-- raid hps [2]
+		function()
+			local combat = _detalhes.tabela_vigente
+			local time = combat:GetCombatTime()
 			if (not time or time == 0) then
-				_detalhes.databroker.text = 0
+				return 0
 			else
-				_detalhes.databroker.text = _detalhes:comma_value (_math_floor (_detalhes.tabela_vigente.totals_grupo[2] / time))
+				return _detalhes:comma_value (_math_floor (combat.totals_grupo[2] / time))
 			end
-			
+		end,
+		-- elapsed time
+		function()
+			local combat_time = _detalhes.tabela_vigente:GetCombatTime()
+			local minutos, segundos = _math_floor (combat_time / 60), _math_floor (combat_time % 60)
+			return minutos .. "m " .. segundos .. "s"
+		end,
+		-- player dps
+		function()
+			local player_actor = _detalhes.tabela_vigente (1, _detalhes.playername)
+			if (player_actor) then
+				local combat_time = _detalhes.tabela_vigente:GetCombatTime()
+				return Loc ["STRING_ATTRIBUTE_DAMAGE_DPS"] .. ": " .. _math_floor (player_actor.total / combat_time)
+			else
+				return 0
+			end
+		end,
+		-- player hps
+		function()
+			local player_actor = _detalhes.tabela_vigente (2, _detalhes.playername)
+			if (player_actor) then
+				local combat_time = _detalhes.tabela_vigente:GetCombatTime()
+				return Loc ["STRING_ATTRIBUTE_HEAL_HPS"] .. ": " .. _math_floor (player_actor.total / combat_time)
+			else
+				return 0
+			end
+		end,
+	}
+	
+	local broker_generic_func = function()
+		local func = _detalhes.minimap.text_func
+		if (func) then
+			return func()
 		else
-			if (_detalhes.minimap.text_func) then
-				_detalhes.databroker.text = _detalhes.minimap.text_func()
-			else
-				_detalhes.databroker.text = 0
-			end
+			return 0
 		end
-		
+	end
+
+	function _detalhes:BrokerTick()
+		local func = broker_functions [_detalhes.minimap.text_type]
+		if (func) then
+			_detalhes.databroker.text = func()
+		else
+			_detalhes.databroker.text = broker_generic_func()
+		end
 	end
 	

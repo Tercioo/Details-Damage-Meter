@@ -43,10 +43,11 @@ do
 		options_frame.TitleText:SetText ("Encounter Details Options")
 		options_frame.portrait:SetTexture ([[Interface\CHARACTERFRAME\TEMPORARYPORTRAIT-FEMALE-BLOODELF]])
 		
--- 1 = only when inside a raid map
--- 2 = only when in raid group
--- 3 = only after a boss encounter
--- 4 = always show
+		-- 1 = only when inside a raid map
+		-- 2 = only when in raid group
+		-- 3 = only after a boss encounter
+		-- 4 = always show
+		-- 5 = automatic show when have at least 1 encounter with boss
 		
 		local set = function (_, _, value) 
 			EncounterDetails.db.show_icon = value 

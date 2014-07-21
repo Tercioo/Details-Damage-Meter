@@ -16,19 +16,19 @@ function SlashCmdList.DETAILS (msg, editbox)
 
 	local command, rest = msg:match("^(%S*)%s*(.-)$")
 	
-	if (command == Loc ["STRING_SLASH_NEW"]) then
+	if (command == Loc ["STRING_SLASH_NEW"] or command == "new") then
 		_detalhes:CriarInstancia (nil, true)
 		
-	elseif (command == Loc ["STRING_SLASH_HIDE"] or command == Loc ["STRING_SLASH_HIDE_ALIAS1"]) then
+	elseif (command == Loc ["STRING_SLASH_HIDE"] or command == Loc ["STRING_SLASH_HIDE_ALIAS1"] or command == "hide") then
 		_detalhes:ShutDownAllInstances()
 	
-	elseif (command == Loc ["STRING_SLASH_SHOW"] or command == Loc ["STRING_SLASH_SHOW_ALIAS1"]) then
+	elseif (command == Loc ["STRING_SLASH_SHOW"] or command == Loc ["STRING_SLASH_SHOW_ALIAS1"] or command == "show") then
 		_detalhes:ReabrirTodasInstancias()
 	
-	elseif (command == Loc ["STRING_SLASH_WIPECONFIG"]) then
+	elseif (command == Loc ["STRING_SLASH_WIPECONFIG"] or command == "reinstall") then
 		_detalhes:WipeConfig()
 	
-	elseif (command == Loc ["STRING_SLASH_DISABLE"]) then
+	elseif (command == Loc ["STRING_SLASH_DISABLE"] or command == "disable") then
 	
 		_detalhes:CaptureSet (false, "damage", true)
 		_detalhes:CaptureSet (false, "heal", true)
@@ -37,7 +37,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 		_detalhes:CaptureSet (false, "aura", true)
 		print (Loc ["STRING_DETAILS1"] .. Loc ["STRING_SLASH_CAPTUREOFF"])
 	
-	elseif (command == Loc ["STRING_SLASH_ENABLE"]) then
+	elseif (command == Loc ["STRING_SLASH_ENABLE"] or command == "enable") then
 	
 		_detalhes:CaptureSet (true, "damage", true)
 		_detalhes:CaptureSet (true, "heal", true)
@@ -46,7 +46,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 		_detalhes:CaptureSet (true, "aura", true)
 		print (Loc ["STRING_DETAILS1"] .. Loc ["STRING_SLASH_CAPTUREON"])
 	
-	elseif (command == Loc ["STRING_SLASH_OPTIONS"]) then
+	elseif (command == Loc ["STRING_SLASH_OPTIONS"] or command == "options") then
 	
 		if (rest and tonumber (rest)) then
 			local instanceN = tonumber (rest)
@@ -66,7 +66,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 			
 		end
 	
-	elseif (command == Loc ["STRING_SLASH_WORLDBOSS"]) then
+	elseif (command == Loc ["STRING_SLASH_WORLDBOSS"] or command == "worldboss") then
 		
 		--local questIds = {Galleon = 32098, Sha = 32099, Oondasta = 32519, Celestials = 33117, Ordos = 33118, Nalak = 32518}
 		local questIds = {{"The Celestials", 33117}, {"Ordos", 33118}, {"Nalak", 32518}, {"Oondasta", 32519}, {"Salyis's Warband (Galleon)", 32098}, {"Sha of Anger", 32099}}
@@ -74,14 +74,13 @@ function SlashCmdList.DETAILS (msg, editbox)
 			print (format ("%s: \124cff%s\124r", _table [1], IsQuestFlaggedCompleted (_table [2]) and "ff0000"..Loc ["STRING_KILLED"] or "00ff00"..Loc ["STRING_ALIVE"]))
 		end
 		
-	elseif (command == Loc ["STRING_SLASH_CHANGES"] or command == Loc ["STRING_SLASH_CHANGES_ALIAS1"] or command == Loc ["STRING_SLASH_CHANGES_ALIAS2"]) then
+	elseif (command == Loc ["STRING_SLASH_CHANGES"] or command == Loc ["STRING_SLASH_CHANGES_ALIAS1"] or command == Loc ["STRING_SLASH_CHANGES_ALIAS2"] or command == "news" or command == "updates") then
 		_detalhes:OpenNewsWindow()
 	
 -------- debug ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-	elseif (msg == "chatmsg") then
+	elseif (msg == "chat") then
 	
-		SendChatMessage("[RCELVA]"..RC.version.."_"..id.."_announce_"..time().."_", "CHANNEL", nil, RC:getChanID(GetChannelList()))
 	
 	elseif (msg == "chaticon") then
 		_detalhes:Msg ("|TInterface\\AddOns\\Details\\images\\icones_barra:" .. 14 .. ":" .. 14 .. ":0:0:256:32:0:32:0:32|tteste")

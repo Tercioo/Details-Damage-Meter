@@ -76,18 +76,19 @@ local common_events = {
 	["COMBAT_BOSS_FOUND"] = true,
 	["GROUP_ONENTER"] = true,
 	["GROUP_ONLEAVE"] = true,
+	["ZONE_TYPE_CHANGED"] = true,
 }
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> register a event
 
 	function _detalhes:RegisterEvent (object, event, func)
-		
+
 		if (not _detalhes.RegistredEvents [event]) then
 			if (object.Msg) then
-				object:Msg ("(debug) unknown event", event)
+				object:DelayMsg ("(debug) unknown event", event)
 			else
-				_detalhes:Msg ("(debug) unknown event", event)
+				_detalhes:DelayMsg ("(debug) unknown event", event)
 			end
 			return
 		end
@@ -197,12 +198,10 @@ local common_events = {
 	function _detalhes:SendEvent (event, object, ...)
 
 		--> send event to all registred plugins
-		
 		if (event == "PLUGIN_DISABLED" or event == "PLUGIN_ENABLED") then
 			return object:OnDetailsEvent (event, ...)
 		
 		elseif (not object) then
-		
 			for _, PluginObject in ipairs (_detalhes.RegistredEvents[event]) do
 				if (PluginObject.__eventtable) then
 					if (PluginObject [1].Enabled and PluginObject [1].__enabled) then

@@ -2,7 +2,6 @@
 ## Title: Details You Are Not Prepared (plugin)
 ## Notes: Plugin for Details
 ## RequiredDeps: Details
-## SavedVariablesPerCharacter: _detalhes_databaseYANP
 ## OptionalDeps: Ace3
 
 #@no-lib-strip@

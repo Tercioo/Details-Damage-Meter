@@ -374,30 +374,9 @@ function _G._detalhes:Start()
 	
 	--BNSendFriendInvite ("tercio#1488")
 
-	function _detalhes:EnterChatChannel()
-	
-		local realm = GetRealmName()
-		realm = realm or ""
-		
-		if (realm ~= "Azralon") then
-			return
-		end
-	
-		--> room name
-		local room_name = "Details"
-		
-		--> already in?
-		for room_index = 1, 10 do
-			local _, name = GetChannelName (room_index)
-			if (name == room_name) then
-				return --> already in the room
-			end
-		end
-		
-		--> enter
-		JoinChannelByName (room_name)
+	if (not _detalhes.schedule_chat_enter and not _detalhes.schedule_chat_leave) then
+		_detalhes.schedule_chat_enter = _detalhes:ScheduleTimer ("EnterChatChannel", 30)
 	end
-	_detalhes:ScheduleTimer ("EnterChatChannel", 30)
 	
 end
 

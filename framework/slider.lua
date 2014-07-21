@@ -338,7 +338,8 @@ local SliderMetaFunctions = {}
 		slider.thumb:SetAlpha (1)
 	
 		if (slider.MyObject.have_tooltip and slider.MyObject.have_tooltip ~= Loc ["STRING_RIGHTCLICK_TYPEVALUE"]) then
-			GameCooltip:Reset()
+			--GameCooltip:Reset()
+			_detalhes:CooltipPreset (2)
 			GameCooltip:AddLine (slider.MyObject.have_tooltip)
 			GameCooltip:ShowCooltip (slider, "tooltip")
 		else

@@ -169,6 +169,21 @@ function gump:BuildMenu (parent, menu, x_offset, y_offset, height)
 			if (size > max_x) then
 				max_x = size
 			end
+			
+		elseif (widget_table.type == "range" or widget_table.type == "slider") then
+			local is_decimanls = widget_table.usedecimals
+			local slider = self:NewSlider (parent, nil, "$parentWidget" .. index, nil, 140, 20, widget_table.min, widget_table.max, widget_table.step, widget_table.get(),  is_decimanls)
+			slider.tooltip = widget_table.desc
+			slider:SetHook ("OnValueChange", widget_table.set)
+			
+			local label = self:NewLabel (parent, nil, "$parentLabel" .. index, nil, widget_table.name, "GameFontNormal", 12)
+			slider:SetPoint ("left", label, "right", 2)
+			label:SetPoint (cur_x, cur_y)
+			
+			local size = label.widget:GetStringWidth() + 60 + 4
+			if (size > max_x) then
+				max_x = size
+			end
 		end
 	
 		cur_y = cur_y - 20

@@ -1,5 +1,6 @@
 local _detalhes = _G._detalhes
 local g = _detalhes.gump
+local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
 local _
 
 	local window = g:NewPanel (UIParent, nil, "DetailsImageEdit", nil, 100, 100, false)
@@ -219,20 +220,20 @@ local _
 			window [side.."Slider"]:Show()
 		end
 		
-		local leftTexCoordButton = g:NewButton (buttonsBackground, nil, "$parentLeftTexButton", nil, 100, 20, enableTexEdit, "left", nil, nil, "Crop Left")
+		local leftTexCoordButton = g:NewButton (buttonsBackground, nil, "$parentLeftTexButton", nil, 100, 20, enableTexEdit, "left", nil, nil, Loc ["STRING_IMAGEEDIT_CROPLEFT"], 1)
 		leftTexCoordButton:SetPoint ("topright", buttonsBackground, "topright", -8, -10)
-		local rightTexCoordButton = g:NewButton (buttonsBackground, nil, "$parentRightTexButton", nil, 100, 20, enableTexEdit, "right", nil, nil, "Crop Right")
+		local rightTexCoordButton = g:NewButton (buttonsBackground, nil, "$parentRightTexButton", nil, 100, 20, enableTexEdit, "right", nil, nil, Loc ["STRING_IMAGEEDIT_CROPRIGHT"], 1)
 		rightTexCoordButton:SetPoint ("topright", buttonsBackground, "topright", -8, -30)
-		local topTexCoordButton = g:NewButton (buttonsBackground, nil, "$parentTopTexButton", nil, 100, 20, enableTexEdit, "top", nil, nil, "Crop Top")
+		local topTexCoordButton = g:NewButton (buttonsBackground, nil, "$parentTopTexButton", nil, 100, 20, enableTexEdit, "top", nil, nil, Loc ["STRING_IMAGEEDIT_CROPTOP"], 1)
 		topTexCoordButton:SetPoint ("topright", buttonsBackground, "topright", -8, -50)
-		local bottomTexCoordButton = g:NewButton (buttonsBackground, nil, "$parentBottomTexButton", nil, 100, 20, enableTexEdit, "bottom", nil, nil, "Crop Bottom")
+		local bottomTexCoordButton = g:NewButton (buttonsBackground, nil, "$parentBottomTexButton", nil, 100, 20, enableTexEdit, "bottom", nil, nil, Loc ["STRING_IMAGEEDIT_CROPBOTTOM"], 1)
 		bottomTexCoordButton:SetPoint ("topright", buttonsBackground, "topright", -8, -70)
 		leftTexCoordButton:InstallCustomTexture()
 		rightTexCoordButton:InstallCustomTexture()
 		topTexCoordButton:InstallCustomTexture()
 		bottomTexCoordButton:InstallCustomTexture()
 		
-		local Alpha = g:NewButton (buttonsBackground, nil, "$parentBottomAlphaButton", nil, 100, 20, alpha, nil, nil, nil, "Transparency")
+		local Alpha = g:NewButton (buttonsBackground, nil, "$parentBottomAlphaButton", nil, 100, 20, alpha, nil, nil, nil, Loc ["STRING_IMAGEEDIT_ALPHA"], 1)
 		Alpha:SetPoint ("topright", buttonsBackground, "topright", -8, -115)
 		Alpha:InstallCustomTexture()
 		
@@ -283,7 +284,7 @@ local _
 			end
 		end
 		
-		local changeColorButton = g:NewButton (buttonsBackground, nil, "$parentOverlayColorButton", nil, 100, 20, changeColor, nil, nil, nil, "Overlay Color")
+		local changeColorButton = g:NewButton (buttonsBackground, nil, "$parentOverlayColorButton", nil, 100, 20, changeColor, nil, nil, nil, Loc ["STRING_IMAGEEDIT_COLOR"], 1)
 		changeColorButton:SetPoint ("topright", buttonsBackground, "topright", -8, -95)
 		changeColorButton:InstallCustomTexture()
 		
@@ -392,11 +393,11 @@ local _
 			end
 		end
 		
-		local flipButtonH = g:NewButton (buttonsBackground, nil, "$parentFlipButton", nil, 100, 20, flip, 1, nil, nil, "Flip Horizontal")
+		local flipButtonH = g:NewButton (buttonsBackground, nil, "$parentFlipButton", nil, 100, 20, flip, 1, nil, nil, Loc ["STRING_IMAGEEDIT_FLIPH"], 1)
 		flipButtonH:SetPoint ("topright", buttonsBackground, "topright", -8, -140)
 		flipButtonH:InstallCustomTexture()
 		--
-		local flipButtonV = g:NewButton (buttonsBackground, nil, "$parentFlipButton2", nil, 100, 20, flip, 2, nil, nil, "Flip Vertical")
+		local flipButtonV = g:NewButton (buttonsBackground, nil, "$parentFlipButton2", nil, 100, 20, flip, 2, nil, nil, Loc ["STRING_IMAGEEDIT_FLIPV"], 1)
 		flipButtonV:SetPoint ("topright", buttonsBackground, "topright", -8, -160)
 		flipButtonV:InstallCustomTexture()
 		
@@ -432,7 +433,7 @@ local _
 			return window.callback_func (edit_texture.width, edit_texture.height, {edit_texture:GetVertexColor()}, edit_texture:GetAlpha(), coords, window.extra_param)
 		end
 		
-		local acceptButton = g:NewButton (buttonsBackground, nil, "$parentAcceptButton", nil, 100, 20, window.accept, nil, nil, nil, "DONE")
+		local acceptButton = g:NewButton (buttonsBackground, nil, "$parentAcceptButton", nil, 100, 20, window.accept, nil, nil, nil, Loc ["STRING_IMAGEEDIT_DONE"], 1)
 		acceptButton:SetPoint ("topright", buttonsBackground, "topright", -8, -200)
 		acceptButton:InstallCustomTexture()
 		

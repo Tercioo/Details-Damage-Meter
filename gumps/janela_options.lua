@@ -286,7 +286,7 @@ function _detalhes:OpenOptionsWindow (instance, no_reopen)
 		
 		local hide_3d_world = CreateFrame ("CheckButton", "DetailsOptionsWindowDisable3D", window.widget, "ChatConfigCheckButtonTemplate")
 		hide_3d_world:SetPoint ("bottomleft", window.widget, "bottomleft", 28, 7)
-		DetailsOptionsWindowDisable3DText:SetText ("Interface Edit Mode")
+		DetailsOptionsWindowDisable3DText:SetText (Loc ["STRING_OPTIONS_INTERFACEDIT"])
 		DetailsOptionsWindowDisable3DText:ClearAllPoints()
 		DetailsOptionsWindowDisable3DText:SetPoint ("left", hide_3d_world, "right", -2, 1)
 		DetailsOptionsWindowDisable3DText:SetTextColor (1, 0.8, 0)
@@ -377,7 +377,7 @@ function _detalhes:OpenOptionsWindow (instance, no_reopen)
 			end
 			
 		end
-		local fillbars = g:NewButton (window, _, "$parentCreateExampleBarsButton", nil, 110, 14, fill_bars, nil, nil, nil, "Create Test Bars")
+		local fillbars = g:NewButton (window, _, "$parentCreateExampleBarsButton", nil, 110, 14, fill_bars, nil, nil, nil, Loc ["STRING_OPTIONS_TESTBARS"])
 		fillbars:SetPoint ("bottomleft", window.widget, "bottomleft", 200, 12)
 		--fillbars:InstallCustomTexture()
 		
@@ -390,36 +390,41 @@ function _detalhes:OpenOptionsWindow (instance, no_reopen)
 		--_detalhes:SetFontSize (right_click_close.widget, 12)
 		
 	--> left panel buttons
-		
+
 local menus = { --labels nos menus
-	{"Display", "Combat", "Tooltips", "Data Feed", "Profiles"},
-	{"Skin Selection", "Row Settings", "Row Texts", "Show & Hide Settings", "Window Settings", "Title Text", "Menus: Left Buttons", "Menus: Right Buttons", "Wallpaper", "Miscellaneous"},
-	{"Data Collector", "Performance Tweaks", "Plugins Management", "Spell Customization", "Data for Charts"}
+	{Loc ["STRING_OPTIONSMENU_DISPLAY"], Loc ["STRING_OPTIONSMENU_COMBAT"], Loc ["STRING_OPTIONSMENU_TOOLTIP"], Loc ["STRING_OPTIONSMENU_DATAFEED"], Loc ["STRING_OPTIONSMENU_PROFILES"]},
+	
+	{Loc ["STRING_OPTIONSMENU_SKIN"], Loc ["STRING_OPTIONSMENU_ROWSETTINGS"], Loc ["STRING_OPTIONSMENU_ROWTEXTS"], Loc ["STRING_OPTIONSMENU_SHOWHIDE"], 
+	Loc ["STRING_OPTIONSMENU_WINDOW"], Loc ["STRING_OPTIONSMENU_TITLETEXT"], Loc ["STRING_OPTIONSMENU_LEFTMENU"], Loc ["STRING_OPTIONSMENU_RIGHTMENU"], 
+	Loc ["STRING_OPTIONSMENU_WALLPAPER"], Loc ["STRING_OPTIONSMENU_MISC"]},
+	
+	{Loc ["STRING_OPTIONSMENU_DATACOLLECT"], Loc ["STRING_OPTIONSMENU_PERFORMANCE"], Loc ["STRING_OPTIONSMENU_PLUGINS"], Loc ["STRING_OPTIONSMENU_SPELLS"], 
+	Loc ["STRING_OPTIONSMENU_DATACHART"]}
 }
 
-		local menus2 = {
-			"Display", --1
-			"Combat", --2
-			"Skin Selection", --3
-			"Row Settings", --4
-			"Row Texts", --5
-			"Window Settings", --6
-			"Menus: Left Buttons", --7
-			"Menus: Right Buttons", --8
-			"Wallpaper", --9
-			"Performance Tweaks",--10
-			"Data Collector", --11
-			"Plugins Management",--12
-			"Profiles", --13
-			"Title Text", --14
-			"Spell Customization", --15
-			"Data for Charts", --16
-			"Show & Hide Settings", --17
-			"Miscellaneous", --18
-			"Data Feed", --19
-			"Tooltip", --20
-		}
-		
+	local menus2 = {
+		Loc ["STRING_OPTIONSMENU_DISPLAY"], --1
+		Loc ["STRING_OPTIONSMENU_COMBAT"], --2
+		Loc ["STRING_OPTIONSMENU_SKIN"], --3
+		Loc ["STRING_OPTIONSMENU_ROWSETTINGS"], --4
+		Loc ["STRING_OPTIONSMENU_ROWTEXTS"], --5
+		Loc ["STRING_OPTIONSMENU_WINDOW"], --6
+		Loc ["STRING_OPTIONSMENU_LEFTMENU"], --7
+		Loc ["STRING_OPTIONSMENU_RIGHTMENU"], --8
+		Loc ["STRING_OPTIONSMENU_WALLPAPER"], --9
+		Loc ["STRING_OPTIONSMENU_PERFORMANCE"],--10
+		Loc ["STRING_OPTIONSMENU_DATACOLLECT"], --11
+		Loc ["STRING_OPTIONSMENU_PLUGINS"],--12
+		Loc ["STRING_OPTIONSMENU_PROFILES"], --13
+		Loc ["STRING_OPTIONSMENU_TITLETEXT"], --14
+		Loc ["STRING_OPTIONSMENU_SPELLS"], --15
+		Loc ["STRING_OPTIONSMENU_DATACHART"], --16
+		Loc ["STRING_OPTIONSMENU_SHOWHIDE"], --17
+		Loc ["STRING_OPTIONSMENU_MISC"], --18
+		Loc ["STRING_OPTIONSMENU_DATAFEED"], --19
+		Loc ["STRING_OPTIONSMENU_TOOLTIP"], --20
+	}
+
 		local select_options = function (options_type, true_index)
 			
 			window:hide_all_options()
@@ -688,7 +693,7 @@ local menus = { --labels nos menus
 			container_slave:SetMovable (true)
 			
 			container_window:SetWidth (663)
-			container_window:SetHeight (500)
+			container_window:SetHeight (470)
 			container_window:SetScrollChild (container_slave)
 			container_window:SetPoint ("TOPLEFT", window.widget, "TOPLEFT", 198, -88)
 
@@ -923,10 +928,24 @@ local menus = { --labels nos menus
 			end
 			
 			return f
-		end		
+		end
 		
 		function window:CreateLineBackground2 (frame, widget_name, label_name, desc_loc, icon, is_button1, is_button2)
-		
+			
+			local label
+			if (type (label_name) == "table") then
+				label = label_name
+			else
+				label = frame [label_name]
+			end
+			if (label:GetObjectType() == "FontString") then
+				if (label:GetStringWidth() > 200) then
+					_detalhes:SetFontSize (label, 10)
+				elseif (label:GetStringWidth() > 150) then
+					_detalhes:SetFontSize (label, 11)
+				end
+			end
+			
 			if (type (widget_name) == "table") then
 				widget_name.info = desc_loc
 				widget_name.have_tooltip = desc_loc
@@ -1457,7 +1476,7 @@ function window:CreateFrame19()
 	--> broker
 		--anchor
 		g:NewLabel (frame19, _, "$parentHotcornerAnchor", "brokerAnchorLabel", Loc ["STRING_OPTIONS_DATABROKER"], "GameFontNormal")
-		
+
 		--broker text
 			do
 				g:NewLabel (frame19, _, "$parentBrokerTextLabel", "brokerTextLabel", Loc ["STRING_OPTIONS_DATABROKER_TEXT"], "GameFontHighlightLeft")
@@ -1466,8 +1485,16 @@ function window:CreateFrame19()
 				end
 				local build_menu = function()
 					return {
+						--raid dps
 						{value = 1, label = Loc ["STRING_OPTIONS_DATABROKER_TEXT1"], onclick = on_select, icon = "Interface\\AddOns\\Details\\images\\atributos_icones", texcoord = {0, 0.125, 0, 1}},
+						--raid hps
 						{value = 2, label = Loc ["STRING_OPTIONS_DATABROKER_TEXT2"], onclick = on_select, icon = "Interface\\AddOns\\Details\\images\\atributos_icones", texcoord = {0.125, 0.25, 0, 1}},
+						--combat time
+						{value = 3, label = Loc ["STRING_OPTIONS_DATABROKER_TEXT3"], onclick = on_select, icon = [[Interface\COMMON\mini-hourglass]], texcoord = {0, 1, 0, 1}},
+						--player dps
+						{value = 4, label = Loc ["STRING_OPTIONS_DATABROKER_TEXT4"], onclick = on_select, icon = _detalhes.sub_atributos[1].icones[2][1], texcoord = _detalhes.sub_atributos[1].icones[2][2]},
+						--player hps
+						{value = 5, label = Loc ["STRING_OPTIONS_DATABROKER_TEXT5"], onclick = on_select, icon = _detalhes.sub_atributos[2].icones[2][1], texcoord = _detalhes.sub_atributos[2].icones[2][2]},
 					}
 				end
 				local dropdown = g:NewDropDown (frame19, _, "$parentBrokerTextDropdown", "brokerTextDropdown", 160, 20, build_menu, _detalhes.minimap.text_type)
@@ -3060,8 +3087,8 @@ function window:CreateFrame1()
 
 	--> Max Segments
 	
-		local titulo_display = g:NewLabel (frame1, _, "$parentTituloDisplay", "tituloDisplayLabel", "Display", "GameFontNormal", 16) --> localize-me
-		local titulo_display_desc = g:NewLabel (frame1, _, "$parentTituloDisplay2", "tituloDisplay2Label", "Preferencial adjustments of instances (windows).", "GameFontNormal", 9, "white") --> localize-me
+		local titulo_display = g:NewLabel (frame1, _, "$parentTituloDisplay", "tituloDisplayLabel", Loc ["STRING_OPTIONSMENU_DISPLAY"], "GameFontNormal", 16) --> localize-me
+		local titulo_display_desc = g:NewLabel (frame1, _, "$parentTituloDisplay2", "tituloDisplay2Label", Loc ["STRING_OPTIONSMENU_DISPLAY_DESC"], "GameFontNormal", 9, "white") --> localize-me
 		titulo_display_desc.width = 320
 		
 		g:NewLabel (frame1, _, "$parentSliderLabel", "segmentsLabel", Loc ["STRING_OPTIONS_MAXSEGMENTS"], "GameFontHighlightLeft")
@@ -3146,14 +3173,14 @@ function window:CreateFrame1()
 		local icon = [[Interface\COMMON\mini-hourglass]]
 		local iconcolor = {1, 1, 1, .5}
 		local abbreviationOptions = {
-			{value = 1, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_NONE"], desc = "Example: 305.500 -> 305500", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor}, --, desc = ""
-			{value = 2, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOK"], desc = "Example: 305.500 -> 305.5K", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor}, --, desc = ""
-			{value = 3, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOK2"], desc = "Example: 305.500 -> 305K", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor}, --, desc = ""
-			{value = 4, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOK0"], desc = "Example: 25.305.500 -> 25M", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor}, --, desc = ""
-			{value = 5, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOKMIN"], desc = "Example: 305.500 -> 305.5k", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor}, --, desc = ""
-			{value = 6, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOK2MIN"], desc = "Example: 305.500 -> 305k", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor}, --, desc = ""
-			{value = 7, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOK0MIN"], desc = "Example: 25.305.500 -> 25m", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor}, --, desc = ""
-			{value = 8, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_COMMA"], desc = "Example: 25305500 -> 25.305.500", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor} --, desc = ""
+			{value = 1, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_NONE"], desc = Loc ["STRING_EXAMPLE"] .. ": 305.500 -> 305500", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor}, --, desc = ""
+			{value = 2, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOK"], desc = Loc ["STRING_EXAMPLE"] .. ": 305.500 -> 305.5K", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor}, --, desc = ""
+			{value = 3, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOK2"], desc = Loc ["STRING_EXAMPLE"] .. ": 305.500 -> 305K", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor}, --, desc = ""
+			{value = 4, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOK0"], desc = Loc ["STRING_EXAMPLE"] .. ": 25.305.500 -> 25M", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor}, --, desc = ""
+			{value = 5, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOKMIN"], desc = Loc ["STRING_EXAMPLE"] .. ": 305.500 -> 305.5k", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor}, --, desc = ""
+			{value = 6, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOK2MIN"], desc = Loc ["STRING_EXAMPLE"] .. ": 305.500 -> 305k", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor}, --, desc = ""
+			{value = 7, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOK0MIN"], desc = Loc ["STRING_EXAMPLE"] .. ": 25.305.500 -> 25m", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor}, --, desc = ""
+			{value = 8, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_COMMA"], desc = Loc ["STRING_EXAMPLE"] .. ": 25305500 -> 25.305.500", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor} --, desc = ""
 		}
 		local buildAbbreviationMenu = function()
 			return abbreviationOptions
@@ -3223,7 +3250,7 @@ function window:CreateFrame1()
 		local buttons_width = 140
 		
 		--lock unlock
-			g:NewButton (frame1, _, "$parentLockButton", "LockButton", buttons_width, 18, _detalhes.lock_instance_function, nil, nil, nil, Loc ["STRING_OPTIONS_WC_LOCK"])
+			g:NewButton (frame1, _, "$parentLockButton", "LockButton", buttons_width, 18, _detalhes.lock_instance_function, nil, nil, nil, Loc ["STRING_OPTIONS_WC_LOCK"], 1)
 			frame1.LockButton:InstallCustomTexture()
 			window:CreateLineBackground2 (frame1, "LockButton", "LockButton", Loc ["STRING_OPTIONS_WC_LOCK_DESC"], nil, {1, 0.8, 0}, {1, 1, 1})
 			
@@ -3231,7 +3258,7 @@ function window:CreateFrame1()
 			frame1.LockButton:SetTextColor (1, 1, 1, 1)
 			
 		--break snap
-			g:NewButton (frame1, _, "$parentBreakSnapButton", "BreakSnapButton", buttons_width, 18, _G.DetailsOptionsWindow.instance.Desagrupar, -1, nil, nil, Loc ["STRING_OPTIONS_WC_UNSNAP"])
+			g:NewButton (frame1, _, "$parentBreakSnapButton", "BreakSnapButton", buttons_width, 18, _G.DetailsOptionsWindow.instance.Desagrupar, -1, nil, nil, Loc ["STRING_OPTIONS_WC_UNSNAP"], 1)
 			frame1.BreakSnapButton:InstallCustomTexture()
 			window:CreateLineBackground2 (frame1, "BreakSnapButton", "BreakSnapButton", Loc ["STRING_OPTIONS_WC_UNSNAP_DESC"], nil, {1, 0.8, 0}, {1, 1, 1})
 			
@@ -3239,7 +3266,7 @@ function window:CreateFrame1()
 			frame1.BreakSnapButton:SetTextColor (1, 1, 1, 1)
 
 		--close
-			g:NewButton (frame1, _, "$parentCloseButton", "CloseButton", buttons_width, 18, _detalhes.close_instancia_func, _G.DetailsOptionsWindow.instance, nil, nil, Loc ["STRING_OPTIONS_WC_CLOSE"])
+			g:NewButton (frame1, _, "$parentCloseButton", "CloseButton", buttons_width, 18, _detalhes.close_instancia_func, _G.DetailsOptionsWindow.instance, nil, nil, Loc ["STRING_OPTIONS_WC_CLOSE"], 1)
 			frame1.CloseButton:InstallCustomTexture()
 			window:CreateLineBackground2 (frame1, "CloseButton", "CloseButton", Loc ["STRING_OPTIONS_WC_CLOSE_DESC"], nil, {1, 0.8, 0}, {1, 1, 1})
 			
@@ -3247,7 +3274,7 @@ function window:CreateFrame1()
 			frame1.CloseButton:SetTextColor (1, 1, 1, 1)
 			
 		--create
-			g:NewButton (frame1, _, "$parentCreateWindowButton", "CreateWindowButton", buttons_width, 18, function() _detalhes.CriarInstancia (nil, nil, true) end, nil, nil, nil, Loc ["STRING_OPTIONS_WC_CREATE"])
+			g:NewButton (frame1, _, "$parentCreateWindowButton", "CreateWindowButton", buttons_width, 18, function() _detalhes.CriarInstancia (nil, nil, true) end, nil, nil, nil, Loc ["STRING_OPTIONS_WC_CREATE"], 1)
 			frame1.CreateWindowButton:InstallCustomTexture()
 			window:CreateLineBackground2 (frame1, "CreateWindowButton", "CreateWindowButton", Loc ["STRING_OPTIONS_WC_CREATE_DESC"], nil, {1, 0.8, 0}, {1, 1, 1})
 			
@@ -4061,7 +4088,7 @@ function window:CreateFrame3()
 			_detalhes:Msg (Loc ["STRING_OPTIONS_SAVELOAD_STDSAVE"])
 		end
 
-		g:NewButton (frame3, _, "$parentToAllStyleButton", "applyToAll", 160, 18, applyToAll, nil, nil, nil, Loc ["STRING_OPTIONS_SAVELOAD_APPLYTOALL"])
+		g:NewButton (frame3, _, "$parentToAllStyleButton", "applyToAll", 160, 18, applyToAll, nil, nil, nil, Loc ["STRING_OPTIONS_SAVELOAD_APPLYTOALL"], 1)
 		frame3.applyToAll:InstallCustomTexture()
 		g:NewButton (frame3, _, "$parentMakeDefaultButton", "makeDefault", 160, 18, makeDefault, nil, nil, nil, Loc ["STRING_OPTIONS_SAVELOAD_MAKEDEFAULT"])
 		frame3.makeDefault:InstallCustomTexture()
@@ -6367,10 +6394,7 @@ function window:CreateFrame9()
 				close:SetSize (32, 32)
 				close:SetPoint ("topright", f, "topright", -3, -1)
 
-				local okey = CreateFrame ("button", "DetailsLoadWallpaperImageOkey", f, "OptionsButtonTemplate")
-				okey:SetPoint ("left", editbox.widget, "right", 2, 0)
-				okey:SetText (Loc ["STRING_OPTIONS_WALLPAPER_LOAD_OKEY"])
-				okey:SetScript ("OnClick", function() 
+				local okey_func = function() 
 					local text = editbox:GetText()
 					if (text == "") then
 						return
@@ -6382,18 +6406,21 @@ function window:CreateFrame9()
 					instance:InstanceWallpaper (path, "all", 0.50, {0, 1, 0, 1}, 256, 256, {1, 1, 1, 1})
 					_detalhes:OpenOptionsWindow (instance)
 					window:update_wallpaper_info()
-				end)
+				end
+				local okey = g:NewButton (f, _, "$parentOkeyButton", nil, 105, 20, okey_func, nil, nil, nil, Loc ["STRING_OPTIONS_WALLPAPER_LOAD_OKEY"], 1)
+				okey:SetPoint ("left", editbox.widget, "right", 2, 0)
+				okey:InstallCustomTexture()
 				
-				local throubleshoot = CreateFrame ("button", "DetailsLoadWallpaperImageOkey", f, "OptionsButtonTemplate")
-				throubleshoot:SetPoint ("left", okey, "right", 2, 0)
-				throubleshoot:SetText (Loc ["STRING_OPTIONS_WALLPAPER_LOAD_TROUBLESHOOT"])
-				throubleshoot:SetScript ("OnClick", function() 
+				local throubleshoot_func = function() 
 					if (t:GetText() == Loc ["STRING_OPTIONS_WALLPAPER_LOAD_EXCLAMATION"]) then
 						t:SetText (Loc ["STRING_OPTIONS_WALLPAPER_LOAD_TROUBLESHOOT_TEXT"])
 					else
 						DetailsLoadWallpaperImage.t:SetText (Loc ["STRING_OPTIONS_WALLPAPER_LOAD_EXCLAMATION"])
 					end
-				end)
+				end
+				local throubleshoot = g:NewButton (f, _, "$parentThroubleshootButton", nil, 105, 20, throubleshoot_func, nil, nil, nil, Loc ["STRING_OPTIONS_WALLPAPER_LOAD_TROUBLESHOOT"], 1)
+				throubleshoot:SetPoint ("left", okey, "right", 2, 0)
+				throubleshoot:InstallCustomTexture()
 			end
 			
 			DetailsLoadWallpaperImage.t:SetText (Loc ["STRING_OPTIONS_WALLPAPER_LOAD_EXCLAMATION"])
@@ -7026,6 +7053,12 @@ function window:CreateFrame12()
 			end
 		end
 		
+		if (pluginObject.OpenOptionsPanel) then
+			g:NewButton (bframe, nil, "$parentOptionsButton"..i, "OptionsButton"..i, 86, 16, pluginObject.OpenOptionsPanel, nil, nil, nil, Loc ["STRING_OPTIONS_PLUGINS_OPTIONS"])
+			bframe ["OptionsButton"..i]:SetPoint ("topleft", frame4, "topleft", 510, y-2)
+			bframe ["OptionsButton"..i]:InstallCustomTexture()
+		end
+		
 		i = i + 1
 		y = y - 20
 	end
@@ -7095,6 +7128,12 @@ function window:CreateFrame12()
 					end
 				end
 			end
+		end
+		
+		if (pluginObject.OpenOptionsPanel) then
+			g:NewButton (bframe, nil, "$parentOptionsButton"..i, "OptionsButton"..i, 86, 16, pluginObject.OpenOptionsPanel, nil, nil, nil, Loc ["STRING_OPTIONS_PLUGINS_OPTIONS"])
+			bframe ["OptionsButton"..i]:SetPoint ("topleft", frame4, "topleft", 510, y-2)
+			bframe ["OptionsButton"..i]:InstallCustomTexture()
 		end
 		
 		i = i + 1
