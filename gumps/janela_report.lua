@@ -185,6 +185,26 @@ local _UISpecialFrames = UISpecialFrames --> wow api locals
 --> build report frame gump -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 --> script
+	local savepos = function (self)
+		local xofs, yofs = self:GetCenter() 
+		local scale = self:GetEffectiveScale()
+		local UIscale = UIParent:GetScale()
+		xofs = xofs * scale - GetScreenWidth() * UIscale / 2
+		yofs = yofs * scale - GetScreenHeight() * UIscale / 2
+		local x = xofs / UIscale
+		local y = yofs / UIscale
+		_detalhes.report_pos [1] = x
+		_detalhes.report_pos [2] = y
+	end
+	local restorepos = function (self)
+		local x, y = _detalhes.report_pos [1], _detalhes.report_pos [2]
+		local scale = self:GetEffectiveScale() 
+		local UIscale = UIParent:GetScale()
+		x = x * UIscale / scale
+		y = y * UIscale / scale
+		self:ClearAllPoints()
+		self:SetPoint ("center", UIParent, "center", x, y)
+	end
 	local function seta_scripts (este_gump)
 		--> Janela
 		este_gump:SetScript ("OnMouseDown", 
@@ -199,6 +219,7 @@ local _UISpecialFrames = UISpecialFrames --> wow api locals
 						function (self)
 							if (self.isMoving) then
 								self:StopMovingOrSizing()
+								savepos (self)
 								self.isMoving = false
 							end
 						end)
@@ -207,16 +228,6 @@ local _UISpecialFrames = UISpecialFrames --> wow api locals
 --> dropdown menus
 
 local function cria_drop_down (este_gump)
-
-		--local selecionar = _CreateFrame ("Button", "Details_Report_DropDown", este_gump, "UIDropDownMenuTemplate")
-		--este_gump.select = selecionar
-		--selecionar:SetPoint ("topleft", este_gump, "topleft", 93, -53)
-
-		--local function OnClick (self)
-		--	_UIDropDownMenu_SetSelectedID (selecionar, self:GetID())
-		--	_detalhes.report_where = self.value
-		--end
-
 --[[
 Emote: 255 251 255
 Yell: 255 63 64
@@ -325,9 +336,39 @@ local lista = {
 				end
 			end
 		end
-
-		_detalhes.report_where = "WHISPER"
-
+		
+		function select_output:CheckValid()
+			
+			local last_selected = _detalhes.report_where
+			local check_func
+			for i, t in ipairs (lista) do
+				if (t[2] == last_selected) then
+					check_func = t[3]
+					break
+				end
+			end
+			
+			if (check_func) then
+				local is_shown = check_func()
+				if (is_shown) then
+					select_output:Select (last_selected)
+				else
+					if (IsInRaid()) then
+						select_output:Select ("RAID")
+					elseif (IsInParty()) then
+						select_output:Select ("PARTY")
+					elseif (IsInGuild()) then
+						select_output:Select ("GUILD")
+					else
+						select_output:Select ("SAY")
+					end
+				end
+			else
+				select_output:Select (last_selected)
+			end
+		end
+		
+		select_output:CheckValid()
 	end
 
 --> slider
@@ -526,26 +567,21 @@ local lista = {
 	function gump:CriaJanelaReport()
 		
 		local este_gump = _CreateFrame ("Frame", "DetailsReportWindow", _UIParent)
+		este_gump:SetPoint ("CENTER", UIParent, "CENTER")
 		este_gump:SetFrameStrata ("HIGH")
 
 		_tinsert (_UISpecialFrames, este_gump:GetName())
 		
 		este_gump:SetScript ("OnHide", function (self)
-			--[[ avoid taint problems
-			if (not este_gump.hidden or este_gump.fading_in) then --> trick to fade an window closed by pressing escape
-				este_gump:Show()
-				gump:Fade (este_gump, "in")
-			end
-			--]]
 			_detalhes.janela_report.ativa = false
 		end)
-		
-		este_gump:SetPoint ("CENTER", UIParent)
+
 		este_gump:SetWidth (320)
 		este_gump:SetHeight (128)
 		este_gump:EnableMouse (true)
 		este_gump:SetResizable (false)
 		este_gump:SetMovable (true)
+		restorepos (este_gump)
 
 		_detalhes.janela_report = este_gump
 		

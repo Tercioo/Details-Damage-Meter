@@ -208,6 +208,9 @@ local LabelMetaFunctions = {}
 
 ------------------------------------------------------------------------------------------------------------
 --> object constructor
+function gump:CreateLabel (parent, text, size, color, font, member, name)
+	return gump:NewLabel (parent, nil, name, member, text, font, size, color)
+end
 
 function gump:NewLabel (parent, container, name, member, text, font, size, color)
 
@@ -224,6 +227,8 @@ function gump:NewLabel (parent, container, name, member, text, font, size, color
 	end
 	
 	if (name:find ("$parent")) then
+		local pname = parent:GetName()
+		assert (pname, "label used $parent but parent has no name.")
 		name = name:gsub ("$parent", parent:GetName())
 	end
 	

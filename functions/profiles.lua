@@ -632,8 +632,6 @@ local default_player_data = {
 	--> plugins tables
 		SoloTablesSaved = {},
 		RaidTablesSaved = {},
-	--> switch tables
-		switchSaved = {slots = 6, table = {}},
 	--> saved skins
 		savedStyles = {},
 }
@@ -649,6 +647,11 @@ local default_global_data = {
 		savedCustomSpells = {},
 		savedTimeCaptures = {},
 		lastUpdateWarning = 0,
+		report_where = "SAY",
+	--> switch tables
+		switchSaved = {slots = 6, table = {}},
+		report_pos = {1, 1},
+	--> tutorial
 		tutorial = {
 			logons = 0, 
 			unlock_button = 0, 

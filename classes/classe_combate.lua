@@ -1,8 +1,9 @@
 -- combat class object
 
 	local _detalhes = 		_G._detalhes
+	local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
 	local _
-
+	
 --[[global]] DETAILS_TOTALS_ONLYGROUP = true
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -14,6 +15,7 @@
 	local _bit_band = bit.band -- lua local
 	local _date = date -- lua local
 	local _table_remove = table.remove -- lua local
+	local _rawget = rawget
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> constants
@@ -53,7 +55,19 @@
 	end
 	
 	function combate:IsTrash()
-		return self.is_trash
+		return _rawget (self, "is_trash")
+	end
+	
+	function combate:GetDifficult()
+		return self.is_boss and self.is_boss.diff
+	end
+	
+	function combate:GetBossInfo()
+		return self.is_boss
+	end
+	
+	function combate:GetDeaths()
+		return self.last_events_tables
 	end
 	
 	--return the name of the encounter or enemy
@@ -62,7 +76,7 @@
 			return self.is_pvp.name
 		elseif (self.is_boss) then
 			return self.is_boss.encounter
-		elseif (self.is_tras) then
+		elseif (_rawget (self, "is_trash")) then
 			return Loc ["STRING_SEGMENT_TRASH"]
 		else
 			if (self.enemy) then
@@ -149,8 +163,11 @@
 		esta_tabela.data_fim = 0
 		esta_tabela.data_inicio = 0
 		
-		--> record last event before dead
+		--> record deaths
 		esta_tabela.last_events_tables = {}
+		
+		--> last events from players
+		esta_tabela.player_last_events = {}
 		
 		--> players in the raid
 		esta_tabela.raid_roster = {}
@@ -235,6 +252,14 @@
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> core
+
+	function combate:CreateLastEventsTable (player_name)
+		--> sixteen indexes, thinking in 32 but it's just too much
+		local t = { {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {} }
+		t.n = 1
+		self.player_last_events [player_name] = t
+		return t
+	end
 
 	--trava o tempo dos jogadores após o término do combate.
 	function combate:TravarTempos()

@@ -191,7 +191,7 @@
 	end
 
 	--> unpack more than 1 table
-	-- thanks http://www.dzone.com/snippets/lua-unpack-multiple-tables
+	-- http://www.dzone.com/snippets/lua-unpack-multiple-tables
 	function _detalhes:unpacks (...)
 		local values = {}
 		for i = 1, select ('#', ...) do
@@ -202,10 +202,21 @@
 		return unpack (values)
 	end
 
-	--> trim thanks from http://lua-users.org/wiki/StringTrim
+	--> trim http://lua-users.org/wiki/StringTrim
 	function _detalhes:trim (s)
 		local from = s:match"^%s*()"
 		return from > #s and "" or s:match(".*%S", from)
+	end
+	
+	--> reverse numerical table
+	function _detalhes:reverse_table (t)
+		local new = {}
+		local index = 1
+		for i = #t, 1, -1 do
+			new [index] = t[i]
+			index = index + 1
+		end
+		return new
 	end
 
 -- lua base64 codec (c) 2006-2008 by Alex Kloss - http://www.it-rfc.de - licensed under the terms of the LGPL2 - http://lua-users.org/wiki/BaseSixtyFour

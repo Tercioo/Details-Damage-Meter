@@ -83,6 +83,7 @@
 		
 		YouAreNotPreparedFrame:SetScript ("OnMouseUp", function (self, button)
 			if (button == "RightButton") then
+				YouAreNotPrepared.db.rightclick_closed = true
 				YouAreNotPreparedFrame:Hide()
 			else
 				if (YouAreNotPreparedFrame.isMoving) then
@@ -107,9 +108,9 @@
 		c:SetHeight (32)
 		c:SetPoint ("TOPRIGHT",  YouAreNotPreparedFrame, "TOPRIGHT", 1, -15)
 		c:SetFrameLevel (YouAreNotPreparedFrame:GetFrameLevel()+1)
-		
+
 		--background image	
-		local b = DetailsFrameWork:NewImage (YouAreNotPreparedFrame, [[Interface\AddOns\Details_YouAreNotPrepared\background]], 512, 256, nil, nil, nil, "$parentBackground")
+		local b = DetailsFrameWork:NewImage (YouAreNotPreparedFrame, [[Interface\AddOns\Details_YouAreNotPrepared\background]], 512, 256, "background", nil, nil, "$parentBackground")
 		b:SetPoint ("topleft", YouAreNotPreparedFrame, "topleft")
 		
 		--title
@@ -118,6 +119,24 @@
 		t:SetPoint ("top", YouAreNotPreparedFrame, "top", 20, -26)
 		t:SetPoint ("center", YouAreNotPreparedFrame, "center", 0, 0)
 
+		local on_mouse_down = function (self, button)
+			if (button == "RightButton" and not YouAreNotPreparedFrame.isMoving) then
+				YouAreNotPrepared.db.rightclick_closed = true
+				YouAreNotPreparedFrame:Hide()
+			else
+				if (not YouAreNotPreparedFrame.isMoving) then
+					YouAreNotPreparedFrame:StartMoving()
+					YouAreNotPreparedFrame.isMoving = true
+				end
+			end
+		end
+		local on_mouse_up = function (self, button)
+			if (YouAreNotPreparedFrame.isMoving) then
+				YouAreNotPreparedFrame:StopMovingOrSizing()
+				YouAreNotPreparedFrame.isMoving = false
+			end
+		end
+		
 		--bar container
 		local container_bars = CreateFrame ("frame", "Details_YouAreNotPrepared_FauxScroll_Box", YouAreNotPreparedFrame)
 		container_bars:SetPoint ("topleft", YouAreNotPreparedFrame, "topleft", 23, -80)
@@ -127,22 +146,37 @@
 		container_bars:SetBackdropColor (.1, .1, .1, .2)
 		YouAreNotPrepared.container_bars = container_bars
 		
+		container_bars:SetScript ("OnMouseDown", on_mouse_down)
+		container_bars:SetScript ("OnMouseUp", on_mouse_up)
+		
 		container_bars.bars = {}
 		
-		local MouseUpCloseHook = function (_, button)
+		local MouseDownCloseHook = function (_, button)
 			if (button == "RightButton") then
+				YouAreNotPrepared.db.rightclick_closed = true
 				YouAreNotPreparedFrame:Hide()
-				return true --> interrupt
+				return true --> interrupt hook
 			end
 		end
 		
+		local on_enter_bar = function (self)
+			if (self.MyObject.spellid) then
+				GameTooltip:SetOwner (self, "ANCHOR_TOPLEFT")
+				GameTooltip:SetSpellByID (self.MyObject.spellid)
+				GameTooltip:Show()
+			end
+		end
+		local on_leave_bar = function (self)
+			GameTooltip:Hide()
+		end
+
 		function container_bars:CreateChild()
 		
 			local bar_number = #self.bars + 1
 			
 			local bar = DetailsFrameWork:NewPanel (self, YouAreNotPreparedFrame, "$parentBar" .. bar_number, nil, 250, BAR_HEIGHT)
 			bar:SetPoint ("topleft", self, "topleft", 1, bar_number*13*-1+9)
-			bar:SetHook ("OnMouseUp", MouseUpCloseHook)
+			bar:SetHook ("OnMouseDown", MouseDownCloseHook)
 			bar.locked = false
 			bar.backdrop = nil
 			bar.hide = true
@@ -154,6 +188,14 @@
 			YouAreNotPrepared:SetFontFace (statusbar.textleft, "GameFontHighlightSmall")
 			YouAreNotPrepared:SetFontFace (statusbar.textleft, "GameFontNormal")
 			
+			statusbar:SetHook ("OnEnter", on_enter_bar)
+			statusbar:SetHook ("OnLeave", on_leave_bar)
+			statusbar:SetHook ("OnMouseDown", on_mouse_down)
+			statusbar:SetHook ("OnMouseUp", on_mouse_up)
+			
+			bar:SetHook ("OnMouseDown", on_mouse_down)
+			bar:SetHook ("OnMouseUp", on_mouse_up)
+			
 			container_bars.bars [bar_number] = bar
 			
 			return bar
@@ -161,6 +203,8 @@
 		
 		function container_bars:UpdateChild (bar_number, data, time_of_death, max_health)
 		
+			--> death parser
+			
 			local spellname, _, icon = _GetSpellInfo (data[2])
 			local bar = container_bars.bars [bar_number]
 			
@@ -171,18 +215,22 @@
 					hp = 100
 				end
 
-				if (data[1]) then --> damage
-					if (data[3] and type (data [1]) == "boolean") then --> is a real damage, not a battle ress and its not a last cooldown line
-						bar.statusbar.textleft:SetText (string.format ("%.1f", data [4] - time_of_death) .. "s " .. spellname .. " (" .. data [6] .. ")")
-						bar.statusbar.textright:SetText ("-" .. YouAreNotPrepared:ToK (data [3]) .. " (" .. hp .. "%)")
-						bar.statusbar._icon:SetTexture (icon)
+				if (data[1] and type (data [1]) == "boolean") then --> damage
+					bar.statusbar.textleft:SetText (string.format ("%.1f", data [4] - time_of_death) .. "s " .. spellname .. " (" .. data [6] .. ")")
+					bar.statusbar.textright:SetText ("-" .. YouAreNotPrepared:ToK (data [3]) .. " (" .. hp .. "%)")
+					bar.statusbar._icon:SetTexture (icon)
+					if (data [9]) then
+						bar.statusbar.color = "darkorange"
+					else
 						bar.statusbar.color = "red"
-						bar.statusbar.background:SetVertexColor (1, 0, 0, .2)
-						bar.statusbar.textleft:SetWidth (250 - bar.statusbar.textright:GetStringWidth() - 20)
-						bar.statusbar.value = hp
-						return true
 					end
-				else
+					bar.statusbar.background:SetVertexColor (1, 0, 0, .2)
+					bar.statusbar.textleft:SetWidth (250 - bar.statusbar.textright:GetStringWidth() - 20)
+					bar.statusbar.value = hp
+					bar.statusbar.spellid = data[2]
+					return true
+					
+				elseif (not data[1] and type (data [1]) == "boolean") then --> healing
 					bar.statusbar.textleft:SetText (string.format ("%.1f", data [4] - time_of_death) .. "s " .. spellname .. " (" .. data [6] .. ")")
 					bar.statusbar.textright:SetText ("+" .. YouAreNotPrepared:ToK (data [3]) .. " (" .. hp .. "%)")
 					bar.statusbar._icon:SetTexture (icon)
@@ -190,7 +238,9 @@
 					bar.statusbar.background:SetVertexColor (0, 1, 0, .2)
 					bar.statusbar.textleft:SetWidth (250 - bar.statusbar.textright:GetStringWidth() - 20)
 					bar.statusbar.value = hp
+					bar.statusbar.spellid = data[2]
 					return true
+					
 				end
 			end
 			
@@ -228,6 +278,25 @@
 		scrollbar:SetScript ("OnVerticalScroll", function (self, offset) FauxScrollFrame_OnVerticalScroll (self, offset, BAR_HEIGHT, refresh_function) end)
 		scrollbar:SetPoint ("topleft", YouAreNotPreparedFrame, "topleft", 23, -80)
 		scrollbar:SetSize (250, 138)
+		scrollbar:SetScript ("OnMouseDown", function (self, button)
+			if (button == "RightButton" and not YouAreNotPreparedFrame.isMoving) then
+				YouAreNotPrepared.db.rightclick_closed = true
+				YouAreNotPreparedFrame:Hide()
+			else
+				if (not YouAreNotPreparedFrame.isMoving) then
+					YouAreNotPreparedFrame:StartMoving()
+					YouAreNotPreparedFrame.isMoving = true
+				end
+			end
+		end)
+		scrollbar:SetScript ("OnMouseUp", function (self, button)
+			if (button == "LeftButton") then
+				if (YouAreNotPreparedFrame.isMoving) then
+					YouAreNotPreparedFrame:StopMovingOrSizing()
+					YouAreNotPreparedFrame.isMoving = false
+				end
+			end
+		end)
 
 		container_bars:EnableMouse (true)
 		
@@ -350,6 +419,38 @@
 
 			_detalhes:InstanceAlert (Loc ["STRING_PLUGIN_ALERT"], {[[Interface\ICONS\Achievement_Boss_Illidan]], 14, 14, false, 0.8984375, 0.0546875, 0.0546875, 0.8984375}, YouAreNotPrepared.db.shown_time, {YouAreNotPrepared.ShowMeFromInstanceAlert})
 		end
+		
+		--auto open box
+		local autoopen_checkbox = CreateFrame ("CheckButton", "YANP_AutoOpenCheckBox", YouAreNotPreparedFrame, "ChatConfigCheckButtonTemplate")
+		autoopen_checkbox:SetPoint ("bottomleft", container_bars, "topleft", 45, -1)
+		local text = _G ["YANP_AutoOpenCheckBoxText"]
+		text:SetText ("Auto Open")
+		autoopen_checkbox:SetFrameLevel (YouAreNotPreparedFrame:GetFrameLevel()+5)
+		--YouAreNotPrepared:SetFontSize (text, 10)
+		text:ClearAllPoints()
+		text:SetPoint ("left", autoopen_checkbox, "right", -2, 1)
+		--checkbox.tooltip = Loc ["STRING_REPORTFRAME_CURRENTINFO"]
+		autoopen_checkbox:SetHitRectInsets (0, -60, 0, 0)
+		autoopen_checkbox:SetScript ("PostClick", function(self)
+			if (self:GetChecked()) then
+				YouAreNotPrepared.db.auto_open = true
+			else
+				YouAreNotPrepared.db.auto_open = false
+			end
+		end)
+		YouAreNotPrepared:SetFontColor (text, "greenyellow")
+		
+	--> open options
+		local options_button = CreateFrame ("button", nil, YouAreNotPreparedFrame)
+		options_button:SetPoint ("left", text, "right", 2, 0)
+		options_button:SetSize (18, 18)
+		options_button:SetAlpha (0.8)
+		options_button:SetNormalTexture ([[Interface\Buttons\UI-OptionsButton]])
+		options_button:SetHighlightTexture ([[Interface\Buttons\UI-OptionsButton]])
+		options_button:SetPushedTexture ([[Interface\Buttons\UI-OptionsButton]])
+		options_button:SetScript ("OnClick", YouAreNotPrepared.OpenOptionsPanel)
+		local right_text = YouAreNotPrepared.gump:CreateLabel (YouAreNotPreparedFrame, "Options", nil, "greenyellow", "GameFontHighlight", "optionstext", "$parentOptionsText")
+		right_text:SetPoint ("left", options_button, "right", 2, 0)
 	end
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -385,6 +486,10 @@
 
 		if (alvo_name == YouAreNotPrepared.playername) then
 			local combat = YouAreNotPrepared:GetCombat ("current")
+
+			--> store death
+			local d = YouAreNotPrepared:reverse_table (death_table)
+			death_table = d
 			
 			if (combat.is_boss) then --> encounter or pvp
 				YouAreNotPrepared.last_death_combat_id = YouAreNotPrepared.combat_id
@@ -457,8 +562,9 @@
 					
 					local default_settings = {
 						shown_time = 30, --
-						auto_open = false, --
+						auto_open = true, --
 						hide_on_combat = true, --
+						rightclick_closed = false,
 						deaths_table = {}
 					}
 					
@@ -470,12 +576,22 @@
 					
 					YouAreNotPrepared.db = saveddata
 
+					YANP_AutoOpenCheckBox:SetChecked (saveddata.auto_open)
+					
 					--> register needed events
 					_G._detalhes:RegisterEvent (YouAreNotPrepared, "DETAILS_DATA_RESET")
 					_G._detalhes:RegisterEvent (YouAreNotPrepared, "COMBAT_PLAYER_LEAVE")
 					
 					--> register needed hooks
 					_G._detalhes:InstallHook (DETAILS_HOOK_DEATH, YouAreNotPrepared.OnDeath)
+					
+					--> create right click to close
+					if (not YouAreNotPrepared.db.rightclick_closed) then
+						local right_click = YouAreNotPrepared.gump:NewImage (YouAreNotPreparedFrame, [[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]], 16, 18, "overlay", {8/512, 70/512, 328/512, 409/512})
+						right_click:SetPoint ("left", _G [YouAreNotPreparedFrame:GetName() .. "OptionsText"], "right", 2, 0)
+						local right_text = YouAreNotPrepared.gump:CreateLabel (YouAreNotPreparedFrame, "Right Click to Close", nil, "greenyellow", "GameFontHighlight", "rightclicktext", "$parentRightClickText")
+						right_text:SetPoint ("left", right_click, "right", 2, 0)
+					end
 					
 					--> install slash command
 					SLASH_Details_YouAreNotPrepared1 = "/yanp"

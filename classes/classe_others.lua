@@ -171,63 +171,65 @@ function _detalhes:ToolTipDead (instancia, morte, esta_barra, keydown)
 	GameCooltip:AddLine (Loc ["STRING_REPORT_LEFTCLICK"], nil, 1, _unpack (self.click_to_report_color))
 	GameCooltip:AddIcon ([[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]], 1, 1, 12, 16, 0.015625, 0.13671875, 0.4375, 0.59765625)
 	GameCooltip:AddStatusBar (0, 1, 1, 1, 1, 1, false, {value = 100, color = {.3, .3, .3, 1}, specialSpark = false, texture = [[Interface\AddOns\Details\images\bar_serenity]]})
-
-	for index, evento in _ipairs (eventos) do 
 	
-		local hp = _math_floor (evento[5]/hp_max*100)
+	--death parser
+	for index, event in _ipairs (eventos) do 
+	
+		local hp = _math_floor (event[5]/hp_max*100)
 		if (hp > 100) then 
 			hp = 100
 		end
 		
-		if (evento [1]) then --> Dano
-			--print ("DANO|"..evento [4]-hora_da_morte.."|"..evento [2].."|"..evento [3]) --> {true, spellid, amount, _tempo}
-			local nome_magia, _, icone_magia = _GetSpellInfo (evento [2])
-			
-			if (evento[3]) then 
-				local amt_golpes = evento[7]
-				if (amt_golpes)  then
-					amt_golpes = "(x"..amt_golpes..") "
-				else
-					amt_golpes = ""
-				end
-				
-				if (type (evento [1]) ~= "boolean" and evento [1] == 2) then --> last cooldown
-					lastcooldown = evento
-				else
-					--> [1] left text [2] right text [3] main 1 or sub 2 [...] color
-					GameCooltip:AddLine ("".._cstr ("%.1f", evento[4] - hora_da_morte) .."s "..amt_golpes..nome_magia.." ("..evento[6]..")", "-".._detalhes:ToK (evento[3]).." (".. hp .."%)", 1, "white", "white")
-					--> [1] icon [2] main 1 or sub 2 [3] left or right [4,5] width height [...] texcoord
-					GameCooltip:AddIcon (icone_magia) --, 1, 1, nil, nil, 0.078125, 0.921875, 0.078125, 0.921875
-					
-					--> [1] value [2] main 1 or sub 2 [...] color [4] glow
-					if (type (evento [1]) ~= "boolean" and evento [1] == 1) then --> cooldown
-						GameCooltip:AddStatusBar (100, 1, "yellow", true)
-					else
-						GameCooltip:AddStatusBar (hp, 1, "red", true)
-					end
-				end
+		local evtype = event [1]
+		local spellname, _, spellicon = _GetSpellInfo (event [2])
+		local amount = event [3]
+		local time = event [4]
+		local source = event [6]
 
-			elseif (not battleress) then --> battle ress
-				battleress = evento
+		if (type (evtype) == "boolean") then
+			--> is damage or heal
+			if (evtype) then
+				--> damage
+				GameCooltip:AddLine ("" .. _cstr ("%.1f", time - hora_da_morte) .. "s " .. spellname .. " (" .. source .. ")", "-" .. _detalhes:ToK (amount) .. " (" .. hp .. "%)", 1, "white", "white")
+				GameCooltip:AddIcon (spellicon)
+				
+				if (event [9]) then
+					--> friendly fire
+					GameCooltip:AddStatusBar (hp, 1, "darkorange", true)
+				else
+					--> from a enemy
+					GameCooltip:AddStatusBar (hp, 1, "red", true)
+				end
+			else
+				--> heal
+				GameCooltip:AddLine ("" .. _cstr ("%.1f", time - hora_da_morte) .. "s " .. spellname .. " (" .. source .. ")", "+" .. _detalhes:ToK (amount) .. " (" .. hp .. "%)", 1, "white", "white")
+				GameCooltip:AddIcon (spellicon)
+				GameCooltip:AddStatusBar (hp, 1, "green", true)
 				
 			end
 			
-		else --> Cura
-			local nome_magia, _, icone_magia = _GetSpellInfo (evento [2])
-			GameCooltip:AddLine ("".._cstr ("%.1f", evento[4] - hora_da_morte) .."s "..nome_magia.." ("..evento[6]..")", "+".._detalhes:ToK (evento[3]).." (".. hp .."%)", 1, "white", "white")
-			GameCooltip:AddIcon (icone_magia) --, 1, 1, nil, nil, 0.0625, 0.9375, 0.0625, 0.9375
-			GameCooltip:AddStatusBar (hp, 1, "green", true)
+		elseif (type (evtype) == "number") then
+			if (evtype == 1) then
+				--> cooldown
+				GameCooltip:AddLine ("" .. _cstr ("%.1f", time - hora_da_morte) .. "s " .. spellname .. " (" .. source .. ")", "cooldown (" .. hp .. "%)", 1, "white", "white")
+				GameCooltip:AddIcon (spellicon)
+				GameCooltip:AddStatusBar (100, 1, "yellow", true)
+				
+			elseif (evtype == 2 and not battleress) then
+				--> battle ress
+				battleress = event
+				
+			elseif (evtype == 3) then
+				--> last cooldown used
+				lastcooldown = event
+				
+			end
 		end
 	end
-	
 
-	--_table_insert (linhas, 2, {{"Interface\\AddOns\\Details\\images\\small_icons", .75, 1, 0, 1}, morte [6] .. " Morreu", "-- -- -- ", 100, {75/255, 75/255, 75/255, 1}, {noglow = true}}) --> localize-me
 	GameCooltip:AddLine (morte [6] .. " " .. Loc ["STRING_TIME_OF_DEATH"] , "-- -- -- ", 1, "white")
 	GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\small_icons", 1, 1, nil, nil, .75, 1, 0, 1)
 	GameCooltip:AddStatusBar (0, 1, .5, .5, .5, .5, false, {value = 100, color = {.5, .5, .5, 1}, specialSpark = false, texture = [[Interface\AddOns\Details\images\bar4_vidro]]})
-	--GameCooltip:AddSpecial ("line", 2, nil, morte [6] .. " " .. Loc ["STRING_TIME_OF_DEATH"] , "-- -- -- ", 1, "white")
-	--GameCooltip:AddSpecial ("icon", 2, nil, "Interface\\AddOns\\Details\\images\\small_icons", 1, 1, nil, nil, .75, 1, 0, 1)
-	--GameCooltip:AddSpecial ("statusbar", 2, nil, 100, 1, "darkgray", false)
 	
 	if (battleress) then
 		local nome_magia, _, icone_magia = _GetSpellInfo (battleress [2])
@@ -248,7 +250,6 @@ function _detalhes:ToolTipDead (instancia, morte, esta_barra, keydown)
 			GameCooltip:AddStatusBar (0, 1, 1, 1, 1, 1, false, {value = 100, color = {.3, .3, .3, 1}, specialSpark = false, texture = [[Interface\AddOns\Details\images\bar_serenity]]})
 	end
 
-	--GameCooltip:AddLine (" ", " ", 1, "white", "white")
 
 	GameCooltip:SetOption ("StatusBarHeightMod", -6)
 	GameCooltip:SetOption ("FixedWidth", 300)
@@ -259,8 +260,6 @@ function _detalhes:ToolTipDead (instancia, morte, esta_barra, keydown)
 	GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0.64453125, 0}, {.8, .8, .8, 0.2}, true)
 	
 	GameCooltip:ShowCooltip()
-	
-	--_detalhes.popup:ShowMe (esta_barra, "tooltip_bars", linhas, 300, 16, 9) --> [1] ancora [2] tipo do painel [3] texto/linhas [4] largura [5] tamanho do icone e altura da barra [6] tamanho da fonte
 	
 end
 
@@ -313,7 +312,7 @@ function atributo_misc:ReportSingleDeadLine (morte, instancia)
 				tinsert (report_array, {elapsed .. " ", spelllink, " (" .. source .. ")", "-" .. _detalhes:ToK (amount) .. " (" .. hp .. "%) "})
 			end
 			
-		elseif (not evento [1]) then --> heal
+		elseif (not evento [1] and type (evento [1]) == "boolean") then --> heal
 			local elapsed = _cstr ("%.1f", evento [4] - time_of_death) .."s"
 			local spelllink = GetSpellLink (evento [2])
 			local source = _detalhes:GetOnlyName (evento [6])

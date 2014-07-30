@@ -421,6 +421,7 @@
 		
 		if (_detalhes.schedule_chat_leave) then
 			_detalhes:CancelTimer (_detalhes.schedule_chat_leave)
+			_detalhes.schedule_chat_leave = nil
 		end
 		_detalhes.schedule_chat_enter = nil
 	
@@ -451,6 +452,7 @@
 	
 		if (_detalhes.schedule_chat_enter) then
 			_detalhes:CancelTimer (_detalhes.schedule_chat_enter)
+			_detalhes.schedule_chat_enter  = nil
 		end
 		_detalhes.schedule_chat_leave = nil
 	

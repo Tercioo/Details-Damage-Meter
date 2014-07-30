@@ -715,7 +715,7 @@ function gump:NewFillPanel (parent, rows, name, member, w, h, total_lines, fill_
 	
 	for i = 1, amount do
 	
-		local row = gump:NewPanel (scrollframe, nil, "$parentRow_" .. i, nil, 1, size)
+		local row = gump:NewPanel (parent, nil, "$parentRow_" .. i, nil, 1, size)
 		row.backdrop = {bgFile = [[Interface\DialogFrame\UI-DialogBox-Background]]}
 		row.color = {1, 1, 1, .2}
 		row:SetPoint ("topleft", scrollframe, "topleft", 0, (i-1) * size * -1)

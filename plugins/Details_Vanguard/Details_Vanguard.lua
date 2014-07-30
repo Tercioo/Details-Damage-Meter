@@ -1123,13 +1123,16 @@ local function CreatePluginFrames (data)
 				local amt = 1
 				local hp = _UnitHealthMax (_track_player_name)/3
 				
-				for _, tabela in _ipairs (_track_player_object.last_events_table) do 
-					if (tabela[1]) then
-						Vanguard:InsertDamage (tabela[3], amt, hp)
-						if (amt == Vanguard.DamageLabels.Spots) then
-							break
+				local last_events_table = _combat_object.player_last_events [MyName]
+				if (last_events_table) then
+					for _, tabela in _ipairs (last_events_table) do 
+						if (tabela[1]) then
+							Vanguard:InsertDamage (tabela[3], amt, hp)
+							if (amt == Vanguard.DamageLabels.Spots) then
+								break
+							end
+							amt = amt+1
 						end
-						amt = amt+1
 					end
 				end
 			

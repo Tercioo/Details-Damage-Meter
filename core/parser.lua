@@ -79,6 +79,8 @@
 		local raid_members_cache = setmetatable ({}, _detalhes.weaktable)
 	--> tanks
 		local tanks_members_cache = setmetatable ({}, _detalhes.weaktable)
+	--> damage and heal last events
+		local last_events_cache = {} --> placeholder
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> constants
@@ -92,13 +94,19 @@
 	local AFFILIATION_GROUP = 0x00000007
 	local REACTION_FRIENDLY = 0x00000010 
 	
-	--> recording data options shortcuts
+	local ENVIRONMENTAL_FALLING_NAME = Loc ["STRING_ENVIRONMENTAL_FALLING"]
+	local ENVIRONMENTAL_DROWNING_NAME = Loc ["STRING_ENVIRONMENTAL_DROWNING"]
+	local ENVIRONMENTAL_FATIGUE_NAME = Loc ["STRING_ENVIRONMENTAL_FATIGUE"]
+	local ENVIRONMENTAL_FIRE_NAME = Loc ["STRING_ENVIRONMENTAL_FIRE"]
+	local ENVIRONMENTAL_LAVA_NAME = Loc ["STRING_ENVIRONMENTAL_LAVA"]
+	local ENVIRONMENTAL_SLIME_NAME = Loc ["STRING_ENVIRONMENTAL_SLIME"]
+	
+	--> recording data options flags
 		local _recording_self_buffs = false
 		local _recording_ability_with_buffs = false
-		--local _recording_took_damage = false
 		local _recording_healing = false
 		local _recording_buffs_and_debuffs = false
-	--> in combat shortcut
+	--> in combat flag
 		local _in_combat = false
 	--> hooks
 		local _hook_cooldowns = false
@@ -235,29 +243,31 @@
 		elseif (jogador_alvo.grupo) then
 		
 			--> record death log
-			local t = jogador_alvo.last_events_table
+			local t = last_events_cache [alvo_name]
 			
 			if (not t) then
-				jogador_alvo.last_events_table = _detalhes:CreateActorLastEventTable()
-				t = jogador_alvo.last_events_table
+				t = _current_combat:CreateLastEventsTable (alvo_name)
 			end
 			
 			local i = t.n
-
-			t.n = i + 1
 			
-			t = t [i]
+			local this_event = t [i]
 			
-			t [1] = true --> true if this is a damage || false for healing
-			t [2] = spellid --> spellid || false if this is a battle ress line
-			t [3] = amount --> amount of damage or healing
-			t [4] = time --> parser time
-			t [5] = _UnitHealth (alvo_name) --> current unit heal
-			t [6] = who_name --> source name
+			this_event [1] = true --> true if this is a damage || false for healing
+			this_event [2] = spellid --> spellid || false if this is a battle ress line
+			this_event [3] = amount --> amount of damage or healing
+			this_event [4] = time --> parser time
+			this_event [5] = _UnitHealth (alvo_name) --> current unit heal
+			this_event [6] = who_name --> source name
+			this_event [7] = absorbed
+			this_event [8] = school
 			
 			i = i + 1
-			if (i == 9) then
-				jogador_alvo.last_events_table.n = 1
+			
+			if (i == 17) then
+				t.n = 1
+			else
+				t.n = i
 			end
 			
 			--> record avoidance only for player actors
@@ -353,28 +363,31 @@
 		if (raid_members_cache [who_serial] and raid_members_cache [alvo_serial]) then
 
 			--> record death log
-			local t = jogador_alvo.last_events_table
+			local t = last_events_cache [alvo_name]
+			
 			if (not t) then
-				jogador_alvo.last_events_table = _detalhes:CreateActorLastEventTable()
-				t = jogador_alvo.last_events_table
+				t = _current_combat:CreateLastEventsTable (alvo_name)
 			end
 			
 			local i = t.n
 
-			t.n = i + 1
+			local this_event = t [i]
 			
-			t = t [i]
-			
-			t [1] = true --> true if this is a damage || false for healing
-			t [2] = spellid --> spellid || false if this is a battle ress line
-			t [3] = amount --> amount of damage or healing
-			t [4] = time --> parser time
-			t [5] = _UnitHealth (alvo_name) --> current unit heal
-			t [6] = who_name --> source name
-			
+			this_event [1] = true --> true if this is a damage || false for healing
+			this_event [2] = spellid --> spellid || false if this is a battle ress line
+			this_event [3] = amount --> amount of damage or healing
+			this_event [4] = time --> parser time
+			this_event [5] = _UnitHealth (alvo_name) --> current unit heal
+			this_event [6] = who_name --> source name
+			this_event [7] = absorbed
+			this_event [8] = school
+			this_event [9] = true
 			i = i + 1
-			if (i == 9) then
-				jogador_alvo.last_events_table.n = 1
+			
+			if (i == 17) then
+				t.n = 1
+			else
+				t.n = i
 			end
 		
 			--> faz a adução do friendly fire
@@ -628,28 +641,33 @@
 		
 		if (jogador_alvo.grupo) then
 		
-			local t = jogador_alvo.last_events_table
+			local t = last_events_cache [alvo_name]
+			
 			if (not t) then
-				jogador_alvo.last_events_table = _detalhes:CreateActorLastEventTable()
-				t = jogador_alvo.last_events_table
+				t = _current_combat:CreateLastEventsTable (alvo_name)
 			end
 			
 			local i = t.n
-			t.n = i + 1
-
-			t = t [i]
 			
-			t [1] = false --> true if this is a damage || false for healing
-			t [2] = spellid --> spellid || false if this is a battle ress line
-			t [3] = amount --> amount of damage or healing
-			t [4] = time --> parser time
-			t [5] = _UnitHealth (alvo_name) --> current unit heal
-			t [6] = who_name --> source name
+			local this_event = t [i]
+			
+			this_event [1] = false --> true if this is a damage || false for healing
+			this_event [2] = spellid --> spellid || false if this is a battle ress line
+			this_event [3] = amount --> amount of damage or healing
+			this_event [4] = time --> parser time
+			this_event [5] = _UnitHealth (alvo_name) --> current unit heal
+			this_event [6] = who_name --> source name
+			this_event [7] = is_shield
+			this_event [8] = absorbed
 			
 			i = i + 1
-			if (i == 9) then
-				jogador_alvo.last_events_table.n = 1
+			
+			if (i == 17) then
+				t.n = 1
+			else
+				t.n = i
 			end
+			
 		end
 
 	------------------------------------------------------------------------------------------------
@@ -1490,28 +1508,28 @@
 					end
 				end
 
-				local t = damage_actor.last_events_table
+				--> last events
+				local t = last_events_cache [who_name]
 				
 				if (not t) then
-					damage_actor.last_events_table = _detalhes:CreateActorLastEventTable()
-					t = damage_actor.last_events_table
+					t = _current_combat:CreateLastEventsTable (who_name)
 				end
 			
 				local i = t.n
-				t.n = i + 1
-
-				t = t [i]
+				local this_event = t [i]
 				
-				t [1] = 1 --> true if this is a damage || false for healing || 1 for cooldown
-				t [2] = spellid --> spellid || false if this is a battle ress line
-				t [3] = 1 --> amount of damage or healing
-				t [4] = time --> parser time
-				t [5] = _UnitHealth (who_name) --> current unit heal
-				t [6] = who_name --> source name
+				this_event [1] = 1 --> true if this is a damage || false for healing || 1 for cooldown
+				this_event [2] = spellid --> spellid || false if this is a battle ress line
+				this_event [3] = 1 --> amount of damage or healing
+				this_event [4] = time --> parser time
+				this_event [5] = _UnitHealth (who_name) --> current unit heal
+				this_event [6] = who_name --> source name
 				
 				i = i + 1
-				if (i == 9) then
-					damage_actor.last_events_table.n = 1
+				if (i == 17) then
+					t.n = 1
+				else
+					t.n = i
 				end
 				
 				este_jogador.last_cooldown = {time, spellid}
@@ -2008,7 +2026,14 @@
 					end
 					
 					if (not jaTem) then 
-						_table_insert (_current_combat.last_events_tables [i] [1], 1, {true, spellid, false, time, _UnitHealth (alvo_name), who_name })
+						_table_insert (_current_combat.last_events_tables [i] [1], 1, {
+							2,
+							spellid, 
+							1, 
+							time, 
+							_UnitHealth (alvo_name), 
+							who_name 
+						})
 						break
 					end
 				end
@@ -2214,57 +2239,55 @@
 				end
 				
 				--> monta a estrutura da morte pegando a tabela de dano e a tabela de cura
-				local dano = _current_combat[1]:PegarCombatente (alvo_serial, alvo_name, alvo_flags, true) --> container do dano
-				local cura = _current_combat[2]:PegarCombatente (alvo_serial, alvo_name, alvo_flags, true) --> container da cura
 				--> objeto da morte
 				local esta_morte = {}
 				
-				--> adiciona a tabela da morte apenas os DANOS recentes
-				for index, tabela in _ipairs (dano.last_events_table) do 
-					if (tabela [4]) then
-						if (tabela [4] + 12 > time) then --> mostra apenas eventos recentes
-							esta_morte [#esta_morte+1] = tabela
-						end
-					end
+				--> add events
+				local t = last_events_cache [alvo_name]
+				if (not t) then
+					t = _current_combat:CreateLastEventsTable (alvo_name)
 				end
 				
-				--> adiciona a tabela da morte apenas as CURAS recentes
-				if (cura.last_events_table) then
-					for index, tabela in _ipairs (cura.last_events_table) do 
-						if (tabela [4]) then
-							if (tabela [4] + 12 > time) then
-								esta_morte [#esta_morte+1] = tabela
-							end
+				local last_index = t.n --or 'next index'
+				if (last_index < 17 and not t[last_index][4]) then
+					for i = 1, last_index-1 do
+						if (t[i][4] and t[i][4]+16 > time) then
+							_table_insert (esta_morte, t[i])
+						end
+					end
+				else
+					for i = last_index, 16 do --next index to 16
+						if (t[i][4] and t[i][4]+16 > time) then
+							_table_insert (esta_morte, t[i])
+						end
+					end
+					for i = 1, last_index-1 do --1 to latest index
+						if (t[i][4] and t[i][4]+16 > time) then
+							_table_insert (esta_morte, t[i])
 						end
 					end
 				end
-
-				--parser:safe_sort_dead (esta_morte)
-				_table_sort (esta_morte, _detalhes.Sort4)
 
 				if (_hook_deaths) then
 					--> send event to registred functions
 					local death_at = _tempo - _current_combat.start_time
 					local max_health = _UnitHealthMax (alvo_name)
-					
-					local new_death_table = {}
-					for index, t in _ipairs (esta_morte) do 
-						new_death_table [index] = t
-					end
+
 					for _, func in _ipairs (_hook_deaths_container) do 
+						local new_death_table = table_deepcopy (esta_morte)
 						func (nil, token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, new_death_table, este_jogador.last_cooldown, death_at, max_health)
 					end
-				end				
+				end
 				
-				if (_detalhes.deadlog_limit and #esta_morte > _detalhes.deadlog_limit) then 
-					for i = #esta_morte, _detalhes.deadlog_limit+1, -1 do
-						_table_remove (esta_morte, i)
+				if (_detalhes.deadlog_limit and #esta_morte > _detalhes.deadlog_limit) then
+					while (#esta_morte > _detalhes.deadlog_limit) do
+						_table_remove (esta_morte, 1)
 					end
 				end
 				
 				if (este_jogador.last_cooldown) then
 					local t = {}
-					t [1] = 2 --> true if this is a damage || false for healing || 1 for cooldown usage || 2 for last cooldown
+					t [1] = 3 --> true if this is a damage || false for healing || 1 for cooldown usage || 2 for last cooldown
 					t [2] = este_jogador.last_cooldown[2] --> spellid || false if this is a battle ress line
 					t [3] = 1 --> amount of damage or healing
 					t [4] = este_jogador.last_cooldown[1] --> parser time
@@ -2273,7 +2296,7 @@
 					esta_morte [#esta_morte+1] = t
 				else
 					local t = {}
-					t [1] = 2 --> true if this is a damage || false for healing || 1 for cooldown usage || 2 for last cooldown
+					t [1] = 3 --> true if this is a damage || false for healing || 1 for cooldown usage || 2 for last cooldown
 					t [2] = 0 --> spellid || false if this is a battle ress line
 					t [3] = 0 --> amount of damage or healing
 					t [4] = 0 --> parser time
@@ -2285,13 +2308,14 @@
 				local decorrido = _tempo - _current_combat.start_time
 				local minutos, segundos = _math_floor (decorrido/60), _math_floor (decorrido%60)
 				
-				local t = {esta_morte, time, este_jogador.nome, este_jogador.classe, _UnitHealthMax (alvo_name), minutos.."m "..segundos.."s",  ["dead"] = true}
+				local t = {esta_morte, time, este_jogador.nome, este_jogador.classe, _UnitHealthMax (alvo_name), minutos.."m "..segundos.."s",  ["dead"] = true, ["last_cooldown"] = este_jogador.last_cooldown, ["dead_at"] = decorrido}
 				
 				_table_insert (_current_combat.last_events_tables, #_current_combat.last_events_tables+1, t)
 
 				--> reseta a pool
-				dano.last_events_table =  _detalhes:CreateActorLastEventTable()
-				cura.last_events_table =  _detalhes:CreateActorLastEventTable()
+				last_events_cache [alvo_name] = nil
+				--dano.last_events_table =  _detalhes:CreateActorLastEventTable()
+				--cura.last_events_table =  _detalhes:CreateActorLastEventTable()
 
 			end
 		end
@@ -2344,8 +2368,36 @@
 		death_table = t
 		local status, error = xpcall (do_death_sort, sort_error)
 		if (not status) then
-			_table_sort (t, _detalhes.Sort4)
+			--_detalhes:Msg ("(debug) xpcall return false, sort got error.")
+			_table_sort (t, _detalhes.Sort4Reverse)
 		end
+	end
+	
+	function parser:environment (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, env_type, amount)
+	
+		local spelid
+	
+		if (env_type == "Falling") then
+			who_name = ENVIRONMENTAL_FALLING_NAME
+			spelid = 3
+		elseif (env_type == "Drowning") then
+			who_name = ENVIRONMENTAL_DROWNING_NAME
+			spelid = 4
+		elseif (env_type == "Fatigue") then
+			who_name = ENVIRONMENTAL_FATIGUE_NAME
+			spelid = 5
+		elseif (env_type == "Fire") then
+			who_name = ENVIRONMENTAL_FIRE_NAME
+			spelid = 6
+		elseif (env_type == "Lava") then
+			who_name = ENVIRONMENTAL_LAVA_NAME
+			spelid = 7
+		elseif (env_type == "Slime") then
+			who_name = ENVIRONMENTAL_SLIME_NAME
+			spelid = 8
+		end
+	
+		return parser:spell_dmg (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spelid or 1, env_type, 00000003, amount) --> localize-me
 	end
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2428,6 +2480,7 @@
 			token_list ["RANGE_MISSED"] = nil
 			token_list ["SWING_MISSED"] = nil
 			token_list ["SPELL_MISSED"] = nil
+			token_list ["ENVIRONMENTAL_DAMAGE"] = nil
 		
 		elseif (capture_type == "heal") then
 			token_list ["SPELL_HEAL"] = nil
@@ -2490,6 +2543,7 @@
 			token_list ["RANGE_MISSED"] = parser.rangemissed
 			token_list ["SWING_MISSED"] = parser.swingmissed
 			token_list ["SPELL_MISSED"] = parser.missed
+			token_list ["ENVIRONMENTAL_DAMAGE"] = parser.environment
 
 		elseif (capture_type == "heal") then
 			token_list ["SPELL_HEAL"] = parser.heal
@@ -3085,6 +3139,9 @@
 
 		--> refresh combat tables
 		_current_combat = _detalhes.tabela_vigente
+		
+		--> last events pointer
+		last_events_cache = _current_combat.player_last_events
 
 		--> refresh total containers
 		_current_total = _current_combat.totals

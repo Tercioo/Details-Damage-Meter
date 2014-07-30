@@ -30,8 +30,8 @@
 			else
 				if (current [key] == nil) then
 					current [key] = value
-				elseif (type (current [key]) ~= type (value)) then
-					current [key] = value
+				--elseif (type (current [key]) ~= type (value)) then
+				--	current [key] = value
 				end
 			end
 		end
@@ -223,4 +223,55 @@
 		setmetatable (NewPlugin, _detalhes)
 		
 		return NewPlugin
+	end
+
+	function _detalhes:CreatePluginOptionsFrame (name, title, template)
+	
+		template = template or 1
+	
+		if (template == 1) then
+			local options_frame = CreateFrame ("frame", name, UIParent)
+			tinsert (UISpecialFrames, name)
+			options_frame:SetSize (500, 200)
+			options_frame:SetFrameStrata ("DIALOG")
+			options_frame:SetScript ("OnMouseDown", function(self, button)
+				if (button == "RightButton") then
+					if (self.moving) then 
+						self.moving = false
+						self:StopMovingOrSizing()
+					end
+					return options_frame:Hide()
+				elseif (button == "LeftButton" and not self.moving) then
+					self.moving = true
+					self:StartMoving()
+				end
+			end)
+			options_frame:SetScript ("OnMouseUp", function(self)
+				if (self.moving) then 
+					self.moving = false
+					self:StopMovingOrSizing()
+				end
+			end)
+			options_frame:SetMovable (true)
+			options_frame:EnableMouse (true)
+			options_frame:Hide()
+			options_frame:SetPoint ("center", UIParent, "center")
+			
+			options_frame:SetBackdrop ({bgFile = [[Interface\ACHIEVEMENTFRAME\UI-Achievement-Parchment-Horizontal]], tile = true, tileSize = 830,
+					edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", edgeSize = 32,
+					insets = {left = 5, right = 5, top = 5, bottom = 5}})
+			options_frame:SetBackdropColor (0, 0, 0, .7)
+			
+			local title = _detalhes.gump:NewLabel (options_frame, nil, "$parentTitle", nil, title, nil, 20, "yellow")
+			title:SetPoint (12, -13)
+			_detalhes:SetFontOutline (title, true)
+			
+			local c = CreateFrame ("Button", nil, options_frame, "UIPanelCloseButton")
+			c:SetWidth (32)
+			c:SetHeight (32)
+			c:SetPoint ("TOPRIGHT",  options_frame, "TOPRIGHT", -3, -3)
+			c:SetFrameLevel (options_frame:GetFrameLevel()+1)
+			
+			return options_frame
+		end
 	end

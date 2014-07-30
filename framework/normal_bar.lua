@@ -408,47 +408,10 @@ local APIBarFunctions
 --> hooks
 	function BarMetaFunctions:SetHook (hookType, func)
 		if (func) then
-			if (hookType == "OnEnterHook") then
-				self.OnEnterHook = func
-				return true
-			elseif (hookType == "OnLeaveHook") then
-				self.OnLeaveHook = func
-				return true
-			elseif (hookType == "OnHideHook") then
-				self.OnHideHook = func
-				return true
-			elseif (hookType == "OnShowHook") then
-				self.OnShowHook = func
-				return true
-			elseif (hookType == "OnMouseDownHook") then
-				self.OnMouseDownHook = func
-				return true
-			elseif (hookType == "OnMouseUpHook") then
-				self.OnMouseUpHook = func
-				return true
-			end
+			_rawset (self, hookType.."Hook", func)
 		else
-			if (hookType == "OnEnterHook") then
-				self.OnEnterHook = nil
-				return true
-			elseif (hookType == "OnLeaveHook") then
-				self.OnLeaveHook = nil
-				return true
-			elseif (hookType == "OnHideHook") then
-				self.OnHideHook = nil
-				return true
-			elseif (hookType == "OnShowHook") then
-				self.OnShowHook = nil
-				return true
-			elseif (hookType == "OnMouseDownHook") then
-				self.OnMouseDownHook = nil
-				return true
-			elseif (hookType == "OnMouseUpHook") then
-				self.OnMouseUpHook = nil
-				return true
-			end
+			_rawset (self, hookType.."Hook", nil)
 		end
-		return false
 	end
 	
 ------------------------------------------------------------------------------------------------------------

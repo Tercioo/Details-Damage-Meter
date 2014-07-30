@@ -112,8 +112,8 @@ function atributo_heal:NovaTabela (serial, nome, link)
 	_setmetatable (_new_healActor, atributo_heal)
 	
 	if (link) then --> se não for a shadow
-		_new_healActor.last_events_table = _detalhes:CreateActorLastEventTable()
-		_new_healActor.last_events_table.original = true
+		--_new_healActor.last_events_table = _detalhes:CreateActorLastEventTable()
+		--_new_healActor.last_events_table.original = true
 	
 		_new_healActor.targets.shadow = link.targets
 		_new_healActor.spell_tables.shadow = link.spell_tables
@@ -1981,7 +1981,7 @@ end
 			if (not actor) then
 				actor = self
 			end
-			actor.last_events_table = _detalhes:CreateActorLastEventTable()
+			--actor.last_events_table = _detalhes:CreateActorLastEventTable()
 		end
 		
 	--> restaura e liga o ator com a sua shadow durante a inicialização

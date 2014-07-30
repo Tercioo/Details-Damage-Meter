@@ -62,7 +62,7 @@ function _G._detalhes:Start()
 	--> start time machine
 		self.timeMachine:Ligar()
 	
-	--> update abbreviation shorcut
+	--> update abbreviation shortcut
 	
 		self.atributo_damage:UpdateSelectedToKFunction()
 		self.atributo_heal:UpdateSelectedToKFunction()
@@ -377,6 +377,6 @@ function _G._detalhes:Start()
 	if (not _detalhes.schedule_chat_enter and not _detalhes.schedule_chat_leave) then
 		_detalhes.schedule_chat_enter = _detalhes:ScheduleTimer ("EnterChatChannel", 30)
 	end
-	
+
 end
 

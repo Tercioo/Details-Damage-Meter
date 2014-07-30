@@ -520,48 +520,9 @@ local function CreatePluginFrames (data)
 end
 
 local build_options_panel = function()
-	local options_frame = CreateFrame ("frame", "ThreatMeterOptionsWindow", UIParent)
-	tinsert (UISpecialFrames, "ThreatMeterOptionsWindow")
-	options_frame:SetSize (500, 200)
-	options_frame:SetFrameStrata ("DIALOG")
-	options_frame:SetScript ("OnMouseDown", function(self, button)
-		if (button == "RightButton") then
-			if (self.moving) then 
-				self.moving = false
-				self:StopMovingOrSizing()
-			end
-			return options_frame:Hide()
-		elseif (button == "LeftButton" and not self.moving) then
-			self.moving = true
-			self:StartMoving()
-		end
-	end)
-	options_frame:SetScript ("OnMouseUp", function(self)
-		if (self.moving) then 
-			self.moving = false
-			self:StopMovingOrSizing()
-		end
-	end)
-	options_frame:SetMovable (true)
-	options_frame:EnableMouse (true)
-	options_frame:Hide()
-	options_frame:SetPoint ("center", UIParent, "center")
-	
-	options_frame:SetBackdrop ({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16,
-		edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", edgeSize = 32,
-		insets = {left = 5, right = 5, top = 5, bottom = 5}})
-	options_frame:SetBackdropColor (.3, .3, .3, .3)
-	
-	local title = ThreatMeter.gump:NewLabel (options_frame, nil, "$parentTitle", nil, "Tiny Threat Options", nil, 20, "yellow")
-	title:SetPoint (12, -13)
-	ThreatMeter:SetFontOutline (title, true)
-	
-	local c = CreateFrame ("Button", nil, options_frame, "UIPanelCloseButton")
-	c:SetWidth (32)
-	c:SetHeight (32)
-	c:SetPoint ("TOPRIGHT",  options_frame, "TOPRIGHT", -3, -3)
-	c:SetFrameLevel (options_frame:GetFrameLevel()+1)
-	
+
+	local options_frame = ThreatMeter:CreatePluginOptionsFrame ("ThreatMeterOptionsWindow", "Tiny Threat Options", 1)
+
 	local menu = {
 		{
 			type = "range",

@@ -93,7 +93,7 @@ function _detalhes:LoadGlobalAndCharacterData()
 		if (_detalhes_global and not _detalhes_global.profile_pool) then
 			_detalhes_global.profile_pool = {}
 		end
-		
+
 		for key, value in pairs (_detalhes.default_player_data) do 
 		
 			--> check if key exists
@@ -109,7 +109,7 @@ function _detalhes:LoadGlobalAndCharacterData()
 			if (type (value) == "table") then
 				_detalhes [key] = table_deepcopy (_detalhes_database [key])
 			else
-				_detalhes [key] = value
+				_detalhes [key] = _detalhes_database [key]
 			end
 			
 		end
@@ -118,7 +118,7 @@ function _detalhes:LoadGlobalAndCharacterData()
 		if (not _detalhes_global) then
 			_detalhes_global = table_deepcopy (_detalhes.default_global_data)
 		end
-		
+	
 		for key, value in pairs (_detalhes.default_global_data) do 
 		
 			--> check if key exists
@@ -145,9 +145,9 @@ function _detalhes:LoadGlobalAndCharacterData()
 			if (type (value) == "table") then
 				_detalhes [key] = table_deepcopy (_detalhes_global [key])
 			else
-				_detalhes [key] = value
+				_detalhes [key] = _detalhes_global [key]
 			end
-			
+
 		end
 		
 	--> end
@@ -270,25 +270,9 @@ function _detalhes:LoadConfig()
 				end
 			end
 			
-			--if (_detalhes_database.RaidTablesSaved) then
-			
-				--for id, instance in ipairs (_detalhes.tabela_instancias) do
-				--	if (instance.modo == _detalhes._detalhes_props["MODO_RAID"]) then
-				--		_detalhes:AlteraModo (instance, _detalhes._detalhes_props["MODO_GROUP"])
-				--	end
-				--end
-			
-				--if (_detalhes_database.RaidTablesSaved.Mode) then
-				--	_detalhes.RaidTables.Mode = _detalhes_database.RaidTablesSaved.Mode
-				--	_detalhes.RaidTables.LastSelected = _detalhes_database.RaidTablesSaved.LastSelected
-				--else
-				--	_detalhes.RaidTables.Mode = 1
-				--end
-			--end
-		
 		--> switch tables
-			_detalhes.switch.slots = _detalhes_database.switchSaved.slots
-			_detalhes.switch.table = _detalhes_database.switchSaved.table
+			_detalhes.switch.slots = _detalhes_global.switchSaved.slots
+			_detalhes.switch.table = _detalhes_global.switchSaved.table
 		
 		--> last boss
 			_detalhes.last_encounter = _detalhes_database.last_encounter

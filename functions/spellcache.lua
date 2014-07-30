@@ -58,6 +58,12 @@ do
 	local default_user_spells = {
 		[1] = {name = Loc ["STRING_MELEE"], icon = [[Interface\AddOns\Details\images\melee.tga]]},
 		[2] = {name = Loc ["STRING_AUTOSHOT"], icon = [[Interface\AddOns\Details\images\autoshot.tga]]},
+		[3] = {name = Loc ["STRING_ENVIRONMENTAL_FALLING"], icon = [[Interface\ICONS\Spell_Magic_FeatherFall]]},
+		[4] = {name = Loc ["STRING_ENVIRONMENTAL_DROWNING"], icon = [[Interface\ICONS\Ability_Suffocate]]},
+		[5] = {name = Loc ["STRING_ENVIRONMENTAL_FATIGUE"], icon = [[Interface\ICONS\Spell_Arcane_MindMastery]]},
+		[6] = {name = Loc ["STRING_ENVIRONMENTAL_FIRE"], icon = [[Interface\ICONS\INV_SummerFest_FireSpirit]]},
+		[7] = {name = Loc ["STRING_ENVIRONMENTAL_LAVA"], icon = [[Interface\ICONS\Ability_Rhyolith_Volcano]]},
+		[8] = {name = Loc ["STRING_ENVIRONMENTAL_SLIME"], icon = [[Interface\ICONS\Ability_Creature_Poison_02]]},
 		
 		[124464] = {name = GetSpellInfo (124464) .. " (" .. Loc ["STRING_MASTERY"] .. ")"}, --> shadow word: pain mastery proc (priest)
 		[124465] = {name = GetSpellInfo (124465) .. " (" .. Loc ["STRING_MASTERY"] .. ")"}, --> vampiric touch mastery proc (priest)
@@ -74,6 +80,10 @@ do
 		[131079] = {name = GetSpellInfo (131079) .. " (Icy Veins)"}, --> frostbolt with icy veins glyph (mage)
 		[131080] = {name = GetSpellInfo (131080) .. " (Icy Veins)"}, --> ice lance with icy veins glyph (mage)
 		[131081] = {name = GetSpellInfo (131081) .. " (Icy Veins)"}, --> frostfire with icy veins glyph (mage)
+		
+		[108686] = {name = GetSpellInfo (108686) .. " (" .. GetSpellInfo (108683) .. ")" }, --> immolate (brimstone)
+		[108685] = {name = GetSpellInfo (108685) .. " (" .. GetSpellInfo (108683) .. ")" }, --> conflagrate (brimstone)
+		[114654] = {name = GetSpellInfo (114654) .. " (" .. GetSpellInfo (108683) .. ")" }, --> incinetate (brimstone)
 	}
 
 	function _detalhes:UserCustomSpellUpdate (index, name, icon)

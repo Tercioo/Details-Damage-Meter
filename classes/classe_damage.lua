@@ -201,6 +201,13 @@
 				return table1 [4] > table2 [4]
 			end
 			
+--[[exported]]	function _detalhes.Sort4Reverse (table1, table2)
+				if (not table2) then
+					return true
+				end
+				return table1 [4] < table2 [4]
+			end
+			
 --[[exported]]	function _detalhes:GetBarColor (actor)
 				actor = actor or self
 				
@@ -266,8 +273,8 @@
 		_setmetatable (_new_damageActor, atributo_damage)
 		
 		if (link) then
-			_new_damageActor.last_events_table = _detalhes:CreateActorLastEventTable()
-			_new_damageActor.last_events_table.original = true
+			--_new_damageActor.last_events_table = _detalhes:CreateActorLastEventTable()
+			--_new_damageActor.last_events_table.original = true
 			
 			_new_damageActor.targets.shadow = link.targets
 			_new_damageActor.spell_tables.shadow = link.spell_tables
@@ -3014,7 +3021,7 @@ end
 			if (not actor) then
 				actor = self
 			end
-			actor.last_events_table = _detalhes:CreateActorLastEventTable()
+			--actor.last_events_table = _detalhes:CreateActorLastEventTable()
 		end
 		
 	--> restaura e liga o ator com a sua shadow durante a inicialização (startup function)

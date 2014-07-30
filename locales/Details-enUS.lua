@@ -223,6 +223,13 @@ if not Loc then return end
 
 --> Attributes	
 
+	Loc ["STRING_ENVIRONMENTAL_FALLING"] = "Environment (falling)"
+	Loc ["STRING_ENVIRONMENTAL_DROWNING"] = "Environment (Drowning)"
+	Loc ["STRING_ENVIRONMENTAL_FATIGUE"] = "Environment (Fatigue)"
+	Loc ["STRING_ENVIRONMENTAL_FIRE"] = "Environment (Fire)"
+	Loc ["STRING_ENVIRONMENTAL_LAVA"] = "Environment (Lava)"
+	Loc ["STRING_ENVIRONMENTAL_SLIME"] = "Environment (Slime)"
+
 	Loc ["STRING_ATTRIBUTE_DAMAGE"] = "Damage"
 		Loc ["STRING_ATTRIBUTE_DAMAGE_DONE"] = "Damage Done"
 		Loc ["STRING_ATTRIBUTE_DAMAGE_DPS"] = "DPS"

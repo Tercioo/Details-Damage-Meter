@@ -131,6 +131,12 @@ L["STRING_DODGE"] = "Desvio"
 L["STRING_DOT"] = " (DoT)"
 L["STRING_DPS"] = "Dps"
 L["STRING_EMPTY_SEGMENT"] = "Segmento vazio"
+L["STRING_ENVIRONMENTAL_DROWNING"] = "Ambiente (afogar)" -- Needs review
+L["STRING_ENVIRONMENTAL_FALLING"] = "Ambiente (queda)" -- Needs review
+L["STRING_ENVIRONMENTAL_FATIGUE"] = "Ambiente (fadiga)" -- Needs review
+L["STRING_ENVIRONMENTAL_FIRE"] = "Ambiente (fogo)" -- Needs review
+L["STRING_ENVIRONMENTAL_LAVA"] = "Ambiente (lava)" -- Needs review
+L["STRING_ENVIRONMENTAL_SLIME"] = "Ambiente (\195\161cido)" -- Needs review
 L["STRING_EQUILIZING"] = "Compartilhando dados" -- Needs review
 L["STRING_ERASE"] = "apagar"
 L["STRING_ERASE_DATA"] = "Zerar todos os dados"
@@ -1216,3 +1222,5 @@ L["STRING_VOIDZONE_TOOLTIP"] = "Dano e tempo:"
 L["STRING_WAITPLUGIN"] = "esperando por\
 plugins"
 L["STRING_YES"] = "Sim"
+
+

@@ -52,30 +52,12 @@
 			
 			local ZoneName, InstanceType, DifficultyID, _, _, _, _, ZoneMapID = _GetInstanceInfo()
 			if (InstanceType == "party" or InstanceType == "raid") then
-				_detalhes.tabela_vigente.is_trash = true
 				return Loc ["STRING_SEGMENT_TRASH"]
-			end
-			
-			local trash_list
-			if (_detalhes.in_group and _detalhes.last_instance) then
-				trash_list = _detalhes:GetInstanceTrashInfo (_detalhes.last_instance)
 			end
 			
 			for _, actor in _ipairs (_detalhes.tabela_vigente[class_type_dano]._ActorTable) do 
 			
 				if (not actor.grupo and not actor.owner and not actor.nome:find ("[*]") and _bit_band (actor.flag_original, 0x00000060) ~= 0) then --> 0x20+0x40 neutral + enemy reaction
-				
-					if (trash_list) then
-						local serial = tonumber (actor.serial:sub(6, 10), 16)
-						if (serial and trash_list [serial]) then
-							if (_detalhes.debug) then
-								_detalhes:Msg ("(debug) segment against trash mobs.")
-							end
-							_detalhes.tabela_vigente.is_trash = true
-							return Loc ["STRING_SEGMENT_TRASH"]
-						end
-					end
-				
 					for name, _ in _pairs (actor.targets._NameIndexTable) do
 						if (name == _detalhes.playername) then
 							return actor.nome
@@ -113,6 +95,7 @@
 				zone = zone,
 				mapid = mapid,
 				diff = diff,
+				diff_string = select (4, GetInstanceInfo()),
 				ej_instance_id = EJ_GetCurrentInstance(),
 			}
 			
@@ -421,13 +404,18 @@
 			_detalhes.tabela_vigente:seta_tempo_decorrido() --> salva o end_time
 			_detalhes.tabela_overall:seta_tempo_decorrido() --seta o end_time
 			
+			--> drop last events table to garbage collector
+			_detalhes.tabela_vigente.player_last_events = {}
+			
 			--> flag instance type
 			local _, InstanceType = _GetInstanceInfo()
 			_detalhes.tabela_vigente.instance_type = InstanceType
 			
 			if (not _detalhes.tabela_vigente.is_boss) then
-			
-				local inimigo = _detalhes:FindEnemy()
+
+				if (InstanceType == "party" or InstanceType == "raid") then
+					_detalhes.tabela_vigente.is_trash = true
+				end
 				
 				if (inimigo) then
 					if (_detalhes.debug) then
@@ -581,6 +569,7 @@
 				end
 			end
 			
+			_detalhes.pre_pot_used = nil
 			_table_wipe (_detalhes.encounter_table)
 			
 			_detalhes:SendEvent ("COMBAT_PLAYER_LEAVE", nil, _detalhes.tabela_vigente)
@@ -786,9 +775,9 @@
 			--_detalhes:ScheduleTimer ("EqualizePets", 1+math.random())
 
 			--> do not equilize if there is any disabled capture
-			if (_detalhes:CaptureIsAllEnabled()) then
+			--if (_detalhes:CaptureIsAllEnabled()) then
 				_detalhes:ScheduleTimer ("EqualizeActors", 2+math.random()+math.random() , host_of)
-			end
+			--end
 		end
 		
 		function _detalhes:EqualizeActors (host_of)
@@ -806,13 +795,13 @@
 			end
 			
 			if (damage) then
-				damage = {damage.total, damage.damage_taken, damage.friendlyfire_total}
+				damage = {damage.total or 0, damage.damage_taken or 0, damage.friendlyfire_total or 0}
 			else
 				damage = {0, 0, 0}
 			end
 			
 			if (heal) then
-				heal = {heal.total, heal.totalover, heal.healing_taken}
+				heal = {heal.total or 0, heal.totalover or 0, heal.healing_taken or 0}
 			else
 				heal = {0, 0, 0}
 			end
