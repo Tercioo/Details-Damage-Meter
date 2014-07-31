@@ -209,7 +209,7 @@ function _detalhes:OpenWelcomeWindow ()
 			Loc ["STRING_WELCOME_12"] = "In this page you can choose the update speed desired and also enable animations."
 			Loc ["STRING_WELCOME_13"] = ""
 			Loc ["STRING_WELCOME_14"] = "Update Speed"
-			Loc ["STRING_WELCOME_15"] = "This is the delay length between each update in the window,\nthe standard value is 1 second,\nbut you may decrease to 0.3 for more dinamyc updates."
+			Loc ["STRING_WELCOME_15"] = "This is the delay length between each update in the window,\nthe standard value is 1 second,\nbut you may decrease to 0.3 for more dynamic updates."
 			Loc ["STRING_WELCOME_16"] = "Enable Animations"
 			Loc ["STRING_WELCOME_17"] = "Enable or Disable bar animations."
 			Loc ["STRING_WELCOME_18"] = "if you change your mind, you can always modify again through options panel"

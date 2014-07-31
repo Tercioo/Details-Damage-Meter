@@ -171,6 +171,7 @@ do
 	
 	--> overwrite for API GetSpellInfo function 
 	_detalhes.getspellinfo = function (spellid) return _unpack (_detalhes.spellcache[spellid]) end 
+	_detalhes.GetSpellInfo = _detalhes.getspellinfo
 
 	--> overwrite SpellInfo if spell is a Dot, so GetSpellInfo will return the name modified
 	function _detalhes:SpellIsDot (spellid)

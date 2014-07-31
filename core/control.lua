@@ -417,13 +417,15 @@
 					_detalhes.tabela_vigente.is_trash = true
 				end
 				
-				if (inimigo) then
-					if (_detalhes.debug) then
-						_detalhes:Msg ("(debug) enemy recognized", inimigo)
+				if (not _detalhes.tabela_vigente.enemy) then
+					local enemy = _detalhes:FindEnemy()
+					
+					if (enemy and _detalhes.debug) then
+						_detalhes:Msg ("(debug) enemy found", enemy)
 					end
+					
+					_detalhes.tabela_vigente.enemy = enemy
 				end
-				
-				_detalhes.tabela_vigente.enemy = inimigo
 				
 				if (_detalhes.debug) then
 					_detalhes:Msg ("(debug) forcing equalize actors behavior.")

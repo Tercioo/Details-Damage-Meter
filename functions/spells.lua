@@ -960,6 +960,8 @@ do
 	
 	_detalhes.DefensiveCooldownSpellsNoBuff = {
 		
+		[20594] = {120, 8, 1}, --racial stoneform
+		
 		[6262] = {120, 1, 1}, --healthstone
 		
 		--["DEATHKNIGHT"] = {},
@@ -1965,4 +1967,46 @@ do
 		return _detalhes.DefensiveCooldownSpellsNoBuff [spellid] or _detalhes.DefensiveCooldownSpells [spellid]
 	end
 
+	_detalhes.spells_school = {
+		[1] = {name = "Physical", formated = "|cFFFFFF00Physical|r", hex = "FFFFFF00", rgb = {255, 255, 0}, decimals = {1.00, 1.00, 0.00}},
+		[2] = {name = "Holy", formated = "|cFFFFE680Holy|r", hex = "FFFFE680", rgb = {255, 230, 128}, decimals = {1.00, 0.90, 0.50}},
+		[4] = {name = "Fire", formated = "|cFFFF8000Fire|r", hex = "FFFF8000", rgb = {255, 128, 0}, decimals = {1.00, 0.50, 0.00}},
+		[8] = {name = "Nature", formated = "|cFF4DFF4DNature|r", hex = "FF4DFF4D", rgb = {77, 255, 77}, decimals = {0.30, 1.00, 0.30}},
+		[16] = {name = "Frost", formated = "|cFF80FFFFFrost|r", hex = "FF80FFFF", rgb = {128, 255, 255}, decimals = {0.50, 1.00, 1.00}},
+		[32] = {name = "Shadow", formated = "|cFF8080FFShadow|r", hex = "FF8080FF", rgb = {128, 128, 255}, decimals = {0.50, 0.50, 1.00}},
+		[64] = {name = "Arcane", formated = "|cFFFF80FFArcane|r", hex = "FFFF80FF", rgb = {255, 128, 255}, decimals = {1.00, 0.50, 1.00}},
+		[3] = {name = "Holystrike", formated = "|cFFFFE680Holy|r + |cFFFFFF00Physical|r"},
+		[5] = {name = "Flamestrike", formated = "|cFFFF8000Fire|r + |cFFFFFF00Physical|r"},
+		[6] = {name = "Holyfire", formated = "|cFFFF8000Fire|r + |cFFFFE680Holy|r"},
+		[9] = {name = "Stormstrike", formated = "|cFF4DFF4DNature|r + |cFFFFFF00Physical|r"},
+		[10] = {name = "Holystorm", formated = "|cFF4DFF4DNature|r + |cFFFFE680Holy|r"},
+		[12] = {name = "Firestorm", formated = "|cFF4DFF4DNature|r + |cFFFF8000Fire|r"},
+		[17] = {name = "Froststrike", formated = "|cFF80FFFFFrost|r + |cFFFFFF00Physical|r"},
+		[18] = {name = "Holyfrost", formated = "|cFF80FFFFFrost|r + |cFFFFE680Holy|r"},
+		[20] = {name = "Frostfire", formated = "|cFF80FFFFFrost|r + |cFFFF8000Fire|r"},
+		[24] = {name = "Froststorm", formated = "|cFF80FFFFFrost|r + |cFF4DFF4DNature|r"},
+		[33] = {name = "Shadowstrike", formated = "|cFF8080FFShadow|r + |cFFFFFF00Physical|r"},
+		[34] = {name = "Shadowlight (Twilight)", formated = "|cFF8080FFShadow|r + |cFFFFE680Holy|r"},
+		[36] = {name = "Shadowflame", formated = "|cFF8080FFShadow|r + |cFFFF8000Fire|r"},
+		[40] = {name = "Shadowstorm (Plague)", formated = "|cFF8080FFShadow|r + |cFF4DFF4DNature|r"},
+		[48] = {name = "Shadowfrost", formated = "|cFF8080FFShadow|r + |cFF80FFFFFrost|r"},
+		[65] = {name = "Spellstrike", formated = "|cFFFF80FFArcane|r + |cFFFFFF00Physical|r"},
+		[66] = {name = "Divine", formated = "|cFFFF80FFArcane|r + |cFFFFE680Holy|r"},
+		[68] = {name = "Spellfire", formated = "|cFFFF80FFArcane|r + |cFFFF8000Fire|r"},
+		[72] = {name = "Spellstorm", formated = "|cFFFF80FFArcane|r + |cFF4DFF4DNature|r"},
+		[80] = {name = "Spellfrost", formated = "|cFFFF80FFArcane|r + |cFF80FFFFFrost|r"},
+		[96] = {name = "Spellshadow", formated = "|cFFFF80FFArcane|r + |cFF8080FFShadow|r"},
+		[28] = {name = "Elemental", formated = "|cFF80FFFFFrost|r + |cFF4DFF4DNature|r + |cFFFF8000Fire|r"},
+		[124] = {name = "Chromatic", formated = "|cFFFF80FFArcane|r + |cFF8080FFShadow|r + |cFF80FFFFFrost|r + |cFF4DFF4DNature|r + |cFFFF8000Fire|r"},
+		[126] = {name = "Magic", formated = "|cFFFF80FFArcane|r + |cFF8080FFShadow|r + |cFF80FFFFFrost|r + |cFF4DFF4DNature|r + |cFFFF8000Fire|r + |cFFFFE680Holy|r"},
+		[127] = {name = "Chaos", formated = "|cFFFF80FFArcane|r + |cFF8080FFShadow|r + |cFF80FFFFFrost|r + |cFF4DFF4DNature|r + |cFFFF8000Fire|r + |cFFFFE680Holy|r + |cFFFFFF00Physical|r"},
+	}
+	
+	function _detalhes:GetSpellSchoolName (school)
+		return _detalhes.spells_school [school] and _detalhes.spells_school [school].name or ""
+	end
+	function _detalhes:GetSpellSchoolFormatedName (school)
+		return _detalhes.spells_school [school] and _detalhes.spells_school [school].formated or ""
+	end
+	
 end

@@ -871,10 +871,12 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 
 		--> pega as habilidades que pertence especificamente a cada fase
 		local fases = boss_info.phases
-		for fase_id, fase in _ipairs (fases) do 
-			if (fase.spells) then
-				for index, spellid in _ipairs (fase.spells) do 
-					habilidades_poll [spellid] = true
+		if (fases) then
+			for fase_id, fase in _ipairs (fases) do 
+				if (fase.spells) then
+					for index, spellid in _ipairs (fase.spells) do 
+						habilidades_poll [spellid] = true
+					end
 				end
 			end
 		end
@@ -993,10 +995,12 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 		local adds_pool = {}
 	
 		--> pega as habilidades que pertence especificamente a cada fase
-		for fase_id, fase in _ipairs (boss_info.phases) do 
-			if (fase.adds) then
-				for index, addId in _ipairs (fase.adds) do 
-					adds_pool [addId] = true
+		if (boss_info.phases) then
+			for fase_id, fase in _ipairs (boss_info.phases) do 
+				if (fase.adds) then
+					for index, addId in _ipairs (fase.adds) do 
+						adds_pool [addId] = true
+					end
 				end
 			end
 		end
@@ -1436,7 +1440,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 		-- boss_info.spell_tables_info o erro de lua do boss é a habilidade dele que não foi declarada ainda
 	
 		local mortes = _combat_object.last_events_tables
-		local habilidades_info = boss_info.spell_mechanics --barra.extra pega esse cara aqui --> então esse erro é das habilidades que não tao
+		local habilidades_info = boss_info.spell_mechanics or {} --barra.extra pega esse cara aqui --> então esse erro é das habilidades que não tao
 	
 		for index, tabela in _ipairs (mortes) do
 			--> {esta_morte, time, este_jogador.nome, este_jogador.classe, _UnitHealthMax (alvo_name), minutos.."m "..segundos.."s",  ["dead"] = true}

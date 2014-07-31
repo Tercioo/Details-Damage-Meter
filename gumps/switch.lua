@@ -105,13 +105,10 @@ function _detalhes.switch:ShowMe (instancia)
 
 	_detalhes.switch.current_instancia = instancia
 	
-	--_detalhes.switch.frame:SetFrameLevel (instancia.baseframe:GetFrameLevel() + 5)
 	_detalhes.switch.frame:SetPoint ("topleft", instancia.baseframe, "topleft", 0, 1)
 	_detalhes.switch.frame:SetPoint ("bottomright", instancia.baseframe, "bottomright", 0, 1)
 	
 	_detalhes.switch.frame:SetBackdropColor (0.094, 0.094, 0.094, .8)
-	--local _r, _g, _b, _a = _detalhes.switch.frame:GetBackdropColor()
-	--gump:GradientEffect (_detalhes.switch.frame, "frame", _r, _g, _b, _a, _r, _g, _b, 1, 1)
 	
 	local altura = instancia.baseframe:GetHeight()
 	local mostrar_quantas = _math_floor (altura / _detalhes.switch.button_height) * 2
