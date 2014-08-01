@@ -355,7 +355,7 @@ local lista = {
 				else
 					if (IsInRaid()) then
 						select_output:Select ("RAID")
-					elseif (IsInParty()) then
+					elseif (GetNumSubgroupMembers() > 0) then
 						select_output:Select ("PARTY")
 					elseif (IsInGuild()) then
 						select_output:Select ("GUILD")

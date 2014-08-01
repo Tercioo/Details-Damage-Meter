@@ -272,7 +272,7 @@ end
 --[1] true damage/ false heal [2] spellid [3] amount [4] time [5] current health [6] source
 
 function atributo_misc:ReportSingleDeadLine (morte, instancia)
-
+-- 
 	local barra = instancia.barras [morte.minha_barra]
 	
 	local max_health = morte [5]
@@ -323,7 +323,11 @@ function atributo_misc:ReportSingleDeadLine (morte, instancia)
 				hp = 100
 			end
 
-			tinsert (report_array, {elapsed .. " ", spellname, " (" .. source .. ")", "+" .. _detalhes:ToK (amount) .. " (" .. hp .. "%) "})
+			if (_detalhes.report_heal_links) then
+				tinsert (report_array, {elapsed .. " ", spelllink, " (" .. source .. ")", "+" .. _detalhes:ToK (amount) .. " (" .. hp .. "%) "})
+			else
+				tinsert (report_array, {elapsed .. " ", spellname, " (" .. source .. ")", "+" .. _detalhes:ToK (amount) .. " (" .. hp .. "%) "})
+			end
 		end
 	end
 	

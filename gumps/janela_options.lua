@@ -1966,12 +1966,25 @@ function window:CreateFrame18()
 		
 		--local confirm_button = g:NewButton (frame18, nil, "$parentDeleteInstanceButton", "deleteInstanceButton", 60, 20, delete_instance, nil, nil, nil, "delete")
 		--confirm_button:InstallCustomTexture()
+	
+	--> Report
+		g:NewLabel (frame18, _, "$parentReportHelpfulLinkLabel", "ReportHelpfulLinkLabel", Loc ["STRING_OPTIONS_REPORT_HEALLINKS"], "GameFontHighlightLeft")
+		g:NewSwitch (frame18, _, "$parentReportHelpfulLinkSlider", "ReportHelpfulLinkSlider", 60, 20, _, _, _detalhes.report_heal_links)
+
+		frame18.ReportHelpfulLinkSlider:SetPoint ("left", frame18.ReportHelpfulLinkLabel, "right", 2)
+		frame18.ReportHelpfulLinkSlider.OnSwitch = function (_, _, value)
+			_detalhes.report_heal_links = value
+		end
 		
+		window:CreateLineBackground2 (frame18, "ReportHelpfulLinkSlider", "ReportHelpfulLinkLabel", Loc ["STRING_OPTIONS_REPORT_HEALLINKS_DESC"])
+	
 	--> Anchors
 		
 		g:NewLabel (frame18, _, "$parentInstancesMiscAnchor", "instancesMiscLabel", Loc ["STRING_OPTIONS_INSTANCES"], "GameFontNormal")
-		g:NewLabel (frame18, _, "$parentSwitchesAnchor", "switchesAnchorLabel", "Switches:", "GameFontNormal")
-		g:NewLabel (frame18, _, "$parentTotalBarAnchor", "totalBarAnchorLabel", "Total Bar:", "GameFontNormal")
+		g:NewLabel (frame18, _, "$parentSwitchesAnchor", "switchesAnchorLabel", Loc ["STRING_OPTIONS_SWITCH_ANCHOR"], "GameFontNormal")
+		g:NewLabel (frame18, _, "$parentTotalBarAnchor", "totalBarAnchorLabel", Loc ["STRING_OPTIONS_TOTALBAR_ANCHOR"], "GameFontNormal")
+		
+		g:NewLabel (frame18, _, "$parentReportAnchor", "reportAnchorLabel", Loc ["STRING_OPTIONS_REPORT_ANCHOR"], "GameFontNormal")
 		
 		--frame18.totalBarPickColorLabel:SetPoint ("left", frame18.totalBarIconTexture, "right", 10, 0)
 		
@@ -1992,12 +2005,8 @@ function window:CreateFrame18()
 			{tank_icon2, 7},
 			
 			{"autoCurrentLabel", 10},
-			
-			--{"totalBarAnchorLabel", 11, true},
-			--{"totalBarIconLabel", 12},
-			--{"totalBarPickColorLabel", 13},
-			--{"totalBarLabel", 14},
-			--{"totalBarOnlyInGroupLabel", 15},
+			{"reportAnchorLabel", 11, true},
+			{"ReportHelpfulLinkLabel", 12},
 		}
 		
 		window:arrange_menu (frame18, left_side, x, -90)
@@ -7501,8 +7510,11 @@ function window:update_all (editing_instance)
 	_G.DetailsOptionsWindow17MenuOnEnterLeaveAlphaIconsTooSwitch.MyObject:SetValue (editing_instance.menu_alpha.ignorebars)
 	
 	--> window 18
-	--auto switch
 	
+	--report
+	_G.DetailsOptionsWindow18ReportHelpfulLinkSlider.MyObject:SetValue (_detalhes.report_heal_links)
+	
+	--auto switch
 	local switch_tank_in_combat = editing_instance.switch_tank_in_combat
 	if (switch_tank_in_combat) then
 		if (switch_tank_in_combat [1] == "raid") then

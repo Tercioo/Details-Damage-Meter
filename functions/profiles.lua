@@ -556,6 +556,7 @@ local default_profile = {
 	--> report
 		report_lines = 5,
 		report_to_who = "",
+		report_heal_links = false,
 		
 	--> colors
 		default_bg_color = 0.0941,

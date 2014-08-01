@@ -1160,6 +1160,11 @@ if not Loc then return end
 	Loc ["STRING_OPTIONS_AUTO_SWITCH_HEALER_DESC"] = "When in healer specialization, this window show the selected attribute or plugin."
 	Loc ["STRING_OPTIONS_AUTO_SWITCH_TANK_DESC"] = "When in tank specialization, this window show the selected attribute or plugin."
 	
+	Loc ["STRING_OPTIONS_SWITCH_ANCHOR"] = "Switches:"
+	Loc ["STRING_OPTIONS_TOTALBAR_ANCHOR"] = "Total Bar:"
+	Loc ["STRING_OPTIONS_REPORT_ANCHOR"] = "Report:"
+	Loc ["STRING_OPTIONS_REPORT_HEALLINKS"] = "Helpful Spell Links"
+	Loc ["STRING_OPTIONS_REPORT_HEALLINKS_DESC"] = "When sending a report and this option is enabled, |cFF55FF55helpful|r spells are reported with the spell link instead of its name.\n\n|cFFFF5555Harmful|r spells are reported with links by default."
 
 Loc ["STRING_OPTIONS_TOOLBAR_SETTINGS"] = "Left Menu Settings"
 Loc ["STRING_OPTIONS_TOOLBAR_SETTINGS_DESC"] = "This options change the main menu on the top of the window."

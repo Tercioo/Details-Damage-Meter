@@ -765,6 +765,10 @@ L["STRING_OPTIONS_REALMNAME_DESC"] = "Quando ativado, o nome do reino do que o p
 \
 Charles-Azralon |cFFFFFFFF(desativado)|r\
 Charles |cFFFFFFFF(ativado)|r" -- Needs review
+L["STRING_OPTIONS_REPORT_ANCHOR"] = "Janela de Reportar:" -- Needs review
+L["STRING_OPTIONS_REPORT_HEALLINKS"] = "Links de Magias de Cura" -- Needs review
+L["STRING_OPTIONS_REPORT_HEALLINKS_DESC"] = "Quando estiver enviando um relat\195\179rio de morte, as magias de cura ter\195\163o um link ao inv\195\169s do seu nome.\
+|cFFFF5555Magias de dano|r j\195\161 possuem o link por padr\195\163o." -- Needs review
 L["STRING_OPTIONS_RESET_BUTTON_ANCHOR"] = "Bot\195\163o Reset:"
 L["STRING_OPTIONS_RESET_OVERLAY"] = "Sobrepor cor"
 L["STRING_OPTIONS_RESET_OVERLAY_DESC"] = "Modifica a cor do bot\195\163o reset." -- Needs review
@@ -881,6 +885,7 @@ L["STRING_OPTIONS_STRETCHTOP"] = "Bot\195\163o de esticar sempre vis\195\173vel"
 L["STRING_OPTIONS_STRETCHTOP_DESC"] = "O bot\195\163o de esticar ser\195\161 posto mais alto do que as outras janelas e estar\195\161 sempre vis\195\173vel ao passar o mouse sobre ele.\
 \
 |cFFFFFF00Importante|r: Movendo a al\195\167a para cima, far\195\161 com que ela as vezes fica em cima de outras janelas como sua mochila entre outros." -- Needs review
+L["STRING_OPTIONS_SWITCH_ANCHOR"] = "Troca de Atributos:" -- Needs review
 L["STRING_OPTIONS_SWITCHINFO"] = "|cFFF79F81 ESQUERDA DESATIVADO|r  |cFF81BEF7 DIREITA ATIVADO|r"
 L["STRING_OPTIONS_TESTBARS"] = "Criar Barras de Teste" -- Needs review
 L["STRING_OPTIONS_TEXT"] = "Op\195\167\195\181es dos Textos das Barras" -- Needs review
@@ -999,6 +1004,7 @@ L["STRING_OPTIONS_TOOLTIPS_SHOWAMT"] = "Mostrar quantidade"
 L["STRING_OPTIONS_TOOLTIPS_SHOWAMT_DESC"] = "Exibe um n\195\186mero indicando quantas abilidades, alvos e pets existem no tooptip." -- Needs review
 L["STRING_OPTIONS_TOOLTIPS_TITLE"] = "Tooltips"
 L["STRING_OPTIONS_TOOLTIPS_TITLE_DESC"] = "Essa op\195\167\195\163o controla a apar\195\170ncia dos tooltips."
+L["STRING_OPTIONS_TOTALBAR_ANCHOR"] = "Barra de Total:" -- Needs review
 L["STRING_OPTIONS_WALLPAPER_ALPHA"] = "Transpar\195\170ncia:" -- Needs review
 L["STRING_OPTIONS_WALLPAPER_ANCHOR"] = "Sele\195\167\195\163o de papel de parede:"
 L["STRING_OPTIONS_WALLPAPER_BLUE"] = "Azul:" -- Needs review
@@ -1222,5 +1228,6 @@ L["STRING_VOIDZONE_TOOLTIP"] = "Dano e tempo:"
 L["STRING_WAITPLUGIN"] = "esperando por\
 plugins"
 L["STRING_YES"] = "Sim"
+
 
 
