@@ -78,7 +78,11 @@ classes\classe_others_habilidade.lua
 classes\classe_instancia_include.lua
 classes\classe_instancia.lua
 classes\classe_target.lua
+
 classes\classe_custom.lua
+classes\custom_damage_done.lua
+classes\custom_healing_done.lua
+classes\custom_damage_taken.lua
 
 core\control.lua
 

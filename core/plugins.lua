@@ -44,6 +44,10 @@
 			return _detalhes:NewError ("Details version is out of date.")
 		end
 		
+		if (_detalhes.FILEBROKEN) then
+			return _detalhes:NewError ("Game client needs to be restarted in order to finish Details! update.")
+		end
+		
 		if (PluginType == "TANK") then
 			PluginType = "RAID"
 		end

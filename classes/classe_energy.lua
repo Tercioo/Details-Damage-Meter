@@ -72,24 +72,27 @@ local keyName
 function atributo_energy:NovaTabela (serial, nome, link)
 
 	--> constructor
+	
+	local alphabetical = _detalhes:GetOrderNumber (nome)
+	
 	local _new_energyActor = {
 	
 		last_event = 0,
 		tipo = class_type, --> atributo 3 = e_energy
 		
-		mana = 0,
-		e_rage = 0,
-		e_energy = 0,
-		runepower = 0,
-		focus = 0,
-		holypower = 0,
+		mana = alphabetical,
+		e_rage = alphabetical,
+		e_energy = alphabetical,
+		runepower = alphabetical,
+		focus = alphabetical,
+		holypower = alphabetical,
 
-		mana_r = 0,
-		e_rage_r = 0,
-		e_energy_r = 0,
-		runepower_r = 0,
-		focus_r = 0,
-		holypower_r = 0,
+		mana_r = alphabetical,
+		e_rage_r = alphabetical,
+		e_energy_r = alphabetical,
+		runepower_r = alphabetical,
+		focus_r = alphabetical,
+		holypower_r = alphabetical,
 		
 		mana_from = {},
 		e_rage_from = {},

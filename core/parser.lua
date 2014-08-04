@@ -762,9 +762,9 @@
 
 	--> not yet well know about unnamed buff casters
 		if (not alvo_name) then
-			alvo_name = "[*] Unknow shield target"
+			alvo_name = "[*] Unknown shield target"
 		elseif (not who_name) then 
-			who_name = "[*] Unknow shield caster"
+			who_name = "[*] " .. spellname
 		end 
 
 	------------------------------------------------------------------------------------------------
@@ -1225,6 +1225,7 @@
 			end
 	end
 
+	-- ~debuff
 	function parser:add_debuff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, in_out)
 	------------------------------------------------------------------------------------------------
 	--> early checks and fixes
@@ -1472,12 +1473,12 @@
 	--> build containers on the fly
 
 		if (not este_jogador.cooldowns_defensive) then
-			este_jogador.cooldowns_defensive = _detalhes:GetAlphabeticalOrderNumber (who_name)
+			este_jogador.cooldowns_defensive = _detalhes:GetOrderNumber (who_name)
 			este_jogador.cooldowns_defensive_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
 			este_jogador.cooldowns_defensive_spell_tables = container_habilidades:NovoContainer (container_misc) --> cria o container das habilidades
 			
 			if (not este_jogador.shadow.cooldowns_defensive_targets) then
-				este_jogador.shadow.cooldowns_defensive = _detalhes:GetAlphabeticalOrderNumber (who_name)
+				este_jogador.shadow.cooldowns_defensive = _detalhes:GetOrderNumber (who_name)
 				este_jogador.shadow.cooldowns_defensive_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
 				este_jogador.shadow.cooldowns_defensive_spell_tables = container_habilidades:NovoContainer (container_misc) --> cria o container das habilidades usadas
 			end
@@ -1598,13 +1599,13 @@
 	--> build containers on the fly
 		
 		if (not este_jogador.interrupt) then
-			este_jogador.interrupt = 0
+			este_jogador.interrupt = _detalhes:GetOrderNumber (who_name)
 			este_jogador.interrupt_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
 			este_jogador.interrupt_spell_tables = container_habilidades:NovoContainer (container_misc) --> cria o container das habilidades usadas para interromper
 			este_jogador.interrompeu_oque = {}
 			
 			if (not este_jogador.shadow.interrupt_targets) then
-				este_jogador.shadow.interrupt = 0
+				este_jogador.shadow.interrupt = _detalhes:GetOrderNumber (who_name)
 				este_jogador.shadow.interrupt_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
 				este_jogador.shadow.interrupt_spell_tables = container_habilidades:NovoContainer (container_misc) --> cria o container das habilidades usadas para interromper
 				este_jogador.shadow.interrompeu_oque = {}
@@ -1847,13 +1848,13 @@
 
 		if (not este_jogador.dispell) then
 			--> constrói aqui a tabela dele
-			este_jogador.dispell = 0
+			este_jogador.dispell = _detalhes:GetOrderNumber (who_name)
 			este_jogador.dispell_targets = container_combatentes:NovoContainer (container_damage_target)
 			este_jogador.dispell_spell_tables = container_habilidades:NovoContainer (container_misc)
 			este_jogador.dispell_oque = {}
 			
 			if (not este_jogador.shadow.dispell_targets) then
-				este_jogador.shadow.dispell = 0
+				este_jogador.shadow.dispell = _detalhes:GetOrderNumber (who_name)
 				este_jogador.shadow.dispell_targets = container_combatentes:NovoContainer (container_damage_target)
 				este_jogador.shadow.dispell_spell_tables = container_habilidades:NovoContainer (container_misc)
 				este_jogador.shadow.dispell_oque = {}
@@ -1980,12 +1981,12 @@
 
 		if (not este_jogador.ress) then
 			--> constrói aqui a tabela dele
-			este_jogador.ress = 0
+			este_jogador.ress = _detalhes:GetOrderNumber (who_name)
 			este_jogador.ress_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
 			este_jogador.ress_spell_tables = container_habilidades:NovoContainer (container_misc) --> cria o container das habilidades usadas para interromper
 			
 			if (not este_jogador.shadow.ress_targets) then
-				este_jogador.shadow.ress = 0
+				este_jogador.shadow.ress = _detalhes:GetOrderNumber (who_name)
 				este_jogador.shadow.ress_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
 				este_jogador.shadow.ress_spell_tables = container_habilidades:NovoContainer (container_misc) --> cria o container das habilidades usadas para interromper
 			end
@@ -2106,13 +2107,13 @@
 		
 		if (not este_jogador.cc_break) then
 			--> constrói aqui a tabela dele
-			este_jogador.cc_break = 0
+			este_jogador.cc_break = _detalhes:GetOrderNumber (who_name)
 			este_jogador.cc_break_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
 			este_jogador.cc_break_spell_tables = container_habilidades:NovoContainer (container_misc) --> cria o container das habilidades usadas para interromper
 			este_jogador.cc_break_oque = {}
 			
 			if (not este_jogador.shadow.cc_break) then
-				este_jogador.shadow.cc_break = 0
+				este_jogador.shadow.cc_break = _detalhes:GetOrderNumber (who_name)
 				este_jogador.shadow.cc_break_targets = container_combatentes:NovoContainer (container_damage_target) --> pode ser um container de alvo de dano, pois irá usar apenas o .total
 				este_jogador.shadow.cc_break_spell_tables = container_habilidades:NovoContainer (container_misc) --> cria o container das habilidades usadas para interromper
 				este_jogador.shadow.cc_break_oque = {}
@@ -2896,6 +2897,11 @@
 			_detalhes:ApplyBasicKeys()
 			--> check if is first run
 			_detalhes:LoadGlobalAndCharacterData()
+			
+			if (_detalhes.FILEBROKEN) then
+				return
+			end
+			
 			--> load all the saved combats
 			_detalhes:LoadCombatTables()
 			--> load the profiles

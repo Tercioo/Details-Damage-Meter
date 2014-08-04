@@ -651,12 +651,15 @@ function gump:NewScrollBar (master, slave, x, y)
 
 		local current = slider_gump:GetValue()
 		if (delta < 0) then 
-			if (current < slider_gump.scrollMax + (master.wheel_jump or 20)) then
+			--baixo
+			local minValue, maxValue = slider_gump:GetMinMaxValues()
+			if (current + (master.wheel_jump or 20) < maxValue) then
 				slider_gump:SetValue (current + (master.wheel_jump or 20))
 			else
-				slider_gump:SetValue (slider_gump.scrollMax)
+				slider_gump:SetValue (maxValue)
 			end
 		elseif (delta > 0) then
+			--cima
 			if (current + (master.wheel_jump or 20) > 0) then
 				slider_gump:SetValue (current - (master.wheel_jump or 20))
 			else

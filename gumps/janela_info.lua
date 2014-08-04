@@ -1008,7 +1008,9 @@ function gump:CriaJanelaInfo()
 			end,
 			nil --[5] oncreate
 			)
-			
+		
+		--> search key: ~avoidance
+		
 		local avoidance_create = function (tab, frame)
 		
 		--> MAIN ICON
@@ -1021,6 +1023,12 @@ function gump:CriaJanelaInfo()
 			local tankname = frame:CreateFontString (nil, "artwork", "GameFontNormal")
 			tankname:SetPoint ("right", mainicon, "left", -2, 2)
 			tab.tankname = tankname
+		
+		--> Percent Desc
+			local percent_desc = frame:CreateFontString (nil, "artwork", "GameFontNormal")
+			percent_desc:SetText ("Percent values are comparisons with the previous try.")
+			percent_desc:SetPoint ("bottomleft", frame, "bottomleft", 13, 13)
+			percent_desc:SetTextColor (.5, .5, .5, 1)
 		
 		--> SUMMARY
 			local summary_texture = frame:CreateTexture (nil, "artwork")
@@ -1263,19 +1271,31 @@ function gump:CriaJanelaInfo()
 			else
 				if (ps >= lastvalue) then
 					local d = ps - lastvalue
-					d = d / ps * 100
+					d = d / lastvalue * 100
+					d = _math_floor (math.abs (d))
+
+					if (d > 999) then
+						d = "> 999"
+					end
+					
 					if (inverse) then
-						diff = "|c" .. green .. "+" .. _math_floor (math.abs (d)) .. "%|r"
+						diff = "|c" .. green .. "+" .. d .. "%|r"
 					else
-						diff = "|c" .. red .. "+" .. _math_floor (math.abs (d)) .. "%|r"
+						diff = "|c" .. red .. "+" .. d .. "%|r"
 					end
 				else
 					local d = lastvalue - ps
-					d = d / lastvalue * 100
+					d = d / ps * 100
+					d = _math_floor (math.abs (d))
+					
+					if (d > 999) then
+						d = "> 999"
+					end
+					
 					if (inverse) then
-						diff = "|c" .. red .. "-" .. _math_floor (math.abs (d)) .. "%|r"
+						diff = "|c" .. red .. "-" .. d .. "%|r"
 					else
-						diff = "|c" .. green .. "-" .. _math_floor (math.abs (d)) .. "%|r"
+						diff = "|c" .. green .. "-" .. d .. "%|r"
 					end
 				end
 			end

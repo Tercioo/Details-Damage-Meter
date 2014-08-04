@@ -223,7 +223,11 @@
 				cooldowns_defensive = 0, --> armazena quantos cooldowns a raid usou
 				buff_uptime = 0, --> armazena quantos cooldowns a raid usou
 				debuff_uptime = 0 --> armazena quantos cooldowns a raid usou
-			}
+			},
+			
+			--> avoid using this values bellow, they aren't updated by the parser, only on demand by a user interaction.
+				voidzone_damage = 0,
+			--> end
 		}
 		
 		esta_tabela.totals_grupo = {

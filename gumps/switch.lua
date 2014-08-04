@@ -99,6 +99,17 @@ local right_click_texture = {[[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]], 14, 
 
 function _detalhes.switch:ShowMe (instancia)
 
+	--> check if there is some custom contidional
+	if (instancia.atributo == 5) then
+		local custom_object = instancia:GetCustomObject()
+		if (custom_object and custom_object.OnSwitchShow) then
+			local interrupt = custom_object.OnSwitchShow (instancia)
+			if (interrupt) then
+				return
+			end
+		end
+	end
+
 	if (_detalhes.switch.current_instancia) then
 		_detalhes.switch.current_instancia:StatusBarAlert (nil)
 	end

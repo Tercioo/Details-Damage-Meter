@@ -295,7 +295,7 @@ end
 
 	-- reabre todas as instancias
 	function _detalhes:ReabrirTodasInstancias (temp)
-		for index = #_detalhes.tabela_instancias, 1, -1 do 
+		for index = math.min (#_detalhes.tabela_instancias, _detalhes.instances_amount), 1, -1 do 
 			local instancia = _detalhes:GetInstance (index)
 			instancia:AtivarInstancia (temp)
 		end

@@ -1374,6 +1374,11 @@ local shift_monitor = function (self)
 	end
 end
 
+local on_switch_show = function (instance)
+	instance:TrocaTabela (instance, true, 1, 6)
+	return true
+end
+
 local function barra_scripts (esta_barra, instancia, i)
 
 	esta_barra:SetScript ("OnEnter", function (self) 
@@ -1430,6 +1435,10 @@ local function barra_scripts (esta_barra, instancia, i)
 				--> procura se já tem um custom:
 				for index, CustomObject in _ipairs (_detalhes.custom) do
 					if (CustomObject:GetName() == custom_name) then
+						--> fix for not saving funcs on logout
+						if (not CustomObject.OnSwitchShow) then
+							CustomObject.OnSwitchShow = on_switch_show
+						end
 						return instancia:TrocaTabela (instancia.segmento, 5, index)
 					end
 				end
@@ -1445,7 +1454,8 @@ local function barra_scripts (esta_barra, instancia, i)
 					target = inimigo,
 					script = false,
 					tooltip = false,
-					temp = true
+					temp = true,
+					OnSwitchShow = on_switch_show,
 				}
 		
 				tinsert (_detalhes.custom, new_custom_object)

@@ -51,124 +51,225 @@
 	
 	local ToKFunctions = _detalhes.ToKFunctions
 	local SelectedToKFunction = ToKFunctions [1]
-	local UsingCustomRightText = false
-	local UsingCustomLeftText = false
 	local FormatTooltipNumber = ToKFunctions [8]
 	local TooltipMaximizedMethod = 1
+	local UsingCustomRightText = false
+	local UsingCustomLeftText = false
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> core
 
-function atributo_custom:GetCombatContainerIndex (attribute)
-	return combat_containers [attribute]
-end
-
-function atributo_custom:RefreshWindow (instance, combat, force, export)
-
-	--> get the custom object
-	local custom_object = instance:GetCustomObject()
-
-	if (not custom_object) then
-		return instance:ResetAttribute()
+	function atributo_custom:GetCombatContainerIndex (attribute)
+		return combat_containers [attribute]
 	end
 
-	--> save the custom name in the instance
-	instance.customName = custom_object:GetName()
-	
-	--> get the container holding the custom actor objects for this instance
-	local instance_container = atributo_custom:GetInstanceCustomActorContainer (instance)
-	
-	local last_shown = atributo_custom._InstanceLastCustomShown [instance:GetId()]
-	if (last_shown and last_shown ~= custom_object:GetName()) then
-		instance_container:WipeCustomActorContainer()
-	end
-	atributo_custom._InstanceLastCustomShown [instance:GetId()] = custom_object:GetName()
-	
-	local last_combat_shown = atributo_custom._InstanceLastCombatShown [instance:GetId()]
-	if (last_combat_shown and last_combat_shown ~= combat) then
-		instance_container:WipeCustomActorContainer()
-	end
-	atributo_custom._InstanceLastCombatShown [instance:GetId()] = combat
-	
-	--> declare the main locals
-	local total = 0
-	local top = 0
-	local amount = 0
-	
-	--> check if is a custom script
-	if (custom_object:IsScripted()) then
+	function atributo_custom:RefreshWindow (instance, combat, force, export)
 
-		--> be save reseting the values on every refresh
-		instance_container:ResetCustomActorContainer()
-	
-		local func
-		if (_detalhes.custom_function_cache [instance.customName]) then
-			func = _detalhes.custom_function_cache [instance.customName]
-		else
-			func = loadstring (custom_object.script)
-			if (not func) then
-				_detalhes.custom_function_cache [instance.customName] = func
+		--> get the custom object
+		local custom_object = instance:GetCustomObject()
+
+		if (not custom_object) then
+			return instance:ResetAttribute()
+		end
+
+		--> save the custom name in the instance
+		instance.customName = custom_object:GetName()
+		
+		--> get the container holding the custom actor objects for this instance
+		local instance_container = atributo_custom:GetInstanceCustomActorContainer (instance)
+		
+		local last_shown = atributo_custom._InstanceLastCustomShown [instance:GetId()]
+		if (last_shown and last_shown ~= custom_object:GetName()) then
+			instance_container:WipeCustomActorContainer()
+		end
+		atributo_custom._InstanceLastCustomShown [instance:GetId()] = custom_object:GetName()
+		
+		local last_combat_shown = atributo_custom._InstanceLastCombatShown [instance:GetId()]
+		if (last_combat_shown and last_combat_shown ~= combat) then
+			instance_container:WipeCustomActorContainer()
+		end
+		atributo_custom._InstanceLastCombatShown [instance:GetId()] = combat
+		
+		--> declare the main locals
+		local total = 0
+		local top = 0
+		local amount = 0
+		
+		--> check if is a custom script
+		if (custom_object:IsScripted()) then
+
+			--> be save reseting the values on every refresh
+			instance_container:ResetCustomActorContainer()
+		
+			local func
+			if (_detalhes.custom_function_cache [instance.customName]) then
+				func = _detalhes.custom_function_cache [instance.customName]
+			else
+				func = loadstring (custom_object.script)
+				if (not func) then
+					_detalhes.custom_function_cache [instance.customName] = func
+				end
 			end
-		end
-		
-		if (not func) then
-			_detalhes:Msg (Loc ["STRING_CUSTOM_FUNC_INVALID"], func)
-			_detalhes:EndRefresh (instance, 0, combat, combat [1])
-		end
-		
-		--> call the loop function
-		total, top, amount = func (combat, instance_container, instance)
-		
-	else
-		--> get the attribute
-		local attribute = custom_object:GetAttribute()
-		
-		--> get the custom function (actor, source, target, spellid)
-		local func = atributo_custom [attribute]
-		
-		--> get the combat container
-		local container_index = self:GetCombatContainerIndex (attribute)
-		local combat_container = combat [container_index]._ActorTable
+			
+			if (not func) then
+				_detalhes:Msg (Loc ["STRING_CUSTOM_FUNC_INVALID"], func)
+				_detalhes:EndRefresh (instance, 0, combat, combat [1])
+			end
+			
+			--> call the loop function
+			total, top, amount = func (combat, instance_container, instance)
+			
+		else
+			--> get the attribute
+			local attribute = custom_object:GetAttribute()
+			
+			--> get the custom function (actor, source, target, spellid)
+			local func = atributo_custom [attribute]
+			
+			--> get the combat container
+			local container_index = self:GetCombatContainerIndex (attribute)
+			local combat_container = combat [container_index]._ActorTable
 
-		--> build container
-		total, top, amount = atributo_custom:BuildActorList (func, custom_object.source, custom_object.target, custom_object.spellid, combat, combat_container, container_index, instance_container, instance, custom_object)
+			--> build container
+			total, top, amount = atributo_custom:BuildActorList (func, custom_object.source, custom_object.target, custom_object.spellid, combat, combat_container, container_index, instance_container, instance, custom_object)
+
+		end
+
+		if (custom_object:IsSpellTarget()) then
+			amount = atributo_custom._TargetActorsProcessedAmt
+			total = atributo_custom._TargetActorsProcessedTotal
+			top = atributo_custom._TargetActorsProcessedTop
+		end
+
+		if (amount == 0) then
+			if (force) then
+				if (instance:IsGroupMode()) then
+					for i = 1, instance.rows_fit_in_window  do
+						gump:Fade (instance.barras [i], "in", 0.3)
+					end
+				end
+			end
+			instance:EsconderScrollBar()
+			return _detalhes:EndRefresh (instance, total, combat, combat [container_index])
+		end
+		
+		combat.totals [custom_object:GetName()] = total
+		
+		instance_container:Sort()
+		instance_container:Remap()
+		
+		if (export) then
+			return total, instance_container._ActorTable, top, amount
+		end
+		
+		instance:AtualizarScrollBar (amount)
+
+		atributo_custom:Refresh (instance, instance_container, combat, force, total, top)
+		
+		return _detalhes:EndRefresh (instance, total, combat, combat [container_index])
 
 	end
 
-	if (custom_object:IsSpellTarget()) then
-		amount = atributo_custom._TargetActorsProcessedAmt
-		total = atributo_custom._TargetActorsProcessedTotal
-		top = atributo_custom._TargetActorsProcessedTop
-	end
+	function atributo_custom:BuildActorList (func, source, target, spellid, combat, combat_container, container_index, instance_container, instance, custom_object)
 
-	if (amount == 0) then
-		if (force) then
-			if (instance:IsGroupMode()) then
-				for i = 1, instance.rows_fit_in_window  do
-					gump:Fade (instance.barras [i], "in", 0.3)
+		--> do the loop
+		
+		local total = 0
+		local top = 0
+		local amount = 0
+		
+		--> check if is a spell target custom
+		if (custom_object:IsSpellTarget()) then
+			table.wipe (atributo_custom._TargetActorsProcessed)
+			atributo_custom._TargetActorsProcessedAmt = 0
+			atributo_custom._TargetActorsProcessedTotal = 0
+			atributo_custom._TargetActorsProcessedTop = 0
+			instance_container:ResetCustomActorContainer()
+		end
+		
+		if (source == "[all]") then
+			
+			for _, actor in _ipairs (combat_container) do 
+				local actortotal = func (_, actor, source, target, spellid, combat, instance_container)
+				if (actortotal > 0) then
+					total = total + actortotal
+					amount = amount + 1
+					
+					if (actortotal > top) then
+						top = actortotal
+					end
+					
+					instance_container:SetValue (actor, actortotal)
+				end
+			end
+			
+		elseif (source == "[raid]") then
+		
+			if (_detalhes.in_combat and instance.segmento == 0 and not export) then
+				if (container_index == 1) then
+					combat_container = _detalhes.cache_damage_group
+				elseif (container_index == 2) then
+					combat_container = _detalhes.cache_healing_group
+				end
+			end
+
+			for _, actor in _ipairs (combat_container) do 
+				if (actor.grupo) then
+					local actortotal = func (_, actor, source, target, spellid, combat, instance_container)
+
+					if (actortotal > 0) then
+						total = total + actortotal
+						amount = amount + 1
+						
+						if (actortotal > top) then
+							top = actortotal
+						end
+						
+						instance_container:SetValue (actor, actortotal)
+					end
+					
+				end
+			end
+			
+		elseif (source == "[player]") then
+			local pindex = combat [container_index]._NameIndexTable [_detalhes.playername]
+			if (pindex) then
+				local actor = combat [container_index]._ActorTable [pindex]
+				local actortotal = func (_, actor, source, target, spellid, combat, instance_container)
+				
+				if (actortotal > 0) then
+					total = total + actortotal
+					amount = amount + 1
+					
+					if (actortotal > top) then
+						top = actortotal
+					end
+					
+					instance_container:SetValue (actor, actortotal)
+				end
+			end
+		else
+
+			local pindex = combat [container_index]._NameIndexTable [source]
+			if (pindex) then
+				local actor = combat [container_index]._ActorTable [pindex]
+				local actortotal = func (_, actor, source, target, spellid, combat, instance_container)
+				
+				if (actortotal > 0) then
+					total = total + actortotal
+					amount = amount + 1
+					
+					if (actortotal > top) then
+						top = actortotal
+					end
+					
+					instance_container:SetValue (actor, actortotal)
 				end
 			end
 		end
-		instance:EsconderScrollBar()
-		return _detalhes:EndRefresh (instance, total, combat, combat [container_index])
+		
+		return total, top, amount
 	end
-	
-	combat.totals [custom_object:GetName()] = total
-	
-	instance_container:Sort()
-	instance_container:Remap()
-	
-	if (export) then
-		return total, instance_container._ActorTable, top, amount
-	end
-	
-	instance:AtualizarScrollBar (amount)
-
-	atributo_custom:Refresh (instance, instance_container, combat, force, total, top)
-	
-	return _detalhes:EndRefresh (instance, total, combat, combat [container_index])
-
-end
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> refresh functions
@@ -272,468 +373,8 @@ end
 				end
 			end
 		end
-	end
-
-	function atributo_custom:BuildActorList (func, source, target, spellid, combat, combat_container, container_index, instance_container, instance, custom_object)
-	
-		--> do the loop
-		
-		local total = 0
-		local top = 0
-		local amount = 0
-		
-		--> check if is a spell target custom
-		if (custom_object:IsSpellTarget()) then
-			table.wipe (atributo_custom._TargetActorsProcessed)
-			atributo_custom._TargetActorsProcessedAmt = 0
-			atributo_custom._TargetActorsProcessedTotal = 0
-			atributo_custom._TargetActorsProcessedTop = 0
-			instance_container:ResetCustomActorContainer()
-		end
-		
-		if (source == "[all]") then
-			
-			for _, actor in _ipairs (combat_container) do 
-				local actortotal = func (_, actor, source, target, spellid, combat, instance_container)
-				if (actortotal > 0) then
-					total = total + actortotal
-					amount = amount + 1
-					
-					if (actortotal > top) then
-						top = actortotal
-					end
-					
-					instance_container:SetValue (actor, actortotal)
-				end
-			end
-			
-		elseif (source == "[raid]") then
-		
-			if (_detalhes.in_combat and instance.segmento == 0 and not export) then
-				if (container_index == 1) then
-					combat_container = _detalhes.cache_damage_group
-				elseif (container_index == 2) then
-					combat_container = _detalhes.cache_healing_group
-				end
-			end
-
-			for _, actor in _ipairs (combat_container) do 
-				if (actor.grupo) then
-					local actortotal = func (_, actor, source, target, spellid, combat, instance_container)
-
-					if (actortotal > 0) then
-						total = total + actortotal
-						amount = amount + 1
-						
-						if (actortotal > top) then
-							top = actortotal
-						end
-						
-						instance_container:SetValue (actor, actortotal)
-					end
-					
-				end
-			end
-			
-		elseif (source == "[player]") then
-			local pindex = combat [container_index]._NameIndexTable [_detalhes.playername]
-			if (pindex) then
-				local actor = combat [container_index]._ActorTable [pindex]
-				local actortotal = func (_, actor, source, target, spellid, combat, instance_container)
-				
-				if (actortotal > 0) then
-					total = total + actortotal
-					amount = amount + 1
-					
-					if (actortotal > top) then
-						top = actortotal
-					end
-					
-					instance_container:SetValue (actor, actortotal)
-				end
-			end
-		else
-
-			local pindex = combat [container_index]._NameIndexTable [source]
-			if (pindex) then
-				local actor = combat [container_index]._ActorTable [pindex]
-				local actortotal = func (_, actor, source, target, spellid, combat, instance_container)
-				
-				if (actortotal > 0) then
-					total = total + actortotal
-					amount = amount + 1
-					
-					if (actortotal > top) then
-						top = actortotal
-					end
-					
-					instance_container:SetValue (actor, actortotal)
-				end
-			end
-		end
-		
-		return total, top, amount
-	end
-
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---> attributes functions
-
-	--> damage done
-	function atributo_custom:damagedoneTooltip (actor, target, spellid, combat, instance)
-	
-		if (spellid) then
-
-			if (instance:GetCustomObject():IsSpellTarget()) then
-				local targetname = actor.nome
-				local this_actor = combat (1, targetname)
-				
-				if (this_actor) then
-					for name, _ in _pairs (this_actor.damage_from) do 
-						local aggressor = combat (1, name)
-						if (aggressor) then
-							local spell = aggressor.spell_tables._ActorTable [spellid]
-							if (spell) then
-								local on_me = spell.targets._NameIndexTable [targetname]
-								if (on_me) then
-									on_me = spell.targets._ActorTable [on_me]
-									GameCooltip:AddLine (aggressor.nome, FormatTooltipNumber (_, on_me.total))
-								end
-							end
-						end
-					end
-				end
-				
-				return
-			else
-				local name, _, icon = _GetSpellInfo (spellid)
-				GameCooltip:AddLine (name)
-				GameCooltip:AddIcon (icon, 1, 1, 14, 14)
-				
-				GameCooltip:AddLine (Loc ["STRING_DAMAGE"] .. ": ", spell.total)
-				GameCooltip:AddLine (Loc ["STRING_HITS"] .. ": ", spell.counter)
-				GameCooltip:AddLine (Loc ["STRING_CRITICAL_HITS"] .. ": ", spell.c_amt)
-			end
-		
-		elseif (target) then
-			
-			if (target == "[all]") then
-				actor.targets:SortByKey ("total")
-				for _, target_object in _ipairs (actor.targets._ActorTable) do
-					GameCooltip:AddLine (target_object.nome, FormatTooltipNumber (_, target_object.total))
-					_detalhes:AddTooltipBackgroundStatusbar()
-					GameCooltip:AddIcon ([[Interface\FriendsFrame\StatusIcon-Offline]], 1, 1, 14, 14)
-				end
-				
-			elseif (target == "[raid]") then
-				local roster = combat.raid_roster
-				actor.targets:SortByKey ("total")
-				for _, target_object in _ipairs (actor.targets._ActorTable) do
-					if (roster [target_object.nome]) then
-						GameCooltip:AddLine (target_object.nome, FormatTooltipNumber (_, target_object.total))
-					end
-				end
-				
-			elseif (target == "[player]") then
-				local targetactor = actor.targets._NameIndexTable [_detalhes.playername]
-				if (targetactor) then
-					targetactor = actor.targets._ActorTable [targetactor]
-					GameCooltip:AddLine (targetactor.nome, FormatTooltipNumber (_, targetactor.total))
-				end
-			else
-				local targetactor = actor.targets._NameIndexTable [target]
-				if (targetactor) then
-					targetactor = actor.targets._ActorTable [targetactor]
-					GameCooltip:AddLine (target, FormatTooltipNumber (_, targetactor.total))
-				end
-			end
-		
-		else
-			actor:ToolTip_DamageDone (instance)
-		end
-	end
-	
-	function atributo_custom:damagedone (actor, source, target, spellid, combat, instance_container)
-
-		if (spellid) then --> spell is always damage done
-			local spell = actor.spell_tables._ActorTable [spellid]
-			if (spell) then
-				if (target) then
-					if (target == "[all]") then
-						for _, targetactor in _ipairs (spell.targets._ActorTable) do 
-							--> add amount
-							instance_container:AddValue (targetactor, targetactor.total, true)
-							atributo_custom._TargetActorsProcessedTotal = atributo_custom._TargetActorsProcessedTotal + targetactor.total
-							--> add to processed container
-							if (not atributo_custom._TargetActorsProcessed [targetactor.nome]) then
-								atributo_custom._TargetActorsProcessed [targetactor.nome] = true
-								atributo_custom._TargetActorsProcessedAmt = atributo_custom._TargetActorsProcessedAmt + 1
-							end
-						end
-						return 0, true
-						
-					elseif (target == "[raid]") then
-						local roster = combat.raid_roster
-						for _, targetactor in _ipairs (spell.targets._ActorTable) do 
-							if (roster [targetactor.nome]) then
-								--> add amount
-								instance_container:AddValue (targetactor, targetactor.total, true)
-								atributo_custom._TargetActorsProcessedTotal = atributo_custom._TargetActorsProcessedTotal + targetactor.total
-								--> add to processed container
-								if (not atributo_custom._TargetActorsProcessed [targetactor.nome]) then
-									atributo_custom._TargetActorsProcessed [targetactor.nome] = true
-									atributo_custom._TargetActorsProcessedAmt = atributo_custom._TargetActorsProcessedAmt + 1
-								end
-							end
-						end
-						return 0, true
-						
-					elseif (target == "[player]") then
-						local targetactor = spell.targets._NameIndexTable [_detalhes.playername]
-						if (targetactor) then
-							targetactor = spell.targets._ActorTable [targetactor]
-							--> add amount
-							instance_container:AddValue (targetactor, targetactor.total, true)
-							atributo_custom._TargetActorsProcessedTotal = atributo_custom._TargetActorsProcessedTotal + targetactor.total
-							--> add to processed container
-							if (not atributo_custom._TargetActorsProcessed [targetactor.nome]) then
-								atributo_custom._TargetActorsProcessed [targetactor.nome] = true
-								atributo_custom._TargetActorsProcessedAmt = atributo_custom._TargetActorsProcessedAmt + 1
-							end
-						end
-						return 0, true
-					
-					else
-						local targetactor = actor.targets._NameIndexTable [target]
-						if (targetactor) then
-							targetactor = spell.targets._ActorTable [targetactor]
-							--> add amount
-							instance_container:AddValue (targetactor, targetactor.total, true)
-							atributo_custom._TargetActorsProcessedTotal = atributo_custom._TargetActorsProcessedTotal + targetactor.total
-							--> add to processed container
-							if (not atributo_custom._TargetActorsProcessed [targetactor.nome]) then
-								atributo_custom._TargetActorsProcessed [targetactor.nome] = true
-								atributo_custom._TargetActorsProcessedAmt = atributo_custom._TargetActorsProcessedAmt + 1
-							end
-						end
-						return 0, true
-					end
-				else
-					return spell.total
-				end
-			else
-				return 0
-			end
-
-		elseif (target) then
-
-			if (target == "[all]") then
-				return actor.targets:GetTotal()
-				
-			elseif (target == "[raid]") then
-				return actor.targets:GetTotalOnRaid (nil, combat)
-			
-			elseif (target == "[player]") then
-				local targetactor = actor.targets._NameIndexTable [_detalhes.playername]
-				if (targetactor) then
-					return actor.targets._ActorTable [targetactor].total
-				else
-					return 0
-				end
-
-			else
-				local targetactor = actor.targets._NameIndexTable [target]
-				if (targetactor) then
-					return actor.targets._ActorTable [targetactor].total
-				else
-					return 0
-				end
-			end
-		else
-			return actor.total or 0
-			
-		end
 		
 	end
-
-	--> healing done
-	
-	function atributo_custom:healdoneTooltip (actor, target, spellid, combat, instance)
-	
-		if (spellid) then
-
-			if (instance:GetCustomObject():IsSpellTarget()) then
-				local targetname = actor.nome
-				local this_actor = combat (2, targetname)
-				
-				if (this_actor) then
-					for name, _ in _pairs (this_actor.healing_from) do 
-						local healer = combat (2, name)
-						if (healer) then
-							local spell = healer.spell_tables._ActorTable [spellid]
-							if (spell) then
-								local on_me = spell.targets._NameIndexTable [targetname]
-								if (on_me) then
-									on_me = spell.targets._ActorTable [on_me]
-									GameCooltip:AddLine (healer.nome, FormatTooltipNumber (_, on_me.total))
-								end
-							end
-						end
-					end
-				end
-				
-				return
-			else
-				local name, _, icon = _GetSpellInfo (spellid)
-				GameCooltip:AddLine (name)
-				GameCooltip:AddIcon (icon, 1, 1, 14, 14)
-				
-				GameCooltip:AddLine (Loc ["STRING_HEAL"] .. ": ", spell.total)
-				GameCooltip:AddLine (Loc ["STRING_HITS"] .. ": ", spell.counter)
-				GameCooltip:AddLine (Loc ["STRING_CRITICAL_HITS"] .. ": ", spell.c_amt)
-			end
-		
-		elseif (target) then
-			
-			if (target == "[all]") then
-				actor.targets:SortByKey ("total")
-				for _, target_object in _ipairs (actor.targets._ActorTable) do
-					GameCooltip:AddLine (target_object.nome, FormatTooltipNumber (_, target_object.total))
-					_detalhes:AddTooltipBackgroundStatusbar()
-					GameCooltip:AddIcon ([[Interface\FriendsFrame\StatusIcon-Offline]], 1, 1, 14, 14)
-				end
-				
-			elseif (target == "[raid]") then
-				local roster = combat.raid_roster
-				actor.targets:SortByKey ("total")
-				for _, target_object in _ipairs (actor.targets._ActorTable) do
-					if (roster [target_object.nome]) then
-						GameCooltip:AddLine (target_object.nome, FormatTooltipNumber (_, target_object.total))
-					end
-				end
-				
-			elseif (target == "[player]") then
-				local targetactor = actor.targets._NameIndexTable [_detalhes.playername]
-				if (targetactor) then
-					targetactor = actor.targets._ActorTable [targetactor]
-					GameCooltip:AddLine (targetactor.nome, FormatTooltipNumber (_, targetactor.total))
-				end
-			else
-				local targetactor = actor.targets._NameIndexTable [target]
-				if (targetactor) then
-					targetactor = actor.targets._ActorTable [targetactor]
-					GameCooltip:AddLine (target, FormatTooltipNumber (_, targetactor.total))
-				end
-			end
-		
-		else
-			actor:ToolTip_DamageDone (instance)
-		end
-	end
-	
-	function atributo_custom:healdone (actor, source, target, spellid, combat, instance_container)
-
-		if (spellid) then --> spell is always healing done
-			local spell = actor.spell_tables._ActorTable [spellid]
-			local melee = actor.spell_tables._ActorTable [1]
-			if (spell) then
-				if (target) then
-					if (target == "[all]") then
-						for _, targetactor in _ipairs (spell.targets._ActorTable) do 
-							--> add amount
-							instance_container:AddValue (targetactor, targetactor.total, true)
-							atributo_custom._TargetActorsProcessedTotal = atributo_custom._TargetActorsProcessedTotal + targetactor.total
-							--> add to processed container
-							if (not atributo_custom._TargetActorsProcessed [targetactor.nome]) then
-								atributo_custom._TargetActorsProcessed [targetactor.nome] = true
-								atributo_custom._TargetActorsProcessedAmt = atributo_custom._TargetActorsProcessedAmt + 1
-							end
-						end
-						return 0, true
-						
-					elseif (target == "[raid]") then
-						local roster = combat.raid_roster
-						for _, targetactor in _ipairs (spell.targets._ActorTable) do 
-							if (roster [targetactor.nome]) then
-								--> add amount
-								instance_container:AddValue (targetactor, targetactor.total, true)
-								atributo_custom._TargetActorsProcessedTotal = atributo_custom._TargetActorsProcessedTotal + targetactor.total
-								--> add to processed container
-								if (not atributo_custom._TargetActorsProcessed [targetactor.nome]) then
-									atributo_custom._TargetActorsProcessed [targetactor.nome] = true
-									atributo_custom._TargetActorsProcessedAmt = atributo_custom._TargetActorsProcessedAmt + 1
-								end
-							end
-						end
-						return 0, true
-						
-					elseif (target == "[player]") then
-						local targetactor = spell.targets._NameIndexTable [_detalhes.playername]
-						if (targetactor) then
-							targetactor = spell.targets._ActorTable [targetactor]
-							--> add amount
-							instance_container:AddValue (targetactor, targetactor.total, true)
-							atributo_custom._TargetActorsProcessedTotal = atributo_custom._TargetActorsProcessedTotal + targetactor.total
-							--> add to processed container
-							if (not atributo_custom._TargetActorsProcessed [targetactor.nome]) then
-								atributo_custom._TargetActorsProcessed [targetactor.nome] = true
-								atributo_custom._TargetActorsProcessedAmt = atributo_custom._TargetActorsProcessedAmt + 1
-							end
-						end
-						return 0, true
-					
-					else
-						local targetactor = actor.targets._NameIndexTable [target]
-						if (targetactor) then
-							targetactor = spell.targets._ActorTable [targetactor]
-							--> add amount
-							instance_container:AddValue (targetactor, targetactor.total, true)
-							atributo_custom._TargetActorsProcessedTotal = atributo_custom._TargetActorsProcessedTotal + targetactor.total
-							--> add to processed container
-							if (not atributo_custom._TargetActorsProcessed [targetactor.nome]) then
-								atributo_custom._TargetActorsProcessed [targetactor.nome] = true
-								atributo_custom._TargetActorsProcessedAmt = atributo_custom._TargetActorsProcessedAmt + 1
-							end
-						end
-						return 0, true
-					end
-				else
-					return spell.total
-				end
-			else
-				return 0
-			end
-
-		elseif (target) then
-
-			if (target == "[all]") then
-				return actor.targets:GetTotal()
-				
-			elseif (target == "[raid]") then
-				return actor.targets:GetTotalOnRaid (nil, combat)
-			
-			elseif (target == "[player]") then
-				local targetactor = actor.targets._NameIndexTable [_detalhes.playername]
-				if (targetactor) then
-					return actor.targets._ActorTable [targetactor].total
-				else
-					return 0
-				end
-
-			else
-				local targetactor = actor.targets._NameIndexTable [target]
-				if (targetactor) then
-					return actor.targets._ActorTable [targetactor].total
-				else
-					return 0
-				end
-			end
-		else
-			return actor.total or 0
-			
-		end
-		
-	end	
-	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> custom object functions
 
@@ -964,7 +605,7 @@ end
 	
 	function atributo_custom:ResetCustomActorContainer()
 		for _, actor in _ipairs (self._ActorTable) do
-			actor.value = _detalhes:GetAlphabeticalOrderNumber (actor.nome)
+			actor.value = _detalhes:GetOrderNumber (actor.nome)
 		end
 	end
 	
@@ -1004,7 +645,7 @@ end
 			local new_actor = _setmetatable ({
 			nome = actor.nome,
 			classe = actor.classe,
-			value = _detalhes:GetAlphabeticalOrderNumber (actor.nome),
+			value = _detalhes:GetOrderNumber (actor.nome),
 			}, atributo_custom.mt)
 			
 			new_actor.displayName = new_actor.nome
@@ -1231,8 +872,10 @@ end
 		SelectedToKFunction = ToKFunctions [_detalhes.ps_abbreviation]
 		FormatTooltipNumber = ToKFunctions [_detalhes.tooltip.abbreviation]
 		TooltipMaximizedMethod = _detalhes.tooltip.maximize_method
+		atributo_custom:UpdateDamageDoneBracket()
+		atributo_custom:UpdateHealingDoneBracket()
+		atributo_custom:UpdateDamageTakenBracket()
 	end
-
 
 	function _detalhes:AddDefaultCustomDisplays()
 	

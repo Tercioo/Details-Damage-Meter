@@ -69,7 +69,7 @@ local keyName
 
 function atributo_heal:NovaTabela (serial, nome, link)
 
-	local alphabetical = _detalhes:GetAlphabeticalOrderNumber (nome)
+	local alphabetical = _detalhes:GetOrderNumber (nome)
 
 	--> constructor
 	local _new_healActor = {

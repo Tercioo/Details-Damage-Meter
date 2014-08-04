@@ -268,6 +268,9 @@ function historico:resetar()
 	--> fecha a janela de informações do jogador
 	_detalhes:FechaJanelaInfo()
 	
+	--> empty temporary tables
+	_detalhes.atributo_damage:ClearTempTables()
+	
 	for _, combate in ipairs (_detalhes.tabela_historico.tabelas) do 
 		_table_wipe (combate)
 	end

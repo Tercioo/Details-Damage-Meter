@@ -1,4 +1,47 @@
 
+--> check unloaded files:
+if (
+	-- version 1.21.0
+	not _G._detalhes.atributo_custom.damagedoneTooltip or
+	not _G._detalhes.atributo_custom.damagetakenTooltip or
+	not _G._detalhes.atributo_custom.healdoneTooltip
+	) then
+	
+	local f = CreateFrame ("frame", "DetaisCorruptInstall", UIParent)
+	f:SetSize (370, 70)
+	f:SetPoint ("center", UIParent, "center", 0, 0)
+	f:SetPoint ("top", UIParent, "top", 0, -20)
+	local bg = f:CreateTexture (nil, "background")
+	bg:SetAllPoints (f)
+	bg:SetTexture ([[Interface\AddOns\Details\images\welcome]])
+	
+	local image = f:CreateTexture (nil, "overlay")
+	image:SetTexture ([[Interface\DialogFrame\UI-Dialog-Icon-AlertNew]])
+	image:SetSize (32, 32)
+	
+	local label = f:CreateFontString (nil, "overlay", "GameFontNormal")
+	label:SetText ("Restart game client in order to finish addons updates.")
+	label:SetWidth (300)
+	label:SetJustifyH ("left")
+	
+	local close = CreateFrame ("button", "DetaisCorruptInstall", f, "UIPanelCloseButton")
+	close:SetSize (32, 32)
+	close:SetPoint ("topright", f, "topright", 0, 0)
+	
+	image:SetPoint ("topleft", f, "topleft", 10, -20)	
+	label:SetPoint ("left", image, "right", 4, 0)
+
+	_G._detalhes.FILEBROKEN = true
+end
+
+function _G._detalhes:InstallOkey()
+	if (_G._detalhes.FILEBROKEN) then
+		return false
+	end
+	return true
+end
+
+--> start funtion
 function _G._detalhes:Start()
 
 	local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )

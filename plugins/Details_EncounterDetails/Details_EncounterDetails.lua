@@ -1494,7 +1494,7 @@ function EncounterDetails:OnEvent (_, event, ...)
 		local AddonName = select (1, ...)
 		if (AddonName == "Details_EncounterDetails") then
 			
-			if (_G._detalhes) then
+			if (_G._detalhes and _G._detalhes:InstallOkey()) then
 				
 				--> create widgets
 				CreatePluginFrames (data)

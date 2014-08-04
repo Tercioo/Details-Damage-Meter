@@ -114,7 +114,7 @@ local function CreatePluginFrames (data)
 		local TimeAmount = DetailsFrameWork:NewSlider (TimeAttackFrame, nil, "DetailsTimeAttackTimeSelect", "TimeSelect", 270, 20, 30, 330, 10, TimeAttack.data.time)
 		--local TimeAmount = DetailsFrameWork:NewSlider2 (TimeAttackFrame, "DetailsTimeAttackTimeSelect", "TimeSelect", 270, 20, 30, 330, 10, TimeAttack.data.time)
 		TimeAmount:SetPoint ("topleft", TimeAttackFrame, 15, -270)
-		TimeAmount.OnChangeHook = function() TimeAttack.data.time = TimeAmount.value end
+		TimeAmount.OnChangeHook = function (_, _, value) TimeAttack.data.time = value end
 	
 	--> main time/damage/dps texts
 		local clock = DetailsFrameWork:NewLabel (TimeAttackFrame, TimeAttackFrame, nil, "TIMER", "00:00:00", "GameFontHighlightLarge")

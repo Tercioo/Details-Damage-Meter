@@ -18,6 +18,7 @@
 	local _math_floor = math.floor --lua local
 	local _math_max = math.max --lua local
 	local _math_abs = math.abs --lua local
+	local _math_random = math.random --lua local
 	local _type = type --lua local
 	local _string_match = string.match --lua local
 	local _string_byte = string.byte --lua local
@@ -41,10 +42,11 @@
 --> details api functions
 
 	--> get the fractional number representing the alphabetical letter
-	function _detalhes:GetAlphabeticalOrderNumber (who_name)
-		local name = _upper (who_name .. "zz")
-		local byte1 = _math_abs (_string_byte (name, 2)-91)/1000000
-		return byte1 + _math_abs (_string_byte (name, 1)-91)/10000
+	function _detalhes:GetOrderNumber (who_name)
+		--local name = _upper (who_name .. "zz")
+		--local byte1 = _math_abs (_string_byte (name, 2)-91)/1000000
+		--return byte1 + _math_abs (_string_byte (name, 1)-91)/10000
+		return _math_random (1000, 9000) / 1000000
 	end
 	
 	--/script print (tonumber (4/1000000)) - 4e-006
