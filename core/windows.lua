@@ -1359,6 +1359,105 @@
 		
 	end	
 	
+	function _detalhes:OpenProfiler()
+	
+		--> isn't first run, so just quit
+		if (not _detalhes.character_first_run) then
+			return
+		elseif (_detalhes.is_first_run) then
+			return
+		else
+			--> check is this is the first run of the addon (after being installed)
+			local amount = 0
+			for name, profile in pairs (_detalhes_global.__profiles) do 
+				amount = amount + 1
+			end
+			if (amount == 1) then
+				return
+			end
+		end
+	
+		local f = CreateFrame ("frame", nil, UIParent) --"DetailsSelectProfile"
+		f:SetSize (250, 300)
+		
+		f:SetPoint ("right", UIParent, "right", -5, 0)
+		
+		f:SetMovable (true)
+		f:SetScript ("OnMouseDown", function (self)
+			if (not self.moving) then
+				self:StartMoving()
+				self.moving = true
+			end
+		end)
+		f:SetScript ("OnMouseUp", function (self)
+			if (self.moving) then
+				self:StopMovingOrSizing()
+				self.moving = false
+			end
+		end)
+		
+		local background = f:CreateTexture (nil, "background")
+		background:SetAllPoints()
+		background:SetTexture ([[Interface\AddOns\Details\images\welcome]])
+		
+		local logo = f:CreateTexture (nil, "artwork")
+		logo:SetTexture ([[Interface\AddOns\Details\images\logotipo]])
+		logo:SetSize (256*0.8, 128*0.8)
+		logo:SetPoint ("center", f, "center", 0, 0)
+		logo:SetPoint ("top", f, "top", 20, 20)
+		
+		local string_profiler = f:CreateFontString (nil, "artwork", "GameFontNormal")
+		string_profiler:SetPoint ("top", logo, "bottom", -20, 10)
+		string_profiler:SetText ("Profiler!")
+		
+		local string_profiler = f:CreateFontString (nil, "artwork", "GameFontNormal")
+		string_profiler:SetPoint ("topleft", f, "topleft", 10, -130)
+		string_profiler:SetText (Loc ["STRING_OPTIONS_PROFILE_SELECTEXISTING"])
+		string_profiler:SetWidth (230)
+		_detalhes:SetFontSize (string_profiler, 11)
+		_detalhes:SetFontColor (string_profiler, "white")
+		
+		--> get the new profile name
+		local current_profile = _detalhes:GetCurrentProfileName()
+		
+		local on_select_profile = function (_, _, profilename)
+			if (profilename ~= _detalhes:GetCurrentProfileName()) then
+				_detalhes:ApplyProfile (profilename)
+				if (_G.DetailsOptionsWindow and _G.DetailsOptionsWindow:IsShown()) then
+					_detalhes:OpenOptionsWindow (_G.DetailsOptionsWindow.instance)
+				end
+			end
+		end
+		
+		local texcoord = {5/32, 30/32, 4/32, 28/32}
+		
+		local fill_dropdown = function()
+			local t = {
+				{value = current_profile, label = Loc ["STRING_OPTIONS_PROFILE_USENEW"], onclick = on_select_profile, icon = [[Interface\FriendsFrame\UI-Toast-FriendRequestIcon]], texcoord = {4/32, 30/32, 4/32, 28/32}, iconcolor = "orange"}
+			}
+			for _, profilename in ipairs (_detalhes:GetProfileList()) do
+				if (profilename ~= current_profile) then
+					t[#t+1] = {value = profilename, label = profilename, onclick = on_select_profile, icon = [[Interface\FriendsFrame\UI-Toast-FriendOnlineIcon]], texcoord = texcoord, iconcolor = "yellow"}
+				end
+			end
+			return t
+		end
+		
+		local dropdown = _detalhes.gump:NewDropDown (f, f, "DetailsProfilerProfileSelectorDropdown", "dropdown", 220, 20, fill_dropdown, 1)
+		dropdown:SetPoint (15, -190)
+		
+		local confirm_func = function()
+			if (current_profile ~= _detalhes:GetCurrentProfileName()) then
+				_detalhes:EraseProfile (current_profile)
+			end
+			f:Hide()
+		end
+		local confirm = _detalhes.gump:NewButton (f, f, "DetailsProfilerProfileConfirmButton", "button", 150, 20, confirm_func, nil, nil, nil, "okey!")
+		confirm:SetPoint (50, -250)
+		confirm:InstallCustomTexture()
+	
+	end	
+	
 	--> minimap icon and hotcorner
 	function _detalhes:RegisterMinimapAndHotCorner()
 		local LDB = LibStub ("LibDataBroker-1.1", true)

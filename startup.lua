@@ -425,33 +425,7 @@ function _G._detalhes:Start()
 		_detalhes.schedule_chat_enter = _detalhes:ScheduleTimer ("EnterChatChannel", 30)
 	end
 
-	local f = CreateFrame ("frame", "DetailsSelectProfile", UIParent)
-	f:SetSize (250, 300)
-	f:SetPoint ("center", UIParent)
-	f:SetMovable (true)
-	f:SetScript ("OnMouseDown", function (self)
-		if (not self.moving) then
-			self:StartMoving()
-			self.moving = true
-		end
-	end)
-	f:SetScript ("OnMouseUp", function (self)
-		if (self.moving) then
-			self:StopMovingOrSizing()
-			self.moving = false
-		end
-	end)
+	_detalhes:OpenProfiler()
 	
-	local background = f:CreateTexture (nil, "background")
-	background:SetAllPoints()
-	background:SetTexture ([[Interface\AddOns\Details\images\welcome]])
-	
-	local logo = f:CreateTexture (nil, "artwork")
-	logo:SetTexture ([[Interface\AddOns\Details\images\logotipo]])
-	logo:SetSize (256*0.8, 128*0.8)
-	logo:SetPoint ("center", f, "center", 0, 0)
-	logo:SetPoint ("top", f, "top", 20, 20)
-	
-	f:Hide()
 end
 

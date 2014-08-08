@@ -292,8 +292,9 @@ function _detalhes:LoadConfig()
 			end
 			
 	--> profile
-		--> fix for the 500
+		--> character first run
 			if (_detalhes_database.active_profile == "") then
+				_detalhes.character_first_run = true
 				--> é a primeira vez que este character usa profiles,  precisa copiar as keys existentes
 				local current_profile_name = _detalhes:GetCurrentProfileName()
 				_detalhes:GetProfile (current_profile_name, true)

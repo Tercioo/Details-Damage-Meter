@@ -421,7 +421,11 @@ function DropDownMetaFunctions:Selected (_table)
 		end
 		
 		if (_table.iconcolor) then
-			self.icon:SetVertexColor (unpack (_table.iconcolor))
+			if (type (_table.iconcolor) == "string") then
+				self.icon:SetVertexColor (gump:ParseColors (_table.iconcolor))
+			else
+				self.icon:SetVertexColor (unpack (_table.iconcolor))
+			end
 		else
 			self.icon:SetVertexColor (1, 1, 1, 1)
 		end
@@ -593,7 +597,11 @@ function DetailsDropDownOnMouseDown (button)
 						end
 						
 						if (_table.iconcolor) then
-							_this_row.icon:SetVertexColor (unpack (_table.iconcolor))
+							if (type (_table.iconcolor) == "string") then
+								_this_row.icon:SetVertexColor (gump:ParseColors (_table.iconcolor))
+							else
+								_this_row.icon:SetVertexColor (unpack (_table.iconcolor))
+							end
 						else
 							_this_row.icon:SetVertexColor (1, 1, 1, 1)
 						end

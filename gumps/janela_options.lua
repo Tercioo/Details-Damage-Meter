@@ -1029,7 +1029,7 @@ function window:CreateFrame20()
 			
 		-- text size
 		g:NewLabel (frame20, _, "$parentTooltipTextSizeLabel", "TooltipTextSizeLabel", Loc ["STRING_OPTIONS_TOOLTIPS_FONTSIZE"], "GameFontHighlightLeft")
-		local s = g:NewSlider (frame20, _, "$parentTooltipTextSizeSlider", "TooltipTextSizeSlider", SLIDER_WIDTH, 20, 8, 25, 1, tonumber (_detalhes.tooltip.fontsize))
+		local s = g:NewSlider (frame20, _, "$parentTooltipTextSizeSlider", "TooltipTextSizeSlider", SLIDER_WIDTH, 20, 8, 32, 1, tonumber (_detalhes.tooltip.fontsize))
 		s:SetBackdrop (slider_backdrop)
 		s:SetBackdropColor (unpack (slider_backdrop_color))
 		s:SetThumbSize (50)
@@ -1966,6 +1966,21 @@ function window:CreateFrame18()
 		
 		--local confirm_button = g:NewButton (frame18, nil, "$parentDeleteInstanceButton", "deleteInstanceButton", 60, 20, delete_instance, nil, nil, nil, "delete")
 		--confirm_button:InstallCustomTexture()
+		
+		--> menu text size
+		g:NewLabel (frame18, _, "$parentMenuTextSizeLabel", "MenuTextSizeLabel", Loc ["STRING_OPTIONS_MENU_FONT_SIZE"], "GameFontHighlightLeft")
+		local s = g:NewSlider (frame18, _, "$parentMenuTextSizeSlider", "MenuTextSizeSlider", SLIDER_WIDTH, 20, 8, 32, 1, _detalhes.font_sizes.menus)
+		s:SetBackdrop (slider_backdrop)
+		s:SetBackdropColor (unpack (slider_backdrop_color))
+		s:SetThumbSize (50)			
+	
+		frame18.MenuTextSizeSlider:SetPoint ("left", frame18.MenuTextSizeLabel, "right", 2)
+	
+		frame18.MenuTextSizeSlider:SetHook ("OnValueChange", function (_, _, amount)
+			_detalhes.font_sizes.menus = amount
+		end)
+		
+		window:CreateLineBackground2 (frame18, "MenuTextSizeSlider", "MenuTextSizeLabel", Loc ["STRING_OPTIONS_MENU_FONT_SIZE_DESC"])
 	
 	--> Report
 		g:NewLabel (frame18, _, "$parentReportHelpfulLinkLabel", "ReportHelpfulLinkLabel", Loc ["STRING_OPTIONS_REPORT_HEALLINKS"], "GameFontHighlightLeft")
@@ -2015,11 +2030,13 @@ function window:CreateFrame18()
 			{"instancesMiscLabel", 1, true},
 			{"deleteInstanceLabel", 2},
 			
-			{"totalBarAnchorLabel", 3, true},
-			{"totalBarIconLabel", 4},
-			{"totalBarPickColorLabel", 5},
-			{"totalBarLabel", 6},
-			{"totalBarOnlyInGroupLabel", 7},			
+			{"totalBarAnchorLabel", 4, true},
+			{"totalBarIconLabel", 5},
+			{"totalBarPickColorLabel", 6},
+			{"totalBarLabel", 7},
+			{"totalBarOnlyInGroupLabel", 8},
+			
+			{"MenuTextSizeLabel", 3}
 		}
 		
 		window:arrange_menu (frame18, right_side, window.right_start_at, -90)
@@ -2938,7 +2955,7 @@ function window:CreateFrame14()
 		
 	--size
 		g:NewLabel (frame14, _, "$parentAttributeTextSizeLabel", "attributeTextSizeLabel", Loc ["STRING_OPTIONS_MENU_ATTRIBUTE_TEXTSIZE"], "GameFontHighlightLeft")
-		local s = g:NewSlider (frame14, _, "$parentAttributeTextSizeSlider", "attributeTextSizeSlider", SLIDER_WIDTH, 20, 8, 25, 1, tonumber ( instance.attribute_text.text_size))
+		local s = g:NewSlider (frame14, _, "$parentAttributeTextSizeSlider", "attributeTextSizeSlider", SLIDER_WIDTH, 20, 8, 32, 1, tonumber ( instance.attribute_text.text_size))
 		s:SetBackdrop (slider_backdrop)
 		s:SetBackdropColor (unpack (slider_backdrop_color))
 		s:SetThumbSize (50)			
@@ -4711,7 +4728,7 @@ function window:CreateFrame5()
 		window:CreateLineBackground2 (frame5, "fixedTextColor", "fixedTextColorLabel", Loc ["STRING_OPTIONS_TEXT_FIXEDCOLOR_DESC"])
 	
 	--> text size
-		local s = g:NewSlider (frame5, _, "$parentSliderFontSize", "fonsizeSlider", SLIDER_WIDTH, 20, 8, 15, 1, tonumber (instance.row_info.font_size))
+		local s = g:NewSlider (frame5, _, "$parentSliderFontSize", "fonsizeSlider", SLIDER_WIDTH, 20, 8, 32, 1, tonumber (instance.row_info.font_size))
 		s:SetBackdrop (slider_backdrop)
 		s:SetBackdropColor (unpack (slider_backdrop_color))
 		s:SetThumbSize (50)
@@ -5715,7 +5732,7 @@ function window:CreateFrame8()
 	
 		--> instance button
 			--text size
-			local s = g:NewSlider (frame8, _, "$parentInstanceTextSizeSlider", "instanceTextSizeSlider", SLIDER_WIDTH, 20, 8, 15, 1, tonumber (instance.instancebutton_config.textsize))
+			local s = g:NewSlider (frame8, _, "$parentInstanceTextSizeSlider", "instanceTextSizeSlider", SLIDER_WIDTH, 20, 8, 32, 1, tonumber (instance.instancebutton_config.textsize))
 			s:SetBackdrop (slider_backdrop)
 			s:SetBackdropColor (unpack (slider_backdrop_color))
 			s:SetThumbSize (50)			
@@ -7656,6 +7673,8 @@ function window:update_all (editing_instance)
 	_G.DetailsOptionsWindow18TotalBarOnlyInGroupSlider.MyObject:SetFixedParameter (editing_instance)
 	_G.DetailsOptionsWindow18TotalBarOnlyInGroupSlider.MyObject:SetValue (editing_instance.total_bar.only_in_group)
 	_G.DetailsOptionsWindow18TotalBarIconTexture.MyObject:SetTexture (editing_instance.total_bar.icon)
+	
+	_G.DetailsOptionsWindow18MenuTextSizeSlider.MyObject:SetValue (_detalhes.font_sizes.menus)
 	
 	--> window 19
 	_G.DetailsOptionsWindow19MinimapSlider.MyObject:SetValue (not _detalhes.minimap.hide)

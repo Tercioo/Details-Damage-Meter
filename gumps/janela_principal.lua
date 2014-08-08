@@ -1195,13 +1195,14 @@ local function resize_scripts (resizer, instancia, scrollbar, side, baseframe)
 			self.texture:SetBlendMode ("ADD")
 			self.mostrando = true
 			
-			_G.GameCooltip:Reset()
-			_G.GameCooltip:SetType ("tooltip")
-			_G.GameCooltip:AddFromTable (resizeTooltip)
-			_G.GameCooltip:SetOption ("NoLastSelectedBar", true)
-			_G.GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
-			_G.GameCooltip:SetOwner (resizer)
-			_G.GameCooltip:ShowCooltip()
+			GameCooltip:Reset()
+			GameCooltip:SetType ("tooltip")
+			GameCooltip:AddFromTable (resizeTooltip)
+			GameCooltip:SetOption ("TextSize", _detalhes.font_sizes.menus)
+			GameCooltip:SetOption ("NoLastSelectedBar", true)
+			GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
+			GameCooltip:SetOwner (resizer)
+			GameCooltip:ShowCooltip()
 		end
 	end)
 	
@@ -1217,7 +1218,7 @@ local function resize_scripts (resizer, instancia, scrollbar, side, baseframe)
 			self.texture:SetBlendMode ("BLEND")
 			self.mostrando = false
 			
-			_G.GameCooltip:ShowMe (false)
+			GameCooltip:ShowMe (false)
 		end
 	end)
 end
@@ -1239,6 +1240,7 @@ local lockFunctionOnEnter = function (self)
 		GameCooltip:SetType ("tooltip")
 		GameCooltip:AddFromTable (lockButtonTooltip)
 		GameCooltip:SetOption ("NoLastSelectedBar", true)
+		GameCooltip:SetOption ("TextSize", _detalhes.font_sizes.menus)
 		GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
 		GameCooltip:SetOwner (self)
 		GameCooltip:ShowCooltip()
@@ -1251,7 +1253,7 @@ local lockFunctionOnLeave = function (self)
 		OnLeaveMainWindow (self.instancia, self)
 		self.label:SetTextColor (.3, .3, .3, .6)
 		self.mostrando = false
-		_G.GameCooltip:ShowMe (false)
+		GameCooltip:ShowMe (false)
 	end
 end
 
@@ -1321,6 +1323,7 @@ local unSnapButtonOnEnter = function (self)
 	
 	GameCooltip:Reset()
 	GameCooltip:AddFromTable (unSnapButtonTooltip)
+	GameCooltip:SetOption ("TextSize", _detalhes.font_sizes.menus)
 	GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
 	GameCooltip:ShowCooltip (self, "tooltip")
 	
@@ -5686,11 +5689,11 @@ end
 		
 		local font = SharedMedia:Fetch ("font", "Friz Quadrata TT")
 		
-		GameCooltip:AddLine (Loc ["STRING_ERASE_DATA"], nil, 1, "white", nil, 10, font)
+		GameCooltip:AddLine (Loc ["STRING_ERASE_DATA"], nil, 1, "white", nil, _detalhes.font_sizes.menus, font)
 		GameCooltip:AddIcon ([[Interface\Buttons\UI-StopButton]], 1, 1, 14, 14, 0, 1, 0, 1, "red")
 		GameCooltip:AddMenu (1, _detalhes.tabela_historico.resetar)
 		
-		GameCooltip:AddLine (Loc ["STRING_ERASE_DATA_OVERALL"], nil, 1, "white", nil, 10, font)
+		GameCooltip:AddLine (Loc ["STRING_ERASE_DATA_OVERALL"], nil, 1, "white", nil, _detalhes.font_sizes.menus, font)
 		GameCooltip:AddIcon ([[Interface\Buttons\UI-StopButton]], 1, 1, 14, 14, 0, 1, 0, 1, "orange")
 		GameCooltip:AddMenu (1, _detalhes.tabela_historico.resetar_overall)
 		
@@ -5754,14 +5757,14 @@ end
 		GameCooltip:SetOption ("FixedWidthSub", 180)
 		
 		local font = SharedMedia:Fetch ("font", "Friz Quadrata TT")
-		GameCooltip:AddLine (Loc ["STRING_MENU_CLOSE_INSTANCE"], nil, 1, "white", nil, 10, font)
+		GameCooltip:AddLine (Loc ["STRING_MENU_CLOSE_INSTANCE"], nil, 1, "white", nil, _detalhes.font_sizes.menus, font)
 		GameCooltip:AddIcon ([[Interface\Buttons\UI-Panel-MinimizeButton-Up]], 1, 1, 14, 14, 0.2, 0.8, 0.2, 0.8)
 		GameCooltip:AddMenu (1, close_button_onclick, self)
 		
-		GameCooltip:AddLine (Loc ["STRING_MENU_CLOSE_INSTANCE_DESC"], nil, 2, "white", nil, 10, font)
+		GameCooltip:AddLine (Loc ["STRING_MENU_CLOSE_INSTANCE_DESC"], nil, 2, "white", nil, _detalhes.font_sizes.menus, font)
 		GameCooltip:AddIcon ([[Interface\CHATFRAME\UI-ChatIcon-Minimize-Up]], 2, 1, 18, 18)
 		
-		GameCooltip:AddLine (Loc ["STRING_MENU_CLOSE_INSTANCE_DESC2"], nil, 2, "white", nil, 10, font)
+		GameCooltip:AddLine (Loc ["STRING_MENU_CLOSE_INSTANCE_DESC2"], nil, 2, "white", nil, _detalhes.font_sizes.menus, font)
 		GameCooltip:AddIcon ([[Interface\PaperDollInfoFrame\UI-GearManager-LeaveItem-Transparent]], 2, 1, 18, 18)
 		
 		GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
@@ -6225,7 +6228,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 				GameCooltip:SetOption ("TextHeightMod", 0)
 				GameCooltip:SetOption ("IgnoreButtonAutoHeight", false)
 				
-				GameCooltip:AddLine ("Report Results", nil, 1, "white", nil, 10, SharedMedia:Fetch ("font", "Friz Quadrata TT"))
+				GameCooltip:AddLine ("Report Results", nil, 1, "white", nil, _detalhes.font_sizes.menus, SharedMedia:Fetch ("font", "Friz Quadrata TT"))
 				GameCooltip:AddIcon ([[Interface\Addons\Details\Images\report_button]], 1, 1, 12, 19)
 				GameCooltip:AddMenu (1, _detalhes.Reportar, instancia)
 				
@@ -6350,7 +6353,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 					end
 				end
 
-
+				CoolTip:SetOption ("TextSize", _detalhes.font_sizes.menus)
 			end
 		end
 		

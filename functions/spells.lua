@@ -1007,6 +1007,7 @@ do
 		[108270] = {60, 5, 1}, -- Stone Bulwark Totem
 		[108280]	=	{180, 12}, -- Healing Tide Totem
 		[98008]	=	{180, 6}, -- Spirit Link Totem
+		[108281]	=	{120, 10}, -- Ancestral Guidance
 		
 		--["WARLOCK"] = {108416, 6229},
 		[108416] = {60, 20, 1}, -- Sacrificial Pact  1 = self
@@ -1748,7 +1749,6 @@ do
 		[2825]	=	true, -- Bloodlust
 		[114049]	=	true, -- Ascendance
 		[16166]	=	true, -- Elemental Mastery
-		[108281]	=	true, -- Ancestral Guidance
 		[51533]	=	true, -- Feral Spirit
 		[16188]	=	true, -- Ancestral Swiftness
 		[2062]	=	true, -- Earth Elemental Totem
