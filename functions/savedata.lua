@@ -18,14 +18,38 @@ local is_exception = {
 	["nick_tag_cache"] = true
 }
 
+function _detalhes:SaveLocalInstanceConfig()
+	for index, instance in _detalhes:ListInstances() do
+		local a1, a2 = instance:GetDisplay()
+		_detalhes.local_instances_config [index] = {
+			pos = table_deepcopy (instance:GetPosition()), 
+			is_open = instance:IsEnabled(),
+			attribute = a1,
+			sub_attribute = a2,
+			mode = instance:GetMode(),
+			segment = instance:GetSegment(),
+			snap = table_deepcopy (instance.snap),
+			horizontalSnap = instance.horizontalSnap,
+			verticalSnap = instance.verticalSnap,
+			sub_atributo_last = instance.sub_atributo_last,
+			isLocked = instance.isLocked
+		}
+		
+		if (_detalhes.local_instances_config [index].isLocked == nil) then
+			_detalhes.local_instances_config [index].isLocked = false
+		end
+	end
+end
+
 function _detalhes:SaveConfig()
 
-	--> nicktag cache
-		--_detalhes.copy_nick_tag = table_deepcopy (_detalhes_database.nick_tag_cache)
-
+	--> save instance configs localy
+	_detalhes:SaveLocalInstanceConfig()
+	
 	--> cleanup
 		_detalhes:PrepareTablesForSave()
-		_detalhes_database.tabela_instancias = _detalhes.tabela_instancias
+
+		_detalhes_database.tabela_instancias = {} --_detalhes.tabela_instancias --[[instances now saves only inside the profile --]]
 		_detalhes_database.tabela_historico = _detalhes.tabela_historico
 		
 		local name, ttype, difficulty, difficultyName, maxPlayers, playerDifficulty, isDynamicInstance, mapID, instanceGroupSize = GetInstanceInfo()

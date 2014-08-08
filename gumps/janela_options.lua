@@ -3739,8 +3739,7 @@ function window:CreateFrame13()
 		profile_create_button:SetPoint ("left", profile_name, "right", 2, 0)
 		
 		window:CreateLineBackground2 (frame13, profile_name, profile_name_label, Loc ["STRING_OPTIONS_PROFILES_CREATE_DESC"])
-	
-	
+
 	--> copy profile
 		local profile_selectedCopy = function (_, instance, profile_name)
 			--copiar o profile
@@ -3836,12 +3835,15 @@ function window:CreateFrame13()
 		window:CreateLineBackground2 (frame13, profile_reset_button, hiddenlabel, Loc ["STRING_OPTIONS_PROFILES_RESET_DESC"])
 		
 		--profile_reset_button.button.texture:SetVertexColor (1, .8, 0)
-
+		
+	--> save window position within profile
+	
 		g:NewLabel (frame13, _, "$parentSavePosAndSizeLabel", "PosAndSizeLabel", Loc ["STRING_OPTIONS_PROFILE_POSSIZE"], "GameFontHighlightLeft")
 		g:NewSwitch (frame13, _, "$parentPosAndSizeSlider", "PosAndSizeSlider", 60, 20, _, _, _detalhes.profile_save_pos)
 		frame13.PosAndSizeSlider:SetPoint ("left", frame13.PosAndSizeLabel, "right", 2, -1)
 		frame13.PosAndSizeSlider.OnSwitch = function (self, _, value)
 			_detalhes.profile_save_pos = value
+			_detalhes:SetProfileCProp (nil, "profile_save_pos", value)
 		end
 		frame13.PosAndSizeSlider:SetPoint ("left", frame13.PosAndSizeLabel, "right", 3, 0)
 		window:CreateLineBackground2 (frame13, "PosAndSizeSlider", "PosAndSizeLabel", Loc ["STRING_OPTIONS_PROFILE_POSSIZE_DESC"])
@@ -6182,13 +6184,13 @@ function window:CreateFrame9()
 				end
 				
 				instance:InstanceWallpaper (true)
-				_G.DetailsOptionsWindow9BackgroundDropdown.MyObject:Enable()
-				_G.DetailsOptionsWindow9BackgroundDropdown2.MyObject:Enable()
+				--_G.DetailsOptionsWindow9BackgroundDropdown.MyObject:Enable()
+				--_G.DetailsOptionsWindow9BackgroundDropdown2.MyObject:Enable()
 				
 			else
 				instance:InstanceWallpaper (false)
-				_G.DetailsOptionsWindow9BackgroundDropdown.MyObject:Disable()
-				_G.DetailsOptionsWindow9BackgroundDropdown2.MyObject:Disable()
+				--_G.DetailsOptionsWindow9BackgroundDropdown.MyObject:Disable()
+				--_G.DetailsOptionsWindow9BackgroundDropdown2.MyObject:Disable()
 			end
 			
 			window:update_wallpaper_info()
@@ -7664,7 +7666,16 @@ function window:update_all (editing_instance)
 	_G.DetailsOptionsWindow19QuickClickDropdown.MyObject:Select (_detalhes.hotcorner_topleft.quickclick_what_todo)
 	_G.DetailsOptionsWindow19BrokerTextDropdown.MyObject:Select (_detalhes.minimap.text_type)
 	
-	
+	if (not _G.HotCorners) then
+		_G.DetailsOptionsWindow19HotcornerSlider.MyObject:Disable()
+		_G.DetailsOptionsWindow19HotcornerActionDropdown.MyObject:Disable()
+		_G.DetailsOptionsWindow19HotcornerQuickClickSlider.MyObject:Disable()
+		_G.DetailsOptionsWindow19QuickClickDropdown.MyObject:Disable()
+		if (not _G.DetailsOptionsWindow19HotcornerAnchor.MyObject:GetText():find ("not installed")) then
+			_G.DetailsOptionsWindow19HotcornerAnchor.MyObject:SetText (_G.DetailsOptionsWindow19HotcornerAnchor.MyObject:GetText() .. " |cFFFF5555(not installed)|r")
+		end
+	end
+
 	--> window 20
 	_G.DetailsOptionsWindow20TooltipTextColorPick.MyObject:SetColor (unpack (_detalhes.tooltip.fontcolor))
 	_G.DetailsOptionsWindow20TooltipTextSizeSlider.MyObject:SetValue (_detalhes.tooltip.fontsize)

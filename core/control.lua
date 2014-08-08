@@ -308,7 +308,6 @@
 			_detalhes:CatchRaidBuffUptime ("BUFF_UPTIME_IN")
 			_detalhes:CatchRaidDebuffUptime ("DEBUFF_UPTIME_IN")
 			_detalhes:UptadeRaidMembersCache()
-			_detalhes:HaveOneCurrentInstance()
 			
 			--> hide / alpha / switch in combat
 			for index, instancia in ipairs (_detalhes.tabela_instancias) do 
@@ -319,6 +318,7 @@
 			end
 			
 			_detalhes:SendEvent ("COMBAT_PLAYER_ENTER", nil, _detalhes.tabela_vigente)
+			_detalhes:HaveOneCurrentInstance()
 			
 		end
 		

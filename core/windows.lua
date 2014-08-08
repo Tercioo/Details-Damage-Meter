@@ -231,11 +231,11 @@
 			self.posicao[self.mostrando].h = pre_defined.altura
 		end
 
+		self.baseframe:SetWidth (self.posicao[self.mostrando].w)
+		self.baseframe:SetHeight (self.posicao[self.mostrando].h)
+		
 		self.baseframe:ClearAllPoints()
 		self.baseframe:SetPoint ("CENTER", _UIParent, "CENTER", novo_x, novo_y)
-
-		self.baseframe:SetWidth (self.posicao[self.mostrando].w) --slider frame
-		self.baseframe:SetHeight (self.posicao[self.mostrando].h)
 
 		self.baseframe.BoxBarrasAltura = self.baseframe:GetHeight() - end_window_spacement --> espaço para o final da janela
 	end
@@ -1518,25 +1518,28 @@
 			end
 		end
 		
-		_detalhes:RegisterHotCornerButton (
-			--> absolute name
-			"Details!",
-			--> corner
-			"TOPLEFT", 
-			--> config table
-			self.hotcorner_topleft,
-			--> frame _G name
-			"DetailsLeftCornerButton", 
-			--> icon
-			[[Interface\AddOns\Details\images\minimap]], 
-			--> tooltip
-			tooltip_hotcorner,
-			--> click function
-			on_click_on_hotcorner_button, 
-			--> menus
-			nil, 
-			--> quick click
-			on_click_on_quickclick_button)
+		if (_G.HotCorners) then
+			_G.HotCorners:RegisterHotCornerButton (
+				--> absolute name
+				"Details!",
+				--> corner
+				"TOPLEFT", 
+				--> config table
+				_detalhes.hotcorner_topleft,
+				--> frame _G name
+				"DetailsLeftCornerButton", 
+				--> icon
+				[[Interface\AddOns\Details\images\minimap]], 
+				--> tooltip
+				tooltip_hotcorner,
+				--> click function
+				on_click_on_hotcorner_button, 
+				--> menus
+				nil, 
+				--> quick click
+				on_click_on_quickclick_button
+			)
+		end
 	end
 	
 	--old versions dialog
@@ -1634,4 +1637,21 @@
 
 	end
 	_detalhes:ScheduleTimer ("ResetWarningDialog", 7)
---]]				
+--]]
+
+--[[
+	local background_up = f:CreateTexture (nil, "background")
+	background_up:SetPoint ("topleft", f, "topleft")
+	background_up:SetSize (250, 150)
+	background_up:SetTexture ("Interface\\QuestionFrame\\Question-Main")
+	background_up:SetTexCoord (0, 420/512, 320/512, 475/512)
+	
+	local background_down = f:CreateTexture (nil, "background")
+	background_down:SetPoint ("topleft", background_up, "bottomleft")
+	background_down:SetSize (250, 150)
+	background_down:SetTexture ("Interface\\QuestionFrame\\Question-Main")
+	background_down:SetTexCoord (0, 420/512, 156/512, 308/512)
+	
+	background_up:SetDesaturated (true)
+	background_down:SetDesaturated (true)
+--]]

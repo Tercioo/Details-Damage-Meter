@@ -539,6 +539,10 @@
 -----------------------------------------------------------------------------------------------------------------------------------------
 	function parser:summon (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellName)
 	
+		if (not who_name) then
+			who_name = "[*] " .. spellName
+		end
+	
 		--> pet summon another pet
 		local sou_pet = _detalhes.tabela_pets.pets [who_serial]
 		if (sou_pet) then --> okey, ja é um pet
@@ -2877,6 +2881,7 @@
 		end
 	end
 
+	-- ~load
 	function _detalhes.parser_functions:ADDON_LOADED (...)
 	
 		local addon_name = _select (1, ...)
@@ -2893,11 +2898,12 @@
 			--> check group
 			_detalhes.in_group = IsInGroup() or IsInRaid()
 		
-			--> write into details object all basic keys
+			--> write into details object all basic keys and default profile
 			_detalhes:ApplyBasicKeys()
-			--> check if is first run
+			--> check if is first run, update keys for character and global data
 			_detalhes:LoadGlobalAndCharacterData()
 			
+			--> details updated and not reopened the game client
 			if (_detalhes.FILEBROKEN) then
 				return
 			end
@@ -2945,7 +2951,7 @@
 
 	_detalhes.listener:SetScript ("OnEvent", _detalhes.OnEvent)
 	
-	--> protected logout function
+	--> logout function ~save
 		function _detalhes:PLAYER_LOGOUT (...)
 		
 			--> close info window

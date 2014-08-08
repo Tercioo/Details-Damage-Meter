@@ -1530,7 +1530,23 @@ function atributo_heal:MontaInfoHealingDone()
 		_table_insert (minhas_curas, {spellid, tabela.total, tabela.total/total*100, nome, icone})
 	end
 
-	_table_sort (minhas_curas, function(a, b) return a[2] > b[2] end)
+	--> add pets
+	local ActorPets = self.pets
+	--local class_color = RAID_CLASS_COLORS [self.classe] and RAID_CLASS_COLORS [self.classe].colorStr
+	local class_color = "FFDDDDDD"
+	for _, PetName in _ipairs (ActorPets) do
+		local PetActor = instancia.showing (class_type, PetName)
+		if (PetActor) then 
+			local PetSkillsContainer = PetActor.spell_tables._ActorTable
+			for _spellid, _skill in _pairs (PetSkillsContainer) do --> da foreach em cada spellid do container
+				local nome, _, icone = _GetSpellInfo (_spellid)
+				_table_insert (minhas_curas, {_spellid, _skill.total, _skill.total/total*100, nome .. " (|c" .. class_color .. PetName:gsub ((" <.*"), "") .. "|r)", icone, PetActor})
+			end
+			--_table_insert (ActorSkillsSortTable, {PetName, PetActor.total, PetActor.total/ActorTotalDamage*100, PetName:gsub ((" <.*"), ""), "Interface\\AddOns\\Details\\images\\classes_small"})
+		end
+	end
+	
+	_table_sort (minhas_curas, _detalhes.Sort2)
 
 	local amt = #minhas_curas
 	gump:JI_AtualizaContainerBarras (amt)
@@ -1549,6 +1565,8 @@ function atributo_heal:MontaInfoHealingDone()
 
 		self:FocusLock (barra, tabela[1])
 		
+		barra.other_actor = tabela [6]
+		
 		if (info.sub_atributo == 2) then
 			self:UpdadeInfoBar (barra, index, tabela[1], tabela[4], tabela[2], _detalhes:comma_value (_math_floor (tabela[2]/meu_tempo)), max_, tabela[3], tabela[5], true)
 		else
@@ -1565,7 +1583,7 @@ function atributo_heal:MontaInfoHealingDone()
 		end
 	end
 	
-	--> SERIA TOP CURADOS
+	--> TOP CURADOS
 	local meus_inimigos = {}
 	tabela = self.targets._ActorTable
 	for _, tabela in _ipairs (tabela) do
@@ -1618,39 +1636,58 @@ function atributo_heal:MontaInfoHealingDone()
 	
 end
 
-function atributo_heal:MontaTooltipAlvos (esta_barra, index)
+function atributo_heal:MontaTooltipAlvos (esta_barra, index, instancia)
 	-- eu ja sei quem é o alvo a mostrar os detalhes
 	-- dar foreach no container de habilidades -- pegar os alvos da habilidade -- e ver se dentro do container tem o meu alvo.
 	
 	local inimigo = esta_barra.nome_inimigo
 	local container = self.spell_tables._ActorTable
 	local habilidades = {}
-	local total = self.total
+	local total
+	local sub_atributo = info.instancia.sub_atributo
 	
-	if (info.instancia.sub_atributo == 3) then --> overheal
+	if (sub_atributo == 3) then --> overheal
 		total = self.totalover
-		for spellid, tabela in _pairs (container) do
-			--> tabela = classe_damage_habilidade
-			local alvos = tabela.targets._ActorTable
-			for _, tabela in _ipairs (alvos) do
-				--> tabela = classe_target
-				if (tabela.nome == inimigo) then
-					habilidades [#habilidades+1] = {spellid, tabela.overheal}
-				end
-			end
-		end
 	else
-	
-		for spellid, tabela in _pairs (container) do
-			local alvos = tabela.targets._ActorTable
-			for _, tabela in _ipairs (alvos) do
-				if (tabela.nome == inimigo) then
-					habilidades [#habilidades+1] = {spellid, tabela.total}
+		total = self.total
+	end
+
+	--> add spells
+	for spellid, tabela in _pairs (container) do
+		local alvos = tabela.targets._ActorTable
+		for _, tabela in _ipairs (alvos) do
+			if (tabela.nome == inimigo) then
+				local nome, _, icone = _GetSpellInfo (spellid)
+				if (sub_atributo == 3) then --> overheal
+					habilidades [#habilidades+1] = {nome, tabela.overheal, icone}
+				else
+					habilidades [#habilidades+1] = {nome, tabela.total, icone}
 				end
 			end
 		end
-	
 	end
+
+	--> add pets
+	local ActorPets = self.pets
+	for _, PetName in _ipairs (ActorPets) do
+		local PetActor = instancia.showing (class_type, PetName)
+		if (PetActor) then 
+			local PetSkillsContainer = PetActor.spell_tables._ActorTable
+			for _spellid, _skill in _pairs (PetSkillsContainer) do
+				local alvos = _skill.targets._ActorTable
+				for _, tabela in _ipairs (alvos) do
+					if (tabela.nome == inimigo) then
+						local nome, _, icone = _GetSpellInfo (_spellid)
+						if (sub_atributo == 3) then --> overheal
+							habilidades [#habilidades+1] = {nome .. " (" .. PetName:gsub ((" <.*"), "") .. ")", tabela.overheal, icone}
+						else
+							habilidades [#habilidades+1] = {nome .. " (" .. PetName:gsub ((" <.*"), "") .. ")", tabela.total, icone}
+						end
+					end
+				end
+			end
+		end
+	end	
 	
 	_table_sort (habilidades, function (a, b) return a[2] > b[2] end)
 	
@@ -1675,7 +1712,7 @@ function atributo_heal:MontaTooltipAlvos (esta_barra, index)
 	end
 	
 	for index, tabela in _ipairs (habilidades) do
-		local nome, rank, icone = _GetSpellInfo (tabela[1])
+		local nome, icone = tabela[1], tabela [3]
 		if (index < 8) then
 			if (is_hps) then
 				GameTooltip:AddDoubleLine (index..". |T"..icone..":0|t "..nome, _detalhes:comma_value (_math_floor (tabela[2]/meu_tempo)).." (".. _cstr ("%.1f", tabela[2]/total*100).."%)", 1, 1, 1, 1, 1, 1)
@@ -1776,9 +1813,14 @@ function atributo_heal:MontaDetalhesHealingTaken (nome, barra)
 end
 
 function atributo_heal:MontaDetalhesHealingDone (spellid, barra)
-	--> localize-me
 
-	local esta_magia = self.spell_tables._ActorTable [spellid]
+	local esta_magia
+	if (barra.other_actor) then
+		esta_magia = barra.other_actor.spell_tables._ActorTable [spellid]
+	else
+		esta_magia = self.spell_tables._ActorTable [spellid]
+	end
+	
 	if (not esta_magia) then
 		return
 	end

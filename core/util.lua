@@ -177,6 +177,19 @@
 		return false
 	end
 	
+	_detalhes.table = {}
+	
+	function _detalhes.table.copy (t1, t2)
+		local table_deepcopy = table_deepcopy
+		for key, value in pairs (t2) do 
+			if (type (value) == "table") then
+				t1 [key] = table_deepcopy (value)
+			else
+				t1 [key] = value
+			end
+		end
+	end
+	
 	function _detalhes:hex (num)
 		local hexstr = '0123456789abcdef'
 		local s = ''

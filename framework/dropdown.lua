@@ -254,11 +254,19 @@ local DropDownMetaFunctions = {}
 	function DropDownMetaFunctions:IsEnabled()
 		return self.dropdown:IsEnabled()
 	end
+	
 	function DropDownMetaFunctions:Enable()
-		return self.dropdown:Enable()
+		
+		self:SetAlpha (.4)
+		return _rawset (self, "lockdown", false)
+		--return self.dropdown:Enable()
 	end
+	
 	function DropDownMetaFunctions:Disable()
-		return self.dropdown:Disable()
+	
+		self:SetAlpha (.4)
+		return _rawset (self, "lockdown", true)
+		--return self.dropdown:Disable()
 	end
 
 --> fixed value
@@ -517,8 +525,8 @@ end
 function DetailsDropDownOnMouseDown (button)
 	
 	local object = button.MyObject
-	
-	if (not object.opened) then --> click to open
+
+	if (not object.opened and not _rawget (object, "lockdown")) then --> click to open
 		
 		local menu = object:func()
 		object.builtMenu = menu

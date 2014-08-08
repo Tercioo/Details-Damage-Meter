@@ -86,22 +86,32 @@ end
 function _detalhes:LoadGlobalAndCharacterData()
 
 	--> check and build the default container for character database
+	
+		--> it exists?
 		if (not _detalhes_database) then
 			_detalhes_database = table_deepcopy (_detalhes.default_player_data)
 		end
-		
-		if (_detalhes_global and not _detalhes_global.profile_pool) then
-			_detalhes_global.profile_pool = {}
-		end
 
-		for key, value in pairs (_detalhes.default_player_data) do 
+		--> load saved values
+		for key, value in pairs (_detalhes.default_player_data) do
 		
-			--> check if key exists
+			--> check if key exists, e.g. a new key was added
 			if (_detalhes_database [key] == nil) then
 				if (type (value) == "table") then
 					_detalhes_database [key] = table_deepcopy (_detalhes.default_player_data [key])
 				else
 					_detalhes_database [key] = value
+				end
+				
+			elseif (type (_detalhes_database [key]) == "table") then
+				for key2, value2 in pairs (_detalhes.default_player_data [key]) do 
+					if (_detalhes_database [key] [key2] == nil) then
+						if (type (value2) == "table") then
+							_detalhes_database [key] [key2] = table_deepcopy (_detalhes.default_player_data [key] [key2])
+						else
+							_detalhes_database [key] [key2] = value2
+						end
+					end
 				end
 			end
 			
@@ -118,7 +128,7 @@ function _detalhes:LoadGlobalAndCharacterData()
 		if (not _detalhes_global) then
 			_detalhes_global = table_deepcopy (_detalhes.default_global_data)
 		end
-	
+		
 		for key, value in pairs (_detalhes.default_global_data) do 
 		
 			--> check if key exists
@@ -228,29 +238,9 @@ end
 
 function _detalhes:LoadConfig()
 
-	--> profile
-	
-		--> instances
-		_detalhes.tabela_instancias = _detalhes_database.tabela_instancias or {}
-		--> plugins data
+	--> plugins data
 		_detalhes.plugin_database = _detalhes_database.plugin_database or {}
-		
-		_detalhes:ReativarInstancias()
-		
-		--> fix for the 500
-			if (_detalhes_database.active_profile == "") then
-				--> é a primeira vez que este character usa profiles,  precisa copiar as keys existentes
-				local current_profile_name = _detalhes:GetCurrentProfileName()
-				_detalhes:GetProfile (current_profile_name, true)
-				_detalhes:SaveProfileSpecial()
-			end
-	
-		--> load profile and active instances
-		local current_profile_name = _detalhes:GetCurrentProfileName()
-		_detalhes:GetProfile (current_profile_name, true)
-		
-		_detalhes:ApplyProfile (current_profile_name, true)
-	
+
 	--> startup
 	
 		--> set the nicktag cache host
@@ -259,7 +249,6 @@ function _detalhes:LoadConfig()
 		--> count data
 			_detalhes:CountDataOnLoad()
 			
-		
 		--> solo e raid plugin
 			if (_detalhes_database.SoloTablesSaved) then
 				if (_detalhes_database.SoloTablesSaved.Mode) then
@@ -301,6 +290,76 @@ function _detalhes:LoadConfig()
 			if (not _detalhes_database.last_version or _detalhes_database.last_version ~= _detalhes.userversion) then
 				_detalhes.is_version_first_run = true
 			end
+			
+	--> profile
+		--> fix for the 500
+			if (_detalhes_database.active_profile == "") then
+				--> é a primeira vez que este character usa profiles,  precisa copiar as keys existentes
+				local current_profile_name = _detalhes:GetCurrentProfileName()
+				_detalhes:GetProfile (current_profile_name, true)
+				_detalhes:SaveProfileSpecial()
+			end
+	
+		--> load profile and active instances
+			local current_profile_name = _detalhes:GetCurrentProfileName()
+		--> check if exists, if not, create one
+			local profile = _detalhes:GetProfile (current_profile_name, true)
+		
+		--> instances
+			_detalhes.tabela_instancias = _detalhes_database.tabela_instancias or {}
+			
+			--> fix for version 1.21.0
+			if (#_detalhes.tabela_instancias > 0) then --> only happens once after the character logon
+				--if (current_profile_name:find (UnitName ("player"))) then
+					for index, saved_skin in ipairs (profile.instances) do
+						local instance = _detalhes.tabela_instancias [index]
+						if (instance) then
+							saved_skin.__was_opened = instance.ativa
+							saved_skin.__pos = table_deepcopy (instance.posicao)
+							saved_skin.__locked = instance.isLocked
+							saved_skin.__snap = table_deepcopy (instance.snap)
+							saved_skin.__snapH = instance.horizontalSnap
+							saved_skin.__snapV = instance.verticalSnap
+							
+							for key, value in pairs (instance) do
+								if (_detalhes.instance_defaults [key] ~= nil) then	
+									if (type (value) == "table") then
+										saved_skin [key] = table_deepcopy (value)
+									else
+										saved_skin [key] = value
+									end
+								end
+							end
+						end
+					end
+					
+					for index, instance in _detalhes:ListInstances() do
+						_detalhes.local_instances_config [index] = {
+							pos = table_deepcopy (instance.posicao),
+							is_open = instance.ativa,
+							attribute = instance.atributo,
+							sub_attribute = instance.sub_atributo,
+							mode = instance.modo,
+							segment = instance.segmento,
+							snap = table_deepcopy (instance.snap),
+							horizontalSnap = instance.horizontalSnap,
+							verticalSnap = instance.verticalSnap,
+							sub_atributo_last = instance.sub_atributo_last,
+							isLocked = instance.isLocked
+						}
+						
+						if (_detalhes.local_instances_config [index].isLocked == nil) then
+							_detalhes.local_instances_config [index].isLocked = false
+						end
+					end
+				--end
+				
+				_detalhes.tabela_instancias = {}
+			end
+			--_detalhes:ReativarInstancias()
+		
+		--> apply the profile
+			_detalhes:ApplyProfile (current_profile_name, true)
 			
 end
 

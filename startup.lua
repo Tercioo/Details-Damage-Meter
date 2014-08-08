@@ -163,6 +163,10 @@ function _G._detalhes:Start()
 							instance:InstanceWallpaper (false)
 						end
 					end
+					if (instance:IsEnabled()) then
+						_detalhes.move_janela_func (instance.baseframe, true, instance)
+						_detalhes.move_janela_func (instance.baseframe, false, instance)
+					end
 				end
 				self.CheckWallpaperAfterStartup = nil
 			end
@@ -234,7 +238,7 @@ function _G._detalhes:Start()
 		self:ScheduleTimer ("ShowDelayMsg", 10) 
 	
 	--> send instance open signal
-		for index, instancia in ipairs (self.tabela_instancias) do
+		for index, instancia in _detalhes:ListInstances() do
 			if (instancia.ativa) then
 				self:SendEvent ("DETAILS_INSTANCE_OPEN", nil, instancia)
 			end
@@ -259,7 +263,7 @@ function _G._detalhes:Start()
 		
 	--> announce alpha version
 		function self:AnnounceVersion()
-			for index, instancia in ipairs (self.tabela_instancias) do
+			for index, instancia in _detalhes:ListInstances() do
 				if (instancia.ativa) then
 					self.gump:Fade (instancia._version, "in", 0.1)
 				end
@@ -421,5 +425,33 @@ function _G._detalhes:Start()
 		_detalhes.schedule_chat_enter = _detalhes:ScheduleTimer ("EnterChatChannel", 30)
 	end
 
+	local f = CreateFrame ("frame", "DetailsSelectProfile", UIParent)
+	f:SetSize (250, 300)
+	f:SetPoint ("center", UIParent)
+	f:SetMovable (true)
+	f:SetScript ("OnMouseDown", function (self)
+		if (not self.moving) then
+			self:StartMoving()
+			self.moving = true
+		end
+	end)
+	f:SetScript ("OnMouseUp", function (self)
+		if (self.moving) then
+			self:StopMovingOrSizing()
+			self.moving = false
+		end
+	end)
+	
+	local background = f:CreateTexture (nil, "background")
+	background:SetAllPoints()
+	background:SetTexture ([[Interface\AddOns\Details\images\welcome]])
+	
+	local logo = f:CreateTexture (nil, "artwork")
+	logo:SetTexture ([[Interface\AddOns\Details\images\logotipo]])
+	logo:SetSize (256*0.8, 128*0.8)
+	logo:SetPoint ("center", f, "center", 0, 0)
+	logo:SetPoint ("top", f, "top", 20, 20)
+	
+	f:Hide()
 end
 

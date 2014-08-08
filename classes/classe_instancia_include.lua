@@ -10,6 +10,10 @@ function _detalhes:ResetInstanceConfig()
 			self [key] = value
 		end
 	end
+	self.snap = {}
+	self.horizontalSnap = nil
+	self.verticalSnap = nil
+	self:LockInstance (false)
 end
 
 function _detalhes:LoadInstanceConfig()

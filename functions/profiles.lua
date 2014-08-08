@@ -117,6 +117,24 @@ function _detalhes:GetProfile (name, create)
 		return profile
 end	
 
+function _detalhes:SetProfileCProp (name, cprop, value)
+	if (not name) then
+		name = _detalhes:GetCurrentProfileName()
+	end
+
+	local profile = _detalhes:GetProfile (name, false)
+	
+	if (profile) then
+		if (type (value) == "table") then
+			rawset (profile, cprop, table_deepcopy (value))
+		else
+			rawset (profile, cprop, value)
+		end
+	else
+		return
+	end
+end
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> Profiles:
 	--> reset the profile
@@ -131,17 +149,7 @@ function _detalhes:ResetProfile (profile_name)
 	
 	--> reset
 	
-		local instances = profile.instances
-		for index, instance in ipairs (instances) do 
-			for key, value in pairs (_detalhes.instance_defaults) do
-				if (type (value) == "table") then
-					instance [key] = table_deepcopy (value)
-				else
-					instance [key] = value
-				end
-			end
-		end
-		
+		profile.instances = {}
 		local profile = table_deepcopy (_detalhes.default_profile)
 		profile.instances = instances
 		
@@ -204,51 +212,190 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 			else
 				_detalhes [key] = value
 			end
-
 		end
 		
+	--> set the current profile
+	if (not is_copy) then
+		_detalhes.active_profile = profile_name
+		_detalhes_database.active_profile = profile_name
+	end
+	
 	--> apply the skin
 		
-		local saved_skins = profile.instances
+		--> first save the local instance configs
+		_detalhes:SaveLocalInstanceConfig()
 		
-	--> we need to create instances if the profile have more saved skins then the current amount of instances
-		if (#_detalhes.tabela_instancias < #saved_skins) then
-			for i = #_detalhes.tabela_instancias+1, #saved_skins do
+		local saved_skins = profile.instances
+		local instance_limit = _detalhes.instances_amount
+		
+		--> then close all opened instances
+		for index, instance in _detalhes:ListInstances() do
+			if (not getmetatable (instance)) then
+				instance.iniciada = false
+				setmetatable (instance, _detalhes)
+			end
+			if (instance:IsStarted()) then
+				if (instance:IsEnabled()) then
+					instance:ShutDown()
+				end
+			end
+		end
+
+		--> check if there is a skin saved or this is a empty profile
+		if (#saved_skins == 0) then
+			--> is empty profile, let's set default skin on #1 window
+			local instance1 = _detalhes:GetInstance (1)
+			if (not instance1) then
+				instance1 = _detalhes:CreateInstance (1)
+			end
+
+			--> apply default config on this instance (flat skin texture was 'ResetInstanceConfig' running).
+			instance1:ResetInstanceConfig()
+			instance1.skin = "no skin"
+			instance1:ChangeSkin ("Minimalistic")
 			
-				--> esse inicio precisa ser em silêncio
-				
-				local new_instance = _detalhes:CreateInstance (true)
-				if (not new_instance) then
+			--> release the snap and lock
+			instance1:LoadLocalInstanceConfig()
+			instance1.snap = {}
+			instance1.horizontalSnap = nil
+			instance1.verticalSnap = nil
+			instance1:LockInstance (false)
+			
+			if (#_detalhes.tabela_instancias > 1) then
+				for i = #_detalhes.tabela_instancias, 2, -1 do
+					_detalhes.unused_instances [i] = _detalhes.tabela_instancias [i]
+					_detalhes.tabela_instancias [i] = nil
+				end
+			end
+			
+		else	
+		
+			--> load skins
+			local instances_loaded = 0
+			
+			for index, skin in ipairs (saved_skins) do
+				if (instance_limit < index) then
 					break
 				end
 				
-				new_instance:ShutDown()
+				--> get the instance
+				local instance = _detalhes:GetInstance (index)
+				if (not instance) then
+					--> create a instance without creating its frames (not initializing)
+					instance = _detalhes:CreateDisabledInstance (index, skin)
+				end
+				
+				--> copy skin
+				for key, value in pairs (skin) do
+					if (type (value) == "table") then
+						instance [key] = table_deepcopy (value)
+					else
+						instance [key] = value
+					end
+				end
+				
+				--> reset basic config
+				instance.snap = {}
+				instance.horizontalSnap = nil
+				instance.verticalSnap = nil
+				instance:LockInstance (false)
+				
+				--> load data saved for this character only
+				instance:LoadLocalInstanceConfig()
+
+				if (skin.__was_opened) then
+					instance:AtivarInstancia()
+				else
+					instance.ativa = false
+				end
+				
+				--> load data saved again
+				instance:LoadLocalInstanceConfig()
+				
+				--> check window positioning
+				if (_detalhes.profile_save_pos) then
+					if (skin.__pos) then
+						instance.posicao = table_deepcopy (skin.__pos)
+					else
+						if (not instance.posicao) then
+							instance.posicao = {normal = {x = 1, y = 1, w = 300, h = 200}, solo = {}}
+						elseif (not instance.posicao.normal) then
+							instance.posicao.normal = {x = 1, y = 1, w = 300, h = 200}
+						end
+					end
+
+					instance.isLocked = skin.__locked
+					instance.snap = table_deepcopy (skin.__snap) or {}
+					instance.horizontalSnap = skin.__snapH
+					instance.verticalSnap = skin.__snapV
+				else
+					if (not instance.posicao) then
+						instance.posicao = {normal = {x = 1, y = 1, w = 300, h = 200}, solo = {}}
+					elseif (not instance.posicao.normal) then
+						instance.posicao.normal = {x = 1, y = 1, w = 300, h = 200}
+					end
+				end
+				
+				--> open the instance
+				if (instance:IsEnabled()) then
+					instance:LockInstance (instance.isLocked)
+					instance:RestoreMainWindowPosition()
+					instance:ReajustaGump()
+					instance:SaveMainWindowPosition()
+					instance:ChangeSkin()
+				else
+					instance.skin = skin.skin
+				end
+				
+				instances_loaded = instances_loaded + 1
 			end
-		end
-		
-		for index, instance in ipairs (_detalhes.tabela_instancias) do
 			
-			local this_skin = saved_skins [index]
-			
-			if (this_skin) then
-				if (not instance.iniciada and not _detalhes.initializing) then
-					instance:RestauraJanela()
-					instance:ApplySavedSkin (this_skin)
-					instance:DesativarInstancia()
-				elseif (instance.iniciada) then
-					instance:ApplySavedSkin (this_skin)
+			--> move unused instances for unused container
+			if (#_detalhes.tabela_instancias > instances_loaded) then
+				for i = #_detalhes.tabela_instancias, instances_loaded+1, -1 do
+					_detalhes.unused_instances [i] = _detalhes.tabela_instancias [i]
+					_detalhes.tabela_instancias [i] = nil
 				end
 			end
+			
+			--> check all snaps for invalid entries
+			for i = 1, instances_loaded do
+				local instance = _detalhes:GetInstance (i)
+				local previous_instance_id = _detalhes:GetInstance (i-1) and _detalhes:GetInstance (i-1):GetId() or 0
+				local next_instance_id = _detalhes:GetInstance (i+1) and _detalhes:GetInstance (i+1):GetId() or 0
+				
+				for snap_side, instance_id in pairs (instance.snap) do
+					if (instance_id < 1) then --> invalid instance
+						instance.snap [snap_side] = nil
+					elseif (instance_id ~= previous_instance_id and instance_id ~= next_instance_id) then --> no match
+						instance.snap [snap_side] = nil
+					end
+				end
+			end
+			
+			--> auto realign windows
+			if (not _detalhes.initializing) then
+				for _, instance in _detalhes:ListInstances() do
+					if (instance:IsEnabled()) then
+						_detalhes.move_janela_func (instance.baseframe, true, instance)
+						_detalhes.move_janela_func (instance.baseframe, false, instance)
+					end
+				end
+			end
+			
 		end
 		
+		--> check instance amount
+		_detalhes.opened_windows = 0
+		for index = 1, _detalhes.instances_amount do
+			local instance = _detalhes.tabela_instancias [index]
+			if (instance and instance.ativa) then
+				_detalhes.opened_windows = _detalhes.opened_windows + 1
+			end
+		end
+
 	--> end
-		
-		if (not is_copy) then
-			_detalhes.active_profile = profile_name
-			_detalhes_database.active_profile = profile_name
-			--_detalhes:SaveProfile()
-		end
-		
+
 		return true	
 end
 
@@ -290,6 +437,12 @@ function _detalhes:SaveProfile (saveas)
 
 		for index, instance in ipairs (_detalhes.tabela_instancias) do
 			local exported = instance:ExportSkin()
+			exported.__was_opened = instance:IsEnabled()
+			exported.__pos = table_deepcopy (instance:GetPosition())
+			exported.__locked = instance.isLocked
+			exported.__snap = table_deepcopy (instance.snap)
+			exported.__snapH = instance.horizontalSnap
+			exported.__snapV = instance.verticalSnap
 			profile.instances [index] = exported
 		end
 
@@ -635,6 +788,8 @@ local default_player_data = {
 		RaidTablesSaved = {},
 	--> saved skins
 		savedStyles = {},
+	--> instance config
+		local_instances_config = {},
 }
 
 _detalhes.default_player_data = default_player_data
@@ -700,9 +855,11 @@ function _detalhes:SaveProfileSpecial()
 	--> save skins
 		table.wipe (profile.instances)
 
-		for index, instance in ipairs (_detalhes.tabela_instancias) do
-			local exported = instance:ExportSkin()
-			profile.instances [index] = exported
+		if (_detalhes.tabela_instancias) then
+			for index, instance in ipairs (_detalhes.tabela_instancias) do
+				local exported = instance:ExportSkin()
+				profile.instances [index] = exported
+			end
 		end
 
 	--> end

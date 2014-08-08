@@ -60,7 +60,7 @@ end
 
 --	0.00048828125
 	
-	local DEFAULT_SKIN = [[Interface\AddOns\Details\images\skins\default_skin]]
+	local DEFAULT_SKIN = [[Interface\AddOns\Details\images\skins\classic_skin]]
 	
 	--local COORDS_LEFT_BALL = {0.15673828125, 0.27978515625, 0.08251953125, 0.20556640625} -- 160 84 287 211 (updated)
 	--160 84 287 211
@@ -663,6 +663,7 @@ local function move_janela (baseframe, iniciando, instancia)
 		
 	end
 end
+_detalhes.move_janela_func = move_janela
 
 local function BGFrame_scripts (BG, baseframe, instancia)
 
@@ -4518,7 +4519,7 @@ function _detalhes:ChangeSkin (skin_name)
 	local this_skin = _detalhes.skins [skin_name]
 
 	if (not this_skin) then
-		skin_name = "Default Skin"
+		skin_name = "Minimalistic"
 		this_skin = _detalhes.skins [skin_name]
 	end
 	
@@ -4530,6 +4531,7 @@ function _detalhes:ChangeSkin (skin_name)
 	if (not just_updating) then
 
 		--> skin updater
+		--print ("debug", self.meu_id, self.iniciada, self.baseframe, self.bgframe)
 		if (self.bgframe.skin_script) then
 			self.bgframe:SetScript ("OnUpdate", nil)
 			self.bgframe.skin_script = false
@@ -4588,6 +4590,7 @@ function _detalhes:ChangeSkin (skin_name)
 	local skin_file = this_skin.file
 
 	--> set textures
+	
 		self.baseframe.cabecalho.ball:SetTexture (skin_file) --> bola esquerda
 		self.baseframe.cabecalho.emenda:SetTexture (skin_file) --> emenda que liga a bola a textura do centro
 		

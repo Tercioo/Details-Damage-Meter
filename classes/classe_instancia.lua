@@ -208,6 +208,18 @@ function _detalhes:ResetAttribute()
 	end
 end
 
+function _detalhes:ListInstances()
+	return _ipairs (_detalhes.tabela_instancias)
+end
+
+function _detalhes:GetPosition()
+	return self.posicao
+end
+
+function _detalhes:GetDisplay()
+	return self.atributo, self.sub_atributo
+end
+
 ------------------------------------------------------------------------------------------------------------------------
 
 --> retorna se a instância esta ou não ativa
@@ -223,8 +235,29 @@ function _detalhes:IsStarted()
 	return self.iniciada
 end
 
-
 ------------------------------------------------------------------------------------------------------------------------
+
+	function _detalhes:LoadLocalInstanceConfig()
+		local config = _detalhes.local_instances_config [self.meu_id]
+		if (config) then
+		
+			if (not _detalhes.profile_save_pos) then
+				self.posicao = config.pos
+			end
+			
+			self.ativa = config.is_open
+			self.atributo = config.attribute
+			self.sub_atributo = config.sub_attribute
+			self.modo = config.mode
+			self.segmento = config.segment
+			self.snap = config.snap or {}
+			self.horizontalSnap = config.horizontalSnap
+			self.verticalSnap = config.verticalSnap
+			self.sub_atributo_last = config.sub_atributo_last
+			self.isLocked = config.isLocked
+
+		end
+	end
 
 	function _detalhes:ShutDownAllInstances()
 		for index, instance in _ipairs (_detalhes.tabela_instancias) do
@@ -236,6 +269,10 @@ end
 
 	function _detalhes:ShutDown()
 		return self:DesativarInstancia()
+	end
+	
+	function _detalhes:GetNumWindows()
+		
 	end
 
 --> desativando a instância ela fica em stand by e apenas hida a janela
@@ -259,9 +296,13 @@ end
 		self:ResetaGump()
 		
 		--gump:Fade (self.baseframe.cabecalho.atributo_icon, _unpack (_detalhes.windows_fade_in))
-		gump:Fade (self.baseframe.cabecalho.ball, _unpack (_detalhes.windows_fade_in))
-		gump:Fade (self.baseframe, _unpack (_detalhes.windows_fade_in))
-		gump:Fade (self.rowframe, _unpack (_detalhes.windows_fade_in))
+		--gump:Fade (self.baseframe.cabecalho.ball, _unpack (_detalhes.windows_fade_in))
+		--gump:Fade (self.baseframe, _unpack (_detalhes.windows_fade_in))
+		--gump:Fade (self.rowframe, _unpack (_detalhes.windows_fade_in))
+		
+		gump:Fade (self.baseframe.cabecalho.ball, 1)
+		gump:Fade (self.baseframe, 1)
+		gump:Fade (self.rowframe, 1)
 		
 		self:Desagrupar (-1)
 		
@@ -420,18 +461,99 @@ end
 ------------------------------------------------------------------------------------------------------------------------
 
 	function _detalhes:DeleteInstance (id)
-	
+
 		local instance = _detalhes:GetInstance (id)
 		
 		if (not instance) then
 			return false
 		end
+
+		--> check is is open
+		--if (instance:IsEnabled()) then
+		--	instance:ShutDown()
+		--end
 		
-		--verifica se esta aberta
-		if (instance:IsEnabled()) then
-			instance:ShutDown()
+		-- deletei a janela 1
+		-- a janela 2 ficou com snap [1] = 1 [3] = 3
+		
+		--> break snaps of previous and next window
+		local left_instance = _detalhes:GetInstance (id-1)
+		if (left_instance) then
+			for snap_side, instance_id in _pairs (left_instance.snap) do
+				if (instance_id == id) then --snap na proxima instancia
+					left_instance.snap [snap_side] = nil
+				end
+			end
+		end
+		local right_instance = _detalhes:GetInstance (id+1)
+		if (right_instance) then
+			for snap_side, instance_id in _pairs (right_instance.snap) do
+				if (instance_id == id) then --snap na proxima instancia
+					right_instance.snap [snap_side] = nil
+				end
+			end
+		end
+		
+		--> re align snaps for higher instances
+		for i = id+1, #_detalhes.tabela_instancias do
+			local this_instance = _detalhes:GetInstance (i)
+			--fix the snaps
+			for snap_side, instance_id in _pairs (this_instance.snap) do
+				if (instance_id == i+1) then --snap na proxima instancia
+					this_instance.snap [snap_side] = i
+				elseif (instance_id == i-1 and i-2 > 0) then --snap na instancia anterior
+					this_instance.snap [snap_side] = i-2
+				else
+					this_instance.snap [snap_side] = nil
+				end
+			end
+		end
+		
+		table.remove (_detalhes.tabela_instancias, id)
+
+		if (true) then
+			return
+		end
+		
+		table.remove (_detalhes.local_instances_config, id)		
+		_detalhes:SaveProfile()
+		_detalhes:SaveLocalInstanceConfig()		
+		table.insert (_detalhes.tabela_instancias, 3, instance)
+		_detalhes:ApplyProfile (_detalhes:GetCurrentProfileName(), true)
+		
+		if (true) then
+			return
 		end
 
+		--> break snaps of previous and next window
+		local left_instance = _detalhes:GetInstance (id-1)
+		if (left_instance) then
+			for index, instance_id in _pairs (left_instance.snap) do
+				if (index == id) then --snap na proxima instancia
+					left_instance.snap [index] = nil
+				end
+			end
+		end
+		local right_instance = _detalhes:GetInstance (id+1)
+		if (right_instance) then
+			for index, instance_id in _pairs (right_instance.snap) do
+				if (index == id) then --snap na proxima instancia
+					right_instance.snap [index] = nil
+				end
+			end
+		end
+		
+		--> copy skins from next instances
+		for i = id+1, #_detalhes.tabela_instancias do
+			local current_instance = _detalhes:GetInstance (i-1)
+			local next_instance = _detalhes:GetInstance (i)
+			
+			if (next_instance) then
+				local exported = next_instance:ExportSkin()
+				
+			end
+		end
+		
 		--fixas os snaps nas janelas superiores
 		for i = id+1, #_detalhes.tabela_instancias do
 			local this_instance = _detalhes:GetInstance (i)
@@ -449,8 +571,23 @@ end
 			end
 		end
 		
+		
+		
+		
+		
 		--remover do container tabela_instancias
-		tremove (_detalhes.tabela_instancias, id)
+		
+		-- fiz alterações das outras instancias, precisa salvar agora? // ele salva ao sair  ou mudar o profile
+		-- remover a instancia do container deste profile
+		
+		--local profile = _detalhes:GetProfile (current_profile_name)
+		--local saved_skins = profile.instances
+		--tremove (saved_skins, id)
+		
+		--tremove (_detalhes.tabela_instancias, id)
+		
+		--> save the current profile
+		_detalhes:SaveProfile()
 		
 	end
 
@@ -471,8 +608,17 @@ end
 				return false
 			end
 			
-			local new_instance = _detalhes:NovaInstancia (#_detalhes.tabela_instancias+1)
+			local next_id = #_detalhes.tabela_instancias+1
 			
+			if (_detalhes.unused_instances [next_id]) then
+				local new_instance = _detalhes.unused_instances [next_id]
+				_detalhes.tabela_instancias [next_id] = new_instance
+				_detalhes.unused_instances [next_id] = nil
+				new_instance:AtivarInstancia()
+				return new_instance
+			end
+			
+			local new_instance = _detalhes:NovaInstancia (next_id)
 			return new_instance
 			
 		elseif (id) then
@@ -770,23 +916,6 @@ function _detalhes:agrupar_janelas (lados)
 	
 end
 
-local function FixSnaps (instancia)
-	--_detalhes:DelayMsg ("DEBUG verificando snaps para instancia "..instancia.meu_id)
-	for snap, esta_instancia in _pairs (instancia.snap) do
-		if (esta_instancia) then 
-			esta_instancia =  _detalhes.tabela_instancias [esta_instancia]
-			--_detalhes:DelayMsg ("DEBUG janela "..instancia.meu_id.." com snap "..snap.. " em " .. esta_instancia.meu_id)
-			if (snap == 2) then 
-				--instancia.baseframe.rodape.StatusBarLeftAnchor:SetPoint ("left", instancia.baseframe.rodape.top_bg, "left", 25, 10)
-				--instancia.baseframe.rodape.StatusBarCenterAnchor:SetPoint ("center", instancia.baseframe.rodape.top_bg, "center", 20, 10)
-				--instancia.baseframe.rodape.esquerdo:SetTexture ("Interface\\AddOns\\Details\\images\\bar_down_left_snap")
-				--instancia.baseframe.rodape.esquerdo.have_snap = true
-			end
-		end
-	end
-end
-
-
 function _detalhes:Desagrupar (instancia, lado)
 
 	if (self.meu_id) then --> significa que self é uma instancia
@@ -898,6 +1027,99 @@ end
 
 --> cria uma janela para uma nova instância
 	--> search key: ~new ~nova
+	function _detalhes:CreateDisabledInstance (ID, skin_table)
+	
+	--> first check if we can recycle a old instance
+		if (_detalhes.unused_instances [ID]) then
+			local new_instance = _detalhes.unused_instances [ID]
+			_detalhes.tabela_instancias [ID] = new_instance
+			_detalhes.unused_instances [ID] = nil
+			--> replace the values on recycled instance
+				new_instance:ResetInstanceConfig()
+			
+			--> copy values from a previous skin saved
+				if (skin_table) then
+					--> copy from skin_table to new_instance
+					_detalhes.table.copy (new_instance, skin_table)
+				end
+			
+			return new_instance
+		end
+	
+	--> must create a new one
+		local new_instance = {
+			--> instance id
+				meu_id = ID,
+			--> internal stuff
+				barras = {}, --container que irá armazenar todas as barras
+				barraS = {nil, nil}, --de x até x são as barras que estão sendo mostradas na tela
+				rolagem = false, --barra de rolagem não esta sendo mostrada
+				largura_scroll = 26,
+				bar_mod = 0,
+				bgdisplay_loc = 0,		
+				
+			--> displaying row info
+				rows_created = 0,
+				rows_showing = 0,
+				rows_max = 50,
+
+			--> saved pos for normal mode and lone wolf mode
+				posicao = {
+					["normal"] = {x = 1, y = 2, w = 300, h = 200},
+					["solo"] = {x = 1, y = 2, w = 300, h = 200}
+				},
+				
+			--> save information about window snaps
+				snap = {},
+			
+			--> current state starts as normal
+				mostrando = "normal",
+			--> menu consolidated
+				consolidate = false, --deprecated
+				icons = {true, true, true, true},
+				
+			--> status bar stuff
+				StatusBar = {options = {}},
+
+			--> more stuff
+				atributo = 1, --> dano 
+				sub_atributo = 1, --> damage done
+				sub_atributo_last = {1, 1, 1, 1, 1},
+				segmento = -1, --> combate atual
+				modo = modo_grupo,
+				last_modo = modo_grupo,
+				LastModo = modo_grupo,
+		}
+		
+		_setmetatable (new_instance, _detalhes)
+		_detalhes.tabela_instancias [#_detalhes.tabela_instancias+1] = new_instance
+
+		--> fill the empty instance with default values
+			new_instance:ResetInstanceConfig()
+		
+		--> copy values from a previous skin saved
+			if (skin_table) then
+				--> copy from skin_table to new_instance
+				_detalhes.table.copy (new_instance, skin_table)
+			end
+			
+		--> setup default wallpaper
+			local spec = GetSpecialization()
+			if (spec) then
+				local id, name, description, icon, _background, role = GetSpecializationInfo (spec)
+				if (_background) then
+					local bg = "Interface\\TALENTFRAME\\" .. _background
+					if (new_instance.wallpaper) then
+						new_instance.wallpaper.texture = bg
+						new_instance.wallpaper.texcoord = {0, 1, 0, 0.703125}
+					end
+				end
+			end
+		
+		--> finish
+			return new_instance
+	end
+	
 	function _detalhes:NovaInstancia (ID)
 
 		local new_instance = {}
@@ -938,11 +1160,11 @@ end
 		
 		--> saved pos for normal mode and lone wolf mode
 			new_instance.posicao = {
-				["normal"] = {},
-				["solo"] = {}
+				["normal"] = {x = 1, y = 2, w = 300, h = 200},
+				["solo"] = {x = 1, y = 2, w = 300, h = 200}
 			}		
 		--> save information about window snaps
-			new_instance.snap = {nil, nil, nil, nil}
+			new_instance.snap = {}
 		
 		--> current state starts as normal
 			new_instance.mostrando = "normal"
@@ -951,6 +1173,7 @@ end
 			new_instance.icons = {true, true, true, true}
 
 		--> create window frames
+		
 			local _baseframe, _bgframe, _bgframe_display, _scrollframe = gump:CriaJanelaPrincipal (ID, new_instance, true)
 			new_instance.baseframe = _baseframe
 			new_instance.bgframe = _bgframe
@@ -1001,12 +1224,11 @@ end
 			
 		new_instance:ShowSideBars()
 
-		--local skin =  fazer aqui o esquema de resgatar a skin salva no profile.
-		
-		new_instance:ChangeSkin ("Default Skin")
+		new_instance.skin = "no skin"
 		new_instance:ChangeSkin ("Minimalistic")
 		
 		--> apply standard skin if have one saved
+		--[[
 			if (_detalhes.standard_skin) then
 
 				local style = _detalhes.standard_skin
@@ -1028,9 +1250,10 @@ end
 				end
 
 			end
+		--]]
 		
 		--> apply all changed attributes
-		new_instance:ChangeSkin()
+		--new_instance:ChangeSkin()
 		
 		return new_instance
 	end
@@ -1092,8 +1315,7 @@ function _detalhes:RestauraJanela (index, temp, load_only)
 		self:EsconderScrollBar (true)
 	
 	--> check snaps
-		self.snap = self.snap or {nil, nil, nil, nil}
-		FixSnaps (self)
+		self.snap = self.snap or {}
 
 	--> status bar stuff
 		self.StatusBar = {}
