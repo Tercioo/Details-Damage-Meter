@@ -338,6 +338,9 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 				
 				--> open the instance
 				if (instance:IsEnabled()) then
+					if (not instance.baseframe) then
+						instance:AtivarInstancia()
+					end
 					instance:LockInstance (instance.isLocked)
 					instance:RestoreMainWindowPosition()
 					instance:ReajustaGump()

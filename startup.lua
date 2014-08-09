@@ -278,15 +278,13 @@ function _G._detalhes:Start()
 	
 	--> check is this is the first run
 		if (self.is_first_run) then
-			_detalhes:OpenWelcomeWindow()
-			
 			if (#self.custom == 0) then
 				_detalhes:AddDefaultCustomDisplays()
 			end
 			
 			_detalhes:FillUserCustomSpells()
 		end
-	
+		
 	--> start tutorial if this is first run
 		if (self.tutorial.logons < 2 and self.is_first_run) then
 			self:StartTutorial()
@@ -414,7 +412,7 @@ function _G._detalhes:Start()
 		--_detalhes:OpenOptionsWindow (_detalhes.tabela_instancias[1])
 		--print (_G ["DetailsClearSegmentsButton1"]:GetSize())
 		--_detalhes:OpenCustomDisplayWindow()
-		--_detalhes:OpenWelcomeWindow() --for debug
+		--_detalhes:OpenWelcomeWindow()
 	end
 	_detalhes:ScheduleTimer ("OpenOptionsWindowAtStart", 2)
 	--_detalhes:OpenCustomDisplayWindow()
@@ -426,6 +424,10 @@ function _G._detalhes:Start()
 	end
 
 	_detalhes:OpenProfiler()
+	
+	if (self.is_first_run) then
+		_detalhes:OpenWelcomeWindow()
+	end
 	
 end
 

@@ -459,8 +459,17 @@
 			tabela._custom = true
 		end
 
+		local total = instancia.showing.totals.frags_total
+		local porcentagem
+		
+		if (instancia.row_info.percent_type == 1) then
+			porcentagem = _cstr ("%.1f", tabela [2] / total * 100)
+		elseif (instancia.row_info.percent_type == 2) then
+			porcentagem = _cstr ("%.1f", tabela [2] / instancia.top * 100)
+		end
+		
 		esta_barra.texto_esquerdo:SetText (colocacao .. ". " .. tabela [1])
-		esta_barra.texto_direita:SetText (tabela [2])
+		esta_barra.texto_direita:SetText (tabela [2] .. " (" .. porcentagem .. "%)")
 		
 		esta_barra.texto_esquerdo:SetSize (esta_barra:GetWidth() - esta_barra.texto_direita:GetStringWidth() - 20, 15)
 		
@@ -478,8 +487,16 @@
 		esta_barra.textura:SetVertexColor (_unpack (_detalhes.class_colors [tabela [3]]))
 		
 		if (tabela [3] == "UNKNOW" or tabela [3] == "UNGROUPPLAYER" or tabela [3] == "ENEMY") then
-			esta_barra.icone_classe:SetTexture ("Interface\\LFGFRAME\\LFGROLE_BW")
-			esta_barra.icone_classe:SetTexCoord (.25, .5, 0, 1)
+			--esta_barra.icone_classe:SetTexture ("Interface\\LFGFRAME\\LFGROLE_BW")
+			--esta_barra.icone_classe:SetTexCoord (.25, .5, 0, 1)
+			--esta_barra.icone_classe:SetVertexColor (1, 1, 1)
+
+			--esta_barra.icone_classe:SetTexture ([[Interface\MINIMAP\Minimap_skull_normal]])
+			--esta_barra.icone_classe:SetTexCoord (0, 1, 0, 1)
+			--esta_barra.icone_classe:SetVertexColor (1, 1, 1)
+			
+			esta_barra.icone_classe:SetTexture ([[Interface\AddOns\Details\images\classes_plus]])
+			esta_barra.icone_classe:SetTexCoord (0.50390625, 0.62890625, 0, 0.125)
 			esta_barra.icone_classe:SetVertexColor (1, 1, 1)
 		else
 			esta_barra.icone_classe:SetTexture (instancia.row_info.icon_file)
@@ -611,6 +628,7 @@
 		esta_barra.colocacao = colocacao
 		
 		local total = instancia.showing.totals.voidzone_damage
+
 		
 		local combat_time = instancia.showing:GetCombatTime()
 		local dps = _math_floor (self.damage / combat_time)
@@ -731,6 +749,7 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 	if (keyName == "frags") then 
 	
 		local frags = instancia.showing.frags
+		local frags_total_kills = 0
 		local index = 0
 		
 		for fragName, fragAmount in _pairs (frags) do 
@@ -758,6 +777,8 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 				ntable [index] = {fragName, fragAmount, actor_classe}
 			end
 			
+			frags_total_kills = frags_total_kills + fragAmount
+			
 		end
 		
 		local tsize = #ntable
@@ -767,10 +788,8 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 			end
 		end
 		
+		instancia.top = 0
 		if (tsize > 0) then
-			--_table_sort (ntable, function (t1, t2) 
-			--	return (t1 [2] > t2 [2])
-			--end)
 			_table_sort (ntable, _detalhes.Sort2)
 			instancia.top = ntable [1][2]
 		end
@@ -790,10 +809,10 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 			return _detalhes:EndRefresh (instancia, total, tabela_do_combate, showing) --> retorna a tabela que precisa ganhar o refresh
 		end
 		
-		--estra mostrando ALL então posso seguir o padrão correto? primeiro, atualiza a scroll bar...
+		tabela_do_combate.totals.frags_total = frags_total_kills
+		
 		instancia:AtualizarScrollBar (total)
 		
-		--depois faz a atualização normal dele através dos iterators
 		local qual_barra = 1
 		local barras_container = instancia.barras
 
@@ -897,10 +916,8 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 		
 		tabela_do_combate.totals.voidzone_damage = voidzone_damage_total
 		
-		--esta mostrando ALL então posso seguir o padrão correto? primeiro, atualiza a scroll bar...
 		instancia:AtualizarScrollBar (total)
 		
-		--depois faz a atualização normal dele através dos iterators
 		local qual_barra = 1
 		local barras_container = instancia.barras
 
@@ -1325,12 +1342,15 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 			
 		elseif (sub_atributo == 3) then --> mostrando damage taken
 
+			local dtps = self.damage_taken / combat_time
+		
 			local formated_damage_taken = SelectedToKFunction (_, self.damage_taken)
+			local formated_dtps = SelectedToKFunction (_, dtps)
 
 			if (UsingCustomRightText) then
-				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_damage_taken, "", porcentagem, self))
+				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_damage_taken, formated_dtps, porcentagem, self))
 			else
-				esta_barra.texto_direita:SetText (formated_damage_taken .." (" .. porcentagem .. "%)") --seta o texto da direita --
+				esta_barra.texto_direita:SetText (formated_damage_taken .." (" .. formated_dtps .. ", " .. porcentagem .. "%)") --seta o texto da direita --
 			end
 			esta_porcentagem = _math_floor ((self.damage_taken/instancia.top) * 100) --> determina qual o tamanho da barra
 			
@@ -2407,6 +2427,8 @@ function atributo_damage:MontaInfoDamageDone()
 		if (amt < 1) then --> caso houve apenas friendly fire
 			return true
 		end
+		
+		gump:JI_AtualizaContainerAlvos (amt)
 		
 		--_table_sort (meus_agressores, function (a, b) return a[2] > b[2] end)
 		_table_sort (meus_agressores, _detalhes.Sort2)

@@ -227,6 +227,7 @@
 			
 			--> avoid using this values bellow, they aren't updated by the parser, only on demand by a user interaction.
 				voidzone_damage = 0,
+				frags_total = 0,
 			--> end
 		}
 		
