@@ -2310,24 +2310,29 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 
 -- main frames -----------------------------------------------------------------------------------------------------------------------------------------------
 
-	local baseframe = CreateFrame ("scrollframe", "DetailsBaseFrame"..ID, _UIParent) --> main frame
+	--> create the base frame, everything connect in this frame except the rows.
+	local baseframe = CreateFrame ("scrollframe", "DetailsBaseFrame"..ID, _UIParent)
 	baseframe.instance = instancia
 	baseframe:SetFrameStrata (baseframe_strata)
 	baseframe:SetFrameLevel (2)
 
-	local backgroundframe =  CreateFrame ("scrollframe", "Details_WindowFrame"..ID, baseframe) --> main window
-	local backgrounddisplay = CreateFrame ("frame", "Details_GumpFrame"..ID, backgroundframe) --> background window
+	--> background holds the wallpaper, alert strings ans textures, have setallpoints on baseframe
+	--> backgrounddisplay is a scrollschild of backgroundframe
+	local backgroundframe =  CreateFrame ("scrollframe", "Details_WindowFrame"..ID, baseframe)
+	local backgrounddisplay = CreateFrame ("frame", "Details_GumpFrame"..ID, backgroundframe)
 	backgroundframe:SetFrameLevel (3)
 	backgrounddisplay:SetFrameLevel (3)
 	backgroundframe.instance = instancia
 	backgrounddisplay.instance = instancia
 
-	local rowframe = CreateFrame ("frame", "DetailsRowFrame"..ID, _UIParent) --> main frame
+	--> row frame is the parent of rows, it have setallpoints on baseframe
+	local rowframe = CreateFrame ("frame", "DetailsRowFrame"..ID, _UIParent)
 	rowframe:SetAllPoints (baseframe)
 	rowframe:SetFrameStrata (baseframe_strata)
 	rowframe:SetFrameLevel (2)
 	instancia.rowframe = rowframe
 	
+	--> right click bookmark
 	local switchbutton = gump:NewDetailsButton (backgrounddisplay, baseframe, nil, function() end, nil, nil, 1, 1, "", "", "", "", 
 	{rightFunc = {func = function() _detalhes.switch:ShowMe (instancia) end, param1 = nil, param2 = nil}}, "Details_SwitchButtonFrame" ..  ID)
 	
@@ -2335,15 +2340,16 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 	switchbutton:SetPoint ("bottomright", backgrounddisplay, "bottomright")
 	switchbutton:SetFrameLevel (backgrounddisplay:GetFrameLevel()+1)
 	
+	--> avoid mouse hover over a high window when the menu is open for a lower instance.
 	local anti_menu_overlap = CreateFrame ("frame", "Details_WindowFrameAntiMenuOverlap" .. ID, baseframe)
 	anti_menu_overlap:SetSize (100, 13)
 	anti_menu_overlap:SetFrameStrata ("DIALOG")
 	anti_menu_overlap:EnableMouse (true)
 	anti_menu_overlap:Hide()
-	--anti_menu_overlap:SetBackdrop (gump_fundo_backdrop)
 	baseframe.anti_menu_overlap = anti_menu_overlap
 
 -- scroll bar -----------------------------------------------------------------------------------------------------------------------------------------------
+--> create the scrollbar, almost not used.
 
 	local scrollbar = CreateFrame ("slider", "Details_ScrollBar"..ID, backgrounddisplay) --> scroll
 	
@@ -2400,7 +2406,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 
 		--> config set
 		scrollbar:SetOrientation ("VERTICAL")
-		scrollbar.scrollMax = 0 --default - tamanho da janela de fundo
+		scrollbar.scrollMax = 0
 		scrollbar:SetMinMaxValues (0, 0)
 		scrollbar:SetValue (0)
 		scrollbar.ultimo = 0
@@ -2441,8 +2447,6 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 -- main window config -------------------------------------------------------------------------------------------------------------------------------------------------
 
 		baseframe:SetClampedToScreen (true)
-		--baseframe:SetClampRectInsets (unpack (_detalhes.window_clamp))
-		
 		baseframe:SetSize (_detalhes.new_window_size.width, _detalhes.new_window_size.height)
 		
 		baseframe:SetPoint ("center", _UIParent)
@@ -2779,95 +2783,98 @@ _detalhes.barras_criadas = 0
 --> search key: ~row ~barra
 function gump:CriaNovaBarra (instancia, index)
 
+	--> instancia = window object, index = row number
 	local baseframe = instancia.baseframe
 	local rowframe = instancia.rowframe
 	
-	local esta_barra = CreateFrame ("button", "DetailsBarra_"..instancia.meu_id.."_"..index, rowframe)
+	--> create the bar with rowframe as parent
+	local new_row = CreateFrame ("button", "DetailsBarra_"..instancia.meu_id.."_"..index, rowframe)
 	
-	esta_barra.row_id = index
-	esta_barra.instance_id = instancia.meu_id
-	esta_barra.animacao_fim = 0
-	esta_barra.animacao_fim2 = 0
+	new_row.row_id = index
+	new_row.instance_id = instancia.meu_id
+	new_row.animacao_fim = 0
+	new_row.animacao_fim2 = 0
 	
-	local y = instancia.row_height*(index-1)
-
+	--> set point, almost irrelevant here, it recalc this on SetBarGrowDirection()
+	local y = instancia.row_height * (index-1)
 	if (instancia.bars_grow_direction == 1) then
 		y = y*-1
-		esta_barra:SetPoint ("topleft", baseframe, "topleft", instancia.row_info.space.left, y)
+		new_row:SetPoint ("topleft", baseframe, "topleft", instancia.row_info.space.left, y)
 		
 	elseif (instancia.bars_grow_direction == 2) then
-		esta_barra:SetPoint ("bottomleft", baseframe, "bottomleft", instancia.row_info.space.left, y + 2)
+		new_row:SetPoint ("bottomleft", baseframe, "bottomleft", instancia.row_info.space.left, y + 2)
 	end
 	
-	esta_barra:SetHeight (instancia.row_info.height) --> altura determinada pela instância
-	esta_barra:SetWidth (baseframe:GetWidth()+instancia.row_info.space.right)
+	--> row height
+	new_row:SetHeight (instancia.row_info.height)
+	new_row:SetWidth (baseframe:GetWidth()+instancia.row_info.space.right)
+	new_row:SetFrameLevel (baseframe:GetFrameLevel() + 4)
+	new_row.last_value = 0
+	new_row.w_mod = 0
+	new_row:EnableMouse (true)
+	new_row:RegisterForClicks ("LeftButtonDown", "RightButtonDown")
 
-	esta_barra:SetFrameLevel (baseframe:GetFrameLevel() + 4)
+	--> statusbar
+	new_row.statusbar = CreateFrame ("StatusBar", "DetailsBarra_Statusbar_"..instancia.meu_id.."_"..index, new_row)
+	--> frame for hold the backdrop border
+	new_row.border = CreateFrame ("Frame", "DetailsBarra_Border_" .. instancia.meu_id .. "_" .. index, new_row.statusbar)
+	new_row.border:SetFrameLevel (new_row.statusbar:GetFrameLevel()+1)
+	new_row.border:SetAllPoints (new_row)
 
-	esta_barra.last_value = 0
-	esta_barra.w_mod = 0
-
-	esta_barra:EnableMouse (true)
-	esta_barra:RegisterForClicks ("LeftButtonDown", "RightButtonDown")
-
-	esta_barra.statusbar = CreateFrame ("StatusBar", "DetailsBarra_Statusbar_"..instancia.meu_id.."_"..index, esta_barra)
+	--> create textures and icons
+	new_row.textura = new_row.statusbar:CreateTexture (nil, "artwork")
+	new_row.textura:SetHorizTile (false)
+	new_row.textura:SetVertTile (false)
 	
-	esta_barra.border = CreateFrame ("Frame", "DetailsBarra_Border_" .. instancia.meu_id .. "_" .. index, esta_barra.statusbar)
-	esta_barra.border:SetFrameLevel (esta_barra.statusbar:GetFrameLevel()+1)
-	esta_barra.border:SetAllPoints (esta_barra)
+	--> row background texture
+	new_row.background = new_row:CreateTexture (nil, "background")
+	new_row.background:SetTexture()
+	new_row.background:SetAllPoints (new_row)
 
-	esta_barra.textura = esta_barra.statusbar:CreateTexture (nil, "artwork")
-	esta_barra.textura:SetHorizTile (false)
-	esta_barra.textura:SetVertTile (false)
-	
-	esta_barra.background = esta_barra:CreateTexture (nil, "background")
-	esta_barra.background:SetTexture()
-	esta_barra.background:SetAllPoints (esta_barra)
+	new_row.statusbar:SetStatusBarColor (0, 0, 0, 0)
+	new_row.statusbar:SetStatusBarTexture (new_row.textura)
+	new_row.statusbar:SetMinMaxValues (0, 100)
+	new_row.statusbar:SetValue (0)
 
-	esta_barra.statusbar:SetStatusBarColor (0, 0, 0, 0)
-	esta_barra.statusbar:SetStatusBarTexture (esta_barra.textura)
-	
-	esta_barra.statusbar:SetMinMaxValues (0, 100)
-	esta_barra.statusbar:SetValue (0)
-
-	local icone_classe = esta_barra.statusbar:CreateTexture (nil, "overlay")
+	--> class icon
+	local icone_classe = new_row.statusbar:CreateTexture (nil, "overlay")
 	icone_classe:SetHeight (instancia.row_info.height)
 	icone_classe:SetWidth (instancia.row_info.height)
 	icone_classe:SetTexture (instancia.row_info.icon_file)
 	icone_classe:SetTexCoord (.75, 1, .75, 1)
-	esta_barra.icone_classe = icone_classe
+	new_row.icone_classe = icone_classe
 
-	icone_classe:SetPoint ("left", esta_barra, "left")
+	icone_classe:SetPoint ("left", new_row, "left")
+	new_row.statusbar:SetPoint ("topleft", icone_classe, "topright")
+	new_row.statusbar:SetPoint ("bottomright", new_row, "bottomright")
 	
-	esta_barra.statusbar:SetPoint ("topleft", icone_classe, "topright")
-	esta_barra.statusbar:SetPoint ("bottomright", esta_barra, "bottomright")
+	--> left text
+	new_row.texto_esquerdo = new_row.statusbar:CreateFontString (nil, "overlay", "GameFontHighlight")
+	new_row.texto_esquerdo:SetPoint ("left", new_row.icone_classe, "right", 3, 0)
+	new_row.texto_esquerdo:SetJustifyH ("left")
+	new_row.texto_esquerdo:SetNonSpaceWrap (true)
+
+	--> right text
+	new_row.texto_direita = new_row.statusbar:CreateFontString (nil, "overlay", "GameFontHighlight")
+	new_row.texto_direita:SetPoint ("right", new_row.statusbar, "right")
+	new_row.texto_direita:SetJustifyH ("right")
 	
-	esta_barra.texto_esquerdo = esta_barra.statusbar:CreateFontString (nil, "overlay", "GameFontHighlight")
+	--> set the onclick, on enter scripts
+	barra_scripts (new_row, instancia, index)
 
-	esta_barra.texto_esquerdo:SetPoint ("left", esta_barra.icone_classe, "right", 3, 0)
-	esta_barra.texto_esquerdo:SetJustifyH ("left")
-	esta_barra.texto_esquerdo:SetNonSpaceWrap (true)
+	--> hide
+	gump:Fade (new_row, 1) 
 
-	esta_barra.texto_direita = esta_barra.statusbar:CreateFontString (nil, "overlay", "GameFontHighlight")
-
-	esta_barra.texto_direita:SetPoint ("right", esta_barra.statusbar, "right")
-	esta_barra.texto_direita:SetJustifyH ("right")
+	--> adds the window container
+	instancia.barras [index] = new_row
 	
-	--> inicia os scripts da barra
-	barra_scripts (esta_barra, instancia, index)
-
-	--> hida a barra
-	gump:Fade (esta_barra, 1) 
-
-	--> adiciona ela ao container de barras
-	instancia.barras [index] = esta_barra
+	--> set the left text
+	new_row.texto_esquerdo:SetText (Loc ["STRING_NEWROW"])
 	
-	--> seta o texto da esqueda
-	esta_barra.texto_esquerdo:SetText (Loc ["STRING_NEWROW"])
-	
+	--> refresh rows
 	instancia:InstanceRefreshRows()
 	
-	return esta_barra
+	return new_row
 end
 
 function _detalhes:SetBarTextSettings (size, font, fixedcolor, leftcolorbyclass, rightcolorbyclass, leftoutline, rightoutline, customrighttextenabled, customrighttext, percentage_type, showposition, customlefttextenabled, customlefttext)

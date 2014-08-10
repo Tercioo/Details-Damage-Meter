@@ -405,9 +405,13 @@ function _G._detalhes:Start()
 	end	
 	
 	--> minimap
-		_detalhes:RegisterMinimapAndHotCorner()
+	_detalhes:RegisterMinimap()
+	
+	function _detalhes:RegisterHotCorner()
+		_detalhes:DoRegisterHotCorner()
+	end
+	_detalhes:ScheduleTimer ("RegisterHotCorner", 5)
 
-		
 	function _detalhes:OpenOptionsWindowAtStart()
 		--_detalhes:OpenOptionsWindow (_detalhes.tabela_instancias[1])
 		--print (_G ["DetailsClearSegmentsButton1"]:GetSize())

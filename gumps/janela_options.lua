@@ -1416,63 +1416,10 @@ function window:CreateFrame19()
 			
 			frame19.hotcornerSlider:SetPoint ("left", frame19.hotcornerLabel, "right", 2, 0)
 			frame19.hotcornerSlider.OnSwitch = function (self, _, value)
-				_detalhes:HideHotCornerButton ("Details!", "TOPLEFT", not value)
+				_G.HotCorners:HideHotCornerButton ("Details!", "TOPLEFT", not value)
 			end
 			window:CreateLineBackground2 (frame19, "hotcornerSlider", "hotcornerLabel", Loc ["STRING_OPTIONS_HOTCORNER_DESC"])
 			
-		--on click action
-			do
-				g:NewLabel (frame19, _, "$parentHotcornerActionLabel", "hotcornerActionLabel", Loc ["STRING_OPTIONS_HOTCORNER_ACTION"], "GameFontHighlightLeft")
-				local on_select = function (_, _, option)
-					_detalhes.hotcorner_topleft.onclick_what_todo = option
-				end
-				local build_menu = function()
-					return {
-						{value = 1, label = Loc ["STRING_OPTIONS_MINIMAP_ACTION1"], onclick = on_select, icon = [[Interface\FriendsFrame\FriendsFrameScrollIcon]]},
-						{value = 2, label = Loc ["STRING_OPTIONS_MINIMAP_ACTION2"], onclick = on_select, icon = [[Interface\Buttons\UI-GuildButton-PublicNote-Up]], iconcolor = {1, .8, 0, 1}},
-					}
-				end
-				local dropdown = g:NewDropDown (frame19, _, "$parentHotcornerActionDropdown", "hotcornerActionDropdown", 160, 20, build_menu, _detalhes.hotcorner_topleft.onclick_what_todo)
-				dropdown.onenter_backdrop = dropdown_backdrop_onenter
-				dropdown.onleave_backdrop = dropdown_backdrop_onleave
-				dropdown:SetBackdrop (dropdown_backdrop)
-				dropdown:SetBackdropColor (unpack (dropdown_backdrop_onleave))
-				
-				frame19.hotcornerActionDropdown:SetPoint ("left", frame19.hotcornerActionLabel, "right", 2, 0)
-				window:CreateLineBackground2 (frame19, "hotcornerActionDropdown", "hotcornerActionLabel", Loc ["STRING_OPTIONS_HOTCORNER_ACTION_DESC"])
-			end
-			
-		--quick click enabled
-			g:NewLabel (frame19, _, "$parentHotcornerQuickClickLabel", "hotcornerQuickClickLabel", Loc ["STRING_OPTIONS_HOTCORNER_QUICK_CLICK"], "GameFontHighlightLeft")
-			g:NewSwitch (frame19, _, "$parentHotcornerQuickClickSlider", "hotcornerQuickClickSlider", 60, 20, _, _, _detalhes.hotcorner_topleft.topleft_quick_click)
-			
-			frame19.hotcornerQuickClickSlider:SetPoint ("left", frame19.hotcornerQuickClickLabel, "right", 2, 0)
-			frame19.hotcornerQuickClickSlider.OnSwitch = function (self, _, value)
-				_detalhes:QuickHotCornerEnable ("Details!", "TOPLEFT", value)
-			end
-			window:CreateLineBackground2 (frame19, "hotcornerQuickClickSlider", "hotcornerQuickClickLabel", Loc ["STRING_OPTIONS_HOTCORNER_QUICK_CLICK_DESC"])
-
-		--quick click function
-			do
-				g:NewLabel (frame19, _, "$parentQuickClickLabel", "quickClickLabel", Loc ["STRING_OPTIONS_HOTCORNER_QUICK_CLICK_FUNC"], "GameFontHighlightLeft")
-				local on_select = function (_, _, option)
-					_detalhes.hotcorner_topleft.quickclick_what_todo = option
-				end
-				local build_menu = function()
-					return {
-						{value = 1, label = Loc ["STRING_OPTIONS_MINIMAP_ACTION1"], onclick = on_select, icon = [[Interface\FriendsFrame\FriendsFrameScrollIcon]]},
-						{value = 2, label = Loc ["STRING_OPTIONS_MINIMAP_ACTION2"], onclick = on_select, icon = [[Interface\Buttons\UI-GuildButton-PublicNote-Up]], iconcolor = {1, .8, 0, 1}},
-					}
-				end
-				local dropdown = g:NewDropDown (frame19, _, "$parentQuickClickDropdown", "quickClickDropdown", 160, 20, build_menu, _detalhes.hotcorner_topleft.quickclick_what_todo)
-				dropdown.onenter_backdrop = dropdown_backdrop_onenter
-				dropdown.onleave_backdrop = dropdown_backdrop_onleave
-				dropdown:SetBackdrop (dropdown_backdrop)
-				dropdown:SetBackdropColor (unpack (dropdown_backdrop_onleave))
-				
-				frame19.quickClickDropdown:SetPoint ("left", frame19.quickClickLabel, "right", 2, 0)
-				window:CreateLineBackground2 (frame19, "quickClickDropdown", "quickClickLabel", Loc ["STRING_OPTIONS_HOTCORNER_QUICK_CLICK_FUNC_DESC"])
-			end
 	--> broker
 		--anchor
 		g:NewLabel (frame19, _, "$parentHotcornerAnchor", "brokerAnchorLabel", Loc ["STRING_OPTIONS_DATABROKER"], "GameFontNormal")
@@ -1520,11 +1467,8 @@ function window:CreateFrame19()
 			{"minimapActionLabel", 3},
 			{"hotcornerAnchorLabel", 4, true},
 			{"hotcornerLabel", 5},
-			{"hotcornerActionLabel", 6},
-			{"hotcornerQuickClickLabel", 7},
-			{"quickClickLabel", 8},
-			{"brokerAnchorLabel", 9, true},
-			{"brokerTextLabel", 10},
+			{"brokerAnchorLabel", 6, true},
+			{"brokerTextLabel", 7},
 		}
 		
 		window:arrange_menu (frame19, left_side, x, -90)	
@@ -7679,20 +7623,15 @@ function window:update_all (editing_instance)
 	--> window 19
 	_G.DetailsOptionsWindow19MinimapSlider.MyObject:SetValue (not _detalhes.minimap.hide)
 	_G.DetailsOptionsWindow19MinimapActionDropdown.MyObject:Select (_detalhes.minimap.onclick_what_todo)
-	_G.DetailsOptionsWindow19HotcornerSlider.MyObject:SetValue (not _detalhes.hotcorner_topleft.hide)
-	_G.DetailsOptionsWindow19HotcornerActionDropdown.MyObject:Select (_detalhes.hotcorner_topleft.onclick_what_todo)
-	_G.DetailsOptionsWindow19HotcornerQuickClickSlider.MyObject:SetValue (_detalhes.hotcorner_topleft.topleft_quickclick)
-	_G.DetailsOptionsWindow19QuickClickDropdown.MyObject:Select (_detalhes.hotcorner_topleft.quickclick_what_todo)
 	_G.DetailsOptionsWindow19BrokerTextDropdown.MyObject:Select (_detalhes.minimap.text_type)
 	
 	if (not _G.HotCorners) then
 		_G.DetailsOptionsWindow19HotcornerSlider.MyObject:Disable()
-		_G.DetailsOptionsWindow19HotcornerActionDropdown.MyObject:Disable()
-		_G.DetailsOptionsWindow19HotcornerQuickClickSlider.MyObject:Disable()
-		_G.DetailsOptionsWindow19QuickClickDropdown.MyObject:Disable()
 		if (not _G.DetailsOptionsWindow19HotcornerAnchor.MyObject:GetText():find ("not installed")) then
 			_G.DetailsOptionsWindow19HotcornerAnchor.MyObject:SetText (_G.DetailsOptionsWindow19HotcornerAnchor.MyObject:GetText() .. " |cFFFF5555(not installed)|r")
 		end
+	else
+		_G.DetailsOptionsWindow19HotcornerSlider.MyObject:SetValue (not _detalhes.hotcorner_topleft.hide)
 	end
 
 	--> window 20

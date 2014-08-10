@@ -664,9 +664,9 @@ local default_profile = {
 			},
 
 	--> minimap
-		minimap = {hide = false, radius = 160, minimapPos = 220, onclick_what_todo = 1, text_type = 1, HotCornerIgnore = true},
+		minimap = {hide = false, radius = 160, minimapPos = 220, onclick_what_todo = 1, text_type = 1},
 	--> horcorner
-		hotcorner_topleft = {hide = false, onclick_what_todo = 1, topleft_quickclick = true, quickclick_what_todo = 2},
+		hotcorner_topleft = {hide = false},
 		
 	--> PvP
 		only_pvp_frags = false,

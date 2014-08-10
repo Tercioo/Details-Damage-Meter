@@ -170,24 +170,25 @@
 		end
 		local mostrando = self.mostrando
 		
-		--
+		--> get sizes
 		local baseframe_width = self.baseframe:GetWidth()
 		local baseframe_height = self.baseframe:GetHeight()
 		if (not baseframe_width) then
 			return _detalhes:ScheduleTimer ("SaveMainWindowPosition", 1, self)
 		end
-		--
+		
+		--> calc position
 		local xOfs, yOfs = self.baseframe:GetCenter()
 		if (not xOfs) then
 			return _detalhes:ScheduleTimer ("SaveMainWindowPosition", 1, self)
 		end
-		--
 		local _scale = self.baseframe:GetEffectiveScale()
 		local _UIscale = _UIParent:GetScale()
 		--
 		xOfs = xOfs*_scale - _GetScreenWidth()*_UIscale/2
 		yOfs = yOfs*_scale - _GetScreenHeight()*_UIscale/2
 		
+		--> save the position
 		local _w = baseframe_width
 		local _h = baseframe_height
 		local _x = xOfs/_UIscale
@@ -198,6 +199,7 @@
 		self.posicao[mostrando].w = _w
 		self.posicao[mostrando].h = _h
 		
+		--> update the 4 points for window groups
 		local metade_largura = _w/2
 		local metade_altura = _h/2
 		
@@ -1459,7 +1461,7 @@
 	end	
 	
 	--> minimap icon and hotcorner
-	function _detalhes:RegisterMinimapAndHotCorner()
+	function _detalhes:RegisterMinimap()
 		local LDB = LibStub ("LibDataBroker-1.1", true)
 		local LDBIcon = LDB and LibStub ("LibDBIcon-1.0", true)
 		
@@ -1572,7 +1574,9 @@
 			_detalhes.databroker = databroker
 			
 		end
-
+	end
+	
+	function _detalhes:DoRegisterHotCorner()
 		--register lib-hotcorners
 		local on_click_on_hotcorner_button = function (frame, button) 
 			if (_detalhes.hotcorner_topleft.onclick_what_todo == 1) then
@@ -1589,20 +1593,19 @@
 				_detalhes.tabela_historico:resetar()
 			end
 		end
+
+		local quickclick_func1 = function (frame, button) 
+			_detalhes.tabela_historico:resetar()
+		end
 		
-		local on_click_on_quickclick_button = function (frame, button) 
-			if (_detalhes.hotcorner_topleft.quickclick_what_todo == 1) then
-				local lower_instance = _detalhes:GetLowerInstanceNumber()
-				if (not lower_instance) then
-					local instance = _detalhes:GetInstance (1)
-					_detalhes.CriarInstancia (_, _, 1)
-					_detalhes:OpenOptionsWindow (instance)
-				else
-					_detalhes:OpenOptionsWindow (_detalhes:GetInstance (lower_instance))
-				end
-				
-			elseif (_detalhes.hotcorner_topleft.quickclick_what_todo == 2) then
-				_detalhes.tabela_historico:resetar()
+		local quickclick_func2 = function (frame, button) 
+			local lower_instance = _detalhes:GetLowerInstanceNumber()
+			if (not lower_instance) then
+				local instance = _detalhes:GetInstance (1)
+				_detalhes.CriarInstancia (_, _, 1)
+				_detalhes:OpenOptionsWindow (instance)
+			else
+				_detalhes:OpenOptionsWindow (_detalhes:GetInstance (lower_instance))
 			end
 		end
 		
@@ -1636,7 +1639,16 @@
 				--> menus
 				nil, 
 				--> quick click
-				on_click_on_quickclick_button
+				{
+					{func = quickclick_func1, name = "Details! - Reset Data"}, 
+					{func = quickclick_func2, name = "Details! - Open Options"}
+				},
+				--> onenter
+				nil,
+				--> onleave
+				nil,
+				--> is install
+				true
 			)
 		end
 	end
