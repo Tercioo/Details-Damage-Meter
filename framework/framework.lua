@@ -184,6 +184,26 @@ function gump:BuildMenu (parent, menu, x_offset, y_offset, height)
 			if (size > max_x) then
 				max_x = size
 			end
+			
+		elseif (widget_table.type == "color" or widget_table.type == "color") then
+			local colorpick = self:NewColorPickButton (parent, "$parentWidget" .. index, nil, widget_table.set)
+			colorpick.tooltip = widget_table.desc
+
+			local default_value, g, b, a = widget_table.get()
+			if (type (default_value) == "table") then
+				colorpick:SetColor (unpack (default_value))
+			else
+				colorpick:SetColor (default_value, g, b, a)
+			end
+			
+			local label = self:NewLabel (parent, nil, "$parentLabel" .. index, nil, widget_table.name, "GameFontNormal", 12)
+			colorpick:SetPoint ("left", label, "right", 2)
+			label:SetPoint (cur_x, cur_y)
+			
+			local size = label.widget:GetStringWidth() + 60 + 4
+			if (size > max_x) then
+				max_x = size
+			end
 		end
 	
 		cur_y = cur_y - 20
@@ -194,4 +214,69 @@ function gump:BuildMenu (parent, menu, x_offset, y_offset, height)
 	
 	end
 	
+end
+
+function gump:ShowTutorialAlertFrame (maintext, desctext, clickfunc)
+	
+	local TutorialAlertFrame = _G.DetailsTutorialAlertFrame
+	
+	if (not TutorialAlertFrame) then
+		
+		TutorialAlertFrame = CreateFrame ("ScrollFrame", "DetailsTutorialAlertFrame", UIParent, "WatchFrameAutoQuestPopUpTemplate")
+		TutorialAlertFrame.isFirst = true
+		TutorialAlertFrame:SetPoint ("left", UIParent, "left", -20, 100)
+		
+		TutorialAlertFrame:SetWidth (290)
+		TutorialAlertFrame.ScrollChild:SetWidth (256)
+		
+		local scrollname = TutorialAlertFrame.ScrollChild:GetName()
+		_G [scrollname .. "BorderTopLeft"]:SetVertexColor (1, 0.8, 0, 1)
+		_G [scrollname .. "BorderTopRight"]:SetVertexColor (1, 0.8, 0, 1)
+		_G [scrollname .. "BorderBotLeft"]:SetVertexColor (1, 0.8, 0, 1)
+		_G [scrollname .. "BorderBotRight"]:SetVertexColor (1, 0.8, 0, 1)	
+		_G [scrollname .. "BorderLeft"]:SetVertexColor (1, 0.8, 0, 1)
+		_G [scrollname .. "BorderRight"]:SetVertexColor (1, 0.8, 0, 1)
+		_G [scrollname .. "BorderBottom"]:SetVertexColor (1, 0.8, 0, 1)
+		_G [scrollname .. "BorderTop"]:SetVertexColor (1, 0.8, 0, 1)
+		
+		local iconbg = _G [scrollname .. "QuestIconBg"]
+		iconbg:SetTexture ([[Interface\MainMenuBar\UI-MainMenuBar-EndCap-Human]])
+		iconbg:SetTexCoord (0, 1, 0, 1)
+		iconbg:SetSize (100, 100)
+		iconbg:ClearAllPoints()
+		iconbg:SetPoint ("bottomleft", TutorialAlertFrame.ScrollChild, "bottomleft")
+		
+		_G [scrollname .. "Exclamation"]:SetVertexColor (1, 0.8, 0, 1)
+		_G [scrollname .. "QuestionMark"]:SetVertexColor (1, 0.8, 0, 1)
+		
+		_G [scrollname .. "TopText"]:SetText ("Details!") --string
+		_G [scrollname .. "QuestName"]:SetText ("") --string
+		_G [scrollname .. "BottomText"]:SetText ("") --string
+		
+		TutorialAlertFrame.ScrollChild.IconShine:SetTexture ([[Interface\MainMenuBar\UI-MainMenuBar-EndCap-Human]])
+		
+		TutorialAlertFrame:SetScript ("OnMouseUp", function (self) 
+			if (self.clickfunc and type (self.clickfunc) == "function") then
+				self.clickfunc()
+			end
+			self:Hide()
+		end)
+		TutorialAlertFrame:Hide()
+	end
+	
+	if (type (maintext) == "string") then
+		TutorialAlertFrame.ScrollChild.QuestName:SetText (maintext)
+	else
+		TutorialAlertFrame.ScrollChild.QuestName:SetText ("")
+	end
+	
+	if (type (desctext) == "string") then
+		TutorialAlertFrame.ScrollChild.BottomText:SetText (desctext)
+	else
+		TutorialAlertFrame.ScrollChild.BottomText:SetText ("")
+	end
+	
+	TutorialAlertFrame.clickfunc = clickfunc
+	TutorialAlertFrame:Show()
+	WatchFrame_SlideInFrame (TutorialAlertFrame, "AUTOQUEST")
 end

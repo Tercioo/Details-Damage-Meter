@@ -32,7 +32,8 @@ function _detalhes:SaveLocalInstanceConfig()
 			horizontalSnap = instance.horizontalSnap,
 			verticalSnap = instance.verticalSnap,
 			sub_atributo_last = instance.sub_atributo_last,
-			isLocked = instance.isLocked
+			isLocked = instance.isLocked,
+			last_raid_plugin = instance.last_raid_plugin
 		}
 		
 		if (_detalhes.local_instances_config [index].isLocked == nil) then

@@ -309,7 +309,10 @@ local ButtonMetaFunctions = {}
 	end
 	
 -- textcolor
-	function ButtonMetaFunctions:SetTextColor (color)
+	function ButtonMetaFunctions:SetTextColor (color, arg2, arg3, arg4)
+		if (arg2) then
+			return self.button.text:SetTextColor (color, arg2, arg3, arg4 or 1)
+		end
 		local _value1, _value2, _value3, _value4 = gump:ParseColors (color)
 		return self.button.text:SetTextColor (_value1, _value2, _value3, _value4)
 	end
@@ -397,7 +400,12 @@ local ButtonMetaFunctions = {}
 			self.icon:SetTexCoord (0, 1, 0, 1)
 		end
 		if (overlay) then
-			self.icon:SetVertexColor (unpack (overlay))
+			if (type (overlay) == "string") then
+				local r, g, b, a = gump:ParseColors (overlay)
+				self.icon:SetVertexColor (r, g, b, a)
+			else
+				self.icon:SetVertexColor (unpack (overlay))
+			end
 		else
 			self.icon:SetVertexColor (1, 1, 1, 1)
 		end
@@ -471,31 +479,67 @@ local ButtonMetaFunctions = {}
 	end
 
 --> custom textures
-	function ButtonMetaFunctions:InstallCustomTexture (texture, rect, coords)
+	function ButtonMetaFunctions:InstallCustomTexture (texture, rect, coords, use_split)
 	
 		self.button:SetNormalTexture (nil)
 		self.button:SetPushedTexture (nil)
 		self.button:SetDisabledTexture (nil)
 		self.button:SetHighlightTexture (nil)
+
+		local button = self.button
 		
-		texture = texture or "Interface\\AddOns\\Details\\images\\default_button"
-		self.button.texture = self.button:CreateTexture (nil, "artwork")
+		if (use_split) then
 		
-		if (not rect) then 
-			self.button.texture:SetAllPoints (self.button)
+			--> 4 corners
+			button.textureTopLeft = button:CreateTexture (nil, "artwork"); button.textureTopLeft:SetSize (8, 8); button.textureTopLeft:SetPoint ("topleft", button)
+			button.textureTopRight = button:CreateTexture (nil, "artwork"); button.textureTopRight:SetSize (8, 8); button.textureTopRight:SetPoint ("topright", button)
+			button.textureBottomLeft = button:CreateTexture (nil, "artwork"); button.textureBottomLeft:SetSize (8, 8); button.textureBottomLeft:SetPoint ("bottomleft", button)
+			button.textureBottomRight = button:CreateTexture (nil, "artwork"); button.textureBottomRight:SetSize (8, 8); button.textureBottomRight:SetPoint ("bottomright", button)
+
+			button.textureLeft = button:CreateTexture (nil, "artwork"); button.textureLeft:SetWidth (4); button.textureLeft:SetPoint ("topleft", button.textureTopLeft, "bottomleft"); button.textureLeft:SetPoint ("bottomleft", button.textureBottomLeft, "topleft")
+			button.textureRight = button:CreateTexture (nil, "artwork"); button.textureRight:SetWidth (4); button.textureRight:SetPoint ("topright", button.textureTopRight, "bottomright"); button.textureRight:SetPoint ("bottomright", button.textureBottomRight, "topright")
+			button.textureTop = button:CreateTexture (nil, "artwork"); button.textureTop:SetHeight (4); button.textureTop:SetPoint ("topleft", button.textureTopLeft, "topright"); button.textureTop:SetPoint ("topright", button.textureTopRight, "topleft");
+			button.textureBottom = button:CreateTexture (nil, "artwork"); button.textureBottom:SetHeight (4); button.textureBottom:SetPoint ("bottomleft", button.textureBottomLeft, "bottomright"); button.textureBottom:SetPoint ("bottomright", button.textureBottomRight, "bottomleft");
+			
+			button.textureLeft:SetTexCoord (0, 4/128, 9/128, 24/128)
+			button.textureRight:SetTexCoord (124/128, 1, 9/128, 24/128)
+			button.textureTop:SetTexCoord (9/128, 120/128, 0, 4/128)
+			button.textureBottom:SetTexCoord (9/128, 119/128, 28/128, 32/128)
+			
+			button.textureTopLeft:SetTexCoord (0, 8/128, 0, 8/128)
+			button.textureTopRight:SetTexCoord (121/128, 1, 0, 8/128)
+			button.textureBottomLeft:SetTexCoord (0, 8/128, 24/128, 32/128)
+			button.textureBottomRight:SetTexCoord (120/128, 1, 24/128, 32/128)
+			
+			button.textureTopLeft:SetTexture ([[Interface\AddOns\Details\images\default_button]])
+			button.textureTopRight:SetTexture ([[Interface\AddOns\Details\images\default_button]])
+			button.textureBottomLeft:SetTexture ([[Interface\AddOns\Details\images\default_button]])
+			button.textureBottomRight:SetTexture ([[Interface\AddOns\Details\images\default_button]])
+			button.textureLeft:SetTexture ([[Interface\AddOns\Details\images\default_button]])
+			button.textureRight:SetTexture ([[Interface\AddOns\Details\images\default_button]])
+			button.textureTop:SetTexture ([[Interface\AddOns\Details\images\default_button]])
+			button.textureBottom:SetTexture ([[Interface\AddOns\Details\images\default_button]])
+		
 		else
-			self.button.texture:SetPoint ("topleft", self.button, "topleft", rect.x1, rect.y1)
-			self.button.texture:SetPoint ("bottomright", self.button, "bottomright", rect.x2, rect.y2)
+			texture = texture or "Interface\\AddOns\\Details\\images\\default_button"
+			self.button.texture = self.button:CreateTexture (nil, "artwork")
+			
+			if (not rect) then 
+				self.button.texture:SetAllPoints (self.button)
+			else
+				self.button.texture:SetPoint ("topleft", self.button, "topleft", rect.x1, rect.y1)
+				self.button.texture:SetPoint ("bottomright", self.button, "bottomright", rect.x2, rect.y2)
+			end
+			
+			if (coords) then
+				self.button.texture.coords = coords
+				self.button.texture:SetTexCoord (_unpack (coords.Normal))
+			else
+				self.button.texture:SetTexCoord (0, 1, 0, 0.24609375)
+			end
+			
+			self.button.texture:SetTexture (texture)
 		end
-		
-		if (coords) then
-			self.button.texture.coords = coords
-			self.button.texture:SetTexCoord (_unpack (coords.Normal))
-		else
-			self.button.texture:SetTexCoord (0, 1, 0, 0.24609375)
-		end
-		
-		self.button.texture:SetTexture (texture)
 	end
 
 ------------------------------------------------------------------------------------------------------------
@@ -503,6 +547,18 @@ local ButtonMetaFunctions = {}
 
 	local OnEnter = function (button)
 
+		if (button.textureTopLeft) then
+			button.textureLeft:SetTexCoord (0, 4/128, 40/128, 56/128)
+			button.textureRight:SetTexCoord (124/128, 1, 40/128, 56/128)
+			button.textureTop:SetTexCoord (9/128, 120/128, 33/128, 37/128)
+			button.textureBottom:SetTexCoord (9/128, 119/128, 60/128, 64/128)
+			
+			button.textureTopLeft:SetTexCoord (0, 8/128, 33/128, 40/128)
+			button.textureTopRight:SetTexCoord (121/128, 1, 33/128, 40/128)
+			button.textureBottomLeft:SetTexCoord (0, 8/128, 56/128, 64/128)
+			button.textureBottomRight:SetTexCoord (120/128, 1, 56/128, 64/128)
+		end
+	
 		if (button.MyObject.OnEnterHook) then
 			local interrupt = button.MyObject.OnEnterHook (button)
 			if (interrupt) then
@@ -511,7 +567,7 @@ local ButtonMetaFunctions = {}
 		end
 
 		button.MyObject.is_mouse_over = true
-
+		
 		if (button.texture) then
 			if (button.texture.coords) then
 				button.texture:SetTexCoord (_unpack (button.texture.coords.Highlight))
@@ -535,6 +591,19 @@ local ButtonMetaFunctions = {}
 	end
 	
 	local OnLeave = function (button)
+	
+		if (button.textureLeft and not button.MyObject.is_mouse_down) then
+			button.textureLeft:SetTexCoord (0, 4/128, 9/128, 24/128)
+			button.textureRight:SetTexCoord (124/128, 1, 9/128, 24/128)
+			button.textureTop:SetTexCoord (9/128, 120/128, 0, 4/128)
+			button.textureBottom:SetTexCoord (9/128, 119/128, 28/128, 32/128)
+			
+			button.textureTopLeft:SetTexCoord (0, 8/128, 0, 8/128)
+			button.textureTopRight:SetTexCoord (121/128, 1, 0, 8/128)
+			button.textureBottomLeft:SetTexCoord (0, 8/128, 24/128, 32/128)
+			button.textureBottomRight:SetTexCoord (120/128, 1, 24/128, 32/128)
+		end
+	
 		if (button.MyObject.OnLeaveHook) then
 			local interrupt = button.MyObject.OnLeaveHook (button)
 			if (interrupt) then
@@ -551,7 +620,7 @@ local ButtonMetaFunctions = {}
 				button.texture:SetTexCoord (0, 1, 0, 0.24609375)
 			end
 		end
-		
+
 		if (button.MyObject.have_tooltip) then
 			if (GameCooltip:GetText (1) == button.MyObject.have_tooltip) then
 				GameCooltip:Hide()
@@ -587,6 +656,18 @@ local ButtonMetaFunctions = {}
 	local OnMouseDown = function (button, buttontype)
 		if (not button:IsEnabled()) then
 			return
+		end
+		
+		if (button.textureTopLeft) then
+			button.textureLeft:SetTexCoord (0, 4/128, 72/128, 88/128)
+			button.textureRight:SetTexCoord (124/128, 1, 72/128, 88/128)
+			button.textureTop:SetTexCoord (9/128, 120/128, 65/128, 68/128)
+			button.textureBottom:SetTexCoord (9/128, 119/128, 92/128, 96/128)
+			
+			button.textureTopLeft:SetTexCoord (0, 8/128, 65/128, 71/128)
+			button.textureTopRight:SetTexCoord (121/128, 1, 65/128, 71/128)
+			button.textureBottomLeft:SetTexCoord (0, 8/128, 88/128, 96/128)
+			button.textureBottomRight:SetTexCoord (120/128, 1, 88/128, 96/128)
 		end
 		
 		if (button.MyObject.OnMouseDownHook) then
@@ -652,6 +733,30 @@ local ButtonMetaFunctions = {}
 			return
 		end
 		
+		if (button.textureLeft) then
+			if (button.MyObject.is_mouse_over) then
+				button.textureLeft:SetTexCoord (0, 4/128, 40/128, 56/128)
+				button.textureRight:SetTexCoord (124/128, 1, 40/128, 56/128)
+				button.textureTop:SetTexCoord (9/128, 120/128, 33/128, 37/128)
+				button.textureBottom:SetTexCoord (9/128, 119/128, 60/128, 64/128)
+				
+				button.textureTopLeft:SetTexCoord (0, 8/128, 33/128, 40/128)
+				button.textureTopRight:SetTexCoord (121/128, 1, 33/128, 40/128)
+				button.textureBottomLeft:SetTexCoord (0, 8/128, 56/128, 64/128)
+				button.textureBottomRight:SetTexCoord (120/128, 1, 56/128, 64/128)
+			else
+				button.textureLeft:SetTexCoord (0, 4/128, 9/128, 24/128)
+				button.textureRight:SetTexCoord (124/128, 1, 9/128, 24/128)
+				button.textureTop:SetTexCoord (9/128, 120/128, 0, 4/128)
+				button.textureBottom:SetTexCoord (9/128, 119/128, 28/128, 32/128)
+				
+				button.textureTopLeft:SetTexCoord (0, 8/128, 0, 8/128)
+				button.textureTopRight:SetTexCoord (121/128, 1, 0, 8/128)
+				button.textureBottomLeft:SetTexCoord (0, 8/128, 24/128, 32/128)
+				button.textureBottomRight:SetTexCoord (120/128, 1, 24/128, 32/128)
+			end
+		end
+		
 		if (button.MyObject.OnMouseUpHook) then
 			local interrupt = button.MyObject.OnMouseUpHook (button, buttontype)
 			if (interrupt) then
@@ -660,7 +765,7 @@ local ButtonMetaFunctions = {}
 		end
 		
 		button.MyObject.is_mouse_down = false
-
+		
 		if (button.texture) then
 			if (button.texture.coords) then
 				if (button.MyObject.is_mouse_over) then
@@ -676,7 +781,7 @@ local ButtonMetaFunctions = {}
 				end
 			end
 		end
-		
+
 		if (button.MyObject.capsule_textalign) then
 			if (button.MyObject.icon) then
 				button.MyObject.icon:SetPoint ("left", button, "left", 4, 0)

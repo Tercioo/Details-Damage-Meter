@@ -3104,10 +3104,19 @@ function _detalhes.janela_info:monta_relatorio (botao)
 	local report_lines
 	
 	if (botao == 1) then --> botão da esquerda
-		report_lines = {"Details! " .. Loc ["STRING_ACTORFRAME_REPORTTO"] .. " " .. _detalhes.sub_atributos [atributo].lista [sub_atributo] .. " " .. Loc ["STRING_ACTORFRAME_REPORTOF"] .. " " .. player.nome}
+		report_lines = {"Details! " .. Loc ["STRING_ACTORFRAME_SPELLSOF"] .. " " .. player.nome .. " (" .. _detalhes.sub_atributos [atributo].lista [sub_atributo] .. ")"}
 		for index, barra in _ipairs (info.barras1) do 
 			if (barra:IsShown()) then
-				report_lines [#report_lines+1] = barra.texto_esquerdo:GetText().." -> ".. _detalhes:comma_value (barra.texto_direita:GetText())
+				local spellid = barra.show
+				if (spellid > 10) then
+					local link = GetSpellLink (spellid)
+					report_lines [#report_lines+1] = index .. ". " .. link .. ": " .. barra.texto_direita:GetText()
+				else
+					local spellname = barra.texto_esquerdo:GetText():gsub ((".*%."), "")
+					spellname = spellname:gsub ("|c%x%x%x%x%x%x%x%x", "")
+					spellname = spellname:gsub ("|r", "")
+					report_lines [#report_lines+1] = index .. ". " .. spellname .. ": " .. barra.texto_direita:GetText()
+				end
 			end
 			if (index == amt) then
 				break

@@ -15,17 +15,14 @@ local TimeAttack = _detalhes:NewPluginObject ("Details_TimeAttack")
 --> Main Frame
 local TimeAttackFrame = TimeAttack.Frame
 
-local function CreatePluginFrames (data)
+local function CreatePluginFrames()
 
 	--> catch Details! main object
 	local _detalhes = _G._detalhes
 	local DetailsFrameWork = _detalhes.gump
 	local instance --> shortcut for details instance wich are holding solo plugins
 	local GameCooltip = GameCooltip
-
 	
-	--> default rank table
-	TimeAttack.data = data or {time = 180, dps = 0, history = {}}
 	TimeAttack.try = 1
 	
 	--> OnEvent Table
@@ -44,7 +41,9 @@ local function CreatePluginFrames (data)
 		elseif (event == "PLUGIN_DISABLED") then
 			
 		elseif (event == "PLUGIN_ENABLED") then
-			
+		
+		elseif (event == "DETAILS_STARTED") then
+			TimeAttack:CheckTimeAttackTutorial()
 		end
 	end
 	
@@ -111,10 +110,10 @@ local function CreatePluginFrames (data)
 		local TimeDesc = DetailsFrameWork:NewLabel (TimeAttackFrame, TimeAttackFrame, nil, "TimeDesc", Loc ["STRING_TIME_SELECTION"])
 		TimeDesc:SetPoint ("topleft", TimeAttackFrame, 15, -260)
 	--> slider
-		local TimeAmount = DetailsFrameWork:NewSlider (TimeAttackFrame, nil, "DetailsTimeAttackTimeSelect", "TimeSelect", 270, 20, 30, 330, 10, TimeAttack.data.time)
-		--local TimeAmount = DetailsFrameWork:NewSlider2 (TimeAttackFrame, "DetailsTimeAttackTimeSelect", "TimeSelect", 270, 20, 30, 330, 10, TimeAttack.data.time)
+
+		local TimeAmount = DetailsFrameWork:NewSlider (TimeAttackFrame, nil, "DetailsTimeAttackTimeSelect", "TimeSelect", 270, 20, 30, 330, 1, TimeAttack.db.time)
 		TimeAmount:SetPoint ("topleft", TimeAttackFrame, 15, -270)
-		TimeAmount.OnChangeHook = function (_, _, value) TimeAttack.data.time = value end
+		TimeAmount.OnChangeHook = function (_, _, value) TimeAttack.db.time = value end
 	
 	--> main time/damage/dps texts
 		local clock = DetailsFrameWork:NewLabel (TimeAttackFrame, TimeAttackFrame, nil, "TIMER", "00:00:00", "GameFontHighlightLarge")
@@ -152,7 +151,7 @@ local function CreatePluginFrames (data)
 			NowShowing = 1, --> 1 for recently 2 for saved
 			LabelsCreated = {},
 			Recently = {},
-			Hystory = TimeAttack.data.history
+			Hystory = TimeAttack.db.history
 		}
 		HistoryPanelObject.__index = HistoryPanelObject
 	
@@ -189,7 +188,7 @@ local function CreatePluginFrames (data)
 			if (HistoryPanelObject.NowShowing == 1) then --> recently
 				table.remove (HistoryPanelObject.Recently, index)
 			else --> history
-				table.remove (TimeAttack.data.history, index)
+				table.remove (TimeAttack.db.history, index)
 			end
 			HistoryPanelObject:Refresh()
 		end
@@ -207,8 +206,8 @@ local function CreatePluginFrames (data)
 					NewSave.Date = ToSaveTimeObject.Date
 					NewSave.note = ToSaveTimeObject.note
 
-					table.insert (TimeAttack.data.history, 1, NewSave)
-					table.remove (TimeAttack.data.history, 25)
+					table.insert (TimeAttack.db.history, 1, NewSave)
+					table.remove (TimeAttack.db.history, 25)
 					HistoryPanelObject:AddHistory (NewSave)
 					ToSaveTimeObject.FinishSaved = true
 					HistoryPanelObject:Refresh()
@@ -226,8 +225,8 @@ local function CreatePluginFrames (data)
 				NewSave.ItemLevel = TimeAttack.Time.FinishIlevel
 				NewSave.Date = TimeAttack.Time.Date
 				TimeAttack.Time.FinishSaved = true
-				table.insert (TimeAttack.data.history, 1, NewSave)
-				table.remove (TimeAttack.data.history, 25)
+				table.insert (TimeAttack.db.history, 1, NewSave)
+				table.remove (TimeAttack.db.history, 25)
 				HistoryPanelObject:AddHistory (NewSave)
 				HistoryPanelObject:Refresh()
 				TimeAttackFrame ["SaveButton"]:Disable()
@@ -275,9 +274,12 @@ local function CreatePluginFrames (data)
 	function HistoryPanelObject:RefreshLabel (AttemptTable, AlreadySaved, First)
 
 		self.table = AttemptTable
+		
 		if (AlreadySaved) then --> showing historic
-			self.remove:SetPoint ("left", self.background.frame, "left")
-			self.note:SetPoint ("left", self.remove.button, "right")
+		
+			self.remove:SetPoint ("left", self.background.frame, "left", 20, 0)
+			self.note:SetPoint ("left", self.remove, "right")
+			
 			if (AttemptTable.note) then
 				self.note:SetNormalTexture ("Interface\\Buttons\\UI-GuildButton-PublicNote-Up")
 				self.note.tooltip = AttemptTable.note
@@ -289,9 +291,12 @@ local function CreatePluginFrames (data)
 			local diamesano = string.gsub (AttemptTable.Date, "(.-)%s", "")
 			self.text:SetText (diamesano)
 			
+			self.rownumber:SetText ("#" .. self.index)
+			
 		elseif (not AttemptTable.FinishSaved) then --> não foi salvo ainda
 			self.remove:Show()
 			self.save:Show()
+			self.remove:SetPoint ("left", self.background.frame, "left", 16, 0)
 			self.note:SetPoint ("left", self.save.button, "right")
 			if (AttemptTable.note) then
 				self.note:SetNormalTexture ("Interface\\Buttons\\UI-GuildButton-PublicNote-Up")
@@ -301,12 +306,16 @@ local function CreatePluginFrames (data)
 				self.note.tooltip = Loc ["STRING_SETNOTE"]
 			end
 			if (First) then
-				self.text:SetText ("-".. TimeAttack:ToK (First-AttemptTable.FinishDamage).." (#"..AttemptTable.N..")")
+				self.text:SetText ("-".. TimeAttack:ToK (First-AttemptTable.FinishDamage))
 			else
-				self.text:SetText (TimeAttack:ToK (AttemptTable.FinishDamage).." (#"..AttemptTable.N..")")
+				self.text:SetText (TimeAttack:ToK (AttemptTable.FinishDamage))
 			end
+			self.rownumber:SetText ("#" .. AttemptTable.N)
+			self.rownumber:SetPoint ("left", self.background.frame)
+			
 		else --> ta mostrando recentes e ja foi salvo
 			self.remove:Show()
+			self.remove:SetPoint ("left", self.background.frame, "left", 16, 0)
 			self.note:SetPoint ("left", self.remove.button, "right")
 			if (AttemptTable.note) then
 				self.note:SetNormalTexture ("Interface\\Buttons\\UI-GuildButton-PublicNote-Up")
@@ -317,11 +326,14 @@ local function CreatePluginFrames (data)
 			end
 			self.save:Hide()
 			if (First) then
-				self.text:SetText ("-".. TimeAttack:ToK (First-AttemptTable.FinishDamage).." (#"..AttemptTable.N..")")
+				self.text:SetText ("-".. TimeAttack:ToK (First-AttemptTable.FinishDamage))
 			else
-				self.text:SetText (TimeAttack:ToK (AttemptTable.FinishDamage).." (#"..AttemptTable.N..")")
+				self.text:SetText (TimeAttack:ToK (AttemptTable.FinishDamage))
 			end
+			self.rownumber:SetText ("#" .. AttemptTable.N)
+			self.rownumber:SetPoint ("left", self.background.frame)
 		end
+		
 		self.background:Show()
 	end
 
@@ -353,7 +365,7 @@ local function CreatePluginFrames (data)
 
 			GameCooltip:Reset()
 			
-			local TimeObject = TimeAttack.data.history [self.index]
+			local TimeObject = TimeAttack.db.history [self.index]
 			
 			GameCooltip:AddLine (TimeAttack:comma_value (TimeObject.DamageDone))
 			GameCooltip:AddIcon ("Interface\\TARGETINGFRAME\\PetBadge-Undead")
@@ -387,7 +399,7 @@ local function CreatePluginFrames (data)
 			if (HistoryPanelObject.NowShowing == 1) then --> recently
 				HistoryPanelObject.Recently [editbox.editing].note = texto
 			else
-				TimeAttack.data.history [editbox.editing].note = texto
+				TimeAttack.db.history [editbox.editing].note = texto
 			end
 		end
 		editbox:SetText ("")
@@ -427,8 +439,8 @@ local function CreatePluginFrames (data)
 	
 		if (HistoryPanelObject.NowShowing == 1 and HistoryPanelObject.Recently [index].note) then --> recently
 			NoteInsertField:SetText (HistoryPanelObject.Recently [index].note)
-		elseif (HistoryPanelObject.NowShowing == 2 and TimeAttack.data.history [index].note) then
-			NoteInsertField:SetText (TimeAttack.data.history [index].note)
+		elseif (HistoryPanelObject.NowShowing == 2 and TimeAttack.db.history [index].note) then
+			NoteInsertField:SetText (TimeAttack.db.history [index].note)
 		else
 			NoteInsertField:SetText ("")
 		end
@@ -470,21 +482,26 @@ local function CreatePluginFrames (data)
 		LabelText:SetPoint ("right", LabelBackground.frame, 0, 0)
 		LabelText:SetJustifyH ("right")
 		
+		local RowNumber = DetailsFrameWork:NewLabel (LabelBackground.frame, LabelBackground.frame, nil, "rownumber", "#1", "GameFontHighlightSmall")
+		RowNumber:SetPoint ("left", LabelBackground.frame)
+		RowNumber:SetJustifyH ("left")
+		
 		--local LabelRemoveButton = DetailsFrameWork:NewDetailsButton (LabelBackground.frame, LabelBackground.frame, _, remove, index, index, 10, 10, "Interface\\PetBattles\\DeadPetIcon")
-		local LabelRemoveButton = DetailsFrameWork:NewButton (LabelBackground.frame, nil, "DetailsTimeAttackRemoveButton"..index, "RemoveButton"..index, 10, 10, remove, index, index, "Interface\\PetBattles\\DeadPetIcon")
-		LabelRemoveButton:SetPoint ("left", LabelBackground.frame)
+		local LabelRemoveButton = DetailsFrameWork:NewButton (LabelBackground.frame, nil, "DetailsTimeAttackRemoveButton"..index, "RemoveButton"..index, 12, 12, remove, index, index, "Interface\\PetBattles\\DeadPetIcon")
+		LabelRemoveButton:SetPoint ("left", LabelBackground.frame, "left", 16, 0)
 		LabelRemoveButton.tooltip = Loc ["STRING_REMOVERECORD"]
 		
 		--local LabelSaveButton = DetailsFrameWork:NewDetailsButton (LabelBackground.frame, LabelBackground.frame, _, save, index, index, 10, 10, "Interface\\Scenarios\\ScenarioIcon-Check")
-		local LabelSaveButton = DetailsFrameWork:NewButton (LabelBackground.frame, nil, "DetailsTimeAttackSaveButton"..index, "SaveButton"..index, 10, 10, save, index, index, "Interface\\Scenarios\\ScenarioIcon-Check")
-		LabelSaveButton:SetPoint ("left", LabelRemoveButton.button, "right", 0, 0)
+		local LabelSaveButton = DetailsFrameWork:NewButton (LabelBackground.frame, nil, "DetailsTimeAttackSaveButton"..index, "SaveButton"..index, 12, 12, save, index, index, "Interface\\Scenarios\\ScenarioIcon-Check")
+		LabelSaveButton:SetPoint ("left", LabelRemoveButton.button, "right", -1, 0)
 		LabelSaveButton.tooltip = Loc ["STRING_SAVERECORD"]
 		
 		--local LabelSetnoteButton = DetailsFrameWork:NewDetailsButton (LabelBackground.frame, LabelBackground.frame, _, WriteNoteStart, index, index, 10, 10, "Interface\\Buttons\\UI-GuildButton-PublicNote-Disabled")
-		local LabelSetnoteButton = DetailsFrameWork:NewButton (LabelBackground.frame, nil, "DetailsTimeAttackSetNoteButton"..index, "SetNoteButton"..index, 10, 10, WriteNoteStart, index, index, "Interface\\Buttons\\UI-GuildButton-PublicNote-Disabled")
-		LabelSetnoteButton:SetPoint ("left", LabelSaveButton.button, "right", 0, 0)
+		local LabelSetnoteButton = DetailsFrameWork:NewButton (LabelBackground.frame, nil, "DetailsTimeAttackSetNoteButton"..index, "SetNoteButton"..index, 12, 12, WriteNoteStart, index, index, "Interface\\Buttons\\UI-GuildButton-PublicNote-Disabled")
+		LabelSetnoteButton:SetPoint ("left", LabelSaveButton.button, "right", -2, 0)
 		LabelSetnoteButton.tooltip = Loc ["STRING_SETNOTE"]
 		
+		LabelBoxObject.rownumber = RowNumber
 		LabelBoxObject.text = LabelText
 		LabelBoxObject.background = LabelBackground
 		LabelBoxObject.remove = LabelRemoveButton
@@ -523,7 +540,7 @@ local function CreatePluginFrames (data)
 			end
 			
 		elseif (self.NowShowing == 2) then
-			for index, AttemptTable in ipairs (TimeAttack.data.history) do 
+			for index, AttemptTable in ipairs (TimeAttack.db.history) do 
 				local thisLabel = self.LabelsCreated [index]
 				if (not thisLabel) then
 					thisLabel = self:CreateNewLabel (index)
@@ -531,7 +548,7 @@ local function CreatePluginFrames (data)
 				thisLabel:RefreshLabel (AttemptTable, true)
 			end
 
-			for amt = #TimeAttack.data.history+1, #self.LabelsCreated do
+			for amt = #TimeAttack.db.history+1, #self.LabelsCreated do
 				local thisLabel = self.LabelsCreated [amt]
 				thisLabel.background:Hide()
 			end
@@ -660,21 +677,64 @@ local function CreatePluginFrames (data)
 
 end
 
+function TimeAttack:CheckTimeAttackTutorial()
+	--TimeAttack:SetTutorialCVar ("TIME_ATTACK_TUTORIAL1", nil)
+	if (not TimeAttack:GetTutorialCVar ("TIME_ATTACK_TUTORIAL1")) then
+		TimeAttackFrame:RegisterEvent ("PLAYER_TARGET_CHANGED")
+	end
+end
+
+function TimeAttack:CheckTargetForTutorial()
+	local guid = UnitGUID ("target")
+	if (guid) then
+		local mobid = tonumber (guid:sub (6, 10), 16)
+		if (mobid == 31144 or mobid == 32666 or mobid == 31146 or mobid == 32667 or mobid == 67127 or mobid == 46647) then 
+			TimeAttack:SetTutorialCVar ("TIME_ATTACK_TUTORIAL1", true)
+			TimeAttackFrame:UnregisterEvent ("PLAYER_TARGET_CHANGED")
+			TimeAttack:ShowTargetTutorial()
+		end
+	end
+end
+
+function TimeAttack:ShowTargetTutorial()
+	if (TimeAttack:GetFreeInstancesAmount() > 0) then
+		local func = function()
+			local newinstance = TimeAttack:CreateInstance (true) --> force create a new one
+			if (newinstance) then
+				newinstance:SetMode (DETAILS_MODE_SOLO)
+				TimeAttack.SoloTables:switch (nil, "DETAILS_PLUGIN_TIME_ATTACK")
+			end
+		end
+		TimeAttack:GetFramework():ShowTutorialAlertFrame ("Open Time Attack", "plugin for measure dps", func)
+	end
+end
+
 function TimeAttack:OnEvent (_, event, ...)
 
-	if (event == "ADDON_LOADED") then
+	if (event == "PLAYER_TARGET_CHANGED") then
+		TimeAttack:CheckTargetForTutorial()
+
+	elseif (event == "ADDON_LOADED") then
 		local AddonName = select (1, ...)
 		if (AddonName == "Details_TimeAttack") then
 			
 			if (_G._detalhes) then
-				
-				--> create widgets
-				CreatePluginFrames (_detalhes_databaseTimeAttack)
 
 				local MINIMAL_DETAILS_VERSION_REQUIRED = 1
 				
+				local default_settings = {
+					time = 60, 
+					dps = 0, 
+					history = {},
+				}
+				
+				if (_detalhes_databaseTimeAttack) then
+					default_settings.history = _detalhes_databaseTimeAttack.history
+					_detalhes_databaseTimeAttack = nil
+				end
+				
 				--> Install
-				local install = _G._detalhes:InstallPlugin ("SOLO", Loc ["STRING_PLUGIN_NAME"], "Interface\\Icons\\SPELL_HOLY_BORROWEDTIME", TimeAttack, "DETAILS_PLUGIN_TIME_ATTACK", MINIMAL_DETAILS_VERSION_REQUIRED, "Details! Team", "v1.04")
+				local install, saveddata = _G._detalhes:InstallPlugin ("SOLO", Loc ["STRING_PLUGIN_NAME"], "Interface\\Icons\\SPELL_HOLY_BORROWEDTIME", TimeAttack, "DETAILS_PLUGIN_TIME_ATTACK", MINIMAL_DETAILS_VERSION_REQUIRED, "Details! Team", "v1.04", default_settings)
 				if (type (install) == "table" and install.error) then
 					print (install.errortext)
 					return
@@ -683,10 +743,10 @@ function TimeAttack:OnEvent (_, event, ...)
 				--> Register needed events
 				_G._detalhes:RegisterEvent (TimeAttack, "COMBAT_PLAYER_ENTER")
 				
+				--> create widgets
+				CreatePluginFrames()
+				
 			end
 		end
-		
-	elseif (event == "PLAYER_LOGOUT") then
-		_detalhes_databaseTimeAttack = TimeAttack.data
 	end
 end

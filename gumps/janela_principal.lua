@@ -486,7 +486,10 @@ local movement_onupdate = function (self, elapsed)
 local function move_janela (baseframe, iniciando, instancia)
 
 	instancia_alvo = _detalhes.tabela_instancias [instancia.meu_id-1]
-
+	if (_detalhes.disable_window_groups) then
+		instancia_alvo = nil
+	end
+	
 	if (iniciando) then
 	
 		baseframe.isMoving = true
@@ -496,15 +499,8 @@ local function move_janela (baseframe, iniciando, instancia)
 		local _, ClampLeft, ClampRight = instancia:InstanciasHorizontais()
 		local _, ClampBottom, ClampTop = instancia:InstanciasVerticais()
 		
-		if (ClampTop == 0) then
-			ClampTop = 0
-		end
-		if (ClampBottom == 0) then
-			ClampBottom = 0
-		end
-		
 		baseframe:SetClampRectInsets (-ClampLeft, ClampRight, ClampTop, -ClampBottom)
-		
+
 		if (instancia_alvo) then
 		
 			tempo_fades = 1.0
@@ -832,85 +828,43 @@ local function instancias_verticais (instancia, altura, esquerda, direita)
 	end
 end
 
-function _detalhes:InstanciasVerticais (instancia)
-
-	instancia = self or instancia
-
-	local linha_vertical, baixo, cima = {}, 0, 0
-
-	local checking = instancia
-	local first = true
-	
-	local check_index_anterior = _detalhes.tabela_instancias [instancia.meu_id-1]
-	if (check_index_anterior) then --> possiu uma instância antes de mim
-		if (check_index_anterior.snap[4] and check_index_anterior.snap[4] == instancia.meu_id) then --> o index negativo vai para baixo
-			for i = instancia.meu_id-1, 1, -1 do 
-				local esta_instancia = _detalhes.tabela_instancias [i]
-				if (esta_instancia.snap[4] and esta_instancia.snap [4] == checking.meu_id) then
-					linha_vertical [#linha_vertical+1] = esta_instancia
-					if (first) then
-						baixo = baixo + esta_instancia.baseframe:GetHeight()+48
-						first = false
-					else
-						baixo = baixo + esta_instancia.baseframe:GetHeight()+34
-					end
-					checking = esta_instancia
-				else
-					break
-				end
-			end
-		elseif (check_index_anterior.snap[2] and check_index_anterior.snap[2] == instancia.meu_id) then --> o index negativo vai para cima
-			for i = instancia.meu_id-1, 1, -1 do 
-				local esta_instancia = _detalhes.tabela_instancias [i]
-				if (esta_instancia.snap[2] and esta_instancia.snap[2] == checking.meu_id) then
-					linha_vertical [#linha_vertical+1] = esta_instancia
-					if (first) then
-						cima = cima + esta_instancia.baseframe:GetHeight() + 64
-						first = false
-					else
-						cima = cima + esta_instancia.baseframe:GetHeight() + 34
-					end
-					checking = esta_instancia
-				else
-					break
-				end
-			end
-		end
+local check_snap_side = function (instanceid, snap, id, container)
+	local instance = _detalhes:GetInstance (instanceid)
+	if (instance and instance.snap [snap] and instance.snap [snap] == id) then
+		tinsert (container, instance)
+		return true
 	end
+end
+
+function _detalhes:InstanciasVerticais (instance)
+
+	instance = self or instance
 	
-	checking = instancia
-	first = true
+	local on_top = {}
+	local on_bottom = {}
+	local id = instance:GetId()
 	
-	local check_index_posterior = _detalhes.tabela_instancias [instancia.meu_id+1]
-	if (check_index_posterior) then
-		if (check_index_posterior.snap[4] and check_index_posterior.snap[4] == instancia.meu_id) then --> o index posterior vai para a esquerda
-			for i = instancia.meu_id+1, #_detalhes.tabela_instancias do 
-				local esta_instancia = _detalhes.tabela_instancias [i]
-				if (esta_instancia.snap[4] and esta_instancia.snap[4] == checking.meu_id) then
-					linha_vertical [#linha_vertical+1] = esta_instancia
-					if (first) then
-						baixo = baixo + esta_instancia.baseframe:GetHeight()+48
-						first = true
-					else
-						baixo = baixo + esta_instancia.baseframe:GetHeight()+34
-					end
-					checking = esta_instancia
+	--lower instances
+	local this_instance = _detalhes:GetInstance (id-1)
+	if (this_instance) then
+		--> top side
+		if (this_instance.snap [2] and this_instance.snap [2] == id) then
+			local cid = id
+			local snapid = 2
+			for i = cid-1, 1, -1 do
+				if (check_snap_side (i, 2, cid, on_top)) then
+					cid = cid - 1
 				else
 					break
 				end
 			end
-		elseif (check_index_posterior.snap[2] and check_index_posterior.snap[2] == instancia.meu_id) then --> o index posterior vai para a direita
-			for i = instancia.meu_id+1, #_detalhes.tabela_instancias do 
-				local esta_instancia = _detalhes.tabela_instancias [i]
-				if (esta_instancia.snap[2] and esta_instancia.snap[2] == checking.meu_id) then
-					linha_vertical [#linha_vertical+1] = esta_instancia
-					if (first) then
-						cima = cima + esta_instancia.baseframe:GetHeight() + 64
-						first = false
-					else
-						cima = cima + esta_instancia.baseframe:GetHeight() + 34
-					end
-					checking = esta_instancia
+		--> bottom side
+		elseif (this_instance.snap [4] and this_instance.snap [4] == id) then
+			local cid = id
+			local snapid = 4
+			for i = cid-1, 1, -1 do
+				if (check_snap_side (i, 4, cid, on_bottom)) then
+					cid = cid - 1
 				else
 					break
 				end
@@ -918,10 +872,65 @@ function _detalhes:InstanciasVerticais (instancia)
 		end
 	end
 
+	--upper instances
+	local this_instance = _detalhes:GetInstance (id+1)
+	if (this_instance) then
+		--> top side
+		if (this_instance.snap [2] and this_instance.snap [2] == id) then
+			local cid = id
+			local snapid = 2
+			for i = cid+1, _detalhes:GetNumInstancesAmount() do
+				if (check_snap_side (i, 2, cid, on_top)) then
+					cid = cid + 1
+				else
+					break
+				end
+			end
+		--> bottom side
+		elseif (this_instance.snap [4] and this_instance.snap [4] == id) then
+			local cid = id
+			local snapid = 4
+			for i = cid+1, _detalhes:GetNumInstancesAmount() do
+				if (check_snap_side (i, 4, cid, on_bottom)) then
+					cid = cid + 1
+				else
+					break
+				end
+			end
+		end
+	end
 	
+	--> calc top clamp
+	local top_clamp = 0
+	local bottom_clamp = 0
 	
-	return linha_vertical, baixo, cima
+	if (instance.toolbar_side == 1) then
+		top_clamp = top_clamp + 20
+	elseif (instance.toolbar_side == 2) then
+		bottom_clamp = bottom_clamp + 20
+	end
+	if (instance.show_statusbar) then
+		bottom_clamp = bottom_clamp + 14
+	end
 	
+	for cid, this_instance in _ipairs (on_top) do
+		if (this_instance.show_statusbar) then
+			top_clamp = top_clamp + 14
+		end
+		top_clamp = top_clamp + 20
+		top_clamp = top_clamp + this_instance.baseframe:GetHeight()
+	end
+	
+	for cid, this_instance in _ipairs (on_bottom) do
+		if (this_instance.show_statusbar) then
+			bottom_clamp = bottom_clamp + 14
+		end
+		bottom_clamp = bottom_clamp + 20
+		bottom_clamp = bottom_clamp + this_instance.baseframe:GetHeight()
+		tinsert (on_top, this_instance)
+	end
+
+	return on_top, bottom_clamp, top_clamp
 end
 
 --[[
@@ -4548,7 +4557,7 @@ function _detalhes:ChangeSkin (skin_name)
 		end
 	
 		--> reset all config
-			self:ResetInstanceConfig()
+			self:ResetInstanceConfig (true)
 	
 		--> overwrites
 			local overwrite_cprops = this_skin.instance_cprops
@@ -5961,7 +5970,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 	baseframe.cabecalho.modo_selecao = gump:NewButton (baseframe, nil, "DetailsModeButton"..instancia.meu_id, nil, 16, 16, _detalhes.empty_function, nil, nil, [[Interface\AddOns\Details\images\modo_icone]])
 	baseframe.cabecalho.modo_selecao:SetPoint ("bottomleft", baseframe.cabecalho.ball, "bottomright", instancia.menu_anchor [1], instancia.menu_anchor [2])
 	baseframe.cabecalho.modo_selecao:SetFrameLevel (baseframe:GetFrameLevel()+5)
-	
+
 	--> Generating Cooltip menu from table template
 	local modeMenuTable = {
 	
@@ -6420,180 +6429,44 @@ function gump:CriaCabecalho (baseframe, instancia)
 	
 --> fim botão reset
 
---> Botão de Ajuda ----------------------------------------------------------------------------------------------------------------------------------------------------
 
-	--> disabled
-	if (instancia.meu_id == 1 and _detalhes.tutorial.logons < 0) then
-	
-		--> help button
-		local helpButton = CreateFrame ("button", "DetailsMainWindowHelpButton", baseframe, "MainHelpPlateButton")
-		helpButton:SetWidth (28)
-		helpButton:SetHeight (28)
-		helpButton.I:SetWidth (22)
-		helpButton.I:SetHeight (22)
-		helpButton.Ring:SetWidth (28)
-		helpButton.Ring:SetHeight (28)
-		helpButton.Ring:SetPoint ("center", 5, -6)
-		
-		helpButton:SetPoint ("topright", baseframe, "topleft", 37, 37)
-		
-		helpButton:SetFrameLevel (0)
-		helpButton:SetFrameStrata ("LOW")
+--[[
 
-		local mainWindowHelp =  {
-			FramePos = {x = 0, y = 10},
-			FrameSize = {width = 300, height = 85},
-			
-			--> modo, segmento e atributo
-			[1] ={HighLightBox = {x = 25, y = 10, width = 60, height = 20},
-				ButtonPos = { x = 32, y = 40},
-				ToolTipDir = "right",
-				ToolTipText = Loc ["STRING_HELP_MENUS"]
-			},
-			--> delete
-			[2] ={HighLightBox = {x = 195, y = 10, width = 47, height = 20},
-				ButtonPos = { x = 197, y = 5},
-				ToolTipDir = "left",
-				ToolTipText = Loc ["STRING_HELP_ERASE"]
-			},
-			--> menu da instancia
-			[3] ={HighLightBox = {x = 244, y = 10, width = 30, height = 20},
-				ButtonPos = { x = 237, y = 5},
-				ToolTipDir = "right",
-				ToolTipText = Loc ["STRING_HELP_INSTANCE"]
-			},
-			--> stretch
-			[4] ={HighLightBox = {x = 244, y = 30, width = 30, height = 20},
-				ButtonPos = { x = 237, y = 57},
-				ToolTipDir = "right",
-				ToolTipText = Loc ["STRING_HELP_STRETCH"]
-			},
-			--> status bar
-			[5] ={HighLightBox = {x = 0, y = -101, width = 300, height = 20},
-				ButtonPos = { x = 126, y = -88},
-				ToolTipDir = "left",
-				ToolTipText = Loc ["STRING_HELP_STATUSBAR"]
-			},
-			--> switch menu
-			[6] ={HighLightBox = {x = 0, y = -10, width = 300, height = 95},
-				ButtonPos = { x = 127, y = -37},
-				ToolTipDir = "left",
-				ToolTipText = Loc ["STRING_HELP_SWITCH"]
-			},
-			--> resizer
-			[7] ={HighLightBox = {x = 250, y = -81, width = 50, height = 20},
-				ButtonPos = { x = 253, y = -52},
-				ToolTipDir = "right",
-				ToolTipText = Loc ["STRING_HELP_RESIZE"]
-			},
-		}
-		
-		helpButton:SetScript ("OnClick", function() 
-			if (not HelpPlate_IsShowing (mainWindowHelp)) then
-			
-				instancia:SetSize (300, 95)
-			
-				HelpPlate_Show (mainWindowHelp, baseframe, helpButton, true)
-			else
-				HelpPlate_Hide (true)
-			end
-		end)
-	
-	end
+--> teste com shadows
 
----------> consolidate frame ----------------------------------------------------------------------------------------------------------------------------------------------------
+--modo
+	local shadow = baseframe.cabecalho.modo_selecao:CreateTexture ("sombra", "background")
+	shadow:SetPoint ("center", baseframe.cabecalho.modo_selecao.widget, "center")
+	shadow:SetTexture ("Interface\\PetBattles\\PetBattle-SelectedPetGlow")
+	shadow:SetVertexColor (0, 0, 0, 1)
+	shadow:SetSize (22, 22)
+--segmentos
+	local shadow = baseframe.cabecalho.segmento:CreateTexture ("sombra2", "background")
+	shadow:SetPoint ("center", baseframe.cabecalho.segmento.widget, "center")
+	shadow:SetTexture ("Interface\\PetBattles\\PetBattle-SelectedPetGlow")
+	shadow:SetVertexColor (0, 0, 0, 1)
+	shadow:SetSize (22, 22)
+--atributo
+	local shadow = baseframe.cabecalho.atributo:CreateTexture ("sombra3", "background")
+	shadow:SetPoint ("center", baseframe.cabecalho.atributo.widget, "center")
+	shadow:SetTexture ("Interface\\PetBattles\\PetBattle-SelectedPetGlow")
+	shadow:SetVertexColor (0, 0, 0, 1)
+	shadow:SetSize (12, 16)
+	shadow:SetTexCoord (0.0, 0.0, 0.3, 0.3, 0.7, 0.7, 1, 1)
+--report
+	local shadow = baseframe.cabecalho.report:CreateTexture ("sombra4", "background")
+	shadow:SetPoint ("center", baseframe.cabecalho.report.widget, "center")
+	shadow:SetTexture ("Interface\\PetBattles\\PetBattle-SelectedPetGlow")
+	shadow:SetVertexColor (0, 0, 0, 1)
+	shadow:SetSize (22, 22)
+	
+--baseToolbar.novo, baseToolbar.fechar, baseToolbar.reset}baseToolbar.modo_selecao, baseToolbar.segmento, baseToolbar.atributo, baseToolbar.report	
 
-	local consolidateFrame = CreateFrame ("frame", "DetailsConsolidateFrame" .. instancia.meu_id, _detalhes.listener)
-	consolidateFrame:SetWidth (21)
-	consolidateFrame:SetHeight (83)
-	consolidateFrame:SetFrameLevel (baseframe:GetFrameLevel()-1)
-	--consolidateFrame:SetPoint ("bottomleft", baseframe.cabecalho.ball, "bottomright", 0, 20)
-	consolidateFrame:SetFrameStrata ("FULLSCREEN")
-	consolidateFrame:Hide()
-	instancia.consolidateFrame = consolidateFrame
-	
----------> consolidate texture
-
-	local frameTexture = consolidateFrame:CreateTexture (nil, "background")
-	frameTexture:SetTexture ([[Interface\AddOns\Details\images\consolidate_frame]])
-	frameTexture:SetPoint ("top", consolidateFrame, "top", .5, 0)
-	frameTexture:SetWidth (32)
-	frameTexture:SetHeight (83)
-	frameTexture:SetTexCoord (0, 1, 0, 0.6484375)
-	
----------> consolidate button
-
-	local consolidateButton = CreateFrame ("button", "DetailsConsolidateButton" .. instancia.meu_id, baseframe)
-	consolidateButton:SetWidth (16)
-	consolidateButton:SetHeight (16)
-	consolidateButton:SetFrameLevel (baseframe.UPFrame:GetFrameLevel()+1)
-	consolidateButton:SetPoint ("bottomleft", baseframe.cabecalho.ball, "bottomright", 6, 2)
-	consolidateFrame:SetPoint ("bottom", consolidateButton, "top", 3, 0)
-
-	local normal_texture = consolidateButton:CreateTexture (nil, "overlay")
-	normal_texture:SetTexture ([[Interface\GossipFrame\HealerGossipIcon]])
-	normal_texture:SetVertexColor (.9, .8, 0)
-	normal_texture:SetWidth (16)
-	normal_texture:SetHeight (16)
-	normal_texture:SetPoint ("center", consolidateButton, "center")
-	
-	consolidateButton:Hide()
-	instancia.consolidateButton = consolidateButton
-	instancia.consolidateButtonTexture = normal_texture
-	
----------> consolidate scripts
-
-	consolidateFrame:SetScript ("OnEnter", function (self)
-		consolidateFrame.mouse_over = true
-		self:SetScript ("OnUpdate", nil)
-	end) 
-
-	consolidateFrame:SetScript ("OnLeave", function (self)
-		consolidateFrame.mouse_over = false
-		local passou = 0
-		self:SetScript ("OnUpdate", function (self, elapsed)
-			passou = passou+elapsed
-			if (passou > 0.5) then
-				if (not _G.GameCooltip.active and not baseframe.cabecalho.button_mouse_over) then
-					consolidateFrame:Hide()
-					normal_texture:SetBlendMode ("BLEND")
-					self:SetScript ("OnUpdate", nil)
-				end
-				passou = 0
-			end
-		end)
-	end) 
-	
-	consolidateButton:SetScript ("OnEnter", function (self)
-		gump:Fade (baseframe.button_stretch, "alpha", 0.3)
-		local passou = 0
-		consolidateFrame:SetScript ("OnUpdate", nil)
-		normal_texture:SetBlendMode ("ADD")
-		self:SetScript ("OnUpdate", function (self, elapsed)
-			passou = passou+elapsed
-			if (passou > 0.3) then
-				consolidateFrame:SetPoint ("bottom", self, "top", 3, 0)
-				consolidateFrame:Show()
-				self:SetScript ("OnUpdate", nil)
-			end
-		end)
-	end)
-	
-	consolidateButton:SetScript ("OnLeave", function (self) 
-		gump:Fade (baseframe.button_stretch, -1)
-		local passou = 0
-		self:SetScript ("OnUpdate", function (self, elapsed)
-			passou = passou+elapsed
-			if (passou > 0.3) then
-				if (not consolidateFrame.mouse_over and not baseframe.cabecalho.button_mouse_over and not _G.GameCooltip.active) then
-					consolidateFrame:Hide()
-					normal_texture:SetBlendMode ("BLEND")
-				end
-				self:SetScript ("OnUpdate", nil)
-			end
-		end)
-	end)
-	
-	
-	
+	local shadow = UIParent:CreateTexture ("SombraTeste", "background")
+	shadow:SetPoint ("center", UIParent, "center", 200, 0)
+	shadow:SetTexture ("Interface\\PetBattles\\PetBattle-SelectedPetGlow")
+	shadow:SetVertexColor (0, 0, 0, 1)
+	shadow:SetSize (300, 300)
+	shadow:SetTexCoord (0.0, 0.0, 0.3, 0.3, 0.7, 0.7, 1, 1)
+	--]]
 end

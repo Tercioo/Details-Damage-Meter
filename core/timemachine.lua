@@ -38,7 +38,7 @@
 			for nome, jogador in _ipairs (tabela) do
 				if (jogador) then
 					
-					local ultima_acao = jogador.last_event+3
+					local ultima_acao = jogador.last_event+10
 
 					if (ultima_acao > _tempo) then --> okey o jogador esta dando dps
 						if (jogador.on_hold) then --> o dps estava pausado, retornar a ativa

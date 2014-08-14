@@ -300,9 +300,14 @@ function atributo_misc:ReportSingleDeadLine (morte, instancia)
 		if (evento [1] and type (evento [1]) == "boolean") then --> damage
 			if (evento [3]) then
 				local elapsed = _cstr ("%.1f", evento [4] - time_of_death) .."s"
-				local spelllink = GetSpellLink (evento [2])
-				local source = _detalhes:GetOnlyName (evento [6])
 				local spellname, _, spellicon = _GetSpellInfo (evento [2])
+				local spelllink
+				if (evento [2] > 10) then
+					spelllink = GetSpellLink (evento [2])
+				else
+					spelllink = spellname
+				end
+				local source = _detalhes:GetOnlyName (evento [6])
 				local amount = evento [3]
 				local hp = _math_floor (evento [5] / max_health * 100)
 				if (hp > 100) then 
@@ -331,36 +336,16 @@ function atributo_misc:ReportSingleDeadLine (morte, instancia)
 		end
 	end
 	
-	-- ELAPSED | HP | LINK | SOURCE
-	local bigger_len = 0
-	for index, table in _ipairs (report_array) do
-		local spell = table [2] --[[
-		_detalhes.fontstring_len:SetText (spell)
-		local stringlen = _detalhes.fontstring_len:GetStringWidth()
-		while (stringlen < default_len) do
-			spell = spell .. " "
-			_detalhes.fontstring_len:SetText (spell)
-			stringlen = _detalhes.fontstring_len:GetStringWidth()
-		end
-		table [2] = spell--]]
-		reportar [#reportar+1] = table [1] .. table [4] .. spell .. table [3]
+	for index = #report_array, 1, -1 do
+		local table = report_array [index]
+		reportar [#reportar+1] = table [1] .. table [4] .. table [2] .. table [3]
 	end
 	
-	return _detalhes:Reportar (reportar, {_no_current = true, _no_inverse = true, _custom = true})
+	--for index, table in _ipairs (report_array) do
+	--	reportar [#reportar+1] = table [1] .. table [4] .. table [2] .. table [3]
+	--end
 	
-	--[[
-	local barra = instancia.barras [morte.minha_barra]
-	local reportar = {"Details! " .. Loc ["STRING_REPORT_SINGLE_DEATH"] .. " " .. morte [3] .. " " .. barra.texto_esquerdo:GetText()} --> localize-me
-	for i = 1, GameCooltip:GetNumLines() do 
-		local texto_left, texto_right = GameCooltip:GetText (i)
-		
-		if (texto_left and texto_right) then 
-			texto_left = texto_left:gsub (("|T(.*)|t "), "")
-			reportar [#reportar+1] = ""..texto_left.." "..texto_right..""
-		end
-	end
 	return _detalhes:Reportar (reportar, {_no_current = true, _no_inverse = true, _custom = true})
-	--]]
 end
 
 function atributo_misc:ReportSingleCooldownLine (misc_actor, instancia)

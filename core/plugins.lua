@@ -141,6 +141,10 @@
 			_detalhes.PluginCount.STATUSBAR = _detalhes.PluginCount.STATUSBAR + 1
 		end
 		
+		if (saved_table) then
+			PluginObject.db = saved_table
+		end
+		
 		if (PluginObject.__enabled) then
 			return true, saved_table, true
 		else

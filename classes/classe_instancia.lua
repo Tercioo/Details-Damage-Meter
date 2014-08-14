@@ -220,6 +220,14 @@ function _detalhes:GetDisplay()
 	return self.atributo, self.sub_atributo
 end
 
+function _detalhes:GetMaxInstancesAmount()
+	return _detalhes.instances_amount
+end
+
+function _detalhes:GetFreeInstancesAmount()
+	return _detalhes.instances_amount - #_detalhes.tabela_instancias
+end
+
 ------------------------------------------------------------------------------------------------------------------------
 
 --> retorna se a instância esta ou não ativa
@@ -255,7 +263,8 @@ end
 			self.verticalSnap = config.verticalSnap
 			self.sub_atributo_last = config.sub_atributo_last
 			self.isLocked = config.isLocked
-
+			self.last_raid_plugin = config.last_raid_plugin
+			
 		end
 	end
 
@@ -367,8 +376,8 @@ end
 				self.baseframe.lock_button:SetWidth (self.baseframe.lock_button.label:GetStringWidth()+2)
 				self.baseframe.lock_button:ClearAllPoints()
 				self.baseframe.lock_button:SetPoint ("bottomright", self.baseframe, "bottomright", -3, 0)
-				self.baseframe.resize_direita:SetAlpha (1)
-				self.baseframe.resize_esquerda:SetAlpha (1)
+				self.baseframe.resize_direita:SetAlpha (0)
+				self.baseframe.resize_esquerda:SetAlpha (0)
 			end
 		end
 	end
@@ -468,14 +477,6 @@ end
 			return false
 		end
 
-		--> check is is open
-		--if (instance:IsEnabled()) then
-		--	instance:ShutDown()
-		--end
-		
-		-- deletei a janela 1
-		-- a janela 2 ficou com snap [1] = 1 [3] = 3
-		
 		--> break snaps of previous and next window
 		local left_instance = _detalhes:GetInstance (id-1)
 		if (left_instance) then
@@ -511,84 +512,6 @@ end
 		
 		table.remove (_detalhes.tabela_instancias, id)
 
-		if (true) then
-			return
-		end
-		
-		table.remove (_detalhes.local_instances_config, id)		
-		_detalhes:SaveProfile()
-		_detalhes:SaveLocalInstanceConfig()		
-		table.insert (_detalhes.tabela_instancias, 3, instance)
-		_detalhes:ApplyProfile (_detalhes:GetCurrentProfileName(), true)
-		
-		if (true) then
-			return
-		end
-
-		--> break snaps of previous and next window
-		local left_instance = _detalhes:GetInstance (id-1)
-		if (left_instance) then
-			for index, instance_id in _pairs (left_instance.snap) do
-				if (index == id) then --snap na proxima instancia
-					left_instance.snap [index] = nil
-				end
-			end
-		end
-		local right_instance = _detalhes:GetInstance (id+1)
-		if (right_instance) then
-			for index, instance_id in _pairs (right_instance.snap) do
-				if (index == id) then --snap na proxima instancia
-					right_instance.snap [index] = nil
-				end
-			end
-		end
-		
-		--> copy skins from next instances
-		for i = id+1, #_detalhes.tabela_instancias do
-			local current_instance = _detalhes:GetInstance (i-1)
-			local next_instance = _detalhes:GetInstance (i)
-			
-			if (next_instance) then
-				local exported = next_instance:ExportSkin()
-				
-			end
-		end
-		
-		--fixas os snaps nas janelas superiores
-		for i = id+1, #_detalhes.tabela_instancias do
-			local this_instance = _detalhes:GetInstance (i)
-			
-			--down the id
-			this_instance.meu_id = i-1
-			
-			--fix the snaps
-			for index, id in _pairs (this_instance.snap) do
-				if (id == i+1) then --snap na proxima instancia
-					this_instance.snap [index] = i
-				elseif (id == i-1) then --snap na instancia anterior
-					this_instance.snap [index] = i-2
-				end
-			end
-		end
-		
-		
-		
-		
-		
-		--remover do container tabela_instancias
-		
-		-- fiz alterações das outras instancias, precisa salvar agora? // ele salva ao sair  ou mudar o profile
-		-- remover a instancia do container deste profile
-		
-		--local profile = _detalhes:GetProfile (current_profile_name)
-		--local saved_skins = profile.instances
-		--tremove (saved_skins, id)
-		
-		--tremove (_detalhes.tabela_instancias, id)
-		
-		--> save the current profile
-		_detalhes:SaveProfile()
-		
 	end
 
 
@@ -619,6 +542,18 @@ end
 			end
 			
 			local new_instance = _detalhes:NovaInstancia (next_id)
+			
+			if (_detalhes.standard_skin) then
+				for key, value in pairs (_detalhes.standard_skin) do
+					if (type (value) == "table") then
+						new_instance [key] = table_deepcopy (value)
+					else
+						new_instance [key] = value
+					end
+				end
+				new_instance:ChangeSkin()
+			end
+			
 			return new_instance
 			
 		elseif (id) then
@@ -1795,6 +1730,13 @@ function _detalhes:AtualizaSegmentos_AfterCombat (instancia, historico)
 	
 end
 
+function _detalhes:SetDisplay (segmento, atributo, sub_atributo, iniciando_instancia, InstanceMode)
+	if (not self.meu_id) then
+		return
+	end
+	return self:TrocaTabela (segmento, atributo, sub_atributo, iniciando_instancia, InstanceMode)
+end
+
 function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, iniciando_instancia, InstanceMode)
 
 	if (self and self.meu_id and not instancia) then --> self é uma instância
@@ -2334,6 +2276,10 @@ function _detalhes:ChangeIcon (icon)
 	end
 end
 
+function _detalhes:SetMode (qual)
+	return self:AlteraModo (qual)
+end
+
 function _detalhes:AlteraModo (instancia, qual, from_mode_menu)
 
 	if (_type (instancia) == "number") then
@@ -2797,7 +2743,7 @@ function _detalhes:envia_relatorio (linhas, custom)
 
 	local segmento = self.segmento
 	local luta = nil
-
+	
 	if (not custom) then
 		if (segmento == -1) then --overall
 			luta = Loc ["STRING_REPORT_LAST"] .. " " .. #_detalhes.tabela_historico.tabelas .. " " .. Loc ["STRING_REPORT_FIGHTS"]

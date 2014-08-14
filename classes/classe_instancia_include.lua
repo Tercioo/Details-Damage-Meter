@@ -2,7 +2,7 @@
 local _detalhes = 		_G._detalhes
 local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
 
-function _detalhes:ResetInstanceConfig()
+function _detalhes:ResetInstanceConfig (maintainsnap)
 	for key, value in pairs (_detalhes.instance_defaults) do 
 		if (type (value) == "table") then
 			self [key] = table_deepcopy (value)
@@ -10,10 +10,12 @@ function _detalhes:ResetInstanceConfig()
 			self [key] = value
 		end
 	end
-	self.snap = {}
-	self.horizontalSnap = nil
-	self.verticalSnap = nil
-	self:LockInstance (false)
+	if (not maintainsnap) then
+		self.snap = {}
+		self.horizontalSnap = nil
+		self.verticalSnap = nil
+		self:LockInstance (false)
+	end
 end
 
 function _detalhes:LoadInstanceConfig()

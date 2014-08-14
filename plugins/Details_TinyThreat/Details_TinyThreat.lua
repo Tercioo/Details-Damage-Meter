@@ -378,14 +378,18 @@ local function CreatePluginFrames (data)
 					thisRow:SetRightText (ThreatMeter:ToK2 (threat_actor [6]) .. " (" .. _cstr ("%.1f", pct) .. "%)")
 					thisRow:SetValue (pct)
 					
-					if (index == 2) then
-						thisRow:SetColor (pct*0.01, _math_abs (pct-100)*0.01, 0, 1)
+					if (ThreatMeter.options.useplayercolor and threat_actor [1] == player) then
+						thisRow:SetColor (_unpack (ThreatMeter.options.playercolor))
 					else
-						thisRow:SetColor (pct*0.01, _math_abs (pct-100)*0.01, 0, .3)
-						if (pct >= 50) then
-							thisRow:SetColor ( 1, _math_abs (pct - 100)/100, 0, 1)
+						if (index == 2) then
+							thisRow:SetColor (pct*0.01, _math_abs (pct-100)*0.01, 0, 1)
 						else
-							thisRow:SetColor (pct/100, 1, 0, 1)
+							thisRow:SetColor (pct*0.01, _math_abs (pct-100)*0.01, 0, .3)
+							if (pct >= 50) then
+								thisRow:SetColor ( 1, _math_abs (pct - 100)/100, 0, 1)
+							else
+								thisRow:SetColor (pct/100, 1, 0, 1)
+							end
 						end
 					end
 					
@@ -412,7 +416,11 @@ local function CreatePluginFrames (data)
 						thisRow._icon:SetTexCoord (_unpack (RoleIconCoord [role]))
 						thisRow:SetRightText (ThreatMeter:ToK2 (threat_actor [6]) .. " (" .. _cstr ("%.1f", threat_actor [2]) .. "%)")
 						thisRow:SetValue (threat_actor [2])
-						thisRow:SetColor (threat_actor [2]*0.01, _math_abs (threat_actor [2]-100)*0.01, 0, .3)
+						if (ThreatMeter.options.useplayercolor) then
+							thisRow:SetColor (_unpack (ThreatMeter.options.playercolor))
+						else
+							thisRow:SetColor (threat_actor [2]*0.01, _math_abs (threat_actor [2]-100)*0.01, 0, .3)
+						end
 					end
 				end
 			end
@@ -535,6 +543,23 @@ local build_options_panel = function()
 			name = "Update Speed",
 			usedecimals = true,
 		},
+		{
+			type = "toggle",
+			get = function() return ThreatMeter.saveddata.useplayercolor end,
+			set = function (self, fixedparam, value) ThreatMeter.saveddata.useplayercolor = value end,
+			desc = "When enabled, your bar get the following color.",
+			name = "Player Color Enabled"
+		},
+		{
+			type = "color",
+			get = function() return ThreatMeter.saveddata.playercolor end,
+			set = function (self, r, g, b, a) 
+				local current = ThreatMeter.saveddata.playercolor
+				current[1], current[2], current[3], current[4] = r, g, b, a
+			end,
+			desc = "If Player Color is enabled, your bar have this color.",
+			name = "Color"
+		},
 	}
 	
 	_detalhes.gump:BuildMenu (options_frame, menu, 15, -65, 260)
@@ -598,6 +623,8 @@ function ThreatMeter:OnEvent (_, event, ...)
 				ThreatMeter.saveddata.updatespeed = ThreatMeter.saveddata.updatespeed or 1
 				ThreatMeter.saveddata.animate = ThreatMeter.saveddata.animate or false
 				ThreatMeter.saveddata.showamount = ThreatMeter.saveddata.showamount or false
+				ThreatMeter.saveddata.useplayercolor = ThreatMeter.saveddata.useplayercolor or false
+				ThreatMeter.saveddata.playercolor = ThreatMeter.saveddata.playercolor or {1, 1, 1}
 
 				ThreatMeter.options = ThreatMeter.saveddata
 				
@@ -631,17 +658,12 @@ function ThreatMeter:OnEvent (_, event, ...)
 					elseif (command == Loc ["STRING_SLASH_AMOUNT"]) then
 					
 					else
-						
 						ThreatMeter:Msg (Loc ["STRING_COMMAND_LIST"])
 						print ("|cffffaeae/tinythreat " .. Loc ["STRING_SLASH_SPEED"] .. "|r: " .. Loc ["STRING_SLASH_SPEED_DESC"])
 					
 					end
-		
-					
 				end
-				
 				ThreatMeter.initialized = true
-				
 			end
 		end
 

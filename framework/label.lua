@@ -195,6 +195,15 @@ local LabelMetaFunctions = {}
 	function LabelMetaFunctions:Hide()
 		return self.label:Hide()
 	end
+
+-- textcolor
+	function LabelMetaFunctions:SetTextColor (color, arg2, arg3, arg4)
+		if (arg2) then
+			return self.label:SetTextColor (color, arg2, arg3, arg4 or 1)
+		end
+		local _value1, _value2, _value3, _value4 = gump:ParseColors (color)
+		return self.label:SetTextColor (_value1, _value2, _value3, _value4)
+	end
 	
 -- setpoint
 	function LabelMetaFunctions:SetPoint (v1, v2, v3, v4, v5)

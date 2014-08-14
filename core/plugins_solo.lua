@@ -165,8 +165,16 @@
 				return
 			end
 			
-			--> jump to the next
-			if (_switchTo == -1) then
+			--> if passed the absolute plugin name
+			if (type (_switchTo) == "string") then
+				for index, ptable in ipairs (_detalhes.SoloTables.Menu) do 
+					if (ptable [3].__enabled and ptable [4] == _switchTo) then
+						_switchTo = index
+						break
+					end
+				end
+				
+			elseif (_switchTo == -1) then
 				_switchTo = _detalhes.SoloTables.Mode + 1
 				if (_switchTo > #_detalhes.SoloTables.Plugins) then
 					_switchTo = 1

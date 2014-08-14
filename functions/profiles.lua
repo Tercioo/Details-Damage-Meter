@@ -147,14 +147,42 @@ function _detalhes:ResetProfile (profile_name)
 			return false
 		end
 	
-	--> reset
+	--> reset all already created instances
+		for index, instance in _detalhes:ListInstances() do
+			if (not instance.baseframe) then
+				instance:AtivarInstancia()
+			end
+			instance.skin = ""
+			instance:ChangeSkin ("Minimalistic")
+		end
+		
+		for index, instance in pairs (_detalhes.unused_instances) do
+			if (not instance.baseframe) then
+				instance:AtivarInstancia()
+			end
+			instance.skin = ""
+			instance:ChangeSkin ("Minimalistic")
+		end
 	
-		profile.instances = {}
-		local profile = table_deepcopy (_detalhes.default_profile)
-		profile.instances = instances
+	--> reset the profile
+		table.wipe (profile.instances)
+
+		--> export first instance
+		local instance = _detalhes:GetInstance (1)
+		local exported = instance:ExportSkin()
+		exported.__was_opened = instance:IsEnabled()
+		exported.__pos = table_deepcopy (instance:GetPosition())
+		exported.__locked = instance.isLocked
+		exported.__snap = {}
+		exported.__snapH = false
+		exported.__snapV = false
+		profile.instances [1] = exported
+		instance.horizontalSnap = false
+		instance.verticalSnap = false
+		instance.snap = {}
 		
 		_detalhes:ApplyProfile (profile_name, true)
-	
+		
 	--> end
 		return true
 end
@@ -302,7 +330,6 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 				
 				--> load data saved for this character only
 				instance:LoadLocalInstanceConfig()
-
 				if (skin.__was_opened) then
 					instance:AtivarInstancia()
 				else
@@ -311,7 +338,6 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 				
 				--> load data saved again
 				instance:LoadLocalInstanceConfig()
-				
 				--> check window positioning
 				if (_detalhes.profile_save_pos) then
 					if (skin.__pos) then
@@ -335,7 +361,7 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 						instance.posicao.normal = {x = 1, y = 1, w = 300, h = 200}
 					end
 				end
-				
+
 				--> open the instance
 				if (instance:IsEnabled()) then
 					if (not instance.baseframe) then
@@ -351,6 +377,7 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 				end
 				
 				instances_loaded = instances_loaded + 1
+				
 			end
 			
 			--> move unused instances for unused container
@@ -675,6 +702,7 @@ local default_profile = {
 		max_window_size = {width = 480, height = 450},
 		new_window_size = {width = 300, height = 95},
 		window_clamp = {-8, 0, 21, -14},
+		disable_window_groups = false,
 		
 	--> segments
 		segments_amount = 12,
@@ -833,7 +861,17 @@ local default_global_data = {
 
 _detalhes.default_global_data = default_global_data
 
-
+function _detalhes:GetTutorialCVar (key, default)
+	local value = _detalhes.tutorial [key]
+	if (value == nil and default) then
+		_detalhes.tutorial [key] = default
+		value = default
+	end
+	return value
+end
+function _detalhes:SetTutorialCVar (key, value)
+	_detalhes.tutorial [key] = value
+end
 
 function _detalhes:SaveProfileSpecial()
 	
