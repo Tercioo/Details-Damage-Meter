@@ -703,6 +703,7 @@ local default_profile = {
 		new_window_size = {width = 300, height = 95},
 		window_clamp = {-8, 0, 21, -14},
 		disable_window_groups = false,
+		disable_reset_button = false,
 		
 	--> segments
 		segments_amount = 12,

@@ -1948,6 +1948,17 @@ function window:CreateFrame18()
 		
 		window:CreateLineBackground2 (frame18, "DisableGroupsSlider", "DisableGroupsLabel", Loc ["STRING_OPTIONS_DISABLE_GROUPS_DESC"])
 	
+		--> disable reset button
+		g:NewLabel (frame18, _, "$parentDisableResetLabel", "DisableResetLabel", Loc ["STRING_OPTIONS_DISABLE_RESET"], "GameFontHighlightLeft")
+		g:NewSwitch (frame18, _, "$parentDisableResetSlider", "DisableResetSlider", 60, 20, _, _, _detalhes.disable_reset_button)
+
+		frame18.DisableResetSlider:SetPoint ("left", frame18.DisableResetLabel, "right", 2)
+		frame18.DisableResetSlider.OnSwitch = function (_, _, value)
+			_detalhes.disable_reset_button = value
+		end
+		
+		window:CreateLineBackground2 (frame18, "DisableResetSlider", "DisableResetLabel", Loc ["STRING_OPTIONS_DISABLE_RESET_DESC"])
+	
 	--> Report
 		g:NewLabel (frame18, _, "$parentReportHelpfulLinkLabel", "ReportHelpfulLinkLabel", Loc ["STRING_OPTIONS_REPORT_HEALLINKS"], "GameFontHighlightLeft")
 		g:NewSwitch (frame18, _, "$parentReportHelpfulLinkSlider", "ReportHelpfulLinkSlider", 60, 20, _, _, _detalhes.report_heal_links)
@@ -1997,11 +2008,12 @@ function window:CreateFrame18()
 			{"deleteInstanceLabel", 2},
 			{"MenuTextSizeLabel", 3},
 			{"DisableGroupsLabel", 4},
-			{"totalBarAnchorLabel", 5, true},
-			{"totalBarIconLabel", 6},
-			{"totalBarPickColorLabel", 7},
-			{"totalBarLabel", 8},
-			{"totalBarOnlyInGroupLabel", 9},
+			{"DisableResetLabel", 5},
+			{"totalBarAnchorLabel", 6, true},
+			{"totalBarIconLabel", 7},
+			{"totalBarPickColorLabel", 8},
+			{"totalBarLabel", 9},
+			{"totalBarOnlyInGroupLabel", 10},
 		}
 		
 		window:arrange_menu (frame18, right_side, window.right_start_at, -90)
@@ -7635,6 +7647,8 @@ function window:update_all (editing_instance)
 	_G.DetailsOptionsWindow18ReportHelpfulLinkSlider.MyObject:SetValue (_detalhes.report_heal_links)
 	--disabled groups
 	_G.DetailsOptionsWindow18DisableGroupsSlider.MyObject:SetValue (_detalhes.disable_window_groups)
+	--disable reset
+	_G.DetailsOptionsWindow18DisableResetSlider.MyObject:SetValue (_detalhes.disable_reset_button)
 	
 	--auto switch
 	local switch_tank_in_combat = editing_instance.switch_tank_in_combat

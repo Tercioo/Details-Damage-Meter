@@ -6419,7 +6419,13 @@ function gump:CriaCabecalho (baseframe, instancia)
 	baseframe.cabecalho.reset:SetSize (10, 16)
 	baseframe.cabecalho.reset:SetPoint ("right", baseframe.cabecalho.novo, "left")
 	baseframe.cabecalho.reset.instance = instancia
-	baseframe.cabecalho.reset:SetScript ("OnClick", function() _detalhes.tabela_historico:resetar() end)
+	baseframe.cabecalho.reset:SetScript ("OnClick", function() 
+		if (not _detalhes.disable_reset_button) then
+			_detalhes.tabela_historico:resetar() 
+		else
+			_detalhes:Msg (Loc ["STRING_OPTIONS_DISABLED_RESET"])
+		end
+	end)
 	baseframe.cabecalho.reset:SetScript ("OnEnter", reset_button_onenter)
 	baseframe.cabecalho.reset:SetScript ("OnLeave", reset_button_onleave)
 	
