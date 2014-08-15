@@ -851,6 +851,10 @@ function _detalhes:agrupar_janelas (lados)
 	
 end
 
+function _detalhes:UngroupInstance()
+	return self:Desagrupar (-1)
+end
+
 function _detalhes:Desagrupar (instancia, lado)
 
 	if (self.meu_id) then --> significa que self é uma instancia

@@ -23,7 +23,7 @@ if (
 	label:SetText ("Restart game client in order to finish addons updates.")
 	label:SetWidth (300)
 	label:SetJustifyH ("left")
-	 
+	
 	local close = CreateFrame ("button", "DetaisCorruptInstall", f, "UIPanelCloseButton")
 	close:SetSize (32, 32)
 	close:SetPoint ("topright", f, "topright", 0, 0)

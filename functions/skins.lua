@@ -421,26 +421,50 @@ local _
 	
 		local instance1 = _detalhes.tabela_instancias [1]
 		local instance2 = _detalhes.tabela_instancias [2]
+		local instance3 = _detalhes.tabela_instancias [3]
+
 		if (not instance2) then
 			instance2 = _detalhes:CriarInstancia()
-			instance2:ChangeSkin ("ElvUI Frame Style")
+			instance2:ChangeSkin (instance1.skin)
 		elseif (not instance2.ativa) then
 			instance2:AtivarInstancia()
-			instance2:ChangeSkin ("ElvUI Frame Style")
+			instance2:ChangeSkin (instance1.skin)
 		end
+		
+		if (instance3) then
+			instance3:ShutDown()
+		end
+	
+		instance1:UngroupInstance()
+		instance2:UngroupInstance()
 	
 		instance1.baseframe:ClearAllPoints()
 		instance2.baseframe:ClearAllPoints()
 
-		instance1.baseframe:SetSize (wight/2 - 4, height-20-21-8)
-		instance2.baseframe:SetSize (wight/2 - 4, height-20-21-8)
+		local statusbar_enabled1 = instance1.show_statusbar
+		local statusbar_enabled2 = instance2.show_statusbar
 		
-		instance1.baseframe:SetPoint ("bottomleft", RightChatDataPanel, "topleft", 1, 1)
-		instance2.baseframe:SetPoint ("bottomright", RightChatToggleButton, "topright", -1, 1)
+		_detalhes.move_janela_func (instance1.baseframe, true, instance1)
+		_detalhes.move_janela_func (instance1.baseframe, false, instance1)
+		_detalhes.move_janela_func (instance2.baseframe, true, instance2)
+		_detalhes.move_janela_func (instance2.baseframe, false, instance2)
+		
+		instance1.baseframe:SetSize (wight/2 - 4, height-20-21-8 - (statusbar_enabled1 and 14 or 0))
+		instance2.baseframe:SetSize (wight/2 - 4, height-20-21-8 - (statusbar_enabled2 and 14 or 0))
+		
+		table.wipe (instance1.snap); table.wipe (instance2.snap)
+		instance1.snap [3] = 2; instance2.snap [1] = 1;
+		instance1.horizontalSnap = true; instance2.horizontalSnap = true
+		
+		instance1.baseframe:SetPoint ("bottomleft", RightChatDataPanel, "topleft", 1, 1 + (statusbar_enabled1 and 14 or 0))
+		instance2.baseframe:SetPoint ("bottomright", RightChatToggleButton, "topright", -1, 1 + (statusbar_enabled2 and 14 or 0))
+	
+		instance1:LockInstance (true)
+		instance2:LockInstance (true)
 	
 		instance1:SaveMainWindowPosition()
 		instance2:SaveMainWindowPosition()
-	
+
 	end
 	
 
@@ -514,13 +538,14 @@ local _
 			row_info = {
 					texture = "Details Serenity",
 					texture_class_colors = true, 
-					alpha = 1, 
+					alpha = 0.80, 
 					texture_background_class_color = false,
 					texture_background = "Details D'ictum",
 					fixed_texture_color = {0, 0, 0},
 					fixed_texture_background_color = {0, 0, 0, 0.471},
 					space = {left = 1, right = -2, between = 1},
-					backdrop = {enabled = true, size = 4, color = {0, 0, 0, 1}, texture = "Details BarBorder 2"}
+					backdrop = {enabled = true, size = 4, color = {0, 0, 0, 1}, texture = "Details BarBorder 2"},
+					icon_file = [[Interface\AddOns\Details\images\classes_small_alpha]]
 			},
 
 			wallpaper = {
@@ -539,6 +564,151 @@ local _
 			{type = "button", label = "", text = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON1"], func = align_right_chat, desc = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON1_DESC"]}
 		}
 	})
+	
+	_detalhes:InstallSkin ("ElvUI Frame Style BW", {
+		file = [[Interface\AddOns\Details\images\skins\elvui]],
+		author = "Details!", 
+		version = "1.0", 
+		site = "unknown", 
+		desc = "skin based on ElvUI addon.", 
+		
+		--general
+		can_change_alpha_head = true, 
+
+		--icon anchors
+		icon_anchor_main = {-4, -5},
+		icon_anchor_plugins = {-7, -13},
+		icon_plugins_size = {19, 18},
+		
+		--micro frames
+		micro_frames = {color = {0.525490, 0.525490, 0.525490, 1}, font = "Arial Narrow", size = 11},
+		
+		-- the four anchors (for when the toolbar is on the top side)
+		icon_point_anchor = {-35, -0.5},
+		left_corner_anchor = {-107, 0},
+		right_corner_anchor = {96, 0},
+		
+		-- the four anchors (for when the toolbar is on the bottom side)
+		icon_point_anchor_bottom = {-37, 12},
+		left_corner_anchor_bottom = {-107, 0},
+		right_corner_anchor_bottom = {96, 0},
+
+		--[[ callback function execute after all changes on the window, first argument is this skin table, second is the instance where the skin was applied --]]
+		callback = function (self, instance) end,
+		--[[ control_script is a OnUpdate script, it start right after all changes on the window and also after the callback --]]
+		--[[ control_script_on_start run before the control_script, use it to reset values if needed --]]
+		control_script_on_start = nil,
+		control_script = nil,
+		
+		--instance overwrites
+		--[[ when a skin is selected, all customized properties of the window is reseted and then the overwrites are applied]]
+		--[[ for the complete cprop list see the file classe_instancia_include.lua]]
+		instance_cprops = {
+
+			closebutton_config = {size = {20, 20}, alpha = 0.60, anchor = {1, 2}},
+			instancebutton_config = {size = {20, 16}, anchor = {8, 0}, textcolor = {.7, .7, .7, 1}, textsize = 10, textfont = "Friz Quadrata TT", highlight_texture = [[Interface\Buttons\UI-Panel-MinimizeButton-Highlight]]},
+			resetbutton_config = {size = {12, 12}, anchor = {4, 0}, normal_texture = [[Interface\Addons\Details\Images\reset_button2]], highlight_texture = [[Interface\Addons\Details\Images\reset_button2]]},
+			
+			--resetbutton_config = {size = {8, 16}, anchor = {2, 0}},
+
+			menu_icons_size = 0.80,
+			menu2_icons_size = 1.10,
+			menu_anchor = {-58, 0, side = 2},
+			menu_anchor_down = {-60, 0},
+			menu2_anchor = {32, 3},
+			menu2_anchor_down = {32, 3},
+			plugins_grow_direction = 1,
+			
+			attribute_text = {enabled = true, anchor = {-20, 4}, text_face = "Friz Quadrata TT", text_size = 10, text_color = {1, 1, 1, .7}, side = 1, shadow = true},
+			
+			hide_icon = true,
+			desaturated_menu = true,
+			desaturated_menu2 = true,
+			
+			bg_alpha = 0.51,
+			bg_r = 0.3294,
+			bg_g = 0.3294,
+			bg_b = 0.3294,
+			show_statusbar = false,
+			
+			row_info = {
+				["textR_outline"] = false,
+				["textL_outline"] = true,
+				["icon_file"] = "Interface\\AddOns\\Details\\images\\classes_small_alpha_bw",
+				["percent_type"] = 1,
+				["texture_highlight"] = "Interface\\FriendsFrame\\UI-FriendsList-Highlight",
+				["texture_background_file"] = "Interface\\AddOns\\Details\\images\\bar_serenity",
+				["textR_enable_custom_text"] = false,
+				["texture_background_class_color"] = false,
+				["textL_enable_custom_text"] = false,
+				["textL_show_number"] = true,
+				["space"] = {
+					["right"] = -2,
+					["left"] = 1,
+					["between"] = 2,
+				},
+				["fixed_texture_background_color"] = {
+					0, -- [1]
+					0, -- [2]
+					0, -- [3]
+					0.20, -- [4]
+				},
+				["textR_custom_text"] = "{data1} ({data2}, {data3}%)",
+				["start_after_icon"] = true,
+				["font_face_file"] = "Fonts\\ARIALN.TTF",
+				["fixed_text_color"] = {
+					0.9058823529411765, -- [1]
+					0.9058823529411765, -- [2]
+					0.9058823529411765, -- [3]
+					1, -- [4]
+				},
+				["backdrop"] = {
+					["enabled"] = true,
+					["size"] = 20,
+					["color"] = {
+						0, -- [1]
+						0, -- [2]
+						0, -- [3]
+						1, -- [4]
+					},
+					["texture"] = "Details BarBorder 2",
+				},
+				["textL_class_colors"] = false,
+				["textL_custom_text"] = "{data1}. {data3}{data2}",
+				["textR_class_colors"] = false,
+				["alpha"] = 0.3999999761581421,
+				["no_icon"] = false,
+				["font_size"] = 10,
+				["texture_background"] = "Details Serenity",
+				["font_face"] = "Arial Narrow",
+				["texture_class_colors"] = false,
+				["height"] = 14,
+				["texture_file"] = "Interface\\AddOns\\Details\\images\\bar4",
+				["texture"] = "Details D'ictum",
+				["fixed_texture_color"] = {
+					0.8627450980392157, -- [1]
+					0.8627450980392157, -- [2]
+					0.8627450980392157, -- [3]
+					1, -- [4]
+				},
+			},
+
+			wallpaper = {
+				overlay = {1, 1,	1},
+				width = 256,
+				texcoord = {49/1024, 305/1024, 646/1024, 774/1024},
+				enabled = true,
+				anchor = "all",
+				height = 128,
+				alpha = 0.8,
+				texture = [[Interface\AddOns\Details\images\skins\elvui]],
+			}
+		},
+		
+		skin_options = {
+			{type = "button", label = "", text = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON1"], func = align_right_chat, desc = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON1_DESC"]}
+		}
+	})	
 	
 	--alpha = 0.4980392451398075,
 	
