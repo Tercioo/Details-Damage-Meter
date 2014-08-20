@@ -21,6 +21,7 @@
 			["DETAILS_INSTANCE_CHANGESEGMENT"] = {},
 			["DETAILS_INSTANCE_CHANGEATTRIBUTE"] = {},
 			["DETAILS_INSTANCE_CHANGEMODE"] = {},
+			["DETAILS_INSTANCE_NEWROW"] = {},
 			
 		--> data
 			["DETAILS_DATA_RESET"] = {},
@@ -68,6 +69,7 @@ local common_events = {
 	["DETAILS_INSTANCE_CHANGESEGMENT"] = true,
 	["DETAILS_INSTANCE_CHANGEATTRIBUTE"] = true,
 	["DETAILS_INSTANCE_CHANGEMODE"] = true,
+	["DETAILS_INSTANCE_NEWROW"] = true,
 	["DETAILS_DATA_RESET"] = true,
 	["DETAILS_DATA_SEGMENTREMOVED"] = true,
 	["COMBAT_PLAYER_ENTER"] = true,
@@ -198,6 +200,7 @@ local common_events = {
 	function _detalhes:SendEvent (event, object, ...)
 
 		--> send event to all registred plugins
+		
 		if (event == "PLUGIN_DISABLED" or event == "PLUGIN_ENABLED") then
 			return object:OnDetailsEvent (event, ...)
 		

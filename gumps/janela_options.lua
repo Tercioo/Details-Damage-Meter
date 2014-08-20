@@ -321,69 +321,10 @@ function _detalhes:OpenOptionsWindow (instance, no_reopen)
 		window.Disable3DColorPick:Hide()
 	
 	--> create bars
-	
-		local fill_bars = function()
-			local current_combat = _detalhes:GetCombat ("current")
-			
-			local actors_name = {"Ragnaros", "The Lich King", "Your Neighbor", "Your Raid Leader", "Your Internet Girlfriend", "Mr. President", "A Shadow Priest Complaining About Dps", "Ms. Gray", "Parry Hotter", "Your Math Teacher", "King Djoffrey", UnitName ("player") .. " Snow", "A Drunk Dawrf", "Somebody That You Used To Know", "Low Dps Guy", "Helvis Phresley (Death Log Not Found)", "Stormwind Guard", "A PvP Player", "Bolvar Fordragon","Malygos","Akama","Anachronos","Lady Blaumeux","Cairne Bloodhoof","Borivar","C'Thun","Drek'Thar","Durotan","Eonar","Footman Malakai","Bolvar Fordragon","Fritz Fizzlesprocket","Lisa Gallywix","M'uru","High Priestess MacDonnell","Nazgrel","Ner'zhul","Saria Nightwatcher","Chief Ogg'ora","Ogoun","Grimm Onearm","Apothecary Oni'jus","Orman of Stromgarde","General Rajaxx","Baron Rivendare","Roland","Archmage Trelane","Liam Trollbane"}
-			local actors_classes = CLASS_SORT_ORDER
-			
-			local total_damage = 0
-			local total_heal = 0
-			
-			for i = 1, 10 do
-				local robot = current_combat[1]:PegarCombatente (0x0000000000000, actors_name [math.random (1, #actors_name)], 0x114, true)
-				robot.grupo = true
-				robot.classe = actors_classes [math.random (1, #actors_classes)]
-				robot.total = math.random (10000000, 60000000)
-				robot.damage_taken = math.random (10000000, 60000000)
-				robot.friendlyfire_total = math.random (10000000, 60000000)
-				
-				total_damage = total_damage + robot.total
-				
-				if (robot.nome == "King Djoffrey") then
-					local robot_death = current_combat[4]:PegarCombatente (0x0000000000000, robot.nome, 0x114, true)
-					robot_death.grupo = true
-					robot_death.classe = robot.classe
-					local esta_morte = {{true, 96648, 100000, time(), 0, "Lady Holenna"}, {true, 96648, 100000, time()-52, 100000, "Lady Holenna"}, {true, 96648, 100000, time()-86, 200000, "Lady Holenna"}, {true, 96648, 100000, time()-101, 300000, "Lady Holenna"}, {false, 55296, 400000, time()-54, 400000, "King Djoffrey"}, {true, 14185, 0, time()-59, 400000, "Lady Holenna"}, {false, 87351, 400000, time()-154, 400000, "King Djoffrey"}, {false, 56236, 400000, time()-158, 400000, "King Djoffrey"} } 
-					local t = {esta_morte, time(), robot.nome, robot.classe, 400000, "52m 12s",  ["dead"] = true}
-					table.insert (current_combat.last_events_tables, #current_combat.last_events_tables+1, t)
-					
-				elseif (robot.nome == "Mr. President") then	
-					rawset (_detalhes.spellcache, 56488, {"Nuke", 56488, [[Interface\ICONS\inv_gizmo_supersappercharge]]})
-					robot.spell_tables:PegaHabilidade (56488, true, "SPELL_DAMAGE")
-					robot.spell_tables._ActorTable [56488].total = robot.total
-				end
-				
-				local robot = current_combat[2]:PegarCombatente (0x0000000000000, actors_name [math.random (1, #actors_name)], 0x114, true)
-				robot.grupo = true
-				robot.classe = actors_classes [math.random (1, #actors_classes)]
-				robot.total = math.random (10000000, 60000000)
-				robot.totalover = math.random (10000000, 60000000)
-				robot.totalabsorb = math.random (10000000, 60000000)
-				robot.healing_taken = math.random (10000000, 60000000)
-				
-				total_heal = total_heal + robot.total
-				
-			end
-			
-			current_combat.start_time = time()-360
-			current_combat.end_time = time()
-			
-			current_combat.totals_grupo [1] = total_damage
-			current_combat.totals_grupo [2] = total_heal
-			current_combat.totals [1] = total_damage
-			current_combat.totals [2] = total_heal
-			
-			for _, instance in ipairs (_detalhes.tabela_instancias) do 
-				if (instance:IsEnabled()) then
-					instance:InstanceReset()
-				end
-			end
-			
-		end
-		local fillbars = g:NewButton (window, _, "$parentCreateExampleBarsButton", nil, 110, 14, fill_bars, nil, nil, nil, Loc ["STRING_OPTIONS_TESTBARS"])
+
+		local fillbars = g:NewButton (window, _, "$parentCreateExampleBarsButton", nil, 110, 14, _detalhes.CreateTestBars, nil, nil, nil, Loc ["STRING_OPTIONS_TESTBARS"])
 		fillbars:SetPoint ("bottomleft", window.widget, "bottomleft", 200, 12)
+		
 		--fillbars:InstallCustomTexture()
 		
 	--> right click to close

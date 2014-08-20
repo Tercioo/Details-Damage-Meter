@@ -143,12 +143,77 @@ local _
 			
 			show_sidebars = false,
 			show_statusbar = false,
-			color = {.3, .3, .3, 1},
+			color = {.3, .3, .3, 0.81},
 			bg_alpha = 0.2,
 			
 			row_info = {
 				texture = "Blizzard Character Skills Bar",
 				font_face = "Arial Narrow",
+				texture_background_class_color = false,
+				texture_background = "Details Serenity",
+				fixed_texture_background_color = {0, 0, 0, 0.3186}
+			},
+			attribute_text = {enabled = true, side = 1, text_size = 11, anchor = {-18, 4}, text_color = {1, 1, 1, 1}, text_face = "Arial Narrow"},			
+		},
+		
+		callback = function (skin, instance, just_updating)
+			--none
+		end,
+		
+	})
+	
+	_detalhes:InstallSkin ("Minimalistic v2", {
+		file = [[Interface\AddOns\Details\images\skins\classic_skin]],
+		author = "Details!", 
+		version = "1.0", 
+		site = "unknown", 
+		desc = "classic skin.", 
+		
+		micro_frames = {color = {1, 1, 1, 1}, font = "Friz Quadrata TT", size = 10},
+		
+		can_change_alpha_head = true, 
+		icon_anchor_main = {-1, -5}, 
+		icon_anchor_plugins = {-7, -13}, 
+		icon_plugins_size = {19, 18},
+		
+		--anchors:
+		icon_point_anchor = {-37, 0},
+		left_corner_anchor = {-107, 0},
+		right_corner_anchor = {96, 0},
+
+		icon_point_anchor_bottom = {-37, 12},
+		left_corner_anchor_bottom = {-107, 0},
+		right_corner_anchor_bottom = {96, 0},
+		
+		--overwrites
+		instance_cprops = {
+			hide_icon = true,
+			
+			menu_anchor = {-60, 0, side = 2},
+			menu_anchor_down = {-55, -1},
+			menu2_anchor = {32, 3},
+			menu2_anchor_down = {32, 2},
+			
+			menu_icons_size = 0.8,
+			plugins_grow_direction = 1,
+			
+			instancebutton_config = {size = {20, 16}, anchor = {5, 0}, textcolor = {.8, .6, .0, 0.8}, textsize = 11, textfont = "Friz Quadrata TT", highlight_texture = [[Interface\Buttons\UI-Panel-MinimizeButton-Highlight]]},
+			resetbutton_config = {size = {13, 13}, anchor = {2, 0}, normal_texture = [[Interface\Addons\Details\Images\reset_button2]], highlight_texture = [[Interface\Addons\Details\Images\reset_button2]]},
+			closebutton_config = {size = {19, 19}, alpha = 0.8},
+			
+			show_sidebars = false,
+			show_statusbar = false,
+			color = {.3, .3, .3, 0.80},
+			bg_alpha = 0.2,
+			
+			row_info = {
+				texture = "Details Serenity",
+				font_face = "Arial Narrow",
+				texture_background_class_color = false,
+				texture_background = "Details Serenity",
+				fixed_texture_background_color = {0, 0, 0, 0.3186},
+				icon_file = [[Interface\AddOns\Details\images\classes_small_alpha]],
+				start_after_icon = false,
 			},
 			attribute_text = {enabled = true, side = 1, text_size = 11, anchor = {-18, 4}, text_color = {1, 1, 1, 1}, text_face = "Arial Narrow"},			
 		},
@@ -188,22 +253,34 @@ local _
 			row_info = {
 				textL_outline = false,
 				textR_outline = false,
-				texture = "Blizzard Character Skills Bar",
+				texture = "Details Serenity",
 				texture_background = "Details Serenity",
 				texture_background_class_color = false,
-				fixed_texture_background_color = {0, 0, 0, .2},
+				fixed_texture_background_color = {1, 1, 1, .2557},
+				icon_file = [[Interface\AddOns\Details\images\classes_small_bw]],
 			},
 		
-			menu_anchor = {2, -2, side = 1},
-			menu_anchor_down = {2, -4},
-			menu2_anchor = {32, 2},
+			menu_anchor = {-60, 0, side = 2},
+			menu_anchor_down = {-55, -1},
+			menu2_anchor = {32, 3},
 			menu2_anchor_down = {32, 2},
+			
+			menu_icons_size = 0.8,
+			plugins_grow_direction = 1,
+			
+			hide_icon = true,
+			desaturated_menu = true,
+			desaturated_menu2 = true,
+		
+			attribute_text = {enabled = true, anchor = {-20, 4}, text_face = "Friz Quadrata TT", text_size = 10, text_color = {1, 1, 1, .7}, side = 1, shadow = true},
 		
 			instancebutton_config = {size = {20, 16}, anchor = {5, 1}, textcolor = {.9, .9, .9, 1}, textsize = 10, textfont = "Friz Quadrata TT", highlight_texture = [[Interface\Buttons\UI-Panel-MinimizeButton-Highlight]]},
 			resetbutton_config = {size = {8, 16}, anchor = {1, -1}},
 		
 			bg_alpha = 0.3,
-		
+			show_statusbar = false,
+			color = {1, 1, 1, 0.92},
+			bg_alpha = 0.40,
 		}
 	})
 	
@@ -545,7 +622,8 @@ local _
 					fixed_texture_background_color = {0, 0, 0, 0.471},
 					space = {left = 1, right = -2, between = 1},
 					backdrop = {enabled = true, size = 4, color = {0, 0, 0, 1}, texture = "Details BarBorder 2"},
-					icon_file = [[Interface\AddOns\Details\images\classes_small_alpha]]
+					icon_file = [[Interface\AddOns\Details\images\classes_small_alpha]],
+					start_after_icon = false,
 			},
 
 			wallpaper = {
@@ -664,7 +742,7 @@ local _
 				},
 				["backdrop"] = {
 					["enabled"] = true,
-					["size"] = 20,
+					["size"] = 10,
 					["color"] = {
 						0, -- [1]
 						0, -- [2]

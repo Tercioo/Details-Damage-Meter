@@ -1847,8 +1847,10 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 	--> enemies
 	if (instancia.sub_atributo == 6) then
 		GameCooltip:AddLine (" ")
+		GameCooltip:AddLine (Loc ["STRING_LEFTCLICK_DAMAGETAKEN"])
+		--GameCooltip:AddIcon ([[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]], 1, 1, 12, 16, 8/512, 70/512, 224/512, 306/512)
 		GameCooltip:AddLine (Loc ["STRING_MIDDLECLICK_DAMAGETAKEN"])
-		GameCooltip:AddIcon ([[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]], 1, 1, 12, 16, 14/512, 64/512, 127/512, 204/512)
+		--GameCooltip:AddIcon ([[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]], 1, 1, 12, 16, 14/512, 64/512, 127/512, 204/512)
 	end
 	
 	return true
@@ -1944,8 +1946,10 @@ function atributo_damage:ToolTip_DamageTaken (instancia, numero, barra, keydown)
 	--> enemies
 	if (instancia.sub_atributo == 6) then
 		GameCooltip:AddLine (" ")
+		GameCooltip:AddLine (Loc ["STRING_LEFTCLICK_DAMAGETAKEN"])
+		--GameCooltip:AddIcon ([[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]], 1, 1, 12, 16, 8/512, 70/512, 224/512, 306/512)
 		GameCooltip:AddLine (Loc ["STRING_MIDDLECLICK_DAMAGETAKEN"])
-		GameCooltip:AddIcon ([[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]], 1, 1, 12, 16, 14/512, 64/512, 127/512, 204/512)
+		--GameCooltip:AddIcon ([[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]], 1, 1, 10, 14, 14/512, 64/512, 127/512, 204/512)
 	end
 	
 	return true

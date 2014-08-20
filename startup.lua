@@ -285,11 +285,6 @@ function _G._detalhes:Start()
 			_detalhes:FillUserCustomSpells()
 		end
 		
-	--> start tutorial if this is first run
-		if (self.tutorial.logons < 2 and self.is_first_run) then
-			self:StartTutorial()
-		end
-	
 	--> send feedback panel if the user got 100 or more logons with details
 		if (self.tutorial.logons > 100) then --  and self.tutorial.logons < 104
 			if (not self.tutorial.feedback_window1) then
@@ -325,13 +320,13 @@ function _G._detalhes:Start()
 						instance:RestauraJanela()
 						local skin = instance.skin
 						instance:ChangeSkin ("Default Skin")
-						instance:ChangeSkin ("Minimalistic")
+						instance:ChangeSkin ("Minimalistic v2")
 						instance:ChangeSkin (skin)
 						instance:DesativarInstancia()
 					else
 						local skin = instance.skin
 						instance:ChangeSkin ("Default Skin")
-						instance:ChangeSkin ("Minimalistic")
+						instance:ChangeSkin ("Minimalistic v2")
 						instance:ChangeSkin (skin)
 					end
 				end
@@ -432,6 +427,22 @@ function _G._detalhes:Start()
 	if (self.is_first_run) then
 		_detalhes:OpenWelcomeWindow()
 	end
-
+	
+	--test realtime dps
+	--[[
+	local real_time_frame = CreateFrame ("frame", nil, UIParent)
+	local instance = _detalhes:GetInstance (1)
+	real_time_frame:SetScript ("OnUpdate", function (self, elapsed)
+		if (_detalhes.in_combat and instance.atributo == 1 and instance.sub_atributo == 1) then
+			for i = 1, instance:GetNumRows() do
+				local row = instance:GetRow (index)
+				if (row:IsShown()) then
+					local actor = row.minha_tabela
+					local right_text = row.texto_direita
+				end
+			end
+		end
+	end)
+	--]]
 end
 

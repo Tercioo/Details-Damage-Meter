@@ -1440,6 +1440,9 @@ local function barra_scripts (esta_barra, instancia, i)
 		
 		elseif (button == "MiddleButton") then
 			--> verifica se é damage taken
+
+		elseif (button == "LeftButton") then
+	
 			if (instancia.atributo == 1 and instancia.sub_atributo == 6) then --> enemies
 			
 				local inimigo = esta_barra.minha_tabela.nome
@@ -1478,10 +1481,9 @@ local function barra_scripts (esta_barra, instancia, i)
 				instancia:TrocaTabela (instancia.segmento, 5, #_detalhes.custom)
 				--func, true, 5, index
 				
-			end
-			
+			end	
 		end
-	
+		
 		esta_barra.texto_direita:SetPoint ("right", esta_barra.statusbar, "right", 1, -1)
 		if (instancia.row_info.no_icon) then
 			esta_barra.texto_esquerdo:SetPoint ("left", esta_barra.statusbar, "left", 3, -1)
@@ -1531,7 +1533,7 @@ local function barra_scripts (esta_barra, instancia, i)
 		if (self.mouse_down and (self.mouse_down+0.4 > _GetTime() and (x == self.x and y == self.y)) or (x == self.x and y == self.y)) then
 			--> a única maneira de abrir a janela de info é por aqui...
 
-			if (self.button == "LeftButton") then
+			if (self.button == "LeftButton" or self.button == "MiddleButton") then
 				if (instancia.atributo == 5 or _IsShiftKeyDown()) then 
 					--> report
 					return _detalhes:ReportSingleLine (instancia, self)
@@ -2218,6 +2220,7 @@ end
 
 do
 
+	--search key: ~tooltip
 	local tooltip_anchor = CreateFrame ("frame", "DetailsTooltipAnchor", UIParent)
 	tooltip_anchor:SetSize (140, 20)
 	tooltip_anchor:SetAlpha (0)
@@ -2822,14 +2825,14 @@ function gump:CriaNovaBarra (instancia, index)
 	new_row.w_mod = 0
 	new_row:EnableMouse (true)
 	new_row:RegisterForClicks ("LeftButtonDown", "RightButtonDown")
-
+	
 	--> statusbar
 	new_row.statusbar = CreateFrame ("StatusBar", "DetailsBarra_Statusbar_"..instancia.meu_id.."_"..index, new_row)
 	--> frame for hold the backdrop border
 	new_row.border = CreateFrame ("Frame", "DetailsBarra_Border_" .. instancia.meu_id .. "_" .. index, new_row.statusbar)
 	new_row.border:SetFrameLevel (new_row.statusbar:GetFrameLevel()+1)
 	new_row.border:SetAllPoints (new_row)
-
+	
 	--> create textures and icons
 	new_row.textura = new_row.statusbar:CreateTexture (nil, "artwork")
 	new_row.textura:SetHorizTile (false)
@@ -2882,6 +2885,8 @@ function gump:CriaNovaBarra (instancia, index)
 	
 	--> refresh rows
 	instancia:InstanceRefreshRows()
+	
+	_detalhes:SendEvent ("DETAILS_INSTANCE_NEWROW", nil, instancia, new_row)
 	
 	return new_row
 end
@@ -4538,7 +4543,7 @@ function _detalhes:ChangeSkin (skin_name)
 	local this_skin = _detalhes.skins [skin_name]
 
 	if (not this_skin) then
-		skin_name = "Minimalistic"
+		skin_name = "Minimalistic v2"
 		this_skin = _detalhes.skins [skin_name]
 	end
 	

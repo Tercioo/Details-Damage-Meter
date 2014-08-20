@@ -10,7 +10,7 @@ local UnitGUID = UnitGUID
 local tonumber= tonumber 
 local LoggingCombat = LoggingCombat
 
-SLASH_DETAILS1, SLASH_DETAILS2, SLASH_DETAILS3 = "/details", "/dt", "/d"
+SLASH_DETAILS1, SLASH_DETAILS2, SLASH_DETAILS3 = "/details", "/dt", "/de"
 
 function SlashCmdList.DETAILS (msg, editbox)
 

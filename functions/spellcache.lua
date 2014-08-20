@@ -69,6 +69,10 @@ do
 		[124465] = {name = GetSpellInfo (124465) .. " (" .. Loc ["STRING_MASTERY"] .. ")"}, --> vampiric touch mastery proc (priest)
 		[124468] = {name = GetSpellInfo (124468) .. " (" .. Loc ["STRING_MASTERY"] .. ")"}, --> mind flay mastery proc (priest)
 		[124469] = {name = GetSpellInfo (124469) .. " (" .. Loc ["STRING_MASTERY"] .. ")"}, --> mind sear mastery proc (priest)
+		[94472] = {name = GetSpellInfo (94472) .. " (" .. Loc ["STRING_CRITICAL_ONLY"] .. ")"}, --> Atonement critical hit (priest)
+		[140816] = {name = GetSpellInfo (140816) .. " (" .. Loc ["STRING_CRITICAL_ONLY"] .. ")"}, --> Power Word: Solace critical hit  (priest)
+		
+		[33778] = {name = GetSpellInfo (33778) .. " (bloom)"}, --lifebloom (bloom)
 		
 		[121414] = {name = GetSpellInfo (121414) .. " (Glaive #1)"}, --> glaive toss (hunter)
 		[120761] = {name = GetSpellInfo (120761) .. " (Glaive #2)"}, --> glaive toss (hunter)
@@ -77,9 +81,9 @@ do
 		[45284] = {name = GetSpellInfo (45284) .. " (" .. Loc ["STRING_MASTERY"] .. ")"}, --> lightningbolt (shaman)
 		[45297] = {name = GetSpellInfo (45297) .. " (" .. Loc ["STRING_MASTERY"] .. ")"}, --> chain lightning (shaman)
 		
-		[131079] = {name = GetSpellInfo (131079) .. " (Icy Veins)"}, --> frostbolt with icy veins glyph (mage)
-		[131080] = {name = GetSpellInfo (131080) .. " (Icy Veins)"}, --> ice lance with icy veins glyph (mage)
-		[131081] = {name = GetSpellInfo (131081) .. " (Icy Veins)"}, --> frostfire with icy veins glyph (mage)
+		[131079] = {name = GetSpellInfo (131079) .. " (" .. GetSpellInfo (12472) .. ")"}, --> frostbolt with icy veins glyph (mage)
+		[131080] = {name = GetSpellInfo (131080) .. " (" .. GetSpellInfo (12472) .. ")"}, --> ice lance with icy veins glyph (mage)
+		[131081] = {name = GetSpellInfo (131081) .. " (" .. GetSpellInfo (12472) .. ")"}, --> frostfire with icy veins glyph (mage)
 		
 		[108686] = {name = GetSpellInfo (108686) .. " (" .. GetSpellInfo (108683) .. ")" }, --> immolate (brimstone)
 		[108685] = {name = GetSpellInfo (108685) .. " (" .. GetSpellInfo (108683) .. ")" }, --> conflagrate (brimstone)

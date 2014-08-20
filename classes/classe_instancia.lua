@@ -228,6 +228,14 @@ function _detalhes:GetFreeInstancesAmount()
 	return _detalhes.instances_amount - #_detalhes.tabela_instancias
 end
 
+function _detalhes:GetNumRows()
+	return self.rows_fit_in_window
+end
+
+function _detalhes:GetRow (index)
+	return self.barras [index]
+end
+
 ------------------------------------------------------------------------------------------------------------------------
 
 --> retorna se a instância esta ou não ativa
@@ -1164,7 +1172,7 @@ end
 		new_instance:ShowSideBars()
 
 		new_instance.skin = "no skin"
-		new_instance:ChangeSkin ("Minimalistic")
+		new_instance:ChangeSkin ("Minimalistic v2")
 		
 		--> apply standard skin if have one saved
 		--[[
