@@ -196,7 +196,7 @@ function _detalhes:OpenWelcomeWindow ()
 		end
 		_detalhes.standard_skin = savedObject
 	end
-
+	
 -- frame alert
 	
 	local frame_alert = CreateFrame ("frame", nil, window)
@@ -210,6 +210,8 @@ function _detalhes:OpenWelcomeWindow ()
 	frame_alert.alert:SetFrameStrata ("FULLSCREEN")
 	frame_alert.alert:Hide()	
 	
+local window_openned_at = time()
+
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> page 1
 		
@@ -347,7 +349,43 @@ function _detalhes:OpenWelcomeWindow ()
 		texto_avatar3:SetJustifyV ("top")
 		texto_avatar3:SetTextColor (1, 1, 1, 1)
 
-		pages [#pages+1] = {bg555, bg_avatar, texto_avatar1, texto_avatar2, texto_avatar3, changemind, avatar_image, avatar_bg, nickname, nicknamelabel, nicknamebox, avatarbutton}
+		local pleasewait = window:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+		pleasewait:SetPoint ("bottomright", forward, "topright")
+		
+		local free_frame3 = CreateFrame ("frame", nil, window)
+		function _detalhes:FreeTutorialFrame3()
+			if (window_openned_at+10 > time()) then
+				pleasewait:Show()
+				forward:Disable()
+				pleasewait:SetText ("wait... " .. window_openned_at + 10 - time())
+			else
+				pleasewait:Hide()
+				pleasewait:SetText ("")
+				forward:Enable()
+				_detalhes:CancelTimer (window.free_frame3_schedule)
+				window.free_frame3_schedule = nil
+			end
+		end
+		free_frame3:SetScript ("OnShow", function()
+			if (window_openned_at+10 > time()) then
+				forward:Disable()
+				if (window.free_frame3_schedule) then
+					_detalhes:CancelTimer (window.free_frame3_schedule)
+					window.free_frame3_schedule = nil
+				end
+				window.free_frame3_schedule = _detalhes:ScheduleRepeatingTimer ("FreeTutorialFrame3", 1)
+			end
+		end)
+		free_frame3:SetScript ("OnHide", function()
+			if (window.free_frame3_schedule) then
+				_detalhes:CancelTimer (window.free_frame3_schedule)
+				window.free_frame3_schedule = nil
+				pleasewait:SetText ("")
+				pleasewait:Hide()
+			end
+		end)
+
+		pages [#pages+1] = {pleasewait, free_frame3, bg555, bg_avatar, texto_avatar1, texto_avatar2, texto_avatar3, changemind, avatar_image, avatar_bg, nickname, nicknamelabel, nicknamebox, avatarbutton}
 		
 		for _, widget in ipairs (pages[#pages]) do 
 			widget:Hide()
@@ -371,7 +409,7 @@ function _detalhes:OpenWelcomeWindow ()
 		texto55:SetText (Loc ["STRING_WELCOME_42"])
 
 		local texto555 = window:CreateFontString (nil, "overlay", "GameFontNormal")
-		texto555:SetPoint ("topleft", window, "topleft", 30, -190)
+		--texto555:SetPoint ("topleft", window, "topleft", 30, -190)
 		texto555:SetText (Loc ["STRING_WELCOME_45"])
 		texto555:SetTextColor (1, 1, 1, 1)
 		
@@ -396,6 +434,100 @@ function _detalhes:OpenWelcomeWindow ()
 		skins_image:SetHeight (133)
 		skins_image:SetTexCoord (0, 0.41796875, 0, 0.259765625) --0, 0, 214 133
 		
+		--import settings
+		local import_label = g:NewLabel (window, _, "$parentImportSettingsLabel", "ImportLabel", Loc ["STRING_WELCOME_46"])
+		import_label:SetPoint ("topleft", window, "topleft", 30, -160)
+
+		local convert_table = {
+			["bartexture"] = "row_info-texture",
+			["barfont"] = "row_info-font_face",
+			["barfontsize"] = "row_info-font_size",
+			["barspacing"] = "row_info-space-between",
+			["barheight"] = "row_info-height",
+			["barbgcolor"] = "row_info-fixed_texture_background_color",
+			["reversegrowth"] = "bars_grow_direction",
+			["barcolor"] = "row_info-fixed_texture_color",
+			["title"] = "attribute_text",
+			["background"] = "null"
+		}
+		
+		local onSelectImport = function (_, _, keyname)
+			--window.ImportDropdown:Select (false)
+			local addon1_profile = _G.Skada.db.profile.windows [1]
+			local value = addon1_profile [keyname]
+			local dvalue = convert_table [keyname]
+			
+			if (dvalue) then
+			
+				local instance1 = _detalhes:GetInstance (1)
+			
+				if (keyname == "barbgcolor") then
+					instance1.row_info.fixed_texture_background_color[1] = value.r
+					instance1.row_info.fixed_texture_background_color[2] = value.g
+					instance1.row_info.fixed_texture_background_color[3] = value.b
+					instance1.row_info.fixed_texture_background_color[4] = value.a
+					value = instance1.row_info.fixed_texture_background_color
+					
+				elseif (keyname == "title") then
+					local v = instance1.attribute_text
+					v.enabled = true
+					v.text_face = value.font
+					v.anchor = {-17, 4}
+					v.text_size = value.fontsize
+					instance1.color[1], instance1.color[2], instance1.color[3], instance1.color[4] = value.color.r, value.color.g, value.color.b, value.color.a
+					value = v
+					
+				elseif (keyname == "background") then
+					instance1.bg_alpha = value.color.a
+					instance1.bg_r = value.color.r
+					instance1.bg_g = value.color.g
+					instance1.bg_b = value.color.b
+					instance1.backdrop_texture = value.texture
+					
+					instance1:ChangeSkin()
+					return
+				end
+			
+				local key1, key2, key3 = strsplit ("-", dvalue)
+				if (key3) then
+					instance1 [key1] [key2] [key3] = value
+				elseif (key2) then
+					instance1 [key1] [key2] = value
+				elseif (key1) then
+					instance1 [key1] = value
+				end
+				
+				instance1:ChangeSkin()
+			end
+			
+		end
+
+		local ImportMenu = function()
+			local options = {}
+			if (_G.Skada) then
+				tinsert (options, {value = "bartexture", label = Loc ["STRING_WELCOME_47"] .. "Skada)", onclick = onSelectImport, icon = [[Interface\FriendsFrame\StatusIcon-Online]]})
+				tinsert (options, {value = "barfont", label = Loc ["STRING_WELCOME_48"] .. "Skada)", onclick = onSelectImport, icon = [[Interface\FriendsFrame\StatusIcon-Online]]})
+				tinsert (options, {value = "barfontsize", label = Loc ["STRING_WELCOME_49"] .. "Skada)", onclick = onSelectImport, icon = [[Interface\FriendsFrame\StatusIcon-Online]]})
+				tinsert (options, {value = "barspacing", label = Loc ["STRING_WELCOME_50"] .. "Skada)", onclick = onSelectImport, icon = [[Interface\FriendsFrame\StatusIcon-Online]]})
+				tinsert (options, {value = "barheight", label = Loc ["STRING_WELCOME_51"] .. "Skada)", onclick = onSelectImport, icon = [[Interface\FriendsFrame\StatusIcon-Online]]})
+				tinsert (options, {value = "barbgcolor", label = Loc ["STRING_WELCOME_52"] .. "Skada)", onclick = onSelectImport, icon = [[Interface\FriendsFrame\StatusIcon-Online]]})
+				tinsert (options, {value = "reversegrowth", label = Loc ["STRING_WELCOME_53"] .. "Skada)", onclick = onSelectImport, icon = [[Interface\FriendsFrame\StatusIcon-Online]]})
+				tinsert (options, {value = "barcolor", label = Loc ["STRING_WELCOME_54"] .. "Skada)", onclick = onSelectImport, icon = [[Interface\FriendsFrame\StatusIcon-Online]]})
+				tinsert (options, {value = "title", label = Loc ["STRING_WELCOME_55"] .. "Skada)", onclick = onSelectImport, icon = [[Interface\FriendsFrame\StatusIcon-Online]]})
+				tinsert (options, {value = "background", label = Loc ["STRING_WELCOME_56"] .. "Skada)", onclick = onSelectImport, icon = [[Interface\FriendsFrame\StatusIcon-Online]]})
+				--tinsert (options, {value = "", label = "", onclick = onSelectImport, icon = [[Interface\FriendsFrame\StatusIcon-Online]]})
+			end
+			return options
+		end
+		
+		local import_dropdown = g:NewDropDown (window, _, "$parentImportDropdown", "ImportDropdown", 140, 20, ImportMenu, false)
+		import_dropdown:SetPoint ("left", import_label, "right", 2, 0)
+		import_dropdown.tooltip = Loc ["STRING_WELCOME_57"]
+		
+		--wallpapaer and skin
+		local wallpaper_label_switch = g:NewLabel (window, _, "$parentBackgroundLabel", "enablewallpaperLabel", Loc ["STRING_WELCOME_44"])
+		wallpaper_label_switch:SetPoint ("topleft", window, "topleft", 30, -180)
+		
 		--skin
 			local onSelectSkin = function (_, _, skin_name)
 				local instance1 = _detalhes:GetInstance (1)
@@ -412,6 +544,7 @@ function _detalhes:OpenWelcomeWindow ()
 			
 			local instance1 = _detalhes:GetInstance (1)
 			local skin_dropdown = g:NewDropDown (window, _, "$parentSkinDropdown", "skinDropdown", 140, 20, buildSkinMenu, instance1.skin)
+			skin_dropdown.tooltip = Loc ["STRING_WELCOME_58"]
 			
 			local skin_label = g:NewLabel (window, _, "$parentSkinLabel", "skinLabel", Loc ["STRING_OPTIONS_INSTANCE_SKIN"])
 			skin_dropdown:SetPoint ("left", skin_label, "right", 2)
@@ -605,11 +738,10 @@ function _detalhes:OpenWelcomeWindow ()
 			local buildBackgroundMenu = function() return backgroundTable end		
 			
 			local wallpaper_switch = g:NewSwitch (window, _, "$parentUseBackgroundSlider", "useBackgroundSlider", 60, 20, _, _, instance.wallpaper.enabled)
+			wallpaper_switch.tooltip = Loc ["STRING_WELCOME_59"]
 			local wallpaper_dropdown1 = g:NewDropDown (window, _, "$parentBackgroundDropdown", "backgroundDropdown", 150, 20, buildBackgroundMenu, nil)
 			local wallpaper_dropdown2 = g:NewDropDown (window, _, "$parentBackgroundDropdown2", "backgroundDropdown2", 150, 20, buildBackgroundMenu2, nil)
 
-			local wallpaper_label_switch = g:NewLabel (window, _, "$parentBackgroundLabel", "enablewallpaperLabel", Loc ["STRING_WELCOME_44"])
-			wallpaper_label_switch:SetPoint ("topleft", window, "topleft", 30, -160)
 			wallpaper_switch:SetPoint ("left", wallpaper_label_switch, "right", 2)
 			wallpaper_dropdown1:SetPoint ("left", wallpaper_switch, "right", 2)
 			wallpaper_dropdown2:SetPoint ("left", wallpaper_dropdown1, "right", 2)
@@ -672,7 +804,7 @@ function _detalhes:OpenWelcomeWindow ()
 			end
 		end)
 
-		pages [#pages+1] = {skins_frame_alert, bg55, texto55, texto555, skins_image, changemind, texto_appearance, skin_dropdown, skin_label, wallpaper_label_switch, wallpaper_switch, wallpaper_dropdown1, wallpaper_dropdown2, }
+		pages [#pages+1] = {import_label, import_dropdown, skins_frame_alert, bg55, texto55, texto555, skins_image, changemind, texto_appearance, skin_dropdown, skin_label, wallpaper_label_switch, wallpaper_switch, wallpaper_dropdown1, wallpaper_dropdown2, }
 		
 		for _, widget in ipairs (pages[#pages]) do 
 			widget:Hide()

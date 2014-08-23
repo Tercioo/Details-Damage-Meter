@@ -207,7 +207,7 @@ local _
 			bg_alpha = 0.2,
 			
 			row_info = {
-				texture = "Details Serenity",
+				texture = "BantoBar", --"Details Serenity"
 				font_face = "Arial Narrow",
 				texture_background_class_color = false,
 				texture_background = "Details Serenity",

@@ -844,7 +844,9 @@ function gump:NewDropDown (parent, container, name, member, w, h, func, default)
 		container = container.widget
 	end	
 	
-	default = default or 1
+	if (default == nil) then
+		default = 1
+	end
 
 	--> default members:
 		--> hooks

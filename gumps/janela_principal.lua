@@ -3120,6 +3120,9 @@ function _detalhes:InstanceRefreshRows (instancia)
 			backdrop_color = self.row_info.backdrop.color
 		end
 		
+	--font face
+		self.row_info.font_face_file = SharedMedia:Fetch ("font", self.row_info.font_face)
+		
 	-- do it
 
 	for _, row in _ipairs (self.barras) do 
