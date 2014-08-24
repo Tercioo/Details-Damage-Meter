@@ -8,8 +8,10 @@
 Libs\libs.xml
 #@end-no-lib-strip@
 
-locales\Details-ptBR.lua
 locales\Details-enUS.lua
+locales\Details-ptBR.lua
+locales\Details-esES.lua
+locales\Details-esMX.lua
 
 boot.lua
 indent.lua

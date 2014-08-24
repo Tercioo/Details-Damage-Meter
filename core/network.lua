@@ -516,7 +516,8 @@
 		end
 	end
 	
-	function event_handler:GROUP_ONLEAVE()
+	function _detalhes:CheckChatOnLeaveGroup()
+		_detalhes.schedule_group_onleave_check = nil
 		if (zone_type == "none") then
 			if (_detalhes.schedule_chat_leave) then
 				_detalhes:CancelTimer (_detalhes.schedule_chat_leave)
@@ -525,6 +526,13 @@
 				_detalhes.schedule_chat_enter = _detalhes:ScheduleTimer ("EnterChatChannel", 2)
 			end
 		end
+	end
+	function event_handler:GROUP_ONLEAVE()
+		if (_detalhes.schedule_group_onleave_check) then
+			_detalhes:CancelTimer (_detalhes.schedule_group_onleave_check)
+			_detalhes.schedule_group_onleave_check = nil
+		end
+		_detalhes.schedule_group_onleave_check = _detalhes:ScheduleTimer ("CheckChatOnLeaveGroup", 5)
 	end
 	
 	_detalhes:RegisterEvent (event_handler, "GROUP_ONENTER", "GROUP_ONENTER")
