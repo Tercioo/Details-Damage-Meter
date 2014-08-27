@@ -1040,6 +1040,16 @@ end
 				return
 			end
 		end
+		for index, data in ipairs (TimeAttack.HistoryPanelObject.Recently) do
+			if (data.ID == id) then
+				return
+			end
+		end
+		for index, data in ipairs (TimeAttack.db.history) do
+			if (data.ID == id) then
+				return
+			end
+		end
 		--add
 		TimeAttack:AddRealmData (damage, time, ilevel, age, id, class, source)
 	end
