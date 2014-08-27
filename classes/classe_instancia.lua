@@ -171,7 +171,10 @@ function _detalhes:GetRaidMode()
 	return _detalhes.tabela_instancias [_detalhes.raid]
 end
 
-function _detalhes:IsSoloMode()
+function _detalhes:IsSoloMode (offline)
+	if (offline) then
+		return self.modo == 1
+	end
 	if (not _detalhes.solo) then
 		return false
 	else
@@ -403,6 +406,12 @@ end
 	end
 
 --> oposto do desativar, ela apenas volta a mostrar a janela
+
+	--> alias
+	function _detalhes:EnableInstance (temp)
+		return self:AtivarInstancia (temp)
+	end
+	
 	function _detalhes:AtivarInstancia (temp)
 	
 		self.ativa = true

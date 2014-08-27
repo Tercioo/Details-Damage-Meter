@@ -273,6 +273,13 @@
 				if (jogador:Iniciar()) then -- retorna se ele esta com o dps ativo
 					jogador:TerminarTempo()
 					jogador:Iniciar (false) --trava o dps do jogador
+				else
+					if (jogador.start_time == 0) then
+						jogador.start_time = _tempo
+					end
+					if (not jogador.end_time) then
+						jogador.end_time = _tempo
+					end
 				end
 			end
 		end
@@ -281,16 +288,18 @@
 				if (jogador:Iniciar()) then -- retorna se ele esta com o dps ativo
 					jogador:TerminarTempo()
 					jogador:Iniciar (false) --trava o dps do jogador
+				else
+				
+					--print ("Tempo NAO Iniciando:", self.nome, self.start_time, self.end_time, self.delay, _tempo)
+				
+					if (jogador.start_time == 0) then
+						jogador.start_time = _tempo
+					end
+					if (not jogador.end_time) then
+						jogador.end_time = _tempo
+					end
 				end
 			end
-		end
-	end
-
-	function combate:UltimaAcao (tempo)
-		if (tempo) then
-			self.last_event = tempo
-		else
-			return self.last_event
 		end
 	end
 

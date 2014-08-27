@@ -17,6 +17,7 @@
 	local _ipairs = ipairs --lua local
 	local _pairs = pairs --lua local
 	local _time = time --lua local
+	local _math_floor = math.floor
 	local timeMachine = _detalhes.timeMachine --details local
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -37,16 +38,13 @@
 		for tipo, tabela in _pairs (self.tabelas) do
 			for nome, jogador in _ipairs (tabela) do
 				if (jogador) then
-					
-					local ultima_acao = jogador.last_event+10
-
-					if (ultima_acao > _tempo) then --> okey o jogador esta dando dps
+					if (jogador.last_event+10 > _tempo) then --> okey o jogador esta dando dps
 						if (jogador.on_hold) then --> o dps estava pausado, retornar a ativa
 							jogador:HoldOn (false)
 						end
 					else
 						if (not jogador.on_hold) then --> não ta pausado, precisa por em pausa
-							--> verifica se esta castando alguma coisa que leve + que 3 segundos
+							--> verifica se esta castando alguma coisa que leve + que 10 segundos
 							jogador:HoldOn (true)
 						end
 					end
@@ -131,11 +129,32 @@
 
 	function _detalhes:Tempo()
 		if (self.end_time) then --> o tempo do jogador esta trancado
-			return self.end_time - self.start_time
+			local t = self.end_time - self.start_time
+			if (t < 10) then
+				t = 10
+			end
+			return t
 		elseif (self.on_hold) then --> o tempo esta em pausa
-			return self.delay - self.start_time
+			local t = self.delay - self.start_time
+			if (t < 10) then
+				t = 10
+			end
+			return t
 		else
-			return _tempo - self.start_time
+			if (self.start_time == 0) then
+				return 10
+			end
+			local t = _tempo - self.start_time
+			if (t < 10) then
+				if (_detalhes.in_combat) then
+					local combat_time = _detalhes.tabela_vigente:GetCombatTime()
+					if (combat_time < 10) then
+						return combat_time
+					end
+				end
+				t = 10
+			end
+			return t
 		end
 	end
 
@@ -144,73 +163,56 @@
 	-- inicia o tempo no objeto atual
 	--------------------------------------------------------------------------------
 		
-		if (self.start_time > 0) then
-			print ("DEBUG: "..self.name.." ja tinha start_time...")
-		else
-			self.start_time = tempo
-		end
-
+		self.start_time = tempo
+		
 	-- inicia o tempo no shadow do objeto
 	--------------------------------------------------------------------------------	
 		
 		if (shadow.end_time) then
-			-- tempo do inicio da shadow = tempo de abertura ATUAL menos tempo de combate da shadow
 			local subs = shadow.end_time - shadow.start_time
 			shadow.start_time = tempo - subs
-			shadow.end_time = nil -- o tempo foi aberto retirando o end_time
-			
-			--if (self.nome == "Ditador") then print ("shadow ja itnha end_time") end
-			
-		else -- pela minha logica se nao tiver end_time significa que precisa apenas gravar o tempo de inicio
-			-- a shadow foi recém criada e esta abrindo o tempo pela primeira vez
-			
-			if (shadow.start_time == 0) then --> ja esta em um combate
+			shadow.end_time = nil
+		else
+			if (shadow.start_time == 0) then
 				shadow.start_time = tempo
-				--if (self.nome == "Ditador") then print ("shadom sem end_time com start_time == 0") end
-			else
-				--if (self.nome == "Ditador") then print ("shadom sem end_time") end
 			end
-			
 		end
 	end
 
-	function _detalhes:TerminarTempo (subs)
+	function _detalhes:TerminarTempo()
 		if (self.end_time) then
 			return
 		end
-		subs = subs or 0
+
 		if (self.on_hold) then
-			self.end_time = self.delay - subs -- isso ta certo? por que self.delay carrega o tempo quando o jogador parou o dps
-			self.on_hold = false
-			self.delay = nil
-		else
-			self.end_time = _tempo - subs
+			self:HoldOn (false)
 		end
-		if (self.shadow) then
-			return self.shadow:TerminarTempo (subs)
-		end
+		
+		self.end_time = _tempo
 	end
 
 	--> diz se o dps deste jogador esta em pausa
 	function _detalhes:HoldOn (pausa)
-		--if (self.nome == "Ditador") then print ("colocando em hold on") end
 		if (pausa == nil) then 
 			return self.on_hold --retorna se o dps esta aberto ou fechado para este jogador
-		elseif (pausa) then --> true
-			self.delay = _tempo
+			
+		elseif (pausa) then --> true - colocar como inativo
+			self.delay = _math_floor (self.last_event) --_tempo - 10
+			if (self.delay < self.start_time) then
+				self.delay = self.start_time
+			end
 			self.on_hold = true
-		else --> false
-			self.start_time = self.start_time + (_tempo-self.delay)
+			
+		else --> false - retornar a atividade
+			local diff = _tempo - self.delay - 1
+			if (diff > 0) then
+				self.start_time = self.start_time + diff
+			end
+			--if (_tempo - self.start_time < 20) then
+			--	self.start_time = self.start_time - 1
+			--end
 			self.on_hold = false
-		end
-	end
-
-	--controla quando foi a ultima vez que este jogador deu dano
-	function _detalhes:UltimaAcao (tempo)
-		if (not tempo) then
-			return self.last_event
-		else
-			self.last_event = tempo
+			
 		end
 	end
 

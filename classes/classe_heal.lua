@@ -549,7 +549,7 @@ function atributo_heal:AtualizaBarra (instancia, barras_container, qual_barra, l
 			hps = healing_total / combat_time
 			self.last_hps = hps
 		end
-	else
+	else -- /dump _detalhes:GetCombat (2)(1, "Ditador").on_hold
 		if (not self.on_hold) then
 			hps = healing_total/self:Tempo() --calcula o dps deste objeto
 			self.last_hps = hps --salva o dps dele

@@ -34,7 +34,8 @@ local function CreatePluginFrames()
 		elseif (event == "SHOW") then
 			instance = _detalhes.SoloTables.instancia --> update wich instance solo mode are running
 			DetailsFrameWork:RegisterForDetailsMove (DetailsTimeAttackHistoryBackground, instance)
-			
+			TimeAttack:RequestRealmResults()
+		
 		elseif (event == "COMBAT_PLAYER_ENTER") then --> combat started
 			TimeAttack:ScheduleTimer ("TimeAttackPluginStart", 2)
 
@@ -44,6 +45,8 @@ local function CreatePluginFrames()
 		
 		elseif (event == "DETAILS_STARTED") then
 			TimeAttack:CheckTimeAttackTutorial()
+			TimeAttack.PlayerRealm = GetRealmName()
+			
 		end
 	end
 	
@@ -106,14 +109,39 @@ local function CreatePluginFrames()
 		texturedown:SetPoint ("bottomright", TimeAttackFrame)
 		texturedown:SetWidth (300)
 	
-	--> text informing about the amount of time
-		local TimeDesc = DetailsFrameWork:NewLabel (TimeAttackFrame, TimeAttackFrame, nil, "TimeDesc", Loc ["STRING_TIME_SELECTION"])
-		TimeDesc:SetPoint ("topleft", TimeAttackFrame, 15, -260)
 	--> slider
+		--local TimeAmount = DetailsFrameWork:NewSlider (TimeAttackFrame, nil, "DetailsTimeAttackTimeSelect", "TimeSelect", 270, 20, 30, 330, 1, TimeAttack.db.time)
+		--TimeAmount:SetPoint ("topleft", TimeAttackFrame, 15, -270)
+		--TimeAmount.OnChangeHook = function (_, _, value) TimeAttack.db.time = value end
+		
+		local on_select_time = function (_, _, time)
+			TimeAttack.db.time = time
+		end
+		local icon = [[Interface\Challenges\challenges-minimap-banner]]
+		local textcoord = {0.2, 0.8, 0.2, 0.8}
+		local time_table = {
+			{value = 40, icon = icon, texcoord = textcoord, label = "40 seconds", onclick = on_select_time},
+			{value = 90, icon = icon, texcoord = textcoord, label = "1 minute 30 seconds", onclick = on_select_time},
+			{value = 120, icon = icon, texcoord = textcoord, label = "2 minutes", onclick = on_select_time},
+			{value = 180, icon = icon, texcoord = textcoord, label = "3 minutes", onclick = on_select_time},
+			{value = 300, icon = icon, texcoord = textcoord, label = "5 minutes", onclick = on_select_time},
+			{value = 480, icon = icon, texcoord = textcoord, label = "8 minutes", onclick = on_select_time},
+		}
+		local build_time_menu = function()
+			return time_table
+		end
+		local TimeAmount2 = DetailsFrameWork:NewDropDown (TimeAttackFrame, _, "$parentTimeDropdown", "TimeDropdown", 180, 20, build_time_menu, TimeAttack.db.time)
 
-		local TimeAmount = DetailsFrameWork:NewSlider (TimeAttackFrame, nil, "DetailsTimeAttackTimeSelect", "TimeSelect", 270, 20, 30, 330, 1, TimeAttack.db.time)
-		TimeAmount:SetPoint ("topleft", TimeAttackFrame, 15, -270)
-		TimeAmount.OnChangeHook = function (_, _, value) TimeAttack.db.time = value end
+	--> text informing about the amount of time
+		local TimeDesc = DetailsFrameWork:NewLabel (TimeAttackFrame, TimeAttackFrame, nil, "TimeDesc", "Time Amount:", "GameFontNormal")
+		TimeDesc:SetPoint ("topleft", TimeAttackFrame, 10, -280)
+		
+		local text_size = TimeDesc:GetStringWidth()
+		local TimeAmountWidth = 300 - text_size - 11 - 4 - 14
+		TimeAmount2:SetWidth (TimeAmountWidth)
+		
+		--TimeAmount2:SetPoint ("topleft", TimeAttackFrame, 15, -270)
+		TimeAmount2:SetPoint ("left", TimeDesc, "right", 4, 0)
 	
 	--> main time/damage/dps texts
 		local clock = DetailsFrameWork:NewLabel (TimeAttackFrame, TimeAttackFrame, nil, "TIMER", "00:00:00", "GameFontHighlightLarge")
@@ -154,35 +182,178 @@ local function CreatePluginFrames()
 			Hystory = TimeAttack.db.history
 		}
 		HistoryPanelObject.__index = HistoryPanelObject
+		TimeAttack.HistoryPanelObject = HistoryPanelObject
 	
 	--> build the button to switch between recent times and saved times
 		local displayTipes = {Loc ["STRING_RECENTLY"], Loc ["STRING_SAVED"]}
 		local switchButton
-		function changedisplay()
-			HistoryPanelObject.NowShowing = math.abs (HistoryPanelObject.NowShowing-3)
+		local function changedisplay (param)
+			HistoryPanelObject.NowShowing = param
 			HistoryPanelObject:Refresh()
-			switchButton.text = displayTipes [HistoryPanelObject.NowShowing]
+			--HistoryPanelObject.NowShowing = math.abs (HistoryPanelObject.NowShowing-3)
+			--switchButton.text = displayTipes [HistoryPanelObject.NowShowing]
 		end
 		
-		switchButton = DetailsFrameWork:NewButton (TimeAttackFrame, nil, "DetailsTimeAttackSwitchButton", "switchButton", 70, 15, changedisplay)
-		switchButton:InstallCustomTexture()
+		switchButton = DetailsFrameWork:NewButton (TimeAttackFrame, nil, "DetailsTimeAttackSwitchButton", "switchButton", 70, 14, changedisplay, 1)
+		switchButton:InstallCustomTexture (nil, nil, nil, nil, true)
 		switchButton:SetPoint (227, -35)
 		switchButton.text = displayTipes [HistoryPanelObject.NowShowing]
 		
-		local leftSwitchTexture = switchButton:CreateTexture (nil, "overlay")
-		leftSwitchTexture:SetTexture ("Interface\\TALENTFRAME\\talent-main")
-		leftSwitchTexture:SetTexCoord (0.13671875, 0.25, 0.486328125, 0.576171875)
-		leftSwitchTexture:SetPoint ("left", switchButton.button, 0, 0)
-		leftSwitchTexture:SetWidth (10)
-		leftSwitchTexture:SetHeight (17)
+		local savedButton = DetailsFrameWork:NewButton (TimeAttackFrame, nil, "DetailsTimeAttackSavedButton", "SavedButton", 70, 14, changedisplay, 2)
+		savedButton:InstallCustomTexture (nil, nil, nil, nil, true)
+		savedButton:SetPoint (227, -19)
+		savedButton.text = "Saved"
 		
-		local rightSwitchTexture = switchButton:CreateTexture (nil, "overlay")
-		rightSwitchTexture:SetTexture ("Interface\\TALENTFRAME\\talent-main")
-		rightSwitchTexture:SetTexCoord (0.01953125, 0.13671875, 0.486328125, 0.576171875)
-		rightSwitchTexture:SetPoint ("right", switchButton.button, 0, 0)	
-		rightSwitchTexture:SetWidth (10)
-		rightSwitchTexture:SetHeight (17)
+		local realmButton = DetailsFrameWork:NewButton (TimeAttackFrame, nil, "DetailsTimeAttackSwitchButton", "RealmButton", 70, 14, changedisplay, 3)
+		realmButton:InstallCustomTexture (nil, nil, nil, nil, true)
+		realmButton:SetPoint (227, -3)
+		realmButton.text = "Realm"
 
+	--> realm times
+	
+	--> select realm history type
+		local on_select_historytype = function (_, _, type)
+			TimeAttack.db.realm_last_shown = type
+			changedisplay (3)
+		end
+		local menu = {
+			{value = 40, icon = icon, iconcolor = "orange", texcoord = textcoord, label = "40 seconds", onclick = on_select_historytype},
+			{value = 90, icon = icon, iconcolor = "orange", texcoord = textcoord, label = "1 minute 30 seconds", onclick = on_select_historytype},
+			{value = 120, icon = icon, iconcolor = "orange", texcoord = textcoord, label = "2 minutes", onclick = on_select_historytype},
+			{value = 180, icon = icon, iconcolor = "orange", texcoord = textcoord, label = "3 minutes", onclick = on_select_historytype},
+			{value = 300, icon = icon, iconcolor = "orange", texcoord = textcoord, label = "5 minutes", onclick = on_select_historytype},
+			{value = 480, icon = icon, iconcolor = "orange", texcoord = textcoord, label = "8 minutes", onclick = on_select_historytype}
+		}
+		local build_historytype_menu = function()
+			return menu
+		end
+		local RealmHistoryType = DetailsFrameWork:NewDropDown (TimeAttackFrame, _, "$parentRealmHistoryType", "RealmHistoryType", 180, 20, build_historytype_menu, TimeAttack.db.realm_last_shown)
+		RealmHistoryType:SetPoint ("topleft", TimeAttackFrame, "topleft", 2, -31)
+		RealmHistoryType:SetPoint ("right", switchButton, "left", -4, 1)
+	
+		local scrollframe_realm = CreateFrame ("scrollframe", "TimeAttackRealmDpsScroll", TimeAttackFrame, "ListScrollFrameTemplate")
+		scrollframe_realm:SetPoint ("topleft", TimeAttackFrame, "topleft", 0, -50)
+		scrollframe_realm:SetSize (295, 100)
+		
+		local sort_dps = function (t1, t2) return t1.Dps > t2.Dps end
+		
+		local update_scrollrealm = function (self)
+			
+			local sample_size = TimeAttack.db.realm_last_shown
+			local container = TimeAttack.db.realm_history
+			
+			local samples = {}
+			for i = 1, #container do
+				local this_sample = TimeAttack.db.realm_history [i]
+				if (this_sample.Time == sample_size) then
+					tinsert (samples, this_sample)
+				end
+			end
+			
+			table.sort (samples, sort_dps)
+			
+			local total_samples = #samples
+			local offset = FauxScrollFrame_GetOffset (self)
+			--print (total_samples)
+
+			for i = 1, 14 do
+				local frame = self.childs [i]
+				local index = (offset * 2) + i
+				
+				local sample = samples [index]
+				
+				if (index <= total_samples and sample) then
+					frame:Show()
+					local player_name = sample.Source
+					if (player_name:find (TimeAttack.PlayerRealm)) then
+						player_name = TimeAttack:GetOnlyName (player_name)
+					end
+					frame.lefttext.text = index .. ". " .. player_name
+					frame.righttext.text = TimeAttack:comma_value (_math_floor (sample.Dps))
+					frame.sample = sample
+				else
+					frame:Hide()
+				end
+			end
+			
+			FauxScrollFrame_Update (self, ceil (#samples / 2) , 5, 14)
+		end
+		
+		scrollframe_realm.Update = update_scrollrealm
+		scrollframe_realm:SetScript ("OnVerticalScroll", function (self, offset) FauxScrollFrame_OnVerticalScroll (scrollframe_realm, offset, 14, update_scrollrealm) end)
+		scrollframe_realm.childs = {}
+		
+		local on_enter = function (self)
+			self:SetBackdrop ({tile = true, tileSize = 16, bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background", edgeFile = [[Interface\AddOns\Details\images\border_2]], edgeSize = 8})
+			self:SetBackdropColor (.1, .1, .1, .1)
+			
+			GameCooltip:Reset()
+			
+			local TimeObject = self.sample
+			
+			GameCooltip:AddLine (TimeAttack:comma_value (TimeObject.DamageDone))
+			GameCooltip:AddIcon ("Interface\\TARGETINGFRAME\\PetBadge-Undead")
+			
+			GameCooltip:AddLine (TimeAttack:comma_value (_math_floor (TimeObject.Dps)))
+			GameCooltip:AddIcon ("Interface\\TARGETINGFRAME\\PetBadge-Elemental")
+			
+			GameCooltip:AddLine (string.format ("%.1f", TimeObject.ItemLevel))
+			GameCooltip:AddIcon ("Interface\\TARGETINGFRAME\\PetBadge-Humanoid")
+
+			local age = _math_floor ((time() - TimeObject [1]) / 86400) --one day
+			GameCooltip:AddLine (age .. " days")
+			GameCooltip:AddIcon ([[Interface\FriendsFrame\StatusIcon-Away]], 1, 1, 16, 16, 0, 0.85, 0, 1)
+			
+			GameCooltip:ShowCooltip (self, "tooltip")
+			
+		end
+		local on_leave = function (self)
+			self:SetBackdrop ({tile = true, tileSize = 16, bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background"})
+			self:SetBackdropColor (.1, .1, .1, .3)
+			GameCooltip:Hide()
+		end
+		
+		local row_index = 0
+		for i = 1, 14 do
+			local child = CreateFrame ("frame", "TimeAttackRealmDpsScrollChield" .. i, TimeAttackFrame)
+			if (i%2 == 0) then
+				child:SetPoint ("left", scrollframe_realm.childs [i-1], "right", 2, 0)
+			else
+				child:SetPoint ("topleft", scrollframe_realm, "topleft", 2, (row_index*14*-1) - 2)
+				row_index = row_index + 1
+			end
+			
+			child:SetFrameLevel (scrollframe_realm:GetFrameLevel()+1)
+			child:SetSize (146, 13)
+			child:SetBackdrop ({tile = true, tileSize = 16, bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background"})
+			child:SetBackdropColor (.1, .1, .1, .3)
+			scrollframe_realm.childs [i] = child
+			
+			local left_text = DetailsFrameWork:CreateLabel (child, "", 10, "white", nil, "lefttext")
+			left_text:SetPoint ("left", child, "left", 2, 0)
+			local right_text = DetailsFrameWork:CreateLabel (child, "", 10, "white", nil, "righttext")
+			right_text:SetPoint ("right", child, "right", -2, 0)
+			
+			child:SetScript ("OnEnter", on_enter)
+			child:SetScript ("OnLeave", on_leave)
+		end
+		
+		function TimeAttack:HideRealmScroll()
+			RealmHistoryType:Hide()
+			scrollframe_realm:Hide()
+			for i = 1, 14 do
+				scrollframe_realm.childs [i]:Hide()
+			end
+		end
+		function TimeAttack:ShowRealmScroll()
+			RealmHistoryType:Show()
+			scrollframe_realm:Show()
+			for i = 1, 14 do
+				scrollframe_realm.childs [i]:Show()
+			end
+			scrollframe_realm:Update()
+		end
+		
 	--> remove a saved or recently time
 		local remove = function (index)
 			if (HistoryPanelObject.NowShowing == 1) then --> recently
@@ -205,6 +376,8 @@ local function CreatePluginFrames()
 					NewSave.ItemLevel = ToSaveTimeObject.FinishIlevel
 					NewSave.Date = ToSaveTimeObject.Date
 					NewSave.note = ToSaveTimeObject.note
+					NewSave.ID = ToSaveTimeObject.ID or math.random (10000000, 99999999)
+					NewSave.Age = ToSaveTimeObject.Age or time()
 
 					table.insert (TimeAttack.db.history, 1, NewSave)
 					table.remove (TimeAttack.db.history, 25)
@@ -218,12 +391,17 @@ local function CreatePluginFrames()
 				end
 				
 			elseif (TimeAttack.Time and TimeAttack.Time.FinishOkey and not TimeAttack.Time.FinishSaved) then --> click on SAVE button
+			
 				local NewSave = {}
+				
 				NewSave.DamageDone = TimeAttack.Time.FinishDamage
 				NewSave.Dps = TimeAttack.Time.FinishDps
 				NewSave.Time = TimeAttack.Time.FinishTime
 				NewSave.ItemLevel = TimeAttack.Time.FinishIlevel
 				NewSave.Date = TimeAttack.Time.Date
+				NewSave.ID = TimeAttack.Time.ID or math.random (10000000, 99999999)
+				NewSave.Age = TimeAttack.Time.Age or time()
+				
 				TimeAttack.Time.FinishSaved = true
 				table.insert (TimeAttack.db.history, 1, NewSave)
 				table.remove (TimeAttack.db.history, 25)
@@ -339,6 +517,9 @@ local function CreatePluginFrames()
 
 	local OnEnterHook = function (self, arg2, arg3)
 	
+		self:SetBackdrop ({tile = true, tileSize = 16, bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background", edgeFile = [[Interface\AddOns\Details\images\border_2]], edgeSize = 8})
+		self:SetBackdropColor (.1, .1, .1, .1)
+	
 		self = self.BoxObject
 	
 		if (HistoryPanelObject.NowShowing == 1) then --> recently
@@ -381,10 +562,16 @@ local function CreatePluginFrames()
 			
 			GameCooltip:ShowCooltip (self.background, "tooltip")
 		end
+		
+		return true
 	end
 	
 	local OnLeaveHook= function (self)
 		GameCooltip:ShowMe (false)
+		self:SetBackdrop ({tile = true, tileSize = 16, bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background"})
+		self:SetBackdropColor (.1, .1, .1, .3)
+		
+		return true
 	end
 	
 	TimeAttack.HistoryX = 4
@@ -452,17 +639,17 @@ local function CreatePluginFrames()
 		SaveButton:Disable()
 		ReportButton:Hide()
 	end
-	
+
 	function HistoryPanelObject:CreateNewLabel (index)
 	
 		local LabelBoxObject = {}
 		self.LabelsCreated [#self.LabelsCreated+1] = LabelBoxObject
 		setmetatable (LabelBoxObject, HistoryPanelObject)
 		LabelBoxObject.index = index
-	
-		local LabelBackground = DetailsFrameWork:NewPanel (bg1.frame, bg1.frame, "DetailsTimeAttackPanel"..index, "label"..index, 95, 12, 
-		{tile = true, tileSize = 16, bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background"}, {.5, .5, .5, 1})
 		
+		local LabelBackground = DetailsFrameWork:NewPanel (bg1.frame, bg1.frame, "DetailsTimeAttackPanel"..index, "label"..index, 95, 12, 
+		{tile = true, tileSize = 16, bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background"}, {.1, .1, .1, .3})
+
 		LabelBackground:SetPoint ("topleft", TimeAttackFrame, TimeAttack.HistoryX, TimeAttack.HistoryY)
 		LabelBackground.frame.Gradient.OnEnter = {.9, .9, .9, 1}
 		LabelBackground.frame:SetFrameLevel (bg1.frame:GetFrameLevel()+1)
@@ -513,7 +700,13 @@ local function CreatePluginFrames()
 	end
 
 	function HistoryPanelObject:Refresh()
+	
 		if (self.NowShowing == 1) then --> recent
+			
+			TimeAttackFrame.switchButton:SetTextColor (1, 1, 1, 1)
+			TimeAttackFrame.SavedButton:SetTextColor (1, 0.8, 0, 1)
+			TimeAttackFrame.RealmButton:SetTextColor (1, 0.8, 0, 1)
+			TimeAttack:HideRealmScroll()
 			
 			--> sort by damage done
 			table.sort (self.Recently, function (a,b) return a.FinishDamage > b.FinishDamage end)
@@ -539,7 +732,13 @@ local function CreatePluginFrames()
 				thisLabel.background:Hide()
 			end
 			
-		elseif (self.NowShowing == 2) then
+		elseif (self.NowShowing == 2) then --> saved
+		
+			TimeAttackFrame.switchButton:SetTextColor (1, 0.8, 0, 1)
+			TimeAttackFrame.SavedButton:SetTextColor (1, 1, 1, 1)
+			TimeAttackFrame.RealmButton:SetTextColor (1, 0.8, 0, 1)
+			TimeAttack:HideRealmScroll()
+		
 			for index, AttemptTable in ipairs (TimeAttack.db.history) do 
 				local thisLabel = self.LabelsCreated [index]
 				if (not thisLabel) then
@@ -552,6 +751,19 @@ local function CreatePluginFrames()
 				local thisLabel = self.LabelsCreated [amt]
 				thisLabel.background:Hide()
 			end
+			
+		elseif (self.NowShowing == 3) then --> realm
+			
+			for amt = 1, #self.LabelsCreated do
+				local thisLabel = self.LabelsCreated [amt]
+				thisLabel.background:Hide()
+			end
+			
+			TimeAttackFrame.switchButton:SetTextColor (1, 0.8, 0, 1)
+			TimeAttackFrame.SavedButton:SetTextColor (1, 0.8, 0, 1)
+			TimeAttackFrame.RealmButton:SetTextColor (1, 1, 1, 1)
+			
+			TimeAttack:ShowRealmScroll()
 		end
 	end
 	
@@ -627,10 +839,14 @@ local function CreatePluginFrames()
 		TimeAttack.Time.FinishIlevel = equipped
 		TimeAttack.Time.Date = date ("%H:%M %d/%m/%y")
 		TimeAttack.Time.N = TimeAttack.try
+		TimeAttack.Time.ID = math.random (10000000, 99999999)
+		TimeAttack.Time.Age = time()
 		HistoryPanelObject:AddRecently (TimeAttack.Time)
 		TimeAttack.try = TimeAttack.try + 1
 		SaveButton:Enable()
 		ReportButton:Show()
+		
+		TimeAttack:ShareRecently (TimeAttack.Time)
 	end
 	
 	function _detalhes:TimeAttackPluginStart()
@@ -646,7 +862,7 @@ local function CreatePluginFrames()
 
 		TimeAttack.Time = {}
 		TimeAttack.Time.StartTime = _GetTime()
-		TimeAttack.Time.EndTime = TimeAttack.Time.StartTime + TimeAmount.value - 2
+		TimeAttack.Time.EndTime = TimeAttack.Time.StartTime + TimeAttack.db.time - 2
 		TimeAttack.Time.Elapsed = 2
 		TimeAttack.Time.Done = nil
 		TimeAttack.Time.Working = true
@@ -655,7 +871,7 @@ local function CreatePluginFrames()
 		TimeAttack.Time.FinishOkey = false
 		TimeAttack.Time.FinishSaved = false
 		TimeAttack.Time.FinishDamage = nil
-		TimeAttack.Time.FinishTime = TimeAmount.value
+		TimeAttack.Time.FinishTime = TimeAttack.db.time
 		TimeAttack.Time.FinishDps = nil
 		TimeAttack.Time.FinishIlevel = nil
 		TimeAttack.Time.Date = nil
@@ -675,6 +891,13 @@ local function CreatePluginFrames()
 		
 	end
 
+	local options = DetailsFrameWork:NewButton (TimeAttackFrame, nil, "$parentOptionsButton", "OptionsButton", 86, 16, TimeAttack.OpenOptionsPanel, nil, nil, nil, "Options")
+	options:SetPoint ("bottomleft", TimeAttackFrame, "bottomleft", 5, 22)
+	--options:SetPoint ("bottomright", TimeAttackFrame, "bottomright", -10, 30)
+	--options:SetPoint ("bottomright", TimeAmount2, "topright", 0, 1)
+	--options:InstallCustomTexture()
+	options:SetTextColor (1, 0.93, 0.74)
+	options:SetIcon ([[Interface\Buttons\UI-OptionsButton]], 14, 14, nil, {0, 1, 0, 1}, nil, 3)
 end
 
 function TimeAttack:CheckTimeAttackTutorial()
@@ -709,6 +932,176 @@ function TimeAttack:ShowTargetTutorial()
 	end
 end
 
+
+
+function TimeAttack:AddRealmData (damage, time, ilevel, age, id, class, source)
+	local t = {
+		age,
+		DamageDone = damage[1],
+		Dps = damage[2],
+		Time = time,
+		ItemLevel = ilevel,
+		ID = id,
+		Source = source
+	}
+	
+	tinsert (TimeAttack.db.realm_history, t)
+	table.sort (TimeAttack.db.realm_history, TimeAttack.Sort1)
+	
+	if (#TimeAttack.db.realm_history > 60) then
+		table.remove (TimeAttack.db.realm_history, 61)
+	end
+end
+
+
+
+--request data
+	function TimeAttack:RequestRealmResults()
+		if (TimeAttack.last_channel_request+600 < time()) then
+			TimeAttack.last_channel_request = time()
+			TimeAttack:SendPluginCommMessage ("TARE", nil, select (2, UnitClass ("player")))
+		end
+	end
+
+	function TimeAttack:OnReceiveRequest (class)
+		if (class == select (2, UnitClass ("player")) and TimeAttack.last_forced_share+20 < time()) then
+			TimeAttack.last_forced_share = time()
+			TimeAttack:ShareResults() --share saved
+			TimeAttack:ShareAllRecently() --share recently
+		end
+	end
+
+--saved
+	function TimeAttack:ShareResults()
+		for i = TimeAttack.db.history_lastindex+1, TimeAttack.db.history_lastindex+3 do
+			local this_saved = TimeAttack.db.history [i]
+			if (not this_saved) then
+				TimeAttack.db.history_lastindex = 0
+				break
+			end
+			
+			TimeAttack:ShareSaved (this_saved)
+			TimeAttack.db.history_lastindex = i
+		end
+	end
+
+	function TimeAttack:ShareSaved (saved)
+		local data = TimeAttack:PrepareToShare (saved)
+		
+		if (TimeAttack.db.saved_as_anonymous) then
+			data [7] = "Unidentified"
+		else
+			data [7] = UnitName ("player") .. "-" .. GetRealmName()
+		end
+		
+		TimeAttack:ScheduleTimer ("SendQueuedData", math.random (1, 5), data)
+	end
+
+--recentrly
+	function TimeAttack:ShareAllRecently()
+		local amt = 0
+		for index, recent in ipairs (TimeAttack.HistoryPanelObject.Recently) do
+			TimeAttack:ShareRecently (recent)
+			amt = amt + 1
+			if (amt == 3) then
+				break
+			end
+		end
+	end
+
+	function TimeAttack:ShareRecently (recent)
+		local data = TimeAttack:PrepareToShare (recent)
+		
+		if (TimeAttack.db.recently_as_anonymous) then
+			data [7] = "Unidentified"
+		else
+			data [7] = UnitName ("player") .. "-" .. GetRealmName()
+		end
+		
+		TimeAttack:ScheduleTimer ("SendQueuedData", math.random (1, 5), data)
+	end
+
+--send and receive data functions
+
+	function TimeAttack:OnReceiveShared (damage, time, ilevel, age, id, class, source)
+		--print ("TA:", damage[1], damage[2], time, ilevel, age, id, class, source) --debug
+		
+		if (not TimeAttack:IsPluginEnabled()) then
+			return
+		end
+		
+		--same class
+		if (class ~= select (2, UnitClass ("player"))) then
+			return
+		end
+		--already exists
+		for index, data in ipairs (TimeAttack.db.realm_history) do
+			if (data.ID == id) then
+				return
+			end
+		end
+		--add
+		TimeAttack:AddRealmData (damage, time, ilevel, age, id, class, source)
+	end
+	
+	function TimeAttack:SendQueuedData (data)
+		TimeAttack:SendPluginCommMessage ("TASH", nil, data[1], data[2], data[3], data[4], data[5], data[6], data [7])
+	end
+
+	function TimeAttack:PrepareToShare (sample)
+		local send_table = {}
+		send_table [1] = {_math_floor (sample.FinishDamage or sample.DamageDone), _math_floor (sample.FinishDps or sample.Dps)} --damage and dps
+		send_table [2] = sample.FinishTime or sample.Time --time
+		send_table [3] = _math_floor (sample.FinishIlevel or sample.ItemLevel) --ilevel
+		send_table [4] = sample.Age --age
+		send_table [5] = sample.ID --id
+		send_table [6] = select (2, UnitClass ("player"))
+		return send_table
+	end
+
+
+
+	
+	
+
+--options
+local build_options_panel = function()
+	
+	local options_frame = TimeAttack:CreatePluginOptionsFrame ("TimeAttackOptionsWindow", "Time Attack Options", 1)
+	local menu = {
+		{
+			type = "toggle",
+			get = function() return TimeAttack.db.recently_as_anonymous end,
+			set = function (self, fixedparam, value) TimeAttack.db.recently_as_anonymous = value end,
+			desc = "When enabled, your recently samples are shared without telling your character name.",
+			name = "Share Recently as Anonymous"
+		},
+		{
+			type = "toggle",
+			get = function() return TimeAttack.db.saved_as_anonymous end,
+			set = function (self, fixedparam, value) TimeAttack.db.saved_as_anonymous = value end,
+			desc = "When enabled, your saved samples are shared without telling your character name.",
+			name = "Share Saved as Anonymous"
+		},
+		{
+			type = "toggle",
+			get = function() return TimeAttack.db.disable_sharing end,
+			set = function (self, fixedparam, value) TimeAttack.db.disable_sharing = value end,
+			desc = "When enabled, your damage samples aren't shared with other players in your realm.\n\n|cFFFFFF00Important|r: when disabled you also can't get samples from other players.",
+			name = "Disable Sharing"
+		},
+	}
+	
+	_detalhes.gump:BuildMenu (options_frame, menu, 15, -65, 260)
+
+end
+TimeAttack.OpenOptionsPanel = function()
+	if (not TimeAttackOptionsWindow) then
+		build_options_panel()
+	end
+	TimeAttackOptionsWindow:Show()
+end					
+
 function TimeAttack:OnEvent (_, event, ...)
 
 	if (event == "PLAYER_TARGET_CHANGED") then
@@ -723,9 +1116,16 @@ function TimeAttack:OnEvent (_, event, ...)
 				local MINIMAL_DETAILS_VERSION_REQUIRED = 1
 				
 				local default_settings = {
-					time = 60, 
+					time = 40, 
 					dps = 0, 
 					history = {},
+					history_lastindex = 0,
+					realm_history = {},
+					realm_lastamt = 0,
+					realm_last_shown = 40,
+					recently_as_anonymous = true,
+					saved_as_anonymous = true,
+					disable_sharing = false,
 				}
 				
 				if (_detalhes_databaseTimeAttack) then
@@ -740,11 +1140,60 @@ function TimeAttack:OnEvent (_, event, ...)
 					return
 				end
 				
+				--> fix for old versions
+				local ta = TimeAttack.db.time
+				if (ta ~= 40 and ta ~= 90 and ta ~= 120 and ta ~= 180 and ta ~= 300 and ta ~= 480) then
+					TimeAttack.db.time = 40
+				end
+				for index, saved in ipairs (TimeAttack.db.history) do
+					if (not saved.ID) then
+						saved.ID = math.random (10000000, 99999999)
+					end
+					if (not saved.Age) then
+						saved.Age = time()
+					end
+				end
+				--
+				
 				--> Register needed events
 				_G._detalhes:RegisterEvent (TimeAttack, "COMBAT_PLAYER_ENTER")
 				
 				--> create widgets
 				CreatePluginFrames()
+				
+				--> register comm
+				TimeAttack:RegisterPluginComm ("TASH", "OnReceiveShared")
+				TimeAttack:RegisterPluginComm ("TARE", "OnReceiveRequest")
+				TimeAttack.last_forced_share = 0
+				TimeAttack.last_channel_request = 0
+				
+				--/run DETAILS_PLUGIN_TIME_ATTACK:ShareResults()
+				
+				--> register background task
+				TimeAttack:RegisterBackgroundTask ("TimeAttackSharer", "ShareResults", "LOW")
+
+				--> Register slash commands
+				SLASH_DETAILS_TIMEATTACK1, SLASH_DETAILS_TIMEATTACK2 = "/timeattack", "/ta"
+				function SlashCmdList.DETAILS_TIMEATTACK (msg, editbox)
+					if (not TimeAttackFrame:IsShown()) then
+						--> check if there is a instance closed with time attack
+						for index, instance in TimeAttack:ListInstances() do
+							if (instance:IsSoloMode (true)) then
+								instance:EnableInstance()
+								TimeAttack.SoloTables:switch (nil, "DETAILS_PLUGIN_TIME_ATTACK")
+								return
+							end
+						end
+						--> open a new instance
+						if (TimeAttack:GetFreeInstancesAmount() > 0) then
+							local newinstance = TimeAttack:CreateInstance (true) --> force create a new one
+							if (newinstance) then
+								newinstance:SetMode (DETAILS_MODE_SOLO)
+								TimeAttack.SoloTables:switch (nil, "DETAILS_PLUGIN_TIME_ATTACK")
+							end
+						end
+					end
+				end
 				
 			end
 		end

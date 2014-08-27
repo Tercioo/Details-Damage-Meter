@@ -479,7 +479,7 @@ local ButtonMetaFunctions = {}
 	end
 
 --> custom textures
-	function ButtonMetaFunctions:InstallCustomTexture (texture, rect, coords, use_split)
+	function ButtonMetaFunctions:InstallCustomTexture (texture, rect, coords, use_split, side_textures)
 	
 		self.button:SetNormalTexture (nil)
 		self.button:SetPushedTexture (nil)
@@ -539,6 +539,22 @@ local ButtonMetaFunctions = {}
 			end
 			
 			self.button.texture:SetTexture (texture)
+		end
+		
+		if (side_textures) then
+			local left = self.button:CreateTexture (nil, "overlay")
+			left:SetTexture ([[Interface\TALENTFRAME\talent-main]])
+			left:SetTexCoord (0.13671875, 0.25, 0.486328125, 0.576171875)
+			left:SetPoint ("left", self.button, 0, 0)
+			left:SetWidth (10)
+			left:SetHeight (self.button:GetHeight()+2)
+			
+			local right = self.button:CreateTexture (nil, "overlay")
+			right:SetTexture ([[Interface\TALENTFRAME\talent-main]])
+			right:SetTexCoord (0.01953125, 0.13671875, 0.486328125, 0.576171875)
+			right:SetPoint ("right", self.button, 0, 0)	
+			right:SetWidth (10)
+			right:SetHeight (self.button:GetHeight()+2)
 		end
 	end
 

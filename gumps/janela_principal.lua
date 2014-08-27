@@ -1478,7 +1478,7 @@ local function barra_scripts (esta_barra, instancia, i)
 				setmetatable (new_custom_object, _detalhes.atributo_custom)
 				new_custom_object.__index = _detalhes.atributo_custom
 
-				instancia:TrocaTabela (instancia.segmento, 5, #_detalhes.custom)
+				return instancia:TrocaTabela (instancia.segmento, 5, #_detalhes.custom)
 				--func, true, 5, index
 				
 			end	

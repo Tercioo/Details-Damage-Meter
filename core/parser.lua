@@ -327,21 +327,21 @@
 
 		if (not este_jogador.dps_started) then
 		
-			este_jogador:Iniciar (true)
+			este_jogador:Iniciar (true) --registra na timemachine
 			
 			if (meu_dono and not meu_dono.dps_started) then
 				meu_dono:Iniciar (true)
 				if (meu_dono.end_time) then
 					meu_dono.end_time = nil
 				else
-					meu_dono:IniciarTempo (_tempo-2.5, meu_dono.shadow)
+					meu_dono:IniciarTempo (_tempo, meu_dono.shadow)
 				end
 			end
 			
 			if (este_jogador.end_time) then
 				este_jogador.end_time = nil
 			else
-				este_jogador:IniciarTempo (_tempo-2.5, este_jogador.shadow)
+				este_jogador:IniciarTempo (_tempo, este_jogador.shadow)
 			end
 
 			if (este_jogador.nome == _detalhes.playername and token ~= "SPELL_PERIODIC_DAMAGE") then --> iniciando o dps do "PLAYER"
@@ -678,12 +678,22 @@
 	--> timer
 		
 		if (not este_jogador.iniciar_hps) then
-			este_jogador:Iniciar (true) --inicia o dps do jogador
+		
+			este_jogador:Iniciar (true) --inicia o hps do jogador
+			
+			if (meu_dono and not meu_dono.dps_started) then
+				meu_dono:Iniciar (true)
+				if (meu_dono.end_time) then
+					meu_dono.end_time = nil
+				else
+					meu_dono:IniciarTempo (_tempo, meu_dono.shadow)
+				end
+			end
+			
 			if (este_jogador.end_time) then --> o combate terminou, reabrir o tempo
 				este_jogador.end_time = nil
-				este_jogador.shadow.end_time = nil --> não tenho certeza se isso aqui não pode dar merda
 			else
-				este_jogador:IniciarTempo (_tempo-3.0, este_jogador.shadow)
+				este_jogador:IniciarTempo (_tempo, este_jogador.shadow)
 			end
 		end
 
@@ -733,6 +743,10 @@
 			
 			--> target amount
 			este_alvo.total = este_alvo.total + cura_efetiva
+		end
+		
+		if (meu_dono) then
+			meu_dono.last_event = _tempo
 		end
 		
 		if (overhealing > 0) then

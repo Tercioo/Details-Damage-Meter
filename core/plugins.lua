@@ -19,6 +19,17 @@
 		return _detalhes.plugin_database [PluginAbsoluteName]
 	end
 	
+	function _detalhes:IsPluginEnabled (PluginAbsoluteName)
+		if (PluginAbsoluteName) then
+			local plugin = _detalhes.plugin_database [PluginAbsoluteName]
+			if (plugin) then
+				return plugin.__enabled
+			end
+		else
+			return self.__enabled
+		end
+	end
+	
 	function _detalhes:CheckDefaultTable (current, default)
 		for key, value in pairs (default) do 
 			if (type (value) == "table") then

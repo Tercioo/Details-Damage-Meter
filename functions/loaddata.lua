@@ -17,6 +17,9 @@ function _detalhes:ApplyBasicKeys()
 
 	--> we are not in debug mode
 		self.debug = false
+		
+	--> connected to realm channel
+		self.is_connected = false
 
 	--> who is
 		self.playername = UnitName ("player")
@@ -270,10 +273,6 @@ function _detalhes:LoadConfig()
 			_detalhes.savedbuffs = _detalhes_database.savedbuffs
 			_detalhes.Buffs:BuildTables()
 		
-		--> custom
-			_detalhes.custom = _detalhes_global.custom
-			_detalhes.refresh:r_atributo_custom()
-		
 		--> initialize parser
 			_detalhes.capture_current = {}
 			for captureType, captureValue in pairs (_detalhes.capture_real) do 
@@ -361,6 +360,10 @@ function _detalhes:LoadConfig()
 		
 		--> apply the profile
 			_detalhes:ApplyProfile (current_profile_name, true)
+			
+		--> custom
+			_detalhes.custom = _detalhes_global.custom
+			_detalhes.refresh:r_atributo_custom()
 			
 end
 

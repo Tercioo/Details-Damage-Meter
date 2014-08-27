@@ -102,12 +102,26 @@
 			instance_container:ResetCustomActorContainer()
 		
 			local func
+			
 			if (_detalhes.custom_function_cache [instance.customName]) then
 				func = _detalhes.custom_function_cache [instance.customName]
 			else
 				func = loadstring (custom_object.script)
-				if (not func) then
+				if (func) then
 					_detalhes.custom_function_cache [instance.customName] = func
+				end
+
+				local tooltip_script  = custom_object.tooltip and loadstring (custom_object.tooltip)
+				if (tooltip_script) then
+					_detalhes.custom_function_cache [instance.customName .. "Tooltip"] = tooltip_script
+				end
+				local total_script = custom_object.total_script and loadstring (custom_object.total_script)
+				if (total_script) then
+					_detalhes.custom_function_cache [instance.customName .. "Total"] = total_script
+				end
+				local percent_script = custom_object.percent_script and loadstring (custom_object.percent_script)
+				if (percent_script) then
+					_detalhes.custom_function_cache [instance.customName .. "Percent"] = percent_script
 				end
 			end
 			
@@ -118,7 +132,6 @@
 			
 			--> call the loop function
 			total, top, amount = func (combat, instance_container, instance)
-			
 		else
 			--> get the attribute
 			local attribute = custom_object:GetAttribute()
@@ -164,7 +177,7 @@
 		
 		instance:AtualizarScrollBar (amount)
 
-		atributo_custom:Refresh (instance, instance_container, combat, force, total, top)
+		atributo_custom:Refresh (instance, instance_container, combat, force, total, top, custom_object)
 		
 		return _detalhes:EndRefresh (instance, total, combat, combat [container_index])
 
@@ -274,7 +287,7 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> refresh functions
 
-	function atributo_custom:Refresh (instance, instance_container, combat, force, total, top)
+	function atributo_custom:Refresh (instance, instance_container, combat, force, total, top, custom_object)
 		local qual_barra = 1
 		local barras_container = instance.barras
 		local percentage_type = instance.row_info.percent_type
@@ -291,7 +304,10 @@
 				use_total_bar = false
 			end
 		end
-		
+
+		local percent_script = _detalhes.custom_function_cache [instance.customName .. "Percent"]
+		local total_script = _detalhes.custom_function_cache [instance.customName .. "Total"]
+
 		if (instance.bars_sort_direction == 1) then --top to bottom
 			
 			if (use_total_bar and instance.barraS[1] == 1) then
@@ -317,13 +333,13 @@
 				gump:Fade (row1, "out")
 				
 				for i = instance.barraS[1], iter_last, 1 do
-					instance_container._ActorTable[i]:UpdateBar (barras_container, qual_barra, percentage_type, i, total, top, instance, force)
+					instance_container._ActorTable[i]:UpdateBar (barras_container, qual_barra, percentage_type, i, total, top, instance, force, percent_script, total_script, combat)
 					qual_barra = qual_barra+1
 				end
 			
 			else
 				for i = instance.barraS[1], instance.barraS[2], 1 do
-					instance_container._ActorTable[i]:UpdateBar (barras_container, qual_barra, percentage_type, i, total, top, instance, force)
+					instance_container._ActorTable[i]:UpdateBar (barras_container, qual_barra, percentage_type, i, total, top, instance, force, percent_script, total_script, combat)
 					qual_barra = qual_barra+1
 				end
 			end
@@ -353,13 +369,13 @@
 				gump:Fade (row1, "out")
 				
 				for i = iter_last, instance.barraS[1], -1 do --> vai atualizar só o range que esta sendo mostrado
-					instance_container._ActorTable[i]:UpdateBar (barras_container, qual_barra, percentage_type, i, total, top, instance, force)
+					instance_container._ActorTable[i]:UpdateBar (barras_container, qual_barra, percentage_type, i, total, top, instance, force, percent_script, total_script, combat)
 					qual_barra = qual_barra+1
 				end
 			
 			else
 				for i = instance.barraS[2], instance.barraS[1], -1 do --> vai atualizar só o range que esta sendo mostrado
-					instance_container._ActorTable[i]:UpdateBar (barras_container, qual_barra, percentage_type, i, total, top, instance, force)
+					instance_container._ActorTable[i]:UpdateBar (barras_container, qual_barra, percentage_type, i, total, top, instance, force, percent_script, total_script, combat)
 					qual_barra = qual_barra+1
 				end
 			end
@@ -380,7 +396,7 @@
 
 	local actor_class_color_r, actor_class_color_g, actor_class_color_b
 	
-	function atributo_custom:UpdateBar (row_container, index, percentage_type, rank, total, top, instance, is_forced)
+	function atributo_custom:UpdateBar (row_container, index, percentage_type, rank, total, top, instance, is_forced, percent_script, total_script, combat)
 	
 		local row = row_container [index]
 		
@@ -390,19 +406,32 @@
 		self.minha_barra = row
 		
 		local percent
-		
-		if (percentage_type == 1) then
-			percent = _cstr ("%.1f", self.value / total * 100)
-		elseif (percentage_type == 2) then
-			percent = _cstr ("%.1f", self.value / top * 100)
+
+		if (percent_script) then
+			--local value, top, total, combat, instance = ...
+			percent = percent_script (self.value, top, total, combat, instance)
+		else
+			if (percentage_type == 1) then
+				percent = _cstr ("%.1f", self.value / total * 100)
+			elseif (percentage_type == 2) then
+				percent = _cstr ("%.1f", self.value / top * 100)
+			end
 		end
 		
-		local formated_value = SelectedToKFunction (_, self.value)
-
-		if (UsingCustomRightText) then
-			row.texto_direita:SetText (instance.row_info.textR_custom_text:ReplaceData (formated_value, "", percent, self))
+		if (total_script) then
+			local value = total_script (self.value, top, total, combat, instance)
+			if (type (value) == "number") then
+				row.texto_direita:SetText (SelectedToKFunction (_, value) .. " (" .. percent .. "%)")
+			else
+				row.texto_direita:SetText (value .. " (" .. percent .. "%)")
+			end
 		else
-			row.texto_direita:SetText (formated_value .. " (" .. percent .. "%)")
+			local formated_value = SelectedToKFunction (_, self.value)
+			if (UsingCustomRightText) then
+				row.texto_direita:SetText (instance.row_info.textR_custom_text:ReplaceData (formated_value, "", percent, self))
+			else
+				row.texto_direita:SetText (formated_value .. " (" .. percent .. "%)")
+			end
 		end
 		
 		local row_value = _math_floor ((self.value / top) * 100)
@@ -605,7 +634,8 @@
 	
 	function atributo_custom:ResetCustomActorContainer()
 		for _, actor in _ipairs (self._ActorTable) do
-			actor.value = _detalhes:GetOrderNumber (actor.nome)
+			actor.value = actor.value - _math_floor (actor.value)
+			--actor.value = _detalhes:GetOrderNumber (actor.nome)
 		end
 	end
 	
@@ -615,7 +645,6 @@
 	end
 
 	function atributo_custom:AddValue (actor, actortotal, checktop)
-	--print (debugstack())
 		local actor_table = self:GetActorTable (actor)
 		actor_table.my_actor = actor
 		actor_table.value = actor_table.value + actortotal
@@ -833,9 +862,9 @@
 	end
 	
 	function _detalhes.refresh:r_atributo_custom()
-	
 		--> check for non used temp displays
 		if (_detalhes.tabela_instancias) then
+
 			for i = #_detalhes.custom, 1, -1 do
 				local custom_object = _detalhes.custom [i]
 				if (custom_object.temp) then
@@ -880,7 +909,7 @@
 	function _detalhes:AddDefaultCustomDisplays()
 	
 		local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
-	
+		
 		local PotionUsed = {
 			name = Loc ["STRING_CUSTOM_POT_DEFAULT"],
 			icon = [[Interface\ICONS\Trade_Alchemy_PotionD4]],
@@ -1054,11 +1083,19 @@
 		]]
 		}
 		
-		setmetatable (PotionUsed, _detalhes.atributo_custom)
-		PotionUsed.__index = _detalhes.atributo_custom		
-
-		self.custom [#self.custom+1] = PotionUsed
-	
+		local have = false
+		for _, custom in ipairs (self.custom) do
+			if (custom.name == Loc ["STRING_CUSTOM_POT_DEFAULT"]) then
+				have = true
+				break
+			end
+		end
+		if (not have) then
+			setmetatable (PotionUsed, _detalhes.atributo_custom)
+			PotionUsed.__index = _detalhes.atributo_custom
+			self.custom [#self.custom+1] = PotionUsed
+		end
+		
 		local Healthstone = {
 			name = Loc ["STRING_CUSTOM_HEALTHSTONE_DEFAULT"],
 			icon = [[Interface\ICONS\warlock_ healthstone]],
@@ -1072,12 +1109,134 @@
 			tooltip = false
 		}
 
-		setmetatable (Healthstone, _detalhes.atributo_custom)
-		Healthstone.__index = _detalhes.atributo_custom
+		local have = false
+		for _, custom in ipairs (self.custom) do
+			if (custom.name == Loc ["STRING_CUSTOM_HEALTHSTONE_DEFAULT"]) then
+				have = true
+				break
+			end
+		end
+		if (not have) then
+			setmetatable (Healthstone, _detalhes.atributo_custom)
+			Healthstone.__index = _detalhes.atributo_custom
+			self.custom [#self.custom+1] = Healthstone
+		end
 		
-		self.custom [#self.custom+1] = Healthstone
+		local DamageActivityTime = {
+			name = Loc ["STRING_CUSTOM_ACTIVITY_DPS"],
+			icon = [[Interface\ICONS\Achievement_PVP_H_06]],
+			attribute = false,
+			spellid = false,
+			author = "Details!",
+			desc = Loc ["STRING_CUSTOM_ACTIVITY_DPS_DESC"],
+			source = false,
+			target = false,
+			total_script = [[
+				local value, top, total, combat, instance = ...
+				local minutos, segundos = math.floor (value/60), math.floor (value%60)
+				return minutos .. "m " .. segundos .. "s"
+			]],
+			percent_script = [[
+				local value, top, total, combat, instance = ...
+				return string.format ("%.1f", value/top*100)
+			]],
+			script = [[
+				--init:
+				local combat, instance_container, instance = ...
+				local total, amount = 0, 0
 
+				--get the misc actor container
+				local damage_container = combat:GetActorList ( DETAILS_ATTRIBUTE_DAMAGE )
+				
+				--do the loop:
+				for _, player in ipairs ( damage_container ) do 
+					if (player.grupo) then
+						local activity = player:Tempo()
+						total = total + activity
+						amount = amount + 1
+						--add amount to the player 
+						instance_container:AddValue (player, activity)
+					end
+				end
+				
+				--return:
+				return total, combat:GetCombatTime(), amount
+			]],
+			tooltip = [[
+				
+			]],
+		}
 		
+		local have = false
+		for _, custom in ipairs (self.custom) do
+			if (custom.name == Loc ["STRING_CUSTOM_ACTIVITY_DPS"]) then
+				have = true
+				break
+			end
+		end
+		if (not have) then
+			setmetatable (DamageActivityTime, _detalhes.atributo_custom)
+			DamageActivityTime.__index = _detalhes.atributo_custom		
+			self.custom [#self.custom+1] = DamageActivityTime
+		end
+
+		local HealActivityTime = {
+			name = Loc ["STRING_CUSTOM_ACTIVITY_HPS"],
+			icon = [[Interface\ICONS\Achievement_PVP_G_06]],
+			attribute = false,
+			spellid = false,
+			author = "Details!",
+			desc = Loc ["STRING_CUSTOM_ACTIVITY_HPS_DESC"],
+			source = false,
+			target = false,
+			total_script = [[
+				local value, top, total, combat, instance = ...
+				local minutos, segundos = math.floor (value/60), math.floor (value%60)
+				return minutos .. "m " .. segundos .. "s"
+			]],
+			percent_script = [[
+				local value, top, total, combat, instance = ...
+				return string.format ("%.1f", value/top*100)
+			]],
+			script = [[
+				--init:
+				local combat, instance_container, instance = ...
+				local total, top, amount = 0, 0, 0
+
+				--get the misc actor container
+				local damage_container = combat:GetActorList ( DETAILS_ATTRIBUTE_HEAL )
+				
+				--do the loop:
+				for _, player in ipairs ( damage_container ) do 
+					if (player.grupo) then
+						local activity = player:Tempo()
+						total = total + activity
+						amount = amount + 1
+						--add amount to the player 
+						instance_container:AddValue (player, activity)
+					end
+				end
+				
+				--return:
+				return total, combat:GetCombatTime(), amount
+			]],
+			tooltip = [[
+				
+			]],
+		}
+		
+		local have = false
+		for _, custom in ipairs (self.custom) do
+			if (custom.name == Loc ["STRING_CUSTOM_ACTIVITY_HPS"]) then
+				have = true
+				break
+			end
+		end
+		if (not have) then
+			setmetatable (HealActivityTime, _detalhes.atributo_custom)
+			HealActivityTime.__index = _detalhes.atributo_custom
+			self.custom [#self.custom+1] = HealActivityTime
+		end
 		
 	end
 

@@ -257,67 +257,110 @@
 --> register comm
 
 	function _detalhes:CommReceived (_, data, _, source)
-		local type, player, realm, dversion, arg6, arg7, arg8, arg9 =  _select (2, _detalhes:Deserialize (data))
+		local prefix, player, realm, dversion, arg6, arg7, arg8, arg9 =  _select (2, _detalhes:Deserialize (data))
 		
 		if (_detalhes.debug) then
-			_detalhes:Msg ("(debug) network received:", type, "length:",string.len (data))
+			_detalhes:Msg ("(debug) network received:", prefix, "length:",string.len (data))
 		end
 		
-		local func = _detalhes.network.functions [type]
+		local func = _detalhes.network.functions [prefix]
 		if (func) then
 			func (player, realm, dversion, arg6, arg7, arg8, arg9)
 		else
-			local t = plugins_registred [type]
-			if (t) then
-				func (player, realm, dversion, t[3], arg6, arg7, arg8, arg9)
+			func = plugins_registred [prefix]
+			if (func) then
+				func (player, realm, dversion, arg6, arg7, arg8, arg9)
 			else
-				_detalhes:Msg ("comm type not found:", type)
+				_detalhes:Msg ("comm prefix not found:", prefix)
 			end
 		end
 	end
 
 	_detalhes:RegisterComm ("DTLS", "CommReceived")
 	
-	function _detalhes:RegisterPluginComm (name, prefix, func, version)
-		assert (type (name) == "string" and string.len (name) > 3, "RegisterPluginComm expects a string with at least 4 characters on #1 argument.")
-		assert (type (prefix) == "string" and string.len (prefix) == 2, "RegisterPluginComm expects a string with 2 characters on #2 argument.")
-		assert (type (func) == "function", "RegisterPluginComm expects a function on #3 argument.")
-		assert (plugins_registred [prefix] == nil, "Prefix " .. prefix .. " already in use.")
-		assert (_detalhes.network.functions [prefix] == nil, "Prefix " .. prefix .. " already in use.")
+	function _detalhes:RegisterPluginComm (prefix, func)
+		assert (type (prefix) == "string" and string.len (prefix) >= 2 and string.len (prefix) <= 4, "RegisterPluginComm expects a string with 2-4 characters on #1 argument.")
+		assert (type (func) == "function" or (type (func) == "string" and type (self [func]) == "function"), "RegisterPluginComm expects a function or function name on #2 argument.")
+		assert (plugins_registred [prefix] == nil, "Prefix " .. prefix .. " already in use 1.")
+		assert (_detalhes.network.functions [prefix] == nil, "Prefix " .. prefix .. " already in use 2.")
 		
-		plugins_registred [prefix] = {func, name, version}
+		if (type (func) == "string") then
+			plugins_registred [prefix] = self [func]
+		else
+			plugins_registred [prefix] = func
+		end
+		return true
 	end
 	
-	function _detalhes:UnregisterPluginComm (name)
-		local prefix
-		for p, t in _pairs (plugins_registred) do 
-			if (t [2] == name) then
-				prefix = p
-				break
-			end
-		end
-		if (prefix) then
-			plugins_registred [prefix] = nil
-		end
+	function _detalhes:UnregisterPluginComm (prefix)
+		plugins_registred [prefix] = nil
+		return true
 	end
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> send functions
-	
-	function _detalhes:SendPluginCommMessage (name, channel, ...)
-		local prefix
-		for p, t in _pairs (plugins_registred) do 
-			if (t [2] == name) then
-				prefix = p
-				break
+
+	function _detalhes:GetChannelId (channel)
+		for id = 1, GetNumDisplayChannels() do 
+			local name, _, _, room_id = GetChannelDisplayInfo (id)
+			if (name == channel) then
+				return room_id
 			end
 		end
-		if (prefix) then
+	end
+	
+	function _detalhes.parser_functions:CHAT_MSG_CHANNEL (...)
+		local message, _, _, _, _, _, _, _, channelName = ...
+		if (channelName == "Details") then
+			local prefix, data = strsplit ("_", message, 2)
 			
-		else
-			self:Msg ("comm not registred:", name)
+			local func = plugins_registred [prefix]
+			if (func) then
+				func (_select (2, _detalhes:Deserialize (data)))
+			else
+				_detalhes:Msg ("comm prefix not found:", prefix)
+			end
+
 		end
 	end
+
+	function _detalhes:SendPluginCommMessage (prefix, channel, ...)
+	
+		if (not _detalhes:IsConnected()) then
+			return false
+		end
+	
+		if (not channel) then
+			channel = "Details"
+		end
+		
+		if (channel == "RAID") then
+			if (IsInGroup (LE_PARTY_CATEGORY_INSTANCE) and IsInInstance()) then
+				_detalhes:SendCommMessage (prefix, _detalhes:Serialize (self.__version, ...), "INSTANCE_CHAT")
+			else
+				_detalhes:SendCommMessage (prefix, _detalhes:Serialize (self.__version, ...), "RAID")
+			end
+			
+		elseif (channel == "PARTY") then
+			if (IsInGroup (LE_PARTY_CATEGORY_INSTANCE) and IsInInstance()) then
+				_detalhes:SendCommMessage (prefix, _detalhes:Serialize (self.__version, ...), "INSTANCE_CHAT")
+			else
+				_detalhes:SendCommMessage (prefix, _detalhes:Serialize (self.__version, ...), "PARTY")
+			end
+		
+		elseif (channel == "Details") then
+			local id = _detalhes:GetChannelId (channel)
+			if (id) then
+				SendChatMessage (prefix .. "_" .. _detalhes:Serialize (self.__version, ...), "CHANNEL", nil, id)
+			end
+			
+		else
+			_detalhes:SendCommMessage (prefix, _detalhes:Serialize (self.__version, ...), channel)
+		end
+		
+		return true
+	end
+	
 	
 	--> send as
 	function _detalhes:SendRaidDataAs (type, player, realm, ...)
@@ -428,17 +471,20 @@
 		local realm = GetRealmName()
 		realm = realm or ""
 		
-		if (realm ~= "Azralon") then
-			return
-		end
+		--if (realm ~= "Azralon") then
+		--	return
+		--end
 	
 		--> room name
 		local room_name = "Details"
+
+		_detalhes.listener:RegisterEvent ("CHAT_MSG_CHANNEL")
 		
 		--> already in?
 		for room_index = 1, 10 do
 			local _, name = GetChannelName (room_index)
 			if (name == room_name) then
+				_detalhes.is_connected = true
 				return --> already in the room
 			end
 		end
@@ -446,6 +492,7 @@
 		--> enter
 		--print ("entrando no canal")
 		JoinChannelByName (room_name)
+		_detalhes.is_connected = true
 	end
 	
 	function _detalhes:LeaveChatChannel()
@@ -459,13 +506,14 @@
 		local realm = GetRealmName()
 		realm = realm or ""
 		
-		if (realm ~= "Azralon") then
-			return
-		end
+		--if (realm ~= "Azralon") then
+		--	return
+		--end
 		
 		--> room name
 		local room_name = "Details"
 		local is_in = false
+		
 		--> already in?
 		for room_index = 1, 10 do
 			local _, name = GetChannelName (room_index)
@@ -478,6 +526,10 @@
 			--print ("saindo do canal")
 			LeaveChannelByName (room_name)
 		end
+		
+		_detalhes.is_connected = false
+		
+		_detalhes.listener:UnregisterEvent ("CHAT_MSG_CHANNEL")
 	end
 	
 	--> sair do canal quando estiver em grupo
@@ -539,3 +591,6 @@
 	_detalhes:RegisterEvent (event_handler, "GROUP_ONLEAVE", "GROUP_ONLEAVE")
 	_detalhes:RegisterEvent (event_handler, "ZONE_TYPE_CHANGED", "ZONE_TYPE_CHANGED")
 	
+	function _detalhes:IsConnected()
+		return _detalhes.is_connected
+	end

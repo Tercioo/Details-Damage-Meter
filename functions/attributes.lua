@@ -231,7 +231,9 @@ do
 	function _detalhes:GetSubAttributeName (attribute, subAttribute)
 		if (attribute == 5) then
 			local CustomObject = _detalhes.custom [subAttribute]
-			-- ??
+			if (not CustomObject) then
+				return "--x--x--"
+			end
 			return CustomObject.name
 		end
 		return _detalhes.sub_atributos [attribute].lista [subAttribute]

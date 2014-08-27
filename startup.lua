@@ -307,6 +307,7 @@ function _G._detalhes:Start()
 			end
 			
 			_detalhes:FillUserCustomSpells()
+			_detalhes:AddDefaultCustomDisplays()
 			
 			if (_detalhes_database.last_realversion and _detalhes_database.last_realversion < 20 and enable_reset_warning) then
 				table.wipe (self.custom)
