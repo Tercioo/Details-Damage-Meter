@@ -6,6 +6,7 @@ do
 	local Graphics = LibStub:GetLibrary("LibGraph-2.0")
 	local _ipairs = ipairs
 	local _math_floor = math.floor
+	local _cstr = string.format
 	local _GetSpellInfo = _detalhes.getspellinfo
 	
 	_detalhes.EncounterDetailsTempWindow = function (EncounterDetails)
@@ -101,6 +102,19 @@ do
 				desc = "Encounter Details window automatically close when you enter in combat.",
 				name = "Hide on Combat"
 			},
+			{
+				type = "range",
+				get = function() return EncounterDetails.db.max_emote_segments end,
+				set = function (self, fixedparam, value) EncounterDetails.db.max_emote_segments = value end,
+				min = 1,
+				max = 10,
+				step = 1,
+				desc = "Keep how many segments emotes.",
+				name = "Emote Segments Amount",
+				usedecimals = true,
+			},
+			
+			
 		}
 		
 		DetailsFrameWork:BuildMenu (options_frame, menu, 15, -75, 260)
@@ -119,6 +133,7 @@ do
 		row.textura:SetAllPoints (row)
 		local t = row.textura:CreateTexture (nil, "overlay")
 		t:SetTexture ("Interface\\AddOns\\Details\\images\\bar_serenity")
+		--t:SetTexture ("Interface\\AddOns\\Details\\images\\bar_skyline")
 		row.t = t
 		row.textura:SetStatusBarTexture (t)
 		row.textura:SetStatusBarColor(.5, .5, .5, 0)
@@ -615,6 +630,10 @@ Message: ..\AddOns\Details_EncounterDetails\frames.lua line 156:
 	
 	local selected
 	local u
+	local mode_label
+	local scrollframe
+	local emote_segment = 1
+	local searching
 	
 	BossFrame.switch = function (to)
 		if (to == "main") then 
@@ -622,9 +641,6 @@ Message: ..\AddOns\Details_EncounterDetails\frames.lua line 156:
 			for _, frame in _ipairs (BossFrame.Widgets) do 
 				frame:Show()
 			end
-			
-			--BossFrame.buttonSwitchNormal:Disable()
-			--BossFrame.buttonSwitchGraphic:Enable()
 			
 			selected:SetPoint ("center", BossFrame.buttonSwitchNormal, "center", 0, 1)
 			u:SetAllPoints (BossFrame.buttonSwitchNormal)
@@ -638,16 +654,53 @@ Message: ..\AddOns\Details_EncounterDetails\frames.lua line 156:
 				end
 				BossFrame["timeamt0"]:Hide()
 			end
-
-			--BossFrame.StatusBar_damageicon:Show()
-			--BossFrame.StatusBar_healicon:Show()
-			--BossFrame.StatusBar_totaldamage:Show()
-			--BossFrame.StatusBar_totalheal:Show()
 			
+			--hide emote frames
+			for _, widget in pairs (BossFrame.EmoteWidgets) do
+				widget:Hide()
+			end
+
 			BossFrame.ShowType = "main"
-			
-		elseif (to == "graph") then 
+			mode_label.text = "Summary"
+			BossFrame.segmentosDropdown:Enable()
+		
+		elseif (to == "emotes") then 
 
+			BossFrame.bg:SetTexture ("Interface\\AddOns\\Details_EncounterDetails\\images\\boss_bg_graphic") 
+
+			--hide boss frames
+			for _, frame in _ipairs (BossFrame.Widgets) do 
+				frame:Hide()
+			end
+			--hide graph
+			if (_G.DetailsRaidDpsGraph) then 
+				_G.DetailsRaidDpsGraph:Hide()
+				for i = 1, 8, 1 do
+					BossFrame["dpsamt"..i]:Hide()
+					BossFrame["timeamt"..i]:Hide()
+					
+				end
+				BossFrame["timeamt0"]:Hide()
+			end
+			--show emote frames
+			for _, widget in pairs (BossFrame.EmoteWidgets) do
+				widget:Show()
+			end
+		
+			selected:SetPoint ("center", BossFrame.buttonSwitchBossEmotes.widget, "center", 0, 1)
+			u:SetAllPoints (BossFrame.buttonSwitchBossEmotes.widget)
+		
+			BossFrame.ShowType = "emotes"
+			mode_label.text = "Boss Emotes"
+			
+			scrollframe:Update()
+			BossFrame.EmotesSegment:Refresh()
+			BossFrame.EmotesSegment:Select (emote_segment)
+			
+			BossFrame.segmentosDropdown:Disable()
+		
+		elseif (to == "graph") then 
+			
 			EncounterDetails:BuildDpsGraphic()
 			if (not _G.DetailsRaidDpsGraph) then
 				return
@@ -660,9 +713,6 @@ Message: ..\AddOns\Details_EncounterDetails\frames.lua line 156:
 			
 			selected:SetPoint ("center", BossFrame.buttonSwitchGraphic, "center", 0, 1)
 			u:SetAllPoints (BossFrame.buttonSwitchGraphic)
-			
-			--BossFrame.buttonSwitchNormal:Enable()
-			--BossFrame.buttonSwitchGraphic:Disable()
 			
 			_G.DetailsRaidDpsGraph:Show()
 			
@@ -678,11 +728,19 @@ Message: ..\AddOns\Details_EncounterDetails\frames.lua line 156:
 			BossFrame["timeamt0"].widget:Show()
 			
 			BossFrame.ShowType = "graph"
+			mode_label.text = "Damage Graphic"
+			
+			--hide emote frames
+			for _, widget in pairs (BossFrame.EmoteWidgets) do
+				widget:Hide()
+			end
+			
+			BossFrame.segmentosDropdown:Disable()
 		end
 	end
 
 	BossFrame.buttonSwitchNormal = DetailsFrameWork:NewDetailsButton (BossFrame, BossFrame, _, BossFrame.switch, "main", nil, 26, 33)
-	BossFrame.buttonSwitchNormal:SetPoint ("bottomright", BossFrame, "bottomright", -10, 5)
+	BossFrame.buttonSwitchNormal:SetPoint ("bottomright", BossFrame, "bottomright", -244, 5)
 	local t = BossFrame.buttonSwitchNormal:CreateTexture (nil, "artwork")
 	t:SetTexture ("Interface\\AddOns\\Details_EncounterDetails\\images\\boss_frame_buttons")
 	t:SetTexCoord (0, 0.1015625, 0, 0.515625)
@@ -691,13 +749,23 @@ Message: ..\AddOns\Details_EncounterDetails\frames.lua line 156:
 	t:SetAllPoints (BossFrame.buttonSwitchNormal)
 
 	BossFrame.buttonSwitchGraphic = DetailsFrameWork:NewDetailsButton (BossFrame, BossFrame, _, BossFrame.switch, "graph", nil, 26, 33)
-	BossFrame.buttonSwitchGraphic:SetPoint ("right", BossFrame.buttonSwitchNormal, "left", 0, 0)
+	BossFrame.buttonSwitchGraphic:SetPoint ("left", BossFrame.buttonSwitchNormal, "right", 0, 0)
 	local g = BossFrame.buttonSwitchGraphic:CreateTexture (nil, "artwork")
 	g:SetTexture ("Interface\\AddOns\\Details_EncounterDetails\\images\\boss_frame_buttons")
 	g:SetTexCoord (0.1171875, 0.21875, 0, 0.515625)	
 	g:SetWidth (26)
 	g:SetHeight (33)
 	g:SetAllPoints (BossFrame.buttonSwitchGraphic)
+	
+	BossFrame.buttonSwitchBossEmotes = DetailsFrameWork:NewButton (BossFrame, nil, "EncounterDetailsBossEmoteButton", nil, 26, 33, BossFrame.switch, "emotes")
+	BossFrame.buttonSwitchBossEmotes:SetPoint ("left", BossFrame.buttonSwitchGraphic, "right", 0, 0)
+	--BossFrame.buttonSwitchBossEmotes:SetPoint ("center", UIParent, "center")
+	local e = BossFrame.buttonSwitchBossEmotes:CreateTexture (nil, "artwork")
+	e:SetTexture ("Interface\\AddOns\\Details_EncounterDetails\\images\\boss_frame_buttons")
+	e:SetTexCoord (90/256, 116/256, 0, 0.515625)
+	e:SetWidth (26)
+	e:SetHeight (33)
+	e:SetAllPoints (BossFrame.buttonSwitchBossEmotes.widget)
 	
 	u = BossFrame.buttonSwitchGraphic:CreateTexture (nil, "overlay")
 	u:SetTexture ("Interface\\AddOns\\Details_EncounterDetails\\images\\boss_frame_buttons")
@@ -712,20 +780,261 @@ Message: ..\AddOns\Details_EncounterDetails\frames.lua line 156:
 	selected:SetHeight (28)
 	selected:SetPoint ("center", BossFrame.buttonSwitchNormal, "center", 0, 0)
 	
+	--mode label
+	local support_frame = CreateFrame ("frame", nil, BossFrame)
+	support_frame:SetPoint ("topleft", BossFrame.buttonSwitchBossEmotes.widget, "topright", 0, -1)
+	support_frame:SetPoint ("bottomright", BossFrame, "bottomright", -9, 6)
+	support_frame:SetBackdrop ({bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 16})	
+	support_frame:SetBackdropColor (1, 1, 1, 0.3)
+	
+	mode_label = DetailsFrameWork:CreateLabel (support_frame, "Summary", 13, color, "GameFontNormal")
+	--mode_label:SetPoint ("bottomright", BossFrame, "bottomright", -10, 16)
+	--mode_label:SetPoint ("left", BossFrame.buttonSwitchBossEmotes.widget, "right", 20, 0)
+	mode_label:SetPoint ("center", support_frame, "center")
+	
+	local left = support_frame:CreateTexture (nil, "overlay")
+	left:SetTexture ([[Interface\TALENTFRAME\talent-main]])
+	left:SetTexCoord (0.13671875, 0.25, 0.486328125, 0.576171875)
+	left:SetPoint ("left", support_frame, 0, 0)
+	left:SetWidth (10)
+	left:SetHeight (support_frame:GetHeight())
+	
+	local right = support_frame:CreateTexture (nil, "overlay")
+	right:SetTexture ([[Interface\TALENTFRAME\talent-main]])
+	right:SetTexCoord (0.01953125, 0.13671875, 0.486328125, 0.576171875)
+	right:SetPoint ("right", support_frame, 0, 0)	
+	right:SetWidth (10)
+	right:SetHeight (support_frame:GetHeight())
+	
+	--tooltips
 	BossFrame.buttonSwitchNormal.MouseOnEnterHook = function()  
 		GameCooltip:Reset()
 		GameCooltip:AddLine (Loc ["STRING_FIGHT_SUMMARY"])
 		GameCooltip:ShowCooltip (BossFrame.buttonSwitchNormal, "tooltip")
+		t:SetBlendMode ("ADD")
 	end
-	BossFrame.buttonSwitchNormal.MouseOnLeaveHook = function() _detalhes.popup:ShowMe (false) end
-	
+	BossFrame.buttonSwitchNormal.MouseOnLeaveHook = function() _detalhes.popup:ShowMe (false); t:SetBlendMode ("BLEND") end
+	--
 	BossFrame.buttonSwitchGraphic.MouseOnEnterHook = function() 
 		GameCooltip:Reset()
 		GameCooltip:AddLine (Loc ["STRING_FIGHT_GRAPHIC"])
 		GameCooltip:ShowCooltip (BossFrame.buttonSwitchGraphic, "tooltip")
+		g:SetBlendMode ("ADD")
 	end
-	BossFrame.buttonSwitchGraphic.MouseOnLeaveHook = function() _detalhes.popup:ShowMe (false) end	
+	BossFrame.buttonSwitchGraphic.MouseOnLeaveHook = function() _detalhes.popup:ShowMe (false); g:SetBlendMode ("BLEND") end	
+	--
+	BossFrame.buttonSwitchBossEmotes:SetHook ("OnEnter", function() 
+		GameCooltip:Reset()
+		GameCooltip:AddLine ("boss emotes")
+		GameCooltip:ShowCooltip (BossFrame.buttonSwitchBossEmotes, "tooltip")
+		e:SetBlendMode ("ADD")
+	end)
+	BossFrame.buttonSwitchBossEmotes:SetHook ("OnLeave", function() 
+		_detalhes.popup:ShowMe (false);
+		e:SetBlendMode ("BLEND") 
+	end)
+	
+	local emote_lines = {}
+	local emote_search_table = {}
+	
+	local refresh_emotes = function (self)
+		--update emote scroll
+		
+		local offset = FauxScrollFrame_GetOffset (self)
+		
+		--print (EncounterDetails.charsaved, EncounterDetails.charsaved.emotes, EncounterDetails.charsaved.emotes [1], #EncounterDetails.charsaved.emotes)
+		local emote_pool = EncounterDetails.charsaved.emotes [emote_segment]
+		
+		if (searching) then
+			local i = 0
+			local lower = string.lower
+			for index, data in ipairs (emote_pool) do
+				if (lower (data [2]):find (lower(searching))) then
+					i = i + 1
+					emote_search_table [i] = data
+				end
+				for o = #emote_search_table, i+1, -1 do
+					emote_search_table [o] = nil
+				end
+				emote_pool = emote_search_table
+			end
+			BossFrame.SearchResults:Show()
+			BossFrame.SearchResults:SetText ("Found " .. i .. " results")
+		else
+			BossFrame.SearchResults:Hide()
+		end
+		
+		if (emote_pool) then
+			for bar_index = 1, 16 do 
+				local data = emote_pool [bar_index + offset]
+				local bar = emote_lines [bar_index]
+				
+				if (data) then
+					bar:Show()
+					local min, sec = _math_floor (data[1] / 60), _math_floor (data[1] % 60)
+					bar.lefttext:SetText (min .. "m" .. sec .. "s:")
+					
+					if (data [2] == "") then
+						bar.righttext:SetText ("--x--x--")
+					else
+						bar.righttext:SetText (_cstr (data [2], data [3]))
+					end
+					
+					local color_string = EncounterDetails.BossWhispColors [data [4]]
+					local color_table = ChatTypeInfo [color_string]	
+					
+					bar.righttext:SetTextColor (color_table.r, color_table.g, color_table.b)
+					bar.icon:SetTexture ([[Interface\CHARACTERFRAME\UI-StateIcon]])
+					bar.icon:SetTexCoord (0, 0.5, 0.5, 1)
+				else
+					bar:Hide()
+				end
+			end
+			
+			FauxScrollFrame_Update (self, #emote_pool, 16, 15)
+		else
+			for bar_index = 1, 16 do 
+				local bar = emote_lines [bar_index]
+				bar:Hide()
+			end
+		end
+	end
+	BossFrame.EmoteWidgets = {}
+	
+	scrollframe = CreateFrame ("ScrollFrame", "EncounterDetails_EmoteScroll", BossFrame, "FauxScrollFrameTemplate")
+	scrollframe:SetScript ("OnVerticalScroll", function (self, offset) FauxScrollFrame_OnVerticalScroll (self, offset, 14, refresh_emotes) end)
+	scrollframe:SetPoint ("topleft", BossFrame, "topleft", 200, -75)
+	scrollframe:SetPoint ("bottomright", BossFrame, "bottomright", -33, 42)
+	--scrollframe:SetBackdrop({bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 16})	
+	--scrollframe:SetBackdropColor (1, 0, 0, 1)
+	scrollframe.Update = refresh_emotes
+	scrollframe:Hide()
+	--
+	tinsert (BossFrame.EmoteWidgets, scrollframe)
 
+	local row_on_enter = function (self)
+		self:SetBackdrop ({bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 16})
+		self:SetBackdropColor (1, 1, 1, .6)
+		if (self.righttext:IsTruncated()) then
+			GameCooltip:Reset()
+			GameCooltip:AddLine (self.righttext:GetText())
+			GameCooltip:SetOwner (self, "bottomleft", "topleft", 42, -9)
+			GameCooltip:Show()
+		end
+	end
+	local row_on_leave = function (self)
+		self:SetBackdrop ({bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 16})	
+		self:SetBackdropColor (1, 1, 1, .3)
+		GameCooltip:Hide()
+	end
+	
+	for i = 1, 16 do
+		local line = CreateFrame ("frame", nil, BossFrame)
+		local y = (i-1) * 15 * -1
+		line:SetPoint ("topleft", scrollframe, "topleft", 0, y)
+		line:SetPoint ("topright", scrollframe, "topright", 0, y)
+		line:SetHeight (14)
+		line:SetBackdrop ({bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 16})	
+		line:SetBackdropColor (1, 1, 1, .3)
+		
+		line.icon = line:CreateTexture (nil, "overlay")
+		line.icon:SetPoint ("left", line, "left", 2, 0)
+		line.icon:SetSize (14, 14)
+		
+		line.lefttext = line:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+		line.lefttext:SetPoint ("left", line.icon, "right", 2, 0)
+		line.lefttext:SetWidth (line:GetWidth() - 22)
+		line.lefttext:SetHeight (14)
+		line.lefttext:SetJustifyH ("left")
+		
+		line.righttext = line:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+		line.righttext:SetPoint ("left", line.icon, "right", 42, 0)
+		line.righttext:SetWidth (line:GetWidth() - 60)
+		line.righttext:SetHeight (14)
+		line.righttext:SetJustifyH ("left")
+		
+		line:SetFrameLevel (scrollframe:GetFrameLevel()+1)
+		
+		line:SetScript ("OnEnter", row_on_enter)
+		line:SetScript ("OnLeave", row_on_leave)
+		tinsert (emote_lines, line)
+		tinsert (BossFrame.EmoteWidgets, line)
+		line:Hide()
+	end
+	
+	--select emote segment
+	local emotes_segment_label = DetailsFrameWork:CreateLabel (BossFrame, "Emote Segment:", 11, nil, "GameFontHighlightSmall")
+	emotes_segment_label:SetPoint ("topleft", BossFrame, "topleft", 25, -85)
+	
+	local on_emote_Segment_select = function (_, _, segment)
+		FauxScrollFrame_SetOffset (scrollframe, 0)
+		emote_segment = segment
+		scrollframe:Update()
+	end
+	
+	local segment_icon = [[Interface\AddOns\Details\images\icons]]
+	local segment_icon_coord = {0.7373046875, 0.9912109375, 0.6416015625, 0.7978515625}
+	local segment_icon_color = {1, 1, 1, 0.5}
+	
+	local build_emote_segments = function()
+		local t = {}
+		if (not EncounterDetails.charsaved) then
+			return t
+		end
+		for index, segment in ipairs (EncounterDetails.charsaved.emotes) do
+			tinsert (t, {label = "#" .. index .. " "  .. (segment.boss or "unknown"), value = index, icon = segment_icon, texcoord = segment_icon_coord, onclick = on_emote_Segment_select, iconcolor = segment_icon_color})
+		end
+		return t
+	end
+	local dropdown = DetailsFrameWork:NewDropDown (BossFrame, _, "$parentEmotesSegmentDropdown", "EmotesSegment", 160, 20, build_emote_segments, 1)
+	dropdown:SetPoint ("topleft", emotes_segment_label, "bottomleft", -1, -2)
+	
+	tinsert (BossFrame.EmoteWidgets, dropdown)
+	tinsert (BossFrame.EmoteWidgets, emotes_segment_label)
+	
+	--search box
+	local emotes_search_label = DetailsFrameWork:CreateLabel (BossFrame, "Search:", 11, nil, "GameFontHighlightSmall")
+	emotes_search_label:SetPoint ("topleft", BossFrame, "topleft", 25, -130)
+	
+	local emotes_search_results_label = DetailsFrameWork:CreateLabel (BossFrame, "", 11, nil, "GameFontNormal", "SearchResults")
+	emotes_search_results_label:SetPoint ("topleft", BossFrame, "topleft", 25, -180)
+	--
+	local search = DetailsFrameWork:NewTextEntry (BossFrame, nil, "$parentEmoteSearchBox", nil, 160, 20)
+	search:SetPoint ("topleft",emotes_search_label, "bottomleft", -1, -2)
+	search:SetJustifyH ("left")
+	
+	search:SetHook ("OnTextChanged", function() 
+		searching = search:GetText()
+		if (searching == "") then
+			searching = nil
+			FauxScrollFrame_SetOffset (scrollframe, 0)
+			scrollframe:Update()
+		else
+			FauxScrollFrame_SetOffset (scrollframe, 0)
+			scrollframe:Update()
+		end
+	end)
+
+	local reset = DetailsFrameWork:NewButton (BossFrame, nil, "$parentResetSearchBoxtButton", "ResetSearchBox", 16, 16, function()
+		search:SetText ("")
+	end)
+	
+	reset:SetPoint ("left", search, "right", -1, 0)
+	reset:SetNormalTexture ([[Interface\Glues\LOGIN\Glues-CheckBox-Check]] or [[Interface\Buttons\UI-GroupLoot-Pass-Down]])
+	reset:SetHighlightTexture ([[Interface\Glues\LOGIN\Glues-CheckBox-Check]] or [[Interface\Buttons\UI-GROUPLOOT-PASS-HIGHLIGHT]])
+	reset:SetPushedTexture ([[Interface\Glues\LOGIN\Glues-CheckBox-Check]] or [[Interface\Buttons\UI-GroupLoot-Pass-Up]])
+	reset:GetNormalTexture():SetDesaturated (true)
+	reset.tooltip = "Reset Search"
+	
+	tinsert (BossFrame.EmoteWidgets, search)
+	tinsert (BossFrame.EmoteWidgets, reset)
+	tinsert (BossFrame.EmoteWidgets, emotes_search_label)
+	
+	for _, widget in pairs (BossFrame.EmoteWidgets) do
+		widget:Hide()
+	end
+	
+	--window title
 	DetailsFrameWork:NewLabel (BossFrame, BossFrame, nil, "titulo", Loc ["STRING_WINDOW_TITLE"], "GameFontHighlightLeft", 12, {227/255, 186/255, 4/255})
 	BossFrame.titulo:SetPoint ("center", BossFrame, "center")
 	BossFrame.titulo:SetPoint ("top", BossFrame, "top", 0, -18)
@@ -801,16 +1110,18 @@ Message: ..\AddOns\Details_EncounterDetails\frames.lua line 156:
 		end
 		
 		local segmentos_string = DetailsFrameWork:NewLabel (frame, nil, nil, "segmentosString", "Segment:", "GameFontNormal", 12)
-		segmentos_string:SetPoint ("bottomleft", frame, "bottomleft", 20, 17)
-		_detalhes:SetFontColor (segmentos_string, "white")
-		_detalhes:SetFontSize (segmentos_string, 10)
+		segmentos_string:SetPoint ("bottomleft", frame, "bottomleft", 20, 16)
+		--_detalhes:SetFontColor (segmentos_string, "white")
+		--_detalhes:SetFontSize (segmentos_string, 10)
 		
 		local segmentos = DetailsFrameWork:NewDropDown (frame, _, "$parentSegmentsDropdown", "segmentosDropdown", 160, 18, buildSegmentosMenu, nil)	
 		segmentos:SetPoint ("left", segmentos_string, "right", 2, 0)
 		
-		local options_button = DetailsFrameWork:NewButton (frame, _, "$parentOptionsButton", nil, 100, 18, EncounterDetails.OpenOptionsPanel, nil, nil, nil, "Options")
-		options_button:SetPoint ("left", segmentos, "right", 14, 0)
-		options_button.textalign = "<"
+	
+		local options = DetailsFrameWork:NewButton (frame, nil, "$parentOptionsButton", "OptionsButton", 86, 16, EncounterDetails.OpenOptionsPanel, nil, nil, nil, "Options")
+		options:SetPoint ("left", segmentos, "right", 7, -1)
+		options:SetTextColor (1, 0.93, 0.74)
+		options:SetIcon ([[Interface\Buttons\UI-OptionsButton]], 14, 14, nil, {0, 1, 0, 1}, nil, 3)
 	
 	--> Caixa do Dano total tomado pela Raid
 	
@@ -1359,5 +1670,35 @@ Message: ..\AddOns\Details_EncounterDetails\frames.lua line 156:
 					end)
 		frame.fechar:SetFrameLevel (frame:GetFrameLevel()+2)
 	
+	--emotes frame
+	local emote_frame = CreateFrame ("frame", "DetailsEncountersEmoteFrame", UIParent)
+	emote_frame:RegisterEvent ("CHAT_MSG_RAID_BOSS_EMOTE")
+	emote_frame:RegisterEvent ("CHAT_MSG_RAID_BOSS_WHISPER")
+	emote_frame:RegisterEvent ("CHAT_MSG_MONSTER_EMOTE")
+	emote_frame:RegisterEvent ("CHAT_MSG_MONSTER_SAY")
+	emote_frame:RegisterEvent ("CHAT_MSG_MONSTER_WHISPER")
+	emote_frame:RegisterEvent ("CHAT_MSG_MONSTER_PARTY")
+	emote_frame:RegisterEvent ("CHAT_MSG_MONSTER_YELL")
+	
+	local emote_table = {
+		["CHAT_MSG_RAID_BOSS_EMOTE"] = 1,
+		["CHAT_MSG_RAID_BOSS_WHISPER"] = 2,
+		["CHAT_MSG_MONSTER_EMOTE"] = 3,
+		["CHAT_MSG_MONSTER_SAY"] = 4,
+		["CHAT_MSG_MONSTER_WHISPER"] = 5,
+		["CHAT_MSG_MONSTER_PARTY"] = 6,
+		["CHAT_MSG_MONSTER_YELL"] = 7,
+	}
+	
+	emote_frame:SetScript ("OnEvent", function (...)
+		local combat = EncounterDetails:GetCombat ("current")
+		--local arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9 = ...
+		--print ("2 =", arg2, "3 =", arg3, "4 =",  arg4, "5 =",  arg5, "6 =",  arg6, "7 =",  arg7, "8 =",  arg8, "9 =",  arg9)
+		if (combat and EncounterDetails:IsInCombat() and EncounterDetails:GetZoneType() == "raid") then
+			local arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9 = ...
+			tinsert (EncounterDetails.current_whisper_table, {combat:GetCombatTime(), arg3, arg4, emote_table [arg2]})
+		end
+	end)
+
 end
 end

@@ -257,7 +257,7 @@ local DropDownMetaFunctions = {}
 	
 	function DropDownMetaFunctions:Enable()
 		
-		self:SetAlpha (.4)
+		self:SetAlpha (1)
 		return _rawset (self, "lockdown", false)
 		--return self.dropdown:Enable()
 	end
@@ -301,17 +301,19 @@ end
 
 function DropDownMetaFunctions:Refresh()
 	local menu = self.func()
+
 	if (#menu == 0) then
 		self:NoOption (true)
 		self.no_options = true
 		return false
+		
 	elseif (self.no_options) then
 		self.no_options = false
 		self:NoOption (false)
 		self:NoOptionSelected()
 		return true
 	end
-	
+
 	return true
 end
 
@@ -333,13 +335,14 @@ function DropDownMetaFunctions:NoOption (state)
 	if (state) then
 		self:Disable()
 		self:SetAlpha (0.5)
-		
+		self.no_options = true
 		self.label:SetText ("no options")
 		self.label:SetTextColor (1, 1, 1, 0.4)
 		self.icon:SetTexture ([[Interface\CHARACTERFRAME\UI-Player-PlayTimeUnhealthy]])
 		self.icon:SetTexCoord (0, 1, 0, 1)
 		self.icon:SetVertexColor (1, 1, 1, 0.4)		
 	else
+		self.no_options = false
 		self:Enable()
 		self:SetAlpha (1)
 	end

@@ -39,6 +39,7 @@ local CLASS_ICON_TCOORDS = _G.CLASS_ICON_TCOORDS
 
 EncounterDetails.name = "Encounter Details"
 
+
 local ability_type_table = {
 	[0x1] = "|cFF00FF00"..Loc ["STRING_HEAL"].."|r", 
 	[0x2] = "|cFF710000"..Loc ["STRING_LOWDPS"].."|r", 
@@ -90,7 +91,7 @@ local function CreatePluginFrames (data)
 		
 		--> when details finish his startup and are ready to work
 		elseif (event == "DETAILS_STARTED") then
-		
+
 			--> check if details are in combat, if not check if the last fight was a boss fight
 			if (not EncounterDetails:IsInCombat()) then
 				--> get the current combat table
@@ -149,6 +150,8 @@ local function CreatePluginFrames (data)
 				--EncounterDetails:HideIcon()
 				EncounterDetails:CloseWindow()
 			end
+			
+			EncounterDetails.current_whisper_table = {}
 		
 		elseif (event == "COMBAT_PLAYER_LEAVE") then
 			--> combat leave and enter always send current combat table
@@ -160,6 +163,16 @@ local function CreatePluginFrames (data)
 			end
 			if (EncounterDetails.db.show_icon == 5) then
 				EncounterDetails:AutoShowIcon()
+			end
+
+			local whisper_table = EncounterDetails.current_whisper_table
+			if (_combat_object.is_boss and _combat_object.is_boss.name) then
+				whisper_table.boss = _combat_object.is_boss.name
+				tinsert (EncounterDetails.boss_emotes_table, 1, whisper_table)
+				
+				if (#EncounterDetails.boss_emotes_table > EncounterDetails.db.max_emote_segments) then
+					table.remove (EncounterDetails.boss_emotes_table, EncounterDetails.db.max_emote_segments+1)
+				end
 			end
 			
 		elseif (event == "COMBAT_BOSS_FOUND") then
@@ -180,6 +193,8 @@ local function CreatePluginFrames (data)
 			
 			--drop last combat table
 			EncounterDetails.LastSegmentShown = nil
+			
+			--table.wipe (EncounterDetails.boss_emotes_table)
 	
 		elseif (event == "GROUP_ONENTER") then
 			if (EncounterDetails.db.show_icon == 2) then
@@ -716,6 +731,10 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 	
 	local frame = EncounterDetailsFrame --alias
 	local _combat_object = _combat_object
+	
+	if (not _combat_object) then
+		return
+	end
 	
 	if (segment) then
 		--get combat segment, 1 more recently ...25 oldest
@@ -1510,6 +1529,7 @@ function EncounterDetails:OnEvent (_, event, ...)
 				local default_settings = {
 					show_icon = 5, --automatic
 					hide_on_combat = false, --hide the window when a new combat start
+					max_emote_segments = 3,
 				}
 
 				--> Install
@@ -1531,6 +1551,11 @@ function EncounterDetails:OnEvent (_, event, ...)
 				
 				EncounterDetails.db = saveddata
 				
+				EncounterDetails.charsaved = EncounterDetailsDB or {emotes = {}}
+				EncounterDetailsDB = EncounterDetails.charsaved
+				
+				EncounterDetails.boss_emotes_table = EncounterDetails.charsaved.emotes
+				
 				--> Register needed events
 				_G._detalhes:RegisterEvent (EncounterDetails, "COMBAT_PLAYER_ENTER")
 				_G._detalhes:RegisterEvent (EncounterDetails, "COMBAT_PLAYER_LEAVE")
@@ -1541,6 +1566,16 @@ function EncounterDetails:OnEvent (_, event, ...)
 				_G._detalhes:RegisterEvent (EncounterDetails, "GROUP_ONLEAVE")
 				
 				_G._detalhes:RegisterEvent (EncounterDetails, "ZONE_TYPE_CHANGED")
+				
+				EncounterDetails.BossWhispColors = {
+					[1] = "RAID_BOSS_EMOTE",
+					[2] = "RAID_BOSS_WHISPER",
+					[3] = "MONSTER_EMOTE",
+					[4] = "MONSTER_SAY",
+					[5] = "MONSTER_WHISPER",
+					[6] = "MONSTER_PARTY",
+					[7] = "MONSTER_YELL",
+				}
 				
 			end
 		end

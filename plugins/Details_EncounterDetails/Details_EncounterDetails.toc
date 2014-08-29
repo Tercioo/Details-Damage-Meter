@@ -3,6 +3,8 @@
 ## Notes: Plugin for Details
 ## RequiredDeps: Details
 ## OptionalDeps: Ace3
+## SavedVariablesPerCharacter: EncounterDetailsDB
+
 
 #@no-lib-strip@
 embeds.xml
