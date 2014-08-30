@@ -247,3 +247,22 @@ local common_events = {
 			end
 		end
 	end
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> listeners
+
+	local listener_meta = setmetatable ({}, _detalhes)
+	listener_meta.__index = listener_meta
+	
+	function listener_meta:RegisterEvent (event, func)
+		return _detalhes:RegisterEvent (self, event, func)
+	end
+	function listener_meta:UnregisterEvent (event)
+		return _detalhes:UnregisterEvent (self, event)
+	end
+	
+	function _detalhes:CreateEventListener()
+		local new = {Enabled = true, __enabled = true}
+		setmetatable (new, listener_meta)
+		return new
+	end

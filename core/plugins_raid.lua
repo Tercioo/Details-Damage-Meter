@@ -12,8 +12,11 @@
 --> local pointers
 
 	local _math_floor = math.floor --lua local
+	local _cstr = string.format --lua local
 	
 	local gump = _detalhes.gump --details local
+	
+	local _GetSpellInfo = _detalhes.getspellinfo --details api
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> constants
@@ -220,3 +223,223 @@
 		end
 
 	end
+
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> built in announcers
+	
+	function _detalhes:SendMsgToChannel (msg, channel, towho)
+		if (channel == "RAID" or channel == "PARTY") then
+			if (GetNumGroupMembers (LE_PARTY_CATEGORY_INSTANCE) > 0) then
+				channel = "INSTANCE_CHAT"
+			end
+			SendChatMessage (msg, channel)
+			
+		elseif (channel == "BNET") then
+		
+			if (type (towho) == "number") then
+				BNSendWhisper (towho, msg)
+			
+			elseif (type (towho) == "string") then
+				local BnetFriends = BNGetNumFriends()
+				for i = 1, BnetFriends do 
+					local presenceID, presenceName, battleTag, isBattleTagPresence, toonName, toonID, client, isOnline, lastOnline, isAFK, isDND, messageText, noteText, isRIDFriend, broadcastTime, canSoR = BNGetFriendInfo (i)
+					if ((presenceName == towho or toonName == towho) and isOnline) then
+						BNSendWhisper (presenceID, msg)
+						break
+					end
+				end
+			end
+		
+		elseif (channel == "CHANNEL") then
+			SendChatMessage (msg, channel, nil, GetChannelName (towho))
+		
+		elseif (channel == "WHISPER") then
+			SendChatMessage (msg, channel, nil, towho)
+		
+		else
+			SendChatMessage (msg, channel)
+		
+		--elseif (channel == "SAY" or channel == "YELL" or channel == "RAID_WARNING" or channel == "OFFICER" or channel == "GUILD" or channel == "EMOTE") then
+		
+		end
+	end
+	
+	--/run local s="teste {spell}"; s=s:gsub("{spell}", "tercio");print(s)
+	
+	function _detalhes:interrupt_announcer (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, extraSpellID, extraSpellName, extraSchool)
+		if (who_name == _detalhes.playername) then -- and _detalhes.announce_interrupts.enabled
+			local channel = _detalhes.announce_interrupts.channel
+			local next = _detalhes.announce_interrupts.next
+			local custom = _detalhes.announce_interrupts.custom
+			
+			local spellname
+			if (spellid > 10) then
+				spellname = GetSpellLink (extraSpellID)
+			else
+				spellname = _GetSpellInfo (extraSpellID)
+			end
+
+			if (custom ~= "") then
+				custom = custom:gsub ("{spell}", spellname)
+				custom = custom:gsub ("{next}", next)
+				_detalhes:SendMsgToChannel (custom, channel, _detalhes.announce_interrupts.whisper)
+			else
+				local msg = _cstr (Loc ["STRING_OPTIONS_RT_INTERRUPT"], spellname)
+				if (next ~= "") then
+					msg = msg .. " " .. _cstr (Loc ["STRING_OPTIONS_RT_INTERRUPT_NEXT"], next)
+				end
+				
+				_detalhes:SendMsgToChannel (msg, channel, _detalhes.announce_interrupts.whisper)
+			end
+		end
+	end
+	
+	function _detalhes:cooldown_announcer (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname)
+		if (who_name == _detalhes.playername) then -- and _detalhes.announce_cooldowns.enabled
+			local ignored = _detalhes.announce_cooldowns.ignored_cooldowns
+			if (ignored [spellid]) then
+				return
+			end
+			
+			local channel = _detalhes.announce_cooldowns.channel
+			
+			if (channel == "WHISPER") then
+				if (alvo_name == _detalhes.playername) then
+					return
+				end
+				if (alvo_name == Loc ["STRING_RAID_WIDE"]) then
+					channel = "RAID"
+				end
+			end
+
+			local spellname
+			if (spellid > 10) then
+				spellname = GetSpellLink (spellid)
+			else
+				spellname = _GetSpellInfo (spellid)
+			end
+			
+			local custom = _detalhes.announce_cooldowns.custom
+			
+			if (custom ~= "") then
+				custom = custom:gsub ("{spell}", spellname)
+				custom = custom:gsub ("{target}", alvo_name)
+				_detalhes:SendMsgToChannel (custom, channel, _detalhes.announce_interrupts.whisper)
+			else
+				local msg
+				
+				if (alvo_name == Loc ["STRING_RAID_WIDE"]) then
+					msg = _cstr (Loc ["STRING_OPTIONS_RT_COOLDOWN2"], spellname)
+				else
+					msg = _cstr (Loc ["STRING_OPTIONS_RT_COOLDOWN1"], spellname, alvo_name)
+				end
+
+				_detalhes:SendMsgToChannel (msg, channel, _detalhes.announce_interrupts.whisper)
+			end
+		end
+	end
+	
+	function _detalhes:death_announcer (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, death_table, last_cooldown, death_at, max_health)
+		--if (_detalhes.announce_deaths.enabled) then
+			
+			local where = _detalhes.announce_deaths.where
+			local zone = _detalhes:GetZoneType()
+			local channel = ""
+			if (where == 1) then
+				if (zone ~= "party" and zone ~= "raid") then
+					return
+				end
+				if (zone == "raid") then
+					channel = "RAID"
+				end
+			elseif (where == 2) then
+				if (zone ~= "raid") then
+					return
+				end
+				channel = "RAID"
+			elseif (where == 3) then
+				if (zone ~= "party") then
+					return
+				end
+				channel = "PARTY"
+			end
+			
+			local only_first = _detalhes.announce_deaths.only_first
+			--_detalhes:GetCombat ("current"):GetDeaths() is the same thing, but, it's faster without using the API.
+			if (zone == "raid" and not _detalhes.tabela_vigente.is_boss) then
+				return
+			end
+			if (only_first > 0 and #_detalhes.tabela_vigente.last_events_tables > only_first) then
+				return
+			end
+			
+			alvo_name = _detalhes:GetOnlyName (alvo_name)
+			
+			local msg = _cstr (Loc ["STRING_OPTIONS_RT_DEATH_MSG"], alvo_name) .. ":"
+			local spells = ""
+			local last = #death_table
+			
+			for i = 1, _detalhes.announce_deaths.last_hits do
+				for o = last, 1, -1 do
+					local this_death = death_table [o]
+					if (type (this_death[1]) == "boolean" and this_death[1] and this_death[4]+5 > time) then
+						local spelllink
+						if (this_death [2] > 10) then
+							spelllink = GetSpellLink (this_death [2])
+						else
+							spelllink = "[" .. _GetSpellInfo (this_death [2]) .. "]"
+						end
+						spells = spelllink .. ": " .. _detalhes:ToK2 (_math_floor (this_death [3])) .. " " .. spells
+						last = o-1
+						break
+					end
+				end
+			end
+			
+			msg = msg .. " " .. spells
+			_detalhes:SendMsgToChannel (msg, channel)
+			--print (msg)
+		--end
+	end
+
+	function _detalhes:StartAnnouncers()
+		if (_detalhes.announce_interrupts.enabled) then
+			_detalhes:InstallHook (DETAILS_HOOK_INTERRUPT, _detalhes.interrupt_announcer)
+		end
+		if (_detalhes.announce_cooldowns.enabled) then
+			_detalhes:InstallHook (DETAILS_HOOK_COOLDOWN, _detalhes.cooldown_announcer)
+		end
+		if (_detalhes.announce_deaths.enabled) then
+			_detalhes:InstallHook (DETAILS_HOOK_DEATH, _detalhes.death_announcer)
+		end
+	end
+	
+	function _detalhes:EnableInterruptAnnouncer()
+		_detalhes.announce_interrupts.enabled = true
+		_detalhes:InstallHook (DETAILS_HOOK_INTERRUPT, _detalhes.interrupt_announcer)
+	end
+	function _detalhes:DisableInterruptAnnouncer()
+		_detalhes.announce_interrupts.enabled = false
+		_detalhes:UnInstallHook (DETAILS_HOOK_INTERRUPT, _detalhes.interrupt_announcer)
+	end
+	
+	function _detalhes:EnableCooldownAnnouncer()
+		_detalhes.announce_cooldowns.enabled = true
+		_detalhes:InstallHook (DETAILS_HOOK_COOLDOWN, _detalhes.cooldown_announcer)
+	end
+	function _detalhes:DisableCooldownAnnouncer()
+		_detalhes.announce_cooldowns.enabled = false
+		_detalhes:UnInstallHook (DETAILS_HOOK_COOLDOWN, _detalhes.cooldown_announcer)
+	end
+	
+	function _detalhes:EnableDeathAnnouncer()
+		_detalhes.announce_deaths.enabled = true
+		_detalhes:InstallHook (DETAILS_HOOK_DEATH, _detalhes.death_announcer)
+	end
+	function _detalhes:DisableDeathAnnouncer()
+		_detalhes.announce_deaths.enabled = false
+		_detalhes:UnInstallHook (DETAILS_HOOK_DEATH, _detalhes.death_announcer)
+	end
+	
+	

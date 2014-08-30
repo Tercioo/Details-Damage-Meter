@@ -11,7 +11,7 @@
 	8 - right menu
 	9 - wallpaper
 	10 - performance teaks
-	11 - captures
+	11 - raid tools
 	12 - plugins
 	13 - profiles
 	14 - attribute text
@@ -344,7 +344,7 @@ local menus = { --labels nos menus
 	Loc ["STRING_OPTIONSMENU_WINDOW"], Loc ["STRING_OPTIONSMENU_TITLETEXT"], Loc ["STRING_OPTIONSMENU_LEFTMENU"], Loc ["STRING_OPTIONSMENU_RIGHTMENU"], 
 	Loc ["STRING_OPTIONSMENU_WALLPAPER"], Loc ["STRING_OPTIONSMENU_MISC"]},
 	
-	{Loc ["STRING_OPTIONSMENU_DATACOLLECT"], Loc ["STRING_OPTIONSMENU_PERFORMANCE"], Loc ["STRING_OPTIONSMENU_PLUGINS"], Loc ["STRING_OPTIONSMENU_SPELLS"], 
+	{Loc ["STRING_OPTIONSMENU_RAIDTOOLS"], Loc ["STRING_OPTIONSMENU_PERFORMANCE"], Loc ["STRING_OPTIONSMENU_PLUGINS"], Loc ["STRING_OPTIONSMENU_SPELLS"], 
 	Loc ["STRING_OPTIONSMENU_DATACHART"]}
 }
 
@@ -359,7 +359,7 @@ local menus = { --labels nos menus
 		Loc ["STRING_OPTIONSMENU_RIGHTMENU"], --8
 		Loc ["STRING_OPTIONSMENU_WALLPAPER"], --9
 		Loc ["STRING_OPTIONSMENU_PERFORMANCE"],--10
-		Loc ["STRING_OPTIONSMENU_DATACOLLECT"], --11
+		Loc ["STRING_OPTIONSMENU_RAIDTOOLS"], --11
 		Loc ["STRING_OPTIONSMENU_PLUGINS"],--12
 		Loc ["STRING_OPTIONSMENU_PROFILES"], --13
 		Loc ["STRING_OPTIONSMENU_TITLETEXT"], --14
@@ -6950,12 +6950,390 @@ function window:CreateFrame11()
 
 	local frame11 = window.options [11][1]
 
-	local label = g:NewLabel (frame11, _, "$parentMovedWarningLabel", "MovedWarningLabel", "This sectiong has been moved to Combat, under General Settings bracket.", "GameFontNormal")
-	local image = g:NewImage (frame11, [[Interface\DialogFrame\UI-Dialog-Icon-AlertNew]])
+	--> title
+		local titulo1 = g:NewLabel (frame11, _, "$parentTituloRaidTools", "RaidToolsLabel", Loc ["STRING_OPTIONS_RT_TITLE"], "GameFontNormal", 16)
+		local titulo1_desc = g:NewLabel (frame11, _, "$parentTituloRaidToolsDesc", "RaidToolsDescLabel", Loc ["STRING_OPTIONS_RT_TITLE_DESC"], "GameFontNormal", 9, "white")
+		titulo1_desc.width = 320
 	
-	label:SetPoint ("center", frame11, "center", 32, 0)
-	image:SetPoint ("right", label, "left", -7, 0)
+		local text_entry_size = 140
 	
+	--announcers anchor
+		g:NewLabel (frame11, _, "$parentAnnouncersAnchor", "AnnouncersAnchor", Loc ["STRING_OPTIONS_RT_ANNOUNCEMENTS"], "GameFontNormal")
+	
+	--interrupts
+		--enable
+		g:NewLabel (frame11, _, "$parentEnableInterruptsLabel", "EnableInterruptsLabel", Loc ["STRING_OPTIONS_RT_INTERRUPTS_ONOFF"], "GameFontHighlightLeft")
+		g:NewSwitch (frame11, _, "$parentEnableInterruptsSlider", "EnableInterruptsSlider", 60, 20, _, _, _detalhes.announce_interrupts.enabled)
+
+		frame11.EnableInterruptsSlider:SetPoint ("left", frame11.EnableInterruptsLabel, "right", 2)
+		frame11.EnableInterruptsSlider.OnSwitch = function (_, _, value)
+			if (value) then
+				_detalhes:EnableInterruptAnnouncer()
+			else
+				_detalhes:DisableInterruptAnnouncer()
+			end
+		end
+		
+		window:CreateLineBackground2 (frame11, "EnableInterruptsSlider", "EnableInterruptsLabel", Loc ["STRING_OPTIONS_RT_INTERRUPTS_ONOFF_DESC"])
+		
+		--whisper target
+		g:NewLabel (frame11, _, "$parentInterruptsWhisperLabel", "InterruptsWhisperLabel", Loc ["STRING_OPTIONS_RT_INTERRUPTS_WHISPER"], "GameFontHighlightLeft")
+		g:NewTextEntry (frame11, _, "$parentInterruptsWhisperEntry", "InterruptsWhisperEntry", text_entry_size, 20)
+		frame11.InterruptsWhisperEntry:SetPoint ("left", frame11.InterruptsWhisperLabel, "right", 2, -1)
+		frame11.InterruptsWhisperEntry:SetText (_detalhes.announce_interrupts.whisper)
+		
+		frame11.InterruptsWhisperEntry:SetHook ("OnTextChanged", function (self, byUser)
+			if (byUser) then
+				_detalhes.announce_interrupts.whisper = self:GetText()
+			end
+		end)
+		
+		if (_detalhes.announce_interrupts.channel ~= "WHISPER") then
+			frame11.InterruptsWhisperEntry:Disable()
+			frame11.InterruptsWhisperLabel:SetTextColor (1, 1, 1, .4)
+		end
+		
+		--channel
+		local on_select_channel = function (self, _, channel)
+			_detalhes.announce_interrupts.channel = channel
+			if (channel == "WHISPER") then
+				frame11.InterruptsWhisperEntry:Enable()
+				frame11.InterruptsWhisperLabel:SetTextColor (1, 1, 1, 1)
+			else
+				frame11.InterruptsWhisperEntry:Disable()
+				frame11.InterruptsWhisperLabel:SetTextColor (1, 1, 1, .4)
+			end
+		end
+		
+		local channel_list = {
+			{value = "SAY", icon = [[Interface\FriendsFrame\UI-Toast-ToastIcons]], iconsize = {14, 14}, texcoord = {0.0390625, 0.203125, 0.09375, 0.375}, label = Loc ["STRING_CHANNEL_SAY"], onclick = on_select_channel},
+			{value = "YELL", icon = [[Interface\FriendsFrame\UI-Toast-ToastIcons]], iconsize = {14, 14}, texcoord = {0.0390625, 0.203125, 0.09375, 0.375}, iconcolor = {1, 0.3, 0, 1}, label = Loc ["STRING_CHANNEL_YELL"], onclick = on_select_channel},
+			{value = "RAID", icon = [[Interface\FriendsFrame\UI-Toast-ToastIcons]], iconcolor = {1, 0.49, 0}, iconsize = {14, 14}, texcoord = {0.53125, 0.7265625, 0.078125, 0.40625}, label = Loc ["STRING_CHANNEL_RAID"], onclick = on_select_channel},
+			{value = "WHISPER", icon = [[Interface\FriendsFrame\UI-Toast-ToastIcons]], iconcolor = {1, 0.49, 1}, iconsize = {14, 14}, texcoord = {0.0546875, 0.1953125, 0.625, 0.890625}, label = Loc ["STRING_CHANNEL_WHISPER"], onclick = on_select_channel},
+		}
+		local build_channel_menu = function() 
+			return channel_list
+		end
+
+		g:NewLabel (frame11, _, "$parentInterruptsChannelLabel", "InterruptsChannelLabel", Loc ["STRING_OPTIONS_RT_INTERRUPTS_CHANNEL"] , "GameFontHighlightLeft")
+		local d = g:NewDropDown (frame11, _, "$parentInterruptsChannelDropdown", "InterruptsChannelDropdown", DROPDOWN_WIDTH, 20, build_channel_menu, _detalhes.announce_interrupts.channel)
+		d.onenter_backdrop = dropdown_backdrop_onenter
+		d.onleave_backdrop = dropdown_backdrop_onleave
+		d:SetBackdrop (dropdown_backdrop)
+		d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+		
+		frame11.InterruptsChannelDropdown:SetPoint ("left", frame11.InterruptsChannelLabel, "right", 2)
+		window:CreateLineBackground2 (frame11, "InterruptsChannelDropdown", "InterruptsChannelLabel", Loc ["STRING_OPTIONS_RT_INTERRUPTS_CHANNEL_DESC"])
+
+		--campo para digitar o nome do proximo
+		g:NewLabel (frame11, _, "$parentInterruptsNextLabel", "InterruptsNextLabel", Loc ["STRING_OPTIONS_RT_INTERRUPTS_NEXT"], "GameFontHighlightLeft")
+		g:NewTextEntry (frame11, _, "$parentInterruptsNextEntry", "InterruptsNextEntry", text_entry_size, 20)
+		frame11.InterruptsNextEntry:SetPoint ("left", frame11.InterruptsNextLabel, "right", 2, -1)
+		frame11.InterruptsNextEntry:SetText (_detalhes.announce_interrupts.next)
+		
+		frame11.InterruptsNextEntry:SetHook ("OnTextChanged", function (self, byUser)
+			_detalhes.announce_interrupts.next = self:GetText()
+		end)
+		window:CreateLineBackground2 (frame11, "InterruptsNextEntry", "InterruptsNextLabel", Loc ["STRING_OPTIONS_RT_INTERRUPTS_NEXT_DESC"])
+		
+		local reset_next = g:NewButton (frame11.InterruptsNextEntry, _, "$parentResetNextPlayerButton", "ResetNextPlayerButton", 16, 16, function()
+			frame11.InterruptsNextEntry.text = ""
+			frame11.InterruptsNextEntry:PressEnter()
+		end)
+		reset_next:SetPoint ("left", frame11.InterruptsNextEntry, "right", 0, 0)
+		reset_next:SetNormalTexture ([[Interface\Glues\LOGIN\Glues-CheckBox-Check]] or [[Interface\Buttons\UI-GroupLoot-Pass-Down]])
+		reset_next:SetHighlightTexture ([[Interface\Glues\LOGIN\Glues-CheckBox-Check]] or [[Interface\Buttons\UI-GROUPLOOT-PASS-HIGHLIGHT]])
+		reset_next:SetPushedTexture ([[Interface\Glues\LOGIN\Glues-CheckBox-Check]] or [[Interface\Buttons\UI-GroupLoot-Pass-Up]])
+		reset_next:GetNormalTexture():SetDesaturated (true)
+		reset_next.tooltip = "Reset to Default"
+		
+		--campo para digitar a fala customizada
+		g:NewLabel (frame11, _, "$parentInterruptsCustomLabel", "InterruptsCustomLabel", Loc ["STRING_OPTIONS_RT_INTERRUPTS_CUSTOM"], "GameFontHighlightLeft")
+		g:NewTextEntry (frame11, _, "$parentInterruptsCustomEntry", "InterruptsCustomEntry", text_entry_size, 20)
+		frame11.InterruptsCustomEntry:SetPoint ("left", frame11.InterruptsCustomLabel, "right", 2, -1)
+		frame11.InterruptsCustomEntry:SetText (_detalhes.announce_interrupts.custom)
+		
+		frame11.InterruptsCustomEntry:SetHook ("OnTextChanged", function (self, byUser)
+			_detalhes.announce_interrupts.custom = self:GetText()
+		end)
+		window:CreateLineBackground2 (frame11, "InterruptsCustomEntry", "InterruptsCustomLabel", Loc ["STRING_OPTIONS_RT_INTERRUPTS_CUSTOM_DESC"])
+		
+		local reset_custom = g:NewButton (frame11.InterruptsCustomEntry, _, "$parentResetCustomPhraseButton", "ResetCustomPhraseButton", 16, 16, function()
+			frame11.InterruptsCustomEntry.text = ""
+			frame11.InterruptsCustomEntry:PressEnter()
+		end)
+		reset_custom:SetPoint ("left", frame11.InterruptsCustomEntry, "right", 0, 0)
+		reset_custom:SetNormalTexture ([[Interface\Glues\LOGIN\Glues-CheckBox-Check]] or [[Interface\Buttons\UI-GroupLoot-Pass-Down]])
+		reset_custom:SetHighlightTexture ([[Interface\Glues\LOGIN\Glues-CheckBox-Check]] or [[Interface\Buttons\UI-GROUPLOOT-PASS-HIGHLIGHT]])
+		reset_custom:SetPushedTexture ([[Interface\Glues\LOGIN\Glues-CheckBox-Check]] or [[Interface\Buttons\UI-GroupLoot-Pass-Up]])
+		reset_custom:GetNormalTexture():SetDesaturated (true)
+		reset_custom.tooltip = "Reset to Default"
+		
+	--cooldowns
+	
+		g:NewLabel (frame11, _, "$parentEnableCooldownsLabel", "EnableCooldownsLabel", Loc ["STRING_OPTIONS_RT_COOLDOWNS_ONOFF"], "GameFontHighlightLeft")
+		g:NewSwitch (frame11, _, "$parentEnableCooldownsSlider", "EnableCooldownsSlider", 60, 20, _, _, _detalhes.announce_cooldowns.enabled)
+
+		frame11.EnableCooldownsSlider:SetPoint ("left", frame11.EnableCooldownsLabel, "right", 2)
+		frame11.EnableCooldownsSlider.OnSwitch = function (_, _, value)
+			if (value) then
+				_detalhes:EnableCooldownAnnouncer()
+			else
+				_detalhes:DisableCooldownAnnouncer()
+			end
+		end
+		
+		window:CreateLineBackground2 (frame11, "EnableCooldownsSlider", "EnableCooldownsLabel", Loc ["STRING_OPTIONS_RT_COOLDOWNS_ONOFF_DESC"])
+		
+		--dropdown para escolher o canal
+		local on_select_channel = function (self, _, channel)
+			_detalhes.announce_cooldowns.channel = channel
+		end
+		
+		local channel_list = {
+			{value = "SAY", icon = [[Interface\FriendsFrame\UI-Toast-ToastIcons]], iconsize = {14, 14}, texcoord = {0.0390625, 0.203125, 0.09375, 0.375}, label = Loc ["STRING_CHANNEL_SAY"], onclick = on_select_channel},
+			{value = "YELL", icon = [[Interface\FriendsFrame\UI-Toast-ToastIcons]], iconsize = {14, 14}, texcoord = {0.0390625, 0.203125, 0.09375, 0.375}, iconcolor = {1, 0.3, 0, 1}, label = Loc ["STRING_CHANNEL_YELL"], onclick = on_select_channel},
+			{value = "RAID", icon = [[Interface\FriendsFrame\UI-Toast-ToastIcons]], iconcolor = {1, 0.49, 0}, iconsize = {14, 14}, texcoord = {0.53125, 0.7265625, 0.078125, 0.40625}, label = Loc ["STRING_CHANNEL_RAID"], onclick = on_select_channel},
+			{value = "WHISPER", icon = [[Interface\FriendsFrame\UI-Toast-ToastIcons]], iconcolor = {1, 0.49, 1}, iconsize = {14, 14}, texcoord = {0.0546875, 0.1953125, 0.625, 0.890625}, label = Loc ["STRING_CHANNEL_WHISPER_TARGET_COOLDOWN"], onclick = on_select_channel},
+		}
+		local build_channel_menu = function() 
+			return channel_list
+		end
+
+		g:NewLabel (frame11, _, "$parentCooldownChannelLabel", "CooldownChannelLabel", Loc ["STRING_OPTIONS_RT_COOLDOWNS_CHANNEL"] , "GameFontHighlightLeft")
+		local d = g:NewDropDown (frame11, _, "$parentCooldownChannelDropdown", "CooldownChannelDropdown", DROPDOWN_WIDTH, 20, build_channel_menu, _detalhes.announce_cooldowns.channel)
+		d.onenter_backdrop = dropdown_backdrop_onenter
+		d.onleave_backdrop = dropdown_backdrop_onleave
+		d:SetBackdrop (dropdown_backdrop)
+		d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+		
+		frame11.CooldownChannelDropdown:SetPoint ("left", frame11.CooldownChannelLabel, "right", 2)
+		window:CreateLineBackground2 (frame11, "CooldownChannelDropdown", "CooldownChannelLabel", Loc ["STRING_OPTIONS_RT_COOLDOWNS_CHANNEL_DESC"])
+		
+		--campo para digitar a frase customizada
+		g:NewLabel (frame11, _, "$parentCooldownCustomLabel", "CooldownCustomLabel", Loc ["STRING_OPTIONS_RT_COOLDOWNS_CUSTOM"], "GameFontHighlightLeft")
+		g:NewTextEntry (frame11, _, "$parentCooldownCustomEntry", "CooldownCustomEntry", text_entry_size, 20)
+		frame11.CooldownCustomEntry:SetPoint ("left", frame11.CooldownCustomLabel, "right", 2, -1)
+		frame11.CooldownCustomEntry:SetText (_detalhes.announce_cooldowns.custom)
+		
+		frame11.CooldownCustomEntry:SetHook ("OnTextChanged", function (self, byUser)
+			_detalhes.announce_cooldowns.custom = self:GetText()
+		end)
+		window:CreateLineBackground2 (frame11, "CooldownCustomEntry", "CooldownCustomLabel", Loc ["STRING_OPTIONS_RT_COOLDOWNS_CUSTOM_DESC"])
+		
+		local reset_custom = g:NewButton (frame11.CooldownCustomEntry, _, "$parentResetCooldownCustomPhraseButton", "ResetCooldownCustomPhraseButton", 16, 16, function()
+			frame11.CooldownCustomEntry.text = ""
+			frame11.CooldownCustomEntry:PressEnter()
+		end)
+		reset_custom:SetPoint ("left", frame11.CooldownCustomEntry, "right", 0, 0)
+		reset_custom:SetNormalTexture ([[Interface\Glues\LOGIN\Glues-CheckBox-Check]] or [[Interface\Buttons\UI-GroupLoot-Pass-Down]])
+		reset_custom:SetHighlightTexture ([[Interface\Glues\LOGIN\Glues-CheckBox-Check]] or [[Interface\Buttons\UI-GROUPLOOT-PASS-HIGHLIGHT]])
+		reset_custom:SetPushedTexture ([[Interface\Glues\LOGIN\Glues-CheckBox-Check]] or [[Interface\Buttons\UI-GroupLoot-Pass-Up]])
+		reset_custom:GetNormalTexture():SetDesaturated (true)
+		reset_custom.tooltip = "Reset to Default"
+	
+		--esquema para ativar ou desativar certos cooldowns
+			--botão que abre um gump estilo welcome, com as spells pegas na lista de cooldowns
+		
+		g:NewButton (frame11, _, "$parentCooldownIgnoreButton", "CooldownIgnoreButton", 140, 16, function()
+			if (not DetailsAnnounceSelectCooldownIgnored) then
+				DetailsAnnounceSelectCooldownIgnored = CreateFrame ("frame", "DetailsAnnounceSelectCooldownIgnored", UIParent)
+				local f = DetailsAnnounceSelectCooldownIgnored
+				f:SetSize (250, 400)
+				f:SetPoint ("center", UIParent, "center", 0, 0)
+				local bg = f:CreateTexture (nil, "background")
+				bg:SetAllPoints (f)
+				bg:SetTexture ([[Interface\AddOns\Details\images\welcome]])
+				f:SetFrameStrata ("FULLSCREEN")
+				local close = CreateFrame ("button", "DetailsAnnounceSelectCooldownIgnoredClose", f, "UIPanelCloseButton")
+				close:SetSize (32, 32)
+				close:SetPoint ("topright", f, "topright", 0, -12)
+				f:EnableMouse()
+				f:SetMovable (true)
+				f:SetScript ("OnMouseDown", function (self, button)
+					if (button == "RightButton") then
+						if (f.IsMoving) then
+							f.IsMoving = false
+							f:StopMovingOrSizing()
+						end
+						f:Hide()
+						return
+					end
+					
+					f.IsMoving = true
+					f:StartMoving()
+				end)
+				f:SetScript ("OnMouseUp", function (self, button)
+					if (f.IsMoving) then
+						f.IsMoving = false
+						f:StopMovingOrSizing()
+					end
+				end)
+				f.title = g:CreateLabel (f, Loc ["STRING_OPTIONS_RT_IGNORE_TITLE"], 12, nil, "GameFontNormal")
+				f.title:SetPoint ("top", f, "top", 0, -22)
+				
+				f.labels = {}
+				
+				local on_switch_func = function (self, spellid, value)
+					if (not value) then
+						_detalhes.announce_cooldowns.ignored_cooldowns [spellid] = nil
+					else
+						_detalhes.announce_cooldowns.ignored_cooldowns [spellid] = true
+					end
+				end
+				
+				f:SetScript ("OnHide", function (self)
+					self:Clear()
+				end)
+				
+				function f:Clear()
+					for _, label in ipairs (self.labels) do
+						label.icon:Hide()
+						label.text:Hide()
+						label.switch:Hide()
+					end
+				end
+				
+				function f:CreateLabel()
+					local L = {
+						icon = g:CreateImage (f, nil, 16, 16, "overlay", {0.1, 0.9, 0.1, 0.9}),
+						text = g:CreateLabel (f, "", 10, "white", "GameFontHighlightSmall"),
+						switch = g:CreateSwitch (f, on_switch_func, false)
+					}
+					L.icon:SetPoint ("topleft", f, "topleft", 10, ((#f.labels*20)*-1)-55)
+					L.text:SetPoint ("left", L.icon, "right", 2, 0)
+					L.switch:SetPoint ("left", L.text, "right", 2, 0)
+					tinsert (f.labels, L)
+					return L
+				end
+				
+				function f:Open()
+					local _GetSpellInfo = _detalhes.getspellinfo --details api
+					
+					for index, spellid in ipairs (_detalhes:GetCooldownList()) do
+						local label = f.labels [index] or f:CreateLabel()
+						local name, _, icon = _GetSpellInfo (spellid)
+						label.icon.texture = icon
+						label.text.text = name .. ":"
+						label.switch:SetFixedParameter (spellid)
+						label.switch:SetValue (_detalhes.announce_cooldowns.ignored_cooldowns [spellid])
+						label.icon:Show()
+						label.text:Show()
+						label.switch:Show()
+					end
+					
+					f:Show()
+				end
+				
+			end
+			
+			DetailsAnnounceSelectCooldownIgnored:Open()
+			
+		end, nil, nil, nil, Loc ["STRING_OPTIONS_RT_COOLDOWNS_SELECT"], 1)
+		
+		frame11.CooldownIgnoreButton:InstallCustomTexture()
+		window:CreateLineBackground2 (frame11, "CooldownIgnoreButton", "CooldownIgnoreButton", Loc ["STRING_OPTIONS_RT_COOLDOWNS_SELECT_DESC"], nil, {1, 0.8, 0}, button_color_rgb)
+		
+		frame11.CooldownIgnoreButton:SetIcon ([[Interface\COMMON\UI-DropDownRadioChecks]], nil, nil, nil, {0, 0.5, 0, 0.5})
+		frame11.CooldownIgnoreButton:SetTextColor (button_color_rgb)
+	
+	--deaths
+
+		g:NewLabel (frame11, _, "$parentEnableDeathsLabel", "EnableDeathsLabel", Loc ["STRING_OPTIONS_RT_DEATHS_ONOFF"], "GameFontHighlightLeft")
+		g:NewSwitch (frame11, _, "$parentEnableDeathsSlider", "EnableDeathsSlider", 60, 20, _, _, _detalhes.announce_deaths.enabled)
+
+		frame11.EnableDeathsSlider:SetPoint ("left", frame11.EnableDeathsLabel, "right", 2)
+		frame11.EnableDeathsSlider.OnSwitch = function (_, _, value)
+			if (value) then
+				_detalhes:EnableDeathAnnouncer()
+			else
+				_detalhes:DisableDeathAnnouncer()
+			end
+		end
+		
+		window:CreateLineBackground2 (frame11, "EnableDeathsSlider", "EnableDeathsLabel", Loc ["STRING_OPTIONS_RT_DEATHS_ONOFF_DESC"])
+		
+		--slider para quantidade de danos a mostrar
+		g:NewLabel (frame11, _, "$parentDeathsDamageLabel", "DeathsDamageLabel", Loc ["STRING_OPTIONS_RT_DEATHS_HITS"], "GameFontHighlightLeft")
+		local s = g:NewSlider (frame11, _, "$parentDeathsDamageSlider", "DeathsDamageSlider", SLIDER_WIDTH, 20, 1, 3, 1, _detalhes.announce_deaths.last_hits)
+		s:SetBackdrop (slider_backdrop)
+		s:SetBackdropColor (unpack (slider_backdrop_color))
+		s:SetThumbSize (50)
+	
+		frame11.DeathsDamageSlider:SetPoint ("left", frame11.DeathsDamageLabel, "right", 2)
+		frame11.DeathsDamageSlider:SetHook ("OnValueChange", function (self, _, amount)
+			_detalhes.announce_deaths.last_hits = amount
+		end)
+		window:CreateLineBackground2 (frame11, "DeathsDamageSlider", "DeathsDamageLabel", Loc ["STRING_OPTIONS_RT_DEATHS_HITS_DESC"])
+		
+		--slider para limite de mortes para reportar
+		g:NewLabel (frame11, _, "$parentDeathsAmountLabel", "DeathsAmountLabel", Loc ["STRING_OPTIONS_RT_DEATHS_FIRST"], "GameFontHighlightLeft")
+		local s = g:NewSlider (frame11, _, "$parentDeathsAmountSlider", "DeathsAmountSlider", SLIDER_WIDTH, 20, 1, 30, 1, _detalhes.announce_deaths.only_first)
+		s:SetBackdrop (slider_backdrop)
+		s:SetBackdropColor (unpack (slider_backdrop_color))
+		s:SetThumbSize (50)
+	
+		frame11.DeathsAmountSlider:SetPoint ("left", frame11.DeathsAmountLabel, "right", 2)
+		frame11.DeathsAmountSlider:SetHook ("OnValueChange", function (self, _, amount)
+			_detalhes.announce_deaths.only_first = amount
+		end)
+		window:CreateLineBackground2 (frame11, "DeathsAmountSlider", "DeathsAmountLabel", Loc ["STRING_OPTIONS_RT_DEATHS_FIRST_DESC"])
+		
+		--dropdown para WHERE onde anunciar se só em raid e party
+		local on_select_channel = function (self, _, channel)
+			_detalhes.announce_deaths.channel = channel
+		end
+		
+		local channel_list = {
+			{value = 1, icon = [[Interface\FriendsFrame\UI-Toast-ToastIcons]], iconcolor = {1, 0, 1}, iconsize = {14, 14}, texcoord = {0.53125, 0.7265625, 0.078125, 0.40625}, label = Loc ["STRING_OPTIONS_RT_DEATHS_WHERE1"], onclick = on_select_channel},
+			{value = 2, icon = [[Interface\FriendsFrame\UI-Toast-ToastIcons]], iconcolor = {1, 0.49, 0}, iconsize = {14, 14}, texcoord = {0.53125, 0.7265625, 0.078125, 0.40625}, label = Loc ["STRING_OPTIONS_RT_DEATHS_WHERE2"], onclick = on_select_channel},
+			{value = 3, icon = [[Interface\FriendsFrame\UI-Toast-ToastIcons]], iconcolor = {0.66, 0.65, 1}, iconsize = {14, 14}, texcoord = {0.53125, 0.7265625, 0.078125, 0.40625}, label = Loc ["STRING_OPTIONS_RT_DEATHS_WHERE3"], onclick = on_select_channel},
+		}
+		local build_channel_menu = function() 
+			return channel_list
+		end
+
+		g:NewLabel (frame11, _, "$parentDeathChannelLabel", "DeathChannelLabel", Loc ["STRING_OPTIONS_RT_DEATHS_WHERE"] , "GameFontHighlightLeft")
+		local d = g:NewDropDown (frame11, _, "$parentDeathChannelDropdown", "DeathChannelDropdown", DROPDOWN_WIDTH, 20, build_channel_menu, _detalhes.announce_deaths.channel)
+		d.onenter_backdrop = dropdown_backdrop_onenter
+		d.onleave_backdrop = dropdown_backdrop_onleave
+		d:SetBackdrop (dropdown_backdrop)
+		d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+		
+		frame11.DeathChannelDropdown:SetPoint ("left", frame11.DeathChannelLabel, "right", 2)
+		window:CreateLineBackground2 (frame11, "DeathChannelDropdown", "DeathChannelLabel", Loc ["STRING_OPTIONS_RT_DEATHS_WHERE_DESC"])
+
+	--> anchors
+		local x = window.left_start_at
+		
+		titulo1:SetPoint (x, -30)
+		titulo1_desc:SetPoint (x, -50)
+		
+		local left_side = {
+			{"AnnouncersAnchor", 1, true},
+			{"EnableInterruptsLabel", 2},
+			{"InterruptsChannelLabel", 3},
+			{"InterruptsWhisperLabel", 4},
+			{"InterruptsNextLabel", 5},
+			{"InterruptsCustomLabel", 6},
+			{"EnableCooldownsLabel", 7, true},
+			{"CooldownChannelLabel", 8},
+			{"CooldownCustomLabel", 9},
+			{"CooldownIgnoreButton", 10},
+			{"EnableDeathsLabel", 11, true},
+			{"DeathChannelLabel", 12},
+			{"DeathsDamageLabel", 13},
+			{"DeathsAmountLabel", 14},
+			
+		}
+		
+		window:arrange_menu (frame11, left_side, window.left_start_at, -90)
+		
+		local right_side = {
+			{"AnnouncersAnchor", 1, true},
+		}
+		
+		--window:arrange_menu (frame11, right_side, window.right_start_at, -90)
 	
 end
 

@@ -112,13 +112,15 @@
 		local _hook_cooldowns = false
 		local _hook_deaths = false
 		local _hook_battleress = false
-		local _hook_buffs = false --[[REMOVED]]
+		local _hook_interrupt = false
+		
 		local _hook_cooldowns_container = _detalhes.hooks ["HOOK_COOLDOWN"]
 		local _hook_deaths_container = _detalhes.hooks ["HOOK_DEATH"]
 		local _hook_battleress_container = _detalhes.hooks ["HOOK_BATTLERESS"]
-		local _hook_buffs_container = _detalhes.hooks ["HOOK_BUFF"] --[[REMOVED]]
-	
+		local _hook_interrupt_container = _detalhes.hooks ["HOOK_INTERRUPT"]
 
+		local _hook_buffs = false --[[REMOVED]]
+		local _hook_buffs_container = _detalhes.hooks ["HOOK_BUFF"] --[[REMOVED]]
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> internal functions
@@ -1714,6 +1716,20 @@
 			else
 				meu_dono.interrompeu_oque [extraSpellID] = meu_dono.interrompeu_oque [extraSpellID] + 1
 			end
+			
+			--> pet interrupt
+			if (_hook_interrupt) then
+				for _, func in _ipairs (_hook_interrupt_container) do 
+					func (nil, token, time, meu_dono.serial, meu_dono.nome, meu_dono.flag_original, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, extraSpellID, extraSpellName, extraSchool)
+				end
+			end
+		else
+			--> player interrupt
+			if (_hook_interrupt) then
+				for _, func in _ipairs (_hook_interrupt_container) do 
+					func (nil, token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, extraSpellID, extraSpellName, extraSchool)
+				end
+			end
 		end
 
 	end
@@ -2063,7 +2079,7 @@
 					func (nil, token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname)
 				end
 			end
-			
+
 		end	
 		
 		--> actor targets
@@ -2266,6 +2282,8 @@
 				if (not t) then
 					t = _current_combat:CreateLastEventsTable (alvo_name)
 				end
+				
+				--lesses index = older / higher index = newer
 				
 				local last_index = t.n --or 'next index'
 				if (last_index < 17 and not t[last_index][4]) then
@@ -3199,16 +3217,22 @@
 			_hook_deaths = false
 		end
 		
-		if (_detalhes.hooks ["HOOK_BUFF"].enabled) then --[[REMOVED]]
-			_hook_buffs = true
-		else
-			_hook_buffs = false
-		end
-		
 		if (_detalhes.hooks ["HOOK_BATTLERESS"].enabled) then
 			_hook_battleress = true
 		else
 			_hook_battleress = false
+		end
+		
+		if (_detalhes.hooks ["HOOK_INTERRUPT"].enabled) then
+			_hook_interrupt = true
+		else
+			_hook_interrupt = false
+		end
+		
+		if (_detalhes.hooks ["HOOK_BUFF"].enabled) then --[[REMOVED]]
+			_hook_buffs = true
+		else
+			_hook_buffs = false
 		end
 
 		return _detalhes:ClearParserCache()

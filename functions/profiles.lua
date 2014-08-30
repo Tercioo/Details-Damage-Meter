@@ -822,6 +822,31 @@ local default_player_data = {
 		savedStyles = {},
 	--> instance config
 		local_instances_config = {},
+	--> announcements
+		announce_deaths = {
+			enabled = false,
+			only_first = 5,
+			last_hits = 1,
+			where = 1,
+		},
+		announce_cooldowns = {
+			enabled = false,
+			channel = "RAID",
+			ignored_cooldowns = {},
+			custom = "",
+		},
+		announce_interrupts = {
+			enabled = false,
+			channel = "SAY",
+			whisper = "",
+			next = "",
+			custom = "",
+		},
+		announce_prepots = {
+			enabled = true,
+			reverse = false,
+			channel = "SELF",
+		},
 }
 
 _detalhes.default_player_data = default_player_data

@@ -16,6 +16,7 @@ local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
 local cleanfunction = function() end
 local APISliderFunctions = false
 local SliderMetaFunctions = {}
+local NameLessSlider = 1
 
 ------------------------------------------------------------------------------------------------------------
 --> metatables
@@ -807,11 +808,20 @@ local switch_enable = function (self)
 	return _rawset (self, "lockdown", false)
 end
 
+function gump:CreateSwitch (parent, on_switch, default_value, w, h, ltext, rtext, member, name, color_inverted, switch_func, return_func)
+	local switch = gump:NewSwitch (parent, parent, name, member, w or 60, h or 20, ltext, rtext, default_value, color_inverted, switch_func, return_func)
+	if (on_switch) then
+		switch.OnSwitch = on_switch
+	end
+	return switch
+end
+
 function gump:NewSwitch (parent, container, name, member, w, h, ltext, rtext, default_value, color_inverted, switch_func, return_func)
 
 --> early checks
 	if (not name) then
-		return nil
+		name = "DetailsFrameWorkSlider" .. NameLessSlider
+		NameLessSlider = NameLessSlider + 1
 	elseif (not parent) then
 		return nil
 	end

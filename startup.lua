@@ -419,12 +419,18 @@ function _G._detalhes:Start()
 	
 	--BNSendFriendInvite ("tercio#1488")
 
+	--> get in the realm chat channel
 	if (not _detalhes.schedule_chat_enter and not _detalhes.schedule_chat_leave) then
 		_detalhes.schedule_chat_enter = _detalhes:ScheduleTimer ("EnterChatChannel", 30)
 	end
 
+	--> open profiler 
 	_detalhes:OpenProfiler()
 	
+	--> start announcers
+	_detalhes:StartAnnouncers()
+	
+	--> open welcome
 	if (self.is_first_run) then
 		_detalhes:OpenWelcomeWindow()
 	end

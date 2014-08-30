@@ -204,6 +204,10 @@ local ImageMetaFunctions = {}
 ------------------------------------------------------------------------------------------------------------
 --> object constructor
 
+function gump:CreateImage (parent, texture, w, h, layer, coords, member, name)
+	return gump:NewImage (parent, texture, w, h, layer, coords, member, name)
+end
+
 function gump:NewImage (parent, texture, w, h, layer, coords, member, name)
 
 	if (not parent) then

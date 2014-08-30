@@ -8,6 +8,7 @@
 	--[[global]] DETAILS_HOOK_COOLDOWN = "HOOK_COOLDOWN"
 	--[[global]] DETAILS_HOOK_DEATH = "HOOK_DEATH"
 	--[[global]] DETAILS_HOOK_BATTLERESS = "HOOK_BATTLERESS"
+	--[[global]] DETAILS_HOOK_INTERRUPT = "HOOK_INTERRUPT"
 	
 	--[[global]] DETAILS_HOOK_BUFF = "HOOK_BUFF" --[[REMOVED--]]
 	
@@ -18,6 +19,7 @@
 	_detalhes.hooks ["HOOK_COOLDOWN"] = {}
 	_detalhes.hooks ["HOOK_DEATH"] = {}
 	_detalhes.hooks ["HOOK_BATTLERESS"] = {}
+	_detalhes.hooks ["HOOK_INTERRUPT"] = {}
 	
 	_detalhes.hooks ["HOOK_BUFF"] = {} --[[REMOVED--]]
 	

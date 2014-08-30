@@ -1050,7 +1050,7 @@ do
 		-- Monk
 		[122470] = {90, 10}, -- Touch of Karma
 		[115213] = {180, 6}, -- Avert Harm
-		["MONK"] = {115295, 115203, 122470, 115176, 116849, 115213, 122278, 122783},
+		["MONK"] = {122470, 115213, 115295, 115203, 115176, 116849, 122278, 122783, 115310, 119582, 116844, 115308},
 		
 		-- Paladin
 		[86659] = {180, 12}, -- Guardian of Ancient Kings
@@ -1060,32 +1060,32 @@ do
 		[6940] = {120, 12}, -- Hand of Sacrifice
 		[1022] = {300, 10}, -- Hand of Protection
 		[1038] = {120, 10}, -- Hand of Salvation
-		["PALADIN"] = {86659, 31850, 498, 642, 6940, 1022, 1038},
-		
+		["PALADIN"] = {86659, 31850, 498, 642, 6940, 1022, 1038, 633, 31821},
+
 		-- Priest
 		[15286] = {180, 15}, -- Vampiric Embrace
 		[47788] = {180, 10}, -- Guardian Spirit
 		[47585] = {120, 6}, -- Dispersion
 		[33206] = {180, 8}, -- Pain Suppression
-		["PRIEST"] = {15286, 47788, 47585, 33206, 62618, 109964, 64843},
+		["PRIEST"] = {15286, 47788, 47585, 33206, 62618, 109964, 64843, 108968, 142723},
 		
 		-- Rogue
 		[1966] = {1.5, 5}, -- Feint
 		[31224] = {60, 5}, -- Cloak of Shadows
 		[5277] = {180, 15}, -- Evasion
-		["ROGUE"] = {1966, 31224, 5277},
+		["ROGUE"] = {1966, 31224, 5277, 76577},
 		
 		-- Shaman
 		[30823] = {60, 15}, -- Shamanistic Rage
 		[108271] = {120, 6}, -- Astral Shift
-		["SHAMAN"] = {30823, 108271, 108270},
+		["SHAMAN"] = {30823, 108271, 108270, 108280, 98008, 108281},
 		
 		-- Warlock
 		[104773] = {180, 8}, -- Unending Resolve
 		[108359] = {120, 12}, -- Dark Regeneration
 		[110913] = {180, 8}, -- Dark Bargain
 		["WARLOCK"] = {104773, 108359, 108416, 110913, 6229},
-		
+
 		-- Warrior
 		[871] = {180, 12}, -- Shield Wall
 		[12975] = {180, 20}, -- Last Stand
@@ -1094,7 +1094,8 @@ do
 		[118038] = {120, 8}, -- Die by the Sword
 		[2565] 	= {90, 6}, -- Shield Block
 		[112048]	= {90, 6}, -- Shield Barrier
-		["WARRIOR"] = {871, 12975, 23920, 114030, 118038}
+		["WARRIOR"] = {871, 12975, 23920, 114030, 118038, 114203, 114028, 97462}
+
 	}
 
 	_detalhes.HarmfulSpells = {
@@ -2007,6 +2008,11 @@ do
 	end
 	function _detalhes:GetSpellSchoolFormatedName (school)
 		return _detalhes.spells_school [school] and _detalhes.spells_school [school].formated or ""
+	end
+	
+	function _detalhes:GetCooldownList (class)
+		class = class or select (2, UnitClass ("player"))
+		return _detalhes.DefensiveCooldownSpells [class]
 	end
 	
 end
