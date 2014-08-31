@@ -6943,7 +6943,7 @@ function window:CreateFrame10()
 end
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- Performance - Captures ~11
+-- Performance - Raid Tools ~11
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 function window:CreateFrame11()
@@ -6956,9 +6956,6 @@ function window:CreateFrame11()
 		titulo1_desc.width = 320
 	
 		local text_entry_size = 140
-	
-	--announcers anchor
-		g:NewLabel (frame11, _, "$parentAnnouncersAnchor", "AnnouncersAnchor", Loc ["STRING_OPTIONS_RT_ANNOUNCEMENTS"], "GameFontNormal")
 	
 	--interrupts
 		--enable
@@ -7303,37 +7300,58 @@ function window:CreateFrame11()
 		frame11.DeathChannelDropdown:SetPoint ("left", frame11.DeathChannelLabel, "right", 2)
 		window:CreateLineBackground2 (frame11, "DeathChannelDropdown", "DeathChannelLabel", Loc ["STRING_OPTIONS_RT_DEATHS_WHERE_DESC"])
 
+	--> general tools
+		g:NewLabel (frame11, _, "$parentEnabledPrePotLabel", "EnabledPrePotLabel", Loc ["STRING_OPTIONS_RT_INFOS_PREPOTION"], "GameFontHighlightLeft")
+		g:NewSwitch (frame11, _, "$parentEnabledPrePotSlider", "EnabledPrePotSlider", 60, 20, _, _, _detalhes.announce_prepots.enabled)
+
+		frame11.EnabledPrePotSlider:SetPoint ("left", frame11.EnabledPrePotLabel, "right", 2)
+		frame11.EnabledPrePotSlider.OnSwitch = function (_, _, value)
+			_detalhes.announce_prepots.enabled = value
+		end
+		
+		window:CreateLineBackground2 (frame11, "EnabledPrePotSlider", "EnabledPrePotLabel", Loc ["STRING_OPTIONS_RT_INFOS_PREPOTION_DESC"])
+		
 	--> anchors
+	
+		--announcers anchor
+		g:NewLabel (frame11, _, "$parentAnnouncersAnchorInterrupt", "AnnouncersInterrupt", Loc ["STRING_OPTIONS_RT_INTERRUPT_ANCHOR"], "GameFontNormal")
+		g:NewLabel (frame11, _, "$parentAnnouncersAnchorCooldowns", "AnnouncersCooldowns", Loc ["STRING_OPTIONS_RT_COOLDOWNS_ANCHOR"], "GameFontNormal")
+		g:NewLabel (frame11, _, "$parentAnnouncersAnchorDeaths", "AnnouncersDeaths", Loc ["STRING_OPTIONS_RT_DEATHS_ANCHOR"], "GameFontNormal")
+		g:NewLabel (frame11, _, "$parentAnnouncersAnchorOther", "AnnouncersOther", Loc ["STRING_OPTIONS_RT_OTHER_ANCHOR"], "GameFontNormal")
+		
 		local x = window.left_start_at
 		
 		titulo1:SetPoint (x, -30)
 		titulo1_desc:SetPoint (x, -50)
 		
 		local left_side = {
-			{"AnnouncersAnchor", 1, true},
+			{"AnnouncersInterrupt", 1, true},
 			{"EnableInterruptsLabel", 2},
 			{"InterruptsChannelLabel", 3},
 			{"InterruptsWhisperLabel", 4},
 			{"InterruptsNextLabel", 5},
 			{"InterruptsCustomLabel", 6},
-			{"EnableCooldownsLabel", 7, true},
-			{"CooldownChannelLabel", 8},
-			{"CooldownCustomLabel", 9},
-			{"CooldownIgnoreButton", 10},
-			{"EnableDeathsLabel", 11, true},
-			{"DeathChannelLabel", 12},
-			{"DeathsDamageLabel", 13},
-			{"DeathsAmountLabel", 14},
-			
+			{"AnnouncersCooldowns", 7, true},
+			{"EnableCooldownsLabel", 8},
+			{"CooldownChannelLabel", 9},
+			{"CooldownCustomLabel", 10},
+			{"CooldownIgnoreButton", 11},
+
 		}
 		
 		window:arrange_menu (frame11, left_side, window.left_start_at, -90)
 		
 		local right_side = {
-			{"AnnouncersAnchor", 1, true},
+			{"AnnouncersDeaths", 1, true},
+			{"EnableDeathsLabel", 2},
+			{"DeathChannelLabel", 3},
+			{"DeathsDamageLabel", 4},
+			{"DeathsAmountLabel", 5},
+			{"AnnouncersOther", 6, true},
+			{"EnabledPrePotLabel", 7},
 		}
 		
-		--window:arrange_menu (frame11, right_side, window.right_start_at, -90)
+		window:arrange_menu (frame11, right_side, window.right_start_at, -90)
 	
 end
 

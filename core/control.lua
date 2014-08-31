@@ -452,9 +452,8 @@
 					
 						_detalhes.last_encounter2 = _detalhes.last_encounter
 						_detalhes.last_encounter = _detalhes.tabela_vigente.is_boss.name
-						
-						--debug
-						if (_detalhes.pre_pot_used) then
+
+						if (_detalhes.pre_pot_used and _detalhes.announce_prepots.enabled) then
 							_detalhes:Msg (_detalhes.pre_pot_used or "")
 							_detalhes.pre_pot_used = nil
 						end
