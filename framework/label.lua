@@ -217,11 +217,11 @@ local LabelMetaFunctions = {}
 
 ------------------------------------------------------------------------------------------------------------
 --> object constructor
-function gump:CreateLabel (parent, text, size, color, font, member, name)
-	return gump:NewLabel (parent, nil, name, member, text, font, size, color)
+function gump:CreateLabel (parent, text, size, color, font, member, name, layer)
+	return gump:NewLabel (parent, nil, name, member, text, font, size, color, layer)
 end
 
-function gump:NewLabel (parent, container, name, member, text, font, size, color)
+function gump:NewLabel (parent, container, name, member, text, font, size, color, layer)
 
 	if (not parent) then
 		return nil
@@ -257,7 +257,7 @@ function gump:NewLabel (parent, container, name, member, text, font, size, color
 
 	font = font or "GameFontHighlightSmall"
 
-	LabelObject.label = parent:CreateFontString (name, "OVERLAY", font)
+	LabelObject.label = parent:CreateFontString (name, layer or "OVERLAY", font)
 	LabelObject.widget = LabelObject.label
 	
 	LabelObject.label.MyObject = LabelObject

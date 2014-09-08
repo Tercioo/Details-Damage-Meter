@@ -38,7 +38,7 @@ local _combat_object
 local CLASS_ICON_TCOORDS = _G.CLASS_ICON_TCOORDS
 
 EncounterDetails.name = "Encounter Details"
-
+EncounterDetails.debugmode = false
 
 local ability_type_table = {
 	[0x1] = "|cFF00FF00"..Loc ["STRING_HEAL"].."|r", 
@@ -60,8 +60,6 @@ local ability_type_table = {
 	[0x10000] = "|cFFffff99"..Loc ["STRING_STACK"].."|r",
 	
 }
-
-local debugmode = false
 
 --> main object frame functions
 local function CreatePluginFrames (data)
@@ -138,7 +136,7 @@ local function CreatePluginFrames (data)
 			
 			--_detalhes:TimeDataRegister ("Raid Damage Done", damage_done_func, {last_damage = 0, max_damage = 0}, "Encounter Details", "v1.0", [[Interface\ICONS\Ability_DualWield]], true)
 			_detalhes:TimeDataRegister ("Raid Damage Done", string_damage_done_func, nil, "Encounter Details", "v1.0", [[Interface\ICONS\Ability_DualWield]], true, true)
-			
+
 			if (EncounterDetails.db.show_icon == 4) then
 				EncounterDetails:ShowIcon()
 			elseif (EncounterDetails.db.show_icon == 5) then
@@ -194,7 +192,8 @@ local function CreatePluginFrames (data)
 			--drop last combat table
 			EncounterDetails.LastSegmentShown = nil
 			
-			--table.wipe (EncounterDetails.boss_emotes_table)
+			--wipe emotes
+			table.wipe (EncounterDetails.boss_emotes_table)
 	
 		elseif (event == "GROUP_ONENTER") then
 			if (EncounterDetails.db.show_icon == 2) then
@@ -231,7 +230,7 @@ local function CreatePluginFrames (data)
 	function EncounterDetails:WasEncounter()
 
 		--> check if last combat was a boss encounter fight
-		if (not debugmode) then
+		if (not EncounterDetails.debugmode) then
 		
 			if (not _combat_object.is_boss) then
 				return
@@ -269,6 +268,7 @@ local function CreatePluginFrames (data)
 		end
 		
 		--> build all window data
+		EncounterDetails.db.opened = EncounterDetails.db.opened + 1
 		EncounterDetails:OpenAndRefresh()
 		--> show
 		EncounterDetailsFrame:Show()
@@ -322,14 +322,12 @@ end
 
 	local function KillInfo (deathTable, row)
 		
-		local lastEvents = deathTable [1]
-		local timeOfDeath = deathTable [2]
+		local eventos = deathTable [1]
+		local hora_da_morte = deathTable [2]
 		local hp_max = deathTable [5]
 		
-		local lines = {}
-		
 		local battleress = false
-		local skillTable = row.extra
+		local lastcooldown = false
 		
 		local GameCooltip = GameCooltip
 		
@@ -337,90 +335,98 @@ end
 		GameCooltip:SetType ("tooltipbar")
 		GameCooltip:SetOwner (row)
 		
+		GameCooltip:AddLine ("Click to Report", nil, 1, "orange")
+		GameCooltip:AddIcon ([[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]], 1, 1, 12, 16, 0.015625, 0.13671875, 0.4375, 0.59765625)
+		GameCooltip:AddStatusBar (0, 1, 1, 1, 1, 1, false, {value = 100, color = {.3, .3, .3, 1}, specialSpark = false, texture = [[Interface\AddOns\Details\images\bar_serenity]]})
+
+		--death parser
+		for index, event in _ipairs (eventos) do 
 		
-		for index, event in _ipairs (lastEvents) do 
-		
-			--max hp percent (in case of hp cooldowns)
 			local hp = _math_floor (event[5]/hp_max*100)
 			if (hp > 100) then 
 				hp = 100
 			end
 			
-			if (event [1]) then --> DAMAGE
-				local nome_magia, _, icone_magia = _GetSpellInfo (event [2])
-				
-				if (not event[3] and not battleress) then --> battle ress
-					GameCooltip:AddLine ("+".._cstr ("%.1f", event[4] - timeOfDeath) .."s "..nome_magia.." ("..event[6]..")", "-- -- -- ", 1, "white")
-					GameCooltip:AddIcon ("Interface\\Glues\\CharacterSelect\\Glues-AddOn-Icons", 1, 1, nil, nil, .75, 1, 0, 1)
-					GameCooltip:AddStatusBar (100, 1, "silver", false)
-					battleress = true
+			local evtype = event [1]
+			local spellname, _, spellicon = _GetSpellInfo (event [2])
+			local amount = event [3]
+			local time = event [4]
+			local source = event [6]
+
+			if (type (evtype) == "boolean") then
+				--> is damage or heal
+				if (evtype) then
+					--> damage
+					GameCooltip:AddLine ("" .. _cstr ("%.1f", time - hora_da_morte) .. "s " .. spellname .. " (" .. source .. ")", "-" .. _detalhes:ToK (amount) .. " (" .. hp .. "%)", 1, "white", "white")
+					GameCooltip:AddIcon (spellicon)
 					
-				elseif (event[3]) then
-					
-					local habilidade_school = skillTable [event [2]] --> pegou a tabela com os hex
-					local _school = ""
-					
-					if (habilidade_school) then
-						for _, hex in _ipairs (habilidade_school) do 
-							_school = _school .. " " .. ability_type_table [hex]
-						end
-					end
-					
-					_school = _detalhes:trim (_school)
-					local texto_esquerdo
-					if (nome_magia) then
-						texto_esquerdo = "".._cstr ("%.1f", event[4] - timeOfDeath) .."s " .. nome_magia .. " (".. event [6] ..")" --" (".. _school ..")"
-						texto_esquerdo = texto_esquerdo:gsub ("(%()%)", "")
+					if (event [9]) then
+						--> friendly fire
+						GameCooltip:AddStatusBar (hp, 1, "darkorange", true)
 					else
-						texto_esquerdo = ""
+						--> from a enemy
+						GameCooltip:AddStatusBar (hp, 1, "red", true)
 					end
+				else
+					--> heal
+					GameCooltip:AddLine ("" .. _cstr ("%.1f", time - hora_da_morte) .. "s " .. spellname .. " (" .. source .. ")", "+" .. _detalhes:ToK (amount) .. " (" .. hp .. "%)", 1, "white", "white")
+					GameCooltip:AddIcon (spellicon)
+					GameCooltip:AddStatusBar (hp, 1, "green", true)
 					
-					if (type (event [1]) ~= "boolean" and event [1] == 2) then --> last cooldown
-						if (event[3] == 1) then 
-							GameCooltip:AddLine ("".._cstr ("%.1f", event[4] - timeOfDeath) .. "s " .. nome_magia .. " (" .. Loc ["STRING_LAST_COOLDOWN"] .. ")")
-							GameCooltip:AddIcon (icone_magia)
-							GameCooltip:AddStatusBar (100, 1, "gray", true)
-						else
-							GameCooltip:AddLine (Loc ["STRING_NOLAST_COOLDOWN"])
-							GameCooltip:AddStatusBar (100, 1, "gray", true)
-						end
-					else
-						GameCooltip:AddLine (texto_esquerdo, "-".._detalhes:ToK (event[3]).." (".. hp .."%)", 1, "white", "white")
-						GameCooltip:AddIcon (icone_magia)
-						
-						if (type (event [1]) ~= "boolean" and event [1] == 1) then --> cooldown
-							GameCooltip:AddStatusBar (100, 1, "yellow", true)
-						else
-							GameCooltip:AddStatusBar (hp, 1, "red", true)
-						end
-					end
-						
 				end
-			else
-				local nome_magia, _, icone_magia = _GetSpellInfo (event [2])
-				GameCooltip:AddLine ("".._cstr ("%.1f", event[4] - timeOfDeath) .."s "..nome_magia.." ("..event[6]..")", "+".._detalhes:ToK (event[3]).." (".. hp .."%)", 1, "white", "white")
-				GameCooltip:AddIcon (icone_magia, 1, 1)
-				GameCooltip:AddStatusBar (hp, 1, "green", true)
+				
+			elseif (type (evtype) == "number") then
+				if (evtype == 1) then
+					--> cooldown
+					GameCooltip:AddLine ("" .. _cstr ("%.1f", time - hora_da_morte) .. "s " .. spellname .. " (" .. source .. ")", "cooldown (" .. hp .. "%)", 1, "white", "white")
+					GameCooltip:AddIcon (spellicon)
+					GameCooltip:AddStatusBar (100, 1, "yellow", true)
+					
+				elseif (evtype == 2 and not battleress) then
+					--> battle ress
+					battleress = event
+					
+				elseif (evtype == 3) then
+					--> last cooldown used
+					lastcooldown = event
+					
+				end
 			end
 		end
+
+		GameCooltip:AddLine (deathTable [6] .. " " .. "died" , "-- -- -- ", 1, "white")
+		GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\small_icons", 1, 1, nil, nil, .75, 1, 0, 1)
+		GameCooltip:AddStatusBar (0, 1, .5, .5, .5, .5, false, {value = 100, color = {.5, .5, .5, 1}, specialSpark = false, texture = [[Interface\AddOns\Details\images\bar4_vidro]]})
 		
 		if (battleress) then
-			GameCooltip:AddSpecial ("line", 2, nil, deathTable [6] .. " "..Loc ["STRING_DIED"], "-- -- -- ", 1, "white")
-			GameCooltip:AddSpecial ("icon", 2, nil, "Interface\\AddOns\\Details\\images\\small_icons", 1, 1, nil, nil, .75, 1, 0, 1)
-			GameCooltip:AddSpecial ("statusbar", 2, nil, 100, 1, "darkgray", false)
-		else
-			GameCooltip:AddSpecial ("line", 1, nil, deathTable [6] .. " "..Loc ["STRING_DIED"], "-- -- -- ", 1, "white")
-			GameCooltip:AddSpecial ("icon", 1, nil, "Interface\\AddOns\\Details\\images\\small_icons", 1, 1, nil, nil, .75, 1, 0, 1)
-			GameCooltip:AddSpecial ("statusbar", 1, nil, 100, 1, "darkgray", false)
-
+			local nome_magia, _, icone_magia = _GetSpellInfo (battleress [2])
+			GameCooltip:AddLine ("+" .. _cstr ("%.1f", battleress[4] - hora_da_morte) .. "s " .. nome_magia .. " (" .. battleress[6] .. ")", "", 1, "white")
+			GameCooltip:AddIcon ("Interface\\Glues\\CharacterSelect\\Glues-AddOn-Icons", 1, 1, nil, nil, .75, 1, 0, 1)
+			GameCooltip:AddStatusBar (0, 1, .5, .5, .5, .5, false, {value = 100, color = {.5, .5, .5, 1}, specialSpark = false, texture = [[Interface\AddOns\Details\images\bar4_vidro]]})
 		end
 		
+		if (lastcooldown) then
+			if (lastcooldown[3] == 1) then 
+				local nome_magia, _, icone_magia = _GetSpellInfo (lastcooldown [2])
+				GameCooltip:AddLine (_cstr ("%.1f", lastcooldown[4] - hora_da_morte) .. "s " .. nome_magia .. " (" .. Loc ["STRING_LAST_COOLDOWN"] .. ")")
+				GameCooltip:AddIcon (icone_magia)
+			else
+				GameCooltip:AddLine (Loc ["STRING_NOLAST_COOLDOWN"])
+				GameCooltip:AddIcon ([[Interface\CHARACTERFRAME\UI-Player-PlayTimeUnhealthy]], 1, 1, 18, 18)
+			end
+				GameCooltip:AddStatusBar (0, 1, 1, 1, 1, 1, false, {value = 100, color = {.3, .3, .3, 1}, specialSpark = false, texture = [[Interface\AddOns\Details\images\bar_serenity]]})
+		end
+
+
 		GameCooltip:SetOption ("StatusBarHeightMod", -6)
-		GameCooltip:SetOption ("FixedWidth", 400)
+		GameCooltip:SetOption ("FixedWidth", 300)
 		GameCooltip:SetOption ("TextSize", 9)
-		GameCooltip:SetOption ("StatusBarTexture", "Interface\\AddOns\\Details\\images\\bar_serenity")
-		GameCooltip:ShowCooltip()
+		GameCooltip:SetOption ("LeftBorderSize", -4)
+		GameCooltip:SetOption ("RightBorderSize", 5)
+		GameCooltip:SetOption ("StatusBarTexture", [[Interface\AddOns\Details\images\bar4_reverse]])
+		GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0.64453125, 0}, {.8, .8, .8, 0.2}, true)
 		
+		GameCooltip:ShowCooltip()
 	end
 
 --> custom tooltip for dispells details ---------------------------------------------------------------------------------------------------------
@@ -614,6 +620,9 @@ end
 
 --> custom tooltip that handle mouse enter and leave on customized rows ---------------------------------------------------------------------------------------------------------
 
+local backdrop_bar_onenter = {bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 16, edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border", edgeSize = 8, insets = {left = 1, right = 1, top = 0, bottom = 1}}
+local backdrop_bar_onleave = {bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 16, insets = {left = 1, right = 1, top = 0, bottom = 1}}
+
 function EncounterDetails:SetRowScripts (barra, index, container)
 
 	barra:SetScript ("OnMouseDown", function (self)
@@ -663,9 +672,9 @@ function EncounterDetails:SetRowScripts (barra, index, container)
 			self:SetHeight (17)
 			self:SetAlpha(1)
 			
-			self:SetBackdrop({edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border", tile = true, tileSize = 16, edgeSize = 10,insets = {left = 1, right = 1, top = 0, bottom = 1},})	
-			self:SetBackdropBorderColor (170/255, 170/255, 170/255)
-			self:SetBackdropColor (24/255, 24/255, 24/255)
+			self:SetBackdrop (backdrop_bar_onenter)	
+			self:SetBackdropColor (.0, .0, .0, 0.3)
+			self:SetBackdropBorderColor (.0, .0, .0, 0.5)
 			
 			GameTooltip:SetOwner (self, "ANCHOR_TOPRIGHT")
 			
@@ -714,11 +723,10 @@ function EncounterDetails:SetRowScripts (barra, index, container)
 			end
 			
 			self:SetHeight (16)
-			self:SetAlpha(0.9)
+			self:SetAlpha (0.9)
 			
-			self:SetBackdrop({bgFile = "", edgeFile = "", tile = true, tileSize = 16, edgeSize = 32, insets = {left = 1, right = 1, top = 0, bottom = 1},})	
-			self:SetBackdropBorderColor (0, 0, 0, 0)
-			self:SetBackdropColor (0, 0, 0, 0)
+			self:SetBackdrop (backdrop_bar_onleave)
+			self:SetBackdropColor (.0, .0, .0, 0.3)
 			
 			GameTooltip:Hide()
 			_detalhes.popup:ShowMe (false, "tooltip")
@@ -739,21 +747,23 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 	if (segment) then
 		--get combat segment, 1 more recently ...25 oldest
 		_combat_object = EncounterDetails:GetCombat (segment)
+		EncounterDetails._segment = segment
 	else
 		_G [frame:GetName().."SegmentsDropdown"].MyObject:Select (1, true)
+		EncounterDetails._segment = 1
 	end
 	
 	local boss_id
 	local map_id
 	local boss_info
 	
-	if (debugmode and not _combat_object.is_boss) then
+	if (EncounterDetails.debugmode and not _combat_object.is_boss) then
 		_combat_object.is_boss = {
 			index = 1, 
-			name = _detalhes:GetBossName (1098, 1),
-			zone = "Throne of Thunder", 
-			mapid = 1098, 
-			encounter = "Jin'Rohk the Breaker"
+			name = "Immerseus",
+			zone = "Siege of Orggrimar", 
+			mapid = 1136, 
+			encounter = "Immerseus"
 		}
 	end
 	
@@ -785,6 +795,10 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 		end
 	end
 	
+	if (EncounterDetailsFrame.ShowType == "graph") then
+		EncounterDetails:BuildDpsGraphic()
+	end
+	
 	EncounterDetails.LastSegmentShown = _combat_object
 	
 -------------- set boss name and zone name --------------
@@ -795,14 +809,18 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 	local L, R, T, B, Texture = EncounterDetails:GetBossIcon (_combat_object.is_boss.mapid, _combat_object.is_boss.index)
 	EncounterDetailsFrame.boss_icone:SetTexture (Texture)
 	EncounterDetailsFrame.boss_icone:SetTexCoord (L, R, T, B)
-	EncounterDetailsFrame.raidbackground:SetTexture (EncounterDetails:GetRaidBackground (_combat_object.is_boss.mapid))
+	
+	local file, L, R, T, B = EncounterDetails:GetRaidBackground (_combat_object.is_boss.mapid)
+	EncounterDetailsFrame.raidbackground:SetTexture (file)
+	EncounterDetailsFrame.raidbackground:SetTexCoord (L, R, T, B)
+	EncounterDetailsFrame.raidbackground:SetAlpha (0.8)
 	
 -------------- set totals on down frame --------------
 --[[ data mine:
 	_combat_object ["totals_grupo"] hold the total [1] damage // [2] heal // [3] [energy_name] energies // [4] [misc_name] miscs --]]
 
-	EncounterDetailsFrame.StatusBar_totaldamage:SetText (Loc ["STRING_TOTAL_DAMAGE"]..": ".. _detalhes:comma_value (_combat_object.totals_grupo[1])) --> [1] total damage
-	EncounterDetailsFrame.StatusBar_totalheal:SetText (Loc ["STRING_TOTAL_HEAL"]..": ".. _detalhes:comma_value (_combat_object.totals_grupo[2])) --> [2] total heal
+	--EncounterDetailsFrame.StatusBar_totaldamage:SetText (Loc ["STRING_TOTAL_DAMAGE"]..": ".. _detalhes:comma_value (_combat_object.totals_grupo[1])) --> [1] total damage
+	--EncounterDetailsFrame.StatusBar_totalheal:SetText (Loc ["STRING_TOTAL_HEAL"]..": ".. _detalhes:comma_value (_combat_object.totals_grupo[2])) --> [2] total heal
 
 	--> Container Overall Damage Taken
 		--[[ data mine:
@@ -1026,6 +1044,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 		
 		--> agora ja tenho a lista de todos os adds da luta
 		-- vasculhar o container de dano e achar os adds:
+		-- ~add
 		
 		local adds = {}
 		
@@ -1089,8 +1108,11 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 		
 		--> montou a tabela, agora precisa mostrar no painel
 
-		local function _DanoFeito (barra)
-			barra = barra:GetParent()
+		local function _DanoFeito (self)
+		
+			self.textura:SetBlendMode ("ADD")
+		
+			local barra = self:GetParent()
 			local tabela = barra.jogador
 			local dano_em = tabela.dano_em
 			
@@ -1111,8 +1133,11 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 			GameTooltip:Show()	
 		end
 
-		local function _DanoRecebido (barra)
-			barra = barra:GetParent()
+		local function _DanoRecebido (self)
+		
+			self.textura:SetBlendMode ("ADD")
+		
+			local barra = self:GetParent()
 			local tabela = barra.jogador
 			local damage_from = tabela.damage_from
 			
@@ -1139,6 +1164,11 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 			GameTooltip:Show()	
 		end
 		
+		local function _OnHide (self)
+			GameTooltip:Hide()
+			self.textura:SetBlendMode ("BLEND")
+		end
+		
 		local y = 10
 		local frame_adds = EncounterDetailsFrame.overall_adds
 		container = frame_adds.gump
@@ -1153,8 +1183,11 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 		
 				local barra = container.barras [index]
 				if (not barra) then
-					barra = EncounterDetails:CreateRow (index, container)
-					barra:SetWidth (160)
+					barra = EncounterDetails:CreateRow (index, container, -0)
+					barra:SetBackdrop (backdrop_bar_onleave)
+					barra:SetBackdropColor (.0, .0, .0, 0.3)
+					
+					barra:SetWidth (155)
 					
 					barra._no_report = true
 
@@ -1168,11 +1201,11 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 					add_damage_taken:SetResizable (false)
 					add_damage_taken:SetPoint ("left", barra, "left", 0, 0)
 					
-					add_damage_taken:SetBackdrop (gump_fundo_backdrop)
-					add_damage_taken:SetBackdropColor (.3, .7, .7, 0.8)
+					add_damage_taken:SetBackdrop ({bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 16})
+					add_damage_taken:SetBackdropColor (.0, .5, .0, 0.5)
 					
 					add_damage_taken:SetScript ("OnEnter", _DanoRecebido)
-					add_damage_taken:SetScript ("OnLeave", function() GameTooltip:Hide() end)
+					add_damage_taken:SetScript ("OnLeave", _OnHide)
 					add_damage_taken:SetScript ("OnClick", EncounterDetails.BossInfoRowClick)
 					
 					add_damage_taken.textura = add_damage_taken:CreateTexture (nil, "overlay")
@@ -1191,8 +1224,8 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 					add_damage_done:SetResizable (false)
 					add_damage_done:SetPoint ("left", add_damage_taken, "right", 0, 0)
 					
-					add_damage_done:SetBackdrop (gump_fundo_backdrop)
-					add_damage_done:SetBackdropColor (.9, .9, .3, 0.8)
+					add_damage_done:SetBackdrop ({bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 16})
+					add_damage_done:SetBackdropColor (.5, .0, .0, 0.5)
 					
 					add_damage_done.textura = add_damage_done:CreateTexture (nil, "overlay")
 					add_damage_done.textura:SetTexture ("Interface\\Buttons\\UI-MicroStream-Red")
@@ -1201,7 +1234,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 					add_damage_done.textura:SetPoint ("topleft", add_damage_done, "topleft")
 					
 					add_damage_done:SetScript ("OnEnter", _DanoFeito)
-					add_damage_done:SetScript ("OnLeave", function() GameTooltip:Hide() end)
+					add_damage_done:SetScript ("OnLeave", _OnHide)
 					add_damage_done:SetScript ("OnClick", EncounterDetails.BossInfoRowClick)
 					
 					barra.texto_esquerdo:SetPoint ("left", add_damage_done, "right")
@@ -1213,10 +1246,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 				end
 
 				barra.texto_esquerdo:SetText (addName)
-				
-				--barra.texto_direita:SetText (_detalhes:comma_value (esta_tabela.total))
 				barra.texto_direita:SetText (_detalhes:ToK (esta_tabela.total))
-				
 				barra.texto_esquerdo:SetSize (barra:GetWidth() - barra.texto_direita:GetStringWidth() - 34, 15)
 				
 				barra.jogador = esta_tabela --> barra.jogador agora tem a tabela com --> [1] total dano causado [2] jogadores que foram alvos [3] jogadores que castaram essa magia [4] ID da magia
@@ -1224,9 +1254,6 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 				--barra.textura:SetStatusBarColor (_unpack (_detalhes.class_colors [jogador.classe]))
 				barra.textura:SetStatusBarColor (1, 1, 1, 1) --> a cor pode ser a spell school da magia
 				barra.textura:SetValue (100)
-				
-				--barra.icone:SetTexture (icone_magia)
-				--barra.icone:SetTexCoord (_unpack (CLASS_ICON_TCOORDS [jogador.classe]))
 				
 				barra:Show()
 				quantidade = quantidade + 1
@@ -1300,6 +1327,9 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 				barra = EncounterDetails:CreateRow (index, container, 3, 3, -6)
 				barra.TTT = "total_interrupt" -- tool tip type
 				barra.report_text = "Details! ".. Loc ["STRING_INTERRUPT_BY"]
+				barra:SetBackdrop (backdrop_bar_onleave)
+				barra:SetBackdropColor (.0, .0, .0, 0.3)
+				barra:SetWidth (155)
 			end
 			
 			local spellid = tabela [3]
@@ -1411,6 +1441,9 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 				barra = EncounterDetails:CreateRow (index, container, 3, 3, -6)
 				barra.TTT = "dispell" -- tool tip type
 				barra.report_text = "Details! ".. Loc ["STRING_DISPELLED_BY"]
+				barra:SetBackdrop (backdrop_bar_onleave)
+				barra:SetBackdropColor (.0, .0, .0, 0.3)
+				barra:SetWidth (160)
 			end
 			
 			local nome_magia, _, icone_magia = _GetSpellInfo (tabela [3])
@@ -1471,6 +1504,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 				_detalhes:SetFontSize (barra.texto_esquerdo, 9)
 				_detalhes:SetFontSize (barra.texto_direita, 9)
 				_detalhes:SetFontFace (barra.texto_esquerdo, "Arial Narrow")
+				barra:SetWidth (160)
 			end
 			
 			if (tabela [3]:find ("-")) then
@@ -1530,6 +1564,7 @@ function EncounterDetails:OnEvent (_, event, ...)
 					show_icon = 5, --automatic
 					hide_on_combat = false, --hide the window when a new combat start
 					max_emote_segments = 3,
+					opened = 0,
 				}
 
 				--> Install
@@ -1548,8 +1583,6 @@ function EncounterDetails:OnEvent (_, event, ...)
 				if (type (install) == "table" and install.error) then
 					print (install.error)
 				end
-				
-				EncounterDetails.db = saveddata
 				
 				EncounterDetails.charsaved = EncounterDetailsDB or {emotes = {}}
 				EncounterDetailsDB = EncounterDetails.charsaved

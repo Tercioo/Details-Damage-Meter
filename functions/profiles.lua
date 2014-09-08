@@ -804,6 +804,7 @@ _detalhes.default_profile = default_profile
 local default_player_data = {
 	--> current combat number
 		combat_id = 0,
+		combat_counter = 0,
 	--> nicktag cache
 		nick_tag_cache = {},
 	--> plugin data

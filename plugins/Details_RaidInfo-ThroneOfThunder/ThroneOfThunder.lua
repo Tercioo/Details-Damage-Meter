@@ -21,7 +21,7 @@ local throne_of_thunder = {
 	
 	is_raid = true,
 	
-	background = "Interface\\AddOns\\Details_RaidInfo-ThroneOfThunder\\images\\raid_tot",
+	backgroundFile = {file = [[Interface\Glues\LOADINGSCREENS\LoadscreenThunderkingRaid]], coords = {0, 1, 256/1024, 840/1024}},
 	backgroundEJ = [[Interface\EncounterJournal\UI-EJ-LOREBG-ThunderKingRaid]],
 	
 	boss_names = { 

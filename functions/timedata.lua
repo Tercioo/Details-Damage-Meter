@@ -70,6 +70,10 @@
 			this_capture [INDEX_ENABLED] = this_capture [INDEX_ENABLED]
 		end
 		
+		if (_G.DetailsOptionsWindow and _G.DetailsOptionsWindow:IsShown()) then
+			_G.DetailsOptionsWindow16UserTimeCapturesFillPanel.MyObject:Refresh()
+		end
+		
 		return true
 		
 	end
@@ -131,11 +135,17 @@
 	--> unregister
 	function _detalhes:TimeDataUnregister (name)
 		if (type (name) == "number") then
-			return tremove (_detalhes.savedTimeCaptures, name)
+			tremove (_detalhes.savedTimeCaptures, name)
+			if (_G.DetailsOptionsWindow and _G.DetailsOptionsWindow:IsShown()) then
+				_G.DetailsOptionsWindow16UserTimeCapturesFillPanel.MyObject:Refresh()
+			end
 		else
 			for index, t in ipairs (_detalhes.savedTimeCaptures) do
 				if (t [INDEX_NAME] == name) then
 					tremove (_detalhes.savedTimeCaptures, index)
+					if (_G.DetailsOptionsWindow and _G.DetailsOptionsWindow:IsShown()) then
+						_G.DetailsOptionsWindow16UserTimeCapturesFillPanel.MyObject:Refresh()
+					end
 					return true
 				end
 			end

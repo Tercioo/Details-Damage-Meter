@@ -1370,8 +1370,7 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 				end
 				
 				_detalhes.parser:add_buff_uptime (nil, GetTime(), _UnitGUID ("player"), playerName, 0x00000514, _UnitGUID ("player"), playerName, 0x00000514, spellid, name, in_or_out)
-			else
-				break
+
 			end
 		end
 		
@@ -1398,9 +1397,7 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 					end
 				
 					_detalhes.parser:add_buff_uptime (nil, GetTime(), _UnitGUID ("party"..groupIndex), playerName, 0x00000417, _UnitGUID ("party"..groupIndex), playerName, 0x00000417, spellid, name, in_or_out)
-					
-				else
-					--break
+
 				end
 			end
 		end
@@ -1410,8 +1407,6 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 			if (name and unitCaster == "player") then
 				local playerName = _UnitName ("player")
 				_detalhes.parser:add_buff_uptime (nil, GetTime(), _UnitGUID ("player"), playerName, 0x00000417, _UnitGUID ("player"), playerName, 0x00000417, spellid, name, in_or_out)
-			else
-				break
 			end
 		end
 		
@@ -1431,8 +1426,6 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 				end
 				
 				_detalhes.parser:add_buff_uptime (nil, GetTime(), _UnitGUID ("player"), playerName, 0x00000417, _UnitGUID ("player"), playerName, 0x00000417, spellid, name, in_or_out)
-			else
-				break
 			end
 		end
 		

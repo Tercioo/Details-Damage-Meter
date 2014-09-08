@@ -7,6 +7,10 @@ local _unpack = unpack
 local _
 gump.LabelNameCounter = 1
 gump.PictureNameCounter = 1
+gump.BarNameCounter = 1
+gump.DropDownCounter = 1
+gump.PanelCounter = 1
+gump.ButtonCounter = 1
 
 gump.debug = false
 

@@ -576,7 +576,7 @@ local ButtonMetaFunctions = {}
 		end
 	
 		if (button.MyObject.OnEnterHook) then
-			local interrupt = button.MyObject.OnEnterHook (button)
+			local interrupt = button.MyObject.OnEnterHook (button, button.MyObject)
 			if (interrupt) then
 				return
 			end
@@ -621,7 +621,7 @@ local ButtonMetaFunctions = {}
 		end
 	
 		if (button.MyObject.OnLeaveHook) then
-			local interrupt = button.MyObject.OnLeaveHook (button)
+			local interrupt = button.MyObject.OnLeaveHook (button, button.MyObject)
 			if (interrupt) then
 				return
 			end
@@ -653,7 +653,7 @@ local ButtonMetaFunctions = {}
 	
 	local OnHide = function (button)
 		if (button.MyObject.OnHideHook) then
-			local interrupt = button.MyObject.OnHideHook (button)
+			local interrupt = button.MyObject.OnHideHook (button, button.MyObject)
 			if (interrupt) then
 				return
 			end
@@ -662,7 +662,7 @@ local ButtonMetaFunctions = {}
 	
 	local OnShow = function (button)
 		if (button.MyObject.OnShowHook) then
-			local interrupt = button.MyObject.OnShowHook (button)
+			local interrupt = button.MyObject.OnShowHook (button, button.MyObject)
 			if (interrupt) then
 				return
 			end
@@ -687,7 +687,7 @@ local ButtonMetaFunctions = {}
 		end
 		
 		if (button.MyObject.OnMouseDownHook) then
-			local interrupt = button.MyObject.OnMouseDownHook (button, buttontype)
+			local interrupt = button.MyObject.OnMouseDownHook (button, buttontype, button.MyObject)
 			if (interrupt) then
 				return
 			end
@@ -774,7 +774,7 @@ local ButtonMetaFunctions = {}
 		end
 		
 		if (button.MyObject.OnMouseUpHook) then
-			local interrupt = button.MyObject.OnMouseUpHook (button, buttontype)
+			local interrupt = button.MyObject.OnMouseUpHook (button, buttontype, button.MyObject)
 			if (interrupt) then
 				return
 			end
@@ -836,10 +836,16 @@ local ButtonMetaFunctions = {}
 ------------------------------------------------------------------------------------------------------------
 --> object constructor
 
+function gump:CreateButton (parent, func, w, h, text, param1, param2, texture, member, name, short_method)
+	return gump:NewButton (parent, parent, name, member, w, h, func, param1, param2, texture, text, short_method)
+end
+
 function gump:NewButton (parent, container, name, member, w, h, func, param1, param2, texture, text, short_method)
 	
 	if (not name) then
-		return nil
+		name = "DetailsButtonNumber" .. gump.ButtonCounter
+		gump.ButtonCounter = gump.ButtonCounter + 1
+		
 	elseif (not parent) then
 		return nil
 	end

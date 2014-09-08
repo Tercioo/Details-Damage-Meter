@@ -357,7 +357,7 @@ local APIFrameFunctions
 	
 	local OnEnter = function (frame)
 		if (frame.MyObject.OnEnterHook) then
-			local interrupt = frame.MyObject.OnEnterHook (frame)
+			local interrupt = frame.MyObject.OnEnterHook (frame, frame.MyObject)
 			if (interrupt) then
 				return
 			end
@@ -379,7 +379,7 @@ local APIFrameFunctions
 
 	local OnLeave = function (frame)
 		if (frame.MyObject.OnLeaveHook) then
-			local interrupt = frame.MyObject.OnLeaveHook (frame)
+			local interrupt = frame.MyObject.OnLeaveHook (frame, frame.MyObject)
 			if (interrupt) then
 				return
 			end
@@ -397,7 +397,7 @@ local APIFrameFunctions
 	
 	local OnHide = function (frame)
 		if (frame.MyObject.OnHideHook) then
-			local interrupt = frame.MyObject.OnHideHook (frame)
+			local interrupt = frame.MyObject.OnHideHook (frame, frame.MyObject)
 			if (interrupt) then
 				return
 			end
@@ -406,7 +406,7 @@ local APIFrameFunctions
 	
 	local OnShow = function (frame)
 		if (frame.MyObject.OnShowHook) then
-			local interrupt = frame.MyObject.OnShowHook (frame)
+			local interrupt = frame.MyObject.OnShowHook (frame, frame.MyObject)
 			if (interrupt) then
 				return
 			end
@@ -415,7 +415,7 @@ local APIFrameFunctions
 	
 	local OnMouseDown = function (frame, button)
 		if (frame.MyObject.OnMouseDownHook) then
-			local interrupt = frame.MyObject.OnMouseDownHook (frame, button)
+			local interrupt = frame.MyObject.OnMouseDownHook (frame, button, frame.MyObject)
 			if (interrupt) then
 				return
 			end
@@ -439,7 +439,7 @@ local APIFrameFunctions
 	
 	local OnMouseUp = function (frame, button)
 		if (frame.MyObject.OnMouseUpHook) then
-			local interrupt = frame.MyObject.OnMouseUpHook (frame, button)
+			local interrupt = frame.MyObject.OnMouseUpHook (frame, button, frame.MyObject)
 			if (interrupt) then
 				return
 			end
@@ -464,10 +464,16 @@ local APIFrameFunctions
 	
 ------------------------------------------------------------------------------------------------------------
 --> object constructor
+function gump:CreatePanel (parent, w, h, backdrop, backdropcolor, bordercolor, member, name)
+	return gump:NewPanel (parent, parent, name, member, w, h, backdrop, backdropcolor, bordercolor)
+end
+
 function gump:NewPanel (parent, container, name, member, w, h, backdrop, backdropcolor, bordercolor)
 
 	if (not name) then
-		return nil
+		name = "DetailsPanelNumber" .. gump.PanelCounter
+		gump.PanelCounter = gump.PanelCounter + 1
+
 	elseif (not parent) then
 		parent = UIParent
 	end
@@ -1129,3 +1135,522 @@ function gump:IconPick (callback, close_when_select)
 	gump.IconPickFrame.click_close = close_when_select
 	
 end	
+
+local chart_panel_backdrop = {bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16,
+edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", edgeSize = 32, insets = {left = 5, right = 5, top = 5, bottom = 5}}
+
+local chart_panel_align_timelabels = function (self, elapsed_time)
+
+	self.TimeScale = elapsed_time
+
+	local linha = self.TimeLabels [17]
+	local minutos, segundos = math.floor (elapsed_time / 60), math.floor (elapsed_time % 60)
+	if (segundos < 10) then
+		segundos = "0" .. segundos
+	end
+	
+	if (minutos > 0) then
+		if (minutos < 10) then
+			minutos = "0" .. minutos
+		end
+		linha:SetText (minutos .. ":" .. segundos)
+	else
+		linha:SetText ("00:" .. segundos)
+	end
+	
+	local time_div = elapsed_time / 16 --786 -- 49.125
+	
+	for i = 2, 16 do
+	
+		local linha = self.TimeLabels [i]
+		
+		local this_time = time_div * (i-1)
+		local minutos, segundos = math.floor (this_time / 60), math.floor (this_time % 60)
+		
+		if (segundos < 10) then
+			segundos = "0" .. segundos
+		end
+		
+		if (minutos > 0) then
+			if (minutos < 10) then
+				minutos = "0" .. minutos
+			end
+			linha:SetText (minutos .. ":" .. segundos)
+		else
+			linha:SetText ("00:" .. segundos)
+		end
+		
+	end
+	
+end
+
+local chart_panel_set_scale = function (self, amt, func, text)
+	if (type (amt) ~= "number") then
+		return
+	end
+	
+	local piece = amt / 8
+	
+	for i = 1, 8 do
+		if (func) then
+			self ["dpsamt" .. math.abs (i-9)]:SetText ( func (piece*i) .. (text or ""))
+		else
+			self ["dpsamt" .. math.abs (i-9)]:SetText ( floor (piece*i) .. (text or ""))
+		end
+	end
+end
+
+local chart_panel_can_move = function (self, can)
+	self.can_move = can
+end
+
+local chart_panel_overlay_reset = function (self)
+	self.OverlaysAmount = 1
+	for index, pack in ipairs (self.Overlays) do
+		for index2, texture in ipairs (pack) do
+			texture:Hide()
+		end
+	end
+end
+
+local chart_panel_reset = function (self)
+
+	self.Graphic:ResetData()
+	self.Graphic.max_value = 0
+	
+	self.TimeScale = nil
+	self.BoxLabelsAmount = 1
+	table.wipe (self.GData)
+	table.wipe (self.OData)
+	
+	for index, box in ipairs (self.BoxLabels) do
+		box.check:Hide()
+		box.button:Hide()
+		box.box:Hide()
+		box.text:Hide()
+		box.border:Hide()
+		box.showing = false
+	end
+	
+	chart_panel_overlay_reset (self)
+end
+
+local chart_panel_enable_line = function (f, thisbox)
+
+	local index = thisbox.index
+	local type = thisbox.type
+	
+	if (thisbox.enabled) then
+		--disable
+		thisbox.check:Hide()
+		thisbox.enabled = false
+	else
+		--enable
+		thisbox.check:Show()
+		thisbox.enabled = true
+	end
+	
+	if (type == "graphic") then
+	
+		f.Graphic:ResetData()
+		f.Graphic.max_value = 0
+		
+		local max = 0
+		
+		for index, box in ipairs (f.BoxLabels) do
+			if (box.type == type and box.showing and box.enabled) then
+				local data = f.GData [index]
+				f.Graphic:AddDataSeries (data[1], data[2], nil, data[3])
+				if (data[4] > max) then
+					max = data[4]
+				end
+			end
+		end
+		
+		f:SetScale (max)
+		
+	elseif (type == "overlay") then
+
+		chart_panel_overlay_reset (f)
+		
+		for index, box in ipairs (f.BoxLabels) do
+			if (box.type == type and box.showing and box.enabled) then
+				
+				f:AddOverlay (box.index)
+				
+			end
+		end
+	
+	end
+end
+
+local create_box = function (self, next_box)
+
+	local thisbox = {}
+	self.BoxLabels [next_box] = thisbox
+	
+	local box = gump:NewImage (self, nil, 16, 16, "border")
+	local text = gump:CreateLabel (self, nil, nil, nil, "GameFontNormal")
+	
+	local border = gump:NewImage (self, [[Interface\DialogFrame\UI-DialogBox-Gold-Corner]], 30, 30, "artwork")
+	border:SetPoint ("center", box, "center", -3, -4)
+	
+	local checktexture = gump:NewImage (self, [[Interface\Buttons\UI-CheckBox-Check]], 18, 18, "overlay")
+	checktexture:SetPoint ("center", box, "center", -1, -1)
+	
+	thisbox.box = box
+	thisbox.text = text
+	thisbox.border = border
+	thisbox.check = checktexture
+	thisbox.enabled = true
+
+	local button = gump:CreateButton (self, chart_panel_enable_line, 20, 20, "", self, thisbox)
+	button:SetPoint ("center", box, "center")
+	
+	thisbox.button = button
+	
+	thisbox.box:SetPoint ("right", text, "left", -4, 0)
+	
+	if (next_box == 1) then
+		thisbox.text:SetPoint ("topright", self, "topright", -35, -16)
+	else
+		thisbox.text:SetPoint ("right", self.BoxLabels [next_box-1].box, "left", -7, 0)
+	end
+
+	return thisbox
+	
+end
+
+local chart_panel_add_label = function (self, color, name, type, number)
+
+	local next_box = self.BoxLabelsAmount
+	local thisbox = self.BoxLabels [next_box]
+	
+	if (not thisbox) then
+		thisbox = create_box (self, next_box)
+	end
+	
+	self.BoxLabelsAmount = self.BoxLabelsAmount + 1
+
+	thisbox.type = type
+	thisbox.index = number
+
+	thisbox.box:SetTexture (unpack (color))
+	thisbox.text:SetText (name)
+	
+	thisbox.check:Show()
+	thisbox.button:Show()
+	thisbox.border:Show()
+	thisbox.box:Show()
+	thisbox.text:Show()
+
+	thisbox.showing = true
+	thisbox.enabled = true
+	
+end
+
+local line_default_color = {1, 1, 1}
+local draw_overlay = function (self, this_overlay, overlayData, color)
+
+	local pixel = self.Graphic:GetWidth() / self.TimeScale
+	local index = 1
+	local r, g, b = unpack (color)
+	
+	for i = 1, #overlayData, 2 do
+		local aura_start = overlayData [i]
+		local aura_end = overlayData [i+1]
+		
+		local this_block = this_overlay [index]
+		if (not this_block) then
+			this_block = self.Graphic:CreateTexture (nil, "border")
+			tinsert (this_overlay, this_block)
+		end
+		this_block:SetHeight (self.Graphic:GetHeight())
+		
+		this_block:SetPoint ("left", self.Graphic, "left", pixel * aura_start, 0)
+		if (aura_end) then
+			this_block:SetWidth ((aura_end-aura_start)*pixel)
+		else
+			--malformed table
+			this_block:SetWidth (pixel*5)
+		end
+		
+		this_block:SetTexture (r, g, b, 0.25)
+		this_block:Show()
+		
+		index = index + 1
+	end
+
+end
+
+local chart_panel_add_overlay = function (self, overlayData, color, name, icon)
+
+	if (not self.TimeScale) then
+		error ("Use SetTime (time) before adding an overlay.")
+	end
+
+	if (type (overlayData) == "number") then
+		local overlay_index = overlayData
+		draw_overlay (self, self.Overlays [self.OverlaysAmount], self.OData [overlay_index][1], self.OData [overlay_index][2])
+	else
+		local this_overlay = self.Overlays [self.OverlaysAmount]
+		if (not this_overlay) then
+			this_overlay = {}
+			tinsert (self.Overlays, this_overlay)
+		end
+
+		draw_overlay (self, this_overlay, overlayData, color)
+
+		tinsert (self.OData, {overlayData, color or line_default_color})
+		if (name) then
+			self:AddLabel (color or line_default_color, name, "overlay", #self.OData)
+		end
+	end
+
+	self.OverlaysAmount = self.OverlaysAmount + 1
+end
+
+local chart_panel_add_data = function (self, graphicData, color, name, lineTexture, smoothLevel)
+	
+
+	local f = self
+	self = self.Graphic
+	
+	local _data = {}
+	local max_value = graphicData.max_value
+	local amount = #graphicData
+	
+	local scaleW = 1/self:GetWidth()
+
+	local content = graphicData
+	tinsert (content, 1, 0)
+	tinsert (content, 1, 0)
+	tinsert (content, #content+1, 0)
+	tinsert (content, #content+1, 0)
+	
+	local _i = 3
+	
+	local graphMaxDps = math.max (self.max_value, max_value)
+	if (not smoothLevel) then
+		while (_i <= #content-2) do 
+			local v = (content[_i-2]+content[_i-1]+content[_i]+content[_i+1]+content[_i+2])/5 --> normalize
+			_data [#_data+1] = {scaleW*(_i-2), v/graphMaxDps} --> x and y coords
+			_i = _i + 1
+		end
+		
+	elseif (smoothLevel == 1) then
+		_i = 2
+		while (_i <= #content-1) do 
+			local v = (content[_i-1]+content[_i]+content[_i+1])/3 --> normalize
+			_data [#_data+1] = {scaleW*(_i-1), v/graphMaxDps} --> x and y coords
+			_i = _i + 1
+		end
+		
+	elseif (smoothLevel == 2) then
+		_i = 1
+		while (_i <= #content) do 
+			local v = content[_i] --> do not normalize
+			_data [#_data+1] = {scaleW*(_i), v/graphMaxDps} --> x and y coords
+			_i = _i + 1
+		end
+		
+	end
+	
+	tremove (content, 1)
+	tremove (content, 1)
+	tremove (content, #graphicData)
+	tremove (content, #graphicData)
+
+	if (max_value > self.max_value) then 
+		--> normalize previous data
+		if (self.max_value > 0) then
+			local normalizePercent = self.max_value / max_value
+			for dataIndex, Data in ipairs (self.Data) do 
+				local Points = Data.Points
+				for i = 1, #Points do 
+					Points[i][2] = Points[i][2]*normalizePercent
+				end
+			end
+		end
+	
+		self.max_value = max_value
+	end
+	
+	tinsert (f.GData, {_data, color or line_default_color, lineTexture, graphicData.max_value})
+	if (name) then
+		f:AddLabel (color or line_default_color, name, "graphic", #f.GData)
+	end
+	
+	self:AddDataSeries (_data, color or line_default_color, nil, lineTexture)
+
+end
+
+local chart_panel_onresize = function (self)
+	local width, height = self:GetSize()
+	local spacement = width - 78 - 60
+	spacement = spacement / 16
+	
+	for i = 1, 17 do
+		local label = self.TimeLabels [i]
+		label:SetPoint ("bottomleft", f, "bottomleft", 78 + ((i-1)*spacement), 13)
+		label.line:SetHeight (height - 45)
+	end
+	
+	local spacement = (self.Graphic:GetHeight()) / 8
+	for i = 1, 8 do
+		self ["dpsamt"..i]:SetPoint ("TOPLEFT", self, "TOPLEFT", 27, -25 + (-(spacement* (i-1))) )
+		self ["dpsamt"..i].line:SetWidth (width-20)
+	end
+	
+	self.Graphic:SetSize (width - 135, height - 67)
+	self.Graphic:SetPoint ("topleft", self, "topleft", 108, -35)
+end
+
+local chart_panel_vlines_on = function (self)
+	for i = 1, 17 do
+		local label = self.TimeLabels [i]
+		label.line:Show()
+	end
+end
+
+local chart_panel_vlines_off = function (self)
+	for i = 1, 17 do
+		local label = self.TimeLabels [i]
+		label.line:Hide()
+	end
+end
+
+local chart_panel_set_title = function (self, title)
+	self.chart_title.text = title
+end
+
+local chart_panel_mousedown = function (self, button)
+	if (button == "LeftButton" and self.can_move) then
+		if (not self.isMoving) then
+			self:StartMoving()
+			self.isMoving = true
+		end
+	elseif (button == "RightButton") then
+		if (not self.isMoving) then
+			self:Hide()
+		end
+	end
+end
+local chart_panel_mouseup = function (self, button)
+	if (button == "LeftButton" and self.isMoving) then
+		self:StopMovingOrSizing()
+		self.isMoving = nil
+	end
+end
+
+function gump:CreateChartPanel (parent, w, h, name)
+
+	if (not name) then
+		name = "DetailsPanelNumber" .. gump.PanelCounter
+		gump.PanelCounter = gump.PanelCounter + 1
+	end
+	
+	parent = parent or UIParent
+	w = w or 800
+	h = h or 500
+
+	local f = CreateFrame ("frame", name, parent)
+	f:SetSize (w or 500, h or 400)
+	f:EnableMouse (true)
+	f:SetMovable (true)
+	
+	f:SetScript ("OnMouseDown", chart_panel_mousedown)
+	f:SetScript ("OnMouseUp", chart_panel_mouseup)
+
+	f:SetBackdrop (chart_panel_backdrop)
+	f:SetBackdropColor (.3, .3, .3, .3)
+
+	local c = CreateFrame ("Button", nil, f, "UIPanelCloseButton")
+	c:SetWidth (32)
+	c:SetHeight (32)
+	c:SetPoint ("TOPRIGHT",  f, "TOPRIGHT", -3, -7)
+	c:SetFrameLevel (f:GetFrameLevel()+1)
+	c:SetAlpha (0.9)
+	f.CloseButton = c
+	
+	local title = gump:NewLabel (f, nil, "$parentTitle", "chart_title", "Chart!", nil, 20, "yellow")
+	title:SetPoint (110, -13)
+	_detalhes:SetFontOutline (title, true)
+
+	local bottom_texture = gump:NewImage (f, nil, 702, 25, "background", nil, nil, "$parentBottomTexture")
+	bottom_texture:SetTexture (0, 0, 0, .6)
+	bottom_texture:SetPoint ("bottomleft", f, "bottomleft", 8, 7)
+	bottom_texture:SetPoint ("bottomright", f, "bottomright", -8, 7)
+
+	f.Overlays = {}
+	f.OverlaysAmount = 1
+	
+	f.BoxLabels = {}
+	f.BoxLabelsAmount = 1
+	
+	f.TimeLabels = {}
+	for i = 1, 17 do 
+		local time = gump:NewLabel (f, nil, "$parentTime"..i, nil, "00:00")
+		time:SetPoint ("bottomleft", f, "bottomleft", 78 + ((i-1)*36), 13)
+		f.TimeLabels [i] = time
+		local line = gump:NewImage (f, nil, 1, h-45, "border", nil, nil, "$parentTime"..i.."Bar")
+		line:SetTexture (1, 1, 1, .1)
+		line:SetPoint ("bottomleft", time, "topright", 0, -10)
+		time.line = line
+	end
+	
+	--graphic
+		local g = LibStub:GetLibrary("LibGraph-2.0"):CreateGraphLine (name .. "Graphic", f, "topleft","topleft", 108, -35, w - 120, h - 67)
+		g:SetXAxis (-1,1)
+		g:SetYAxis (-1,1)
+		g:SetGridSpacing (false, false)
+		g:SetGridColor ({0.5,0.5,0.5,0.3})
+		g:SetAxisDrawing (false,false)
+		g:SetAxisColor({1.0,1.0,1.0,1.0})
+		g:SetAutoScale (true)
+		g:SetLineTexture ("smallline")
+		g:SetBorderSize ("right", 0.001)
+		g:SetBorderSize ("left", 0.000)
+		g:SetBorderSize ("top", 0.002)
+		g:SetBorderSize ("bottom", 0.001)
+		g.VerticalLines = {}
+		g.max_value = 0
+		
+		g:SetLineTexture ("line")
+		
+		f.Graphic = g
+		f.GData = {}
+		f.OData = {}
+		
+		g:SetBackdrop ({bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 16})
+		g:SetBackdropColor (0, 0, 0, 0.8)
+	
+	--div lines
+		for i = 1, 8, 1 do
+			local line = g:CreateTexture (nil, "overlay")
+			line:SetTexture (1, 1, 1, .2)
+			line:SetWidth (670)
+			line:SetHeight (1.1)
+		
+			gump:NewLabel (f, f, nil, "dpsamt"..i, "100k", "GameFontHighlightSmall")
+			f["dpsamt"..i]:SetPoint ("TOPLEFT", f, "TOPLEFT", 27, -61 + (-(24.6*i)))
+			line:SetPoint ("topleft", f["dpsamt"..i].widget, "bottom", -27, 0)
+			f["dpsamt"..i].line = line
+		end
+	
+	f.SetTime = chart_panel_align_timelabels
+	f.EnableVerticalLines = chart_panel_vlines_on
+	f.DisableVerticalLines = chart_panel_vlines_off
+	f.SetTitle = chart_panel_set_title
+	f.SetScale = chart_panel_set_scale
+	f.Reset = chart_panel_reset
+	f.AddLine = chart_panel_add_data
+	f.CanMove = chart_panel_can_move
+	f.AddLabel = chart_panel_add_label
+	f.AddOverlay = chart_panel_add_overlay
+	
+	f:SetScript ("OnSizeChanged", chart_panel_onresize)
+	chart_panel_onresize (f)
+	
+	return f
+end

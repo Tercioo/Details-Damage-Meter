@@ -91,10 +91,16 @@
 			custom_window:SetSize (850, 370)
 			custom_window:EnableMouse (true)
 			custom_window:SetMovable (true)
-			custom_window:SetScript ("OnMouseDown", function (self)
-				if (not self.moving) then
-					self.moving = true
-					self:StartMoving()
+			custom_window:SetScript ("OnMouseDown", function (self, button)
+				if (button == "LeftButton") then
+					if (not self.moving) then
+						self.moving = true
+						self:StartMoving()
+					end
+				elseif (button == "RightButton") then
+					if (not self.moving) then
+						_detalhes:CloseCustomDisplayWindow()
+					end
 				end
 			end)
 			custom_window:SetScript ("OnMouseUp", function (self)

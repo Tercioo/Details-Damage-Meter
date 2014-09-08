@@ -147,7 +147,13 @@ do
 	
 	--> return the wallpaper for the raid instance
 	function _detalhes:GetRaidBackground (mapid)
-		return _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].background
+		local bosstables = _detalhes.EncounterInformation [mapid]
+		if (bosstables) then
+			local bg = bosstables.backgroundFile
+			if (bg) then
+				return bg.file, unpack (bg.coords)
+			end
+		end
 	end
 	--> return the icon for the raid instance
 	function _detalhes:GetRaidIcon (mapid)

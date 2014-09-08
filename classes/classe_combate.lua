@@ -70,6 +70,10 @@
 		return self.last_events_tables
 	end
 	
+	function combate:GetCombatNumber()
+		return self.combat_counter
+	end
+	
 	--return the name of the encounter or enemy
 	function combate:GetCombatName (try_find)
 		if (self.is_pvp) then
@@ -140,6 +144,9 @@
 		esta_tabela [5] = container_combatentes:NovoContainer (_detalhes.container_type.CONTAINER_DAMAGE_CLASS, esta_tabela, combatId) --> place holder for customs
 		
 		_setmetatable (esta_tabela, combate)
+		
+		_detalhes.combat_counter = _detalhes.combat_counter + 1
+		esta_tabela.combat_counter = _detalhes.combat_counter
 		
 		--> try discover if is a pvp combat
 		local who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags = ...

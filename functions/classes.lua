@@ -118,5 +118,10 @@ do
 	function _detalhes:Class (actor)
 		return self.classe or actor.classe
 	end
-	
+	function _detalhes:GetActorSpells()
+		return self.spell_tables._ActorTable
+	end
+	function _detalhes:GetSpell (spellid)
+		return self.spell_tables._ActorTable [spellid]
+	end
 end

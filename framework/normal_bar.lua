@@ -419,7 +419,7 @@ local APIBarFunctions
 
 	local OnEnter = function (frame)
 		if (frame.MyObject.OnEnterHook) then
-			local interrupt = frame.MyObject.OnEnterHook (frame)
+			local interrupt = frame.MyObject.OnEnterHook (frame, frame.MyObject)
 			if (interrupt) then
 				return
 			end
@@ -591,10 +591,16 @@ function DetailsNormalBar_OnCreate (self)
 	return true
 end
 
-function gump:NewBar (parent, container, name, member, w, h, value)
+function gump:CreateBar (parent, texture, w, h, value, member, name)
+	return gump:NewBar (parent, parent, name, member, w, h, value, texture)
+end
+
+function gump:NewBar (parent, container, name, member, w, h, value, texture_name)
 
 	if (not name) then
-		return nil
+		name = "DetailsBarNumber" .. gump.BarNameCounter
+		gump.BarNameCounter = gump.BarNameCounter + 1
+
 	elseif (not parent) then
 		return nil
 	elseif (not container) then
@@ -617,6 +623,10 @@ function gump:NewBar (parent, container, name, member, w, h, value)
 	if (container.dframework) then
 		container = container.widget
 	end	
+	
+	value = value or 0
+	w = w or 150
+	h = h or 14
 
 	--> default members:
 		--> hooks
@@ -680,6 +690,11 @@ function gump:NewBar (parent, container, name, member, w, h, value)
 		
 	--> set class
 		_setmetatable (BarObject, BarMetaFunctions)
-	
+
+	--> set texture
+		if (texture_name) then
+			smember_texture (BarObject, texture_name)
+		end
+		
 	return BarObject
 end

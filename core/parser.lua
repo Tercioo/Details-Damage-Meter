@@ -2555,7 +2555,6 @@
 		end
 	end
 
-	--"ENVIRONMENTAL_DAMAGE" --> damage aplied by enviorement like lava.
 	--SPELL_PERIODIC_MISSED --> need research
 	--DAMAGE_SHIELD_MISSED --> need research
 	--SPELL_EXTRA_ATTACKS --> need research

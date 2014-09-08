@@ -31,18 +31,8 @@ do
 	end
 	
 	local build_options_panel = function()
-		local options_frame = CreateFrame ("frame", "EncounterDetailsOptionsWindow", UIParent, "ButtonFrameTemplate")
-		tinsert (UISpecialFrames, "EncounterDetailsOptionsWindow")
-		options_frame:SetSize (500, 200)
-		options_frame:SetFrameStrata ("DIALOG")
-		options_frame:SetScript ("OnMouseDown", function(self) self:StartMoving()end)
-		options_frame:SetScript ("OnMouseUp", function(self) self:StopMovingOrSizing()end)
-		options_frame:SetMovable (true)
-		options_frame:EnableMouse (true)
-		options_frame:Hide()
-		options_frame:SetPoint ("center", UIParent, "center")
-		options_frame.TitleText:SetText ("Encounter Details Options")
-		options_frame.portrait:SetTexture ([[Interface\CHARACTERFRAME\TEMPORARYPORTRAIT-FEMALE-BLOODELF]])
+	
+		local options_frame = EncounterDetails:CreatePluginOptionsFrame ("EncounterDetailsOptionsWindow", "Encounter Details Options", 2)
 		
 		-- 1 = only when inside a raid map
 		-- 2 = only when in raid group
@@ -87,7 +77,6 @@ do
 --		/dump DETAILS_PLUGIN_ENCOUNTER_DETAILS.db.show_icon
 		
 		local menu = {
-			--show when dropdown
 			{
 				type = "select",
 				get = function() return EncounterDetails.db.show_icon end,
@@ -208,20 +197,38 @@ do
 		end
 	end
 	
-	local grafico_cores = {{1, 1, 1, 1}, {1, 0.5, 0.3, 1}, {0.75, 0.7, 0.1, 1}, {0.2, 0.9, 0.2, 1}, {0.2, 0.5, 0.9, 1}} --, {0.9, 0.2, 0.35, 1}, {0.85, 0.55, 0.45, 1}, {0.4, 0.98, 0.29, 1}
+	local grafico_cores = {{1, 1, 1, 1}, {1, 0.5, 0.3, 1}, {0.75, 0.7, 0.1, 1}, {0.2, 0.9, 0.2, 1}, {0.2, 0.5, 0.9, 1}}
 	
 	local lastBoss = nil
+	EncounterDetails.CombatsAlreadyDrew = {}
+	
 	function EncounterDetails:BuildDpsGraphic()
-
-		EncounterDetails.LastGraphicDrew = EncounterDetails.LastGraphicDrew or {}
-		local graphicData = _detalhes.tabela_vigente:GetTimeData ("Raid Damage Done")
 		
-		if (not graphicData or not _detalhes.tabela_vigente.start_time or not _detalhes.tabela_vigente.end_time) then
-			return
-		elseif (graphicData == EncounterDetails.LastGraphicDrew) then
-			return
+		local segment = EncounterDetails._segment
+		
+		--print ("Segment:", segment)
+		local g
+		
+		if (not _G.DetailsRaidDpsGraph) then
+			EncounterDetails:CreateGraphPanel()
+			g = _G.DetailsRaidDpsGraph
 		else
-			EncounterDetails.LastGraphicDrew = graphicData
+			g = _G.DetailsRaidDpsGraph
+
+			--if (not combat.is_boss or not lastBoss or combat.is_boss.index ~= lastBoss) then
+			--	g.max_damage = 0
+			--end
+		end
+		g:ResetData()
+		
+		local combat = EncounterDetails:GetCombat (segment)
+		local graphicData = combat:GetTimeData ("Raid Damage Done")
+		
+		if (not graphicData or not combat.start_time or not combat.end_time) then
+			EncounterDetails:Msg ("This segment doesn't have chart data.")
+			return
+		--elseif (EncounterDetails.CombatsAlreadyDrew [combat:GetCombatNumber()]) then
+			--return
 		end
 		
 		if (graphicData.max_value == 0) then
@@ -229,128 +236,66 @@ do
 		end
 		
 		--> battle time
-		if (_detalhes.tabela_vigente.end_time - _detalhes.tabela_vigente.start_time < 12) then
+		if (combat.end_time - combat.start_time < 12) then
 			return
 		end
 
-		local g
-
-		EncounterDetails.Frame.linhas = EncounterDetails.Frame.linhas or 0
-		EncounterDetails.Frame.linhas = EncounterDetails.Frame.linhas + 1
+		--EncounterDetails.Frame.linhas = EncounterDetails.Frame.linhas or 0
+		EncounterDetails.Frame.linhas = 1
 		
 		if (EncounterDetails.Frame.linhas > 5) then
 			EncounterDetails.Frame.linhas = 1
 		end
 		
-		if (not _G.DetailsRaidDpsGraph) then
-			g = Graphics:CreateGraphLine ("DetailsRaidDpsGraph", EncounterDetails.Frame, "topleft","topleft",20,-76,670,238)
-			g:SetXAxis (-1,1)
-			g:SetYAxis (-1,1)
-			g:SetGridSpacing (false, false)
-			g:SetGridColor ({0.5,0.5,0.5,0.3})
-			g:SetAxisDrawing (false,false)
-			g:SetAxisColor({1.0,1.0,1.0,1.0})
-			g:SetAutoScale (true)
-			g:SetLineTexture ("smallline")
-			g:SetBorderSize ("right", 0.001)
-			g.VerticalLines = {}
-			g.TryIndicator = {}
-			
-			function g:ChangeColorOnDataSeries (index, color)
-				self.Data [index].Color = color
-				self.NeedsUpdate=true
-			end
-			
-			function g:AddDataSeriesOnFirstIndex (points, color, n2)
-				local data
-				--Make sure there is data points
-				if not points then
-					return
-				end
 
-				data=points
-				if n2==nil then
-					n2=false
+		
+		g.max_damage = 0
+
+		for _, line in ipairs (g.VerticalLines) do
+			line:Hide()
+		end
+
+		lastBoss = combat.is_boss and combat.is_boss.index
+		
+		--
+		for i = segment + 4, segment+1, -1 do
+			local combat = EncounterDetails:GetCombat (i)
+			if (combat) then --the combat exists
+				local elapsed_time = combat:GetCombatTime()
+				
+				if (EncounterDetails.debugmode and not combat.is_boss) then
+					combat.is_boss = {
+						index = 1, 
+						name = _detalhes:GetBossName (1098, 1),
+						zone = "Throne of Thunder", 
+						mapid = 1098, 
+						encounter = "Jin'Rohk the Breaker"
+					}
 				end
-				if n2 or (table.getn(points)==2 and table.getn(points[1])~=2) then
-					data={}
-					for k,v in ipairs(points[1]) do
-						tinsert(data,{v,points[2][k]})
+				
+				if (elapsed_time > 12 and combat.is_boss and combat.is_boss.index == lastBoss) then --is the same boss
+				
+					local chart_data = combat:GetTimeData ("Raid Damage Done")
+					if (chart_data and chart_data.max_value and chart_data.max_value > 0) then --have a chart data
+						--if (not EncounterDetails.CombatsAlreadyDrew [combat:GetCombatNumber()]) then --isn't drew yet
+							EncounterDetails:DrawSegmentGraphic (g, chart_data, combat)
+							--EncounterDetails.CombatsAlreadyDrew [combat:GetCombatNumber()] = true
+						--end
 					end
 				end
-				
-				table.insert (self.Data, 1, {Points=data;Color=color})
-				
-				self.NeedsUpdate=true
-			end
-
-			DetailsFrameWork:NewLabel (EncounterDetails.Frame, EncounterDetails.Frame, nil, "timeamt0", "00:00", "GameFontHighlightSmall")
-			EncounterDetails.Frame["timeamt0"]:SetPoint ("TOPLEFT", EncounterDetails.Frame, "TOPLEFT", 85, -300)
-			
-			for i = 1, 8, 1 do
-			
-				local line = g:CreateTexture (nil, "overlay")
-				line:SetTexture (.5, .5, .5, .7)
-				line:SetWidth (670)
-				line:SetHeight (1)
-				line:SetVertexColor (.4, .4, .4, .8)
-			
-				DetailsFrameWork:NewLabel (EncounterDetails.Frame, EncounterDetails.Frame, nil, "dpsamt"..i, "", "GameFontHighlightSmall")
-				EncounterDetails.Frame["dpsamt"..i]:SetPoint ("TOPLEFT", EncounterDetails.Frame, "TOPLEFT", 27, -61 + (-(24.6*i)))
-				line:SetPoint ("topleft", EncounterDetails.Frame["dpsamt"..i].widget, "bottom", -27, 0)
-
-				DetailsFrameWork:NewLabel (EncounterDetails.Frame, EncounterDetails.Frame, nil, "timeamt"..i, "", "GameFontHighlightSmall")
-				EncounterDetails.Frame["timeamt"..i].widget:SetPoint ("TOPLEFT", EncounterDetails.Frame, "TOPLEFT", 75+(73*i), -300)
-			end
-			
-			g.max_time = 0
-			g.max_damage = 0
-			
-			EncounterDetails.MaxGraphics = EncounterDetails.MaxGraphics or 5
-			
-			for i = 1, EncounterDetails.MaxGraphics do 
-				local texture = g:CreateTexture (nil, "overlay")
-				texture:SetWidth (9)
-				texture:SetHeight (9)
-				texture:SetPoint ("TOPLEFT", EncounterDetails.Frame, "TOPLEFT", (i*65) + 299, -81)
-				texture:SetTexture (unpack (grafico_cores[i]))
-				local text = g:CreateFontString (nil, "OVERLAY", "GameFontHighlightSmall")
-				text:SetPoint ("LEFT", texture, "right", 2, 0)
-				text:SetJustifyH ("LEFT")
-				if (i == 1) then
-					text:SetText (Loc ["STRING_CURRENT"])
-				else
-					text:SetText (Loc ["STRING_TRY"] .. " #" .. i)
-				end
-				--texture:Hide()
-				g.TryIndicator [#g.TryIndicator+1] = {texture = texture, text = text}
-			end
-			
-			local v = g:CreateTexture (nil, "overlay")
-			v:SetWidth (1)
-			v:SetHeight (238)
-			v:SetPoint ("top", g, "top", 0, 1)
-			v:SetPoint ("left", g, "left", 55, 0)
-			v:SetTexture (1, 1, 1, 1)
-			
-			local h = g:CreateTexture (nil, "overlay")
-			h:SetWidth (668)
-			h:SetHeight (2)
-			h:SetPoint ("top", g, "top", 0, -217)
-			h:SetPoint ("left", g, "left")
-			h:SetTexture (1, 1, 1, 1)
-			
-		else
-			g = _G.DetailsRaidDpsGraph
-
-			if (not _detalhes.tabela_vigente.is_boss or not lastBoss or _detalhes.tabela_vigente.is_boss.index ~= lastBoss) then
-				g:ResetData()
-				g.max_damage = 0
 			end
 		end
+		--
 		
-		lastBoss = _detalhes.tabela_vigente.is_boss and _detalhes.tabela_vigente.is_boss.index
+		EncounterDetails:DrawSegmentGraphic (g, graphicData, combat, combat)
+		EncounterDetails.CombatsAlreadyDrew [combat:GetCombatNumber()] = true
 		
+		g:Show()
+		
+	end	
+	
+	function EncounterDetails:DrawSegmentGraphic (g, graphicData, combat, drawDeathsCombat)
+	
 		local _data = {}
 		local dps_max = graphicData.max_value
 		local amount = #graphicData
@@ -358,10 +303,11 @@ do
 		local scaleW = 1/670
 
 		local content = graphicData
-		table.insert (content, 1, 0)
-		table.insert (content, 1, 0)
-		table.insert (content, #content+1, 0)
-		table.insert (content, #content+1, 0)
+		tinsert (content, 1, 0)
+		tinsert (content, 1, 0)
+		tinsert (content, #content+1, 0)
+		tinsert (content, #content+1, 0)
+		
 		local _i = 3
 		
 		local graphMaxDps = math.max (g.max_damage, dps_max)
@@ -370,12 +316,13 @@ do
 			_data [#_data+1] = {scaleW*(_i-2), v/graphMaxDps} --> x and y coords
 			_i = _i + 1
 		end
+		
+		tremove (content, 1)
+		tremove (content, 1)
+		tremove (content, #graphicData)
+		tremove (content, #graphicData)
 
---[[ precisa de uma proteção contra troca de tabela, no inicio dos trash		
-Message: ..\AddOns\Details_EncounterDetails\frames.lua line 156:
-   attempt to perform arithmetic on field 'end_time' (a nil value)--]]
-
-		local tempo = _detalhes.tabela_vigente.end_time - _detalhes.tabela_vigente.start_time
+		local tempo = combat.end_time - combat.start_time
 		if (g.max_time < tempo) then 
 			g.max_time = tempo
 
@@ -394,20 +341,14 @@ Message: ..\AddOns\Details_EncounterDetails\frames.lua line 156:
 			end
 		end
 		
-		--print ("DPSMAX: " .. dps_max .. " > " .. g.max_damage)
-		
 		if (dps_max > g.max_damage) then 
 		
 			--> normalize previous data
-			
-			--table.insert (self.Data, 1, {Points=data;Color=color})
-			
 			if (g.max_damage > 0) then
 				local normalizePercent = g.max_damage / dps_max
 				for dataIndex, Data in ipairs (g.Data) do 
 					local Points = Data.Points
 					for i = 1, #Points do 
-						--print (Points[i][1], Points[i][2])
 						Points[i][2] = Points[i][2]*normalizePercent
 					end
 				end
@@ -435,102 +376,197 @@ Message: ..\AddOns\Details_EncounterDetails\frames.lua line 156:
 		for i = 2, #g.Data do 
 			g:ChangeColorOnDataSeries (i, grafico_cores [i])
 		end
-		
-		local mortes = _detalhes.tabela_vigente.last_events_tables
-		local scaleG = 650/_detalhes.tabela_vigente:GetCombatTime()
-		
-		for _, row in _ipairs (g.VerticalLines) do 
-			row:Hide()
-		end
-		
-		for i = 1, math.min (3, #mortes) do 
-		
-			local vRowFrame = g.VerticalLines [i]
-			local deadTime = mortes [i][2] - _detalhes.tabela_vigente.start_time
+
+		if (drawDeathsCombat) then
+			local mortes = drawDeathsCombat.last_events_tables
+			--local scaleG = 650/_detalhes.tabela_vigente:GetCombatTime()
+			local scaleG = 610/drawDeathsCombat:GetCombatTime()
 			
-			if (not vRowFrame) then
-			
-				vRowFrame = CreateFrame ("frame", "DetailsEncountersVerticalLine"..i, g)
-				vRowFrame:SetWidth (20)
-				vRowFrame:SetHeight (43)
-				vRowFrame:SetFrameLevel (g:GetFrameLevel()+2)
-				
-				vRowFrame:SetScript ("OnEnter", function (frame) 
-					
-					if (vRowFrame.dead[1] and vRowFrame.dead[1][3] and vRowFrame.dead[1][3][2]) then
-						local nome_magia3, _, icone_magia3 = _GetSpellInfo (vRowFrame.dead[1][3][2])
-						if (type (vRowFrame.dead[1][3][3]) == "number") then
-							nome_magia3 = _detalhes:comma_value (vRowFrame.dead[1][3][3]).." "..nome_magia3
-						end
-						
-						local nome_magia2, _, icone_magia2 = _GetSpellInfo (vRowFrame.dead[1][2][2])
-						if (type (vRowFrame.dead[1][2][3]) == "number") then
-							nome_magia2 = _detalhes:comma_value (vRowFrame.dead[1][2][3]).." "..nome_magia2
-						end
-						
-						local nome_magia1, _, icone_magia1 = _GetSpellInfo (vRowFrame.dead[1][1][2])
-						if (type (vRowFrame.dead[1][1][3]) == "number") then
-							nome_magia1 = _detalhes:comma_value (vRowFrame.dead[1][1][3]).." "..nome_magia1
-						else --bress
-							local decorrido = vRowFrame.dead[1][1][4] - _detalhes.tabela_vigente.start_time
-							local minutos, segundos = _math_floor (decorrido/60), _math_floor (decorrido%60)
-							nome_magia1 = minutos..":"..segundos.." "..nome_magia1
-						end
-
-						GameCooltip:Reset()
-						
-						GameCooltip:AddLine (vRowFrame.dead[6].." "..vRowFrame.dead[3])
-						GameCooltip:AddIcon ("Interface\\AddOns\\Details_EncounterDetails\\images\\small_icons", _,_,_,_, .75, 1, 0, 1)
-						
-						GameCooltip:AddLine (nome_magia3)
-						GameCooltip:AddIcon (icone_magia3)
-						
-						GameCooltip:AddLine (nome_magia2)
-						GameCooltip:AddIcon (icone_magia1)
-						
-						GameCooltip:AddLine (nome_magia1)
-						GameCooltip:AddIcon (icone_magia1)
-
-						GameCooltip:SetOption ("TextSize", 9.5)
-						GameCooltip:SetOption ("IconSize", 12)
-						GameCooltip:SetOption ("HeightAnchorMod", -15)
-						
-						GameCooltip:ShowCooltip (frame, "tooltip")
-					end
-				end)
-				
-				vRowFrame:SetScript ("OnLeave", function (frame) 
-					_detalhes.popup:ShowMe (false)
-				end)
-
-				vRowFrame.texture = vRowFrame:CreateTexture (nil, "overlay")
-				vRowFrame.texture:SetTexture ("Interface\\AddOns\\Details\\images\\verticalline")
-				vRowFrame.texture:SetWidth (3)
-				vRowFrame.texture:SetHeight (20)
-				vRowFrame.texture:SetPoint ("center", "DetailsEncountersVerticalLine"..i, "center")
-				vRowFrame.texture:SetPoint ("bottom", "DetailsEncountersVerticalLine"..i, "bottom", 0, 0)
-				vRowFrame.texture:SetVertexColor (1, 1, 1, .5)
-
-				vRowFrame.icon = vRowFrame:CreateTexture (nil, "overlay")
-				vRowFrame.icon:SetTexture ("Interface\\WorldStateFrame\\SkullBones")
-				vRowFrame.icon:SetTexCoord (0.046875, 0.453125, 0.046875, 0.46875)
-				vRowFrame.icon:SetWidth (16)
-				vRowFrame.icon:SetHeight (16)
-				vRowFrame.icon:SetPoint ("center", "DetailsEncountersVerticalLine"..i, "center")
-				vRowFrame.icon:SetPoint ("bottom", "DetailsEncountersVerticalLine"..i, "bottom", 0, 20)
-
-				g.VerticalLines [i] = vRowFrame
+			for _, row in _ipairs (g.VerticalLines) do 
+				row:Hide()
 			end
 			
-			vRowFrame:SetPoint ("topleft", EncounterDetails.Frame, "topleft", (deadTime*scaleG), -268)
-			vRowFrame.dead = mortes [i]
-			vRowFrame:Show()
+			for i = 1, math.min (3, #mortes) do 
 			
+				local vRowFrame = g.VerticalLines [i]
+				
+				if (not vRowFrame) then
+				
+					vRowFrame = CreateFrame ("frame", "DetailsEncountersVerticalLine"..i, g)
+					vRowFrame:SetWidth (20)
+					vRowFrame:SetHeight (43)
+					vRowFrame:SetFrameLevel (g:GetFrameLevel()+2)
+					
+					vRowFrame:SetScript ("OnEnter", function (frame) 
+						
+						if (vRowFrame.dead[1] and vRowFrame.dead[1][3] and vRowFrame.dead[1][3][2]) then
+						
+							GameCooltip:Reset()
+							
+							--time of death and player name
+							GameCooltip:AddLine (vRowFrame.dead[6].." "..vRowFrame.dead[3])
+							local class, l, r, t, b = _detalhes:GetClass (vRowFrame.dead[3])
+							if (class) then
+								GameCooltip:AddIcon ([[Interface\AddOns\Details\images\classes_small]], 1, 1, 12, 12, l, r, t, b)
+							end
+							GameCooltip:AddLine ("")
+							
+							--last hits:
+							local death = vRowFrame.dead
+							local amt = 0
+							for i = #death[1], 1, -1 do
+								local this_hit = death[1][i]
+								if (type (this_hit[1]) == "boolean" and this_hit[1]) then
+									local spellname, _, spellicon = _GetSpellInfo (this_hit[2])
+									local t = death [2] - this_hit [4]
+									GameCooltip:AddLine ("-" .. _cstr ("%.1f", t) .. " " .. spellname .. " (" .. this_hit[6] .. ")", EncounterDetails:comma_value (this_hit [3]))
+									GameCooltip:AddIcon (spellicon, 1, 1, 12, 12, 0.1, 0.9, 0.1, 0.9)
+									amt = amt + 1
+									if (amt == 3) then
+										break
+									end
+								end
+							end
+							
+							GameCooltip:SetOption ("TextSize", 9.5)
+							GameCooltip:SetOption ("HeightAnchorMod", -15)
+							
+							GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
+							GameCooltip:ShowCooltip (frame, "tooltip")
+						end
+					end)
+					
+					vRowFrame:SetScript ("OnLeave", function (frame) 
+						_detalhes.popup:ShowMe (false)
+					end)
+
+					vRowFrame.texture = vRowFrame:CreateTexture (nil, "overlay")
+					vRowFrame.texture:SetTexture ("Interface\\AddOns\\Details\\images\\verticalline")
+					vRowFrame.texture:SetWidth (3)
+					vRowFrame.texture:SetHeight (20)
+					vRowFrame.texture:SetPoint ("center", "DetailsEncountersVerticalLine"..i, "center")
+					vRowFrame.texture:SetPoint ("bottom", "DetailsEncountersVerticalLine"..i, "bottom", 0, 0)
+					vRowFrame.texture:SetVertexColor (1, 1, 1, .5)
+
+					vRowFrame.icon = vRowFrame:CreateTexture (nil, "overlay")
+					vRowFrame.icon:SetTexture ("Interface\\WorldStateFrame\\SkullBones")
+					vRowFrame.icon:SetTexCoord (0.046875, 0.453125, 0.046875, 0.46875)
+					vRowFrame.icon:SetWidth (16)
+					vRowFrame.icon:SetHeight (16)
+					vRowFrame.icon:SetPoint ("center", "DetailsEncountersVerticalLine"..i, "center")
+					vRowFrame.icon:SetPoint ("bottom", "DetailsEncountersVerticalLine"..i, "bottom", 0, 20)
+
+					g.VerticalLines [i] = vRowFrame
+				end
+				
+				local deadTime = mortes [i].dead_at
+				--print (deadTime, mortes [i][3])
+				vRowFrame:SetPoint ("topleft", EncounterDetails.Frame, "topleft", (deadTime*scaleG)+70, -268)
+				vRowFrame.dead = mortes [i]
+				vRowFrame:Show()
+				
+			end
+		end
+	end
+	
+	function EncounterDetails:CreateGraphPanel()
+		local g = Graphics:CreateGraphLine ("DetailsRaidDpsGraph", EncounterDetails.Frame, "topleft","topleft",20,-76,670,238)
+		g:SetXAxis (-1,1)
+		g:SetYAxis (-1,1)
+		g:SetGridSpacing (false, false)
+		g:SetGridColor ({0.5,0.5,0.5,0.3})
+		g:SetAxisDrawing (false,false)
+		g:SetAxisColor({1.0,1.0,1.0,1.0})
+		g:SetAutoScale (true)
+		g:SetLineTexture ("smallline")
+		g:SetBorderSize ("right", 0.001)
+		g.VerticalLines = {}
+		g.TryIndicator = {}
+		
+		function g:ChangeColorOnDataSeries (index, color)
+			self.Data [index].Color = color
+			self.NeedsUpdate=true
 		end
 		
-		_G.DetailsRaidDpsGraph:Show()
+		function g:AddDataSeriesOnFirstIndex (points, color, n2)
+			local data
+			--Make sure there is data points
+			if not points then
+				return
+			end
+
+			data=points
+			if n2==nil then
+				n2=false
+			end
+			if n2 or (table.getn(points)==2 and table.getn(points[1])~=2) then
+				data={}
+				for k,v in ipairs(points[1]) do
+					tinsert(data,{v,points[2][k]})
+				end
+			end
+			
+			table.insert (self.Data, 1, {Points=data;Color=color})
+			
+			self.NeedsUpdate=true
+		end
+
+		DetailsFrameWork:NewLabel (EncounterDetails.Frame, EncounterDetails.Frame, nil, "timeamt0", "00:00", "GameFontHighlightSmall")
+		EncounterDetails.Frame["timeamt0"]:SetPoint ("TOPLEFT", EncounterDetails.Frame, "TOPLEFT", 85, -300)
 		
-	end	
+		for i = 1, 8, 1 do
+		
+			local line = g:CreateTexture (nil, "overlay")
+			line:SetTexture (.5, .5, .5, .7)
+			line:SetWidth (670)
+			line:SetHeight (1)
+			line:SetVertexColor (.4, .4, .4, .8)
+		
+			DetailsFrameWork:NewLabel (EncounterDetails.Frame, EncounterDetails.Frame, nil, "dpsamt"..i, "", "GameFontHighlightSmall")
+			EncounterDetails.Frame["dpsamt"..i]:SetPoint ("TOPLEFT", EncounterDetails.Frame, "TOPLEFT", 27, -61 + (-(24.6*i)))
+			line:SetPoint ("topleft", EncounterDetails.Frame["dpsamt"..i].widget, "bottom", -27, 0)
+
+			DetailsFrameWork:NewLabel (EncounterDetails.Frame, EncounterDetails.Frame, nil, "timeamt"..i, "", "GameFontHighlightSmall")
+			EncounterDetails.Frame["timeamt"..i].widget:SetPoint ("TOPLEFT", EncounterDetails.Frame, "TOPLEFT", 75+(73*i), -300)
+		end
+		
+		g.max_time = 0
+		g.max_damage = 0
+		
+		EncounterDetails.MaxGraphics = EncounterDetails.MaxGraphics or 5
+		
+		for i = 1, EncounterDetails.MaxGraphics do 
+			local texture = g:CreateTexture (nil, "overlay")
+			texture:SetWidth (9)
+			texture:SetHeight (9)
+			texture:SetPoint ("TOPLEFT", EncounterDetails.Frame, "TOPLEFT", (i*65) + 299, -81)
+			texture:SetTexture (unpack (grafico_cores[i]))
+			local text = g:CreateFontString (nil, "OVERLAY", "GameFontHighlightSmall")
+			text:SetPoint ("LEFT", texture, "right", 2, 0)
+			text:SetJustifyH ("LEFT")
+			if (i == 1) then
+				text:SetText (Loc ["STRING_CURRENT"])
+			else
+				text:SetText (Loc ["STRING_TRY"] .. " #" .. i)
+			end
+			--texture:Hide()
+			g.TryIndicator [#g.TryIndicator+1] = {texture = texture, text = text}
+		end
+		
+		local v = g:CreateTexture (nil, "overlay")
+		v:SetWidth (1)
+		v:SetHeight (238)
+		v:SetPoint ("top", g, "top", 0, 1)
+		v:SetPoint ("left", g, "left", 55, 0)
+		v:SetTexture (1, 1, 1, 1)
+		
+		local h = g:CreateTexture (nil, "overlay")
+		h:SetWidth (668)
+		h:SetHeight (2)
+		h:SetPoint ("top", g, "top", 0, -217)
+		h:SetPoint ("left", g, "left")
+		h:SetTexture (1, 1, 1, 1)
+	end
 	
 	local BossFrame = EncounterDetails.Frame
 	
@@ -565,6 +601,8 @@ Message: ..\AddOns\Details_EncounterDetails\frames.lua line 156:
 						if (botao == "LeftButton") then
 							self:StartMoving()
 							self.isMoving = true
+						elseif (botao == "RightButton" and not self.isMoving) then
+							EncounterDetails:CloseWindow()
 						end
 					end)
 					
@@ -735,7 +773,8 @@ Message: ..\AddOns\Details_EncounterDetails\frames.lua line 156:
 				widget:Hide()
 			end
 			
-			BossFrame.segmentosDropdown:Disable()
+			BossFrame.segmentosDropdown:Enable()
+			--BossFrame.segmentosDropdown:Disable()
 		end
 	end
 
@@ -809,7 +848,11 @@ Message: ..\AddOns\Details_EncounterDetails\frames.lua line 156:
 	--tooltips
 	BossFrame.buttonSwitchNormal.MouseOnEnterHook = function()  
 		GameCooltip:Reset()
-		GameCooltip:AddLine (Loc ["STRING_FIGHT_SUMMARY"])
+		--GameCooltip:AddLine (Loc ["STRING_FIGHT_SUMMARY"])
+		GameCooltip:AddLine (Loc ["STRING_FIGHT_SUMMARY"], nil, nil, "orange", nil, 12)
+		--GameCooltip:AddIcon ("Interface\\AddOns\\Details_EncounterDetails\\images\\boss_frame_buttons", 1, 1, 16, 16, 0, 0.1015625, 0, 0.515625)
+	
+		GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
 		GameCooltip:ShowCooltip (BossFrame.buttonSwitchNormal, "tooltip")
 		t:SetBlendMode ("ADD")
 	end
@@ -817,7 +860,10 @@ Message: ..\AddOns\Details_EncounterDetails\frames.lua line 156:
 	--
 	BossFrame.buttonSwitchGraphic.MouseOnEnterHook = function() 
 		GameCooltip:Reset()
-		GameCooltip:AddLine (Loc ["STRING_FIGHT_GRAPHIC"])
+		GameCooltip:AddLine (Loc ["STRING_FIGHT_GRAPHIC"], nil, nil, "orange", nil, 12)
+		--GameCooltip:AddIcon ("Interface\\AddOns\\Details_EncounterDetails\\images\\boss_frame_buttons", 1, 1, 16, 16, 0.1171875, 0.21875, 0, 0.515625)
+		
+		GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
 		GameCooltip:ShowCooltip (BossFrame.buttonSwitchGraphic, "tooltip")
 		g:SetBlendMode ("ADD")
 	end
@@ -825,7 +871,10 @@ Message: ..\AddOns\Details_EncounterDetails\frames.lua line 156:
 	--
 	BossFrame.buttonSwitchBossEmotes:SetHook ("OnEnter", function() 
 		GameCooltip:Reset()
-		GameCooltip:AddLine ("boss emotes")
+		GameCooltip:AddLine ("boss emotes", nil, nil, "orange", nil, 12)
+		--GameCooltip:AddIcon ("Interface\\AddOns\\Details_EncounterDetails\\images\\boss_frame_buttons", 1, 1, 16, 16, 90/256, 116/256, 0, 0.515625)
+		
+		GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
 		GameCooltip:ShowCooltip (BossFrame.buttonSwitchBossEmotes, "tooltip")
 		e:SetBlendMode ("ADD")
 	end)
@@ -1278,10 +1327,12 @@ Message: ..\AddOns\Details_EncounterDetails\frames.lua line 156:
 
 		mouseOver_adds_frame:SetScript ("OnEnter", 
 			function() 
-				_G.DetailsBubble:SetOwner (mouseOver_adds_frame.imagem, nil, nil, -45, -22)
-				_G.DetailsBubble:FlipHorizontal()
-				_G.DetailsBubble:SetBubbleText (Loc ["STRING_ADDS_HELP"])
-				_G.DetailsBubble:ShowBubble()
+				if (EncounterDetails.db.opened < 30) then
+					_G.DetailsBubble:SetOwner (mouseOver_adds_frame.imagem, nil, nil, -45, -22)
+					_G.DetailsBubble:FlipHorizontal()
+					_G.DetailsBubble:SetBubbleText (Loc ["STRING_ADDS_HELP"])
+					_G.DetailsBubble:ShowBubble()
+				end
 				mouseOver_adds_frame.imagem:SetTexCoord (0.7734375, 0.99609375, 0.03125, 0.3671875)
 			end)
 		mouseOver_adds_frame:SetScript ("OnLeave", 
@@ -1305,16 +1356,16 @@ Message: ..\AddOns\Details_EncounterDetails\frames.lua line 156:
 		--container_adds_window:SetBackdropColor (0, 0, 0, 0.1)
 		
 		container_adds_frame:SetAllPoints (container_adds_window)
-		container_adds_frame:SetWidth (170)
+		container_adds_frame:SetWidth (175)
 		container_adds_frame:SetHeight (67)
 		container_adds_frame:EnableMouse (true)
 		container_adds_frame:SetResizable (false)
 		container_adds_frame:SetMovable (true)
 		
-		container_adds_window:SetWidth (170)
+		container_adds_window:SetWidth (175)
 		container_adds_window:SetHeight (65)
 		container_adds_window:SetScrollChild (container_adds_frame)
-		container_adds_window:SetPoint ("TOPLEFT", frame, "TOPLEFT", 260, -113)
+		container_adds_window:SetPoint ("TOPLEFT", frame, "TOPLEFT", 255, -113)
 
 		DetailsFrameWork:NewLabel (container_adds_window, container_adds_window, nil, "titulo", Loc ["STRING_ADDS"], "QuestFont_Large", 16, {1, 1, 1})
 		container_adds_window.titulo:SetPoint ("bottomleft", container_adds_window, "topleft", 0, 4)
@@ -1355,10 +1406,11 @@ Message: ..\AddOns\Details_EncounterDetails\frames.lua line 156:
 		
 		mouseOver_interrupt_frame:SetScript ("OnEnter", 
 			function()
-				_G.DetailsBubble:SetOwner (mouseOver_interrupt_frame.imagem, nil, nil, 40, -18)
-				--_G.DetailsBubble:FlipHorizontal()
-				_G.DetailsBubble:SetBubbleText (Loc ["STRING_INTERRIPT_HELP"])
-				_G.DetailsBubble:ShowBubble()
+				if (EncounterDetails.db.opened < 30) then
+					_G.DetailsBubble:SetOwner (mouseOver_interrupt_frame.imagem, nil, nil, 40, -18)
+					_G.DetailsBubble:SetBubbleText (Loc ["STRING_INTERRIPT_HELP"])
+					_G.DetailsBubble:ShowBubble()
+				end
 				mouseOver_interrupt_frame.imagem:SetTexCoord (0.6015625, 1, 0.4296875, 0.6953125)
 			end)
 		mouseOver_interrupt_frame:SetScript ("OnLeave", 
@@ -1374,29 +1426,22 @@ Message: ..\AddOns\Details_EncounterDetails\frames.lua line 156:
 		
 		container_interrupt_frame.barras = {}
 		
-		--container_interrupt_window:SetBackdrop({edgeFile = "Interface\\DialogFrame\\UI-DialogBox-gold-Border", tile = true, tileSize = 16, edgeSize = 5, insets = {left = 1, right = 1, top = 0, bottom = 1},})		
-		--container_interrupt_window:SetBackdropBorderColor (0,0,0,0)
-		
-		--container_interrupt_window:SetBackdrop (gump_fundo_backdrop)
-		--container_interrupt_window:SetBackdropBorderColor (1, 1, 1, 1)
-		--container_interrupt_window:SetBackdropColor (0, 0, 0, 0.1)
-		
 		container_interrupt_frame:SetAllPoints (container_interrupt_window)
-		container_interrupt_frame:SetWidth (170)
+		container_interrupt_frame:SetWidth (185)
 		container_interrupt_frame:SetHeight (67)
 		container_interrupt_frame:EnableMouse (true)
 		container_interrupt_frame:SetResizable (false)
 		container_interrupt_frame:SetMovable (true)
 		
-		container_interrupt_window:SetWidth (170)
+		container_interrupt_window:SetWidth (185)
 		container_interrupt_window:SetHeight (65)
 		container_interrupt_window:SetScrollChild (container_interrupt_frame)
-		container_interrupt_window:SetPoint ("TOPLEFT", frame, "TOPLEFT", 480, -113)
+		container_interrupt_window:SetPoint ("TOPLEFT", frame, "TOPLEFT", 470, -113)
 
 		DetailsFrameWork:NewLabel (container_interrupt_window, container_interrupt_window, nil, "titulo", Loc ["STRING_INTERRUPTS"], "QuestFont_Large", 16, {1, 1, 1})
 		container_interrupt_window.titulo:SetPoint ("bottomleft", container_interrupt_window, "topleft", 0, 4)
 		
-		DetailsFrameWork:NewScrollBar (container_interrupt_window, container_interrupt_frame, 4, -13)
+		DetailsFrameWork:NewScrollBar (container_interrupt_window, container_interrupt_frame, -1, -13)
 		container_interrupt_window.slider:Altura (45)
 		container_interrupt_window.slider:cimaPoint (0, 1)
 		container_interrupt_window.slider:baixoPoint (0, -1)
@@ -1432,10 +1477,12 @@ Message: ..\AddOns\Details_EncounterDetails\frames.lua line 156:
 		
 		mouseOver_dispell_frame:SetScript ("OnEnter", 
 			function()
-				_G.DetailsBubble:SetOwner (mouseOver_dispell_frame.imagem, nil, nil, -45, -22)
-				_G.DetailsBubble:FlipHorizontal()
-				_G.DetailsBubble:SetBubbleText (Loc ["STRING_DISPELL_HELP"])
-				_G.DetailsBubble:ShowBubble()
+				if (EncounterDetails.db.opened < 30) then
+					_G.DetailsBubble:SetOwner (mouseOver_dispell_frame.imagem, nil, nil, -45, -22)
+					_G.DetailsBubble:FlipHorizontal()
+					_G.DetailsBubble:SetBubbleText (Loc ["STRING_DISPELL_HELP"])
+					_G.DetailsBubble:ShowBubble()
+				end
 				mouseOver_dispell_frame.imagem:SetTexCoord (0.1796875, 0.3359375, 0.4140625, 0.71875)
 			end)
 		mouseOver_dispell_frame:SetScript ("OnLeave", 
@@ -1451,29 +1498,22 @@ Message: ..\AddOns\Details_EncounterDetails\frames.lua line 156:
 		
 		container_dispell_frame.barras = {}
 		
-		--container_dispell_window:SetBackdrop (backdrop)
-		--container_dispell_window:SetBackdropBorderColor (0,0,0,0)
-		
-		--container_dispell_window:SetBackdrop (gump_fundo_backdrop)
-		--container_dispell_window:SetBackdropBorderColor (1, 1, 1, 1)
-		--container_dispell_window:SetBackdropColor (0, 0, 0, 0.1)
-		
 		container_dispell_frame:SetAllPoints (container_dispell_window)
-		container_dispell_frame:SetWidth (170)
+		container_dispell_frame:SetWidth (190)
 		container_dispell_frame:SetHeight (62)
 		container_dispell_frame:EnableMouse (true)
 		container_dispell_frame:SetResizable (false)
 		container_dispell_frame:SetMovable (true)
 		
-		container_dispell_window:SetWidth (170)
+		container_dispell_window:SetWidth (190)
 		container_dispell_window:SetHeight (68)
 		container_dispell_window:SetScrollChild (container_dispell_frame)
-		container_dispell_window:SetPoint ("TOPLEFT", frame, "TOPLEFT", 260, -231)
+		container_dispell_window:SetPoint ("TOPLEFT", frame, "TOPLEFT", 245, -231)
 
 		DetailsFrameWork:NewLabel (container_dispell_window, container_dispell_window, nil, "titulo", Loc ["STRING_DISPELLS"], "QuestFont_Large", 16, {1, 1, 1})
 		container_dispell_window.titulo:SetPoint ("bottomleft", container_dispell_window, "topleft", 0, 4)
 		
-		DetailsFrameWork:NewScrollBar (container_dispell_window, container_dispell_frame, 4, -13)
+		DetailsFrameWork:NewScrollBar (container_dispell_window, container_dispell_frame, -1, -13)
 		container_dispell_window.slider:Altura (45)
 		container_dispell_window.slider:cimaPoint (0, 1)
 		container_dispell_window.slider:baixoPoint (0, -1)
@@ -1483,8 +1523,7 @@ Message: ..\AddOns\Details_EncounterDetails\frames.lua line 156:
 		container_dispell_frame.window = container_dispell_window
 		container_dispell_window.ultimo = 0
 		frame.overall_dispell = container_dispell_window		
-		
-		
+
 	--> Caixa das mortes
 	
 		local container_dead_window = CreateFrame ("ScrollFrame", "Details_Boss_ContainerDead", frame)
@@ -1510,10 +1549,11 @@ Message: ..\AddOns\Details_EncounterDetails\frames.lua line 156:
 		
 		mouseOver_dead_frame:SetScript ("OnEnter", 
 			function()
-				_G.DetailsBubble:SetOwner (mouseOver_dead_frame.imagem, nil, nil, 40, -18)
-				--_G.DetailsBubble:FlipHorizontal()
-				_G.DetailsBubble:SetBubbleText (Loc ["STRING_DEATHS_HELP"])
-				_G.DetailsBubble:ShowBubble()
+				if (EncounterDetails.db.opened < 30) then
+					_G.DetailsBubble:SetOwner (mouseOver_dead_frame.imagem, nil, nil, 40, -18)
+					_G.DetailsBubble:SetBubbleText (Loc ["STRING_DEATHS_HELP"])
+					_G.DetailsBubble:ShowBubble()
+				end
 				mouseOver_dead_frame.imagem:SetTexCoord (0.171875, 0.3359375, 0.03125, 0.34375)
 			end)
 		mouseOver_dead_frame:SetScript ("OnLeave", 
@@ -1528,31 +1568,23 @@ Message: ..\AddOns\Details_EncounterDetails\frames.lua line 156:
 		mouseOver_dead_frame:SetScript ("OnMouseUp", mouse_up)
 		
 		container_dead_frame.barras = {}
-		
-		--container_dead_window:SetBackdrop({edgeFile = "Interface\\DialogFrame\\UI-DialogBox-gold-Border", tile = true, tileSize = 16, edgeSize = 5, insets = {left = 1, right = 1, top = 0, bottom = 1},})		
-		--container_dead_window:SetBackdropBorderColor (0,0,0,0)
-		
-		--container_dead_window:SetBackdrop (gump_fundo_backdrop)
-		--container_dead_window:SetBackdropBorderColor (1, 1, 1, 1)
-		--container_dead_window:SetBackdropColor (0, 0, 0, 0.1)
-		
-		--container_dead_frame:SetAllPoints (container_dead_window)
+
 		container_dead_frame:SetPoint ("left", container_dead_window, "left")
 		container_dead_frame:SetPoint ("right", container_dead_window, "right")
 		container_dead_frame:SetPoint ("top", container_dead_window, "top")
 		container_dead_frame:SetPoint ("bottom", container_dead_window, "bottom", 0, 10)
 
-		container_dead_frame:SetWidth (170)
+		container_dead_frame:SetWidth (178)
 		container_dead_frame:SetHeight (60)
 		
 		container_dead_frame:EnableMouse (true)
 		container_dead_frame:SetResizable (false)
 		container_dead_frame:SetMovable (true)
 		
-		container_dead_window:SetWidth (170)
+		container_dead_window:SetWidth (178)
 		container_dead_window:SetHeight (70)
 		container_dead_window:SetScrollChild (container_dead_frame)
-		container_dead_window:SetPoint ("TOPLEFT", frame, "TOPLEFT", 480, -235)
+		container_dead_window:SetPoint ("TOPLEFT", frame, "TOPLEFT", 472, -235)
 
 		DetailsFrameWork:NewLabel (container_dead_window, container_dead_window, nil, "titulo", Loc ["STRING_DEATH_LOG"], "QuestFont_Large", 16, {1, 1, 1})
 		container_dead_window.titulo:SetPoint ("bottomleft", container_dead_window, "topleft", 0, 3)

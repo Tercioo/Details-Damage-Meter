@@ -819,10 +819,16 @@ end
 ------------------------------------------------------------------------------------------------------------
 --> object constructor
 
+function gump:CreateDropDown (parent, func, default, w, h, member, name)
+	return gump:NewDropDown (parent, parent, name, member, w, h, func, default)
+end
+
 function gump:NewDropDown (parent, container, name, member, w, h, func, default)
 
 	if (not name) then
-		return nil
+		name = "DetailsDropDownNumber" .. gump.DropDownCounter
+		gump.DropDownCounter = gump.DropDownCounter + 1
+		
 	elseif (not parent) then
 		return nil
 	end

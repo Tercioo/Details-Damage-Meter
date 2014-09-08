@@ -20,8 +20,8 @@ local siege_of_orgrimmar = {
 	icon = "Interface\\AddOns\\Details_RaidInfo-SiegeOfOrgrimmar\\images\\icon256x128",
 	
 	is_raid = true,
-	
-	background = "Interface\\AddOns\\Details_RaidInfo-SiegeOfOrgrimmar\\images\\wallpaper",
+
+	backgroundFile = {file = [[Interface\Glues\LOADINGSCREENS\LoadScreenSiegeOfOrgrimmar]], coords = {0, 1, 256/1024, 840/1024}},
 	backgroundEJ = [[Interface\EncounterJournal\UI-EJ-LOREBG-SiegeofOrgrimmar]],
 	
 	boss_names = { 

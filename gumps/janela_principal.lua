@@ -661,52 +661,56 @@ local function move_janela (baseframe, iniciando, instancia)
 end
 _detalhes.move_janela_func = move_janela
 
-local function BGFrame_scripts (BG, baseframe, instancia)
-
-	BG:SetScript("OnEnter", function (self)
-		OnEnterMainWindow (instancia, self)
-	end)
-	
-	BG:SetScript("OnLeave", function (self)
-		OnLeaveMainWindow (instancia, self)
-	end)
-	
-	BG:SetScript ("OnMouseDown", function (frame, button)
-		if (baseframe.isMoving) then
-			move_janela (baseframe, false, instancia)
-			instancia:SaveMainWindowPosition()
-			return
-		end
-		
-		if (not baseframe.isLocked and button == "LeftButton") then
-			move_janela (baseframe, true, instancia) --> novo movedor da janela
-			if (BG.is_toolbar) then
-				if (instancia.attribute_text.enabled and instancia.attribute_text.side == 1 and instancia.toolbar_side == 1) then
-					instancia.menu_attribute_string:SetPoint ("bottomleft", instancia.baseframe.cabecalho.ball, "bottomright", instancia.attribute_text.anchor [1]+1, instancia.attribute_text.anchor [2]-1)
-				end
-			end
-		elseif (button == "RightButton") then
-			if (_detalhes.switch.current_instancia and _detalhes.switch.current_instancia == instancia) then
-				_detalhes.switch:CloseMe()
-			else
-				_detalhes.switch:ShowMe (instancia)
-			end
-		end
-	end)
-
-	BG:SetScript ("OnMouseUp", function (frame)
-		if (baseframe.isMoving) then
-			move_janela (baseframe, false, instancia) --> novo movedor da janela
-			instancia:SaveMainWindowPosition()
-			if (BG.is_toolbar) then
-				if (instancia.attribute_text.enabled and instancia.attribute_text.side == 1 and instancia.toolbar_side == 1) then
-					instancia.menu_attribute_string:SetPoint ("bottomleft", instancia.baseframe.cabecalho.ball, "bottomright", instancia.attribute_text.anchor [1], instancia.attribute_text.anchor [2])
-				end
-			end
-		end
-	end)	
+local BGFrame_scripts_onenter = function (self)
+	OnEnterMainWindow (self._instance, self)
 end
 
+local BGFrame_scripts_onleave = function (self)
+	OnLeaveMainWindow (self._instance, self)
+end
+
+local BGFrame_scripts_onmousedown = function (self, button)
+	if (self._instance.baseframe.isMoving) then
+		move_janela (self._instance.baseframe, false, self._instance)
+		self._instance:SaveMainWindowPosition()
+		return
+	end
+	
+	if (not self._instance.baseframe.isLocked and button == "LeftButton") then
+		move_janela (self._instance.baseframe, true, self._instance)
+		if (self.is_toolbar) then
+			if (self._instance.attribute_text.enabled and self._instance.attribute_text.side == 1 and self._instance.toolbar_side == 1) then
+				self._instance.menu_attribute_string:SetPoint ("bottomleft", self._instance.baseframe.cabecalho.ball, "bottomright", self._instance.attribute_text.anchor [1]+1, self._instance.attribute_text.anchor [2]-1)
+			end
+		end
+	elseif (button == "RightButton") then
+		if (_detalhes.switch.current_instancia and _detalhes.switch.current_instancia == self._instance) then
+			_detalhes.switch:CloseMe()
+		else
+			_detalhes.switch:ShowMe (self._instance)
+		end
+	end
+end
+
+local BGFrame_scripts_onmouseup = function (self, button)
+	if (self._instance.baseframe.isMoving) then
+		move_janela (self._instance.baseframe, false, self._instance) --> novo movedor da janela
+		self._instance:SaveMainWindowPosition()
+		if (self.is_toolbar) then
+			if (self._instance.attribute_text.enabled and self._instance.attribute_text.side == 1 and self._instance.toolbar_side == 1) then
+				self._instance.menu_attribute_string:SetPoint ("bottomleft", self._instance.baseframe.cabecalho.ball, "bottomright", self._instance.attribute_text.anchor [1], self._instance.attribute_text.anchor [2])
+			end
+		end
+	end
+end
+
+local function BGFrame_scripts (BG, baseframe, instancia)
+	BG._instance = instancia
+	BG:SetScript ("OnEnter", BGFrame_scripts_onenter)
+	BG:SetScript ("OnLeave", BGFrame_scripts_onleave)
+	BG:SetScript ("OnMouseDown", BGFrame_scripts_onmousedown)
+	BG:SetScript ("OnMouseUp", BGFrame_scripts_onmouseup)
+end
 
 function gump:RegisterForDetailsMove (frame, instancia)
 
@@ -725,36 +729,41 @@ function gump:RegisterForDetailsMove (frame, instancia)
 end
 
 --> scripts do base frame
+local BFrame_scripts_onsizechange = function (self)
+	self._instance:SaveMainWindowPosition()
+	self._instance:ReajustaGump()
+	self._instance.oldwith = self:GetWidth()
+	_detalhes:SendEvent ("DETAILS_INSTANCE_SIZECHANGED", nil, self._instance)
+end
+
+local BFrame_scripts_onenter = function (self)
+	OnEnterMainWindow (self._instance, self)
+end
+
+local BFrame_scripts_onleave = function (self)
+	OnLeaveMainWindow (self._instance, self)
+end
+
+local BFrame_scripts_onmousedown = function (self, button)
+	if (not self.isLocked and button == "LeftButton") then
+		move_janela (self, true, self._instance)
+	end
+end
+
+local BFrame_scripts_onmouseup = function (self, button)
+	if (self.isMoving) then
+		move_janela (self, false, self._instance) --> novo movedor da janela
+		self._instance:SaveMainWindowPosition()
+	end
+end
+
 local function BFrame_scripts (baseframe, instancia)
-
-	baseframe:SetScript("OnSizeChanged", function (self)
-		instancia:SaveMainWindowPosition()
-		instancia:ReajustaGump()
-		instancia.oldwith = baseframe:GetWidth()
-		_detalhes:SendEvent ("DETAILS_INSTANCE_SIZECHANGED", nil, instancia)
-	end)
-
-	baseframe:SetScript("OnEnter", function (self)
-		OnEnterMainWindow (instancia, self)
-	end)
-	
-	baseframe:SetScript("OnLeave", function (self)
-		OnLeaveMainWindow (instancia, self)
-	end)
-	
-	baseframe:SetScript ("OnMouseDown", function (frame, button)
-		if (not baseframe.isLocked and button == "LeftButton") then
-			move_janela (baseframe, true, instancia) --> novo movedor da janela
-		end
-	end)
-
-	baseframe:SetScript ("OnMouseUp", function (frame)
-		if (baseframe.isMoving) then
-			move_janela (baseframe, false, instancia) --> novo movedor da janela
-			instancia:SaveMainWindowPosition()
-		end
-	end)	
-
+	baseframe._instance = instancia
+	baseframe:SetScript("OnSizeChanged", BFrame_scripts_onsizechange)
+	baseframe:SetScript("OnEnter", BFrame_scripts_onenter)
+	baseframe:SetScript("OnLeave", BFrame_scripts_onleave)
+	baseframe:SetScript ("OnMouseDown", BFrame_scripts_onmousedown)
+	baseframe:SetScript ("OnMouseUp", BFrame_scripts_onmouseup)
 end
 
 local function backgrounddisplay_scripts (backgrounddisplay, baseframe, instancia)
@@ -1036,200 +1045,206 @@ local resizeTooltip = {
 }
 
 --> search key: ~resizescript
+
+local resize_scripts_onmousedown = function (self, button)
+	_G.GameCooltip:ShowMe (false) --> Hide Cooltip
+	
+	if (not self:GetParent().isLocked and button == "LeftButton" and self._instance.modo ~= _detalhes._detalhes_props["MODO_ALONE"]) then 
+		self:GetParent().isResizing = true
+		self._instance:BaseFrameSnap()
+
+		local isVertical = self._instance.verticalSnap
+		local isHorizontal = self._instance.horizontalSnap
+	
+		local agrupadas
+		if (self._instance.verticalSnap) then
+			agrupadas = self._instance:InstanciasVerticais()
+		elseif (self._instance.horizontalSnap) then
+			agrupadas = self._instance:InstanciasHorizontais()
+		end
+
+		self._instance.stretchToo = agrupadas
+		if (self._instance.stretchToo and #self._instance.stretchToo > 0) then
+			for _, esta_instancia in ipairs (self._instance.stretchToo) do 
+				esta_instancia.baseframe._place = esta_instancia:SaveMainWindowPosition()
+				esta_instancia.baseframe.isResizing = true
+			end
+		end
+		
+	----------------
+	
+		if (self._myside == "<") then
+			if (_IsShiftKeyDown()) then
+				self._instance.baseframe:StartSizing("left")
+				self._instance.eh_horizontal = true
+			elseif (_IsAltKeyDown()) then
+				self._instance.baseframe:StartSizing("top")
+				self._instance.eh_vertical = true
+			elseif (_IsControlKeyDown()) then
+				self._instance.baseframe:StartSizing("bottomleft")
+				self._instance.eh_tudo = true
+			else
+				self._instance.baseframe:StartSizing("bottomleft")
+			end
+			
+			self:SetPoint ("bottomleft", self._instance.baseframe, "bottomleft", -1, -1)
+			self.afundado = true
+			
+		elseif (self._myside == ">") then
+			if (_IsShiftKeyDown()) then
+				self._instance.baseframe:StartSizing ("right")
+				self._instance.eh_horizontal = true
+			elseif (_IsAltKeyDown()) then
+				self._instance.baseframe:StartSizing ("top")
+				self._instance.eh_vertical = true
+			elseif (_IsControlKeyDown()) then
+				self._instance.baseframe:StartSizing ("bottomright")
+				self._instance.eh_tudo = true
+			else
+				self._instance.baseframe:StartSizing ("bottomright")
+			end
+			
+			if (self._instance.rolagem and _detalhes.use_scroll) then
+				self:SetPoint ("bottomright", self._instance.baseframe, "bottomright", (self._instance.largura_scroll*-1) + 1, -1)
+			else
+				self:SetPoint ("bottomright", self._instance.baseframe, "bottomright", 1, -1)
+			end
+			self.afundado = true
+		end
+		
+		_detalhes:SendEvent ("DETAILS_INSTANCE_STARTRESIZE", nil, self._instance)
+		
+	end 
+end
+
+local resize_scripts_onmouseup = function (self, button)
+
+	if (self.afundado) then
+		self.afundado = false
+		if (self._myside == ">") then
+			if (self._instance.rolagem and _detalhes.use_scroll) then
+				self:SetPoint ("bottomright", self._instance.baseframe, "bottomright", self._instance.largura_scroll*-1, 0)
+			else
+				self:SetPoint ("bottomright", self._instance.baseframe, "bottomright", 0, 0)
+			end
+		else
+			self:SetPoint ("bottomleft", self._instance.baseframe, "bottomleft", 0, 0)
+		end
+	end
+
+	if (self:GetParent().isResizing) then 
+	
+		self:GetParent():StopMovingOrSizing()
+		self:GetParent().isResizing = false
+		
+		if (self._instance.stretchToo and #self._instance.stretchToo > 0) then
+			for _, esta_instancia in ipairs (self._instance.stretchToo) do 
+				esta_instancia.baseframe:StopMovingOrSizing()
+				esta_instancia.baseframe.isResizing = false
+				esta_instancia:ReajustaGump()
+				_detalhes:SendEvent ("DETAILS_INSTANCE_SIZECHANGED", nil, esta_instancia)
+			end
+			self._instance.stretchToo = nil
+		end	
+		
+		local largura = self._instance.baseframe:GetWidth()
+		local altura = self._instance.baseframe:GetHeight()
+		
+		if (self._instance.eh_horizontal) then
+			instancias_horizontais (self._instance, largura, true, true)
+			self._instance.eh_horizontal = nil
+		end
+		
+		--if (instancia.eh_vertical) then
+			instancias_verticais (self._instance, altura, true, true)
+			self._instance.eh_vertical = nil
+		--end
+		
+		_detalhes:SendEvent ("DETAILS_INSTANCE_ENDRESIZE", nil, self._instance)
+		
+		if (self._instance.eh_tudo) then
+			for _, esta_instancia in _ipairs (_detalhes.tabela_instancias) do
+				if (esta_instancia:IsAtiva() and esta_instancia.modo ~= _detalhes._detalhes_props["MODO_ALONE"]) then
+					esta_instancia.baseframe:ClearAllPoints()
+					esta_instancia:SaveMainWindowPosition()
+					esta_instancia:RestoreMainWindowPosition()
+				end
+			end
+			
+			for _, esta_instancia in _ipairs (_detalhes.tabela_instancias) do
+				if (esta_instancia:IsAtiva() and esta_instancia ~= self._instance and esta_instancia.modo ~= _detalhes._detalhes_props["MODO_ALONE"]) then
+					esta_instancia.baseframe:SetWidth (largura)
+					esta_instancia.baseframe:SetHeight (altura)
+					esta_instancia.auto_resize = true
+					esta_instancia:ReajustaGump()
+					esta_instancia.auto_resize = false
+					_detalhes:SendEvent ("DETAILS_INSTANCE_SIZECHANGED", nil, esta_instancia)
+				end
+			end
+
+			self._instance.eh_tudo = nil
+		end
+		
+		self._instance:BaseFrameSnap()
+		
+		for _, esta_instancia in _ipairs (_detalhes.tabela_instancias) do
+			if (esta_instancia:IsAtiva()) then
+				esta_instancia:SaveMainWindowPosition()
+				esta_instancia:RestoreMainWindowPosition()
+			end
+		end
+	end 
+end
+
+local resize_scripts_onhide = function (self)
+	if (self.going_hide) then
+		_G.GameCooltip:ShowMe (false)
+		self.going_hide = nil
+	end
+end
+
+local resize_scripts_onenter = function (self)
+	if (self._instance.modo ~= _detalhes._detalhes_props["MODO_ALONE"] and not self._instance.baseframe.isLocked and not self.mostrando) then
+
+		OnEnterMainWindow (self._instance, self)
+	
+		self.texture:SetBlendMode ("ADD")
+		self.mostrando = true
+		
+		GameCooltip:Reset()
+		GameCooltip:SetType ("tooltip")
+		GameCooltip:AddFromTable (resizeTooltip)
+		GameCooltip:SetOption ("TextSize", _detalhes.font_sizes.menus)
+		GameCooltip:SetOption ("NoLastSelectedBar", true)
+		GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
+		GameCooltip:SetOwner (self)
+		GameCooltip:ShowCooltip()
+	end
+end
+
+local resize_scripts_onleave = function (self)
+	if (self.mostrando) then
+		self.going_hide = true
+		if (not self.movendo) then
+			OnLeaveMainWindow (self._instance, self)
+		end
+
+		self.texture:SetBlendMode ("BLEND")
+		self.mostrando = false
+		
+		GameCooltip:ShowMe (false)
+	end
+end
+
 local function resize_scripts (resizer, instancia, scrollbar, side, baseframe)
+	resizer._instance = instancia
+	resizer._myside = side
 
-	resizer:SetScript ("OnMouseDown", function (self, button) 
-	
-		_G.GameCooltip:ShowMe (false) --> Hide Cooltip
-		
-		if (not self:GetParent().isLocked and button == "LeftButton" and instancia.modo ~= _detalhes._detalhes_props["MODO_ALONE"]) then 
-			self:GetParent().isResizing = true
-			instancia:BaseFrameSnap()
-
-			local isVertical = instancia.verticalSnap
-			local isHorizontal = instancia.horizontalSnap
-		
-			local agrupadas
-			if (instancia.verticalSnap) then
-				agrupadas = instancia:InstanciasVerticais()
-			elseif (instancia.horizontalSnap) then
-				agrupadas = instancia:InstanciasHorizontais()
-			end
-
-			instancia.stretchToo = agrupadas
-			if (instancia.stretchToo and #instancia.stretchToo > 0) then
-				for _, esta_instancia in ipairs (instancia.stretchToo) do 
-					esta_instancia.baseframe._place = esta_instancia:SaveMainWindowPosition()
-					esta_instancia.baseframe.isResizing = true
-				end
-			end
-			
-		----------------
-		
-			if (side == "<") then
-				if (_IsShiftKeyDown()) then
-					instancia.baseframe:StartSizing("left")
-					instancia.eh_horizontal = true
-				elseif (_IsAltKeyDown()) then
-					instancia.baseframe:StartSizing("top")
-					instancia.eh_vertical = true
-				elseif (_IsControlKeyDown()) then
-					instancia.baseframe:StartSizing("bottomleft")
-					instancia.eh_tudo = true
-				else
-					instancia.baseframe:StartSizing("bottomleft")
-				end
-				
-				resizer:SetPoint ("bottomleft", baseframe, "bottomleft", -1, -1)
-				resizer.afundado = true
-				
-			elseif (side == ">") then
-				if (_IsShiftKeyDown()) then
-					instancia.baseframe:StartSizing("right")
-					instancia.eh_horizontal = true
-				elseif (_IsAltKeyDown()) then
-					instancia.baseframe:StartSizing("top")
-					instancia.eh_vertical = true
-				elseif (_IsControlKeyDown()) then
-					instancia.baseframe:StartSizing("bottomright")
-					instancia.eh_tudo = true
-				else
-					instancia.baseframe:StartSizing("bottomright")
-				end
-				
-				if (instancia.rolagem and _detalhes.use_scroll) then
-					resizer:SetPoint ("bottomright", baseframe, "bottomright", (instancia.largura_scroll*-1) + 1, -1)
-				else
-					resizer:SetPoint ("bottomright", baseframe, "bottomright", 1, -1)
-				end
-				resizer.afundado = true
-			end
-			
-			_detalhes:SendEvent ("DETAILS_INSTANCE_STARTRESIZE", nil, instancia)
-			
-		end 
-	end)
-	
-	resizer:SetScript ("OnMouseUp", function (self,button) 
-	
-			if (resizer.afundado) then
-				resizer.afundado = false
-				if (resizer.side == 2) then
-					if (instancia.rolagem and _detalhes.use_scroll) then
-						resizer:SetPoint ("bottomright", baseframe, "bottomright", instancia.largura_scroll*-1, 0)
-					else
-						resizer:SetPoint ("bottomright", baseframe, "bottomright", 0, 0)
-					end
-				else
-					resizer:SetPoint ("bottomleft", baseframe, "bottomleft", 0, 0)
-				end
-			end
-	
-			if (self:GetParent().isResizing) then 
-			
-				self:GetParent():StopMovingOrSizing()
-				self:GetParent().isResizing = false
-				
-				if (instancia.stretchToo and #instancia.stretchToo > 0) then
-					for _, esta_instancia in ipairs (instancia.stretchToo) do 
-						esta_instancia.baseframe:StopMovingOrSizing()
-						esta_instancia.baseframe.isResizing = false
-						esta_instancia:ReajustaGump()
-						_detalhes:SendEvent ("DETAILS_INSTANCE_SIZECHANGED", nil, esta_instancia)
-					end
-					instancia.stretchToo = nil
-				end	
-				
-				local largura = instancia.baseframe:GetWidth()
-				local altura = instancia.baseframe:GetHeight()
-				
-				if (instancia.eh_horizontal) then
-					instancias_horizontais (instancia, largura, true, true)
-					instancia.eh_horizontal = nil
-				end
-				
-				--if (instancia.eh_vertical) then
-					instancias_verticais (instancia, altura, true, true)
-					instancia.eh_vertical = nil
-				--end
-				
-				_detalhes:SendEvent ("DETAILS_INSTANCE_ENDRESIZE", nil, instancia)
-				
-				if (instancia.eh_tudo) then
-					for _, esta_instancia in _ipairs (_detalhes.tabela_instancias) do
-						if (esta_instancia:IsAtiva() and esta_instancia.modo ~= _detalhes._detalhes_props["MODO_ALONE"]) then
-							esta_instancia.baseframe:ClearAllPoints()
-							esta_instancia:SaveMainWindowPosition()
-							esta_instancia:RestoreMainWindowPosition()
-						end
-					end
-					
-					for _, esta_instancia in _ipairs (_detalhes.tabela_instancias) do
-						if (esta_instancia:IsAtiva() and esta_instancia ~= instancia and esta_instancia.modo ~= _detalhes._detalhes_props["MODO_ALONE"]) then
-							esta_instancia.baseframe:SetWidth (largura)
-							esta_instancia.baseframe:SetHeight (altura)
-							esta_instancia.auto_resize = true
-							esta_instancia:ReajustaGump()
-							esta_instancia.auto_resize = false
-							_detalhes:SendEvent ("DETAILS_INSTANCE_SIZECHANGED", nil, esta_instancia)
-						end
-					end
-
-					instancia.eh_tudo = nil
-				end
-				
-				instancia:BaseFrameSnap()
-				
-				for _, esta_instancia in _ipairs (_detalhes.tabela_instancias) do
-					if (esta_instancia:IsAtiva()) then
-						esta_instancia:SaveMainWindowPosition()
-						esta_instancia:RestoreMainWindowPosition()
-					end
-				end
-			end 
-		end)
-		
-	resizer:SetScript ("OnHide", function (self) 
-		if (self.going_hide) then
-			_G.GameCooltip:ShowMe (false)
-			self.going_hide = nil
-		end
-	end)
-	
-	resizer:SetScript ("OnEnter", function (self) 
-		if (instancia.modo ~= _detalhes._detalhes_props["MODO_ALONE"] and not instancia.baseframe.isLocked and not self.mostrando) then
-
-			OnEnterMainWindow (instancia, self)
-		
-			self.texture:SetBlendMode ("ADD")
-			self.mostrando = true
-			
-			GameCooltip:Reset()
-			GameCooltip:SetType ("tooltip")
-			GameCooltip:AddFromTable (resizeTooltip)
-			GameCooltip:SetOption ("TextSize", _detalhes.font_sizes.menus)
-			GameCooltip:SetOption ("NoLastSelectedBar", true)
-			GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
-			GameCooltip:SetOwner (resizer)
-			GameCooltip:ShowCooltip()
-		end
-	end)
-	
-	resizer:SetScript ("OnLeave", function (self) 
-
-		if (self.mostrando) then
-
-			resizer.going_hide = true
-			if (not self.movendo) then
-				OnLeaveMainWindow (instancia, self)
-			end
-
-			self.texture:SetBlendMode ("BLEND")
-			self.mostrando = false
-			
-			GameCooltip:ShowMe (false)
-		end
-	end)
+	resizer:SetScript ("OnMouseDown", resize_scripts_onmousedown)
+	resizer:SetScript ("OnMouseUp", resize_scripts_onmouseup)
+	resizer:SetScript ("OnHide", resize_scripts_onhide)
+	resizer:SetScript ("OnEnter", resize_scripts_onenter)
+	resizer:SetScript ("OnLeave", resize_scripts_onleave)
 end
 
 local lockButtonTooltip = {
@@ -1392,161 +1407,159 @@ local on_switch_show = function (instance)
 	return true
 end
 
-local function barra_scripts (esta_barra, instancia, i)
+local barra_backdrop_onenter = {
+	bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], 
+	tile = true, tileSize = 16,
+	insets = {left = 1, right = 1, top = 0, bottom = 1}
+}
+local barra_backdrop_onleave = {
+	bgFile = "", 
+	edgeFile = "", tile = true, tileSize = 16, edgeSize = 32,
+	insets = {left = 1, right = 1, top = 0, bottom = 1}
+}
 
-	esta_barra:SetScript ("OnEnter", function (self) 
-		self.mouse_over = true
-		OnEnterMainWindow (instancia, esta_barra)
+local barra_scripts_onenter = function (self)
+	self.mouse_over = true
+	OnEnterMainWindow (self._instance, self)
 
-		instancia:MontaTooltip (self, i)
-		
-		self:SetBackdrop({
-			bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], 
-			tile = true, tileSize = 16,
-			insets = {left = 1, right = 1, top = 0, bottom = 1},})	
-			self:SetBackdropColor (0.588, 0.588, 0.588, 0.7)
-			
-		self:SetScript ("OnUpdate", shift_monitor)
-			
-	end)
-
-	esta_barra:SetScript ("OnLeave", function (self) 
-		self.mouse_over = false
-		OnLeaveMainWindow (instancia, self)
-		
-		_GameTooltip:Hide()
-		_G.GameCooltip:ShowMe (false)
-		
-		self:SetBackdrop({
-			bgFile = "", edgeFile = "", tile = true, tileSize = 16, edgeSize = 32,
-			insets = {left = 1, right = 1, top = 0, bottom = 1},})	
-
-			self:SetBackdropBorderColor (0, 0, 0, 0)
-			self:SetBackdropColor (0, 0, 0, 0)
-		
-		self.showing_allspells = false
-		self:SetScript ("OnUpdate", nil)
-		
-	end)
-
-	esta_barra:SetScript ("OnMouseDown", function (self, button)
-		
-		if (esta_barra.fading_in) then
-			return
-		end
-		
-		if (button == "RightButton") then
-			return _detalhes.switch:ShowMe (instancia)
-		
-		elseif (button == "MiddleButton") then
-			--> verifica se é damage taken
-
-		elseif (button == "LeftButton") then
+	self._instance:MontaTooltip (self, self.row_id)
 	
-			if (instancia.atributo == 1 and instancia.sub_atributo == 6) then --> enemies
-			
-				local inimigo = esta_barra.minha_tabela.nome
-				local custom_name = inimigo .. Loc ["STRING_CUSTOM_ENEMY_DT"]
-			
-				--> procura se já tem um custom:
-				for index, CustomObject in _ipairs (_detalhes.custom) do
-					if (CustomObject:GetName() == custom_name) then
-						--> fix for not saving funcs on logout
-						if (not CustomObject.OnSwitchShow) then
-							CustomObject.OnSwitchShow = on_switch_show
-						end
-						return instancia:TrocaTabela (instancia.segmento, 5, index)
+	self:SetBackdrop (barra_backdrop_onenter)	
+	self:SetBackdropColor (0.588, 0.588, 0.588, 0.7)
+		
+	self:SetScript ("OnUpdate", shift_monitor)
+end
+
+local barra_scripts_onleave = function (self)
+	self.mouse_over = false
+	OnLeaveMainWindow (self._instance, self)
+	
+	_GameTooltip:Hide()
+	GameCooltip:ShowMe (false)
+	
+	self:SetBackdrop (barra_backdrop_onleave)	
+	self:SetBackdropBorderColor (0, 0, 0, 0)
+	self:SetBackdropColor (0, 0, 0, 0)
+	
+	self.showing_allspells = false
+	self:SetScript ("OnUpdate", nil)
+end
+
+local barra_scripts_onmousedown = function (self, button)
+	if (self.fading_in) then
+		return
+	end
+	
+	if (button == "RightButton") then
+		return _detalhes.switch:ShowMe (self._instance)
+	
+	--elseif (button == "MiddleButton") then
+
+	elseif (button == "LeftButton") then
+
+		if (self._instance.atributo == 1 and self._instance.sub_atributo == 6) then --> enemies
+		
+			local inimigo = self.minha_tabela.nome
+			local custom_name = inimigo .. Loc ["STRING_CUSTOM_ENEMY_DT"]
+		
+			--> procura se já tem um custom:
+			for index, CustomObject in _ipairs (_detalhes.custom) do
+				if (CustomObject:GetName() == custom_name) then
+					--> fix for not saving funcs on logout
+					if (not CustomObject.OnSwitchShow) then
+						CustomObject.OnSwitchShow = on_switch_show
 					end
+					return self._instance:TrocaTabela (self._instance.segmento, 5, index)
 				end
-
-				--> criar um custom para este actor.
-				local new_custom_object = {
-					name = custom_name,
-					icon = [[Interface\ICONS\Pet_Type_Undead]],
-					attribute = "damagedone",
-					author = _detalhes.playername,
-					desc = inimigo .. " Damage Taken",
-					source = "[raid]",
-					target = inimigo,
-					script = false,
-					tooltip = false,
-					temp = true,
-					OnSwitchShow = on_switch_show,
-				}
-		
-				tinsert (_detalhes.custom, new_custom_object)
-				setmetatable (new_custom_object, _detalhes.atributo_custom)
-				new_custom_object.__index = _detalhes.atributo_custom
-
-				return instancia:TrocaTabela (instancia.segmento, 5, #_detalhes.custom)
-				--func, true, 5, index
-				
-			end	
-		end
-		
-		esta_barra.texto_direita:SetPoint ("right", esta_barra.statusbar, "right", 1, -1)
-		if (instancia.row_info.no_icon) then
-			esta_barra.texto_esquerdo:SetPoint ("left", esta_barra.statusbar, "left", 3, -1)
-		else
-			esta_barra.texto_esquerdo:SetPoint ("left", esta_barra.icone_classe, "right", 4, -1)
-		end
-	
-		self.mouse_down = _GetTime()
-		self.button = button
-		local x, y = _GetCursorPosition()
-		self.x = _math_floor (x)
-		self.y = _math_floor (y)
-	
-		local parent = instancia.baseframe
-		if ((not parent.isLocked) or (parent.isLocked == 0)) then
-			GameCooltip:Hide() --> fecha o tooltip
-			move_janela (parent, true, instancia) --> novo movedor da janela
-		end
-
-	end)
-	
-	esta_barra:SetScript ("OnMouseUp", function (self, button)
-	
-		local parent = instancia.baseframe
-		if (parent.isMoving) then
-		
-			move_janela (parent, false, instancia) --> novo movedor da janela
-			instancia:SaveMainWindowPosition()
-			_GameTooltip:SetOwner (self, "ANCHOR_TOPRIGHT")
-			if (instancia:MontaTooltip (self, i)) then
-				GameCooltip:Show (esta_barra, 1)
 			end
+
+			--> criar um custom para este actor.
+			local new_custom_object = {
+				name = custom_name,
+				icon = [[Interface\ICONS\Pet_Type_Undead]],
+				attribute = "damagedone",
+				author = _detalhes.playername,
+				desc = inimigo .. " Damage Taken",
+				source = "[raid]",
+				target = inimigo,
+				script = false,
+				tooltip = false,
+				temp = true,
+				OnSwitchShow = on_switch_show,
+			}
+	
+			tinsert (_detalhes.custom, new_custom_object)
+			setmetatable (new_custom_object, _detalhes.atributo_custom)
+			new_custom_object.__index = _detalhes.atributo_custom
+
+			return self._instance:TrocaTabela (self._instance.segmento, 5, #_detalhes.custom)
 			
+		end	
+	end
+	
+	self.texto_direita:SetPoint ("right", self.statusbar, "right", 1, -1)
+	if (self._instance.row_info.no_icon) then
+		self.texto_esquerdo:SetPoint ("left", self.statusbar, "left", 3, -1)
+	else
+		self.texto_esquerdo:SetPoint ("left", self.icone_classe, "right", 4, -1)
+	end
+
+	self.mouse_down = _GetTime()
+	self.button = button
+	local x, y = _GetCursorPosition()
+	self.x = _math_floor (x)
+	self.y = _math_floor (y)
+
+	if (not self._instance.baseframe.isLocked) then
+		GameCooltip:Hide()
+		move_janela (self._instance.baseframe, true, self._instance)
+	end
+end
+
+local barra_scripts_onmouseup = function (self, button)
+	if (self._instance.baseframe.isMoving) then
+		move_janela (self._instance.baseframe, false, self._instance)
+		self._instance:SaveMainWindowPosition()
+
+		if (self._instance:MontaTooltip (self, self.row_id)) then
+			GameCooltip:Show (self, 1)
 		end
+	end
 
-		esta_barra.texto_direita:SetPoint ("right", esta_barra.statusbar, "right")
-		if (instancia.row_info.no_icon) then
-			esta_barra.texto_esquerdo:SetPoint ("left", esta_barra.statusbar, "left", 2, 0)
-		else
-			esta_barra.texto_esquerdo:SetPoint ("left", esta_barra.icone_classe, "right", 3, 0)
-		end
-		
-		local x, y = _GetCursorPosition()
-		x = _math_floor (x)
-		y = _math_floor (y)
+	self.texto_direita:SetPoint ("right", self.statusbar, "right")
+	if (self._instance.row_info.no_icon) then
+		self.texto_esquerdo:SetPoint ("left", self.statusbar, "left", 2, 0)
+	else
+		self.texto_esquerdo:SetPoint ("left", self.icone_classe, "right", 3, 0)
+	end
+	
+	local x, y = _GetCursorPosition()
+	x = _math_floor (x)
+	y = _math_floor (y)
 
-		if (self.mouse_down and (self.mouse_down+0.4 > _GetTime() and (x == self.x and y == self.y)) or (x == self.x and y == self.y)) then
-			--> a única maneira de abrir a janela de info é por aqui...
-
-			if (self.button == "LeftButton" or self.button == "MiddleButton") then
-				if (instancia.atributo == 5 or _IsShiftKeyDown()) then 
-					--> report
-					return _detalhes:ReportSingleLine (instancia, self)
-				end
-				instancia:AbreJanelaInfo (self.minha_tabela)
+	if (self.mouse_down and (self.mouse_down+0.4 > _GetTime() and (x == self.x and y == self.y)) or (x == self.x and y == self.y)) then
+		if (self.button == "LeftButton" or self.button == "MiddleButton") then
+			if (self._instance.atributo == 5 or _IsShiftKeyDown()) then 
+				--> report
+				return _detalhes:ReportSingleLine (self._instance, self)
 			end
-
+			self._instance:AbreJanelaInfo (self.minha_tabela)
 		end
-	end)
+	end
+end
 
-	esta_barra:SetScript ("OnClick", function (self, button)
+local barra_scripts_onclick = function (self, button)
 
-		end)
+end
+
+local function barra_scripts (esta_barra, instancia, i)
+	esta_barra._instance = instancia
+
+	esta_barra:SetScript ("OnEnter", barra_scripts_onenter) 
+	esta_barra:SetScript ("OnLeave", barra_scripts_onleave) 
+	esta_barra:SetScript ("OnMouseDown", barra_scripts_onmousedown)
+	esta_barra:SetScript ("OnMouseUp", barra_scripts_onmouseup)
+	esta_barra:SetScript ("OnClick", barra_scripts_onclick)
 end
 
 function _detalhes:ReportSingleLine (instancia, barra)

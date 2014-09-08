@@ -536,7 +536,9 @@
 							_detalhes.SoloTables.CombatID = _detalhes.SoloTables.CombatIDLast
 						
 						else
-							_detalhes:RefreshSolo()
+							if (_detalhes.RefreshSolo) then
+								_detalhes:RefreshSolo()
+							end
 							_detalhes.SoloTables.CombatID = nil
 						end
 					end

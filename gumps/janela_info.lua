@@ -363,78 +363,42 @@ end
 
 
 --> seta os scripts da janela de informações
+local mouse_down_func = function (self, button)
+	if (button == "LeftButton") then
+		info:StartMoving()
+		info.isMoving = true
+	elseif (button == "RightButton" and not self.isMoving) then
+		_detalhes:FechaJanelaInfo()
+	end
+end
+
+local mouse_up_func = function (self, button)
+	if (info.isMoving) then
+		info:StopMovingOrSizing()
+		info.isMoving = false
+	end
+end
+
 ------------------------------------------------------------------------------------------------------------------------------
 local function seta_scripts (este_gump)
 
 	--> Janela
-	este_gump:SetScript ("OnMouseDown", 
-					function (self, botao)
-						if (botao == "LeftButton") then
-							self:StartMoving()
-							self.isMoving = true
-						end
-					end)
-					
-	este_gump:SetScript ("OnMouseUp", 
-					function (self)
-						if (self.isMoving) then
-							self:StopMovingOrSizing()
-							self.isMoving = false
-						end
-					end)
-					
-	este_gump.container_barras.gump:SetScript ("OnMouseDown", 
-					function (self, botao)
-						if (botao == "LeftButton") then
-							este_gump:StartMoving()
-							este_gump.isMoving = true
-						end
-					end)
-					
-	este_gump.container_barras.gump:SetScript ("OnMouseUp", 
-					function (self)
-						if (este_gump.isMoving) then
-							este_gump:StopMovingOrSizing()
-							este_gump.isMoving = false
-						end
-					end)
-					
-	este_gump.container_detalhes:SetScript ("OnMouseDown", 
-					function (self, botao)
-						if (botao == "LeftButton") then
-							este_gump:StartMoving()
-							este_gump.isMoving = true
-						end
-					end)
-					
-	este_gump.container_detalhes:SetScript ("OnMouseUp", 
-					function (self)
-						if (este_gump.isMoving) then
-							este_gump:StopMovingOrSizing()
-							este_gump.isMoving = false
-						end
-					end)		
+	este_gump:SetScript ("OnMouseDown", mouse_down_func)
+	este_gump:SetScript ("OnMouseUp", mouse_up_func)
 
-	este_gump.container_alvos.gump:SetScript ("OnMouseDown", 
-					function (self, botao)
-						if (botao == "LeftButton") then
-							este_gump:StartMoving()
-							este_gump.isMoving = true
-						end
-					end)
+	este_gump.container_barras.gump:SetScript ("OnMouseDown", mouse_down_func)
+	este_gump.container_barras.gump:SetScript ("OnMouseUp", mouse_up_func)
 					
-	este_gump.container_alvos.gump:SetScript ("OnMouseUp", 
-					function (self)
-						if (este_gump.isMoving) then
-							este_gump:StopMovingOrSizing()
-							este_gump.isMoving = false
-						end
-					end)	
+	este_gump.container_detalhes:SetScript ("OnMouseDown", mouse_down_func)
+	este_gump.container_detalhes:SetScript ("OnMouseUp", mouse_up_func)
+
+	este_gump.container_alvos.gump:SetScript ("OnMouseDown", mouse_down_func)
+	este_gump.container_alvos.gump:SetScript ("OnMouseUp", mouse_up_func)
 
 	--> botão fechar
-	este_gump.fechar:SetScript ("OnClick", function(self) 
-						_detalhes:FechaJanelaInfo()
-					end)
+	este_gump.fechar:SetScript ("OnClick", function (self) 
+		_detalhes:FechaJanelaInfo()
+	end)
 end
 
 
@@ -453,7 +417,28 @@ end
 
 --> cria a barra de detalhes a direita da janela de informações
 ------------------------------------------------------------------------------------------------------------------------------
+
+local detalhe_infobg_onenter = function (self)
+	gump:Fade (self.overlay, "OUT") 
+	gump:Fade (self.reportar, "OUT")
+end
+
+local detalhe_infobg_onleave = function (self)
+	gump:Fade (self.overlay, "IN")
+	gump:Fade (self.reportar, "IN")
+end
+
+local detalhes_inforeport_onenter = function (self)
+	gump:Fade (self:GetParent().overlay, "OUT")
+	gump:Fade (self, "OUT")
+end
+local detalhes_inforeport_onleave = function (self)
+	gump:Fade (self:GetParent().overlay, "IN")
+	gump:Fade (self, "IN")
+end
+
 function gump:CriaDetalheInfo (index)
+
 	local info = {}
 	info.nome = _detalhes.janela_info.container_detalhes:CreateFontString (nil, "OVERLAY", "GameFontHighlightSmall")
 	info.nome2 = _detalhes.janela_info.container_detalhes:CreateFontString (nil, "OVERLAY", "GameFontHighlightSmall")
@@ -483,38 +468,15 @@ function gump:CriaDetalheInfo (index)
 	info.bg.reportar:SetPoint ("BOTTOMLEFT", info.bg.overlay, "BOTTOMRIGHT",  -33, 10)
 	gump:Fade (info.bg.reportar, 1)
 	
-	info.bg:SetScript ("OnEnter", 
-		function(self) 
-			gump:Fade (self.overlay, "OUT") 
-			gump:Fade (self.reportar, "OUT")
-		end)
-	info.bg:SetScript ("OnLeave", 
-		function(self) 
-			gump:Fade (self.overlay, "IN")
-			gump:Fade (self.reportar, "IN")
-		end)
+	info.bg:SetScript ("OnEnter", detalhe_infobg_onenter)
+	info.bg:SetScript ("OnLeave", detalhe_infobg_onleave)
 
-	info.bg.reportar:SetScript ("OnEnter", 
-		function(self) 
-			gump:Fade (info.bg.overlay, "OUT")
-			gump:Fade (self, "OUT")
-		end)
-	info.bg.reportar:SetScript ("OnLeave", 
-		function(self) 
-			gump:Fade (info.bg.overlay, "IN")
-			gump:Fade (self, "IN")
-		end)	
-	
+	info.bg.reportar:SetScript ("OnEnter", detalhes_inforeport_onenter)
+	info.bg.reportar:SetScript ("OnLeave", detalhes_inforeport_onleave)
+
 	info.bg_end = info.bg:CreateTexture (nil, "BACKGROUND")
 	info.bg_end:SetHeight (47)
-	--este_gump.bg4:SetPoint ("BOTTOMRIGHT", este_gump, "BOTTOMRIGHT", 0, 0)
-	--este_gump.bg4:SetWidth (128)
-	--este_gump.bg4:SetHeight (256)
 	info.bg_end:SetTexture ("Interface\\AddOns\\Details\\images\\bar_detalhes2_end")
-	--info.bg = _detalhes.janela_info.container_detalhes:CreateTexture (nil, "BACKGROUND")
-	--info.bg:SetWidth (400)
-	--info.bg:SetHeight (70)
-	--info.bg:SetTexture ("Interface\\MONEYFRAME\\UI-MoneyFrame2")
 
 	_detalhes.janela_info.grupos_detalhes [index] = info
 end
@@ -3384,6 +3346,79 @@ local row_on_leave = function (self)
 	end
 end
 
+local row_on_mousedown = function (self)
+	if (self.fading_in) then
+		return
+	end
+
+	self.mouse_down = _GetTime()
+	local x, y = _GetCursorPosition()
+	self.x = _math_floor (x)
+	self.y = _math_floor (y)
+
+	if ((not info.isLocked) or (info.isLocked == 0)) then
+		info:StartMoving()
+		info.isMoving = true
+	end	
+end
+
+local row_on_mouseup = function (self)
+	if (self.fading_in) then
+		return
+	end
+
+	if (info.isMoving) then
+		info:StopMovingOrSizing()
+		info.isMoving = false
+	end
+
+	local x, y = _GetCursorPosition()
+	x = _math_floor (x)
+	y = _math_floor (y)
+	if ((self.mouse_down+0.4 > _GetTime() and (x == self.x and y == self.y)) or (x == self.x and y == self.y)) then
+		--> setar os textos
+		
+		if (self.isMain) then --> se não for uma barra de alvo
+		
+			local barra_antiga = info.mostrando			
+			if (barra_antiga and not info.mostrando_mouse_over) then
+			
+				barra_antiga.textura:SetStatusBarColor (1, 1, 1, 1) --> volta a textura normal
+				barra_antiga.on_focus = false --> não esta mais no foco
+
+				--> CLICOU NA MESMA BARRA
+				if (barra_antiga == self) then --> 
+					info.mostrando_mouse_over = true
+					return
+					
+				--> CLICOU EM OUTRA BARRA
+				else --> clicou em outra barra e trocou o foco
+					barra_antiga:SetAlpha (.9) --> volta a alfa antiga
+				
+					info.mostrando = self
+					info.showing = i
+					
+					info.jogador.detalhes = self.show
+					info.jogador:MontaDetalhes (self.show, self)
+					
+					self:SetAlpha (1)
+					self.textura:SetStatusBarColor (129/255, 125/255, 69/255, 1)
+					self.on_focus = true
+					return
+				end
+			end
+			
+			--> NÃO TINHA BARRAS PRECIONADAS
+			-- info.mostrando = self
+			info.mostrando_mouse_over = false
+			self:SetAlpha (1)
+			self.textura:SetStatusBarColor (129/255, 125/255, 69/255, 1)
+			self.on_focus = true
+		end
+		
+	end
+end
+
 local function SetBarraScripts (esta_barra, instancia, i)
 	
 	esta_barra._index = i
@@ -3391,85 +3426,9 @@ local function SetBarraScripts (esta_barra, instancia, i)
 	esta_barra:SetScript ("OnEnter", row_on_enter)
 	esta_barra:SetScript ("OnLeave", row_on_leave)
 
-	esta_barra:SetScript ("OnMouseDown", function (self)
-	
-		if (self.fading_in) then
-			return
-		end
-	
-		self.mouse_down = _GetTime()
-		local x, y = _GetCursorPosition()
-		self.x = _math_floor (x)
-		self.y = _math_floor (y)
-	
-		if ((not info.isLocked) or (info.isLocked == 0)) then
-			info:StartMoving()
-			info.isMoving = true
-		end	
-		
-	end)
-	
-	esta_barra:SetScript ("OnMouseUp", function (self)
+	esta_barra:SetScript ("OnMouseDown", row_on_mousedown)
+	esta_barra:SetScript ("OnMouseUp", row_on_mouseup)
 
-		if (self.fading_in) then
-			return
-		end
-	
-		if (info.isMoving) then
-			info:StopMovingOrSizing()
-			info.isMoving = false
-			--instancia:SaveMainWindowPosition() --> precisa fazer algo pra salvar o trem
-		end
-	
-		local x, y = _GetCursorPosition()
-		x = _math_floor (x)
-		y = _math_floor (y)
-		if ((self.mouse_down+0.4 > _GetTime() and (x == self.x and y == self.y)) or (x == self.x and y == self.y)) then
-			--> setar os textos
-			
-			if (self.isMain) then --> se não for uma barra de alvo
-			
-				local barra_antiga = info.mostrando --> ??
-				
-				--> on_focus = quando a barra esta precionada
-				
-				if (barra_antiga and not info.mostrando_mouse_over) then
-				
-					barra_antiga.textura:SetStatusBarColor (1, 1, 1, 1) --> volta a textura normal
-					barra_antiga.on_focus = false --> não esta mais no foco
-
-					--> CLICOU NA MESMA BARRA
-					if (barra_antiga == self) then --> 
-						info.mostrando_mouse_over = true
-						return
-						
-					--> CLICOU EM OUTRA BARRA
-					else --> clicou em outra barra e trocou o foco
-						barra_antiga:SetAlpha (.9) --> volta a alfa antiga
-					
-						info.mostrando = self
-						info.showing = i
-						
-						info.jogador.detalhes = self.show
-						info.jogador:MontaDetalhes (self.show, self)
-						
-						self:SetAlpha (1)
-						self.textura:SetStatusBarColor (129/255, 125/255, 69/255, 1)
-						self.on_focus = true
-						return
-					end
-				end
-				
-				--> NÃO TINHA BARRAS PRECIONADAS
-				-- info.mostrando = self
-				info.mostrando_mouse_over = false
-				self:SetAlpha (1)
-				self.textura:SetStatusBarColor (129/255, 125/255, 69/255, 1)
-				self.on_focus = true
-			end
-			
-		end
-	end)	
 end
 
 local function CriaTexturaBarra (instancia, barra)

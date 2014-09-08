@@ -248,7 +248,42 @@
 	
 		template = template or 1
 	
-		if (template == 1) then
+		if (template == 2) then
+			local options_frame = CreateFrame ("frame", name, UIParent, "ButtonFrameTemplate")
+			tinsert (UISpecialFrames, name)
+			options_frame:SetSize (500, 200)
+			options_frame:SetFrameStrata ("DIALOG")
+			
+			options_frame:SetScript ("OnMouseDown", function(self, button)
+				if (button == "RightButton") then
+					if (self.moving) then 
+						self.moving = false
+						self:StopMovingOrSizing()
+					end
+					return options_frame:Hide()
+				elseif (button == "LeftButton" and not self.moving) then
+					self.moving = true
+					self:StartMoving()
+				end
+			end)
+			options_frame:SetScript ("OnMouseUp", function(self)
+				if (self.moving) then 
+					self.moving = false
+					self:StopMovingOrSizing()
+				end
+			end)
+			
+			options_frame:SetMovable (true)
+			options_frame:EnableMouse (true)
+			options_frame:Hide()
+			
+			options_frame:SetPoint ("center", UIParent, "center")
+			options_frame.TitleText:SetText (title)
+			options_frame.portrait:SetTexture ([[Interface\CHARACTERFRAME\TEMPORARYPORTRAIT-FEMALE-BLOODELF]])
+			
+			return options_frame
+	
+		elseif (template == 1) then
 			local options_frame = CreateFrame ("frame", name, UIParent)
 			tinsert (UISpecialFrames, name)
 			options_frame:SetSize (500, 200)

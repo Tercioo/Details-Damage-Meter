@@ -72,6 +72,7 @@ function DetailsCreateCoolTip()
 			["FixedHeight"] = true,
 			["FixedWidthSub"] = true,
 			["FixedHeightSub"] = true,
+			["AlignAsBlizzTooltip"] = true,
 			["IgnoreSubMenu"] = true,
 			["IgnoreButtonAutoHeight"] = true,
 			["TextHeightMod"] = true,
@@ -301,16 +302,6 @@ function DetailsCreateCoolTip()
 		end)	
 
 		frame1:SetScript ("OnHide", function (self)
-			--[[ --> avoid taint errors
-			if (not frame1.hidden) then --> significa que foi fechado com ESC
-				frame1:Show()
-				gump:Fade (frame1, 1)
-			end
-			if (not frame2.hidden) then --> significa que foi fechado com ESC
-				frame2:Show()
-				gump:Fade (frame2, 1)
-			end
-			--]]
 			CoolTip.active = false
 			CoolTip.buttonClicked = false
 			CoolTip.mouseOver = false
@@ -1163,7 +1154,13 @@ function DetailsCreateCoolTip()
 			menuButton:SetPoint ("right", frame1, "right")
 			
 			--> height
-			if (CoolTip.OptionsTable.IgnoreButtonAutoHeight) then
+			if (CoolTip.OptionsTable.AlignAsBlizzTooltip) then
+				local height = _math_max (8, menuButton.leftText:GetStringHeight(), menuButton.rightText:GetStringHeight(), menuButton.leftIcon:GetHeight(), menuButton.rightIcon:GetHeight())
+				menuButton:SetHeight (height)
+				menuButton:SetPoint ("top", frame1, "top", 0, temp)
+				temp = temp + ( height * -1)
+				
+			elseif (CoolTip.OptionsTable.IgnoreButtonAutoHeight) then
 			
 				local height = _math_max (menuButton.leftText:GetStringHeight(), menuButton.rightText:GetStringHeight(), menuButton.leftIcon:GetHeight(), menuButton.rightIcon:GetHeight())
 				menuButton:SetHeight (height)
@@ -1213,7 +1210,9 @@ function DetailsCreateCoolTip()
 		if (CoolTip.OptionsTable.FixedHeight) then
 			frame1:SetHeight (CoolTip.OptionsTable.FixedHeight)
 		else
-			if (CoolTip.OptionsTable.IgnoreButtonAutoHeight) then
+			if (CoolTip.OptionsTable.AlignAsBlizzTooltip) then
+				frame1:SetHeight ( (temp-10) * -1)
+			elseif (CoolTip.OptionsTable.IgnoreButtonAutoHeight) then
 				frame1:SetHeight ( (temp+spacing) * -1)
 			else
 				frame1:SetHeight ( _math_max ( (frame1.hHeight * CoolTip.Indexes) + 12, 22 ))
@@ -2354,12 +2353,10 @@ function DetailsCreateCoolTip()
 					if (not lineTable_left) then
 						lineTable_left = {}
 						_table_insert (frameTableLeft, CoolTip.Indexes, lineTable_left)
-						--frameTableLeft [CoolTip.Indexes] = lineTable_left
 					end
 					if (not lineTable_right) then
 						lineTable_right = {}
 						_table_insert (frameTableRight, CoolTip.Indexes, lineTable_right)
-						--frameTableRight [CoolTip.Indexes] = lineTable_right
 					end
 				end
 
