@@ -172,6 +172,36 @@
 		instance_container:Remap()
 		
 		if (export) then
+			-- key name value need to be formated
+			if (custom_object) then
+			
+				local percent_script = _detalhes.custom_function_cache [instance.customName .. "Percent"]
+				local total_script = _detalhes.custom_function_cache [instance.customName .. "Total"]
+				
+				for index, actor in _ipairs (instance_container._ActorTable) do 	
+					local percent, total
+					if (percent_script) then
+						percent = percent_script (actor.value, top, total, combat, instance)
+					else
+						percent = _cstr ("%.1f", self.value / total * 100)
+					end
+					
+					if (total_script) then
+						local value = total_script (actor.value, top, total, combat, instance)
+						if (type (value) == "number") then
+							total = SelectedToKFunction (_, value)
+						else
+							total = value
+						end
+					else
+						total = SelectedToKFunction (_, self.value)
+					end
+					
+					actor.report_value = total .. " (" .. percent .. "%)"
+				end
+
+			end
+			
 			return total, instance_container._ActorTable, top, amount
 		end
 		
@@ -800,6 +830,12 @@
 	end
 	function atributo_custom:GetScriptToolip()
 		return self.tooltip
+	end
+	function atributo_custom:GetScriptTotal()
+		return self.total_script
+	end
+	function atributo_custom:GetScriptPercent()
+		return self.percent_script
 	end
 
 	function atributo_custom:SetName (name)

@@ -2481,14 +2481,13 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 	if (custom) then
 		--> shrink
 		local report_lines = {}
-		
 		for i = 1, _detalhes.report_lines+1, 1 do  --#este_relatorio -- o +1 é pq ele conta o cabeçalho como uma linha
 			report_lines [#report_lines+1] = este_relatorio[i]
 		end
 		
 		return self:envia_relatorio (report_lines, true)
 	end
-	
+
 	local amt = _detalhes.report_lines
 
 	local report_lines = {}
@@ -2573,7 +2572,7 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 			
 				if (_detalhes.custom [self.sub_atributo]) then
 					total, container, first, container_amount = _detalhes.atributo_custom:RefreshWindow (self, self.showing, true, true)
-					keyName = "value"
+					keyName = "report_value"
 				else
 					total, keyName, first, container_amount = _detalhes.atributo_damage:RefreshWindow (self, self.showing, true, true)
 					total = 1
@@ -2590,7 +2589,12 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 
 				if (_thisActor) then 
 				
-					local amount = _math_floor (_thisActor [keyName])
+					local amount
+					if (type (_thisActor [keyName]) == "number") then
+						amount = _math_floor (_thisActor [keyName])
+					else
+						amount = _thisActor [keyName]
+					end
 					
 					local name = _thisActor.nome.." "
 					if (_detalhes.remove_realm_from_name and name:find ("-")) then
@@ -2606,7 +2610,7 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 						stringlen = _detalhes.fontstring_len:GetStringWidth()
 					end
 					
-					if (_type (amount) == "number" and amount > 0) then --1236
+					if (_type (amount) == "number" and amount > 0) then
 						if (keyNameSec) then
 							local dps = GetDpsHps (_thisActor, keyNameSec)
 							report_lines [#report_lines+1] = i .. ". " .. name .. " " .. _cstr ("%.2f", amount/total*100) .. "% (" .. _detalhes:comma_value (_math_floor (dps)) .. ", " .. _detalhes:ToK ( _math_floor (amount) ) .. ")"
@@ -2688,9 +2692,8 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 					total, keyName, first, container_amount = _detalhes.atributo_misc:RefreshWindow (self, self.showing, true, true)
 				end
 			elseif (atributo == 5) then --> custom
-				total, keyName, first, container_amount = _detalhes.atributo_custom:RefreshWindow (self, self.showing, true, {key = "custom"})
-				total = self.showing.totals [self.customName]
-				atributo = _detalhes.custom [self.sub_atributo].attribute
+				total, container, first, container_amount = _detalhes.atributo_custom:RefreshWindow (self, self.showing, true, true)
+				keyName = "report_value"				
 			end
 			
 			local this_amt = math.min (#container, container_amount or 0, amt)
@@ -2699,40 +2702,47 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 			for i = container_amount, this_amt, -1 do 
 				
 				local _thisActor = container [i]
-				local amount = _math_floor (_thisActor [keyName])
+				if (_thisActor) then
 				
-				local name = _thisActor.nome.." "
-				
-				_detalhes.fontstring_len:SetText (name)
-				local stringlen = _detalhes.fontstring_len:GetStringWidth()
-				
-				while (stringlen < default_len) do 
-					name = name .. "."
-					_detalhes.fontstring_len:SetText (name)
-					stringlen = _detalhes.fontstring_len:GetStringWidth()
-				end				
-				
-				if (_type (amount) == "number") then
-					if (amount > 0) then 
-						if (keyNameSec) then
-							local dps = GetDpsHps (_thisActor, keyNameSec)
-							report_lines [#report_lines+1] = i .. ". " .. name .. " " .. _cstr ("%.2f", amount/total*100) .. "% (" .. _detalhes:comma_value (_math_floor (dps)) .. ", " .. _detalhes:ToK ( _math_floor (amount) ) .. ")"
-						else
-							report_lines [#report_lines+1] = i .. "." .. name .. "   " .. _detalhes:comma_value ( _math_floor (amount) ).." (".._cstr ("%.1f", amount/total*100).."%)"
-						end
-						
-						quantidade = quantidade + 1
-						if (quantidade == amt) then
-							break
-						end
+					local amount
+					if (type (_thisActor [keyName]) == "number") then
+						amount = _math_floor (_thisActor [keyName])
+					else
+						amount = _thisActor [keyName]
 					end
-				elseif (_type (amount) == "string") then
-					report_lines [#report_lines+1] = i .. ". " .. name .. "   " .. amount
-				else
-					break
+					
+					local name = _thisActor.nome .. " "
+					
+					_detalhes.fontstring_len:SetText (name)
+					local stringlen = _detalhes.fontstring_len:GetStringWidth()
+					
+					while (stringlen < default_len) do 
+						name = name .. "."
+						_detalhes.fontstring_len:SetText (name)
+						stringlen = _detalhes.fontstring_len:GetStringWidth()
+					end				
+					
+					if (_type (amount) == "number") then
+						if (amount > 0) then 
+							if (keyNameSec) then
+								local dps = GetDpsHps (_thisActor, keyNameSec)
+								report_lines [#report_lines+1] = i .. ". " .. name .. " " .. _cstr ("%.2f", amount/total*100) .. "% (" .. _detalhes:comma_value (_math_floor (dps)) .. ", " .. _detalhes:ToK ( _math_floor (amount) ) .. ")"
+							else
+								report_lines [#report_lines+1] = i .. "." .. name .. "   " .. _detalhes:comma_value ( _math_floor (amount) ).." (".._cstr ("%.1f", amount/total*100).."%)"
+							end
+							
+							quantidade = quantidade + 1
+							if (quantidade == amt) then
+								break
+							end
+						end
+					elseif (_type (amount) == "string") then
+						report_lines [#report_lines+1] = i .. ". " .. name .. "   " .. amount
+					else
+						break
+					end
 				end
 			end
-
 		else
 			local nova_tabela = {}
 			

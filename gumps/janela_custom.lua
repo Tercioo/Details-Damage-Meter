@@ -182,6 +182,18 @@
 						]]
 			DetailsCustomPanel.code2 = DetailsCustomPanel.code2_default
 			
+			DetailsCustomPanel.code3_default = [[
+							local value, top, total, combat, instance = ...
+							return math.floor (value)
+						]]
+			DetailsCustomPanel.code3 = DetailsCustomPanel.code3_default
+			
+			DetailsCustomPanel.code4_default = [[
+							local value, top, total, combat, instance = ...
+							return string.format ("%.1f", value/total*100)
+						]]
+			DetailsCustomPanel.code4 = DetailsCustomPanel.code4_default
+			
 			function DetailsCustomPanel:ClearFocus()
 				custom_window.desc_field:ClearFocus()
 				custom_window.name_field:ClearFocus()
@@ -206,6 +218,8 @@
 				
 				DetailsCustomPanel.code1 = DetailsCustomPanel.code1_default
 				DetailsCustomPanel.code2 = DetailsCustomPanel.code2_default
+				DetailsCustomPanel.code3 = DetailsCustomPanel.code3_default
+				DetailsCustomPanel.code4 = DetailsCustomPanel.code4_default
 				
 				DetailsCustomPanel.current_attribute = "damagedone"
 				DetailsCustomPanelAttributeMenu1:Click()
@@ -252,6 +266,8 @@
 					
 					DetailsCustomPanel.code1 = custom_object:GetScript()
 					DetailsCustomPanel.code2 = custom_object:GetScriptToolip()
+					DetailsCustomPanel.code3 = custom_object:GetScriptTotal()
+					DetailsCustomPanel.code4 = custom_object:GetScriptPercent()
 					
 				else
 				
@@ -393,7 +409,7 @@
 							["script"] = false,
 							["tooltip"] = false,
 						}
-					
+
 						tinsert (_detalhes.custom, new_custom_object)
 						_setmetatable (new_custom_object, _detalhes.atributo_custom)
 						new_custom_object.__index = _detalhes.atributo_custom
@@ -406,6 +422,8 @@
 					
 					local main_code = DetailsCustomPanel.code1
 					local tooltip_code = DetailsCustomPanel.code2
+					local total_code = DetailsCustomPanel.code3
+					local percent_code = DetailsCustomPanel.code4
 					
 					if (DetailsCustomPanel.IsEditing) then
 						local object = DetailsCustomPanel.IsEditing
@@ -419,6 +437,18 @@
 						object.spellid = false
 						object.script = main_code
 						object.tooltip = tooltip_code
+						
+						if (total_code ~= DetailsCustomPanel.code3_default) then
+							object.total_script = total_code
+						else
+							object.total_script = false
+						end
+						
+						if (percent_code ~= DetailsCustomPanel.code4_default) then
+							object.percent_script = percent_code
+						else
+							object.percent_script = false
+						end
 						
 						if (DetailsCustomPanel.IsImporting) then
 							_detalhes:Msg (Loc ["STRING_CUSTOM_IMPORTED"])
@@ -448,6 +478,21 @@
 							["tooltip"] = tooltip_code,
 						}
 						
+						local total_code = DetailsCustomPanel.code3
+						local percent_code = DetailsCustomPanel.code4
+						
+						if (total_code ~= DetailsCustomPanel.code3_default) then
+							new_custom_object.total_script = total_code
+						else
+							new_custom_object.total_script = false
+						end
+						
+						if (percent_code ~= DetailsCustomPanel.code4_default) then
+							new_custom_object.percent_script = percent_code
+						else
+							new_custom_object.percent_script = false
+						end
+						
 						tinsert (_detalhes.custom, new_custom_object)
 						_setmetatable (new_custom_object, _detalhes.atributo_custom)
 						new_custom_object.__index = _detalhes.atributo_custom
@@ -470,6 +515,10 @@
 						DetailsCustomPanel.code1 = custom_window.codeeditor:GetText()
 					elseif (DetailsCustomPanel.CodeEditing == 2) then
 						DetailsCustomPanel.code2 = custom_window.codeeditor:GetText()
+					elseif (DetailsCustomPanel.CodeEditing == 3) then
+						DetailsCustomPanel.code3 = custom_window.codeeditor:GetText()
+					elseif (DetailsCustomPanel.CodeEditing == 4) then
+						DetailsCustomPanel.code4 = custom_window.codeeditor:GetText()
 					end
 					
 					DetailsCustomPanel.CodeEditing = false
@@ -573,7 +622,15 @@
 				elseif (code == 2) then --> edit tooltip code
 				
 					custom_window.codeeditor:SetText (DetailsCustomPanel.code2)
+				
+				elseif (code == 3) then --> edit total code
+				
+					custom_window.codeeditor:SetText (DetailsCustomPanel.code3)
 					
+				elseif (code == 4) then --> edit percent code
+				
+					custom_window.codeeditor:SetText (DetailsCustomPanel.code4)
+				
 				end
 				
 				custom_window.codeeditor:Show()
@@ -1606,15 +1663,27 @@
 			
 				--edit main code
 				local maincode_button = gump:NewButton (box2, nil, "$parentMainCodeButton", "maiccodebutton", 160, 20, DetailsCustomPanel.StartEditCode, 1, nil, nil, Loc ["STRING_CUSTOM_EDIT_SEARCH_CODE"])
-				maincode_button:SetPoint ("topleft", box2, "topleft", 10, -25)
+				maincode_button:SetPoint ("topleft", box2, "topleft", 10, -15)
 				maincode_button.tooltip = Loc ["STRING_CUSTOM_EDITCODE_DESC"]
-				maincode_button:InstallCustomTexture()
+				maincode_button:InstallCustomTexture (nil, nil, nil, nil, true)
 				
 				--edit tooltip code
 				local tooltipcode_button = gump:NewButton (box2, nil, "$parentTooltipCodeButton", "tooltipcodebutton", 160, 20, DetailsCustomPanel.StartEditCode, 2, nil, nil, Loc ["STRING_CUSTOM_EDIT_TOOLTIP_CODE"])
-				tooltipcode_button:SetPoint ("topleft", maincode_button, "bottomleft", 0, -10)
+				tooltipcode_button:SetPoint ("topleft", maincode_button, "bottomleft", 0, -8)
 				tooltipcode_button.tooltip = Loc ["STRING_CUSTOM_EDITTOOLTIP_DESC"]
-				tooltipcode_button:InstallCustomTexture()
+				tooltipcode_button:InstallCustomTexture (nil, nil, nil, nil, true)
+				
+				--edit total code
+				local totalcode_button = gump:NewButton (box2, nil, "$parentTotalCodeButton", "totalcodebutton", 160, 20, DetailsCustomPanel.StartEditCode, 3, nil, nil, "Edit Total Code")
+				totalcode_button:SetPoint ("topleft", tooltipcode_button, "bottomleft", 0, -8)
+				totalcode_button.tooltip = "This code is responsible for edit the total number shown in the player bar.\n\nThis is not necessary if you want show exactly the value gotten in the search code."
+				totalcode_button:InstallCustomTexture (nil, nil, nil, nil, true)
+				
+				--edit percent code
+				local percentcode_button = gump:NewButton (box2, nil, "$parentPercentCodeButton", "percentcodebutton", 160, 20, DetailsCustomPanel.StartEditCode, 4, nil, nil, "Edit Percent Code")
+				percentcode_button:SetPoint ("topleft", totalcode_button, "bottomleft", 0, -8)
+				percentcode_button.tooltip = "Edit the code responsible for the percent number in the player bar.\n\nThis is not required if you want to use simple percentage (comparing with total)."
+				percentcode_button:InstallCustomTexture (nil, nil, nil, nil, true)
 				
 				box2:Hide()
 			
