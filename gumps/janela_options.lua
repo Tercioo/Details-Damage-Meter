@@ -1118,6 +1118,60 @@ function window:CreateFrame20()
 		
 		window:CreateLineBackground2 (frame20, "TooltipShowAmountSlider", "TooltipShowAmountLabel", Loc ["STRING_OPTIONS_TOOLTIPS_SHOWAMT_DESC"])
 		
+	--> border
+		--border anchor
+			g:NewLabel (frame20, _, "$parentTooltipsBorderAnchor", "TooltipsBorderAnchorLabel", Loc ["STRING_OPTIONS_TOOLTIPS_ANCHOR_BORDER"], "GameFontNormal")
+		
+		--border texture
+			local onSelectTextureBackdrop = function (_, _, textureName)
+				_detalhes:SetTooltipBackdrop (textureName)
+			end
+
+			local iconsize = {16, 16}
+			local buildTextureBackdropMenu = function() 
+				local textures2 = SharedMedia:HashTable ("border")
+				local texTable2 = {}
+				for name, texturePath in pairs (textures2) do 
+					texTable2 [#texTable2+1] = {value = name, label = name, onclick = onSelectTextureBackdrop, icon = [[Interface\DialogFrame\UI-DialogBox-Corner]], texcoord = {0.09375, 1, 0, 0.78}, iconsize = iconsize}
+				end
+				table.sort (texTable2, function (t1, t2) return t1.label < t2.label end)
+				return texTable2 
+			end
+			
+			g:NewLabel (frame20, _, "$parentBackdropBorderTextureLabel", "BackdropBorderTextureLabel", Loc ["STRING_OPTIONS_TOOLTIPS_BORDER_TEXTURE"], "GameFontHighlightLeft")
+			local d = g:NewDropDown (frame20, _, "$parentBackdropBorderTextureDropdown", "BackdropBorderTextureDropdown", DROPDOWN_WIDTH, 20, buildTextureBackdropMenu, _detalhes.tooltip.border_texture)
+			d.onenter_backdrop = dropdown_backdrop_onenter
+			d.onleave_backdrop = dropdown_backdrop_onleave
+			d:SetBackdrop (dropdown_backdrop)
+			d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+
+			frame20.BackdropBorderTextureDropdown:SetPoint ("left", frame20.BackdropBorderTextureLabel, "right", 2)
+			window:CreateLineBackground2 (frame20, "BackdropBorderTextureDropdown", "BackdropBorderTextureLabel", Loc ["STRING_OPTIONS_TOOLTIPS_BORDER_TEXTURE_DESC"])
+			
+		--border size
+			g:NewLabel (frame20, _, "$parentBackdropSizeLabel", "BackdropSizeLabel", Loc ["STRING_OPTIONS_TOOLTIPS_BORDER_SIZE"], "GameFontHighlightLeft")
+			local s = g:NewSlider (frame20, _, "$parentBackdropSizeHeight", "BackdropSizeSlider", SLIDER_WIDTH, 20, 1, 32, 1, _detalhes.tooltip.border_size)
+			s:SetBackdrop (slider_backdrop)
+			s:SetBackdropColor (unpack (slider_backdrop_color))
+			s:SetThumbSize (50)
+
+			frame20.BackdropSizeSlider:SetPoint ("left", frame20.BackdropSizeLabel, "right", 2)
+			frame20.BackdropSizeSlider:SetThumbSize (50)
+			frame20.BackdropSizeSlider:SetHook ("OnValueChange", function (_, _, amount) 
+				_detalhes:SetTooltipBackdrop (nil, amount)
+			end)	
+			window:CreateLineBackground2 (frame20, "BackdropSizeSlider", "BackdropSizeLabel", Loc ["STRING_OPTIONS_TOOLTIPS_BORDER_SIZE_DESC"])
+
+		--border color
+			local backdropcolor_callback = function (button, r, g, b, a)
+				_detalhes:SetTooltipBackdrop (nil, nil, {r, g, b, a})
+			end
+			g:NewColorPickButton (frame20, "$parentBackdropColorPick", "BackdropColorPick", backdropcolor_callback)
+			g:NewLabel (frame20, _, "$parentBackdropColorLabel", "BackdropColorLabel", Loc ["STRING_OPTIONS_TOOLTIPS_BORDER_COLOR"], "GameFontHighlightLeft")
+			frame20.BackdropColorPick:SetPoint ("left", frame20.BackdropColorLabel, "right", 2, 0)
+
+			local background = window:CreateLineBackground2 (frame20, "BackdropColorPick", "BackdropColorLabel", Loc ["STRING_OPTIONS_TOOLTIPS_BORDER_COLOR_DESC"])
+		
 	--> tooltip anchors
 
 		--unlock screen anchor
@@ -1283,7 +1337,10 @@ function window:CreateFrame20()
 			{"TooltipdpsAbbreviateLabel", 8},
 			{"TooltipMaximizeLabel", 9},
 			{"TooltipShowAmountLabel", 10},
-
+			{"TooltipsBorderAnchorLabel", 11, true},
+			{"BackdropBorderTextureLabel", 12},
+			{"BackdropSizeLabel", 13},
+			{"BackdropColorLabel", 14},
 		}
 		
 		window:arrange_menu (frame20, left_side, x, -90)
@@ -4289,7 +4346,7 @@ function window:CreateFrame3()
 	
 	--> extra Options
 		g:NewLabel (frame3, _, "$parentSkinExtraOptionsAnchor", "SkinExtraOptionsAnchor", Loc ["STRING_OPTIONS_SKIN_EXTRA_OPTIONS_ANCHOR"], "GameFontNormal")
-		frame3.SkinExtraOptionsAnchor:Hide()
+		--frame3.SkinExtraOptionsAnchor:Hide()
 		frame3.SkinExtraOptionsAnchor:SetPoint (window.right_start_at, -90)
 		frame3.ExtraOptions = {}
 		
@@ -7066,6 +7123,22 @@ function window:CreateFrame11()
 		reset_custom:GetNormalTexture():SetDesaturated (true)
 		reset_custom.tooltip = "Reset to Default"
 		
+		local test_custom_text = g:NewButton (frame11.InterruptsCustomEntry, _, "$parentTestCustomPhraseButton", "TestCustomPhraseButton", 16, 16, function()
+			local text = frame11.InterruptsCustomEntry.text
+
+			local channel = _detalhes.announce_interrupts.channel
+			_detalhes.announce_interrupts.channel = "PRINT"
+			_detalhes:interrupt_announcer (nil, nil, nil, _detalhes.playername, nil, nil, "A Monster", nil, 1766, "Kick", nil, 106523, "Cataclysm", nil)
+			_detalhes.announce_interrupts.channel = channel
+			
+		end)
+		test_custom_text:SetPoint ("left", reset_custom, "right", 0, 0)
+		test_custom_text:SetNormalTexture ([[Interface\CHATFRAME\ChatFrameExpandArrow]])
+		test_custom_text:SetHighlightTexture ([[Interface\CHATFRAME\ChatFrameExpandArrow]])
+		test_custom_text:SetPushedTexture ([[Interface\CHATFRAME\ChatFrameExpandArrow]])
+		test_custom_text:GetNormalTexture():SetDesaturated (true)
+		test_custom_text.tooltip = "Click to test!"
+		
 	--cooldowns
 	
 		g:NewLabel (frame11, _, "$parentEnableCooldownsLabel", "EnableCooldownsLabel", Loc ["STRING_OPTIONS_RT_COOLDOWNS_ONOFF"], "GameFontHighlightLeft")
@@ -7128,6 +7201,22 @@ function window:CreateFrame11()
 		reset_custom:SetPushedTexture ([[Interface\Glues\LOGIN\Glues-CheckBox-Check]] or [[Interface\Buttons\UI-GroupLoot-Pass-Up]])
 		reset_custom:GetNormalTexture():SetDesaturated (true)
 		reset_custom.tooltip = "Reset to Default"
+		
+		local test_custom_text = g:NewButton (frame11.CooldownCustomEntry, _, "$parentTestCustomPhraseButton", "TestCustomPhraseButton", 16, 16, function()
+			local text = frame11.CooldownCustomEntry.text
+
+			local channel = _detalhes.announce_cooldowns.channel
+			_detalhes.announce_cooldowns.channel = "PRINT"
+			_detalhes:cooldown_announcer (nil, nil, nil, _detalhes.playername, nil, nil, "Tyrande Whisperwind", nil, 47788, "Guardian Spirit")
+			_detalhes.announce_cooldowns.channel = channel
+			
+		end)
+		test_custom_text:SetPoint ("left", reset_custom, "right", 0, 0)
+		test_custom_text:SetNormalTexture ([[Interface\CHATFRAME\ChatFrameExpandArrow]])
+		test_custom_text:SetHighlightTexture ([[Interface\CHATFRAME\ChatFrameExpandArrow]])
+		test_custom_text:SetPushedTexture ([[Interface\CHATFRAME\ChatFrameExpandArrow]])
+		test_custom_text:GetNormalTexture():SetDesaturated (true)
+		test_custom_text.tooltip = "Click to test!"
 	
 		--esquema para ativar ou desativar certos cooldowns
 			--botão que abre um gump estilo welcome, com as spells pegas na lista de cooldowns
@@ -7225,7 +7314,7 @@ function window:CreateFrame11()
 			end
 			
 			DetailsAnnounceSelectCooldownIgnored:Open()
-			
+		
 		end, nil, nil, nil, Loc ["STRING_OPTIONS_RT_COOLDOWNS_SELECT"], 1)
 		
 		frame11.CooldownIgnoreButton:InstallCustomTexture()
@@ -7252,7 +7341,7 @@ function window:CreateFrame11()
 		
 		--slider para quantidade de danos a mostrar
 		g:NewLabel (frame11, _, "$parentDeathsDamageLabel", "DeathsDamageLabel", Loc ["STRING_OPTIONS_RT_DEATHS_HITS"], "GameFontHighlightLeft")
-		local s = g:NewSlider (frame11, _, "$parentDeathsDamageSlider", "DeathsDamageSlider", SLIDER_WIDTH, 20, 1, 3, 1, _detalhes.announce_deaths.last_hits)
+		local s = g:NewSlider (frame11, _, "$parentDeathsDamageSlider", "DeathsDamageSlider", SLIDER_WIDTH, 20, 1, 5, 1, _detalhes.announce_deaths.last_hits)
 		s:SetBackdrop (slider_backdrop)
 		s:SetBackdropColor (unpack (slider_backdrop_color))
 		s:SetThumbSize (50)
@@ -7779,14 +7868,23 @@ function window:update_all (editing_instance)
 			t[2]:Hide()
 		end
 	end
-	frame3.SkinExtraOptionsAnchor:Hide()
+	
+	for _, frame in pairs (frame3.ExtraOptions) do
+		frame:Hide()
+	end
 	
 	--> create or show options if necessary
 	if (skin_object.skin_options and not skin_object.options_created) then
 		skin_object.options_created = true
 
-		frame3.ExtraOptions [skin_name_formated] = {}
+		local f = CreateFrame ("frame", "DetailsSkinOptions" .. skin_name_formated, frame3)
+		frame3.ExtraOptions [skin_name_formated] = f
+		f:SetPoint ("topleft", frame3, "topleft", window.right_start_at, window.top_start_at + (25 * -1))
+		f:SetSize (250, 400)
+
+		g:BuildMenu (f, skin_object.skin_options, 0, 0, 400)
 		
+		--[[
 		for index, widget in ipairs (skin_object.skin_options) do 
 			local type = widget.type
 			
@@ -7807,13 +7905,10 @@ function window:update_all (editing_instance)
 		end
 		
 		frame3.SkinExtraOptionsAnchor:Show()
+		--]]
 		
 	elseif (skin_object.skin_options) then
-		for index, t in ipairs (frame3.ExtraOptions [skin_name_formated]) do
-			t[1]:Show()
-			t[2]:Show()
-		end
-		frame3.SkinExtraOptionsAnchor:Show()
+		frame3.ExtraOptions [skin_name_formated]:Show()
 	end
 	
 	--> window 4
@@ -8161,16 +8256,15 @@ function window:update_all (editing_instance)
 	_G.DetailsOptionsWindow20TooltipOffsetXSlider.MyObject:SetValue (_detalhes.tooltip.anchor_offset[1])
 	_G.DetailsOptionsWindow20TooltipOffsetYSlider.MyObject:SetValue (_detalhes.tooltip.anchor_offset[2])
 	
+	_G.DetailsOptionsWindow20BackdropBorderTextureDropdown.MyObject:Select (_detalhes.tooltip.border_texture)
+	_G.DetailsOptionsWindow20BackdropSizeHeight.MyObject:SetValue (_detalhes.tooltip.border_size)
+	_G.DetailsOptionsWindow20BackdropColorPick.MyObject:SetColor (unpack (_detalhes.tooltip.border_color))
+	
 	----------
-
-
-
 	
 	_G.DetailsOptionsWindow6SideBarsSlider.MyObject:SetFixedParameter (editing_instance)
 	_G.DetailsOptionsWindow6SideBarsSlider.MyObject:SetValue (editing_instance.show_sidebars)
-	
 
-	
 	_G.DetailsOptionsWindow6StatusbarSlider.MyObject:SetFixedParameter (editing_instance)
 	_G.DetailsOptionsWindow6StatusbarSlider.MyObject:SetValue (editing_instance.show_statusbar)
 	

@@ -1217,6 +1217,7 @@ local resize_scripts_onenter = function (self)
 		GameCooltip:SetOption ("TextSize", _detalhes.font_sizes.menus)
 		GameCooltip:SetOption ("NoLastSelectedBar", true)
 		GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
+		GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
 		GameCooltip:SetOwner (self)
 		GameCooltip:ShowCooltip()
 	end
@@ -1266,6 +1267,7 @@ local lockFunctionOnEnter = function (self)
 		GameCooltip:SetOption ("NoLastSelectedBar", true)
 		GameCooltip:SetOption ("TextSize", _detalhes.font_sizes.menus)
 		GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
+		GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
 		GameCooltip:SetOwner (self)
 		GameCooltip:ShowCooltip()
 	end
@@ -1349,6 +1351,7 @@ local unSnapButtonOnEnter = function (self)
 	GameCooltip:AddFromTable (unSnapButtonTooltip)
 	GameCooltip:SetOption ("TextSize", _detalhes.font_sizes.menus)
 	GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
+	GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
 	GameCooltip:ShowCooltip (self, "tooltip")
 	
 end
@@ -4239,6 +4242,7 @@ local build_mode_list = function (self, elapsed)
 		
 		--CoolTip:SetWallpaper (1, [[Interface\ACHIEVEMENTFRAME\UI-Achievement-Parchment-Horizontal-Desaturated]], nil, {1, 1, 1, 0.3})
 		CoolTip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
+		CoolTip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
 		
 		show_anti_overlap (instancia, self, "top")
 		
@@ -4539,6 +4543,8 @@ local build_segment_list = function (self, elapsed)
 		
 		--CoolTip:SetWallpaper (1, [[Interface\ACHIEVEMENTFRAME\UI-Achievement-Parchment-Horizontal-Desaturated]], nil, {1, 1, 1, 0.3})
 		CoolTip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
+		CoolTip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
+		CoolTip:SetBackdrop (2, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
 		
 		show_anti_overlap (instancia, self, "top")
 		
@@ -5711,6 +5717,31 @@ function _detalhes:ShowStatusBar (instancia)
 	end
 end
 
+function _detalhes:SetTooltipBackdrop (border_texture, border_size, border_color)
+
+	if (not border_texture) then
+		border_texture = _detalhes.tooltip.border_texture
+	end
+	if (not border_size) then
+		border_size = _detalhes.tooltip.border_size
+	end
+	if (not border_color) then
+		border_color = _detalhes.tooltip.border_color
+	end
+
+	_detalhes.tooltip.border_texture = border_texture
+	_detalhes.tooltip.border_size = border_size
+
+	local c = _detalhes.tooltip.border_color
+	local cc = _detalhes.tooltip_border_color
+	c[1], c[2], c[3], c[4] = border_color[1], border_color[2], border_color[3], border_color[4] or 1
+	cc[1], cc[2], cc[3], cc[4] = border_color[1], border_color[2], border_color[3], border_color[4] or 1
+
+	_detalhes.tooltip_backdrop.edgeFile = SharedMedia:Fetch ("border", border_texture)
+	_detalhes.tooltip_backdrop.edgeSize = border_size
+
+end
+
 --> reset button functions
 	local reset_button_onenter = function (self)
 	
@@ -5735,6 +5766,7 @@ end
 		GameCooltip:AddMenu (1, _detalhes.tabela_historico.resetar_overall)
 		
 		GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
+		GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
 		
 		show_anti_overlap (self.instance, self, "top")
 		
@@ -5806,7 +5838,8 @@ end
 		
 		GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
 		GameCooltip:SetWallpaper (2, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
-		
+		GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
+		GameCooltip:SetBackdrop (2, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
 		
 		show_anti_overlap (self.instance, self, "top")
 		
@@ -6189,7 +6222,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 	--> First we declare the function which will build the menu
 	local BuildAttributeMenu = function()
 		if (_detalhes.solo and _detalhes.solo == instancia.meu_id) then
-			return _detalhes:MontaSoloOption (instancia)
+			_detalhes:MontaSoloOption (instancia)
 		elseif (instancia:IsRaidMode()) then
 			local have_plugins = _detalhes:MontaRaidOption (instancia)
 			if (not have_plugins) then
@@ -6203,8 +6236,11 @@ function gump:CriaCabecalho (baseframe, instancia)
 				GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
 			end
 		else
-			return _detalhes:MontaAtributosOption (instancia)
+			_detalhes:MontaAtributosOption (instancia)
 		end
+		
+		GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
+		GameCooltip:SetBackdrop (2, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
 	end
 	
 	--> Now we create a table with some parameters
@@ -6270,6 +6306,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 				GameCooltip:AddMenu (1, _detalhes.Reportar, instancia)
 				
 				GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
+				GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
 				
 				show_anti_overlap (instancia, self, "top")
 				
@@ -6400,6 +6437,8 @@ function gump:CriaCabecalho (baseframe, instancia)
 		end
 		
 		GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
+		GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
+		GameCooltip:SetBackdrop (2, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
 		
 		return ClosedInstances
 	end

@@ -26,7 +26,7 @@ function _detalhes:OpenWelcomeWindow ()
 		window:SetScript ("OnHide", function()
 			--> start tutorial if this is first run
 			if (_detalhes.tutorial.logons < 2 and _detalhes.is_first_run) then
-				_detalhes:StartTutorial()
+				--_detalhes:StartTutorial()
 			end
 			_detalhes.tabela_historico:resetar()
 		end)

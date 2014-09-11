@@ -423,6 +423,9 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 				_detalhes.opened_windows = _detalhes.opened_windows + 1
 			end
 		end
+		
+		--> update tooltip settings
+		_detalhes:SetTooltipBackdrop()
 
 	--> end
 
@@ -794,6 +797,10 @@ local default_profile = {
 			anchor_point = "bottom",
 			anchor_relative = "top",
 			anchor_offset = {0, 0},
+			
+			border_texture = "Blizzard Tooltip",
+			border_color = {1, 1, 1, 1},
+			border_size = 16,
 		},
 	
 }

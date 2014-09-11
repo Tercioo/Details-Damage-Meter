@@ -15,6 +15,7 @@
 --> local pointers
 	
 	local _math_floor = math.floor --lua local
+	local _math_max = math.max --lua local
 	local _ipairs = ipairs --lua local
 	local _pairs = pairs --lua local
 	local _table_wipe = table.wipe --lua local
@@ -974,8 +975,10 @@
 			
 			GameCooltip:SetOption ("LeftBorderSize", -5)
 			GameCooltip:SetOption ("RightBorderSize", 5)
-			GameCooltip:SetOption ("MinWidth", 180)
+			GameCooltip:SetOption ("MinWidth", _math_max (230, self.baseframe:GetWidth()*0.8))
 			GameCooltip:SetOption ("StatusBarTexture", [[Interface\WorldStateFrame\WORLDSTATEFINALSCORE-HIGHLIGHT]]) --[[Interface\Addons\Details\images\bar_flat]]
+
+			GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
 			
 			local myPoint = _detalhes.tooltip.anchor_point
 			local anchorPoint = _detalhes.tooltip.anchor_relative

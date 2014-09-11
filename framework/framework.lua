@@ -208,6 +208,19 @@ function gump:BuildMenu (parent, menu, x_offset, y_offset, height)
 			if (size > max_x) then
 				max_x = size
 			end
+			
+		elseif (widget_table.type == "execute" or widget_table.type == "button") then
+		
+			local button = self:NewButton (parent, nil, "$parentWidget", nil, 120, 18, widget_table.func, widget_table.param1, widget_table.param2, nil, widget_table.name)
+			button:InstallCustomTexture()
+			button:SetPoint (cur_x, cur_y)
+			button.tooltip = widget_table.desc
+			
+			local size = button:GetWidth() + 4
+			if (size > max_x) then
+				max_x = size
+			end
+			
 		end
 	
 		cur_y = cur_y - 20

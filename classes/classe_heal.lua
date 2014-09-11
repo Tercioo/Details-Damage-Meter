@@ -1,8 +1,3 @@
---[[ Esta classe irá abrigar todo a cura de uma habilidade
-Parents:
-	addon -> combate atual -> cura -> container de jogadores -> esta classe
-
-]]
 
 --lua locals
 local _cstr = string.format
@@ -834,6 +829,13 @@ function atributo_heal:RefreshBarra (esta_barra, instancia, from_resize)
 				esta_barra.texto_esquerdo:SetText (bar_number .. self.displayName) --seta o texto da esqueda
 			end
 		end
+	end
+	
+	if (instancia.row_info.textL_class_colors) then
+		esta_barra.texto_esquerdo:SetTextColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
+	end
+	if (instancia.row_info.textR_class_colors) then
+		esta_barra.texto_direita:SetTextColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
 	end
 	
 	esta_barra.texto_esquerdo:SetSize (esta_barra:GetWidth() - esta_barra.texto_direita:GetStringWidth() - 20, 15)

@@ -32,7 +32,12 @@ local _
 	function _detalhes:GetSkin (skin_name)
 		return _detalhes.skins [skin_name]
 	end
-
+	
+	local reset_tooltip = function()
+		_detalhes:SetTooltipBackdrop ("Blizzard Tooltip", 16, {1, 1, 1, 1})
+		_detalhes:DelayOptionsRefresh()
+	end
+	
 	--> install default skins:
 	_detalhes:InstallSkin ("Default Skin", {
 		file = [[Interface\AddOns\Details\images\skins\default_skin]], 
@@ -98,8 +103,11 @@ local _
 			},
 		--close button
 			closebutton_config = {size = {32, 32}},
-		}
+		},
 		
+		skin_options = {
+			{type = "button", name = Loc ["STRING_OPTIONS_SKIN_RESET_TOOLTIP"], func = reset_tooltip, desc = Loc ["STRING_OPTIONS_SKIN_RESET_TOOLTIP_DESC"]},
+		}
 	})
 
 	_detalhes:InstallSkin ("Minimalistic", {
@@ -159,6 +167,10 @@ local _
 		callback = function (skin, instance, just_updating)
 			--none
 		end,
+		
+		skin_options = {
+			{type = "button", name = Loc ["STRING_OPTIONS_SKIN_RESET_TOOLTIP"], func = reset_tooltip, desc = Loc ["STRING_OPTIONS_SKIN_RESET_TOOLTIP_DESC"]},
+		}
 		
 	})
 	
@@ -222,6 +234,10 @@ local _
 			--none
 		end,
 		
+		skin_options = {
+			{type = "button", name = Loc ["STRING_OPTIONS_SKIN_RESET_TOOLTIP"], func = reset_tooltip, desc = Loc ["STRING_OPTIONS_SKIN_RESET_TOOLTIP_DESC"]},
+		}
+		
 	})
 
 	_detalhes:InstallSkin ("Flat Color", {
@@ -281,6 +297,10 @@ local _
 			show_statusbar = false,
 			color = {1, 1, 1, 0.92},
 			bg_alpha = 0.40,
+		},
+		
+		skin_options = {
+			{type = "button", name = Loc ["STRING_OPTIONS_SKIN_RESET_TOOLTIP"], func = reset_tooltip, desc = Loc ["STRING_OPTIONS_SKIN_RESET_TOOLTIP_DESC"]},
 		}
 	})
 	
@@ -359,6 +379,10 @@ local _
 				alpha = 0.4980392451398075,
 				texture = "Interface\\Glues\\CREDITS\\Fellwood5",
 			},
+		},
+		
+		skin_options = {
+			{type = "button", name = Loc ["STRING_OPTIONS_SKIN_RESET_TOOLTIP"], func = reset_tooltip, desc = Loc ["STRING_OPTIONS_SKIN_RESET_TOOLTIP_DESC"]},
 		}
 		
 	})
@@ -544,7 +568,10 @@ local _
 
 	end
 	
-
+	local set_tooltip_elvui = function()
+		_detalhes:SetTooltipBackdrop ("Blizzard Tooltip", 16, {0, 0, 0, 1})
+		_detalhes:DelayOptionsRefresh()
+	end
 	
 	_detalhes:InstallSkin ("ElvUI Frame Style", {
 		file = [[Interface\AddOns\Details\images\skins\elvui]],
@@ -639,7 +666,8 @@ local _
 		},
 		
 		skin_options = {
-			{type = "button", label = "", text = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON1"], func = align_right_chat, desc = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON1_DESC"]}
+			{type = "button", name = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON1"], func = align_right_chat, desc = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON1_DESC"]},
+			{type = "button", name = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON2"], func = set_tooltip_elvui, desc = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON2_DESC"]},
 		}
 	})
 	
@@ -784,7 +812,8 @@ local _
 		},
 		
 		skin_options = {
-			{type = "button", label = "", text = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON1"], func = align_right_chat, desc = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON1_DESC"]}
+			{type = "button", name = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON1"], func = align_right_chat, desc = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON1_DESC"]},
+			{type = "button", name = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON2"], func = set_tooltip_elvui, desc = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON2_DESC"]},
 		}
 	})	
 	

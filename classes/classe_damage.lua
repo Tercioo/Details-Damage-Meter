@@ -1484,7 +1484,6 @@ end
 	end	
 	
 	--icon
-
 	if (self.spellicon) then
 		esta_barra.icone_classe:SetTexture (self.spellicon)
 		esta_barra.icone_classe:SetTexCoord (0.078125, 0.921875, 0.078125, 0.921875)
@@ -1534,7 +1533,6 @@ end
 	end
 
 	--texture and text
-	
 	local bar_number = ""
 	if (instancia.row_info.textL_show_number) then
 		bar_number = esta_barra.colocacao .. ". "
@@ -1688,7 +1686,8 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 		--> MOSTRA HABILIDADES
 			_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_SPELLS"], headerColor, r, g, b, #ActorSkillsSortTable)
 			
-			GameCooltip:AddIcon ([[Interface\ICONS\Spell_Shaman_BlessingOfTheEternals]], 1, 1, 14, 14, 0.90625, 0.109375, 0.15625, 0.875)
+			--GameCooltip:AddIcon ([[Interface\ICONS\Spell_Shaman_BlessingOfTheEternals]], 1, 1, 14, 14, 0.90625, 0.109375, 0.15625, 0.875)
+			GameCooltip:AddIcon (_detalhes.tooltip_spell_icon.file, 1, 1, 14, 14, unpack (_detalhes.tooltip_spell_icon.coords))
 			
 			if (is_maximized) then
 				--highlight shift key
@@ -1742,7 +1741,10 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 				for i = 1, _math_min (max_targets, #ActorTargetsSortTable) do
 					local este_inimigo = ActorTargetsSortTable [i]
 					GameCooltip:AddLine (este_inimigo[1]..": ", FormatTooltipNumber (_, este_inimigo[2]) .." (".._cstr("%.1f", este_inimigo[2]/ActorDamageWithPet*100).."%)")
-					GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\espadas", nil, nil, 14, 14)
+					--GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\espadas", nil, nil, 14, 14)
+					--GameCooltip:AddIcon ([[Interface\CHARACTERFRAME\UI-StateIcon]], nil, nil, 14, 14, 33/64, 61/64, 31/64, 60/64)
+					--GameCooltip:AddIcon ([[Interface\FriendsFrame\StatusIcon-Offline]], nil, nil, 14, 14, 0, 1, 0, 15/16)
+					GameCooltip:AddIcon ([[Interface\PetBattles\PetBattle-StatIcons]], nil, nil, 12, 12, 0, 0.5, 0, 0.5, {.7, .7, .7, 1}, nil, true)
 					_detalhes:AddTooltipBackgroundStatusbar()
 				end
 			end

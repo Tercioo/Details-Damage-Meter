@@ -257,6 +257,9 @@
 		elseif (channel == "WHISPER") then
 			SendChatMessage (msg, channel, nil, towho)
 		
+		elseif (channel == "PRINT") then
+			print (msg)
+		
 		else
 			SendChatMessage (msg, channel)
 		

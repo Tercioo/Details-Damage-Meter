@@ -717,6 +717,8 @@ function DetailsCreateCoolTip()
 				else
 					menuButton.leftIcon:SetBlendMode ("BLEND")
 				end
+				
+				menuButton.leftIcon:SetDesaturated (leftIconTable [9])
 			else
 				menuButton.leftIcon:SetTexture (nil)
 				menuButton.leftIcon:SetWidth (3)
@@ -738,6 +740,8 @@ function DetailsCreateCoolTip()
 				else
 					menuButton.rightIcon:SetBlendMode ("BLEND")
 				end
+				
+				menuButton.rightIcon:SetDesaturated (rightIconTable [9])
 			else
 				menuButton.rightIcon:SetTexture (nil)
 				menuButton.rightIcon:SetWidth (1)
@@ -1703,6 +1707,13 @@ function DetailsCreateCoolTip()
 ----------------------------------------------------------------------
 	--> Reset cooltip
 	
+	local default_backdrop = {bgFile=[[Interface\DialogFrame\UI-DialogBox-Background-Dark]], edgeFile=[[Interface\Tooltips\UI-Tooltip-Border]], tile=true,
+	edgeSize=16, tileSize=16, insets = {left=3, right=3, top=4, bottom=4}}
+	local default_backdrop_color = {0.09019, 0.09019, 0.18823, 1}
+	local default_backdropborder_color = {1, 1, 1, 1}
+	
+	--borda preta sem usar unpack
+	
 		--> wipe all data ~reset
 		function CoolTip:Reset()
 
@@ -1724,9 +1735,15 @@ function DetailsCreateCoolTip()
 			CoolTip.overlap_checked = false
 			
 			CoolTip.frame2_leftside = nil
+
+			frame1:SetBackdrop (default_backdrop)
+			frame1:SetBackdropColor (unpack (default_backdrop_color))
+			frame1:SetBackdropBorderColor (unpack (default_backdropborder_color))
 			
-			--> 
-			
+			frame2:SetBackdrop (default_backdrop)
+			frame2:SetBackdropColor (unpack (default_backdrop_color))
+			frame2:SetBackdropBorderColor (unpack (default_backdropborder_color))
+
 			--[
 			_table_wipe (CoolTip.LeftTextTable)
 			_table_wipe (CoolTip.LeftTextTableSub)
@@ -2124,6 +2141,29 @@ function DetailsCreateCoolTip()
 			fontstring:Show()
 		end
 		
+		function CoolTip:SetBackdrop (index, backdrop, backdropcolor, bordercolor)
+			
+			local f
+			if (index == 1) then
+				f = frame1
+			elseif (index == 2) then
+				f = frame2
+			end
+			
+			if (backdrop) then
+				f:SetBackdrop (backdrop)
+			end
+			if (backdropcolor) then
+				local r, g, b, a = gump:ParseColors (backdropcolor)
+				f:SetBackdropColor (r, g, b, a)
+			end
+			if (bordercolor) then
+				local r, g, b, a = gump:ParseColors (bordercolor)
+				f:SetBackdropBorderColor (r, g, b, a)
+			end
+			
+		end
+		
 		function CoolTip:SetBannerImage (index, texturepath, width, height, anchor, texcoord, overlay)
 			
 			local texture
@@ -2177,10 +2217,10 @@ function DetailsCreateCoolTip()
 	--> parameters: icon [, width [, height [, TexCoords L R T B ]]]
 	--> texture support string path or texture object
 	
-		function CoolTip:AddTexture (iconTexture, frame, side, iconWidth, iconHeight, L, R, T, B, overlayColor, point)
-			return CoolTip:AddIcon (iconTexture, frame, side, iconWidth, iconHeight, L, R, T, B, overlayColor, point)
+		function CoolTip:AddTexture (iconTexture, frame, side, iconWidth, iconHeight, L, R, T, B, overlayColor, point, desaturated)
+			return CoolTip:AddIcon (iconTexture, frame, side, iconWidth, iconHeight, L, R, T, B, overlayColor, point, desaturated)
 		end
-		function CoolTip:AddIcon (iconTexture, frame, side, iconWidth, iconHeight, L, R, T, B, overlayColor, point)
+		function CoolTip:AddIcon (iconTexture, frame, side, iconWidth, iconHeight, L, R, T, B, overlayColor, point, desaturated)
 
 			--> need a previous line
 			if (CoolTip.Indexes == 0) then
@@ -2235,6 +2275,7 @@ function DetailsCreateCoolTip()
 					CoolTip.TopIconTableSub [CoolTip.Indexes] [6] = T or 0 
 					CoolTip.TopIconTableSub [CoolTip.Indexes] [7] = B or 1
 					CoolTip.TopIconTableSub [CoolTip.Indexes] [8] = overlayColor or _default_color
+					CoolTip.TopIconTableSub [CoolTip.Indexes] [9] = desaturated
 					return
 				end
 				
@@ -2267,6 +2308,7 @@ function DetailsCreateCoolTip()
 			iconTable [6] = T or 0 --> default 0
 			iconTable [7] = B or 1 --> default 1
 			iconTable [8] = overlayColor or _default_color --> default 1, 1, 1
+			iconTable [9] = desaturated
 			
 			return true
 		end
