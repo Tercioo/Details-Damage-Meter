@@ -103,6 +103,10 @@ end
 function _detalhes:GetProfile (name, create)
 
 	--> get the profile, create and return
+		if (not name) then
+			name = _detalhes:GetCurrentProfileName()
+		end
+		
 		local profile = _detalhes_global.__profiles [name]
 		
 		if (not profile and not create) then
@@ -340,6 +344,7 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 				instance:LoadLocalInstanceConfig()
 				--> check window positioning
 				if (_detalhes.profile_save_pos) then
+					--print ("is profile save pos", skin.__pos.normal.x, skin.__pos.normal.y)
 					if (skin.__pos) then
 						instance.posicao = table_deepcopy (skin.__pos)
 					else
@@ -361,23 +366,25 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 						instance.posicao.normal = {x = 1, y = 1, w = 300, h = 200}
 					end
 				end
-
+				
 				--> open the instance
 				if (instance:IsEnabled()) then
 					if (not instance.baseframe) then
 						instance:AtivarInstancia()
 					end
+
 					instance:LockInstance (instance.isLocked)
 					instance:RestoreMainWindowPosition()
 					instance:ReajustaGump()
 					instance:SaveMainWindowPosition()
 					instance:ChangeSkin()
+
 				else
 					instance.skin = skin.skin
 				end
 				
 				instances_loaded = instances_loaded + 1
-				
+
 			end
 			
 			--> move unused instances for unused container
@@ -694,7 +701,7 @@ local default_profile = {
 			},
 
 	--> minimap
-		minimap = {hide = false, radius = 160, minimapPos = 220, onclick_what_todo = 1, text_type = 1},
+		minimap = {hide = false, radius = 160, minimapPos = 220, onclick_what_todo = 1, text_type = 1, text_format = 3},
 	--> horcorner
 		hotcorner_topleft = {hide = false},
 		
@@ -778,7 +785,7 @@ local default_profile = {
 	--> skins
 		standard_skin = false,
 		skin = "Default Skin",
-		profile_save_pos = false,
+		profile_save_pos = true,
 		
 	--> tooltip
 		tooltip = {
@@ -870,7 +877,12 @@ local default_global_data = {
 		lastUpdateWarning = 0,
 		report_where = "SAY",
 	--> switch tables
-		switchSaved = {slots = 6, table = {}},
+		switchSaved = {slots = 4, table = {
+			{["atributo"] = 1, ["sub_atributo"] = 1}, --damage done
+			{["atributo"] = 2, ["sub_atributo"] = 1}, --healing done
+			{["atributo"] = 1, ["sub_atributo"] = 6}, --enemies
+			{["atributo"] = 4, ["sub_atributo"] = 5}, --deaths
+		}},
 		report_pos = {1, 1},
 	--> tutorial
 		tutorial = {

@@ -1462,6 +1462,38 @@ function window:CreateFrame19()
 				frame19.brokerTextDropdown:SetPoint ("left", frame19.brokerTextLabel, "right", 2, 0)
 				window:CreateLineBackground2 (frame19, "brokerTextDropdown", "brokerTextLabel", Loc ["STRING_OPTIONS_DATABROKER_TEXT_DESC"])
 			end
+		
+		--number format
+		g:NewLabel (frame19, _, "$parentBrokerNumberAbbreviateLabel", "BrokerNumberAbbreviateLabel", Loc ["STRING_OPTIONS_PS_ABBREVIATE"], "GameFontHighlightLeft")
+		--
+		local onSelectTimeAbbreviation = function (_, _, abbreviationtype)
+			_detalhes.minimap.text_format = abbreviationtype
+		end
+		local icon = [[Interface\COMMON\mini-hourglass]]
+		local iconcolor = {1, 1, 1, .5}
+		local abbreviationOptions = {
+			{value = 1, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_NONE"], desc = Loc ["STRING_EXAMPLE"] .. ": 305.500 -> 305500", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor}, --, desc = ""
+			{value = 2, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOK"], desc = Loc ["STRING_EXAMPLE"] .. ": 305.500 -> 305.5K", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor}, --, desc = ""
+			{value = 3, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOK2"], desc = Loc ["STRING_EXAMPLE"] .. ": 305.500 -> 305K", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor}, --, desc = ""
+			{value = 4, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOK0"], desc = Loc ["STRING_EXAMPLE"] .. ": 25.305.500 -> 25M", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor}, --, desc = ""
+			{value = 5, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOKMIN"], desc = Loc ["STRING_EXAMPLE"] .. ": 305.500 -> 305.5k", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor}, --, desc = ""
+			{value = 6, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOK2MIN"], desc = Loc ["STRING_EXAMPLE"] .. ": 305.500 -> 305k", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor}, --, desc = ""
+			{value = 7, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOK0MIN"], desc = Loc ["STRING_EXAMPLE"] .. ": 25.305.500 -> 25m", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor}, --, desc = ""
+			{value = 8, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_COMMA"], desc = Loc ["STRING_EXAMPLE"] .. ": 25305500 -> 25.305.500", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor} --, desc = ""
+		}
+		local buildAbbreviationMenu = function()
+			return abbreviationOptions
+		end
+		
+		local d = g:NewDropDown (frame19, _, "$parentBrokerNumberAbbreviateDropdown", "BrokerNumberAbbreviateDropdown", 160, 20, buildAbbreviationMenu, _detalhes.minimap.text_format)
+		d.onenter_backdrop = dropdown_backdrop_onenter
+		d.onleave_backdrop = dropdown_backdrop_onleave
+		d:SetBackdrop (dropdown_backdrop)
+		d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+		
+		frame19.BrokerNumberAbbreviateDropdown:SetPoint ("left", frame19.BrokerNumberAbbreviateLabel, "right", 2, 0)		
+		
+		window:CreateLineBackground2 (frame19, "BrokerNumberAbbreviateDropdown", "BrokerNumberAbbreviateLabel", Loc ["STRING_OPTIONS_PS_ABBREVIATE_DESC"])
 
 	--> anchors:
 
@@ -1478,6 +1510,7 @@ function window:CreateFrame19()
 			{"hotcornerLabel", 5},
 			{"brokerAnchorLabel", 6, true},
 			{"brokerTextLabel", 7},
+			{"BrokerNumberAbbreviateLabel", 8},
 		}
 		
 		window:arrange_menu (frame19, left_side, x, -90)	
@@ -3308,7 +3341,7 @@ function window:CreateFrame1()
 		
 	--> window controls
 		
-		local buttons_width = 140
+		local buttons_width = 160
 		
 		--lock unlock
 			g:NewButton (frame1, _, "$parentLockButton", "LockButton", buttons_width, 18, _detalhes.lock_instance_function, nil, nil, nil, Loc ["STRING_OPTIONS_WC_LOCK"], 1)
@@ -3341,6 +3374,14 @@ function window:CreateFrame1()
 			
 			frame1.CreateWindowButton:SetIcon ([[Interface\Buttons\UI-AttributeButton-Encourage-Up]])
 			frame1.CreateWindowButton:SetTextColor (button_color_rgb)
+			
+		--config bookmarks
+			g:NewButton (frame1, _, "$parentBookmarkButton", "BookmarkButton", buttons_width, 18, _detalhes.OpenBookmarkConfig, nil, nil, nil, Loc ["STRING_OPTIONS_WC_BOOKMARK"], 1)
+			frame1.BookmarkButton:InstallCustomTexture()
+			window:CreateLineBackground2 (frame1, "BookmarkButton", "BookmarkButton", Loc ["STRING_OPTIONS_WC_BOOKMARK_DESC"], nil, {1, 0.8, 0}, button_color_rgb)
+			
+			frame1.BookmarkButton:SetIcon ([[Interface\Glues\CharacterSelect\Glues-AddOn-Icons]], nil, nil, nil, {0.75, 1, 0, 1})
+			frame1.BookmarkButton:SetTextColor (button_color_rgb)
 		
 	--> anchors
 	
@@ -3381,6 +3422,7 @@ function window:CreateFrame1()
 			{"BreakSnapButton", 12},
 			{"CloseButton", 11},
 			{"CreateWindowButton", 13, true},
+			{"BookmarkButton", 14},
 		}
 		
 		window:arrange_menu (frame1, left_side, window.left_start_at, window.top_start_at)
@@ -8229,7 +8271,9 @@ function window:update_all (editing_instance)
 	--> window 19
 	_G.DetailsOptionsWindow19MinimapSlider.MyObject:SetValue (not _detalhes.minimap.hide)
 	_G.DetailsOptionsWindow19MinimapActionDropdown.MyObject:Select (_detalhes.minimap.onclick_what_todo)
+	
 	_G.DetailsOptionsWindow19BrokerTextDropdown.MyObject:Select (_detalhes.minimap.text_type)
+	_G.DetailsOptionsWindow19BrokerNumberAbbreviateDropdown.MyObject:Select (_detalhes.minimap.text_format)
 	
 	if (not _G.HotCorners) then
 		_G.DetailsOptionsWindow19HotcornerSlider.MyObject:Disable()

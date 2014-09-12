@@ -1654,3 +1654,64 @@ function gump:CreateChartPanel (parent, w, h, name)
 	
 	return f
 end
+
+local simple_panel_counter = 1
+local simple_panel_mouse_down = function (self, button)
+	if (button == "RightButton") then
+		if (self.IsMoving) then
+			self.IsMoving = false
+			self:StopMovingOrSizing()
+		end
+		self:Hide()
+		return
+	end
+	self.IsMoving = true
+	self:StartMoving()
+end
+local simple_panel_mouse_up = function (self, button)
+	if (self.IsMoving) then
+		self.IsMoving = false
+		self:StopMovingOrSizing()
+	end
+end
+local simple_panel_settitle = function (self, title)
+	self.title:SetText (title)
+end
+
+function gump:CreateSimplePanel (parent, w, h, title, name)
+	
+	if (not name) then
+		name = "DetailsSimplePanel" .. simple_panel_counter
+	end
+	if (not parent) then
+		parent = UIParent
+	end
+
+	local f = CreateFrame ("frame", name, UIParent)
+	f:SetSize (w or 400, h or 250)
+	f:SetPoint ("center", UIParent, "center", 0, 0)
+	f:SetFrameStrata ("FULLSCREEN")
+	f:EnableMouse()
+	f:SetMovable (true)
+	tinsert (UISpecialFrames, name)
+
+	f:SetScript ("OnMouseDown", simple_panel_mouse_down)
+	f:SetScript ("OnMouseUp", simple_panel_mouse_up)
+	
+	local bg = f:CreateTexture (nil, "background")
+	bg:SetAllPoints (f)
+	bg:SetTexture ([[Interface\AddOns\Details\images\welcome]])
+	
+	local close = CreateFrame ("button", name .. "Close", f, "UIPanelCloseButton")
+	close:SetSize (32, 32)
+	close:SetPoint ("topright", f, "topright", 0, -12)
+
+	f.title = gump:CreateLabel (f, title or "", 12, nil, "GameFontNormal")
+	f.title:SetPoint ("top", f, "top", 0, -22)
+	
+	f.SetTitle = simple_panel_settitle
+	
+	simple_panel_counter = simple_panel_counter + 1
+	
+	return f
+end

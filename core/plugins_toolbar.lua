@@ -151,6 +151,8 @@
 			GameCooltip:SetOption ("IgnoreButtonAutoHeight", true)
 			GameCooltip:SetColor (1, 0.5, 0.5, 0.5, 0.5)
 			
+			GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
+			
 			--[[title]] GameCooltip:AddLine (button.__name, nil, 1, "orange", nil, 12, SharedMedia:Fetch ("font", "Friz Quadrata TT"))
 				GameCooltip:AddIcon (button.__icon, 1, 1, 16, 16)
 			----[[desc]] GameCooltip:AddLine (button.tooltip)

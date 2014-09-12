@@ -563,6 +563,12 @@ local function move_janela (baseframe, iniciando, instancia)
 		baseframe.isMoving = false
 		baseframe:SetScript ("OnUpdate", nil)
 		
+		for _, ins in _detalhes:ListInstances() do
+			if (ins.baseframe) then
+				ins.baseframe:SetUserPlaced (false)
+			end
+		end
+		
 		--baseframe:SetClampRectInsets (unpack (_detalhes.window_clamp))
 
 		if (instancia_alvo) then
@@ -2339,7 +2345,11 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 -- main frames -----------------------------------------------------------------------------------------------------------------------------------------------
 
 	--> create the base frame, everything connect in this frame except the rows.
-	local baseframe = CreateFrame ("scrollframe", "DetailsBaseFrame"..ID, _UIParent)
+	local baseframe = CreateFrame ("scrollframe", "DetailsBaseFrame"..ID, _UIParent) --
+	baseframe:SetMovable (true)
+	baseframe:SetResizable (true)
+	baseframe:SetUserPlaced (false)
+
 	baseframe.instance = instancia
 	baseframe:SetFrameStrata (baseframe_strata)
 	baseframe:SetFrameLevel (2)
@@ -2480,8 +2490,6 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 		baseframe:SetPoint ("center", _UIParent)
 		baseframe:EnableMouseWheel (false)
 		baseframe:EnableMouse (true)
-		baseframe:SetMovable (true)
-		baseframe:SetResizable (true)
 		baseframe:SetMinResize (150, 7)
 		baseframe:SetMaxResize (_detalhes.max_window_size.width, _detalhes.max_window_size.height)
 
@@ -5814,7 +5822,7 @@ end
 		self.instance.baseframe.cabecalho.button_mouse_over = true
 		
 		GameCooltip:Reset()
-		GameCooltip:SetOption ("ButtonsYMod", -2)
+		GameCooltip:SetOption ("ButtonsYMod", -4)
 		GameCooltip:SetOption ("ButtonsYModSub", -2)
 		GameCooltip:SetOption ("YSpacingMod", 0)
 		GameCooltip:SetOption ("YSpacingModSub", -3)
@@ -5824,6 +5832,7 @@ end
 		GameCooltip:SetOption ("IgnoreButtonAutoHeightSub", false)
 		GameCooltip:SetOption ("SubMenuIsTooltip", true)
 		GameCooltip:SetOption ("FixedWidthSub", 180)
+		GameCooltip:SetOption ("FixedHeight", 30)
 		
 		local font = SharedMedia:Fetch ("font", "Friz Quadrata TT")
 		GameCooltip:AddLine (Loc ["STRING_MENU_CLOSE_INSTANCE"], nil, 1, "white", nil, _detalhes.font_sizes.menus, font)

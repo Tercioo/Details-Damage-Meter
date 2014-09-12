@@ -152,27 +152,27 @@ function _detalhes.switch:ShowMe (instancia)
 			tutorial_frame:SetAllPoints()
 			tutorial_frame:EnableMouse (true)
 			tutorial_frame:SetBackdrop ({bgFile = "Interface\\AddOns\\Details\\images\\background", tile = true, tileSize = 16 })
-			tutorial_frame:SetBackdropColor (0.05, 0.05, 0.05, 0.9)
+			tutorial_frame:SetBackdropColor (0.05, 0.05, 0.05, 0.95)
 
 			tutorial_frame.info_label = tutorial_frame:CreateFontString (nil, "overlay", "GameFontNormal")
 			tutorial_frame.info_label:SetPoint ("topleft", tutorial_frame, "topleft", 10, -10)
-			tutorial_frame.info_label:SetText ("Bookmarks gives quick access to favorite displays.")
+			tutorial_frame.info_label:SetText (Loc ["STRING_MINITUTORIAL_BOOKMARK2"])
 			tutorial_frame.info_label:SetJustifyH ("left")
 			
 			tutorial_frame.mouse = tutorial_frame:CreateTexture (nil, "overlay")
 			tutorial_frame.mouse:SetTexture ([[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]])
 			tutorial_frame.mouse:SetTexCoord (0.0019531, 0.1484375, 0.6269531, 0.8222656)
 			tutorial_frame.mouse:SetSize (20, 22)
-			tutorial_frame.mouse:SetPoint ("topleft", tutorial_frame.info_label, "bottomleft", 0, -20)
+			tutorial_frame.mouse:SetPoint ("topleft", tutorial_frame.info_label, "bottomleft", -3, -10)
 
 			tutorial_frame.close_label = tutorial_frame:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
 			tutorial_frame.close_label:SetPoint ("left", tutorial_frame.mouse, "right", 4, 0)
-			tutorial_frame.close_label:SetText ("Use right click to close the bookmark panel.")
+			tutorial_frame.close_label:SetText (Loc ["STRING_MINITUTORIAL_BOOKMARK3"])
 			tutorial_frame.close_label:SetJustifyH ("left")
 			
 			local checkbox = CreateFrame ("CheckButton", "SwitchPanelTutorialCheckBox", tutorial_frame, "ChatConfigCheckButtonTemplate")
-			checkbox:SetPoint ("topleft", tutorial_frame.mouse, "bottomleft", 0, -10)
-			_G [checkbox:GetName().."Text"]:SetText ("Don't show this again.")
+			checkbox:SetPoint ("topleft", tutorial_frame.mouse, "bottomleft", -1, -5)
+			_G [checkbox:GetName().."Text"]:SetText (Loc ["STRING_MINITUTORIAL_BOOKMARK4"])
 			
 			tutorial_frame:SetScript ("OnMouseDown", function()
 				if (checkbox:GetChecked()) then
@@ -249,6 +249,9 @@ function _detalhes.switch:OnRemoveCustom (CustomIndex)
 	end
 end
 
+local default_coords = {0, 1, 0, 1}
+local unknown_coords = {157/512, 206/512, 39/512,  89/512}
+
 function _detalhes.switch:Update()
 
 	local slots = _detalhes.switch.slots
@@ -289,12 +292,13 @@ function _detalhes.switch:Update()
 			if (options.atributo == 5) then --> custom
 				local CustomObject = _detalhes.custom [options.sub_atributo]
 				if (not CustomObject) then --> ele já foi deletado
-					icone = "Interface\\ICONS\\Ability_DualWield"
-					coords = {0, 1, 0, 1}
+					--icone = "Interface\\ICONS\\Ability_DualWield"
+					icone = [[Interface\AddOns\Details\images\icons]]
+					coords = unknown_coords
 					name = Loc ["STRING_SWITCH_CLICKME"]
 				else
 					icone = CustomObject.icon
-					coords = {0, 1, 0, 1}
+					coords = default_coords
 					name = CustomObject.name
 				end
 			else
@@ -303,8 +307,8 @@ function _detalhes.switch:Update()
 				name = _detalhes.sub_atributos [options.atributo].lista [options.sub_atributo]
 			end
 		else
-			icone = "Interface\\ICONS\\Ability_DualWield"
-			coords = {0, 1, 0, 1}
+			icone = [[Interface\AddOns\Details\images\icons]]
+			coords = unknown_coords
 			name = Loc ["STRING_SWITCH_CLICKME"]
 		end
 		

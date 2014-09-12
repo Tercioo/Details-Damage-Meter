@@ -242,6 +242,8 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> broker dps stuff
 
+	local ToKFunctions = _detalhes.ToKFunctions
+
 	local broker_functions = {
 		-- raid dps [1]
 		function()
@@ -250,7 +252,7 @@
 			if (not time or time == 0) then
 				return 0
 			else
-				return _detalhes:comma_value (_math_floor (combat.totals_grupo[1] / time))
+				return ToKFunctions [_detalhes.minimap.text_format] (_, combat.totals_grupo[1] / time)
 			end
 		end,
 		-- raid hps [2]
@@ -260,7 +262,7 @@
 			if (not time or time == 0) then
 				return 0
 			else
-				return _detalhes:comma_value (_math_floor (combat.totals_grupo[2] / time))
+				return ToKFunctions [_detalhes.minimap.text_format] (_, combat.totals_grupo[2] / time)
 			end
 		end,
 		-- elapsed time
@@ -274,7 +276,7 @@
 			local player_actor = _detalhes.tabela_vigente (1, _detalhes.playername)
 			if (player_actor) then
 				local combat_time = _detalhes.tabela_vigente:GetCombatTime()
-				return Loc ["STRING_ATTRIBUTE_DAMAGE_DPS"] .. ": " .. _math_floor (player_actor.total / combat_time)
+				return Loc ["STRING_ATTRIBUTE_DAMAGE_DPS"] .. ": " .. ToKFunctions [_detalhes.minimap.text_format] (_, player_actor.total / combat_time)
 			else
 				return 0
 			end
@@ -284,7 +286,7 @@
 			local player_actor = _detalhes.tabela_vigente (2, _detalhes.playername)
 			if (player_actor) then
 				local combat_time = _detalhes.tabela_vigente:GetCombatTime()
-				return Loc ["STRING_ATTRIBUTE_HEAL_HPS"] .. ": " .. _math_floor (player_actor.total / combat_time)
+				return Loc ["STRING_ATTRIBUTE_HEAL_HPS"] .. ": " .. ToKFunctions [_detalhes.minimap.text_format] (_, player_actor.total / combat_time)
 			else
 				return 0
 			end

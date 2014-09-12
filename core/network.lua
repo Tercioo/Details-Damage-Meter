@@ -271,7 +271,9 @@
 			if (func) then
 				func (player, realm, dversion, arg6, arg7, arg8, arg9)
 			else
-				_detalhes:Msg ("comm prefix not found:", prefix)
+				if (_detalhes.debug) then
+					_detalhes:Msg ("comm prefix not found:", prefix)
+				end
 			end
 		end
 	end
@@ -318,7 +320,9 @@
 			if (func) then
 				func (_select (2, _detalhes:Deserialize (data)))
 			else
-				_detalhes:Msg ("comm prefix not found:", prefix)
+				if (_detalhes.debug) then
+					_detalhes:Msg ("comm prefix not found:", prefix)
+				end
 			end
 
 		end

@@ -21,7 +21,8 @@ local is_exception = {
 function _detalhes:SaveLocalInstanceConfig()
 	for index, instance in _detalhes:ListInstances() do
 		local a1, a2 = instance:GetDisplay()
-		_detalhes.local_instances_config [index] = {
+		
+		local t = {
 			pos = table_deepcopy (instance:GetPosition()), 
 			is_open = instance:IsEnabled(),
 			attribute = a1,
@@ -36,9 +37,23 @@ function _detalhes:SaveLocalInstanceConfig()
 			last_raid_plugin = instance.last_raid_plugin
 		}
 		
-		if (_detalhes.local_instances_config [index].isLocked == nil) then
-			_detalhes.local_instances_config [index].isLocked = false
+		if (t.isLocked == nil) then
+			t.isLocked = false
 		end
+		if (_detalhes.profile_save_pos) then
+			local cprofile = _detalhes:GetProfile()
+			local skin = cprofile.instances [instance:GetId()]
+			if (skin) then
+				t.pos = table_deepcopy (skin.__pos)
+				t.horizontalSnap = skin.__snapH
+				t.verticalSnap = skin.__snapV
+				t.snap = table_deepcopy (skin.__snap)
+				t.is_open = skin.__was_opened
+				t.isLocked = skin.__locked
+			end
+		end
+		
+		_detalhes.local_instances_config [index] = t
 	end
 end
 

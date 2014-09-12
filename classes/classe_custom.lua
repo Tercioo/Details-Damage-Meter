@@ -1166,19 +1166,78 @@
 		end
 		
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-		local ActivityTime = {
-			name = Loc ["STRING_CUSTOM_ACTIVITY_ALL"],
-			icon = [[INTERFACE\ICONS\Achievement_PVP_G_15]],
+		
+		local DamageActivityTime = {
+			name = Loc ["STRING_CUSTOM_ACTIVITY_DPS"],
+			icon = [[Interface\ICONS\Achievement_PVP_H_06]],
 			attribute = false,
 			spellid = false,
 			author = "Details!",
-			desc = Loc ["STRING_CUSTOM_ACTIVITY_ALL_DESC"],
+			desc = Loc ["STRING_CUSTOM_ACTIVITY_DPS_DESC"],
 			source = false,
 			target = false,
 			total_script = [[
 				local value, top, total, combat, instance = ...
-				return math.floor (value)
+				local minutos, segundos = math.floor (value/60), math.floor (value%60)
+				return minutos .. "m " .. segundos .. "s"
+			]],
+			percent_script = [[
+				local value, top, total, combat, instance = ...
+				return string.format ("%.1f", value/top*100)
+			]],
+			script = [[
+				--init:
+				local combat, instance_container, instance = ...
+				local total, amount = 0, 0
+
+				--get the misc actor container
+				local damage_container = combat:GetActorList ( DETAILS_ATTRIBUTE_DAMAGE )
+				
+				--do the loop:
+				for _, player in ipairs ( damage_container ) do 
+					if (player.grupo) then
+						local activity = player:Tempo()
+						total = total + activity
+						amount = amount + 1
+						--add amount to the player 
+						instance_container:AddValue (player, activity)
+					end
+				end
+				
+				--return:
+				return total, combat:GetCombatTime(), amount
+			]],
+			tooltip = [[
+				
+			]],
+		}
+		
+		local have = false
+		for _, custom in ipairs (self.custom) do
+			if (custom.name == Loc ["STRING_CUSTOM_ACTIVITY_DPS"]) then
+				have = true
+				break
+			end
+		end
+		if (not have) then
+			setmetatable (DamageActivityTime, _detalhes.atributo_custom)
+			DamageActivityTime.__index = _detalhes.atributo_custom		
+			self.custom [#self.custom+1] = DamageActivityTime
+		end
+
+		local HealActivityTime = {
+			name = Loc ["STRING_CUSTOM_ACTIVITY_HPS"],
+			icon = [[Interface\ICONS\Achievement_PVP_G_06]],
+			attribute = false,
+			spellid = false,
+			author = "Details!",
+			desc = Loc ["STRING_CUSTOM_ACTIVITY_HPS_DESC"],
+			source = false,
+			target = false,
+			total_script = [[
+				local value, top, total, combat, instance = ...
+				local minutos, segundos = math.floor (value/60), math.floor (value%60)
+				return minutos .. "m " .. segundos .. "s"
 			]],
 			percent_script = [[
 				local value, top, total, combat, instance = ...
@@ -1189,86 +1248,39 @@
 				local combat, instance_container, instance = ...
 				local total, top, amount = 0, 0, 0
 
-				--get the heal actor container
-				local heal_container = combat:GetActorList ( DETAILS_ATTRIBUTE_HEAL )
-				
-				--do the loop:
-				for _, player in ipairs ( heal_container ) do 
-					if (player.grupo) then
-						local activity = player:Tempo()
-						total = total + activity
-						amount = amount + 1
-						--add amount to the player 
-						instance_container:AddValue (player, activity)
-						if (activity > top) then
-							top = activity
-						end
-					end
-				end
-				
-				--get the damage actor container
-				local damage_container = combat:GetActorList ( DETAILS_ATTRIBUTE_DAMAGE )
+				--get the misc actor container
+				local damage_container = combat:GetActorList ( DETAILS_ATTRIBUTE_HEAL )
 				
 				--do the loop:
 				for _, player in ipairs ( damage_container ) do 
 					if (player.grupo) then
 						local activity = player:Tempo()
 						total = total + activity
-						if (not instance_container._NameIndexTable [player:Name()]) then
-							amount = amount + 1
-						end
+						amount = amount + 1
 						--add amount to the player 
-						local value = instance_container:AddValue (player, activity)
-						if (value > top) then
-							top = value
-						end
+						instance_container:AddValue (player, activity)
 					end
 				end
 				
 				--return:
-				return total, top, amount
+				return total, combat:GetCombatTime(), amount
 			]],
 			tooltip = [[
-				--init:
-				local player, combat, instance = ...
 				
-				local damage_actor = combat (DETAILS_ATTRIBUTE_DAMAGE, player:Name())
-				if (damage_actor) then
-					local damage_activity = damage_actor:Tempo()
-					local minutos1, segundos1 = math.floor (damage_activity/60), math.floor (damage_activity%60)
-					GameCooltip:AddLine ("Damage Activity", minutos1 .. "m " .. segundos1 .. "s")
-					_detalhes:AddTooltipBackgroundStatusbar()
-					GameCooltip:AddIcon ('Interface\\ICONS\\Achievement_PVP_H_06', 1, 1, 14, 14)
-				else
-					GameCooltip:AddLine ("Damage Activity", "0m 0s")
-				end
-				
-				local heal_actor = combat (DETAILS_ATTRIBUTE_HEAL, player:Name())
-				if (heal_actor) then
-					local heal_activity = heal_actor:Tempo()
-					local minutos2, segundos2 = math.floor (heal_activity/60), math.floor (heal_activity%60)
-					GameCooltip:AddLine ("Heal Activity", minutos2 .. "m " .. segundos2 .. "s")
-					_detalhes:AddTooltipBackgroundStatusbar()
-					GameCooltip:AddIcon ('Interface\\ICONS\\Achievement_PVP_G_06', 1, 1, 14, 14)
-				else
-					GameCooltip:AddLine ("Heal Activity", "0m 0s")
-				end
 			]],
 		}
 		
-		--/run _detalhes:AddDefaultCustomDisplays()
-		
 		local have = false
 		for _, custom in ipairs (self.custom) do
-			if (custom.name == Loc ["STRING_CUSTOM_ACTIVITY_ALL"]) then
+			if (custom.name == Loc ["STRING_CUSTOM_ACTIVITY_HPS"]) then
 				have = true
 				break
 			end
 		end
 		if (not have) then
-			setmetatable (ActivityTime, _detalhes.atributo_custom)
-			ActivityTime.__index = _detalhes.atributo_custom
-			self.custom [#self.custom+1] = ActivityTime
+			setmetatable (HealActivityTime, _detalhes.atributo_custom)
+			HealActivityTime.__index = _detalhes.atributo_custom
+			self.custom [#self.custom+1] = HealActivityTime
 		end
 		
 	end

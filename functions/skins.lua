@@ -37,6 +37,14 @@ local _
 		_detalhes:SetTooltipBackdrop ("Blizzard Tooltip", 16, {1, 1, 1, 1})
 		_detalhes:DelayOptionsRefresh()
 	end
+	local set_tooltip_elvui1 = function()
+		_detalhes:SetTooltipBackdrop ("Blizzard Tooltip", 16, {0, 0, 0, 1})
+		_detalhes:DelayOptionsRefresh()
+	end
+	local set_tooltip_elvui2 = function()
+		_detalhes:SetTooltipBackdrop ("Blizzard Tooltip", 16, {1, 1, 1, 0})
+		_detalhes:DelayOptionsRefresh()
+	end
 	
 	--> install default skins:
 	_detalhes:InstallSkin ("Default Skin", {
@@ -107,6 +115,7 @@ local _
 		
 		skin_options = {
 			{type = "button", name = Loc ["STRING_OPTIONS_SKIN_RESET_TOOLTIP"], func = reset_tooltip, desc = Loc ["STRING_OPTIONS_SKIN_RESET_TOOLTIP_DESC"]},
+			{type = "button", name = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON3"], func = set_tooltip_elvui2, desc = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON3_DESC"]},
 		}
 	})
 
@@ -170,6 +179,7 @@ local _
 		
 		skin_options = {
 			{type = "button", name = Loc ["STRING_OPTIONS_SKIN_RESET_TOOLTIP"], func = reset_tooltip, desc = Loc ["STRING_OPTIONS_SKIN_RESET_TOOLTIP_DESC"]},
+			{type = "button", name = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON3"], func = set_tooltip_elvui2, desc = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON3_DESC"]},
 		}
 		
 	})
@@ -236,6 +246,7 @@ local _
 		
 		skin_options = {
 			{type = "button", name = Loc ["STRING_OPTIONS_SKIN_RESET_TOOLTIP"], func = reset_tooltip, desc = Loc ["STRING_OPTIONS_SKIN_RESET_TOOLTIP_DESC"]},
+			{type = "button", name = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON3"], func = set_tooltip_elvui2, desc = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON3_DESC"]},
 		}
 		
 	})
@@ -301,6 +312,7 @@ local _
 		
 		skin_options = {
 			{type = "button", name = Loc ["STRING_OPTIONS_SKIN_RESET_TOOLTIP"], func = reset_tooltip, desc = Loc ["STRING_OPTIONS_SKIN_RESET_TOOLTIP_DESC"]},
+			{type = "button", name = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON3"], func = set_tooltip_elvui2, desc = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON3_DESC"]},
 		}
 	})
 	
@@ -383,6 +395,7 @@ local _
 		
 		skin_options = {
 			{type = "button", name = Loc ["STRING_OPTIONS_SKIN_RESET_TOOLTIP"], func = reset_tooltip, desc = Loc ["STRING_OPTIONS_SKIN_RESET_TOOLTIP_DESC"]},
+			{type = "button", name = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON3"], func = set_tooltip_elvui2, desc = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON3_DESC"]},
 		}
 		
 	})
@@ -568,10 +581,7 @@ local _
 
 	end
 	
-	local set_tooltip_elvui = function()
-		_detalhes:SetTooltipBackdrop ("Blizzard Tooltip", 16, {0, 0, 0, 1})
-		_detalhes:DelayOptionsRefresh()
-	end
+
 	
 	_detalhes:InstallSkin ("ElvUI Frame Style", {
 		file = [[Interface\AddOns\Details\images\skins\elvui]],
@@ -667,7 +677,8 @@ local _
 		
 		skin_options = {
 			{type = "button", name = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON1"], func = align_right_chat, desc = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON1_DESC"]},
-			{type = "button", name = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON2"], func = set_tooltip_elvui, desc = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON2_DESC"]},
+			{type = "button", name = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON2"], func = set_tooltip_elvui1, desc = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON2_DESC"]},
+			{type = "button", name = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON3"], func = set_tooltip_elvui2, desc = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON3_DESC"]},
 		}
 	})
 	
@@ -813,7 +824,8 @@ local _
 		
 		skin_options = {
 			{type = "button", name = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON1"], func = align_right_chat, desc = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON1_DESC"]},
-			{type = "button", name = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON2"], func = set_tooltip_elvui, desc = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON2_DESC"]},
+			{type = "button", name = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON2"], func = set_tooltip_elvui1, desc = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON2_DESC"]},
+			{type = "button", name = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON3"], func = set_tooltip_elvui2, desc = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON3_DESC"]},
 		}
 	})	
 	

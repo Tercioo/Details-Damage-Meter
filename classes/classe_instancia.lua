@@ -261,7 +261,7 @@ end
 		if (config) then
 		
 			if (not _detalhes.profile_save_pos) then
-				self.posicao = config.pos
+				self.posicao = table_deepcopy (config.pos)
 			end
 			
 			self.ativa = config.is_open
@@ -269,10 +269,10 @@ end
 			self.sub_atributo = config.sub_attribute
 			self.modo = config.mode
 			self.segmento = config.segment
-			self.snap = config.snap or {}
+			self.snap = config.snap and table_deepcopy (config.snap) or {}
 			self.horizontalSnap = config.horizontalSnap
 			self.verticalSnap = config.verticalSnap
-			self.sub_atributo_last = config.sub_atributo_last
+			self.sub_atributo_last = table_deepcopy (config.sub_atributo_last)
 			self.isLocked = config.isLocked
 			self.last_raid_plugin = config.last_raid_plugin
 			
@@ -1041,7 +1041,7 @@ end
 				atributo = 1, --> dano 
 				sub_atributo = 1, --> damage done
 				sub_atributo_last = {1, 1, 1, 1, 1},
-				segmento = -1, --> combate atual
+				segmento = 0, --> combate atual
 				modo = modo_grupo,
 				last_modo = modo_grupo,
 				LastModo = modo_grupo,
@@ -1957,6 +1957,13 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 		if (update_coolTip) then
 			_detalhes.popup:Select (1, atributo)
 			_detalhes.popup:Select (2, instancia.sub_atributo, atributo)
+		end
+
+		--_detalhes:SetTutorialCVar ("ATTRIBUTE_SELECT_TUTORIAL1", nil)
+		if (not _detalhes:GetTutorialCVar ("ATTRIBUTE_SELECT_TUTORIAL1") and not _detalhes.initializing and not iniciando_instancia) then
+			if (not _G ["DetailsWelcomeWindow"] or not _G ["DetailsWelcomeWindow"]:IsShown()) then
+				_detalhes:TutorialBookmark (instancia)
+			end
 		end
 		
 		if (_detalhes.cloud_process) then

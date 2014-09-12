@@ -222,7 +222,7 @@
 
 		local _scale = self.baseframe:GetEffectiveScale() 
 		local _UIscale = _UIParent:GetScale()
-
+		
 		local novo_x = self.posicao[self.mostrando].x*_UIscale/_scale
 		local novo_y = self.posicao[self.mostrando].y*_UIscale/_scale
 		
@@ -708,6 +708,171 @@
 		end	
 	end
 
+--> tutorial bookmark
+	function _detalhes:TutorialBookmark (instance)
+	
+		_detalhes:SetTutorialCVar ("ATTRIBUTE_SELECT_TUTORIAL1", true)
+		
+		local func = function()
+			local f = CreateFrame ("frame", nil, instance.baseframe)
+			f:SetAllPoints();
+			f:SetFrameStrata ("FULLSCREEN")
+			f:SetBackdrop ({bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 16})
+			f:SetBackdropColor (0, 0, 0, 0.8)
+			
+			f.alert = CreateFrame ("frame", "DetailsTutorialBookmarkAlert", UIParent, "ActionBarButtonSpellActivationAlert")
+			f.alert:SetPoint ("topleft", f, "topleft")
+			f.alert:SetPoint ("bottomright", f, "bottomright")
+			f.alert.animOut:Stop()
+			f.alert.animIn:Play()
+			
+			f.text = f:CreateFontString (nil, "overlay", "GameFontNormal")
+			f.text:SetText (Loc ["STRING_MINITUTORIAL_BOOKMARK1"])
+			f.text:SetWidth (f:GetWidth()-15)
+			f.text:SetPoint ("center", f)
+			f.text:SetJustifyH ("center")
+			
+			f.bg = f:CreateTexture (nil, "border")
+			f.bg:SetTexture ([[Interface\ACHIEVEMENTFRAME\UI-Achievement-Parchment-Horizontal-Desaturated]])
+			f.bg:SetAllPoints()
+			f.bg:SetAlpha (0.8)
+			
+			f.textbg = f:CreateTexture (nil, "artwork")
+			f.textbg:SetTexture ([[Interface\ACHIEVEMENTFRAME\UI-Achievement-RecentHeader]])
+			f.textbg:SetPoint ("center", f)
+			f.textbg:SetAlpha (0.4)
+			f.textbg:SetTexCoord (0, 1, 0, 24/32)
+
+			f:SetScript ("OnMouseDown", function (self, button)
+				if (button == "RightButton") then
+					f.alert.animIn:Stop()
+					f.alert.animOut:Play()
+					_detalhes.switch:ShowMe (instance)
+					f:Hide()
+				end
+			end)
+		end
+		
+		_detalhes:GetFramework():ShowTutorialAlertFrame ("How to Use Bookmarks", "switch fast between displays", func)
+	end
+
+--> config bookmarks
+	function _detalhes:OpenBookmarkConfig()
+	
+		if (not _G.DetailsBookmarkManager) then
+			gump:CreateSimplePanel (UIParent, 300, 480, "Manage Bookmarks", "DetailsBookmarkManager")
+			local panel = _G.DetailsBookmarkManager
+			panel.blocks = {}
+			
+			local clear_func = function (id)
+				if (_detalhes.switch.table [id]) then
+					_detalhes.switch.table [id].atributo = nil
+					_detalhes.switch.table [id].sub_atributo = nil
+					panel:Refresh()
+					_detalhes.switch:Update()
+				end
+			end
+			
+			local select_attribute = function (_, _, _, attribute, sub_atribute)
+				if (not sub_atribute) then 
+					return
+				end
+				_detalhes.switch.table [panel.selecting_slot].atributo = attribute
+				_detalhes.switch.table [panel.selecting_slot].sub_atributo = sub_atribute
+				panel:Refresh()
+				_detalhes.switch:Update()
+			end
+			
+			local cooltip_color = {.1, .1, .1, .3}
+			local set_att = function (id, _, self)
+				panel.selecting_slot = id
+				GameCooltip:Reset()
+				GameCooltip:SetType (3)
+				GameCooltip:SetOwner (self)
+				_detalhes:MontaAtributosOption (_detalhes:GetInstance(1), select_attribute)
+				GameCooltip:SetColor (1, cooltip_color)
+				GameCooltip:SetColor (2, cooltip_color)
+				GameCooltip:SetOption ("HeightAnchorMod", -7)
+				GameCooltip:ShowCooltip()
+			end
+			
+			local button_backdrop = {bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 64, insets = {left=0, right=0, top=0, bottom=0}}
+			
+			local set_onenter = function (self, capsule)
+				self:SetBackdropColor (1, 1, 1, 0.9)
+				capsule.icon:SetBlendMode ("ADD")
+			end
+			local set_onleave = function (self, capsule)
+				self:SetBackdropColor (0, 0, 0, 0.5)
+				capsule.icon:SetBlendMode ("BLEND")
+			end
+			
+			for i = 1, 40 do
+				local clear = gump:CreateButton (panel, clear_func, 16, 16, nil, i, nil, [[Interface\Glues\LOGIN\Glues-CheckBox-Check]])
+				if (i%2 ~= 0) then
+					--impar
+					clear:SetPoint (15, (( i*10 ) * -1) - 35) --left
+				else
+					--par
+					local o = i-1
+					clear:SetPoint (150, (( o*10 ) * -1) - 35) --right
+				end
+			
+				local set = gump:CreateButton (panel, set_att, 16, 16, nil, i)
+				set:SetPoint ("left", clear, "right")
+				set:SetPoint ("right", clear, "right", 110, 0)
+				set:SetBackdrop (button_backdrop)
+				set:SetBackdropColor (0, 0, 0, 0.5)
+				set:SetHook ("OnEnter", set_onenter)
+				set:SetHook ("OnLeave", set_onleave)
+			
+				local icon = gump:CreateImage (set, nil, 16, 16, nil, nil, "icon")
+				icon:SetPoint ("left", clear, "right", 2, 0)
+				
+				local label = gump:CreateLabel (set, "")
+				label:SetPoint ("left", icon, "right", 2, 0)
+
+				tinsert (panel.blocks, {icon = icon, label = label})
+			end
+			
+			local normal_coords = {0, 1, 0, 1}
+			local unknown_coords = {157/512, 206/512, 39/512,  89/512}
+			function panel:Refresh()
+				local bookmarks = _detalhes.switch.table
+				
+				for i = 1, 40 do
+					local bookmark = bookmarks [i]
+					local this_block = panel.blocks [i]
+					if (bookmark and bookmark.atributo and bookmark.sub_atributo) then
+						if (bookmark.atributo == 5) then --> custom
+							local CustomObject = _detalhes.custom [bookmark.sub_atributo]
+							if (not CustomObject) then --> ele já foi deletado
+								this_block.label.text = "-- x -- x --"
+								this_block.icon.texture = "Interface\\ICONS\\Ability_DualWield"
+								this_block.icon.texcoord = normal_coords
+							else
+								this_block.label.text = CustomObject.name
+								this_block.icon.texture = CustomObject.icon
+								this_block.icon.texcoord = normal_coords
+							end
+						else
+							this_block.label.text = _detalhes.sub_atributos [bookmark.atributo].lista [bookmark.sub_atributo]
+							this_block.icon.texture = _detalhes.sub_atributos [bookmark.atributo].icones [bookmark.sub_atributo] [1]
+							this_block.icon.texcoord = _detalhes.sub_atributos [bookmark.atributo].icones [bookmark.sub_atributo] [2]
+						end
+					else
+						this_block.label.text = "-- x -- x --"
+						this_block.icon.texture = [[Interface\AddOns\Details\images\icons]]
+						this_block.icon.texcoord = unknown_coords
+					end
+				end
+			end
+		end
+
+		_G.DetailsBookmarkManager:Show()
+		_G.DetailsBookmarkManager:Refresh()
+	end
+	
 --> tutorial bubbles
 	do
 		--[1] criar nova instancia
