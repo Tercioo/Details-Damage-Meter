@@ -1399,11 +1399,13 @@ function window:CreateFrame19()
 				local on_select = function (_, _, option)
 					_detalhes.minimap.onclick_what_todo = option
 				end
-				local build_menu = function()
-					return {
+				local menu = {
 						{value = 1, label = Loc ["STRING_OPTIONS_MINIMAP_ACTION1"], onclick = on_select, icon = [[Interface\FriendsFrame\FriendsFrameScrollIcon]]},
 						{value = 2, label = Loc ["STRING_OPTIONS_MINIMAP_ACTION2"], onclick = on_select, icon = [[Interface\Buttons\UI-GuildButton-PublicNote-Up]], iconcolor = {1, .8, 0, 1}},
+						{value = 3, label = Loc ["STRING_OPTIONS_MINIMAP_ACTION3"], onclick = on_select, icon = [[Interface\Buttons\UI-CheckBox-Up]], texcoord = {0.1, 0.9, 0.1, 0.9}},
 					}
+				local build_menu = function()
+					return menu
 				end
 				local dropdown = g:NewDropDown (frame19, _, "$parentMinimapActionDropdown", "minimapActionDropdown", 160, 20, build_menu, _detalhes.minimap.onclick_what_todo)
 				dropdown.onenter_backdrop = dropdown_backdrop_onenter
@@ -1434,40 +1436,47 @@ function window:CreateFrame19()
 		g:NewLabel (frame19, _, "$parentHotcornerAnchor", "brokerAnchorLabel", Loc ["STRING_OPTIONS_DATABROKER"], "GameFontNormal")
 
 		--broker text
-			do
-				g:NewLabel (frame19, _, "$parentBrokerTextLabel", "brokerTextLabel", Loc ["STRING_OPTIONS_DATABROKER_TEXT"], "GameFontHighlightLeft")
-				local on_select = function (_, _, option)
-					_detalhes.minimap.text_type = option
-				end
-				local build_menu = function()
-					return {
-						--raid dps
-						{value = 1, label = Loc ["STRING_OPTIONS_DATABROKER_TEXT1"], onclick = on_select, icon = "Interface\\AddOns\\Details\\images\\atributos_icones", texcoord = {0, 0.125, 0, 1}},
-						--raid hps
-						{value = 2, label = Loc ["STRING_OPTIONS_DATABROKER_TEXT2"], onclick = on_select, icon = "Interface\\AddOns\\Details\\images\\atributos_icones", texcoord = {0.125, 0.25, 0, 1}},
-						--combat time
-						{value = 3, label = Loc ["STRING_OPTIONS_DATABROKER_TEXT3"], onclick = on_select, icon = [[Interface\COMMON\mini-hourglass]], texcoord = {0, 1, 0, 1}},
-						--player dps
-						{value = 4, label = Loc ["STRING_OPTIONS_DATABROKER_TEXT4"], onclick = on_select, icon = _detalhes.sub_atributos[1].icones[2][1], texcoord = _detalhes.sub_atributos[1].icones[2][2]},
-						--player hps
-						{value = 5, label = Loc ["STRING_OPTIONS_DATABROKER_TEXT5"], onclick = on_select, icon = _detalhes.sub_atributos[2].icones[2][1], texcoord = _detalhes.sub_atributos[2].icones[2][2]},
-					}
-				end
-				local dropdown = g:NewDropDown (frame19, _, "$parentBrokerTextDropdown", "brokerTextDropdown", 160, 20, build_menu, _detalhes.minimap.text_type)
-				dropdown.onenter_backdrop = dropdown_backdrop_onenter
-				dropdown.onleave_backdrop = dropdown_backdrop_onleave
-				dropdown:SetBackdrop (dropdown_backdrop)
-				dropdown:SetBackdropColor (unpack (dropdown_backdrop_onleave))
-				
-				frame19.brokerTextDropdown:SetPoint ("left", frame19.brokerTextLabel, "right", 2, 0)
-				window:CreateLineBackground2 (frame19, "brokerTextDropdown", "brokerTextLabel", Loc ["STRING_OPTIONS_DATABROKER_TEXT_DESC"])
-			end
+			g:NewLabel (frame19, _, "$parentBrokerTextLabel", "brokerTextLabel", Loc ["STRING_OPTIONS_DATABROKER_TEXT"], "GameFontHighlightLeft")
+			
+			local broker_entry = g:NewTextEntry (frame19, _, "$parentBrokerEntry", "BrokerTextEntry", 180, 20)
+			broker_entry:SetPoint ("left", frame19.brokerTextLabel, "right", 2, -1)
+			broker_entry.text = _detalhes.data_broker_text
+
+			broker_entry:SetHook ("OnTextChanged", function (self, byUser)
+				_detalhes.data_broker_text = broker_entry.text
+				_detalhes:BrokerTick()
+			end)
+			
+			window:CreateLineBackground2 (frame19, "BrokerTextEntry", "brokerTextLabel", Loc ["STRING_OPTIONS_DATABROKER_TEXT1_DESC"])
+			
+			local editor = g:NewButton (broker_entry, _, "$parentOpenEditorButton", "OpenEditorButton", 22, 22, function()
+				_detalhes:OpenBrokerTextEditor()
+			end)
+			editor:SetPoint ("left", broker_entry, "right", 2, 1)
+			editor:SetNormalTexture ([[Interface\HELPFRAME\OpenTicketIcon]])
+			editor:SetHighlightTexture ([[Interface\HELPFRAME\OpenTicketIcon]])
+			editor:SetPushedTexture ([[Interface\HELPFRAME\OpenTicketIcon]])
+			editor:GetNormalTexture():SetDesaturated (true)
+			editor.tooltip = Loc ["STRING_OPTIONS_OPEN_TEXT_EDITOR"]
+			
+			local clear = g:NewButton (broker_entry, _, "$parentResetButton", "ResetButton", 20, 20, function()
+				broker_entry.text = ""
+				_detalhes:BrokerTick()
+			end)
+			
+			clear:SetPoint ("left", editor, "right", 0, 0)
+			clear:SetNormalTexture ([[Interface\Glues\LOGIN\Glues-CheckBox-Check]] or [[Interface\Buttons\UI-GroupLoot-Pass-Down]])
+			clear:SetHighlightTexture ([[Interface\Glues\LOGIN\Glues-CheckBox-Check]] or [[Interface\Buttons\UI-GROUPLOOT-PASS-HIGHLIGHT]])
+			clear:SetPushedTexture ([[Interface\Glues\LOGIN\Glues-CheckBox-Check]] or [[Interface\Buttons\UI-GroupLoot-Pass-Up]])
+			clear:GetNormalTexture():SetDesaturated (true)
+			clear.tooltip = Loc ["STRING_OPTIONS_RESET_TO_DEFAULT"]
 		
 		--number format
 		g:NewLabel (frame19, _, "$parentBrokerNumberAbbreviateLabel", "BrokerNumberAbbreviateLabel", Loc ["STRING_OPTIONS_PS_ABBREVIATE"], "GameFontHighlightLeft")
 		--
 		local onSelectTimeAbbreviation = function (_, _, abbreviationtype)
 			_detalhes.minimap.text_format = abbreviationtype
+			_detalhes:BrokerTick()
 		end
 		local icon = [[Interface\COMMON\mini-hourglass]]
 		local iconcolor = {1, 1, 1, .5}
@@ -5053,7 +5062,7 @@ function window:CreateFrame5()
 		frame5.TextBarEditorButton:SetHighlightTexture ([[Interface\HELPFRAME\OpenTicketIcon]])
 		frame5.TextBarEditorButton:SetPushedTexture ([[Interface\HELPFRAME\OpenTicketIcon]])
 		frame5.TextBarEditorButton:GetNormalTexture():SetDesaturated (true)
-		frame5.TextBarEditorButton.tooltip = "Row Text Editor"
+		frame5.TextBarEditorButton.tooltip = Loc ["STRING_OPTIONS_OPEN_ROWTEXT_EDITOR"]
 		
 		g:NewButton (frame5.cutomRightTextEntry, _, "$parentResetCustomRightTextButton", "customRightTextButton", 20, 20, function()
 			frame5.cutomRightTextEntry.text = _detalhes.instance_defaults.row_info.textR_custom_text
@@ -5065,7 +5074,7 @@ function window:CreateFrame5()
 		frame5.customRightTextButton:SetHighlightTexture ([[Interface\Glues\LOGIN\Glues-CheckBox-Check]] or [[Interface\Buttons\UI-GROUPLOOT-PASS-HIGHLIGHT]])
 		frame5.customRightTextButton:SetPushedTexture ([[Interface\Glues\LOGIN\Glues-CheckBox-Check]] or [[Interface\Buttons\UI-GroupLoot-Pass-Up]])
 		frame5.customRightTextButton:GetNormalTexture():SetDesaturated (true)
-		frame5.customRightTextButton.tooltip = "Reset to Default"
+		frame5.customRightTextButton.tooltip = Loc ["STRING_OPTIONS_RESET_TO_DEFAULT"]
 		
 	--> left text customization
 	
@@ -5143,7 +5152,7 @@ function window:CreateFrame5()
 		frame5.TextBarEditorButton:SetHighlightTexture ([[Interface\HELPFRAME\OpenTicketIcon]])
 		frame5.TextBarEditorButton:SetPushedTexture ([[Interface\HELPFRAME\OpenTicketIcon]])
 		frame5.TextBarEditorButton:GetNormalTexture():SetDesaturated (true)
-		frame5.TextBarEditorButton.tooltip = "Row Text Editor"
+		frame5.TextBarEditorButton.tooltip = Loc ["STRING_OPTIONS_OPEN_ROWTEXT_EDITOR"]
 		
 		g:NewButton (frame5.cutomLeftTextEntry, _, "$parentResetCustomLeftTextButton", "customLeftTextButton", 20, 20, function()
 			frame5.cutomLeftTextEntry.text = _detalhes.instance_defaults.row_info.textL_custom_text
@@ -5155,7 +5164,7 @@ function window:CreateFrame5()
 		frame5.customLeftTextButton:SetHighlightTexture ([[Interface\Glues\LOGIN\Glues-CheckBox-Check]] or [[Interface\Buttons\UI-GROUPLOOT-PASS-HIGHLIGHT]])
 		frame5.customLeftTextButton:SetPushedTexture ([[Interface\Glues\LOGIN\Glues-CheckBox-Check]] or [[Interface\Buttons\UI-GroupLoot-Pass-Up]])
 		frame5.customLeftTextButton:GetNormalTexture():SetDesaturated (true)
-		frame5.customLeftTextButton.tooltip = "Reset to Default"		
+		frame5.customLeftTextButton.tooltip = Loc ["STRING_OPTIONS_RESET_TO_DEFAULT"]
 		
 	--> anchors
 	
@@ -7141,7 +7150,7 @@ function window:CreateFrame11()
 		reset_next:SetHighlightTexture ([[Interface\Glues\LOGIN\Glues-CheckBox-Check]] or [[Interface\Buttons\UI-GROUPLOOT-PASS-HIGHLIGHT]])
 		reset_next:SetPushedTexture ([[Interface\Glues\LOGIN\Glues-CheckBox-Check]] or [[Interface\Buttons\UI-GroupLoot-Pass-Up]])
 		reset_next:GetNormalTexture():SetDesaturated (true)
-		reset_next.tooltip = "Reset to Default"
+		reset_next.tooltip = Loc ["STRING_OPTIONS_RESET_TO_DEFAULT"]
 		
 		--campo para digitar a fala customizada
 		g:NewLabel (frame11, _, "$parentInterruptsCustomLabel", "InterruptsCustomLabel", Loc ["STRING_OPTIONS_RT_INTERRUPTS_CUSTOM"], "GameFontHighlightLeft")
@@ -7163,7 +7172,7 @@ function window:CreateFrame11()
 		reset_custom:SetHighlightTexture ([[Interface\Glues\LOGIN\Glues-CheckBox-Check]] or [[Interface\Buttons\UI-GROUPLOOT-PASS-HIGHLIGHT]])
 		reset_custom:SetPushedTexture ([[Interface\Glues\LOGIN\Glues-CheckBox-Check]] or [[Interface\Buttons\UI-GroupLoot-Pass-Up]])
 		reset_custom:GetNormalTexture():SetDesaturated (true)
-		reset_custom.tooltip = "Reset to Default"
+		reset_custom.tooltip = Loc ["STRING_OPTIONS_RESET_TO_DEFAULT"]
 		
 		local test_custom_text = g:NewButton (frame11.InterruptsCustomEntry, _, "$parentTestCustomPhraseButton", "TestCustomPhraseButton", 16, 16, function()
 			local text = frame11.InterruptsCustomEntry.text
@@ -7242,7 +7251,7 @@ function window:CreateFrame11()
 		reset_custom:SetHighlightTexture ([[Interface\Glues\LOGIN\Glues-CheckBox-Check]] or [[Interface\Buttons\UI-GROUPLOOT-PASS-HIGHLIGHT]])
 		reset_custom:SetPushedTexture ([[Interface\Glues\LOGIN\Glues-CheckBox-Check]] or [[Interface\Buttons\UI-GroupLoot-Pass-Up]])
 		reset_custom:GetNormalTexture():SetDesaturated (true)
-		reset_custom.tooltip = "Reset to Default"
+		reset_custom.tooltip = Loc ["STRING_OPTIONS_RESET_TO_DEFAULT"]
 		
 		local test_custom_text = g:NewButton (frame11.CooldownCustomEntry, _, "$parentTestCustomPhraseButton", "TestCustomPhraseButton", 16, 16, function()
 			local text = frame11.CooldownCustomEntry.text
@@ -8272,7 +8281,7 @@ function window:update_all (editing_instance)
 	_G.DetailsOptionsWindow19MinimapSlider.MyObject:SetValue (not _detalhes.minimap.hide)
 	_G.DetailsOptionsWindow19MinimapActionDropdown.MyObject:Select (_detalhes.minimap.onclick_what_todo)
 	
-	_G.DetailsOptionsWindow19BrokerTextDropdown.MyObject:Select (_detalhes.minimap.text_type)
+	_G.DetailsOptionsWindow19BrokerEntry.MyObject:SetText (_detalhes.data_broker_text)
 	_G.DetailsOptionsWindow19BrokerNumberAbbreviateDropdown.MyObject:Select (_detalhes.minimap.text_format)
 	
 	if (not _G.HotCorners) then
@@ -8448,4 +8457,3 @@ end
 window:Show()
 
 end --> OpenOptionsWindow
-

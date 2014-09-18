@@ -435,6 +435,8 @@ function _G._detalhes:Start()
 		_detalhes:OpenWelcomeWindow()
 	end
 	
+	_detalhes:BrokerTick()
+	
 	--test realtime dps
 	--[[
 	local real_time_frame = CreateFrame ("frame", nil, UIParent)

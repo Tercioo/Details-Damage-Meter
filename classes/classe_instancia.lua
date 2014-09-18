@@ -231,6 +231,16 @@ function _detalhes:GetFreeInstancesAmount()
 	return _detalhes.instances_amount - #_detalhes.tabela_instancias
 end
 
+function _detalhes:GetOpenedWindowsAmount()
+	local amount = 0
+	for _, instance in _detalhes:ListInstances() do
+		if (instance:IsEnabled()) then
+			amount = amount + 1
+		end
+	end
+	return amount
+end
+
 function _detalhes:GetNumRows()
 	return self.rows_fit_in_window
 end

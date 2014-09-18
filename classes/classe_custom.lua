@@ -179,25 +179,25 @@
 				local total_script = _detalhes.custom_function_cache [instance.customName .. "Total"]
 				
 				for index, actor in _ipairs (instance_container._ActorTable) do 	
-					local percent, total
+					local percent, ptotal
 					if (percent_script) then
-						percent = percent_script (actor.value, top, total, combat, instance)
+						percent = percent_script (_math_floor (actor.value), top, total, combat, instance)
 					else
-						percent = _cstr ("%.1f", self.value / total * 100)
+						percent = _cstr ("%.1f", _math_floor (actor.value) / total * 100)
 					end
 					
 					if (total_script) then
-						local value = total_script (actor.value, top, total, combat, instance)
+						local value = total_script (_math_floor (actor.value), top, total, combat, instance)
 						if (type (value) == "number") then
-							total = SelectedToKFunction (_, value)
+							ptotal = SelectedToKFunction (_, value)
 						else
-							total = value
+							ptotal = value
 						end
 					else
-						total = SelectedToKFunction (_, self.value)
+						ptotal = SelectedToKFunction (_, _math_floor (actor.value))
 					end
 					
-					actor.report_value = total .. " (" .. percent .. "%)"
+					actor.report_value = ptotal .. " (" .. percent .. "%)"
 				end
 
 			end
