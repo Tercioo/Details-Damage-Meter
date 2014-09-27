@@ -52,7 +52,7 @@ local _
 		author = "Details!", 
 		version = "1.0", 
 		site = "unknown", 
-		desc = "default skin for Details!", 
+		desc = "This was the first skin made for Details!, inspired in the standart wow intercace", 
 		
 		can_change_alpha_head = false, 
 		icon_anchor_main = {-1, 1}, 
@@ -120,76 +120,11 @@ local _
 	})
 
 	_detalhes:InstallSkin ("Minimalistic", {
-		file = [[Interface\AddOns\Details\images\skins\classic_skin]],
+		file = [[Interface\AddOns\Details\images\skins\classic_skin_v1]],
 		author = "Details!", 
 		version = "1.0", 
 		site = "unknown", 
-		desc = "classic skin.", 
-		
-		micro_frames = {color = {1, 1, 1, 1}, font = "Friz Quadrata TT", size = 10},
-		
-		can_change_alpha_head = true, 
-		icon_anchor_main = {-1, -5}, 
-		icon_anchor_plugins = {-7, -13}, 
-		icon_plugins_size = {19, 18},
-		
-		--anchors:
-		icon_point_anchor = {-37, 0},
-		left_corner_anchor = {-107, 0},
-		right_corner_anchor = {96, 0},
-
-		icon_point_anchor_bottom = {-37, 12},
-		left_corner_anchor_bottom = {-107, 0},
-		right_corner_anchor_bottom = {96, 0},
-		
-		--overwrites
-		instance_cprops = {
-			hide_icon = true,
-			
-			menu_anchor = {-60, 0, side = 2},
-			menu_anchor_down = {-55, -1},
-			menu2_anchor = {32, 3},
-			menu2_anchor_down = {32, 2},
-			
-			menu_icons_size = 0.8,
-			plugins_grow_direction = 1,
-			
-			instancebutton_config = {size = {20, 16}, anchor = {5, 0}, textcolor = {.8, .6, .0, 0.8}, textsize = 11, textfont = "Friz Quadrata TT", highlight_texture = [[Interface\Buttons\UI-Panel-MinimizeButton-Highlight]]},
-			resetbutton_config = {size = {13, 13}, anchor = {2, 0}, normal_texture = [[Interface\Addons\Details\Images\reset_button2]], highlight_texture = [[Interface\Addons\Details\Images\reset_button2]]},
-			closebutton_config = {size = {19, 19}, alpha = 0.8},
-			
-			show_sidebars = false,
-			show_statusbar = false,
-			color = {.3, .3, .3, 0.81},
-			bg_alpha = 0.2,
-			
-			row_info = {
-				texture = "Blizzard Character Skills Bar",
-				font_face = "Arial Narrow",
-				texture_background_class_color = false,
-				texture_background = "Details Serenity",
-				fixed_texture_background_color = {0, 0, 0, 0.3186}
-			},
-			attribute_text = {enabled = true, side = 1, text_size = 11, anchor = {-18, 4}, text_color = {1, 1, 1, 1}, text_face = "Arial Narrow"},			
-		},
-		
-		callback = function (skin, instance, just_updating)
-			--none
-		end,
-		
-		skin_options = {
-			{type = "button", name = Loc ["STRING_OPTIONS_SKIN_RESET_TOOLTIP"], func = reset_tooltip, desc = Loc ["STRING_OPTIONS_SKIN_RESET_TOOLTIP_DESC"]},
-			{type = "button", name = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON3"], func = set_tooltip_elvui2, desc = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON3_DESC"]},
-		}
-		
-	})
-	
-	_detalhes:InstallSkin ("Minimalistic v2", {
-		file = [[Interface\AddOns\Details\images\skins\classic_skin]],
-		author = "Details!", 
-		version = "1.0", 
-		site = "unknown", 
-		desc = "classic skin.", 
+		desc = "Simple skin with soft gray color and half transparent frames.", --\n
 		
 		micro_frames = {color = {1, 1, 1, 1}, font = "Friz Quadrata TT", size = 10},
 		
@@ -250,13 +185,80 @@ local _
 		}
 		
 	})
+	
+	_detalhes:InstallSkin ("Minimalistic v2", {
+		file = [[Interface\AddOns\Details\images\skins\classic_skin]],
+		author = "Details!", 
+		version = "1.0", 
+		site = "unknown", 
+		desc = "Same as the first Minimalistic, but this one is more darker and less transparent.", 
+		
+		micro_frames = {color = {1, 1, 1, 1}, font = "Friz Quadrata TT", size = 10},
+		
+		can_change_alpha_head = true, 
+		icon_anchor_main = {-1, -5}, 
+		icon_anchor_plugins = {-7, -13}, 
+		icon_plugins_size = {19, 18},
+		
+		--anchors:
+		icon_point_anchor = {-37, 0},
+		left_corner_anchor = {-107, 0},
+		right_corner_anchor = {96, 0},
+
+		icon_point_anchor_bottom = {-37, 12},
+		left_corner_anchor_bottom = {-107, 0},
+		right_corner_anchor_bottom = {96, 0},
+		
+		--overwrites
+		instance_cprops = {
+			hide_icon = true,
+			
+			menu_anchor = {-60, 1, side = 2},
+			menu_anchor_down = {-55, -1},
+			menu2_anchor = {32, 4},
+			menu2_anchor_down = {32, 2},
+			
+			menu_icons_size = 0.8,
+			plugins_grow_direction = 1,
+			
+			instancebutton_config = {size = {20, 16}, anchor = {5, 0}, textcolor = {.8, .6, .0, 0.8}, textsize = 10, textfont = "Friz Quadrata TT", highlight_texture = [[Interface\Buttons\UI-Panel-MinimizeButton-Highlight]]},
+			resetbutton_config = {size = {13, 13}, anchor = {2, 0}, normal_texture = [[Interface\Addons\Details\Images\reset_button2]], highlight_texture = [[Interface\Addons\Details\Images\reset_button2]]},
+			closebutton_config = {size = {19, 19}, alpha = 0.8},
+			
+			show_sidebars = false,
+			show_statusbar = false,
+			color = {0.3058, 0.3058, 0.3058, 0.8838}, --0.9350
+			bg_alpha = 0.3181, --0.4399
+			
+			row_info = {
+				texture = "BantoBar", --"Details Serenity"
+				font_face = "Arial Narrow",
+				texture_background_class_color = false,
+				texture_background = "Details Serenity",
+				fixed_texture_background_color = {0, 0, 0, 0.3186},
+				icon_file = [[Interface\AddOns\Details\images\classes_small_alpha]],
+				start_after_icon = false,
+			},
+			attribute_text = {enabled = true, side = 1, text_size = 11, anchor = {-18, 4}, text_color = {1, 1, 1, 1}, text_face = "Arial Narrow"},			
+		},
+		
+		callback = function (skin, instance, just_updating)
+			--none
+		end,
+		
+		skin_options = {
+			{type = "button", name = Loc ["STRING_OPTIONS_SKIN_RESET_TOOLTIP"], func = reset_tooltip, desc = Loc ["STRING_OPTIONS_SKIN_RESET_TOOLTIP_DESC"]},
+			{type = "button", name = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON3"], func = set_tooltip_elvui2, desc = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON3_DESC"]},
+		}
+		
+	})
 
 	_detalhes:InstallSkin ("Flat Color", {
 		file = [[Interface\AddOns\Details\images\skins\flat_skin]],
 		author = "Details!", 
 		version = "1.0", 
 		site = "unknown", 
-		desc = "a simple skin with opaque colors.", 
+		desc = "Pure white with opaque colors makes this skin very different and peculiar.", 
 		
 		micro_frames = {color = {1, 1, 1, 1}, font = "Friz Quadrata TT", size = 10, left = "DETAILS_STATUSBAR_PLUGIN_PATTRIBUTE"},
 		
@@ -325,7 +327,7 @@ local _
 		author = "Details!", 
 		version = "1.0", 
 		site = "unknown", 
-		desc = "skin with uniform gray color.", 
+		desc = "Similar to minimalistic skin, but, this one have no transparency and also comes with the statusbar enabled.", 
 		
 		--general
 		can_change_alpha_head = true, 
@@ -588,7 +590,7 @@ local _
 		author = "Details!", 
 		version = "1.0", 
 		site = "unknown", 
-		desc = "skin based on ElvUI addon.", 
+		desc = "This skin is based on ElvUI's addons, relying with black and transparent frames.", 
 		
 		--general
 		can_change_alpha_head = true, 
@@ -687,7 +689,7 @@ local _
 		author = "Details!", 
 		version = "1.0", 
 		site = "unknown", 
-		desc = "skin based on ElvUI addon.", 
+		desc = "This skin is based on ElvUI's addons, with black and white frames and bars.", 
 		
 		--general
 		can_change_alpha_head = true, 

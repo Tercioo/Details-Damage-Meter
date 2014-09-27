@@ -711,7 +711,7 @@ local default_profile = {
 
 	--> window size
 		max_window_size = {width = 480, height = 450},
-		new_window_size = {width = 300, height = 95},
+		new_window_size = {width = 320, height = 130},
 		window_clamp = {-8, 0, 21, -14},
 		disable_window_groups = false,
 		disable_reset_button = false,

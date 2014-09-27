@@ -135,13 +135,14 @@ function _detalhes.switch:ShowMe (instancia)
 		
 		if (#_detalhes.switch.buttons < mostrar_quantas) then
 			_detalhes.switch.slots = mostrar_quantas
-			_detalhes.switch:Update()
 		end
 		
 		_detalhes.switch.mostrar_quantas = mostrar_quantas
 	end
 	
 	_detalhes.switch:Resize()
+	_detalhes.switch:Update()
+	
 	_detalhes.switch.frame:Show()
 	
 	if (not _detalhes.tutorial.bookmark_tutorial) then
@@ -187,6 +188,7 @@ function _detalhes.switch:ShowMe (instancia)
 		SwitchPanelTutorial.close_label:SetWidth (_detalhes.switch.frame:GetWidth()-30)
 	end
 	
+	_detalhes.switch:Resize()
 	--instancia:StatusBarAlert (right_click_text, right_click_texture) --icon, color, time
 end
 
@@ -332,9 +334,69 @@ function _detalhes.switch:Update()
 		end
 
 	end
+	
 end
 
 function _detalhes.switch:Resize()
+
+	local x = 7
+	local y = 5
+	
+	local window_width, window_height = _detalhes.switch.current_instancia:GetSize()
+	
+	local horizontal_amt = floor (math.max (window_width / 100, 2))
+	local vertical_amt = floor ((window_height - y) / 20)
+	local size = window_width / horizontal_amt
+	
+	local frame = _detalhes.switch.frame
+	
+	for index, button in ipairs (_detalhes.switch.buttons) do
+		button:Hide()
+	end
+	
+	local i = 1
+	for vertical = 1, vertical_amt do
+		x = 7
+		for horizontal = 1, horizontal_amt do
+			local button = _detalhes.switch.buttons [i]
+			
+			local options = _detalhes.switch.table [i]
+			if (not options) then 
+				options = {atributo = nil, sub_atributo = nil}
+				_detalhes.switch.table [i] = options
+			end
+			
+			if (not button) then
+				button = _detalhes.switch:NewSwitchButton (frame, i, x, y)
+				button:SetFrameLevel (frame:GetFrameLevel()+2)
+				_detalhes.switch.showing = _detalhes.switch.showing + 1
+			end
+			
+			button:SetPoint ("topleft", frame, "topleft", x, -y)
+			button.textureNormal:SetPoint ("topleft", frame, "topleft", x, -y)
+			button.texturePushed:SetPoint ("topleft", frame, "topleft", x, -y)
+			button.textureH:SetPoint ("topleft", frame, "topleft", x, -y)	
+			button.button2.texto:SetSize (size - 30, 12)
+			button.button2:SetPoint ("bottomright", button, "bottomright", size - 30, 0)
+			button.line:SetWidth (size - 15)
+			button.line2:SetWidth (size - 15)
+			
+			button:Show()
+			
+			i = i + 1
+			x = x + size
+			if (i > 40) then
+				break
+			end
+		end
+		y = y + 20
+	end
+	
+	_detalhes.switch.slots = i-1
+	
+end
+
+function _detalhes.switch:Resize2()
 
 	local x = 7
 	local y = 5
@@ -352,6 +414,7 @@ function _detalhes.switch:Resize()
 			button.button2:SetPoint ("bottomright", button, "bottomright", xPlus - 30, 0)
 			button.line:SetWidth (xPlus - 15)
 			button.line2:SetWidth (xPlus - 15)
+			
 			x = x - xPlus
 			y = y + _detalhes.switch.button_height
 			jump = false
@@ -365,6 +428,7 @@ function _detalhes.switch:Resize()
 			button.button2:SetPoint ("bottomright", button, "bottomright", xPlus - 30, 0)
 			button.line:SetWidth (xPlus - 20)
 			button.line2:SetWidth (xPlus - 20)
+			
 			x = x + xPlus
 			jump = true			
 		end

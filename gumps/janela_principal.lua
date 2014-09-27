@@ -376,7 +376,7 @@ local function VPL (instancia, esta_instancia)
 	--> conferir esquerda
 	if (instancia.ponto4.x < esta_instancia.ponto1.x) then --> a janela esta a esquerda
 		if (instancia.ponto4.x+20 > esta_instancia.ponto1.x) then --> a janela esta a menos de 20 pixels de distância
-			if (instancia.ponto4.y < esta_instancia.ponto1.y + 20 and instancia.ponto4.y > esta_instancia.ponto1.y - 20) then --> a janela esta a +20 ou -20 pixels de distância na vertical
+			if (instancia.ponto4.y < esta_instancia.ponto1.y + 100 and instancia.ponto4.y > esta_instancia.ponto1.y - 100) then --> a janela esta a +20 ou -20 pixels de distância na vertical
 				return 1
 			end
 		end
@@ -387,7 +387,7 @@ end
 local function VPB (instancia, esta_instancia)
 	--> conferir baixo
 	if (instancia.ponto1.y+20 < esta_instancia.ponto2.y-16) then --> a janela esta em baixo
-		if (instancia.ponto1.x > esta_instancia.ponto2.x-20 and instancia.ponto1.x < esta_instancia.ponto2.x+20) then --> a janela esta a 20 pixels de distância para a esquerda ou para a direita
+		if (instancia.ponto1.x > esta_instancia.ponto2.x-100 and instancia.ponto1.x < esta_instancia.ponto2.x+100) then --> a janela esta a 20 pixels de distância para a esquerda ou para a direita
 			if (instancia.ponto1.y+20 > esta_instancia.ponto2.y-16-20) then --> esta a 20 pixels de distância
 				return 2
 			end
@@ -400,7 +400,7 @@ local function VPR (instancia, esta_instancia)
 	--> conferir lateral direita
 	if (instancia.ponto2.x > esta_instancia.ponto3.x) then --> a janela esta a direita
 		if (instancia.ponto2.x-20 < esta_instancia.ponto3.x) then --> a janela esta a menos de 20 pixels de distância
-			if (instancia.ponto2.y < esta_instancia.ponto3.y + 20 and instancia.ponto2.y > esta_instancia.ponto3.y - 20) then --> a janela esta a +20 ou -20 pixels de distância na vertical
+			if (instancia.ponto2.y < esta_instancia.ponto3.y + 100 and instancia.ponto2.y > esta_instancia.ponto3.y - 100) then --> a janela esta a +20 ou -20 pixels de distância na vertical
 				return 3
 			end
 		end
@@ -411,7 +411,7 @@ end
 local function VPT (instancia, esta_instancia)
 	--> conferir cima
 	if (instancia.ponto3.y-16 > esta_instancia.ponto4.y+20) then --> a janela esta em cima
-		if (instancia.ponto3.x > esta_instancia.ponto4.x-20 and instancia.ponto3.x < esta_instancia.ponto4.x+20) then --> a janela esta a 20 pixels de distância para a esquerda ou para a direita
+		if (instancia.ponto3.x > esta_instancia.ponto4.x-100 and instancia.ponto3.x < esta_instancia.ponto4.x+100) then --> a janela esta a 20 pixels de distância para a esquerda ou para a direita
 			if (esta_instancia.ponto4.y+20+20 > instancia.ponto3.y-16) then
 				return 4
 			end
@@ -420,8 +420,73 @@ local function VPT (instancia, esta_instancia)
 	return nil
 end
 
-local tempo_movendo, precisa_ativar, instancia_alvo, tempo_fades, nao_anexados, flash_bounce
+local color_red = {1, 0.2, 0.2}
+local color_green = {0.2, 1, 0.2}
+
+local update_line = function (self, target_frame)
+
+	--> based on weak auras frame movement code
+	local selfX, selfY = target_frame:GetCenter()
+	local anchorX, anchorY = self:GetCenter()
+	selfX, selfY = selfX or 0, selfY or 0
+	anchorX, anchorY = anchorX or 0, anchorY or 0
+	
+	local dX = selfX - anchorX
+	local dY = selfY - anchorY
+	local distance = sqrt (dX^2 + dY^2)
+
+	local angle = atan2(dY, dX)
+	local numInterim = floor(distance/40)
+    
+	local guide_balls = _detalhes.guide_balls
+	if (not guide_balls) then
+		_detalhes.guide_balls = {}
+		guide_balls = _detalhes.guide_balls
+	end
+    
+	for index, ball in ipairs (guide_balls) do
+		ball:Hide()
+	end
+	
+	self.instance:AtualizaPontos()
+	target_frame.instance:AtualizaPontos()
+	
+	local color = color_red
+	local _R, _T, _L, _B = VPL (self.instance, target_frame.instance), VPB (self.instance, target_frame.instance), VPR (self.instance, target_frame.instance), VPT (self.instance, target_frame.instance)
+	if (_R or _T or _L or _B) then
+		color = color_green
+	end
+
+	for i = 0, numInterim do
+		local x = (distance - (i * 40)) * cos (angle)
+		local y = (distance - (i * 40)) * sin (angle)
+
+		local ball = guide_balls [i]
+		if (not ball) then
+			ball = _detalhes.overlay_frame:CreateTexture (nil, "Overlay")
+			ball:SetTexture ([[Interface\AddOns\Details\images\icons]])
+			ball:SetSize (16, 16)
+			ball:SetAlpha (0.3)
+			ball:SetTexCoord (410/512, 426/512, 2/512, 18/512)
+			tinsert (guide_balls, ball)
+		end
+		
+		ball:ClearAllPoints()
+		ball:SetPoint("CENTER", self, "CENTER", x, y) --baseframse center
+		ball:Show()
+		ball:SetVertexColor (unpack (color))
+	end
+
+end
+
+local tempo_movendo, precisa_ativar, instancia_alvo, tempo_fades, nao_anexados, flash_bounce, start_draw_lines
 local movement_onupdate = function (self, elapsed) 
+
+				if (start_draw_lines and start_draw_lines > 0.95) then
+					update_line (self, instancia_alvo.baseframe)
+				elseif (start_draw_lines) then
+					start_draw_lines = start_draw_lines + elapsed
+				end
 
 				if (tempo_movendo and tempo_movendo < 0) then
 
@@ -444,15 +509,96 @@ local movement_onupdate = function (self, elapsed)
 							for lado, livre in _ipairs (nao_anexados) do
 								if (livre) then
 									if (lado == 1) then
+
+										local texture = instancia_alvo.h_esquerda.texture
+										texture:ClearAllPoints()
+										
+										if (instancia_alvo.toolbar_side == 1) then
+											if (instancia_alvo.show_statusbar) then
+												texture:SetPoint ("topright", instancia_alvo.baseframe, "topleft", 0, 20)
+												texture:SetPoint ("bottomright", instancia_alvo.baseframe, "bottomleft", 0, -14)
+											else
+												texture:SetPoint ("topright", instancia_alvo.baseframe, "topleft", 0, 20)
+												texture:SetPoint ("bottomright", instancia_alvo.baseframe, "bottomleft", 0, 0)
+											end
+										else
+											if (instancia_alvo.show_statusbar) then
+												texture:SetPoint ("topright", instancia_alvo.baseframe, "topleft", 0, 0)
+												texture:SetPoint ("bottomright", instancia_alvo.baseframe, "bottomleft", 0, -34)
+											else
+												texture:SetPoint ("topright", instancia_alvo.baseframe, "topleft", 0, 0)
+												texture:SetPoint ("bottomright", instancia_alvo.baseframe, "bottomleft", 0, -20)
+											end
+										end
+									
 										instancia_alvo.h_esquerda:Flash (1, 1, 2.0, false, 0, 0)
 										tem_livre = true
+										
 									elseif (lado == 2) then
+									
+										local texture = instancia_alvo.h_baixo.texture
+										texture:ClearAllPoints()
+									
+										if (instancia_alvo.toolbar_side == 1) then
+											if (instancia_alvo.show_statusbar) then
+												texture:SetPoint ("topleft", instancia_alvo.baseframe, "bottomleft", 0, -14)
+												texture:SetPoint ("topright", instancia_alvo.baseframe, "bottomright", 0, -14)
+											else
+												texture:SetPoint ("topleft", instancia_alvo.baseframe, "bottomleft", 0, 0)
+												texture:SetPoint ("topright", instancia_alvo.baseframe, "bottomright", 0, 0)
+											end
+										else
+											if (instancia_alvo.show_statusbar) then
+												texture:SetPoint ("topleft", instancia_alvo.baseframe, "bottomleft", 0, -34)
+												texture:SetPoint ("topright", instancia_alvo.baseframe, "bottomright", 0, -34)
+											else
+												texture:SetPoint ("topleft", instancia_alvo.baseframe, "bottomleft", 0, -20)
+												texture:SetPoint ("topright", instancia_alvo.baseframe, "bottomright", 0, -20)
+											end
+										end
+									
 										instancia_alvo.h_baixo:Flash (1, 1, 2.0, false, 0, 0)
 										tem_livre = true
+										
 									elseif (lado == 3) then
+									
+										local texture = instancia_alvo.h_direita.texture
+										texture:ClearAllPoints()
+										
+										if (instancia_alvo.toolbar_side == 1) then
+											if (instancia_alvo.show_statusbar) then
+												texture:SetPoint ("topleft", instancia_alvo.baseframe, "topright", 0, 20)
+												texture:SetPoint ("bottomleft", instancia_alvo.baseframe, "bottomright", 0, -14)
+											else
+												texture:SetPoint ("topleft", instancia_alvo.baseframe, "topright", 0, 20)
+												texture:SetPoint ("bottomleft", instancia_alvo.baseframe, "bottomright", 0, 0)
+											end
+										else
+											if (instancia_alvo.show_statusbar) then
+												texture:SetPoint ("topleft", instancia_alvo.baseframe, "topright", 0, 0)
+												texture:SetPoint ("bottomleft", instancia_alvo.baseframe, "bottomright", 0, -34)
+											else
+												texture:SetPoint ("topleft", instancia_alvo.baseframe, "topright", 0, 0)
+												texture:SetPoint ("bottomleft", instancia_alvo.baseframe, "bottomright", 0, -20)
+											end
+										end
+									
 										instancia_alvo.h_direita:Flash (1, 1, 2.0, false, 0, 0)
 										tem_livre = true
+										
 									elseif (lado == 4) then
+										
+										local texture = instancia_alvo.h_cima.texture
+										texture:ClearAllPoints()
+										
+										if (instancia_alvo.toolbar_side == 1) then
+											texture:SetPoint ("bottomleft", instancia_alvo.baseframe, "topleft", 0, 20)
+											texture:SetPoint ("bottomright", instancia_alvo.baseframe, "topright", 0, 20)
+										else
+											texture:SetPoint ("bottomleft", instancia_alvo.baseframe, "topleft", 0, 0)
+											texture:SetPoint ("bottomright", instancia_alvo.baseframe, "topright", 0, 0)
+										end
+										
 										instancia_alvo.h_cima:Flash (1, 1, 2.0, false, 0, 0)
 										tem_livre = true
 									end
@@ -507,6 +653,13 @@ local function move_janela (baseframe, iniciando, instancia)
 			nao_anexados = {true, true, true, true}
 			tempo_movendo = 1
 			flash_bounce = 0
+
+			start_draw_lines = 0
+			for lado, snap_to in _pairs (instancia_alvo.snap) do
+				if (snap_to == instancia.meu_id) then
+					start_draw_lines = false
+				end
+			end
 			
 			for lado, snap_to in _pairs (instancia_alvo.snap) do
 				if (snap_to) then
@@ -553,7 +706,7 @@ local function move_janela (baseframe, iniciando, instancia)
 				
 				need_start = false
 			end
-			
+
 			baseframe:SetScript ("OnUpdate", movement_onupdate)
 		end
 		
@@ -562,6 +715,12 @@ local function move_janela (baseframe, iniciando, instancia)
 		baseframe:StopMovingOrSizing()
 		baseframe.isMoving = false
 		baseframe:SetScript ("OnUpdate", nil)
+		
+		if (_detalhes.guide_balls) then
+			for index, ball in ipairs (_detalhes.guide_balls) do
+				ball:Hide()
+			end
+		end
 		
 		for _, ins in _detalhes:ListInstances() do
 			if (ins.baseframe) then
@@ -649,8 +808,7 @@ local function move_janela (baseframe, iniciando, instancia)
 				end
 			end
 		end
---# /tar Disassembled Crawler
---# /tar Deactivated Laser Turrets
+
 		_detalhes.snap_alert.playing = false
 		_detalhes.snap_alert.animIn:Stop()
 		_detalhes.snap_alert.animOut:Play()
@@ -2339,7 +2497,7 @@ do
 
 end
 
---> ~inicio ~janela ~window ~nova
+--> ~inicio ~janela ~window ~nova ~start
 function gump:CriaJanelaPrincipal (ID, instancia, criando)
 
 -- main frames -----------------------------------------------------------------------------------------------------------------------------------------------
@@ -2695,8 +2853,6 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 
 	--> top
 		local fcima = CreateFrame ("frame", "DetailsTopSideBarHighlight" .. instancia.meu_id, baseframe.cabecalho.fechar)
-		fcima:SetPoint ("topleft", baseframe.cabecalho.top_bg, "bottomleft", -10, 37)
-		fcima:SetPoint ("topright", baseframe.cabecalho.ball_r, "bottomright", -33, 37)
 		gump:CreateFlashAnimation (fcima)
 		fcima:Hide()
 		
@@ -2705,12 +2861,12 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 		instancia.h_cima:SetTexCoord (0, 1, 0.5, 1)
 		instancia.h_cima:SetPoint ("topleft", baseframe.cabecalho.top_bg, "bottomleft", -10, 37)
 		instancia.h_cima:SetPoint ("topright", baseframe.cabecalho.ball_r, "bottomright", -97, 37)
+		instancia.h_cima:SetDesaturated (true)
+		fcima.texture = instancia.h_cima
 		instancia.h_cima = fcima
 		
 	--> bottom
 		local fbaixo = CreateFrame ("frame", "DetailsBottomSideBarHighlight" .. instancia.meu_id, baseframe.cabecalho.fechar)
-		fbaixo:SetPoint ("topleft", baseframe.rodape.esquerdo, "bottomleft", 16, 17)
-		fbaixo:SetPoint ("topright", baseframe.rodape.direita, "bottomright", -16, 17)
 		gump:CreateFlashAnimation (fbaixo)
 		fbaixo:Hide()
 		
@@ -2719,12 +2875,12 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 		instancia.h_baixo:SetTexCoord (0, 1, 0, 0.5)
 		instancia.h_baixo:SetPoint ("topleft", baseframe.rodape.esquerdo, "bottomleft", 16, 17)
 		instancia.h_baixo:SetPoint ("topright", baseframe.rodape.direita, "bottomright", -16, 17)
+		instancia.h_baixo:SetDesaturated (true)
+		fbaixo.texture = instancia.h_baixo
 		instancia.h_baixo = fbaixo
 		
 	--> left
 		local fesquerda = CreateFrame ("frame", "DetailsLeftSideBarHighlight" .. instancia.meu_id, baseframe.cabecalho.fechar)
-		fesquerda:SetPoint ("topleft", baseframe.barra_esquerda, "topleft", -8, 0)
-		fesquerda:SetPoint ("bottomleft", baseframe.barra_esquerda, "bottomleft", -8, 0)
 		gump:CreateFlashAnimation (fesquerda)
 		fesquerda:Hide()
 		
@@ -2733,12 +2889,12 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 		instancia.h_esquerda:SetTexCoord (0.5, 1, 0, 1)
 		instancia.h_esquerda:SetPoint ("topleft", baseframe.barra_esquerda, "topleft", 40, 0)
 		instancia.h_esquerda:SetPoint ("bottomleft", baseframe.barra_esquerda, "bottomleft", 40, 0)
+		instancia.h_esquerda:SetDesaturated (true)
+		fesquerda.texture = instancia.h_esquerda
 		instancia.h_esquerda = fesquerda
 		
 	--> right
 		local fdireita = CreateFrame ("frame", "DetailsRightSideBarHighlight" .. instancia.meu_id, baseframe.cabecalho.fechar)
-		fdireita:SetPoint ("topleft", baseframe.barra_direita, "topleft", 8, 18)
-		fdireita:SetPoint ("bottomleft", baseframe.barra_direita, "bottomleft", 8, 0)
 		gump:CreateFlashAnimation (fdireita)	
 		fdireita:Hide()
 		
@@ -2747,6 +2903,8 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 		instancia.h_direita:SetTexCoord (0, 0.5, 1, 0)
 		instancia.h_direita:SetPoint ("topleft", baseframe.barra_direita, "topleft", 8, 18)
 		instancia.h_direita:SetPoint ("bottomleft", baseframe.barra_direita, "bottomleft", 8, 0)
+		instancia.h_direita:SetDesaturated (true)
+		fdireita.texture = instancia.h_direita
 		instancia.h_direita = fdireita
 
 --> done
@@ -5897,10 +6055,6 @@ function gump:CriaCabecalho (baseframe, instancia)
 	baseframe.cabecalho.fechar:SetScript ("OnLeave", close_button_onleave)
 	
 	baseframe.cabecalho.fechar:SetScript ("OnClick", close_button_onclick)
-	
-	baseframe.cabecalho.fechar:SetScript ("OnShow", function()
-		--print (debugstack())
-	end)
 
 	--> bola do canto esquedo superior --> primeiro criar a armação para apoiar as texturas
 	baseframe.cabecalho.ball_point = baseframe.cabecalho.fechar:CreateTexture (nil, "overlay")

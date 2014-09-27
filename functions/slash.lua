@@ -79,6 +79,19 @@ function SlashCmdList.DETAILS (msg, editbox)
 	
 -------- debug ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+	elseif (msg == "owner2") then
+	
+		local tip = CreateFrame('GameTooltip', 'GuardianOwnerTooltip', nil, 'GameTooltipTemplate')
+		function GetGuardianOwner(guid)
+			tip:SetOwner(WorldFrame, 'ANCHOR_NONE')
+			tip:SetHyperlink('unit:' .. guid or '')
+			local text = GuardianOwnerTooltipTextLeft2
+			--return strmatch(text and text:GetText() or '', "^([^%s']+)'")
+			return text:GetText()
+		end
+	
+		print (GetGuardianOwner(UnitGUID ("target")))
+	
 	elseif (msg == "chat") then
 	
 	

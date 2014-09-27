@@ -4104,7 +4104,7 @@ function window:CreateFrame3()
 		local buildSkinMenu = function()
 			local skinOptions = {}
 			for skin_name, skin_table in pairs (_detalhes.skins) do
-				local desc = "Author: |cFFFFFFFF" .. skin_table.author .. "|r\nVersion: |cFFFFFFFF" .. skin_table.version .. "|r\nSite: |cFFFFFFFF" .. skin_table.site .. "|r\nDesc: |cFFFFFFFF" .. skin_table.desc .. "|r"
+				local desc = "Author: |cFFFFFFFF" .. skin_table.author .. "|r\nVersion: |cFFFFFFFF" .. skin_table.version .. "|r\nSite: |cFFFFFFFF" .. skin_table.site .. "|r\n\nDesc: |cFFFFFFFF" .. skin_table.desc .. "|r"
 				skinOptions [#skinOptions+1] = {value = skin_name, label = skin_name, onclick = onSelectSkin, icon = "Interface\\GossipFrame\\TabardGossipIcon", desc = desc}
 			end
 			return skinOptions

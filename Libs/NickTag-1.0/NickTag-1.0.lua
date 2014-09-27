@@ -933,7 +933,8 @@ end
 do
 	local avatar_pick_frame = CreateFrame ("frame", "AvatarPickFrame", UIParent)
 	avatar_pick_frame:SetFrameStrata ("DIALOG")
-	avatar_pick_frame:SetBackdrop ({bgFile = [[Interface\DialogFrame\UI-DialogBox-Background]], edgeFile = [[Interface\DialogFrame\UI-DialogBox-Border]], tile = true, tileSize = 32, edgeSize = 32,			insets = {left = 11, right = 12, top = 12, bottom = 11}})
+	avatar_pick_frame:SetBackdrop ({bgFile = [[Interface\FrameGeneral\UI-Background-Marble]], edgeFile = [[Interface\DialogFrame\UI-DialogBox-Border]], tile = true, tileSize = 256, edgeSize = 32,	insets = {left = 11, right = 12, top = 12, bottom = 11}})
+	avatar_pick_frame:SetBackdropColor (.3, .3, .3, .9)
 	avatar_pick_frame:SetWidth (460)
 	avatar_pick_frame:SetHeight (240)
 	
@@ -943,7 +944,6 @@ do
 	avatar_pick_frame.selected_texcoord = {0, 1, 0, 1}
 	
 	avatar_pick_frame:SetPoint ("center", UIParent, "center", 200, 0)
-	
 	---
 		local avatar_texture = avatar_pick_frame:CreateTexture ("AvatarPickFrameAvatarPreview", "overlay")
 		avatar_texture:SetPoint ("topleft", avatar_pick_frame, "topleft", 167, -10)

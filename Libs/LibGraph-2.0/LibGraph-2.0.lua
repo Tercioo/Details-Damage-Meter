@@ -662,7 +662,7 @@ end
 --Functions for Line Graph Data
 -------------------------------------------------------------------------------
 
-function GraphFunctions:AddDataSeries(points, color, n2)
+function GraphFunctions:AddDataSeries(points, color, n2, linetexture)
 	local data
 	--Make sure there is data points
 	if not points then
@@ -680,7 +680,13 @@ function GraphFunctions:AddDataSeries(points, color, n2)
 		end
 	end
 
-	tinsert(self.Data,{Points = data; Color = color})
+	if linetexture then
+		if not linetexture:find ("\\") and not linetexture:find ("//") then 
+			linetexture = TextureDirectory..linetexture
+		end
+	end
+	
+	tinsert(self.Data,{Points = data; Color = color; LineTexture=linetexture})
 
 	self.NeedsUpdate = true
 end
