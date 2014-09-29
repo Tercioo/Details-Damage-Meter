@@ -8,7 +8,7 @@ do
 	function _detalhes:CreateCopyPasteWindow()
 		local panel = DetailsFrameWork:NewPanel (UIParent, _, "DetailsCopy", _, 512, 128, false)
 		tinsert (UISpecialFrames, "DetailsCopy")
-		panel:SetFrameStrata ("FULLSCREEN")
+		panel:SetFrameStrata ("TOOLTIP")
 		panel:SetPoint ("center", UIParent, "center")
 		panel.locked = false
 		

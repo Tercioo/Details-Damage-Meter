@@ -720,6 +720,7 @@ local default_profile = {
 		segments_amount = 12,
 		segments_amount_to_save = 5,
 		segments_panic_mode = true,
+		segments_auto_erase = 1,
 	--> instances
 		instances_amount = 5,
 		instances_segments_locked = false,
@@ -820,6 +821,8 @@ local default_player_data = {
 	--> current combat number
 		combat_id = 0,
 		combat_counter = 0,
+		last_instance_id = 0,
+		last_instance_time = 0,
 	--> nicktag cache
 		nick_tag_cache = {},
 	--> plugin data
@@ -871,6 +874,7 @@ local default_global_data = {
 
 	--> profile pool
 		__profiles = {},
+		always_use_profile = false,
 		custom = {},
 		savedStyles = {},
 		savedCustomSpells = {},

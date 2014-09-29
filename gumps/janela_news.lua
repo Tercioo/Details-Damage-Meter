@@ -22,14 +22,29 @@ function _detalhes:CreateOrOpenNewsWindow()
 		--> construir a janela de news
 		frame = CreateFrame ("frame", "DetailsNewsWindow", UIParent, "ButtonFrameTemplate")
 		frame:SetPoint ("center", UIParent, "center")
-		frame:SetFrameStrata ("HIGH")
+		frame:SetFrameStrata ("FULLSCREEN")
 		frame:SetMovable (true)
 		frame:SetWidth (512)
 		frame:SetHeight (512)
 		tinsert (UISpecialFrames, "DetailsNewsWindow")
 		
-		frame:SetScript ("OnMouseDown", function() frame:StartMoving() end)
-		frame:SetScript ("OnMouseUp", function() frame:StopMovingOrSizing() end)
+		frame:SetScript ("OnMouseDown", function(self, button)
+			if (self.isMoving) then
+				return
+			end
+			if (button == "RightButton") then
+				self:Hide()
+			else
+				self:StartMoving() 
+				self.isMoving = true
+			end
+		end)
+		frame:SetScript ("OnMouseUp", function(self, button) 
+			if (self.isMoving and button == "LeftButton") then
+				self:StopMovingOrSizing()
+				self.isMoving = nil
+			end
+		end)
 		
 		--> reinstall textura
 		local textura = _detalhes.gump:NewImage (frame, [[Interface\DialogFrame\DialogAlertIcon]], 64, 64, nil, nil, nil, "$parentExclamacao")

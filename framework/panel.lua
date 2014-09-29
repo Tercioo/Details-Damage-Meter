@@ -861,6 +861,7 @@ end
 
 function gump:ColorPick (frame, r, g, b, alpha, callback)
 
+	ColorPickerFrame:ClearAllPoints()
 	ColorPickerFrame:SetPoint ("bottomleft", frame, "topright", 0, 0)
 	
 	ColorPickerFrame.dcallback = callback

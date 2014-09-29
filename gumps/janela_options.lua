@@ -324,8 +324,12 @@ function _detalhes:OpenOptionsWindow (instance, no_reopen)
 
 		local fillbars = g:NewButton (window, _, "$parentCreateExampleBarsButton", nil, 110, 14, _detalhes.CreateTestBars, nil, nil, nil, Loc ["STRING_OPTIONS_TESTBARS"])
 		fillbars:SetPoint ("bottomleft", window.widget, "bottomleft", 200, 12)
+
+	--> change log
+
+		local changelog = g:NewButton (window, _, "$parentOpenChangeLogButton", nil, 110, 14, _detalhes.OpenNewsWindow, nil, nil, nil, Loc ["STRING_OPTIONS_CHANGELOG"])
+		changelog:SetPoint ("left", fillbars, "right", 10, 0)
 		
-		--fillbars:InstallCustomTexture()
 		
 	--> right click to close
 		--local right_click_close = window:CreateRightClickLabel ("short", 14, 14, "Close")
@@ -470,6 +474,11 @@ local menus = { --labels nos menus
 		local all_buttons = {}
 		local true_index = 1
 		local selected_textcolor = "wheat"
+
+		local selected_texture = g:NewImage (window, [[Interface\ARCHEOLOGY\ArchaeologyParts]], 130, 14)
+		selected_texture:SetTexCoord (0.146484375, 0.591796875, 0.0546875, 0.26171875)
+		selected_texture:SetVertexColor (1, 1, 1, 0.8)
+		selected_texture:SetBlendMode ("ADD")
 		
 		local button_onenter = function (self)
 			self.MyObject.my_bg_texture:SetVertexColor (1, 1, 1, 1)
@@ -488,6 +497,7 @@ local menus = { --labels nos menus
 			if (last_pressed ~= button) then
 				button.func (button.param1, button.param2, button)
 				last_pressed.widget.text:SetPoint ("left", last_pressed.widget, "left", 2, 0)
+				selected_texture:SetPoint ("left", button, "left", 0, -1)
 				last_pressed.textcolor = textcolor
 				last_pressed = button
 			end
@@ -522,6 +532,10 @@ local menus = { --labels nos menus
 					button:SetHook ("OnEnter", button_onenter)
 					button:SetHook ("OnLeave", button_onleave)
 					button:SetHook ("OnMouseUp", button_mouse_up)
+					
+					if (true_index == 1) then
+						selected_texture:SetPoint ("left", button, "left", 0, -1)
+					end
 					
 					true_index = true_index + 1
 				
@@ -3384,6 +3398,56 @@ function window:CreateFrame1()
 			frame1.CreateWindowButton:SetIcon ([[Interface\Buttons\UI-AttributeButton-Encourage-Up]])
 			frame1.CreateWindowButton:SetTextColor (button_color_rgb)
 			
+		--set color
+		
+			local windowcolor_callback = function (button, r, g, b, a)
+				if (_G.DetailsOptionsWindow.instance.menu_alpha.enabled and a ~= _G.DetailsOptionsWindow.instance.color[4]) then
+					_detalhes:Msg (Loc ["STRING_OPTIONS_MENU_ALPHAWARNING"])
+					_G.DetailsOptionsWindow6StatusbarColorPick.MyObject:SetColor (r, g, b, _G.DetailsOptionsWindow.instance.menu_alpha.onleave)
+					return _G.DetailsOptionsWindow.instance:InstanceColor (r, g, b, _G.DetailsOptionsWindow.instance.menu_alpha.onleave, nil, true)
+				end
+				_G.DetailsOptionsWindow6StatusbarColorPick.MyObject:SetColor (r, g, b, a)
+				_G.DetailsOptionsWindow.instance:InstanceColor (r, g, b, a, nil, true)
+			end
+			local change_color = function()
+				local r, g, b, a = unpack (_G.DetailsOptionsWindow.instance.color)
+				_detalhes.gump:ColorPick (_G.DetailsOptionsWindow1SetWindowColorButton, r, g, b, a, windowcolor_callback)
+			end
+		
+			g:NewButton (frame1, _, "$parentSetWindowColorButton", "SetWindowColorButton", buttons_width, 18, change_color, nil, nil, nil, "Change Color", 1)
+			frame1.SetWindowColorButton:InstallCustomTexture()
+			window:CreateLineBackground2 (frame1, "SetWindowColorButton", "SetWindowColorButton", "Shortcut to modify the window color.\nFor more options check out |cFFFFFF00Window Settings|r section.", nil, {1, 0.8, 0}, button_color_rgb)
+			
+			frame1.SetWindowColorButton:SetIcon ([[Interface\AddOns\Details\images\icons]], nil, nil, nil, {0.640625, 0.6875, 0.630859375, 0.677734375})
+			frame1.SetWindowColorButton:SetTextColor (button_color_rgb)
+			
+		--erase data
+		
+				g:NewLabel (frame1, _, "$parentEraseDataLabel", "EraseDataLabel", Loc ["STRING_OPTIONS_ED"], "GameFontHighlightLeft")
+				--
+				local OnSelectEraseData = function (_, _, EraseType)
+					_detalhes.segments_auto_erase = EraseType
+				end
+				
+				local EraseDataOptions = {
+					{value = 1, label = Loc ["STRING_OPTIONS_ED1"], onclick = OnSelectEraseData, icon = [[Interface\Addons\Details\Images\reset_button2]]},
+					{value = 2, label = Loc ["STRING_OPTIONS_ED2"], onclick = OnSelectEraseData, icon = [[Interface\Addons\Details\Images\reset_button2]]},
+					{value = 3, label = Loc ["STRING_OPTIONS_ED3"], onclick = OnSelectEraseData, icon = [[Interface\Addons\Details\Images\reset_button2]]},
+				}
+				local BuildEraseDataMenu = function()
+					return EraseDataOptions
+				end
+				
+				local d = g:NewDropDown (frame1, _, "$parentEraseDataDropdown", "EraseDataDropdown", 160, 20, BuildEraseDataMenu, _detalhes.segments_auto_erase)
+				d.onenter_backdrop = dropdown_backdrop_onenter
+				d.onleave_backdrop = dropdown_backdrop_onleave
+				d:SetBackdrop (dropdown_backdrop)
+				d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+				
+				frame1.EraseDataDropdown:SetPoint ("left", frame1.EraseDataLabel, "right", 2, 0)		
+
+				window:CreateLineBackground2 (frame1, "EraseDataDropdown", "EraseDataLabel", Loc ["STRING_OPTIONS_ED_DESC"])
+		
 		--config bookmarks
 			g:NewButton (frame1, _, "$parentBookmarkButton", "BookmarkButton", buttons_width, 18, _detalhes.OpenBookmarkConfig, nil, nil, nil, Loc ["STRING_OPTIONS_WC_BOOKMARK"], 1)
 			frame1.BookmarkButton:InstallCustomTexture()
@@ -3398,6 +3462,7 @@ function window:CreateFrame1()
 		g:NewLabel (frame1, _, "$parentIdentityAnchor", "GeneralIdentityLabel", Loc ["STRING_OPTIONS_AVATAR_ANCHOR"], "GameFontNormal")
 		
 		g:NewLabel (frame1, _, "$parentWindowControlsAnchor", "WindowControlsLabel", Loc ["STRING_OPTIONS_WC_ANCHOR"], "GameFontNormal")
+		g:NewLabel (frame1, _, "$parentToolsAnchor", "ToolsLabel", Loc ["STRING_OPTIONS_TOOLS_ANCHOR"], "GameFontNormal")
 
 		local w_start = 10
 	
@@ -3417,6 +3482,10 @@ function window:CreateFrame1()
 		
 		frame1.realmNameLabel:SetPoint (avatar_x_anchor, -235)
 		
+		frame1.ToolsLabel:SetPoint (avatar_x_anchor, -265)
+		frame1.EraseDataLabel:SetPoint (avatar_x_anchor, -290)
+		frame1.BookmarkButton:SetPoint (avatar_x_anchor, -315)
+		
 		local left_side = {
 			{"GeneralAnchorLabel", 1, true},
 			{"animateLabel", 2},
@@ -3430,8 +3499,9 @@ function window:CreateFrame1()
 			{"LockButton", 10},
 			{"BreakSnapButton", 12},
 			{"CloseButton", 11},
-			{"CreateWindowButton", 13, true},
-			{"BookmarkButton", 14},
+			{"CreateWindowButton", 14, true},
+			{"SetWindowColorButton", 13},
+			
 		}
 		
 		window:arrange_menu (frame1, left_side, window.left_start_at, window.top_start_at)
@@ -3813,6 +3883,22 @@ function window:CreateFrame13()
 	
 		window:CreateLineBackground2 (frame13, select_profile_dropdown, select_profile_label, Loc ["STRING_OPTIONS_PROFILES_SELECT_DESC"])
 	
+	--> always use this profile
+		g:NewLabel (frame13, _, "$parentAlwaysUseLabel", "AlwaysUseLabel", Loc ["STRING_OPTIONS_ALWAYS_USE"], "GameFontHighlightLeft")
+		
+		g:NewSwitch (frame13, _, "$parentAlwaysUseSlider", "AlwaysUseSlider", 60, 20, _, _, _detalhes.always_use_profile)
+		
+		frame13.AlwaysUseSlider:SetPoint ("left", frame13.AlwaysUseLabel, "right", 2, -1)
+		frame13.AlwaysUseSlider.OnSwitch = function (self, _, value) 
+			if (value) then
+				_detalhes.always_use_profile = select_profile_dropdown:GetValue()
+			else
+				_detalhes.always_use_profile = false
+			end
+		end
+		frame13.AlwaysUseSlider:SetPoint ("left", frame13.AlwaysUseLabel, "right", 3, 0)
+		window:CreateLineBackground2 (frame13, "AlwaysUseSlider", "AlwaysUseLabel", Loc ["STRING_OPTIONS_ALWAYS_USE_DESC"])
+	
 	--> new profile
 		local profile_name = g:NewTextEntry (frame13, _, "$parentProfileNameEntry", "profileNameEntry", 120, 20)
 		local profile_name_label = g:NewLabel (frame13, _, "$parentProfileNameLabel", "profileNameLabel", Loc ["STRING_OPTIONS_PROFILES_CREATE"], "GameFontHighlightLeft")
@@ -3968,12 +4054,13 @@ function window:CreateFrame13()
 		local left_side = {
 			{"ProfileAnchorLabel", 1, true},
 			{current_profile_label, 2},
-			{"PosAndSizeLabel", 3},
-			{select_profile_label, 4, true},
-			{profile_name_label, 5, true},
-			{select_profileCopy_label, 6},
-			{select_profileErase_label, 7},
-			{profile_reset_button, 8, true},
+			{select_profile_label, 3, true},
+			{"AlwaysUseLabel", 4},
+			{"PosAndSizeLabel", 5},
+			{profile_name_label, 6, true},
+			{select_profileCopy_label, 7},
+			{select_profileErase_label, 8},
+			{profile_reset_button, 9, true},
 			
 		}
 		
@@ -5523,11 +5610,11 @@ function window:CreateFrame7()
 
 			function frame7:update_menuanchor_xy (instance)
 				if (instance.toolbar_side == 1) then --top
-					frame7.menuAnchorXSlider:SetValue (editing_instance.menu_anchor [1])
-					frame7.menuAnchorYSlider:SetValue (editing_instance.menu_anchor [2])
+					frame7.menuAnchorXSlider:SetValue (instance.menu_anchor [1])
+					frame7.menuAnchorYSlider:SetValue (instance.menu_anchor [2])
 				elseif (instance.toolbar_side == 2) then --bottom
-					frame7.menuAnchorXSlider:SetValue (editing_instance.menu_anchor_down [1])
-					frame7.menuAnchorYSlider:SetValue (editing_instance.menu_anchor_down [2])
+					frame7.menuAnchorXSlider:SetValue (instance.menu_anchor_down [1])
+					frame7.menuAnchorYSlider:SetValue (instance.menu_anchor_down [2])
 				end
 			end
 			
@@ -5778,11 +5865,11 @@ function window:CreateFrame8()
 	
 			function frame8:update_menuanchor_xy (instance)
 				if (instance.toolbar_side == 1) then --top
-					frame8.menuAnchorXSlider:SetValue (editing_instance.menu2_anchor [1])
-					frame8.menuAnchorYSlider:SetValue (editing_instance.menu2_anchor [2])
+					frame8.menuAnchorXSlider:SetValue (instance.menu2_anchor [1])
+					frame8.menuAnchorYSlider:SetValue (instance.menu2_anchor [2])
 				elseif (instance.toolbar_side == 2) then --bottom
-					frame8.menuAnchorXSlider:SetValue (editing_instance.menu2_anchor_down [1])
-					frame8.menuAnchorYSlider:SetValue (editing_instance.menu2_anchor_down [2])
+					frame8.menuAnchorXSlider:SetValue (instance.menu2_anchor_down [1])
+					frame8.menuAnchorYSlider:SetValue (instance.menu2_anchor_down [2])
 				end
 			end
 	
@@ -7848,6 +7935,8 @@ function window:update_all (editing_instance)
 	_G.DetailsOptionsWindow1AnimateSlider.MyObject:SetValue (_detalhes.use_row_animations)
 
 	_G.DetailsOptionsWindow1WindowControlsAnchor:SetText (string.format (Loc ["STRING_OPTIONS_WC_ANCHOR"], editing_instance.meu_id))
+	
+	_G.DetailsOptionsWindow1EraseDataDropdown.MyObject:Select (_detalhes.segments_auto_erase)
 	
 	if (not editing_instance.baseframe) then
 		_detalhes:ScheduleTimer ("DelayUpdateWindowControls", 1, editing_instance)

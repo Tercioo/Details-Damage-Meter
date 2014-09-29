@@ -291,6 +291,12 @@ function _detalhes:LoadConfig()
 			end
 			
 	--> profile
+	
+		--> check for "always use this profile"
+			if (_detalhes.always_use_profile and type (_detalhes.always_use_profile) == "string") then
+				_detalhes_database.active_profile = _detalhes.always_use_profile
+			end
+	
 		--> character first run
 			if (_detalhes_database.active_profile == "") then
 				_detalhes.character_first_run = true

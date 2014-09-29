@@ -638,6 +638,11 @@ local function move_janela (baseframe, iniciando, instancia)
 	
 	if (iniciando) then
 	
+		if (baseframe.isMoving) then
+			--> ja esta em movimento
+			return
+		end
+	
 		baseframe.isMoving = true
 		instancia:BaseFrameSnap()
 		baseframe:StartMoving()
@@ -731,6 +736,7 @@ local function move_janela (baseframe, iniciando, instancia)
 		--baseframe:SetClampRectInsets (unpack (_detalhes.window_clamp))
 
 		if (instancia_alvo) then
+		
 			instancia:AtualizaPontos()
 			
 			local esquerda, baixo, direita, cima
@@ -807,8 +813,17 @@ local function move_janela (baseframe, iniciando, instancia)
 					esta_instancia:RestoreMainWindowPosition()
 				end
 			end
+
 		end
 
+		--> salva pos de todas as janelas
+		for _, ins in _ipairs (_detalhes.tabela_instancias) do
+			if (ins:IsEnabled()) then
+				ins:SaveMainWindowPosition()
+				ins:RestoreMainWindowPosition()
+			end
+		end
+		
 		_detalhes.snap_alert.playing = false
 		_detalhes.snap_alert.animIn:Stop()
 		_detalhes.snap_alert.animOut:Play()
@@ -1593,7 +1608,12 @@ local barra_scripts_onenter = function (self)
 	
 	self:SetBackdrop (barra_backdrop_onenter)	
 	self:SetBackdropColor (0.588, 0.588, 0.588, 0.7)
-		
+
+	self.textura:SetBlendMode ("ADD")
+	--local r, g, b = self.textura:GetVertexColor()
+	--self.textura:SetVertexColor (math.min (r+0.1, 1), math.min (g+0.1, 1), math.min (b+0.1, 1))
+	--self.icone_classe:SetBlendMode ("ADD")
+	
 	self:SetScript ("OnUpdate", shift_monitor)
 end
 
@@ -1607,6 +1627,11 @@ local barra_scripts_onleave = function (self)
 	self:SetBackdrop (barra_backdrop_onleave)	
 	self:SetBackdropBorderColor (0, 0, 0, 0)
 	self:SetBackdropColor (0, 0, 0, 0)
+	
+	self.textura:SetBlendMode ("BLEND")
+	--self.icone_classe:SetBlendMode ("BLEND")
+	--local r, g, b = self.textura:GetVertexColor()
+	--self.textura:SetVertexColor (math.min (r+0.1, 1), math.min (g+0.1, 1), math.min (b+0.1, 1))
 	
 	self.showing_allspells = false
 	self:SetScript ("OnUpdate", nil)
@@ -5428,6 +5453,17 @@ function _detalhes:ToolbarSide (side)
 		self.baseframe.cabecalho.emenda:SetTexCoord (unpack (COORDS_LEFT_CONNECTOR))
 		self.baseframe.cabecalho.top_bg:SetTexCoord (unpack (COORDS_TOP_BACKGROUND))
 		
+		--> up frames
+		self.baseframe.UPFrame:SetPoint ("left", self.baseframe.cabecalho.ball, "right", 0, -53)
+		self.baseframe.UPFrame:SetPoint ("right", self.baseframe.cabecalho.ball_r, "left", 0, -53)
+		
+		self.baseframe.UPFrameConnect:ClearAllPoints()
+		self.baseframe.UPFrameConnect:SetPoint ("bottomleft", self.baseframe, "topleft", 0, -1)
+		self.baseframe.UPFrameConnect:SetPoint ("bottomright", self.baseframe, "topright", 0, -1)
+		
+		self.baseframe.UPFrameLeftPart:ClearAllPoints()
+		self.baseframe.UPFrameLeftPart:SetPoint ("bottomleft", self.baseframe, "topleft", 0, 0)
+		
 	else --> bottom
 	
 		local y = 0
@@ -5459,6 +5495,17 @@ function _detalhes:ToolbarSide (side)
 		local l, r, t, b = unpack (COORDS_TOP_BACKGROUND)
 		self.baseframe.cabecalho.top_bg:SetTexCoord (l, r, b, t)
 
+		--> up frames
+		self.baseframe.UPFrame:SetPoint ("left", self.baseframe.cabecalho.ball, "right", 0, 53)
+		self.baseframe.UPFrame:SetPoint ("right", self.baseframe.cabecalho.ball_r, "left", 0, 53)
+		
+		self.baseframe.UPFrameConnect:ClearAllPoints()
+		self.baseframe.UPFrameConnect:SetPoint ("topleft", self.baseframe, "bottomleft", 0, 1)
+		self.baseframe.UPFrameConnect:SetPoint ("topright", self.baseframe, "bottomright", 0, 1)
+		
+		self.baseframe.UPFrameLeftPart:ClearAllPoints()
+		self.baseframe.UPFrameLeftPart:SetPoint ("topleft", self.baseframe, "bottomleft", 0, 0)
+		
 	end
 	
 	--> update top menus

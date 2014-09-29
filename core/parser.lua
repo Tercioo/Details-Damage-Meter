@@ -2665,6 +2665,10 @@
 			_detalhes:EnteredInArena()
 			
 		else
+			if (zoneType == "raid" or zoneType == "party") then
+				_detalhes:CheckForAutoErase (zoneMapID)
+			end
+			
 			if (_detalhes:IsInInstance()) then
 				_detalhes.last_instance = zoneMapID
 			end
@@ -2990,6 +2994,13 @@
 					_detalhes:FechaJanelaInfo()
 				end
 
+			--> do not save window pos
+				for id, instance in _detalhes:ListInstances() do
+					if (instance.baseframe) then
+						instance.baseframe:SetUserPlaced (false)
+					end
+				end
+				
 			--> leave combat start save tables
 				if (_detalhes.in_combat and _detalhes.tabela_vigente) then 
 					_detalhes:SairDoCombate()

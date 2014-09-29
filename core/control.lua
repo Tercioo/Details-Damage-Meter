@@ -1139,6 +1139,70 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> core
 
+	function _detalhes:AutoEraseConfirm()
+	
+		local panel = _G.DetailsEraseDataConfirmation
+		if (not panel) then
+			
+			panel = CreateFrame ("frame", "DetailsEraseDataConfirmation", UIParent)
+			panel:SetSize (400, 85)
+			panel:SetBackdrop ({bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 16,
+			edgeFile = [[Interface\AddOns\Details\images\border_2]], edgeSize = 12})
+			panel:SetPoint ("center", UIParent)
+			panel:SetBackdropColor (0, 0, 0, 0.4)
+			
+			panel:SetScript ("OnMouseDown", function (self, button)
+				if (button == "RightButton") then
+					panel:Hide()
+				end
+			end)
+			
+			--local icon = _detalhes.gump:CreateImage (panel, [[Interface\AddOns\Details\images\logotipo]], 512*0.4, 256*0.4)
+			--icon:SetPoint ("bottomleft", panel, "topleft", -10, -11)
+			
+			local text = _detalhes.gump:CreateLabel (panel, Loc ["STRING_OPTIONS_CONFIRM_ERASE"], nil, nil, "GameFontNormal")
+			text:SetPoint ("center", panel, "center")
+			text:SetPoint ("top", panel, "top", 0, -10)
+			
+			local no = _detalhes.gump:CreateButton (panel, function() panel:Hide() end, 90, 20, Loc ["STRING_NO"])
+			no:SetPoint ("bottomleft", panel, "bottomleft", 30, 10)
+			no:InstallCustomTexture (nil, nil, nil, nil, true)
+			
+			local yes = _detalhes.gump:CreateButton (panel, function() panel:Hide(); _detalhes.tabela_historico:resetar() end, 90, 20, Loc ["STRING_YES"])
+			yes:SetPoint ("bottomright", panel, "bottomright", -30, 10)
+			yes:InstallCustomTexture (nil, nil, nil, nil, true)
+		end
+		
+		panel:Show()
+	end
+
+	function _detalhes:CheckForAutoErase (mapid)
+
+		if (_detalhes.last_instance_id ~= mapid) then
+			if (_detalhes.segments_auto_erase == 2) then
+				--ask
+				_detalhes:ScheduleTimer ("AutoEraseConfirm", 1)
+			elseif (_detalhes.segments_auto_erase == 3) then
+				--erase
+				_detalhes.tabela_historico:resetar()
+			end
+		else
+			if (_tempo > _detalhes.last_instance_time + 21600) then --6 hours
+				if (_detalhes.segments_auto_erase == 2) then
+					--ask
+					_detalhes:ScheduleTimer ("AutoEraseConfirm", 1)
+				elseif (_detalhes.segments_auto_erase == 3) then
+					--erase
+					_detalhes.tabela_historico:resetar()
+				end
+			end
+		end
+		
+		_detalhes.last_instance_id = mapid
+		_detalhes.last_instance_time = _tempo
+		--_detalhes.last_instance_time = 0 --debug
+	end
+
 	function _detalhes:UpdateControl()
 		_tempo = _detalhes._tempo
 	end			
