@@ -465,6 +465,9 @@
 
 	--> entrar no canal após logar no servidor
 	function _detalhes:EnterChatChannel()
+		if (not _detalhes.realm_sync) then
+			return
+		end
 		
 		if (_detalhes.schedule_chat_leave) then
 			_detalhes:CancelTimer (_detalhes.schedule_chat_leave)
@@ -500,6 +503,9 @@
 	end
 	
 	function _detalhes:LeaveChatChannel()
+		if (not _detalhes.realm_sync) then
+			return
+		end
 	
 		if (_detalhes.schedule_chat_enter) then
 			_detalhes:CancelTimer (_detalhes.schedule_chat_enter)
@@ -539,7 +545,10 @@
 	--> sair do canal quando estiver em grupo
 	local event_handler = {Enabled = true, __enabled = true, teste = " teste"}
 	function event_handler:ZONE_TYPE_CHANGED (zone_type)
-		--print (zone_type)
+		if (not _detalhes.realm_sync) then
+			return
+		end
+
 		if (zone_type == "none") then
 			if (not _detalhes:InGroup()) then
 				if (_detalhes.schedule_chat_leave) then
@@ -562,7 +571,11 @@
 	end
 	
 	function event_handler:GROUP_ONENTER()
-		if (zone_type ~= "none") then
+		if (not _detalhes.realm_sync) then
+			return
+		end
+	
+		if (_detalhes.zone_type ~= "none") then
 			if (_detalhes.schedule_chat_enter) then
 				_detalhes:CancelTimer (_detalhes.schedule_chat_enter)
 			end
@@ -573,8 +586,12 @@
 	end
 	
 	function _detalhes:CheckChatOnLeaveGroup()
+		if (not _detalhes.realm_sync) then
+			return
+		end
+		
 		_detalhes.schedule_group_onleave_check = nil
-		if (zone_type == "none") then
+		if (_detalhes.zone_type == "none") then
 			if (_detalhes.schedule_chat_leave) then
 				_detalhes:CancelTimer (_detalhes.schedule_chat_leave)
 			end
@@ -584,6 +601,10 @@
 		end
 	end
 	function event_handler:GROUP_ONLEAVE()
+		if (not _detalhes.realm_sync) then
+			return
+		end
+		
 		if (_detalhes.schedule_group_onleave_check) then
 			_detalhes:CancelTimer (_detalhes.schedule_group_onleave_check)
 			_detalhes.schedule_group_onleave_check = nil

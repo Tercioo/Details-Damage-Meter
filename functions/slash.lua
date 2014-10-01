@@ -79,6 +79,17 @@ function SlashCmdList.DETAILS (msg, editbox)
 	
 -------- debug ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+	elseif (msg == "realmsync") then
+		
+		_detalhes.realm_sync = not _detalhes.realm_sync
+		_detalhes:Msg ("Realm Sync: ", _detalhes.realm_sync and "Enabled" or "Disabled")
+		
+		if (not _detalhes.realm_sync) then
+			LeaveChannelByName ("Details")
+		else
+			_detalhes:CheckChatOnLeaveGroup()
+		end
+	
 	elseif (msg == "owner2") then
 	
 		local tip = CreateFrame('GameTooltip', 'GuardianOwnerTooltip', nil, 'GameTooltipTemplate')

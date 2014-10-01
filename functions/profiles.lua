@@ -881,6 +881,7 @@ local default_global_data = {
 		savedTimeCaptures = {},
 		lastUpdateWarning = 0,
 		report_where = "SAY",
+		realm_sync = true,
 	--> switch tables
 		switchSaved = {slots = 4, table = {
 			{["atributo"] = 1, ["sub_atributo"] = 1}, --damage done
