@@ -143,6 +143,7 @@ function _detalhes.switch:ShowMe (instancia)
 	_detalhes.switch:Resize()
 	_detalhes.switch:Update()
 	
+	_detalhes.switch.frame:SetScale (instancia.window_scale)
 	_detalhes.switch.frame:Show()
 	
 	if (not _detalhes.tutorial.bookmark_tutorial) then

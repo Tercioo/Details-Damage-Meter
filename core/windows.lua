@@ -133,34 +133,35 @@
 	end
 
 	function _detalhes:AtualizaPontos()
-		local xOfs, yOfs = self.baseframe:GetCenter()
-		
-		if (not xOfs) then
+		local _x, _y = self:GetPositionOnScreen()
+		if (not _x) then
 			return
 		end
-		
-		-- credits to ckknight (http://www.curseforge.com/profiles/ckknight/) 
-		local _scale = self.baseframe:GetEffectiveScale()
-		local _UIscale = _UIParent:GetScale()
-		xOfs = xOfs*_scale - _GetScreenWidth()*_UIscale/2
-		yOfs = yOfs*_scale - _GetScreenHeight()*_UIscale/2
-		local _x = xOfs/_UIscale
-		local _y = yOfs/_UIscale
-		local _w = self.baseframe:GetWidth()
-		local _h = self.baseframe:GetHeight()
-		
+		local _w, _h = self:GetRealSize()
+
 		local metade_largura = _w/2
 		local metade_altura = _h/2
 		
 		local statusbar_y_mod = 0
 		if (not self.show_statusbar) then
-			statusbar_y_mod = 14
+			statusbar_y_mod = 14 * self.baseframe:GetScale()
 		end
 		
-		self.ponto1 = {x = _x - metade_largura, y = _y + metade_altura + (statusbar_y_mod*-1)} --topleft
-		self.ponto2 = {x = _x - metade_largura, y = _y - metade_altura + statusbar_y_mod} --bottomleft
-		self.ponto3 = {x = _x + metade_largura, y = _y - metade_altura + statusbar_y_mod} --bottomright
-		self.ponto4 = {x = _x + metade_largura, y = _y + metade_altura + (statusbar_y_mod*-1)} --topright
+		if (not self.ponto1) then
+			self.ponto1 = {x = _x - metade_largura, y = _y + metade_altura + (statusbar_y_mod*-1)} --topleft
+			self.ponto2 = {x = _x - metade_largura, y = _y - metade_altura + statusbar_y_mod} --bottomleft
+			self.ponto3 = {x = _x + metade_largura, y = _y - metade_altura + statusbar_y_mod} --bottomright
+			self.ponto4 = {x = _x + metade_largura, y = _y + metade_altura + (statusbar_y_mod*-1)} --topright
+		else
+			self.ponto1.x = _x - metade_largura
+			self.ponto1.y = _y + metade_altura + (statusbar_y_mod*-1)
+			self.ponto2.x = _x - metade_largura
+			self.ponto2.y = _y - metade_altura + statusbar_y_mod
+			self.ponto3.x = _x + metade_largura
+			self.ponto3.y = _y - metade_altura + statusbar_y_mod
+			self.ponto4.x = _x + metade_largura
+			self.ponto4.y = _y + metade_altura + (statusbar_y_mod*-1)
+		end
 	end
 
 	function _detalhes:SaveMainWindowPosition (instance)
@@ -178,21 +179,14 @@
 		end
 		
 		--> calc position
-		local xOfs, yOfs = self.baseframe:GetCenter()
-		if (not xOfs) then
+		local _x, _y = self:GetPositionOnScreen()
+		if (not _x) then
 			return _detalhes:ScheduleTimer ("SaveMainWindowPosition", 1, self)
 		end
-		local _scale = self.baseframe:GetEffectiveScale()
-		local _UIscale = _UIParent:GetScale()
-		--
-		xOfs = xOfs*_scale - _GetScreenWidth()*_UIscale/2
-		yOfs = yOfs*_scale - _GetScreenHeight()*_UIscale/2
-		
+
 		--> save the position
 		local _w = baseframe_width
 		local _h = baseframe_height
-		local _x = xOfs/_UIscale
-		local _y = yOfs/_UIscale
 		
 		self.posicao[mostrando].x = _x
 		self.posicao[mostrando].y = _y
@@ -208,14 +202,25 @@
 			statusbar_y_mod = 14
 		end
 		
-		self.ponto1 = {x = _x - metade_largura, y = _y + metade_altura + (statusbar_y_mod*-1)} --topleft
-		self.ponto2 = {x = _x - metade_largura, y = _y - metade_altura + statusbar_y_mod} --bottomleft
-		self.ponto3 = {x = _x + metade_largura, y = _y - metade_altura + statusbar_y_mod} --bottomright
-		self.ponto4 = {x = _x + metade_largura, y = _y + metade_altura + (statusbar_y_mod*-1)} --topright
+		if (not self.ponto1) then
+			self.ponto1 = {x = _x - metade_largura, y = _y + metade_altura + (statusbar_y_mod*-1)} --topleft
+			self.ponto2 = {x = _x - metade_largura, y = _y - metade_altura + statusbar_y_mod} --bottomleft
+			self.ponto3 = {x = _x + metade_largura, y = _y - metade_altura + statusbar_y_mod} --bottomright
+			self.ponto4 = {x = _x + metade_largura, y = _y + metade_altura + (statusbar_y_mod*-1)} --topright
+		else
+			self.ponto1.x = _x - metade_largura
+			self.ponto1.y = _y + metade_altura + (statusbar_y_mod*-1)
+			self.ponto2.x = _x - metade_largura
+			self.ponto2.y = _y - metade_altura + statusbar_y_mod
+			self.ponto3.x = _x + metade_largura
+			self.ponto3.y = _y - metade_altura + statusbar_y_mod
+			self.ponto4.x = _x + metade_largura
+			self.ponto4.y = _y + metade_altura + (statusbar_y_mod*-1)
+		end
 		
 		self.baseframe.BoxBarrasAltura = self.baseframe:GetHeight() - end_window_spacement --> espaço para o final da janela
 		
-		return {altura = self.baseframe:GetHeight(), largura = self.baseframe:GetWidth(), x = xOfs/_UIscale, y = yOfs/_UIscale}
+		return {altura = self.baseframe:GetHeight(), largura = self.baseframe:GetWidth(), x = _x, y = _y}
 	end
 
 	function _detalhes:RestoreMainWindowPosition (pre_defined)

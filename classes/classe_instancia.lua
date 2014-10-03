@@ -644,11 +644,16 @@ function _detalhes:EstaAgrupada (esta_instancia, lado) --> lado //// 1 = encosto
 end
 
 function _detalhes:BaseFrameSnap()
-
 	for meu_id, instancia in _ipairs (_detalhes.tabela_instancias) do
 		if (instancia:IsAtiva()) then
 			instancia.baseframe:ClearAllPoints()
 		end
+	end
+	
+	local group = self:GetInstanceGroup()
+	local scale = self.window_scale
+	for _, instance in _ipairs (group) do
+		instance:SetWindowScale (scale)
 	end
 	
 	local my_baseframe = self.baseframe
@@ -774,11 +779,13 @@ end
 function _detalhes:agrupar_janelas (lados)
 
 	local instancia = self
-	
+
 	for lado, esta_instancia in _pairs (lados) do
 		if (esta_instancia) then
 			instancia.baseframe:ClearAllPoints()
 			esta_instancia = _detalhes.tabela_instancias [esta_instancia]
+			
+			instancia:SetWindowScale (esta_instancia.window_scale)
 			
 			if (lado == 3) then --> direita
 				--> mover frame
@@ -1624,7 +1631,24 @@ function _detalhes:SetBackgroundAlpha (alpha)
 end
 
 function _detalhes:GetSize()
-	return self.bgframe:GetWidth(), self.bgframe:GetHeight()
+	return self.baseframe:GetWidth(), self.baseframe:GetHeight()
+end
+
+function _detalhes:GetRealSize()
+	return self.baseframe:GetWidth() * self.baseframe:GetScale(), self.baseframe:GetHeight() * self.baseframe:GetScale()
+end
+
+function _detalhes:GetPositionOnScreen()
+	local xOfs, yOfs = self.baseframe:GetCenter()
+	if (not xOfs) then
+		return
+	end
+	-- credits to ckknight (http://www.curseforge.com/profiles/ckknight/) 
+	local _scale = self.baseframe:GetEffectiveScale()
+	local _UIscale = UIParent:GetScale()
+	xOfs = xOfs*_scale - GetScreenWidth()*_UIscale/2
+	yOfs = yOfs*_scale - GetScreenHeight()*_UIscale/2
+	return xOfs/_UIscale, yOfs/_UIscale
 end
 
 --> alias

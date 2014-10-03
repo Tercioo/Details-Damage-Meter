@@ -45,6 +45,8 @@ _detalhes.instance_defaults = {
 
 	--skin
 		skin = "Minimalistic v2",
+	--scale
+		window_scale = 1.0,
 	--baseframe backdrop
 		bg_alpha = 0.7,
 		bg_r = 0.0941,

@@ -655,6 +655,10 @@ end
 	--> todo: remove the function creation everytime this function run.
 	function gump:Fade (frame, tipo, velocidade, parametros)
 		
+		--if (frame.GetObjectType and frame:GetObjectType() == "Frame" and frame.GetName and type (frame:GetName()) == "string" and frame:GetName():find ("DetailsBaseFrame")) then
+		--	print (debugstack())
+		--end
+		
 		if (_type (frame) == "table") then 
 			if (frame.meu_id) then --> ups, é uma instância
 				if (parametros == "barras") then --> hida todas as barras da instância

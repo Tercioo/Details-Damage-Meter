@@ -386,9 +386,9 @@ end
 
 local function VPB (instancia, esta_instancia)
 	--> conferir baixo
-	if (instancia.ponto1.y+20 < esta_instancia.ponto2.y-16) then --> a janela esta em baixo
+	if (instancia.ponto1.y+(20 * instancia.window_scale) < esta_instancia.ponto2.y - (16 * esta_instancia.window_scale)) then --> a janela esta em baixo
 		if (instancia.ponto1.x > esta_instancia.ponto2.x-100 and instancia.ponto1.x < esta_instancia.ponto2.x+100) then --> a janela esta a 20 pixels de distância para a esquerda ou para a direita
-			if (instancia.ponto1.y+20 > esta_instancia.ponto2.y-16-20) then --> esta a 20 pixels de distância
+			if (instancia.ponto1.y+(20 * instancia.window_scale) > esta_instancia.ponto2.y - (36 * esta_instancia.window_scale)) then --> esta a 20 pixels de distância
 				return 2
 			end
 		end
@@ -410,9 +410,9 @@ end
 
 local function VPT (instancia, esta_instancia)
 	--> conferir cima
-	if (instancia.ponto3.y-16 > esta_instancia.ponto4.y+20) then --> a janela esta em cima
+	if (instancia.ponto3.y - (16 * instancia.window_scale) > esta_instancia.ponto4.y + (20 * esta_instancia.window_scale)) then --> a janela esta em cima
 		if (instancia.ponto3.x > esta_instancia.ponto4.x-100 and instancia.ponto3.x < esta_instancia.ponto4.x+100) then --> a janela esta a 20 pixels de distância para a esquerda ou para a direita
-			if (esta_instancia.ponto4.y+20+20 > instancia.ponto3.y-16) then
+			if (esta_instancia.ponto4.y+(40 * esta_instancia.window_scale) > instancia.ponto3.y - (16 * instancia.window_scale)) then
 				return 4
 			end
 		end
@@ -426,8 +426,11 @@ local color_green = {0.2, 1, 0.2}
 local update_line = function (self, target_frame)
 
 	--> based on weak auras frame movement code
-	local selfX, selfY = target_frame:GetCenter()
-	local anchorX, anchorY = self:GetCenter()
+	--local selfX, selfY = target_frame:GetCenter()
+	local selfX, selfY = target_frame.instance:GetPositionOnScreen()
+	--local anchorX, anchorY = self:GetCenter()
+	local anchorX, anchorY = self.instance:GetPositionOnScreen()
+	
 	selfX, selfY = selfX or 0, selfY or 0
 	anchorX, anchorY = anchorX or 0, anchorY or 0
 	
@@ -647,6 +650,11 @@ local function move_janela (baseframe, iniciando, instancia)
 		instancia:BaseFrameSnap()
 		baseframe:StartMoving()
 		
+		local group = instancia:GetInstanceGroup()
+		for _, this_instance in _ipairs (group) do
+			this_instance.baseframe:SetClampRectInsets (0, 0, 0, 0)
+		end
+		
 		local _, ClampLeft, ClampRight = instancia:InstanciasHorizontais()
 		local _, ClampBottom, ClampTop = instancia:InstanciasVerticais()
 		
@@ -793,7 +801,7 @@ local function move_janela (baseframe, iniciando, instancia)
 			if (esquerda or baixo or direita or cima) then
 				instancia:agrupar_janelas ({esquerda, baixo, direita, cima})
 			end
-
+--aqui
 			for _, esta_instancia in _ipairs (_detalhes.tabela_instancias) do
 				if (not esta_instancia:IsAtiva() and esta_instancia.iniciada) then
 					esta_instancia:ResetaGump()
@@ -4981,6 +4989,9 @@ function _detalhes:ChangeSkin (skin_name)
 			end
 		end
 		
+	--> set the scale
+	self:SetWindowScale()
+		
 	if (not just_updating or _detalhes.initializing) then
 		if (this_skin.callback) then
 			this_skin:callback (self, just_updating)
@@ -5423,6 +5434,103 @@ function _detalhes:MicroDisplaysSide (side, fromuser)
 		_detalhes.StatusBar:Show (self)
 	end
 	
+end
+
+function _detalhes:IsGroupedWith (instance)
+	local id = instance:GetId()
+	for side, instanceId in _pairs (self.snap) do
+		if (instanceId == id) then
+			return true
+		end
+	end
+	return false
+end
+
+function _detalhes:GetInstanceGroup (instance_id)
+
+	local instance = self
+	
+	if (instance_id) then
+		instance = _detalhes:GetInstance (instance_id)
+		if (not instance or not instance:IsEnabled()) then
+			return
+		end
+	end
+	
+	local current_group = {instance}
+	
+	for side, insId in _pairs (instance.snap) do
+		if (insId < instance:GetId()) then
+			local last_id = instance:GetId()
+			for i = insId, 1, -1 do
+				local this_instance = _detalhes:GetInstance (i)
+				local got = false
+				if (this_instance and this_instance:IsEnabled()) then
+					for side, id in _pairs (this_instance.snap) do
+						if (id == last_id) then
+							tinsert (current_group, this_instance)
+							got = true
+							last_id = i
+						end
+					end
+				end
+				if (not got) then
+					break
+				end
+			end
+		else
+			local last_id = instance:GetId()
+			for i = insId, _detalhes.instances_amount do
+				local this_instance = _detalhes:GetInstance (i)
+				local got = false
+				if (this_instance and this_instance:IsEnabled()) then
+					for side, id in _pairs (this_instance.snap) do
+						if (id == last_id) then
+							tinsert (current_group, this_instance)
+							got = true
+							last_id = i
+						end
+					end
+				end
+				if (not got) then
+					break
+				end
+			end
+		end
+	end
+	
+	return current_group
+end
+
+function _detalhes:SetWindowScale (scale, from_options)
+	if (not scale) then
+		scale = self.window_scale
+	end
+	
+	self.window_scale = scale
+	
+	self.baseframe:SetScale (scale)
+	self.rowframe:SetScale (scale)
+	
+	if (from_options) then
+	
+		local group = self:GetInstanceGroup()
+		
+		for _, instance in _ipairs (group) do
+			instance.baseframe:SetScale (scale)
+			instance.rowframe:SetScale (scale)
+			instance.window_scale = scale
+		end
+		
+		for _, instance in _ipairs (group) do
+			_detalhes.move_janela_func (instance.baseframe, true, instance)
+			_detalhes.move_janela_func (instance.baseframe, false, instance)
+		end
+		
+		for _, instance in _ipairs (group) do
+			instance:SaveMainWindowPosition()
+		end
+	end
 end
 
 function _detalhes:ToolbarSide (side)
@@ -6642,8 +6750,13 @@ function gump:CriaCabecalho (baseframe, instancia)
 		end
 		
 		if (ClosedInstances == 0) then
-			CoolTip:AddMenu (1, _detalhes.CriarInstancia, true, nil, nil, Loc ["STRING_NOCLOSED_INSTANCES"], _, true)
-			CoolTip:AddIcon ([[Interface\Buttons\UI-AttributeButton-Encourage-Up]], 1, 1, 16, 16)
+			if (_detalhes:GetNumInstancesAmount() == _detalhes:GetMaxInstancesAmount()) then
+				CoolTip:AddMenu (1, _detalhes.CriarInstancia, true, nil, nil, Loc ["STRING_NOMORE_INSTANCES"], _, true)
+				CoolTip:AddIcon ([[Interface\Buttons\UI-PlusButton-Up]], 1, 1, 16, 16)
+			else
+				CoolTip:AddMenu (1, _detalhes.CriarInstancia, true, nil, nil, Loc ["STRING_NOCLOSED_INSTANCES"], _, true)
+				CoolTip:AddIcon ([[Interface\Buttons\UI-AttributeButton-Encourage-Up]], 1, 1, 16, 16)
+			end
 		end
 		
 		GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)

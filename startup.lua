@@ -157,18 +157,17 @@ function _G._detalhes:Start()
 			self.RefreshAfterStartup = nil
 			
 			function _detalhes:CheckWallpaperAfterStartup()
-				for _, instance in ipairs (self.tabela_instancias) do
-					if (not instance.wallpaper.enabled) then
-						if (instance:IsAtiva()) then
+				for i = 1, self.instances_amount do
+					local instance = self:GetInstance (i)
+					if (instance and instance:IsEnabled()) then
+						if (not instance.wallpaper.enabled) then
 							instance:InstanceWallpaper (false)
 						end
+						self.move_janela_func (instance.baseframe, true, instance)
+						self.move_janela_func (instance.baseframe, false, instance)
 					end
-					if (instance:IsEnabled()) then
-						_detalhes.move_janela_func (instance.baseframe, true, instance)
-						_detalhes.move_janela_func (instance.baseframe, false, instance)
-					end
+					self.CheckWallpaperAfterStartup = nil
 				end
-				self.CheckWallpaperAfterStartup = nil
 			end
 			_detalhes:ScheduleTimer ("CheckWallpaperAfterStartup", 5)
 			

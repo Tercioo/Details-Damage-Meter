@@ -5531,7 +5531,21 @@ function window:CreateFrame6()
 			g:NewLabel (frame6, _, "$parentStatusbarColorLabel", "statusbarColorLabel", Loc ["STRING_OPTIONS_INSTANCE_STATUSBARCOLOR"], "GameFontHighlightLeft")
 			frame6.statusbarColorPick:SetPoint ("left", frame6.statusbarColorLabel, "right", 2, 0)
 			window:CreateLineBackground2 (frame6, "statusbarColorPick", "statusbarColorLabel", Loc ["STRING_OPTIONS_INSTANCE_STATUSBARCOLOR_DESC"])
+		
+		--> window scale
+			local s = g:NewSlider (frame6, _, "$parentWindowScaleSlider", "WindowScaleSlider", SLIDER_WIDTH, 20, 0.65, 1.5, 0.02, instance.window_scale, true)
+			s:SetBackdrop (slider_backdrop)
+			s:SetBackdropColor (unpack (slider_backdrop_color))
+			s:SetThumbSize (50)
 			
+			frame6.WindowScaleSlider:SetHook ("OnValueChange", function (self, instance, amount) 
+				instance:SetWindowScale (amount, true)
+			end)
+			
+			g:NewLabel (frame6, _, "$parentWindowScaleLabel", "WindowScaleLabel", Loc ["STRING_OPTIONS_WINDOW_SCALE"], "GameFontHighlightLeft")
+			frame6.WindowScaleSlider:SetPoint ("left", frame6.WindowScaleLabel, "right", 2)
+			
+			window:CreateLineBackground2 (frame6, "WindowScaleSlider", "WindowScaleLabel", Loc ["STRING_OPTIONS_WINDOW_SCALE_DESC"])
 
 		--general anchor
 		g:NewLabel (frame6, _, "$parentAdjustmentsAnchor", "AdjustmentsAnchorLabel", Loc ["STRING_OPTIONS_WINDOW_ANCHOR"], "GameFontNormal")
@@ -5552,6 +5566,7 @@ function window:CreateFrame6()
 			{"stretchAlwaysOnTopLabel", 7},
 			{"backdropLabel", 9},
 			{"strataLabel", 10},
+			{"WindowScaleLabel", 11},
 		}
 		
 		window:arrange_menu (frame6, left_side, x, window.top_start_at)
@@ -8106,6 +8121,9 @@ function window:update_all (editing_instance)
 	_G.DetailsOptionsWindow6InstanceMicroDisplaysSideSlider.MyObject:SetFixedParameter (editing_instance)
 	_G.DetailsOptionsWindow6InstanceMicroDisplaysSideSlider.MyObject:SetValue (editing_instance.micro_displays_side)
 
+	_G.DetailsOptionsWindow6WindowScaleSlider.MyObject:SetFixedParameter (editing_instance)
+	_G.DetailsOptionsWindow6WindowScaleSlider.MyObject:SetValue (editing_instance.window_scale)
+	
 	--> window 7
 
 	_G.DetailsOptionsWindow7AutoHideLeftMenuSwitch.MyObject:SetFixedParameter (editing_instance)

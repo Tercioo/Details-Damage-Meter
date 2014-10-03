@@ -485,6 +485,8 @@ function _detalhes:SaveProfile (saveas)
 			exported.__snapV = instance.verticalSnap
 			profile.instances [index] = exported
 		end
+		
+		_detalhes:SaveLocalInstanceConfig()
 
 	--> end
 		return profile
