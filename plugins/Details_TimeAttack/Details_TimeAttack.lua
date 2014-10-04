@@ -15,6 +15,8 @@ local TimeAttack = _detalhes:NewPluginObject ("Details_TimeAttack")
 --> Main Frame
 local TimeAttackFrame = TimeAttack.Frame
 
+TimeAttack:SetPluginDescription ("Special tool for measure damage within a period of time.\n\nYou can save the attempts and try again other time when you got new gear or changed the specialization.")
+
 local function CreatePluginFrames()
 
 	--> catch Details! main object
@@ -1144,7 +1146,7 @@ function TimeAttack:OnEvent (_, event, ...)
 				end
 				
 				--> Install
-				local install, saveddata = _G._detalhes:InstallPlugin ("SOLO", Loc ["STRING_PLUGIN_NAME"], "Interface\\Icons\\SPELL_HOLY_BORROWEDTIME", TimeAttack, "DETAILS_PLUGIN_TIME_ATTACK", MINIMAL_DETAILS_VERSION_REQUIRED, "Details! Team", "v1.04", default_settings)
+				local install, saveddata = _G._detalhes:InstallPlugin ("SOLO", Loc ["STRING_PLUGIN_NAME"], "Interface\\Icons\\SPELL_HOLY_BORROWEDTIME", TimeAttack, "DETAILS_PLUGIN_TIME_ATTACK", MINIMAL_DETAILS_VERSION_REQUIRED, "Details! Team", "v1.05", default_settings)
 				if (type (install) == "table" and install.error) then
 					print (install.errortext)
 					return

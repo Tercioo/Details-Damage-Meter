@@ -9,6 +9,8 @@
 	--> main frame (shortcut)
 	local YouAreNotPreparedFrame = YouAreNotPrepared.Frame
 
+	YouAreNotPrepared:SetPluginDescription ("Tracks your deaths during raid encounters and shows it for you right after the fight end.")
+	
 	local debugmode = false
 	
 	
@@ -569,7 +571,7 @@
 					}
 					
 					--> install
-					local install, saveddata, is_enabled = _G._detalhes:InstallPlugin ("TOOLBAR", Loc ["STRING_PLUGIN_NAME"], [[Interface\ICONS\Achievement_Boss_Illidan]], YouAreNotPrepared, "DETAILS_PLUGIN_YANP", MINIMAL_DETAILS_VERSION_REQUIRED, "Details! Team", "v1.1", default_settings)
+					local install, saveddata, is_enabled = _G._detalhes:InstallPlugin ("TOOLBAR", Loc ["STRING_PLUGIN_NAME"], [[Interface\ICONS\Achievement_Boss_Illidan]], YouAreNotPrepared, "DETAILS_PLUGIN_YANP", MINIMAL_DETAILS_VERSION_REQUIRED, "Details! Team", "v1.1.2", default_settings)
 					if (type (install) == "table" and install.error) then
 						return print (install.error)
 					end

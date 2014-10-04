@@ -30,6 +30,13 @@
 		end
 	end
 	
+	function _detalhes:SetPluginDescription (desc)
+		self.__description = desc
+	end
+	function _detalhes:GetPluginDescription()
+		return self.__description
+	end
+	
 	function _detalhes:CheckDefaultTable (current, default)
 		for key, value in pairs (default) do 
 			if (type (value) == "table") then

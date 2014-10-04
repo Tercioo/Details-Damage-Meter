@@ -24,6 +24,8 @@ local ThreatMeter = _detalhes:NewPluginObject ("Details_Threat")
 --> Main Frame
 local ThreatMeterFrame = ThreatMeter.Frame
 
+ThreatMeter:SetPluginDescription ("Small tool for track the threat you and other raid members have in your current target.")
+
 local _
 
 local function CreatePluginFrames (data)
@@ -600,7 +602,7 @@ function ThreatMeter:OnEvent (_, event, ...)
 				local MINIMAL_DETAILS_VERSION_REQUIRED = 1
 				
 				--> Install
-				local install, saveddata = _G._detalhes:InstallPlugin ("RAID", Loc ["STRING_PLUGIN_NAME"], "Interface\\Icons\\Ability_Paladin_ShieldofVengeance", ThreatMeter, "DETAILS_PLUGIN_TINY_THREAT", MINIMAL_DETAILS_VERSION_REQUIRED, "Details! Team", "v1.05")
+				local install, saveddata = _G._detalhes:InstallPlugin ("RAID", Loc ["STRING_PLUGIN_NAME"], "Interface\\Icons\\Ability_Paladin_ShieldofVengeance", ThreatMeter, "DETAILS_PLUGIN_TINY_THREAT", MINIMAL_DETAILS_VERSION_REQUIRED, "Details! Team", "v1.06")
 				if (type (install) == "table" and install.error) then
 					print (install.error)
 				end

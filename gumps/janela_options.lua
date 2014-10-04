@@ -7608,11 +7608,42 @@ function window:CreateFrame12()
 	local frame4 = window.options [12][1].gump
 	
 	local on_enter = function (self)
-		self:SetBackdropColor (.3, .3, .3, .8)
+	
+		self:SetBackdropColor (.5, .5, .5, .8)
+		
+		if (self ["toolbarPluginsIcon" .. self.id]) then
+			self ["toolbarPluginsIcon" .. self.id]:SetBlendMode ("ADD")
+		elseif (self ["raidPluginsIcon" .. self.id]) then
+			self ["raidPluginsIcon" .. self.id]:SetBlendMode ("ADD")
+		elseif (self ["soloPluginsIcon" .. self.id]) then
+			self ["soloPluginsIcon" .. self.id]:SetBlendMode ("ADD")
+		end
+
+		if (self.plugin) then
+			local desc = self.plugin:GetPluginDescription()
+			if (desc) then
+				_detalhes:CooltipPreset (2)
+				GameCooltip:AddLine (desc)
+				GameCooltip:SetType ("tooltip")
+				GameCooltip:SetOwner (self, "bottomleft", "topleft", 0, -2)
+				GameCooltip:Show()
+			end
+		end
 	end
 	
 	local on_leave = function (self)
+	
 		self:SetBackdropColor (.3, .3, .3, .3)
+		
+		if (self ["toolbarPluginsIcon" .. self.id]) then
+			self ["toolbarPluginsIcon" .. self.id]:SetBlendMode ("BLEND")
+		elseif (self ["raidPluginsIcon" .. self.id]) then
+			self ["raidPluginsIcon" .. self.id]:SetBlendMode ("BLEND")
+		elseif (self ["soloPluginsIcon" .. self.id]) then
+			self ["soloPluginsIcon" .. self.id]:SetBlendMode ("BLEND")
+		end
+
+		GameCooltip:Hide()
 	end
 	
 	local y = -20
@@ -7653,6 +7684,8 @@ function window:CreateFrame12()
 		bframe:SetBackdropColor (.3, .3, .3, .3)
 		bframe:SetScript ("OnEnter", on_enter)
 		bframe:SetScript ("OnLeave", on_leave)
+		bframe.plugin = pluginObject
+		bframe.id = i
 	
 		g:NewImage (bframe, pluginObject.__icon, 18, 18, nil, nil, "toolbarPluginsIcon"..i, "$parentToolbarPluginsIcon"..i)
 		bframe ["toolbarPluginsIcon"..i]:SetPoint ("topleft", frame4, "topleft", 10, y)
@@ -7733,7 +7766,9 @@ function window:CreateFrame12()
 		bframe:SetBackdropColor (.3, .3, .3, .3)
 		bframe:SetScript ("OnEnter", on_enter)
 		bframe:SetScript ("OnLeave", on_leave)
-	
+		bframe.plugin = pluginObject
+		bframe.id = i
+		
 		g:NewImage (bframe, pluginObject.__icon, 18, 18, nil, nil, "raidPluginsIcon"..i, "$parentRaidPluginsIcon"..i)
 		bframe ["raidPluginsIcon"..i]:SetPoint ("topleft", frame4, "topleft", 10, y)
 	
@@ -7814,7 +7849,9 @@ function window:CreateFrame12()
 		bframe:SetBackdropColor (.3, .3, .3, .3)
 		bframe:SetScript ("OnEnter", on_enter)
 		bframe:SetScript ("OnLeave", on_leave)
-	
+		bframe.plugin = pluginObject
+		bframe.id = i
+		
 		g:NewImage (bframe, pluginObject.__icon, 18, 18, nil, nil, "soloPluginsIcon"..i, "$parentSoloPluginsIcon"..i)
 		bframe ["soloPluginsIcon"..i]:SetPoint ("topleft", frame4, "topleft", 10, y)
 	

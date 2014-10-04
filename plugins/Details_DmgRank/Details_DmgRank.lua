@@ -15,6 +15,7 @@ local DmgRank = _detalhes:NewPluginObject ("Details_DmgRank")
 --> Main Frame
 local DmgRankFrame = DmgRank.Frame
 
+DmgRank:SetPluginDescription ("A plugin for you have fun with a training dummy testing your damage skill and gear, leveling through many challenges.")
 
 --> this function will run when the plugin receives the Addon_Loaded event, ["data"] = previus saved player rank
 local function CreatePluginFrames (data)
@@ -549,7 +550,7 @@ function DmgRank:OnEvent (_, event, ...)
 				local MINIMAL_DETAILS_VERSION_REQUIRED = 1
 
 				--> Install plugin inside details
-				local install, saveddata = _G._detalhes:InstallPlugin ("SOLO", Loc ["STRING_PLUGIN_NAME"], "Interface\\Icons\\ACHIEVEMENT_GUILDPERK_HONORABLEMENTION_RANK2", DmgRank, "DETAILS_PLUGIN_DAMAGE_RANK", MINIMAL_DETAILS_VERSION_REQUIRED, "Details! Team", "v1.09")
+				local install, saveddata = _G._detalhes:InstallPlugin ("SOLO", Loc ["STRING_PLUGIN_NAME"], "Interface\\Icons\\ACHIEVEMENT_GUILDPERK_HONORABLEMENTION_RANK2", DmgRank, "DETAILS_PLUGIN_DAMAGE_RANK", MINIMAL_DETAILS_VERSION_REQUIRED, "Details! Team", "v1.1.1")
 				if (type (install) == "table" and install.error) then
 					print (install.error)
 				end

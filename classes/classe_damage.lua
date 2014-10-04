@@ -1051,35 +1051,48 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 	local qual_barra = 1
 	local barras_container = instancia.barras --> evita buscar N vezes a key .barras dentro da instância
 	local percentage_type = instancia.row_info.percent_type
-
-	if (not true) then --> follow tests, not working atm.
-		local myPos = showing._NameIndexTable [_detalhes.playername]
-		if (myPos) then
-			--testando
-
-			local cima = math.floor (instancia.rows_fit_in_window / 2)
-			local baixo = math.ceil (instancia.rows_fit_in_window / 2)
-			
-			if (instancia.rows_fit_in_window % 2 == 0) then
-				cima = cima - 1
-			end
-			
-			cima = math.max (myPos - cima, 1)
-			baixo = math.min (myPos + baixo, amount)
-			
-			print (myPos, cima, baixo)
-			
-			for i = cima, baixo, 1 do --> vai atualizar só o range que esta sendo mostrado
-				conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type) --> instância, index, total, valor da 1º barra
-				qual_barra = qual_barra+1
-			end	
-
-		end
-	else
+	if (total == 0) then
+		total = 0.00000001
+	end
 	
-		if (total == 0) then
-			total = 0.00000001
+	local myPos = showing._NameIndexTable [_detalhes.playername]
+	
+	_detalhes.following_type = 0
+	
+	if (_detalhes.following_type == 1 and myPos and myPos > instancia.rows_fit_in_window) then --> follow tests
+	
+		--> test
+		local top, bottom
+		
+		local cabe_quantas = instancia.rows_fit_in_window
+		local metade, eh_impar = floor (cabe_quantas / 2), cabe_quantas % 2 > 0
+		if (eh_impar) then
+			metade = ceil (metade)
 		end
+		
+		local total_actors = amount
+		
+		local top = math.max (1, myPos-metade) -- 10 - 4 = 6  6 7 8 9 [10] 11 12 13
+		local bottom = math.max (top + cabe_quantas -1, myPos)
+
+		for i = top, bottom, 1 do --> vai atualizar só o range que esta sendo mostrado
+			conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type) --> instância, index, total, valor da 1º barra
+			qual_barra = qual_barra+1
+		end
+	
+	elseif (_detalhes.following_type == 2 and myPos and myPos > instancia.rows_fit_in_window and instancia.barraS[2] < myPos) then --> follow tests
+	
+		local cabe_quantas = instancia.rows_fit_in_window
+		
+		for i = instancia.barraS[1], instancia.barraS[2]-1, 1 do --> vai atualizar só o range que esta sendo mostrado
+			conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type) --> instância, index, total, valor da 1º barra
+			qual_barra = qual_barra+1
+		end
+		
+		conteudo[myPos]:AtualizaBarra (instancia, barras_container, qual_barra, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type) --> instância, index, total, valor da 1º barra
+		qual_barra = qual_barra+1
+		
+	else
 	
 		local combat_time = instancia.showing:GetCombatTime()
 		

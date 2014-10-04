@@ -18,6 +18,8 @@ local GetTime = GetTime --> wow api local
 
 local _GetSpellInfo =_detalhes.getspellinfo --> details api local
 
+DpsTuningPlugin:SetPluginDescription ("Tool for testing your Dps showing detailed information for each spell, buffs and also graphical charts for abilities.")
+
 local function CreatePluginFrames()
 
 	--> get the framework
@@ -1172,7 +1174,7 @@ function DpsTuningPlugin:OnEvent (_, event, ...)
 				}
 				
 				--> Install plugin inside details
-				local install = _G._detalhes:InstallPlugin ("SOLO", "Dps Tuning", "Interface\\Icons\\Ability_Racial_RocketBarrage", DpsTuningPlugin, "DETAILS_PLUGIN_DPS_TUNING", MINIMAL_DETAILS_VERSION_REQUIRED, "Details! Team", "v1.00", default_settings)
+				local install = _G._detalhes:InstallPlugin ("SOLO", "Dps Tuning", "Interface\\Icons\\Ability_Racial_RocketBarrage", DpsTuningPlugin, "DETAILS_PLUGIN_DPS_TUNING", MINIMAL_DETAILS_VERSION_REQUIRED, "Details! Team", "v1.01", default_settings)
 				if (type (install) == "table" and install.error) then
 					print (install.error)
 				end

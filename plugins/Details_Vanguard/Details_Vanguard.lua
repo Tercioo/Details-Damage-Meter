@@ -29,6 +29,8 @@ local Vanguard = _detalhes:NewPluginObject ("Details_Vanguard")
 --> Main Frame
 local VanguardFrame = Vanguard.Frame
 
+Vanguard:SetPluginDescription ("Show debuffs on each tanks in the raid, also shows incoming heal and damage and the last hits you took.")
+
 --> Create plugin objects, function and widgets
 local function CreatePluginFrames (data)
 
@@ -1247,7 +1249,7 @@ function Vanguard:OnEvent (_, event, ...)
 				local MINIMAL_DETAILS_VERSION_REQUIRED = 1
 				
 				--> Install
-				local install = _G._detalhes:InstallPlugin ("TANK", Loc ["STRING_PLUGIN_NAME"], "Interface\\Icons\\INV_Shield_77", Vanguard, "DETAILS_PLUGIN_VANGUARD", MINIMAL_DETAILS_VERSION_REQUIRED, "Details! Team", "v1.06")
+				local install = _G._detalhes:InstallPlugin ("TANK", Loc ["STRING_PLUGIN_NAME"], "Interface\\Icons\\INV_Shield_77", Vanguard, "DETAILS_PLUGIN_VANGUARD", MINIMAL_DETAILS_VERSION_REQUIRED, "Details! Team", "v1.07")
 				if (type (install) == "table" and install.error) then
 					print (install.error)
 				end

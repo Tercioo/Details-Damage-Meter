@@ -29,6 +29,8 @@ tinsert (UISpecialFrames, "Details_EncounterDetails")
 --> Main Frame
 local EncounterDetailsFrame = EncounterDetails.Frame
 
+EncounterDetails:SetPluginDescription ("Shows a summary for raid encounters containing dispels, interrupts, deaths, damage taken, graphic raid damage and more..")
+
 --> container types
 local class_type_damage = _detalhes.atributos.dano --> damage
 local class_type_misc = _detalhes.atributos.misc --> misc
@@ -1558,7 +1560,7 @@ function EncounterDetails:OnEvent (_, event, ...)
 				local PLUGIN_REAL_NAME = "DETAILS_PLUGIN_ENCOUNTER_DETAILS"
 				local PLUGIN_ICON = [[Interface\Scenarios\ScenarioIcon-Boss]]
 				local PLUGIN_AUTHOR = "Details! Team"
-				local PLUGIN_VERSION = "v1.05"
+				local PLUGIN_VERSION = "v1.06"
 				
 				local default_settings = {
 					show_icon = 5, --automatic
