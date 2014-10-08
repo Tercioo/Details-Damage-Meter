@@ -798,7 +798,7 @@ local default_profile = {
 			fontcolor = {1, 1, 1, 1}, 
 			fontshadow = false, 
 			background = {.45, .45, .45, .28}, 
-			abbreviation = 8, 
+			abbreviation = 5, --ToK I Lower -- was 8
 			maximize_method = 1, 
 			show_amount = false, 
 			commands = {},
@@ -866,6 +866,10 @@ local default_player_data = {
 		announce_prepots = {
 			enabled = true,
 			reverse = false,
+			channel = "SELF",
+		},
+		announce_firsthit = {
+			enabled = true,
 			channel = "SELF",
 		},
 }

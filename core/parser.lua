@@ -174,6 +174,16 @@
 				)
 			) then 
 				--> não entra em combate se for DOT
+				if (_detalhes.encounter_table.id and _detalhes.encounter_table ["start"] >= _G.time()-3 and _detalhes.announce_firsthit.enabled) then
+					local link
+					if (spellid <= 10) then
+						link = _GetSpellInfo (spellid)
+					else
+						link = GetSpellLink (spellid)
+					end
+					_detalhes:Msg ("First hit: " .. (link or "") .. " from " .. (who_name or "Unknown"))
+				end
+				
 				_detalhes:EntrarEmCombate (who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags)
 			end
 		end
@@ -2686,7 +2696,14 @@
 		return _detalhes.parser_functions:ZONE_CHANGED_NEW_AREA (...)
 	end
 	
+	-- ~encounter
 	function _detalhes.parser_functions:ENCOUNTER_START (...)
+	
+		if (_in_combat) then
+			--print ("encounter start while in combat... finishing the combat...")
+			_detalhes:SairDoCombate()
+		end
+	
 		_table_wipe (_detalhes.encounter_table)
 		
 		local encounterID, encounterName, difficultyID, raidSize = _select (1, ...)

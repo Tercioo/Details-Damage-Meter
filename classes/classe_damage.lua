@@ -1045,152 +1045,170 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 		return _detalhes:EndRefresh (instancia, total, tabela_do_combate, showing) --> retorna a tabela que precisa ganhar o refresh
 	end
 
-	--print ("AMOUT: " .. amount)
 	instancia:AtualizarScrollBar (amount)
 
 	local qual_barra = 1
 	local barras_container = instancia.barras --> evita buscar N vezes a key .barras dentro da instância
 	local percentage_type = instancia.row_info.percent_type
+	local baseframe = instancia.baseframe
+	
+	local use_animations = _detalhes.is_using_row_animations and (not baseframe.isStretching and not forcar and not baseframe.isResizing)
+
 	if (total == 0) then
 		total = 0.00000001
 	end
 	
-	local myPos = showing._NameIndexTable [_detalhes.playername]
+	local myPos
+	local following = instancia.following.enabled
 	
-	_detalhes.following_type = 0
-	
-	if (_detalhes.following_type == 1 and myPos and myPos > instancia.rows_fit_in_window) then --> follow tests
-	
-		--> test
-		local top, bottom
-		
-		local cabe_quantas = instancia.rows_fit_in_window
-		local metade, eh_impar = floor (cabe_quantas / 2), cabe_quantas % 2 > 0
-		if (eh_impar) then
-			metade = ceil (metade)
+	if (following) then
+		if (using_cache) then
+			local pname = _detalhes.playername
+			for i, actor in _ipairs (conteudo) do
+				if (actor.nome == pname) then
+					myPos = i
+					break
+				end
+			end
+		else
+			myPos = showing._NameIndexTable [_detalhes.playername]
 		end
-		
-		local total_actors = amount
-		
-		local top = math.max (1, myPos-metade) -- 10 - 4 = 6  6 7 8 9 [10] 11 12 13
-		local bottom = math.max (top + cabe_quantas -1, myPos)
+	end
 
-		for i = top, bottom, 1 do --> vai atualizar só o range que esta sendo mostrado
-			conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type) --> instância, index, total, valor da 1º barra
-			qual_barra = qual_barra+1
-		end
+	local combat_time = instancia.showing:GetCombatTime()
 	
-	elseif (_detalhes.following_type == 2 and myPos and myPos > instancia.rows_fit_in_window and instancia.barraS[2] < myPos) then --> follow tests
+	UsingCustomLeftText = instancia.row_info.textL_enable_custom_text
+	UsingCustomRightText = instancia.row_info.textR_enable_custom_text
 	
-		local cabe_quantas = instancia.rows_fit_in_window
-		
-		for i = instancia.barraS[1], instancia.barraS[2]-1, 1 do --> vai atualizar só o range que esta sendo mostrado
-			conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type) --> instância, index, total, valor da 1º barra
-			qual_barra = qual_barra+1
-		end
-		
-		conteudo[myPos]:AtualizaBarra (instancia, barras_container, qual_barra, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type) --> instância, index, total, valor da 1º barra
-		qual_barra = qual_barra+1
-		
-	else
+	local use_total_bar = false
+	if (instancia.total_bar.enabled) then
 	
-		local combat_time = instancia.showing:GetCombatTime()
+		use_total_bar = true
 		
-		UsingCustomLeftText = instancia.row_info.textL_enable_custom_text
-		UsingCustomRightText = instancia.row_info.textR_enable_custom_text
-		
-		local use_total_bar = false
-		if (instancia.total_bar.enabled) then
-		
-			use_total_bar = true
-			
-			if (instancia.total_bar.only_in_group and (not _IsInGroup() and not _IsInRaid())) then
-				use_total_bar = false
-			end
-			
-			if (sub_atributo > 4) then --enemies, frags, void zones
-				use_total_bar = false
-			end
-			
+		if (instancia.total_bar.only_in_group and (not _IsInGroup() and not _IsInRaid())) then
+			use_total_bar = false
 		end
 		
-		if (instancia.bars_sort_direction == 1) then --top to bottom
-			
-			if (use_total_bar and instancia.barraS[1] == 1) then
-			
-				qual_barra = 2
-				local iter_last = instancia.barraS[2]
-				if (iter_last == instancia.rows_fit_in_window) then
-					iter_last = iter_last - 1
-				end
-				
-				local row1 = barras_container [1]
-				row1.minha_tabela = nil
-				row1.texto_esquerdo:SetText (Loc ["STRING_TOTAL"])
-				row1.texto_direita:SetText (_detalhes:ToK2 (total) .. " (" .. _detalhes:ToK (total / combat_time) .. ")")
-				
-				row1.statusbar:SetValue (100)
-				local r, b, g = unpack (instancia.total_bar.color)
-				row1.textura:SetVertexColor (r, b, g)
-				
-				row1.icone_classe:SetTexture (instancia.total_bar.icon)
-				row1.icone_classe:SetTexCoord (0.0625, 0.9375, 0.0625, 0.9375)
-				
-				gump:Fade (row1, "out")
-				
-				for i = instancia.barraS[1], iter_last, 1 do --> vai atualizar só o range que esta sendo mostrado
-					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type) --> instância, index, total, valor da 1º barra
-					qual_barra = qual_barra+1
-				end
-			
-			else
-				for i = instancia.barraS[1], instancia.barraS[2], 1 do --> vai atualizar só o range que esta sendo mostrado
-					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type) --> instância, index, total, valor da 1º barra
-					qual_barra = qual_barra+1
-				end
-			end
-			
-		elseif (instancia.bars_sort_direction == 2) then --bottom to top
-		
-			if (use_total_bar and instancia.barraS[1] == 1) then
-			
-				qual_barra = 2
-				local iter_last = instancia.barraS[2]
-				if (iter_last == instancia.rows_fit_in_window) then
-					iter_last = iter_last - 1
-				end
-				
-				local row1 = barras_container [1]
-				row1.minha_tabela = nil
-				row1.texto_esquerdo:SetText (Loc ["STRING_TOTAL"])
-				row1.texto_direita:SetText (_detalhes:ToK2 (total) .. " (" .. _detalhes:ToK (total / combat_time) .. ")")
-				
-				row1.statusbar:SetValue (100)
-				local r, b, g = unpack (instancia.total_bar.color)
-				row1.textura:SetVertexColor (r, b, g)
-				
-				row1.icone_classe:SetTexture (instancia.total_bar.icon)
-				row1.icone_classe:SetTexCoord (0.0625, 0.9375, 0.0625, 0.9375)
-				
-				gump:Fade (row1, "out")
-				
-				for i = iter_last, instancia.barraS[1], -1 do --> vai atualizar só o range que esta sendo mostrado
-					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type) --> instância, index, total, valor da 1º barra
-					qual_barra = qual_barra+1
-				end
-			
-			else
-				for i = instancia.barraS[2], instancia.barraS[1], -1 do --> vai atualizar só o range que esta sendo mostrado
-					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type) --> instância, index, total, valor da 1º barra
-					qual_barra = qual_barra+1
-				end
-			end
-			
+		if (sub_atributo > 4) then --enemies, frags, void zones
+			use_total_bar = false
 		end
 		
 	end
 	
-	if (_detalhes.is_using_row_animations) then
+	if (instancia.bars_sort_direction == 1) then --top to bottom
+		
+		if (use_total_bar and instancia.barraS[1] == 1) then
+		
+			qual_barra = 2
+			local iter_last = instancia.barraS[2]
+			if (iter_last == instancia.rows_fit_in_window) then
+				iter_last = iter_last - 1
+			end
+			
+			local row1 = barras_container [1]
+			row1.minha_tabela = nil
+			row1.texto_esquerdo:SetText (Loc ["STRING_TOTAL"])
+			row1.texto_direita:SetText (_detalhes:ToK2 (total) .. " (" .. _detalhes:ToK (total / combat_time) .. ")")
+			
+			row1.statusbar:SetValue (100)
+			local r, b, g = unpack (instancia.total_bar.color)
+			row1.textura:SetVertexColor (r, b, g)
+			
+			row1.icone_classe:SetTexture (instancia.total_bar.icon)
+			row1.icone_classe:SetTexCoord (0.0625, 0.9375, 0.0625, 0.9375)
+			
+			gump:Fade (row1, "out")
+			
+			if (following and myPos and myPos > instancia.rows_fit_in_window and instancia.barraS[2] < myPos) then
+				for i = instancia.barraS[1], iter_last-1, 1 do --> vai atualizar só o range que esta sendo mostrado
+					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations) --> instância, index, total, valor da 1º barra
+					qual_barra = qual_barra+1
+				end
+				
+				conteudo[myPos]:AtualizaBarra (instancia, barras_container, qual_barra, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations) --> instância, index, total, valor da 1º barra
+				qual_barra = qual_barra+1
+			else
+				for i = instancia.barraS[1], iter_last, 1 do --> vai atualizar só o range que esta sendo mostrado
+					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations) --> instância, index, total, valor da 1º barra
+					qual_barra = qual_barra+1
+				end
+			end
+
+		else
+			if (following and myPos and myPos > instancia.rows_fit_in_window and instancia.barraS[2] < myPos) then
+				for i = instancia.barraS[1], instancia.barraS[2]-1, 1 do --> vai atualizar só o range que esta sendo mostrado
+					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations) --> instância, index, total, valor da 1º barra
+					qual_barra = qual_barra+1
+				end
+				
+				conteudo[myPos]:AtualizaBarra (instancia, barras_container, qual_barra, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations) --> instância, index, total, valor da 1º barra
+				qual_barra = qual_barra+1
+			else
+				for i = instancia.barraS[1], instancia.barraS[2], 1 do --> vai atualizar só o range que esta sendo mostrado
+					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations) --> instância, index, total, valor da 1º barra
+					qual_barra = qual_barra+1
+				end
+			end
+		end
+		
+	elseif (instancia.bars_sort_direction == 2) then --bottom to top
+	
+		if (use_total_bar and instancia.barraS[1] == 1) then
+		
+			qual_barra = 2
+			local iter_last = instancia.barraS[2]
+			if (iter_last == instancia.rows_fit_in_window) then
+				iter_last = iter_last - 1
+			end
+			
+			local row1 = barras_container [1]
+			row1.minha_tabela = nil
+			row1.texto_esquerdo:SetText (Loc ["STRING_TOTAL"])
+			row1.texto_direita:SetText (_detalhes:ToK2 (total) .. " (" .. _detalhes:ToK (total / combat_time) .. ")")
+			
+			row1.statusbar:SetValue (100)
+			local r, b, g = unpack (instancia.total_bar.color)
+			row1.textura:SetVertexColor (r, b, g)
+			
+			row1.icone_classe:SetTexture (instancia.total_bar.icon)
+			row1.icone_classe:SetTexCoord (0.0625, 0.9375, 0.0625, 0.9375)
+			
+			gump:Fade (row1, "out")
+			
+			if (following and myPos and myPos > instancia.rows_fit_in_window and instancia.barraS[2] < myPos) then
+				for i = iter_last-1, instancia.barraS[1], -1 do --> vai atualizar só o range que esta sendo mostrado
+					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations) --> instância, index, total, valor da 1º barra
+					qual_barra = qual_barra+1
+				end
+				
+				conteudo[myPos]:AtualizaBarra (instancia, barras_container, qual_barra, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations) --> instância, index, total, valor da 1º barra
+				qual_barra = qual_barra+1
+			else
+				for i = iter_last, instancia.barraS[1], -1 do --> vai atualizar só o range que esta sendo mostrado
+					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations) --> instância, index, total, valor da 1º barra
+					qual_barra = qual_barra+1
+				end
+			end
+		else
+			if (following and myPos and myPos > instancia.rows_fit_in_window and instancia.barraS[2] < myPos) then
+				for i = instancia.barraS[2]-1, instancia.barraS[1], -1 do --> vai atualizar só o range que esta sendo mostrado
+					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations) --> instância, index, total, valor da 1º barra
+					qual_barra = qual_barra+1
+				end
+				
+				conteudo[myPos]:AtualizaBarra (instancia, barras_container, qual_barra, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations) --> instância, index, total, valor da 1º barra
+				qual_barra = qual_barra+1
+			else
+				for i = instancia.barraS[2], instancia.barraS[1], -1 do --> vai atualizar só o range que esta sendo mostrado
+					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations) --> instância, index, total, valor da 1º barra
+					qual_barra = qual_barra+1
+				end
+			end
+		end
+		
+	end
+	
+	if (use_animations) then
 		instancia:fazer_animacoes()
 	end
 
@@ -1261,7 +1279,7 @@ end
 local actor_class_color_r, actor_class_color_g, actor_class_color_b
 
 --self = esta classe de dano
-function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra, lugar, total, sub_atributo, forcar, keyName, combat_time, percentage_type)
+function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra, lugar, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations)
 							-- instância, container das barras, qual barra, colocação, total?, sub atributo, forçar refresh, key
 	
 	local esta_barra = barras_container [qual_barra] --> pega a referência da barra na janela
@@ -1405,11 +1423,11 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 	
 	actor_class_color_r, actor_class_color_g, actor_class_color_b = self:GetBarColor()
 	
-	return self:RefreshBarra2 (esta_barra, instancia, tabela_anterior, forcar, esta_porcentagem, qual_barra, barras_container)
+	return self:RefreshBarra2 (esta_barra, instancia, tabela_anterior, forcar, esta_porcentagem, qual_barra, barras_container, use_animations)
 
 end
 
---[[ exported]] function _detalhes:RefreshBarra2 (esta_barra, instancia, tabela_anterior, forcar, esta_porcentagem, qual_barra, barras_container)
+--[[ exported]] function _detalhes:RefreshBarra2 (esta_barra, instancia, tabela_anterior, forcar, esta_porcentagem, qual_barra, barras_container, use_animations)
 	
 	--> primeiro colocado
 	if (esta_barra.colocacao == 1) then
@@ -1430,7 +1448,7 @@ end
 		
 			--esta_barra.statusbar:SetValue (esta_porcentagem)
 			
-			if (_detalhes.is_using_row_animations and not forcar) then
+			if (use_animations) then
 				esta_barra.animacao_fim = esta_porcentagem
 			else
 				esta_barra.statusbar:SetValue (esta_porcentagem)
@@ -1452,7 +1470,7 @@ end
 			--> agora esta comparando se a tabela da barra é diferente da tabela na atualização anterior
 			if (not tabela_anterior or tabela_anterior ~= esta_barra.minha_tabela or forcar) then --> aqui diz se a barra do jogador mudou de posição ou se ela apenas será atualizada
 			
-				if (_detalhes.is_using_row_animations and not forcar) then
+				if (use_animations) then
 					esta_barra.animacao_fim = esta_porcentagem
 				else
 					esta_barra.statusbar:SetValue (esta_porcentagem)
@@ -1461,21 +1479,18 @@ end
 			
 				esta_barra.last_value = esta_porcentagem --> reseta o ultimo valor da barra
 				
-				--if (_detalhes.is_using_row_animations and forcar) then
-				--	esta_barra.tem_animacao = false
-				--	esta_barra:SetScript ("OnUpdate", nil)
-				--end
-				
 				return self:RefreshBarra (esta_barra, instancia)
 				
 			elseif (esta_porcentagem ~= esta_barra.last_value) then --> continua mostrando a mesma tabela então compara a porcentagem
 				--> apenas atualizar
-				if (_detalhes.is_using_row_animations) then
+				if (use_animations) then
 					esta_barra.animacao_fim = esta_porcentagem
 				else
 					esta_barra.statusbar:SetValue (esta_porcentagem)
 				end
 				esta_barra.last_value = esta_porcentagem
+				
+				return self:RefreshBarra (esta_barra, instancia)
 			end
 		end
 
@@ -1550,7 +1565,7 @@ end
 	if (instancia.row_info.textL_show_number) then
 		bar_number = esta_barra.colocacao .. ". "
 	end
-
+	
 	if (self.enemy) then
 		if (self.arena_enemy) then
 			if (UsingCustomLeftText) then

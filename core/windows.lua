@@ -68,7 +68,7 @@
 			local row = self.barras [i]
 			local row_proxima = self.barras [i+1]
 			
-			if (row_proxima) then
+			if (row_proxima and not row.animacao_ignorar) then
 				local v = row.statusbar:GetValue()
 				local v_proxima = row_proxima.statusbar:GetValue()
 				
@@ -761,6 +761,92 @@
 		_detalhes:GetFramework():ShowTutorialAlertFrame ("How to Use Bookmarks", "switch fast between displays", func)
 	end
 
+--> config class colors
+	function _detalhes:OpenClassColorsConfig()
+		if (not _G.DetailsClassColorManager) then
+			gump:CreateSimplePanel (UIParent, 300, 280, "Modify Class Colors", "DetailsClassColorManager")
+			local panel = _G.DetailsClassColorManager
+			local upper_panel = CreateFrame ("frame", nil, panel)
+			upper_panel:SetAllPoints (panel)
+			upper_panel:SetFrameLevel (panel:GetFrameLevel()+3)
+			
+			local y = -50
+			
+			local callback = function (button, r, g, b, a, self)
+				self.MyObject.my_texture:SetVertexColor (r, g, b)
+				_detalhes.class_colors [self.MyObject.my_class][1] = r
+				_detalhes.class_colors [self.MyObject.my_class][2] = g
+				_detalhes.class_colors [self.MyObject.my_class][3] = b
+				_detalhes:AtualizaGumpPrincipal (-1, true)
+			end
+			local set_color = function (class, index, self, button)
+				local current_class_color = _detalhes.class_colors [class]
+				local r, g, b = unpack (current_class_color)
+				_detalhes.gump:ColorPick (self, r, g, b, 1, callback)
+			end
+			local reset_color = function (class, index, self, button)
+				local color_table = RAID_CLASS_COLORS [class]
+				local r, g, b = color_table.r, color_table.g, color_table.b
+				self.MyObject.my_texture:SetVertexColor (r, g, b)
+				_detalhes.class_colors [self.MyObject.my_class][1] = r
+				_detalhes.class_colors [self.MyObject.my_class][2] = g
+				_detalhes.class_colors [self.MyObject.my_class][3] = b
+				_detalhes:AtualizaGumpPrincipal (-1, true)
+			end
+			local on_enter = function (self, capsule)
+				--_detalhes:CooltipPreset (1)
+				--GameCooltip:AddLine ("right click to reset")
+				--GameCooltip:Show (self)
+			end
+			local on_leave = function (self, capsule)
+				--GameCooltip:Hide()
+			end
+			
+			local reset = gump:NewLabel (panel, _, nil, nil, "|TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:" .. 20 .. ":" .. 20 .. ":0:1:512:512:8:70:328:409|t " .. "Right Click to Reset")
+			reset:SetPoint ("bottomright", panel, "bottomright", -23, 38)
+			local reset_texture = gump:CreateImage (panel, [[Interface\MONEYFRAME\UI-MONEYFRAME-BORDER]], 138, 45, "border")
+			reset_texture:SetPoint ("center", reset, "center", 0, -7)
+			reset_texture:SetDesaturated (true)
+			
+			panel.buttons = {}
+			
+			for index, class_name in ipairs (CLASS_SORT_ORDER) do
+				
+				local icon = gump:CreateImage (upper_panel, [[Interface\Glues\CHARACTERCREATE\UI-CHARACTERCREATE-CLASSES]], 32, 32, nil, CLASS_ICON_TCOORDS [class_name], "icon_" .. class_name)
+				
+				if (index%2 ~= 0) then
+					icon:SetPoint (10, y)
+				else
+					icon:SetPoint (150, y)
+					y = y - 33
+				end
+				
+				local bg_texture = gump:CreateImage (panel, [[Interface\AddOns\Details\images\bar_skyline]], 135, 30, "artwork")
+				bg_texture:SetPoint ("left", icon, "right", -32, 0)
+				
+				local button = gump:CreateButton (panel, set_color, 135, 30, "set color", class_name, index)
+				button:SetPoint ("left", icon, "right", -32, 0)
+				button:InstallCustomTexture (nil, nil, nil, nil, true)
+				button:SetFrameLevel (panel:GetFrameLevel()+1)
+				button.my_icon = icon
+				button.my_texture = bg_texture
+				button.my_class = class_name
+				button:SetHook ("OnEnter", on_enter)
+				button:SetHook ("OnLeave", on_leave)
+				button:SetClickFunction (reset_color, nil, nil, "RightClick")
+				panel.buttons [class_name] = button
+				
+			end
+			
+		end
+		
+		for class, button in pairs (_G.DetailsClassColorManager.buttons) do
+			button.my_texture:SetVertexColor (unpack (_detalhes.class_colors [class]))
+		end
+		
+		_G.DetailsClassColorManager:Show()
+	end
+	
 --> config bookmarks
 	function _detalhes:OpenBookmarkConfig()
 	
@@ -830,14 +916,20 @@
 				set:SetBackdropColor (0, 0, 0, 0.5)
 				set:SetHook ("OnEnter", set_onenter)
 				set:SetHook ("OnLeave", set_onleave)
+
+				set:InstallCustomTexture (nil, nil, nil, nil, true)
+				
+				local bg_texture = gump:CreateImage (set, [[Interface\AddOns\Details\images\bar_skyline]], 135, 30, "background")
+				bg_texture:SetAllPoints()
+				set.bg = bg_texture
 			
 				local icon = gump:CreateImage (set, nil, 16, 16, nil, nil, "icon")
-				icon:SetPoint ("left", clear, "right", 2, 0)
+				icon:SetPoint ("left", clear, "right", 4, 0)
 				
 				local label = gump:CreateLabel (set, "")
 				label:SetPoint ("left", icon, "right", 2, 0)
 
-				tinsert (panel.blocks, {icon = icon, label = label})
+				tinsert (panel.blocks, {icon = icon, label = label, bg = set.bg})
 			end
 			
 			local normal_coords = {0, 1, 0, 1}
@@ -855,20 +947,24 @@
 								this_block.label.text = "-- x -- x --"
 								this_block.icon.texture = "Interface\\ICONS\\Ability_DualWield"
 								this_block.icon.texcoord = normal_coords
+								this_block.bg:SetVertexColor (.4, .1, .1, .12)
 							else
 								this_block.label.text = CustomObject.name
 								this_block.icon.texture = CustomObject.icon
 								this_block.icon.texcoord = normal_coords
+								this_block.bg:SetVertexColor (.4, .4, .4, .6)
 							end
 						else
 							this_block.label.text = _detalhes.sub_atributos [bookmark.atributo].lista [bookmark.sub_atributo]
 							this_block.icon.texture = _detalhes.sub_atributos [bookmark.atributo].icones [bookmark.sub_atributo] [1]
 							this_block.icon.texcoord = _detalhes.sub_atributos [bookmark.atributo].icones [bookmark.sub_atributo] [2]
+							this_block.bg:SetVertexColor (.4, .4, .4, .6)
 						end
 					else
 						this_block.label.text = "-- x -- x --"
 						this_block.icon.texture = [[Interface\AddOns\Details\images\icons]]
 						this_block.icon.texcoord = unknown_coords
+						this_block.bg:SetVertexColor (.4, .1, .1, .12)
 					end
 				end
 			end

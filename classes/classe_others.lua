@@ -646,22 +646,31 @@ function atributo_misc:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 	local qual_barra = 1
 	local barras_container = instancia.barras
 	local percentage_type = instancia.row_info.percent_type
+	local use_animations = _detalhes.is_using_row_animations and (not instancia.baseframe.isStretching and not forcar)
+	
+	if (total == 0) then
+		total = 0.00000001
+	end
 	
 	UsingCustomLeftText = instancia.row_info.textL_enable_custom_text
 	UsingCustomRightText = instancia.row_info.textR_enable_custom_text
 	
 	if (instancia.bars_sort_direction == 1) then --top to bottom
 		for i = instancia.barraS[1], instancia.barraS[2], 1 do --> vai atualizar só o range que esta sendo mostrado
-			conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, nil, percentage_type) --> instância, index, total, valor da 1º barra
+			conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, nil, percentage_type, use_animations) --> instância, index, total, valor da 1º barra
 			qual_barra = qual_barra+1
 		end
 		
 	elseif (instancia.bars_sort_direction == 2) then --bottom to top
 		for i = instancia.barraS[2], instancia.barraS[1], 1 do --> vai atualizar só o range que esta sendo mostrado
-			conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, nil, percentage_type) --> instância, index, total, valor da 1º barra
+			conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, nil, percentage_type, use_animations) --> instância, index, total, valor da 1º barra
 			qual_barra = qual_barra+1
 		end
 		
+	end
+	
+	if (use_animations) then
+		instancia:fazer_animacoes()
 	end
 	
 	if (instancia.atributo == 5) then --> custom
@@ -706,7 +715,7 @@ end
 
 local actor_class_color_r, actor_class_color_g, actor_class_color_b
 
-function atributo_misc:AtualizaBarra (instancia, barras_container, qual_barra, lugar, total, sub_atributo, forcar, keyName, is_dead, percentage_type)
+function atributo_misc:AtualizaBarra (instancia, barras_container, qual_barra, lugar, total, sub_atributo, forcar, keyName, is_dead, percentage_type, use_animations)
 
 	--print (self.ress)
 
@@ -751,10 +760,10 @@ function atributo_misc:AtualizaBarra (instancia, barras_container, qual_barra, l
 	
 	actor_class_color_r, actor_class_color_g, actor_class_color_b = self:GetBarColor()	
 
-	return self:RefreshBarra2 (esta_barra, instancia, tabela_anterior, forcar, esta_porcentagem, qual_barra, barras_container)
+	return self:RefreshBarra2 (esta_barra, instancia, tabela_anterior, forcar, esta_porcentagem, qual_barra, barras_container, use_animations)
 end
 
-function atributo_misc:RefreshBarra2 (esta_barra, instancia, tabela_anterior, forcar, esta_porcentagem, qual_barra, barras_container)
+function atributo_misc:RefreshBarra2 (esta_barra, instancia, tabela_anterior, forcar, esta_porcentagem, qual_barra, barras_container, use_animations)
 	
 	--> primeiro colocado
 	if (esta_barra.colocacao == 1) then
@@ -773,7 +782,15 @@ function atributo_misc:RefreshBarra2 (esta_barra, instancia, tabela_anterior, fo
 
 		if (esta_barra.hidden or esta_barra.fading_in or esta_barra.faded) then
 		
-			esta_barra.statusbar:SetValue (esta_porcentagem)
+			--esta_barra.statusbar:SetValue (esta_porcentagem)
+			
+			if (use_animations) then
+				esta_barra.animacao_fim = esta_porcentagem
+			else
+				esta_barra.statusbar:SetValue (esta_porcentagem)
+				esta_barra.animacao_ignorar = true
+			end
+			
 			gump:Fade (esta_barra, "out")
 			
 			if (instancia.row_info.texture_class_colors) then
@@ -789,35 +806,27 @@ function atributo_misc:RefreshBarra2 (esta_barra, instancia, tabela_anterior, fo
 			--> agora esta comparando se a tabela da barra é diferente da tabela na atualização anterior
 			if (not tabela_anterior or tabela_anterior ~= esta_barra.minha_tabela or forcar) then --> aqui diz se a barra do jogador mudou de posição ou se ela apenas será atualizada
 			
-				esta_barra.statusbar:SetValue (esta_porcentagem)
+				if (use_animations) then
+					esta_barra.animacao_fim = esta_porcentagem
+				else
+					esta_barra.statusbar:SetValue (esta_porcentagem)
+					esta_barra.animacao_ignorar = true
+				end
 			
 				esta_barra.last_value = esta_porcentagem --> reseta o ultimo valor da barra
-				
-				if (_detalhes.is_using_row_animations and forcar) then
-					esta_barra.tem_animacao = 0
-					esta_barra:SetScript ("OnUpdate", nil)
-				end
-				
+			
 				return self:RefreshBarra (esta_barra, instancia)
 				
 			elseif (esta_porcentagem ~= esta_barra.last_value) then --> continua mostrando a mesma tabela então compara a porcentagem
 				--> apenas atualizar
-				if (_detalhes.is_using_row_animations) then
-					
-					local upRow = barras_container [qual_barra-1]
-					if (upRow) then
-						if (upRow.statusbar:GetValue() < esta_barra.statusbar:GetValue()) then
-							esta_barra.statusbar:SetValue (esta_porcentagem)
-						else
-							instancia:AnimarBarra (esta_barra, esta_porcentagem)
-						end
-					else
-						instancia:AnimarBarra (esta_barra, esta_porcentagem)
-					end
+				if (use_animations) then
+					esta_barra.animacao_fim = esta_porcentagem
 				else
 					esta_barra.statusbar:SetValue (esta_porcentagem)
 				end
 				esta_barra.last_value = esta_porcentagem
+				
+				return self:RefreshBarra (esta_barra, instancia)
 			end
 		end
 

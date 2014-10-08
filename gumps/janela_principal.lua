@@ -653,6 +653,7 @@ local function move_janela (baseframe, iniciando, instancia)
 		local group = instancia:GetInstanceGroup()
 		for _, this_instance in _ipairs (group) do
 			this_instance.baseframe:SetClampRectInsets (0, 0, 0, 0)
+			this_instance.isMoving = true
 		end
 		
 		local _, ClampLeft, ClampRight = instancia:InstanciasHorizontais()
@@ -830,6 +831,11 @@ local function move_janela (baseframe, iniciando, instancia)
 				ins:SaveMainWindowPosition()
 				ins:RestoreMainWindowPosition()
 			end
+		end
+		
+		local group = instancia:GetInstanceGroup()
+		for _, this_instance in _ipairs (group) do
+			this_instance.isMoving = false
 		end
 		
 		_detalhes.snap_alert.playing = false
@@ -1301,6 +1307,12 @@ local resize_scripts_onmousedown = function (self, button)
 		
 		_detalhes:SendEvent ("DETAILS_INSTANCE_STARTRESIZE", nil, self._instance)
 		
+		if (_detalhes.update_speed > 0.3) then
+			_detalhes:CancelTimer (_detalhes.atualizador)
+			_detalhes.atualizador = _detalhes:ScheduleRepeatingTimer ("AtualizaGumpPrincipal", 0.3, -1)
+			_detalhes.resize_changed_update_speed = true
+		end
+		
 	end 
 end
 
@@ -1324,10 +1336,16 @@ local resize_scripts_onmouseup = function (self, button)
 		self:GetParent():StopMovingOrSizing()
 		self:GetParent().isResizing = false
 		
+		self._instance:RefreshBars()
+		self._instance:InstanceReset()
+		self._instance:ReajustaGump()
+
 		if (self._instance.stretchToo and #self._instance.stretchToo > 0) then
 			for _, esta_instancia in ipairs (self._instance.stretchToo) do 
 				esta_instancia.baseframe:StopMovingOrSizing()
 				esta_instancia.baseframe.isResizing = false
+				esta_instancia:RefreshBars()
+				esta_instancia:InstanceReset()
 				esta_instancia:ReajustaGump()
 				_detalhes:SendEvent ("DETAILS_INSTANCE_SIZECHANGED", nil, esta_instancia)
 			end
@@ -1363,6 +1381,8 @@ local resize_scripts_onmouseup = function (self, button)
 					esta_instancia.baseframe:SetWidth (largura)
 					esta_instancia.baseframe:SetHeight (altura)
 					esta_instancia.auto_resize = true
+					esta_instancia:RefreshBars()
+					esta_instancia:InstanceReset()
 					esta_instancia:ReajustaGump()
 					esta_instancia.auto_resize = false
 					_detalhes:SendEvent ("DETAILS_INSTANCE_SIZECHANGED", nil, esta_instancia)
@@ -1380,6 +1400,13 @@ local resize_scripts_onmouseup = function (self, button)
 				esta_instancia:RestoreMainWindowPosition()
 			end
 		end
+		
+		if (_detalhes.resize_changed_update_speed) then
+			_detalhes:CancelTimer (_detalhes.atualizador)
+			_detalhes.atualizador = _detalhes:ScheduleRepeatingTimer ("AtualizaGumpPrincipal", _detalhes.update_speed, -1)
+			_detalhes.resize_changed_update_speed = nil
+		end
+		
 	end 
 end
 
@@ -1869,6 +1896,15 @@ local function button_stretch_scripts (baseframe, backgrounddisplay, instancia)
 		_detalhes:SnapTextures (true)
 		
 		_detalhes:SendEvent ("DETAILS_INSTANCE_STARTSTRETCH", nil, instancia)
+		
+		--> change the update speed
+		
+		if (_detalhes.update_speed > 0.3) then
+			_detalhes:CancelTimer (_detalhes.atualizador)
+			_detalhes.atualizador = _detalhes:ScheduleRepeatingTimer ("AtualizaGumpPrincipal", 0.3, -1)
+			_detalhes.stretch_changed_update_speed = true
+		end
+		
 	end)
 	
 	button:SetScript ("OnMouseUp", function (self, button)
@@ -1891,6 +1927,10 @@ local function button_stretch_scripts (baseframe, backgrounddisplay, instancia)
 				instancia:MostrarScrollBar (true)
 			end
 			_detalhes:SendEvent ("DETAILS_INSTANCE_SIZECHANGED", nil, instancia)
+			
+			instancia:RefreshBars()
+			instancia:InstanceReset()
+			instancia:ReajustaGump()
 			
 			if (instancia.stretchToo and #instancia.stretchToo > 0) then
 				for _, esta_instancia in ipairs (instancia.stretchToo) do 
@@ -1918,6 +1958,11 @@ local function button_stretch_scripts (baseframe, backgrounddisplay, instancia)
 					esta_instancia:StretchButtonAlwaysOnTop()
 					
 					_detalhes:SendEvent ("DETAILS_INSTANCE_ENDSTRETCH", nil, esta_instancia.baseframe)
+					
+					esta_instancia:RefreshBars()
+					esta_instancia:InstanceReset()
+					esta_instancia:ReajustaGump()
+					
 				end
 				instancia.stretchToo = nil
 			end
@@ -1939,6 +1984,13 @@ local function button_stretch_scripts (baseframe, backgrounddisplay, instancia)
 		_detalhes:SnapTextures (false)
 		
 		_detalhes:SendEvent ("DETAILS_INSTANCE_ENDSTRETCH", nil, instancia)
+		
+		if (_detalhes.stretch_changed_update_speed) then
+			_detalhes:CancelTimer (_detalhes.atualizador)
+			_detalhes.atualizador = _detalhes:ScheduleRepeatingTimer ("AtualizaGumpPrincipal", _detalhes.update_speed, -1)
+			_detalhes.stretch_changed_update_speed = nil
+		end
+		
 	end)	
 end
 
@@ -2079,16 +2131,18 @@ local function iterate_scroll_scripts (backgrounddisplay, backgroundframe, basef
 			if (delta > 0) then --> rolou pra cima
 				local A = instancia.barraS[1]
 				if (A > 1) then
-					scrollbar:SetValue (scrollbar:GetValue() - instancia.row_height)
+					scrollbar:SetValue (scrollbar:GetValue() - instancia.row_height*2)
 				else
 					scrollbar:SetValue (0)
 					scrollbar.ultimo = 0
 					baseframe.button_up:Disable()
 				end
 			elseif (delta < 0) then --> rolou pra baixo
+			
 				local B = instancia.barraS[2]
+			
 				if (B < instancia.rows_showing) then
-					scrollbar:SetValue (scrollbar:GetValue() + instancia.row_height)
+					scrollbar:SetValue (scrollbar:GetValue() + instancia.row_height*2)
 				else
 					local _, maxValue = scrollbar:GetMinMaxValues()
 					scrollbar:SetValue (maxValue)
@@ -2114,7 +2168,7 @@ local function iterate_scroll_scripts (backgrounddisplay, backgroundframe, basef
 			instancia:AtualizaGumpPrincipal (instancia, true)
 			self.ultimo = meu_valor
 			baseframe.button_up:Disable()
-				return
+			return
 		elseif (maxValue == meu_valor) then
 			local min = instancia.rows_showing -instancia.rows_fit_in_window
 			min = min+1
@@ -2137,11 +2191,14 @@ local function iterate_scroll_scripts (backgrounddisplay, backgroundframe, basef
 		end
 		
 		if (meu_valor > ultimo) then --> scroll down
-		
+
 			local B = instancia.barraS[2]
 			if (B < instancia.rows_showing) then --> se o valor maximo não for o máximo de barras a serem mostradas	
-				local precisa_passar = ((B+1) * instancia.row_height) - (instancia.row_height*instancia.rows_fit_in_window)
-				if (meu_valor > precisa_passar) then --> o valor atual passou o valor que precisa passar pra locomover
+				
+				local precisa_passar = ((B+2) * instancia.row_height) - (instancia.row_height*instancia.rows_fit_in_window)
+				
+			--	if (meu_valor > precisa_passar) then --> o valor atual passou o valor que precisa passar pra locomover
+				if (true) then --> testing
 					local diff = meu_valor - ultimo --> pega a diferença de H
 					diff = diff / instancia.row_height --> calcula quantas barras ele pulou
 					diff = _math_ceil (diff) --> arredonda para cima
@@ -2159,7 +2216,8 @@ local function iterate_scroll_scripts (backgrounddisplay, backgroundframe, basef
 			local A = instancia.barraS[1]
 			if (A > 1) then
 				local precisa_passar = (A-1) * instancia.row_height
-				if (meu_valor < precisa_passar) then
+				--if (meu_valor < precisa_passar) then
+				if (true) then --> testing
 					--> calcula quantas barras passou
 					local diff = ultimo - meu_valor
 					diff = diff / instancia.row_height

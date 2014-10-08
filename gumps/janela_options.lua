@@ -3455,7 +3455,15 @@ function window:CreateFrame1()
 			
 			frame1.BookmarkButton:SetIcon ([[Interface\Glues\CharacterSelect\Glues-AddOn-Icons]], nil, nil, nil, {0.75, 1, 0, 1})
 			frame1.BookmarkButton:SetTextColor (button_color_rgb)
-		
+
+		--config class colors
+			g:NewButton (frame1, _, "$parentClassColorsButton", "ClassColorsButton", buttons_width, 18, _detalhes.OpenClassColorsConfig, nil, nil, nil, Loc ["STRING_OPTIONS_CHANGE_CLASSCOLORS"], 1)
+			frame1.ClassColorsButton:InstallCustomTexture()
+			window:CreateLineBackground2 (frame1, "ClassColorsButton", "ClassColorsButton", Loc ["STRING_OPTIONS_CHANGE_CLASSCOLORS_DESC"], nil, {1, 0.8, 0}, button_color_rgb)
+			
+			frame1.ClassColorsButton:SetIcon ([[Interface\AddOns\Details\images\icons]], nil, nil, nil, {430/512, 459/512, 4/512, 30/512}) -- , "orange"
+			frame1.ClassColorsButton:SetTextColor (button_color_rgb)
+			
 	--> anchors
 	
 		g:NewLabel (frame1, _, "$parentGeneralAnchor", "GeneralAnchorLabel", Loc ["STRING_OPTIONS_GENERAL_ANCHOR"], "GameFontNormal")
@@ -3485,6 +3493,7 @@ function window:CreateFrame1()
 		frame1.ToolsLabel:SetPoint (avatar_x_anchor, -265)
 		frame1.EraseDataLabel:SetPoint (avatar_x_anchor, -290)
 		frame1.BookmarkButton:SetPoint (avatar_x_anchor, -315)
+		frame1.ClassColorsButton:SetPoint (avatar_x_anchor, -340)
 		
 		local left_side = {
 			{"GeneralAnchorLabel", 1, true},
@@ -4872,6 +4881,21 @@ function window:CreateFrame4()
 
 		local background = window:CreateLineBackground2 (frame4, "BackdropColorPick", "BackdropColorLabel", Loc ["STRING_OPTIONS_BAR_BACKDROP_COLOR_DESC"])
 		
+		--player bar
+
+		g:NewLabel (frame4, _, "$parentPlayerBarAnchor", "PlayerBarAnchor", Loc ["STRING_OPTIONS_BAR_FOLLOWING_ANCHOR"], "GameFontNormal")
+		
+		g:NewLabel (frame4, _, "$parentShowMeLabel", "ShowMeLabel", Loc ["STRING_OPTIONS_BAR_FOLLOWING"], "GameFontHighlightLeft")
+		g:NewSwitch (frame4, _, "$parentShowMeSlider", "ShowMeSlider", 60, 20, _, _, instance.following.enabled)
+		frame4.ShowMeSlider:SetPoint ("left", frame4.ShowMeLabel, "right", 2, -1)
+		frame4.ShowMeSlider.OnSwitch = function (self, instance, value)
+			instance.following.enabled = value
+			instance:RefreshBars()
+			instance:InstanceReset()
+			instance:ReajustaGump()
+		end
+		window:CreateLineBackground2 (frame4, "ShowMeSlider", "ShowMeLabel", Loc ["STRING_OPTIONS_BAR_FOLLOWING_DESC"])
+		
 	--> Anchors:
 		local x = window.left_start_at
 		
@@ -4905,29 +4929,13 @@ function window:CreateFrame4()
 			{frame4.rowLowerTextureLabel, 4, true},
 			{frame4.rowBackgroundLabel, 5},
 			{frame4.rowBackgroundPickLabel, 6},
+			{"PlayerBarAnchor", 7, true},
+			{"ShowMeLabel", 8},
 		}
 
 		window:arrange_menu (frame4, left_side, x, -90)
 		window:arrange_menu (frame4, right_side, 360, -90)
-		
-		--[[
-		frame4.rowHeightLabel:SetPoint (x, -90) --bar height
-		frame4.barGrowDirectionLabel:SetPoint (x, -125) --grow direction
-		frame4.barSortDirectionLabel:SetPoint (x, -150) --sort direction
-		frame4.BarSpacementLabel:SetPoint (x, -175) --spacement
-		
-		frame4.rowUpperTextureLabel:SetPoint (x, -210) --anchor
-		frame4.textureLabel:SetPoint (x, -235) --bar texture
-		frame4.rowPickColorLabel:SetPoint (x, -260) --color pick
-		
-		frame4.rowLowerTextureLabel:SetPoint (x, -295)
-		frame4.rowBackgroundLabel:SetPoint (x, -320) --select background
-		frame4.rowBackgroundPickLabel:SetPoint (x, -345) --bar color background
-		
-		frame4.rowIconsLabel:SetPoint (x, -380)
-		frame4.iconFileLabel:SetPoint (x, -405)
-		frame4.barStartLabel:SetPoint (x, -430)
-		--]]
+
 end
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -7543,6 +7551,7 @@ function window:CreateFrame11()
 		window:CreateLineBackground2 (frame11, "DeathChannelDropdown", "DeathChannelLabel", Loc ["STRING_OPTIONS_RT_DEATHS_WHERE_DESC"])
 
 	--> general tools
+		--> pre pots
 		g:NewLabel (frame11, _, "$parentEnabledPrePotLabel", "EnabledPrePotLabel", Loc ["STRING_OPTIONS_RT_INFOS_PREPOTION"], "GameFontHighlightLeft")
 		g:NewSwitch (frame11, _, "$parentEnabledPrePotSlider", "EnabledPrePotSlider", 60, 20, _, _, _detalhes.announce_prepots.enabled)
 
@@ -7552,6 +7561,17 @@ function window:CreateFrame11()
 		end
 		
 		window:CreateLineBackground2 (frame11, "EnabledPrePotSlider", "EnabledPrePotLabel", Loc ["STRING_OPTIONS_RT_INFOS_PREPOTION_DESC"])
+		
+		--> first hit
+		g:NewLabel (frame11, _, "$parentEnabledFirstHitLabel", "EnabledFirstHitLabel", Loc ["STRING_OPTIONS_RT_FIRST_HIT"], "GameFontHighlightLeft")
+		g:NewSwitch (frame11, _, "$parentEnabledFirstHitSlider", "EnabledFirstHitSlider", 60, 20, _, _, _detalhes.announce_firsthit.enabled)
+
+		frame11.EnabledFirstHitSlider:SetPoint ("left", frame11.EnabledFirstHitLabel, "right", 2)
+		frame11.EnabledFirstHitSlider.OnSwitch = function (_, _, value)
+			_detalhes.announce_firsthit.enabled = value
+		end
+		
+		window:CreateLineBackground2 (frame11, "EnabledFirstHitSlider", "EnabledFirstHitLabel", Loc ["STRING_OPTIONS_RT_FIRST_HIT_DESC"])
 		
 	--> anchors
 	
@@ -7591,6 +7611,7 @@ function window:CreateFrame11()
 			{"DeathsAmountLabel", 5},
 			{"AnnouncersOther", 6, true},
 			{"EnabledPrePotLabel", 7},
+			{"EnabledFirstHitLabel", 8},
 		}
 		
 		window:arrange_menu (frame11, right_side, window.right_start_at, -90)
@@ -8110,6 +8131,9 @@ function window:update_all (editing_instance)
 	_G.DetailsOptionsWindow4BarStartSlider.MyObject:SetFixedParameter (editing_instance)
 	_G.DetailsOptionsWindow4BarStartSlider.MyObject:SetValue (editing_instance.row_info.start_after_icon)
 	
+	_G.DetailsOptionsWindow4ShowMeSlider.MyObject:SetFixedParameter (editing_instance)
+	_G.DetailsOptionsWindow4ShowMeSlider.MyObject:SetValue (editing_instance.following.enabled)
+	
 	_G.DetailsOptionsWindow4BackdropBorderTextureDropdown.MyObject:SetFixedParameter (editing_instance)
 	_G.DetailsOptionsWindow4BackdropEnabledSlider.MyObject:SetFixedParameter (editing_instance)
 	_G.DetailsOptionsWindow4BackdropSizeHeight.MyObject:SetFixedParameter (editing_instance)
@@ -8230,6 +8254,8 @@ function window:update_all (editing_instance)
 	_G.DetailsOptionsWindow13SelectProfileDropdown.MyObject:SetFixedParameter (editing_instance)
 	
 	_G.DetailsOptionsWindow13PosAndSizeSlider.MyObject:SetValue (_detalhes.profile_save_pos)
+	
+	--_G.DetailsOptionsWindow13AlwaysUseSlider.MyObject:SetValue (_detalhes.always_use_profile)
 
 	--> window 14
 

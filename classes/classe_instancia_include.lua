@@ -47,6 +47,8 @@ _detalhes.instance_defaults = {
 		skin = "Minimalistic v2",
 	--scale
 		window_scale = 1.0,
+	--following
+		following = {enabled = false, bar_color = {1, 1, 1}, text_color = {1, 1, 1}},
 	--baseframe backdrop
 		bg_alpha = 0.7,
 		bg_r = 0.0941,

@@ -826,9 +826,9 @@ local ButtonMetaFunctions = {}
 		y = _math_floor (y)
 		if ((button.mouse_down+0.4 > GetTime() and (x == button.x and y == button.y)) or (x == button.x and y == button.y)) then
 			if (buttontype == "LeftButton") then
-				button.MyObject.func (button.MyObject.param1, button.MyObject.param2, button)
+				button.MyObject.func (button.MyObject.param1, button.MyObject.param2, button, buttontype)
 			else
-				button.MyObject.funcright (button.MyObject.param1, button.MyObject.param2, button)
+				button.MyObject.funcright (button.MyObject.param1, button.MyObject.param2, button, buttontype)
 			end
 		end
 	end
