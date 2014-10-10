@@ -452,5 +452,41 @@ function _G._detalhes:Start()
 		end
 	end)
 	--]]
+	
+	-- test dbm callbacks
+	
+	if (_G.DBM) then
+		local dbm_callback_phase = function (event, msg)
+
+			local mod = _detalhes.encounter_table.DBM_Mod
+			
+			if (not mod) then
+				local id = _detalhes:GetEncounterIdFromBossIndex (_detalhes.encounter_table.mapid, _detalhes.encounter_table.id)
+				if (id) then
+					for index, tmod in ipairs (DBM.Mods) do 
+						if (tmod.id == id) then
+							_detalhes.encounter_table.DBM_Mod = tmod
+							mod = tmod
+						end
+					end
+				end
+			end
+			
+			local phase = mod and mod.vb and mod.vb.phase
+			if (phase and _detalhes.encounter_table.phase ~= phase) then
+				--_detalhes:Msg ("Current phase:", phase)
+				_detalhes.encounter_table.phase = phase
+				--> do thing when the encounter changes the phase
+			end
+		end
+		
+		local dbm_callback_pull = function (event, mod, delay, synced, startHp)
+			_detalhes.encounter_table.DBM_Mod = mod
+			_detalhes.encounter_table.DBM_ModTime = time()
+		end
+		
+		DBM:RegisterCallback ("DBM_Announce", dbm_callback_phase)
+		DBM:RegisterCallback ("pull", dbm_callback_pull)
+	end
 end
 

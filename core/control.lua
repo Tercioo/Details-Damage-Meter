@@ -444,6 +444,10 @@
 				else
 					_detalhes.schedule_flag_boss_components = true
 				end
+				
+				if (bossKilled) then
+					_detalhes.tabela_vigente.is_boss.killed = true
+				end
 
 				if (_detalhes:GetBossDetails (_detalhes.tabela_vigente.is_boss.mapid, _detalhes.tabela_vigente.is_boss.index)) then
 					
@@ -458,10 +462,6 @@
 							_detalhes:Msg (_detalhes.pre_pot_used or "")
 							_detalhes.pre_pot_used = nil
 						end
-					end
-					
-					if (bossKilled) then
-						_detalhes.tabela_vigente.is_boss.killed = true
 					end
 					
 					if (from_encounter_end) then

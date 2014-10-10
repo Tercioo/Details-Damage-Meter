@@ -278,38 +278,173 @@ local _
 		right_corner_anchor_bottom = {96, 0},
 		
 		instance_cprops = {
-		
-			row_info = {
-				textL_outline = false,
-				textR_outline = false,
-				texture = "Details Serenity",
-				texture_background = "Details Serenity",
-				texture_background_class_color = false,
-				fixed_texture_background_color = {1, 1, 1, .2557},
-				icon_file = [[Interface\AddOns\Details\images\classes_small_bw]],
+
+			resetbutton_config = {size = {13, 13}, anchor = {3, 0}, normal_texture = [[Interface\Addons\Details\Images\reset_button2]], highlight_texture = [[Interface\Addons\Details\Images\reset_button2]]},		
+			instancebutton_config = {size = {20, 16}, anchor = {5, 0}, textcolor = {.8, .6, .0, 0.8}, textsize = 10, textfont = "Friz Quadrata TT", highlight_texture = [[Interface\Buttons\UI-Panel-MinimizeButton-Highlight]]},
+			closebutton_config = {size = {18, 18}, alpha = 1, anchor = {0, 0}},
+
+			["show_statusbar"] = false,
+			["backdrop_texture"] = "Details Ground",
+			["color"] = {
+				1, -- [1]
+				1, -- [2]
+				1, -- [3]
+				0.9199999570846558, -- [4]
 			},
-		
-			menu_anchor = {-60, 0, side = 2},
-			menu_anchor_down = {-55, -1},
-			menu2_anchor = {32, 3},
-			menu2_anchor_down = {32, 2},
+			["menu_anchor"] = {
+				-59, -- [1]
+				0, -- [2]
+				["side"] = 2,
+			},
+			["menu2_icons"] = {
+				true, -- [1]
+				true, -- [2]
+				true, -- [3]
+			},
+			["bg_r"] = 1,
+			["skin"] = "Flat Color",
+			["hide_in_combat_type"] = 1,
+			["following"] = {
+				["enabled"] = false,
+				["bar_color"] = {
+					1, -- [1]
+					1, -- [2]
+					1, -- [3]
+				},
+				["text_color"] = {
+					1, -- [1]
+					1, -- [2]
+					1, -- [3]
+				},
+			},
+			["switch_healer"] = false,
+			["bars_sort_direction"] = 1,
+			["switch_damager_in_combat"] = false,
+			["desaturated_menu2"] = false,
+			["menu2_icons_size"] = 1,
+			["row_info"] = {
+				["textR_outline"] = false,
+				["textL_outline"] = false,
+				["icon_file"] = "Interface\\AddOns\\Details\\images\\classes_small_alpha",
+				["textL_enable_custom_text"] = false,
+				["texture_highlight"] = "Interface\\FriendsFrame\\UI-FriendsList-Highlight",
+				["texture_background_file"] = "Interface\\AddOns\\Details\\images\\bar4",
+				["textR_enable_custom_text"] = false,
+				["texture_background_class_color"] = false,
+				["percent_type"] = 1,
+				["textL_show_number"] = true,
+				["space"] = {
+					["right"] = 0,
+					["left"] = 0,
+					["between"] = 0,
+				},
+				["fixed_texture_background_color"] = {
+					0, -- [1]
+					0, -- [2]
+					0, -- [3]
+					0.4416468441486359, -- [4]
+				},
+				["textR_custom_text"] = "{data1} ({data2}, {data3}%)",
+				["texture"] = "Details Serenity",
+				["font_face_file"] = "Interface\\Addons\\Details\\fonts\\Accidental Presidency.ttf",
+				["fixed_text_color"] = {
+					1, -- [1]
+					1, -- [2]
+					1, -- [3]
+				},
+				["backdrop"] = {
+					["enabled"] = false,
+					["size"] = 1,
+					["color"] = {
+						1, -- [1]
+						1, -- [2]
+						1, -- [3]
+						1, -- [4]
+					},
+					["texture"] = "Details BarBorder 2",
+				},
+				["textL_class_colors"] = false,
+				["textL_custom_text"] = "{data1}. {data3}{data2}",
+				["textR_class_colors"] = false,
+				["alpha"] = 1,
+				["no_icon"] = false,
+				["font_size"] = 10,
+				["texture_background"] = "Details D'ictum",
+				["font_face"] = "Accidental Presidency",
+				["texture_class_colors"] = true,
+				["height"] = 15,
+				["texture_file"] = "Interface\\AddOns\\Details\\images\\bar_serenity",
+				["start_after_icon"] = false,
+				["fixed_texture_color"] = {
+					0, -- [1]
+					0, -- [2]
+					0, -- [3]
+				},
+			},
+			["instance_button_anchor"] = {
+				-27, -- [1]
+				1, -- [2]
+			},
+			["name"] = "NewFlat1",
+			["attribute_text"] = {
+				["enabled"] = true,
+				["shadow"] = true,
+				["side"] = 1,
+				["text_size"] = 9,
+				["anchor"] = {
+					-20, -- [1]
+					4, -- [2]
+				},
+				["text_color"] = {
+					1, -- [1]
+					1, -- [2]
+					1, -- [3]
+					0.7, -- [4]
+				},
+				["text_face"] = "Friz Quadrata TT",
+			},
+
+			["menu_anchor_down"] = {
+				-55, -- [1]
+				-1, -- [2]
+			},
+			["hide_in_combat_alpha"] = 0,
+			["plugins_grow_direction"] = 1,
+			["switch_damager"] = false,
+			["show_sidebars"] = false,
+			["auto_hide_menu"] = {
+				["left"] = false,
+				["right"] = false,
+			},
+			["menu2_anchor_down"] = {
+				32, -- [1]
+				2, -- [2]
+			},
+			["bars_grow_direction"] = 1,
+			["hide_icon"] = true,
+			["menu_icons_size"] = 0.8500000238418579,
+			["menu2_anchor"] = {
+				32, -- [1]
+				2, -- [2]
+			},
+			["toolbar_side"] = 1,
+			["bg_g"] = 1,
+			["bg_alpha"] = 0.07999999821186066,
+			["desaturated_menu"] = false,
+			wallpaper = {
+				overlay = {1, 1,	1},
+				width = 256,
+				texcoord = {49/1024, 305/1024, 646/1024, 774/1024},
+				enabled = true,
+				anchor = "all",
+				height = 128,
+				alpha = 0.8,
+				texture = [[Interface\AddOns\Details\images\skins\elvui]],
+			},
 			
-			menu_icons_size = 0.8,
-			plugins_grow_direction = 1,
-			
-			hide_icon = true,
-			desaturated_menu = true,
-			desaturated_menu2 = true,
-		
-			attribute_text = {enabled = true, anchor = {-20, 4}, text_face = "Friz Quadrata TT", text_size = 10, text_color = {1, 1, 1, .7}, side = 1, shadow = true},
-		
-			instancebutton_config = {size = {20, 16}, anchor = {5, 1}, textcolor = {.9, .9, .9, 1}, textsize = 10, textfont = "Friz Quadrata TT", highlight_texture = [[Interface\Buttons\UI-Panel-MinimizeButton-Highlight]]},
-			resetbutton_config = {size = {8, 16}, anchor = {1, -1}},
-		
-			bg_alpha = 0.3,
-			show_statusbar = false,
-			color = {1, 1, 1, 0.92},
-			bg_alpha = 0.40,
+			["stretch_button_side"] = 1,
+			["micro_displays_side"] = 2,
+			["bg_b"] = 1,
 		},
 		
 		skin_options = {

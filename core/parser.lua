@@ -2699,17 +2699,29 @@
 	-- ~encounter
 	function _detalhes.parser_functions:ENCOUNTER_START (...)
 	
-		if (_in_combat) then
-			--print ("encounter start while in combat... finishing the combat...")
-			_detalhes:SairDoCombate()
+		_detalhes.latest_ENCOUNTER_END = _detalhes.latest_ENCOUNTER_END or 0
+		if (_detalhes.latest_ENCOUNTER_END + 10 > _detalhes._tempo) then
+			return
 		end
 	
+		local encounterID, encounterName, difficultyID, raidSize = _select (1, ...)
+	
+		if (_in_combat and not _detalhes.tabela_vigente.is_boss) then
+			--print ("encounter start while in combat... finishing the combat...")
+			_detalhes:SairDoCombate()
+			_detalhes:Msg ("encounter against|cFFFFFF00", encounterName, "|rbegan, GL HF!")
+		else
+			_detalhes:Msg ("encounter against|cFFFFC000", encounterName, "|rbegan, GL HF!")
+		end
+		
+		local dbm_mod, dbm_time = _detalhes.encounter_table.DBM_Mod, _detalhes.encounter_table.DBM_ModTime
 		_table_wipe (_detalhes.encounter_table)
 		
-		local encounterID, encounterName, difficultyID, raidSize = _select (1, ...)
 		local zoneName, _, _, _, _, _, _, zoneMapID = _GetInstanceInfo()
 		
 		--print (encounterID, encounterName, difficultyID, raidSize)
+		
+		_detalhes.encounter_table.phase = 1
 		
 		_detalhes.encounter_table ["start"] = time()
 		_detalhes.encounter_table ["end"] = nil
@@ -2720,6 +2732,10 @@
 		_detalhes.encounter_table.size = raidSize
 		_detalhes.encounter_table.zone = zoneName
 		_detalhes.encounter_table.mapid = zoneMapID
+		
+		if (dbm_mod and dbm_time == time()) then
+			_detalhes.encounter_table.DBM_Mod = dbm_mod
+		end
 		
 		local encounter_start_table = _detalhes:GetEncounterStartInfo (zoneMapID, encounterID)
 		if (encounter_start_table) then
@@ -2746,6 +2762,10 @@
 	end
 	
 	function _detalhes.parser_functions:ENCOUNTER_END (...)
+		
+		local encounterID, encounterName, difficultyID, raidSize, endStatus = _select (1, ...)
+	
+		_detalhes:Msg ("encounter against|cFFFFC000", encounterName, "|rended.")
 	
 		if (not _detalhes.encounter_table.start) then
 			return
@@ -2758,8 +2778,7 @@
 		_detalhes.latest_ENCOUNTER_END = _detalhes._tempo
 		
 		_detalhes.encounter_table ["end"] = time() - 0.4
-		
-		local encounterID, encounterName, difficultyID, raidSize, endStatus = _select (1, ...)
+
 		local _, _, _, _, _, _, _, zoneMapID = _GetInstanceInfo()
 		
 		if (_in_combat) then
