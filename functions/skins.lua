@@ -252,13 +252,23 @@ local _
 		}
 		
 	})
-
-	_detalhes:InstallSkin ("Flat Color", {
+	
+	local dark_serenity = function()
+		local instance = _G.DetailsOptionsWindow.instance
+		--> black color
+		instance:InstanceColor (0, 0, 0, 1)
+		--> flip wallpaper
+		local wtexc = instance.wallpaper.texcoord
+		wtexc[1], wtexc[2], wtexc[3], wtexc[4] = 0.04800000, 0.29800001, 0.75599998, 0.63099998
+		--> reload skin
+		instance:ChangeSkin()
+	end
+	_detalhes:InstallSkin ("Serenity", { --
 		file = [[Interface\AddOns\Details\images\skins\flat_skin]],
 		author = "Details!", 
 		version = "1.0", 
 		site = "unknown", 
-		desc = "Pure white with opaque colors makes this skin very different and peculiar.", 
+		desc = "White with a gradient wallpaper, this skin fits on almost all interfaces.\n\nFor ElvUI interfaces, change the window color to black to get an compatible visual.", 
 		
 		micro_frames = {color = {1, 1, 1, 1}, font = "Friz Quadrata TT", size = 10, left = "DETAILS_STATUSBAR_PLUGIN_PATTRIBUTE"},
 		
@@ -292,7 +302,7 @@ local _
 				0.9199999570846558, -- [4]
 			},
 			["menu_anchor"] = {
-				-59, -- [1]
+				-60, -- [1]
 				0, -- [2]
 				["side"] = 2,
 			},
@@ -450,6 +460,7 @@ local _
 		skin_options = {
 			{type = "button", name = Loc ["STRING_OPTIONS_SKIN_RESET_TOOLTIP"], func = reset_tooltip, desc = Loc ["STRING_OPTIONS_SKIN_RESET_TOOLTIP_DESC"]},
 			{type = "button", name = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON3"], func = set_tooltip_elvui2, desc = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON3_DESC"]},
+			{type = "button", name = "Serenity Dark Side", func = dark_serenity, desc = "Flip the colors showing the dark side of Serenity."},
 		}
 	})
 	

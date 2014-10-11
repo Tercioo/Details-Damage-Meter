@@ -126,6 +126,7 @@ function _detalhes:OpenWelcomeWindow ()
 			instance.baseframe:SetPoint ("left", DetailsWelcomeWindow, "right", 10, 0)
 		end
 		_detalhes:ScheduleTimer ("WelcomeSetLoc", 12)
+		--_detalhes:WelcomeSetLoc()
 
 --/script local f=CreateFrame("frame");local g=false;f:SetScript("OnUpdate",function(s,e)if not g then local r=math.random for i=1,2500000 do local a=r(1,1000000);a=a+1 end g=true else print(string.format("cpu: %.3f",e));f:SetScript("OnUpdate",nil)end end)
 	

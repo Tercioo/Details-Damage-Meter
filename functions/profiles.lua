@@ -310,6 +310,10 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 					break
 				end
 				
+				if (skin.skin == "Flat Color") then
+					skin.skin = "Serenity"
+				end
+				
 				--> get the instance
 				local instance = _detalhes:GetInstance (index)
 				if (not instance) then
@@ -331,6 +335,17 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 				instance.horizontalSnap = nil
 				instance.verticalSnap = nil
 				instance:LockInstance (false)
+				
+				--> fix for old versions
+				if (type (instance.segmento) ~= "number") then
+					instance.segmento = 0
+				end
+				if (type (instance.atributo) ~= "number") then
+					instance.atributo = 1
+				end
+				if (type (instance.sub_atributo) ~= "number") then
+					instance.sub_atributo = 1
+				end
 				
 				--> load data saved for this character only
 				instance:LoadLocalInstanceConfig()
@@ -366,7 +381,8 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 						instance.posicao.normal = {x = 1, y = 1, w = 300, h = 200}
 					end
 				end
-				
+
+--				/dump _detalhes:GetInstance(1).sub_atributo
 				--> open the instance
 				if (instance:IsEnabled()) then
 					if (not instance.baseframe) then

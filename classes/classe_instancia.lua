@@ -274,6 +274,16 @@ end
 				self.posicao = table_deepcopy (config.pos)
 			end
 			
+			if (_type (config.attribute) ~= "number") then
+				config.attribute = 1
+			end
+			if (_type (config.sub_attribute) ~= "number") then
+				config.sub_attribute = 1
+			end
+			if (_type (config.segment) ~= "number") then
+				config.segment = 1
+			end
+			
 			self.ativa = config.is_open
 			self.atributo = config.attribute
 			self.sub_atributo = config.sub_attribute
@@ -1856,20 +1866,27 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 	
 	local atributo_changed = false
 	
-	--> verifica possiveis valores não passados
-	
+	--> verifica se os valores passados são válidos
 	if (not segmento) then
 		segmento = instancia.segmento
+	elseif (_type (segmento) ~= "number") then
+		segmento = instancia.segmento
 	end
+	
 	if (not atributo) then
 		atributo  = instancia.atributo
+	elseif (_type (atributo) ~= "number") then
+		atributo = instancia.atributo
 	end
+	
 	if (not sub_atributo) then
 		if (atributo == current_atributo) then
 			sub_atributo  = instancia.sub_atributo
 		else
 			sub_atributo  = instancia.sub_atributo_last [atributo]
 		end
+	elseif (_type (sub_atributo) ~= "number") then
+		sub_atributo = instancia.sub_atributo
 	end
 	
 	--> já esta mostrando isso que esta pedindo
