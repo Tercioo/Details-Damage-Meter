@@ -135,10 +135,11 @@
 	function _detalhes:AtualizaPontos()
 		local _x, _y = self:GetPositionOnScreen()
 		if (not _x) then
-			return
-		end
+ 			return
+ 		end
+		
 		local _w, _h = self:GetRealSize()
-
+		
 		local metade_largura = _w/2
 		local metade_altura = _h/2
 		
@@ -162,6 +163,7 @@
 			self.ponto4.x = _x + metade_largura
 			self.ponto4.y = _y + metade_altura + (statusbar_y_mod*-1)
 		end
+
 	end
 
 	function _detalhes:SaveMainWindowPosition (instance)
@@ -173,17 +175,17 @@
 		
 		--> get sizes
 		local baseframe_width = self.baseframe:GetWidth()
-		local baseframe_height = self.baseframe:GetHeight()
 		if (not baseframe_width) then
 			return _detalhes:ScheduleTimer ("SaveMainWindowPosition", 1, self)
 		end
+		local baseframe_height = self.baseframe:GetHeight()
 		
 		--> calc position
 		local _x, _y = self:GetPositionOnScreen()
 		if (not _x) then
-			return _detalhes:ScheduleTimer ("SaveMainWindowPosition", 1, self)
-		end
-
+ 			return _detalhes:ScheduleTimer ("SaveMainWindowPosition", 1, self)
+ 		end
+		
 		--> save the position
 		local _w = baseframe_width
 		local _h = baseframe_height
@@ -199,7 +201,7 @@
 		
 		local statusbar_y_mod = 0
 		if (not self.show_statusbar) then
-			statusbar_y_mod = 14
+			statusbar_y_mod = 14 * self.baseframe:GetScale()
 		end
 		
 		if (not self.ponto1) then
@@ -784,7 +786,7 @@
 				local r, g, b = unpack (current_class_color)
 				_detalhes.gump:ColorPick (self, r, g, b, 1, callback)
 			end
-			local reset_color = function (class, index, self, button)
+		local reset_color = function (class, index, self, button)
 				local color_table = RAID_CLASS_COLORS [class]
 				local r, g, b = color_table.r, color_table.g, color_table.b
 				self.MyObject.my_texture:SetVertexColor (r, g, b)
@@ -799,7 +801,7 @@
 				--GameCooltip:Show (self)
 			end
 			local on_leave = function (self, capsule)
-				--GameCooltip:Hide()
+			--GameCooltip:Hide()
 			end
 			
 			local reset = gump:NewLabel (panel, _, nil, nil, "|TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:" .. 20 .. ":" .. 20 .. ":0:1:512:512:8:70:328:409|t " .. "Right Click to Reset")
@@ -846,7 +848,7 @@
 		
 		_G.DetailsClassColorManager:Show()
 	end
-	
+
 --> config bookmarks
 	function _detalhes:OpenBookmarkConfig()
 	
@@ -916,7 +918,7 @@
 				set:SetBackdropColor (0, 0, 0, 0.5)
 				set:SetHook ("OnEnter", set_onenter)
 				set:SetHook ("OnLeave", set_onleave)
-
+			
 				set:InstallCustomTexture (nil, nil, nil, nil, true)
 				
 				local bg_texture = gump:CreateImage (set, [[Interface\AddOns\Details\images\bar_skyline]], 135, 30, "background")

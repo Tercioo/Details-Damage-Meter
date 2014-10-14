@@ -512,7 +512,7 @@ function gump:SetaDetalheInfoTexto (index, p, arg1, arg2, arg3, arg4, arg5, arg6
 	if (p) then
 		if (_type (p) == "table") then
 			info.bg:SetValue (p.p)
-			info.bg:SetStatusBarColor (p.c[1], p.c[2], p.c[3])
+			info.bg:SetStatusBarColor (p.c[1], p.c[2], p.c[3], p.c[4] or 1)
 		else
 			info.bg:SetValue (p)
 			info.bg:SetStatusBarColor (1, 1, 1)
@@ -1375,7 +1375,7 @@ function gump:CriaJanelaInfo()
 				if (halfabsorb_amt > 0) then
 					local average = halfabsorb_amt / halfabsorb --tenho o average
 					local last_average = 0
-					if (last_actor and last_actor.avoidance) then
+					if (last_actor and last_actor.avoidance and last_actor.avoidance.overall.PARTIAL_ABSORBED > 0) then
 						last_average = last_actor.avoidance.overall.PARTIAL_ABSORB_AMT / last_actor.avoidance.overall.PARTIAL_ABSORBED
 					end
 					
@@ -1924,21 +1924,30 @@ function gump:CriaJanelaInfo()
 							bar_2 [2].righttext:SetText ("0 +(0%)")
 							
 						elseif (data [2] > spell.total) then
-							local diff = data [2] - spell.total
-							local up = diff / spell.total * 100
-							up = _math_floor (up)
-							if (up > 999) then
-								up = ">" .. 999
+							if (spell.total > 0) then
+								local diff = data [2] - spell.total
+								local up = diff / spell.total * 100
+								up = _math_floor (up)
+								if (up > 999) then
+									up = ">" .. 999
+								end
+								bar_2 [2].righttext:SetText (_detalhes:ToK2Min (spell.total) .. " |c" .. minor .. up .. "%)|r")
+							else
+								bar_2 [2].righttext:SetText ("0 +(0%)")
 							end
-							bar_2 [2].righttext:SetText (_detalhes:ToK2Min (spell.total) .. " |c" .. minor .. up .. "%)|r")
+							
 						else
-							local diff = spell.total - data [2]
-							local down = diff / data [2] * 100
-							down = _math_floor (down)
-							if (down > 999) then
-								down = ">" .. 999
+							if (data [2] > 0) then
+								local diff = spell.total - data [2]
+								local down = diff / data [2] * 100
+								down = _math_floor (down)
+								if (down > 999) then
+									down = ">" .. 999
+								end
+								bar_2 [2].righttext:SetText (_detalhes:ToK2Min (spell.total) .. " |c" .. plus .. down .. "%)|r")
+							else
+								bar_2 [2].righttext:SetText ("0 +(0%)")
 							end
-							bar_2 [2].righttext:SetText (_detalhes:ToK2Min (spell.total) .. " |c" .. plus .. down .. "%)|r")
 						end
 						
 						bar_2 [2]:SetValue (spell.total / player_2_top * 100)
@@ -1969,21 +1978,29 @@ function gump:CriaJanelaInfo()
 								bar_3 [2].righttext:SetText ("0 +(0%)")
 								
 							elseif (data [2] > spell.total) then
-								local diff = data [2] - spell.total
-								local up = diff / spell.total * 100
-								up = _math_floor (up)
-								if (up > 999) then
-									up = ">" .. 999
+								if (spell.total > 0) then
+									local diff = data [2] - spell.total
+									local up = diff / spell.total * 100
+									up = _math_floor (up)
+									if (up > 999) then
+										up = ">" .. 999
+									end
+									bar_3 [2].righttext:SetText (_detalhes:ToK2Min (spell.total) .. " |c" .. minor .. up .. "%)|r")
+								else
+									bar_3 [2].righttext:SetText ("0 +(0%)")
 								end
-								bar_3 [2].righttext:SetText (_detalhes:ToK2Min (spell.total) .. " |c" .. minor .. up .. "%)|r")
 							else
-								local diff = spell.total - data [2]
-								local down = diff / data [2] * 100
-								down = _math_floor (down)
-								if (down > 999) then
-									down = ">" .. 999
+								if (data [2] > 0) then
+									local diff = spell.total - data [2]
+									local down = diff / data [2] * 100
+									down = _math_floor (down)
+									if (down > 999) then
+										down = ">" .. 999
+									end
+									bar_3 [2].righttext:SetText (_detalhes:ToK2Min (spell.total) .. " |c" .. plus .. down .. "%)|r")
+								else
+									bar_3 [2].righttext:SetText ("0 +(0%)")
 								end
-								bar_3 [2].righttext:SetText (_detalhes:ToK2Min (spell.total) .. " |c" .. plus .. down .. "%)|r")
 							end
 							
 							bar_3 [2]:SetValue (spell.total / player_3_top * 100)
@@ -3434,11 +3451,8 @@ end
 local function CriaTexturaBarra (instancia, barra)
 	barra.textura = _CreateFrame ("StatusBar", nil, barra)
 	barra.textura:SetAllPoints (barra)
-	
 	--barra.textura:SetStatusBarTexture (instancia.row_info.texture_file)
 	barra.textura:SetStatusBarTexture (_detalhes.default_texture)
-	--barra.textura:SetStatusBarTexture ([[Interface\AddOns\Details\images\bar_serenity]])
-	
 	barra.textura:SetStatusBarColor (.5, .5, .5, 0)
 	barra.textura:SetMinMaxValues (0,100)
 	

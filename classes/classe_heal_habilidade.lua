@@ -28,6 +28,11 @@
 			totalabsorb = 0,
 			counter = 0,
 			id = id,
+			
+			--> multistrike
+			m_amt = 0,
+			m_curado = 0,
+			m_overheal = 0,
 
 			--> normal hits		
 			n_min = 0,
@@ -56,7 +61,7 @@
 		return _newHealSpell
 	end
 
-	function habilidade_cura:Add (serial, nome, flag, amount, who_nome, absorbed, critical, overhealing, is_shield)
+	function habilidade_cura:Add (serial, nome, flag, amount, who_nome, absorbed, critical, overhealing, is_shield, multistrike)
 
 		self.counter = self.counter + 1
 
@@ -67,6 +72,12 @@
 			alvo = self.targets._ActorTable [alvo]
 		end
 
+		if (multistrike) then
+			self.m_amt = self.m_amt + 1
+			self.m_curado = self.m_curado + amount
+			self.m_overheal = self.m_overheal + overhealing
+		end
+		
 		if (absorbed and absorbed > 0) then
 			self.absorbed = self.absorbed + absorbed
 			alvo.absorbed = alvo.absorbed + absorbed

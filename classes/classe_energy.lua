@@ -65,6 +65,10 @@ local UsingCustomRightText = false
 local FormatTooltipNumber = ToKFunctions [8]
 local TooltipMaximizedMethod = 1
 
+local headerColor = "yellow"
+local key_overlay = {1, 1, 1, .1}
+local key_overlay_press = {1, 1, 1, .2}
+
 local info = _detalhes.janela_info
 local keyName
 
@@ -289,11 +293,11 @@ function atributo_energy:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 	local baseframe = instancia.baseframe
 	
 	local use_animations = _detalhes.is_using_row_animations and (not baseframe.isStretching and not forcar and not baseframe.isResizing)
-	
+ 	
 	if (total == 0) then
 		total = 0.00000001
 	end
-	
+
 	local myPos
 	local following = instancia.following.enabled
 	
@@ -578,7 +582,7 @@ function atributo_energy:RefreshBarra2 (esta_barra, instancia, tabela_anterior, 
 				end
 			
 				esta_barra.last_value = esta_porcentagem --> reseta o ultimo valor da barra
-			
+				
 				return self:RefreshBarra (esta_barra, instancia)
 				
 			elseif (esta_porcentagem ~= esta_barra.last_value) then --> continua mostrando a mesma tabela então compara a porcentagem
@@ -790,11 +794,7 @@ function atributo_energy:ToolTip (instancia, numero, barra, keydown)
 end
 --> tooltip locals
 local r, g, b
-local headerColor = "yellow"
 local barAlha = .6
-
-local key_overlay = {1, 1, 1, .1}
-local key_overlay_press = {1, 1, 1, .2}
 
 function atributo_energy:ToolTipRegenRecebido (instancia, numero, barra, keydown)
 	
@@ -1097,6 +1097,7 @@ end
 			SelectedToKFunction = ToKFunctions [_detalhes.ps_abbreviation]
 			FormatTooltipNumber = ToKFunctions [_detalhes.tooltip.abbreviation]
 			TooltipMaximizedMethod = _detalhes.tooltip.maximize_method
+			headerColor = _detalhes.tooltip.header_text_color
 		end
 
 	--> subtract total from a combat table

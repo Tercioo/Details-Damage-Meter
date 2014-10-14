@@ -17,6 +17,7 @@ local DmgRankFrame = DmgRank.Frame
 
 DmgRank:SetPluginDescription ("A plugin for you have fun with a training dummy testing your damage skill and gear, leveling through many challenges.")
 
+
 --> this function will run when the plugin receives the Addon_Loaded event, ["data"] = previus saved player rank
 local function CreatePluginFrames (data)
 

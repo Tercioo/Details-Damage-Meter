@@ -15,6 +15,7 @@ SLASH_DETAILS1, SLASH_DETAILS2, SLASH_DETAILS3 = "/details", "/dt", "/de"
 function SlashCmdList.DETAILS (msg, editbox)
 
 	local command, rest = msg:match("^(%S*)%s*(.-)$")
+	command = string.lower (command)
 	
 	if (command == Loc ["STRING_SLASH_NEW"] or command == "new") then
 		_detalhes:CriarInstancia (nil, true)
@@ -89,7 +90,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 		else
 			_detalhes:CheckChatOnLeaveGroup()
 		end
-	
+
 	elseif (msg == "owner2") then
 	
 		local tip = CreateFrame('GameTooltip', 'GuardianOwnerTooltip', nil, 'GameTooltipTemplate')

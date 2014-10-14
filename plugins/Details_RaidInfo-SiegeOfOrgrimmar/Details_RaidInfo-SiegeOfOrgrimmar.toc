@@ -1,4 +1,4 @@
-## Interface: 50400
+## Interface: 60000
 ## Title: Details: Siege of Orgrimmar
 ## Notes: Plugin for Details
 ## RequiredDeps: Details

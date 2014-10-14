@@ -239,7 +239,7 @@ function gump:ShowTutorialAlertFrame (maintext, desctext, clickfunc)
 	
 	if (not TutorialAlertFrame) then
 		
-		TutorialAlertFrame = CreateFrame ("ScrollFrame", "DetailsTutorialAlertFrame", UIParent, "WatchFrameAutoQuestPopUpTemplate")
+		TutorialAlertFrame = CreateFrame ("ScrollFrame", "DetailsTutorialAlertFrame", UIParent, "DetailsTutorialAlertFrameTemplate")
 		TutorialAlertFrame.isFirst = true
 		TutorialAlertFrame:SetPoint ("left", UIParent, "left", -20, 100)
 		
@@ -295,5 +295,5 @@ function gump:ShowTutorialAlertFrame (maintext, desctext, clickfunc)
 	
 	TutorialAlertFrame.clickfunc = clickfunc
 	TutorialAlertFrame:Show()
-	WatchFrame_SlideInFrame (TutorialAlertFrame, "AUTOQUEST")
+	DetailsTutorialAlertFrame_SlideInFrame (TutorialAlertFrame, "AUTOQUEST")
 end

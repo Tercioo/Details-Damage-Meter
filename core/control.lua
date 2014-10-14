@@ -163,8 +163,8 @@
 				if (_UnitExists ("boss"..index)) then 
 					local guid = _UnitGUID ("boss"..index)
 					if (guid) then
-						local serial = tonumber (guid:sub(6, 10), 16)
-						
+						local serial = _detalhes:GetNpcIdFromGuid (guid)
+
 						if (serial) then
 						
 							local ZoneName, _, DifficultyID, _, _, _, _, ZoneMapID = _GetInstanceInfo()
@@ -205,7 +205,7 @@
 				if (ActorsContainer) then
 					for index, Actor in _ipairs (ActorsContainer) do 
 						if (not Actor.grupo) then
-							local serial = tonumber (Actor.serial:sub (6, 10), 16)
+							local serial = _detalhes:GetNpcIdFromGuid (Actor.serial)
 							if (serial) then
 								BossIndex = BossIds [serial]
 								if (BossIndex) then
@@ -235,8 +235,8 @@
 			--> não tem historico, addon foi resetado, a primeira tabela é descartada -- Erase first table is do es not have a firts segment history, this occour after reset or first run
 			if (not _detalhes.tabela_historico.tabelas[1]) then 
 				--> precisa zerar aqui a tabela overall
-				_table_wipe (_detalhes.tabela_overall)
-				_table_wipe (_detalhes.tabela_vigente)
+				--_table_wipe (_detalhes.tabela_overall) no more wipes, avoid combat invalid issues
+				--_table_wipe (_detalhes.tabela_vigente)
 				--> aqui ele perdeu o self.showing das instâncias, precisa fazer com que elas atualizem
 				_detalhes.tabela_overall = _detalhes.combate:NovaTabela()
 				
@@ -400,6 +400,9 @@
 			--> lock timers
 			_detalhes.tabela_vigente:TravarTempos() 
 			
+			--> get waste shields
+			_detalhes:CloseShields (_detalhes.tabela_vigente)
+			
 			_detalhes.tabela_vigente:seta_data (_detalhes._detalhes_props.DATA_TYPE_END) --> salva hora, minuto, segundo do fim da luta
 			_detalhes.tabela_overall:seta_data (_detalhes._detalhes_props.DATA_TYPE_END) --> salva hora, minuto, segundo do fim da luta
 			_detalhes.tabela_vigente:seta_tempo_decorrido() --> salva o end_time
@@ -449,7 +452,9 @@
 					_detalhes.tabela_vigente.is_boss.killed = true
 				end
 
-				if (_detalhes:GetBossDetails (_detalhes.tabela_vigente.is_boss.mapid, _detalhes.tabela_vigente.is_boss.index)) then
+				--if (_detalhes:GetBossDetails (_detalhes.tabela_vigente.is_boss.mapid, _detalhes.tabela_vigente.is_boss.index) or ) then
+					
+					_detalhes.tabela_vigente.is_boss.index = _detalhes.tabela_vigente.is_boss.index or 1
 					
 					_detalhes.tabela_vigente.enemy = _detalhes.tabela_vigente.is_boss.encounter
 
@@ -463,13 +468,13 @@
 							_detalhes.pre_pot_used = nil
 						end
 					end
-					
+
 					if (from_encounter_end) then
 						_detalhes.tabela_vigente.end_time = _detalhes.encounter_table ["end"]
 					end
 
 					--> encounter boss function
-					local bossFunction, bossFunctionType = _detalhes:GetBossFunction (_detalhes.tabela_vigente.is_boss.mapid, _detalhes.tabela_vigente.is_boss.index)
+					local bossFunction, bossFunctionType = _detalhes:GetBossFunction (_detalhes.tabela_vigente.is_boss.mapid or 0, _detalhes.tabela_vigente.is_boss.index or 0)
 					if (bossFunction) then
 						if (_bit_band (bossFunctionType, 0x2) ~= 0) then --end of combat
 							bossFunction()
@@ -496,11 +501,11 @@
 						_detalhes:ScheduleTimer ("DelayedSyncAlert", 3)
 					end
 					
-				else
-					if (_detalhes.debug) then
-						_detalhes:EqualizeActorsSchedule (_detalhes.host_of)
-					end
-				end
+				--else
+				--	if (_detalhes.debug) then
+				--		_detalhes:EqualizeActorsSchedule (_detalhes.host_of)
+				--	end
+				--end
 			end
 
 			if (_detalhes.solo) then
@@ -509,14 +514,17 @@
 			end
 			
 			local tempo_do_combate = _detalhes.tabela_vigente.end_time - _detalhes.tabela_vigente.start_time
+			local invalid_combat
 			
 			--if ( tempo_do_combate >= _detalhes.minimum_combat_time) then --> tempo minimo precisa ser 5 segundos pra acrecentar a tabela ao historico
 			if ( tempo_do_combate >= 5 or not _detalhes.tabela_historico.tabelas[1]) then --> tempo minimo precisa ser 5 segundos pra acrecentar a tabela ao historico
 				_detalhes.tabela_historico:adicionar (_detalhes.tabela_vigente) --move a tabela atual para dentro do histórico
 			else
+				--print ("combat invalid...")
 				--> this is a little bit complicated, need a specific function for combat cancellation
-			
 				--_table_wipe (_detalhes.tabela_vigente) --> descarta ela, não será mais usada
+				
+				invalid_combat = _detalhes.tabela_vigente
 				_detalhes.tabela_vigente = _detalhes.tabela_historico.tabelas[1] --> pega a tabela do ultimo combate
 
 				if (_detalhes.tabela_vigente.start_time == 0) then
@@ -576,7 +584,12 @@
 			_detalhes.pre_pot_used = nil
 			_table_wipe (_detalhes.encounter_table)
 			
-			_detalhes:SendEvent ("COMBAT_PLAYER_LEAVE", nil, _detalhes.tabela_vigente)
+			if (invalid_combat) then
+				_detalhes:SendEvent ("COMBAT_INVALID")
+				_detalhes:SendEvent ("COMBAT_PLAYER_LEAVE", nil, invalid_combat)
+			else
+				_detalhes:SendEvent ("COMBAT_PLAYER_LEAVE", nil, _detalhes.tabela_vigente)
+			end
 		end
 
 		function _detalhes:GetPlayersInArena()
@@ -949,6 +962,7 @@
 		local backgroundPoint = {{"bottomleft", "topleft", 0, -3}, {"bottomright", "topright", 0, -3}}
 		local textPoint = {"left", "right", -11, -5}
 		local avatarTexCoord = {0, 1, 0, 1}
+		local backgroundColor = {0, 0, 0, 0.6}
 		
 		function _detalhes:AddTooltipBackgroundStatusbar()
 			GameCooltip:AddStatusBar (100, 1, unpack (_detalhes.tooltip.background))
@@ -971,14 +985,15 @@
 			GameCooltip:SetOption ("TextSize", _detalhes.tooltip.fontsize)
 			GameCooltip:SetOption ("TextFont",  _detalhes.tooltip.fontface)
 			GameCooltip:SetOption ("TextColor", _detalhes.tooltip.fontcolor)
+			GameCooltip:SetOption ("TextColorRight", _detalhes.tooltip.fontcolor_right)
 			GameCooltip:SetOption ("TextShadow", _detalhes.tooltip.fontshadow and "OUTLINE")
 			
 			GameCooltip:SetOption ("LeftBorderSize", -5)
 			GameCooltip:SetOption ("RightBorderSize", 5)
-			GameCooltip:SetOption ("MinWidth", _math_max (230, self.baseframe:GetWidth()*0.8))
+			GameCooltip:SetOption ("MinWidth", _math_max (230, self.baseframe:GetWidth()*0.9))
 			GameCooltip:SetOption ("StatusBarTexture", [[Interface\WorldStateFrame\WORLDSTATEFINALSCORE-HIGHLIGHT]]) --[[Interface\Addons\Details\images\bar_flat]]
 
-			GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
+			GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, backgroundColor, _detalhes.tooltip_border_color) --{.090, .090, .188, .1}
 			
 			local myPoint = _detalhes.tooltip.anchor_point
 			local anchorPoint = _detalhes.tooltip.anchor_relative

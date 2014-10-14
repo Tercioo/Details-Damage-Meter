@@ -33,6 +33,13 @@
 			id = id, --spellid
 			successful_casted = 0, --successful casted times (only for enemies)
 			
+			--> multistrike
+			m_amt = 0,
+			m_dmg = 0,
+			--off_amt = 0,
+			--off_dmg = 0,
+			--main_amt = 0,
+			
 			--> normal hits
 			n_min = 0,
 			n_max = 0,
@@ -92,7 +99,7 @@
 		self.total = self.total + amount
 	end
 
-	function habilidade_dano:Add (serial, nome, flag, amount, who_nome, resisted, blocked, absorbed, critical, glacing, token)
+	function habilidade_dano:Add (serial, nome, flag, amount, who_nome, resisted, blocked, absorbed, critical, glacing, token, multistrike, isoffhand)
 
 		self.counter = self.counter + 1
 		
@@ -102,6 +109,20 @@
 		else
 			alvo = self.targets._ActorTable [alvo]
 		end
+		
+		if (multistrike) then
+			self.m_amt = self.m_amt + 1
+			self.m_dmg = self.m_dmg + amount
+		end
+		
+		--[[
+		if (isoffhand) then
+			self.off_amt = self.off_amt + 1
+			self.off_dmg = self.off_dmg + amount
+		else
+			self.main_amt = self.main_amt + 1
+		end
+		--]]
 
 		if (resisted and resisted > 0) then
 			self.r_dmg = self.r_dmg+amount --> tabela.total é o total de dano

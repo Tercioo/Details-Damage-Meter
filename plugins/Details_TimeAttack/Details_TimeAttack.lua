@@ -912,8 +912,8 @@ end
 function TimeAttack:CheckTargetForTutorial()
 	local guid = UnitGUID ("target")
 	if (guid) then
-		local mobid = tonumber (guid:sub (6, 10), 16)
-		if (mobid == 31144 or mobid == 32666 or mobid == 31146 or mobid == 32667 or mobid == 67127 or mobid == 46647) then 
+		local mobid = TimeAttack:GetNpcIdFromGuid (guid)
+		if (mobid == 31144 or mobid == 32666 or mobid == 31146 or mobid == 32667 or mobid == 67127 or mobid == 46647 or mobid == 87762 or mobid == 87761) then 
 			TimeAttack:SetTutorialCVar ("TIME_ATTACK_TUTORIAL1", true)
 			TimeAttackFrame:UnregisterEvent ("PLAYER_TARGET_CHANGED")
 			TimeAttack:ShowTargetTutorial()

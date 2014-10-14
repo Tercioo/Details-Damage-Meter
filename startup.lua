@@ -166,8 +166,8 @@ function _G._detalhes:Start()
 						self.move_janela_func (instance.baseframe, true, instance)
 						self.move_janela_func (instance.baseframe, false, instance)
 					end
-					self.CheckWallpaperAfterStartup = nil
 				end
+				self.CheckWallpaperAfterStartup = nil
 			end
 			_detalhes:ScheduleTimer ("CheckWallpaperAfterStartup", 5)
 			
@@ -308,6 +308,17 @@ function _G._detalhes:Start()
 			_detalhes:FillUserCustomSpells()
 			_detalhes:AddDefaultCustomDisplays()
 			
+			if (_detalhes_database.last_realversion and _detalhes_database.last_realversion < 31 and enable_reset_warning) then
+				for index, custom in ipairs (_detalhes.custom) do
+					if (custom.name == Loc ["STRING_CUSTOM_POT_DEFAULT"]) then
+						-- only on 14/11/2014
+						--_detalhes.atributo_custom:RemoveCustom (index)
+						break
+					end
+				end
+				_detalhes:AddDefaultCustomDisplays()
+			end
+			
 			if (_detalhes_database.last_realversion and _detalhes_database.last_realversion < 20 and enable_reset_warning) then
 				table.wipe (self.custom)
 				_detalhes:AddDefaultCustomDisplays()
@@ -436,23 +447,6 @@ function _G._detalhes:Start()
 	
 	_detalhes:BrokerTick()
 	
-	--test realtime dps
-	--[[
-	local real_time_frame = CreateFrame ("frame", nil, UIParent)
-	local instance = _detalhes:GetInstance (1)
-	real_time_frame:SetScript ("OnUpdate", function (self, elapsed)
-		if (_detalhes.in_combat and instance.atributo == 1 and instance.sub_atributo == 1) then
-			for i = 1, instance:GetNumRows() do
-				local row = instance:GetRow (index)
-				if (row:IsShown()) then
-					local actor = row.minha_tabela
-					local right_text = row.texto_direita
-				end
-			end
-		end
-	end)
-	--]]
-	
 	-- test dbm callbacks
 	
 	if (_G.DBM) then
@@ -487,6 +481,79 @@ function _G._detalhes:Start()
 		
 		DBM:RegisterCallback ("DBM_Announce", dbm_callback_phase)
 		DBM:RegisterCallback ("pull", dbm_callback_pull)
+	end	
+
+	--test realtime dps
+	--[[
+	local real_time_frame = CreateFrame ("frame", nil, UIParent)
+	local instance = _detalhes:GetInstance (1)
+	real_time_frame:SetScript ("OnUpdate", function (self, elapsed)
+		if (_detalhes.in_combat and instance.atributo == 1 and instance.sub_atributo == 1) then
+			for i = 1, instance:GetNumRows() do
+				local row = instance:GetRow (index)
+				if (row:IsShown()) then
+					local actor = row.minha_tabela
+					local right_text = row.texto_direita
+				end
+			end
+		end
+	end)
+	--]]
+	
+	--WOD Spell Test
+	--[[
+	
+	local f = CreateFrame ("frame")
+	f:SetSize (400, 600)
+	f:SetPoint ("center", UIParent)
+
+	local invalid_spells = {}
+	local amt = 0
+	
+	--for spellid, class in pairs (_detalhes.ClassSpellList) do
+	--for spellid, class in pairs (_detalhes.CrowdControlSpells) do
+	--for spellid, class in pairs (_detalhes.AbsorbSpells) do
+	--for spellid, class in pairs (_detalhes.DefensiveCooldownSpellsNoBuff) do
+	--for spellid, class in pairs (_detalhes.DefensiveCooldownSpells) do
+	--for spellid, class in pairs (_detalhes.HarmfulSpells) do
+	--for spellid, class in pairs (_detalhes.MiscClassSpells) do
+	--for spellid, class in pairs (_detalhes.DualSideSpells) do
+	--for spellid, class in pairs (_detalhes.AttackCooldownSpells) do
+	
+
+	for spellid, class in pairs (_detalhes.HelpfulSpells) do
+	
+		local name = GetSpellInfo (spellid)
+		
+		if (not name) then
+			invalid_spells [spellid] = class
+			amt = amt + 1
+			
+			local edit = _detalhes.gump:NewTextEntry (f, f, "box"..amt, nil, 150, 12)
+			edit:SetPoint ("topleft", f, "topleft", 10, amt*13*-1)
+			edit:SetText (spellid)
+			edit:SetHook ("OnEditFocusGained", function() 
+				edit:HighlightText()
+			end)
+		end
+	
 	end
+	
+	print ("Spells Invalid:", amt)
+	--]]
+	
+	--[[
+	local parser = CreateFrame ("frame")
+	parser:RegisterEvent ("COMBAT_LOG_EVENT_UNFILTERED")
+	parser:SetScript ("OnEvent", function (self, evento, time, token, ...)
+
+		if (token == "SPELL_AURA_APPLIED") then
+			
+			print (...)
+			
+		end
+		
+	end)
+	--]]
 end
 

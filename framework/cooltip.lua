@@ -88,6 +88,7 @@ function DetailsCreateCoolTip()
 			["TextSize"] = true,
 			["TextFont"] = true,
 			["TextColor"] = true,
+			["TextColorRight"] = true,
 			["TextShadow"] = true,
 			["LeftTextWidth"] = true,
 			["RightTextWidth"] = true,
@@ -105,6 +106,7 @@ function DetailsCreateCoolTip()
 			["IconBlendMode"] = true,
 			["IconBlendModeHover"] = true,
 			["SubFollowButton"] = true,
+			["IgnoreArrows"] = true,
 		}
 		
 		CoolTip.OptionsTable = {}
@@ -638,7 +640,11 @@ function DetailsCreateCoolTip()
 				local r, g, b, a = rightTextTable [2], rightTextTable [3], rightTextTable [4], rightTextTable [5]
 				
 				if (r == 0 and g == 0 and b == 0 and a == 0) then
-					if (CoolTip.OptionsTable.TextColor) then
+					
+					if (CoolTip.OptionsTable.TextColorRight) then
+						r, g, b, a = gump:ParseColors (CoolTip.OptionsTable.TextColorRight)
+						menuButton.rightText:SetTextColor (r, g, b, a)
+					elseif (CoolTip.OptionsTable.TextColor) then
 						r, g, b, a = gump:ParseColors (CoolTip.OptionsTable.TextColor)
 						menuButton.rightText:SetTextColor (r, g, b, a)
 					else
@@ -1388,6 +1394,19 @@ function DetailsCreateCoolTip()
 			frame1:SetHeight (_math_max ( (frame1.hHeight * CoolTip.Indexes) + 12 + (-spacing) + mod, 22 ))
 		end
 		
+		--> sub menu arrows
+		if (CoolTip.HaveSubMenu and not CoolTip.OptionsTable.IgnoreArrows and not CoolTip.OptionsTable.SubMenuIsTooltip) then
+			for i = 1, CoolTip.Indexes do
+				if (CoolTip.IndexesSub [i] and CoolTip.IndexesSub [i] > 0) then
+					frame1.Lines [i].statusbar.subMenuArrow:Show()
+				else
+					frame1.Lines [i].statusbar.subMenuArrow:Hide()
+				end
+			end
+			
+			frame1:SetWidth (frame1:GetWidth() + 16)
+		end
+		
 		frame1:ClearAllPoints()
 		CoolTip:SetMyPoint (host)
 		
@@ -1792,6 +1811,11 @@ function DetailsCreateCoolTip()
 			CoolTip:ClearAllOptions()
 			CoolTip:SetColor (1, "transparent")
 			CoolTip:SetColor (2, "transparent")
+			
+			local f1Lines = frame1.Lines
+			for i = 1, #f1Lines do
+				f1Lines [i].statusbar.subMenuArrow:Hide()
+			end
 		end
 
 ----------------------------------------------------------------------

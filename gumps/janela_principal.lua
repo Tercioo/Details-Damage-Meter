@@ -483,6 +483,7 @@ local update_line = function (self, target_frame)
 end
 
 local tempo_movendo, precisa_ativar, instancia_alvo, tempo_fades, nao_anexados, flash_bounce, start_draw_lines
+
 local movement_onupdate = function (self, elapsed) 
 
 				if (start_draw_lines and start_draw_lines > 0.95) then
@@ -512,7 +513,7 @@ local movement_onupdate = function (self, elapsed)
 							for lado, livre in _ipairs (nao_anexados) do
 								if (livre) then
 									if (lado == 1) then
-
+									
 										local texture = instancia_alvo.h_esquerda.texture
 										texture:ClearAllPoints()
 										
@@ -538,6 +539,7 @@ local movement_onupdate = function (self, elapsed)
 										tem_livre = true
 										
 									elseif (lado == 2) then
+									
 									
 										local texture = instancia_alvo.h_baixo.texture
 										texture:ClearAllPoints()
@@ -590,7 +592,7 @@ local movement_onupdate = function (self, elapsed)
 										tem_livre = true
 										
 									elseif (lado == 4) then
-										
+									
 										local texture = instancia_alvo.h_cima.texture
 										texture:ClearAllPoints()
 										
@@ -601,9 +603,10 @@ local movement_onupdate = function (self, elapsed)
 											texture:SetPoint ("bottomleft", instancia_alvo.baseframe, "topleft", 0, 0)
 											texture:SetPoint ("bottomright", instancia_alvo.baseframe, "topright", 0, 0)
 										end
-										
+									
 										instancia_alvo.h_cima:Flash (1, 1, 2.0, false, 0, 0)
 										tem_livre = true
+										
 									end
 								end
 							end
@@ -667,7 +670,7 @@ local function move_janela (baseframe, iniciando, instancia)
 			nao_anexados = {true, true, true, true}
 			tempo_movendo = 1
 			flash_bounce = 0
-
+			
 			start_draw_lines = 0
 			for lado, snap_to in _pairs (instancia_alvo.snap) do
 				if (snap_to == instancia.meu_id) then
@@ -720,7 +723,7 @@ local function move_janela (baseframe, iniciando, instancia)
 				
 				need_start = false
 			end
-
+			
 			baseframe:SetScript ("OnUpdate", movement_onupdate)
 		end
 		
@@ -729,7 +732,7 @@ local function move_janela (baseframe, iniciando, instancia)
 		baseframe:StopMovingOrSizing()
 		baseframe.isMoving = false
 		baseframe:SetScript ("OnUpdate", nil)
-		
+
 		if (_detalhes.guide_balls) then
 			for index, ball in ipairs (_detalhes.guide_balls) do
 				ball:Hide()
@@ -745,7 +748,6 @@ local function move_janela (baseframe, iniciando, instancia)
 		--baseframe:SetClampRectInsets (unpack (_detalhes.window_clamp))
 
 		if (instancia_alvo) then
-		
 			instancia:AtualizaPontos()
 			
 			local esquerda, baixo, direita, cima
@@ -802,10 +804,12 @@ local function move_janela (baseframe, iniciando, instancia)
 			if (esquerda or baixo or direita or cima) then
 				instancia:agrupar_janelas ({esquerda, baixo, direita, cima})
 			end
---aqui
+
 			for _, esta_instancia in _ipairs (_detalhes.tabela_instancias) do
 				if (not esta_instancia:IsAtiva() and esta_instancia.iniciada) then
 					esta_instancia:ResetaGump()
+					--aqui
+					
 					gump:Fade (esta_instancia.baseframe, "in", 0.2)
 					gump:Fade (esta_instancia.baseframe.cabecalho.ball, "in", 0.2)
 					gump:Fade (esta_instancia.baseframe.cabecalho.atributo_icon, "in", 0.2)
@@ -837,7 +841,7 @@ local function move_janela (baseframe, iniciando, instancia)
 		for _, this_instance in _ipairs (group) do
 			this_instance.isMoving = false
 		end
-		
+
 		_detalhes.snap_alert.playing = false
 		_detalhes.snap_alert.animIn:Stop()
 		_detalhes.snap_alert.animOut:Play()
@@ -863,6 +867,11 @@ local BGFrame_scripts_onleave = function (self)
 end
 
 local BGFrame_scripts_onmousedown = function (self, button)
+
+	if (self.is_toolbar and self._instance.baseframe.isLocked and button == "LeftButton") then
+		return self._instance.baseframe.button_stretch:GetScript ("OnMouseDown") (self._instance.baseframe.button_stretch, "LeftButton")
+	end
+
 	if (self._instance.baseframe.isMoving) then
 		move_janela (self._instance.baseframe, false, self._instance)
 		self._instance:SaveMainWindowPosition()
@@ -886,6 +895,11 @@ local BGFrame_scripts_onmousedown = function (self, button)
 end
 
 local BGFrame_scripts_onmouseup = function (self, button)
+
+	if (self.is_toolbar and self._instance.baseframe.isLocked and button == "LeftButton") then
+		return self._instance.baseframe.button_stretch:GetScript ("OnMouseUp") (self._instance.baseframe.button_stretch, "LeftButton")
+	end
+	
 	if (self._instance.baseframe.isMoving) then
 		move_janela (self._instance.baseframe, false, self._instance) --> novo movedor da janela
 		self._instance:SaveMainWindowPosition()
@@ -1306,7 +1320,7 @@ local resize_scripts_onmousedown = function (self, button)
 		end
 		
 		_detalhes:SendEvent ("DETAILS_INSTANCE_STARTRESIZE", nil, self._instance)
-		
+
 		if (_detalhes.update_speed > 0.3) then
 			_detalhes:CancelTimer (_detalhes.atualizador)
 			_detalhes.atualizador = _detalhes:ScheduleRepeatingTimer ("AtualizaGumpPrincipal", 0.3, -1)
@@ -1339,7 +1353,7 @@ local resize_scripts_onmouseup = function (self, button)
 		self._instance:RefreshBars()
 		self._instance:InstanceReset()
 		self._instance:ReajustaGump()
-
+		
 		if (self._instance.stretchToo and #self._instance.stretchToo > 0) then
 			for _, esta_instancia in ipairs (self._instance.stretchToo) do 
 				esta_instancia.baseframe:StopMovingOrSizing()
@@ -1648,7 +1662,7 @@ local barra_scripts_onenter = function (self)
 	--local r, g, b = self.textura:GetVertexColor()
 	--self.textura:SetVertexColor (math.min (r+0.1, 1), math.min (g+0.1, 1), math.min (b+0.1, 1))
 	--self.icone_classe:SetBlendMode ("ADD")
-	
+
 	self:SetScript ("OnUpdate", shift_monitor)
 end
 
@@ -1898,7 +1912,6 @@ local function button_stretch_scripts (baseframe, backgrounddisplay, instancia)
 		_detalhes:SendEvent ("DETAILS_INSTANCE_STARTSTRETCH", nil, instancia)
 		
 		--> change the update speed
-		
 		if (_detalhes.update_speed > 0.3) then
 			_detalhes:CancelTimer (_detalhes.atualizador)
 			_detalhes.atualizador = _detalhes:ScheduleRepeatingTimer ("AtualizaGumpPrincipal", 0.3, -1)
@@ -1962,7 +1975,6 @@ local function button_stretch_scripts (baseframe, backgrounddisplay, instancia)
 					esta_instancia:RefreshBars()
 					esta_instancia:InstanceReset()
 					esta_instancia:ReajustaGump()
-					
 				end
 				instancia.stretchToo = nil
 			end
@@ -2037,7 +2049,7 @@ local function button_up_scripts (main_frame, backgrounddisplay, instancia, scro
 		
 		local A = instancia.barraS[1]
 		if (A > 1) then
-			scrollbar:SetValue (scrollbar:GetValue() - instancia.row_height)
+			scrollbar:SetValue (scrollbar:GetValue() - instancia.row_height*2)
 		end
 		
 		self.precionado = true
@@ -2048,7 +2060,7 @@ local function button_up_scripts (main_frame, backgrounddisplay, instancia, scro
 				self.last_up = 0
 				A = instancia.barraS[1]
 				if (A > 1) then
-					scrollbar:SetValue (scrollbar:GetValue() - instancia.row_height)
+					scrollbar:SetValue (scrollbar:GetValue() + instancia.row_height*2)
 				else
 					self:Disable()
 				end
@@ -2131,18 +2143,16 @@ local function iterate_scroll_scripts (backgrounddisplay, backgroundframe, basef
 			if (delta > 0) then --> rolou pra cima
 				local A = instancia.barraS[1]
 				if (A > 1) then
-					scrollbar:SetValue (scrollbar:GetValue() - instancia.row_height*2)
+					scrollbar:SetValue (scrollbar:GetValue() - instancia.row_height * _detalhes.scroll_speed)
 				else
 					scrollbar:SetValue (0)
 					scrollbar.ultimo = 0
 					baseframe.button_up:Disable()
 				end
 			elseif (delta < 0) then --> rolou pra baixo
-			
 				local B = instancia.barraS[2]
-			
 				if (B < instancia.rows_showing) then
-					scrollbar:SetValue (scrollbar:GetValue() + instancia.row_height*2)
+					scrollbar:SetValue (scrollbar:GetValue() + instancia.row_height * _detalhes.scroll_speed)
 				else
 					local _, maxValue = scrollbar:GetMinMaxValues()
 					scrollbar:SetValue (maxValue)
@@ -2168,7 +2178,7 @@ local function iterate_scroll_scripts (backgrounddisplay, backgroundframe, basef
 			instancia:AtualizaGumpPrincipal (instancia, true)
 			self.ultimo = meu_valor
 			baseframe.button_up:Disable()
-			return
+				return
 		elseif (maxValue == meu_valor) then
 			local min = instancia.rows_showing -instancia.rows_fit_in_window
 			min = min+1
@@ -2191,14 +2201,12 @@ local function iterate_scroll_scripts (backgrounddisplay, backgroundframe, basef
 		end
 		
 		if (meu_valor > ultimo) then --> scroll down
-
+		
 			local B = instancia.barraS[2]
 			if (B < instancia.rows_showing) then --> se o valor maximo não for o máximo de barras a serem mostradas	
-				
-				local precisa_passar = ((B+2) * instancia.row_height) - (instancia.row_height*instancia.rows_fit_in_window)
-				
-			--	if (meu_valor > precisa_passar) then --> o valor atual passou o valor que precisa passar pra locomover
-				if (true) then --> testing
+				local precisa_passar = ((B+1) * instancia.row_height) - (instancia.row_height*instancia.rows_fit_in_window)
+				--if (meu_valor > precisa_passar) then --> o valor atual passou o valor que precisa passar pra locomover
+				if (true) then --> testing by pass row check
 					local diff = meu_valor - ultimo --> pega a diferença de H
 					diff = diff / instancia.row_height --> calcula quantas barras ele pulou
 					diff = _math_ceil (diff) --> arredonda para cima
@@ -2217,7 +2225,7 @@ local function iterate_scroll_scripts (backgrounddisplay, backgroundframe, basef
 			if (A > 1) then
 				local precisa_passar = (A-1) * instancia.row_height
 				--if (meu_valor < precisa_passar) then
-				if (true) then --> testing
+				if (true) then --> testing by pass row check
 					--> calcula quantas barras passou
 					local diff = ultimo - meu_valor
 					diff = diff / instancia.row_height
@@ -4420,20 +4428,18 @@ local build_mode_list = function (self, elapsed)
 		CoolTip:SetColor ("main", "transparent")
 		
 		CoolTip:SetOption ("TextSize", _detalhes.font_sizes.menus)
-		CoolTip:SetOption ("ButtonHeightModSub", -5)
+		
+		CoolTip:SetOption ("ButtonHeightModSub", -2)
 		CoolTip:SetOption ("ButtonHeightMod", -5)
-		CoolTip:SetOption ("ButtonsYModSub", -5)
+		
+		CoolTip:SetOption ("ButtonsYModSub", -3)
 		CoolTip:SetOption ("ButtonsYMod", -5)
-		CoolTip:SetOption ("YSpacingModSub", 1)
+		
+		CoolTip:SetOption ("YSpacingModSub", -3)
 		CoolTip:SetOption ("YSpacingMod", 1)
+		
 		CoolTip:SetOption ("FixedHeight", 106)
 		CoolTip:SetOption ("FixedWidthSub", 146)
-		
-		--CoolTip:SetOption ("SubMenuIsTooltip", true)
-		
-		--if (_detalhes.tutorial.logons > 9) then
-			--CoolTip:SetOption ("IgnoreSubMenu", true)
-		--end
 		
 		CoolTip:AddLine (Loc ["STRING_MODE_GROUP"])
 		CoolTip:AddMenu (1, instancia.AlteraModo, 2, true)
@@ -4481,23 +4487,27 @@ local build_mode_list = function (self, elapsed)
 		
 		--build self plugins list
 		
+		--pega a list de plugins solo:
+		if (#_detalhes.SoloTables.Menu > 0) then
+			for index, ptable in _ipairs (_detalhes.SoloTables.Menu) do 
+				if (ptable [3].__enabled) then
+					CoolTip:AddMenu (2, _detalhes.SoloTables.EnableSoloMode, instancia, ptable [4], true, ptable [1], ptable [2], true)
+				end
+			end
+			
+			CoolTip:SetWallpaper (2, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
+		end
+		
 		CoolTip:AddLine (Loc ["STRING_OPTIONS_WINDOW"])
 		CoolTip:AddMenu (1, _detalhes.OpenOptionsWindow)
 		CoolTip:AddIcon ([[Interface\AddOns\Details\images\modo_icones]], 1, 1, 20, 20, 32/256*4, 32/256*5, 0, 1)
 		
-		--CoolTip:AddFromTable (parameters_table [4])
-		
-		if (instancia.consolidate) then
-			CoolTip:SetOwner (self, "topleft", "topright", 3)
-		else
-			if (instancia.toolbar_side == 1) then
-				CoolTip:SetOwner (self)
-			elseif (instancia.toolbar_side == 2) then --> bottom
-				CoolTip:SetOwner (self, "bottom", "top", 0, 0) -- -7
-			end
+		if (instancia.toolbar_side == 1) then
+			CoolTip:SetOwner (self)
+		elseif (instancia.toolbar_side == 2) then --> bottom
+			CoolTip:SetOwner (self, "bottom", "top", 0, 0) -- -7
 		end
 		
-		--CoolTip:SetWallpaper (1, [[Interface\ACHIEVEMENTFRAME\UI-Achievement-Parchment-Horizontal-Desaturated]], nil, {1, 1, 1, 0.3})
 		CoolTip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
 		CoolTip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
 		
@@ -5048,7 +5058,7 @@ function _detalhes:ChangeSkin (skin_name)
 		end
 		
 	--> set the scale
-	self:SetWindowScale()
+		self:SetWindowScale()
 		
 	if (not just_updating or _detalhes.initializing) then
 		if (this_skin.callback) then
@@ -5618,7 +5628,7 @@ function _detalhes:ToolbarSide (side)
 		--> tex coords
 		self.baseframe.cabecalho.emenda:SetTexCoord (unpack (COORDS_LEFT_CONNECTOR))
 		self.baseframe.cabecalho.top_bg:SetTexCoord (unpack (COORDS_TOP_BACKGROUND))
-		
+
 		--> up frames
 		self.baseframe.UPFrame:SetPoint ("left", self.baseframe.cabecalho.ball, "right", 0, -53)
 		self.baseframe.UPFrame:SetPoint ("right", self.baseframe.cabecalho.ball_r, "left", 0, -53)
@@ -5629,6 +5639,7 @@ function _detalhes:ToolbarSide (side)
 		
 		self.baseframe.UPFrameLeftPart:ClearAllPoints()
 		self.baseframe.UPFrameLeftPart:SetPoint ("bottomleft", self.baseframe, "topleft", 0, 0)
+		
 		
 	else --> bottom
 	
@@ -5671,7 +5682,7 @@ function _detalhes:ToolbarSide (side)
 		
 		self.baseframe.UPFrameLeftPart:ClearAllPoints()
 		self.baseframe.UPFrameLeftPart:SetPoint ("topleft", self.baseframe, "bottomleft", 0, 0)
-		
+
 	end
 	
 	--> update top menus
@@ -6268,7 +6279,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 	baseframe.cabecalho.fechar:SetScript ("OnLeave", close_button_onleave)
 	
 	baseframe.cabecalho.fechar:SetScript ("OnClick", close_button_onclick)
-
+	
 	--> bola do canto esquedo superior --> primeiro criar a armação para apoiar as texturas
 	baseframe.cabecalho.ball_point = baseframe.cabecalho.fechar:CreateTexture (nil, "overlay")
 	baseframe.cabecalho.ball_point:SetPoint ("bottomleft", baseframe, "topleft", -37, 0)
@@ -6809,7 +6820,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 		
 		if (ClosedInstances == 0) then
 			if (_detalhes:GetNumInstancesAmount() == _detalhes:GetMaxInstancesAmount()) then
-				CoolTip:AddMenu (1, _detalhes.CriarInstancia, true, nil, nil, Loc ["STRING_NOMORE_INSTANCES"], _, true)
+				CoolTip:AddMenu (1, _detalhes.OpenOptionsWindow, true, 1, nil, Loc ["STRING_NOMORE_INSTANCES"], _, true)
 				CoolTip:AddIcon ([[Interface\Buttons\UI-PlusButton-Up]], 1, 1, 16, 16)
 			else
 				CoolTip:AddMenu (1, _detalhes.CriarInstancia, true, nil, nil, Loc ["STRING_NOCLOSED_INSTANCES"], _, true)

@@ -111,6 +111,10 @@ local function CreatePluginFrames()
 		elseif (event == "COMBAT_PLAYER_ENTER") then
 			DpsTuningPlugin:OnCombatStart (...)
 			
+		elseif (event == "COMBAT_INVALID") then
+			--DpsTuningPlugin:Reset()
+			--print ("eh invalido...")
+			
 		elseif (event == "COMBAT_PLAYER_LEAVE") then
 			DpsTuningPlugin:OnCombatEnd (...)
 
@@ -1183,6 +1187,7 @@ function DpsTuningPlugin:OnEvent (_, event, ...)
 				_G._detalhes:RegisterEvent (DpsTuningPlugin, "COMBAT_PLAYER_ENTER")
 				_G._detalhes:RegisterEvent (DpsTuningPlugin, "COMBAT_PLAYER_LEAVE")
 				_G._detalhes:RegisterEvent (DpsTuningPlugin, "DETAILS_DATA_RESET")
+				_G._detalhes:RegisterEvent (DpsTuningPlugin, "COMBAT_INVALID")
 				
 			end
 		end

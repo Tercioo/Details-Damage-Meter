@@ -4,7 +4,7 @@
 -- NickTag:SetNickname (name) -> set the player nick name, after set nicktag will broadcast the nick over addon guild channel.
 -- 
 
-local major, minor = "NickTag-1.0", 6
+local major, minor = "NickTag-1.0", 7
 local NickTag, oldminor = LibStub:NewLibrary (major, minor)
 
 if (not NickTag) then 
@@ -19,7 +19,6 @@ if (_G.NickTag) then
 	end
 end
 
- 
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 --> constants
 
@@ -911,7 +910,7 @@ end
 			if (not guid) then
 				return
 			end
-			serial = guid:sub (12, 18)
+			serial = select ( 3, strsplit ( "-", guid ) )
 		else
 			if (not silent) then
 				assert (type (serial) == "string", "NickTag 'GetSerial' expects a GUID string on #1 parameter"..serial)
@@ -919,12 +918,12 @@ end
 			else
 				if (type (serial) ~= "string") then
 					return
-				elseif (string.len (serial) < 17) then
+				elseif (string.len (serial) < 16) then
 					return
 				end
 			end
-			
-			serial = serial:sub (12, 18)
+
+			serial = select ( 3, strsplit ( "-", serial ) )
 		end
 		return tonumber ("0x"..serial)
 	end
@@ -1181,13 +1180,18 @@ do
 			--> if none
 			_G.AvatarPickFrameAvatarPreview:SetTexture ( [[Interface\EncounterJournal\UI-EJ-BOSS-Default]] )
 			avatar_pick_frame.selected_avatar = [[Interface\EncounterJournal\UI-EJ-BOSS-Default]]
-			local background = NickTag.background_pool [avatar_pick_frame.selected_background]
-			_G.AvatarPickFrameBackgroundPreview:SetTexture ( background [1] )
-			avatar_pick_frame.selected_background = background [1]
-			_G.AvatarPickFrameBackgroundPreview:SetTexCoord (unpack (background [3]))
-			avatar_pick_frame.selected_texcoord = background [3]
-			_G.AvatarPickFrameBackgroundPreview:SetVertexColor (unpack (avatar_pick_frame.selected_color))	
-			avatar_pick_frame.selected_color = avatar_pick_frame.selected_color
+			
+			local background = NickTag.background_pool [1]
+			
+			if (background) then
+				_G.AvatarPickFrameBackgroundPreview:SetTexture ( background [1] )
+				avatar_pick_frame.selected_background = background [1]
+				_G.AvatarPickFrameBackgroundPreview:SetTexCoord (unpack (background [3]))
+				avatar_pick_frame.selected_texcoord = background [3]
+				_G.AvatarPickFrameBackgroundPreview:SetVertexColor (unpack (avatar_pick_frame.selected_color))
+				avatar_pick_frame.selected_color = avatar_pick_frame.selected_color
+			end
+			
 		end
 	end)
 	

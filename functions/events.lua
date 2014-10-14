@@ -32,6 +32,7 @@
 			["COMBAT_PLAYER_LEAVE"] = {},
 			["COMBAT_PLAYER_TIMESTARTED"] = {},
 			["COMBAT_BOSS_FOUND"] = {},
+			["COMBAT_INVALID"] = {},
 		
 		--> area
 			["ZONE_TYPE_CHANGED"] = {},
@@ -76,6 +77,7 @@ local common_events = {
 	["COMBAT_PLAYER_LEAVE"] = true,
 	["COMBAT_PLAYER_TIMESTARTED"] = true,
 	["COMBAT_BOSS_FOUND"] = true,
+	["COMBAT_INVALID"] = true,
 	["GROUP_ONENTER"] = true,
 	["GROUP_ONLEAVE"] = true,
 	["ZONE_TYPE_CHANGED"] = true,

@@ -1,6 +1,6 @@
 ## Interface: 60000
-## Title: Details: Mists of Pandaria Dungeons
+## Title: Details: Blackrock Foundry
 ## Notes: Plugin for Details
 ## RequiredDeps: Details
 
-Details_DungeonInfo-Pandaria.lua
+Details_RaidInfo-BlackrockFoundry.lua

@@ -12,6 +12,7 @@ local _cstr = string.format
 local _table_insert = table.insert
 local _bit_band = bit.band
 local _math_min = math.min
+local _math_ceil = math.ceil
 --api locals
 local GetSpellInfo = GetSpellInfo
 local _GetSpellInfo = _detalhes.getspellinfo
@@ -58,6 +59,10 @@ local UsingCustomLeftText = false
 
 local FormatTooltipNumber = ToKFunctions [8]
 local TooltipMaximizedMethod = 1
+
+local headerColor = "yellow"
+local key_overlay = {1, 1, 1, .1}
+local key_overlay_press = {1, 1, 1, .2}
 
 local info = _detalhes.janela_info
 local keyName
@@ -352,6 +357,7 @@ function atributo_heal:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 		return _detalhes:EndRefresh (instancia, total, tabela_do_combate, showing) --> retorna a tabela que precisa ganhar o refresh
 	end
 
+	--estra mostrando ALL então posso seguir o padrão correto? primeiro, atualiza a scroll bar...
 	instancia:AtualizarScrollBar (amount)
 	
 	--depois faz a atualização normal dele através dos iterators
@@ -361,10 +367,10 @@ function atributo_heal:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 	local baseframe = instancia.baseframe
 	
 	local use_animations = _detalhes.is_using_row_animations and (not baseframe.isStretching and not forcar and not baseframe.isResizing)
-	
+ 	
 	if (total == 0) then
 		total = 0.00000001
-	end
+	end	
 	
 	local myPos
 	local following = instancia.following.enabled
@@ -753,7 +759,7 @@ function atributo_heal:RefreshBarra2 (esta_barra, instancia, tabela_anterior, fo
 				end
 			
 				esta_barra.last_value = esta_porcentagem --> reseta o ultimo valor da barra
-			
+				
 				return self:RefreshBarra (esta_barra, instancia)
 				
 			elseif (esta_porcentagem ~= esta_barra.last_value) then --> continua mostrando a mesma tabela então compara a porcentagem
@@ -897,31 +903,36 @@ function atributo_heal:RefreshBarra (esta_barra, instancia, from_resize)
 	
 end
 
-function _detalhes:CloseShields()
+function _detalhes:CloseShields (combat)
 
-	if (not _IsInRaid()) then
-		return
-	end
-
-	local name_table = {}
-	for i = 1, _GetNumGroupMembers() do
-		name_table [_UnitName ("raid" .. i)] = "raid" .. i
-	end
+	local escudos = _detalhes.escudos
+	local container = combat[2]
+	local time = time()
+	local parser = _detalhes.parser
+	local GetSpellInfo = GetSpellInfo --não colocar no cache de spells
 	
-	local spells_table = {}
-
-	--não da de fechar os escudos, precisa saber o total dele, unitaura nao retorna o valor do escudo
 	for alvo_name, spellid_table in _pairs (escudos) do
-		for spellid, caster_table in _pairs (spellid_table) do
-			if (not spells_table [spellid]) then
+	
+		local tgt = container:PegarCombatente (_, alvo_name)
+		if (tgt) then
+		
+			for spellid, owner_table in _pairs (spellid_table) do
+		
 				local spellname = GetSpellInfo (spellid)
-				spells_table [spellid] = spellname
-			end
-			for caster_name, amount in _pairs (caster_table) do
-				local name, _, _, _, _, _, _, unitCaster, _, _, spellid  = _UnitAura (name_table [alvo_name], buffIndex, nil, "HELPFUL")
+				for owner, amount in _pairs (owner_table) do
 				
+					if (amount > 0) then
+						local obj = container:PegarCombatente (_, owner)
+						if (obj) then
+							parser:heal ("SPELL_AURA_REMOVED", time, obj.serial, owner, obj.flag_original, tgt.serial, alvo_name, tgt.flag_original, spellid, spellname, nil, 0, _math_ceil (amount), 0, 0, nil, true)
+						end
+					end
+					
+				end
 			end
+			
 		end
+		
 	end
 
 	--escudo [alvo_name] [spellid] [who_name]
@@ -950,10 +961,7 @@ function atributo_heal:ToolTip (instancia, numero, barra, keydown)
 end
 --> tooltip locals
 local r, g, b
-local headerColor = "yellow"
 local barAlha = .6
-local key_overlay = {1, 1, 1, .1}
-local key_overlay_press = {1, 1, 1, .2}
 
 ---------> HEALING TAKEN
 function atributo_heal:ToolTip_HealingTaken (instancia, numero, barra, keydown)
@@ -1869,6 +1877,15 @@ function atributo_heal:MontaDetalhesHealingTaken (nome, barra)
 	end
 end
 
+local absorbed_table = {c = {180/255, 180/255, 180/255, 0.5}, p = 0}
+local overhealing_table = {c = {0.5, 0.1, 0.1, 0.9}, p = 0}
+local normal_table = {c = {255/255, 180/255, 0/255, 0.5}, p = 0}
+local multistrike_table = {c = {223/255, 249/255, 45/255, 0.5}, p = 0}
+local critical_table = {c = {249/255, 74/255, 45/255, 0.5}, p = 0}
+
+local data_table = {}
+local t1, t2, t3, t4 = {}, {}, {}, {}
+
 function atributo_heal:MontaDetalhesHealingDone (spellid, barra)
 
 	local esta_magia
@@ -1883,10 +1900,8 @@ function atributo_heal:MontaDetalhesHealingDone (spellid, barra)
 	end
 	
 	--> icone direito superior
-	local nome, rank, icone = _GetSpellInfo (spellid)
-	local infospell = {nome, rank, icone}
-
-	info.spell_icone:SetTexture (infospell[3])
+	local _, _, icone = _GetSpellInfo (spellid)
+	info.spell_icone:SetTexture (icone)
 
 	local total = self.total
 	
@@ -1899,13 +1914,16 @@ function atributo_heal:MontaDetalhesHealingDone (spellid, barra)
 	elseif (_detalhes.time_type == 2) then
 		meu_tempo = info.instancia.showing:GetCombatTime()
 	end
-	
-	--local total_hits = esta_magia.counter
-	local total_hits = esta_magia.n_amt+esta_magia.c_amt
-	
+
+	local total_hits = esta_magia.counter
 	local index = 1
+	local data = data_table
 	
-	local data = {}
+	table.wipe (t1)
+	table.wipe (t2)
+	table.wipe (t3)
+	table.wipe (t4)
+	table.wipe (data)
 	
 	if (esta_magia.total > 0) then
 	
@@ -1914,18 +1932,25 @@ function atributo_heal:MontaDetalhesHealingDone (spellid, barra)
 		
 		local this_hps = nil
 		if (esta_magia.counter > esta_magia.c_amt) then
-			this_hps = Loc ["STRING_HPS"]..": ".._cstr ("%.1f", esta_magia.total/meu_tempo) --> localiza-me
+			this_hps = Loc ["STRING_HPS"] .. ": " .. _detalhes:comma_value (esta_magia.total/meu_tempo)
 		else
-			this_hps = Loc ["STRING_HPS"]..": "..Loc ["STRING_SEE_BELOW"]
+			this_hps = Loc ["STRING_HPS"] .. ": " .. Loc ["STRING_SEE_BELOW"]
 		end
 		
-		gump:SetaDetalheInfoTexto ( index, 100, --> Localize-me
-			Loc ["STRING_GERAL"], --> localiza-me
-			Loc ["STRING_HEAL"]..": ".._detalhes:ToK (esta_magia.total), --> localiza-me
-			Loc ["STRING_PERCENTAGE"]..": ".._cstr ("%.1f", esta_magia.total/total*100) .. "%", --> localiza-me
-			Loc ["STRING_MEDIA"]..": ".._cstr ("%.1f", media), --> localiza-me
+		local heal_string
+		if (esta_magia.is_shield) then
+			heal_string = Loc ["STRING_SHIELD_HEAL"]
+		else
+			heal_string = Loc ["STRING_HEAL"]
+		end
+		
+		gump:SetaDetalheInfoTexto ( index, 100,
+			Loc ["STRING_GERAL"], 
+			heal_string .. ": " .. _detalhes:ToK (esta_magia.total), 
+			"", --Loc ["STRING_PERCENTAGE"] .. ": " .. _cstr ("%.1f", esta_magia.total/total*100) .. "%",
+			Loc ["STRING_AVERAGE"] .. ": " .. _detalhes:comma_value (media), 
 			this_hps,
-			Loc ["STRING_HITS"]..": " .. total_hits) --> localiza-me
+			Loc ["STRING_HITS"] .. ": " .. total_hits) 
 	
 	--> NORMAL
 		local normal_hits = esta_magia.n_amt
@@ -1936,17 +1961,25 @@ function atributo_heal:MontaDetalhesHealingDone (spellid, barra)
 			local P = media/media_normal*100
 			T = P*T/100
 
-			data[#data+1] = {
-				esta_magia.n_amt, 
-				normal_hits/total_hits*100, 
-				--esta_magia.n_curado/esta_magia.total*100, 
-				Loc ["STRING_HEAL"], --> localiza-me
-				Loc ["STRING_MINIMUM"] .. ": " .. _detalhes:comma_value (esta_magia.n_min), --> localiza-me
-				Loc ["STRING_MAXIMUM"] .. ": " .. _detalhes:comma_value (esta_magia.n_max), --> localiza-me
-				Loc ["STRING_MEDIA"] .. ": " .. _cstr ("%.1f", media_normal), --> localiza-me
-				Loc ["STRING_HPS"] .. ": " .. _cstr ("%.1f", normal_curado/T), --> localiza-me
-				normal_hits .. " / ".. _cstr ("%.1f", normal_hits/total_hits*100).."%"
-				}
+			data[#data+1] = t1
+			
+			if (esta_magia.is_shield) then
+				t1[3] = Loc ["STRING_ABSORBED"]
+				normal_table.p = esta_magia.total / (esta_magia.total+esta_magia.overheal) * 100
+			else
+				t1[3] = heal_string
+				normal_table.p = normal_hits/total_hits*100
+			end
+			
+			t1[1] = esta_magia.n_amt
+			t1[2] = normal_table
+
+			t1[4] = Loc ["STRING_MINIMUM_SHORT"] .. ": " .. _detalhes:comma_value (esta_magia.n_min)
+			t1[5] = Loc ["STRING_MAXIMUM_SHORT"] .. ": " .. _detalhes:comma_value (esta_magia.n_max)
+			t1[6] = Loc ["STRING_AVERAGE"] .. ": " .. _detalhes:comma_value (media_normal)
+			t1[7] = Loc ["STRING_HPS"] .. ": " .. _detalhes:comma_value (normal_curado/T)
+			t1[8] = normal_hits .. " / ".. _cstr ("%.1f", normal_hits/total_hits*100) .. "%"
+
 		end
 
 	--> CRITICO
@@ -1960,59 +1993,109 @@ function atributo_heal:MontaDetalhesHealingDone (spellid, barra)
 				crit_hps = 0
 			end
 			
-			data[#data+1] = {
-				esta_magia.c_amt,
-				esta_magia.c_amt/total_hits*100, 
-				--esta_magia.c_curado/esta_magia.total*100,
-				Loc ["STRING_HEAL_CRIT"], --> localiza-me
-				Loc ["STRING_MINIMUM"] .. ": " .. _detalhes:comma_value (esta_magia.c_min), --> localiza-me
-				Loc ["STRING_MAXIMUM"] .. ": " .. _detalhes:comma_value (esta_magia.c_max), --> localiza-me
-				Loc ["STRING_MEDIA"] .. ": " .. _cstr ("%.1f", media_critico), --> localiza-me
-				Loc ["STRING_HPS"] .. ": " .. _cstr ("%.1f", crit_hps), --> localiza-me
-				esta_magia.c_amt .. " / ".._cstr ("%.1f", esta_magia.c_amt/total_hits*100).."%"
-				}
+			data[#data+1] = t2
+			critical_table.p = esta_magia.c_amt/total_hits*100
+			
+			t2[1] = esta_magia.c_amt
+			t2[2] = critical_table
+			t2[3] = Loc ["STRING_HEAL_CRIT"]
+			t2[4] = Loc ["STRING_MINIMUM_SHORT"] .. ": " .. _detalhes:comma_value (esta_magia.c_min)
+			t2[5] = Loc ["STRING_MAXIMUM_SHORT"] .. ": " .. _detalhes:comma_value (esta_magia.c_max)
+			t2[6] = Loc ["STRING_AVERAGE"] .. ": " .. _detalhes:comma_value (media_critico)
+			t2[7] = Loc ["STRING_HPS"] .. ": " .. _detalhes:comma_value (crit_hps)
+			t2[8] = esta_magia.c_amt .. " / ".. _cstr ("%.1f", esta_magia.c_amt/total_hits*100) .. "%"
+			
+		end
+		
+	--> MULTISTRIKE
+		if (esta_magia.m_amt > 0) then
+		
+			local multistrike_hits = esta_magia.m_amt
+			local multistrike_heal = esta_magia.m_curado
+
+			local media_multistrike = multistrike_heal/multistrike_hits
+			
+			local T
+			if (media_multistrike > 0) then
+				T = (meu_tempo*multistrike_heal)/esta_magia.total
+				local P = (esta_magia.total/esta_magia.counter)/media_multistrike*100
+				T = P*T/100
+			else
+				T = 1
+			end
+			
+			local overheal = esta_magia.m_overheal
+			overheal = overheal / (multistrike_heal + overheal) * 100
+			
+			data[#data+1] = t3
+			multistrike_table.p = esta_magia.m_amt/total_hits*100
+		
+			t3[1] = esta_magia.m_amt
+			t3[2] = multistrike_table
+			t3[3] = Loc ["STRING_MULTISTRIKE"]
+			t3[4] = Loc ["STRING_OVERHEAL"] .. ": " .. _math_floor (overheal) .. "%"
+			t3[5] = "" 
+			t3[6] = Loc ["STRING_AVERAGE"] .. ": " .. _detalhes:comma_value (esta_magia.m_curado/esta_magia.m_amt)
+			t3[7] = Loc ["STRING_HPS"] .. ": " .. _detalhes:comma_value (esta_magia.m_curado/T)
+			t3[8] = esta_magia.m_amt .. " / " .. _cstr ("%.1f", esta_magia.m_amt/total_hits*100) .. "%"
+
 		end
 		
 	end
 	
-	_table_sort (data, function (a, b) return a[1] > b[1] end)
 
-	--> Aqui pode vir a cura absorvida
+	
+	_table_sort (data, _detalhes.Sort1)
 
+	--[[
 		local absorbed = esta_magia.absorbed
-
 		if (absorbed > 0) then
+		
 			local porcentagem_absorbed = absorbed/esta_magia.total*100
-			data[#data+1] = {
-				absorbed,
-				{["p"] = porcentagem_absorbed, ["c"] = {117/255, 58/255, 0/255}},
-				Loc ["STRING_HEAL_ABSORBED"], --> localiza-me
-				"", --esta_magia.glacing.curado
-				"",
-				"",
-				"",
-				absorbed.." / ".._cstr ("%.1f", porcentagem_absorbed).."%"
-				}
-		end
+			data[#data+1] = t3
+			
+			absorbed_table.p = porcentagem_absorbed
+			
+			t3[1] = absorbed
+			t3[2] = absorbed_table
+			t3[3] = Loc ["STRING_HEAL_ABSORBED"]
+			t3[4] = ""
+			t3[5] = ""
+			t3[6] = ""
+			t3[7] = ""
+			t3[8] = absorbed .. " / " .. _cstr ("%.1f", porcentagem_absorbed).."%"
 
+		end
+	--]]
+	
 	for i = #data+1, 3 do --> para o overheal aparecer na ultima barra
 		data[i] = nil
 	end
-		
+	
 	--> overhealing
 
 		if (overheal > 0) then
+		
 			local porcentagem_overheal = overheal/meu_total*100
-			data[4] = { 
-				overheal,
-				{["p"] = porcentagem_overheal, ["c"] = {0.5, 0.1, 0.1}},
-				Loc ["STRING_OVERHEAL"], --> localiza-me
-				"",
-				"",
-				"",
-				"",
-				_detalhes:comma_value (overheal).." / ".._cstr ("%.1f", porcentagem_overheal).."%"
-				}
+			data[4] = t4
+			
+			overhealing_table.p = porcentagem_overheal
+			
+			t4[1] = overheal
+			t4[2] = overhealing_table
+
+			if (esta_magia.is_shield) then
+				t4[3] = Loc ["STRING_SHIELD_OVERHEAL"]
+			else
+				t4[3] = Loc ["STRING_OVERHEAL"]
+			end
+			
+			t4[4] = ""
+			t4[5] = ""
+			t4[6] = ""
+			t4[7] = ""
+			t4[8] = _detalhes:comma_value (overheal) .. " / " .. _cstr ("%.1f", porcentagem_overheal) .. "%"
+			
 		end
 	
 	for index = 1, 4 do
@@ -2059,6 +2142,7 @@ end
 			SelectedToKFunction = ToKFunctions [_detalhes.ps_abbreviation]
 			FormatTooltipNumber = ToKFunctions [_detalhes.tooltip.abbreviation]
 			TooltipMaximizedMethod = _detalhes.tooltip.maximize_method
+			headerColor = _detalhes.tooltip.header_text_color
 		end
 
 	--> subtract total from a combat table

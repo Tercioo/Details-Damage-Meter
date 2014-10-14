@@ -9,10 +9,9 @@
 	--> main frame (shortcut)
 	local YouAreNotPreparedFrame = YouAreNotPrepared.Frame
 
-	YouAreNotPrepared:SetPluginDescription ("Tracks your deaths during raid encounters and shows it for you right after the fight end.")
-	
 	local debugmode = false
 	
+	YouAreNotPrepared:SetPluginDescription ("Tracks your deaths during raid encounters and shows it for you right after the fight end.")
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> init the frames

@@ -19,6 +19,7 @@ local is_exception = {
 }
 
 function _detalhes:SaveLocalInstanceConfig()
+
 	for index, instance in _detalhes:ListInstances() do
 		local a1, a2 = instance:GetDisplay()
 		

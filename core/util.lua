@@ -25,6 +25,9 @@
 	local _string_len = string.lenv
 	local _string_format = string.format --lua local
 	local loadstring = loadstring --lua local
+	local _select = select
+	local _tonumber = tonumber
+	local _strsplit = strsplit
 	
 	local _UnitClass = UnitClass --wow api local
 	local _IsInRaid = IsInRaid --wow api local
@@ -40,6 +43,15 @@
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> details api functions
+
+	--> get the npc id from guid
+	function _detalhes:GetNpcIdFromGuid (guid)
+		local NpcId = _select ( 6, _strsplit ( "-", guid ) )
+		if (NpcId) then
+			return _tonumber ( NpcId )
+		end
+		return 0
+	end
 
 	--> get the fractional number representing the alphabetical letter
 	function _detalhes:GetOrderNumber (who_name)

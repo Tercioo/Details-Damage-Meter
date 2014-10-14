@@ -69,6 +69,8 @@ local TooltipMaximizedMethod = 1
 local info = _detalhes.janela_info
 local keyName
 
+local headerColor = "yellow"
+
 function _detalhes.SortIfHaveKey (table1, table2)
 	if (table1[keyName] and table2[keyName]) then
 		return table1[keyName] > table2[keyName] 
@@ -651,7 +653,7 @@ function atributo_misc:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 	if (total == 0) then
 		total = 0.00000001
 	end
-	
+
 	UsingCustomLeftText = instancia.row_info.textL_enable_custom_text
 	UsingCustomRightText = instancia.row_info.textR_enable_custom_text
 	
@@ -814,7 +816,7 @@ function atributo_misc:RefreshBarra2 (esta_barra, instancia, tabela_anterior, fo
 				end
 			
 				esta_barra.last_value = esta_porcentagem --> reseta o ultimo valor da barra
-			
+				
 				return self:RefreshBarra (esta_barra, instancia)
 				
 			elseif (esta_porcentagem ~= esta_barra.last_value) then --> continua mostrando a mesma tabela então compara a porcentagem
@@ -974,7 +976,6 @@ end
 
 --> tooltip locals
 local r, g, b
-local headerColor = "yellow"
 local barAlha = .6
 
 function atributo_misc:ToolTipDead (instancia, numero, barra)
@@ -1384,7 +1385,7 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 		end
 		
 		if (in_or_out == "BUFF_UPTIME_IN") then
-			local string_output = "pre-potion: "
+			local string_output = "pre-potion: " --> localize-me
 			for playername, potspellid in _pairs (pot_usage) do
 				local name, _, icon = _GetSpellInfo (potspellid)
 				local _, class = UnitClass (playername)
@@ -2142,6 +2143,7 @@ end
 			SelectedToKFunction = ToKFunctions [_detalhes.ps_abbreviation]
 			FormatTooltipNumber = ToKFunctions [_detalhes.tooltip.abbreviation]
 			TooltipMaximizedMethod = _detalhes.tooltip.maximize_method
+			headerColor = _detalhes.tooltip.header_text_color
 		end
 		
 

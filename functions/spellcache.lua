@@ -65,10 +65,6 @@ do
 		[7] = {name = Loc ["STRING_ENVIRONMENTAL_LAVA"], icon = [[Interface\ICONS\Ability_Rhyolith_Volcano]]},
 		[8] = {name = Loc ["STRING_ENVIRONMENTAL_SLIME"], icon = [[Interface\ICONS\Ability_Creature_Poison_02]]},
 		
-		[124464] = {name = GetSpellInfo (124464) .. " (" .. Loc ["STRING_MASTERY"] .. ")"}, --> shadow word: pain mastery proc (priest)
-		[124465] = {name = GetSpellInfo (124465) .. " (" .. Loc ["STRING_MASTERY"] .. ")"}, --> vampiric touch mastery proc (priest)
-		[124468] = {name = GetSpellInfo (124468) .. " (" .. Loc ["STRING_MASTERY"] .. ")"}, --> mind flay mastery proc (priest)
-		[124469] = {name = GetSpellInfo (124469) .. " (" .. Loc ["STRING_MASTERY"] .. ")"}, --> mind sear mastery proc (priest)
 		[94472] = {name = GetSpellInfo (94472) .. " (" .. Loc ["STRING_CRITICAL_ONLY"] .. ")"}, --> Atonement critical hit (priest)
 		[140816] = {name = GetSpellInfo (140816) .. " (" .. Loc ["STRING_CRITICAL_ONLY"] .. ")"}, --> Power Word: Solace critical hit  (priest)
 		
@@ -77,19 +73,23 @@ do
 		[121414] = {name = GetSpellInfo (121414) .. " (Glaive #1)"}, --> glaive toss (hunter)
 		[120761] = {name = GetSpellInfo (120761) .. " (Glaive #2)"}, --> glaive toss (hunter)
 		
-		[77451] = {name = GetSpellInfo (77451) .. " (" .. Loc ["STRING_MASTERY"] .. ")"}, --> lava burst (shaman)
-		[45284] = {name = GetSpellInfo (45284) .. " (" .. Loc ["STRING_MASTERY"] .. ")"}, --> lightningbolt (shaman)
-		[45297] = {name = GetSpellInfo (45297) .. " (" .. Loc ["STRING_MASTERY"] .. ")"}, --> chain lightning (shaman)
-		
-		[131079] = {name = GetSpellInfo (131079) .. " (" .. GetSpellInfo (12472) .. ")"}, --> frostbolt with icy veins glyph (mage)
-		[131080] = {name = GetSpellInfo (131080) .. " (" .. GetSpellInfo (12472) .. ")"}, --> ice lance with icy veins glyph (mage)
-		[131081] = {name = GetSpellInfo (131081) .. " (" .. GetSpellInfo (12472) .. ")"}, --> frostfire with icy veins glyph (mage)
-		
 		[108686] = {name = GetSpellInfo (108686) .. " (" .. GetSpellInfo (108683) .. ")" }, --> immolate (brimstone)
 		[108685] = {name = GetSpellInfo (108685) .. " (" .. GetSpellInfo (108683) .. ")" }, --> conflagrate (brimstone)
 		[114654] = {name = GetSpellInfo (114654) .. " (" .. GetSpellInfo (108683) .. ")" }, --> incinetate (brimstone)
 	}
 
+-- removed on warlords of draenor:
+--		[77451] = {name = GetSpellInfo (77451) .. " (" .. Loc ["STRING_MASTERY"] .. ")"}, --> lava burst (shaman)
+--		[45284] = {name = GetSpellInfo (45284) .. " (" .. Loc ["STRING_MASTERY"] .. ")"}, --> lightningbolt (shaman)
+--		[45297] = {name = GetSpellInfo (45297) .. " (" .. Loc ["STRING_MASTERY"] .. ")"}, --> chain lightning (shaman)
+--		[131079] = {name = GetSpellInfo (131079) .. " (" .. GetSpellInfo (12472) .. ")"}, --> frostbolt with icy veins glyph (mage)
+--		[131080] = {name = GetSpellInfo (131080) .. " (" .. GetSpellInfo (12472) .. ")"}, --> ice lance with icy veins glyph (mage)
+--		[131081] = {name = GetSpellInfo (131081) .. " (" .. GetSpellInfo (12472) .. ")"}, --> frostfire with icy veins glyph (mage)
+--		[124464] = {name = GetSpellInfo (124464) .. " (" .. Loc ["STRING_MASTERY"] .. ")"}, --> shadow word: pain mastery proc (priest)
+--		[124465] = {name = GetSpellInfo (124465) .. " (" .. Loc ["STRING_MASTERY"] .. ")"}, --> vampiric touch mastery proc (priest)
+--		[124468] = {name = GetSpellInfo (124468) .. " (" .. Loc ["STRING_MASTERY"] .. ")"}, --> mind flay mastery proc (priest)
+--		[124469] = {name = GetSpellInfo (124469) .. " (" .. Loc ["STRING_MASTERY"] .. ")"}, --> mind sear mastery proc (priest)
+	
 	function _detalhes:UserCustomSpellUpdate (index, name, icon)
 		local t = _detalhes.savedCustomSpells [index]
 		if (t) then
@@ -126,7 +126,6 @@ do
 	end
 	
 	function _detalhes:FillUserCustomSpells()
-	
 		for spellid, t in pairs (default_user_spells) do 
 		
 			local already_have
@@ -143,6 +142,16 @@ do
 			
 		end
 		
+		for i = #_detalhes.savedCustomSpells, 1, -1 do
+			local spelltable = _detalhes.savedCustomSpells [i]
+			local spellid = spelltable [1]
+			if (spellid > 10) then
+				local exists = _GetSpellInfo (spellid)
+				if (not exists) then
+					tremove (_detalhes.savedCustomSpells, i)
+				end
+			end
+		end
 	end
 	
 	function _detalhes:UserCustomSpellAdd (spellid, name, icon)

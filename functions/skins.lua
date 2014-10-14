@@ -252,18 +252,21 @@ local _
 		}
 		
 	})
-	
+
 	local dark_serenity = function()
 		local instance = _G.DetailsOptionsWindow.instance
-		--> black color
-		instance:InstanceColor (0, 0, 0, 1)
-		--> flip wallpaper
-		local wtexc = instance.wallpaper.texcoord
-		wtexc[1], wtexc[2], wtexc[3], wtexc[4] = 0.04800000, 0.29800001, 0.75599998, 0.63099998
-		--> reload skin
-		instance:ChangeSkin()
+		if (instance) then
+			--> black color
+			instance:InstanceColor (0, 0, 0, 1)
+			--> flip wallpaper
+			local wtexc = instance.wallpaper.texcoord
+			wtexc[1], wtexc[2], wtexc[3], wtexc[4] = 0.04800000, 0.29800001, 0.75599998, 0.63099998
+			--> reload skin
+			instance:ChangeSkin()
+		end
 	end
-	_detalhes:InstallSkin ("Serenity", { --
+	
+	_detalhes:InstallSkin ("Serenity", {
 		file = [[Interface\AddOns\Details\images\skins\flat_skin]],
 		author = "Details!", 
 		version = "1.0", 
@@ -288,7 +291,7 @@ local _
 		right_corner_anchor_bottom = {96, 0},
 		
 		instance_cprops = {
-
+		
 			resetbutton_config = {size = {13, 13}, anchor = {3, 0}, normal_texture = [[Interface\Addons\Details\Images\reset_button2]], highlight_texture = [[Interface\Addons\Details\Images\reset_button2]]},		
 			instancebutton_config = {size = {20, 16}, anchor = {5, 0}, textcolor = {.8, .6, .0, 0.8}, textsize = 10, textfont = "Friz Quadrata TT", highlight_texture = [[Interface\Buttons\UI-Panel-MinimizeButton-Highlight]]},
 			closebutton_config = {size = {18, 18}, alpha = 1, anchor = {0, 0}},
@@ -300,7 +303,8 @@ local _
 				1, -- [2]
 				1, -- [3]
 				0.9199999570846558, -- [4]
-			},
+ 			},
+
 			["menu_anchor"] = {
 				-60, -- [1]
 				0, -- [2]
@@ -451,11 +455,10 @@ local _
 				alpha = 0.8,
 				texture = [[Interface\AddOns\Details\images\skins\elvui]],
 			},
-			
 			["stretch_button_side"] = 1,
 			["micro_displays_side"] = 2,
 			["bg_b"] = 1,
-		},
+ 		},
 		
 		skin_options = {
 			{type = "button", name = Loc ["STRING_OPTIONS_SKIN_RESET_TOOLTIP"], func = reset_tooltip, desc = Loc ["STRING_OPTIONS_SKIN_RESET_TOOLTIP_DESC"]},

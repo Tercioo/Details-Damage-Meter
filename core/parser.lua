@@ -129,21 +129,35 @@
 	--> DAMAGE 	serach key: ~damage											|
 -----------------------------------------------------------------------------------------------------------------------------------------
 
-	function parser:swing (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing)
-		return parser:spell_dmg (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, 1, "Corpo-a-Corpo", 00000001, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing) --> localize-me
+	function parser:swing (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand, multistrike)
+		return parser:spell_dmg (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, 1, "Corpo-a-Corpo", 00000001, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand, multistrike) --> localize-me
 																		--spellid, spellname, spelltype
 	end
 
-	function parser:range (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing)
-		return parser:spell_dmg (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, 2, "Tiro-Automático", 00000001, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing)  --> localize-me
+	function parser:range (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand, multistrike)
+		return parser:spell_dmg (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, 2, "Tiro-Automático", 00000001, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand, multistrike)  --> localize-me
 																		--spellid, spellname, spelltype
 	end
 
-	function parser:spell_dmg (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing)
-
+	function parser:spell_dmg (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand, multistrike)
+	
 	------------------------------------------------------------------------------------------------
 	--> early checks and fixes
-	
+		--[[ 
+		if (who_name == "Quinel") then
+			if (isoffhand) then
+				print (spellname, isoffhand, "off hand")
+			end
+			if (multistrike) then
+				print (spellname, multistrike, "multistrike")
+			end
+		end
+		--]]
+		
+		--if (spellid ~= 1) then
+		--	print (who_name, alvo_name, alvo_flags, spellname, amount)
+		--end
+		
 		if (who_serial == "0x0000000000000000") then
 			if (who_flags and _bit_band (who_flags, OBJECT_TYPE_PETS) ~= 0) then --> é um pet
 				--> pets must have an serial
@@ -159,6 +173,12 @@
 			--> no actor name, use spell name instead
 			who_name = "[*] "..spellname
 		end
+		
+		--> Fix for mage prismatic crystal
+		--local npcId = _detalhes:GetNpcIdFromGuid (alvo_serial)
+		--if (npcId == 76933) then
+		--	return
+		--end
 
 	------------------------------------------------------------------------------------------------	
 	--> check if need start an combat
@@ -183,7 +203,6 @@
 					end
 					_detalhes:Msg ("First hit: " .. (link or "") .. " from " .. (who_name or "Unknown"))
 				end
-				
 				_detalhes:EntrarEmCombate (who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags)
 			end
 		end
@@ -371,8 +390,10 @@
 	------------------------------------------------------------------------------------------------
 	--> firendly fire
 
-		--if (_bit_band (who_flags, REACTION_FRIENDLY) ~= 0 and _bit_band (alvo_flags, REACTION_FRIENDLY) ~= 0) then (old friendly check)
-		if (raid_members_cache [who_serial] and raid_members_cache [alvo_serial]) then
+		if (
+			(_bit_band (alvo_flags, REACTION_FRIENDLY) ~= 0 and _bit_band (who_flags, REACTION_FRIENDLY) ~= 0) or
+			(raid_members_cache [who_serial] and raid_members_cache [alvo_serial])
+		) then
 
 			--> record death log
 			local t = last_events_cache [alvo_name]
@@ -465,7 +486,7 @@
 			spell = este_jogador.spell_tables:PegaHabilidade (spellid, true, token)
 		end
 		
-		return spell_damage_func (spell, alvo_serial, alvo_name, alvo_flags, amount, who_name, resisted, blocked, absorbed, critical, glacing, token)
+		return spell_damage_func (spell, alvo_serial, alvo_name, alvo_flags, amount, who_name, resisted, blocked, absorbed, critical, glacing, token, multistrike, isoffhand)
 	end
 
 	function parser:swingmissed (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, missType, isOffHand, amountMissed)
@@ -476,8 +497,10 @@
 		return parser:missed (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, 2, "Tiro-Automático", 00000001, missType, isOffHand, amountMissed)
 	end
 
-	function parser:missed (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, missType, isOffHand, amountMissed)
-
+	function parser:missed (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, missType, isOffHand, amountMissed, arg1, arg2)
+	--print (spellname, spelltype, missType, isOffHand, amountMissed, arg1, arg2)
+	
+	
 	------------------------------------------------------------------------------------------------
 	--> early checks and fixes
 
@@ -521,13 +544,13 @@
 					if (missType == "ABSORB") then --full absorb
 						overall ["ALL"] = overall ["ALL"] + 1 --> qualtipo de hit ou absorb
 						overall ["FULL_ABSORBED"] = overall ["FULL_ABSORBED"] + 1 --amount
-						overall ["ABSORB_AMT"] = overall ["ABSORB_AMT"] + amountMissed
-						overall ["FULL_ABSORB_AMT"] = overall ["FULL_ABSORB_AMT"] + amountMissed
+						overall ["ABSORB_AMT"] = overall ["ABSORB_AMT"] + (amountMissed or 0)
+						overall ["FULL_ABSORB_AMT"] = overall ["FULL_ABSORB_AMT"] + (amountMissed or 0)
 						
 						mob ["ALL"] = mob ["ALL"] + 1  --> qualtipo de hit ou absorb
 						mob ["FULL_ABSORBED"] = mob ["FULL_ABSORBED"] + 1 --amount
-						mob ["ABSORB_AMT"] = mob ["ABSORB_AMT"] + amountMissed
-						mob ["FULL_ABSORB_AMT"] = mob ["FULL_ABSORB_AMT"] + amountMissed
+						mob ["ABSORB_AMT"] = mob ["ABSORB_AMT"] + (amountMissed or 0)
+						mob ["FULL_ABSORB_AMT"] = mob ["FULL_ABSORB_AMT"] + (amountMissed or 0)
 					end
 					
 				end
@@ -572,9 +595,49 @@
 -----------------------------------------------------------------------------------------------------------------------------------------
 	--> HEALING 	serach key: ~heal											|
 -----------------------------------------------------------------------------------------------------------------------------------------
+local gotit = {
+	[140468]=true, --Flameglow Mage
+	[122470]=true, --touch of karma Monk
+	[114556]=true, --purgatory DK
+	[152280]=true, --defile DK
+	[20711]=true, --spirit of redeption priest
+	[155783]=true, --Primal Tenacity Druid
+	[135597]=true, --Tooth and Claw Druid
+	[152261]=true, --Holy Shield Paladin
+	[158708]=true, --Earthen Barrier boss?
+}
 
-	function parser:heal (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amount, overhealing, absorbed, critical, is_shield)
+	function parser:heal_absorb (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spellschool, owner_serial, owner_name, owner_flags, owner_flags2, shieldid, shieldname, shieldtype, amount)
+		
+		if (not shieldname) then
+			owner_serial, owner_name, owner_flags, owner_flags2, shieldid, shieldname, shieldtype, amount = spellid, spellname, spellschool, owner_serial, owner_name, owner_flags, owner_flags2, shieldid
+		end
+		
+		--if (not absorb_spell_list [shieldid] and not gotit[shieldid]) then
+		--	local _, class = UnitClass (owner_name)
+			--print ("Shield Not Registered:", shieldid, shieldname, class)
+		--end
+		
+		--> diminuir o escudo nas tabelas de escudos
+		local shields_on_target = escudo [alvo_name]
+		if (shields_on_target) then
+			local shields_by_spell = shields_on_target [shieldid]
+			if (shields_by_spell) then
+				local owner_shield = shields_by_spell [owner_name]
+				if (owner_shield) then
+					--print ("amt: ", owner_shield, owner_shield - amount, amount)
+					shields_by_spell [owner_name] = owner_shield - amount
+				end
+			end
+		end
+		
+		--> chamar a função de cura pra contar a cura
+		return parser:heal (token, time, owner_serial, owner_name, owner_flags, alvo_serial, alvo_name, alvo_flags, shieldid, shieldname, shieldtype, amount, 0, 0, nil, nil, true)
+		
+	end
 
+	function parser:heal (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amount, overhealing, absorbed, critical, multistrike, is_shield)
+	
 	------------------------------------------------------------------------------------------------
 	--> early checks and fixes
 
@@ -773,14 +836,17 @@
 		local spell = este_jogador.spell_tables._ActorTable [spellid]
 		if (not spell) then
 			spell = este_jogador.spell_tables:PegaHabilidade (spellid, true, token)
+			if (is_shield) then
+				spell.is_shield = true
+			end
 		end
 		
 		if (is_shield) then
 			--return spell:Add (alvo_serial, alvo_name, alvo_flags, cura_efetiva, who_name, 0, 		  nil, 	     overhealing, true)
-			return spell_heal_func (spell, alvo_serial, alvo_name, alvo_flags, cura_efetiva, who_name, 0, 		  nil, 	     overhealing, true)
+			return spell_heal_func (spell, alvo_serial, alvo_name, alvo_flags, cura_efetiva, who_name, 0, 		  nil, 	     overhealing, true, multistrike)
 		else
 			--return spell:Add (alvo_serial, alvo_name, alvo_flags, cura_efetiva, who_name, absorbed, critical, overhealing)
-			return spell_heal_func (spell, alvo_serial, alvo_name, alvo_flags, cura_efetiva, who_name, absorbed, critical, overhealing)
+			return spell_heal_func (spell, alvo_serial, alvo_name, alvo_flags, cura_efetiva, who_name, absorbed, critical, overhealing, nil, multistrike)
 		end
 	end
 
@@ -788,7 +854,7 @@
 	--> BUFFS & DEBUFFS 	serach key: ~buff ~aura ~shield								|
 -----------------------------------------------------------------------------------------------------------------------------------------
 
-	function parser:buff (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spellschool, tipo, amount)
+	function parser:buff (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spellschool, tipo, amount, arg1, arg2, arg3)
 
 	--> not yet well know about unnamed buff casters
 		if (not alvo_name) then
@@ -801,8 +867,17 @@
 	--> handle shields
 
 		if (tipo == "BUFF") then
+		
+			--if (who_name == _detalhes.playername) then
+			--	print (spellid, spellname)
+			--end
 			------------------------------------------------------------------------------------------------
 			--> buff uptime
+			
+			--if (arg1 or arg2 or arg3) then
+			--	print (spellname, arg1, arg2, arg3)
+			--end
+			
 				if (_recording_buffs_and_debuffs) then
 					-- jade spirit doesn't send who_name, that's a shame. 
 					if (who_name == alvo_name and raid_members_cache [who_serial] and _in_combat) then
@@ -954,12 +1029,19 @@
 					
 					if (escudo [alvo_name] and escudo [alvo_name][spellid] and escudo [alvo_name][spellid][who_name]) then
 					
-						local absorb = escudo [alvo_name][spellid][who_name] - amount
-						local overheal = amount - absorb
+						local overheal = escudo [alvo_name][spellid][who_name]
 						escudo [alvo_name][spellid][who_name] = amount
 						
+						if (overheal > 0) then
+							return parser:heal (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, nil, 0, _math_ceil (overheal), 0, 0, nil, true)
+						end
+					
+						--local absorb = escudo [alvo_name][spellid][who_name] - amount
+						--local overheal = amount - absorb
+						--escudo [alvo_name][spellid][who_name] = amount
+						
 						--if (absorb > 0) then
-							return parser:heal (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, nil, _math_ceil (absorb), _math_ceil (overheal), 0, 0, true)
+							--return parser:heal (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, nil, _math_ceil (absorb), _math_ceil (overheal), 0, 0, nil, true)
 						--end
 					else
 						--> should apply aura if not found in already applied buff list?
@@ -1077,16 +1159,24 @@
 					if (escudo [alvo_name] and escudo [alvo_name][spellid] and escudo [alvo_name][spellid][who_name]) then
 						if (amount) then
 							-- o amount é o que sobrou do escudo
-							local escudo_antigo = escudo [alvo_name][spellid][who_name] --> quantidade total do escudo que foi colocado
 							
-							local absorb = escudo_antigo - amount
-							local overheal = escudo_antigo - absorb
+							local overheal = escudo [alvo_name][spellid][who_name]
+							--escudo [alvo_name][spellid][who_name] = nil
 							
-							escudo [alvo_name][spellid][who_name] = nil
+							if (overheal > 0) then
+								return parser:heal (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, nil, 0, _math_ceil (overheal), 0, 0, nil, true)
+							end
+						---
+							--local escudo_antigo = escudo [alvo_name][spellid][who_name] --> quantidade total do escudo que foi colocado
 							
-							return parser:heal (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, nil, _math_ceil (absorb), _math_ceil (overheal), 0, 0, true) --> último parametro IS_SHIELD
+							--local absorb = escudo_antigo - amount
+							--local overheal = escudo_antigo - absorb
+							
+							--escudo [alvo_name][spellid][who_name] = nil
+							
+							--return parser:heal (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, nil, _math_ceil (absorb), _math_ceil (overheal), 0, 0, nil, true) --> último parametro IS_SHIELD
 						end
-						escudo [alvo_name][spellid][who_name] = nil
+						escudo [alvo_name][spellid][who_name] = 0
 					end
 				--end
 				
@@ -2240,18 +2330,6 @@
 				end
 				
 				_current_combat.frags_need_refresh = true
-				
-			--> detect dungeon boss
-				--if (_detalhes.zone_type == "party") then
-				--	local npcID = tonumber (alvo_serial:sub (6, 10), 16)
-				--	local boss_ids = _detalhes:GetBossIds (_detalhes.zone_id)
-					
-				--	if (boss_ids) then
-				--		if (_detalhes.zone_id [npcID]) then
-							
-				--		end
-				--	end
-				--end
 
 		--> player death
 		elseif (not _UnitIsFeignDeath (alvo_name)) then
@@ -2368,58 +2446,6 @@
 		end
 	end
 
-	local sort_dead = function (table1, table2)
-			if (not table1) then 
-				--print (1)
-				return false 
-				
-			elseif (not table2) then 
-				--print (2)
-				return false
-				
-			elseif (table1 [4] == table2 [4]) then --> os 2 tem o mesmo tempo
-				if (type (table1 [1]) == "boolean" and table1 [1] and type (table2 [1]) == "boolean" and table2) then --> ambos sao dano
-					--print (3)
-					return table1 [5] > table2 [5] --> joga pra cima quem tem mais vida
-				elseif (type (table1 [1]) == "boolean" and not table1 [1] and type (table2 [1]) == "boolean" and not table2) then --> ambos sao cura
-					--print (4)
-					return table1 [5] < table2 [5] --> joga pra cima quem tem menos vida
-				else
-					if (type (table1 [1]) == "boolean" and table1 and type (table2 [1]) == "boolean" and table2) then --> primeiro é dano e segundo é heal
-						--print (5)
-						return true --> passa o dano pra frente
-					elseif (type (table2 [1]) == "boolean" and table2 and type (table1 [1]) == "boolean" and table1) then --> primeiro é heal e o segundo é dano
-						--print (6)
-						return false --> passa o heal pra frente
-					else
-						--print (7)
-						return table1 [5] < table2 [5] --> passa quem tem menos vida
-					end
-				end
-			else
-				--print (8)
-				return table1 [4] < table2 [4]
-			end
-		end
-	
-	local function sort_error (error)
-		return error
-	end
-	
-	local death_table
-	function do_death_sort()
-		_table_sort (death_table, sort_dead)
-	end
-	
-	function parser:safe_sort_dead (t)
-		death_table = t
-		local status, error = xpcall (do_death_sort, sort_error)
-		if (not status) then
-			--_detalhes:Msg ("(debug) xpcall return false, sort got error.")
-			_table_sort (t, _detalhes.Sort4Reverse)
-		end
-	end
-	
 	function parser:environment (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, env_type, amount)
 	
 		local spelid
@@ -2532,6 +2558,7 @@
 		elseif (capture_type == "heal") then
 			token_list ["SPELL_HEAL"] = nil
 			token_list ["SPELL_PERIODIC_HEAL"] = nil
+			token_list ["SPELL_ABSORBED"] = nil
 			_recording_healing = false
 		
 		elseif (capture_type == "aura") then
@@ -2573,6 +2600,8 @@
 	--SPELL_PERIODIC_DRAIN --> need research
 	--SPELL_PERIODIC_LEECH --> need research
 	--SPELL_DISPEL_FAILED --> need research
+	--SPELL_ABSORBED
+
 	
 	function _detalhes:CaptureEnable (capture_type)
 
@@ -2594,6 +2623,7 @@
 		elseif (capture_type == "heal") then
 			token_list ["SPELL_HEAL"] = parser.heal
 			token_list ["SPELL_PERIODIC_HEAL"] = parser.heal
+			token_list ["SPELL_ABSORBED"] = parser.heal_absorb
 			_recording_healing = true
 
 		elseif (capture_type == "aura") then
@@ -2675,10 +2705,11 @@
 			_detalhes:EnteredInArena()
 			
 		else
+		
 			if (zoneType == "raid" or zoneType == "party") then
 				_detalhes:CheckForAutoErase (zoneMapID)
 			end
-			
+		
 			if (_detalhes:IsInInstance()) then
 				_detalhes.last_instance = zoneMapID
 			end
@@ -2707,20 +2738,19 @@
 		local encounterID, encounterName, difficultyID, raidSize = _select (1, ...)
 	
 		if (_in_combat and not _detalhes.tabela_vigente.is_boss) then
-			--print ("encounter start while in combat... finishing the combat...")
 			_detalhes:SairDoCombate()
 			_detalhes:Msg ("encounter against|cFFFFFF00", encounterName, "|rbegan, GL HF!")
 		else
 			_detalhes:Msg ("encounter against|cFFFFC000", encounterName, "|rbegan, GL HF!")
 		end
-		
+	
 		local dbm_mod, dbm_time = _detalhes.encounter_table.DBM_Mod, _detalhes.encounter_table.DBM_ModTime
 		_table_wipe (_detalhes.encounter_table)
 		
+		local encounterID, encounterName, difficultyID, raidSize = _select (1, ...)
 		local zoneName, _, _, _, _, _, _, zoneMapID = _GetInstanceInfo()
 		
 		--print (encounterID, encounterName, difficultyID, raidSize)
-		
 		_detalhes.encounter_table.phase = 1
 		
 		_detalhes.encounter_table ["start"] = time()
@@ -2762,7 +2792,7 @@
 	end
 	
 	function _detalhes.parser_functions:ENCOUNTER_END (...)
-		
+	
 		local encounterID, encounterName, difficultyID, raidSize, endStatus = _select (1, ...)
 	
 		_detalhes:Msg ("encounter against|cFFFFC000", encounterName, "|rended.")
@@ -2778,7 +2808,7 @@
 		_detalhes.latest_ENCOUNTER_END = _detalhes._tempo
 		
 		_detalhes.encounter_table ["end"] = time() - 0.4
-
+		
 		local _, _, _, _, _, _, _, zoneMapID = _GetInstanceInfo()
 		
 		if (_in_combat) then
@@ -3029,14 +3059,14 @@
 				if (_detalhes.FechaJanelaInfo) then
 					_detalhes:FechaJanelaInfo()
 				end
-
+				
 			--> do not save window pos
 				for id, instance in _detalhes:ListInstances() do
 					if (instance.baseframe) then
 						instance.baseframe:SetUserPlaced (false)
 					end
 				end
-				
+
 			--> leave combat start save tables
 				if (_detalhes.in_combat and _detalhes.tabela_vigente) then 
 					_detalhes:SairDoCombate()
@@ -3067,10 +3097,23 @@
 		
 	--> end
 
+	-- ~parserstart ~startparser
 	function _detalhes:OnParserEvent (evento, time, token, hidding, who_serial, who_name, who_flags, who_flags2, alvo_serial, alvo_name, alvo_flags, alvo_flags2, ...)
 		local funcao = token_list [token]
+
+--[[
+Prismatic Crystal still bugged on Combat Log
 		
-		--print (token, ...)
+Mage's damage towards the Prismatic Crystal is still triggering a SPELL_DAMAGE Combat Log Event, I think this isn't indented.
+
+So in practice, what happens is:
+
+- Player cast Frost Bolt against his Crystal which is near 3 enemies.
+- Combat Log trigger [b]4 SPELL_DAMAGE[/b] events: 3 events splitting the damage against the 3 enemies and 1 event with the total damage against the crystal <- this last one should not happen, it's literally duplicating the mage's damage.
+
+The only way to detect the damage towards the crystal is getting [b]every single[/b] combatlog event and splitting the target GUID getting the crystal's npcId.
+This workaround will consume a huge amount of Cpu (any addon which counts damage will need to use this fix).
+--]]
 		
 		if (funcao) then
 			return funcao (nil, token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, ... )
@@ -3374,5 +3417,3 @@
 			return nil --_detalhes:NewError ("Couldn't find a combat object for passed parameters")
 		end
 	end
-	
-

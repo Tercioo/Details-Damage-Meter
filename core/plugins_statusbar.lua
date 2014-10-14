@@ -609,7 +609,7 @@ do
 		-- handle event "COMBAT_PLAYER_ENTER"
 		function PDps:PlayerEnterCombat()
 			for index, child in _ipairs (PDps.childs) do
-				if (child.enabled and (child.instance:GetSegment() == 0 or child.instance:GetSegment() == -1)) then
+				if (child.enabled and child.instance:GetSegment() == 0) then
 					child.tick = _detalhes:ScheduleRepeatingTimer ("PluginDpsUpdate", 1, child)
 				end
 			end
@@ -654,7 +654,7 @@ do
 			if (child.instance.showing) then
 				--GetCombatTime() return the time length of combat
 				local combatTime = child.instance.showing:GetCombatTime()
-				if (combatTime == 0) then
+				if (combatTime < 1) then
 					return child.text:SetText ("0")
 				end
 				--GetTotal (attribute, sub attribute, onlyGroup) return the total of requested attribute

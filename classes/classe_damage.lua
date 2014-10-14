@@ -60,7 +60,7 @@
 
 	local key_overlay = {1, 1, 1, .1}
 	local key_overlay_press = {1, 1, 1, .2}
-	local headerColor = "yellow"
+	local headerColor = {1, 0.9, 0.0, 1}
 
 	local info = _detalhes.janela_info
 	local keyName
@@ -1045,6 +1045,7 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 		return _detalhes:EndRefresh (instancia, total, tabela_do_combate, showing) --> retorna a tabela que precisa ganhar o refresh
 	end
 
+	--print ("AMOUT: " .. amount)
 	instancia:AtualizarScrollBar (amount)
 
 	local qual_barra = 1
@@ -1053,7 +1054,7 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 	local baseframe = instancia.baseframe
 	
 	local use_animations = _detalhes.is_using_row_animations and (not baseframe.isStretching and not forcar and not baseframe.isResizing)
-
+ 	
 	if (total == 0) then
 		total = 0.00000001
 	end
@@ -1565,7 +1566,7 @@ end
 	if (instancia.row_info.textL_show_number) then
 		bar_number = esta_barra.colocacao .. ". "
 	end
-	
+
 	if (self.enemy) then
 		if (self.arena_enemy) then
 			if (UsingCustomLeftText) then
@@ -2800,72 +2801,16 @@ function atributo_damage:MontaDetalhesDamageTaken (nome, barra)
 end
 
 ------ Detalhe Info Damage Done e Dps
+local defenses_table = {c = {117/255, 58/255, 0/255}, p = 0}
+local normal_table = {c = {255/255, 180/255, 0/255, 0.5}, p = 0}
+local multistrike_table = {c = {223/255, 249/255, 45/255, 0.5}, p = 0}
+local critical_table = {c = {249/255, 74/255, 45/255, 0.5}, p = 0}
+
+local data_table = {}
+local t1, t2, t3, t4 = {}, {}, {}, {}
+
 function atributo_damage:MontaDetalhesDamageDone (spellid, barra, instancia)
 
-	if (_type (spellid) == "string") then 
-	
-		local _barra = info.grupos_detalhes [1]
-		
-		if (not _barra.pet) then 
-			_barra.bg.PetIcon = _barra.bg:CreateTexture (nil, "overlay")
-			
-			--_barra.bg.PetIcon:SetTexture ("Interface\\ICONS\\Ability_Druid_SkinTeeth")
-			_barra.bg.PetIcon:SetTexture ("Interface\\AddOns\\Details\\images\\classes")
-			_barra.bg.PetIcon:SetTexCoord (0.25, 0.49609375, 0.75, 1)
-
-			_barra.bg.PetIcon:SetPoint ("left", _barra.bg, "left", 2, 2)
-			_barra.bg.PetIcon:SetWidth (40)
-			_barra.bg.PetIcon:SetHeight (40)
-			gump:NewLabel (_barra.bg, _barra.bg, nil, "PetText", Loc ["STRING_ISA_PET"], "GameFontHighlightLeft")
-			_barra.bg.PetText:SetPoint ("topleft", _barra.bg.PetIcon, "topright", 10, -2)
-			gump:NewLabel (_barra.bg, _barra.bg, nil, "PetDps", "", "GameFontHighlightSmall")
-			_barra.bg.PetDps:SetPoint ("left", _barra.bg.PetIcon, "right", 10, 2)
-			_barra.bg.PetDps:SetPoint ("top", _barra.bg.PetText, "bottom", 0, -5)
-			_barra.pet = true
-		end
-		
-		_barra.IsPet = true
-		_barra.bg:SetValue (100)
-		gump:Fade (_barra.bg.overlay, "OUT")
-		_barra.bg:SetStatusBarColor (1, 1, 1)
-		_barra.bg_end:SetPoint ("LEFT", _barra.bg, "LEFT", (_barra.bg:GetValue()*2.19)-6, 0)
-		_barra.bg.PetIcon:SetVertexColor (_unpack (_detalhes.class_colors [self.classe]))
-		_barra.bg:Show()
-		_barra.bg.PetIcon:Show()
-		_barra.bg.PetText:Show()
-		_barra.bg.PetDps:Show()
-		
-		local PetActor = info.instancia.showing (info.instancia.atributo, spellid)
-		
-		if (PetActor) then 
-			local OwnerActor = PetActor.ownerName
-			if (OwnerActor) then --> nor necessary
-				OwnerActor = info.instancia.showing (info.instancia.atributo, OwnerActor)
-				if (OwnerActor) then 
-					local meu_tempo = OwnerActor:Tempo()
-					local normal_dmg = PetActor.total
-					local T = (meu_tempo*normal_dmg)/PetActor.total
-					_barra.bg.PetDps:SetText ("Dps: " .. _cstr("%.1f", normal_dmg/T))
-				end
-			end
-		
-		end
-		
-		for i = 2, 5 do
-			gump:HidaDetalheInfo (i)
-		end
-		
-		local ThisBox = _detalhes.janela_info.grupos_detalhes [1]
-		ThisBox.nome:Hide()
-		ThisBox.dano:Hide()
-		ThisBox.dano_porcento:Hide()
-		ThisBox.dano_media:Hide()
-		ThisBox.dano_dps:Hide()
-		ThisBox.nome2:Hide()
-
-		return
-	end
-	
 	local esta_magia
 	if (barra.other_actor) then
 		esta_magia = barra.other_actor.spell_tables._ActorTable [spellid]
@@ -2878,10 +2823,9 @@ function atributo_damage:MontaDetalhesDamageDone (spellid, barra, instancia)
 	end
 	
 	--> icone direito superior
-	local nome, rank, icone = _GetSpellInfo (spellid)
-	local infospell = {nome, rank, icone}
+	local _, _, icone = _GetSpellInfo (spellid)
 
-	_detalhes.janela_info.spell_icone:SetTexture (infospell[3])
+	_detalhes.janela_info.spell_icone:SetTexture (icone)
 
 	local total = self.total
 	
@@ -2893,28 +2837,35 @@ function atributo_damage:MontaDetalhesDamageDone (spellid, barra, instancia)
 	end
 	
 	local total_hits = esta_magia.counter
-	
 	local index = 1
-	
-	local data = {}
-	
-	--print (debugstack())
-	
+	local data = data_table
+
+	table.wipe (t1)
+	table.wipe (t2)
+	table.wipe (t3)
+	table.wipe (t4)
+	table.wipe (data)
+
 	--> GERAL
 		local media = esta_magia.total/total_hits
 		
 		local this_dps = nil
 		if (esta_magia.counter > esta_magia.c_amt) then
-			this_dps = Loc ["STRING_DPS"]..": ".._cstr("%.1f", esta_magia.total/meu_tempo)
+			this_dps = Loc ["STRING_DPS"] .. ": " .. _detalhes:comma_value (esta_magia.total/meu_tempo)
 		else
-			this_dps = Loc ["STRING_DPS"]..": "..Loc ["STRING_SEE_BELOW"]
+			this_dps = Loc ["STRING_DPS"] .. ": " .. Loc ["STRING_SEE_BELOW"]
 		end
+		
+		--local offhand = esta_magia.off_amt
+		--local mainhand = esta_magia.main_amt
+		--local offstring = Loc ["STRING_OFFHAND_HITS"] .. ": " .. _math_floor () _detalhes:comma_value (esta_magia.o_dmg/offhand)
 		
 		gump:SetaDetalheInfoTexto ( index, 100,
 			Loc ["STRING_GERAL"],
 			Loc ["STRING_DAMAGE"]..": ".._detalhes:ToK (esta_magia.total), 
-			Loc ["STRING_PERCENTAGE"]..": ".._cstr("%.1f", esta_magia.total/total*100) .. "%", 
-			Loc ["STRING_MEDIA"]..": " .. _cstr("%.1f", media), 
+			--Loc ["STRING_MULTISTRIKE"] .. ": " .. _cstr ("%.1f", esta_magia.counter/esta_magia.m_amt*100) .. "%", 
+			"", --offhand,
+			Loc ["STRING_AVERAGE"] .. ": " .. _detalhes:comma_value (media), 
 			this_dps,
 			Loc ["STRING_HITS"]..": " .. total_hits)
 	
@@ -2927,16 +2878,19 @@ function atributo_damage:MontaDetalhesDamageDone (spellid, barra, instancia)
 			local P = media/media_normal*100
 			T = P*T/100
 
-			data[#data+1] = {
-				esta_magia.n_amt, 
-				normal_hits/total_hits*100, 
-				Loc ["STRING_NORMAL_HITS"],
-				Loc ["STRING_MINIMUM"]..": ".._detalhes:comma_value (esta_magia.n_min),
-				Loc ["STRING_MAXIMUM"]..": ".._detalhes:comma_value (esta_magia.n_max), 
-				Loc ["STRING_MEDIA"]..": ".._cstr("%.1f", media_normal), 
-				Loc ["STRING_DPS"]..": ".._cstr("%.1f", normal_dmg/T), 
-				normal_hits.. " / ".._cstr("%.1f", normal_hits/total_hits*100).."%"
-				}
+			normal_table.p = normal_hits/total_hits*100
+
+			data[#data+1] = t1
+			
+			t1[1] = esta_magia.n_amt
+			t1[2] = normal_table
+			t1[3] = Loc ["STRING_NORMAL_HITS"]
+			t1[4] = Loc ["STRING_MINIMUM_SHORT"] .. ": " .. _detalhes:comma_value (esta_magia.n_min)
+			t1[5] = Loc ["STRING_MAXIMUM_SHORT"] .. ": " .. _detalhes:comma_value (esta_magia.n_max)
+			t1[6] = Loc ["STRING_AVERAGE"] .. ": " .. _detalhes:comma_value (media_normal)
+			t1[7] = Loc ["STRING_DPS"] .. ": " .. _detalhes:comma_value (normal_dmg/T)
+			t1[8] = normal_hits .. " / " .. _cstr ("%.1f", normal_hits/total_hits*100) .. "%"
+			
 		end
 
 	--> CRITICO
@@ -2950,41 +2904,71 @@ function atributo_damage:MontaDetalhesDamageDone (spellid, barra, instancia)
 				crit_dps = 0
 			end
 			
-			data[#data+1] = {
-				esta_magia.c_amt,
-				esta_magia.c_amt/total_hits*100, 
-				Loc ["STRING_CRITICAL_HITS"], 
-				Loc ["STRING_MINIMUM"]..": ".._detalhes:comma_value (esta_magia.c_min),
-				Loc ["STRING_MAXIMUM"]..": ".._detalhes:comma_value (esta_magia.c_max),
-				Loc ["STRING_MEDIA"]..": ".._cstr("%.1f", media_critico), 
-				Loc ["STRING_DPS"]..": ".._cstr("%.1f", crit_dps),
-				esta_magia.c_amt.. " / ".._cstr("%.1f", esta_magia.c_amt/total_hits*100).."%"
-				}
+			critical_table.p = esta_magia.c_amt/total_hits*100
+
+			data[#data+1] = t2
+			
+			t2[1] = esta_magia.c_amt
+			t2[2] = critical_table
+			t2[3] = Loc ["STRING_CRITICAL_HITS"]
+			t2[4] = Loc ["STRING_MINIMUM_SHORT"] .. ": " .. _detalhes:comma_value (esta_magia.c_min)
+			t2[5] = Loc ["STRING_MAXIMUM_SHORT"] .. ": " .. _detalhes:comma_value (esta_magia.c_max)
+			t2[6] = Loc ["STRING_AVERAGE"] .. ": " .. _detalhes:comma_value (media_critico)
+			t2[7] = Loc ["STRING_DPS"] .. ": " .. _detalhes:comma_value (crit_dps)
+			t2[8] = esta_magia.c_amt .. " / " .. _cstr ("%.1f", esta_magia.c_amt/total_hits*100) .. "%"
+
 		end
 		
 	--> Outros erros: GLACING, resisted, blocked, absorbed
-		local outros_desvios = esta_magia.g_amt + esta_magia.r_amt + esta_magia.b_amt + esta_magia.a_amt
-		
-		if (outros_desvios > 0) then
-			local porcentagem_defesas = outros_desvios/total_hits*100
-			data[#data+1] = {
-				outros_desvios,
-				{["p"] = porcentagem_defesas, ["c"] = {117/255, 58/255, 0/255}},
-				Loc ["STRING_DEFENSES"], 
-				Loc ["STRING_GLANCING"]..": "..esta_magia.g_amt.." / ".._math_floor (esta_magia.g_amt/esta_magia.counter*100).."%", --esta_magia.g_dmg
-				Loc ["STRING_RESISTED"]..": "..esta_magia.r_dmg, --esta_magia.resisted.amt.." / "..
-				Loc ["STRING_ABSORBED"]..": "..esta_magia.a_dmg, --esta_magia.absorbed.amt.." / "..
-				Loc ["STRING_BLOCKED"]..": "..esta_magia.b_amt.." / "..esta_magia.b_dmg,
-				outros_desvios.." / ".._cstr("%.1f", porcentagem_defesas).."%"
-				}
-		end
-		
-	--> Erros de Ataque	--habilidade.missType  -- {"ABSORB", "BLOCK", "DEFLECT", "DODGE", "EVADE", "IMMUNE", "MISS", "PARRY", "REFLECT", "RESIST"}
-		local miss = esta_magia ["MISS"] or 0
+		local outros_desvios = esta_magia.g_amt + esta_magia.b_amt
 		local parry = esta_magia ["PARRY"] or 0
 		local dodge = esta_magia ["DODGE"] or 0
-		local erros = miss + parry + dodge
+		local erros = parry + dodge
+
+		if (outros_desvios > 0 or erros > 0) then
 		
+			local porcentagem_defesas = (outros_desvios+erros) / total_hits * 100
+
+			data[#data+1] = t3
+			defenses_table.p = porcentagem_defesas
+			
+			t3[1] = outros_desvios+erros
+			t3[2] = defenses_table
+			t3[3] = Loc ["STRING_DEFENSES"]
+			t3[4] = Loc ["STRING_GLANCING"] .. ": " .. _math_floor (esta_magia.g_amt/esta_magia.counter*100) .. "%"
+			t3[5] = Loc ["STRING_PARRY"] .. ": " .. parry
+			t3[6] = Loc ["STRING_DODGE"] .. ": " .. dodge
+			t3[7] = Loc ["STRING_BLOCKED"] .. ": " .. _math_floor (esta_magia.b_amt/esta_magia.counter*100)
+			t3[8] = (outros_desvios+erros) .. " / " .. _cstr ("%.1f", porcentagem_defesas) .. "%"
+
+		end
+	
+	--> multistrike
+		if (esta_magia.m_amt > 0) then
+		
+			local normal_hits = esta_magia.m_amt
+			local normal_dmg = esta_magia.m_dmg
+			
+			local media_normal = normal_dmg/normal_hits
+			local T = (meu_tempo*normal_dmg)/esta_magia.total
+			local P = media/media_normal*100
+			T = P*T/100
+			
+			data[#data+1] = t4
+			multistrike_table.p = esta_magia.m_amt/total_hits*100
+		
+			t4[1] = esta_magia.m_amt
+			t4[2] = multistrike_table
+			t4[3] = Loc ["STRING_MULTISTRIKE_HITS"]
+			t4[4] = ""
+			t4[5] = "" 
+			t4[6] = Loc ["STRING_AVERAGE"] .. ": " .. _detalhes:comma_value (esta_magia.m_dmg/esta_magia.m_amt)
+			t4[7] = Loc ["STRING_DPS"] .. ": " .. _detalhes:comma_value (esta_magia.m_dmg/T)
+			t4[8] = esta_magia.m_amt .. " / " .. _cstr ("%.1f", esta_magia.m_amt/total_hits*100) .. "%"
+
+		end
+	--> Erros de Ataque	--habilidade.missType  -- {"ABSORB", "BLOCK", "DEFLECT", "DODGE", "EVADE", "IMMUNE", "MISS", "PARRY", "REFLECT", "RESIST"}
+	--[[
 		if (erros > 0) then
 			local porcentagem_erros = erros/total_hits*100
 			data[#data+1] = { 
@@ -2992,14 +2976,14 @@ function atributo_damage:MontaDetalhesDamageDone (spellid, barra, instancia)
 				{["p"] = porcentagem_erros, ["c"] = {0.5, 0.1, 0.1}},
 				Loc ["STRING_FAIL_ATTACKS"], 
 				Loc ["STRING_MISS"]..": "..miss,
-				Loc ["STRING_PARRY"]..": "..parry,
-				Loc ["STRING_DODGE"]..": "..dodge,
+
 				"",
 				erros.." / ".._cstr("%.1f", porcentagem_erros).."%"
 				}
 		end
-
-	table.sort (data, function (a, b) return a[1] > b[1] end)
+	--]]
+	
+	_table_sort (data, _detalhes.Sort1)
 	
 	for index, tabela in _ipairs (data) do
 		gump:SetaDetalheInfoTexto (index+1, tabela[2], tabela[3], tabela[4], tabela[5], tabela[6], tabela[7], tabela[8])
@@ -3167,6 +3151,7 @@ end
 			SelectedToKFunction = ToKFunctions [_detalhes.ps_abbreviation]
 			FormatTooltipNumber = ToKFunctions [_detalhes.tooltip.abbreviation]
 			TooltipMaximizedMethod = _detalhes.tooltip.maximize_method
+			headerColor = _detalhes.tooltip.header_text_color
 		end
 
 	--> diminui o total das tabelas do combate
@@ -3568,5 +3553,69 @@ end
 		-- local grayscale = cor[1]*0.21 + cor[2]*0.71  + cor[3]*0.07
 		--(max(R, G, B) + min(R, G, B)) / 2
 
+		--[[
+	if (_type (spellid) == "string") then 
+	
+		local _barra = info.grupos_detalhes [1]
 		
+		if (not _barra.pet) then 
+			_barra.bg.PetIcon = _barra.bg:CreateTexture (nil, "overlay")
+			
+			--_barra.bg.PetIcon:SetTexture ("Interface\\ICONS\\Ability_Druid_SkinTeeth")
+			_barra.bg.PetIcon:SetTexture ("Interface\\AddOns\\Details\\images\\classes")
+			_barra.bg.PetIcon:SetTexCoord (0.25, 0.49609375, 0.75, 1)
+
+			_barra.bg.PetIcon:SetPoint ("left", _barra.bg, "left", 2, 2)
+			_barra.bg.PetIcon:SetWidth (40)
+			_barra.bg.PetIcon:SetHeight (40)
+			gump:NewLabel (_barra.bg, _barra.bg, nil, "PetText", Loc ["STRING_ISA_PET"], "GameFontHighlightLeft")
+			_barra.bg.PetText:SetPoint ("topleft", _barra.bg.PetIcon, "topright", 10, -2)
+			gump:NewLabel (_barra.bg, _barra.bg, nil, "PetDps", "", "GameFontHighlightSmall")
+			_barra.bg.PetDps:SetPoint ("left", _barra.bg.PetIcon, "right", 10, 2)
+			_barra.bg.PetDps:SetPoint ("top", _barra.bg.PetText, "bottom", 0, -5)
+			_barra.pet = true
+		end
+		
+		_barra.IsPet = true
+		_barra.bg:SetValue (100)
+		gump:Fade (_barra.bg.overlay, "OUT")
+		_barra.bg:SetStatusBarColor (1, 1, 1)
+		_barra.bg_end:SetPoint ("LEFT", _barra.bg, "LEFT", (_barra.bg:GetValue()*2.19)-6, 0)
+		_barra.bg.PetIcon:SetVertexColor (_unpack (_detalhes.class_colors [self.classe]))
+		_barra.bg:Show()
+		_barra.bg.PetIcon:Show()
+		_barra.bg.PetText:Show()
+		_barra.bg.PetDps:Show()
+		
+		local PetActor = info.instancia.showing (info.instancia.atributo, spellid)
+		
+		if (PetActor) then 
+			local OwnerActor = PetActor.ownerName
+			if (OwnerActor) then --> nor necessary
+				OwnerActor = info.instancia.showing (info.instancia.atributo, OwnerActor)
+				if (OwnerActor) then 
+					local meu_tempo = OwnerActor:Tempo()
+					local normal_dmg = PetActor.total
+					local T = (meu_tempo*normal_dmg)/PetActor.total
+					_barra.bg.PetDps:SetText ("Dps: " .. _cstr("%.1f", normal_dmg/T))
+				end
+			end
+		
+		end
+		
+		for i = 2, 5 do
+			gump:HidaDetalheInfo (i)
+		end
+		
+		local ThisBox = _detalhes.janela_info.grupos_detalhes [1]
+		ThisBox.nome:Hide()
+		ThisBox.dano:Hide()
+		ThisBox.dano_porcento:Hide()
+		ThisBox.dano_media:Hide()
+		ThisBox.dano_dps:Hide()
+		ThisBox.nome2:Hide()
+
+		return
+	end
+--]]	
 		

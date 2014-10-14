@@ -654,12 +654,13 @@ function _detalhes:EstaAgrupada (esta_instancia, lado) --> lado //// 1 = encosto
 end
 
 function _detalhes:BaseFrameSnap()
+
 	for meu_id, instancia in _ipairs (_detalhes.tabela_instancias) do
 		if (instancia:IsAtiva()) then
 			instancia.baseframe:ClearAllPoints()
 		end
 	end
-	
+
 	local group = self:GetInstanceGroup()
 	local scale = self.window_scale
 	for _, instance in _ipairs (group) do
@@ -789,7 +790,7 @@ end
 function _detalhes:agrupar_janelas (lados)
 
 	local instancia = self
-
+	
 	for lado, esta_instancia in _pairs (lados) do
 		if (esta_instancia) then
 			instancia.baseframe:ClearAllPoints()
@@ -1867,6 +1868,7 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 	local atributo_changed = false
 	
 	--> verifica se os valores passados são válidos
+	
 	if (not segmento) then
 		segmento = instancia.segmento
 	elseif (_type (segmento) ~= "number") then
@@ -2671,9 +2673,19 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 					if (_type (amount) == "number" and amount > 0) then
 						if (keyNameSec) then
 							local dps = GetDpsHps (_thisActor, keyNameSec)
-							report_lines [#report_lines+1] = i .. ". " .. name .. " " .. _cstr ("%.2f", amount/total*100) .. "% (" .. _detalhes:comma_value (_math_floor (dps)) .. ", " .. _detalhes:ToK ( _math_floor (amount) ) .. ")"
+							if (_detalhes.report_schema == 1) then
+								report_lines [#report_lines+1] = i .. ". " .. name .. " " .. _detalhes:ToKMin ( _math_floor (amount) ) .. " (" .. _detalhes:ToKMin (_math_floor (dps)) .. ", " .. _cstr ("%.2f", amount/total*100) .. "%)"
+							elseif (_detalhes.report_schema == 2) then
+								report_lines [#report_lines+1] = i .. ". " .. name .. " " .. _cstr ("%.2f", amount/total*100) .. "% (" .. _detalhes:ToKMin (_math_floor (dps)) .. ", " .. _detalhes:ToKMin ( _math_floor (amount)) .. ")"
+							elseif (_detalhes.report_schema == 3) then
+								report_lines [#report_lines+1] = i .. ". " .. name .. " " .. _cstr ("%.2f", amount/total*100) .. "% (" .. _detalhes:ToKMin ( _math_floor (amount) ) .. ", " .. _detalhes:ToKMin (_math_floor (dps)) .. ")"
+							end
 						else
-							report_lines [#report_lines+1] = i .. ". " .. name .. "   " .. _detalhes:ToKReport (amount).." (".._cstr ("%.1f", amount/total*100).."%)"
+							if (_detalhes.report_schema == 1) then
+								report_lines [#report_lines+1] = i .. ". " .. name .. "   " .. _detalhes:ToKReport (amount) .. " (" .. _cstr ("%.1f", amount/total*100) .. "%)"
+							else
+								report_lines [#report_lines+1] = i .. ". " .. name .. "   " .. _cstr ("%.1f", amount/total*100) .. "% (" .. _detalhes:ToKReport (amount) .. ")"
+							end
 						end
 						
 					elseif (_type (amount) == "string") then
@@ -2782,11 +2794,22 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 					
 					if (_type (amount) == "number") then
 						if (amount > 0) then 
+						
 							if (keyNameSec) then
 								local dps = GetDpsHps (_thisActor, keyNameSec)
-								report_lines [#report_lines+1] = i .. ". " .. name .. " " .. _cstr ("%.2f", amount/total*100) .. "% (" .. _detalhes:comma_value (_math_floor (dps)) .. ", " .. _detalhes:ToK ( _math_floor (amount) ) .. ")"
+								if (_detalhes.report_schema == 1) then
+									report_lines [#report_lines+1] = i .. ". " .. name .. " " .. _detalhes:ToKMin ( _math_floor (amount) ) .. " (" .. _detalhes:ToKMin (_math_floor (dps)) .. ", " .. _cstr ("%.2f", amount/total*100) .. "%)"
+								elseif (_detalhes.report_schema == 2) then
+									report_lines [#report_lines+1] = i .. ". " .. name .. " " .. _cstr ("%.2f", amount/total*100) .. "% (" .. _detalhes:ToKMin (_math_floor (dps)) .. ", " .. _detalhes:ToKMin ( _math_floor (amount)) .. ")"
+								elseif (_detalhes.report_schema == 3) then
+									report_lines [#report_lines+1] = i .. ". " .. name .. " " .. _cstr ("%.2f", amount/total*100) .. "% (" .. _detalhes:ToKMin ( _math_floor (amount) ) .. ", " .. _detalhes:ToKMin (_math_floor (dps)) .. ")"
+								end
 							else
-								report_lines [#report_lines+1] = i .. "." .. name .. "   " .. _detalhes:comma_value ( _math_floor (amount) ).." (".._cstr ("%.1f", amount/total*100).."%)"
+								if (_detalhes.report_schema == 1) then
+									report_lines [#report_lines+1] = i .. ". " .. name .. "   " .. _detalhes:ToKReport (amount) .. " (" .. _cstr ("%.1f", amount/total*100) .. "%)"
+								else
+									report_lines [#report_lines+1] = i .. ". " .. name .. "   " .. _cstr ("%.1f", amount/total*100) .. "% (" .. _detalhes:ToKReport (amount) .. ")"
+								end
 							end
 							
 							quantidade = quantidade + 1
@@ -3006,9 +3029,9 @@ function _detalhes:envia_relatorio (linhas, custom)
 		return
 	end
 	
-	if (to_who == "RAID") then
+	if (to_who == "RAID" or to_who == "PARTY") then
 		--LE_PARTY_CATEGORY_HOME - default
-		--LE_PARTY_CATEGORY_INSTANCE - player's automatic group, raid finder?.
+		--LE_PARTY_CATEGORY_INSTANCE - player's automatic group
 		if (GetNumGroupMembers (LE_PARTY_CATEGORY_INSTANCE) > 0) then
 			to_who = "INSTANCE_CHAT"
 		end

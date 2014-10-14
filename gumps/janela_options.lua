@@ -58,10 +58,10 @@ function _detalhes:SetOptionsWindowTexture (texture)
 	end
 end
 
-function _detalhes:OpenOptionsWindow (instance, no_reopen)
+function _detalhes:OpenOptionsWindow (instance, no_reopen, section)
 
 	if (not instance.meu_id) then
-		instance, no_reopen = unpack (instance)
+		instance, no_reopen, section = unpack (instance)
 	end
 
 	GameCooltip:Close()
@@ -78,7 +78,7 @@ function _detalhes:OpenOptionsWindow (instance, no_reopen)
 	end
 	
 	if (_G.DetailsOptionsWindow and _G.DetailsOptionsWindow.full_created) then
-		return _G.DetailsOptionsWindow.MyObject:update_all (instance)
+		return _G.DetailsOptionsWindow.MyObject:update_all (instance, section)
 	end
 	
 	if (not window) then
@@ -324,12 +324,11 @@ function _detalhes:OpenOptionsWindow (instance, no_reopen)
 
 		local fillbars = g:NewButton (window, _, "$parentCreateExampleBarsButton", nil, 110, 14, _detalhes.CreateTestBars, nil, nil, nil, Loc ["STRING_OPTIONS_TESTBARS"])
 		fillbars:SetPoint ("bottomleft", window.widget, "bottomleft", 200, 12)
-
+		
 	--> change log
 
 		local changelog = g:NewButton (window, _, "$parentOpenChangeLogButton", nil, 110, 14, _detalhes.OpenNewsWindow, nil, nil, nil, Loc ["STRING_OPTIONS_CHANGELOG"])
 		changelog:SetPoint ("left", fillbars, "right", 10, 0)
-		
 		
 	--> right click to close
 		--local right_click_close = window:CreateRightClickLabel ("short", 14, 14, "Close")
@@ -472,6 +471,7 @@ local menus = { --labels nos menus
 		local textcolor = {.8, .8, .8, 1}
 		local last_pressed
 		local all_buttons = {}
+		window.menu_buttons = all_buttons
 		local true_index = 1
 		local selected_textcolor = "wheat"
 
@@ -479,7 +479,7 @@ local menus = { --labels nos menus
 		selected_texture:SetTexCoord (0.146484375, 0.591796875, 0.0546875, 0.26171875)
 		selected_texture:SetVertexColor (1, 1, 1, 0.8)
 		selected_texture:SetBlendMode ("ADD")
-		
+
 		local button_onenter = function (self)
 			self.MyObject.my_bg_texture:SetVertexColor (1, 1, 1, 1)
 			self.MyObject.textcolor = "yellow"
@@ -979,14 +979,41 @@ function window:CreateFrame20()
 		titulo_tooltips_desc.height = 20
 		
 		-- text color
-		local tooltip_text_color_callback = function (button, r, g, b, a)
-			_detalhes.tooltip.fontcolor = {r, g, b, a}
-		end
-		g:NewColorPickButton (frame20, "$parentTooltipTextColorPick", "TooltipTextColorPick", tooltip_text_color_callback)
-		g:NewLabel (frame20, _, "$parentTooltipTextColorLabel", "TooltipTextColorLabel", Loc ["STRING_OPTIONS_TOOLTIPS_FONTCOLOR"], "GameFontHighlightLeft")
-		frame20.TooltipTextColorPick:SetPoint ("left", frame20.TooltipTextColorLabel, "right", 2, 0)
-		window:CreateLineBackground2 (frame20, "TooltipTextColorPick", "TooltipTextColorLabel", Loc ["STRING_OPTIONS_TOOLTIPS_FONTCOLOR_DESC"])
+			-- texts anchors
+			g:NewLabel (frame20, _, "$parentTooltipTextColorLeftLabel", "TooltipTextColorLeftLabel", Loc ["STRING_LEFT"], "GameFontHighlightLeft")
+			g:NewLabel (frame20, _, "$parentTooltipTextColorRightLabel", "TooltipTextColorRightLabel", Loc ["STRING_RIGHT"], "GameFontHighlightLeft")
+			g:NewLabel (frame20, _, "$parentTooltipTextColorAnchorLabel", "TooltipTextColorAnchorLabel", Loc ["STRING_OPTIONS_TOOLTIPS_ANCHORCOLOR"], "GameFontHighlightLeft")
+			-- left color pick
+			local tooltip_text_color_callback = function (button, r, g, b, a)
+				local c = _detalhes.tooltip.fontcolor
+				c[1], c[2], c[3], c[4] = r, g, b, a
+			end
+			g:NewColorPickButton (frame20, "$parentTooltipTextColorPick", "TooltipTextColorPick", tooltip_text_color_callback)
+			-- right color pick
+			local tooltip_text_color_callback_right = function (button, r, g, b, a)
+				local c = _detalhes.tooltip.fontcolor_right
+				c[1], c[2], c[3], c[4] = r, g, b, a
+			end
+			g:NewColorPickButton (frame20, "$parentTooltipTextColorPickRight", "TooltipTextColorPickRight", tooltip_text_color_callback_right)
+			-- anchor color pick
+			local tooltip_text_color_callback_anchor = function (button, r, g, b, a)
+				local c = _detalhes.tooltip.header_text_color
+				c[1], c[2], c[3], c[4] = r, g, b, a
+			end
+			g:NewColorPickButton (frame20, "$parentTooltipTextColorPickAnchor", "TooltipTextColorPickAnchor", tooltip_text_color_callback_anchor)
+			-- text label
+			g:NewLabel (frame20, _, "$parentTooltipTextColorLabel", "TooltipTextColorLabel", Loc ["STRING_OPTIONS_TOOLTIPS_FONTCOLOR"], "GameFontHighlightLeft")
+			frame20.TooltipTextColorPick:SetPoint ("left", frame20.TooltipTextColorLabel, "right", 2, 0)
+			frame20.TooltipTextColorLeftLabel:SetPoint ("left", frame20.TooltipTextColorPick, "right", 2, 0)
+			frame20.TooltipTextColorPickRight:SetPoint ("left", frame20.TooltipTextColorLeftLabel, "right", 6, 0)
+			frame20.TooltipTextColorRightLabel:SetPoint ("left", frame20.TooltipTextColorPickRight, "right", 2, 0)
+			frame20.TooltipTextColorPickAnchor:SetPoint ("left", frame20.TooltipTextColorRightLabel, "right", 6, 0)
+			frame20.TooltipTextColorAnchorLabel:SetPoint ("left", frame20.TooltipTextColorPickAnchor, "right", 2, 0)
 			
+			window:CreateLineBackground2 (frame20, "TooltipTextColorPick", "TooltipTextColorLabel", Loc ["STRING_OPTIONS_TOOLTIPS_FONTCOLOR_DESC"])
+			window:CreateLineBackground2 (frame20, "TooltipTextColorPickRight", "TooltipTextColorLabel", Loc ["STRING_OPTIONS_TOOLTIPS_FONTCOLOR_DESC"])
+			window:CreateLineBackground2 (frame20, "TooltipTextColorPickAnchor", "TooltipTextColorAnchorLabel", Loc ["STRING_OPTIONS_TOOLTIPS_FONTCOLOR_DESC"])
+		
 		-- text size
 		g:NewLabel (frame20, _, "$parentTooltipTextSizeLabel", "TooltipTextSizeLabel", Loc ["STRING_OPTIONS_TOOLTIPS_FONTSIZE"], "GameFontHighlightLeft")
 		local s = g:NewSlider (frame20, _, "$parentTooltipTextSizeSlider", "TooltipTextSizeSlider", SLIDER_WIDTH, 20, 8, 32, 1, tonumber (_detalhes.tooltip.fontsize))
@@ -1342,19 +1369,21 @@ function window:CreateFrame20()
 		
 		local left_side = {
 			{"TooltipsTextsAnchorLabel", 1, true},
-			{"TooltipTextColorLabel", 2},
+			{"TooltipShadowLabel", 2},
+			{"TooltipTextColorLabel", 4},
 			{"TooltipTextSizeLabel", 3},
-			{"TooltipFontLabel", 4},
-			{"TooltipShadowLabel", 5},
+			{"TooltipFontLabel", 5},
+			
 			{"TooltipsAnchorLabel", 6, true},
 			{"TooltipBackgroundColorLabel", 7},
-			{"TooltipdpsAbbreviateLabel", 8},
+			{"TooltipShowAmountLabel", 8},
+			{"TooltipdpsAbbreviateLabel", 10},
 			{"TooltipMaximizeLabel", 9},
-			{"TooltipShowAmountLabel", 10},
+			
 			{"TooltipsBorderAnchorLabel", 11, true},
-			{"BackdropBorderTextureLabel", 12},
+			{"BackdropBorderTextureLabel", 14},
 			{"BackdropSizeLabel", 13},
-			{"BackdropColorLabel", 14},
+			{"BackdropColorLabel", 12},
 		}
 		
 		window:arrange_menu (frame20, left_side, x, -90)
@@ -2013,7 +2042,33 @@ function window:CreateFrame18()
 		
 		window:CreateLineBackground2 (frame18, "DisableResetSlider", "DisableResetLabel", Loc ["STRING_OPTIONS_DISABLE_RESET_DESC"])
 	
+	--> Use Scroll Bar
+		g:NewLabel (frame18, _, "$parentUseScrollLabel", "scrollLabel", Loc ["STRING_OPTIONS_SCROLLBAR"], "GameFontHighlightLeft")
+		--
+		g:NewSwitch (frame18, _, "$parentUseScrollSlider", "scrollSlider", 60, 20, _, _, _detalhes.use_scroll)
+		frame18.scrollSlider:SetPoint ("left", frame18.scrollLabel, "right", 2, 0)
+		frame18.scrollSlider.OnSwitch = function (self, _, value) --> slider, fixedValue, sliderValue
+			_detalhes.use_scroll = value
+			if (not value) then
+				for index = 1, #_detalhes.tabela_instancias do
+					local instance = _detalhes.tabela_instancias [index]
+					if (instance.baseframe) then --fast check if instance already been initialized
+						instance:EsconderScrollBar (true, true)
+					end
+				end
+			end
+			--hard instances reset
+			_detalhes:InstanciaCallFunction (_detalhes.gump.Fade, "in", nil, "barras")
+			_detalhes:InstanciaCallFunction (_detalhes.AtualizaSegmentos) -- atualiza o instancia.showing para as novas tabelas criadas
+			_detalhes:InstanciaCallFunction (_detalhes.AtualizaSoloMode_AfertReset) -- verifica se precisa zerar as tabela da janela solo mode
+			_detalhes:InstanciaCallFunction (_detalhes.ResetaGump) --_detalhes:ResetaGump ("de todas as instancias")
+			_detalhes:AtualizaGumpPrincipal (-1, true) --atualiza todas as instancias
+		end
+		
+		window:CreateLineBackground2 (frame18, "scrollSlider", "scrollLabel", Loc ["STRING_OPTIONS_SCROLLBAR_DESC"])
+	
 	--> Report
+		--heal links
 		g:NewLabel (frame18, _, "$parentReportHelpfulLinkLabel", "ReportHelpfulLinkLabel", Loc ["STRING_OPTIONS_REPORT_HEALLINKS"], "GameFontHighlightLeft")
 		g:NewSwitch (frame18, _, "$parentReportHelpfulLinkSlider", "ReportHelpfulLinkSlider", 60, 20, _, _, _detalhes.report_heal_links)
 
@@ -2023,6 +2078,33 @@ function window:CreateFrame18()
 		end
 		
 		window:CreateLineBackground2 (frame18, "ReportHelpfulLinkSlider", "ReportHelpfulLinkLabel", Loc ["STRING_OPTIONS_REPORT_HEALLINKS_DESC"])
+	
+		--report format
+		
+		g:NewLabel (frame18, _, "$parentReportFormatLabel", "ReportFormatLabel", Loc ["STRING_OPTIONS_REPORT_SCHEMA"], "GameFontHighlightLeft")
+		
+		local onSelectReportFormatAlpha = function (_, _, value)
+			_detalhes.report_schema = value
+		end
+		local coords = {1, 0, 0, 1}
+		local ReportFormatOptions = {
+			{value = 1, label = Loc ["STRING_OPTIONS_REPORT_SCHEMA1"], onclick = onSelectReportFormatAlpha, icon = [[Interface\Buttons\UI-GuildButton-MOTD-Disabled]], texcoord = coords, desc = "1. Jack .. 128.9k (29.9k, 23.33%)"},
+			{value = 2, label = Loc ["STRING_OPTIONS_REPORT_SCHEMA2"], onclick = onSelectReportFormatAlpha, icon = [[Interface\Buttons\UI-GuildButton-MOTD-Disabled]], texcoord = coords, desc = "1. Jack .. 23.33% (29.9k, 128.9k)"},
+			{value = 3, label = Loc ["STRING_OPTIONS_REPORT_SCHEMA3"], onclick = onSelectReportFormatAlpha, icon = [[Interface\Buttons\UI-GuildButton-MOTD-Disabled]], texcoord = coords, desc = "1. Jack .. 23.33% (128.9k 29.9k)"},
+		}
+		local BuildReportFormatOptions = function()
+			return ReportFormatOptions
+		end
+		local d = g:NewDropDown (frame18, _, "$parentReportFormatDropdown", "ReportFormatDropdown", 160, 20, BuildReportFormatOptions, nil)
+		d.onenter_backdrop = dropdown_backdrop_onenter
+		d.onleave_backdrop = dropdown_backdrop_onleave
+		d:SetBackdrop (dropdown_backdrop)
+		d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+		
+		frame18.ReportFormatDropdown:SetPoint ("left", frame18.ReportFormatLabel, "right", 2, 0)		
+		
+		window:CreateLineBackground2 (frame18, "ReportFormatDropdown", "ReportFormatLabel", Loc ["STRING_OPTIONS_REPORT_SCHEMA_DESC"])
+		
 	
 	--> Anchors
 		
@@ -2041,18 +2123,22 @@ function window:CreateFrame18()
 		
 		local left_side = {
 			{"switchesAnchorLabel", 1, true},
-			{"autoSwitchLabel", 8},
-			{"AutoSwitchWipeLabel", 9},
+
 			{dps_icon1, 2},
 			{healer_icon1, 3},
 			{tank_icon1, 4},
-			{dps_icon2, 5},
+			
+			{dps_icon2, 5, true},
 			{healer_icon2, 6},
 			{tank_icon2, 7},
+			
+			{"autoSwitchLabel", 8, true},
+			{"AutoSwitchWipeLabel", 9},
 			
 			{"autoCurrentLabel", 10},
 			{"reportAnchorLabel", 11, true},
 			{"ReportHelpfulLinkLabel", 12},
+			{"ReportFormatLabel", 13},
 		}
 		
 		window:arrange_menu (frame18, left_side, x, -90)
@@ -2063,11 +2149,12 @@ function window:CreateFrame18()
 			{"MenuTextSizeLabel", 3},
 			{"DisableGroupsLabel", 4},
 			{"DisableResetLabel", 5},
-			{"totalBarAnchorLabel", 6, true},
-			{"totalBarIconLabel", 7},
-			{"totalBarPickColorLabel", 8},
-			{"totalBarLabel", 9},
-			{"totalBarOnlyInGroupLabel", 10},
+			{"scrollLabel", 6},
+			{"totalBarAnchorLabel", 7, true},
+			{"totalBarIconLabel", 8},
+			{"totalBarPickColorLabel", 9},
+			{"totalBarLabel", 10},
+			{"totalBarOnlyInGroupLabel", 11},
 		}
 		
 		window:arrange_menu (frame18, right_side, window.right_start_at, -90)
@@ -3097,6 +3184,7 @@ function window:CreateFrame1()
 			end
 			--> we call again here, because if not accepted the box return the previous value and if successful accepted, update the value for formated string.
 			local nick = _detalhes:GetNickname (UnitGUID ("player"), UnitName ("player"), true)
+
 			frame1.nicknameEntry.text = nick
 			_G.DetailsOptionsWindow1AvatarNicknameLabel:SetText (nick)
 		end
@@ -3233,30 +3321,21 @@ function window:CreateFrame1()
 		
 		window:CreateLineBackground2 (frame1, "SegmentsLockedSlider", "SegmentsLockedLabel", Loc ["STRING_OPTIONS_LOCKSEGMENTS_DESC"])
 	
-	--> Use Scroll Bar
-		g:NewLabel (frame1, _, "$parentUseScrollLabel", "scrollLabel", Loc ["STRING_OPTIONS_SCROLLBAR"], "GameFontHighlightLeft")
+	--> wheel speed
+		g:NewLabel (frame1, _, "$parentWheelSpeedLabel", "WheelSpeedLabel", Loc ["STRING_OPTIONS_WHEEL_SPEED"], "GameFontHighlightLeft")
 		--
-		g:NewSwitch (frame1, _, "$parentUseScrollSlider", "scrollSlider", 60, 20, _, _, _detalhes.use_scroll)
-		frame1.scrollSlider:SetPoint ("left", frame1.scrollLabel, "right", 2, 0)
-		frame1.scrollSlider.OnSwitch = function (self, _, value) --> slider, fixedValue, sliderValue
-			_detalhes.use_scroll = value
-			if (not value) then
-				for index = 1, #_detalhes.tabela_instancias do
-					local instance = _detalhes.tabela_instancias [index]
-					if (instance.baseframe) then --fast check if instance already been initialized
-						instance:EsconderScrollBar (true, true)
-					end
-				end
-			end
-			--hard instances reset
-			_detalhes:InstanciaCallFunction (_detalhes.gump.Fade, "in", nil, "barras")
-			_detalhes:InstanciaCallFunction (_detalhes.AtualizaSegmentos) -- atualiza o instancia.showing para as novas tabelas criadas
-			_detalhes:InstanciaCallFunction (_detalhes.AtualizaSoloMode_AfertReset) -- verifica se precisa zerar as tabela da janela solo mode
-			_detalhes:InstanciaCallFunction (_detalhes.ResetaGump) --_detalhes:ResetaGump ("de todas as instancias")
-			_detalhes:AtualizaGumpPrincipal (-1, true) --atualiza todas as instancias
-		end
 		
-		window:CreateLineBackground2 (frame1, "scrollSlider", "scrollLabel", Loc ["STRING_OPTIONS_SCROLLBAR_DESC"])
+		local s = g:NewSlider (frame1, _, "$parentWheelSpeedSlider", "WheelSpeedSlider", SLIDER_WIDTH, 20, 1, 3, 1, _detalhes.scroll_speed)
+		s:SetBackdrop (slider_backdrop)
+		s:SetBackdropColor (unpack (slider_backdrop_color))
+		s:SetThumbSize (50)
+		
+		frame1.WheelSpeedSlider:SetPoint ("left", frame1.WheelSpeedLabel, "right", 2, -1)
+		frame1.WheelSpeedSlider:SetHook ("OnValueChange", function (self, _, amount) --> slider, fixedValue, sliderValue
+			_detalhes.scroll_speed = amount
+		end)
+		
+		window:CreateLineBackground2 (frame1, "WheelSpeedSlider", "WheelSpeedLabel", Loc ["STRING_OPTIONS_WHEEL_SPEED_DESC"])
 		
 	--> Max Instances
 		g:NewLabel (frame1, _, "$parentLabelMaxInstances", "maxInstancesLabel", Loc ["STRING_OPTIONS_MAXINSTANCES"], "GameFontHighlightLeft")
@@ -3399,7 +3478,6 @@ function window:CreateFrame1()
 			frame1.CreateWindowButton:SetTextColor (button_color_rgb)
 			
 		--set color
-		
 			local windowcolor_callback = function (button, r, g, b, a)
 				if (_G.DetailsOptionsWindow.instance.menu_alpha.enabled and a ~= _G.DetailsOptionsWindow.instance.color[4]) then
 					_detalhes:Msg (Loc ["STRING_OPTIONS_MENU_ALPHAWARNING"])
@@ -3422,32 +3500,32 @@ function window:CreateFrame1()
 			frame1.SetWindowColorButton:SetTextColor (button_color_rgb)
 			
 		--erase data
-		
-				g:NewLabel (frame1, _, "$parentEraseDataLabel", "EraseDataLabel", Loc ["STRING_OPTIONS_ED"], "GameFontHighlightLeft")
-				--
-				local OnSelectEraseData = function (_, _, EraseType)
-					_detalhes.segments_auto_erase = EraseType
-				end
-				
-				local EraseDataOptions = {
-					{value = 1, label = Loc ["STRING_OPTIONS_ED1"], onclick = OnSelectEraseData, icon = [[Interface\Addons\Details\Images\reset_button2]]},
-					{value = 2, label = Loc ["STRING_OPTIONS_ED2"], onclick = OnSelectEraseData, icon = [[Interface\Addons\Details\Images\reset_button2]]},
-					{value = 3, label = Loc ["STRING_OPTIONS_ED3"], onclick = OnSelectEraseData, icon = [[Interface\Addons\Details\Images\reset_button2]]},
-				}
-				local BuildEraseDataMenu = function()
-					return EraseDataOptions
-				end
-				
-				local d = g:NewDropDown (frame1, _, "$parentEraseDataDropdown", "EraseDataDropdown", 160, 20, BuildEraseDataMenu, _detalhes.segments_auto_erase)
-				d.onenter_backdrop = dropdown_backdrop_onenter
-				d.onleave_backdrop = dropdown_backdrop_onleave
-				d:SetBackdrop (dropdown_backdrop)
-				d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
-				
-				frame1.EraseDataDropdown:SetPoint ("left", frame1.EraseDataLabel, "right", 2, 0)		
+			g:NewLabel (frame1, _, "$parentEraseDataLabel", "EraseDataLabel", Loc ["STRING_OPTIONS_ED"], "GameFontHighlightLeft")
+			--
+			local OnSelectEraseData = function (_, _, EraseType)
+				_detalhes.segments_auto_erase = EraseType
+			end
+			
+			local EraseDataOptions = {
+				{value = 1, label = Loc ["STRING_OPTIONS_ED1"], onclick = OnSelectEraseData, icon = [[Interface\Addons\Details\Images\reset_button2]]},
+				{value = 2, label = Loc ["STRING_OPTIONS_ED2"], onclick = OnSelectEraseData, icon = [[Interface\Addons\Details\Images\reset_button2]]},
+				{value = 3, label = Loc ["STRING_OPTIONS_ED3"], onclick = OnSelectEraseData, icon = [[Interface\Addons\Details\Images\reset_button2]]},
+			}
+			local BuildEraseDataMenu = function()
+				return EraseDataOptions
+			end
+			
+			local d = g:NewDropDown (frame1, _, "$parentEraseDataDropdown", "EraseDataDropdown", 160, 20, BuildEraseDataMenu, _detalhes.segments_auto_erase)
+			d.onenter_backdrop = dropdown_backdrop_onenter
+			d.onleave_backdrop = dropdown_backdrop_onleave
+			d:SetBackdrop (dropdown_backdrop)
+			d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+			
+			frame1.EraseDataDropdown:SetPoint ("left", frame1.EraseDataLabel, "right", 2, 0)		
 
-				window:CreateLineBackground2 (frame1, "EraseDataDropdown", "EraseDataLabel", Loc ["STRING_OPTIONS_ED_DESC"])
+			window:CreateLineBackground2 (frame1, "EraseDataDropdown", "EraseDataLabel", Loc ["STRING_OPTIONS_ED_DESC"])
 		
+			
 		--config bookmarks
 			g:NewButton (frame1, _, "$parentBookmarkButton", "BookmarkButton", buttons_width, 18, _detalhes.OpenBookmarkConfig, nil, nil, nil, Loc ["STRING_OPTIONS_WC_BOOKMARK"], 1)
 			frame1.BookmarkButton:InstallCustomTexture()
@@ -3455,7 +3533,7 @@ function window:CreateFrame1()
 			
 			frame1.BookmarkButton:SetIcon ([[Interface\Glues\CharacterSelect\Glues-AddOn-Icons]], nil, nil, nil, {0.75, 1, 0, 1})
 			frame1.BookmarkButton:SetTextColor (button_color_rgb)
-
+			
 		--config class colors
 			g:NewButton (frame1, _, "$parentClassColorsButton", "ClassColorsButton", buttons_width, 18, _detalhes.OpenClassColorsConfig, nil, nil, nil, Loc ["STRING_OPTIONS_CHANGE_CLASSCOLORS"], 1)
 			frame1.ClassColorsButton:InstallCustomTexture()
@@ -3463,7 +3541,7 @@ function window:CreateFrame1()
 			
 			frame1.ClassColorsButton:SetIcon ([[Interface\AddOns\Details\images\icons]], nil, nil, nil, {430/512, 459/512, 4/512, 30/512}) -- , "orange"
 			frame1.ClassColorsButton:SetTextColor (button_color_rgb)
-			
+		
 	--> anchors
 	
 		g:NewLabel (frame1, _, "$parentGeneralAnchor", "GeneralAnchorLabel", Loc ["STRING_OPTIONS_GENERAL_ANCHOR"], "GameFontNormal")
@@ -3499,18 +3577,19 @@ function window:CreateFrame1()
 			{"GeneralAnchorLabel", 1, true},
 			{"animateLabel", 2},
 			{"updatespeedLabel", 3},
-			{"segmentsLabel", 4},
-			{"scrollLabel", 6},
+			{"WheelSpeedLabel", 4},
+			
+			{"SegmentsLockedLabel", 5},
+			{"segmentsLabel", 6},
+			
 			{"maxInstancesLabel", 7},
 			{"dpsAbbreviateLabel", 8},
-			{"SegmentsLockedLabel", 5},
 			{"WindowControlsLabel", 9, true},
 			{"LockButton", 10},
 			{"BreakSnapButton", 12},
 			{"CloseButton", 11},
 			{"CreateWindowButton", 14, true},
 			{"SetWindowColorButton", 13},
-			
 		}
 		
 		window:arrange_menu (frame1, left_side, window.left_start_at, window.top_start_at)
@@ -3811,8 +3890,8 @@ function window:CreateFrame2()
 		local left_side = {
 			{"GeneralAnchorLabel", 1, true},
 			{"fragsPvpLabel", 2},
-			{"timetypeLabel", 3},
-			{"EraseChartDataLabel", 4},
+			{"EraseChartDataLabel", 3},
+			{"timetypeLabel", 4},
 			
 			{"OverallDataLabel", 5, true},
 			{"OverallDataRaidBossLabel", 6},
@@ -3907,6 +3986,7 @@ function window:CreateFrame13()
 		end
 		frame13.AlwaysUseSlider:SetPoint ("left", frame13.AlwaysUseLabel, "right", 3, 0)
 		window:CreateLineBackground2 (frame13, "AlwaysUseSlider", "AlwaysUseLabel", Loc ["STRING_OPTIONS_ALWAYS_USE_DESC"])
+	
 	
 	--> new profile
 		local profile_name = g:NewTextEntry (frame13, _, "$parentProfileNameEntry", "profileNameEntry", 120, 20)
@@ -4895,7 +4975,7 @@ function window:CreateFrame4()
 			instance:ReajustaGump()
 		end
 		window:CreateLineBackground2 (frame4, "ShowMeSlider", "ShowMeLabel", Loc ["STRING_OPTIONS_BAR_FOLLOWING_DESC"])
-		
+
 	--> Anchors:
 		local x = window.left_start_at
 		
@@ -4905,9 +4985,9 @@ function window:CreateFrame4()
 		local left_side = {
 			--basic
 			{frame4.RowGeneralAnchorLabel, 1, true},
-			{frame4.rowHeightLabel, 2},
-			{frame4.barGrowDirectionLabel, 3},
-			{frame4.barSortDirectionLabel, 4},
+			{frame4.barGrowDirectionLabel, 2},
+			{frame4.barSortDirectionLabel, 3},
+			{frame4.rowHeightLabel, 4},
 			{frame4.BarSpacementLabel, 5},
 			--icon
 			{frame4.rowIconsLabel, 6, true},
@@ -4916,10 +4996,10 @@ function window:CreateFrame4()
 			{frame4.barStartLabel, 9},
 			--backdrop
 			{frame4.BackdropAnchorLabel, 10, true},
-			{frame4.BackdropEnabledLabel, 11},
-			{frame4.BackdropBorderTextureLabel, 12},
+			{frame4.BackdropColorLabel, 11},
+			{frame4.BackdropEnabledLabel, 12},
 			{frame4.BackdropSizeLabel, 13},
-			{frame4.BackdropColorLabel, 14},
+			{frame4.BackdropBorderTextureLabel, 14},
 		}
 		
 		local right_side = {
@@ -5539,6 +5619,7 @@ function window:CreateFrame6()
 			g:NewLabel (frame6, _, "$parentStatusbarColorLabel", "statusbarColorLabel", Loc ["STRING_OPTIONS_INSTANCE_STATUSBARCOLOR"], "GameFontHighlightLeft")
 			frame6.statusbarColorPick:SetPoint ("left", frame6.statusbarColorLabel, "right", 2, 0)
 			window:CreateLineBackground2 (frame6, "statusbarColorPick", "statusbarColorLabel", Loc ["STRING_OPTIONS_INSTANCE_STATUSBARCOLOR_DESC"])
+			
 		
 		--> window scale
 			local s = g:NewSlider (frame6, _, "$parentWindowScaleSlider", "WindowScaleSlider", SLIDER_WIDTH, 20, 0.65, 1.5, 0.02, instance.window_scale, true)
@@ -5554,9 +5635,12 @@ function window:CreateFrame6()
 			frame6.WindowScaleSlider:SetPoint ("left", frame6.WindowScaleLabel, "right", 2)
 			
 			window:CreateLineBackground2 (frame6, "WindowScaleSlider", "WindowScaleLabel", Loc ["STRING_OPTIONS_WINDOW_SCALE_DESC"])
+ 
 
+			
 		--general anchor
 		g:NewLabel (frame6, _, "$parentAdjustmentsAnchor", "AdjustmentsAnchorLabel", Loc ["STRING_OPTIONS_WINDOW_ANCHOR"], "GameFontNormal")
+		g:NewLabel (frame6, _, "$parentAdjustments2Anchor", "AdjustmentsAnchor2Label", Loc ["STRING_OPTIONS_WINDOW_ANCHOR_ANCHORS"], "GameFontNormal")
 		
 		local x = window.left_start_at
 		
@@ -5567,14 +5651,16 @@ function window:CreateFrame6()
 			{"AdjustmentsAnchorLabel", 1, true},
 			{"windowPickColorLabel", 2},
 			{"windowBackgroundPickColorLabel", 3},
-			{"instanceToolbarSideLabel", 4},
-			{"stretchAnchorLabel", 6},
-			{"instanceMicroDisplaysSideLabel", 5},
-			{"sideBarsLabel", 8},
-			{"stretchAlwaysOnTopLabel", 7},
-			{"backdropLabel", 9},
-			{"strataLabel", 10},
-			{"WindowScaleLabel", 11},
+			{"sideBarsLabel", 4, true},
+			{"backdropLabel", 5},
+			{"strataLabel", 6},
+			{"WindowScaleLabel", 7, true},
+			
+			{"AdjustmentsAnchor2Label", 8, true},
+			{"instanceToolbarSideLabel", 9},
+			{"instanceMicroDisplaysSideLabel", 10},
+			{"stretchAnchorLabel", 11},
+			{"stretchAlwaysOnTopLabel", 12},
 		}
 		
 		window:arrange_menu (frame6, left_side, x, window.top_start_at)
@@ -5829,15 +5915,16 @@ function window:CreateFrame7()
 		
 		local left_side = {
 			{"LeftMenuAnchorLabel", 1, true},
-			{"menuAnchorXLabel", 2},
-			{"menuAnchorYLabel", 3},
-			{"menuAnchorSideLabel", 4},
-			{"desaturateMenuLabel", 5},
-			{"hideIconLabel", 6},
-			{"pluginIconsDirectionLabel", 7},
-			{label_icons, 8},
-			{"menuIconSizeLabel", 9},
-			{"autoHideLeftMenuLabel", 10},
+			{label_icons, 2},
+			{"menuIconSizeLabel", 3},
+			{"desaturateMenuLabel", 4},
+			{"menuAnchorXLabel", 5},
+			{"menuAnchorYLabel", 6},
+			
+			{"hideIconLabel", 7, true},
+			{"autoHideLeftMenuLabel", 8},
+			{"menuAnchorSideLabel", 9},
+			{"pluginIconsDirectionLabel", 10},
 		}
 		
 		window:arrange_menu (frame7, left_side, x, -90)
@@ -6064,12 +6151,13 @@ function window:CreateFrame8()
 		
 		local left_side = {
 			{"RightMenuAnchorLabel", 1, true},
-			{"menuAnchorXLabel", 2},
-			{"menuAnchorYLabel", 3},
+			{"showButtonsLabel", 2},
+			{"menuIconSizeLabel", 3},
 			{"desaturateMenuLabel", 4},
-			{"showButtonsLabel", 5},
-			{"menuIconSizeLabel", 6},
-			{"autoHideRightMenuLabel", 7},
+			{"menuAnchorXLabel", 5},
+			{"menuAnchorYLabel", 6},
+			
+			{"autoHideRightMenuLabel", 7, true},
 		}
 		
 		window:arrange_menu (frame8, left_side, x, -90)
@@ -6607,15 +6695,15 @@ function window:CreateFrame9()
 	--current settings
 		g:NewLabel (frame9, _, "$parentWallpaperCurrentAnchor", "wallpaperCurrentAnchorLabel", "Current:", "GameFontNormal")
 		
-		g:NewLabel (frame9, _, "$parentWallpaperCurrentLabel1", "wallpaperCurrentLabel1", Loc ["STRING_OPTIONS_WALLPAPER_FILE"], "GameFontHighlightLeft")
-		g:NewLabel (frame9, _, "$parentWallpaperCurrentLabel2", "wallpaperCurrentLabel2", Loc ["STRING_OPTIONS_WALLPAPER_ALPHA"], "GameFontHighlightLeft")
-		g:NewLabel (frame9, _, "$parentWallpaperCurrentLabel3", "wallpaperCurrentLabel3", Loc ["STRING_OPTIONS_WALLPAPER_RED"], "GameFontHighlightLeft")
-		g:NewLabel (frame9, _, "$parentWallpaperCurrentLabel4", "wallpaperCurrentLabel4", Loc ["STRING_OPTIONS_WALLPAPER_GREEN"], "GameFontHighlightLeft")
-		g:NewLabel (frame9, _, "$parentWallpaperCurrentLabel5", "wallpaperCurrentLabel5", Loc ["STRING_OPTIONS_WALLPAPER_BLUE"], "GameFontHighlightLeft")
-		g:NewLabel (frame9, _, "$parentWallpaperCurrentLabel6", "wallpaperCurrentLabel6", Loc ["STRING_OPTIONS_WALLPAPER_CTOP"], "GameFontHighlightLeft")
-		g:NewLabel (frame9, _, "$parentWallpaperCurrentLabel7", "wallpaperCurrentLabel7", Loc ["STRING_OPTIONS_WALLPAPER_CBOTTOM"], "GameFontHighlightLeft")
-		g:NewLabel (frame9, _, "$parentWallpaperCurrentLabel8", "wallpaperCurrentLabel8", Loc ["STRING_OPTIONS_WALLPAPER_CLEFT"], "GameFontHighlightLeft")
-		g:NewLabel (frame9, _, "$parentWallpaperCurrentLabel9", "wallpaperCurrentLabel9", Loc ["STRING_OPTIONS_WALLPAPER_CRIGHT"], "GameFontHighlightLeft")
+		g:NewLabel (frame9, _, "$parentWallpaperCurrentLabel1", "wallpaperCurrentLabel1", Loc ["STRING_OPTIONS_WALLPAPER_FILE"], "GameFontHighlightSmall")
+		g:NewLabel (frame9, _, "$parentWallpaperCurrentLabel2", "wallpaperCurrentLabel2", Loc ["STRING_OPTIONS_WALLPAPER_ALPHA"], "GameFontHighlightSmall")
+		g:NewLabel (frame9, _, "$parentWallpaperCurrentLabel3", "wallpaperCurrentLabel3", Loc ["STRING_OPTIONS_WALLPAPER_RED"], "GameFontHighlightSmall")
+		g:NewLabel (frame9, _, "$parentWallpaperCurrentLabel4", "wallpaperCurrentLabel4", Loc ["STRING_OPTIONS_WALLPAPER_GREEN"], "GameFontHighlightSmall")
+		g:NewLabel (frame9, _, "$parentWallpaperCurrentLabel5", "wallpaperCurrentLabel5", Loc ["STRING_OPTIONS_WALLPAPER_BLUE"], "GameFontHighlightSmall")
+		g:NewLabel (frame9, _, "$parentWallpaperCurrentLabel6", "wallpaperCurrentLabel6", Loc ["STRING_OPTIONS_WALLPAPER_CTOP"], "GameFontHighlightSmall")
+		g:NewLabel (frame9, _, "$parentWallpaperCurrentLabel7", "wallpaperCurrentLabel7", Loc ["STRING_OPTIONS_WALLPAPER_CBOTTOM"], "GameFontHighlightSmall")
+		g:NewLabel (frame9, _, "$parentWallpaperCurrentLabel8", "wallpaperCurrentLabel8", Loc ["STRING_OPTIONS_WALLPAPER_CLEFT"], "GameFontHighlightSmall")
+		g:NewLabel (frame9, _, "$parentWallpaperCurrentLabel9", "wallpaperCurrentLabel9", Loc ["STRING_OPTIONS_WALLPAPER_CRIGHT"], "GameFontHighlightSmall")
 		
 		g:NewLabel (frame9, _, "$parentWallpaperCurrentLabel1text", "wallpaperCurrentLabel1text", "", "GameFontHighlightSmall")
 		frame9.wallpaperCurrentLabel1text:SetPoint ("left", frame9.wallpaperCurrentLabel1, "right", 2, 0)
@@ -6738,17 +6826,20 @@ function window:CreateFrame9()
 			{"anchorLabel", 5},
 			{"editImage", 6},
 			{"wallpaperCurrentAnchorLabel", 7, true},
-			{"wallpaperCurrentLabel1", 8},
-			{"wallpaperCurrentLabel2", 9, false},
-			{"wallpaperCurrentLabel3", 10, false},
-			{"wallpaperCurrentLabel4", 11, false},
-			{"wallpaperCurrentLabel5", 12, false},
-			{"wallpaperCurrentLabel6", 13, false},
-			{"wallpaperCurrentLabel7", 14, false},
-			{"wallpaperCurrentLabel8", 15, false},
-			{"wallpaperCurrentLabel9", 16, false},
 		}
 		
+		local downY = -5
+		frame9.wallpaperCurrentLabel1:SetPoint ("topleft", frame9.wallpaperCurrentAnchorLabel, "bottomleft", 0, -10)
+		frame9.wallpaperCurrentLabel2:SetPoint ("topleft", frame9.wallpaperCurrentLabel1, "bottomleft", 0, downY)
+		frame9.wallpaperCurrentLabel3:SetPoint ("topleft", frame9.wallpaperCurrentLabel2, "bottomleft", 0, downY)
+		frame9.wallpaperCurrentLabel4:SetPoint ("topleft", frame9.wallpaperCurrentLabel3, "bottomleft", 0, downY)
+		frame9.wallpaperCurrentLabel5:SetPoint ("topleft", frame9.wallpaperCurrentLabel4, "bottomleft", 0, downY)
+		frame9.wallpaperCurrentLabel6:SetPoint ("topleft", frame9.wallpaperCurrentLabel5, "bottomleft", 0, downY)
+		frame9.wallpaperCurrentLabel7:SetPoint ("topleft", frame9.wallpaperCurrentLabel6, "bottomleft", 0, downY)
+		frame9.wallpaperCurrentLabel8:SetPoint ("topleft", frame9.wallpaperCurrentLabel7, "bottomleft", 0, downY)
+		frame9.wallpaperCurrentLabel9:SetPoint ("topleft", frame9.wallpaperCurrentLabel8, "bottomleft", 0, downY)
+		
+
 		window:arrange_menu (frame9, left_side, x, -90)
 		
 		local right_side = {
@@ -7458,15 +7549,17 @@ function window:CreateFrame11()
 					local _GetSpellInfo = _detalhes.getspellinfo --details api
 					
 					for index, spellid in ipairs (_detalhes:GetCooldownList()) do
-						local label = f.labels [index] or f:CreateLabel()
 						local name, _, icon = _GetSpellInfo (spellid)
-						label.icon.texture = icon
-						label.text.text = name .. ":"
-						label.switch:SetFixedParameter (spellid)
-						label.switch:SetValue (_detalhes.announce_cooldowns.ignored_cooldowns [spellid])
-						label.icon:Show()
-						label.text:Show()
-						label.switch:Show()
+						if (name) then
+							local label = f.labels [index] or f:CreateLabel()
+							label.icon.texture = icon
+							label.text.text = name .. ":"
+							label.switch:SetFixedParameter (spellid)
+							label.switch:SetValue (_detalhes.announce_cooldowns.ignored_cooldowns [spellid])
+							label.icon:Show()
+							label.text:Show()
+							label.switch:Show()
+						end
 					end
 					
 					f:Show()
@@ -7628,7 +7721,7 @@ function window:CreateFrame12()
 -------- plugins
 	local frame4 = window.options [12][1].gump
 	
-	local on_enter = function (self)
+ 	local on_enter = function (self)
 	
 		self:SetBackdropColor (.5, .5, .5, .8)
 		
@@ -7646,14 +7739,13 @@ function window:CreateFrame12()
 				_detalhes:CooltipPreset (2)
 				GameCooltip:AddLine (desc)
 				GameCooltip:SetType ("tooltip")
-				GameCooltip:SetOwner (self, "bottomleft", "topleft", 0, -2)
+				GameCooltip:SetOwner (self, "bottomleft", "topleft", 150, -2)
 				GameCooltip:Show()
 			end
 		end
-	end
+ 	end
 	
 	local on_leave = function (self)
-	
 		self:SetBackdropColor (.3, .3, .3, .3)
 		
 		if (self ["toolbarPluginsIcon" .. self.id]) then
@@ -7707,7 +7799,7 @@ function window:CreateFrame12()
 		bframe:SetScript ("OnLeave", on_leave)
 		bframe.plugin = pluginObject
 		bframe.id = i
-	
+		
 		g:NewImage (bframe, pluginObject.__icon, 18, 18, nil, nil, "toolbarPluginsIcon"..i, "$parentToolbarPluginsIcon"..i)
 		bframe ["toolbarPluginsIcon"..i]:SetPoint ("topleft", frame4, "topleft", 10, y)
 	
@@ -7976,44 +8068,15 @@ end --> if not window
 ----------------------------------------------------------------------------------------
 --> Show
 
-local strata = {
-	["BACKGROUND"] = "Background",
-	["LOW"] = "Low",
-	["MEDIUM"] = "Medium",
-	["HIGH"] = "High",
-	["DIALOG"] = "Dialog"
-}
+	local strata = {
+		["BACKGROUND"] = "Background",
+		["LOW"] = "Low",
+		["MEDIUM"] = "Medium",
+		["HIGH"] = "High",
+		["DIALOG"] = "Dialog"
+	}
 
-function _detalhes:DelayUpdateWindowControls (editing_instance)
-	_G.DetailsOptionsWindow1LockButton.MyObject:SetClickFunction (_detalhes.lock_instance_function, editing_instance.baseframe.lock_button)
-	if (editing_instance.baseframe.isLocked) then
-		_G.DetailsOptionsWindow1LockButton.MyObject:SetText (Loc ["STRING_OPTIONS_WC_UNLOCK"])
-	else
-		_G.DetailsOptionsWindow1LockButton.MyObject:SetText (Loc ["STRING_OPTIONS_WC_LOCK"])
-	end
-end
-
-function window:update_all (editing_instance)
-
-	--> window 1
-	_G.DetailsOptionsWindow1RealmNameSlider.MyObject:SetValue (_detalhes.remove_realm_from_name)
-	_G.DetailsOptionsWindow1Slider.MyObject:SetValue (_detalhes.segments_amount) --segments
-	_G.DetailsOptionsWindow1SegmentsLockedSlider.MyObject:SetValue (_detalhes.instances_segments_locked) --locked segments
-	
-	_G.DetailsOptionsWindow1UseScrollSlider.MyObject:SetValue (_detalhes.use_scroll)
-	
-	_G.DetailsOptionsWindow1SliderMaxInstances.MyObject:SetValue (_detalhes.instances_amount)
-	_G.DetailsOptionsWindow1AbbreviateDropdown.MyObject:Select (_detalhes.ps_abbreviation)
-	_G.DetailsOptionsWindow1SliderUpdateSpeed.MyObject:SetValue (_detalhes.update_speed)
-	_G.DetailsOptionsWindow1AnimateSlider.MyObject:SetValue (_detalhes.use_row_animations)
-
-	_G.DetailsOptionsWindow1WindowControlsAnchor:SetText (string.format (Loc ["STRING_OPTIONS_WC_ANCHOR"], editing_instance.meu_id))
-	
-	_G.DetailsOptionsWindow1EraseDataDropdown.MyObject:Select (_detalhes.segments_auto_erase)
-	
-	if (not editing_instance.baseframe) then
-		_detalhes:ScheduleTimer ("DelayUpdateWindowControls", 1, editing_instance)
-	else
+	function _detalhes:DelayUpdateWindowControls (editing_instance)
 		_G.DetailsOptionsWindow1LockButton.MyObject:SetClickFunction (_detalhes.lock_instance_function, editing_instance.baseframe.lock_button)
 		if (editing_instance.baseframe.isLocked) then
 			_G.DetailsOptionsWindow1LockButton.MyObject:SetText (Loc ["STRING_OPTIONS_WC_UNLOCK"])
@@ -8021,609 +8084,639 @@ function window:update_all (editing_instance)
 			_G.DetailsOptionsWindow1LockButton.MyObject:SetText (Loc ["STRING_OPTIONS_WC_LOCK"])
 		end
 	end
-	
-	_G.DetailsOptionsWindow1BreakSnapButton.MyObject:Disable()
-	
-	for side, have_snap in pairs (editing_instance.snap) do 
-		if (have_snap) then
-			_G.DetailsOptionsWindow1BreakSnapButton.MyObject:Enable()
-			_G.DetailsOptionsWindow1BreakSnapButton.MyObject:SetClickFunction (editing_instance.Desagrupar, editing_instance, -1)
-			break
-		end
-	end
 
-	if (editing_instance.ativa) then
-		_G.DetailsOptionsWindow1CloseButton.MyObject:SetText (Loc ["STRING_OPTIONS_WC_CLOSE"])
-		_G.DetailsOptionsWindow1CloseButton.MyObject:SetClickFunction (_detalhes.close_instancia_func, editing_instance.baseframe.cabecalho.fechar)
-	else
-		_G.DetailsOptionsWindow1CloseButton.MyObject:SetText (Loc ["STRING_OPTIONS_WC_REOPEN"])
-		_G.DetailsOptionsWindow1CloseButton.MyObject:SetClickFunction (function() _detalhes:CriarInstancia (_, editing_instance.meu_id) end)
-	end
-	
-	--> window 2
-	_G.DetailsOptionsWindow2FragsPvpSlider.MyObject:SetValue (_detalhes.only_pvp_frags)
-	_G.DetailsOptionsWindow2TTDropdown.MyObject:Select (_detalhes.time_type)
+	function window:update_all (editing_instance, section)
 
-	_G.DetailsOptionsWindow2EraseChartDataSlider.MyObject:SetValue (_detalhes.clear_graphic)
-
-	_G.DetailsOptionsWindow2OverallDataRaidBossSlider.MyObject:SetValue (bit.band (_detalhes.overall_flag, 0x1) ~= 0)
-	_G.DetailsOptionsWindow2OverallDataRaidCleaupSlider.MyObject:SetValue (bit.band (_detalhes.overall_flag, 0x2) ~= 0)
-	_G.DetailsOptionsWindow2OverallDataDungeonBossSlider.MyObject:SetValue (bit.band (_detalhes.overall_flag, 0x4) ~= 0)
-	_G.DetailsOptionsWindow2OverallDataDungeonCleaupSlider.MyObject:SetValue (bit.band (_detalhes.overall_flag, 0x8) ~= 0)
-	_G.DetailsOptionsWindow2OverallDataAllSlider.MyObject:SetValue (bit.band (_detalhes.overall_flag, 0x10) ~= 0)
-	
-	_G.DetailsOptionsWindow2OverallNewBossSlider.MyObject:SetValue (_detalhes.overall_clear_newboss)
-	_G.DetailsOptionsWindow2OverallNewChallengeSlider.MyObject:SetValue (_detalhes.overall_clear_newchallenge)
-	
-	_G.DetailsOptionsWindow2CaptureDamageSlider.MyObject:SetValue (_detalhes.capture_real ["damage"])
-	_G.DetailsOptionsWindow2CaptureHealSlider.MyObject:SetValue (_detalhes.capture_real ["heal"])
-	_G.DetailsOptionsWindow2CaptureEnergySlider.MyObject:SetValue (_detalhes.capture_real ["energy"])
-	_G.DetailsOptionsWindow2CaptureMiscSlider.MyObject:SetValue (_detalhes.capture_real ["miscdata"])
-	_G.DetailsOptionsWindow2CaptureAuraSlider.MyObject:SetValue (_detalhes.capture_real ["aura"])
-	_G.DetailsOptionsWindow2CloudAuraSlider.MyObject:SetValue (_detalhes.cloud_capture)
-	
-	--> window 3
-	
-	local skin = editing_instance.skin
-	local frame3 = _G.DetailsOptionsWindow3
-	
-	_G.DetailsOptionsWindow3SkinDropdown.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow3SkinDropdown.MyObject:Select (skin)
-	
-	local skin_object = _detalhes:GetSkin (skin)
-	local skin_name_formated = skin:gsub (" ", "")
-	
-	--> hide all
-	for name, _ in pairs (_detalhes.skins) do
-		local name = name:gsub (" ", "")
-		for index, t in ipairs (frame3.ExtraOptions [name] or {}) do
-			t[1]:Hide()
-			t[2]:Hide()
-		end
-	end
-	
-	for _, frame in pairs (frame3.ExtraOptions) do
-		frame:Hide()
-	end
-	
-	--> create or show options if necessary
-	if (skin_object.skin_options and not skin_object.options_created) then
-		skin_object.options_created = true
-
-		local f = CreateFrame ("frame", "DetailsSkinOptions" .. skin_name_formated, frame3)
-		frame3.ExtraOptions [skin_name_formated] = f
-		f:SetPoint ("topleft", frame3, "topleft", window.right_start_at, window.top_start_at + (25 * -1))
-		f:SetSize (250, 400)
-
-		g:BuildMenu (f, skin_object.skin_options, 0, 0, 400)
+		--> window 1
+		_G.DetailsOptionsWindow1RealmNameSlider.MyObject:SetValue (_detalhes.remove_realm_from_name)
+		_G.DetailsOptionsWindow1Slider.MyObject:SetValue (_detalhes.segments_amount) --segments
+		_G.DetailsOptionsWindow1SegmentsLockedSlider.MyObject:SetValue (_detalhes.instances_segments_locked) --locked segments
 		
-		--[[
-		for index, widget in ipairs (skin_object.skin_options) do 
-			local type = widget.type
+		
+		_G.DetailsOptionsWindow1WheelSpeedSlider.MyObject:SetValue (_detalhes.scroll_speed)
+		_G.DetailsOptionsWindow1SliderMaxInstances.MyObject:SetValue (_detalhes.instances_amount)
+		_G.DetailsOptionsWindow1AbbreviateDropdown.MyObject:Select (_detalhes.ps_abbreviation)
+		_G.DetailsOptionsWindow1SliderUpdateSpeed.MyObject:SetValue (_detalhes.update_speed)
+		_G.DetailsOptionsWindow1AnimateSlider.MyObject:SetValue (_detalhes.use_row_animations)
+
+		_G.DetailsOptionsWindow1WindowControlsAnchor:SetText (string.format (Loc ["STRING_OPTIONS_WC_ANCHOR"], editing_instance.meu_id))
+		
+		_G.DetailsOptionsWindow1EraseDataDropdown.MyObject:Select (_detalhes.segments_auto_erase)
+		
+		if (not editing_instance.baseframe) then
+			_detalhes:ScheduleTimer ("DelayUpdateWindowControls", 1, editing_instance)
+		else
+			_G.DetailsOptionsWindow1LockButton.MyObject:SetClickFunction (_detalhes.lock_instance_function, editing_instance.baseframe.lock_button)
+			if (editing_instance.baseframe.isLocked) then
+				_G.DetailsOptionsWindow1LockButton.MyObject:SetText (Loc ["STRING_OPTIONS_WC_UNLOCK"])
+			else
+				_G.DetailsOptionsWindow1LockButton.MyObject:SetText (Loc ["STRING_OPTIONS_WC_LOCK"])
+			end
+		end
+		
+		_G.DetailsOptionsWindow1BreakSnapButton.MyObject:Disable()
+		
+		for side, have_snap in pairs (editing_instance.snap) do 
+			if (have_snap) then
+				_G.DetailsOptionsWindow1BreakSnapButton.MyObject:Enable()
+				_G.DetailsOptionsWindow1BreakSnapButton.MyObject:SetClickFunction (editing_instance.Desagrupar, editing_instance, -1)
+				break
+			end
+		end
+
+		if (editing_instance.ativa) then
+			_G.DetailsOptionsWindow1CloseButton.MyObject:SetText (Loc ["STRING_OPTIONS_WC_CLOSE"])
+			_G.DetailsOptionsWindow1CloseButton.MyObject:SetClickFunction (_detalhes.close_instancia_func, editing_instance.baseframe.cabecalho.fechar)
+		else
+			_G.DetailsOptionsWindow1CloseButton.MyObject:SetText (Loc ["STRING_OPTIONS_WC_REOPEN"])
+			_G.DetailsOptionsWindow1CloseButton.MyObject:SetClickFunction (function() _detalhes:CriarInstancia (_, editing_instance.meu_id) end)
+		end
+		
+		--> window 2
+		_G.DetailsOptionsWindow2FragsPvpSlider.MyObject:SetValue (_detalhes.only_pvp_frags)
+		_G.DetailsOptionsWindow2TTDropdown.MyObject:Select (_detalhes.time_type)
+
+		_G.DetailsOptionsWindow2EraseChartDataSlider.MyObject:SetValue (_detalhes.clear_graphic)
+
+		_G.DetailsOptionsWindow2OverallDataRaidBossSlider.MyObject:SetValue (bit.band (_detalhes.overall_flag, 0x1) ~= 0)
+		_G.DetailsOptionsWindow2OverallDataRaidCleaupSlider.MyObject:SetValue (bit.band (_detalhes.overall_flag, 0x2) ~= 0)
+		_G.DetailsOptionsWindow2OverallDataDungeonBossSlider.MyObject:SetValue (bit.band (_detalhes.overall_flag, 0x4) ~= 0)
+		_G.DetailsOptionsWindow2OverallDataDungeonCleaupSlider.MyObject:SetValue (bit.band (_detalhes.overall_flag, 0x8) ~= 0)
+		_G.DetailsOptionsWindow2OverallDataAllSlider.MyObject:SetValue (bit.band (_detalhes.overall_flag, 0x10) ~= 0)
+		
+		_G.DetailsOptionsWindow2OverallNewBossSlider.MyObject:SetValue (_detalhes.overall_clear_newboss)
+		_G.DetailsOptionsWindow2OverallNewChallengeSlider.MyObject:SetValue (_detalhes.overall_clear_newchallenge)
+		
+		_G.DetailsOptionsWindow2CaptureDamageSlider.MyObject:SetValue (_detalhes.capture_real ["damage"])
+		_G.DetailsOptionsWindow2CaptureHealSlider.MyObject:SetValue (_detalhes.capture_real ["heal"])
+		_G.DetailsOptionsWindow2CaptureEnergySlider.MyObject:SetValue (_detalhes.capture_real ["energy"])
+		_G.DetailsOptionsWindow2CaptureMiscSlider.MyObject:SetValue (_detalhes.capture_real ["miscdata"])
+		_G.DetailsOptionsWindow2CaptureAuraSlider.MyObject:SetValue (_detalhes.capture_real ["aura"])
+		_G.DetailsOptionsWindow2CloudAuraSlider.MyObject:SetValue (_detalhes.cloud_capture)
+		
+		--> window 3
+		
+		local skin = editing_instance.skin
+		local frame3 = _G.DetailsOptionsWindow3
+		
+		_G.DetailsOptionsWindow3SkinDropdown.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow3SkinDropdown.MyObject:Select (skin)
+		
+		local skin_object = _detalhes:GetSkin (skin)
+		local skin_name_formated = skin:gsub (" ", "")
+		
+		--> hide all
+		for name, _ in pairs (_detalhes.skins) do
+			local name = name:gsub (" ", "")
+			for index, t in ipairs (frame3.ExtraOptions [name] or {}) do
+				t[1]:Hide()
+				t[2]:Hide()
+			end
+		end
+		
+		for _, frame in pairs (frame3.ExtraOptions) do
+			frame:Hide()
+		end
+		
+		--> create or show options if necessary
+		if (skin_object.skin_options and not skin_object.options_created) then
+			skin_object.options_created = true
+
+			local f = CreateFrame ("frame", "DetailsSkinOptions" .. skin_name_formated, frame3)
+			frame3.ExtraOptions [skin_name_formated] = f
+			f:SetPoint ("topleft", frame3, "topleft", window.right_start_at, window.top_start_at + (25 * -1))
+			f:SetSize (250, 400)
+
+			g:BuildMenu (f, skin_object.skin_options, 0, 0, 400)
 			
-			if (type == "button") then
-				local button = g:NewButton (frame3, _, "$parent" .. skin_name_formated .. "Button" .. index, skin_name_formated .. "Button" .. index, 160, 18, widget.func, nil, nil, nil, widget.text)
-				button:InstallCustomTexture()
+			--[[
+			for index, widget in ipairs (skin_object.skin_options) do 
+				local type = widget.type
+				
+				if (type == "button") then
+					local button = g:NewButton (frame3, _, "$parent" .. skin_name_formated .. "Button" .. index, skin_name_formated .. "Button" .. index, 160, 18, widget.func, nil, nil, nil, widget.text)
+					button:InstallCustomTexture()
 
-				local label = g:NewLabel (frame3, _, "$parent" .. skin_name_formated .. "ButtonLabel" .. index, skin_name_formated .. "ButtonLabel" .. index, "", "GameFontHighlightLeft")
-				label:SetPoint ("left", button, "left")
-				
-				local desc = window:CreateLineBackground2 (frame3, skin_name_formated .. "Button" .. index, skin_name_formated .. "ButtonLabel" .. index, widget.desc)
-				desc:SetWidth (1)
-				
-				tinsert (frame3.ExtraOptions [skin_name_formated], {button, label})
-				
-				button:SetPoint (window.right_start_at, window.top_start_at + (index * 1 * 25 * -1))
+					local label = g:NewLabel (frame3, _, "$parent" .. skin_name_formated .. "ButtonLabel" .. index, skin_name_formated .. "ButtonLabel" .. index, "", "GameFontHighlightLeft")
+					label:SetPoint ("left", button, "left")
+					
+					local desc = window:CreateLineBackground2 (frame3, skin_name_formated .. "Button" .. index, skin_name_formated .. "ButtonLabel" .. index, widget.desc)
+					desc:SetWidth (1)
+					
+					tinsert (frame3.ExtraOptions [skin_name_formated], {button, label})
+					
+					button:SetPoint (window.right_start_at, window.top_start_at + (index * 1 * 25 * -1))
+				end
 			end
+			
+			frame3.SkinExtraOptionsAnchor:Show()
+			--]]
+			
+		elseif (skin_object.skin_options) then
+			frame3.ExtraOptions [skin_name_formated]:Show()
 		end
 		
-		frame3.SkinExtraOptionsAnchor:Show()
-		--]]
+		--> window 4
+		_G.DetailsOptionsWindow4BarSpacementSizeSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow4BarSpacementSizeSlider.MyObject:SetValue (editing_instance.row_info.space.between)
 		
-	elseif (skin_object.skin_options) then
-		frame3.ExtraOptions [skin_name_formated]:Show()
-	end
-	
-	--> window 4
-	_G.DetailsOptionsWindow4BarSpacementSizeSlider.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow4BarSpacementSizeSlider.MyObject:SetValue (editing_instance.row_info.space.between)
-	
-	_G.DetailsOptionsWindow4BarStartSlider.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow4BarStartSlider.MyObject:SetValue (editing_instance.row_info.start_after_icon)
-	
-	_G.DetailsOptionsWindow4ShowMeSlider.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow4ShowMeSlider.MyObject:SetValue (editing_instance.following.enabled)
-	
-	_G.DetailsOptionsWindow4BackdropBorderTextureDropdown.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow4BackdropEnabledSlider.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow4BackdropSizeHeight.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow4BackdropBorderTextureDropdown.MyObject:Select (editing_instance.row_info.backdrop.texture)
-	_G.DetailsOptionsWindow4BackdropEnabledSlider.MyObject:SetValue (editing_instance.row_info.backdrop.enabled)
-	_G.DetailsOptionsWindow4BackdropSizeHeight.MyObject:SetValue (editing_instance.row_info.backdrop.size)
-	_G.DetailsOptionsWindow4BackdropColorPick.MyObject:SetColor (unpack (editing_instance.row_info.backdrop.color))
-	
-	_G.DetailsOptionsWindow4IconFileEntry:SetText (editing_instance.row_info.icon_file)
-	_G.DetailsOptionsWindow4IconSelectDropdown.MyObject:Select (false)
-	_G.DetailsOptionsWindow4IconSelectDropdown.MyObject:Select (editing_instance.row_info.icon_file)
-	
-	--> window 5
-	
-	_G.DetailsOptionsWindow5PercentDropdown.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow5PercentDropdown.MyObject:Select (editing_instance.row_info.percent_type)
-	
-	_G.DetailsOptionsWindow5CutomLeftTextSlider.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow5CutomLeftTextSlider.MyObject:SetValue (editing_instance.row_info.textL_enable_custom_text)
-	
-	_G.DetailsOptionsWindow5CutomRightTextSlider.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow5CutomRightTextSlider.MyObject:SetValue (editing_instance.row_info.textR_enable_custom_text)
+		_G.DetailsOptionsWindow4BarStartSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow4BarStartSlider.MyObject:SetValue (editing_instance.row_info.start_after_icon)
 
-	local text = editing_instance.row_info.textL_custom_text
-	_G.DetailsOptionsWindow5CutomLeftTextEntry.MyObject:SetText (text)
-	
-	local text = editing_instance.row_info.textR_custom_text
-	_G.DetailsOptionsWindow5CutomRightTextEntry.MyObject:SetText (text)
-	
-	_G.DetailsOptionsWindow5PositionNumberSlider.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow5PositionNumberSlider.MyObject:SetValue (editing_instance.row_info.textL_show_number)
-	
-	--> window 6
-	_G.DetailsOptionsWindow6BackdropDropdown.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow6BackdropDropdown.MyObject:Select (editing_instance.backdrop_texture)
-	
-	local r, g, b = unpack (editing_instance.statusbar_info.overlay)
-	_G.DetailsOptionsWindow6StatusbarColorPick.MyObject:SetColor (r, g, b, editing_instance.statusbar_info.alpha)
-	
-	_G.DetailsOptionsWindow6StrataDropdown.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow6StrataDropdown.MyObject:Select (strata [editing_instance.strata] or "Low")
-	
-	_G.DetailsOptionsWindow6StretchAlwaysOnTopSlider.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow6StretchAlwaysOnTopSlider.MyObject:SetValue (editing_instance.grab_on_top)
-	
-	_G.DetailsOptionsWindow6InstanceMicroDisplaysSideSlider.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow6InstanceMicroDisplaysSideSlider.MyObject:SetValue (editing_instance.micro_displays_side)
+		_G.DetailsOptionsWindow4ShowMeSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow4ShowMeSlider.MyObject:SetValue (editing_instance.following.enabled)
 
-	_G.DetailsOptionsWindow6WindowScaleSlider.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow6WindowScaleSlider.MyObject:SetValue (editing_instance.window_scale)
-	
-	--> window 7
+		
+		_G.DetailsOptionsWindow4BackdropBorderTextureDropdown.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow4BackdropEnabledSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow4BackdropSizeHeight.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow4BackdropBorderTextureDropdown.MyObject:Select (editing_instance.row_info.backdrop.texture)
+		_G.DetailsOptionsWindow4BackdropEnabledSlider.MyObject:SetValue (editing_instance.row_info.backdrop.enabled)
+		_G.DetailsOptionsWindow4BackdropSizeHeight.MyObject:SetValue (editing_instance.row_info.backdrop.size)
+		_G.DetailsOptionsWindow4BackdropColorPick.MyObject:SetColor (unpack (editing_instance.row_info.backdrop.color))
+		
+		_G.DetailsOptionsWindow4IconFileEntry:SetText (editing_instance.row_info.icon_file)
+		_G.DetailsOptionsWindow4IconSelectDropdown.MyObject:Select (false)
+		_G.DetailsOptionsWindow4IconSelectDropdown.MyObject:Select (editing_instance.row_info.icon_file)
+		
+		--> window 5
+		
+		_G.DetailsOptionsWindow5PercentDropdown.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow5PercentDropdown.MyObject:Select (editing_instance.row_info.percent_type)
+		
+		_G.DetailsOptionsWindow5CutomLeftTextSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow5CutomLeftTextSlider.MyObject:SetValue (editing_instance.row_info.textL_enable_custom_text)
+		
+		_G.DetailsOptionsWindow5CutomRightTextSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow5CutomRightTextSlider.MyObject:SetValue (editing_instance.row_info.textR_enable_custom_text)
 
-	_G.DetailsOptionsWindow7AutoHideLeftMenuSwitch.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow7AutoHideLeftMenuSwitch.MyObject:SetValue (editing_instance.auto_hide_menu.left)
-	
-	_G.DetailsOptionsWindow7MenuAnchorSideSlider.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow7MenuAnchorSideSlider.MyObject:SetValue (editing_instance.menu_anchor.side)
-	
-	_G.DetailsOptionsWindow7:update_icon_buttons (editing_instance)
-	
-	_G.DetailsOptionsWindow7PluginIconsDirectionSlider.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow7PluginIconsDirectionSlider.MyObject:SetValue (editing_instance.plugins_grow_direction)	
-	
-	_G.DetailsOptionsWindow7DesaturateMenuSlider.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow7DesaturateMenuSlider.MyObject:SetValue (editing_instance.desaturated_menu)
-	
-	_G.DetailsOptionsWindow7HideIconSlider.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow7HideIconSlider.MyObject:SetValue (editing_instance.hide_icon)
-	
-	_G.DetailsOptionsWindow7MenuIconSizeSlider.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow7MenuIconSizeSlider.MyObject:SetValue (editing_instance.menu_icons_size)	
-	
-	_G.DetailsOptionsWindow7MenuAnchorXSlider.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow7MenuAnchorYSlider.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow7:update_menuanchor_xy (editing_instance)
+		local text = editing_instance.row_info.textL_custom_text
+		_G.DetailsOptionsWindow5CutomLeftTextEntry.MyObject:SetText (text)
+		
+		local text = editing_instance.row_info.textR_custom_text
+		_G.DetailsOptionsWindow5CutomRightTextEntry.MyObject:SetText (text)
+		
+		_G.DetailsOptionsWindow5PositionNumberSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow5PositionNumberSlider.MyObject:SetValue (editing_instance.row_info.textL_show_number)
+		
+		--> window 6
+		_G.DetailsOptionsWindow6BackdropDropdown.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow6BackdropDropdown.MyObject:Select (editing_instance.backdrop_texture)
+		
+		local r, g, b = unpack (editing_instance.statusbar_info.overlay)
+		_G.DetailsOptionsWindow6StatusbarColorPick.MyObject:SetColor (r, g, b, editing_instance.statusbar_info.alpha)
+		
+		_G.DetailsOptionsWindow6StrataDropdown.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow6StrataDropdown.MyObject:Select (strata [editing_instance.strata] or "Low")
+		
+		_G.DetailsOptionsWindow6StretchAlwaysOnTopSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow6StretchAlwaysOnTopSlider.MyObject:SetValue (editing_instance.grab_on_top)
+		
+		_G.DetailsOptionsWindow6InstanceMicroDisplaysSideSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow6InstanceMicroDisplaysSideSlider.MyObject:SetValue (editing_instance.micro_displays_side)
 
-	--> window 8
-	
-	_G.DetailsOptionsWindow8MenuAnchorXSlider.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow8MenuAnchorYSlider.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow8:update_menuanchor_xy (editing_instance)
-	
-	_G.DetailsOptionsWindow8DesaturateMenuSlider.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow8DesaturateMenuSlider.MyObject:SetValue (editing_instance.desaturated_menu2)
-	
-	_G.DetailsOptionsWindow8MenuIconSizeSlider.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow8MenuIconSizeSlider.MyObject:SetValue (editing_instance.menu2_icons_size)
+		_G.DetailsOptionsWindow6WindowScaleSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow6WindowScaleSlider.MyObject:SetValue (editing_instance.window_scale)
 
-	_G.DetailsOptionsWindow8:update_icon_buttons (editing_instance)
-	
-	_G.DetailsOptionsWindow8AutoHideRightMenuSwitch.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow8AutoHideRightMenuSwitch.MyObject:SetValue (editing_instance.auto_hide_menu.right)
-	
-	_G.DetailsOptionsWindow8InstanceTextFontDropdown.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow8InstanceTextSizeSlider.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow8InstanceTexShadowtSwitch.MyObject:SetFixedParameter (editing_instance)
-	
-	_G.DetailsOptionsWindow8InstanceTextColorPick.MyObject:SetColor (unpack (editing_instance.instancebutton_config.textcolor))
-	_G.DetailsOptionsWindow8InstanceTextSizeSlider.MyObject:SetValue (editing_instance.instancebutton_config.textsize)
-	_G.DetailsOptionsWindow8InstanceTextFontDropdown.MyObject:Select (editing_instance.instancebutton_config.textfont)
-	_G.DetailsOptionsWindow8InstanceTexShadowtSwitch.MyObject:SetValue (editing_instance.instancebutton_config.textshadow)
-	
-	--instanceTextColorLabel
+		--> window 7
 
-	
-	--> window 10	
-	_G.DetailsOptionsWindow10SliderMemory.MyObject:SetValue (_detalhes.memory_threshold)
-	_G.DetailsOptionsWindow10PanicModeSlider.MyObject:SetValue (_detalhes.segments_panic_mode)
-	_G.DetailsOptionsWindow10ClearAnimateScrollSlider.MyObject:SetValue (_detalhes.animate_scroll)
-	_G.DetailsOptionsWindow10SliderSegmentsSave.MyObject:SetValue (_detalhes.segments_amount_to_save)
-	
-	--> window 11
+		_G.DetailsOptionsWindow7AutoHideLeftMenuSwitch.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow7AutoHideLeftMenuSwitch.MyObject:SetValue (editing_instance.auto_hide_menu.left)
+		
+		_G.DetailsOptionsWindow7MenuAnchorSideSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow7MenuAnchorSideSlider.MyObject:SetValue (editing_instance.menu_anchor.side)
+		
+		_G.DetailsOptionsWindow7:update_icon_buttons (editing_instance)
+		
+		_G.DetailsOptionsWindow7PluginIconsDirectionSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow7PluginIconsDirectionSlider.MyObject:SetValue (editing_instance.plugins_grow_direction)	
+		
+		_G.DetailsOptionsWindow7DesaturateMenuSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow7DesaturateMenuSlider.MyObject:SetValue (editing_instance.desaturated_menu)
+		
+		_G.DetailsOptionsWindow7HideIconSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow7HideIconSlider.MyObject:SetValue (editing_instance.hide_icon)
+		
+		_G.DetailsOptionsWindow7MenuIconSizeSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow7MenuIconSizeSlider.MyObject:SetValue (editing_instance.menu_icons_size)	
+		
+		_G.DetailsOptionsWindow7MenuAnchorXSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow7MenuAnchorYSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow7:update_menuanchor_xy (editing_instance)
 
-	
-	--> window 13
-	_G.DetailsOptionsWindow13SelectProfileDropdown.MyObject:Select (_detalhes:GetCurrentProfileName())
-	_G.DetailsOptionsWindow13SelectProfileDropdown.MyObject:SetFixedParameter (editing_instance)
-	
-	_G.DetailsOptionsWindow13PosAndSizeSlider.MyObject:SetValue (_detalhes.profile_save_pos)
-	
-	--_G.DetailsOptionsWindow13AlwaysUseSlider.MyObject:SetValue (_detalhes.always_use_profile)
+		--> window 8
+		
+		_G.DetailsOptionsWindow8MenuAnchorXSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow8MenuAnchorYSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow8:update_menuanchor_xy (editing_instance)
+		
+		_G.DetailsOptionsWindow8DesaturateMenuSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow8DesaturateMenuSlider.MyObject:SetValue (editing_instance.desaturated_menu2)
+		
+		_G.DetailsOptionsWindow8MenuIconSizeSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow8MenuIconSizeSlider.MyObject:SetValue (editing_instance.menu2_icons_size)
 
-	--> window 14
+		_G.DetailsOptionsWindow8:update_icon_buttons (editing_instance)
+		
+		_G.DetailsOptionsWindow8AutoHideRightMenuSwitch.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow8AutoHideRightMenuSwitch.MyObject:SetValue (editing_instance.auto_hide_menu.right)
+		
+		_G.DetailsOptionsWindow8InstanceTextFontDropdown.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow8InstanceTextSizeSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow8InstanceTexShadowtSwitch.MyObject:SetFixedParameter (editing_instance)
+		
+		_G.DetailsOptionsWindow8InstanceTextColorPick.MyObject:SetColor (unpack (editing_instance.instancebutton_config.textcolor))
+		_G.DetailsOptionsWindow8InstanceTextSizeSlider.MyObject:SetValue (editing_instance.instancebutton_config.textsize)
+		_G.DetailsOptionsWindow8InstanceTextFontDropdown.MyObject:Select (editing_instance.instancebutton_config.textfont)
+		_G.DetailsOptionsWindow8InstanceTexShadowtSwitch.MyObject:SetValue (editing_instance.instancebutton_config.textshadow)
+		
+		--instanceTextColorLabel
 
-	_G.DetailsOptionsWindow14AttributeEnabledSwitch.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow14AttributeAnchorXSlider.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow14AttributeAnchorYSlider.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow14AttributeFontDropdown.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow14AttributeTextSizeSlider.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow14AttributeShadowSwitch.MyObject:SetFixedParameter (editing_instance)
-	
-	_G.DetailsOptionsWindow14AttributeEnabledSwitch.MyObject:SetValue (editing_instance.attribute_text.enabled)
-	_G.DetailsOptionsWindow14AttributeAnchorXSlider.MyObject:SetValue (editing_instance.attribute_text.anchor [1])
-	_G.DetailsOptionsWindow14AttributeAnchorYSlider.MyObject:SetValue (editing_instance.attribute_text.anchor [2])
-	_G.DetailsOptionsWindow14AttributeFontDropdown.MyObject:Select (editing_instance.attribute_text.text_face)
-	_G.DetailsOptionsWindow14AttributeTextSizeSlider.MyObject:SetValue (tonumber (editing_instance.attribute_text.text_size))
-	_G.DetailsOptionsWindow14AttributeTextColorPick.MyObject:SetColor (unpack (editing_instance.attribute_text.text_color))
-	_G.DetailsOptionsWindow14AttributeShadowSwitch.MyObject:SetValue (editing_instance.attribute_text.shadow)
+		
+		--> window 10	
+		_G.DetailsOptionsWindow10SliderMemory.MyObject:SetValue (_detalhes.memory_threshold)
+		_G.DetailsOptionsWindow10PanicModeSlider.MyObject:SetValue (_detalhes.segments_panic_mode)
+		_G.DetailsOptionsWindow10ClearAnimateScrollSlider.MyObject:SetValue (_detalhes.animate_scroll)
+		_G.DetailsOptionsWindow10SliderSegmentsSave.MyObject:SetValue (_detalhes.segments_amount_to_save)
+		
+		--> window 11
 
-	_G.DetailsOptionsWindow14AttributeSideSwitch.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow14AttributeSideSwitch.MyObject:SetValue (editing_instance.attribute_text.side)
-	
-	--> window 16
-	_G.DetailsOptionsWindow16UserTimeCapturesFillPanel.MyObject:Refresh()
-	
-	--> window 17
-	_G.DetailsOptionsWindow17CombatAlphaDropdown.MyObject:Select (editing_instance.hide_in_combat_type, true)
-	_G.DetailsOptionsWindow17HideOnCombatAlphaSlider.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow17HideOnCombatAlphaSlider.MyObject:SetValue (editing_instance.hide_in_combat_alpha)
-	
-	_G.DetailsOptionsWindow17MenuOnEnterLeaveAlphaSwitch.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow17MenuOnEnterAlphaSlider.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow17MenuOnLeaveAlphaSlider.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow17MenuOnEnterLeaveAlphaIconsTooSwitch.MyObject:SetFixedParameter (editing_instance)	
-	
-	_G.DetailsOptionsWindow17MenuOnEnterAlphaSlider.MyObject:SetValue (editing_instance.menu_alpha.onenter)
-	_G.DetailsOptionsWindow17MenuOnLeaveAlphaSlider.MyObject:SetValue (editing_instance.menu_alpha.onleave)
-	_G.DetailsOptionsWindow17MenuOnEnterLeaveAlphaSwitch.MyObject:SetValue (editing_instance.menu_alpha.enabled)
-	_G.DetailsOptionsWindow17MenuOnEnterLeaveAlphaIconsTooSwitch.MyObject:SetValue (editing_instance.menu_alpha.ignorebars)
-	
-	--> window 18
-	
-	--report
-	_G.DetailsOptionsWindow18ReportHelpfulLinkSlider.MyObject:SetValue (_detalhes.report_heal_links)
-	--disabled groups
-	_G.DetailsOptionsWindow18DisableGroupsSlider.MyObject:SetValue (_detalhes.disable_window_groups)
-	--disable reset
-	_G.DetailsOptionsWindow18DisableResetSlider.MyObject:SetValue (_detalhes.disable_reset_button)
-	
-	--auto switch
-	local switch_tank_in_combat = editing_instance.switch_tank_in_combat
-	if (switch_tank_in_combat) then
-		if (switch_tank_in_combat [1] == "raid") then
-			local plugin_object = _detalhes:GetPlugin (switch_tank_in_combat[2])
-			if (plugin_object) then
-				_G.DetailsOptionsWindow18AutoSwitchTankCombatDropdown.MyObject:Select (plugin_object.__name)
+		
+		--> window 13
+		_G.DetailsOptionsWindow13SelectProfileDropdown.MyObject:Select (_detalhes:GetCurrentProfileName())
+		_G.DetailsOptionsWindow13SelectProfileDropdown.MyObject:SetFixedParameter (editing_instance)
+		
+		_G.DetailsOptionsWindow13PosAndSizeSlider.MyObject:SetValue (_detalhes.profile_save_pos)
+		--_G.DetailsOptionsWindow13AlwaysUseSlider.MyObject:SetValue (_detalhes.always_use_profile)
+
+		--> window 14
+
+		_G.DetailsOptionsWindow14AttributeEnabledSwitch.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow14AttributeAnchorXSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow14AttributeAnchorYSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow14AttributeFontDropdown.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow14AttributeTextSizeSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow14AttributeShadowSwitch.MyObject:SetFixedParameter (editing_instance)
+		
+		_G.DetailsOptionsWindow14AttributeEnabledSwitch.MyObject:SetValue (editing_instance.attribute_text.enabled)
+		_G.DetailsOptionsWindow14AttributeAnchorXSlider.MyObject:SetValue (editing_instance.attribute_text.anchor [1])
+		_G.DetailsOptionsWindow14AttributeAnchorYSlider.MyObject:SetValue (editing_instance.attribute_text.anchor [2])
+		_G.DetailsOptionsWindow14AttributeFontDropdown.MyObject:Select (editing_instance.attribute_text.text_face)
+		_G.DetailsOptionsWindow14AttributeTextSizeSlider.MyObject:SetValue (tonumber (editing_instance.attribute_text.text_size))
+		_G.DetailsOptionsWindow14AttributeTextColorPick.MyObject:SetColor (unpack (editing_instance.attribute_text.text_color))
+		_G.DetailsOptionsWindow14AttributeShadowSwitch.MyObject:SetValue (editing_instance.attribute_text.shadow)
+
+		_G.DetailsOptionsWindow14AttributeSideSwitch.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow14AttributeSideSwitch.MyObject:SetValue (editing_instance.attribute_text.side)
+		
+		--> window 16
+		_G.DetailsOptionsWindow16UserTimeCapturesFillPanel.MyObject:Refresh()
+		
+		--> window 17
+		_G.DetailsOptionsWindow17CombatAlphaDropdown.MyObject:Select (editing_instance.hide_in_combat_type, true)
+		_G.DetailsOptionsWindow17HideOnCombatAlphaSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow17HideOnCombatAlphaSlider.MyObject:SetValue (editing_instance.hide_in_combat_alpha)
+		
+		_G.DetailsOptionsWindow17MenuOnEnterLeaveAlphaSwitch.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow17MenuOnEnterAlphaSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow17MenuOnLeaveAlphaSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow17MenuOnEnterLeaveAlphaIconsTooSwitch.MyObject:SetFixedParameter (editing_instance)	
+		
+		_G.DetailsOptionsWindow17MenuOnEnterAlphaSlider.MyObject:SetValue (editing_instance.menu_alpha.onenter)
+		_G.DetailsOptionsWindow17MenuOnLeaveAlphaSlider.MyObject:SetValue (editing_instance.menu_alpha.onleave)
+		_G.DetailsOptionsWindow17MenuOnEnterLeaveAlphaSwitch.MyObject:SetValue (editing_instance.menu_alpha.enabled)
+		_G.DetailsOptionsWindow17MenuOnEnterLeaveAlphaIconsTooSwitch.MyObject:SetValue (editing_instance.menu_alpha.ignorebars)
+		
+		--> window 18
+		
+		--report
+		_G.DetailsOptionsWindow18ReportHelpfulLinkSlider.MyObject:SetValue (_detalhes.report_heal_links)
+		_G.DetailsOptionsWindow18ReportFormatDropdown.MyObject:Select (_detalhes.report_schema)
+		--disabled groups
+		_G.DetailsOptionsWindow18DisableGroupsSlider.MyObject:SetValue (_detalhes.disable_window_groups)
+		--disable reset
+		_G.DetailsOptionsWindow18DisableResetSlider.MyObject:SetValue (_detalhes.disable_reset_button)
+		_G.DetailsOptionsWindow18UseScrollSlider.MyObject:SetValue (_detalhes.use_scroll)
+		
+		--auto switch
+		local switch_tank_in_combat = editing_instance.switch_tank_in_combat
+		if (switch_tank_in_combat) then
+			if (switch_tank_in_combat [1] == "raid") then
+				local plugin_object = _detalhes:GetPlugin (switch_tank_in_combat[2])
+				if (plugin_object) then
+					_G.DetailsOptionsWindow18AutoSwitchTankCombatDropdown.MyObject:Select (plugin_object.__name)
+				else
+					_G.DetailsOptionsWindow18AutoSwitchTankCombatDropdown.MyObject:Select (1, true)
+				end
 			else
-				_G.DetailsOptionsWindow18AutoSwitchTankCombatDropdown.MyObject:Select (1, true)
+				_G.DetailsOptionsWindow18AutoSwitchTankCombatDropdown.MyObject:Select (switch_tank_in_combat[3]+1, true)
 			end
 		else
-			_G.DetailsOptionsWindow18AutoSwitchTankCombatDropdown.MyObject:Select (switch_tank_in_combat[3]+1, true)
+			_G.DetailsOptionsWindow18AutoSwitchTankCombatDropdown.MyObject:Select (1, true)
 		end
-	else
-		_G.DetailsOptionsWindow18AutoSwitchTankCombatDropdown.MyObject:Select (1, true)
-	end
-	
-	local switch_tank = editing_instance.switch_tank
-	if (switch_tank) then
-		if (switch_tank [1] == "raid") then
-			local plugin_object = _detalhes:GetPlugin (switch_tank[2])
-			if (plugin_object) then
-				_G.DetailsOptionsWindow18AutoSwitchTankNoCombatDropdown.MyObject:Select (plugin_object.__name)
+		
+		local switch_tank = editing_instance.switch_tank
+		if (switch_tank) then
+			if (switch_tank [1] == "raid") then
+				local plugin_object = _detalhes:GetPlugin (switch_tank[2])
+				if (plugin_object) then
+					_G.DetailsOptionsWindow18AutoSwitchTankNoCombatDropdown.MyObject:Select (plugin_object.__name)
+				else
+					_G.DetailsOptionsWindow18AutoSwitchTankNoCombatDropdown.MyObject:Select (1, true)
+				end
 			else
-				_G.DetailsOptionsWindow18AutoSwitchTankNoCombatDropdown.MyObject:Select (1, true)
+				_G.DetailsOptionsWindow18AutoSwitchTankNoCombatDropdown.MyObject:Select (switch_tank[3]+1, true)
 			end
 		else
-			_G.DetailsOptionsWindow18AutoSwitchTankNoCombatDropdown.MyObject:Select (switch_tank[3]+1, true)
+			_G.DetailsOptionsWindow18AutoSwitchTankNoCombatDropdown.MyObject:Select (1, true)
 		end
-	else
-		_G.DetailsOptionsWindow18AutoSwitchTankNoCombatDropdown.MyObject:Select (1, true)
-	end
-	
-	local switch_healer_in_combat = editing_instance.switch_healer_in_combat
-	if (switch_healer_in_combat) then
-		if (switch_healer_in_combat [1] == "raid") then
-			local plugin_object = _detalhes:GetPlugin (switch_healer_in_combat[2])
-			if (plugin_object) then
-				_G.DetailsOptionsWindow18AutoSwitchHealCombatDropdown.MyObject:Select (plugin_object.__name)
+		
+		local switch_healer_in_combat = editing_instance.switch_healer_in_combat
+		if (switch_healer_in_combat) then
+			if (switch_healer_in_combat [1] == "raid") then
+				local plugin_object = _detalhes:GetPlugin (switch_healer_in_combat[2])
+				if (plugin_object) then
+					_G.DetailsOptionsWindow18AutoSwitchHealCombatDropdown.MyObject:Select (plugin_object.__name)
+				else
+					_G.DetailsOptionsWindow18AutoSwitchHealCombatDropdown.MyObject:Select (1, true)
+				end
 			else
-				_G.DetailsOptionsWindow18AutoSwitchHealCombatDropdown.MyObject:Select (1, true)
+				_G.DetailsOptionsWindow18AutoSwitchHealCombatDropdown.MyObject:Select (switch_healer_in_combat[3]+1, true)
 			end
 		else
-			_G.DetailsOptionsWindow18AutoSwitchHealCombatDropdown.MyObject:Select (switch_healer_in_combat[3]+1, true)
+			_G.DetailsOptionsWindow18AutoSwitchHealCombatDropdown.MyObject:Select (1, true)
 		end
-	else
-		_G.DetailsOptionsWindow18AutoSwitchHealCombatDropdown.MyObject:Select (1, true)
-	end
-	
-	local switch_healer = editing_instance.switch_healer
-	if (switch_healer) then
-		if (switch_healer [1] == "raid") then
-			local plugin_object = _detalhes:GetPlugin (switch_healer[2])
-			if (plugin_object) then
-				_G.DetailsOptionsWindow18AutoSwitchHealNoCombatDropdown.MyObject:Select (plugin_object.__name)
+		
+		local switch_healer = editing_instance.switch_healer
+		if (switch_healer) then
+			if (switch_healer [1] == "raid") then
+				local plugin_object = _detalhes:GetPlugin (switch_healer[2])
+				if (plugin_object) then
+					_G.DetailsOptionsWindow18AutoSwitchHealNoCombatDropdown.MyObject:Select (plugin_object.__name)
+				else
+					_G.DetailsOptionsWindow18AutoSwitchHealNoCombatDropdown.MyObject:Select (1, true)
+				end
 			else
-				_G.DetailsOptionsWindow18AutoSwitchHealNoCombatDropdown.MyObject:Select (1, true)
+				_G.DetailsOptionsWindow18AutoSwitchHealNoCombatDropdown.MyObject:Select (switch_healer[3]+1, true)
 			end
 		else
-			_G.DetailsOptionsWindow18AutoSwitchHealNoCombatDropdown.MyObject:Select (switch_healer[3]+1, true)
+			_G.DetailsOptionsWindow18AutoSwitchHealNoCombatDropdown.MyObject:Select (1, true)
 		end
-	else
-		_G.DetailsOptionsWindow18AutoSwitchHealNoCombatDropdown.MyObject:Select (1, true)
-	end
-	
-	local switch_damager_in_combat = editing_instance.switch_damager_in_combat
-	if (switch_damager_in_combat) then
-		if (switch_damager_in_combat [1] == "raid") then
-			local plugin_object = _detalhes:GetPlugin (switch_damager_in_combat[2])
-			if (plugin_object) then
-				_G.DetailsOptionsWindow18AutoSwitchDamageCombatDropdown.MyObject:Select (plugin_object.__name)
+		
+		local switch_damager_in_combat = editing_instance.switch_damager_in_combat
+		if (switch_damager_in_combat) then
+			if (switch_damager_in_combat [1] == "raid") then
+				local plugin_object = _detalhes:GetPlugin (switch_damager_in_combat[2])
+				if (plugin_object) then
+					_G.DetailsOptionsWindow18AutoSwitchDamageCombatDropdown.MyObject:Select (plugin_object.__name)
+				else
+					_G.DetailsOptionsWindow18AutoSwitchDamageCombatDropdown.MyObject:Select (1, true)
+				end
 			else
-				_G.DetailsOptionsWindow18AutoSwitchDamageCombatDropdown.MyObject:Select (1, true)
+				_G.DetailsOptionsWindow18AutoSwitchDamageCombatDropdown.MyObject:Select (switch_damager_in_combat[3]+1, true)
 			end
 		else
-			_G.DetailsOptionsWindow18AutoSwitchDamageCombatDropdown.MyObject:Select (switch_damager_in_combat[3]+1, true)
+			_G.DetailsOptionsWindow18AutoSwitchDamageCombatDropdown.MyObject:Select (1, true)
 		end
-	else
-		_G.DetailsOptionsWindow18AutoSwitchDamageCombatDropdown.MyObject:Select (1, true)
-	end
-	
-	local switch_damager = editing_instance.switch_damager
-	if (switch_damager) then
-		if (switch_damager [1] == "raid") then
-			local plugin_object = _detalhes:GetPlugin (switch_damager[2])
-			if (plugin_object) then
-				_G.DetailsOptionsWindow18AutoSwitchDamageNoCombatDropdown.MyObject:Select (plugin_object.__name)
+		
+		local switch_damager = editing_instance.switch_damager
+		if (switch_damager) then
+			if (switch_damager [1] == "raid") then
+				local plugin_object = _detalhes:GetPlugin (switch_damager[2])
+				if (plugin_object) then
+					_G.DetailsOptionsWindow18AutoSwitchDamageNoCombatDropdown.MyObject:Select (plugin_object.__name)
+				else
+					_G.DetailsOptionsWindow18AutoSwitchDamageNoCombatDropdown.MyObject:Select (1, true)
+				end
 			else
-				_G.DetailsOptionsWindow18AutoSwitchDamageNoCombatDropdown.MyObject:Select (1, true)
+				_G.DetailsOptionsWindow18AutoSwitchDamageNoCombatDropdown.MyObject:Select (switch_damager[3]+1, true)
 			end
 		else
-			_G.DetailsOptionsWindow18AutoSwitchDamageNoCombatDropdown.MyObject:Select (switch_damager[3]+1, true)
+			_G.DetailsOptionsWindow18AutoSwitchDamageNoCombatDropdown.MyObject:Select (1, true)
 		end
-	else
-		_G.DetailsOptionsWindow18AutoSwitchDamageNoCombatDropdown.MyObject:Select (1, true)
-	end
-	
-	local switch_all_roles_after_wipe = editing_instance.switch_all_roles_after_wipe
-	if (switch_all_roles_after_wipe) then
-		if (switch_all_roles_after_wipe [1] == "raid") then
-			local plugin_object = _detalhes:GetPlugin (switch_all_roles_after_wipe[2])
-			if (plugin_object) then
-				_G.DetailsOptionsWindow18AutoSwitchWipeDropdown.MyObject:Select (plugin_object.__name)
+		
+		local switch_all_roles_after_wipe = editing_instance.switch_all_roles_after_wipe
+		if (switch_all_roles_after_wipe) then
+			if (switch_all_roles_after_wipe [1] == "raid") then
+				local plugin_object = _detalhes:GetPlugin (switch_all_roles_after_wipe[2])
+				if (plugin_object) then
+					_G.DetailsOptionsWindow18AutoSwitchWipeDropdown.MyObject:Select (plugin_object.__name)
+				else
+					_G.DetailsOptionsWindow18AutoSwitchWipeDropdown.MyObject:Select (1, true)
+				end
 			else
-				_G.DetailsOptionsWindow18AutoSwitchWipeDropdown.MyObject:Select (1, true)
+				_G.DetailsOptionsWindow18AutoSwitchWipeDropdown.MyObject:Select (switch_all_roles_after_wipe[3]+1, true)
 			end
 		else
-			_G.DetailsOptionsWindow18AutoSwitchWipeDropdown.MyObject:Select (switch_all_roles_after_wipe[3]+1, true)
+			_G.DetailsOptionsWindow18AutoSwitchWipeDropdown.MyObject:Select (1, true)
 		end
-	else
-		_G.DetailsOptionsWindow18AutoSwitchWipeDropdown.MyObject:Select (1, true)
-	end
-	
-	local autoswitch = editing_instance.switch_all_roles_in_combat
-	if (autoswitch) then
-		if (autoswitch [1] == "raid") then
-			local plugin_object = _detalhes:GetPlugin (autoswitch[2])
-			if (plugin_object) then
-				_G.DetailsOptionsWindow18AutoSwitchDropdown.MyObject:Select (plugin_object.__name)
+		
+		local autoswitch = editing_instance.switch_all_roles_in_combat
+		if (autoswitch) then
+			if (autoswitch [1] == "raid") then
+				local plugin_object = _detalhes:GetPlugin (autoswitch[2])
+				if (plugin_object) then
+					_G.DetailsOptionsWindow18AutoSwitchDropdown.MyObject:Select (plugin_object.__name)
+				else
+					_G.DetailsOptionsWindow18AutoSwitchDropdown.MyObject:Select (1, true)
+				end
 			else
-				_G.DetailsOptionsWindow18AutoSwitchDropdown.MyObject:Select (1, true)
+				_G.DetailsOptionsWindow18AutoSwitchDropdown.MyObject:Select (autoswitch[3]+1, true)
 			end
 		else
-			_G.DetailsOptionsWindow18AutoSwitchDropdown.MyObject:Select (autoswitch[3]+1, true)
+			_G.DetailsOptionsWindow18AutoSwitchDropdown.MyObject:Select (1, true)
 		end
-	else
-		_G.DetailsOptionsWindow18AutoSwitchDropdown.MyObject:Select (1, true)
-	end
-	
-	_G.DetailsOptionsWindow18AutoCurrentSlider.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow18AutoCurrentSlider.MyObject:SetValue (editing_instance.auto_current)	
-	
-	_G.DetailsOptionsWindow18TotalBarSlider.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow18TotalBarSlider.MyObject:SetValue (editing_instance.total_bar.enabled)
-	
-	_G.DetailsOptionsWindow18TotalBarColorPick.MyObject:SetColor (unpack (editing_instance.total_bar.color))
-	
-	_G.DetailsOptionsWindow18TotalBarOnlyInGroupSlider.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow18TotalBarOnlyInGroupSlider.MyObject:SetValue (editing_instance.total_bar.only_in_group)
-	_G.DetailsOptionsWindow18TotalBarIconTexture.MyObject:SetTexture (editing_instance.total_bar.icon)
-	
-	_G.DetailsOptionsWindow18MenuTextSizeSlider.MyObject:SetValue (_detalhes.font_sizes.menus)
-	
-	--> window 19
-	_G.DetailsOptionsWindow19MinimapSlider.MyObject:SetValue (not _detalhes.minimap.hide)
-	_G.DetailsOptionsWindow19MinimapActionDropdown.MyObject:Select (_detalhes.minimap.onclick_what_todo)
-	
-	_G.DetailsOptionsWindow19BrokerEntry.MyObject:SetText (_detalhes.data_broker_text)
-	_G.DetailsOptionsWindow19BrokerNumberAbbreviateDropdown.MyObject:Select (_detalhes.minimap.text_format)
-	
-	if (not _G.HotCorners) then
-		_G.DetailsOptionsWindow19HotcornerSlider.MyObject:Disable()
-		if (not _G.DetailsOptionsWindow19HotcornerAnchor.MyObject:GetText():find ("not installed")) then
-			_G.DetailsOptionsWindow19HotcornerAnchor.MyObject:SetText (_G.DetailsOptionsWindow19HotcornerAnchor.MyObject:GetText() .. " |cFFFF5555(not installed)|r")
+		
+		_G.DetailsOptionsWindow18AutoCurrentSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow18AutoCurrentSlider.MyObject:SetValue (editing_instance.auto_current)	
+		
+		_G.DetailsOptionsWindow18TotalBarSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow18TotalBarSlider.MyObject:SetValue (editing_instance.total_bar.enabled)
+		
+		_G.DetailsOptionsWindow18TotalBarColorPick.MyObject:SetColor (unpack (editing_instance.total_bar.color))
+		
+		_G.DetailsOptionsWindow18TotalBarOnlyInGroupSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow18TotalBarOnlyInGroupSlider.MyObject:SetValue (editing_instance.total_bar.only_in_group)
+		_G.DetailsOptionsWindow18TotalBarIconTexture.MyObject:SetTexture (editing_instance.total_bar.icon)
+		
+		_G.DetailsOptionsWindow18MenuTextSizeSlider.MyObject:SetValue (_detalhes.font_sizes.menus)
+		
+		--> window 19
+		_G.DetailsOptionsWindow19MinimapSlider.MyObject:SetValue (not _detalhes.minimap.hide)
+		_G.DetailsOptionsWindow19MinimapActionDropdown.MyObject:Select (_detalhes.minimap.onclick_what_todo)
+		
+		_G.DetailsOptionsWindow19BrokerEntry.MyObject:SetText (_detalhes.data_broker_text)
+		_G.DetailsOptionsWindow19BrokerNumberAbbreviateDropdown.MyObject:Select (_detalhes.minimap.text_format)
+		
+		if (not _G.HotCorners) then
+			_G.DetailsOptionsWindow19HotcornerSlider.MyObject:Disable()
+			if (not _G.DetailsOptionsWindow19HotcornerAnchor.MyObject:GetText():find ("not installed")) then
+				_G.DetailsOptionsWindow19HotcornerAnchor.MyObject:SetText (_G.DetailsOptionsWindow19HotcornerAnchor.MyObject:GetText() .. " |cFFFF5555(not installed)|r")
+			end
+		else
+			_G.DetailsOptionsWindow19HotcornerSlider.MyObject:SetValue (not _detalhes.hotcorner_topleft.hide)
 		end
-	else
-		_G.DetailsOptionsWindow19HotcornerSlider.MyObject:SetValue (not _detalhes.hotcorner_topleft.hide)
+
+		--> window 20
+		_G.DetailsOptionsWindow20TooltipTextColorPick.MyObject:SetColor (unpack (_detalhes.tooltip.fontcolor))
+		_G.DetailsOptionsWindow20TooltipTextColorPickRight.MyObject:SetColor (unpack (_detalhes.tooltip.fontcolor_right))
+		_G.DetailsOptionsWindow20TooltipTextColorPickAnchor.MyObject:SetColor (unpack (_detalhes.tooltip.header_text_color))
+
+		_G.DetailsOptionsWindow20TooltipTextSizeSlider.MyObject:SetValue (_detalhes.tooltip.fontsize)
+		_G.DetailsOptionsWindow20TooltipFontDropdown.MyObject:Select (_detalhes.tooltip.fontface)
+		_G.DetailsOptionsWindow20TooltipShadowSwitch.MyObject:SetValue (_detalhes.tooltip.fontshadow)
+		_G.DetailsOptionsWindow20TooltipBackgroundColorPick.MyObject:SetColor (unpack (_detalhes.tooltip.background))
+		_G.DetailsOptionsWindow20TooltipAbbreviateDropdown.MyObject:Select (_detalhes.tooltip.abbreviation, true)
+		_G.DetailsOptionsWindow20TooltipMaximizeDropdown.MyObject:Select (_detalhes.tooltip.maximize_method, true)
+		_G.DetailsOptionsWindow20TooltipShowAmountSlider.MyObject:SetValue (_detalhes.tooltip.show_amount)
+		
+		_G.DetailsOptionsWindow20TooltipAnchorDropdown.MyObject:Select (_detalhes.tooltip.anchored_to)
+		_G.DetailsOptionsWindow20TooltipAnchorSideDropdown.MyObject:Select (_detalhes.tooltip.anchor_point)
+		_G.DetailsOptionsWindow20TooltipRelativeSideDropdown.MyObject:Select (_detalhes.tooltip.anchor_relative)
+		_G.DetailsOptionsWindow20TooltipOffsetXSlider.MyObject:SetValue (_detalhes.tooltip.anchor_offset[1])
+		_G.DetailsOptionsWindow20TooltipOffsetYSlider.MyObject:SetValue (_detalhes.tooltip.anchor_offset[2])
+		
+		_G.DetailsOptionsWindow20BackdropBorderTextureDropdown.MyObject:Select (_detalhes.tooltip.border_texture)
+		_G.DetailsOptionsWindow20BackdropSizeHeight.MyObject:SetValue (_detalhes.tooltip.border_size)
+		_G.DetailsOptionsWindow20BackdropColorPick.MyObject:SetColor (unpack (_detalhes.tooltip.border_color))
+		
+		----------
+		
+		_G.DetailsOptionsWindow6SideBarsSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow6SideBarsSlider.MyObject:SetValue (editing_instance.show_sidebars)
+
+		_G.DetailsOptionsWindow6StatusbarSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow6StatusbarSlider.MyObject:SetValue (editing_instance.show_statusbar)
+		
+		_G.DetailsOptionsWindow6StretchAnchorSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow6StretchAnchorSlider.MyObject:SetValue (editing_instance.stretch_button_side)
+		
+
+		
+		_G.DetailsOptionsWindow6InstanceToolbarSideSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow6InstanceToolbarSideSlider.MyObject:SetValue (editing_instance.toolbar_side)
+		
+		_G.DetailsOptionsWindow4BarSortDirectionSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow4BarSortDirectionSlider.MyObject:SetValue (editing_instance.bars_sort_direction)
+		
+		_G.DetailsOptionsWindow4BarGrowDirectionSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow4BarGrowDirectionSlider.MyObject:SetValue (editing_instance.bars_grow_direction)
+		
+	----------------------------------------------------------------	
+		--instanceOverlayColorLabel
+		--closeOverlayColorLabel
+		
+		_G.DetailsOptionsWindow4TextureDropdown.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow4RowBackgroundTextureDropdown.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow4TextureDropdown.MyObject:Select (editing_instance.row_info.texture)
+		_G.DetailsOptionsWindow4RowBackgroundTextureDropdown.MyObject:Select (editing_instance.row_info.texture_background)
+		
+		_G.DetailsOptionsWindow4RowBackgroundColorPick.MyObject:SetColor (unpack (editing_instance.row_info.fixed_texture_background_color))
+		
+		_G.DetailsOptionsWindow4BackgroundClassColorSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow4BackgroundClassColorSlider.MyObject:SetValue (editing_instance.row_info.texture_background_class_color)
+		
+		_G.DetailsOptionsWindow5FontDropdown.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow5FontDropdown.MyObject:Select (editing_instance.row_info.font_face)
+		--
+		_G.DetailsOptionsWindow4SliderRowHeight.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow4SliderRowHeight.MyObject:SetValue (editing_instance.row_info.height)
+		--
+		_G.DetailsOptionsWindow5SliderFontSize.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow5SliderFontSize.MyObject:SetValue (editing_instance.row_info.font_size)
+		--
+		--
+		_G.DetailsOptionsWindow4ClassColorSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow4ClassColorSlider.MyObject:SetValue (editing_instance.row_info.texture_class_colors)
+		
+		_G.DetailsOptionsWindow5UseClassColorsLeftTextSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow5UseClassColorsLeftTextSlider.MyObject:SetValue (editing_instance.row_info.textL_class_colors)
+		_G.DetailsOptionsWindow5UseClassColorsRightTextSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow5UseClassColorsRightTextSlider.MyObject:SetValue (editing_instance.row_info.textR_class_colors)
+		
+		_G.DetailsOptionsWindow5TextLeftOutlineSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow5TextLeftOutlineSlider.MyObject:SetValue (editing_instance.row_info.textL_outline)
+		_G.DetailsOptionsWindow5TextRightOutlineSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow5TextRightOutlineSlider.MyObject:SetValue (editing_instance.row_info.textR_outline)
+		--
+		_G.DetailsOptionsWindow6AlphaSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow6AlphaSlider.MyObject:SetValue (editing_instance.bg_alpha)
+		--
+		_G.DetailsOptionsWindow9UseBackgroundSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow9BackgroundDropdown.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow9BackgroundDropdown2.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow9AnchorDropdown.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow9BackgroundDropdown.MyObject:Select (editing_instance.wallpaper.texture)
+		
+		_G.DetailsOptionsWindow9UseBackgroundSlider.MyObject:SetValue (editing_instance.wallpaper.enabled)
+		
+		_G.DetailsOptionsWindow6WindowColorPick.MyObject:SetColor (unpack (editing_instance.color))
+		--_G.DetailsOptionsWindow6InstanceColorTexture.MyObject:SetTexture (unpack (editing_instance.color))
+		
+		--_G.DetailsOptionsWindow6BackgroundColorTexture.MyObject:SetTexture (editing_instance.bg_r, editing_instance.bg_g, editing_instance.bg_b)
+		_G.DetailsOptionsWindow6WindowBackgroundColorPick.MyObject:SetColor (editing_instance.bg_r, editing_instance.bg_g, editing_instance.bg_b, editing_instance.bg_alpha)
+		
+		_G.DetailsOptionsWindow4RowColorPick.MyObject:SetColor (unpack (editing_instance.row_info.fixed_texture_color))
+		
+		_G.DetailsOptionsWindow5FixedTextColor.MyObject:SetColor (unpack (editing_instance.row_info.fixed_text_color))
+		
+		_G.DetailsOptionsWindow1NicknameEntry.MyObject.text = _detalhes:GetNickname (UnitGUID ("player"), UnitName ("player"), true) or ""
+		_G.DetailsOptionsWindow2TTDropdown.MyObject:Select (_detalhes.time_type, true)
+		
+		_G.DetailsOptionsWindow.MyObject.instance = instance
+		
+		if (editing_instance.meu_id > _detalhes.instances_amount) then
+		else
+			_G.DetailsOptionsWindowInstanceSelectDropdown.MyObject:Select (editing_instance.meu_id, true)
+			GameCooltip:Reset()
+			--_detalhes:CooltipPreset (1)
+			GameCooltip:AddLine ("editing window:", editing_instance.meu_id)
+			GameCooltip:ShowCooltip (_G.DetailsOptionsWindowInstanceSelectDropdown, "tooltip")
+		end
+		
+		
+		
+		--profiles
+		_G.DetailsOptionsWindow13CurrentProfileLabel2.MyObject:SetText (_detalhes_database.active_profile)
+		
+		window:Show()
+
+		local avatar = NickTag:GetNicknameAvatar (UnitGUID ("player"), NICKTAG_DEFAULT_AVATAR, true)
+		local background, cords, color = NickTag:GetNicknameBackground (UnitGUID ("player"), NICKTAG_DEFAULT_BACKGROUND, NICKTAG_DEFAULT_BACKGROUND_CORDS, {1, 1, 1, 1}, true)
+
+		_G.DetailsOptionsWindow1AvatarPreviewTexture.MyObject.texture = avatar
+		_G.DetailsOptionsWindow1AvatarPreviewTexture2.MyObject.texture = background
+		_G.DetailsOptionsWindow1AvatarPreviewTexture2.MyObject.texcoord = cords
+		_G.DetailsOptionsWindow1AvatarPreviewTexture2.MyObject:SetVertexColor (unpack (color))
+
+		local nick = _detalhes:GetNickname (UnitGUID ("player"), UnitName ("player"), true)
+		_G.DetailsOptionsWindow1AvatarNicknameLabel:SetText (nick)
+		
+		if (window.update_wallpaper_info) then
+			window:update_wallpaper_info()
+		end
+		
+		if (section) then
+			local button = window.menu_buttons [section]
+			local mouse_up_hook = button.OnMouseUpHook
+			mouse_up_hook (button.widget)
+		end
+		
 	end
 
-	--> window 20
-	_G.DetailsOptionsWindow20TooltipTextColorPick.MyObject:SetColor (unpack (_detalhes.tooltip.fontcolor))
-	_G.DetailsOptionsWindow20TooltipTextSizeSlider.MyObject:SetValue (_detalhes.tooltip.fontsize)
-	_G.DetailsOptionsWindow20TooltipFontDropdown.MyObject:Select (_detalhes.tooltip.fontface)
-	_G.DetailsOptionsWindow20TooltipShadowSwitch.MyObject:SetValue (_detalhes.tooltip.fontshadow)
-	_G.DetailsOptionsWindow20TooltipBackgroundColorPick.MyObject:SetColor (unpack (_detalhes.tooltip.background))
-	_G.DetailsOptionsWindow20TooltipAbbreviateDropdown.MyObject:Select (_detalhes.tooltip.abbreviation, true)
-	_G.DetailsOptionsWindow20TooltipMaximizeDropdown.MyObject:Select (_detalhes.tooltip.maximize_method, true)
-	_G.DetailsOptionsWindow20TooltipShowAmountSlider.MyObject:SetValue (_detalhes.tooltip.show_amount)
-	
-	_G.DetailsOptionsWindow20TooltipAnchorDropdown.MyObject:Select (_detalhes.tooltip.anchored_to)
-	_G.DetailsOptionsWindow20TooltipAnchorSideDropdown.MyObject:Select (_detalhes.tooltip.anchor_point)
-	_G.DetailsOptionsWindow20TooltipRelativeSideDropdown.MyObject:Select (_detalhes.tooltip.anchor_relative)
-	_G.DetailsOptionsWindow20TooltipOffsetXSlider.MyObject:SetValue (_detalhes.tooltip.anchor_offset[1])
-	_G.DetailsOptionsWindow20TooltipOffsetYSlider.MyObject:SetValue (_detalhes.tooltip.anchor_offset[2])
-	
-	_G.DetailsOptionsWindow20BackdropBorderTextureDropdown.MyObject:Select (_detalhes.tooltip.border_texture)
-	_G.DetailsOptionsWindow20BackdropSizeHeight.MyObject:SetValue (_detalhes.tooltip.border_size)
-	_G.DetailsOptionsWindow20BackdropColorPick.MyObject:SetColor (unpack (_detalhes.tooltip.border_color))
-	
-	----------
-	
-	_G.DetailsOptionsWindow6SideBarsSlider.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow6SideBarsSlider.MyObject:SetValue (editing_instance.show_sidebars)
-
-	_G.DetailsOptionsWindow6StatusbarSlider.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow6StatusbarSlider.MyObject:SetValue (editing_instance.show_statusbar)
-	
-	_G.DetailsOptionsWindow6StretchAnchorSlider.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow6StretchAnchorSlider.MyObject:SetValue (editing_instance.stretch_button_side)
-	
-
-	
-	_G.DetailsOptionsWindow6InstanceToolbarSideSlider.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow6InstanceToolbarSideSlider.MyObject:SetValue (editing_instance.toolbar_side)
-	
-	_G.DetailsOptionsWindow4BarSortDirectionSlider.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow4BarSortDirectionSlider.MyObject:SetValue (editing_instance.bars_sort_direction)
-	
-	_G.DetailsOptionsWindow4BarGrowDirectionSlider.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow4BarGrowDirectionSlider.MyObject:SetValue (editing_instance.bars_grow_direction)
-
-
-
-----------------------------------------------------------------	
-
-
-
-	--instanceOverlayColorLabel
-
-	--closeOverlayColorLabel
-	
-
-	
-	_G.DetailsOptionsWindow4TextureDropdown.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow4RowBackgroundTextureDropdown.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow4TextureDropdown.MyObject:Select (editing_instance.row_info.texture)
-	_G.DetailsOptionsWindow4RowBackgroundTextureDropdown.MyObject:Select (editing_instance.row_info.texture_background)
-	
-	_G.DetailsOptionsWindow4RowBackgroundColorPick.MyObject:SetColor (unpack (editing_instance.row_info.fixed_texture_background_color))
-	
-	_G.DetailsOptionsWindow4BackgroundClassColorSlider.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow4BackgroundClassColorSlider.MyObject:SetValue (editing_instance.row_info.texture_background_class_color)
-	
-	_G.DetailsOptionsWindow5FontDropdown.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow5FontDropdown.MyObject:Select (editing_instance.row_info.font_face)
-	--
-	_G.DetailsOptionsWindow4SliderRowHeight.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow4SliderRowHeight.MyObject:SetValue (editing_instance.row_info.height)
-	--
-	_G.DetailsOptionsWindow5SliderFontSize.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow5SliderFontSize.MyObject:SetValue (editing_instance.row_info.font_size)
-	--
-	--
-	_G.DetailsOptionsWindow4ClassColorSlider.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow4ClassColorSlider.MyObject:SetValue (editing_instance.row_info.texture_class_colors)
-	
-	_G.DetailsOptionsWindow5UseClassColorsLeftTextSlider.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow5UseClassColorsLeftTextSlider.MyObject:SetValue (editing_instance.row_info.textL_class_colors)
-	_G.DetailsOptionsWindow5UseClassColorsRightTextSlider.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow5UseClassColorsRightTextSlider.MyObject:SetValue (editing_instance.row_info.textR_class_colors)
-	
-	_G.DetailsOptionsWindow5TextLeftOutlineSlider.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow5TextLeftOutlineSlider.MyObject:SetValue (editing_instance.row_info.textL_outline)
-	_G.DetailsOptionsWindow5TextRightOutlineSlider.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow5TextRightOutlineSlider.MyObject:SetValue (editing_instance.row_info.textR_outline)
-	--
-	_G.DetailsOptionsWindow6AlphaSlider.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow6AlphaSlider.MyObject:SetValue (editing_instance.bg_alpha)
-	--
-	_G.DetailsOptionsWindow9UseBackgroundSlider.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow9BackgroundDropdown.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow9BackgroundDropdown2.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow9AnchorDropdown.MyObject:SetFixedParameter (editing_instance)
-	_G.DetailsOptionsWindow9BackgroundDropdown.MyObject:Select (editing_instance.wallpaper.texture)
-	
-	_G.DetailsOptionsWindow9UseBackgroundSlider.MyObject:SetValue (editing_instance.wallpaper.enabled)
-	
-	_G.DetailsOptionsWindow6WindowColorPick.MyObject:SetColor (unpack (editing_instance.color))
-	--_G.DetailsOptionsWindow6InstanceColorTexture.MyObject:SetTexture (unpack (editing_instance.color))
-	
-	--_G.DetailsOptionsWindow6BackgroundColorTexture.MyObject:SetTexture (editing_instance.bg_r, editing_instance.bg_g, editing_instance.bg_b)
-	_G.DetailsOptionsWindow6WindowBackgroundColorPick.MyObject:SetColor (editing_instance.bg_r, editing_instance.bg_g, editing_instance.bg_b, editing_instance.bg_alpha)
-	
-	_G.DetailsOptionsWindow4RowColorPick.MyObject:SetColor (unpack (editing_instance.row_info.fixed_texture_color))
-	
-	_G.DetailsOptionsWindow5FixedTextColor.MyObject:SetColor (unpack (editing_instance.row_info.fixed_text_color))
-	
-	_G.DetailsOptionsWindow1NicknameEntry.MyObject.text = _detalhes:GetNickname (UnitGUID ("player"), UnitName ("player"), true) or ""
-	_G.DetailsOptionsWindow2TTDropdown.MyObject:Select (_detalhes.time_type, true)
-	
-	_G.DetailsOptionsWindow.MyObject.instance = instance
-	
-	if (editing_instance.meu_id > _detalhes.instances_amount) then
+	if (_G.DetailsOptionsWindow.full_created) then
+		_G.DetailsOptionsWindow.MyObject:update_all (instance)
 	else
-		_G.DetailsOptionsWindowInstanceSelectDropdown.MyObject:Select (editing_instance.meu_id, true)
-		GameCooltip:Reset()
-		--_detalhes:CooltipPreset (1)
-		GameCooltip:AddLine ("editing window:", editing_instance.meu_id)
-		GameCooltip:ShowCooltip (_G.DetailsOptionsWindowInstanceSelectDropdown, "tooltip")
+		--> its loading while in combat
+		function _detalhes:options_loading_done()
+			if (_G.DetailsOptionsWindow.full_created) then
+				_G.DetailsOptionsWindow.MyObject:update_all (instance)
+				_detalhes:CancelTimer (window.loading_check, true)
+			end
+		end
+		window.loading_check = _detalhes:ScheduleRepeatingTimer ("options_loading_done", 0.1)
 	end
-	
-	
-	
-	--profiles
-	_G.DetailsOptionsWindow13CurrentProfileLabel2.MyObject:SetText (_detalhes_database.active_profile)
-	
+
 	window:Show()
-
-	local avatar = NickTag:GetNicknameAvatar (UnitGUID ("player"), NICKTAG_DEFAULT_AVATAR, true)
-	local background, cords, color = NickTag:GetNicknameBackground (UnitGUID ("player"), NICKTAG_DEFAULT_BACKGROUND, NICKTAG_DEFAULT_BACKGROUND_CORDS, {1, 1, 1, 1}, true)
-
-	_G.DetailsOptionsWindow1AvatarPreviewTexture.MyObject.texture = avatar
-	_G.DetailsOptionsWindow1AvatarPreviewTexture2.MyObject.texture = background
-	_G.DetailsOptionsWindow1AvatarPreviewTexture2.MyObject.texcoord = cords
-	_G.DetailsOptionsWindow1AvatarPreviewTexture2.MyObject:SetVertexColor (unpack (color))
-
-	local nick = _detalhes:GetNickname (UnitGUID ("player"), UnitName ("player"), true)
-	_G.DetailsOptionsWindow1AvatarNicknameLabel:SetText (nick)
-	
-	if (window.update_wallpaper_info) then
-		window:update_wallpaper_info()
-	end
-	
-end
-
-
-
-if (_G.DetailsOptionsWindow.full_created) then
-	_G.DetailsOptionsWindow.MyObject:update_all (instance)
-else
-	--> its loading while in combat
-	function _detalhes:options_loading_done()
-		if (_G.DetailsOptionsWindow.full_created) then
-			_G.DetailsOptionsWindow.MyObject:update_all (instance)
-			_detalhes:CancelTimer (window.loading_check, true)
-		end
-	end
-	window.loading_check = _detalhes:ScheduleRepeatingTimer ("options_loading_done", 0.1)
-end
-
-window:Show()
 
 end --> OpenOptionsWindow

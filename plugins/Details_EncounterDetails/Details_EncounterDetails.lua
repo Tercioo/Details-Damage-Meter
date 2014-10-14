@@ -21,6 +21,7 @@ local _pairs = pairs --> lua library local
 local _table_sort = table.sort --> lua library local
 local _table_insert = table.insert --> lua library local
 local _unpack = unpack --> lua library local
+local _bit_band = bit.band
 
 
 --> Create the plugin Object
@@ -785,10 +786,13 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 		end
 	end
 	
+	--> the segment is a boss
+	
 	boss_id = _combat_object.is_boss.index
 	map_id = _combat_object.is_boss.mapid
 	boss_info = _detalhes:GetBossDetails (_combat_object.is_boss.mapid, _combat_object.is_boss.index)
 
+	--[[
 	if (not boss_info) then
 		if (EncounterDetails.LastSegmentShown) then
 			_combat_object = EncounterDetails.LastSegmentShown
@@ -796,6 +800,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 			return EncounterDetails:Msg (Loc ["STRING_BOSS_NOT_REGISTRED"])
 		end
 	end
+	--]]
 	
 	if (EncounterDetailsFrame.ShowType == "graph") then
 		EncounterDetails:BuildDpsGraphic()
@@ -809,13 +814,24 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 
 -------------- set portrait and background image --------------	
 	local L, R, T, B, Texture = EncounterDetails:GetBossIcon (_combat_object.is_boss.mapid, _combat_object.is_boss.index)
-	EncounterDetailsFrame.boss_icone:SetTexture (Texture)
-	EncounterDetailsFrame.boss_icone:SetTexCoord (L, R, T, B)
+	if (L) then
+		EncounterDetailsFrame.boss_icone:SetTexture (Texture)
+		EncounterDetailsFrame.boss_icone:SetTexCoord (L, R, T, B)
+	else
+		EncounterDetailsFrame.boss_icone:SetTexture ([[Interface\CHARACTERFRAME\TempPortrait]])
+		EncounterDetailsFrame.boss_icone:SetTexCoord (0, 1, 0, 1)
+	end
 	
 	local file, L, R, T, B = EncounterDetails:GetRaidBackground (_combat_object.is_boss.mapid)
-	EncounterDetailsFrame.raidbackground:SetTexture (file)
-	EncounterDetailsFrame.raidbackground:SetTexCoord (L, R, T, B)
-	EncounterDetailsFrame.raidbackground:SetAlpha (0.8)
+	if (file) then
+		EncounterDetailsFrame.raidbackground:SetTexture (file)
+		EncounterDetailsFrame.raidbackground:SetTexCoord (L, R, T, B)
+		EncounterDetailsFrame.raidbackground:SetAlpha (0.8)
+	else
+		EncounterDetailsFrame.raidbackground:SetTexture ([[Interface\Glues\LOADINGSCREENS\LoadScreenDungeon]])
+		EncounterDetailsFrame.raidbackground:SetTexCoord (0, 1, 120/512, 408/512)
+		EncounterDetailsFrame.raidbackground:SetAlpha (0.8)
+	end
 	
 -------------- set totals on down frame --------------
 --[[ data mine:
@@ -902,16 +918,15 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 		local habilidades_poll = {}
 		
 		--> pega as magias contínuas presentes em todas as fases
-		if (boss_info.continuo) then
+		if (boss_info and boss_info.continuo) then
 			for index, spellid in _ipairs (boss_info.continuo) do 
 				habilidades_poll [spellid] = true
 			end
 		end
 
 		--> pega as habilidades que pertence especificamente a cada fase
-		local fases = boss_info.phases
-		if (fases) then
-			for fase_id, fase in _ipairs (fases) do 
+		if (boss_info and boss_info.phases) then
+			for fase_id, fase in _ipairs (boss_info.phases) do 
 				if (fase.spells) then
 					for index, spellid in _ipairs (fase.spells) do 
 						habilidades_poll [spellid] = true
@@ -921,39 +936,94 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 		end
 		
 		local habilidades_usadas = {}
+		local have_pool = false
+		for spellid, _ in _pairs (habilidades_poll) do 
+			have_pool = true
+			break
+		end
 		
 		for index, jogador in _ipairs (DamageContainer._ActorTable) do
-			local habilidades = jogador.spell_tables._ActorTable
-			for id, habilidade in _pairs (habilidades) do
-				if (habilidades_poll [id]) then
-					--> esse jogador usou uma habilidade do boss
-					local esta_habilidade = habilidades_usadas [id] --> tabela não numerica, pq diferentes monstros podem castar a mesma magia
-					if (not esta_habilidade) then 
-						esta_habilidade = {0, {}, {}, id} --> [1] total dano causado [2] jogadores que foram alvos [3] jogadores que castaram essa magia [4] ID da magia
-						habilidades_usadas [id] = esta_habilidade
-					end
-					
-					--> adiciona ao [1] total de dano que esta habilidade causou
-					esta_habilidade[1] = esta_habilidade[1] + habilidade.total
-					
-					 --> adiciona ao [3] total do jogador que castou
-					if (not esta_habilidade[3][jogador.nome]) then
-						esta_habilidade[3][jogador.nome] = 0
-					end
-					
-					esta_habilidade[3][jogador.nome] = esta_habilidade[3][jogador.nome] + habilidade.total
-					
-					--> pega os alvos e adiciona ao [2]
-					local alvos = habilidade.targets
-					for index, jogador in _ipairs (alvos._ActorTable) do 
-					
-						--> ele tem o nome do jogador, vamos ver se este alvo é realmente um jogador verificando na tabela do combate
-						local tabela_dano_do_jogador = DamageContainer._ActorTable [DamageContainer._NameIndexTable [jogador.nome]]
-						if (tabela_dano_do_jogador and tabela_dano_do_jogador.grupo) then
-							if (not esta_habilidade[2] [jogador.nome]) then 
-								esta_habilidade[2] [jogador.nome] = {0, tabela_dano_do_jogador.classe}
+		
+			--> get all spells from neutral and hostile npcs
+			if (	
+				_bit_band (jogador.flag_original, 0x00000060) ~= 0 and --is neutral or hostile
+				(not jogador.owner or (_bit_band (jogador.owner.flag_original, 0x00000060) ~= 0 and not jogador.owner.grupo and _bit_band (jogador.owner.flag_original, 0x00000400) == 0)) and --isn't a pet or the owner isn't a player
+				not jogador.grupo and
+				_bit_band (jogador.flag_original, 0x00000400) == 0
+			) then
+		
+				local habilidades = jogador.spell_tables._ActorTable
+				
+				for id, habilidade in _pairs (habilidades) do
+					--if (habilidades_poll [id]) then
+						--> esse jogador usou uma habilidade do boss
+						local esta_habilidade = habilidades_usadas [id] --> tabela não numerica, pq diferentes monstros podem castar a mesma magia
+						if (not esta_habilidade) then 
+							esta_habilidade = {0, {}, {}, id} --> [1] total dano causado [2] jogadores que foram alvos [3] jogadores que castaram essa magia [4] ID da magia
+							habilidades_usadas [id] = esta_habilidade
+						end
+						
+						--> adiciona ao [1] total de dano que esta habilidade causou
+						esta_habilidade[1] = esta_habilidade[1] + habilidade.total
+						
+						 --> adiciona ao [3] total do jogador que castou
+						if (not esta_habilidade[3][jogador.nome]) then
+							esta_habilidade[3][jogador.nome] = 0
+						end
+						
+						esta_habilidade[3][jogador.nome] = esta_habilidade[3][jogador.nome] + habilidade.total
+						
+						--> pega os alvos e adiciona ao [2]
+						local alvos = habilidade.targets
+						for index, jogador in _ipairs (alvos._ActorTable) do 
+						
+							--> ele tem o nome do jogador, vamos ver se este alvo é realmente um jogador verificando na tabela do combate
+							local tabela_dano_do_jogador = DamageContainer._ActorTable [DamageContainer._NameIndexTable [jogador.nome]]
+							if (tabela_dano_do_jogador and tabela_dano_do_jogador.grupo) then
+								if (not esta_habilidade[2] [jogador.nome]) then 
+									esta_habilidade[2] [jogador.nome] = {0, tabela_dano_do_jogador.classe}
+								end
+								esta_habilidade[2] [jogador.nome] [1] = esta_habilidade[2] [jogador.nome] [1] + jogador.total
 							end
-							esta_habilidade[2] [jogador.nome] [1] = esta_habilidade[2] [jogador.nome] [1] + jogador.total
+						end
+					--end
+				end
+			
+			elseif (have_pool) then
+				--> check if the spell id is in the spell poll.
+				local habilidades = jogador.spell_tables._ActorTable
+				
+				for id, habilidade in _pairs (habilidades) do
+					if (habilidades_poll [id]) then
+						--> esse jogador usou uma habilidade do boss
+						local esta_habilidade = habilidades_usadas [id] --> tabela não numerica, pq diferentes monstros podem castar a mesma magia
+						if (not esta_habilidade) then 
+							esta_habilidade = {0, {}, {}, id} --> [1] total dano causado [2] jogadores que foram alvos [3] jogadores que castaram essa magia [4] ID da magia
+							habilidades_usadas [id] = esta_habilidade
+						end
+						
+						--> adiciona ao [1] total de dano que esta habilidade causou
+						esta_habilidade[1] = esta_habilidade[1] + habilidade.total
+						
+						 --> adiciona ao [3] total do jogador que castou
+						if (not esta_habilidade[3][jogador.nome]) then
+							esta_habilidade[3][jogador.nome] = 0
+						end
+						
+						esta_habilidade[3][jogador.nome] = esta_habilidade[3][jogador.nome] + habilidade.total
+						
+						--> pega os alvos e adiciona ao [2]
+						local alvos = habilidade.targets
+						for index, jogador in _ipairs (alvos._ActorTable) do 
+						
+							--> ele tem o nome do jogador, vamos ver se este alvo é realmente um jogador verificando na tabela do combate
+							local tabela_dano_do_jogador = DamageContainer._ActorTable [DamageContainer._NameIndexTable [jogador.nome]]
+							if (tabela_dano_do_jogador and tabela_dano_do_jogador.grupo) then
+								if (not esta_habilidade[2] [jogador.nome]) then 
+									esta_habilidade[2] [jogador.nome] = {0, tabela_dano_do_jogador.classe}
+								end
+								esta_habilidade[2] [jogador.nome] [1] = esta_habilidade[2] [jogador.nome] [1] + jogador.total
+							end
 						end
 					end
 				end
@@ -966,7 +1036,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 			tabela_em_ordem [#tabela_em_ordem+1] = tabela
 		end
 		
-		_table_sort (tabela_em_ordem, function (a, b) return a[1] > b[1] end)
+		_table_sort (tabela_em_ordem, _detalhes.Sort1)
 
 		container = frame.overall_habilidades.gump
 		quantidade = 0
@@ -1034,7 +1104,8 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 		local adds_pool = {}
 	
 		--> pega as habilidades que pertence especificamente a cada fase
-		if (boss_info.phases) then
+		
+		if (boss_info and boss_info.phases) then
 			for fase_id, fase in _ipairs (boss_info.phases) do 
 				if (fase.adds) then
 					for index, addId in _ipairs (fase.adds) do 
@@ -1053,7 +1124,13 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 		for index, jogador in _ipairs (DamageContainer._ActorTable) do
 		
 			--> só estou interessado nos adds, conferir pelo nome
-			if (adds_pool [tonumber (jogador.serial:sub(6, 10), 16)] or (jogador.flag_original and bit.band (jogador.flag_original, 0x00000060) ~= 0)) then --> é um inimigo ou neutro
+			if (adds_pool [_detalhes:GetNpcIdFromGuid (jogador.serial)] or (
+				jogador.flag_original and
+				bit.band (jogador.flag_original, 0x00000060) ~= 0 and
+				(not jogador.owner or (_bit_band (jogador.owner.flag_original, 0x00000060) ~= 0 and not jogador.owner.grupo and _bit_band (jogador.owner.flag_original, 0x00000400) == 0)) and --isn't a pet or the owner isn't a player
+				not jogador.grupo and
+				_bit_band (jogador.flag_original, 0x00000400) == 0
+			)) then --> é um inimigo ou neutro
 				
 				local nome = jogador.nome
 				local tabela = {nome = nome, total = 0, dano_em = {}, dano_em_total = 0, damage_from = {}, damage_from_total = 0}
@@ -1494,7 +1571,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 		-- boss_info.spell_tables_info o erro de lua do boss é a habilidade dele que não foi declarada ainda
 	
 		local mortes = _combat_object.last_events_tables
-		local habilidades_info = boss_info.spell_mechanics or {} --barra.extra pega esse cara aqui --> então esse erro é das habilidades que não tao
+		local habilidades_info = boss_info and boss_info.spell_mechanics or {} --barra.extra pega esse cara aqui --> então esse erro é das habilidades que não tao
 	
 		for index, tabela in _ipairs (mortes) do
 			--> {esta_morte, time, este_jogador.nome, este_jogador.classe, _UnitHealthMax (alvo_name), minutos.."m "..segundos.."s",  ["dead"] = true}

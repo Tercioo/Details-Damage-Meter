@@ -381,8 +381,7 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 						instance.posicao.normal = {x = 1, y = 1, w = 300, h = 200}
 					end
 				end
-
---				/dump _detalhes:GetInstance(1).sub_atributo
+				
 				--> open the instance
 				if (instance:IsEnabled()) then
 					if (not instance.baseframe) then
@@ -757,6 +756,7 @@ local default_profile = {
 		use_row_animations = false,
 		animate_scroll = false,
 		use_scroll = false,
+		scroll_speed = 2,
 		update_speed = 1,
 		time_type = 2,
 		memory_threshold = 3,
@@ -772,6 +772,7 @@ local default_profile = {
 		report_lines = 5,
 		report_to_who = "",
 		report_heal_links = false,
+		report_schema = 1,
 		
 	--> colors
 		default_bg_color = 0.0941,
@@ -812,12 +813,14 @@ local default_profile = {
 			fontface = "Friz Quadrata TT", 
 			fontsize = 10, 
 			fontcolor = {1, 1, 1, 1}, 
+			fontcolor_right = {1, 0.7, 0, 1}, --{1, 0.9254, 0.6078, 1}
 			fontshadow = false, 
-			background = {.45, .45, .45, .28}, 
-			abbreviation = 5, --ToK I Lower -- was 8
+			background = {0.1411, 0.1411, 0.1411, 0.8763}, 
+			abbreviation = 2, -- 2 = ToK I Upper 5 = ToK I Lower -- was 8 
 			maximize_method = 1, 
 			show_amount = false, 
 			commands = {},
+			header_text_color = {1, 0.9176, 0, 1}, --{1, 0.7, 0, 1}
 			
 			anchored_to = 1,
 			anchor_screen_pos = {507.700, -350.500},
@@ -888,6 +891,7 @@ local default_player_data = {
 			enabled = true,
 			channel = "SELF",
 		},
+		
 }
 
 _detalhes.default_player_data = default_player_data
