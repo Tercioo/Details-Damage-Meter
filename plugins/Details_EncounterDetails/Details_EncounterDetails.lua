@@ -167,7 +167,7 @@ local function CreatePluginFrames (data)
 			end
 
 			local whisper_table = EncounterDetails.current_whisper_table
-			if (_combat_object.is_boss and _combat_object.is_boss.name) then
+			if (whisper_table and _combat_object.is_boss and _combat_object.is_boss.name) then
 				whisper_table.boss = _combat_object.is_boss.name
 				tinsert (EncounterDetails.boss_emotes_table, 1, whisper_table)
 				

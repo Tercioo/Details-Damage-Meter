@@ -839,12 +839,18 @@ end
 	end
 	
 	--> get the full nicktag table 
-	function NickTag:GetNicknameTable (serial)
+	function NickTag:GetNicknameTable (serial, silent)
 		--> check data before
-		assert (serial, "NickTag 'Get' expects a number on #1 argument.")
+		if (not silent) then
+			assert (serial, "NickTag 'Get' expects a number on #1 argument.")
+		else
+			if (not serial) then
+				return
+			end
+		end
 		
 		if (type (serial) == "string") then
-			serial = NickTag:GetSerial (serial)
+			serial = NickTag:GetSerial (serial, silent)
 			if (not serial) then
 				return
 			end
@@ -914,11 +920,11 @@ end
 		else
 			if (not silent) then
 				assert (type (serial) == "string", "NickTag 'GetSerial' expects a GUID string on #1 parameter"..serial)
-				assert (string.len (serial) > 17, "NickTag 'GetSerial' expects a GUID string on #1 parameter")
+				assert (string.len (serial) > 13, "NickTag 'GetSerial' expects a GUID string on #1 parameter")
 			else
 				if (type (serial) ~= "string") then
 					return
-				elseif (string.len (serial) < 16) then
+				elseif (string.len (serial) < 14) then
 					return
 				end
 			end

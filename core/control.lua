@@ -1026,7 +1026,7 @@
 			if (t) then
 			
 				if (esta_barra.minha_tabela.serial and esta_barra.minha_tabela.serial ~= "") then
-					local avatar = NickTag:GetNicknameTable (esta_barra.minha_tabela.serial)
+					local avatar = NickTag:GetNicknameTable (esta_barra.minha_tabela.serial, true)
 					if (avatar) then
 						if (avatar [2] and avatar [4] and avatar [1]) then
 							GameCooltip:SetBannerImage (1, avatar [2], 80, 40, avatarPoint, avatarTexCoord, nil) --> overlay [2] avatar path

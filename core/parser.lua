@@ -595,22 +595,32 @@
 -----------------------------------------------------------------------------------------------------------------------------------------
 	--> HEALING 	serach key: ~heal											|
 -----------------------------------------------------------------------------------------------------------------------------------------
-local gotit = {
-	[140468]=true, --Flameglow Mage
-	[122470]=true, --touch of karma Monk
-	[114556]=true, --purgatory DK
-	[152280]=true, --defile DK
-	[20711]=true, --spirit of redeption priest
-	[155783]=true, --Primal Tenacity Druid
-	[135597]=true, --Tooth and Claw Druid
-	[152261]=true, --Holy Shield Paladin
-	[158708]=true, --Earthen Barrier boss?
-}
+
+
+	local gotit = {
+		[140468]=true, --Flameglow Mage
+		[122470]=true, --touch of karma Monk
+		[114556]=true, --purgatory DK
+		[152280]=true, --defile DK
+		[20711]=true, --spirit of redeption priest
+		[155783]=true, --Primal Tenacity Druid
+		[135597]=true, --Tooth and Claw Druid
+		[152261]=true, --Holy Shield Paladin
+		[158708]=true, --Earthen Barrier boss?
+	}
+
+	local ignored_shields = {
+		[142862] = true --Ancient Barrier Malkorok
+	}
 
 	function parser:heal_absorb (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spellschool, owner_serial, owner_name, owner_flags, owner_flags2, shieldid, shieldname, shieldtype, amount)
 		
 		if (not shieldname) then
 			owner_serial, owner_name, owner_flags, owner_flags2, shieldid, shieldname, shieldtype, amount = spellid, spellname, spellschool, owner_serial, owner_name, owner_flags, owner_flags2, shieldid
+		end
+		
+		if (ignored_shields [shieldid]) then
+			return
 		end
 		
 		--if (not absorb_spell_list [shieldid] and not gotit[shieldid]) then
