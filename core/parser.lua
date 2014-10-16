@@ -2749,9 +2749,9 @@
 	
 		if (_in_combat and not _detalhes.tabela_vigente.is_boss) then
 			_detalhes:SairDoCombate()
-			_detalhes:Msg ("encounter against|cFFFFFF00", encounterName, "|rbegan, GL HF!")
+			--_detalhes:Msg ("encounter against|cFFFFFF00", encounterName, "|rbegan, GL HF!")
 		else
-			_detalhes:Msg ("encounter against|cFFFFC000", encounterName, "|rbegan, GL HF!")
+			--_detalhes:Msg ("encounter against|cFFFFC000", encounterName, "|rbegan, GL HF!")
 		end
 	
 		local dbm_mod, dbm_time = _detalhes.encounter_table.DBM_Mod, _detalhes.encounter_table.DBM_ModTime
@@ -2805,7 +2805,7 @@
 	
 		local encounterID, encounterName, difficultyID, raidSize, endStatus = _select (1, ...)
 	
-		_detalhes:Msg ("encounter against|cFFFFC000", encounterName, "|rended.")
+		--_detalhes:Msg ("encounter against|cFFFFC000", encounterName, "|rended.")
 	
 		if (not _detalhes.encounter_table.start) then
 			return
