@@ -310,24 +310,30 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 					break
 				end
 				
-				--> fix for the old flat skin
-				if (skin.skin == "Flat Color") then
-					skin.skin = "Serenity"
-				end
-				
-				--> fix for old left and right menus
-				if (skin.menu_icons and type (skin.menu_icons[5]) ~= "boolean") then
-					skin.menu_icons[5] = true
-					skin.menu_icons[6] = true
-					
-					local skin_profile = _detalhes.skins [skin.skin] and _detalhes.skins [skin.skin].instance_cprops
-					if (skin_profile) then
-						skin.menu_icons_size = skin_profile.menu_icons_size
-						skin.menu_anchor = table_deepcopy (skin_profile.menu_anchor)
-						--print (skin.menu_anchor[1], skin.menu_anchor[2], skin.menu_anchor.side)
-						skin.menu_anchor_down = table_deepcopy (skin_profile.menu_anchor_down)
+				--> fix for the old flat skin (10-10)
+					if (skin.skin == "Flat Color") then
+						skin.skin = "Serenity"
 					end
-				end
+				
+				--> fix for old left and right menus (15-10)
+					if (skin.menu_icons and type (skin.menu_icons[5]) ~= "boolean") then
+						skin.menu_icons[5] = true
+						skin.menu_icons[6] = true
+						
+						local skin_profile = _detalhes.skins [skin.skin] and _detalhes.skins [skin.skin].instance_cprops
+						if (skin_profile) then
+							skin.menu_icons_size = skin_profile.menu_icons_size
+							skin.menu_anchor = table_deepcopy (skin_profile.menu_anchor)
+							--print (skin.menu_anchor[1], skin.menu_anchor[2], skin.menu_anchor.side)
+							skin.menu_anchor_down = table_deepcopy (skin_profile.menu_anchor_down)
+						end
+					end
+					if (skin.menu_icons and not skin.menu_icons.space) then
+						skin.menu_icons.space = -4
+					end
+					if (skin.menu_icons and not skin.menu_icons.shadow) then
+						skin.menu_icons.shadow = false
+					end
 				
 				--> get the instance
 				local instance = _detalhes:GetInstance (index)

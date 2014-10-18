@@ -5904,6 +5904,36 @@ function window:CreateFrame7()
 		
 		window:CreateLineBackground2 (frame7, "menuIconSizeSlider", "menuIconSizeLabel", Loc ["STRING_OPTIONS_MENU_BUTTONSSIZE_DESC"])
 		
+	--icon spacement
+	
+		local s = g:NewSlider (frame7, _, "$parentMenuIconSpaceSlider", "MenuIconSpaceSlider", SLIDER_WIDTH, 20, -5, 10, 1, instance.menu_icons.space)
+		s:SetBackdrop (slider_backdrop)
+		s:SetBackdropColor (unpack (slider_backdrop_color))
+		
+		g:NewLabel (frame7, _, "$parentMenuIconSpaceLabel", "MenuIconSpaceLabel", Loc ["STRING_OPTIONS_MENUS_SPACEMENT"], "GameFontHighlightLeft")
+		
+		frame7.MenuIconSpaceSlider:SetPoint ("left", frame7.MenuIconSpaceLabel, "right", 2, -1)
+		
+		frame7.MenuIconSpaceSlider:SetHook ("OnValueChange", function (self, instance, value)
+			instance:ToolbarMenuSetButtonsOptions (value)
+		end)
+		
+		window:CreateLineBackground2 (frame7, "MenuIconSpaceSlider", "MenuIconSpaceLabel", Loc ["STRING_OPTIONS_MENUS_SPACEMENT_DESC"])
+		
+	--icon shadow
+	
+		g:NewSwitch (frame7, _, "$parentMenuIconShadowSlider", "MenuIconShadowSlider", 60, 20, _, _, instance.menu_icons.shadow)			
+		g:NewLabel (frame7, _, "$parentMenuIconShadowLabel", "MenuIconShadowLabel", Loc ["STRING_OPTIONS_MENUS_SHADOW"], "GameFontHighlightLeft")
+
+		frame7.MenuIconShadowSlider:SetPoint ("left", frame7.MenuIconShadowLabel, "right", 2)
+		frame7.MenuIconShadowSlider.OnSwitch = function (self, instance, value)
+			instance:ToolbarMenuSetButtonsOptions (nil, value)
+		end
+		
+		window:CreateLineBackground2 (frame7, "MenuIconShadowSlider", "MenuIconShadowLabel", Loc ["STRING_OPTIONS_MENUS_SHADOW_DESC"])
+		
+		
+		
 --auto hide menus
 	--text anchor on options menu
 		--g:NewLabel (frame7, _, "$parentAutoHideLabelAnchor", "autoHideLabel", Loc ["STRING_OPTIONS_MENU_AUTOHIDE_ANCHOR"], "GameFontNormal")
@@ -5935,13 +5965,15 @@ function window:CreateFrame7()
 			{label_icons, 2},
 			{"menuIconSizeLabel", 3},
 			{"desaturateMenuLabel", 4},
-			{"menuAnchorXLabel", 5},
-			{"menuAnchorYLabel", 6},
+			{"MenuIconShadowLabel", 5},
+			{"menuAnchorXLabel", 6},
+			{"menuAnchorYLabel", 7},
+			{"MenuIconSpaceLabel", 8},
 			
-			{"hideIconLabel", 7, true},
-			{"autoHideLeftMenuLabel", 8},
-			{"menuAnchorSideLabel", 9},
-			{"pluginIconsDirectionLabel", 10},
+			{"hideIconLabel", 9, true},
+			{"autoHideLeftMenuLabel", 10},
+			{"menuAnchorSideLabel", 11},
+			{"pluginIconsDirectionLabel", 12},
 		}
 		
 		window:arrange_menu (frame7, left_side, x, -90)
@@ -8066,7 +8098,11 @@ end --> if not window
 		_G.DetailsOptionsWindow6WindowScaleSlider.MyObject:SetValue (editing_instance.window_scale)
 
 		--> window 7
-
+		_G.DetailsOptionsWindow7MenuIconShadowSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow7MenuIconShadowSlider.MyObject:SetValue (editing_instance.menu_icons.shadow)
+		_G.DetailsOptionsWindow7MenuIconSpaceSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow7MenuIconSpaceSlider.MyObject:SetValue (editing_instance.menu_icons.space)
+		
 		_G.DetailsOptionsWindow7AutoHideLeftMenuSwitch.MyObject:SetFixedParameter (editing_instance)
 		_G.DetailsOptionsWindow7AutoHideLeftMenuSwitch.MyObject:SetValue (editing_instance.auto_hide_menu.left)
 		
