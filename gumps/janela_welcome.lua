@@ -1119,8 +1119,8 @@ local window_openned_at = time()
 		instance_frame_alert:SetScript ("OnShow", function()
 			local instance = _detalhes:GetInstance (1)
 
-			frame_alert.alert:SetPoint ("topleft", instance.baseframe.cabecalho.novo, "topleft", -8, 6)
-			frame_alert.alert:SetPoint ("bottomright", instance.baseframe.cabecalho.novo, "bottomright", 8, -6)
+			frame_alert.alert:SetPoint ("topleft", instance.baseframe.cabecalho.modo_selecao.widget, "topleft", -8, 6)
+			frame_alert.alert:SetPoint ("bottomright", instance.baseframe.cabecalho.modo_selecao.widget, "bottomright", 8, -6)
 			
 			frame_alert.alert.animOut:Stop()
 			frame_alert.alert.animIn:Play()

@@ -2249,15 +2249,17 @@ function _detalhes:MontaAtributosOption (instancia, func)
 
 			gindex = gindex + 1
 		end
-
+		
 		CoolTip:SetLastSelected (2, i, instancia.sub_atributo_last [i])
-
 	end
 	
 	--> custom
+	
 	CoolTip:AddMenu (1, func, nil, 5, nil, atributos.lista[5], nil, true)
 	CoolTip:AddIcon ("Interface\\AddOns\\Details\\images\\atributos_icones", 1, 1, 20, 20, p*(5-1), p*(5), 0, 1)
+	
 	CoolTip:AddMenu (2, _detalhes.OpenCustomDisplayWindow, nil, nil, nil, Loc ["STRING_CUSTOM_NEW"], "Interface\\PaperDollInfoFrame\\Character-Plus", true)
+	CoolTip:AddLine ("$div", nil, 2, nil, -6, -9)
 	
 	for index, custom in _ipairs (_detalhes.custom) do 
 		if (custom.temp) then
@@ -2267,23 +2269,27 @@ function _detalhes:MontaAtributosOption (instancia, func)
 		end
 		
 		CoolTip:AddMenu (2, func, true, 5, index)
-		CoolTip:AddIcon (custom.icon, 2, 1, 16, 16)
+		CoolTip:AddIcon (custom.icon, 2, 1, 20, 20)
 	end
 	
 	--> set the wallpaper on custom
 	GameCooltip:SetWallpaper (2, [[Interface\TALENTFRAME\WarriorArm-TopLeft]], {1, 0, 0, 1}, {1, 1, 1, 0.1})
 
 	if (#_detalhes.custom == 0) then
-		CoolTip:SetLastSelected (2, 5, 1)
+		CoolTip:SetLastSelected (2, 5, 2)
 	else
 		if (instancia.atributo == 5) then
-			CoolTip:SetLastSelected (2, 5, instancia.sub_atributo+1)
+			CoolTip:SetLastSelected (2, 5, instancia.sub_atributo+2)
 		else
-			CoolTip:SetLastSelected (2, 5, instancia.sub_atributo_last [5]+1)
+			CoolTip:SetLastSelected (2, 5, instancia.sub_atributo_last [5]+2)
 		end
 	end
 
 	CoolTip:SetOption ("StatusBarTexture", [[Interface\AddOns\Details\images\bar4_vidro]])
+	CoolTip:SetOption ("ButtonsYMod", -7)
+	CoolTip:SetOption ("ButtonsYModSub", -7)
+	CoolTip:SetOption ("HeighMod", 8)
+	CoolTip:SetOption ("HeighModSub", 8)
 	
 	CoolTip:SetLastSelected (1, atributo_ativo)
 	

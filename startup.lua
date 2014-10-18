@@ -100,7 +100,6 @@ function _G._detalhes:Start()
 			self:CriarInstancia()
 		end
 		self:GetLowerInstanceNumber()
-		self:CheckConsolidates()
 		
 	--> start time machine
 		self.timeMachine:Ligar()

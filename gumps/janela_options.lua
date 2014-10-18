@@ -8,7 +8,7 @@
 	5 - row texts
 	6 - window settings
 	7 - left menu
-	8 - right menu
+	8 - ------------
 	9 - wallpaper
 	10 - performance teaks
 	11 - raid tools
@@ -5505,7 +5505,6 @@ function window:CreateFrame6()
 			frame6.instanceToolbarSideSlider.OnSwitch = function (self, instance, value)
 				instance.toolbar_side = value
 				instance:ToolbarSide (side)
-				_G.DetailsOptionsWindow8:update_menuanchor_xy (instance)
 				_G.DetailsOptionsWindow7:update_menuanchor_xy (instance)
 			end
 			frame6.instanceToolbarSideSlider.thumb:SetSize (50, 12)
@@ -5798,7 +5797,7 @@ function window:CreateFrame7()
 			frame7.pluginIconsDirectionSlider:SetPoint ("left", frame7.pluginIconsDirectionLabel, "right", 2)
 			frame7.pluginIconsDirectionSlider.OnSwitch = function (self, instance, value)
 				instance.plugins_grow_direction = value
-				instance:ToolbarMenuButtons()
+				instance:ToolbarMenuSetButtons()
 			end
 			frame7.pluginIconsDirectionSlider.thumb:SetSize (40, 12)
 			
@@ -5806,25 +5805,31 @@ function window:CreateFrame7()
 			
 		--> show or hide buttons
 			local label_icons = g:NewLabel (frame7, _, "$parentShowButtonsLabel", "showButtonsLabel", Loc ["STRING_OPTIONS_MENU_SHOWBUTTONS"], "GameFontHighlightLeft")
-			local icon1 = g:NewImage (frame7, [[Interface\GossipFrame\HealerGossipIcon]], 20, 20, "border", nil, "icon1", nil)
-			local icon2 = g:NewImage (frame7, [[Interface\GossipFrame\TrainerGossipIcon]], 20, 20, "border", nil, "icon2", nil)
-			local icon3 = g:NewImage (frame7, [[Interface\AddOns\Details\images\sword]], 20, 20, "border", nil, "icon3", nil)
-			local icon4 = g:NewImage (frame7, [[Interface\COMMON\VOICECHAT-ON]], 20, 20, "border", nil, "icon4", nil)
+			local icon1 = g:NewImage (frame7, [[Interface\AddOns\Details\images\toolbar_icons]], 20, 20, "border", {0/256, 32/256, 0, 1}, "icon1", nil)
+			local icon2 = g:NewImage (frame7, [[Interface\AddOns\Details\images\toolbar_icons]], 20, 20, "border", {33/256, 64/256, 0, 1}, "icon2", nil)
+			local icon3 = g:NewImage (frame7, [[Interface\AddOns\Details\images\toolbar_icons]], 20, 20, "border", {64/256, 96/256, 0, 1}, "icon3", nil)
+			local icon4 = g:NewImage (frame7, [[Interface\AddOns\Details\images\toolbar_icons]], 20, 20, "border", {96/256, 128/256, 0, 1}, "icon4", nil)
+			local icon5 = g:NewImage (frame7, [[Interface\AddOns\Details\images\toolbar_icons]], 20, 20, "border", {128/256, 160/256, 0, 1}, "icon5", nil)
+			local icon6 = g:NewImage (frame7, [[Interface\AddOns\Details\images\toolbar_icons]], 20, 20, "border", {160/256, 192/256, 0, 1}, "icon6", nil)
 			
 			local X1 = g:NewImage (frame7, [[Interface\Glues\LOGIN\Glues-CheckBox-Check]], 16, 16, nil, nil, "x1", nil)
 			local X2 = g:NewImage (frame7, [[Interface\Glues\LOGIN\Glues-CheckBox-Check]], 16, 16, nil, nil, "x2", nil)
 			local X3 = g:NewImage (frame7, [[Interface\Glues\LOGIN\Glues-CheckBox-Check]], 16, 16, nil, nil, "x3", nil)
 			local X4 = g:NewImage (frame7, [[Interface\Glues\LOGIN\Glues-CheckBox-Check]], 16, 16, nil, nil, "x4", nil)
+			local X5 = g:NewImage (frame7, [[Interface\Glues\LOGIN\Glues-CheckBox-Check]], 16, 16, nil, nil, "x5", nil)
+			local X6 = g:NewImage (frame7, [[Interface\Glues\LOGIN\Glues-CheckBox-Check]], 16, 16, nil, nil, "x6", nil)
 			X1:SetVertexColor (1, 1, 1, .9)
 			X2:SetVertexColor (1, 1, 1, .9)
 			X3:SetVertexColor (1, 1, 1, .9)
 			X4:SetVertexColor (1, 1, 1, .9)
-			local x_container = {X1, X2, X3, X4}
+			X5:SetVertexColor (1, 1, 1, .9)
+			X6:SetVertexColor (1, 1, 1, .9)
+			local x_container = {X1, X2, X3, X4, X5, X6}
 			
 			local func = function (menu_button, arg1, arg2)
 				local instance = _G.DetailsOptionsWindow.instance
 				instance.menu_icons [menu_button] = not instance.menu_icons [menu_button]
-				instance:ToolbarMenuButtons()
+				instance:ToolbarMenuSetButtons()
 				
 				if (instance.menu_icons [menu_button]) then
 					x_container [menu_button]:Hide()
@@ -5841,9 +5846,13 @@ function window:CreateFrame7()
 			button3:InstallCustomTexture()
 			local button4 = g:NewButton (frame7, _, "$parentShowButtons4", "showButtons4Button", 21, 21, func, 4)
 			button4:InstallCustomTexture()
+			local button5 = g:NewButton (frame7, _, "$parentShowButtons5", "showButtons5Button", 21, 21, func, 5)
+			button5:InstallCustomTexture()
+			local button6 = g:NewButton (frame7, _, "$parentShowButtons6", "showButtons6Button", 21, 21, func, 6)
+			button6:InstallCustomTexture()
 
 			function frame7:update_icon_buttons (instance)
-				for i = 1, 4 do 
+				for i = 1, 6 do 
 					if (instance.menu_icons [i]) then
 						x_container [i]:Hide()
 					else
@@ -5865,8 +5874,16 @@ function window:CreateFrame7()
 			X3:SetPoint ("center", button3, "center")
 			
 			button4:SetPoint ("left", icon3, "right", 2, 0)
-			icon4:SetPoint ("left", icon3, "right", -2, 0)
+			icon4:SetPoint ("left", icon3, "right", 2, 0)
 			X4:SetPoint ("center", button4, "center")
+			
+			button5:SetPoint ("left", icon4, "right", 2, 0)
+			icon5:SetPoint ("left", icon4, "right", 2, 0)
+			X5:SetPoint ("center", button5, "center")
+			
+			button6:SetPoint ("left", icon5, "right", 2, 0)
+			icon6:SetPoint ("left", icon5, "right", 2, 0)
+			X6:SetPoint ("center", button6, "center")
 			
 			window:CreateLineBackground2 (frame7, "showButtons1Button", "showButtonsLabel", Loc ["STRING_OPTIONS_MENU_SHOWBUTTONS_DESC"])
 			
@@ -5940,240 +5957,10 @@ function window:CreateFrame8()
 
 		local frame8 = window.options [8][1]
 
-		local titulo_toolbar2 = g:NewLabel (frame8, _, "$parentTituloToolbar_buttons", "tituloToolbarLabel", Loc ["STRING_OPTIONS_TOOLBAR2_SETTINGS"], "GameFontNormal", 16)
-		local titulo_toolbar2_desc = g:NewLabel (frame8, _, "$parentTituloToolbar_buttons", "tituloToolbar2Label", Loc ["STRING_OPTIONS_TOOLBAR2_SETTINGS_DESC"], "GameFontNormal", 9, "white")
+		local titulo_toolbar2 = g:NewLabel (frame8, _, "$parentTituloToolbar_buttons", "tituloToolbarLabel", "-- x -- x --", "GameFontNormal", 16)
+		local titulo_toolbar2_desc = g:NewLabel (frame8, _, "$parentTituloToolbar_buttons", "tituloToolbar2Label", "-- x -- x --", "GameFontNormal", 9, "white")
 		titulo_toolbar2_desc.width = 320
-		
-	--> general settings:
-		-- menu anchors
-			local s = g:NewSlider (frame8, _, "$parentMenuAnchorXSlider", "menuAnchorXSlider", SLIDER_WIDTH, 20, -200, 200, 1, instance.menu2_anchor[1])
-			s:SetBackdrop (slider_backdrop)
-			s:SetBackdropColor (unpack (slider_backdrop_color))
-			s:SetThumbSize (50)			
-			local s = g:NewSlider (frame8, _, "$parentMenuAnchorYSlider", "menuAnchorYSlider", SLIDER_WIDTH, 20, -30, 30, 1, instance.menu2_anchor[2])
-			s:SetBackdrop (slider_backdrop)
-			s:SetBackdropColor (unpack (slider_backdrop_color))
-			s:SetThumbSize (50)
-			
-			g:NewLabel (frame8, _, "$parentMenuAnchorXLabel", "menuAnchorXLabel", Loc ["STRING_OPTIONS_MENU2_X"], "GameFontHighlightLeft")
-			g:NewLabel (frame8, _, "$parentMenuAnchorYLabel", "menuAnchorYLabel", Loc ["STRING_OPTIONS_MENU2_Y"], "GameFontHighlightLeft")
-			
-			frame8.menuAnchorXSlider:SetPoint ("left", frame8.menuAnchorXLabel, "right", 2, -1)
-			frame8.menuAnchorYSlider:SetPoint ("left", frame8.menuAnchorYLabel, "right", 2)
-			
-			frame8.menuAnchorXSlider:SetThumbSize (50)
-			frame8.menuAnchorXSlider:SetHook ("OnValueChange", function (self, instance, x) 
-				instance:Menu2Anchor (x, nil)
-			end)
-			frame8.menuAnchorYSlider:SetThumbSize (50)
-			frame8.menuAnchorYSlider:SetHook ("OnValueChange", function (self, instance, y)
-				instance:Menu2Anchor (nil, y)
-			end)
-					
-			window:CreateLineBackground2 (frame8, "menuAnchorXSlider", "menuAnchorXLabel", Loc ["STRING_OPTIONS_MENU2_X_DESC"])
-			window:CreateLineBackground2 (frame8, "menuAnchorYSlider", "menuAnchorYLabel", Loc ["STRING_OPTIONS_MENU2_X_DESC"])
 	
-			function frame8:update_menuanchor_xy (instance)
-				if (instance.toolbar_side == 1) then --top
-					frame8.menuAnchorXSlider:SetValue (instance.menu2_anchor [1])
-					frame8.menuAnchorYSlider:SetValue (instance.menu2_anchor [2])
-				elseif (instance.toolbar_side == 2) then --bottom
-					frame8.menuAnchorXSlider:SetValue (instance.menu2_anchor_down [1])
-					frame8.menuAnchorYSlider:SetValue (instance.menu2_anchor_down [2])
-				end
-			end
-	
-		-- desaturate
-			g:NewSwitch (frame8, _, "$parentDesaturateMenuSlider", "desaturateMenuSlider", 60, 20, _, _, instance.desaturated_menu2)
-			g:NewLabel (frame8, _, "$parentDesaturateMenuLabel", "desaturateMenuLabel", Loc ["STRING_OPTIONS_DESATURATE_MENU"], "GameFontHighlightLeft")
-
-			frame8.desaturateMenuSlider:SetPoint ("left", frame8.desaturateMenuLabel, "right", 2)
-			frame8.desaturateMenuSlider.OnSwitch = function (self, instance, value)
-				instance:DesaturateMenu2 (value)
-			end
-			
-			window:CreateLineBackground2 (frame8, "desaturateMenuSlider", "desaturateMenuLabel", Loc ["STRING_OPTIONS_DESATURATE_MENU_DESC"])
-	
-		--> show or hide buttons
-			local label_icons = g:NewLabel (frame8, _, "$parentShowButtonsLabel", "showButtonsLabel", Loc ["STRING_OPTIONS_MENU_SHOWBUTTONS"], "GameFontHighlightLeft")
-			local icon1 = g:NewImage (frame8, [[Interface\Buttons\UI-Panel-MinimizeButton-Up]], 20, 20, "border", nil, "icon1", nil)
-			local icon2 = g:NewImage (frame8, [[Interface\AddOns\Details\images\icons]], 10, 14, "border", nil, "icon2", nil)
-			icon2:SetTexCoord (0.248046875, 0.287109375, 0.078125, 0.12890625) --127 40 147 66
-			icon2:SetVertexColor (.8, .8, .8, 1)
-			local icon3 = g:NewImage (frame8, [[Interface\AddOns\Details\images\reset_button]], 12, 20, "border", nil, "icon3", nil)
-			
-			local X1 = g:NewImage (frame8, [[Interface\Glues\LOGIN\Glues-CheckBox-Check]], 16, 16, nil, nil, "x1", nil)
-			local X2 = g:NewImage (frame8, [[Interface\Glues\LOGIN\Glues-CheckBox-Check]], 16, 16, nil, nil, "x2", nil)
-			local X3 = g:NewImage (frame8, [[Interface\Glues\LOGIN\Glues-CheckBox-Check]], 16, 16, nil, nil, "x3", nil)
-			X1:SetVertexColor (1, 1, 1, .9)
-			X2:SetVertexColor (1, 1, 1, .9)
-			X3:SetVertexColor (1, 1, 1, .9)
-			local x_container = {X1, X2, X3}
-			
-			local func = function (menu_button, arg1, arg2)
-				local instance = _G.DetailsOptionsWindow.instance
-				instance.menu2_icons [menu_button] = not instance.menu2_icons [menu_button]
-				instance:ToolbarMenu2Buttons()
-				
-				if (instance.menu2_icons [menu_button]) then
-					x_container [menu_button]:Hide()
-				else
-					x_container [menu_button]:Show()
-				end
-			end
-			
-			local button1 = g:NewButton (frame8, _, "$parentShowButtons1", "showButtons1Button", 21, 21, func, 1)
-			button1:InstallCustomTexture()
-			local button2 = g:NewButton (frame8, _, "$parentShowButtons2", "showButtons2Button", 21, 21, func, 2)
-			button2:InstallCustomTexture()
-			local button3 = g:NewButton (frame8, _, "$parentShowButtons3", "showButtons3Button", 21, 21, func, 3)
-			button3:InstallCustomTexture()
-
-			function frame8:update_icon_buttons (instance)
-				for i = 1, 3 do 
-					if (instance.menu2_icons [i]) then
-						x_container [i]:Hide()
-					else
-						x_container [i]:Show()
-					end
-				end
-			end
-			
-			button1:SetPoint ("left", label_icons, "right", 5, 0)
-			icon1:SetPoint ("center", button1, "center")
-			X1:SetPoint ("center", button1, "center")
-			
-			button2:SetPoint ("left", icon1, "right", 2, 0)
-			icon2:SetPoint ("center", button2, "center")
-			X2:SetPoint ("center", button2, "center")
-			
-			button3:SetPoint ("left", button2, "right", 2, 0)
-			icon3:SetPoint ("center", button3, "center")
-			X3:SetPoint ("center", button3, "center")
-			
-			window:CreateLineBackground2 (frame8, "showButtons1Button", "showButtonsLabel", Loc ["STRING_OPTIONS_MENU_SHOWBUTTONS_DESC"])
-	
-		--icon sizes
-			local s = g:NewSlider (frame8, _, "$parentMenuIconSizeSlider", "menuIconSizeSlider", SLIDER_WIDTH, 20, 0.4, 1.6, 0.05, instance.menu_icons_size, true)
-			s:SetBackdrop (slider_backdrop)
-			s:SetBackdropColor (unpack (slider_backdrop_color))
-			s.useDecimals = true
-			s.fine_tuning = 0.05
-			
-			g:NewLabel (frame8, _, "$parentMenuIconSizeLabel", "menuIconSizeLabel", Loc ["STRING_OPTIONS_MENU_BUTTONSSIZE"], "GameFontHighlightLeft")
-			
-			frame8.menuIconSizeSlider:SetPoint ("left", frame8.menuIconSizeLabel, "right", 2, -1)
-			
-			frame8.menuIconSizeSlider:SetHook ("OnValueChange", function (self, instance, value)
-				instance:ToolbarMenu2ButtonsSize (value)
-			end)
-			
-			window:CreateLineBackground2 (frame8, "menuIconSizeSlider", "menuIconSizeLabel", Loc ["STRING_OPTIONS_MENU_BUTTONSSIZE_DESC"])
-	
-		--> instance button
-			--text size
-			local s = g:NewSlider (frame8, _, "$parentInstanceTextSizeSlider", "instanceTextSizeSlider", SLIDER_WIDTH, 20, 8, 32, 1, tonumber (instance.instancebutton_config.textsize))
-			s:SetBackdrop (slider_backdrop)
-			s:SetBackdropColor (unpack (slider_backdrop_color))
-			s:SetThumbSize (50)			
-			
-			frame8.instanceTextSizeSlider:SetHook ("OnValueChange", function (self, instance, amount) 
-				instance:ToolbarMenu2InstanceButtonSettings (nil, nil, amount, nil)
-			end)
-			
-			g:NewLabel (frame8, _, "$parentInstanceTextSizeLabel", "instanceTextSizeLabel", Loc ["STRING_OPTIONS_INSTANCE_TEXTSIZE"], "GameFontHighlightLeft")
-			frame8.instanceTextSizeSlider:SetPoint ("left", frame8.instanceTextSizeLabel, "right", 2)
-			
-			window:CreateLineBackground2 (frame8, "instanceTextSizeSlider", "instanceTextSizeLabel", Loc ["STRING_OPTIONS_INSTANCE_TEXTSIZE_DESC"])
-
-			--text face
-			local instance_text_color_onselectfont = function (_, instance, fontName)
-				instance:ToolbarMenu2InstanceButtonSettings (nil, fontName, nil, nil)
-			end
-			local  instance_text_color_build_font_menu = function() 
-				local fontObjects = SharedMedia:HashTable ("font")
-				local fontTable = {}
-				for name, fontPath in pairs (fontObjects) do 
-					fontTable[#fontTable+1] = {value = name, label = name, icon = font_select_icon, texcoord = font_select_texcoord, onclick = instance_text_color_onselectfont, font = fontPath, descfont = name, desc = "If there's a bustle in your hedgerow, don't be alarmed now\nIt's just a spring clean for the may queen."}
-				end
-				table.sort (fontTable, function (t1, t2) return t1.label < t2.label end)
-				return fontTable 
-			end
-			local d = g:NewDropDown (frame8, _, "$parentInstanceTextFontDropdown", "instanceTextFontDropdown", DROPDOWN_WIDTH, 20, instance_text_color_build_font_menu, nil)
-			d.onenter_backdrop = dropdown_backdrop_onenter
-			d.onleave_backdrop = dropdown_backdrop_onleave
-			d:SetBackdrop (dropdown_backdrop)
-			d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
-			
-			g:NewLabel (frame8, _, "$parentInstanceTextFontLabel", "instanceTextFontLabel", Loc ["STRING_OPTIONS_INSTANCE_TEXTFONT"], "GameFontHighlightLeft")
-			frame8.instanceTextFontDropdown:SetPoint ("left", frame8.instanceTextFontLabel, "right", 2)
-			
-			window:CreateLineBackground2 (frame8, "instanceTextFontDropdown", "instanceTextFontLabel", Loc ["STRING_OPTIONS_INSTANCE_TEXTCOLOR_DESC"])
-			
-			-- text color
-			local instance_textcolor_callback = function (button, r, g, b, a)
-				_G.DetailsOptionsWindow.instance:ToolbarMenu2InstanceButtonSettings ({r, g, b, a}, nil, nil, nil)
-			end
-			g:NewColorPickButton (frame8, "$parentInstanceTextColorPick", "instanceTextColorPick", instance_textcolor_callback)
-			g:NewLabel (frame8, _, "$parentInstanceTextLabel", "instanceTextColorPickLabel", Loc ["STRING_OPTIONS_INSTANCE_TEXTCOLOR"], "GameFontHighlightLeft")
-			frame8.instanceTextColorPick:SetPoint ("left", frame8.instanceTextColorPickLabel, "right", 2, 0)
-
-			window:CreateLineBackground2 (frame8, "instanceTextColorPick", "instanceTextColorPickLabel", Loc ["STRING_OPTIONS_RESET_OVERLAY_DESC"])
-
-			--text shadow
-			g:NewLabel (frame8, _, "$parentInstanceTextShadowLabel", "instanceTextShadowLabel", Loc ["STRING_OPTIONS_MENU_ATTRIBUTE_SHADOW"], "GameFontHighlightLeft")
-			g:NewSwitch (frame8, _, "$parentInstanceTexShadowtSwitch", "instanceTextShadowSwitch", 60, 20, nil, nil, instance.instancebutton_config.textshadow)
-			frame8.instanceTextShadowSwitch:SetPoint ("left", frame8.instanceTextShadowLabel, "right", 2)
-			frame8.instanceTextShadowSwitch.OnSwitch = function (self, instance, value)
-				instance:ToolbarMenu2InstanceButtonSettings (nil, nil, nil, value)
-			end
-			window:CreateLineBackground2 (frame8, "instanceTextShadowSwitch", "instanceTextShadowLabel", Loc ["STRING_OPTIONS_MENU_ATTRIBUTE_SHADOW_DESC"])
-			
-	--> auto hide menu
-		g:NewLabel (frame8, _, "$parentAutoHideRightMenuLabel", "autoHideRightMenuLabel", Loc ["STRING_OPTIONS_MENU_AUTOHIDE_RIGHT"], "GameFontHighlightLeft")
-		g:NewSwitch (frame8, _, "$parentAutoHideRightMenuSwitch", "autoHideRightMenuSwitch", 60, 20, nil, nil, instance.auto_hide_menu.right)
-		frame8.autoHideRightMenuSwitch:SetPoint ("left", frame8.autoHideRightMenuLabel, "right", 2)
-		frame8.autoHideRightMenuSwitch.OnSwitch = function (self, instance, value)
-			--do something
-			instance:SetAutoHideMenu (nil, value)
-		end
-		window:CreateLineBackground2 (frame8, "autoHideRightMenuSwitch", "autoHideRightMenuLabel", Loc ["STRING_OPTIONS_MENU_AUTOHIDE_DESC"])	
-			
-	--> Anchors	
-	
-		--general anchor
-		g:NewLabel (frame8, _, "$parentRightMenuAnchor", "RightMenuAnchorLabel", Loc ["STRING_OPTIONS_LEFT_MENU_ANCHOR"], "GameFontNormal")
-		
-		local x = window.left_start_at
-		
-		titulo_toolbar2:SetPoint (x, -30)
-		titulo_toolbar2_desc:SetPoint (x, -50)
-		
-		local left_side = {
-			{"RightMenuAnchorLabel", 1, true},
-			{"showButtonsLabel", 2},
-			{"menuIconSizeLabel", 3},
-			{"desaturateMenuLabel", 4},
-			{"menuAnchorXLabel", 5},
-			{"menuAnchorYLabel", 6},
-			
-			{"autoHideRightMenuLabel", 7, true},
-		}
-		
-		window:arrange_menu (frame8, left_side, x, -90)
-
-		g:NewLabel (frame8, _, "$parentInstanceButtonAnchor", "instanceAnchorLabel", Loc ["STRING_OPTIONS_INSTANCE_BUTTON_ANCHOR"], "GameFontNormal")
-		
-		local right_menu = {
-			{"instanceAnchorLabel", 1, true},
-			{"instanceTextColorPickLabel", 2},
-			{"instanceTextFontLabel", 3},
-			{"instanceTextSizeLabel", 4},
-			{"instanceTextShadowLabel", 5},
-		}
-
-		window:arrange_menu (frame8, right_menu, window.right_start_at, -90)
-		
 end
 		
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -8306,29 +8093,7 @@ end --> if not window
 
 		--> window 8
 		
-		_G.DetailsOptionsWindow8MenuAnchorXSlider.MyObject:SetFixedParameter (editing_instance)
-		_G.DetailsOptionsWindow8MenuAnchorYSlider.MyObject:SetFixedParameter (editing_instance)
-		_G.DetailsOptionsWindow8:update_menuanchor_xy (editing_instance)
-		
-		_G.DetailsOptionsWindow8DesaturateMenuSlider.MyObject:SetFixedParameter (editing_instance)
-		_G.DetailsOptionsWindow8DesaturateMenuSlider.MyObject:SetValue (editing_instance.desaturated_menu2)
-		
-		_G.DetailsOptionsWindow8MenuIconSizeSlider.MyObject:SetFixedParameter (editing_instance)
-		_G.DetailsOptionsWindow8MenuIconSizeSlider.MyObject:SetValue (editing_instance.menu2_icons_size)
-
-		_G.DetailsOptionsWindow8:update_icon_buttons (editing_instance)
-		
-		_G.DetailsOptionsWindow8AutoHideRightMenuSwitch.MyObject:SetFixedParameter (editing_instance)
-		_G.DetailsOptionsWindow8AutoHideRightMenuSwitch.MyObject:SetValue (editing_instance.auto_hide_menu.right)
-		
-		_G.DetailsOptionsWindow8InstanceTextFontDropdown.MyObject:SetFixedParameter (editing_instance)
-		_G.DetailsOptionsWindow8InstanceTextSizeSlider.MyObject:SetFixedParameter (editing_instance)
-		_G.DetailsOptionsWindow8InstanceTexShadowtSwitch.MyObject:SetFixedParameter (editing_instance)
-		
-		_G.DetailsOptionsWindow8InstanceTextColorPick.MyObject:SetColor (unpack (editing_instance.instancebutton_config.textcolor))
-		_G.DetailsOptionsWindow8InstanceTextSizeSlider.MyObject:SetValue (editing_instance.instancebutton_config.textsize)
-		_G.DetailsOptionsWindow8InstanceTextFontDropdown.MyObject:Select (editing_instance.instancebutton_config.textfont)
-		_G.DetailsOptionsWindow8InstanceTexShadowtSwitch.MyObject:SetValue (editing_instance.instancebutton_config.textshadow)
+--		_G.DetailsOptionsWindow8
 		
 		--instanceTextColorLabel
 

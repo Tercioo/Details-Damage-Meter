@@ -76,27 +76,16 @@ _detalhes.instance_defaults = {
 		bars_grow_direction = 1,
 	--sort direction is the direction of results on bars (1 = top to bottom 2 = bottom to top)
 		bars_sort_direction = 1,
-	--reset button info
-		resetbutton_config = {size = {10, 16}, anchor = {2, 0}, normal_texture = [[Interface\Addons\Details\Images\reset_button]], highlight_texture = [[Interface\Addons\Details\Images\reset_button]], normal_texcoord = {0, 1, 0, 1}, highlight_texcoord = {0, 1, 0, 1}, normal_vertexcolor = {1, 1, 1, 1}, highlight_vertexcolor = {1, 1, 1, 1}},
-	--instance button info
-		instancebutton_config = {size = {20, 16}, anchor = {2, 0}, highlight_texture = [[Interface\Buttons\UI-Panel-MinimizeButton-Highlight]], textcolor = {1, 1, 1, 1}, textsize = 11, textfont = "Friz Quadrata TT", textshadow = false},
-	--close button info
-		closebutton_config = {size = {18, 18}, alpha = 1, anchor = {0, 0}, normal_texture = [[Interface\Buttons\UI-Panel-MinimizeButton-Up]], highlight_texture = [[Interface\Buttons\UI-Panel-MinimizeButton-Highlight]], pushed_texture = [[Interface\Buttons\UI-Panel-MinimizeButton-Down]]},
 	--menus:
 		--anchor store the anchor point of main menu
 		menu_anchor = {5, 1, side = 1}, --mode segment attribute report on top position
 		menu_anchor_down = {5, 1}, --mode segment attribute report on bottom position
-		menu2_anchor = {14, 3}, --close instance erase on top position
-		menu2_anchor_down = {14, 3}, --close instance erase on bottom position
 		--blackwhiite icons
 		desaturated_menu = false, --mode segment attribute report
-		desaturated_menu2 = false, --reset instance close
 		--icons on menu
-		menu_icons = {true, true, true, true}, --mode segment attribute report
-		menu2_icons = {true, true, true}, --reset instance close
+		menu_icons = {true, true, true, true, true, true}, --mode segment attribute report reset close
 		--menu icons size multiplicator factor
 		menu_icons_size = 1.0, --mode segment attribute report
-		menu2_icons_size = 1.0, --reset instance close
 		--auto hide menu buttons
 		auto_hide_menu = {left = false, right = false},
 		--attribute text
