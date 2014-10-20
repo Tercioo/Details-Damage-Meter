@@ -78,13 +78,30 @@
 		
 			<Layer level="ARTWORK">
 				<!-- selected bar -->
-				<Texture name="$parent_Selected" parentKey="selected" file = "Interface\AddOns\Details\images\cooltip_selected">
-					<Size y="20"/>
-					<Anchors>
-						<Anchor point="LEFT" relativeTo="$parent" relativePoint="LEFT" x="3" y="0"/>
-						<Anchor point="RIGHT" relativeTo="$parent" relativePoint="RIGHT" x="-3" y="0"/>
-					</Anchors>
+				
+				<!-- top -->
+				<Texture name="$parent_SelectedTop" parentKey="selectedTop" file = "Interface\AddOns\Details\images\cooltip_selected">
+					<Size y="3"/>
+					<TexCoords left="0" right="1" top="0" bottom="0.09375"/>
 				</Texture>
+				
+				<!-- bottom -->
+				<Texture name="$parent_SelectedBottom" parentKey="selectedBottom" file = "Interface\AddOns\Details\images\cooltip_selected">
+					<Size y="3"/>
+					<TexCoords left="0" right="1" top="0.90625" bottom="1"/>
+				</Texture>
+				
+				<!-- middle -->
+				<Texture name="$parent_Selected" parentKey="selectedMiddle" file = "Interface\AddOns\Details\images\cooltip_selected">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="$parent_SelectedTop" relativePoint="BOTTOMLEFT"/>
+						<Anchor point="BOTTOMRIGHT" relativeTo="$parent_SelectedBottom" relativePoint="TOPRIGHT"/>
+					</Anchors>
+					
+					<TexCoords left="0" right="1" top="0.125" bottom="0.875"/>
+				</Texture>
+				
+				<!-- banner image -->
 				<Texture name="$parent_UpperImage2" hidden="true" parentKey="upperImage2" file = "">
 					<Anchors>
 						<Anchor point="CENTER" relativeTo="$parent" relativePoint="CENTER" x="0" y="-3"/>

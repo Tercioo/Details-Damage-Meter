@@ -2258,8 +2258,10 @@ function _detalhes:MontaAtributosOption (instancia, func)
 	CoolTip:AddMenu (1, func, nil, 5, nil, atributos.lista[5], nil, true)
 	CoolTip:AddIcon ("Interface\\AddOns\\Details\\images\\atributos_icones", 1, 1, 20, 20, p*(5-1), p*(5), 0, 1)
 	
-	CoolTip:AddMenu (2, _detalhes.OpenCustomDisplayWindow, nil, nil, nil, Loc ["STRING_CUSTOM_NEW"], "Interface\\PaperDollInfoFrame\\Character-Plus", true)
-	CoolTip:AddLine ("$div", nil, 2, nil, -6, -9)
+	CoolTip:AddMenu (2, _detalhes.OpenCustomDisplayWindow, nil, nil, nil, Loc ["STRING_CUSTOM_NEW"], nil, true)
+	CoolTip:AddIcon ([[Interface\CHATFRAME\UI-ChatIcon-Maximize-Up]], 2, 1, 20, 20, 3/32, 29/32, 3/32, 29/32)
+	
+	CoolTip:AddLine ("$div", nil, 2, nil, -8, -13)
 	
 	for index, custom in _ipairs (_detalhes.custom) do 
 		if (custom.temp) then
@@ -2290,6 +2292,9 @@ function _detalhes:MontaAtributosOption (instancia, func)
 	CoolTip:SetOption ("ButtonsYModSub", -7)
 	CoolTip:SetOption ("HeighMod", 8)
 	CoolTip:SetOption ("HeighModSub", 8)
+	
+	CoolTip:SetOption ("SelectedTopAnchorMod", -2)
+	CoolTip:SetOption ("SelectedBottomAnchorMod", 2)
 	
 	CoolTip:SetLastSelected (1, atributo_ativo)
 	
@@ -2389,12 +2394,6 @@ function _detalhes:AlteraModo (instancia, qual, from_mode_menu)
 			qual = 1
 		end
 	end
-	
-	--[[ if (_detalhes.solo and _detalhes.solo == instancia.meu_id) then --> não trocar de modo se tiver em combate e a janela no solo mode
-		if (UnitAffectingCombat ("player")) then
-			return
-		end
-	end --]]
 
 	if (instancia.showing) then
 		if (not instancia.atributo) then

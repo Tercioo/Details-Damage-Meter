@@ -306,6 +306,11 @@
 			if (tanks_members_cache [alvo_serial]) then --> autoshot or melee hit
 				--> avoidance
 				local avoidance = jogador_alvo.avoidance
+				if (not avoidance) then
+					jogador_alvo.avoidance = _detalhes:CreateActorAvoidanceTable()
+					avoidance = jogador_alvo.avoidance
+				end
+				
 				local overall = avoidance.overall
 				
 				local mob = avoidance [who_name]
@@ -521,10 +526,17 @@
 		end
 
 		if (tanks_members_cache [alvo_serial]) then --> only track tanks
+		
 			local TargetActor = damage_cache [alvo_name]
 			if (TargetActor) then
 			
 				local avoidance = TargetActor.avoidance
+				
+				if (not avoidance) then
+					TargetActor.avoidance = _detalhes:CreateActorAvoidanceTable()
+					avoidance = TargetActor.avoidance
+				end
+
 				local missTable = avoidance.overall [missType]
 				
 				if (missTable) then

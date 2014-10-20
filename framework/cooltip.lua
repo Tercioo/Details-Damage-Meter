@@ -108,6 +108,10 @@ function DetailsCreateCoolTip()
 			["IconBlendModeHover"] = true,
 			["SubFollowButton"] = true,
 			["IgnoreArrows"] = true,
+			["SelectedTopAnchorMod"] = true,
+			["SelectedBottomAnchorMod"] = true,
+			["SelectedLeftAnchorMod"] = true,
+			["SelectedRightAnchorMod"] = true,
 		}
 		
 		CoolTip.OptionsTable = {}
@@ -131,6 +135,12 @@ function DetailsCreateCoolTip()
 		CoolTip.default_height = 20
 		CoolTip.default_text_size = 10.5
 		CoolTip.default_text_font = "GameFontHighlight"
+		
+		CoolTip.selected_anchor = {}
+		CoolTip.selected_anchor.left = 2
+		CoolTip.selected_anchor.right = 0
+		CoolTip.selected_anchor.top = 0
+		CoolTip.selected_anchor.bottom = 0
 		
 	--> Create Frames
 	
@@ -508,6 +518,43 @@ function DetailsCreateCoolTip()
 	--> Button Click Functions
 ----------------------------------------------------------------------
 		
+		CoolTip.selected_anchor.left = 4
+		CoolTip.selected_anchor.right = -4
+		CoolTip.selected_anchor.top = 0
+		CoolTip.selected_anchor.bottom = 0
+		
+		function CoolTip:HideSelectedTexture (frame)
+			frame.selectedTop:Hide()
+			frame.selectedBottom:Hide()
+			frame.selectedMiddle:Hide()
+		end
+		
+		function CoolTip:ShowSelectedTexture (frame)
+			frame.selectedTop:Show()
+			frame.selectedBottom:Show()
+			frame.selectedMiddle:Show()
+		end
+		
+		function CoolTip:SetSelectedAnchor (frame, button)
+
+			local left = CoolTip.selected_anchor.left + (CoolTip.OptionsTable.SelectedLeftAnchorMod or 0)
+			local right = CoolTip.selected_anchor.right + (CoolTip.OptionsTable.SelectedRightAnchorMod or 0)
+			
+			local top = CoolTip.selected_anchor.top + (CoolTip.OptionsTable.SelectedTopAnchorMod or 0)
+			local bottom = CoolTip.selected_anchor.bottom + (CoolTip.OptionsTable.SelectedBottomAnchorMod or 0)
+		
+			frame.selectedTop:ClearAllPoints()
+			frame.selectedBottom:ClearAllPoints()
+		
+			frame.selectedTop:SetPoint ("topleft", button, "topleft", left, top) --
+			frame.selectedTop:SetPoint ("topright", button, "topright", right, top) --
+			
+			frame.selectedBottom:SetPoint ("bottomleft", button, "bottomleft", left, bottom) --
+			frame.selectedBottom:SetPoint ("bottomright", button, "bottomright", right, bottom) --
+
+			CoolTip:ShowSelectedTexture (frame)
+		end
+		
 		local OnClickFunctionButtonPrincipal = function (self)
 					if (CoolTip.IndexesSub [self.index] and CoolTip.IndexesSub [self.index] > 0) then
 						CoolTip:ShowSub (self.index)
@@ -515,10 +562,11 @@ function DetailsCreateCoolTip()
 					end
 					
 					CoolTip.buttonClicked = true
-					frame1.selected:SetPoint ("top", self, "top", 0, -1)
-					frame1.selected:SetPoint ("bottom", self, "bottom")
+					CoolTip:SetSelectedAnchor (frame1, self)
+					
 					if (not CoolTip.OptionsTable.NoLastSelectedBar) then
-						frame1.selected:Show()
+						CoolTip:ShowSelectedTexture (frame1)
+						
 					end
 					CoolTip.SelectedIndexMain = self.index
 					
@@ -530,10 +578,8 @@ function DetailsCreateCoolTip()
 				
 		local OnClickFunctionButtonSecundario = function (self)
 					CoolTip.buttonClicked = true
-					frame2.selected:SetPoint ("top", self, "top", 0, -1)
-					frame2.selected:SetPoint ("bottom", self, "bottom")
 					
-					--UIFrameFlash (frame2.selected, 0.05, 0.05, 0.2, true, 0, 0)
+					CoolTip:SetSelectedAnchor (frame2, self)
 					
 					if (CoolTip.FunctionsTableSub [self.mainIndex] and CoolTip.FunctionsTableSub [self.mainIndex] [self.index]) then
 						local parameterTable = CoolTip.ParametersTableSub [self.mainIndex] [self.index]
@@ -541,10 +587,10 @@ function DetailsCreateCoolTip()
 					end
 					
 					local botao_p = frame1.Lines [self.mainIndex]
-					frame1.selected:SetPoint ("top", botao_p, "top", 0, -1)
-					frame1.selected:SetPoint ("bottom", botao_p, "bottom")
+					CoolTip:SetSelectedAnchor (frame1, botao_p)
+
 					if (not CoolTip.OptionsTable.NoLastSelectedBar) then
-						frame1.selected:Show()
+						CoolTip:ShowSelectedTexture (frame1)
 					end
 					
 					CoolTip.SelectedIndexMain = self.mainIndex
@@ -1017,13 +1063,14 @@ function DetailsCreateCoolTip()
 		
 		local selected = CoolTip.SelectedIndexSec [index]
 		if (selected) then
-			frame2.selected:SetPoint ("top", frame2.Lines [selected], "top", 0, -1)
-			frame2.selected:SetPoint ("bottom", frame2.Lines [selected], "bottom")
+		
+			CoolTip:SetSelectedAnchor (frame2, frame2.Lines [selected])
+
 			if (not CoolTip.OptionsTable.NoLastSelectedBar) then
-				frame2.selected:Show()
+				CoolTip:ShowSelectedTexture (frame2)
 			end
 		else
-			frame2.selected:Hide()
+			CoolTip:HideSelectedTexture (frame2)
 		end
 		
 		for i = CoolTip.IndexesSub [index] + 1, #frame2.Lines do 
@@ -1174,7 +1221,7 @@ function DetailsCreateCoolTip()
 		--> hide sub frame
 		gump:Fade (frame2, 1)
 		--> hide select bar
-		gump:Fade (frame1.selected, 1)
+		CoolTip:HideSelectedTexture (frame1)
 
 		frame1:EnableMouse (false)
 		
@@ -1325,7 +1372,7 @@ function DetailsCreateCoolTip()
 		button.divbar:SetTexCoord (238/512, 445/512, 0/64, 4/64)
 		
 		button.divbar:SetHeight (3)
-		button.divbar:SetAlpha (0.2)
+		button.divbar:SetAlpha (0.1)
 		
 		button.divbar:SetDesaturated (true)
 	end
@@ -1387,15 +1434,15 @@ function DetailsCreateCoolTip()
 
 		--> selected texture
 		if (CoolTip.SelectedIndexMain) then
-			frame1.selected:SetPoint ("top", frame1.Lines [CoolTip.SelectedIndexMain], "top", 0, -1)
-			frame1.selected:SetPoint ("bottom", frame1.Lines [CoolTip.SelectedIndexMain], "bottom")
+			CoolTip:SetSelectedAnchor (frame1, frame1.Lines [CoolTip.SelectedIndexMain])
+
 			if (CoolTip.OptionsTable.NoLastSelectedBar) then
-				gump:Fade (frame1.selected, 1)
+				CoolTip:HideSelectedTexture (frame1)
 			else
-				gump:Fade (frame1.selected, 0)
+				CoolTip:ShowSelectedTexture (frame1)
 			end
 		else
-			gump:Fade (frame1.selected, 1)
+			CoolTip:HideSelectedTexture (frame1)
 		end
 
 		if (CoolTip.Indexes < #frame1.Lines) then
@@ -1836,17 +1883,16 @@ function DetailsCreateCoolTip()
 			if (menuType == 1) then --main menu
 				local botao = frame1.Lines [option]
 				CoolTip.buttonClicked = true
-				frame1.selected:SetPoint ("top", botao, "top", 0, -1)
-				frame1.selected:SetPoint ("bottom", botao, "bottom")
+				CoolTip:SetSelectedAnchor (frame1, botao)
+
 				--UIFrameFlash (frame1.selected, 0.05, 0.05, 0.2, true, 0, 0)
 				
 			elseif (menuType == 2) then --sub menu
 				CoolTip:ShowSub (mainIndex)
 				local botao = frame2.Lines [option]
 				CoolTip.buttonClicked = true
-				frame2.selected:SetPoint ("top", botao, "top", 0, -1)
-				frame2.selected:SetPoint ("bottom", botao, "bottom")	
-				--UIFrameFlash (frame2.selected, 0.05, 0.05, 0.2, true, 0, 0)
+				
+				CoolTip:SetSelectedAnchor (frame2, botao)
 			end
 		end
 	
@@ -1865,6 +1911,9 @@ function DetailsCreateCoolTip()
 
 			frame2:ClearAllPoints()
 			frame2:SetPoint ("bottomleft", frame1, "bottomright")
+		
+			CoolTip:HideSelectedTexture (frame1)
+			CoolTip:HideSelectedTexture (frame2)
 		
 			CoolTip.FixedValue = nil
 			CoolTip.HaveSubMenu = false

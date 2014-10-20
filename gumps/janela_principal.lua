@@ -56,6 +56,9 @@ function  _detalhes:ScheduleUpdate (instancia)
 	end
 end
 
+local menu_wallpaper_tex = {.6, 0.1, 0, 0.64453125}
+local menu_wallpaper_color = {1, 1, 1, 0.1}
+
 --> skins TCoords
 
 --	0.00048828125
@@ -1541,7 +1544,7 @@ local resize_scripts_onenter = function (self)
 		GameCooltip:AddFromTable (resizeTooltip)
 		GameCooltip:SetOption ("TextSize", _detalhes.font_sizes.menus)
 		GameCooltip:SetOption ("NoLastSelectedBar", true)
-		GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
+		GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], menu_wallpaper_tex, menu_wallpaper_color, true)
 		GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
 		GameCooltip:SetOwner (self)
 		GameCooltip:ShowCooltip()
@@ -1591,7 +1594,7 @@ local lockFunctionOnEnter = function (self)
 		GameCooltip:AddFromTable (lockButtonTooltip)
 		GameCooltip:SetOption ("NoLastSelectedBar", true)
 		GameCooltip:SetOption ("TextSize", _detalhes.font_sizes.menus)
-		GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
+		GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], menu_wallpaper_tex, menu_wallpaper_color, true)
 		GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
 		GameCooltip:SetOwner (self)
 		GameCooltip:ShowCooltip()
@@ -1675,7 +1678,7 @@ local unSnapButtonOnEnter = function (self)
 	GameCooltip:Reset()
 	GameCooltip:AddFromTable (unSnapButtonTooltip)
 	GameCooltip:SetOption ("TextSize", _detalhes.font_sizes.menus)
-	GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
+	GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], menu_wallpaper_tex, menu_wallpaper_color, true)
 	GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
 	GameCooltip:ShowCooltip (self, "tooltip")
 	
@@ -4465,7 +4468,7 @@ local build_mode_list = function (self, elapsed)
 				end
 			end
 			
-			CoolTip:SetWallpaper (2, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
+			CoolTip:SetWallpaper (2, [[Interface\SPELLBOOK\Spellbook-Page-1]], menu_wallpaper_tex, menu_wallpaper_color, true)
 			
 			if (amt <= 3) then
 				CoolTip:SetOption ("SubFollowButton", true)
@@ -4488,13 +4491,13 @@ local build_mode_list = function (self, elapsed)
 				end
 			end
 			
-			CoolTip:SetWallpaper (2, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
+			CoolTip:SetWallpaper (2, [[Interface\SPELLBOOK\Spellbook-Page-1]], menu_wallpaper_tex, menu_wallpaper_color, true)
 		end
 		
 		--> window control
 		GameCooltip:AddLine ("$div")
 		CoolTip:AddLine ("Window Control")
-		CoolTip:AddIcon ([[Interface\AddOns\Details\images\modo_icones]], 1, 1, 20, 20, 32/256*5, 32/256*6, 0, 1)
+		CoolTip:AddIcon ([[Interface\AddOns\Details\images\modo_icones]], 1, 1, 20, 20, 0.625, 0.75, 0, 1)
 
 		--CoolTip:AddMenu (2, _detalhes.OpenOptionsWindow, true, 1, nil, "Cant Create Window", _, true)
 		--CoolTip:AddIcon ([[Interface\Buttons\UI-PlusButton-Up]], 2, 1, 16, 16)
@@ -4502,7 +4505,7 @@ local build_mode_list = function (self, elapsed)
 		if (_detalhes:GetNumInstancesAmount() < _detalhes:GetMaxInstancesAmount()) then
 			CoolTip:AddMenu (2, OnClickNovoMenu, true, instancia, nil, "Create Window", _, true)
 			CoolTip:AddIcon ([[Interface\Buttons\UI-AttributeButton-Encourage-Up]], 2, 1, 16, 16)
-			GameCooltip:AddLine ("$div", nil, 2)
+			GameCooltip:AddLine ("$div", nil, 2, nil, -5, -11)
 		end
 		
 		local ClosedInstances = 0
@@ -4527,10 +4530,10 @@ local build_mode_list = function (self, elapsed)
 						atributo = _this_instance.atributo
 						sub_atributo = _this_instance.sub_atributo
 						CoolTip:AddMenu (2, OnClickNovoMenu, index, instancia, nil, "#".. index .. " " .. _detalhes.atributos.lista [atributo] .. " - " .. _detalhes.sub_atributos [atributo].lista [sub_atributo], _, true)
-						CoolTip:AddIcon (_detalhes.sub_atributos [atributo].icones[sub_atributo] [1], 2, 1, 20, 20, unpack (_detalhes.sub_atributos [atributo].icones[sub_atributo] [2]))
+						CoolTip:AddIcon (_detalhes.sub_atributos [atributo].icones[sub_atributo] [1], 2, 1, 16, 16, unpack (_detalhes.sub_atributos [atributo].icones[sub_atributo] [2]))
 					else
 						CoolTip:AddMenu (2, OnClickNovoMenu, index, instancia, nil, "#".. index .. " " .. _detalhes.atributos.lista [atributo] .. " - " .. CustomObject:GetName(), _, true)
-						CoolTip:AddIcon (CustomObject.icon, 2, 1, 20, 20, 0, 1, 0, 1)
+						CoolTip:AddIcon (CustomObject.icon, 2, 1, 16, 16, 0, 1, 0, 1)
 					end
 
 				else
@@ -4542,7 +4545,7 @@ local build_mode_list = function (self, elapsed)
 						local SoloInfo = _detalhes.SoloTables.Menu [atributo]
 						if (SoloInfo) then
 							CoolTip:AddMenu (2, OnClickNovoMenu, index, instancia, nil, "#".. index .. " " .. SoloInfo [1], _, true)
-							CoolTip:AddIcon (SoloInfo [2], 2, 1, 20, 20, 0, 1, 0, 1)
+							CoolTip:AddIcon (SoloInfo [2], 2, 1, 16, 16, 0, 1, 0, 1)
 						else
 							CoolTip:AddMenu (2, OnClickNovoMenu, index, instancia, nil, "#".. index .. " Unknown Plugin", _, true)
 						end
@@ -4554,7 +4557,7 @@ local build_mode_list = function (self, elapsed)
 							local plugin_object = _detalhes:GetPlugin (plugin_name)
 							if (plugin_object) then
 								CoolTip:AddMenu (2, OnClickNovoMenu, index, instancia, nil, "#".. index .. " " .. plugin_object.__name, _, true)
-								CoolTip:AddIcon (plugin_object.__icon, 2, 1, 20, 20, 0, 1, 0, 1)	
+								CoolTip:AddIcon (plugin_object.__icon, 2, 1, 16, 16, 0, 1, 0, 1)	
 							else
 								CoolTip:AddMenu (2, OnClickNovoMenu, index, instancia, nil, "#".. index .. " Unknown Plugin", _, true)
 							end
@@ -4564,8 +4567,9 @@ local build_mode_list = function (self, elapsed)
 						
 					else
 					
-						CoolTip:AddMenu (2, OnClickNovoMenu, index, instancia, nil, "#".. index .. " " .. _detalhes.atributos.lista [atributo] .. " - " .. _detalhes.sub_atributos [atributo].lista [sub_atributo], _, true)
-						CoolTip:AddIcon (_detalhes.sub_atributos [atributo].icones[sub_atributo] [1], 2, 1, 20, 20, unpack (_detalhes.sub_atributos [atributo].icones[sub_atributo] [2]))
+						--CoolTip:AddMenu (2, OnClickNovoMenu, index, instancia, nil, "#".. index .. " " .. _detalhes.atributos.lista [atributo] .. " - " .. _detalhes.sub_atributos [atributo].lista [sub_atributo], _, true)
+						CoolTip:AddMenu (2, OnClickNovoMenu, index, instancia, nil, "#".. index .. " " .. _detalhes.sub_atributos [atributo].lista [sub_atributo], _, true)
+						CoolTip:AddIcon (_detalhes.sub_atributos [atributo].icones[sub_atributo] [1], 2, 1, 16, 16, unpack (_detalhes.sub_atributos [atributo].icones[sub_atributo] [2]))
 						
 					end
 				end
@@ -4574,14 +4578,14 @@ local build_mode_list = function (self, elapsed)
 			end
 		end		
 		
-		CoolTip:SetWallpaper (2, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
+		CoolTip:SetWallpaper (2, [[Interface\SPELLBOOK\Spellbook-Page-1]], menu_wallpaper_tex, menu_wallpaper_color, true)
 		
 		--> options
 		GameCooltip:AddLine ("$div")
 		
 		CoolTip:AddLine (Loc ["STRING_OPTIONS_WINDOW"])
 		CoolTip:AddMenu (1, _detalhes.OpenOptionsWindow)
-		CoolTip:AddIcon ([[Interface\AddOns\Details\images\modo_icones]], 1, 1, 20, 20, 32/256*4, 32/256*5, 0, 1)
+		CoolTip:AddIcon ([[Interface\AddOns\Details\images\modo_icones]], 1, 1, 20, 20, 0.5, 0.625, 0, 1)
 		
 		if (instancia.toolbar_side == 1) then
 			CoolTip:SetOwner (self)
@@ -4589,7 +4593,7 @@ local build_mode_list = function (self, elapsed)
 			CoolTip:SetOwner (self, "bottom", "top", 0, 0) -- -7
 		end
 		
-		CoolTip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
+		CoolTip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], menu_wallpaper_tex, menu_wallpaper_color, true)
 		CoolTip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
 		
 		show_anti_overlap (instancia, self, "top")
@@ -4601,6 +4605,14 @@ end
 local segments_used = 0
 local segments_filled = 0
 local empty_segment_color = {1, 1, 1, .4}
+
+local segments_common_tex, segments_common_color = {0.5078125, 0.1171875, 0.017578125, 0.1953125}, {1, 1, 1, .5}
+local unknown_boss_tex, unknown_boss_color = {0.14453125, 0.9296875, 0.2625, 0.6546875}, {1, 1, 1, 0.5}
+
+local party_line_color = {170/255, 167/255, 255/255, 1}
+local party_wallpaper_tex, party_wallpaper_color = {0.09, 0.698125, 0, 0.833984375}, {1, 1, 1, 0.5}
+
+local segments_wallpaper_color = {1, 1, 1, 0.5}
 
 -- search key: ~segments
 local build_segment_list = function (self, elapsed)
@@ -4654,7 +4666,7 @@ local build_segment_list = function (self, elapsed)
 					if (thisCombat.is_boss and thisCombat.is_boss.name) then
 					
 						if (thisCombat.instance_type == "party") then
-							CoolTip:AddLine (thisCombat.is_boss.name .." (#"..i..")", _, 1, {170/255, 167/255, 255/255, 1})
+							CoolTip:AddLine (thisCombat.is_boss.name .." (#"..i..")", _, 1, party_line_color)
 						elseif (thisCombat.is_boss.killed) then
 							CoolTip:AddLine (thisCombat.is_boss.name .." (#"..i..")", _, 1, "lime")
 						else
@@ -4669,17 +4681,18 @@ local build_segment_list = function (self, elapsed)
 						
 						local background = _detalhes:GetRaidIcon (thisCombat.is_boss.mapid)
 						if (background) then
-							CoolTip:SetWallpaper (2, background, nil, {1, 1, 1, 0.5})
+							CoolTip:SetWallpaper (2, background, nil, segments_wallpaper_color)
 						elseif (thisCombat.instance_type == "party") then
 							local ej_id = thisCombat.is_boss.ej_instance_id
 							if (ej_id) then
 								local name, description, bgImage, buttonImage, loreImage, dungeonAreaMapID, link = EJ_GetInstanceInfo (ej_id)
 								if (bgImage) then
-									CoolTip:SetWallpaper (2, bgImage, {0.09, 0.698125, 0, 0.833984375}, {1, 1, 1, 0.5})
+									CoolTip:SetWallpaper (2, bgImage, party_wallpaper_tex, party_wallpaper_color)
 								end
 							end
 						else
-							CoolTip:SetWallpaper (2, [[Interface\BlackMarket\HotItemBanner]], {0.14453125, 0.9296875, 0.2625, 0.6546875}, {1, 1, 1, 0.5}, true)
+							
+							CoolTip:SetWallpaper (2, [[Interface\BlackMarket\HotItemBanner]], unknown_boss_tex, unknown_boss_color, true)
 						end
 					
 					elseif (thisCombat.is_arena) then
@@ -4690,13 +4703,10 @@ local build_segment_list = function (self, elapsed)
 
 						CoolTip:AddLine (thisCombat.is_arena.name, _, 1, "yellow")
 						
-						--131 105 157 127
-						--0.255859375 0.306640625 0.205078125 0.248046875
 						CoolTip:AddIcon ([[Interface\AddOns\Details\images\icons]], "main", "left", 16, 12, 0.251953125, 0.306640625, 0.205078125, 0.248046875)
-						--CoolTip:AddIcon ([[Interface\WorldStateFrame\CombatSwords]], "main", "left", 12, 12, 0, 0.453125, 0.015625, 0.46875)
 						
 						if (file) then
-							CoolTip:SetWallpaper (2, "Interface\\Glues\\LOADINGSCREENS\\" .. file, coords, {1, 1, 1, 0.4})
+							CoolTip:SetWallpaper (2, "Interface\\Glues\\LOADINGSCREENS\\" .. file, coords, empty_segment_color)
 						end
 						
 					else
@@ -4713,7 +4723,7 @@ local build_segment_list = function (self, elapsed)
 							CoolTip:AddIcon ([[Interface\QUESTFRAME\UI-Quest-BulletPoint]], "main", "left", 16, 16)
 						end
 						
-						CoolTip:SetWallpaper (2, [[Interface\ACHIEVEMENTFRAME\UI-Achievement-StatsBackground]], {0.5078125, 0.1171875, 0.017578125, 0.1953125}, {1, 1, 1, .5})
+						CoolTip:SetWallpaper (2, [[Interface\ACHIEVEMENTFRAME\UI-Achievement-StatsBackground]], segments_common_tex, segments_common_color)
 						
 					end
 					
@@ -4735,7 +4745,7 @@ local build_segment_list = function (self, elapsed)
 					CoolTip:AddIcon ([[Interface\QUESTFRAME\UI-Quest-BulletPoint]], "main", "left", 16, 16, nil, nil, nil, nil, empty_segment_color)
 					CoolTip:AddLine (Loc ["STRING_SEGMENT_EMPTY"], _, 2)
 					CoolTip:AddIcon ([[Interface\CHARACTERFRAME\Disconnect-Icon]], 2, 1, 12, 12, 0.3125, 0.65625, 0.265625, 0.671875)
-					CoolTip:SetWallpaper (2, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
+					CoolTip:SetWallpaper (2, [[Interface\SPELLBOOK\Spellbook-Page-1]], menu_wallpaper_tex, menu_wallpaper_color, true)
 				end
 				
 				if (menuIndex) then
@@ -4750,7 +4760,7 @@ local build_segment_list = function (self, elapsed)
 			
 		end
 		
-		GameCooltip:AddLine ("$div")
+		GameCooltip:AddLine ("$div", nil, nil, -5, -13)
 		
 		----------- current
 		CoolTip:AddLine (segmentos.current_standard, _, 1, "white")
@@ -4767,18 +4777,18 @@ local build_segment_list = function (self, elapsed)
 				
 				local background = _detalhes:GetRaidIcon (_detalhes.tabela_vigente.is_boss.mapid)
 				if (background) then
-					CoolTip:SetWallpaper (2, background, nil, {1, 1, 1, 0.5})
+					CoolTip:SetWallpaper (2, background, nil, segments_wallpaper_color)
 				elseif (_detalhes.tabela_vigente.instance_type == "party") then
 					local ej_id = _detalhes.tabela_vigente.is_boss.ej_instance_id
 					if (ej_id) then
 						local name, description, bgImage, buttonImage, loreImage, dungeonAreaMapID, link = EJ_GetInstanceInfo (ej_id)
 						if (bgImage) then
-							CoolTip:SetWallpaper (2, bgImage, {0.09, 0.698125, 0, 0.833984375}, {1, 1, 1, 0.5})
+							CoolTip:SetWallpaper (2, bgImage, party_wallpaper_tex, party_wallpaper_color)
 						end
 					end
 				end
 			else
-				CoolTip:SetWallpaper (2, [[Interface\ACHIEVEMENTFRAME\UI-Achievement-StatsBackground]], {0.5078125, 0.1171875, 0.017578125, 0.1953125}, {1, 1, 1, .5})
+				CoolTip:SetWallpaper (2, [[Interface\ACHIEVEMENTFRAME\UI-Achievement-StatsBackground]], segments_common_tex, segments_common_color)
 			end					
 			
 			CoolTip:AddLine (Loc ["STRING_SEGMENT_ENEMY"] .. ":", enemy, 2, "white", "white")
@@ -4820,7 +4830,7 @@ local build_segment_list = function (self, elapsed)
 		CoolTip:AddMenu (1, instancia.TrocaTabela, -1)
 		CoolTip:AddIcon ([[Interface\QUESTFRAME\UI-Quest-BulletPoint]], "main", "left", 16, 16, nil, nil, nil, nil, "orange")
 		
-			CoolTip:AddLine (Loc ["STRING_SEGMENT_ENEMY"] .. ":", "--x--x--", 2, "white", "white")--localize-me
+			CoolTip:AddLine (Loc ["STRING_SEGMENT_ENEMY"] .. ":", "--x--x--", 2, "white", "white")
 			
 			if (not _detalhes.tabela_overall.end_time) then
 				if (_detalhes.in_combat) then
@@ -4836,7 +4846,7 @@ local build_segment_list = function (self, elapsed)
 				CoolTip:AddLine (Loc ["STRING_SEGMENT_TIME"] .. ":", minutos.."m "..segundos.."s", 2, "white", "white") 
 			end
 			
-			CoolTip:SetWallpaper (2, [[Interface\ACHIEVEMENTFRAME\UI-Achievement-StatsBackground]], {0.5078125, 0.1171875, 0.017578125, 0.1953125}, {1, 1, 1, .5})
+			CoolTip:SetWallpaper (2, [[Interface\ACHIEVEMENTFRAME\UI-Achievement-StatsBackground]], segments_common_tex, segments_common_color)
 			
 			local earlyFight = ""
 			for i = _detalhes.segments_amount, 1, -1 do
@@ -4896,7 +4906,7 @@ local build_segment_list = function (self, elapsed)
 		--CoolTip:SetOption ("ButtonsYMod", -10)
 
 		--CoolTip:SetWallpaper (1, [[Interface\ACHIEVEMENTFRAME\UI-Achievement-Parchment-Horizontal-Desaturated]], nil, {1, 1, 1, 0.3})
-		CoolTip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
+		CoolTip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], menu_wallpaper_tex, menu_wallpaper_color, true)
 		CoolTip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
 		CoolTip:SetBackdrop (2, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
 		
@@ -5871,28 +5881,25 @@ function _detalhes:MenuAnchor (x, y)
 	local menu_points = self.menu_points -- = {MenuAnchorLeft, MenuAnchorRight}
 	
 	if (self.menu_anchor.side == 1) then --> left
-		--self.baseframe.cabecalho.modo_selecao:ClearAllPoints()
 	
 		menu_points [1]:ClearAllPoints()
+		
 		if (self.toolbar_side == 1) then --> top
-			--self.baseframe.cabecalho.modo_selecao:SetPoint ("bottomleft", self.baseframe.cabecalho.ball, "bottomright", x, y)
-			menu_points [1]:SetPoint ("bottomleft", self.baseframe.cabecalho.ball, "bottomright", x, y+2)
+			menu_points [1]:SetPoint ("bottomleft", self.baseframe.cabecalho.ball, "bottomright", x, y) -- y+2
 			
 		else --> bottom
-			--self.baseframe.cabecalho.modo_selecao:SetPoint ("topleft", self.baseframe.cabecalho.ball, "topright", x, y*-1)
 			menu_points [1]:SetPoint ("topleft", self.baseframe.cabecalho.ball, "topright", x, (y*-1) - 4)
 
 		end
 	
 	elseif (self.menu_anchor.side == 2) then --> right
-		--self.baseframe.cabecalho.modo_selecao:ClearAllPoints()
+	
 		menu_points [2]:ClearAllPoints()
+		
 		if (self.toolbar_side == 1) then --> top
-			--self.baseframe.cabecalho.modo_selecao:SetPoint ("topleft", self.baseframe.cabecalho.ball_r, "bottomleft", x, y+16)
 			menu_points [2]:SetPoint ("topleft", self.baseframe.cabecalho.ball_r, "bottomleft", x, y+16)
 			
 		else --> bottom
-			--self.baseframe.cabecalho.modo_selecao:SetPoint ("topleft", self.baseframe.cabecalho.ball_r, "topleft", x, y*-1)
 			menu_points [2]:SetPoint ("topleft", self.baseframe.cabecalho.ball_r, "topleft", x, (y*-1) - 4)
 
 		end
@@ -6189,7 +6196,7 @@ end
 		GameCooltip:AddIcon ([[Interface\Buttons\UI-StopButton]], 1, 1, 14, 14, 0, 1, 0, 1, "orange")
 		GameCooltip:AddMenu (1, _detalhes.tabela_historico.resetar_overall)
 		
-		GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
+		GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], menu_wallpaper_tex, menu_wallpaper_color, true)
 		GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
 		
 		show_anti_overlap (self.instance, self, "top")
@@ -6263,8 +6270,8 @@ end
 		GameCooltip:AddLine (Loc ["STRING_MENU_CLOSE_INSTANCE_DESC2"], nil, 2, "white", nil, _detalhes.font_sizes.menus, font)
 		GameCooltip:AddIcon ([[Interface\PaperDollInfoFrame\UI-GearManager-LeaveItem-Transparent]], 2, 1, 18, 18)
 		
-		GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
-		GameCooltip:SetWallpaper (2, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
+		GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], menu_wallpaper_tex, menu_wallpaper_color, true)
+		GameCooltip:SetWallpaper (2, [[Interface\SPELLBOOK\Spellbook-Page-1]], menu_wallpaper_tex, menu_wallpaper_color, true)
 		GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
 		GameCooltip:SetBackdrop (2, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
 		
@@ -6657,7 +6664,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 				GameCooltip:SetOption ("IgnoreButtonAutoHeight", false)
 				GameCooltip:AddLine ("All raid plugins already\nin use or disabled.", nil, 1, "white", nil, 10, SharedMedia:Fetch ("font", "Friz Quadrata TT"))
 				GameCooltip:AddIcon ([[Interface\GROUPFRAME\UI-GROUP-ASSISTANTICON]], 1, 1)
-				GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
+				GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], menu_wallpaper_tex, menu_wallpaper_color, true)
 			end
 		else
 			_detalhes:MontaAtributosOption (instancia)
@@ -6741,7 +6748,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 				GameCooltip:AddIcon ([[Interface\Addons\Details\Images\report_button]], 1, 1, 12, 19)
 				GameCooltip:AddMenu (1, _detalhes.Reportar, instancia)
 				
-				GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
+				GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], menu_wallpaper_tex, menu_wallpaper_color, true)
 				GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
 				
 				show_anti_overlap (instancia, self, "top")
