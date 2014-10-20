@@ -98,7 +98,7 @@ local _
 				["text_size"] = 10,
 				["anchor"] = {
 					5, -- [1]
-					4, -- [2]
+					3, -- [2]
 				},
 				["text_color"] = {
 					0.823529411764706, -- [1]
@@ -273,6 +273,8 @@ local _
 			menu_anchor = {16, 1, side = 2},
 			menu_anchor_down = {16, -2},
 			
+			["menu_icons"] = {true, true, true, true, true, true, ["shadow"] = true, ["space"] = -3},
+			
 			plugins_grow_direction = 1,
 			
 			show_sidebars = false,
@@ -282,9 +284,10 @@ local _
 			
 			row_info = {
 				texture = "BantoBar", --"Details Serenity"
-				font_face = "Arial Narrow",
+				font_face = "Accidental Presidency",
 				texture_background_class_color = false,
 				texture_background = "Details Serenity",
+				font_size = 11,
 				fixed_texture_background_color = {0, 0, 0, 0.3186},
 				icon_file = [[Interface\AddOns\Details\images\classes_small_alpha]],
 				start_after_icon = false,

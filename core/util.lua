@@ -28,6 +28,7 @@
 	local _select = select
 	local _tonumber = tonumber
 	local _strsplit = strsplit
+	local _pcall = pcall
 	
 	local _UnitClass = UnitClass --wow api local
 	local _IsInRaid = IsInRaid --wow api local
@@ -151,22 +152,26 @@
 	
 	_detalhes.ToKFunctions = {_detalhes.NoToK, _detalhes.ToK, _detalhes.ToK2, _detalhes.ToK0, _detalhes.ToKMin, _detalhes.ToK2Min, _detalhes.ToK0Min, _detalhes.comma_value}
 
+	_detalhes.string = {}
+	
 	--> replacing data
 	local args
 	local replace_arg = function (i)
 		return args [tonumber(i)]
 	end
 	local run_function = function (str)
-		local r = loadstring (str)(args[4])
-		return r or 0
-	end
-	function string:ReplaceData (...)
-		args = {...}
-		return (self:gsub ("{data(%d+)}", replace_arg):gsub ("{func(.-)}", run_function)) 
+		local okey, value = _pcall (loadstring (str), args[4])
+		if (not okey) then
+			_detalhes:Msg ("|cFFFF9900error on custom text function|r:", value)
+			return 0
+		end
+		return value or 0
 	end
 
-	--local usertext = "i got the time: {data2}, {data3}% of {data1} minutes"
-	--local expanded = usertext:expand(50000, 1000, 20)
+	function _detalhes.string.replace (str, ...)
+		args = {...}
+		return (str:gsub ("{data(%d+)}", replace_arg):gsub ("{func(.-)}", run_function)) 
+	end
 	
 	--> remove a index from a hash table
 	function _detalhes:tableRemove (tabela, indexName)

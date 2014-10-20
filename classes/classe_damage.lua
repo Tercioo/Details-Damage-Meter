@@ -26,7 +26,9 @@
 	local GameTooltip = GameTooltip --api local
 	local _IsInRaid = IsInRaid --api local
 	local _IsInGroup = IsInGroup --api local
+	
 	local _GetSpellInfo = _detalhes.getspellinfo --details api
+	local _string_replace = _detalhes.string.replace --details api
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> constants
@@ -645,7 +647,7 @@
 		end
 		
 		if (UsingCustomRightText) then
-			esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_damage, formated_dps, porcentagem, self))
+			esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_damage, formated_dps, porcentagem, self))
 		else
 			esta_barra.texto_direita:SetText (formated_damage .. " (" .. formated_dps .. ", " .. porcentagem .. "%)")
 		end
@@ -1353,7 +1355,7 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 			local formated_dps = SelectedToKFunction (_, dps)
 
 			if (UsingCustomRightText) then
-				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_damage, formated_dps, porcentagem, self))
+				esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_damage, formated_dps, porcentagem, self))
 			else
 				esta_barra.texto_direita:SetText (formated_damage .. " (" .. formated_dps .. ", " .. porcentagem .. "%)") --seta o texto da direita
 			end
@@ -1366,7 +1368,7 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 			local formated_dps = SelectedToKFunction (_, dps)
 		
 			if (UsingCustomRightText) then
-				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_dps, formated_damage, porcentagem, self))
+				esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_dps, formated_damage, porcentagem, self))
 			else		
 				esta_barra.texto_direita:SetText (formated_dps .. " (" .. formated_damage .. ", " .. porcentagem .. "%)") --seta o texto da direita
 			end
@@ -1380,7 +1382,7 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 			local formated_dtps = SelectedToKFunction (_, dtps)
 
 			if (UsingCustomRightText) then
-				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_damage_taken, formated_dtps, porcentagem, self))
+				esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_damage_taken, formated_dtps, porcentagem, self))
 			else
 				esta_barra.texto_direita:SetText (formated_damage_taken .." (" .. formated_dtps .. ", " .. porcentagem .. "%)") --seta o texto da direita --
 			end
@@ -1391,7 +1393,7 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 			local formated_friendly_fire = SelectedToKFunction (_, self.friendlyfire_total)
 
 			if (UsingCustomRightText) then
-				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_friendly_fire, "", porcentagem, self))
+				esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_friendly_fire, "", porcentagem, self))
 			else			
 				esta_barra.texto_direita:SetText (formated_friendly_fire .. " (" .. porcentagem .. "%)") --seta o texto da direita --
 			end
@@ -1404,7 +1406,7 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 			local formated_dps = SelectedToKFunction (_, dps)
 		
 			if (UsingCustomRightText) then
-				esta_barra.texto_direita:SetText (instancia.row_info.textR_custom_text:ReplaceData (formated_damage, formated_dps, porcentagem, self))
+				esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_damage, formated_dps, porcentagem, self))
 			else		
 				esta_barra.texto_direita:SetText (formated_damage .. " (" .. formated_dps .. ", " .. porcentagem .. "%)") --seta o texto da direita
 			end
@@ -1570,7 +1572,7 @@ end
 	if (self.enemy) then
 		if (self.arena_enemy) then
 			if (UsingCustomLeftText) then
-				esta_barra.texto_esquerdo:SetText (instancia.row_info.textL_custom_text:ReplaceData (esta_barra.colocacao, self.displayName, "|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. instancia.row_info.height .. ":" .. instancia.row_info.height .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t"))
+				esta_barra.texto_esquerdo:SetText (_string_replace (instancia.row_info.textL_custom_text, esta_barra.colocacao, self.displayName, "|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. instancia.row_info.height .. ":" .. instancia.row_info.height .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t"))
 			else
 				esta_barra.texto_esquerdo:SetText (bar_number .. "|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. instancia.row_info.height .. ":" .. instancia.row_info.height .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t" .. self.displayName)
 			end
@@ -1578,13 +1580,13 @@ end
 		else
 			if (_detalhes.faction_against == "Horde") then
 				if (UsingCustomLeftText) then
-					esta_barra.texto_esquerdo:SetText (instancia.row_info.textL_custom_text:ReplaceData (esta_barra.colocacao, self.displayName, "|TInterface\\AddOns\\Details\\images\\icones_barra:"..instancia.row_info.height..":"..instancia.row_info.height..":0:0:256:32:0:32:0:32|t"))
+					esta_barra.texto_esquerdo:SetText (_string_replace (instancia.row_info.textL_custom_text, esta_barra.colocacao, self.displayName, "|TInterface\\AddOns\\Details\\images\\icones_barra:"..instancia.row_info.height..":"..instancia.row_info.height..":0:0:256:32:0:32:0:32|t"))
 				else
 					esta_barra.texto_esquerdo:SetText (bar_number .. "|TInterface\\AddOns\\Details\\images\\icones_barra:"..instancia.row_info.height..":"..instancia.row_info.height..":0:0:256:32:0:32:0:32|t"..self.displayName) --seta o texto da esqueda -- HORDA
 				end
 			else
 				if (UsingCustomLeftText) then
-					esta_barra.texto_esquerdo:SetText (instancia.row_info.textL_custom_text:ReplaceData (esta_barra.colocacao, self.displayName, "|TInterface\\AddOns\\Details\\images\\icones_barra:"..instancia.row_info.height..":"..instancia.row_info.height..":0:0:256:32:32:64:0:32|t"))
+					esta_barra.texto_esquerdo:SetText (_string_replace (instancia.row_info.textL_custom_text, esta_barra.colocacao, self.displayName, "|TInterface\\AddOns\\Details\\images\\icones_barra:"..instancia.row_info.height..":"..instancia.row_info.height..":0:0:256:32:32:64:0:32|t"))
 				else
 					esta_barra.texto_esquerdo:SetText (bar_number .. "|TInterface\\AddOns\\Details\\images\\icones_barra:"..instancia.row_info.height..":"..instancia.row_info.height..":0:0:256:32:32:64:0:32|t"..self.displayName) --seta o texto da esqueda -- ALLY
 				end
@@ -1597,13 +1599,13 @@ end
 	else
 		if (self.arena_ally) then
 			if (UsingCustomLeftText) then
-				esta_barra.texto_esquerdo:SetText (instancia.row_info.textL_custom_text:ReplaceData (esta_barra.colocacao, self.displayName, "|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. instancia.row_info.height .. ":" .. instancia.row_info.height .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t"))
+				esta_barra.texto_esquerdo:SetText (_string_replace (instancia.row_info.textL_custom_text, esta_barra.colocacao, self.displayName, "|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. instancia.row_info.height .. ":" .. instancia.row_info.height .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t"))
 			else
 				esta_barra.texto_esquerdo:SetText (bar_number .. "|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. instancia.row_info.height .. ":" .. instancia.row_info.height .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t" .. self.displayName)
 			end
 		else
 			if (UsingCustomLeftText) then
-				esta_barra.texto_esquerdo:SetText (instancia.row_info.textL_custom_text:ReplaceData (esta_barra.colocacao, self.displayName, ""))
+				esta_barra.texto_esquerdo:SetText (_string_replace (instancia.row_info.textL_custom_text, esta_barra.colocacao, self.displayName, ""))
 			else
 				esta_barra.texto_esquerdo:SetText (bar_number .. self.displayName) --seta o texto da esqueda
 			end

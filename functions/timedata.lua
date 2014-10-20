@@ -17,6 +17,7 @@
 --> local pointers
 	local ipairs = ipairs
 	local _math_floor = math.floor
+	local _pcall = pcall
 	local time = time
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -205,7 +206,11 @@
 	
 	local exec_user_func = function (func, attributes, data, this_second)
 		
-		local result = func()
+		local okey, result = _pcall (func)
+		if (not okey) then
+			_detalhes:Msg ("|cFFFF9900error on chart script function|r:", result)
+			result = 0
+		end
 		
 		local current = result - attributes.last_value
 		data [this_second] = current
