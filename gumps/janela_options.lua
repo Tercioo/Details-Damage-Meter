@@ -5518,10 +5518,193 @@ function window:CreateFrame6()
 			frame6.instanceMicroDisplaysSideSlider:SetPoint ("left", frame6.instanceMicroDisplaysSideLabel, "right", 2)
 			frame6.instanceMicroDisplaysSideSlider.OnSwitch = function (self, instance, value)
 				instance:MicroDisplaysSide (value, true)
+				window:update_microframes()
 			end
 			frame6.instanceMicroDisplaysSideSlider.thumb:SetSize (50, 12)
 			
 			window:CreateLineBackground2 (frame6, "instanceMicroDisplaysSideSlider", "instanceMicroDisplaysSideLabel", Loc ["STRING_OPTIONS_MICRODISPLAYSSIDE_DESC"])
+	
+	--> micro displays selection
+			g:NewLabel (frame6, _, "$parentMicroDisplaysAnchor", "MicroDisplaysAnchor", Loc ["STRING_OPTIONS_MICRODISPLAY_ANCHOR"], "GameFontNormal")
+			
+			g:NewLabel (frame6, _, "$parentMicroDisplayLeftLabel", "MicroDisplayLeftLabel", Loc ["STRING_ANCHOR_LEFT"], "GameFontHighlightLeft")
+			g:NewLabel (frame6, _, "$parentMicroDisplayCenterLabel", "MicroDisplayCenterLabel", Loc ["STRING_CENTER_UPPER"], "GameFontHighlightLeft")
+			g:NewLabel (frame6, _, "$parentMicroDisplayRightLabel", "MicroDisplayRightLabel", Loc ["STRING_ANCHOR_RIGHT"], "GameFontHighlightLeft")
+			
+			g:NewLabel (frame6, _, "$parentMicroDisplayWarningLabel", "MicroDisplayWarningLabel", Loc ["STRING_OPTIONS_MICRODISPLAYS_WARNING"], "GameFontHighlightSmall", 10, "orange")
+
+			local OnMicroDisplaySelect = function (_, instance, micro_display)
+				local anchor, index = unpack (micro_display)
+				
+				if (index == -1) then
+					return _detalhes.StatusBar:SetPlugin (instance, -1, anchor)
+				end
+				
+				local absolute_name = _detalhes.StatusBar.Plugins [index].real_name
+				_detalhes.StatusBar:SetPlugin (instance, absolute_name, anchor)
+				
+				window:update_microframes()
+			end
+			
+			local BuildLeftMicroMenu = function() 
+				local options = {}
+				--options [1] = {value = {"left", -1}, label = Loc ["STRING_PLUGIN_CLEAN"], onclick = OnMicroDisplaySelect, icon = [[Interface\Buttons\UI-GroupLoot-Pass-Down]]}
+				for index, _name_and_icon in ipairs (_detalhes.StatusBar.Menu) do 
+					options [#options+1] = {value = {"left", index}, label = _name_and_icon [1], onclick = OnMicroDisplaySelect, icon = _name_and_icon [2]}
+				end
+				return options
+			end
+			local BuildCenterMicroMenu = function() 
+				local options = {}
+				--options [1] = {value = {"center", -1}, label = Loc ["STRING_PLUGIN_CLEAN"], onclick = OnMicroDisplaySelect, icon = [[Interface\Buttons\UI-GroupLoot-Pass-Down]]}
+				for index, _name_and_icon in ipairs (_detalhes.StatusBar.Menu) do 
+					options [#options+1] = {value = {"center", index}, label = _name_and_icon [1], onclick = OnMicroDisplaySelect, icon = _name_and_icon [2]}
+				end
+				return options
+			end
+			local BuildRightMicroMenu = function() 
+				local options = {}
+				--options [1] = {value = {"right", -1}, label = Loc ["STRING_PLUGIN_CLEAN"], onclick = OnMicroDisplaySelect, icon = [[Interface\Buttons\UI-GroupLoot-Pass-Down]]}
+				for index, _name_and_icon in ipairs (_detalhes.StatusBar.Menu) do 
+					options [#options+1] = {value = {"right", index}, label = _name_and_icon [1], onclick = OnMicroDisplaySelect, icon = _name_and_icon [2]}
+				end
+				return options
+			end
+			
+			local d = g:NewDropDown (frame6, _, "$parentMicroDisplayLeftDropdown", "MicroDisplayLeftDropdown", DROPDOWN_WIDTH, 20, BuildLeftMicroMenu, nil)	
+			d.onenter_backdrop = dropdown_backdrop_onenter
+			d.onleave_backdrop = dropdown_backdrop_onleave
+			d:SetBackdrop (dropdown_backdrop)
+			d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+			
+			local d = g:NewDropDown (frame6, _, "$parentMicroDisplayCenterDropdown", "MicroDisplayCenterDropdown", DROPDOWN_WIDTH, 20, BuildCenterMicroMenu, nil)	
+			d.onenter_backdrop = dropdown_backdrop_onenter
+			d.onleave_backdrop = dropdown_backdrop_onleave
+			d:SetBackdrop (dropdown_backdrop)
+			d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+			
+			local d = g:NewDropDown (frame6, _, "$parentMicroDisplayRightDropdown", "MicroDisplayRightDropdown", DROPDOWN_WIDTH, 20, BuildRightMicroMenu, nil)	
+			d.onenter_backdrop = dropdown_backdrop_onenter
+			d.onleave_backdrop = dropdown_backdrop_onleave
+			d:SetBackdrop (dropdown_backdrop)
+			d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+			
+			frame6.MicroDisplayLeftDropdown:SetPoint ("left", frame6.MicroDisplayLeftLabel, "right", 2)
+			frame6.MicroDisplayCenterDropdown:SetPoint ("left", frame6.MicroDisplayCenterLabel, "right", 2)
+			frame6.MicroDisplayRightDropdown:SetPoint ("left", frame6.MicroDisplayRightLabel, "right", 2)
+			
+			window:CreateLineBackground2 (frame6, "MicroDisplayLeftDropdown", "MicroDisplayLeftLabel", Loc ["STRING_OPTIONS_MICRODISPLAYS_DROPDOWN_TOOLTIP"])
+			window:CreateLineBackground2 (frame6, "MicroDisplayCenterDropdown", "MicroDisplayCenterLabel", Loc ["STRING_OPTIONS_MICRODISPLAYS_DROPDOWN_TOOLTIP"])
+			window:CreateLineBackground2 (frame6, "MicroDisplayRightDropdown", "MicroDisplayRightLabel", Loc ["STRING_OPTIONS_MICRODISPLAYS_DROPDOWN_TOOLTIP"])
+			
+			local HideLeftMicroFrameButton = g:NewButton (frame6.MicroDisplayLeftDropdown, _, "$parentHideLeftMicroFrameButton", "HideLeftMicroFrameButton", 22, 22, function (_, _, self)
+				if (_G.DetailsOptionsWindow.instance.StatusBar ["left"].options.isHidden) then
+					_detalhes.StatusBar:SetPlugin (_G.DetailsOptionsWindow.instance, _G.DetailsOptionsWindow.instance.StatusBar ["left"].real_name, "left")
+				else
+					_detalhes.StatusBar:SetPlugin (_G.DetailsOptionsWindow.instance, -1, "left")
+				end
+				if (_G.DetailsOptionsWindow.instance.StatusBar ["left"].options.isHidden) then
+					self:GetNormalTexture():SetDesaturated (false)
+				else
+					self:GetNormalTexture():SetDesaturated (true)
+				end
+			end)
+			HideLeftMicroFrameButton:SetPoint ("left", frame6.MicroDisplayLeftDropdown, "right", 2, 0)
+			HideLeftMicroFrameButton:SetNormalTexture ([[Interface\Buttons\UI-GroupLoot-Pass-Down]])
+			--HideLeftMicroFrameButton:SetHighlightTexture ([[Interface\Buttons\UI-GROUPLOOT-PASS-HIGHLIGHT]])
+			HideLeftMicroFrameButton:SetPushedTexture ([[Interface\Buttons\UI-GroupLoot-Pass-Up]])
+			HideLeftMicroFrameButton:GetNormalTexture():SetDesaturated (true)
+			HideLeftMicroFrameButton.tooltip = Loc ["STRING_OPTIONS_MICRODISPLAYS_SHOWHIDE_TOOLTIP"]
+			HideLeftMicroFrameButton:SetHook ("OnEnter", function (self, capsule)
+				self:GetNormalTexture():SetBlendMode("ADD")
+			end)
+			HideLeftMicroFrameButton:SetHook ("OnLeave", function (self, capsule)
+				self:GetNormalTexture():SetBlendMode("BLEND")
+			end)
+		
+			local HideCenterMicroFrameButton = g:NewButton (frame6.MicroDisplayCenterDropdown, _, "$parentHideCenterMicroFrameButton", "HideCenterMicroFrameButton", 22, 22, function (_, _, self)
+				if (_G.DetailsOptionsWindow.instance.StatusBar ["center"].options.isHidden) then
+					_detalhes.StatusBar:SetPlugin (_G.DetailsOptionsWindow.instance, _G.DetailsOptionsWindow.instance.StatusBar ["center"].real_name, "center")
+				else
+					_detalhes.StatusBar:SetPlugin (_G.DetailsOptionsWindow.instance, -1, "center")
+				end
+				
+				if (_G.DetailsOptionsWindow.instance.StatusBar ["center"].options.isHidden) then
+					self:GetNormalTexture():SetDesaturated (false)
+				else
+					self:GetNormalTexture():SetDesaturated (true)
+				end
+			end)
+			HideCenterMicroFrameButton:SetPoint ("left", frame6.MicroDisplayCenterDropdown, "right", 2, 0)
+			HideCenterMicroFrameButton:SetNormalTexture ([[Interface\Buttons\UI-GroupLoot-Pass-Down]])
+			--HideCenterMicroFrameButton:SetHighlightTexture ([[Interface\Buttons\UI-GROUPLOOT-PASS-HIGHLIGHT]])
+			HideCenterMicroFrameButton:SetPushedTexture ([[Interface\Buttons\UI-GroupLoot-Pass-Up]])
+			HideCenterMicroFrameButton:GetNormalTexture():SetDesaturated (true)
+			HideCenterMicroFrameButton.tooltip = Loc ["STRING_OPTIONS_MICRODISPLAYS_SHOWHIDE_TOOLTIP"]
+			HideCenterMicroFrameButton:SetHook ("OnEnter", function (self, capsule)
+				self:GetNormalTexture():SetBlendMode("ADD")
+			end)
+			HideCenterMicroFrameButton:SetHook ("OnLeave", function (self, capsule)
+				self:GetNormalTexture():SetBlendMode("BLEND")
+			end)
+			
+			local HideRightMicroFrameButton = g:NewButton (frame6.MicroDisplayRightDropdown, _, "$parentHideRightMicroFrameButton", "HideRightMicroFrameButton", 20, 20, function (_, _, self)
+				if (_G.DetailsOptionsWindow.instance.StatusBar ["right"].options.isHidden) then
+					_detalhes.StatusBar:SetPlugin (_G.DetailsOptionsWindow.instance, _G.DetailsOptionsWindow.instance.StatusBar ["right"].real_name, "right")
+				else
+					_detalhes.StatusBar:SetPlugin (_G.DetailsOptionsWindow.instance, -1, "right")
+				end
+				if (_G.DetailsOptionsWindow.instance.StatusBar ["right"].options.isHidden) then
+					self:GetNormalTexture():SetDesaturated (false)
+				else
+					self:GetNormalTexture():SetDesaturated (true)
+				end
+			end)
+			HideRightMicroFrameButton:SetPoint ("left", frame6.MicroDisplayRightDropdown, "right", 2, 0)
+			HideRightMicroFrameButton:SetNormalTexture ([[Interface\Buttons\UI-GroupLoot-Pass-Down]])
+			--HideRightMicroFrameButton:SetHighlightTexture ([[Interface\Buttons\UI-GROUPLOOT-PASS-HIGHLIGHT]])
+			HideRightMicroFrameButton:SetPushedTexture ([[Interface\Buttons\UI-GroupLoot-Pass-Up]])
+			HideRightMicroFrameButton:GetNormalTexture():SetDesaturated (true)
+			HideRightMicroFrameButton.tooltip = Loc ["STRING_OPTIONS_MICRODISPLAYS_SHOWHIDE_TOOLTIP"]
+			HideRightMicroFrameButton:SetHook ("OnEnter", function (self, capsule)
+				self:GetNormalTexture():SetBlendMode("ADD")
+			end)
+			HideRightMicroFrameButton:SetHook ("OnLeave", function (self, capsule)
+				self:GetNormalTexture():SetBlendMode("BLEND")
+			end)
+			
+			-------------
+			
+			local ConfigRightMicroFrameButton = g:NewButton (frame6.MicroDisplayRightDropdown, _, "$parentConfigRightMicroFrameButton", "ConfigRightMicroFrameButton", 18, 18, function (_, _, self)
+				_G.DetailsOptionsWindow.instance.StatusBar ["right"]:Setup()
+				_G.DetailsOptionsWindow.instance.StatusBar ["right"]:Setup()
+			end)
+			ConfigRightMicroFrameButton:SetPoint ("left", HideRightMicroFrameButton, "right", 1, -1)
+			ConfigRightMicroFrameButton:SetNormalTexture ([[Interface\Buttons\UI-OptionsButton]])
+			ConfigRightMicroFrameButton:SetHighlightTexture ([[Interface\Buttons\UI-OptionsButton]])
+			ConfigRightMicroFrameButton.tooltip = Loc ["STRING_OPTIONS_MICRODISPLAYS_OPTION_TOOLTIP"]
+			
+			local ConfigCenterMicroFrameButton = g:NewButton (frame6.MicroDisplayCenterDropdown, _, "$parentConfigCenterMicroFrameButton", "ConfigCenterMicroFrameButton", 18, 18, function (_, _, self)
+				_G.DetailsOptionsWindow.instance.StatusBar ["center"]:Setup()
+				_G.DetailsOptionsWindow.instance.StatusBar ["center"]:Setup()
+			end)
+			ConfigCenterMicroFrameButton:SetPoint ("left", HideCenterMicroFrameButton, "right", 1, -1)
+			ConfigCenterMicroFrameButton:SetNormalTexture ([[Interface\Buttons\UI-OptionsButton]])
+			ConfigCenterMicroFrameButton:SetHighlightTexture ([[Interface\Buttons\UI-OptionsButton]])
+			ConfigCenterMicroFrameButton.tooltip = Loc ["STRING_OPTIONS_MICRODISPLAYS_OPTION_TOOLTIP"]
+			
+			local ConfigLeftMicroFrameButton = g:NewButton (frame6.MicroDisplayLeftDropdown, _, "$parentConfigLeftMicroFrameButton", "ConfigLeftMicroFrameButton", 18, 18, function (_, _, self)
+				_G.DetailsOptionsWindow.instance.StatusBar ["left"]:Setup()
+				_G.DetailsOptionsWindow.instance.StatusBar ["left"]:Setup()
+			end)
+			ConfigLeftMicroFrameButton:SetPoint ("left", HideLeftMicroFrameButton, "right", 1, -1)
+			ConfigLeftMicroFrameButton:SetNormalTexture ([[Interface\Buttons\UI-OptionsButton]])
+			ConfigLeftMicroFrameButton:SetHighlightTexture ([[Interface\Buttons\UI-OptionsButton]])
+			ConfigLeftMicroFrameButton.tooltip = Loc ["STRING_OPTIONS_MICRODISPLAYS_OPTION_TOOLTIP"]
+			
+			
+--			local instance = _G.DetailsOptionsWindow.instance
+--			/dump _detalhes:GetInstance(1).StatusBar ["left"].real_name	
 	
 	--> show side bars
 		
@@ -5550,6 +5733,7 @@ function window:CreateFrame6()
 				instance:HideStatusBar()
 			end
 			instance:BaseFrameSnap()
+			window:update_microframes()
 		end
 
 		window:CreateLineBackground2 (frame6, "statusbarSlider", "statusbarLabel", Loc ["STRING_OPTIONS_SHOW_STATUSBAR_DESC"])
@@ -5668,6 +5852,11 @@ function window:CreateFrame6()
 			{"statusbarAnchorLabel", 1, true},
 			{"statusbarLabel", 2},
 			{"statusbarColorLabel", 3},
+			{"MicroDisplaysAnchor", 4, true},
+			{"MicroDisplayLeftLabel", 5},
+			{"MicroDisplayCenterLabel", 6},
+			{"MicroDisplayRightLabel", 7},
+			{"MicroDisplayWarningLabel", 8, true},
 		}
 	
 		window:arrange_menu (frame6, right_side, window.right_start_at, window.top_start_at)
@@ -7903,6 +8092,46 @@ end --> if not window
 			_G.DetailsOptionsWindow1LockButton.MyObject:SetText (Loc ["STRING_OPTIONS_WC_LOCK"])
 		end
 	end
+	
+	function window:update_microframes()
+	
+		local instance = _G.DetailsOptionsWindow.instance
+	
+		local hide_left_button = _G.DetailsOptionsWindow6MicroDisplayLeftDropdown.MyObject.HideLeftMicroFrameButton
+		if (instance.StatusBar ["left"].options.isHidden) then
+			hide_left_button:GetNormalTexture():SetDesaturated (false)
+		else
+			hide_left_button:GetNormalTexture():SetDesaturated (true)
+		end
+		
+		local hide_center_button = _G.DetailsOptionsWindow6MicroDisplayCenterDropdown.MyObject.HideCenterMicroFrameButton
+		if (instance.StatusBar ["center"].options.isHidden) then
+			hide_center_button:GetNormalTexture():SetDesaturated (false)
+		else
+			hide_center_button:GetNormalTexture():SetDesaturated (true)
+		end
+		
+		local hide_right_button = _G.DetailsOptionsWindow6MicroDisplayRightDropdown.MyObject.HideRightMicroFrameButton
+		if (instance.StatusBar ["right"].options.isHidden) then
+			hide_right_button:GetNormalTexture():SetDesaturated (false)
+		else
+			hide_right_button:GetNormalTexture():SetDesaturated (true)
+		end
+		
+		local left = instance.StatusBar ["left"].__name
+		local center = instance.StatusBar ["center"].__name
+		local right = instance.StatusBar ["right"].__name
+		
+		_G.DetailsOptionsWindow6MicroDisplayLeftDropdown.MyObject:Select (left)
+		_G.DetailsOptionsWindow6MicroDisplayCenterDropdown.MyObject:Select (center)
+		_G.DetailsOptionsWindow6MicroDisplayRightDropdown.MyObject:Select (right)
+
+		if (not instance.show_statusbar and instance.micro_displays_side == 2) then
+			_G.DetailsOptionsWindow6.MicroDisplayWarningLabel:Show()
+		else
+			_G.DetailsOptionsWindow6.MicroDisplayWarningLabel:Hide()
+		end
+	end
 
 	function window:update_all (editing_instance, section)
 
@@ -8096,6 +8325,17 @@ end --> if not window
 
 		_G.DetailsOptionsWindow6WindowScaleSlider.MyObject:SetFixedParameter (editing_instance)
 		_G.DetailsOptionsWindow6WindowScaleSlider.MyObject:SetValue (editing_instance.window_scale)
+
+		----
+		
+		_G.DetailsOptionsWindow6MicroDisplayLeftDropdown.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow6MicroDisplayCenterDropdown.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow6MicroDisplayRightDropdown.MyObject:SetFixedParameter (editing_instance)
+		
+		--_detalhes.StatusBar.Plugins[1].real_name
+		--_detalhes.StatusBar.Plugins[1].__name
+
+		window:update_microframes()
 
 		--> window 7
 		_G.DetailsOptionsWindow7MenuIconShadowSlider.MyObject:SetFixedParameter (editing_instance)

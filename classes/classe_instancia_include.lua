@@ -89,7 +89,17 @@ _detalhes.instance_defaults = {
 		--auto hide menu buttons
 		auto_hide_menu = {left = false, right = false},
 		--attribute text
-		attribute_text = {enabled = false, anchor = {5, 1}, text_face = "Friz Quadrata TT", text_size = 12, text_color = {1, 1, 1, 1}, side = 1, shadow = false},
+		attribute_text = {
+			enabled = false, 
+			anchor = {5, 1}, 
+			text_face = "Friz Quadrata TT", 
+			text_size = 12, 
+			text_color = {1, 1, 1, 1}, 
+			side = 1, 
+			shadow = false,
+			enable_custom_text = false,
+			custom_text = "{name}"
+		},
 	--auto hide window borders statusbar main menu
 		menu_alpha = {enabled = false, iconstoo = true, onenter = 1, onleave = 1, ignorebars = false},
 	--instance button anchor store the anchor point of instance and delete button

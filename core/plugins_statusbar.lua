@@ -31,17 +31,21 @@
 	--> hida all micro frames
 	function _detalhes.StatusBar:Hide (instance, side)
 		if (not side) then
-			instance.StatusBar.center.frame:Hide()
-			instance.StatusBar.left.frame:Hide()
-			instance.StatusBar.right.frame:Hide()
+			if (instance.StatusBar.center and instance.StatusBar.left and instance.StatusBar.right) then
+				instance.StatusBar.center.frame:Hide()
+				instance.StatusBar.left.frame:Hide()
+				instance.StatusBar.right.frame:Hide()
+			end
 		end
 	end
 	
 	function _detalhes.StatusBar:Show (instance, side)
 		if (not side) then
-			instance.StatusBar.center.frame:Show()
-			instance.StatusBar.left.frame:Show()
-			instance.StatusBar.right.frame:Show()
+			if (instance.StatusBar.center and instance.StatusBar.left and instance.StatusBar.right) then
+				instance.StatusBar.center.frame:Show()
+				instance.StatusBar.left.frame:Show()
+				instance.StatusBar.right.frame:Show()
+			end
 		end
 	end
 	
@@ -189,6 +193,10 @@
 		if (instance.StatusBar.left) then
 			_detalhes.StatusBar:SetLeftPlugin (instance, instance.StatusBar.left)
 		end
+		
+		if (not instance.show_statusbar and instance.micro_displays_side == 2) then
+			_detalhes.StatusBar:Hide (instance)
+		end
 	end
 	
 
@@ -265,10 +273,15 @@
 	end
 
 	function _detalhes.StatusBar:SetPlugin (instance, absolute_name, anchor)
-		local index = _detalhes.StatusBar:GetIndexFromAbsoluteName (absolute_name)
-		if (index and anchor) then
+		if (absolute_name == -1) then --> none
 			anchor = string.lower (anchor)
-			ChoosePlugin (nil, nil, index, instance.StatusBar [anchor], anchor)
+			ChoosePlugin (nil, nil, -1, instance.StatusBar [anchor], anchor)
+		else
+			local index = _detalhes.StatusBar:GetIndexFromAbsoluteName (absolute_name)
+			if (index and anchor) then
+				anchor = string.lower (anchor)
+				ChoosePlugin (nil, nil, index, instance.StatusBar [anchor], anchor)
+			end
 		end
 	end
 	
@@ -464,7 +477,7 @@
 	--> build-in function for create a frame for an plugin child
 	function _detalhes.StatusBar:CreateChildFrame (instance, name, w, h)
 		--local frame = _detalhes.gump:NewPanel (instance.baseframe.cabecalho.fechar, nil, name..instance:GetInstanceId(), nil, w or DEFAULT_CHILD_WIDTH, h or DEFAULT_CHILD_HEIGHT, false)
-		local frame = _detalhes.gump:NewPanel (instance.baseframe.DOWNFrame, nil, name..instance:GetInstanceId(), nil, w or DEFAULT_CHILD_WIDTH, h or DEFAULT_CHILD_HEIGHT, false)
+		local frame = _detalhes.gump:NewPanel (instance.baseframe, nil, name..instance:GetInstanceId(), nil, w or DEFAULT_CHILD_WIDTH, h or DEFAULT_CHILD_HEIGHT, false)
 
 		--create widgets
 		local text = _detalhes.gump:NewLabel (frame, nil, "$parentText", "text", "0")
@@ -1453,6 +1466,8 @@ window.locked = false
 window.close_with_right = true
 window.child = nil
 window.instance = nil
+window:SetFrameStrata ("FULLSCREEN")
+window:DisableGradient()
 
 local extraWindow = _detalhes.gump:NewPanel (window, nil, "DetailsStatusBarOptions2", "extra", 300, 180)
 extraWindow:SetPoint ("left", window, "right")
@@ -1461,6 +1476,7 @@ extraWindow.locked = false
 extraWindow:SetHook ("OnHide", function()
 	window:Hide()
 end)
+extraWindow:DisableGradient()
 
 --> text style
 	_detalhes.gump:NewLabel (window, _, "$parentTextStyleLabel", "textstyle", Loc ["STRING_PLUGINOPTIONS_TEXTSTYLE"])
