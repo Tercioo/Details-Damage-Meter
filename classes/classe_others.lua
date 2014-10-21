@@ -170,7 +170,7 @@ function _detalhes:ToolTipDead (instancia, morte, esta_barra, keydown)
 	
 	GameCooltip:Reset()
 	GameCooltip:SetType ("tooltipbar")
-	GameCooltip:SetOwner (esta_barra)
+	--GameCooltip:SetOwner (esta_barra)
 	
 	GameCooltip:AddLine (Loc ["STRING_REPORT_LEFTCLICK"], nil, 1, _unpack (self.click_to_report_color))
 	GameCooltip:AddIcon ([[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]], 1, 1, 12, 16, 0.015625, 0.13671875, 0.4375, 0.59765625)
@@ -254,7 +254,6 @@ function _detalhes:ToolTipDead (instancia, morte, esta_barra, keydown)
 			GameCooltip:AddStatusBar (0, 1, 1, 1, 1, 1, false, {value = 100, color = {.3, .3, .3, 1}, specialSpark = false, texture = [[Interface\AddOns\Details\images\bar_serenity]]})
 	end
 
-
 	GameCooltip:SetOption ("StatusBarHeightMod", -6)
 	GameCooltip:SetOption ("FixedWidth", 300)
 	GameCooltip:SetOption ("TextSize", 9)
@@ -262,6 +261,17 @@ function _detalhes:ToolTipDead (instancia, morte, esta_barra, keydown)
 	GameCooltip:SetOption ("RightBorderSize", 5)
 	GameCooltip:SetOption ("StatusBarTexture", [[Interface\AddOns\Details\images\bar4_reverse]])
 	GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0.64453125, 0}, {.8, .8, .8, 0.2}, true)
+	
+	local myPoint = _detalhes.tooltip.anchor_point
+	local anchorPoint = _detalhes.tooltip.anchor_relative
+	local x_Offset = _detalhes.tooltip.anchor_offset[1]
+	local y_Offset = _detalhes.tooltip.anchor_offset[2]
+	
+	if (_detalhes.tooltip.anchored_to == 1) then
+		GameCooltip:SetHost (esta_barra, myPoint, anchorPoint, x_Offset, y_Offset)
+	else
+		GameCooltip:SetHost (DetailsTooltipAnchor, myPoint, anchorPoint, x_Offset, y_Offset)
+	end
 	
 	GameCooltip:ShowCooltip()
 	

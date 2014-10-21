@@ -4598,11 +4598,7 @@ local build_mode_list = function (self, elapsed)
 		CoolTip:AddMenu (1, _detalhes.OpenOptionsWindow)
 		CoolTip:AddIcon ([[Interface\AddOns\Details\images\modo_icones]], 1, 1, 20, 20, 0.5, 0.625, 0, 1)
 		
-		if (instancia.toolbar_side == 1) then
-			CoolTip:SetOwner (self)
-		elseif (instancia.toolbar_side == 2) then --> bottom
-			CoolTip:SetOwner (self, "bottom", "top", 0, 0) -- -7
-		end
+		_detalhes:SetMenuOwner (self, instancia)
 		
 		CoolTip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], menu_wallpaper_tex, menu_wallpaper_color, true)
 		CoolTip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
@@ -4611,6 +4607,32 @@ local build_mode_list = function (self, elapsed)
 		
 		CoolTip:ShowCooltip()
 	end
+end
+
+function _detalhes:SetMenuOwner (self, instance)
+
+	local _, y = instance.baseframe:GetCenter()
+	local screen_height = GetScreenHeight()
+
+	if (instance.toolbar_side == 1) then
+		if (y+300 > screen_height) then
+			GameCooltip:SetOwner (self, "top", "bottom", 0, -10)
+		else
+			GameCooltip:SetOwner (self)
+		end
+		
+	elseif (instance.toolbar_side == 2) then --> bottom
+		
+		local instance_height = instance.baseframe:GetHeight()
+		
+		if (y + math.max (instance_height, 250) > screen_height) then
+			GameCooltip:SetOwner (self, "top", "bottom", 0, -10)
+		else
+			GameCooltip:SetOwner (self, "bottom", "top", 0, 0)
+		end
+		
+	end
+	
 end
 
 local segments_used = 0
@@ -4891,15 +4913,7 @@ local build_segment_list = function (self, elapsed)
 			
 		---------------------------------------------
 		
-		if (instancia.consolidate) then
-			CoolTip:SetOwner (self, "topleft", "topright", 3)
-		else
-			if (instancia.toolbar_side == 1) then
-				CoolTip:SetOwner (self)
-			elseif (instancia.toolbar_side == 2) then --> bottom
-				CoolTip:SetOwner (self, "bottom", "top", 0, 0) -- -7
-			end
-		end
+		_detalhes:SetMenuOwner (self, instancia)
 		
 		CoolTip:SetOption ("TextSize", _detalhes.font_sizes.menus)
 		CoolTip:SetOption ("SubMenuIsTooltip", true)
@@ -4913,8 +4927,6 @@ local build_segment_list = function (self, elapsed)
 		CoolTip:SetOption ("YSpacingModSub", -4)
 		
 		CoolTip:SetOption ("HeighMod", 12)
-		
-		--CoolTip:SetOption ("ButtonsYMod", -10)
 
 		--CoolTip:SetWallpaper (1, [[Interface\ACHIEVEMENTFRAME\UI-Achievement-Parchment-Horizontal-Desaturated]], nil, {1, 1, 1, 0.3})
 		CoolTip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], menu_wallpaper_tex, menu_wallpaper_color, true)
@@ -6184,11 +6196,14 @@ end
 --> reset button functions
 	local reset_button_onenter = function (self)
 	
+		local GameCooltip = GameCooltip
+	
 		OnEnterMainWindow (self.instance, self)
 		GameCooltip.buttonOver = true
 		self.instance.baseframe.cabecalho.button_mouse_over = true
 		
 		GameCooltip:Reset()
+		GameCooltip:SetType ("menu")
 		GameCooltip:SetOption ("ButtonsYMod", -2)
 		GameCooltip:SetOption ("YSpacingMod", 0)
 		GameCooltip:SetOption ("TextHeightMod", 0)
@@ -6212,7 +6227,8 @@ end
 		
 		show_anti_overlap (self.instance, self, "top")
 		
-		GameCooltip:ShowCooltip (self, "menu")
+		_detalhes:SetMenuOwner (self, self.instance)
+		GameCooltip:ShowCooltip()
 	end
 	
 	local reset_button_onleave = function (self)
@@ -6252,10 +6268,13 @@ end
 	local close_button_onenter = function (self)
 		OnEnterMainWindow (self.instance, self, 3)
 
+		local GameCooltip = GameCooltip
+		
 		GameCooltip.buttonOver = true
 		self.instance.baseframe.cabecalho.button_mouse_over = true
 		
 		GameCooltip:Reset()
+		GameCooltip:SetType ("menu")
 		GameCooltip:SetOption ("ButtonsYMod", -7)
 		GameCooltip:SetOption ("ButtonsYModSub", -2)
 		GameCooltip:SetOption ("YSpacingMod", 0)
@@ -6288,7 +6307,8 @@ end
 		
 		show_anti_overlap (self.instance, self, "top")
 		
-		GameCooltip:ShowCooltip (self, "menu")
+		_detalhes:SetMenuOwner (self, self.instance)
+		GameCooltip:ShowCooltip()
 	end
 	
 	local close_button_onleave = function (self)
@@ -6709,14 +6729,11 @@ function gump:CriaCabecalho (baseframe, instancia)
 		FixedValue = instancia,
 		ShowSpeed = 0.15,
 		Options = function()
-			if (instancia.consolidate) then
-				return {Anchor = instancia.consolidateFrame, MyAnchor = "topleft", RelativeAnchor = "topright", TextSize = _detalhes.font_sizes.menus}
-			else
-				if (instancia.toolbar_side == 1) then --top
-					return {TextSize = _detalhes.font_sizes.menus}
-				elseif (instancia.toolbar_side == 2) then --bottom
-					return {TextSize = _detalhes.font_sizes.menus, HeightAnchorMod = 0} -- -7
-				end
+			_detalhes:SetMenuOwner (baseframe.cabecalho.atributo.widget, instancia)
+			if (instancia.toolbar_side == 1) then --top
+				return {TextSize = _detalhes.font_sizes.menus}
+			elseif (instancia.toolbar_side == 2) then --bottom
+				return {TextSize = _detalhes.font_sizes.menus, HeightAnchorMod = 0} -- -7
 			end
 		end}
 	
@@ -6747,6 +6764,8 @@ function gump:CriaCabecalho (baseframe, instancia)
 				baseframe.cabecalho.button_mouse_over = true
 				
 				GameCooltip:Reset()
+				
+				GameCooltip:SetType ("menu")
 				GameCooltip:SetOption ("ButtonsYMod", -3)
 				GameCooltip:SetOption ("YSpacingMod", 0)
 				GameCooltip:SetOption ("TextHeightMod", 0)
@@ -6763,8 +6782,9 @@ function gump:CriaCabecalho (baseframe, instancia)
 				GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
 				
 				show_anti_overlap (instancia, self, "top")
+				_detalhes:SetMenuOwner (self, instancia)
 				
-				GameCooltip:ShowCooltip (self, "menu")
+				GameCooltip:ShowCooltip()
 				
 			end)
 			baseframe.cabecalho.report:SetScript ("OnLeave", function (self)
