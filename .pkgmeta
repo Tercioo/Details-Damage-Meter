@@ -11,4 +11,5 @@ move-folders:
     Details/plugins/Details_TinyThreat: Details_TinyThreat
     Details/plugins/Details_Vanguard: Details_Vanguard
     Details/plugins/Details_YouAreNotPrepared: Details_YouAreNotPrepared
-    Details/plugins/Details_DpsTuning: Details_DpsTuning
+    Details/plugins/Details_RaidInfo-BlackrockFoundry: Details_RaidInfo-BlackrockFoundry
+    Details/plugins/Details_RaidInfo-Highmaul: Details_RaidInfo-Highmaul

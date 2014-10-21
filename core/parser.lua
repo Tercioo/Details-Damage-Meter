@@ -622,7 +622,9 @@
 	}
 
 	local ignored_shields = {
-		[142862] = true --Ancient Barrier Malkorok
+		[142862] = true, --Ancient Barrier Malkorok
+		[114556] = true, --Purgatory (DK)
+		[115069] = true, -- Stance of the Sturdy Ox
 	}
 
 	function parser:heal_absorb (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spellschool, owner_serial, owner_name, owner_flags, owner_flags2, shieldid, shieldname, shieldtype, amount)
