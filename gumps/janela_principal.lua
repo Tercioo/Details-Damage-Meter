@@ -2736,11 +2736,12 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 	switchbutton:SetFrameLevel (backgrounddisplay:GetFrameLevel()+1)
 	
 	--> avoid mouse hover over a high window when the menu is open for a lower instance.
-	local anti_menu_overlap = CreateFrame ("frame", "Details_WindowFrameAntiMenuOverlap" .. ID, baseframe)
+	local anti_menu_overlap = CreateFrame ("frame", "Details_WindowFrameAntiMenuOverlap" .. ID, UIParent)
 	anti_menu_overlap:SetSize (100, 13)
 	anti_menu_overlap:SetFrameStrata ("DIALOG")
 	anti_menu_overlap:EnableMouse (true)
 	anti_menu_overlap:Hide()
+	--anti_menu_overlap:SetBackdrop (gump_fundo_backdrop)
 	baseframe.anti_menu_overlap = anti_menu_overlap
 
 -- scroll bar -----------------------------------------------------------------------------------------------------------------------------------------------
@@ -2821,7 +2822,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 		baseframe.button_stretch = CreateFrame ("button", "DetailsButtonStretch" .. instancia.meu_id, baseframe)
 		baseframe.button_stretch:SetPoint ("bottom", baseframe, "top", 0, 20)
 		baseframe.button_stretch:SetPoint ("right", baseframe, "right", -27, 0)
-		baseframe.button_stretch:SetFrameLevel (15)
+		baseframe.button_stretch:SetFrameLevel (1)
 		
 		local stretch_texture = baseframe.button_stretch:CreateTexture (nil, "overlay")
 		stretch_texture:SetTexture (DEFAULT_SKIN)
