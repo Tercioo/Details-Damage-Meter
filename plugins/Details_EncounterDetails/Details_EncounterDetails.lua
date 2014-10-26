@@ -292,6 +292,7 @@ local function CreatePluginFrames (data)
 	--> create the button to show on toolbar [1] function OnClick [2] texture [3] tooltip [4] width or 14 [5] height or 14 [6] frame name or nil
 	--EncounterDetails.ToolbarButton = _detalhes.ToolBar:NewPluginToolbarButton (EncounterDetails.OpenWindow, "Interface\\Scenarios\\ScenarioIcon-Boss", Loc ["STRING_PLUGIN_NAME"], Loc ["STRING_TOOLTIP"], 12, 12, "ENCOUNTERDETAILS_BUTTON") --"Interface\\COMMON\\help-i"
 	EncounterDetails.ToolbarButton = _detalhes.ToolBar:NewPluginToolbarButton (EncounterDetails.OpenWindow, "Interface\\AddOns\\Details_EncounterDetails\\images\\icon", Loc ["STRING_PLUGIN_NAME"], Loc ["STRING_TOOLTIP"], 16, 16, "ENCOUNTERDETAILS_BUTTON") --"Interface\\COMMON\\help-i"
+	EncounterDetails.ToolbarButton.shadow = true --> loads icon_shadow.tga when the instance is showing icons with shadows
 	--> setpoint anchors mod if needed
 	EncounterDetails.ToolbarButton.y = 0.5
 	EncounterDetails.ToolbarButton.x = 0
@@ -318,6 +319,18 @@ local shift_monitor = function (self)
 			self:GetScript ("OnEnter") (self)
 			self.showing_spelldesc = false
 		end
+	end
+end
+
+local sort_damage_from = function (a, b) 
+	if (a[3] ~= "PET" and b[3] ~= "PET") then 
+		return a[2] > b[2] 
+	elseif (a[3] == "PET" and b[3] ~= "PET") then
+		return false
+	elseif (a[3] ~= "PET" and b[3] == "PET") then
+		return true
+	else
+		return a[2] > b[2] 
 	end
 end
 
@@ -1139,46 +1152,35 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 				tabela.total = jogador.total
 				
 				--> em quem ele deu dano
-				for _, alvo in _ipairs (jogador.targets._ActorTable) do 
-					--local este_jogador = DamageContainer._ActorTable [DamageContainer._NameIndexTable [alvo.nome]]
-					local este_jogador = _combat_object (1, alvo.nome)
+				for target_name, amount in _pairs (jogador.targets) do
+					local este_jogador = _combat_object (1, target_name)
 					if (este_jogador) then
 						if (este_jogador.classe ~= "PET" and este_jogador.classe ~= "UNGROUPPLAYER" and este_jogador.classe ~= "UNKNOW") then
-							tabela.dano_em [#tabela.dano_em +1] = {alvo.nome, alvo.total, este_jogador.classe}
-							tabela.dano_em_total = tabela.dano_em_total + alvo.total
+							tabela.dano_em [#tabela.dano_em +1] = {target_name, amount, este_jogador.classe}
+							tabela.dano_em_total = tabela.dano_em_total + amount
 						end
 					else
 						--print ("actor not found: " ..alvo.nome )
 					end
 				end
-				_table_sort (tabela.dano_em, function(a, b) return a[2] > b[2] end)
+				_table_sort (tabela.dano_em, _detalhes.Sort2)
 				
 				--> quem deu dano nele
 				for agressor, _ in _pairs (jogador.damage_from) do 
 					--local este_jogador = DamageContainer._ActorTable [DamageContainer._NameIndexTable [agressor]]
 					local este_jogador = _combat_object (1, agressor)
 					if (este_jogador and este_jogador:IsPlayer()) then 
-						for _, alvo in _ipairs (este_jogador.targets._ActorTable) do 
-							if (alvo.nome == nome) then 
-								tabela.damage_from [#tabela.damage_from+1] = {agressor, alvo.total, este_jogador.classe}
-								tabela.damage_from_total = tabela.damage_from_total + alvo.total
+						for target_name, amount in _pairs (este_jogador.targets) do
+							if (target_name == nome) then 
+								tabela.damage_from [#tabela.damage_from+1] = {agressor, amount, este_jogador.classe}
+								tabela.damage_from_total = tabela.damage_from_total + amount
 							end
 						end
 					end
 				end
-				_table_sort (tabela.damage_from, 
-								function (a, b) 
-									if (a[3] ~= "PET" and b[3] ~= "PET") then 
-										return a[2] > b[2] 
-									elseif (a[3] == "PET" and b[3] ~= "PET") then
-										return false
-									elseif (a[3] ~= "PET" and b[3] == "PET") then
-										return true
-									else
-										return a[2] > b[2] 
-									end
-								end)
 				
+				_table_sort (tabela.damage_from, sort_damage_from)
+
 				tinsert (adds, tabela)
 				
 			end

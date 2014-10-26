@@ -414,17 +414,7 @@
 				end
 			
 			elseif (self.tipo == container_damage_target) then --> CONTAINER ALVO DO DAMAGE
-				if (shadow_objeto) then
-					novo_objeto.shadow = shadow_objeto
-				end
 			
-			elseif (self.tipo == container_heal_target) then --> CONTAINER ALVOS DO HEALING
-				novo_objeto.overheal = 0
-				novo_objeto.absorbed = 0
-				if (shadow_objeto) then
-					novo_objeto.shadow = shadow_objeto
-				end
-				
 			elseif (self.tipo == container_energy_target) then --> CONTAINER ALVOS DO ENERGY
 			
 				novo_objeto.mana = 0
@@ -488,9 +478,6 @@
 			
 		elseif (tipo == container_heal) then
 			return atributo_heal.NovaTabela
-			
-		elseif (tipo == container_friendlyfire) then
-			return atributo_damage.FF_funcao_de_criacao
 			
 		elseif (tipo == container_enemydebufftarget_target) then
 			return alvo_da_habilidade.NovaTabela

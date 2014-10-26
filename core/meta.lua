@@ -146,8 +146,6 @@
 									end
 								end
 
-								--shadow:FazLinkagem (esta_classe)
-
 							end
 						end
 						
@@ -266,16 +264,9 @@
 									local owner_actor = _combate (class_type, owner.nome)
 									if (owner_actor) then 
 										if (owner.grupo or owner.boss or owner.boss_fight_component) then
-											--if (class_type == 1) then
-											--	print ("SAVE",  _iter.data.nome, "| owner:",_iter.data.owner.nome, tabela_index)
-											--end
 											can_erase = false
 										end
 									end
-								else
-									--if (class_type == 1) then
-									--	print ("DELETANDO",  _iter.data.nome, tabela_index)
-									--end
 								end
 							end
 							
@@ -357,8 +348,7 @@
 					end
 
 					for _, esta_classe in _ipairs (conteudo) do 
-					
-						--> limpa o displayName, não precisa salvar
+
 						esta_classe.displayName = nil
 						esta_classe.owner = nil
 						
@@ -415,23 +405,23 @@
 						end
 						
 						if (class_type ~= class_type_misc) then
-							for _, _alvo in _ipairs (esta_classe.targets._ActorTable) do 
-								_detalhes.clear:c_alvo_da_habilidade (_alvo)
-							end
 							
-							for _, habilidade in _pairs (esta_classe.spell_tables._ActorTable) do
-								if (class_type == class_type_dano) then
-									_detalhes.clear:c_habilidade_dano (habilidade)
-								elseif (class_type == class_type_cura) then
-									_detalhes.clear:c_habilidade_cura (habilidade)
-								elseif (class_type == class_type_e_energy) then
-									_detalhes.clear:c_habilidade_e_energy (habilidade)
-								end
-								
-								for _, _alvo in ipairs (habilidade.targets._ActorTable) do
+							--sobrou apenas o energy
+							
+							if (class_type ~= class_type_dano and class_type ~= class_type_cura) then
+								for _, _alvo in _ipairs (esta_classe.targets._ActorTable) do 
 									_detalhes.clear:c_alvo_da_habilidade (_alvo)
 								end
+								
+								for _, habilidade in _pairs (esta_classe.spell_tables._ActorTable) do
+									_detalhes.clear:c_habilidade_e_energy (habilidade)
+									for _, _alvo in ipairs (habilidade.targets._ActorTable) do
+										_detalhes.clear:c_alvo_da_habilidade (_alvo)
+									end
+								end
+								
 							end
+
 						else
 							if (esta_classe.interrupt) then
 								for _, habilidade in _pairs (esta_classe.interrupt_spell_tables._ActorTable) do

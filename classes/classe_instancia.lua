@@ -198,6 +198,10 @@ function _detalhes:IsNormalMode()
 	end
 end
 
+function _detalhes:GetShowingCombat()
+	return self.showing
+end
+
 function _detalhes:GetCustomObject()
 	return _detalhes.custom [self.sub_atributo]
 end

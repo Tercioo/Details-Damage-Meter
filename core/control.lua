@@ -59,7 +59,7 @@
 			for _, actor in _ipairs (_detalhes.tabela_vigente[class_type_dano]._ActorTable) do 
 			
 				if (not actor.grupo and not actor.owner and not actor.nome:find ("[*]") and _bit_band (actor.flag_original, 0x00000060) ~= 0) then --> 0x20+0x40 neutral + enemy reaction
-					for name, _ in _pairs (actor.targets._NameIndexTable) do
+					for name, _ in _pairs (actor.targets) do
 						if (name == _detalhes.playername) then
 							return actor.nome
 						else
@@ -76,8 +76,8 @@
 			for _, actor in _ipairs (_detalhes.tabela_vigente[class_type_dano]._ActorTable) do 
 			
 				if (actor.grupo and not actor.owner) then
-					for index, target in _ipairs (actor.targets._ActorTable) do 
-						return target.nome
+					for target_name, _ in _pairs (actor.targets) do 
+						return target_name
 					end
 				end
 				
@@ -210,7 +210,9 @@
 								BossIndex = BossIds [serial]
 								if (BossIndex) then
 									Actor.boss = true
-									Actor.shadow.boss = true
+									if (Actor.shadow) then
+										Actor.shadow.boss = true
+									end
 									return boss_found (BossIndex, _detalhes:GetBossName (ZoneMapID, BossIndex), ZoneName, ZoneMapID, DifficultyID)
 								end
 							end
@@ -355,18 +357,6 @@
 			_detalhes:CatchRaidBuffUptime ("BUFF_UPTIME_OUT")
 			_detalhes:CatchRaidDebuffUptime ("DEBUFF_UPTIME_OUT")
 			_detalhes:CloseEnemyDebuffsUptime()
-			
-			--> ugly fix for warlocks soul link, need to rewrite friendly fire code.
-			for index, actor in pairs (_detalhes.tabela_vigente[1]._ActorTable) do
-				if (actor.classe == "WARLOCK") then
-					local soullink = actor.spell_tables._ActorTable [108446]
-					if (soullink) then
-						actor.total = actor.total - soullink.total
-						actor.total_without_pet = actor.total_without_pet - soullink.total
-						soullink.total = 0
-					end
-				end
-			end
 			
 			--> pega a zona do jogador e vê se foi uma luta contra um Boss -- identifica se a luta foi com um boss
 			if (not _detalhes.tabela_vigente.is_boss) then 
@@ -887,14 +877,14 @@
 				for _, actor in _ipairs (container._ActorTable) do 
 					if (actor.grupo) then
 						if (class_type == 1 or class_type == 2) then
-							for _, target_actor in _ipairs (actor.targets._ActorTable) do 
-								local target_object = container._ActorTable [container._NameIndexTable [target_actor.nome]]
+							for target_name, amount in _pairs (actor.targets) do 
+								local target_object = container._ActorTable [container._NameIndexTable [target_name]]
 								if (target_object) then
 									target_object.fight_component = true
 									if (target_object.shadow) then
 										target_object.shadow.fight_component = true
 									end
-									fight_component (energy_container, misc_container, target_actor.nome)
+									fight_component (energy_container, misc_container, target_name)
 								end
 							end
 							if (class_type == 1) then

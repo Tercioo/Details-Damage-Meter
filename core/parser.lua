@@ -49,6 +49,10 @@
 	local container_habilidades = _detalhes.container_habilidades --details local
 	
 	local spell_damage_func = _detalhes.habilidade_dano.Add --details local
+	local spell_damageMiss_func = _detalhes.habilidade_dano.AddMiss --details local
+	local spell_damageFF_func = _detalhes.habilidade_dano.AddFF --details local
+	
+	
 	local spell_heal_func = _detalhes.habilidade_cura.Add --details local
 	local spell_energy_func = _detalhes.habilidade_e_energy.Add --details local
 	
@@ -428,24 +432,14 @@
 				t.n = i
 			end
 		
-			--> faz a adução do friendly fire
+			--> faz a adição do friendly fire
 			este_jogador.friendlyfire_total = este_jogador.friendlyfire_total + amount
 			
-			local amigo = este_jogador.friendlyfire._NameIndexTable [alvo_name]
-			if (not amigo) then
-				amigo = este_jogador.friendlyfire:PegarCombatente (alvo_serial, alvo_name, alvo_flags, true)
-			else
-				amigo = este_jogador.friendlyfire._ActorTable [amigo]
-			end
+			local friend = este_jogador.friendlyfire [alvo_name] or este_jogador:CreateFFTable (alvo_name)
 
-			amigo.total = amigo.total + amount
+			friend.total = friend.total + amount
+			friend.spells [spellid] = (friend.spells [spellid] or 0) + amount
 
-			local spell = amigo.spell_tables._ActorTable [spellid]
-			if (not spell) then
-				spell = amigo.spell_tables:PegaHabilidade (spellid, true, token)
-			end
-
-			return spell:AddFF (amount) --adiciona a classe da habilidade, a classe da habilidade se encarrega de adicionar aos alvos dela
 		else
 			_current_total [1] = _current_total [1]+amount
 			
@@ -459,14 +453,8 @@
 			meu_dono.total = meu_dono.total + amount --> e adiciona o dano ao pet
 			
 			--> add owner targets
-			local owner_target = meu_dono.targets._NameIndexTable [alvo_name]
-			if (not owner_target) then
-				owner_target = meu_dono.targets:PegarCombatente (alvo_serial, alvo_name, alvo_flags, true) --retorna o objeto classe_target -> ALVO_DA_HABILIDADE:NovaTabela()
-			else
-				owner_target = meu_dono.targets._ActorTable [owner_target]
-			end
-			owner_target.total = owner_target.total + amount
-			
+			meu_dono.targets [alvo_name] = (meu_dono.targets [alvo_name] or 0) + amount
+
 			meu_dono.last_event = _tempo
 		end
 
@@ -477,23 +465,18 @@
 		este_jogador.total_without_pet = este_jogador.total_without_pet + amount
 
 		--> actor targets
-		local este_alvo = este_jogador.targets._NameIndexTable [alvo_name]
-		if (not este_alvo) then
-			este_alvo = este_jogador.targets:PegarCombatente (alvo_serial, alvo_name, alvo_flags, true) --retorna o objeto classe_target -> ALVO_DA_HABILIDADE:NovaTabela()
-		else
-			este_alvo = este_jogador.targets._ActorTable [este_alvo]
-		end
-		este_alvo.total = este_alvo.total + amount
-
+		este_jogador.targets [alvo_name] = (este_jogador.targets [alvo_name] or 0) + amount
+		
 		--> actor spells table
-		local spell = este_jogador.spell_tables._ActorTable [spellid]
+		local spell = este_jogador.spells._ActorTable [spellid]
 		if (not spell) then
-			spell = este_jogador.spell_tables:PegaHabilidade (spellid, true, token)
+			spell = este_jogador.spells:PegaHabilidade (spellid, true, token)
 		end
 		
 		return spell_damage_func (spell, alvo_serial, alvo_name, alvo_flags, amount, who_name, resisted, blocked, absorbed, critical, glacing, token, multistrike, isoffhand)
 	end
 
+	--function parser:swingmissed (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, missType, isOffHand, amountMissed)
 	function parser:swingmissed (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, missType, isOffHand, multistrike, amountMissed) --, isOffHand, multistrike, amountMissed, arg1
 		return parser:missed (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, 1, "Corpo-a-Corpo", 00000001, missType, isOffHand, multistrike, amountMissed) --, isOffHand, multistrike, amountMissed, arg1
 	end
@@ -503,9 +486,7 @@
 	end
 
 	function parser:missed (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, missType, isOffHand, multistrike, amountMissed, arg1)
-	--print (spellname, spelltype, missType, isOffHand, amountMissed, arg1, arg2)
-	
-	
+
 	------------------------------------------------------------------------------------------------
 	--> early checks and fixes
 
@@ -515,6 +496,7 @@
 
 	------------------------------------------------------------------------------------------------
 	--> get actors
+		--print ("MISS", "|", missType, "|", isOffHand, "|", multistrike, "|", amountMissed, "|", arg1)
 		
 		--> 'misser'
 		local este_jogador = damage_cache [who_name]
@@ -574,11 +556,12 @@
 	--> amount add
 		
 		--> actor spells table
-		local spell = este_jogador.spell_tables._ActorTable [spellid]
+		local spell = este_jogador.spells._ActorTable [spellid]
 		if (not spell) then
-			spell = este_jogador.spell_tables:PegaHabilidade (spellid, true, token)
+			spell = este_jogador.spells:PegaHabilidade (spellid, true, token)
 		end
-		return spell:AddMiss (alvo_serial, alvo_name, alvo_flags, who_name, missType)
+		return spell_damageMiss_func (spell, alvo_serial, alvo_name, alvo_flags, who_name, missType)
+		--return spell:AddMiss (alvo_serial, alvo_name, alvo_flags, who_name, missType)
 	end
 	
 -----------------------------------------------------------------------------------------------------------------------------------------
@@ -622,9 +605,9 @@
 	}
 
 	local ignored_shields = {
-		[142862] = true, --Ancient Barrier Malkorok
-		[114556] = true, --Purgatory (DK)
-		[115069] = true, -- Stance of the Sturdy Ox
+		[142862] = true, -- Ancient Barrier (Malkorok)
+		[114556] = true, -- Purgatory (DK)
+		[115069] = true, -- Stance of the Sturdy Ox (Monk)
 		[20711] = true, -- Spirit of Redemption (Priest)
 	}
 
@@ -801,48 +784,35 @@
 	--> add amount
 		
 		--> actor target
-		local este_alvo = este_jogador.targets._NameIndexTable [alvo_name]
-		if (not este_alvo) then
-			este_alvo = este_jogador.targets:PegarCombatente (alvo_serial, alvo_name, alvo_flags, true)
-		else
-			este_alvo = este_jogador.targets._ActorTable [este_alvo]
-		end
-		
+	
 		if (cura_efetiva > 0) then
 		
 			--> combat total
 			_current_total [2] = _current_total [2] + cura_efetiva
-		
+			
+			--> actor healing amount
+			este_jogador.total = este_jogador.total + cura_efetiva	
+			este_jogador.total_without_pet = este_jogador.total_without_pet + cura_efetiva
+			
 			--> healing taken 
 			jogador_alvo.healing_taken = jogador_alvo.healing_taken + cura_efetiva --> adiciona o dano tomado
 			if (not jogador_alvo.healing_from [who_name]) then --> adiciona a pool de dano tomado de quem
 				jogador_alvo.healing_from [who_name] = true
 			end
-			
-			--> actor healing amount
-			este_jogador.total = este_jogador.total + cura_efetiva
-			
+
 			if (is_shield) then
 				este_jogador.totalabsorb = este_jogador.totalabsorb + cura_efetiva
+				este_jogador.targets_absorbs [alvo_name] = (este_jogador.targets_absorbs [alvo_name] or 0) + cura_efetiva
 			end
 
-			este_jogador.total_without_pet = este_jogador.total_without_pet + cura_efetiva
-			
 			--> pet
 			if (meu_dono) then
 				meu_dono.total = meu_dono.total + cura_efetiva --> heal do pet
-				
-				local owner_target = meu_dono.targets._NameIndexTable [alvo_name]
-				if (not owner_target) then
-					owner_target = meu_dono.targets:PegarCombatente (alvo_serial, alvo_name, alvo_flags, true) --retorna o objeto classe_target -> ALVO_DA_HABILIDADE:NovaTabela()
-				else
-					owner_target = meu_dono.targets._ActorTable [owner_target]
-				end
-				owner_target.total = owner_target.total + amount
+				meu_dono.targets [alvo_name] = (meu_dono.targets [alvo_name] or 0) + amount
 			end
 			
 			--> target amount
-			este_alvo.total = este_alvo.total + cura_efetiva
+			este_jogador.targets [alvo_name] = (este_jogador.targets [alvo_name] or 0) + amount
 		end
 		
 		if (meu_dono) then
@@ -851,16 +821,17 @@
 		
 		if (overhealing > 0) then
 			este_jogador.totalover = este_jogador.totalover + overhealing
-			este_alvo.overheal = este_alvo.overheal + overhealing
+			este_jogador.targets_overheal [alvo_name] = (este_jogador.targets_overheal [alvo_name] or 0) + overhealing
+			
 			if (meu_dono) then
 				meu_dono.totalover = meu_dono.totalover + overhealing
 			end
 		end
 
 		--> actor spells table
-		local spell = este_jogador.spell_tables._ActorTable [spellid]
+		local spell = este_jogador.spells._ActorTable [spellid]
 		if (not spell) then
-			spell = este_jogador.spell_tables:PegaHabilidade (spellid, true, token)
+			spell = este_jogador.spells:PegaHabilidade (spellid, true, token)
 			if (is_shield) then
 				spell.is_shield = true
 			end
@@ -1892,9 +1863,9 @@
 					este_jogador = _current_damage_container:PegarCombatente (who_serial, who_name, who_flags, true)
 				end
 				--> actor spells table
-				local spell = este_jogador.spell_tables._ActorTable [spellid]
+				local spell = este_jogador.spells._ActorTable [spellid]
 				if (not spell) then
-					spell = este_jogador.spell_tables:PegaHabilidade (spellid, true, token)
+					spell = este_jogador.spells:PegaHabilidade (spellid, true, token)
 				end
 				spell.successful_casted = spell.successful_casted + 1
 				--print ("cast success", who_name, spellname)
