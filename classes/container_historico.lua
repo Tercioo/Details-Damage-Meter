@@ -308,7 +308,11 @@ function historico:resetar()
 	_table_wipe (_detalhes.cache_healing_group)
 	_detalhes:UpdateParserGears()
 
-	collectgarbage()
+	if (not InCombatLockdown() and not UnitAffectingCombat ("player")) then
+		collectgarbage()
+	else
+		_detalhes.schedule_hard_garbage_collect = true
+	end
 	
 	_detalhes:InstanciaCallFunction (_detalhes.AtualizaSegmentos) -- atualiza o instancia.showing para as novas tabelas criadas
 	_detalhes:InstanciaCallFunction (_detalhes.AtualizaSoloMode_AfertReset) -- verifica se precisa zerar as tabela da janela solo mode

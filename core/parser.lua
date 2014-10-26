@@ -494,15 +494,15 @@
 		return spell_damage_func (spell, alvo_serial, alvo_name, alvo_flags, amount, who_name, resisted, blocked, absorbed, critical, glacing, token, multistrike, isoffhand)
 	end
 
-	function parser:swingmissed (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, missType, isOffHand, amountMissed)
-		return parser:missed (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, 1, "Corpo-a-Corpo", 00000001, missType, isOffHand, amountMissed)
+	function parser:swingmissed (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, missType, isOffHand, multistrike, amountMissed) --, isOffHand, multistrike, amountMissed, arg1
+		return parser:missed (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, 1, "Corpo-a-Corpo", 00000001, missType, isOffHand, multistrike, amountMissed) --, isOffHand, multistrike, amountMissed, arg1
 	end
 
-	function parser:rangemissed (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, missType, isOffHand, amountMissed)
-		return parser:missed (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, 2, "Tiro-Automático", 00000001, missType, isOffHand, amountMissed)
+	function parser:rangemissed (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, missType, isOffHand, multistrike, amountMissed) --, isOffHand, multistrike, amountMissed, arg1
+		return parser:missed (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, 2, "Tiro-Automático", 00000001, missType, isOffHand, multistrike, amountMissed) --, isOffHand, multistrike, amountMissed, arg1
 	end
 
-	function parser:missed (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, missType, isOffHand, amountMissed, arg1, arg2)
+	function parser:missed (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, missType, isOffHand, multistrike, amountMissed, arg1)
 	--print (spellname, spelltype, missType, isOffHand, amountMissed, arg1, arg2)
 	
 	
@@ -625,6 +625,7 @@
 		[142862] = true, --Ancient Barrier Malkorok
 		[114556] = true, --Purgatory (DK)
 		[115069] = true, -- Stance of the Sturdy Ox
+		[20711] = true, -- Spirit of Redemption (Priest)
 	}
 
 	function parser:heal_absorb (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spellschool, owner_serial, owner_name, owner_flags, owner_flags2, shieldid, shieldname, shieldtype, amount)
@@ -2927,6 +2928,14 @@
 			_detalhes.schedule_add_to_overall = false
 
 			_detalhes.historico:adicionar_overall (_detalhes.tabela_vigente)
+		end
+		
+		if (_detalhes.schedule_hard_garbage_collect) then
+			if (_detalhes.debug) then
+				_detalhes:Msg ("(debug) found schedule collectgarbage().")
+			end
+			_detalhes.schedule_hard_garbage_collect = false
+			collectgarbage()
 		end
 		
 		for index, instancia in ipairs (_detalhes.tabela_instancias) do 

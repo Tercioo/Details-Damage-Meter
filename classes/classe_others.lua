@@ -1807,7 +1807,7 @@ function atributo_misc:ToolTipInterrupt (instancia, numero, barra)
 				quantidade [nome] = 1
 				
 				local my_self = instancia.showing[class_type]:PegarCombatente (nil, nome)
-				if (my_self) then
+				if (my_self and my_self.interrupt) then
 					totais [#totais+1] = {nome, my_self.interrupt}
 				end
 			else
