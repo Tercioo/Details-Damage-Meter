@@ -280,17 +280,13 @@
 										if (myself.grupo) then
 											_combate.totals_grupo [myself.tipo] = _combate.totals_grupo [myself.tipo] - myself.total
 										end
+										
 									elseif (myself.tipo == class_type_e_energy) then
-										_combate.totals [myself.tipo] ["mana"] = _combate.totals [myself.tipo] ["mana"] - myself.mana
-										_combate.totals [myself.tipo] ["e_rage"] = _combate.totals [myself.tipo] ["e_rage"] - myself.e_rage
-										_combate.totals [myself.tipo] ["e_energy"] = _combate.totals [myself.tipo] ["e_energy"] - myself.e_energy
-										_combate.totals [myself.tipo] ["runepower"] = _combate.totals [myself.tipo] ["runepower"] - myself.runepower
+										_combate.totals [myself.tipo] [myself.powertype] = _combate.totals [myself.tipo] [myself.powertype] - myself.total
 										if (myself.grupo) then
-											_combate.totals_grupo [myself.tipo] ["mana"] = _combate.totals_grupo [myself.tipo] ["mana"] - myself.mana
-											_combate.totals_grupo [myself.tipo] ["e_rage"] = _combate.totals_grupo [myself.tipo] ["e_rage"] - myself.e_rage
-											_combate.totals_grupo [myself.tipo] ["e_energy"] = _combate.totals_grupo [myself.tipo] ["e_energy"] - myself.e_energy
-											_combate.totals_grupo [myself.tipo] ["runepower"] = _combate.totals_grupo [myself.tipo] ["runepower"] - myself.runepower
+											_combate.totals_grupo [myself.tipo] [myself.powertype] = _combate.totals_grupo [myself.tipo] [myself.powertype] - myself.total
 										end
+										
 									elseif (myself.tipo == class_type_misc) then
 										if (myself.cc_break) then 
 											_combate.totals [myself.tipo] ["cc_break"] = _combate.totals [myself.tipo] ["cc_break"] - myself.cc_break 
@@ -404,25 +400,8 @@
 							end
 						end
 						
-						if (class_type ~= class_type_misc) then
-							
-							--sobrou apenas o energy
-							
-							if (class_type ~= class_type_dano and class_type ~= class_type_cura) then
-								for _, _alvo in _ipairs (esta_classe.targets._ActorTable) do 
-									_detalhes.clear:c_alvo_da_habilidade (_alvo)
-								end
-								
-								for _, habilidade in _pairs (esta_classe.spell_tables._ActorTable) do
-									_detalhes.clear:c_habilidade_e_energy (habilidade)
-									for _, _alvo in ipairs (habilidade.targets._ActorTable) do
-										_detalhes.clear:c_alvo_da_habilidade (_alvo)
-									end
-								end
-								
-							end
+						if (class_type == class_type_misc) then
 
-						else
 							if (esta_classe.interrupt) then
 								for _, habilidade in _pairs (esta_classe.interrupt_spell_tables._ActorTable) do
 									_detalhes.clear:c_habilidade_misc (habilidade)
@@ -594,7 +573,7 @@
 	end
 
 	function _detalhes:CheckMemoryAfterCombat()
-		if (_detalhes.next_memory_check < time()) then
+		if (_detalhes.next_memory_check < time() and not InCombatLockdown() and not UnitAffectingCombat ("player")) then
 			if (_detalhes.debug) then
 				_detalhes:Msg ("(debug) checking memory after combat.")
 			end
@@ -607,7 +586,7 @@
 		end
 	end
 	function _detalhes:CheckMemoryPeriodically()
-		if (_detalhes.next_memory_check <= time() and not _InCombatLockdown() and not _detalhes.in_combat) then
+		if (_detalhes.next_memory_check <= time() and not _InCombatLockdown() and not _detalhes.in_combat and not UnitAffectingCombat ("player")) then
 			_detalhes.next_memory_check = time() + _detalhes.intervalo_memoria - 3
 			UpdateAddOnMemoryUsage()
 			local memory = GetAddOnMemoryUsage ("Details")

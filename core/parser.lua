@@ -1451,6 +1451,13 @@
 	--> ENERGY	serach key: ~energy												|
 -----------------------------------------------------------------------------------------------------------------------------------------
 
+	local energy_types = {
+		[SPELL_POWER_MANA] = true,
+		[SPELL_POWER_RAGE] = true,
+		[SPELL_POWER_ENERGY] = true,
+		[SPELL_POWER_RUNIC_POWER] = true,
+	}
+
 	function parser:energize (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amount, powertype, p6, p7)
 
 	------------------------------------------------------------------------------------------------
@@ -1464,32 +1471,12 @@
 
 	------------------------------------------------------------------------------------------------
 	--> get regen key name
-		
-		local key_regenDone
-		local key_regenFrom 
-		local key_regenType
-		
-		if (powertype == 0) then --> MANA
-			key_regenDone = "mana_r"
-			key_regenFrom = "mana_from"
-			key_regenType = "mana"
-		elseif (powertype == 1) then --> RAGE
-			key_regenDone = "e_rage_r"
-			key_regenFrom = "e_rage_from"
-			key_regenType = "e_rage"
-		elseif (powertype == 3) then --> ENERGY
-			key_regenDone = "e_energy_r"
-			key_regenFrom = "e_energy_from"
-			key_regenType = "e_energy"
-		elseif (powertype == 6) then --> RUNEPOWER
-			key_regenDone = "runepower_r"
-			key_regenFrom = "runepower_from"
-			key_regenType = "runepower"
-		else
-			--> not tracking this regen type
+	
+		if (not energy_types [powertype]) then
+			--print ("power:", powertype)
 			return
 		end
-		
+
 		_current_energy_container.need_refresh = true
 		
 	------------------------------------------------------------------------------------------------
@@ -1499,6 +1486,7 @@
 		local este_jogador, meu_dono = energy_cache [who_name]
 		if (not este_jogador) then --> pode ser um desconhecido ou um pet
 			este_jogador, meu_dono, who_name = _current_energy_container:PegarCombatente (who_serial, who_name, who_flags, true)
+			este_jogador.powertype = powertype
 			if (not meu_dono) then --> se não for um pet, adicionar no cache
 				energy_cache [who_name] = este_jogador
 			end
@@ -1508,52 +1496,47 @@
 		local jogador_alvo, alvo_dono = energy_cache [alvo_name]
 		if (not jogador_alvo) then
 			jogador_alvo, alvo_dono, alvo_name = _current_energy_container:PegarCombatente (alvo_serial, alvo_name, alvo_flags, true)
+			jogador_alvo.powertype = powertype
 			if (not alvo_dono) then
 				energy_cache [alvo_name] = jogador_alvo
 			end
 		end
 		
-		--> actor targets
-		local este_alvo = este_jogador.targets._NameIndexTable [alvo_name]
-		if (not este_alvo) then
-			este_alvo = este_jogador.targets:PegarCombatente (alvo_serial, alvo_name, alvo_flags, true) --retorna o objeto classe_target -> ALVO_DA_HABILIDADE:NovaTabela()
-		else
-			este_alvo = este_jogador.targets._ActorTable [este_alvo]
+		if (jogador_alvo.powertype ~= este_jogador.powertype) then
+			print ("error: different power types: who -> ", este_jogador.powertype, " target -> ", jogador_alvo.powertype)
+			return
 		end
 		
 		este_jogador.last_event = _tempo
-
+		
 	------------------------------------------------------------------------------------------------
 	--> amount add
+	
+		--> target
+		este_jogador.targets [alvo_name] = (este_jogador.targets [alvo_name] or 0) + amount
 		
 		--> combat total
-		_current_total [3] [key_regenType] = _current_total [3] [key_regenType] + amount
+		_current_total [3] [powertype] = _current_total [3] [powertype] + amount
 		
 		if (este_jogador.grupo) then 
-			_current_gtotal [3] [key_regenType] = _current_gtotal [3] [key_regenType] + amount
+			_current_gtotal [3] [powertype] = _current_gtotal [3] [powertype] + amount
 		end
 
 		--> regen produced amount
-		este_jogador [key_regenType] = este_jogador [key_regenType] + amount
-		este_alvo [key_regenType] = este_alvo [key_regenType] + amount
-		
+		este_jogador.total = este_jogador.total + amount
+	
 		--> target regenerated amount
-		jogador_alvo [key_regenDone] = jogador_alvo [key_regenDone] + amount
-		
-		--> regen from
-		if (not jogador_alvo [key_regenFrom] [who_name]) then
-			jogador_alvo [key_regenFrom] [who_name] = true
-		end
+		jogador_alvo.received = jogador_alvo.received + amount
 		
 		--> owner
 		if (meu_dono) then
-			meu_dono [key_regenType] = meu_dono [key_regenType] + amount --> e adiciona o dano ao pet
+			meu_dono.total = meu_dono.total + amount
 		end
 
 		--> actor spells table
-		local spell = este_jogador.spell_tables._ActorTable [spellid]
+		local spell = este_jogador.spells._ActorTable [spellid]
 		if (not spell) then
-			spell = este_jogador.spell_tables:PegaHabilidade (spellid, true, token)
+			spell = este_jogador.spells:PegaHabilidade (spellid, true, token)
 		end
 		
 		--return spell:Add (alvo_serial, alvo_name, alvo_flags, amount, who_name, powertype)
