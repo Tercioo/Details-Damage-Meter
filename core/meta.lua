@@ -604,7 +604,7 @@
 	end
 
 	function _detalhes:CheckMemoryAfterCombat()
-		if (_detalhes.next_memory_check < time()) then
+		if (_detalhes.next_memory_check < time() and not InCombatLockdown() and not UnitAffectingCombat ("player")) then
 			if (_detalhes.debug) then
 				_detalhes:Msg ("(debug) checking memory after combat.")
 			end
@@ -617,7 +617,7 @@
 		end
 	end
 	function _detalhes:CheckMemoryPeriodically()
-		if (_detalhes.next_memory_check <= time() and not _InCombatLockdown() and not _detalhes.in_combat) then
+		if (_detalhes.next_memory_check <= time() and not _InCombatLockdown() and not _detalhes.in_combat and not UnitAffectingCombat ("player")) then
 			_detalhes.next_memory_check = time() + _detalhes.intervalo_memoria - 3
 			UpdateAddOnMemoryUsage()
 			local memory = GetAddOnMemoryUsage ("Details")

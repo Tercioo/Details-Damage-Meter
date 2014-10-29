@@ -454,6 +454,16 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 						_detalhes.move_janela_func (instance.baseframe, false, instance)
 					end
 				end
+			else
+				--> is in startup
+				for _, instance in _detalhes:ListInstances() do
+					for side, id in pairs (instance.snap) do
+						local window = _detalhes.tabela_instancias [id]
+						if (not window.ativa) then
+							instance.snap [side] = nil
+						end
+					end
+				end
 			end
 			
 		end
@@ -470,6 +480,10 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 		--> update tooltip settings
 		_detalhes:SetTooltipBackdrop()
 
+	if (_detalhes.initializing) then
+		_detalhes.profile_loaded = true
+	end
+		
 	--> end
 
 		return true	
