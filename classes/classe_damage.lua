@@ -146,6 +146,28 @@
 				return false
 			end
 			
+--[[ exported]]	function _detalhes:IsNeutralOrEnemy()
+				if (self.flag_original) then
+					if (_bit_band (self.flag_original, 0x00000060) ~= 0) then
+						return true
+					end
+				end
+				return false
+			end
+			
+--[[ exported]]	function _detalhes:IsEnemy()
+				if (self.flag_original) then
+					if (_bit_band (self.flag_original, 0x00000060) ~= 0) then
+						return true
+					end
+				end
+				return false
+			end
+			
+--[[ exported]]	function _detalhes:GetSpellList()
+				return self.spells._ActorTable
+			end			
+			
 			-- enemies (sort function)
 			local sortEnemies = function (t1, t2)
 				local a = _bit_band (t1.flag_original, 0x00000060)
@@ -3312,7 +3334,7 @@ end
 					--> soma todos os demais valores
 					for key, value in _pairs (habilidade) do 
 						if (_type (value) == "number") then
-							if (key ~= "id") then
+							if (key ~= "id" and key ~= "spellschool") then
 								if (not habilidade_shadow [key]) then 
 									habilidade_shadow [key] = 0
 								end
@@ -3453,7 +3475,7 @@ atributo_damage.__add = function (tabela1, tabela2)
 			--> soma os valores da habilidade
 			for key, value in _pairs (habilidade) do 
 				if (_type (value) == "number") then
-					if (key ~= "id") then
+					if (key ~= "id" and key ~= "spellschool") then
 						if (not habilidade_tabela1 [key]) then 
 							habilidade_tabela1 [key] = 0
 						end
@@ -3515,7 +3537,7 @@ atributo_damage.__sub = function (tabela1, tabela2)
 			--> subtrai os valores da habilidade
 			for key, value in _pairs (habilidade) do 
 				if (_type (value) == "number") then
-					if (key ~= "id") then
+					if (key ~= "id" and key ~= "spellschool") then
 						if (not habilidade_tabela1 [key]) then 
 							habilidade_tabela1 [key] = 0
 						end

@@ -204,6 +204,13 @@
 					_detalhes:Msg ("First hit: " .. (link or "") .. " from " .. (who_name or "Unknown"))
 				end
 				_detalhes:EntrarEmCombate (who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags)
+			else
+				--> entrar em combate se for dot e for do jogador e o ultimo combate ter sido a mais de 10 segundos atrás
+				if (token == "SPELL_PERIODIC_DAMAGE" and who_name == _detalhes.playername) then
+					if (_detalhes.last_combat_time+10 < _tempo) then
+						_detalhes:EntrarEmCombate (who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags)
+					end
+				end
 			end
 		end
 		
@@ -489,6 +496,7 @@
 		local spell = este_jogador.spell_tables._ActorTable [spellid]
 		if (not spell) then
 			spell = este_jogador.spell_tables:PegaHabilidade (spellid, true, token)
+			spell.spellschool = school
 		end
 		
 		return spell_damage_func (spell, alvo_serial, alvo_name, alvo_flags, amount, who_name, resisted, blocked, absorbed, critical, glacing, token, multistrike, isoffhand)

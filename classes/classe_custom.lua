@@ -176,6 +176,10 @@
 			return _detalhes:EndRefresh (instance, total, combat, combat [container_index])
 		end
 		
+		if (amount > #instance_container._ActorTable) then
+			amount = #instance_container._ActorTable
+		end
+
 		combat.totals [custom_object:GetName()] = total
 		
 		instance_container:Sort()
@@ -478,7 +482,15 @@
 
 		-- update tooltip function--
 
-		actor_class_color_r, actor_class_color_g, actor_class_color_b = self:GetBarColor()
+		if (self.id) then
+			local school_color = _detalhes.school_colors [self.classe]
+			if (not school_color) then
+				school_color = _detalhes.school_colors ["unknown"]
+			end
+			actor_class_color_r, actor_class_color_g, actor_class_color_b = _unpack (school_color)
+		else
+			actor_class_color_r, actor_class_color_g, actor_class_color_b = self:GetBarColor()
+		end
 		
 		self:RefreshBarra2 (row, instance, previous_table, is_forced, row_value, index, row_container)
 		
@@ -558,7 +570,15 @@
 	function atributo_custom:RefreshBarra (esta_barra, instancia, from_resize)
 		
 		if (from_resize) then
-			actor_class_color_r, actor_class_color_g, actor_class_color_b = self:GetBarColor()
+			if (self.id) then
+				local school_color = _detalhes.school_colors [self.classe]
+				if (not school_color) then
+					school_color = _detalhes.school_colors ["unknown"]
+				end
+				actor_class_color_r, actor_class_color_g, actor_class_color_b = _unpack (school_color)
+			else
+				actor_class_color_r, actor_class_color_g, actor_class_color_b = self:GetBarColor()
+			end
 		end
 		
 		if (instancia.row_info.texture_class_colors) then
@@ -599,8 +619,13 @@
 			esta_barra.icone_classe:SetVertexColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
 
 		else
-			esta_barra.icone_classe:SetTexture (instancia.row_info.icon_file)
-			esta_barra.icone_classe:SetTexCoord (_unpack (CLASS_ICON_TCOORDS [self.classe])) --very slow method
+			if (self.id) then
+				esta_barra.icone_classe:SetTexCoord (0, 1, 0, 1)
+				esta_barra.icone_classe:SetTexture (self.icon)
+			else
+				esta_barra.icone_classe:SetTexture (instancia.row_info.icon_file)
+				esta_barra.icone_classe:SetTexCoord (_unpack (CLASS_ICON_TCOORDS [self.classe])) --very slow method
+			end
 			esta_barra.icone_classe:SetVertexColor (1, 1, 1)
 		end
 
@@ -712,12 +737,20 @@
 	function atributo_custom:UpdateClass (actors)
 		actors.new_actor.classe = actors.actor.classe
 	end
-	
+
 	function atributo_custom:GetActorTable (actor)
 		local index = self._NameIndexTable [actor.nome]
+		
 		if (index) then
 			return self._ActorTable [index]
 		else
+			--> if is a spell object
+			if (actor.id) then
+				local spellname = _GetSpellInfo (actor.id)
+				actor.nome = spellname
+				actor.classe = actor.spellschool
+			end
+		
 			local new_actor = _setmetatable ({
 			nome = actor.nome,
 			classe = actor.classe,
@@ -726,11 +759,16 @@
 			
 			new_actor.displayName = new_actor.nome
 			
-			if (not new_actor.classe) then
-				new_actor.classe = _detalhes:GetClass (actor.nome) or "UNKNOW"
-			end
-			if (new_actor.classe == "UNGROUPPLAYER") then
-				atributo_custom:ScheduleTimer ("UpdateClass", 5, {new_actor = new_actor, actor = actor})
+			if (actor.id) then
+				new_actor.id = actor.id
+				new_actor.icon = select (3, _GetSpellInfo (actor.id))
+			else
+				if (not new_actor.classe) then
+					new_actor.classe = _detalhes:GetClass (actor.nome) or "UNKNOW"
+				end
+				if (new_actor.classe == "UNGROUPPLAYER") then
+					atributo_custom:ScheduleTimer ("UpdateClass", 5, {new_actor = new_actor, actor = actor})
+				end
 			end
 
 			index = #self._ActorTable+1
@@ -785,7 +823,16 @@
 		--> get the actor
 		local actor = self.my_actor
 		
-		local r, g, b = actor:GetClassColor()
+		local r, g, b
+		if (actor.id) then
+			local school_color = _detalhes.school_colors [actor.classe]
+			if (not school_color) then
+				school_color = _detalhes.school_colors ["unknown"]
+			end
+			r, g, b = _unpack (school_color)
+		else
+			r, g, b = actor:GetClassColor()
+		end
 		
 		_detalhes:AddTooltipSpellHeaderText (custom_object:GetName(), "yellow", 1, 0, 0, 0)
 		GameCooltip:AddIcon (custom_object:GetIcon(), 1, 1, 14, 14, 0.90625, 0.109375, 0.15625, 0.875)
@@ -1306,6 +1353,130 @@
 			setmetatable (HealActivityTime, _detalhes.atributo_custom)
 			HealActivityTime.__index = _detalhes.atributo_custom
 			self.custom [#self.custom+1] = HealActivityTime
+		end
+		
+---------------------------------------
+
+		local DamageTakenBySpell = {
+			name = Loc ["STRING_CUSTOM_DTBS"],
+			icon = [[Interface\ICONS\spell_mage_infernoblast]],
+			attribute = false,
+			spellid = false,
+			author = "Details!",
+			desc = Loc ["STRING_CUSTOM_DTBS_DESC"],
+			source = false,
+			target = false,
+			script = [[
+				--> get the parameters passed
+				local combat, instance_container, instance = ...
+
+				--> declade the values to return
+				local total, top, amount = 0, 0, 0
+
+				--> get a list of all damage actors
+				local AllDamageCharacters = combat:GetActorList (DETAILS_ATTRIBUTE_DAMAGE)
+
+				--> no amount increase for repeated spells
+				local NoRepeat = {}
+
+				--> do a loop amoung the actors
+				for index, character in ipairs (AllDamageCharacters) do
+					
+					--> is the actor a enemy?
+					if (character:IsEnemy()) then
+						
+						local AllSpells = character:GetSpellList()
+						
+						for spellid, spell in pairs (AllSpells) do
+							if (spell.total >= 1 and spellid > 10) then
+								instance_container:AddValue (spell, spell.total)
+								
+								total = total + spell.total
+								
+								if (top < spell.total) then
+									top = spell.total
+								end
+								
+								if (not NoRepeat [spellid]) then
+									amount = amount + 1
+									NoRepeat [spellid] = true
+								end
+							end
+						end
+						
+					end
+					
+				end
+
+				--> return
+				return total, top, amount
+			]],
+			tooltip = [[
+				--get the parameters passed
+				local actor, combat, instance = ...
+
+				--get the cooltip object (we do not use the convencional GameTooltip here)
+				local GameCooltip = GameCooltip
+
+				--Cooltip code
+
+				local from_spell = actor.id
+
+				--> get a list of all damage actors
+				local AllDamageCharacters = combat:GetActorList (DETAILS_ATTRIBUTE_DAMAGE)
+
+				--> hold the targets
+				local Targets = {}
+
+				for index, character in ipairs (AllDamageCharacters) do
+					if (character:IsEnemy()) then
+						local AllSpells = character:GetSpellList()
+						
+						for spellid, spell in pairs (AllSpells) do
+							if (spellid == from_spell) then
+								for targetname, amount in pairs (spell.targets) do
+									local got = false
+									for index, t in ipairs (Targets) do
+										if (t[1] == targetname) then
+											t[2] = t[2] + amount
+											got = true
+											break
+										end
+									end
+									if (not got) then
+										Targets [#Targets+1] = {targetname, amount}
+									end
+								end
+							end
+						end
+					end
+				end
+
+				table.sort (Targets, _detalhes.Sort2)
+
+				for index, t in ipairs (Targets) do
+					GameCooltip:AddLine (t[1], _detalhes:ToK2 (t[2]))
+					_detalhes:AddTooltipBackgroundStatusbar()
+					local class = _detalhes:GetClass (t[1])	
+					if (class) then
+						local texture, l, r, t, b = _detalhes:GetClassIcon (class)
+						GameCooltip:AddIcon (texture, 1, 1, 14, 14, l, r, t, b)
+					end
+				end
+			]],
+		}
+		
+		local have = false
+		for _, custom in ipairs (self.custom) do
+			if (custom.name == Loc ["STRING_CUSTOM_DTBS"]) then
+				have = true
+				break
+			end
+		end
+		if (not have) then
+			setmetatable (DamageTakenBySpell, _detalhes.atributo_custom)
+			DamageTakenBySpell.__index = _detalhes.atributo_custom
+			self.custom [#self.custom+1] = DamageTakenBySpell
 		end
 		
 	end
