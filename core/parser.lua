@@ -123,9 +123,6 @@
 		local _hook_battleress_container = _detalhes.hooks ["HOOK_BATTLERESS"]
 		local _hook_interrupt_container = _detalhes.hooks ["HOOK_INTERRUPT"]
 
-		local _hook_buffs = false --[[REMOVED]]
-		local _hook_buffs_container = _detalhes.hooks ["HOOK_BUFF"] --[[REMOVED]]
-
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> internal functions
 
@@ -208,6 +205,13 @@
 					_detalhes:Msg ("First hit: " .. (link or "") .. " from " .. (who_name or "Unknown"))
 				end
 				_detalhes:EntrarEmCombate (who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags)
+			else
+				--> entrar em combate se for dot e for do jogador e o ultimo combate ter sido a mais de 10 segundos atrás
+				if (token == "SPELL_PERIODIC_DAMAGE" and who_name == _detalhes.playername) then
+					if (_detalhes.last_combat_time+10 < _tempo) then
+						_detalhes:EntrarEmCombate (who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags)
+					end
+				end
 			end
 		end
 		
@@ -471,6 +475,7 @@
 		local spell = este_jogador.spells._ActorTable [spellid]
 		if (not spell) then
 			spell = este_jogador.spells:PegaHabilidade (spellid, true, token)
+			spell.spellschool = school
 		end
 		
 		return spell_damage_func (spell, alvo_serial, alvo_name, alvo_flags, amount, who_name, resisted, blocked, absorbed, critical, glacing, token, multistrike, isoffhand)
@@ -1422,16 +1427,6 @@
 			este_jogador.buff_uptime_spell_tables.shadow = este_jogador.shadow.buff_uptime_spell_tables
 		end	
 
-	------------------------------------------------------------------------------------------------
-	--> hook
-	
-		if (_hook_buffs) then
-			--> send event to registred functions
-			for _, func in _ipairs (_hook_buffs_container) do 
-				func (nil, token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, in_out)
-			end
-		end
-		
 	------------------------------------------------------------------------------------------------
 	--> add amount
 		
@@ -3305,12 +3300,6 @@ This workaround will consume a huge amount of Cpu (any addon which counts damage
 			_hook_interrupt = false
 		end
 		
-		if (_detalhes.hooks ["HOOK_BUFF"].enabled) then --[[REMOVED]]
-			_hook_buffs = true
-		else
-			_hook_buffs = false
-		end
-
 		return _detalhes:ClearParserCache()
 	end
 	

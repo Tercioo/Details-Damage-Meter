@@ -35,11 +35,7 @@ local container_pets =		_detalhes.container_pets
 local atributo_energy =		_detalhes.atributo_energy
 local habilidade_energy = 	_detalhes.habilidade_energy
 
---local container_damage_target = _detalhes.container_type.CONTAINER_DAMAGETARGET_CLASS
-local container_playernpc = _detalhes.container_type.CONTAINER_PLAYERNPC
 local container_energy = _detalhes.container_type.CONTAINER_ENERGY_CLASS
-local container_energy_target = _detalhes.container_type.CONTAINER_ENERGYTARGET_CLASS
---local container_friendlyfire = _detalhes.container_type.CONTAINER_FRIENDLYFIRE
 
 --local modo_ALONE = _detalhes.modos.alone
 local modo_GROUP = _detalhes.modos.group
@@ -49,10 +45,6 @@ local class_type = _detalhes.atributos.e_energy
 
 local DATA_TYPE_START = _detalhes._detalhes_props.DATA_TYPE_START
 local DATA_TYPE_END = _detalhes._detalhes_props.DATA_TYPE_END
-
-local div_abre = _detalhes.divisores.abre
-local div_fecha = _detalhes.divisores.fecha
-local div_lugar = _detalhes.divisores.colocacao
 
 local ToKFunctions = _detalhes.ToKFunctions
 local SelectedToKFunction = ToKFunctions [1]
@@ -79,13 +71,12 @@ function atributo_energy:NovaTabela (serial, nome, link)
 	local _new_energyActor = {
 	
 		last_event = 0,
-		tipo = class_type, --> atributo 3 = e_energy
+		tipo = class_type,
 
 		total = alphabetical,
 		received = alphabetical,
-		-- powertype = ?
 
-		last_value = nil, --> ultimo valor que este jogador teve, salvo quando a barra dele é atualizada
+		last_value = nil,
 
 		pets = {},
 		targets = {},
@@ -132,14 +123,6 @@ local sort_energy_group = function (t1, t2)
 		else
 			return t1.received > t2.received
 		end
-	end
-end
-
-local refresh_table = {}
-local reset_refresh_table = function()
-	for i = 1, #refresh_table do
-		local t = refresh_table [i]
-		t[1] = false
 	end
 end
 
@@ -848,15 +831,18 @@ function atributo_energy:MontaInfoRegenRecebido()
 	local container = tabela_do_combate [class_type] 
 	
 	local total_regenerado = self.received
+	local my_name = self.nome
+	local powertype = self.powertype
 	
 	--> spells:
 	local i = 1
 	
 	for index, actor in _ipairs (container._ActorTable) do
 		if (actor.powertype == powertype) then
-		
+
 			for spellid, spell in _pairs (actor.spells._ActorTable) do
-				local on_self = spell.targets [name]
+				local on_self = spell.targets [my_name]
+
 				if (on_self) then
 					local already_tracked = energy_tooltips_hash [spellid]
 					if (already_tracked) then
@@ -930,7 +916,7 @@ function atributo_energy:MontaInfoRegenRecebido()
 	for index, actor in _ipairs (container._ActorTable) do
 		if (actor.powertype == powertype) then
 
-			local on_self = actor.targets [name]
+			local on_self = actor.targets [my_name]
 			if (on_self) then
 				local t = energy_tooltips_table [i]
 				if (not t) then
@@ -987,6 +973,8 @@ function atributo_energy:MontaInfoRegenRecebido()
 		end	
 
 		barra.minha_tabela = self
+		
+		--print ("nome_inimigo = ", tabela [1])
 		barra.nome_inimigo = tabela [1]
 
 		barra:Show()
@@ -1083,22 +1071,28 @@ function atributo_energy:MontaDetalhesRegenRecebido (nome, barra)
 end
 
 function atributo_energy:MontaTooltipAlvos (esta_barra, index)
+
 	local instancia = info.instancia
 	local tabela_do_combate = instancia.showing
 	local container = tabela_do_combate [class_type] 
 	
 	local total_regenerado = self.received
+	local my_name = self.nome
 	
 	reset_tooltips_table()
 	
 	-- actor nome
-	local actor = container._ActorTable [_NameIndexTable [esta_barra.nome_inimigo]]
+	
+	local actor = container._ActorTable [container._NameIndexTable [esta_barra.nome_inimigo]]
+	
+	--print ("Mouse Over", actor, esta_barra.nome_inimigo, self.tipo)
+	
 	if (actor) then
 		--> spells:
 		local i = 1
 		
 		for spellid, spell in _pairs (actor.spells._ActorTable) do
-			local on_self = spell.targets [name]
+			local on_self = spell.targets [my_name]
 			if (on_self) then
 				local t = energy_tooltips_table [i]
 				if (not t) then
@@ -1112,6 +1106,8 @@ function atributo_energy:MontaTooltipAlvos (esta_barra, index)
 		
 		i = i - 1
 		_table_sort (energy_tooltips_table, _detalhes.Sort2)
+		
+		--print (i, #energy_tooltips_table)
 		
 		for index, spell in _ipairs (energy_tooltips_table) do
 			if (spell [2] < 1) then

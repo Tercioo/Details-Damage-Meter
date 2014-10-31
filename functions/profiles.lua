@@ -461,7 +461,19 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 						local window = _detalhes.tabela_instancias [id]
 						if (not window.ativa) then
 							instance.snap [side] = nil
+							if ((side == 1 or side == 3) and (not instance.snap [1] and not instance.snap [3])) then
+								instance.horizontalSnap = false
+							elseif ((side == 2 or side == 4) and (not instance.snap [2] and not instance.snap [4])) then
+								instance.verticalSnap = false
+							end
 						end
+					end
+					if (not instance:IsEnabled()) then
+						for side, id in pairs (instance.snap) do
+							instance.snap [side] = nil
+						end
+						instance.horizontalSnap = false
+						instance.verticalSnap = false
 					end
 				end
 			end
