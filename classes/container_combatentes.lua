@@ -311,7 +311,6 @@
 				
 				if (shadow_objeto) then
 					novo_objeto.shadow = shadow_objeto
-					novo_objeto:CriaLink (shadow_objeto) --> criando o link
 					if (novo_objeto.grupo and _detalhes.in_combat) then
 						_detalhes.cache_damage_group [#_detalhes.cache_damage_group+1] = novo_objeto
 					end
@@ -343,7 +342,6 @@
 				
 				if (shadow_objeto) then
 					novo_objeto.shadow = shadow_objeto
-					novo_objeto:CriaLink (shadow_objeto)  --> criando o link
 					if (novo_objeto.grupo and _detalhes.in_combat) then
 						_detalhes.cache_healing_group [#_detalhes.cache_healing_group+1] = novo_objeto
 					end
@@ -372,7 +370,6 @@
 				
 				if (shadow_objeto) then
 					novo_objeto.shadow = shadow_objeto
-					novo_objeto:CriaLink (shadow_objeto)  --> criando o link
 				end
 				
 				if (novo_objeto.classe == "UNGROUPPLAYER") then --> is a player
@@ -399,7 +396,6 @@
 				
 				if (shadow_objeto) then
 					novo_objeto.shadow = shadow_objeto
-					novo_objeto:CriaLink (shadow_objeto)  --> criando o link
 				end
 				
 				if (novo_objeto.classe == "UNGROUPPLAYER") then --> is a player

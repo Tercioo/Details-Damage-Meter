@@ -463,9 +463,47 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> sharer
 
+	local city_zones = {
+		["ShattrathCity"] = true,
+		["Dalaran"] = true,
+		
+		["AshranHordeFactionHub"] = true,
+		["AshranAllianceFactionHub"] = true,
+		
+		["Orgrimmar"] = true,
+		["Undercity"] = true,
+		["ThunderBluff"] = true,
+		["SilvermoonCity"] = true,
+		
+		["StormwindCity"] = true,
+		["Darnassus"] = true,
+		["Ironforge"] = true,
+		["TheExodar"] = true,
+	}
+	
+	local sub_zones = {
+		["ShrineofTwoMoons"] = true,
+		["ShrineofSevenStars"] = true,
+	}
+
+	function _detalhes:IsInCity()
+		SetMapToCurrentZone()
+		local mapFileName, _, _, _, microDungeonMapName = GetMapInfo()
+		
+		if (city_zones [mapFileName]) then
+			return true
+		elseif (microDungeonMapName and type (microDungeonMapName) == "string" and sub_zones [microDungeonMapName]) then
+			return true
+		end
+	end
+
 	--> entrar no canal após logar no servidor
 	function _detalhes:EnterChatChannel()
 		if (not _detalhes.realm_sync) then
+			return
+		end
+		
+		if (not _detalhes:IsInCity()) then
 			return
 		end
 		
@@ -555,7 +593,7 @@
 					_detalhes:CancelTimer (_detalhes.schedule_chat_leave)
 				end
 				if (not _detalhes.schedule_chat_enter) then
-					_detalhes.schedule_chat_enter = _detalhes:ScheduleTimer ("EnterChatChannel", 2)
+					_detalhes.schedule_chat_enter = _detalhes:ScheduleTimer ("EnterChatChannel", 30)
 				end
 			end
 		else
@@ -596,7 +634,7 @@
 				_detalhes:CancelTimer (_detalhes.schedule_chat_leave)
 			end
 			if (not _detalhes.schedule_chat_enter) then
-				_detalhes.schedule_chat_enter = _detalhes:ScheduleTimer ("EnterChatChannel", 2)
+				_detalhes.schedule_chat_enter = _detalhes:ScheduleTimer ("EnterChatChannel", 30)
 			end
 		end
 	end

@@ -2243,7 +2243,7 @@ function atributo_damage:MontaInfoDamageTaken()
 			local alvos = este_agressor.targets
 			local este_alvo = alvos [self.nome]
 			if (este_alvo) then
-				meus_agressores [#meus_agressores+1] = {nome, este_alvo.total, este_alvo.total/damage_taken*100, este_agressor.classe}
+				meus_agressores [#meus_agressores+1] = {nome, este_alvo, este_alvo/damage_taken*100, este_agressor.classe}
 			end
 		end
 	end
@@ -2713,17 +2713,11 @@ function atributo_damage:MontaDetalhesDamageTaken (nome, barra)
 	local minhas_magias = {}
 
 	for spellid, tabela in _pairs (conteudo) do --> da foreach em cada spellid do container
-	
-		--> preciso pegar os alvos que esta magia atingiu
-		local alvos = tabela.targets
-		local index = alvos._NameIndexTable[actor]
-		
-		if (index) then --> esta magia deu dano no actor
-			local este_alvo = alvos._ActorTable[index] --> pega a classe_target
+		local este_alvo = tabela.targets [actor]
+		if (este_alvo) then --> esta magia deu dano no actor
 			local spell_nome, rank, icone = _GetSpellInfo (spellid)
-			_table_insert (minhas_magias, {spellid, este_alvo.total, este_alvo.total/total*100, spell_nome, icone})
+			_table_insert (minhas_magias, {spellid, este_alvo, este_alvo/total*100, spell_nome, icone})
 		end
-
 	end
 
 	_table_sort (minhas_magias, _detalhes.Sort2)
@@ -2745,10 +2739,10 @@ function atributo_damage:MontaDetalhesDamageTaken (nome, barra)
 		if (index == 1) then
 			barra.textura:SetValue (100)
 		else
-			barra.textura:SetValue (tabela[2]/max_*100) --> muito mais rapido...
+			barra.textura:SetValue (tabela[2]/max_*100)
 		end
 
-		barra.texto_esquerdo:SetText (index..instancia.divisores.colocacao..tabela[4]) --seta o texto da esqueda
+		barra.texto_esquerdo:SetText (index .. "." .. tabela[4]) --seta o texto da esqueda
 		_detalhes:name_space_info (barra)
 		
 		barra.texto_direita:SetText (_detalhes:comma_value (tabela[2]) .." ".. instancia.divisores.abre .._cstr("%.1f", tabela[3]) .."%".. instancia.divisores.fecha) --seta o texto da direita

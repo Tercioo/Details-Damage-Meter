@@ -26,7 +26,7 @@
 		local _newMiscSpell = {
 			id = id,
 			counter = 0,
-			targets = container_combatentes:NovoContainer (container_misc_target)
+			targets = {}
 		}
 		
 		if (token == "BUFF_UPTIME" or token == "DEBUFF_UPTIME") then
@@ -40,12 +40,6 @@
 		elseif (token == "SPELL_AURA_BROKEN" or token == "SPELL_AURA_BROKEN_SPELL") then
 			_newMiscSpell.cc_break_oque = {}
 		end	
-
-		_setmetatable (_newMiscSpell, habilidade_misc)
-		
-		if (link) then
-			_newMiscSpell.targets.shadow = link.targets
-		end
 		
 		return _newMiscSpell
 	end
@@ -56,15 +50,8 @@
 			
 			if (spellName == "COOLDOWN") then
 				self.counter = self.counter + 1
-				
-				--> alvo
-				local alvo = self.targets._NameIndexTable [nome]
-				if (not alvo) then
-					alvo = self.targets:PegarCombatente (serial, nome, flag, true)
-				else
-					alvo = self.targets._ActorTable [alvo]
-				end
-				alvo.total = alvo.total + 1
+				--> target
+				self.targets [nome] = (self.targets [nome] or 0) + 1
 				
 			elseif (spellName == "BUFF_UPTIME_REFRESH") then
 				if (self.actived_at and self.actived) then
@@ -122,45 +109,23 @@
 			
 		elseif (token == "SPELL_INTERRUPT") then
 			self.counter = self.counter + 1
-
-			if (not self.interrompeu_oque [spellID]) then --> interrompeu_oque a NIL value
+			
+			if (not self.interrompeu_oque [spellID]) then 
 				self.interrompeu_oque [spellID] = 1
 			else
 				self.interrompeu_oque [spellID] = self.interrompeu_oque [spellID] + 1
 			end
 			
-			--alvo
-			local alvo = self.targets._NameIndexTable [nome]
-			if (not alvo) then
-				alvo = self.targets:PegarCombatente (serial, nome, flag, true)
-			else
-				alvo = self.targets._ActorTable [alvo]
-			end
-			alvo.total = alvo.total + 1		
+			--> target
+			self.targets [nome] = (self.targets [nome] or 0) + 1
 		
 		elseif (token == "SPELL_RESURRECT") then
-			if (not self.ress) then
-				self.ress = 1
-			else
-				self.ress = self.ress + 1
-			end
-			
-			--alvo
-			local alvo = self.targets._NameIndexTable [nome]
-			if (not alvo) then
-				alvo = self.targets:PegarCombatente (serial, nome, flag, true)
-			else
-				alvo = self.targets._ActorTable [alvo]
-			end
-			alvo.total = alvo.total + 1		
-			
+			self.ress = (self.ress or 0) + 1
+			--> target
+			self.targets [nome] = (self.targets [nome] or 0) + 1	
 			
 		elseif (token == "SPELL_DISPEL" or token == "SPELL_STOLEN") then
-			if (not self.dispell) then
-				self.dispell = 1
-			else
-				self.dispell = self.dispell + 1
-			end
+			self.dispell = (self.dispell or 0) + 1
 			
 			if (not self.dispell_oque [spellID]) then
 				self.dispell_oque [spellID] = 1
@@ -168,23 +133,11 @@
 				self.dispell_oque [spellID] = self.dispell_oque [spellID] + 1
 			end
 
-			--alvo
-			local alvo = self.targets._NameIndexTable [nome]
-			if (not alvo) then
-				alvo = self.targets:PegarCombatente (serial, nome, flag, true)
-			else
-				alvo = self.targets._ActorTable [alvo]
-			end
-			alvo.total = alvo.total + 1		
-			
+			--> target
+			self.targets [nome] = (self.targets [nome] or 0) + 1		
 			
 		elseif (token == "SPELL_AURA_BROKEN_SPELL" or token == "SPELL_AURA_BROKEN") then
-		
-			if (not self.cc_break) then
-				self.cc_break = 1
-			else
-				self.cc_break = self.cc_break + 1
-			end
+			self.cc_break = (self.cc_break or 0) + 1
 			
 			if (not self.cc_break_oque [spellID]) then
 				self.cc_break_oque [spellID] = 1
@@ -192,65 +145,8 @@
 				self.cc_break_oque [spellID] = self.cc_break_oque [spellID] + 1
 			end
 			
-			--alvo
-			local alvo = self.targets._NameIndexTable [nome]
-			if (not alvo) then
-				alvo = self.targets:PegarCombatente (serial, nome, flag, true)
-			else
-				alvo = self.targets._ActorTable [alvo]
-			end
-			alvo.total = alvo.total + 1
+			--> target
+			self.targets [nome] = (self.targets [nome] or 0) + 1	
 		end
 
-	end
-
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---> core
-
-	function _detalhes.refresh:r_habilidade_misc (habilidade, shadow) --recebeu o container shadow
-		_setmetatable (habilidade, habilidade_misc)
-		habilidade.__index = habilidade_misc
-		
-		if (shadow ~= -1) then
-			habilidade.shadow = shadow._ActorTable[habilidade.id]
-			_detalhes.refresh:r_container_combatentes (habilidade.targets, habilidade.shadow.targets)
-		else
-			_detalhes.refresh:r_container_combatentes (habilidade.targets, -1)
-		end
-	end
-
-	function _detalhes.clear:c_habilidade_misc (habilidade)
-		--habilidade.__index = {}
-		habilidade.__index = nil
-		habilidade.shadow = nil
-		
-		_detalhes.clear:c_container_combatentes (habilidade.targets)
-	end
-
-	habilidade_misc.__sub = function (tabela1, tabela2)
-
-		--interrupts & cooldowns
-		tabela1.counter = tabela1.counter - tabela2.counter
-		
-		--buff uptime ou debuff uptime
-		if (tabela1.uptime and tabela2.uptime) then
-			tabela1.uptime = tabela1.uptime - tabela2.uptime
-		end
-		
-		--ressesrs
-		if (tabela1.ress and tabela2.ress) then
-			tabela1.ress = tabela1.ress - tabela2.ress
-		end
-		
-		--dispells
-		if (tabela1.dispell and tabela2.dispell) then
-			tabela1.dispell = tabela1.dispell - tabela2.dispell
-		end
-		
-		--cc_breaks
-		if (tabela1.cc_break and tabela2.cc_break) then
-			tabela1.cc_break = tabela1.cc_break - tabela2.cc_break
-		end
-
-		return tabela1
 	end
