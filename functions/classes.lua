@@ -119,9 +119,9 @@ do
 		return self.classe or actor.classe
 	end
 	function _detalhes:GetActorSpells()
-		return self.spell_tables._ActorTable
+		return self.spells._ActorTable
 	end
 	function _detalhes:GetSpell (spellid)
-		return self.spell_tables._ActorTable [spellid]
+		return self.spells._ActorTable [spellid]
 	end
 end

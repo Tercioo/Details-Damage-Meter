@@ -294,7 +294,7 @@
 				end
 			end
 
-			local novo_objeto = self.funcao_de_criacao (_, serial, nome, shadow_objeto) --> shadow_objeto passa para o classe_damage gravar no .targets e .spell_tables, mas não grava nele mesmo
+			local novo_objeto = self.funcao_de_criacao (_, serial, nome, shadow_objeto) --> shadow_objeto passa para o classe_damage gravar no .targets e .spells, mas não grava nele mesmo
 			novo_objeto.nome = nome
 
 		-- tipo do container

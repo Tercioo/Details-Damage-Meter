@@ -149,21 +149,21 @@ function SlashCmdList.DETAILS (msg, editbox)
 		end
 		
 		if (cima) then
-			local frostbolt = self.spell_tables:PegaHabilidade (116, true, "SPELL_DAMAGE")
-			local frostfirebolt = self.spell_tables:PegaHabilidade (44614, true, "SPELL_DAMAGE")
-			local icelance = self.spell_tables:PegaHabilidade (30455, true, "SPELL_DAMAGE")
+			local frostbolt = self.spells:PegaHabilidade (116, true, "SPELL_DAMAGE")
+			local frostfirebolt = self.spells:PegaHabilidade (44614, true, "SPELL_DAMAGE")
+			local icelance = self.spells:PegaHabilidade (30455, true, "SPELL_DAMAGE")
 			
-			self.spell_tables._ActorTable [116].total = 50000
-			self.spell_tables._ActorTable [44614].total = 25000
-			self.spell_tables._ActorTable [30455].total = 25000
+			self.spells._ActorTable [116].total = 50000
+			self.spells._ActorTable [44614].total = 25000
+			self.spells._ActorTable [30455].total = 25000
 		else
-			local frostbolt = self.spell_tables:PegaHabilidade (84721, true, "SPELL_DAMAGE")
-			local frostfirebolt = self.spell_tables:PegaHabilidade (113092, true, "SPELL_DAMAGE")
-			local icelance = self.spell_tables:PegaHabilidade (122, true, "SPELL_DAMAGE")
+			local frostbolt = self.spells:PegaHabilidade (84721, true, "SPELL_DAMAGE")
+			local frostfirebolt = self.spells:PegaHabilidade (113092, true, "SPELL_DAMAGE")
+			local icelance = self.spells:PegaHabilidade (122, true, "SPELL_DAMAGE")
 			
-			self.spell_tables._ActorTable [84721].total = 50000
-			self.spell_tables._ActorTable [113092].total = 25000
-			self.spell_tables._ActorTable [122].total = 25000
+			self.spells._ActorTable [84721].total = 50000
+			self.spells._ActorTable [113092].total = 25000
+			self.spells._ActorTable [122].total = 25000
 		end
 		
 		combat.start_time = time()-30
@@ -483,8 +483,8 @@ function SlashCmdList.DETAILS (msg, editbox)
 				return
 			end
 			
-			if (playerActor and playerActor.buff_uptime_spell_tables and playerActor.buff_uptime_spell_tables._ActorTable) then
-				for spellid, spellTable in pairs (playerActor.buff_uptime_spell_tables._ActorTable) do 
+			if (playerActor and playerActor.buff_uptime_spells and playerActor.buff_uptime_spells._ActorTable) then
+				for spellid, spellTable in pairs (playerActor.buff_uptime_spells._ActorTable) do 
 					local spellname = GetSpellInfo (spellid)
 					if (spellname) then
 						print (spellid, spellname, spellTable.uptime)

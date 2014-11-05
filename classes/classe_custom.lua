@@ -1003,7 +1003,6 @@
 		TooltipMaximizedMethod = _detalhes.tooltip.maximize_method
 		atributo_custom:UpdateDamageDoneBracket()
 		atributo_custom:UpdateHealingDoneBracket()
-		atributo_custom:UpdateDamageTakenBracket()
 	end
 
 	function _detalhes:AddDefaultCustomDisplays()
@@ -1036,7 +1035,7 @@
 					local found_potion = false
 					
 					--get the spell debuff uptime container
-					local debuff_uptime_container = player.debuff_uptime and player.debuff_uptime_spell_tables and player.debuff_uptime_spell_tables._ActorTable
+					local debuff_uptime_container = player.debuff_uptime and player.debuff_uptime_spells and player.debuff_uptime_spells._ActorTable
 					if (debuff_uptime_container) then
 					    --potion of focus (can't use as pre-potion, so, its amount is always 1
 					    --local focus_potion = debuff_uptime_container [156432] --WoD
@@ -1053,7 +1052,7 @@
 					end
 					
 					--get the spell buff uptime container
-					local buff_uptime_container = player.buff_uptime and player.buff_uptime_spell_tables and player.buff_uptime_spell_tables._ActorTable
+					local buff_uptime_container = player.buff_uptime and player.buff_uptime_spells and player.buff_uptime_spells._ActorTable
 					if (buff_uptime_container) then
 					    
 					    --potion of the jade serpent
@@ -1135,7 +1134,7 @@
 			local player, combat, instance = ...
 
 			--get the debuff container for potion of focus
-			local debuff_uptime_container = player.debuff_uptime and player.debuff_uptime_spell_tables and player.debuff_uptime_spell_tables._ActorTable
+			local debuff_uptime_container = player.debuff_uptime and player.debuff_uptime_spells and player.debuff_uptime_spells._ActorTable
 			if (debuff_uptime_container) then
 			    --local focus_potion = debuff_uptime_container [156432] --WoD
 			    local focus_potion = debuff_uptime_container [105701] --MoP
@@ -1149,7 +1148,7 @@
 			end
 
 			--get the buff container for all the others potions
-			local buff_uptime_container = player.buff_uptime and player.buff_uptime_spell_tables and player.buff_uptime_spell_tables._ActorTable
+			local buff_uptime_container = player.buff_uptime and player.buff_uptime_spells and player.buff_uptime_spells._ActorTable
 			if (buff_uptime_container) then
 			    --potion of the jade serpent
 			    --local jade_serpent_potion = buff_uptime_container [156426] --WoD

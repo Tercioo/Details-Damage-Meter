@@ -1489,8 +1489,8 @@ function gump:CriaJanelaInfo()
 				local misc_player = combat (4, player.nome)
 				
 				if (misc_player) then
-					if (misc_player.cooldowns_defensive_spell_tables) then
-						local minha_tabela = misc_player.cooldowns_defensive_spell_tables._ActorTable
+					if (misc_player.cooldowns_defensive_spells) then
+						local minha_tabela = misc_player.cooldowns_defensive_spells._ActorTable
 						local cooldowns_usados = {}
 						
 						for _spellid, _tabela in pairs (minha_tabela) do
@@ -1519,8 +1519,8 @@ function gump:CriaJanelaInfo()
 
 				--> buffs uptime
 				if (index_used < 11) then
-					if (misc_player.buff_uptime_spell_tables) then
-						local minha_tabela = misc_player.buff_uptime_spell_tables._ActorTable
+					if (misc_player.buff_uptime_spells) then
+						local minha_tabela = misc_player.buff_uptime_spells._ActorTable
 						
 						local encounter_time = combat:GetCombatTime()
 						
@@ -2352,7 +2352,7 @@ function gump:CriaJanelaInfo()
 				frame1.tooltip.crit_label2:SetText (critical .. "%")
 				
 				if (player1_misc) then
-					local spell = player1_misc.debuff_uptime_spell_tables and player1_misc.debuff_uptime_spell_tables._ActorTable and player1_misc.debuff_uptime_spell_tables._ActorTable [spellid]
+					local spell = player1_misc.debuff_uptime_spells and player1_misc.debuff_uptime_spells._ActorTable and player1_misc.debuff_uptime_spells._ActorTable [spellid]
 					if (spell) then
 						local minutos, segundos = _math_floor (spell.uptime/60), _math_floor (spell.uptime%60)
 						player1_uptime = spell.uptime
@@ -2427,7 +2427,7 @@ function gump:CriaJanelaInfo()
 				end
 				
 				if (player2_misc) then
-					local spell = player2_misc.debuff_uptime_spell_tables and player2_misc.debuff_uptime_spell_tables._ActorTable and player2_misc.debuff_uptime_spell_tables._ActorTable [spellid]
+					local spell = player2_misc.debuff_uptime_spells and player2_misc.debuff_uptime_spells._ActorTable and player2_misc.debuff_uptime_spells._ActorTable [spellid]
 					if (spell and spell.uptime) then
 						local minutos, segundos = _math_floor (spell.uptime/60), _math_floor (spell.uptime%60)
 						
@@ -2522,7 +2522,7 @@ function gump:CriaJanelaInfo()
 				end
 
 				if (player3_misc) then
-					local spell = player3_misc.debuff_uptime_spell_tables and player3_misc.debuff_uptime_spell_tables._ActorTable and player3_misc.debuff_uptime_spell_tables._ActorTable [spellid]
+					local spell = player3_misc.debuff_uptime_spells and player3_misc.debuff_uptime_spells._ActorTable and player3_misc.debuff_uptime_spells._ActorTable [spellid]
 					if (spell and spell.uptime) then
 						local minutos, segundos = _math_floor (spell.uptime/60), _math_floor (spell.uptime%60)
 						

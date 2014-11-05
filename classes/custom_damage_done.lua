@@ -114,7 +114,7 @@
 					for name, _ in _pairs (this_actor.damage_from) do 
 						local aggressor = combat (1, name)
 						if (aggressor) then
-							local spell = aggressor.spell_tables._ActorTable [spellid]
+							local spell = aggressor.spells._ActorTable [spellid]
 							if (spell) then
 								local on_me = spell.targets [targetname]
 								if (on_me) then
@@ -175,7 +175,7 @@
 					GameCooltip:AddLine (targetactor.nome, FormatTooltipNumber (_, target_amount))
 				end
 			else
-				SortOrder (actor.spell_tables._ActorTable, spells_used_func, target)
+				SortOrder (actor.spells._ActorTable, spells_used_func, target)
 
 				for i = 1, #temp_table do
 				
@@ -202,7 +202,7 @@
 	function atributo_custom:damagedone (actor, source, target, spellid, combat, instance_container)
 
 		if (spellid) then --> spell is always damagedone
-			local spell = actor.spell_tables._ActorTable [spellid]
+			local spell = actor.spells._ActorTable [spellid]
 			if (spell) then
 				if (target) then
 					if (target == "[all]") then

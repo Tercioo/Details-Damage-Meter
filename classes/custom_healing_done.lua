@@ -115,7 +115,7 @@
 					for name, _ in _pairs (this_actor.healing_from) do 
 						local healer = combat (2, name)
 						if (healer) then
-							local spell = healer.spell_tables._ActorTable [spellid]
+							local spell = healer.spells._ActorTable [spellid]
 							if (spell) then
 								local on_me = spell.targets [targetname]
 								if (on_me) then
@@ -177,7 +177,7 @@
 				end
 				
 			else
-				SortOrder (actor.spell_tables._ActorTable, spells_used_func, target)
+				SortOrder (actor.spells._ActorTable, spells_used_func, target)
 
 				for i = 1, #temp_table do
 				
@@ -204,8 +204,8 @@
 	function atributo_custom:healdone (actor, source, target, spellid, combat, instance_container)
 
 		if (spellid) then --> spell is always healing done
-			local spell = actor.spell_tables._ActorTable [spellid]
-			local melee = actor.spell_tables._ActorTable [1]
+			local spell = actor.spells._ActorTable [spellid]
+			local melee = actor.spells._ActorTable [1]
 			if (spell) then
 				if (target) then
 					if (target == "[all]") then

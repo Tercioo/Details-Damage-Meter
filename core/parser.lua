@@ -1719,8 +1719,6 @@
 	--> search key: ~spellcast ~castspell ~cast
 	function parser:spellcast (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype)
 	
-		--print (token, time, "WHO:",who_serial, who_name, who_flags, "TARGET:",alvo_serial, alvo_name, alvo_flags, "SPELL:",spellid, spellname, spelltype)
-
 	------------------------------------------------------------------------------------------------
 	--> record cooldowns cast which can't track with buff applyed.
 	
@@ -1741,7 +1739,7 @@
 				return
 			end
 		else
-			--> successful casts (not interrupted)
+			--> enemy successful casts (not interrupted)
 			if (_bit_band (who_flags, 0x00000040) ~= 0 and who_name) then --> byte 2 = 4 (enemy)
 				--> damager
 				local este_jogador = damage_cache [who_name]
@@ -1757,73 +1755,9 @@
 			end
 			return
 		end
-		
-		
-	-- para aqui -- STOP HERE -- 
-	------------------------------------------------------------------------------------------------
-	--> record how many times the spell has been casted successfully
-
-		if (not who_name) then
-			who_name = "[*] ".. spellname
-		end
-		
-		if (not alvo_name) then
-			alvo_name = "[*] ".. spellid
-		end
-		
-		_current_misc_container.need_refresh = true
-
-	------------------------------------------------------------------------------------------------
-	--> get actors
-
-		--> main actor
-
-		local este_jogador, meu_dono = misc_cache [who_name]
-		if (not este_jogador) then --> pode ser um desconhecido ou um pet
-			este_jogador, meu_dono, who_name = _current_misc_container:PegarCombatente (who_serial, who_name, who_flags, true)
-			if (not meu_dono) then --> se não for um pet, adicionar no cache
-				misc_cache [who_name] = este_jogador
-			end
-		end
-		local shadow = este_jogador.shadow
-
-	------------------------------------------------------------------------------------------------
-	--> build containers on the fly
-
-		if (not este_jogador.spellcast) then
-			--> constrói aqui a tabela dele
-			este_jogador.spellcast = 0
-			este_jogador.spellcast_spell_tables = container_habilidades:NovoContainer (container_misc)
-
-			if (not este_jogador.shadow.spellcast_targets) then
-				este_jogador.shadow.spellcast = 0
-				este_jogador.shadow.spellcast_spell_tables = container_habilidades:NovoContainer (container_misc)
-			end
-
-			este_jogador.spellcast_targets.shadow = este_jogador.shadow.spellcast_targets
-			este_jogador.spellcast_spell_tables.shadow = este_jogador.shadow.spellcast_spell_tables
-		end
-		
-	------------------------------------------------------------------------------------------------
-	--> add amount
-
-		--> last event update
-		este_jogador.last_event = _tempo
-
-		--> actor dispell amount
-		este_jogador.spellcast = este_jogador.spellcast + 1
-		shadow.spellcast = shadow.spellcast + 1
-		
-		--> actor spells table
-		local spell = este_jogador.spellcast_spell_tables._ActorTable [spellid]
-		if (not spell) then
-			spell = este_jogador.spellcast_spell_tables:PegaHabilidade (spellid, true, token)
-		end
-		
-		return spell:Add (alvo_serial, alvo_name, alvo_flags, who_name, token)
 	end
 
-
+	
 	--serach key: ~dispell
 	function parser:dispell (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, extraSpellID, extraSpellName, extraSchool, auraType)
 		

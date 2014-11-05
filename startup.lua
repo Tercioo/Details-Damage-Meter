@@ -3,7 +3,6 @@
 if (
 	-- version 1.21.0
 	not _G._detalhes.atributo_custom.damagedoneTooltip or
-	not _G._detalhes.atributo_custom.damagetakenTooltip or
 	not _G._detalhes.atributo_custom.healdoneTooltip
 	) then
 	
@@ -313,13 +312,10 @@ function _G._detalhes:Start()
 			_detalhes:FillUserCustomSpells()
 			_detalhes:AddDefaultCustomDisplays()
 			
-			if (_detalhes_database.last_realversion and _detalhes_database.last_realversion < 31 and enable_reset_warning) then
-				for index, custom in ipairs (_detalhes.custom) do
-					if (custom.name == Loc ["STRING_CUSTOM_POT_DEFAULT"]) then
-						-- only on 14/11/2014
-						--_detalhes.atributo_custom:RemoveCustom (index)
-						break
-					end
+			--> Reset for the new structure
+			if (_detalhes_database.last_realversion and _detalhes_database.last_realversion < 43 and enable_reset_warning) then
+				for i = 1, #_detalhes.custom do
+					_detalhes.atributo_custom:RemoveCustom (i)
 				end
 				_detalhes:AddDefaultCustomDisplays()
 			end

@@ -719,27 +719,9 @@ function atributo_misc:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 
 end
 
---self = esta classe de dano
-
-function atributo_misc:Custom (_customName, _combat, sub_atributo, spell, alvo)
-	local _Skill = self.spell_tables._ActorTable [tonumber (spell)]
-	if (_Skill) then
-		local spellName = _GetSpellInfo (tonumber (spell))
-		local SkillTargets = _Skill.targets._ActorTable
-		
-		for _, TargetActor in _ipairs (SkillTargets) do 
-			local TargetActorSelf = _combat (class_type, TargetActor.nome)
-			TargetActorSelf.custom = TargetActor.total + TargetActorSelf.custom
-			_combat.totals [_customName] = _combat.totals [_customName] + TargetActor.total
-		end
-	end
-end
-
 local actor_class_color_r, actor_class_color_g, actor_class_color_b
 
 function atributo_misc:AtualizaBarra (instancia, barras_container, qual_barra, lugar, total, sub_atributo, forcar, keyName, is_dead, percentage_type, use_animations)
-
-	--print (self.ress)
 
 	local esta_barra = instancia.barras[qual_barra] --> pega a referência da barra na janela
 	
