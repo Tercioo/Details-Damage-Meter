@@ -776,53 +776,15 @@ function gump:CriaJanelaInfo()
 	este_gump.classe_iconePlus:SetHeight (64)
 	este_gump.classe_iconePlus:SetDrawLayer ("BACKGROUND", 2)
 	
-	--> cria as 4 partes do fundo da janela
-	
 	--> top left
 	este_gump.bg1 = este_gump:CreateTexture (nil, "BORDER")
 	este_gump.bg1:SetPoint ("TOPLEFT", este_gump, "TOPLEFT", 0, 0)
-	--este_gump.bg1:SetWidth (512)
-	--este_gump.bg1:SetHeight (256)
 	este_gump.bg1:SetDrawLayer ("BORDER", 1)
 	
 	function _detalhes:SetPlayerDetailsWindowTexture (texture)
 		este_gump.bg1:SetTexture (texture)
 	end
 	_detalhes:SetPlayerDetailsWindowTexture ("Interface\\AddOns\\Details\\images\\info_window_background")
-	
-	este_gump.bg1_sec_texture = este_gump:CreateTexture (nil, "BORDER")
-	este_gump.bg1_sec_texture:SetDrawLayer ("BORDER", 2)
-	--este_gump.bg1_sec_texture:SetPoint ("topleft", este_gump.bg1, "topleft", 356, -86)
-	este_gump.bg1_sec_texture:SetPoint ("topleft", este_gump.bg1, "topleft", 348, -86)
-	este_gump.bg1_sec_texture:SetHeight (262)
-	este_gump.bg1_sec_texture:SetWidth (264)
-
-	--> bottom left
-	este_gump.bg3 = este_gump:CreateTexture (nil, "BORDER")
-	--este_gump.bg3:SetPoint ("BOTTOMLEFT", este_gump, "BOTTOMLEFT", 0, 0)
-	este_gump.bg3:SetPoint ("TOPLEFT", este_gump, "TOPLEFT", 0, -256)
-	este_gump.bg3:SetWidth (512)
-	este_gump.bg3:SetHeight (128)
-	este_gump.bg3:SetTexture ("Interface\\AddOns\\Details\\images\\info_bg_part3") 
-	este_gump.bg3:Hide()
-	
-	--> top right
-	este_gump.bg2 = este_gump:CreateTexture (nil, "BORDER")
-	este_gump.bg2:SetPoint ("TOPLEFT", este_gump, "TOPLEFT", 512, 0)
-	este_gump.bg2:SetWidth (128)
-	este_gump.bg2:SetHeight (128)
-	este_gump.bg2:SetTexture ("Interface\\AddOns\\Details\\images\\info_bg_part2") 
-	este_gump.bg2:Hide()
-	
-	--> bottom right
-	este_gump.bg4 = este_gump:CreateTexture (nil, "BORDER")
-	--este_gump.bg4:SetPoint ("BOTTOMRIGHT", este_gump, "BOTTOMRIGHT", 0, 0)
-	--este_gump.bg4:SetPoint ("BOTTOMLEFT", este_gump, "BOTTOMLEFT", 512, 0)
-	este_gump.bg4:SetPoint ("TOPLEFT", este_gump, "TOPLEFT", 512, -128)
-	este_gump.bg4:SetWidth (128)
-	este_gump.bg4:SetHeight (256)
-	este_gump.bg4:SetTexture ("Interface\\AddOns\\Details\\images\\info_bg_part4") 
-	este_gump.bg4:Hide()
 
 	--> botão de fechar
 	este_gump.fechar = _CreateFrame ("Button", nil, este_gump, "UIPanelCloseButton")
@@ -844,19 +806,6 @@ function gump:CriaJanelaInfo()
 	este_gump.no_targets.text:SetText (Loc ["STRING_NO_TARGET_BOX"])
 	este_gump.no_targets.text:SetTextColor (1, 1, 1, .4)
 	este_gump.no_targets:Hide()
-	
-	function este_gump:ToFront()
-		if (_detalhes.bosswindow) then
-			if (_detalhes.bosswindow:GetFrameLevel() > este_gump:GetFrameLevel()) then 
-				este_gump:SetFrameLevel (este_gump:GetFrameLevel()+3)
-				_detalhes.bosswindow:SetFrameLevel (_detalhes.bosswindow:GetFrameLevel()-3)
-			end
-		end
-	end
-	
-	este_gump.grab = gump:NewDetailsButton (este_gump, este_gump, _, este_gump.ToFront, nil, nil, 590, 73, "", "", "", "", {OnGrab = "PassClick"}, "DetailsJanelaInfoGrab")
-	este_gump.grab:SetPoint ("topleft",este_gump, "topleft")
-	este_gump.grab:SetFrameLevel (este_gump:GetFrameLevel()+1)
 	
 	--> titulo
 	gump:NewLabel (este_gump, este_gump, nil, "titulo", Loc ["STRING_PLAYER_DETAILS"], "GameFontHighlightLeft", 12, {227/255, 186/255, 4/255})

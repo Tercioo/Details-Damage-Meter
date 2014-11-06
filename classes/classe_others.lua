@@ -2157,7 +2157,7 @@ local refresh_alvos = function (container1, container2)
 end
 local refresh_habilidades = function (container1, container2)
 	for spellid, habilidade in _pairs (container2._ActorTable) do 
-		local habilidade_shadow = shadow [container]:PegaHabilidade (spellid, true, nil, true)
+		local habilidade_shadow = container1:PegaHabilidade (spellid, true, nil, true)
 		refresh_alvos (habilidade_shadow.targets , habilidade.targets)
 	end
 end

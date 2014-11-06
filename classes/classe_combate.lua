@@ -55,11 +55,15 @@
 		return self.TimeData [name]
 	end
 	
+	function combate:GetContainer (attribute)
+		return self [attribute]
+	end
+	
 	function combate:IsTrash()
 		return _rawget (self, "is_trash")
 	end
 	
-	function combate:GetDifficult()
+	function combate:GetDifficulty()
 		return self.is_boss and self.is_boss.diff
 	end
 	

@@ -1,8 +1,3 @@
---File Revision: 1
---Last Modification: 27/07/2013
--- Change Log:
-	-- 27/07/2013: Finished alpha version.
-
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 	local _detalhes = 		_G._detalhes
@@ -611,21 +606,6 @@
 				if (not _actor.owner) then --> pet
 					_actor:subtract_total (_combate)
 				end
-			
-				--> fix para a weak table
-				--[[
-				local shadow = _actor.shadow
-				local _it = {index = 1, link = shadow.links [1]}
-				while (_it.link) do
-					if (_it.link == _actor) then
-						_table_remove (shadow.links, _it.index)
-						_it.link = shadow.links [_it.index]
-					else
-						_it.index = _it.index+1
-						_it.link = shadow.links [_it.index]
-					end
-				end
-				--]]
 				
 				_iter.cleaned = _iter.cleaned+1
 				
@@ -685,32 +665,13 @@
 		
 			local _actor = _iter.data
 		
-		--[[
-			local meus_links = _rawget (_actor, "links")
-			local can_garbage = true
-			local new_weak_table = _setmetatable ({}, _detalhes.weaktable) --> precisa da nova weak table para remover os NILS da tabela antiga
-			
-			if (meus_links) then
-				for _, ref in _pairs (meus_links) do --> trocando pairs por _ipairs
-					if (ref) then
-						can_garbage = false
-						new_weak_table [#new_weak_table+1] = ref
-					end
-				end
-				_table_wipe (meus_links)
-			end
-		--]]
-		
 			local can_garbage = false
 			if (not _actor.grupo and not _actor.owner and not _actor.boss_fight_component and not _actor.fight_component) then
 				can_garbage = true
 			end
 		
-			--if (can_garbage or not meus_links) then --> não há referências a este objeto
 			if (can_garbage) then --> não há referências a este objeto
-				
-				--print ("garbaged:", _actor.nome)
-				
+
 				if (not _actor.owner) then --> pet
 					_actor:subtract_total (_overall_combat)
 				end
@@ -718,20 +679,10 @@
 				--> apaga a referência deste jogador na tabela overall
 				_iter.cleaned = _iter.cleaned+1
 				
-				--if (_detalhes.debug) then
-				--	if (#_actor.links > 0) then
-				--		_detalhes:Msg ("(debug) " .. _actor.nome, " has been garbaged but have links: ", #_actor.links)
-				--	end
-				--end
-				
-				if (_actor.tipo == 1 or _actor.tipo == 2) then
-					_actor:DesregistrarNaTimeMachine()
-				end
 				_table_remove (conteudo, _iter.index)
 
 				_iter.data = conteudo [_iter.index]
 			else
-				--_actor.links = new_weak_table
 				_iter.index = _iter.index + 1
 				_iter.data = conteudo [_iter.index]
 			end
