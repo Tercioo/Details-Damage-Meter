@@ -947,14 +947,7 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 		
 	else
 	
-		if (instancia.atributo == 5) then --> custom
-			--> faz o sort da categoria e retorna o amount corrigido
-			amount = _detalhes:ContainerSort (conteudo, amount, keyName)
-			
-			--> grava o total
-			instancia.top = conteudo[1][keyName]
-			
-		elseif (keyName == "enemies") then 
+		if (keyName == "enemies") then 
 		
 			amount, total = _detalhes:ContainerSortEnemies (conteudo, amount, "total")
 			--keyName = "enemies"
@@ -1223,22 +1216,11 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 				end
 			end
 		end
-		
+	
 	end
 	
 	if (use_animations) then
 		instancia:fazer_animacoes()
-	end
-
-	if (instancia.atributo == 5) then --> custom
-		--> zerar o .custom dos Actors
-		for index, player in _ipairs (conteudo) do
-			if (player.custom > 0) then 
-				player.custom = 0
-			else
-				break
-			end
-		end
 	end
 	
 	--> beta, hidar barras não usadas durante um refresh forçado
@@ -1251,7 +1233,7 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 	end
 	
 	return _detalhes:EndRefresh (instancia, total, tabela_do_combate, showing) --> retorna a tabela que precisa ganhar o refresh
-
+	
 end
 
 function _detalhes:FastRefreshWindow (instancia)

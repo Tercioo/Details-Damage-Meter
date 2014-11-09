@@ -432,7 +432,7 @@ function _G._detalhes:Start()
 
 	--> get in the realm chat channel
 	if (not _detalhes.schedule_chat_enter and not _detalhes.schedule_chat_leave) then
-		_detalhes.schedule_chat_enter = _detalhes:ScheduleTimer ("EnterChatChannel", 30)
+		_detalhes.schedule_chat_enter = _detalhes:ScheduleTimer ("EnterChatChannel", 60)
 	end
 
 	--> open profiler 

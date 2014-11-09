@@ -502,13 +502,26 @@ function SlashCmdList.DETAILS (msg, editbox)
 	
 	elseif (msg == "comm") then
 		
-		if (IsInRaid()) then
-			for i = 1, GetNumGroupMembers() do 
-				local nname, server = UnitName ("raid"..i)
-				print (nname, server)
-				--nname = nname.."-"..server
+		local test_plugin = TESTPLUGIN
+		if (not test_plugin) then
+			local p = _detalhes:NewPluginObject ("DetailsTestPlugin", nil, "STATUSBAR")
+			_detalhes:InstallPlugin ("STATUSBAR", "Plugin Test", [[Interface\COMMON\StreamCircle]], p, "TESTPLUGIN", 1, "Details!", "v1.0")
+			test_plugin = TESTPLUGIN
+			
+			function test_plugin:ReceiveAA (a, b, c, d, e, f, g)
+				print (a, b, c, d, e, f, g)
 			end
+			
+			function test_plugin:ReceiveAB (a, b, c, d, e, f, g)
+				print (a, b, c, d, e, f, g)
+			end
+			
+			test_plugin:RegisterPluginComm ("PTAA", "ReceiveAA")
+			test_plugin:RegisterPluginComm ("PTAB", "ReceiveAB")
 		end
+		
+		test_plugin:SendPluginCommMessage ("PTAA", nil, "teste 1", "teste 2", "teste3")
+		
 
 	elseif (msg == "teste") then
 		

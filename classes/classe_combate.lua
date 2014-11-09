@@ -126,11 +126,15 @@
 			end
 			
 		elseif (attribute == 3) then
+			if (subAttribute == 5) then --> resources
+				return self.totals.resources or 0
+			end
 			if (onlyGroup) then
 				return self.totals_grupo [attribute] [power_table [subAttribute]]
 			else
 				return self.totals [attribute] [power_table [subAttribute]]
 			end
+			
 		elseif (attribute == 4) then
 			local subName = _detalhes:GetInternalSubAttributeName (attribute, subAttribute)
 			if (onlyGroup) then
@@ -139,6 +143,7 @@
 				return self.totals [attribute] [subName]
 			end
 		end
+		
 		return 0
 	end
 

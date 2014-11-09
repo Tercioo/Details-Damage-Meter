@@ -1,0 +1,178 @@
+This is a short api document for Details! API, describing attributes, combat, container, actor.
+It still is incomplete, we are writing.
+
+Attributes:
+=======================================
+
+All these keys are globals.
+
+DETAILS_ATTRIBUTE_DAMAGE = 1
+DETAILS_SUBATTRIBUTE_DAMAGEDONE = 1
+DETAILS_SUBATTRIBUTE_DPS = 2
+DETAILS_SUBATTRIBUTE_DAMAGETAKEN = 3
+DETAILS_SUBATTRIBUTE_FRIENDLYFIRE = 4
+DETAILS_SUBATTRIBUTE_FRAGS = 5
+DETAILS_SUBATTRIBUTE_ENEMIES = 6
+DETAILS_SUBATTRIBUTE_VOIDZONES = 7
+
+DETAILS_ATTRIBUTE_HEAL = 2
+DETAILS_SUBATTRIBUTE_HEALDONE = 1
+DETAILS_SUBATTRIBUTE_HPS = 2
+DETAILS_SUBATTRIBUTE_OVERHEAL = 3
+DETAILS_SUBATTRIBUTE_HEALTAKEN = 4
+DETAILS_SUBATTRIBUTE_HEALENEMY = 5
+DETAILS_SUBATTRIBUTE_HEALPREVENTED = 6
+
+DETAILS_ATTRIBUTE_ENERGY = 3
+DETAILS_SUBATTRIBUTE_REGENMANA = 1
+DETAILS_SUBATTRIBUTE_REGENRAGE = 2
+DETAILS_SUBATTRIBUTE_REGENENERGY = 3
+DETAILS_SUBATTRIBUTE_REGENRUNE = 4
+
+DETAILS_ATTRIBUTE_MISC = 4
+DETAILS_SUBATTRIBUTE_CCBREAK = 1
+DETAILS_SUBATTRIBUTE_RESS = 2
+DETAILS_SUBATTRIBUTE_INTERRUPT = 3
+DETAILS_SUBATTRIBUTE_DISPELL = 4
+DETAILS_SUBATTRIBUTE_DEATH = 5
+DETAILS_SUBATTRIBUTE_DCOOLDOWN = 6
+DETAILS_SUBATTRIBUTE_BUFFUPTIME = 7
+DETAILS_SUBATTRIBUTE_DEBUFFUPTIME = 8
+
+Combat Object:
+=======================================
+
+Combat Objects holds the containers for each main attribute.
+
+actor = combat ( attribute, character_name )
+returns actor object
+
+container = combat:GetContainer (attribute)
+
+chartData = combat:GetTimeData ( chart_data_name )
+returns the table containing the data for create a chart.
+
+startDate, endDate = combat:GetDate()
+returns the start and end date as %H:%M:%S.
+
+isTrash = combat:IsTrash()
+returns true if the combat is a trash segment.
+
+encounterDiff = combat:GetDifficulty()
+returns the difficulty number of the raid encounter.
+
+bossInfo = combat:GetBossInfo()
+returns the table containing informations about the boss encounter.
+
+deaths = combat:GetDeaths()
+returns a numeric table containing the deaths.
+
+combatNumber = combat:GetCombatNumber()
+returns the unique ID number for the combat.
+
+combatName = combat:GetCombatName ( try_to_find )
+returns the segment name, e.g. "Trainning Dummy", if try_to_find is true, it searches the combat for a enemy name.
+
+characterList = combat:GetActorList ( attribute )
+returns a numeric table with all actors of the specific attribute.
+
+time = combat:GetCombatTime()
+returns the length of the combat, if the combat is in progress, returns the elapsed time.
+
+DETAILS_TOTALS_ONLYGROUP = true
+
+total = combat:GetTotal ( attribute, subAttribute [, onlyGroup] )
+returns the total of the requested attribute.
+
+
+Container Object:
+=======================================
+
+A container is used to store actors, each combat have four containers, one for each attribute.
+
+amount = container:GetAmount (actorName [, key = "total"])
+returns the amount of the requested member key, is key is not passed, "total" is used.
+
+total = container:GetTotal (key = "total")
+returns the total amount of all actors inside the container, if key is omitted, "total" is used.
+
+total = container:GetTotalOnRaid (key = "total", combat)
+similar to GetTotal, but only counts the total of raid members.
+
+ipairs_list = container:ListActors()
+returns a iterated table of actors inside the container.
+Usage: for index, actor in container:ListActors() do
+
+
+Actor Object:
+=======================================
+
+Holds all total keys, spells and targets of a character.
+
+name = actor:Name()
+returns the actor's name.
+
+displayName = actor:GetDisplayName()
+returns the name shown on the player bar, can soffer modifications from realm name removed, nicknames, etc.
+
+name = actor:GetOnlyName()
+returns only the actor name, remove realm or owner names.
+
+class = actor:Class()
+returns the actor class.
+
+activity = actor:Tempo()
+returns the activity time for the actor.
+
+isGroupMember = actor:IsGroupPlayer()
+return true if the actor is a player and member of the raid group.
+
+isPlayer = actor:IsPlayer()
+return true if the actor is a player.
+
+IsneutralOrEnemy = actor:IsNeutralOrEnemy()
+return true if the actor is a neutral of an enemy.
+
+isEnemy = actor:IsEnemy()
+return true if the actor is a enemy.
+
+list = actor:GetSpellList()
+returns a hash table with spellid, spelltable.
+
+spell = actor:GetSpell (spellid)
+returns a spell table of requested spell id.
+
+r, g, b = actor:GetBarColor()
+returns the color which the player bar will be painted on the window, it respects owner, arena team, enemy, monster.
+
+r, g, b = _detalhes:GetClassColor()
+returns the class color.
+
+icon, left, right, top, bottom = actor:GetClassIcon()
+returns the icon texture path and the texture's texcoords.
+
+Damage Actor Keys:
+
+total = total of damage done.
+total_without_pet = without pet.
+damage_taken = total of damage taken.
+last_dps = cache of the last calculed dps, it's best take actor.total / actor:Tempo()
+last_event = when the last event for this actor occured.
+start_time = time when this actor started to apply damage.
+end_time = time when the actor stopped with damage.
+friendlyfire_total = amount of friendlyfire.
+
+targets = hash table of targets: targetName, amount.
+damage_from = hash table of actors which applied damage to this actor: aggresorName, true.
+pets = numeric table of GUIDs of pets summoned by this actor.
+friendlyfire = hash table of friendly fire targets: targetName, table {total = 0, spells = hash table: spellId, amount}
+spells = hash table with spells used to apply damage: spellId, spellTable.
+
+
+
+
+
+
+
+
+

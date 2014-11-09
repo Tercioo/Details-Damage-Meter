@@ -57,6 +57,7 @@ local TooltipMaximizedMethod = 1
 local headerColor = "yellow"
 local key_overlay = {1, 1, 1, .1}
 local key_overlay_press = {1, 1, 1, .2}
+local actor_class_color_r, actor_class_color_g, actor_class_color_b
 
 local info = _detalhes.janela_info
 local keyName
@@ -75,6 +76,7 @@ function atributo_energy:NovaTabela (serial, nome, link)
 
 		total = alphabetical,
 		received = alphabetical,
+		resource = alphabetical,
 
 		last_value = nil,
 
@@ -88,6 +90,47 @@ function atributo_energy:NovaTabela (serial, nome, link)
 	return _new_energyActor
 end
 
+--> resources sort
+
+function _detalhes.SortGroupResource (container, keyName2)
+	keyName = keyName2
+	return _table_sort (container, _detalhes.SortKeyGroupResources)
+end
+
+function _detalhes.SortKeyGroupResources (table1, table2)
+	if (table1.grupo and table2.grupo) then
+		return table1 [keyName] > table2 [keyName]
+	elseif (table1.grupo and not table2.grupo) then
+		return true
+	elseif (not table1.grupo and table2.grupo) then
+		return false
+	else
+		return table1 [keyName] > table2 [keyName]
+	end
+end
+
+function _detalhes.SortKeySimpleResources (table1, table2)
+	return table1 [keyName] > table2 [keyName]
+end
+
+function _detalhes:ContainerSortResources (container, amount, keyName2)
+	keyName = keyName2
+	_table_sort (container,  _detalhes.SortKeySimpleResources)
+	
+	if (amount) then 
+		for i = amount, 1, -1 do --> de trás pra frente
+			if (container[i][keyName] < 1) then
+				amount = amount-1
+			else
+				break
+			end
+		end
+		
+		return amount
+	end
+end
+
+--> power types sort
 
 local power_table = {0, 1, 3, 6}
 local power_type
@@ -126,6 +169,110 @@ local sort_energy_group = function (t1, t2)
 	end
 end
 
+--> resource refresh
+
+local function RefreshBarraResources (tabela, barra, instancia)
+	tabela:AtualizarResources (tabela.minha_barra, barra.colocacao, instancia)
+end
+
+function atributo_energy:AtualizarResources (qual_barra, colocacao, instancia)
+	
+	local esta_barra = instancia.barras [qual_barra]
+	
+	if (not esta_barra) then
+		print ("DEBUG: problema com <instancia.esta_barra> "..qual_barra.." "..lugar)
+		return
+	end
+	
+	self._refresh_window = RefreshBarraResources
+	
+	local tabela_anterior = esta_barra.minha_tabela
+	esta_barra.minha_tabela = self
+	self.minha_barra = qual_barra
+	esta_barra.colocacao = colocacao
+	
+	local total = instancia.showing.totals.resources
+	
+	local combat_time = instancia.showing:GetCombatTime()
+	local rps = _math_floor (self.resource / combat_time)
+	
+	local formated_resource = SelectedToKFunction (_, self.resource)
+	--local formated_rps = SelectedToKFunction (_, rps)
+	local formated_rps = _cstr ("%.2f", self.resource / combat_time)
+	
+	local porcentagem
+	
+	if (instancia.row_info.percent_type == 1) then
+		porcentagem = _cstr ("%.1f", self.resource / total * 100)
+	elseif (instancia.row_info.percent_type == 2) then
+		porcentagem = _cstr ("%.1f", self.resource / instancia.top * 100)
+	end
+	
+	if (UsingCustomRightText) then
+		esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_resource, formated_rps, porcentagem, self))
+	else
+		esta_barra.texto_direita:SetText (formated_resource .. " (" .. formated_rps .. ", " .. porcentagem .. "%)")
+	end
+	
+	esta_barra.texto_esquerdo:SetText (colocacao .. ". " .. self.nome)
+	esta_barra.texto_esquerdo:SetSize (esta_barra:GetWidth() - esta_barra.texto_direita:GetStringWidth() - 20, 15)
+	
+	esta_barra.statusbar:SetValue (100)
+	
+	if (esta_barra.hidden or esta_barra.fading_in or esta_barra.faded) then
+		gump:Fade (esta_barra, "out")
+	end
+	
+	actor_class_color_r, actor_class_color_g, actor_class_color_b = self:GetBarColor()
+	esta_barra.textura:SetVertexColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
+	
+	if (self.classe == "UNKNOW") then
+		esta_barra.icone_classe:SetTexture ([[Interface\AddOns\Details\images\classes_plus]])
+		esta_barra.icone_classe:SetTexCoord (0.50390625, 0.62890625, 0, 0.125)
+		esta_barra.icone_classe:SetVertexColor (1, 1, 1)
+		
+	elseif (self.classe == "UNGROUPPLAYER") then
+		if (self.enemy) then
+			if (_detalhes.faction_against == "Horde") then
+				esta_barra.icone_classe:SetTexture ("Interface\\ICONS\\Achievement_Character_Orc_Male")
+				esta_barra.icone_classe:SetTexCoord (0, 1, 0, 1)
+			else
+				esta_barra.icone_classe:SetTexture ("Interface\\ICONS\\Achievement_Character_Human_Male")
+				esta_barra.icone_classe:SetTexCoord (0, 1, 0, 1)
+			end
+		else
+			if (_detalhes.faction_against == "Horde") then
+				esta_barra.icone_classe:SetTexture ("Interface\\ICONS\\Achievement_Character_Human_Male")
+				esta_barra.icone_classe:SetTexCoord (0, 1, 0, 1)
+			else
+				esta_barra.icone_classe:SetTexture ("Interface\\ICONS\\Achievement_Character_Orc_Male")
+				esta_barra.icone_classe:SetTexCoord (0, 1, 0, 1)
+			end
+		end
+		esta_barra.icone_classe:SetVertexColor (1, 1, 1)
+		
+	elseif (self.classe == "PET") then
+		esta_barra.icone_classe:SetTexture (instancia.row_info.icon_file)
+		esta_barra.icone_classe:SetTexCoord (0.25, 0.49609375, 0.75, 1)
+		esta_barra.icone_classe:SetVertexColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
+
+	else
+		esta_barra.icone_classe:SetTexture (instancia.row_info.icon_file)
+		esta_barra.icone_classe:SetTexCoord (_unpack (CLASS_ICON_TCOORDS [self.classe])) --very slow method
+		esta_barra.icone_classe:SetVertexColor (1, 1, 1)
+	end
+	
+	if (instancia.row_info.textL_class_colors) then
+		esta_barra.texto_esquerdo:SetTextColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
+	end
+	if (instancia.row_info.textR_class_colors) then
+		esta_barra.texto_direita:SetTextColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
+	end
+	
+end
+
+--> refresh function
+
 function atributo_energy:RefreshWindow (instancia, tabela_do_combate, forcar, exportar)
 
 	local showing = tabela_do_combate [class_type]
@@ -141,6 +288,79 @@ function atributo_energy:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 	local conteudo = showing._ActorTable
 	local amount = #conteudo
 	local modo = instancia.modo
+	
+	if (sub_atributo == 5) then 
+		--> showing resources
+		
+		keyName = "resource"
+		
+		if (modo == modo_ALL) then
+			amount = _detalhes:ContainerSortResources (conteudo, amount, "resource")
+			instancia.top = conteudo[1].resource
+			
+			for index, player in _ipairs (conteudo) do
+				if (player.resource >= 1) then
+					total = total + player.resource
+				else
+					break
+				end
+			end
+			
+		elseif (modo == modo_GROUP) then
+			_table_sort (conteudo, _detalhes.SortKeyGroupResources)
+			
+			for index, player in _ipairs (conteudo) do
+				if (player.grupo) then --> é um player e esta em grupo
+					if (player.resource < 1) then --> dano menor que 1, interromper o loop
+						amount = index - 1
+						break
+					end
+					
+					total = total + player.resource
+				else
+					amount = index-1
+					break
+				end
+			end
+			
+			instancia.top = conteudo [1].resource
+		end
+
+		showing:remapear()
+
+		if (exportar) then 
+			return total, keyName, instancia.top, amount
+		end
+		
+		if (total < 1) then
+			instancia:EsconderScrollBar()
+			return _detalhes:EndRefresh (instancia, total, tabela_do_combate, showing)
+		end
+		
+		tabela_do_combate.totals.resources = total
+		
+		instancia:AtualizarScrollBar (amount)
+		
+		local qual_barra = 1
+		local barras_container = instancia.barras
+		
+		for i = instancia.barraS[1], instancia.barraS[2], 1 do
+			conteudo[i]:AtualizarResources (qual_barra, i, instancia)
+			qual_barra = qual_barra+1
+		end
+		
+		--> beta, hidar barras não usadas durante um refresh forçado
+		if (forcar) then
+			if (instancia.modo == 2) then --> group
+				for i = qual_barra, instancia.rows_fit_in_window  do
+					gump:Fade (instancia.barras [i], "in", 0.3)
+				end
+			end
+		end
+		
+		return _detalhes:EndRefresh (instancia, total, tabela_do_combate, showing)
+		
+	end
 	
 	power_type = power_table [sub_atributo]
 	
@@ -382,8 +602,6 @@ function atributo_energy:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 	return _detalhes:EndRefresh (instancia, total, tabela_do_combate, showing) --> retorna a tabela que precisa ganhar o refresh
 
 end
-
-local actor_class_color_r, actor_class_color_g, actor_class_color_b
 
 function atributo_energy:AtualizaBarra (instancia, barras_container, qual_barra, lugar, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations)
 
@@ -1217,6 +1435,11 @@ end
 			--> total das energias (captura de dados)
 				shadow.total = shadow.total + actor.total
 				shadow.received = shadow.received + actor.received
+				
+				if (not actor.powertype) then
+					print ("actor without powertype", actor.nome, actor.powertype)
+				end
+				
 				shadow.powertype = actor.powertype
 			
 			--> total no combate overall (captura de dados)

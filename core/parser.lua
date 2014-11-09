@@ -1418,6 +1418,27 @@
 		[SPELL_POWER_ENERGY] = true,
 		[SPELL_POWER_RUNIC_POWER] = true,
 	}
+	
+	local resource_types = {
+		[SPELL_POWER_DEMONIC_FURY] = true, --warlock demonology
+		[SPELL_POWER_BURNING_EMBERS] = true, --warlock destruction
+		[SPELL_POWER_SHADOW_ORBS] = true, --shadow priest
+		[SPELL_POWER_CHI] = true, --monk
+		[SPELL_POWER_HOLY_POWER] = true, --paladins
+		[SPELL_POWER_ECLIPSE] = true, --balance druids
+		[SPELL_POWER_SOUL_SHARDS] = true, --warlock affliction
+		[4] = true, --combo points
+	}
+	
+	local resource_power_type = {
+		[4] = 3, --cat druids and rogues uses energy
+		[SPELL_POWER_SOUL_SHARDS] = 0, --warlock uses mana
+		[SPELL_POWER_ECLIPSE] = 0, --moonkin uses mana
+		[SPELL_POWER_HOLY_POWER] = 0, --paladins uses mana
+		[SPELL_POWER_SHADOW_ORBS] = 0, --shadow preist uses mana
+		[SPELL_POWER_DEMONIC_FURY] = 0, --warlock uses mana
+		[SPELL_POWER_BURNING_EMBERS] = 0, --warlock uses mana
+	}
 
 	function parser:energize (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amount, powertype, p6, p7)
 
@@ -1431,11 +1452,17 @@
 		end
 
 	------------------------------------------------------------------------------------------------
-	--> get regen key name
+	--> check if is energy or resource
 	
-		if (not energy_types [powertype]) then
-			--print ("power:", powertype)
+		--> get resource type
+		local is_resource, resource_amount = resource_power_type [powertype], amount
+	
+		--> check if is valid
+		if (not energy_types [powertype] and not is_resource) then
 			return
+		elseif (is_resource) then
+			powertype = is_resource
+			amount = 0
 		end
 
 		_current_energy_container.need_refresh = true
@@ -1448,6 +1475,9 @@
 		if (not este_jogador) then --> pode ser um desconhecido ou um pet
 			este_jogador, meu_dono, who_name = _current_energy_container:PegarCombatente (who_serial, who_name, who_flags, true)
 			este_jogador.powertype = powertype
+			if (meu_dono) then
+				meu_dono.powertype = powertype
+			end
 			if (not meu_dono) then --> se não for um pet, adicionar no cache
 				energy_cache [who_name] = este_jogador
 			end
@@ -1458,6 +1488,9 @@
 		if (not jogador_alvo) then
 			jogador_alvo, alvo_dono, alvo_name = _current_energy_container:PegarCombatente (alvo_serial, alvo_name, alvo_flags, true)
 			jogador_alvo.powertype = powertype
+			if (alvo_dono) then
+				alvo_dono.powertype = powertype
+			end
 			if (not alvo_dono) then
 				energy_cache [alvo_name] = jogador_alvo
 			end
@@ -1473,35 +1506,42 @@
 	------------------------------------------------------------------------------------------------
 	--> amount add
 	
-		--> target
-		este_jogador.targets [alvo_name] = (este_jogador.targets [alvo_name] or 0) + amount
+		if (not is_resource) then
 		
-		--> combat total
-		_current_total [3] [powertype] = _current_total [3] [powertype] + amount
+			--> add to targets
+			este_jogador.targets [alvo_name] = (este_jogador.targets [alvo_name] or 0) + amount
 		
-		if (este_jogador.grupo) then 
-			_current_gtotal [3] [powertype] = _current_gtotal [3] [powertype] + amount
-		end
+			--> add to combat total
+			_current_total [3] [powertype] = _current_total [3] [powertype] + amount
+		
+			if (este_jogador.grupo) then 
+				_current_gtotal [3] [powertype] = _current_gtotal [3] [powertype] + amount
+			end
 
-		--> regen produced amount
-		este_jogador.total = este_jogador.total + amount
+			--> regen produced amount
+			este_jogador.total = este_jogador.total + amount
 	
-		--> target regenerated amount
-		jogador_alvo.received = jogador_alvo.received + amount
+			--> target regenerated amount
+			jogador_alvo.received = jogador_alvo.received + amount
 		
-		--> owner
-		if (meu_dono) then
-			meu_dono.total = meu_dono.total + amount
-		end
+			--> owner
+			if (meu_dono) then
+				meu_dono.total = meu_dono.total + amount
+			end
 
-		--> actor spells table
-		local spell = este_jogador.spells._ActorTable [spellid]
-		if (not spell) then
-			spell = este_jogador.spells:PegaHabilidade (spellid, true, token)
-		end
+			--> actor spells table
+			local spell = este_jogador.spells._ActorTable [spellid]
+			if (not spell) then
+				spell = este_jogador.spells:PegaHabilidade (spellid, true, token)
+			end
 		
-		--return spell:Add (alvo_serial, alvo_name, alvo_flags, amount, who_name, powertype)
-		return spell_energy_func (spell, alvo_serial, alvo_name, alvo_flags, amount, who_name, powertype)
+			--return spell:Add (alvo_serial, alvo_name, alvo_flags, amount, who_name, powertype)
+			return spell_energy_func (spell, alvo_serial, alvo_name, alvo_flags, amount, who_name, powertype)
+			
+		else
+			--> is a resource
+			este_jogador.resource = este_jogador.resource + resource_amount
+		end
 	end
 
 

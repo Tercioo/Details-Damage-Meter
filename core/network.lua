@@ -257,17 +257,21 @@
 --> register comm
 
 	function _detalhes:CommReceived (_, data, _, source)
+	
 		local prefix, player, realm, dversion, arg6, arg7, arg8, arg9 =  _select (2, _detalhes:Deserialize (data))
 		
 		if (_detalhes.debug) then
 			_detalhes:Msg ("(debug) network received:", prefix, "length:",string.len (data))
 		end
 		
+		print ("comm received", prefix, _detalhes.network.functions [prefix])
+		
 		local func = _detalhes.network.functions [prefix]
 		if (func) then
 			func (player, realm, dversion, arg6, arg7, arg8, arg9)
 		else
 			func = plugins_registred [prefix]
+			print ("plugin comm?", func, player, realm, dversion, arg6, arg7, arg8, arg9)
 			if (func) then
 				func (player, realm, dversion, arg6, arg7, arg8, arg9)
 			else
@@ -311,6 +315,7 @@
 		end
 	end
 	
+	--[[
 	function _detalhes.parser_functions:CHAT_MSG_CHANNEL (...)
 		local message, _, _, _, _, _, _, _, channelName = ...
 		if (channelName == "Details") then
@@ -327,6 +332,7 @@
 
 		end
 	end
+	--]]
 
 	function _detalhes:SendPluginCommMessage (prefix, channel, ...)
 	
@@ -355,9 +361,10 @@
 		elseif (channel == "Details") then
 			local id = _detalhes:GetChannelId (channel)
 			if (id) then
-				SendChatMessage (prefix .. "_" .. _detalhes:Serialize (self.__version, ...), "CHANNEL", nil, id)
+				print ("sending comm", prefix, channel)
+				_detalhes:SendCommMessage (prefix, _detalhes:Serialize (self.__version, ...), "CHANNEL", channel)
+				--SendChatMessage (prefix .. "_" .. _detalhes:Serialize (self.__version, ...), "CHANNEL", nil, id)
 			end
-			
 		else
 			_detalhes:SendCommMessage (prefix, _detalhes:Serialize (self.__version, ...), channel)
 		end
@@ -523,7 +530,7 @@
 		--> room name
 		local room_name = "Details"
 
-		_detalhes.listener:RegisterEvent ("CHAT_MSG_CHANNEL")
+		--_detalhes.listener:RegisterEvent ("CHAT_MSG_CHANNEL")
 		
 		--> already in?
 		for room_index = 1, 10 do
@@ -535,7 +542,6 @@
 		end
 		
 		--> enter
-		--print ("entrando no canal")
 		JoinChannelByName (room_name)
 		_detalhes.is_connected = true
 	end
@@ -571,13 +577,12 @@
 		end
 		
 		if (is_in) then
-			--print ("saindo do canal")
 			LeaveChannelByName (room_name)
 		end
 		
 		_detalhes.is_connected = false
 		
-		_detalhes.listener:UnregisterEvent ("CHAT_MSG_CHANNEL")
+		--_detalhes.listener:UnregisterEvent ("CHAT_MSG_CHANNEL")
 	end
 	
 	--> sair do canal quando estiver em grupo
@@ -655,5 +660,11 @@
 	_detalhes:RegisterEvent (event_handler, "ZONE_TYPE_CHANGED", "ZONE_TYPE_CHANGED")
 	
 	function _detalhes:IsConnected()
+		if (not _detalhes.is_connected) then
+			local id = _detalhes:GetChannelId ("Details")
+			if (id) then
+				_detalhes.is_connected = true
+			end
+		end
 		return _detalhes.is_connected
 	end

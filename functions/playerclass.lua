@@ -92,7 +92,7 @@ do
 						container.shadow.need_refresh = true
 					end
 					
-					if (Actor.minha_barra) then
+					if (Actor.minha_barra and type (Actor.minha_barra) == "table") then
 						Actor.minha_barra.minha_tabela = nil
 					end
 				
@@ -114,7 +114,7 @@ do
 				container.shadow.need_refresh = true
 			end
 			
-			if (Actor.minha_barra) then
+			if (Actor.minha_barra and type (Actor.minha_barra) == "table") then
 				Actor.minha_barra.minha_tabela = nil
 			end
 			
