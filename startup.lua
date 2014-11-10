@@ -432,7 +432,7 @@ function _G._detalhes:Start()
 
 	--> get in the realm chat channel
 	if (not _detalhes.schedule_chat_enter and not _detalhes.schedule_chat_leave) then
-		_detalhes.schedule_chat_enter = _detalhes:ScheduleTimer ("EnterChatChannel", 60)
+		_detalhes:ScheduleTimer ("CheckChatOnZoneChange", 60)
 	end
 
 	--> open profiler 
@@ -491,70 +491,25 @@ function _G._detalhes:Start()
 	real_time_frame:SetScript ("OnUpdate", function (self, elapsed)
 		if (_detalhes.in_combat and instance.atributo == 1 and instance.sub_atributo == 1) then
 			for i = 1, instance:GetNumRows() do
-				local row = instance:GetRow (index)
-				if (row:IsShown()) then
+				local row = instance:GetRow (i)
+				if (row and row:IsShown()) then
+
 					local actor = row.minha_tabela
-					local right_text = row.texto_direita
+					if (actor) then
+						local dps_text = row.ps_text
+						if (dps_text) then
+							local new_dps = math.floor (actor.total / actor:Tempo())
+							local formated_dps = _detalhes.ToKFunctions [_detalhes.ps_abbreviation] (_, new_dps)
+							
+							row.texto_direita:SetText (row.texto_direita:GetText():gsub (dps_text, formated_dps))
+							row.ps_text = formated_dps
+						end
+					end
 				end
 			end
 		end
 	end)
 	--]]
 	
-	--WOD Spell Test
-	--[[
-	
-	local f = CreateFrame ("frame")
-	f:SetSize (400, 600)
-	f:SetPoint ("center", UIParent)
-
-	local invalid_spells = {}
-	local amt = 0
-	
-	--for spellid, class in pairs (_detalhes.ClassSpellList) do
-	--for spellid, class in pairs (_detalhes.CrowdControlSpells) do
-	--for spellid, class in pairs (_detalhes.AbsorbSpells) do
-	--for spellid, class in pairs (_detalhes.DefensiveCooldownSpellsNoBuff) do
-	--for spellid, class in pairs (_detalhes.DefensiveCooldownSpells) do
-	--for spellid, class in pairs (_detalhes.HarmfulSpells) do
-	--for spellid, class in pairs (_detalhes.MiscClassSpells) do
-	--for spellid, class in pairs (_detalhes.DualSideSpells) do
-	--for spellid, class in pairs (_detalhes.AttackCooldownSpells) do
-	
-
-	for spellid, class in pairs (_detalhes.HelpfulSpells) do
-	
-		local name = GetSpellInfo (spellid)
-		
-		if (not name) then
-			invalid_spells [spellid] = class
-			amt = amt + 1
-			
-			local edit = _detalhes.gump:NewTextEntry (f, f, "box"..amt, nil, 150, 12)
-			edit:SetPoint ("topleft", f, "topleft", 10, amt*13*-1)
-			edit:SetText (spellid)
-			edit:SetHook ("OnEditFocusGained", function() 
-				edit:HighlightText()
-			end)
-		end
-	
-	end
-	
-	print ("Spells Invalid:", amt)
-	--]]
-	
-	--[[
-	local parser = CreateFrame ("frame")
-	parser:RegisterEvent ("COMBAT_LOG_EVENT_UNFILTERED")
-	parser:SetScript ("OnEvent", function (self, evento, time, token, ...)
-
-		if (token == "SPELL_AURA_APPLIED") then
-			
-			print (...)
-			
-		end
-		
-	end)
-	--]]
 end
 

@@ -2416,6 +2416,8 @@
 			_detalhes.last_zone_type = zoneType
 		end
 		
+		_detalhes:CheckChatOnZoneChange (zoneType)
+		
 		_detalhes.zone_type = zoneType
 		_detalhes.zone_id = zoneMapID
 		_detalhes.zone_name = zoneName

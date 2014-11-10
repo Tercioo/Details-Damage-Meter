@@ -509,11 +509,11 @@ function SlashCmdList.DETAILS (msg, editbox)
 			test_plugin = TESTPLUGIN
 			
 			function test_plugin:ReceiveAA (a, b, c, d, e, f, g)
-				print (a, b, c, d, e, f, g)
+				print ("working 1", a, b, c, d, e, f, g)
 			end
 			
 			function test_plugin:ReceiveAB (a, b, c, d, e, f, g)
-				print (a, b, c, d, e, f, g)
+				print ("working 2", a, b, c, d, e, f, g)
 			end
 			
 			test_plugin:RegisterPluginComm ("PTAA", "ReceiveAA")

@@ -1306,76 +1306,72 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 	end
 	
 	-- >>>>>>>>>>>>>>> texto da direita
-	if (instancia.atributo == 5) then --> custom
-		esta_barra.texto_direita:SetText (_detalhes:ToK (self.custom) .." (" .. porcentagem .. "%)") --seta o texto da direita
-		esta_porcentagem = _math_floor ((self.custom/instancia.top) * 100) --> determina qual o tamanho da barra
-	else
+
+	if (sub_atributo == 1) then --> mostrando damage done
 	
-		if (sub_atributo == 1) then --> mostrando damage done
-		
-			dps = _math_floor (dps)
-			local formated_damage = SelectedToKFunction (_, damage_total)
-			local formated_dps = SelectedToKFunction (_, dps)
+		dps = _math_floor (dps)
+		local formated_damage = SelectedToKFunction (_, damage_total)
+		local formated_dps = SelectedToKFunction (_, dps)
+		--esta_barra.ps_text = formated_dps
 
-			if (UsingCustomRightText) then
-				esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_damage, formated_dps, porcentagem, self))
-			else
-				esta_barra.texto_direita:SetText (formated_damage .. " (" .. formated_dps .. ", " .. porcentagem .. "%)") --seta o texto da direita
-			end
-			esta_porcentagem = _math_floor ((damage_total/instancia.top) * 100) --> determina qual o tamanho da barra
-
-		elseif (sub_atributo == 2) then --> mostrando dps
-		
-			dps = _math_floor (dps)
-			local formated_damage = SelectedToKFunction (_, damage_total)
-			local formated_dps = SelectedToKFunction (_, dps)
-		
-			if (UsingCustomRightText) then
-				esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_dps, formated_damage, porcentagem, self))
-			else		
-				esta_barra.texto_direita:SetText (formated_dps .. " (" .. formated_damage .. ", " .. porcentagem .. "%)") --seta o texto da direita
-			end
-			esta_porcentagem = _math_floor ((dps/instancia.top) * 100) --> determina qual o tamanho da barra
-			
-		elseif (sub_atributo == 3) then --> mostrando damage taken
-
-			local dtps = self.damage_taken / combat_time
-		
-			local formated_damage_taken = SelectedToKFunction (_, self.damage_taken)
-			local formated_dtps = SelectedToKFunction (_, dtps)
-
-			if (UsingCustomRightText) then
-				esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_damage_taken, formated_dtps, porcentagem, self))
-			else
-				esta_barra.texto_direita:SetText (formated_damage_taken .." (" .. formated_dtps .. ", " .. porcentagem .. "%)") --seta o texto da direita --
-			end
-			esta_porcentagem = _math_floor ((self.damage_taken/instancia.top) * 100) --> determina qual o tamanho da barra
-			
-		elseif (sub_atributo == 4) then --> mostrando friendly fire
-		
-			local formated_friendly_fire = SelectedToKFunction (_, self.friendlyfire_total)
-
-			if (UsingCustomRightText) then
-				esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_friendly_fire, "", porcentagem, self))
-			else			
-				esta_barra.texto_direita:SetText (formated_friendly_fire .. " (" .. porcentagem .. "%)") --seta o texto da direita --
-			end
-			esta_porcentagem = _math_floor ((self.friendlyfire_total/instancia.top) * 100) --> determina qual o tamanho da barra
-		
-		elseif (sub_atributo == 6) then --> mostrando enemies
-		
-			dps = _math_floor (dps)
-			local formated_damage = SelectedToKFunction (_, damage_total)
-			local formated_dps = SelectedToKFunction (_, dps)
-		
-			if (UsingCustomRightText) then
-				esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_damage, formated_dps, porcentagem, self))
-			else		
-				esta_barra.texto_direita:SetText (formated_damage .. " (" .. formated_dps .. ", " .. porcentagem .. "%)") --seta o texto da direita
-			end
-			esta_porcentagem = _math_floor ((damage_total/instancia.top) * 100) --> determina qual o tamanho da barra
-			
+		if (UsingCustomRightText) then
+			esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_damage, formated_dps, porcentagem, self))
+		else
+			esta_barra.texto_direita:SetText (formated_damage .. " (" .. formated_dps .. ", " .. porcentagem .. "%)") --seta o texto da direita
 		end
+		esta_porcentagem = _math_floor ((damage_total/instancia.top) * 100) --> determina qual o tamanho da barra
+
+	elseif (sub_atributo == 2) then --> mostrando dps
+	
+		dps = _math_floor (dps)
+		local formated_damage = SelectedToKFunction (_, damage_total)
+		local formated_dps = SelectedToKFunction (_, dps)
+	
+		if (UsingCustomRightText) then
+			esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_dps, formated_damage, porcentagem, self))
+		else		
+			esta_barra.texto_direita:SetText (formated_dps .. " (" .. formated_damage .. ", " .. porcentagem .. "%)") --seta o texto da direita
+		end
+		esta_porcentagem = _math_floor ((dps/instancia.top) * 100) --> determina qual o tamanho da barra
+		
+	elseif (sub_atributo == 3) then --> mostrando damage taken
+
+		local dtps = self.damage_taken / combat_time
+	
+		local formated_damage_taken = SelectedToKFunction (_, self.damage_taken)
+		local formated_dtps = SelectedToKFunction (_, dtps)
+
+		if (UsingCustomRightText) then
+			esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_damage_taken, formated_dtps, porcentagem, self))
+		else
+			esta_barra.texto_direita:SetText (formated_damage_taken .." (" .. formated_dtps .. ", " .. porcentagem .. "%)") --seta o texto da direita --
+		end
+		esta_porcentagem = _math_floor ((self.damage_taken/instancia.top) * 100) --> determina qual o tamanho da barra
+		
+	elseif (sub_atributo == 4) then --> mostrando friendly fire
+	
+		local formated_friendly_fire = SelectedToKFunction (_, self.friendlyfire_total)
+
+		if (UsingCustomRightText) then
+			esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_friendly_fire, "", porcentagem, self))
+		else			
+			esta_barra.texto_direita:SetText (formated_friendly_fire .. " (" .. porcentagem .. "%)") --seta o texto da direita --
+		end
+		esta_porcentagem = _math_floor ((self.friendlyfire_total/instancia.top) * 100) --> determina qual o tamanho da barra
+	
+	elseif (sub_atributo == 6) then --> mostrando enemies
+	
+		dps = _math_floor (dps)
+		local formated_damage = SelectedToKFunction (_, damage_total)
+		local formated_dps = SelectedToKFunction (_, dps)
+	
+		if (UsingCustomRightText) then
+			esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_damage, formated_dps, porcentagem, self))
+		else		
+			esta_barra.texto_direita:SetText (formated_damage .. " (" .. formated_dps .. ", " .. porcentagem .. "%)") --seta o texto da direita
+		end
+		esta_porcentagem = _math_floor ((damage_total/instancia.top) * 100) --> determina qual o tamanho da barra
+		
 	end
 
 	if (esta_barra.mouse_over and not instancia.baseframe.isMoving) then --> precisa atualizar o tooltip
