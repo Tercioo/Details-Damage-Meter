@@ -2201,8 +2201,8 @@
 				
 			elseif (robot.nome == "Mr. President") then	
 				rawset (_detalhes.spellcache, 56488, {"Nuke", 56488, [[Interface\ICONS\inv_gizmo_supersappercharge]]})
-				robot.spell_tables:PegaHabilidade (56488, true, "SPELL_DAMAGE")
-				robot.spell_tables._ActorTable [56488].total = robot.total
+				robot.spells:PegaHabilidade (56488, true, "SPELL_DAMAGE")
+				robot.spells._ActorTable [56488].total = robot.total
 			end
 			
 			local robot = current_combat[2]:PegarCombatente (0x0000000000000, actors_name [math.random (1, #actors_name)], 0x114, true)

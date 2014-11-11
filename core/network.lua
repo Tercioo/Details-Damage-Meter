@@ -257,17 +257,21 @@
 --> register comm
 
 	function _detalhes:CommReceived (_, data, _, source)
+	
 		local prefix, player, realm, dversion, arg6, arg7, arg8, arg9 =  _select (2, _detalhes:Deserialize (data))
 		
 		if (_detalhes.debug) then
 			_detalhes:Msg ("(debug) network received:", prefix, "length:",string.len (data))
 		end
 		
+		--print ("comm received", prefix, _detalhes.network.functions [prefix])
+		
 		local func = _detalhes.network.functions [prefix]
 		if (func) then
 			func (player, realm, dversion, arg6, arg7, arg8, arg9)
 		else
 			func = plugins_registred [prefix]
+			--print ("plugin comm?", func, player, realm, dversion, arg6, arg7, arg8, arg9)
 			if (func) then
 				func (player, realm, dversion, arg6, arg7, arg8, arg9)
 			else
@@ -311,6 +315,7 @@
 		end
 	end
 	
+	--[
 	function _detalhes.parser_functions:CHAT_MSG_CHANNEL (...)
 		local message, _, _, _, _, _, _, _, channelName = ...
 		if (channelName == "Details") then
@@ -327,6 +332,7 @@
 
 		end
 	end
+	--]]
 
 	function _detalhes:SendPluginCommMessage (prefix, channel, ...)
 	
@@ -355,9 +361,11 @@
 		elseif (channel == "Details") then
 			local id = _detalhes:GetChannelId (channel)
 			if (id) then
+				if (not _detalhes.listener:IsEventRegistered ("CHAT_MSG_CHANNEL")) then
+					_detalhes.listener:RegisterEvent ("CHAT_MSG_CHANNEL")
+				end
 				SendChatMessage (prefix .. "_" .. _detalhes:Serialize (self.__version, ...), "CHANNEL", nil, id)
 			end
-			
 		else
 			_detalhes:SendCommMessage (prefix, _detalhes:Serialize (self.__version, ...), channel)
 		end
@@ -463,9 +471,47 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> sharer
 
+	local city_zones = {
+		["ShattrathCity"] = true,
+		["Dalaran"] = true,
+		
+		["AshranHordeFactionHub"] = true,
+		["AshranAllianceFactionHub"] = true,
+		
+		["Orgrimmar"] = true,
+		["Undercity"] = true,
+		["ThunderBluff"] = true,
+		["SilvermoonCity"] = true,
+		
+		["StormwindCity"] = true,
+		["Darnassus"] = true,
+		["Ironforge"] = true,
+		["TheExodar"] = true,
+	}
+	
+	local sub_zones = {
+		["ShrineofTwoMoons"] = true,
+		["ShrineofSevenStars"] = true,
+	}
+
+	function _detalhes:IsInCity()
+		SetMapToCurrentZone()
+		local mapFileName, _, _, _, microDungeonMapName = GetMapInfo()
+		
+		if (city_zones [mapFileName]) then
+			return true
+		elseif (microDungeonMapName and type (microDungeonMapName) == "string" and sub_zones [microDungeonMapName]) then
+			return true
+		end
+	end
+
 	--> entrar no canal após logar no servidor
 	function _detalhes:EnterChatChannel()
 		if (not _detalhes.realm_sync) then
+			return
+		end
+		
+		if (not _detalhes:IsInCity()) then
 			return
 		end
 		
@@ -477,10 +523,6 @@
 	
 		local realm = GetRealmName()
 		realm = realm or ""
-		
-		--if (realm ~= "Azralon") then
-		--	return
-		--end
 	
 		--> room name
 		local room_name = "Details"
@@ -497,7 +539,6 @@
 		end
 		
 		--> enter
-		--print ("entrando no canal")
 		JoinChannelByName (room_name)
 		_detalhes.is_connected = true
 	end
@@ -516,10 +557,6 @@
 		local realm = GetRealmName()
 		realm = realm or ""
 		
-		--if (realm ~= "Azralon") then
-		--	return
-		--end
-		
 		--> room name
 		local room_name = "Details"
 		local is_in = false
@@ -533,7 +570,6 @@
 		end
 		
 		if (is_in) then
-			--print ("saindo do canal")
 			LeaveChannelByName (room_name)
 		end
 		
@@ -542,80 +578,40 @@
 		_detalhes.listener:UnregisterEvent ("CHAT_MSG_CHANNEL")
 	end
 	
-	--> sair do canal quando estiver em grupo
-	local event_handler = {Enabled = true, __enabled = true, teste = " teste"}
-	function event_handler:ZONE_TYPE_CHANGED (zone_type)
-		if (not _detalhes.realm_sync) then
-			return
-		end
-
-		if (zone_type == "none") then
-			if (not _detalhes:InGroup()) then
-				if (_detalhes.schedule_chat_leave) then
-					_detalhes:CancelTimer (_detalhes.schedule_chat_leave)
-				end
-				if (not _detalhes.schedule_chat_enter) then
-					_detalhes.schedule_chat_enter = _detalhes:ScheduleTimer ("EnterChatChannel", 2)
-				end
-			end
-		else
-			if (_detalhes:InGroup()) then
-				if (_detalhes.schedule_chat_enter) then
-					_detalhes:CancelTimer (_detalhes.schedule_chat_enter)
-				end
-				if (not _detalhes.schedule_chat_leave) then
-					_detalhes.schedule_chat_leave = _detalhes:ScheduleTimer ("LeaveChatChannel", 2)
-				end
-			end
-		end
-	end
-	
-	function event_handler:GROUP_ONENTER()
-		if (not _detalhes.realm_sync) then
-			return
-		end
-	
-		if (_detalhes.zone_type ~= "none") then
+	function _detalhes:DoZoneCheck()
+		local in_city = _detalhes:IsInCity()
+		if (not in_city) then
 			if (_detalhes.schedule_chat_enter) then
 				_detalhes:CancelTimer (_detalhes.schedule_chat_enter)
 			end
 			if (not _detalhes.schedule_chat_leave) then
-				_detalhes.schedule_chat_leave = _detalhes:ScheduleTimer ("LeaveChatChannel", 2)
+				_detalhes.schedule_chat_leave = _detalhes:ScheduleTimer ("LeaveChatChannel", 5)
+			end
+		else
+			if (in_city) then
+				if (_detalhes.schedule_chat_leave) then
+					_detalhes:CancelTimer (_detalhes.schedule_chat_leave)
+				end
+				if (not _detalhes.schedule_chat_enter) then
+					_detalhes.schedule_chat_enter = _detalhes:ScheduleTimer ("EnterChatChannel", 5)
+				end
 			end
 		end
 	end
 	
-	function _detalhes:CheckChatOnLeaveGroup()
+	function _detalhes:CheckChatOnZoneChange()
 		if (not _detalhes.realm_sync) then
 			return
 		end
-		
-		_detalhes.schedule_group_onleave_check = nil
-		if (_detalhes.zone_type == "none") then
-			if (_detalhes.schedule_chat_leave) then
-				_detalhes:CancelTimer (_detalhes.schedule_chat_leave)
-			end
-			if (not _detalhes.schedule_chat_enter) then
-				_detalhes.schedule_chat_enter = _detalhes:ScheduleTimer ("EnterChatChannel", 2)
-			end
-		end
+		_detalhes:ScheduleTimer ("DoZoneCheck", 2)
 	end
-	function event_handler:GROUP_ONLEAVE()
-		if (not _detalhes.realm_sync) then
-			return
-		end
-		
-		if (_detalhes.schedule_group_onleave_check) then
-			_detalhes:CancelTimer (_detalhes.schedule_group_onleave_check)
-			_detalhes.schedule_group_onleave_check = nil
-		end
-		_detalhes.schedule_group_onleave_check = _detalhes:ScheduleTimer ("CheckChatOnLeaveGroup", 5)
-	end
-	
-	_detalhes:RegisterEvent (event_handler, "GROUP_ONENTER", "GROUP_ONENTER")
-	_detalhes:RegisterEvent (event_handler, "GROUP_ONLEAVE", "GROUP_ONLEAVE")
-	_detalhes:RegisterEvent (event_handler, "ZONE_TYPE_CHANGED", "ZONE_TYPE_CHANGED")
 	
 	function _detalhes:IsConnected()
+		if (not _detalhes.is_connected) then
+			local id = _detalhes:GetChannelId ("Details")
+			if (id) then
+				_detalhes.is_connected = true
+			end
+		end
 		return _detalhes.is_connected
 	end

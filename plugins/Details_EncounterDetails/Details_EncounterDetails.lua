@@ -38,6 +38,8 @@ local class_type_misc = _detalhes.atributos.misc --> misc
 --> main combat object
 local _combat_object
 
+local sort_by_name = function (t1, t2) return t1.nome < t2.nome end
+
 local CLASS_ICON_TCOORDS = _G.CLASS_ICON_TCOORDS
 
 EncounterDetails.name = "Encounter Details"
@@ -289,9 +291,9 @@ local function CreatePluginFrames (data)
 		return true
 	end
 	
-	--> create the button to show on toolbar [1] function OnClick [2] texture [3] tooltip [4] width or 14 [5] height or 14 [6] frame name or nil
-	--EncounterDetails.ToolbarButton = _detalhes.ToolBar:NewPluginToolbarButton (EncounterDetails.OpenWindow, "Interface\\Scenarios\\ScenarioIcon-Boss", Loc ["STRING_PLUGIN_NAME"], Loc ["STRING_TOOLTIP"], 12, 12, "ENCOUNTERDETAILS_BUTTON") --"Interface\\COMMON\\help-i"
 	EncounterDetails.ToolbarButton = _detalhes.ToolBar:NewPluginToolbarButton (EncounterDetails.OpenWindow, "Interface\\AddOns\\Details_EncounterDetails\\images\\icon", Loc ["STRING_PLUGIN_NAME"], Loc ["STRING_TOOLTIP"], 16, 16, "ENCOUNTERDETAILS_BUTTON") --"Interface\\COMMON\\help-i"
+	EncounterDetails.ToolbarButton.shadow = true --> loads icon_shadow.tga when the instance is showing icons with shadows
+	
 	--> setpoint anchors mod if needed
 	EncounterDetails.ToolbarButton.y = 0.5
 	EncounterDetails.ToolbarButton.x = 0
@@ -318,6 +320,18 @@ local shift_monitor = function (self)
 			self:GetScript ("OnEnter") (self)
 			self.showing_spelldesc = false
 		end
+	end
+end
+
+local sort_damage_from = function (a, b) 
+	if (a[3] ~= "PET" and b[3] ~= "PET") then 
+		return a[2] > b[2] 
+	elseif (a[3] == "PET" and b[3] ~= "PET") then
+		return false
+	elseif (a[3] ~= "PET" and b[3] == "PET") then
+		return true
+	else
+		return a[2] > b[2] 
 	end
 end
 
@@ -442,7 +456,7 @@ local function DispellInfo (dispell, barra)
 		tabela_jogadores [#tabela_jogadores + 1] = {nome, tabela [1], tabela [2]}
 	end
 	
-	_table_sort (tabela_jogadores, function (a, b) return a[2] > b[2] end)
+	_table_sort (tabela_jogadores, _detalhes.Sort2)
 	
 	_GameTooltip:ClearLines()
 	_GameTooltip:AddLine (barra.texto_esquerdo:GetText())
@@ -468,7 +482,7 @@ local function KickBy (magia, barra)
 		tabela_jogadores [#tabela_jogadores + 1] = {nome, tabela [1], tabela [2]}
 	end
 	
-	_table_sort (tabela_jogadores, function (a, b) return a[2] > b[2] end)
+	_table_sort (tabela_jogadores, _detalhes.Sort2)
 	
 	_GameTooltip:ClearLines()
 	_GameTooltip:AddLine (barra.texto_esquerdo:GetText())
@@ -493,7 +507,7 @@ local function EnemySkills (habilidade, barra)
 		tabela_jogadores [#tabela_jogadores + 1] = {nome, tabela[1], tabela[2]}
 	end
 	
-	_table_sort (tabela_jogadores, function (a, b) return a[2] > b[2] end)
+	_table_sort (tabela_jogadores, _detalhes.Sort2)
 	
 	_GameTooltip:ClearLines()
 	_GameTooltip:AddLine (barra.texto_esquerdo:GetText())
@@ -523,21 +537,20 @@ local function DamageTakenDetails (jogador, barra)
 		local este_agressor = showing._ActorTable[showing._NameIndexTable[nome]]
 		if (este_agressor) then --> checagem por causa do total e do garbage collector que não limpa os nomes que deram dano
 		
-			local habilidades = este_agressor.spell_tables._ActorTable
+			local habilidades = este_agressor.spells._ActorTable
 			for id, habilidade in _pairs (habilidades) do 
 			--print ("oi - " .. este_agressor.nome)
 				local alvos = habilidade.targets
-				for index, alvo in _ipairs (alvos._ActorTable) do 
-					--print ("hello -> "..alvo.nome)
-					if (alvo.nome == jogador.nome) then
-						meus_agressores [#meus_agressores+1] = {id, alvo.total, este_agressor.nome}
+				for target_name, amount in _pairs (alvos) do 
+					if (target_name == jogador.nome) then
+						meus_agressores [#meus_agressores+1] = {id, amount, este_agressor.nome}
 					end
 				end
 			end
 		end
 	end
 
-	_table_sort (meus_agressores, function (a, b) return a[2] > b[2] end)
+	_table_sort (meus_agressores, _detalhes.Sort2)
 	
 	_GameTooltip:ClearLines()
 	_GameTooltip:AddLine (barra.texto_esquerdo:GetText())
@@ -952,7 +965,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 				_bit_band (jogador.flag_original, 0x00000400) == 0
 			) then
 		
-				local habilidades = jogador.spell_tables._ActorTable
+				local habilidades = jogador.spells._ActorTable
 				
 				for id, habilidade in _pairs (habilidades) do
 					--if (habilidades_poll [id]) then
@@ -975,15 +988,15 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 						
 						--> pega os alvos e adiciona ao [2]
 						local alvos = habilidade.targets
-						for index, jogador in _ipairs (alvos._ActorTable) do 
+						for target_name, amount in _pairs (alvos) do 
 						
 							--> ele tem o nome do jogador, vamos ver se este alvo é realmente um jogador verificando na tabela do combate
-							local tabela_dano_do_jogador = DamageContainer._ActorTable [DamageContainer._NameIndexTable [jogador.nome]]
+							local tabela_dano_do_jogador = DamageContainer._ActorTable [DamageContainer._NameIndexTable [target_name]]
 							if (tabela_dano_do_jogador and tabela_dano_do_jogador.grupo) then
-								if (not esta_habilidade[2] [jogador.nome]) then 
-									esta_habilidade[2] [jogador.nome] = {0, tabela_dano_do_jogador.classe}
+								if (not esta_habilidade[2] [target_name]) then 
+									esta_habilidade[2] [target_name] = {0, tabela_dano_do_jogador.classe}
 								end
-								esta_habilidade[2] [jogador.nome] [1] = esta_habilidade[2] [jogador.nome] [1] + jogador.total
+								esta_habilidade[2] [target_name] [1] = esta_habilidade[2] [target_name] [1] + amount
 							end
 						end
 					--end
@@ -991,7 +1004,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 			
 			elseif (have_pool) then
 				--> check if the spell id is in the spell poll.
-				local habilidades = jogador.spell_tables._ActorTable
+				local habilidades = jogador.spells._ActorTable
 				
 				for id, habilidade in _pairs (habilidades) do
 					if (habilidades_poll [id]) then
@@ -1014,15 +1027,15 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 						
 						--> pega os alvos e adiciona ao [2]
 						local alvos = habilidade.targets
-						for index, jogador in _ipairs (alvos._ActorTable) do 
+						for target_name, amount in _pairs (alvos) do 
 						
 							--> ele tem o nome do jogador, vamos ver se este alvo é realmente um jogador verificando na tabela do combate
-							local tabela_dano_do_jogador = DamageContainer._ActorTable [DamageContainer._NameIndexTable [jogador.nome]]
+							local tabela_dano_do_jogador = DamageContainer._ActorTable [DamageContainer._NameIndexTable [target_name]]
 							if (tabela_dano_do_jogador and tabela_dano_do_jogador.grupo) then
-								if (not esta_habilidade[2] [jogador.nome]) then 
-									esta_habilidade[2] [jogador.nome] = {0, tabela_dano_do_jogador.classe}
+								if (not esta_habilidade[2] [target_name]) then 
+									esta_habilidade[2] [target_name] = {0, tabela_dano_do_jogador.classe}
 								end
-								esta_habilidade[2] [jogador.nome] [1] = esta_habilidade[2] [jogador.nome] [1] + jogador.total
+								esta_habilidade[2] [target_name] [1] = esta_habilidade[2] [target_name] [1] + amount
 							end
 						end
 					end
@@ -1139,46 +1152,35 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 				tabela.total = jogador.total
 				
 				--> em quem ele deu dano
-				for _, alvo in _ipairs (jogador.targets._ActorTable) do 
-					--local este_jogador = DamageContainer._ActorTable [DamageContainer._NameIndexTable [alvo.nome]]
-					local este_jogador = _combat_object (1, alvo.nome)
+				for target_name, amount in _pairs (jogador.targets) do
+					local este_jogador = _combat_object (1, target_name)
 					if (este_jogador) then
 						if (este_jogador.classe ~= "PET" and este_jogador.classe ~= "UNGROUPPLAYER" and este_jogador.classe ~= "UNKNOW") then
-							tabela.dano_em [#tabela.dano_em +1] = {alvo.nome, alvo.total, este_jogador.classe}
-							tabela.dano_em_total = tabela.dano_em_total + alvo.total
+							tabela.dano_em [#tabela.dano_em +1] = {target_name, amount, este_jogador.classe}
+							tabela.dano_em_total = tabela.dano_em_total + amount
 						end
 					else
 						--print ("actor not found: " ..alvo.nome )
 					end
 				end
-				_table_sort (tabela.dano_em, function(a, b) return a[2] > b[2] end)
+				_table_sort (tabela.dano_em, _detalhes.Sort2)
 				
 				--> quem deu dano nele
 				for agressor, _ in _pairs (jogador.damage_from) do 
 					--local este_jogador = DamageContainer._ActorTable [DamageContainer._NameIndexTable [agressor]]
 					local este_jogador = _combat_object (1, agressor)
 					if (este_jogador and este_jogador:IsPlayer()) then 
-						for _, alvo in _ipairs (este_jogador.targets._ActorTable) do 
-							if (alvo.nome == nome) then 
-								tabela.damage_from [#tabela.damage_from+1] = {agressor, alvo.total, este_jogador.classe}
-								tabela.damage_from_total = tabela.damage_from_total + alvo.total
+						for target_name, amount in _pairs (este_jogador.targets) do
+							if (target_name == nome) then 
+								tabela.damage_from [#tabela.damage_from+1] = {agressor, amount, este_jogador.classe}
+								tabela.damage_from_total = tabela.damage_from_total + amount
 							end
 						end
 					end
 				end
-				_table_sort (tabela.damage_from, 
-								function (a, b) 
-									if (a[3] ~= "PET" and b[3] ~= "PET") then 
-										return a[2] > b[2] 
-									elseif (a[3] == "PET" and b[3] ~= "PET") then
-										return false
-									elseif (a[3] ~= "PET" and b[3] == "PET") then
-										return true
-									else
-										return a[2] > b[2] 
-									end
-								end)
 				
+				_table_sort (tabela.damage_from, sort_damage_from)
+
 				tinsert (adds, tabela)
 				
 			end
@@ -1254,7 +1256,9 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 		local index = 1
 		quantidade = 0
 		
-		table.sort (adds, function (t1, t2) return t1.nome < t2.nome end)
+		
+		
+		table.sort (adds, sort_by_name)
 		
 		for index, esta_tabela in _ipairs (adds) do 
 		
@@ -1395,7 +1399,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 		for spellid, tabela in _pairs (habilidades_interrompidas) do 
 			tabela_em_ordem [#tabela_em_ordem+1] = tabela
 		end
-		_table_sort (tabela_em_ordem, function (a, b) return a[2] > b[2] end)
+		_table_sort (tabela_em_ordem, _detalhes.Sort2)
 
 		index = 1
 		
@@ -1417,8 +1421,8 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 			local successful = 0
 			--> pegar quantas vezes a magia passou com sucesso.
 			for _, enemy_actor in _ipairs (DamageContainer._ActorTable) do
-				if (enemy_actor.spell_tables._ActorTable [spellid]) then
-					local spell = enemy_actor.spell_tables._ActorTable [spellid]
+				if (enemy_actor.spells._ActorTable [spellid]) then
+					local spell = enemy_actor.spells._ActorTable [spellid]
 					successful = spell.successful_casted
 				end
 			end
@@ -1509,7 +1513,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 		for spellid, tabela in _pairs (habilidades_dispeladas) do 
 			tabela_em_ordem [#tabela_em_ordem+1] = tabela
 		end
-		_table_sort (tabela_em_ordem, function (a, b) return a[2] > b[2] end)
+		_table_sort (tabela_em_ordem, _detalhes.Sort2)
 
 		index = 1
 		
@@ -1568,7 +1572,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 		
 		quantidade = 0
 	
-		-- boss_info.spell_tables_info o erro de lua do boss é a habilidade dele que não foi declarada ainda
+		-- boss_info.spells_info o erro de lua do boss é a habilidade dele que não foi declarada ainda
 	
 		local mortes = _combat_object.last_events_tables
 		local habilidades_info = boss_info and boss_info.spell_mechanics or {} --barra.extra pega esse cara aqui --> então esse erro é das habilidades que não tao

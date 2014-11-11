@@ -257,7 +257,7 @@ local throne_of_thunder = {
 				local actorList = combat:GetActorList (DETAILS_ATTRIBUTE_DAMAGE)
 				
 				for _, actor in ipairs (actorList) do 
-					local TwistedFate = actor.spell_tables:GetSpell (137972) --> twisted fate adds spell
+					local TwistedFate = actor.spells:GetSpell (137972) --> twisted fate adds spell
 					if (TwistedFate) then
 						if (not actor.lastTwistedFate) then
 							actor.lastTwistedFate = 0

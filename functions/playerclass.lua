@@ -79,8 +79,8 @@ do
 			return false
 		end
 		
-		if (Actor.spell_tables) then --> correcao pros containers misc, precisa pegar os diferentes tipos de containers de  lá
-			for spellid, _ in _pairs (Actor.spell_tables._ActorTable) do 
+		if (Actor.spells) then --> correcao pros containers misc, precisa pegar os diferentes tipos de containers de  lá
+			for spellid, _ in _pairs (Actor.spells._ActorTable) do 
 				local class = _detalhes.ClassSpellList [spellid]
 				if (class) then
 					Actor.classe = class
@@ -92,7 +92,7 @@ do
 						container.shadow.need_refresh = true
 					end
 					
-					if (Actor.minha_barra) then
+					if (Actor.minha_barra and type (Actor.minha_barra) == "table") then
 						Actor.minha_barra.minha_tabela = nil
 					end
 				
@@ -114,7 +114,7 @@ do
 				container.shadow.need_refresh = true
 			end
 			
-			if (Actor.minha_barra) then
+			if (Actor.minha_barra and type (Actor.minha_barra) == "table") then
 				Actor.minha_barra.minha_tabela = nil
 			end
 			

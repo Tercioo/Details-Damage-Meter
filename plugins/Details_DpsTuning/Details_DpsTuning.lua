@@ -755,7 +755,7 @@ local function CreatePluginFrames()
 		if (misc) then
 			local debuff_uptime = misc.debuff_uptime
 			if (debuff_uptime) then
-				local this_spell = misc.debuff_uptime_spell_tables._ActorTable [capsule.spellid]
+				local this_spell = misc.debuff_uptime_spells._ActorTable [capsule.spellid]
 				if (this_spell) then
 					GameCooltip:AddLine ("")
 					local uptime = this_spell.uptime

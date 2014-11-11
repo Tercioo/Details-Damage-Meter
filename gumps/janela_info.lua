@@ -776,53 +776,15 @@ function gump:CriaJanelaInfo()
 	este_gump.classe_iconePlus:SetHeight (64)
 	este_gump.classe_iconePlus:SetDrawLayer ("BACKGROUND", 2)
 	
-	--> cria as 4 partes do fundo da janela
-	
 	--> top left
 	este_gump.bg1 = este_gump:CreateTexture (nil, "BORDER")
 	este_gump.bg1:SetPoint ("TOPLEFT", este_gump, "TOPLEFT", 0, 0)
-	--este_gump.bg1:SetWidth (512)
-	--este_gump.bg1:SetHeight (256)
 	este_gump.bg1:SetDrawLayer ("BORDER", 1)
 	
 	function _detalhes:SetPlayerDetailsWindowTexture (texture)
 		este_gump.bg1:SetTexture (texture)
 	end
 	_detalhes:SetPlayerDetailsWindowTexture ("Interface\\AddOns\\Details\\images\\info_window_background")
-	
-	este_gump.bg1_sec_texture = este_gump:CreateTexture (nil, "BORDER")
-	este_gump.bg1_sec_texture:SetDrawLayer ("BORDER", 2)
-	--este_gump.bg1_sec_texture:SetPoint ("topleft", este_gump.bg1, "topleft", 356, -86)
-	este_gump.bg1_sec_texture:SetPoint ("topleft", este_gump.bg1, "topleft", 348, -86)
-	este_gump.bg1_sec_texture:SetHeight (262)
-	este_gump.bg1_sec_texture:SetWidth (264)
-
-	--> bottom left
-	este_gump.bg3 = este_gump:CreateTexture (nil, "BORDER")
-	--este_gump.bg3:SetPoint ("BOTTOMLEFT", este_gump, "BOTTOMLEFT", 0, 0)
-	este_gump.bg3:SetPoint ("TOPLEFT", este_gump, "TOPLEFT", 0, -256)
-	este_gump.bg3:SetWidth (512)
-	este_gump.bg3:SetHeight (128)
-	este_gump.bg3:SetTexture ("Interface\\AddOns\\Details\\images\\info_bg_part3") 
-	este_gump.bg3:Hide()
-	
-	--> top right
-	este_gump.bg2 = este_gump:CreateTexture (nil, "BORDER")
-	este_gump.bg2:SetPoint ("TOPLEFT", este_gump, "TOPLEFT", 512, 0)
-	este_gump.bg2:SetWidth (128)
-	este_gump.bg2:SetHeight (128)
-	este_gump.bg2:SetTexture ("Interface\\AddOns\\Details\\images\\info_bg_part2") 
-	este_gump.bg2:Hide()
-	
-	--> bottom right
-	este_gump.bg4 = este_gump:CreateTexture (nil, "BORDER")
-	--este_gump.bg4:SetPoint ("BOTTOMRIGHT", este_gump, "BOTTOMRIGHT", 0, 0)
-	--este_gump.bg4:SetPoint ("BOTTOMLEFT", este_gump, "BOTTOMLEFT", 512, 0)
-	este_gump.bg4:SetPoint ("TOPLEFT", este_gump, "TOPLEFT", 512, -128)
-	este_gump.bg4:SetWidth (128)
-	este_gump.bg4:SetHeight (256)
-	este_gump.bg4:SetTexture ("Interface\\AddOns\\Details\\images\\info_bg_part4") 
-	este_gump.bg4:Hide()
 
 	--> botão de fechar
 	este_gump.fechar = _CreateFrame ("Button", nil, este_gump, "UIPanelCloseButton")
@@ -844,19 +806,6 @@ function gump:CriaJanelaInfo()
 	este_gump.no_targets.text:SetText (Loc ["STRING_NO_TARGET_BOX"])
 	este_gump.no_targets.text:SetTextColor (1, 1, 1, .4)
 	este_gump.no_targets:Hide()
-	
-	function este_gump:ToFront()
-		if (_detalhes.bosswindow) then
-			if (_detalhes.bosswindow:GetFrameLevel() > este_gump:GetFrameLevel()) then 
-				este_gump:SetFrameLevel (este_gump:GetFrameLevel()+3)
-				_detalhes.bosswindow:SetFrameLevel (_detalhes.bosswindow:GetFrameLevel()-3)
-			end
-		end
-	end
-	
-	este_gump.grab = gump:NewDetailsButton (este_gump, este_gump, _, este_gump.ToFront, nil, nil, 590, 73, "", "", "", "", {OnGrab = "PassClick"}, "DetailsJanelaInfoGrab")
-	este_gump.grab:SetPoint ("topleft",este_gump, "topleft")
-	este_gump.grab:SetFrameLevel (este_gump:GetFrameLevel()+1)
 	
 	--> titulo
 	gump:NewLabel (este_gump, este_gump, nil, "titulo", Loc ["STRING_PLAYER_DETAILS"], "GameFontHighlightLeft", 12, {227/255, 186/255, 4/255})
@@ -1395,19 +1344,17 @@ function gump:CriaJanelaInfo()
 					tab.selfhealingpersecond:SetText ("0 (0%)")
 				else
 					local last_actor_heal = last_combat (2, player.nome)
-					local este_alvo = actor_heal.targets._NameIndexTable [player.nome]
+					local este_alvo = actor_heal.targets [player.nome]
 					if (este_alvo) then
-						este_alvo = actor_heal.targets._ActorTable [este_alvo]
-						local heal_total = este_alvo.total
+						local heal_total = este_alvo
 						tab.selfhealing:SetText (_detalhes:ToK2 (heal_total))
 						
 						if (last_actor_heal) then
-							local este_alvo = last_actor_heal.targets._NameIndexTable [player.nome]
+							local este_alvo = last_actor_heal.targets [player.nome]
 							if (este_alvo) then
-							
-								este_alvo = actor_heal.targets._ActorTable [este_alvo]
+								local heal = este_alvo
 								
-								local last_heal = este_alvo.total / last_combat:GetCombatTime()
+								local last_heal = heal / last_combat:GetCombatTime()
 								
 								local ps, diff = getpercent (heal_total, last_heal, elapsed_time, true)
 								tab.selfhealingpersecond:SetText (_detalhes:comma_value (_math_floor (ps)) .. " (" .. diff .. ")")
@@ -1432,7 +1379,7 @@ function gump:CriaJanelaInfo()
 					for actorName, _ in pairs (heal_from) do 
 						local thisActor = combat (2, actorName)
 						local targets = thisActor.targets --> targets is a container with target classes
-						local amount = targets:GetAmount (player.nome, "total")
+						local amount = targets [player.nome] or 0
 						myReceivedHeal [#myReceivedHeal+1] = {actorName, amount, thisActor.classe}
 					end
 					
@@ -1459,7 +1406,7 @@ function gump:CriaJanelaInfo()
 							local last_actor = last_combat (2, myReceivedHeal [i][1])
 							if (last_actor) then
 								local targets = last_actor.targets
-								local amount = targets:GetAmount (player.nome, "total")
+								local amount = targets [player.nome] or 0
 								if (amount) then
 									
 									local last_heal = amount
@@ -1491,14 +1438,14 @@ function gump:CriaJanelaInfo()
 				local misc_player = combat (4, player.nome)
 				
 				if (misc_player) then
-					if (misc_player.cooldowns_defensive_spell_tables) then
-						local minha_tabela = misc_player.cooldowns_defensive_spell_tables._ActorTable
+					if (misc_player.cooldowns_defensive_spells) then
+						local minha_tabela = misc_player.cooldowns_defensive_spells._ActorTable
 						local cooldowns_usados = {}
 						
 						for _spellid, _tabela in pairs (minha_tabela) do
 							cooldowns_usados [#cooldowns_usados+1] = {_spellid, _tabela.counter}
 						end
-						table.sort (cooldowns_usados, function (t1, t2) return t1[2] > t2[2] end)
+						table.sort (cooldowns_usados, _detalhes.Sort2)
 						
 						if (#cooldowns_usados > 1) then
 							for i = 1, #cooldowns_usados do
@@ -1521,8 +1468,8 @@ function gump:CriaJanelaInfo()
 
 				--> buffs uptime
 				if (index_used < 11) then
-					if (misc_player.buff_uptime_spell_tables) then
-						local minha_tabela = misc_player.buff_uptime_spell_tables._ActorTable
+					if (misc_player.buff_uptime_spells) then
+						local minha_tabela = misc_player.buff_uptime_spells._ActorTable
 						
 						local encounter_time = combat:GetCombatTime()
 						
@@ -1634,12 +1581,12 @@ function gump:CriaJanelaInfo()
 			local player_2_target_pool
 			local player_2_top
 			if (player_2) then
-				local player_2_target = player_2.targets._ActorTable
+				local player_2_target = player_2.targets
 				player_2_target_pool = {}
-				for index, target in _ipairs (player_2_target) do 
-					player_2_target_pool [#player_2_target_pool+1] = {target.nome, target.total}
+				for target_name, amount in _pairs (player_2_target) do
+					player_2_target_pool [#player_2_target_pool+1] = {target_name, amount}
 				end
-				table.sort (player_2_target_pool, function (t1, t2) return t1[2] > t2[2] end)
+				table.sort (player_2_target_pool, _detalhes.Sort2)
 				if (player_2_target_pool [1]) then
 					player_2_top = player_2_target_pool [1] [2]
 				else
@@ -1653,12 +1600,12 @@ function gump:CriaJanelaInfo()
 			local player_3_target_pool
 			local player_3_top
 			if (player_3) then
-				local player_3_target = player_3.targets._ActorTable
+				local player_3_target = player_3.targets
 				player_3_target_pool = {}
-				for index, target in _ipairs (player_3_target) do 
-					player_3_target_pool [#player_3_target_pool+1] = {target.nome, target.total}
+				for target_name, amount in _pairs (player_3_target) do 
+					player_3_target_pool [#player_3_target_pool+1] = {target_name, amount}
 				end
-				table.sort (player_3_target_pool, function (t1, t2) return t1[2] > t2[2] end)
+				table.sort (player_3_target_pool, _detalhes.Sort2)
 				if (player_3_target_pool [1]) then
 					player_3_top = player_3_target_pool [1] [2]
 				else
@@ -1845,10 +1792,10 @@ function gump:CriaJanelaInfo()
 			
 			--primeiro preenche a nossa barra
 			local spells_sorted = {}
-			for spellid, spelltable in _pairs (player.spell_tables._ActorTable) do
+			for spellid, spelltable in _pairs (player.spells._ActorTable) do
 				spells_sorted [#spells_sorted+1] = {spelltable, spelltable.total}
 			end
-			table.sort (spells_sorted, function (t1, t2) return t1[2] > t2[2] end)
+			table.sort (spells_sorted, _detalhes.Sort2)
 		
 			self.player = player:Name()
 		
@@ -1861,10 +1808,10 @@ function gump:CriaJanelaInfo()
 			frame2.player = other_players [1]:Name()
 			local player_2_total = other_players [1].total_without_pet
 			local player_2_spells_sorted = {}
-			for spellid, spelltable in _pairs (other_players [1].spell_tables._ActorTable) do
+			for spellid, spelltable in _pairs (other_players [1].spells._ActorTable) do
 				player_2_spells_sorted [#player_2_spells_sorted+1] = {spelltable, spelltable.total}
 			end
-			table.sort (player_2_spells_sorted, function (t1, t2) return t1[2] > t2[2] end)
+			table.sort (player_2_spells_sorted, _detalhes.Sort2)
 			local player_2_top = player_2_spells_sorted [1] [2]
 			local player_2_spell_info = {}
 			for index, spelltable in _ipairs (player_2_spells_sorted) do 
@@ -1879,10 +1826,10 @@ function gump:CriaJanelaInfo()
 			local player_3_top
 			
 			if (other_players [2]) then
-				for spellid, spelltable in _pairs (other_players [2].spell_tables._ActorTable) do
+				for spellid, spelltable in _pairs (other_players [2].spells._ActorTable) do
 					player_3_spells_sorted [#player_3_spells_sorted+1] = {spelltable, spelltable.total}
 				end
-				table.sort (player_3_spells_sorted, function (t1, t2) return t1[2] > t2[2] end)
+				table.sort (player_3_spells_sorted, _detalhes.Sort2)
 				player_3_top = player_3_spells_sorted [1] [2]
 				for index, spelltable in _ipairs (player_3_spells_sorted) do 
 					player_3_spell_info [spelltable[1].id] = index
@@ -1911,7 +1858,7 @@ function gump:CriaJanelaInfo()
 					
 					--seta no segundo box
 					local player_2 = other_players [1]
-					local spell = player_2.spell_tables._ActorTable [spellid]
+					local spell = player_2.spells._ActorTable [spellid]
 					local bar_2 = frame2.bars [i]
 					
 					-- ~compare
@@ -1967,7 +1914,7 @@ function gump:CriaJanelaInfo()
 					
 					if (player_3_total) then
 						local player_3 = other_players [2]
-						local spell = player_3.spell_tables._ActorTable [spellid]
+						local spell = player_3.spells._ActorTable [spellid]
 						
 						if (spell) then
 							bar_3 [1]:SetTexture (icon)
@@ -2058,12 +2005,12 @@ function gump:CriaJanelaInfo()
 		local refresh_target_box = function (self)
 			
 			--player 1 targets
-			local my_targets = self.tab.player.targets._ActorTable
+			local my_targets = self.tab.player.targets
 			local target_pool = {}
-			for index, target in _ipairs (my_targets) do 
-				target_pool [#target_pool+1] = {target.nome, target.total}
+			for target_name, amount in _pairs (my_targets) do 
+				target_pool [#target_pool+1] = {target_name, amount}
 			end
-			table.sort (target_pool, function (t1, t2) return t1[2] > t2[2] end)
+			table.sort (target_pool, _detalhes.Sort2)
 			
 			FauxScrollFrame_Update (self, math.max (#target_pool, 5), 4, 14)
 
@@ -2121,10 +2068,10 @@ function gump:CriaJanelaInfo()
 			
 			-- player 1
 			local player_1_skills = {}
-			for spellid, spell in _pairs (player_1.spell_tables._ActorTable) do
-				for index, target in _ipairs (spell.targets._ActorTable) do
-					if (target.nome == target_name) then
-						player_1_skills [#player_1_skills+1] = {spellid, target.total}
+			for spellid, spell in _pairs (player_1.spells._ActorTable) do
+				for name, amount in _pairs (spell.targets) do
+					if (name == target_name) then
+						player_1_skills [#player_1_skills+1] = {spellid, amount}
 					end
 				end
 			end
@@ -2135,10 +2082,10 @@ function gump:CriaJanelaInfo()
 			local player_2_skills = {}
 			local player_2_top
 			if (player_2) then
-				for spellid, spell in _pairs (player_2.spell_tables._ActorTable) do
-					for index, target in _ipairs (spell.targets._ActorTable) do
-						if (target.nome == target_name) then
-							player_2_skills [#player_2_skills+1] = {spellid, target.total}
+				for spellid, spell in _pairs (player_2.spells._ActorTable) do
+					for name, amount in _pairs (spell.targets) do
+						if (name == target_name) then
+							player_2_skills [#player_2_skills+1] = {spellid, amount}
 						end
 					end
 				end
@@ -2150,10 +2097,10 @@ function gump:CriaJanelaInfo()
 			local player_3_skills = {}
 			local player_3_top
 			if (player_3) then
-				for spellid, spell in _pairs (player_3.spell_tables._ActorTable) do
-					for index, target in _ipairs (spell.targets._ActorTable) do
-						if (target.nome == target_name) then
-							player_3_skills [#player_3_skills+1] = {spellid, target.total}
+				for spellid, spell in _pairs (player_3.spells._ActorTable) do
+					for name, amount in _pairs (spell.targets) do
+						if (name == target_name) then
+							player_3_skills [#player_3_skills+1] = {spellid, amount}
 						end
 					end
 				end
@@ -2354,7 +2301,7 @@ function gump:CriaJanelaInfo()
 				frame1.tooltip.crit_label2:SetText (critical .. "%")
 				
 				if (player1_misc) then
-					local spell = player1_misc.debuff_uptime_spell_tables and player1_misc.debuff_uptime_spell_tables._ActorTable and player1_misc.debuff_uptime_spell_tables._ActorTable [spellid]
+					local spell = player1_misc.debuff_uptime_spells and player1_misc.debuff_uptime_spells._ActorTable and player1_misc.debuff_uptime_spells._ActorTable [spellid]
 					if (spell) then
 						local minutos, segundos = _math_floor (spell.uptime/60), _math_floor (spell.uptime%60)
 						player1_uptime = spell.uptime
@@ -2429,7 +2376,7 @@ function gump:CriaJanelaInfo()
 				end
 				
 				if (player2_misc) then
-					local spell = player2_misc.debuff_uptime_spell_tables and player2_misc.debuff_uptime_spell_tables._ActorTable and player2_misc.debuff_uptime_spell_tables._ActorTable [spellid]
+					local spell = player2_misc.debuff_uptime_spells and player2_misc.debuff_uptime_spells._ActorTable and player2_misc.debuff_uptime_spells._ActorTable [spellid]
 					if (spell and spell.uptime) then
 						local minutos, segundos = _math_floor (spell.uptime/60), _math_floor (spell.uptime%60)
 						
@@ -2524,7 +2471,7 @@ function gump:CriaJanelaInfo()
 				end
 
 				if (player3_misc) then
-					local spell = player3_misc.debuff_uptime_spell_tables and player3_misc.debuff_uptime_spell_tables._ActorTable and player3_misc.debuff_uptime_spell_tables._ActorTable [spellid]
+					local spell = player3_misc.debuff_uptime_spells and player3_misc.debuff_uptime_spells._ActorTable and player3_misc.debuff_uptime_spells._ActorTable [spellid]
 					if (spell and spell.uptime) then
 						local minutos, segundos = _math_floor (spell.uptime/60), _math_floor (spell.uptime%60)
 						
@@ -2894,7 +2841,7 @@ function gump:CriaJanelaInfo()
 				local my_spells = {}
 				local my_spells_total = 0
 				--> build my spell list
-				for spellid, _ in _pairs (playerObject.spell_tables._ActorTable) do
+				for spellid, _ in _pairs (playerObject.spells._ActorTable) do
 					my_spells [spellid] = true
 					my_spells_total = my_spells_total + 1
 				end
@@ -2907,7 +2854,7 @@ function gump:CriaJanelaInfo()
 					if (actor.classe == class and actor ~= playerObject) then
 
 						local same_spells = 0
-						for spellid, _ in _pairs (actor.spell_tables._ActorTable) do
+						for spellid, _ in _pairs (actor.spells._ActorTable) do
 							if (my_spells [spellid]) then
 								same_spells = same_spells + 1
 							end
@@ -3505,13 +3452,28 @@ local target_on_enter = function (self)
 	
 	if (barra.show and type (barra.show) == "number") then
 		local actor = barra.other_actor or info.jogador
-		local spell = actor.spell_tables:PegaHabilidade (barra.show)
+		local spell = actor.spells:PegaHabilidade (barra.show)
 		if (spell) then
-			local ActorTargetsContainer = spell.targets._ActorTable
+		
 			local ActorTargetsSortTable = {}
+			local ActorTargetsContainer
+			
+			local attribute, sub_attribute = info.instancia:GetDisplay()
+			if (attribute == 1 or attribute == 3) then
+				ActorTargetsContainer = spell.targets
+			else
+				if (sub_attribute == 3) then --overheal
+					ActorTargetsContainer = spell.targets_overheal
+				elseif (sub_attribute == 6) then --absorbs
+					ActorTargetsContainer = spell.targets_absorbs
+				else
+					ActorTargetsContainer = spell.targets
+				end
+			end
+			
 			--add and sort
-			for _, _target in _ipairs (ActorTargetsContainer) do
-				ActorTargetsSortTable [#ActorTargetsSortTable+1] = {_target.nome, _target [info.target_member] or _target.total or 0}
+			for target_name, amount in _pairs (ActorTargetsContainer) do
+				ActorTargetsSortTable [#ActorTargetsSortTable+1] = {target_name, amount or 0}
 			end
 			table.sort (ActorTargetsSortTable, _detalhes.Sort2)
 			

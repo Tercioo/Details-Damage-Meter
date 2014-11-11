@@ -91,6 +91,14 @@ function SlashCmdList.DETAILS (msg, editbox)
 			_detalhes:CheckChatOnLeaveGroup()
 		end
 
+	elseif (msg == "load") then
+		
+		print (DetailsDataStorage)
+		
+		local loaded, reason = LoadAddOn ("Details_DataStorage")
+		print (loaded, reason, DetailsDataStorage)
+		
+	
 	elseif (msg == "owner2") then
 	
 		local tip = CreateFrame('GameTooltip', 'GuardianOwnerTooltip', nil, 'GameTooltipTemplate')
@@ -149,21 +157,21 @@ function SlashCmdList.DETAILS (msg, editbox)
 		end
 		
 		if (cima) then
-			local frostbolt = self.spell_tables:PegaHabilidade (116, true, "SPELL_DAMAGE")
-			local frostfirebolt = self.spell_tables:PegaHabilidade (44614, true, "SPELL_DAMAGE")
-			local icelance = self.spell_tables:PegaHabilidade (30455, true, "SPELL_DAMAGE")
+			local frostbolt = self.spells:PegaHabilidade (116, true, "SPELL_DAMAGE")
+			local frostfirebolt = self.spells:PegaHabilidade (44614, true, "SPELL_DAMAGE")
+			local icelance = self.spells:PegaHabilidade (30455, true, "SPELL_DAMAGE")
 			
-			self.spell_tables._ActorTable [116].total = 50000
-			self.spell_tables._ActorTable [44614].total = 25000
-			self.spell_tables._ActorTable [30455].total = 25000
+			self.spells._ActorTable [116].total = 50000
+			self.spells._ActorTable [44614].total = 25000
+			self.spells._ActorTable [30455].total = 25000
 		else
-			local frostbolt = self.spell_tables:PegaHabilidade (84721, true, "SPELL_DAMAGE")
-			local frostfirebolt = self.spell_tables:PegaHabilidade (113092, true, "SPELL_DAMAGE")
-			local icelance = self.spell_tables:PegaHabilidade (122, true, "SPELL_DAMAGE")
+			local frostbolt = self.spells:PegaHabilidade (84721, true, "SPELL_DAMAGE")
+			local frostfirebolt = self.spells:PegaHabilidade (113092, true, "SPELL_DAMAGE")
+			local icelance = self.spells:PegaHabilidade (122, true, "SPELL_DAMAGE")
 			
-			self.spell_tables._ActorTable [84721].total = 50000
-			self.spell_tables._ActorTable [113092].total = 25000
-			self.spell_tables._ActorTable [122].total = 25000
+			self.spells._ActorTable [84721].total = 50000
+			self.spells._ActorTable [113092].total = 25000
+			self.spells._ActorTable [122].total = 25000
 		end
 		
 		combat.start_time = time()-30
@@ -483,8 +491,8 @@ function SlashCmdList.DETAILS (msg, editbox)
 				return
 			end
 			
-			if (playerActor and playerActor.buff_uptime_spell_tables and playerActor.buff_uptime_spell_tables._ActorTable) then
-				for spellid, spellTable in pairs (playerActor.buff_uptime_spell_tables._ActorTable) do 
+			if (playerActor and playerActor.buff_uptime_spells and playerActor.buff_uptime_spells._ActorTable) then
+				for spellid, spellTable in pairs (playerActor.buff_uptime_spells._ActorTable) do 
 					local spellname = GetSpellInfo (spellid)
 					if (spellname) then
 						print (spellid, spellname, spellTable.uptime)
@@ -502,13 +510,26 @@ function SlashCmdList.DETAILS (msg, editbox)
 	
 	elseif (msg == "comm") then
 		
-		if (IsInRaid()) then
-			for i = 1, GetNumGroupMembers() do 
-				local nname, server = UnitName ("raid"..i)
-				print (nname, server)
-				--nname = nname.."-"..server
+		local test_plugin = TESTPLUGIN
+		if (not test_plugin) then
+			local p = _detalhes:NewPluginObject ("DetailsTestPlugin", nil, "STATUSBAR")
+			_detalhes:InstallPlugin ("STATUSBAR", "Plugin Test", [[Interface\COMMON\StreamCircle]], p, "TESTPLUGIN", 1, "Details!", "v1.0")
+			test_plugin = TESTPLUGIN
+			
+			function test_plugin:ReceiveAA (a, b, c, d, e, f, g)
+				print ("working 1", a, b, c, d, e, f, g)
 			end
+			
+			function test_plugin:ReceiveAB (a, b, c, d, e, f, g)
+				print ("working 2", a, b, c, d, e, f, g)
+			end
+			
+			test_plugin:RegisterPluginComm ("PTAA", "ReceiveAA")
+			test_plugin:RegisterPluginComm ("PTAB", "ReceiveAB")
 		end
+		
+		test_plugin:SendPluginCommMessage ("PTAA", nil, "teste 1", "teste 2", "teste3")
+		
 
 	elseif (msg == "teste") then
 		

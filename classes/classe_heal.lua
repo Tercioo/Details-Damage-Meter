@@ -105,21 +105,22 @@ function atributo_heal:NovaTabela (serial, nome, link)
 		heal_enemy_amt = 0,
 
 		--container armazenará os IDs das habilidades usadas por este jogador
-		spell_tables = container_habilidades:NovoContainer (container_heal),
-		
+		spells = container_habilidades:NovoContainer (container_heal),
 		--container armazenará os seriais dos alvos que o player aplicou dano
-		targets = container_combatentes:NovoContainer (container_heal_target)
+		targets = {},
+		targets_overheal = {},
+		targets_absorbs = {}
 	}
 	
 	_setmetatable (_new_healActor, atributo_heal)
 	
-	if (link) then --> se não for a shadow
+	--if (link) then --> se não for a shadow
 		--_new_healActor.last_events_table = _detalhes:CreateActorLastEventTable()
 		--_new_healActor.last_events_table.original = true
 	
-		_new_healActor.targets.shadow = link.targets
-		_new_healActor.spell_tables.shadow = link.spell_tables
-	end
+		--_new_healActor.targets.shadow = link.targets
+		--_new_healActor.spells.shadow = link.spells
+	--end
 	
 	return _new_healActor
 end
@@ -544,22 +545,6 @@ function atributo_heal:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 	-- showing.need_refresh = false
 	return _detalhes:EndRefresh (instancia, total, tabela_do_combate, showing) --> retorna a tabela que precisa ganhar o refresh
 	
-end
-
-function atributo_heal:Custom (_customName, _combat, sub_atributo, spell, alvo)
-	local _Skill = self.spell_tables._ActorTable [tonumber (spell)]
-	if (_Skill) then
-		local spellName = _GetSpellInfo (tonumber (spell))
-		local SkillTargets = _Skill.targets._ActorTable
-		
-		for _, TargetActor in _ipairs (SkillTargets) do 
-			local TargetActorSelf = _combat (class_type, TargetActor.nome)
-			if (TargetActorSelf) then
-				TargetActorSelf.custom = TargetActor.total + TargetActorSelf.custom
-				_combat.totals [_customName] = _combat.totals [_customName] + TargetActor.total
-			end
-		end
-	end
 end
 
 local actor_class_color_r, actor_class_color_g, actor_class_color_b
@@ -987,9 +972,9 @@ function atributo_heal:ToolTip_HealingTaken (instancia, numero, barra, keydown)
 		local este_curador = showing._ActorTable[showing._NameIndexTable[nome]]
 		if (este_curador) then --> checagem por causa do total e do garbage collector que não limpa os nomes que deram dano
 			local alvos = este_curador.targets
-			local este_alvo = alvos._ActorTable[alvos._NameIndexTable[self.nome]]
-			if (este_alvo and este_alvo.total > 0) then
-				meus_curadores [#meus_curadores+1] = {nome, este_alvo.total, este_curador.classe}
+			local este_alvo = alvos [self.nome]
+			if (este_alvo and este_alvo > 0) then
+				meus_curadores [#meus_curadores+1] = {nome, este_alvo, este_curador.classe}
 			end
 		end
 	end
@@ -1051,7 +1036,7 @@ function atributo_heal:ToolTip_HealingDone (instancia, numero, barra, keydown)
 	
 	local ActorHealingTable = {}
 	local ActorHealingTargets = {}
-	local ActorSkillsContainer = self.spell_tables._ActorTable
+	local ActorSkillsContainer = self.spells._ActorTable
 
 	local actor_key, skill_key = "total", "total"
 	if (instancia.sub_atributo == 3) then
@@ -1078,10 +1063,10 @@ function atributo_heal:ToolTip_HealingDone (instancia, numero, barra, keydown)
 	_table_sort (ActorHealingTable, _detalhes.Sort2)
 	
 	--> TOP Curados
-	ActorSkillsContainer = self.targets._ActorTable
-	for _, TargetTable in _ipairs (ActorSkillsContainer) do
-		if (TargetTable.total > 0) then
-			_table_insert (ActorHealingTargets, {TargetTable.nome, TargetTable.total, TargetTable.total/ActorTotal*100})
+	ActorSkillsContainer = self.targets
+	for target_name, amount in _pairs (ActorSkillsContainer) do
+		if (amount > 0) then
+			_table_insert (ActorHealingTargets, {target_name, amount, amount / ActorTotal * 100})
 		end
 	end
 	_table_sort (ActorHealingTargets, _detalhes.Sort2)
@@ -1203,7 +1188,7 @@ function atributo_heal:ToolTip_HealingDone (instancia, numero, barra, keydown)
 				if (my_self) then
 				
 					local meu_total = my_self.total_without_pet
-					local tabela = my_self.spell_tables._ActorTable
+					local tabela = my_self.spells._ActorTable
 					local meus_danos = {}
 					
 					local meu_tempo
@@ -1222,9 +1207,9 @@ function atributo_heal:ToolTip_HealingDone (instancia, numero, barra, keydown)
 					danos [nome] = meus_danos
 					
 					local meus_inimigos = {}
-					tabela = my_self.targets._ActorTable
-					for _, tabela in _ipairs (tabela) do
-						_table_insert (meus_inimigos, {tabela.nome, tabela.total, tabela.total/meu_total*100})
+					tabela = my_self.targets
+					for target_name, amount in _pairs (tabela) do
+						_table_insert (meus_inimigos, {target_name, amount, amount / meu_total * 100})
 					end
 					_table_sort (meus_inimigos,_detalhes.Sort2)
 					alvos [nome] = meus_inimigos
@@ -1349,9 +1334,9 @@ function atributo_heal:MontaInfoHealTaken()
 		este_curandeiro = showing._ActorTable[showing._NameIndexTable[nome]]
 		if (este_curandeiro) then
 			local alvos = este_curandeiro.targets
-			local este_alvo = alvos._ActorTable[alvos._NameIndexTable[self.nome]]
+			local este_alvo = alvos [self.nome]
 			if (este_alvo) then
-				meus_curandeiros [#meus_curandeiros+1] = {nome, este_alvo.total, este_alvo.total/healing_taken*100, este_curandeiro.classe}
+				meus_curandeiros [#meus_curandeiros+1] = {nome, este_alvo, este_alvo/healing_taken*100, este_curandeiro.classe}
 			end
 		end
 	end
@@ -1362,7 +1347,7 @@ function atributo_heal:MontaInfoHealTaken()
 		return true
 	end
 	
-	_table_sort (meus_curandeiros, function (a, b) return a[2] > b[2] end)
+	_table_sort (meus_curandeiros, _detalhes.Sort2)
 	
 	gump:JI_AtualizaContainerBarras (amt)
 
@@ -1387,62 +1372,6 @@ function atributo_heal:MontaInfoHealTaken()
 		self:UpdadeInfoBar (barra, index, tabela[1], tabela[1], tabela[2], _detalhes:comma_value (tabela[2]), max_, tabela[3], "Interface\\AddOns\\Details\\images\\classes_small", true, texCoords)
 	end	
 	
-	--[[
-	for index, tabela in _ipairs (meus_curandeiros) do
-		
-		local barra = barras [index]
-
-		if (not barra) then
-			barra = gump:CriaNovaBarraInfo1 (instancia, index)
-			barra.textura:SetStatusBarColor (1, 1, 1, 1)
-			
-			barra.on_focus = false
-		end
-
-		if (not info.mostrando_mouse_over) then
-			if (tabela[1] == self.detalhes) then --> tabela [1] = NOME = NOME que esta na caixa da direita
-				if (not barra.on_focus) then --> se a barra não tiver no foco
-					barra.textura:SetStatusBarColor (129/255, 125/255, 69/255, 1)
-					barra.on_focus = true
-					if (not info.mostrando) then
-						info.mostrando = barra
-					end
-				end
-			else
-				if (barra.on_focus) then
-					barra.textura:SetStatusBarColor (1, 1, 1, 1) --> volta a cor antiga
-					barra:SetAlpha (.9) --> volta a alfa antiga
-					barra.on_focus = false
-				end
-			end
-		end
-
-		if (index == 1) then
-			barra.textura:SetValue (100)
-		else
-			barra.textura:SetValue (tabela[2]/max_*100) --> muito mais rapido...
-		end
-
-		barra.texto_esquerdo:SetText (index..instancia.divisores.colocacao..tabela[1]) --seta o texto da esqueda
-		barra.texto_direita:SetText (tabela[2] .." ".. instancia.divisores.abre .._cstr("%.1f", tabela[3]) .."%".. instancia.divisores.fecha) --seta o texto da direita
-		
-		local classe = tabela[4]
-		if (not classe) then
-			classe = "monster"
-		end
-
-		barra.icone:SetTexture ("Interface\\AddOns\\Details\\images\\"..classe:lower().."_small")
-
-		barra.minha_tabela = self
-		barra.show = tabela[1]
-		barra:Show()
-
-		if (self.detalhes and self.detalhes == barra.show) then
-			self:MontaDetalhes (self.detalhes, barra)
-		end
-		
-	end
-	--]]
 end
 
 function atributo_heal:MontaInfoOverHealing()
@@ -1450,7 +1379,7 @@ function atributo_heal:MontaInfoOverHealing()
 	
 	local instancia = info.instancia
 	local total = self.totalover
-	local tabela = self.spell_tables._ActorTable
+	local tabela = self.spells._ActorTable
 	local minhas_curas = {}
 	local barras = info.barras1
 
@@ -1459,7 +1388,7 @@ function atributo_heal:MontaInfoOverHealing()
 		_table_insert (minhas_curas, {spellid, tabela.overheal, tabela.overheal/total*100, nome, icone})
 	end
 
-	_table_sort (minhas_curas, function(a, b) return a[2] > b[2] end)
+	_table_sort (minhas_curas, _detalhes.Sort2)
 
 	local amt = #minhas_curas
 	gump:JI_AtualizaContainerBarras (amt)
@@ -1516,17 +1445,17 @@ function atributo_heal:MontaInfoOverHealing()
 	
 	--> TOP OVERHEALED
 	local jogadores_overhealed = {}
-	tabela = self.targets._ActorTable
+	tabela = self.targets_overheal
 	local heal_container = instancia.showing[2]
-	for _, tabela in _ipairs (tabela) do
+	for target_name, amount in _pairs (tabela) do
 		local classe = "UNKNOW"
 		local actor_object = heal_container._ActorTable [heal_container._NameIndexTable [tabela.nome]]
 		if (actor_object) then
 			classe = actor_object.classe
 		end
-		_table_insert (jogadores_overhealed, {tabela.nome, tabela.overheal, tabela.overheal/total*100, classe})
+		_table_insert (jogadores_overhealed, {target_name, amount, amount/total*100, classe})
 	end
-	_table_sort (jogadores_overhealed, function(a, b) return a[2] > b[2] end )	
+	_table_sort (jogadores_overhealed, _detalhes.Sort2)
 	
 	local amt_alvos = #jogadores_overhealed
 	gump:JI_AtualizaContainerAlvos (amt_alvos)
@@ -1563,14 +1492,8 @@ function atributo_heal:MontaInfoOverHealing()
 		
 		barra.minha_tabela = self
 		barra.nome_inimigo = tabela [1]
-		
-		-- no lugar do spell id colocar o que?
-		--barra.spellid = tabela[5]
+
 		barra:Show()
-		
-		--if (self.detalhes and self.detalhes == barra.spellid) then
-		--	self:MontaDetalhes (self.detalhes, barra)
-		--end
 	end
 end
 
@@ -1580,7 +1503,7 @@ function atributo_heal:MontaInfoHealingDone()
 	
 	local instancia = info.instancia
 	local total = self.total
-	local tabela = self.spell_tables._ActorTable
+	local tabela = self.spells._ActorTable
 	local minhas_curas = {}
 	local barras = info.barras1
 
@@ -1604,12 +1527,11 @@ function atributo_heal:MontaInfoHealingDone()
 	for _, PetName in _ipairs (ActorPets) do
 		local PetActor = instancia.showing (class_type, PetName)
 		if (PetActor) then 
-			local PetSkillsContainer = PetActor.spell_tables._ActorTable
+			local PetSkillsContainer = PetActor.spells._ActorTable
 			for _spellid, _skill in _pairs (PetSkillsContainer) do --> da foreach em cada spellid do container
 				local nome, _, icone = _GetSpellInfo (_spellid)
 				_table_insert (minhas_curas, {_spellid, _skill.total, _skill.total/total*100, nome .. " (|c" .. class_color .. PetName:gsub ((" <.*"), "") .. "|r)", icone, PetActor})
 			end
-			--_table_insert (ActorSkillsSortTable, {PetName, PetActor.total, PetActor.total/ActorTotalDamage*100, PetName:gsub ((" <.*"), ""), "Interface\\AddOns\\Details\\images\\classes_small"})
 		end
 	end
 	
@@ -1652,11 +1574,11 @@ function atributo_heal:MontaInfoHealingDone()
 	
 	--> TOP CURADOS
 	local meus_inimigos = {}
-	tabela = self.targets._ActorTable
-	for _, tabela in _ipairs (tabela) do
-		_table_insert (meus_inimigos, {tabela.nome, tabela.total, tabela.total/total*100})
+	tabela = self.targets
+	for target_name, amount in _pairs (tabela) do
+		_table_insert (meus_inimigos, {target_name, amount, amount / total*100})
 	end
-	_table_sort (meus_inimigos, function(a, b) return a[2] > b[2] end )	
+	_table_sort (meus_inimigos, _detalhes.Sort2)
 	
 	local amt_alvos = #meus_inimigos
 	gump:JI_AtualizaContainerAlvos (amt_alvos)
@@ -1686,50 +1608,39 @@ function atributo_heal:MontaInfoHealingDone()
 			barra.texto_direita:SetText (_detalhes:comma_value (tabela[2]) .." ".. instancia.divisores.abre .. _cstr ("%.1f", tabela[3]) .. instancia.divisores.fecha) --seta o texto da direita
 		end
 		
-		-- o que mostrar no local do ícone?
-		--barra.icone:SetTexture (tabela[4][3])
-		
 		barra.minha_tabela = self
 		barra.nome_inimigo = tabela [1]
 		
 		-- no lugar do spell id colocar o que?
 		barra.spellid = tabela[5]
 		barra:Show()
-		
-		--if (self.detalhes and self.detalhes == barra.spellid) then
-		--	self:MontaDetalhes (self.detalhes, barra)
-		--end
 	end
 	
 end
 
 function atributo_heal:MontaTooltipAlvos (esta_barra, index, instancia)
-	-- eu ja sei quem é o alvo a mostrar os detalhes
-	-- dar foreach no container de habilidades -- pegar os alvos da habilidade -- e ver se dentro do container tem o meu alvo.
-	
+
 	local inimigo = esta_barra.nome_inimigo
-	local container = self.spell_tables._ActorTable
+	local container = self.spells._ActorTable
 	local habilidades = {}
 	local total
 	local sub_atributo = info.instancia.sub_atributo
 	
+	local targets_key = ""
+	
 	if (sub_atributo == 3) then --> overheal
 		total = self.totalover
+		targets_key = "_overheal"
 	else
 		total = self.total
 	end
 
 	--> add spells
 	for spellid, tabela in _pairs (container) do
-		local alvos = tabela.targets._ActorTable
-		for _, tabela in _ipairs (alvos) do
-			if (tabela.nome == inimigo) then
+		for target_name, amount in _pairs (tabela ["targets" .. targets_key]) do
+			if (target_name == inimigo) then
 				local nome, _, icone = _GetSpellInfo (spellid)
-				if (sub_atributo == 3) then --> overheal
-					habilidades [#habilidades+1] = {nome, tabela.overheal, icone}
-				else
-					habilidades [#habilidades+1] = {nome, tabela.total, icone}
-				end
+				habilidades [#habilidades+1] = {nome, amount, icone}
 			end
 		end
 	end
@@ -1739,24 +1650,21 @@ function atributo_heal:MontaTooltipAlvos (esta_barra, index, instancia)
 	for _, PetName in _ipairs (ActorPets) do
 		local PetActor = instancia.showing (class_type, PetName)
 		if (PetActor) then 
-			local PetSkillsContainer = PetActor.spell_tables._ActorTable
+			local PetSkillsContainer = PetActor.spells._ActorTable
 			for _spellid, _skill in _pairs (PetSkillsContainer) do
-				local alvos = _skill.targets._ActorTable
-				for _, tabela in _ipairs (alvos) do
-					if (tabela.nome == inimigo) then
+
+				for target_name, amount in _pairs (_skill ["targets" .. targets_key]) do
+					if (target_name == inimigo) then
 						local nome, _, icone = _GetSpellInfo (_spellid)
-						if (sub_atributo == 3) then --> overheal
-							habilidades [#habilidades+1] = {nome .. " (" .. PetName:gsub ((" <.*"), "") .. ")", tabela.overheal, icone}
-						else
-							habilidades [#habilidades+1] = {nome .. " (" .. PetName:gsub ((" <.*"), "") .. ")", tabela.total, icone}
-						end
+						habilidades [#habilidades+1] = {nome, amount, icone}
 					end
 				end
+				
 			end
 		end
 	end	
 	
-	_table_sort (habilidades, function (a, b) return a[2] > b[2] end)
+	_table_sort (habilidades, _detalhes.Sort2)
 	
 	--get time type
 	local meu_tempo
@@ -1796,7 +1704,6 @@ function atributo_heal:MontaTooltipAlvos (esta_barra, index, instancia)
 	end
 	
 	return true
-	--GameTooltip:AddDoubleLine (minhas_curas[i][4][1]..": ", minhas_curas[i][2].." (".._cstr ("%.1f", minhas_curas[i][3]).."%)", 1, 1, 1, 1, 1, 1)
 	
 end
 
@@ -1822,32 +1729,22 @@ function atributo_heal:MontaDetalhesHealingTaken (nome, barra)
 	local showing = tabela_do_combate [class_type] --> o que esta sendo mostrado -> [1] - dano [2] - cura --> pega o container com ._NameIndexTable ._ActorTable
 
 	local este_curandeiro = showing._ActorTable[showing._NameIndexTable[nome]]
-	local conteudo = este_curandeiro.spell_tables._ActorTable --> _pairs[] com os IDs das magias
+	local conteudo = este_curandeiro.spells._ActorTable --> _pairs[] com os IDs das magias
 	
 	local actor = info.jogador.nome
 	
-	local total = este_curandeiro.targets._ActorTable [este_curandeiro.targets._NameIndexTable [actor]].total
+	local total = este_curandeiro.targets [actor]
 
 	local minhas_magias = {}
 
 	for spellid, tabela in _pairs (conteudo) do --> da foreach em cada spellid do container
-	
-		--> preciso pegar os alvos que esta magia atingiu
-		local alvos = tabela.targets
-		local index = alvos._NameIndexTable[actor]
-		
-		if (index) then --> esta magia deu dano no actor
-			local este_alvo = alvos._ActorTable[index] --> pega a classe_target
-			local spell_nome, rank, icone = _GetSpellInfo (spellid)
-			_table_insert (minhas_magias, {spellid, este_alvo.total, este_alvo.total/total*100, spell_nome, icone})
+		if (tabela.targets [actor]) then
+			local spell_nome, _, icone = _GetSpellInfo (spellid)
+			_table_insert (minhas_magias, {spellid, tabela.targets [actor], tabela.targets [actor] / total*100, spell_nome, icone})
 		end
-
 	end
 
-	_table_sort (minhas_magias, function(a, b) return a[2] > b[2] end)
-
-	--local amt = #minhas_magias
-	--gump:JI_AtualizaContainerBarras (amt)
+	_table_sort (minhas_magias, _detalhes.Sort2)
 
 	local max_ = minhas_magias[1] and minhas_magias[1][2] or 0 --> dano que a primeiro magia vez
 	
@@ -1892,9 +1789,9 @@ function atributo_heal:MontaDetalhesHealingDone (spellid, barra)
 
 	local esta_magia
 	if (barra.other_actor) then
-		esta_magia = barra.other_actor.spell_tables._ActorTable [spellid]
+		esta_magia = barra.other_actor.spells._ActorTable [spellid]
 	else
-		esta_magia = self.spell_tables._ActorTable [spellid]
+		esta_magia = self.spells._ActorTable [spellid]
 	end
 	
 	if (not esta_magia) then
@@ -2048,27 +1945,6 @@ function atributo_heal:MontaDetalhesHealingDone (spellid, barra)
 
 	
 	_table_sort (data, _detalhes.Sort1)
-
-	--[[
-		local absorbed = esta_magia.absorbed
-		if (absorbed > 0) then
-		
-			local porcentagem_absorbed = absorbed/esta_magia.total*100
-			data[#data+1] = t3
-			
-			absorbed_table.p = porcentagem_absorbed
-			
-			t3[1] = absorbed
-			t3[2] = absorbed_table
-			t3[3] = Loc ["STRING_HEAL_ABSORBED"]
-			t3[4] = ""
-			t3[5] = ""
-			t3[6] = ""
-			t3[7] = ""
-			t3[8] = absorbed .. " / " .. _cstr ("%.1f", porcentagem_absorbed).."%"
-
-		end
-	--]]
 	
 	for i = #data+1, 3 do --> para o overheal aparecer na ultima barra
 		data[i] = nil
@@ -2108,10 +1984,6 @@ function atributo_heal:MontaDetalhesHealingDone (spellid, barra)
 			gump:SetaDetalheInfoTexto (index+1, tabela[2], tabela[3], tabela[4], tabela[5], tabela[6], tabela[7], tabela[8])
 		end
 	end
-
-	--for i = #data+2, 5 do
-	--	gump:HidaDetalheInfo (i)
-	--end
 
 end
 
@@ -2188,27 +2060,38 @@ end
 				_detalhes.refresh:r_atributo_heal (actor, shadow)
 				
 			--> copia o container de alvos (captura de dados)
-				for index, alvo in _ipairs (actor.targets._ActorTable) do 
-					--> cria e soma o valor do total
-					local alvo_shadow = shadow.targets:PegarCombatente (nil, alvo.nome, nil, true)
-					--> refresh no alvo
-					_detalhes.refresh:r_alvo_da_habilidade (alvo, shadow.targets)
+				for target_name, amount in _pairs (actor.targets) do
+					shadow.targets [target_name] = 0
+				end
+				for target_name, amount in _pairs (actor.targets_overheal) do
+					shadow.targets_overheal [target_name] = 0
+				end
+				for target_name, amount in _pairs (actor.targets_absorbs) do
+					shadow.targets_absorbs [target_name] = 0
 				end
 			
 			--> copia o container de habilidades (captura de dados)
-				for spellid, habilidade in _pairs (actor.spell_tables._ActorTable) do 
+				for spellid, habilidade in _pairs (actor.spells._ActorTable) do 
 					--> cria e soma o valor
-					local habilidade_shadow = shadow.spell_tables:PegaHabilidade (spellid, true, nil, true)
+					local habilidade_shadow = shadow.spells:PegaHabilidade (spellid, true, nil, true)
 					--> refresh e soma os valores dos alvos
-					for index, alvo in _ipairs (habilidade.targets._ActorTable) do 
-						--> cria e soma o valor do total
-						local alvo_shadow = habilidade_shadow.targets:PegarCombatente (nil, alvo.nome, nil, true)
-						--> refresh no alvo da habilidade
-						_detalhes.refresh:r_alvo_da_habilidade (alvo, habilidade_shadow.targets)
-					end
 					
-					--> refresh na habilidade
-					_detalhes.refresh:r_habilidade_cura (habilidade, shadow.spell_tables)
+					for target_name, amount in _pairs (habilidade.targets) do
+						if (not habilidade_shadow.targets [target_name]) then
+							habilidade_shadow.targets [target_name] = 0
+						end
+					end
+					for target_name, amount in _pairs (habilidade.targets_overheal) do
+						if (not habilidade_shadow.targets_overheal [target_name]) then
+							habilidade_shadow.targets_overheal [target_name] = 0
+						end
+					end
+					for target_name, amount in _pairs (habilidade.targets_absorbs) do
+						if (not habilidade_shadow.targets_absorbs [target_name]) then
+							habilidade_shadow.targets_absorbs [target_name] = 0
+						end
+					end
+
 				end
 			
 			return shadow
@@ -2274,34 +2157,32 @@ end
 				end
 			
 			--> copia o container de alvos (captura de dados)
-				for index, alvo in _ipairs (actor.targets._ActorTable) do 
-					--> cria e soma o valor do total
-					local alvo_shadow = shadow.targets:PegarCombatente (nil, alvo.nome, nil, true)
-					alvo_shadow.total = alvo_shadow.total + alvo.total
-					alvo_shadow.overheal = alvo_shadow.overheal + alvo.overheal
-					alvo_shadow.absorbed = alvo_shadow.absorbed + alvo.absorbed 
-					--> refresh no alvo
-					if (not no_refresh) then
-						_detalhes.refresh:r_alvo_da_habilidade (alvo, shadow.targets)
-					end
+				for target_name, amount in _pairs (actor.targets) do
+					shadow.targets [target_name] = (shadow.targets [target_name] or 0) + amount
+				end
+				for target_name, amount in _pairs (actor.targets_overheal) do
+					shadow.targets_overheal [target_name] = (shadow.targets_overheal [target_name] or 0) + amount
+				end
+				for target_name, amount in _pairs (actor.targets_absorbs) do
+					shadow.targets_absorbs [target_name] = (shadow.targets_absorbs [target_name] or 0) + amount
 				end
 			
 			--> copia o container de habilidades (captura de dados)
-				for spellid, habilidade in _pairs (actor.spell_tables._ActorTable) do 
+				for spellid, habilidade in _pairs (actor.spells._ActorTable) do 
 					--> cria e soma o valor
-					local habilidade_shadow = shadow.spell_tables:PegaHabilidade (spellid, true, nil, true)
+					local habilidade_shadow = shadow.spells:PegaHabilidade (spellid, true, nil, true)
+					
 					--> refresh e soma os valores dos alvos
-					for index, alvo in _ipairs (habilidade.targets._ActorTable) do 
-						--> cria e soma o valor do total
-						local alvo_shadow = habilidade_shadow.targets:PegarCombatente (nil, alvo.nome, nil, true)
-						alvo_shadow.total = alvo_shadow.total + alvo.total
-						alvo_shadow.overheal = alvo_shadow.overheal + alvo.overheal
-						alvo_shadow.absorbed = alvo_shadow.absorbed + alvo.absorbed 
-						--> refresh no alvo da habilidade
-						if (not no_refresh) then
-							_detalhes.refresh:r_alvo_da_habilidade (alvo, habilidade_shadow.targets)
-						end
+					for target_name, amount in _pairs (habilidade.targets) do 
+						habilidade_shadow.targets [target_name] = (habilidade_shadow.targets [target_name] or 0) + amount
 					end
+					for target_name, amount in _pairs (habilidade.targets_overheal) do 
+						habilidade_shadow.targets_overheal [target_name] = (habilidade_shadow.targets_overheal [target_name] or 0) + amount
+					end
+					for target_name, amount in _pairs (habilidade.targets_absorbs) do 
+						habilidade_shadow.targets_absorbs [target_name] = (habilidade_shadow.targets_absorbs [target_name] or 0) + amount
+					end
+					
 					--> soma todos os demais valores
 					for key, value in _pairs (habilidade) do 
 						if (_type (value) == "number") then
@@ -2313,11 +2194,7 @@ end
 							end
 						end
 					end
-					
-					--> refresh na habilidade
-					if (not no_refresh) then
-						_detalhes.refresh:r_habilidade_cura (habilidade, shadow.spell_tables)
-					end
+
 				end
 			
 			return shadow
@@ -2325,31 +2202,6 @@ end
 
 function atributo_heal:ColetarLixo (lastevent)
 	return _detalhes:ColetarLixo (class_type, lastevent)
-end
-
-function _detalhes.refresh:r_atributo_heal (este_jogador, shadow)
-	_setmetatable (este_jogador, atributo_heal)
-	este_jogador.__index = atributo_heal
-	
-	if (shadow ~= -1) then
-		este_jogador.shadow = shadow
-		_detalhes.refresh:r_container_combatentes (este_jogador.targets, shadow.targets)
-		_detalhes.refresh:r_container_habilidades (este_jogador.spell_tables, shadow.spell_tables)
-	else
-		_detalhes.refresh:r_container_combatentes (este_jogador.targets, -1)
-		_detalhes.refresh:r_container_habilidades (este_jogador.spell_tables, -1)
-	end
-end
-
-function _detalhes.clear:c_atributo_heal (este_jogador)
-	--este_jogador.__index = {}
-	este_jogador.__index = nil
-	este_jogador.shadow = nil
-	este_jogador.links = nil
-	este_jogador.minha_barra = nil
-	
-	_detalhes.clear:c_container_combatentes (este_jogador.targets)
-	_detalhes.clear:c_container_habilidades (este_jogador.spell_tables)
 end
 
 atributo_heal.__add = function (tabela1, tabela2)
@@ -2387,25 +2239,29 @@ atributo_heal.__add = function (tabela1, tabela2)
 		end
 	
 	--> somar o container de alvos
-		for index, alvo in _ipairs (tabela2.targets._ActorTable) do 
-			--> pega o alvo no ator
-			local alvo_tabela1 = tabela1.targets:PegarCombatente (nil, alvo.nome, nil, true)
-			--> soma os valores
-			alvo_tabela1.total = alvo_tabela1.total + alvo.total
-			alvo_tabela1.overheal = alvo_tabela1.overheal + alvo.overheal
-			alvo_tabela1.absorbed = alvo_tabela1.absorbed + alvo.absorbed 
+		for target_name, amount in _pairs (tabela2.targets) do
+			tabela1.targets [target_name] = (tabela1.targets [target_name] or 0) + amount
+		end
+		for target_name, amount in _pairs (tabela2.targets_overheal) do 
+			tabela1.targets_overheal [target_name] = (tabela1.targets_overheal [target_name] or 0) + amount
+		end
+		for target_name, amount in _pairs (tabela2.targets_absorbs) do 
+			tabela1.targets_absorbs [target_name] = (tabela1.targets_absorbs [target_name] or 0) + amount
 		end
 	
 	--> soma o container de habilidades
-		for spellid, habilidade in _pairs (tabela2.spell_tables._ActorTable) do 
+		for spellid, habilidade in _pairs (tabela2.spells._ActorTable) do 
 			--> pega a habilidade no primeiro ator
-			local habilidade_tabela1 = tabela1.spell_tables:PegaHabilidade (spellid, true, "SPELL_HEAL", false)
+			local habilidade_tabela1 = tabela1.spells:PegaHabilidade (spellid, true, "SPELL_HEAL", false)
 			--> soma os alvos
-			for index, alvo in _ipairs (habilidade.targets._ActorTable) do 
-				local alvo_tabela1 = habilidade_tabela1.targets:PegarCombatente (nil, alvo.nome, nil, true)
-				alvo_tabela1.total = alvo_tabela1.total + alvo.total
-				alvo_tabela1.overheal = alvo_tabela1.overheal + alvo.overheal
-				alvo_tabela1.absorbed = alvo_tabela1.absorbed + alvo.absorbed 
+			for target_name, amount in _pairs (habilidade.targets) do 
+				habilidade_tabela1.targets = (habilidade_tabela1.targets [target_name] or 0) + amount
+			end
+			for target_name, amount in _pairs (habilidade.targets_overheal) do 
+				habilidade_tabela1.targets_overheal = (habilidade_tabela1.targets_overheal [target_name] or 0) + amount
+			end
+			for target_name, amount in _pairs (habilidade.targets_absorbs) do 
+				habilidade_tabela1.targets_absorbs = (habilidade_tabela1.targets_absorbs [target_name] or 0) + amount
 			end
 			--> soma os valores da habilidade
 			for key, value in _pairs (habilidade) do 
@@ -2453,26 +2309,43 @@ atributo_heal.__sub = function (tabela1, tabela2)
 		end
 		
 	--> reduz o container de alvos
-		for index, alvo in _ipairs (tabela2.targets._ActorTable) do 
-			--> pega o alvo no ator
-			local alvo_tabela1 = tabela1.targets:PegarCombatente (nil, alvo.nome, nil, true)
-			--> soma os valores
-			alvo_tabela1.total = alvo_tabela1.total - alvo.total
-			alvo_tabela1.overheal = alvo_tabela1.overheal - alvo.overheal
-			alvo_tabela1.absorbed = alvo_tabela1.absorbed - alvo.absorbed 
+		for target_name, amount in _pairs (tabela2.targets) do 
+			if (tabela1.targets [target_name]) then
+				tabela1.targets [target_name] = tabela1.targets [target_name] - amount
+			end
+		end
+		for target_name, amount in _pairs (tabela2.targets_overheal) do 
+			if (tabela1.targets_overheal [target_name]) then
+				tabela1.targets_overheal [target_name] = tabela1.targets_overheal [target_name] - amount
+			end
+		end
+		for target_name, amount in _pairs (tabela2.targets_absorbs) do 
+			if (tabela1.targets_absorbs [target_name]) then
+				tabela1.targets_absorbs [target_name] = tabela1.targets_absorbs [target_name] - amount
+			end
 		end
 
 	--> reduz o container de habilidades
-		for spellid, habilidade in _pairs (tabela2.spell_tables._ActorTable) do 
+		for spellid, habilidade in _pairs (tabela2.spells._ActorTable) do 
 			--> pega a habilidade no primeiro ator
-			local habilidade_tabela1 = tabela1.spell_tables:PegaHabilidade (spellid, true, "SPELL_HEAL", false)
-			--> soma os alvos
-			for index, alvo in _ipairs (habilidade.targets._ActorTable) do 
-				local alvo_tabela1 = habilidade_tabela1.targets:PegarCombatente (nil, alvo.nome, nil, true)
-				alvo_tabela1.total = alvo_tabela1.total - alvo.total
-				alvo_tabela1.overheal = alvo_tabela1.overheal - alvo.overheal
-				alvo_tabela1.absorbed = alvo_tabela1.absorbed - alvo.absorbed 
+			local habilidade_tabela1 = tabela1.spells:PegaHabilidade (spellid, true, "SPELL_HEAL", false)
+			--> alvos
+			for target_name, amount in _pairs (habilidade.targets) do 
+				if (habilidade_tabela1.targets [target_name]) then
+					habilidade_tabela1.targets [target_name] = habilidade_tabela1.targets [target_name] - amount
+				end
 			end
+			for target_name, amount in _pairs (habilidade.targets_overheal) do 
+				if (habilidade_tabela1.targets_overheal [target_name]) then
+					habilidade_tabela1.targets_overheal [target_name] = habilidade_tabela1.targets_overheal [target_name] - amount
+				end
+			end
+			for target_name, amount in _pairs (habilidade.targets_absorbs) do 
+				if (habilidade_tabela1.targets_absorbs [target_name]) then
+					habilidade_tabela1.targets_absorbs [target_name] = habilidade_tabela1.targets_absorbs [target_name] - amount
+				end
+			end
+			
 			--> soma os valores da habilidade
 			for key, value in _pairs (habilidade) do 
 				if (_type (value) == "number") then
@@ -2487,4 +2360,21 @@ atributo_heal.__sub = function (tabela1, tabela2)
 		end
 	
 	return tabela1
+end
+
+function _detalhes.refresh:r_atributo_heal (este_jogador, shadow)
+	_setmetatable (este_jogador, atributo_heal)
+	este_jogador.__index = atributo_heal
+	
+	este_jogador.shadow = shadow
+	_detalhes.refresh:r_container_habilidades (este_jogador.spells, shadow.spells)
+end
+
+function _detalhes.clear:c_atributo_heal (este_jogador)
+	este_jogador.__index = nil
+	este_jogador.shadow = nil
+	este_jogador.links = nil
+	este_jogador.minha_barra = nil
+	
+	_detalhes.clear:c_container_habilidades (este_jogador.spells)
 end

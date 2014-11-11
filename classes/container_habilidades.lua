@@ -57,29 +57,7 @@ local _
 		else
 			if (criar) then
 			
-				if (cria_shadow) then 
-					local novo_objeto = self.funcao_de_criacao (nil, id, nil, "")
-					self._ActorTable [id] = novo_objeto
-					return novo_objeto
-				end
-				
-				local shadow = self.shadow
-				local shadow_objeto = nil
-				
-				if (shadow) then
-					--> apenas verifica se ele existe ou não
-					shadow_objeto = shadow:PegaHabilidade (id) 
-					--> se não existir, cria-lo
-					if (not shadow_objeto) then 
-						shadow_objeto = shadow:PegaHabilidade (id, true, token)
-					end
-				end
-				
 				local novo_objeto = self.funcao_de_criacao (nil, id, shadow_objeto, token)
-				
-				if (shadow_objeto) then
-					novo_objeto.shadow = shadow_objeto
-				end
 			
 				self._ActorTable [id] = novo_objeto
 				

@@ -13,3 +13,4 @@ move-folders:
     Details/plugins/Details_YouAreNotPrepared: Details_YouAreNotPrepared
     Details/plugins/Details_RaidInfo-BlackrockFoundry: Details_RaidInfo-BlackrockFoundry
     Details/plugins/Details_RaidInfo-Highmaul: Details_RaidInfo-Highmaul
+    Details/plugins/Details_DataStorage: Details_DataStorage

@@ -294,7 +294,7 @@
 				end
 			end
 
-			local novo_objeto = self.funcao_de_criacao (_, serial, nome, shadow_objeto) --> shadow_objeto passa para o classe_damage gravar no .targets e .spell_tables, mas não grava nele mesmo
+			local novo_objeto = self.funcao_de_criacao (_, serial, nome, shadow_objeto) --> shadow_objeto passa para o classe_damage gravar no .targets e .spells, mas não grava nele mesmo
 			novo_objeto.nome = nome
 
 		-- tipo do container
@@ -311,7 +311,6 @@
 				
 				if (shadow_objeto) then
 					novo_objeto.shadow = shadow_objeto
-					novo_objeto:CriaLink (shadow_objeto) --> criando o link
 					if (novo_objeto.grupo and _detalhes.in_combat) then
 						_detalhes.cache_damage_group [#_detalhes.cache_damage_group+1] = novo_objeto
 					end
@@ -343,7 +342,6 @@
 				
 				if (shadow_objeto) then
 					novo_objeto.shadow = shadow_objeto
-					novo_objeto:CriaLink (shadow_objeto)  --> criando o link
 					if (novo_objeto.grupo and _detalhes.in_combat) then
 						_detalhes.cache_healing_group [#_detalhes.cache_healing_group+1] = novo_objeto
 					end
@@ -372,7 +370,6 @@
 				
 				if (shadow_objeto) then
 					novo_objeto.shadow = shadow_objeto
-					novo_objeto:CriaLink (shadow_objeto)  --> criando o link
 				end
 				
 				if (novo_objeto.classe == "UNGROUPPLAYER") then --> is a player
@@ -399,7 +396,6 @@
 				
 				if (shadow_objeto) then
 					novo_objeto.shadow = shadow_objeto
-					novo_objeto:CriaLink (shadow_objeto)  --> criando o link
 				end
 				
 				if (novo_objeto.classe == "UNGROUPPLAYER") then --> is a player
@@ -414,17 +410,7 @@
 				end
 			
 			elseif (self.tipo == container_damage_target) then --> CONTAINER ALVO DO DAMAGE
-				if (shadow_objeto) then
-					novo_objeto.shadow = shadow_objeto
-				end
 			
-			elseif (self.tipo == container_heal_target) then --> CONTAINER ALVOS DO HEALING
-				novo_objeto.overheal = 0
-				novo_objeto.absorbed = 0
-				if (shadow_objeto) then
-					novo_objeto.shadow = shadow_objeto
-				end
-				
 			elseif (self.tipo == container_energy_target) then --> CONTAINER ALVOS DO ENERGY
 			
 				novo_objeto.mana = 0
@@ -488,9 +474,6 @@
 			
 		elseif (tipo == container_heal) then
 			return atributo_heal.NovaTabela
-			
-		elseif (tipo == container_friendlyfire) then
-			return atributo_damage.FF_funcao_de_criacao
 			
 		elseif (tipo == container_enemydebufftarget_target) then
 			return alvo_da_habilidade.NovaTabela

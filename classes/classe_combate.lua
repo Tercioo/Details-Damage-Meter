@@ -55,11 +55,15 @@
 		return self.TimeData [name]
 	end
 	
+	function combate:GetContainer (attribute)
+		return self [attribute]
+	end
+	
 	function combate:IsTrash()
 		return _rawget (self, "is_trash")
 	end
 	
-	function combate:GetDifficult()
+	function combate:GetDifficulty()
 		return self.is_boss and self.is_boss.diff
 	end
 	
@@ -111,6 +115,8 @@
 	end
 
 	--return the total of a specific attribute
+	local power_table = {0, 1, 3, 6}
+	
 	function combate:GetTotal (attribute, subAttribute, onlyGroup)
 		if (attribute == 1 or attribute == 2) then
 			if (onlyGroup) then
@@ -119,7 +125,17 @@
 				return self.totals [attribute]
 			end
 			
-		elseif (attribute == 3 or attribute == 4) then
+		elseif (attribute == 3) then
+			if (subAttribute == 5) then --> resources
+				return self.totals.resources or 0
+			end
+			if (onlyGroup) then
+				return self.totals_grupo [attribute] [power_table [subAttribute]]
+			else
+				return self.totals [attribute] [power_table [subAttribute]]
+			end
+			
+		elseif (attribute == 4) then
 			local subName = _detalhes:GetInternalSubAttributeName (attribute, subAttribute)
 			if (onlyGroup) then
 				return self.totals_grupo [attribute] [subName]
@@ -127,6 +143,7 @@
 				return self.totals [attribute] [subName]
 			end
 		end
+		
 		return 0
 	end
 
@@ -217,10 +234,10 @@
 			0, --> dano
 			0, --> cura
 			{--> e_energy
-				mana = 0, --> mana
-				e_rage = 0, --> rage
-				e_energy = 0, --> energy (rogues cat)
-				runepower = 0 --> runepower (dk)
+				[0] = 0, --> mana
+				[1] = 0, --> rage
+				[3] = 0, --> energy (rogues cat)
+				[6] = 0 --> runepower (dk)
 			},
 			{--> misc
 				cc_break = 0, --> armazena quantas quebras de CC
@@ -243,10 +260,10 @@
 			0, --> dano
 			0, --> cura
 			{--> e_energy
-				mana = 0, --> mana
-				e_rage = 0, --> rage
-				e_energy = 0, --> energy (rogues cat)
-				runepower = 0 --> runepower (dk)
+				[0] = 0, --> mana
+				[1] = 0, --> rage
+				[3] = 0, --> energy (rogues cat)
+				[6] = 0 --> runepower (dk)
 			}, 
 			{--> misc
 				cc_break = 0, --> armazena quantas quebras de CC

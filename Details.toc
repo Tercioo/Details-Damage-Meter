@@ -84,7 +84,6 @@ classes\classe_target.lua
 classes\classe_custom.lua
 classes\custom_damage_done.lua
 classes\custom_healing_done.lua
-classes\custom_damage_taken.lua
 
 core\control.lua
 

@@ -665,17 +665,17 @@ do
 		
 			--> showing is the combat table which is current shown on instance
 			if (child.instance.showing) then
+			
 				--GetCombatTime() return the time length of combat
 				local combatTime = child.instance.showing:GetCombatTime()
 				if (combatTime < 1) then
 					return child.text:SetText ("0")
 				end
+				
 				--GetTotal (attribute, sub attribute, onlyGroup) return the total of requested attribute
 				local total = child.instance.showing:GetTotal (child.instance.atributo, child.instance.sub_atributo, true)
 				
 				local dps = _math_floor (total / combatTime)
-				
-				--print (total, combatTime, dps)
 				
 				local textStyle = child.options.textStyle
 				if (textStyle == 1) then

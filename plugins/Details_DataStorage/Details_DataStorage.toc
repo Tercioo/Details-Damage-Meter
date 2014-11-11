@@ -1,0 +1,9 @@
+## Interface: 60000
+## Title: Details Storage
+## Notes: Stores information for Details!
+## DefaultState: Enabled
+## LoadOnDemand: 1
+## Dependencies: Details
+## SavedVariables: DetailsDataStorage
+
+Details_DataStorage.lua

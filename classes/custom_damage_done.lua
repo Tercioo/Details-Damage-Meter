@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> attributes functions for customs
---> DAMAGE DONE
+--> DAMAGEDONE
 
 --> customized display script
 
@@ -49,9 +49,59 @@
 		TooltipMaximizedMethod = _detalhes.tooltip.maximize_method
 	end
 	
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---> damage done tooltip
+	local temp_table = {}
 	
+	local target_func = function (main_table)
+		local i = 1
+		for name, amount in _pairs (main_table) do
+			local t = temp_table [i]
+			if (not t) then
+				t = {"", 0}
+				temp_table [i] = t
+			end
+			
+			t[1] = name
+			t[2] = amount
+			
+			i = i + 1
+		end
+	end
+	
+	local spells_used_func = function (main_table, target)
+		local i = 1
+		for spellid, spell_table in _pairs (main_table) do
+			local target_amount = spell_table.targets [target]
+			if (target_amount) then
+				local t = temp_table [i]
+				if (not t) then
+					t = {"", 0}
+					temp_table [i] = t
+				end
+				
+				t[1] = spellid
+				t[2] = target_amount
+				
+				i = i + 1
+			end
+		end
+	end
+	
+	local function SortOrder (main_table, func, ...)
+		for i = 1, #temp_table do
+			temp_table [i][1] = ""
+			temp_table [i][2] = 0
+		end
+		
+		func (main_table, ...)
+		
+		_table_sort (temp_table, _detalhes.Sort2)
+		
+		return temp_table
+	end	
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> damagedone tooltip
+
 	function atributo_custom:damagedoneTooltip (actor, target, spellid, combat, instance)
 	
 		if (spellid) then
@@ -64,12 +114,11 @@
 					for name, _ in _pairs (this_actor.damage_from) do 
 						local aggressor = combat (1, name)
 						if (aggressor) then
-							local spell = aggressor.spell_tables._ActorTable [spellid]
+							local spell = aggressor.spells._ActorTable [spellid]
 							if (spell) then
-								local on_me = spell.targets._NameIndexTable [targetname]
+								local on_me = spell.targets [targetname]
 								if (on_me) then
-									on_me = spell.targets._ActorTable [on_me]
-									GameCooltip:AddLine (aggressor.nome, FormatTooltipNumber (_, on_me.total))
+									GameCooltip:AddLine (aggressor.nome, FormatTooltipNumber (_, on_me))
 								end
 							end
 						end
@@ -90,52 +139,56 @@
 		elseif (target) then
 			
 			if (target == "[all]") then
-				actor.targets:SortByKey ("total")
-				for _, target_object in _ipairs (actor.targets._ActorTable) do
-					GameCooltip:AddLine (target_object.nome, FormatTooltipNumber (_, target_object.total))
+				SortOrder (actor.targets, target_func)
+				
+				for i = 1, #temp_table do
+					local t = temp_table [i]
+					if (t[2] < 1) then
+						break
+					end
+					
+					GameCooltip:AddLine (t[1], FormatTooltipNumber (_, t[2]))
 					_detalhes:AddTooltipBackgroundStatusbar()
 					GameCooltip:AddIcon ([[Interface\FriendsFrame\StatusIcon-Offline]], 1, 1, 14, 14)
 				end
 				
 			elseif (target == "[raid]") then
 				local roster = combat.raid_roster
-				actor.targets:SortByKey ("total")
-				for _, target_object in _ipairs (actor.targets._ActorTable) do
-					if (roster [target_object.nome]) then
-						GameCooltip:AddLine (target_object.nome, FormatTooltipNumber (_, target_object.total))
+				
+				SortOrder (actor.targets, target_func)
+				
+				for i = 1, #temp_table do
+					local t = temp_table [i]
+					
+					if (t[2] < 1) then
+						break
+					end
+					
+					if (roster [t[1]]) then
+						GameCooltip:AddLine (t[1], FormatTooltipNumber (_, t[2]))
 					end
 				end
 				
 			elseif (target == "[player]") then
-				local targetactor = actor.targets._NameIndexTable [_detalhes.playername]
-				if (targetactor) then
-					targetactor = actor.targets._ActorTable [targetactor]
-					GameCooltip:AddLine (targetactor.nome, FormatTooltipNumber (_, targetactor.total))
+				local target_amount = actor.targets [_detalhes.playername]
+				if (target_amount) then
+					GameCooltip:AddLine (targetactor.nome, FormatTooltipNumber (_, target_amount))
 				end
 			else
-				local spells_used = {}
+				SortOrder (actor.spells._ActorTable, spells_used_func, target)
+
+				for i = 1, #temp_table do
 				
-				for spellid, spelltable in _pairs (actor.spell_tables._ActorTable) do
-					local this_target = spelltable.targets._NameIndexTable [target]
-					if (this_target) then
-						this_target = spelltable.targets._ActorTable [this_target]
-						_table_insert (spells_used, {spellid, this_target.total})
+					local t = temp_table [i]
+					
+					if (t[2] < 1) then
+						break
 					end
-				end
-				
-				_table_sort (spells_used, _detalhes.Sort2)
-				
-				for index, spell in _ipairs (spells_used) do
-					local name, _, icon = _GetSpellInfo (spell [1])
-					GameCooltip:AddLine (name, FormatTooltipNumber (_, spell [2]))
+					
+					local name, _, icon = _GetSpellInfo (t[1])
+					GameCooltip:AddLine (name, FormatTooltipNumber (_, t[2]))
 					GameCooltip:AddIcon (icon, 1, 1, 14, 14)
 				end
-				
-				--local targetactor = actor.targets._NameIndexTable [target]
-				--if (targetactor) then
-				--	targetactor = actor.targets._ActorTable [targetactor]
-				--	GameCooltip:AddLine (target, FormatTooltipNumber (_, targetactor.total))
-				--end
 			end
 		
 		else
@@ -144,22 +197,25 @@
 	end
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---> damage done search
+--> damagedone search
 	
 	function atributo_custom:damagedone (actor, source, target, spellid, combat, instance_container)
 
-		if (spellid) then --> spell is always damage done
-			local spell = actor.spell_tables._ActorTable [spellid]
+		if (spellid) then --> spell is always damagedone
+			local spell = actor.spells._ActorTable [spellid]
 			if (spell) then
 				if (target) then
 					if (target == "[all]") then
-						for _, targetactor in _ipairs (spell.targets._ActorTable) do 
+						for target_name, amount in _pairs (spell.targets) do 
 							--> add amount
-							instance_container:AddValue (targetactor, targetactor.total, true)
-							atributo_custom._TargetActorsProcessedTotal = atributo_custom._TargetActorsProcessedTotal + targetactor.total
+							
+							--> we need to pass a object here in order to get name and class, so we just get the main damage actor from the combat
+							instance_container:AddValue (combat (1, target_name), amount, true)
+							--
+							atributo_custom._TargetActorsProcessedTotal = atributo_custom._TargetActorsProcessedTotal + amount
 							--> add to processed container
-							if (not atributo_custom._TargetActorsProcessed [targetactor.nome]) then
-								atributo_custom._TargetActorsProcessed [targetactor.nome] = true
+							if (not atributo_custom._TargetActorsProcessed [target_name]) then
+								atributo_custom._TargetActorsProcessed [target_name] = true
 								atributo_custom._TargetActorsProcessedAmt = atributo_custom._TargetActorsProcessedAmt + 1
 							end
 						end
@@ -167,14 +223,14 @@
 						
 					elseif (target == "[raid]") then
 						local roster = combat.raid_roster
-						for _, targetactor in _ipairs (spell.targets._ActorTable) do 
-							if (roster [targetactor.nome]) then
+						for target_name, amount in _pairs (spell.targets) do 
+							if (roster [target_name]) then
 								--> add amount
-								instance_container:AddValue (targetactor, targetactor.total, true)
-								atributo_custom._TargetActorsProcessedTotal = atributo_custom._TargetActorsProcessedTotal + targetactor.total
+								instance_container:AddValue (combat (1, target_name), amount, true)
+								atributo_custom._TargetActorsProcessedTotal = atributo_custom._TargetActorsProcessedTotal + amount
 								--> add to processed container
-								if (not atributo_custom._TargetActorsProcessed [targetactor.nome]) then
-									atributo_custom._TargetActorsProcessed [targetactor.nome] = true
+								if (not atributo_custom._TargetActorsProcessed [target_name]) then
+									atributo_custom._TargetActorsProcessed [target_name] = true
 									atributo_custom._TargetActorsProcessedAmt = atributo_custom._TargetActorsProcessedAmt + 1
 								end
 							end
@@ -182,30 +238,28 @@
 						return 0, true
 						
 					elseif (target == "[player]") then
-						local targetactor = spell.targets._NameIndexTable [_detalhes.playername]
-						if (targetactor) then
-							targetactor = spell.targets._ActorTable [targetactor]
+						local target_amount = spell.targets [_detalhes.playername]
+						if (target_amount) then
 							--> add amount
-							instance_container:AddValue (targetactor, targetactor.total, true)
-							atributo_custom._TargetActorsProcessedTotal = atributo_custom._TargetActorsProcessedTotal + targetactor.total
+							instance_container:AddValue (combat (1, _detalhes.playername), target_amount, true)
+							atributo_custom._TargetActorsProcessedTotal = atributo_custom._TargetActorsProcessedTotal + target_amount
 							--> add to processed container
-							if (not atributo_custom._TargetActorsProcessed [targetactor.nome]) then
-								atributo_custom._TargetActorsProcessed [targetactor.nome] = true
+							if (not atributo_custom._TargetActorsProcessed [_detalhes.playername]) then
+								atributo_custom._TargetActorsProcessed [_detalhes.playername] = true
 								atributo_custom._TargetActorsProcessedAmt = atributo_custom._TargetActorsProcessedAmt + 1
 							end
 						end
 						return 0, true
 					
 					else
-						local targetactor = actor.targets._NameIndexTable [target]
-						if (targetactor) then
-							targetactor = spell.targets._ActorTable [targetactor]
+						local target_amount = actor.targets [target]
+						if (target_amount) then
 							--> add amount
-							instance_container:AddValue (targetactor, targetactor.total, true)
-							atributo_custom._TargetActorsProcessedTotal = atributo_custom._TargetActorsProcessedTotal + targetactor.total
+							instance_container:AddValue (combat (1, target), target_amount, true)
+							atributo_custom._TargetActorsProcessedTotal = atributo_custom._TargetActorsProcessedTotal + target_amount
 							--> add to processed container
-							if (not atributo_custom._TargetActorsProcessed [targetactor.nome]) then
-								atributo_custom._TargetActorsProcessed [targetactor.nome] = true
+							if (not atributo_custom._TargetActorsProcessed [target]) then
+								atributo_custom._TargetActorsProcessed [target] = true
 								atributo_custom._TargetActorsProcessedAmt = atributo_custom._TargetActorsProcessedAmt + 1
 							end
 						end
@@ -221,26 +275,27 @@
 		elseif (target) then
 
 			if (target == "[all]") then
-				return actor.targets:GetTotal()
+				local total = 0
+				for target_name, amount in _pairs (actor.targets) do
+					total = total + amount
+				end
+				return total
 				
 			elseif (target == "[raid]") then
-				return actor.targets:GetTotalOnRaid (nil, combat)
+				local total = 0
+				for target_name, amount in _pairs (actor.targets) do
+					if (combat.raid_roster [target_name]) then
+						total = total + amount
+					end
+				end
+				return total
 			
 			elseif (target == "[player]") then
-				local targetactor = actor.targets._NameIndexTable [_detalhes.playername]
-				if (targetactor) then
-					return actor.targets._ActorTable [targetactor].total
-				else
-					return 0
-				end
+				return actor.targets [_detalhes.playername] or 0
 
 			else
-				local targetactor = actor.targets._NameIndexTable [target]
-				if (targetactor) then
-					return actor.targets._ActorTable [targetactor].total
-				else
-					return 0
-				end
+				return actor.targets [targetactor] or 0
+				
 			end
 		else
 			return actor.total or 0
