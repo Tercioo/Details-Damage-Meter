@@ -320,15 +320,54 @@ function _detalhes:OpenOptionsWindow (instance, no_reopen, section)
 		window.Disable3DColorPick:SetColor (.5, .5, .5, 1)
 		window.Disable3DColorPick:Hide()
 	
+		--> disabled
+		hide_3d_world:Hide()
+	
 	--> create bars
 
 		local fillbars = g:NewButton (window, _, "$parentCreateExampleBarsButton", nil, 110, 14, _detalhes.CreateTestBars, nil, nil, nil, Loc ["STRING_OPTIONS_TESTBARS"])
-		fillbars:SetPoint ("bottomleft", window.widget, "bottomleft", 200, 12)
+		fillbars:SetPoint ("bottomleft", window.widget, "bottomleft", 41, 12)
+		fillbars.textalign = "left"
+		fillbars:SetHook ("OnEnter", function()
+			fillbars:SetTextColor (1, 1, 0)
+		end)
+		fillbars:SetHook ("OnLeave", function()
+			fillbars:SetTextColor (0.9999, 0.8196, 0, 1)
+		end)
+		
+		local fillbars_image = g:NewImage (window, [[Interface\Buttons\UI-RADIOBUTTON]], 8, 9, "artwork", {20/64, 27/64, 4/16, 11/16})
+		fillbars_image:SetPoint ("right", fillbars, "left", -1, 0)
 		
 	--> change log
 
 		local changelog = g:NewButton (window, _, "$parentOpenChangeLogButton", nil, 110, 14, _detalhes.OpenNewsWindow, nil, nil, nil, Loc ["STRING_OPTIONS_CHANGELOG"])
 		changelog:SetPoint ("left", fillbars, "right", 10, 0)
+		changelog.textalign = "left"
+		changelog:SetHook ("OnEnter", function()
+			changelog:SetTextColor (1, 1, 0)
+		end)
+		changelog:SetHook ("OnLeave", function()
+			changelog:SetTextColor (0.9999, 0.8196, 0, 1)
+		end)
+		
+		local changelog_image = g:NewImage (window, [[Interface\Buttons\UI-RADIOBUTTON]], 8, 9, "artwork", {20/64, 27/64, 4/16, 11/16})
+		changelog_image:SetPoint ("right", changelog, "left", -1, 0)
+		
+	--> send feedback
+	
+	
+		local feedback_button = g:NewButton (window, _, "$parentOpenFeedbackButton", nil, 110, 14, _detalhes.OpenFeedbackWindow, nil, nil, nil, Loc ["STRING_OPTIONS_SENDFEEDBACK"])
+		feedback_button:SetPoint ("left", changelog, "right", 10, 0)
+		feedback_button.textalign = "left"
+		feedback_button:SetHook ("OnEnter", function()
+			feedback_button:SetTextColor (1, 1, 0)
+		end)
+		feedback_button:SetHook ("OnLeave", function()
+			feedback_button:SetTextColor (0.9999, 0.8196, 0, 1)
+		end)
+		
+		local feedback_image = g:NewImage (window, [[Interface\Buttons\UI-RADIOBUTTON]], 8, 9, "artwork", {20/64, 27/64, 4/16, 11/16})
+		feedback_image:SetPoint ("right", feedback_button, "left", -1, 0)
 		
 	--> right click to close
 		--local right_click_close = window:CreateRightClickLabel ("short", 14, 14, "Close")

@@ -1038,8 +1038,8 @@
 					local debuff_uptime_container = player.debuff_uptime and player.debuff_uptime_spells and player.debuff_uptime_spells._ActorTable
 					if (debuff_uptime_container) then
 					    --potion of focus (can't use as pre-potion, so, its amount is always 1
-					    --local focus_potion = debuff_uptime_container [156432] --WoD
-					    local focus_potion = debuff_uptime_container [105701] --MoP
+					    local focus_potion = debuff_uptime_container [156432] --WoD
+					    --local focus_potion = debuff_uptime_container [105701] --MoP
 					    if (focus_potion) then
 						total = total + 1
 						found_potion = true
@@ -1056,8 +1056,8 @@
 					if (buff_uptime_container) then
 					    
 					    --potion of the jade serpent
-					    --local jade_serpent_potion = buff_uptime_container [156426] --WoD
-					    local jade_serpent_potion = buff_uptime_container [105702] --MoP
+					    local jade_serpent_potion = buff_uptime_container [156426] --WoD
+					    --local jade_serpent_potion = buff_uptime_container [105702] --MoP
 					    if (jade_serpent_potion) then
 						local used = jade_serpent_potion.activedamt
 						if (used > 0) then
@@ -1072,8 +1072,8 @@
 					    end
 					    
 					    --potion of mogu power
-					    --local mogu_power_potion = buff_uptime_container [156428] --WoD
-					    local mogu_power_potion = buff_uptime_container [105706] --MoP
+					    local mogu_power_potion = buff_uptime_container [156428] --WoD
+					    --local mogu_power_potion = buff_uptime_container [105706] --MoP
 					    if (mogu_power_potion) then
 						local used = mogu_power_potion.activedamt
 						if (used > 0) then
@@ -1088,8 +1088,8 @@
 					    end
 					    
 					    --virmen's bite
-					    --local virmens_bite_potion = buff_uptime_container [156423] --WoD
-					    local virmens_bite_potion = buff_uptime_container [105697] --MoP
+					    local virmens_bite_potion = buff_uptime_container [156423] --WoD
+					    --local virmens_bite_potion = buff_uptime_container [105697] --MoP
 					    if (virmens_bite_potion) then
 						local used = virmens_bite_potion.activedamt
 						if (used > 0) then
@@ -1104,8 +1104,8 @@
 					    end
 					    
 					    --potion of the mountains
-					    --local mountains_potion = buff_uptime_container [156430] --WoD
-					    local mountains_potion = buff_uptime_container [105698] --MoP
+					    local mountains_potion = buff_uptime_container [156430] --WoD
+					    --local mountains_potion = buff_uptime_container [105698] --MoP
 					    if (mountains_potion) then
 						local used = mountains_potion.activedamt
 						if (used > 0) then
@@ -1136,11 +1136,11 @@
 			--get the debuff container for potion of focus
 			local debuff_uptime_container = player.debuff_uptime and player.debuff_uptime_spells and player.debuff_uptime_spells._ActorTable
 			if (debuff_uptime_container) then
-			    --local focus_potion = debuff_uptime_container [156432] --WoD
-			    local focus_potion = debuff_uptime_container [105701] --MoP
+			    local focus_potion = debuff_uptime_container [156432] --WoD
+			    --local focus_potion = debuff_uptime_container [105701] --MoP
 			    if (focus_potion) then
-				--local name, _, icon = GetSpellInfo (156432) --WoD
-				local name, _, icon = GetSpellInfo (105701) --MoP
+				local name, _, icon = GetSpellInfo (156432) --WoD
+				--local name, _, icon = GetSpellInfo (105701) --MoP
 				GameCooltip:AddLine (name, 1) --> can use only 1 focus potion (can't be pre-potion)
 				_detalhes:AddTooltipBackgroundStatusbar()
 				GameCooltip:AddIcon (icon, 1, 1, 14, 14)
@@ -1151,44 +1151,44 @@
 			local buff_uptime_container = player.buff_uptime and player.buff_uptime_spells and player.buff_uptime_spells._ActorTable
 			if (buff_uptime_container) then
 			    --potion of the jade serpent
-			    --local jade_serpent_potion = buff_uptime_container [156426] --WoD
-			    local jade_serpent_potion = buff_uptime_container [105702] --MoP
+			    local jade_serpent_potion = buff_uptime_container [156426] --WoD
+			    --local jade_serpent_potion = buff_uptime_container [105702] --MoP
 			    if (jade_serpent_potion) then
-				--local name, _, icon = GetSpellInfo (156426) --WoD
-				local name, _, icon = GetSpellInfo (105702) --MoP
+				local name, _, icon = GetSpellInfo (156426) --WoD
+				--local name, _, icon = GetSpellInfo (105702) --MoP
 				GameCooltip:AddLine (name, jade_serpent_potion.activedamt)
 				_detalhes:AddTooltipBackgroundStatusbar()
 				GameCooltip:AddIcon (icon, 1, 1, 14, 14)
 			    end
 			    
 			    --potion of mogu power
-			    --local mogu_power_potion = buff_uptime_container [156428] --WoD
-			    local mogu_power_potion = buff_uptime_container [105706] --MoP
+			    local mogu_power_potion = buff_uptime_container [156428] --WoD
+			    --local mogu_power_potion = buff_uptime_container [105706] --MoP
 			    if (mogu_power_potion) then
-				--local name, _, icon = GetSpellInfo (156428) --WoD
-				local name, _, icon = GetSpellInfo (105706) --MoP
+				local name, _, icon = GetSpellInfo (156428) --WoD
+				--local name, _, icon = GetSpellInfo (105706) --MoP
 				GameCooltip:AddLine (name, mogu_power_potion.activedamt)
 				_detalhes:AddTooltipBackgroundStatusbar()
 				GameCooltip:AddIcon (icon, 1, 1, 14, 14)
 			    end
 			    
 			    --virmen's bite
-			    --local virmens_bite_potion = buff_uptime_container [156423] --WoD
-			    local virmens_bite_potion = buff_uptime_container [105697] --MoP
+			    local virmens_bite_potion = buff_uptime_container [156423] --WoD
+			    --local virmens_bite_potion = buff_uptime_container [105697] --MoP
 			    if (virmens_bite_potion) then
-				--local name, _, icon = GetSpellInfo (156423) --WoD
-				local name, _, icon = GetSpellInfo (105697) --MoP
+				local name, _, icon = GetSpellInfo (156423) --WoD
+				--local name, _, icon = GetSpellInfo (105697) --MoP
 				GameCooltip:AddLine (name, virmens_bite_potion.activedamt)
 				_detalhes:AddTooltipBackgroundStatusbar()
 				GameCooltip:AddIcon (icon, 1, 1, 14, 14)
 			    end
 			    
 			    --potion of the mountains
-			    --local mountains_potion = buff_uptime_container [156430] --WoD
-			    local mountains_potion = buff_uptime_container [105698] --MoP
+			    local mountains_potion = buff_uptime_container [156430] --WoD
+			    --local mountains_potion = buff_uptime_container [105698] --MoP
 			    if (mountains_potion) then
-				--local name, _, icon = GetSpellInfo (156430) --WoD
-				local name, _, icon = GetSpellInfo (105698) --MoP
+				local name, _, icon = GetSpellInfo (156430) --WoD
+				--local name, _, icon = GetSpellInfo (105698) --MoP
 				GameCooltip:AddLine (name, mountains_potion.activedamt)
 				_detalhes:AddTooltipBackgroundStatusbar()
 				GameCooltip:AddIcon (icon, 1, 1, 14, 14)

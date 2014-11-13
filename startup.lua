@@ -313,35 +313,11 @@ function _G._detalhes:Start()
 			_detalhes:AddDefaultCustomDisplays()
 			
 			--> Reset for the new structure
-			if (_detalhes_database.last_realversion and _detalhes_database.last_realversion < 43 and enable_reset_warning) then
-				for i = 1, #_detalhes.custom do
+			if (_detalhes_database.last_realversion and _detalhes_database.last_realversion < 47 and enable_reset_warning) then
+				for i = #_detalhes.custom, 1, -1  do
 					_detalhes.atributo_custom:RemoveCustom (i)
 				end
 				_detalhes:AddDefaultCustomDisplays()
-			end
-			
-			if (_detalhes_database.last_realversion and _detalhes_database.last_realversion < 20 and enable_reset_warning) then
-				table.wipe (self.custom)
-				_detalhes:AddDefaultCustomDisplays()
-			end
-			
-			if (_detalhes_database.last_realversion and _detalhes_database.last_realversion < 18 and enable_reset_warning) then
-				
-				for index, instance in ipairs (_detalhes.tabela_instancias) do 
-					if (not instance.iniciada) then
-						instance:RestauraJanela()
-						local skin = instance.skin
-						instance:ChangeSkin ("Default Skin")
-						instance:ChangeSkin ("Minimalistic v2")
-						instance:ChangeSkin (skin)
-						instance:DesativarInstancia()
-					else
-						local skin = instance.skin
-						instance:ChangeSkin ("Default Skin")
-						instance:ChangeSkin ("Minimalistic v2")
-						instance:ChangeSkin (skin)
-					end
-				end
 			end
 
 		end
