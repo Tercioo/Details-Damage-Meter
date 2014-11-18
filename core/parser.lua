@@ -396,7 +396,7 @@
 			(_bit_band (alvo_flags, REACTION_FRIENDLY) ~= 0 and _bit_band (who_flags, REACTION_FRIENDLY) ~= 0) or
 			(raid_members_cache [who_serial] and raid_members_cache [alvo_serial])
 		) then
-
+		
 			--> record death log
 			local t = last_events_cache [alvo_name]
 			
@@ -432,7 +432,8 @@
 
 			friend.total = friend.total + amount
 			friend.spells [spellid] = (friend.spells [spellid] or 0) + amount
-
+			
+			return true
 		else
 			_current_total [1] = _current_total [1]+amount
 			

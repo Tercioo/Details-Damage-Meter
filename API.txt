@@ -1,10 +1,11 @@
-This is a short api document for Details! API, describing attributes, combat, container, actor.
-It still is incomplete, we are writing.
+This is a short document for Details! API, describing attributes, combat, container, actor.
+It still is incomplete, we are working on.
+
+This is a diagram showing the structure: http://i.imgur.com/vyTjpFh.png
 
 Attributes:
 =======================================
-
-All these keys are globals.
+All these keys are globals:
 
 DETAILS_ATTRIBUTE_DAMAGE = 1
 DETAILS_SUBATTRIBUTE_DAMAGEDONE = 1
@@ -84,6 +85,39 @@ DETAILS_TOTALS_ONLYGROUP = true
 total = combat:GetTotal ( attribute, subAttribute [, onlyGroup] )
 returns the total of the requested attribute.
 
+--------------------------------------------------------------------
+
+Other Calls:
+
+_detalhes:GetCurrentCombat()
+returns the current combat object.
+
+_detalhes:GetCombatSegments()
+returns the numeric table containing all past segments.
+
+_detalhes:GetCombatId()
+returns the current unique combat number counter.
+combat number is a unique number given to each combat started, this number won't 
+reset when data is wiped and each character have its own combat number counter.
+
+_detalhes:IsInCombat()
+returns if Details! is in combat or not.
+ 
+_detalhes:GetCombat (combat = "current")
+returns the requested combat object.
+is 'combat' is omitted, returns the current combat.
+combat can be a number: -1 for overall, 0 for current and > 0 for past segments.
+combat also can be a string "overall" for overall combat and "current" for current segment.
+
+damage, healing, energy, misc = _detalhes:GetAllActors (combat, actorname)
+returns all the four actor objects for the requested combat and actor.
+combat must be a combat object.
+
+local actor = _detalhes:GetActor (combat = "current", attribute = 1, actorname = playername)
+returns the actor for the requested combat, attribute and actor name.
+if all parameters are omitted, returns the damage actor object of the player for the current combat.
+
+
 
 Container Object:
 =======================================
@@ -156,7 +190,7 @@ Damage Actor Keys:
 total = total of damage done.
 total_without_pet = without pet.
 damage_taken = total of damage taken.
-last_dps = cache of the last calculed dps, it's best take actor.total / actor:Tempo()
+last_dps = cache of the last calculed dps, it's best just use actor.total / actor:Tempo()
 last_event = when the last event for this actor occured.
 start_time = time when this actor started to apply damage.
 end_time = time when the actor stopped with damage.

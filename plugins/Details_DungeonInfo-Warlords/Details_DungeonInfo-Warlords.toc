@@ -1,0 +1,6 @@
+## Interface: 60000
+## Title: Details: Warlords of Draenor Dungeons
+## Notes: Plugin for Details
+## RequiredDeps: Details
+
+Details_DungeonInfo-Warlords.lua
