@@ -165,10 +165,17 @@
 		--if (npcId == 76933) then
 		--	return
 		--end
+		
 		--using pattern, calling API is too slow here
-		if (alvo_serial:match ("^Creature:0:%d+:%d+:%d+:76933:%w+$")) then
+		if (alvo_serial:match ("^Creature%-0%-%d+%-%d+%-%d+%-76933%-%w+$")) then
 			return
 		end
+		
+		--> Second try with :find
+		-- it's 20% faster when comparing Npcs serials, but very slow when comparing other things.
+		--if (alvo_serial:find ("-76933-")) then
+		--	return
+		--end
 
 	------------------------------------------------------------------------------------------------	
 	--> check if need start an combat
@@ -1488,7 +1495,7 @@
 		end
 		
 		if (jogador_alvo.powertype ~= este_jogador.powertype) then
-			print ("error: different power types: who -> ", este_jogador.powertype, " target -> ", jogador_alvo.powertype)
+			--print ("error: different power types: who -> ", este_jogador.powertype, " target -> ", jogador_alvo.powertype)
 			return
 		end
 		

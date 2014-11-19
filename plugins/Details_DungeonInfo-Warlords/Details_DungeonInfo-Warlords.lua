@@ -2,11 +2,12 @@
 --Bloodmail Slag Mines
 --The Everbloom
 --GrimrailDepot
---IronDocks 
+--IronDocks
 --ShadowmoonBurialGrounds
 --Skyreach
 --UpperBlackrockSpire
 
+--82682 3 everbloom
 
 local Auchindoun = {
 	id = 1182, --mapid
@@ -51,11 +52,11 @@ local Auchindoun = {
 _detalhes:InstallEncounter (Auchindoun)
 
 
-local BloodmailSlagMines = {
-	id = 0, --mapid
+local BloodmaulSlagMines = {
+	id = 1175, --mapid
 	ej_id = 385, --encounter journal id
 	
-	name = "Bloodmail Slag Mines",
+	name = "Bloodmaul Slag Mines",
 	
 	boss_names = {
 		"Slave Watcher Crushto",
@@ -92,10 +93,10 @@ local BloodmailSlagMines = {
 
 }
 
-_detalhes:InstallEncounter (BloodmailSlagMines)
+_detalhes:InstallEncounter (BloodmaulSlagMines)
 
 local TheEverbloom = {
-	id = 0, --mapid
+	id = 1279, --mapid
 	ej_id = 556, --encounter journal id
 	
 	name = "The Everbloom",
@@ -110,9 +111,11 @@ local TheEverbloom = {
 	
 	boss_ids = {
 		[83894] = 1, --Ancient Protectors
+		[86244] = 1, --Ancient Protectors
 		[86246] = 2, --Archmage Sol
 		[86247] = 3, --Xeri'tac
 		[86242] = 4, --Witherbark
+		[82682] = 4, --Witherbark
 		[86248] = 5, --Yalnu
 	},
 
@@ -157,9 +160,10 @@ local GrimrailDepot = {
 	boss_ids = {
 		[86228] = 1, --Skylord Tovra
 		[86225] = 2, --Rocketspark and Borka
+		[86226] = 2, --Rocketspark and Borka
 		[86227] = 3, --Nitrogg Thundertower
 	},
-	
+
 	encounters = {
 		[1] = {
 			boss =	"Skylord Tovra",
@@ -179,7 +183,7 @@ local GrimrailDepot = {
 _detalhes:InstallEncounter (GrimrailDepot)
 
 local IronDocks = {
-	id = 0, --mapid
+	id = 1195, --mapid
 	ej_id = 558, --encounter journal id
 	
 	name = "Iron Docks",
@@ -194,10 +198,12 @@ local IronDocks = {
 	boss_ids = {
 		[87451] = 1, --Fleshrender Nok'gar
 		[87452] = 2, --Ahri'ok Dugru
+		[86231] = 2, --Makogg Emberblade
+		[80808] = 2, --Neesa Nox
 		[86232] = 3, --Oshir
 		[86233] = 4, --Skulloc
 	},
-	
+
 	encounters = {
 		[1] = {
 			boss =	"Fleshrender Nok'gar",
@@ -221,7 +227,7 @@ local IronDocks = {
 _detalhes:InstallEncounter (IronDocks)
 
 local ShadowmoonBurialGrounds = {
-	id = 0, --mapid
+	id = 1176, --mapid
 	ej_id = 537, --encounter journal id
 	
 	name = "Shadowmoon Burial Grounds",
@@ -321,13 +327,16 @@ local UpperBlackrockSpire = {
 	
 	boss_ids = {
 		[86249] = 1, --Orebender Gor'ashan
+		[76413] = 1, --Orebender Gor'ashan
 		[86250] = 2, --Kyrak
+		[76021] = 2, --Kyrak
 		[86251] = 3, --Commander Tharbek
+		[79912] = 3, --Commander Tharbek
 		[76585] = 4, --Ragewing the Untamed
 		[77120] = 5, --Warlord Zaela
 		[77081] = 6, --The Lanticore
 	},
-	
+
 	encounters = {
 		[1] = {
 			boss =	"Orebender Gor'ashan",

@@ -2042,7 +2042,7 @@
 		if LDB then
 
 			local databroker = LDB:NewDataObject ("Details!", {
-				type = "launcher",
+				type = "data source",
 				icon = [[Interface\AddOns\Details\images\minimap]],
 				text = "0",
 				

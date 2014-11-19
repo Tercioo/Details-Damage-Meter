@@ -487,6 +487,15 @@
 		["Darnassus"] = true,
 		["Ironforge"] = true,
 		["TheExodar"] = true,
+		
+		["garrisonffhorde_tier1"] = true,
+		["garrisonffhorde_tier2"] = true,
+		["garrisonffhorde_tier3"] = true,
+		
+		["garrisonsmvalliance_tier1"] = true,
+		["garrisonsmvalliance_tier2"] = true,
+		["garrisonsmvalliance_tier3"] = true,
+		["garrisonsmvalliance_tier4"] = true,
 	}
 	
 	local sub_zones = {
