@@ -1,13 +1,11 @@
 --Auchindoun
---Bloodmail Slag Mines
+--Bloodmaul Slag Mines
 --The Everbloom
 --GrimrailDepot
 --IronDocks
 --ShadowmoonBurialGrounds
 --Skyreach
 --UpperBlackrockSpire
-
---82682 3 everbloom
 
 local Auchindoun = {
 	id = 1182, --mapid
@@ -24,9 +22,13 @@ local Auchindoun = {
 	
 	boss_ids = {
 		[86217] = 1, --Vigilant Kaathar
+		[75839] = 1, --Vigilant Kaathar
 		[86218] = 2, --Soulbinder Nyami
+		[76177] = 2, --Soulbinder Nyami
 		[86219] = 3, --Azzakel
+		[75927] = 3, --Azzakel
 		[86220] = 4, --Teron'gor
+		[77734] = 4, --Teron'gor
 	},
 
 	encounters = {
@@ -36,7 +38,7 @@ local Auchindoun = {
 		},
 		[2] = {
 			boss =	"Soulbinder Nyami",
-			portrait = [[Interface\EncounterJournal\journal/UI-EJ-BOSS-Soulbinder Nyami]],
+			portrait = [[Interface\EncounterJournal\journal\UI-EJ-BOSS-Soulbinder Nyami]],
 		},
 		[3] = {
 			boss =	"Azzakel",
@@ -67,9 +69,11 @@ local BloodmaulSlagMines = {
 	
 	boss_ids = {
 		[86222] = 1, --Slave Watcher Crushto
+		[74787] = 1, --Slave Watcher Crushto
 		[74366] = 2, --Forgemaster Gog'duh
 		[86223] = 3, --Roltall
 		[86224] = 4, --Gug'rokk
+		[74790] = 4, --Gug'rokk
 	},
 	
 	encounters = {
@@ -161,7 +165,10 @@ local GrimrailDepot = {
 		[86228] = 1, --Skylord Tovra
 		[86225] = 2, --Rocketspark and Borka
 		[86226] = 2, --Rocketspark and Borka
+		[79545] = 2, --Rocketspark and Borka
+		[79548] = 2, --Rocketspark and Borka
 		[86227] = 3, --Nitrogg Thundertower
+		[80005] = 3, --Nitrogg Thundertower
 	},
 
 	encounters = {
@@ -194,8 +201,10 @@ local IronDocks = {
 		"Oshir",
 		"Skulloc",
 	},
-	
+
 	boss_ids = {
+		[81297] = 1, --Dreadfang
+		[81305] = 1, --Fleshrender Nok'gar	
 		[87451] = 1, --Fleshrender Nok'gar
 		[87452] = 2, --Ahri'ok Dugru
 		[86231] = 2, --Makogg Emberblade
@@ -241,8 +250,11 @@ local ShadowmoonBurialGrounds = {
 	
 	boss_ids = {
 		[86234] = 1, --Sadana Bloodfury
+		[75509] = 1, --Sadana Bloodfury
 		[86236] = 2, --Bonemaw
+		[75452] = 2, --Bonemaw
 		[76268] = 3, --Ner'zhul
+		[76407] = 3, --Ner'zhul
 		[75829] = 4, --Nhallish
 	},
 	
@@ -283,9 +295,13 @@ local Skyreach = {
 	
 	boss_ids = {
 		[86238] = 1, --Ranjit
+		[75964] = 1, --Ranjit
 		[86239] = 2, --Araknath
+		[76141] = 2, --Araknath
 		[76379] = 3, --Rukhran
+		[76143] = 3, --Rukhran
 		[86241] = 4, --High Sage Viryx
+		[76266] = 4, --High Sage Viryx
 	},
 	
 	encounters = {
