@@ -1696,7 +1696,7 @@ function DetailsCreateCoolTip()
 		if (not button1) then
 			return "", ""
 		else
-			return button1.leftText:GetText(), button1.rightText:GetText()
+			return button1.leftText:GetText() or "", button1.rightText:GetText() or ""
 		end
 	end
 	

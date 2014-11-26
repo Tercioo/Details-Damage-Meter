@@ -786,6 +786,12 @@ function gump:CriaJanelaInfo()
 	end
 	_detalhes:SetPlayerDetailsWindowTexture ("Interface\\AddOns\\Details\\images\\info_window_background")
 
+	este_gump.bg1_sec_texture = este_gump:CreateTexture (nil, "BORDER")
+	este_gump.bg1_sec_texture:SetDrawLayer ("BORDER", 2)
+	este_gump.bg1_sec_texture:SetPoint ("topleft", este_gump.bg1, "topleft", 348, -86)
+	este_gump.bg1_sec_texture:SetHeight (262)
+	este_gump.bg1_sec_texture:SetWidth (264)
+	
 	--> botão de fechar
 	este_gump.fechar = _CreateFrame ("Button", nil, este_gump, "UIPanelCloseButton")
 	este_gump.fechar:SetWidth (32)

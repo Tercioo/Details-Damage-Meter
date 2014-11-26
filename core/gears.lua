@@ -210,7 +210,7 @@ _detalhes.background_tasks_loop = _detalhes:ScheduleRepeatingTimer ("DoBackgroun
 local store_instances = {
 	[1205] = true, --Blackrock Foundry
 	[1228] = true, --Highmaul
-	[1136] = true, --SoO
+	--[1136] = true, --SoO
 }
 
 function _detalhes:StoreEncounter (combat)

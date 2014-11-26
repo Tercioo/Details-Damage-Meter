@@ -381,12 +381,12 @@ local ButtonMetaFunctions = {}
 	end
 
 -- icon
-	function ButtonMetaFunctions:SetIcon (texture, width, height, layout, texcoord, overlay, textdistance)
+	function ButtonMetaFunctions:SetIcon (texture, width, height, layout, texcoord, overlay, textdistance, leftpadding)
 		if (not self.icon) then
 			self.icon = self:CreateTexture (nil, "artwork")
 			self.icon:SetSize (self.height*0.8, self.height*0.8)
-			self.icon:SetPoint ("left", self.widget, "left", 4, 0)
-			
+			self.icon:SetPoint ("left", self.widget, "left", 4 + (leftpadding or 0), 0)
+			self.icon.leftpadding = leftpadding or 0
 			self.widget.text:ClearAllPoints()
 			self.widget.text:SetPoint ("left", self.icon, "right", textdistance or 2, 0)
 		end
@@ -479,7 +479,7 @@ local ButtonMetaFunctions = {}
 	end
 
 --> custom textures
-	function ButtonMetaFunctions:InstallCustomTexture (texture, rect, coords, use_split, side_textures)
+	function ButtonMetaFunctions:InstallCustomTexture (texture, rect, coords, use_split, side_textures, side_textures2)
 	
 		self.button:SetNormalTexture (nil)
 		self.button:SetPushedTexture (nil)
@@ -548,6 +548,7 @@ local ButtonMetaFunctions = {}
 			left:SetPoint ("left", self.button, 0, 0)
 			left:SetWidth (10)
 			left:SetHeight (self.button:GetHeight()+2)
+			self.button.left_border = left
 			
 			local right = self.button:CreateTexture (nil, "overlay")
 			right:SetTexture ([[Interface\TALENTFRAME\talent-main]])
@@ -555,6 +556,25 @@ local ButtonMetaFunctions = {}
 			right:SetPoint ("right", self.button, 0, 0)	
 			right:SetWidth (10)
 			right:SetHeight (self.button:GetHeight()+2)
+			self.button.right_border = right
+			
+		elseif (side_textures2) then
+			
+			local left = self.button:CreateTexture (nil, "overlay")
+			left:SetTexture ([[Interface\AddOns\Details\images\icons]])
+			left:SetTexCoord (94/512, 123/512, 42/512, 87/512)
+			left:SetPoint ("left", self.button, 0, 0)
+			left:SetWidth (10)
+			left:SetHeight (self.button:GetHeight()+2)
+			self.button.left_border = left
+			
+			local right = self.button:CreateTexture (nil, "overlay")
+			right:SetTexture ([[Interface\AddOns\Details\images\icons]])
+			right:SetTexCoord (65/512, 94/512, 42/512, 87/512)
+			right:SetPoint ("right", self.button, 0, 0)	
+			right:SetWidth (10)
+			right:SetHeight (self.button:GetHeight()+2)
+			self.button.right_border = right
 		end
 	end
 
@@ -705,7 +725,7 @@ local ButtonMetaFunctions = {}
 		
 		if (button.MyObject.capsule_textalign) then
 			if (button.MyObject.icon) then
-				button.MyObject.icon:SetPoint ("left", button, "left", 5, -1)
+				button.MyObject.icon:SetPoint ("left", button, "left", 5 + button.MyObject.icon.leftpadding, -1)
 			elseif (button.MyObject.capsule_textalign == "left") then
 				button.text:SetPoint ("left", button, "left", 3, -1)
 			elseif (button.MyObject.capsule_textalign == "center") then
@@ -715,7 +735,7 @@ local ButtonMetaFunctions = {}
 			end
 		else
 			if (button.MyObject.icon) then
-				button.MyObject.icon:SetPoint ("left", button, "left", 7, -2)
+				button.MyObject.icon:SetPoint ("left", button, "left", 7 + button.MyObject.icon.leftpadding, -2)
 			else
 				button.text:SetPoint ("center", button,"center", 1, -1)
 			end
@@ -800,7 +820,7 @@ local ButtonMetaFunctions = {}
 
 		if (button.MyObject.capsule_textalign) then
 			if (button.MyObject.icon) then
-				button.MyObject.icon:SetPoint ("left", button, "left", 4, 0)
+				button.MyObject.icon:SetPoint ("left", button, "left", 4 + button.MyObject.icon.leftpadding, 0)
 			elseif (button.MyObject.capsule_textalign == "left") then
 				button.text:SetPoint ("left", button, "left", 2, 0)
 			elseif (button.MyObject.capsule_textalign == "center") then
@@ -810,7 +830,7 @@ local ButtonMetaFunctions = {}
 			end
 		else
 			if (button.MyObject.icon) then
-				button.MyObject.icon:SetPoint ("left", button, "left", 4, 0)
+				button.MyObject.icon:SetPoint ("left", button, "left", 4 + button.MyObject.icon.leftpadding, 0)
 			else
 				button.text:SetPoint ("center", button,"center", 0, 0)
 			end

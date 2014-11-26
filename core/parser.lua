@@ -2477,6 +2477,10 @@
 	-- ~encounter
 	function _detalhes.parser_functions:ENCOUNTER_START (...)
 	
+		if (_detalhes.debug) then
+			_detalhes:Msg ("(debug) ENCOUNTER_START event triggered.")
+		end
+	
 		_detalhes.latest_ENCOUNTER_END = _detalhes.latest_ENCOUNTER_END or 0
 		if (_detalhes.latest_ENCOUNTER_END + 10 > _detalhes._tempo) then
 			return
@@ -2539,6 +2543,10 @@
 	end
 	
 	function _detalhes.parser_functions:ENCOUNTER_END (...)
+	
+		if (_detalhes.debug) then
+			_detalhes:Msg ("(debug) ENCOUNTER_END event triggered.")
+		end
 	
 		local encounterID, encounterName, difficultyID, raidSize, endStatus = _select (1, ...)
 	
@@ -2653,7 +2661,9 @@
 		end
 		
 		if (_detalhes.schedule_store_boss_encounter) then
-			pcall (_detalhes.StoreEncounter)
+			if (not _detalhes.logoff_saving_data) then
+				pcall (_detalhes.StoreEncounter)
+			end
 			_detalhes.schedule_store_boss_encounter = nil
 		end
 		
@@ -2811,49 +2821,58 @@
 	end
 
 	_detalhes.listener:SetScript ("OnEvent", _detalhes.OnEvent)
-	
+
 	--> logout function ~save
-		function _detalhes:PLAYER_LOGOUT (...)
+	
+	local saver = CreateFrame ("frame", nil, UIParent)
+	saver:RegisterEvent ("PLAYER_LOGOUT")
+	saver:SetScript ("OnEvent", function (...)
 		
-			--> close info window
-				if (_detalhes.FechaJanelaInfo) then
-					_detalhes:FechaJanelaInfo()
-				end
-				
-			--> do not save window pos
-				for id, instance in _detalhes:ListInstances() do
-					if (instance.baseframe) then
-						instance.baseframe:SetUserPlaced (false)
-					end
-				end
-
-			--> leave combat start save tables
-				if (_detalhes.in_combat and _detalhes.tabela_vigente) then 
-					_detalhes:SairDoCombate()
-					_detalhes.can_panic_mode = true
-				end
-				
-				if (_detalhes.CheckSwitchOnLogon and _detalhes.tabela_instancias[1] and getmetatable (_detalhes.tabela_instancias[1])) then
-					_detalhes:CheckSwitchOnLogon()
-				end
-				
-				if (_detalhes.wipe_full_config) then
-					_detalhes_global = nil
-					_detalhes_database = nil
-					return
-				end
+		local saver_error = function (errortext)
+			_detalhes_global = _detalhes_global or {}
+			_detalhes_global.exit_errors = _detalhes_global.exit_errors or {}
 			
-			--> save the config
-				_detalhes:SaveConfig()
-				_detalhes:SaveProfile()
-
-			--> save the nicktag cache
-				_detalhes_database.nick_tag_cache = table_deepcopy (_detalhes_database.nick_tag_cache)
+			tinsert (_detalhes_global.exit_errors, 1, _detalhes.userversion .. " " .. errortext)
+			tremove (_detalhes_global.exit_errors, 6)
 		end
 		
-		local saver = CreateFrame ("frame", "_detalhes_saver_frame", UIParent)
-		saver:RegisterEvent ("PLAYER_LOGOUT")
-		saver:SetScript ("OnEvent", _detalhes.PLAYER_LOGOUT)
+		_detalhes.logoff_saving_data = true
+	
+		--> close info window
+			if (_detalhes.FechaJanelaInfo) then
+				xpcall (_detalhes.FechaJanelaInfo, saver_error)
+			end
+			
+		--> do not save window pos
+			for id, instance in _detalhes:ListInstances() do
+				if (instance.baseframe) then
+					instance.baseframe:SetUserPlaced (false)
+				end
+			end
+
+		--> leave combat start save tables
+			if (_detalhes.in_combat and _detalhes.tabela_vigente) then 
+				xpcall (_detalhes.SairDoCombate, saver_error)
+				_detalhes.can_panic_mode = true
+			end
+			
+			if (_detalhes.CheckSwitchOnLogon and _detalhes.tabela_instancias[1] and getmetatable (_detalhes.tabela_instancias[1])) then
+				xpcall (_detalhes.CheckSwitchOnLogon, saver_error)
+			end
+			
+			if (_detalhes.wipe_full_config) then
+				_detalhes_global = nil
+				_detalhes_database = nil
+				return
+			end
+		
+		--> save the config
+			xpcall (_detalhes.SaveConfig, saver_error)
+			xpcall (_detalhes.SaveProfile, saver_error)
+
+		--> save the nicktag cache
+			_detalhes_database.nick_tag_cache = table_deepcopy (_detalhes_database.nick_tag_cache)
+	end)
 		
 	--> end
 

@@ -16,7 +16,8 @@
 	local _UIParent = UIParent --wow api local
 	
 	local gump = _detalhes.gump --details local
-
+	local _
+	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> constants
 
@@ -74,9 +75,9 @@
 				
 				if (v_proxima > v) then
 					if (row.animacao_fim >= v_proxima) then
-						row.statusbar:SetValue (v_proxima)
+						row:SetValue (v_proxima)
 					else
-						row.statusbar:SetValue (row.animacao_fim)
+						row:SetValue (row.animacao_fim)
 						row_proxima.statusbar:SetValue (row.animacao_fim)
 					end
 				end
@@ -116,7 +117,7 @@
 
 	function _detalhes:FazerAnimacao_Esquerda (elapsed)
 		self.inicio = self.inicio - 1
-		self.statusbar:SetValue (self.inicio)
+		self:SetValue (self.inicio)
 		if (self.inicio-1 <= self.fim) then
 			self.tem_animacao = false
 			self:SetScript ("OnUpdate", nil)
@@ -125,7 +126,7 @@
 	
 	function _detalhes:FazerAnimacao_Direita (elapsed)
 		self.inicio = self.inicio + 1
-		self.statusbar:SetValue (self.inicio)
+		self:SetValue (self.inicio)
 		if (self.inicio+1 >= self.fim) then
 			self.tem_animacao = false
 			self:SetScript ("OnUpdate", nil)
@@ -894,7 +895,7 @@
 			--GameCooltip:Hide()
 			end
 			
-			local reset = gump:NewLabel (panel, _, nil, nil, "|TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:" .. 20 .. ":" .. 20 .. ":0:1:512:512:8:70:328:409|t " .. Loc ["STRING_OPTIONS_CLASSCOLOR_RESET"])
+			local reset = gump:NewLabel (panel, panel, nil, nil, "|TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:" .. 20 .. ":" .. 20 .. ":0:1:512:512:8:70:328:409|t " .. Loc ["STRING_OPTIONS_CLASSCOLOR_RESET"])
 			reset:SetPoint ("bottomright", panel, "bottomright", -23, 38)
 			local reset_texture = gump:CreateImage (panel, [[Interface\MONEYFRAME\UI-MONEYFRAME-BORDER]], 138, 45, "border")
 			reset_texture:SetPoint ("center", reset, "center", 0, -7)
@@ -2036,6 +2037,7 @@
 	
 	--> minimap icon and hotcorner
 	function _detalhes:RegisterMinimap()
+	
 		local LDB = LibStub ("LibDataBroker-1.1", true)
 		local LDBIcon = LDB and LibStub ("LibDBIcon-1.0", true)
 		

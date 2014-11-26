@@ -1,9 +1,0 @@
-## Interface: 60000
-## Title: Details: Siege of Orgrimmar
-## Notes: Plugin for Details
-## RequiredDeps: Details
-
-enUS.lua
-ptBR.lua
-
-SiegeOfOrgrimmar.lua

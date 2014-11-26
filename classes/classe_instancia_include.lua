@@ -166,8 +166,16 @@ _detalhes.instance_defaults = {
 			--percent type
 				percent_type = 1,
 			--backdrop
-				backdrop = {enabled = false, size = 12, color = {1, 1, 1, 1}, texture = "Details BarBorder 2"}
-				
+				backdrop = {enabled = false, size = 12, color = {1, 1, 1, 1}, texture = "Details BarBorder 2"},
+			--model
+				models = {
+					upper_enabled = false,
+					upper_model = [[Spells\AcidBreath_SuperGreen.M2]],
+					upper_alpha = 0.50,
+					lower_enabled = false,
+					lower_model = [[World\EXPANSION02\DOODADS\Coldarra\COLDARRALOCUS.m2]],
+					lower_alpha = 0.10,
+				},
 		},
 	--instance window color
 		color = {1, 1, 1, 1},

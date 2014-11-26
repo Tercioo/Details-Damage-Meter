@@ -217,7 +217,7 @@ function atributo_energy:AtualizarResources (qual_barra, colocacao, instancia)
 	esta_barra.texto_esquerdo:SetText (colocacao .. ". " .. self.nome)
 	esta_barra.texto_esquerdo:SetSize (esta_barra:GetWidth() - esta_barra.texto_direita:GetStringWidth() - 20, 15)
 	
-	esta_barra.statusbar:SetValue (100)
+	esta_barra:SetValue (100)
 	
 	if (esta_barra.hidden or esta_barra.fading_in or esta_barra.faded) then
 		gump:Fade (esta_barra, "out")
@@ -489,7 +489,7 @@ function atributo_energy:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 			row1.texto_esquerdo:SetText (Loc ["STRING_TOTAL"])
 			row1.texto_direita:SetText (_detalhes:ToK2 (total) .. " (" .. _detalhes:ToK (total / combat_time) .. ")")
 			
-			row1.statusbar:SetValue (100)
+			row1:SetValue (100)
 			local r, b, g = unpack (instancia.total_bar.color)
 			row1.textura:SetVertexColor (r, b, g)
 			
@@ -545,7 +545,7 @@ function atributo_energy:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 			row1.texto_esquerdo:SetText (Loc ["STRING_TOTAL"])
 			row1.texto_direita:SetText (_detalhes:ToK2 (total) .. " (" .. _detalhes:ToK (total / combat_time) .. ")")
 			
-			row1.statusbar:SetValue (100)
+			row1:SetValue (100)
 			local r, b, g = unpack (instancia.total_bar.color)
 			row1.textura:SetVertexColor (r, b, g)
 			
@@ -654,7 +654,7 @@ function atributo_energy:RefreshBarra2 (esta_barra, instancia, tabela_anterior, 
 	--> primeiro colocado
 	if (esta_barra.colocacao == 1) then
 		if (not tabela_anterior or tabela_anterior ~= esta_barra.minha_tabela or forcar) then
-			esta_barra.statusbar:SetValue (100)
+			esta_barra:SetValue (100)
 			
 			if (esta_barra.hidden or esta_barra.fading_in or esta_barra.faded) then
 				gump:Fade (esta_barra, "out")
@@ -667,13 +667,11 @@ function atributo_energy:RefreshBarra2 (esta_barra, instancia, tabela_anterior, 
 	else
 
 		if (esta_barra.hidden or esta_barra.fading_in or esta_barra.faded) then
-		
-			--esta_barra.statusbar:SetValue (esta_porcentagem)
 			
 			if (use_animations) then
 				esta_barra.animacao_fim = esta_porcentagem
 			else
-				esta_barra.statusbar:SetValue (esta_porcentagem)
+				esta_barra:SetValue (esta_porcentagem)
 				esta_barra.animacao_ignorar = true
 			end
 			
@@ -695,7 +693,7 @@ function atributo_energy:RefreshBarra2 (esta_barra, instancia, tabela_anterior, 
 				if (use_animations) then
 					esta_barra.animacao_fim = esta_porcentagem
 				else
-					esta_barra.statusbar:SetValue (esta_porcentagem)
+					esta_barra:SetValue (esta_porcentagem)
 					esta_barra.animacao_ignorar = true
 				end
 			
@@ -708,7 +706,7 @@ function atributo_energy:RefreshBarra2 (esta_barra, instancia, tabela_anterior, 
 				if (use_animations) then
 					esta_barra.animacao_fim = esta_porcentagem
 				else
-					esta_barra.statusbar:SetValue (esta_porcentagem)
+					esta_barra:SetValue (esta_porcentagem)
 				end
 				esta_barra.last_value = esta_porcentagem
 				

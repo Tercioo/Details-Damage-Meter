@@ -1,11 +1,7 @@
 move-folders:
     Details/plugins/Details_DmgRank: Details_DmgRank
-    Details/plugins/Details_ErrorReport: Details_ErrorReport
     Details/plugins/Details_EncounterDetails: Details_EncounterDetails
-    Details/plugins/Details_RaidInfo-ThroneOfThunder: Details_RaidInfo-ThroneOfThunder
-    Details/plugins/Details_RaidInfo-SiegeOfOrgrimmar: Details_RaidInfo-SiegeOfOrgrimmar
     Details/plugins/Details_DungeonInfo-Pandaria: Details_DungeonInfo-Pandaria
-    Details/plugins/Details_SaveData: Details_SaveData
     Details/plugins/Details_SpellDetails: Details_SpellDetails
     Details/plugins/Details_TimeAttack: Details_TimeAttack
     Details/plugins/Details_TinyThreat: Details_TinyThreat
@@ -15,3 +11,4 @@ move-folders:
     Details/plugins/Details_RaidInfo-Highmaul: Details_RaidInfo-Highmaul
     Details/plugins/Details_DataStorage: Details_DataStorage
     Details/plugins/Details_DungeonInfo-Warlords: Details_DungeonInfo-Warlords
+    Details/plugins/Details_3DModelsPaths: Details_3DModelsPaths

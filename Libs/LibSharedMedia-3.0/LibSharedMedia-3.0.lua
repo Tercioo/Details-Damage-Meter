@@ -1,6 +1,6 @@
 --[[
 Name: LibSharedMedia-3.0
-Revision: $Revision: 69 $
+Revision: $Revision: 89 $
 Author: Elkano (elkano@gmx.de)
 Inspired By: SurfaceLib by Haste/Otravi (troeks@gmail.com)
 Website: http://www.wowace.com/projects/libsharedmedia-3-0/
@@ -9,7 +9,7 @@ Dependencies: LibStub, CallbackHandler-1.0
 License: LGPL v2.1
 ]]
 
-local MAJOR, MINOR = "LibSharedMedia-3.0", 4030402 -- increase manualy on changes
+local MAJOR, MINOR = "LibSharedMedia-3.0", 6000201 -- 6.0.2 v1 / increase manually on changes
 local lib = LibStub:NewLibrary(MAJOR, MINOR)
 
 if not lib then return end
@@ -60,9 +60,13 @@ lib.MediaType.SOUND			= "sound"				-- sound files
 -- BACKGROUND
 if not lib.MediaTable.background then lib.MediaTable.background = {} end
 lib.MediaTable.background["None"]									= [[]]
+lib.MediaTable.background["Blizzard Collections Background"]		= [[Interface\Collections\CollectionsBackgroundTile]]
 lib.MediaTable.background["Blizzard Dialog Background"]				= [[Interface\DialogFrame\UI-DialogBox-Background]]
 lib.MediaTable.background["Blizzard Dialog Background Dark"]		= [[Interface\DialogFrame\UI-DialogBox-Background-Dark]]
 lib.MediaTable.background["Blizzard Dialog Background Gold"]		= [[Interface\DialogFrame\UI-DialogBox-Gold-Background]]
+lib.MediaTable.background["Blizzard Garrison Background"]			= [[Interface\Garrison\GarrisonUIBackground]]
+lib.MediaTable.background["Blizzard Garrison Background 2"]			= [[Interface\Garrison\GarrisonUIBackground2]]
+lib.MediaTable.background["Blizzard Garrison Background 3"]			= [[Interface\Garrison\GarrisonMissionUIInfoBoxBackgroundTile]]
 lib.MediaTable.background["Blizzard Low Health"]					= [[Interface\FullScreenTextures\LowHealth]]
 lib.MediaTable.background["Blizzard Marble"]						= [[Interface\FrameGeneral\UI-Background-Marble]]
 lib.MediaTable.background["Blizzard Out of Control"]				= [[Interface\FullScreenTextures\OutOfControl]]
@@ -88,6 +92,36 @@ lib.DefaultMedia.border = "None"
 -- FONT
 if not lib.MediaTable.font then lib.MediaTable.font = {} end
 local SML_MT_font = lib.MediaTable.font
+--[[
+All font files are currently in all clients, the following table depicts which font supports which charset as of 5.0.4
+Fonts were checked using langcover.pl from DejaVu fonts (http://sourceforge.net/projects/dejavu/) and FontForge (http://fontforge.org/)
+latin means check for: de, en, es, fr, it, pt
+
+file				name							latin	koKR	ruRU	zhCN	zhTW
+2002.ttf			2002							X		X		X		-		-
+2002B.ttf			2002 Bold						X		X		X		-		-
+ARHei.ttf			AR CrystalzcuheiGBK Demibold	X		-		X		X		X
+ARIALN.TTF			Arial Narrow					X		-		X		-		-
+ARKai_C.ttf			AR ZhongkaiGBK Medium (Combat)	X		-		X		X		X
+ARKai_T.ttf			AR ZhongkaiGBK Medium			X		-		X		X		X
+bHEI00M.ttf			AR Heiti2 Medium B5				-		-		-		-		X
+bHEI01B.ttf			AR Heiti2 Bold B5				-		-		-		-		X
+bKAI00M.ttf			AR Kaiti Medium B5				-		-		-		-		X
+bLEI00D.ttf			AR Leisu Demi B5				-		-		-		-		X
+FRIZQT__.TTF		Friz Quadrata TT				X		-		-		-		-
+FRIZQT___CYR.TTF	FrizQuadrataCTT					x		-		X		-		-
+K_Damage.TTF		YDIWingsM						-		X		X		-		-
+K_Pagetext.TTF		MoK								X		X		X		-		-
+MORPHEUS.TTF		Morpheus						X		-		-		-		-
+MORPHEUS_CYR.TTF	Morpheus						X		-		X		-		-
+NIM_____.ttf		Nimrod MT						X		-		X		-		-
+SKURRI.TTF			Skurri							X		-		-		-		-
+SKURRI_CYR.TTF		Skurri							X		-		X		-		-
+
+WARNING: Although FRIZQT___CYR is available on western clients, it doesn't support special European characters e.g. é, ï, ö
+Due to this, we cannot use it as a replacement for FRIZQT__.TTF
+]]
+
 if locale == "koKR" then
 	LOCALE_MASK = lib.LOCALE_BIT_koKR
 --
@@ -120,11 +154,17 @@ elseif locale == "zhTW" then
 elseif locale == "ruRU" then
 	LOCALE_MASK = lib.LOCALE_BIT_ruRU
 --
-	SML_MT_font["Arial Narrow"]			= [[Fonts\ARIALN.TTF]]
-	SML_MT_font["Friz Quadrata TT"]		= [[Fonts\FRIZQT__.TTF]]
-	SML_MT_font["Morpheus"]				= [[Fonts\MORPHEUS.TTF]]
-	SML_MT_font["Nimrod MT"]			= [[Fonts\NIM_____.ttf]]
-	SML_MT_font["Skurri"]				= [[Fonts\SKURRI.TTF]]
+	SML_MT_font["2002"]								= [[Fonts\2002.TTF]]
+	SML_MT_font["2002 Bold"]						= [[Fonts\2002B.TTF]]
+	SML_MT_font["AR CrystalzcuheiGBK Demibold"]		= [[Fonts\ARHei.TTF]]
+	SML_MT_font["AR ZhongkaiGBK Medium (Combat)"]	= [[Fonts\ARKai_C.TTF]]
+	SML_MT_font["AR ZhongkaiGBK Medium"]			= [[Fonts\ARKai_T.TTF]]
+	SML_MT_font["Arial Narrow"]						= [[Fonts\ARIALN.TTF]]
+	SML_MT_font["Friz Quadrata TT"]					= [[Fonts\FRIZQT___CYR.TTF]]
+	SML_MT_font["MoK"]								= [[Fonts\K_Pagetext.TTF]]
+	SML_MT_font["Morpheus"]							= [[Fonts\MORPHEUS_CYR.TTF]]
+	SML_MT_font["Nimrod MT"]						= [[Fonts\NIM_____.ttf]]
+	SML_MT_font["Skurri"]							= [[Fonts\SKURRI_CYR.TTF]]
 --
 	lib.DefaultMedia.font = "Friz Quadrata TT"
 --
@@ -132,10 +172,17 @@ else
 	LOCALE_MASK = lib.LOCALE_BIT_western
 	locale_is_western = true
 --
-	SML_MT_font["Arial Narrow"]			= [[Fonts\ARIALN.TTF]]
-	SML_MT_font["Friz Quadrata TT"]		= [[Fonts\FRIZQT__.TTF]]
-	SML_MT_font["Morpheus"]				= [[Fonts\MORPHEUS.TTF]]
-	SML_MT_font["Skurri"]				= [[Fonts\SKURRI.TTF]]
+	SML_MT_font["2002"]								= [[Fonts\2002.TTF]]
+	SML_MT_font["2002 Bold"]						= [[Fonts\2002B.TTF]]
+	SML_MT_font["AR CrystalzcuheiGBK Demibold"]		= [[Fonts\ARHei.TTF]]
+	SML_MT_font["AR ZhongkaiGBK Medium (Combat)"]	= [[Fonts\ARKai_C.TTF]]
+	SML_MT_font["AR ZhongkaiGBK Medium"]			= [[Fonts\ARKai_T.TTF]]
+	SML_MT_font["Arial Narrow"]						= [[Fonts\ARIALN.TTF]]
+	SML_MT_font["Friz Quadrata TT"]					= [[Fonts\FRIZQT__.TTF]]
+	SML_MT_font["MoK"]								= [[Fonts\K_Pagetext.TTF]]
+	SML_MT_font["Morpheus"]							= [[Fonts\MORPHEUS_CYR.TTF]]
+	SML_MT_font["Nimrod MT"]						= [[Fonts\NIM_____.ttf]]
+	SML_MT_font["Skurri"]							= [[Fonts\SKURRI_CYR.TTF]]
 --
 	lib.DefaultMedia.font = "Friz Quadrata TT"
 --
@@ -145,6 +192,7 @@ end
 if not lib.MediaTable.statusbar then lib.MediaTable.statusbar = {} end
 lib.MediaTable.statusbar["Blizzard"]						= [[Interface\TargetingFrame\UI-StatusBar]]
 lib.MediaTable.statusbar["Blizzard Character Skills Bar"]	= [[Interface\PaperDollInfoFrame\UI-Character-Skills-Bar]]
+lib.MediaTable.statusbar["Blizzard Raid Bar"]				= [[Interface\RaidFrame\Raid-Bar-Hp-Fill]]
 lib.DefaultMedia.statusbar = "Blizzard"
 
 -- SOUND
@@ -174,7 +222,7 @@ function lib:Register(mediatype, key, data, langmask)
 		error(MAJOR..":Register(mediatype, key, data, langmask) - key must be string, got "..type(key))
 	end
 	mediatype = mediatype:lower()
-	if mediatype == lib.MediaType.FONT  and ((langmask and band(langmask, LOCALE_MASK) == 0) or not (langmask or locale_is_western)) then return false end
+	if mediatype == lib.MediaType.FONT and ((langmask and band(langmask, LOCALE_MASK) == 0) or not (langmask or locale_is_western)) then return false end
 	if not mediaTable[mediatype] then mediaTable[mediatype] = {} end
 	local mtable = mediaTable[mediatype]
 	if mtable[key] then return false end

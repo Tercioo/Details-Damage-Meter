@@ -389,14 +389,6 @@ function _G._detalhes:Start()
 		end
 	end	
 	
-	--> minimap
-	_detalhes:RegisterMinimap()
-	
-	function _detalhes:RegisterHotCorner()
-		_detalhes:DoRegisterHotCorner()
-	end
-	_detalhes:ScheduleTimer ("RegisterHotCorner", 5)
-
 	function _detalhes:OpenOptionsWindowAtStart()
 		--_detalhes:OpenOptionsWindow (_detalhes.tabela_instancias[1])
 		--print (_G ["DetailsClearSegmentsButton1"]:GetSize())
@@ -406,8 +398,15 @@ function _G._detalhes:Start()
 	_detalhes:ScheduleTimer ("OpenOptionsWindowAtStart", 2)
 	--_detalhes:OpenCustomDisplayWindow()
 	
-	--BNSendFriendInvite ("tercio#1488")
-
+	--> minimap
+	pcall (_detalhes.RegisterMinimap, _detalhes)
+	
+	--> hot corner
+	function _detalhes:RegisterHotCorner()
+		_detalhes:DoRegisterHotCorner()
+	end
+	_detalhes:ScheduleTimer ("RegisterHotCorner", 5)
+	
 	--> get in the realm chat channel
 	if (not _detalhes.schedule_chat_enter and not _detalhes.schedule_chat_leave) then
 		_detalhes:ScheduleTimer ("CheckChatOnZoneChange", 60)
@@ -426,6 +425,7 @@ function _G._detalhes:Start()
 	
 	_detalhes:BrokerTick()
 	
+
 	-- test dbm callbacks
 	
 	if (_G.DBM) then
@@ -580,5 +580,174 @@ function _G._detalhes:Start()
 	
 	--]]
 	
+	--> register molten core
+	
+	local molten_core = {
+
+	id = 409,
+	ej_id = 0, --encounter journal id
+
+	name = "Molten Core",
+
+	icons = [[Interface\AddOns\Details_RaidInfo-BlackrockFoundry\boss_faces]],
+	icon = [[Interface\AddOns\Details_RaidInfo-BlackrockFoundry\icon256x128]],
+	
+	is_raid = true,
+
+	backgroundFile = {file = [[Interface\Glues\LOADINGSCREENS\LoadingScreen_BlackrockFoundry]], coords = {0, 1, 132/512, 439/512}},
+	backgroundEJ = [[Interface\EncounterJournal\UI-EJ-LOREBG-BlackrockFoundry]],
+
+	boss_names = { 
+		--[[ 1 ]] "Lucifron",
+		--[[ 2 ]] "Magmadar",
+		--[[ 3 ]] "Gehennas",
+		--[[ 4 ]] "Garr",
+		--[[ 5 ]] "Baron Geddon",
+		--[[ 6 ]] "Shazzrah",
+		--[[ 7 ]] "Sulfuron Harbinger",
+		--[[ 8 ]] "Golemagg the Incinerator",
+		--[[ 9 ]] "Majordomo Executus",
+		--[[ 10 ]] "Ragnaros",
+	},
+
+	encounter_ids = { --encounter journal encounter id
+		--> Ids by Index
+		1161, 1202, 1122, 1123, 1155, 1147, 1154, 1162, 1203, 959,
+		
+		--> Boss Index
+		[1161] = 1, 
+		[1202] = 2, 
+		[1122] = 3, 
+		[1123] = 4, 
+		[1155] = 5, 
+		[1147] = 6, 
+		[1154] = 7,
+		[1162] = 8,
+		[1203] = 9,
+		[959] = 10,
+	},
+	
+	encounter_ids2 = {
+		--combatlog encounter id
+		[1694] = 3, --Beastlord Darmac
+		[1689] = 4, --Flamebender Ka'graz
+		[1693] = 5, --Hans'gar & Franzok
+		[1692] = 6, --Operator Thogar
+		[1713] = 8, --Kromog, Legend of the Mountain
+		[1695] = 9, --The Iron Maidens
+	},
+	
+	boss_ids = {
+		--npc ids
+		[12118] = 1,	-- 
+		[11982] = 2,	-- 
+		[12259] = 3,	-- 
+		[12057] = 4,	-- 
+		[12056] = 5,	-- 
+		[12264] = 6,	-- 
+		[12098] = 7,	-- 
+		[11988] = 8,	-- 
+		[12018] = 9,	--
+		[11502] = 10,	-- 
+	},
+
+	encounters = {
+		
+		[1] = {
+			boss = "Gruul",
+			portrait = [[Interface\ENCOUNTERJOURNAL\UI-EJ-BOSS-Gruul]],
+			
+			--> spell list
+			continuo = {
+			},
+		},
+
+		[2] = {
+			boss = "Oregorger",
+			portrait = [[Interface\ENCOUNTERJOURNAL\UI-EJ-BOSS-Oregorger]],
+			
+			--> spell list
+			continuo = {
+			},
+		},
+
+		[3] = {
+			boss = "Beastlord Darmac",
+			portrait = [[Interface\ENCOUNTERJOURNAL\UI-EJ-BOSS-Beastlord Darmac]],
+			
+			--> spell list
+			continuo = {
+			},
+		},
+		
+		[4] = {
+			boss = "Flamebender Ka'graz",
+			portrait = [[Interface\ENCOUNTERJOURNAL\UI-EJ-BOSS-Flamebender Kagraz]],
+
+			--> spell list
+			continuo = {
+			},
+		},
+		
+		[5] = {
+			boss = "Hans'gar and Franzok",
+			portrait = [[Interface\ENCOUNTERJOURNAL\UI-EJ-BOSS-Franzok]],
+			
+			--> spell list
+			continuo = {
+			},
+		},
+		
+		[6] = {
+			boss = "Operator Thogar",
+			portrait = [[Interface\ENCOUNTERJOURNAL\UI-EJ-BOSS-Operator Thogar]],
+			
+			--> spell list
+			continuo = {
+			},
+		},
+		
+		[7] = {
+			boss = "The Blast Furnace",
+			portrait = [[Interface\ENCOUNTERJOURNAL\UI-EJ-BOSS-The Blast Furnace]],
+			
+			--> spell list
+			continuo = {
+			},
+		},
+		
+		[8] = {
+			boss = "Kromog, Legend of the Mountain",
+			portrait = [[Interface\ENCOUNTERJOURNAL\UI-EJ-BOSS-Kromog]],
+			
+			--> spell list
+			continuo = {
+			},
+		},
+
+		[9] = {
+			boss = "The Iron Maidens",
+			portrait = [[Interface\ENCOUNTERJOURNAL\UI-EJ-BOSS-Iron Maidens]],
+			
+			--> spell list
+			continuo = {
+			},
+		},
+		
+		[10] = {
+			boss = "Blackhand",
+			portrait = [[Interface\ENCOUNTERJOURNAL\UI-EJ-BOSS-Warlord Blackhand]],
+			
+			--> spell list
+			continuo = {
+			},
+		},
+		
+	},
+
+}
+
+_detalhes:InstallEncounter (molten_core)
+
 end
 

@@ -976,7 +976,7 @@ function gump:NewSlider (parent, container, name, member, w, h, min, max, step, 
 	end
 	
 	if (SliderObject.useDecimals) then
-		SliderObject.amt:SetText (string.format ("%.1f", amt))
+		SliderObject.amt:SetText (string.format ("%.2f", amt))
 	else
 		SliderObject.amt:SetText (math.floor (amt))
 	end

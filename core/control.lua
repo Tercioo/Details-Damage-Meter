@@ -89,6 +89,12 @@
 	-- try get the current encounter name during the encounter
 	
 		local boss_found = function (index, name, zone, mapid, diff, encounterid)
+		
+			local ejid = EJ_GetCurrentInstance()
+			if (ejid == 0) then
+				ejid = _detalhes:GetInstanceEJID()
+			end
+		
 			local boss_table = {
 				index = index,
 				name = name,
@@ -97,7 +103,7 @@
 				mapid = mapid,
 				diff = diff,
 				diff_string = select (4, GetInstanceInfo()),
-				ej_instance_id = EJ_GetCurrentInstance(),
+				ej_instance_id = ejid,
 				id = encounterid,
 			}
 			
@@ -444,7 +450,7 @@
 					_detalhes.tabela_vigente.is_boss.killed = true
 					
 					--> add to storage
-					if (not InCombatLockdown() and not UnitAffectingCombat ("player")) then
+					if (not InCombatLockdown() and not UnitAffectingCombat ("player") and not _detalhes.logoff_saving_data) then
 						pcall (_detalhes.StoreEncounter)
 					else
 						_detalhes.schedule_store_boss_encounter = true

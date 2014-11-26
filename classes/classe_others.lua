@@ -459,7 +459,7 @@ function atributo_misc:DeadAtualizarBarra (morte, qual_barra, colocacao, instanc
 	esta_barra.texto_esquerdo:SetText (colocacao .. ". " .. morte [3]:gsub (("%-.*"), ""))
 	esta_barra.texto_direita:SetText (morte [6])
 	
-	esta_barra.statusbar:SetValue (100)
+	esta_barra:SetValue (100)
 	if (esta_barra.hidden or esta_barra.fading_in or esta_barra.faded) then
 		gump:Fade (esta_barra, "out")
 	end
@@ -772,7 +772,7 @@ function atributo_misc:RefreshBarra2 (esta_barra, instancia, tabela_anterior, fo
 	--> primeiro colocado
 	if (esta_barra.colocacao == 1) then
 		if (not tabela_anterior or tabela_anterior ~= esta_barra.minha_tabela or forcar) then
-			esta_barra.statusbar:SetValue (100)
+			esta_barra:SetValue (100)
 			
 			if (esta_barra.hidden or esta_barra.fading_in or esta_barra.faded) then
 				gump:Fade (esta_barra, "out")
@@ -785,13 +785,11 @@ function atributo_misc:RefreshBarra2 (esta_barra, instancia, tabela_anterior, fo
 	else
 
 		if (esta_barra.hidden or esta_barra.fading_in or esta_barra.faded) then
-		
-			--esta_barra.statusbar:SetValue (esta_porcentagem)
 			
 			if (use_animations) then
 				esta_barra.animacao_fim = esta_porcentagem
 			else
-				esta_barra.statusbar:SetValue (esta_porcentagem)
+				esta_barra:SetValue (esta_porcentagem)
 				esta_barra.animacao_ignorar = true
 			end
 			
@@ -813,7 +811,7 @@ function atributo_misc:RefreshBarra2 (esta_barra, instancia, tabela_anterior, fo
 				if (use_animations) then
 					esta_barra.animacao_fim = esta_porcentagem
 				else
-					esta_barra.statusbar:SetValue (esta_porcentagem)
+					esta_barra:SetValue (esta_porcentagem)
 					esta_barra.animacao_ignorar = true
 				end
 			
@@ -826,7 +824,7 @@ function atributo_misc:RefreshBarra2 (esta_barra, instancia, tabela_anterior, fo
 				if (use_animations) then
 					esta_barra.animacao_fim = esta_porcentagem
 				else
-					esta_barra.statusbar:SetValue (esta_porcentagem)
+					esta_barra:SetValue (esta_porcentagem)
 				end
 				esta_barra.last_value = esta_porcentagem
 				

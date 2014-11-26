@@ -172,14 +172,165 @@
 			
 		end
 
+	function _detalhes:DoInstanceCleanup()
+	
+		--> normal instances
+		for _, esta_instancia in _ipairs (_detalhes.tabela_instancias) do
 
+			if (esta_instancia.StatusBar.left) then
+				esta_instancia.StatusBarSaved = {
+					["left"] = esta_instancia.StatusBar.left.real_name or "NONE",
+					["center"] = esta_instancia.StatusBar.center.real_name or "NONE",
+					["right"] = esta_instancia.StatusBar.right.real_name or "NONE",
+				}
+				esta_instancia.StatusBarSaved.options = {
+					[esta_instancia.StatusBarSaved.left] = esta_instancia.StatusBar.left.options,
+					[esta_instancia.StatusBarSaved.center] = esta_instancia.StatusBar.center.options,
+					[esta_instancia.StatusBarSaved.right] = esta_instancia.StatusBar.right.options
+				}
+			end
+
+			--> erase all widgets frames
+			
+			esta_instancia.scroll = nil
+			esta_instancia.baseframe = nil
+			esta_instancia.bgframe = nil
+			esta_instancia.bgdisplay = nil
+			esta_instancia.freeze_icon = nil
+			esta_instancia.freeze_texto = nil
+			esta_instancia.barras = nil
+			esta_instancia.showing = nil
+			esta_instancia.agrupada_a = nil
+			esta_instancia.grupada_pos = nil
+			esta_instancia.agrupado = nil
+			esta_instancia._version = nil
+			
+			esta_instancia.h_baixo = nil
+			esta_instancia.h_esquerda = nil
+			esta_instancia.h_direita = nil
+			esta_instancia.h_cima = nil
+			esta_instancia.break_snap_button = nil
+			esta_instancia.alert = nil
+			
+			esta_instancia.StatusBar = nil
+			esta_instancia.consolidateFrame = nil
+			esta_instancia.consolidateButtonTexture = nil
+			esta_instancia.consolidateButton = nil
+			esta_instancia.lastIcon = nil
+			esta_instancia.firstIcon = nil
+			
+			esta_instancia.menu_attribute_string = nil
+			
+			esta_instancia.wait_for_plugin_created = nil
+			esta_instancia.waiting_raid_plugin = nil
+			esta_instancia.waiting_pid = nil
+
+		end
+		
+		--> unused instances
+		for _, esta_instancia in _ipairs (_detalhes.unused_instances) do
+
+			if (esta_instancia.StatusBar.left) then
+				esta_instancia.StatusBarSaved = {
+					["left"] = esta_instancia.StatusBar.left.real_name or "NONE",
+					["center"] = esta_instancia.StatusBar.center.real_name or "NONE",
+					["right"] = esta_instancia.StatusBar.right.real_name or "NONE",
+				}
+				esta_instancia.StatusBarSaved.options = {
+					[esta_instancia.StatusBarSaved.left] = esta_instancia.StatusBar.left.options,
+					[esta_instancia.StatusBarSaved.center] = esta_instancia.StatusBar.center.options,
+					[esta_instancia.StatusBarSaved.right] = esta_instancia.StatusBar.right.options
+				}
+			end
+
+			--> erase all widgets frames			
+			esta_instancia.scroll = nil
+			esta_instancia.baseframe = nil
+			esta_instancia.bgframe = nil
+			esta_instancia.bgdisplay = nil
+			esta_instancia.freeze_icon = nil
+			esta_instancia.freeze_texto = nil
+			esta_instancia.barras = nil
+			esta_instancia.showing = nil
+			esta_instancia.agrupada_a = nil
+			esta_instancia.grupada_pos = nil
+			esta_instancia.agrupado = nil
+			esta_instancia._version = nil
+			
+			esta_instancia.h_baixo = nil
+			esta_instancia.h_esquerda = nil
+			esta_instancia.h_direita = nil
+			esta_instancia.h_cima = nil
+			esta_instancia.break_snap_button = nil
+			esta_instancia.alert = nil
+			
+			esta_instancia.StatusBar = nil
+			esta_instancia.consolidateFrame = nil
+			esta_instancia.consolidateButtonTexture = nil
+			esta_instancia.consolidateButton = nil
+			esta_instancia.lastIcon = nil
+			esta_instancia.firstIcon = nil
+			
+			esta_instancia.menu_attribute_string = nil
+			
+			esta_instancia.wait_for_plugin_created = nil
+			esta_instancia.waiting_raid_plugin = nil
+			esta_instancia.waiting_pid = nil
+		end
+	end
+
+	function _detalhes:DoOwnerCleanup()
+		for index, combat in _ipairs (_detalhes.tabela_historico.tabelas or {}) do
+			for index, container in _ipairs (combat) do 
+				for index, esta_classe in _ipairs (container._ActorTable) do
+					esta_classe.owner = nil
+				end
+			end
+		end
+	end
+	
+	function _detalhes:DoClassesCleanup()
+		for index, combat in _ipairs (_detalhes.tabela_historico.tabelas or {}) do
+			for class_type, container in _ipairs (combat) do 
+				for index, esta_classe in _ipairs (container._ActorTable) do
+				
+					esta_classe.displayName = nil
+					esta_classe.minha_barra = nil
+					
+					if (class_type == class_type_dano) then
+						_detalhes.clear:c_atributo_damage (esta_classe)
+					elseif (class_type == class_type_cura) then
+						_detalhes.clear:c_atributo_heal (esta_classe)
+					elseif (class_type == class_type_e_energy) then
+						_detalhes.clear:c_atributo_energy (esta_classe)
+					elseif (class_type == class_type_misc) then
+						_detalhes.clear:c_atributo_misc (esta_classe)
+					end
+					
+				end
+			end
+		end
+	end
+	
+	function _detalhes:DoContainerCleanup()
+		for index, combat in _ipairs (_detalhes.tabela_historico.tabelas or {}) do
+			_detalhes.clear:c_combate (combat)
+			for index, container in _ipairs (combat) do
+				_detalhes.clear:c_container_combatentes (container)
+			end
+		end
+	end
+	
 	--> limpa indexes, metatables e shadows
 		function _detalhes:PrepareTablesForSave()
 
-		----------------------------//overall
-
-			local tabelas_de_combate = {}
+		--> clear instances
+			_detalhes:DoInstanceCleanup()
+			_detalhes:DoClassesCleanup()
+			_detalhes:DoContainerCleanup()
 			
+		--> clear combats
+			local tabelas_de_combate = {}
 			local historico_tabelas = _detalhes.tabela_historico.tabelas or {}
 			
 			--> remove os segmentos de trash
@@ -199,22 +350,19 @@
 				end
 			end
 			
-			--tabela do combate atual
+			--> tabela do combate atual
 			local tabela_atual = _detalhes.tabela_vigente or _detalhes.combate:NovaTabela (_, _detalhes.tabela_overall)
 			
-			--limpa a tabela overall
+			--> limpa a tabela overall
 			_detalhes.tabela_overall = nil			
 			
 			for _, _tabela in _ipairs (historico_tabelas) do
 				tabelas_de_combate [#tabelas_de_combate+1] = _tabela
 			end
 
-			--verifica se a database existe mesmo
-			_detalhes_database = _detalhes_database or {}
-			
 			for tabela_index, _combate in _ipairs (tabelas_de_combate) do
 
-				--> limpa a tabela do grafico -- clear graphic table
+				--> limpa a tabela do grafico
 				if (_detalhes.clear_graphic) then 
 					_combate.TimeData = {}
 				end
@@ -241,142 +389,112 @@
 					local conteudo = _tabela._ActorTable
 
 					--> Limpa tabelas que não estejam em grupo
+					if (conteudo) then
 					
-					_detalhes.clear_ungrouped = true
-					
-					if (_detalhes.clear_ungrouped) then
-					
-						local _iter = {index = 1, data = conteudo[1], cleaned = 0} --> ._ActorTable[1] para pegar o primeiro index
+						_detalhes.clear_ungrouped = true
+						
+						if (_detalhes.clear_ungrouped) then
+						
+							local _iter = {index = 1, data = conteudo[1], cleaned = 0} --> ._ActorTable[1] para pegar o primeiro index
 
-						while (_iter.data) do --serach key: deletar apagar
-							local can_erase = true
-							
-							if (_iter.data.grupo or _iter.data.boss or _iter.data.boss_fight_component or IsBossEncounter) then
-								can_erase = false
-							else
-								local owner = _iter.data.owner
-								if (owner) then 
-									local owner_actor = _combate (class_type, owner.nome)
-									if (owner_actor) then 
-										if (owner.grupo or owner.boss or owner.boss_fight_component) then
-											can_erase = false
+							while (_iter.data) do --search key: ~deletar ~apagar
+								local can_erase = true
+								
+								if (_iter.data.grupo or _iter.data.boss or _iter.data.boss_fight_component or IsBossEncounter) then
+									can_erase = false
+								else
+									local owner = _iter.data.owner
+									if (owner) then 
+										local owner_actor = _combate [class_type]._NameIndexTable [owner.nome]
+										if (owner_actor) then 
+											local owner_actor = _combate [class_type]._ActorTable [owner_actor]
+											if (owner_actor) then 
+												if (owner.grupo or owner.boss or owner.boss_fight_component) then
+													can_erase = false
+												end
+											end
 										end
 									end
 								end
+								
+								if (can_erase) then 
+									
+									if (not _iter.data.owner) then --> pet
+										local myself = _iter.data
+									
+										if (myself.tipo == class_type_dano or myself.tipo == class_type_cura) then
+											_combate.totals [myself.tipo] = _combate.totals [myself.tipo] - myself.total
+											if (myself.grupo) then
+												_combate.totals_grupo [myself.tipo] = _combate.totals_grupo [myself.tipo] - myself.total
+											end
+											
+										elseif (myself.tipo == class_type_e_energy) then
+											_combate.totals [myself.tipo] [myself.powertype] = _combate.totals [myself.tipo] [myself.powertype] - myself.total
+											if (myself.grupo) then
+												_combate.totals_grupo [myself.tipo] [myself.powertype] = _combate.totals_grupo [myself.tipo] [myself.powertype] - myself.total
+											end
+											
+										elseif (myself.tipo == class_type_misc) then
+											if (myself.cc_break) then 
+												_combate.totals [myself.tipo] ["cc_break"] = _combate.totals [myself.tipo] ["cc_break"] - myself.cc_break 
+												if (myself.grupo) then
+													_combate.totals_grupo [myself.tipo] ["cc_break"] = _combate.totals_grupo [myself.tipo] ["cc_break"] - myself.cc_break 
+												end
+											end
+											if (myself.ress) then 
+												_combate.totals [myself.tipo] ["ress"] = _combate.totals [myself.tipo] ["ress"] - myself.ress
+												if (myself.grupo) then
+													_combate.totals_grupo [myself.tipo] ["ress"] = _combate.totals_grupo [myself.tipo] ["ress"] - myself.ress
+												end
+											end
+											--> não precisa diminuir o total dos buffs e debuffs
+											if (myself.cooldowns_defensive) then 
+												_combate.totals [myself.tipo] ["cooldowns_defensive"] = _combate.totals [myself.tipo] ["cooldowns_defensive"] - myself.cooldowns_defensive 
+												if (myself.grupo) then
+													_combate.totals_grupo [myself.tipo] ["cooldowns_defensive"] = _combate.totals_grupo [myself.tipo] ["cooldowns_defensive"] - myself.cooldowns_defensive 
+												end
+											end
+											if (myself.interrupt) then 
+												_combate.totals [myself.tipo] ["interrupt"] = _combate.totals [myself.tipo] ["interrupt"] - myself.interrupt 
+												if (myself.grupo) then
+													_combate.totals_grupo [myself.tipo] ["interrupt"] = _combate.totals_grupo [myself.tipo] ["interrupt"] - myself.interrupt 
+												end
+											end
+											if (myself.dispell) then 
+												_combate.totals [myself.tipo] ["dispell"] = _combate.totals [myself.tipo] ["dispell"] - myself.dispell 
+												if (myself.grupo) then
+													_combate.totals_grupo [myself.tipo] ["dispell"] = _combate.totals_grupo [myself.tipo] ["dispell"] - myself.dispell 
+												end
+											end
+											if (myself.dead) then 
+												_combate.totals [myself.tipo] ["dead"] = _combate.totals [myself.tipo] ["dead"] - myself.dead 
+												if (myself.grupo) then
+													_combate.totals_grupo [myself.tipo] ["dead"] = _combate.totals_grupo [myself.tipo] ["dead"] - myself.dead 
+												end
+											end
+										end						
+									end
+
+									_table_remove (conteudo, _iter.index)
+									_iter.cleaned = _iter.cleaned + 1
+									_iter.data = conteudo [_iter.index]
+								else
+									_iter.index = _iter.index + 1
+									_iter.data = conteudo [_iter.index]
+								end
 							end
 							
-							if (can_erase) then 
-								
-								if (not _iter.data.owner) then --> pet (not a pet?)
-									local myself = _iter.data
-								
-									if (myself.tipo == class_type_dano or myself.tipo == class_type_cura) then
-										_combate.totals [myself.tipo] = _combate.totals [myself.tipo] - myself.total
-										if (myself.grupo) then
-											_combate.totals_grupo [myself.tipo] = _combate.totals_grupo [myself.tipo] - myself.total
-										end
-										
-									elseif (myself.tipo == class_type_e_energy) then
-										_combate.totals [myself.tipo] [myself.powertype] = _combate.totals [myself.tipo] [myself.powertype] - myself.total
-										if (myself.grupo) then
-											_combate.totals_grupo [myself.tipo] [myself.powertype] = _combate.totals_grupo [myself.tipo] [myself.powertype] - myself.total
-										end
-										
-									elseif (myself.tipo == class_type_misc) then
-										if (myself.cc_break) then 
-											_combate.totals [myself.tipo] ["cc_break"] = _combate.totals [myself.tipo] ["cc_break"] - myself.cc_break 
-											if (myself.grupo) then
-												_combate.totals_grupo [myself.tipo] ["cc_break"] = _combate.totals_grupo [myself.tipo] ["cc_break"] - myself.cc_break 
-											end
-										end
-										if (myself.ress) then 
-											_combate.totals [myself.tipo] ["ress"] = _combate.totals [myself.tipo] ["ress"] - myself.ress
-											if (myself.grupo) then
-												_combate.totals_grupo [myself.tipo] ["ress"] = _combate.totals_grupo [myself.tipo] ["ress"] - myself.ress
-											end
-										end
-										--> não precisa diminuir o total dos buffs e debuffs
-										if (myself.cooldowns_defensive) then 
-											_combate.totals [myself.tipo] ["cooldowns_defensive"] = _combate.totals [myself.tipo] ["cooldowns_defensive"] - myself.cooldowns_defensive 
-											if (myself.grupo) then
-												_combate.totals_grupo [myself.tipo] ["cooldowns_defensive"] = _combate.totals_grupo [myself.tipo] ["cooldowns_defensive"] - myself.cooldowns_defensive 
-											end
-										end
-										if (myself.interrupt) then 
-											_combate.totals [myself.tipo] ["interrupt"] = _combate.totals [myself.tipo] ["interrupt"] - myself.interrupt 
-											if (myself.grupo) then
-												_combate.totals_grupo [myself.tipo] ["interrupt"] = _combate.totals_grupo [myself.tipo] ["interrupt"] - myself.interrupt 
-											end
-										end
-										if (myself.dispell) then 
-											_combate.totals [myself.tipo] ["dispell"] = _combate.totals [myself.tipo] ["dispell"] - myself.dispell 
-											if (myself.grupo) then
-												_combate.totals_grupo [myself.tipo] ["dispell"] = _combate.totals_grupo [myself.tipo] ["dispell"] - myself.dispell 
-											end
-										end
-										if (myself.dead) then 
-											_combate.totals [myself.tipo] ["dead"] = _combate.totals [myself.tipo] ["dead"] - myself.dead 
-											if (myself.grupo) then
-												_combate.totals_grupo [myself.tipo] ["dead"] = _combate.totals_grupo [myself.tipo] ["dead"] - myself.dead 
-											end
-										end
-									end						
-								end
-
-								_table_remove (conteudo, _iter.index)
-								_iter.cleaned = _iter.cleaned + 1
-								_iter.data = conteudo [_iter.index]
-							else
-								_iter.index = _iter.index + 1
-								_iter.data = conteudo [_iter.index]
+							if (_iter.cleaned > 0) then --> desencargo de consciência, reconstruir o mapa depois de excluir
+								ReconstroiMapa (_tabela)
 							end
+							
 						end
-						
-						if (_iter.cleaned > 0) then --> desencargo de consciência, reconstruir o mapa depois de excluir
-							ReconstroiMapa (_tabela)
-						end
-						
 					end
-
-					for _, esta_classe in _ipairs (conteudo) do 
-
-						esta_classe.displayName = nil
-						esta_classe.owner = nil
-						
-						if (class_type == class_type_dano) then
-							_detalhes.clear:c_atributo_damage (esta_classe)
-						elseif (class_type == class_type_cura) then
-							_detalhes.clear:c_atributo_heal (esta_classe)
-						elseif (class_type == class_type_e_energy) then
-							_detalhes.clear:c_atributo_energy (esta_classe)
-						elseif (class_type == class_type_misc) then
-							_detalhes.clear:c_atributo_misc (esta_classe)
-						end
-						
-					end
+					
 				end
 
 			end
-			
-			--> Clear Containers
-				for tabela_index, _combate in _ipairs (tabelas_de_combate) do
-					local container_dano = _combate [class_type_dano]
-					local container_cura = _combate [class_type_cura]
-					local container_e_energy = _combate [class_type_e_energy]
-					local container_misc = _combate [class_type_misc]
 
-					local todos_atributos = {container_dano, container_cura, container_e_energy, container_misc}
-					
-					for class_type, _tabela in _ipairs (todos_atributos) do
-						_detalhes.clear:c_combate (_combate)
-						_detalhes.clear:c_container_combatentes (container_dano)
-						_detalhes.clear:c_container_combatentes (container_cura)
-						_detalhes.clear:c_container_combatentes (container_e_energy)
-						_detalhes.clear:c_container_combatentes (container_misc)
-					end
-				end	
-			
-				
 			--> panic mode
 				if (_detalhes.segments_panic_mode and _detalhes.can_panic_mode) then
 					if (_detalhes.tabela_vigente.is_boss) then
@@ -384,63 +502,11 @@
 					end
 				end
 			
-			--> Limpa instâncias
-			for _, esta_instancia in _ipairs (_detalhes.tabela_instancias) do
-				--> detona a janela do Solo Mode
+			--> clear customs
+				_detalhes.clear:c_atributo_custom()
 
-				if (esta_instancia.StatusBar.left) then
-					esta_instancia.StatusBarSaved = {
-						["left"] = esta_instancia.StatusBar.left.real_name or "NONE",
-						["center"] = esta_instancia.StatusBar.center.real_name or "NONE",
-						["right"] = esta_instancia.StatusBar.right.real_name or "NONE",
-						--["options"] = esta_instancia.StatusBar.options
-					}
-					esta_instancia.StatusBarSaved.options = {
-						[esta_instancia.StatusBarSaved.left] = esta_instancia.StatusBar.left.options,
-						[esta_instancia.StatusBarSaved.center] = esta_instancia.StatusBar.center.options,
-						[esta_instancia.StatusBarSaved.right] = esta_instancia.StatusBar.right.options
-					}
-				end
-
-				--> erase all widgets frames
-				
-				esta_instancia.scroll = nil
-				esta_instancia.baseframe = nil
-				esta_instancia.bgframe = nil
-				esta_instancia.bgdisplay = nil
-				esta_instancia.freeze_icon = nil
-				esta_instancia.freeze_texto = nil
-				esta_instancia.barras = nil
-				esta_instancia.showing = nil
-				esta_instancia.agrupada_a = nil
-				esta_instancia.grupada_pos = nil
-				esta_instancia.agrupado = nil
-				esta_instancia._version = nil
-				
-				esta_instancia.h_baixo = nil
-				esta_instancia.h_esquerda = nil
-				esta_instancia.h_direita = nil
-				esta_instancia.h_cima = nil
-				esta_instancia.break_snap_button = nil
-				esta_instancia.alert = nil
-				
-				esta_instancia.StatusBar = nil
-				esta_instancia.consolidateFrame = nil
-				esta_instancia.consolidateButtonTexture = nil
-				esta_instancia.consolidateButton = nil
-				esta_instancia.lastIcon = nil
-				esta_instancia.firstIcon = nil
-				
-				esta_instancia.menu_attribute_string = nil
-				
-				esta_instancia.wait_for_plugin_created = nil
-				esta_instancia.waiting_raid_plugin = nil
-				esta_instancia.waiting_pid = nil
-
-			end
-			
-			_detalhes.clear:c_atributo_custom()
-
+			--> clear owners
+				_detalhes:DoOwnerCleanup()
 		end
 	
 	function _detalhes:reset_window (instancia)

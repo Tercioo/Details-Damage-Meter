@@ -198,6 +198,17 @@ do
 		return actors
 	end
 	
+	function _detalhes:GetInstanceEJID (mapid)
+		mapid = mapid or select (8, GetInstanceInfo())
+		if (mapid) then
+			local instance_info = _detalhes.EncounterInformation [mapid]
+			if (instance_info) then
+				return instance_info.ej_id or 0
+			end
+		end
+		return 0
+	end
+	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> core
 

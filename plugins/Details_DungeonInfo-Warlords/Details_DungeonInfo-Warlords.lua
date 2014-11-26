@@ -38,7 +38,7 @@ local Auchindoun = {
 		},
 		[2] = {
 			boss =	"Soulbinder Nyami",
-			portrait = [[Interface\EncounterJournal\journal\UI-EJ-BOSS-Soulbinder Nyami]],
+			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Soulbinder Nyami]],
 		},
 		[3] = {
 			boss =	"Azzakel",
@@ -106,40 +106,45 @@ local TheEverbloom = {
 	name = "The Everbloom",
 	
 	boss_names = {
-		"Ancient Protectors",
-		"Archmage Sol",
-		"Xeri'tac",
 		"Witherbark",
+		"Ancient Protectors",
+		"Xeri'tac",
+		"Archmage Sol",
 		"Yalnu",
 	},
 	
 	boss_ids = {
-		[83894] = 1, --Ancient Protectors
-		[86244] = 1, --Ancient Protectors
-		[86246] = 2, --Archmage Sol
+		[81522] = 1, --Witherbark
+		[86242] = 1, --Witherbark
+		[83894] = 2, --Ancient Protectors
+		[83893] = 2, --Ancient Protectors
+		[83892] = 2, --Ancient Protectors
+		[86244] = 2, --Ancient Protectors
 		[86247] = 3, --Xeri'tac
-		[86242] = 4, --Witherbark
-		[82682] = 4, --Witherbark
+		[86246] = 4, --Archmage Sol
+		[82682] = 4, --Archmage Sol
 		[86248] = 5, --Yalnu
+		[84336] = 5, --Yalnu
+		[83846] = 5, --Yalnu
 	},
 
 	encounters = {
 		[1] = {
-			boss =	"Ancient Protectors",
-			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Dulhu]],
+			boss =	"Witherbark",
+			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Witherbark]],
 		},
 		[2] = {
-			boss =	"Archmage Sol",
-			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Archmage Sol]],
+			boss =	"Ancient Protectors",
+			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Dulhu]],
 		},
 		[3] = {
 			boss =	"Xeri'tac",
 			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Xeritac]],
 		},
 		[4] = {
-			boss =	"Witherbark",
-			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Witherbark]],
-		},		
+			boss =	"Archmage Sol",
+			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Archmage Sol]],
+		},
 		[5] = {
 			boss =	"Yalnu",
 			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Yalnu]],
@@ -156,33 +161,34 @@ local GrimrailDepot = {
 	name = "Grimrail Depot",
 	
 	boss_names = {
-		"Skylord Tovra",
 		"Rocketspark and Borka",
 		"Nitrogg Thundertower",
+		"Skylord Tovra",
 	},
 	
 	boss_ids = {
-		[86228] = 1, --Skylord Tovra
-		[86225] = 2, --Rocketspark and Borka
-		[86226] = 2, --Rocketspark and Borka
-		[79545] = 2, --Rocketspark and Borka
-		[79548] = 2, --Rocketspark and Borka
-		[86227] = 3, --Nitrogg Thundertower
-		[80005] = 3, --Nitrogg Thundertower
+		[86225] = 1, --Rocketspark and Borka
+		[86226] = 1, --Rocketspark and Borka
+		[79548] = 1, --Rocketspark and Borka
+		[77816] = 1, --Rocketspark and Borka
+		[86227] = 2, --Nitrogg Thundertower
+		[79545] = 2, --Nitrogg Thundertower
+		[86228] = 3, --Skylord Tovra
+		[80005] = 3, --Skylord Tovra
 	},
 
 	encounters = {
 		[1] = {
-			boss =	"Skylord Tovra",
-			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Thunderlord General]],
-		},
-		[2] = {
 			boss =	"Rocketspark and Borka",
 			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Pauli Rocketspark]],
 		},
-		[3] = {
+		[2] = {
 			boss =	"Nitrogg Thundertower",
 			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Blackrock Assault Commander]],
+		},
+		[3] = {
+			boss =	"Skylord Tovra",
+			portrait = [[Interface\EncounterJournal\UI-EJ-BOSS-Thunderlord General]],
 		},
 	},
 }

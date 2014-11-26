@@ -1893,6 +1893,28 @@ local barra_scripts_onclick = function (self, button)
 
 end
 
+local barra_scripts_onshow = function (self)
+	-- search key: ~model
+	if (self.using_upper_3dmodels) then
+		self.modelbox_high:SetModel (self._instance.row_info.models.upper_model)
+		self.modelbox_high:SetAlpha (self._instance.row_info.models.upper_alpha)
+	end
+	if (self.using_lower_3dmodels) then
+		self.modelbox_low:SetModel (self._instance.row_info.models.lower_model)
+		self.modelbox_low:SetAlpha (self._instance.row_info.models.lower_alpha)
+	end
+end
+
+local set_bar_value = function (self, value)
+	self.statusbar:SetValue (value)
+	
+	if (self.using_upper_3dmodels) then
+		local width = self:GetWidth()
+		local p = (width / 100) * value
+		self.modelbox_high:SetPoint ("bottomright", self, "bottomright", p - width, 0)
+	end
+end
+
 local function barra_scripts (esta_barra, instancia, i)
 	esta_barra._instance = instancia
 
@@ -1901,18 +1923,35 @@ local function barra_scripts (esta_barra, instancia, i)
 	esta_barra:SetScript ("OnMouseDown", barra_scripts_onmousedown)
 	esta_barra:SetScript ("OnMouseUp", barra_scripts_onmouseup)
 	esta_barra:SetScript ("OnClick", barra_scripts_onclick)
+	
+	esta_barra:SetScript ("OnShow", barra_scripts_onshow)
+	
+	esta_barra.SetValue = set_bar_value
 end
 
 function _detalhes:ReportSingleLine (instancia, barra)
 
 	local reportar
 	if (instancia.atributo == 5) then --> custom
-		reportar = {"Details! " .. Loc ["STRING_CUSTOM_REPORT"] .. " " ..instancia.customName}
+	
+		local actor_name = barra.texto_esquerdo:GetText() or ""
+		actor_name = actor_name:gsub ((".*%."), "")
+		
+		reportar = {"Details! " .. Loc ["STRING_CUSTOM_REPORT"] .. " " .. instancia.customName .. ": " .. actor_name}
+		--> dump cooltip
+		local GameCooltip = GameCooltip
+		
+		local amt = GameCooltip.Indexes
+		for i = 2, amt do
+			local left_text, right_text = GameCooltip:GetText (i)
+			reportar [#reportar+1] = (i-1) .. ". " .. left_text .. " ... " .. right_text
+		end
+		
 	else
 		reportar = {"Details! " .. Loc ["STRING_REPORT"] .. " " .. _detalhes.sub_atributos [instancia.atributo].lista [instancia.sub_atributo]}
+		reportar [#reportar+1] = barra.texto_esquerdo:GetText() .. " " .. barra.texto_direita:GetText()
 	end
 
-	reportar [#reportar+1] = barra.texto_esquerdo:GetText().." "..barra.texto_direita:GetText()
 
 	return _detalhes:Reportar (reportar, {_no_current = true, _no_inverse = true, _custom = true})
 end
@@ -3212,8 +3251,21 @@ function gump:CriaNovaBarra (instancia, index)
 	new_row.statusbar = CreateFrame ("StatusBar", "DetailsBarra_Statusbar_"..instancia.meu_id.."_"..index, new_row)
 	--> frame for hold the backdrop border
 	new_row.border = CreateFrame ("Frame", "DetailsBarra_Border_" .. instancia.meu_id .. "_" .. index, new_row.statusbar)
-	new_row.border:SetFrameLevel (new_row.statusbar:GetFrameLevel()+1)
+	new_row.border:SetFrameLevel (new_row.statusbar:GetFrameLevel()+2)
 	new_row.border:SetAllPoints (new_row)
+	
+	-- search key: ~model
+	
+	--low 3d bar
+	new_row.modelbox_low = CreateFrame ("playermodel", "DetailsBarra_ModelBarLow_" .. instancia.meu_id .. "_" .. index, new_row) --rowframe
+	new_row.modelbox_low:SetFrameLevel (new_row.statusbar:GetFrameLevel()-1)
+	new_row.modelbox_low:SetPoint ("topleft", new_row, "topleft")
+	new_row.modelbox_low:SetPoint ("bottomright", new_row, "bottomright")
+	--high 3d bar
+	new_row.modelbox_high = CreateFrame ("playermodel", "DetailsBarra_ModelBarHigh_" .. instancia.meu_id .. "_" .. index, new_row) --rowframe
+	new_row.modelbox_high:SetFrameLevel (new_row.statusbar:GetFrameLevel()+1)
+	new_row.modelbox_high:SetPoint ("topleft", new_row, "topleft")
+	new_row.modelbox_high:SetPoint ("bottomright", new_row, "bottomright")
 	
 	--> create textures and icons
 	new_row.textura = new_row.statusbar:CreateTexture (nil, "artwork")
@@ -3231,7 +3283,7 @@ function gump:CriaNovaBarra (instancia, index)
 	new_row.statusbar:SetValue (0)
 
 	--> class icon
-	local icone_classe = new_row.statusbar:CreateTexture (nil, "overlay")
+	local icone_classe = new_row.border:CreateTexture (nil, "overlay")
 	icone_classe:SetHeight (instancia.row_info.height)
 	icone_classe:SetWidth (instancia.row_info.height)
 	icone_classe:SetTexture (instancia.row_info.icon_file)
@@ -3243,13 +3295,13 @@ function gump:CriaNovaBarra (instancia, index)
 	new_row.statusbar:SetPoint ("bottomright", new_row, "bottomright")
 	
 	--> left text
-	new_row.texto_esquerdo = new_row.statusbar:CreateFontString (nil, "overlay", "GameFontHighlight")
+	new_row.texto_esquerdo = new_row.border:CreateFontString (nil, "overlay", "GameFontHighlight")
 	new_row.texto_esquerdo:SetPoint ("left", new_row.icone_classe, "right", 3, 0)
 	new_row.texto_esquerdo:SetJustifyH ("left")
 	new_row.texto_esquerdo:SetNonSpaceWrap (true)
 
 	--> right text
-	new_row.texto_direita = new_row.statusbar:CreateFontString (nil, "overlay", "GameFontHighlight")
+	new_row.texto_direita = new_row.border:CreateFontString (nil, "overlay", "GameFontHighlight")
 	new_row.texto_direita:SetPoint ("right", new_row.statusbar, "right")
 	new_row.texto_direita:SetJustifyH ("right")
 	
@@ -3366,6 +3418,38 @@ function _detalhes:SetBarBackdropSettings (enabled, size, color, texture)
 	self:InstanceReset()
 	self:InstanceRefreshRows()
 	self:ReajustaGump()
+end
+
+function _detalhes:SetBarModel (upper_enabled, upper_model, upper_alpha, lower_enabled, lower_model, lower_alpha)
+	
+	--> is enabled
+	if (type (upper_enabled) == "boolean") then
+		self.row_info.models.upper_enabled = upper_enabled
+	end
+	if (type (lower_enabled) == "boolean") then
+		self.row_info.models.lower_enabled = lower_enabled
+	end
+	
+	--> models:
+	if (upper_model) then
+		self.row_info.models.upper_model = upper_model
+	end
+	if (lower_model) then
+		self.row_info.models.lower_model = lower_model
+	end
+	
+	--> alpha values:
+	if (upper_alpha) then
+		self.row_info.models.upper_alpha = upper_alpha
+	end	
+	if (lower_alpha) then
+		self.row_info.models.lower_alpha = lower_alpha
+	end
+	
+	self:InstanceReset()
+	self:InstanceRefreshRows()
+	self:ReajustaGump()
+	_detalhes:AtualizaGumpPrincipal (-1, true)
 end
 
 function _detalhes:SetBarSettings (height, texture, colorclass, fixedcolor, backgroundtexture, backgroundcolorclass, backgroundfixedcolor, alpha, iconfile, barstart, spacement)
@@ -3504,7 +3588,19 @@ function _detalhes:InstanceRefreshRows (instancia)
 		
 	--font face
 		self.row_info.font_face_file = SharedMedia:Fetch ("font", self.row_info.font_face)
+	
+	--models
+		local upper_model_enabled = self.row_info.models.upper_enabled
+		local lower_model_enabled = self.row_info.models.lower_enabled
 		
+		local upper_model = self.row_info.models.upper_model
+		local lower_model = self.row_info.models.lower_model
+		
+		local upper_model_alpha = self.row_info.models.upper_alpha
+		local lower_model_alpha = self.row_info.models.lower_alpha
+	
+--using_upper_3dmodels using_lower_3dmodels	
+	
 	-- do it
 
 	for _, row in _ipairs (self.barras) do 
@@ -3590,6 +3686,27 @@ function _detalhes:InstanceRefreshRows (instancia)
 			row.border:SetBackdrop (nil)
 		end
 		
+		--> models
+		if (upper_model_enabled) then
+			row.using_upper_3dmodels = true
+			row.modelbox_high:Show()
+			row.modelbox_high:SetModel (upper_model)
+			row.modelbox_high:SetAlpha (upper_model_alpha)
+		else
+			row.using_upper_3dmodels = false
+			row.modelbox_high:Hide()
+		end
+		
+		if (lower_model_enabled) then
+			row.using_lower_3dmodels = true
+			row.modelbox_low:Show()
+			row.modelbox_low:SetModel (lower_model)
+			row.modelbox_low:SetAlpha (lower_model_alpha)
+		else
+			row.using_lower_3dmodels = false
+			row.modelbox_low:Hide()
+		end
+
 	end
 	
 	self:SetBarGrowDirection()
@@ -4697,6 +4814,8 @@ local build_segment_list = function (self, elapsed)
 					local enemy = thisCombat.is_boss and thisCombat.is_boss.name
 					segments_used = segments_used + 1
 
+					--print (thisCombat.is_boss.name, thisCombat.instance_type, _detalhes:GetRaidIcon (thisCombat.is_boss.mapid), thisCombat.is_boss.ej_instance_id)
+					
 					if (thisCombat.is_boss and thisCombat.is_boss.name) then
 					
 						if (thisCombat.instance_type == "party") then

@@ -492,9 +492,9 @@
 		esta_barra.texto_esquerdo:SetSize (esta_barra:GetWidth() - esta_barra.texto_direita:GetStringWidth() - 20, 15)
 		
 		if (colocacao == 1) then
-			esta_barra.statusbar:SetValue (100)
+			esta_barra:SetValue (100)
 		else
-			esta_barra.statusbar:SetValue (tabela [2] / instancia.top * 100)
+			esta_barra:SetValue (tabela [2] / instancia.top * 100)
 		end
 		
 		if (esta_barra.hidden or esta_barra.fading_in or esta_barra.faded) then
@@ -560,18 +560,18 @@
 			alvos = habilidade.targets
 		end
 		
-		local container = actor.debuff_uptime_targets._ActorTable
+		local container = actor.debuff_uptime_targets
 		
-		for _, alvo in _ipairs (container) do
+		for target_name, debuff_table in _pairs (container) do
 			if (alvos) then
-				local damage_alvo = alvos [alvo.nome]
+				local damage_alvo = alvos [target_name]
 				if (damage_alvo) then
-					alvo.damage = damage_alvo
+					debuff_table.damage = damage_alvo
 				else
-					alvo.damage = 0
+					debuff_table.damage = 0
 				end
 			else
-				alvo.damage = 0
+				debuff_table.damage = 0
 			end
 		end
 
@@ -585,7 +585,7 @@
 			return false;
 		end)
 		
-		actor.debuff_uptime_targets:remapear()
+		--actor.debuff_uptime_targets:remapear()
 		
 		--> monta o cooltip
 		local GameCooltip = GameCooltip
@@ -593,16 +593,16 @@
 		GameCooltip:AddLine (Loc ["STRING_VOIDZONE_TOOLTIP"], nil, nil, headerColor, nil, 12)
 		GameCooltip:AddIcon ([[Interface\Addons\Details\images\icons]], 1, 1, 14, 14, 0.126953125, 0.1796875, 0, 0.0546875)
 		
-		for _, alvo in _ipairs (container) do 
+		for target_name, debuff_table in _pairs (container) do 
 
-			local minutos, segundos = _math_floor (alvo.uptime / 60), _math_floor (alvo.uptime % 60)
+			local minutos, segundos = _math_floor (debuff_table.uptime / 60), _math_floor (debuff_table.uptime % 60)
 			if (minutos > 0) then
-				GameCooltip:AddLine (alvo.nome, FormatTooltipNumber (_, alvo.damage) .. " (" .. minutos .. "m " .. segundos .. "s" .. ")")
+				GameCooltip:AddLine (target_name, FormatTooltipNumber (_, debuff_table.damage) .. " (" .. minutos .. "m " .. segundos .. "s" .. ")")
 			else
-				GameCooltip:AddLine (alvo.nome, FormatTooltipNumber (_, alvo.damage) .. " (" .. segundos .. "s" .. ")")
+				GameCooltip:AddLine (target_name, FormatTooltipNumber (_, debuff_table.damage) .. " (" .. segundos .. "s" .. ")")
 			end
 			
-			local classe = _detalhes:GetClass (alvo.nome)
+			local classe = _detalhes:GetClass (target_name)
 			if (classe) then	
 				GameCooltip:AddIcon ([[Interface\AddOns\Details\images\classes_small]], nil, nil, 14, 14, unpack (_detalhes.class_coords [classe]))
 			else
@@ -670,7 +670,7 @@
 		esta_barra.texto_esquerdo:SetText (colocacao .. ". " .. self.nome)
 		esta_barra.texto_esquerdo:SetSize (esta_barra:GetWidth() - esta_barra.texto_direita:GetStringWidth() - 20, 15)
 		
-		esta_barra.statusbar:SetValue (100)
+		esta_barra:SetValue (100)
 		
 		if (esta_barra.hidden or esta_barra.fading_in or esta_barra.faded) then
 			gump:Fade (esta_barra, "out")
@@ -1121,7 +1121,7 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 			row1.texto_esquerdo:SetText (Loc ["STRING_TOTAL"])
 			row1.texto_direita:SetText (_detalhes:ToK2 (total) .. " (" .. _detalhes:ToK (total / combat_time) .. ")")
 			
-			row1.statusbar:SetValue (100)
+			row1:SetValue (100)
 			local r, b, g = unpack (instancia.total_bar.color)
 			row1.textura:SetVertexColor (r, b, g)
 			
@@ -1177,7 +1177,7 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 			row1.texto_esquerdo:SetText (Loc ["STRING_TOTAL"])
 			row1.texto_direita:SetText (_detalhes:ToK2 (total) .. " (" .. _detalhes:ToK (total / combat_time) .. ")")
 			
-			row1.statusbar:SetValue (100)
+			row1:SetValue (100)
 			local r, b, g = unpack (instancia.total_bar.color)
 			row1.textura:SetVertexColor (r, b, g)
 			
@@ -1394,7 +1394,7 @@ end
 	--> primeiro colocado
 	if (esta_barra.colocacao == 1) then
 		if (not tabela_anterior or tabela_anterior ~= esta_barra.minha_tabela or forcar) then
-			esta_barra.statusbar:SetValue (100)
+			esta_barra:SetValue (100)
 			
 			if (esta_barra.hidden or esta_barra.fading_in or esta_barra.faded) then
 				gump:Fade (esta_barra, "out")
@@ -1407,16 +1407,14 @@ end
 	else
 
 		if (esta_barra.hidden or esta_barra.fading_in or esta_barra.faded) then
-		
-			--esta_barra.statusbar:SetValue (esta_porcentagem)
 			
 			if (use_animations) then
 				esta_barra.animacao_fim = esta_porcentagem
 			else
-				esta_barra.statusbar:SetValue (esta_porcentagem)
+				esta_barra:SetValue (esta_porcentagem)
 				esta_barra.animacao_ignorar = true
 			end
-				
+			
 			gump:Fade (esta_barra, "out")
 			
 			if (instancia.row_info.texture_class_colors) then
@@ -1435,7 +1433,7 @@ end
 				if (use_animations) then
 					esta_barra.animacao_fim = esta_porcentagem
 				else
-					esta_barra.statusbar:SetValue (esta_porcentagem)
+					esta_barra:SetValue (esta_porcentagem)
 					esta_barra.animacao_ignorar = true
 				end
 			
@@ -1448,7 +1446,7 @@ end
 				if (use_animations) then
 					esta_barra.animacao_fim = esta_porcentagem
 				else
-					esta_barra.statusbar:SetValue (esta_porcentagem)
+					esta_barra:SetValue (esta_porcentagem)
 				end
 				esta_barra.last_value = esta_porcentagem
 				
