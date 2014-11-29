@@ -8,7 +8,7 @@
 	5 - row texts
 	6 - window settings
 	7 - left menu
-	8 - ------------
+	8 - row advanced
 	9 - wallpaper
 	10 - performance teaks
 	11 - raid tools
@@ -17,7 +17,7 @@
 	14 - attribute text
 	15 - custom spells
 	16 - data for charts
-	17 - hide and show
+	17 - auto hide settings
 	18 - misc settings
 	19 - externals widgets
 	20 - tooltip
@@ -325,7 +325,7 @@ function _detalhes:OpenOptionsWindow (instance, no_reopen, section)
 	
 	--> create bars
 
-		local fillbars = g:NewButton (window, _, "$parentCreateExampleBarsButton", nil, 110, 14, _detalhes.CreateTestBars, nil, nil, nil, Loc ["STRING_OPTIONS_TESTBARS"])
+		local fillbars = g:NewButton (window, _, "$parentCreateExampleBarsButton", nil, 110, 14, _detalhes.CreateTestBars, nil, nil, nil, Loc ["STRING_OPTIONS_TESTBARS"], 1)
 		fillbars:SetPoint ("bottomleft", window.widget, "bottomleft", 41, 12)
 		fillbars.textalign = "left"
 		fillbars:SetHook ("OnEnter", function()
@@ -340,7 +340,7 @@ function _detalhes:OpenOptionsWindow (instance, no_reopen, section)
 		
 	--> change log
 
-		local changelog = g:NewButton (window, _, "$parentOpenChangeLogButton", nil, 110, 14, _detalhes.OpenNewsWindow, nil, nil, nil, Loc ["STRING_OPTIONS_CHANGELOG"])
+		local changelog = g:NewButton (window, _, "$parentOpenChangeLogButton", nil, 110, 14, _detalhes.OpenNewsWindow, nil, nil, nil, Loc ["STRING_OPTIONS_CHANGELOG"], 1)
 		changelog:SetPoint ("left", fillbars, "right", 10, 0)
 		changelog.textalign = "left"
 		changelog:SetHook ("OnEnter", function()
@@ -355,8 +355,7 @@ function _detalhes:OpenOptionsWindow (instance, no_reopen, section)
 		
 	--> send feedback
 	
-	
-		local feedback_button = g:NewButton (window, _, "$parentOpenFeedbackButton", nil, 110, 14, _detalhes.OpenFeedbackWindow, nil, nil, nil, Loc ["STRING_OPTIONS_SENDFEEDBACK"])
+		local feedback_button = g:NewButton (window, _, "$parentOpenFeedbackButton", nil, 80, 14, _detalhes.OpenFeedbackWindow, nil, nil, nil, Loc ["STRING_OPTIONS_SENDFEEDBACK"], 1)
 		feedback_button:SetPoint ("left", changelog, "right", 10, 0)
 		feedback_button.textalign = "left"
 		feedback_button:SetHook ("OnEnter", function()
@@ -368,6 +367,22 @@ function _detalhes:OpenOptionsWindow (instance, no_reopen, section)
 		
 		local feedback_image = g:NewImage (window, [[Interface\Buttons\UI-RADIOBUTTON]], 8, 9, "artwork", {20/64, 27/64, 4/16, 11/16})
 		feedback_image:SetPoint ("right", feedback_button, "left", -1, 0)
+		
+	--> translate
+--[[
+		local translate_button = g:NewButton (window, _, "$parentOpenTranslateButton", nil, 140, 14, _detalhes.OpenTranslateWindow, nil, nil, nil, Loc ["STRING_TRANSLATE_LANGUAGE"], 1)
+		translate_button:SetPoint ("left", feedback_button, "right", 10, 0)
+		translate_button.textalign = "left"
+		translate_button:SetHook ("OnEnter", function()
+			translate_button:SetTextColor (1, 1, 0)
+		end)
+		translate_button:SetHook ("OnLeave", function()
+			translate_button:SetTextColor (0.9999, 0.8196, 0, 1)
+		end)
+		
+		local feedback_image = g:NewImage (window, "Interface\\Buttons\\UI-RADIOBUTTON", 8, 9, "artwork", {20/64, 27/64, 4/16, 11/16})
+		feedback_image:SetPoint ("right", translate_button, "left", -1, 0)
+--]]
 		
 	--> right click to close
 		--local right_click_close = window:CreateRightClickLabel ("short", 14, 14, "Close")
@@ -5021,10 +5036,8 @@ function window:CreateFrame4()
 		g:NewSwitch (frame4, _, "$parentShowMeSlider", "ShowMeSlider", 60, 20, _, _, instance.following.enabled)
 		frame4.ShowMeSlider:SetPoint ("left", frame4.ShowMeLabel, "right", 2, -1)
 		frame4.ShowMeSlider.OnSwitch = function (self, instance, value)
-			instance.following.enabled = value
-			instance:RefreshBars()
-			instance:InstanceReset()
-			instance:ReajustaGump()
+			--instance.following.enabled = value
+			instance:SetBarFollowPlayer (value)
 		end
 		window:CreateLineBackground2 (frame4, "ShowMeSlider", "ShowMeLabel", Loc ["STRING_OPTIONS_BAR_FOLLOWING_DESC"])
 

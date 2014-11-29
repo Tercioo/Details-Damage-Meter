@@ -84,12 +84,10 @@ do
 				local class = _detalhes.ClassSpellList [spellid]
 				if (class) then
 					Actor.classe = class
-					Actor.shadow.classe = class
 					Actor.guessing_class = nil
 					
 					if (container) then
 						container.need_refresh = true
-						container.shadow.need_refresh = true
 					end
 					
 					if (Actor.minha_barra and type (Actor.minha_barra) == "table") then
@@ -104,14 +102,11 @@ do
 		local class = _detalhes:GetClass (Actor.nome)
 		if (class) then
 			Actor.classe = class
-			Actor.shadow.classe = class
 			Actor.need_refresh = true
-			Actor.shadow.need_refresh = true
 			Actor.guessing_class = nil
 			
 			if (container) then
 				container.need_refresh = true
-				container.shadow.need_refresh = true
 			end
 			
 			if (Actor.minha_barra and type (Actor.minha_barra) == "table") then

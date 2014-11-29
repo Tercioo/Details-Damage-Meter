@@ -75,10 +75,10 @@ function _detalhes:SaveConfig()
 			_detalhes_database.tabela_pets = _detalhes.tabela_pets.pets
 		end
 		
-		_detalhes:TimeDataCleanUpTemporary()
+		xpcall (_detalhes.TimeDataCleanUpTemporary, _detalhes.saver_error_func)
 		
 	--> buffs
-		_detalhes.Buffs:SaveBuffs()
+		xpcall (_detalhes.Buffs.SaveBuffs, _detalhes.saver_error_func)
 	
 	--> salva o container do personagem
 		for key, value in pairs (_detalhes.default_player_data) do

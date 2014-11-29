@@ -1388,8 +1388,14 @@ end
 
 				if (not shadow) then 
 					shadow = overall_energy:PegarCombatente (actor.serial, actor.nome, actor.flag_original, true)
+					
 					shadow.classe = actor.classe
 					shadow.grupo = actor.grupo
+					shadow.isTank = actor.isTank
+					shadow.boss = actor.boss
+					shadow.boss_fight_component = actor.boss_fight_component
+					shadow.fight_component = actor.fight_component
+					
 				end
 			
 			--> restaura a meta e indexes ao ator
@@ -1421,8 +1427,14 @@ end
 
 				if (not shadow) then 
 					shadow = overall_energy:PegarCombatente (actor.serial, actor.nome, actor.flag_original, true)
+					
 					shadow.classe = actor.classe
 					shadow.grupo = actor.grupo
+					shadow.isTank = actor.isTank
+					shadow.boss = actor.boss
+					shadow.boss_fight_component = actor.boss_fight_component
+					shadow.fight_component = actor.fight_component
+					
 				end
 			
 			--> restaura a meta e indexes ao ator
@@ -1477,11 +1489,9 @@ end
 function _detalhes.refresh:r_atributo_energy (este_jogador, shadow)
 	_setmetatable (este_jogador, _detalhes.atributo_energy)
 	este_jogador.__index = _detalhes.atributo_energy
-	
-	este_jogador.shadow = shadow
-	
+
 	_detalhes.refresh:r_container_habilidades (este_jogador.spells, shadow.spells)
-	
+
 	if (not shadow.powertype) then
 		shadow.powertype = este_jogador.powertype
 	end	

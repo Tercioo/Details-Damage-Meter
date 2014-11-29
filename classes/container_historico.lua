@@ -284,6 +284,7 @@ function historico:resetar()
 	_detalhes.tabela_historico = historico:NovoHistorico() --joga fora a tabela antiga e cria uma nova
 	--novo container para armazenar pets
 	_detalhes.tabela_pets = _detalhes.container_pets:NovoContainer()
+	_detalhes:UpdateContainerCombatentes()
 	_detalhes.container_pets:BuscarPets()
 	-- nova tabela do overall e current
 	_detalhes.tabela_overall = combate:NovaTabela() --joga fora a tabela antiga e cria uma nova

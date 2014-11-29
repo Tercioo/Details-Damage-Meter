@@ -620,6 +620,9 @@
 		
 		--> elimina pets antigos
 		_detalhes:LimparPets()
+		if (not _detalhes.in_combat) then
+			_detalhes:ClearCCPetsBlackList()
+		end
 		
 		--> wipa container de escudos
 		_table_wipe (_detalhes.escudos)

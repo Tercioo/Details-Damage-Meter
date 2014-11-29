@@ -85,6 +85,8 @@
 		local tanks_members_cache = setmetatable ({}, _detalhes.weaktable)
 	--> damage and heal last events
 		local last_events_cache = {} --> placeholder
+	--> pets
+		local container_pets = {} --> place holder
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> constants
@@ -210,6 +212,8 @@
 				end
 			end
 		end
+		
+		--[[statistics]]-- _detalhes.statistics.damage_calls = _detalhes.statistics.damage_calls + 1
 		
 		_current_damage_container.need_refresh = true
 		
@@ -374,14 +378,16 @@
 				if (meu_dono.end_time) then
 					meu_dono.end_time = nil
 				else
-					meu_dono:IniciarTempo (_tempo, meu_dono.shadow)
+					--meu_dono:IniciarTempo (_tempo)
+					meu_dono.start_time = _tempo
 				end
 			end
 			
 			if (este_jogador.end_time) then
 				este_jogador.end_time = nil
 			else
-				este_jogador:IniciarTempo (_tempo, este_jogador.shadow)
+				--este_jogador:IniciarTempo (_tempo)
+				este_jogador.start_time = _tempo
 			end
 
 			if (este_jogador.nome == _detalhes.playername and token ~= "SPELL_PERIODIC_DAMAGE") then --> iniciando o dps do "PLAYER"
@@ -571,22 +577,28 @@
 -----------------------------------------------------------------------------------------------------------------------------------------
 	function parser:summon (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellName)
 	
+		--[[statistics]]-- _detalhes.statistics.pets_summons = _detalhes.statistics.pets_summons + 1
+	
 		if (not who_name) then
 			who_name = "[*] " .. spellName
 		end
 	
 		--> pet summon another pet
-		local sou_pet = _detalhes.tabela_pets.pets [who_serial]
+		local sou_pet = container_pets [who_serial]
 		if (sou_pet) then --> okey, ja é um pet
 			who_name, who_serial, who_flags = sou_pet[1], sou_pet[2], sou_pet[3]
 		end
 		
-		local alvo_pet = _detalhes.tabela_pets.pets [alvo_serial]
+		local alvo_pet = container_pets [alvo_serial]
 		if (alvo_pet) then
 			who_name, who_serial, who_flags = alvo_pet[1], alvo_pet[2], alvo_pet[3]
 		end
 
-		return _detalhes.tabela_pets:Adicionar (alvo_serial, alvo_name, alvo_flags, who_serial, who_name, who_flags)
+		_detalhes.tabela_pets:Adicionar (alvo_serial, alvo_name, alvo_flags, who_serial, who_name, who_flags)
+		
+		--print ("SUMMON", alvo_name, _detalhes.tabela_pets.pets, _detalhes.tabela_pets.pets [alvo_serial], alvo_serial)
+		
+		return
 	end
 
 -----------------------------------------------------------------------------------------------------------------------------------------
@@ -614,6 +626,8 @@
 	}
 
 	function parser:heal_absorb (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spellschool, owner_serial, owner_name, owner_flags, owner_flags2, shieldid, shieldname, shieldtype, amount)
+		
+		--[[statistics]]-- _detalhes.statistics.absorbs_calls = _detalhes.statistics.absorbs_calls + 1
 		
 		if (not shieldname) then
 			owner_serial, owner_name, owner_flags, owner_flags2, shieldid, shieldname, shieldtype, amount = spellid, spellname, spellschool, owner_serial, owner_name, owner_flags, owner_flags2, shieldid
@@ -650,7 +664,7 @@
 	
 	------------------------------------------------------------------------------------------------
 	--> early checks and fixes
-
+	
 		--> only capture heal if is in combat
 		if (not _in_combat) then
 			return
@@ -673,6 +687,8 @@
 		if (not alvo_name) then
 			return
 		end
+		
+		--[[statistics]]-- _detalhes.statistics.heal_calls = _detalhes.statistics.heal_calls + 1
 		
 		local cura_efetiva = absorbed
 		if (is_shield) then 
@@ -771,14 +787,16 @@
 				if (meu_dono.end_time) then
 					meu_dono.end_time = nil
 				else
-					meu_dono:IniciarTempo (_tempo, meu_dono.shadow)
+					--meu_dono:IniciarTempo (_tempo)
+					meu_dono.start_time = _tempo
 				end
 			end
 			
 			if (este_jogador.end_time) then --> o combate terminou, reabrir o tempo
 				este_jogador.end_time = nil
 			else
-				este_jogador:IniciarTempo (_tempo, este_jogador.shadow)
+				--este_jogador:IniciarTempo (_tempo)
+				este_jogador.start_time = _tempo
 			end
 		end
 
@@ -1462,6 +1480,8 @@
 			powertype = is_resource
 			amount = 0
 		end
+		
+		--[[statistics]]-- _detalhes.statistics.energy_calls = _detalhes.statistics.energy_calls + 1
 
 		_current_energy_container.need_refresh = true
 		
@@ -1923,7 +1943,6 @@
 
 		--> update last event
 		este_jogador.last_event = _tempo
-		--shadow.last_event = _tempo
 
 		--> combat ress total
 		_current_total [4].ress = _current_total [4].ress + 1
@@ -2783,7 +2802,7 @@
 			_detalhes:LoadCombatTables()
 			--> load the profiles
 			_detalhes:LoadConfig()
-
+			
 			_detalhes:UpdateParserGears()
 			_detalhes:Start()
 		end	
@@ -2822,7 +2841,7 @@
 
 	_detalhes.listener:SetScript ("OnEvent", _detalhes.OnEvent)
 
-	--> logout function ~save
+	--> logout function ~save ~logout
 	
 	local saver = CreateFrame ("frame", nil, UIParent)
 	saver:RegisterEvent ("PLAYER_LOGOUT")
@@ -2836,41 +2855,55 @@
 			tremove (_detalhes_global.exit_errors, 6)
 		end
 		
+		_detalhes_global.exit_log = {}
+		
+		_detalhes.saver_error_func = saver_error
+		
 		_detalhes.logoff_saving_data = true
 	
 		--> close info window
 			if (_detalhes.FechaJanelaInfo) then
+				tinsert (_detalhes_global.exit_log, "1 - Closing Janela Info.")
 				xpcall (_detalhes.FechaJanelaInfo, saver_error)
 			end
 			
 		--> do not save window pos
-			for id, instance in _detalhes:ListInstances() do
-				if (instance.baseframe) then
-					instance.baseframe:SetUserPlaced (false)
+			if (_detalhes.tabela_instancias) then
+				tinsert (_detalhes_global.exit_log, "2 - Clearing user place from instances.")
+				for id, instance in _detalhes:ListInstances() do
+					if (instance.baseframe) then
+						instance.baseframe:SetUserPlaced (false)
+					end
 				end
 			end
 
 		--> leave combat start save tables
 			if (_detalhes.in_combat and _detalhes.tabela_vigente) then 
+				tinsert (_detalhes_global.exit_log, "3 - Leaving current combat.")
 				xpcall (_detalhes.SairDoCombate, saver_error)
 				_detalhes.can_panic_mode = true
 			end
 			
-			if (_detalhes.CheckSwitchOnLogon and _detalhes.tabela_instancias[1] and getmetatable (_detalhes.tabela_instancias[1])) then
+			if (_detalhes.CheckSwitchOnLogon and _detalhes.tabela_instancias[1] and _detalhes.tabela_instancias and getmetatable (_detalhes.tabela_instancias[1])) then
+				tinsert (_detalhes_global.exit_log, "4 - Reversing switches.")
 				xpcall (_detalhes.CheckSwitchOnLogon, saver_error)
 			end
 			
 			if (_detalhes.wipe_full_config) then
+				tinsert (_detalhes_global.exit_log, "5 - Is a full config wipe.")
 				_detalhes_global = nil
 				_detalhes_database = nil
 				return
 			end
 		
 		--> save the config
+			tinsert (_detalhes_global.exit_log, "6 - Saving Config.")
 			xpcall (_detalhes.SaveConfig, saver_error)
+			tinsert (_detalhes_global.exit_log, "7 - Saving Profiles.")
 			xpcall (_detalhes.SaveProfile, saver_error)
 
 		--> save the nicktag cache
+			tinsert (_detalhes_global.exit_log, "8 - Saving nicktag cache.")
 			_detalhes_database.nick_tag_cache = table_deepcopy (_detalhes_database.nick_tag_cache)
 	end)
 		
@@ -2880,20 +2913,6 @@
 	function _detalhes:OnParserEvent (evento, time, token, hidding, who_serial, who_name, who_flags, who_flags2, alvo_serial, alvo_name, alvo_flags, alvo_flags2, ...)
 		local funcao = token_list [token]
 
---[[
-Prismatic Crystal still bugged on Combat Log
-		
-Mage's damage towards the Prismatic Crystal is still triggering a SPELL_DAMAGE Combat Log Event, I think this isn't indented.
-
-So in practice, what happens is:
-
-- Player cast Frost Bolt against his Crystal which is near 3 enemies.
-- Combat Log trigger [b]4 SPELL_DAMAGE[/b] events: 3 events splitting the damage against the 3 enemies and 1 event with the total damage against the crystal <- this last one should not happen, it's literally duplicating the mage's damage.
-
-The only way to detect the damage towards the crystal is getting [b]every single[/b] combatlog event and splitting the target GUID getting the crystal's npcId.
-This workaround will consume a huge amount of Cpu (any addon which counts damage will need to use this fix).
---]]
-		
 		if (funcao) then
 			return funcao (nil, token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, ... )
 		else
@@ -2904,6 +2923,9 @@ This workaround will consume a huge amount of Cpu (any addon which counts damage
 
 	function _detalhes:UpdateParser()
 		_tempo = _detalhes._tempo
+	end
+	function _detalhes:UpdatePetsOnParser()
+		container_pets = _detalhes.tabela_pets.pets
 	end
 
 	function _detalhes:PrintParserCacheIndexes()

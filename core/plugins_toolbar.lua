@@ -42,6 +42,8 @@
 		button.tooltip = tooltip
 		button:SetScript ("OnClick", func)
 
+		--print ("ED button 2:", ENCOUNTERDETAILS_BUTTON:GetAlpha(), ENCOUNTERDETAILS_BUTTON:IsShown())
+		
 		--> textures
 		button:SetNormalTexture (icon)
 		button:SetPushedTexture (icon)
@@ -86,16 +88,17 @@
 			LastIcon = instance.baseframe.cabecalho.report
 		end
 		
-		local x = 0
-		if (instance.consolidate) then
-			LastIcon = instance.consolidateButtonTexture
-			x = x - 3
-		end
-
 		_detalhes.ToolBar.Shown [#_detalhes.ToolBar.Shown+1] = Button
-		Button:SetPoint ("left", LastIcon.widget or LastIcon, "right", Button.x + x, Button.y)
+		Button:SetPoint ("left", LastIcon.widget or LastIcon, "right", Button.x, Button.y)
+		
 		Button:Show()
 		
+		if (instance.auto_hide_menu.left and not instance.is_interacting) then
+			instance:ToolbarMenuButtons()
+			Button:SetAlpha (0)
+			return
+		end
+
 		if (Effect) then
 			if (type (Effect) == "string") then
 				if (Effect == "blink") then
@@ -206,8 +209,8 @@
 
 			instance:ChangeSkin()
 		else
-			--instance:SetMenuAlpha()
 			instance:ToolbarMenuButtons()
+			instance:SetAutoHideMenu (nil, nil, true)
 		end
 		
 		return true

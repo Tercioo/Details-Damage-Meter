@@ -593,6 +593,30 @@ end
 					end
 				end
 				new_instance:ChangeSkin()
+				
+			else
+				--> se não tiver um padrão, criar de outra instância já aberta.
+				local copy_from
+				for i = 1, next_id-1 do
+					local opened_instance = _detalhes:GetInstance (i)
+					if (opened_instance and opened_instance:IsEnabled() and opened_instance.baseframe) then
+						copy_from = opened_instance
+						break
+					end
+				end
+				
+				if (copy_from) then
+					for key, value in pairs (copy_from) do 
+						if (_detalhes.instance_defaults [key] ~= nil) then
+							if (type (value) == "table") then
+								new_instance [key] = table_deepcopy (value)
+							else
+								new_instance [key] = value
+							end
+						end
+					end
+					new_instance:ChangeSkin()
+				end
 			end
 			
 			return new_instance
@@ -2419,7 +2443,7 @@ function _detalhes:AlteraModo (instancia, qual, from_mode_menu)
 		instancia.atributo = instancia.atributo or 1
 		instancia.showing[instancia.atributo].need_refresh = true
 	end
-	
+
 	if (qual == modo_alone) then
 	
 		instancia.LastModo = instancia.modo
@@ -2496,7 +2520,7 @@ function _detalhes:AlteraModo (instancia, qual, from_mode_menu)
 		_detalhes:SendEvent ("DETAILS_INSTANCE_CHANGEMODE", nil, instancia, modo_all)
 		_detalhes:SendEvent ("DETAILS_INSTANCE_CHANGEATTRIBUTE", nil, instancia, instancia.atributo, instancia.sub_atributo)
 	end
-	
+
 	local checked
 	if (instancia.modo == 1) then
 		checked = 4
@@ -2507,14 +2531,20 @@ function _detalhes:AlteraModo (instancia, qual, from_mode_menu)
 	elseif (instancia.modo == 4) then
 		checked = 3
 	end	
-	
+
 	_detalhes.popup:Select (1, checked)
+	
 	if (from_mode_menu) then
 		instancia.baseframe.cabecalho.modo_selecao:GetScript ("OnEnter")(instancia.baseframe.cabecalho.modo_selecao)
+		
+		--> running OnEnter does also trigger an instance enter event, so we need to manually leave the instance:
+		_detalhes.OnLeaveMainWindow (instancia, instancia.baseframe.cabecalho.modo_selecao)
+		
 		if (instancia.desaturated_menu) then
 			instancia.baseframe.cabecalho.modo_selecao:GetNormalTexture():SetDesaturated (true)
 		end
 	end
+	
 end
 
 local function GetDpsHps (_thisActor, key)

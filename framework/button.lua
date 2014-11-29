@@ -725,7 +725,7 @@ local ButtonMetaFunctions = {}
 		
 		if (button.MyObject.capsule_textalign) then
 			if (button.MyObject.icon) then
-				button.MyObject.icon:SetPoint ("left", button, "left", 5 + button.MyObject.icon.leftpadding, -1)
+				button.MyObject.icon:SetPoint ("left", button, "left", 5 + (button.MyObject.icon.leftpadding or 0), -1)
 			elseif (button.MyObject.capsule_textalign == "left") then
 				button.text:SetPoint ("left", button, "left", 3, -1)
 			elseif (button.MyObject.capsule_textalign == "center") then
@@ -735,7 +735,7 @@ local ButtonMetaFunctions = {}
 			end
 		else
 			if (button.MyObject.icon) then
-				button.MyObject.icon:SetPoint ("left", button, "left", 7 + button.MyObject.icon.leftpadding, -2)
+				button.MyObject.icon:SetPoint ("left", button, "left", 7 + (button.MyObject.icon.leftpadding or 0), -2)
 			else
 				button.text:SetPoint ("center", button,"center", 1, -1)
 			end
@@ -820,7 +820,7 @@ local ButtonMetaFunctions = {}
 
 		if (button.MyObject.capsule_textalign) then
 			if (button.MyObject.icon) then
-				button.MyObject.icon:SetPoint ("left", button, "left", 4 + button.MyObject.icon.leftpadding, 0)
+				button.MyObject.icon:SetPoint ("left", button, "left", 4 + (button.MyObject.icon.leftpadding or 0), 0)
 			elseif (button.MyObject.capsule_textalign == "left") then
 				button.text:SetPoint ("left", button, "left", 2, 0)
 			elseif (button.MyObject.capsule_textalign == "center") then
@@ -830,7 +830,7 @@ local ButtonMetaFunctions = {}
 			end
 		else
 			if (button.MyObject.icon) then
-				button.MyObject.icon:SetPoint ("left", button, "left", 4 + button.MyObject.icon.leftpadding, 0)
+				button.MyObject.icon:SetPoint ("left", button, "left", 4 + (button.MyObject.icon.leftpadding or 0), 0)
 			else
 				button.text:SetPoint ("center", button,"center", 0, 0)
 			end

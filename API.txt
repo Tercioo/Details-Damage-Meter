@@ -95,7 +95,7 @@ returns the current combat object.
 _detalhes:GetCombatSegments()
 returns the numeric table containing all past segments.
 
-_detalhes:GetCombatId()
+_detalhes:GetCombatNumber()
 returns the current unique combat number counter.
 combat number is a unique number given to each combat started, this number won't 
 reset when data is wiped and each character have its own combat number counter.

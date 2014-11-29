@@ -90,8 +90,6 @@ local _
 			container.__index = _detalhes.container_habilidades
 			local func_criacao = container_habilidades:FuncaoDeCriacao (container.tipo)
 			container.funcao_de_criacao = func_criacao
-		--> seta a shadow
-			container.shadow = shadow
 	end
 
 	function _detalhes.clear:c_container_habilidades (container)

@@ -294,7 +294,7 @@
 				return actor.targets [_detalhes.playername] or 0
 
 			else
-				return actor.targets [targetactor] or 0
+				return actor.targets [target] or 0
 				
 			end
 		else

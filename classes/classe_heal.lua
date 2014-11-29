@@ -113,15 +113,7 @@ function atributo_heal:NovaTabela (serial, nome, link)
 	}
 	
 	_setmetatable (_new_healActor, atributo_heal)
-	
-	--if (link) then --> se não for a shadow
-		--_new_healActor.last_events_table = _detalhes:CreateActorLastEventTable()
-		--_new_healActor.last_events_table.original = true
-	
-		--_new_healActor.targets.shadow = link.targets
-		--_new_healActor.spells.shadow = link.spells
-	--end
-	
+
 	return _new_healActor
 end
 
@@ -580,8 +572,8 @@ function atributo_heal:AtualizaBarra (instancia, barras_container, qual_barra, l
 		porcentagem = _cstr ("%.1f", self [keyName] / instancia.top * 100)
 	end
 
-	if ((_detalhes.time_type == 2 and self.grupo) or (not _detalhes:CaptureGet ("heal") and not _detalhes:CaptureGet ("aura")) or not self.shadow) then
-		if (not self.shadow and combat_time == 0) then
+	if ((_detalhes.time_type == 2 and self.grupo) or (not _detalhes:CaptureGet ("heal") and not _detalhes:CaptureGet ("aura")) or instancia.segmento == -1) then
+		if (instancia.segmento == -1 and combat_time == 0) then
 			local p = _detalhes.tabela_vigente (2, self.nome)
 			if (p) then
 				local t = p:Tempo()
@@ -1992,17 +1984,9 @@ function atributo_heal:Iniciar (iniciar)
 	elseif (iniciar) then
 		self.iniciar_hps = true
 		self:RegistrarNaTimeMachine() --coloca ele da timeMachine
-		if (self.shadow) then
-			self.shadow.iniciar_hps = true --> isso foi posto recentemente
-			--self.shadow:RegistrarNaTimeMachine()
-		end
 	else
 		self.iniciar_hps = false
 		self:DesregistrarNaTimeMachine() --retira ele da timeMachine
-		if (self.shadow) then
-			self.shadow.iniciar_hps = false --> isso foi posto recentemente
-			--self.shadow:DesregistrarNaTimeMachine()
-		end
 	end
 end
 
@@ -2048,8 +2032,14 @@ end
 
 				if (not shadow) then 
 					shadow = overall_cura:PegarCombatente (actor.serial, actor.nome, actor.flag_original, true)
+					
 					shadow.classe = actor.classe
 					shadow.grupo = actor.grupo
+					shadow.isTank = actor.isTank
+					shadow.boss = actor.boss
+					shadow.boss_fight_component = actor.boss_fight_component
+					shadow.fight_component = actor.fight_component
+					
 					shadow.start_time = time() - 3
 					shadow.end_time = time()
 				end
@@ -2103,8 +2093,14 @@ end
 
 				if (not shadow) then 
 					shadow = overall_cura:PegarCombatente (actor.serial, actor.nome, actor.flag_original, true)
+					
 					shadow.classe = actor.classe
 					shadow.grupo = actor.grupo
+					shadow.isTank = actor.isTank
+					shadow.boss = actor.boss
+					shadow.boss_fight_component = actor.boss_fight_component
+					shadow.fight_component = actor.fight_component
+					
 					shadow.start_time = time() - 3
 					shadow.end_time = time()
 				end
@@ -2115,10 +2111,13 @@ end
 				end
 			
 			--> tempo decorrido (captura de dados)
-				if (actor.end_time) then
-					local tempo = (actor.end_time or time()) - actor.start_time
-					shadow.start_time = shadow.start_time - tempo
+				local end_time = actor.end_time
+				if (not actor.end_time) then
+					end_time = time()
 				end
+				
+				local tempo = end_time - actor.start_time
+				shadow.start_time = shadow.start_time - tempo
 
 			--> total de cura (captura de dados)
 				shadow.total = shadow.total + actor.total
@@ -2364,7 +2363,6 @@ function _detalhes.refresh:r_atributo_heal (este_jogador, shadow)
 	_setmetatable (este_jogador, atributo_heal)
 	este_jogador.__index = atributo_heal
 	
-	este_jogador.shadow = shadow
 	_detalhes.refresh:r_container_habilidades (este_jogador.spells, shadow.spells)
 end
 

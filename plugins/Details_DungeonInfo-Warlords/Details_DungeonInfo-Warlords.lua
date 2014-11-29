@@ -72,6 +72,7 @@ local BloodmaulSlagMines = {
 		[74787] = 1, --Slave Watcher Crushto
 		[74366] = 2, --Forgemaster Gog'duh
 		[86223] = 3, --Roltall
+		[75786] = 3, --Roltall
 		[86224] = 4, --Gug'rokk
 		[74790] = 4, --Gug'rokk
 	},
@@ -216,7 +217,10 @@ local IronDocks = {
 		[86231] = 2, --Makogg Emberblade
 		[80808] = 2, --Neesa Nox
 		[86232] = 3, --Oshir
+		[79852] = 3, --Oshir
 		[86233] = 4, --Skulloc
+		[83612] = 4, --Skulloc
+		[83616] = 4, --Skulloc
 	},
 
 	encounters = {

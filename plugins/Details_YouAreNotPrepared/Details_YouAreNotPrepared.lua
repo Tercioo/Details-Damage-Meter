@@ -469,7 +469,7 @@
 	end
 
 	function YouAreNotPrepared:EndCombat()
-		if (YouAreNotPrepared.last_death_combat_id == YouAreNotPrepared.combat_id) then
+		if (YouAreNotPrepared.last_death_combat_id == YouAreNotPrepared.combat_counter) then
 			if (YouAreNotPrepared.db.auto_open) then
 				YouAreNotPrepared.ShowMeFromInstanceAlert()
 			else
@@ -493,7 +493,7 @@
 			death_table = d
 			
 			if (combat.is_boss) then --> encounter or pvp
-				YouAreNotPrepared.last_death_combat_id = YouAreNotPrepared.combat_id
+				YouAreNotPrepared.last_death_combat_id = YouAreNotPrepared.combat_counter
 				return YouAreNotPrepared:AddDeath ({combat.is_boss.name or combat.enemy or "Unknown", time_of_death, last_cooldown, death_table, max_health, time})
 			end
 		end

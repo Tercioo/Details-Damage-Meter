@@ -8,6 +8,8 @@
 
 	local _UnitClass = UnitClass --api local
 	local _IsInInstance = IsInInstance --api local
+	local _UnitGUID = UnitGUID --api local
+	local strsplit = strsplit --api local
 	
 	local _setmetatable = setmetatable --lua local
 	local _getmetatable = getmetatable --lua local
@@ -39,9 +41,12 @@
 	local container_misc_target = 	_detalhes.container_type.CONTAINER_MISCTARGET_CLASS
 	local container_enemydebufftarget_target = _detalhes.container_type.CONTAINER_ENEMYDEBUFFTARGET_CLASS
 
+	local container_pets = {}
+	
 	--> flags
 	local REACTION_HOSTILE	=	0x00000040
 	local IS_GROUP_OBJECT 	= 	0x00000007
+	local REACTION_FRIENDLY	=	0x00000010 
 	local OBJECT_TYPE_MASK =	0x0000FC00
 	local OBJECT_TYPE_OBJECT =	0x00004000
 	local OBJECT_TYPE_PETGUARDIAN =	0x00003000
@@ -136,7 +141,7 @@
 	end
 
 	--> read the actor flag
-	local read_actor_flag = function (novo_objeto, shadow_objeto, dono_do_pet, serial, flag, nome, container_type)
+	local read_actor_flag = function (novo_objeto, dono_do_pet, serial, flag, nome, container_type)
 
 		if (flag) then
 
@@ -154,16 +159,9 @@
 				
 				if ( (_bit_band (flag, IS_GROUP_OBJECT) ~= 0 and novo_objeto.classe ~= "UNGROUPPLAYER")) then --> faz parte do grupo
 					novo_objeto.grupo = true
-
-					if (shadow_objeto) then
-						shadow_objeto.grupo = true
-					end
 					
 					if (_detalhes:IsATank (serial)) then
 						novo_objeto.isTank = true
-						if (shadow_objeto) then
-							shadow_objeto.isTank = true
-						end
 					end
 				end
 				
@@ -251,23 +249,77 @@
 		novo_objeto.serial = serial
 	end
 
-	function container_combatentes:PegarCombatente (serial, nome, flag, criar, isOwner)
-
-		--> verifica se é um pet, se for confere se tem o nome do dono, se não tiver, precisa por
-		local dono_do_pet
+	local pet_blacklist = {}
+	local pet_tooltip_frame = _G.DetailsPetOwnerFinder
+	local pet_text_object = _G ["DetailsPetOwnerFinderTextLeft2"]
+	
+	local find_pet_owner = function (serial, nome, flag, self)
+	
+		pet_tooltip_frame:SetOwner (WorldFrame, "ANCHOR_NONE")
+		pet_tooltip_frame:SetHyperlink ("unit:" .. serial or "")
 		
-		--if (flag and _bit_band (flag, OBJECT_TYPE_PETS) ~= 0) then --> é um pet
-		if (_detalhes.tabela_pets.pets [serial]) then --> é um pet
-			--> aqui ele precisaria achar as tag < > pra saber se o nome passado já não veio com o dono imbutido, se não tiver as tags, terá que ser posto aqui
-			if (not nome:find ("<") or not nome:find (">")) then --> find é lento, não teria outra forma de fazer isso?
-				local nome_dele, dono_nome, dono_serial, dono_flag = _detalhes.tabela_pets:PegaDono (serial, nome, flag)
-				if (nome_dele and dono_nome) then
-					nome = nome_dele
-					dono_do_pet = self:PegarCombatente (dono_serial, dono_nome, dono_flag, true, nome)
+		local text = pet_text_object:GetText()
+		--print ("Unknow Owner:", nome, "ToolTip Text:", text)
+		
+		if (text and text ~= "") then
+			text = text:gsub ("'s", "") --> enUS
+			
+			for _, ownerName in _ipairs ({strsplit (" ", text)}) do
+				local cur_combat = _detalhes.tabela_vigente
+				if (cur_combat and cur_combat.raid_roster [ownerName]) then
+					local ownerGuid = _UnitGUID (ownerName)
+					if (ownerGuid) then
+					
+						_detalhes.tabela_pets:Adicionar (serial, nome, flag, ownerGuid, ownerName, 0x00000417)
+						local nome_dele, dono_nome, dono_serial, dono_flag = _detalhes.tabela_pets:PegaDono (serial, nome, flag)
+						
+						local dono_do_pet
+						if (nome_dele and dono_nome) then
+							nome = nome_dele
+							dono_do_pet = self:PegarCombatente (dono_serial, dono_nome, dono_flag, true, nome)
+						end
+						
+						--print ("Owner Found:", ownerName, nome)
+						return nome, dono_do_pet
+					end
 				end
 			end
 		end
+	end
+	
+	function container_combatentes:PegarCombatente (serial, nome, flag, criar)
 
+		--[[statistics]]-- _detalhes.statistics.container_calls = _detalhes.statistics.container_calls + 1
+	
+		--> verifica se é um pet, se for confere se tem o nome do dono, se não tiver, precisa por
+		local dono_do_pet
+		serial = serial or "ns"
+		
+		if (container_pets [serial]) then --> é um pet reconhecido
+			--[[statistics]]-- _detalhes.statistics.container_pet_calls = _detalhes.statistics.container_pet_calls + 1
+			
+			local nome_dele, dono_nome, dono_serial, dono_flag = _detalhes.tabela_pets:PegaDono (serial, nome, flag)
+			if (nome_dele and dono_nome) then
+				nome = nome_dele
+				dono_do_pet = self:PegarCombatente (dono_serial, dono_nome, dono_flag, true)
+			end
+			
+		elseif (not pet_blacklist [serial]) then --> verifica se é um pet
+		
+			pet_blacklist [serial] = true
+		
+			--> try to find the owner
+			if (flag and _bit_band (flag, OBJECT_TYPE_PETGUARDIAN) ~= 0) then
+			
+				--[[statistics]]-- _detalhes.statistics.container_unknow_pet = _detalhes.statistics.container_unknow_pet + 1
+			
+				local find_nome, find_owner = find_pet_owner (serial, nome, flag, self)
+				if (find_nome and find_owner) then
+					nome, dono_do_pet = find_nome, find_owner
+				end
+			end
+		end
+		
 		--> pega o index no mapa
 		local index = self._NameIndexTable [nome] 
 		--> retorna o actor
@@ -277,24 +329,7 @@
 		--> não achou, criar
 		elseif (criar) then
 
-			--> espelho do container no overall
-			local shadow = self.shadow 
-			local shadow_objeto
-
-			--> se tiver o espelho (não for a tabela overall já)
-			if (shadow) then 
-				--> apenas verifica se ele existe ou não
-				shadow_objeto = shadow:PegarCombatente (_, nome) 
-				--> se não existir, cria-lo
-				if (not shadow_objeto) then 
-					--> tira o nome do pet
-					local novo_nome = nome:gsub ((" <.*"), "") 
-					--> cria o objeto
-					shadow_objeto = shadow:PegarCombatente (serial, novo_nome, flag, true)
-				end
-			end
-
-			local novo_objeto = self.funcao_de_criacao (_, serial, nome, shadow_objeto) --> shadow_objeto passa para o classe_damage gravar no .targets e .spells, mas não grava nele mesmo
+			local novo_objeto = self.funcao_de_criacao (_, serial, nome)
 			novo_objeto.nome = nome
 
 		-- tipo do container
@@ -303,14 +338,13 @@
 			if (self.tipo == container_damage) then --> CONTAINER DAMAGE
 
 				get_actor_class (novo_objeto, nome, flag)
-				read_actor_flag (novo_objeto, shadow_objeto, dono_do_pet, serial, flag, nome, "damage")
+				read_actor_flag (novo_objeto, dono_do_pet, serial, flag, nome, "damage")
 				
 				if (dono_do_pet) then
 					dono_do_pet.pets [#dono_do_pet.pets+1] = nome
 				end
 				
-				if (shadow_objeto) then
-					novo_objeto.shadow = shadow_objeto
+				if (self.shadow) then
 					if (novo_objeto.grupo and _detalhes.in_combat) then
 						_detalhes.cache_damage_group [#_detalhes.cache_damage_group+1] = novo_objeto
 					end
@@ -322,7 +356,7 @@
 					end
 					
 					--> try to guess his class
-					if (shadow) then --> não executar 2x
+					if (self.shadow) then --> não executar 2x
 						_detalhes:ScheduleTimer ("GuessClass", 1, {novo_objeto, self, 1})
 					end
 				end
@@ -334,14 +368,13 @@
 			elseif (self.tipo == container_heal) then --> CONTAINER HEALING
 				
 				get_actor_class (novo_objeto, nome, flag)
-				read_actor_flag (novo_objeto, shadow_objeto, dono_do_pet, serial, flag, nome, "heal")
+				read_actor_flag (novo_objeto, dono_do_pet, serial, flag, nome, "heal")
 				
 				if (dono_do_pet) then
 					dono_do_pet.pets [#dono_do_pet.pets+1] = nome
 				end
 				
-				if (shadow_objeto) then
-					novo_objeto.shadow = shadow_objeto
+				if (self.shadow) then
 					if (novo_objeto.grupo and _detalhes.in_combat) then
 						_detalhes.cache_healing_group [#_detalhes.cache_healing_group+1] = novo_objeto
 					end
@@ -353,7 +386,7 @@
 					end
 					
 					--> try to guess his class
-					if (shadow) then --> não executar 2x
+					if (self.shadow) then --> não executar 2x
 						_detalhes:ScheduleTimer ("GuessClass", 1, {novo_objeto, self, 1})
 					end
 				end
@@ -362,14 +395,10 @@
 			elseif (self.tipo == container_energy) then --> CONTAINER ENERGY
 				
 				get_actor_class (novo_objeto, nome, flag)
-				read_actor_flag (novo_objeto, shadow_objeto, dono_do_pet, serial, flag, nome, "energy")
+				read_actor_flag (novo_objeto, dono_do_pet, serial, flag, nome, "energy")
 				
 				if (dono_do_pet) then
 					dono_do_pet.pets [#dono_do_pet.pets+1] = nome
-				end
-				
-				if (shadow_objeto) then
-					novo_objeto.shadow = shadow_objeto
 				end
 				
 				if (novo_objeto.classe == "UNGROUPPLAYER") then --> is a player
@@ -378,7 +407,7 @@
 					end
 					
 					--> try to guess his class
-					if (shadow) then --> não executar 2x
+					if (self.shadow) then --> não executar 2x
 						_detalhes:ScheduleTimer ("GuessClass", 1, {novo_objeto, self, 1})
 					end
 				end
@@ -386,25 +415,21 @@
 			elseif (self.tipo == container_misc) then --> CONTAINER MISC
 				
 				get_actor_class (novo_objeto, nome, flag)
-				read_actor_flag (novo_objeto, shadow_objeto, dono_do_pet, serial, flag, nome, "misc")
+				read_actor_flag (novo_objeto, dono_do_pet, serial, flag, nome, "misc")
 				
 				--local teste_classe = 
 				
 				if (dono_do_pet) then
 					dono_do_pet.pets [#dono_do_pet.pets+1] = nome
 				end
-				
-				if (shadow_objeto) then
-					novo_objeto.shadow = shadow_objeto
-				end
-				
+
 				if (novo_objeto.classe == "UNGROUPPLAYER") then --> is a player
 					if (_bit_band (flag, REACTION_HOSTILE ) ~= 0) then --> is hostile
 						novo_objeto.enemy = true
 					end
 					
 					--> try to guess his class
-					if (shadow) then --> não executar 2x
+					if (self.shadow) then --> não executar 2x
 						_detalhes:ScheduleTimer ("GuessClass", 1, {novo_objeto, self, 1})
 					end
 				end
@@ -417,34 +442,20 @@
 				novo_objeto.e_rage = 0
 				novo_objeto.e_energy = 0
 				novo_objeto.runepower = 0
-				
-				if (shadow_objeto) then
-					novo_objeto.shadow = shadow_objeto
-				end
-				
+
 			elseif (self.tipo == container_enemydebufftarget_target) then
 				
 				novo_objeto.uptime = 0
 				novo_objeto.actived = false
 				novo_objeto.activedamt = 0
-				
-				if (shadow_objeto) then
-					novo_objeto.shadow = shadow_objeto
-				end
-				
+
 			elseif (self.tipo == container_misc_target) then --> CONTAINER ALVOS DO MISC
 
-				if (shadow_objeto) then
-					novo_objeto.shadow = shadow_objeto
-				end
 				
 			elseif (self.tipo == container_friendlyfire) then --> CONTAINER FRIENDLY FIRE
 				
 				get_actor_class (novo_objeto, nome)
-				
-				if (shadow_objeto) then
-					novo_objeto.shadow = shadow_objeto
-				end
+
 			end
 		
 	------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -461,6 +472,14 @@
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> core
+
+	function _detalhes:UpdateContainerCombatentes()
+		container_pets = _detalhes.tabela_pets.pets
+		_detalhes:UpdatePetsOnParser()
+	end
+	function _detalhes:ClearCCPetsBlackList()
+		table.wipe (pet_blacklist)
+	end
 
 	function container_combatentes:FuncaoDeCriacao (tipo)
 		if (tipo == container_damage_target) then

@@ -121,14 +121,10 @@ function container_pets:BuscarPets()
 			if (pet_serial) then
 				if (not _detalhes.tabela_pets.pets [pet_serial]) then
 					local nome, realm = _UnitName ("raid"..i)
-					if (nome == "Unknown Entity") then
-						_detalhes:SchedulePetUpdate (1)
-					else
-						if (realm and realm ~= "") then
-							nome = nome.."-"..realm
-						end
-						_detalhes.tabela_pets:Adicionar (pet_serial, _UnitName ("raidpet"..i), 0x1114, _UnitGUID ("raid"..i), nome, 0x514)
+					if (realm and realm ~= "") then
+						nome = nome.."-"..realm
 					end
+					_detalhes.tabela_pets:Adicionar (pet_serial, _UnitName ("raidpet"..i), 0x1114, _UnitGUID ("raid"..i), nome, 0x514)
 				end
 			end
 		end
@@ -139,14 +135,12 @@ function container_pets:BuscarPets()
 			if (pet_serial) then
 				if (not _detalhes.tabela_pets.pets [pet_serial]) then
 					local nome, realm = _UnitName ("party"..i)
-					if (nome == "Unknown Entity") then
-						_detalhes:SchedulePetUpdate (1)
-					else
-						if (realm and realm ~= "") then
-							nome = nome.."-"..realm
-						end
-						_detalhes.tabela_pets:Adicionar (pet_serial, _UnitName ("partypet"..i), 0x1114, _UnitGUID ("party"..i), nome, 0x514) 
+
+					if (realm and realm ~= "") then
+						nome = nome.."-"..realm
 					end
+					_detalhes.tabela_pets:Adicionar (pet_serial, _UnitName ("partypet"..i), 0x1114, _UnitGUID ("party"..i), nome, 0x514) 
+
 				end
 			end
 		end
@@ -201,6 +195,8 @@ function _detalhes:LimparPets()
 	--a tabela antiga será descartada pelo garbage collector.
 	--_table_wipe (_detalhes.tabela_pets.pets)
 	_detalhes.tabela_pets.pets = _new_PetTable
+	_detalhes:UpdateContainerCombatentes()
+	
 end
 
 local have_schedule = false

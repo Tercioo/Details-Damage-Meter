@@ -1275,9 +1275,9 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 		porcentagem = _cstr ("%.1f", self [keyName] / instancia.top * 100)
 	end
 
-	--tempo da shadow não é mais calculado pela timemachine
-	if ((_detalhes.time_type == 2 and self.grupo) or not _detalhes:CaptureGet ("damage") or not self.shadow) then --not self.shadow is overall but...
-		if (not self.shadow and combat_time == 0) then
+	--> tempo da shadow não é calculado pela timemachine
+	if ( (_detalhes.time_type == 2 and self.grupo) or not _detalhes:CaptureGet ("damage") or instancia.segmento == -1) then
+		if (instancia.segmento == -1 and combat_time == 0) then
 			local p = _detalhes.tabela_vigente (1, self.nome)
 			if (p) then
 				local t = p:Tempo()
@@ -3055,24 +3055,16 @@ function atributo_damage:MontaTooltipAlvos (esta_barra, index, instancia)
 	
 end
 
---controla se o dps do jogador esta travado ou destravado
+--> controla se o dps do jogador esta travado ou destravado
 function atributo_damage:Iniciar (iniciar)
 	if (iniciar == nil) then 
-		return self.dps_started --retorna se o dps esta aberto ou fechado para este jogador
+		return self.dps_started --> retorna se o dps esta aberto ou fechado para este jogador
 	elseif (iniciar) then
 		self.dps_started = true
 		self:RegistrarNaTimeMachine() --coloca ele da timeMachine
-		if (self.shadow) then
-			self.shadow.dps_started = true --> isso foi posto recentemente
-			--self.shadow:RegistrarNaTimeMachine()
-		end
 	else
 		self.dps_started = false
 		self:DesregistrarNaTimeMachine() --retira ele da timeMachine
-		if (self.shadow) then
-			--self.shadow:DesregistrarNaTimeMachine()
-			self.shadow.dps_started = false --> isso foi posto recentemente
-		end
 	end
 end
 
@@ -3127,8 +3119,14 @@ end
 				
 				if (not shadow) then 
 					shadow = overall_dano:PegarCombatente (actor.serial, actor.nome, actor.flag_original, true)
+					
 					shadow.classe = actor.classe
 					shadow.grupo = actor.grupo
+					shadow.isTank = actor.isTank
+					shadow.boss = actor.boss
+					shadow.boss_fight_component = actor.boss_fight_component
+					shadow.fight_component = actor.fight_component
+					
 					shadow.start_time = time() - 3
 					shadow.end_time = time()
 				end
@@ -3179,8 +3177,14 @@ end
 				
 				if (not shadow) then 
 					shadow = overall_dano:PegarCombatente (actor.serial, actor.nome, actor.flag_original, true)
+					
 					shadow.classe = actor.classe
+					shadow.isTank = actor.isTank
 					shadow.grupo = actor.grupo
+					shadow.boss = actor.boss
+					shadow.boss_fight_component = actor.boss_fight_component
+					shadow.fight_component = actor.fight_component
+					
 					shadow.start_time = time() - 3
 					shadow.end_time = time()
 				end
@@ -3189,11 +3193,15 @@ end
 			if (not no_refresh) then
 				_detalhes.refresh:r_atributo_damage (actor, shadow)
 			end
+			
 			--> tempo decorrido (captura de dados)
-				if (actor.end_time) then
-					local tempo = (actor.end_time or time()) - actor.start_time
-					shadow.start_time = shadow.start_time - tempo
+				local end_time = actor.end_time
+				if (not actor.end_time) then
+					end_time = time()
 				end
+				
+				local tempo = end_time - actor.start_time
+				shadow.start_time = shadow.start_time - tempo
 				
 			--> total de dano (captura de dados)
 				shadow.total = shadow.total + actor.total				
@@ -3390,8 +3398,6 @@ function _detalhes.refresh:r_atributo_damage (este_jogador, shadow)
 	--> restaura metas do ator
 		_setmetatable (este_jogador, _detalhes.atributo_damage)
 		este_jogador.__index = _detalhes.atributo_damage
-	--> atribui a shadow a ele
-		este_jogador.shadow = shadow
 	--> restaura as metas dos containers
 		_detalhes.refresh:r_container_habilidades (este_jogador.spells, shadow.spells)
 end

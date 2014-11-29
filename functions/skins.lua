@@ -408,7 +408,9 @@ local _
 
 			["show_statusbar"] = false,
 			["backdrop_texture"] = "Details Ground",
-			["color"] = {1, 1, 1, 0.919999},
+			--["color"] = {1, 1, 1, 0.919999},
+			--["color"] = {0.5960, 0.5686, 1, 0.919999}, purple
+			["color"] = {0.70980, 0.75686, 1, 0.919999},
 			["menu_anchor"] = {15, 1, ["side"] = 2},
 			["bg_r"] = 1,
 

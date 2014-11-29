@@ -69,8 +69,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 	
 	elseif (command == Loc ["STRING_SLASH_WORLDBOSS"] or command == "worldboss") then
 		
-		--local questIds = {Galleon = 32098, Sha = 32099, Oondasta = 32519, Celestials = 33117, Ordos = 33118, Nalak = 32518}
-		local questIds = {{"The Celestials", 33117}, {"Ordos", 33118}, {"Nalak", 32518}, {"Oondasta", 32519}, {"Salyis's Warband (Galleon)", 32098}, {"Sha of Anger", 32099}}
+		local questIds = {{"Tarlna the Ageless", 81535}, {"Drov the Ruiner ", 87437}, {"Rukhmar", 87493}}
 		for _, _table in pairs (questIds) do 
 			print (format ("%s: \124cff%s\124r", _table [1], IsQuestFlaggedCompleted (_table [2]) and "ff0000"..Loc ["STRING_KILLED"] or "00ff00"..Loc ["STRING_ALIVE"]))
 		end

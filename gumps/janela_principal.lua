@@ -3166,6 +3166,19 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 	
 end
 
+function _detalhes:SetBarFollowPlayer (follow)
+	
+	if (follow == nil) then
+		follow = self.following.enabled
+	end
+	
+	self.following.enabled = follow
+	
+	self:RefreshBars()
+	self:InstanceReset()
+	self:ReajustaGump()
+end
+
 function _detalhes:SetBarGrowDirection (direction)
 
 	if (not direction) then
@@ -3980,25 +3993,18 @@ function _detalhes:InstanceButtonsColors (red, green, blue, alpha, no_save, only
 		if (self:IsLowerInstance()) then
 			for _, ThisButton in _ipairs (_detalhes.ToolBar.Shown) do
 				ThisButton:SetAlpha (alpha)
+				--print (ThisButton:GetName())
 			end
 		end
+
+	else
 		
-	elseif (only_right) then
-	
-		local icons = {baseToolbar.novo, baseToolbar.fechar, baseToolbar.reset}
+		local icons = {baseToolbar.modo_selecao, baseToolbar.segmento, baseToolbar.atributo, baseToolbar.report, baseToolbar.fechar, baseToolbar.reset, baseToolbar.fechar}
 		
 		for _, button in _ipairs (icons) do 
 			button:SetAlpha (alpha)
 		end
 
-	else
-		
-		local icons = {baseToolbar.modo_selecao, baseToolbar.segmento, baseToolbar.atributo, baseToolbar.report, baseToolbar.novo, baseToolbar.fechar, baseToolbar.reset}
-		
-		for _, button in _ipairs (icons) do 
-			button:SetAlpha (alpha)
-		end
-		
 		if (self:IsLowerInstance()) then
 			for _, ThisButton in _ipairs (_detalhes.ToolBar.Shown) do
 				ThisButton:SetAlpha (alpha)

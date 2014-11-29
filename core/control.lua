@@ -217,9 +217,6 @@
 								BossIndex = BossIds [serial]
 								if (BossIndex) then
 									Actor.boss = true
-									if (Actor.shadow) then
-										Actor.shadow.boss = true
-									end
 									return boss_found (BossIndex, _detalhes:GetBossName (ZoneMapID, BossIndex), ZoneName, ZoneMapID, DifficultyID)
 								end
 							end
@@ -230,9 +227,10 @@
 			
 			return false
 		end
-	
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> internal functions
+-- _detalhes.statistics = {container_calls = 0, container_pet_calls = 0, container_unknow_pet = 0, damage_calls = 0, heal_calls = 0, absorbs_calls = 0, energy_calls = 0, pets_summons = 0}
 
 		-- ~start
 		function _detalhes:EntrarEmCombate (...)
@@ -283,6 +281,8 @@
 			--> é o timer que ve se o jogador ta em combate ou não -- check if any party or raid members are in combat
 			_detalhes.tabela_vigente.verifica_combate = _detalhes:ScheduleRepeatingTimer ("EstaEmCombate", 1) 
 
+			_detalhes:ClearCCPetsBlackList()
+			
 			_table_wipe (_detalhes.encounter_end_table)
 			
 			_table_wipe (_detalhes.pets_ignored)
@@ -350,6 +350,12 @@
 			if (_detalhes.debug) then
 				_detalhes:Msg ("(debug) ended a combat.")
 			end
+			
+			--if (_detalhes.statistics) then
+			--	for k, v in pairs (_detalhes.statistics) do
+			--		print (k, v)
+			--	end
+			--end
 			
 			_detalhes.leaving_combat = true
 			_detalhes.last_combat_time = _tempo
@@ -857,9 +863,6 @@
 			for class_type, container in _ipairs (_detalhes.tabela_vigente) do 
 				for _, actor in _ipairs (container._ActorTable) do 
 					actor.boss_fight_component = true
-					if (actor.shadow) then 
-						actor.shadow.boss_fight_component = true
-					end
 				end
 			end
 		end
@@ -868,16 +871,10 @@
 			local on_energy = energy_container._ActorTable [energy_container._NameIndexTable [name]]
 			if (on_energy) then
 				on_energy.fight_component = true
-				if (on_energy.shadow) then
-					on_energy.shadow.fight_component = true
-				end
 			end
 			local on_misc = misc_container._ActorTable [misc_container._NameIndexTable [name]]
 			if (on_misc) then
 				on_misc.fight_component = true
-				if (on_misc.shadow) then
-					on_misc.shadow.fight_component = true
-				end
 			end
 		end
 		
@@ -897,9 +894,6 @@
 								local target_object = container._ActorTable [container._NameIndexTable [target_name]]
 								if (target_object) then
 									target_object.fight_component = true
-									if (target_object.shadow) then
-										target_object.shadow.fight_component = true
-									end
 									fight_component (energy_container, misc_container, target_name)
 								end
 							end
@@ -908,9 +902,6 @@
 									local target_object = container._ActorTable [container._NameIndexTable [damager_actor]]
 									if (target_object) then
 										target_object.fight_component = true
-										if (target_object.shadow) then
-											target_object.shadow.fight_component = true
-										end
 										fight_component (energy_container, misc_container, damager_actor)
 									end
 								end
@@ -919,9 +910,6 @@
 									local target_object = container._ActorTable [container._NameIndexTable [healer_actor]]
 									if (target_object) then
 										target_object.fight_component = true
-										if (target_object.shadow) then
-											target_object.shadow.fight_component = true
-										end
 										fight_component (energy_container, misc_container, healer_actor)
 									end
 								end
@@ -1227,3 +1215,4 @@
 	function _detalhes:UpdateControl()
 		_tempo = _detalhes._tempo
 	end			
+

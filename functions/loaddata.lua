@@ -179,6 +179,7 @@ function _detalhes:LoadCombatTables()
 			_detalhes.tabela_overall = _detalhes.combate:NovaTabela()
 			_detalhes.tabela_vigente = _detalhes.combate:NovaTabela (_, _detalhes.tabela_overall)
 			_detalhes.tabela_pets = _detalhes.container_pets:NovoContainer()
+			_detalhes:UpdateContainerCombatentes()
 		else
 
 		--> build basic containers
@@ -192,6 +193,7 @@ function _detalhes:LoadCombatTables()
 			if (_detalhes_database.tabela_pets) then
 				_detalhes.tabela_pets.pets = table_deepcopy (_detalhes_database.tabela_pets)
 			end
+			_detalhes:UpdateContainerCombatentes()
 			
 		--> if the core revision was incremented, reset all combat data
 			if (_detalhes_database.last_realversion and _detalhes_database.last_realversion < _detalhes.realversion) then
@@ -200,6 +202,7 @@ function _detalhes:LoadCombatTables()
 				_detalhes.tabela_overall = _detalhes.combate:NovaTabela()
 				_detalhes.tabela_vigente = _detalhes.combate:NovaTabela (_, _detalhes.tabela_overall)
 				_detalhes.tabela_pets = _detalhes.container_pets:NovoContainer()
+				_detalhes:UpdateContainerCombatentes()
 			end
 
 		--> re-build all indexes and metatables
@@ -231,6 +234,7 @@ function _detalhes:LoadCombatTables()
 			if (not _detalhes.tabela_pets or not _detalhes.tabela_pets.pets) then
 				_detalhes.tabela_pets = _detalhes.container_pets:NovoContainer()
 			end
+			_detalhes:UpdateContainerCombatentes()
 		
 		end
 end
