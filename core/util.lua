@@ -648,6 +648,40 @@ end
 	end
 
 	--> todo: remove the function creation everytime this function run.
+	
+	local fade_IN_finished_func = function (frame)
+		if (frame.fading_in) then
+			frame.hidden = true
+			frame.faded = true
+			frame.fading_in = false
+			frame:Hide()
+		end
+	end
+	
+	local fade_OUT_finished_func = function (frame)
+		if (frame:IsShown() and frame.fading_out) then
+			frame.hidden = false
+			frame.faded = false
+			frame.fading_out = false
+		else
+			frame:SetAlpha(0)
+		end
+	end
+	
+	local just_fade_func = function (frame)
+		frame.hidden = false
+		frame.faded = true
+		frame.fading_in = false
+	end
+	
+	local anim_OUT_alpha_func = function (frame)
+		frame.fading_out = false
+	end
+
+	local anim_IN_alpha_func = function (frame)
+		frame.fading_in = false
+	end
+	
 	function gump:Fade (frame, tipo, velocidade, parametros)
 		
 		--if (frame.GetObjectType and frame:GetObjectType() == "Frame" and frame.GetName and type (frame:GetName()) == "string" and frame:GetName():find ("DetailsBaseFrame")) then
@@ -655,6 +689,7 @@ end
 		--end
 		
 		if (_type (frame) == "table") then 
+		
 			if (frame.meu_id) then --> ups, é uma instância
 				if (parametros == "barras") then --> hida todas as barras da instância
 					if (velocidade) then
@@ -716,13 +751,9 @@ end
 
 			_UIFrameFadeIn (frame, velocidade, frame:GetAlpha(), 0)
 			frame.fading_in = true
-			frame.fadeInfo.finishedFunc = 
-			function()
-				frame.hidden = true
-				frame.faded = true
-				frame.fading_in = false
-				frame:Hide()
-			end
+			
+			frame.fadeInfo.finishedFunc = fade_IN_finished_func
+			frame.fadeInfo.finishedArg1 = frame
 			
 		elseif (_upper (tipo) == "OUT") then --> aparecer
 			if (frame:GetAlpha() == 1 and not frame.hidden and not frame.fading_in) then --> ja esta na tela
@@ -738,12 +769,9 @@ end
 			frame:Show()
 			_UIFrameFadeOut (frame, velocidade, frame:GetAlpha(), 1.0)
 			frame.fading_out = true
-			frame.fadeInfo.finishedFunc = 
-				function() 
-					frame.hidden = false
-					frame.faded = false
-					frame.fading_out = false
-				end
+			
+			frame.fadeInfo.finishedFunc = fade_OUT_finished_func
+			frame.fadeInfo.finishedArg1 = frame
 				
 		elseif (tipo == 0) then --> força o frame a ser mostrado
 			frame.hidden = false
@@ -751,22 +779,15 @@ end
 			frame.fading_out = false
 			frame.fading_in = false
 			frame:Show()
-			frame:SetAlpha(1)
-			if (frame.fadeInfo) then --> limpa a função de fade se tiver alguma
-				frame.fadeInfo.finishedFunc = nil
-			end
+			frame:SetAlpha (1)
 			
 		elseif (tipo == 1) then --> força o frame a ser hidado
-
 			frame.hidden = true
 			frame.faded = true
 			frame.fading_out = false
 			frame.fading_in = false
+			frame:SetAlpha (0)
 			frame:Hide()
-			frame:SetAlpha(0)
-			if (frame.fadeInfo) then --> limpa a função de fade se tiver alguma
-				frame.fadeInfo.finishedFunc = nil
-			end
 			
 		elseif (tipo == -1) then --> apenas da fade sem hidar
 			if (frame:GetAlpha() == 0 and frame.hidden and not frame.fading_out) then --> ja esta escondida
@@ -781,13 +802,9 @@ end
 
 			_UIFrameFadeIn (frame, velocidade, frame:GetAlpha(), 0)
 			frame.fading_in = true
-			frame.fadeInfo.finishedFunc = 
-			function()
-				frame.hidden = false
-				frame.faded = true
-				frame.fading_in = false
-			end
-			
+			frame.fadeInfo.finishedFunc = just_fade_func
+			frame.fadeInfo.finishedArg1 = frame
+
 		elseif (_upper (tipo) == "ALPHAANIM") then
 
 			local value = velocidade
@@ -799,23 +816,22 @@ end
 					frame.fading_in = false
 					frame.fadeInfo.finishedFunc = nil
 				end
-				UIFrameFadeOut (frame, 0.3, currentApha, value)
+				_UIFrameFadeOut (frame, 0.3, currentApha, value)
 				frame.fading_out = true
-				frame.fadeInfo.finishedFunc = 
-				function()
-					frame.fading_out = false
-				end
+
+				frame.fadeInfo.finishedFunc = anim_OUT_alpha_func
+				frame.fadeInfo.finishedArg1 = frame
+
 			else
 				if (frame.fading_out) then --> se tiver uma animação de hidar em andamento se for true
 					frame.fading_out = false
 					frame.fadeInfo.finishedFunc = nil
 				end
-				UIFrameFadeIn (frame, 0.3, currentApha, value)
+				_UIFrameFadeIn (frame, 0.3, currentApha, value)
 				frame.fading_in = true
-				frame.fadeInfo.finishedFunc = 
-				function()
-					frame.fading_in = false
-				end
+				
+				frame.fadeInfo.finishedFunc = anim_IN_alpha_func
+				frame.fadeInfo.finishedArg1 = frame
 			end
 
 		elseif (_upper (tipo) == "ALPHA") then --> setando um alpha determinado

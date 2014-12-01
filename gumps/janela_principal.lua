@@ -4726,6 +4726,7 @@ local build_mode_list = function (self, elapsed)
 		
 		CoolTip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], menu_wallpaper_tex, menu_wallpaper_color, true)
 		CoolTip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
+		CoolTip:SetBackdrop (2, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
 		
 		show_anti_overlap (instancia, self, "top")
 		
@@ -6328,6 +6329,10 @@ end
 		GameCooltip.buttonOver = true
 		self.instance.baseframe.cabecalho.button_mouse_over = true
 		
+		if (self.instance.desaturated_menu) then
+			self:GetNormalTexture():SetDesaturated (false)
+		end
+		
 		GameCooltip:Reset()
 		GameCooltip:SetType ("menu")
 		GameCooltip:SetOption ("ButtonsYMod", -2)
@@ -6359,6 +6364,10 @@ end
 	
 	local reset_button_onleave = function (self)
 		OnLeaveMainWindow (self.instance, self)
+		
+		if (self.instance.desaturated_menu) then
+			self:GetNormalTexture():SetDesaturated (true)
+		end
 		
 		hide_anti_overlap (self.instance.baseframe.anti_menu_overlap)
 		
@@ -6394,6 +6403,10 @@ end
 	local close_button_onenter = function (self)
 		OnEnterMainWindow (self.instance, self, 3)
 
+		if (self.instance.desaturated_menu) then
+			self:GetNormalTexture():SetDesaturated (false)
+		end
+		
 		local GameCooltip = GameCooltip
 		
 		GameCooltip.buttonOver = true
@@ -6440,6 +6453,10 @@ end
 	local close_button_onleave = function (self)
 		OnLeaveMainWindow (self.instance, self, 3)
 
+		if (self.instance.desaturated_menu) then
+			self:GetNormalTexture():SetDesaturated (true)
+		end
+		
 		hide_anti_overlap (self.instance.baseframe.anti_menu_overlap)
 		
 		GameCooltip.buttonOver = false
@@ -6937,7 +6954,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 
 
 	
--- ~delete ~erase
+-- ~delete ~erase ~reset
 --> RESETAR HISTORICO ----------------------------------------------------------------------------------------------------------------------------------------------------
 
 	baseframe.cabecalho.reset = CreateFrame ("button", "DetailsClearSegmentsButton" .. instancia.meu_id, baseframe)
@@ -6966,43 +6983,4 @@ function gump:CriaCabecalho (baseframe, instancia)
 --> fim botão reset
 
 
---[[
-
---> teste com shadows
-
---modo
-	local shadow = baseframe.cabecalho.modo_selecao:CreateTexture ("sombra", "background")
-	shadow:SetPoint ("center", baseframe.cabecalho.modo_selecao.widget, "center")
-	shadow:SetTexture ("Interface\\PetBattles\\PetBattle-SelectedPetGlow")
-	shadow:SetVertexColor (0, 0, 0, 1)
-	shadow:SetSize (22, 22)
---segmentos
-	local shadow = baseframe.cabecalho.segmento:CreateTexture ("sombra2", "background")
-	shadow:SetPoint ("center", baseframe.cabecalho.segmento.widget, "center")
-	shadow:SetTexture ("Interface\\PetBattles\\PetBattle-SelectedPetGlow")
-	shadow:SetVertexColor (0, 0, 0, 1)
-	shadow:SetSize (22, 22)
---atributo
-	local shadow = baseframe.cabecalho.atributo:CreateTexture ("sombra3", "background")
-	shadow:SetPoint ("center", baseframe.cabecalho.atributo.widget, "center")
-	shadow:SetTexture ("Interface\\PetBattles\\PetBattle-SelectedPetGlow")
-	shadow:SetVertexColor (0, 0, 0, 1)
-	shadow:SetSize (12, 16)
-	shadow:SetTexCoord (0.0, 0.0, 0.3, 0.3, 0.7, 0.7, 1, 1)
---report
-	local shadow = baseframe.cabecalho.report:CreateTexture ("sombra4", "background")
-	shadow:SetPoint ("center", baseframe.cabecalho.report.widget, "center")
-	shadow:SetTexture ("Interface\\PetBattles\\PetBattle-SelectedPetGlow")
-	shadow:SetVertexColor (0, 0, 0, 1)
-	shadow:SetSize (22, 22)
-	
---baseToolbar.novo, baseToolbar.fechar, baseToolbar.reset}baseToolbar.modo_selecao, baseToolbar.segmento, baseToolbar.atributo, baseToolbar.report	
-
-	local shadow = UIParent:CreateTexture ("SombraTeste", "background")
-	shadow:SetPoint ("center", UIParent, "center", 200, 0)
-	shadow:SetTexture ("Interface\\PetBattles\\PetBattle-SelectedPetGlow")
-	shadow:SetVertexColor (0, 0, 0, 1)
-	shadow:SetSize (300, 300)
-	shadow:SetTexCoord (0.0, 0.0, 0.3, 0.3, 0.7, 0.7, 1, 1)
-	--]]
 end

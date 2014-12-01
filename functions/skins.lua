@@ -292,7 +292,7 @@ local _
 				icon_file = [[Interface\AddOns\Details\images\classes_small_alpha]],
 				start_after_icon = false,
 			},
-			attribute_text = {enabled = true, side = 1, text_size = 11, anchor = {-18, 4}, text_color = {1, 1, 1, 1}, text_face = "Arial Narrow"},			
+			attribute_text = {enabled = true, side = 1, text_size = 11, anchor = {-18, 5}, text_color = {1, 1, 1, 1}, text_face = "Arial Narrow"},			
 		},
 		
 		callback = function (skin, instance, just_updating)
@@ -981,11 +981,12 @@ local _
 			menu_anchor = {16, 2, side = 2},
 			menu_anchor_down = {16, -2},
 			plugins_grow_direction = 1,
+			menu_icons = {shadow = true},
 			
-			attribute_text = {enabled = true, anchor = {-20, 4}, text_face = "Friz Quadrata TT", text_size = 10, text_color = {1, 1, 1, .7}, side = 1, shadow = true},
+			attribute_text = {enabled = true, anchor = {-20, 5}, text_face = "Accidental Presidency", text_size = 12, text_color = {1, 1, 1, .7}, side = 1, shadow = true},
 			
 			hide_icon = true,
-			desaturated_menu = true,
+			desaturated_menu = false,
 			
 			bg_alpha = 0.51,
 			bg_r = 0.3294,
@@ -994,14 +995,14 @@ local _
 			show_statusbar = false,
 			
 			row_info = {
-					texture = "Details Serenity",
+					texture = "Skyline",
 					texture_class_colors = true, 
 					alpha = 0.80, 
 					texture_background_class_color = false,
 					texture_background = "Details D'ictum",
 					fixed_texture_color = {0, 0, 0},
 					fixed_texture_background_color = {0, 0, 0, 0.471},
-					space = {left = 1, right = -2, between = 1},
+					space = {left = 1, right = -2, between = 0},
 					backdrop = {enabled = true, size = 4, color = {0, 0, 0, 1}, texture = "Details BarBorder 2"},
 					icon_file = [[Interface\AddOns\Details\images\classes_small_alpha]],
 					start_after_icon = false,
@@ -1010,7 +1011,7 @@ local _
 			wallpaper = {
 				overlay = {1, 1,	1},
 				width = 256,
-				texcoord = {49/1024, 305/1024, 646/1024, 774/1024},
+				texcoord = {49/1024, 305/1024, 774/1024, 646/1024},
 				enabled = true,
 				anchor = "all",
 				height = 128,
@@ -1071,7 +1072,7 @@ local _
 			menu_anchor_down = {16, -2},
 			plugins_grow_direction = 1,
 			
-			attribute_text = {enabled = true, anchor = {-20, 4}, text_face = "Friz Quadrata TT", text_size = 10, text_color = {1, 1, 1, .7}, side = 1, shadow = true},
+			attribute_text = {enabled = true, anchor = {-20, 5}, text_face = "Accidental Presidency", text_size = 12, text_color = {1, 1, 1, .7}, side = 1, shadow = true},
 			
 			hide_icon = true,
 			desaturated_menu = true,

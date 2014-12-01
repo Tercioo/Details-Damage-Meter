@@ -7,14 +7,14 @@
 	4 - row settings
 	5 - row texts
 	6 - window settings
-	7 - left menu
+	7 - title bar buttons
 	8 - row advanced
 	9 - wallpaper
 	10 - performance teaks
 	11 - raid tools
 	12 - plugins
 	13 - profiles
-	14 - attribute text
+	14 - title bar text
 	15 - custom spells
 	16 - data for charts
 	17 - auto hide settings
@@ -3070,7 +3070,7 @@ end
 
 		
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- General Settings - attribute ~14
+-- General Settings - title bar text ~14
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 function window:CreateFrame14()
 
@@ -5874,6 +5874,7 @@ function window:CreateFrame6()
 			s:SetBackdrop (slider_backdrop)
 			s:SetBackdropColor (unpack (slider_backdrop_color))
 			s:SetThumbSize (50)
+			s.fine_tuning = 0.011
 			
 			frame6.WindowScaleSlider:SetHook ("OnValueChange", function (self, instance, amount) 
 				instance:SetWindowScale (amount, true)

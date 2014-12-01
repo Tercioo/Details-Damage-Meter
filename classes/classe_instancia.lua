@@ -231,6 +231,12 @@ function _detalhes:GetMaxInstancesAmount()
 	return _detalhes.instances_amount
 end
 
+function _detalhes:SetMaxInstancesAmount (amount)
+	if (_type (amount) == "number") then
+		_detalhes.instances_amount = amount
+	end
+end
+
 function _detalhes:GetFreeInstancesAmount()
 	return _detalhes.instances_amount - #_detalhes.tabela_instancias
 end
@@ -484,6 +490,7 @@ end
 		end
 		
 		self:SetCombatAlpha (nil, nil, true)
+		self:DesaturateMenu()
 		
 		--if (self.hide_out_of_combat and not UnitAffectingCombat ("player")) then
 		--	self:SetWindowAlphaForCombat (true, true)
@@ -626,7 +633,7 @@ end
 			if (instancia and not instancia:IsAtiva()) then
 				instancia:AtivarInstancia()
 				_detalhes:DelayOptionsRefresh (instancia)
-				return
+				return instancia
 			end
 		end
 	
@@ -634,7 +641,7 @@ end
 		for index, instancia in _ipairs (_detalhes.tabela_instancias) do
 			if (not instancia:IsAtiva()) then
 				instancia:AtivarInstancia()
-				return
+				return instancia
 			end
 		end
 		
@@ -930,6 +937,8 @@ function _detalhes:agrupar_janelas (lados)
 	_detalhes:DelayOptionsRefresh()
 	
 end
+
+_detalhes.MakeInstanceGroup = _detalhes.agrupar_janelas
 
 function _detalhes:UngroupInstance()
 	return self:Desagrupar (-1)

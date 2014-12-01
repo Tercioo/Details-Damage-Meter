@@ -426,13 +426,14 @@
 					local barra = self.barras[index]
 					if (barra) then
 						if (index <= X) then
+							--gump:Fade (barra, 0)
 							gump:Fade (barra, "out")
 						else
-							if (self.baseframe.isStretching or self.auto_resize) then
+							--if (self.baseframe.isStretching or self.auto_resize) then
 								gump:Fade (barra, 1)
-							else
-								gump:Fade (barra, "in", 0.1)
-							end
+							--else
+							--	gump:Fade (barra, 1)
+							--end
 						end
 					end
 				end
@@ -461,7 +462,8 @@
 							if (self.baseframe.isStretching or self.auto_resize) then
 								gump:Fade (barra, 1)
 							else	
-								gump:Fade (barra, "in", 0.1)
+								--gump:Fade (barra, "in", 0.1)
+								gump:Fade (barra, 1)
 							end
 						end
 					end
