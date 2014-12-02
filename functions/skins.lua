@@ -46,13 +46,13 @@ local _
 		_detalhes:DelayOptionsRefresh()
 	end
 	
-	--> install default skins:
-	_detalhes:InstallSkin ("Default Skin", {
+	--> install wow interface skin:
+	_detalhes:InstallSkin ("WoW Interface", {
 		file = [[Interface\AddOns\Details\images\skins\default_skin]], 
 		author = "Details!", 
 		version = "1.0", 
 		site = "unknown", 
-		desc = "This was the first skin made for Details!, inspired in the standart wow interface", 
+		desc = "This was the first skin made for Details!, inspired in the standard wow interface", 
 		
 		can_change_alpha_head = false, 
 		icon_anchor_main = {-1, 1}, 
@@ -535,12 +535,12 @@ local _
 	--reset 19 514 83 530
 	--close 
 	
-	_detalhes:InstallSkin ("Simply Gray", {
+	_detalhes:InstallSkin ("Forced Square", {
 		file = [[Interface\AddOns\Details\images\skins\simplygray_skin]],
 		author = "Details!", 
 		version = "1.0", 
 		site = "unknown", 
-		desc = "Similar to minimalistic skin, but, this one have no transparency and also comes with the statusbar enabled.", 
+		desc = "Very clean skin without textures and only with a black contour.", 
 		
 		--general
 		can_change_alpha_head = true, 
@@ -575,20 +575,31 @@ local _
 		--[[ for the complete cprop list see the file classe_instancia_include.lua]]
 		instance_cprops = {
 			["hide_in_combat_type"] = 1,
-			["backdrop_texture"] = "Details Ground",
 			["color"] = {
-				0.450980392156863, -- [1]
-				0.450980392156863, -- [2]
-				0.450980392156863, -- [3]
+				0, -- [1]
+				0, -- [2]
+				0, -- [3]
 				1, -- [4]
 			},
 			["menu_anchor"] = {
-				-19, -- [1]
-				-1, -- [2]
-				["side"] = 1,
+				14, -- [1]
+				2, -- [2]
+				["side"] = 2,
 			},
-			["bg_r"] = 0.0941,
-			["hide_out_of_combat"] = false,
+			["bg_r"] = 0,
+			["following"] = {
+				["enabled"] = false,
+				["bar_color"] = {
+					1, -- [1]
+					1, -- [2]
+					1, -- [3]
+				},
+				["text_color"] = {
+					1, -- [1]
+					1, -- [2]
+					1, -- [3]
+				},
+			},
 			["color_buttons"] = {
 				1, -- [1]
 				1, -- [2]
@@ -596,75 +607,31 @@ local _
 				1, -- [4]
 			},
 			["bars_sort_direction"] = 1,
-			["tooltip"] = {
-				["n_abilities"] = 3,
-				["n_enemies"] = 3,
-			},
 			["instance_button_anchor"] = {
 				-27, -- [1]
 				1, -- [2]
 			},
-			["version"] = 3,
-			["row_info"] = {
-				["textR_outline"] = true,
-				["textL_outline"] = true,
-				["icon_file"] = "Interface\\AddOns\\Details\\images\\classes_small_alpha",
-				["fixed_texture_color"] = {
-					0, -- [1]
-					0, -- [2]
-					0, -- [3]
+			["name"] = "new simple gray 2",
+			["attribute_text"] = {
+				["enabled"] = true,
+				["shadow"] = true,
+				["side"] = 1,
+				["text_color"] = {
+					0.768627450980392, -- [1]
+					0.768627450980392, -- [2]
+					0.768627450980392, -- [3]
+					1, -- [4]
 				},
-				["backdrop"] = {
-					["enabled"] = false,
-					["texture"] = "Details BarBorder 2",
-					["color"] = {
-						1, -- [1]
-						1, -- [2]
-						1, -- [3]
-						1, -- [4]
-					},
-					["size"] = 12,
+				["custom_text"] = "{name}",
+				["text_face"] = "FORCED SQUARE",
+				["anchor"] = {
+					-16, -- [1]
+					5, -- [2]
 				},
-				["texture_highlight"] = "Interface\\FriendsFrame\\UI-FriendsList-Highlight",
-				["textR_enable_custom_text"] = false,
-				["start_after_icon"] = false,
-				["textL_enable_custom_text"] = false,
-				["textL_show_number"] = true,
-				["space"] = {
-					["right"] = 0,
-					["left"] = 0,
-					["between"] = 1,
-				},
-				["texture_background_class_color"] = false,
-				["textR_custom_text"] = "{data1} ({data2}, {data3}%)",
-				["texture"] = "Details Serenity",
-				["font_face_file"] = "Fonts\\ARIALN.TTF",
-				["texture_background_file"] = "Interface\\AddOns\\Details\\images\\bar4",
-				["fixed_text_color"] = {
-					1, -- [1]
-					1, -- [2]
-					1, -- [3]
-				},
-				["textL_class_colors"] = false,
-				["textL_custom_text"] = "{data1}. {data3}{data2}",
-				["textR_class_colors"] = false,
-				["alpha"] = 1,
-				["no_icon"] = false,
-				["font_size"] = 10,
-				["texture_background"] = "Details Serenity",
-				["font_face"] = "Arial Narrow",
-				["texture_class_colors"] = true,
-				["height"] = 14,
-				["texture_file"] = "Interface\\AddOns\\Details\\images\\bar4",
-				["percent_type"] = 1,
-				["fixed_texture_background_color"] = {
-					0, -- [1]
-					0, -- [2]
-					0, -- [3]
-					0.2, -- [4]
-				},
+				["text_size"] = 12,
+				["enable_custom_text"] = false,
 			},
-			["grab_on_top"] = false,
+			["switch_damager_in_combat"] = false,
 			["menu_alpha"] = {
 				["enabled"] = false,
 				["onleave"] = 1,
@@ -672,41 +639,123 @@ local _
 				["iconstoo"] = true,
 				["onenter"] = 1,
 			},
+			["total_bar"] = {
+				["enabled"] = false,
+				["only_in_group"] = true,
+				["icon"] = "Interface\\ICONS\\INV_Sigil_Thorim",
+				["color"] = {
+					1, -- [1]
+					1, -- [2]
+					1, -- [3]
+				},
+			},
+			["micro_displays_side"] = 2,
+			["plugins_grow_direction"] = 2,
+			["menu_icons"] = {
+				true, -- [1]
+				true, -- [2]
+				true, -- [3]
+				true, -- [4]
+				true, -- [5]
+				true, -- [6]
+				["space"] = -4,
+				["shadow"] = true,
+			},
+			["desaturated_menu"] = false,
+			["show_sidebars"] = true,
+			["statusbar_info"] = {
+				["alpha"] = 1,
+				["overlay"] = {
+					0, -- [1]
+					0, -- [2]
+					0, -- [3]
+				},
+			},
+			["window_scale"] = 1,
+			["auto_hide_menu"] = {
+				["left"] = false,
+				["right"] = false,
+			},
+			["hide_icon"] = true,
+			["row_info"] = {
+				["textR_outline"] = false,
+				["textL_outline"] = false,
+				["fixed_texture_color"] = {
+					0, -- [1]
+					0, -- [2]
+					0, -- [3]
+				},
+				["icon_file"] = "Interface\\AddOns\\Details\\images\\classes_small_alpha",
+				["textL_show_number"] = true,
+				["texture"] = "Skyline",
+				["texture_background_file"] = "Interface\\AddOns\\Details\\images\\bar4",
+				["textR_enable_custom_text"] = false,
+				["textR_custom_text"] = "{data1} ({data2}, {data3}%)",
+				["textL_enable_custom_text"] = false,
+				["fixed_text_color"] = {
+					1, -- [1]
+					1, -- [2]
+					1, -- [3]
+				},
+				["space"] = {
+					["right"] = -10,
+					["left"] = 5,
+					["between"] = 1,
+				},
+				["fixed_texture_background_color"] = {
+					0, -- [1]
+					0, -- [2]
+					0, -- [3]
+					0.2, -- [4]
+				},
+				["texture_background_class_color"] = false,
+				["start_after_icon"] = false,
+				["font_face_file"] = "Interface\\Addons\\Details\\fonts\\FORCED SQUARE.ttf",
+				["backdrop"] = {
+					["enabled"] = false,
+					["size"] = 12,
+					["color"] = {
+						1, -- [1]
+						1, -- [2]
+						1, -- [3]
+						1, -- [4]
+					},
+					["texture"] = "Details BarBorder 2",
+				},
+				["textL_class_colors"] = false,
+				["models"] = {
+					["upper_model"] = "Spells\\AcidBreath_SuperGreen.M2",
+					["lower_model"] = "World\\EXPANSION02\\DOODADS\\Coldarra\\COLDARRALOCUS.m2",
+					["upper_alpha"] = 0.5,
+					["lower_enabled"] = false,
+					["lower_alpha"] = 0.1,
+					["upper_enabled"] = false,
+				},
+				["textL_custom_text"] = "{data1}. {data3}{data2}",
+				["textR_class_colors"] = false,
+				["alpha"] = 1,
+				["no_icon"] = false,
+				["font_size"] = 10,
+				["texture_background"] = "Details Serenity",
+				["font_face"] = "FORCED SQUARE",
+				["texture_class_colors"] = true,
+				["height"] = 14,
+				["texture_file"] = "Interface\\AddOns\\Details\\images\\bar4",
+				["texture_highlight"] = "Interface\\FriendsFrame\\UI-FriendsList-Highlight",
+				["percent_type"] = 1,
+			},
 			["menu_anchor_down"] = {
 				-20, -- [1]
 				-3, -- [2]
 			},
-			["micro_displays_side"] = 1,
-
-			["strata"] = "LOW",
-			["desaturated_menu"] = true,
-			["hide_in_combat_alpha"] = 0,
-			["plugins_grow_direction"] = 2,
-			["show_sidebars"] = false,
-			["bars_grow_direction"] = 2,
-			["row_show_animation"] = {
-				["anim"] = "Fade",
-				["options"] = {
-				},
-			},
-			["hide_icon"] = true,
-			["statusbar_info"] = {
-				["alpha"] = 1,
-				["overlay"] = {
-					0.450980392156863, -- [1]
-					0.450980392156863, -- [2]
-					0.450980392156863, -- [3]
-				},
-			},
-			["bg_alpha"] = 0.300000011920929,
-			["auto_current"] = true,
-			["toolbar_side"] = 2,
-			["bg_g"] = 0.0941,
-			["hide_in_combat"] = false,
+			["toolbar_side"] = 1,
+			["bg_g"] = 0,
+			["bars_grow_direction"] = 1,
+			["backdrop_texture"] = "Details Ground",
 			["show_statusbar"] = false,
-			["menu_icons_size"] = 1,
+			["menu_icons_size"] = 0.899999976158142,
 			["wallpaper"] = {
-				["enabled"] = true,
+				["enabled"] = false,
 				["width"] = 265.999943487933,
 				["texcoord"] = {
 					0.342000007629395, -- [1]
@@ -725,26 +774,8 @@ local _
 				["alpha"] = 0.807843208312988,
 				["texture"] = "Interface\\Glues\\CREDITS\\Fellwood5",
 			},
-			["stretch_button_side"] = 1,
-			["attribute_text"] = {
-				["enabled"] = true,
-				["shadow"] = true,
-				["side"] = 2,
-				["text_size"] = 11,
-				["anchor"] = {
-					65, -- [1]
-					5, -- [2]
-				},
-				["text_color"] = {
-					0.768627450980392, -- [1]
-					0.768627450980392, -- [2]
-					0.768627450980392, -- [3]
-					1, -- [4]
-				},
-				["text_face"] = "Friz Quadrata TT",
-			},
-			["window_scale"] = 1,
-			["bg_b"] = 0.0941,
+			["bg_alpha"] = 0.0491309501230717,
+			["bg_b"] = 0,
 		},
 		
 		skin_options = {
@@ -756,13 +787,13 @@ local _
 	
 	--[[
 	
-	--> install default skins:
+	--> install imperial skin:
 	_detalhes:InstallSkin ("Imperial Skin", {
 		file = "Interface\\AddOns\\Details\\images\\skins\\imperial_skin", 
 		author = "Details!", 
 		version = "1.1", 
 		site = "unknown", 
-		desc = "default skin for Details!", 
+		desc = "imperial skin for Details!", 
 		
 		can_change_alpha_head = true, 
 		icon_anchor_main = {-1, -5}, 

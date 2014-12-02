@@ -551,7 +551,7 @@ local window_openned_at = time()
 			skin_dropdown:SetPoint ("left", skin_label, "right", 2)
 			skin_label:SetPoint ("topleft", window, "topleft", 30, -140)
 			
-			--skin_dropdown:Select ("Default Skin")
+			--skin_dropdown:Select ("WoW Interface")
 			
 		--wallpapper
 			--> agora cria os 2 dropdown da categoria e wallpaper

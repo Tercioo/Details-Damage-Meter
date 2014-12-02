@@ -78,15 +78,15 @@ local menu_wallpaper_color = {1, 1, 1, 0.1}
 	
 	--local COORDS_LEFT_BALL_NO_ICON = {0.44970703125, 0.57275390625, 0.08251953125, 0.20556640625} --460 84 587 211 (updated)
 	local COORDS_LEFT_BALL_NO_ICON = {0.44970703125, 0.57275390625, 0.08251953125, 0.20556640625} --460 84 587 211 (updated) 588 212
+	--local COORDS_LEFT_BALL_NO_ICON = {0.44921875, 0.57421875, 0.08203125, 0.20703125} --460 84 588 212 (updated)
 
-	local COORDS_LEFT_SIDE_BAR = {0.76611328125, 0.82763671875, 0.00244140625, 0.50146484375} -- 784 2 848 514 (updated)
-	--local COORDS_LEFT_SIDE_BAR = {0.76611328125, 0.82666015625, 0.00244140625, 0.50048828125} -- 784 2 848 514 (updated)
-	--local COORDS_LEFT_SIDE_BAR = {0.765625, 0.8291015625, 0.00244140625, 0.5029296875} -- 784 2 848 514 (updated)
-	--784 2 847 513
-	
+	--local COORDS_LEFT_SIDE_BAR = {0.76611328125, 0.82763671875, 0.00244140625, 0.50146484375} -- 784 2 848 514 (updated)
+	local COORDS_LEFT_SIDE_BAR = {0.765625, 0.828125, 0.001953125, 0.501953125} -- 784 2 848 514 (updated)
+
 	--local COORDS_RIGHT_SIDE_BAR = {0.70068359375, 0.76220703125, 0.00244140625, 0.50146484375} -- 717 2 781 514 (updated)
 	--local COORDS_RIGHT_SIDE_BAR = {0.7001953125, 0.763671875, 0.00244140625, 0.50146484375} -- 717 2 781 514 (updated)
-	local COORDS_RIGHT_SIDE_BAR = {0.7001953125+0.00048828125, 0.76171875, 0.001953125, 0.5009765625} -- --717 2 780 513
+	--local COORDS_RIGHT_SIDE_BAR = {0.7001953125+0.00048828125, 0.76171875, 0.001953125, 0.5009765625} -- --717 2 780 513
+	local COORDS_RIGHT_SIDE_BAR = {0.7001953125, 0.7626953125, 0.001953125, 0.501953125} -- --717 2 781 513
 	
 	local COORDS_BOTTOM_SIDE_BAR = {0.32861328125, 0.82666015625, 0.50537109375, 0.56494140625} -- 336 517 847 579 (updated)
 	
@@ -6513,7 +6513,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 	--> icone do atributo
 	--baseframe.cabecalho.atributo_icon = _detalhes.listener:CreateTexture (nil, "artwork")
 	baseframe.cabecalho.atributo_icon = baseframe:CreateTexture (nil, "background")
-	local icon_anchor = _detalhes.skins ["Default Skin"].icon_anchor_main
+	local icon_anchor = _detalhes.skins ["WoW Interface"].icon_anchor_main
 	baseframe.cabecalho.atributo_icon:SetPoint ("topright", baseframe.cabecalho.ball_point, "topright", icon_anchor[1], icon_anchor[2])
 	baseframe.cabecalho.atributo_icon:SetTexture (DEFAULT_SKIN)
 	baseframe.cabecalho.atributo_icon:SetWidth (32)

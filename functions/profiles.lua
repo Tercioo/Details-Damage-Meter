@@ -275,7 +275,7 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 
 		--> check if there is a skin saved or this is a empty profile
 		if (#saved_skins == 0) then
-			--> is empty profile, let's set default skin on #1 window
+			--> is empty profile, let's set "WoW Interface" on #1 window
 			local instance1 = _detalhes:GetInstance (1)
 			if (not instance1) then
 				instance1 = _detalhes:CreateInstance (1)
@@ -313,6 +313,12 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 				--> fix for the old flat skin (10-10)
 					if (skin.skin == "Flat Color") then
 						skin.skin = "Serenity"
+					end
+					if (skin.skin == "Simply Gray") then
+						skin.skin = "Forced Square"
+					end					
+					if (skin.skin == "Default Skin") then
+						skin.skin = "WoW Interface"
 					end
 				
 				--> fix for old left and right menus (15-10)
@@ -852,7 +858,7 @@ local default_profile = {
 	
 	--> skins
 		standard_skin = false,
-		skin = "Default Skin",
+		skin = "WoW Interface",
 		profile_save_pos = true,
 		
 	--> tooltip
