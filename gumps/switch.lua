@@ -254,6 +254,8 @@ end
 
 local default_coords = {0, 1, 0, 1}
 local unknown_coords = {157/512, 206/512, 39/512,  89/512}
+local vertex_color_default = {1, 1, 1}
+local vertex_color_unknown = {1, 1, 1}
 
 function _detalhes.switch:Update()
 
@@ -261,7 +263,9 @@ function _detalhes.switch:Update()
 	local x = 10
 	local y = 5
 	local jump = false
-
+	local got_empty
+	local hide_the_rest
+	
 	for i = 1, slots do
 
 		local options = _detalhes.switch.table [i]
@@ -290,6 +294,7 @@ function _detalhes.switch:Update()
 		local icone
 		local coords
 		local name
+		local vcolor
 		
 		if (options.sub_atributo) then
 			if (options.atributo == 5) then --> custom
@@ -299,32 +304,64 @@ function _detalhes.switch:Update()
 					icone = [[Interface\AddOns\Details\images\icons]]
 					coords = unknown_coords
 					name = Loc ["STRING_SWITCH_CLICKME"]
+					vcolor = vertex_color_unknown
 				else
 					icone = CustomObject.icon
 					coords = default_coords
 					name = CustomObject.name
+					vcolor = vertex_color_default
 				end
 			else
 				icone = _detalhes.sub_atributos [options.atributo].icones [options.sub_atributo] [1]
 				coords = _detalhes.sub_atributos [options.atributo].icones [options.sub_atributo] [2]
 				name = _detalhes.sub_atributos [options.atributo].lista [options.sub_atributo]
+				vcolor = vertex_color_default
 			end
 		else
 			icone = [[Interface\AddOns\Details\images\icons]]
+			icone = [[Interface\Buttons\UI-AttributeButton-Encourage-Up]]
 			coords = unknown_coords
+			coords = {0, 1, 0, 1}
 			name = Loc ["STRING_SWITCH_CLICKME"]
+			vcolor = vertex_color_unknown
+			got_empty = true
 		end
 		
-		button.button2.texto:SetText (name)
-		
-		button.textureNormal:SetTexture (icone, true)
-		button.textureNormal:SetTexCoord (_unpack (coords))
-		button.texturePushed:SetTexture (icone, true)
-		button.texturePushed:SetTexCoord (_unpack (coords))
-		button.textureH:SetTexture (icone, true)
-		button.textureH:SetTexCoord (_unpack (coords))
-		button:ChangeIcon (button.textureNormal, button.texturePushed, _, button.textureH)
+		--if (hide_the_rest) then
+			--button:Hide()
+			--button.button2:Hide()
+			--button.fundo:Hide()
+		--else
+			button:Show()
+			button.button2:Show()
+			button.fundo:Show()
+			
+			button.button2.texto:SetText (name)
+			
+			button.textureNormal:SetTexture (icone, true)
+			button.textureNormal:SetTexCoord (_unpack (coords))
+			button.textureNormal:SetVertexColor (_unpack (vcolor))
+			button.texturePushed:SetTexture (icone, true)
+			button.texturePushed:SetTexCoord (_unpack (coords))
+			button.texturePushed:SetVertexColor (_unpack (vcolor))
+			button.textureH:SetTexture (icone, true)
+			button.textureH:SetVertexColor (_unpack (vcolor))
+			button.textureH:SetTexCoord (_unpack (coords))
+			button:ChangeIcon (button.textureNormal, button.texturePushed, _, button.textureH)
 
+			if (name == Loc ["STRING_SWITCH_CLICKME"]) then
+				--button.button2.texto:SetTextColor (.3, .3, .3, 1)
+				button:SetAlpha (0.3)
+			else
+				--button.button2.texto:SetTextColor (.8, .8, .8, 1)
+				button:SetAlpha (1)
+			end
+			
+			if (got_empty) then
+				hide_the_rest = true
+			end
+		--end
+		
 		if (jump) then 
 			x = x - 125
 			y = y + _detalhes.switch.button_height
@@ -333,7 +370,7 @@ function _detalhes.switch:Update()
 			x = x + 125
 			jump = true
 		end
-
+		
 	end
 	
 end
@@ -496,6 +533,9 @@ local oniconleave = function (self)
 		GameCooltip:Hide()
 	end
 end
+
+
+
 
 function _detalhes.switch:NewSwitchButton (frame, index, x, y, rightButton)
 

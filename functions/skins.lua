@@ -650,7 +650,7 @@ local _
 				},
 			},
 			["micro_displays_side"] = 2,
-			["plugins_grow_direction"] = 2,
+			["plugins_grow_direction"] = 1,
 			["menu_icons"] = {
 				true, -- [1]
 				true, -- [2]
