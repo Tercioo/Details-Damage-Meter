@@ -784,6 +784,9 @@ local function move_janela (baseframe, iniciando, instancia)
 			
 			if (need_start) then --> se a instância não tiver sido aberta ainda
 
+				local lower_instance = _detalhes:GetLowerInstanceNumber()
+				--print (lower_instance, instancia_alvo.meu_id, DEATHGRAPHICS_BUTTON:GetParent():GetName())
+			
 				instancia_alvo:RestauraJanela (instancia_alvo.meu_id, true)
 				if (instancia_alvo:IsSoloMode()) then
 					_detalhes.SoloTables:switch()
@@ -2452,10 +2455,9 @@ function _detalhes:InstanceAlert (msg, icon, time, clickfunc)
 		self.alert.button.clickfunction = nil
 	end
 
-	if (time) then
-		self.alert_time = time
-		_detalhes:ScheduleTimer ("InstanceAlertTime", time, self)
-	end
+	time = time or 15
+	self.alert_time = time
+	_detalhes:ScheduleTimer ("InstanceAlertTime", time, self)
 	
 	self.alert:SetPoint ("bottom", self.baseframe, "bottom", 0, -12)
 	self.alert:SetPoint ("left", self.baseframe, "left", 3, 0)
@@ -2554,14 +2556,14 @@ function CreateAlertFrame (baseframe, instancia)
 	return alert_bg
 end
 
-function _detalhes:InstanceMsg (text, icon, textcolor, icontexture, iconcoords, iconcolor)
+function _detalhes:InstanceMsg (text, icon, textcolor, iconcoords, iconcolor)
 	if (not text) then
 		self.freeze_icon:Hide()
 		return self.freeze_texto:Hide()
 	end
 	
 	self.freeze_texto:SetText (text)
-	self.freeze_icon:SetTexture (icon)
+	self.freeze_icon:SetTexture (icon or [[Interface\CHARACTERFRAME\Disconnect-Icon]])
 
 	self.freeze_icon:Show()
 	self.freeze_texto:Show()
@@ -2571,12 +2573,6 @@ function _detalhes:InstanceMsg (text, icon, textcolor, icontexture, iconcoords, 
 		self.freeze_texto:SetTextColor (r, g, b, a)
 	else
 		self.freeze_texto:SetTextColor (1, 1, 1, 1)
-	end
-
-	if (icontexture) then
-		self.freeze_icon:SetTexture (icontexture)
-	else
-		self.freeze_icon:SetTexture ([[Interface\CHARACTERFRAME\Disconnect-Icon]])
 	end
 	
 	if (iconcoords and type (iconcoords) == "table") then

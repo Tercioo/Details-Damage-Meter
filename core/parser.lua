@@ -142,7 +142,7 @@
 	end
 
 	function parser:spell_dmg (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand, multistrike)
-	
+
 	------------------------------------------------------------------------------------------------
 	--> early checks and fixes
 		
@@ -563,13 +563,29 @@
 	------------------------------------------------------------------------------------------------
 	--> amount add
 		
-		--> actor spells table
-		local spell = este_jogador.spells._ActorTable [spellid]
-		if (not spell) then
-			spell = este_jogador.spells:PegaHabilidade (spellid, true, token)
+		if (missType == "ABSORB") then
+		
+			if (token == "SWING_MISSED") then
+				return parser:swing ("SWING_DAMAGE", time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, amountMissed, -1, 1, nil, nil, nil, false, false, false, false, multistrike)
+				
+			elseif (token == "RANGE_MISSED") then
+				return parser:range ("RANGE_DAMAGE", time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amountMissed, -1, 1, nil, nil, nil, false, false, false, false, multistrike)
+				
+			else
+				return parser:spell_dmg (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amountMissed, -1, 1, nil, nil, nil, false, false, false, false, multistrike)
+				
+			end
+		
+		else
+			--> actor spells table
+			local spell = este_jogador.spells._ActorTable [spellid]
+			if (not spell) then
+				spell = este_jogador.spells:PegaHabilidade (spellid, true, token)
+			end
+			return spell_damageMiss_func (spell, alvo_serial, alvo_name, alvo_flags, who_name, missType)		
 		end
-		return spell_damageMiss_func (spell, alvo_serial, alvo_name, alvo_flags, who_name, missType)
-		--return spell:AddMiss (alvo_serial, alvo_name, alvo_flags, who_name, missType)
+		
+
 	end
 	
 -----------------------------------------------------------------------------------------------------------------------------------------
@@ -1776,7 +1792,11 @@
 	
 	--> search key: ~spellcast ~castspell ~cast
 	function parser:spellcast (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype)
-	
+
+		--if (spellname == "Shield Block") then
+		--	print (who_name, spellid, spellname)
+		--end
+
 	------------------------------------------------------------------------------------------------
 	--> record cooldowns cast which can't track with buff applyed.
 	
@@ -2594,7 +2614,7 @@
 				_detalhes:SairDoCombate (false, true) --wipe
 			end
 		else
-			if (_detalhes.tabela_vigente.end_time + 2 >= _detalhes.encounter_table ["end"]) then
+			if ((_detalhes.tabela_vigente.end_time or 0) + 2 >= _detalhes.encounter_table ["end"]) then
 				--_detalhes.tabela_vigente.start_time = _detalhes.encounter_table ["start"]
 				_detalhes.tabela_vigente.end_time = _detalhes.encounter_table ["end"]
 				_detalhes:AtualizaGumpPrincipal (-1, true)

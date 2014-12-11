@@ -232,6 +232,23 @@
 		end
 		return s
 	end
+	
+	function _detalhes:percent_color (value)
+		local r, g
+		if (value < 50) then
+			r = 255
+		else
+			r = _math_floor ( 255 - (value * 2 - 100) * 255 / 100)
+		end
+		
+		if (value > 50) then
+			g = 255
+		else
+			g = _math_floor ( (value * 2) * 255 / 100)
+		end
+		
+		return r/255, g/255, 0
+	end
 
 	--> unpack more than 1 table
 	-- http://www.dzone.com/snippets/lua-unpack-multiple-tables

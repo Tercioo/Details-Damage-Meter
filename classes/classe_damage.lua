@@ -1965,9 +1965,12 @@ function atributo_damage:ToolTip_FriendlyFire (instancia, numero, barra, keydown
 	local Skills = {}
 
 	for target_name, ff_table in _pairs (FriendlyFire) do
-		DamagedPlayers [#DamagedPlayers+1] = {target_name, ff_table.total, combat (1, target_name).classe}
-		for spellid, amount in _pairs (ff_table.spells) do
-			Skills [#Skills+1] = {spellid, amount}
+		local actor = combat (1, target_name)
+		if (actor) then
+			DamagedPlayers [#DamagedPlayers+1] = {target_name, ff_table.total, actor.classe}
+			for spellid, amount in _pairs (ff_table.spells) do
+				Skills [#Skills+1] = {spellid, amount}
+			end
 		end
 	end
 	

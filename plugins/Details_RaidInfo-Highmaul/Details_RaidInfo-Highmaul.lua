@@ -42,12 +42,25 @@ local highmaul = {
 	
 	encounter_ids2 = {
 		--combatlog encounter id
-		
+		[1721] = 1, --kargath
+		[1706] = 2, --the butcher
+		[1722] = 3, --tectus
+		[1720] = 4, --brakenspore
+		[1719] = 5, --twin ogron
+		[1723] = 6, --Koragh
+		[1705] = 7, --Margok
 	},
 	
 	boss_ids = {
 		--npc ids
-		
+		[78714] = 1, --Kargath
+		[77404] = 2, --The Butcher
+		[78948] = 3, --Tectus
+		[78491] = 4, --Brakenspore
+		[78238] = 5, --Pol
+		[78237] = 5, --Phemos
+		[79015] = 6, --Koragh
+		[77428] = 7, --Margok
 	},
 	
 	encounters = {

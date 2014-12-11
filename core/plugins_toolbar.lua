@@ -26,6 +26,7 @@
 
 		--> create button from template
 		local button = CreateFrame ("button", framename, _detalhes.listener, "DetailsToolbarButton")
+		--button:SetScript ("OnHide", function (self) print (debugstack()) end)
 		
 		--> sizes
 		if (w) then

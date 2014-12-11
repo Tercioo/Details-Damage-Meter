@@ -1223,6 +1223,7 @@ do
 		--[114203]	= {180, 15}, -- Demoralizing Banner
 		[114028]	= {60, 5}, -- Mass Spell Reflection
 		[97462]	= {180, 10}, -- Rallying Cry
+		[2565] 	= {12, 6}, -- Shield Block
 	}
 	
 	_detalhes.DefensiveCooldownSpells = {
@@ -1299,9 +1300,8 @@ do
 		[23920] = {25, 5}, -- Spell Reflection
 		[114030] = {120, 12}, -- Vigilance
 		[118038] = {120, 8}, -- Die by the Sword
-		[2565] 	= {90, 6}, -- Shield Block
 		[112048]	= {90, 6}, -- Shield Barrier
-		["WARRIOR"] = {871, 12975, 23920, 114030, 118038, 114028, 97462} --114203
+		["WARRIOR"] = {871, 12975, 23920, 114030, 118038, 114028, 97462, 2565} --114203
 
 	}
 

@@ -671,5 +671,6 @@ function _G._detalhes:Start()
 
 _detalhes:InstallEncounter (molten_core)
 
+
 end
 

@@ -1608,9 +1608,9 @@ function atributo_misc:ToolTipDefensiveCooldowns (instancia, numero, barra)
 		r, g, b = unpack (_detalhes.class_colors [owner.classe])
 	else
 		r, g, b = unpack (_detalhes.class_colors [self.classe])
-	end	
+	end
 	
-	local meu_total = self ["cooldowns_defensive"]
+	local meu_total = _math_floor (self ["cooldowns_defensive"])
 	local minha_tabela = self.cooldowns_defensive_spells._ActorTable
 	
 --> habilidade usada para interromper

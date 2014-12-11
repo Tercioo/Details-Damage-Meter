@@ -3403,7 +3403,7 @@ function window:CreateFrame1()
 	--> Max Instances
 		g:NewLabel (frame1, _, "$parentLabelMaxInstances", "maxInstancesLabel", Loc ["STRING_OPTIONS_MAXINSTANCES"], "GameFontHighlightLeft")
 		--
-		local s = g:NewSlider (frame1, _, "$parentSliderMaxInstances", "maxInstancesSlider", SLIDER_WIDTH, 20, 3, 30, 1, _detalhes.instances_amount) -- min, max, step, defaultv
+		local s = g:NewSlider (frame1, _, "$parentSliderMaxInstances", "maxInstancesSlider", SLIDER_WIDTH, 20, 1, 30, 1, _detalhes.instances_amount) -- min, max, step, defaultv
 		s:SetBackdrop (slider_backdrop)
 		s:SetBackdropColor (unpack (slider_backdrop_color))
 		s:SetThumbSize (50)
