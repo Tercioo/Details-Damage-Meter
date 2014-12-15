@@ -321,6 +321,14 @@
 		end
 	end
 	
+	function _detalhes:DoContainerIndexCleanup()
+		for index, combat in _ipairs (_detalhes.tabela_historico.tabelas or {}) do
+			for index, container in _ipairs (combat) do
+				_detalhes.clear:c_container_combatentes_index (container)
+			end
+		end
+	end
+	
 	--> limpa indexes, metatables e shadows
 		function _detalhes:PrepareTablesForSave()
 
@@ -507,6 +515,9 @@
 
 			--> clear owners
 				_detalhes:DoOwnerCleanup()
+				
+			--> cleaer container indexes
+				_detalhes:DoContainerIndexCleanup()
 		end
 	
 	function _detalhes:reset_window (instancia)

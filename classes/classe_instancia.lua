@@ -2121,7 +2121,7 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 	end
 
 	if (_detalhes.janela_info:IsShown() and instancia == _detalhes.janela_info.instancia) then	
-		if (not instancia.showing) then
+		if (not instancia.showing or instancia.atributo > 4) then
 			_detalhes:FechaJanelaInfo()
 		else
 			local actor = instancia.showing (instancia.atributo, _detalhes.janela_info.jogador.nome)

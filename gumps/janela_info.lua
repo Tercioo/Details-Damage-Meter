@@ -589,7 +589,7 @@ local function cria_textos (este_gump)
 	este_gump.atributo_nome = este_gump:CreateFontString (nil, "OVERLAY", "GameFontHighlightSmall")
 	
 	este_gump.targets = este_gump:CreateFontString (nil, "OVERLAY", "QuestFont_Large")
-	este_gump.targets:SetPoint ("TOPLEFT", este_gump, "TOPLEFT", 24, -235)
+	este_gump.targets:SetPoint ("TOPLEFT", este_gump, "TOPLEFT", 24, -233)
 	este_gump.targets:SetText (Loc ["STRING_TARGETS"] .. ":")
 
 	este_gump.avatar = este_gump:CreateTexture (nil, "overlay")
@@ -3212,6 +3212,11 @@ function _detalhes.janela_info:monta_relatorio (botao)
 	return instancia:envia_relatorio (report_lines)
 end
 
+local row_backdrop = {bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", 
+		insets = {left = 0, right = 0, top = 0, bottom = 0}}
+local row_backdrop_onleave = {bgFile = "", edgeFile = "", tile = true, tileSize = 16, edgeSize = 32,
+		insets = {left = 1, right = 1, top = 0, bottom = 1}}
+
 local row_on_enter = function (self)
 	if (info.fading_in or info.faded) then
 		return
@@ -3219,33 +3224,31 @@ local row_on_enter = function (self)
 	
 	self.mouse_over = true
 
+	for index, block in pairs (_detalhes.janela_info.grupos_detalhes) do
+		detalhe_infobg_onleave (block.bg)
+	end
+	
 	--> aumenta o tamanho da barra
 	self:SetHeight (17) --> altura determinada pela instância
 	--> poe a barra com alfa 1 ao invés de 0.9
 	self:SetAlpha(1)
 
 	--> troca a cor da barra enquanto o mouse estiver em cima dela
-	self:SetBackdrop({
-		--bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", 
-		edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border", tile = true, tileSize = 16, edgeSize = 10,
-		insets = {left = 1, right = 1, top = 0, bottom = 1},})	
-	self:SetBackdropBorderColor (0.666, 0.666, 0.666)
-	self:SetBackdropColor (0.0941, 0.0941, 0.0941)
+	self:SetBackdrop (row_backdrop)	
+	self:SetBackdropColor (0.8, 0.8, 0.8, 0.3)
 	
 	if (self.isAlvo) then --> monta o tooltip do alvo
 		--> talvez devesse escurecer a janela no fundo... pois o tooltip é transparente e pode confundir
 		GameTooltip:SetOwner (self, "ANCHOR_TOPRIGHT")
 		
-		-- ~erro
 		if (self.spellid == "enemies") then --> damage taken enemies
 			if (not self.minha_tabela or not self.minha_tabela:MontaTooltipDamageTaken (self, self._index, info.instancia)) then  -- > poderia ser aprimerado para uma tailcall
 				return
 			end
-		
 		elseif (not self.minha_tabela or not self.minha_tabela:MontaTooltipAlvos (self, self._index, info.instancia)) then  -- > poderia ser aprimerado para uma tailcall
 			return
-			
 		end
+		
 		GameTooltip:Show()
 		
 	elseif (self.isMain) then
@@ -3289,9 +3292,7 @@ local row_on_leave = function (self)
 	self:SetAlpha(0.9)
 	
 	--> volto o background ao normal
-	self:SetBackdrop({
-		bgFile = "", edgeFile = "", tile = true, tileSize = 16, edgeSize = 32,
-		insets = {left = 1, right = 1, top = 0, bottom = 1},})	
+	self:SetBackdrop (row_backdrop_onleave)	
 	self:SetBackdropBorderColor (0, 0, 0, 0)
 	self:SetBackdropColor (0, 0, 0, 0)
 	
@@ -3302,7 +3303,7 @@ local row_on_leave = function (self)
 		self.icone:SetWidth (14)
 		self.icone:SetHeight (14)
 		--> volta com a alfa antiga da barra
-		self.icone:SetAlpha (0.8)
+		self.icone:SetAlpha (1)
 		
 		--> remover o conteúdo que estava sendo mostrado na direita
 		if (info.mostrando_mouse_over) then
@@ -3402,19 +3403,29 @@ local function SetBarraScripts (esta_barra, instancia, i)
 end
 
 local function CriaTexturaBarra (instancia, barra)
+
 	barra.textura = _CreateFrame ("StatusBar", nil, barra)
+	
+	barra.textura:SetFrameLevel (barra:GetFrameLevel()-1)
+	
 	barra.textura:SetAllPoints (barra)
-	--barra.textura:SetStatusBarTexture (instancia.row_info.texture_file)
-	barra.textura:SetStatusBarTexture (_detalhes.default_texture)
+	barra.textura:SetAlpha (0.5)
+	--barra.textura:SetStatusBarTexture ([[Interface\AddOns\Details\images\bar_serenity]])
+	barra.textura:SetStatusBarTexture ([[Interface\AddOns\Details\images\bar_skyline]])
+	--barra.textura:SetStatusBarTexture (_detalhes.default_texture)
 	barra.textura:SetStatusBarColor (.5, .5, .5, 0)
 	barra.textura:SetMinMaxValues (0,100)
+	
+	barra.textura.bg = barra.textura:CreateTexture (nil, "background")
+	barra.textura.bg:SetAllPoints()
+	barra.textura.bg:SetTexture (1, 1, 1, 0.08)
 	
 	if (barra.targets) then
 		barra.targets:SetParent (barra.textura)
 		barra.targets:SetFrameLevel (barra.textura:GetFrameLevel()+2)
 	end
 	
-	barra.texto_esquerdo = barra.textura:CreateFontString (nil, "OVERLAY", "GameFontHighlightSmall")
+	barra.texto_esquerdo = barra:CreateFontString (nil, "OVERLAY", "GameFontHighlightSmall")
 	barra.texto_esquerdo:SetPoint ("LEFT", barra.textura, "LEFT", 22, 0)
 	barra.texto_esquerdo:SetJustifyH ("LEFT")
 	barra.texto_esquerdo:SetTextColor (1,1,1,1)
@@ -3422,7 +3433,7 @@ local function CriaTexturaBarra (instancia, barra)
 	barra.texto_esquerdo:SetNonSpaceWrap (true)
 	barra.texto_esquerdo:SetWordWrap (false)
 	
-	barra.texto_direita = barra.textura:CreateFontString (nil, "OVERLAY", "GameFontHighlightSmall")
+	barra.texto_direita = barra:CreateFontString (nil, "OVERLAY", "GameFontHighlightSmall")
 	if (barra.targets) then
 		barra.texto_direita:SetPoint ("RIGHT", barra.targets, "LEFT", -2, 0)
 	else
@@ -3590,18 +3601,18 @@ function gump:CriaNovaBarraInfo1 (instancia, index)
 	--> icone
 	esta_barra.miniframe = CreateFrame ("frame", nil, esta_barra)
 	esta_barra.miniframe:SetSize (14, 14)
-	esta_barra.miniframe:SetPoint ("RIGHT", esta_barra.textura, "LEFT", 20, 0)
+	esta_barra.miniframe:SetPoint ("RIGHT", esta_barra.textura, "LEFT", 18, 0)
 	
 	esta_barra.miniframe:SetScript ("OnEnter", miniframe_func_on_enter)
 	esta_barra.miniframe:SetScript ("OnLeave", miniframe_func_on_leave)
 	
-	esta_barra.icone = esta_barra.textura:CreateTexture (nil, "OVERLAY")
+	esta_barra.icone = esta_barra:CreateTexture (nil, "OVERLAY")
 	esta_barra.icone:SetWidth (14)
 	esta_barra.icone:SetHeight (14)
-	esta_barra.icone:SetPoint ("RIGHT", esta_barra.textura, "LEFT", 20, 0)
+	esta_barra.icone:SetPoint ("RIGHT", esta_barra.textura, "LEFT", 18, 0)
 	
 	esta_barra:SetAlpha(0.9)
-	esta_barra.icone:SetAlpha (0.8)
+	esta_barra.icone:SetAlpha (1)
 	
 	esta_barra.isMain = true
 	
@@ -3642,13 +3653,13 @@ function gump:CriaNovaBarraInfo2 (instancia, index)
 	CriaTexturaBarra (instancia, esta_barra)
 
 	--> icone
-	esta_barra.icone = esta_barra.textura:CreateTexture (nil, "OVERLAY")
+	esta_barra.icone = esta_barra:CreateTexture (nil, "OVERLAY")
 	esta_barra.icone:SetWidth (14)
 	esta_barra.icone:SetHeight (14)
-	esta_barra.icone:SetPoint ("RIGHT", esta_barra.textura, "LEFT", 0+20, 0)
+	esta_barra.icone:SetPoint ("RIGHT", esta_barra.textura, "LEFT", 18, 0)
 	
-	esta_barra:SetAlpha(0.9)
-	esta_barra.icone:SetAlpha (0.8)
+	esta_barra:SetAlpha (0.9)
+	esta_barra.icone:SetAlpha (1)
 	
 	esta_barra.isAlvo = true
 	
@@ -3687,13 +3698,13 @@ function gump:CriaNovaBarraInfo3 (instancia, index)
 	CriaTexturaBarra (instancia, esta_barra)
 
 	--> icone
-	esta_barra.icone = esta_barra.textura:CreateTexture (nil, "OVERLAY")
+	esta_barra.icone = esta_barra:CreateTexture (nil, "OVERLAY")
 	esta_barra.icone:SetWidth (14)
 	esta_barra.icone:SetHeight (14)
-	esta_barra.icone:SetPoint ("RIGHT", esta_barra.textura, "LEFT", 0+20, 0)
+	esta_barra.icone:SetPoint ("RIGHT", esta_barra.textura, "LEFT", 18, 0)
 	
-	esta_barra:SetAlpha(0.9)
-	esta_barra.icone:SetAlpha (0.8)
+	esta_barra:SetAlpha (0.9)
+	esta_barra.icone:SetAlpha (1)
 	
 	esta_barra.isDetalhe = true
 		

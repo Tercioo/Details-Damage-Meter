@@ -160,6 +160,9 @@ function _G._detalhes:Start()
 			self.RefreshAfterStartup = nil
 			
 			function _detalhes:CheckWallpaperAfterStartup()
+			
+				--print ("1 Checking WallPaper...")
+			
 				if (not _detalhes.profile_loaded) then
 					return _detalhes:ScheduleTimer ("CheckWallpaperAfterStartup", 2)
 				end
@@ -170,6 +173,11 @@ function _G._detalhes:Start()
 						if (not instance.wallpaper.enabled) then
 							instance:InstanceWallpaper (false)
 						end
+						
+						--print ("==== 2 Moving Window ", instance.meu_id, instance.ativa)
+						--vardump (instance.snap)
+						--print ("===============")
+						
 						self.move_janela_func (instance.baseframe, true, instance)
 						self.move_janela_func (instance.baseframe, false, instance)
 					end

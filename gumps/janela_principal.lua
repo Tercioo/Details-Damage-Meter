@@ -2474,7 +2474,7 @@ function CreateAlertFrame (baseframe, instancia)
 	frame_upper:SetPoint ("left", baseframe, "left", 3, 0)
 	frame_upper:SetPoint ("right", baseframe, "right", -3, 0)
 	frame_upper:SetHeight (13)
-	frame_upper:SetFrameStrata ("fullscreen")
+	frame_upper:SetFrameStrata ("TOOLTIP")
 	
 	local frame_lower = CreateFrame ("frame", "DetailsAlertFrameScrollChild" .. instancia.meu_id, frame_upper)
 	frame_lower:SetHeight (25)
@@ -2490,7 +2490,7 @@ function CreateAlertFrame (baseframe, instancia)
 	alert_bg:SetBackdrop ({bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 16,
 	insets = {left = 0, right = 0, top = 0, bottom = 0}})
 	alert_bg:SetBackdropColor (.1, .1, .1, 1)
-	alert_bg:SetFrameStrata ("HIGH")
+	alert_bg:SetFrameStrata ("FULLSCREEN")
 	alert_bg:SetFrameLevel (baseframe:GetFrameLevel() + 6)
 	alert_bg:Hide()
 
@@ -2512,6 +2512,7 @@ function CreateAlertFrame (baseframe, instancia)
 	rotate_frame:SetWidth (12)
 	rotate_frame:SetPoint ("right", alert_bg, "right", -2, 0)
 	rotate_frame:SetHeight (alert_bg:GetWidth())
+	rotate_frame:SetFrameStrata ("FULLSCREEN")
 	
 	local icon = rotate_frame:CreateTexture (nil, "overlay")
 	icon:SetPoint ("center", rotate_frame, "center")
@@ -2521,6 +2522,7 @@ function CreateAlertFrame (baseframe, instancia)
 	local button = gump:NewButton (alert_bg, nil, "DetailsInstance"..instancia.meu_id.."AlertButton", nil, 1, 1)
 	button:SetAllPoints()
 	button:SetHook ("OnMouseUp", function() alert_bg:Hide() end)
+	button:SetFrameStrata ("FULLSCREEN")
 	
 	local RotateAnimGroup = rotate_frame:CreateAnimationGroup()
 	local rotate = RotateAnimGroup:CreateAnimation ("Rotation")
@@ -4709,6 +4711,14 @@ local build_mode_list = function (self, elapsed)
 			end
 		end		
 		
+		if (ClosedInstances > 0 or _detalhes:GetNumInstancesAmount() < _detalhes:GetMaxInstancesAmount()) then
+			GameCooltip:AddLine ("$div", nil, 2, nil, -5, -11)
+		end
+		
+		GameCooltip:AddLine (Loc ["STRING_MENU_CLOSE_INSTANCE"], nil, 2, "white", nil, _detalhes.font_sizes.menus, font)
+		GameCooltip:AddIcon ([[Interface\Buttons\UI-Panel-MinimizeButton-Up]], 2, 1, 14, 14, 0.2, 0.8, 0.2, 0.8)
+		GameCooltip:AddMenu (2, _detalhes.close_instancia_func, instancia.baseframe.cabecalho.fechar)
+		
 		CoolTip:SetWallpaper (2, [[Interface\SPELLBOOK\Spellbook-Page-1]], menu_wallpaper_tex, menu_wallpaper_color, true)
 		
 		--> options
@@ -6880,7 +6890,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 	_G.GameCooltip:CoolTipInject (baseframe.cabecalho.atributo)
 
 	--> REPORTAR ~report ----------------------------------------------------------------------------------------------------------------------------------------------------
-			baseframe.cabecalho.report = gump:NewButton (baseframe, nil, "DetailsReportButton"..instancia.meu_id, nil, 8, 16, _detalhes.Reportar, instancia, nil, [[Interface\Addons\Details\Images\report_button]])
+			baseframe.cabecalho.report = gump:NewButton (baseframe, nil, "DetailsReportButton"..instancia.meu_id, nil, 8, 16, _detalhes.Reportar, instancia, "INSTANCE" .. instancia.meu_id, [[Interface\Addons\Details\Images\report_button]])
 			
 			local b = baseframe.cabecalho.report.widget
 			b:SetNormalTexture ([[Interface\AddOns\Details\images\toolbar_icons]])
@@ -6915,7 +6925,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 				
 				GameCooltip:AddLine ("Report Results", nil, 1, "white", nil, _detalhes.font_sizes.menus, SharedMedia:Fetch ("font", "Friz Quadrata TT"))
 				GameCooltip:AddIcon ([[Interface\Addons\Details\Images\report_button]], 1, 1, 12, 19)
-				GameCooltip:AddMenu (1, _detalhes.Reportar, instancia)
+				GameCooltip:AddMenu (1, _detalhes.Reportar, instancia, nil, "INSTANCE" .. instancia.meu_id)
 				
 				GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], menu_wallpaper_tex, menu_wallpaper_color, true)
 				GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)

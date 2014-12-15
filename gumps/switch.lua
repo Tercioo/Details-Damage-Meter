@@ -15,17 +15,16 @@ do
 
 	local gump_fundo_backdrop = {
 		bgFile = "Interface\\AddOns\\Details\\images\\background", 
-		--edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border", 
-		tile = true, tileSize = 16, --edgeSize = 4,
+		tile = true, tileSize = 16,
 		insets = {left = 0, right = 0, top = 0, bottom = 0}}
 
 	local frame = _CreateFrame ("frame", "DetailsSwitchPanel", _UIParent)
 	frame:SetPoint ("center", _UIParent, "center", 500, -300)
 	frame:SetWidth (250)
 	frame:SetHeight (100)
-	--frame:SetBackdrop (gump_fundo_backdrop)
+	frame:SetBackdrop (gump_fundo_backdrop)
 	frame:SetBackdropBorderColor (170/255, 170/255, 170/255)
-	frame:SetBackdropColor (24/255, 24/255, 24/255, .8)
+	frame:SetBackdropColor (0, 0, 0, .7)
 	
 	frame:SetFrameStrata ("FULLSCREEN")
 	frame:SetFrameLevel (16)

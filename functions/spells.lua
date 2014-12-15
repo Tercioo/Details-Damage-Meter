@@ -2180,35 +2180,36 @@ do
 		[1] = {name = "Physical", formated = "|cFFFFFF00Physical|r", hex = "FFFFFF00", rgb = {255, 255, 0}, decimals = {1.00, 1.00, 0.00}},
 		[2] = {name = "Holy", formated = "|cFFFFE680Holy|r", hex = "FFFFE680", rgb = {255, 230, 128}, decimals = {1.00, 0.90, 0.50}},
 		[4] = {name = "Fire", formated = "|cFFFF8000Fire|r", hex = "FFFF8000", rgb = {255, 128, 0}, decimals = {1.00, 0.50, 0.00}},
-		[8] = {name = "Nature", formated = "|cFF4DFF4DNature|r", hex = "FF4DFF4D", rgb = {77, 255, 77}, decimals = {0.30, 1.00, 0.30}},
+		[8] = {name = "Nature", formated = "|cFFbeffbeNature|r", hex = "FFbeffbe", rgb = {190, 190, 190}, decimals = {0.7451, 1.0000, 0.7451}},
 		[16] = {name = "Frost", formated = "|cFF80FFFFFrost|r", hex = "FF80FFFF", rgb = {128, 255, 255}, decimals = {0.50, 1.00, 1.00}},
 		[32] = {name = "Shadow", formated = "|cFF8080FFShadow|r", hex = "FF8080FF", rgb = {128, 128, 255}, decimals = {0.50, 0.50, 1.00}},
 		[64] = {name = "Arcane", formated = "|cFFFF80FFArcane|r", hex = "FFFF80FF", rgb = {255, 128, 255}, decimals = {1.00, 0.50, 1.00}},
-		[3] = {name = "Holystrike", formated = "|cFFFFE680Holy|r + |cFFFFFF00Physical|r"},
-		[5] = {name = "Flamestrike", formated = "|cFFFF8000Fire|r + |cFFFFFF00Physical|r"},
-		[6] = {name = "Holyfire", formated = "|cFFFF8000Fire|r + |cFFFFE680Holy|r"},
-		[9] = {name = "Stormstrike", formated = "|cFF4DFF4DNature|r + |cFFFFFF00Physical|r"},
-		[10] = {name = "Holystorm", formated = "|cFF4DFF4DNature|r + |cFFFFE680Holy|r"},
-		[12] = {name = "Firestorm", formated = "|cFF4DFF4DNature|r + |cFFFF8000Fire|r"},
-		[17] = {name = "Froststrike", formated = "|cFF80FFFFFrost|r + |cFFFFFF00Physical|r"},
-		[18] = {name = "Holyfrost", formated = "|cFF80FFFFFrost|r + |cFFFFE680Holy|r"},
-		[20] = {name = "Frostfire", formated = "|cFF80FFFFFrost|r + |cFFFF8000Fire|r"},
-		[24] = {name = "Froststorm", formated = "|cFF80FFFFFrost|r + |cFF4DFF4DNature|r"},
-		[33] = {name = "Shadowstrike", formated = "|cFF8080FFShadow|r + |cFFFFFF00Physical|r"},
-		[34] = {name = "Shadowlight (Twilight)", formated = "|cFF8080FFShadow|r + |cFFFFE680Holy|r"},
-		[36] = {name = "Shadowflame", formated = "|cFF8080FFShadow|r + |cFFFF8000Fire|r"},
-		[40] = {name = "Shadowstorm (Plague)", formated = "|cFF8080FFShadow|r + |cFF4DFF4DNature|r"},
-		[48] = {name = "Shadowfrost", formated = "|cFF8080FFShadow|r + |cFF80FFFFFrost|r"},
-		[65] = {name = "Spellstrike", formated = "|cFFFF80FFArcane|r + |cFFFFFF00Physical|r"},
-		[66] = {name = "Divine", formated = "|cFFFF80FFArcane|r + |cFFFFE680Holy|r"},
-		[68] = {name = "Spellfire", formated = "|cFFFF80FFArcane|r + |cFFFF8000Fire|r"},
-		[72] = {name = "Spellstorm", formated = "|cFFFF80FFArcane|r + |cFF4DFF4DNature|r"},
-		[80] = {name = "Spellfrost", formated = "|cFFFF80FFArcane|r + |cFF80FFFFFrost|r"},
-		[96] = {name = "Spellshadow", formated = "|cFFFF80FFArcane|r + |cFF8080FFShadow|r"},
-		[28] = {name = "Elemental", formated = "|cFF80FFFFFrost|r + |cFF4DFF4DNature|r + |cFFFF8000Fire|r"},
-		[124] = {name = "Chromatic", formated = "|cFFFF80FFArcane|r + |cFF8080FFShadow|r + |cFF80FFFFFrost|r + |cFF4DFF4DNature|r + |cFFFF8000Fire|r"},
-		[126] = {name = "Magic", formated = "|cFFFF80FFArcane|r + |cFF8080FFShadow|r + |cFF80FFFFFrost|r + |cFF4DFF4DNature|r + |cFFFF8000Fire|r + |cFFFFE680Holy|r"},
-		[127] = {name = "Chaos", formated = "|cFFFF80FFArcane|r + |cFF8080FFShadow|r + |cFF80FFFFFrost|r + |cFF4DFF4DNature|r + |cFFFF8000Fire|r + |cFFFFE680Holy|r + |cFFFFFF00Physical|r"},
+		[3] = {name = "Holystrike", formated = "|cFFFFF240Holystrike|r", hex = "FFFFF240", rgb = {255, 64, 64}, decimals = {1.0000, 0.9490, 0.2510}}, --#FFF240
+		[5] = {name = "Flamestrike", formated = "|cFFFFB900Flamestrike|r", hex = "FFFFB900", rgb = {255, 0, 0}, decimals = {1.0000, 0.7255, 0.0000}}, --#FFB900
+		[6] = {name = "Holyfire", formated = "|cFFFFD266Holyfire|r", hex = "FFFFD266", rgb = {255, 102, 102}, decimals = {1.0000, 0.8235, 0.4000}}, --#FFD266
+		[9] = {name = "Stormstrike", formated = "|cFFAFFF23Stormstrike|r", hex = "FFAFFF23", rgb = {175, 35, 35}, decimals = {0.6863, 1.0000, 0.1373}}, --#AFFF23
+		[10] = {name = "Holystorm", formated = "|cFFC1EF6EHolystorm|r", hex = "FFC1EF6E", rgb = {193, 110, 110}, decimals = {0.7569, 0.9373, 0.4314}}, --#C1EF6E
+		[12] = {name = "Firestorm", formated = "|cFFAFB923Firestorm|r", hex = "FFAFB923", rgb = {175, 35, 35}, decimals = {0.6863, 0.7255, 0.1373}}, --#AFB923
+		[17] = {name = "Froststrike", formated = "|cFFB3FF99Froststrike|r", hex = "FFB3FF99", rgb = {179, 153, 153}, decimals = {0.7020, 1.0000, 0.6000}},--#B3FF99
+		[18] = {name = "Holyfrost", formated = "|cFFCCF0B3Holyfrost|r", hex = "FFCCF0B3", rgb = {204, 179, 179}, decimals = {0.8000, 0.9412, 0.7020}},--#CCF0B3
+		[20] = {name = "Frostfire", formated = "|cFFC0C080Frostfire|r", hex = "FFC0C080", rgb = {192, 128, 128}, decimals = {0.7529, 0.7529, 0.5020}}, --#C0C080
+		[24] = {name = "Froststorm", formated = "|cFF69FFAFFroststorm|r", hex = "FF69FFAF", rgb = {105, 175, 175}, decimals = {0.4118, 1.0000, 0.6863}}, --#69FFAF
+		[33] = {name = "Shadowstrike", formated = "|cFFC6C673Shadowstrike|r", hex = "FFC6C673", rgb = {198, 115, 115}, decimals = {0.7765, 0.7765, 0.4510}},--#C6C673
+		[34] = {name = "Shadowlight (Twilight)", formated = "|cFFD3C2ACShadowlight (Twilight)|r", hex = "FFD3C2AC", rgb = {211, 172, 172}, decimals = {0.8275, 0.7608, 0.6745}},--#D3C2AC
+		[36] = {name = "Shadowflame", formated = "|cFFB38099Shadowflame|r", hex = "FFB38099", rgb = {179, 153, 153}, decimals = {0.7020, 0.5020, 0.6000}}, -- #B38099
+		[40] = {name = "Shadowstorm (Plague)", formated = "|cFF6CB3B8Shadowstorm (Plague)|r", hex = "FF6CB3B8", rgb = {108, 184, 184}, decimals = {0.4235, 0.7020, 0.7216}}, --#6CB3B8
+		[48] = {name = "Shadowfrost", formated = "|cFF80C6FFShadowfrost|r", hex = "FF80C6FF", rgb = {128, 255, 255}, decimals = {0.5020, 0.7765, 1.0000}},--#80C6FF
+		[65] = {name = "Spellstrike", formated = "|cFFFFCC66Spellstrike|r", hex = "FFFFCC66", rgb = {255, 102, 102}, decimals = {1.0000, 0.8000, 0.4000}},--#FFCC66
+		[66] = {name = "Divine", formated = "|cFFFFBDB3Divine|r", hex = "FFFFBDB3", rgb = {255, 179, 179}, decimals = {1.0000, 0.7412, 0.7020}},--#FFBDB3
+		[68] = {name = "Spellfire", formated = "|cFFFF808CSpellfire|r", hex = "FFFF808C", rgb = {255, 140, 140}, decimals = {1.0000, 0.5020, 0.5490}}, --#FF808C
+		[72] = {name = "Spellstorm", formated = "|cFFAFB9AFSpellstorm|r", hex = "FFAFB9AF", rgb = {175, 175, 175}, decimals = {0.6863, 0.7255, 0.6863}}, --#AFB9AF
+		[80] = {name = "Spellfrost", formated = "|cFFC0C0FFSpellfrost|r", hex = "FFC0C0FF", rgb = {192, 255, 255}, decimals = {0.7529, 0.7529, 1.0000}},--#C0C0FF
+		[96] = {name = "Spellshadow", formated = "|cFFB980FFSpellshadow|r", hex = "FFB980FF", rgb = {185, 255, 255}, decimals = {0.7255, 0.5020, 1.0000}},--#B980FF
+		
+		[28] = {name = "Elemental", formated = "|cFF0070DEElemental|r", hex = "FF0070DE", rgb = {0, 222, 222}, decimals = {0.0000, 0.4392, 0.8706}},
+		[124] = {name = "Chromatic", formated = "|cFFC0C0C0Chromatic|r", hex = "FFC0C0C0", rgb = {192, 192, 192}, decimals = {0.7529, 0.7529, 0.7529}},
+		[126] = {name = "Magic", formated = "|cFF1111FFMagic|r", hex = "FF1111FF", rgb = {17, 255, 255}, decimals = {0.0667, 0.0667, 1.0000}},
+		[127] = {name = "Chaos", formated = "|cFFFF1111Chaos|r", hex = "FFFF1111", rgb = {255, 17, 17}, decimals = {1.0000, 0.0667, 0.0667}},
 	}
 	
 	function _detalhes:GetSpellSchoolName (school)

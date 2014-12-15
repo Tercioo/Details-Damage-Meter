@@ -1,0 +1,191 @@
+
+
+instance:DesaturateMenu (enabled)
+enabled = boolean, if true, buttons on the window's title bar became black and white.
+
+instance:HideMainIcon (enabled)
+enabled = boolean, if true, hides the attribute icon on the title bar (recommended).
+
+instance:MenuAnchor (x, y)
+x,y = number, adjust the axis x and y of the buttons on the title bar.
+
+instance:StretchButtonAnchor (side)
+side = number, 1 = top side of the window, 2 = bottom. 
+
+instance:StretchButtonAlwaysOnTop (enabled)
+enabled = boolean, if true, the stretch grab is always above other frames.
+
+instance:ToolbarSide (side)
+side = number, 1 = top side of the window, 2 = bottom. Adjust which side the title bar will attach.
+
+instance:SetWindowScale (scale, refresh_group)
+scale = number, 0.65 to 1.5.
+refresh_group = boolean, if true it apply the scale to all windows in the group (recommended).
+
+instance:MicroDisplaysSide (side)
+side = number, 1 = top side of the window, 2 = bottom.
+
+instance:SetAutoHideMenu (enabled)
+enabled = boolean, if true, the buttons on window's title bar auto hide when the player isn't interacting with the window.
+
+instance:SetBackdropTexture (texturename)
+texturename = string, texture name for SharedMedia.
+
+instance:AttributeMenu (enabled, pos_x, pos_y, font, size, color, side, shadow)
+enabled = boolean, show or hide the window's title text.
+pos_x = number, position on x axis.
+pos_y = number, position on y axis.
+font = string, font name for SharedMedia.
+size = number, font size.
+color = table {r, b, g, a} or string html color name.
+side = number, 1 = align it on top side, 2 = bottom side.
+shadow = boolean, draw the outline shadow to the text.
+
+instance:LeftMenuAnchorSide (side)
+side = number, 1 = left, 2 = right, set the anchor point for buttons on window's title bar.
+
+instance:SetFrameStrata (strata)
+strata = string, "BACKGROUND", "LOW", "MEDIUM", "HIGH" or "DIALOG".
+
+instance:SetCombatAlpha (modify_type, alpha_amount)
+modify_type = number, 1 = none, 2 = While In Combat, 3 = "While Out of Combat", 4 = "While Out of a Group" (can be only one type)
+alpha_amount = number, the amount of alpha.
+
+instance:ChangeSkin (skin_name)
+skin_name = string, the name of the skin to apply.
+if skin name is nil, it reaply all config based on the window's config table.
+
+instance:ToolbarMenuSetButtons (mode, segment, attributes, report, reset, close)
+mode = boolean, show or hide this button on window`s title bar.
+segment = boolean
+attributes = boolean
+report = boolean
+reset = boolean
+close = boolean
+
+instance:ToolbarMenuSetButtonsOptions (spacement, shadow)
+spacement = number between -5 to 10, adjust the gap size between each button on window's title bar.
+shadow = boolean, is true, draws a shadow outline on the button.
+
+instance:ToolbarMenuButtonsSize (size)
+size = number between 0.4 to 1.6, adjust the size of window's title bar buttons.
+
+instance:InstanceColor (red, green, blue, alpha, no_save, change_statusbar)
+red = number, red color on 0 to 1 scale
+green = number, green color on 0 to 1 scale
+blue = number, blue color on 0 to 1 scale
+alpha = number, alpha on 0 to 1 scale
+no_save = boolean, if true, these values are applied only in the textures without chaging the value on the window's config table.
+change_statusbar = boolean, if true, it also change the color of window's statusbar.
+
+instance:InstanceWallpaper (texture, anchor, alpha, texcoord, width, height, overlay)
+texture = string, path to a image file.
+anchor = string, "all", "center", "stretchLR", "stretchTB". Sets how the texture align within the window.
+alpha = number
+texcoord = table {L, R, T, B}
+width = number, most of the times is ignored due to anchors settings.
+height = number, most of the times is ignored due to anchors settings.
+overlay = table {r, b, g, a}
+
+instance:SetBarSettings (height, texture, colorclass, fixedcolor, backgroundtexture, backgroundcolorclass, backgroundfixedcolor, alpha, iconfile, barstart, spacement)
+height = number, the height of the bars.
+texture = texture name (SharedMedia), used on the statubar bar.
+colorclass = boolean, if true, the bar is painted with the player's class color.
+fixedcolor = table with {r, b, g, a} or html color string (e.g. "blue").
+backgroundtexture = texture name (SharedMedia), used below the bar, this bar always have the same width as the window.
+backgroundcolorclass = boolean, if true, the bar is painted with the player's class color.
+backgroundfixedcolor = table with {r, b, g, a} or html color string (e.g. "blue").
+alpha = number.
+iconfile = string, icon file path to be used on bars.
+barstart = boolean, if true the bar attaches on the right side of the icon, else, on the left side (useful for transparent icons).
+spacement = number, how much space between bars.
+
+instance:SetBarModel (upper_enabled, upper_model, upper_alpha, lower_enabled, lower_model, lower_alpha)
+upper_enabled = boolean
+upper_model = string, path to the 3d model
+upper_alpha = number
+lower_enabled = boolean
+lower_model = string, path to the 3d model
+lower_alpha = number
+
+instance:SetBarBackdropSettings (enabled, size, color, texture)
+enabled = boolean.
+size = number, adjust the size of the border.
+color = table, {r, g, b, a}
+texture = string, edge name for SharedMedia:Fetch ("border", texture)
+
+instance:SetBarTextSettings (size, font, fixedcolor, leftcolorbyclass, rightcolorbyclass, leftoutline, rightoutline, customrighttextenabled, customrighttext, percentage_type, showposition, customlefttextenabled, customlefttext)
+size = number, text size
+font = string, text font, e.g "Arrial Narrow"
+fixedcolor = table with {r, b, g, a} or html color string (e.g. "blue").
+leftcolorbyclass = boolean, if true text color uses the color of the shown player class, else, the color value on 'fixedcolor'.
+rightcolorbyclass = boolean, if true text color uses the color of the shown player class, else, the color value on 'fixedcolor'.
+leftoutline = boolean, if true, draws the outline shadow.
+rightoutline = boolean, if true, draws the outline shadow.
+customrighttextenabled = boolean, if true, uses the custom text.
+customrighttext = string, the customized text to shown on the bar.
+percentage_type = number, 1 = players's percentage is relative to total of all players. 2 = is relative to the top ranked player.
+showposition = boolean, if true, show the rank number at the left side of the player's name.
+customlefttextenabled = boolean, if true, uses the custom text.
+customlefttext = string, the customized text to shown on the bar.
+
+instance:SetBarFollowPlayer (boolean)
+when enabled the player's bar is always shown even if the player isn't in the top ranked.
+example: player is the rank 13 on damage done, but the window only show 1-8. Window now shows 1-7 and 13.
+
+instance:SetBarGrowDirection (direction)
+direction = 1 top to bottom / 2 bottom to top
+
+instance:HideStatusBar() // instance:ShowStatusBar()
+Show or hide the statusbar for the window.
+
+instance:StatusBarColor (r, g, b, a, no_save)
+r, g, b, a = number, color to set,
+no_save = boolean, if true, the values isn't set on the instance config table.
+
+instance:ShowSideBars() // instance:HideSideBars()
+Show or Hide the borders.
+
+--------------------
+
+instance:InstanceMsg (text, icon, textcolor, iconcoords, iconcolor)
+text = string or false to hide the alert
+icon = texture path
+textcolor = table with {r, b, g, a} or html color string (e.g. "blue").
+iconcoords = table with {L, R, T, B}
+iconcolor = table with {r, b, g, a} or html color string (e.g. "blue").
+
+instance:HaveInstanceAlert()
+returns if the window is showing an alert.
+
+instance:InstanceAlert (msg, icon, time, clickfunc)
+shows up an alert on the window.
+msg = string or false to hide the alert
+icon = texture path or NIL or table {texture, width, height, animate, coordL, coordR, coordT, coordB, r, g, b, a}
+time = time in seconds the alert stay shown (default 15).
+clickfunc = table {function, param1, param2, "left" or "right" button}
+
+--------------------
+
+_detalhes:SetTooltipBackdrop (border_texture, border_size, border_color)
+border_texture = string, border name for SharedMedia.
+border_size = number, border size.
+border_color = table {r, g, b, a}
+
+_detalhes:ReportSingleLine (instance, row object)
+get the text on the chosen row and open report dialog for the player.
+
+--------------------
+
+framework = _detalhes:GetFramework()
+returns the framework object.
+
+framework:RegisterForDetailsMove (frame, instance)
+set OnMouseDown and OnMouseUp scripts on 'frame', when is moved, the instance is also moved.
+
+instance:IsGroupedWith (instance)
+returns true with the 'self instance' is groupped with the passed instance object.
+
+instance:GetInstanceGroup()
+returns a table with instances objects of all instances inside the group.
+

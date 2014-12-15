@@ -457,7 +457,10 @@
 					
 					--> add to storage
 					if (not InCombatLockdown() and not UnitAffectingCombat ("player") and not _detalhes.logoff_saving_data) then
-						pcall (_detalhes.StoreEncounter)
+						local successful, errortext = pcall (_detalhes.StoreEncounter)
+						if (not successful) then
+							_detalhes:Msg ("error occurred on StoreEncounter():", errortext)
+						end
 					else
 						_detalhes.schedule_store_boss_encounter = true
 					end

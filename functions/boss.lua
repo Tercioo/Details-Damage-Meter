@@ -174,6 +174,9 @@ do
 	--> return the boss portrit
 	function _detalhes:GetBossPortrait (mapid, bossindex)
 		if (mapid and bossindex) then
+			--print (_detalhes.EncounterInformation [mapid])
+			--print (_detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].encounters)
+			--print (_detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].encounters and _detalhes.EncounterInformation [mapid].encounters [bossindex])
 			return _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].encounters [bossindex].portrait
 		else
 			return false

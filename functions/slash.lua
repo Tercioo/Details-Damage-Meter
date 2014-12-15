@@ -29,6 +29,9 @@ function SlashCmdList.DETAILS (msg, editbox)
 	elseif (command == Loc ["STRING_SLASH_WIPECONFIG"] or command == "reinstall") then
 		_detalhes:WipeConfig()
 	
+	elseif (command == Loc ["STRING_SLASH_RESET"] or command == Loc ["STRING_SLASH_RESET_ALIAS1"] or command == "reset") then
+		_detalhes.tabela_historico:resetar()
+	
 	elseif (command == Loc ["STRING_SLASH_DISABLE"] or command == "disable") then
 	
 		_detalhes:CaptureSet (false, "damage", true)
@@ -47,7 +50,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 		_detalhes:CaptureSet (true, "aura", true)
 		print (Loc ["STRING_DETAILS1"] .. Loc ["STRING_SLASH_CAPTUREON"])
 	
-	elseif (command == Loc ["STRING_SLASH_OPTIONS"] or command == "options") then
+	elseif (command == Loc ["STRING_SLASH_OPTIONS"] or command == "options" or command == "config") then
 	
 		if (rest and tonumber (rest)) then
 			local instanceN = tonumber (rest)
@@ -844,6 +847,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_HIDE"] .. "|r: " .. Loc ["STRING_SLASH_HIDE_DESC"])
 		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_ENABLE"] .. "|r: " .. Loc ["STRING_SLASH_ENABLE_DESC"])
 		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_DISABLE"] .. "|r: " .. Loc ["STRING_SLASH_DISABLE_DESC"])
+		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_RESET"] .. "|r: " .. Loc ["STRING_SLASH_RESET_DESC"])
 		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_OPTIONS"] .. "|r|cfffcffb0 <instance number>|r: " .. Loc ["STRING_SLASH_OPTIONS_DESC"])
 		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_CHANGES"] .. "|r: " .. Loc ["STRING_SLASH_CHANGES_DESC"])
 		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_WIPECONFIG"] .. "|r: " .. Loc ["STRING_SLASH_WIPECONFIG_DESC"])

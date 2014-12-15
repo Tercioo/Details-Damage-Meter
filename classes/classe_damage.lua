@@ -546,6 +546,24 @@
 		return _detalhes:Reportar (reportar, {_no_current = true, _no_inverse = true, _custom = true})
 	end
 
+	local sort_tooltip_void_zones = function (tabela1, tabela2)
+		if (tabela1 [2] > tabela2 [2]) then
+			return true
+		elseif (tabela1 [2] == tabela2 [2]) then
+			if (tabela1[1] ~= "" and tabela2[1] ~= "") then
+				return tabela1 [3].uptime > tabela2 [3].uptime
+			elseif (tabela1[1] ~= "") then
+				return true
+			elseif (tabela2[1] ~= "") then
+				return false
+			end
+		else
+			return false
+		end
+	end
+	
+	local tooltip_void_zone_temp = {}
+	
 	function _detalhes:ToolTipVoidZones (instancia, actor, barra, keydown)
 		
 		local damage_actor = instancia.showing[1]:PegarCombatente (_, actor.damage_twin)
@@ -574,35 +592,55 @@
 				debuff_table.damage = 0
 			end
 		end
-
-		--> sort no container:
-		_table_sort (container, function (tabela1, tabela2)
-			if (tabela1.damage > tabela2.damage) then
-				return true;
-			elseif (tabela1.damage == tabela2.damage) then
-				return tabela1.uptime > tabela2.uptime;
+		
+		for i = 1, #tooltip_void_zone_temp do
+			local t = tooltip_void_zone_temp [i]
+			t[1] = ""
+			t[2] = 0
+			t[3] = 0
+		end
+		
+		local i = 1
+		for target_name, debuff_table in _pairs (container) do 
+			local t = tooltip_void_zone_temp [i]			
+			if (not t) then
+				t = {}
+				tinsert (tooltip_void_zone_temp, t)
 			end
-			return false;
-		end)
+			
+			t[1] = target_name
+			t[2] = debuff_table.damage
+			t[3] = debuff_table
+			
+			i = i + 1
+		end
 		
-		--actor.debuff_uptime_targets:remapear()
-		
+		--> sort no container:
+		_table_sort (tooltip_void_zone_temp, sort_tooltip_void_zones)
+
 		--> monta o cooltip
 		local GameCooltip = GameCooltip
 		
 		GameCooltip:AddLine (Loc ["STRING_VOIDZONE_TOOLTIP"], nil, nil, headerColor, nil, 12)
 		GameCooltip:AddIcon ([[Interface\Addons\Details\images\icons]], 1, 1, 14, 14, 0.126953125, 0.1796875, 0, 0.0546875)
 		
-		for target_name, debuff_table in _pairs (container) do 
+		--for target_name, debuff_table in _pairs (container) do 
+		for index, t in _ipairs (tooltip_void_zone_temp) do
+		
+			if (t[3] == 0) then
+				break
+			end
+		
+			local debuff_table = t[3]
 
 			local minutos, segundos = _math_floor (debuff_table.uptime / 60), _math_floor (debuff_table.uptime % 60)
 			if (minutos > 0) then
-				GameCooltip:AddLine (target_name, FormatTooltipNumber (_, debuff_table.damage) .. " (" .. minutos .. "m " .. segundos .. "s" .. ")")
+				GameCooltip:AddLine (t[1], FormatTooltipNumber (_, debuff_table.damage) .. " (" .. minutos .. "m " .. segundos .. "s" .. ")")
 			else
-				GameCooltip:AddLine (target_name, FormatTooltipNumber (_, debuff_table.damage) .. " (" .. segundos .. "s" .. ")")
+				GameCooltip:AddLine (t[1], FormatTooltipNumber (_, debuff_table.damage) .. " (" .. segundos .. "s" .. ")")
 			end
 			
-			local classe = _detalhes:GetClass (target_name)
+			local classe = _detalhes:GetClass (t[1])
 			if (classe) then	
 				GameCooltip:AddIcon ([[Interface\AddOns\Details\images\classes_small]], nil, nil, 14, 14, unpack (_detalhes.class_coords [classe]))
 			else
@@ -2090,13 +2128,17 @@ function atributo_damage:MontaInfoFriendlyFire()
 	local Skills = {}
 	
 	for target_name, ff_table in _pairs (self.friendlyfire) do
-		_table_insert (DamagedPlayers, {target_name, ff_table.total, ff_table.total / FriendlyFireTotal * 100, combat (1, target_name).classe})
-		
-		for spellid, amount in _pairs (ff_table.spells) do
-			Skills [spellid] = (Skills [spellid] or 0) + amount
+	
+		local actor = combat (1, target_name)
+		if (actor) then
+			_table_insert (DamagedPlayers, {target_name, ff_table.total, ff_table.total / FriendlyFireTotal * 100, actor.classe})
+			
+			for spellid, amount in _pairs (ff_table.spells) do
+				Skills [spellid] = (Skills [spellid] or 0) + amount
+			end
 		end
 	end
-	
+
 	_table_sort (DamagedPlayers, _detalhes.Sort2)
 	
 	local amt = #DamagedPlayers
@@ -2137,12 +2179,12 @@ function atributo_damage:MontaInfoFriendlyFire()
 			barra.textura:SetValue (tabela[2]/FirstPlaceDamage*100)
 		end
 		
-		barra.texto_esquerdo:SetText (index .. instancia.divisores.colocacao .. tabela[1]) --seta o texto da esqueda
+		barra.texto_esquerdo:SetText (index .. instancia.divisores.colocacao .. _detalhes:GetOnlyName (tabela[1])) --seta o texto da esqueda
 		barra.texto_direita:SetText (_detalhes:comma_value (tabela[2]) .. " (" .. _cstr ("%.1f", tabela[3]) .."%)") --seta o texto da direita
 		
 		local classe = tabela[4]
 		if (not classe) then
-			classe = "monster"
+			classe = "MONSTER"
 		end
 		
 		barra.icone:SetTexture (info.instancia.row_info.icon_file)
@@ -2151,6 +2193,13 @@ function atributo_damage:MontaInfoFriendlyFire()
 			barra.icone:SetTexCoord (_unpack (CLASS_ICON_TCOORDS [classe]))
 		else
 			barra.icone:SetTexture (nil)
+		end
+
+		local color = _detalhes.class_colors [classe]
+		if (color) then
+			barra.textura:SetStatusBarColor (_unpack (color))
+		else
+			barra.textura:SetStatusBarColor (1, 1, 1)
 		end
 
 		barra.minha_tabela = self
@@ -2254,12 +2303,12 @@ function atributo_damage:MontaInfoDamageTaken()
 			texCoords = _detalhes.class_coords ["UNKNOW"]
 		end
 		
-		self:UpdadeInfoBar (barra, index, tabela[1], tabela[1], tabela[2], _detalhes:comma_value (tabela[2]), max_, tabela[3], "Interface\\AddOns\\Details\\images\\classes_small", true, texCoords)
+		self:UpdadeInfoBar (barra, index, tabela[1], tabela[1], tabela[2], _detalhes:comma_value (tabela[2]), max_, tabela[3], "Interface\\AddOns\\Details\\images\\classes_small_alpha", true, texCoords, nil, tabela[4])
 	end
 	
 end
 
---[[exported]] function _detalhes:UpdadeInfoBar (row, index, spellid, name, value, value_formated, max, percent, icon, detalhes, texCoords)
+--[[exported]] function _detalhes:UpdadeInfoBar (row, index, spellid, name, value, value_formated, max, percent, icon, detalhes, texCoords, spellschool, class)
 	--> seta o tamanho da barra
 	if (index == 1) then
 		row.textura:SetValue (100)
@@ -2268,7 +2317,7 @@ end
 	end
 	
 	--end
-	row.texto_esquerdo:SetText (index.."."..name)
+	row.texto_esquerdo:SetText (index .. ". " .. name)
 	--> seta o texto da direita
 	row.texto_direita:SetText (value_formated .. " (" .. _cstr ("%.1f", percent) .."%)")
 	
@@ -2291,6 +2340,25 @@ end
 	row.minha_tabela = self
 	row.show = spellid
 	row:Show() --> mostra a barra
+	
+	if (spellschool) then
+		local t = _detalhes.spells_school [spellschool]
+		if (t and t.decimals) then
+			row.textura:SetStatusBarColor (t.decimals[1], t.decimals[2], t.decimals[3])
+		else
+			row.textura:SetStatusBarColor (1, 1, 1)
+		end
+		
+	elseif (class) then
+		local color = _detalhes.class_colors [class]
+		if (color) then
+			row.textura:SetStatusBarColor (_unpack (color))
+		else
+			row.textura:SetStatusBarColor (1, 1, 1)
+		end
+	else
+		row.textura:SetStatusBarColor (1, 1, 1)
+	end
 	
 	if (detalhes and self.detalhes and self.detalhes == spellid and info.showing == index) then
 		--self:MontaDetalhes (spellid, row) --> poderia deixar isso pro final e montar uma tail call??
@@ -2339,22 +2407,22 @@ function atributo_damage:MontaInfoDamageDone()
 	
 	for _spellid, _skill in _pairs (ActorSkillsContainer) do --> da foreach em cada spellid do container
 		local nome, _, icone = _GetSpellInfo (_spellid)
-		_table_insert (ActorSkillsSortTable, {_spellid, _skill.total, _skill.total/ActorTotalDamage*100, nome, icone})
+		_table_insert (ActorSkillsSortTable, {_spellid, _skill.total, _skill.total/ActorTotalDamage*100, nome, icone, nil, _skill.spellschool})
 	end
 
 	--> add pets
 	local ActorPets = self.pets
 	--local class_color = RAID_CLASS_COLORS [self.classe] and RAID_CLASS_COLORS [self.classe].colorStr
 	local class_color = "FFDDDDDD"
+	local class_color = "FFDDDD44"
 	for _, PetName in _ipairs (ActorPets) do
 		local PetActor = instancia.showing (class_type, PetName)
 		if (PetActor) then 
 			local PetSkillsContainer = PetActor.spells._ActorTable
 			for _spellid, _skill in _pairs (PetSkillsContainer) do --> da foreach em cada spellid do container
 				local nome, _, icone = _GetSpellInfo (_spellid)
-				_table_insert (ActorSkillsSortTable, {_spellid, _skill.total, _skill.total/ActorTotalDamage*100, nome .. " (|c" .. class_color .. PetName:gsub ((" <.*"), "") .. "|r)", icone, PetActor})
+				_table_insert (ActorSkillsSortTable, {_spellid, _skill.total, _skill.total/ActorTotalDamage*100, nome .. " |TInterface\\AddOns\\Details\\images\\classes_small_alpha:12:12:0:0:128:128:33:64:96:128|t|c" .. class_color .. PetName:gsub ((" <.*"), "") .. "|r", icone, PetActor, _skill.spellschool})
 			end
-			--_table_insert (ActorSkillsSortTable, {PetName, PetActor.total, PetActor.total/ActorTotalDamage*100, PetName:gsub ((" <.*"), ""), "Interface\\AddOns\\Details\\images\\classes_small"})
 		end
 	end
 	
@@ -2371,16 +2439,18 @@ function atributo_damage:MontaInfoDamageDone()
 			barra = gump:CriaNovaBarraInfo1 (instancia, index)
 		end
 
-		self:FocusLock (barra, tabela[1])
-		
 		barra.other_actor = tabela [6]
 
+		local name = tabela[4]
+		
 		if (info.sub_atributo == 2) then
-			self:UpdadeInfoBar (barra, index, tabela[1], tabela[4], tabela[2], _detalhes:comma_value (_math_floor (tabela[2]/meu_tempo)), max_, tabela[3], tabela[5], true)
+			self:UpdadeInfoBar (barra, index, tabela[1], name, tabela[2], _detalhes:comma_value (_math_floor (tabela[2]/meu_tempo)), max_, tabela[3], tabela[5], true, nil, tabela [7])
 		else
-			self:UpdadeInfoBar (barra, index, tabela[1], tabela[4], tabela[2], _detalhes:comma_value (tabela[2]), max_, tabela[3], tabela[5], true)
+			self:UpdadeInfoBar (barra, index, tabela[1], name, tabela[2], _detalhes:comma_value (tabela[2]), max_, tabela[3], tabela[5], true, nil, tabela [7])
 		end
-
+		
+		self:FocusLock (barra, tabela[1])
+	
 	end
 	
 	--> TOP INIMIGOS
@@ -2432,16 +2502,23 @@ function atributo_damage:MontaInfoDamageDone()
 				barra.textura:SetValue (tabela[2]/max_*100)
 			end
 
-			barra.texto_esquerdo:SetText (index..instancia.divisores.colocacao..tabela[1]) --seta o texto da esqueda
-			barra.texto_direita:SetText (_detalhes:comma_value (tabela[2]) .." ".. instancia.divisores.abre .. _cstr ("%.1f", tabela[3]) .."%".. instancia.divisores.fecha) --seta o texto da direita
+			barra.texto_esquerdo:SetText (index .. ". " .. _detalhes:GetOnlyName (tabela[1])) --seta o texto da esqueda
+			barra.texto_direita:SetText (_detalhes:comma_value (tabela[2]) .. " (" .. _cstr ("%.1f", tabela[3]) .. "%)") --seta o texto da direita
 			
-			barra.icone:SetTexture ([[Interface\AddOns\Details\images\classes_small]]) --CLASSE
+			barra.icone:SetTexture ([[Interface\AddOns\Details\images\classes_small_alpha]]) --CLASSE
 			
 			local texCoords = _detalhes.class_coords [tabela[4]]
 			if (not texCoords) then
 				texCoords = _detalhes.class_coords ["UNKNOW"]
 			end
 			barra.icone:SetTexCoord (_unpack (texCoords))
+			
+			local color = _detalhes.class_colors [tabela[4]]
+			if (color) then
+				barra.textura:SetStatusBarColor (_unpack (color))
+			else
+				barra.textura:SetStatusBarColor (1, 1, 1)
+			end
 			
 			_detalhes:name_space_info (barra)
 			
@@ -2500,6 +2577,13 @@ function atributo_damage:MontaInfoDamageDone()
 			else
 				barra.textura:SetValue (tabela[2]/max_inimigos*100)
 			end
+			
+			barra.textura:SetStatusBarColor (1, 0.8, 0.8)
+			
+			barra.icone:SetTexture ([[Interface\AddOns\Details\images\classes_small_alpha]]) --CLASSE
+			
+			local texCoords = _detalhes.class_coords ["ENEMY"]
+			barra.icone:SetTexCoord (_unpack (texCoords))
 			
 			barra.texto_esquerdo:SetText (index..instancia.divisores.colocacao..tabela[1]) --seta o texto da esqueda
 			if (info.sub_atributo == 2) then
@@ -2638,7 +2722,7 @@ function atributo_damage:MontaDetalhesEnemy (spellid, barra)
 			barra.textura:SetValue (tabela[2]/max_*100) --> muito mais rapido...
 		end
 
-		barra.texto_esquerdo:SetText (index .. ". " .. tabela [1]) --seta o texto da esqueda
+		barra.texto_esquerdo:SetText (index .. ". " .. _detalhes:GetOnlyName (tabela [1])) --seta o texto da esqueda
 		_detalhes:name_space_info (barra)
 		
 		if (spell.total > 0) then
@@ -2652,7 +2736,14 @@ function atributo_damage:MontaDetalhesEnemy (spellid, barra)
 			texCoords = _detalhes.class_coords ["UNKNOW"]
 		end
 		
-		barra.icone:SetTexture ("Interface\\AddOns\\Details\\images\\classes_small")
+		local color = _detalhes.class_colors [tabela[3]]
+		if (color) then
+			barra.textura:SetStatusBarColor (_unpack (color))
+		else
+			barra.textura:SetStatusBarColor (1, 1, 1, 1)
+		end
+		
+		barra.icone:SetTexture ("Interface\\AddOns\\Details\\images\\classes_small_alpha")
 		barra.icone:SetTexCoord (unpack (texCoords))
 
 		barra:Show() --> mostra a barra
@@ -2739,10 +2830,15 @@ function atributo_damage:MontaDetalhesDamageTaken (nome, barra)
 end
 
 ------ Detalhe Info Damage Done e Dps
-local defenses_table = {c = {117/255, 58/255, 0/255}, p = 0}
-local normal_table = {c = {255/255, 180/255, 0/255, 0.5}, p = 0}
-local multistrike_table = {c = {223/255, 249/255, 45/255, 0.5}, p = 0}
-local critical_table = {c = {249/255, 74/255, 45/255, 0.5}, p = 0}
+--local defenses_table = {c = {117/255, 58/255, 0/255}, p = 0}
+--local normal_table = {c = {255/255, 180/255, 0/255, 0.5}, p = 0}
+--local multistrike_table = {c = {223/255, 249/255, 45/255, 0.5}, p = 0}
+--local critical_table = {c = {249/255, 74/255, 45/255, 0.5}, p = 0}
+
+local defenses_table = {c = {1, 1, 1, 0.5}, p = 0}
+local normal_table = {c = {1, 1, 1, 0.5}, p = 0}
+local multistrike_table = {c = {1, 1, 1, 0.5}, p = 0}
+local critical_table = {c = {1, 1, 1, 0.5}, p = 0}
 
 local data_table = {}
 local t1, t2, t3, t4 = {}, {}, {}, {}
@@ -2793,12 +2889,20 @@ function atributo_damage:MontaDetalhesDamageDone (spellid, barra, instancia)
 		else
 			this_dps = Loc ["STRING_DPS"] .. ": " .. Loc ["STRING_SEE_BELOW"]
 		end
+
+		local spellschool, schooltext = esta_magia.spellschool, ""
+		if (spellschool) then
+			local t = _detalhes.spells_school [spellschool]
+			if (t and t.name) then
+				schooltext = t.formated
+			end
+		end
 		
 		gump:SetaDetalheInfoTexto ( index, 100,
 			Loc ["STRING_GERAL"],
 			Loc ["STRING_DAMAGE"]..": ".._detalhes:ToK (esta_magia.total), 
 			--Loc ["STRING_MULTISTRIKE"] .. ": " .. _cstr ("%.1f", esta_magia.counter/esta_magia.m_amt*100) .. "%", 
-			"", --offhand,
+			schooltext, --offhand,
 			Loc ["STRING_AVERAGE"] .. ": " .. _detalhes:comma_value (media), 
 			this_dps,
 			Loc ["STRING_HITS"]..": " .. total_hits)
@@ -2925,7 +3029,7 @@ function atributo_damage:MontaTooltipDamageTaken (esta_barra, index)
 	for spellid, spell in _pairs (container) do 
 		for target_name, amount in _pairs (spell.targets) do 
 			if (target_name == self.nome) then
-				total = total + actor.total
+				total = total + amount
 				habilidades [#habilidades+1] = {spellid, amount}
 			end
 		end

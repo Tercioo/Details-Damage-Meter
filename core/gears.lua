@@ -227,99 +227,270 @@ function _detalhes:StoreEncounter (combat)
 		return
 	end
 	
-	--> check if is a mythic encounter
-	local diff = combat:GetDifficulty()
-	if (difficulty ~= 16) then
-	--if (diff ~= 16 and false) then --> debug
-		return
-	end
-
 	local boss_info = combat:GetBossInfo()
 	local encounter_id = boss_info and boss_info.id
 	if (not encounter_id) then
 		return
 	end
-
-	--> check the guild name
-	local match = 0
-	local guildName = select (1, GetGuildInfo ("player"))
-	local raid_size = GetNumGroupMembers() or 0
 	
-	if (guildName) then
-		for i = 1, raid_size do
-			local gName = select (1, GetGuildInfo ("raid" .. i)) or ""
-			if (gName == guildName) then
-				match = match + 1
+	local diff = combat:GetDifficulty()
+	
+	--> check for heroic mode
+	if (diff == 5 or diff == 6 or diff == 15) then
+	
+		local role = UnitGroupRolesAssigned ("player")
+		if (role ~= "DAMAGER" and role ~= "HEALER") then
+			return
+		end
+	
+		--> check if the storage is already loaded
+		if (not IsAddOnLoaded ("Details_DataStorage")) then
+			local loaded, reason = LoadAddOn ("Details_DataStorage")
+			if (not loaded) then
+				return
 			end
 		end
 		
-		if (match < raid_size * 0.75) then
+		--> get the storage table
+		local db = DetailsDataStorage
+		
+		if (not db and _detalhes.CreateStorageDB) then
+			db = _detalhes:CreateStorageDB()
+			if (not db) then
+				return
+			end
+		elseif (not db) then
 			return
 		end
-	else
-		return
-	end
 
-	--> check if the storage is already loaded
-	if (not IsAddOnLoaded ("Details_DataStorage")) then
-		local loaded, reason = LoadAddOn ("Details_DataStorage")
-		if (not loaded) then
+		local self_database = db.SELF_STORAGE
+		
+		if (not self_database) then
+			--> outdate database?
 			return
-		end
-	end
-
-	--> get the storage table
-	local db = DetailsDataStorage
-	
-	if (not db and _detalhes.CreateStorageDB) then
-		db = _detalhes:CreateStorageDB()
-		if (not db) then
-			return
-		end
-	end
-
-	local raid_database = db.RAID_STORAGE
-	
-	if (not raid_database) then
-		db.RAID_STORAGE = {}
-		raid_database = db.RAID_STORAGE
-	end
-	
-	--> encounter_database: numeric table with combats
-	local encounter_database = raid_database [encounter_id]
-	
-	if (not encounter_database) then
-		raid_database [encounter_id] = {}
-		encounter_database = raid_database [encounter_id]
-	end
-	
-	--> get raid members data
-	local this_combat_data = {
-		damage = {},
-		heal = {},
-		date = date ("%H:%M %d/%m/%y"),
-		time = time(),
-		elapsed = combat:GetCombatTime(),
-		guild = guildName,
-	}
-	
-	for i = 1, raid_size do
-		local player_name, player_realm = UnitName ("raid" .. i)
-		if (player_realm and player_realm ~= "") then
-			player_name = player_name .. "-" .. player_realm
 		end
 		
-		local damage_actor = combat (1, player_name)
-		if (damage_actor) then
-			this_combat_data.damage [player_name] = floor (damage_actor.total)
+		local heroic_branch = self_database ["HEROIC"]
+		if (not heroic_branch) then
+			heroic_branch = {}
+			self_database ["HEROIC"] = heroic_branch
 		end
 		
-		local heal_actor = combat (2, player_name)
-		if (heal_actor) then
-			this_combat_data.heal [player_name] = floor (heal_actor.total)
+		--> heroic database: numeric table with combats
+		local encounter_database = heroic_branch [encounter_id]
+		
+		if (not encounter_database) then
+			heroic_branch [encounter_id] = {}
+			encounter_database = heroic_branch [encounter_id]
 		end
-	end
-	
-	tinsert (encounter_database, this_combat_data)
+		
+		--> get player data
+		local t = {
+			total = 0,
+			spells = {},
+		}
+		
+		if (role == "DAMAGER") then
+			local player = combat (1, _detalhes.player_name)
+			if (player) then
+				t.total = player.total
+				for spellid, spell in pairs (player.spells._ActorTable) do
+					t.spells [spellid] = spell.total
+				end
+			end
+			
+		elseif (role == "HEALER") then
+			local player = combat (2, _detalhes.player_name)
+			if (player) then
+				t.total = player.total
+				for spellid, spell in pairs (player.spells._ActorTable) do
+					t.spells [spellid] = spell.total
+				end
+			end
+		end
 
+		if (t.total > 0) then
+			local this_combat_data = {
+				total = t.total,
+				spells = t.spells,
+				date = date ("%H:%M %d/%m/%y"),
+				time = time(),
+				elapsed = combat:GetCombatTime(),
+			}
+			tinsert (encounter_database, this_combat_data)
+		end
+		
+	--> check for normal mode
+	elseif (diff == 3 or diff == 4 or diff == 14) then
+	
+		local role = UnitGroupRolesAssigned ("player")
+		if (role ~= "DAMAGER" and role ~= "HEALER") then
+			return
+		end
+	
+		--> check if the storage is already loaded
+		if (not IsAddOnLoaded ("Details_DataStorage")) then
+			local loaded, reason = LoadAddOn ("Details_DataStorage")
+			if (not loaded) then
+				return
+			end
+		end
+		
+		--> get the storage table
+		local db = DetailsDataStorage
+		
+		if (not db and _detalhes.CreateStorageDB) then
+			db = _detalhes:CreateStorageDB()
+			if (not db) then
+				return
+			end
+		elseif (not db) then
+			return
+		end
+
+		local self_database = db.SELF_STORAGE
+		
+		if (not self_database) then
+			--> outdate database?
+			return
+		end
+		
+		local normal_branch = self_database ["NORMAL"]
+		if (not normal_branch) then
+			normal_branch = {}
+			self_database ["NORMAL"] = normal_branch
+		end
+		
+		--> heroic database: numeric table with combats
+		local encounter_database = normal_branch [encounter_id]
+		
+		if (not encounter_database) then
+			normal_branch [encounter_id] = {}
+			encounter_database = normal_branch [encounter_id]
+		end
+		
+		--> get player data
+		local t = {
+			total = 0,
+			spells = {},
+			role = role,
+		}
+		
+		if (role == "DAMAGER") then
+			local player = combat (1, _detalhes.player_name)
+			if (player) then
+				t.total = player.total
+				for spellid, spell in pairs (player.spells._ActorTable) do
+					t.spells [spellid] = spell.total
+				end
+			end
+			
+		elseif (role == "HEALER") then
+			local player = combat (2, _detalhes.player_name)
+			if (player) then
+				t.total = player.total
+				for spellid, spell in pairs (player.spells._ActorTable) do
+					t.spells [spellid] = spell.total
+				end
+			end
+		end
+
+		if (t.total > 0) then
+			local this_combat_data = {
+				total = t.total,
+				spells = t.spells,
+				date = date ("%H:%M %d/%m/%y"),
+				time = time(),
+				elapsed = combat:GetCombatTime(),
+			}
+			tinsert (encounter_database, this_combat_data)
+		end
+	
+	--> check if is a mythic encounter and store the mythic encounter
+	elseif (difficulty == 16) then
+	
+		--> check the guild name
+		local match = 0
+		local guildName = select (1, GetGuildInfo ("player"))
+		local raid_size = GetNumGroupMembers() or 0
+		
+		if (guildName) then
+			for i = 1, raid_size do
+				local gName = select (1, GetGuildInfo ("raid" .. i)) or ""
+				if (gName == guildName) then
+					match = match + 1
+				end
+			end
+			
+			if (match < raid_size * 0.75) then
+				return
+			end
+		else
+			return
+		end
+
+		--> check if the storage is already loaded
+		if (not IsAddOnLoaded ("Details_DataStorage")) then
+			local loaded, reason = LoadAddOn ("Details_DataStorage")
+			if (not loaded) then
+				return
+			end
+		end
+
+		--> get the storage table
+		local db = DetailsDataStorage
+		
+		if (not db and _detalhes.CreateStorageDB) then
+			db = _detalhes:CreateStorageDB()
+			if (not db) then
+				return
+			end
+		elseif (not db) then
+			return
+		end
+
+		local raid_database = db.RAID_STORAGE
+		
+		if (not raid_database) then
+			db.RAID_STORAGE = {}
+			raid_database = db.RAID_STORAGE
+		end
+		
+		--> encounter_database: numeric table with combats
+		local encounter_database = raid_database [encounter_id]
+		
+		if (not encounter_database) then
+			raid_database [encounter_id] = {}
+			encounter_database = raid_database [encounter_id]
+		end
+		
+		--> get raid members data
+		local this_combat_data = {
+			damage = {},
+			heal = {},
+			date = date ("%H:%M %d/%m/%y"),
+			time = time(),
+			elapsed = combat:GetCombatTime(),
+			guild = guildName,
+		}
+		
+		for i = 1, raid_size do
+			local player_name, player_realm = UnitName ("raid" .. i)
+			if (player_realm and player_realm ~= "") then
+				player_name = player_name .. "-" .. player_realm
+			end
+			
+			local damage_actor = combat (1, player_name)
+			if (damage_actor) then
+				this_combat_data.damage [player_name] = floor (damage_actor.total)
+			end
+			
+			local heal_actor = combat (2, player_name)
+			if (heal_actor) then
+				this_combat_data.heal [player_name] = floor (heal_actor.total)
+			end
+		end
+		
+		tinsert (encounter_database, this_combat_data)
+	end
 end

@@ -137,7 +137,7 @@ local _UISpecialFrames = UISpecialFrames --> wow api locals
 	
 --> internal details report functions -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-	function _detalhes:Reportar (param2, options, arg3)
+	function _detalhes:Reportar (param2, options, arg3, id)
 
 		if (not _detalhes.janela_report) then
 			_detalhes.janela_report = gump:CriaJanelaReport()
@@ -146,6 +146,18 @@ local _UISpecialFrames = UISpecialFrames --> wow api locals
 		if (options and options.meu_id) then
 			self = options
 		end
+		
+		if (type (param2) == "string") then
+			id = param2
+		end
+		
+		if (_detalhes.last_report_id and id and _detalhes.last_report_id == id) then
+			_detalhes.last_report_id = nil
+			_detalhes.janela_report.fechar:Click()
+			return
+		end
+		
+		_detalhes.last_report_id = id
 		
 		--> trabalha com as opções:
 		if (options and options._no_current) then

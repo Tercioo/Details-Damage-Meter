@@ -834,9 +834,29 @@ function atributo_energy:KeyNames (sub_atributo)
 end
 
 ---------> TOOLTIPS BIFURCAÇÃO
+
+local resource_bg_color = {.1, .1, .1, 0.6}
+local resource_bg_coords = {.6, 0.1, 0, 0.64453125}
+
 function atributo_energy:ToolTip (instancia, numero, barra, keydown)
 	if (instancia.sub_atributo <= 4) then
 		return self:ToolTipRegenRecebido (instancia, numero, barra, keydown)
+		
+	elseif (instancia.sub_atributo == 5) then --resources
+
+		local resource_string = _detalhes.resource_strings [self.resource_type]
+		
+		if (resource_string) then
+		
+			local icon = _detalhes.resource_icons [self.resource_type]
+	
+			GameCooltip:AddLine (resource_string, _cstr ("%.2f", self.resource / instancia.showing:GetCombatTime()) .. " per minute", 1, "white")
+			GameCooltip:AddIcon (icon.file, 1, 1, 16, 16, unpack (icon.coords))
+			GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], resource_bg_coords, resource_bg_color, true)
+			
+			return true
+		end
+	
 	end
 end
 
@@ -1401,6 +1421,11 @@ end
 			--> restaura a meta e indexes ao ator
 				_detalhes.refresh:r_atributo_energy (actor, shadow)
 				shadow.powertype = actor.powertype
+				
+				if (actor.resource) then
+					shadow.resource = (shadow.resource or 0) + actor.resource
+					shadow.resource_type = actor.resource_type
+				end
 			
 			--> targets
 				for target_name, amount in _pairs (actor.targets) do 
@@ -1447,10 +1472,15 @@ end
 				shadow.received = shadow.received + actor.received
 				
 				if (not actor.powertype) then
-					print ("actor without powertype", actor.nome, actor.powertype)
+					--print ("actor without powertype", actor.nome, actor.powertype)
 				end
 				
 				shadow.powertype = actor.powertype
+				
+				if (actor.resource) then
+					shadow.resource = (shadow.resource or 0) + actor.resource
+					shadow.resource_type = actor.resource_type
+				end
 			
 			--> total no combate overall (captura de dados)
 				_detalhes.tabela_overall.totals[3] [actor.powertype] = _detalhes.tabela_overall.totals[3] [actor.powertype] + actor.total
@@ -1511,6 +1541,10 @@ atributo_energy.__add = function (tabela1, tabela2)
 	if (not tabela1.powertype) then
 		tabela1.powertype = tabela2.powertype
 	end
+	
+	if (tabela1.resource) then
+		tabela1.resource = tabela1.resource + (tabela2.resource or 0)
+	end
 
 	--> total and received
 		tabela1.total = tabela1.total + tabela2.total
@@ -1543,6 +1577,10 @@ atributo_energy.__sub = function (tabela1, tabela2)
 
 	if (not tabela1.powertype) then
 		tabela1.powertype = tabela2.powertype
+	end
+	
+	if (tabela1.resource) then
+		tabela1.resource = tabela1.resource - (tabela2.resource or 0)
 	end
 
 	--> total and received

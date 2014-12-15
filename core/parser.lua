@@ -757,7 +757,8 @@
 	--> group checks
 
 		if (este_jogador.grupo) then 
-			_current_combat.totals_grupo[2] = _current_combat.totals_grupo[2] + cura_efetiva
+			--_current_combat.totals_grupo[2] = _current_combat.totals_grupo[2] + cura_efetiva
+			_current_gtotal [2] = _current_gtotal [2] + cura_efetiva
 		end
 		
 		if (jogador_alvo.grupo) then
@@ -1463,14 +1464,34 @@
 	}
 	
 	local resource_power_type = {
-		[4] = 3, --cat druids and rogues uses energy
-		[SPELL_POWER_SOUL_SHARDS] = 0, --warlock uses mana
-		[SPELL_POWER_ECLIPSE] = 0, --moonkin uses mana
-		[SPELL_POWER_HOLY_POWER] = 0, --paladins uses mana
-		[SPELL_POWER_SHADOW_ORBS] = 0, --shadow preist uses mana
-		[SPELL_POWER_DEMONIC_FURY] = 0, --warlock uses mana
-		[SPELL_POWER_BURNING_EMBERS] = 0, --warlock uses mana
+		[4] = SPELL_POWER_ENERGY, --combo points
+		[SPELL_POWER_SOUL_SHARDS] = SPELL_POWER_MANA,
+		[SPELL_POWER_ECLIPSE] = SPELL_POWER_MANA,
+		[SPELL_POWER_HOLY_POWER] = SPELL_POWER_MANA,
+		[SPELL_POWER_SHADOW_ORBS] = SPELL_POWER_MANA,
+		[SPELL_POWER_DEMONIC_FURY] = SPELL_POWER_MANA,
+		[SPELL_POWER_BURNING_EMBERS] = SPELL_POWER_MANA,
 	}
+	
+	_detalhes.resource_strings = {
+		[4] = "Combo Point",
+		[SPELL_POWER_SOUL_SHARDS] = "Soul Shard",
+		[SPELL_POWER_ECLIPSE] = "Eclipse",
+		[SPELL_POWER_HOLY_POWER] = "Holy Power",
+		[SPELL_POWER_SHADOW_ORBS] = "Shadow Orb",
+		[SPELL_POWER_DEMONIC_FURY] = "Demonic Fury",
+		[SPELL_POWER_BURNING_EMBERS] = "Burning Embers",
+	}
+	
+	_detalhes.resource_icons = {
+		[4] = {file = [[Interface\CHARACTERFRAME\ComboPoint]], coords = {1/32, 18/32, 1/16, 14/16}},
+		[SPELL_POWER_SOUL_SHARDS] = {file = [[Interface\PLAYERFRAME\UI-WARLOCKSHARD]], coords = {2/64, 2/64, 17/128, 16/128}},
+		[SPELL_POWER_ECLIPSE] = {file = [[Interface\PLAYERFRAME\DruidEclipse]], coords = {117/256, 138/256, 72/128, 113/128}},
+		[SPELL_POWER_HOLY_POWER] = {file = [[Interface\PLAYERFRAME\PALADINPOWERTEXTURES]], coords = {75/256, 94/256, 87/128, 100/128}},
+		[SPELL_POWER_SHADOW_ORBS] = {file = [[Interface\PLAYERFRAME\Priest-ShadowUI]], coords = {119/256, 150/256, 61/128, 94/128}},
+		[SPELL_POWER_DEMONIC_FURY] = {file = [[Interface\PLAYERFRAME\Warlock-DemonologyUI]], coords = {76/256, 109/256, 90/256, 104/256}},
+		[SPELL_POWER_BURNING_EMBERS] = {file = [[Interface\PLAYERFRAME\Warlock-DestructionUI]], coords = {3/256, 33/256, 23/64, 52/64}}
+		}
 
 	function parser:energize (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amount, powertype, p6, p7)
 
@@ -1487,7 +1508,7 @@
 	--> check if is energy or resource
 	
 		--> get resource type
-		local is_resource, resource_amount = resource_power_type [powertype], amount
+		local is_resource, resource_amount, resource_id = resource_power_type [powertype], amount, powertype
 	
 		--> check if is valid
 		if (not energy_types [powertype] and not is_resource) then
@@ -1575,6 +1596,7 @@
 		else
 			--> is a resource
 			este_jogador.resource = este_jogador.resource + resource_amount
+			este_jogador.resource_type = resource_id
 		end
 	end
 
@@ -2337,6 +2359,8 @@
 			token_list ["RANGE_MISSED"] = nil
 			token_list ["SWING_MISSED"] = nil
 			token_list ["SPELL_MISSED"] = nil
+			token_list ["SPELL_PERIODIC_MISSED"] = nil
+			token_list ["DAMAGE_SHIELD_MISSED"] = nil
 			token_list ["ENVIRONMENTAL_DAMAGE"] = nil
 		
 		elseif (capture_type == "heal") then
@@ -2376,16 +2400,11 @@
 		end
 	end
 
-	--SPELL_PERIODIC_MISSED --> need research
-	--DAMAGE_SHIELD_MISSED --> need research
-	--SPELL_EXTRA_ATTACKS --> need research
 	--SPELL_DRAIN --> need research
 	--SPELL_LEECH --> need research
 	--SPELL_PERIODIC_DRAIN --> need research
 	--SPELL_PERIODIC_LEECH --> need research
 	--SPELL_DISPEL_FAILED --> need research
-	--SPELL_ABSORBED
-
 	
 	function _detalhes:CaptureEnable (capture_type)
 
@@ -2402,6 +2421,8 @@
 			token_list ["RANGE_MISSED"] = parser.rangemissed
 			token_list ["SWING_MISSED"] = parser.swingmissed
 			token_list ["SPELL_MISSED"] = parser.missed
+			token_list ["SPELL_PERIODIC_MISSED"] = parser.missed
+			token_list ["DAMAGE_SHIELD_MISSED"] = parser.missed
 			token_list ["ENVIRONMENTAL_DAMAGE"] = parser.environment
 
 		elseif (capture_type == "heal") then
@@ -2701,7 +2722,10 @@
 		
 		if (_detalhes.schedule_store_boss_encounter) then
 			if (not _detalhes.logoff_saving_data) then
-				pcall (_detalhes.StoreEncounter)
+				local successful, errortext = pcall (_detalhes.StoreEncounter)
+				if (not successful) then
+					_detalhes:Msg ("error occurred on StoreEncounter():", errortext)
+				end
 			end
 			_detalhes.schedule_store_boss_encounter = nil
 		end

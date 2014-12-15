@@ -131,7 +131,7 @@
 			if (amount > self.c_max) then
 				self.c_max = amount
 			end
-			if (self.c_min > amount or self.c_min == 0) then
+			if ((self.c_min > amount or self.c_min == 0) and not multistrike) then
 				self.c_min = amount
 			end
 		else
@@ -140,7 +140,7 @@
 			if (amount > self.n_max) then
 				self.n_max = amount
 			end
-			if (self.n_min > amount or self.n_min == 0) then
+			if ((self.n_min > amount or self.n_min == 0) and not multistrike) then
 				self.n_min = amount
 			end
 		end
