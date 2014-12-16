@@ -145,7 +145,7 @@
 
 	------------------------------------------------------------------------------------------------
 	--> early checks and fixes
-		
+
 		if (who_serial == "") then
 			if (who_flags and _bit_band (who_flags, OBJECT_TYPE_PETS) ~= 0) then --> é um pet
 				--> pets must have a serial
@@ -493,6 +493,7 @@
 		return parser:missed (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, 2, "Tiro-Automático", 00000001, missType, isOffHand, multistrike, amountMissed) --, isOffHand, multistrike, amountMissed, arg1
 	end
 
+	-- ~miss
 	function parser:missed (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, missType, isOffHand, multistrike, amountMissed, arg1)
 
 	------------------------------------------------------------------------------------------------
@@ -509,7 +510,8 @@
 		--> 'misser'
 		local este_jogador = damage_cache [who_name]
 		if (not este_jogador) then
-			este_jogador, meu_dono, who_name = _current_damage_container:PegarCombatente (nil, who_name)
+			--este_jogador, meu_dono, who_name = _current_damage_container:PegarCombatente (nil, who_name)
+			este_jogador, meu_dono, who_name = _current_damage_container:PegarCombatente (who_serial, who_name, who_flags, true)
 			if (not este_jogador) then
 				return --> just return if actor doen't exist yet
 			end
@@ -2359,9 +2361,11 @@
 			token_list ["RANGE_MISSED"] = nil
 			token_list ["SWING_MISSED"] = nil
 			token_list ["SPELL_MISSED"] = nil
+			token_list ["SPELL_BUILDING_MISSED"] = nil
 			token_list ["SPELL_PERIODIC_MISSED"] = nil
 			token_list ["DAMAGE_SHIELD_MISSED"] = nil
 			token_list ["ENVIRONMENTAL_DAMAGE"] = nil
+			token_list ["SPELL_BUILDING_DAMAGE"] = nil
 		
 		elseif (capture_type == "heal") then
 			token_list ["SPELL_HEAL"] = nil
@@ -2414,6 +2418,7 @@
 			token_list ["SPELL_PERIODIC_DAMAGE"] = parser.spell_dmg
 			token_list ["SPELL_EXTRA_ATTACKS"] = parser.spell_dmg
 			token_list ["SPELL_DAMAGE"] = parser.spell_dmg
+			token_list ["SPELL_BUILDING_DAMAGE"] = parser.spell_dmg
 			token_list ["SWING_DAMAGE"] = parser.swing
 			token_list ["RANGE_DAMAGE"] = parser.range
 			token_list ["DAMAGE_SHIELD"] = parser.spell_dmg
@@ -2422,6 +2427,7 @@
 			token_list ["SWING_MISSED"] = parser.swingmissed
 			token_list ["SPELL_MISSED"] = parser.missed
 			token_list ["SPELL_PERIODIC_MISSED"] = parser.missed
+			token_list ["SPELL_BUILDING_MISSED"] = parser.missed
 			token_list ["DAMAGE_SHIELD_MISSED"] = parser.missed
 			token_list ["ENVIRONMENTAL_DAMAGE"] = parser.environment
 
@@ -2952,7 +2958,7 @@
 	end)
 		
 	--> end
-
+	
 	-- ~parserstart ~startparser
 	function _detalhes:OnParserEvent (evento, time, token, hidding, who_serial, who_name, who_flags, who_flags2, alvo_serial, alvo_name, alvo_flags, alvo_flags2, ...)
 		local funcao = token_list [token]
@@ -2962,6 +2968,7 @@
 		else
 			return
 		end
+		
 	end
 	_detalhes.parser_frame:SetScript ("OnEvent", _detalhes.OnParserEvent)
 
