@@ -2317,8 +2317,10 @@
 			
 		end
 		
-		current_combat.start_time = time()-360
-		current_combat.end_time = time()
+		--current_combat.start_time = time()-360
+		current_combat.start_time = GetTime() - 360
+		--current_combat.end_time = time()
+		current_combat.end_time = GetTime()
 		
 		current_combat.totals_grupo [1] = total_damage
 		current_combat.totals_grupo [2] = total_heal

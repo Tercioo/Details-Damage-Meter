@@ -17,6 +17,7 @@
 	local _table_remove = table.remove -- lua local
 	local _rawget = rawget
 	local _math_max = math.max
+	local _GetTime = GetTime
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> constants
@@ -31,7 +32,8 @@
 	local REACTION_HOSTILE =	0x00000040
 	local CONTROL_PLAYER =		0x00000100
 
-	local _tempo = time()
+	--local _tempo = time()
+	local _tempo = _GetTime()
 	
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> api functions
@@ -108,10 +110,25 @@
 		if (self.end_time) then
 			return _math_max (self.end_time - self.start_time, 0.1)
 		elseif (self.start_time and _detalhes.in_combat) then
-			return _math_max (_tempo - self.start_time, 0.1)
+			--return _math_max (_tempo - self.start_time, 0.1)
+			return _math_max (_GetTime() - self.start_time, 0.1)
 		else
 			return 0.1
 		end
+	end
+	
+	function combate:GetStartTime()
+		return self.start_time
+	end
+	function combate:SetStartTime (t)
+		self.start_time = t
+	end
+	
+	function combate:GetEndTime()
+		return self.end_time
+	end
+	function combate:SetEndTime (t)
+		self.end_time = t
 	end
 
 	--return the total of a specific attribute
@@ -209,7 +226,8 @@
 
 		-- a tabela sem o tempo de inicio é a tabela descartavel do inicio do addon
 		if (iniciada) then
-			esta_tabela.start_time = _tempo
+			--esta_tabela.start_time = _tempo
+			esta_tabela.start_time = _GetTime()
 			esta_tabela.end_time = nil
 		else
 			esta_tabela.start_time = 0
@@ -314,9 +332,6 @@
 					jogador:TerminarTempo()
 					jogador:Iniciar (false) --trava o dps do jogador
 				else
-				
-					--print ("Tempo NAO Iniciando:", self.nome, self.start_time, self.end_time, self.delay, _tempo)
-				
 					if (jogador.start_time == 0) then
 						jogador.start_time = _tempo
 					end
@@ -337,16 +352,8 @@
 	end
 
 	function combate:seta_tempo_decorrido()
-		if (self.playing_solo) then
-			local damage_actor = self (1, _detalhes.playername)
-			if (damage_actor) then
-				self.end_time = damage_actor.last_event or _tempo
-			else
-				self.end_time = _tempo
-			end
-		else
-			self.end_time = _tempo
-		end
+		--self.end_time = _tempo
+		self.end_time = _GetTime()
 	end
 
 	function _detalhes.refresh:r_combate (tabela_combate, shadow)
@@ -402,7 +409,7 @@
 			combate1 [4].need_refresh = true
 
 		--> reduz o tempo 
-			combate1.start_time = combate1.start_time + (combate2.end_time - combate2.start_time)
+			combate1.start_time = combate1.start_time + combate2:GetCombatTime()
 			
 		--> apaga as mortes da luta diminuida
 			local amt_mortes =  #combate2.last_events_tables --> quantas mortes teve nessa luta

@@ -176,8 +176,8 @@ function SlashCmdList.DETAILS (msg, editbox)
 			self.spells._ActorTable [122].total = 25000
 		end
 		
-		combat.start_time = time()-30
-		combat.end_time = time()
+		combat.start_time = GetTime()-30
+		combat.end_time = GetTime()
 		
 		combat.totals_grupo [1] = 100000
 		combat.totals [1] = 100000

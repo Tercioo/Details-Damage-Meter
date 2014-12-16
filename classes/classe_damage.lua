@@ -1326,6 +1326,7 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 				self.last_dps = dps
 			end
 		else
+			--print ("calculando dps")
 			dps = damage_total / combat_time
 			self.last_dps = dps
 		end

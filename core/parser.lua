@@ -24,6 +24,7 @@
 	local _IsInGroup = IsInGroup --wow api local
 	local _GetNumGroupMembers = GetNumGroupMembers --wow api local
 	local _UnitGroupRolesAssigned = UnitGroupRolesAssigned --wow api local
+	local _GetTime = GetTime
 
 	local _cstr = string.format --lua local
 	local _table_insert = table.insert --lua local
@@ -2206,7 +2207,7 @@
 
 				if (_hook_deaths) then
 					--> send event to registred functions
-					local death_at = _tempo - _current_combat.start_time
+					local death_at = _tempo - _current_combat:GetStartTime()
 					local max_health = _UnitHealthMax (alvo_name)
 
 					for _, func in _ipairs (_hook_deaths_container) do 
@@ -2241,7 +2242,7 @@
 					esta_morte [#esta_morte+1] = t
 				end
 				
-				local decorrido = _tempo - _current_combat.start_time
+				local decorrido = _tempo - _current_combat:GetStartTime()
 				local minutos, segundos = _math_floor (decorrido/60), _math_floor (decorrido%60)
 				
 				local t = {esta_morte, time, este_jogador.nome, este_jogador.classe, _UnitHealthMax (alvo_name), minutos.."m "..segundos.."s",  ["dead"] = true, ["last_cooldown"] = este_jogador.last_cooldown, ["dead_at"] = decorrido}
@@ -2548,7 +2549,7 @@
 		end
 	
 		_detalhes.latest_ENCOUNTER_END = _detalhes.latest_ENCOUNTER_END or 0
-		if (_detalhes.latest_ENCOUNTER_END + 10 > _detalhes._tempo) then
+		if (_detalhes.latest_ENCOUNTER_END + 10 > _GetTime()) then
 			return
 		end
 	
@@ -2570,7 +2571,8 @@
 		--print (encounterID, encounterName, difficultyID, raidSize)
 		_detalhes.encounter_table.phase = 1
 		
-		_detalhes.encounter_table ["start"] = time()
+		--_detalhes.encounter_table ["start"] = time()
+		_detalhes.encounter_table ["start"] = _GetTime()
 		_detalhes.encounter_table ["end"] = nil
 		
 		_detalhes.encounter_table.id = encounterID
@@ -2580,7 +2582,7 @@
 		_detalhes.encounter_table.zone = zoneName
 		_detalhes.encounter_table.mapid = zoneMapID
 		
-		if (dbm_mod and dbm_time == time()) then
+		if (dbm_mod and dbm_time == time()) then --pode ser time() é usado no start pra saber se foi no mesmo segundo.
 			_detalhes.encounter_table.DBM_Mod = dbm_mod
 		end
 		
@@ -2590,10 +2592,12 @@
 				if (type (encounter_start_table.delay) == "function") then
 					local delay = encounter_start_table.delay()
 					if (delay) then
-						_detalhes.encounter_table ["start"] = time() + delay
+						--_detalhes.encounter_table ["start"] = time() + delay
+						_detalhes.encounter_table ["start"] = _GetTime() + delay
 					end
 				else
-					_detalhes.encounter_table ["start"] = time() + encounter_start_table.delay
+					--_detalhes.encounter_table ["start"] = time() + encounter_start_table.delay
+					_detalhes.encounter_table ["start"] = _GetTime() + encounter_start_table.delay
 				end
 			end
 			if (encounter_start_table.func) then
@@ -2626,9 +2630,11 @@
 		if (_detalhes.latest_ENCOUNTER_END + 15 > _detalhes._tempo) then
 			return
 		end
-		_detalhes.latest_ENCOUNTER_END = _detalhes._tempo
+		--_detalhes.latest_ENCOUNTER_END = _detalhes._tempo
+		_detalhes.latest_ENCOUNTER_END = _GetTime()
 		
-		_detalhes.encounter_table ["end"] = time() - 0.4
+		--_detalhes.encounter_table ["end"] = time() - 0.4
+		_detalhes.encounter_table ["end"] = _GetTime() - 0.4
 		
 		local _, _, _, _, _, _, _, zoneMapID = _GetInstanceInfo()
 		
@@ -2641,9 +2647,8 @@
 				_detalhes:SairDoCombate (false, true) --wipe
 			end
 		else
-			if ((_detalhes.tabela_vigente.end_time or 0) + 2 >= _detalhes.encounter_table ["end"]) then
-				--_detalhes.tabela_vigente.start_time = _detalhes.encounter_table ["start"]
-				_detalhes.tabela_vigente.end_time = _detalhes.encounter_table ["end"]
+			if ((_detalhes.tabela_vigente:GetEndTime() or 0) + 2 >= _detalhes.encounter_table ["end"]) then
+				_detalhes.tabela_vigente:SetEndTime (_detalhes.encounter_table ["end"])
 				_detalhes:AtualizaGumpPrincipal (-1, true)
 			end
 		end
@@ -2655,9 +2660,12 @@
 		local frase = _select (1, ...)
 		--> reset combat timer
 		if ( (frase:find ("The battle") and frase:find ("has begun!") ) and _current_combat.pvp) then
-			local tempo_do_combate = _tempo - _current_combat.start_time
-			_detalhes.tabela_overall.start_time = _detalhes.tabela_overall.start_time + tempo_do_combate
-			_current_combat.start_time = _tempo
+			--local tempo_do_combate = _tempo - _current_combat:GetStartTime()
+			local tempo_do_combate = _GetTime() - _current_combat:GetStartTime()
+			
+			_detalhes.tabela_overall:SetStartTime (_detalhes.tabela_overall:GetStartTime() + tempo_do_combate)
+			--_current_combat.start_time = _tempo
+			_current_combat:SetStartTime (_GetTime())
 			_detalhes.listener:UnregisterEvent ("CHAT_MSG_BG_SYSTEM_NEUTRAL")
 		end
 	end

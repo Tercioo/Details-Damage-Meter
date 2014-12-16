@@ -78,8 +78,10 @@
 				end
 	
 			--> tempo padrao do overall
-				combate_overall.start_time = _tempo
-				combate_overall.end_time = _tempo
+				--combate_overall.start_time = _tempo
+				combate_overall.start_time = GetTime()
+				--combate_overall.end_time = _tempo
+				combate_overall.end_time = GetTime()
 			
 			--> inicia a recuperação das tabelas e montagem do overall
 				if (#tabelas_do_historico > 0) then

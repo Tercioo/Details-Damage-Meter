@@ -4897,7 +4897,7 @@ local build_segment_list = function (self, elapsed)
 					
 					CoolTip:AddLine (Loc ["STRING_SEGMENT_ENEMY"] .. ":", enemy, 2, "white", "white")
 					
-					local decorrido = (thisCombat.end_time or _detalhes._tempo) - thisCombat.start_time
+					local decorrido = thisCombat:GetCombatTime()
 					local minutos, segundos = _math_floor (decorrido/60), _math_floor (decorrido%60)
 					CoolTip:AddLine (Loc ["STRING_SEGMENT_TIME"] .. ":", minutos.."m "..segundos.."s", 2, "white", "white")
 					
@@ -4959,16 +4959,16 @@ local build_segment_list = function (self, elapsed)
 			
 			CoolTip:AddLine (Loc ["STRING_SEGMENT_ENEMY"] .. ":", enemy, 2, "white", "white")
 			
-			if (not _detalhes.tabela_vigente.end_time) then
+			if (not _detalhes.tabela_vigente:GetEndTime()) then
 				if (_detalhes.in_combat) then
-					local decorrido = _detalhes._tempo - _detalhes.tabela_vigente.start_time
+					local decorrido = _detalhes.tabela_vigente:GetCombatTime()
 					local minutos, segundos = _math_floor (decorrido/60), _math_floor (decorrido%60)
 					CoolTip:AddLine (Loc ["STRING_SEGMENT_TIME"] .. ":", minutos.."m "..segundos.."s", 2, "white", "white") 
 				else
 					CoolTip:AddLine (Loc ["STRING_SEGMENT_TIME"] .. ":", "--x--x--", 2, "white", "white")
 				end
 			else
-				local decorrido = (_detalhes.tabela_vigente.end_time) - _detalhes.tabela_vigente.start_time
+				local decorrido = _detalhes.tabela_vigente:GetCombatTime()
 				local minutos, segundos = _math_floor (decorrido/60), _math_floor (decorrido%60)
 				CoolTip:AddLine (Loc ["STRING_SEGMENT_TIME"] .. ":", minutos.."m "..segundos.."s", 2, "white", "white") 
 			end
@@ -4998,16 +4998,16 @@ local build_segment_list = function (self, elapsed)
 		
 			CoolTip:AddLine (Loc ["STRING_SEGMENT_ENEMY"] .. ":", "--x--x--", 2, "white", "white")
 			
-			if (not _detalhes.tabela_overall.end_time) then
+			if (not _detalhes.tabela_overall:GetEndTime()) then
 				if (_detalhes.in_combat) then
-					local decorrido = _detalhes._tempo - _detalhes.tabela_overall.start_time
+					local decorrido = _detalhes.tabela_overall:GetCombatTime()
 					local minutos, segundos = _math_floor (decorrido/60), _math_floor (decorrido%60)
 					CoolTip:AddLine (Loc ["STRING_SEGMENT_TIME"] .. ":", minutos.."m "..segundos.."s", 2, "white", "white") 
 				else
 					CoolTip:AddLine (Loc ["STRING_SEGMENT_TIME"] .. ":", "--x--x--", 2, "white", "white")
 				end
 			else
-				local decorrido = (_detalhes.tabela_overall.end_time) - _detalhes.tabela_overall.start_time
+				local decorrido = _detalhes.tabela_overall:GetCombatTime()
 				local minutos, segundos = _math_floor (decorrido/60), _math_floor (decorrido%60)
 				CoolTip:AddLine (Loc ["STRING_SEGMENT_TIME"] .. ":", minutos.."m "..segundos.."s", 2, "white", "white") 
 			end

@@ -25,6 +25,7 @@
 	local _UnitExists = UnitExists --wow api local
 	local _UnitGUID = UnitGUID --wow api local
 	local _UnitName = UnitName --wow api local
+	local _GetTime = GetTime
 
 	local _IsAltKeyDown = IsAltKeyDown
 	local _IsShiftKeyDown = IsShiftKeyDown
@@ -253,11 +254,13 @@
 			end
 
 			--> conta o tempo na tabela overall -- start time at overall table
-			if (_detalhes.tabela_overall.end_time) then
-				_detalhes.tabela_overall.start_time = _tempo - (_detalhes.tabela_overall.end_time - _detalhes.tabela_overall.start_time)
-				_detalhes.tabela_overall.end_time = nil
+			if (_detalhes.tabela_overall:GetEndTime()) then
+				--_detalhes.tabela_overall:SetStartTime (_tempo - (_detalhes.tabela_overall.end_time - _detalhes.tabela_overall.start_time))
+				_detalhes.tabela_overall:SetStartTime (_GetTime() - _detalhes.tabela_overall:GetCombatTime())
+				_detalhes.tabela_overall:SetEndTime (nil)
 			else
-				_detalhes.tabela_overall.start_time = _tempo
+				--_detalhes.tabela_overall.start_time = _tempo
+				_detalhes.tabela_overall:SetStartTime (_GetTime())
 			end
 
 			--> re-lock nos tempos da tabela passada -- lock again last table times
@@ -409,8 +412,8 @@
 			
 			_detalhes.tabela_vigente:seta_data (_detalhes._detalhes_props.DATA_TYPE_END) --> salva hora, minuto, segundo do fim da luta
 			_detalhes.tabela_overall:seta_data (_detalhes._detalhes_props.DATA_TYPE_END) --> salva hora, minuto, segundo do fim da luta
-			_detalhes.tabela_vigente:seta_tempo_decorrido() --> salva o end_time
-			_detalhes.tabela_overall:seta_tempo_decorrido() --seta o end_time
+			_detalhes.tabela_vigente:seta_tempo_decorrido()
+			_detalhes.tabela_overall:seta_tempo_decorrido()
 			
 			--> drop last events table to garbage collector
 			_detalhes.tabela_vigente.player_last_events = {}
@@ -485,7 +488,7 @@
 					end
 
 					if (from_encounter_end) then
-						_detalhes.tabela_vigente.end_time = _detalhes.encounter_table ["end"]
+						_detalhes.tabela_vigente:SetEndTime (_detalhes.encounter_table ["end"])
 					end
 
 					--> encounter boss function
@@ -528,7 +531,7 @@
 				_detalhes.CloseSoloDebuffs()
 			end
 			
-			local tempo_do_combate = _detalhes.tabela_vigente.end_time - _detalhes.tabela_vigente.start_time
+			local tempo_do_combate = _detalhes.tabela_vigente:GetCombatTime()
 			local invalid_combat
 			
 			--if ( tempo_do_combate >= _detalhes.minimum_combat_time) then --> tempo minimo precisa ser 5 segundos pra acrecentar a tabela ao historico
@@ -542,9 +545,11 @@
 				invalid_combat = _detalhes.tabela_vigente
 				_detalhes.tabela_vigente = _detalhes.tabela_historico.tabelas[1] --> pega a tabela do ultimo combate
 
-				if (_detalhes.tabela_vigente.start_time == 0) then
-					_detalhes.tabela_vigente.start_time = _detalhes._tempo
-					_detalhes.tabela_vigente.end_time = _detalhes._tempo
+				if (_detalhes.tabela_vigente:GetStartTime() == 0) then
+					--_detalhes.tabela_vigente.start_time = _detalhes._tempo
+					_detalhes.tabela_vigente:SetStartTime (_GetTime())
+					--_detalhes.tabela_vigente.end_time = _detalhes._tempo
+					_detalhes.tabela_vigente:SetEndTime (_GetTime())
 				end
 				
 				_detalhes.tabela_vigente.resincked = true

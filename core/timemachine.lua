@@ -1,10 +1,3 @@
---File Revision: 2
---Last Modification: 12/09/2013
--- Change Log:
-	-- 27/07/2013: Finished alpha version.
-	-- 12/09/2013: Fixed some problems with garbage collector.
-
-	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 	local _detalhes = 		_G._detalhes
@@ -16,12 +9,16 @@
 	local _table_insert = table.insert --lua local
 	local _ipairs = ipairs --lua local
 	local _pairs = pairs --lua local
+	local _math_floor = math.floor --lua local
 	local _time = time --lua local
-	local _math_floor = math.floor
+	
+	local _GetTime = GetTime --api local
+	
 	local timeMachine = _detalhes.timeMachine --details local
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> constants
+	local _tempo = _time()
 	local _tempo = _time()
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
