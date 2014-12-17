@@ -2207,7 +2207,7 @@
 
 				if (_hook_deaths) then
 					--> send event to registred functions
-					local death_at = _tempo - _current_combat:GetStartTime()
+					local death_at = _GetTime() - _current_combat:GetStartTime()
 					local max_health = _UnitHealthMax (alvo_name)
 
 					for _, func in _ipairs (_hook_deaths_container) do 
@@ -2242,7 +2242,7 @@
 					esta_morte [#esta_morte+1] = t
 				end
 				
-				local decorrido = _tempo - _current_combat:GetStartTime()
+				local decorrido = _GetTime() - _current_combat:GetStartTime()
 				local minutos, segundos = _math_floor (decorrido/60), _math_floor (decorrido%60)
 				
 				local t = {esta_morte, time, este_jogador.nome, este_jogador.classe, _UnitHealthMax (alvo_name), minutos.."m "..segundos.."s",  ["dead"] = true, ["last_cooldown"] = este_jogador.last_cooldown, ["dead_at"] = decorrido}
@@ -2627,14 +2627,14 @@
 		end
 		
 		_detalhes.latest_ENCOUNTER_END = _detalhes.latest_ENCOUNTER_END or 0
-		if (_detalhes.latest_ENCOUNTER_END + 15 > _detalhes._tempo) then
+		if (_detalhes.latest_ENCOUNTER_END + 15 > _GetTime()) then
 			return
 		end
 		--_detalhes.latest_ENCOUNTER_END = _detalhes._tempo
 		_detalhes.latest_ENCOUNTER_END = _GetTime()
 		
 		--_detalhes.encounter_table ["end"] = time() - 0.4
-		_detalhes.encounter_table ["end"] = _GetTime() - 0.4
+		_detalhes.encounter_table ["end"] = _GetTime() -- - 0.4 --0.4 para o antigo metodo de tempo
 		
 		local _, _, _, _, _, _, _, zoneMapID = _GetInstanceInfo()
 		

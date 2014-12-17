@@ -229,6 +229,7 @@ function _detalhes:StoreEncounter (combat)
 	
 	local boss_info = combat:GetBossInfo()
 	local encounter_id = boss_info and boss_info.id
+	
 	if (not encounter_id) then
 		return
 	end
@@ -236,7 +237,7 @@ function _detalhes:StoreEncounter (combat)
 	local diff = combat:GetDifficulty()
 	
 	--> check for heroic mode
-	if (diff == 5 or diff == 6 or diff == 15) then
+	if (diff == 5 or diff == 6 or diff == 15) then --test on raid finder  or diff == 7 or diff == 17
 	
 		local role = UnitGroupRolesAssigned ("player")
 		if (role ~= "DAMAGER" and role ~= "HEALER") then
@@ -262,7 +263,7 @@ function _detalhes:StoreEncounter (combat)
 		elseif (not db) then
 			return
 		end
-
+		
 		local self_database = db.SELF_STORAGE
 		
 		if (not self_database) then
@@ -291,7 +292,9 @@ function _detalhes:StoreEncounter (combat)
 		}
 		
 		if (role == "DAMAGER") then
-			local player = combat (1, _detalhes.player_name)
+			
+			local player = combat (1, _detalhes.playername)
+			
 			if (player) then
 				t.total = player.total
 				for spellid, spell in pairs (player.spells._ActorTable) do
@@ -300,7 +303,7 @@ function _detalhes:StoreEncounter (combat)
 			end
 			
 		elseif (role == "HEALER") then
-			local player = combat (2, _detalhes.player_name)
+			local player = combat (2, _detalhes.playername)
 			if (player) then
 				t.total = player.total
 				for spellid, spell in pairs (player.spells._ActorTable) do
@@ -377,7 +380,7 @@ function _detalhes:StoreEncounter (combat)
 		}
 		
 		if (role == "DAMAGER") then
-			local player = combat (1, _detalhes.player_name)
+			local player = combat (1, _detalhes.playername)
 			if (player) then
 				t.total = player.total
 				for spellid, spell in pairs (player.spells._ActorTable) do
@@ -386,7 +389,7 @@ function _detalhes:StoreEncounter (combat)
 			end
 			
 		elseif (role == "HEALER") then
-			local player = combat (2, _detalhes.player_name)
+			local player = combat (2, _detalhes.playername)
 			if (player) then
 				t.total = player.total
 				for spellid, spell in pairs (player.spells._ActorTable) do

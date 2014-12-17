@@ -496,8 +496,9 @@ function _G._detalhes:Start()
 					local actor = row.minha_tabela
 					if (actor) then
 						local dps_text = row.ps_text
+
 						if (dps_text) then
-							local new_dps = math.floor (actor.total / actor:Tempo())
+							local new_dps = math.floor (actor.total / (GetTime() - instance.showing.start_time_float))
 							local formated_dps = _detalhes.ToKFunctions [_detalhes.ps_abbreviation] (_, new_dps)
 							
 							row.texto_direita:SetText (row.texto_direita:GetText():gsub (dps_text, formated_dps))

@@ -1,5 +1,8 @@
 
 local _UnitAura = UnitAura
+local _GetSpellInfo = GetSpellInfo
+local _UnitClass = UnitClass
+local _UnitName = UnitName
 
 local flask_list = {
 	[156064] = true, --Greater Draenic Agility Flask
@@ -10,20 +13,6 @@ local flask_list = {
 	[156079] = true, --Greater Draenic Intellect Flask
 	[156080] = true, --Greater Draenic Strength Flask
 	[156084] = true, --Greater Draenic Stamina Flask
-}
-
--- 175790, --shiftness potion (70% speed)
--- 175817, --living action potion (remove stun)
--- 156445, --rejuvenation potion (restore 70k hp)
--- 156436, --mana potion
--- 156432, --channeled mana potion
-
-local pre_potions_list = {
-	[156426] = true, --draenic intellect potion
-	[156430] = true, --draenic armor potion
-	[156423] = true, --draenic agility potion
-	[156428] = true, --draenic strength potion
-	[175821] = true, --draenic pure rage potion
 }
 
 local food_list = {
@@ -54,8 +43,7 @@ local food_list = {
 	local DetailsRaidCheck = _detalhes:NewPluginObject ("DetailsRaidCheck", DETAILSPLUGIN_ALWAYSENABLED)
 	tinsert (UISpecialFrames, "DetailsRaidCheck")
 	DetailsRaidCheck:SetPluginDescription (Loc ["STRING_RAIDCHECK_PLUGIN_DESC"])
-	
-	
+
 	local CreatePluginFrames = function()
 	
 		DetailsRaidCheck.usedprepot_table = {}
@@ -73,14 +61,14 @@ local food_list = {
 			
 				DetailsRaidCheck:CheckZone (...)
 
+			elseif (event == "COMBAT_PREPOTION_UPDATED") then
+
+				DetailsRaidCheck.usedprepot_table = select (1, ...)
+				vardump (DetailsRaidCheck.usedprepot_table)
+
 			elseif (event == "COMBAT_PLAYER_LEAVE") then
 				
 				if (DetailsRaidCheck.on_raid) then
-				
-					--> GET PRE POTION LIST
-					table.wipe (DetailsRaidCheck.usedprepot_table or empty_table)
-					DetailsRaidCheck.usedprepot_table = DetailsRaidCheck:FormatTable (DetailsRaidCheck.last_combat_pre_pot_used or "")
-					
 					DetailsRaidCheck:StartTrackBuffs()
 				end
 			
@@ -116,18 +104,64 @@ local food_list = {
 		DetailsRaidCheck.ToolbarButton.shadow = true --> loads icon_shadow.tga when the instance is showing icons with shadows
 		DetailsRaidCheck:ShowToolbarIcon (DetailsRaidCheck.ToolbarButton, "star")
 		
+		--DetailsRaidCheck:HideToolbarIcon (DetailsRaidCheck.ToolbarButton)
+		
+		function DetailsRaidCheck:SetGreenIcon()
+			local lower_instance = _detalhes:GetLowerInstanceNumber()
+			if (not lower_instance) then
+				return
+			end
+			local instance = _detalhes:GetInstance (lower_instance)
+			
+			if (instance.menu_icons.shadow) then
+				DetailsRaidCheck.ToolbarButton:SetNormalTexture ([[Interface\AddOns\Details_RaidCheck\icon_shadow]])
+				DetailsRaidCheck.ToolbarButton:SetPushedTexture ([[Interface\AddOns\Details_RaidCheck\icon_shadow]])
+				DetailsRaidCheck.ToolbarButton:SetDisabledTexture ([[Interface\AddOns\Details_RaidCheck\icon_shadow]])
+				DetailsRaidCheck.ToolbarButton:SetHighlightTexture ([[Interface\AddOns\Details_RaidCheck\icon_shadow]], "ADD")
+			else
+				DetailsRaidCheck.ToolbarButton:SetNormalTexture ([[Interface\AddOns\Details_RaidCheck\icon]])
+				DetailsRaidCheck.ToolbarButton:SetPushedTexture ([[Interface\AddOns\Details_RaidCheck\icon]])
+				DetailsRaidCheck.ToolbarButton:SetDisabledTexture ([[Interface\AddOns\Details_RaidCheck\icon]])
+				DetailsRaidCheck.ToolbarButton:SetHighlightTexture ([[Interface\AddOns\Details_RaidCheck\icon]], "ADD")
+			end
+		end
+		
+		function DetailsRaidCheck:SetRedIcon()
+			local lower_instance = _detalhes:GetLowerInstanceNumber()
+			if (not lower_instance) then
+				return
+			end
+			local instance = _detalhes:GetInstance (lower_instance)
+			
+			if (instance.menu_icons.shadow) then
+				DetailsRaidCheck.ToolbarButton:SetNormalTexture ([[Interface\AddOns\Details_RaidCheck\icon_red_shadow]])
+				DetailsRaidCheck.ToolbarButton:SetPushedTexture ([[Interface\AddOns\Details_RaidCheck\icon_red_shadow]])
+				DetailsRaidCheck.ToolbarButton:SetDisabledTexture ([[Interface\AddOns\Details_RaidCheck\icon_red_shadow]])
+				DetailsRaidCheck.ToolbarButton:SetHighlightTexture ([[Interface\AddOns\Details_RaidCheck\icon_red_shadow]], "ADD")
+			else
+				DetailsRaidCheck.ToolbarButton:SetNormalTexture ([[Interface\AddOns\Details_RaidCheck\icon_red]])
+				DetailsRaidCheck.ToolbarButton:SetPushedTexture ([[Interface\AddOns\Details_RaidCheck\icon_red]])
+				DetailsRaidCheck.ToolbarButton:SetDisabledTexture ([[Interface\AddOns\Details_RaidCheck\icon_red]])
+				DetailsRaidCheck.ToolbarButton:SetHighlightTexture ([[Interface\AddOns\Details_RaidCheck\icon_red]], "ADD")
+			end
+		end
+	
+		
 		local show_panel = CreateFrame ("frame", nil, UIParent)
 		show_panel:SetSize (400, 300)
 		show_panel:SetBackdrop ({bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 16})
 		show_panel:SetPoint ("bottom", DetailsRaidCheck.ToolbarButton, "top", 0, 10)
 		
 		local food_str = show_panel:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+		food_str:SetJustifyH ("left")
 		food_str:SetPoint ("topleft", show_panel, "topleft", 15, -20)
 		
 		local flask_str = show_panel:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+		flask_str:SetJustifyH ("left")
 		flask_str:SetPoint ("topleft", show_panel, "topleft", 150, -20)
 		
 		local prepot_str = show_panel:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+		prepot_str:SetJustifyH ("left")
 		prepot_str:SetPoint ("topleft", show_panel, "topleft", 285, -20)
 		
 		show_panel:Hide()
@@ -139,18 +173,33 @@ local food_list = {
 		
 		local update_panel = function (self)
 		
-			local s, f = "No Food:\n\n", "No Flask:\n\n"
+			local s, f, p, n = "No Food:\n\n", "No Flask:\n\n", "Used Pre Pot:\n\n", "Not Used Pre Pot:\n\n"
 			
 			for i = 1, GetNumGroupMembers(), 1 do
 			
 				local name = UnitName ("raid" .. i)
 				
 				if (not DetailsRaidCheck.havefood_table [name]) then
-					s = s .. name .. "\n"
+					local _, class = _UnitClass (name)
+					local class_color = "FFFFFFFF"
+					
+					if (class) then
+						local coords = CLASS_ICON_TCOORDS [class]
+						class_color = "|TInterface\\AddOns\\Details\\images\\classes_small_alpha:12:12:0:-5:128:128:" .. coords[1]*128 .. ":" .. coords[2]*128 .. ":" .. coords[3]*128 .. ":" .. coords[4]*128 .. "|t |c" .. RAID_CLASS_COLORS [class].colorStr
+					end
+				
+					s = s .. class_color .. name .. "|r\n"
 				end
 				
 				if (not DetailsRaidCheck.haveflask_table [name]) then
-					f = f .. name .. "\n"
+					local _, class = _UnitClass (name)
+					local class_color = "FFFFFFFF"
+					
+					if (class) then
+						local coords = CLASS_ICON_TCOORDS [class]
+						class_color = "|TInterface\\AddOns\\Details\\images\\classes_small_alpha:12:12:0:-5:128:128:" .. coords[1]*128 .. ":" .. coords[2]*128 .. ":" .. coords[3]*128 .. ":" .. coords[4]*128 .. "|t |c" .. RAID_CLASS_COLORS [class].colorStr
+					end
+					f = f .. class_color .. name .. "|r\n"
 				end
 				
 			end
@@ -158,6 +207,39 @@ local food_list = {
 			food_str:SetText (s)
 			flask_str:SetText (f)
 
+			for player_name, potid in pairs (DetailsRaidCheck.usedprepot_table) do
+				local name, _, icon = _GetSpellInfo (potid)
+				local _, class = _UnitClass (player_name)
+				local class_color = "FFFFFFFF"
+				
+				if (class) then
+					class_color = RAID_CLASS_COLORS [class].colorStr
+				end
+
+				p = p .. "|T" .. icon .. ":12:12:0:-5:64:64:0:64:0:64|t |c" .. class_color .. player_name .. "|r\n"
+			end
+			
+			for i = 1, GetNumGroupMembers(), 1 do
+				local playerName, realmName = _UnitName ("raid" .. i)
+				if (realmName and realmName ~= "") then
+					playerName = playerName .. "-" .. realmName
+				end
+				
+				if (not DetailsRaidCheck.usedprepot_table [playerName]) then
+					local _, class = _UnitClass (playerName)
+					local class_color = "FFFFFFFF"
+					
+					if (class) then
+						local coords = CLASS_ICON_TCOORDS [class]
+						class_color = "|TInterface\\AddOns\\Details\\images\\classes_small_alpha:12:12:0:-5:128:128:" .. coords[1]*128 .. ":" .. coords[2]*128 .. ":" .. coords[3]*128 .. ":" .. coords[4]*128 .. "|t |c" .. RAID_CLASS_COLORS [class].colorStr
+					end
+				
+					n = n .. class_color .. playerName .. "|r\n"
+				end
+			end
+			
+			prepot_str:SetText (p .. "\n\n" .. n)
+			
 		end
 		
 		DetailsRaidCheck.ToolbarButton:SetScript ("OnEnter", function (self)
@@ -219,14 +301,6 @@ local food_list = {
 				end
 			end
 			
-		end
-		
-		function DetailsRaidCheck:FormatTable (t)
-
-			for k, v in ipairs ({strsplit ( "|c", t )}) do
-				tinsert (DetailsRaidCheck.usedprepot_table, "|c" .. v)
-			end
-
 		end
 		
 --		DETAILS_PLUGIN_RAIDCHECK
@@ -300,6 +374,7 @@ local food_list = {
 					
 					_G._detalhes:RegisterEvent (DetailsRaidCheck, "COMBAT_PLAYER_LEAVE")
 					_G._detalhes:RegisterEvent (DetailsRaidCheck, "COMBAT_PLAYER_ENTER")
+					_G._detalhes:RegisterEvent (DetailsRaidCheck, "COMBAT_PREPOTION_UPDATED")
 					_G._detalhes:RegisterEvent (DetailsRaidCheck, "ZONE_TYPE_CHANGED")
 					
 				end

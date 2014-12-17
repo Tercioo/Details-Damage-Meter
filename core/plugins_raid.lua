@@ -1,7 +1,3 @@
---File Revision: 1
---Last Modification: 27/07/2013
--- Change Log:
-	-- 27/07/2013: Finished alpha version.
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -271,6 +267,12 @@
 	--/run local s="teste {spell}"; s=s:gsub("{spell}", "tercio");print(s)
 	
 	function _detalhes:interrupt_announcer (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, extraSpellID, extraSpellName, extraSchool)
+	
+		-- add novo canal Self.
+		-- no canal self ele mostra todos os interrupts além do meu.
+		
+		-- add canal self pras mortes tbm?
+	
 		if (who_name == _detalhes.playername) then -- and _detalhes.announce_interrupts.enabled
 			local channel = _detalhes.announce_interrupts.channel
 			local next = _detalhes.announce_interrupts.next
@@ -283,6 +285,23 @@
 				spellname = _GetSpellInfo (extraSpellID)
 			end
 
+			if (channel == "RAID") then
+				local zone = _detalhes:GetZoneType()
+
+				if (zone ~= "party" and zone ~= "raid") then
+					return
+				end
+				
+				if (zone == "raid") then
+					channel = "RAID"
+				elseif (zone == "party") then
+					channel = "PARTY"
+				end
+				if (GetNumGroupMembers (LE_PARTY_CATEGORY_INSTANCE) > 0) then
+					channel = "INSTANCE_CHAT"
+				end
+			end
+			
 			if (custom ~= "") then
 				custom = custom:gsub ("{spell}", spellname)
 				custom = custom:gsub ("{next}", next)
@@ -308,11 +327,25 @@
 			local channel = _detalhes.announce_cooldowns.channel
 			
 			if (channel == "WHISPER") then
-				if (alvo_name == _detalhes.playername) then
-					return
-				end
 				if (alvo_name == Loc ["STRING_RAID_WIDE"]) then
 					channel = "RAID"
+				end
+			end
+			
+			if (channel == "RAID") then
+				local zone = _detalhes:GetZoneType()
+
+				if (zone ~= "party" and zone ~= "raid") then
+					return
+				end
+				
+				if (zone == "raid") then
+					channel = "RAID"
+				elseif (zone == "party") then
+					channel = "PARTY"
+				end
+				if (GetNumGroupMembers (LE_PARTY_CATEGORY_INSTANCE) > 0) then
+					channel = "INSTANCE_CHAT"
 				end
 			end
 
@@ -322,7 +355,7 @@
 			else
 				spellname = _GetSpellInfo (spellid)
 			end
-			
+
 			local custom = _detalhes.announce_cooldowns.custom
 			
 			if (custom ~= "") then
@@ -344,28 +377,42 @@
 	end
 	
 	function _detalhes:death_announcer (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, death_table, last_cooldown, death_at, max_health)
-		--if (_detalhes.announce_deaths.enabled) then
 			
 			local where = _detalhes.announce_deaths.where
 			local zone = _detalhes:GetZoneType()
 			local channel = ""
+			
 			if (where == 1) then
 				if (zone ~= "party" and zone ~= "raid") then
 					return
 				end
+				
 				if (zone == "raid") then
 					channel = "RAID"
+				elseif (zone == "party") then
+					channel = "PARTY"
 				end
+				if (GetNumGroupMembers (LE_PARTY_CATEGORY_INSTANCE) > 0) then
+					channel = "INSTANCE_CHAT"
+				end
+				
 			elseif (where == 2) then
 				if (zone ~= "raid") then
 					return
 				end
 				channel = "RAID"
+				if (GetNumGroupMembers (LE_PARTY_CATEGORY_INSTANCE) > 0) then
+					channel = "INSTANCE_CHAT"
+				end
+				
 			elseif (where == 3) then
 				if (zone ~= "party") then
 					return
 				end
 				channel = "PARTY"
+				if (GetNumGroupMembers (LE_PARTY_CATEGORY_INSTANCE) > 0) then
+					channel = "INSTANCE_CHAT"
+				end
 			end
 			
 			local only_first = _detalhes.announce_deaths.only_first
@@ -402,8 +449,7 @@
 			
 			msg = msg .. " " .. spells
 			_detalhes:SendMsgToChannel (msg, channel)
-			--print (msg)
-		--end
+
 	end
 
 	function _detalhes:StartAnnouncers()
