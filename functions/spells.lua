@@ -13,6 +13,7 @@ do
 		[156430] = true, --draenic armor potion
 		[156423] = true, --draenic agility potion
 		[156428] = true, --draenic strength potion
+		[175821] = true, --draenic pure rage potion
 	}
 	
 	_detalhes.SpecSpellList = {

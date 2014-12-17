@@ -281,6 +281,8 @@
 			
 			_detalhes.tabela_vigente.combat_id = n_combate --> grava o número deste combate na tabela atual -- setup combat id on new table
 			
+			_detalhes.last_combat_pre_pot_used = nil
+			
 			--> é o timer que ve se o jogador ta em combate ou não -- check if any party or raid members are in combat
 			_detalhes.tabela_vigente.verifica_combate = _detalhes:ScheduleRepeatingTimer ("EstaEmCombate", 1) 
 
@@ -481,6 +483,10 @@
 						_detalhes.last_encounter2 = _detalhes.last_encounter
 						_detalhes.last_encounter = _detalhes.tabela_vigente.is_boss.name
 
+						if (_detalhes.pre_pot_used) then
+							_detalhes.last_combat_pre_pot_used = table_deepcopy (_detalhes.pre_pot_used)
+						end
+						
 						if (_detalhes.pre_pot_used and _detalhes.announce_prepots.enabled) then
 							_detalhes:Msg (_detalhes.pre_pot_used or "")
 							_detalhes.pre_pot_used = nil

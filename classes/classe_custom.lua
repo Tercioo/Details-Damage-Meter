@@ -1103,6 +1103,21 @@
 						end
 					    end
 					    
+					    --pure rage
+					    local pure_rage_potion = buff_uptime_container [175821] --WoD
+					    if (pure_rage_potion) then
+						local used = pure_rage_potion.activedamt
+						if (used > 0) then
+						    total = total + used
+						    found_potion = true
+						    if (used > top) then
+							top = used
+						    end
+						    --add amount to the player 
+						    instance_container:AddValue (player, used)
+						end
+					    end
+					    
 					    --potion of the mountains
 					    local mountains_potion = buff_uptime_container [156430] --WoD
 					    --local mountains_potion = buff_uptime_container [105698] --MoP
@@ -1168,6 +1183,15 @@
 				local name, _, icon = GetSpellInfo (156428) --WoD
 				--local name, _, icon = GetSpellInfo (105706) --MoP
 				GameCooltip:AddLine (name, mogu_power_potion.activedamt)
+				_detalhes:AddTooltipBackgroundStatusbar()
+				GameCooltip:AddIcon (icon, 1, 1, 14, 14)
+			    end
+			    
+			    --pure rage
+			    local pure_rage_potion = buff_uptime_container [175821] --WoD
+			    if (pure_rage_potion) then
+				local name, _, icon = GetSpellInfo (175821) --WoD
+				GameCooltip:AddLine (name, pure_rage_potion.activedamt)
 				_detalhes:AddTooltipBackgroundStatusbar()
 				GameCooltip:AddIcon (icon, 1, 1, 14, 14)
 			    end
