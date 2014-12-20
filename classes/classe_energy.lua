@@ -1473,6 +1473,7 @@ end
 				
 				if (not actor.powertype) then
 					--print ("actor without powertype", actor.nome, actor.powertype)
+					actor.powertype = 1
 				end
 				
 				shadow.powertype = actor.powertype

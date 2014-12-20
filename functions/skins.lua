@@ -513,7 +513,7 @@ local _
 				overlay = {1, 1,	1},
 				width = 256,
 				texcoord = {49/1024, 305/1024, 646/1024, 774/1024},
-				enabled = true,
+				enabled = false,
 				anchor = "all",
 				height = 128,
 				alpha = 0.8,

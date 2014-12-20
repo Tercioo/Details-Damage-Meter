@@ -7502,6 +7502,7 @@ function window:CreateFrame11()
 		end
 		
 		local channel_list = {
+			{value = "PRINT", icon = [[Interface\LFGFRAME\BattlenetWorking2]], iconsize = {14, 14}, iconcolor = {1, 1, 1, 1}, texcoord = {12/64, 53/64, 11/64, 53/64}, label = Loc ["STRING_CHANNEL_PRINT"], onclick = on_select_channel},
 			{value = "SAY", icon = [[Interface\FriendsFrame\UI-Toast-ToastIcons]], iconsize = {14, 14}, texcoord = {0.0390625, 0.203125, 0.09375, 0.375}, label = Loc ["STRING_CHANNEL_SAY"], onclick = on_select_channel},
 			{value = "YELL", icon = [[Interface\FriendsFrame\UI-Toast-ToastIcons]], iconsize = {14, 14}, texcoord = {0.0390625, 0.203125, 0.09375, 0.375}, iconcolor = {1, 0.3, 0, 1}, label = Loc ["STRING_CHANNEL_YELL"], onclick = on_select_channel},
 			{value = "RAID", icon = [[Interface\FriendsFrame\UI-Toast-ToastIcons]], iconcolor = {1, 0.49, 0}, iconsize = {14, 14}, texcoord = {0.53125, 0.7265625, 0.078125, 0.40625}, label = Loc ["STRING_INSTANCE_CHAT"], onclick = on_select_channel},
@@ -7603,6 +7604,7 @@ function window:CreateFrame11()
 		end
 		
 		local channel_list = {
+			{value = "PRINT", icon = [[Interface\LFGFRAME\BattlenetWorking2]], iconsize = {14, 14}, iconcolor = {1, 1, 1, 1}, texcoord = {12/64, 53/64, 11/64, 53/64}, label = Loc ["STRING_CHANNEL_PRINT"], onclick = on_select_channel},
 			{value = "SAY", icon = [[Interface\FriendsFrame\UI-Toast-ToastIcons]], iconsize = {14, 14}, texcoord = {0.0390625, 0.203125, 0.09375, 0.375}, label = Loc ["STRING_CHANNEL_SAY"], onclick = on_select_channel},
 			{value = "YELL", icon = [[Interface\FriendsFrame\UI-Toast-ToastIcons]], iconsize = {14, 14}, texcoord = {0.0390625, 0.203125, 0.09375, 0.375}, iconcolor = {1, 0.3, 0, 1}, label = Loc ["STRING_CHANNEL_YELL"], onclick = on_select_channel},
 			{value = "RAID", icon = [[Interface\FriendsFrame\UI-Toast-ToastIcons]], iconcolor = {1, 0.49, 0}, iconsize = {14, 14}, texcoord = {0.53125, 0.7265625, 0.078125, 0.40625}, label = Loc ["STRING_INSTANCE_CHAT"], onclick = on_select_channel},
@@ -7811,20 +7813,21 @@ function window:CreateFrame11()
 		
 		--dropdown para WHERE onde anunciar se só em raid e party
 		local on_select_channel = function (self, _, channel)
-			_detalhes.announce_deaths.channel = channel
+			_detalhes.announce_deaths.where = channel
 		end
 		
 		local channel_list = {
 			{value = 1, icon = [[Interface\FriendsFrame\UI-Toast-ToastIcons]], iconcolor = {1, 0, 1}, iconsize = {14, 14}, texcoord = {0.53125, 0.7265625, 0.078125, 0.40625}, label = Loc ["STRING_OPTIONS_RT_DEATHS_WHERE1"], onclick = on_select_channel},
 			{value = 2, icon = [[Interface\FriendsFrame\UI-Toast-ToastIcons]], iconcolor = {1, 0.49, 0}, iconsize = {14, 14}, texcoord = {0.53125, 0.7265625, 0.078125, 0.40625}, label = Loc ["STRING_OPTIONS_RT_DEATHS_WHERE2"], onclick = on_select_channel},
 			{value = 3, icon = [[Interface\FriendsFrame\UI-Toast-ToastIcons]], iconcolor = {0.66, 0.65, 1}, iconsize = {14, 14}, texcoord = {0.53125, 0.7265625, 0.078125, 0.40625}, label = Loc ["STRING_OPTIONS_RT_DEATHS_WHERE3"], onclick = on_select_channel},
+			{value = 4, icon = [[Interface\LFGFRAME\BattlenetWorking2]], iconsize = {14, 14}, iconcolor = {1, 1, 1, 1}, texcoord = {12/64, 53/64, 11/64, 53/64}, label = Loc ["STRING_CHANNEL_PRINT"], onclick = on_select_channel},
 		}
 		local build_channel_menu = function() 
 			return channel_list
 		end
 
 		g:NewLabel (frame11, _, "$parentDeathChannelLabel", "DeathChannelLabel", Loc ["STRING_OPTIONS_RT_DEATHS_WHERE"] , "GameFontHighlightLeft")
-		local d = g:NewDropDown (frame11, _, "$parentDeathChannelDropdown", "DeathChannelDropdown", DROPDOWN_WIDTH, 20, build_channel_menu, _detalhes.announce_deaths.channel)
+		local d = g:NewDropDown (frame11, _, "$parentDeathChannelDropdown", "DeathChannelDropdown", DROPDOWN_WIDTH, 20, build_channel_menu, _detalhes.announce_deaths.where)
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
@@ -7910,6 +7913,7 @@ function window:CreateFrame12()
 
 -------- plugins
 	local frame4 = window.options [12][1].gump
+	window.plugin_widgets = {}
 	
  	local on_enter = function (self)
 	
@@ -8005,6 +8009,8 @@ function window:CreateFrame12()
 		local plugin_stable = _detalhes:GetPluginSavedTable (absName)
 		local plugin = _detalhes:GetPlugin (absName)
 		g:NewSwitch (bframe, _, "$parentToolbarSlider"..i, "toolbarPluginsSlider"..i, 60, 20, _, _, plugin_stable.enabled)
+		bframe ["toolbarPluginsSlider"..i].PluginName = absName
+		tinsert (window.plugin_widgets, bframe ["toolbarPluginsSlider"..i])
 		bframe ["toolbarPluginsSlider"..i]:SetPoint ("topleft", frame4, "topleft", 400, y+1)
 		bframe ["toolbarPluginsSlider"..i].OnSwitch = function (self, _, value)
 			plugin_stable.enabled = value
@@ -8087,6 +8093,8 @@ function window:CreateFrame12()
 		local plugin_stable = _detalhes:GetPluginSavedTable (absName)
 		local plugin = _detalhes:GetPlugin (absName)
 		g:NewSwitch (bframe, _, "$parentRaidSlider"..i, "raidPluginsSlider"..i, 60, 20, _, _, plugin_stable.enabled)
+		tinsert (window.plugin_widgets, bframe ["raidPluginsSlider"..i])
+		bframe ["raidPluginsSlider"..i].PluginName = absName
 		bframe ["raidPluginsSlider"..i]:SetPoint ("topleft", frame4, "topleft", 400, y+1)
 		bframe ["raidPluginsSlider"..i].OnSwitch = function (self, _, value)
 			plugin_stable.enabled = value
@@ -8170,6 +8178,8 @@ function window:CreateFrame12()
 		local plugin_stable = _detalhes:GetPluginSavedTable (absName)
 		local plugin = _detalhes:GetPlugin (absName)
 		g:NewSwitch (bframe, _, "$parentSoloSlider"..i, "soloPluginsSlider"..i, 60, 20, _, _, plugin_stable.enabled)
+		tinsert (window.plugin_widgets, bframe ["soloPluginsSlider"..i])
+		bframe ["soloPluginsSlider"..i].PluginName = absName
 		bframe ["soloPluginsSlider"..i]:SetPoint ("topleft", frame4, "topleft", 400, y+1)
 		bframe ["soloPluginsSlider"..i].OnSwitch = function (self, _, value)
 			plugin_stable.enabled = value
@@ -8572,6 +8582,12 @@ end --> if not window
 		
 		--> window 11
 
+		--> window 12
+		
+		for _, slider in ipairs (window.plugin_widgets) do
+			local plugin_stable = _detalhes:GetPluginSavedTable (slider.PluginName)
+			slider:SetValue (plugin_stable.enabled)
+		end
 		
 		--> window 13
 		_G.DetailsOptionsWindow13SelectProfileDropdown.MyObject:Select (_detalhes:GetCurrentProfileName())

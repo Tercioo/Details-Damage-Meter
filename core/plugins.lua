@@ -23,7 +23,7 @@
 		if (PluginAbsoluteName) then
 			local plugin = _detalhes.plugin_database [PluginAbsoluteName]
 			if (plugin) then
-				return plugin.__enabled
+				return plugin.enabled
 			end
 		else
 			return self.__enabled
@@ -35,6 +35,22 @@
 	end
 	function _detalhes:GetPluginDescription()
 		return self.__description
+	end
+	
+	function _detalhes:DisablePlugin (AbsoluteName)
+		local plugin = _detalhes:GetPlugin (AbsoluteName)
+		
+		if (plugin) then
+			local saved_table = _detalhes:GetPluginSavedTable (AbsoluteName)
+			
+			saved_table.enabled = false
+			plugin.__enabled = false
+		
+			_detalhes:SendEvent ("PLUGIN_DISABLED", plugin)
+			
+			_detalhes:DelayOptionsRefresh()
+			return true
+		end
 	end
 	
 	function _detalhes:CheckDefaultTable (current, default)
