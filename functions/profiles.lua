@@ -320,6 +320,9 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 					if (skin.skin == "Default Skin") then
 						skin.skin = "WoW Interface"
 					end
+					if (skin.skin == "ElvUI Frame Style BW") then
+						skin.skin = "ElvUI Style II"
+					end
 				
 				--> fix for old left and right menus (15-10)
 					if (skin.menu_icons and type (skin.menu_icons[5]) ~= "boolean") then

@@ -73,22 +73,22 @@ local _
 		instance_cprops = {
 			["hide_in_combat_type"] = 1,
 			["color"] = {
-				1, -- [1]
-				1, -- [2]
-				1, -- [3]
-				1, -- [4]
+				1,
+				1,
+				1,
+				1,
 			},
 			["menu_anchor"] = {
-				13, -- [1]
-				2, -- [2]
+				13,
+				2,
 				["side"] = 2,
 			},
 			["bg_r"] = 0.0941,
 			["color_buttons"] = {
-				1, -- [1]
-				1, -- [2]
-				1, -- [3]
-				1, -- [4]
+				1,
+				1,
+				1,
+				1,
 			},
 			["bars_sort_direction"] = 1,
 			["attribute_text"] = {
@@ -97,14 +97,14 @@ local _
 				["side"] = 1,
 				["text_size"] = 10,
 				["anchor"] = {
-					5, -- [1]
-					3, -- [2]
+					5,
+					3,
 				},
 				["text_color"] = {
-					0.823529411764706, -- [1]
-					0.549019607843137, -- [2]
-					0, -- [3]
-					1, -- [4]
+					0.823529411764706,
+					0.549019607843137,
+					0,
+					1,
 				},
 				["text_face"] = "Friz Quadrata TT",
 			},
@@ -120,9 +120,9 @@ local _
 				["only_in_group"] = true,
 				["icon"] = "Interface\\ICONS\\INV_Sigil_Thorim",
 				["color"] = {
-					1, -- [1]
-					1, -- [2]
-					1, -- [3]
+					1,
+					1,
+					1,
 				},
 			},
 			["hide_out_of_combat"] = false,
@@ -136,10 +136,10 @@ local _
 			["hide_in_combat_alpha"] = 0,
 			["plugins_grow_direction"] = 2,
 			["menu_icons"] = {
-				true, -- [1]
-				true, -- [2]
-				true, -- [3]
-				true, -- [4]
+				true,
+				true,
+				true,
+				true,
 				true, -- [5]
 				true, -- [6]
 			},
@@ -148,9 +148,9 @@ local _
 			["statusbar_info"] = {
 				["alpha"] = 1,
 				["overlay"] = {
-					1, -- [1]
-					1, -- [2]
-					1, -- [3]
+					1,
+					1,
+					1,
 				},
 			},
 			["window_scale"] = 1,
@@ -165,9 +165,9 @@ local _
 				["textL_outline"] = true,
 				["icon_file"] = "Interface\\AddOns\\Details\\images\\classes_small",
 				["fixed_texture_color"] = {
-					0, -- [1]
-					0, -- [2]
-					0, -- [3]
+					0,
+					0,
+					0,
 				},
 				["texture_background_file"] = "Interface\\AddOns\\Details\\images\\bar4",
 				["texture_highlight"] = "Interface\\FriendsFrame\\UI-FriendsList-Highlight",
@@ -181,27 +181,27 @@ local _
 					["between"] = 2,
 				},
 				["fixed_texture_background_color"] = {
-					0.619607, -- [1]
-					0.619607, -- [2]
-					0.619607, -- [3]
-					0.116164, -- [4]
+					0.619607,
+					0.619607,
+					0.619607,
+					0.116164,
 				},
 				["textR_custom_text"] = "{data1} ({data2}, {data3}%)",
 				["start_after_icon"] = true,
 				["font_face_file"] = "Fonts\\ARIALN.TTF",
 				["fixed_text_color"] = {
-					1, -- [1]
-					1, -- [2]
-					1, -- [3]
+					1,
+					1,
+					1,
 				},
 				["backdrop"] = {
 					["enabled"] = false,
 					["size"] = 6,
 					["color"] = {
-						0, -- [1]
-						0, -- [2]
-						0, -- [3]
-						0.305214, -- [4]
+						0,
+						0,
+						0,
+						0.305214,
 					},
 					["texture"] = "Details BarBorder 2",
 				},
@@ -221,8 +221,8 @@ local _
 			},
 			["menu_anchor_down"] = {
 				["side"] = 2,
-				-14, -- [1]
-				-3, -- [2]
+				-14,
+				-3,
 			},
 			["toolbar_side"] = 1,
 			["bg_g"] = 0.0941,
@@ -432,27 +432,27 @@ local _
 					["between"] = 0,
 				},
 				["fixed_texture_background_color"] = {
-					0, -- [1]
-					0, -- [2]
-					0, -- [3]
-					0.4416468441486359, -- [4]
+					0,
+					0,
+					0,
+					0.4416468441486359,
 				},
 				["textR_custom_text"] = "{data1} ({data2}, {data3}%)",
 				["texture"] = "Details Serenity",
 				["font_face_file"] = "Interface\\Addons\\Details\\fonts\\Accidental Presidency.ttf",
 				["fixed_text_color"] = {
-					1, -- [1]
-					1, -- [2]
-					1, -- [3]
+					1,
+					1,
+					1,
 				},
 				["backdrop"] = {
 					["enabled"] = false,
 					["size"] = 1,
 					["color"] = {
-						1, -- [1]
-						1, -- [2]
-						1, -- [3]
-						1, -- [4]
+						1,
+						1,
+						1,
+						1,
 					},
 					["texture"] = "Details BarBorder 2",
 				},
@@ -469,9 +469,9 @@ local _
 				["texture_file"] = "Interface\\AddOns\\Details\\images\\bar_serenity",
 				["start_after_icon"] = false,
 				["fixed_texture_color"] = {
-					0, -- [1]
-					0, -- [2]
-					0, -- [3]
+					0,
+					0,
+					0,
 				},
 			},
 			["attribute_text"] = {
@@ -480,21 +480,21 @@ local _
 				["side"] = 1,
 				["text_size"] = 9,
 				["anchor"] = {
-					-20, -- [1]
-					4, -- [2]
+					-20,
+					4,
 				},
 				["text_color"] = {
-					1, -- [1]
-					1, -- [2]
-					1, -- [3]
-					0.7, -- [4]
+					1,
+					1,
+					1,
+					0.7,
 				},
 				["text_face"] = "Friz Quadrata TT",
 			},
 
 			["menu_anchor_down"] = {
-				15, -- [1]
-				-3, -- [2]
+				15,
+				-3,
 			},
 			["plugins_grow_direction"] = 1,
 			["show_sidebars"] = false,
@@ -576,40 +576,40 @@ local _
 		instance_cprops = {
 			["hide_in_combat_type"] = 1,
 			["color"] = {
-				0, -- [1]
-				0, -- [2]
-				0, -- [3]
-				1, -- [4]
+				0,
+				0,
+				0,
+				1,
 			},
 			["menu_anchor"] = {
-				14, -- [1]
-				2, -- [2]
+				14,
+				2,
 				["side"] = 2,
 			},
 			["bg_r"] = 0,
 			["following"] = {
 				["enabled"] = false,
 				["bar_color"] = {
-					1, -- [1]
-					1, -- [2]
-					1, -- [3]
+					1,
+					1,
+					1,
 				},
 				["text_color"] = {
-					1, -- [1]
-					1, -- [2]
-					1, -- [3]
+					1,
+					1,
+					1,
 				},
 			},
 			["color_buttons"] = {
-				1, -- [1]
-				1, -- [2]
-				1, -- [3]
-				1, -- [4]
+				1,
+				1,
+				1,
+				1,
 			},
 			["bars_sort_direction"] = 1,
 			["instance_button_anchor"] = {
-				-27, -- [1]
-				1, -- [2]
+				-27,
+				1,
 			},
 			["name"] = "new simple gray 2",
 			["attribute_text"] = {
@@ -617,16 +617,16 @@ local _
 				["shadow"] = true,
 				["side"] = 1,
 				["text_color"] = {
-					0.768627450980392, -- [1]
-					0.768627450980392, -- [2]
-					0.768627450980392, -- [3]
-					1, -- [4]
+					0.768627450980392,
+					0.768627450980392,
+					0.768627450980392,
+					1,
 				},
 				["custom_text"] = "{name}",
 				["text_face"] = "FORCED SQUARE",
 				["anchor"] = {
-					-16, -- [1]
-					5, -- [2]
+					-16,
+					5,
 				},
 				["text_size"] = 12,
 				["enable_custom_text"] = false,
@@ -644,18 +644,18 @@ local _
 				["only_in_group"] = true,
 				["icon"] = "Interface\\ICONS\\INV_Sigil_Thorim",
 				["color"] = {
-					1, -- [1]
-					1, -- [2]
-					1, -- [3]
+					1,
+					1,
+					1,
 				},
 			},
 			["micro_displays_side"] = 2,
 			["plugins_grow_direction"] = 1,
 			["menu_icons"] = {
-				true, -- [1]
-				true, -- [2]
-				true, -- [3]
-				true, -- [4]
+				true,
+				true,
+				true,
+				true,
 				true, -- [5]
 				true, -- [6]
 				["space"] = -4,
@@ -666,9 +666,9 @@ local _
 			["statusbar_info"] = {
 				["alpha"] = 1,
 				["overlay"] = {
-					0, -- [1]
-					0, -- [2]
-					0, -- [3]
+					0,
+					0,
+					0,
 				},
 			},
 			["window_scale"] = 1,
@@ -681,9 +681,9 @@ local _
 				["textR_outline"] = false,
 				["textL_outline"] = false,
 				["fixed_texture_color"] = {
-					0, -- [1]
-					0, -- [2]
-					0, -- [3]
+					0,
+					0,
+					0,
 				},
 				["icon_file"] = "Interface\\AddOns\\Details\\images\\classes_small_alpha",
 				["textL_show_number"] = true,
@@ -693,9 +693,9 @@ local _
 				["textR_custom_text"] = "{data1} ({data2}, {data3}%)",
 				["textL_enable_custom_text"] = false,
 				["fixed_text_color"] = {
-					1, -- [1]
-					1, -- [2]
-					1, -- [3]
+					1,
+					1,
+					1,
 				},
 				["space"] = {
 					["right"] = -10,
@@ -703,10 +703,10 @@ local _
 					["between"] = 1,
 				},
 				["fixed_texture_background_color"] = {
-					0, -- [1]
-					0, -- [2]
-					0, -- [3]
-					0.2, -- [4]
+					0,
+					0,
+					0,
+					0.2,
 				},
 				["texture_background_class_color"] = false,
 				["start_after_icon"] = false,
@@ -715,10 +715,10 @@ local _
 					["enabled"] = false,
 					["size"] = 12,
 					["color"] = {
-						1, -- [1]
-						1, -- [2]
-						1, -- [3]
-						1, -- [4]
+						1,
+						1,
+						1,
+						1,
 					},
 					["texture"] = "Details BarBorder 2",
 				},
@@ -745,8 +745,8 @@ local _
 				["percent_type"] = 1,
 			},
 			["menu_anchor_down"] = {
-				-20, -- [1]
-				-3, -- [2]
+				-20,
+				-3,
 			},
 			["toolbar_side"] = 1,
 			["bg_g"] = 0,
@@ -758,16 +758,16 @@ local _
 				["enabled"] = false,
 				["width"] = 265.999943487933,
 				["texcoord"] = {
-					0.342000007629395, -- [1]
-					0.00100000001490116, -- [2]
-					1, -- [3]
-					0.573999977111816, -- [4]
+					0.342000007629395,
+					0.00100000001490116,
+					1,
+					0.573999977111816,
 				},
 				["overlay"] = {
-					0, -- [1]
-					0, -- [2]
-					0, -- [3]
-					0.807841360569, -- [4]
+					0,
+					0,
+					0,
+					0.807841360569,
 				},
 				["anchor"] = "all",
 				["height"] = 226.000007591173,
@@ -1058,12 +1058,12 @@ local _
 		}
 	})
 	
-	_detalhes:InstallSkin ("ElvUI Frame Style BW", {
-		file = [[Interface\AddOns\Details\images\skins\elvui]],
+	_detalhes:InstallSkin ("ElvUI Style II", {
+		file = [[Interface\AddOns\Details\images\skins\elvui_opaque]],
 		author = "Details!", 
 		version = "1.0", 
 		site = "unknown", 
-		desc = "This skin is based on ElvUI's addons, with black and white frames and bars.", 
+		desc = "This skin is based on ElvUI's addons, with an opaque title bar.", 
 		
 		--general
 		can_change_alpha_head = true, 
@@ -1097,95 +1097,131 @@ local _
 		--[[ when a skin is selected, all customized properties of the window is reseted and then the overwrites are applied]]
 		--[[ for the complete cprop list see the file classe_instancia_include.lua]]
 		instance_cprops = {
-
-			menu_icons_size = 0.90,
-			menu_anchor = {16, 2, side = 2},
-			menu_anchor_down = {16, -2},
-			plugins_grow_direction = 1,
-			
-			attribute_text = {enabled = true, anchor = {-20, 5}, text_face = "Accidental Presidency", text_size = 12, text_color = {1, 1, 1, .7}, side = 1, shadow = true},
-			
-			hide_icon = true,
-			desaturated_menu = true,
-			
-			bg_alpha = 0.51,
-			bg_r = 0.3294,
-			bg_g = 0.3294,
-			bg_b = 0.3294,
-			show_statusbar = false,
-			
-			row_info = {
+			["show_statusbar"] = false,
+			["color"] = {1,1,1,1},
+			["menu_anchor"] = {17, 2, ["side"] = 2},
+			["bg_r"] = 0.517647058823529,
+			["following"] = {
+				["enabled"] = false,
+				["bar_color"] = {1,1,1},
+				["text_color"] = {1,1,1},
+			},
+			["color_buttons"] = {1,1,1,1},
+			["bars_sort_direction"] = 1,
+			["instance_button_anchor"] = {-27,1},
+			["row_info"] = {
 				["textR_outline"] = false,
 				["textL_outline"] = false,
-				["icon_file"] = "Interface\\AddOns\\Details\\images\\classes_small_alpha_bw",
-				["percent_type"] = 1,
-				["texture_highlight"] = "Interface\\FriendsFrame\\UI-FriendsList-Highlight",
-				["texture_background_file"] = "Interface\\AddOns\\Details\\images\\bar_serenity",
-				["textR_enable_custom_text"] = false,
-				["texture_background_class_color"] = false,
 				["textL_enable_custom_text"] = false,
-				["textL_show_number"] = true,
+				["icon_file"] = "Interface\\AddOns\\Details\\images\\classes_small_alpha",
+				["texture_background_file"] = "Interface\\AddOns\\Details\\images\\BantoBar",
+				["start_after_icon"] = false,
+				["texture_highlight"] = "Interface\\FriendsFrame\\UI-FriendsList-Highlight",
+				["textR_enable_custom_text"] = false,
+				["textR_custom_text"] = "{data1} ({data2}, {data3}%)",
+				["percent_type"] = 1,
+				["fixed_text_color"] = {0.905882352941177,0.905882352941177,0.905882352941177,1},
 				["space"] = {
 					["right"] = -2,
 					["left"] = 1,
-					["between"] = 0,
+					["between"] = 1,
 				},
-				["fixed_texture_background_color"] = {
-					0, -- [1]
-					0, -- [2]
-					0, -- [3]
-					0.20, -- [4]
-				},
-				["textR_custom_text"] = "{data1} ({data2}, {data3}%)",
-				["start_after_icon"] = false,
+				["texture"] = "Skyline",
+				["texture_background_class_color"] = false,
+				["fixed_texture_background_color"] = {0,0,0,0.295484036207199},
 				["font_face_file"] = "Fonts\\ARIALN.TTF",
-				["fixed_text_color"] = {
-					0.9058823529411765, -- [1]
-					0.9058823529411765, -- [2]
-					0.9058823529411765, -- [3]
-					1, -- [4]
-				},
-				["backdrop"] = {
-					["enabled"] = true,
-					["size"] = 10,
-					["color"] = {
-						0, -- [1]
-						0, -- [2]
-						0, -- [3]
-						1, -- [4]
-					},
-					["texture"] = "Details BarBorder 2",
-				},
-				["textL_class_colors"] = false,
-				["textL_custom_text"] = "{data1}. {data3}{data2}",
+				["alpha"] = 1,
 				["textR_class_colors"] = false,
-				["alpha"] = 0.3999999761581421,
+				["models"] = {
+				["upper_model"] = "Spells\\AcidBreath_SuperGreen.M2",
+				["lower_model"] = "World\\EXPANSION02\\DOODADS\\Coldarra\\COLDARRALOCUS.m2",
+				["upper_alpha"] = 0.5,
+				["lower_enabled"] = false,
+				["lower_alpha"] = 0.1,
+				["upper_enabled"] = false,
+			},
+				["backdrop"] = {
+					["enabled"] = false,
+					["size"] = 5,
+					["color"] = {0, 0, 0, 1},
+					["texture"] = "Details BarBorder 1",
+				},
+				["texture_background"] = "BantoBar",
+				["textL_custom_text"] = "{data1}. {data3}{data2}",
 				["no_icon"] = false,
 				["font_size"] = 10,
-				["texture_background"] = "Details Serenity",
+				["textL_class_colors"] = false,
 				["font_face"] = "Arial Narrow",
-				["texture_class_colors"] = false,
+				["texture_class_colors"] = true,
 				["height"] = 14,
-				["texture_file"] = "Interface\\AddOns\\Details\\images\\bar4",
-				["texture"] = "Skyline",
-				["fixed_texture_color"] = {
-					0.8627450980392157, -- [1]
-					0.8627450980392157, -- [2]
-					0.8627450980392157, -- [3]
-					1, -- [4]
-				},
+				["texture_file"] = "Interface\\AddOns\\Details\\images\\bar_skyline",
+				["textL_show_number"] = true,
+				["fixed_texture_color"] = {0.862745098039216,0.862745098039216,0.862745098039216,1},
 			},
-
-			wallpaper = {
-				overlay = {1, 1,	1},
-				width = 256,
-				texcoord = {49/1024, 305/1024, 646/1024, 774/1024},
-				enabled = true,
-				anchor = "all",
-				height = 128,
-				alpha = 0.8,
-				texture = [[Interface\AddOns\Details\images\skins\elvui]],
-			}
+			["bars_grow_direction"] = 1,
+			["menu_alpha"] = {
+				["enabled"] = false,
+				["onleave"] = 1,
+				["ignorebars"] = false,
+				["iconstoo"] = true,
+				["onenter"] = 1,
+			},
+			["total_bar"] = {
+				["enabled"] = false,
+				["only_in_group"] = true,
+				["icon"] = "Interface\\ICONS\\INV_Sigil_Thorim",
+				["color"] = {1,1,1},
+			},
+			["plugins_grow_direction"] = 1,
+			["strata"] = "LOW",
+			["show_sidebars"] = true,
+			["hide_in_combat_alpha"] = 0,
+			["menu_icons"] = {true,true,true,true,true, true, ["space"] = -4, ["shadow"] = true},
+			["desaturated_menu"] = false,
+			["auto_hide_menu"] = {
+				["left"] = false,
+				["right"] = false,
+			},
+			["window_scale"] = 1.00999999046326,
+			["grab_on_top"] = false,
+			["menu_anchor_down"] = {16, -2},
+			["statusbar_info"] = {
+				["alpha"] = 1,
+				["overlay"] = {1,1,1},
+			},
+			["hide_icon"] = true,
+			["micro_displays_side"] = 2,
+			["bg_alpha"] = 0.659999966621399,
+			["auto_current"] = true,
+			["toolbar_side"] = 1,
+			["bg_g"] = 0.517647058823529,
+			["backdrop_texture"] = "Details Ground",
+			["hide_in_combat"] = false,
+			["skin"] = "ElvUI Style II",
+			["menu_icons_size"] = 0.850000023841858,
+			["wallpaper"] = {
+				["enabled"] = true,
+				["width"] = 265.999979475717,
+				["texcoord"] = {0.0480000019073486,0.298000011444092,0.630999984741211,0.755999984741211},
+				["overlay"] = {0.999997794628143,0.999997794628143,0.999997794628143,0.799998223781586},
+				["anchor"] = "all",
+				["height"] = 226.000007591173,
+				["alpha"] = 0.800000071525574,
+				["texture"] = "Interface\\AddOns\\Details\\images\\skins\\elvui",
+			},
+			["stretch_button_side"] = 1,
+			["attribute_text"] = {
+				["enabled"] = true,
+				["shadow"] = true,
+				["side"] = 1,
+				["enable_custom_text"] = false,
+				["custom_text"] = "{name}",
+				["text_face"] = "Accidental Presidency",
+				["anchor"] = {-18,5},
+				["text_color"] = {1,1,1,0.7},
+				["text_size"] = 12,
+			},
+			["bg_b"] = 0.517647058823529,
 		},
 		
 		skin_options = {

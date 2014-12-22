@@ -1351,7 +1351,7 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 		dps = _math_floor (dps)
 		local formated_damage = SelectedToKFunction (_, damage_total)
 		local formated_dps = SelectedToKFunction (_, dps)
-		--esta_barra.ps_text = formated_dps
+		esta_barra.ps_text = formated_dps
 
 		if (UsingCustomRightText) then
 			esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_damage, formated_dps, porcentagem, self))
@@ -1365,10 +1365,11 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 		dps = _math_floor (dps)
 		local formated_damage = SelectedToKFunction (_, damage_total)
 		local formated_dps = SelectedToKFunction (_, dps)
+		esta_barra.ps_text = formated_dps
 	
 		if (UsingCustomRightText) then
 			esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_dps, formated_damage, porcentagem, self))
-		else		
+		else
 			esta_barra.texto_direita:SetText (formated_dps .. " (" .. formated_damage .. ", " .. porcentagem .. "%)") --seta o texto da direita
 		end
 		esta_porcentagem = _math_floor ((dps/instancia.top) * 100) --> determina qual o tamanho da barra
@@ -1379,6 +1380,7 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 	
 		local formated_damage_taken = SelectedToKFunction (_, self.damage_taken)
 		local formated_dtps = SelectedToKFunction (_, dtps)
+		esta_barra.ps_text = formated_dtps
 
 		if (UsingCustomRightText) then
 			esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_damage_taken, formated_dtps, porcentagem, self))
@@ -1403,6 +1405,7 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 		dps = _math_floor (dps)
 		local formated_damage = SelectedToKFunction (_, damage_total)
 		local formated_dps = SelectedToKFunction (_, dps)
+		esta_barra.ps_text = formated_dps
 	
 		if (UsingCustomRightText) then
 			esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_damage, formated_dps, porcentagem, self))

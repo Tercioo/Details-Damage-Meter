@@ -5884,8 +5884,13 @@ function window:CreateFrame6()
 			frame6.WindowScaleSlider:SetPoint ("left", frame6.WindowScaleLabel, "right", 2)
 			
 			window:CreateLineBackground2 (frame6, "WindowScaleSlider", "WindowScaleLabel", Loc ["STRING_OPTIONS_WINDOW_SCALE_DESC"])
- 
-
+			
+			frame6.WindowScaleSlider:SetHook ("OnEnter", function()
+				_detalhes:CooltipPreset (2)
+				GameCooltip:AddLine (string.format (Loc ["STRING_OPTIONS_WINDOW_SCALE_DESC"], _G.DetailsOptionsWindow.instance.window_scale))
+				GameCooltip:ShowCooltip (frame6.WindowScaleSlider.widget, "tooltip")
+				return true
+			end)
 			
 		--general anchor
 		g:NewLabel (frame6, _, "$parentAdjustmentsAnchor", "AdjustmentsAnchorLabel", Loc ["STRING_OPTIONS_WINDOW_ANCHOR"], "GameFontNormal")

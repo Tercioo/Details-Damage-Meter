@@ -485,6 +485,7 @@ function _G._detalhes:Start()
 
 	--test realtime dps
 	--[[
+	local floor = floor
 	local real_time_frame = CreateFrame ("frame", nil, UIParent)
 	local instance = _detalhes:GetInstance (1)
 	real_time_frame:SetScript ("OnUpdate", function (self, elapsed)
@@ -496,9 +497,8 @@ function _G._detalhes:Start()
 					local actor = row.minha_tabela
 					if (actor) then
 						local dps_text = row.ps_text
-
 						if (dps_text) then
-							local new_dps = math.floor (actor.total / (GetTime() - instance.showing.start_time_float))
+							local new_dps = floor (actor.total / instance.showing:GetCombatTime())
 							local formated_dps = _detalhes.ToKFunctions [_detalhes.ps_abbreviation] (_, new_dps)
 							
 							row.texto_direita:SetText (row.texto_direita:GetText():gsub (dps_text, formated_dps))

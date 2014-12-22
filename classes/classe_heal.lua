@@ -611,6 +611,7 @@ function atributo_heal:AtualizaBarra (instancia, barras_container, qual_barra, l
 			hps = _math_floor (hps)
 			local formated_heal = SelectedToKFunction (_, healing_total)
 			local formated_hps = SelectedToKFunction (_, hps)
+			esta_barra.ps_text = formated_hps
 		
 			if (UsingCustomRightText) then
 				esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_heal, formated_hps, porcentagem, self))
@@ -624,6 +625,7 @@ function atributo_heal:AtualizaBarra (instancia, barras_container, qual_barra, l
 			hps = _math_floor (hps)
 			local formated_heal = SelectedToKFunction (_, healing_total)
 			local formated_hps = SelectedToKFunction (_, hps)
+			esta_barra.ps_text = formated_hps
 			
 			if (UsingCustomRightText) then
 				esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_hps, formated_heal, porcentagem, self))
