@@ -176,6 +176,8 @@ _detalhes.instance_defaults = {
 					lower_model = [[World\EXPANSION02\DOODADS\Coldarra\COLDARRALOCUS.m2]],
 					lower_alpha = 0.10,
 				},
+			--fast hps/dps updates
+				fast_ps_update = false,
 		},
 	--instance window color
 		color = {1, 1, 1, 1},

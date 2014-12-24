@@ -280,16 +280,23 @@ local food_list = {
 			elseif (button == "RightButton") then
 				--> link no pre-pot latest segment
 				
-				local s = "No Pre-Pot Last Try: "
+				local s = "Details!: No Pre-Pot Last Try: "
 				
 				for i = 1, GetNumGroupMembers(), 1 do
-					local playerName, realmName = _UnitName ("raid" .. i)
-					if (realmName and realmName ~= "") then
-						playerName = playerName .. "-" .. realmName
-					end
+				
+					local role = _UnitGroupRolesAssigned ("raid" .. i)
+			
+					if (role == "DAMAGER" or (role == "HEALER" and DetailsRaidCheck.db.pre_pot_healers) or (role == "TANK" and DetailsRaidCheck.db.pre_pot_tanks)) then
+				
+						local playerName, realmName = _UnitName ("raid" .. i)
+						if (realmName and realmName ~= "") then
+							playerName = playerName .. "-" .. realmName
+						end
+						
+						if (not DetailsRaidCheck.usedprepot_table [playerName]) then
+							s = s .. DetailsRaidCheck:GetOnlyName (playerName) .. " "
+						end
 					
-					if (not DetailsRaidCheck.usedprepot_table [playerName]) then
-						s = s .. DetailsRaidCheck:GetOnlyName (playerName) .. " "
 					end
 				end
 				

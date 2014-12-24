@@ -5027,19 +5027,6 @@ function window:CreateFrame4()
 		frame4.BackdropColorPick:SetPoint ("left", frame4.BackdropColorLabel, "right", 2, 0)
 
 		local background = window:CreateLineBackground2 (frame4, "BackdropColorPick", "BackdropColorLabel", Loc ["STRING_OPTIONS_BAR_BACKDROP_COLOR_DESC"])
-		
-		--player bar
-
-		g:NewLabel (frame4, _, "$parentPlayerBarAnchor", "PlayerBarAnchor", Loc ["STRING_OPTIONS_BAR_FOLLOWING_ANCHOR"], "GameFontNormal")
-		
-		g:NewLabel (frame4, _, "$parentShowMeLabel", "ShowMeLabel", Loc ["STRING_OPTIONS_BAR_FOLLOWING"], "GameFontHighlightLeft")
-		g:NewSwitch (frame4, _, "$parentShowMeSlider", "ShowMeSlider", 60, 20, _, _, instance.following.enabled)
-		frame4.ShowMeSlider:SetPoint ("left", frame4.ShowMeLabel, "right", 2, -1)
-		frame4.ShowMeSlider.OnSwitch = function (self, instance, value)
-			--instance.following.enabled = value
-			instance:SetBarFollowPlayer (value)
-		end
-		window:CreateLineBackground2 (frame4, "ShowMeSlider", "ShowMeLabel", Loc ["STRING_OPTIONS_BAR_FOLLOWING_DESC"])
 
 	--> Anchors:
 		local x = window.left_start_at
@@ -5074,14 +5061,14 @@ function window:CreateFrame4()
 			{frame4.rowLowerTextureLabel, 4, true},
 			{frame4.rowBackgroundLabel, 5},
 			{frame4.rowBackgroundPickLabel, 6},
-			{"PlayerBarAnchor", 7, true},
-			{"ShowMeLabel", 8},
+
 		}
 
 		window:arrange_menu (frame4, left_side, x, -90)
 		window:arrange_menu (frame4, right_side, 360, -90)
 
 end
+
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Appearance - Texts ~5
@@ -6347,7 +6334,36 @@ function window:CreateFrame8()
 				end)
 				
 				window:CreateLineBackground2 (frame8, "ModelLowerAlphaSlider", "ModelLowerAlphaLabel", Loc ["STRING_OPTIONS_3D_LALPHA_DESC"])
-				
+		
+		--> fast updates
+
+			--> anchor
+				g:NewLabel (frame8, _, "$parentBarUpdateRateAnchor", "BarUpdateRateAnchor", Loc ["STRING_OPTIONS_BARUR_ANCHOR"], "GameFontNormal")
+			
+			--> enable fast updates
+			
+				g:NewLabel (frame8, _, "$parentBarUpdateRateLabel", "BarUpdateRateLabel", Loc ["STRING_OPTIONS_BARUR_ENABLED"], "GameFontHighlightLeft")
+				g:NewSwitch (frame8, _, "$parentBarUpdateRateSlider", "BarUpdateRateSlider", 60, 20, _, _, _G.DetailsOptionsWindow.instance.row_info.fast_ps_update)
+				frame8.BarUpdateRateSlider:SetPoint ("left", frame8.BarUpdateRateLabel, "right", 2, -1)
+				frame8.BarUpdateRateSlider.OnSwitch = function (self, instance, value)
+					instance:FastPSUpdate (value)
+				end
+				window:CreateLineBackground2 (frame8, "BarUpdateRateSlider", "BarUpdateRateLabel", Loc ["STRING_OPTIONS_BARUR_DESC"])
+		
+		--> player bar
+
+			--> anchor
+				g:NewLabel (frame8, _, "$parentPlayerBarAnchor", "PlayerBarAnchor", Loc ["STRING_OPTIONS_BAR_FOLLOWING_ANCHOR"], "GameFontNormal")
+			
+			--> enable player bar
+				g:NewLabel (frame8, _, "$parentShowMeLabel", "ShowMeLabel", Loc ["STRING_OPTIONS_BAR_FOLLOWING"], "GameFontHighlightLeft")
+				g:NewSwitch (frame8, _, "$parentShowMeSlider", "ShowMeSlider", 60, 20, _, _, instance.following.enabled)
+				frame8.ShowMeSlider:SetPoint ("left", frame8.ShowMeLabel, "right", 2, -1)
+				frame8.ShowMeSlider.OnSwitch = function (self, instance, value)
+					instance:SetBarFollowPlayer (value)
+				end
+				window:CreateLineBackground2 (frame8, "ShowMeSlider", "ShowMeLabel", Loc ["STRING_OPTIONS_BAR_FOLLOWING_DESC"])
+		
 		--> anchors
 		
 		local x = window.left_start_at
@@ -6368,7 +6384,16 @@ function window:CreateFrame8()
 		}
 		
 		window:arrange_menu (frame8, left_side, x, -90)
-			
+		
+		local right_side = {
+			{"BarUpdateRateAnchor", 1, true},
+			{"BarUpdateRateLabel", 2},
+			{"PlayerBarAnchor", 3, true},
+			{"ShowMeLabel", 4},
+		}
+	
+		window:arrange_menu (frame8, right_side, window.right_start_at, window.top_start_at)
+		
 end
 		
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -8468,10 +8493,6 @@ end --> if not window
 		_G.DetailsOptionsWindow4BarStartSlider.MyObject:SetFixedParameter (editing_instance)
 		_G.DetailsOptionsWindow4BarStartSlider.MyObject:SetValue (editing_instance.row_info.start_after_icon)
 
-		_G.DetailsOptionsWindow4ShowMeSlider.MyObject:SetFixedParameter (editing_instance)
-		_G.DetailsOptionsWindow4ShowMeSlider.MyObject:SetValue (editing_instance.following.enabled)
-
-		
 		_G.DetailsOptionsWindow4BackdropBorderTextureDropdown.MyObject:SetFixedParameter (editing_instance)
 		_G.DetailsOptionsWindow4BackdropEnabledSlider.MyObject:SetFixedParameter (editing_instance)
 		_G.DetailsOptionsWindow4BackdropSizeHeight.MyObject:SetFixedParameter (editing_instance)
@@ -8577,7 +8598,12 @@ end --> if not window
 		
 		_G.DetailsOptionsWindow8ModelLowerAlphaSlider.MyObject:SetFixedParameter (editing_instance)
 		_G.DetailsOptionsWindow8ModelLowerAlphaSlider.MyObject:SetValue (editing_instance.row_info.models.lower_alpha)
+		
+		_G.DetailsOptionsWindow8BarUpdateRateSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow8BarUpdateRateSlider.MyObject:SetValue (editing_instance.row_info.fast_ps_update)
 
+		_G.DetailsOptionsWindow8ShowMeSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow8ShowMeSlider.MyObject:SetValue (editing_instance.following.enabled)
 		
 		--> window 10	
 		_G.DetailsOptionsWindow10SliderMemory.MyObject:SetValue (_detalhes.memory_threshold)

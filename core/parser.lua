@@ -1,7 +1,3 @@
---File Revision: 1
---Last Modification: 27/07/2013
--- Change Log:
-	-- 27/07/2013: Finished alpha version.
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -161,6 +157,10 @@
 		elseif (not who_name) then
 			--> no actor name, use spell name instead
 			who_name = "[*] "..spellname
+		end
+		
+		if (absorbed) then
+			amount = absorbed + (amount or 0)
 		end
 		
 		--> Fix for mage prismatic crystal

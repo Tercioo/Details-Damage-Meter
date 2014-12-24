@@ -20,6 +20,7 @@
 	local _rawget= rawget --lua local
 	local _math_min = math.min --lua local
 	local _math_max = math.max --lua local
+	local _math_abs = math.abs --lua local
 	local _bit_band = bit.band --lua local
 	local _unpack = unpack --lua local
 	local _type = type --lua local
@@ -1144,6 +1145,11 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 		
 	end
 	
+	if (sub_atributo == 2) then --> dps
+		instancia.player_top_dps = conteudo [1].last_dps
+		instancia.player_top_dps_threshold = instancia.player_top_dps - (instancia.player_top_dps * 0.65)
+	end
+	
 	if (instancia.bars_sort_direction == 1) then --top to bottom
 		
 		if (use_total_bar and instancia.barraS[1] == 1) then
@@ -1354,7 +1360,7 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 		esta_barra.ps_text = formated_dps
 
 		if (UsingCustomRightText) then
-			esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_damage, formated_dps, porcentagem, self))
+			esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_damage, formated_dps, porcentagem, self, instancia.showing))
 		else
 			esta_barra.texto_direita:SetText (formated_damage .. " (" .. formated_dps .. ", " .. porcentagem .. "%)") --seta o texto da direita
 		end
@@ -1362,15 +1368,40 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 
 	elseif (sub_atributo == 2) then --> mostrando dps
 	
+		local raw_dps = dps
 		dps = _math_floor (dps)
+		
 		local formated_damage = SelectedToKFunction (_, damage_total)
 		local formated_dps = SelectedToKFunction (_, dps)
 		esta_barra.ps_text = formated_dps
 	
+		local diff_from_topdps
+	
+		if (lugar > 1) then
+			diff_from_topdps = instancia.player_top_dps - raw_dps
+		end
+	
 		if (UsingCustomRightText) then
-			esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_dps, formated_damage, porcentagem, self))
+			esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_dps, formated_damage, porcentagem, self, instancia.showing))
 		else
-			esta_barra.texto_direita:SetText (formated_dps .. " (" .. formated_damage .. ", " .. porcentagem .. "%)") --seta o texto da direita
+			
+			if (diff_from_topdps) then
+				local threshold = diff_from_topdps / instancia.player_top_dps_threshold * 100
+				if (threshold < 100) then
+					threshold = _math_abs (threshold - 100)
+				else
+					threshold = 5
+				end
+				
+				local rr, gg, bb = _detalhes:percent_color ( threshold )
+				
+				rr, gg, bb = _detalhes:hex (_math_floor (rr*255)), _detalhes:hex (_math_floor (gg*255)), "28"
+				local color_percent = "" .. rr .. gg .. bb .. ""
+				
+				esta_barra.texto_direita:SetText (formated_dps .. " (|cFFFF4444-|r|cFF" .. color_percent .. SelectedToKFunction (_, _math_floor (diff_from_topdps)) .. "|r)") --seta o texto da direita
+			else
+				esta_barra.texto_direita:SetText (formated_dps .. "  |TInterface\\GROUPFRAME\\UI-Group-LeaderIcon:14:14:0:0:16:16:0:16:0:16|t ") --seta o texto da direita
+			end
 		end
 		esta_porcentagem = _math_floor ((dps/instancia.top) * 100) --> determina qual o tamanho da barra
 		
@@ -1383,7 +1414,7 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 		esta_barra.ps_text = formated_dtps
 
 		if (UsingCustomRightText) then
-			esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_damage_taken, formated_dtps, porcentagem, self))
+			esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_damage_taken, formated_dtps, porcentagem, self, instancia.showing))
 		else
 			esta_barra.texto_direita:SetText (formated_damage_taken .." (" .. formated_dtps .. ", " .. porcentagem .. "%)") --seta o texto da direita --
 		end
@@ -1394,7 +1425,7 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 		local formated_friendly_fire = SelectedToKFunction (_, self.friendlyfire_total)
 
 		if (UsingCustomRightText) then
-			esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_friendly_fire, "", porcentagem, self))
+			esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_friendly_fire, "", porcentagem, self, instancia.showing))
 		else			
 			esta_barra.texto_direita:SetText (formated_friendly_fire .. " (" .. porcentagem .. "%)") --seta o texto da direita --
 		end
@@ -1408,7 +1439,7 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 		esta_barra.ps_text = formated_dps
 	
 		if (UsingCustomRightText) then
-			esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_damage, formated_dps, porcentagem, self))
+			esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_damage, formated_dps, porcentagem, self, instancia.showing))
 		else		
 			esta_barra.texto_direita:SetText (formated_damage .. " (" .. formated_dps .. ", " .. porcentagem .. "%)") --seta o texto da direita
 		end
@@ -2998,12 +3029,12 @@ function atributo_damage:MontaDetalhesDamageDone (spellid, barra, instancia)
 			
 			data[#data+1] = t4
 			multistrike_table.p = esta_magia.m_amt/total_hits*100
-		
+
 			t4[1] = esta_magia.m_amt
 			t4[2] = multistrike_table
 			t4[3] = Loc ["STRING_MULTISTRIKE_HITS"]
-			t4[4] = ""
-			t4[5] = "" 
+			t4[4] = "On Critical: " .. esta_magia.m_crit
+			t4[5] = "On Normals: " .. (esta_magia.m_amt - esta_magia.m_crit)
 			t4[6] = Loc ["STRING_AVERAGE"] .. ": " .. _detalhes:comma_value (esta_magia.m_dmg/esta_magia.m_amt)
 			t4[7] = Loc ["STRING_DPS"] .. ": " .. _detalhes:comma_value (esta_magia.m_dmg/T)
 			t4[8] = esta_magia.m_amt .. " / " .. _cstr ("%.1f", esta_magia.m_amt/total_hits*100) .. "%"

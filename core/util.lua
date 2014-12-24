@@ -160,7 +160,7 @@
 		return args [tonumber(i)]
 	end
 	local run_function = function (str)
-		local okey, value = _pcall (loadstring (str), args[4])
+		local okey, value = _pcall (loadstring (str), args[4], args[5])
 		if (not okey) then
 			_detalhes:Msg ("|cFFFF9900error on custom text function|r:", value)
 			return 0
@@ -233,7 +233,7 @@
 		return s
 	end
 	
-	function _detalhes:percent_color (value)
+	function _detalhes:percent_color (value, inverted)
 		local r, g
 		if (value < 50) then
 			r = 255
@@ -247,7 +247,11 @@
 			g = _math_floor ( (value * 2) * 255 / 100)
 		end
 		
-		return r/255, g/255, 0
+		if (inverted) then
+			return g/255, r/255, 0
+		else
+			return r/255, g/255, 0
+		end
 	end
 
 	--> unpack more than 1 table

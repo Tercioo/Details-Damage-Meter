@@ -233,7 +233,7 @@
 --> internal functions
 -- _detalhes.statistics = {container_calls = 0, container_pet_calls = 0, container_unknow_pet = 0, damage_calls = 0, heal_calls = 0, absorbs_calls = 0, energy_calls = 0, pets_summons = 0}
 
-		-- ~start
+		-- ~start ~inicio
 		function _detalhes:EntrarEmCombate (...)
 
 			if (_detalhes.debug) then
@@ -331,6 +331,8 @@
 					instancia:CheckSwitchOnCombatStart (true)
 				end
 			end
+			
+			_detalhes:InstanceCall (_detalhes.CheckPsUpdate)
 			
 			_detalhes:SendEvent ("COMBAT_PLAYER_ENTER", nil, _detalhes.tabela_vigente)
 			_detalhes:HaveOneCurrentInstance()
@@ -609,6 +611,8 @@
 			
 			_detalhes.pre_pot_used = nil
 			_table_wipe (_detalhes.encounter_table)
+			
+			_detalhes:InstanceCall (_detalhes.CheckPsUpdate)
 			
 			if (invalid_combat) then
 				_detalhes:SendEvent ("COMBAT_INVALID")

@@ -65,6 +65,9 @@ do
 		[7] = {name = Loc ["STRING_ENVIRONMENTAL_LAVA"], icon = [[Interface\ICONS\Ability_Rhyolith_Volcano]]},
 		[8] = {name = Loc ["STRING_ENVIRONMENTAL_SLIME"], icon = [[Interface\ICONS\Ability_Creature_Poison_02]]},
 		
+		[59638] = {name = GetSpellInfo (59638) .. " (" .. Loc ["STRING_MIRROR_IMAGE"] .. ")"}, --> Mirror Image's Frost Bolt (mage)
+		[88082] = {name = GetSpellInfo (88082) .. " (" .. Loc ["STRING_MIRROR_IMAGE"] .. ")"}, --> Mirror Image's Fireball (mage)
+		
 		[94472] = {name = GetSpellInfo (94472) .. " (" .. Loc ["STRING_CRITICAL_ONLY"] .. ")"}, --> Atonement critical hit (priest)
 		[140816] = {name = GetSpellInfo (140816) .. " (" .. Loc ["STRING_CRITICAL_ONLY"] .. ")"}, --> Power Word: Solace critical hit  (priest)
 		

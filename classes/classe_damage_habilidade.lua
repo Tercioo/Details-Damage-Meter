@@ -35,6 +35,7 @@
 			--> multistrike
 			m_amt = 0,
 			m_dmg = 0,
+			m_crit = 0,
 			--off_amt = 0,
 			--off_dmg = 0,
 			--main_amt = 0,
@@ -86,63 +87,63 @@
 
 	function habilidade_dano:Add (serial, nome, flag, amount, who_nome, resisted, blocked, absorbed, critical, glacing, token, multistrike, isoffhand)
 
-		self.counter = self.counter + 1
+		self.total = self.total + amount
 		
 		self.targets [nome] = (self.targets [nome] or 0) + amount
 		
 		if (multistrike) then
+		
 			self.m_amt = self.m_amt + 1
 			self.m_dmg = self.m_dmg + amount
-		end
-		
-		--[[
-		if (isoffhand) then
-			self.off_amt = self.off_amt + 1
-			self.off_dmg = self.off_dmg + amount
+			
+			if (critical) then
+				self.m_crit = self.m_crit + 1
+			end
+			
 		else
-			self.main_amt = self.main_amt + 1
-		end
-		--]]
-
-		if (resisted and resisted > 0) then
-			self.r_dmg = self.r_dmg+amount --> tabela.total é o total de dano
-			self.r_amt = self.r_amt+1 --> tabela.total é o total de dano
-		end
 		
-		if (blocked and blocked > 0) then
-			self.b_dmg = self.b_dmg+amount --> amount é o total de dano
-			self.b_amt = self.b_amt+1 --> amount é o total de dano
-		end
+			self.counter = self.counter + 1
 		
-		if (absorbed and absorbed > 0) then
-			self.a_dmg = self.a_dmg+amount --> amount é o total de dano
-			self.a_amt = self.a_amt+1 --> amount é o total de dano
-		end	
+			if (resisted and resisted > 0) then
+				self.r_dmg = self.r_dmg+amount --> tabela.total é o total de dano
+				self.r_amt = self.r_amt+1 --> tabela.total é o total de dano
+			end
+			
+			if (blocked and blocked > 0) then
+				self.b_dmg = self.b_dmg+amount --> amount é o total de dano
+				self.b_amt = self.b_amt+1 --> amount é o total de dano
+			end
+			
+			if (absorbed and absorbed > 0) then
+				self.a_dmg = self.a_dmg+amount --> amount é o total de dano
+				self.a_amt = self.a_amt+1 --> amount é o total de dano
+			end
 		
-		self.total = self.total + amount
+			if (glacing) then
+				self.g_dmg = self.g_dmg+amount --> amount é o total de dano
+				self.g_amt = self.g_amt+1 --> amount é o total de dano
 
-		if (glacing) then
-			self.g_dmg = self.g_dmg+amount --> amount é o total de dano
-			self.g_amt = self.g_amt+1 --> amount é o total de dano
-
-		elseif (critical) then
-			self.c_dmg = self.c_dmg+amount --> amount é o total de dano
-			self.c_amt = self.c_amt+1 --> amount é o total de dano
-			if (amount > self.c_max) then
-				self.c_max = amount
+			elseif (critical) then
+				self.c_dmg = self.c_dmg+amount --> amount é o total de dano
+				self.c_amt = self.c_amt+1 --> amount é o total de dano
+				if (amount > self.c_max) then
+					self.c_max = amount
+				end
+				if (self.c_min > amount or self.c_min == 0) then
+					self.c_min = amount
+				end
+				
+			else
+				self.n_dmg = self.n_dmg+amount
+				self.n_amt = self.n_amt+1
+				if (amount > self.n_max) then
+					self.n_max = amount
+				end
+				if (self.n_min > amount or self.n_min == 0) then
+					self.n_min = amount
+				end
 			end
-			if ((self.c_min > amount or self.c_min == 0) and not multistrike) then
-				self.c_min = amount
-			end
-		else
-			self.n_dmg = self.n_dmg+amount
-			self.n_amt = self.n_amt+1
-			if (amount > self.n_max) then
-				self.n_max = amount
-			end
-			if ((self.n_min > amount or self.n_min == 0) and not multistrike) then
-				self.n_min = amount
-			end
+			
 		end
 		
 		if (_recording_ability_with_buffs) then
@@ -205,3 +206,12 @@
 	function _detalhes:UpdateDamageAbilityGears()
 		_recording_ability_with_buffs = _detalhes.RecordPlayerAbilityWithBuffs
 	end
+
+--[[
+if (isoffhand) then
+	self.off_amt = self.off_amt + 1
+	self.off_dmg = self.off_dmg + amount
+else
+	self.main_amt = self.main_amt + 1
+end
+--]]

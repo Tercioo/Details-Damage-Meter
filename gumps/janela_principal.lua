@@ -35,6 +35,8 @@ local modo_alone = _detalhes._detalhes_props["MODO_ALONE"]
 local modo_grupo = _detalhes._detalhes_props["MODO_GROUP"]
 local modo_all = _detalhes._detalhes_props["MODO_ALL"]
 
+local tok_functions = _detalhes.ToKFunctions
+
 --constants
 local baseframe_strata = "LOW"
 local gump_fundo_backdrop = {
@@ -3549,6 +3551,94 @@ function _detalhes:SetBarSettings (height, texture, colorclass, fixedcolor, back
 end
 
 --/script _detalhes:InstanceRefreshRows (_detalhes.tabela_instancias[1])
+
+--> on update function
+local fast_ps_func = function (self)
+	local instance = self.instance
+	local combat_time = instance.showing:GetCombatTime()
+	local ps_type = _detalhes.ps_abbreviation
+
+	for i = 1, instance.rows_fit_in_window do --instance:GetNumRows()
+		local row = instance.barras [i] --instance:GetRow (i)
+		if (row and row:IsShown()) then
+			local actor = row.minha_tabela
+			if (actor) then
+				local dps_text = row.ps_text
+				if (dps_text) then
+					local new_dps = _math_floor (actor.total / combat_time)
+					local formated_dps = tok_functions [ps_type] (_, new_dps)
+
+					row.texto_direita:SetText (row.texto_direita:GetText():gsub (dps_text, formated_dps))
+					row.ps_text = formated_dps
+				end
+			end
+		end
+	end
+end
+
+--> check if can start or need to stop
+function _detalhes:CheckPsUpdate()
+
+	local is_enabled = self.row_info.fast_ps_update
+	
+	if (is_enabled) then
+		--> check if the frame is created
+		if (not self.ps_update_frame) then
+			self.ps_update_frame = CreateFrame ("frame", "DetailsInstance" .. self.meu_id .. "PsUpdate", self.baseframe)
+			self.ps_update_frame.instance = self
+		end
+		
+		--> if isn't in combat, just stop
+		if (not _detalhes.in_combat) then
+			if (self.ps_update_frame.is_running) then
+				self.ps_update_frame.is_running = nil
+				self.ps_update_frame:Hide()
+				self.ps_update_frame:SetScript ("OnUpdate", nil)
+			end
+			return
+		end
+		
+		--> check if needs to start
+		local attribute, sub_attribute = self:GetDisplay()
+		
+		--> check if the instance is showing damage done/dps or healing done/hps
+		if ( (attribute == 1 and (sub_attribute == 1 or sub_attribute == 2)) or (attribute == 2 and (sub_attribute == 1 or sub_attribute == 2))) then
+			if (not self.ps_update_frame.is_running) then
+				self.ps_update_frame.is_running = true
+				self.ps_update_frame:Show()
+				self.ps_update_frame:SetScript ("OnUpdate", fast_ps_func)
+			end
+		else
+			--> check if needs to stop
+			if (self.ps_update_frame.is_running) then
+				self.ps_update_frame.is_running = nil
+				self.ps_update_frame:Hide()
+				self.ps_update_frame:SetScript ("OnUpdate", nil)
+			end
+		end
+		
+	else
+		if (self.ps_update_frame and self.ps_update_frame.is_running) then
+			self.ps_update_frame.is_running = nil
+			self.ps_update_frame:Hide()
+			self.ps_update_frame:SetScript ("OnUpdate", nil)
+		end
+	end
+end
+
+--	/run _detalhes:GetInstance(1):FastPSUpdate (true)
+--	/dump (_detalhes:GetInstance(1).fast_ps_update)
+
+function _detalhes:FastPSUpdate (enabled)
+	if (type (enabled) ~= "boolean") then
+		enabled = self.row_info.fast_ps_update
+	end
+	
+	self.row_info.fast_ps_update = enabled
+	
+	self:CheckPsUpdate()
+end
+
 
 -- search key: ~row
 function _detalhes:InstanceRefreshRows (instancia)

@@ -2100,6 +2100,7 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 			end
 		end
 		
+		_detalhes:InstanceCall (_detalhes.CheckPsUpdate)
 		_detalhes:SendEvent ("DETAILS_INSTANCE_CHANGEATTRIBUTE", nil, instancia, atributo, sub_atributo)
 		
 	end
@@ -2117,6 +2118,7 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 			instancia:ChangeIcon()
 		end
 		
+		_detalhes:InstanceCall (_detalhes.CheckPsUpdate)
 		_detalhes:SendEvent ("DETAILS_INSTANCE_CHANGEATTRIBUTE", nil, instancia, atributo, sub_atributo)
 	end
 
@@ -2673,12 +2675,14 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 				total, keyName, first, container_amount = _detalhes.atributo_energy:RefreshWindow (self, self.showing, true, true)
 			elseif (atributo == 4) then --> misc
 				if (self.sub_atributo == 5) then --> mortes
+
 					local mortes = self.showing.last_events_tables
 					local reportarMortes = {}
 					for index, morte in ipairs (mortes) do 
 						reportarMortes [#reportarMortes+1] = {dead = morte [6], nome = morte [3]:gsub (("%-.*"), "")}
 					end
 					container = reportarMortes
+					container_amount = #reportarMortes
 					keyName = "dead"
 				else
 					total, keyName, first, container_amount = _detalhes.atributo_misc:RefreshWindow (self, self.showing, true, true)
@@ -2697,18 +2701,20 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 				--print (total, keyName, first, atributo, container_amount)
 			end
 			
-			amt = math.min (amt, container_amount or 0)
 
+			amt = math.min (amt, container_amount or 0)
+--amt é zero
 			for i = 1, amt do 
 				local _thisActor = container [i]
 
 				if (_thisActor) then 
-				
-					local amount
+
+					local amount, is_string
 					if (type (_thisActor [keyName]) == "number") then
 						amount = _math_floor (_thisActor [keyName])
 					else
 						amount = _thisActor [keyName]
+						is_string = true
 					end
 					
 					local name = _thisActor.nome.." "
@@ -2725,21 +2731,29 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 						stringlen = _detalhes.fontstring_len:GetStringWidth()
 					end
 					
+					local percent
+					
+					if (self.atributo == 2 and self.sub_atributo == 3) then --overheal
+						percent = _cstr ("%.1f", _thisActor.totalover / (_thisActor.totalover + _thisActor.total) * 100)
+					elseif (not is_string) then
+						percent = _cstr ("%.1f", amount/total*100)
+					end
+					
 					if (_type (amount) == "number" and amount > 0) then
 						if (keyNameSec) then
 							local dps = GetDpsHps (_thisActor, keyNameSec)
 							if (_detalhes.report_schema == 1) then
-								report_lines [#report_lines+1] = i .. ". " .. name .. " " .. _detalhes:ToKMin ( _math_floor (amount) ) .. " (" .. _detalhes:ToKMin (_math_floor (dps)) .. ", " .. _cstr ("%.2f", amount/total*100) .. "%)"
+								report_lines [#report_lines+1] = i .. ". " .. name .. " " .. _detalhes:ToKMin ( _math_floor (amount) ) .. " (" .. _detalhes:ToKMin (_math_floor (dps)) .. ", " .. percent .. "%)"
 							elseif (_detalhes.report_schema == 2) then
-								report_lines [#report_lines+1] = i .. ". " .. name .. " " .. _cstr ("%.2f", amount/total*100) .. "% (" .. _detalhes:ToKMin (_math_floor (dps)) .. ", " .. _detalhes:ToKMin ( _math_floor (amount)) .. ")"
+								report_lines [#report_lines+1] = i .. ". " .. name .. " " .. percent .. "% (" .. _detalhes:ToKMin (_math_floor (dps)) .. ", " .. _detalhes:ToKMin ( _math_floor (amount)) .. ")"
 							elseif (_detalhes.report_schema == 3) then
-								report_lines [#report_lines+1] = i .. ". " .. name .. " " .. _cstr ("%.2f", amount/total*100) .. "% (" .. _detalhes:ToKMin ( _math_floor (amount) ) .. ", " .. _detalhes:ToKMin (_math_floor (dps)) .. ")"
+								report_lines [#report_lines+1] = i .. ". " .. name .. " " .. percent .. "% (" .. _detalhes:ToKMin ( _math_floor (amount) ) .. ", " .. _detalhes:ToKMin (_math_floor (dps)) .. ")"
 							end
 						else
 							if (_detalhes.report_schema == 1) then
-								report_lines [#report_lines+1] = i .. ". " .. name .. "   " .. _detalhes:ToKReport (amount) .. " (" .. _cstr ("%.1f", amount/total*100) .. "%)"
+								report_lines [#report_lines+1] = i .. ". " .. name .. "   " .. _detalhes:ToKReport (amount) .. " (" .. percent .. "%)"
 							else
-								report_lines [#report_lines+1] = i .. ". " .. name .. "   " .. _cstr ("%.1f", amount/total*100) .. "% (" .. _detalhes:ToKReport (amount) .. ")"
+								report_lines [#report_lines+1] = i .. ". " .. name .. "   " .. percent .. "% (" .. _detalhes:ToKReport (amount) .. ")"
 							end
 						end
 						
@@ -2850,20 +2864,28 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 					if (_type (amount) == "number") then
 						if (amount > 0) then 
 						
+							local percent
+							
+							if (self.atributo == 2 and self.sub_atributo == 3) then --overheal
+								percent = _cstr ("%.1f", _thisActor.totalover / (_thisActor.totalover + _thisActor.total) * 100)
+							else
+								percent = _cstr ("%.1f", amount/total*100)
+							end
+						
 							if (keyNameSec) then
 								local dps = GetDpsHps (_thisActor, keyNameSec)
 								if (_detalhes.report_schema == 1) then
-									report_lines [#report_lines+1] = i .. ". " .. name .. " " .. _detalhes:ToKMin ( _math_floor (amount) ) .. " (" .. _detalhes:ToKMin (_math_floor (dps)) .. ", " .. _cstr ("%.2f", amount/total*100) .. "%)"
+									report_lines [#report_lines+1] = i .. ". " .. name .. " " .. _detalhes:ToKMin ( _math_floor (amount) ) .. " (" .. _detalhes:ToKMin (_math_floor (dps)) .. ", " .. percent .. "%)"
 								elseif (_detalhes.report_schema == 2) then
-									report_lines [#report_lines+1] = i .. ". " .. name .. " " .. _cstr ("%.2f", amount/total*100) .. "% (" .. _detalhes:ToKMin (_math_floor (dps)) .. ", " .. _detalhes:ToKMin ( _math_floor (amount)) .. ")"
+									report_lines [#report_lines+1] = i .. ". " .. name .. " " .. percent .. "% (" .. _detalhes:ToKMin (_math_floor (dps)) .. ", " .. _detalhes:ToKMin ( _math_floor (amount)) .. ")"
 								elseif (_detalhes.report_schema == 3) then
-									report_lines [#report_lines+1] = i .. ". " .. name .. " " .. _cstr ("%.2f", amount/total*100) .. "% (" .. _detalhes:ToKMin ( _math_floor (amount) ) .. ", " .. _detalhes:ToKMin (_math_floor (dps)) .. ")"
+									report_lines [#report_lines+1] = i .. ". " .. name .. " " .. percent .. "% (" .. _detalhes:ToKMin ( _math_floor (amount) ) .. ", " .. _detalhes:ToKMin (_math_floor (dps)) .. ")"
 								end
 							else
 								if (_detalhes.report_schema == 1) then
-									report_lines [#report_lines+1] = i .. ". " .. name .. "   " .. _detalhes:ToKReport (amount) .. " (" .. _cstr ("%.1f", amount/total*100) .. "%)"
+									report_lines [#report_lines+1] = i .. ". " .. name .. "   " .. _detalhes:ToKReport (amount) .. " (" .. percent .. "%)"
 								else
-									report_lines [#report_lines+1] = i .. ". " .. name .. "   " .. _cstr ("%.1f", amount/total*100) .. "% (" .. _detalhes:ToKReport (amount) .. ")"
+									report_lines [#report_lines+1] = i .. ". " .. name .. "   " .. _cstr ("%.1f", amount/total*100) .. "% (" .. percent .. ")"
 								end
 							end
 							

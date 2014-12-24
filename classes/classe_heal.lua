@@ -614,7 +614,7 @@ function atributo_heal:AtualizaBarra (instancia, barras_container, qual_barra, l
 			esta_barra.ps_text = formated_hps
 		
 			if (UsingCustomRightText) then
-				esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_heal, formated_hps, porcentagem, self))
+				esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_heal, formated_hps, porcentagem, self, instancia.showing))
 			else
 				esta_barra.texto_direita:SetText (formated_heal .." (" .. formated_hps .. ", " .. porcentagem .. "%)") --seta o texto da direita
 			end
@@ -628,7 +628,7 @@ function atributo_heal:AtualizaBarra (instancia, barras_container, qual_barra, l
 			esta_barra.ps_text = formated_hps
 			
 			if (UsingCustomRightText) then
-				esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_hps, formated_heal, porcentagem, self))
+				esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_hps, formated_heal, porcentagem, self, instancia.showing))
 			else			
 				esta_barra.texto_direita:SetText (formated_hps .. " (" .. formated_heal .. ", " .. porcentagem .. "%)") --seta o texto da direita
 			end
@@ -638,10 +638,17 @@ function atributo_heal:AtualizaBarra (instancia, barras_container, qual_barra, l
 		
 			local formated_overheal = SelectedToKFunction (_, self.totalover)
 			
+			local percent = self.totalover / (self.totalover + self.total) * 100
+			local overheal_percent = _cstr ("%.1f", percent)
+			
+			local rr, gg, bb = _detalhes:percent_color (percent, true)
+			rr, gg, bb = _detalhes:hex (_math_floor (rr*255)), _detalhes:hex (_math_floor (gg*255)), _detalhes:hex (_math_floor (bb*255))
+			overheal_percent = "|cFF" .. rr .. gg .. bb .. overheal_percent .. "|r"
+			
 			if (UsingCustomRightText) then
-				esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_overheal, "", porcentagem, self))
+				esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_overheal, "", overheal_percent, self, instancia.showing))
 			else
-				esta_barra.texto_direita:SetText (formated_overheal .." (" .. porcentagem .. "%)") --seta o texto da direita --_cstr("%.1f", dps) .. " - ".. DPS do damage taken não será possivel correto?
+				esta_barra.texto_direita:SetText (formated_overheal .." (" .. overheal_percent .. "%)") --seta o texto da direita --_cstr("%.1f", dps) .. " - ".. DPS do damage taken não será possivel correto?
 			end
 			esta_porcentagem = _math_floor ((self.totalover/instancia.top) * 100) --> determina qual o tamanho da barra
 			
@@ -650,7 +657,7 @@ function atributo_heal:AtualizaBarra (instancia, barras_container, qual_barra, l
 			local formated_healtaken = SelectedToKFunction (_, self.healing_taken)
 			
 			if (UsingCustomRightText) then
-				esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_healtaken, "", porcentagem, self))
+				esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_healtaken, "", porcentagem, self, instancia.showing))
 			else		
 				esta_barra.texto_direita:SetText (formated_healtaken .. " (" .. porcentagem .. "%)") --seta o texto da direita --_cstr("%.1f", dps) .. " - ".. DPS do damage taken não será possivel correto?
 			end
@@ -661,7 +668,7 @@ function atributo_heal:AtualizaBarra (instancia, barras_container, qual_barra, l
 			local formated_enemyheal = SelectedToKFunction (_, self.heal_enemy_amt)
 		
 			if (UsingCustomRightText) then
-				esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_enemyheal, "", porcentagem, self))
+				esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_enemyheal, "", porcentagem, self, instancia.showing))
 			else
 				esta_barra.texto_direita:SetText (formated_enemyheal .. " (" .. porcentagem .. "%)") --seta o texto da direita --_cstr("%.1f", dps) .. " - ".. DPS do damage taken não será possivel correto?
 			end
@@ -672,7 +679,7 @@ function atributo_heal:AtualizaBarra (instancia, barras_container, qual_barra, l
 			local formated_absorbs = SelectedToKFunction (_, self.totalabsorb)
 		
 			if (UsingCustomRightText) then
-				esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_absorbs, "", porcentagem, self))
+				esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_absorbs, "", porcentagem, self, instancia.showing))
 			else
 				esta_barra.texto_direita:SetText (formated_absorbs .. " (" .. porcentagem .. "%)") --seta o texto da direita --_cstr("%.1f", dps) .. " - ".. DPS do damage taken não será possivel correto?
 			end

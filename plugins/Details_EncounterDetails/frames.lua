@@ -1723,6 +1723,11 @@ do
 	}
 	
 	emote_frame:SetScript ("OnEvent", function (...)
+	
+		if (not EncounterDetails.current_whisper_table) then
+			return
+		end
+	
 		local combat = EncounterDetails:GetCombat ("current")
 		--local arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9 = ...
 		--print ("2 =", arg2, "3 =", arg3, "4 =",  arg4, "5 =",  arg5, "6 =",  arg6, "7 =",  arg7, "8 =",  arg8, "9 =",  arg9)

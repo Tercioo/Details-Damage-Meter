@@ -753,7 +753,7 @@ function atributo_misc:AtualizaBarra (instancia, barras_container, qual_barra, l
 	local esta_porcentagem = _math_floor ((meu_total/instancia.top) * 100)
 
 	if (UsingCustomRightText) then
-		esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, meu_total, "", porcentagem, self))
+		esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, meu_total, "", porcentagem, self, instancia.showing))
 	else
 		esta_barra.texto_direita:SetText (meu_total .." (" .. porcentagem .. "%)") --seta o texto da direita
 	end
