@@ -247,6 +247,9 @@
 				end
 			end
 			
+		elseif (meu_dono) then
+			--> é um pet
+			who_name = who_name .. " <" .. meu_dono.nome .. ">"
 		end
 		
 		--> his target
@@ -268,7 +271,11 @@
 					damage_cache [alvo_name] = jogador_alvo
 				end
 			end
-			
+		
+		elseif (alvo_dono) then
+			--> é um pet
+			alvo_name = alvo_name .. " <" .. alvo_dono.nome .. ">"
+		
 		end
 		
 		--> last event
