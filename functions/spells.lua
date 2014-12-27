@@ -1179,19 +1179,19 @@ do
 		
 		--["MAGE"] = {},
 		[159916]	= {120, 6}, -- "Amplify Magic"
-		[157913]	= {45, 3}, -- "Evanesce"
+		[157913]	= {45, 3, 1}, -- "Evanesce"
 		
 		--["MONK"] = {},
 		[115295] = {30, 30, 1}, -- Guard
 		[116849] = {120, 12, 0}, -- Life Cocoon (a)
 		[115310] = {180, 0, 0}, -- Revival
-		[119582] = {60, 0, 0}, -- Purifying Brew
+		[119582] = {60, 0, 1}, -- Purifying Brew
 		[116844] = {45, 8, 0}, --Ring of Peace
-		[115308] = {0, 6, 0}, --Elusive Brew
+		[115308] = {0, 6, 1}, --Elusive Brew
 		[122783] = {90, 6}, -- Diffuse Magic
 		[122278] = {90, 45}, -- Dampen Harm
-		[115176] = {180, 8}, -- Zen Meditation
-		[115203] = {180, 20}, -- Fortifying Brew
+		[115176] = {180, 8, 1}, -- Zen Meditation
+		[115203] = {180, 20, 1}, -- Fortifying Brew
 		[157535] = {90, 10}, -- "Breath of the Serpent"
 		
 		--["PALADIN"] = {},
@@ -1224,7 +1224,13 @@ do
 		--[114203]	= {180, 15}, -- Demoralizing Banner
 		[114028]	= {60, 5}, -- Mass Spell Reflection
 		[97462]	= {180, 10}, -- Rallying Cry
-		[2565] 	= {12, 6}, -- Shield Block
+		[2565] 	= {12, 6, 1}, -- Shield Block
+		[871] = {180, 12, 1}, -- Shield Wall
+		[12975] = {180, 20, 1}, -- Last Stand
+		[23920] = {25, 5, 1}, -- Spell Reflection
+		[114030] = {120, 12}, -- Vigilance
+		[118038] = {120, 8, 1}, -- Die by the Sword
+		[112048]	= {90, 6, 1}, -- Shield Barrier
 	}
 	
 	_detalhes.DefensiveCooldownSpells = {

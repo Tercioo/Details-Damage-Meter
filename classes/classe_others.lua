@@ -202,7 +202,15 @@ function _detalhes:ToolTipDead (instancia, morte, esta_barra, keydown)
 			--> is damage or heal
 			if (evtype) then
 				--> damage
-				GameCooltip:AddLine ("" .. _cstr ("%.1f", time - hora_da_morte) .. "s " .. spellname .. " (" .. source .. ")", "-" .. _detalhes:ToK (amount) .. " (" .. hp .. "%)", 1, "white", "white")
+				
+				local overkill = event [10]
+				if (overkill > 0) then
+					overkill = " (" .. _detalhes:ToK (overkill) .. " |cFFFF8800overkill|r)"
+				else
+					overkill = ""
+				end
+				
+				GameCooltip:AddLine ("" .. _cstr ("%.1f", time - hora_da_morte) .. "s " .. spellname .. " (" .. source .. ")", "-" .. _detalhes:ToK (amount) .. overkill .. " (" .. hp .. "%)", 1, "white", "white")
 				GameCooltip:AddIcon (spellicon)
 				
 				if (event [9]) then
@@ -1048,13 +1056,13 @@ function atributo_misc:ToolTipDispell (instancia, numero, barra)
 		r, g, b = unpack (_detalhes.class_colors [self.classe])
 	end	
 
-	local meu_total = self ["dispell"]
+	local meu_total = _math_floor (self ["dispell"])
 	local habilidades = self.dispell_spells._ActorTable
 	
 --> habilidade usada para dispelar
 	local meus_dispells = {}
 	for _spellid, _tabela in _pairs (habilidades) do
-		meus_dispells [#meus_dispells+1] = {_spellid, _tabela.dispell}
+		meus_dispells [#meus_dispells+1] = {_spellid, _math_floor (_tabela.dispell)}
 	end
 	_table_sort (meus_dispells, _detalhes.Sort2)
 	
@@ -1096,10 +1104,12 @@ function atributo_misc:ToolTipDispell (instancia, numero, barra)
 			GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
 		end
 	end
+
+--> alvos dispelados
 	
 	local alvos_dispelados = {}
-	for target_name, amount in _ipairs (self.dispell_targets) do
-		alvos_dispelados [#alvos_dispelados + 1] = {target_name, amount, amount / meu_total * 100}
+	for target_name, amount in _pairs (self.dispell_targets) do
+		alvos_dispelados [#alvos_dispelados + 1] = {target_name, _math_floor (amount), amount / meu_total * 100}
 	end
 	_table_sort (alvos_dispelados, _detalhes.Sort2)
 

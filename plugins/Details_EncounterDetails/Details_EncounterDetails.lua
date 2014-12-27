@@ -369,12 +369,20 @@ end
 			local amount = event [3]
 			local time = event [4]
 			local source = event [6]
+			local overkill = event [10]
 
 			if (type (evtype) == "boolean") then
 				--> is damage or heal
 				if (evtype) then
 					--> damage
-					GameCooltip:AddLine ("" .. _cstr ("%.1f", time - hora_da_morte) .. "s " .. spellname .. " (" .. source .. ")", "-" .. _detalhes:ToK (amount) .. " (" .. hp .. "%)", 1, "white", "white")
+					
+					if (overkill > 0) then
+						overkill = " (" .. _detalhes:ToK (overkill) .. " |cFFFF8800overkill|r)"
+					else
+						overkill = ""
+					end
+					
+					GameCooltip:AddLine ("" .. _cstr ("%.1f", time - hora_da_morte) .. "s " .. spellname .. " (" .. source .. ")", "-" .. _detalhes:ToK (amount) .. overkill .. " (" .. hp .. "%)", 1, "white", "white")
 					GameCooltip:AddIcon (spellicon)
 					
 					if (event [9]) then

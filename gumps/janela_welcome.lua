@@ -979,7 +979,18 @@ local window_openned_at = time()
 		end	
 		window.animateSlider.tooltip = Loc ["STRING_WELCOME_17"]
 		
-		
+	--------------- Fast Hps/Dps Updates
+	--[[
+		g:NewLabel (window, _, "$parentDpsHpsLabel", "DpsHpsLabel", "Fast Dps/Hps Update" .. ":")
+		window.DpsHpsLabel:SetPoint (31, -190)
+		--
+		g:NewSwitch (window, _, "$parentDpsHpsSlider", "DpsHpsSlider", 60, 20, _, _, _detalhes:GetInstance(1).row_info.fast_ps_update) -- ltext, rtext, defaultv
+		window.DpsHpsSlider:SetPoint ("left",window.DpsHpsLabel, "right", 2, 0)
+		window.DpsHpsSlider.OnSwitch = function (self, _, value) --> slider, fixedValue, sliderValue (false, true)
+			_detalhes:GetInstance(1):FastPSUpdate (value)
+		end	
+		window.DpsHpsSlider.tooltip = "When enabled, the Dps and Hps shown is updated faster them total damage or healing."
+	--]]
 	--------------- Max Segments
 		g:NewLabel (window, _, "$parentSliderLabel", "segmentsLabel", Loc ["STRING_WELCOME_21"] .. ":")
 		window.segmentsLabel:SetPoint (31, -190)
@@ -1016,10 +1027,12 @@ local window_openned_at = time()
 		
 		update_frame_alert:SetScript ("OnShow", function()
 			_detalhes:StartTestBarUpdate()
+			--_detalhes.in_combat = true
 		end)
 		
 		update_frame_alert:SetScript ("OnHide", function()
 			_detalhes:StopTestBarUpdate()
+			--_detalhes.in_combat = false
 		end)
 	
 	----------------
@@ -1032,6 +1045,7 @@ local window_openned_at = time()
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> page 6
+-- stretcher
 
 		local bg6 = window:CreateTexture (nil, "overlay")
 		bg6:SetTexture ([[Interface\MainMenuBar\UI-MainMenuBar-EndCap-Human]])
@@ -1047,7 +1061,7 @@ local window_openned_at = time()
 		
 		local texto_stretch = window:CreateFontString (nil, "overlay", "GameFontNormal")
 		texto_stretch:SetPoint ("topleft", window, "topleft", 181, -105)
-		texto_stretch:SetText (Loc ["STRING_WELCOME_27"])
+		texto_stretch:SetText ("The highlighted button is the Stretcher. |cFFFFFF00Click|r and |cFFFFFF00drag up!|r.\n\n\nIf the window is locked, the entire title bar becomes a stretch button.")
 		texto_stretch:SetWidth (310)
 		texto_stretch:SetHeight (100)
 		texto_stretch:SetJustifyH ("left")
@@ -1062,6 +1076,9 @@ local window_openned_at = time()
 		stretch_image:SetTexCoord (0.716796875, 1, 0.876953125, 1)
 		
 		local stretch_frame_alert = CreateFrame ("frame", nil, window)
+		stretch_frame_alert:SetScript ("OnHide", function()
+			_detalhes:StopPlayStretchAlert()
+		end)
 		stretch_frame_alert:SetScript ("OnShow", function()
 			local instance = _detalhes:GetInstance (1)
 			_detalhes.OnEnterMainWindow (instance)
@@ -1074,7 +1091,7 @@ local window_openned_at = time()
 			if (_detalhes.stopwelcomealert) then
 				_detalhes:CancelTimer (_detalhes.stopwelcomealert)
 			end
-			_detalhes.stopwelcomealert = _detalhes:ScheduleTimer ("StopPlayStretchAlert", 5)
+			_detalhes.stopwelcomealert = _detalhes:ScheduleTimer ("StopPlayStretchAlert", 30)
 		end)
 
 		
@@ -1086,6 +1103,7 @@ local window_openned_at = time()
 		
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> page 7
+-- window button
 
 		local bg6 = window:CreateTexture (nil, "overlay")
 		bg6:SetTexture ([[Interface\MainMenuBar\UI-MainMenuBar-EndCap-Human]])
@@ -1110,12 +1128,15 @@ local window_openned_at = time()
 		
 		local instance_button_image = window:CreateTexture (nil, "overlay")
 		instance_button_image:SetTexture ([[Interface\Addons\Details\images\icons]])
-		instance_button_image:SetPoint ("topright", window, "topright", -12, -70)
-		instance_button_image:SetWidth (204)
+		instance_button_image:SetPoint ("topright", window, "topright", -16, -70)
+		instance_button_image:SetWidth (198)
 		instance_button_image:SetHeight (141)
-		instance_button_image:SetTexCoord (0.31640625, 0.71484375, 0.724609375, 1)
+		instance_button_image:SetTexCoord (0.328125, 0.71484375, 0.724609375, 1)
 		
 		local instance_frame_alert = CreateFrame ("frame", nil, window)
+		instance_frame_alert:SetScript ("OnHide", function()
+			_detalhes:StopPlayStretchAlert()
+		end)
 		instance_frame_alert:SetScript ("OnShow", function()
 			local instance = _detalhes:GetInstance (1)
 
@@ -1127,7 +1148,7 @@ local window_openned_at = time()
 			if (_detalhes.stopwelcomealert) then
 				_detalhes:CancelTimer (_detalhes.stopwelcomealert)
 			end
-			_detalhes.stopwelcomealert = _detalhes:ScheduleTimer ("StopPlayStretchAlert", 5)
+			_detalhes.stopwelcomealert = _detalhes:ScheduleTimer ("StopPlayStretchAlert", 30)
 		end)
 		
 		pages [#pages+1] = {bg6, texto6, instance_button_image, texto_instance_button, instance_frame_alert}
@@ -1138,6 +1159,7 @@ local window_openned_at = time()
 		
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> page 8
+-- bookmark
 
 		local bg7 = window:CreateTexture (nil, "overlay")
 		bg7:SetTexture ([[Interface\MainMenuBar\UI-MainMenuBar-EndCap-Human]])
@@ -1153,28 +1175,21 @@ local window_openned_at = time()
 		
 		local texto_shortcut = window:CreateFontString (nil, "overlay", "GameFontNormal")
 		texto_shortcut:SetPoint ("topleft", window, "topleft", 25, -110)
-		texto_shortcut:SetText (Loc ["STRING_WELCOME_31"])
+		texto_shortcut:SetText ("|cFFFFFF00Right clicking|r anywhere in the window shows the |cFFFFAA00Bookmark|r panel.\n\n|cFFFFFF00Right click again|r closes the panel or chooses another display if clicked on a icon.\n\n|cFFFFFF00Left click|r selects the display.")
 		texto_shortcut:SetWidth (320)
 		texto_shortcut:SetHeight (90)
 		texto_shortcut:SetJustifyH ("left")
 		texto_shortcut:SetJustifyV ("top")
 		texto_shortcut:SetTextColor (1, 1, 1, 1)
 		
-		local shortcut_image1 = window:CreateTexture (nil, "overlay")
-		shortcut_image1:SetTexture ([[Interface\Addons\Details\images\icons]])
-		shortcut_image1:SetPoint ("topright", window, "topright", -12, -20)
-		shortcut_image1:SetWidth (160)
-		shortcut_image1:SetHeight (91)
-		shortcut_image1:SetTexCoord (0, 0.31250, 0.82421875, 1)
-		
 		local shortcut_image2 = window:CreateTexture (nil, "overlay")
 		shortcut_image2:SetTexture ([[Interface\Addons\Details\images\icons]])
-		shortcut_image2:SetPoint ("topright", window, "topright", -12, -110)
-		shortcut_image2:SetWidth (160)
-		shortcut_image2:SetHeight (106)
-		shortcut_image2:SetTexCoord (0, 0.31250, 0.59375, 0.80078125)
-		
-		pages [#pages+1] = {bg7, texto7, shortcut_image1, shortcut_image2, texto_shortcut}
+		shortcut_image2:SetPoint ("topright", window, "topright", -22, -87)
+		shortcut_image2:SetWidth (165)
+		shortcut_image2:SetHeight (119)
+		shortcut_image2:SetTexCoord (2/512, 167/512, 306/512, 425/512)
+
+		pages [#pages+1] = {bg7, texto7, shortcut_image2, texto_shortcut}
 		
 		for _, widget in ipairs (pages[#pages]) do 
 			widget:Hide()
@@ -1182,6 +1197,7 @@ local window_openned_at = time()
 		
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> page 9
+-- group windows
 
 		local bg77 = window:CreateTexture (nil, "overlay")
 		bg77:SetTexture ([[Interface\MainMenuBar\UI-MainMenuBar-EndCap-Human]])
@@ -1197,7 +1213,7 @@ local window_openned_at = time()
 		
 		local texto_snap = window:CreateFontString (nil, "overlay", "GameFontNormal")
 		texto_snap:SetPoint ("topleft", window, "topleft", 25, -101)
-		texto_snap:SetText (Loc ["STRING_WELCOME_33"])
+		texto_snap:SetText ("Drag a window near other to create a group.\n\nGrouped windows stretch and resize together.\n\nThey also live happier as a couple,")
 		texto_snap:SetWidth (160)
 		texto_snap:SetHeight (110)
 		texto_snap:SetJustifyH ("left")
@@ -1209,12 +1225,16 @@ local window_openned_at = time()
 		local snap_image1 = window:CreateTexture (nil, "overlay")
 		snap_image1:SetTexture ([[Interface\Addons\Details\images\icons]])
 		snap_image1:SetPoint ("topright", window, "topright", -12, -95)
-		snap_image1:SetWidth (308)
-		snap_image1:SetHeight (121)
-		snap_image1:SetTexCoord (0, 0.6015625, 0.353515625, 0.58984375)
+		snap_image1:SetWidth (310)
+		snap_image1:SetHeight (102) 
+		snap_image1:SetTexCoord (0, 0.60546875, 191/512, 293/512)
 
+		local group_frame_alert = CreateFrame ("frame", nil, window)
+		group_frame_alert:SetScript ("OnShow", function()
+			_detalhes.tabela_historico:resetar()
+		end)
 		
-		pages [#pages+1] = {bg77, texto77, snap_image1, texto_snap}
+		pages [#pages+1] = {bg77, texto77, snap_image1, texto_snap, group_frame_alert}
 		
 		for _, widget in ipairs (pages[#pages]) do 
 			widget:Hide()
@@ -1222,6 +1242,7 @@ local window_openned_at = time()
 		
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> page 10
+-- tooltip shift alt ctrl
 
 		local bg88 = window:CreateTexture (nil, "overlay")
 		bg88:SetTexture ([[Interface\MainMenuBar\UI-MainMenuBar-EndCap-Human]])
@@ -1234,24 +1255,22 @@ local window_openned_at = time()
 		local texto88 = window:CreateFontString (nil, "overlay", "GameFontNormal")
 		texto88:SetPoint ("topleft", window, "topleft", 20, -80)
 		texto88:SetText (Loc ["STRING_WELCOME_34"])
-		--|cFFFFFF00
+
 		local texto_micro_display = window:CreateFontString (nil, "overlay", "GameFontNormal")
 		texto_micro_display:SetPoint ("topleft", window, "topleft", 25, -101)
-		texto_micro_display:SetText (Loc ["STRING_WELCOME_35"])
-		texto_micro_display:SetWidth (160)
+		texto_micro_display:SetText ("Press shift to expand player's tooltip to show all spells used.\n\nCtrl for targets and Alt for Pets.")
+		texto_micro_display:SetWidth (300)
 		texto_micro_display:SetHeight (110)
 		texto_micro_display:SetJustifyH ("left")
 		texto_micro_display:SetJustifyV ("top")
 		texto_micro_display:SetTextColor (1, 1, 1, 1)
-		--local fonte, _, flags = texto_micro_display:GetFont()
-		--texto_micro_display:SetFont (fonte, 11, flags)
 		
 		local micro_image1 = window:CreateTexture (nil, "overlay")
 		micro_image1:SetTexture ([[Interface\Addons\Details\images\icons]])
-		micro_image1:SetPoint ("topright", window, "topright", -12, -95)
-		micro_image1:SetWidth (303)
-		micro_image1:SetHeight (128)
-		micro_image1:SetTexCoord (0.408203125, 1, 0.09375, 0.341796875)
+		micro_image1:SetPoint ("topright", window, "topright", -15, -95)
+		micro_image1:SetWidth (136)
+		micro_image1:SetHeight (83)
+		micro_image1:SetTexCoord (0, 136/512, 429/512, 1)
 		
 		pages [#pages+1] = {bg88, texto88, micro_image1, texto_micro_display}
 		

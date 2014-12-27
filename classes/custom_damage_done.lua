@@ -119,6 +119,7 @@
 								local on_me = spell.targets [targetname]
 								if (on_me) then
 									GameCooltip:AddLine (aggressor.nome, FormatTooltipNumber (_, on_me))
+									_detalhes:AddTooltipBackgroundStatusbar()
 								end
 							end
 						end
@@ -166,6 +167,7 @@
 					
 					if (roster [t[1]]) then
 						GameCooltip:AddLine (t[1], FormatTooltipNumber (_, t[2]))
+						_detalhes:AddTooltipBackgroundStatusbar()
 					end
 				end
 				
@@ -173,12 +175,12 @@
 				local target_amount = actor.targets [_detalhes.playername]
 				if (target_amount) then
 					GameCooltip:AddLine (targetactor.nome, FormatTooltipNumber (_, target_amount))
+					_detalhes:AddTooltipBackgroundStatusbar()
 				end
 			else
 				SortOrder (actor.spells._ActorTable, spells_used_func, target)
 
 				for i = 1, #temp_table do
-				
 					local t = temp_table [i]
 					
 					if (t[2] < 1) then
@@ -187,8 +189,13 @@
 					
 					local name, _, icon = _GetSpellInfo (t[1])
 					GameCooltip:AddLine (name, FormatTooltipNumber (_, t[2]))
+					_detalhes:AddTooltipBackgroundStatusbar()
 					GameCooltip:AddIcon (icon, 1, 1, 14, 14)
 				end
+				
+				--for index, pet_name in ipairs (actor.pets) do
+					
+				--end
 			end
 		
 		else

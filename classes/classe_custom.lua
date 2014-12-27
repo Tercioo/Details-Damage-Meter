@@ -1018,6 +1018,7 @@
 			desc = Loc ["STRING_CUSTOM_POT_DEFAULT_DESC"],
 			source = false,
 			target = false,
+			script_version = 1,
 			script = [[
 				--init:
 				local combat, instance_container, instance = ...
@@ -1223,12 +1224,17 @@
 		
 		local have = false
 		for _, custom in ipairs (self.custom) do
-			if (custom.name == Loc ["STRING_CUSTOM_POT_DEFAULT"]) then
+			if (custom.name == Loc ["STRING_CUSTOM_POT_DEFAULT"] and (custom.script_version and custom.script_version >= PotionUsed.script_version) ) then
 				have = true
 				break
 			end
 		end
 		if (not have) then
+			for i, custom in ipairs (self.custom) do
+				if (custom.name == Loc ["STRING_CUSTOM_POT_DEFAULT"]) then
+					table.remove (self.custom, i)
+				end
+			end
 			setmetatable (PotionUsed, _detalhes.atributo_custom)
 			PotionUsed.__index = _detalhes.atributo_custom
 			self.custom [#self.custom+1] = PotionUsed
@@ -1244,17 +1250,23 @@
 			source = "[raid]",
 			target = "[raid]",
 			script = false,
-			tooltip = false
+			tooltip = false,
+			script_version = 1,
 		}
 
 		local have = false
 		for _, custom in ipairs (self.custom) do
-			if (custom.name == Loc ["STRING_CUSTOM_HEALTHSTONE_DEFAULT"]) then
+			if (custom.name == Loc ["STRING_CUSTOM_HEALTHSTONE_DEFAULT"] and (custom.script_version and custom.script_version >= Healthstone.script_version) ) then
 				have = true
 				break
 			end
 		end
 		if (not have) then
+			for i, custom in ipairs (self.custom) do
+				if (custom.name == Loc ["STRING_CUSTOM_HEALTHSTONE_DEFAULT"]) then
+					table.remove (self.custom, i)
+				end
+			end
 			setmetatable (Healthstone, _detalhes.atributo_custom)
 			Healthstone.__index = _detalhes.atributo_custom
 			self.custom [#self.custom+1] = Healthstone
@@ -1271,6 +1283,7 @@
 			desc = Loc ["STRING_CUSTOM_ACTIVITY_DPS_DESC"],
 			source = false,
 			target = false,
+			script_version = 1,
 			total_script = [[
 				local value, top, total, combat, instance = ...
 				local minutos, segundos = math.floor (value/60), math.floor (value%60)
@@ -1306,15 +1319,20 @@
 				
 			]],
 		}
-		
+
 		local have = false
 		for _, custom in ipairs (self.custom) do
-			if (custom.name == Loc ["STRING_CUSTOM_ACTIVITY_DPS"]) then
+			if (custom.name == Loc ["STRING_CUSTOM_ACTIVITY_DPS"] and (custom.script_version and custom.script_version >= DamageActivityTime.script_version) ) then
 				have = true
 				break
 			end
 		end
 		if (not have) then
+			for i, custom in ipairs (self.custom) do
+				if (custom.name == Loc ["STRING_CUSTOM_ACTIVITY_DPS"]) then
+					table.remove (self.custom, i)
+				end
+			end
 			setmetatable (DamageActivityTime, _detalhes.atributo_custom)
 			DamageActivityTime.__index = _detalhes.atributo_custom		
 			self.custom [#self.custom+1] = DamageActivityTime
@@ -1329,6 +1347,7 @@
 			desc = Loc ["STRING_CUSTOM_ACTIVITY_HPS_DESC"],
 			source = false,
 			target = false,
+			script_version = 1,
 			total_script = [[
 				local value, top, total, combat, instance = ...
 				local minutos, segundos = math.floor (value/60), math.floor (value%60)
@@ -1364,15 +1383,20 @@
 				
 			]],
 		}
-		
+
 		local have = false
 		for _, custom in ipairs (self.custom) do
-			if (custom.name == Loc ["STRING_CUSTOM_ACTIVITY_HPS"]) then
+			if (custom.name == Loc ["STRING_CUSTOM_ACTIVITY_HPS"] and (custom.script_version and custom.script_version >= HealActivityTime.script_version) ) then
 				have = true
 				break
 			end
 		end
 		if (not have) then
+			for i, custom in ipairs (self.custom) do
+				if (custom.name == Loc ["STRING_CUSTOM_ACTIVITY_HPS"]) then
+					table.remove (self.custom, i)
+				end
+			end
 			setmetatable (HealActivityTime, _detalhes.atributo_custom)
 			HealActivityTime.__index = _detalhes.atributo_custom
 			self.custom [#self.custom+1] = HealActivityTime
@@ -1389,6 +1413,7 @@
 			desc = Loc ["STRING_CUSTOM_DTBS_DESC"],
 			source = false,
 			target = false,
+			script_version = 7,
 			script = [[
 				--> get the parameters passed
 				local combat, instance_container, instance = ...
@@ -1438,6 +1463,8 @@
 				--get the parameters passed
 				local actor, combat, instance = ...
 
+				local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
+				
 				--get the cooltip object (we do not use the convencional GameTooltip here)
 				local GameCooltip = GameCooltip
 
@@ -1459,15 +1486,32 @@
 							if (spellid == from_spell) then
 								for targetname, amount in pairs (spell.targets) do
 									local got = false
-									for index, t in ipairs (Targets) do
-										if (t[1] == targetname) then
-											t[2] = t[2] + amount
-											got = true
-											break
+									
+									local damage_actor = combat (1, targetname)
+									local heal_actor = combat (2, targetname)
+									
+									if ( (damage_actor or heal_actor) and ( (damage_actor and damage_actor:IsPlayer()) or (heal_actor and heal_actor:IsPlayer()) ) ) then
+										for index, t in ipairs (Targets) do
+											if (t[1] == targetname) then
+												t[2] = t[2] + amount
+												got = true
+												break
+											end
 										end
-									end
-									if (not got) then
-										Targets [#Targets+1] = {targetname, amount}
+										if (not got) then
+											Targets [#Targets+1] = {targetname, amount}
+										end
+									else
+										for index, t in ipairs (Targets) do
+											if (t[1] == Loc ["STRING_TARGETS_OTHER1"]) then
+												t[2] = t[2] + amount
+												got = true
+												break
+											end
+										end
+										if (not got) then
+											Targets [#Targets+1] = {Loc ["STRING_TARGETS_OTHER1"], amount}
+										end
 									end
 								end
 							end
@@ -1483,20 +1527,27 @@
 					local class = _detalhes:GetClass (t[1])	
 					if (class) then
 						local texture, l, r, t, b = _detalhes:GetClassIcon (class)
-						GameCooltip:AddIcon (texture, 1, 1, 14, 14, l, r, t, b)
+						GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small_alpha", 1, 1, 14, 14, l, r, t, b)
+					elseif (t[1] == Loc ["STRING_TARGETS_OTHER1"]) then
+						GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small_alpha", 1, 1, 14, 14, 0.25, 0.49609375, 0.75, 1)
 					end
 				end
 			]],
 		}
-		
+
 		local have = false
 		for _, custom in ipairs (self.custom) do
-			if (custom.name == Loc ["STRING_CUSTOM_DTBS"]) then
+			if (custom.name == Loc ["STRING_CUSTOM_DTBS"] and (custom.script_version and custom.script_version >= DamageTakenBySpell.script_version) ) then
 				have = true
 				break
 			end
 		end
 		if (not have) then
+			for i, custom in ipairs (self.custom) do
+				if (custom.name == Loc ["STRING_CUSTOM_DTBS"]) then
+					table.remove (self.custom, i)
+				end
+			end
 			setmetatable (DamageTakenBySpell, _detalhes.atributo_custom)
 			DamageTakenBySpell.__index = _detalhes.atributo_custom
 			self.custom [#self.custom+1] = DamageTakenBySpell

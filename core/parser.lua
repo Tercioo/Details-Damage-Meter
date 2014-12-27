@@ -138,6 +138,8 @@
 																		--spellid, spellname, spelltype
 	end
 
+--	/run local f=CreateFrame("frame");f:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED");f:SetScript("OnEvent", function(self, ...)print (...);end)
+	
 	function parser:spell_dmg (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand, multistrike)
 
 	------------------------------------------------------------------------------------------------
@@ -302,12 +304,14 @@
 			
 			this_event [1] = true --> true if this is a damage || false for healing
 			this_event [2] = spellid --> spellid || false if this is a battle ress line
-			this_event [3] = amount --> amount of damage or healing
+			this_event [3] = amount - overkill --> amount of damage or healing
 			this_event [4] = time --> parser time
 			this_event [5] = _UnitHealth (alvo_name) --> current unit heal
 			this_event [6] = who_name --> source name
 			this_event [7] = absorbed
 			this_event [8] = school
+			this_event [9] = false
+			this_event [10] = overkill
 			
 			i = i + 1
 			
@@ -431,13 +435,14 @@
 			
 			this_event [1] = true --> true if this is a damage || false for healing
 			this_event [2] = spellid --> spellid || false if this is a battle ress line
-			this_event [3] = amount --> amount of damage or healing
+			this_event [3] = amount - overkill --> amount of damage or healing
 			this_event [4] = time --> parser time
 			this_event [5] = _UnitHealth (alvo_name) --> current unit heal
 			this_event [6] = who_name --> source name
 			this_event [7] = absorbed
 			this_event [8] = school
 			this_event [9] = true
+			this_event [10] = overkill
 			i = i + 1
 			
 			if (i == 17) then
@@ -2286,7 +2291,7 @@
 			spelid = 8
 		end
 	
-		return parser:spell_dmg (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spelid or 1, env_type, 00000003, amount) --> localize-me
+		return parser:spell_dmg (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spelid or 1, env_type, 00000003, amount, -1, 1) --> localize-me
 	end
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2751,6 +2756,16 @@
 			_detalhes.schedule_store_boss_encounter = nil
 		end
 		
+		if (_detalhes.schedule_boss_function_run) then
+			if (not _detalhes.logoff_saving_data) then
+				local successful, errortext = pcall (_detalhes.schedule_boss_function_run, _detalhes.tabela_vigente)
+				if (not successful) then
+					_detalhes:Msg ("error occurred on Encounter Boss Function:", errortext)
+				end
+			end
+			_detalhes.schedule_boss_function_run = nil
+		end
+		
 		if (_detalhes.schedule_hard_garbage_collect) then
 			if (_detalhes.debug) then
 				_detalhes:Msg ("(debug) found schedule collectgarbage().")
@@ -2938,6 +2953,7 @@
 				for id, instance in _detalhes:ListInstances() do
 					if (instance.baseframe) then
 						instance.baseframe:SetUserPlaced (false)
+						instance.baseframe:SetDontSavePosition (true)
 					end
 				end
 			end

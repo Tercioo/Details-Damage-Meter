@@ -861,7 +861,7 @@ local function move_janela (baseframe, iniciando, instancia)
 
 		--baseframe:SetClampRectInsets (unpack (_detalhes.window_clamp))
 
-		if (instancia_alvo) then
+		if (instancia_alvo and not instancia.do_not_snap and not instancia_alvo.do_not_snap) then
 			instancia:AtualizaPontos()
 			
 			local esquerda, baixo, direita, cima
@@ -2754,6 +2754,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 	baseframe:SetMovable (true)
 	baseframe:SetResizable (true)
 	baseframe:SetUserPlaced (false)
+	baseframe:SetDontSavePosition (true)
 
 	baseframe.instance = instancia
 	baseframe:SetFrameStrata (baseframe_strata)
@@ -3576,6 +3577,7 @@ local fast_ps_func = function (self)
 	end
 end
 
+-- ~dps ~hps
 --> check if can start or need to stop
 function _detalhes:CheckPsUpdate()
 

@@ -152,10 +152,22 @@
 				end
 				return false
 			end
+
+			local ignored_enemy_npcs = {
+				[31216] = true, --mirror image
+				[53006] = true, --spirit link totem
+				[2] = true,
+			}
+			
+			-- Night-Twisted Brute - Creature-0-3024-1228-19402-85241-00001E2097
 			
 --[[ exported]]	function _detalhes:IsNeutralOrEnemy()
 				if (self.flag_original) then
 					if (_bit_band (self.flag_original, 0x00000060) ~= 0) then
+						local npcid1 = _detalhes:GetNpcIdFromGuid (self.serial)
+						if (ignored_enemy_npcs [npcid1]) then
+							return false
+						end
 						return true
 					end
 				end
@@ -165,6 +177,10 @@
 --[[ exported]]	function _detalhes:IsEnemy()
 				if (self.flag_original) then
 					if (_bit_band (self.flag_original, 0x00000060) ~= 0) then
+						local npcid1 = _detalhes:GetNpcIdFromGuid (self.serial)
+						if (ignored_enemy_npcs [npcid1]) then
+							return false
+						end
 						return true
 					end
 				end
@@ -174,14 +190,26 @@
 --[[ exported]]	function _detalhes:GetSpellList()
 				return self.spells._ActorTable
 			end
-			
+
 			-- enemies (sort function)
 			local sortEnemies = function (t1, t2)
 				local a = _bit_band (t1.flag_original, 0x00000060)
 				local b = _bit_band (t2.flag_original, 0x00000060)
 				
 				if (a ~= 0 and b ~= 0) then
-					return t1.total > t2.total
+					local npcid1 = _detalhes:GetNpcIdFromGuid (t1.serial)
+					local npcid2 = _detalhes:GetNpcIdFromGuid (t2.serial)
+					
+					if (not ignored_enemy_npcs [npcid1] and not ignored_enemy_npcs [npcid2]) then
+						return t1.total > t2.total
+					elseif (ignored_enemy_npcs [npcid1] and not ignored_enemy_npcs [npcid2]) then
+						return false
+					elseif (not ignored_enemy_npcs [npcid1] and ignored_enemy_npcs [npcid2]) then
+						return true
+					else
+						return t1.total > t2.total
+					end
+					
 				elseif (a ~= 0 and b == 0) then
 					return true
 				elseif (a == 0 and b ~= 0) then
@@ -200,7 +228,9 @@
 				local total = 0
 				
 				for index, player in _ipairs (container) do
-					if (_bit_band (player.flag_original, 0x00000060) ~= 0) then --> é um inimigo
+					local npcid1 = _detalhes:GetNpcIdFromGuid (player.serial)
+					--p rint (player.nome, npcid1, ignored_enemy_npcs [npcid1])
+					if (_bit_band (player.flag_original, 0x00000060) ~= 0 and not ignored_enemy_npcs [npcid1]) then --> é um inimigo
 						total = total + player [keyName]
 					else
 						amount = index-1
@@ -1254,6 +1284,7 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 				conteudo[myPos]:AtualizaBarra (instancia, barras_container, qual_barra, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations) --> instância, index, total, valor da 1º barra
 				qual_barra = qual_barra+1
 			else
+				
 				for i = instancia.barraS[2], instancia.barraS[1], -1 do --> vai atualizar só o range que esta sendo mostrado
 					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations) --> instância, index, total, valor da 1º barra
 					qual_barra = qual_barra+1
@@ -1466,6 +1497,7 @@ end
 	
 	--> primeiro colocado
 	if (esta_barra.colocacao == 1) then
+		
 		if (not tabela_anterior or tabela_anterior ~= esta_barra.minha_tabela or forcar) then
 			esta_barra:SetValue (100)
 			
@@ -1659,7 +1691,7 @@ end
 
 
 ---------> TOOLTIPS BIFURCAÇÃO
-
+-- ~tooltip
 function atributo_damage:ToolTip (instancia, numero, barra, keydown)
 	--> seria possivel aqui colocar o icone da classe dele?
 
@@ -1692,7 +1724,7 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 	else
 		r, g, b = unpack (_detalhes.class_colors [self.classe])
 	end
-	
+
 	do
 		--> TOP HABILIDADES
 		
@@ -1936,13 +1968,50 @@ function atributo_damage:ToolTip_DamageTaken (instancia, numero, barra, keydown)
 	
 	local meus_agressores = {}
 
-	for nome, _ in _pairs (agressores) do --> agressores seria a lista de nomes
-		local este_agressor = showing._ActorTable[showing._NameIndexTable[nome]]
-		if (este_agressor) then --> checagem por causa do total e do garbage collector que não limpa os nomes que deram dano
-			local alvos = este_agressor.targets
-			local este_alvo = alvos [self.nome]
-			if (este_alvo) then
-				meus_agressores [#meus_agressores+1] = {nome, este_alvo, este_agressor.classe}
+	if (instancia.sub_atributo == 6) then
+		for nome, _ in _pairs (agressores) do --> agressores seria a lista de nomes
+			local este_agressor = showing._ActorTable [showing._NameIndexTable [nome]]
+			if (este_agressor) then --> checagem por causa do total e do garbage collector que não limpa os nomes que deram dano
+			
+				local name = nome
+				local damage_amount = este_agressor.targets [self.nome]
+				
+				if (damage_amount) then
+				
+					if (este_agressor:IsPlayer()) then
+						meus_agressores [#meus_agressores+1] = {name, damage_amount, este_agressor.classe}
+					end
+				--[[
+					if (not este_agressor:IsPlayer()) then
+						name = Loc ["STRING_TARGETS_OTHER1"]
+						local got
+						for i, t in _ipairs (meus_agressores) do
+							if (t[1] == name) then
+								t[2] = t[2] + damage_amount
+								got = true
+								break
+							end
+						end
+						if (not got) then
+							meus_agressores [#meus_agressores+1] = {name, damage_amount, este_agressor.classe}
+						end
+					else
+						meus_agressores [#meus_agressores+1] = {name, damage_amount, este_agressor.classe}
+					end
+				--]]
+				end
+
+			end
+		end
+	else
+		for nome, _ in _pairs (agressores) do --> agressores seria a lista de nomes
+			local este_agressor = showing._ActorTable [showing._NameIndexTable [nome]]
+			if (este_agressor) then --> checagem por causa do total e do garbage collector que não limpa os nomes que deram dano
+				local alvos = este_agressor.targets
+				local este_alvo = alvos [self.nome]
+				if (este_alvo) then
+					meus_agressores [#meus_agressores+1] = {nome, este_alvo, este_agressor.classe}
+				end
 			end
 		end
 	end
@@ -1955,7 +2024,7 @@ function atributo_damage:ToolTip_DamageTaken (instancia, numero, barra, keydown)
 	end
 	
 	local ismaximized = false
-	if (keydown == "shift" or TooltipMaximizedMethod == 2 or TooltipMaximizedMethod == 3) then
+	if (keydown == "shift" or TooltipMaximizedMethod == 2 or TooltipMaximizedMethod == 3 or instancia.sub_atributo == 6) then
 		max = #meus_agressores
 		ismaximized = true
 	end
@@ -2009,9 +2078,9 @@ function atributo_damage:ToolTip_DamageTaken (instancia, numero, barra, keydown)
 	if (instancia.sub_atributo == 6) then
 		GameCooltip:AddLine (" ")
 		GameCooltip:AddLine (Loc ["STRING_LEFTCLICK_DAMAGETAKEN"])
-		--GameCooltip:AddIcon ([[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]], 1, 1, 12, 16, 8/512, 70/512, 224/512, 306/512)
+		GameCooltip:AddStatusBar (100, 1, 0, 0, 0, 0.7)
 		GameCooltip:AddLine (Loc ["STRING_MIDDLECLICK_DAMAGETAKEN"])
-		--GameCooltip:AddIcon ([[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]], 1, 1, 10, 14, 14/512, 64/512, 127/512, 204/512)
+		GameCooltip:AddStatusBar (100, 1, 0, 0, 0, 0.7)
 	end
 	
 	return true

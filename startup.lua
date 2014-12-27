@@ -178,8 +178,11 @@ function _G._detalhes:Start()
 						--vardump (instance.snap)
 						--print ("===============")
 						
+						instance.do_not_snap = true
 						self.move_janela_func (instance.baseframe, true, instance)
 						self.move_janela_func (instance.baseframe, false, instance)
+						instance.do_not_snap = false
+						
 					end
 				end
 				self.CheckWallpaperAfterStartup = nil
@@ -443,12 +446,12 @@ function _G._detalhes:Start()
 	if (self.is_first_run) then
 		_detalhes:OpenWelcomeWindow()
 	end
+	--_detalhes:OpenWelcomeWindow() --debug
 	
 	_detalhes:BrokerTick()
 	
 
 	-- test dbm callbacks
-	
 	if (_G.DBM) then
 		local dbm_callback_phase = function (event, msg)
 
@@ -483,36 +486,7 @@ function _G._detalhes:Start()
 		DBM:RegisterCallback ("pull", dbm_callback_pull)
 	end	
 
-	--test realtime dps
-	--[[
-	local floor = floor
-	local real_time_frame = CreateFrame ("frame", nil, UIParent)
-	local instance = _detalhes:GetInstance (1)
-	real_time_frame:SetScript ("OnUpdate", function (self, elapsed)
-		if (_detalhes.in_combat and instance.atributo == 1 and instance.sub_atributo == 1) then
-			for i = 1, instance:GetNumRows() do
-				local row = instance:GetRow (i)
-				if (row and row:IsShown()) then
-
-					local actor = row.minha_tabela
-					if (actor) then
-						local dps_text = row.ps_text
-						if (dps_text) then
-							local new_dps = floor (actor.total / instance.showing:GetCombatTime())
-							local formated_dps = _detalhes.ToKFunctions [_detalhes.ps_abbreviation] (_, new_dps)
-							
-							row.texto_direita:SetText (row.texto_direita:GetText():gsub (dps_text, formated_dps))
-							row.ps_text = formated_dps
-						end
-					end
-				end
-			end
-		end
-	end)
-	--]]
-	
-	--> register molten core
-	
+	--> register molten core	
 	local molten_core = {
 
 	id = 409,
