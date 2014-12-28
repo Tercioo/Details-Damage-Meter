@@ -65,6 +65,13 @@ do
 		[7] = {name = Loc ["STRING_ENVIRONMENTAL_LAVA"], icon = [[Interface\ICONS\Ability_Rhyolith_Volcano]]},
 		[8] = {name = Loc ["STRING_ENVIRONMENTAL_SLIME"], icon = [[Interface\ICONS\Ability_Creature_Poison_02]]},
 		
+		[161576] = {name = GetSpellInfo (161576) .. " (" .. Loc ["STRING_EXPLOSION"] .. ")"}, --> Ko'ragh's Overflowing Energy (explosion)
+		[161612] = {name = GetSpellInfo (161576) .. " (" .. Loc ["STRING_CAUGHT"] .. ")"}, --> Ko'ragh's Overflowing Energy (caught)
+		
+		[158336] = {name = GetSpellInfo (158336) .. " (" .. Loc ["STRING_WAVE"] .. " #1)"}, --> Twins Ogron Pulverize waves.
+		[158417] = {name = GetSpellInfo (158417) .. " (" .. Loc ["STRING_WAVE"] .. " #2)"}, --> Twins Ogron Pulverize waves.
+		[158420] = {name = GetSpellInfo (158420) .. " (" .. Loc ["STRING_WAVE"] .. " #3)"}, --> Twins Ogron Pulverize waves.
+		
 		[59638] = {name = GetSpellInfo (59638) .. " (" .. Loc ["STRING_MIRROR_IMAGE"] .. ")"}, --> Mirror Image's Frost Bolt (mage)
 		[88082] = {name = GetSpellInfo (88082) .. " (" .. Loc ["STRING_MIRROR_IMAGE"] .. ")"}, --> Mirror Image's Fireball (mage)
 		

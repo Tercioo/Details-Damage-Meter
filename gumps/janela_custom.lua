@@ -266,8 +266,8 @@
 					
 					DetailsCustomPanel.code1 = custom_object:GetScript()
 					DetailsCustomPanel.code2 = custom_object:GetScriptToolip()
-					DetailsCustomPanel.code3 = custom_object:GetScriptTotal()
-					DetailsCustomPanel.code4 = custom_object:GetScriptPercent()
+					DetailsCustomPanel.code3 = custom_object:GetScriptTotal() or DetailsCustomPanel.code3_default
+					DetailsCustomPanel.code4 = custom_object:GetScriptPercent() or DetailsCustomPanel.code4_default
 					
 				else
 				

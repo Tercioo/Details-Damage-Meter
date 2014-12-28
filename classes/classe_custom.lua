@@ -34,7 +34,8 @@
 	local _GetUnitName = GetUnitName -- api local
 	
 	local _string_replace = _detalhes.string.replace --details api
-
+	local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
+	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> constants
 
@@ -1006,8 +1007,6 @@
 	end
 
 	function _detalhes:AddDefaultCustomDisplays()
-	
-		local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
 		
 		local PotionUsed = {
 			name = Loc ["STRING_CUSTOM_POT_DEFAULT"],
@@ -1413,7 +1412,7 @@
 			desc = Loc ["STRING_CUSTOM_DTBS_DESC"],
 			source = false,
 			target = false,
-			script_version = 7,
+			script_version = 8,
 			script = [[
 				--> get the parameters passed
 				local combat, instance_container, instance = ...
@@ -1436,6 +1435,7 @@
 						local AllSpells = character:GetSpellList()
 						
 						for spellid, spell in pairs (AllSpells) do
+						
 							if (spell.total >= 1 and spellid > 10) then
 								instance_container:AddValue (spell, spell.total)
 								
@@ -1459,6 +1459,7 @@
 				--> return
 				return total, top, amount
 			]],
+			
 			tooltip = [[
 				--get the parameters passed
 				local actor, combat, instance = ...
