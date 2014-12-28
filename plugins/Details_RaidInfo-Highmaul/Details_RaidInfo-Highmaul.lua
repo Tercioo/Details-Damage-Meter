@@ -1,6 +1,10 @@
 
 local _detalhes = 		_G._detalhes
 
+local trash_mobs_ids = {
+	
+}
+
 local highmaul = {
 
 	id = 1228, --994 = map id extracted from encounter journal
@@ -87,6 +91,23 @@ local highmaul = {
 			
 			--> spell list
 			continuo = {},
+			
+			funcType = 0x2,
+			func = function (combat) 
+				local removed = false
+				local list = combat:GetActorList (DETAILS_ATTRIBUTE_DAMAGE)
+				for i = #list, 1, -1 do
+					local id = _detalhes:GetNpcIdFromGuid (list[i].serial)
+					if (trash_mobs_ids [id]) then
+						tremove (list, i)
+						combat.totals [DETAILS_ATTRIBUTE_DAMAGE] = combat.totals [DETAILS_ATTRIBUTE_DAMAGE] - list[i].total
+						removed = true
+					end
+				end
+				if (removed) then
+					combat[DETAILS_ATTRIBUTE_DAMAGE]:Remap()
+				end
+			end,
 		},
 		
 		[4] = {

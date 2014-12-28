@@ -369,14 +369,15 @@ end
 			local amount = event [3]
 			local time = event [4]
 			local source = event [6]
-			local overkill = event [10]
 
 			if (type (evtype) == "boolean") then
 				--> is damage or heal
 				if (evtype) then
 					--> damage
 					
+					local overkill = event [10] or 0
 					if (overkill > 0) then
+						amount = amount - overkill
 						overkill = " (" .. _detalhes:ToK (overkill) .. " |cFFFF8800overkill|r)"
 					else
 						overkill = ""

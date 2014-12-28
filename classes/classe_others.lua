@@ -203,8 +203,9 @@ function _detalhes:ToolTipDead (instancia, morte, esta_barra, keydown)
 			if (evtype) then
 				--> damage
 				
-				local overkill = event [10]
+				local overkill = event [10] or 0
 				if (overkill > 0) then
+					amount = amount - overkill
 					overkill = " (" .. _detalhes:ToK (overkill) .. " |cFFFF8800overkill|r)"
 				else
 					overkill = ""

@@ -304,7 +304,7 @@
 			
 			this_event [1] = true --> true if this is a damage || false for healing
 			this_event [2] = spellid --> spellid || false if this is a battle ress line
-			this_event [3] = amount - overkill --> amount of damage or healing
+			this_event [3] = amount --> amount of damage or healing
 			this_event [4] = time --> parser time
 			this_event [5] = _UnitHealth (alvo_name) --> current unit heal
 			this_event [6] = who_name --> source name
@@ -435,7 +435,7 @@
 			
 			this_event [1] = true --> true if this is a damage || false for healing
 			this_event [2] = spellid --> spellid || false if this is a battle ress line
-			this_event [3] = amount - overkill --> amount of damage or healing
+			this_event [3] = amount --> amount of damage or healing
 			this_event [4] = time --> parser time
 			this_event [5] = _UnitHealth (alvo_name) --> current unit heal
 			this_event [6] = who_name --> source name

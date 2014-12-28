@@ -835,8 +835,14 @@
 			r, g, b = actor:GetClassColor()
 		end
 		
-		_detalhes:AddTooltipSpellHeaderText (custom_object:GetName(), "yellow", 1, 0, 0, 0)
-		GameCooltip:AddIcon (custom_object:GetIcon(), 1, 1, 14, 14, 0.90625, 0.109375, 0.15625, 0.875)
+		if (actor.id) then
+			_detalhes:AddTooltipSpellHeaderText (select (1, _GetSpellInfo (actor.id)), "yellow", 1, 0, 0, 0)
+			GameCooltip:AddIcon (select (3, _GetSpellInfo (actor.id)), 1, 1, 14, 14, 0.90625, 0.109375, 0.15625, 0.875)
+		else
+			_detalhes:AddTooltipSpellHeaderText (custom_object:GetName(), "yellow", 1, 0, 0, 0)
+			GameCooltip:AddIcon (custom_object:GetIcon(), 1, 1, 14, 14, 0.90625, 0.109375, 0.15625, 0.875)
+		end
+
 		GameCooltip:AddStatusBar (100, 1, r, g, b, 1)
 		
 		if (custom_object:IsScripted()) then
@@ -1553,6 +1559,149 @@
 			DamageTakenBySpell.__index = _detalhes.atributo_custom
 			self.custom [#self.custom+1] = DamageTakenBySpell
 		end
+		
+		----------------------------------------------------------------------------------------------------------------------------------------------------
+		
+		local MySpells = {
+			name = Loc ["STRING_CUSTOM_MYSPELLS"],
+			icon = [[Interface\ICONS\ABILITY_MAGE_ARCANEBARRAGE]],
+			attribute = false,
+			spellid = false,
+			author = "Details!",
+			desc = Loc ["STRING_CUSTOM_MYSPELLS_DESC"],
+			source = false,
+			target = false,
+			script_version = 1,
+			script = [[
+				--get the parameters passed
+				local combat, instance_container, instance = ...
+				--declade the values to return
+				local total, top, amount = 0, 0, 0
+
+				--do the loop
+				local player = combat (DETAILS_ATTRIBUTE_DAMAGE, _detalhes.playername)
+				if (player) then
+				    local spells = player:GetSpellList()
+				    for spellid, spell in pairs (spells) do
+					instance_container:AddValue (spell, spell.total)
+					total = total + spell.total
+					if (top < spell.total) then
+					    top = spell.total
+					end
+					amount = amount + 1
+				    end
+				end
+
+				--loop end
+
+				--return the values
+				return total, top, amount
+			]],
+			
+			tooltip = [[
+				--config:
+				--Background RBG and Alpha:
+				local R, G, B, A = 0, 0, 0, 0.75
+
+				--get the parameters passed
+				local spell, combat, instance = ...
+
+				--get the cooltip object (we dont use the convencional GameTooltip here)
+				local GC = GameCooltip
+				GC:SetOption ("YSpacingMod", 1)
+
+
+				local spellschool, schooltext = spell.spellschool, ""
+				if (spellschool) then
+				    local t = _detalhes.spells_school [spellschool]
+				    if (t and t.name) then
+					schooltext = t.formated
+				    end
+				end
+
+				local total_hits = spell.counter
+				local combat_time = instance.showing:GetCombatTime()
+
+				--Cooltip code
+				GC:AddLine ("Hits:", spell.counter)
+				GC:AddStatusBar (100, 1, R, G, B, A)
+
+				local average = spell.total / total_hits
+				GC:AddLine ("Average:", _detalhes:ToK (average))
+				GC:AddStatusBar (100, 1, R, G, B, A)
+
+				GC:AddLine ("E-Dps:", _detalhes:ToK (spell.total / combat_time))
+				GC:AddStatusBar (100, 1, R, G, B, A)
+
+				GC:AddLine ("School:", schooltext)
+				GC:AddStatusBar (100, 1, R, G, B, A)
+
+				--GC:AddLine (" ")
+
+				GC:AddLine ("Normal Hits: ", spell.n_amt .. " (" ..floor ( spell.n_amt/total_hits*100) .. "%)")
+				GC:AddStatusBar (100, 1, R, G, B, A)
+
+				local n_average = spell.n_dmg / spell.n_amt
+				local T = (combat_time*spell.n_dmg)/spell.total
+				local P = average/n_average*100
+				T = P*T/100
+
+				GC:AddLine ("Average / E-Dps: ",  _detalhes:ToK (n_average) .. " / " .. format ("%.1f",spell.n_dmg / T ))
+				GC:AddStatusBar (100, 1, R, G, B, A)
+
+				--GC:AddLine (" ")
+
+				GC:AddLine ("Critical Hits: ", spell.c_amt .. " (" ..floor ( spell.c_amt/total_hits*100) .. "%)")
+				GC:AddStatusBar (100, 1, R, G, B, A)
+
+				if (spell.c_amt > 0) then
+				    local c_average = spell.c_dmg/spell.c_amt
+				    local T = (combat_time*spell.c_dmg)/spell.total
+				    local P = average/c_average*100
+				    T = P*T/100
+				    local crit_dps = spell.c_dmg / T
+				    
+				    GC:AddLine ("Average / E-Dps: ",  _detalhes:ToK (c_average) .. " / " .. _detalhes:comma_value (crit_dps))
+				else
+				    GC:AddLine ("Average / E-Dps: ",  "0 / 0")    
+				end
+
+				GC:AddStatusBar (100, 1, R, G, B, A)
+
+				--GC:AddLine (" ")
+
+				GC:AddLine ("Multistrike: ", spell.m_amt .. " (" ..floor ( spell.m_amt/total_hits*100) .. "%)")
+				GC:AddStatusBar (100, 1, R, G, B, A)
+
+				GC:AddLine ("On Normal / On Critical:", spell.m_amt - spell.m_crit .. "  / " .. spell.m_crit)
+				GC:AddStatusBar (100, 1, R, G, B, A)
+			]],
+			
+			percent_script = [[
+				local value, top, total, combat, instance = ...
+				local dps = _detalhes:ToK (floor (value) / combat:GetCombatTime())
+				local percent = string.format ("%.1f", value/total*100)
+				return dps .. ", " .. percent
+			]],
+		}
+
+		local have = false
+		for _, custom in ipairs (self.custom) do
+			if (custom.name == Loc ["STRING_CUSTOM_MYSPELLS"] and (custom.script_version and custom.script_version >= MySpells.script_version) ) then
+				have = true
+				break
+			end
+		end
+		if (not have) then
+			for i, custom in ipairs (self.custom) do
+				if (custom.name == Loc ["STRING_CUSTOM_MYSPELLS"]) then
+					table.remove (self.custom, i)
+				end
+			end
+			setmetatable (MySpells, _detalhes.atributo_custom)
+			MySpells.__index = _detalhes.atributo_custom
+			self.custom [#self.custom+1] = MySpells
+		end		
 		
 	end
 
