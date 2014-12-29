@@ -19,6 +19,18 @@
 		return _detalhes.plugin_database [PluginAbsoluteName]
 	end
 	
+	function _detalhes:GetPluginInstance (PluginAbsoluteName)
+		local plugin = self
+		if (PluginAbsoluteName) then
+			plugin = _detalhes:GetPlugin (PluginAbsoluteName)
+		end
+		
+		local id = plugin.instance_id
+		if (id) then
+			return _detalhes:GetInstance (id)
+		end
+	end
+	
 	function _detalhes:IsPluginEnabled (PluginAbsoluteName)
 		if (PluginAbsoluteName) then
 			local plugin = _detalhes.plugin_database [PluginAbsoluteName]

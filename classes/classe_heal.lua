@@ -1909,33 +1909,24 @@ function atributo_heal:MontaDetalhesHealingDone (spellid, barra)
 		if (esta_magia.m_amt > 0) then
 		
 			local multistrike_hits = esta_magia.m_amt
-			local multistrike_heal = esta_magia.m_curado
+			local multistrike_heal = esta_magia.m_healed
 
-			local media_multistrike = multistrike_heal/multistrike_hits
-			
-			local T
-			if (media_multistrike > 0) then
-				T = (meu_tempo*multistrike_heal)/esta_magia.total
-				local P = (esta_magia.total/esta_magia.counter)/media_multistrike*100
-				T = P*T/100
-			else
-				T = 1
-			end
-			
-			local overheal = esta_magia.m_overheal
-			overheal = overheal / (multistrike_heal + overheal) * 100
+			local media_normal = multistrike_heal / multistrike_hits
+			local T = (meu_tempo * multistrike_heal) / esta_magia.total
+			local P = media / media_normal * 100
+			T = P * T / 100
 			
 			data[#data+1] = t3
 			multistrike_table.p = esta_magia.m_amt/total_hits*100
 		
-			t3[1] = esta_magia.m_amt
+			t3[1] = multistrike_hits
 			t3[2] = multistrike_table
-			t3[3] = Loc ["STRING_MULTISTRIKE"]
-			t3[4] = Loc ["STRING_OVERHEAL"] .. ": " .. _math_floor (overheal) .. "%"
-			t3[5] = "" 
-			t3[6] = Loc ["STRING_AVERAGE"] .. ": " .. _detalhes:comma_value (esta_magia.m_curado/esta_magia.m_amt)
-			t3[7] = Loc ["STRING_HPS"] .. ": " .. _detalhes:comma_value (esta_magia.m_curado/T)
-			t3[8] = esta_magia.m_amt .. " / " .. _cstr ("%.1f", esta_magia.m_amt/total_hits*100) .. "%"
+			t3[3] = Loc ["STRING_MULTISTRIKE_HITS"]
+			t3[4] = "On Critical: " .. esta_magia.m_crit
+			t3[5] = "On Normals: " .. (esta_magia.m_amt - esta_magia.m_crit)
+			t3[6] = Loc ["STRING_AVERAGE"] .. ": " .. _detalhes:comma_value (multistrike_heal / multistrike_hits)
+			t3[7] = Loc ["STRING_HPS"] .. ": " .. _detalhes:comma_value (multistrike_heal / T)
+			t3[8] = multistrike_hits .. " / " .. _cstr ("%.1f", multistrike_hits / total_hits * 100) .. "%"
 
 		end
 		

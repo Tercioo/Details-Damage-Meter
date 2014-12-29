@@ -1043,18 +1043,21 @@ function window:CreateFrame20()
 			local tooltip_text_color_callback = function (button, r, g, b, a)
 				local c = _detalhes.tooltip.fontcolor
 				c[1], c[2], c[3], c[4] = r, g, b, a
+				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 			end
 			g:NewColorPickButton (frame20, "$parentTooltipTextColorPick", "TooltipTextColorPick", tooltip_text_color_callback)
 			-- right color pick
 			local tooltip_text_color_callback_right = function (button, r, g, b, a)
 				local c = _detalhes.tooltip.fontcolor_right
 				c[1], c[2], c[3], c[4] = r, g, b, a
+				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 			end
 			g:NewColorPickButton (frame20, "$parentTooltipTextColorPickRight", "TooltipTextColorPickRight", tooltip_text_color_callback_right)
 			-- anchor color pick
 			local tooltip_text_color_callback_anchor = function (button, r, g, b, a)
 				local c = _detalhes.tooltip.header_text_color
 				c[1], c[2], c[3], c[4] = r, g, b, a
+				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 			end
 			g:NewColorPickButton (frame20, "$parentTooltipTextColorPickAnchor", "TooltipTextColorPickAnchor", tooltip_text_color_callback_anchor)
 			-- text label
@@ -1080,12 +1083,14 @@ function window:CreateFrame20()
 		frame20.TooltipTextSizeSlider:SetPoint ("left", frame20.TooltipTextSizeLabel, "right", 2)
 		frame20.TooltipTextSizeSlider:SetHook ("OnValueChange", function (self, _, amount)
 			_detalhes.tooltip.fontsize = amount
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end)
 		window:CreateLineBackground2 (frame20, "TooltipTextSizeSlider", "TooltipTextSizeLabel", Loc ["STRING_OPTIONS_TOOLTIPS_FONTSIZE_DESC"])
 		
 		-- text face
 		local on_select_tooltip_font = function (self, _, fontName)
 			_detalhes.tooltip.fontface = fontName
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 
 		--local icon, texcoord = [[Interface\AddOns\Details\images\icons]], {479/512, 506/512, 186/512, 221/512}
@@ -1117,12 +1122,14 @@ function window:CreateFrame20()
 		frame20.TooltipShadowSwitch:SetPoint ("left", frame20.TooltipShadowLabel, "right", 2)
 		frame20.TooltipShadowSwitch.OnSwitch = function (self, _, value)
 			_detalhes.tooltip.fontshadow = value
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		window:CreateLineBackground2 (frame20, "TooltipShadowSwitch", "TooltipShadowLabel", Loc ["STRING_OPTIONS_TOOLTIPS_FONTSHADOW_DESC"])
 		
 		-- background color
 		local tooltip_background_color_callback = function (button, r, g, b, a)
 			_detalhes.tooltip.background = {r, g, b, a}
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		g:NewColorPickButton (frame20, "$parentTooltipBackgroundColorPick", "TooltipBackgroundColorPick", tooltip_background_color_callback)
 		g:NewLabel (frame20, _, "$parentTooltipBackgroundColorLabel", "TooltipBackgroundColorLabel", Loc ["STRING_OPTIONS_TOOLTIPS_BACKGROUNDCOLOR"], "GameFontHighlightLeft")
@@ -1140,6 +1147,8 @@ function window:CreateFrame20()
 			_detalhes.atributo_energy:UpdateSelectedToKFunction()
 			_detalhes.atributo_misc:UpdateSelectedToKFunction()
 			_detalhes.atributo_custom:UpdateSelectedToKFunction()
+			
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		
 		local icon = [[Interface\COMMON\mini-hourglass]]
@@ -1177,6 +1186,8 @@ function window:CreateFrame20()
 			_detalhes.atributo_energy:UpdateSelectedToKFunction()
 			_detalhes.atributo_misc:UpdateSelectedToKFunction()
 			_detalhes.atributo_custom:UpdateSelectedToKFunction()
+			
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		
 		local icon = [[Interface\Buttons\UI-Panel-BiggerButton-Up]]
@@ -1211,6 +1222,7 @@ function window:CreateFrame20()
 
 		frame20.TooltipShowAmountSlider.OnSwitch = function (self, _, value)
 			_detalhes.tooltip.show_amount = value
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		
 		window:CreateLineBackground2 (frame20, "TooltipShowAmountSlider", "TooltipShowAmountLabel", Loc ["STRING_OPTIONS_TOOLTIPS_SHOWAMT_DESC"])
@@ -1222,6 +1234,7 @@ function window:CreateFrame20()
 		--border texture
 			local onSelectTextureBackdrop = function (_, _, textureName)
 				_detalhes:SetTooltipBackdrop (textureName)
+				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 			end
 
 			local iconsize = {16, 16}
@@ -1256,12 +1269,14 @@ function window:CreateFrame20()
 			frame20.BackdropSizeSlider:SetThumbSize (50)
 			frame20.BackdropSizeSlider:SetHook ("OnValueChange", function (_, _, amount) 
 				_detalhes:SetTooltipBackdrop (nil, amount)
+				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 			end)	
 			window:CreateLineBackground2 (frame20, "BackdropSizeSlider", "BackdropSizeLabel", Loc ["STRING_OPTIONS_TOOLTIPS_BORDER_SIZE_DESC"])
 
 		--border color
 			local backdropcolor_callback = function (button, r, g, b, a)
 				_detalhes:SetTooltipBackdrop (nil, nil, {r, g, b, a})
+				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 			end
 			g:NewColorPickButton (frame20, "$parentBackdropColorPick", "BackdropColorPick", backdropcolor_callback)
 			g:NewLabel (frame20, _, "$parentBackdropColorLabel", "BackdropColorLabel", Loc ["STRING_OPTIONS_TOOLTIPS_BORDER_COLOR"], "GameFontHighlightLeft")
@@ -1301,6 +1316,7 @@ function window:CreateFrame20()
 				else
 					unlock_anchor_button:Enable()
 				end
+				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 			end
 			
 			local anchorOptions = {
@@ -1327,6 +1343,7 @@ function window:CreateFrame20()
 			g:NewLabel (frame20, _, "$parentTooltipAnchorSideLabel", "TooltipAnchorSideLabel", Loc ["STRING_OPTIONS_TOOLTIPS_ANCHOR_ATTACH"], "GameFontHighlightLeft")
 			local onSelectAnchorPoint = function (_, _, selected_anchor)
 				_detalhes.tooltip.anchor_point = selected_anchor
+				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 			end
 			
 			local anchorPointOptions = {
@@ -1358,6 +1375,7 @@ function window:CreateFrame20()
 			g:NewLabel (frame20, _, "$parentTooltipRelativeSideLabel", "TooltipRelativeSideLabel", Loc ["STRING_OPTIONS_TOOLTIPS_ANCHOR_RELATIVE"], "GameFontHighlightLeft")
 			local onSelectAnchorRelative = function (_, _, selected_anchor)
 				_detalhes.tooltip.anchor_relative = selected_anchor
+				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 			end
 			
 			local anchorRelativeOptions = {
@@ -1395,6 +1413,7 @@ function window:CreateFrame20()
 			frame20.TooltipOffsetXSlider:SetPoint ("left", frame20.TooltipOffsetXLabel, "right", 2)
 			frame20.TooltipOffsetXSlider:SetHook ("OnValueChange", function (self, _, amount)
 				_detalhes.tooltip.anchor_offset[1] = amount
+				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 			end)
 			window:CreateLineBackground2 (frame20, "TooltipOffsetXSlider", "TooltipOffsetXLabel", Loc ["STRING_OPTIONS_TOOLTIPS_OFFSETX_DESC"])
 			
@@ -1407,6 +1426,7 @@ function window:CreateFrame20()
 			frame20.TooltipOffsetYSlider:SetPoint ("left", frame20.TooltipOffsetYLabel, "right", 2)
 			frame20.TooltipOffsetYSlider:SetHook ("OnValueChange", function (self, _, amount)
 				_detalhes.tooltip.anchor_offset[2] = amount
+				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 			end)
 			window:CreateLineBackground2 (frame20, "TooltipOffsetYSlider", "TooltipOffsetYLabel", Loc ["STRING_OPTIONS_TOOLTIPS_OFFSETY_DESC"])
 
@@ -1489,6 +1509,8 @@ function window:CreateFrame19()
 				else
 					LDBIcon:Show ("Details!")
 				end
+				
+				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 			end
 			window:CreateLineBackground2 (frame19, "minimapSlider", "minimapLabel", Loc ["STRING_OPTIONS_MINIMAP_DESC"])
 
@@ -1497,6 +1519,7 @@ function window:CreateFrame19()
 				g:NewLabel (frame19, _, "$parentMinimapActionLabel", "minimapActionLabel", Loc ["STRING_OPTIONS_MINIMAP_ACTION"], "GameFontHighlightLeft")
 				local on_select = function (_, _, option)
 					_detalhes.minimap.onclick_what_todo = option
+					_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 				end
 				local menu = {
 						{value = 1, label = Loc ["STRING_OPTIONS_MINIMAP_ACTION1"], onclick = on_select, icon = [[Interface\FriendsFrame\FriendsFrameScrollIcon]]},
@@ -1544,6 +1567,7 @@ function window:CreateFrame19()
 			broker_entry:SetHook ("OnTextChanged", function (self, byUser)
 				_detalhes.data_broker_text = broker_entry.text
 				_detalhes:BrokerTick()
+				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 			end)
 			
 			window:CreateLineBackground2 (frame19, "BrokerTextEntry", "brokerTextLabel", Loc ["STRING_OPTIONS_DATABROKER_TEXT1_DESC"])
@@ -1561,6 +1585,7 @@ function window:CreateFrame19()
 			local clear = g:NewButton (broker_entry, _, "$parentResetButton", "ResetButton", 20, 20, function()
 				broker_entry.text = ""
 				_detalhes:BrokerTick()
+				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 			end)
 			
 			clear:SetPoint ("left", editor, "right", 0, 0)
@@ -1576,6 +1601,7 @@ function window:CreateFrame19()
 		local onSelectTimeAbbreviation = function (_, _, abbreviationtype)
 			_detalhes.minimap.text_format = abbreviationtype
 			_detalhes:BrokerTick()
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		local icon = [[Interface\COMMON\mini-hourglass]]
 		local iconcolor = {1, 1, 1, .5}
@@ -1686,6 +1712,8 @@ function window:CreateFrame18()
 				
 				local selected = window.lastSwitchList [switch_to]
 				_G.DetailsOptionsWindow.instance.switch_all_roles_in_combat = selected
+				
+				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 			end
 
 			local BuildThisMenu = function()
@@ -1714,6 +1742,8 @@ function window:CreateFrame18()
 				
 				local selected = window.lastSwitchList [switch_to]
 				_G.DetailsOptionsWindow.instance.switch_all_roles_after_wipe = selected
+				
+				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 			end
 			
 			local BuildThisMenu = function()
@@ -1742,6 +1772,8 @@ function window:CreateFrame18()
 				
 				local selected = window.lastSwitchList [switch_to]
 				_G.DetailsOptionsWindow.instance.switch_damager = selected
+				
+				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 			end
 			
 			local BuildThisMenu = function()
@@ -1771,6 +1803,8 @@ function window:CreateFrame18()
 				
 				local selected = window.lastSwitchList [switch_to]
 				_G.DetailsOptionsWindow.instance.switch_damager_in_combat = selected
+				
+				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 			end
 			
 			local BuildThisMenu = function()
@@ -1800,6 +1834,8 @@ function window:CreateFrame18()
 				
 				local selected = window.lastSwitchList [switch_to]
 				_G.DetailsOptionsWindow.instance.switch_healer = selected
+				
+				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 			end
 			
 			local BuildThisMenu = function()
@@ -1830,6 +1866,8 @@ function window:CreateFrame18()
 				
 				local selected = window.lastSwitchList [switch_to]
 				_G.DetailsOptionsWindow.instance.switch_healer_in_combat = selected
+				
+				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 			end
 			
 			local BuildThisMenu = function()
@@ -1860,6 +1898,8 @@ function window:CreateFrame18()
 				
 				local selected = window.lastSwitchList [switch_to]
 				_G.DetailsOptionsWindow.instance.switch_tank = selected
+				
+				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 			end
 			
 			local BuildThisMenu = function()
@@ -1889,6 +1929,8 @@ function window:CreateFrame18()
 				
 				local selected = window.lastSwitchList [switch_to]
 				_G.DetailsOptionsWindow.instance.switch_tank_in_combat = selected
+				
+				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 			end
 			
 			local BuildThisMenu = function()
@@ -1918,6 +1960,8 @@ function window:CreateFrame18()
 		frame18.autoCurrentSlider:SetPoint ("left", frame18.autoCurrentLabel, "right", 2)
 		frame18.autoCurrentSlider.OnSwitch = function (self, instance, value)
 			instance.auto_current = value
+			
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		
 		window:CreateLineBackground2 (frame18, "autoCurrentSlider", "autoCurrentLabel", Loc ["STRING_OPTIONS_INSTANCE_CURRENT_DESC"])
@@ -1931,6 +1975,8 @@ function window:CreateFrame18()
 		frame18.totalBarSlider.OnSwitch = function (self, instance, value)
 			instance.total_bar.enabled = value
 			instance:InstanceReset()
+			
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		
 		window:CreateLineBackground2 (frame18, "totalBarSlider", "totalBarLabel", Loc ["STRING_OPTIONS_SHOW_TOTALBAR_DESC"])
@@ -1941,6 +1987,8 @@ function window:CreateFrame18()
 				_G.DetailsOptionsWindow.instance.total_bar.color[2] = g
 				_G.DetailsOptionsWindow.instance.total_bar.color[3] = b
 				_G.DetailsOptionsWindow.instance:InstanceReset()
+				
+				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 			end
 			g:NewColorPickButton (frame18, "$parentTotalBarColorPick", "totalBarColorPick", totalbarcolor_callback)
 			g:NewLabel (frame18, _, "$parentTotalBarColorPickLabel", "totalBarPickColorLabel", Loc ["STRING_OPTIONS_COLOR"], "GameFontHighlightLeft")
@@ -1956,6 +2004,8 @@ function window:CreateFrame18()
 		frame18.totalBarOnlyInGroupSlider.OnSwitch = function (self, instance, value)
 			instance.total_bar.only_in_group = value
 			instance:InstanceReset()
+			
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		
 		window:CreateLineBackground2 (frame18, "totalBarOnlyInGroupSlider", "totalBarOnlyInGroupLabel", Loc ["STRING_OPTIONS_SHOW_TOTALBAR_INGROUP_DESC"])
@@ -1965,9 +2015,12 @@ function window:CreateFrame18()
 			instance.total_bar.icon = texture
 			frame18.totalBarIconTexture:SetTexture (texture)
 			instance:InstanceReset()
+			
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		local totalbar_pickicon = function()
 			g:IconPick (totalbar_pickicon_callback, true)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		g:NewLabel (frame18, _, "$parentTotalBarIconLabel", "totalBarIconLabel", Loc ["STRING_OPTIONS_SHOW_TOTALBAR_ICON"], "GameFontHighlightLeft")
 		g:NewImage (frame18, nil, 20, 20, nil, nil, "totalBarIconTexture", "$parentTotalBarIconTexture")
@@ -2069,6 +2122,7 @@ function window:CreateFrame18()
 	
 		frame18.MenuTextSizeSlider:SetHook ("OnValueChange", function (_, _, amount)
 			_detalhes.font_sizes.menus = amount
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end)
 		
 		window:CreateLineBackground2 (frame18, "MenuTextSizeSlider", "MenuTextSizeLabel", Loc ["STRING_OPTIONS_MENU_FONT_SIZE_DESC"])
@@ -2080,6 +2134,7 @@ function window:CreateFrame18()
 		frame18.DisableGroupsSlider:SetPoint ("left", frame18.DisableGroupsLabel, "right", 2)
 		frame18.DisableGroupsSlider.OnSwitch = function (_, _, value)
 			_detalhes.disable_window_groups = value
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		
 		window:CreateLineBackground2 (frame18, "DisableGroupsSlider", "DisableGroupsLabel", Loc ["STRING_OPTIONS_DISABLE_GROUPS_DESC"])
@@ -2091,6 +2146,7 @@ function window:CreateFrame18()
 		frame18.DisableResetSlider:SetPoint ("left", frame18.DisableResetLabel, "right", 2)
 		frame18.DisableResetSlider.OnSwitch = function (_, _, value)
 			_detalhes.disable_reset_button = value
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		
 		window:CreateLineBackground2 (frame18, "DisableResetSlider", "DisableResetLabel", Loc ["STRING_OPTIONS_DISABLE_RESET_DESC"])
@@ -2116,6 +2172,8 @@ function window:CreateFrame18()
 			_detalhes:InstanciaCallFunction (_detalhes.AtualizaSoloMode_AfertReset) -- verifica se precisa zerar as tabela da janela solo mode
 			_detalhes:InstanciaCallFunction (_detalhes.ResetaGump) --_detalhes:ResetaGump ("de todas as instancias")
 			_detalhes:AtualizaGumpPrincipal (-1, true) --atualiza todas as instancias
+			
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		
 		window:CreateLineBackground2 (frame18, "scrollSlider", "scrollLabel", Loc ["STRING_OPTIONS_SCROLLBAR_DESC"])
@@ -2128,6 +2186,7 @@ function window:CreateFrame18()
 		frame18.ReportHelpfulLinkSlider:SetPoint ("left", frame18.ReportHelpfulLinkLabel, "right", 2)
 		frame18.ReportHelpfulLinkSlider.OnSwitch = function (_, _, value)
 			_detalhes.report_heal_links = value
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		
 		window:CreateLineBackground2 (frame18, "ReportHelpfulLinkSlider", "ReportHelpfulLinkLabel", Loc ["STRING_OPTIONS_REPORT_HEALLINKS_DESC"])
@@ -2138,6 +2197,7 @@ function window:CreateFrame18()
 		
 		local onSelectReportFormatAlpha = function (_, _, value)
 			_detalhes.report_schema = value
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		local coords = {1, 0, 0, 1}
 		local ReportFormatOptions = {
@@ -2234,6 +2294,7 @@ function window:CreateFrame17()
 		
 		local onSelectCombatAlpha = function (_, _, combat_alpha)
 			_G.DetailsOptionsWindow.instance:SetCombatAlpha (combat_alpha)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		local typeCombatAlpha = {
 			{value = 1, label = "No Changes", onclick = onSelectCombatAlpha, icon = "Interface\\Icons\\INV_Misc_Spyglass_03", texcoord = {1, 0, 0, 1}},
@@ -2265,6 +2326,7 @@ function window:CreateFrame17()
 		frame17.hideOnCombatAlphaSlider:SetHook ("OnValueChange", function (self, instance, amount) --> slider, fixedValue, sliderValue
 			instance.hide_in_combat_alpha = amount
 			_G.DetailsOptionsWindow.instance:SetCombatAlpha (nil, nil, true)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end)
 		
 		window:CreateLineBackground2 (frame17, "hideOnCombatAlphaSlider", "hideOnCombatAlphaLabel", Loc ["STRING_OPTIONS_HIDECOMBATALPHA_DESC"])
@@ -2321,17 +2383,20 @@ function window:CreateFrame17()
 		frame17.alphaSwitch.OnSwitch = function (self, instance, value)
 			--
 			instance:SetMenuAlpha (value)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		frame17.menuOnEnterSlider:SetHook ("OnValueChange", function (self, instance, value) 
 			--
 			self.amt:SetText (string.format ("%.2f", value))
 			instance:SetMenuAlpha (nil, value)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 			return true
 		end)
 		frame17.menuOnLeaveSlider:SetHook ("OnValueChange", function (self, instance, value) 
 			--
 			self.amt:SetText (string.format ("%.2f", value))
 			instance:SetMenuAlpha (nil, nil, value)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 			return true
 		end)		
 
@@ -3091,6 +3156,7 @@ function window:CreateFrame14()
 		frame14.attributeEnabledSwitch:SetPoint ("left", frame14.attributeEnabledLabel, "right", 2)
 		frame14.attributeEnabledSwitch.OnSwitch = function (self, instance, value)
 			instance:AttributeMenu (value)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		window:CreateLineBackground2 (frame14, "attributeEnabledSwitch", "attributeEnabledLabel", Loc ["STRING_OPTIONS_MENU_ATTRIBUTE_ENABLED_DESC"])
 	
@@ -3111,9 +3177,11 @@ function window:CreateFrame14()
 		
 		frame14.attributeAnchorXSlider:SetHook ("OnValueChange", function (self, instance, amount) 
 			instance:AttributeMenu (nil, amount)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end)
 		frame14.attributeAnchorYSlider:SetHook ("OnValueChange", function (self, instance, amount) 
 			instance:AttributeMenu (nil, nil, amount)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end)
 		
 		window:CreateLineBackground2 (frame14, "attributeAnchorXSlider", "attributeAnchorXLabel", Loc ["STRING_OPTIONS_MENU_ATTRIBUTE_ANCHORX_DESC"])
@@ -3122,6 +3190,7 @@ function window:CreateFrame14()
 	--font
 		local on_select_attribute_font = function (self, instance, fontName)
 			instance:AttributeMenu (nil, nil, nil, fontName)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		
 		local build_font_menu = function() 
@@ -3155,6 +3224,7 @@ function window:CreateFrame14()
 	
 		frame14.attributeTextSizeSlider:SetHook ("OnValueChange", function (self, instance, amount) 
 			instance:AttributeMenu (nil, nil, nil, nil, amount)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end)
 		
 		window:CreateLineBackground2 (frame14, "attributeTextSizeSlider", "attributeTextSizeLabel", Loc ["STRING_OPTIONS_MENU_ATTRIBUTE_TEXTSIZE_DESC"])
@@ -3162,6 +3232,7 @@ function window:CreateFrame14()
 	--color
 		local attribute_text_color_callback = function (button, r, g, b, a)
 			_G.DetailsOptionsWindow.instance:AttributeMenu (nil, nil, nil, nil, nil, {r, g, b, a})
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		g:NewColorPickButton (frame14, "$parentAttributeTextColorPick", "attributeTextColorPick", attribute_text_color_callback)
 		g:NewLabel (frame14, _, "$parentAttributeTextColorLabel", "attributeTextColorLabel", Loc ["STRING_OPTIONS_MENU_ATTRIBUTE_TEXTCOLOR"], "GameFontHighlightLeft")
@@ -3176,6 +3247,7 @@ function window:CreateFrame14()
 		frame14.attributeShadowSwitch:SetPoint ("left", frame14.attributeShadowLabel, "right", 2)
 		frame14.attributeShadowSwitch.OnSwitch = function (self, instance, value)
 			instance:AttributeMenu (nil, nil, nil, nil, nil, nil, nil, value)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		window:CreateLineBackground2 (frame14, "attributeShadowSwitch", "attributeShadowLabel", Loc ["STRING_OPTIONS_MENU_ATTRIBUTE_SHADOW_DESC"])
 	
@@ -3188,6 +3260,7 @@ function window:CreateFrame14()
 		frame14.attributeSideSwitch:SetPoint ("left", frame14.attributeSideLabel, "right", 2)
 		frame14.attributeSideSwitch.OnSwitch = function (self, instance, value)
 			instance:AttributeMenu (nil, nil, nil, nil, nil, nil, value)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		--frame14.attributeSideSwitch:SetThumbSize (50)
 		window:CreateLineBackground2 (frame14, "attributeSideSwitch", "attributeSideLabel", Loc ["STRING_OPTIONS_MENU_ATTRIBUTE_SIDE_DESC"])
@@ -3240,6 +3313,8 @@ function window:CreateFrame1()
 
 			frame1.nicknameEntry.text = nick
 			_G.DetailsOptionsWindow1AvatarNicknameLabel:SetText (nick)
+			
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		
 		local titulo_persona = g:NewLabel (frame1, _, "$parentTituloPersona", "tituloPersonaLabel", Loc ["STRING_OPTIONS_SOCIAL"], "GameFontNormal", 16)
@@ -3278,6 +3353,8 @@ function window:CreateFrame1()
 			end
 			
 			_G.AvatarPickFrame.callback = nil
+			
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		
 		local openAtavarPickFrame = function()
@@ -3349,6 +3426,7 @@ function window:CreateFrame1()
 
 		frame1.realmNameSlider.OnSwitch = function (self, _, value)
 			_detalhes.remove_realm_from_name = value
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		
 		window:CreateLineBackground2 (frame1, "realmNameSlider", "realmNameLabel", Loc ["STRING_OPTIONS_REALMNAME_DESC"])
@@ -3368,6 +3446,7 @@ function window:CreateFrame1()
 		frame1.segmentsSlider:SetPoint ("left", frame1.segmentsLabel, "right", 2, -1)
 		frame1.segmentsSlider:SetHook ("OnValueChange", function (self, _, amount) --> slider, fixedValue, sliderValue
 			_detalhes.segments_amount = math.floor (amount)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end)
 		
 		window:CreateLineBackground2 (frame1, "segmentsSlider", "segmentsLabel", Loc ["STRING_OPTIONS_MAXSEGMENTS_DESC"])
@@ -3380,6 +3459,7 @@ function window:CreateFrame1()
 
 		frame1.SegmentsLockedSlider.OnSwitch = function (self, _, value)
 			_detalhes.instances_segments_locked = value
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		
 		window:CreateLineBackground2 (frame1, "SegmentsLockedSlider", "SegmentsLockedLabel", Loc ["STRING_OPTIONS_LOCKSEGMENTS_DESC"])
@@ -3396,6 +3476,7 @@ function window:CreateFrame1()
 		frame1.WheelSpeedSlider:SetPoint ("left", frame1.WheelSpeedLabel, "right", 2, -1)
 		frame1.WheelSpeedSlider:SetHook ("OnValueChange", function (self, _, amount) --> slider, fixedValue, sliderValue
 			_detalhes.scroll_speed = amount
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end)
 		
 		window:CreateLineBackground2 (frame1, "WheelSpeedSlider", "WheelSpeedLabel", Loc ["STRING_OPTIONS_WHEEL_SPEED_DESC"])
@@ -3411,6 +3492,7 @@ function window:CreateFrame1()
 		frame1.maxInstancesSlider:SetPoint ("left", frame1.maxInstancesLabel, "right", 2, -1)
 		frame1.maxInstancesSlider:SetHook ("OnValueChange", function (self, _, amount) --> slider, fixedValue, sliderValue
 			_detalhes.instances_amount = amount
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end)
 		
 		window:CreateLineBackground2 (frame1, "maxInstancesSlider", "maxInstancesLabel", Loc ["STRING_OPTIONS_MAXINSTANCES_DESC"])
@@ -3428,6 +3510,7 @@ function window:CreateFrame1()
 			_detalhes.atributo_custom:UpdateSelectedToKFunction()
 			
 			_detalhes:AtualizaGumpPrincipal (-1, true)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		local icon = [[Interface\COMMON\mini-hourglass]]
 		local iconcolor = {1, 1, 1, .5}
@@ -3471,6 +3554,7 @@ function window:CreateFrame1()
 		frame1.animateSlider:SetPoint ("left",frame1.animateLabel, "right", 2, 0)
 		frame1.animateSlider.OnSwitch = function (self, _, value) --> slider, fixedValue, sliderValue (false, true)
 			_detalhes:SetUseAnimations (value)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		
 		window:CreateLineBackground2 (frame1, "animateSlider", "animateLabel", Loc ["STRING_OPTIONS_ANIMATEBARS_DESC"])
@@ -3499,6 +3583,7 @@ function window:CreateFrame1()
 		frame1.updatespeedSlider:SetHook ("OnValueChange", function (self, _, amount) 
 			_detalhes:SetWindowUpdateSpeed (amount)
 			updateColor (self, amount)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end)
 		updateColor (frame1.updatespeedSlider, _detalhes.update_speed)
 		
@@ -3571,6 +3656,7 @@ function window:CreateFrame1()
 			--
 			local OnSelectEraseData = function (_, _, EraseType)
 				_detalhes.segments_auto_erase = EraseType
+				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 			end
 			
 			local EraseDataOptions = {
@@ -3685,6 +3771,7 @@ function window:CreateFrame2()
 		frame2.fragsPvpSlider:SetPoint ("left", frame2.fragsPvpLabel, "right", 2, 0)
 		frame2.fragsPvpSlider.OnSwitch = function (self, _, amount) --> slider, fixedValue, sliderValue
 			_detalhes.only_pvp_frags = amount
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		
 		window:CreateLineBackground2 (frame2, "fragsPvpSlider", "fragsPvpLabel", Loc ["STRING_OPTIONS_PVPFRAGS_DESC"])
@@ -3695,6 +3782,7 @@ function window:CreateFrame2()
 		local onSelectTimeType = function (_, _, timetype)
 			_detalhes.time_type = timetype
 			_detalhes:AtualizaGumpPrincipal (-1, true)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		local timetypeOptions = {
 			{value = 1, label = "Activity Time", onclick = onSelectTimeType, icon = "Interface\\Icons\\Achievement_Quests_Completed_Daily_08", iconcolor = {1, .9, .9}, texcoord = {0.078125, 0.921875, 0.078125, 0.921875}}, --, desc = ""
@@ -3719,6 +3807,7 @@ function window:CreateFrame2()
 		frame2.EraseChartDataSlider:SetPoint ("left", frame2.EraseChartDataLabel, "right", 2, 0)
 		frame2.EraseChartDataSlider.OnSwitch = function (self, _, value)
 			_detalhes.clear_graphic = value
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		window:CreateLineBackground2 (frame2, "EraseChartDataSlider", "EraseChartDataLabel", Loc ["STRING_OPTIONS_ERASECHARTDATA_DESC"])
 		
@@ -3737,6 +3826,7 @@ function window:CreateFrame2()
 			elseif (not value and bit.band (_detalhes.overall_flag, 0x1) ~= 0) then
 				_detalhes.overall_flag = _detalhes.overall_flag - 0x1
 			end
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		--
 		window:CreateLineBackground2 (frame2, "OverallDataRaidBossSlider", "OverallDataRaidBossLabel", Loc ["STRING_OPTIONS_OVERALL_RAIDBOSS_DESC"])
@@ -3753,6 +3843,7 @@ function window:CreateFrame2()
 			elseif (not value and bit.band (_detalhes.overall_flag, 0x2) ~= 0) then
 				_detalhes.overall_flag = _detalhes.overall_flag - 0x2
 			end
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		--
 		window:CreateLineBackground2 (frame2, "OverallDataRaidCleaupSlider", "OverallDataRaidCleaupLabel", Loc ["STRING_OPTIONS_OVERALL_RAIDCLEAN_DESC"])
@@ -3769,6 +3860,7 @@ function window:CreateFrame2()
 			elseif (not value and bit.band (_detalhes.overall_flag, 0x4) ~= 0) then
 				_detalhes.overall_flag = _detalhes.overall_flag - 0x4
 			end
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		--
 		window:CreateLineBackground2 (frame2, "OverallDataDungeonBossSlider", "OverallDataDungeonBossLabel", Loc ["STRING_OPTIONS_OVERALL_DUNGEONBOSS_DESC"])
@@ -3785,6 +3877,7 @@ function window:CreateFrame2()
 			elseif (not value and bit.band (_detalhes.overall_flag, 0x8) ~= 0) then
 				_detalhes.overall_flag = _detalhes.overall_flag - 0x8
 			end
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		--
 		window:CreateLineBackground2 (frame2, "OverallDataDungeonCleaupSlider", "OverallDataDungeonCleaupLabel", Loc ["STRING_OPTIONS_OVERALL_DUNGEONCLEAN_DESC"])
@@ -3812,6 +3905,8 @@ function window:CreateFrame2()
 				frame2.OverallDataDungeonBossSlider:Enable()
 				frame2.OverallDataDungeonCleaupSlider:Enable()
 			end
+			
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		--
 		window:CreateLineBackground2 (frame2, "OverallDataAllSlider", "OverallDataAllLabel", Loc ["STRING_OPTIONS_OVERALL_ALL_DESC"])
@@ -3824,6 +3919,7 @@ function window:CreateFrame2()
 		--
 		frame2.OverallNewBossSlider.OnSwitch = function (self, _, value)
 			_detalhes:OverallOptions (value)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		--
 		window:CreateLineBackground2 (frame2, "OverallNewBossSlider", "OverallNewBossLabel", Loc ["STRING_OPTIONS_OVERALL_NEWBOSS_DESC"])
@@ -3836,6 +3932,7 @@ function window:CreateFrame2()
 		--
 		frame2.OverallNewChallengeSlider.OnSwitch = function (self, _, value)
 			_detalhes:OverallOptions (nil, value)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		--
 		window:CreateLineBackground2 (frame2, "OverallNewChallengeSlider", "OverallNewChallengeLabel", Loc ["STRING_OPTIONS_OVERALL_CHALLENGE_DESC"])
@@ -4332,16 +4429,19 @@ function window:CreateFrame3()
 			--> reload options panel
 			_detalhes:OpenOptionsWindow (_G.DetailsOptionsWindow.instance)
 			
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		_detalhes.loadStyleFunc = loadStyle 
 	
 		local resetToDefaults = function()
 			loadStyle (nil, _G.DetailsOptionsWindow.instance, _detalhes.instance_defaults)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 
 		--> select skin
 		local onSelectSkin = function (_, instance, skin_name)
 			instance:ChangeSkin (skin_name)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 
 		local buildSkinMenu = function()
@@ -4427,6 +4527,7 @@ function window:CreateFrame3()
 						this_instance:DesativarInstancia()
 					else
 						loadStyle (nil, this_instance, temp_preset)
+						_detalhes:SendOptionsModifiedEvent (this_instance)
 					end
 				end
 			end
@@ -4495,6 +4596,8 @@ function window:CreateFrame3()
 			
 			--> apply all changed attributes
 			_G.DetailsOptionsWindow.instance:ChangeSkin()
+			
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 			
 			--> reload options panel
 			_detalhes:OpenOptionsWindow (_G.DetailsOptionsWindow.instance)
@@ -4704,6 +4807,7 @@ function window:CreateFrame4()
 			instance:RefreshBars()
 			instance:InstanceReset()
 			instance:ReajustaGump()
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end)	
 		window:CreateLineBackground2 (frame4, "rowHeightSlider", "rowHeightLabel", Loc ["STRING_OPTIONS_BAR_HEIGHT_DESC"])
 	
@@ -4729,6 +4833,7 @@ function window:CreateFrame4()
 		frame4.barGrowDirectionSlider:SetPoint ("left", frame4.barGrowDirectionLabel, "right", 2)
 		frame4.barGrowDirectionSlider.OnSwitch = function (self, instance, value)
 			instance:SetBarGrowDirection (value)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		frame4.barGrowDirectionSlider.thumb:SetSize (50, 12)
 		window:CreateLineBackground2 (frame4, "barGrowDirectionSlider", "barGrowDirectionLabel", Loc ["STRING_OPTIONS_BARGROW_DIRECTION_DESC"])
@@ -4742,6 +4847,7 @@ function window:CreateFrame4()
 		frame4.barSortDirectionSlider.OnSwitch = function (self, instance, value)
 			instance.bars_sort_direction = value
 			_detalhes:AtualizaGumpPrincipal (-1, true)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		frame4.barSortDirectionSlider.thumb:SetSize (50, 12)
 		window:CreateLineBackground2 (frame4, "barSortDirectionSlider", "barSortDirectionLabel", Loc ["STRING_OPTIONS_BARSORT_DIRECTION_DESC"])
@@ -4756,6 +4862,7 @@ function window:CreateFrame4()
 		frame4.BarSpacementSlider:SetPoint ("left", frame4.BarSpacementLabel, "right", 2)
 		frame4.BarSpacementSlider:SetHook ("OnValueChange", function (self, instancia, amount)
 			instancia:SetBarSettings (nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, amount)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end)
 		window:CreateLineBackground2 (frame4, "BarSpacementSlider", "BarSpacementLabel", Loc ["STRING_OPTIONS_BAR_SPACING_DESC"])
 	
@@ -4772,6 +4879,7 @@ function window:CreateFrame4()
 		--texture
 		local onSelectTexture = function (_, instance, textureName)
 			instance:SetBarSettings (nil, textureName)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 
 		local buildTextureMenu = function() 
@@ -4799,6 +4907,7 @@ function window:CreateFrame4()
 			_G.DetailsOptionsWindow.instance:SetBarSettings (nil, nil, nil, {r, g, b})
 			_G.DetailsOptionsWindow.instance.row_info.alpha = a
 			_G.DetailsOptionsWindow.instance:SetBarSettings (nil, nil, nil, nil, nil, nil, nil, a)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		g:NewLabel (frame4, _, "$parentRowColorPickLabel", "rowPickColorLabel", Loc ["STRING_OPTIONS_TEXT_ROWCOLOR2"], "GameFontHighlightLeft")
 		g:NewColorPickButton (frame4, "$parentRowColorPick", "rowColorPick", rowcolor_callback)
@@ -4813,6 +4922,7 @@ function window:CreateFrame4()
 		frame4.classColorSlider:SetPoint ("left", frame4.classColorsLabel, "right", 2, -1)
 		frame4.classColorSlider.OnSwitch = function (self, instance, value)
 			instance:SetBarSettings (nil, nil, value)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		frame4.classColorsLabel:SetPoint ("left", frame4.rowColorPick, "right", 3, 0)
 		window:CreateLineBackground2 (frame4, "classColorSlider", "classColorsLabel", Loc ["STRING_OPTIONS_BAR_COLORBYCLASS_DESC"])
@@ -4826,6 +4936,7 @@ function window:CreateFrame4()
 		--texture
 		local onSelectTextureBackground = function (_, instance, textureName)
 			instance:SetBarSettings (nil, nil, nil, nil, textureName)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 
 		local buildTextureMenu2 = function() 
@@ -4851,6 +4962,7 @@ function window:CreateFrame4()
 		--bar background color	
 		local rowcolorbackground_callback = function (button, r, g, b, a)
 			_G.DetailsOptionsWindow.instance:SetBarSettings (nil, nil, nil, nil, nil, nil, {r, g, b, a})
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		g:NewColorPickButton (frame4, "$parentRowBackgroundColorPick", "rowBackgroundColorPick", rowcolorbackground_callback)
 		g:NewLabel (frame4, _, "$parentRowBackgroundColorPickLabel", "rowBackgroundPickLabel", Loc ["STRING_OPTIONS_TEXT_ROWCOLOR"], "GameFontHighlightLeft")
@@ -4866,6 +4978,7 @@ function window:CreateFrame4()
 		frame4.rowBackgroundColorByClassSlider:SetPoint ("left", frame4.rowBackgroundColorByClassLabel, "right", 2)
 		frame4.rowBackgroundColorByClassSlider.OnSwitch = function (self, instance, value)
 			instance:SetBarSettings (nil, nil, nil, nil, nil, value)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 
 		window:CreateLineBackground2 (frame4, "rowBackgroundColorByClassSlider", "rowBackgroundColorByClassLabel", Loc ["STRING_OPTIONS_BAR_COLORBYCLASS2_DESC"])
@@ -4889,6 +5002,7 @@ function window:CreateFrame4()
 		local OnSelectIconFile = function (_, _, iconpath)
 			_G.DetailsOptionsWindow.instance:SetBarSettings (nil, nil, nil, nil, nil, nil, nil, nil, iconpath)
 			frame4.iconFileEntry:SetText (iconpath)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 
 		local iconsize = {16, 16}
@@ -4924,11 +5038,13 @@ function window:CreateFrame4()
 			_G.DetailsOptionsWindow.instance:SetBarSettings (nil, nil, nil, nil, nil, nil, nil, nil, frame4.iconFileEntry.text)
 			d:Select (false)
 			d:Select (frame4.iconFileEntry.text)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end)
 		frame4.iconFileEntry:SetHook ("OnEscapePressed", function()
 			frame4.iconFileEntry:SetText ([[Interface\AddOns\Details\images\classes_small]])
 			frame4.iconFileEntry:ClearFocus()
 			_G.DetailsOptionsWindow.instance:SetBarSettings (nil, nil, nil, nil, nil, nil, nil, nil, [[Interface\AddOns\Details\images\classes_small]])
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 			return true
 		end)
 		
@@ -4961,6 +5077,7 @@ function window:CreateFrame4()
 		frame4.barStartSlider:SetPoint ("left", frame4.barStartLabel, "right", 2)
 		frame4.barStartSlider.OnSwitch = function (self, instance, value)
 			instance:SetBarSettings (nil, nil, nil, nil, nil, nil, nil, nil, nil, value)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		
 		window:CreateLineBackground2 (frame4, "barStartSlider", "barStartLabel", Loc ["STRING_OPTIONS_BARSTART_DESC"])
@@ -4975,12 +5092,14 @@ function window:CreateFrame4()
 		frame4.BackdropEnabledSlider:SetPoint ("left", frame4.BackdropEnabledLabel, "right", 2, -1)
 		frame4.BackdropEnabledSlider.OnSwitch = function (self, instance, value)
 			instance:SetBarBackdropSettings (value)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		window:CreateLineBackground2 (frame4, "BackdropEnabledSlider", "BackdropEnabledLabel", Loc ["STRING_OPTIONS_BAR_BACKDROP_ENABLED_DESC"])
 		
 		--texture
 		local onSelectTextureBackdrop = function (_, instance, textureName)
 			instance:SetBarBackdropSettings (nil, nil, nil, textureName)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 
 		local iconsize = {16, 16}
@@ -5015,12 +5134,14 @@ function window:CreateFrame4()
 		frame4.BackdropSizeSlider:SetThumbSize (50)
 		frame4.BackdropSizeSlider:SetHook ("OnValueChange", function (self, instance, amount) 
 			instance:SetBarBackdropSettings (nil, amount)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end)	
 		window:CreateLineBackground2 (frame4, "BackdropSizeSlider", "BackdropSizeLabel", Loc ["STRING_OPTIONS_BAR_BACKDROP_SIZE_DESC"])
 
 		--color
 		local backdropcolor_callback = function (button, r, g, b, a)
 			_G.DetailsOptionsWindow.instance:SetBarBackdropSettings (nil, nil, {r, g, b, a})
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		g:NewColorPickButton (frame4, "$parentBackdropColorPick", "BackdropColorPick", backdropcolor_callback)
 		g:NewLabel (frame4, _, "$parentBackdropColorLabel", "BackdropColorLabel", Loc ["STRING_OPTIONS_BAR_BACKDROP_COLOR"], "GameFontHighlightLeft")
@@ -5085,6 +5206,7 @@ function window:CreateFrame5()
 	--> text color
 		local textcolor_callback = function (button, r, g, b, a)
 			_G.DetailsOptionsWindow.instance:SetBarTextSettings (nil, nil, {r, g, b, 1})
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		g:NewColorPickButton (frame5, "$parentFixedTextColor", "fixedTextColor", textcolor_callback, false)
 		local fixedColorText = g:NewLabel (frame5, _, "$parentFixedTextColorLabel", "fixedTextColorLabel", Loc ["STRING_OPTIONS_TEXT_FIXEDCOLOR"], "GameFontHighlightLeft")
@@ -5103,6 +5225,7 @@ function window:CreateFrame5()
 		frame5.fonsizeSlider:SetThumbSize (50)
 		frame5.fonsizeSlider:SetHook ("OnValueChange", function (self, instance, amount)
 			instance:SetBarTextSettings (amount)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end)
 
 		window:CreateLineBackground2 (frame5, "fonsizeSlider", "fonsizeLabel", Loc ["STRING_OPTIONS_TEXT_SIZE_DESC"])
@@ -5111,6 +5234,7 @@ function window:CreateFrame5()
 
 		local onSelectFont = function (_, instance, fontName)
 			instance:SetBarTextSettings (nil, fontName)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		
 		local buildFontMenu = function() 
@@ -5142,6 +5266,7 @@ function window:CreateFrame5()
 		frame5.classColorsLeftTextSlider:SetPoint ("left", frame5.classColorsLeftTextLabel, "right", 2)
 		frame5.classColorsLeftTextSlider.OnSwitch = function (self, instance, value)
 			instance:SetBarTextSettings (nil, nil, nil, value)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		
 		window:CreateLineBackground2 (frame5, "classColorsLeftTextSlider", "classColorsLeftTextLabel", Loc ["STRING_OPTIONS_TEXT_LCLASSCOLOR_DESC"])
@@ -5152,6 +5277,7 @@ function window:CreateFrame5()
 		frame5.classColorsRightTextSlider:SetPoint ("left", frame5.classColorsRightTextLabel, "right", 2)
 		frame5.classColorsRightTextSlider.OnSwitch = function (self, instance, value)
 			instance:SetBarTextSettings (nil, nil, nil, nil, value)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		
 		window:CreateLineBackground2 (frame5, "classColorsRightTextSlider", "classColorsRightTextLabel", Loc ["STRING_OPTIONS_TEXT_RCLASSCOLOR_DESC"])
@@ -5163,6 +5289,7 @@ function window:CreateFrame5()
 		frame5.textLeftOutlineSlider:SetPoint ("left", frame5.textLeftOutlineLabel, "right", 2)
 		frame5.textLeftOutlineSlider.OnSwitch = function (self, instance, value)
 			instance:SetBarTextSettings (nil, nil, nil, nil, nil, value)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		
 		window:CreateLineBackground2 (frame5, "textLeftOutlineSlider", "textLeftOutlineLabel", Loc ["STRING_OPTIONS_TEXT_LOUTILINE_DESC"])
@@ -5174,6 +5301,7 @@ function window:CreateFrame5()
 		frame5.PositionNumberSlider:SetPoint ("left", frame5.PositionNumberLabel, "right", 2)
 		frame5.PositionNumberSlider.OnSwitch = function (self, instance, value)
 			instance:SetBarTextSettings (nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, value)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		
 		window:CreateLineBackground2 (frame5, "PositionNumberSlider", "PositionNumberLabel", Loc ["STRING_OPTIONS_TEXT_LPOSITION_DESC"])
@@ -5185,6 +5313,7 @@ function window:CreateFrame5()
 		frame5.textRightOutlineSlider:SetPoint ("left", frame5.textRightOutlineLabel, "right", 2)
 		frame5.textRightOutlineSlider.OnSwitch = function (self, instance, value)
 			instance:SetBarTextSettings (nil, nil, nil, nil, nil, nil, value)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 
 		window:CreateLineBackground2 (frame5, "textRightOutlineSlider", "textRightOutlineLabel", Loc ["STRING_OPTIONS_TEXT_ROUTILINE_DESC"])
@@ -5192,6 +5321,7 @@ function window:CreateFrame5()
 	--> percent type
 		local onSelectPercent = function (_, instance, percentType)
 			instance:SetBarTextSettings (nil, nil, nil, nil, nil, nil, nil, nil, nil, percentType)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		
 		local buildPercentMenu = function() 
@@ -5221,6 +5351,7 @@ function window:CreateFrame5()
 		frame5.cutomRightTextSlider:SetPoint ("left", frame5.cutomRightTextLabel, "right", 2)
 		frame5.cutomRightTextSlider.OnSwitch = function (self, instance, value)
 			_G.DetailsOptionsWindow.instance:SetBarTextSettings (nil, nil, nil, nil, nil, nil, nil, value)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 
 		window:CreateLineBackground2 (frame5, "cutomRightTextSlider", "cutomRightTextLabel", Loc ["STRING_OPTIONS_BARRIGHTTEXTCUSTOM_DESC"])
@@ -5279,6 +5410,7 @@ function window:CreateFrame5()
 		local callback = function (text)
 			frame5.cutomRightTextEntry.text = text
 			frame5.cutomRightTextEntry:PressEnter()
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		g:NewButton (frame5.cutomRightTextEntry, _, "$parentOpenTextBarEditorButton", "TextBarEditorButton", 22, 22, function()
 			DetailsWindowOptionsBarTextEditor:Open (frame5.cutomRightTextEntry.text, callback, _G.DetailsOptionsWindow, _detalhes.instance_defaults.row_info.textR_custom_text)
@@ -5311,6 +5443,7 @@ function window:CreateFrame5()
 		frame5.cutomLeftTextSlider:SetPoint ("left", frame5.cutomLeftTextLabel, "right", 2)
 		frame5.cutomLeftTextSlider.OnSwitch = function (self, instance, value)
 			_G.DetailsOptionsWindow.instance:SetBarTextSettings (nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, value)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 
 		window:CreateLineBackground2 (frame5, "cutomLeftTextSlider", "cutomLeftTextLabel", Loc ["STRING_OPTIONS_BARLEFTTEXTCUSTOM_DESC"])
@@ -5369,6 +5502,7 @@ function window:CreateFrame5()
 		local callback = function (text)
 			frame5.cutomLeftTextEntry.text = text
 			frame5.cutomLeftTextEntry:PressEnter()
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		g:NewButton (frame5.cutomLeftTextEntry, _, "$parentOpenTextBarEditorButton", "TextBarEditorButton", 22, 22, function()
 			DetailsWindowOptionsBarTextEditor:Open (frame5.cutomLeftTextEntry.text, callback, _G.DetailsOptionsWindow, _detalhes.instance_defaults.row_info.textL_custom_text)
@@ -5461,6 +5595,7 @@ function window:CreateFrame6()
 			end
 			_G.DetailsOptionsWindow6StatusbarColorPick.MyObject:SetColor (r, g, b, a)
 			_G.DetailsOptionsWindow.instance:InstanceColor (r, g, b, a, nil, true)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		g:NewColorPickButton (frame6, "$parentWindowColorPick", "windowColorPick", windowcolor_callback)
 		g:NewLabel (frame6, _, "$parentWindowColorPickLabel", "windowPickColorLabel", Loc ["STRING_OPTIONS_INSTANCE_COLOR"], "GameFontHighlightLeft")
@@ -5480,6 +5615,7 @@ function window:CreateFrame6()
 			_G.DetailsOptionsWindow.instance:SetBackgroundColor (r, g, b)
 			_G.DetailsOptionsWindow.instance:SetBackgroundAlpha (a)
 			frame6.alphaSlider:SetValue (a)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		g:NewColorPickButton (frame6, "$parentWindowBackgroundColorPick", "windowBackgroundColorPick", windowbackgroundcolor_callback)
 		g:NewLabel (frame6, _, "$parentWindowBackgroundColorPickLabel", "windowBackgroundPickColorLabel", Loc ["STRING_OPTIONS_INSTANCE_ALPHA2"], "GameFontHighlightLeft")
@@ -5503,6 +5639,7 @@ function window:CreateFrame6()
 		frame6.alphaSlider:SetHook ("OnValueChange", function (self, instance, amount) --> slider, fixedValue, sliderValue
 			self.amt:SetText (string.format ("%.2f", amount))
 			instance:SetBackgroundAlpha (amount)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 			return true
 		end)
 		frame6.alphaSlider.thumb:SetSize (30+(120*0.2)+2, 20*1.2)
@@ -5532,6 +5669,7 @@ function window:CreateFrame6()
 			frame6.stretchAnchorSlider:SetPoint ("left", frame6.stretchAnchorLabel, "right", 2)
 			frame6.stretchAnchorSlider.OnSwitch = function (self, instance, value)
 				instance:StretchButtonAnchor (value)
+				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 			end
 			frame6.stretchAnchorSlider.thumb:SetSize (40, 12)
 			
@@ -5545,6 +5683,7 @@ function window:CreateFrame6()
 		
 			frame6.stretchAlwaysOnTopSlider.OnSwitch = function (self, instance, value)
 				instance:StretchButtonAlwaysOnTop (value)
+				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 			end
 			
 			window:CreateLineBackground2 (frame6, "stretchAlwaysOnTopSlider", "stretchAlwaysOnTopLabel", Loc ["STRING_OPTIONS_STRETCHTOP_DESC"])
@@ -5558,6 +5697,7 @@ function window:CreateFrame6()
 				instance.toolbar_side = value
 				instance:ToolbarSide (side)
 				_G.DetailsOptionsWindow7:update_menuanchor_xy (instance)
+				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 			end
 			frame6.instanceToolbarSideSlider.thumb:SetSize (50, 12)
 			
@@ -5571,6 +5711,7 @@ function window:CreateFrame6()
 			frame6.instanceMicroDisplaysSideSlider.OnSwitch = function (self, instance, value)
 				instance:MicroDisplaysSide (value, true)
 				window:update_microframes()
+				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 			end
 			frame6.instanceMicroDisplaysSideSlider.thumb:SetSize (50, 12)
 			
@@ -5596,6 +5737,7 @@ function window:CreateFrame6()
 				_detalhes.StatusBar:SetPlugin (instance, absolute_name, anchor)
 				
 				window:update_microframes()
+				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 			end
 			
 			local BuildLeftMicroMenu = function() 
@@ -5769,6 +5911,7 @@ function window:CreateFrame6()
 			else
 				instance:HideSideBars()
 			end
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		
 		window:CreateLineBackground2 (frame6, "sideBarsSlider", "sideBarsLabel", Loc ["STRING_OPTIONS_SHOW_SIDEBARS_DESC"])
@@ -5786,6 +5929,7 @@ function window:CreateFrame6()
 			end
 			instance:BaseFrameSnap()
 			window:update_microframes()
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 
 		window:CreateLineBackground2 (frame6, "statusbarSlider", "statusbarLabel", Loc ["STRING_OPTIONS_SHOW_STATUSBAR_DESC"])
@@ -5820,6 +5964,7 @@ function window:CreateFrame6()
 		--> frame strata
 			local onStrataSelect = function (_, instance, strataName)
 				instance:SetFrameStrata (strataName)
+				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 			end
 			local strataTable = {
 				{value = "BACKGROUND", label = "Background", onclick = onStrataSelect, icon = [[Interface\Buttons\UI-MicroStream-Green]], iconcolor = {0, .5, 0, .8}, texcoord = nil}, --Interface\Buttons\UI-MicroStream-Green UI-MicroStream-Red UI-MicroStream-Yellow
@@ -5849,6 +5994,7 @@ function window:CreateFrame6()
 			local statusbar_color_callback = function (button, r, g, b, a)
 				--do something
 				_G.DetailsOptionsWindow.instance:StatusBarColor (r, g, b, a)
+				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 			end
 			g:NewColorPickButton (frame6, "$parentStatusbarColorPick", "statusbarColorPick", statusbar_color_callback)
 			g:NewLabel (frame6, _, "$parentStatusbarColorLabel", "statusbarColorLabel", Loc ["STRING_OPTIONS_INSTANCE_STATUSBARCOLOR"], "GameFontHighlightLeft")
@@ -5865,6 +6011,7 @@ function window:CreateFrame6()
 			
 			frame6.WindowScaleSlider:SetHook ("OnValueChange", function (self, instance, amount) 
 				instance:SetWindowScale (amount, true)
+				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 			end)
 			
 			g:NewLabel (frame6, _, "$parentWindowScaleLabel", "WindowScaleLabel", Loc ["STRING_OPTIONS_WINDOW_SCALE"], "GameFontHighlightLeft")
@@ -5954,10 +6101,12 @@ function window:CreateFrame7()
 			frame7.menuAnchorXSlider:SetThumbSize (50)
 			frame7.menuAnchorXSlider:SetHook ("OnValueChange", function (self, instance, x) 
 				instance:MenuAnchor (x, nil)
+				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 			end)
 			frame7.menuAnchorYSlider:SetThumbSize (50)
 			frame7.menuAnchorYSlider:SetHook ("OnValueChange", function (self, instance, y)
 				instance:MenuAnchor (nil, y)
+				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 			end)
 			
 			window:CreateLineBackground2 (frame7, "menuAnchorXSlider", "menuAnchorXLabel", Loc ["STRING_OPTIONS_MENU_X_DESC"])
@@ -5996,6 +6145,7 @@ function window:CreateFrame7()
 			frame7.pluginMenuAnchorSideSlider:SetPoint ("left", frame7.menuAnchorSideLabel, "right", 2)
 			frame7.pluginMenuAnchorSideSlider.OnSwitch = function (self, instance, value)
 				instance:LeftMenuAnchorSide (value)
+				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 			end
 			
 			window:CreateLineBackground2 (frame7, "pluginMenuAnchorSideSlider", "menuAnchorSideLabel", Loc ["STRING_OPTIONS_MENU_ANCHOR_DESC"])
@@ -6007,6 +6157,7 @@ function window:CreateFrame7()
 			frame7.desaturateMenuSlider:SetPoint ("left", frame7.desaturateMenuLabel, "right", 2)
 			frame7.desaturateMenuSlider.OnSwitch = function (self, instance, value)
 				instance:DesaturateMenu (value)
+				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 			end
 			
 			window:CreateLineBackground2 (frame7, "desaturateMenuSlider", "desaturateMenuLabel", Loc ["STRING_OPTIONS_DESATURATE_MENU_DESC"])
@@ -6018,6 +6169,7 @@ function window:CreateFrame7()
 			frame7.hideIconSlider:SetPoint ("left", frame7.hideIconLabel, "right", 2)
 			frame7.hideIconSlider.OnSwitch = function (self, instance, value)
 				instance:HideMainIcon (value)
+				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 			end
 			
 			window:CreateLineBackground2 (frame7, "hideIconSlider", "hideIconLabel", Loc ["STRING_OPTIONS_HIDE_ICON_DESC"])
@@ -6045,6 +6197,7 @@ function window:CreateFrame7()
 			frame7.pluginIconsDirectionSlider.OnSwitch = function (self, instance, value)
 				instance.plugins_grow_direction = value
 				instance:ToolbarMenuSetButtons()
+				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 			end
 			frame7.pluginIconsDirectionSlider.thumb:SetSize (40, 12)
 			
@@ -6083,6 +6236,8 @@ function window:CreateFrame7()
 				else
 					x_container [menu_button]:Show()
 				end
+				
+				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 			end
 			
 			local button1 = g:NewButton (frame7, _, "$parentShowButtons1", "showButtons1Button", 21, 21, func, 1)
@@ -6147,6 +6302,7 @@ function window:CreateFrame7()
 		
 		frame7.menuIconSizeSlider:SetHook ("OnValueChange", function (self, instance, value)
 			instance:ToolbarMenuButtonsSize (value)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end)
 		
 		window:CreateLineBackground2 (frame7, "menuIconSizeSlider", "menuIconSizeLabel", Loc ["STRING_OPTIONS_MENU_BUTTONSSIZE_DESC"])
@@ -6163,6 +6319,7 @@ function window:CreateFrame7()
 		
 		frame7.MenuIconSpaceSlider:SetHook ("OnValueChange", function (self, instance, value)
 			instance:ToolbarMenuSetButtonsOptions (value)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end)
 		
 		window:CreateLineBackground2 (frame7, "MenuIconSpaceSlider", "MenuIconSpaceLabel", Loc ["STRING_OPTIONS_MENUS_SPACEMENT_DESC"])
@@ -6175,6 +6332,7 @@ function window:CreateFrame7()
 		frame7.MenuIconShadowSlider:SetPoint ("left", frame7.MenuIconShadowLabel, "right", 2)
 		frame7.MenuIconShadowSlider.OnSwitch = function (self, instance, value)
 			instance:ToolbarMenuSetButtonsOptions (nil, value)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		
 		window:CreateLineBackground2 (frame7, "MenuIconShadowSlider", "MenuIconShadowLabel", Loc ["STRING_OPTIONS_MENUS_SHADOW_DESC"])
@@ -6192,6 +6350,7 @@ function window:CreateFrame7()
 		frame7.autoHideLeftMenuSwitch.OnSwitch = function (self, instance, value)
 			--do something
 			instance:SetAutoHideMenu (value)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		window:CreateLineBackground2 (frame7, "autoHideLeftMenuSwitch", "autoHideLeftMenuLabel", Loc ["STRING_OPTIONS_MENU_AUTOHIDE_DESC"])
 	--right
@@ -6251,6 +6410,7 @@ function window:CreateFrame8()
 				frame8.ModelUpperEnabledSlider:SetPoint ("left", frame8.ModelUpperEnabledLabel, "right", 2, -1)
 				frame8.ModelUpperEnabledSlider.OnSwitch = function (self, instance, value)
 					instance:SetBarModel (value)
+					_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 				end
 				window:CreateLineBackground2 (frame8, "ModelUpperEnabledSlider", "ModelUpperEnabledLabel", Loc ["STRING_OPTIONS_3D_UENABLED_DESC"])
 				
@@ -6258,9 +6418,11 @@ function window:CreateFrame8()
 			
 				local select_upper_model_callback = function (model)
 					_G.DetailsOptionsWindow.instance:SetBarModel (nil, model)
+					_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 				end
 				local select_lower_model_callback = function (model)
 					_G.DetailsOptionsWindow.instance:SetBarModel (nil, nil, nil, nil, model)
+					_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 				end
 			
 				local select_model = function (is_upper)
@@ -6298,6 +6460,7 @@ function window:CreateFrame8()
 			
 				frame8.ModelUpperAlphaSlider:SetHook ("OnValueChange", function (self, instance, amount)
 					instance:SetBarModel (nil, nil, amount)
+					_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 				end)
 				
 				window:CreateLineBackground2 (frame8, "ModelUpperAlphaSlider", "ModelUpperAlphaLabel", Loc ["STRING_OPTIONS_3D_UALPHA_DESC"])
@@ -6308,6 +6471,7 @@ function window:CreateFrame8()
 				frame8.ModelLowerEnabledSlider:SetPoint ("left", frame8.ModelLowerEnabledLabel, "right", 2, -1)
 				frame8.ModelLowerEnabledSlider.OnSwitch = function (self, instance, value)
 					instance:SetBarModel (nil, nil, nil, value)
+					_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 				end
 				window:CreateLineBackground2 (frame8, "ModelLowerEnabledSlider", "ModelLowerEnabledLabel", Loc ["STRING_OPTIONS_3D_LENABLED_DESC"])
 				
@@ -6331,6 +6495,7 @@ function window:CreateFrame8()
 			
 				frame8.ModelLowerAlphaSlider:SetHook ("OnValueChange", function (self, instance, amount)
 					instance:SetBarModel (nil, nil, nil, nil, nil, amount)
+					_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 				end)
 				
 				window:CreateLineBackground2 (frame8, "ModelLowerAlphaSlider", "ModelLowerAlphaLabel", Loc ["STRING_OPTIONS_3D_LALPHA_DESC"])
@@ -6347,6 +6512,7 @@ function window:CreateFrame8()
 				frame8.BarUpdateRateSlider:SetPoint ("left", frame8.BarUpdateRateLabel, "right", 2, -1)
 				frame8.BarUpdateRateSlider.OnSwitch = function (self, instance, value)
 					instance:FastPSUpdate (value)
+					_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 				end
 				window:CreateLineBackground2 (frame8, "BarUpdateRateSlider", "BarUpdateRateLabel", Loc ["STRING_OPTIONS_BARUR_DESC"])
 		
@@ -6361,6 +6527,7 @@ function window:CreateFrame8()
 				frame8.ShowMeSlider:SetPoint ("left", frame8.ShowMeLabel, "right", 2, -1)
 				frame8.ShowMeSlider.OnSwitch = function (self, instance, value)
 					instance:SetBarFollowPlayer (value)
+					_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 				end
 				window:CreateLineBackground2 (frame8, "ShowMeSlider", "ShowMeLabel", Loc ["STRING_OPTIONS_BAR_FOLLOWING_DESC"])
 		
@@ -6415,6 +6582,7 @@ function window:CreateFrame9()
 				local tinstance = _G.DetailsOptionsWindow.instance
 				tinstance:InstanceWallpaper (nil, nil, alpha, texCoords, width, height, overlayColor)
 				window:update_wallpaper_info()
+				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 			end
 			
 			local startImageEdit = function()
@@ -6447,6 +6615,7 @@ function window:CreateFrame9()
 			local onSelectAnchor = function (_, instance, anchor)
 				instance:InstanceWallpaper (nil, anchor)
 				window:update_wallpaper_info()
+				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 			end
 			local anchorMenu = {
 				{value = "all", label = "Fill", onclick = onSelectAnchor},
@@ -6473,7 +6642,10 @@ function window:CreateFrame9()
 			local onSelectSecTexture = function (self, instance, texturePath) 
 				
 				if (texturePath:find ("TALENTFRAME")) then
+				
 					instance:InstanceWallpaper (texturePath, nil, nil, {0, 1, 0, 0.703125}, nil, nil, {1, 1, 1, 1})
+					_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+					
 					if (DetailsImageEdit and DetailsImageEdit:IsShown()) then
 						local wp = instance.wallpaper
 						if (wp.anchor == "all") then
@@ -6484,7 +6656,10 @@ function window:CreateFrame9()
 					end
 				
 				elseif (texturePath:find ("EncounterJournal")) then
+				
 					instance:InstanceWallpaper (texturePath, nil, nil, {0.06, 0.68, 0.1, 0.57}, nil, nil, {1, 1, 1, 1})
+					_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+					
 					if (DetailsImageEdit and DetailsImageEdit:IsShown()) then
 						local wp = instance.wallpaper
 						if (wp.anchor == "all") then
@@ -6495,7 +6670,10 @@ function window:CreateFrame9()
 					end
 				
 				else
+				
 					instance:InstanceWallpaper (texturePath, nil, nil, {0, 1, 0, 1}, nil, nil, {1, 1, 1, 1})
+					_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+					
 					if (DetailsImageEdit and DetailsImageEdit:IsShown()) then
 						local wp = instance.wallpaper
 						if (wp.anchor == "all") then
@@ -6770,6 +6948,8 @@ function window:CreateFrame9()
 				--_G.DetailsOptionsWindow9BackgroundDropdown.MyObject:Disable()
 				--_G.DetailsOptionsWindow9BackgroundDropdown2.MyObject:Disable()
 			end
+			
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 			
 			window:update_wallpaper_info()
 			
@@ -7126,6 +7306,7 @@ function window:CreateFrame10()
 			end
 			
 			_detalhes.memory_threshold = amount
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 			
 			return true
 		end)
@@ -7147,6 +7328,7 @@ function window:CreateFrame10()
 		frame10.segmentsSliderToSave:SetPoint ("left", frame10.segmentsSaveLabel, "right", 2, 0)
 		frame10.segmentsSliderToSave:SetHook ("OnValueChange", function (self, _, amount) --> slider, fixedValue, sliderValue
 			_detalhes.segments_amount_to_save = math.floor (amount)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end)
 		
 		window:CreateLineBackground2 (frame10, "segmentsSliderToSave", "segmentsSaveLabel", Loc ["STRING_OPTIONS_SEGMENTSSAVE_DESC"])
@@ -7158,6 +7340,7 @@ function window:CreateFrame10()
 		frame10.panicModeSlider:SetPoint ("left", frame10.panicModeLabel, "right", 2, 0)
 		frame10.panicModeSlider.OnSwitch = function (self, _, value) --> slider, fixedValue, sliderValue
 			_detalhes.segments_panic_mode = value
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		
 		window:CreateLineBackground2 (frame10, "panicModeSlider", "panicModeLabel", Loc ["STRING_OPTIONS_PANIMODE_DESC"])
@@ -7173,6 +7356,7 @@ function window:CreateFrame10()
 		frame10.animatescrollSlider:SetPoint ("left", frame10.animatescrollLabel, "right", 2, 0)
 		frame10.animatescrollSlider.OnSwitch = function (self, _, value) --> slider, fixedValue, sliderValue
 			_detalhes.animate_scroll = value
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		
 		window:CreateLineBackground2 (frame10, "animatescrollSlider", "animatescrollLabel", Loc ["STRING_OPTIONS_ANIMATESCROLL_DESC"])
@@ -7188,6 +7372,7 @@ function window:CreateFrame10()
 		frame10.removeTrashSlider:SetPoint ("left", frame10.eraseTrashLabel, "right")
 		frame10.removeTrashSlider.OnSwitch = function (self, _, amount)
 			_detalhes.trash_auto_remove = amount
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		
 		window:CreateLineBackground2 (frame10, "removeTrashSlider", "eraseTrashLabel", Loc ["STRING_OPTIONS_CLEANUP_DESC"])
@@ -7270,6 +7455,7 @@ function window:CreateFrame10()
 				frame10.ProfileTypeEnabledSlider:SetValue (false)
 				lock_profile()
 			end
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		
 		local PerformanceProfileOptions = {
@@ -7498,6 +7684,7 @@ function window:CreateFrame11()
 			else
 				_detalhes:DisableInterruptAnnouncer()
 			end
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		
 		window:CreateLineBackground2 (frame11, "EnableInterruptsSlider", "EnableInterruptsLabel", Loc ["STRING_OPTIONS_RT_INTERRUPTS_ONOFF_DESC"])
@@ -7512,6 +7699,7 @@ function window:CreateFrame11()
 			if (byUser) then
 				_detalhes.announce_interrupts.whisper = self:GetText()
 			end
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end)
 		
 		if (_detalhes.announce_interrupts.channel ~= "WHISPER") then
@@ -7529,6 +7717,7 @@ function window:CreateFrame11()
 				frame11.InterruptsWhisperEntry:Disable()
 				frame11.InterruptsWhisperLabel:SetTextColor (1, 1, 1, .4)
 			end
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		
 		local channel_list = {
@@ -7624,6 +7813,7 @@ function window:CreateFrame11()
 			else
 				_detalhes:DisableCooldownAnnouncer()
 			end
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		
 		window:CreateLineBackground2 (frame11, "EnableCooldownsSlider", "EnableCooldownsLabel", Loc ["STRING_OPTIONS_RT_COOLDOWNS_ONOFF_DESC"])
@@ -7631,6 +7821,7 @@ function window:CreateFrame11()
 		--dropdown para escolher o canal
 		local on_select_channel = function (self, _, channel)
 			_detalhes.announce_cooldowns.channel = channel
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		
 		local channel_list = {
@@ -7811,6 +8002,7 @@ function window:CreateFrame11()
 			else
 				_detalhes:DisableDeathAnnouncer()
 			end
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		
 		window:CreateLineBackground2 (frame11, "EnableDeathsSlider", "EnableDeathsLabel", Loc ["STRING_OPTIONS_RT_DEATHS_ONOFF_DESC"])
@@ -7825,6 +8017,7 @@ function window:CreateFrame11()
 		frame11.DeathsDamageSlider:SetPoint ("left", frame11.DeathsDamageLabel, "right", 2)
 		frame11.DeathsDamageSlider:SetHook ("OnValueChange", function (self, _, amount)
 			_detalhes.announce_deaths.last_hits = amount
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end)
 		window:CreateLineBackground2 (frame11, "DeathsDamageSlider", "DeathsDamageLabel", Loc ["STRING_OPTIONS_RT_DEATHS_HITS_DESC"])
 		
@@ -7838,12 +8031,14 @@ function window:CreateFrame11()
 		frame11.DeathsAmountSlider:SetPoint ("left", frame11.DeathsAmountLabel, "right", 2)
 		frame11.DeathsAmountSlider:SetHook ("OnValueChange", function (self, _, amount)
 			_detalhes.announce_deaths.only_first = amount
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end)
 		window:CreateLineBackground2 (frame11, "DeathsAmountSlider", "DeathsAmountLabel", Loc ["STRING_OPTIONS_RT_DEATHS_FIRST_DESC"])
 		
 		--dropdown para WHERE onde anunciar se só em raid e party
 		local on_select_channel = function (self, _, channel)
 			_detalhes.announce_deaths.where = channel
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		
 		local channel_list = {
@@ -7874,6 +8069,7 @@ function window:CreateFrame11()
 		frame11.EnabledPrePotSlider:SetPoint ("left", frame11.EnabledPrePotLabel, "right", 2)
 		frame11.EnabledPrePotSlider.OnSwitch = function (_, _, value)
 			_detalhes.announce_prepots.enabled = value
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		
 		window:CreateLineBackground2 (frame11, "EnabledPrePotSlider", "EnabledPrePotLabel", Loc ["STRING_OPTIONS_RT_INFOS_PREPOTION_DESC"])
@@ -7885,6 +8081,7 @@ function window:CreateFrame11()
 		frame11.EnabledFirstHitSlider:SetPoint ("left", frame11.EnabledFirstHitLabel, "right", 2)
 		frame11.EnabledFirstHitSlider.OnSwitch = function (_, _, value)
 			_detalhes.announce_firsthit.enabled = value
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		
 		window:CreateLineBackground2 (frame11, "EnabledFirstHitSlider", "EnabledFirstHitLabel", Loc ["STRING_OPTIONS_RT_FIRST_HIT_DESC"])
@@ -8987,6 +9184,8 @@ end --> if not window
 			local mouse_up_hook = button.OnMouseUpHook
 			mouse_up_hook (button.widget)
 		end
+
+		_detalhes:SendOptionsModifiedEvent (editing_instance)
 		
 	end
 

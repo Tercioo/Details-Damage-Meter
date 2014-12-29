@@ -196,7 +196,7 @@
 				)
 			) then 
 				--> não entra em combate se for DOT
-				if (_detalhes.encounter_table.id and _detalhes.encounter_table ["start"] >= _G.time()-3 and _detalhes.announce_firsthit.enabled) then
+				if (_detalhes.encounter_table.id and _detalhes.encounter_table ["start"] >= _GetTime() - 3 and _detalhes.announce_firsthit.enabled) then
 					local link
 					if (spellid <= 10) then
 						link = _GetSpellInfo (spellid)

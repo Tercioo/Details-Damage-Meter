@@ -49,12 +49,15 @@ local function CreatePluginFrames (data)
 	-->
 	ThreatMeter.Actived = false
 	
+	--> localize functions
+	ThreatMeter.percent_color = ThreatMeter.percent_color
+	
 	--> window reference
 	local instance
 	local player
 	
 	--> OnEvent Table
-	function ThreatMeter:OnDetailsEvent (event)
+	function ThreatMeter:OnDetailsEvent (event, ...)
 	
 		if (event == "HIDE") then --> plugin hidded, disabled
 			ThreatMeter.Actived = false
@@ -90,8 +93,18 @@ local function CreatePluginFrames (data)
 			end
 		
 		elseif (event == "DETAILS_INSTANCE_ENDRESIZE" or event == "DETAILS_INSTANCE_SIZECHANGED") then
-			ThreatMeter:SizeChanged()
-			ThreatMeter:RefreshRows()
+		
+			local what_window = select (1, ...)
+			if (what_window == instance) then
+				ThreatMeter:SizeChanged()
+				ThreatMeter:RefreshRows()
+			end
+			
+		elseif (event == "DETAILS_OPTIONS_MODIFIED") then
+			local what_window = select (1, ...)
+			if (what_window == instance) then
+				ThreatMeter:RefreshRows()
+			end
 		
 		elseif (event == "DETAILS_INSTANCE_STARTSTRETCH") then
 			ThreatMeterFrame:SetFrameStrata ("TOOLTIP")
@@ -146,6 +159,8 @@ local function CreatePluginFrames (data)
 	
 	function ThreatMeter:SizeChanged()
 
+		local instance = ThreatMeter:GetPluginInstance()
+	
 		local w, h = instance:GetSize()
 		ThreatMeterFrame:SetWidth (w)
 		ThreatMeterFrame:SetHeight (h)
@@ -173,10 +188,15 @@ local function CreatePluginFrames (data)
 	end
 	
 	function ThreatMeter:RefreshRow (row)
+	
+		local instance = ThreatMeter:GetPluginInstance()
+	
 		row.textsize = instance.row_info.font_size
 		row.textfont = instance.row_info.font_face
 		row.texture = instance.row_info.texture
 		row.shadow = instance.row_info.textL_outline
+		
+		row.width = instance.baseframe:GetWidth()-5
 	end
 	
 	function ThreatMeter:RefreshRows()
@@ -351,7 +371,9 @@ local function CreatePluginFrames (data)
 				pullRow:SetValue (100)
 				
 				local myPercentToAggro = myThreat / aggro * 100
-				local r, g = myPercentToAggro / 100, (100-myPercentToAggro) / 100
+				
+				local r, g = ThreatMeter:percent_color (myPercentToAggro)
+				--local r, g = myPercentToAggro / 100, (100-myPercentToAggro) / 100
 				pullRow:SetColor (r, g, 0)
 				pullRow._icon:SetTexture ([[Interface\PVPFrame\Icon-Combat]])
 				--pullRow._icon:SetVertexColor (r, g, 0)
@@ -393,12 +415,8 @@ local function CreatePluginFrames (data)
 						if (index == 2) then
 							thisRow:SetColor (pct*0.01, _math_abs (pct-100)*0.01, 0, 1)
 						else
-							thisRow:SetColor (pct*0.01, _math_abs (pct-100)*0.01, 0, .3)
-							if (pct >= 50) then
-								thisRow:SetColor ( 1, _math_abs (pct - 100)/100, 0, 1)
-							else
-								thisRow:SetColor (pct/100, 1, 0, 1)
-							end
+							local r, g = ThreatMeter:percent_color (pct, true)
+							thisRow:SetColor (r, g, 0, 1)
 						end
 					end
 					
@@ -425,10 +443,12 @@ local function CreatePluginFrames (data)
 						thisRow._icon:SetTexCoord (_unpack (RoleIconCoord [role]))
 						thisRow:SetRightText (ThreatMeter:ToK2 (threat_actor [6]) .. " (" .. _cstr ("%.1f", threat_actor [2]) .. "%)")
 						thisRow:SetValue (threat_actor [2])
+						
 						if (options.useplayercolor) then
 							thisRow:SetColor (_unpack (options.playercolor))
 						else
-							thisRow:SetColor (threat_actor [2]*0.01, _math_abs (threat_actor [2]-100)*0.01, 0, .3)
+							local r, g = ThreatMeter:percent_color (threat_actor [2], true)
+							thisRow:SetColor (r, g, 0, .3)
 						end
 					end
 				end
@@ -628,6 +648,7 @@ function ThreatMeter:OnEvent (_, event, ...)
 				_G._detalhes:RegisterEvent (ThreatMeter, "DETAILS_INSTANCE_SIZECHANGED")
 				_G._detalhes:RegisterEvent (ThreatMeter, "DETAILS_INSTANCE_STARTSTRETCH")
 				_G._detalhes:RegisterEvent (ThreatMeter, "DETAILS_INSTANCE_ENDSTRETCH")
+				_G._detalhes:RegisterEvent (ThreatMeter, "DETAILS_OPTIONS_MODIFIED")
 				
 				ThreatMeterFrame:RegisterEvent ("PLAYER_TARGET_CHANGED")
 				ThreatMeterFrame:RegisterEvent ("PLAYER_REGEN_DISABLED")

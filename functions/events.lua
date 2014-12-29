@@ -22,7 +22,10 @@
 			["DETAILS_INSTANCE_CHANGEATTRIBUTE"] = {},
 			["DETAILS_INSTANCE_CHANGEMODE"] = {},
 			["DETAILS_INSTANCE_NEWROW"] = {},
-			
+		
+		--> misc
+			["DETAILS_OPTIONS_MODIFIED"] = {},
+		
 		--> data
 			["DETAILS_DATA_RESET"] = {},
 			["DETAILS_DATA_SEGMENTREMOVED"] = {},
@@ -72,6 +75,7 @@ local common_events = {
 	["DETAILS_INSTANCE_CHANGEATTRIBUTE"] = true,
 	["DETAILS_INSTANCE_CHANGEMODE"] = true,
 	["DETAILS_INSTANCE_NEWROW"] = true,
+	["DETAILS_OPTIONS_MODIFIED"] = true,
 	["DETAILS_DATA_RESET"] = true,
 	["DETAILS_DATA_SEGMENTREMOVED"] = true,
 	["COMBAT_PLAYER_ENTER"] = true,
@@ -252,6 +256,27 @@ local common_events = {
 		end
 	end
 
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> special cases
+	function _detalhes:SendOptionsModifiedEvent (instance)
+	
+		_detalhes.last_options_modified = _detalhes.last_options_modified or (GetTime() - 5)
+		
+		if (_detalhes.last_options_modified + 0.3 < GetTime()) then
+			_detalhes:SendEvent ("DETAILS_OPTIONS_MODIFIED", nil, instance, param)
+			_detalhes.last_options_modified = GetTime()
+			if (_detalhes.last_options_modified_schedule) then
+				_detalhes:CancelTimer (_detalhes.last_options_modified_schedule)
+				_detalhes.last_options_modified_schedule = nil
+			end
+		else
+			if (_detalhes.last_options_modified_schedule) then
+				_detalhes:CancelTimer (_detalhes.last_options_modified_schedule)
+			end
+			_detalhes.last_options_modified_schedule = _detalhes:ScheduleTimer ("SendOptionsModifiedEvent", 0.31, instance)
+		end
+	end
+	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> listeners
 

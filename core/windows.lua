@@ -1436,6 +1436,21 @@
 		f.options_button:SetWidth (170)
 		f.options_button:SetScript ("OnClick", function (self)
 			local lower_instance = _detalhes:GetLowerInstanceNumber()
+			if (not lower_instance) then
+				--> no window opened?
+				local instance1 = _detalhes.tabela_instancias [1]
+				if (instance1) then
+					instance1:Enable()
+					return _detalhes:OpenOptionsWindow (instance1)
+				else
+					instance1 = _detalhes:CriarInstancia (_, true)
+					if (instance1) then
+						return _detalhes:OpenOptionsWindow (instance1)
+					else
+						_detalhes:Msg ("couldn't open options panel: no window available.")
+					end
+				end
+			end
 			_detalhes:OpenOptionsWindow (_detalhes:GetInstance (lower_instance))
 		end)
 		

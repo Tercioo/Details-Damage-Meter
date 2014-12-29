@@ -30,8 +30,8 @@
 			
 			--> multistrike
 			m_amt = 0,
-			m_curado = 0,
-			m_overheal = 0,
+			m_healed = 0,
+			m_crit = 0,
 
 			--> normal hits		
 			n_min = 0,
@@ -56,34 +56,35 @@
 
 	function habilidade_cura:Add (serial, nome, flag, amount, who_nome, absorbed, critical, overhealing, is_shield, multistrike)
 
-		self.counter = self.counter + 1
-
+		amount = amount or 0
+		self.total = self.total + amount
 		self.targets [nome] = (self.targets [nome] or 0) + amount
 
 		if (multistrike) then
 			self.m_amt = self.m_amt + 1
-			self.m_curado = self.m_curado + amount
-			self.m_overheal = self.m_overheal + overhealing
-		end
+			self.m_healed = self.m_healed + amount
+			
+			if (critical) then
+				self.m_crit = self.m_crit + 1
+			end
+		else
 		
-		if (absorbed and absorbed > 0) then
-			self.absorbed = self.absorbed + absorbed
-		end
-		
-		if (overhealing and overhealing > 0) then
-			self.overheal = self.overheal + overhealing
-			self.targets_overheal [nome] = (self.targets_overheal [nome] or 0) + amount
-		end
-		
-		if (amount and amount > 0) then
-
-			self.total = self.total + amount
+			self.counter = self.counter + 1
+			
+			if (absorbed and absorbed > 0) then
+				self.absorbed = self.absorbed + absorbed
+			end
+			
+			if (overhealing and overhealing > 0) then
+				self.overheal = self.overheal + overhealing
+				self.targets_overheal [nome] = (self.targets_overheal [nome] or 0) + amount
+			end
 			
 			if (is_shield) then
 				self.totalabsorb = self.totalabsorb + amount
 				self.targets_absorbs [nome] = (self.targets_absorbs [nome] or 0) + amount
 			end
-
+			
 			if (critical) then
 				self.c_curado = self.c_curado+amount --> amount é o total de dano
 				self.c_amt = self.c_amt+1 --> amount é o total de dano
@@ -103,6 +104,7 @@
 					self.n_min = amount
 				end
 			end
+		
 		end
 
 	end
