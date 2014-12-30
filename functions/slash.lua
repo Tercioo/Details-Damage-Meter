@@ -82,6 +82,24 @@ function SlashCmdList.DETAILS (msg, editbox)
 	
 -------- debug ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+	elseif (msg == "exitlog") then
+	
+		local exitlog = _detalhes_global.exit_log
+		local exiterrors = _detalhes_global.exit_errors
+		
+		print ("EXIT LOG:")
+		for index, text in ipairs (exitlog) do
+			print (text)
+		end
+		print ("ERRORS:")
+		if (exiterrors) then
+			for index, text in ipairs (exiterrors) do
+				print (text)
+			end
+		else
+			print ("|cFF00FF00No error occured!|r")
+		end
+	
 	elseif (msg == "realmsync") then
 		
 		_detalhes.realm_sync = not _detalhes.realm_sync

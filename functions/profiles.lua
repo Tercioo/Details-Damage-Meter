@@ -394,8 +394,10 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 						instance.posicao = table_deepcopy (skin.__pos)
 					else
 						if (not instance.posicao) then
+							print ("|cFFFF2222Details!: Position for a window wasn't found! Moving it to the center of the screen.|r\nType '/details exitlog' to check for errors.")
 							instance.posicao = {normal = {x = 1, y = 1, w = 300, h = 200}, solo = {}}
 						elseif (not instance.posicao.normal) then
+							print ("|cFFFF2222Details!: Normal position for a window wasn't found! Moving it to the center of the screen.|r\nType '/details exitlog' to check for errors.")
 							instance.posicao.normal = {x = 1, y = 1, w = 300, h = 200}
 						end
 					end
