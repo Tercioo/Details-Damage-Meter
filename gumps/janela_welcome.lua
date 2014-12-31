@@ -24,10 +24,6 @@ function _detalhes:OpenWelcomeWindow ()
 		window:SetScript ("OnMouseDown", function() window:StartMoving() end)
 		window:SetScript ("OnMouseUp", function() window:StopMovingOrSizing() end)
 		window:SetScript ("OnHide", function()
-			--> start tutorial if this is first run
-			if (_detalhes.tutorial.logons < 2 and _detalhes.is_first_run) then
-				--_detalhes:StartTutorial()
-			end
 			_detalhes.tabela_historico:resetar()
 		end)
 		
@@ -327,11 +323,11 @@ local window_openned_at = time()
 		
 		local texto_avatar1 = window:CreateFontString (nil, "overlay", "GameFontNormal")
 		texto_avatar1:SetPoint ("topleft", window, "topleft", 20, -80)
-		texto_avatar1:SetText ("Nickname and Avatar")
+		texto_avatar1:SetText (Loc ["STRING_WELCOME_60"])
 		
 		local texto_avatar2 = window:CreateFontString (nil, "overlay", "GameFontNormal")
 		texto_avatar2:SetPoint ("topleft", window, "topleft", 30, -190)
-		texto_avatar2:SetText ("Avatars are shown up on tooltips and at the player detail window.")
+		texto_avatar2:SetText (Loc ["STRING_WELCOME_61"])
 		texto_avatar2:SetTextColor (1, 1, 1, 1)
 		
 		local changemind = g:NewLabel (window, _, "$parentChangeMindAvatarLabel", "ChangeMindAvatarLabel", Loc ["STRING_WELCOME_2"], "GameFontNormal", 9, "orange")
@@ -339,11 +335,9 @@ local window_openned_at = time()
 		changemind:SetPoint ("bottom", window, "bottom", 0, 19)
 		changemind.align = "|"
 		
-		--Ambos são enviados aos demais membros da sua guilda que também usam Details!. Seu apelido é mostrado ao invés do nome do seu personagem.
-		
 		local texto_avatar3 = window:CreateFontString (nil, "overlay", "GameFontNormal")
 		texto_avatar3:SetPoint ("topleft", window, "topleft", 30, -110)
-		texto_avatar3:SetText ("Both are sent to the other members of your guild who also use Details!. Your nickname is displayed instead of the name of your character.")
+		texto_avatar3:SetText (Loc ["STRING_WELCOME_62"])
 		texto_avatar3:SetWidth (460)
 		texto_avatar3:SetHeight (100)
 		texto_avatar3:SetJustifyH ("left")
@@ -980,8 +974,8 @@ local window_openned_at = time()
 		window.animateSlider.tooltip = Loc ["STRING_WELCOME_17"]
 		
 	--------------- Fast Hps/Dps Updates
-	--[[
-		g:NewLabel (window, _, "$parentDpsHpsLabel", "DpsHpsLabel", "Fast Dps/Hps Update" .. ":")
+	--[
+		g:NewLabel (window, _, "$parentDpsHpsLabel", "DpsHpsLabel", Loc ["STRING_WELCOME_63"] .. ":")
 		window.DpsHpsLabel:SetPoint (31, -190)
 		--
 		g:NewSwitch (window, _, "$parentDpsHpsSlider", "DpsHpsSlider", 60, 20, _, _, _detalhes:GetInstance(1).row_info.fast_ps_update) -- ltext, rtext, defaultv
@@ -989,11 +983,11 @@ local window_openned_at = time()
 		window.DpsHpsSlider.OnSwitch = function (self, _, value) --> slider, fixedValue, sliderValue (false, true)
 			_detalhes:GetInstance(1):FastPSUpdate (value)
 		end	
-		window.DpsHpsSlider.tooltip = "When enabled, the Dps and Hps shown is updated faster them total damage or healing."
+		window.DpsHpsSlider.tooltip = Loc ["STRING_WELCOME_64"]
 	--]]
 	--------------- Max Segments
 		g:NewLabel (window, _, "$parentSliderLabel", "segmentsLabel", Loc ["STRING_WELCOME_21"] .. ":")
-		window.segmentsLabel:SetPoint (31, -190)
+		window.segmentsLabel:SetPoint (31, -210)
 		--
 		g:NewSlider (window, _, "$parentSlider", "segmentsSlider", 120, 20, 1, 25, 1, _detalhes.segments_amount) -- min, max, step, defaultv
 		window.segmentsSlider:SetPoint ("left", window.segmentsLabel, "right", 2, 0)
@@ -1018,26 +1012,40 @@ local window_openned_at = time()
 		mech_icon2:SetAlpha (0.6)
 		mech_icon2:SetTexCoord (0, 1, 40/128, 1)
 		mech_icon2:SetDrawLayer ("overlay", 2)
-		
-	----------------
-	
-		local update_frame_alert = CreateFrame ("frame", nil, window)
-		
 
-		
+		local update_frame_alert = CreateFrame ("frame", nil, window)
 		update_frame_alert:SetScript ("OnShow", function()
+		
+			_detalhes.tabela_historico:resetar()
+			created_test_bars = 0
+			
+			_detalhes.zone_type = "pvp"
+			
+			_detalhes:EntrarEmCombate()
+			
 			_detalhes:StartTestBarUpdate()
-			--_detalhes.in_combat = true
+			
+			if (created_test_bars < 2) then
+				_detalhes:CreateTestBars()
+				created_test_bars = created_test_bars + 1
+			end
+			
+			local instance = _detalhes:GetInstance (1)
+			instance:SetMode (3)
 		end)
 		
 		update_frame_alert:SetScript ("OnHide", function()
 			_detalhes:StopTestBarUpdate()
-			--_detalhes.in_combat = false
+			
+			_detalhes.parser_functions:ZONE_CHANGED_NEW_AREA()
+			_detalhes:SairDoCombate()
+			
+			instance:SetMode (2)
 		end)
 	
 	----------------
 		
-		pages [#pages+1] = {update_frame_alert, mech_icon2, mech_icon, window.segmentsLabel, window.segmentsSlider, bg, texto4, interval_text, dance_text, window.updatespeedLabel, window.updatespeedSlider, window.animateLabel, window.animateSlider, window.changemind4Label}
+		pages [#pages+1] = {update_frame_alert, mech_icon2, mech_icon, window.segmentsLabel, window.segmentsSlider, bg, texto4, interval_text, dance_text, window.updatespeedLabel, window.updatespeedSlider, window.animateLabel, window.animateSlider, window.changemind4Label, window.DpsHpsLabel, window.DpsHpsSlider}
 		
 		for _, widget in ipairs (pages[#pages]) do 
 			widget:Hide()
@@ -1061,7 +1069,7 @@ local window_openned_at = time()
 		
 		local texto_stretch = window:CreateFontString (nil, "overlay", "GameFontNormal")
 		texto_stretch:SetPoint ("topleft", window, "topleft", 181, -105)
-		texto_stretch:SetText ("The highlighted button is the Stretcher. |cFFFFFF00Click|r and |cFFFFFF00drag up!|r.\n\n\nIf the window is locked, the entire title bar becomes a stretch button.")
+		texto_stretch:SetText (Loc ["STRING_WELCOME_27"])
 		texto_stretch:SetWidth (310)
 		texto_stretch:SetHeight (100)
 		texto_stretch:SetJustifyH ("left")
@@ -1175,8 +1183,8 @@ local window_openned_at = time()
 		
 		local texto_shortcut = window:CreateFontString (nil, "overlay", "GameFontNormal")
 		texto_shortcut:SetPoint ("topleft", window, "topleft", 25, -110)
-		texto_shortcut:SetText ("|cFFFFFF00Right clicking|r anywhere in the window shows the |cFFFFAA00Bookmark|r panel.\n\n|cFFFFFF00Right click again|r closes the panel or chooses another display if clicked on a icon.\n\n|cFFFFFF00Left click|r selects the display.")
-		texto_shortcut:SetWidth (320)
+		texto_shortcut:SetText (Loc ["STRING_WELCOME_31"])
+		texto_shortcut:SetWidth (290)
 		texto_shortcut:SetHeight (90)
 		texto_shortcut:SetJustifyH ("left")
 		texto_shortcut:SetJustifyV ("top")
@@ -1189,7 +1197,38 @@ local window_openned_at = time()
 		shortcut_image2:SetHeight (119)
 		shortcut_image2:SetTexCoord (2/512, 167/512, 306/512, 425/512)
 
-		pages [#pages+1] = {bg7, texto7, shortcut_image2, texto_shortcut}
+		
+		local instance1 = _detalhes:GetInstance (1)
+		
+		local bookmark_frame = CreateFrame ("frame", "WelcomeBookmarkFrame", window)
+		bookmark_frame:SetPoint ("topleft", instance1.baseframe, "topleft")
+		bookmark_frame:SetPoint ("bottomright", instance1.baseframe, "bottomright")
+		bookmark_frame:SetBackdrop ({bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 64})
+		bookmark_frame:SetBackdropColor (0, 0, 0, 0.8)
+
+		local desc_anchor_topleft = _detalhes.gump:NewImage (bookmark_frame, [[Interface\AddOns\Details\images\options_window]], 75, 106, "artwork", {0.19921875, 0.2724609375, 0.6796875, 0.783203125}, "descAnchorBottomLeftImage", "$parentDescAnchorBottomLeftImage") --204 696 279 802
+		desc_anchor_topleft:SetPoint ("topleft", bookmark_frame, "topleft", -5, 5)
+		
+		local desc_anchor_bottomleft = _detalhes.gump:NewImage (bookmark_frame, [[Interface\AddOns\Details\images\options_window]], 75, 106, "artwork", {0.2724609375, 0.19921875, 0.783203125, 0.6796875}, "descAnchorTopLeftImage", "$parentDescAnchorTopLeftImage") --204 696 279 802
+		desc_anchor_bottomleft:SetPoint ("bottomright", bookmark_frame, "bottomright", 5, -5)
+		
+		local bmf_string = bookmark_frame:CreateFontString ("overlay", nil, "GameFontNormal")
+		bmf_string:SetPoint ("center", bookmark_frame, "center")
+		bmf_string:SetText (Loc ["STRING_WELCOME_65"])
+		
+		local bg_string = _detalhes.gump:NewImage (bookmark_frame, [[Interface\ACHIEVEMENTFRAME\UI-Achievement-RecentHeader]], 256, 32, "border", {0, 1, 0, 23/32})
+		bg_string:SetPoint ("left", bookmark_frame, "left", 0, 0)
+		bg_string:SetPoint ("right", bookmark_frame, "right", 0, 0)
+		bg_string:SetPoint ("center", bmf_string, "center", 0, 0)
+		
+		bookmark_frame:SetScript ("OnMouseDown", function (self, button)
+			if (button == "RightButton") then
+				_detalhes.switch:ShowMe (instance1)
+				self:Hide()
+			end
+		end)
+		
+		pages [#pages+1] = {bg7, texto7, shortcut_image2, texto_shortcut, bookmark_frame}
 		
 		for _, widget in ipairs (pages[#pages]) do 
 			widget:Hide()
@@ -1213,7 +1252,7 @@ local window_openned_at = time()
 		
 		local texto_snap = window:CreateFontString (nil, "overlay", "GameFontNormal")
 		texto_snap:SetPoint ("topleft", window, "topleft", 25, -101)
-		texto_snap:SetText ("Drag a window near other to create a group.\n\nGrouped windows stretch and resize together.\n\nThey also live happier as a couple,")
+		texto_snap:SetText (Loc ["STRING_WELCOME_66"])
 		texto_snap:SetWidth (160)
 		texto_snap:SetHeight (110)
 		texto_snap:SetJustifyH ("left")
@@ -1232,6 +1271,7 @@ local window_openned_at = time()
 		local group_frame_alert = CreateFrame ("frame", nil, window)
 		group_frame_alert:SetScript ("OnShow", function()
 			_detalhes.tabela_historico:resetar()
+			created_test_bars = 0
 		end)
 		
 		pages [#pages+1] = {bg77, texto77, snap_image1, texto_snap, group_frame_alert}
@@ -1258,7 +1298,7 @@ local window_openned_at = time()
 
 		local texto_micro_display = window:CreateFontString (nil, "overlay", "GameFontNormal")
 		texto_micro_display:SetPoint ("topleft", window, "topleft", 25, -101)
-		texto_micro_display:SetText ("Press shift to expand player's tooltip to show all spells used.\n\nCtrl for targets and Alt for Pets.")
+		texto_micro_display:SetText (Loc ["STRING_WELCOME_67"])
 		texto_micro_display:SetWidth (300)
 		texto_micro_display:SetHeight (110)
 		texto_micro_display:SetJustifyH ("left")
@@ -1267,12 +1307,87 @@ local window_openned_at = time()
 		
 		local micro_image1 = window:CreateTexture (nil, "overlay")
 		micro_image1:SetTexture ([[Interface\Addons\Details\images\icons]])
-		micro_image1:SetPoint ("topright", window, "topright", -15, -95)
-		micro_image1:SetWidth (136)
-		micro_image1:SetHeight (83)
-		micro_image1:SetTexCoord (0, 136/512, 429/512, 1)
+		micro_image1:SetPoint ("topright", window, "topright", -15, -70)
+		micro_image1:SetWidth (186)
+		micro_image1:SetHeight (100)
+		micro_image1:SetTexCoord (326/512, 1, 85/512, 185/512)
 		
-		pages [#pages+1] = {bg88, texto88, micro_image1, texto_micro_display}
+		local tooltip_frame = CreateFrame ("frame", nil, window)
+		tooltip_frame:SetScript ("OnShow", function (self)
+		
+			_detalhes.tabela_historico:resetar()
+			created_test_bars = 0
+			
+			local current_combat = _detalhes:GetCombat ("current")
+			local actors_classes = CLASS_SORT_ORDER
+			local total_damage = 0
+			local total_heal = 0
+			
+			local joe = current_combat[1]:PegarCombatente (0x0000000000000, "Joe", 0x114, true)
+			joe.grupo = true
+			joe.classe = actors_classes [math.random (1, #actors_classes)]
+			joe.total = 7500000
+			joe.total_without_pet = 7500000
+			joe.damage_taken = math.random (100000, 600000)
+			joe.friendlyfire_total = math.random (100000, 600000)
+			
+			total_damage = total_damage + joe.total
+
+			--local joe_death = current_combat[4]:PegarCombatente (0x0000000000000, joe.nome, 0x114, true)
+			--joe_death.grupo = true
+			--joe_death.classe = joe.classe
+			--local esta_morte = {{true, 96648, 100000, time(), 0, "Lady Holenna"}, {true, 96648, 100000, time()-52, 100000, "Lady Holenna"}, {true, 96648, 100000, time()-86, 200000, "Lady Holenna"}, {true, 96648, 100000, time()-101, 300000, "Lady Holenna"}, {false, 55296, 400000, time()-54, 400000, "King Djoffrey"}, {true, 14185, 0, time()-59, 400000, "Lady Holenna"}, {false, 87351, 400000, time()-154, 400000, "King Djoffrey"}, {false, 56236, 400000, time()-158, 400000, "King Djoffrey"} } 
+			--local t = {esta_morte, time(), joe.nome, joe.classe, 400000, "52m 12s",  ["dead"] = true}
+			--table.insert (current_combat.last_events_tables, #current_combat.last_events_tables+1, t)
+			
+			rawset (_detalhes.spellcache, 300000, {"A Gun in Your Hand", 300000, [[Interface\ICONS\INV_Legendary_Gun]]})
+			rawset (_detalhes.spellcache, 300001, {"Shot", 300001, [[Interface\ICONS\INV_Archaeology_Ogres_HarGunn_Eye]]})
+			rawset (_detalhes.spellcache, 300002, {"Mexico Travel", 300002, [[Interface\ICONS\Achievement_Dungeon_Gundrak_Normal]]})
+			rawset (_detalhes.spellcache, 300003, {"Rope", 300003, [[Interface\ICONS\Creatureportrait_RopeLadder01]]})
+			
+			joe.targets ["My Old Lady"] = 3500000
+			joe.targets ["My Self"] = 2000000
+			joe.targets ["Another Man"] = 1000001
+			joe.targets ["Another Random Guy"] = 1000001
+			
+			joe.spells:PegaHabilidade (300000, true, "SPELL_DAMAGE"); joe.spells._ActorTable [300000].total = 3500000
+			joe.spells:PegaHabilidade (300001, true, "SPELL_DAMAGE"); joe.spells._ActorTable [300001].total = 1000001
+			joe.spells:PegaHabilidade (300002, true, "SPELL_DAMAGE"); joe.spells._ActorTable [300002].total = 1000001
+			joe.spells:PegaHabilidade (300003, true, "SPELL_DAMAGE"); joe.spells._ActorTable [300003].total = 2000000
+		
+			--current_combat.start_time = time()-360
+			current_combat.start_time = GetTime() - 360
+			--current_combat.end_time = time()
+			current_combat.end_time = GetTime()
+			
+			current_combat.totals_grupo [1] = total_damage
+			current_combat.totals [1] = total_damage
+			
+			for _, instance in ipairs (_detalhes.tabela_instancias) do 
+				if (instance:IsEnabled()) then
+					instance:InstanceReset()
+				end
+			end
+			
+			local bar1 = _detalhes:GetInstance(1):GetRow(1)
+			
+			frame_alert.alert:SetPoint ("topleft", bar1, "topleft", -60, 8)
+			frame_alert.alert:SetPoint ("bottomright", bar1, "bottomright", 60, -10)
+			
+			frame_alert.alert.animOut:Stop()
+			frame_alert.alert.animIn:Play()
+			if (_detalhes.stopwelcomealert) then
+				_detalhes:CancelTimer (_detalhes.stopwelcomealert)
+			end
+			_detalhes.stopwelcomealert = _detalhes:ScheduleTimer ("StopPlayStretchAlert", 2)
+			
+		end)
+		
+		tooltip_frame:SetScript ("OnHide", function()
+			_detalhes:StopPlayStretchAlert()
+		end)
+		
+		pages [#pages+1] = {bg88, texto88, micro_image1, texto_micro_display, tooltip_frame}
 		
 		for _, widget in ipairs (pages[#pages]) do 
 			widget:Hide()
@@ -1292,10 +1407,10 @@ local window_openned_at = time()
 		local texto11 = window:CreateFontString (nil, "overlay", "GameFontNormal")
 		texto11:SetPoint ("topleft", window, "topleft", 20, -80)
 		texto11:SetText (Loc ["STRING_WELCOME_36"])
-		--|cFFFFFF00
+
 		local texto_plugins = window:CreateFontString (nil, "overlay", "GameFontNormal")
 		texto_plugins:SetPoint ("topleft", window, "topleft", 25, -101)
-		texto_plugins:SetText (Loc ["STRING_WELCOME_37"])
+		texto_plugins:SetText (Loc ["STRING_WELCOME_68"])
 		texto_plugins:SetWidth (220)
 		texto_plugins:SetHeight (110)
 		texto_plugins:SetJustifyH ("left")
@@ -1306,10 +1421,10 @@ local window_openned_at = time()
 		
 		local plugins_image1 = window:CreateTexture (nil, "overlay")
 		plugins_image1:SetTexture ([[Interface\Addons\Details\images\icons2]])
-		plugins_image1:SetPoint ("topright", window, "topright", -12, -35)
-		plugins_image1:SetWidth (226)
-		plugins_image1:SetHeight (181)
-		plugins_image1:SetTexCoord (0.55859375, 1, 0.646484375, 1)
+		plugins_image1:SetPoint ("topright", window, "topright", -12, -90)
+		plugins_image1:SetWidth (281)
+		plugins_image1:SetHeight (81)
+		plugins_image1:SetTexCoord (216/512, 497/512, 6/512, 95/512)
 		
 		pages [#pages+1] = {bg11, texto11, plugins_image1, texto_plugins}
 		

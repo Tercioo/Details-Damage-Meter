@@ -4663,20 +4663,14 @@ local build_mode_list = function (self, elapsed)
 		CoolTip:AddLine (Loc ["STRING_MODE_GROUP"])
 		CoolTip:AddMenu (1, instancia.AlteraModo, 2, true)
 		CoolTip:AddIcon ([[Interface\AddOns\Details\images\modo_icones]], 1, 1, 20, 20, 32/256, 32/256*2, 0, 1)
-		--CoolTip:AddLine (Loc ["STRING_HELP_MODEGROUP"], nil, 2)
-		--CoolTip:AddIcon ([[Interface\TUTORIALFRAME\TutorialFrame-QuestionMark]], 2, 1, 16, 16, 8/64, 1 - (8/64), 8/64, 1 - (8/64))
 		
 		CoolTip:AddLine (Loc ["STRING_MODE_ALL"])
 		CoolTip:AddMenu (1, instancia.AlteraModo, 3, true)
 		CoolTip:AddIcon ([[Interface\AddOns\Details\images\modo_icones]], 1, 1, 20, 20, 32/256*2, 32/256*3, 0, 1)
-		--CoolTip:AddLine (Loc ["STRING_HELP_MODEALL"], nil, 2)
-		--CoolTip:AddIcon ([[Interface\TUTORIALFRAME\TutorialFrame-QuestionMark]], 2, 1, 16, 16, 8/64, 1 - (8/64), 8/64, 1 - (8/64))
 	
 		CoolTip:AddLine (Loc ["STRING_MODE_RAID"])
 		CoolTip:AddMenu (1, instancia.AlteraModo, 4, true)
 		CoolTip:AddIcon ([[Interface\AddOns\Details\images\modo_icones]], 1, 1, 20, 20, 32/256*3, 32/256*4, 0, 1)
-		--CoolTip:AddLine (Loc ["STRING_HELP_MODERAID"], nil, 2)
-		--CoolTip:AddIcon ([[Interface\TUTORIALFRAME\TutorialFrame-QuestionMark]], 2, 1, 16, 16, 8/64, 1 - (8/64), 8/64, 1 - (8/64))
 
 		--build raid plugins list
 		local available_plugins = _detalhes.RaidTables:GetAvailablePlugins()
@@ -4701,8 +4695,6 @@ local build_mode_list = function (self, elapsed)
 		CoolTip:AddLine (Loc ["STRING_MODE_SELF"])
 		CoolTip:AddMenu (1, instancia.AlteraModo, 1, true)
 		CoolTip:AddIcon ([[Interface\AddOns\Details\images\modo_icones]], 1, 1, 20, 20, 0, 32/256, 0, 1)
-		--CoolTip:AddLine (Loc ["STRING_HELP_MODESELF"], nil, 2)
-		--CoolTip:AddIcon ([[Interface\TUTORIALFRAME\TutorialFrame-QuestionMark]], 2, 1, 16, 16, 8/64, 1 - (8/64), 8/64, 1 - (8/64))
 		
 		--build self plugins list
 		

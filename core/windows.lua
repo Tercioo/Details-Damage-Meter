@@ -1075,113 +1075,6 @@
 		_G.DetailsBookmarkManager:Refresh()
 	end
 	
---> tutorial bubbles
-	do
-		--[1] criar nova instancia
-		--[2] esticar janela
-		--[3] resize e trava
-		--[4] shortcut frame
-		--[5] micro displays
-		--[6] snap windows
-	
-		function _detalhes:run_tutorial()
-		
-			local lower_instance = _detalhes:GetLowerInstanceNumber()
-				if (lower_instance) then
-				local instance = _detalhes:GetInstance (lower_instance)
-			
-				_detalhes.times_of_tutorial = _detalhes.times_of_tutorial + 1
-				if (_detalhes.times_of_tutorial > 20) then
-					return
-				end
-			
-				if (_detalhes.MicroButtonAlert:IsShown()) then
-					return _detalhes:ScheduleTimer ("delay_tutorial", 2)
-				end
-
-				if (not _detalhes.tutorial.alert_frames [1]) then
-				
-					_detalhes.MicroButtonAlert.Text:SetText (Loc ["STRING_MINITUTORIAL_1"])
-					_detalhes.MicroButtonAlert:SetPoint ("bottom", instance.baseframe.cabecalho.novo, "top", 0, 16)
-					_detalhes.MicroButtonAlert:SetHeight (200)
-					_detalhes.MicroButtonAlert:Show()
-					_detalhes.tutorial.alert_frames [1] = true
-					
-				elseif (not _detalhes.tutorial.alert_frames [2]) then
-				
-					_detalhes.MicroButtonAlert.Text:SetText (Loc ["STRING_MINITUTORIAL_2"])
-					_detalhes.MicroButtonAlert:SetPoint ("bottom", instance.baseframe.button_stretch, "top", 0, 15)
-					instance.baseframe.button_stretch:Show()
-					instance.baseframe.button_stretch:SetAlpha (1)
-					_detalhes.MicroButtonAlert:Show()
-					_detalhes.tutorial.alert_frames [2] = true
-				
-				elseif (not _detalhes.tutorial.alert_frames [3]) then
-					_detalhes.MicroButtonAlert.Text:SetText (Loc ["STRING_MINITUTORIAL_3"])
-					_detalhes.MicroButtonAlert:SetPoint ("bottom", instance.baseframe.resize_direita, "top", -8, 16)
-					
-					_detalhes.OnEnterMainWindow (instance)
-					instance.baseframe.button_stretch:SetAlpha (0)
-					
-					_detalhes.MicroButtonAlert:Show()
-					_detalhes.tutorial.alert_frames [3] = true
-				
-				elseif (not _detalhes.tutorial.alert_frames [4]) then
-				
-					_detalhes.MicroButtonAlert.Text:SetText (Loc ["STRING_MINITUTORIAL_4"])
-					_detalhes.MicroButtonAlert:SetPoint ("bottom", instance.baseframe, "center", 0, 16)
-					_detalhes.MicroButtonAlert:Show()
-					_detalhes.tutorial.alert_frames [4] = true
-					
-				elseif (not _detalhes.tutorial.alert_frames [5]) then
-				
-					_detalhes.MicroButtonAlert.Text:SetText (Loc ["STRING_MINITUTORIAL_5"])
-					_detalhes.MicroButtonAlert:SetPoint ("bottom", instance.baseframe.rodape.top_bg, "top", 0, 16)
-					_detalhes.MicroButtonAlert:Show()
-					_detalhes.MicroButtonAlert:SetHeight (220)
-					_detalhes.tutorial.alert_frames [5] = true
-					
-				elseif (not _detalhes.tutorial.alert_frames [6]) then
-				
-					_detalhes.MicroButtonAlert.Text:SetText (Loc ["STRING_MINITUTORIAL_6"])
-					_detalhes.MicroButtonAlert:SetPoint ("bottom", instance.baseframe.barra_direita, "center", -24, 16)
-					_detalhes.MicroButtonAlert:SetHeight (200)
-					_detalhes.MicroButtonAlert:Show()
-					_detalhes.tutorial.alert_frames [6] = true
-				
-					return --> colocando return pra nao rodar o schedule infinitamente
-				end
-			end
-			--
-			_detalhes:ScheduleTimer ("delay_tutorial", 2)
-		end
-	
-		-- [1] criar nova instancia
-		-- [2] esticar janela
-		-- [3] resize e trava
-		-- [4] shortcut frame
-		-- [5] micro displays
-		-- [6] snap windows
-	
-		function _detalhes:delay_tutorial()
-			if (_detalhes.character_data.logons < 2) then
-				_detalhes:run_tutorial()
-			end
-		end
-		
-		function _detalhes:StartTutorial()
-			--
-			if (_G ["DetailsWelcomeWindow"] and _G ["DetailsWelcomeWindow"]:IsShown()) then
-				return _detalhes:ScheduleTimer ("StartTutorial", 10)
-			end
-			--
-			_detalhes.times_of_tutorial = 0 
-			_detalhes:ScheduleTimer ("delay_tutorial", 5)
-		end
-	
-	end
-
-	
 --> create bubble
 	do 
 		local f = CreateFrame ("frame", "DetailsBubble", UIParent)
@@ -2290,7 +2183,7 @@
 	function _detalhes:CreateTestBars()
 		local current_combat = _detalhes:GetCombat ("current")
 		
-		local actors_name = {"Ragnaros", "The Lich King", "Your Neighbor", "Your Raid Leader", "Huffer", "Your Internet Girlfriend", "Mr. President", "A Shadow Priest Complaining About Dps", "Ms. Gray", "Parry Hotter", "Your Math Teacher", "King Djoffrey", UnitName ("player") .. " Snow", "A Drunk Dawrf", "Somebody That You Used To Know", "Low Dps Guy", "Helvis Phresley (Death Log Not Found)", "Stormwind Guard", "A PvP Player", "Bolvar Fordragon","Malygos","Akama","Anachronos","Lady Blaumeux","Cairne Bloodhoof","Borivar","C'Thun","Drek'Thar","Durotan","Eonar","Footman Malakai","Bolvar Fordragon","Fritz Fizzlesprocket","Lisa Gallywix","M'uru","High Priestess MacDonnell","Nazgrel","Ner'zhul","Saria Nightwatcher","Chief Ogg'ora","Ogoun","Grimm Onearm","Apothecary Oni'jus","Orman of Stromgarde","General Rajaxx","Baron Rivendare","Roland","Archmage Trelane","Liam Trollbane"}
+		local actors_name = {"Ragnaros", "The Lich King", "Your Neighbor", "Your Raid Leader", "Huffer", "Your Internet Girlfriend", "Mr. President", "Parry Hotter", "Your Math Teacher", "King Djoffrey", UnitName ("player") .. " Snow", "A Drunk Dawrf", "Low Dps Guy", "Helvis Phresley", "Stormwind Guard", "A PvP Player", "Bolvar Fordragon","Malygos","Akama","Anachronos","Lady Blaumeux","Cairne Bloodhoof","Borivar","C'Thun","Drek'Thar","Durotan","Eonar","Footman Malakai","Bolvar Fordragon","Fritz Fizzlesprocket","Lisa Gallywix","M'uru","Priestess MacDonnell","Nazgrel","Ner'zhul","Saria Nightwatcher","Chief Ogg'ora","Ogoun","Grimm Onearm","Apothecary Oni'jus","Orman of Stromgarde","General Rajaxx","Baron Rivendare","Roland","Archmage Trelane","Liam Trollbane"}
 		local actors_classes = CLASS_SORT_ORDER
 		
 		local total_damage = 0
