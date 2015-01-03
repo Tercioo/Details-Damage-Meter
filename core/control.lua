@@ -428,7 +428,8 @@
 			
 			if (not _detalhes.tabela_vigente.is_boss) then
 
-				if (InstanceType == "party" or InstanceType == "raid") then
+				local in_instance = IsInInstance() --> garrison returns party as instance type.
+				if ((InstanceType == "party" or InstanceType == "raid") and in_instance) then
 					_detalhes.tabela_vigente.is_trash = true
 				end
 				

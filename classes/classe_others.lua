@@ -472,7 +472,14 @@ function atributo_misc:DeadAtualizarBarra (morte, qual_barra, colocacao, instanc
 	if (esta_barra.hidden or esta_barra.fading_in or esta_barra.faded) then
 		gump:Fade (esta_barra, "out")
 	end
-	esta_barra.textura:SetVertexColor (_unpack (_detalhes.class_colors [morte[4]]))
+	
+	if (instancia.row_info.texture_class_colors) then
+		esta_barra.textura:SetVertexColor (_unpack (_detalhes.class_colors [morte[4]]))
+	end
+	if (instancia.row_info.texture_background_class_color) then
+		esta_barra.background:SetVertexColor (_unpack (_detalhes.class_colors [morte[4]]))
+	end
+
 	esta_barra.icone_classe:SetTexture (instancia.row_info.icon_file)
 	esta_barra.icone_classe:SetTexCoord (_unpack (CLASS_ICON_TCOORDS [morte[4]]))
 	

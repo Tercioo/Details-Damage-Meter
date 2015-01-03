@@ -61,42 +61,81 @@
 		self.proximo_update = 0
 	end
 
+--	/run print( _detalhes:GetInstance(1).rowframe:GetParent():GetName())	
+--	/run print (DetailsBarra_1_1:GetParent():GetName())
+
 	function _detalhes:fazer_animacoes()
+		--aqui
+
+		if (self.bars_sort_direction == 2) then
 		
-		--[
-		for i = 2, self.rows_fit_in_window do
-			--local row_anterior = self.barras [i-1]
-			local row = self.barras [i]
-			local row_proxima = self.barras [i+1]
-			
-			if (row_proxima and not row.animacao_ignorar) then
-				local v = row.statusbar:GetValue()
-				local v_proxima = row_proxima.statusbar:GetValue()
+			for i = self.rows_fit_in_window - 1, 1, -1 do
+				local row = self.barras [i]
+				local row_proxima = self.barras [i-1]
 				
-				if (v_proxima > v) then
-					if (row.animacao_fim >= v_proxima) then
-						row:SetValue (v_proxima)
-					else
-						row:SetValue (row.animacao_fim)
-						row_proxima.statusbar:SetValue (row.animacao_fim)
+				if (row_proxima and not row.animacao_ignorar) then
+					local v = row.statusbar:GetValue()
+					local v_proxima = row_proxima.statusbar:GetValue()
+					
+					if (v_proxima > v) then
+						if (row.animacao_fim >= v_proxima) then
+							row:SetValue (v_proxima)
+						else
+							row:SetValue (row.animacao_fim)
+							row_proxima.statusbar:SetValue (row.animacao_fim)
+						end
 					end
 				end
 			end
-		end
-		--]]
-		
-		for i = 2, self.rows_fit_in_window do
-			local row = self.barras [i]
-			if (row.animacao_ignorar) then
-				row.animacao_ignorar = nil
-				if (row.tem_animacao) then
-					row.tem_animacao = false
-					row:SetScript ("OnUpdate", nil)
+			
+			for i = 1, self.rows_fit_in_window -1 do
+				local row = self.barras [i]
+				if (row.animacao_ignorar) then
+					row.animacao_ignorar = nil
+					if (row.tem_animacao) then
+						row.tem_animacao = false
+						row:SetScript ("OnUpdate", nil)
+					end
+				else
+					if (row.animacao_fim ~= row.animacao_fim2) then
+						_detalhes:AnimarBarra (row, row.animacao_fim)
+						row.animacao_fim2 = row.animacao_fim
+					end
 				end
-			else
-				if (row.animacao_fim ~= row.animacao_fim2) then
-					_detalhes:AnimarBarra (row, row.animacao_fim)
-					row.animacao_fim2 = row.animacao_fim
+			end
+		else
+			for i = 2, self.rows_fit_in_window do
+				local row = self.barras [i]
+				local row_proxima = self.barras [i+1]
+				
+				if (row_proxima and not row.animacao_ignorar) then
+					local v = row.statusbar:GetValue()
+					local v_proxima = row_proxima.statusbar:GetValue()
+					
+					if (v_proxima > v) then
+						if (row.animacao_fim >= v_proxima) then
+							row:SetValue (v_proxima)
+						else
+							row:SetValue (row.animacao_fim)
+							row_proxima.statusbar:SetValue (row.animacao_fim)
+						end
+					end
+				end
+			end
+			
+			for i = 2, self.rows_fit_in_window do
+				local row = self.barras [i]
+				if (row.animacao_ignorar) then
+					row.animacao_ignorar = nil
+					if (row.tem_animacao) then
+						row.tem_animacao = false
+						row:SetScript ("OnUpdate", nil)
+					end
+				else
+					if (row.animacao_fim ~= row.animacao_fim2) then
+						_detalhes:AnimarBarra (row, row.animacao_fim)
+						row.animacao_fim2 = row.animacao_fim
+					end
 				end
 			end
 		end

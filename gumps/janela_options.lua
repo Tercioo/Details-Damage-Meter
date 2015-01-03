@@ -2297,10 +2297,10 @@ function window:CreateFrame17()
 			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		local typeCombatAlpha = {
-			{value = 1, label = "No Changes", onclick = onSelectCombatAlpha, icon = "Interface\\Icons\\INV_Misc_Spyglass_03", texcoord = {1, 0, 0, 1}},
-			{value = 2, label = "While In Combat", onclick = onSelectCombatAlpha, icon = "Interface\\Icons\\INV_Misc_Spyglass_02", texcoord = {1, 0, 0, 1}},
-			{value = 3, label = "While Out of Combat", onclick = onSelectCombatAlpha, icon = "Interface\\Icons\\INV_Misc_Spyglass_02", texcoord = {1, 0, 0, 1}},
-			{value = 4, label = "While Out of a Group", onclick = onSelectCombatAlpha, icon = "Interface\\Icons\\INV_Misc_Spyglass_02", texcoord = {1, 0, 0, 1}}
+			{value = 1, label = Loc ["STRING_OPTIONS_COMBAT_ALPHA_1"], onclick = onSelectCombatAlpha, icon = "Interface\\Icons\\INV_Misc_Spyglass_03", texcoord = {1, 0, 0, 1}, color = "gray"},
+			{value = 2, label = Loc ["STRING_OPTIONS_COMBAT_ALPHA_2"], onclick = onSelectCombatAlpha, icon = "Interface\\Icons\\INV_Misc_Spyglass_02", texcoord = {1, 0, 0, 1}},
+			{value = 3, label = Loc ["STRING_OPTIONS_COMBAT_ALPHA_3"], onclick = onSelectCombatAlpha, icon = "Interface\\Icons\\INV_Misc_Spyglass_02", texcoord = {1, 0, 0, 1}},
+			{value = 4, label = Loc ["STRING_OPTIONS_COMBAT_ALPHA_4"], onclick = onSelectCombatAlpha, icon = "Interface\\Icons\\INV_Misc_Spyglass_02", texcoord = {1, 0, 0, 1}}
 		}
 		local buildTypeCombatAlpha = function()
 			return typeCombatAlpha
@@ -2411,12 +2411,12 @@ function window:CreateFrame17()
 			{"hideInCombatAnchor", 1, true},
 			{"combatAlphaLabel", 2},
 			{"hideOnCombatAlphaLabel", 3},
+			
 			{"menuAlphaAnchorLabel", 4, true},
 			{"alphaSwitchLabel", 5},
-			{"menuOnEnterLabel", 6},
-			{"menuOnLeaveLabel", 7},
-			{"alphaIconsTooLabel", 8},
-
+			{"alphaIconsTooLabel", 6},
+			{"menuOnEnterLabel", 7},
+			{"menuOnLeaveLabel", 8},
 		}
 		
 		window:arrange_menu (frame17, left_side, x, -90)
@@ -6340,8 +6340,6 @@ function window:CreateFrame7()
 		
 		
 --auto hide menus
-	--text anchor on options menu
-		--g:NewLabel (frame7, _, "$parentAutoHideLabelAnchor", "autoHideLabel", Loc ["STRING_OPTIONS_MENU_AUTOHIDE_ANCHOR"], "GameFontNormal")
 		
 	--left
 		g:NewLabel (frame7, _, "$parentAutoHideLeftMenuLabel", "autoHideLeftMenuLabel", Loc ["STRING_OPTIONS_MENU_AUTOHIDE_LEFT"], "GameFontHighlightLeft")

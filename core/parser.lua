@@ -2422,6 +2422,7 @@
 	--SPELL_PERIODIC_DRAIN --> need research
 	--SPELL_PERIODIC_LEECH --> need research
 	--SPELL_DISPEL_FAILED --> need research
+	--SPELL_BUILDING_HEAL --> need research
 	
 	function _detalhes:CaptureEnable (capture_type)
 

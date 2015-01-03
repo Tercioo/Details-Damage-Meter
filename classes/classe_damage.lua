@@ -532,18 +532,11 @@
 			gump:Fade (esta_barra, "out")
 		end
 
-		--> ele nao come o texto quando a instância esta muito pequena
-		esta_barra.textura:SetVertexColor (_unpack (_detalhes.class_colors [tabela [3]]))
-		
-		if (tabela [3] == "UNKNOW" or tabela [3] == "UNGROUPPLAYER" or tabela [3] == "ENEMY") then
-			--esta_barra.icone_classe:SetTexture ("Interface\\LFGFRAME\\LFGROLE_BW")
-			--esta_barra.icone_classe:SetTexCoord (.25, .5, 0, 1)
-			--esta_barra.icone_classe:SetVertexColor (1, 1, 1)
+		if (instancia.row_info.texture_class_colors) then
+			esta_barra.textura:SetVertexColor (_unpack (_detalhes.class_colors [tabela [3]]))
+		end
 
-			--esta_barra.icone_classe:SetTexture ([[Interface\MINIMAP\Minimap_skull_normal]])
-			--esta_barra.icone_classe:SetTexCoord (0, 1, 0, 1)
-			--esta_barra.icone_classe:SetVertexColor (1, 1, 1)
-			
+		if (tabela [3] == "UNKNOW" or tabela [3] == "UNGROUPPLAYER" or tabela [3] == "ENEMY") then
 			esta_barra.icone_classe:SetTexture ([[Interface\AddOns\Details\images\classes_plus]])
 			esta_barra.icone_classe:SetTexCoord (0.50390625, 0.62890625, 0, 0.125)
 			esta_barra.icone_classe:SetVertexColor (1, 1, 1)
@@ -751,7 +744,9 @@
 			school_color = _detalhes.school_colors ["unknown"]
 		end
 		
-		esta_barra.textura:SetVertexColor (_unpack (school_color))
+		if (instancia.row_info.texture_class_colors) then
+			esta_barra.textura:SetVertexColor (_unpack (school_color))
+		end
 		esta_barra.icone_classe:SetTexture (icon)
 		esta_barra.icone_classe:SetTexCoord (0, 1, 0, 1)
 		esta_barra.icone_classe:SetVertexColor (1, 1, 1)
@@ -1284,7 +1279,7 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 				conteudo[myPos]:AtualizaBarra (instancia, barras_container, qual_barra, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations) --> instância, index, total, valor da 1º barra
 				qual_barra = qual_barra+1
 			else
-				
+				-- /run print (_detalhes:GetInstance(1).barraS[2]) -- vai do 5 ao 1 -- qual barra começa no 1 -- i = 5 até 1 -- player 5 atualiza na barra 1 / player 1 atualiza na barra 5
 				for i = instancia.barraS[2], instancia.barraS[1], -1 do --> vai atualizar só o range que esta sendo mostrado
 					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations) --> instância, index, total, valor da 1º barra
 					qual_barra = qual_barra+1
@@ -1497,6 +1492,8 @@ end
 	
 	--> primeiro colocado
 	if (esta_barra.colocacao == 1) then
+		--aqui
+		esta_barra.animacao_ignorar = true
 		
 		if (not tabela_anterior or tabela_anterior ~= esta_barra.minha_tabela or forcar) then
 			esta_barra:SetValue (100)

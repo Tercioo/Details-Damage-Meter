@@ -409,6 +409,7 @@
 	end
 	
 	function _detalhes:SendGuildData (type, ...)
+		if not IsInGuild() then return end --> fix from Tim@WoWInterface
 		_detalhes:SendCommMessage (CONST_DETAILS_PREFIX, _detalhes:Serialize (type, _UnitName ("player"), _GetRealmName(), _detalhes.realversion, ...), "GUILD")
 	end
 	

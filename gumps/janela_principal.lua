@@ -922,7 +922,6 @@ local function move_janela (baseframe, iniciando, instancia)
 			for _, esta_instancia in _ipairs (_detalhes.tabela_instancias) do
 				if (not esta_instancia:IsAtiva() and esta_instancia.iniciada) then
 					esta_instancia:ResetaGump()
-					--aqui
 					
 					gump:Fade (esta_instancia.baseframe, "in", 0.2)
 					gump:Fade (esta_instancia.baseframe.cabecalho.ball, "in", 0.2)
@@ -3972,12 +3971,10 @@ function _detalhes:SetWindowAlphaForInteract (alpha)
 	else
 		--> saiu
 		if (self.combat_changes_alpha) then --> combat alpha
-			--self.baseframe:SetAlpha (self.combat_changes_alpha)
 			self:InstanceAlpha (self.combat_changes_alpha)
 			self:SetIconAlpha (self.combat_changes_alpha, nil, true)
 			self.rowframe:SetAlpha (self.combat_changes_alpha) --alpha do combate é absoluta
 		else
-			--self.baseframe:SetAlpha (alpha)
 			self:InstanceAlpha (alpha)
 			self:SetIconAlpha (alpha, nil, true)
 			
@@ -5392,13 +5389,9 @@ function _detalhes:ChangeSkin (skin_name)
 			_detalhes:OpenOptionsWindow (self)
 		end
 
-	--> check if is interacting
+	--> auto interact
 		if (self.menu_alpha.enabled) then
-			if (_detalhes.in_combat) then
-				self:SetWindowAlphaForCombat (true)
-			else
-				self:SetWindowAlphaForCombat()
-			end
+			self:SetMenuAlpha (nil, nil, nil, nil, self.is_interacting)
 		end
 		
 	--> set the scale
@@ -5780,7 +5773,6 @@ function _detalhes:SetMenuAlpha (enabled, onenter, onleave, ignorebars, interact
 	self.menu_alpha.ignorebars = ignorebars
 	
 	if (not enabled) then
-		--> aqui esta mandando setar a alpha do baseframe
 		self.baseframe:SetAlpha (1)
 		self.rowframe:SetAlpha (1)
 		self:InstanceAlpha (self.color[4])

@@ -224,7 +224,9 @@ function atributo_energy:AtualizarResources (qual_barra, colocacao, instancia)
 	end
 	
 	actor_class_color_r, actor_class_color_g, actor_class_color_b = self:GetBarColor()
-	esta_barra.textura:SetVertexColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
+	if (instancia.row_info.texture_class_colors) then
+		esta_barra.textura:SetVertexColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
+	end
 	
 	if (self.classe == "UNKNOW") then
 		esta_barra.icone_classe:SetTexture ([[Interface\AddOns\Details\images\classes_plus]])
