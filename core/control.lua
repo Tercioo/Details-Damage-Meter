@@ -53,7 +53,9 @@
 		function _detalhes:FindEnemy()
 			
 			local ZoneName, InstanceType, DifficultyID, _, _, _, _, ZoneMapID = _GetInstanceInfo()
-			if (InstanceType == "party" or InstanceType == "raid") then
+			local in_instance = IsInInstance() --> garrison returns party as instance type.
+			
+			if ((InstanceType == "party" or InstanceType == "raid") and in_instance) then
 				return Loc ["STRING_SEGMENT_TRASH"]
 			end
 			
@@ -1045,13 +1047,19 @@
 			
 			if (t) then
 			
-				if (esta_barra.minha_tabela.serial and esta_barra.minha_tabela.serial ~= "") then
-					local avatar = NickTag:GetNicknameTable (esta_barra.minha_tabela.serial, true)
+				if (objeto.serial and objeto.serial ~= "") then
+					local avatar = NickTag:GetNicknameTable (objeto.serial, true)
 					if (avatar) then
 						if (avatar [2] and avatar [4] and avatar [1]) then
 							GameCooltip:SetBannerImage (1, avatar [2], 80, 40, avatarPoint, avatarTexCoord, nil) --> overlay [2] avatar path
 							GameCooltip:SetBannerImage (2, avatar [4], 200, 55, backgroundPoint, avatar [5], avatar [6]) --> background
 							GameCooltip:SetBannerText (1, avatar [1], textPoint) --> text [1] nickname
+						end
+					else
+						if (_detalhes.remove_realm_from_name and objeto.displayName:find ("%*")) then
+							GameCooltip:SetBannerImage (1, [[Interface\AddOns\Details\images\background]], 20, 30, avatarPoint, avatarTexCoord, {0, 0, 0, 0}) --> overlay [2] avatar path
+							GameCooltip:SetBannerImage (2, [[Interface\PetBattles\Weather-BurntEarth]], 160, 30, {{"bottomleft", "topleft", 0, -5}, {"bottomright", "topright", 0, -5}}, {0.12, 0.88, 1, 0}, {0, 0, 0, 0.1}) --> overlay [2] avatar path {0, 0, 0, 0}
+							GameCooltip:SetBannerText (1, objeto.nome, {"left", "left", 11, -8}, {1, 1, 1, 0.7}, 10, SharedMedia:Fetch ("font", _detalhes.tooltip.fontface)) --> text [1] nickname
 						end
 					end
 				end

@@ -1,7 +1,6 @@
 ## Interface: 60000
-## Title: Details DamageRank (plugin)
+## Title: Details Damage, the Game! (plugin)
 ## Notes: Plugin for Details
-## SavedVariablesPerCharacter: _detalhes_databaseDmgRank
 ## RequiredDeps: Details
 ## OptionalDeps:  Ace3, LibSharedMedia-3.0, LibBossIDs-1.0, LibGraph-2.0, !ClassColors
 

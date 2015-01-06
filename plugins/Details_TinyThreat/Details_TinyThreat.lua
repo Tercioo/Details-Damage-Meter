@@ -52,6 +52,8 @@ local function CreatePluginFrames (data)
 	--> localize functions
 	ThreatMeter.percent_color = ThreatMeter.percent_color
 	
+	ThreatMeter.GetOnlyName = ThreatMeter.GetOnlyName
+	
 	--> window reference
 	local instance
 	local player
@@ -367,7 +369,6 @@ local function CreatePluginFrames (data)
 				pullRow:SetLeftText ("Pull Aggro At")
 				local realPercent = _math_floor (aggro / topThreat [6] * 100)
 				pullRow:SetRightText ("+" .. ThreatMeter:ToK2 (aggro - myThreat) .. " (" .. _math_floor (_math_abs ((myThreat / aggro * 100) - realPercent)) .. "%)") --
-				--thisRow.textleft:SetTextColor ()
 				pullRow:SetValue (100)
 				
 				local myPercentToAggro = myThreat / aggro * 100
@@ -394,7 +395,7 @@ local function CreatePluginFrames (data)
 					local role = threat_actor [4]
 					thisRow._icon:SetTexCoord (_unpack (RoleIconCoord [role]))
 					
-					thisRow:SetLeftText (threat_actor [1])
+					thisRow:SetLeftText (ThreatMeter:GetOnlyName (threat_actor [1]))
 					
 					local pct = threat_actor [2]
 					

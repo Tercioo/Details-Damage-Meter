@@ -5,7 +5,7 @@ if (not Loc) then
 end 
 
 --> Labels:
-Loc ["STRING_PLUGIN_NAME"] = "Rank de Dano"
+Loc ["STRING_PLUGIN_NAME"] = "Dano, o Jogo!"
 Loc ["STRING_CURRENTRANK"] = "Seu rank atual:"
 Loc ["STRING_LASTTRIES"] = "Ultimas tentativas:"
 Loc ["STRING_ANNOUNCE"] = "anunciar"

@@ -2303,7 +2303,7 @@ local function iterate_scroll_scripts (backgrounddisplay, backgroundframe, basef
 				end
 			elseif (delta < 0) then --> rolou pra baixo
 				local B = instancia.barraS[2]
-				if (B < instancia.rows_showing) then
+				if (B < (instancia.rows_showing or 0)) then
 					scrollbar:SetValue (scrollbar:GetValue() + instancia.row_height * _detalhes.scroll_speed)
 				else
 					local _, maxValue = scrollbar:GetMinMaxValues()
@@ -2332,13 +2332,13 @@ local function iterate_scroll_scripts (backgrounddisplay, backgroundframe, basef
 			baseframe.button_up:Disable()
 				return
 		elseif (maxValue == meu_valor) then
-			local min = instancia.rows_showing -instancia.rows_fit_in_window
+			local min = (instancia.rows_showing or 0) -instancia.rows_fit_in_window
 			min = min+1
 			if (min < 1) then
 				min = 1
 			end
 			instancia.barraS[1] = min
-			instancia.barraS[2] = instancia.rows_showing
+			instancia.barraS[2] = (instancia.rows_showing or 0)
 			instancia:AtualizaGumpPrincipal (instancia, true)
 			self.ultimo = meu_valor
 			baseframe.button_down:Disable()
@@ -2355,16 +2355,16 @@ local function iterate_scroll_scripts (backgrounddisplay, backgroundframe, basef
 		if (meu_valor > ultimo) then --> scroll down
 		
 			local B = instancia.barraS[2]
-			if (B < instancia.rows_showing) then --> se o valor maximo não for o máximo de barras a serem mostradas	
+			if (B < (instancia.rows_showing or 0)) then --> se o valor maximo não for o máximo de barras a serem mostradas	
 				local precisa_passar = ((B+1) * instancia.row_height) - (instancia.row_height*instancia.rows_fit_in_window)
 				--if (meu_valor > precisa_passar) then --> o valor atual passou o valor que precisa passar pra locomover
 				if (true) then --> testing by pass row check
 					local diff = meu_valor - ultimo --> pega a diferença de H
 					diff = diff / instancia.row_height --> calcula quantas barras ele pulou
 					diff = _math_ceil (diff) --> arredonda para cima
-					if (instancia.barraS[2]+diff > instancia.rows_showing and ultimo > 0) then
-						instancia.barraS[1] = instancia.rows_showing - (instancia.rows_fit_in_window-1)
-						instancia.barraS[2] = instancia.rows_showing
+					if (instancia.barraS[2]+diff > (instancia.rows_showing or 0) and ultimo > 0) then
+						instancia.barraS[1] = (instancia.rows_showing or 0) - (instancia.rows_fit_in_window-1)
+						instancia.barraS[2] = (instancia.rows_showing or 0)
 					else
 						instancia.barraS[2] = instancia.barraS[2]+diff
 						instancia.barraS[1] = instancia.barraS[1]+diff
@@ -3555,6 +3555,11 @@ end
 --> on update function
 local fast_ps_func = function (self)
 	local instance = self.instance
+	
+	if (not instance.showing) then
+		return
+	end
+	
 	local combat_time = instance.showing:GetCombatTime()
 	local ps_type = _detalhes.ps_abbreviation
 

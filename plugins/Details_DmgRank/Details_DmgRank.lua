@@ -27,7 +27,7 @@ local function CreatePluginFrames (data)
 	--local 
 	
 	--> default rank table
-	DmgRank.rank = data or {level = 1, dps = 0, dpshistory = {}, lasttry = {}, annouce = true}
+	DmgRank.rank = DmgRank.db
 	--DmgRank.rank.level = 20
 	
 	--> OnEvent Table
@@ -44,7 +44,6 @@ local function CreatePluginFrames (data)
 		elseif (event == "COMBAT_PLAYER_TIMESTARTED") then --> combat started	
 			--print ("recebeu event start")
 			local combat = select (1, ...)
-			--print (combat)
 			DmgRank:Start()
 			
 		elseif (event == "PLUGIN_DISABLED") then
@@ -63,34 +62,34 @@ local function CreatePluginFrames (data)
 	DmgRank.TimeGoal = {
 	
 		--> The 30 seconds Trial
-		{time = 30, damage = 1500000, name = Loc ["CHALLENGENAME_1"]}, -- Ready to Raid -- rank 2 -->  -- Patrulha --> 50K DPS required
-		{time = 30, damage = 1800000, name = Loc ["CHALLENGENAME_2"]}, -- Damage Practice --rank 3 -->  -- Soldier --> 60K DPS required
-		{time = 30, damage = 2100000, name = Loc ["CHALLENGENAME_3"]}, -- The Training Continue... -- rank 4 -->  -- Corporal --> 70K DPS required
+		{time = 30, damage = 350000, name = Loc ["CHALLENGENAME_1"]}, -- Ready to Raid -- rank 2 -->  -- Patrulha --> ~11K DPS required
+		{time = 30, damage = 420000, name = Loc ["CHALLENGENAME_2"]}, -- Damage Practice --rank 3 -->  -- Soldier --> ~14K DPS required
+		{time = 30, damage = 500000, name = Loc ["CHALLENGENAME_3"]}, -- The Training Continue... -- rank 4 -->  -- Corporal --> ~16K DPS required
 		
 		--> 90 seconds bracket
-		{time = 90, damage = 5080000, name = Loc ["CHALLENGENAME_4"]}, -- You Just Need a Little More Time -- rank 5 -->  -- Sergeant --> 56K DPS required
-		{time = 90, damage = 5814800, name = Loc ["CHALLENGENAME_5"]}, -- Became a Knight -- rank 6 -->  -- Sergeant --> 64K DPS required
+		{time = 90, damage = 1601010, name = Loc ["CHALLENGENAME_4"]}, -- You Just Need a Little More Time -- rank 5 -->  -- Sergeant --> ~17K DPS required
+		{time = 90, damage = 1666660, name = Loc ["CHALLENGENAME_5"]}, -- Became a Knight -- rank 6 -->  -- Sergeant --> ~18K DPS required
 		
 		--> middle bracket
-		{time = 120, damage = 7901760, name = Loc ["CHALLENGENAME_6"]}, -- Two Minutes -- rank 7 -->   Iron Knight --> 65K DPS required
-		{time = 120, damage = 8442112, name = Loc ["CHALLENGENAME_7"]}, --rank 8 -->  Steel Knight --> 70K DPS required
-		{time = 180, damage = 13452000, name = Loc ["CHALLENGENAME_8"]}, --rank 9 -->  --> The High Knight --> 74K DPS required
-		{time = 180, damage = 14152100, name = Loc ["CHALLENGENAME_9"]}, --rank 10 --> Yes Sir! --   Thorium Knight --> 78K DPS required
-		{time = 180, damage = 15052100, name = Loc ["CHALLENGENAME_10"]}, --rank 11 --> Salute  --   Silver Lieutenant --> 83K DPS required
+		{time = 120, damage = 2254120, name = Loc ["CHALLENGENAME_6"]}, -- Two Minutes -- rank 7 -->   Iron Knight --> ~18K DPS required
+		{time = 120, damage = 2409500, name = Loc ["CHALLENGENAME_7"]}, --rank 8 -->  Steel Knight --> ~20K DPS required
+		{time = 180, damage = 3390000, name = Loc ["CHALLENGENAME_8"]}, --rank 9 -->  --> The High Knight --> ~18K DPS required
+		{time = 180, damage = 3499000, name = Loc ["CHALLENGENAME_9"]}, --rank 10 --> Yes Sir! --   Thorium Knight --> ~19K DPS required
+		{time = 180, damage = 3784051, name = Loc ["CHALLENGENAME_10"]}, --rank 11 --> Salute  --   Silver Lieutenant --> ~21K DPS required
 		
 		--> burst bracket
-		{time = 40, damage = 5000000, name = Loc ["CHALLENGENAME_11"]}, --rank 12 --> In Burst We Trust  --   Gold Lieutenant --> 125K DPS required
-		{time = 40, damage = 5700000, name = Loc ["CHALLENGENAME_12"]}, --rank 13 -->  Watch me Explode  --   Stone Guardian --> 142K DPS required
-		{time = 40, damage = 6300000, name = Loc ["CHALLENGENAME_13"]}, --rank 14 --> T.N.T--   Fel Guardian --> 157K DPS required
+		{time = 40, damage = 1351144, name = Loc ["CHALLENGENAME_11"]}, --rank 12 --> In Burst We Trust  --   Gold Lieutenant --> ~33K DPS required
+		{time = 40, damage = 1494404, name = Loc ["CHALLENGENAME_12"]}, --rank 13 -->  Watch me Explode  --   Stone Guardian --> ~37K DPS required
+		{time = 40, damage = 1569900, name = Loc ["CHALLENGENAME_13"]}, --rank 14 --> T.N.T--   Fel Guardian --> ~39K DPS required
 		
 		--> long run bracket
-		{time = 300, damage = 35052100, name = Loc ["CHALLENGENAME_14"]}, --rank 15 --> Time is Damage My Friend --   Titan Guardian --> 116K DPS required		
-		{time = 330, damage = 41151120, name = Loc ["CHALLENGENAME_15"]}, --rank 16 - Just a Little Patience -->  Bronze Centurion --> 124K DPS required
-		{time = 360, damage = 47395100, name = Loc ["CHALLENGENAME_16"]}, --rank 17 -->  Silver Centurion --> 131K DPS required
+		{time = 300, damage = 6211201, name = Loc ["CHALLENGENAME_14"]}, --rank 15 --> Time is Damage My Friend --   Titan Guardian --> ~20K DPS required
+		{time = 300, damage = 6842459, name = Loc ["CHALLENGENAME_15"]}, --rank 16 - Just a Little Patience -->  Bronze Centurion --> ~22K DPS required
+		{time = 300, damage = 7511983, name = Loc ["CHALLENGENAME_16"]}, --rank 17 -->  Silver Centurion --> ~25K DPS required
 		
-		{time = 300, damage = 56911000, name = Loc ["CHALLENGENAME_17"]}, --rank 18 -->  Flame Centurion --> ?K DPS required
-		{time = 360, damage = 71821980, name = Loc ["CHALLENGENAME_18"]}, --rank 19 -->  Lower Vanquisher --> ?K DPS required
-		{time = 180, damage = 45910990, name = Loc ["CHALLENGENAME_19"]}, --rank 20 -->  Middle Vanquisher --> ?K DPS required
+		{time = 120, damage = 4011100, name = Loc ["CHALLENGENAME_17"]}, --rank 18 -->  Flame Centurion --> ~33K DPS required
+		{time = 120, damage = 4300000, name = Loc ["CHALLENGENAME_18"]}, --rank 19 -->  Lower Vanquisher --> 35K DPS required
+		{time = 60, damage = 2650000, name = Loc ["CHALLENGENAME_19"]}, --rank 20 -->  Middle Vanquisher --> 44K DPS required
 		
 		--> end
 		{time = nil, damage = nil, name = ""}, --rank 21 --> none
@@ -237,23 +236,6 @@ local function CreatePluginFrames (data)
 	background:SetDrawLayer ("background", 1)
 	DmgRank.BackgroundTex = background
 	
-	local AnimeFrame = CreateFrame ("frame", nil, DmgRankFrame)
-	AnimeFrame:SetAllPoints (DmgRankFrame)
-
-	local background2 = AnimeFrame:CreateTexture (nil, "background")
-	background2:SetTexture ("Interface\\AddOns\\Details_DmgRank\\solo_bgtimeattack")
-	background2:SetPoint ("topleft", DmgRankFrame, "topleft", 2, 0)
-	background2:SetPoint ("bottomright", DmgRankFrame, "bottomright", -2, 0)
-	DmgRank.BackgroundTex2 = background2
-	background2:SetDrawLayer ("background", 2)
-
-	local RotateAnimGroup = AnimeFrame:CreateAnimationGroup()
-	local rotate = RotateAnimGroup:CreateAnimation ("Rotation")
-	rotate:SetDegrees (360)
-	rotate:SetDuration (120)
-	RotateAnimGroup:SetLooping ("repeat")
-	RotateAnimGroup:Play()
-
 	--> next rank at display
 	local challengeName = DetailsFrameWork:NewLabel (DmgRankFrame, DmgRankFrame, nil, "challengeName", "", "QuestFont_Shadow_Huge")
 	challengeName:SetPoint ("center", DmgRankFrame, "center")
@@ -486,7 +468,7 @@ local function CreatePluginFrames (data)
 		DmgRank.rank.level = DmgRank.rank.level + 1
 		
 		if (DmgRank.rank.annouce) then
-			SendChatMessage (UnitName ("player") .. " " .. Loc ["STRING_ANNOUNCE_STRING"] .. " " .. DmgRank.rank.level .. " (" .. self.Titles [DmgRank.rank.level] .. ") " .. Loc ["STRING_ANNOUNCE_ON"] .. " Details! " .. Loc ["STRING_PLUGIN_NAME"] .. ".", "GUILD")
+			SendChatMessage (UnitName ("player") .. " " .. Loc ["STRING_ANNOUNCE_STRING"] .. " " .. DmgRank.rank.level .. " (" .. self.Titles [DmgRank.rank.level] .. ") " .. Loc ["STRING_ANNOUNCE_ON"] .. " Details!: " .. Loc ["STRING_PLUGIN_NAME"] .. ".", "GUILD")
 		end
 		
 		DmgRank.rank.dps = player.total
@@ -545,16 +527,18 @@ function DmgRank:OnEvent (_, event, ...)
 			
 			if (_G._detalhes) then
 				
-				--> create widgets
-				CreatePluginFrames (_detalhes_databaseDmgRank)
-				
-				local MINIMAL_DETAILS_VERSION_REQUIRED = 1
+				local MINIMAL_DETAILS_VERSION_REQUIRED = 50
 
+				local default_config = {level = 1, dps = 0, dpshistory = {}, lasttry = {}, annouce = true}
+				
 				--> Install plugin inside details
-				local install, saveddata = _G._detalhes:InstallPlugin ("SOLO", Loc ["STRING_PLUGIN_NAME"], "Interface\\Icons\\ACHIEVEMENT_GUILDPERK_HONORABLEMENTION_RANK2", DmgRank, "DETAILS_PLUGIN_DAMAGE_RANK", MINIMAL_DETAILS_VERSION_REQUIRED, "Details! Team", "v1.1.1")
+				local install, saveddata = _G._detalhes:InstallPlugin ("SOLO", Loc ["STRING_PLUGIN_NAME"], "Interface\\Icons\\ACHIEVEMENT_GUILDPERK_HONORABLEMENTION_RANK2", DmgRank, "DETAILS_PLUGIN_DAMAGE_RANK", MINIMAL_DETAILS_VERSION_REQUIRED, "Details! Team", "v1.2.0", default_config)
 				if (type (install) == "table" and install.error) then
 					print (install.error)
 				end
+				
+				--> create widgets
+				CreatePluginFrames()
 				
 				--> Register needed events
 				_G._detalhes:RegisterEvent (DmgRank, "COMBAT_PLAYER_TIMESTARTED")

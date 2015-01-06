@@ -218,12 +218,13 @@ function _detalhes:FastSwitch (_this)
 		GameCooltip:ShowCooltip()
 
 	else --> botão esquerdo
+
 		if (_detalhes.switch.current_instancia.modo == _detalhes._detalhes_props["MODO_ALONE"]) then
-			_detalhes.switch.current_instancia:AlteraModo (_detalhes.switch.current_instancia, _detalhes.switch.current_instancia.LastModo)
+			_detalhes.switch.current_instancia:AlteraModo (_detalhes.switch.current_instancia, 2)
 			
 		elseif (_detalhes.switch.current_instancia.modo == _detalhes._detalhes_props["MODO_RAID"]) then
-			_detalhes.switch.current_instancia:AlteraModo (_detalhes.switch.current_instancia, _detalhes.switch.current_instancia.LastModo)
-			
+			_detalhes.switch.current_instancia:AlteraModo (_detalhes.switch.current_instancia, 2)
+
 		end
 		
 		_detalhes.switch.current_instancia:TrocaTabela (_detalhes.switch.current_instancia, true, _this.atributo, _this.sub_atributo)

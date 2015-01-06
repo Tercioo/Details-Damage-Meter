@@ -3981,6 +3981,9 @@ function window:CreateFrame2()
 		frame2.damageCaptureSlider:SetPoint ("left", frame2.damageCaptureLabel, "right", 2)
 		frame2.damageCaptureSlider.OnSwitch = function (self, _, value)
 			_detalhes:CaptureSet (value, "damage", true)
+			if (value) then
+				_detalhes:CaptureSet (true, "spellcast", true)
+			end
 			switch_icon_color (frame2.damageCaptureImage, value)
 		end
 		switch_icon_color (frame2.damageCaptureImage, _detalhes.capture_real ["damage"])
@@ -3991,6 +3994,9 @@ function window:CreateFrame2()
 		frame2.healCaptureSlider:SetPoint ("left", frame2.healCaptureLabel, "right", 2)
 		frame2.healCaptureSlider.OnSwitch = function (self, _, value)
 			_detalhes:CaptureSet (value, "heal", true)
+			if (value) then
+				_detalhes:CaptureSet (true, "spellcast", true)
+			end
 			switch_icon_color (frame2.healCaptureImage, value)
 		end
 		switch_icon_color (frame2.healCaptureImage, _detalhes.capture_real ["heal"])
@@ -4002,6 +4008,9 @@ function window:CreateFrame2()
 
 		frame2.energyCaptureSlider.OnSwitch = function (self, _, value)
 			_detalhes:CaptureSet (value, "energy", true)
+			if (value) then
+				_detalhes:CaptureSet (true, "spellcast", true)
+			end
 			switch_icon_color (frame2.energyCaptureImage, value)
 		end
 		switch_icon_color (frame2.energyCaptureImage, _detalhes.capture_real ["energy"])
@@ -4012,6 +4021,9 @@ function window:CreateFrame2()
 		frame2.miscCaptureSlider:SetPoint ("left", frame2.miscCaptureLabel, "right", 2)
 		frame2.miscCaptureSlider.OnSwitch = function (self, _, value)
 			_detalhes:CaptureSet (value, "miscdata", true)
+			if (value) then
+				_detalhes:CaptureSet (true, "spellcast", true)
+			end
 			switch_icon_color (frame2.miscCaptureImage, value)
 		end
 		switch_icon_color (frame2.miscCaptureImage, _detalhes.capture_real ["miscdata"])
@@ -4022,6 +4034,9 @@ function window:CreateFrame2()
 		frame2.auraCaptureSlider:SetPoint ("left", frame2.auraCaptureLabel, "right", 2)
 		frame2.auraCaptureSlider.OnSwitch = function (self, _, value)
 			_detalhes:CaptureSet (value, "aura", true)
+			if (value) then
+				_detalhes:CaptureSet (true, "spellcast", true)
+			end
 			switch_icon_color (frame2.auraCaptureImage, value)
 		end
 		switch_icon_color (frame2.auraCaptureImage, _detalhes.capture_real ["aura"])

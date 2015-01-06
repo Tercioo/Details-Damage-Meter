@@ -72,6 +72,9 @@ do
 		[158417] = {name = GetSpellInfo (158417) .. " (" .. Loc ["STRING_WAVE"] .. " #2)"}, --> Twins Ogron Pulverize waves.
 		[158420] = {name = GetSpellInfo (158420) .. " (" .. Loc ["STRING_WAVE"] .. " #3)"}, --> Twins Ogron Pulverize waves.
 		
+		[158159] = {name = GetSpellInfo (158159) .. ""}, --> Twins Ogron Charge.
+		[177608] = {name = GetSpellInfo (177608) .. " (copies)"}, --> Twins Ogron Charge.
+		
 		[59638] = {name = GetSpellInfo (59638) .. " (" .. Loc ["STRING_MIRROR_IMAGE"] .. ")"}, --> Mirror Image's Frost Bolt (mage)
 		[88082] = {name = GetSpellInfo (88082) .. " (" .. Loc ["STRING_MIRROR_IMAGE"] .. ")"}, --> Mirror Image's Fireball (mage)
 		

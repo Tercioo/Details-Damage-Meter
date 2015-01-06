@@ -150,8 +150,13 @@
 			
 				novo_objeto.displayName = _detalhes:GetNickname (serial, false, true) --> serial, default, silent
 				if (not novo_objeto.displayName) then
+				
 					if (_IsInInstance() and _detalhes.remove_realm_from_name) then
 						novo_objeto.displayName = nome:gsub (("%-.*"), "")
+						
+					elseif (_detalhes.remove_realm_from_name) then
+						novo_objeto.displayName = nome:gsub (("%-.*"), "%*")
+						
 					else
 						novo_objeto.displayName = nome
 					end

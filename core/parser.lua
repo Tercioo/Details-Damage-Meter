@@ -161,6 +161,7 @@
 			who_name = "[*] "..spellname
 		end
 		
+		local real_damage = amount or 0
 		if (absorbed) then
 			amount = absorbed + (amount or 0)
 		end
@@ -304,7 +305,7 @@
 			
 			this_event [1] = true --> true if this is a damage || false for healing
 			this_event [2] = spellid --> spellid || false if this is a battle ress line
-			this_event [3] = amount --> amount of damage or healing
+			this_event [3] = real_damage --> amount of damage or healing
 			this_event [4] = time --> parser time
 			this_event [5] = _UnitHealth (alvo_name) --> current unit heal
 			this_event [6] = who_name --> source name
@@ -373,7 +374,7 @@
 	--> damage taken 
 
 		--> target
-		jogador_alvo.damage_taken = jogador_alvo.damage_taken + amount --> adiciona o dano tomado
+		jogador_alvo.damage_taken = jogador_alvo.damage_taken + real_damage --> adiciona o dano tomado
 		if (not jogador_alvo.damage_from [who_name]) then --> adiciona a pool de dano tomado de quem
 			jogador_alvo.damage_from [who_name] = true
 		end
@@ -418,8 +419,10 @@
 	--> firendly fire
 
 		if (
-			(_bit_band (alvo_flags, REACTION_FRIENDLY) ~= 0 and _bit_band (who_flags, REACTION_FRIENDLY) ~= 0) or
-			(raid_members_cache [who_serial] and raid_members_cache [alvo_serial])
+			--(
+				(_bit_band (alvo_flags, REACTION_FRIENDLY) ~= 0 and _bit_band (who_flags, REACTION_FRIENDLY) ~= 0) or --ajdt d' brx
+				(raid_members_cache [who_serial] and raid_members_cache [alvo_serial]) --amrl
+			--) and who_name ~= alvo_name
 		) then
 		
 			--> record death log
@@ -435,7 +438,7 @@
 			
 			this_event [1] = true --> true if this is a damage || false for healing
 			this_event [2] = spellid --> spellid || false if this is a battle ress line
-			this_event [3] = amount --> amount of damage or healing
+			this_event [3] = real_damage --> amount of damage or healing
 			this_event [4] = time --> parser time
 			this_event [5] = _UnitHealth (alvo_name) --> current unit heal
 			this_event [6] = who_name --> source name
@@ -2532,8 +2535,7 @@
 			_detalhes:EnteredInArena()
 			
 		else
-		
-			if (zoneType == "raid" or zoneType == "party") then
+			if ((zoneType == "raid" or zoneType == "party") and select (1, IsInInstance())) then
 				_detalhes:CheckForAutoErase (zoneMapID)
 			end
 		
@@ -2996,6 +2998,9 @@
 		local funcao = token_list [token]
 
 		if (funcao) then
+			--if (token ~= "SPELL_AURA_REFRESH" and token ~= "SPELL_AURA_REMOVED" and token ~= "SPELL_AURA_APPLIED") then
+			--	print ("running func:", token)
+			--end
 			return funcao (nil, token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, ... )
 		else
 			return

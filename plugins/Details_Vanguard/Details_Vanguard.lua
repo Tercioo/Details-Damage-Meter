@@ -9,10 +9,12 @@ local _IsInGroup = IsInGroup --> wow api local
 local _UnitAura = UnitAura --> wow api local
 local _UnitName = UnitName --> wow api local
 local _UnitGroupRolesAssigned = UnitGroupRolesAssigned --> wow api local
+local _UnitHealth = UnitHealth --> wow api local
 local _UnitHealthMax = UnitHealthMax --> wow api local
 local _UnitIsPlayer = UnitIsPlayer --> wow api local
 local _UnitClass = UnitClass --> wow api local
 local _UnitDebuff = UnitDebuff --> wow api local
+local _UnitGetIncomingHeals = UnitGetIncomingHeals
 ---------------------------------------------------------------------------------------------
 local _cstr = string.format --> lua library local
 local _table_insert = table.insert --> lua library local
@@ -22,6 +24,7 @@ local _pairs = pairs --> lua library local
 local _math_floor = math.floor --> lua library local
 local _math_abs = math.abs --> lua library local
 local _math_min = math.min --> lua library local
+local _table_sort = table.sort
 ---------------------------------------------------------------------------------------------
 
 --> Create plugin Object
@@ -310,7 +313,8 @@ local function CreatePluginFrames (data)
 		local infoFrame = DetailsFrameWork:NewPanel (VanguardFrame, VanguardFrame, "VanguardInfoFrame", "infoFrame", 300, 100)
 		infoFrame:SetPoint ("topleft", VanguardFrame, "topleft")
 		infoFrame:Hide()
-		infoFrame:SetFrameLevel (5)
+		infoFrame:SetFrameLevel (VanguardFrame:GetFrameLevel() + 10)
+
 		VanguardFrame.InfoShown = false
 		
 		infoFrame:SetBackdrop ("Interface\\DialogFrame\\UI-DialogBox-Background-Dark")
@@ -339,24 +343,33 @@ local function CreatePluginFrames (data)
 		ReportButton.tooltip = Loc ["STRING_REPORT_AVOIDANCE_TOOLTIP"]
 		
 		infoFrame:SetHook ("OnMouseUp", function (_, button) 
-			if (string.lower (button):find ("right")) then
+			--if (string.lower (button):find ("right")) then
 				VanguardFrame.InfoShown = false
 				infoFrame:Hide()
 				if (infoFrame.refreshTick) then
 					Vanguard:CancelTimer (infoFrame.refreshTick)
 					infoFrame.refreshTick = nil
 				end
-			end
+			--end
 		end)
 	
-		local funcInfo = function() 
-			VanguardFrame.InfoShown = true
-			Vanguard:VanguardRefreshInfoFrame()
-			local w, h = instancia:GetSize()
-			infoFrame.width = w
-			infoFrame.height = h
-			infoFrame:Show()
-			infoFrame.refreshTick = Vanguard:ScheduleRepeatingTimer ("VanguardRefreshInfoFrame", 1)
+		local funcInfo = function (self, button) 
+			if (button == "LeftButton") then
+				VanguardFrame.InfoShown = true
+				Vanguard:VanguardRefreshInfoFrame()
+				local w, h = instancia:GetSize()
+				infoFrame.width = w
+				infoFrame.height = h
+				infoFrame:Show()
+				infoFrame.refreshTick = Vanguard:ScheduleRepeatingTimer ("VanguardRefreshInfoFrame", 1)
+				
+			elseif (button == "RightButton") then
+				local instance = Vanguard:GetPluginInstance()
+				if (instance) then
+					_detalhes.switch:ShowMe (instance)
+				end
+			
+			end
 		end
 		
 		--> Info frame widgets:
@@ -456,11 +469,11 @@ local function CreatePluginFrames (data)
 						for actorName, _ in pairs (heal_from) do 
 							local thisActor = Vanguard:GetActor ("current", DETAILS_ATTRIBUTE_HEAL, actorName)
 							local targets = thisActor.targets --> targets is a container with target classes
-							local amount = targets:GetAmount (_track_player_name, "total")
+							local amount = targets [_track_player_name] or 0
 							myReceivedHeal [#myReceivedHeal+1] = {actorName, amount}
 						end
 						
-						table.sort (myReceivedHeal, Vanguard.Sort2) --> Sort2 sort by second index
+						_table_sort (myReceivedHeal, Vanguard.Sort2) --> Sort2 sort by second index
 						
 						for i = 1, 4 do 
 							if (myReceivedHeal[i]) then
@@ -724,7 +737,7 @@ local function CreatePluginFrames (data)
 		end
 	
 		function Vanguard:UpdateHealth (index, unit)
-			local percent = UnitHealth (unit) / UnitHealthMax (unit) * 100
+			local percent = _UnitHealth (unit) / _UnitHealthMax (unit) * 100
 			Vanguard.TankFrames [index].Life (percent)
 		end
 	
@@ -940,12 +953,13 @@ local function CreatePluginFrames (data)
 	local on_second_tick = 0
 	local half_second_tick = 0
 
+	-- úpdate
 	local onupdate = function (self, elapsed)
 	
 		half_second_tick = half_second_tick + elapsed
 		on_second_tick = on_second_tick + elapsed
 		
-		if (on_second_tick >= 1) then
+		if (on_second_tick >= 0.3) then
 			
 			--> capture debuffs
 				for TankIndex, TankName in _ipairs (Vanguard.TankList) do 
@@ -1008,7 +1022,7 @@ local function CreatePluginFrames (data)
 			on_second_tick = 0
 		end
 		
-		if (half_second_tick > 0.5 and _track_player_object.avoidance) then
+		if (half_second_tick > 0.1 and _track_player_object.avoidance) then
 			
 			--> capture the amount of hits and avoids
 			
@@ -1089,8 +1103,11 @@ local function CreatePluginFrames (data)
 				local dmgAmt = damage_now / #damage_taken
 				DamageVsHeal:SetRightText (Vanguard:ToK ( _math_floor (dmgAmt)))
 
-				local IncomingHeal = UnitGetIncomingHeals (_track_player_name) or 0
-				DamageVsHeal:SetLeftText (Vanguard:ToK (IncomingHeal))
+				local shields = UnitGetTotalAbsorbs (_track_player_name) or 0
+				local IncomingHeal = _UnitGetIncomingHeals (_track_player_name) or 0
+				DamageVsHeal:SetLeftText (Vanguard:ToK (IncomingHeal + shields) .. " (|cFFFFFF55A: " .. Vanguard:ToK (shields) .. "|r)")
+				
+				IncomingHeal = IncomingHeal + shields
 				
 				if (dmgAmt > 0 and IncomingHeal > 0) then
 					if (dmgAmt > IncomingHeal) then 
@@ -1125,7 +1142,7 @@ local function CreatePluginFrames (data)
 				local amt = 1
 				local hp = _UnitHealthMax (_track_player_name)/3
 				
-				local last_events_table = _combat_object.player_last_events [MyName]
+				local last_events_table = _combat_object.player_last_events [_track_player_name or MyName] or _combat_object.player_last_events [MyName]
 				if (last_events_table) then
 					for _, tabela in _ipairs (last_events_table) do 
 						if (tabela[1]) then

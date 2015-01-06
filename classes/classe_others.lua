@@ -479,6 +479,13 @@ function atributo_misc:DeadAtualizarBarra (morte, qual_barra, colocacao, instanc
 	if (instancia.row_info.texture_background_class_color) then
 		esta_barra.background:SetVertexColor (_unpack (_detalhes.class_colors [morte[4]]))
 	end
+	
+	if (instancia.row_info.textL_class_colors) then
+		esta_barra.texto_esquerdo:SetTextColor (_unpack (_detalhes.class_colors [morte[4]]))
+	end
+	if (instancia.row_info.textR_class_colors) then
+		esta_barra.texto_direita:SetTextColor (_unpack (_detalhes.class_colors [morte[4]]))
+	end
 
 	esta_barra.icone_classe:SetTexture (instancia.row_info.icon_file)
 	esta_barra.icone_classe:SetTexCoord (_unpack (CLASS_ICON_TCOORDS [morte[4]]))

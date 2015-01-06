@@ -39,6 +39,8 @@ function SlashCmdList.DETAILS (msg, editbox)
 		_detalhes:CaptureSet (false, "energy", true)
 		_detalhes:CaptureSet (false, "miscdata", true)
 		_detalhes:CaptureSet (false, "aura", true)
+		_detalhes:CaptureSet (false, "spellcast", true)
+		
 		print (Loc ["STRING_DETAILS1"] .. Loc ["STRING_SLASH_CAPTUREOFF"])
 	
 	elseif (command == Loc ["STRING_SLASH_ENABLE"] or command == "enable") then
@@ -48,6 +50,8 @@ function SlashCmdList.DETAILS (msg, editbox)
 		_detalhes:CaptureSet (true, "energy", true)
 		_detalhes:CaptureSet (true, "miscdata", true)
 		_detalhes:CaptureSet (true, "aura", true)
+		_detalhes:CaptureSet (true, "spellcast", true)
+		
 		print (Loc ["STRING_DETAILS1"] .. Loc ["STRING_SLASH_CAPTUREON"])
 	
 	elseif (command == Loc ["STRING_SLASH_OPTIONS"] or command == "options" or command == "config") then

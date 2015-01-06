@@ -83,6 +83,8 @@
 				--combate_overall.end_time = _tempo
 				combate_overall.end_time = GetTime()
 			
+				local is_in_instance = select (1, IsInInstance())
+			
 			--> inicia a recuperação das tabelas e montagem do overall
 				if (#tabelas_do_historico > 0) then
 					for index, combate in _ipairs (tabelas_do_historico) do
@@ -110,7 +112,14 @@
 							for _, esta_classe in _ipairs (atributo) do
 							
 								local nome = esta_classe.nome
-								esta_classe.displayName = nome:gsub (("%-.*"), "")
+
+								if (is_in_instance and _detalhes.remove_realm_from_name) then
+									esta_classe.displayName = nome:gsub (("%-.*"), "")
+								elseif (_detalhes.remove_realm_from_name) then
+									esta_classe.displayName = nome:gsub (("%-.*"), "%*")
+								else
+									esta_classe.displayName = nome
+								end
 								
 								local shadow
 

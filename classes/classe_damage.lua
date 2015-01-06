@@ -156,7 +156,7 @@
 			local ignored_enemy_npcs = {
 				[31216] = true, --mirror image
 				[53006] = true, --spirit link totem
-				[2] = true,
+				[63508] = true, --xuen
 			}
 			
 			-- Night-Twisted Brute - Creature-0-3024-1228-19402-85241-00001E2097
@@ -520,6 +520,9 @@
 		esta_barra.texto_esquerdo:SetText (colocacao .. ". " .. tabela [1])
 		esta_barra.texto_direita:SetText (tabela [2] .. " (" .. porcentagem .. "%)")
 		
+		esta_barra.texto_esquerdo:SetTextColor (1, 1, 1, 1)
+		esta_barra.texto_direita:SetTextColor (1, 1, 1, 1)
+		
 		esta_barra.texto_esquerdo:SetSize (esta_barra:GetWidth() - esta_barra.texto_direita:GetStringWidth() - 20, 15)
 		
 		if (colocacao == 1) then
@@ -708,7 +711,6 @@
 		
 		local total = instancia.showing.totals.voidzone_damage
 
-		
 		local combat_time = instancia.showing:GetCombatTime()
 		local dps = _math_floor (self.damage / combat_time)
 		
@@ -731,6 +733,9 @@
 
 		esta_barra.texto_esquerdo:SetText (colocacao .. ". " .. self.nome)
 		esta_barra.texto_esquerdo:SetSize (esta_barra:GetWidth() - esta_barra.texto_direita:GetStringWidth() - 20, 15)
+		
+		esta_barra.texto_esquerdo:SetTextColor (1, 1, 1, 1)
+		esta_barra.texto_direita:SetTextColor (1, 1, 1, 1)
 		
 		esta_barra:SetValue (100)
 		
