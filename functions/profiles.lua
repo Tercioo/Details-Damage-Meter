@@ -982,6 +982,7 @@ local default_global_data = {
 			main_help_button = 0, 
 			alert_frames = {false, false, false, false, false, false}, 
 			bookmark_tutorial = false,
+			ctrl_click_close_tutorial = false,
 		},
 		performance_profiles = {
 			["RaidFinder"] = {enabled = false, update_speed = 1, use_row_animations = false, damage = true, heal = true, aura = true, energy = false, miscdata = true},

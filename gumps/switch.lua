@@ -98,6 +98,60 @@ local right_click_texture = {[[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]], 14, 
 
 function _detalhes.switch:ShowMe (instancia)
 
+	if (IsControlKeyDown()) then
+		
+		if (not _detalhes.tutorial.ctrl_click_close_tutorial) then
+			if (not DetailsCtrlCloseWindowPanelTutorial) then
+				local tutorial_frame = CreateFrame ("frame", "DetailsCtrlCloseWindowPanelTutorial", _detalhes.switch.frame)
+				tutorial_frame:SetFrameStrata ("FULLSCREEN_DIALOG")
+				tutorial_frame:SetAllPoints()
+				tutorial_frame:EnableMouse (true)
+				tutorial_frame:SetBackdrop ({bgFile = "Interface\\AddOns\\Details\\images\\background", tile = true, tileSize = 16 })
+				tutorial_frame:SetBackdropColor (0.05, 0.05, 0.05, 0.95)
+
+				tutorial_frame.info_label = tutorial_frame:CreateFontString (nil, "overlay", "GameFontNormal")
+				tutorial_frame.info_label:SetPoint ("topleft", tutorial_frame, "topleft", 10, -10)
+				tutorial_frame.info_label:SetText (Loc ["STRING_MINITUTORIAL_CLOSECTRL1"])
+				tutorial_frame.info_label:SetJustifyH ("left")
+				
+				tutorial_frame.mouse = tutorial_frame:CreateTexture (nil, "overlay")
+				tutorial_frame.mouse:SetTexture ([[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]])
+				tutorial_frame.mouse:SetTexCoord (0.0019531, 0.1484375, 0.6269531, 0.8222656)
+				tutorial_frame.mouse:SetSize (20, 22)
+				tutorial_frame.mouse:SetPoint ("topleft", tutorial_frame.info_label, "bottomleft", -3, -10)
+
+				tutorial_frame.close_label = tutorial_frame:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+				tutorial_frame.close_label:SetPoint ("left", tutorial_frame.mouse, "right", 4, 0)
+				tutorial_frame.close_label:SetText (Loc ["STRING_MINITUTORIAL_CLOSECTRL2"])
+				tutorial_frame.close_label:SetJustifyH ("left")
+				
+				local checkbox = CreateFrame ("CheckButton", "DetailsCtrlCloseWindowPanelTutorialCheckBox", tutorial_frame, "ChatConfigCheckButtonTemplate")
+				checkbox:SetPoint ("topleft", tutorial_frame.mouse, "bottomleft", -1, -5)
+				_G [checkbox:GetName().."Text"]:SetText (Loc ["STRING_MINITUTORIAL_BOOKMARK4"])
+				
+				tutorial_frame:SetScript ("OnMouseDown", function()
+					if (checkbox:GetChecked()) then
+						_detalhes.tutorial.ctrl_click_close_tutorial = true
+					end
+					
+					tutorial_frame:Hide()
+					
+					if (instancia:IsEnabled()) then
+						return instancia:ShutDown()
+					end
+				end)
+			end
+			
+			DetailsCtrlCloseWindowPanelTutorial:Show()
+			DetailsCtrlCloseWindowPanelTutorial.info_label:SetWidth (_detalhes.switch.frame:GetWidth()-30)
+			DetailsCtrlCloseWindowPanelTutorial.close_label:SetWidth (_detalhes.switch.frame:GetWidth()-30)
+			
+			return
+		end
+		
+		return instancia:ShutDown()
+	end
+
 	--> check if there is some custom contidional
 	if (instancia.atributo == 5) then
 		local custom_object = instancia:GetCustomObject()
@@ -202,6 +256,29 @@ function _detalhes.switch:Config (_,_, atributo, sub_atributo)
 	_detalhes.switch:Update()
 end
 
+--[[global]] function DetailsChangeDisplayFromBookmark (number, instance)
+	if (not instance) then
+		local lower = _detalhes:GetLowerInstanceNumber()
+		if (lower) then
+			instance = _detalhes:GetInstance (lower)
+		end
+		if (not instance) then
+			return _detalhes:Msg (Loc ["STRING_WINDOW_NOTFOUND"])
+		end
+	end
+	
+	local paramTable = _detalhes.switch.buttons [number] and _detalhes.switch.buttons [number].funcParam2
+	
+	if (paramTable) then
+		_detalhes.switch.current_instancia = instance
+		if (not paramTable.atributo) then
+			_detalhes:Msg (string.format (Loc ["STRING_SWITCH_SELECTMSG"], number))
+		end
+		return _detalhes:FastSwitch (paramTable)
+	end
+		
+end
+
 function _detalhes:FastSwitch (_this)
 	_detalhes.switch.current_button = _this.button
 	
@@ -219,6 +296,18 @@ function _detalhes:FastSwitch (_this)
 
 	else --> botão esquerdo
 
+		if (IsShiftKeyDown()) then
+			--> get a closed window or created a new one.
+			local instance = _detalhes:CreateInstance()
+			
+			if (not instance) then
+				_detalhes.switch.CloseMe()
+				return _detalhes:Msg (Loc ["STRING_WINDOW_NOTFOUND"])
+			end
+			
+			_detalhes.switch.current_instancia = instance
+		end
+	
 		if (_detalhes.switch.current_instancia.modo == _detalhes._detalhes_props["MODO_ALONE"]) then
 			_detalhes.switch.current_instancia:AlteraModo (_detalhes.switch.current_instancia, 2)
 			

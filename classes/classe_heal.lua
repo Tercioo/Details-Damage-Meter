@@ -511,7 +511,7 @@ function atributo_heal:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 	end
 
 	if (use_animations) then
-		instancia:fazer_animacoes()
+		instancia:fazer_animacoes (qual_barra - 1)
 	end
 	
 	if (instancia.atributo == 5) then --> custom

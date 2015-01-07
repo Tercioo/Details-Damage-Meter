@@ -12,6 +12,10 @@ locales\Details-enUS.lua
 locales\Details-ptBR.lua
 locales\Details-esES.lua
 locales\Details-esMX.lua
+locales\Details-deDE.lua
+locales\Details-frFR.lua
+locales\Details-koKR.lua
+locales\Details-ruRU.lua
 
 boot.lua
 indent.lua

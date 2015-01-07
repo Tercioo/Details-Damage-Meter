@@ -261,9 +261,15 @@ local food_list = {
 			
 			if (button == "LeftButton") then
 				--> link no food/flask
-				local s, added = "No Flask or Food: ", {}
+				local s, added = "Details!: No Flask or Food: ", {}
 				
-				for i = 1, GetNumGroupMembers(), 1 do
+				local amt = GetNumGroupMembers()
+				local _, _, difficulty = GetInstanceInfo()
+				if (difficulty == 16 and DetailsRaidCheck.db.mythic_1_4 and amt > 20) then
+					amt = 20
+				end
+				
+				for i = 1, amt, 1 do
 					local name = UnitName ("raid" .. i)
 					if (not DetailsRaidCheck.havefood_table [name]) then
 						added [name] = true
@@ -282,7 +288,13 @@ local food_list = {
 				
 				local s = "Details!: No Pre-Pot Last Try: "
 				
-				for i = 1, GetNumGroupMembers(), 1 do
+				local amt = GetNumGroupMembers()
+				local _, _, difficulty = GetInstanceInfo()
+				if (difficulty == 16 and DetailsRaidCheck.db.mythic_1_4 and amt > 20) then
+					amt = 20
+				end
+				
+				for i = 1, amt, 1 do
 				
 					local role = _UnitGroupRolesAssigned ("raid" .. i)
 			
@@ -315,7 +327,13 @@ local food_list = {
 			local amount1, amount2, amount3, amount4  = 0, 0, 0, 0
 			local s, f, p, n = "", "", "", ""
 			
-			for i = 1, GetNumGroupMembers(), 1 do
+			local amt = GetNumGroupMembers()
+			local _, _, difficulty = GetInstanceInfo()
+			if (difficulty == 16 and DetailsRaidCheck.db.mythic_1_4 and amt > 20) then
+				amt = 20
+			end
+			
+			for i = 1, amt, 1 do
 			
 				local name = UnitName ("raid" .. i)
 				
@@ -367,7 +385,14 @@ local food_list = {
 			end
 			
 			--> not used pre pot
-			for i = 1, GetNumGroupMembers(), 1 do
+			local amt = GetNumGroupMembers()
+			local _, _, difficulty = GetInstanceInfo()
+			if (difficulty == 16 and DetailsRaidCheck.db.mythic_1_4 and amt > 20) then
+				amt = 20
+			end
+			
+			for i = 1, amt, 1 do
+
 				local role = _UnitGroupRolesAssigned ("raid" .. i)
 			
 				if (role == "DAMAGER" or (role == "HEALER" and DetailsRaidCheck.db.pre_pot_healers) or (role == "TANK" and DetailsRaidCheck.db.pre_pot_tanks)) then
@@ -530,6 +555,45 @@ local food_list = {
 
 	end
 
+local build_options_panel = function()
+
+	local options_frame = DetailsRaidCheck:CreatePluginOptionsFrame ("DetailsRaidCheckOptionsWindow", "Details Raid Check Options", 1)
+
+	local menu = {
+		{
+			type = "toggle",
+			get = function() return DetailsRaidCheck.db.pre_pot_healers end,
+			set = function (self, fixedparam, value) DetailsRaidCheck.db.pre_pot_healers = value end,
+			desc = "If enabled, pre potion for healers are also shown.",
+			name = "Track Healers Pre Pot"
+		},
+		{
+			type = "toggle",
+			get = function() return DetailsRaidCheck.db.pre_pot_tanks end,
+			set = function (self, fixedparam, value) DetailsRaidCheck.db.pre_pot_tanks = value end,
+			desc = "If enabled, pre potion for tanks are also shown.",
+			name = "Track Tank Pre Pot"
+		},
+		{
+			type = "toggle",
+			get = function() return DetailsRaidCheck.db.mythic_1_4 end,
+			set = function (self, fixedparam, value) DetailsRaidCheck.db.mythic_1_4 = value end,
+			desc = "When raiding on Mythic difficult, only tracks the first 4 groups.",
+			name = "Mythic Special Tracker"
+		},		
+	}
+	
+	_detalhes.gump:BuildMenu (options_frame, menu, 15, -65, 260)
+
+end
+
+DetailsRaidCheck.OpenOptionsPanel = function()
+	if (not DetailsRaidCheckOptionsWindow) then
+		build_options_panel()
+	end
+	DetailsRaidCheckOptionsWindow:Show()
+end
+	
 	function DetailsRaidCheck:OnEvent (_, event, ...)
 
 		if (event == "ADDON_LOADED") then
@@ -547,7 +611,7 @@ local food_list = {
 					local default_settings = {
 						pre_pot_healers = false, --do not report pre pot for healers
 						pre_pot_tanks = false, --do not report pre pot for tanks
-						show_icon = 5, --when show the icon
+						mythic_1_4 = true, --only track groups 1-4 on mythic
 					}
 					
 					--> install

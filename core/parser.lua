@@ -161,7 +161,6 @@
 			who_name = "[*] "..spellname
 		end
 		
-		local real_damage = amount or 0
 		if (absorbed) then
 			amount = absorbed + (amount or 0)
 		end
@@ -305,7 +304,7 @@
 			
 			this_event [1] = true --> true if this is a damage || false for healing
 			this_event [2] = spellid --> spellid || false if this is a battle ress line
-			this_event [3] = real_damage --> amount of damage or healing
+			this_event [3] = amount --> amount of damage or healing
 			this_event [4] = time --> parser time
 			this_event [5] = _UnitHealth (alvo_name) --> current unit heal
 			this_event [6] = who_name --> source name
@@ -371,15 +370,6 @@
 		end
 		
 	------------------------------------------------------------------------------------------------
-	--> damage taken 
-
-		--> target
-		jogador_alvo.damage_taken = jogador_alvo.damage_taken + real_damage --> adiciona o dano tomado
-		if (not jogador_alvo.damage_from [who_name]) then --> adiciona a pool de dano tomado de quem
-			jogador_alvo.damage_from [who_name] = true
-		end
-		
-	------------------------------------------------------------------------------------------------
 	--> time start 
 
 		if (not este_jogador.dps_started) then
@@ -438,7 +428,7 @@
 			
 			this_event [1] = true --> true if this is a damage || false for healing
 			this_event [2] = spellid --> spellid || false if this is a battle ress line
-			this_event [3] = real_damage --> amount of damage or healing
+			this_event [3] = amount --> amount of damage or healing
 			this_event [4] = time --> parser time
 			this_event [5] = _UnitHealth (alvo_name) --> current unit heal
 			this_event [6] = who_name --> source name
@@ -462,10 +452,27 @@
 			friend.total = friend.total + amount
 			friend.spells [spellid] = (friend.spells [spellid] or 0) + amount
 			
+			------------------------------------------------------------------------------------------------
+			--> damage taken 
+
+				--> target
+				jogador_alvo.damage_taken = jogador_alvo.damage_taken + amount - (absorbed or 0) --> adiciona o dano tomado
+				if (not jogador_alvo.damage_from [who_name]) then --> adiciona a pool de dano tomado de quem
+					jogador_alvo.damage_from [who_name] = true
+				end
+
 			return true
 		else
 			_current_total [1] = _current_total [1]+amount
 			
+			------------------------------------------------------------------------------------------------
+			--> damage taken 
+
+				--> target
+				jogador_alvo.damage_taken = jogador_alvo.damage_taken + amount --> adiciona o dano tomado
+				if (not jogador_alvo.damage_from [who_name]) then --> adiciona a pool de dano tomado de quem
+					jogador_alvo.damage_from [who_name] = true
+				end
 		end
 		
 	------------------------------------------------------------------------------------------------
@@ -2649,7 +2656,7 @@
 		_detalhes.latest_ENCOUNTER_END = _GetTime()
 		
 		--_detalhes.encounter_table ["end"] = time() - 0.4
-		_detalhes.encounter_table ["end"] = _GetTime() -- - 0.4 --0.4 para o antigo metodo de tempo
+		_detalhes.encounter_table ["end"] = _GetTime() -- 0.351
 		
 		local _, _, _, _, _, _, _, zoneMapID = _GetInstanceInfo()
 		

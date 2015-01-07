@@ -113,9 +113,9 @@ function _detalhes:GetPerformanceRaidType()
 
 	if (type == "raid") then
 		--mythic
-		--if (difficulty == 15) then
-		--	return "Mythic"
-		--end
+		if (difficulty == 15) then
+			return "Mythic"
+		end
 		
 		--raid finder
 		if (difficulty == 7) then

@@ -1,11 +1,129 @@
 <Bindings>
-	<Binding name="DETAILS_RESET_SEGMENTS" description="Clear all segments." header="Details">
+	<Binding name="DETAILS_RESET_SEGMENTS" description="Clear all segments." header="DETAILS_KEYBIND_SEGMENTCONTROL" category="Details!">
 		_detalhes.tabela_historico:resetar()
 	</Binding>
-	<Binding name="DETAILS_SCROLL_DOWN" description="Scroll down the window which you have the mouse over." header="Details">
+	
+	<Binding name="DETAILS_SCROLL_DOWN" description="Scroll down the window which you have the mouse over." header="DETAILS_KEYBIND_SCROLLING" category="Details!">
 		DetailsKeyBindScrollDown()
 	</Binding>
-	<Binding name="DETAILS_SCROLL_UP" description="Scroll up the window which you have the mouse over." header="Details">
+	
+	<Binding name="DETAILS_SCROLL_UP" description="Scroll up the window which you have the mouse over." category="Details!">
 		DetailsKeyBindScrollUp()
 	</Binding>
+
+	<Binding name="DETAILS_REOPEN_WINDOW1" description="Reopen window 1." header="DETAILS_KEYBIND_WINDOW_CONTROL" category="Details!">
+		local instance1 = _detalhes.tabela_instancias [1];
+		if (instance1 and not instance1:IsEnabled()) then
+			instance1:EnableInstance();
+		elseif (not instance1) then
+			_detalhes:Msg ("Window 1 isn't created yet.");
+		end
+	</Binding>
+	<Binding name="DETAILS_REOPEN_WINDOW2" description="Reopen window 2." category="Details!">
+		local instance2 = _detalhes.tabela_instancias [2];
+		if (instance2 and not instance2:IsEnabled()) then
+			instance2:EnableInstance();
+		elseif (not instance2) then
+			_detalhes:Msg ("Window 2 isn't created yet.");
+		end
+	</Binding>
+	<Binding name="DETAILS_REOPEN_WINDOW3" description="Reopen window 3." category="Details!">
+		local instance3 = _detalhes.tabela_instancias [3];
+		if (instance3 and not instance3:IsEnabled()) then
+			instance3:EnableInstance();
+		elseif (not instance3) then
+			_detalhes:Msg ("Window 3 isn't created yet.");
+		end
+	</Binding>
+	<Binding name="DETAILS_REOPEN_WINDOW4" description="Reopen window 4." category="Details!">
+		local instance4 = _detalhes.tabela_instancias [4];
+		if (instance4 and not instance4:IsEnabled()) then
+			instance4:EnableInstance();
+		elseif (not instance4) then
+			_detalhes:Msg ("Window 4 isn't created yet.");
+		end
+	</Binding>
+	<Binding name="DETAILS_REOPEN_WINDOW5" description="Reopen window 5." category="Details!">
+		local instance5 = _detalhes.tabela_instancias [5];
+		if (instance5 and not instance5:IsEnabled()) then
+			instance5:EnableInstance();
+		elseif (not instance5) then
+			_detalhes:Msg ("Window 5 isn't created yet.");
+		end
+	</Binding>
+	
+	<Binding name="DETAILS_CLOSE_WINDOW1" description="Close window 1." category="Details!">
+		local instance1 = _detalhes.tabela_instancias [1];
+		if (instance1 and instance1:IsEnabled()) then
+			instance1:ShutDown();
+		else
+			_detalhes:Msg ("Window 1 isn't open.");
+		end
+	</Binding>
+	<Binding name="DETAILS_CLOSE_WINDOW2" description="Close window 2." category="Details!">
+		local instance2 = _detalhes.tabela_instancias [2];
+		if (instance2 and instance2:IsEnabled()) then
+			instance2:ShutDown();
+		else
+			_detalhes:Msg ("Window 2 isn't open.");
+		end
+	</Binding>
+	<Binding name="DETAILS_CLOSE_WINDOW3" description="Close window 3." category="Details!">
+		local instance3 = _detalhes.tabela_instancias [3];
+		if (instance3 and instance3:IsEnabled()) then
+			instance3:ShutDown();
+		else
+			_detalhes:Msg ("Window 3 isn't open.");
+		end
+	</Binding>
+	<Binding name="DETAILS_CLOSE_WINDOW4" description="Close window 4." category="Details!">
+		local instance4 = _detalhes.tabela_instancias [4];
+		if (instance4 and instance4:IsEnabled()) then
+			instance4:ShutDown();
+		else
+			_detalhes:Msg ("Window 4 isn't open.");
+		end
+	</Binding>
+	<Binding name="DETAILS_CLOSE_WINDOW5" description="Close window 5." category="Details!">
+		local instance5 = _detalhes.tabela_instancias [5];
+		if (instance5 and instance5:IsEnabled()) then
+			instance5:ShutDown();
+		else
+			_detalhes:Msg ("Window 5 isn't open.");
+		end
+	</Binding>
+	
+
+	<Binding name="DETAILS_BOOKMARK1" description="Change the display on the first window to bookmark #1." header="DETAILS_KEYBIND_BOOKMARK" category="Details!">
+		DetailsChangeDisplayFromBookmark (1);
+	</Binding>
+	<Binding name="DETAILS_BOOKMARK2" description="Change the display on the first window to bookmark #2." category="Details!">
+		DetailsChangeDisplayFromBookmark (2);
+	</Binding>
+	<Binding name="DETAILS_BOOKMARK3" description="Change the display on the first window to bookmark #3." category="Details!">
+		DetailsChangeDisplayFromBookmark (3);
+	</Binding>
+	<Binding name="DETAILS_BOOKMARK4" description="Change the display on the first window to bookmark #4." category="Details!">
+		DetailsChangeDisplayFromBookmark (4);
+	</Binding>
+	<Binding name="DETAILS_BOOKMARK5" description="Change the display on the first window to bookmark #5." category="Details!">
+		DetailsChangeDisplayFromBookmark (5);
+	</Binding>
+	<Binding name="DETAILS_BOOKMARK6" description="Change the display on the first window to bookmark #6." category="Details!">
+		DetailsChangeDisplayFromBookmark (6);
+	</Binding>
+	<Binding name="DETAILS_BOOKMARK7" description="Change the display on the first window to bookmark #7." category="Details!">
+		DetailsChangeDisplayFromBookmark (7);
+	</Binding>
+	<Binding name="DETAILS_BOOKMARK8" description="Change the display on the first window to bookmark #8." category="Details!">
+		DetailsChangeDisplayFromBookmark (8);
+	</Binding>
+	<Binding name="DETAILS_BOOKMARK9" description="Change the display on the first window to bookmark #9." category="Details!">
+		DetailsChangeDisplayFromBookmark (9);
+	</Binding>
+	<Binding name="DETAILS_BOOKMARK10" description="Change the display on the first window to bookmark #10." category="Details!">
+		DetailsChangeDisplayFromBookmark (10);
+	</Binding>
+	
+	
 </Bindings>

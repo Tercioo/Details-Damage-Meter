@@ -1969,6 +1969,7 @@ function _detalhes:ReportSingleLine (instancia, barra)
 	return _detalhes:Reportar (reportar, {_no_current = true, _no_inverse = true, _custom = true})
 end
 
+-- ~stretch
 local function button_stretch_scripts (baseframe, backgrounddisplay, instancia)
 	local button = baseframe.button_stretch
 
@@ -2115,7 +2116,7 @@ local function button_stretch_scripts (baseframe, backgrounddisplay, instancia)
 					if (esta_instancia.wallpaper.enabled) then
 						_r, _g, _b = esta_instancia.baseframe.wallpaper:GetVertexColor()
 						_a = esta_instancia.baseframe.wallpaper:GetAlpha()
-						gump:GradientEffect (esta_instancia.baseframe.wallpaper, "texture", _r, _g, _b, _a, _r, _g, _b, esta_instancia.baseframe.wallpaper.alpha, 1.0)
+						gump:GradientEffect (esta_instancia.baseframe.wallpaper, "texture", _r, _g, _b, _a, _r, _g, _b, esta_instancia.wallpaper.alpha, 1.0)
 					end
 					
 					esta_instancia.baseframe:SetFrameStrata (esta_instancia.strata)

@@ -9,6 +9,7 @@
 	local _math_floor = math.floor --lua local
 	local _type = type --lua local
 	local _math_abs = math.abs --lua local
+	local _math_min = math.min
 	local _ipairs = ipairs --lua local
 	
 	local _GetScreenWidth = GetScreenWidth --wow api local
@@ -64,12 +65,12 @@
 --	/run print( _detalhes:GetInstance(1).rowframe:GetParent():GetName())	
 --	/run print (DetailsBarra_1_1:GetParent():GetName())
 
-	function _detalhes:fazer_animacoes()
+	function _detalhes:fazer_animacoes (amt_barras)
 		--aqui
 
 		if (self.bars_sort_direction == 2) then
 		
-			for i = self.rows_fit_in_window - 1, 1, -1 do
+			for i = _math_min (self.rows_fit_in_window, amt_barras) - 1, 1, -1 do
 				local row = self.barras [i]
 				local row_proxima = self.barras [i-1]
 				

@@ -1295,7 +1295,7 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 	end
 	
 	if (use_animations) then
-		instancia:fazer_animacoes()
+		instancia:fazer_animacoes (qual_barra - 1)
 	end
 	
 	--> beta, hidar barras não usadas durante um refresh forçado

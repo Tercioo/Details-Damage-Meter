@@ -325,7 +325,7 @@ end
 		
 	end
 
---> desativando a instância ela fica em stand by e apenas hida a janela
+--> desativando a instância ela fica em stand by e apenas hida a janela ~shutdown ~close ~fechar
 	function _detalhes:DesativarInstancia()
 	
 		local lower = _detalhes:GetLowerInstanceNumber()
@@ -649,6 +649,21 @@ end
 			return _detalhes:Msg (Loc ["STRING_INSTANCE_LIMIT"])
 		end
 		
+		--> verifica se não tem uma janela na pool de janelas fechadas
+		local next_id = #_detalhes.tabela_instancias+1
+		
+		if (_detalhes.unused_instances [next_id]) then
+			local new_instance = _detalhes.unused_instances [next_id]
+			_detalhes.tabela_instancias [next_id] = new_instance
+			_detalhes.unused_instances [next_id] = nil
+			new_instance:AtivarInstancia()
+			
+			_detalhes:GetLowerInstanceNumber()
+			
+			return new_instance
+		end
+		
+		--> cria uma nova janela
 		local new_instance = _detalhes:NovaInstancia (#_detalhes.tabela_instancias+1)
 		
 		if (not _detalhes.initializing) then
