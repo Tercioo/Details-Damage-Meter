@@ -1742,31 +1742,13 @@ end
 
 ------------------------------------------------------------------------------------------------------------------------
 
-function _detalhes:HaveOneCurrentInstance()
-
-	local have = false
+function _detalhes:CheckSwitchToCurrent()
 	for _, instance in _ipairs (_detalhes.tabela_instancias) do
-		if (instance.ativa and instance.baseframe and instance.segmento == 0) then
-			return
-		end
-	end
-	
-	local lower = _detalhes:GetLowerInstanceNumber()
-	if (lower) then
-		local instance = _detalhes:GetInstance (lower)
-		if (instance and instance.auto_current) then
+		if (instance.ativa and instance.baseframe and instance.segmento ~= 0 and instance.auto_current) then
 			instance:TrocaTabela (0) --> muda o segmento pra current
-			return instance:InstanceAlert (Loc ["STRING_CHANGED_TO_CURRENT"], {[[Interface\GossipFrame\TrainerGossipIcon]], 18, 18, false}, 6)
-		else
-			for _, instance in _ipairs (_detalhes.tabela_instancias) do
-				if (instance.ativa and instance.baseframe and instance.segmento ~= 0 and instance.auto_current) then
-					instance:TrocaTabela (0) --> muda o segmento pra current
-					return instance:InstanceAlert (Loc ["STRING_CHANGED_TO_CURRENT"], {[[Interface\GossipFrame\TrainerGossipIcon]], 18, 18, false}, 6)
-				end
-			end
+			instance:InstanceAlert (Loc ["STRING_CHANGED_TO_CURRENT"], {[[Interface\AddOns\Details\images\toolbar_icons]], 18, 18, false, 32/256, 64/256, 0, 1}, 6)
 		end
 	end
-	
 end
 
 function _detalhes:Freeze (instancia)

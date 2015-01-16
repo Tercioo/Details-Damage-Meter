@@ -3,6 +3,7 @@ local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
 local _detalhes = 		_G._detalhes
 local gump = 			_detalhes.gump
 local _
+
 --lua locals
 local _cstr = tostring --> lua local
 local _math_ceil = math.ceil --> lua local
@@ -17,17 +18,7 @@ local _IsInGuild = IsInGuild --> wow api locals
 local _GetChannelList = GetChannelList --> wow api locals
 local _UIParent = UIParent --> wow api locals
 
---> got weird errors with globals, not sure why
-local _UIDropDownMenu_SetSelectedID = UIDropDownMenu_SetSelectedID --> wow api locals
-local _UIDropDownMenu_CreateInfo = UIDropDownMenu_CreateInfo --> wow api locals
-local _UIDropDownMenu_AddButton = UIDropDownMenu_AddButton --> wow api locals
-local _UIDropDownMenu_Initialize = UIDropDownMenu_Initialize --> wow api locals
-local _UIDropDownMenu_SetWidth = UIDropDownMenu_SetWidth --> wow api locals
-local _UIDropDownMenu_SetButtonWidth = UIDropDownMenu_SetButtonWidth --> wow api locals
-local _UIDropDownMenu_SetSelectedValue = UIDropDownMenu_SetSelectedValue --> wow api locals
-local _UIDropDownMenu_JustifyText = UIDropDownMenu_JustifyText --> wow api locals
 local _UISpecialFrames = UISpecialFrames --> wow api locals
-
 
 --> details API functions -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -150,7 +141,7 @@ local _UISpecialFrames = UISpecialFrames --> wow api locals
 		if (type (param2) == "string") then
 			id = param2
 		end
-		
+
 		if (_detalhes.last_report_id and id and _detalhes.last_report_id == id) then
 			_detalhes.last_report_id = nil
 			_detalhes.janela_report.fechar:Click()
@@ -257,18 +248,18 @@ BG Leader: 255 216 183
 General/Trade: 255 189 192
 --]]
 
-local iconsize = {16, 16}
+	local iconsize = {16, 16}
 
-local lista = {
-{Loc ["STRING_REPORTFRAME_PARTY"], "PARTY", function() return GetNumSubgroupMembers() > 0 end, {iconsize = iconsize, icon = [[Interface\FriendsFrame\UI-Toast-ToastIcons]], coords = {0.53125, 0.7265625, 0.078125, 0.40625}, color = {0.66, 0.65, 1}}},
-{Loc ["STRING_REPORTFRAME_RAID"], "RAID", _IsInRaid, {iconsize = iconsize, icon = [[Interface\FriendsFrame\UI-Toast-ToastIcons]], coords = {0.53125, 0.7265625, 0.078125, 0.40625}, color = {1, 0.49, 0}}}, 
-{Loc ["STRING_REPORTFRAME_GUILD"], "GUILD", _IsInGuild, {iconsize = iconsize, icon = [[Interface\FriendsFrame\UI-Toast-ToastIcons]], coords = {0.8046875, 0.96875, 0.125, 0.390625}, color = {0.25, 0.98, 0.25}}}, 
-{Loc ["STRING_REPORTFRAME_OFFICERS"], "OFFICER", _IsInGuild, {iconsize = iconsize, icon = [[Interface\FriendsFrame\UI-Toast-ToastIcons]], coords = {0.8046875, 0.96875, 0.125, 0.390625}, color = {0.25, 0.74, 0.25}}}, 
-{Loc ["STRING_REPORTFRAME_WHISPER"], "WHISPER", nil, {iconsize = iconsize, icon = [[Interface\FriendsFrame\UI-Toast-ToastIcons]], coords = {0.0546875, 0.1953125, 0.625, 0.890625}, color = {1, 0.49, 1}}}, 
-{Loc ["STRING_REPORTFRAME_WHISPERTARGET"], "WHISPER2", nil, {iconsize = iconsize, icon = [[Interface\FriendsFrame\UI-Toast-ToastIcons]], coords = {0.0546875, 0.1953125, 0.625, 0.890625}, color = {1, 0.49, 1}}}, 
-{Loc ["STRING_REPORTFRAME_SAY"], "SAY", nil, {iconsize = iconsize, icon = [[Interface\FriendsFrame\UI-Toast-ToastIcons]], coords = {0.0390625, 0.203125, 0.09375, 0.375}, color = {1, 1, 1}}},
-{Loc ["STRING_REPORTFRAME_COPY"], "COPY", nil, {iconsize = iconsize, icon = [[Interface\Buttons\UI-GuildButton-PublicNote-Disabled]], coords = {0, 1, 0, 1}, color = {1, 1, 1}}},
-}
+	local lista = {
+		{Loc ["STRING_REPORTFRAME_PARTY"], "PARTY", function() return GetNumSubgroupMembers() > 0 end, {iconsize = iconsize, icon = [[Interface\FriendsFrame\UI-Toast-ToastIcons]], coords = {0.53125, 0.7265625, 0.078125, 0.40625}, color = {0.66, 0.65, 1}}},
+		{Loc ["STRING_REPORTFRAME_RAID"], "RAID", _IsInRaid, {iconsize = iconsize, icon = [[Interface\FriendsFrame\UI-Toast-ToastIcons]], coords = {0.53125, 0.7265625, 0.078125, 0.40625}, color = {1, 0.49, 0}}}, 
+		{Loc ["STRING_REPORTFRAME_GUILD"], "GUILD", _IsInGuild, {iconsize = iconsize, icon = [[Interface\FriendsFrame\UI-Toast-ToastIcons]], coords = {0.8046875, 0.96875, 0.125, 0.390625}, color = {0.25, 0.98, 0.25}}}, 
+		{Loc ["STRING_REPORTFRAME_OFFICERS"], "OFFICER", _IsInGuild, {iconsize = iconsize, icon = [[Interface\FriendsFrame\UI-Toast-ToastIcons]], coords = {0.8046875, 0.96875, 0.125, 0.390625}, color = {0.25, 0.74, 0.25}}}, 
+		{Loc ["STRING_REPORTFRAME_WHISPER"], "WHISPER", nil, {iconsize = iconsize, icon = [[Interface\FriendsFrame\UI-Toast-ToastIcons]], coords = {0.0546875, 0.1953125, 0.625, 0.890625}, color = {1, 0.49, 1}}}, 
+		{Loc ["STRING_REPORTFRAME_WHISPERTARGET"], "WHISPER2", nil, {iconsize = iconsize, icon = [[Interface\FriendsFrame\UI-Toast-ToastIcons]], coords = {0.0546875, 0.1953125, 0.625, 0.890625}, color = {1, 0.49, 1}}}, 
+		{Loc ["STRING_REPORTFRAME_SAY"], "SAY", nil, {iconsize = iconsize, icon = [[Interface\FriendsFrame\UI-Toast-ToastIcons]], coords = {0.0390625, 0.203125, 0.09375, 0.375}, color = {1, 1, 1}}},
+		{Loc ["STRING_REPORTFRAME_COPY"], "COPY", nil, {iconsize = iconsize, icon = [[Interface\Buttons\UI-GuildButton-PublicNote-Disabled]], coords = {0, 1, 0, 1}, color = {1, 1, 1}}},
+	}
 
 		local on_click = function (self, fixedParam, selectedOutput)
 			_detalhes.report_where = selectedOutput
@@ -286,10 +277,7 @@ local lista = {
 			
 			local channels = {_GetChannelList()} --> coloca o resultado em uma tabela .. {id1, canal1, id2, canal2}
 			for i = 1, #channels, 2 do --> total de canais
-			
 				output_array [#output_array + 1] = {iconsize = iconsize, value = "CHANNEL|"..channels [i+1], label = channels [i]..". "..channels [i+1], onclick = on_click, icon = [[Interface\FriendsFrame\UI-Toast-ToastIcons]], texcoord = {0.3046875, 0.4453125, 0.109375, 0.390625}, iconcolor = {149/255, 112/255, 112/255}}
-			
-				--lista [#lista+1] = {channels [i]..". "..channels [i+1], "CHANNEL|"..channels [i+1]}
 			end
 			
 			local bnet_friends = {}
@@ -304,50 +292,11 @@ local lista = {
 
 			return output_array
 		end
+		este_gump.dropdown_func = build_list
 	
 		local select_output = gump:NewDropDown (este_gump, _, "$parentOutputDropdown", "select", 185, 20, build_list, 1)
 		select_output:SetPoint ("topleft", este_gump, "topleft", 107, -55)
 		este_gump.select = select_output.widget
-		
-		
-		local function initialize (self, level)
-			local info = _UIDropDownMenu_CreateInfo()
-
-			for i = 9, #lista do 
-				lista [i] = nil
-			end
-			
-			local channels = {_GetChannelList()} --> coloca o resultado em uma tabela .. {id1, canal1, id2, canal2}
-			for i = 1, #channels, 2 do --> total de canais
-				lista [#lista+1] = {channels [i]..". "..channels [i+1], "CHANNEL|"..channels [i+1]}
-			end
-			
-			local BnetFriends = BNGetNumFriends()
-			for i = 1, BnetFriends do 
-				local presenceID, presenceName, battleTag, isBattleTagPresence, toonName, toonID, client, isOnline, lastOnline, isAFK, isDND, messageText, noteText, isRIDFriend, broadcastTime, canSoR = BNGetFriendInfo (i)
-				if (isOnline) then
-					lista [#lista+1] = {presenceName, "REALID|" .. presenceID, nil, [[Interface\FriendsFrame\Battlenet-Battleneticon]]}
-				end
-			end
-			
-			--BNSendWhisper
-
-			for index, v in _pairs (lista) do
-			
-				if (not v[3] or (type (v[3]) == "function" and v[3]())) then
-					info = _UIDropDownMenu_CreateInfo()
-					info.text = v[1]
-					info.value = v[2]
-					
-					if (v[4]) then
-						info.icon = v[4]
-					end
-					
-					info.func = OnClick
-					_UIDropDownMenu_AddButton (info, level)
-				end
-			end
-		end
 		
 		function select_output:CheckValid()
 			
@@ -581,11 +530,48 @@ local lista = {
 		local este_gump = _CreateFrame ("Frame", "DetailsReportWindow", _UIParent)
 		este_gump:SetPoint ("CENTER", UIParent, "CENTER")
 		este_gump:SetFrameStrata ("HIGH")
+		
+		este_gump:SetScript ("OnShow", function (self)
+			local dropdown = este_gump.select.MyObject
+			local where = _detalhes.report_where
+			
+			local list = este_gump.dropdown_func()
+			local found
+			
+			for index, option in ipairs (list) do
+				if (option.value == where) then
+					dropdown:Select (where)
+					found = true
+					break
+				end
+			end
+			
+			if (not found) then
+				if (_IsInRaid()) then
+					dropdown:Select ("RAID")
+					_detalhes.report_where = "RAID"
+					
+				elseif (GetNumSubgroupMembers() > 0) then
+					dropdown:Select ("PARTY")
+					_detalhes.report_where = "PARTY"
+					
+				elseif (_IsInGuild()) then
+					dropdown:Select ("GUILD")
+					_detalhes.report_where = "GUILD"
+					
+				else
+					dropdown:Select ("SAY")
+					_detalhes.report_where = "SAY"
+				end
+			end
+			
+		end)
 
 		_tinsert (_UISpecialFrames, este_gump:GetName())
 		
 		este_gump:SetScript ("OnHide", function (self)
 			_detalhes.janela_report.ativa = false
+			_detalhes.last_report_id = nil
 		end)
 
 		este_gump:SetWidth (320)

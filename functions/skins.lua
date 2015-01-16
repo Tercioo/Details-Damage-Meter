@@ -505,6 +505,8 @@ local _
 			["window_scale"] = 1,
 			["bars_grow_direction"] = 1,
 			["row_info"] = {
+				["use_spec_icons"] = true,
+				["spec_file"] = [[Interface\AddOns\Details\images\spec_icons_normal]],
 				["textR_outline"] = false,
 				["textL_outline"] = false,
 				["percent_type"] = 1,

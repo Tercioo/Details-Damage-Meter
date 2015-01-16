@@ -203,6 +203,18 @@ function _detalhes:LoadCombatTables()
 				_detalhes.tabela_vigente = _detalhes.combate:NovaTabela (_, _detalhes.tabela_overall)
 				_detalhes.tabela_pets = _detalhes.container_pets:NovoContainer()
 				_detalhes:UpdateContainerCombatentes()
+			else
+				--> check integrity
+				local combat = _detalhes.tabela_historico.tabelas [1]
+				if (combat) then
+					if (not combat[1] or not combat[2] or not combat[3] or not combat[4]) then
+						--> something went wrong in last logon, let's just reset and we are good to go
+						_detalhes.tabela_historico = _detalhes.historico:NovoHistorico()
+						_detalhes.tabela_vigente = _detalhes.combate:NovaTabela (_, _detalhes.tabela_overall)
+						_detalhes.tabela_pets = _detalhes.container_pets:NovoContainer()
+						_detalhes:UpdateContainerCombatentes()
+					end
+				end
 			end
 
 		--> re-build all indexes and metatables

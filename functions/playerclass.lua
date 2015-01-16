@@ -10,6 +10,8 @@ do
 	local _select = select
 	local _unpack = unpack
 
+	local unknown_class_coords = {0.75, 1, 0.75, 1}
+	
 	-- try get the class from actor name
 	function _detalhes:GetClass (name)
 		local _, class = _UnitClass (name)
@@ -20,12 +22,18 @@ do
 				if (index) then
 					local actor = container._ActorTable [index]
 					if (actor.classe ~= "UNGROUPPLAYER") then
-						return actor.classe, _detalhes:unpacks (_detalhes.class_coords [actor.classe] or {0.75, 1, 0.75, 1}, _detalhes.class_colors [actor.classe])
+						local left, right, top, bottom = unpack (_detalhes.class_coords [actor.classe] or unknown_class_coords)
+						local r, g, b = unpack (_detalhes.class_colors [actor.classe])
+						return actor.classe, left, right, top, bottom, r or 1, g or 1, b or 1
 					end
 				end
 			end
+			
+			return "UNKNOW", 0.75, 1, 0.75, 1, 1, 1, 1, 1
 		else
-			return class, _detalhes:unpacks (_detalhes.class_coords [class] or {0.75, 1, 0.75, 1}, _detalhes.class_colors [class])
+			local left, right, top, bottom = unpack (_detalhes.class_coords [class])
+			local r, g, b = unpack (_detalhes.class_colors [class])
+			return class, left, right, top, bottom, r or 1, g or 1, b or 1
 		end
 	end
 	
@@ -118,6 +126,139 @@ do
 		
 		if (tries and tries < 10) then 
 			_detalhes:ScheduleTimer ("GuessClass", 2, {Actor, container, tries+1})
+		end
+		
+		return false
+	end
+	
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	
+	-- try get the spec from actor name
+	function _detalhes:GetSpec (name)
+	
+		local guid = UnitGUID (name)
+		if (guid) then
+			local spec = _detalhes.cached_specs [guid]
+			if (spec) then
+				return spec
+			end
+		end
+		
+		for _, container in _ipairs (_detalhes.tabela_overall) do
+			local index = container._NameIndexTable [name]
+			if (index) then
+				local actor = container._ActorTable [index]
+				return actor and actor.spec
+			end
+		end
+		
+	end
+	
+	function _detalhes:GuessSpec (t)
+	
+		local Actor, container, tries = t[1], t[2], t[3]
+		
+		if (not Actor) then
+			return false
+		end
+		
+		local guid = UnitGUID (Actor.nome)
+		if (guid) then
+			local spec = _detalhes.cached_specs [guid]
+			if (spec) then
+				Actor.spec = spec
+				Actor.guessing_spec = nil
+				
+				if (container) then
+					container.need_refresh = true
+				end
+				
+				if (Actor.minha_barra and type (Actor.minha_barra) == "table") then
+					Actor.minha_barra.minha_tabela = nil
+				end
+			
+				return spec
+			end
+		end
+		
+		local SpecSpellList = _detalhes.SpecSpellList
+		
+		if (Actor.spells) then --> correcao pros containers misc, precisa pegar os diferentes tipos de containers de  lá
+			for spellid, _ in _pairs (Actor.spells._ActorTable) do 
+				local spec = SpecSpellList [spellid]
+				if (spec) then
+				
+					_detalhes.cached_specs [Actor.serial] = spec
+				
+					Actor.spec = spec
+					Actor.guessing_spec = nil
+					
+					if (container) then
+						container.need_refresh = true
+					end
+					
+					if (Actor.minha_barra and type (Actor.minha_barra) == "table") then
+						Actor.minha_barra.minha_tabela = nil
+					end
+				
+					return spec
+				end
+			end
+		end
+		
+		if (Actor.classe == "HUNTER") then
+			local container_misc = _detalhes.tabela_vigente[4]
+			local index = container_misc._NameIndexTable [Actor.nome]
+			if (index) then
+				local misc_actor = container_misc._ActorTable [index]
+				local buffs = misc_actor.buff_uptime_spells and misc_actor.buff_uptime_spells._ActorTable
+				if (buffs) then
+					for spellid, spell in _pairs (buffs) do
+						local spec = SpecSpellList [spellid]
+						if (spec) then
+						
+							_detalhes.cached_specs [Actor.serial] = spec
+						
+							Actor.spec = spec
+							Actor.guessing_spec = nil
+							
+							if (container) then
+								container.need_refresh = true
+							end
+							
+							if (Actor.minha_barra and type (Actor.minha_barra) == "table") then
+								Actor.minha_barra.minha_tabela = nil
+							end
+						
+							return spec
+						end
+					end
+				end
+			end
+		end
+
+		local spec = _detalhes:GetSpec (Actor.nome)
+		if (spec) then
+		
+			_detalhes.cached_specs [Actor.serial] = spec
+		
+			Actor.spec = spec
+			Actor.need_refresh = true
+			Actor.guessing_spec = nil
+			
+			if (container) then
+				container.need_refresh = true
+			end
+			
+			if (Actor.minha_barra and type (Actor.minha_barra) == "table") then
+				Actor.minha_barra.minha_tabela = nil
+			end
+			
+			return spec
+		end
+		
+		if (tries and tries < 10) then 
+			_detalhes:ScheduleTimer ("GuessSpec", 3, {Actor, container, tries+1})
 		end
 		
 		return false

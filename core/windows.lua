@@ -2232,7 +2232,44 @@
 		for i = 1, 10 do
 			local robot = current_combat[1]:PegarCombatente (0x0000000000000, actors_name [math.random (1, #actors_name)], 0x114, true)
 			robot.grupo = true
+			
 			robot.classe = actors_classes [math.random (1, #actors_classes)]
+			
+			if (robot.classe == "DEATHKNIGHT") then
+				local specs = {250, 251, 252}
+				robot.spec = specs [math.random (1, #specs)]
+			elseif (robot.classe == "DRUID") then
+				local specs = {102, 103, 104, 105}
+				robot.spec = specs [math.random (1, #specs)]
+			elseif (robot.classe == "HUNTER") then
+				local specs = {253, 254, 255}
+				robot.spec = specs [math.random (1, #specs)]
+			elseif (robot.classe == "MAGE") then
+				local specs = {62, 63, 64}
+				robot.spec = specs [math.random (1, #specs)]
+			elseif (robot.classe == "MONK") then
+				local specs = {268, 269, 270}
+				robot.spec = specs [math.random (1, #specs)]
+			elseif (robot.classe == "PALADIN") then
+				local specs = {65, 66, 70}
+				robot.spec = specs [math.random (1, #specs)]
+			elseif (robot.classe == "PRIEST") then
+				local specs = {256, 257, 258}
+				robot.spec = specs [math.random (1, #specs)]
+			elseif (robot.classe == "ROGUE") then
+				local specs = {259, 260, 261}
+				robot.spec = specs [math.random (1, #specs)]
+			elseif (robot.classe == "SHAMAN") then
+				local specs = {262, 263, 264}
+				robot.spec = specs [math.random (1, #specs)]
+			elseif (robot.classe == "WARLOCK") then
+				local specs = {265, 266, 267}
+				robot.spec = specs [math.random (1, #specs)]
+			elseif (robot.classe == "WARRIOR") then
+				local specs = {71, 72, 73}
+				robot.spec = specs [math.random (1, #specs)]
+			end
+			
 			robot.total = math.random (10000000, 60000000)
 			robot.damage_taken = math.random (10000000, 60000000)
 			robot.friendlyfire_total = math.random (10000000, 60000000)
@@ -2256,6 +2293,42 @@
 			local robot = current_combat[2]:PegarCombatente (0x0000000000000, actors_name [math.random (1, #actors_name)], 0x114, true)
 			robot.grupo = true
 			robot.classe = actors_classes [math.random (1, #actors_classes)]
+			
+			if (robot.classe == "DEATHKNIGHT") then
+				local specs = {250, 251, 252}
+				robot.spec = specs [math.random (1, #specs)]
+			elseif (robot.classe == "DRUID") then
+				local specs = {102, 103, 104, 105}
+				robot.spec = specs [math.random (1, #specs)]
+			elseif (robot.classe == "HUNTER") then
+				local specs = {253, 254, 255}
+				robot.spec = specs [math.random (1, #specs)]
+			elseif (robot.classe == "MAGE") then
+				local specs = {62, 63, 64}
+				robot.spec = specs [math.random (1, #specs)]
+			elseif (robot.classe == "MONK") then
+				local specs = {268, 269, 270}
+				robot.spec = specs [math.random (1, #specs)]
+			elseif (robot.classe == "PALADIN") then
+				local specs = {65, 66, 70}
+				robot.spec = specs [math.random (1, #specs)]
+			elseif (robot.classe == "PRIEST") then
+				local specs = {256, 257, 258}
+				robot.spec = specs [math.random (1, #specs)]
+			elseif (robot.classe == "ROGUE") then
+				local specs = {259, 260, 261}
+				robot.spec = specs [math.random (1, #specs)]
+			elseif (robot.classe == "SHAMAN") then
+				local specs = {262, 263, 264}
+				robot.spec = specs [math.random (1, #specs)]
+			elseif (robot.classe == "WARLOCK") then
+				local specs = {265, 266, 267}
+				robot.spec = specs [math.random (1, #specs)]
+			elseif (robot.classe == "WARRIOR") then
+				local specs = {71, 72, 73}
+				robot.spec = specs [math.random (1, #specs)]
+			end
+			
 			robot.total = math.random (10000000, 60000000)
 			robot.totalover = math.random (10000000, 60000000)
 			robot.totalabsorb = math.random (10000000, 60000000)

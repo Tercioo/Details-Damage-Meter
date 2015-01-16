@@ -998,6 +998,7 @@
 				
 				local pickicon_callback = function (texture)
 					box0.icontexture:SetTexture (texture)
+					
 				end
 				local pickicon = function()
 					gump:IconPick (pickicon_callback, true)

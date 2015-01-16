@@ -159,6 +159,7 @@
 		elseif (not who_name) then
 			--> no actor name, use spell name instead
 			who_name = "[*] "..spellname
+			who_serial = ""
 		end
 		
 		if (absorbed) then
@@ -224,7 +225,7 @@
 	--> get actors
 	
 		--> damager
-		local este_jogador, meu_dono = damage_cache [who_name] or damage_cache_pets [who_serial], damage_cache_petsOwners [who_serial]
+		local este_jogador, meu_dono = damage_cache [who_serial] or damage_cache_pets [who_serial], damage_cache_petsOwners [who_serial]
 		
 		if (not este_jogador) then --> pode ser um desconhecido ou um pet
 		
@@ -234,17 +235,21 @@
 				damage_cache_pets [who_serial] = este_jogador
 				damage_cache_petsOwners [who_serial] = meu_dono
 				--conferir se o dono já esta no cache
-				if (not damage_cache [meu_dono.nome]) then
-					damage_cache [meu_dono.nome] = meu_dono
+				if (not damage_cache [meu_dono.serial]) then
+					damage_cache [meu_dono.serial] = meu_dono
 				end
 			else
 				if (who_flags) then --> ter certeza que não é um pet
-					damage_cache [who_name] = este_jogador
-					--> se for spell actor
-					if (who_name:find ("[*]")) then
-						local _, _, icon = _GetSpellInfo (spellid or 1)
-						este_jogador.spellicon = icon
-						--print ("spell actor:", who_name, "icon:", icon)
+					if (who_serial ~= "") then
+						damage_cache [who_serial] = este_jogador
+					else
+						if (who_name:find ("%[")) then
+							local _, _, icon = _GetSpellInfo (spellid or 1)
+							este_jogador.spellicon = icon
+							--print ("Spell Actor:", who_name)
+						else
+							--print ("No Serial Actor:", who_name)
+						end
 					end
 				end
 			end
@@ -255,7 +260,7 @@
 		end
 		
 		--> his target
-		local jogador_alvo, alvo_dono = damage_cache [alvo_name] or damage_cache_pets [alvo_serial], damage_cache_petsOwners [alvo_serial]
+		local jogador_alvo, alvo_dono = damage_cache [alvo_serial] or damage_cache_pets [alvo_serial], damage_cache_petsOwners [alvo_serial]
 		
 		if (not jogador_alvo) then
 		
@@ -265,12 +270,12 @@
 				damage_cache_pets [alvo_serial] = jogador_alvo
 				damage_cache_petsOwners [alvo_serial] = alvo_dono
 				--conferir se o dono já esta no cache
-				if (not damage_cache [alvo_dono.nome]) then
-					damage_cache [alvo_dono.nome] = alvo_dono
+				if (not damage_cache [alvo_dono.serial]) then
+					damage_cache [alvo_dono.serial] = alvo_dono
 				end
 			else
 				if (alvo_flags) then --> ter certeza que não é um pet
-					damage_cache [alvo_name] = jogador_alvo
+					damage_cache [alvo_serial] = jogador_alvo
 				end
 			end
 		
@@ -522,7 +527,10 @@
 	------------------------------------------------------------------------------------------------
 	--> early checks and fixes
 
-		if (not who_name or not alvo_name) then
+		if (not who_name) then
+			--> no actor name, use spell name instead
+			who_name = "[*] " .. spellname
+		elseif (not who_name or not alvo_name) then
 			return --> just return
 		end
 
@@ -531,7 +539,7 @@
 		--print ("MISS", "|", missType, "|", isOffHand, "|", multistrike, "|", amountMissed, "|", arg1)
 		
 		--> 'misser'
-		local este_jogador = damage_cache [who_name]
+		local este_jogador = damage_cache [who_serial]
 		if (not este_jogador) then
 			--este_jogador, meu_dono, who_name = _current_damage_container:PegarCombatente (nil, who_name)
 			este_jogador, meu_dono, who_name = _current_damage_container:PegarCombatente (who_serial, who_name, who_flags, true)
@@ -542,7 +550,7 @@
 
 		if (tanks_members_cache [alvo_serial]) then --> only track tanks
 		
-			local TargetActor = damage_cache [alvo_name]
+			local TargetActor = damage_cache [alvo_serial]
 			if (TargetActor) then
 			
 				local avoidance = TargetActor.avoidance
@@ -619,6 +627,10 @@
 	function parser:summon (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellName)
 	
 		--[[statistics]]-- _detalhes.statistics.pets_summons = _detalhes.statistics.pets_summons + 1
+	
+		--if (who_name:find ("Kastfall")) then
+		--	print ("SUMMON", who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags)
+		--end
 	
 		if (not who_name) then
 			who_name = "[*] " .. spellName
@@ -1672,11 +1684,11 @@
 			
 			if (who_name == alvo_name) then
 			
-				local damage_actor = damage_cache [who_name]
+				local damage_actor = damage_cache [who_serial]
 				if (not damage_actor) then --> pode ser um desconhecido ou um pet
 					damage_actor = _current_damage_container:PegarCombatente (who_serial, who_name, who_flags, true)
 					if (who_flags) then --> se não for um pet, adicionar no cache
-						damage_cache [who_name] = damage_actor
+						damage_cache [who_serial] = damage_actor
 					end
 				end
 
@@ -1867,7 +1879,7 @@
 			--> enemy successful casts (not interrupted)
 			if (_bit_band (who_flags, 0x00000040) ~= 0 and who_name) then --> byte 2 = 4 (enemy)
 				--> damager
-				local este_jogador = damage_cache [who_name]
+				local este_jogador = damage_cache [who_serial]
 				if (not este_jogador) then
 					este_jogador = _current_damage_container:PegarCombatente (who_serial, who_name, who_flags, true)
 				end

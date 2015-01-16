@@ -646,6 +646,9 @@
 			_detalhes:ClearCCPetsBlackList()
 		end
 		
+		--> reseta cache de specs
+		_detalhes:ResetSpecCache()
+		
 		--> wipa container de escudos
 		_table_wipe (_detalhes.escudos)
 

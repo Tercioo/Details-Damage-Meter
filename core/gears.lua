@@ -15,6 +15,122 @@ function _detalhes:UpdateGears()
 	
 end
 
+function _detalhes:TrackSpecsNow (track_everything)
+
+	local spelllist = _detalhes.SpecSpellList
+	
+	if (not track_everything) then
+		for _, actor in _detalhes.tabela_vigente[1]:ListActors() do
+			if (actor:IsPlayer()) then
+				for spellid, spell in pairs (actor:GetSpellList()) do
+					if (spelllist [spell.id]) then
+						actor.spec = spelllist [spell.id]
+						_detalhes.cached_specs [actor.serial] = actor.spec
+						break
+					end
+				end
+			end
+		end
+
+		for _, actor in _detalhes.tabela_vigente[2]:ListActors() do
+			if (actor:IsPlayer()) then
+				for spellid, spell in pairs (actor:GetSpellList()) do
+					if (spelllist [spell.id]) then
+						actor.spec = spelllist [spell.id]
+						_detalhes.cached_specs [actor.serial] = actor.spec
+						break
+					end
+				end
+			end
+		end
+	else
+		local combatlist = {}
+		for _, combat in ipairs (_detalhes.tabela_historico.tabelas) do
+			tinsert (combatlist, combat)
+		end
+		tinsert (combatlist, _detalhes.tabela_vigente)
+		tinsert (combatlist, _detalhes.tabela_overall)
+		
+		for _, combat in ipairs (combatlist) do
+			for _, actor in combat[1]:ListActors() do
+				if (actor:IsPlayer()) then
+					for spellid, spell in pairs (actor:GetSpellList()) do
+						if (spelllist [spell.id]) then
+							actor.spec = spelllist [spell.id]
+							_detalhes.cached_specs [actor.serial] = actor.spec
+							break
+						end
+					end
+				end
+			end
+
+			for _, actor in combat[2]:ListActors() do
+				if (actor:IsPlayer()) then
+					for spellid, spell in pairs (actor:GetSpellList()) do
+						if (spelllist [spell.id]) then
+							actor.spec = spelllist [spell.id]
+							_detalhes.cached_specs [actor.serial] = actor.spec
+							break
+						end
+					end
+				end
+			end
+		end
+	end
+	
+end
+
+function _detalhes:ResetSpecCache (forced)
+
+	local isininstance = IsInInstance()
+	
+	if (forced or (not isininstance and not _detalhes.in_group)) then
+		table.wipe (_detalhes.cached_specs)
+		
+		if (_detalhes.track_specs) then
+			local my_spec = GetSpecialization()
+			if (type (my_spec) == "number") then
+				local spec_number = GetSpecializationInfo (my_spec)
+				if (type (spec_number) == "number") then
+					local pguid = UnitGUID (_detalhes.playername)
+					if (pguid) then
+						_detalhes.cached_specs [pguid] = spec_number
+					end
+				end
+			end
+		end
+	
+	elseif (_detalhes.in_group and not isininstance) then
+		table.wipe (_detalhes.cached_specs)
+		
+		if (_detalhes.track_specs) then
+			if (IsInRaid()) then
+				local c_combat_dmg = _detalhes.tabela_vigente [1]
+				local c_combat_heal = _detalhes.tabela_vigente [2]
+				for i = 1, GetNumGroupMembers(), 1 do
+					local name = GetUnitName ("raid" .. i, true)
+					local index = c_combat_dmg._NameIndexTable [name]
+					if (index) then
+						local actor = c_combat_dmg._ActorTable [index]
+						if (actor and actor.grupo and actor.spec) then
+							_detalhes.cached_specs [actor.serial] = actor.spec
+						end
+					else
+						index = c_combat_heal._NameIndexTable [name]
+						if (index) then
+							local actor = c_combat_heal._ActorTable [index]
+							if (actor and actor.grupo and actor.spec) then
+								_detalhes.cached_specs [actor.serial] = actor.spec
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+	
+end
+
 function _detalhes:SetWindowUpdateSpeed (interval, nosave)
 	if (not interval) then
 		interval = _detalhes.update_speed

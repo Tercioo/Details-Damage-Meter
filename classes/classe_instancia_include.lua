@@ -178,6 +178,9 @@ _detalhes.instance_defaults = {
 				},
 			--fast hps/dps updates
 				fast_ps_update = false,
+			--show spec icons
+				use_spec_icons = false,
+				spec_file = [[Interface\AddOns\Details\images\spec_icons_normal]],
 		},
 	--instance window color
 		color = {1, 1, 1, 1},

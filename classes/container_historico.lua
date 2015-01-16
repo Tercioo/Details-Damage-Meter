@@ -279,6 +279,7 @@ function historico:resetar()
 	_table_wipe (_detalhes.spellcache)
 	
 	_detalhes:LimparPets()
+	_detalhes:ResetSpecCache (true) --> forçar
 	
 	-- novo container de historico
 	_detalhes.tabela_historico = historico:NovoHistorico() --joga fora a tabela antiga e cria uma nova

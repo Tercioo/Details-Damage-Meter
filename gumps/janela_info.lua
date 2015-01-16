@@ -3033,6 +3033,11 @@ function _detalhes.janela_info:monta_relatorio (botao)
 
 	local amt = _detalhes.report_lines
 	
+	if (not player) then
+		_detalhes:Msg ("Player not found.")
+		return
+	end
+	
 	local report_lines
 	
 	if (botao == 1) then --> botão da esquerda
@@ -3040,7 +3045,10 @@ function _detalhes.janela_info:monta_relatorio (botao)
 		for index, barra in _ipairs (info.barras1) do 
 			if (barra:IsShown()) then
 				local spellid = barra.show
-				if (spellid > 10) then
+				if (atributo == 1 and sub_atributo == 4) then --> friendly fire
+					report_lines [#report_lines+1] = barra.texto_esquerdo:GetText() .. ": " .. barra.texto_direita:GetText()
+					
+				elseif (spellid > 10) then
 					local link = GetSpellLink (spellid)
 					report_lines [#report_lines+1] = index .. ". " .. link .. ": " .. barra.texto_direita:GetText()
 				else

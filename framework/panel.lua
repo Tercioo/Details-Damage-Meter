@@ -910,7 +910,13 @@ function gump:IconPick (callback, close_when_select)
 		gump.IconPickFrame.emptyFunction = function() end
 		gump.IconPickFrame.callback = gump.IconPickFrame.emptyFunction
 		
-		gump.IconPickFrame.preview =  gump:NewImage (gump.IconPickFrame, nil, 76, 76)
+		gump.IconPickFrame.preview =  CreateFrame ("frame", nil, UIParent)
+		gump.IconPickFrame.preview:SetFrameStrata ("tooltip")
+		gump.IconPickFrame.preview:SetSize (76, 76)
+		local preview_image = gump:NewImage (gump.IconPickFrame.preview, nil, 76, 76)
+		preview_image:SetAllPoints (gump.IconPickFrame.preview)
+		gump.IconPickFrame.preview.icon = preview_image
+		gump.IconPickFrame.preview:Hide()
 		
 		gump.IconPickFrame.searchLabel =  gump:NewLabel (gump.IconPickFrame, nil, "$parentSearchBoxLabel", nil, "search:", font, size, color)
 		gump.IconPickFrame.searchLabel:SetPoint ("topleft", gump.IconPickFrame, "topleft", 12, -20)
@@ -924,6 +930,8 @@ function gump:IconPick (callback, close_when_select)
 				gump.IconPickFrame.updateFunc()
 			else
 				gump.IconPickFrameScroll:Hide()
+				FauxScrollFrame_SetOffset (gump.IconPickFrame, 1)
+				gump.IconPickFrame.last_filter_index = 1
 				gump.IconPickFrame.updateFunc()
 			end
 		end)
@@ -971,6 +979,8 @@ function gump:IconPick (callback, close_when_select)
 				end
 			end
 			
+			GetLooseMacroItemIcons (MACRO_ICON_FILENAMES)
+			GetLooseMacroIcons (MACRO_ICON_FILENAMES)
 			GetMacroIcons (MACRO_ICON_FILENAMES)
 			GetMacroItemIcons (MACRO_ICON_FILENAMES )
 			
@@ -983,10 +993,8 @@ function gump:IconPick (callback, close_when_select)
 		
 		gump.IconPickFrame.buttons = {}
 		
-		local OnClickFunction = function (index) 
-			local button = gump.IconPickFrame.buttons [index]
-			local texture = button:GetNormalTexture()
-			gump.IconPickFrame.callback (button.icon_texture)
+		local OnClickFunction = function (self) 
+			gump.IconPickFrame.callback (self.icon:GetTexture())
 			if (gump.IconPickFrame.click_close) then
 				close_button:Click()
 			end
@@ -994,119 +1002,197 @@ function gump:IconPick (callback, close_when_select)
 		
 		local onenter = function (self)
 			gump.IconPickFrame.preview:SetPoint ("bottom", self, "top", 0, 2)
-			gump.IconPickFrame.preview:SetTexture (self.icon_texture)
-			gump.IconPickFrame.preview:SetParent (self)
+			gump.IconPickFrame.preview.icon:SetTexture (self.icon:GetTexture())
 			gump.IconPickFrame.preview:Show()
+			self.icon:SetBlendMode ("ADD")
 		end
 		local onleave = function (self)
 			gump.IconPickFrame.preview:Hide()
+			self.icon:SetBlendMode ("BLEND")
 		end
 		
+		local backdrop = {bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 16,
+		insets = {left = 0, right = 0, top = 0, bottom = 0}, edgeFile = [[Interface\DialogFrame\UI-DialogBox-Border]], edgeSize = 10}
+		
 		for i = 0, 9 do 
-			local newcheck = gump:NewDetailsButton (gump.IconPickFrame, gump.IconPickFrame, _, OnClickFunction, i+1, i+1, 30, 28, "", "", "", "", _, "DetailsIconPickFrameButton"..(i+1))
+			local newcheck = CreateFrame ("Button", "DetailsIconPickFrameButton"..(i+1), gump.IconPickFrame)
+			local image = newcheck:CreateTexture ("DetailsIconPickFrameButton"..(i+1).."Icon", "overlay")
+			newcheck.icon = image
+			image:SetPoint ("topleft", newcheck, "topleft", 2, -2); image:SetPoint ("bottomright", newcheck, "bottomright", -2, 2)
+			newcheck:SetSize (30, 28)
+			newcheck:SetBackdrop (backdrop)
+			
+			newcheck:SetScript ("OnClick", OnClickFunction)
+			newcheck.param1 = i+1
+			
 			newcheck:SetPoint ("topleft", gump.IconPickFrame, "topleft", 12 + (i*30), -40)
 			newcheck:SetID (i+1)
 			gump.IconPickFrame.buttons [#gump.IconPickFrame.buttons+1] = newcheck
-			newcheck.MouseOnEnterHook = onenter
-			newcheck.MouseOnLeaveHook = onleave
+			newcheck:SetScript ("OnEnter", onenter)
+			newcheck:SetScript ("OnLeave", onleave)
 		end
-		for i = 11, 20 do 
-			local newcheck = gump:NewDetailsButton (gump.IconPickFrame, gump.IconPickFrame, _, OnClickFunction, i, i, 30, 28, "", "", "", "", _, "DetailsIconPickFrameButton"..i)
+		for i = 11, 20 do
+			local newcheck = CreateFrame ("Button", "DetailsIconPickFrameButton"..i, gump.IconPickFrame)
+			local image = newcheck:CreateTexture ("DetailsIconPickFrameButton"..i.."Icon", "overlay")
+			newcheck.icon = image
+			image:SetPoint ("topleft", newcheck, "topleft", 2, -2); image:SetPoint ("bottomright", newcheck, "bottomright", -2, 2)
+			newcheck:SetSize (30, 28)
+			newcheck:SetBackdrop (backdrop)
+			
+			newcheck:SetScript ("OnClick", OnClickFunction)
+			newcheck.param1 = i
+			
 			newcheck:SetPoint ("topleft", "DetailsIconPickFrameButton"..(i-10), "bottomleft", 0, -1)
 			newcheck:SetID (i)
 			gump.IconPickFrame.buttons [#gump.IconPickFrame.buttons+1] = newcheck
-			newcheck.MouseOnEnterHook = onenter
-			newcheck.MouseOnLeaveHook = onleave
+			newcheck:SetScript ("OnEnter", onenter)
+			newcheck:SetScript ("OnLeave", onleave)
 		end
 		for i = 21, 30 do 
-			local newcheck = gump:NewDetailsButton (gump.IconPickFrame, gump.IconPickFrame, _, OnClickFunction, i, i, 30, 28, "", "", "", "", _, "DetailsIconPickFrameButton"..i)
+			local newcheck = CreateFrame ("Button", "DetailsIconPickFrameButton"..i, gump.IconPickFrame)
+			local image = newcheck:CreateTexture ("DetailsIconPickFrameButton"..i.."Icon", "overlay")
+			newcheck.icon = image
+			image:SetPoint ("topleft", newcheck, "topleft", 2, -2); image:SetPoint ("bottomright", newcheck, "bottomright", -2, 2)
+			newcheck:SetSize (30, 28)
+			newcheck:SetBackdrop (backdrop)
+			
+			newcheck:SetScript ("OnClick", OnClickFunction)
+			newcheck.param1 = i
+			
 			newcheck:SetPoint ("topleft", "DetailsIconPickFrameButton"..(i-10), "bottomleft", 0, -1)
 			newcheck:SetID (i)
 			gump.IconPickFrame.buttons [#gump.IconPickFrame.buttons+1] = newcheck
-			newcheck.MouseOnEnterHook = onenter
-			newcheck.MouseOnLeaveHook = onleave
+			newcheck:SetScript ("OnEnter", onenter)
+			newcheck:SetScript ("OnLeave", onleave)
 		end
 		for i = 31, 40 do 
-			local newcheck = gump:NewDetailsButton (gump.IconPickFrame, gump.IconPickFrame, _, OnClickFunction, i, i, 30, 28, "", "", "", "", _, "DetailsIconPickFrameButton"..i)
+			local newcheck = CreateFrame ("Button", "DetailsIconPickFrameButton"..i, gump.IconPickFrame)
+			local image = newcheck:CreateTexture ("DetailsIconPickFrameButton"..i.."Icon", "overlay")
+			newcheck.icon = image
+			image:SetPoint ("topleft", newcheck, "topleft", 2, -2); image:SetPoint ("bottomright", newcheck, "bottomright", -2, 2)
+			newcheck:SetSize (30, 28)
+			newcheck:SetBackdrop (backdrop)
+			
+			newcheck:SetScript ("OnClick", OnClickFunction)
+			newcheck.param1 = i
+			
 			newcheck:SetPoint ("topleft", "DetailsIconPickFrameButton"..(i-10), "bottomleft", 0, -1)
 			newcheck:SetID (i)
 			gump.IconPickFrame.buttons [#gump.IconPickFrame.buttons+1] = newcheck
-			newcheck.MouseOnEnterHook = onenter
-			newcheck.MouseOnLeaveHook = onleave
+			newcheck:SetScript ("OnEnter", onenter)
+			newcheck:SetScript ("OnLeave", onleave)
 		end
 		for i = 41, 50 do 
-			local newcheck = gump:NewDetailsButton (gump.IconPickFrame, gump.IconPickFrame, _, OnClickFunction, i, i, 30, 28, "", "", "", "", _, "DetailsIconPickFrameButton"..i)
+			local newcheck = CreateFrame ("Button", "DetailsIconPickFrameButton"..i, gump.IconPickFrame)
+			local image = newcheck:CreateTexture ("DetailsIconPickFrameButton"..i.."Icon", "overlay")
+			newcheck.icon = image
+			image:SetPoint ("topleft", newcheck, "topleft", 2, -2); image:SetPoint ("bottomright", newcheck, "bottomright", -2, 2)
+			newcheck:SetSize (30, 28)
+			newcheck:SetBackdrop (backdrop)
+			
+			newcheck:SetScript ("OnClick", OnClickFunction)
+			newcheck.param1 = i
+			
 			newcheck:SetPoint ("topleft", "DetailsIconPickFrameButton"..(i-10), "bottomleft", 0, -1)
 			newcheck:SetID (i)
 			gump.IconPickFrame.buttons [#gump.IconPickFrame.buttons+1] = newcheck
-			newcheck.MouseOnEnterHook = onenter
-			newcheck.MouseOnLeaveHook = onleave
+			newcheck:SetScript ("OnEnter", onenter)
+			newcheck:SetScript ("OnLeave", onleave)
 		end
 		for i = 51, 60 do 
-			local newcheck = gump:NewDetailsButton (gump.IconPickFrame, gump.IconPickFrame, _, OnClickFunction, i, i, 30, 28, "", "", "", "", _, "DetailsIconPickFrameButton"..i)
+			local newcheck = CreateFrame ("Button", "DetailsIconPickFrameButton"..i, gump.IconPickFrame)
+			local image = newcheck:CreateTexture ("DetailsIconPickFrameButton"..i.."Icon", "overlay")
+			newcheck.icon = image
+			image:SetPoint ("topleft", newcheck, "topleft", 2, -2); image:SetPoint ("bottomright", newcheck, "bottomright", -2, 2)
+			newcheck:SetSize (30, 28)
+			newcheck:SetBackdrop (backdrop)
+			
+			newcheck:SetScript ("OnClick", OnClickFunction)
+			newcheck.param1 = i
+			
 			newcheck:SetPoint ("topleft", "DetailsIconPickFrameButton"..(i-10), "bottomleft", 0, -1)
 			newcheck:SetID (i)
 			gump.IconPickFrame.buttons [#gump.IconPickFrame.buttons+1] = newcheck
-			newcheck.MouseOnEnterHook = onenter
-			newcheck.MouseOnLeaveHook = onleave
+			newcheck:SetScript ("OnEnter", onenter)
+			newcheck:SetScript ("OnLeave", onleave)
 		end
 		
 		local scroll = CreateFrame ("ScrollFrame", "DetailsIconPickFrameScroll", gump.IconPickFrame, "ListScrollFrameTemplate")
 
 		local ChecksFrame_Update = function (self)
-			--self = self or MacroPopupFrame;
-			local numMacroIcons = #MACRO_ICON_FILENAMES;
-			local macroPopupIcon, macroPopupButton;
-			local macroPopupOffset = FauxScrollFrame_GetOffset (scroll);
-			local index;
-			
-			-- Icon list
-			local texture;
-			
+
+			local numMacroIcons = #MACRO_ICON_FILENAMES
+			local macroPopupIcon, macroPopupButton
+			local macroPopupOffset = FauxScrollFrame_GetOffset (scroll)
+			local index
+
+			local texture
 			local filter
 			if (gump.IconPickFrame.searching) then
 				filter = string_lower (gump.IconPickFrame.searching)
 			end
 			
 			if (filter and filter ~= "") then
-				local i = 1
-				for o = 1, numMacroIcons do
-					local text = string_lower (MACRO_ICON_FILENAMES [o])
-					if (text:find (filter)) then
-						macroPopupIcon = _G ["DetailsIconPickFrameButton"..i]
-						macroPopupButton = _G ["DetailsIconPickFrameButton"..i]
-						local texture = MACRO_ICON_FILENAMES [o]
-						macroPopupButton:ChangeIcon ("INTERFACE\\ICONS\\"..texture, "INTERFACE\\ICONS\\"..texture, "INTERFACE\\ICONS\\"..texture, "INTERFACE\\ICONS\\"..texture)
-						macroPopupButton.IconID = index
-						macroPopupButton.icon_texture = "INTERFACE\\ICONS\\"..texture
-						macroPopupButton:Show();
-						
-						i = i + 1
-						if (i > 60) then
-							break
+				
+				local ignored = 0
+				local tryed = 0
+				local found = 0
+				local type = type
+				local buttons = gump.IconPickFrame.buttons
+				index = 1
+				
+				for i = 1, 60 do
+					
+					macroPopupIcon = buttons[i].icon
+					macroPopupButton = buttons[i]
+
+					for o = index, numMacroIcons do
+					
+						tryed = tryed + 1
+					
+						texture = MACRO_ICON_FILENAMES [o]
+						if (type (texture) == "number") then
+							macroPopupIcon:SetToFileData (texture)
+							texture = macroPopupIcon:GetTexture()
+							macroPopupIcon:SetTexture (nil)
+						else
+							texture = "INTERFACE\\ICONS\\" .. texture
 						end
+						
+						if (texture and texture:find (filter)) then
+							macroPopupIcon:SetTexture (texture)
+							macroPopupButton:Show()
+							found = found + 1
+							gump.IconPickFrame.last_filter_index = o
+							index = o+1
+							break
+						else
+							ignored = ignored + 1
+						end
+						
 					end
 				end
 			
-				if (i == 1) then --no resutls
-					macroPopupButton = _G ["DetailsIconPickFrameButton"..i]
-					macroPopupButton:Hide()
-				end
-			
-				for o = i+1, 60 do
+				for o = found+1, 60 do
 					macroPopupButton = _G ["DetailsIconPickFrameButton"..o]
 					macroPopupButton:Hide()
 				end
 			else
 				for i = 1, 60 do
-					macroPopupIcon = _G ["DetailsIconPickFrameButton"..i]
+					macroPopupIcon = _G ["DetailsIconPickFrameButton"..i.."Icon"]
 					macroPopupButton = _G ["DetailsIconPickFrameButton"..i]
-					index = (macroPopupOffset * 10) + i;
+					index = (macroPopupOffset * 10) + i
 					texture = MACRO_ICON_FILENAMES [index]
 					if ( index <= numMacroIcons and texture ) then
-						macroPopupButton:ChangeIcon ("INTERFACE\\ICONS\\"..texture, "INTERFACE\\ICONS\\"..texture, "INTERFACE\\ICONS\\"..texture, "INTERFACE\\ICONS\\"..texture)
+
+						if (type (texture) == "number") then
+							macroPopupIcon:SetToFileData (texture)
+						else
+							macroPopupIcon:SetTexture ("INTERFACE\\ICONS\\" .. texture)
+						end
+
+						macroPopupIcon:SetTexCoord (4/64, 60/64, 4/64, 60/64)
 						macroPopupButton.IconID = index
-						macroPopupButton.icon_texture = "INTERFACE\\ICONS\\"..texture
 						macroPopupButton:Show()
 					else
 						macroPopupButton:Hide()
@@ -1115,7 +1201,7 @@ function gump:IconPick (callback, close_when_select)
 			end
 			
 			-- Scrollbar stuff
-			FauxScrollFrame_Update (scroll, ceil (numMacroIcons / 10) , 5, 20 );
+			FauxScrollFrame_Update (scroll, ceil (numMacroIcons / 10) , 5, 20 )
 		end
 
 		gump.IconPickFrame.updateFunc = ChecksFrame_Update

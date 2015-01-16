@@ -283,6 +283,11 @@ function _G._detalhes:Start()
 		end
 		self:ScheduleTimer ("AnnounceStartup", 5)
 		
+		if (_detalhes.failed_to_load) then
+			_detalhes:CancelTimer (_detalhes.failed_to_load)
+			_detalhes.failed_to_load = nil
+		end
+		
 		--function self:RunAutoHideMenu()
 		--	local lower_instance = _detalhes:GetLowerInstanceNumber()
 		--	local instance = self:GetInstance (lower_instance)
@@ -325,6 +330,25 @@ function _G._detalhes:Start()
 	--> check is this is the first run of this version
 		if (self.is_version_first_run) then
 		
+			if (_detalhes_database.last_version and _detalhes.userversion == "v3.8c") then
+				if (not _detalhes:GetTutorialCVar ("UPDATE_WARNING_SPECICONS1")) then
+					_detalhes:SetTutorialCVar ("UPDATE_WARNING_SPECICONS1", true)
+					local func = function()
+						local window1 = _detalhes:GetInstance(1)
+						if (window1 and window1:IsEnabled()) then
+							window1:SetBarSpecIconSettings (true, [[Interface\AddOns\Details\images\spec_icons_normal]], true)
+						end
+						local window2 = _detalhes:GetInstance(2)
+						if (window2 and window2:IsEnabled()) then
+							window2:SetBarSpecIconSettings (true, [[Interface\AddOns\Details\images\spec_icons_normal]], true)
+						end
+						
+						_detalhes:CreateTestBars()
+					end
+					_detalhes:GetFramework():ShowTutorialAlertFrame ("Spec Icons!", "Now Available, click here!", func)
+				end
+			end
+		
 			local enable_reset_warning = true
 		
 			local lower_instance = _detalhes:GetLowerInstanceNumber()
@@ -358,15 +382,18 @@ function _G._detalhes:Start()
 			dev_icon:SetWidth (40)
 			dev_icon:SetHeight (40)
 			dev_icon:SetPoint ("bottomleft", instance.baseframe, "bottomleft", 4, 8)
-			dev_icon:SetTexture ([[Interface\DialogFrame\UI-Dialog-Icon-AlertOther]])
 			dev_icon:SetAlpha (.3)
 			
 			local dev_text = instance.bgdisplay:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
 			dev_text:SetHeight (64)
 			dev_text:SetPoint ("left", dev_icon, "right", 5, 0)
 			dev_text:SetTextColor (1, 1, 1)
-			dev_text:SetText ("Details is Under\nDevelopment")
 			dev_text:SetAlpha (.3)
+			
+			if (self.tutorial.logons < 50) then
+				dev_text:SetText ("Details is Under\nDevelopment")
+				dev_icon:SetTexture ([[Interface\DialogFrame\UI-Dialog-Icon-AlertOther]])
+			end
 		
 			--version
 			self.gump:Fade (instance._version, 0)

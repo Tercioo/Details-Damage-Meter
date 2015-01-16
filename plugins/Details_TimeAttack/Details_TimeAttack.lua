@@ -146,8 +146,13 @@ local function CreatePluginFrames()
 		TimeAmount2:SetPoint ("left", TimeDesc, "right", 4, 0)
 	
 	--> main time/damage/dps texts
-		local clock = DetailsFrameWork:NewLabel (TimeAttackFrame, TimeAttackFrame, nil, "TIMER", "00:00:00", "GameFontHighlightLarge")
-		clock:SetPoint ("center", TimeAttackFrame, 0, -20)
+		local clock = DetailsFrameWork:NewLabel (TimeAttackFrame, TimeAttackFrame, nil, "TIMER", "00:", "GameFontHighlightLarge")
+		clock:SetPoint ("center", TimeAttackFrame, -25, -20)
+		local clock2 = DetailsFrameWork:NewLabel (TimeAttackFrame, TimeAttackFrame, nil, "TIMER", "00:", "GameFontHighlightLarge")
+		clock2:SetPoint ("center", TimeAttackFrame, 0, -20)
+		local clock3 = DetailsFrameWork:NewLabel (TimeAttackFrame, TimeAttackFrame, nil, "TIMER", "00", "GameFontHighlightLarge")
+		clock3:SetPoint ("center", TimeAttackFrame, 23, -20)
+		
 		local damage = DetailsFrameWork:NewLabel (TimeAttackFrame, TimeAttackFrame, nil, "DAMAGE", "00.000.000", "GameFontHighlightLarge")
 		damage:SetPoint ("center", TimeAttackFrame, 0, -40)
 		local persecond = DetailsFrameWork:NewLabel (TimeAttackFrame, TimeAttackFrame, nil, "DPS", "000.000", "GameFontHighlightLarge")
@@ -776,7 +781,7 @@ local function CreatePluginFrames()
 	
 	--> Cancel function
 	function TimeAttack:Cancel()
-		if (TimeAttack.Time and TimeAttack.Time.Working) then
+		if (TimeAttack.Time) then
 			TimeAttack.Time.Working = false
 			TimeAttack.Time.Done = true
 		end
@@ -792,6 +797,8 @@ local function CreatePluginFrames()
 			if (TimeAttack.Time.Working and not TimeAttack.Time.Done) then
 				TimeAttack:Cancel()
 				TimeAttack:Finish()
+			else
+				TimeAttack:Cancel()
 			end
 		else
 			--> aqui vem as funções que verificam se o jogador esta em grupo ou se tem algum buff proibido
@@ -802,28 +809,24 @@ local function CreatePluginFrames()
 					TimeAttack:Cancel()
 				end
 			else
-				if (update > 0.050) then
-					--> Update Timer Here
-					
-					local minutos, segundos = _math_floor (TimeAttack.Time.Elapsed/60), _math_floor (TimeAttack.Time.Elapsed%60)
+				local minutos, segundos = _math_floor (TimeAttack.Time.Elapsed/60), _math_floor (TimeAttack.Time.Elapsed%60)
 
-					if (segundos < 10) then
-						segundos = "0"..segundos
-					end
-					
-					local mili = _cstr ("%.2f", TimeAttack.Time.Elapsed-_math_floor (TimeAttack.Time.Elapsed))*100
-					if (mili < 10) then
-						mili = "0"..mili
-					end
-					
-					clock:SetText ("0".. minutos .. ":"..segundos ..":"..mili)
-					damage:SetText (TimeAttack:comma_value (player.total))
-					
-					if (TimeAttack.Time.Elapsed > 3) then
-						persecond:SetText (TimeAttack:comma_value (_math_floor (player.total/TimeAttack.Time.Elapsed)))
-					end
-
-					update = 0
+				if (segundos < 10) then
+					segundos = "0"..segundos
+				end
+				
+				local mili = _cstr ("%.2f", TimeAttack.Time.Elapsed-_math_floor (TimeAttack.Time.Elapsed))*100
+				if (mili < 10) then
+					mili = "0"..mili
+				end
+				
+				clock:SetText ("0".. minutos .. ":")
+				clock2:SetText (segundos ..":")
+				clock3:SetText (mili)
+				damage:SetText (TimeAttack:comma_value (player.total))
+				
+				if (TimeAttack.Time.Elapsed > 3) then
+					persecond:SetText (TimeAttack:comma_value (_math_floor (player.total/TimeAttack.Time.Elapsed)))
 				end
 			end
 		end
@@ -859,7 +862,7 @@ local function CreatePluginFrames()
 	function TimeAttack:Start()
 
 		if (TimeAttack.Time and TimeAttack.Time.Working) then
-			return
+			TimeAttack:Cancel()
 		end
 
 		TimeAttack.Time = {}

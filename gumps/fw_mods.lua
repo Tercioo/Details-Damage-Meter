@@ -36,7 +36,7 @@ function gump:NewLabel2 (parent, container, member, text, font, size, color)
 	return newFontString
 end
 
-function gump:NewDetailsButton (parent, container, instancia, func, param1, param2, w, h, pic_up, pic_down, pic_disabled, pic_highlight, options, FrameName)
+function gump:NewDetailsButton (parent, container, instancia, func, param1, param2, w, h, pic_up, pic_down, pic_disabled, pic_highlight, options, FrameName, inherits, ischeck)
 
 	if (not parent) then
 		return nil
@@ -46,7 +46,13 @@ function gump:NewDetailsButton (parent, container, instancia, func, param1, para
 	h = h or 16
 	options = options or {}
 
-	local new_button = CreateFrame ("Button", FrameName, parent)
+	local new_button
+	if (ischeck) then
+		new_button = CreateFrame ("CheckButton", FrameName, parent, inherits)
+	else
+		new_button = CreateFrame ("Button", FrameName, parent)
+	end
+
 	new_button:SetWidth (w)
 	new_button:SetHeight (h)
 	

@@ -42,6 +42,7 @@
 	local container_enemydebufftarget_target = _detalhes.container_type.CONTAINER_ENEMYDEBUFFTARGET_CLASS
 
 	local container_pets = {}
+	local cached_specs = _detalhes.cached_specs
 	
 	--> flags
 	local REACTION_HOSTILE	=	0x00000040
@@ -118,7 +119,19 @@
 	end
 
 	--> try to get the actor class from name
-	local function get_actor_class (novo_objeto, nome, flag)
+	local function get_actor_class (novo_objeto, nome, flag, serial)
+	
+		--> get spec
+		if (_detalhes.track_specs) then
+			local have_cached = cached_specs [serial]
+			if (have_cached) then
+				novo_objeto.spec = have_cached
+				_detalhes:ScheduleTimer ("GuessSpec", 15, {novo_objeto, self, 10})
+			else
+				_detalhes:ScheduleTimer ("GuessSpec", 3, {novo_objeto, self, 1})
+			end
+		end
+	
 		local _, engClass = _UnitClass (nome)
 
 		if (engClass) then
@@ -296,6 +309,12 @@
 
 		--[[statistics]]-- _detalhes.statistics.container_calls = _detalhes.statistics.container_calls + 1
 	
+		--if (flag and nome:find ("Kastfall") and bit.band (flag, 0x2000) ~= 0) then
+			--print ("PET:", nome, _detalhes.tabela_pets.pets [serial], container_pets [serial])
+		--else
+			--print (nome, flag)
+		--end
+	
 		--> verifica se é um pet, se for confere se tem o nome do dono, se não tiver, precisa por
 		local dono_do_pet
 		serial = serial or "ns"
@@ -342,7 +361,7 @@
 
 			if (self.tipo == container_damage) then --> CONTAINER DAMAGE
 
-				get_actor_class (novo_objeto, nome, flag)
+				get_actor_class (novo_objeto, nome, flag, serial)
 				read_actor_flag (novo_objeto, dono_do_pet, serial, flag, nome, "damage")
 				
 				if (dono_do_pet) then
@@ -372,7 +391,7 @@
 				
 			elseif (self.tipo == container_heal) then --> CONTAINER HEALING
 				
-				get_actor_class (novo_objeto, nome, flag)
+				get_actor_class (novo_objeto, nome, flag, serial)
 				read_actor_flag (novo_objeto, dono_do_pet, serial, flag, nome, "heal")
 				
 				if (dono_do_pet) then
@@ -399,7 +418,7 @@
 				
 			elseif (self.tipo == container_energy) then --> CONTAINER ENERGY
 				
-				get_actor_class (novo_objeto, nome, flag)
+				get_actor_class (novo_objeto, nome, flag, serial)
 				read_actor_flag (novo_objeto, dono_do_pet, serial, flag, nome, "energy")
 				
 				if (dono_do_pet) then
@@ -419,7 +438,7 @@
 				
 			elseif (self.tipo == container_misc) then --> CONTAINER MISC
 				
-				get_actor_class (novo_objeto, nome, flag)
+				get_actor_class (novo_objeto, nome, flag, serial)
 				read_actor_flag (novo_objeto, dono_do_pet, serial, flag, nome, "misc")
 				
 				--local teste_classe = 
@@ -459,7 +478,7 @@
 				
 			elseif (self.tipo == container_friendlyfire) then --> CONTAINER FRIENDLY FIRE
 				
-				get_actor_class (novo_objeto, nome)
+				get_actor_class (novo_objeto, nome, serial)
 
 			end
 		

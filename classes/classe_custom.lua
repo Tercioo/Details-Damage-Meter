@@ -625,7 +625,7 @@
 
 		else
 			if (self.id) then
-				esta_barra.icone_classe:SetTexCoord (0, 1, 0, 1)
+				esta_barra.icone_classe:SetTexCoord (0.078125, 0.921875, 0.078125, 0.921875)
 				esta_barra.icone_classe:SetTexture (self.icon)
 			else
 				esta_barra.icone_classe:SetTexture (instancia.row_info.icon_file)
@@ -1250,7 +1250,7 @@
 		end
 		
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-		
+--		/run _detalhes:AddDefaultCustomDisplays()
 		local Healthstone = {
 			name = Loc ["STRING_CUSTOM_HEALTHSTONE_DEFAULT"],
 			icon = [[Interface\ICONS\warlock_ healthstone]],
@@ -1272,7 +1272,7 @@
 				local AllSpells = character:GetSpellList()
 				local found = false
 				for spellid, spell in pairs (AllSpells) do
-					if (spellid == 6262 or spellid == 156445) then
+					if (spellid == 6262 or spellid == 156445 or spellid == 156438) then --healthstone, reju potion, health potion
 						instance_container:AddValue (character, spell.total)
 						total = total + spell.total
 						if (top < spell.total) then
@@ -1297,6 +1297,7 @@
 			--get the cooltip object (we dont use the convencional GameTooltip here)
 			local GameCooltip = GameCooltip
 			local R, G, B, A = 0, 0, 0, 0.75
+			
 			local hs = actor:GetSpell (6262)
 			if (hs) then
 				GameCooltip:AddLine (select (1, GetSpellInfo(6262)),  _detalhes:ToK(hs.total))
@@ -1310,11 +1311,19 @@
 				GameCooltip:AddIcon (select (3, GetSpellInfo (156445)), 1, 1, 16, 16)
 				GameCooltip:AddStatusBar (100, 1, R, G, B, A)
 			end
+			
+			local pot = actor:GetSpell (156438)
+			if (pot) then
+				GameCooltip:AddLine (select (1, GetSpellInfo(156438)),  _detalhes:ToK(pot.total))
+				GameCooltip:AddIcon (select (3, GetSpellInfo (156438)), 1, 1, 16, 16)
+				GameCooltip:AddStatusBar (100, 1, R, G, B, A)
+			end
+
 			--Cooltip code
 			]],
 			percent_script = false,
 			total_script = false,
-			script_version = 3,
+			script_version = 9,
 		}
 --	/run_detalhes:AddDefaultCustomDisplays()
 		local have = false
@@ -1476,14 +1485,12 @@
 			desc = Loc ["STRING_CUSTOM_DTBS_DESC"],
 			source = false,
 			target = false,
-			script_version = 8,
+			script_version = 13,
 			script = [[
 				--> get the parameters passed
 				local combat, instance_container, instance = ...
-
 				--> declade the values to return
 				local total, top, amount = 0, 0, 0
-
 				--> get a list of all damage actors
 				local AllDamageCharacters = combat:GetActorList (DETAILS_ATTRIBUTE_DAMAGE)
 
@@ -1492,49 +1499,77 @@
 
 				--> do a loop amoung the actors
 				for index, character in ipairs (AllDamageCharacters) do
+				    
+				    --> is the actor a enemy?
+				    if (character:IsPlayer()) then
 					
-					--> is the actor a enemy?
-					if (character:IsEnemy()) then
+					local taken_from = character.damage_from
+					
+					for source_name, _ in pairs (taken_from) do
+					    
+					    local source = combat (1, source_name)
+					    
+					    if (source) then
 						
-						local AllSpells = character:GetSpellList()
-						
+						local AllSpells = source:GetSpellList()
 						for spellid, spell in pairs (AllSpells) do
-						
-							if (spell.total >= 1 and spellid > 10) then
-								instance_container:AddValue (spell, spell.total)
-								
-								total = total + spell.total
-								
-								if (top < spell.total) then
-									top = spell.total
-								end
-								
-								if (not NoRepeat [spellid]) then
-									amount = amount + 1
-									NoRepeat [spellid] = true
-								end
+						    local on_player = spell.targets [character.nome]
+
+						    if (on_player and on_player >= 1) then                            
+							instance_container:AddValue (spell, on_player)
+							total = total + on_player
+							local value = instance_container:GetValue (spell)
+							if (value > top) then
+							    top = value
 							end
+							if (not NoRepeat [spellid]) then
+							    amount = amount + 1
+							    NoRepeat [spellid] = true
+							end
+						    end
 						end
 						
-					end
-					
+						-------------
+						
+						local friendlyfire = source.friendlyfire [character.nome]
+						if (friendlyfire and friendlyfire.total >= 1) then
+						    for _spellid, _on_player in pairs (friendlyfire.spells) do
+							local _spellname = GetSpellInfo (_spellid)
+							local _object
+							local _index = instance_container._NameIndexTable [_spellname]
+							if (_index) then
+							    _object = instance_container._ActorTable [_index]
+							else
+							    _object = {id = _spellid, spellschool = 1}
+							end
+							
+							instance_container:AddValue (_object, _on_player)
+							total = total + _on_player
+							local _value = instance_container:GetValue (_object)
+							if (_value > top) then
+							    top = _value
+							end
+							if (not NoRepeat [_spellid]) then
+							    amount = amount + 1
+							    NoRepeat [_spellid] = true
+							end
+						    end
+						end
+						
+						------------
+					    end
+					end            
+				    end
 				end
 
-				--> return
 				return total, top, amount
 			]],
 			
 			tooltip = [[
 				--get the parameters passed
 				local actor, combat, instance = ...
-
 				local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
-				
-				--get the cooltip object (we do not use the convencional GameTooltip here)
 				local GameCooltip = GameCooltip
-
-				--Cooltip code
-
 				local from_spell = actor.id
 
 				--> get a list of all damage actors
@@ -1542,60 +1577,72 @@
 
 				--> hold the targets
 				local Targets = {}
+				local total = 0
+				local top = 0
 
 				for index, character in ipairs (AllDamageCharacters) do
-					if (character:IsEnemy()) then
-						local AllSpells = character:GetSpellList()
-						
-						for spellid, spell in pairs (AllSpells) do
-							if (spellid == from_spell) then
-								for targetname, amount in pairs (spell.targets) do
-									local got = false
-									
-									local damage_actor = combat (1, targetname)
-									local heal_actor = combat (2, targetname)
-									
-									if ( (damage_actor or heal_actor) and ( (damage_actor and damage_actor:IsPlayer()) or (heal_actor and heal_actor:IsPlayer()) ) ) then
-										for index, t in ipairs (Targets) do
-											if (t[1] == targetname) then
-												t[2] = t[2] + amount
-												got = true
-												break
-											end
-										end
-										if (not got) then
-											Targets [#Targets+1] = {targetname, amount}
-										end
-									else
-										for index, t in ipairs (Targets) do
-											if (t[1] == Loc ["STRING_TARGETS_OTHER1"]) then
-												t[2] = t[2] + amount
-												got = true
-												break
-											end
-										end
-										if (not got) then
-											Targets [#Targets+1] = {Loc ["STRING_TARGETS_OTHER1"], amount}
-										end
-									end
-								end
+				    
+				    local spell = character.spells._ActorTable [from_spell]
+				    
+				    if (spell) then
+					for targetname, amount in pairs (spell.targets) do
+					    
+					    local got = false
+					    
+					    local damage_actor = combat (1, targetname)
+					    local heal_actor = combat (2, targetname)
+					    
+					    if ( (damage_actor or heal_actor) and ( (damage_actor and damage_actor:IsPlayer()) or (heal_actor and heal_actor:IsPlayer()) ) ) then
+						for index, t in ipairs (Targets) do
+						    if (t[1] == targetname) then
+							t[2] = t[2] + amount
+							if (t[2] > top) then
+							    top = t[2]
 							end
+							got = true
+							break
+						    end
 						end
+						if (not got) then
+						    Targets [#Targets+1] = {targetname, amount}
+						    if (amount > top) then
+							top = amount
+						    end
+						end
+					    else
+						for index, t in ipairs (Targets) do
+						    if (t[1] == Loc ["STRING_TARGETS_OTHER1"]) then
+							t[2] = t[2] + amount
+							got = true
+							break
+						    end
+						end
+						if (not got) then
+						    Targets [#Targets+1] = {Loc ["STRING_TARGETS_OTHER1"], amount}
+						end
+					    end
 					end
+				    end
 				end
 
 				table.sort (Targets, _detalhes.Sort2)
 
+				GameCooltip:SetOption ("StatusBarTexture", "Interface\\AddOns\\Details\\images\\bar_serenity")
+
+				local bar_background = {value = 100, color = {0, 0, 0, 0.7}, texture = "Interface\\AddOns\\Details\\images\\bar4"}
+
 				for index, t in ipairs (Targets) do
-					GameCooltip:AddLine (t[1], _detalhes:ToK2 (t[2]))
-					_detalhes:AddTooltipBackgroundStatusbar()
-					local class = _detalhes:GetClass (t[1])	
-					if (class) then
-						local texture, l, r, t, b = _detalhes:GetClassIcon (class)
-						GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small_alpha", 1, 1, 14, 14, l, r, t, b)
-					elseif (t[1] == Loc ["STRING_TARGETS_OTHER1"]) then
-						GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small_alpha", 1, 1, 14, 14, 0.25, 0.49609375, 0.75, 1)
-					end
+				    GameCooltip:AddLine (_detalhes:GetOnlyName(t[1]), _detalhes:ToK (t[2]))
+				    local class, _, _, _, _, r, g, b = _detalhes:GetClass (t[1])
+				    
+				    GameCooltip:AddStatusBar (t[2]/top*100, 1, r, g, b, 0.6, true,  bar_background)
+				    
+				    if (class) then
+					local texture, l, r, t, b = _detalhes:GetClassIcon (class)
+					GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small_alpha", 1, 1, 14, 14, l, r, t, b)
+				    elseif (t[1] == Loc ["STRING_TARGETS_OTHER1"]) then
+					GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small_alpha", 1, 1, 14, 14, 0.25, 0.49609375, 0.75, 1)
+				    end
 				end
 			]],
 		}
@@ -1845,7 +1892,6 @@
 			self.custom [#self.custom+1] = MySpells
 		end		
 		
+		_detalhes:ResetCustomFunctionsCache()
+		
 	end
-
-
-

@@ -1952,9 +1952,6 @@ function window:CreateFrame18()
 		
 		--> auto current segment
 		g:NewSwitch (frame18, _, "$parentAutoCurrentSlider", "autoCurrentSlider", 60, 20, _, _, instance.auto_current)
-		
-		-- Auto Current Segment
-	
 		g:NewLabel (frame18, _, "$parentAutoCurrentLabel", "autoCurrentLabel", Loc ["STRING_OPTIONS_INSTANCE_CURRENT"], "GameFontHighlightLeft")
 
 		frame18.autoCurrentSlider:SetPoint ("left", frame18.autoCurrentLabel, "right", 2)
@@ -1965,72 +1962,7 @@ function window:CreateFrame18()
 		end
 		
 		window:CreateLineBackground2 (frame18, "autoCurrentSlider", "autoCurrentLabel", Loc ["STRING_OPTIONS_INSTANCE_CURRENT_DESC"])
-		
-	--> show total bar
-		
-		g:NewLabel (frame18, _, "$parentTotalBarLabel", "totalBarLabel", Loc ["STRING_OPTIONS_SHOW_TOTALBAR"], "GameFontHighlightLeft")
-		g:NewSwitch (frame18, _, "$parentTotalBarSlider", "totalBarSlider", 60, 20, _, _, instance.total_bar.enabled)
 
-		frame18.totalBarSlider:SetPoint ("left", frame18.totalBarLabel, "right", 2)
-		frame18.totalBarSlider.OnSwitch = function (self, instance, value)
-			instance.total_bar.enabled = value
-			instance:InstanceReset()
-			
-			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
-		end
-		
-		window:CreateLineBackground2 (frame18, "totalBarSlider", "totalBarLabel", Loc ["STRING_OPTIONS_SHOW_TOTALBAR_DESC"])
-		
-	--> total bar color
-			local totalbarcolor_callback = function (button, r, g, b, a)
-				_G.DetailsOptionsWindow.instance.total_bar.color[1] = r
-				_G.DetailsOptionsWindow.instance.total_bar.color[2] = g
-				_G.DetailsOptionsWindow.instance.total_bar.color[3] = b
-				_G.DetailsOptionsWindow.instance:InstanceReset()
-				
-				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
-			end
-			g:NewColorPickButton (frame18, "$parentTotalBarColorPick", "totalBarColorPick", totalbarcolor_callback)
-			g:NewLabel (frame18, _, "$parentTotalBarColorPickLabel", "totalBarPickColorLabel", Loc ["STRING_OPTIONS_COLOR"], "GameFontHighlightLeft")
-			frame18.totalBarColorPick:SetPoint ("left", frame18.totalBarPickColorLabel, "right", 2, 0)
-		
-			window:CreateLineBackground2 (frame18, "totalBarColorPick", "totalBarPickColorLabel", Loc ["STRING_OPTIONS_SHOW_TOTALBAR_COLOR_DESC"])
-		
-	--> total bar only in group
-		g:NewLabel (frame18, _, "$parentTotalBarOnlyInGroupLabel", "totalBarOnlyInGroupLabel", Loc ["STRING_OPTIONS_SHOW_TOTALBAR_INGROUP"], "GameFontHighlightLeft")
-		g:NewSwitch (frame18, _, "$parentTotalBarOnlyInGroupSlider", "totalBarOnlyInGroupSlider", 60, 20, _, _, instance.total_bar.only_in_group)
-
-		frame18.totalBarOnlyInGroupSlider:SetPoint ("left", frame18.totalBarOnlyInGroupLabel, "right", 2)
-		frame18.totalBarOnlyInGroupSlider.OnSwitch = function (self, instance, value)
-			instance.total_bar.only_in_group = value
-			instance:InstanceReset()
-			
-			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
-		end
-		
-		window:CreateLineBackground2 (frame18, "totalBarOnlyInGroupSlider", "totalBarOnlyInGroupLabel", Loc ["STRING_OPTIONS_SHOW_TOTALBAR_INGROUP_DESC"])
-		
-	--> total bar icon
-		local totalbar_pickicon_callback = function (texture)
-			instance.total_bar.icon = texture
-			frame18.totalBarIconTexture:SetTexture (texture)
-			instance:InstanceReset()
-			
-			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
-		end
-		local totalbar_pickicon = function()
-			g:IconPick (totalbar_pickicon_callback, true)
-			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
-		end
-		g:NewLabel (frame18, _, "$parentTotalBarIconLabel", "totalBarIconLabel", Loc ["STRING_OPTIONS_SHOW_TOTALBAR_ICON"], "GameFontHighlightLeft")
-		g:NewImage (frame18, nil, 20, 20, nil, nil, "totalBarIconTexture", "$parentTotalBarIconTexture")
-		g:NewButton (frame18, _, "$parentTotalBarIconButton", "totalBarIconButton", 20, 20, totalbar_pickicon)
-		frame18.totalBarIconButton:InstallCustomTexture (nil, nil, nil, true)
-		frame18.totalBarIconButton:SetPoint ("left", frame18.totalBarIconLabel, "right", 2, 0)
-		frame18.totalBarIconTexture:SetPoint ("left", frame18.totalBarIconLabel, "right", 2, 0)
-		
-		window:CreateLineBackground2 (frame18, "totalBarIconButton", "totalBarIconLabel", Loc ["STRING_OPTIONS_SHOW_TOTALBAR_ICON_DESC"])
-		
 	--> instances
 	
 		g:NewLabel (frame18, _, "$parentDeleteInstanceLabel", "deleteInstanceLabel", Loc ["STRING_OPTIONS_INSTANCE_DELETE"], "GameFontHighlightLeft")
@@ -2126,6 +2058,32 @@ function window:CreateFrame18()
 		end)
 		
 		window:CreateLineBackground2 (frame18, "MenuTextSizeSlider", "MenuTextSizeLabel", Loc ["STRING_OPTIONS_MENU_FONT_SIZE_DESC"])
+		
+		--> menu text face
+		local onSelectFont = function (_, _, fontName)
+			_detalhes.font_faces.menus = fontName
+		end
+		
+		local buildFontMenu = function() 
+			local fontObjects = SharedMedia:HashTable ("font")
+			local fontTable = {}
+			for name, fontPath in pairs (fontObjects) do 
+				fontTable[#fontTable+1] = {value = name, label = name, icon = font_select_icon, texcoord = font_select_texcoord, onclick = onSelectFont, font = fontPath, descfont = name, desc = Loc ["STRING_MUSIC_DETAILS_ROBERTOCARLOS"]}
+			end
+			table.sort (fontTable, function (t1, t2) return t1.label < t2.label end)
+			return fontTable 
+		end
+		
+		local d = g:NewDropDown (frame18, _, "$parentFontDropdown", "fontDropdown", DROPDOWN_WIDTH, 20, buildFontMenu, nil)		
+		d.onenter_backdrop = dropdown_backdrop_onenter
+		d.onleave_backdrop = dropdown_backdrop_onleave
+		d:SetBackdrop (dropdown_backdrop)
+		d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+		
+		g:NewLabel (frame18, _, "$parentFontLabel", "fontLabel", Loc ["STRING_OPTIONS_MENU_FONT_FACE"], "GameFontHighlightLeft")
+		frame18.fontDropdown:SetPoint ("left", frame18.fontLabel, "right", 2)
+
+		window:CreateLineBackground2 (frame18, "fontDropdown", "fontLabel", Loc ["STRING_OPTIONS_MENU_FONT_FACE_DESC"])	
 		
 		--> disable groups
 		g:NewLabel (frame18, _, "$parentDisableGroupsLabel", "DisableGroupsLabel", Loc ["STRING_OPTIONS_DISABLE_GROUPS"], "GameFontHighlightLeft")
@@ -2223,7 +2181,6 @@ function window:CreateFrame18()
 		
 		g:NewLabel (frame18, _, "$parentInstancesMiscAnchor", "instancesMiscLabel", Loc ["STRING_OPTIONS_INSTANCES"], "GameFontNormal")
 		g:NewLabel (frame18, _, "$parentSwitchesAnchor", "switchesAnchorLabel", Loc ["STRING_OPTIONS_SWITCH_ANCHOR"], "GameFontNormal")
-		g:NewLabel (frame18, _, "$parentTotalBarAnchor", "totalBarAnchorLabel", Loc ["STRING_OPTIONS_TOTALBAR_ANCHOR"], "GameFontNormal")
 		
 		g:NewLabel (frame18, _, "$parentReportAnchor", "reportAnchorLabel", Loc ["STRING_OPTIONS_REPORT_ANCHOR"], "GameFontNormal")
 		
@@ -2260,14 +2217,11 @@ function window:CreateFrame18()
 			{"instancesMiscLabel", 1, true},
 			{"deleteInstanceLabel", 2},
 			{"MenuTextSizeLabel", 3},
-			{"DisableGroupsLabel", 4},
-			{"DisableResetLabel", 5},
-			{"scrollLabel", 6},
-			{"totalBarAnchorLabel", 7, true},
-			{"totalBarIconLabel", 8},
-			{"totalBarPickColorLabel", 9},
-			{"totalBarLabel", 10},
-			{"totalBarOnlyInGroupLabel", 11},
+			{"fontLabel", 4},
+			{"DisableGroupsLabel", 5},
+			{"DisableResetLabel", 6},
+			{"scrollLabel", 7},
+
 		}
 		
 		window:arrange_menu (frame18, right_side, window.right_start_at, -90)
@@ -5017,6 +4971,17 @@ function window:CreateFrame4()
 		local OnSelectIconFile = function (_, _, iconpath)
 			_G.DetailsOptionsWindow.instance:SetBarSettings (nil, nil, nil, nil, nil, nil, nil, nil, iconpath)
 			frame4.iconFileEntry:SetText (iconpath)
+			
+			if (_G.DetailsOptionsWindow.instance.row_info.use_spec_icons) then
+				_G.DetailsOptionsWindow.instance:SetBarSpecIconSettings (false)
+			end
+			
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+		end
+
+		local OnSelectIconFileSpec = function (_, _, iconpath)
+			_G.DetailsOptionsWindow.instance:SetBarSpecIconSettings (true, iconpath, true)
+			frame4.iconFileEntry:SetText (iconpath)
 			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 
@@ -5026,6 +4991,8 @@ function window:CreateFrame4()
 		local list = {
 			{value = [[]], label = Loc ["STRING_OPTIONS_BAR_ICONFILE1"], onclick = OnSelectIconFile, icon = icontexture, texcoord = iconcoords, iconsize = iconsize, iconcolor = {1, 1, 1, .3}},
 			{value = [[Interface\AddOns\Details\images\classes_small]], label = Loc ["STRING_OPTIONS_BAR_ICONFILE2"], onclick = OnSelectIconFile, icon = icontexture, texcoord = iconcoords, iconsize = iconsize},
+			{value = [[Interface\AddOns\Details\images\spec_icons_normal]], label = "Specialization", onclick = OnSelectIconFileSpec, icon = [[Interface\AddOns\Details\images\icons]], texcoord = {2/512, 32/512, 480/512, 510/512}, iconsize = iconsize},
+			{value = [[Interface\AddOns\Details\images\spec_icons_normal_alpha]], label = "Specialization Alpha", onclick = OnSelectIconFileSpec, icon = [[Interface\AddOns\Details\images\icons]], texcoord = {2/512, 32/512, 480/512, 510/512}, iconsize = iconsize},
 			{value = [[Interface\AddOns\Details\images\classes_small_bw]], label = Loc ["STRING_OPTIONS_BAR_ICONFILE3"], onclick = OnSelectIconFile, icon = icontexture, texcoord = iconcoords, iconsize = iconsize},
 			{value = [[Interface\AddOns\Details\images\classes_small_alpha]], label = Loc ["STRING_OPTIONS_BAR_ICONFILE4"], onclick = OnSelectIconFile, icon = icontexture, texcoord = iconcoords, iconsize = iconsize},
 			{value = [[Interface\AddOns\Details\images\classes_small_alpha_bw]], label = Loc ["STRING_OPTIONS_BAR_ICONFILE6"], onclick = OnSelectIconFile, icon = icontexture, texcoord = iconcoords, iconsize = iconsize},
@@ -5035,7 +5002,14 @@ function window:CreateFrame4()
 			return list
 		end
 		
-		local d = g:NewDropDown (frame4, _, "$parentIconSelectDropdown", "IconSelectDropdown", DROPDOWN_WIDTH, 20, BuiltIconList, instance.row_info.icon_file)
+		local default
+		if (instance.row_info.use_spec_icons) then
+			default = _G.DetailsOptionsWindow.instance.row_info.spec_file
+		else
+			default = instance.row_info.icon_file
+		end
+		
+		local d = g:NewDropDown (frame4, _, "$parentIconSelectDropdown", "IconSelectDropdown", DROPDOWN_WIDTH, 20, BuiltIconList, default)
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
@@ -5050,16 +5024,33 @@ function window:CreateFrame4()
 
 		frame4.iconFileEntry.tooltip = "- Press escape to restore default value.\n- Leave empty to hide icons."
 		frame4.iconFileEntry:SetHook ("OnEnterPressed", function()
-			_G.DetailsOptionsWindow.instance:SetBarSettings (nil, nil, nil, nil, nil, nil, nil, nil, frame4.iconFileEntry.text)
+		
+			local instance = _G.DetailsOptionsWindow.instance
+		
+			local text = frame4.iconFileEntry.text
+			if (text:find ("spec_")) then
+				instance:SetBarSpecIconSettings (true, text, true)
+			else
+				if (instance.row_info.use_spec_icons) then
+					instance:SetBarSpecIconSettings (false)
+				end
+				instance:SetBarSettings (nil, nil, nil, nil, nil, nil, nil, nil, text)
+			end
+			
 			d:Select (false)
 			d:Select (frame4.iconFileEntry.text)
 			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end)
 		frame4.iconFileEntry:SetHook ("OnEscapePressed", function()
-			frame4.iconFileEntry:SetText ([[Interface\AddOns\Details\images\classes_small]])
+			local instance = _G.DetailsOptionsWindow.instance
+		
+			if (instance.row_info.use_spec_icons) then
+				frame4.iconFileEntry:SetText (instance.row_info.spec_file)
+			else
+				frame4.iconFileEntry:SetText (instance.row_info.icon_file)
+			end
+			
 			frame4.iconFileEntry:ClearFocus()
-			_G.DetailsOptionsWindow.instance:SetBarSettings (nil, nil, nil, nil, nil, nil, nil, nil, [[Interface\AddOns\Details\images\classes_small]])
-			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 			return true
 		end)
 		
@@ -6544,6 +6535,74 @@ function window:CreateFrame8()
 				end
 				window:CreateLineBackground2 (frame8, "ShowMeSlider", "ShowMeLabel", Loc ["STRING_OPTIONS_BAR_FOLLOWING_DESC"])
 		
+		--> show total bar
+			
+			g:NewLabel (frame8, _, "$parentTotalBarAnchor", "totalBarAnchorLabel", Loc ["STRING_OPTIONS_TOTALBAR_ANCHOR"], "GameFontNormal")
+			
+			g:NewLabel (frame8, _, "$parentTotalBarLabel", "totalBarLabel", Loc ["STRING_OPTIONS_SHOW_TOTALBAR"], "GameFontHighlightLeft")
+			g:NewSwitch (frame8, _, "$parentTotalBarSlider", "totalBarSlider", 60, 20, _, _, instance.total_bar.enabled)
+
+			frame8.totalBarSlider:SetPoint ("left", frame8.totalBarLabel, "right", 2)
+			frame8.totalBarSlider.OnSwitch = function (self, instance, value)
+				instance.total_bar.enabled = value
+				instance:InstanceReset()
+				
+				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+			end
+			
+			window:CreateLineBackground2 (frame8, "totalBarSlider", "totalBarLabel", Loc ["STRING_OPTIONS_SHOW_TOTALBAR_DESC"])
+			
+		--> total bar color
+				local totalbarcolor_callback = function (button, r, g, b, a)
+					_G.DetailsOptionsWindow.instance.total_bar.color[1] = r
+					_G.DetailsOptionsWindow.instance.total_bar.color[2] = g
+					_G.DetailsOptionsWindow.instance.total_bar.color[3] = b
+					_G.DetailsOptionsWindow.instance:InstanceReset()
+					
+					_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+				end
+				g:NewColorPickButton (frame8, "$parentTotalBarColorPick", "totalBarColorPick", totalbarcolor_callback)
+				g:NewLabel (frame8, _, "$parentTotalBarColorPickLabel", "totalBarPickColorLabel", Loc ["STRING_OPTIONS_COLOR"], "GameFontHighlightLeft")
+				frame8.totalBarColorPick:SetPoint ("left", frame8.totalBarPickColorLabel, "right", 2, 0)
+			
+				window:CreateLineBackground2 (frame8, "totalBarColorPick", "totalBarPickColorLabel", Loc ["STRING_OPTIONS_SHOW_TOTALBAR_COLOR_DESC"])
+			
+		--> total bar only in group
+			g:NewLabel (frame8, _, "$parentTotalBarOnlyInGroupLabel", "totalBarOnlyInGroupLabel", Loc ["STRING_OPTIONS_SHOW_TOTALBAR_INGROUP"], "GameFontHighlightLeft")
+			g:NewSwitch (frame8, _, "$parentTotalBarOnlyInGroupSlider", "totalBarOnlyInGroupSlider", 60, 20, _, _, instance.total_bar.only_in_group)
+
+			frame8.totalBarOnlyInGroupSlider:SetPoint ("left", frame8.totalBarOnlyInGroupLabel, "right", 2)
+			frame8.totalBarOnlyInGroupSlider.OnSwitch = function (self, instance, value)
+				instance.total_bar.only_in_group = value
+				instance:InstanceReset()
+				
+				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+			end
+			
+			window:CreateLineBackground2 (frame8, "totalBarOnlyInGroupSlider", "totalBarOnlyInGroupLabel", Loc ["STRING_OPTIONS_SHOW_TOTALBAR_INGROUP_DESC"])
+			
+		--> total bar icon
+			local totalbar_pickicon_callback = function (texture)
+				instance.total_bar.icon = texture
+				frame8.totalBarIconTexture:SetTexture (texture)
+				instance:InstanceReset()
+				
+				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+			end
+			local totalbar_pickicon = function()
+				g:IconPick (totalbar_pickicon_callback, true)
+				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+			end
+			g:NewLabel (frame8, _, "$parentTotalBarIconLabel", "totalBarIconLabel", Loc ["STRING_OPTIONS_SHOW_TOTALBAR_ICON"], "GameFontHighlightLeft")
+			g:NewImage (frame8, nil, 20, 20, nil, nil, "totalBarIconTexture", "$parentTotalBarIconTexture")
+			g:NewButton (frame8, _, "$parentTotalBarIconButton", "totalBarIconButton", 20, 20, totalbar_pickicon)
+			frame8.totalBarIconButton:InstallCustomTexture (nil, nil, nil, true)
+			frame8.totalBarIconButton:SetPoint ("left", frame8.totalBarIconLabel, "right", 2, 0)
+			frame8.totalBarIconTexture:SetPoint ("left", frame8.totalBarIconLabel, "right", 2, 0)
+			
+			window:CreateLineBackground2 (frame8, "totalBarIconButton", "totalBarIconLabel", Loc ["STRING_OPTIONS_SHOW_TOTALBAR_ICON_DESC"])
+			
+		
 		--> anchors
 		
 		local x = window.left_start_at
@@ -6561,6 +6620,12 @@ function window:CreateFrame8()
 			{"ModelLowerEnabledLabel", 6},
 			{"ModelLowerAlphaLabel", 7},
 			{"ModelLowerSelect", 8},
+			
+			{"totalBarAnchorLabel", 9, true},
+			{"totalBarIconLabel", 10},
+			{"totalBarPickColorLabel", 11},
+			{"totalBarLabel", 12},
+			{"totalBarOnlyInGroupLabel", 13},
 		}
 		
 		window:arrange_menu (frame8, left_side, x, -90)
@@ -6759,9 +6824,6 @@ function window:CreateFrame9()
 					{value = [[Interface\Glues\COMMON\GLUES-WOW-BCLOGO]], label = "Burning Cruzade Logo", onclick = onSelectSecTexture, icon = [[Interface\Glues\COMMON\GLUES-WOW-BCLOGO]], texcoord = nil},
 					{value = [[Interface\Glues\COMMON\GLUES-WOW-CCLOGO]], label = "Cataclysm Logo", onclick = onSelectSecTexture, icon = [[Interface\Glues\COMMON\GLUES-WOW-CCLOGO]], texcoord = nil},
 					{value = [[Interface\Glues\COMMON\Glues-WOW-WoltkLogo]], label = "WotLK Logo", onclick = onSelectSecTexture, icon = [[Interface\Glues\COMMON\Glues-WOW-WoltkLogo]], texcoord = nil},
-
-
-					--{value = [[]], label = "", onclick = onSelectSecTexture, icon = [[]], texcoord = nil},
 				},
 				
 				["CREDITS"] = {
@@ -7284,7 +7346,7 @@ function window:CreateFrame10()
 		titulo_performance_general_desc.width = 320
 		
 	--------------- Memory		
-		local s = g:NewSlider (frame10, _, "$parentSliderSegmentsSave", "segmentsSliderToSave", SLIDER_WIDTH, 20, 1, 5, 1, _detalhes.segments_amount_to_save)
+		local s = g:NewSlider (frame10, _, "$parentSliderSegmentsSave", "segmentsSliderToSave", SLIDER_WIDTH, 20, 1, 25, 1, _detalhes.segments_amount_to_save)
 		s:SetBackdrop (slider_backdrop)
 		s:SetBackdropColor (unpack (slider_backdrop_color))
 		s:SetThumbSize (50)
@@ -8711,9 +8773,15 @@ end --> if not window
 		_G.DetailsOptionsWindow4BackdropSizeHeight.MyObject:SetValue (editing_instance.row_info.backdrop.size)
 		_G.DetailsOptionsWindow4BackdropColorPick.MyObject:SetColor (unpack (editing_instance.row_info.backdrop.color))
 		
-		_G.DetailsOptionsWindow4IconFileEntry:SetText (editing_instance.row_info.icon_file)
 		_G.DetailsOptionsWindow4IconSelectDropdown.MyObject:Select (false)
-		_G.DetailsOptionsWindow4IconSelectDropdown.MyObject:Select (editing_instance.row_info.icon_file)
+		local default
+		if (editing_instance.row_info.use_spec_icons) then
+			default = editing_instance.row_info.spec_file
+		else
+			default = editing_instance.row_info.icon_file
+		end
+		_G.DetailsOptionsWindow4IconSelectDropdown.MyObject:Select (default)
+		_G.DetailsOptionsWindow4IconFileEntry:SetText (default)
 		
 		--> window 5
 		
@@ -8814,6 +8882,15 @@ end --> if not window
 
 		_G.DetailsOptionsWindow8ShowMeSlider.MyObject:SetFixedParameter (editing_instance)
 		_G.DetailsOptionsWindow8ShowMeSlider.MyObject:SetValue (editing_instance.following.enabled)
+		
+		_G.DetailsOptionsWindow8TotalBarSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow8TotalBarSlider.MyObject:SetValue (editing_instance.total_bar.enabled)
+		
+		_G.DetailsOptionsWindow8TotalBarColorPick.MyObject:SetColor (unpack (editing_instance.total_bar.color))
+		
+		_G.DetailsOptionsWindow8TotalBarOnlyInGroupSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow8TotalBarOnlyInGroupSlider.MyObject:SetValue (editing_instance.total_bar.only_in_group)
+		_G.DetailsOptionsWindow8TotalBarIconTexture.MyObject:SetTexture (editing_instance.total_bar.icon)
 		
 		--> window 10	
 		_G.DetailsOptionsWindow10SliderMemory.MyObject:SetValue (_detalhes.memory_threshold)
@@ -9018,16 +9095,9 @@ end --> if not window
 		_G.DetailsOptionsWindow18AutoCurrentSlider.MyObject:SetFixedParameter (editing_instance)
 		_G.DetailsOptionsWindow18AutoCurrentSlider.MyObject:SetValue (editing_instance.auto_current)	
 		
-		_G.DetailsOptionsWindow18TotalBarSlider.MyObject:SetFixedParameter (editing_instance)
-		_G.DetailsOptionsWindow18TotalBarSlider.MyObject:SetValue (editing_instance.total_bar.enabled)
-		
-		_G.DetailsOptionsWindow18TotalBarColorPick.MyObject:SetColor (unpack (editing_instance.total_bar.color))
-		
-		_G.DetailsOptionsWindow18TotalBarOnlyInGroupSlider.MyObject:SetFixedParameter (editing_instance)
-		_G.DetailsOptionsWindow18TotalBarOnlyInGroupSlider.MyObject:SetValue (editing_instance.total_bar.only_in_group)
-		_G.DetailsOptionsWindow18TotalBarIconTexture.MyObject:SetTexture (editing_instance.total_bar.icon)
-		
 		_G.DetailsOptionsWindow18MenuTextSizeSlider.MyObject:SetValue (_detalhes.font_sizes.menus)
+		
+		_G.DetailsOptionsWindow18FontDropdown.MyObject:Select (_detalhes.font_faces.menus)
 		
 		--> window 19
 		_G.DetailsOptionsWindow19MinimapSlider.MyObject:SetValue (not _detalhes.minimap.hide)

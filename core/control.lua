@@ -337,7 +337,7 @@
 			_detalhes:InstanceCall (_detalhes.CheckPsUpdate)
 			
 			_detalhes:SendEvent ("COMBAT_PLAYER_ENTER", nil, _detalhes.tabela_vigente)
-			_detalhes:HaveOneCurrentInstance()
+			_detalhes:CheckSwitchToCurrent()
 			
 		end
 		

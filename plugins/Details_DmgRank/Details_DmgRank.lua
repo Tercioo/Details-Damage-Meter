@@ -41,7 +41,7 @@ local function CreatePluginFrames (data)
 		elseif (event == "REFRESH") then --> requested a refresh window
 			DmgRank:Refresh()
 
-		elseif (event == "COMBAT_PLAYER_TIMESTARTED") then --> combat started	
+		elseif (event == "COMBAT_PLAYER_ENTER") then --> combat started	
 			--print ("recebeu event start")
 			local combat = select (1, ...)
 			DmgRank:Start()
@@ -402,53 +402,55 @@ local function CreatePluginFrames (data)
 	
 	--> Exec function
 	local DoDmgRank = function (self, elapsed)
-	
+
 		DmgRank.Time.Elapsed = DmgRank.Time.Elapsed + elapsed
 		update = update + elapsed
 		
 		if (_GetTime() > DmgRank.Time.EndTime) then --> reached the end time
 			if (DmgRank.Time.Working and not DmgRank.Time.Done) then
-				DmgRank:Cancel()
 				DmgRank:Finish()
+			else
+				DmgRank.Time.Working = false
+				DmgRank.Time.Done = true
+				DmgRank.Frame:SetScript ("OnUpdate", nil)
 			end
 		else
-			--> aqui vem as funções que verificam se o jogador esta em grupo ou se tem algum buff proibido
+
 			DmgRank.Time.Tick = DmgRank.Time.Tick + elapsed
+			
 			if (DmgRank.Time.Tick > 1) then
 				DmgRank.Time.Tick = 0
 				if (not _UFC ("player")) then --> isn't in combat
-					print (Loc ["STRING_CANCELLED_NOT_COMBAT"]) 
-					DmgRank:Cancel()
-				elseif (_IsInRaid() or _IsInGroup()) then
-					print (Loc ["STRING_CANCELLED_IN_GROUP"]) 
-					DmgRank:Cancel()
-				else
-					--> check for not allowed buffs:
-					for i = 1, 41 do 
-						local auraName, _, _, _, _, _, _, _, _, _, spellId = _UnitAura ("player", i)
-						if (spellId and (spellId == 2825 or spellId == 80353 or spellId == 90355)) then --> bloodlust//timewarp//ancient hysteria
-							print (Loc ["STRING_CANCELLED_AURA"] .. auraName)
-							DmgRank:Cancel()
-						end
-					end
+					DmgRank:Finish()
 				end
 			else
-				if (update > 0.050) then
+				if (not player) then
+					player = _detalhes:GetActor()
+				end
 				
+				if (player) then
 					local minutos, segundos = _math_floor (DmgRank.Time.Elapsed/60), _math_floor (DmgRank.Time.Elapsed%60)
 					if (segundos < 10) then
 						segundos = "0"..segundos
 					end
+					
 					local mili = _cstr ("%.2f", DmgRank.Time.Elapsed - _math_floor (DmgRank.Time.Elapsed))*100
 					if (mili < 10) then
 						mili = "0"..mili
 					end
+					
 					DmgRank.TimeMinutes:SetText ("0".. minutos .. ":")
 					DmgRank.TimeSeconds:SetText (segundos ..":")
 					DmgRank.TimeMiliSeconds:SetText (mili)
 					
+					local DamageGoal = DmgRank.TimeGoal [DmgRank.rank.level].damage
+					if (player.total > DamageGoal) then --> yeah, you didit
+						DmgRank.MainDamageDisplay:SetTextColor (0.3, 1, 0.1)
+					else
+						DmgRank.MainDamageDisplay:SetTextColor (1, 1, 1)
+					end
+					
 					DmgRank.MainDamageDisplay:SetText (_detalhes:comma_value (player.total))
-					update = 0
 				end
 			end
 		end
@@ -479,22 +481,31 @@ local function CreatePluginFrames (data)
 	
 	--> When the time is gone
 	function DmgRank:Finish()
-		local DamageGoal = DmgRank.TimeGoal [DmgRank.rank.level].damage --> damage
-		if (player.total > DamageGoal) then --> yeah, you didit
-			DmgRank:LevelUpRank()
-		else
-			DmgRank:FailedLevelUpRank()
+		DmgRank.Frame:SetScript ("OnUpdate", nil)
+		
+		if (player) then
+			local DamageGoal = DmgRank.TimeGoal [DmgRank.rank.level].damage --> damage
+			if (player.total > DamageGoal) then --> yeah, you didit
+				DmgRank:LevelUpRank()
+			else
+				DmgRank:FailedLevelUpRank()
+			end
 		end
+		
+		DmgRank.Time.Working = false
+		DmgRank.Time.Done = true
 	end
 	
 	--> When a new combat is received by the PlugIn
 	function DmgRank:Start()
 
 		if (DmgRank.Time and DmgRank.Time.Working) then
+			DmgRank:Msg ("Plugin already in use.")
 			return
 		end
 		
 		if (not DmgRank.TimeGoal[DmgRank.rank.level].damage) then
+			DmgRank:Msg ("There is no goal for this level.")
 			return
 		end
 	
@@ -506,17 +517,22 @@ local function CreatePluginFrames (data)
 
 		DmgRank.Time = {}
 		DmgRank.Time.StartTime = _GetTime()
-		DmgRank.Time.EndTime = DmgRank.Time.StartTime + DmgRank.TimeGoal[DmgRank.rank.level].time
-		DmgRank.Time.Elapsed = 0
+		DmgRank.Time.EndTime = DmgRank.Time.StartTime + DmgRank.TimeGoal [DmgRank.rank.level].time
+		DmgRank.Time.Elapsed = 3
 		DmgRank.Time.Done = nil
 		DmgRank.Time.Working = true
 		DmgRank.Time.Tick = 0
 		player = _detalhes:GetActor() --> param 1 = combat | param 2 = attribute | param 3 = player name
 		update = 0
-		DmgRank.Frame:SetScript ("OnUpdate", DoDmgRank)
 		
+		DmgRank.starting = DmgRank:ScheduleTimer ("StartUpdate", 3)
 	end
 
+	function DmgRank:StartUpdate()
+		player = _detalhes:GetActor()
+		DmgRank.Frame:SetScript ("OnUpdate", DoDmgRank)
+	end
+	
 end
 
 function DmgRank:OnEvent (_, event, ...)
@@ -541,12 +557,10 @@ function DmgRank:OnEvent (_, event, ...)
 				CreatePluginFrames()
 				
 				--> Register needed events
-				_G._detalhes:RegisterEvent (DmgRank, "COMBAT_PLAYER_TIMESTARTED")
+				_G._detalhes:RegisterEvent (DmgRank, "COMBAT_PLAYER_ENTER")
 				
 			end
 		end
-		
-	elseif (event == "PLAYER_LOGOUT") then
-		_detalhes_databaseDmgRank = DmgRank.rank
+
 	end
 end

@@ -19,7 +19,7 @@ function _detalhes:OpenWelcomeWindow ()
 		window = CreateFrame ("frame", "DetailsWelcomeWindow", UIParent)
 		window:SetPoint ("center", UIParent, "center", -200, 0)
 		window:SetWidth (512)
-		window:SetHeight (256)
+		window:SetHeight (265)
 		window:SetMovable (true)
 		window:SetScript ("OnMouseDown", function() window:StartMoving() end)
 		window:SetScript ("OnMouseUp", function() window:StopMovingOrSizing() end)
@@ -56,8 +56,9 @@ function _detalhes:OpenWelcomeWindow ()
 		cancel:SetNormalTexture ([[Interface\Buttons\UI-GroupLoot-Pass-Up]])
 		cancel:SetScript ("OnClick", function() window:Hide() end)
 		local cancelText = cancel:CreateFontString (nil, "overlay", "GameFontNormal")
+		cancelText:SetTextColor (1, 1, 1)
 		cancelText:SetPoint ("left", cancel, "right", 2, 0)
-		cancelText:SetText ("Skip")
+		cancelText:SetText (Loc ["STRING_WELCOME_69"])
 		
 		local forward = CreateFrame ("button", nil, window)
 		forward:SetWidth (26)
@@ -274,7 +275,7 @@ local window_openned_at = time()
 			nickname:SetPoint ("center", avatar_bg, "center", 0, -15)
 		end
 		
-		local nicknamelabel = g:NewLabel (window, nil, "$parentNickNameLabel", "nicknameLabel", Loc ["STRING_OPTIONS_NICKNAME"] .. ":", "GameFontHighlightLeft")
+		local nicknamelabel = g:NewLabel (window, nil, "$parentNickNameLabel", "nicknameLabel", Loc ["STRING_OPTIONS_NICKNAME"] .. ":", "GameFontNormal")
 		local nicknamebox = g:NewTextEntry (window, nil, "$parentNicknameEntry", "nicknameEntry", 140, 20, onPressEnter)
 		nicknamebox:HighlightText()
 		
@@ -430,7 +431,7 @@ local window_openned_at = time()
 		skins_image:SetTexCoord (0, 0.41796875, 0, 0.259765625) --0, 0, 214 133
 		
 		--import settings
-		local import_label = g:NewLabel (window, _, "$parentImportSettingsLabel", "ImportLabel", Loc ["STRING_WELCOME_46"])
+		local import_label = g:NewLabel (window, _, "$parentImportSettingsLabel", "ImportLabel", Loc ["STRING_WELCOME_46"] .. ":", "GameFontNormal")
 		import_label:SetPoint ("topleft", window, "topleft", 30, -160)
 
 		local convert_table = {
@@ -520,8 +521,8 @@ local window_openned_at = time()
 		import_dropdown.tooltip = Loc ["STRING_WELCOME_57"]
 		
 		--wallpapaer and skin
-		local wallpaper_label_switch = g:NewLabel (window, _, "$parentBackgroundLabel", "enablewallpaperLabel", Loc ["STRING_WELCOME_44"])
-		wallpaper_label_switch:SetPoint ("topleft", window, "topleft", 30, -180)
+		local wallpaper_label_switch = g:NewLabel (window, _, "$parentBackgroundLabel", "enablewallpaperLabel", Loc ["STRING_WELCOME_44"] .. ":", "GameFontNormal")
+		wallpaper_label_switch:SetPoint ("topleft", window, "topleft", 30, -200)
 		
 		--skin
 			local onSelectSkin = function (_, _, skin_name)
@@ -541,20 +542,64 @@ local window_openned_at = time()
 			local skin_dropdown = g:NewDropDown (window, _, "$parentSkinDropdown", "skinDropdown", 140, 20, buildSkinMenu, instance1.skin)
 			skin_dropdown.tooltip = Loc ["STRING_WELCOME_58"]
 			
-			local skin_label = g:NewLabel (window, _, "$parentSkinLabel", "skinLabel", Loc ["STRING_OPTIONS_INSTANCE_SKIN"])
+			local skin_label = g:NewLabel (window, _, "$parentSkinLabel", "skinLabel", Loc ["STRING_OPTIONS_INSTANCE_SKIN"] .. ":", "GameFontNormal")
 			skin_dropdown:SetPoint ("left", skin_label, "right", 2)
 			skin_label:SetPoint ("topleft", window, "topleft", 30, -140)
 			
 			--skin_dropdown:Select ("WoW Interface")
+		
+		--> icon type
+			local OnSelectIconFile = function (_, _, iconpath)
+				instance1:SetBarSettings (nil, nil, nil, nil, nil, nil, nil, nil, iconpath)
+				if (instance1.row_info.use_spec_icons) then
+					instance1:SetBarSpecIconSettings (false)
+				end
+			end
+			local OnSelectIconFileSpec = function (_, _, iconpath)
+				instance1:SetBarSpecIconSettings (true, iconpath, true)
+			end
+
+			local iconsize = {16, 16}
+			local icontexture = [[Interface\WorldStateFrame\ICONS-CLASSES]]
+			local iconcoords = {0.25, 0.50, 0, 0.25}
+			local list = {
+				{value = [[]], label = Loc ["STRING_OPTIONS_BAR_ICONFILE1"], onclick = OnSelectIconFile, icon = icontexture, texcoord = iconcoords, iconsize = iconsize, iconcolor = {1, 1, 1, .3}},
+				{value = [[Interface\AddOns\Details\images\classes_small]], label = Loc ["STRING_OPTIONS_BAR_ICONFILE2"], onclick = OnSelectIconFile, icon = icontexture, texcoord = iconcoords, iconsize = iconsize},
+				{value = [[Interface\AddOns\Details\images\spec_icons_normal]], label = "Specialization", onclick = OnSelectIconFileSpec, icon = [[Interface\AddOns\Details\images\icons]], texcoord = {2/512, 32/512, 480/512, 510/512}, iconsize = iconsize},
+				{value = [[Interface\AddOns\Details\images\spec_icons_normal_alpha]], label = "Specialization Alpha", onclick = OnSelectIconFileSpec, icon = [[Interface\AddOns\Details\images\icons]], texcoord = {2/512, 32/512, 480/512, 510/512}, iconsize = iconsize},
+				{value = [[Interface\AddOns\Details\images\classes_small_bw]], label = Loc ["STRING_OPTIONS_BAR_ICONFILE3"], onclick = OnSelectIconFile, icon = icontexture, texcoord = iconcoords, iconsize = iconsize},
+				{value = [[Interface\AddOns\Details\images\classes_small_alpha]], label = Loc ["STRING_OPTIONS_BAR_ICONFILE4"], onclick = OnSelectIconFile, icon = icontexture, texcoord = iconcoords, iconsize = iconsize},
+				{value = [[Interface\AddOns\Details\images\classes_small_alpha_bw]], label = Loc ["STRING_OPTIONS_BAR_ICONFILE6"], onclick = OnSelectIconFile, icon = icontexture, texcoord = iconcoords, iconsize = iconsize},
+				{value = [[Interface\AddOns\Details\images\classes]], label = Loc ["STRING_OPTIONS_BAR_ICONFILE5"], onclick = OnSelectIconFile, icon = icontexture, texcoord = iconcoords, iconsize = iconsize},
+			}
+			local BuiltIconList = function() 
+				return list
+			end
 			
+			local default
+			if (instance1.row_info.use_spec_icons) then
+				default = instance1.row_info.spec_file
+			else
+				default = instance1.row_info.icon_file
+			end
+			
+			local d = g:NewDropDown (window, _, "$parentIconSelectDropdown", "IconSelectDropdown", 140, 20, BuiltIconList, default)
+			
+			g:NewLabel (window, _, "$parentIconsAnchor", "rowIconsLabel", Loc ["STRING_OPTIONS_TEXT_ROWICONS_ANCHOR"], "GameFontNormal")
+			
+			d:SetPoint ("left", window.rowIconsLabel, "right", 2)
+			window.rowIconsLabel:SetPoint ("topleft", window, "topleft", 30, -180)
+		
 		--wallpapper
 			--> agora cria os 2 dropdown da categoria e wallpaper
 			
 			local onSelectSecTexture = function (_, _, texturePath) 
 				if (texturePath:find ("TALENTFRAME")) then
-					instance:InstanceWallpaper (texturePath, nil, nil, {0, 1, 0, 0.703125})
+					instance1:InstanceWallpaper (texturePath, nil, nil, {0, 1, 0, 0.703125}, nil, nil, {1, 1, 1, 1})
+				elseif (texturePath:find ("EncounterJournal")) then
+					instance1:InstanceWallpaper (texturePath, nil, nil, {0.06, 0.68, 0.1, 0.57}, nil, nil, {1, 1, 1, 1})
 				else
-					instance:InstanceWallpaper (texturePath, nil, nil, {0, 1, 0, 1})
+					instance1:InstanceWallpaper (texturePath, nil, nil, {0, 1, 0, 1}, nil, nil, {1, 1, 1, 1})
 				end
 			end
 		
@@ -584,6 +629,39 @@ local window_openned_at = time()
 					{value = [[Interface\ARCHEOLOGY\ArchRare-TyrandesFavoriteDoll]], label = "Tyrandes Favorite Doll", onclick = onSelectSecTexture, icon = [[Interface\ARCHEOLOGY\ArchRare-TyrandesFavoriteDoll]], texcoord = nil},
 					{value = [[Interface\ARCHEOLOGY\ArchRare-ZinRokhDestroyer]], label = "ZinRokh Destroyer", onclick = onSelectSecTexture, icon = [[Interface\ARCHEOLOGY\ArchRare-ZinRokhDestroyer]], texcoord = nil},
 				},
+				
+				["RAIDS"] = {
+					{value = [[Interface\EncounterJournal\UI-EJ-LOREBG-BlackrockCaverns]], label = "Blackrock Caverns", onclick = onSelectSecTexture, icon = [[Interface\EncounterJournal\UI-EJ-LOREBG-BlackrockCaverns]], texcoord = nil},
+					{value = [[Interface\EncounterJournal\UI-EJ-LOREBG-BlackrockSpire]], label = "Blackrock Spire", onclick = onSelectSecTexture, icon = [[Interface\EncounterJournal\UI-EJ-LOREBG-BlackrockSpire]], texcoord = nil},
+					{value = [[Interface\EncounterJournal\UI-EJ-LOREBG-DragonSoul]], label = "Dragon Soul", onclick = onSelectSecTexture, icon = [[Interface\EncounterJournal\UI-EJ-LOREBG-DragonSoul]], texcoord = nil},
+					{value = [[Interface\EncounterJournal\UI-EJ-LOREBG-EndTime]], label = "End Time", onclick = onSelectSecTexture, icon = [[Interface\EncounterJournal\UI-EJ-LOREBG-EndTime]], texcoord = nil},
+					{value = [[Interface\EncounterJournal\UI-EJ-LOREBG-Firelands1]], label = "Firelands", onclick = onSelectSecTexture, icon = [[Interface\EncounterJournal\UI-EJ-LOREBG-Firelands1]], texcoord = nil},
+					{value = [[Interface\EncounterJournal\UI-EJ-LOREBG-HallsofReflection]], label = "Halls of Reflection", onclick = onSelectSecTexture, icon = [[Interface\EncounterJournal\UI-EJ-LOREBG-HallsofReflection]], texcoord = nil},
+					{value = [[Interface\EncounterJournal\UI-EJ-LOREBG-HellfireCitadel]], label = "Hellfire Citadel", onclick = onSelectSecTexture, icon = [[Interface\EncounterJournal\UI-EJ-LOREBG-HellfireCitadel]], texcoord = nil},
+					{value = [[Interface\EncounterJournal\UI-EJ-LOREBG-Pandaria]], label = "Pandaria", onclick = onSelectSecTexture, icon = [[Interface\EncounterJournal\UI-EJ-LOREBG-Pandaria]], texcoord = nil},
+					{value = [[Interface\EncounterJournal\UI-EJ-LOREBG-RagefireChasm]], label = "Ragefire Chasm", onclick = onSelectSecTexture, icon = [[Interface\EncounterJournal\UI-EJ-LOREBG-RagefireChasm]], texcoord = nil},
+					{value = [[Interface\EncounterJournal\UI-EJ-LOREBG-SiegeofOrgrimmar]], label = "Siege of Orgrimmar", onclick = onSelectSecTexture, icon = [[Interface\EncounterJournal\UI-EJ-LOREBG-SiegeofOrgrimmar]], texcoord = nil},
+					{value = [[Interface\EncounterJournal\UI-EJ-LOREBG-TheNexus]], label = "The Nexus", onclick = onSelectSecTexture, icon = [[Interface\EncounterJournal\UI-EJ-LOREBG-TheNexus]], texcoord = nil},
+					{value = [[Interface\EncounterJournal\UI-EJ-LOREBG-TheOculus]], label = "The Oculus", onclick = onSelectSecTexture, icon = [[Interface\EncounterJournal\UI-EJ-LOREBG-TheOculus]], texcoord = nil},
+					{value = [[Interface\EncounterJournal\UI-EJ-LOREBG-TheStonecore]], label = "The Stonecore", onclick = onSelectSecTexture, icon = [[Interface\EncounterJournal\UI-EJ-LOREBG-TheStonecore]], texcoord = nil},
+					{value = [[Interface\EncounterJournal\UI-EJ-LOREBG-ThunderKingRaid]], label = "Throne of Thunder", onclick = onSelectSecTexture, icon = [[Interface\EncounterJournal\UI-EJ-LOREBG-ThunderKingRaid]], texcoord = nil},
+				},
+			
+				["LOGOS"] = {
+					{value = [[Interface\Timer\Alliance-Logo]], label = "For the Alliance", onclick = onSelectSecTexture, icon = [[Interface\Timer\Alliance-Logo]], texcoord = nil},
+					{value = [[Interface\Timer\Horde-Logo]], label = "For the Horde", onclick = onSelectSecTexture, icon = [[Interface\Timer\Horde-Logo]], texcoord = nil},
+					{value = [[Interface\Destiny\EndscreenImage]], label = "Pandaria Logo", onclick = onSelectSecTexture, icon = [[Interface\Destiny\EndscreenImage]], texcoord = nil},
+					{value = [[Interface\ARCHEOLOGY\ARCH-RACE-ORC]], label = "Orc Crest", onclick = onSelectSecTexture, icon = [[Interface\ARCHEOLOGY\ARCH-RACE-ORC]], texcoord = nil},
+					{value = [[Interface\ARCHEOLOGY\ARCH-RACE-DWARF]], label = "Dwarf Crest", onclick = onSelectSecTexture, icon = [[Interface\ARCHEOLOGY\ARCH-RACE-DWARF]], texcoord = nil},
+					{value = [[Interface\ARCHEOLOGY\ARCH-RACE-NIGHTELF]], label = "Night Elf Crest", onclick = onSelectSecTexture, icon = [[Interface\ARCHEOLOGY\ARCH-RACE-NIGHTELF]], texcoord = nil},
+					{value = [[Interface\ARCHEOLOGY\Arch-Race-Pandaren]], label = "Padaren Crest", onclick = onSelectSecTexture, icon = [[Interface\ARCHEOLOGY\Arch-Race-Pandaren]], texcoord = nil},
+					{value = [[Interface\ARCHEOLOGY\ARCH-RACE-TROLL]], label = "Troll Crest", onclick = onSelectSecTexture, icon = [[Interface\ARCHEOLOGY\ARCH-RACE-TROLL]], texcoord = nil},
+					{value = [[Interface\FlavorImages\BloodElfLogo-small]], label = "Blood Elf Crest", onclick = onSelectSecTexture, icon = [[Interface\FlavorImages\BloodElfLogo-small]], texcoord = nil},
+					{value = [[Interface\Glues\COMMON\Glues-Logo]], label = "Wow Logo", onclick = onSelectSecTexture, icon = [[Interface\Glues\COMMON\Glues-Logo]], texcoord = nil},
+					{value = [[Interface\Glues\COMMON\GLUES-WOW-BCLOGO]], label = "Burning Cruzade Logo", onclick = onSelectSecTexture, icon = [[Interface\Glues\COMMON\GLUES-WOW-BCLOGO]], texcoord = nil},
+					{value = [[Interface\Glues\COMMON\GLUES-WOW-CCLOGO]], label = "Cataclysm Logo", onclick = onSelectSecTexture, icon = [[Interface\Glues\COMMON\GLUES-WOW-CCLOGO]], texcoord = nil},
+					{value = [[Interface\Glues\COMMON\Glues-WOW-WoltkLogo]], label = "WotLK Logo", onclick = onSelectSecTexture, icon = [[Interface\Glues\COMMON\Glues-WOW-WoltkLogo]], texcoord = nil},
+				},				
 			
 				["CREDITS"] = {
 					{value = [[Interface\Glues\CREDITS\Arakkoa2]], label = "Arakkoa", onclick = onSelectSecTexture, icon = [[Interface\Glues\CREDITS\Arakkoa2]], texcoord = nil},
@@ -717,8 +795,10 @@ local window_openned_at = time()
 			local backgroundTable = {
 				{value = "ARCHEOLOGY", label = "Archeology", onclick = onSelectMainTexture, icon = [[Interface\ARCHEOLOGY\Arch-Icon-Marker]]},
 				{value = "CREDITS", label = "Burning Crusade", onclick = onSelectMainTexture, icon = [[Interface\ICONS\TEMP]]},
+				{value = "LOGOS", label = "Logos", onclick = onSelectMainTexture, icon = [[Interface\WorldStateFrame\ColumnIcon-FlagCapture0]]},
+				{value = "DRESSUP", label = "Race Background", onclick = onSelectMainTexture, icon = [[Interface\ICONS\INV_Chest_Cloth_17]]},
+				{value = "RAIDS", label = "Dungeons & Raids", onclick = onSelectMainTexture, icon = [[Interface\COMMON\friendship-FistHuman]]},
 				{value = "DEATHKNIGHT", label = "Death Knight", onclick = onSelectMainTexture, icon = _detalhes.class_icons_small, texcoord = _detalhes.class_coords ["DEATHKNIGHT"]},
-				{value = "DRESSUP", label = "Class Background", onclick = onSelectMainTexture, icon = [[Interface\ICONS\INV_Chest_Cloth_17]]},
 				{value = "DRUID", label = "Druid", onclick = onSelectMainTexture, icon = _detalhes.class_icons_small, texcoord = _detalhes.class_coords ["DRUID"]},
 				{value = "HUNTER", label = "Hunter", onclick = onSelectMainTexture, icon = _detalhes.class_icons_small, texcoord = _detalhes.class_coords ["HUNTER"]},
 				{value = "MAGE", label = "Mage", onclick = onSelectMainTexture, icon = _detalhes.class_icons_small, texcoord = _detalhes.class_coords ["MAGE"]},
@@ -799,7 +879,7 @@ local window_openned_at = time()
 			end
 		end)
 
-		pages [#pages+1] = {import_label, import_dropdown, skins_frame_alert, bg55, texto55, texto555, skins_image, changemind, texto_appearance, skin_dropdown, skin_label, wallpaper_label_switch, wallpaper_switch, wallpaper_dropdown1, wallpaper_dropdown2, }
+		pages [#pages+1] = {import_label, import_dropdown, skins_frame_alert, bg55, texto55, texto555, skins_image, changemind, texto_appearance, skin_dropdown, skin_label, wallpaper_label_switch, wallpaper_switch, wallpaper_dropdown1, wallpaper_dropdown2, window.rowIconsLabel, window.IconSelectDropdown}
 		
 		for _, widget in ipairs (pages[#pages]) do 
 			widget:Hide()
@@ -928,7 +1008,7 @@ local window_openned_at = time()
 		dance_text:SetPoint ("topleft", window, "topleft", 30, -175)
 		
 	--------------- Update Speed
-		g:NewLabel (window, _, "$parentUpdateSpeedLabel", "updatespeedLabel", Loc ["STRING_WELCOME_14"] .. ":")
+		g:NewLabel (window, _, "$parentUpdateSpeedLabel", "updatespeedLabel", Loc ["STRING_WELCOME_14"] .. ":", "GameFontNormal")
 		window.updatespeedLabel:SetPoint (31, -150)
 		--
 		
@@ -963,7 +1043,7 @@ local window_openned_at = time()
 		window.updatespeedSlider.tooltip = Loc ["STRING_WELCOME_15"]
 		
 	--------------- Animate Rows
-		g:NewLabel (window, _, "$parentAnimateLabel", "animateLabel", Loc ["STRING_WELCOME_16"] .. ":")
+		g:NewLabel (window, _, "$parentAnimateLabel", "animateLabel", Loc ["STRING_WELCOME_16"] .. ":", "GameFontNormal")
 		window.animateLabel:SetPoint (31, -170)
 		--
 		g:NewSwitch (window, _, "$parentAnimateSlider", "animateSlider", 60, 20, _, _, _detalhes.use_row_animations) -- ltext, rtext, defaultv
@@ -975,7 +1055,7 @@ local window_openned_at = time()
 		
 	--------------- Fast Hps/Dps Updates
 	--[
-		g:NewLabel (window, _, "$parentDpsHpsLabel", "DpsHpsLabel", Loc ["STRING_WELCOME_63"] .. ":")
+		g:NewLabel (window, _, "$parentDpsHpsLabel", "DpsHpsLabel", Loc ["STRING_WELCOME_63"] .. ":", "GameFontNormal")
 		window.DpsHpsLabel:SetPoint (31, -190)
 		--
 		g:NewSwitch (window, _, "$parentDpsHpsSlider", "DpsHpsSlider", 60, 20, _, _, _detalhes:GetInstance(1).row_info.fast_ps_update) -- ltext, rtext, defaultv
@@ -986,7 +1066,7 @@ local window_openned_at = time()
 		window.DpsHpsSlider.tooltip = Loc ["STRING_WELCOME_64"]
 	--]]
 	--------------- Max Segments
-		g:NewLabel (window, _, "$parentSliderLabel", "segmentsLabel", Loc ["STRING_WELCOME_21"] .. ":")
+		g:NewLabel (window, _, "$parentSliderLabel", "segmentsLabel", Loc ["STRING_WELCOME_21"] .. ":", "GameFontNormal")
 		window.segmentsLabel:SetPoint (31, -210)
 		--
 		g:NewSlider (window, _, "$parentSlider", "segmentsSlider", 120, 20, 1, 25, 1, _detalhes.segments_amount) -- min, max, step, defaultv
@@ -1006,7 +1086,7 @@ local window_openned_at = time()
 		
 		local mech_icon2 = window:CreateTexture (nil, "overlay")
 		mech_icon2:SetTexture ([[Interface\Vehicles\UI-Vehicles-Trim-Alliance]])
-		mech_icon2:SetPoint ("topright", window, "topright", -10, -142)
+		mech_icon2:SetPoint ("topright", window, "topright", -10, -151)
 		mech_icon2:SetWidth (128*1.0)
 		mech_icon2:SetHeight (128*0.6)
 		mech_icon2:SetAlpha (0.6)
@@ -1368,6 +1448,8 @@ local window_openned_at = time()
 					instance:InstanceReset()
 				end
 			end
+			
+			_detalhes:GetInstance(1):SetDisplay (0, 1, 1)
 			
 			local bar1 = _detalhes:GetInstance(1):GetRow(1)
 			

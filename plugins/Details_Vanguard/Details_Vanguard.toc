@@ -9,7 +9,4 @@
 embeds.xml
 #@end-no-lib-strip@
 
-enUS.lua
-ptBR.lua
-
 Details_Vanguard.lua

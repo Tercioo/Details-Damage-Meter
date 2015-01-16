@@ -764,9 +764,15 @@ function atributo_energy:RefreshBarra (esta_barra, instancia, from_resize)
 		esta_barra.icone_classe:SetVertexColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
 
 	else
-		esta_barra.icone_classe:SetTexture (instancia.row_info.icon_file)
-		esta_barra.icone_classe:SetTexCoord (_unpack (CLASS_ICON_TCOORDS [self.classe])) --very slow method
-		esta_barra.icone_classe:SetVertexColor (1, 1, 1)
+		if (instancia.row_info.use_spec_icons and self.spec) then
+			esta_barra.icone_classe:SetTexture (instancia.row_info.spec_file)
+			esta_barra.icone_classe:SetTexCoord (_unpack (_detalhes.class_specs_coords [self.spec]))
+			esta_barra.icone_classe:SetVertexColor (1, 1, 1)
+		else	
+			esta_barra.icone_classe:SetTexture (instancia.row_info.icon_file)
+			esta_barra.icone_classe:SetTexCoord (_unpack (CLASS_ICON_TCOORDS [self.classe])) --very slow method
+			esta_barra.icone_classe:SetVertexColor (1, 1, 1)
+		end
 	end
 	
 	--texture and text
