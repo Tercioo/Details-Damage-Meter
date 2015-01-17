@@ -18,6 +18,51 @@ function _detalhes:ResetInstanceConfig (maintainsnap)
 	end
 end
 
+_detalhes.instance_skin_ignored_values = {
+	["menu_icons"] = true,
+	["auto_hide"] = true,
+	["scale"] = true,
+	["following"] = true,
+	["auto_current"] = true,
+	["bars_grow_direction"] = true,
+	["bars_sort_direction"] = true,
+	["auto_hide_menu"] = true,
+	["menu_alpha"] = true,
+	["total_bar"] = true,
+	["hide_in_combat"] = true,
+	["hide_out_of_combat"] = true,
+	["hide_in_combat_type"] = true,
+	["hide_in_combat_alpha"] = true,
+	["switch_all_roles_in_combat"] = true,
+	["switch_all_roles_after_wipe"] = true,
+	["switch_damager"] = true,
+	["switch_damager_in_combat"] = true,
+	["switch_healer"] = true,
+	["switch_healer_in_combat"] = true,
+	["switch_tank"] = true,
+	["switch_tank_in_combat"] = true,
+	["strata"] = true,
+	["grab_on_top"] = true,
+}
+
+function _detalhes:ResetInstanceConfigKeepingValues (maintainsnap)
+	for key, value in pairs (_detalhes.instance_defaults) do 
+		if (not _detalhes.instance_skin_ignored_values [key]) then
+			if (type (value) == "table") then
+				self [key] = table_deepcopy (value)
+			else
+				self [key] = value
+			end
+		end
+	end
+	if (not maintainsnap) then
+		self.snap = {}
+		self.horizontalSnap = nil
+		self.verticalSnap = nil
+		self:LockInstance (false)
+	end
+end
+
 function _detalhes:LoadInstanceConfig()
 	for key, value in pairs (_detalhes.instance_defaults) do 
 		if (self [key] == nil) then

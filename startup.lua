@@ -330,10 +330,12 @@ function _G._detalhes:Start()
 	--> check is this is the first run of this version
 		if (self.is_version_first_run) then
 		
-			if (_detalhes_database.last_version and _detalhes.userversion == "v3.8c") then
+			if (_detalhes_database.last_version and _detalhes.userversion == "v3.8.1") then
+				--_detalhes:SetTutorialCVar ("UPDATE_WARNING_SPECICONS1", false)
 				if (not _detalhes:GetTutorialCVar ("UPDATE_WARNING_SPECICONS1")) then
 					_detalhes:SetTutorialCVar ("UPDATE_WARNING_SPECICONS1", true)
 					local func = function()
+
 						local window1 = _detalhes:GetInstance(1)
 						if (window1 and window1:IsEnabled()) then
 							window1:SetBarSpecIconSettings (true, [[Interface\AddOns\Details\images\spec_icons_normal]], true)
@@ -344,6 +346,20 @@ function _G._detalhes:Start()
 						end
 						
 						_detalhes:CreateTestBars()
+						
+						_detalhes:Ask ("Keep Changes? You may change later on Options Panel -> Rows: Settings", function()
+						end)
+						
+						_detalhes.yesNo ["no"]:SetClickFunction (function()
+							if (window1 and window1:IsEnabled()) then
+								window1:SetBarSpecIconSettings (false)
+							end
+							if (window2 and window2:IsEnabled()) then
+								window2:SetBarSpecIconSettings (false)
+							end
+							_detalhes.yesNo:Hide()
+						end)
+						
 					end
 					_detalhes:GetFramework():ShowTutorialAlertFrame ("Spec Icons!", "Now Available, click here!", func)
 				end

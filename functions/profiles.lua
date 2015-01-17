@@ -914,6 +914,7 @@ local default_profile = {
 		standard_skin = false,
 		skin = "WoW Interface",
 		profile_save_pos = true,
+		options_group_edit = true,
 		
 	--> tooltip
 		tooltip = {

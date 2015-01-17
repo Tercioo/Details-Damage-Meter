@@ -205,6 +205,7 @@
 				t1 [key] = value
 			end
 		end
+		return t1
 	end
 	
 	function _detalhes.table.deploy (t1, t2)

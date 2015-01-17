@@ -4010,7 +4010,7 @@ function _detalhes:SetWindowAlphaForInteract (alpha)
 	
 	if (self.is_interacting) then
 		--> entrou
-		--self.baseframe:SetAlpha (alpha)
+		self.baseframe:SetAlpha (alpha)
 		self:InstanceAlpha (alpha)
 		self:SetIconAlpha (alpha, nil, true)
 		
@@ -4025,6 +4025,7 @@ function _detalhes:SetWindowAlphaForInteract (alpha)
 			self:InstanceAlpha (self.combat_changes_alpha)
 			self:SetIconAlpha (self.combat_changes_alpha, nil, true)
 			self.rowframe:SetAlpha (self.combat_changes_alpha) --alpha do combate é absoluta
+			self.baseframe:SetAlpha (self.combat_changes_alpha) --alpha do combate é absoluta
 		else
 			self:InstanceAlpha (alpha)
 			self:SetIconAlpha (alpha, nil, true)
@@ -4034,6 +4035,8 @@ function _detalhes:SetWindowAlphaForInteract (alpha)
 			else
 				self.rowframe:SetAlpha (alpha)
 			end
+			
+			self.baseframe:SetAlpha (alpha)
 		end
 
 	end
@@ -4094,9 +4097,9 @@ function _detalhes:SetWindowAlphaForCombat (entering_in_combat, true_hide)
 		self.baseframe:Show()
 		self.baseframe:SetAlpha (1)
 		
-		--gump:Fade (self.baseframe, "ALPHAANIM", amount)
 		self:InstanceAlpha (amount)
 		gump:Fade (self.rowframe, "ALPHAANIM", rowsamount)
+		gump:Fade (self.baseframe, "ALPHAANIM", rowsamount)
 		self:SetIconAlpha (menuamount)
 	end
 	
@@ -5249,7 +5252,7 @@ function _detalhes:ChangeSkin (skin_name)
 		end
 	
 		--> reset all config
-			self:ResetInstanceConfig (true)
+			self:ResetInstanceConfigKeepingValues (true)
 	
 		--> overwrites
 			local overwrite_cprops = this_skin.instance_cprops
@@ -5258,12 +5261,14 @@ function _detalhes:ChangeSkin (skin_name)
 				local copy = table_deepcopy (overwrite_cprops)
 				
 				for cprop, value in _pairs (copy) do
-					if (type (value) == "table") then
-						for cprop2, value2 in _pairs (value) do
-							self [cprop] [cprop2] = value2
+					if (not _detalhes.instance_skin_ignored_values [cprop]) then
+						if (type (value) == "table") then
+							for cprop2, value2 in _pairs (value) do
+								self [cprop] [cprop2] = value2
+							end
+						else
+							self [cprop] = value
 						end
-					else
-						self [cprop] = value
 					end
 				end
 				
