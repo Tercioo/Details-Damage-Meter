@@ -1406,7 +1406,7 @@ function _detalhes:RestauraJanela (index, temp, load_only)
 		self.oldwith = self.baseframe:GetWidth()
 		self:RestoreMainWindowPosition()
 		self:ReajustaGump()
-		self:SaveMainWindowPosition()
+		--self:SaveMainWindowPosition()
 		
 		if (not load_only) then
 			self.iniciada = true

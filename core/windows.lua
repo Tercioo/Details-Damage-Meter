@@ -2,6 +2,7 @@
 	
 	local _detalhes =	_G._detalhes
 	local Loc =			LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
+	local libwindow	=	LibStub ("LibWindow-1.1")
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> local pointers
@@ -206,8 +207,170 @@
 		end
 
 	end
+	
+--------------------------------------------------------------------------------------------------------
+	--> LibWindow-1.1
+	--this is the restore function from Libs\LibWindow-1.1\LibWindow-1.1.lua we can't schedule and we save it inside the instance without frame references.
+	
+	function _detalhes:RestoreLibWindow()
+		local frame = self.baseframe
+		if (frame) then
+			if (self.libwindow.x) then
+				
+				local x = self.libwindow.x
+				local y = self.libwindow.y
+				local point = self.libwindow.point
+				local s = self.libwindow.scale
+				
+				if s then
+					(frame.lw11origSetScale or frame.SetScale)(frame,s)
+				else
+					s = frame:GetScale()
+				end
+				
+				if not x or not y then		-- nothing stored in config yet, smack it in the center
+					x=0; y=0; point="CENTER"
+				end
+
+				x = x/s
+				y = y/s
+				
+				frame:ClearAllPoints()
+				if not point and y==0 then	-- errr why did i do this check again? must have been a reason, but i can't remember it =/
+					point="CENTER"
+				end
+					
+				if not point then	-- we have position, but no point, which probably means we're going from data stored by the addon itself before LibWindow was added to it. It was PROBABLY topleft->bottomleft anchored. Most do it that way.
+					frame:SetPoint("TOPLEFT", frame:GetParent(), "BOTTOMLEFT", x, y)
+					-- make it compute a better attachpoint (on next update)
+					--_detalhes:ScheduleTimer ("SaveLibWindow", 0.05, self)
+					return
+				end
+				
+				frame:SetPoint(point, frame:GetParent(), point, x, y)
+				
+			end
+		end
+	end
+	
+	--> LibWindow-1.1
+	--this is the save function from Libs\LibWindow-1.1\LibWindow-1.1.lua, we save it inside the instance without frame references.
+	
+	function _detalhes:SaveLibWindow()
+		local frame = self.baseframe
+		if (frame) then
+			local left = frame:GetLeft()
+			if (not left) then
+				return _detalhes:ScheduleTimer ("SaveLibWindow", 0.05, self)
+			end
+			
+			--tinsert (_detalhes.resize_debug, #_detalhes.resize_debug+1, "SAVING 1: " .. (self.libwindow.x or 0))
+			
+			--> LibWindow-1.1 ----------------
+				local parent = frame:GetParent() or nilParent
+				-- No, this won't work very well with frames that aren't parented to nil or UIParent
+				local s = frame:GetScale()
+				local left,top = frame:GetLeft()*s, frame:GetTop()*s
+				local right,bottom = frame:GetRight()*s, frame:GetBottom()*s
+				local pwidth, pheight = parent:GetWidth(), parent:GetHeight()
+
+				local x,y,point;
+				if left < (pwidth-right) and left < abs((left+right)/2 - pwidth/2) then
+					x = left;
+					point="LEFT";
+				elseif (pwidth-right) < abs((left+right)/2 - pwidth/2) then
+					x = right-pwidth;
+					point="RIGHT";
+				else
+					x = (left+right)/2 - pwidth/2;
+					point="";
+				end
+				
+				if bottom < (pheight-top) and bottom < abs((bottom+top)/2 - pheight/2) then
+					y = bottom;
+					point="BOTTOM"..point;
+				elseif (pheight-top) < abs((bottom+top)/2 - pheight/2) then
+					y = top-pheight;
+					point="TOP"..point;
+				else
+					y = (bottom+top)/2 - pheight/2;
+					-- point=""..point;
+				end
+				
+				if point=="" then
+					point = "CENTER"
+				end
+			----------------------------------------
+			
+			self.libwindow.x = x
+			self.libwindow.y = y
+			self.libwindow.point = point
+			self.libwindow.scale = scale
+			
+			--tinsert (_detalhes.resize_debug, #_detalhes.resize_debug+1, "SAVING 2: " .. (self.libwindow.x or 0))
+			
+		end
+	end
+	
+--------------------------------------------------------------------------------------------------------
+	
+	function _detalhes:SaveMainWindowSize()
+		local baseframe_width = self.baseframe:GetWidth()
+		if (not baseframe_width) then
+			return _detalhes:ScheduleTimer ("SaveMainWindowSize", 1, self)
+		end
+		local baseframe_height = self.baseframe:GetHeight()
+		
+		--> calc position
+		local _x, _y = self:GetPositionOnScreen()
+		if (not _x) then
+ 			return _detalhes:ScheduleTimer ("SaveMainWindowSize", 1, self)
+ 		end
+		
+		--> save the position
+		local _w = baseframe_width
+		local _h = baseframe_height
+		
+		local mostrando = self.mostrando
+		
+		self.posicao[mostrando].x = _x
+		self.posicao[mostrando].y = _y
+		self.posicao[mostrando].w = _w
+		self.posicao[mostrando].h = _h
+		
+		--> update the 4 points for window groups
+		local metade_largura = _w/2
+		local metade_altura = _h/2
+		
+		local statusbar_y_mod = 0
+		if (not self.show_statusbar) then
+			statusbar_y_mod = 14 * self.baseframe:GetScale()
+		end
+		
+		if (not self.ponto1) then
+			self.ponto1 = {x = _x - metade_largura, y = _y + metade_altura + (statusbar_y_mod*-1)} --topleft
+			self.ponto2 = {x = _x - metade_largura, y = _y - metade_altura + statusbar_y_mod} --bottomleft
+			self.ponto3 = {x = _x + metade_largura, y = _y - metade_altura + statusbar_y_mod} --bottomright
+			self.ponto4 = {x = _x + metade_largura, y = _y + metade_altura + (statusbar_y_mod*-1)} --topright
+		else
+			self.ponto1.x = _x - metade_largura
+			self.ponto1.y = _y + metade_altura + (statusbar_y_mod*-1)
+			self.ponto2.x = _x - metade_largura
+			self.ponto2.y = _y - metade_altura + statusbar_y_mod
+			self.ponto3.x = _x + metade_largura
+			self.ponto3.y = _y - metade_altura + statusbar_y_mod
+			self.ponto4.x = _x + metade_largura
+			self.ponto4.y = _y + metade_altura + (statusbar_y_mod*-1)
+		end
+		
+		self.baseframe.BoxBarrasAltura = self.baseframe:GetHeight() - end_window_spacement --> espaço para o final da janela
+		
+		return {altura = self.baseframe:GetHeight(), largura = self.baseframe:GetWidth(), x = _x, y = _y}
+	end
 
 	function _detalhes:SaveMainWindowPosition (instance)
+		
+		--tinsert (_detalhes.resize_debug, #_detalhes.resize_debug+1, "SaveMainWindowPosition: " .. debugstack())
 		
 		if (instance) then
 			self = instance
@@ -226,6 +389,8 @@
 		if (not _x) then
  			return _detalhes:ScheduleTimer ("SaveMainWindowPosition", 1, self)
  		end
+		
+		self:SaveLibWindow()
 		
 		--> save the position
 		local _w = baseframe_width
@@ -268,6 +433,20 @@
 
 	function _detalhes:RestoreMainWindowPosition (pre_defined)
 
+		--tinsert (_detalhes.resize_debug, #_detalhes.resize_debug+1, "Restoring " .. ( self.libwindow.x or "NONE") .. " " .. (self.libwindow.point or "NONE"))
+		--tinsert (_detalhes.resize_debug, #_detalhes.resize_debug+1, "")
+		--tinsert (_detalhes.resize_debug, #_detalhes.resize_debug+1, debugstack())
+		--tinsert (_detalhes.resize_debug, #_detalhes.resize_debug+1, "")
+	
+		if (not pre_defined and self.libwindow.x and self.mostrando == "normal") then
+			self.baseframe:SetWidth (self.posicao[self.mostrando].w)
+			self.baseframe:SetHeight (self.posicao[self.mostrando].h)
+			
+			self:RestoreLibWindow()
+			self.baseframe.BoxBarrasAltura = self.baseframe:GetHeight() - end_window_spacement --> espaço para o final da janela
+			return
+		end
+	
 		local _scale = self.baseframe:GetEffectiveScale() 
 		local _UIscale = _UIParent:GetScale()
 		
@@ -287,7 +466,6 @@
 		self.baseframe:ClearAllPoints()
 		self.baseframe:SetPoint ("CENTER", _UIParent, "CENTER", novo_x, novo_y)
 
-		self.baseframe.BoxBarrasAltura = self.baseframe:GetHeight() - end_window_spacement --> espaço para o final da janela
 	end
 
 	function _detalhes:RestoreMainWindowPositionNoResize (pre_defined, x, y)

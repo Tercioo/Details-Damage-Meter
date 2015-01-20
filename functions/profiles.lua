@@ -379,7 +379,8 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 				
 				--> load data saved for this character only
 				instance:LoadLocalInstanceConfig()
-				if (skin.__was_opened) then
+				if (skin.__was_opened) then	
+					--tinsert (_detalhes.resize_debug, #_detalhes.resize_debug+1, "libwindow X (383): " .. (instance.libwindow.x or 0))
 					instance:AtivarInstancia()
 				else
 					instance.ativa = false
@@ -421,9 +422,11 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 					end
 
 					instance:LockInstance (instance.isLocked)
+					
+					--tinsert (_detalhes.resize_debug, #_detalhes.resize_debug+1, "libwindow X (427): " .. (instance.libwindow.x or 0))
 					instance:RestoreMainWindowPosition()
 					instance:ReajustaGump()
-					instance:SaveMainWindowPosition()
+					--instance:SaveMainWindowPosition()
 					instance:ChangeSkin()
 
 				else

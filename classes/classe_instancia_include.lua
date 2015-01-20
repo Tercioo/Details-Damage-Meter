@@ -43,6 +43,7 @@ _detalhes.instance_skin_ignored_values = {
 	["switch_tank_in_combat"] = true,
 	["strata"] = true,
 	["grab_on_top"] = true,
+	["libwindow"] = true,
 }
 
 function _detalhes:ResetInstanceConfigKeepingValues (maintainsnap)
@@ -92,6 +93,7 @@ _detalhes.instance_defaults = {
 		skin = "Minimalistic v2",
 	--scale
 		window_scale = 1.0,
+		libwindow = {},
 	--following
 		following = {enabled = false, bar_color = {1, 1, 1}, text_color = {1, 1, 1}},
 	--baseframe backdrop

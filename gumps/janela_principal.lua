@@ -1050,7 +1050,7 @@ end
 
 --> scripts do base frame
 local BFrame_scripts_onsizechange = function (self)
-	self._instance:SaveMainWindowPosition()
+	self._instance:SaveMainWindowSize()
 	self._instance:ReajustaGump()
 	self._instance.oldwith = self:GetWidth()
 	_detalhes:SendEvent ("DETAILS_INSTANCE_SIZECHANGED", nil, self._instance)

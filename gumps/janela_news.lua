@@ -4,11 +4,33 @@ local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
 local g =	_detalhes.gump
 local _
 
-function _detalhes:OpenNewsWindow()
+function _detalhes:OpenNewsWindow (text_to_show, dumpvalues)
 	local news_window = _detalhes:CreateOrOpenNewsWindow()
 	
 	news_window:Title (Loc ["STRING_NEWS_TITLE"])
-	news_window:Text (Loc ["STRING_VERSION_LOG"])
+	
+	if (text_to_show and type (text_to_show) == "table") then
+		local s = ""
+		for _, text in ipairs (text_to_show) do
+			if (type (text) == "string") then
+				s = s .. text .. "\n"
+			end
+		end
+		
+		if (dumpvalues) then
+			for key, value in pairs (text_to_show) do
+				if (type (value) == "function" or type (value) == "table") then
+					s = s .. "[" .. key .. "] = " .. type (value) .. "\n"
+				else
+					s = s .. "[" .. key .. "] = " .. value .. "\n"
+				end
+			end
+		end
+		
+		news_window:Text (s)
+	else
+		news_window:Text (text_to_show or Loc ["STRING_VERSION_LOG"])
+	end
 	
 	news_window:Icon ([[Interface\AddOns\Details\images\icons2]], {108/512, 189/512, 319/512, 400/512})
 	
