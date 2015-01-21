@@ -154,6 +154,36 @@ do
 		
 	end
 	
+	function _detalhes:ReGuessSpec (t)
+		local Actor, container = t[1], t[2]
+		local SpecSpellList = _detalhes.SpecSpellList
+		
+		if (Actor.spells) then
+			for spellid, _ in _pairs (Actor.spells._ActorTable) do 
+				local spec = SpecSpellList [spellid]
+				if (spec) then
+					if (spec ~= Actor.spec) then
+						_detalhes.cached_specs [Actor.serial] = spec
+					
+						Actor.spec = spec
+						
+						if (container) then
+							container.need_refresh = true
+						end
+						
+						if (Actor.minha_barra and type (Actor.minha_barra) == "table") then
+							Actor.minha_barra.minha_tabela = nil
+						end
+					
+						return spec
+					else
+						break
+					end
+				end
+			end
+		end
+	end
+	
 	function _detalhes:GuessSpec (t)
 	
 		local Actor, container, tries = t[1], t[2], t[3]

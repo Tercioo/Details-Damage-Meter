@@ -126,7 +126,8 @@
 			local have_cached = cached_specs [serial]
 			if (have_cached) then
 				novo_objeto.spec = have_cached
-				_detalhes:ScheduleTimer ("GuessSpec", 15, {novo_objeto, self, 10})
+				--> check is didn't changed the spec:
+				_detalhes:ScheduleTimer ("ReGuessSpec", 15, {novo_objeto, self})
 			else
 				_detalhes:ScheduleTimer ("GuessSpec", 3, {novo_objeto, self, 1})
 			end

@@ -1139,7 +1139,7 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 	end
 	
 	local myPos
-	local following = instancia.following.enabled
+	local following = instancia.following.enabled and sub_atributo ~= 6
 	
 	if (following) then
 		if (using_cache) then
