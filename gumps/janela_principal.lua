@@ -4763,7 +4763,7 @@ local build_mode_list = function (self, elapsed)
 		
 		--> window control
 		GameCooltip:AddLine ("$div")
-		CoolTip:AddLine ("Window Control")
+		CoolTip:AddLine (Loc ["STRING_MENU_INSTANCE_CONTROL"])
 		CoolTip:AddIcon ([[Interface\AddOns\Details\images\modo_icones]], 1, 1, 20, 20, 0.625, 0.75, 0, 1)
 
 		--CoolTip:AddMenu (2, _detalhes.OpenOptionsWindow, true, 1, nil, "Cant Create Window", _, true)
@@ -4912,8 +4912,6 @@ function _detalhes:SetMenuOwner (self, instance)
 	
 end
 
-local segments_used = 0
-local segments_filled = 0
 local empty_segment_color = {1, 1, 1, .4}
 
 local segments_common_tex, segments_common_color = {0.5078125, 0.1171875, 0.017578125, 0.1953125}, {1, 1, 1, .5}
@@ -4923,6 +4921,98 @@ local party_line_color = {170/255, 167/255, 255/255, 1}
 local party_wallpaper_tex, party_wallpaper_color = {0.09, 0.698125, 0, 0.833984375}, {1, 1, 1, 0.5}
 
 local segments_wallpaper_color = {1, 1, 1, 0.5}
+local segment_color_lime = {0, 1, 0, 1}
+local segment_color_red = {1, 0, 0, 1}
+
+function _detalhes:GetSegmentInfo (index)
+	local combat
+	
+	if (index == -1 or index == "overall") then
+		combat = _detalhes.tabela_overall
+	elseif (index == 0 or index == "current") then	
+		combat = _detalhes.tabela_vigente
+	else
+		combat = _detalhes.tabela_historico.tabelas [index]
+	end
+	
+	if (combat) then
+	
+		local enemy
+		local color
+		local raid_type
+		local killed
+		local portrait
+		local background
+		local background_coords
+		local is_trash
+		
+		if (combat.is_boss and combat.is_boss.name) then
+		
+			if (combat.instance_type == "party") then
+				raid_type = "party"
+				enemy = combat.is_boss.name
+				color = party_line_color
+
+			elseif (combat.is_boss.killed) then
+				raid_type = "raid"
+				enemy = combat.is_boss.name
+				color = segment_color_lime
+				killed = true
+
+			else
+				raid_type = "raid"
+				enemy = combat.is_boss.name
+				color = segment_color_red
+				killed = false
+
+			end
+			
+			local p = _detalhes:GetBossPortrait (combat.is_boss.mapid, combat.is_boss.index)
+			if (p) then
+				portrait = p
+			end
+			
+			local b = _detalhes:GetRaidIcon (combat.is_boss.mapid)
+			if (b) then
+				background = b
+				background_coords = segment_color_lime
+
+			elseif (combat.instance_type == "party") then
+				local ej_id = combat.is_boss.ej_instance_id
+				if (ej_id) then
+					local name, description, bgImage, buttonImage, loreImage, dungeonAreaMapID, link = EJ_GetInstanceInfo (ej_id)
+					if (bgImage) then
+						background = bgImage
+						background_coords = party_wallpaper_tex
+					end
+				end
+			end
+		
+		elseif (combat.is_arena) then
+			enemy = combat.is_arena.name
+			
+			local file, coords = _detalhes:GetArenaInfo (combat.is_arena.mapid)
+
+			if (file) then
+				background = "Interface\\Glues\\LOADINGSCREENS\\" .. file
+				background_coords = coords
+			end
+			
+		else
+			enemy = combat.enemy
+			
+			if (combat.is_trash) then
+				is_trash = true
+			end
+		end
+		
+		return enemy, color, raid_type, killed, is_trash, portrait, background, background_coords
+	end
+	
+end
+
+local segments_used = 0
+local segments_filled = 0
 
 -- search key: ~segments
 local build_segment_list = function (self, elapsed)
@@ -7067,7 +7157,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 				GameCooltip:SetOption ("ButtonsYMod", -7)
 				GameCooltip:SetOption ("HeighMod", 8)
 				
-				GameCooltip:AddLine ("Report Results", nil, 1, "white", nil, _detalhes.font_sizes.menus, _detalhes.font_faces.menus)
+				GameCooltip:AddLine (Loc ["STRING_REPORT_TOOLTIP"], nil, 1, "white", nil, _detalhes.font_sizes.menus, _detalhes.font_faces.menus)
 				GameCooltip:AddIcon ([[Interface\Addons\Details\Images\report_button]], 1, 1, 12, 19)
 				GameCooltip:AddMenu (1, _detalhes.Reportar, instancia, nil, "INSTANCE" .. instancia.meu_id)
 				

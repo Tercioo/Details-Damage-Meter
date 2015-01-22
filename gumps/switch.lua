@@ -96,7 +96,15 @@ _detalhes.switch.height_necessary = (_detalhes.switch.button_height * _detalhes.
 local right_click_text = {text = Loc ["STRING_SHORTCUT_RIGHTCLICK"], size = 9, color = {.9, .9, .9}}
 local right_click_texture = {[[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]], 14, 14, 0.0019531, 0.1484375, 0.6269531, 0.8222656}
 
+function _detalhes.switch:HideAllBookmarks()
+	for _, bookmark in ipairs (_detalhes.switch.buttons) do
+		bookmark:Hide()
+	end
+end
+
 function _detalhes.switch:ShowMe (instancia)
+
+	_detalhes.switch.current_instancia = instancia
 
 	if (IsControlKeyDown()) then
 		
@@ -150,6 +158,201 @@ function _detalhes.switch:ShowMe (instancia)
 		end
 		
 		return instancia:ShutDown()
+		
+	elseif (IsShiftKeyDown()) then
+		
+		if (not _detalhes.switch.segments_blocks) then
+		
+			local segment_switch = function (segment, _, _, button)
+				if (button == "LeftButton") then
+					_detalhes.switch.current_instancia:TrocaTabela (segment)
+					_detalhes.switch.CloseMe()
+				elseif (button == "RightButton") then
+					_detalhes.switch.CloseMe()
+				end
+			end
+			
+			local hide_label = function (self)
+				self.texture:Hide()
+				self.button:Hide()
+				self.background:Hide()
+				self:Hide()
+			end
+			
+			local show_label = function (self)
+				self.texture:Show()
+				self.button:Show()
+				self.background:Show()
+				self:Show()
+			end
+			
+			local on_enter = function (self)
+				self.MyObject.this_background:SetBlendMode ("ADD")
+				self.MyObject.boss_texture:SetBlendMode ("ADD")
+			end
+			
+			local on_leave = function (self)
+				self.MyObject.this_background:SetBlendMode ("BLEND")
+				self.MyObject.boss_texture:SetBlendMode ("BLEND")
+			end
+		
+			function _detalhes.switch:CreateSegmentBlock()
+				local s = gump:CreateLabel (_detalhes.switch.frame)
+				_detalhes:SetFontSize (s, 9)
+				
+				local index = #_detalhes.switch.segments_blocks
+				if (index == 1) then --overall button
+					index = -1
+				elseif (index >= 2) then
+					index = index - 1
+				end
+				
+				local button = gump:CreateButton (_detalhes.switch.frame, segment_switch, 100, 20, "", index)
+				button:SetPoint ("topleft", s, "topleft", -17, 0)
+				button:SetPoint ("bottomright", s, "bottomright", 0, 0)
+				button:SetClickFunction (segment_switch, nil, nil, "right")
+
+				local boss_texture = gump:CreateImage (button, nil, 16, 16)
+				boss_texture:SetPoint ("right", s, "left", -2, 0)
+
+				local background = button:CreateTexture (nil, "background")
+				background:SetTexture ("Interface\\SPELLBOOK\\Spellbook-Parts")
+				background:SetTexCoord (0.31250000, 0.96484375, 0.37109375, 0.52343750)
+				background:SetWidth (85)
+				background:SetPoint ("topleft", s.widget, "topleft", -16, 3)
+				background:SetPoint ("bottomright", s.widget, "bottomright", -3, -5)
+				
+				button.this_background = background
+				button.boss_texture = boss_texture.widget
+				
+				s.texture = boss_texture
+				s.button = button
+				s.background = background
+				
+				button:SetScript ("OnEnter", on_enter)
+				button:SetScript ("OnLeave", on_leave)
+				
+				s.HideMe = hide_label
+				s.ShowMe = show_label
+				
+				tinsert (_detalhes.switch.segments_blocks, s)
+				return s
+			end
+			
+			function _detalhes.switch:GetSegmentBlock (index)
+				local block = _detalhes.switch.segments_blocks [index]
+				if (not block) then
+					return _detalhes.switch:CreateSegmentBlock()
+				else
+					return block
+				end
+			end
+			
+			function _detalhes.switch:ClearSegmentBlocks()
+				for _, block in ipairs (_detalhes.switch.segments_blocks) do
+					block:HideMe()
+				end
+			end
+			
+			function _detalhes.switch:ResizeSegmentBlocks()
+
+				local x = 7
+				local y = 5
+				
+				local window_width, window_height = _detalhes.switch.current_instancia:GetSize()
+				
+				local horizontal_amt = floor (math.max (window_width / 100, 2))
+				local vertical_amt = floor ((window_height - y) / 20)
+				local size = window_width / horizontal_amt
+				
+				local frame = _detalhes.switch.frame
+				
+				_detalhes.switch:ClearSegmentBlocks()
+				
+				local i = 1
+				for vertical = 1, vertical_amt do
+					x = 7
+					for horizontal = 1, horizontal_amt do
+						local button = _detalhes.switch:GetSegmentBlock (i)
+						
+						button:SetPoint ("topleft", frame, "topleft", x + 16, -y)
+						button:SetSize (size - 22, 12)
+						button:ShowMe()
+						
+						i = i + 1
+						x = x + size
+						if (i > 40) then
+							break
+						end
+					end
+					y = y + 20
+				end
+			end
+		
+			_detalhes.switch.segments_blocks = {}
+
+			--> current and overall
+			_detalhes.switch:CreateSegmentBlock()
+			_detalhes.switch:CreateSegmentBlock()
+			
+			local block1 = _detalhes.switch:GetSegmentBlock (1)
+			block1:SetText (Loc ["STRING_CURRENTFIGHT"])
+			block1.texture:SetTexture ([[Interface\Scenarios\ScenariosParts]])
+			block1.texture:SetTexCoord (55/512, 81/512, 368/512, 401/512)
+			
+			local block2 = _detalhes.switch:GetSegmentBlock (2)
+			block2:SetText (Loc ["STRING_SEGMENT_OVERALL"])
+			block2.texture:SetTexture ([[Interface\Scenarios\ScenariosParts]])
+			block2.texture:SetTexCoord (55/512, 81/512, 368/512, 401/512)
+		end
+		
+		_detalhes.switch:ClearSegmentBlocks()
+		_detalhes.switch:HideAllBookmarks()
+		
+		local segment_index = 1
+		for i = 3, #_detalhes.tabela_historico.tabelas + 2 do
+		
+			local combat = _detalhes.tabela_historico.tabelas [segment_index]
+		
+			local block = _detalhes.switch:GetSegmentBlock (i)
+			local enemy, color, raid_type, killed, is_trash, portrait, background, background_coords = _detalhes:GetSegmentInfo (segment_index)
+
+			block:SetText ("#" .. segment_index .. " " .. enemy)
+			
+			if (combat.is_boss and combat.instance_type == "raid") then
+				local L, R, T, B, Texture = _detalhes:GetBossIcon (combat.is_boss.mapid, combat.is_boss.index)
+				if (L) then
+					block.texture:SetTexture (Texture)
+					block.texture:SetTexCoord (L, R, T, B)
+				else
+					block.texture:SetTexture ([[Interface\Scenarios\ScenarioIcon-Boss]])
+				end
+			else
+				block.texture:SetTexture ([[Interface\Scenarios\ScenarioIcon-Boss]])
+			end
+			
+			block:ShowMe()
+			segment_index = segment_index + 1
+		end
+		
+		_detalhes.switch.frame:SetScale (instancia.window_scale)
+		_detalhes.switch:ResizeSegmentBlocks()
+		
+		for i = segment_index+2, #_detalhes.switch.segments_blocks do
+			_detalhes.switch.segments_blocks [i]:HideMe()
+		end
+		
+		_detalhes.switch.frame:SetPoint ("topleft", instancia.baseframe, "topleft", 0, 1)
+		_detalhes.switch.frame:SetPoint ("bottomright", instancia.baseframe, "bottomright", 0, 1)
+		_detalhes.switch.frame:SetBackdropColor (0.094, 0.094, 0.094, .8)
+		_detalhes.switch.frame:Show()
+		
+		return
+		
+	else
+		if (_detalhes.switch.segments_blocks) then
+			_detalhes.switch:ClearSegmentBlocks()
+		end
 	end
 
 	--> check if there is some custom contidional
@@ -162,16 +365,9 @@ function _detalhes.switch:ShowMe (instancia)
 			end
 		end
 	end
-
-	if (_detalhes.switch.current_instancia) then
-		_detalhes.switch.current_instancia:StatusBarAlert (nil)
-	end
-
-	_detalhes.switch.current_instancia = instancia
 	
 	_detalhes.switch.frame:SetPoint ("topleft", instancia.baseframe, "topleft", 0, 1)
 	_detalhes.switch.frame:SetPoint ("bottomright", instancia.baseframe, "bottomright", 0, 1)
-	
 	_detalhes.switch.frame:SetBackdropColor (0.094, 0.094, 0.094, .8)
 	
 	local altura = instancia.baseframe:GetHeight()
@@ -622,9 +818,6 @@ local oniconleave = function (self)
 		GameCooltip:Hide()
 	end
 end
-
-
-
 
 function _detalhes.switch:NewSwitchButton (frame, index, x, y, rightButton)
 

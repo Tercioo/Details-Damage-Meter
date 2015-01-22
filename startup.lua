@@ -322,8 +322,11 @@ function _G._detalhes:Start()
 	--> send feedback panel if the user got 100 or more logons with details
 		if (self.tutorial.logons > 100) then --  and self.tutorial.logons < 104
 			if (not self.tutorial.feedback_window1) then
-				self.tutorial.feedback_window1 = true
-				_detalhes:ShowFeedbackRequestWindow()
+				--> check if isn't inside an instance
+				if (_detalhes:IsInCity()) then
+					self.tutorial.feedback_window1 = true
+					_detalhes:ShowFeedbackRequestWindow()
+				end
 			end
 		end
 	

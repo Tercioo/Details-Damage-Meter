@@ -239,6 +239,10 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 			local value = profile [key]
 
 			if (type (value) == "table") then
+				if (key == "class_specs_coords") then
+					value = table_deepcopy (_detalhes.default_profile.class_specs_coords)
+				end
+			
 				local ctable = table_deepcopy (value)
 				_detalhes [key] = ctable
 			else
@@ -572,9 +576,9 @@ local default_profile = {
 
 	--> spec coords
 		class_specs_coords = {
-			[252] = {0, 64/512, 0, 64/512}, --> unholy dk
+			[250] = {0, 64/512, 0, 64/512}, --> blood dk
 			[251] = {64/512, 128/512, 0, 64/512}, --> frost dk
-			[250] = {128/512, 192/512, 0, 64/512}, --> blood dk
+			[252] = {128/512, 192/512, 0, 64/512}, --> unholy dk
 			
 			[102] = {192/512, 256/512, 0, 64/512}, -->  druid balance
 			[103] = {256/512, 320/512, 0, 64/512}, -->  druid feral

@@ -209,15 +209,15 @@ do
 		[64843] = 257, -- Divine Hymn
 		[34861] = 257, -- Circle of Healing
 		[32546] = 257, -- Binding Heal
-		[596] = 257, -- Prayer of Healing
+		--[596] = 257, -- Prayer of Healing
 		[126135] = 257, -- Lightwell
 		[139] = 257, -- Renew
-		[88625] = 257, -- Holy Word: Chastise
+		--[88625] = 257, -- Holy Word: Chastise
 	
 		-- Shadow Priest:
-		[127632] = 258, -- Cascade
-		[122121] = 258, -- Divine Star
-		[120644] = 258, -- Halo
+		--[127632] = 258, -- Cascade
+		--[122121] = 258, -- Divine Star
+		--[120644] = 258, -- Halo
 		[15286] = 258, -- Vampiric Embrace
 		[32379] = 258, -- Shadow Word: Death
 		[73510] = 258, -- Mind Spike
