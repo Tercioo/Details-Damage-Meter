@@ -1,7 +1,12 @@
 local AceLocale = LibStub ("AceLocale-3.0")
 local Loc = AceLocale:GetLocale ("Details")
+local SharedMedia = LibStub:GetLibrary ("LibSharedMedia-3.0")
 
 ---------------------------------------------------------------------------------------------
+
+--varios debuffs tao doido com monk
+--ignorar bloodlust, shield d priest
+--reler os tanks ao sair de um grupo
 
 local _GetTime = GetTime --> wow api local
 local _UFC = UnitAffectingCombat --> wow api local
@@ -144,8 +149,11 @@ local function CreatePluginFrames (data)
 					if (realm) then
 						name = name .. "-" .. realm
 					end
-					Vanguard.TankList [#Vanguard.TankList+1] = name
-					Vanguard.TankHashNames [name] = #Vanguard.TankList
+					
+					if (not Vanguard.TankHashNames [name]) then
+						Vanguard.TankList [#Vanguard.TankList+1] = name
+						Vanguard.TankHashNames [name] = #Vanguard.TankList
+					end
 				end
 			end
 
@@ -158,8 +166,11 @@ local function CreatePluginFrames (data)
 					if (realm) then
 						name = name .. "-" .. realm
 					end
-					Vanguard.TankList [#Vanguard.TankList+1] = name
-					Vanguard.TankHashNames [name] = #Vanguard.TankList
+					
+					if (not Vanguard.TankHashNames [name]) then
+						Vanguard.TankList [#Vanguard.TankList+1] = name
+						Vanguard.TankHashNames [name] = #Vanguard.TankList
+					end
 				end
 			end
 			
@@ -169,8 +180,11 @@ local function CreatePluginFrames (data)
 				if (realm) then
 					name = name .. "-" .. realm
 				end
-				Vanguard.TankList [#Vanguard.TankList+1] = name
-				Vanguard.TankHashNames [name] = #Vanguard.TankList
+				
+				if (not Vanguard.TankHashNames [name]) then
+					Vanguard.TankList [#Vanguard.TankList+1] = name
+					Vanguard.TankHashNames [name] = #Vanguard.TankList
+				end
 			end
 		
 		else
@@ -178,8 +192,11 @@ local function CreatePluginFrames (data)
 			if (realm) then
 				name = name .. "-" .. realm
 			end
-			Vanguard.TankList [#Vanguard.TankList+1] = name
-			Vanguard.TankHashNames [name] = #Vanguard.TankList
+			
+			if (not Vanguard.TankHashNames [name]) then
+				Vanguard.TankList [#Vanguard.TankList+1] = name
+				Vanguard.TankHashNames [name] = #Vanguard.TankList
+			end
 		end
 		
 		Vanguard:RefreshTanks()
@@ -187,13 +204,22 @@ local function CreatePluginFrames (data)
 	end
 	
 	function Vanguard:ResetBars()
-		for i, tankblock in ipairs (Vanguard.TankBlocks) do
-			local bar = tankblock.heal_inc
-			bar:SetSplit (50)
-			bar:SetLeftText (tankblock.tankname_string)
-			bar:SetRightText ("")
-			bar:SetRightColor (.25, 0, 0, 1)
-			bar:SetLeftColor (0, .25, 0, 1)
+	
+		if (Vanguard.db.show_inc_bars) then
+			for i, tankblock in ipairs (Vanguard.TankBlocks) do
+				local bar = tankblock.heal_inc
+				bar:SetSplit (50)
+				bar:SetLeftText (tankblock.tankname_string)
+				bar:SetRightText ("")
+				bar:SetRightColor (.25, 0, 0, 1)
+				bar:SetLeftColor (0, .25, 0, 1)
+				bar:Show()
+			end
+		else
+			for i, tankblock in ipairs (Vanguard.TankBlocks) do
+				local bar = tankblock.heal_inc
+				bar:Hide()
+			end
 		end
 	end
 	
@@ -241,6 +267,11 @@ local function CreatePluginFrames (data)
 		bar.iconleft:SetTexCoord (left, right, top, bottom)
 		bar:SetLeftText (Vanguard:GetOnlyName (name))
 		bar:SetLeftText (name)
+		
+		local width = Vanguard.db.tank_block_size
+		self:SetWidth (width)
+		self:SetBackdropColor (unpack (Vanguard.db.tank_block_color))
+		self.texture:SetTexture (SharedMedia:Fetch ("statusbar", Vanguard.db.tank_block_texture))
 
 	end
 	
@@ -256,14 +287,36 @@ local function CreatePluginFrames (data)
 			GameTooltip:Hide()
 		end
 	end
+
+	local on_click = function (self, button)
+		if (button == "LeftButton") then
+			Vanguard.OpenOptionsPanel()
+			
+		elseif (button == "RightButton") then
+			local instance = Vanguard:GetPluginInstance()
+			if (instance) then
+				_detalhes.switch:ShowMe (instance)
+			end
+		end
+	end
 	
 	function Vanguard:CreateTankBlock (index)
 		--frame
+		
 		local f = CreateFrame ("button", "VanguardTankBlock" .. index, VanguardFrame)
 		f.SetTank = SetTank
-		f:SetSize (150, 50)
-		f:SetPoint ("bottomleft", VanguardFrame, "bottomleft", 5 + ((index-1) * 155), 5)
+		f:SetSize (Vanguard.db.tank_block_size or 150, 50)
+		
+		f:SetScript ("OnMouseUp", on_click)
+		
+		if (index == 1) then
+			f:SetPoint ("bottomleft", VanguardFrame, "bottomleft", 5 + ((index-1) * 155), 5)
+		else
+			f:SetPoint ("left", Vanguard.TankBlocks [index-1], "right", 5, 0)
+		end
+		
 		f:SetBackdrop ({bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 16, insets = {left = 0, right = 0, top = 0, bottom = 0}, edgeFile = [[Interface\DialogFrame\UI-DialogBox-Border]], edgeSize = 10})
+		f:SetBackdropColor (unpack (Vanguard.db.tank_block_color))
 		
 		--statusbar
 		f.statusbar = CreateFrame ("statusbar", nil, f)
@@ -273,8 +326,8 @@ local function CreatePluginFrames (data)
 		f.statusbar:SetStatusBarTexture (f.texture)
 		f.statusbar:SetMinMaxValues (0, 100)
 		f.statusbar:SetValue (100)
-		
-		f.texture:SetTexture ([[Interface\AddOns\Details\images\bar_serenity]])
+
+		f.texture:SetTexture (SharedMedia:Fetch ("statusbar", Vanguard.db.tank_block_texture))
 		
 		--spec icon
 		f.specicon = f.statusbar:CreateTexture (nil, "overlay")
@@ -296,26 +349,53 @@ local function CreatePluginFrames (data)
 		f.heal_inc.fontsize = 10
 		f.heal_inc.righticon = "Interface\\ICONS\\misc_arrowleft"
 		f.heal_inc.iconright:SetVertexColor (1, .5, .5, 1)
+		
+		f.heal_inc:SetScript ("OnMouseUp", on_click)
 
 		--debuffs blocks
 		f.debuffs_blocks = {}
 		f.debuffs_using = 0
 		f.debuffs_next_index = 1
+		
 		for i = 1, 3 do
 			local support_frame = CreateFrame ("frame", nil, f)
 			support_frame:SetFrameLevel (f:GetFrameLevel()+1)
 			support_frame:SetSize (24, 24)
-			support_frame:SetPoint ("bottomleft", f, "bottomleft", 5 + ((i-1) * 35), 5)
+			support_frame:SetScript ("OnMouseUp", on_click)
+			
 			support_frame:SetScript ("OnEnter", debuff_on_enter)
 			support_frame:SetScript ("OnLeave", debuff_on_leave)
 			
 			local texture = support_frame:CreateTexture (nil, "overlay")
 			texture:SetSize (24, 24)
-			texture:SetPoint ("bottomleft", f, "bottomleft", 5 + ((i-1) * 35), 5)
 			
+			if (i == 1) then --> left
+				support_frame:SetPoint ("left", f, "left", 5, 0)
+				support_frame:SetPoint ("bottom", f, "bottom", 0, 5)
+				
+				texture:SetPoint ("left", f, "left", 5, 0)
+				texture:SetPoint ("bottom", f, "bottom", 0, 5)
+				
+			elseif (i == 2) then --> center
+				support_frame:SetPoint ("center", f, "center", 0, 0)
+				support_frame:SetPoint ("bottom", f, "bottom", 0, 5)
+				
+				texture:SetPoint ("center", f, "center", 0, 0)
+				texture:SetPoint ("bottom", f, "bottom", 0, 5)
+				
+			elseif (i == 3) then --> right
+				support_frame:SetPoint ("right", f, "right", -5, 0)
+				support_frame:SetPoint ("bottom", f, "bottom", 0, 5)
+				
+				texture:SetPoint ("right", f, "right", -5, 0)
+				texture:SetPoint ("bottom", f, "bottom", 0, 5)
+				
+			end
+
 			local dblock = CreateFrame ("cooldown", "VanguardTankBlock" .. index.. "Cooldown" .. i, support_frame, "CooldownFrameTemplate")
 			dblock:SetPoint ("topleft", texture, "topleft")
 			dblock:SetPoint ("bottomright", texture, "bottomright")
+			dblock:SetScript ("OnMouseUp", on_click)
 			dblock.texture = texture
 
 			local stack = dblock:CreateFontString (nil, "overlay", "GameFontNormal")
@@ -333,17 +413,22 @@ local function CreatePluginFrames (data)
 		end
 		
 		Vanguard.TankBlocks [index] = f
+		
+		Vanguard:ResetBars()
+		
 		return f
 	end
 	
 	function Vanguard:RefreshTanks()
 
+		Vanguard:ResetBlocks()
+	
 		for i = 1, #Vanguard.TankList do
 			local block = Vanguard.TankBlocks [i]
 			if (not block) then
 				block = Vanguard:CreateTankBlock (i)
 			end
-			
+
 			block:SetTank (i)
 		end
 		
@@ -569,6 +654,79 @@ function Vanguard:TrackDebuffsAlreadyApplied()
 	end
 end
 
+local build_options_panel = function()
+
+	local options_frame = Vanguard:CreatePluginOptionsFrame ("VanguardOptionsWindow", "Vanguard Options", 1)
+	
+		local tank_texture_set = function (_, _, value) 
+			Vanguard.db.tank_block_texture = value;
+			Vanguard:RefreshTanks();
+		end
+		
+		local texture_icon = [[Interface\TARGETINGFRAME\UI-PhasingIcon]]
+		local texture_icon = [[Interface\AddOns\Details\images\icons]]
+		local texture_icon_size = {14, 14}
+		local texture_texcoord = {469/512, 505/512, 249/512, 284/512}
+		
+		local textures = SharedMedia:HashTable ("statusbar")
+		local texTable = {}
+		for name, texturePath in pairs (textures) do 
+			texTable[#texTable+1] = {value = name, label = name, iconsize = texture_icon_size, statusbar = texturePath, onclick = tank_texture_set, icon = texture_icon, texcoord = texture_texcoord}
+		end
+		table.sort (texTable, function (t1, t2) return t1.label < t2.label end)
+		
+		local tank_texture_menu = texTable
+	
+	local menu = {
+		{
+			type = "toggle",
+			get = function() return Vanguard.db.show_inc_bars end,
+			set = function (self, fixedparam, value) Vanguard.db.show_inc_bars = value; Vanguard:ResetBars() end,
+			desc = "When enabled, shows the incoming heal and damage bars.",
+			name = "Show Incoming Bars"
+		},
+		{
+			type = "range",
+			get = function() return Vanguard.db.tank_block_size end,
+			set = function (self, fixedparam, value) Vanguard.db.tank_block_size = value; Vanguard:RefreshTanks() end,
+			min = 70,
+			max = 250,
+			step = 1,
+			desc = "Set the width of the blocks showing the tanks.",
+			name = "Tank Block Size",
+		},
+		{
+			type = "color",
+			get = function() return Vanguard.db.tank_block_color end,
+			set = function (self, r, g, b, a) 
+				local current = Vanguard.db.tank_block_color;
+				current[1], current[2], current[3], current[4] = r, g, b, a;
+				Vanguard:RefreshTanks();
+			end,
+			desc = "Select the color of the tank block background.",
+			name = "Tank Block Background Color"
+		},
+		{
+			type = "select",
+			get = function() return Vanguard.db.tank_block_texture end,
+			values = function() return tank_texture_menu end,
+			desc = "Choose the texture used on tank blocks.",
+			name = "Tank Block Texture"
+		},
+		
+	}
+	
+	Vanguard:GetFramework():BuildMenu (options_frame, menu, 15, -75, 260)
+	
+end
+
+Vanguard.OpenOptionsPanel = function()
+	if (not VanguardOptionsWindow) then
+		build_options_panel()
+	end
+	VanguardOptionsWindow:Show()
+end
+
 function Vanguard:OnEvent (_, event, arg1, token, time, who_serial, who_name, who_flags, _, alvo_serial, alvo_name, alvo_flags, _, spellid, spellname, spellschool, tipo)
 
 	if (event == "COMBAT_LOG_EVENT_UNFILTERED") then
@@ -610,18 +768,25 @@ function Vanguard:OnEvent (_, event, arg1, token, time, who_serial, who_name, wh
 			
 			if (_G._detalhes) then
 				
-				--> create widgets
-				CreatePluginFrames()
-
 				local MINIMAL_DETAILS_VERSION_REQUIRED = 1
-				local default_saved_table = {}
+				local default_saved_table = {
+					show_inc_bars = true, 
+					tank_block_size = 150, 
+					tank_block_color = {0, 0, 0, 0.8},
+					tank_block_texture = "Details Serenity",
+				}
 				
 				--> Install
+				function Vanguard:OnDetailsEvent() end --> dummy func to stop warnings.
+				
 				local install, saveddata = _G._detalhes:InstallPlugin ("TANK", "Vanguard", "Interface\\Icons\\INV_Shield_77", Vanguard, "DETAILS_PLUGIN_VANGUARD", MINIMAL_DETAILS_VERSION_REQUIRED, "Details! Team", "v2.0", default_saved_table)
 				if (type (install) == "table" and install.error) then
 					print (install.error)
 				end
---				DETAILS_PLUGIN_VANGUARD.TankHashNames
+				
+				--> create widgets
+				CreatePluginFrames()
+
 				--> Register needed events
 				_G._detalhes:RegisterEvent (Vanguard, "COMBAT_PLAYER_ENTER")
 				_G._detalhes:RegisterEvent (Vanguard, "COMBAT_PLAYER_LEAVE")
@@ -646,17 +811,3 @@ function Vanguard:OnEvent (_, event, arg1, token, time, who_serial, who_name, wh
 
 	end
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -529,7 +529,7 @@
 				type = "toggle",
 				get = function() return YouAreNotPrepared.db.auto_open end,
 				set = function (self, fixedparam, value) YouAreNotPrepared.db.auto_open = value end,
-				desc = "Ope the window after leave the combat.",
+				desc = "Open the window after leave the combat.",
 				name = "Auto Open"
 			},
 		}
