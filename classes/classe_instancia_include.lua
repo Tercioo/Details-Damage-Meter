@@ -173,9 +173,12 @@ _detalhes.instance_defaults = {
 			--right text customization
 				textR_enable_custom_text = false,
 				textR_custom_text = "{data1} ({data2}, {data3}%)",
+			--right text show which infos
+				textR_show_data = {true, true, true},
+				textR_bracket = "(",
+				textR_separator = ",",
 			--left text bar number
 				textL_show_number = true,
-				
 			--if text class color are false, this color will be used
 				fixed_text_color = {1, 1, 1},
 			--left text outline effect

@@ -3592,6 +3592,57 @@ function _detalhes:SetBarSettings (height, texture, colorclass, fixedcolor, back
 
 end
 
+local brackets = {
+	["("] = {" (", ")"},
+	["{"] = {" {", "}"},
+	["["] = {" [", "]"},
+	["<"] = {" <", ">"},
+	["NONE"] = {" ", ""},
+}
+
+local separators = {
+	[","] = ", ",
+	["."] = ". ",
+	[";"] = "; ",
+	["-"] = " - ",
+	["|"] = " | ",
+	["/"] = " / ",
+	["\\"] = " \\ ",
+	["~"] = " ~ ",
+	["NONE"] = "",
+}
+
+function _detalhes:GetBarBracket()
+	return brackets [self.row_info.textR_bracket]
+end
+
+function _detalhes:GetBarSeparator()
+	return separators [self.row_info.textR_separator]
+end
+
+function _detalhes:SetBarRightTextSettings (total, persecond, percent, bracket, separator)
+
+	if (type (total) == "boolean") then
+		self.row_info.textR_show_data [1] = total
+	end
+	if (type (persecond) == "boolean") then
+		self.row_info.textR_show_data [2] = persecond
+	end
+	if (type (percent) == "boolean") then
+		self.row_info.textR_show_data [3] = percent
+	end
+	
+	if (bracket) then
+		self.row_info.textR_bracket = bracket
+	end
+	if (separator) then
+		self.row_info.textR_separator = separator
+	end
+
+	self:InstanceReset()
+	
+end
+
 --/script _detalhes:InstanceRefreshRows (_detalhes.tabela_instancias[1])
 
 --> on update function
@@ -5472,6 +5523,7 @@ function _detalhes:ChangeSkin (skin_name)
 		self:SetBarSettings (self.row_info.height)
 		self:SetBarBackdropSettings()
 		self:SetBarSpecIconSettings()
+		self:SetBarRightTextSettings()
 	
 	--> update toolbar
 		self:ToolbarSide()

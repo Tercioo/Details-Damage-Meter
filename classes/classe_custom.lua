@@ -356,6 +356,10 @@
 
 		local percent_script = _detalhes.custom_function_cache [instance.customName .. "Percent"]
 		local total_script = _detalhes.custom_function_cache [instance.customName .. "Total"]
+		
+		local bars_show_data = instance.row_info.textR_show_data
+		local bars_brackets = instance:GetBarBracket()
+		local bars_separator = instance:GetBarSeparator()
 
 		if (instance.bars_sort_direction == 1) then --top to bottom
 			
@@ -382,13 +386,13 @@
 				gump:Fade (row1, "out")
 				
 				for i = instance.barraS[1], iter_last, 1 do
-					instance_container._ActorTable[i]:UpdateBar (barras_container, qual_barra, percentage_type, i, total, top, instance, force, percent_script, total_script, combat)
+					instance_container._ActorTable[i]:UpdateBar (barras_container, qual_barra, percentage_type, i, total, top, instance, force, percent_script, total_script, combat, bars_show_data, bars_brackets, bars_separator)
 					qual_barra = qual_barra+1
 				end
 			
 			else
 				for i = instance.barraS[1], instance.barraS[2], 1 do
-					instance_container._ActorTable[i]:UpdateBar (barras_container, qual_barra, percentage_type, i, total, top, instance, force, percent_script, total_script, combat)
+					instance_container._ActorTable[i]:UpdateBar (barras_container, qual_barra, percentage_type, i, total, top, instance, force, percent_script, total_script, combat, bars_show_data, bars_brackets, bars_separator)
 					qual_barra = qual_barra+1
 				end
 			end
@@ -418,13 +422,13 @@
 				gump:Fade (row1, "out")
 				
 				for i = iter_last, instance.barraS[1], -1 do --> vai atualizar só o range que esta sendo mostrado
-					instance_container._ActorTable[i]:UpdateBar (barras_container, qual_barra, percentage_type, i, total, top, instance, force, percent_script, total_script, combat)
+					instance_container._ActorTable[i]:UpdateBar (barras_container, qual_barra, percentage_type, i, total, top, instance, force, percent_script, total_script, combat, bars_show_data, bars_brackets, bars_separator)
 					qual_barra = qual_barra+1
 				end
 			
 			else
 				for i = instance.barraS[2], instance.barraS[1], -1 do --> vai atualizar só o range que esta sendo mostrado
-					instance_container._ActorTable[i]:UpdateBar (barras_container, qual_barra, percentage_type, i, total, top, instance, force, percent_script, total_script, combat)
+					instance_container._ActorTable[i]:UpdateBar (barras_container, qual_barra, percentage_type, i, total, top, instance, force, percent_script, total_script, combat, bars_show_data, bars_brackets, bars_separator)
 					qual_barra = qual_barra+1
 				end
 			end
@@ -445,7 +449,7 @@
 
 	local actor_class_color_r, actor_class_color_g, actor_class_color_b
 	
-	function atributo_custom:UpdateBar (row_container, index, percentage_type, rank, total, top, instance, is_forced, percent_script, total_script, combat)
+	function atributo_custom:UpdateBar (row_container, index, percentage_type, rank, total, top, instance, is_forced, percent_script, total_script, combat, bars_show_data, bars_brackets, bars_separator)
 	
 		local row = row_container [index]
 		
@@ -466,20 +470,26 @@
 				percent = _cstr ("%.1f", self.value / top * 100)
 			end
 		end
-		
+
+		if (not bars_show_data [3]) then
+			percent = ""
+		else
+			percent = percent .. "%"
+		end
+
 		if (total_script) then
 			local value = total_script (self.value, top, total, combat, instance)
 			if (type (value) == "number") then
-				row.texto_direita:SetText (SelectedToKFunction (_, value) .. " (" .. percent .. "%)")
+				row.texto_direita:SetText (SelectedToKFunction (_, value) .. bars_brackets[1] .. percent .. bars_brackets[2])
 			else
-				row.texto_direita:SetText (value .. " (" .. percent .. "%)")
+				row.texto_direita:SetText (value .. bars_brackets[1] .. percent .. bars_brackets[2])
 			end
 		else
 			local formated_value = SelectedToKFunction (_, self.value)
 			if (UsingCustomRightText) then
 				row.texto_direita:SetText (_string_replace (instance.row_info.textR_custom_text, formated_value, "", percent, self))
 			else
-				row.texto_direita:SetText (formated_value .. " (" .. percent .. "%)")
+				row.texto_direita:SetText (formated_value .. bars_brackets[1] .. percent .. bars_brackets[2])
 			end
 		end
 		

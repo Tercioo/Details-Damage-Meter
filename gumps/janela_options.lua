@@ -6044,6 +6044,150 @@ function window:CreateFrame5()
 		frame5.customLeftTextButton:GetNormalTexture():SetDesaturated (true)
 		frame5.customLeftTextButton.tooltip = Loc ["STRING_OPTIONS_RESET_TO_DEFAULT"]
 		
+	--> total dps percent bracket separator
+	
+		-- total
+		g:NewSwitch (frame5, _, "$parentRightTextShowTotalSlider", "RightTextShowTotalSlider", 60, 20, _, _, instance.row_info.textR_show_data [1])
+		g:NewLabel (frame5, _, "$parentRightTextShowTotalLabel", "RightTextShowTotalLabel", Loc ["STRING_OPTIONS_TEXT_SHOW_TOTAL"], "GameFontHighlightLeft")
+		
+		frame5.RightTextShowTotalSlider:SetPoint ("left", frame5.RightTextShowTotalLabel, "right", 2)
+		frame5.RightTextShowTotalSlider.OnSwitch = function (self, instance, value)
+			instance:SetBarRightTextSettings (value)
+			
+			if (_detalhes.options_group_edit and not DetailsOptionsWindow.loading_settings) then
+				for _, this_instance in ipairs (instance:GetInstanceGroup()) do
+					if (this_instance ~= instance) then
+						instance:SetBarRightTextSettings (value)
+					end
+				end
+			end
+			
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+		end
+		
+		window:CreateLineBackground2 (frame5, "RightTextShowTotalSlider", "RightTextShowTotalLabel", Loc ["STRING_OPTIONS_TEXT_SHOW_TOTAL_DESC"])
+		
+		-- ps
+		g:NewSwitch (frame5, _, "$parentRightTextShowPSSlider", "RightTextShowPSSlider", 60, 20, _, _, instance.row_info.textR_show_data [2])
+		g:NewLabel (frame5, _, "$parentRightTextShowPSLabel", "RightTextShowPSLabel", Loc ["STRING_OPTIONS_TEXT_SHOW_PS"], "GameFontHighlightLeft")
+		
+		frame5.RightTextShowPSSlider:SetPoint ("left", frame5.RightTextShowPSLabel, "right", 2)
+		frame5.RightTextShowPSSlider.OnSwitch = function (self, instance, value)
+			instance:SetBarRightTextSettings (nil, value)
+			
+			if (_detalhes.options_group_edit and not DetailsOptionsWindow.loading_settings) then
+				for _, this_instance in ipairs (instance:GetInstanceGroup()) do
+					if (this_instance ~= instance) then
+						instance:SetBarRightTextSettings (nil, value)
+					end
+				end
+			end
+			
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+		end
+
+		window:CreateLineBackground2 (frame5, "RightTextShowPSSlider", "RightTextShowPSLabel", Loc ["STRING_OPTIONS_TEXT_SHOW_PS_DESC"])
+		
+		-- percent
+
+		g:NewSwitch (frame5, _, "$parentRightTextShowPercentSlider", "RightTextShowPercentSlider", 60, 20, _, _, instance.row_info.textR_show_data [3])
+		g:NewLabel (frame5, _, "$parentRightTextShowPercentLabel", "RightTextShowPercentLabel", Loc ["STRING_OPTIONS_TEXT_SHOW_PERCENT"], "GameFontHighlightLeft")
+		
+		frame5.RightTextShowPercentSlider:SetPoint ("left", frame5.RightTextShowPercentLabel, "right", 2)
+		frame5.RightTextShowPercentSlider.OnSwitch = function (self, instance, value)
+			instance:SetBarRightTextSettings (nil, nil, value)
+			
+			if (_detalhes.options_group_edit and not DetailsOptionsWindow.loading_settings) then
+				for _, this_instance in ipairs (instance:GetInstanceGroup()) do
+					if (this_instance ~= instance) then
+						instance:SetBarRightTextSettings (nil, nil, value)
+					end
+				end
+			end
+			
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+		end
+
+		window:CreateLineBackground2 (frame5, "RightTextShowPercentSlider", "RightTextShowPercentLabel", Loc ["STRING_OPTIONS_TEXT_SHOW_PERCENT_DESC"])
+		
+		--brackets
+		local onSelectBracket = function (_, instance, value)
+			instance:SetBarRightTextSettings (nil, nil, nil, value)
+			
+			if (_detalhes.options_group_edit and not DetailsOptionsWindow.loading_settings) then
+				for _, this_instance in ipairs (instance:GetInstanceGroup()) do
+					if (this_instance ~= instance) then
+						instance:SetBarRightTextSettings (nil, nil, nil, value)
+					end
+				end
+			end
+			
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+		end
+
+		local BracketTable = {
+			{value = "(", label = "(", onclick = onSelectBracket, icon = ""},
+			{value = "{", label = "{", onclick = onSelectBracket, icon = ""},
+			{value = "[", label = "[", onclick = onSelectBracket, icon = ""},
+			{value = "<", label = "<", onclick = onSelectBracket, icon = ""},
+			{value = "NONE", label = "no bracket", onclick = onSelectBracket, icon = [[Interface\Glues\LOGIN\Glues-CheckBox-Check]]},
+		}
+		local buildBracketMenu = function() 
+			return BracketTable 
+		end
+		
+		local d = g:NewDropDown (frame5, _, "$parentBracketDropdown", "BracketDropdown", 60, 20, buildBracketMenu, nil)
+		d.onenter_backdrop = dropdown_backdrop_onenter
+		d.onleave_backdrop = dropdown_backdrop_onleave
+		d:SetBackdrop (dropdown_backdrop)
+		d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+		
+		g:NewLabel (frame5, _, "$parentBracketLabel", "BracketLabel", Loc ["STRING_OPTIONS_TEXT_SHOW_BRACKET"], "GameFontHighlightLeft")
+		frame5.BracketDropdown:SetPoint ("left", frame5.BracketLabel, "right", 2)
+
+		window:CreateLineBackground2 (frame5, "BracketDropdown", "BracketLabel", Loc ["STRING_OPTIONS_TEXT_SHOW_BRACKET_DESC"])
+		
+		--separators
+		local onSelectSeparator = function (_, instance, value)
+			instance:SetBarRightTextSettings (nil, nil, nil, nil, value)
+			
+			if (_detalhes.options_group_edit and not DetailsOptionsWindow.loading_settings) then
+				for _, this_instance in ipairs (instance:GetInstanceGroup()) do
+					if (this_instance ~= instance) then
+						instance:SetBarRightTextSettings (nil, nil, nil, nil, value)
+					end
+				end
+			end
+			
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+		end
+		
+		local SeparatorTable = {
+			{value = ",", label = ",", onclick = onSelectSeparator, icon = ""},
+			{value = ".", label = ".", onclick = onSelectSeparator, icon = ""},
+			{value = ";", label = ";", onclick = onSelectSeparator, icon = ""},
+			{value = "-", label = "-", onclick = onSelectSeparator, icon = ""},
+			{value = "|", label = "|", onclick = onSelectSeparator, icon = ""},
+			{value = "/", label = "/", onclick = onSelectSeparator, icon = ""},
+			{value = "\\", label = "\\", onclick = onSelectSeparator, icon = ""},
+			{value = "~", label = "~", onclick = onSelectSeparator, icon = ""},
+			{value = "NONE", label = "no separator", onclick = onSelectSeparator, icon = [[Interface\Glues\LOGIN\Glues-CheckBox-Check]]},
+		}
+		local buildSeparatorMenu = function() 
+			return SeparatorTable 
+		end
+		
+		local d = g:NewDropDown (frame5, _, "$parentSeparatorDropdown", "SeparatorDropdown", 60, 20, buildSeparatorMenu, nil)
+		d.onenter_backdrop = dropdown_backdrop_onenter
+		d.onleave_backdrop = dropdown_backdrop_onleave
+		d:SetBackdrop (dropdown_backdrop)
+		d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+		
+		g:NewLabel (frame5, _, "$parentSeparatorLabel", "SeparatorLabel", Loc ["STRING_OPTIONS_TEXT_SHOW_SEPARATOR"], "GameFontHighlightLeft")
+		frame5.SeparatorDropdown:SetPoint ("left", frame5.SeparatorLabel, "right", 2)
+
+		window:CreateLineBackground2 (frame5, "SeparatorDropdown", "SeparatorLabel", Loc ["STRING_OPTIONS_TEXT_SHOW_SEPARATOR_DESC"])
+		
 	--> anchors
 	
 		--general anchor
@@ -6064,24 +6208,31 @@ function window:CreateFrame5()
 			{"textLeftOutlineLabel", 2},
 			{"classColorsLeftTextLabel", 3},
 			{"PositionNumberLabel", 4},
-			{"cutomLeftTextLabel", 5},
+			{"cutomLeftTextLabel", 5, true},
 			{"cutomLeftTextEntryLabel", 6},
-			{"RightTextAnchorLabel", 7, true},
-			{"textRightOutlineLabel", 8},
-			{"classColorsRightTextLabel", 9},
-			{"cutomRightTextLabel", 10},
-			{"cutomRightTextEntryLabel", 11},
 			
+			{"RowGeneralAnchorLabel", 7, true},
+			{frame5.fonsizeLabel, 8}, --text size
+			{frame5.fontLabel, 9},--text fontface
+			{frame5.fixedTextColorLabel, 10},
+			{frame5.percentLabel, 11, true},
 		}
 		
 		window:arrange_menu (frame5, left_side, x, window.top_start_at)
 		
 		local right_side = {
-			{"RowGeneralAnchorLabel", 1, true},
-			{frame5.fonsizeLabel, 2}, --text size
-			{frame5.fontLabel, 3},--text fontface
-			{frame5.fixedTextColorLabel, 4},
-			{frame5.percentLabel, 5},
+			{"RightTextAnchorLabel", 1, true},
+			{"textRightOutlineLabel", 2},
+			{"classColorsRightTextLabel", 3},
+			
+			{"RightTextShowTotalLabel", 4, true},
+			{"RightTextShowPSLabel", 5},
+			{"RightTextShowPercentLabel", 6},
+			{"SeparatorLabel", 7, true},
+			{"BracketLabel", 8},
+			
+			{"cutomRightTextLabel", 9, true},
+			{"cutomRightTextEntryLabel", 10},
 		}
 	
 		window:arrange_menu (frame5, right_side, window.right_start_at, window.top_start_at)
@@ -9683,7 +9834,19 @@ end --> if not window
 		
 		_G.DetailsOptionsWindow5PositionNumberSlider.MyObject:SetFixedParameter (editing_instance)
 		_G.DetailsOptionsWindow5PositionNumberSlider.MyObject:SetValue (editing_instance.row_info.textL_show_number)
+
+		_G.DetailsOptionsWindow5BracketDropdown.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow5SeparatorDropdown.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow5RightTextShowTotalSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow5RightTextShowPSSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow5RightTextShowPercentSlider.MyObject:SetFixedParameter (editing_instance)
 		
+		_G.DetailsOptionsWindow5BracketDropdown.MyObject:Select (editing_instance.row_info.textR_bracket)
+		_G.DetailsOptionsWindow5SeparatorDropdown.MyObject:Select (editing_instance.row_info.textR_separator)
+		_G.DetailsOptionsWindow5RightTextShowTotalSlider.MyObject:SetValue (editing_instance.row_info.textR_show_data [1])
+		_G.DetailsOptionsWindow5RightTextShowPSSlider.MyObject:SetValue (editing_instance.row_info.textR_show_data [2])
+		_G.DetailsOptionsWindow5RightTextShowPercentSlider.MyObject:SetValue (editing_instance.row_info.textR_show_data [3])
+
 		--> window 6
 		_G.DetailsOptionsWindow6BackdropDropdown.MyObject:SetFixedParameter (editing_instance)
 		_G.DetailsOptionsWindow6BackdropDropdown.MyObject:Select (editing_instance.backdrop_texture)

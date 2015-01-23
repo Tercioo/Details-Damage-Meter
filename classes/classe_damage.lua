@@ -282,11 +282,11 @@
 --[[exported]]	function _detalhes:GetBarColor (actor)
 				actor = actor or self
 				
-				if (actor.owner) then
-					return _unpack (_detalhes.class_colors [actor.owner.classe])
-					
-				elseif (actor.monster) then
+				if (actor.monster) then
 					return _unpack (_detalhes.class_colors.ENEMY)
+					
+				elseif (actor.owner) then
+					return _unpack (_detalhes.class_colors [actor.owner.classe])
 
 				elseif (actor.arena_enemy) then
 					return _unpack (_detalhes.class_colors.ARENA_ENEMY)
@@ -518,7 +518,21 @@
 		end
 		
 		esta_barra.texto_esquerdo:SetText (colocacao .. ". " .. tabela [1])
-		esta_barra.texto_direita:SetText (tabela [2] .. " (" .. porcentagem .. "%)")
+
+		local bars_show_data = instancia.row_info.textR_show_data
+		local bars_brackets = instancia:GetBarBracket()
+		
+		local total_frags = tabela [2]
+		if (not bars_show_data [1]) then
+			total_frags = ""
+		end
+		if (not bars_show_data [3]) then
+			porcentagem = ""
+		else
+			porcentagem = porcentagem .. "%"
+		end
+		
+		esta_barra.texto_direita:SetText (total_frags .. bars_brackets[1] .. porcentagem .. bars_brackets[2])
 		
 		esta_barra.texto_esquerdo:SetTextColor (1, 1, 1, 1)
 		esta_barra.texto_direita:SetTextColor (1, 1, 1, 1)
@@ -728,7 +742,25 @@
 		if (UsingCustomRightText) then
 			esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_damage, formated_dps, porcentagem, self))
 		else
-			esta_barra.texto_direita:SetText (formated_damage .. " (" .. formated_dps .. ", " .. porcentagem .. "%)")
+		
+			local bars_show_data = instancia.row_info.textR_show_data
+			local bars_brackets = instancia:GetBarBracket()
+			local bars_separator = instancia:GetBarSeparator()
+
+			if (not bars_show_data [1]) then
+				formated_damage = ""
+			end
+			if (not bars_show_data [2]) then
+				formated_dps = ""
+			end
+			if (not bars_show_data [3]) then
+				porcentagem = ""
+			else
+				porcentagem = porcentagem .. "%"
+			end
+			
+			esta_barra.texto_direita:SetText (formated_damage .. bars_brackets[1] .. formated_dps .. bars_separator .. porcentagem .. bars_brackets[2])
+
 		end
 
 		esta_barra.texto_esquerdo:SetText (colocacao .. ". " .. self.nome)
@@ -1124,14 +1156,15 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 		return _detalhes:EndRefresh (instancia, total, tabela_do_combate, showing) --> retorna a tabela que precisa ganhar o refresh
 	end
 
-	--print ("AMOUT: " .. amount)
 	instancia:AtualizarScrollBar (amount)
 
 	local qual_barra = 1
-	local barras_container = instancia.barras --> evita buscar N vezes a key .barras dentro da instância
+	local barras_container = instancia.barras
 	local percentage_type = instancia.row_info.percent_type
+	local bars_show_data = instancia.row_info.textR_show_data
+	local bars_brackets = instancia:GetBarBracket()
+	local bars_separator = instancia:GetBarSeparator()
 	local baseframe = instancia.baseframe
-	
 	local use_animations = _detalhes.is_using_row_animations and (not baseframe.isStretching and not forcar and not baseframe.isResizing)
  	
 	if (total == 0) then
@@ -1206,15 +1239,15 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 			
 			if (following and myPos and myPos > instancia.rows_fit_in_window and instancia.barraS[2] < myPos) then
 				for i = instancia.barraS[1], iter_last-1, 1 do --> vai atualizar só o range que esta sendo mostrado
-					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations) --> instância, index, total, valor da 1º barra
+					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
 					qual_barra = qual_barra+1
 				end
 				
-				conteudo[myPos]:AtualizaBarra (instancia, barras_container, qual_barra, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations) --> instância, index, total, valor da 1º barra
+				conteudo[myPos]:AtualizaBarra (instancia, barras_container, qual_barra, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
 				qual_barra = qual_barra+1
 			else
 				for i = instancia.barraS[1], iter_last, 1 do --> vai atualizar só o range que esta sendo mostrado
-					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations) --> instância, index, total, valor da 1º barra
+					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
 					qual_barra = qual_barra+1
 				end
 			end
@@ -1222,15 +1255,15 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 		else
 			if (following and myPos and myPos > instancia.rows_fit_in_window and instancia.barraS[2] < myPos) then
 				for i = instancia.barraS[1], instancia.barraS[2]-1, 1 do --> vai atualizar só o range que esta sendo mostrado
-					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations) --> instância, index, total, valor da 1º barra
+					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
 					qual_barra = qual_barra+1
 				end
 				
-				conteudo[myPos]:AtualizaBarra (instancia, barras_container, qual_barra, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations) --> instância, index, total, valor da 1º barra
+				conteudo[myPos]:AtualizaBarra (instancia, barras_container, qual_barra, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
 				qual_barra = qual_barra+1
 			else
 				for i = instancia.barraS[1], instancia.barraS[2], 1 do --> vai atualizar só o range que esta sendo mostrado
-					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations) --> instância, index, total, valor da 1º barra
+					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
 					qual_barra = qual_barra+1
 				end
 			end
@@ -1262,31 +1295,31 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 			
 			if (following and myPos and myPos > instancia.rows_fit_in_window and instancia.barraS[2] < myPos) then
 				for i = iter_last-1, instancia.barraS[1], -1 do --> vai atualizar só o range que esta sendo mostrado
-					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations) --> instância, index, total, valor da 1º barra
+					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
 					qual_barra = qual_barra+1
 				end
 				
-				conteudo[myPos]:AtualizaBarra (instancia, barras_container, qual_barra, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations) --> instância, index, total, valor da 1º barra
+				conteudo[myPos]:AtualizaBarra (instancia, barras_container, qual_barra, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
 				qual_barra = qual_barra+1
 			else
 				for i = iter_last, instancia.barraS[1], -1 do --> vai atualizar só o range que esta sendo mostrado
-					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations) --> instância, index, total, valor da 1º barra
+					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
 					qual_barra = qual_barra+1
 				end
 			end
 		else
 			if (following and myPos and myPos > instancia.rows_fit_in_window and instancia.barraS[2] < myPos) then
 				for i = instancia.barraS[2]-1, instancia.barraS[1], -1 do --> vai atualizar só o range que esta sendo mostrado
-					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations) --> instância, index, total, valor da 1º barra
+					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
 					qual_barra = qual_barra+1
 				end
 				
-				conteudo[myPos]:AtualizaBarra (instancia, barras_container, qual_barra, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations) --> instância, index, total, valor da 1º barra
+				conteudo[myPos]:AtualizaBarra (instancia, barras_container, qual_barra, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
 				qual_barra = qual_barra+1
 			else
 				-- /run print (_detalhes:GetInstance(1).barraS[2]) -- vai do 5 ao 1 -- qual barra começa no 1 -- i = 5 até 1 -- player 5 atualiza na barra 1 / player 1 atualiza na barra 5
 				for i = instancia.barraS[2], instancia.barraS[1], -1 do --> vai atualizar só o range que esta sendo mostrado
-					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations) --> instância, index, total, valor da 1º barra
+					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
 					qual_barra = qual_barra+1
 				end
 			end
@@ -1320,7 +1353,7 @@ end
 local actor_class_color_r, actor_class_color_g, actor_class_color_b
 
 --self = esta classe de dano
-function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra, lugar, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations)
+function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra, lugar, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator)
 							-- instância, container das barras, qual barra, colocação, total?, sub atributo, forçar refresh, key
 	
 	local esta_barra = barras_container [qual_barra] --> pega a referência da barra na janela
@@ -1393,9 +1426,21 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 		if (UsingCustomRightText) then
 			esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_damage, formated_dps, porcentagem, self, instancia.showing))
 		else
-			esta_barra.texto_direita:SetText (formated_damage .. " (" .. formated_dps .. ", " .. porcentagem .. "%)") --seta o texto da direita
+			if (not bars_show_data [1]) then
+				formated_damage = ""
+			end
+			if (not bars_show_data [2]) then
+				formated_dps = ""
+			end
+			if (not bars_show_data [3]) then
+				porcentagem = ""
+			else
+				porcentagem = porcentagem .. "%"
+			end
+			esta_barra.texto_direita:SetText (formated_damage .. bars_brackets[1] .. formated_dps .. bars_separator .. porcentagem .. bars_brackets[2])
 		end
-		esta_porcentagem = _math_floor ((damage_total/instancia.top) * 100) --> determina qual o tamanho da barra
+		
+		esta_porcentagem = _math_floor ((damage_total/instancia.top) * 100)
 
 	elseif (sub_atributo == 2) then --> mostrando dps
 	
@@ -1429,12 +1474,30 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 				rr, gg, bb = _detalhes:hex (_math_floor (rr*255)), _detalhes:hex (_math_floor (gg*255)), "28"
 				local color_percent = "" .. rr .. gg .. bb .. ""
 				
-				esta_barra.texto_direita:SetText (formated_dps .. " (|cFFFF4444-|r|cFF" .. color_percent .. SelectedToKFunction (_, _math_floor (diff_from_topdps)) .. "|r)") --seta o texto da direita
+				if (not bars_show_data [1]) then
+					formated_dps = ""
+				end
+				if (not bars_show_data [2]) then
+					color_percent = ""
+				else
+					color_percent = bars_brackets[1] .. "|cFFFF4444-|r|cFF" .. color_percent .. SelectedToKFunction (_, _math_floor (diff_from_topdps)) .. "|r" .. bars_brackets[2]
+				end
+				
+				esta_barra.texto_direita:SetText (formated_dps .. color_percent)
 			else
-				esta_barra.texto_direita:SetText (formated_dps .. "  |TInterface\\GROUPFRAME\\UI-Group-LeaderIcon:14:14:0:0:16:16:0:16:0:16|t ") --seta o texto da direita
+				
+				local icon = "  |TInterface\\GROUPFRAME\\UI-Group-LeaderIcon:14:14:0:0:16:16:0:16:0:16|t "
+				if (not bars_show_data [1]) then
+					formated_dps = ""
+				end
+				if (not bars_show_data [2]) then
+					icon = ""
+				end
+				
+				esta_barra.texto_direita:SetText (formated_dps .. icon)
 			end
 		end
-		esta_porcentagem = _math_floor ((dps/instancia.top) * 100) --> determina qual o tamanho da barra
+		esta_porcentagem = _math_floor ((dps/instancia.top) * 100)
 		
 	elseif (sub_atributo == 3) then --> mostrando damage taken
 
@@ -1447,9 +1510,21 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 		if (UsingCustomRightText) then
 			esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_damage_taken, formated_dtps, porcentagem, self, instancia.showing))
 		else
-			esta_barra.texto_direita:SetText (formated_damage_taken .." (" .. formated_dtps .. ", " .. porcentagem .. "%)") --seta o texto da direita --
+			if (not bars_show_data [1]) then
+				formated_damage_taken = ""
+			end
+			if (not bars_show_data [2]) then
+				formated_dtps = ""
+			end
+			if (not bars_show_data [3]) then
+				porcentagem = ""
+			else
+				porcentagem = porcentagem .. "%"
+			end
+			esta_barra.texto_direita:SetText (formated_damage_taken .. bars_brackets[1] .. formated_dtps .. bars_separator .. porcentagem .. bars_brackets[2])
 		end
-		esta_porcentagem = _math_floor ((self.damage_taken/instancia.top) * 100) --> determina qual o tamanho da barra
+		
+		esta_porcentagem = _math_floor ((self.damage_taken/instancia.top) * 100)
 		
 	elseif (sub_atributo == 4) then --> mostrando friendly fire
 	
@@ -1457,10 +1532,20 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 
 		if (UsingCustomRightText) then
 			esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_friendly_fire, "", porcentagem, self, instancia.showing))
-		else			
-			esta_barra.texto_direita:SetText (formated_friendly_fire .. " (" .. porcentagem .. "%)") --seta o texto da direita --
+		else
+		
+			if (not bars_show_data [1]) then
+				formated_friendly_fire = ""
+			end
+			if (not bars_show_data [3]) then
+				porcentagem = ""
+			else
+				porcentagem = porcentagem .. "%"
+			end
+		
+			esta_barra.texto_direita:SetText (formated_friendly_fire .. bars_brackets[1] .. porcentagem ..  bars_brackets[2])
 		end
-		esta_porcentagem = _math_floor ((self.friendlyfire_total/instancia.top) * 100) --> determina qual o tamanho da barra
+		esta_porcentagem = _math_floor ((self.friendlyfire_total/instancia.top) * 100)
 	
 	elseif (sub_atributo == 6) then --> mostrando enemies
 	
@@ -1471,10 +1556,23 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 	
 		if (UsingCustomRightText) then
 			esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_damage, formated_dps, porcentagem, self, instancia.showing))
-		else		
-			esta_barra.texto_direita:SetText (formated_damage .. " (" .. formated_dps .. ", " .. porcentagem .. "%)") --seta o texto da direita
+		else
+		
+			if (not bars_show_data [1]) then
+				formated_damage = ""
+			end
+			if (not bars_show_data [2]) then
+				formated_dps = ""
+			end
+			if (not bars_show_data [3]) then
+				porcentagem = ""
+			else
+				porcentagem = porcentagem .. "%"
+			end
+			esta_barra.texto_direita:SetText (formated_damage .. bars_brackets[1] .. formated_dps .. bars_separator .. porcentagem .. bars_brackets[2])
+
 		end
-		esta_porcentagem = _math_floor ((damage_total/instancia.top) * 100) --> determina qual o tamanho da barra
+		esta_porcentagem = _math_floor ((damage_total/instancia.top) * 100)
 		
 	end
 
@@ -1585,12 +1683,6 @@ end
 		esta_barra.icone_classe:SetVertexColor (1, 1, 1)
 		
 	elseif (self.classe == "UNKNOW") then
-		--esta_barra.icone_classe:SetTexture ("Interface\\LFGFRAME\\LFGROLE")
-		--esta_barra.icone_classe:SetTexCoord (.25, .5, 0, 1)
-		
-		--esta_barra.icone_classe:SetTexture ([[Interface\TARGETINGFRAME\PetBadge-Undead]])
-		--esta_barra.icone_classe:SetTexCoord (0.09375, 0.90625, 0.09375, 0.90625)
-		
 		esta_barra.icone_classe:SetTexture ([[Interface\AddOns\Details\images\classes_plus]])
 		esta_barra.icone_classe:SetTexCoord (0.50390625, 0.62890625, 0, 0.125)
 		
