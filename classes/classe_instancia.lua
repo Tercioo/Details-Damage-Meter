@@ -459,10 +459,6 @@ end
 		end
 
 		_detalhes:TrocaTabela (self, nil, nil, nil, true)
-		
-		--gump:Fade (self.baseframe.cabecalho.atributo_icon, _unpack (_detalhes.windows_fade_out))
-		--gump:Fade (self.baseframe.cabecalho.ball, _unpack (_detalhes.windows_fade_out))
-		--gump:Fade (self.baseframe, _unpack (_detalhes.windows_fade_out))
 
 		if (self.hide_icon) then
 			gump:Fade (self.baseframe.cabecalho.atributo_icon, 1)
@@ -492,13 +488,10 @@ end
 		self:SetCombatAlpha (nil, nil, true)
 		self:DesaturateMenu()
 		
-		--if (self.hide_out_of_combat and not UnitAffectingCombat ("player")) then
-		--	self:SetWindowAlphaForCombat (true, true)
-		--end
-		
 		if (not temp and not _detalhes.initializing) then
 			_detalhes:SendEvent ("DETAILS_INSTANCE_OPEN", nil, self)
 		end
+
 	end
 ------------------------------------------------------------------------------------------------------------------------
 
@@ -1404,6 +1397,7 @@ function _detalhes:RestauraJanela (index, temp, load_only)
 
 	--> internal stuff
 		self.oldwith = self.baseframe:GetWidth()
+
 		self:RestoreMainWindowPosition()
 		self:ReajustaGump()
 		--self:SaveMainWindowPosition()

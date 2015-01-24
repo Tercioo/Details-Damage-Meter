@@ -211,7 +211,6 @@
 --------------------------------------------------------------------------------------------------------
 	--> LibWindow-1.1
 	--this is the restore function from Libs\LibWindow-1.1\LibWindow-1.1.lua we can't schedule and we save it inside the instance without frame references.
-	
 	function _detalhes:RestoreLibWindow()
 		local frame = self.baseframe
 		if (frame) then
@@ -239,15 +238,17 @@
 				if not point and y==0 then	-- errr why did i do this check again? must have been a reason, but i can't remember it =/
 					point="CENTER"
 				end
-					
+				
+				--> Details: using UIParent always in order to not break the positioning when using AddonSkin with ElvUI.
 				if not point then	-- we have position, but no point, which probably means we're going from data stored by the addon itself before LibWindow was added to it. It was PROBABLY topleft->bottomleft anchored. Most do it that way.
-					frame:SetPoint("TOPLEFT", frame:GetParent(), "BOTTOMLEFT", x, y)
+					--frame:SetPoint("TOPLEFT", frame:GetParent(), "BOTTOMLEFT", x, y)
+					frame:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", x, y)
 					-- make it compute a better attachpoint (on next update)
 					--_detalhes:ScheduleTimer ("SaveLibWindow", 0.05, self)
 					return
 				end
 				
-				frame:SetPoint(point, frame:GetParent(), point, x, y)
+				frame:SetPoint(point, UIParent, point, x, y)
 				
 			end
 		end
@@ -255,7 +256,6 @@
 	
 	--> LibWindow-1.1
 	--this is the save function from Libs\LibWindow-1.1\LibWindow-1.1.lua, we save it inside the instance without frame references.
-	
 	function _detalhes:SaveLibWindow()
 		local frame = self.baseframe
 		if (frame) then
@@ -267,7 +267,9 @@
 			--tinsert (_detalhes.resize_debug, #_detalhes.resize_debug+1, "SAVING 1: " .. (self.libwindow.x or 0))
 			
 			--> LibWindow-1.1 ----------------
-				local parent = frame:GetParent() or nilParent
+				--local parent = frame:GetParent() or nilParent
+				--> Details: we are always using UIParent here or the addon is broken when using AddonSkins for ElvUI.
+				local parent = UIParent
 				-- No, this won't work very well with frames that aren't parented to nil or UIParent
 				local s = frame:GetScale()
 				local left,top = frame:GetLeft()*s, frame:GetTop()*s
@@ -315,6 +317,7 @@
 --------------------------------------------------------------------------------------------------------
 	
 	function _detalhes:SaveMainWindowSize()
+	
 		local baseframe_width = self.baseframe:GetWidth()
 		if (not baseframe_width) then
 			return _detalhes:ScheduleTimer ("SaveMainWindowSize", 1, self)
@@ -370,8 +373,6 @@
 
 	function _detalhes:SaveMainWindowPosition (instance)
 		
-		--tinsert (_detalhes.resize_debug, #_detalhes.resize_debug+1, "SaveMainWindowPosition: " .. debugstack())
-		
 		if (instance) then
 			self = instance
 		end
@@ -391,7 +392,7 @@
  		end
 		
 		self:SaveLibWindow()
-		
+
 		--> save the position
 		local _w = baseframe_width
 		local _h = baseframe_height
@@ -427,18 +428,17 @@
 		end
 		
 		self.baseframe.BoxBarrasAltura = self.baseframe:GetHeight() - end_window_spacement --> espaço para o final da janela
-		
+
 		return {altura = self.baseframe:GetHeight(), largura = self.baseframe:GetWidth(), x = _x, y = _y}
 	end
 
 	function _detalhes:RestoreMainWindowPosition (pre_defined)
-
-		--tinsert (_detalhes.resize_debug, #_detalhes.resize_debug+1, "Restoring " .. ( self.libwindow.x or "NONE") .. " " .. (self.libwindow.point or "NONE"))
-		--tinsert (_detalhes.resize_debug, #_detalhes.resize_debug+1, "")
-		--tinsert (_detalhes.resize_debug, #_detalhes.resize_debug+1, debugstack())
-		--tinsert (_detalhes.resize_debug, #_detalhes.resize_debug+1, "")
 	
 		if (not pre_defined and self.libwindow.x and self.mostrando == "normal") then
+			local s = self.window_scale
+			self.baseframe:SetScale (s)
+			self.rowframe:SetScale (s)
+		
 			self.baseframe:SetWidth (self.posicao[self.mostrando].w)
 			self.baseframe:SetHeight (self.posicao[self.mostrando].h)
 			
@@ -446,6 +446,10 @@
 			self.baseframe.BoxBarrasAltura = self.baseframe:GetHeight() - end_window_spacement --> espaço para o final da janela
 			return
 		end
+	
+		local s = self.window_scale
+		self.baseframe:SetScale (s)
+		self.rowframe:SetScale (s)
 	
 		local _scale = self.baseframe:GetEffectiveScale() 
 		local _UIscale = _UIParent:GetScale()
@@ -469,7 +473,7 @@
 	end
 
 	function _detalhes:RestoreMainWindowPositionNoResize (pre_defined, x, y)
-
+	
 		x = x or 0
 		y = y or 0
 
@@ -572,7 +576,7 @@
 			end
 		
 			-- -4 difere a precisão de quando a barra será adicionada ou apagada da barra
-			self.baseframe.BoxBarrasAltura = self.baseframe:GetHeight() - end_window_spacement
+			self.baseframe.BoxBarrasAltura = (self.baseframe:GetHeight()) - end_window_spacement
 
 			local T = self.rows_fit_in_window
 			if (not T) then --> primeira vez que o gump esta sendo reajustado
@@ -603,6 +607,8 @@
 					self.barras [index]:SetWidth (self.baseframe:GetWidth()+self.row_info.space.right)
 				end
 			end
+			
+			
 
 			--> verifica se precisa esconder ou mostrar alguma barra
 			local A = self.barraS[1]

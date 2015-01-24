@@ -721,7 +721,7 @@ local movement_onupdate = function (self, elapsed)
 		end
 	end
 
-local function move_janela (baseframe, iniciando, instancia)
+local function move_janela (baseframe, iniciando, instancia, just_updating)
 
 	instancia_alvo = _detalhes.tabela_instancias [instancia.meu_id-1]
 	if (_detalhes.disable_window_groups) then
@@ -750,7 +750,7 @@ local function move_janela (baseframe, iniciando, instancia)
 		
 		baseframe:SetClampRectInsets (-ClampLeft, ClampRight, ClampTop, -ClampBottom)
 
-		if (instancia_alvo) then
+		if (instancia_alvo and (instancia_alvo.ativa or not just_updating)) then
 		
 			tempo_fades = 1.0
 			nao_anexados = {true, true, true, true}
@@ -960,7 +960,7 @@ local function move_janela (baseframe, iniciando, instancia)
 		_detalhes.snap_alert.animOut:Play()
 		_detalhes.MicroButtonAlert:Hide()
 
-		if (instancia_alvo) then
+		if (instancia_alvo and instancia_alvo.ativa and instancia_alvo.baseframe) then
 			instancia_alvo.h_esquerda:Stop()
 			instancia_alvo.h_baixo:Stop()
 			instancia_alvo.h_direita:Stop()

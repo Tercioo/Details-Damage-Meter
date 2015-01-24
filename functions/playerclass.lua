@@ -181,6 +181,40 @@ do
 					end
 				end
 			end
+			
+			if (Actor.classe == "HUNTER") then
+				local container_misc = _detalhes.tabela_vigente[4]
+				local index = container_misc._NameIndexTable [Actor.nome]
+				if (index) then
+					local misc_actor = container_misc._ActorTable [index]
+					local buffs = misc_actor.buff_uptime_spells and misc_actor.buff_uptime_spells._ActorTable
+					if (buffs) then
+						for spellid, spell in _pairs (buffs) do
+							local spec = SpecSpellList [spellid]
+							if (spec) then
+								if (spec ~= Actor.spec) then
+									_detalhes.cached_specs [Actor.serial] = spec
+								
+									Actor.spec = spec
+									
+									if (container) then
+										container.need_refresh = true
+									end
+									
+									if (Actor.minha_barra and type (Actor.minha_barra) == "table") then
+										Actor.minha_barra.minha_tabela = nil
+									end
+								
+									return spec
+								else
+									break
+								end
+							end
+						end
+					end
+				end
+			end
+			
 		end
 	end
 	

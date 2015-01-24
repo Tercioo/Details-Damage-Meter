@@ -179,8 +179,8 @@ function _G._detalhes:Start()
 						--print ("===============")
 						
 						instance.do_not_snap = true
-						self.move_janela_func (instance.baseframe, true, instance)
-						self.move_janela_func (instance.baseframe, false, instance)
+						self.move_janela_func (instance.baseframe, true, instance, true)
+						self.move_janela_func (instance.baseframe, false, instance, true)
 						instance.do_not_snap = false
 						
 					end
@@ -498,10 +498,11 @@ function _G._detalhes:Start()
 		DBM:RegisterCallback ("pull", dbm_callback_pull)
 	end	
 
---function _detalhes:TestResize()
---	_detalhes:OpenNewsWindow (_detalhes.resize_debug)
---end
---_detalhes:ScheduleTimer ("TestResize", 3)
-
+--[[
+function _detalhes:TestResize()
+	_detalhes:OpenNewsWindow (_detalhes.resize_debug)
+end
+_detalhes:ScheduleTimer ("TestResize", 3)
+--]]
 end
 

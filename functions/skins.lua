@@ -1,8 +1,3 @@
---File Revision: 1
---Last Modification: 05/12/07/2013
--- Change Log:
-	-- 05/12/07/2013: This file has been introduced.
-
 
 local _detalhes = _G._detalhes
 local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
@@ -1031,11 +1026,6 @@ local _
 		local statusbar_enabled1 = instance1.show_statusbar
 		local statusbar_enabled2 = instance2.show_statusbar
 		
-		_detalhes.move_janela_func (instance1.baseframe, true, instance1)
-		_detalhes.move_janela_func (instance1.baseframe, false, instance1)
-		_detalhes.move_janela_func (instance2.baseframe, true, instance2)
-		_detalhes.move_janela_func (instance2.baseframe, false, instance2)
-		
 		instance1.baseframe:SetSize (wight/2 - 4, height-20-21-8 - (statusbar_enabled1 and 14 or 0))
 		instance2.baseframe:SetSize (wight/2 - 4, height-20-21-8 - (statusbar_enabled2 and 14 or 0))
 		
@@ -1052,6 +1042,11 @@ local _
 		instance1:SaveMainWindowPosition()
 		instance2:SaveMainWindowPosition()
 
+		_detalhes.move_janela_func (instance1.baseframe, true, instance1)
+		_detalhes.move_janela_func (instance1.baseframe, false, instance1)
+		_detalhes.move_janela_func (instance2.baseframe, true, instance2)
+		_detalhes.move_janela_func (instance2.baseframe, false, instance2)
+		
 	end
 	
 

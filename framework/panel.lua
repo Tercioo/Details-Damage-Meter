@@ -1343,6 +1343,7 @@ local chart_panel_enable_line = function (f, thisbox)
 		f.Graphic.max_value = 0
 		
 		local max = 0
+		local max_time = 0
 		
 		for index, box in ipairs (f.BoxLabels) do
 			if (box.type == type and box.showing and box.enabled) then
@@ -1351,10 +1352,14 @@ local chart_panel_enable_line = function (f, thisbox)
 				if (data[4] > max) then
 					max = data[4]
 				end
+				if (data [5] > max_time) then
+					max_time = data [5]
+				end
 			end
 		end
 		
 		f:SetScale (max)
+		f:SetTime (max_time)
 		
 	elseif (type == "overlay") then
 
@@ -1497,8 +1502,7 @@ local chart_panel_add_overlay = function (self, overlayData, color, name, icon)
 	self.OverlaysAmount = self.OverlaysAmount + 1
 end
 
-local chart_panel_add_data = function (self, graphicData, color, name, lineTexture, smoothLevel)
-	
+local chart_panel_add_data = function (self, graphicData, color, name, elapsed_time, lineTexture, smoothLevel, firstIndex)
 
 	local f = self
 	self = self.Graphic
@@ -1524,7 +1528,21 @@ local chart_panel_add_data = function (self, graphicData, color, name, lineTextu
 			_data [#_data+1] = {scaleW*(_i-2), v/graphMaxDps} --> x and y coords
 			_i = _i + 1
 		end
-		
+	
+	elseif (smoothLevel == -1) then
+		while (_i <= #content-2) do
+			local current = content[_i]
+			
+			local minus_2 = content[_i-2] * 0.6
+			local minus_1 = content[_i-1] * 0.8
+			local plus_1 = content[_i+1] * 0.8
+			local plus_2 = content[_i+2] * 0.6
+			
+			local v = (current + minus_2 + minus_1 + plus_1 + plus_2)/5 --> normalize
+			_data [#_data+1] = {scaleW*(_i-2), v/graphMaxDps} --> x and y coords
+			_i = _i + 1
+		end
+	
 	elseif (smoothLevel == 1) then
 		_i = 2
 		while (_i <= #content-1) do 
@@ -1561,15 +1579,42 @@ local chart_panel_add_data = function (self, graphicData, color, name, lineTextu
 		end
 	
 		self.max_value = max_value
+		f:SetScale (max_value)
 	end
 	
-	tinsert (f.GData, {_data, color or line_default_color, lineTexture, graphicData.max_value})
+	tinsert (f.GData, {_data, color or line_default_color, lineTexture, graphicData.max_value, elapsed_time})
 	if (name) then
 		f:AddLabel (color or line_default_color, name, "graphic", #f.GData)
 	end
 	
-	self:AddDataSeries (_data, color or line_default_color, nil, lineTexture)
-
+	if (firstIndex) then
+		if (lineTexture) then
+			if (not lineTexture:find ("\\") and not lineTexture:find ("//")) then 
+				local path = string.match (debugstack (1, 1, 0), "AddOns\\(.+)LibGraph%-2%.0%.lua")
+				if path then
+					lineTexture = "Interface\\AddOns\\" .. path .. lineTexture
+				else
+					lineTexture = nil
+				end
+			end
+		end
+		
+		table.insert (self.Data, 1, {Points = _data, Color = color or line_default_color, lineTexture = lineTexture, ElapsedTime = elapsed_time})
+		self.NeedsUpdate = true
+	else
+		self:AddDataSeries (_data, color or line_default_color, nil, lineTexture)
+		self.Data [#self.Data].ElapsedTime = elapsed_time
+	end
+	
+	local max_time = 0
+	for _, data in ipairs (self.Data) do
+		if (data.ElapsedTime > max_time) then
+			max_time = data.ElapsedTime
+		end
+	end
+	
+	f:SetTime (max_time)
+	
 end
 
 local chart_panel_onresize = function (self)
@@ -1628,6 +1673,10 @@ local chart_panel_mouseup = function (self, button)
 		self:StopMovingOrSizing()
 		self.isMoving = nil
 	end
+end
+
+local chart_panel_hide_close_button = function (self)
+	self.CloseButton:Hide()
 end
 
 function gump:CreateChartPanel (parent, w, h, name)
@@ -1735,6 +1784,7 @@ function gump:CreateChartPanel (parent, w, h, name)
 	f.CanMove = chart_panel_can_move
 	f.AddLabel = chart_panel_add_label
 	f.AddOverlay = chart_panel_add_overlay
+	f.HideCloseButton = chart_panel_hide_close_button
 	
 	f:SetScript ("OnSizeChanged", chart_panel_onresize)
 	chart_panel_onresize (f)
