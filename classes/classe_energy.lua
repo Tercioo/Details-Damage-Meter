@@ -275,8 +275,13 @@ function atributo_energy:AtualizarResources (qual_barra, colocacao, instancia)
 		esta_barra.icone_classe:SetVertexColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
 
 	else
-		esta_barra.icone_classe:SetTexture (instancia.row_info.icon_file)
-		esta_barra.icone_classe:SetTexCoord (_unpack (CLASS_ICON_TCOORDS [self.classe])) --very slow method
+		if (instancia.row_info.use_spec_icons and self.spec) then
+			esta_barra.icone_classe:SetTexture (instancia.row_info.spec_file)
+			esta_barra.icone_classe:SetTexCoord (_unpack (_detalhes.class_specs_coords [self.spec]))
+		else		
+			esta_barra.icone_classe:SetTexture (instancia.row_info.icon_file)
+			esta_barra.icone_classe:SetTexCoord (_unpack (CLASS_ICON_TCOORDS [self.classe])) --very slow method
+		end
 		esta_barra.icone_classe:SetVertexColor (1, 1, 1)
 	end
 	

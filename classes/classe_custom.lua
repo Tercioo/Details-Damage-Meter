@@ -638,8 +638,13 @@
 				esta_barra.icone_classe:SetTexCoord (0.078125, 0.921875, 0.078125, 0.921875)
 				esta_barra.icone_classe:SetTexture (self.icon)
 			else
-				esta_barra.icone_classe:SetTexture (instancia.row_info.icon_file)
-				esta_barra.icone_classe:SetTexCoord (_unpack (CLASS_ICON_TCOORDS [self.classe])) --very slow method
+				if (instancia.row_info.use_spec_icons and (self.spec or self.my_actor.spec)) then
+					esta_barra.icone_classe:SetTexture (instancia.row_info.spec_file)
+					esta_barra.icone_classe:SetTexCoord (_unpack (_detalhes.class_specs_coords [self.spec or self.my_actor.spec]))
+				else
+					esta_barra.icone_classe:SetTexture (instancia.row_info.icon_file)
+					esta_barra.icone_classe:SetTexCoord (_unpack (CLASS_ICON_TCOORDS [self.classe]))
+				end
 			end
 			esta_barra.icone_classe:SetVertexColor (1, 1, 1)
 		end
@@ -773,6 +778,7 @@
 			}, atributo_custom.mt)
 			
 			new_actor.displayName = new_actor.nome
+			new_actor.spec = actor.spec
 			
 			if (actor.id) then
 				new_actor.id = actor.id

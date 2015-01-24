@@ -12,6 +12,7 @@
 	local debugmode = false
 	
 	YouAreNotPrepared:SetPluginDescription ("Tracks your deaths during raid encounters and shows it for you right after the fight end.")
+	YouAreNotPrepared.version = "v1.1.3"
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> init the frames
@@ -532,6 +533,13 @@
 				desc = "Open the window after leave the combat.",
 				name = "Auto Open"
 			},
+			{
+				type = "toggle",
+				get = function() return YouAreNotPrepared.db.auto_close end,
+				set = function (self, fixedparam, value) YouAreNotPrepared.db.auto_close = value end,
+				desc = "Closes the window when you release or are resurrected.",
+				name = "Auto Close"
+			},
 		}
 		
 		_detalhes.gump:BuildMenu (options_frame, menu, 15, -75, 260)
@@ -549,7 +557,16 @@
 	
 	function YouAreNotPrepared:OnEvent (_, event, ...)
 
-		if (event == "ADDON_LOADED") then
+		if (event == "PLAYER_ALIVE" or event == "PLAYER_UNGHOST") then
+			if (YouAreNotPrepared.db.auto_close and YouAreNotPreparedFrame:IsShown()) then
+				if (YouAreNotPreparedFrame.isMoving) then
+					YouAreNotPreparedFrame:StopMovingOrSizing()
+					YouAreNotPreparedFrame.isMoving = false
+				end
+				YouAreNotPreparedFrame:Hide()
+			end
+		
+		elseif (event == "ADDON_LOADED") then
 			local AddonName = select (1, ...)
 			if (AddonName == "Details_YouAreNotPrepared") then
 				
@@ -562,15 +579,16 @@
 					local MINIMAL_DETAILS_VERSION_REQUIRED = 12
 					
 					local default_settings = {
-						shown_time = 30, --
-						auto_open = true, --
-						hide_on_combat = true, --
+						shown_time = 30,
+						auto_open = true,
+						hide_on_combat = true,
 						rightclick_closed = false,
-						deaths_table = {}
+						deaths_table = {},
+						auto_close = true,
 					}
 					
 					--> install
-					local install, saveddata, is_enabled = _G._detalhes:InstallPlugin ("TOOLBAR", Loc ["STRING_PLUGIN_NAME"], [[Interface\ICONS\Achievement_Boss_Illidan]], YouAreNotPrepared, "DETAILS_PLUGIN_YANP", MINIMAL_DETAILS_VERSION_REQUIRED, "Details! Team", "v1.1.2", default_settings)
+					local install, saveddata, is_enabled = _G._detalhes:InstallPlugin ("TOOLBAR", Loc ["STRING_PLUGIN_NAME"], [[Interface\ICONS\Achievement_Boss_Illidan]], YouAreNotPrepared, "DETAILS_PLUGIN_YANP", MINIMAL_DETAILS_VERSION_REQUIRED, "Details! Team", YouAreNotPrepared.version, default_settings)
 					if (type (install) == "table" and install.error) then
 						return print (install.error)
 					end
@@ -582,6 +600,9 @@
 					--> register needed events
 					_G._detalhes:RegisterEvent (YouAreNotPrepared, "DETAILS_DATA_RESET")
 					_G._detalhes:RegisterEvent (YouAreNotPrepared, "COMBAT_PLAYER_LEAVE")
+					
+					YouAreNotPreparedFrame:RegisterEvent ("PLAYER_ALIVE")
+					YouAreNotPreparedFrame:RegisterEvent ("PLAYER_UNGHOST")
 					
 					--> register needed hooks
 					_G._detalhes:InstallHook (DETAILS_HOOK_DEATH, YouAreNotPrepared.OnDeath)

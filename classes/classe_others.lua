@@ -487,14 +487,26 @@ function atributo_misc:DeadAtualizarBarra (morte, qual_barra, colocacao, instanc
 		esta_barra.texto_direita:SetTextColor (_unpack (_detalhes.class_colors [morte[4]]))
 	end
 
-	esta_barra.icone_classe:SetTexture (instancia.row_info.icon_file)
-	esta_barra.icone_classe:SetTexCoord (_unpack (CLASS_ICON_TCOORDS [morte[4]]))
-	
+	if (instancia.row_info.use_spec_icons) then
+		local nome = morte[3]
+		local spec = instancia.showing (1, nome) and instancia.showing (1, nome).spec or (instancia.showing (2, nome) and instancia.showing (2, nome).spec)
+		if (spec) then
+			esta_barra.icone_classe:SetTexture (instancia.row_info.spec_file)
+			esta_barra.icone_classe:SetTexCoord (_unpack (_detalhes.class_specs_coords [spec]))
+		else
+			esta_barra.icone_classe:SetTexture (instancia.row_info.icon_file)
+			esta_barra.icone_classe:SetTexCoord (_unpack (CLASS_ICON_TCOORDS [morte[4]]))
+		end
+	else
+		esta_barra.icone_classe:SetTexture (instancia.row_info.icon_file)
+		esta_barra.icone_classe:SetTexCoord (_unpack (CLASS_ICON_TCOORDS [morte[4]]))
+	end
+	esta_barra.icone_classe:SetVertexColor (1, 1, 1)
+		
 	if (esta_barra.mouse_over and not instancia.baseframe.isMoving) then --> precisa atualizar o tooltip
 		gump:UpdateTooltip (qual_barra, esta_barra, instancia)
 	end
 
-	--return self:RefreshBarra2 (esta_barra, instancia, tabela_anterior, forcar, esta_porcentagem)
 end
 
 function atributo_misc:RefreshWindow (instancia, tabela_do_combate, forcar, exportar, refresh_needed)

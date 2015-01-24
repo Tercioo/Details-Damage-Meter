@@ -255,6 +255,11 @@ local food_list = {
 		
 		show_panel:Hide()
 		
+		DetailsRaidCheck.report_lines = ""
+		local reportFunc = function (IsCurrent, IsReverse, AmtLines)
+			DetailsRaidCheck:SendReportLines (DetailsRaidCheck.report_lines)
+		end
+		
 		--> overwrite the default scripts
 		DetailsRaidCheck.ToolbarButton:RegisterForClicks ("AnyUp")
 		DetailsRaidCheck.ToolbarButton:SetScript ("OnClick", function (self, button)
@@ -281,7 +286,12 @@ local food_list = {
 					end
 				end
 				
-				DetailsRaidCheck:SendMsgToChannel (s, "RAID")
+				if (DetailsRaidCheck.db.use_report_panel) then
+					DetailsRaidCheck.report_lines = s
+					DetailsRaidCheck:SendReportWindow (reportFunc)
+				else
+					DetailsRaidCheck:SendMsgToChannel (s, "RAID")
+				end
 				
 			elseif (button == "RightButton") then
 				--> link no pre-pot latest segment
@@ -312,7 +322,12 @@ local food_list = {
 					end
 				end
 				
-				DetailsRaidCheck:SendMsgToChannel (s, "RAID")
+				if (DetailsRaidCheck.db.use_report_panel) then
+					DetailsRaidCheck.report_lines = s
+					DetailsRaidCheck:SendReportWindow (reportFunc)
+				else
+					DetailsRaidCheck:SendMsgToChannel (s, "RAID")
+				end
 			
 			elseif (button == "MiddleButton") then
 				
@@ -580,7 +595,14 @@ local build_options_panel = function()
 			set = function (self, fixedparam, value) DetailsRaidCheck.db.mythic_1_4 = value end,
 			desc = "When raiding on Mythic difficult, only tracks the first 4 groups.",
 			name = "Mythic Special Tracker"
-		},		
+		},
+		{
+			type = "toggle",
+			get = function() return DetailsRaidCheck.db.use_report_panel end,
+			set = function (self, fixedparam, value) DetailsRaidCheck.db.use_report_panel = value end,
+			desc = "If enabled, clicking to report open the report panel instead (to be able to choose where to send the report).",
+			name = "Use Report Panel"
+		},
 	}
 	
 	_detalhes.gump:BuildMenu (options_frame, menu, 15, -65, 260)
@@ -612,6 +634,7 @@ end
 						pre_pot_healers = false, --do not report pre pot for healers
 						pre_pot_tanks = false, --do not report pre pot for tanks
 						mythic_1_4 = true, --only track groups 1-4 on mythic
+						use_report_panel = true, --if true, shows the report panel
 					}
 					
 					--> install
