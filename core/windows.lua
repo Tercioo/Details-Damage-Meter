@@ -209,8 +209,10 @@
 	end
 	
 --------------------------------------------------------------------------------------------------------
-	--> LibWindow-1.1
-	--this is the restore function from Libs\LibWindow-1.1\LibWindow-1.1.lua we can't schedule and we save it inside the instance without frame references.
+
+	--> LibWindow-1.1 by Mikk http://www.wowace.com/profiles/mikk/
+	--> this is the restore function from Libs\LibWindow-1.1\LibWindow-1.1.lua. 
+	--> we can't schedule a new save after restoring, we save it inside the instance without frame references and always attach to UIparent.
 	function _detalhes:RestoreLibWindow()
 		local frame = self.baseframe
 		if (frame) then
@@ -241,8 +243,7 @@
 				
 				--> Details: using UIParent always in order to not break the positioning when using AddonSkin with ElvUI.
 				if not point then	-- we have position, but no point, which probably means we're going from data stored by the addon itself before LibWindow was added to it. It was PROBABLY topleft->bottomleft anchored. Most do it that way.
-					--frame:SetPoint("TOPLEFT", frame:GetParent(), "BOTTOMLEFT", x, y)
-					frame:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", x, y)
+					frame:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", x, y) --frame:SetPoint("TOPLEFT", frame:GetParent(), "BOTTOMLEFT", x, y)
 					-- make it compute a better attachpoint (on next update)
 					--_detalhes:ScheduleTimer ("SaveLibWindow", 0.05, self)
 					return
@@ -254,66 +255,62 @@
 		end
 	end
 	
-	--> LibWindow-1.1
-	--this is the save function from Libs\LibWindow-1.1\LibWindow-1.1.lua, we save it inside the instance without frame references.
-	function _detalhes:SaveLibWindow()
-		local frame = self.baseframe
-		if (frame) then
-			local left = frame:GetLeft()
-			if (not left) then
-				return _detalhes:ScheduleTimer ("SaveLibWindow", 0.05, self)
-			end
-			
-			--tinsert (_detalhes.resize_debug, #_detalhes.resize_debug+1, "SAVING 1: " .. (self.libwindow.x or 0))
-			
-			--> LibWindow-1.1 ----------------
-				--local parent = frame:GetParent() or nilParent
-				--> Details: we are always using UIParent here or the addon is broken when using AddonSkins for ElvUI.
-				local parent = UIParent
-				-- No, this won't work very well with frames that aren't parented to nil or UIParent
-				local s = frame:GetScale()
-				local left,top = frame:GetLeft()*s, frame:GetTop()*s
-				local right,bottom = frame:GetRight()*s, frame:GetBottom()*s
-				local pwidth, pheight = parent:GetWidth(), parent:GetHeight()
-
-				local x,y,point;
-				if left < (pwidth-right) and left < abs((left+right)/2 - pwidth/2) then
-					x = left;
-					point="LEFT";
-				elseif (pwidth-right) < abs((left+right)/2 - pwidth/2) then
-					x = right-pwidth;
-					point="RIGHT";
-				else
-					x = (left+right)/2 - pwidth/2;
-					point="";
-				end
-				
-				if bottom < (pheight-top) and bottom < abs((bottom+top)/2 - pheight/2) then
-					y = bottom;
-					point="BOTTOM"..point;
-				elseif (pheight-top) < abs((bottom+top)/2 - pheight/2) then
-					y = top-pheight;
-					point="TOP"..point;
-				else
-					y = (bottom+top)/2 - pheight/2;
-					-- point=""..point;
-				end
-				
-				if point=="" then
-					point = "CENTER"
-				end
-			----------------------------------------
-			
-			self.libwindow.x = x
-			self.libwindow.y = y
-			self.libwindow.point = point
-			self.libwindow.scale = scale
-			
-			--tinsert (_detalhes.resize_debug, #_detalhes.resize_debug+1, "SAVING 2: " .. (self.libwindow.x or 0))
-			
-		end
-	end
+	--> LibWindow-1.1 by Mikk http://www.wowace.com/profiles/mikk/
+	--> this is the save function from Libs\LibWindow-1.1\LibWindow-1.1.lua. 
+	--> we need to make it save inside the instance object without frame references and also we must always use UIParent due to embed settings for ElvUI and LUI.
 	
+		function _detalhes:SaveLibWindow()
+			local frame = self.baseframe
+			if (frame) then
+				local left = frame:GetLeft()
+				if (not left) then
+					return _detalhes:ScheduleTimer ("SaveLibWindow", 0.05, self)
+				end
+					--> Details: we are always using UIParent here or the addon break when using Embeds.
+					local parent = UIParent --local parent = frame:GetParent() or nilParent
+					-- No, this won't work very well with frames that aren't parented to nil or UIParent
+					local s = frame:GetScale()
+					local left,top = frame:GetLeft()*s, frame:GetTop()*s
+					local right,bottom = frame:GetRight()*s, frame:GetBottom()*s
+					local pwidth, pheight = parent:GetWidth(), parent:GetHeight()
+
+					local x,y,point;
+					if left < (pwidth-right) and left < abs((left+right)/2 - pwidth/2) then
+						x = left;
+						point="LEFT";
+					elseif (pwidth-right) < abs((left+right)/2 - pwidth/2) then
+						x = right-pwidth;
+						point="RIGHT";
+					else
+						x = (left+right)/2 - pwidth/2;
+						point="";
+					end
+					
+					if bottom < (pheight-top) and bottom < abs((bottom+top)/2 - pheight/2) then
+						y = bottom;
+						point="BOTTOM"..point;
+					elseif (pheight-top) < abs((bottom+top)/2 - pheight/2) then
+						y = top-pheight;
+						point="TOP"..point;
+					else
+						y = (bottom+top)/2 - pheight/2;
+						-- point=""..point;
+					end
+					
+					if point=="" then
+						point = "CENTER"
+					end
+					
+				----------------------------------------
+				--> save inside the instance object
+				self.libwindow.x = x
+				self.libwindow.y = y
+				self.libwindow.point = point
+				self.libwindow.scale = scale
+			end
+		end
+		
+	--> end for libwindow-1.1
 --------------------------------------------------------------------------------------------------------
 	
 	function _detalhes:SaveMainWindowSize()
@@ -435,6 +432,7 @@
 	function _detalhes:RestoreMainWindowPosition (pre_defined)
 	
 		if (not pre_defined and self.libwindow.x and self.mostrando == "normal") then
+		--if (not true and not pre_defined and self.libwindow.x and self.mostrando == "normal") then
 			local s = self.window_scale
 			self.baseframe:SetScale (s)
 			self.rowframe:SetScale (s)

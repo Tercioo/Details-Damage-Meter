@@ -849,11 +849,12 @@ local function CreatePluginFrames()
 		
 			local player_dps = DpsTuningPlugin.CurCombat:GetTimeData ("Player Damage Done")
 			
-			chart_panel:SetTime (DpsTuningPlugin.CurCombat:GetCombatTime())
+			local combat_time = DpsTuningPlugin.CurCombat:GetCombatTime()
+			chart_panel:SetTime (combat_time)
 			chart_panel:SetScale (player_dps.max_value)
 			
-			chart_panel:AddLine (player_dps, {1, 1, 1, 1}, "Your Damage", "line")
-			chart_panel:AddLine (power_amount_chart_table, {1, .4, .4, 1}, "Spell/Attack Power (x3)")
+			chart_panel:AddLine (player_dps, {1, 1, 1, 1}, "Your Damage", combat_time, "line")
+			chart_panel:AddLine (power_amount_chart_table, {1, .4, .4, 1}, "Spell/Attack Power (x3)", combat_time)
 
 			chart_panel:Show()
 		end
@@ -919,7 +920,7 @@ local function CreatePluginFrames()
 				
 				if (spelldamage/player_total_damage*100 > 5) then
 					if (colors [index]) then
-						chart_panel:AddLine (chart_data, colors [index], spellname, nil, GraphicSmoothLevel)
+						chart_panel:AddLine (chart_data, colors [index], spellname, DpsTuningPlugin.CurCombat:GetCombatTime(), nil, GraphicSmoothLevel)
 					end
 				end
 			end
@@ -935,7 +936,7 @@ local function CreatePluginFrames()
 			chart_panel:Reset()
 		
 			local player_dps = DpsTuningPlugin.CurCombat:GetTimeData ("Player Damage Done")
-			chart_panel:AddLine (player_dps, {1, 1, 1, 1}, "Your Damage", "line")
+			chart_panel:AddLine (player_dps, {1, 1, 1, 1}, "Your Damage", DpsTuningPlugin.CurCombat:GetCombatTime(), "line")
 
 			chart_panel:SetTime (DpsTuningPlugin.CurCombat:GetCombatTime())
 			chart_panel:SetScale (player_dps.max_value)
