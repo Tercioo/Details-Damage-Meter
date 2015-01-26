@@ -1073,11 +1073,11 @@ function atributo_misc:ToolTipCC (instancia, numero, barra)
 		
 		--> em quem quebrou
 		--GameCooltip:AddLine (Loc ["STRING_TARGETS"] .. ":") 
-		for _, target in _ipairs (_tabela.targets._ActorTable) do
+		for target_name, amount in _pairs (_tabela.targets) do
 		
-			GameCooltip:AddLine (target.nome..": ", target.total)
+			GameCooltip:AddLine (target_name .. ": ", amount)
 			
-			local classe = _detalhes:GetClass (target.nome)
+			local classe = _detalhes:GetClass (target_name)
 			GameCooltip:AddIcon ([[Interface\AddOns\Details\images\espadas]], nil, 1, 14, 14)
 			if (classe) then	
 				GameCooltip:AddIcon ([[Interface\AddOns\Details\images\classes_small]], nil, 2, 14, 14, unpack (_detalhes.class_coords [classe]))
