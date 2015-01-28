@@ -16,6 +16,7 @@ locales\Details-deDE.lua
 locales\Details-frFR.lua
 locales\Details-koKR.lua
 locales\Details-ruRU.lua
+locales\Details-zhTW.lua
 
 boot.lua
 indent.lua

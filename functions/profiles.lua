@@ -157,7 +157,7 @@ function _detalhes:ResetProfile (profile_name)
 				instance:AtivarInstancia()
 			end
 			instance.skin = ""
-			instance:ChangeSkin ("Minimalistic v2")
+			instance:ChangeSkin (_detalhes.default_skin_to_use)
 		end
 		
 		for index, instance in pairs (_detalhes.unused_instances) do
@@ -288,7 +288,7 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 			--> apply default config on this instance (flat skin texture was 'ResetInstanceConfig' running).
 			instance1:ResetInstanceConfig()
 			instance1.skin = "no skin"
-			instance1:ChangeSkin ("Minimalistic v2")
+			instance1:ChangeSkin (_detalhes.default_skin_to_use)
 			
 			--> release the snap and lock
 			instance1:LoadLocalInstanceConfig()

@@ -284,7 +284,7 @@ local _
 			end
 		end
 		
-		local changeColorButton = g:NewButton (buttonsBackground, nil, "$parentOverlayColorButton", nil, 100, 20, changeColor, nil, nil, nil, Loc ["STRING_IMAGEEDIT_COLOR"], 1)
+		local changeColorButton = g:NewButton (buttonsBackground, nil, "$parentOverlayColorButton", nil, 100, 20, changeColor, nil, nil, nil, Loc ["STRING_COLOR"], 1)
 		changeColorButton:SetPoint ("topright", buttonsBackground, "topright", -8, -95)
 		changeColorButton:InstallCustomTexture()
 		

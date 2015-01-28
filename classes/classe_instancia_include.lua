@@ -90,7 +90,7 @@ end
 _detalhes.instance_defaults = {
 
 	--skin
-		skin = "Minimalistic v2",
+		skin = _detalhes.default_skin_to_use,
 	--scale
 		window_scale = 1.0,
 		libwindow = {},

@@ -1348,7 +1348,9 @@ local chart_panel_enable_line = function (f, thisbox)
 		for index, box in ipairs (f.BoxLabels) do
 			if (box.type == type and box.showing and box.enabled) then
 				local data = f.GData [index]
+				
 				f.Graphic:AddDataSeries (data[1], data[2], nil, data[3])
+				
 				if (data[4] > max) then
 					max = data[4]
 				end
@@ -1502,6 +1504,41 @@ local chart_panel_add_overlay = function (self, overlayData, color, name, icon)
 	self.OverlaysAmount = self.OverlaysAmount + 1
 end
 
+local SMA_table = {}
+local SMA_max = 0
+local reset_SMA = function()
+	table.wipe (SMA_table)
+	SMA_max = 0
+end
+
+local calc_SMA
+calc_SMA = function (a, b, ...)
+	if (b) then 
+		return calc_SMA (a + b, ...) 
+	else 
+		return a
+	end 
+end
+
+local do_SMA = function (value, max_value)
+
+	if (#SMA_table == 10) then 
+		tremove (SMA_table, 1)
+	end
+	
+	SMA_table [#SMA_table + 1] = value
+	
+	local new_value = calc_SMA (unpack (SMA_table)) / #SMA_table
+	
+	if (new_value > SMA_max) then
+		SMA_max = new_value
+		return new_value, SMA_max
+	else
+		return new_value
+	end
+	
+end
+
 local chart_panel_add_data = function (self, graphicData, color, name, elapsed_time, lineTexture, smoothLevel, firstIndex)
 
 	local f = self
@@ -1522,10 +1559,30 @@ local chart_panel_add_data = function (self, graphicData, color, name, elapsed_t
 	local _i = 3
 	
 	local graphMaxDps = math.max (self.max_value, max_value)
+	
 	if (not smoothLevel) then
 		while (_i <= #content-2) do 
 			local v = (content[_i-2]+content[_i-1]+content[_i]+content[_i+1]+content[_i+2])/5 --> normalize
 			_data [#_data+1] = {scaleW*(_i-2), v/graphMaxDps} --> x and y coords
+			_i = _i + 1
+		end
+	
+	elseif (smoothLevel == "SHORT") then
+		while (_i <= #content-2) do 
+			local value = (content[_i] + content[_i+1]) / 2
+			_data [#_data+1] = {scaleW*(_i-2), value}
+			_data [#_data+1] = {scaleW*(_i-2), value}
+			_i = _i + 2
+		end
+	
+	elseif (smoothLevel == "SMA") then
+		reset_SMA()
+		while (_i <= #content-2) do 
+			local value, is_new_max_value = do_SMA (content[_i], max_value)
+			if (is_new_max_value) then
+				max_value = is_new_max_value
+			end
+			_data [#_data+1] = {scaleW*(_i-2), value} --> x and y coords
 			_i = _i + 1
 		end
 	
@@ -1582,7 +1639,7 @@ local chart_panel_add_data = function (self, graphicData, color, name, elapsed_t
 		f:SetScale (max_value)
 	end
 	
-	tinsert (f.GData, {_data, color or line_default_color, lineTexture, graphicData.max_value, elapsed_time})
+	tinsert (f.GData, {_data, color or line_default_color, lineTexture, max_value, elapsed_time})
 	if (name) then
 		f:AddLabel (color or line_default_color, name, "graphic", #f.GData)
 	end
@@ -1662,7 +1719,7 @@ local chart_panel_mousedown = function (self, button)
 			self:StartMoving()
 			self.isMoving = true
 		end
-	elseif (button == "RightButton") then
+	elseif (button == "RightButton" and not self.no_right_click_close) then
 		if (not self.isMoving) then
 			self:Hide()
 		end
@@ -1677,6 +1734,16 @@ end
 
 local chart_panel_hide_close_button = function (self)
 	self.CloseButton:Hide()
+end
+
+local chart_panel_right_click_close = function (self, value)
+	if (type (value) == "boolean") then
+		if (value) then
+			self.no_right_click_close = nil
+		else
+			self.no_right_click_close = true
+		end
+	end
 end
 
 function gump:CreateChartPanel (parent, w, h, name)
@@ -1785,6 +1852,7 @@ function gump:CreateChartPanel (parent, w, h, name)
 	f.AddLabel = chart_panel_add_label
 	f.AddOverlay = chart_panel_add_overlay
 	f.HideCloseButton = chart_panel_hide_close_button
+	f.RightClickClose = chart_panel_right_click_close
 	
 	f:SetScript ("OnSizeChanged", chart_panel_onresize)
 	chart_panel_onresize (f)

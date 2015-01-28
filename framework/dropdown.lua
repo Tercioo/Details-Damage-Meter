@@ -258,14 +258,22 @@ local DropDownMetaFunctions = {}
 	function DropDownMetaFunctions:Enable()
 		
 		self:SetAlpha (1)
-		return _rawset (self, "lockdown", false)
+		_rawset (self, "lockdown", false)
+		
+		if (self.OnEnable) then
+			self.OnEnable (self)
+		end
 		--return self.dropdown:Enable()
 	end
 	
 	function DropDownMetaFunctions:Disable()
 	
 		self:SetAlpha (.4)
-		return _rawset (self, "lockdown", true)
+		_rawset (self, "lockdown", true)
+		
+		if (self.OnDisable) then
+			self.OnDisable (self)
+		end
 		--return self.dropdown:Disable()
 	end
 

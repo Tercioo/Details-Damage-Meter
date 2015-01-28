@@ -107,6 +107,7 @@ do
 			}
 		--> armazena instancias inativas
 			_detalhes.unused_instances = {}
+			_detalhes.default_skin_to_use = "Minimalistic"
 			
 			function _detalhes:GetArenaInfo (mapid)
 				local t = _detalhes.arena_info [mapid]
@@ -293,6 +294,8 @@ do
 		SharedMedia:Register ("statusbar", "Details Serenity", [[Interface\AddOns\Details\images\bar_serenity]])
 		SharedMedia:Register ("statusbar", "BantoBar", [[Interface\AddOns\Details\images\BantoBar]])
 		SharedMedia:Register ("statusbar", "Skyline", [[Interface\AddOns\Details\images\bar_skyline]])
+		
+		SharedMedia:Register ("statusbar", "DGround", [[Interface\AddOns\Details\images\bar_background]])
 		--window bg and bar border
 		SharedMedia:Register ("background", "Details Ground", [[Interface\AddOns\Details\images\background]])
 		SharedMedia:Register ("border", "Details BarBorder 1", [[Interface\AddOns\Details\images\border_1]])

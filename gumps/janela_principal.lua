@@ -5374,7 +5374,7 @@ function _detalhes:ChangeSkin (skin_name)
 	local this_skin = _detalhes.skins [skin_name]
 
 	if (not this_skin) then
-		skin_name = "Minimalistic v2"
+		skin_name = _detalhes.default_skin_to_use
 		this_skin = _detalhes.skins [skin_name]
 	end
 	

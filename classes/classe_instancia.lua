@@ -1261,7 +1261,7 @@ end
 		new_instance:ShowSideBars()
 
 		new_instance.skin = "no skin"
-		new_instance:ChangeSkin ("Minimalistic v2")
+		new_instance:ChangeSkin (_detalhes.default_skin_to_use)
 		
 		--> apply standard skin if have one saved
 		--[[
