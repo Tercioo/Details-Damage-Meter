@@ -66,168 +66,180 @@ local _
 		micro_frames = {left = "DETAILS_STATUSBAR_PLUGIN_THREAT"},
 		
 		instance_cprops = {
-			["hide_in_combat_type"] = 1,
+			["menu_icons_size"] = 1,
 			["color"] = {
-				1,
-				1,
-				1,
-				1,
+				1, -- [1]
+				1, -- [2]
+				1, -- [3]
+				1, -- [4]
 			},
 			["menu_anchor"] = {
-				13,
-				2,
+				13, -- [1]
+				2, -- [2]
 				["side"] = 2,
 			},
 			["bg_r"] = 0.0941,
 			["color_buttons"] = {
-				1,
-				1,
-				1,
-				1,
+				1, -- [1]
+				1, -- [2]
+				1, -- [3]
+				1, -- [4]
 			},
 			["bars_sort_direction"] = 1,
 			["attribute_text"] = {
 				["enabled"] = true,
 				["shadow"] = false,
 				["side"] = 1,
-				["text_size"] = 10,
-				["anchor"] = {
-					5,
-					3,
-				},
 				["text_color"] = {
-					0.823529411764706,
-					0.549019607843137,
-					0,
-					1,
+					0.823529411764706, -- [1]
+					0.549019607843137, -- [2]
+					0, -- [3]
+					1, -- [4]
 				},
+				["custom_text"] = "{name}",
 				["text_face"] = "Friz Quadrata TT",
-			},
-			["menu_alpha"] = {
-				["enabled"] = false,
-				["onenter"] = 1,
-				["iconstoo"] = true,
-				["ignorebars"] = false,
-				["onleave"] = 1,
-			},
-			["total_bar"] = {
-				["enabled"] = false,
-				["only_in_group"] = true,
-				["icon"] = "Interface\\ICONS\\INV_Sigil_Thorim",
-				["color"] = {
-					1,
-					1,
-					1,
+				["anchor"] = {
+					6, -- [1]
+					3, -- [2]
 				},
+				["text_size"] = 10,
+				["enable_custom_text"] = false,
 			},
-			["hide_out_of_combat"] = false,
-			["strata"] = "LOW",
 			["micro_displays_side"] = 2,
-			["row_show_animation"] = {
-				["anim"] = "Fade",
-				["options"] = {
-				},
-			},
-			["hide_in_combat_alpha"] = 0,
-			["plugins_grow_direction"] = 1,
-			["menu_icons"] = {
-				true,
-				true,
-				true,
-				true,
-				true, -- [5]
-				true, -- [6]
-			},
-			["desaturated_menu"] = false,
-			["show_sidebars"] = true,
-			["statusbar_info"] = {
-				["alpha"] = 1,
-				["overlay"] = {
-					1,
-					1,
-					1,
-				},
-			},
-			["window_scale"] = 1,
 			["auto_hide_menu"] = {
 				["left"] = false,
 				["right"] = false,
 			},
-			["grab_on_top"] = false,
-			["hide_icon"] = false,
-			["row_info"] = {
-				["textR_outline"] = false,
-				["textL_outline"] = true,
-				["icon_file"] = "Interface\\AddOns\\Details\\images\\classes_small",
-				["fixed_texture_color"] = {
-					0,
-					0,
-					0,
-				},
-				["texture_background_file"] = "Interface\\AddOns\\Details\\images\\bar4",
-				["texture_highlight"] = "Interface\\FriendsFrame\\UI-FriendsList-Highlight",
-				["textR_enable_custom_text"] = false,
-				["texture_background_class_color"] = false,
-				["textL_enable_custom_text"] = false,
-				["textL_show_number"] = true,
-				["space"] = {
-					["right"] = -5,
-					["left"] = 3,
-					["between"] = 2,
-				},
-				["fixed_texture_background_color"] = {
-					0.619607,
-					0.619607,
-					0.619607,
-					0.116164,
-				},
-				["textR_custom_text"] = "{data1} ({data2}, {data3}%)",
-				["start_after_icon"] = true,
-				["font_face_file"] = "Fonts\\ARIALN.TTF",
-				["fixed_text_color"] = {
-					1,
-					1,
-					1,
-				},
-				["backdrop"] = {
-					["enabled"] = false,
-					["size"] = 6,
-					["color"] = {
-						0,
-						0,
-						0,
-						0.305214,
-					},
-					["texture"] = "Details BarBorder 2",
-				},
-				["textL_class_colors"] = false,
-				["textL_custom_text"] = "{data1}. {data3}{data2}",
-				["textR_class_colors"] = false,
-				["alpha"] = 1,
-				["no_icon"] = false,
-				["font_size"] = 10,
-				["texture_background"] = "Details Serenity",
-				["font_face"] = "Arial Narrow",
-				["texture_class_colors"] = true,
-				["height"] = 14,
-				["texture_file"] = "Interface\\AddOns\\Details\\images\\bar4",
-				["texture"] = "Details Serenity",
-				["percent_type"] = 1,
+			["desaturated_menu"] = false,
+			["plugins_grow_direction"] = 1,
+			["menu_icons"] = {
+				true, -- [1]
+				true, -- [2]
+				true, -- [3]
+				true, -- [4]
+				true, -- [5]
+				false, -- [6]
+				["space"] = -4,
+				["shadow"] = true,
 			},
+			["show_sidebars"] = true,
 			["menu_anchor_down"] = {
+				-14, -- [1]
+				-3, -- [2]
 				["side"] = 2,
-				-14,
-				-3,
+			},
+			["backdrop_texture"] = "Details Ground",
+			["statusbar_info"] = {
+				["alpha"] = 1,
+				["overlay"] = {
+					1, -- [1]
+					1, -- [2]
+					1, -- [3]
+				},
 			},
 			["toolbar_side"] = 1,
 			["bg_g"] = 0.0941,
 			["bars_grow_direction"] = 1,
-			["hide_in_combat"] = false,
-			["backdrop_texture"] = "Details Ground",
+			["row_info"] = {
+				["textR_outline"] = false,
+				["spec_file"] = "Interface\\AddOns\\Details\\images\\spec_icons_normal",
+				["textL_outline"] = true,
+				["texture_highlight"] = "Interface\\FriendsFrame\\UI-FriendsList-Highlight",
+				["textR_show_data"] = {
+					true, -- [1]
+					true, -- [2]
+					true, -- [3]
+				},
+				["textL_enable_custom_text"] = false,
+				["fixed_text_color"] = {
+					1, -- [1]
+					1, -- [2]
+					1, -- [3]
+				},
+				["space"] = {
+					["right"] = -5,
+					["left"] = 3,
+					["between"] = 1,
+				},
+				["texture_background_class_color"] = false,
+				["start_after_icon"] = true,
+				["font_face_file"] = "Fonts\\ARIALN.TTF",
+				["textL_custom_text"] = "{data1}. {data3}{data2}",
+				["font_size"] = 10,
+				["height"] = 14,
+				["texture_file"] = "Interface\\AddOns\\Details\\images\\bar4",
+				["icon_file"] = "Interface\\AddOns\\Details\\images\\classes_small",
+				["textR_bracket"] = "(",
+				["textR_enable_custom_text"] = false,
+				["fixed_texture_color"] = {
+					0, -- [1]
+					0, -- [2]
+					0, -- [3]
+				},
+				["textL_show_number"] = true,
+				["textR_custom_text"] = "{data1} ({data2}, {data3}%)",
+				["texture"] = "Details Serenity",
+				["models"] = {
+					["upper_model"] = "Spells\\AcidBreath_SuperGreen.M2",
+					["lower_model"] = "World\\EXPANSION02\\DOODADS\\Coldarra\\COLDARRALOCUS.m2",
+					["upper_alpha"] = 0.5,
+					["lower_enabled"] = false,
+					["lower_alpha"] = 0.1,
+					["upper_enabled"] = false,
+				},
+				["texture_background_file"] = "Interface\\AddOns\\Details\\images\\bar_background",
+				["texture_background"] = "DGround",
+				["use_spec_icons"] = true,
+				["textR_class_colors"] = false,
+				["alpha"] = 1,
+				["no_icon"] = false,
+				["percent_type"] = 1,
+				["fixed_texture_background_color"] = {
+					0.619607, -- [1]
+					0.619607, -- [2]
+					0.619607, -- [3]
+					0.116164, -- [4]
+				},
+				["font_face"] = "Arial Narrow",
+				["texture_class_colors"] = true,
+				["backdrop"] = {
+					["enabled"] = false,
+					["texture"] = "Details BarBorder 2",
+					["color"] = {
+						0, -- [1]
+						0, -- [2]
+						0, -- [3]
+						0.305214, -- [4]
+					},
+					["size"] = 6,
+				},
+				["fast_ps_update"] = false,
+				["textR_separator"] = ",",
+				["textL_class_colors"] = false,
+			},
 			["show_statusbar"] = true,
-			["menu_icons_size"] = 1,
-			["stretch_button_side"] = 1,
 			["bg_alpha"] = 0.699999988079071,
+			["wallpaper"] = {
+				["enabled"] = false,
+				["texcoord"] = {
+					0, -- [1]
+					1, -- [2]
+					0, -- [3]
+					1, -- [4]
+				},
+				["overlay"] = {
+					1, -- [1]
+					1, -- [2]
+					1, -- [3]
+					1, -- [4]
+				},
+				["anchor"] = "all",
+				["height"] = 0,
+				["alpha"] = 0.5,
+				["width"] = 0,
+			},
+			["stretch_button_side"] = 1,
+			["hide_icon"] = false,
 			["bg_b"] = 0.0941,
 		},
 		
@@ -472,29 +484,178 @@ local _
 		
 		--overwrites
 		instance_cprops = {
-			hide_icon = true,
-			
-			menu_icons_size = 0.90,
-			menu_anchor = {16, 2, side = 2},
-			menu_anchor_down = {16, -2},
-			
-			plugins_grow_direction = 1,
-			
-			show_sidebars = false,
-			show_statusbar = false,
-			color = {0.3058, 0.3058, 0.3058, 0.8838}, --0.9350
-			bg_alpha = 0.3181, --0.4399
-			
-			row_info = {
-				texture = "BantoBar", --"Details Serenity"
-				font_face = "Arial Narrow",
-				texture_background_class_color = false,
-				texture_background = "Details Serenity",
-				fixed_texture_background_color = {0, 0, 0, 0.3186},
-				icon_file = [[Interface\AddOns\Details\images\classes_small_alpha]],
-				start_after_icon = false,
+			["color"] = {
+				0.3058, -- [1]
+				0.3058, -- [2]
+				0.3058, -- [3]
+				0.8838, -- [4]
 			},
-			attribute_text = {enabled = true, side = 1, text_size = 11, anchor = {-18, 5}, text_color = {1, 1, 1, 1}, text_face = "Arial Narrow"},			
+			["menu_anchor"] = {
+				16, -- [1]
+				2, -- [2]
+				["side"] = 2,
+			},
+			["bg_r"] = 0.0941,
+			["color_buttons"] = {
+				1, -- [1]
+				1, -- [2]
+				1, -- [3]
+				1, -- [4]
+			},
+			["backdrop_texture"] = "Details Ground",
+			["row_info"] = {
+				["textR_outline"] = false,
+				["spec_file"] = "Interface\\AddOns\\Details\\images\\spec_icons_normal",
+				["textL_outline"] = false,
+				["texture_highlight"] = "Interface\\FriendsFrame\\UI-FriendsList-Highlight",
+				["textR_show_data"] = {
+					true, -- [1]
+					true, -- [2]
+					true, -- [3]
+				},
+				["textL_enable_custom_text"] = false,
+				["fixed_text_color"] = {
+					1, -- [1]
+					1, -- [2]
+					1, -- [3]
+				},
+				["space"] = {
+					["right"] = 0,
+					["left"] = 0,
+					["between"] = 1,
+				},
+				["texture_background_class_color"] = false,
+				["start_after_icon"] = false,
+				["font_face_file"] = "Fonts\\ARIALN.TTF",
+				["textL_custom_text"] = "{data1}. {data3}{data2}",
+				["font_size"] = 10,
+				["height"] = 14,
+				["texture_file"] = "Interface\\AddOns\\Details\\images\\bar_serenity",
+				["icon_file"] = "Interface\\AddOns\\Details\\images\\classes_small_alpha",
+				["textR_bracket"] = "(",
+				["textR_enable_custom_text"] = false,
+				["fixed_texture_color"] = {
+					0, -- [1]
+					0, -- [2]
+					0, -- [3]
+				},
+				["textL_show_number"] = true,
+				["textR_custom_text"] = "{data1} ({data2}, {data3}%)",
+				["texture"] = "Details Serenity",
+				["models"] = {
+					["upper_model"] = "Spells\\AcidBreath_SuperGreen.M2",
+					["lower_model"] = "World\\EXPANSION02\\DOODADS\\Coldarra\\COLDARRALOCUS.m2",
+					["upper_alpha"] = 0.5,
+					["lower_enabled"] = false,
+					["lower_alpha"] = 0.1,
+					["upper_enabled"] = false,
+				},
+				["texture_background_file"] = "Interface\\AddOns\\Details\\images\\bar_background",
+				["texture_background"] = "DGround",
+				["use_spec_icons"] = true,
+				["textR_class_colors"] = false,
+				["alpha"] = 1,
+				["no_icon"] = false,
+				["percent_type"] = 1,
+				["fixed_texture_background_color"] = {
+					0, -- [1]
+					0, -- [2]
+					0, -- [3]
+					0.319999992847443, -- [4]
+				},
+				["font_face"] = "Arial Narrow",
+				["texture_class_colors"] = true,
+				["backdrop"] = {
+					["enabled"] = false,
+					["texture"] = "Details BarBorder 2",
+					["color"] = {
+						1, -- [1]
+						1, -- [2]
+						1, -- [3]
+						1, -- [4]
+					},
+					["size"] = 12,
+				},
+				["fast_ps_update"] = false,
+				["textR_separator"] = ",",
+				["textL_class_colors"] = false,
+			},
+			["micro_displays_side"] = 2,
+			["strata"] = "LOW",
+			["bg_alpha"] = 0.3181,
+			["plugins_grow_direction"] = 1,
+			["menu_icons"] = {
+				true, -- [1]
+				true, -- [2]
+				true, -- [3]
+				true, -- [4]
+				true, -- [5]
+				false, -- [6]
+				["space"] = -4,
+				["shadow"] = false,
+			},
+			["desaturated_menu"] = false,
+			["show_sidebars"] = false,
+			["menu_anchor_down"] = {
+				16, -- [1]
+				-2, -- [2]
+			},
+			["statusbar_info"] = {
+				["alpha"] = 1,
+				["overlay"] = {
+					1, -- [1]
+					1, -- [2]
+					1, -- [3]
+				},
+			},
+			["hide_icon"] = true,
+			["toolbar_side"] = 1,
+			["bg_g"] = 0.0941,
+			["show_statusbar"] = false,
+			["menu_icons_size"] = 0.899999976158142,
+			["wallpaper"] = {
+				["enabled"] = false,
+				["texcoord"] = {
+					0, -- [1]
+					1, -- [2]
+					0, -- [3]
+					1, -- [4]
+				},
+				["overlay"] = {
+					1, -- [1]
+					1, -- [2]
+					1, -- [3]
+					1, -- [4]
+				},
+				["anchor"] = "all",
+				["height"] = 0,
+				["alpha"] = 0.5,
+				["width"] = 0,
+			},
+			["auto_hide_menu"] = {
+				["left"] = false,
+				["right"] = false,
+			},
+			["attribute_text"] = {
+				["enabled"] = true,
+				["shadow"] = false,
+				["side"] = 1,
+				["text_color"] = {
+					1, -- [1]
+					1, -- [2]
+					1, -- [3]
+					1, -- [4]
+				},
+				["custom_text"] = "{name}",
+				["text_face"] = "Arial Narrow",
+				["anchor"] = {
+					-18, -- [1]
+					5, -- [2]
+				},
+				["text_size"] = 11,
+				["enable_custom_text"] = false,
+			},
+			["bg_b"] = 0.0941,
 		},
 		
 		callback = function (skin, instance, just_updating)
@@ -1207,48 +1368,195 @@ local _
 		--[[ when a skin is selected, all customized properties of the window is reseted and then the overwrites are applied]]
 		--[[ for the complete cprop list see the file classe_instancia_include.lua]]
 		instance_cprops = {
-
-			menu_icons_size = 0.90,
-			menu_anchor = {16, 2, side = 2},
-			menu_anchor_down = {16, -2},
-			plugins_grow_direction = 1,
-			menu_icons = {shadow = true},
-			
-			attribute_text = {enabled = true, anchor = {-20, 5}, text_face = "Accidental Presidency", text_size = 12, text_color = {1, 1, 1, .7}, side = 1, shadow = true},
-			
-			hide_icon = true,
-			desaturated_menu = false,
-			
-			bg_alpha = 0.51,
-			bg_r = 0.3294,
-			bg_g = 0.3294,
-			bg_b = 0.3294,
-			show_statusbar = false,
-			
-			row_info = {
-					texture = "Skyline",
-					texture_class_colors = true, 
-					alpha = 0.80, 
-					texture_background_class_color = false,
-					texture_background = "Details D'ictum",
-					fixed_texture_color = {0, 0, 0},
-					fixed_texture_background_color = {0, 0, 0, 0.471},
-					space = {left = 1, right = -2, between = 0},
-					backdrop = {enabled = true, size = 4, color = {0, 0, 0, 1}, texture = "Details BarBorder 2"},
-					icon_file = [[Interface\AddOns\Details\images\classes_small_alpha]],
-					start_after_icon = false,
+			["menu_icons_size"] = 0.899999976158142,
+			["color"] = {
+				1, -- [1]
+				1, -- [2]
+				1, -- [3]
+				1, -- [4]
 			},
-
-			wallpaper = {
-				overlay = {1, 1,	1},
-				width = 256,
-				texcoord = {49/1024, 305/1024, 774/1024, 646/1024},
-				enabled = true,
-				anchor = "all",
-				height = 128,
-				alpha = 0.8,
-				texture = [[Interface\AddOns\Details\images\skins\elvui]],
-			}
+			["menu_anchor"] = {
+				16, -- [1]
+				2, -- [2]
+				["side"] = 2,
+			},
+			["bg_r"] = 0.3294,
+			["skin"] = "ElvUI Frame Style",
+			["following"] = {
+				["bar_color"] = {
+					1, -- [1]
+					1, -- [2]
+					1, -- [3]
+				},
+				["enabled"] = true,
+				["text_color"] = {
+					1, -- [1]
+					1, -- [2]
+					1, -- [3]
+				},
+			},
+			["color_buttons"] = {
+				1, -- [1]
+				1, -- [2]
+				1, -- [3]
+				1, -- [4]
+			},
+			["bars_sort_direction"] = 1,
+			["attribute_text"] = {
+				["enabled"] = true,
+				["shadow"] = true,
+				["side"] = 1,
+				["text_size"] = 12,
+				["custom_text"] = "{name}",
+				["text_face"] = "FORCED SQUARE",
+				["anchor"] = {
+					-19, -- [1]
+					6, -- [2]
+				},
+				["text_color"] = {
+					1, -- [1]
+					1, -- [2]
+					1, -- [3]
+					0.7, -- [4]
+				},
+				["enable_custom_text"] = false,
+			},
+			["row_info"] = {
+				["textR_outline"] = false,
+				["spec_file"] = "Interface\\AddOns\\Details\\images\\spec_icons_normal_alpha",
+				["textL_outline"] = false,
+				["texture_highlight"] = "Interface\\FriendsFrame\\UI-FriendsList-Highlight",
+				["textR_show_data"] = {
+					true, -- [1]
+					true, -- [2]
+					true, -- [3]
+				},
+				["textL_enable_custom_text"] = false,
+				["fixed_text_color"] = {
+					1, -- [1]
+					1, -- [2]
+					1, -- [3]
+				},
+				["space"] = {
+					["right"] = -2,
+					["left"] = 1,
+					["between"] = 1,
+				},
+				["texture_background_class_color"] = false,
+				["start_after_icon"] = false,
+				["font_face_file"] = "Interface\\Addons\\Details\\fonts\\FORCED SQUARE.ttf",
+				["textL_custom_text"] = "{data1}. {data3}{data2}",
+				["font_size"] = 10,
+				["height"] = 14,
+				["texture_file"] = "Interface\\AddOns\\Details\\images\\bar4",
+				["icon_file"] = "Interface\\AddOns\\Details\\images\\classes_small_alpha",
+				["textR_bracket"] = "(",
+				["textR_enable_custom_text"] = false,
+				["fixed_texture_color"] = {
+					0, -- [1]
+					0, -- [2]
+					0, -- [3]
+				},
+				["textL_show_number"] = true,
+				["textR_custom_text"] = "{data1} ({data2}, {data3}%)",
+				["texture"] = "Skyline",
+				["use_spec_icons"] = true,
+				["textR_class_colors"] = false,
+				["textL_class_colors"] = false,
+				["texture_background_file"] = "Interface\\AddOns\\Details\\images\\bar_background",
+				["texture_background"] = "DGround",
+				["alpha"] = 0.8,
+				["no_icon"] = false,
+				["percent_type"] = 1,
+				["fixed_texture_background_color"] = {
+					0, -- [1]
+					0, -- [2]
+					0, -- [3]
+					0.339636147022247, -- [4]
+				},
+				["font_face"] = "FORCED SQUARE",
+				["texture_class_colors"] = true,
+				["models"] = {
+					["upper_model"] = "Spells\\AcidBreath_SuperGreen.M2",
+					["lower_model"] = "World\\EXPANSION02\\DOODADS\\Coldarra\\COLDARRALOCUS.m2",
+					["upper_alpha"] = 0.5,
+					["lower_enabled"] = false,
+					["lower_alpha"] = 0.1,
+					["upper_enabled"] = false,
+				},
+				["fast_ps_update"] = false,
+				["textR_separator"] = ",",
+				["backdrop"] = {
+					["enabled"] = false,
+					["size"] = 4,
+					["color"] = {
+						0, -- [1]
+						0, -- [2]
+						0, -- [3]
+						1, -- [4]
+					},
+					["texture"] = "Details BarBorder 2",
+				},
+			},
+			["auto_hide_menu"] = {
+				["left"] = false,
+				["right"] = false,
+			},
+			["desaturated_menu"] = false,
+			["plugins_grow_direction"] = 1,
+			["menu_icons"] = {
+				true, -- [1]
+				true, -- [2]
+				true, -- [3]
+				true, -- [4]
+				true, -- [5]
+				false, -- [6]
+				["space"] = -4,
+				["shadow"] = true,
+			},
+			["show_sidebars"] = true,
+			["bars_grow_direction"] = 1,
+			["menu_anchor_down"] = {
+				16, -- [1]
+				-2, -- [2]
+			},
+			["backdrop_texture"] = "Details Ground",
+			["statusbar_info"] = {
+				["alpha"] = 1,
+				["overlay"] = {
+					1, -- [1]
+					1, -- [2]
+					1, -- [3]
+				},
+			},
+			["toolbar_side"] = 1,
+			["bg_g"] = 0.3294,
+			["micro_displays_side"] = 2,
+			["bg_alpha"] = 0.51,
+			["show_statusbar"] = false,
+			["wallpaper"] = {
+				["enabled"] = true,
+				["texture"] = "Interface\\AddOns\\Details\\images\\skins\\elvui",
+				["texcoord"] = {
+					0.0480000019073486, -- [1]
+					0.298000011444092, -- [2]
+					0.630999984741211, -- [3]
+					0.755999984741211, -- [4]
+				},
+				["overlay"] = {
+					0.999997794628143, -- [1]
+					0.999997794628143, -- [2]
+					0.999997794628143, -- [3]
+					0.799998223781586, -- [4]
+				},
+				["anchor"] = "all",
+				["height"] = 225.999984741211,
+				["alpha"] = 0.800000071525574,
+				["width"] = 266.000061035156,
+			},
+			["stretch_button_side"] = 1,
+			["hide_icon"] = true,
+			["bg_b"] = 0.3294,
 		},
 		
 		skin_options = {
@@ -1263,7 +1571,7 @@ local _
 		author = "Details!", 
 		version = "1.0", 
 		site = "unknown", 
-		desc = "This skin is based on ElvUI's addons, with an opaque title bar.", 
+		desc = "based on AddonSkins for ElvUI, this skin has opaque title bar and background.", 
 		
 		--general
 		can_change_alpha_head = true, 

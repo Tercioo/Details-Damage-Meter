@@ -2404,20 +2404,76 @@
 	
 	function _detalhes:CreateTestBars()
 		local current_combat = _detalhes:GetCombat ("current")
+		local pclass = select (2, UnitClass ("player"))
 		
-		local actors_name = {"Ragnaros", "The Lich King", "Your Neighbor", "Your Raid Leader", "Huffer", "Your Internet Girlfriend", "Mr. President", "Parry Hotter", "Your Math Teacher", "King Djoffrey", UnitName ("player") .. " Snow", "A Drunk Dawrf", "Low Dps Guy", "Helvis Phresley", "Stormwind Guard", "A PvP Player", "Bolvar Fordragon","Malygos","Akama","Anachronos","Lady Blaumeux","Cairne Bloodhoof","Borivar","C'Thun","Drek'Thar","Durotan","Eonar","Footman Malakai","Bolvar Fordragon","Fritz Fizzlesprocket","Lisa Gallywix","M'uru","Priestess MacDonnell","Nazgrel","Ner'zhul","Saria Nightwatcher","Chief Ogg'ora","Ogoun","Grimm Onearm","Apothecary Oni'jus","Orman of Stromgarde","General Rajaxx","Baron Rivendare","Roland","Archmage Trelane","Liam Trollbane"}
+		local actors_name = {
+				{"Ragnaros", "MAGE", 63},
+				{"The Lich King", "DEATHKNIGHT", }, 
+				{"Your Neighbor", "SHAMAN", }, 
+				{"Your Raid Leader", "MONK", }, 
+				{"Huffer", "HUNTER", }, 
+				{"Your Internet Girlfriend", "SHAMAN", }, 
+				{"Mr. President", "WARRIOR", }, 
+				{"Antonidas", "MAGE"}, 
+				{"Your Math Teacher", "SHAMAN", }, 
+				{"King Djoffrey", "PALADIN", }, 
+				{UnitName ("player") .. " Snow", pclass, }, 
+				{"A Drunk Dawrf", "MONK", },
+				{"Low Dps Guy", "MONK", }, 
+				{"Helvis Phresley", "DEATHKNIGHT", }, 
+				{"Stormwind Guard", "WARRIOR", }, 
+				{"A PvP Player", "ROGUE", }, 
+				{"Bolvar Fordragon", "PALADIN", },
+				{"Malygos", "MAGE", },
+				{"Akama", "ROGUE", },
+				{"Nozdormu", "MAGE", },
+				{"Lady Blaumeux", "DEATHKNIGHT", },
+				{"Cairne Bloodhoof", "WARRIOR", },
+				{"Borivar", "ROGUE", },
+				{"C'Thun", "WARLOCK", },
+				{"Drek'Thar", "DEATHKNIGHT", },
+				{"Durotan", "WARRIOR", },
+				{"Eonar", "DRUID", },
+				{"Malfurion Stormrage", "DRUID", },
+				{"Footman Malakai", "WARRIOR", },
+				{"Bolvar Fordragon", "PALADIN", },
+				{"Fritz Fizzlesprocket", "HUNTER", },
+				{"Lisa Gallywix", "ROGUE", },
+				{"M'uru", "WARLOCK", },
+				{"Priestess MacDonnell", "PRIEST", },
+				{"Elune", "PRIEST", },
+				{"Nazgrel", "WARRIOR", },
+				{"Ner'zhul", "WARLOCK", },
+				{"Saria Nightwatcher", "PALADIN", },
+				{"Kael'thas Sunstrider", "MAGE", 63},
+				{"Velen", "PRIEST"},
+				{"Tyrande Whisperwind", "PRIEST", 257},
+				{"Sargeras", "WARLOCK", 267},
+				{"Arthas", "PALADIN", },
+				{"Orman of Stromgarde", "WARRIOR", },
+				{"General Rajaxx", "WARRIOR", },
+				{"Baron Rivendare", "DEATHKNIGHT", },
+				{"Roland", "MAGE", },
+				{"Archmage Trelane", "MAGE", },
+				{"Lilian Voss", "ROGUE", },
+			}
 		local actors_classes = CLASS_SORT_ORDER
 		
 		local total_damage = 0
 		local total_heal = 0
 		
 		for i = 1, 10 do
-			local robot = current_combat[1]:PegarCombatente (0x0000000000000, actors_name [math.random (1, #actors_name)], 0x114, true)
+		
+			local who = actors_name [math.random (1, #actors_name)]
+		
+			local robot = current_combat[1]:PegarCombatente (0x0000000000000, who[1], 0x114, true)
 			robot.grupo = true
 			
-			robot.classe = actors_classes [math.random (1, #actors_classes)]
+			robot.classe = who [2]
 			
-			if (robot.classe == "DEATHKNIGHT") then
+			if (who[3]) then
+				robot.spec = who[3]
+			elseif (robot.classe == "DEATHKNIGHT") then
 				local specs = {250, 251, 252}
 				robot.spec = specs [math.random (1, #specs)]
 			elseif (robot.classe == "DRUID") then
@@ -2472,11 +2528,14 @@
 				robot.spells._ActorTable [56488].total = robot.total
 			end
 			
-			local robot = current_combat[2]:PegarCombatente (0x0000000000000, actors_name [math.random (1, #actors_name)], 0x114, true)
+			local who = actors_name [math.random (1, #actors_name)]
+			local robot = current_combat[2]:PegarCombatente (0x0000000000000, who[1], 0x114, true)
 			robot.grupo = true
-			robot.classe = actors_classes [math.random (1, #actors_classes)]
+			robot.classe = who[2]
 			
-			if (robot.classe == "DEATHKNIGHT") then
+			if (who[3]) then
+				robot.spec = who[3]
+			elseif (robot.classe == "DEATHKNIGHT") then
 				local specs = {250, 251, 252}
 				robot.spec = specs [math.random (1, #specs)]
 			elseif (robot.classe == "DRUID") then

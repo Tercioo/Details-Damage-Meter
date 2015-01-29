@@ -43,7 +43,7 @@ do
 	frame.topbg:SetPoint ("bottomright", frame, "topright")
 	frame.topbg:SetHeight (20)
 	frame.topbg:SetDesaturated (true)
-	frame.topbg:SetVertexColor (.3, .3, .3, 0.8)
+	frame.topbg:SetVertexColor (.3, .3, .3, 1)
 	
 	frame.topbg_frame = CreateFrame ("frame", nil, frame)
 	frame.topbg_frame:SetPoint ("bottomleft", frame, "topleft")
@@ -66,6 +66,94 @@ do
 	frame.title_label:SetPoint ("left", frame.star, "right", 4, -1)
 	frame.title_label:SetText ("Bookmark")
 
+---------------------------------------------------------------------------------------------------------------------------
+
+	frame.editing_window = nil
+	local windowcolor_callback = function (button, r, g, b, a)
+		local instance = frame.editing_window
+	
+		if (instance.menu_alpha.enabled and a ~= instance.color[4]) then
+			_detalhes:Msg (Loc ["STRING_OPTIONS_MENU_ALPHAWARNING"])
+			instance:InstanceColor (r, g, b, instance.menu_alpha.onleave, nil, true)
+			
+			if (_detalhes.options_group_edit) then
+				for _, this_instance in ipairs (instance:GetInstanceGroup()) do
+					if (this_instance ~= instance) then
+						this_instance:InstanceColor (r, g, b, instance.menu_alpha.onleave, nil, true)
+					end
+				end
+			end
+			
+			return
+		end
+		
+		instance:InstanceColor (r, g, b, a, nil, true)
+		if (_detalhes.options_group_edit) then
+			for _, this_instance in ipairs (instance:GetInstanceGroup()) do
+				if (this_instance ~= instance) then
+					this_instance:InstanceColor (r, g, b, a, nil, true)
+				end
+			end
+		end
+	end
+	
+	local change_color = function()
+		frame.editing_window = _detalhes.switch.current_instancia
+		local r, g, b, a = unpack (frame.editing_window.color)
+		_detalhes.gump:ColorPick (frame, r, g, b, a, windowcolor_callback)
+		_detalhes.switch:CloseMe()
+	end
+	
+	local window_color = gump:CreateButton (frame.topbg_frame, change_color, 14, 14)
+	window_color:SetPoint ("bottomright", frame, "topright", -3, 2)
+	
+	local window_color_texture = gump:CreateImage (window_color, [[Interface\AddOns\Details\images\icons]], 14, 14, "artwork", {434/512, 466/512, 277/512, 307/512})
+	window_color_texture:SetAlpha (0.25)
+	window_color_texture:SetAllPoints()
+	
+	window_color:SetHook ("OnEnter", function()
+		window_color_texture:SetAlpha (1)
+		GameCooltip:Reset()
+		_detalhes:CooltipPreset (1)
+		GameCooltip:AddLine (Loc ["STRING_OPTIONS_INSTANCE_COLOR"])
+		GameCooltip:SetOwner (window_color.widget)
+		GameCooltip:SetType ("tooltip")
+		GameCooltip:Show()
+	end)
+	window_color:SetHook ("OnLeave", function()
+		window_color_texture:SetAlpha (0.25)
+		GameCooltip:Hide()
+	end)
+	
+---------------------------------------------------------------------------------------------------------------------------
+
+	local open_options = function()
+		_detalhes:OpenOptionsWindow (_detalhes.switch.current_instancia)
+		_detalhes.switch:CloseMe()
+	end
+	local options_button = gump:CreateButton (frame.topbg_frame, open_options, 14, 14, open_options)
+	options_button:SetPoint ("right", window_color, "left", -2, 0)
+	
+	local options_button_texture = gump:CreateImage (options_button, [[Interface\AddOns\Details\images\modo_icones]], 14, 14, "artwork", {0.5, 0.625, 0, 1})
+	options_button_texture:SetAlpha (0.25)
+	options_button_texture:SetAllPoints()
+	
+	options_button:SetHook ("OnEnter", function()
+		options_button_texture:SetAlpha (1)
+		GameCooltip:Reset()
+		_detalhes:CooltipPreset (1)
+		GameCooltip:AddLine (Loc ["STRING_INTERFACE_OPENOPTIONS"])
+		GameCooltip:SetOwner (window_color.widget)
+		GameCooltip:SetType ("tooltip")
+		GameCooltip:Show()
+	end)
+	options_button:SetHook ("OnLeave", function()
+		options_button_texture:SetAlpha (0.25)
+		GameCooltip:Hide()
+	end)
+	
+---------------------------------------------------------------------------------------------------------------------------
+	
 	function _detalhes.switch:CloseMe()
 		_detalhes.switch.frame:Hide()
 		GameCooltip:Hide()
@@ -373,6 +461,16 @@ function _detalhes.switch:ShowMe (instancia)
 	local altura = instancia.baseframe:GetHeight()
 	local mostrar_quantas = _math_floor (altura / _detalhes.switch.button_height) * 2
 	
+	local precisa_mostrar = 0
+	for i = 1, #_detalhes.switch.table do
+		local slot = _detalhes.switch.table [i]
+		if (slot.atributo) then
+			precisa_mostrar = precisa_mostrar + 1
+		else
+			break
+		end
+	end
+	
 	if (_detalhes.switch.mostrar_quantas ~= mostrar_quantas) then 
 		for i = 1, #_detalhes.switch.buttons do
 			if (i <= mostrar_quantas) then 
@@ -389,7 +487,7 @@ function _detalhes.switch:ShowMe (instancia)
 		_detalhes.switch.mostrar_quantas = mostrar_quantas
 	end
 	
-	_detalhes.switch:Resize()
+	_detalhes.switch:Resize (precisa_mostrar)
 	_detalhes.switch:Update()
 	
 	_detalhes.switch.frame:SetScale (instancia.window_scale)
@@ -438,7 +536,7 @@ function _detalhes.switch:ShowMe (instancia)
 		SwitchPanelTutorial.close_label:SetWidth (_detalhes.switch.frame:GetWidth()-30)
 	end
 	
-	_detalhes.switch:Resize()
+	_detalhes.switch:Resize (precisa_mostrar)
 	--instancia:StatusBarAlert (right_click_text, right_click_texture) --icon, color, time
 end
 
@@ -660,15 +758,23 @@ function _detalhes.switch:Update()
 	
 end
 
-function _detalhes.switch:Resize()
+function _detalhes.switch:Resize (precisa_mostrar)
 
 	local x = 7
 	local y = 5
+	local y_increment = 20
 	
 	local window_width, window_height = _detalhes.switch.current_instancia:GetSize()
 	
 	local horizontal_amt = floor (math.max (window_width / 100, 2))
-	local vertical_amt = floor ((window_height - y) / 20)
+	local vertical_amt = floor ((window_height - y) / y_increment)
+	
+	local total_amt = horizontal_amt * vertical_amt
+	if (precisa_mostrar > total_amt) then
+		vertical_amt = floor ((window_height - y) / 15)
+		y_increment = 15
+	end
+	
 	local size = window_width / horizontal_amt
 	
 	local frame = _detalhes.switch.frame
@@ -712,7 +818,7 @@ function _detalhes.switch:Resize()
 				break
 			end
 		end
-		y = y + 20
+		y = y + y_increment
 	end
 	
 	_detalhes.switch.slots = i-1
