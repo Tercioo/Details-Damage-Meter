@@ -384,6 +384,48 @@ end
 		end
 	end
 
+	function _detalhes:ToggleWindow (index)
+		local window = _detalhes:GetInstance (index)
+		
+		if (window and _getmetatable (window)) then
+			if (window:IsEnabled()) then
+				window:ShutDown()
+			else
+				window:EnableInstance()
+
+				if (window.meu_id == 1) then
+					local instance2 = _detalhes:GetInstance(2)
+					if (instance2 and instance2:IsEnabled()) then
+						_detalhes.move_janela_func (instance2.baseframe, true, instance2, true)
+						_detalhes.move_janela_func (instance2.baseframe, false, instance2, true)
+					end
+					
+				elseif (window.meu_id == 2) then
+					_detalhes.move_janela_func (window.baseframe, true, window, true)
+					_detalhes.move_janela_func (window.baseframe, false, window, true)
+				end
+				
+			end
+		end
+	end
+	
+	function _detalhes:ToggleWindows()
+		local instance = _detalhes:GetInstance (1)
+		if (instance) then
+			if (instance:IsEnabled()) then
+				_detalhes:ShutDownAllInstances()
+			else
+				_detalhes:ReabrirTodasInstancias()
+				
+				local instance2 = _detalhes:GetInstance(2)
+				if (instance2) then
+					_detalhes.move_janela_func (instance2.baseframe, true, instance2, true)
+					_detalhes.move_janela_func (instance2.baseframe, false, instance2, true)
+				end
+			end
+		end
+	end
+	
 	-- reabre todas as instancias
 	function _detalhes:ReabrirTodasInstancias (temp)
 		for index = math.min (#_detalhes.tabela_instancias, _detalhes.instances_amount), 1, -1 do 

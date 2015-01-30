@@ -497,10 +497,11 @@ function _G._detalhes:Start()
 		DBM:RegisterCallback ("DBM_Announce", dbm_callback_phase)
 		DBM:RegisterCallback ("pull", dbm_callback_pull)
 	end	
-
+	
+	
 --[[
 function _detalhes:TestResize()
-	_detalhes:OpenNewsWindow (_detalhes.resize_debug)
+	_detalhes:OpenNewsWindow ("TESTE, |TInterface\\AddOns\\Details\\images\\key_shift:20:40:0:0:64:64:0:64:0:40|t")
 end
 _detalhes:ScheduleTimer ("TestResize", 3)
 --]]

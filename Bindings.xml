@@ -11,88 +11,26 @@
 		DetailsKeyBindScrollUp()
 	</Binding>
 
-	<Binding name="DETAILS_REOPEN_WINDOW1" description="Reopen window 1." header="DETAILS_KEYBIND_WINDOW_CONTROL" category="Details!">
-		local instance1 = _detalhes.tabela_instancias [1];
-		if (instance1 and not instance1:IsEnabled()) then
-			instance1:EnableInstance();
-		elseif (not instance1) then
-			_detalhes:Msg ("Window 1 isn't created yet.");
-		end
+	<Binding name="DETAILS_TOGGLE_ALL" description="open or close all windows" header="DETAILS_KEYBIND_WINDOW_CONTROL" category="Details!">
+		_detalhes:ToggleWindows()
 	</Binding>
-	<Binding name="DETAILS_REOPEN_WINDOW2" description="Reopen window 2." category="Details!">
-		local instance2 = _detalhes.tabela_instancias [2];
-		if (instance2 and not instance2:IsEnabled()) then
-			instance2:EnableInstance();
-		elseif (not instance2) then
-			_detalhes:Msg ("Window 2 isn't created yet.");
-		end
+
+	<Binding name="DETAILS_TOOGGLE_WINDOW1" description="Toggle window 1." header="DETAILS_KEYBIND_WINDOW_CONTROL" category="Details!">
+		_detalhes:ToggleWindow (1)
 	</Binding>
-	<Binding name="DETAILS_REOPEN_WINDOW3" description="Reopen window 3." category="Details!">
-		local instance3 = _detalhes.tabela_instancias [3];
-		if (instance3 and not instance3:IsEnabled()) then
-			instance3:EnableInstance();
-		elseif (not instance3) then
-			_detalhes:Msg ("Window 3 isn't created yet.");
-		end
+	<Binding name="DETAILS_TOOGGLE_WINDOW2" description="Toggle window 2." category="Details!">
+		_detalhes:ToggleWindow (2)
 	</Binding>
-	<Binding name="DETAILS_REOPEN_WINDOW4" description="Reopen window 4." category="Details!">
-		local instance4 = _detalhes.tabela_instancias [4];
-		if (instance4 and not instance4:IsEnabled()) then
-			instance4:EnableInstance();
-		elseif (not instance4) then
-			_detalhes:Msg ("Window 4 isn't created yet.");
-		end
+	<Binding name="DETAILS_TOOGGLE_WINDOW3" description="Toggle window 3." category="Details!">
+		_detalhes:ToggleWindow (3)
 	</Binding>
-	<Binding name="DETAILS_REOPEN_WINDOW5" description="Reopen window 5." category="Details!">
-		local instance5 = _detalhes.tabela_instancias [5];
-		if (instance5 and not instance5:IsEnabled()) then
-			instance5:EnableInstance();
-		elseif (not instance5) then
-			_detalhes:Msg ("Window 5 isn't created yet.");
-		end
+	<Binding name="DETAILS_TOOGGLE_WINDOW4" description="Toggle window 4." category="Details!">
+		_detalhes:ToggleWindow (4)
 	</Binding>
-	
-	<Binding name="DETAILS_CLOSE_WINDOW1" description="Close window 1." category="Details!">
-		local instance1 = _detalhes.tabela_instancias [1];
-		if (instance1 and instance1:IsEnabled()) then
-			instance1:ShutDown();
-		else
-			_detalhes:Msg ("Window 1 isn't open.");
-		end
+	<Binding name="DETAILS_TOOGGLE_WINDOW5" description="Toggle window 5." category="Details!">
+		_detalhes:ToggleWindow (5)
 	</Binding>
-	<Binding name="DETAILS_CLOSE_WINDOW2" description="Close window 2." category="Details!">
-		local instance2 = _detalhes.tabela_instancias [2];
-		if (instance2 and instance2:IsEnabled()) then
-			instance2:ShutDown();
-		else
-			_detalhes:Msg ("Window 2 isn't open.");
-		end
-	</Binding>
-	<Binding name="DETAILS_CLOSE_WINDOW3" description="Close window 3." category="Details!">
-		local instance3 = _detalhes.tabela_instancias [3];
-		if (instance3 and instance3:IsEnabled()) then
-			instance3:ShutDown();
-		else
-			_detalhes:Msg ("Window 3 isn't open.");
-		end
-	</Binding>
-	<Binding name="DETAILS_CLOSE_WINDOW4" description="Close window 4." category="Details!">
-		local instance4 = _detalhes.tabela_instancias [4];
-		if (instance4 and instance4:IsEnabled()) then
-			instance4:ShutDown();
-		else
-			_detalhes:Msg ("Window 4 isn't open.");
-		end
-	</Binding>
-	<Binding name="DETAILS_CLOSE_WINDOW5" description="Close window 5." category="Details!">
-		local instance5 = _detalhes.tabela_instancias [5];
-		if (instance5 and instance5:IsEnabled()) then
-			instance5:ShutDown();
-		else
-			_detalhes:Msg ("Window 5 isn't open.");
-		end
-	</Binding>
-	
+
 
 	<Binding name="DETAILS_BOOKMARK1" description="Change the display on the first window to bookmark #1." header="DETAILS_KEYBIND_BOOKMARK" category="Details!">
 		DetailsChangeDisplayFromBookmark (1);

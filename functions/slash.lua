@@ -73,7 +73,12 @@ function SlashCmdList.DETAILS (msg, editbox)
 			end
 			
 		end
-	
+		
+	elseif (command == Loc ["STRING_SLASH_TOGGLE"] or command == "toggle") then
+		
+		_detalhes:ToggleWindows()
+
+		
 	elseif (command == Loc ["STRING_SLASH_WORLDBOSS"] or command == "worldboss") then
 		
 		local questIds = {{"Tarlna the Ageless", 81535}, {"Drov the Ruiner ", 87437}, {"Rukhmar", 87493}}
@@ -867,13 +872,16 @@ function SlashCmdList.DETAILS (msg, editbox)
 		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_NEW"] .. "|r: " .. Loc ["STRING_SLASH_NEW_DESC"])
 		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_SHOW"] .. "|r: " .. Loc ["STRING_SLASH_SHOW_DESC"])
 		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_HIDE"] .. "|r: " .. Loc ["STRING_SLASH_HIDE_DESC"])
+		
+		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_TOGGLE"] .. "|r: " .. Loc ["STRING_SLASH_TOGGLE_DESC"])
+		
 		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_ENABLE"] .. "|r: " .. Loc ["STRING_SLASH_ENABLE_DESC"])
 		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_DISABLE"] .. "|r: " .. Loc ["STRING_SLASH_DISABLE_DESC"])
 		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_RESET"] .. "|r: " .. Loc ["STRING_SLASH_RESET_DESC"])
 		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_OPTIONS"] .. "|r|cfffcffb0 <instance number>|r: " .. Loc ["STRING_SLASH_OPTIONS_DESC"])
 		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_CHANGES"] .. "|r: " .. Loc ["STRING_SLASH_CHANGES_DESC"])
 		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_WIPECONFIG"] .. "|r: " .. Loc ["STRING_SLASH_WIPECONFIG_DESC"])
-		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_WORLDBOSS"] .. "|r: " .. Loc ["STRING_SLASH_WORLDBOSS_DESC"])
+		--print ("|cffffaeae/details " .. Loc ["STRING_SLASH_WORLDBOSS"] .. "|r: " .. Loc ["STRING_SLASH_WORLDBOSS_DESC"])
 		print (" ")
 
 	end

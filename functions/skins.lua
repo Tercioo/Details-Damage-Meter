@@ -892,9 +892,79 @@ local _
 		}
 	})
 	
-	-- 0.00048828125
-	--reset 19 514 83 530
-	--close 
+	local align_right_chat = function()
+	
+		if (not RightChatPanel or not RightChatPanel:IsShown()) then
+			_detalhes:Msg ("Right Chat Panel isn't shown.")
+			return
+		end
+		
+		local wight, height = RightChatPanel:GetSize()
+	
+		local instance1 = _detalhes.tabela_instancias [1]
+		local instance2 = _detalhes.tabela_instancias [2]
+		local instance3 = _detalhes.tabela_instancias [3]
+
+		if (not instance2) then
+			instance2 = _detalhes:CriarInstancia()
+			instance2:ChangeSkin (instance1.skin)
+		elseif (not instance2.ativa) then
+			instance2:AtivarInstancia()
+			instance2:ChangeSkin (instance1.skin)
+		end
+		
+		if (instance3) then
+			instance3:ShutDown()
+		end
+	
+		instance1:UngroupInstance()
+		instance2:UngroupInstance()
+	
+		instance1.baseframe:ClearAllPoints()
+		instance2.baseframe:ClearAllPoints()
+
+		local statusbar_enabled1 = instance1.show_statusbar
+		local statusbar_enabled2 = instance2.show_statusbar
+		
+		local ElvUIRightChatDataPanel = RightChatDataPanel and RightChatDataPanel:IsShown()
+		
+		if (instance1.skin == "Forced Square") then
+			instance1.baseframe:SetSize (wight/2 - 4, height-20 - (ElvUIRightChatDataPanel and 21 or 0) - 8 - (statusbar_enabled1 and 14 or 0))
+			instance2.baseframe:SetSize (wight/2 - 4 + 2, height-20 - (ElvUIRightChatDataPanel and 21 or 0) - 8 - (statusbar_enabled2 and 14 or 0))
+			
+		elseif (instance1.skin == "ElvUI Frame Style") then
+			instance1.baseframe:SetSize (wight/2 - 4, height-20 - (ElvUIRightChatDataPanel and 21 or 0) - 8 - (statusbar_enabled1 and 14 or 0))
+			instance2.baseframe:SetSize (wight/2 - 4, height-20 - (ElvUIRightChatDataPanel and 21 or 0) - 8 - (statusbar_enabled2 and 14 or 0))
+			
+		elseif (instance1.skin == "ElvUI Style II") then
+			instance1.baseframe:SetSize (wight/2 - 4 - 2, height - 20 - 2 - (ElvUIRightChatDataPanel and 21 or 0) - 8 - (statusbar_enabled1 and 14 or 0))
+			instance2.baseframe:SetSize (wight/2 - 4 - 2, height - 20 - 2 - (ElvUIRightChatDataPanel and 21 or 0) - 8 - (statusbar_enabled2 and 14 or 0))
+			
+		else
+			instance1.baseframe:SetSize (wight/2 - 4, height-20 - (ElvUIRightChatDataPanel and 21 or 0) - 8 - (statusbar_enabled1 and 14 or 0))
+			instance2.baseframe:SetSize (wight/2 - 4, height-20 - (ElvUIRightChatDataPanel and 21 or 0) - 8 - (statusbar_enabled2 and 14 or 0))
+			
+		end
+
+		table.wipe (instance1.snap); table.wipe (instance2.snap)
+		instance1.snap [3] = 2; instance2.snap [1] = 1;
+		instance1.horizontalSnap = true; instance2.horizontalSnap = true
+		
+		instance1.baseframe:SetPoint ("bottomleft", RightChatDataPanel, "topleft", 1 - (instance1.skin == "Forced Square" and 1 or 0), 1 + (statusbar_enabled1 and 14 or 0) - (ElvUIRightChatDataPanel and 0 or 22))
+		instance2.baseframe:SetPoint ("bottomright", RightChatToggleButton, "topright", -1, 1 + (statusbar_enabled2 and 14 or 0) - (ElvUIRightChatDataPanel and 0 or 22))
+	
+		instance1:LockInstance (true)
+		instance2:LockInstance (true)
+	
+		instance1:SaveMainWindowPosition()
+		instance2:SaveMainWindowPosition()
+
+		_detalhes.move_janela_func (instance1.baseframe, true, instance1)
+		_detalhes.move_janela_func (instance1.baseframe, false, instance1)
+		_detalhes.move_janela_func (instance2.baseframe, true, instance2)
+		_detalhes.move_janela_func (instance2.baseframe, false, instance2)
+		
+	end
 	
 	_detalhes:InstallSkin ("Forced Square", {
 		file = [[Interface\AddOns\Details\images\skins\simplygray_skin]],
@@ -1140,6 +1210,7 @@ local _
 		},
 		
 		skin_options = {
+			{type = "button", name = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON1"], func = align_right_chat, desc = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON1_DESC"]},
 			{type = "button", name = Loc ["STRING_OPTIONS_SKIN_RESET_TOOLTIP"], func = reset_tooltip, desc = Loc ["STRING_OPTIONS_SKIN_RESET_TOOLTIP_DESC"]},
 			{type = "button", name = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON3"], func = set_tooltip_elvui2, desc = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON3_DESC"]},
 		}
@@ -1269,64 +1340,6 @@ local _
 	t:SetTexCoord (.4, 1, 0, 1)
 	t2:SetTexCoord (0, .4, 0, 1)
 	--]]
-	
-	local align_right_chat = function()
-	
-		if (not RightChatPanel or not RightChatPanel:IsShown()) then
-			_detalhes:Msg ("Right Chat Panel isn't shown.")
-			return
-		end
-		
-		local wight, height = RightChatPanel:GetSize()
-	
-		local instance1 = _detalhes.tabela_instancias [1]
-		local instance2 = _detalhes.tabela_instancias [2]
-		local instance3 = _detalhes.tabela_instancias [3]
-
-		if (not instance2) then
-			instance2 = _detalhes:CriarInstancia()
-			instance2:ChangeSkin (instance1.skin)
-		elseif (not instance2.ativa) then
-			instance2:AtivarInstancia()
-			instance2:ChangeSkin (instance1.skin)
-		end
-		
-		if (instance3) then
-			instance3:ShutDown()
-		end
-	
-		instance1:UngroupInstance()
-		instance2:UngroupInstance()
-	
-		instance1.baseframe:ClearAllPoints()
-		instance2.baseframe:ClearAllPoints()
-
-		local statusbar_enabled1 = instance1.show_statusbar
-		local statusbar_enabled2 = instance2.show_statusbar
-		
-		instance1.baseframe:SetSize (wight/2 - 4, height-20-21-8 - (statusbar_enabled1 and 14 or 0))
-		instance2.baseframe:SetSize (wight/2 - 4, height-20-21-8 - (statusbar_enabled2 and 14 or 0))
-		
-		table.wipe (instance1.snap); table.wipe (instance2.snap)
-		instance1.snap [3] = 2; instance2.snap [1] = 1;
-		instance1.horizontalSnap = true; instance2.horizontalSnap = true
-		
-		instance1.baseframe:SetPoint ("bottomleft", RightChatDataPanel, "topleft", 1, 1 + (statusbar_enabled1 and 14 or 0))
-		instance2.baseframe:SetPoint ("bottomright", RightChatToggleButton, "topright", -1, 1 + (statusbar_enabled2 and 14 or 0))
-	
-		instance1:LockInstance (true)
-		instance2:LockInstance (true)
-	
-		instance1:SaveMainWindowPosition()
-		instance2:SaveMainWindowPosition()
-
-		_detalhes.move_janela_func (instance1.baseframe, true, instance1)
-		_detalhes.move_janela_func (instance1.baseframe, false, instance1)
-		_detalhes.move_janela_func (instance2.baseframe, true, instance2)
-		_detalhes.move_janela_func (instance2.baseframe, false, instance2)
-		
-	end
-	
 
 	
 	_detalhes:InstallSkin ("ElvUI Frame Style", {
