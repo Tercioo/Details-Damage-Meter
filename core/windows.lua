@@ -455,11 +455,14 @@
 		local novo_x = self.posicao[self.mostrando].x*_UIscale/_scale
 		local novo_y = self.posicao[self.mostrando].y*_UIscale/_scale
 		
-		if (pre_defined) then --> overwrite
+		if (pre_defined and pre_defined.x) then --> overwrite
 			novo_x = pre_defined.x*_UIscale/_scale
 			novo_y = pre_defined.y*_UIscale/_scale
 			self.posicao[self.mostrando].w = pre_defined.largura
 			self.posicao[self.mostrando].h = pre_defined.altura
+			
+		elseif (pre_defined and not pre_defined.x) then
+			_detalhes:Msg ("invalid pre_defined table for resize, please rezise the window manually.")
 		end
 
 		self.baseframe:SetWidth (self.posicao[self.mostrando].w)

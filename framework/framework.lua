@@ -223,7 +223,12 @@ function gump:BuildMenu (parent, menu, x_offset, y_offset, height)
 			
 		end
 	
-		cur_y = cur_y - 20
+		if (widget_table.spacement) then
+			cur_y = cur_y - 30
+		else
+			cur_y = cur_y - 20
+		end
+		
 		if (cur_y > height) then
 			cur_y = y_offset
 			cur_x = max_x

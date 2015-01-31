@@ -377,6 +377,7 @@ local function OnEnterMainWindow (instancia, self)
 		--> snaps
 		for _, instancia_id in _pairs (instancia.snap) do
 			if (instancia_id) then
+				instancia.break_snap_button:Show()
 				instancia.break_snap_button:SetAlpha (1)
 				break
 			end
@@ -2793,8 +2794,13 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 	anti_menu_overlap:SetFrameStrata ("DIALOG")
 	anti_menu_overlap:EnableMouse (true)
 	anti_menu_overlap:Hide()
-	--anti_menu_overlap:SetBackdrop (gump_fundo_backdrop)
+	--anti_menu_overlap:SetBackdrop (gump_fundo_backdrop) --debug
 	baseframe.anti_menu_overlap = anti_menu_overlap
+	
+	--> floating frame is an anchor for widgets which should be overlaying the window
+	local floatingframe = CreateFrame ("frame", "DetailsInstance"..ID.."BorderHolder", baseframe)
+	floatingframe:SetFrameLevel (baseframe:GetFrameLevel()+7)
+	instancia.floatingframe = floatingframe
 
 -- scroll bar -----------------------------------------------------------------------------------------------------------------------------------------------
 --> create the scrollbar, almost not used.
@@ -3040,9 +3046,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 
 -- left and right side bars ------------------------------------------------------------------------------------------------------------------------------------------------------------
 	-- ~barra ~bordas ~border
-		local floatingframe = CreateFrame ("frame", "DetailsInstance"..ID.."BorderHolder", baseframe)
-		floatingframe:SetFrameLevel (baseframe:GetFrameLevel()+7)
-		instancia.floatingframe = floatingframe
+
 	--> left
 		baseframe.barra_esquerda = floatingframe:CreateTexture (nil, "artwork")
 		baseframe.barra_esquerda:SetTexture (DEFAULT_SKIN)
@@ -3070,7 +3074,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 
 -- break snap button ----------------------------------------------------------------------------------------------------------------------------------------------------------
 
-		instancia.break_snap_button = CreateFrame ("button", "DetailsBreakSnapButton" .. ID, baseframe.cabecalho.fechar)
+		instancia.break_snap_button = CreateFrame ("button", "DetailsBreakSnapButton" .. ID, floatingframe)
 		instancia.break_snap_button:SetPoint ("bottom", baseframe.resize_direita, "top", -1, 0)
 		instancia.break_snap_button:SetFrameLevel (baseframe:GetFrameLevel() + 5)
 		instancia.break_snap_button:SetSize (13, 13)
@@ -3104,7 +3108,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 -- side bars highlights ------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 	--> top
-		local fcima = CreateFrame ("frame", "DetailsTopSideBarHighlight" .. instancia.meu_id, baseframe.cabecalho.fechar)
+		local fcima = CreateFrame ("frame", "DetailsTopSideBarHighlight" .. instancia.meu_id, floatingframe)
 		gump:CreateFlashAnimation (fcima)
 		fcima:Hide()
 		
@@ -3118,7 +3122,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 		instancia.h_cima = fcima
 		
 	--> bottom
-		local fbaixo = CreateFrame ("frame", "DetailsBottomSideBarHighlight" .. instancia.meu_id, baseframe.cabecalho.fechar)
+		local fbaixo = CreateFrame ("frame", "DetailsBottomSideBarHighlight" .. instancia.meu_id, floatingframe)
 		gump:CreateFlashAnimation (fbaixo)
 		fbaixo:Hide()
 		
@@ -3132,7 +3136,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 		instancia.h_baixo = fbaixo
 		
 	--> left
-		local fesquerda = CreateFrame ("frame", "DetailsLeftSideBarHighlight" .. instancia.meu_id, baseframe.cabecalho.fechar)
+		local fesquerda = CreateFrame ("frame", "DetailsLeftSideBarHighlight" .. instancia.meu_id, floatingframe)
 		gump:CreateFlashAnimation (fesquerda)
 		fesquerda:Hide()
 		
@@ -3146,7 +3150,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 		instancia.h_esquerda = fesquerda
 		
 	--> right
-		local fdireita = CreateFrame ("frame", "DetailsRightSideBarHighlight" .. instancia.meu_id, baseframe.cabecalho.fechar)
+		local fdireita = CreateFrame ("frame", "DetailsRightSideBarHighlight" .. instancia.meu_id, floatingframe)
 		gump:CreateFlashAnimation (fdireita)	
 		fdireita:Hide()
 		
@@ -4218,7 +4222,12 @@ end
 function _detalhes:InstanceAlpha (alpha)
 	self.baseframe.cabecalho.ball_r:SetAlpha (alpha)
 	self.baseframe.cabecalho.ball:SetAlpha (alpha)
-	self.baseframe.cabecalho.atributo_icon:SetAlpha (alpha)
+	
+	local skin = _detalhes.skins [self.skin]
+	if (not skin.icon_ignore_alpha) then
+		self.baseframe.cabecalho.atributo_icon:SetAlpha (alpha)
+	end	
+	
 	self.baseframe.cabecalho.emenda:SetAlpha (alpha)
 	self.baseframe.cabecalho.top_bg:SetAlpha (alpha)
 	self.baseframe.barra_esquerda:SetAlpha (alpha)
@@ -4269,7 +4278,9 @@ function _detalhes:InstanceColor (red, green, blue, alpha, no_save, change_statu
 	self.baseframe.cabecalho.ball:SetVertexColor (red, green, blue)
 	self.baseframe.cabecalho.ball:SetAlpha (alpha)
 	
-	self.baseframe.cabecalho.atributo_icon:SetAlpha (alpha)
+	if (not skin.icon_ignore_alpha) then
+		self.baseframe.cabecalho.atributo_icon:SetAlpha (alpha)
+	end
 
 	self.baseframe.cabecalho.emenda:SetVertexColor (red, green, blue)
 		self.baseframe.cabecalho.emenda:SetAlpha (alpha)
@@ -4361,7 +4372,7 @@ function gump:CriaRodape (baseframe, instancia)
 	baseframe.rodape = {}
 	
 	--> esquerdo
-	baseframe.rodape.esquerdo = baseframe.cabecalho.fechar:CreateTexture (nil, "overlay")
+	baseframe.rodape.esquerdo = instancia.floatingframe:CreateTexture (nil, "overlay")
 	baseframe.rodape.esquerdo:SetPoint ("topright", baseframe, "bottomleft", 16, 0)
 	baseframe.rodape.esquerdo:SetTexture (DEFAULT_SKIN)
 	baseframe.rodape.esquerdo:SetTexCoord (unpack (COORDS_PIN_LEFT))
@@ -4369,7 +4380,7 @@ function gump:CriaRodape (baseframe, instancia)
 	baseframe.rodape.esquerdo:SetHeight (32)
 	
 	--> direito
-	baseframe.rodape.direita = baseframe.cabecalho.fechar:CreateTexture (nil, "overlay")
+	baseframe.rodape.direita = instancia.floatingframe:CreateTexture (nil, "overlay")
 	baseframe.rodape.direita:SetPoint ("topleft", baseframe, "bottomright", -16, 0)
 	baseframe.rodape.direita:SetTexture (DEFAULT_SKIN)
 	baseframe.rodape.direita:SetTexCoord (unpack (COORDS_PIN_RIGHT))
@@ -4398,8 +4409,8 @@ function gump:CriaRodape (baseframe, instancia)
 	baseframe.rodape.StatusBarCenterAnchor = StatusBarCenterAnchor
 	
 	--> display frame
-		baseframe.statusbar = CreateFrame ("frame", "DetailsStatusBar" .. instancia.meu_id, baseframe.cabecalho.fechar)
-		baseframe.statusbar:SetFrameLevel (baseframe.cabecalho.fechar:GetFrameLevel()+2)
+		baseframe.statusbar = CreateFrame ("frame", "DetailsStatusBar" .. instancia.meu_id, instancia.floatingframe)
+		baseframe.statusbar:SetFrameLevel (instancia.floatingframe:GetFrameLevel()+2)
 		baseframe.statusbar:SetPoint ("left", baseframe.rodape.esquerdo, "right", -13, 10)
 		baseframe.statusbar:SetPoint ("right", baseframe.rodape.direita, "left", 13, 10)
 		baseframe.statusbar:SetHeight (14)
@@ -6377,6 +6388,14 @@ function _detalhes:HideMainIcon (value)
 		
 		end
 		
+		local skin = _detalhes.skins [self.skin]
+		
+		if (skin.icon_on_top) then
+			self.baseframe.cabecalho.atributo_icon:SetParent (self.floatingframe)
+		else
+			self.baseframe.cabecalho.atributo_icon:SetParent (self.baseframe)
+		end
+		
 	else
 		self.hide_icon = false
 		gump:Fade (self.baseframe.cabecalho.atributo_icon, 0)
@@ -6797,14 +6816,14 @@ function gump:CriaCabecalho (baseframe, instancia)
 	baseframe.cabecalho.fechar:SetScript ("OnClick", close_button_onclick)
 	
 	--> bola do canto esquedo superior --> primeiro criar a armação para apoiar as texturas
-	baseframe.cabecalho.ball_point = baseframe.cabecalho.fechar:CreateTexture (nil, "overlay")
+	baseframe.cabecalho.ball_point = instancia.floatingframe:CreateTexture (nil, "overlay")
 	baseframe.cabecalho.ball_point:SetPoint ("bottomleft", baseframe, "topleft", -37, 0)
 	baseframe.cabecalho.ball_point:SetWidth (64)
 	baseframe.cabecalho.ball_point:SetHeight (32)
 	
 	--> icone do atributo
 	--baseframe.cabecalho.atributo_icon = _detalhes.listener:CreateTexture (nil, "artwork")
-	baseframe.cabecalho.atributo_icon = baseframe:CreateTexture (nil, "background")
+	baseframe.cabecalho.atributo_icon = baseframe:CreateTexture ("DetailsAttributeIcon" .. instancia.meu_id, "background")
 	local icon_anchor = _detalhes.skins ["WoW Interface"].icon_anchor_main
 	baseframe.cabecalho.atributo_icon:SetPoint ("topright", baseframe.cabecalho.ball_point, "topright", icon_anchor[1], icon_anchor[2])
 	baseframe.cabecalho.atributo_icon:SetTexture (DEFAULT_SKIN)

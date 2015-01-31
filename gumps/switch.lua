@@ -108,7 +108,7 @@ do
 	window_color:SetPoint ("bottomright", frame, "topright", -3, 2)
 	
 	local window_color_texture = gump:CreateImage (window_color, [[Interface\AddOns\Details\images\icons]], 14, 14, "artwork", {434/512, 466/512, 277/512, 307/512})
-	window_color_texture:SetAlpha (0.25)
+	window_color_texture:SetAlpha (0.35)
 	window_color_texture:SetAllPoints()
 	
 	window_color:SetHook ("OnEnter", function()
@@ -121,7 +121,7 @@ do
 		GameCooltip:Show()
 	end)
 	window_color:SetHook ("OnLeave", function()
-		window_color_texture:SetAlpha (0.25)
+		window_color_texture:SetAlpha (0.35)
 		GameCooltip:Hide()
 	end)
 	
@@ -135,7 +135,7 @@ do
 	options_button:SetPoint ("right", window_color, "left", -2, 0)
 	
 	local options_button_texture = gump:CreateImage (options_button, [[Interface\AddOns\Details\images\modo_icones]], 14, 14, "artwork", {0.5, 0.625, 0, 1})
-	options_button_texture:SetAlpha (0.25)
+	options_button_texture:SetAlpha (0.35)
 	options_button_texture:SetAllPoints()
 	
 	options_button:SetHook ("OnEnter", function()
@@ -148,7 +148,7 @@ do
 		GameCooltip:Show()
 	end)
 	options_button:SetHook ("OnLeave", function()
-		options_button_texture:SetAlpha (0.25)
+		options_button_texture:SetAlpha (0.35)
 		GameCooltip:Hide()
 	end)
 	

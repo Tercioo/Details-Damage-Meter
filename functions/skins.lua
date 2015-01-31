@@ -249,6 +249,30 @@ local _
 		}
 	})
 
+	local Minimalistic_Shadow = function()
+	
+		local instance = _G.DetailsOptionsWindow and _G.DetailsOptionsWindow.instance
+		
+		if (instance) then
+			instance:ToolbarMenuSetButtonsOptions (nil, true)
+			instance:AttributeMenu (nil, nil, nil, nil, nil, nil, nil, true)
+			instance:AttributeMenu (nil, nil, 3)
+			
+			if (_detalhes.options_group_edit) then
+				for _, this_instance in ipairs (instance:GetInstanceGroup()) do
+					if (this_instance ~= instance) then
+						this_instance:ToolbarMenuSetButtonsOptions (nil, true)
+						this_instance:AttributeMenu (nil, nil, nil, nil, nil, nil, nil, true)
+						this_instance:AttributeMenu (nil, nil, 3)
+					end
+				end
+			end
+			
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+		end
+	
+	end
+	
 	_detalhes:InstallSkin ("Minimalistic", {
 		file = [[Interface\AddOns\Details\images\skins\classic_skin_v1]],
 		author = "Details!", 
@@ -271,6 +295,9 @@ local _
 		icon_point_anchor_bottom = {-37, 12},
 		left_corner_anchor_bottom = {-107, 0},
 		right_corner_anchor_bottom = {96, 0},
+		
+		icon_on_top = true,
+		icon_ignore_alpha = true,
 		
 		--overwrites
 		instance_cprops = {
@@ -445,7 +472,7 @@ local _
 					["texture"] = "Details BarBorder 2",
 				},
 			},
-			["bg_b"] = 0.0941176470588235,			
+			["bg_b"] = 0.0941176470588235,
 		},
 		
 		callback = function (skin, instance, just_updating)
@@ -453,6 +480,7 @@ local _
 		end,
 		
 		skin_options = {
+			{spacement = true, type = "button", name = "Shadowy Title Bar", func = Minimalistic_Shadow, desc = "Adds shadow on title bar components."},
 			{type = "button", name = Loc ["STRING_OPTIONS_SKIN_RESET_TOOLTIP"], func = reset_tooltip, desc = Loc ["STRING_OPTIONS_SKIN_RESET_TOOLTIP_DESC"]},
 			{type = "button", name = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON3"], func = set_tooltip_elvui2, desc = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON3_DESC"]},
 		}
@@ -481,6 +509,9 @@ local _
 		icon_point_anchor_bottom = {-37, 12},
 		left_corner_anchor_bottom = {-107, 0},
 		right_corner_anchor_bottom = {96, 0},
+		
+		icon_on_top = true,
+		icon_ignore_alpha = true,
 		
 		--overwrites
 		instance_cprops = {
@@ -669,25 +700,12 @@ local _
 		
 	})
 
-	local dark_serenity = function()
-		local instance = _G.DetailsOptionsWindow.instance
-		if (instance) then
-			--> black color
-			instance:InstanceColor (0, 0, 0, 1)
-			--> flip wallpaper
-			local wtexc = instance.wallpaper.texcoord
-			wtexc[1], wtexc[2], wtexc[3], wtexc[4] = 0.04800000, 0.29800001, 0.75599998, 0.63099998
-			--> reload skin
-			instance:ChangeSkin()
-		end
-	end
-	
 	_detalhes:InstallSkin ("Serenity", {
 		file = [[Interface\AddOns\Details\images\skins\flat_skin]],
 		author = "Details!", 
 		version = "1.0", 
 		site = "unknown", 
-		desc = "White with a gradient wallpaper, this skin fits on almost all interfaces.\n\nFor ElvUI interfaces, change the window color to black to get an compatible visual.", 
+		desc = "Light blue, this skin fits on almost all interfaces.\n\nFor ElvUI interfaces, change the window color to black to get an compatible visual.", 
 		
 		micro_frames = {color = {1, 1, 1, 1}, font = "Friz Quadrata TT", size = 10, left = "DETAILS_STATUSBAR_PLUGIN_PATTRIBUTE"},
 		
@@ -705,6 +723,9 @@ local _
 		icon_point_anchor_bottom = {-37, 12},
 		left_corner_anchor_bottom = {-107, 0},
 		right_corner_anchor_bottom = {96, 0},
+
+		icon_on_top = true,
+		icon_ignore_alpha = true,
 		
 		instance_cprops = {
 			["show_statusbar"] = false,
@@ -888,7 +909,6 @@ local _
 		skin_options = {
 			{type = "button", name = Loc ["STRING_OPTIONS_SKIN_RESET_TOOLTIP"], func = reset_tooltip, desc = Loc ["STRING_OPTIONS_SKIN_RESET_TOOLTIP_DESC"]},
 			{type = "button", name = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON3"], func = set_tooltip_elvui2, desc = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON3_DESC"]},
-			{type = "button", name = "Serenity Dark Side", func = dark_serenity, desc = "Flip the colors showing the dark side of Serenity."},
 		}
 	})
 	
@@ -913,7 +933,7 @@ local _
 			instance2:ChangeSkin (instance1.skin)
 		end
 		
-		if (instance3) then
+		if (instance3 and instance3:IsEnabled() and instance3.baseframe) then
 			instance3:ShutDown()
 		end
 	
@@ -1000,6 +1020,8 @@ local _
 		--[[ control_script_on_start run before the control_script, use it to reset values if needed --]]
 		control_script_on_start = nil,
 		control_script = nil,
+		
+		icon_ignore_alpha = true,
 		
 		--instance overwrites
 		--[[ when a skin is selected, all customized properties of the window is reseted and then the overwrites are applied]]
@@ -1210,7 +1232,7 @@ local _
 		},
 		
 		skin_options = {
-			{type = "button", name = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON1"], func = align_right_chat, desc = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON1_DESC"]},
+			{spacement = true, type = "button", name = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON1"], func = align_right_chat, desc = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON1_DESC"]},
 			{type = "button", name = Loc ["STRING_OPTIONS_SKIN_RESET_TOOLTIP"], func = reset_tooltip, desc = Loc ["STRING_OPTIONS_SKIN_RESET_TOOLTIP_DESC"]},
 			{type = "button", name = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON3"], func = set_tooltip_elvui2, desc = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON3_DESC"]},
 		}
@@ -1380,6 +1402,10 @@ local _
 		--instance overwrites
 		--[[ when a skin is selected, all customized properties of the window is reseted and then the overwrites are applied]]
 		--[[ for the complete cprop list see the file classe_instancia_include.lua]]
+		
+		icon_on_top = true,
+		icon_ignore_alpha = true,
+		
 		instance_cprops = {
 			["menu_icons_size"] = 0.899999976158142,
 			["color"] = {
@@ -1573,7 +1599,7 @@ local _
 		},
 		
 		skin_options = {
-			{type = "button", name = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON1"], func = align_right_chat, desc = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON1_DESC"]},
+			{spacement = true, type = "button", name = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON1"], func = align_right_chat, desc = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON1_DESC"]},
 			{type = "button", name = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON2"], func = set_tooltip_elvui1, desc = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON2_DESC"]},
 			{type = "button", name = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON3"], func = set_tooltip_elvui2, desc = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON3_DESC"]},
 		}
@@ -1617,6 +1643,10 @@ local _
 		--instance overwrites
 		--[[ when a skin is selected, all customized properties of the window is reseted and then the overwrites are applied]]
 		--[[ for the complete cprop list see the file classe_instancia_include.lua]]
+		
+		icon_on_top = true,
+		icon_ignore_alpha = true,
+		
 		instance_cprops = {
 			["show_statusbar"] = false,
 			["color"] = {1,1,1,1},
@@ -1741,7 +1771,7 @@ local _
 		},
 		
 		skin_options = {
-			{type = "button", name = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON1"], func = align_right_chat, desc = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON1_DESC"]},
+			{spacement = true, type = "button", name = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON1"], func = align_right_chat, desc = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON1_DESC"]},
 			{type = "button", name = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON2"], func = set_tooltip_elvui1, desc = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON2_DESC"]},
 			{type = "button", name = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON3"], func = set_tooltip_elvui2, desc = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON3_DESC"]},
 		}

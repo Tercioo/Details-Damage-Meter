@@ -2392,6 +2392,14 @@ function _detalhes:ChangeIcon (icon)
 
 	--print (debugstack())
 	
+	if (not self.hide_icon) then
+		if (skin.icon_on_top) then
+			self.baseframe.cabecalho.atributo_icon:SetParent (self.floatingframe)
+		else
+			self.baseframe.cabecalho.atributo_icon:SetParent (self.baseframe)
+		end
+	end
+	
 	if (icon) then
 		
 		--> plugin chamou uma troca de icone
