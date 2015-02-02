@@ -1266,14 +1266,14 @@ function gump:CriaJanelaInfo()
 				n = n:gsub (("-.*"), "")
 			end
 			tab.tankname:SetText ("Avoidance of\n" .. n) --> localize-me
-			
-			if (not playerdamage.avoidance) then
-				playerdamage.avoidance = _detalhes:CreateActorAvoidanceTable()
-			end
-			
+
 			--> damage taken
 				local playerdamage = combat (1, player.nome)
-				
+			
+				if (not playerdamage.avoidance) then
+					playerdamage.avoidance = _detalhes:CreateActorAvoidanceTable()
+				end
+			
 				local damagetaken = playerdamage.damage_taken
 				local last_damage_received = 0
 				if (last_actor) then

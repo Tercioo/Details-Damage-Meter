@@ -280,7 +280,13 @@ local _
 		site = "unknown", 
 		desc = "Simple skin with soft gray color and half transparent frames.", --\n
 		
-		micro_frames = {color = {1, 1, 1, 1}, font = "Friz Quadrata TT", size = 10},
+		--micro frames
+		micro_frames = {
+			color = {1, 1, 1, 1}, 
+			font = "Accidental Presidency", 
+			size = 10,
+			textymod = 1,
+		},
 		
 		can_change_alpha_head = true, 
 		icon_anchor_main = {-1, -5}, 
@@ -358,11 +364,12 @@ local _
 			["desaturated_menu"] = false,
 			["micro_displays_side"] = 2,
 			["statusbar_info"] = {
-				["alpha"] = 0.622480094432831,
+				["alpha"] = 0.3777777777777, -- [4]
 				["overlay"] = {
-					0.333333333333333, -- [1]
-					0.298039215686275, -- [2]
-					0.337254901960784, -- [3]
+				0.333333333333333, -- [1]
+				0.333333333333333, -- [2]
+				0.333333333333333, -- [3]
+				
 				},
 			},
 			["hide_icon"] = true,
@@ -494,7 +501,13 @@ local _
 		site = "unknown", 
 		desc = "Same as the first Minimalistic, but this one is more darker and less transparent.", 
 		
-		micro_frames = {color = {1, 1, 1, 1}, font = "Friz Quadrata TT", size = 10},
+		--micro frames
+		micro_frames = {
+			color = {1, 1, 1, 0.7}, 
+			font = "Friz Quadrata TT", 
+			size = 9,
+			textymod = 0,
+		},
 		
 		can_change_alpha_head = true, 
 		icon_anchor_main = {-1, -5}, 
@@ -632,11 +645,11 @@ local _
 				-2, -- [2]
 			},
 			["statusbar_info"] = {
-				["alpha"] = 1,
+				["alpha"] = 0.77,
 				["overlay"] = {
-					1, -- [1]
-					1, -- [2]
-					1, -- [3]
+					0.28627, -- [1]
+					0.28627, -- [2]
+					0.28627, -- [3]
 				},
 			},
 			["hide_icon"] = true,
@@ -707,7 +720,14 @@ local _
 		site = "unknown", 
 		desc = "Light blue, this skin fits on almost all interfaces.\n\nFor ElvUI interfaces, change the window color to black to get an compatible visual.", 
 		
-		micro_frames = {color = {1, 1, 1, 1}, font = "Friz Quadrata TT", size = 10, left = "DETAILS_STATUSBAR_PLUGIN_PATTRIBUTE"},
+		--micro frames
+		micro_frames = {
+			left = "DETAILS_STATUSBAR_PLUGIN_PATTRIBUTE",
+			color = {1, 1, 1, 0.7}, 
+			font = "Accidental Presidency", 
+			size = 10,
+			textymod = 0,
+		},
 		
 		can_change_alpha_head = true, 
 		
@@ -763,7 +783,7 @@ local _
 				["text_face"] = "Accidental Presidency",
 				["anchor"] = {
 					-17, -- [1]
-					2, -- [2]
+					3, -- [2]
 				},
 				["text_size"] = 12,
 				["enable_custom_text"] = false,
@@ -1002,7 +1022,12 @@ local _
 		icon_plugins_size = {19, 18},
 		
 		--micro frames
-		micro_frames = {color = {.7, .7, .7, 1}, font = "Arial Narrow", size = 11, left = "DETAILS_STATUSBAR_PLUGIN_PATTRIBUTE"},
+		micro_frames = {
+			color = {.7, .7, .7, 0.7},
+			font = "FORCED SQUARE", 
+			size = 10,
+			textymod = 1,
+		},		
 
 		-- the four anchors (for when the toolbar is on the top side)
 		icon_point_anchor = {-37, 0},
@@ -1038,6 +1063,10 @@ local _
 				14,
 				2,
 				["side"] = 2,
+			},
+			["menu_anchor_down"] = {
+				14,
+				-2,
 			},
 			["bg_r"] = 0,
 			["following"] = {
@@ -1196,10 +1225,6 @@ local _
 				["texture_file"] = "Interface\\AddOns\\Details\\images\\bar4",
 				["texture_highlight"] = "Interface\\FriendsFrame\\UI-FriendsList-Highlight",
 				["percent_type"] = 1,
-			},
-			["menu_anchor_down"] = {
-				-20,
-				-3,
 			},
 			["toolbar_side"] = 1,
 			["bg_g"] = 0,
@@ -1378,9 +1403,14 @@ local _
 		icon_anchor_main = {-4, -5},
 		icon_anchor_plugins = {-7, -13},
 		icon_plugins_size = {19, 18},
-		
+
 		--micro frames
-		micro_frames = {color = {0.525490, 0.525490, 0.525490, 1}, font = "Arial Narrow", size = 11},
+		micro_frames = {
+			color = {1, 1, 1, 0.7},
+			font = "FORCED SQUARE", 
+			size = 10,
+			textymod = 1,
+		},
 		
 		-- the four anchors (for when the toolbar is on the top side)
 		icon_point_anchor = {-35, -0.5},
@@ -1621,7 +1651,12 @@ local _
 		icon_plugins_size = {19, 18},
 		
 		--micro frames
-		micro_frames = {color = {0.525490, 0.525490, 0.525490, 1}, font = "Arial Narrow", size = 11},
+		micro_frames = {
+			color = {0.525490, 0.525490, 0.525490, 1}, 
+			font = "FORCED SQUARE", 
+			size = 11,
+			textymod = 1,
+		},
 		
 		-- the four anchors (for when the toolbar is on the top side)
 		icon_point_anchor = {-35, -0.5},

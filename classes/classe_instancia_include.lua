@@ -44,6 +44,7 @@ _detalhes.instance_skin_ignored_values = {
 	["strata"] = true,
 	["grab_on_top"] = true,
 	["libwindow"] = true,
+	["ignore_mass_showhide"] = true,
 }
 
 function _detalhes:ResetInstanceConfigKeepingValues (maintainsnap)
@@ -89,6 +90,8 @@ end
 
 _detalhes.instance_defaults = {
 
+	--> window settings
+		ignore_mass_showhide = false,
 	--skin
 		skin = _detalhes.default_skin_to_use,
 	--scale

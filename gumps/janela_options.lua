@@ -6519,7 +6519,11 @@ function window:CreateFrame6()
 			frame6.instanceToolbarSideSlider:SetPoint ("left", frame6.instanceToolbarSideLabel, "right", 2)
 			frame6.instanceToolbarSideSlider.OnSwitch = function (self, instance, value)
 				instance:ToolbarSide (value)
-				_G.DetailsOptionsWindow7:update_menuanchor_xy (instance)
+				
+				local group_editing = _detalhes.options_group_edit
+				_detalhes.options_group_edit = nil
+					_G.DetailsOptionsWindow7:update_menuanchor_xy (instance)
+				_detalhes.options_group_edit = group_editing
 				
 				if (_detalhes.options_group_edit and not DetailsOptionsWindow.loading_settings) then
 					for _, this_instance in ipairs (instance:GetInstanceGroup()) do
@@ -6778,7 +6782,6 @@ function window:CreateFrame6()
 			else
 				instance:HideStatusBar()
 			end
-			instance:BaseFrameSnap()
 			
 			if (_detalhes.options_group_edit and not DetailsOptionsWindow.loading_settings) then
 				for _, this_instance in ipairs (instance:GetInstanceGroup()) do
@@ -6788,11 +6791,11 @@ function window:CreateFrame6()
 						else
 							this_instance:HideStatusBar()
 						end
-						this_instance:BaseFrameSnap()
 					end
 				end
 			end
 			
+			instance:BaseFrameSnap()
 			window:update_microframes()
 			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
@@ -6920,7 +6923,29 @@ function window:CreateFrame6()
 				GameCooltip:ShowCooltip (frame6.WindowScaleSlider.widget, "tooltip")
 				return true
 			end)
+
+	--> ignore mass show hide
+		g:NewSwitch (frame6, _, "$parentIgnoreMassShowHideSlider", "IgnoreMassShowHideSlider", 60, 20, _, _, instance.ignore_mass_showhide)
+		g:NewLabel (frame6, _, "$parentIgnoreMassShowHideLabel", "IgnoreMassShowHideLabel", Loc ["STRING_OPTIONS_WINDOW_IGNOREMASSTOGGLE"], "GameFontHighlightLeft")
+
+		frame6.IgnoreMassShowHideSlider:SetPoint ("left", frame6.IgnoreMassShowHideLabel, "right", 2)
+		frame6.IgnoreMassShowHideSlider.OnSwitch = function (self, instance, value)
+
+			instance.ignore_mass_showhide = value
 			
+			if (_detalhes.options_group_edit and not DetailsOptionsWindow.loading_settings) then
+				for _, this_instance in ipairs (instance:GetInstanceGroup()) do
+					if (this_instance ~= instance) then
+						this_instance.ignore_mass_showhide = value
+					end
+				end
+			end
+			
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+		end
+		
+		window:CreateLineBackground2 (frame6, "IgnoreMassShowHideSlider", "IgnoreMassShowHideLabel", Loc ["STRING_OPTIONS_WINDOW_IGNOREMASSTOGGLE_DESC"])			
+		
 	--> general anchor
 		g:NewLabel (frame6, _, "$parentAdjustmentsAnchor", "AdjustmentsAnchorLabel", Loc ["STRING_OPTIONS_WINDOW_ANCHOR"], "GameFontNormal")
 		g:NewLabel (frame6, _, "$parentAdjustments2Anchor", "AdjustmentsAnchor2Label", Loc ["STRING_OPTIONS_WINDOW_ANCHOR_ANCHORS"], "GameFontNormal")
@@ -6936,13 +6961,14 @@ function window:CreateFrame6()
 			{"windowBackgroundPickColorLabel", 3},
 			{"WindowScaleLabel", 4, true},
 			{"sideBarsLabel", 5, true},
-			{"strataLabel", 6},
-			{"backdropLabel", 7},
+			{"IgnoreMassShowHideLabel", 6},
+			{"strataLabel", 7},
+			{"backdropLabel", 8},
 			
-			{"AdjustmentsAnchor2Label", 8, true},
-			{"instanceToolbarSideLabel", 9},
-			{"stretchAnchorLabel", 10, true},
-			{"stretchAlwaysOnTopLabel", 11},
+			{"AdjustmentsAnchor2Label", 9, true},
+			{"instanceToolbarSideLabel", 10},
+			{"stretchAnchorLabel", 11, true},
+			{"stretchAlwaysOnTopLabel", 12},
 		}
 		
 		window:arrange_menu (frame6, left_side, x, window.top_start_at)
@@ -9971,6 +9997,9 @@ end --> if not window
 		
 		_G.DetailsOptionsWindow6StretchAlwaysOnTopSlider.MyObject:SetFixedParameter (editing_instance)
 		_G.DetailsOptionsWindow6StretchAlwaysOnTopSlider.MyObject:SetValue (editing_instance.grab_on_top)
+		
+		_G.DetailsOptionsWindow6IgnoreMassShowHideSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow6IgnoreMassShowHideSlider.MyObject:SetValue (editing_instance.ignore_mass_showhide)
 		
 		_G.DetailsOptionsWindow6InstanceMicroDisplaysSideSlider.MyObject:SetFixedParameter (editing_instance)
 		_G.DetailsOptionsWindow6InstanceMicroDisplaysSideSlider.MyObject:SetValue (editing_instance.micro_displays_side)

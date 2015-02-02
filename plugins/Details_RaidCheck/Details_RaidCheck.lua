@@ -148,15 +148,13 @@ local food_list = {
 				DetailsRaidCheck.ToolbarButton:SetHighlightTexture ([[Interface\AddOns\Details_RaidCheck\icon_red]], "ADD")
 			end
 		end
-	
-		
+
 		local show_panel = CreateFrame ("frame", nil, UIParent)
 		show_panel:SetSize (400, 300)
-		--show_panel:SetBackdrop ({bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 16})
 		show_panel:SetPoint ("bottom", DetailsRaidCheck.ToolbarButton, "top", 0, 10)
-		--show_panel:SetBackdrop ({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], edgeFile = [[Interface\Tooltips\UI-Tooltip-Border]], edgeSize = 16, insets = {left = 4, right = 4, top = 2, bottom = 1}})
 		show_panel:SetBackdrop ({bgFile = [[Interface\Garrison\GarrisonMissionUIInfoBoxBackgroundTile]], tileSize = 256, edgeFile = [[Interface\Tooltips\UI-Tooltip-Border]], edgeSize = 16, insets = {left = 4, right = 4, top = 2, bottom = 1}})
 		show_panel:SetBackdropColor (1, 1, 1, 0.9)
+		show_panel:SetClampedToScreen (true)
 
 		--
 		

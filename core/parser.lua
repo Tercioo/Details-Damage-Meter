@@ -627,11 +627,11 @@
 	function parser:summon (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellName)
 	
 		--[[statistics]]-- _detalhes.statistics.pets_summons = _detalhes.statistics.pets_summons + 1
-	
-		--if (who_name:find ("Kastfall")) then
-		--	print ("SUMMON", who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags)
-		--end
-	
+
+		if (not _detalhes.capture_real ["damage"] and not _detalhes.capture_real ["heal"]) then
+			return
+		end
+		
 		if (not who_name) then
 			who_name = "[*] " .. spellName
 		end

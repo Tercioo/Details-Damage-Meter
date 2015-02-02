@@ -311,7 +311,7 @@ end
 
 	function _detalhes:ShutDownAllInstances()
 		for index, instance in _ipairs (_detalhes.tabela_instancias) do
-			if (instance:IsEnabled()) then
+			if (instance:IsEnabled() and instance.baseframe and not instance.ignore_mass_showhide) then
 				instance:ShutDown()
 			end
 		end
@@ -410,7 +410,17 @@ end
 	end
 	
 	function _detalhes:ToggleWindows()
-		local instance = _detalhes:GetInstance (1)
+	
+		local instance
+		
+		for i = 1, #_detalhes.tabela_instancias do
+			local this_instance = _detalhes:GetInstance (i)
+			if (this_instance and not this_instance.ignore_mass_showhide) then
+				instance = this_instance
+				break
+			end
+		end
+
 		if (instance) then
 			if (instance:IsEnabled()) then
 				_detalhes:ShutDownAllInstances()
@@ -430,7 +440,9 @@ end
 	function _detalhes:ReabrirTodasInstancias (temp)
 		for index = math.min (#_detalhes.tabela_instancias, _detalhes.instances_amount), 1, -1 do 
 			local instancia = _detalhes:GetInstance (index)
-			instancia:AtivarInstancia (temp)
+			if (instancia and not instancia.ignore_mass_showhide) then
+				instancia:AtivarInstancia (temp)
+			end
 		end
 	end
 	
@@ -476,8 +488,6 @@ end
 			instancia:LockInstance (false)
 		end
 	end
-
---> oposto do desativar, ela apenas volta a mostrar a janela
 
 	--> alias
 	function _detalhes:EnableInstance (temp)
@@ -740,13 +750,14 @@ end
 
 function _detalhes:BaseFrameSnap()
 
-	for meu_id, instancia in _ipairs (_detalhes.tabela_instancias) do
+	local group = self:GetInstanceGroup()
+
+	for meu_id, instancia in _ipairs (group) do
 		if (instancia:IsAtiva()) then
 			instancia.baseframe:ClearAllPoints()
 		end
 	end
 
-	local group = self:GetInstanceGroup()
 	local scale = self.window_scale
 	for _, instance in _ipairs (group) do
 		instance:SetWindowScale (scale)
@@ -3115,7 +3126,7 @@ function _detalhes:envia_relatorio (linhas, custom)
 		local alvo = _detalhes.report_to_who
 		
 		if (not alvo or alvo == "") then
-			print (Loc ["STRING_REPORT_INVALIDTARGET"])
+			_detalhes:Msg (Loc ["STRING_REPORT_INVALIDTARGET"])
 			return
 		end
 		
@@ -3132,11 +3143,11 @@ function _detalhes:envia_relatorio (linhas, custom)
 			if (_UnitIsPlayer ("target")) then
 				alvo = _UnitName ("target")
 			else
-				print (Loc ["STRING_REPORT_INVALIDTARGET"])
+				_detalhes:Msg (Loc ["STRING_REPORT_INVALIDTARGET"])
 				return
 			end
 		else
-			print (Loc ["STRING_REPORT_INVALIDTARGET"])
+			_detalhes:Msg (Loc ["STRING_REPORT_INVALIDTARGET"])
 			return
 		end
 		

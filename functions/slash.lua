@@ -20,11 +20,47 @@ function SlashCmdList.DETAILS (msg, editbox)
 	if (command == Loc ["STRING_SLASH_NEW"] or command == "new") then
 		_detalhes:CriarInstancia (nil, true)
 		
+	elseif (command == Loc ["STRING_SLASH_TOGGLE"] or command == "toggle") then
+		
+		local instance = rest:match ("^(%S*)%s*(.-)$")
+		instance = tonumber (instance)
+		if (instance) then
+			_detalhes:ToggleWindow (instance)
+		else
+			_detalhes:ToggleWindows()
+		end
+		
 	elseif (command == Loc ["STRING_SLASH_HIDE"] or command == Loc ["STRING_SLASH_HIDE_ALIAS1"] or command == "hide") then
-		_detalhes:ShutDownAllInstances()
+	
+		local instance = rest:match ("^(%S*)%s*(.-)$")
+		instance = tonumber (instance)
+		if (instance) then
+			local this_instance = _detalhes:GetInstance (instance)
+			if (not this_instance) then
+				return _detalhes:Msg (Loc ["STRING_WINDOW_NOTFOUND"])
+			end
+			if (this_instance:IsEnabled() and this_instance.baseframe) then
+				this_instance:ShutDown()
+			end
+		else
+			_detalhes:ShutDownAllInstances()
+		end
 	
 	elseif (command == Loc ["STRING_SLASH_SHOW"] or command == Loc ["STRING_SLASH_SHOW_ALIAS1"] or command == "show") then
-		_detalhes:ReabrirTodasInstancias()
+	
+		local instance = rest:match ("^(%S*)%s*(.-)$")
+		instance = tonumber (instance)
+		if (instance) then
+			local this_instance = _detalhes:GetInstance (instance)
+			if (not this_instance) then
+				return _detalhes:Msg (Loc ["STRING_WINDOW_NOTFOUND"])
+			end
+			if (not this_instance:IsEnabled() and this_instance.baseframe) then
+				this_instance:EnableInstance()
+			end
+		else	
+			_detalhes:ReabrirTodasInstancias()
+		end
 	
 	elseif (command == Loc ["STRING_SLASH_WIPECONFIG"] or command == "reinstall") then
 		_detalhes:WipeConfig()
@@ -73,12 +109,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 			end
 			
 		end
-		
-	elseif (command == Loc ["STRING_SLASH_TOGGLE"] or command == "toggle") then
-		
-		_detalhes:ToggleWindows()
 
-		
 	elseif (command == Loc ["STRING_SLASH_WORLDBOSS"] or command == "worldboss") then
 		
 		local questIds = {{"Tarlna the Ageless", 81535}, {"Drov the Ruiner ", 87437}, {"Rukhmar", 87493}}
@@ -869,18 +900,15 @@ function SlashCmdList.DETAILS (msg, editbox)
 		
 		print (" ")
 		print (Loc ["STRING_DETAILS1"] .. "(" .. _detalhes.userversion .. ") " ..  Loc ["STRING_COMMAND_LIST"])
-		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_NEW"] .. "|r: " .. Loc ["STRING_SLASH_NEW_DESC"])
-		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_SHOW"] .. "|r: " .. Loc ["STRING_SLASH_SHOW_DESC"])
-		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_HIDE"] .. "|r: " .. Loc ["STRING_SLASH_HIDE_DESC"])
 		
-		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_TOGGLE"] .. "|r: " .. Loc ["STRING_SLASH_TOGGLE_DESC"])
+		print ("|cffffaeae/details|r |cffffff33" .. Loc ["STRING_SLASH_NEW"] .. "|r: " .. Loc ["STRING_SLASH_NEW_DESC"])
+		print ("|cffffaeae/details|r |cffffff33" .. Loc ["STRING_SLASH_SHOW"] .. " " .. Loc ["STRING_SLASH_HIDE"] .. " " .. Loc ["STRING_SLASH_TOGGLE"] .. "|r|cfffcffb0 <" .. Loc ["STRING_WINDOW_NUMBER"] .. ">|r: " .. Loc ["STRING_SLASH_SHOWHIDETOGGLE_DESC"])
+		print ("|cffffaeae/details|r |cffffff33" .. Loc ["STRING_SLASH_ENABLE"] .. " " .. Loc ["STRING_SLASH_DISABLE"] .. "|r: " .. Loc ["STRING_SLASH_CAPTURE_DESC"])
+		print ("|cffffaeae/details|r |cffffff33" .. Loc ["STRING_SLASH_RESET"] .. "|r: " .. Loc ["STRING_SLASH_RESET_DESC"])
+		print ("|cffffaeae/details|r |cffffff33" .. Loc ["STRING_SLASH_OPTIONS"] .. "|r|cfffcffb0 <" .. Loc ["STRING_WINDOW_NUMBER"] .. ">|r: " .. Loc ["STRING_SLASH_OPTIONS_DESC"])
+		print ("|cffffaeae/details|r |cffffff33" .. Loc ["STRING_SLASH_CHANGES"] .. "|r: " .. Loc ["STRING_SLASH_CHANGES_DESC"])
+		print ("|cffffaeae/details|r |cffffff33" .. Loc ["STRING_SLASH_WIPECONFIG"] .. "|r: " .. Loc ["STRING_SLASH_WIPECONFIG_DESC"])
 		
-		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_ENABLE"] .. "|r: " .. Loc ["STRING_SLASH_ENABLE_DESC"])
-		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_DISABLE"] .. "|r: " .. Loc ["STRING_SLASH_DISABLE_DESC"])
-		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_RESET"] .. "|r: " .. Loc ["STRING_SLASH_RESET_DESC"])
-		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_OPTIONS"] .. "|r|cfffcffb0 <instance number>|r: " .. Loc ["STRING_SLASH_OPTIONS_DESC"])
-		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_CHANGES"] .. "|r: " .. Loc ["STRING_SLASH_CHANGES_DESC"])
-		print ("|cffffaeae/details " .. Loc ["STRING_SLASH_WIPECONFIG"] .. "|r: " .. Loc ["STRING_SLASH_WIPECONFIG_DESC"])
 		--print ("|cffffaeae/details " .. Loc ["STRING_SLASH_WORLDBOSS"] .. "|r: " .. Loc ["STRING_SLASH_WORLDBOSS_DESC"])
 		print (" ")
 

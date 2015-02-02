@@ -48,25 +48,33 @@ local blackrock_foundry = {
 	
 	encounter_ids2 = {
 		--combatlog encounter id
+		[1691] = 1, --Gruul
+		[1696] = 2, --Oregorger
 		[1694] = 3, --Beastlord Darmac
 		[1689] = 4, --Flamebender Ka'graz
 		[1693] = 5, --Hans'gar & Franzok
 		[1692] = 6, --Operator Thogar
+		[1690] = 7, --The Blast Furnace
 		[1713] = 8, --Kromog, Legend of the Mountain
 		[1695] = 9, --The Iron Maidens
+		[1704] = 10, --Blackhand
 	},
 	
 	boss_ids = {
 		--npc ids
+		[76877] = 1, --Gruul
+		[77182] = 2, --Oregorger
 		[76865] = 3, --Beastlord Darmac
 		[76814] = 4, --Flamebender Ka'graz
 		[76974] = 5, --Franzok
 		[76973] = 5, --Hans'gar
 		[76906] = 6, --Operator Thogar
+		[76806] = 7, --Heart of the Mountain
 		[77692] = 8, --Kromog, Legend of the Mountain
 		[77557] = 9, -- Admiral Gar'an
 		[77231] = 9, --Enforcer Sorka
 		[77477] = 9, --Marak the Blooded
+		[77325] = 10, --Blackhand
 	},
 
 	encounters = {

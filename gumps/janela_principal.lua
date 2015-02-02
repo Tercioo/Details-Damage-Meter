@@ -5434,6 +5434,22 @@ function _detalhes:ChangeSkin (skin_name)
 				if (this_skin.micro_frames.left) then
 					_detalhes.StatusBar:SetPlugin (self, this_skin.micro_frames.left, "left")
 				end
+				
+				if (this_skin.micro_frames.textxmod) then
+					_detalhes.StatusBar:ApplyOptions (self.StatusBar.left, "textxmod", this_skin.micro_frames.textxmod)
+					_detalhes.StatusBar:ApplyOptions (self.StatusBar.center, "textxmod", this_skin.micro_frames.textxmod)
+					_detalhes.StatusBar:ApplyOptions (self.StatusBar.right, "textxmod", this_skin.micro_frames.textxmod)
+				end
+				if (this_skin.micro_frames.textymod) then
+					_detalhes.StatusBar:ApplyOptions (self.StatusBar.left, "textymod", this_skin.micro_frames.textymod)
+					_detalhes.StatusBar:ApplyOptions (self.StatusBar.center, "textymod", this_skin.micro_frames.textymod)
+					_detalhes.StatusBar:ApplyOptions (self.StatusBar.right, "textymod", this_skin.micro_frames.textymod)
+				end
+				if (this_skin.micro_frames.hidden) then
+					_detalhes.StatusBar:ApplyOptions (self.StatusBar.left, "hidden", this_skin.micro_frames.hidden)
+					_detalhes.StatusBar:ApplyOptions (self.StatusBar.center, "hidden", this_skin.micro_frames.hidden)
+					_detalhes.StatusBar:ApplyOptions (self.StatusBar.right, "hidden", this_skin.micro_frames.hidden)
+				end
 				if (this_skin.micro_frames.color) then
 					_detalhes.StatusBar:ApplyOptions (self.StatusBar.left, "textcolor", this_skin.micro_frames.color)
 					_detalhes.StatusBar:ApplyOptions (self.StatusBar.center, "textcolor", this_skin.micro_frames.color)
@@ -5789,7 +5805,7 @@ function _detalhes:AttributeMenu (enabled, pos_x, pos_y, font, size, color, side
 	self.attribute_text.text_color = color
 	self.attribute_text.side = side
 	self.attribute_text.shadow = shadow
-
+	
 	--> enabled
 	if (not enabled and self.menu_attribute_string) then
 		return self.menu_attribute_string:Hide()
@@ -5861,7 +5877,7 @@ function _detalhes:AttributeMenu (enabled, pos_x, pos_y, font, size, color, side
 	
 	--shadow
 	_detalhes:SetFontOutline (self.menu_attribute_string, shadow)
-	
+
 end
 
 -- ~backdrop
@@ -6236,7 +6252,7 @@ function _detalhes:ToolbarSide (side)
 	end
 	
 	--> update top menus
-		self:LeftMenuAnchorSide()
+	self:LeftMenuAnchorSide()
 	
 	self:StretchButtonAnchor()
 	
@@ -6601,6 +6617,7 @@ function _detalhes:ShowStatusBar (instancia)
 	self.baseframe.DOWNFrame:Show()
 	
 	self:ToolbarSide()
+	
 	self:StretchButtonAnchor()
 	
 	if (self.micro_displays_side == 2) then --> bottom side

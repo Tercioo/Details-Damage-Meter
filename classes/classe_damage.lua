@@ -1352,7 +1352,7 @@ end
 
 local actor_class_color_r, actor_class_color_g, actor_class_color_b
 
---self = esta classe de dano
+-- ~atualizar ~barra
 function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra, lugar, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator)
 							-- instância, container das barras, qual barra, colocação, total?, sub atributo, forçar refresh, key
 	
