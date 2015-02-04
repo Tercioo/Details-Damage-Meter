@@ -6140,14 +6140,8 @@ function _detalhes:SetWindowScale (scale, from_options)
 	if (not scale) then
 		scale = self.window_scale
 	end
-	
-	self.window_scale = scale
-	
-	self.baseframe:SetScale (scale)
-	self.rowframe:SetScale (scale)
-	
+
 	if (from_options) then
-	
 		local group = self:GetInstanceGroup()
 		
 		for _, instance in _ipairs (group) do
@@ -6164,6 +6158,12 @@ function _detalhes:SetWindowScale (scale, from_options)
 		for _, instance in _ipairs (group) do
 			instance:SaveMainWindowPosition()
 		end
+		
+	else
+		self.window_scale = scale
+		self.baseframe:SetScale (scale)
+		self.rowframe:SetScale (scale)
+		--self:SaveMainWindowPosition() -- skin was replacing window_scale
 	end
 end
 

@@ -957,6 +957,7 @@ local default_player_data = {
 		last_instance_time = 0,
 	--> nicktag cache
 		nick_tag_cache = {},
+		ignore_nicktag = false,
 	--> plugin data
 		plugin_database = {},
 	--> information about this character

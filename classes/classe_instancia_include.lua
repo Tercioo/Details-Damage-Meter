@@ -45,6 +45,7 @@ _detalhes.instance_skin_ignored_values = {
 	["grab_on_top"] = true,
 	["libwindow"] = true,
 	["ignore_mass_showhide"] = true,
+	["window_scale"] = true,
 }
 
 function _detalhes:ResetInstanceConfigKeepingValues (maintainsnap)

@@ -162,7 +162,9 @@
 			--> é um player
 			if (_bit_band (flag, OBJECT_TYPE_PLAYER) ~= 0) then
 			
-				novo_objeto.displayName = _detalhes:GetNickname (serial, false, true) --> serial, default, silent
+				if (not _detalhes.ignore_nicktag) then
+					novo_objeto.displayName = _detalhes:GetNickname (serial, false, true) --> serial, default, silent
+				end
 				if (not novo_objeto.displayName) then
 				
 					if (_IsInInstance() and _detalhes.remove_realm_from_name) then

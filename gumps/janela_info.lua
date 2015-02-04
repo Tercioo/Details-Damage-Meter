@@ -103,7 +103,7 @@ function _detalhes:AbreJanelaInfo (jogador, from_att_change)
 	end
 	
 	if (avatar and avatar [1]) then
-		info.nome:SetText (avatar [1] or nome)
+		info.nome:SetText ((not _detalhes.ignore_nicktag and avatar [1]) or nome)
 	end
 	
 	if (avatar and avatar [2]) then

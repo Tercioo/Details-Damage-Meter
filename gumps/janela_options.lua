@@ -3593,6 +3593,19 @@ function window:CreateFrame1()
 		frame1.avatarNickname:SetDrawLayer ("overlay", 3)
 		frame1.avatarPreview2:SetDrawLayer ("overlay", 2)
 		
+	-->  ignore nicknames --------------------------------------------------------------------------------------------------------------------------------------------
+
+		g:NewLabel (frame1, _, "$parentIgnoreNicknamesLabel", "IgnoreNicknamesLabel", Loc ["STRING_OPTIONS_IGNORENICKNAME"], "GameFontHighlightLeft")
+		g:NewSwitch (frame1, _, "$parentIgnoreNicknamesSlider", "IgnoreNicknamesSlider", 60, 20, _, _, _detalhes.ignore_nicktag)
+		frame1.IgnoreNicknamesSlider:SetPoint ("left", frame1.IgnoreNicknamesLabel, "right", 2)
+
+		frame1.IgnoreNicknamesSlider.OnSwitch = function (self, _, value)
+			_detalhes.ignore_nicktag = value
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+		end
+		
+		window:CreateLineBackground2 (frame1, "IgnoreNicknamesSlider", "IgnoreNicknamesLabel", Loc ["STRING_OPTIONS_IGNORENICKNAME_DESC"])
+		
 	-->  realm name --------------------------------------------------------------------------------------------------------------------------------------------
 
 		g:NewLabel (frame1, _, "$parentRealmNameLabel", "realmNameLabel", Loc ["STRING_OPTIONS_REALMNAME"], "GameFontHighlightLeft")
@@ -3917,7 +3930,8 @@ function window:CreateFrame1()
 		frame1.avatarPreview2:SetPoint (avatar_x_anchor2+1, -159)
 		frame1.avatarNickname:SetPoint (avatar_x_anchor2+109, -191)
 		
-		frame1.realmNameLabel:SetPoint (avatar_x_anchor, -235)
+		frame1.IgnoreNicknamesLabel:SetPoint (avatar_x_anchor, -235)
+		frame1.realmNameLabel:SetPoint (avatar_x_anchor, -255)
 		
 		--frame1.ToolsLabel:SetPoint (avatar_x_anchor, -265)
 		--frame1.EraseDataLabel:SetPoint (avatar_x_anchor, -290)
@@ -3935,7 +3949,7 @@ function window:CreateFrame1()
 			{"CreateWindowButton", 6, true},
 		}
 		
-		window:arrange_menu (frame1, right_side, x, -265)
+		window:arrange_menu (frame1, right_side, x, -285)
 		
 		local left_side = {
 			{"GeneralAnchorLabel", 1, true},
@@ -7123,12 +7137,38 @@ function window:CreateFrame7()
 
 			frame7.hideIconSlider:SetPoint ("left", frame7.hideIconLabel, "right", 2)
 			frame7.hideIconSlider.OnSwitch = function (self, instance, value)
+			
 				instance:HideMainIcon (value)
+				
+				if (not DetailsOptionsWindow.loading_settings and _detalhes.skins [instance.skin].icon_titletext_position) then
+					if (not value and instance.attribute_text.enabled and instance.attribute_text.side == instance.toolbar_side) then
+						instance.attribute_text.anchor [1] = _detalhes.skins [instance.skin].icon_titletext_position [1]
+						instance.attribute_text.anchor [2] = _detalhes.skins [instance.skin].icon_titletext_position [2]
+						instance:AttributeMenu()
+					elseif (value and instance.attribute_text.enabled and instance.attribute_text.side == instance.toolbar_side) then
+						instance.attribute_text.anchor [1] = _detalhes.skins [instance.skin].instance_cprops.attribute_text.anchor [1]
+						instance.attribute_text.anchor [2] = _detalhes.skins [instance.skin].instance_cprops.attribute_text.anchor [2]
+						instance:AttributeMenu()
+					end
+				end
 				
 				if (_detalhes.options_group_edit and not DetailsOptionsWindow.loading_settings) then
 					for _, this_instance in ipairs (instance:GetInstanceGroup()) do
 						if (this_instance ~= instance) then
 							this_instance:HideMainIcon (value)
+							
+							if (not DetailsOptionsWindow.loading_settings and _detalhes.skins [this_instance.skin].icon_titletext_position) then
+								if (not value and this_instance.attribute_text.enabled and this_instance.attribute_text.side == this_instance.toolbar_side) then
+									this_instance.attribute_text.anchor [1] = _detalhes.skins [this_instance.skin].icon_titletext_position [1]
+									this_instance.attribute_text.anchor [2] = _detalhes.skins [this_instance.skin].icon_titletext_position [2]
+									this_instance:AttributeMenu()
+								elseif (value and this_instance.attribute_text.enabled and this_instance.attribute_text.side == this_instance.toolbar_side) then
+									this_instance.attribute_text.anchor [1] = _detalhes.skins [this_instance.skin].instance_cprops.attribute_text.anchor [1]
+									this_instance.attribute_text.anchor [2] = _detalhes.skins [this_instance.skin].instance_cprops.attribute_text.anchor [2]
+									this_instance:AttributeMenu()
+								end
+							end
+							
 						end
 					end
 				end

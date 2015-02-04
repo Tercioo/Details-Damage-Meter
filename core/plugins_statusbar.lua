@@ -1483,10 +1483,21 @@ extraWindow:DisableGradient()
 	window.textstyle:SetPoint (10, -15)
 	
 	local onSelectTextStyle = function (_, child, style)
-		child.options.textStyle = style
-		if (child.Refresh and type (child.Refresh) == "function") then
-			child:Refresh (child)
+	
+		window.instance.StatusBar.left.options.textStyle = style
+		window.instance.StatusBar.center.options.textStyle = style
+		window.instance.StatusBar.right.options.textStyle = style
+		
+		if (window.instance.StatusBar.left.Refresh and type (window.instance.StatusBar.left.Refresh) == "function") then
+			window.instance.StatusBar.left:Refresh (window.instance.StatusBar.left)
 		end
+		if (window.instance.StatusBar.center.Refresh and type (window.instance.StatusBar.center.Refresh) == "function") then
+			window.instance.StatusBar.center:Refresh (window.instance.StatusBar.center)
+		end
+		if (window.instance.StatusBar.right.Refresh and type (window.instance.StatusBar.right.Refresh) == "function") then
+			window.instance.StatusBar.right:Refresh (window.instance.StatusBar.right)
+		end
+		
 	end
 	local textStyle = {{value = 1, label = Loc ["STRING_PLUGINOPTIONS_ABBREVIATE"] .. " (105.5K)", onclick = onSelectTextStyle},
 	{value = 2, label = Loc ["STRING_PLUGINOPTIONS_COMMA"] .. " (105.500)", onclick = onSelectTextStyle},
@@ -1501,12 +1512,20 @@ extraWindow:DisableGradient()
 	local selectedColor = function()
 		local r, g, b, a = ColorPickerFrame:GetColorRGB()
 		window.textcolortexture:SetTexture (r, g, b, a)
-		_detalhes.StatusBar:ApplyOptions (window.child, "textcolor", {r, g, b, a})
+		--_detalhes.StatusBar:ApplyOptions (window.child, "textcolor", {r, g, b, a})
+		
+		local color = {r, g, b, a}
+		_detalhes.StatusBar:ApplyOptions (window.instance.StatusBar.left, "textcolor", color)
+		_detalhes.StatusBar:ApplyOptions (window.instance.StatusBar.center, "textcolor", color)
+		_detalhes.StatusBar:ApplyOptions (window.instance.StatusBar.right, "textcolor", color)
 	end
 	local canceledColor = function()
 		local r, g, b, a = unpack (ColorPickerFrame.previousValues)
 		window.textcolortexture:SetTexture (r, g, b, a)
-		_detalhes.StatusBar:ApplyOptions (window.child, "textcolor", {r, g, b, a})
+		local color = {r, g, b, a}
+		_detalhes.StatusBar:ApplyOptions (window.instance.StatusBar.left, "textcolor", color)
+		_detalhes.StatusBar:ApplyOptions (window.instance.StatusBar.center, "textcolor", color)
+		_detalhes.StatusBar:ApplyOptions (window.instance.StatusBar.right, "textcolor", color)
 	end
 	local colorpick = function()
 		ColorPickerFrame.func = selectedColor
@@ -1519,33 +1538,27 @@ extraWindow:DisableGradient()
 		ColorPickerFrame:Show()
 	end
 
-	_detalhes.gump:NewImage (window, nil, 150, 16, nil, nil, "textcolortexture", "$parentTextColorTexture")
+	_detalhes.gump:NewImage (window, nil, 160, 16, nil, nil, "textcolortexture", "$parentTextColorTexture")
 	window.textcolortexture:SetPoint ("left", window.textcolor, "right", 2)
 	window.textcolortexture:SetTexture (1, 1, 1)
 	
-	_detalhes.gump:NewButton (window, _, "$parentTextColorButton", "textcolorbutton", 150, 20, colorpick)
+	_detalhes.gump:NewButton (window, _, "$parentTextColorButton", "textcolorbutton", 160, 20, colorpick)
 	window.textcolorbutton:SetPoint ("left", window.textcolor, "right", 2)
+	--window.textcolorbutton:InstallCustomTexture()
 	
-	local applyToAll = function()
-		_detalhes.StatusBar:ApplyOptions (window.instance.StatusBar.left, "textcolor", window.child.options.textColor)
-		_detalhes.StatusBar:ApplyOptions (window.instance.StatusBar.center, "textcolor", window.child.options.textColor)
-		_detalhes.StatusBar:ApplyOptions (window.instance.StatusBar.right, "textcolor", window.child.options.textColor)
-	end
-	_detalhes.gump:NewButton (window, _, "$parentTextColorApplyToAllButton", "applyToAll", 45, 16, applyToAll, nil, nil, nil, "->")
-	window.applyToAll:InstallCustomTexture()
-	window.applyToAll:SetPoint ("left", window.textcolorbutton, "right", 5)
-	window.applyToAll.tooltip = "apply this color to all micro displays"
-
 --> text size
 	_detalhes.gump:NewLabel (window, _, "$parentFontSizeLabel", "fonsizeLabel", Loc ["STRING_PLUGINOPTIONS_TEXTSIZE"])
 	window.fonsizeLabel:SetPoint (10, -55)
 	--
-	_detalhes.gump:NewSlider (window, _, "$parentSliderFontSize", "fonsizeSlider", 170, 20, 9, 15, .5, 1)
+	_detalhes.gump:NewSlider (window, _, "$parentSliderFontSize", "fonsizeSlider", 170, 20, 7, 20, 1, 1)
 	window.fonsizeSlider:SetPoint ("left", window.fonsizeLabel, "right", 2)
 	window.fonsizeSlider:SetThumbSize (50)
 	--window.fonsizeSlider.useDecimals = true
 	window.fonsizeSlider:SetHook ("OnValueChange", function (self, child, amount) 
-		_detalhes.StatusBar:ApplyOptions (child, "textsize", amount)
+		--_detalhes.StatusBar:ApplyOptions (child, "textsize", amount)
+		_detalhes.StatusBar:ApplyOptions (window.instance.StatusBar.left, "textsize", amount)
+		_detalhes.StatusBar:ApplyOptions (window.instance.StatusBar.center, "textsize", amount)
+		_detalhes.StatusBar:ApplyOptions (window.instance.StatusBar.right, "textsize", amount)
 	end)
 	
 --> align
@@ -1578,7 +1591,12 @@ extraWindow:DisableGradient()
 	
 --> text font
 	local onSelectFont = function (_, child, fontName)
-		_detalhes.StatusBar:ApplyOptions (child, "textface", fontName)
+		--_detalhes.StatusBar:ApplyOptions (child, "textface", fontName)
+		
+		_detalhes.StatusBar:ApplyOptions (window.instance.StatusBar.left, "textface", fontName)
+		_detalhes.StatusBar:ApplyOptions (window.instance.StatusBar.center, "textface", fontName)
+		_detalhes.StatusBar:ApplyOptions (window.instance.StatusBar.right, "textface", fontName)
+		
 	end
 
 	local fontObjects = SharedMedia:HashTable ("font")

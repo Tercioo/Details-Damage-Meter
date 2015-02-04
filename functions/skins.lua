@@ -304,6 +304,7 @@ local _
 		
 		icon_on_top = true,
 		icon_ignore_alpha = true,
+		icon_titletext_position = {3, 3},
 		
 		--overwrites
 		instance_cprops = {
@@ -525,6 +526,7 @@ local _
 		
 		icon_on_top = true,
 		icon_ignore_alpha = true,
+		icon_titletext_position = {5, 4},
 		
 		--overwrites
 		instance_cprops = {
@@ -746,6 +748,7 @@ local _
 
 		icon_on_top = true,
 		icon_ignore_alpha = true,
+		icon_titletext_position = {1, 2},
 		
 		instance_cprops = {
 			["show_statusbar"] = false,
@@ -1047,6 +1050,7 @@ local _
 		control_script = nil,
 		
 		icon_ignore_alpha = true,
+		icon_titletext_position = {3, 4},
 		
 		--instance overwrites
 		--[[ when a skin is selected, all customized properties of the window is reseted and then the overwrites are applied]]
@@ -1435,6 +1439,7 @@ local _
 		
 		icon_on_top = true,
 		icon_ignore_alpha = true,
+		icon_titletext_position = {2, 5},
 		
 		instance_cprops = {
 			["menu_icons_size"] = 0.899999976158142,
@@ -1681,6 +1686,7 @@ local _
 		
 		icon_on_top = true,
 		icon_ignore_alpha = true,
+		icon_titletext_position = {2, 5},
 		
 		instance_cprops = {
 			["show_statusbar"] = false,
