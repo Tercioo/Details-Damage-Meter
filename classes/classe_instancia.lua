@@ -259,6 +259,14 @@ function _detalhes:GetRow (index)
 	return self.barras [index]
 end
 
+function _detalhes:GetSkin()
+	return _detalhes.skins [self.skin]
+end
+
+function _detalhes:GetSkinTexture()
+	return _detalhes.skins [self.skin] and _detalhes.skins [self.skin].file
+end
+
 ------------------------------------------------------------------------------------------------------------------------
 
 --> retorna se a instância esta ou não ativa

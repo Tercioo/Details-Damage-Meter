@@ -200,6 +200,20 @@ function _detalhes:AbreJanelaInfo (jogador, from_att_change)
 		info.classe_iconePlus:SetTexture()
 	end
 	
+	if (jogador.grupo and IsInRaid() and not avatar) then
+		for i = 1, GetNumGroupMembers() do
+			local playerName, realmName = UnitName ("raid" .. i)
+			if (realmName and realmName ~= "") then
+				playerName = playerName .. "-" .. realmName
+			end
+			if (playerName == jogador.nome) then
+				SetPortraitTexture (info.classe_icone, "raid" .. i)
+				info.classe_icone:SetTexCoord (0, 1, 0, 1)
+				break
+			end
+		end
+	end
+	
 	info:ShowTabs()
 	gump:Fade (info, 0)
 	

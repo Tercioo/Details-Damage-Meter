@@ -201,13 +201,13 @@
 					local npcid2 = _detalhes:GetNpcIdFromGuid (t2.serial)
 					
 					if (not ignored_enemy_npcs [npcid1] and not ignored_enemy_npcs [npcid2]) then
-						return t1.total > t2.total
+						return t1.damage_taken > t2.damage_taken
 					elseif (ignored_enemy_npcs [npcid1] and not ignored_enemy_npcs [npcid2]) then
 						return false
 					elseif (not ignored_enemy_npcs [npcid1] and ignored_enemy_npcs [npcid2]) then
 						return true
 					else
-						return t1.total > t2.total
+						return t1.damage_taken > t2.damage_taken
 					end
 					
 				elseif (a ~= 0 and b == 0) then
@@ -853,6 +853,9 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 			keyName = "last_dps"
 		elseif (sub_atributo == 3) then --> TAMAGE TAKEN
 			keyName = "damage_taken"
+			if (_detalhes.damage_taken_everything) then
+				modo = modo_ALL
+			end
 		elseif (sub_atributo == 4) then --> FRIENDLY FIRE
 			keyName = "friendlyfire_total"
 		elseif (sub_atributo == 5) then --> FRAGS
@@ -1050,7 +1053,8 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 	
 		if (keyName == "enemies") then 
 		
-			amount, total = _detalhes:ContainerSortEnemies (conteudo, amount, "total")
+			--amount, total = _detalhes:ContainerSortEnemies (conteudo, amount, "total")
+			amount, total = _detalhes:ContainerSortEnemies (conteudo, amount, "damage_taken")
 			--keyName = "enemies"
 			--> grava o total
 			instancia.top = conteudo[1][keyName]
@@ -1549,6 +1553,32 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 	
 	elseif (sub_atributo == 6) then --> mostrando enemies
 	
+		local dtps = self.damage_taken / combat_time
+	
+		local formated_damage_taken = SelectedToKFunction (_, self.damage_taken)
+		local formated_dtps = SelectedToKFunction (_, dtps)
+		esta_barra.ps_text = formated_dtps
+
+		if (UsingCustomRightText) then
+			esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_damage_taken, formated_dtps, porcentagem, self, instancia.showing))
+		else
+			if (not bars_show_data [1]) then
+				formated_damage_taken = ""
+			end
+			if (not bars_show_data [2]) then
+				formated_dtps = ""
+			end
+			if (not bars_show_data [3]) then
+				porcentagem = ""
+			else
+				porcentagem = porcentagem .. "%"
+			end
+			esta_barra.texto_direita:SetText (formated_damage_taken .. bars_brackets[1] .. formated_dtps .. bars_separator .. porcentagem .. bars_brackets[2])
+		end
+		
+		esta_porcentagem = _math_floor ((self.damage_taken/instancia.top) * 100)
+	
+		--[[
 		dps = _math_floor (dps)
 		local formated_damage = SelectedToKFunction (_, damage_total)
 		local formated_dps = SelectedToKFunction (_, dps)
@@ -1573,7 +1603,7 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 
 		end
 		esta_porcentagem = _math_floor ((damage_total/instancia.top) * 100)
-		
+		--]]
 	end
 
 	if (esta_barra.mouse_over and not instancia.baseframe.isMoving) then --> precisa atualizar o tooltip
@@ -2068,49 +2098,15 @@ function atributo_damage:ToolTip_DamageTaken (instancia, numero, barra, keydown)
 	
 	local meus_agressores = {}
 
-	if (instancia.sub_atributo == 6) then
-		for nome, _ in _pairs (agressores) do --> agressores seria a lista de nomes
-			local este_agressor = showing._ActorTable [showing._NameIndexTable [nome]]
-			if (este_agressor) then --> checagem por causa do total e do garbage collector que não limpa os nomes que deram dano
+	for nome, _ in _pairs (agressores) do --> lista de nomes
+		local este_agressor = showing._ActorTable [showing._NameIndexTable [nome]]
+		if (este_agressor) then --> checagem por causa do total e do garbage collector que não limpa os nomes que deram dano
+			local name = nome
+			local damage_amount = este_agressor.targets [self.nome]
 			
-				local name = nome
-				local damage_amount = este_agressor.targets [self.nome]
-				
-				if (damage_amount) then
-				
-					if (este_agressor:IsPlayer()) then
-						meus_agressores [#meus_agressores+1] = {name, damage_amount, este_agressor.classe}
-					end
-				--[[
-					if (not este_agressor:IsPlayer()) then
-						name = Loc ["STRING_TARGETS_OTHER1"]
-						local got
-						for i, t in _ipairs (meus_agressores) do
-							if (t[1] == name) then
-								t[2] = t[2] + damage_amount
-								got = true
-								break
-							end
-						end
-						if (not got) then
-							meus_agressores [#meus_agressores+1] = {name, damage_amount, este_agressor.classe}
-						end
-					else
-						meus_agressores [#meus_agressores+1] = {name, damage_amount, este_agressor.classe}
-					end
-				--]]
-				end
-
-			end
-		end
-	else
-		for nome, _ in _pairs (agressores) do --> agressores seria a lista de nomes
-			local este_agressor = showing._ActorTable [showing._NameIndexTable [nome]]
-			if (este_agressor) then --> checagem por causa do total e do garbage collector que não limpa os nomes que deram dano
-				local alvos = este_agressor.targets
-				local este_alvo = alvos [self.nome]
-				if (este_alvo) then
-					meus_agressores [#meus_agressores+1] = {nome, este_alvo, este_agressor.classe}
+			if (damage_amount) then
+				if (este_agressor:IsPlayer() or este_agressor:IsNeutralOrEnemy()) then
+					meus_agressores [#meus_agressores+1] = {name, damage_amount, este_agressor.classe, este_agressor}
 				end
 			end
 		end
@@ -2119,12 +2115,12 @@ function atributo_damage:ToolTip_DamageTaken (instancia, numero, barra, keydown)
 	_table_sort (meus_agressores, _detalhes.Sort2)
 	
 	local max = #meus_agressores
-	if (max > 6) then
-		max = 6
+	if (max > 10) then
+		max = 10
 	end
 	
 	local ismaximized = false
-	if (keydown == "shift" or TooltipMaximizedMethod == 2 or TooltipMaximizedMethod == 3 or instancia.sub_atributo == 6) then
+	if (keydown == "shift" or TooltipMaximizedMethod == 2 or TooltipMaximizedMethod == 3 or instancia.sub_atributo == 6 or _detalhes.damage_taken_everything) then
 		max = #meus_agressores
 		ismaximized = true
 	end
@@ -2155,23 +2151,64 @@ function atributo_damage:ToolTip_DamageTaken (instancia, numero, barra, keydown)
 	end	
 	
 	for i = 1, max do
-		if (ismaximized and meus_agressores[i][1]:find (_detalhes.playername)) then
-			GameCooltip:AddLine (meus_agressores[i][1]..": ", FormatTooltipNumber (_, meus_agressores[i][2]).." (".._cstr("%.1f", (meus_agressores[i][2]/damage_taken) * 100).."%)", nil, "yellow")
-		else
-			GameCooltip:AddLine (meus_agressores[i][1]..": ", FormatTooltipNumber (_, meus_agressores[i][2]).." (".._cstr("%.1f", (meus_agressores[i][2]/damage_taken) * 100).."%)")
-		end
-		local classe = meus_agressores[i][3]
+	
+		local aggressor = meus_agressores[i][4]
+		if (aggressor:IsNeutralOrEnemy()) then
 		
-		if (not classe) then
-			classe = "UNKNOW"
-		end
+			local all_spells = {}
 		
-		if (classe == "UNKNOW") then
-			GameCooltip:AddIcon ("Interface\\LFGFRAME\\LFGROLE_BW", nil, nil, 14, 14, .25, .5, 0, 1)
+			for spellid, spell in _pairs (aggressor.spells._ActorTable) do
+				local on_target = spell.targets [self.nome]
+				if (on_target) then
+					tinsert (all_spells, {spellid, on_target, aggressor.nome})
+				end
+			end
+			
+			for _, spell in _ipairs (all_spells) do
+				local spellname, _, spellicon = _GetSpellInfo (spell [1])
+				GameCooltip:AddLine (spellname .. " (|cFFFFFF00" .. spell [3] .. "|r): ", FormatTooltipNumber (_, spell [2]).." (" .. _cstr ("%.1f", (spell [2] / damage_taken) * 100).."%)")
+				GameCooltip:AddIcon (spellicon, 1, 1, 14, 14)
+				_detalhes:AddTooltipBackgroundStatusbar()
+			end
+			
 		else
-			GameCooltip:AddIcon (instancia.row_info.icon_file, nil, nil, 14, 14, _unpack (_detalhes.class_coords [classe]))
+			if (ismaximized and meus_agressores[i][1]:find (_detalhes.playername)) then
+				GameCooltip:AddLine (meus_agressores[i][1]..": ", FormatTooltipNumber (_, meus_agressores[i][2]).." (".._cstr("%.1f", (meus_agressores[i][2]/damage_taken) * 100).."%)", nil, "yellow")
+			else
+				GameCooltip:AddLine (meus_agressores[i][1]..": ", FormatTooltipNumber (_, meus_agressores[i][2]).." (".._cstr("%.1f", (meus_agressores[i][2]/damage_taken) * 100).."%)")
+			end
+			local classe = meus_agressores[i][3]
+			
+			if (not classe) then
+				classe = "UNKNOW"
+			end
+			
+			if (classe == "UNKNOW") then
+				GameCooltip:AddIcon ("Interface\\LFGFRAME\\LFGROLE_BW", nil, nil, 14, 14, .25, .5, 0, 1)
+			else
+				GameCooltip:AddIcon (instancia.row_info.icon_file, nil, nil, 14, 14, _unpack (_detalhes.class_coords [classe]))
+			end
+			_detalhes:AddTooltipBackgroundStatusbar()
 		end
+	end
+
+	if (instancia.sub_atributo == 6) then
+	
+		GameCooltip:AddLine (" ")
+		GameCooltip:AddLine (Loc ["STRING_ATTRIBUTE_DAMAGE_DONE"], FormatTooltipNumber (_, _math_floor (self.total)))
+		local half = 0.00048828125
+		GameCooltip:AddIcon (instancia:GetSkinTexture(), 1, 1, 14, 14, 0.005859375 + half, 0.025390625 - half, 0.3623046875, 0.3818359375)
 		_detalhes:AddTooltipBackgroundStatusbar()
+		
+		local heal_actor = instancia.showing (2, self.nome)
+		if (heal_actor) then
+			GameCooltip:AddLine (Loc ["STRING_ATTRIBUTE_HEAL_DONE"], FormatTooltipNumber (_, _math_floor (heal_actor.heal_enemy_amt)))
+		else
+			GameCooltip:AddLine (Loc ["STRING_ATTRIBUTE_HEAL_DONE"], 0)
+		end
+		GameCooltip:AddIcon (instancia:GetSkinTexture(), 1, 1, 14, 14, 0.037109375 + half, 0.056640625 - half, 0.3623046875, 0.3818359375)
+		_detalhes:AddTooltipBackgroundStatusbar()
+		
 	end
 	
 	--> enemies

@@ -2201,6 +2201,18 @@ function window:CreateFrame18()
 		end
 		
 		window:CreateLineBackground2 (frame18, "DisableResetSlider", "DisableResetLabel", Loc ["STRING_OPTIONS_DISABLE_RESET_DESC"])
+		
+		--> damage taken always on everything
+		g:NewLabel (frame18, _, "$parentDamageTakenEverythingLabel", "DamageTakenEverythingLabel", Loc ["STRING_OPTIONS_DTAKEN_EVERYTHING"], "GameFontHighlightLeft")
+		g:NewSwitch (frame18, _, "$parentDamageTakenEverythingSlider", "DamageTakenEverythingSlider", 60, 20, _, _, _detalhes.damage_taken_everything)
+
+		frame18.DamageTakenEverythingSlider:SetPoint ("left", frame18.DamageTakenEverythingLabel, "right", 2)
+		frame18.DamageTakenEverythingSlider.OnSwitch = function (_, _, value)
+			_detalhes.damage_taken_everything = value
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+		end
+		
+		window:CreateLineBackground2 (frame18, "DamageTakenEverythingSlider", "DamageTakenEverythingLabel", Loc ["STRING_OPTIONS_DTAKEN_EVERYTHING_DESC"])
 	
 	--> Use Scroll Bar
 		g:NewLabel (frame18, _, "$parentUseScrollLabel", "scrollLabel", Loc ["STRING_OPTIONS_SCROLLBAR"], "GameFontHighlightLeft")
@@ -2313,7 +2325,8 @@ function window:CreateFrame18()
 			{"fontLabel", 4},
 			{"DisableGroupsLabel", 5, true},
 			{"DisableResetLabel", 6},
-			{"scrollLabel", 7},
+			{"DamageTakenEverythingLabel", 7},
+			{"scrollLabel", 8, true},
 
 		}
 		
@@ -4121,22 +4134,31 @@ function window:CreateFrame2()
 		g:NewSwitch (frame2, _, "$parentOverallDataAllSlider", "OverallDataAllSlider", 60, 20, _, _, false)
 		frame2.OverallDataAllSlider:SetPoint ("left", frame2.OverallDataAllLabel, "right", 2, 0)
 		--
+		
+		function frame2:OverallSliderEnabled()
+			frame2.OverallDataRaidBossSlider:Disable()
+			frame2.OverallDataRaidCleaupSlider:Disable()
+			frame2.OverallDataDungeonBossSlider:Disable()
+			frame2.OverallDataDungeonCleaupSlider:Disable()
+		end
+		
+		function frame2:OverallSliderDisabled()
+			frame2.OverallDataRaidBossSlider:Enable()
+			frame2.OverallDataRaidCleaupSlider:Enable()
+			frame2.OverallDataDungeonBossSlider:Enable()
+			frame2.OverallDataDungeonCleaupSlider:Enable()
+		end
+		
 		frame2.OverallDataAllSlider.OnSwitch = function (self, _, value)
+		
 			if (value and bit.band (_detalhes.overall_flag, 0x10) == 0) then
 				_detalhes.overall_flag = _detalhes.overall_flag + 0x10
-				
-				frame2.OverallDataRaidBossSlider:Disable()
-				frame2.OverallDataRaidCleaupSlider:Disable()
-				frame2.OverallDataDungeonBossSlider:Disable()
-				frame2.OverallDataDungeonCleaupSlider:Disable()
+				frame2:OverallSliderEnabled()
 				
 			elseif (not value and bit.band (_detalhes.overall_flag, 0x10) ~= 0) then
 				_detalhes.overall_flag = _detalhes.overall_flag - 0x10
-				
-				frame2.OverallDataRaidBossSlider:Enable()
-				frame2.OverallDataRaidCleaupSlider:Enable()
-				frame2.OverallDataDungeonBossSlider:Enable()
-				frame2.OverallDataDungeonCleaupSlider:Enable()
+				frame2:OverallSliderDisabled()
+
 			end
 			
 			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
@@ -9917,7 +9939,14 @@ end --> if not window
 		_G.DetailsOptionsWindow2OverallDataRaidCleaupSlider.MyObject:SetValue (bit.band (_detalhes.overall_flag, 0x2) ~= 0)
 		_G.DetailsOptionsWindow2OverallDataDungeonBossSlider.MyObject:SetValue (bit.band (_detalhes.overall_flag, 0x4) ~= 0)
 		_G.DetailsOptionsWindow2OverallDataDungeonCleaupSlider.MyObject:SetValue (bit.band (_detalhes.overall_flag, 0x8) ~= 0)
-		_G.DetailsOptionsWindow2OverallDataAllSlider.MyObject:SetValue (bit.band (_detalhes.overall_flag, 0x10) ~= 0)
+		
+		local overall_state = bit.band (_detalhes.overall_flag, 0x10) ~= 0
+		_G.DetailsOptionsWindow2OverallDataAllSlider.MyObject:SetValue (overall_state)
+		if (overall_state) then
+			_G.DetailsOptionsWindow2:OverallSliderEnabled()
+		else
+			_G.DetailsOptionsWindow2:OverallSliderDisabled()
+		end
 		
 		_G.DetailsOptionsWindow2OverallNewBossSlider.MyObject:SetValue (_detalhes.overall_clear_newboss)
 		_G.DetailsOptionsWindow2OverallNewChallengeSlider.MyObject:SetValue (_detalhes.overall_clear_newchallenge)
@@ -10187,6 +10216,7 @@ end --> if not window
 		--disable reset
 		_G.DetailsOptionsWindow18DisableResetSlider.MyObject:SetValue (_detalhes.disable_reset_button)
 		_G.DetailsOptionsWindow18UseScrollSlider.MyObject:SetValue (_detalhes.use_scroll)
+		_G.DetailsOptionsWindow18DamageTakenEverythingSlider.MyObject:SetValue (_detalhes.damage_taken_everything)
 		
 		--auto switch
 		local switch_tank_in_combat = editing_instance.switch_tank_in_combat

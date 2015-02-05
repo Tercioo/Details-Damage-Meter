@@ -835,12 +835,13 @@ local default_profile = {
 	--> PvP
 		only_pvp_frags = false,
 
-	--> window size
+	--> window settings
 		max_window_size = {width = 480, height = 450},
 		new_window_size = {width = 320, height = 130},
 		window_clamp = {-8, 0, 21, -14},
 		disable_window_groups = false,
 		disable_reset_button = false,
+		damage_taken_everything = false,
 		
 	--> segments
 		segments_amount = 12,
