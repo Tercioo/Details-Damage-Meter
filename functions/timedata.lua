@@ -177,6 +177,8 @@
 		local exec = {}
 		_detalhes.timeContainer.Exec = exec
 		
+		_detalhes:SendEvent ("COMBAT_CHARTTABLES_CREATING")
+		
 		--> build the exec table
 		for index, t in ipairs (_detalhes.savedTimeCaptures) do
 			if (t [INDEX_ENABLED]) then
@@ -197,6 +199,8 @@
 			
 			end
 		end
+		
+		_detalhes:SendEvent ("COMBAT_CHARTTABLES_CREATED")
 	
 		tick_time = 0
 	
@@ -476,5 +480,15 @@
 	
 	function _detalhes:BrokerTick()
 		_detalhes.databroker.text = parse_broker_text()
+	end
+	
+	function _detalhes:SetDataBrokerText (text)
+		if (type (text) == "string") then
+			_detalhes.data_broker_text = text
+			_detalhes:BrokerTick()
+		elseif (text == nil or (type (text) == "boolean" and not text)) then
+			_detalhes.data_broker_text = ""
+			_detalhes:BrokerTick()
+		end
 	end
 	

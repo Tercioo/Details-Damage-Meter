@@ -15,6 +15,8 @@ local cleanfunction = function() end
 local APITextEntryFunctions = false
 local TextEntryMetaFunctions = {}
 
+gump.TextEntryCounter = 1
+
 ------------------------------------------------------------------------------------------------------------
 --> metatables
 
@@ -470,13 +472,20 @@ local TextEntryMetaFunctions = {}
 ------------------------------------------------------------------------------------------------------------
 --> object constructor
 
+function gump:CreateTextEntry (parent, func, w, h, member, name)
+	return gump:NewTextEntry (parent, parent, name, member, w, h, func)
+end
+
 function gump:NewTextEntry (parent, container, name, member, w, h, func, param1, param2, space)
 	
 	if (not name) then
-		return nil
+		name = "DetailsTextEntryNumber" .. gump.TextEntryCounter
+		gump.TextEntryCounter = gump.TextEntryCounter + 1
+		
 	elseif (not parent) then
 		return nil
 	end
+	
 	if (not container) then
 		container = parent
 	end

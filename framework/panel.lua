@@ -16,6 +16,8 @@ local cleanfunction = function() end
 local PanelMetaFunctions = {}
 local APIFrameFunctions
 
+simple_panel_counter = 1
+
 ------------------------------------------------------------------------------------------------------------
 --> metatables
 
@@ -1223,6 +1225,49 @@ function gump:IconPick (callback, close_when_select)
 	
 end	
 
+function gump:CreateSimplePanel (parent, w, h, title, name)
+	
+	if (not name) then
+		name = "DetailsSimplePanel" .. simple_panel_counter
+		simple_panel_counter = simple_panel_counter + 1
+	end
+	if (not parent) then
+		parent = UIParent
+	end
+
+	local f = CreateFrame ("frame", name, UIParent)
+	f:SetSize (w or 400, h or 250)
+	f:SetPoint ("center", UIParent, "center", 0, 0)
+	f:SetFrameStrata ("FULLSCREEN")
+	f:EnableMouse()
+	f:SetMovable (true)
+	tinsert (UISpecialFrames, name)
+
+	f:SetScript ("OnMouseDown", simple_panel_mouse_down)
+	f:SetScript ("OnMouseUp", simple_panel_mouse_up)
+	
+	local bg = f:CreateTexture (nil, "background")
+	bg:SetAllPoints (f)
+	bg:SetTexture ([[Interface\AddOns\Details\images\welcome]])
+	
+	local close = CreateFrame ("button", name .. "Close", f, "UIPanelCloseButton")
+	close:SetSize (32, 32)
+	close:SetPoint ("topright", f, "topright", 0, -12)
+
+	f.title = gump:CreateLabel (f, title or "", 12, nil, "GameFontNormal")
+	f.title:SetPoint ("top", f, "top", 0, -22)
+	
+	f.SetTitle = simple_panel_settitle
+	
+	simple_panel_counter = simple_panel_counter + 1
+	
+	return f
+end
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+--> chart panel
+
 local chart_panel_backdrop = {bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16,
 edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", edgeSize = 32, insets = {left = 5, right = 5, top = 5, bottom = 5}}
 
@@ -1383,13 +1428,13 @@ local create_box = function (self, next_box)
 	local thisbox = {}
 	self.BoxLabels [next_box] = thisbox
 	
-	local box = gump:NewImage (self, nil, 16, 16, "border")
-	local text = gump:CreateLabel (self, nil, nil, nil, "GameFontNormal")
+	local box = gump:NewImage (self.Graphic, nil, 16, 16, "border")
+	local text = gump:CreateLabel (self.Graphic, nil, nil, nil, "GameFontNormal")
 	
-	local border = gump:NewImage (self, [[Interface\DialogFrame\UI-DialogBox-Gold-Corner]], 30, 30, "artwork")
+	local border = gump:NewImage (self.Graphic, [[Interface\DialogFrame\UI-DialogBox-Gold-Corner]], 30, 30, "artwork")
 	border:SetPoint ("center", box, "center", -3, -4)
 	
-	local checktexture = gump:NewImage (self, [[Interface\Buttons\UI-CheckBox-Check]], 18, 18, "overlay")
+	local checktexture = gump:NewImage (self.Graphic, [[Interface\Buttons\UI-CheckBox-Check]], 18, 18, "overlay")
 	checktexture:SetPoint ("center", box, "center", -1, -1)
 	
 	thisbox.box = box
@@ -1398,7 +1443,7 @@ local create_box = function (self, next_box)
 	thisbox.check = checktexture
 	thisbox.enabled = true
 
-	local button = gump:CreateButton (self, chart_panel_enable_line, 20, 20, "", self, thisbox)
+	local button = gump:CreateButton (self.Graphic, chart_panel_enable_line, 20, 20, "", self, thisbox)
 	button:SetPoint ("center", box, "center")
 	
 	thisbox.button = button
@@ -1412,6 +1457,36 @@ local create_box = function (self, next_box)
 	end
 
 	return thisbox
+	
+end
+
+local realign_labels = function (self)
+	
+	local width = self:GetWidth() - 108
+	
+	local first_box = self.BoxLabels [1]
+	first_box.text:SetPoint ("topright", self, "topright", -35, -16)
+	
+	local line_width = first_box.text:GetStringWidth() + 26
+	
+	for i = 2, #self.BoxLabels do
+	
+		local box = self.BoxLabels [i]
+		
+		if (box.box:IsShown()) then
+		
+			line_width = line_width + box.text:GetStringWidth() + 26
+			
+			if (line_width > width) then
+				line_width = box.text:GetStringWidth() + 26
+				box.text:SetPoint ("topright", self, "topright", -35, -40)
+			else
+				box.text:SetPoint ("right", self.BoxLabels [i-1].box, "left", -7, 0)
+			end
+		else
+			break
+		end
+	end
 	
 end
 
@@ -1440,6 +1515,8 @@ local chart_panel_add_label = function (self, color, name, type, number)
 
 	thisbox.showing = true
 	thisbox.enabled = true
+	
+	realign_labels (self)
 	
 end
 
@@ -1883,40 +1960,3 @@ local simple_panel_settitle = function (self, title)
 	self.title:SetText (title)
 end
 
-function gump:CreateSimplePanel (parent, w, h, title, name)
-	
-	if (not name) then
-		name = "DetailsSimplePanel" .. simple_panel_counter
-	end
-	if (not parent) then
-		parent = UIParent
-	end
-
-	local f = CreateFrame ("frame", name, UIParent)
-	f:SetSize (w or 400, h or 250)
-	f:SetPoint ("center", UIParent, "center", 0, 0)
-	f:SetFrameStrata ("FULLSCREEN")
-	f:EnableMouse()
-	f:SetMovable (true)
-	tinsert (UISpecialFrames, name)
-
-	f:SetScript ("OnMouseDown", simple_panel_mouse_down)
-	f:SetScript ("OnMouseUp", simple_panel_mouse_up)
-	
-	local bg = f:CreateTexture (nil, "background")
-	bg:SetAllPoints (f)
-	bg:SetTexture ([[Interface\AddOns\Details\images\welcome]])
-	
-	local close = CreateFrame ("button", name .. "Close", f, "UIPanelCloseButton")
-	close:SetSize (32, 32)
-	close:SetPoint ("topright", f, "topright", 0, -12)
-
-	f.title = gump:CreateLabel (f, title or "", 12, nil, "GameFontNormal")
-	f.title:SetPoint ("top", f, "top", 0, -22)
-	
-	f.SetTitle = simple_panel_settitle
-	
-	simple_panel_counter = simple_panel_counter + 1
-	
-	return f
-end

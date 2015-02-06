@@ -1,6 +1,8 @@
 --[[ options panel file --]]
 
 --[[
+	search for "~number" without the quotes to quick access the page:
+	
 	1 - general
 	2 - combat
 	3 - skin
@@ -1658,8 +1660,7 @@ function window:CreateFrame19()
 			broker_entry.text = _detalhes.data_broker_text
 
 			broker_entry:SetHook ("OnTextChanged", function (self, byUser)
-				_detalhes.data_broker_text = broker_entry.text
-				_detalhes:BrokerTick()
+				_detalhes:SetDataBrokerText (broker_entry.text)
 				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 			end)
 			
@@ -9966,7 +9967,7 @@ end --> if not window
 		_G.DetailsOptionsWindow3SkinDropdown.MyObject:SetFixedParameter (editing_instance)
 		_G.DetailsOptionsWindow3SkinDropdown.MyObject:Select (skin)
 		
-		local skin_object = _detalhes:GetSkin (skin)
+		local skin_object = editing_instance:GetSkin()
 		local skin_name_formated = skin:gsub (" ", "")
 		
 		--> hide all

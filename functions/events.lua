@@ -37,6 +37,8 @@
 			["COMBAT_BOSS_FOUND"] = {},
 			["COMBAT_INVALID"] = {},
 			["COMBAT_PREPOTION_UPDATED"] = {},
+			["COMBAT_CHARTTABLES_CREATING"] = {},
+			["COMBAT_CHARTTABLES_CREATED"] = {},
 		
 		--> area
 			["ZONE_TYPE_CHANGED"] = {},
@@ -84,6 +86,8 @@ local common_events = {
 	["COMBAT_BOSS_FOUND"] = true,
 	["COMBAT_INVALID"] = true,
 	["COMBAT_PREPOTION_UPDATED"] = true,
+	["COMBAT_CHARTTABLES_CREATING"] = true,
+	["COMBAT_CHARTTABLES_CREATED"] = true,
 	["GROUP_ONENTER"] = true,
 	["GROUP_ONLEAVE"] = true,
 	["ZONE_TYPE_CHANGED"] = true,
