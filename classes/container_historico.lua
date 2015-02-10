@@ -324,6 +324,17 @@ function historico:resetar()
 	_detalhes:AtualizaGumpPrincipal (-1) --atualiza todas as instancias
 	
 	_detalhes:SendEvent ("DETAILS_DATA_RESET", nil, nil)
+	
+	if (InCombatLockdown() and UnitAffectingCombat ("player")) then
+		_detalhes:ScheduleTimer ("DelayCheckCombat", 1)
+	end
+	
+end
+
+function _detalhes:DelayCheckCombat()
+	if (InCombatLockdown() and UnitAffectingCombat ("player") and not _detalhes.in_combat) then
+		_detalhes:EntrarEmCombate()
+	end
 end
 
 function _detalhes.refresh:r_historico (este_historico)

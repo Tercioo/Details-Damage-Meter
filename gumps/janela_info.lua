@@ -758,7 +758,8 @@ function gump:CriaJanelaInfo()
 
 	--> cria a janela em si
 	local este_gump = info
-	este_gump:SetFrameStrata ("MEDIUM")
+	este_gump:SetFrameStrata ("HIGH")
+	este_gump:SetToplevel (true)
 	
 	--> fehcar com o esc
 	tinsert (UISpecialFrames, este_gump:GetName())
@@ -2959,7 +2960,9 @@ function _detalhes:CreatePlayerDetailsTab (tabname, condition, fillfunction, onc
 	
 	local newtab = CreateFrame ("button", "DetailsInfoWindowTab" .. index, info, "ChatTabTemplate")
 	newtab:SetText (tabname)
+	newtab:SetParent (info)
 	newtab:SetFrameStrata ("HIGH")
+	newtab:SetFrameLevel (info:GetFrameLevel()+1)
 	newtab:Hide()
 	
 	newtab.condition = condition
@@ -2970,7 +2973,9 @@ function _detalhes:CreatePlayerDetailsTab (tabname, condition, fillfunction, onc
 	
 	--> frame
 	newtab.frame = CreateFrame ("frame", nil, UIParent)
+	newtab.frame:SetParent (info)
 	newtab.frame:SetFrameStrata ("HIGH")
+	newtab.frame:SetFrameLevel (info:GetFrameLevel()+5)
 	newtab.frame:EnableMouse (true)
 	
 	if (newtab.fillfunction) then

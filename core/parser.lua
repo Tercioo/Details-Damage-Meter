@@ -677,7 +677,12 @@
 		[115069] = true, -- Stance of the Sturdy Ox (Monk)
 		[20711] = true, -- Spirit of Redemption (Priest)
 	}
-		
+	
+	local ignored_overheal = {
+		[47753] = true, -- Divine Aegis
+		[86273] = true, -- Illuminated Healing
+	}
+	
 	function parser:heal_absorb (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spellschool, owner_serial, owner_name, owner_flags, owner_flags2, shieldid, shieldname, shieldtype, amount)
 		
 		--[[statistics]]-- _detalhes.statistics.absorbs_calls = _detalhes.statistics.absorbs_calls + 1
@@ -1102,7 +1107,7 @@
 		
 			------------------------------------------------------------------------------------------------
 			--> healing done (shields)
-				if (absorb_spell_list [spellid] and _recording_healing and amount) then
+				if (absorb_spell_list [spellid] and not ignored_overheal [spellid] and _recording_healing and amount) then
 					
 					if (escudo [alvo_name] and escudo [alvo_name][spellid] and escudo [alvo_name][spellid][who_name]) then
 					

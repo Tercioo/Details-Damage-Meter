@@ -95,6 +95,7 @@ function _detalhes:OpenOptionsWindow (instance, no_reopen, section)
 		window.instance = instance
 		tinsert (UISpecialFrames, "DetailsOptionsWindow")
 		window:SetFrameStrata ("HIGH")
+		window:SetToplevel (true)
 		window:SetPoint ("center", UIParent, "Center")
 		window.locked = false
 		window.close_with_right = true

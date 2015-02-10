@@ -3469,6 +3469,7 @@ end
 					shadow = overall_dano:PegarCombatente (actor.serial, actor.nome, actor.flag_original, true)
 					
 					shadow.classe = actor.classe
+					shadow.spec = actor.spec
 					shadow.grupo = actor.grupo
 					shadow.isTank = actor.isTank
 					shadow.boss = actor.boss
@@ -3513,7 +3514,7 @@ end
 						friendlyFire_shadow.spells [spellid] = 0
 					end
 				end
-			
+				
 			return shadow
 		end
 		
@@ -3527,6 +3528,7 @@ end
 					shadow = overall_dano:PegarCombatente (actor.serial, actor.nome, actor.flag_original, true)
 					
 					shadow.classe = actor.classe
+					shadow.spec = actor.spec
 					shadow.isTank = actor.isTank
 					shadow.grupo = actor.grupo
 					shadow.boss = actor.boss

@@ -1,8 +1,3 @@
---File Revision: 1
---Last Modification: 27/07/2013
--- Change Log:
-	-- 27/07/2013: Finished alpha version.
-
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	local _detalhes = 		_G._detalhes
@@ -461,6 +456,9 @@
 				else
 					_detalhes.schedule_flag_boss_components = true
 				end
+				
+				local boss_id = _detalhes.encounter_table.id
+				
 				
 				if (bossKilled) then
 					_detalhes.tabela_vigente.is_boss.killed = true

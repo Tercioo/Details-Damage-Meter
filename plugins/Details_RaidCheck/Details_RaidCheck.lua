@@ -155,6 +155,7 @@ local food_list = {
 		show_panel:SetBackdrop ({bgFile = [[Interface\Garrison\GarrisonMissionUIInfoBoxBackgroundTile]], tileSize = 256, edgeFile = [[Interface\Tooltips\UI-Tooltip-Border]], edgeSize = 16, insets = {left = 4, right = 4, top = 2, bottom = 1}})
 		show_panel:SetBackdropColor (1, 1, 1, 0.9)
 		show_panel:SetClampedToScreen (true)
+		show_panel:SetFrameStrata ("TOOLTIP")
 
 		--
 		

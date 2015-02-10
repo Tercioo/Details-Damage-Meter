@@ -2110,6 +2110,7 @@ end
 					shadow = overall_cura:PegarCombatente (actor.serial, actor.nome, actor.flag_original, true)
 					
 					shadow.classe = actor.classe
+					shadow.spec = actor.spec
 					shadow.grupo = actor.grupo
 					shadow.isTank = actor.isTank
 					shadow.boss = actor.boss
@@ -2171,6 +2172,7 @@ end
 					shadow = overall_cura:PegarCombatente (actor.serial, actor.nome, actor.flag_original, true)
 					
 					shadow.classe = actor.classe
+					shadow.spec = actor.spec
 					shadow.grupo = actor.grupo
 					shadow.isTank = actor.isTank
 					shadow.boss = actor.boss

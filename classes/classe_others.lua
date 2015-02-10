@@ -2301,6 +2301,7 @@ function atributo_misc:r_onlyrefresh_shadow (actor)
 		shadow = overall_misc:PegarCombatente (actor.serial, actor.nome, actor.flag_original, true)
 		
 		shadow.classe = actor.classe
+		shadow.spec = actor.spec
 		shadow.grupo = actor.grupo
 		shadow.isTank = actor.isTank
 		shadow.boss = actor.boss
@@ -2410,6 +2411,7 @@ function atributo_misc:r_connect_shadow (actor, no_refresh)
 		shadow = overall_misc:PegarCombatente (actor.serial, actor.nome, actor.flag_original, true)
 		
 		shadow.classe = actor.classe
+		shadow.spec = actor.spec
 		shadow.grupo = actor.grupo
 		shadow.isTank = actor.isTank
 		shadow.boss = actor.boss

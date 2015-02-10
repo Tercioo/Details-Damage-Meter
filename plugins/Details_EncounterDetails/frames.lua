@@ -572,10 +572,8 @@ do
 	
 	local DetailsFrameWork = _detalhes.gump
 
-	BossFrame:SetFrameStrata ("MEDIUM")
-	if (_detalhes.janela_info) then
-		BossFrame:SetFrameLevel (_detalhes.janela_info:GetFrameLevel()+3)
-	end
+	BossFrame:SetFrameStrata ("HIGH")
+	BossFrame:SetToplevel (true)
 	
 	BossFrame:SetWidth (698)
 	BossFrame:SetHeight (354)

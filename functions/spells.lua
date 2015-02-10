@@ -1554,7 +1554,7 @@ do
 		
 		[20594] = {120, 8, 1}, --racial stoneform
 		
-		[6262] = {120, 1, 1}, --healthstone
+		--[6262] = {120, 1, 1}, --healthstone
 		
 		--["DEATHKNIGHT"] = {},
 		[48707] = {45, 5, 1}, -- Anti-Magic Shell
@@ -1565,6 +1565,7 @@ do
 		--["DRUID"] = {},
 		[740] = {480, 8, 0}, --Tranquility
 		[22842] = {0, 0, 1}, --Frenzied Regeneration
+		[124988] = {90, 30, 0}, --Nature's Vigil
 		
 		--["HUNTER"] = {},
 		[172106] = {180, 6}, -- "Aspect of the Fox"

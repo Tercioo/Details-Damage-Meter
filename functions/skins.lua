@@ -256,14 +256,14 @@ local _
 		if (instance) then
 			instance:ToolbarMenuSetButtonsOptions (nil, true)
 			instance:AttributeMenu (nil, nil, nil, nil, nil, nil, nil, true)
-			instance:AttributeMenu (nil, nil, 3)
+			instance:AttributeMenu (nil, nil, 4)
 			
 			if (_detalhes.options_group_edit) then
 				for _, this_instance in ipairs (instance:GetInstanceGroup()) do
 					if (this_instance ~= instance) then
 						this_instance:ToolbarMenuSetButtonsOptions (nil, true)
 						this_instance:AttributeMenu (nil, nil, nil, nil, nil, nil, nil, true)
-						this_instance:AttributeMenu (nil, nil, 3)
+						this_instance:AttributeMenu (nil, nil, 4)
 					end
 				end
 			end
