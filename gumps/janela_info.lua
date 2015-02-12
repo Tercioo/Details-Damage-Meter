@@ -3536,6 +3536,7 @@ local target_on_enter = function (self)
 			
 			--add and sort
 			for target_name, amount in _pairs (ActorTargetsContainer) do
+				--print (target_name, amount)
 				ActorTargetsSortTable [#ActorTargetsSortTable+1] = {target_name, amount or 0}
 			end
 			table.sort (ActorTargetsSortTable, _detalhes.Sort2)

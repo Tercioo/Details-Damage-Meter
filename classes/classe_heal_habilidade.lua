@@ -77,7 +77,7 @@
 			
 			if (overhealing and overhealing > 0) then
 				self.overheal = self.overheal + overhealing
-				self.targets_overheal [nome] = (self.targets_overheal [nome] or 0) + amount
+				self.targets_overheal [nome] = (self.targets_overheal [nome] or 0) + overhealing
 			end
 			
 			if (is_shield) then

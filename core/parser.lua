@@ -1109,10 +1109,16 @@
 		
 			------------------------------------------------------------------------------------------------
 			--> healing done (shields)
-				if (absorb_spell_list [spellid] and not ignored_overheal [spellid] and _recording_healing and amount) then
+				if (absorb_spell_list [spellid] and _recording_healing and amount) then
 					
 					if (escudo [alvo_name] and escudo [alvo_name][spellid] and escudo [alvo_name][spellid][who_name]) then
-					
+
+						if (ignored_overheal [spellid]) then
+							escudo [alvo_name][spellid][who_name] = amount -- refresh já vem o valor atualizado
+							return
+						end
+						
+						--escudo antigo é dropado, novo é posto
 						local overheal = escudo [alvo_name][spellid][who_name]
 						escudo [alvo_name][spellid][who_name] = amount
 						
@@ -1128,7 +1134,7 @@
 							--return parser:heal (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, nil, _math_ceil (absorb), _math_ceil (overheal), 0, 0, nil, true)
 						--end
 					else
-						--> should apply aura if not found in already applied buff list?
+						-- escudo não encontrado :(
 					end
 
 			------------------------------------------------------------------------------------------------
@@ -1245,12 +1251,15 @@
 							-- o amount é o que sobrou do escudo
 							
 							local overheal = escudo [alvo_name][spellid][who_name]
-							--escudo [alvo_name][spellid][who_name] = nil
-							
-							if (overheal > 0) then
+							escudo [alvo_name][spellid][who_name] = 0
+
+							if (overheal and overheal > 0) then
 								return parser:heal (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, nil, 0, _math_ceil (overheal), 0, 0, nil, true)
+							else
+								return
 							end
-						---
+							
+						--- pre 6.0
 							--local escudo_antigo = escudo [alvo_name][spellid][who_name] --> quantidade total do escudo que foi colocado
 							
 							--local absorb = escudo_antigo - amount
