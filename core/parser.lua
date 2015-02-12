@@ -421,32 +421,34 @@
 		) then
 		
 			--> record death log
-			local t = last_events_cache [alvo_name]
-			
-			if (not t) then
-				t = _current_combat:CreateLastEventsTable (alvo_name)
-			end
-			
-			local i = t.n
+			if (este_jogador.grupo) then --> se tiver ele não adiciona o evento lá em cima
+				local t = last_events_cache [alvo_name]
+				
+				if (not t) then
+					t = _current_combat:CreateLastEventsTable (alvo_name)
+				end
+				
+				local i = t.n
 
-			local this_event = t [i]
-			
-			this_event [1] = true --> true if this is a damage || false for healing
-			this_event [2] = spellid --> spellid || false if this is a battle ress line
-			this_event [3] = amount --> amount of damage or healing
-			this_event [4] = time --> parser time
-			this_event [5] = _UnitHealth (alvo_name) --> current unit heal
-			this_event [6] = who_name --> source name
-			this_event [7] = absorbed
-			this_event [8] = school
-			this_event [9] = true
-			this_event [10] = overkill
-			i = i + 1
-			
-			if (i == 17) then
-				t.n = 1
-			else
-				t.n = i
+				local this_event = t [i]
+				
+				this_event [1] = true --> true if this is a damage || false for healing
+				this_event [2] = spellid --> spellid || false if this is a battle ress line
+				this_event [3] = amount --> amount of damage or healing
+				this_event [4] = time --> parser time
+				this_event [5] = _UnitHealth (alvo_name) --> current unit heal
+				this_event [6] = who_name --> source name
+				this_event [7] = absorbed
+				this_event [8] = school
+				this_event [9] = true
+				this_event [10] = overkill
+				i = i + 1
+				
+				if (i == 17) then
+					t.n = 1
+				else
+					t.n = i
+				end
 			end
 		
 			--> faz a adição do friendly fire

@@ -182,8 +182,8 @@ end
 function atributo_heal:ReportSingleDamagePreventedLine (actor, instancia)
 	local barra = instancia.barras [actor.minha_barra]
 
-	local reportar = {"Details! " .. Loc ["STRING_ATTRIBUTE_HEAL_PREVENT"].. ": " .. actor.nome} --> localize-me
-	for i = 1, GameCooltip:GetNumLines() do 
+	local reportar = {"Details!: " .. actor.nome .. " - " .. Loc ["STRING_ATTRIBUTE_HEAL_PREVENT"]}
+	for i = 2, GameCooltip:GetNumLines()-2 do 
 		local texto_left, texto_right = GameCooltip:GetText (i)
 		if (texto_left and texto_right) then 
 			texto_left = texto_left:gsub (("|T(.*)|t "), "")

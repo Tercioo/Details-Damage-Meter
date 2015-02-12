@@ -498,11 +498,17 @@
 		-- update tooltip function--
 
 		if (self.id) then
+			
+			--if (self.id == 1) then
+			--	self.classe = 1
+			--end
+			
 			local school_color = _detalhes.school_colors [self.classe]
 			if (not school_color) then
 				school_color = _detalhes.school_colors ["unknown"]
 			end
 			actor_class_color_r, actor_class_color_g, actor_class_color_b = _unpack (school_color)
+			
 		else
 			actor_class_color_r, actor_class_color_g, actor_class_color_b = self:GetBarColor()
 		end
@@ -1501,7 +1507,12 @@
 			desc = Loc ["STRING_CUSTOM_DTBS_DESC"],
 			source = false,
 			target = false,
-			script_version = 13,
+			script_version = 20,
+			on_shift_click = [[
+				local row, object, instance = ...
+				local spellname, _, spellicon = _detalhes.GetSpellInfo (object.id)
+				_detalhes:OpenAuraPanel (object.id, spellname, spellicon)
+			]],
 			script = [[
 				--> get the parameters passed
 				local combat, instance_container, instance = ...
@@ -1527,52 +1538,29 @@
 					    
 					    if (source) then
 						
-						local AllSpells = source:GetSpellList()
-						for spellid, spell in pairs (AllSpells) do
-						    local on_player = spell.targets [character.nome]
+						if (not source:IsPlayer()) then
+						
+							local AllSpells = source:GetSpellList()
+							for spellid, spell in pairs (AllSpells) do
+							    local on_player = spell.targets [character.nome]
+							    
+							    if (on_player and on_player >= 1) then                            
+								instance_container:AddValue (spell, on_player)
+								total = total + on_player
+								local value = instance_container:GetValue (spell)
+								if (value > top) then
+								    top = value
+								end
+								if (not NoRepeat [spellid]) then
+								    amount = amount + 1
+								    NoRepeat [spellid] = true
+								end
+							    end
+							end
+						
+						else -------------
 
-						    if (on_player and on_player >= 1) then                            
-							instance_container:AddValue (spell, on_player)
-							total = total + on_player
-							local value = instance_container:GetValue (spell)
-							if (value > top) then
-							    top = value
-							end
-							if (not NoRepeat [spellid]) then
-							    amount = amount + 1
-							    NoRepeat [spellid] = true
-							end
-						    end
-						end
-						
-						-------------
-						
-						local friendlyfire = source.friendlyfire [character.nome]
-						if (friendlyfire and friendlyfire.total >= 1) then
-						    for _spellid, _on_player in pairs (friendlyfire.spells) do
-							local _spellname = GetSpellInfo (_spellid)
-							local _object
-							local _index = instance_container._NameIndexTable [_spellname]
-							if (_index) then
-							    _object = instance_container._ActorTable [_index]
-							else
-							    _object = {id = _spellid, spellschool = 1}
-							end
-							
-							instance_container:AddValue (_object, _on_player)
-							total = total + _on_player
-							local _value = instance_container:GetValue (_object)
-							if (_value > top) then
-							    top = _value
-							end
-							if (not NoRepeat [_spellid]) then
-							    amount = amount + 1
-							    NoRepeat [_spellid] = true
-							end
-						    end
-						end
-						
-						------------
+						end -----------
 					    end
 					end            
 				    end
@@ -1659,6 +1647,12 @@
 				    elseif (t[1] == Loc ["STRING_TARGETS_OTHER1"]) then
 					GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small_alpha", 1, 1, 14, 14, 0.25, 0.49609375, 0.75, 1)
 				    end
+				end
+				
+				if (WeakAuras) then
+					GameCooltip:AddLine (" ")
+					GameCooltip:AddLine ("Shift Click: Create WeakAura")
+					 GameCooltip:AddStatusBar (100, 1, 0, 0, 0, 0.6, true,  bar_background)
 				end
 			]],
 		}

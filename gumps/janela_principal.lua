@@ -1899,6 +1899,26 @@ local barra_scripts_onmouseup = function (self, button)
 		if (self.button == "LeftButton" or self.button == "MiddleButton") then
 			if (self._instance.atributo == 5 or _IsShiftKeyDown()) then 
 				--> report
+				if (self._instance.atributo == 5 and _IsShiftKeyDown()) then
+					local custom = self._instance:GetCustomObject()
+					if (custom and custom.on_shift_click) then
+						local func = loadstring (custom.on_shift_click)
+						if (func) then
+						
+							local successful, errortext = pcall (func, self, self.minha_tabela, self._instance)
+							if (not successful) then
+								_detalhes:Msg ("error occurred custom script shift+click:", errortext)
+							end
+							
+							--local spellname, _, spellicon = _detalhes.getspellinfo (self.minha_tabela.id)
+							--_detalhes:OpenAuraPanel (self.minha_tabela.id, spellname, spellicon)
+							
+							--func (object.id, spellname, spellicon)
+							
+							return
+						end
+					end
+				end
 				return _detalhes:ReportSingleLine (self._instance, self)
 			end
 			self._instance:AbreJanelaInfo (self.minha_tabela)

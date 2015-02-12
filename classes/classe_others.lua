@@ -207,11 +207,12 @@ function _detalhes:ToolTipDead (instancia, morte, esta_barra, keydown)
 				if (overkill > 0) then
 					amount = amount - overkill
 					overkill = " (" .. _detalhes:ToK (overkill) .. " |cFFFF8800overkill|r)"
+					GameCooltip:AddLine ("" .. _cstr ("%.1f", time - hora_da_morte) .. "s |cFFFFFF00" .. spellname .. "|r (|cFFC6B0D9" .. source .. "|r)", "-" .. _detalhes:ToK (amount) .. overkill .. " (" .. hp .. "%)", 1, "white", "white")
 				else
 					overkill = ""
+					GameCooltip:AddLine ("" .. _cstr ("%.1f", time - hora_da_morte) .. "s " .. spellname .. " (|cFFC6B0D9" .. source .. "|r)", "-" .. _detalhes:ToK (amount) .. overkill .. " (" .. hp .. "%)", 1, "white", "white")
 				end
 				
-				GameCooltip:AddLine ("" .. _cstr ("%.1f", time - hora_da_morte) .. "s " .. spellname .. " (" .. source .. ")", "-" .. _detalhes:ToK (amount) .. overkill .. " (" .. hp .. "%)", 1, "white", "white")
 				GameCooltip:AddIcon (spellicon)
 				
 				if (event [9]) then
@@ -223,7 +224,7 @@ function _detalhes:ToolTipDead (instancia, morte, esta_barra, keydown)
 				end
 			else
 				--> heal
-				GameCooltip:AddLine ("" .. _cstr ("%.1f", time - hora_da_morte) .. "s " .. spellname .. " (" .. source .. ")", "+" .. _detalhes:ToK (amount) .. " (" .. hp .. "%)", 1, "white", "white")
+				GameCooltip:AddLine ("" .. _cstr ("%.1f", time - hora_da_morte) .. "s " .. spellname .. " (|cFFC6B0D9" .. source .. "|r)", "+" .. _detalhes:ToK (amount) .. " (" .. hp .. "%)", 1, "white", "white")
 				GameCooltip:AddIcon (spellicon)
 				GameCooltip:AddStatusBar (hp, 1, "green", true)
 				
@@ -381,41 +382,50 @@ end
 
 function atributo_misc:ReportSingleCooldownLine (misc_actor, instancia)
 
-	local barra = misc_actor.minha_barra
-
-	local reportar = {"Details! " .. Loc ["STRING_REPORT_SINGLE_COOLDOWN"] .. " " .. barra.texto_esquerdo:GetText()} --> localize-me
-	reportar [#reportar+1] = "> " .. Loc ["STRING_SPELLS"] .. ":"
+	local reportar = {"Details!: " .. misc_actor.nome .. " - " .. Loc ["STRING_ATTRIBUTE_MISC_DEFENSIVE_COOLDOWNS"]}
 	
-	for i = 1, GameCooltip:GetNumLines() do 
-		local texto_left, texto_right = GameCooltip:GetText (i)
+	local meu_total = _math_floor (misc_actor.cooldowns_defensive)
+	local cooldowns = misc_actor.cooldowns_defensive_spells._ActorTable
+	local cooldowns_used = {}
+	
+	for spellid, spell in _pairs (cooldowns) do
+		cooldowns_used [#cooldowns_used+1] = {spellid, spell.counter, spell}
+	end
+	_table_sort (cooldowns_used, _detalhes.Sort2)
+
+	for i, spell in _ipairs (cooldowns_used) do
 		
-		if (texto_left and texto_right) then 
-			texto_left = texto_left:gsub (("|T(.*)|t "), "")
-			reportar [#reportar+1] = "  "..texto_left.." "..texto_right..""
-		elseif (i ~= 1) then
-			reportar [#reportar+1] = "> " .. Loc ["STRING_TARGETS"] .. ":"
+		local spelllink = GetSpellLink (spell [1])
+		reportar [#reportar+1] = spelllink .. ": " .. spell [2]
+		
+		for target_name, amount in _pairs (spell[3].targets) do
+			if (target_name ~= misc_actor.nome and target_name ~= Loc ["STRING_RAID_WIDE"] and amount > 0) then
+				reportar [#reportar+1] = "  -" .. target_name .. ": " .. amount
+			end
 		end
+		
 	end
 
 	return _detalhes:Reportar (reportar, {_no_current = true, _no_inverse = true, _custom = true})
 end
 
 function atributo_misc:ReportSingleBuffUptimeLine (misc_actor, instancia)
-
-	local barra = misc_actor.minha_barra
-
-	local reportar = {"Details! " .. Loc ["STRING_REPORT_SINGLE_BUFFUPTIME"] .. " " .. barra.texto_esquerdo:GetText()} --> localize-me
-	reportar [#reportar+1] = "> " .. Loc ["STRING_SPELLS"] .. ":"
+	local reportar = {"Details!: " .. misc_actor.nome .. " - " .. Loc ["STRING_ATTRIBUTE_MISC_BUFF_UPTIME"]}
 	
-	for i = 1, GameCooltip:GetNumLines() do 
-		local texto_left, texto_right = GameCooltip:GetText (i)
+	local buffs = {}
+	local combat_time = instancia.showing:GetCombatTime()
+	
+	for spellid, spell in _pairs (misc_actor.buff_uptime_spells._ActorTable) do
+		buffs [#buffs+1] = {spellid, spell.uptime, spell}
+	end
+
+	_table_sort (buffs, _detalhes.Sort2)
+	
+	for i, spell in _ipairs (buffs) do
+		local spelllink = GetSpellLink (spell [1])
+		local m, s = _math_floor (spell [2] / 60), _math_floor (spell [2] % 60)
 		
-		if (texto_left and texto_right) then 
-			texto_left = texto_left:gsub (("|T(.*)|t "), "")
-			reportar [#reportar+1] = "  "..texto_left.." "..texto_right..""
-		elseif (i ~= 1) then
-			reportar [#reportar+1] = "> " .. Loc ["STRING_TARGETS"] .. ":"
-		end
+		reportar [#reportar+1] = spelllink .. ": " .. m .. "m " .. s .. "s (" .. _cstr ("%.1f", spell [2] / combat_time * 100) .. "%)"
 	end
 
 	return _detalhes:Reportar (reportar, {_no_current = true, _no_inverse = true, _custom = true})
@@ -423,23 +433,26 @@ end
 
 function atributo_misc:ReportSingleDebuffUptimeLine (misc_actor, instancia)
 
-	local barra = misc_actor.minha_barra
+	local reportar = {"Details!: " .. misc_actor.nome .. " - " .. Loc ["STRING_ATTRIBUTE_MISC_DEBUFF_UPTIME"]}
 
-	local reportar = {"Details! " .. Loc ["STRING_REPORT_SINGLE_DEBUFFUPTIME"]  .. " " .. barra.texto_esquerdo:GetText()} --> localize-me
-	reportar [#reportar+1] = "> " .. Loc ["STRING_SPELLS"] .. ":"
+	local debuffs = {}
+	local combat_time = instancia.showing:GetCombatTime()
 	
-	for i = 1, GameCooltip:GetNumLines() do 
-		local texto_left, texto_right = GameCooltip:GetText (i)
-		
-		if (texto_left and texto_right) then 
-			texto_left = texto_left:gsub (("|T(.*)|t "), "")
-			reportar [#reportar+1] = "  "..texto_left.." "..texto_right..""
-		elseif (i ~= 1) then
-			reportar [#reportar+1] = "> " .. Loc ["STRING_TARGETS"] .. ":"
-		end
+	for spellid, spell in _pairs (misc_actor.debuff_uptime_spells._ActorTable) do
+		debuffs [#debuffs+1] = {spellid, spell.uptime, spell}
 	end
 
-	return _detalhes:Reportar (reportar, {_no_current = true, _no_inverse = true, _custom = true})
+	_table_sort (debuffs, _detalhes.Sort2)
+	
+	for i, spell in _ipairs (debuffs) do
+		local spelllink = GetSpellLink (spell [1])
+		local m, s = _math_floor (spell [2] / 60), _math_floor (spell [2] % 60)
+		
+		reportar [#reportar+1] = spelllink .. ": " .. m .. "m " .. s .. "s (" .. _cstr ("%.1f", spell [2] / combat_time * 100) .. "%)"
+	end
+
+	return _detalhes:Reportar (reportar, {_no_current = true, _no_inverse = true, _custom = true})	
+
 end
 
 function atributo_misc:DeadAtualizarBarra (morte, qual_barra, colocacao, instancia)

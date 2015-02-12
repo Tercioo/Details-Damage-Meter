@@ -2705,9 +2705,8 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 			local atributo = self.atributo
 			local container = self.showing [atributo]._ActorTable
 			
-			--print ("amt: ",#container)
-			
 			if (atributo == 1) then --> damage
+
 				if (self.sub_atributo == 5) then --> frags
 					local frags = self.showing.frags
 					local reportarFrags = {}
@@ -2716,7 +2715,14 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 						reportarFrags [#reportarFrags+1] = {frag = tostring (amount), nome = name} 
 					end
 					container = reportarFrags
+					container_amount = #reportarFrags
 					keyName = "frag"
+					
+				elseif (self.sub_atributo == 7) then --> auras e voidzones
+				
+					total, keyName, first, container_amount, container = _detalhes.atributo_damage:RefreshWindow (self, self.showing, true, true)
+					
+					
 				else
 					total, keyName, first, container_amount = _detalhes.atributo_damage:RefreshWindow (self, self.showing, true, true)
 					if (self.sub_atributo == 1) then

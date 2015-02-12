@@ -891,7 +891,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 			local _, _, flags = barra.texto_esquerdo:GetFont()
 			print ("outline:",flags)
 		end
-	
+		
 	else
 		
 		--if (_detalhes.opened_windows < 1) then

@@ -157,6 +157,7 @@
 				[31216] = true, --mirror image
 				[53006] = true, --spirit link totem
 				[63508] = true, --xuen
+				[73967] = true, --xuen
 			}
 			
 			-- Night-Twisted Brute - Creature-0-3024-1228-19402-85241-00001E2097
@@ -473,12 +474,13 @@
 	function atributo_damage:ReportSingleFragsLine (frag, instancia)
 		local barra = instancia.barras [frag.minha_barra]
 
-		local reportar = {"Details! " .. Loc ["STRING_ATTRIBUTE_DAMAGE_TAKEN"].. ": " .. frag [1]} --> localize-me
-		for i = 1, GameCooltip:GetNumLines() do 
+		local reportar = {"Details!: " .. frag [1] .. " - " .. Loc ["STRING_ATTRIBUTE_DAMAGE_TAKEN"]}
+		
+		for i = 2, GameCooltip:GetNumLines()-2 do
 			local texto_left, texto_right = GameCooltip:GetText (i)
 			if (texto_left and texto_right) then 
 				texto_left = texto_left:gsub (("|T(.*)|t "), "")
-				reportar [#reportar+1] = ""..texto_left.." "..texto_right..""
+				reportar [#reportar+1] = "" .. texto_left .. " ....... " .. texto_right
 			end
 		end
 
@@ -575,12 +577,12 @@
 	function atributo_damage:ReportSingleVoidZoneLine (actor, instancia)
 		local barra = instancia.barras [actor.minha_barra]
 
-		local reportar = {"Details! " .. Loc ["STRING_ATTRIBUTE_DAMAGE_DEBUFFS_REPORT"] .. ": " .. actor.nome} --> localize-me
-		for i = 1, GameCooltip:GetNumLines() do 
+		local reportar = {"Details!: " .. actor.nome .. " - " .. Loc ["STRING_ATTRIBUTE_DAMAGE_DEBUFFS_REPORT"]}
+		for i = 2, GameCooltip:GetNumLines()-2 do 
 			local texto_left, texto_right = GameCooltip:GetText (i)
 			if (texto_left and texto_right) then 
 				texto_left = texto_left:gsub (("|T(.*)|t "), "")
-				reportar [#reportar+1] = ""..texto_left.." "..texto_right..""
+				reportar [#reportar+1] = "" .. texto_left .. " ..... " .. texto_right
 			end
 		end
 
@@ -830,6 +832,9 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 				keyName = "last_dps"
 			elseif (sub_atributo == 3) then --> TAMAGE TAKEN
 				keyName = "damage_taken"
+			if (_detalhes.damage_taken_everything) then
+				modo = modo_ALL
+			end
 			elseif (sub_atributo == 4) then --> FRIENDLY FIRE
 				keyName = "friendlyfire_total"
 			elseif (sub_atributo == 5) then --> FRAGS
@@ -1027,7 +1032,7 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 		total = index 
 		
 		if (exportar) then 
-			return vtable
+			return voidzone_damage_total, "damage", instancia.top, total, vtable
 		end
 		
 		if (total < 1) then
@@ -2350,6 +2355,7 @@ function atributo_damage:MontaDetalhes (spellid, barra)
 			return self:MontaDetalhesDamageDone (spellid, barra)
 		end
 		return self:MontaDetalhesEnemy (spellid, barra)
+		--return self:MontaDetalhesDamageDone (spellid, barra)
 	end
 end
 
@@ -2557,11 +2563,13 @@ end
 		row.textura:SetValue (value/max*100)
 	end
 	
-	--end
 	row.texto_esquerdo:SetText (index .. ". " .. name)
-	--> seta o texto da direita
+	row.texto_esquerdo.text = row.texto_esquerdo:GetText()
+	
 	row.texto_direita:SetText (value_formated .. " (" .. _cstr ("%.1f", percent) .."%)")
 	
+	row.texto_esquerdo:SetSize (row:GetWidth() - row.texto_direita:GetStringWidth() - 40, 15)
+
 	--> seta o icone
 	if (icon) then 
 		row.icone:SetTexture (icon)
@@ -2691,7 +2699,7 @@ function atributo_damage:MontaInfoDamageDone()
 		end
 		
 		self:FocusLock (barra, tabela[1])
-	
+
 	end
 	
 	--> TOP INIMIGOS
@@ -2927,6 +2935,20 @@ function atributo_damage:MontaDetalhesEnemy (spellid, barra)
 	local container = info.instancia.showing[1]
 	local barras = info.barras3
 	local instancia = info.instancia
+	
+	local other_actor = barra.other_actor
+	if (other_actor) then
+		self = other_actor
+	end
+	
+	if (barra.texto_esquerdo:IsTruncated()) then
+		_detalhes:CooltipPreset (2)
+		GameCooltip:SetOption ("FixedWidth", nil)
+		GameCooltip:AddLine (barra.texto_esquerdo.text)
+		GameCooltip:SetOwner (barra, "bottomleft", "topleft", 5, -10)
+		GameCooltip:ShowCooltip()
+	end
+	
 	local spell = self.spells:PegaHabilidade (spellid)
 	
 	local targets = spell.targets

@@ -529,7 +529,7 @@ General/Trade: 255 189 192
 		
 		local este_gump = _CreateFrame ("Frame", "DetailsReportWindow", _UIParent)
 		este_gump:SetPoint ("CENTER", UIParent, "CENTER")
-		este_gump:SetFrameStrata ("HIGH")
+		este_gump:SetFrameStrata ("DIALOG")
 		
 		este_gump:SetScript ("OnShow", function (self)
 			local dropdown = este_gump.select.MyObject
