@@ -287,7 +287,6 @@
 			local options_frame = CreateFrame ("frame", name, UIParent, "ButtonFrameTemplate")
 			tinsert (UISpecialFrames, name)
 			options_frame:SetSize (500, 200)
-			options_frame:SetFrameStrata ("DIALOG")
 			
 			options_frame:SetScript ("OnMouseDown", function(self, button)
 				if (button == "RightButton") then
@@ -310,6 +309,9 @@
 			
 			options_frame:SetMovable (true)
 			options_frame:EnableMouse (true)
+			options_frame:SetFrameStrata ("DIALOG")
+			options_frame:SetToplevel (true)
+			
 			options_frame:Hide()
 			
 			options_frame:SetPoint ("center", UIParent, "center")
@@ -319,10 +321,11 @@
 			return options_frame
 	
 		elseif (template == 1) then
+		
 			local options_frame = CreateFrame ("frame", name, UIParent)
 			tinsert (UISpecialFrames, name)
 			options_frame:SetSize (500, 200)
-			options_frame:SetFrameStrata ("DIALOG")
+
 			options_frame:SetScript ("OnMouseDown", function(self, button)
 				if (button == "RightButton") then
 					if (self.moving) then 
@@ -341,19 +344,36 @@
 					self:StopMovingOrSizing()
 				end
 			end)
+			
 			options_frame:SetMovable (true)
 			options_frame:EnableMouse (true)
+			options_frame:SetFrameStrata ("DIALOG")
+			options_frame:SetToplevel (true)
+			
 			options_frame:Hide()
+			
 			options_frame:SetPoint ("center", UIParent, "center")
 			
-			options_frame:SetBackdrop ({bgFile = [[Interface\ACHIEVEMENTFRAME\UI-Achievement-Parchment-Horizontal]], tile = true, tileSize = 830,
-					edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", edgeSize = 32,
-					insets = {left = 5, right = 5, top = 5, bottom = 5}})
+			options_frame:SetBackdrop ({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16,
+			edgeFile = [[Interface\AddOns\Details\images\border_2]], edgeSize = 32,
+			insets = {left = 1, right = 1, top = 1, bottom = 1}})
 			options_frame:SetBackdropColor (0, 0, 0, .7)
+
+			local texturetitle = options_frame:CreateTexture (nil, "artwork")
+			texturetitle:SetTexture ([[Interface\CURSOR\Interact]])
+			texturetitle:SetTexCoord (0, 1, 0, 1)
+			texturetitle:SetVertexColor (1, 1, 1, 1)
+			texturetitle:SetPoint ("topleft", options_frame, "topleft", 2, -3)
+			texturetitle:SetWidth (36)
+			texturetitle:SetHeight (36)
 			
 			local title = _detalhes.gump:NewLabel (options_frame, nil, "$parentTitle", nil, title, nil, 20, "yellow")
-			title:SetPoint (12, -13)
+			title:SetPoint ("left", texturetitle, "right", 2, -1)
 			_detalhes:SetFontOutline (title, true)
+
+			local bigdog = _detalhes.gump:NewImage (options_frame, [[Interface\MainMenuBar\UI-MainMenuBar-EndCap-Human]], 110, 120, nil, {1, 0, 0, 1}, "backgroundBigDog", "$parentBackgroundBigDog")
+			bigdog:SetPoint ("bottomright", options_frame, "bottomright", -3, 0)
+			bigdog:SetAlpha (.25)
 			
 			local c = CreateFrame ("Button", nil, options_frame, "UIPanelCloseButton")
 			c:SetWidth (32)
