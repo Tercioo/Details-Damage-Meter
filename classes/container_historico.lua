@@ -325,9 +325,9 @@ function historico:resetar()
 	
 	_detalhes:SendEvent ("DETAILS_DATA_RESET", nil, nil)
 	
-	if (InCombatLockdown() and UnitAffectingCombat ("player")) then
-		_detalhes:ScheduleTimer ("DelayCheckCombat", 1)
-	end
+	--if (InCombatLockdown() and UnitAffectingCombat ("player")) then
+	--	_detalhes:ScheduleTimer ("DelayCheckCombat", 1)
+	--end
 	
 end
 
