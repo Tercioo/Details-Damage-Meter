@@ -1,4 +1,3 @@
-do 
 	local _detalhes = _G._detalhes
 
 	--> default weaktable
@@ -311,4 +310,120 @@ do
 		DetailsAuraPanel:Show()
 	end
 	
-end
+	------------------------------------------------------------------------------------------------------------------
+	
+	--> get the total of damage and healing of this phase
+	function _detalhes:OnCombatPhaseChanged()
+	
+		local current_combat = _detalhes:GetCurrentCombat()
+		local current_phase = current_combat.PhaseData [#current_combat.PhaseData][1]
+		
+		local phase_damage_container = current_combat.PhaseData.damage [current_phase]
+		local phase_healing_container = current_combat.PhaseData.heal [current_phase]
+		
+		local phase_damage_section = current_combat.PhaseData.damage_section
+		local phase_healing_section = current_combat.PhaseData.heal_section
+		
+		if (not phase_damage_container) then
+			phase_damage_container = {}
+			current_combat.PhaseData.damage [current_phase] = phase_damage_container
+		end
+		if (not phase_healing_container) then
+			phase_healing_container = {}
+			current_combat.PhaseData.heal [current_phase] = phase_healing_container
+		end
+		
+		for index, damage_actor in ipairs (_detalhes.cache_damage_group) do
+			local phase_damage = damage_actor.total - (phase_damage_section [damage_actor.nome] or 0)
+			phase_damage_section [damage_actor.nome] = damage_actor.total
+			phase_damage_container [damage_actor.nome] = (phase_damage_container [damage_actor.nome] or 0) + phase_damage
+		end
+		
+		for index, healing_actor in ipairs (_detalhes.cache_healing_group) do
+			local phase_heal = healing_actor.total - (phase_healing_section [healing_actor.nome] or 0)
+			phase_healing_section [healing_actor.nome] = healing_actor.total
+			phase_healing_container [healing_actor.nome] = (phase_healing_container [healing_actor.nome] or 0) + phase_heal
+		end
+		
+	end
+	
+	function _detalhes:BossModsLink()
+		if (_G.DBM) then
+			local dbm_callback_phase = function (event, msg)
+
+				local mod = _detalhes.encounter_table.DBM_Mod
+				
+				if (not mod) then
+					local id = _detalhes:GetEncounterIdFromBossIndex (_detalhes.encounter_table.mapid, _detalhes.encounter_table.id)
+					if (id) then
+						for index, tmod in ipairs (DBM.Mods) do 
+							if (tmod.id == id) then
+								_detalhes.encounter_table.DBM_Mod = tmod
+								mod = tmod
+							end
+						end
+					end
+				end
+				
+				local phase = mod and mod.vb and mod.vb.phase
+				if (phase and _detalhes.encounter_table.phase ~= phase) then
+					--_detalhes:Msg ("Current phase:", phase)
+					
+					_detalhes:OnCombatPhaseChanged()
+					
+					_detalhes.encounter_table.phase = phase
+					
+					local cur_combat = _detalhes:GetCurrentCombat()
+					local time = cur_combat:GetCombatTime()
+					if (time > 5) then
+						tinsert (cur_combat.PhaseData, {phase, time})
+					end
+					
+					_detalhes:SendEvent ("COMBAT_ENCOUNTER_PHASE_CHANGED", nil, phase)
+				end
+			end
+			
+			local dbm_callback_pull = function (event, mod, delay, synced, startHp)
+				_detalhes.encounter_table.DBM_Mod = mod
+				_detalhes.encounter_table.DBM_ModTime = time()
+			end
+			
+			DBM:RegisterCallback ("DBM_Announce", dbm_callback_phase)
+			DBM:RegisterCallback ("pull", dbm_callback_pull)
+		end
+		
+		LoadAddOn ("BigWigs_Core")
+		
+		if (BigWigs and not _G.DBM) then
+			BigWigs:Enable()
+		
+			function _detalhes:BigWigs_Message (event, module, key, text)
+				--print ("new bigwigs message...")
+				if (key == "stages") then
+					local phase = text:gsub (".*%s", "")
+					phase = tonumber (phase)
+					--print ("Phase Changed!", phase)
+					
+					if (phase and type (phase) == "number" and _detalhes.encounter_table.phase ~= phase) then
+						--_detalhes:Msg ("Current phase:", phase)
+						
+						_detalhes:OnCombatPhaseChanged()
+						
+						_detalhes.encounter_table.phase = phase
+						
+						local cur_combat = _detalhes:GetCurrentCombat()
+						local time = cur_combat:GetCombatTime()
+						if (time > 5) then
+							tinsert (cur_combat.PhaseData, {phase, time})
+						end
+						
+						_detalhes:SendEvent ("COMBAT_ENCOUNTER_PHASE_CHANGED", nil, phase)
+					end
+					
+				end
+			end
+			
+			BigWigs.RegisterMessage (_detalhes, "BigWigs_Message")
+		end
+	end	
+	

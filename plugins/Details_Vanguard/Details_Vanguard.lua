@@ -63,6 +63,27 @@ local function CreatePluginFrames (data)
 			
 		elseif (event == "SHOW") then --> plugin shown, enabled
 		
+			if (not Vanguard.db.first_run) then
+				Vanguard.db.first_run = true
+				
+				local welcome = CreateFrame ("frame", nil, UIParent)
+				welcome:SetFrameStrata ("TOOLTIP")
+				welcome:SetPoint ("center", UIParent, "center")
+				welcome:SetSize (400, 175)
+				welcome:SetBackdrop ({edgeFile = "Interface\\Buttons\\UI-SliderBar-Border", edgeSize = 8,
+				bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 130, insets = {left = 1, right = 1, top = 5, bottom = 5}})
+				
+				local str = _detalhes.gump:CreateLabel (welcome, "Welcome to Vanguard!\n\n\n- The green-left bar represents the incoming healing plus absorbs on the tank.\n\n- The red-right tries to calculate the incoming damage taking the total damage suffered by the tank on the last 5 seconds.", nil, nil, "GameFontNormal")
+				str:SetPoint (15, -15)
+				str:SetWidth (375)
+				
+				local close_button = _detalhes.gump:CreateButton (welcome, function() welcome:Hide() end, 86, 16, "Close")
+				close_button:InstallCustomTexture()
+				close_button:SetPoint ("center", welcome, "center")
+				close_button:SetPoint ("bottom", welcome, "bottom", 0, 10)
+				
+			end
+		
 			Vanguard.CurrentInstance = Vanguard:GetInstance (Vanguard.instance_id)
 			
 			VanguardFrame:RegisterEvent ("ROLE_CHANGED_INFORM")
@@ -774,6 +795,7 @@ function Vanguard:OnEvent (_, event, arg1, token, time, who_serial, who_name, wh
 					tank_block_size = 150, 
 					tank_block_color = {0, 0, 0, 0.8},
 					tank_block_texture = "Details Serenity",
+					first_run = false,
 				}
 				
 				--> Install

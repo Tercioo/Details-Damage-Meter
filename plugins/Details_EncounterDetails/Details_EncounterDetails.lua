@@ -197,6 +197,10 @@ local function CreatePluginFrames (data)
 			--drop last combat table
 			EncounterDetails.LastSegmentShown = nil
 			
+			if (DetailsRaidDpsGraph) then
+				DetailsRaidDpsGraph.combat = nil
+			end
+			
 			--wipe emotes
 			table.wipe (EncounterDetails.boss_emotes_table)
 	
@@ -545,7 +549,6 @@ local function DamageTakenDetails (jogador, barra)
 	for nome, _ in _pairs (agressores) do --> agressores seria a lista de nomes
 		local este_agressor = showing._ActorTable[showing._NameIndexTable[nome]]
 		if (este_agressor) then --> checagem por causa do total e do garbage collector que não limpa os nomes que deram dano
-		
 			local habilidades = este_agressor.spells._ActorTable
 			for id, habilidade in _pairs (habilidades) do 
 			--print ("oi - " .. este_agressor.nome)
@@ -763,19 +766,28 @@ end
 function EncounterDetails:OpenAndRefresh (_, segment)
 	
 	local frame = EncounterDetailsFrame --alias
-	local _combat_object = _combat_object
-	
-	if (not _combat_object) then
-		return
-	end
-	
+
 	if (segment) then
 		--get combat segment, 1 more recently ...25 oldest
 		_combat_object = EncounterDetails:GetCombat (segment)
 		EncounterDetails._segment = segment
 	else
-		_G [frame:GetName().."SegmentsDropdown"].MyObject:Select (1, true)
-		EncounterDetails._segment = 1
+
+		local historico = _detalhes.tabela_historico.tabelas
+		for index, combate in ipairs (historico) do 
+			if (combate.is_boss and combate.is_boss.index) then
+				_G [frame:GetName().."SegmentsDropdown"].MyObject:Select (index)
+				EncounterDetails._segment = index
+				_combat_object = combate
+				break
+			end
+		end
+
+	end
+	
+	if (not _combat_object) then
+		EncounterDetails:Msg ("no combat found.")
+		return
 	end
 	
 	local boss_id
@@ -826,6 +838,8 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 	
 	if (EncounterDetailsFrame.ShowType == "graph") then
 		EncounterDetails:BuildDpsGraphic()
+	elseif (EncounterDetailsFrame.ShowType == "spellsauras") then
+		--refresh spells and auras
 	end
 	
 	EncounterDetails.LastSegmentShown = _combat_object
@@ -848,19 +862,14 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 	if (file) then
 		EncounterDetailsFrame.raidbackground:SetTexture (file)
 		EncounterDetailsFrame.raidbackground:SetTexCoord (L, R, T, B)
-		EncounterDetailsFrame.raidbackground:SetAlpha (0.8)
 	else
 		EncounterDetailsFrame.raidbackground:SetTexture ([[Interface\Glues\LOADINGSCREENS\LoadScreenDungeon]])
 		EncounterDetailsFrame.raidbackground:SetTexCoord (0, 1, 120/512, 408/512)
-		EncounterDetailsFrame.raidbackground:SetAlpha (0.8)
 	end
 	
 -------------- set totals on down frame --------------
 --[[ data mine:
 	_combat_object ["totals_grupo"] hold the total [1] damage // [2] heal // [3] [energy_name] energies // [4] [misc_name] miscs --]]
-
-	--EncounterDetailsFrame.StatusBar_totaldamage:SetText (Loc ["STRING_TOTAL_DAMAGE"]..": ".. _detalhes:comma_value (_combat_object.totals_grupo[1])) --> [1] total damage
-	--EncounterDetailsFrame.StatusBar_totalheal:SetText (Loc ["STRING_TOTAL_HEAL"]..": ".. _detalhes:comma_value (_combat_object.totals_grupo[2])) --> [2] total heal
 
 	--> Container Overall Damage Taken
 		--[[ data mine:
@@ -1416,7 +1425,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 		
 			local barra = container.barras [index]
 			if (not barra) then
-				barra = EncounterDetails:CreateRow (index, container, 3, 3, -6)
+				barra = EncounterDetails:CreateRow (index, container, 3, 0, -6)
 				barra.TTT = "total_interrupt" -- tool tip type
 				barra.report_text = "Details! ".. Loc ["STRING_INTERRUPT_BY"]
 				barra:SetBackdrop (backdrop_bar_onleave)
@@ -1590,13 +1599,13 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 			--> {esta_morte, time, este_jogador.nome, este_jogador.classe, _UnitHealthMax (alvo_name), minutos.."m "..segundos.."s",  ["dead"] = true}
 			local barra = container.barras [index]
 			if (not barra) then
-				barra = EncounterDetails:CreateRow (index, container, 3, 0, -4)
+				barra = EncounterDetails:CreateRow (index, container, 3, 0, 1)
 				barra.TTT = "morte" -- tool tip type
 				barra.report_text = "Details! " .. Loc ["STRING_DEAD_LOG"]
 				_detalhes:SetFontSize (barra.texto_esquerdo, 9)
 				_detalhes:SetFontSize (barra.texto_direita, 9)
 				_detalhes:SetFontFace (barra.texto_esquerdo, "Arial Narrow")
-				barra:SetWidth (160)
+				barra:SetWidth (169)
 			end
 			
 			if (tabela [3]:find ("-")) then

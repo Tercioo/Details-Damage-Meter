@@ -884,6 +884,29 @@ function SlashCmdList.DETAILS (msg, editbox)
 	elseif (msg == "gs") then
 		_detalhes:teste_grayscale()
 		
+	elseif (msg == "bwload") then
+		if not BigWigs then LoadAddOn("BigWigs_Core") end
+		BigWigs:Enable()
+
+		LoadAddOn ("BigWigs_Highmaul")
+		
+		local mod = BigWigs:GetBossModule("Imperator Mar'gok")
+		mod:Enable()
+		
+	elseif (msg == "bwsend") then
+		local mod = BigWigs:GetBossModule("Imperator Mar'gok")
+		mod:Message("stages", "Neutral", "Long", "Phase 2", false)
+		
+	elseif (msg == "bwregister") then
+	
+		local addon = {}
+		BigWigs.RegisterMessage(addon, "BigWigs_Message")
+		function addon:BigWigs_Message(event, module, key, text)
+		  if module.journalId  == 1197 and text:match("^Phase %d$") then -- 1197 = Margok
+		   print ("Phase Changed!", event, module, key, text)
+		  end
+		end
+	
 	elseif (msg == "outline") then
 	
 		local instancia = _detalhes.tabela_instancias [1]

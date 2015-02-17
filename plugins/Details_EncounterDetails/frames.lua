@@ -151,7 +151,7 @@ do
 		barra:SetWidth (200+width_mod) --> tamanho da barra de acordo com o tamanho da janela
 		barra:SetHeight (16) --> altura determinada pela instância
 
-		local y = (index-1)*17 --> 17 é a altura da barra
+		local y = (index-1)*15 --> 17 é a altura da barra
 		y_mod = y_mod or 0
 		y = y + y_mod
 		y = y*-1 --> baixo
@@ -205,8 +205,7 @@ do
 	function EncounterDetails:BuildDpsGraphic()
 		
 		local segment = EncounterDetails._segment
-		
-		--print ("Segment:", segment)
+
 		local g
 		
 		if (not _G.DetailsRaidDpsGraph) then
@@ -285,6 +284,34 @@ do
 				end
 			end
 		end
+		
+		g:ClearPhaseTexture()
+		local phase_data = combat.PhaseData
+		local scale = 610 / combat:GetCombatTime()
+		
+		for i = 1, #phase_data do
+			local phase = phase_data[i][1]
+			local start_at = phase_data[i][2]
+			local texture = g:GetPhaseTexture (i, phase)
+			
+			texture:SetPoint ("bottomleft", g, "bottomleft", (start_at * scale)+58, 0)
+			texture.phase = phase
+			texture.start_at = start_at
+			
+			local next_phase = phase_data[i+1]
+			if (next_phase) then
+				local duration = next_phase [2] - start_at
+				texture:SetWidth (scale * duration)
+				texture.elapsed = duration
+			else
+				local duration = combat:GetCombatTime() - start_at
+				texture:SetWidth (scale * duration)
+				texture.elapsed = duration
+			end
+		end
+		
+		g.combat = combat
+		
 		--
 		
 		EncounterDetails:DrawSegmentGraphic (g, graphicData, combat, combat)
@@ -482,6 +509,329 @@ do
 		g:SetBorderSize ("right", 0.001)
 		g.VerticalLines = {}
 		g.TryIndicator = {}
+		g.PhaseTextures = {}
+		
+		local phase_alpha = 0.5
+		local phase_colors = {{0.2, 1, 0.2, phase_alpha}, {1, 1, 0.2, phase_alpha}, {1, 0.2, 0.2, phase_alpha}, {0.2, 1, 1, phase_alpha}, {0.2, 0.2, 1, phase_alpha}}
+		
+		local phase_panel = CreateFrame ("frame", "EncounterDetailsPhasePanel", g)
+		phase_panel:SetFrameStrata ("TOOLTIP")
+		phase_panel:SetWidth (451)
+		phase_panel:SetBackdrop ({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16,
+			edgeFile = [[Interface\AddOns\Details\images\border_2]], edgeSize = 32,
+			insets = {left = 1, right = 1, top = 1, bottom = 1}})
+		phase_panel:SetBackdropColor (0, 0, 0, .4)
+		
+		local damage_icon = DetailsFrameWork:CreateImage (phase_panel, [[Interface\AddOns\Details\images\skins\classic_skin_v1]], 16, 16, "overlay", {11/1024, 24/1024, 376/1024, 390/1024})
+		local damage_label = DetailsFrameWork:CreateLabel (phase_panel, "Damage Done:")
+		damage_icon:SetPoint ("topleft", phase_panel, "topleft", 10, -10)
+		damage_label:SetPoint ("left", damage_icon, "right", 4, 0)
+		
+		local heal_icon = DetailsFrameWork:CreateImage (phase_panel, [[Interface\AddOns\Details\images\skins\classic_skin_v1]], 16, 16, "overlay", {43/1024, 57/1024, 376/1024, 390/1024})
+		local heal_label = DetailsFrameWork:CreateLabel (phase_panel, "Healing Done:")
+		heal_icon:SetPoint ("topleft", phase_panel, "topleft", 250, -10)
+		heal_label:SetPoint ("left", heal_icon, "right", 4, 0)
+		
+		phase_panel.damage_labels = {}
+		phase_panel.heal_labels = {}
+		
+		function phase_panel:ClearLabels()
+			for i, label in ipairs (phase_panel.damage_labels) do
+				label.lefttext:Hide()
+				label.righttext:Hide()
+				label.icon:Hide()
+				label.bg:Hide()
+			end
+			for i, label in ipairs (phase_panel.heal_labels) do
+				label.lefttext:Hide()
+				label.righttext:Hide()
+				label.icon:Hide()
+				label.bg:Hide()
+			end
+		end
+		
+		function phase_panel:GetDamageLabel (index)
+			local label = phase_panel.damage_labels [index]
+			if (not label) then
+				local player_name = DetailsFrameWork:CreateLabel (phase_panel, "")
+				local amount = DetailsFrameWork:CreateLabel (phase_panel, "")
+				amount:SetJustifyH ("right")
+				local icon = DetailsFrameWork:CreateImage (phase_panel, "", 16, 16)
+				local bg = DetailsFrameWork:CreateImage (phase_panel, [[Interface\AddOns\Details\images\BantoBar]], nil, nil, "artwork")
+				bg:SetPoint ("left", icon, "left"); bg.height = 16; bg:SetPoint ("right", amount, "right"); bg:SetVertexColor (.2, .2, .2, 0.8)
+				
+				icon:SetPoint ("topleft", phase_panel, "topleft", 10, ((index * 16) * -1) - 16)
+				player_name:SetPoint ("left", icon, "right", 2, 0)
+				amount:SetPoint ("topright", phase_panel, "topleft", 200, ((index * 16) * -1) - 16)
+				
+				label = {lefttext = player_name, righttext = amount, icon = icon, bg = bg}
+				phase_panel.damage_labels [index] = label
+			end
+			return label
+		end
+		
+		function phase_panel:GetHealLabel (index)
+			local label = phase_panel.heal_labels [index]
+			if (not label) then
+				local player_name = DetailsFrameWork:CreateLabel (phase_panel, "")
+				local amount = DetailsFrameWork:CreateLabel (phase_panel, "")
+				amount:SetJustifyH ("right")
+				local icon = DetailsFrameWork:CreateImage (phase_panel, "", 16, 16)
+				local bg = DetailsFrameWork:CreateImage (phase_panel, [[Interface\AddOns\Details\images\BantoBar]], nil, nil, "artwork")
+				bg:SetPoint ("left", icon, "left"); bg.height = 16; bg:SetPoint ("right", amount, "right"); bg:SetVertexColor (.2, .2, .2, 0.8)
+				
+				icon:SetPoint ("topleft", phase_panel, "topleft", 250, ((index * 16) * -1) - 16)
+				player_name:SetPoint ("left", icon, "right", 2, 0)
+				amount:SetPoint ("topright", phase_panel, "topleft", 440, ((index * 16) * -1) - 16)
+				
+				label = {lefttext = player_name, righttext = amount, icon = icon, bg = bg}
+				phase_panel.heal_labels [index] = label
+			end
+			return label
+		end
+		
+		phase_panel.phase_label = DetailsFrameWork:CreateLabel (phase_panel, "")
+		phase_panel.time_label = DetailsFrameWork:CreateLabel (phase_panel, "")
+		phase_panel.report_label = DetailsFrameWork:CreateLabel (phase_panel, "|cFFffb400Left Click|r: Report Damage |cFFffb400Right Click|r: Report Heal")
+		
+		phase_panel.phase_label:SetPoint ("bottomleft", phase_panel, "bottomleft", 10, 5)
+		phase_panel.time_label:SetPoint ("left", phase_panel.phase_label, "right", 5, 0)
+		phase_panel.report_label:SetPoint ("bottomright", phase_panel, "bottomright", -10, 5)
+		
+		local bg = DetailsFrameWork:CreateImage (phase_panel, [[Interface\Tooltips\UI-Tooltip-Background]], nil, nil, "artwork")
+		bg:SetPoint ("left", phase_panel.phase_label, "left"); bg.height = 16; bg:SetPoint ("right", phase_panel.report_label, "right"); bg:SetVertexColor (0, 0, 0, 1)
+		
+		local spark_container = {}
+		local create_spark = function()
+			local t = phase_panel:CreateTexture (nil, "overlay")
+			t:SetTexture ([[Interface\CastingBar\UI-CastingBar-Spark]])
+			t:SetBlendMode ("ADD")
+			t:Hide()
+			tinsert (spark_container, t)
+		end
+		local get_spark = function (index)
+			local spark = spark_container [index]
+			if (not spark) then
+				create_spark()
+				spark = spark_container [index]
+			end
+			spark:ClearAllPoints()
+			return spark
+		end
+		local hide_sparks = function()
+			for _, spark in ipairs (spark_container) do
+				spark:Hide()
+			end
+		end
+		
+		local phase_on_enter = function (self)
+
+			local spark1 = get_spark (1)
+			local spark2 = get_spark (2)
+			self.texture:SetBlendMode ("ADD")
+			spark1:SetPoint ("left", self.texture, "left", -16, 0)
+			spark2:SetPoint ("right", self.texture, "right", 16, 0)
+			spark1:Show()
+			spark2:Show()
+			
+			local phase = self.phase
+			local spark_index = 3
+			
+			self.texture:SetVertexColor (1, 1, 1)
+			
+			for _, f in ipairs (g.PhaseTextures) do
+				if (f ~= self and f.phase == phase) then
+					local spark1 = get_spark (spark_index)
+					local spark2 = get_spark (spark_index+1)
+					f.texture:SetBlendMode ("ADD")
+					f.texture:SetVertexColor (1, 1, 1)
+					spark1:SetPoint ("left", f.texture, "left", -16, 0)
+					spark2:SetPoint ("right", f.texture, "right", 16, 0)
+					spark1:Show()
+					spark2:Show()
+					spark_index = spark_index + 2
+				end
+			end
+			
+			local combat = DetailsRaidDpsGraph.combat
+			if (combat) then
+			
+				phase_panel:ClearLabels()
+			
+				--damage
+				local players = {}
+				for player_name, damage in pairs (combat.PhaseData.damage [self.phase]) do
+					tinsert (players, {player_name, damage})
+				end
+				table.sort (players, _detalhes.Sort2)
+				
+				for i, player in ipairs (players) do
+					local dlabel = phase_panel:GetDamageLabel (i)
+					dlabel.lefttext.text = EncounterDetails:GetOnlyName (player [1])
+					dlabel.righttext.text = _detalhes:ToK (_math_floor (player [2]))
+					
+					local class = EncounterDetails:GetClass (player [1])
+					local spec = EncounterDetails:GetSpec (player [1])
+					
+					if (spec) then
+						dlabel.icon.texture = [[Interface\AddOns\Details\images\spec_icons_normal]]
+						dlabel.icon.texcoord = EncounterDetails.class_specs_coords [spec]
+					
+					elseif (class) then
+						dlabel.icon.texture = [[Interface\AddOns\Details\images\classes_small_alpha]]
+						dlabel.icon.texcoord = _detalhes.class_coords [class]
+						
+					else
+						dlabel.icon.texture = [[Interface\LFGFRAME\LFGROLE_BW]]
+						dlabel.icon:SetTexCoord (.25, .5, 0, 1)
+					end
+					
+					dlabel.lefttext:Show()
+					dlabel.righttext:Show()
+					dlabel.icon:Show()
+					dlabel.bg:Show()
+				end
+				
+				local damage_players = #players
+				self.damage_actors = players
+				
+				--heal
+				local players = {}
+				for player_name, heal in pairs (combat.PhaseData.heal [self.phase]) do
+					tinsert (players, {player_name, heal})
+				end
+				table.sort (players, _detalhes.Sort2)
+				
+				for i, player in ipairs (players) do
+					local hlabel = phase_panel:GetHealLabel (i)
+					hlabel.lefttext.text = EncounterDetails:GetOnlyName (player [1])
+					hlabel.righttext.text = _detalhes:ToK (_math_floor (player [2]))
+					
+					local classe = _detalhes:GetClass (player [1])
+					if (classe) then	
+						hlabel.icon:SetTexture ([[Interface\AddOns\Details\images\classes_small_alpha]])
+						hlabel.icon:SetTexCoord (unpack (_detalhes.class_coords [classe]))
+					else
+						hlabel.icon:SetTexture ([[Interface\LFGFRAME\LFGROLE_BW]])
+						hlabel.icon:SetTexCoord (.25, .5, 0, 1)
+					end
+					
+					hlabel.lefttext:Show()
+					hlabel.righttext:Show()
+					hlabel.icon:Show()
+					hlabel.bg:Show()
+				end
+
+				local heal_players = #players
+				self.heal_actors = players
+				
+				--show the panel
+				phase_panel:SetHeight ((math.max (damage_players, heal_players) * 16) + 60)
+				phase_panel:SetPoint ("bottom", self, "top", 0, 10)
+				phase_panel:Show()
+				
+				phase_panel.phase_label.text = "|cFFffb400Phase|r: " .. self.phase
+
+				local m, s = _math_floor (self.elapsed / 60), _math_floor (self.elapsed % 60)
+				phase_panel.time_label.text = "|cFFffb400Elapsed|r: " .. m .. "m " .. s .. "s"
+
+			end
+			
+		end
+		local phase_on_leave = function (self)
+			table.wipe (self.damage_actors)
+			table.wipe (self.heal_actors)
+			
+			for _, f in ipairs (g.PhaseTextures) do
+				f.texture:SetBlendMode ("BLEND")
+				f.texture:SetVertexColor (unpack (f.texture.original_color))
+			end
+			
+			hide_sparks()
+			phase_panel:Hide()
+		end
+		
+		local phase_on_click = function (self, button)
+			if (button == "LeftButton") then
+			
+				local result = {}
+				local reportFunc = function (IsCurrent, IsReverse, AmtLines)
+					AmtLines = AmtLines + 1
+					if (#result > AmtLines) then
+						for i = #result, AmtLines+1, -1 do
+							tremove (result, i)
+						end
+					end
+					EncounterDetails:SendReportLines (result)
+				end
+				
+				--need to build here because the mouse will leave the block to click in the send button
+				tinsert (result, "Details!: Damage for Phase " .. self.phase .. " of " .. (g.combat and g.combat.is_boss and g.combat.is_boss.name or "Unknown") .. ":")
+				for i = 1, #self.damage_actors do
+					tinsert (result, EncounterDetails:GetOnlyName (self.damage_actors[i][1]) .. ": " .. _detalhes:ToK (_math_floor (self.damage_actors [i][2])))
+				end
+				EncounterDetails:SendReportWindow (reportFunc, nil, nil, true)
+				
+			elseif (button == "RightButton") then
+				
+				local result = {}
+				local reportFunc = function (IsCurrent, IsReverse, AmtLines)
+					AmtLines = AmtLines + 1
+					if (#result > AmtLines) then
+						for i = #result, AmtLines+1, -1 do
+							tremove (result, i)
+						end
+					end
+					EncounterDetails:SendReportLines (result)
+				end
+				
+				tinsert (result, "Details!: Healing for Phase " .. self.phase .. " of " .. (g.combat and g.combat.is_boss and g.combat.is_boss.name or "Unknown") .. ":")
+				for i = 1, #self.heal_actors do
+					tinsert (result, EncounterDetails:GetOnlyName (self.heal_actors[i][1]) .. ": " .. _detalhes:ToK (_math_floor (self.heal_actors [i][2])))
+				end
+				EncounterDetails:SendReportWindow (reportFunc, nil, nil, true)
+				
+			end
+		end
+		
+		function g:GetPhaseTexture (index, phase)
+		
+			local texture = g.PhaseTextures [index]
+			
+			if (not texture) then
+				local f = CreateFrame ("frame", "EncounterDetailsPhaseTexture" .. index, g)
+				f:SetHeight (16)
+				
+				local t = f:CreateTexture (nil, "artwork")
+				t:SetAllPoints()
+				t:SetTexture (1, 1, 1, phase_alpha)
+				t.original_color = {1, 1, 1}
+				f.texture = t
+
+				f:SetScript ("OnEnter", phase_on_enter)
+				f:SetScript ("OnLeave", phase_on_leave)
+				f:SetScript ("OnMouseUp", phase_on_click)
+				
+				texture = f
+				tinsert (g.PhaseTextures, f)
+			end
+			
+			texture:ClearAllPoints()
+			phase = math.min (phase, 5)
+			texture.texture:SetVertexColor (unpack (phase_colors [phase]))
+			local oc = texture.texture.original_color
+			oc[1], oc[2], oc[3] = unpack (phase_colors [phase])
+			
+			texture:Show()
+			
+			return texture
+		end
+		
+		function g:ClearPhaseTexture()
+			for i, texture in pairs (g.PhaseTextures) do
+				texture:Hide()
+			end
+		end
 		
 		function g:ChangeColorOnDataSeries (index, color)
 			self.Data [index].Color = color
@@ -581,19 +931,6 @@ do
 	BossFrame:SetResizable (false)
 	BossFrame:SetMovable (true)
 	
-	function BossFrame:ToFront()
-		if (_detalhes.janela_info) then
-			if (BossFrame:GetFrameLevel() < _detalhes.janela_info:GetFrameLevel()) then 
-				BossFrame:SetFrameLevel (BossFrame:GetFrameLevel()+3)
-				_detalhes.janela_info:SetFrameLevel (_detalhes.janela_info:GetFrameLevel()-3)
-			end
-		end
-	end
-	
-	BossFrame.grab = DetailsFrameWork:NewDetailsButton (BossFrame, BossFrame, _, BossFrame.ToFront, nil, nil, 698, 73, "", "", "", "", {OnGrab = "PassClick"})
-	BossFrame.grab:SetPoint ("topleft", BossFrame, "topleft")
-	BossFrame.grab:SetFrameLevel (BossFrame:GetFrameLevel()+1)
-	
 	BossFrame:SetScript ("OnMouseDown", 
 					function (self, botao)
 						if (botao == "LeftButton") then
@@ -612,21 +949,7 @@ do
 						end
 					end)
 	
-	--> fix para dar fadein ao apertar esc
-	--[[
-	BossFrame:SetScript ("OnHide", function (self)
-		if (not BossFrame.hidden) then --> significa que foi fechado com ESC
-			BossFrame:Show()
-			DetailsFrameWork:Fade (BossFrame, "in")
-		end
-	end)
-	--]]
-	
-	--BossFrame:SetBackdrop (gump_fundo_backdrop)
-	--BossFrame:SetBackdropColor (0, 0, 0, 0.3)
-
 	BossFrame:SetPoint ("CENTER", UIParent)
-	--EncounterDetails.Frame = BossFrame
 	
 	--> icone da classe no canto esquerdo superior
 	BossFrame.boss_icone = BossFrame:CreateTexture (nil, "BACKGROUND")
@@ -635,19 +958,29 @@ do
 	BossFrame.boss_icone:SetHeight (64)
 	
 	--> imagem de fundo
-	BossFrame.raidbackground = BossFrame:CreateTexture (nil, "BACKGROUND")
+	BossFrame.raidbackground = BossFrame:CreateTexture (nil, "BORDER")
 	BossFrame.raidbackground:SetPoint ("TOPLEFT", BossFrame, "TOPLEFT", 244, -74)
-	
-	BossFrame.raidbackground:SetWidth (450)
-	BossFrame.raidbackground:SetHeight (256)
+	BossFrame.raidbackground:SetDrawLayer ("BORDER", 2)
+	BossFrame.raidbackground:SetWidth (445)
+	BossFrame.raidbackground:SetHeight (240)
+	BossFrame.raidbackground:SetAlpha (0.4)
 	
 	--> background completo
 	BossFrame.bg = BossFrame:CreateTexture (nil, "BORDER")
 	BossFrame.bg:SetPoint ("TOPLEFT", BossFrame, "TOPLEFT", 0, 0)
 	BossFrame.bg:SetWidth (1024)
 	BossFrame.bg:SetHeight (512)
-	BossFrame.bg:SetTexture ("Interface\\AddOns\\Details_EncounterDetails\\images\\boss_bg") 
+	BossFrame.bg:SetTexture ("Interface\\AddOns\\Details_EncounterDetails\\images\\boss_bg_graphic") 
+	BossFrame.bg:SetDrawLayer ("BORDER", 1)
 
+	BossFrame.bg_main = BossFrame:CreateTexture (nil, "BORDER")
+	BossFrame.bg_main:SetPoint ("TOPLEFT", BossFrame, "TOPLEFT", 0, 0)
+	BossFrame.bg_main:SetWidth (1024)
+	BossFrame.bg_main:SetHeight (512)
+	BossFrame.bg_main:SetTexture ("Interface\\AddOns\\Details_EncounterDetails\\images\\boss_bg")
+	BossFrame.bg_main:SetDrawLayer ("BORDER", 3)
+	BossFrame.bg_main:Show()
+	
 	BossFrame.Widgets = {}
 	
 	BossFrame.ShowType = "main"
@@ -673,7 +1006,12 @@ do
 	
 	BossFrame.switch = function (to)
 		if (to == "main") then 
-			BossFrame.bg:SetTexture ("Interface\\AddOns\\Details_EncounterDetails\\images\\boss_bg") 
+		
+			local bg_texture = BossFrame.bg_main
+			BossFrame.bg_main:Show()
+			
+			BossFrame.raidbackground:Show()
+
 			for _, frame in _ipairs (BossFrame.Widgets) do 
 				frame:Show()
 			end
@@ -700,14 +1038,53 @@ do
 			mode_label.text = "Summary"
 			BossFrame.segmentosDropdown:Enable()
 		
+		elseif (to == "spellsauras") then 
+		
+			--hide boss frames
+			for _, frame in _ipairs (BossFrame.Widgets) do 
+				frame:Hide()
+			end
+			
+			BossFrame.bg_main:Hide()
+			BossFrame.raidbackground:Show()
+			
+			--hide graph
+			if (_G.DetailsRaidDpsGraph) then 
+				_G.DetailsRaidDpsGraph:Hide()
+				for i = 1, 8, 1 do
+					BossFrame["dpsamt"..i]:Hide()
+					BossFrame["timeamt"..i]:Hide()
+					
+				end
+				BossFrame["timeamt0"]:Hide()
+			end
+			
+			--hide emote frames
+			for _, widget in pairs (BossFrame.EmoteWidgets) do
+				widget:Hide()
+			end
+			
+			selected:SetPoint ("center", BossFrame.buttonSwitchSpellsAuras.widget, "center", 0, 1)
+			u:SetAllPoints (BossFrame.buttonSwitchSpellsAuras.widget)
+			
+			BossFrame.ShowType = "spellsauras"
+			mode_label.text = "Spells and Auras"
+			
+			-- show spells box
+			
+			
+			BossFrame.segmentosDropdown:Disable()
+		
 		elseif (to == "emotes") then 
-
-			BossFrame.bg:SetTexture ("Interface\\AddOns\\Details_EncounterDetails\\images\\boss_bg_graphic") 
 
 			--hide boss frames
 			for _, frame in _ipairs (BossFrame.Widgets) do 
 				frame:Hide()
 			end
+			
+			BossFrame.bg_main:Hide()
+			BossFrame.raidbackground:Show()
+			
 			--hide graph
 			if (_G.DetailsRaidDpsGraph) then 
 				_G.DetailsRaidDpsGraph:Hide()
@@ -742,7 +1119,9 @@ do
 				return
 			end
 			
-			BossFrame.bg:SetTexture ("Interface\\AddOns\\Details_EncounterDetails\\images\\boss_bg_graphic") 
+			BossFrame.bg_main:Hide()
+			BossFrame.raidbackground:Hide()
+ 
 			for _, frame in _ipairs (BossFrame.Widgets) do 
 				frame:Hide()
 			end
@@ -751,11 +1130,6 @@ do
 			u:SetAllPoints (BossFrame.buttonSwitchGraphic)
 			
 			_G.DetailsRaidDpsGraph:Show()
-			
-			BossFrame.StatusBar_damageicon:Hide()
-			BossFrame.StatusBar_healicon:Hide()
-			BossFrame.StatusBar_totaldamage:Hide()
-			BossFrame.StatusBar_totalheal:Hide()
 			
 			for i = 1, 8, 1 do
 				BossFrame["dpsamt"..i].widget:Show()
@@ -776,15 +1150,16 @@ do
 		end
 	end
 
+	--summary
 	BossFrame.buttonSwitchNormal = DetailsFrameWork:NewDetailsButton (BossFrame, BossFrame, _, BossFrame.switch, "main", nil, 26, 33)
-	BossFrame.buttonSwitchNormal:SetPoint ("bottomright", BossFrame, "bottomright", -244, 5)
+	BossFrame.buttonSwitchNormal:SetPoint ("bottomright", BossFrame, "bottomright", -270, 5)
 	local t = BossFrame.buttonSwitchNormal:CreateTexture (nil, "artwork")
 	t:SetTexture ("Interface\\AddOns\\Details_EncounterDetails\\images\\boss_frame_buttons")
 	t:SetTexCoord (0, 0.1015625, 0, 0.515625)
 	t:SetWidth (26)
 	t:SetHeight (33)
 	t:SetAllPoints (BossFrame.buttonSwitchNormal)
-
+	--chart
 	BossFrame.buttonSwitchGraphic = DetailsFrameWork:NewDetailsButton (BossFrame, BossFrame, _, BossFrame.switch, "graph", nil, 26, 33)
 	BossFrame.buttonSwitchGraphic:SetPoint ("left", BossFrame.buttonSwitchNormal, "right", 0, 0)
 	local g = BossFrame.buttonSwitchGraphic:CreateTexture (nil, "artwork")
@@ -793,16 +1168,24 @@ do
 	g:SetWidth (26)
 	g:SetHeight (33)
 	g:SetAllPoints (BossFrame.buttonSwitchGraphic)
-	
+	--emotes
 	BossFrame.buttonSwitchBossEmotes = DetailsFrameWork:NewButton (BossFrame, nil, "EncounterDetailsBossEmoteButton", nil, 26, 33, BossFrame.switch, "emotes")
 	BossFrame.buttonSwitchBossEmotes:SetPoint ("left", BossFrame.buttonSwitchGraphic, "right", 0, 0)
-	--BossFrame.buttonSwitchBossEmotes:SetPoint ("center", UIParent, "center")
 	local e = BossFrame.buttonSwitchBossEmotes:CreateTexture (nil, "artwork")
 	e:SetTexture ("Interface\\AddOns\\Details_EncounterDetails\\images\\boss_frame_buttons")
 	e:SetTexCoord (90/256, 116/256, 0, 0.515625)
 	e:SetWidth (26)
 	e:SetHeight (33)
 	e:SetAllPoints (BossFrame.buttonSwitchBossEmotes.widget)
+	--spells e auras
+	BossFrame.buttonSwitchSpellsAuras = DetailsFrameWork:NewButton (BossFrame, nil, "EncounterDetailsBossSpellAuraButton", nil, 26, 33, BossFrame.switch, "spellsauras")
+	BossFrame.buttonSwitchSpellsAuras:SetPoint ("left", BossFrame.buttonSwitchBossEmotes, "right", 0, 0)
+	local aa = BossFrame.buttonSwitchSpellsAuras:CreateTexture (nil, "artwork")
+	aa:SetTexture ("Interface\\AddOns\\Details_EncounterDetails\\images\\boss_frame_buttons")
+	aa:SetTexCoord (120/256, 146/256, 0, 0.515625)
+	aa:SetWidth (26)
+	aa:SetHeight (33)
+	aa:SetAllPoints()
 	
 	u = BossFrame.buttonSwitchGraphic:CreateTexture (nil, "overlay")
 	u:SetTexture ("Interface\\AddOns\\Details_EncounterDetails\\images\\boss_frame_buttons")
@@ -819,7 +1202,7 @@ do
 	
 	--mode label
 	local support_frame = CreateFrame ("frame", nil, BossFrame)
-	support_frame:SetPoint ("topleft", BossFrame.buttonSwitchBossEmotes.widget, "topright", 0, -1)
+	support_frame:SetPoint ("topleft", BossFrame.buttonSwitchSpellsAuras.widget, "topright", 0, -1)
 	support_frame:SetPoint ("bottomright", BossFrame, "bottomright", -9, 6)
 	support_frame:SetBackdrop ({bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 16})	
 	support_frame:SetBackdropColor (1, 1, 1, 0.3)
@@ -846,10 +1229,7 @@ do
 	--tooltips
 	BossFrame.buttonSwitchNormal.MouseOnEnterHook = function()  
 		GameCooltip:Reset()
-		--GameCooltip:AddLine (Loc ["STRING_FIGHT_SUMMARY"])
 		GameCooltip:AddLine (Loc ["STRING_FIGHT_SUMMARY"], nil, nil, "orange", nil, 12)
-		--GameCooltip:AddIcon ("Interface\\AddOns\\Details_EncounterDetails\\images\\boss_frame_buttons", 1, 1, 16, 16, 0, 0.1015625, 0, 0.515625)
-	
 		GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
 		GameCooltip:ShowCooltip (BossFrame.buttonSwitchNormal, "tooltip")
 		t:SetBlendMode ("ADD")
@@ -859,8 +1239,6 @@ do
 	BossFrame.buttonSwitchGraphic.MouseOnEnterHook = function() 
 		GameCooltip:Reset()
 		GameCooltip:AddLine (Loc ["STRING_FIGHT_GRAPHIC"], nil, nil, "orange", nil, 12)
-		--GameCooltip:AddIcon ("Interface\\AddOns\\Details_EncounterDetails\\images\\boss_frame_buttons", 1, 1, 16, 16, 0.1171875, 0.21875, 0, 0.515625)
-		
 		GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
 		GameCooltip:ShowCooltip (BossFrame.buttonSwitchGraphic, "tooltip")
 		g:SetBlendMode ("ADD")
@@ -869,9 +1247,7 @@ do
 	--
 	BossFrame.buttonSwitchBossEmotes:SetHook ("OnEnter", function() 
 		GameCooltip:Reset()
-		GameCooltip:AddLine ("boss emotes", nil, nil, "orange", nil, 12)
-		--GameCooltip:AddIcon ("Interface\\AddOns\\Details_EncounterDetails\\images\\boss_frame_buttons", 1, 1, 16, 16, 90/256, 116/256, 0, 0.515625)
-		
+		GameCooltip:AddLine (Loc ["STRING_FIGHT_EMOTES"], nil, nil, "orange", nil, 12)
 		GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
 		GameCooltip:ShowCooltip (BossFrame.buttonSwitchBossEmotes, "tooltip")
 		e:SetBlendMode ("ADD")
@@ -880,7 +1256,19 @@ do
 		_detalhes.popup:ShowMe (false);
 		e:SetBlendMode ("BLEND") 
 	end)
-	
+	--
+	BossFrame.buttonSwitchSpellsAuras:SetHook ("OnEnter", function() 
+		GameCooltip:Reset()
+		GameCooltip:AddLine (Loc ["STRING_FIGHT_SPELLS"], nil, nil, "orange", nil, 12)
+		GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
+		GameCooltip:ShowCooltip (BossFrame.buttonSwitchSpellsAuras, "tooltip")
+		aa:SetBlendMode ("ADD")
+	end)
+	BossFrame.buttonSwitchSpellsAuras:SetHook ("OnLeave", function() 
+		_detalhes.popup:ShowMe (false);
+		aa:SetBlendMode ("BLEND") 
+	end)
+	--
 	local emote_lines = {}
 	local emote_search_table = {}
 	
@@ -975,6 +1363,34 @@ do
 		GameCooltip:Hide()
 	end
 	
+	local row_on_mouse_up = function (self)
+		--report
+		local text = self.righttext:GetText()
+		local time = self.lefttext:GetText()
+		
+		local reportFunc = function()
+			-- remove textures
+			text = text:gsub ("(|T).*(|t)", "")
+			-- remove colors
+			text = text:gsub ("|c%x?%x?%x?%x?%x?%x?%x?%x?", "")
+			text = text:gsub ("|r", "")
+			-- replace links
+			for _, spellid in text:gmatch ("(|Hspell:)(.-)(|h)") do
+				local spell = tonumber (spellid)
+				local link = GetSpellLink (spell)
+				text = text:gsub ("(|Hspell).*(|h)", link)
+			end
+			-- remove the left space
+			text = text:gsub ("^%s$", "")
+			
+--			|TINTERFACE\\ICONS\\ability_socererking_arcanewrath.blp:20|t You have been branded by |cFFF00000|Hspell:156238|h[Arcane Wrath]|h|r!
+			
+			EncounterDetails:SendReportLines ({"Details! Encounter Emote at " .. time, "\"" .. text .. "\""})
+		end
+		
+		EncounterDetails:SendReportWindow (reportFunc)
+	end
+	
 	for i = 1, 16 do
 		local line = CreateFrame ("frame", nil, BossFrame)
 		local y = (i-1) * 15 * -1
@@ -1004,6 +1420,7 @@ do
 		
 		line:SetScript ("OnEnter", row_on_enter)
 		line:SetScript ("OnLeave", row_on_leave)
+		line:SetScript ("OnMouseUp", row_on_mouse_up)
 		tinsert (emote_lines, line)
 		tinsert (BossFrame.EmoteWidgets, line)
 		line:Hide()
@@ -1081,10 +1498,27 @@ do
 		widget:Hide()
 	end
 	
+	local emote_report_label = DetailsFrameWork:NewLabel (search.widget, search.widget, nil, "report_click", "|cFFffb400Left Click|r: Report Line")
+	emote_report_label:SetPoint ("topleft", search.widget, "bottomleft", 1, -141)
+	
 	--window title
 	DetailsFrameWork:NewLabel (BossFrame, BossFrame, nil, "titulo", Loc ["STRING_WINDOW_TITLE"], "GameFontHighlightLeft", 12, {227/255, 186/255, 4/255})
 	BossFrame.titulo:SetPoint ("center", BossFrame, "center")
 	BossFrame.titulo:SetPoint ("top", BossFrame, "top", 0, -18)
+	
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	--> spells and auras
+	
+	local segment = EncounterDetails._segment
+	local combat = EncounterDetails:GetCombat (segment)
+	
+	
+	
+	--spell cast by enemy actor
+	
+	
+	--debuff applied on players
+	
 	
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	local frame = BossFrame
@@ -1113,33 +1547,6 @@ do
 		DetailsFrameWork:NewLabel (frame, frame, nil, "raid_name", "Unknown Raid", "GameFontHighlightSmall")
 		frame.raid_name:SetPoint ("CENTER", frame.boss_name, "CENTER", 0, 14)
 
-	--> Barra de Status:
-
-		frame.StatusBar_damageicon = frame:CreateTexture (nil, "overlay")
-		frame.StatusBar_damageicon:SetPoint ("bottomleft", frame, "bottomleft", 20, 21)
-		frame.StatusBar_damageicon:SetTexture ("Interface\\AddOns\\Details_EncounterDetails\\images\\boss_icones")
-		frame.StatusBar_damageicon:SetWidth (16)
-		frame.StatusBar_damageicon:SetHeight (16)
-		frame.StatusBar_damageicon:SetTexCoord (0, 0.0625, 0, 1) -- 256x16
-		
-		DetailsFrameWork:NewLabel (frame, frame, nil, "StatusBar_totaldamage", Loc ["STRING_TOTAL_DAMAGE"], "GameFontHighlightSmall")
-		frame.StatusBar_totaldamage:SetPoint ("left", frame.StatusBar_damageicon, "right", 2, 0)
-		
-		frame.StatusBar_healicon = frame:CreateTexture (nil, "overlay")
-		frame.StatusBar_healicon:SetPoint ("bottomleft", frame, "bottomleft", 20, 5)
-		frame.StatusBar_healicon:SetTexture ("Interface\\AddOns\\Details_EncounterDetails\\images\\boss_icones")
-		frame.StatusBar_healicon:SetWidth (16)
-		frame.StatusBar_healicon:SetHeight (16)
-		frame.StatusBar_healicon:SetTexCoord (0.0625, 0.125, 0, 1) -- 256x16 
-		
-		DetailsFrameWork:NewLabel (frame, frame, nil, "StatusBar_totalheal", Loc ["STRING_TOTAL_HEAL"], "GameFontHighlightSmall")
-		frame.StatusBar_totalheal:SetPoint ("left", frame.StatusBar_healicon, "right", 2, 0)
-		
-		frame.StatusBar_damageicon:Hide()
-		frame.StatusBar_totaldamage:Hide()
-		frame.StatusBar_healicon:Hide()
-		frame.StatusBar_totalheal:Hide()
-		
 	--> Selecionar o segmento
 	
 		local buildSegmentosMenu = function (self)
@@ -1158,8 +1565,6 @@ do
 		
 		local segmentos_string = DetailsFrameWork:NewLabel (frame, nil, nil, "segmentosString", "Segment:", "GameFontNormal", 12)
 		segmentos_string:SetPoint ("bottomleft", frame, "bottomleft", 20, 16)
-		--_detalhes:SetFontColor (segmentos_string, "white")
-		--_detalhes:SetFontSize (segmentos_string, 10)
 		
 		local segmentos = DetailsFrameWork:NewDropDown (frame, _, "$parentSegmentsDropdown", "segmentosDropdown", 160, 18, buildSegmentosMenu, nil)	
 		segmentos:SetPoint ("left", segmentos_string, "right", 2, 0)
@@ -1193,8 +1598,11 @@ do
 		frame.Widgets [#frame.Widgets+1] = dano_recebido_bg
 		
 		dano_recebido_bg.textura = dano_recebido_bg:CreateTexture (nil, "overlay")
-		dano_recebido_bg.textura:SetPoint ("topleft", dano_recebido_bg, "topleft")
-		dano_recebido_bg.textura:SetTexture ("Interface\\AddOns\\Details_EncounterDetails\\images\\dano_recebido_bg")
+		dano_recebido_bg.textura:SetPoint ("topleft", dano_recebido_bg, "topleft", 0, 2)
+		dano_recebido_bg.textura:SetTexture ("Interface\\AddOns\\Details_EncounterDetails\\images\\boss_bg")
+		dano_recebido_bg.textura:SetTexCoord (19/1024, 217/1024, 74/512, 90/512)
+		dano_recebido_bg.textura:SetSize (198, 16)
+		dano_recebido_bg.textura:SetBlendMode ("ADD")
 		dano_recebido_bg.textura:Hide()
 		
 		dano_recebido_bg:SetScript ("OnEnter", function(self) self.textura:Show() end)
@@ -1258,8 +1666,12 @@ do
 		
 		habilidades_inimigas_bg.textura = habilidades_inimigas_bg:CreateTexture (nil, "overlay")
 		habilidades_inimigas_bg.textura:SetPoint ("topleft", habilidades_inimigas_bg, "topleft")
-		--habilidades_inimigas_bg.textura:SetTexture ("Interface\\AddOns\\Details_EncounterDetails\\images\\habilidades_inimigas_bg")
-		habilidades_inimigas_bg.textura:SetTexture ("Interface\\AddOns\\Details_EncounterDetails\\images\\habilidades_inimigas_bg")
+		habilidades_inimigas_bg.textura:SetTexture ("Interface\\AddOns\\Details_EncounterDetails\\images\\boss_bg")
+		
+		habilidades_inimigas_bg.textura:SetTexCoord (19/1024, 217/1024, 195/512, 211/512)
+		habilidades_inimigas_bg.textura:SetSize (199, 16)
+		habilidades_inimigas_bg.textura:SetBlendMode ("ADD")
+		
 		habilidades_inimigas_bg.textura:Hide()
 		
 		habilidades_inimigas_bg:SetScript ("OnEnter", function(self) self.textura:Show() end)
@@ -1346,30 +1758,23 @@ do
 		
 		container_adds_frame.barras = {}
 		
-		--container_adds_window:SetBackdrop({edgeFile = "Interface\\DialogFrame\\UI-DialogBox-gold-Border", tile = true, tileSize = 16, edgeSize = 5, insets = {left = 1, right = 1, top = 0, bottom = 1},})		
-		--container_adds_window:SetBackdropBorderColor (0,0,0,0)
-		
-		--container_adds_window:SetBackdrop (gump_fundo_backdrop)
-		--container_adds_window:SetBackdropBorderColor (1, 1, 1, 1)
-		--container_adds_window:SetBackdropColor (0, 0, 0, 0.1)
-		
 		container_adds_frame:SetAllPoints (container_adds_window)
 		container_adds_frame:SetWidth (175)
-		container_adds_frame:SetHeight (67)
+		container_adds_frame:SetHeight (90)
 		container_adds_frame:EnableMouse (true)
 		container_adds_frame:SetResizable (false)
 		container_adds_frame:SetMovable (true)
 		
 		container_adds_window:SetWidth (175)
-		container_adds_window:SetHeight (65)
+		container_adds_window:SetHeight (88)
 		container_adds_window:SetScrollChild (container_adds_frame)
 		container_adds_window:SetPoint ("TOPLEFT", frame, "TOPLEFT", 255, -113)
 
 		DetailsFrameWork:NewLabel (container_adds_window, container_adds_window, nil, "titulo", Loc ["STRING_ADDS"], "QuestFont_Large", 16, {1, 1, 1})
-		container_adds_window.titulo:SetPoint ("bottomleft", container_adds_window, "topleft", 0, 4)
+		container_adds_window.titulo:SetPoint ("bottomleft", container_adds_window, "topleft", 0, 0)
 		
 		DetailsFrameWork:NewScrollBar (container_adds_window, container_adds_frame, 4, -13)
-		container_adds_window.slider:Altura (45)
+		container_adds_window.slider:Altura (65)
 		container_adds_window.slider:cimaPoint (0, 1)
 		container_adds_window.slider:baixoPoint (0, -1)
 		container_adds_frame.slider = container_adds_window.slider
@@ -1395,12 +1800,12 @@ do
 		mouseOver_interrupt_frame:SetHeight (50)
 		
 		mouseOver_interrupt_frame.imagem = mouseOver_interrupt_frame:CreateTexture (nil, "overlay")
-		mouseOver_interrupt_frame.imagem:SetPoint ("topright", mouseOver_interrupt_frame, "topright", 12, -16)
+		mouseOver_interrupt_frame.imagem:SetPoint ("topright", mouseOver_interrupt_frame, "topright", 1, -25)
 		
 		mouseOver_interrupt_frame.imagem:SetTexture ("Interface\\AddOns\\Details_EncounterDetails\\images\\boss_icons")
 		mouseOver_interrupt_frame.imagem:SetTexCoord (0.6015625, 1, 0.734375, 0.9765625)
-		mouseOver_interrupt_frame.imagem:SetWidth (103)
-		mouseOver_interrupt_frame.imagem:SetHeight (34)
+		mouseOver_interrupt_frame.imagem:SetWidth (103*0.7)
+		mouseOver_interrupt_frame.imagem:SetHeight (34*0.7)
 		
 		mouseOver_interrupt_frame:SetScript ("OnEnter", 
 			function()
@@ -1434,15 +1839,15 @@ do
 		container_interrupt_window:SetWidth (185)
 		container_interrupt_window:SetHeight (65)
 		container_interrupt_window:SetScrollChild (container_interrupt_frame)
-		container_interrupt_window:SetPoint ("TOPLEFT", frame, "TOPLEFT", 470, -113)
+		container_interrupt_window:SetPoint ("TOPLEFT", frame, "TOPLEFT", 470, -234)
 
 		DetailsFrameWork:NewLabel (container_interrupt_window, container_interrupt_window, nil, "titulo", Loc ["STRING_INTERRUPTS"], "QuestFont_Large", 16, {1, 1, 1})
-		container_interrupt_window.titulo:SetPoint ("bottomleft", container_interrupt_window, "topleft", 0, 4)
+		container_interrupt_window.titulo:SetPoint ("bottomleft", container_interrupt_window, "topleft", 0, 3)
 		
-		DetailsFrameWork:NewScrollBar (container_interrupt_window, container_interrupt_frame, -1, -13)
+		DetailsFrameWork:NewScrollBar (container_interrupt_window, container_interrupt_frame, -1, -8)
 		container_interrupt_window.slider:Altura (45)
-		container_interrupt_window.slider:cimaPoint (0, 1)
-		container_interrupt_window.slider:baixoPoint (0, -1)
+		container_interrupt_window.slider:cimaPoint (0, 0)
+		container_interrupt_window.slider:baixoPoint (0, -2)
 		container_interrupt_frame.slider = container_interrupt_window.slider
 		
 		container_interrupt_window.gump = container_interrupt_frame
@@ -1463,15 +1868,15 @@ do
 		mouseOver_dispell_frame:SetPoint ("bottom", container_dispell_window, "top")
 		mouseOver_dispell_frame:SetPoint ("bottomleft", container_dispell_window, "topleft", 0, 5)
 		mouseOver_dispell_frame:SetPoint ("bottomright", container_dispell_window, "topright", 20, 5)
-		mouseOver_dispell_frame:SetHeight (50)
+		mouseOver_dispell_frame:SetHeight (30)
 		
 		mouseOver_dispell_frame.imagem = mouseOver_dispell_frame:CreateTexture (nil, "overlay")
-		mouseOver_dispell_frame.imagem:SetPoint ("topright", mouseOver_dispell_frame, "topright", -8, -17)
+		mouseOver_dispell_frame.imagem:SetPoint ("topright", mouseOver_dispell_frame, "topright", -10, -10)
 		
 		mouseOver_dispell_frame.imagem:SetTexture ("Interface\\AddOns\\Details_EncounterDetails\\images\\boss_icons")
 		mouseOver_dispell_frame.imagem:SetTexCoord (0, 0.15625, 0.4140625, 0.71875)
-		mouseOver_dispell_frame.imagem:SetWidth (40)
-		mouseOver_dispell_frame.imagem:SetHeight (39)
+		mouseOver_dispell_frame.imagem:SetWidth (30)
+		mouseOver_dispell_frame.imagem:SetHeight (29)
 		
 		mouseOver_dispell_frame:SetScript ("OnEnter", 
 			function()
@@ -1509,7 +1914,7 @@ do
 		container_dispell_window:SetPoint ("TOPLEFT", frame, "TOPLEFT", 245, -231)
 
 		DetailsFrameWork:NewLabel (container_dispell_window, container_dispell_window, nil, "titulo", Loc ["STRING_DISPELLS"], "QuestFont_Large", 16, {1, 1, 1})
-		container_dispell_window.titulo:SetPoint ("bottomleft", container_dispell_window, "topleft", 0, 4)
+		container_dispell_window.titulo:SetPoint ("bottomleft", container_dispell_window, "topleft", 8, 0)
 		
 		DetailsFrameWork:NewScrollBar (container_dispell_window, container_dispell_frame, -1, -13)
 		container_dispell_window.slider:Altura (45)
@@ -1538,7 +1943,7 @@ do
 		mouseOver_dead_frame:SetHeight (50)
 		
 		mouseOver_dead_frame.imagem = mouseOver_dead_frame:CreateTexture (nil, "overlay")
-		mouseOver_dead_frame.imagem:SetPoint ("topright", mouseOver_dead_frame, "topright", -14, -10)
+		mouseOver_dead_frame.imagem:SetPoint ("topright", mouseOver_dead_frame, "topright", -14, -14)
 		
 		mouseOver_dead_frame.imagem:SetTexture ("Interface\\AddOns\\Details_EncounterDetails\\images\\boss_icons")
 		mouseOver_dead_frame.imagem:SetTexCoord (0, 0.1640625, 0.03125, 0.34375)
@@ -1573,22 +1978,22 @@ do
 		container_dead_frame:SetPoint ("bottom", container_dead_window, "bottom", 0, 10)
 
 		container_dead_frame:SetWidth (178)
-		container_dead_frame:SetHeight (60)
+		container_dead_frame:SetHeight (89)
 		
 		container_dead_frame:EnableMouse (true)
 		container_dead_frame:SetResizable (false)
 		container_dead_frame:SetMovable (true)
 		
 		container_dead_window:SetWidth (178)
-		container_dead_window:SetHeight (70)
+		container_dead_window:SetHeight (88)
 		container_dead_window:SetScrollChild (container_dead_frame)
-		container_dead_window:SetPoint ("TOPLEFT", frame, "TOPLEFT", 472, -235)
+		container_dead_window:SetPoint ("TOPLEFT", frame, "TOPLEFT", 470, -113)
 
 		DetailsFrameWork:NewLabel (container_dead_window, container_dead_window, nil, "titulo", Loc ["STRING_DEATH_LOG"], "QuestFont_Large", 16, {1, 1, 1})
-		container_dead_window.titulo:SetPoint ("bottomleft", container_dead_window, "topleft", 0, 3)
+		container_dead_window.titulo:SetPoint ("bottomleft", container_dead_window, "topleft", 0, 1)
 		
-		DetailsFrameWork:NewScrollBar (container_dead_window, container_dead_frame, 4, -9)
-		container_dead_window.slider:Altura (45)
+		DetailsFrameWork:NewScrollBar (container_dead_window, container_dead_frame, 6, -12)
+		container_dead_window.slider:Altura (65)
 		container_dead_window.slider:cimaPoint (0, 1)
 		container_dead_window.slider:baixoPoint (0, -1)
 		container_dead_frame.slider = container_dead_window.slider
@@ -1597,98 +2002,7 @@ do
 		container_dead_frame.window = container_dead_window
 		container_dead_window.ultimo = 0
 		frame.overall_dead = container_dead_window
-		
-		
-	--> funções dos botões das fases
-		local disable_func = function (self) self.texto:SetTextColor (.4, .4, .4) end 
-		local enable_func = function (self) self.texto:SetTextColor (.7, .7, .7) end 
-		
-		function frame.ShowOverall()
-			return true
-		end
-		function frame.ShowFase (fase)
-			return true
-		end
-		
-	--> Botão Overall
-		local botao_overall = DetailsFrameWork:NewDetailsButton (frame, frame, _, frame.ShowOverall, _, nil, 32, 16,
-		"Interface\\AddOns\\Details_EncounterDetails\\images\\boss_frame_button", "Interface\\AddOns\\Details_EncounterDetails\\images\\boss_frame_button", "Interface\\AddOns\\Details_EncounterDetails\\images\\boss_frame_button_disabled", "Interface\\AddOns\\Details_EncounterDetails\\images\\boss_frame_button")
-		botao_overall:SetPoint ("topleft", frame, "topleft", 480, -50)
-		DetailsFrameWork:NewLabel (botao_overall, botao_overall, nil, "texto", "A", "QuestFont_Large", 12, {.7, .7, .7})
-		botao_overall.texto:SetPoint ("center", botao_overall, "center", 0, 1)
-		botao_overall:SetScript ("OnEnable", enable_func)
-		botao_overall:SetScript ("OnDisable", disable_func)
-		botao_overall.tooltip = Loc ["STRING_SHOW_ALL_DATA"].."\n|cFFFF0000"..Loc ["STRING_NOT IMPLEMENTED"]
-		
-
-	--> Botão Fase 1
-		local botao_fase1 = DetailsFrameWork:NewDetailsButton (frame, frame, _, frame.ShowFase, 1, nil, 32, 16,
-		"Interface\\AddOns\\Details_EncounterDetails\\images\\boss_frame_button", "Interface\\AddOns\\Details_EncounterDetails\\images\\boss_frame_button", "Interface\\AddOns\\Details_EncounterDetails\\images\\boss_frame_button_disabled", "Interface\\AddOns\\Details_EncounterDetails\\images\\boss_frame_button")
-		botao_fase1:SetPoint ("left", botao_overall, "right", 2, 0)
-		DetailsFrameWork:NewLabel (botao_fase1, botao_fase1, nil, "texto", "F1", "QuestFont_Large", 12, {.7, .7, .7})
-		botao_fase1.texto:SetPoint ("center", botao_fase1, "center", 0, 1)
-		botao_fase1:SetScript ("OnEnable", enable_func)
-		botao_fase1:SetScript ("OnDisable", disable_func)
-		botao_fase1.tooltip = Loc ["STRING_SHOW_PHASE_DATA"].."\n|cFFFF0000"..Loc ["STRING_NOT IMPLEMENTED"]
-		
-	--> Botão Fase 2	
-		local botao_fase2 = DetailsFrameWork:NewDetailsButton (frame, frame, _, frame.ShowFase, 2, nil, 32, 16,
-		"Interface\\AddOns\\Details_EncounterDetails\\images\\boss_frame_button", "Interface\\AddOns\\Details_EncounterDetails\\images\\boss_frame_button", "Interface\\AddOns\\Details_EncounterDetails\\images\\boss_frame_button_disabled", "Interface\\AddOns\\Details_EncounterDetails\\images\\boss_frame_button")
-		botao_fase2:SetPoint ("left", botao_fase1, "right", 2, 0)
-		DetailsFrameWork:NewLabel (botao_fase2, botao_fase2, nil, "texto", "F2", "QuestFont_Large", 12, {.7, .7, .7})
-		botao_fase2.texto:SetPoint ("center", botao_fase2, "center", 0, 1)
-		botao_fase2:SetScript ("OnEnable", enable_func)
-		botao_fase2:SetScript ("OnDisable", disable_func)
-		botao_fase2.tooltip = Loc ["STRING_SHOW_PHASE_DATA"].."\n|cFFFF0000"..Loc ["STRING_NOT IMPLEMENTED"]
-		
-	--> Botão Fase 3
-		local botao_fase3 = DetailsFrameWork:NewDetailsButton (frame, frame, _, frame.ShowFase, 3, nil, 32, 16,
-		"Interface\\AddOns\\Details_EncounterDetails\\images\\boss_frame_button", "Interface\\AddOns\\Details_EncounterDetails\\images\\boss_frame_button", "Interface\\AddOns\\Details_EncounterDetails\\images\\boss_frame_button_disabled", "Interface\\AddOns\\Details_EncounterDetails\\images\\boss_frame_button")
-		botao_fase3:SetPoint ("left", botao_fase2, "right", 2, 0)
-		DetailsFrameWork:NewLabel (botao_fase3, botao_fase3, nil, "texto", "F3", "QuestFont_Large", 12, {.7, .7, .7})
-		botao_fase3.texto:SetPoint ("center", botao_fase3, "center", 0, 1)
-		botao_fase3:SetScript ("OnEnable", enable_func)
-		botao_fase3:SetScript ("OnDisable", disable_func)
-		botao_fase3.tooltip = Loc ["STRING_SHOW_PHASE_DATA"].."\n|cFFFF0000"..Loc ["STRING_NOT IMPLEMENTED"]
-		
-	--> Botão Fase 4
-		local botao_fase4 = DetailsFrameWork:NewDetailsButton (frame, frame, _, frame.ShowFase, 4, nil, 32, 16,
-		"Interface\\AddOns\\Details_EncounterDetails\\images\\boss_frame_button", "Interface\\AddOns\\Details_EncounterDetails\\images\\boss_frame_button", "Interface\\AddOns\\Details_EncounterDetails\\images\\boss_frame_button_disabled", "Interface\\AddOns\\Details_EncounterDetails\\images\\boss_frame_button")
-		botao_fase4:SetPoint ("left", botao_fase3, "right", 2, 0)
-		DetailsFrameWork:NewLabel (botao_fase4, botao_fase4, nil, "texto", "F4", "QuestFont_Large", 12, {.7, .7, .7})
-		botao_fase4.texto:SetPoint ("center", botao_fase4, "center", 0, 1)
-		botao_fase4:SetScript ("OnEnable", enable_func)
-		botao_fase4:SetScript ("OnDisable", disable_func)
-		botao_fase4.tooltip = Loc ["STRING_SHOW_PHASE_DATA"].."\n|cFFFF0000"..Loc ["STRING_NOT IMPLEMENTED"]
-		
-	--> Botão Fase 5
-		local botao_fase5 = DetailsFrameWork:NewDetailsButton (frame, frame, _, frame.ShowFase, 5, nil, 32, 16,
-		"Interface\\AddOns\\Details_EncounterDetails\\images\\boss_frame_button", "Interface\\AddOns\\Details_EncounterDetails\\images\\boss_frame_button", "Interface\\AddOns\\Details_EncounterDetails\\images\\boss_frame_button_disabled", "Interface\\AddOns\\Details_EncounterDetails\\images\\boss_frame_button")
-		botao_fase5:SetPoint ("left", botao_fase4, "right", 2, 0)
-		DetailsFrameWork:NewLabel (botao_fase5, botao_fase5, nil, "texto", "F5", "QuestFont_Large", 12, {.7, .7, .7})
-		botao_fase5.texto:SetPoint ("center", botao_fase5, "center", 0, 1)
-		botao_fase5:SetScript ("OnEnable", enable_func)
-		botao_fase5:SetScript ("OnDisable", disable_func)
-		botao_fase5.tooltip = Loc ["STRING_SHOW_PHASE_DATA"].."\n|cFFFF0000"..Loc ["STRING_NOT IMPLEMENTED"]
 	
-	
-	botao_overall:SetFrameLevel (frame:GetFrameLevel()+2)
-	botao_fase1:SetFrameLevel (frame:GetFrameLevel()+2)
-	botao_fase2:SetFrameLevel (frame:GetFrameLevel()+2)
-	botao_fase3:SetFrameLevel (frame:GetFrameLevel()+2)
-	botao_fase4:SetFrameLevel (frame:GetFrameLevel()+2)
-	botao_fase5:SetFrameLevel (frame:GetFrameLevel()+2)
-		
-		--> os botões das fases estão desativados pois não foram implementados ainda
-		--[[
-		botao_overall:Disable()
-		botao_fase1:Disable()
-		botao_fase2:Disable()
-		botao_fase3:Disable()
-		botao_fase4:Disable()
-		botao_fase5:Disable()
-		--]]
-		
 	--> botão fechar
 		frame.fechar = CreateFrame ("Button", nil, frame, "UIPanelCloseButton")
 		frame.fechar:SetWidth (32)

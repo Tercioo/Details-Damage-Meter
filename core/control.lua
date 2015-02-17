@@ -602,6 +602,10 @@
 			_detalhes.in_combat = false --sinaliza ao addon que não há combate no momento
 			_detalhes.leaving_combat = false --sinaliza que não esta mais saindo do combate
 			
+			_detalhes:OnCombatPhaseChanged()
+			_table_wipe (_detalhes.tabela_vigente.PhaseData.damage_section)
+			_table_wipe (_detalhes.tabela_vigente.PhaseData.heal_section)
+			
 			_table_wipe (_detalhes.cache_damage_group)
 			_table_wipe (_detalhes.cache_healing_group)
 			

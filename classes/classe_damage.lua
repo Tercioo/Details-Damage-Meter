@@ -1272,7 +1272,7 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 				qual_barra = qual_barra+1
 			else
 				for i = instancia.barraS[1], instancia.barraS[2], 1 do --> vai atualizar só o range que esta sendo mostrado
-					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
+--[[ index nil value]]		conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
 					qual_barra = qual_barra+1
 				end
 			end

@@ -227,6 +227,7 @@
 		
 		--> time data container
 		esta_tabela.TimeData = _detalhes:TimeDataCreateCombatTables()
+		esta_tabela.PhaseData = {{1, 1}, damage = {}, heal = {}, damage_section = {}, heal_section = {}} --[1] phase number [2] phase started
 		
 		--> Skill cache (not used)
 		esta_tabela.CombatSkillCache = {}

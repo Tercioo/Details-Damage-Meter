@@ -39,6 +39,7 @@
 			["COMBAT_PREPOTION_UPDATED"] = {},
 			["COMBAT_CHARTTABLES_CREATING"] = {},
 			["COMBAT_CHARTTABLES_CREATED"] = {},
+			["COMBAT_ENCOUNTER_PHASE_CHANGED"] = {},
 		
 		--> area
 			["ZONE_TYPE_CHANGED"] = {},
@@ -88,6 +89,7 @@ local common_events = {
 	["COMBAT_PREPOTION_UPDATED"] = true,
 	["COMBAT_CHARTTABLES_CREATING"] = true,
 	["COMBAT_CHARTTABLES_CREATED"] = true,
+	["COMBAT_ENCOUNTER_PHASE_CHANGED"] = true,
 	["GROUP_ONENTER"] = true,
 	["GROUP_ONLEAVE"] = true,
 	["ZONE_TYPE_CHANGED"] = true,

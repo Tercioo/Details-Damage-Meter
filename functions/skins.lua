@@ -1143,7 +1143,7 @@ local _
 				true,
 				true,
 				true, -- [5]
-				true, -- [6]
+				false, -- [6]
 				["space"] = -4,
 				["shadow"] = true,
 			},
@@ -1763,7 +1763,7 @@ local _
 			["strata"] = "LOW",
 			["show_sidebars"] = true,
 			["hide_in_combat_alpha"] = 0,
-			["menu_icons"] = {true,true,true,true,true, true, ["space"] = -4, ["shadow"] = true},
+			["menu_icons"] = {true, true, true, true, true, false, ["space"] = -4, ["shadow"] = true},
 			["desaturated_menu"] = false,
 			["auto_hide_menu"] = {
 				["left"] = false,
