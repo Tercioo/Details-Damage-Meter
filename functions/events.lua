@@ -220,15 +220,15 @@ local common_events = {
 		
 		elseif (not object) then
 			for _, PluginObject in ipairs (_detalhes.RegistredEvents[event]) do
-				if (PluginObject.__eventtable) then
+				if (PluginObject.__eventtable) then --if passed a function to callback
 					if (PluginObject [1].Enabled and PluginObject [1].__enabled) then
 						if (type (PluginObject [2]) == "function") then
 							PluginObject [2] (event, ...)
 						else
-							PluginObject [1] [PluginObject [2]] (event, ...)
+							PluginObject [1] [PluginObject [2]] (PluginObject, event, ...)
 						end
 					end
-				else
+				else --if no function (only registred the event) sent the event to OnDetailsEvent
 					if (PluginObject.Enabled and PluginObject.__enabled) then
 						PluginObject:OnDetailsEvent (event, ...)
 					end

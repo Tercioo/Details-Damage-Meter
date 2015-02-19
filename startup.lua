@@ -453,6 +453,9 @@ function _G._detalhes:Start()
 	--> start announcers
 	_detalhes:StartAnnouncers()
 	
+	--> start aura
+	_detalhes:CreateAuraListener()
+	
 	--> open welcome
 	if (self.is_first_run) then
 		_detalhes:OpenWelcomeWindow()

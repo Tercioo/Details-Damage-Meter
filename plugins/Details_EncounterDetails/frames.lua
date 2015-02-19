@@ -975,9 +975,10 @@ do
 
 	BossFrame.bg_main = BossFrame:CreateTexture (nil, "BORDER")
 	BossFrame.bg_main:SetPoint ("TOPLEFT", BossFrame, "TOPLEFT", 0, 0)
-	BossFrame.bg_main:SetWidth (1024)
+	BossFrame.bg_main:SetWidth (700)
 	BossFrame.bg_main:SetHeight (512)
 	BossFrame.bg_main:SetTexture ("Interface\\AddOns\\Details_EncounterDetails\\images\\boss_bg")
+	BossFrame.bg_main:SetTexCoord (0, 700/1024, 0, 1)
 	BossFrame.bg_main:SetDrawLayer ("BORDER", 3)
 	BossFrame.bg_main:Show()
 	
@@ -1033,7 +1034,12 @@ do
 			for _, widget in pairs (BossFrame.EmoteWidgets) do
 				widget:Hide()
 			end
-
+			
+			--hide spells frames
+			for _, widget in pairs (BossFrame.EnemySpellsWidgets) do
+				widget:Hide()
+			end
+			
 			BossFrame.ShowType = "main"
 			mode_label.text = "Summary"
 			BossFrame.segmentosDropdown:Enable()
@@ -1064,6 +1070,11 @@ do
 				widget:Hide()
 			end
 			
+			--show spells frames
+			for _, widget in pairs (BossFrame.EnemySpellsWidgets) do
+				widget:Show()
+			end
+			
 			selected:SetPoint ("center", BossFrame.buttonSwitchSpellsAuras.widget, "center", 0, 1)
 			u:SetAllPoints (BossFrame.buttonSwitchSpellsAuras.widget)
 			
@@ -1071,9 +1082,14 @@ do
 			mode_label.text = "Spells and Auras"
 			
 			-- show spells box
+			local actor = EncounterDetails.build_actor_menu() [1]
+			actor = actor and actor.value
+			if (actor) then
+				_G [BossFrame:GetName() .. "EnemyActorSpellsDropdown"].MyObject:Select (actor)
+				EncounterDetails.update_enemy_spells (actor)
+			end
 			
-			
-			BossFrame.segmentosDropdown:Disable()
+			BossFrame.segmentosDropdown:Enable()
 		
 		elseif (to == "emotes") then 
 
@@ -1099,6 +1115,11 @@ do
 			for _, widget in pairs (BossFrame.EmoteWidgets) do
 				widget:Show()
 			end
+			
+			--hide spells frames
+			for _, widget in pairs (BossFrame.EnemySpellsWidgets) do
+				widget:Hide()
+			end			
 		
 			selected:SetPoint ("center", BossFrame.buttonSwitchBossEmotes.widget, "center", 0, 1)
 			u:SetAllPoints (BossFrame.buttonSwitchBossEmotes.widget)
@@ -1145,8 +1166,12 @@ do
 				widget:Hide()
 			end
 			
+			--hide spells frames
+			for _, widget in pairs (BossFrame.EnemySpellsWidgets) do
+				widget:Hide()
+			end			
+			
 			BossFrame.segmentosDropdown:Enable()
-			--BossFrame.segmentosDropdown:Disable()
 		end
 	end
 
@@ -1208,8 +1233,6 @@ do
 	support_frame:SetBackdropColor (1, 1, 1, 0.3)
 	
 	mode_label = DetailsFrameWork:CreateLabel (support_frame, "Summary", 13, color, "GameFontNormal")
-	--mode_label:SetPoint ("bottomright", BossFrame, "bottomright", -10, 16)
-	--mode_label:SetPoint ("left", BossFrame.buttonSwitchBossEmotes.widget, "right", 20, 0)
 	mode_label:SetPoint ("center", support_frame, "center")
 	
 	local left = support_frame:CreateTexture (nil, "overlay")
@@ -1268,7 +1291,10 @@ do
 		_detalhes.popup:ShowMe (false);
 		aa:SetBlendMode ("BLEND") 
 	end)
-	--
+	
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> ~emotes
+	
 	local emote_lines = {}
 	local emote_search_table = {}
 	
@@ -1334,14 +1360,18 @@ do
 			end
 		end
 	end
+	
 	BossFrame.EmoteWidgets = {}
+	
+	local bar_div_emotes = DetailsFrameWork:CreateImage (BossFrame, "Interface\\AddOns\\Details_EncounterDetails\\images\\boss_bg", 4, 240, "artwork", {724/1024, 728/1024, 0, 245/512})
+	bar_div_emotes:SetPoint ("TOPLEFT", BossFrame, "TOPLEFT", 244, -74)
+	bar_div_emotes:Hide()
+	tinsert (BossFrame.EmoteWidgets, bar_div_emotes)
 	
 	scrollframe = CreateFrame ("ScrollFrame", "EncounterDetails_EmoteScroll", BossFrame, "FauxScrollFrameTemplate")
 	scrollframe:SetScript ("OnVerticalScroll", function (self, offset) FauxScrollFrame_OnVerticalScroll (self, offset, 14, refresh_emotes) end)
-	scrollframe:SetPoint ("topleft", BossFrame, "topleft", 200, -75)
+	scrollframe:SetPoint ("topleft", BossFrame, "topleft", 249, -75)
 	scrollframe:SetPoint ("bottomright", BossFrame, "bottomright", -33, 42)
-	--scrollframe:SetBackdrop({bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 16})	
-	--scrollframe:SetBackdropColor (1, 0, 0, 1)
 	scrollframe.Update = refresh_emotes
 	scrollframe:Hide()
 	--
@@ -1382,9 +1412,7 @@ do
 			end
 			-- remove the left space
 			text = text:gsub ("^%s$", "")
-			
---			|TINTERFACE\\ICONS\\ability_socererking_arcanewrath.blp:20|t You have been branded by |cFFF00000|Hspell:156238|h[Arcane Wrath]|h|r!
-			
+
 			EncounterDetails:SendReportLines ({"Details! Encounter Emote at " .. time, "\"" .. text .. "\""})
 		end
 		
@@ -1507,18 +1535,214 @@ do
 	BossFrame.titulo:SetPoint ("top", BossFrame, "top", 0, -18)
 	
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	
+	BossFrame.EnemySpellsWidgets = {}
+
 	--> spells and auras
+
+	-- actor dropdown
 	
-	local segment = EncounterDetails._segment
-	local combat = EncounterDetails:GetCombat (segment)
+	local EnemyActorSpells_label = DetailsFrameWork:CreateLabel (BossFrame, "Enemy Actor:", 11, nil, "GameFontHighlightSmall")
+	EnemyActorSpells_label:SetPoint ("topleft", BossFrame, "topleft", 25, -85)
+
+	local spell_blocks = {}
 	
+	local on_focus_gain = function (self)
+		self:HighlightText()
+	end
 	
+	local on_focus_lost = function (self)
+		self:HighlightText (0, 0)
+	end
 	
-	--spell cast by enemy actor
+	local on_enter_spell = function (self)
+
+		GameTooltip:SetOwner (self, "ANCHOR_TOPLEFT")
+		GameTooltip:SetSpellByID (self.MyObject._spellid)
+		GameTooltip:Show()
+		
+	end
 	
+	local on_leave_spell = function (self, capsule)
+		GameTooltip:Hide()
+	end
 	
-	--debuff applied on players
+	local create_aura_func = function (spellid, _, self)
+		local name, _, icon = EncounterDetails.getspellinfo (spellid)
+		EncounterDetails:OpenAuraPanel (spellid, name, self and self.MyObject._icon.texture)
+	end
 	
+	for i = 1, 10 do
+		local anchor_frame = CreateFrame ("frame", "BossFrameSpellAnchor" .. i, BossFrame)
+	
+		local icon_button_func = function (texture)
+			anchor_frame.icon.texture = texture
+		end
+	
+		local spellicon_button = DetailsFrameWork:NewButton (anchor_frame, nil, "$parentIconButton", "IconButton", 20, 20, function() DetailsFrameWork:IconPick (icon_button_func, true) end)
+		local spellicon = DetailsFrameWork:NewImage (spellicon_button, [[Interface\ICONS\TEMP]], 19, 19, "background", nil, "icon", "$parentIcon")
+		spellicon_button:InstallCustomTexture()
+		
+		local spellid = DetailsFrameWork:CreateTextEntry (anchor_frame, EncounterDetails.empty_function, 80, 20)
+		spellid:SetHook ("OnEditFocusGained", on_focus_gain)
+		spellid:SetHook ("OnEditFocusLost", on_focus_lost)
+		spellid:SetHook ("OnEnter", on_enter_spell)
+		spellid:SetHook ("OnLeave", on_leave_spell)
+		
+		local spellname = DetailsFrameWork:CreateTextEntry (anchor_frame, EncounterDetails.empty_function, 160, 20)
+		spellname:SetHook ("OnEditFocusGained", on_focus_gain)
+		spellname:SetHook ("OnEditFocusLost", on_focus_lost)
+		spellname:SetHook ("OnEnter", on_enter_spell)
+		spellname:SetHook ("OnLeave", on_leave_spell)
+		
+		spellicon_button:SetPoint ("topleft", BossFrame, "topleft", 255, -65 + (i * 21 * -1))
+		spellicon:SetAllPoints()
+		spellid:SetPoint ("left", spellicon_button, "right", 4, 0)
+		spellname:SetPoint ("left", spellid, "right", 4, 0)
+		
+		local create_aura = DetailsFrameWork:NewButton (anchor_frame, nil, "$parentCreateAuraButton", "AuraButton", 105, 18, create_aura_func, nil, nil, nil, "Create Aura")
+		create_aura:SetPoint ("left", spellname, "right", 4, 0)
+		create_aura:InstallCustomTexture()
+		
+		anchor_frame.icon = spellicon
+		anchor_frame.spellid = spellid
+		anchor_frame.spellname = spellname
+		anchor_frame.aurabutton = create_aura
+		anchor_frame.aurabutton._icon = spellicon
+		
+		tinsert (spell_blocks, anchor_frame)
+		tinsert (BossFrame.EnemySpellsWidgets, anchor_frame)
+		
+		anchor_frame:Hide()
+	end
+	
+	local last_npc_name
+	
+	local update_enemy_spells = function (npc_name)
+		npc_name = npc_name or last_npc_name
+		last_npc_name = npc_name
+	
+		local combat = EncounterDetails:GetCombat (EncounterDetails._segment)
+		
+		if (combat and npc_name) then
+		
+			local spell_list = {}
+			
+			--damage
+			local npc = combat (1, npc_name)
+			if (npc) then
+				for spellid, spell in pairs (npc.spells._ActorTable) do
+					if (spellid > 10) then
+						local name, _, icon = EncounterDetails.getspellinfo (spellid)
+						tinsert (spell_list, {spellid, name, icon})
+					end
+				end
+			end
+			
+			--heal
+			local npc = combat (2, npc_name)
+			if (npc) then
+				for spellid, spell in pairs (npc.spells._ActorTable) do
+					if (spellid > 10) then
+						local name, _, icon = EncounterDetails.getspellinfo (spellid)
+						tinsert (spell_list, {spellid, name, icon, true})
+					end
+				end
+			end
+			
+			EncounterDetails_SpellAurasScroll.spell_pool = spell_list
+			EncounterDetails_SpellAurasScroll:Update()
+		end
+	end
+	
+	local refresh_spellauras = function (self)
+		
+		local pool = EncounterDetails_SpellAurasScroll.spell_pool
+		local offset = FauxScrollFrame_GetOffset (self)
+		
+		for bar_index = 1, 10 do 
+			local data = pool [bar_index + offset]
+			local bar = spell_blocks [bar_index]
+			
+			if (data) then
+				bar:Show()
+				
+				bar.icon.texture = data [3]
+				bar.spellid.text = data [1]
+				bar.spellname.text = data [2]
+				
+				bar.spellid._spellid = data [1]
+				bar.spellname._spellid = data [1]
+				
+				local is_heal = data [4]
+				if (is_heal) then
+					bar.spellid:SetBackdropBorderColor (0, 1, 0)
+					bar.spellname:SetBackdropBorderColor (0, 1, 0)
+				else
+					bar.spellid:SetBackdropBorderColor (1, 1, 1)
+					bar.spellname:SetBackdropBorderColor (1, 1, 1)
+				end
+				
+				bar.aurabutton:SetClickFunction (create_aura_func, data [1])
+
+			else
+				bar:Hide()
+			end
+		end
+		
+		FauxScrollFrame_Update (self, #pool, 10, 20)
+		
+	end
+	
+	local spell_scrollframe = CreateFrame ("ScrollFrame", "EncounterDetails_SpellAurasScroll", BossFrame, "FauxScrollFrameTemplate")
+	spell_scrollframe:SetScript ("OnVerticalScroll", function (self, offset) FauxScrollFrame_OnVerticalScroll (self, offset, 14, refresh_spellauras) end)
+	spell_scrollframe:SetPoint ("topleft", BossFrame, "topleft", 200, -75)
+	spell_scrollframe:SetPoint ("bottomright", BossFrame, "bottomright", -33, 42)
+	spell_scrollframe.Update = refresh_spellauras
+	spell_scrollframe:Hide()
+	
+	tinsert (BossFrame.EnemySpellsWidgets, spell_scrollframe)
+	
+	EncounterDetails.update_enemy_spells = update_enemy_spells
+	
+	local on_select_actor_spell = function (self, fixedparam, option)
+		last_npc_name = option
+		update_enemy_spells (option)
+	end
+	
+	local build_actor_menu = function()
+		local t = {}
+		local combat = EncounterDetails:GetCombat (EncounterDetails._segment)
+		
+		if (combat) then
+			local AllDamageCharacters = combat:GetActorList (DETAILS_ATTRIBUTE_DAMAGE)
+			for index, character in ipairs (AllDamageCharacters) do
+				if (character:IsEnemy()) then
+					tinsert (t, {label = character:name(), value = character:name(), icon = "Interface\\AddOns\\Details_EncounterDetails\\images\\icon", onclick = on_select_actor_spell, iconcolor = "silver"})
+				end
+			end
+			return t
+		else
+			return t
+		end
+	end
+	EncounterDetails.build_actor_menu = build_actor_menu
+
+	local EnemyActorSpells = DetailsFrameWork:NewDropDown (BossFrame, _, "$parentEnemyActorSpellsDropdown", "EnemyActorSpells", 160, 20, build_actor_menu, 1)
+	EnemyActorSpells:SetPoint ("topleft", EnemyActorSpells_label, "bottomleft", -1, -2)
+	
+	EnemyActorSpells:Hide()
+	EnemyActorSpells_label:Hide()
+
+	local bar_div = DetailsFrameWork:CreateImage (BossFrame, "Interface\\AddOns\\Details_EncounterDetails\\images\\boss_bg", 4, 240, "artwork", {724/1024, 728/1024, 0, 245/512})
+	bar_div:SetPoint ("TOPLEFT", BossFrame, "TOPLEFT", 244, -74)
+	bar_div:Hide()
+	
+	tinsert (BossFrame.EnemySpellsWidgets, EnemyActorSpells_label)
+	tinsert (BossFrame.EnemySpellsWidgets, EnemyActorSpells)
+	tinsert (BossFrame.EnemySpellsWidgets, bar_div)
+	
+
 	
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	local frame = BossFrame

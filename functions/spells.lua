@@ -1565,7 +1565,8 @@ do
 		--["DRUID"] = {},
 		[740] = {480, 8, 0}, --Tranquility
 		[22842] = {0, 0, 1}, --Frenzied Regeneration
-		[124988] = {90, 30, 0}, --Nature's Vigil
+		--[124988] = {90, 30, 0}, --Nature's Vigil
+		[124974] = {90, 30, 0}, --Nature's Vigil
 		
 		--["HUNTER"] = {},
 		[172106] = {180, 6}, -- "Aspect of the Fox"

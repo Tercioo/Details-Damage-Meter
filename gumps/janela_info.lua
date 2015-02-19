@@ -3363,7 +3363,7 @@ local row_on_leave = function (self)
 	end
 end
 
-local row_on_mousedown = function (self)
+local row_on_mousedown = function (self, button)
 	if (self.fading_in) then
 		return
 	end
@@ -3373,18 +3373,21 @@ local row_on_mousedown = function (self)
 	self.x = _math_floor (x)
 	self.y = _math_floor (y)
 
-	if ((not info.isLocked) or (info.isLocked == 0)) then
+	if (button == "RightButton" and not info.isMoving) then
+		_detalhes:FechaJanelaInfo()
+		
+	elseif (not info.isMoving and button == "LeftButton" and not self.isDetalhe) then
 		info:StartMoving()
 		info.isMoving = true
-	end	
+	end
 end
 
-local row_on_mouseup = function (self)
+local row_on_mouseup = function (self, button)
 	if (self.fading_in) then
 		return
 	end
 
-	if (info.isMoving) then
+	if (info.isMoving and button == "LeftButton" and not self.isDetalhe) then
 		info:StopMovingOrSizing()
 		info.isMoving = false
 	end
@@ -3403,12 +3406,12 @@ local row_on_mouseup = function (self)
 				barra_antiga.textura:SetStatusBarColor (1, 1, 1, 1) --> volta a textura normal
 				barra_antiga.on_focus = false --> não esta mais no foco
 
-				--> CLICOU NA MESMA BARRA
+				--> clicou na mesma barra
 				if (barra_antiga == self) then --> 
 					info.mostrando_mouse_over = true
 					return
 					
-				--> CLICOU EM OUTRA BARRA
+				--> clicou em outra barra
 				else --> clicou em outra barra e trocou o foco
 					barra_antiga:SetAlpha (.9) --> volta a alfa antiga
 				
@@ -3425,8 +3428,7 @@ local row_on_mouseup = function (self)
 				end
 			end
 			
-			--> NÃO TINHA BARRAS PRECIONADAS
-			-- info.mostrando = self
+			--> nao tinha barras pressionadas
 			info.mostrando_mouse_over = false
 			self:SetAlpha (1)
 			self.textura:SetStatusBarColor (129/255, 125/255, 69/255, 1)
@@ -3730,11 +3732,11 @@ function gump:CriaNovaBarraInfo3 (instancia, index)
 	local janela = info.container_detalhes
 
 	local esta_barra = CreateFrame ("Button", "Details_infobox3_bar_"..index, janela)
-	esta_barra:SetWidth (220) --> tamanho da barra de acordo com o tamanho da janela
-	esta_barra:SetHeight (16) --> altura determinada pela instância
+	esta_barra:SetWidth (220)
+	esta_barra:SetHeight (16)
 	
-	local y = (index-1)*17 --> 17 é a altura da barra
-	y = y*-1 --> baixo	
+	local y = (index-1) * 17
+	y = y*-1
 	
 	esta_barra:SetPoint ("LEFT", janela, "LEFT", x_start, 0)
 	esta_barra:SetPoint ("RIGHT", janela, "RIGHT", 59, 0)
@@ -3754,7 +3756,7 @@ function gump:CriaNovaBarraInfo3 (instancia, index)
 	esta_barra.icone:SetAlpha (1)
 	
 	esta_barra.isDetalhe = true
-		
+	
 	SetBarraScripts (esta_barra, instancia, index)
 	
 	info.barras3 [index] = esta_barra --> barra adicionada

@@ -768,11 +768,9 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 	local frame = EncounterDetailsFrame --alias
 
 	if (segment) then
-		--get combat segment, 1 more recently ...25 oldest
 		_combat_object = EncounterDetails:GetCombat (segment)
 		EncounterDetails._segment = segment
 	else
-
 		local historico = _detalhes.tabela_historico.tabelas
 		for index, combate in ipairs (historico) do 
 			if (combate.is_boss and combate.is_boss.index) then
@@ -782,7 +780,6 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 				break
 			end
 		end
-
 	end
 	
 	if (not _combat_object) then
@@ -825,21 +822,19 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 	boss_id = _combat_object.is_boss.index
 	map_id = _combat_object.is_boss.mapid
 	boss_info = _detalhes:GetBossDetails (_combat_object.is_boss.mapid, _combat_object.is_boss.index)
-
-	--[[
-	if (not boss_info) then
-		if (EncounterDetails.LastSegmentShown) then
-			_combat_object = EncounterDetails.LastSegmentShown
-		else
-			return EncounterDetails:Msg (Loc ["STRING_BOSS_NOT_REGISTRED"])
-		end
-	end
-	--]]
 	
 	if (EncounterDetailsFrame.ShowType == "graph") then
 		EncounterDetails:BuildDpsGraphic()
+		
 	elseif (EncounterDetailsFrame.ShowType == "spellsauras") then
 		--refresh spells and auras
+		local actor = EncounterDetails.build_actor_menu() [1]
+		actor = actor and actor.value
+		if (actor) then
+			_G [EncounterDetailsFrame:GetName() .. "EnemyActorSpellsDropdown"].MyObject:Select (actor)
+			EncounterDetails.update_enemy_spells (actor)
+		end
+		EncounterDetails.update_enemy_spells()
 	end
 	
 	EncounterDetails.LastSegmentShown = _combat_object

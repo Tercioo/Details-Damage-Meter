@@ -188,7 +188,67 @@
 		["finish"] = {},
 	}
 	
-	function _detalhes:CreateWeakAura (spellid, name, icon_texture, glow, sound)
+	local debuff_prototype = {
+		["cooldown"] = true,
+		["trigger"] = {
+			["spellId"] = "0",
+			["unit"] = "",
+			["spellIds"] = {},
+			["debuffType"] = "HARMFUL",
+		},
+	}
+	local buff_prototype = {
+		["cooldown"] = true,
+		["trigger"] = {
+			["spellId"] = "0",
+			["unit"] = "",
+			["spellIds"] = {},
+			["debuffType"] = "HELPFUL",
+		},
+	}
+	local cast_prototype = {
+		["trigger"] = {
+			["type"] = "event",
+			["spellId"] = "0",
+			["subeventSuffix"] = "_CAST_SUCCESS",
+			["unevent"] = "timed",
+			["duration"] = "4",
+			["event"] = "Combat Log",
+			["subeventPrefix"] = "SPELL",
+			["use_spellId"] = true,
+		}
+	}
+	
+	local stack_prototype = {
+		["trigger"] = {
+			["countOperator"] = ">=",
+			["count"] = "0",
+			["useCount"] = true,
+		},
+	}
+	
+	local sound_prototype = {
+		["actions"] = {
+			["start"] = {
+				["do_sound"] = true,
+				["sound"] = "Interface\\Quiet.ogg",
+				["sound_channel"] = "Master",
+			},
+		},
+	}
+	
+	local chat_prototype = {
+		["actions"] = {
+			["start"] = {
+				["message"] = "",
+				["message_type"] = "SAY",
+				["do_message"] = true,
+			},
+		},
+	}
+	
+	function _detalhes:CreateWeakAura (spellid, name, icon_texture, target, stacksize, sound, chat)
+	
 		if (not WeakAuras or not WeakAurasSaved) then
 			return
 		end
@@ -202,20 +262,105 @@
 		
 		icon.id = name
 		icon.displayIcon = icon_texture
-		icon.trigger.spellId = spellid
+
+		if (target) then
+			if (target == 1) then --Debuff on Player
+				local add = _detalhes.table.copy ({}, debuff_prototype)
+				add.trigger.spellId = tostring (spellid)
+				add.trigger.spellIds[1] = spellid
+				add.trigger.unit = "player"
+				_detalhes.table.deploy (icon, add)
+				
+			elseif (target == 2) then --Debuff on Target
+				local add = _detalhes.table.copy ({}, debuff_prototype)
+				add.trigger.spellId = tostring (spellid)
+				add.trigger.spellIds[1] = spellid
+				add.trigger.unit = "target"
+				_detalhes.table.deploy (icon, add)
+
+			elseif (target == 3) then --Debuff on Focus
+				local add = _detalhes.table.copy ({}, debuff_prototype)
+				add.trigger.spellId = tostring (spellid)
+				add.trigger.spellIds[1] = spellid
+				add.trigger.unit = "focus"
+				_detalhes.table.deploy (icon, add)
+				
+			elseif (target == 11) then --Buff on Player
+				local add = _detalhes.table.copy ({}, buff_prototype)
+				add.trigger.spellId = tostring (spellid)
+				add.trigger.spellIds[1] = spellid
+				add.trigger.unit = "player"
+				_detalhes.table.deploy (icon, add)
+				
+			elseif (target == 12) then --Buff on Target
+				local add = _detalhes.table.copy ({}, buff_prototype)
+				add.trigger.spellId = tostring (spellid)
+				add.trigger.spellIds[1] = spellid
+				add.trigger.unit = "target"
+				_detalhes.table.deploy (icon, add)
+				
+			elseif (target == 13) then --Buff on Focus
+				local add = _detalhes.table.copy ({}, buff_prototype)
+				add.trigger.spellId = tostring (spellid)
+				add.trigger.spellIds[1] = spellid
+				add.trigger.unit = "focus"
+				_detalhes.table.deploy (icon, add)
+				
+			elseif (target == 21) then --Spell Cast Started
+				local add = _detalhes.table.copy ({}, cast_prototype)
+				add.trigger.spellId = tostring (spellid)
+				add.trigger.subeventSuffix = "_CAST_START"
+				_detalhes.table.deploy (icon, add)
+				
+			elseif (target == 22) then --Spell Cast Successful
+				local add = _detalhes.table.copy ({}, cast_prototype)
+				add.trigger.spellId = tostring (spellid)
+				_detalhes.table.deploy (icon, add)
+			end
+		else
+			icon.trigger.spellId = tostring (spellid)
+			tinsert (icon.trigger.spellIds, spellid)
+		end
+
+		if (stacksize and stacksize >= 1) then
+			stacksize = floor (stacksize)
+			local add = _detalhes.table.copy ({}, stack_prototype)
+			add.trigger.count = tostring (stacksize)
+			_detalhes.table.deploy (icon, add)
+		end
 		
-		tinsert (icon.trigger.spellIds, spellid)
+		if (sound and sound ~= "" and sound ~= [[Interface\Quiet.ogg]]) then
+			local add = _detalhes.table.copy ({}, sound_prototype)
+			add.actions.start.sound = sound
+			_detalhes.table.deploy (icon, add)
+		end
+		
+		if (chat and chat ~= "") then
+			local add = _detalhes.table.copy ({}, sound_prototype)
+			add.actions.start.message = chat
+			_detalhes.table.deploy (icon, add)
+		end
+		
+		if (WeakAurasSaved.displays [icon.id]) then
+			-- already exists
+			for i = 2, 100 do
+				if (not WeakAurasSaved.displays [icon.id .. " (" .. i .. ")"]) then
+					icon.id = icon.id .. " (" .. i .. ")"
+					break
+				end
+			end
+		end
+		
+		tinsert (WeakAurasSaved.displays ["Details! Aura Group"].controlledChildren, icon.id)
 		
 		WeakAuras.Add (icon)
 		
-		tinsert (WeakAurasSaved.displays ["Details! Aura Group"].controlledChildren, name)
-		
 		local options_frame = WeakAuras.OptionsFrame and WeakAuras.OptionsFrame()
 		if (options_frame and options_frame:IsShown()) then
-			WeakAuras.ToggleOptions()
-			WeakAuras.ToggleOptions()
+			--WeakAuras.ToggleOptions()
+			--WeakAuras.ToggleOptions()
 		else
-			WeakAuras.OpenOptions()
+			--WeakAuras.OpenOptions()
 		end
 	end
 	
@@ -224,7 +369,7 @@
 		if (not DetailsAuraPanel) then
 			
 			local f = CreateFrame ("frame", "DetailsAuraPanel", UIParent, "ButtonFrameTemplate")
-			f:SetSize (300, 250)
+			f:SetSize (300, 350)
 			f:SetPoint ("center", UIParent, "center")
 			f:SetFrameStrata ("HIGH")
 			f:SetToplevel (true)
@@ -257,9 +402,14 @@
 			
 			--aura name
 			local name_label = fw:CreateLabel (f, "Name: ", nil, nil, "GameFontNormal")
-			local name_textentry = fw:CreateTextEntry (f, _detalhes.empty_function, 150, 20)
+			local name_textentry = fw:CreateTextEntry (f, _detalhes.empty_function, 150, 20, "AuraName", "$parentAuraName")
 			name_textentry:SetPoint ("left", name_label, "right", 2, 0)
 			f.name = name_textentry
+			
+			--spellid
+			local auraid_label = fw:CreateLabel (f, "Spell Id: ", nil, nil, "GameFontNormal")
+			local auraid_textentry = fw:CreateTextEntry (f, _detalhes.empty_function, 150, 20, "AuraSpellId", "$parentAuraSpellId")
+			auraid_textentry:SetPoint ("left", auraid_label, "right", 2, 0)
 			
 			--aura icon
 			local icon_label = fw:CreateLabel (f, "Icon: ", nil, nil, "GameFontNormal")
@@ -275,13 +425,86 @@
 			
 			f.icon = icon_button_icon
 			
+			--target
+			local aura_on_icon = [[Interface\Buttons\UI-GroupLoot-DE-Down]]
+			local aura_on_table = {
+				{label = "Debuff on You", value = 1, icon = aura_on_icon},
+				{label = "Debuff on Target", value = 2, icon = aura_on_icon},
+				{label = "Debuff on Focus", value = 3, icon = aura_on_icon},
+				
+				{label = "Buff on You", value = 11, icon = aura_on_icon},
+				{label = "Buff on Target", value = 12, icon = aura_on_icon},
+				{label = "Buff on Focus", value = 13, icon = aura_on_icon},
+				
+				{label = "Spell Cast Started", value = 21, icon = aura_on_icon},
+				{label = "Spell Cast successful", value = 22, icon = aura_on_icon},
+			}
+			local aura_on_options = function()
+				return aura_on_table
+			end
+			local aura_on = fw:CreateDropDown (f, aura_on_options, 1, 150, 20, "AuraOnDropdown", "$parentAuraOnDropdown")
+			local aura_on_label = fw:CreateLabel (f, "Target: ", nil, nil, "GameFontNormal")
+			aura_on:SetPoint ("left", aura_on_label, "right", 2, 0)
+			
+			--stack
+			local stack_slider = fw:NewSlider (f, f, "$parentStackSlider", "StackSlider", 150, 20, 0, 30, 1, 0)
+			local stack_label = fw:CreateLabel (f, "Stack Size: ", nil, nil, "GameFontNormal")
+			stack_slider:SetPoint ("left", stack_label, "right", 2, 0)
+			
+			--sound effect
+			local play_sound = function (self, fixedParam, file)
+				print (file)
+				PlaySoundFile (file, "Master")
+			end
+			local sound_options = function()
+				local t = {{label = "No Sound", value = "", icon = [[Interface\Buttons\UI-GuildButton-MOTD-Disabled]]}}
+				for name, soundFile in pairs (LibStub:GetLibrary("LibSharedMedia-3.0"):HashTable ("sound")) do
+					tinsert (t, {label = name, value = soundFile, icon = [[Interface\Buttons\UI-GuildButton-MOTD-Up]], onclick = play_sound})
+				end
+				return t
+			end
+			local sound_effect = fw:CreateDropDown (f, sound_options, 1, 150, 20, "SoundEffectDropdown", "$parentSoundEffectDropdown")
+			local sound_effect_label = fw:CreateLabel (f, "Play Sound: ", nil, nil, "GameFontNormal")
+			sound_effect:SetPoint ("left", sound_effect_label, "right", 2, 0)
+			
+			--say something
+			local say_something_label = fw:CreateLabel (f, "Chat Message: ", nil, nil, "GameFontNormal")
+			local say_something = fw:CreateTextEntry (f, _detalhes.empty_function, 150, 20, "SaySomething", "$parentSaySomething")
+			say_something:SetPoint ("left", say_something_label, "right", 2, 0)
+			
+			--aura addon
+			local addon_options = function()
+				local t = {}
+				if (WeakAuras) then
+					tinsert (t, {label = "Weak Auras 2", value = "WA", icon = [[Interface\AddOns\WeakAuras\icon]]})
+				end
+				return t
+			end
+			local aura_addon = fw:CreateDropDown (f, addon_options, 1, 150, 20, "AuraAddonDropdown", "$parentAuraAddonDropdown")
+			local aura_addon_label = fw:CreateLabel (f, "Addon: ", nil, nil, "GameFontNormal")
+			aura_addon:SetPoint ("left", aura_addon_label, "right", 2, 0)
+			
 			--create
 			local create_func = function()
 				
-				_detalhes:CreateWeakAura (f.spellid, f.name.text, DetailsAuraPanel.icon.texture, nil, nil)
+				local name = f.AuraName.text
+				local spellid = f.AuraSpellId.text
+				local icon = f.IconButton.icon.texture
+				local target = f.AuraOnDropdown.value
+				local stacksize = f.StackSlider.value
+				local sound = f.SoundEffectDropdown.value
+				local chat = f.SaySomething.text
+				local addon = f.AuraAddonDropdown.value
+
+				if (addon == "WA") then
+					_detalhes:CreateWeakAura (spellid, name, icon, target, stacksize, sound, chat)
+				else
+					_detalhes:Msg ("No Aura Addon selected. Addons currently supported: WeakAuras 2.")
+				end
 				
 				f:Hide()
 			end
+			
 			local create_button = fw:CreateButton (f, create_func, 106, 16, "Create Aura")
 			create_button:InstallCustomTexture()
 			
@@ -292,19 +515,26 @@
 			cancel_button:SetIcon ([[Interface\Buttons\UI-GroupLoot-Pass-Down]], nil, nil, nil, {0.125, 0.875, 0.125, 0.875}, nil, 4, 2)
 			
 			local x_start = 20
-			local y_start = 20
+			local y_start = 21
 			
 			name_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*1) + (50)) * -1)
-			icon_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*2) + (50)) * -1)
+			auraid_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*2) + (50)) * -1)
+			icon_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*3) + (50)) * -1)
+			aura_on_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*4) + (50)) * -1)
+			stack_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*5) + (50)) * -1)
+			sound_effect_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*6) + (50)) * -1)
+			say_something_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*7) + (50)) * -1)
+			aura_addon_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*10) + (50)) * -1)
 
-			create_button:SetPoint ("topleft", f, "topleft", x_start, ((y_start*4) + (50)) * -1)
-			cancel_button:SetPoint ("left", create_button, "right", 20, 0)
+			create_button:SetPoint ("topleft", f, "topleft", x_start, ((y_start*12) + (50)) * -1)
+			cancel_button:SetPoint ("topright", f, "topright", x_start*-1, ((y_start*12) + (50)) * -1)
 			
 		end
 		
 		DetailsAuraPanel.spellid = spellid
 		
 		DetailsAuraPanel.name.text = spellname
+		DetailsAuraPanel.AuraSpellId.text = tostring (spellid)
 		DetailsAuraPanel.icon.texture = spellicon
 		
 		DetailsAuraPanel:Show()
@@ -426,4 +656,71 @@
 			BigWigs.RegisterMessage (_detalhes, "BigWigs_Message")
 		end
 	end	
+	
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> details auras
+
+	local aura_prototype = {
+		name = "",
+		type = "DEBUFF",
+		target = "player",
+		boss = "0",
+		icon = "",
+		stack = 0,
+		sound = "",
+		sound_channel = "",
+		chat = "",
+		chat_where = "SAY",
+		chat_extra = "",
+	}
+	
+	function _detalhes:CreateDetailsAura (name, auratype, target, boss, icon, stack, sound, chat)
+	
+		local aura_container = _detalhes.details_auras
+		
+		--already exists
+		if (aura_container [name]) then
+			_detalhes:Msg ("Aura name already exists.")
+			return
+		end
+		
+		--create the new aura
+		local new_aura = _detalhes.table.copy ({}, aura_prototype)
+		new_aura.type = auratype or new_aura.type
+		new_aura.target = auratype or new_aura.target
+		new_aura.boss = boss or new_aura.boss
+		new_aura.icon = icon or new_aura.icon
+		new_aura.stack = math.max (stack or 0, new_aura.stack)
+		new_aura.sound = sound or new_aura.sound
+		new_aura.chat = chat or new_aura.chat
+		
+		_detalhes.details_auras [name] = new_aura
+		
+		return new_aura
+	end
+	
+	function _detalhes:CreateAuraListener()
+	
+		local listener = _detalhes:CreateEventListener()
+		
+		function listener:on_enter_combat (event, combat, encounterId)
+			
+		end
+		
+		function listener:on_leave_combat (event, combat)
+			
+		end
+		
+		listener:RegisterEvent ("COMBAT_PLAYER_ENTER", "on_enter_combat")
+		listener:RegisterEvent ("COMBAT_PLAYER_LEAVE", "on_leave_combat")
+	
+	end
+	
+	
+	
+	
+	
+	
+	
+
 	
