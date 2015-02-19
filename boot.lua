@@ -7,7 +7,7 @@
 		_detalhes.userversion = "v3.10.1"
 		_detalhes.realversion = 60 --core version
 		_detalhes.version = _detalhes.userversion .. " (core " .. _detalhes.realversion .. ")"
-
+ 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> initialization stuff
 
