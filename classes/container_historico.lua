@@ -33,8 +33,20 @@ function historico:adicionar_overall (tabela)
 		end
 	end
 
+	--> store the segments added to the overall data
+	_detalhes.tabela_overall.segments_added = _detalhes.tabela_overall.segments_added or {}
+	tinsert (_detalhes.tabela_overall.segments_added, {name = tabela:GetCombatName (true), elapsed = tabela:GetCombatTime(), clock = tabela:GetDate()[1]})
+	
 	_detalhes.tabela_overall = _detalhes.tabela_overall + tabela
 	tabela.overall_added = true
+	
+	if (not _detalhes.tabela_overall.overall_enemy_name) then
+		_detalhes.tabela_overall.overall_enemy_name = tabela.is_boss and tabela.is_boss.name or tabela.enemy
+	else
+		if (_detalhes.tabela_overall.overall_enemy_name ~= (tabela.is_boss and tabela.is_boss.name or tabela.enemy)) then
+			_detalhes.tabela_overall.overall_enemy_name = "-- x -- x --"
+		end
+	end
 	
 	if (_detalhes.tabela_overall.start_time == 0) then
 		_detalhes.tabela_overall.start_time = tabela.start_time
@@ -222,16 +234,20 @@ function _detalhes:CheckFreeze (instancia, index_liberado, tabela)
 	end
 end
 
-function _detalhes:OverallOptions (reset_new_boss, reset_new_challenge)
+function _detalhes:OverallOptions (reset_new_boss, reset_new_challenge, reset_on_logoff)
 	if (reset_new_boss == nil) then
 		reset_new_boss = _detalhes.overall_clear_newboss
 	end
 	if (reset_new_challenge == nil) then
 		reset_new_challenge = _detalhes.overall_clear_newchallenge
 	end
+	if (reset_on_logoff == nil) then
+		reset_on_logoff = _detalhes.overall_clear_logout
+	end
 	
 	_detalhes.overall_clear_newboss = reset_new_boss
 	_detalhes.overall_clear_newchallenge = reset_new_challenge
+	_detalhes.overall_clear_logout = reset_on_logoff
 end
 
 function historico:resetar_overall()

@@ -49,6 +49,66 @@
 			tabela._NameIndexTable = mapa
 		end
 		
+	--> reaplica as tabelas no overall
+		function _detalhes:RestauraOverallMetaTables()
+			
+			local is_in_instance = select (1, IsInInstance())
+			
+			local combate = _detalhes.tabela_overall
+			combate.overall_refreshed = true
+			combate.hasSaved = true
+			
+			combate.__call = _detalhes.call_combate
+			
+			_detalhes.refresh:r_combate (combate)
+			
+			_detalhes.refresh:r_container_combatentes (combate [class_type_dano])
+			_detalhes.refresh:r_container_combatentes (combate [class_type_cura])
+			_detalhes.refresh:r_container_combatentes (combate [class_type_e_energy])
+			_detalhes.refresh:r_container_combatentes (combate [class_type_misc])
+			
+			local todos_atributos = {combate [class_type_dano]._ActorTable, combate [class_type_cura]._ActorTable, combate [class_type_e_energy]._ActorTable, combate [class_type_misc]._ActorTable}
+			
+			for class_type, atributo in _ipairs (todos_atributos) do
+				for _, esta_classe in _ipairs (atributo) do			
+			
+					local nome = esta_classe.nome
+
+					if (is_in_instance and _detalhes.remove_realm_from_name) then
+						esta_classe.displayName = nome:gsub (("%-.*"), "")
+					elseif (_detalhes.remove_realm_from_name) then
+						esta_classe.displayName = nome:gsub (("%-.*"), "%*")
+					else
+						esta_classe.displayName = nome
+					end
+					
+					if (class_type == class_type_dano) then
+						_detalhes.refresh:r_atributo_damage (esta_classe)
+						
+					elseif (class_type == class_type_cura) then
+						_detalhes.refresh:r_atributo_heal (esta_classe)
+					
+					elseif (class_type == class_type_e_energy) then
+						_detalhes.refresh:r_atributo_energy (esta_classe)
+					
+					elseif (class_type == class_type_misc) then
+						_detalhes.refresh:r_atributo_misc (esta_classe)
+					
+					end
+					
+				end
+			end
+			
+			for class_type, atributo in _ipairs (todos_atributos) do
+				for _, esta_classe in _ipairs (atributo) do
+					if (esta_classe.ownerName) then --> nome do owner
+						esta_classe.owner = combate (class_type, esta_classe.ownerName)
+					end
+				end
+			end
+			
+		end
+		
 	--> reaplica indexes e metatables
 		function _detalhes:RestauraMetaTables()
 			
@@ -78,10 +138,13 @@
 				end
 	
 			--> tempo padrao do overall
-				--combate_overall.start_time = _tempo
-				combate_overall.start_time = GetTime()
-				--combate_overall.end_time = _tempo
-				combate_overall.end_time = GetTime()
+			
+				local overall_saved = combate_overall.overall_refreshed
+			
+				if (not overall_saved) then
+					combate_overall.start_time = GetTime()
+					combate_overall.end_time = GetTime()
+				end
 			
 				local is_in_instance = select (1, IsInInstance())
 			
@@ -90,15 +153,29 @@
 					for index, combate in _ipairs (tabelas_do_historico) do
 						
 						combate.hasSaved = true
-						
-						--> aumenta o tempo do combate do overall
-						if (combate.end_time and combate.start_time) then 
-							combate_overall.start_time = combate_overall.start_time - (combate.end_time - combate.start_time)
-						end
-					
+
 						--> recupera a meta e indexes da tabela do combate
 						_detalhes.refresh:r_combate (combate, combate_overall)
 						
+						--> aumenta o tempo do combate do overall
+						if (combate.end_time and combate.start_time and not overall_saved) then 
+							combate_overall.start_time = combate_overall.start_time - (combate.end_time - combate.start_time)
+						end
+						
+						if (not overall_saved and combate.overall_added) then
+							if (not _detalhes.tabela_overall.overall_enemy_name) then
+								_detalhes.tabela_overall.overall_enemy_name = combate.is_boss and combate.is_boss.name or combate.enemy
+							else
+								if (_detalhes.tabela_overall.overall_enemy_name ~= (combate.is_boss and combate.is_boss.name or combate.enemy)) then
+									_detalhes.tabela_overall.overall_enemy_name = "-- x -- x --"
+								end
+							end
+							
+							combate_overall.segments_added =combate_overall.segments_added or {}
+							tinsert (combate_overall.segments_added, {name = combate:GetCombatName (true), elapsed = combate:GetCombatTime(), clock = combate:GetDate()[1]})
+							
+						end
+					
 						--> recupera a meta e indexes dos 4 container
 						_detalhes.refresh:r_container_combatentes (combate [class_type_dano], overall_dano)
 						_detalhes.refresh:r_container_combatentes (combate [class_type_cura], overall_cura)
@@ -124,28 +201,28 @@
 								local shadow
 
 								if (class_type == class_type_dano) then
-									if (combate.overall_added) then
+									if (combate.overall_added and not overall_saved) then
 										shadow = atributo_damage:r_connect_shadow (esta_classe)
 									else
 										shadow = atributo_damage:r_onlyrefresh_shadow (esta_classe)
 									end
 
 								elseif (class_type == class_type_cura) then
-									if (combate.overall_added) then
+									if (combate.overall_added and not overall_saved) then
 										shadow = atributo_heal:r_connect_shadow (esta_classe)
 									else
 										shadow = atributo_heal:r_onlyrefresh_shadow (esta_classe)
 									end
 									
 								elseif (class_type == class_type_e_energy) then
-									if (combate.overall_added) then
+									if (combate.overall_added and not overall_saved) then
 										shadow = atributo_energy:r_connect_shadow (esta_classe)
 									else
 										shadow = atributo_energy:r_onlyrefresh_shadow (esta_classe)
 									end
 									
 								elseif (class_type == class_type_misc) then
-									if (combate.overall_added) then
+									if (combate.overall_added and not overall_saved) then
 										shadow = atributo_misc:r_connect_shadow (esta_classe)
 									else
 										shadow = atributo_misc:r_onlyrefresh_shadow (esta_classe)
@@ -291,17 +368,35 @@
 	end
 
 	function _detalhes:DoOwnerCleanup()
-		for index, combat in _ipairs (_detalhes.tabela_historico.tabelas or {}) do
+		local combats = _detalhes.tabela_historico.tabelas or {}
+		local overall_added
+		if (not _detalhes.overall_clear_logout) then
+			tinsert (combats, _detalhes.tabela_overall)
+			overall_added = true
+		end
+		
+		for index, combat in _ipairs (combats) do
 			for index, container in _ipairs (combat) do 
 				for index, esta_classe in _ipairs (container._ActorTable) do
 					esta_classe.owner = nil
 				end
 			end
 		end
+		
+		if (overall_added) then
+			tremove (combats, #combats)
+		end
 	end
 	
 	function _detalhes:DoClassesCleanup()
-		for index, combat in _ipairs (_detalhes.tabela_historico.tabelas or {}) do
+		local combats = _detalhes.tabela_historico.tabelas or {}
+		local overall_added
+		if (not _detalhes.overall_clear_logout) then
+			tinsert (combats, _detalhes.tabela_overall)
+			overall_added = true
+		end
+		
+		for index, combat in _ipairs (combats) do
 			for class_type, container in _ipairs (combat) do 
 				for index, esta_classe in _ipairs (container._ActorTable) do
 				
@@ -321,32 +416,60 @@
 				end
 			end
 		end
+		
+		if (overall_added) then
+			tremove (combats, #combats)
+		end
 	end
 	
 	function _detalhes:DoContainerCleanup()
-		for index, combat in _ipairs (_detalhes.tabela_historico.tabelas or {}) do
+		local combats = _detalhes.tabela_historico.tabelas or {}
+		local overall_added
+		if (not _detalhes.overall_clear_logout) then
+			tinsert (combats, _detalhes.tabela_overall)
+			overall_added = true
+		end
+		
+		for index, combat in _ipairs (combats) do
 			_detalhes.clear:c_combate (combat)
 			for index, container in _ipairs (combat) do
 				_detalhes.clear:c_container_combatentes (container)
 			end
 		end
+		
+		if (overall_added) then
+			tremove (combats, #combats)
+		end
 	end
 	
 	function _detalhes:DoContainerIndexCleanup()
-		for index, combat in _ipairs (_detalhes.tabela_historico.tabelas or {}) do
+		local combats = _detalhes.tabela_historico.tabelas or {}
+		local overall_added
+		if (not _detalhes.overall_clear_logout) then
+			tinsert (combats, _detalhes.tabela_overall)
+			overall_added = true
+		end
+		
+		for index, combat in _ipairs (combats) do
 			for index, container in _ipairs (combat) do
 				_detalhes.clear:c_container_combatentes_index (container)
 			end
+		end
+		
+		if (overall_added) then
+			tremove (combats, #combats)
 		end
 	end
 	
 	--> limpa indexes, metatables e shadows
 		function _detalhes:PrepareTablesForSave()
 
+		_detalhes.clear_ungrouped = true
+		
 		--> clear instances
 			_detalhes:DoInstanceCleanup()
-			_detalhes:DoClassesCleanup()
-			_detalhes:DoContainerCleanup()
+			_detalhes:DoClassesCleanup() --aumentou 1 combat
+			_detalhes:DoContainerCleanup() --aumentou 1 combat
 			
 		--> clear combats
 			local tabelas_de_combate = {}
@@ -373,12 +496,65 @@
 			local tabela_atual = _detalhes.tabela_vigente or _detalhes.combate:NovaTabela (_, _detalhes.tabela_overall)
 			
 			--> limpa a tabela overall
-			_detalhes.tabela_overall = nil			
+			if (_detalhes.overall_clear_logout) then
+				_detalhes.tabela_overall = nil
+				_detalhes_database.tabela_overall = nil
+			else
+				local _combate = _detalhes.tabela_overall
+				
+				_combate.previous_combat = nil
+				local todos_atributos = {_combate [class_type_dano] or {}, _combate [class_type_cura] or {}, _combate [class_type_e_energy] or {}, _combate [class_type_misc] or {}}
+				
+				for class_type, _tabela in _ipairs (todos_atributos) do
+					local conteudo = _tabela._ActorTable
+
+					--> Limpa tabelas que não estejam em grupo
+					if (conteudo) then
+						if (_detalhes.clear_ungrouped) then
+							local _iter = {index = 1, data = conteudo[1], cleaned = 0} --> ._ActorTable[1] para pegar o primeiro index
+
+							while (_iter.data) do --search key: ~deletar ~apagar
+								local can_erase = true
+								
+								if (_iter.data.grupo or _iter.data.boss or _iter.data.boss_fight_component) then
+									can_erase = false
+								else
+									local owner = _iter.data.owner
+									if (owner) then 
+										local owner_actor = _combate [class_type]._NameIndexTable [owner.nome]
+										if (owner_actor) then 
+											local owner_actor = _combate [class_type]._ActorTable [owner_actor]
+											if (owner_actor) then 
+												if (owner.grupo or owner.boss or owner.boss_fight_component) then
+													can_erase = false
+												end
+											end
+										end
+									end
+								end
+								
+								if (can_erase) then 
+									_table_remove (conteudo, _iter.index)
+									_iter.cleaned = _iter.cleaned + 1
+									_iter.data = conteudo [_iter.index]
+								else
+									_iter.index = _iter.index + 1
+									_iter.data = conteudo [_iter.index]
+								end
+							end
+							
+							if (_iter.cleaned > 0) then
+								ReconstroiMapa (_tabela)
+							end
+						end
+					end
+				end
+			end
 			
 			for _, _tabela in _ipairs (historico_tabelas) do
 				tabelas_de_combate [#tabelas_de_combate+1] = _tabela
 			end
-
+			
 			for tabela_index, _combate in _ipairs (tabelas_de_combate) do
 
 				--> limpa a tabela do grafico
@@ -409,9 +585,7 @@
 
 					--> Limpa tabelas que não estejam em grupo
 					if (conteudo) then
-					
-						_detalhes.clear_ungrouped = true
-						
+
 						if (_detalhes.clear_ungrouped) then
 						
 							local _iter = {index = 1, data = conteudo[1], cleaned = 0} --> ._ActorTable[1] para pegar o primeiro index
@@ -503,7 +677,7 @@
 								end
 							end
 							
-							if (_iter.cleaned > 0) then --> desencargo de consciência, reconstruir o mapa depois de excluir
+							if (_iter.cleaned > 0) then
 								ReconstroiMapa (_tabela)
 							end
 							
@@ -513,7 +687,7 @@
 				end
 
 			end
-
+			
 			--> panic mode
 				if (_detalhes.segments_panic_mode and _detalhes.can_panic_mode) then
 					if (_detalhes.tabela_vigente.is_boss) then

@@ -3771,7 +3771,7 @@ function _detalhes.refresh:r_atributo_damage (este_jogador, shadow)
 		_setmetatable (este_jogador, _detalhes.atributo_damage)
 		este_jogador.__index = _detalhes.atributo_damage
 	--> restaura as metas dos containers
-		_detalhes.refresh:r_container_habilidades (este_jogador.spells, shadow.spells)
+		_detalhes.refresh:r_container_habilidades (este_jogador.spells, shadow and shadow.spells)
 end
 
 function _detalhes.clear:c_atributo_damage (este_jogador)

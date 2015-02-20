@@ -64,10 +64,15 @@ function _detalhes:SaveConfig()
 	_detalhes:SaveLocalInstanceConfig()
 	
 	--> cleanup
+	
 		_detalhes:PrepareTablesForSave()
 
 		_detalhes_database.tabela_instancias = {} --_detalhes.tabela_instancias --[[instances now saves only inside the profile --]]
 		_detalhes_database.tabela_historico = _detalhes.tabela_historico
+		
+		if (not _detalhes.overall_clear_logout) then
+			_detalhes_database.tabela_overall = _detalhes.tabela_overall
+		end
 		
 		local name, ttype, difficulty, difficultyName, maxPlayers, playerDifficulty, isDynamicInstance, mapID, instanceGroupSize = GetInstanceInfo()
 		if (ttype == "party" or ttype == "raid") then

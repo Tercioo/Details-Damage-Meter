@@ -1564,9 +1564,9 @@ function _detalhes.refresh:r_atributo_energy (este_jogador, shadow)
 	_setmetatable (este_jogador, _detalhes.atributo_energy)
 	este_jogador.__index = _detalhes.atributo_energy
 
-	_detalhes.refresh:r_container_habilidades (este_jogador.spells, shadow.spells)
+	_detalhes.refresh:r_container_habilidades (este_jogador.spells, shadow and shadow.spells)
 
-	if (not shadow.powertype) then
+	if (shadow and not shadow.powertype) then
 		shadow.powertype = este_jogador.powertype
 	end	
 end

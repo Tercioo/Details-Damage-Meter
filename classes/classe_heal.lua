@@ -2441,7 +2441,7 @@ function _detalhes.refresh:r_atributo_heal (este_jogador, shadow)
 	_setmetatable (este_jogador, atributo_heal)
 	este_jogador.__index = atributo_heal
 	
-	_detalhes.refresh:r_container_habilidades (este_jogador.spells, shadow.spells)
+	_detalhes.refresh:r_container_habilidades (este_jogador.spells, shadow and shadow.spells)
 end
 
 function _detalhes.clear:c_atributo_heal (este_jogador)

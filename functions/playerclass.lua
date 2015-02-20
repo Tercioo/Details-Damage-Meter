@@ -18,15 +18,17 @@ do
 		
 		if (not class) then
 			for _, container in _ipairs (_detalhes.tabela_overall) do
-				local index = container._NameIndexTable [name]
-				if (index) then
-					local actor = container._ActorTable [index]
-					if (actor.classe ~= "UNGROUPPLAYER") then
-						local left, right, top, bottom = unpack (_detalhes.class_coords [actor.classe] or unknown_class_coords)
-						local r, g, b = unpack (_detalhes.class_colors [actor.classe])
-						return actor.classe, left, right, top, bottom, r or 1, g or 1, b or 1
+				--if (container._NameIndexTable) then
+					local index = container._NameIndexTable [name]
+					if (index) then
+						local actor = container._ActorTable [index]
+						if (actor.classe ~= "UNGROUPPLAYER") then
+							local left, right, top, bottom = unpack (_detalhes.class_coords [actor.classe] or unknown_class_coords)
+							local r, g, b = unpack (_detalhes.class_colors [actor.classe])
+							return actor.classe, left, right, top, bottom, r or 1, g or 1, b or 1
+						end
 					end
-				end
+				--end
 			end
 			
 			return "UNKNOW", 0.75, 1, 0.75, 1, 1, 1, 1, 1

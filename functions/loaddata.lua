@@ -178,71 +178,81 @@ function _detalhes:LoadCombatTables()
 			_detalhes:UpdateContainerCombatentes()
 		else
 
-		--> build basic containers
-			-- segments
-			_detalhes.tabela_historico = _detalhes_database.tabela_historico or _detalhes.historico:NovoHistorico()
-			-- overall
-			_detalhes.tabela_overall = _detalhes.combate:NovaTabela()
-			
-			-- pets
-			_detalhes.tabela_pets = _detalhes.container_pets:NovoContainer()
-			if (_detalhes_database.tabela_pets) then
-				_detalhes.tabela_pets.pets = table_deepcopy (_detalhes_database.tabela_pets)
-			end
-			_detalhes:UpdateContainerCombatentes()
-			
-		--> if the core revision was incremented, reset all combat data
-			if (_detalhes_database.last_realversion and _detalhes_database.last_realversion < _detalhes.realversion) then
-				--> details was been hard upgraded
-				_detalhes.tabela_historico = _detalhes.historico:NovoHistorico()
+			--> build basic containers
+				-- segments
+				_detalhes.tabela_historico = _detalhes_database.tabela_historico or _detalhes.historico:NovoHistorico()
+				-- overall
 				_detalhes.tabela_overall = _detalhes.combate:NovaTabela()
-				_detalhes.tabela_vigente = _detalhes.combate:NovaTabela (_, _detalhes.tabela_overall)
+				
+				-- pets
 				_detalhes.tabela_pets = _detalhes.container_pets:NovoContainer()
+				if (_detalhes_database.tabela_pets) then
+					_detalhes.tabela_pets.pets = table_deepcopy (_detalhes_database.tabela_pets)
+				end
 				_detalhes:UpdateContainerCombatentes()
-			else
-				--> check integrity
-				local combat = _detalhes.tabela_historico.tabelas [1]
-				if (combat) then
-					if (not combat[1] or not combat[2] or not combat[3] or not combat[4]) then
-						--> something went wrong in last logon, let's just reset and we are good to go
-						_detalhes.tabela_historico = _detalhes.historico:NovoHistorico()
-						_detalhes.tabela_vigente = _detalhes.combate:NovaTabela (_, _detalhes.tabela_overall)
-						_detalhes.tabela_pets = _detalhes.container_pets:NovoContainer()
-						_detalhes:UpdateContainerCombatentes()
+				
+			--> if the core revision was incremented, reset all combat data
+				if (_detalhes_database.last_realversion and _detalhes_database.last_realversion < _detalhes.realversion) then
+					--> details was been hard upgraded
+					_detalhes.tabela_historico = _detalhes.historico:NovoHistorico()
+					_detalhes.tabela_overall = _detalhes.combate:NovaTabela()
+					_detalhes.tabela_vigente = _detalhes.combate:NovaTabela (_, _detalhes.tabela_overall)
+					_detalhes.tabela_pets = _detalhes.container_pets:NovoContainer()
+					_detalhes:UpdateContainerCombatentes()
+					
+					_detalhes_database.tabela_historico = nil
+					_detalhes_database.tabela_overall = nil
+				else
+					--> check integrity
+					local combat = _detalhes.tabela_historico.tabelas [1]
+					if (combat) then
+						if (not combat[1] or not combat[2] or not combat[3] or not combat[4]) then
+							--> something went wrong in last logon, let's just reset and we are good to go
+							_detalhes.tabela_historico = _detalhes.historico:NovoHistorico()
+							_detalhes.tabela_vigente = _detalhes.combate:NovaTabela (_, _detalhes.tabela_overall)
+							_detalhes.tabela_pets = _detalhes.container_pets:NovoContainer()
+							_detalhes:UpdateContainerCombatentes()
+						end
 					end
 				end
-			end
 
-		--> re-build all indexes and metatables
-			_detalhes:RestauraMetaTables()
+				if (not _detalhes.overall_clear_logout) then
+					if (_detalhes_database.tabela_overall) then
+						_detalhes.tabela_overall = _detalhes_database.tabela_overall
+						_detalhes:RestauraOverallMetaTables()
+					end
+				end
+				
+			--> re-build all indexes and metatables
+				_detalhes:RestauraMetaTables()
 
-		--> get last combat table
-			local historico_UM = _detalhes.tabela_historico.tabelas[1]
+			--> get last combat table
+				local historico_UM = _detalhes.tabela_historico.tabelas[1]
+				
+				if (historico_UM) then
+					_detalhes.tabela_vigente = historico_UM --> significa que elas eram a mesma tabela, então aqui elas se tornam a mesma tabela
+				else
+					_detalhes.tabela_vigente = _detalhes.combate:NovaTabela (_, _detalhes.tabela_overall)
+				end
+				
+			--> need refresh for all containers
+				for _, container in ipairs (_detalhes.tabela_overall) do 
+					container.need_refresh = true
+				end
+				for _, container in ipairs (_detalhes.tabela_vigente) do 
+					container.need_refresh = true
+				end
 			
-			if (historico_UM) then
-				_detalhes.tabela_vigente = historico_UM --> significa que elas eram a mesma tabela, então aqui elas se tornam a mesma tabela
-			else
-				_detalhes.tabela_vigente = _detalhes.combate:NovaTabela (_, _detalhes.tabela_overall)
-			end
-			
-		--> need refresh for all containers
-			for _, container in ipairs (_detalhes.tabela_overall) do 
-				container.need_refresh = true
-			end
-			for _, container in ipairs (_detalhes.tabela_vigente) do 
-				container.need_refresh = true
-			end
-		
-		--> erase combat data from the database
-			_detalhes_database.tabela_vigente = nil
-			_detalhes_database.tabela_historico = nil
-			_detalhes_database.tabela_pets = nil
-			
-			-- double check for pet container
-			if (not _detalhes.tabela_pets or not _detalhes.tabela_pets.pets) then
-				_detalhes.tabela_pets = _detalhes.container_pets:NovoContainer()
-			end
-			_detalhes:UpdateContainerCombatentes()
+			--> erase combat data from the database
+				_detalhes_database.tabela_vigente = nil
+				_detalhes_database.tabela_historico = nil
+				_detalhes_database.tabela_pets = nil
+				
+				-- double check for pet container
+				if (not _detalhes.tabela_pets or not _detalhes.tabela_pets.pets) then
+					_detalhes.tabela_pets = _detalhes.container_pets:NovoContainer()
+				end
+				_detalhes:UpdateContainerCombatentes()
 		
 		end
 end

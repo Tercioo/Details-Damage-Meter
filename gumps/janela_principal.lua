@@ -5314,7 +5314,9 @@ local build_segment_list = function (self, elapsed)
 		CoolTip:AddMenu (1, instancia.TrocaTabela, -1)
 		CoolTip:AddIcon ([[Interface\QUESTFRAME\UI-Quest-BulletPoint]], "main", "left", 16, 16, nil, nil, nil, nil, "orange")
 		
-			CoolTip:AddLine (Loc ["STRING_SEGMENT_ENEMY"] .. ":", "--x--x--", 2, "white", "white")
+			local enemy_name = _detalhes.tabela_overall.overall_enemy_name
+		
+			CoolTip:AddLine (Loc ["STRING_SEGMENT_ENEMY"] .. ":", enemy_name, 2, "white", "white")
 			
 			if (not _detalhes.tabela_overall:GetEndTime()) then
 				if (_detalhes.in_combat) then
@@ -5349,6 +5351,25 @@ local build_segment_list = function (self, elapsed)
 				end
 			end
 			CoolTip:AddLine (Loc ["STRING_SEGMENT_END"] .. ":", lastFight, 2, "white", "white")
+			
+			-- combats added
+			local combats_added = _detalhes.tabela_overall.segments_added or _detalhes.empty_table
+			CoolTip:AddLine ("Segments" .. ":", #combats_added, 2, "white", "white")
+			
+			if (#combats_added > 0) then
+				CoolTip:AddLine ("", "", 2, "white", "white")
+			end
+			
+			for i, segment in _ipairs (combats_added) do
+				local minutos, segundos = _math_floor (segment.elapsed/60), _math_floor (segment.elapsed%60)
+				
+				local name = segment.name
+				if (name:len() > 20) then
+					name = string.sub (name, 1, #name - (#name - 20))
+				end
+				
+				CoolTip:AddLine ("" .. name, minutos.."m "..segundos.."s", 2, "white", "white")
+			end
 			
 			--> fill é a quantidade de menu que esta sendo mostrada
 			if (instancia.segmento == -1) then

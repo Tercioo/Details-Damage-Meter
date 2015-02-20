@@ -2456,9 +2456,9 @@ function atributo_misc:r_connect_shadow (actor, no_refresh)
 	end
 
 	if (actor.buff_uptime) then
-		if (not shadow.buff_uptime_spell_targets) then
+		if (not shadow.buff_uptime_targets) then
 			shadow.buff_uptime = 0
-			shadow.buff_uptime_spell_targets = {}
+			shadow.buff_uptime_targets = {}
 			shadow.buff_uptime_spells = container_habilidades:NovoContainer (_detalhes.container_type.CONTAINER_MISC_CLASS)
 		end
 
@@ -2627,28 +2627,28 @@ function _detalhes.refresh:r_atributo_misc (este_jogador, shadow)
 	
 	--> refresh interrupts
 	if (este_jogador.interrupt_targets) then
-		if (not shadow.interrupt_targets) then
+		if (shadow and not shadow.interrupt_targets) then
 			shadow.interrupt = 0
 			shadow.interrupt_targets = {}
 			shadow.interrupt_spells = container_habilidades:NovoContainer (_detalhes.container_type.CONTAINER_MISC_CLASS)
 			shadow.interrompeu_oque = {}
 		end
-		_detalhes.refresh:r_container_habilidades (este_jogador.interrupt_spells, shadow.interrupt_spells)
+		_detalhes.refresh:r_container_habilidades (este_jogador.interrupt_spells, shadow and shadow.interrupt_spells)
 	end
 	
 	--> refresh buff uptime
 	if (este_jogador.buff_uptime_targets) then
-		if (not shadow.buff_uptime_spell_targets) then
+		if (shadow and not shadow.buff_uptime_targets) then
 			shadow.buff_uptime = 0
-			shadow.buff_uptime_spell_targets = {}
+			shadow.buff_uptime_targets = {}
 			shadow.buff_uptime_spells = container_habilidades:NovoContainer (_detalhes.container_type.CONTAINER_MISC_CLASS)
 		end
-		_detalhes.refresh:r_container_habilidades (este_jogador.buff_uptime_spells, shadow.buff_uptime_spells)
+		_detalhes.refresh:r_container_habilidades (este_jogador.buff_uptime_spells, shadow and shadow.buff_uptime_spells)
 	end
 	
 	--> refresh buff uptime
 	if (este_jogador.debuff_uptime_targets) then
-		if (not shadow.debuff_uptime_targets) then
+		if (shadow and not shadow.debuff_uptime_targets) then
 			shadow.debuff_uptime = 0
 			if (este_jogador.boss_debuff) then
 				shadow.debuff_uptime_targets = {}
@@ -2662,49 +2662,49 @@ function _detalhes.refresh:r_atributo_misc (este_jogador, shadow)
 			end
 			shadow.debuff_uptime_spells = container_habilidades:NovoContainer (_detalhes.container_type.CONTAINER_MISC_CLASS)
 		end
-		_detalhes.refresh:r_container_habilidades (este_jogador.debuff_uptime_spells, shadow.debuff_uptime_spells)
+		_detalhes.refresh:r_container_habilidades (este_jogador.debuff_uptime_spells, shadow and shadow.debuff_uptime_spells)
 	end
 	
 	--> refresh cooldowns defensive
 	if (este_jogador.cooldowns_defensive_targets) then
-		if (not shadow.cooldowns_defensive_targets) then
+		if (shadow and not shadow.cooldowns_defensive_targets) then
 			shadow.cooldowns_defensive = 0
 			shadow.cooldowns_defensive_targets = {}
 			shadow.cooldowns_defensive_spells = container_habilidades:NovoContainer (_detalhes.container_type.CONTAINER_MISC_CLASS)
 		end
-		_detalhes.refresh:r_container_habilidades (este_jogador.cooldowns_defensive_spells, shadow.cooldowns_defensive_spells)
+		_detalhes.refresh:r_container_habilidades (este_jogador.cooldowns_defensive_spells, shadow and shadow.cooldowns_defensive_spells)
 	end
 	
 	--> refresh ressers
 	if (este_jogador.ress_targets) then
-		if (not shadow.ress_targets) then
+		if (shadow and not shadow.ress_targets) then
 			shadow.ress = 0
 			shadow.ress_targets = {}
 			shadow.ress_spells = container_habilidades:NovoContainer (_detalhes.container_type.CONTAINER_MISC_CLASS)
 		end
-		_detalhes.refresh:r_container_habilidades (este_jogador.ress_spells, shadow.ress_spells)
+		_detalhes.refresh:r_container_habilidades (este_jogador.ress_spells, shadow and shadow.ress_spells)
 	end
 	
 	--> refresh dispells
 	if (este_jogador.dispell_targets) then
-		if (not shadow.dispell_targets) then
+		if (shadow and not shadow.dispell_targets) then
 			shadow.dispell = 0
 			shadow.dispell_targets = {}
 			shadow.dispell_spells = container_habilidades:NovoContainer (_detalhes.container_type.CONTAINER_MISC_CLASS) --> cria o container das habilidades usadas para interromper
 			shadow.dispell_oque = {}
 		end
-		_detalhes.refresh:r_container_habilidades (este_jogador.dispell_spells, shadow.dispell_spells)
+		_detalhes.refresh:r_container_habilidades (este_jogador.dispell_spells, shadow and shadow.dispell_spells)
 	end
 	
 	--> refresh cc_breaks
 	if (este_jogador.cc_break_targets) then
-		if (not shadow.cc_break) then
+		if (shadow and not shadow.cc_break) then
 			shadow.cc_break = 0
 			shadow.cc_break_targets = {}
 			shadow.cc_break_spells = container_habilidades:NovoContainer (_detalhes.container_type.CONTAINER_MISC_CLASS)
 			shadow.cc_break_oque = {}
 		end
-		_detalhes.refresh:r_container_habilidades (este_jogador.cc_break_spells, shadow.cc_break_spells)
+		_detalhes.refresh:r_container_habilidades (este_jogador.cc_break_spells, shadow and shadow.cc_break_spells)
 	end
 end
 

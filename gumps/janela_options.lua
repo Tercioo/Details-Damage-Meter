@@ -4194,6 +4194,19 @@ function window:CreateFrame2()
 		--
 		window:CreateLineBackground2 (frame2, "OverallNewChallengeSlider", "OverallNewChallengeLabel", Loc ["STRING_OPTIONS_OVERALL_CHALLENGE_DESC"])
 		
+		--erase on logout overall_clear_logout
+		g:NewLabel (frame2, _, "$parentOverallOnLogoutLabel", "OverallOnLogoutLabel", Loc ["STRING_OPTIONS_OVERALL_LOGOFF"], "GameFontHighlightLeft")
+		--
+		g:NewSwitch (frame2, _, "$parentOverallOnLogoutSlider", "OverallOnLogoutSlider", 60, 20, _, _, false)
+		frame2.OverallOnLogoutSlider:SetPoint ("left", frame2.OverallOnLogoutLabel, "right", 2, 0)
+		--
+		frame2.OverallOnLogoutSlider.OnSwitch = function (self, _, value)
+			_detalhes:OverallOptions (nil, nil, value)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+		end
+		--
+		window:CreateLineBackground2 (frame2, "OverallOnLogoutSlider", "OverallOnLogoutLabel", Loc ["STRING_OPTIONS_OVERALL_LOGOFF_DESC"])
+		
 	--> captures
 			
 		--> icons
@@ -4337,6 +4350,7 @@ function window:CreateFrame2()
 			{"OverallDataAllLabel", 10, true},
 			{"OverallNewBossLabel", 11, true},
 			{"OverallNewChallengeLabel", 12},
+			{"OverallOnLogoutLabel", 13},
 		}
 		
 		window:arrange_menu (frame2, left_side, x, window.top_start_at)
@@ -9952,6 +9966,7 @@ end --> if not window
 		
 		_G.DetailsOptionsWindow2OverallNewBossSlider.MyObject:SetValue (_detalhes.overall_clear_newboss)
 		_G.DetailsOptionsWindow2OverallNewChallengeSlider.MyObject:SetValue (_detalhes.overall_clear_newchallenge)
+		_G.DetailsOptionsWindow2OverallOnLogoutSlider.MyObject:SetValue (_detalhes.overall_clear_logout)
 		
 		_G.DetailsOptionsWindow2CaptureDamageSlider.MyObject:SetValue (_detalhes.capture_real ["damage"])
 		_G.DetailsOptionsWindow2CaptureHealSlider.MyObject:SetValue (_detalhes.capture_real ["heal"])
