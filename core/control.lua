@@ -237,27 +237,12 @@
 				_detalhes:Msg ("(debug) started a new combat.")
 			end
 
-			--> não tem historico, addon foi resetado, a primeira tabela é descartada -- Erase first table is do es not have a firts segment history, this occour after reset or first run
 			if (not _detalhes.tabela_historico.tabelas[1]) then 
-				--> precisa zerar aqui a tabela overall
-				--_table_wipe (_detalhes.tabela_overall) no more wipes, avoid combat invalid issues
-				--_table_wipe (_detalhes.tabela_vigente)
-				--> aqui ele perdeu o self.showing das instâncias, precisa fazer com que elas atualizem
 				_detalhes.tabela_overall = _detalhes.combate:NovaTabela()
 				
 				_detalhes:InstanciaCallFunction (_detalhes.ResetaGump, nil, -1) --> reseta scrollbar, iterators, rodapé, etc
 				_detalhes:InstanciaCallFunction (_detalhes.InstanciaFadeBarras, -1) --> esconde todas as barras
 				_detalhes:InstanciaCallFunction (_detalhes.AtualizaSegmentos) --> atualiza o showing
-			end
-
-			--> conta o tempo na tabela overall -- start time at overall table
-			if (_detalhes.tabela_overall:GetEndTime()) then
-				--_detalhes.tabela_overall:SetStartTime (_tempo - (_detalhes.tabela_overall.end_time - _detalhes.tabela_overall.start_time))
-				_detalhes.tabela_overall:SetStartTime (_GetTime() - _detalhes.tabela_overall:GetCombatTime())
-				_detalhes.tabela_overall:SetEndTime (nil)
-			else
-				--_detalhes.tabela_overall.start_time = _tempo
-				_detalhes.tabela_overall:SetStartTime (_GetTime())
 			end
 
 			--> re-lock nos tempos da tabela passada -- lock again last table times
@@ -409,12 +394,13 @@
 			_detalhes.tabela_vigente:TravarTempos() 
 			
 			--> get waste shields
-			_detalhes:CloseShields (_detalhes.tabela_vigente)
+			if (_detalhes.close_shields) then
+				_detalhes:CloseShields (_detalhes.tabela_vigente)
+			end
 			
-			_detalhes.tabela_vigente:seta_data (_detalhes._detalhes_props.DATA_TYPE_END) --> salva hora, minuto, segundo do fim da luta
-			_detalhes.tabela_overall:seta_data (_detalhes._detalhes_props.DATA_TYPE_END) --> salva hora, minuto, segundo do fim da luta
+			--> salva hora, minuto, segundo do fim da luta
+			_detalhes.tabela_vigente:seta_data (_detalhes._detalhes_props.DATA_TYPE_END) 
 			_detalhes.tabela_vigente:seta_tempo_decorrido()
-			_detalhes.tabela_overall:seta_tempo_decorrido()
 			
 			--> drop last events table to garbage collector
 			_detalhes.tabela_vigente.player_last_events = {}

@@ -5318,39 +5318,15 @@ local build_segment_list = function (self, elapsed)
 		
 			CoolTip:AddLine (Loc ["STRING_SEGMENT_ENEMY"] .. ":", enemy_name, 2, "white", "white")
 			
-			if (not _detalhes.tabela_overall:GetEndTime()) then
-				if (_detalhes.in_combat) then
-					local decorrido = _detalhes.tabela_overall:GetCombatTime()
-					local minutos, segundos = _math_floor (decorrido/60), _math_floor (decorrido%60)
-					CoolTip:AddLine (Loc ["STRING_SEGMENT_TIME"] .. ":", minutos.."m "..segundos.."s", 2, "white", "white") 
-				else
-					CoolTip:AddLine (Loc ["STRING_SEGMENT_TIME"] .. ":", "--x--x--", 2, "white", "white")
-				end
-			else
-				local decorrido = _detalhes.tabela_overall:GetCombatTime()
-				local minutos, segundos = _math_floor (decorrido/60), _math_floor (decorrido%60)
-				CoolTip:AddLine (Loc ["STRING_SEGMENT_TIME"] .. ":", minutos.."m "..segundos.."s", 2, "white", "white") 
-			end
+			local combat_time = _detalhes.tabela_overall:GetCombatTime()
+			local minutos, segundos = _math_floor (combat_time / 60), _math_floor (combat_time % 60)
+			
+			CoolTip:AddLine (Loc ["STRING_SEGMENT_TIME"] .. ":", minutos.."m "..segundos.."s", 2, "white", "white") 
 			
 			CoolTip:SetWallpaper (2, [[Interface\ACHIEVEMENTFRAME\UI-Achievement-StatsBackground]], segments_common_tex, segments_common_color)
 			
-			local earlyFight = ""
-			for i = _detalhes.segments_amount, 1, -1 do
-				if (_detalhes.tabela_historico.tabelas [i]) then
-					earlyFight = _detalhes.tabela_historico.tabelas [i].data_inicio
-					break
-				end
-			end
-			CoolTip:AddLine (Loc ["STRING_SEGMENT_START"] .. ":", earlyFight, 2, "white", "white")
-			
-			local lastFight = ""
-			for i = 1, _detalhes.segments_amount do
-				if (_detalhes.tabela_historico.tabelas [i] and _detalhes.tabela_historico.tabelas [i].data_fim ~= 0) then
-					lastFight = _detalhes.tabela_historico.tabelas [i].data_fim
-					break
-				end
-			end
-			CoolTip:AddLine (Loc ["STRING_SEGMENT_END"] .. ":", lastFight, 2, "white", "white")
+			CoolTip:AddLine (Loc ["STRING_SEGMENT_START"] .. ":", _detalhes.tabela_overall.data_inicio, 2, "white", "white")
+			CoolTip:AddLine (Loc ["STRING_SEGMENT_END"] .. ":", _detalhes.tabela_overall.data_fim, 2, "white", "white")
 			
 			-- combats added
 			local combats_added = _detalhes.tabela_overall.segments_added or _detalhes.empty_table

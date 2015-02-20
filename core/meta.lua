@@ -67,6 +67,8 @@
 			_detalhes.refresh:r_container_combatentes (combate [class_type_e_energy])
 			_detalhes.refresh:r_container_combatentes (combate [class_type_misc])
 			
+			_detalhes.refresh:r_container_combatentes (combate [5]) --ghost container
+			
 			local todos_atributos = {combate [class_type_dano]._ActorTable, combate [class_type_cura]._ActorTable, combate [class_type_e_energy]._ActorTable, combate [class_type_misc]._ActorTable}
 			
 			for class_type, atributo in _ipairs (todos_atributos) do
@@ -157,12 +159,18 @@
 						--> recupera a meta e indexes da tabela do combate
 						_detalhes.refresh:r_combate (combate, combate_overall)
 						
-						--> aumenta o tempo do combate do overall
-						if (combate.end_time and combate.start_time and not overall_saved) then 
-							combate_overall.start_time = combate_overall.start_time - (combate.end_time - combate.start_time)
-						end
+						--> aumenta o tempo do combate do overall, seta as datas e os combates armazenados
+						if (not overall_saved and combate.overall_added) then 
 						
-						if (not overall_saved and combate.overall_added) then
+							if (combate.end_time and combate.start_time) then
+								combate_overall.start_time = combate_overall.start_time - (combate.end_time - combate.start_time)
+							end
+							--
+							if (combate_overall.data_inicio == 0) then
+								combate_overall.data_inicio = combate.data_inicio or 0
+							end
+							combate_overall.data_fim = combate.data_fim or combate_overall.data_fim
+							--
 							if (not _detalhes.tabela_overall.overall_enemy_name) then
 								_detalhes.tabela_overall.overall_enemy_name = combate.is_boss and combate.is_boss.name or combate.enemy
 							else
@@ -181,6 +189,11 @@
 						_detalhes.refresh:r_container_combatentes (combate [class_type_cura], overall_cura)
 						_detalhes.refresh:r_container_combatentes (combate [class_type_e_energy], overall_energy)
 						_detalhes.refresh:r_container_combatentes (combate [class_type_misc], overall_misc)
+						
+						--> ghost container
+						if (combate[5]) then
+							_detalhes.refresh:r_container_combatentes (combate [5], combate_overall [5])
+						end
 						
 						--> tabela com os 4 tabelas de jogadores
 						local todos_atributos = {combate [class_type_dano]._ActorTable, combate [class_type_cura]._ActorTable, combate [class_type_e_energy]._ActorTable, combate [class_type_misc]._ActorTable}

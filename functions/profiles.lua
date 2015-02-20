@@ -914,6 +914,7 @@ local default_profile = {
 		overall_clear_newboss = true,
 		overall_clear_newchallenge = true,
 		overall_clear_logout = false,
+		close_shields = false,
 	
 	--> skins
 		standard_skin = false,

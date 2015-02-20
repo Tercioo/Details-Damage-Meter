@@ -49,9 +49,18 @@ function historico:adicionar_overall (tabela)
 	end
 	
 	if (_detalhes.tabela_overall.start_time == 0) then
-		_detalhes.tabela_overall.start_time = tabela.start_time
-		_detalhes.tabela_overall.end_time = tabela.end_time
+		_detalhes.tabela_overall:SetStartTime (tabela.start_time)
+		_detalhes.tabela_overall:SetEndTime (tabela.end_time)
+	else
+		_detalhes.tabela_overall:SetStartTime (tabela.start_time - _detalhes.tabela_overall:GetCombatTime())
+		_detalhes.tabela_overall:SetEndTime (tabela.end_time)
 	end
+	
+	if (_detalhes.tabela_overall.data_inicio == 0) then
+		_detalhes.tabela_overall.data_inicio = _detalhes.tabela_vigente.data_inicio or 0
+	end
+	
+	_detalhes.tabela_overall:seta_data (_detalhes._detalhes_props.DATA_TYPE_END)
 	
 	_detalhes:ClockPluginTickOnSegment()
 end

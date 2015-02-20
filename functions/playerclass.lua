@@ -17,7 +17,7 @@ do
 		local _, class = _UnitClass (name)
 		
 		if (not class) then
-			for _, container in _ipairs (_detalhes.tabela_overall) do
+			for index, container in _ipairs (_detalhes.tabela_overall) do
 				--if (container._NameIndexTable) then
 					local index = container._NameIndexTable [name]
 					if (index) then
@@ -146,7 +146,7 @@ do
 			end
 		end
 		
-		for _, container in _ipairs (_detalhes.tabela_overall) do
+		for index, container in _ipairs (_detalhes.tabela_overall) do
 			local index = container._NameIndexTable [name]
 			if (index) then
 				local actor = container._ActorTable [index]

@@ -116,8 +116,7 @@
 	function combate:GetCombatTime()
 		if (self.end_time) then
 			return _math_max (self.end_time - self.start_time, 0.1)
-		elseif (self.start_time and _detalhes.in_combat) then
-			--return _math_max (_tempo - self.start_time, 0.1)
+		elseif (self.start_time and _detalhes.in_combat and self ~= _detalhes.tabela_overall) then
 			return _math_max (_GetTime() - self.start_time, 0.1)
 		else
 			return 0.1
@@ -250,10 +249,10 @@
 		esta_tabela[5].need_refresh = true
 		
 		if (_tabela_overall) then --> link é a tabela de combate do overall
-			esta_tabela[1].shadow = _tabela_overall[1] --> diz ao objeto qual a shadow dele na tabela overall
-			esta_tabela[2].shadow = _tabela_overall[2] --> diz ao objeto qual a shadow dele na tabela overall
-			esta_tabela[3].shadow = _tabela_overall[3] --> diz ao objeto qual a shadow dele na tabela overall
-			esta_tabela[4].shadow = _tabela_overall[4] --> diz ao objeto qual a shadow dele na tabela overall
+			esta_tabela[1].shadow = _tabela_overall[1]
+			esta_tabela[2].shadow = _tabela_overall[2]
+			esta_tabela[3].shadow = _tabela_overall[3]
+			esta_tabela[4].shadow = _tabela_overall[4]
 		end
 
 		esta_tabela.totals = {
