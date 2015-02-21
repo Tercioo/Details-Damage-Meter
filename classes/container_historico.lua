@@ -90,6 +90,26 @@ function historico:adicionar (tabela)
 	--> adiciona no index #1
 	_table_insert (self.tabelas, 1, tabela)
 	
+	--_detalhes.encounter_counter
+	local boss = tabela.is_boss and tabela.is_boss.name
+	if (boss) then
+		local try_number = _detalhes.encounter_counter [boss]
+		
+		if (not try_number) then
+			local previous_combat = self.tabelas [2]
+			if (previous_combat and previous_combat.is_boss and previous_combat.is_boss.name and previous_combat.is_boss.name == boss) then
+				try_number = previous_combat.is_boss.try_number + 1
+			else
+				try_number = 1
+			end
+		else
+			try_number = _detalhes.encounter_counter [boss] + 1
+		end
+		
+		_detalhes.encounter_counter [boss] = try_number
+		tabela.is_boss.try_number = try_number
+	end
+	
 	local overall_added = false
 	
 	if (not overall_added and bit.band (_detalhes.overall_flag, 0x1) ~= 0) then --> raid boss - flag 0x1

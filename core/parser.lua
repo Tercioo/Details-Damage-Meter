@@ -683,6 +683,8 @@
 	local ignored_overheal = {
 		[47753] = true, -- Divine Aegis
 		[86273] = true, -- Illuminated Healing
+		[114908] = true, --Spirit Shell
+		[152118] = true, --Clarity of Will
 	}
 	
 	function parser:heal_absorb (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spellschool, owner_serial, owner_name, owner_flags, owner_flags2, shieldid, shieldname, shieldtype, amount)

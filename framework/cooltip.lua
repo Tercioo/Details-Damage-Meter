@@ -774,8 +774,8 @@ function DetailsCreateCoolTip()
 				menuButton.leftIcon:SetDesaturated (leftIconTable [9])
 			else
 				menuButton.leftIcon:SetTexture (nil)
-				menuButton.leftIcon:SetWidth (3)
-				menuButton.leftIcon:SetHeight (3)
+				menuButton.leftIcon:SetWidth (1)
+				menuButton.leftIcon:SetHeight (1)
 			end
 			
 			--> right icon

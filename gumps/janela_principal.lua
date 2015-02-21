@@ -5149,12 +5149,31 @@ local build_segment_list = function (self, elapsed)
 					
 					if (thisCombat.is_boss and thisCombat.is_boss.name) then
 					
+						local try_number = thisCombat.is_boss.try_number
+						local combat_time = thisCombat:GetCombatTime()
+					
 						if (thisCombat.instance_type == "party") then
 							CoolTip:AddLine (thisCombat.is_boss.name .." (#"..i..")", _, 1, party_line_color)
 						elseif (thisCombat.is_boss.killed) then
-							CoolTip:AddLine (thisCombat.is_boss.name .." (#"..i..")", _, 1, "lime")
+							if (try_number) then
+								local m, s = _math_floor (combat_time/60), _math_floor (combat_time%60)
+								if (s < 10) then
+									s = "0" .. s
+								end
+								CoolTip:AddLine (thisCombat.is_boss.name .." (#"..try_number.." " .. m .. ":" .. s .. ")", _, 1, "lime")
+							else
+								CoolTip:AddLine (thisCombat.is_boss.name .." (#"..i..")", _, 1, "lime")
+							end
 						else
-							CoolTip:AddLine (thisCombat.is_boss.name .." (#"..i..")", _, 1, "red")
+							if (try_number) then
+								local m, s = _math_floor (combat_time/60), _math_floor (combat_time%60)
+								if (s < 10) then
+									s = "0" .. s
+								end
+								CoolTip:AddLine (thisCombat.is_boss.name .." (#"..try_number.." " .. m .. ":" .. s .. ")", _, 1, "red")
+							else
+								CoolTip:AddLine (thisCombat.is_boss.name .." (#"..i..")", _, 1, "red")
+							end
 						end
 						
 						local portrait = _detalhes:GetBossPortrait (thisCombat.is_boss.mapid, thisCombat.is_boss.index)
@@ -5323,7 +5342,9 @@ local build_segment_list = function (self, elapsed)
 			
 			CoolTip:AddLine (Loc ["STRING_SEGMENT_TIME"] .. ":", minutos.."m "..segundos.."s", 2, "white", "white") 
 			
-			CoolTip:SetWallpaper (2, [[Interface\ACHIEVEMENTFRAME\UI-Achievement-StatsBackground]], segments_common_tex, segments_common_color)
+			--CoolTip:SetWallpaper (2, [[Interface\ACHIEVEMENTFRAME\UI-Achievement-StatsBackground]], segments_common_tex, segments_common_color)
+			--CoolTip:SetWallpaper (2, [[Interface\PetBattles\MountJournal-NoMounts]], {0, 403/512, 0, 294/512}, {.5, .5, .5, 0.9})
+			CoolTip:SetWallpaper (2, [[Interface\PetPaperDollFrame\PetStatsBG-Hunter]], {321/512, 0, 0, 190/512}, {1, 1, 1, 0.9})
 			
 			CoolTip:AddLine (Loc ["STRING_SEGMENT_START"] .. ":", _detalhes.tabela_overall.data_inicio, 2, "white", "white")
 			CoolTip:AddLine (Loc ["STRING_SEGMENT_END"] .. ":", _detalhes.tabela_overall.data_fim, 2, "white", "white")
