@@ -907,6 +907,18 @@ function SlashCmdList.DETAILS (msg, editbox)
 		  end
 		end
 	
+	elseif (msg == "pos") then
+		local x, y = GetPlayerMapPosition ("player")
+		
+		if (not DetailsPosBox) then
+			_detalhes.gump:CreateTextEntry (UIParent, function()end, 200, 20, nil, "DetailsPosBox")
+			DetailsPosBox:SetPoint ("center", UIParent, "center")
+		end
+		
+		DetailsPosBox.MyObject.text = "{x = " .. x .. ", y = " .. y .. "}"
+		DetailsPosBox.MyObject:SetFocus()
+		DetailsPosBox.MyObject:HighlightText()
+	
 	elseif (msg == "outline") then
 	
 		local instancia = _detalhes.tabela_instancias [1]

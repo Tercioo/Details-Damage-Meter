@@ -96,10 +96,16 @@ function historico:adicionar (tabela)
 		local try_number = _detalhes.encounter_counter [boss]
 		
 		if (not try_number) then
-			local previous_combat = self.tabelas [2]
-			if (previous_combat and previous_combat.is_boss and previous_combat.is_boss.name and previous_combat.is_boss.name == boss) then
-				try_number = previous_combat.is_boss.try_number + 1
-			else
+			local previous_combat
+			for i = 2, #self.tabelas do
+				previous_combat = self.tabelas [i]
+				if (previous_combat and previous_combat.is_boss and previous_combat.is_boss.name and previous_combat.is_boss.try_number and previous_combat.is_boss.name == boss and not previous_combat.is_boss.killed) then
+					try_number = previous_combat.is_boss.try_number + 1
+					break
+				end
+			end
+			
+			if (not try_number) then
 				try_number = 1
 			end
 		else

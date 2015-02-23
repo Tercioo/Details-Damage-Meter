@@ -1129,8 +1129,6 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 						if (player[keyName] < 1) then --> dano menor que 1, interromper o loop
 							amount = index - 1
 							break
-						elseif (index == 1) then --> esse IF aqui, precisa mesmo ser aqui? não daria pra pega-lo com uma chave [1] nad grupo == true?
-							instancia.top = conteudo[1][keyName]
 						end
 						
 						total = total + player[keyName]
@@ -1139,6 +1137,8 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 						break
 					end
 				end
+				
+				instancia.top = conteudo[1] and conteudo[1][keyName]
 			end
 
 		end
@@ -1272,8 +1272,12 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 				qual_barra = qual_barra+1
 			else
 				for i = instancia.barraS[1], instancia.barraS[2], 1 do --> vai atualizar só o range que esta sendo mostrado
---[[ index nil value]]		conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
-					qual_barra = qual_barra+1
+					if (not conteudo[i]) then
+						print ("error on update", amount, conteudo[i], #conteudo, instancia.barraS[1], instancia.barraS[2])
+					else
+--[[ index nil value]]			conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
+						qual_barra = qual_barra+1
+					end
 				end
 			end
 		end

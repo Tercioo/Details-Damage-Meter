@@ -1214,7 +1214,7 @@ function atributo_misc:ToolTipDispell (instancia, numero, barra)
 				quantidade [nome] = 1
 				
 				local my_self = instancia.showing[class_type]:PegarCombatente (nil, nome)
-				if (my_self) then
+				if (my_self and my_self.dispell) then
 					totais [#totais+1] = {nome, my_self.dispell}
 				end
 			else

@@ -162,10 +162,6 @@
 			who_serial = ""
 		end
 		
-		if (absorbed) then
-			amount = absorbed + (amount or 0)
-		end
-		
 		--> Fix for mage prismatic crystal
 		--local npcId = _detalhes:GetNpcIdFromGuid (alvo_serial)
 		--if (npcId == 76933) then
@@ -291,44 +287,24 @@
 	------------------------------------------------------------------------------------------------
 	--> group checks and avoidance
 
+		if (absorbed) then
+			amount = absorbed + (amount or 0)
+		end	
+	
 		if (este_jogador.grupo) then 
 			_current_gtotal [1] = _current_gtotal [1]+amount
 			
 		elseif (jogador_alvo.grupo) then
-		
-			--> record death log
-			local t = last_events_cache [alvo_name]
-			
-			if (not t) then
-				t = _current_combat:CreateLastEventsTable (alvo_name)
-			end
-			
-			local i = t.n
-			
-			local this_event = t [i]
-			
-			this_event [1] = true --> true if this is a damage || false for healing
-			this_event [2] = spellid --> spellid || false if this is a battle ress line
-			this_event [3] = amount --> amount of damage or healing
-			this_event [4] = time --> parser time
-			this_event [5] = _UnitHealth (alvo_name) --> current unit heal
-			this_event [6] = who_name --> source name
-			this_event [7] = absorbed
-			this_event [8] = school
-			this_event [9] = false
-			this_event [10] = overkill
-			
-			i = i + 1
-			
-			if (i == 17) then
-				t.n = 1
-			else
-				t.n = i
-			end
-			
-			--> record avoidance only for player actors
-			
+
+			--> record avoidance only for tank actors
 			if (tanks_members_cache [alvo_serial]) then --> autoshot or melee hit
+				--> monk's stagger
+				if (jogador_alvo.classe == "MONK") then
+					if (absorbed) then
+						amount = (amount or 0) - absorbed
+					end
+				end
+			
 				--> avoidance
 				local avoidance = jogador_alvo.avoidance
 				if (not avoidance) then
@@ -372,6 +348,37 @@
 					mob ["FULL_HIT_AMT"] = mob ["FULL_HIT_AMT"] + amount
 				end
 			end
+			
+			--> record death log
+			local t = last_events_cache [alvo_name]
+			
+			if (not t) then
+				t = _current_combat:CreateLastEventsTable (alvo_name)
+			end
+			
+			local i = t.n
+			
+			local this_event = t [i]
+			
+			this_event [1] = true --> true if this is a damage || false for healing
+			this_event [2] = spellid --> spellid || false if this is a battle ress line
+			this_event [3] = amount --> amount of damage or healing
+			this_event [4] = time --> parser time
+			this_event [5] = _UnitHealth (alvo_name) --> current unit heal
+			this_event [6] = who_name --> source name
+			this_event [7] = absorbed
+			this_event [8] = school
+			this_event [9] = false
+			this_event [10] = overkill
+			
+			i = i + 1
+			
+			if (i == 17) then
+				t.n = 1
+			else
+				t.n = i
+			end
+			
 		end
 		
 	------------------------------------------------------------------------------------------------
@@ -414,10 +421,12 @@
 	--> firendly fire
 
 		if (
-			--(
+			(
 				(_bit_band (alvo_flags, REACTION_FRIENDLY) ~= 0 and _bit_band (who_flags, REACTION_FRIENDLY) ~= 0) or --ajdt d' brx
 				(raid_members_cache [who_serial] and raid_members_cache [alvo_serial]) --amrl
-			--) and who_name ~= alvo_name
+			) 
+			and 
+				spellid ~= 124255 --stagger
 		) then
 		
 			--> record death log
