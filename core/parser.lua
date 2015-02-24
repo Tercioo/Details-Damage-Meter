@@ -299,12 +299,14 @@
 			--> record avoidance only for tank actors
 			if (tanks_members_cache [alvo_serial]) then --> autoshot or melee hit
 				--> monk's stagger
+				--[
 				if (jogador_alvo.classe == "MONK") then
 					if (absorbed) then
 						amount = (amount or 0) - absorbed
 					end
 				end
-			
+				--]]
+				
 				--> avoidance
 				local avoidance = jogador_alvo.avoidance
 				if (not avoidance) then
@@ -426,7 +428,8 @@
 				(raid_members_cache [who_serial] and raid_members_cache [alvo_serial]) --amrl
 			) 
 			and 
-				spellid ~= 124255 --stagger
+				--spellid ~= 124255 --stagger
+				spellid ~= 999997 --stagger
 		) then
 		
 			--> record death log
