@@ -918,6 +918,20 @@ local function move_janela (baseframe, iniciando, instancia, just_updating)
 			
 			if (esquerda or baixo or direita or cima) then
 				instancia:agrupar_janelas ({esquerda, baixo, direita, cima})
+				
+				--> tutorial
+				if (not _detalhes:GetTutorialCVar ("WINDOW_GROUP_MAKING1")) then
+					_detalhes:SetTutorialCVar ("WINDOW_GROUP_MAKING1", true)
+					
+					local group_tutorial = CreateFrame ("frame", "DetailsWindowGroupPopUp1", instancia.baseframe, "DetailsHelpBoxTemplate")
+					group_tutorial.ArrowUP:Show()
+					group_tutorial.ArrowGlowUP:Show()
+					group_tutorial.Text:SetText (Loc ["STRING_MINITUTORIAL_WINDOWS1"])
+					group_tutorial:SetPoint ("bottom", instancia_alvo.break_snap_button, "top", 0, 24)
+					group_tutorial:Show()
+					_detalhes.OnEnterMainWindow (instancia_alvo)
+					
+				end
 			end
 
 			for _, esta_instancia in _ipairs (_detalhes.tabela_instancias) do
@@ -1011,6 +1025,9 @@ end
 local BGFrame_scripts_onmouseup = function (self, button)
 
 	if (self.is_toolbar and self._instance.baseframe.isLocked and button == "LeftButton") then
+		if (DetailsWindowLockPopUp1 and DetailsWindowLockPopUp1:IsShown()) then
+			_G ["DetailsWindowLockPopUp1"]:Hide()
+		end
 		return self._instance.baseframe.button_stretch:GetScript ("OnMouseUp") (self._instance.baseframe.button_stretch, "LeftButton")
 	end
 	
@@ -1621,7 +1638,7 @@ local lockFunctionOnLeave = function (self)
 	if (self.mostrando) then
 		self.going_hide = true
 		OnLeaveMainWindow (self.instancia, self)
-		self.label:SetTextColor (.3, .3, .3, .6)
+		self.label:SetTextColor (.6, .6, .6, .7)
 		self.mostrando = false
 		GameCooltip:ShowMe (false)
 	end
@@ -1652,6 +1669,20 @@ local lockFunctionOnClick = function (button)
 		button:ClearAllPoints()
 		button:SetPoint ("right", baseframe.resize_direita, "left", -1, 1.5)		
 	else
+	
+		--> tutorial
+		if (not _detalhes:GetTutorialCVar ("WINDOW_LOCK_UNLOCK1") and not _detalhes.initializing) then
+			_detalhes:SetTutorialCVar ("WINDOW_LOCK_UNLOCK1", true)
+			
+			local lock_tutorial = CreateFrame ("frame", "DetailsWindowLockPopUp1", baseframe, "DetailsHelpBoxTemplate")
+			lock_tutorial.ArrowUP:Show()
+			lock_tutorial.ArrowGlowUP:Show()
+			lock_tutorial.Text:SetText (Loc ["STRING_MINITUTORIAL_WINDOWS2"])
+			lock_tutorial:SetPoint ("bottom", baseframe.UPFrame, "top", 0, 20)
+			lock_tutorial:Show()
+			
+		end	
+	
 		baseframe.isLocked = true
 		baseframe.instance.isLocked = true
 		button.label:SetText (Loc ["STRING_UNLOCK_WINDOW"])
@@ -2179,7 +2210,7 @@ local function button_stretch_scripts (baseframe, backgrounddisplay, instancia)
 			_detalhes.atualizador = _detalhes:ScheduleRepeatingTimer ("AtualizaGumpPrincipal", _detalhes.update_speed, -1)
 			_detalhes.stretch_changed_update_speed = nil
 		end
-		
+
 	end)	
 end
 
@@ -3006,7 +3037,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 		baseframe.lock_button:SetHeight (16)
 		baseframe.lock_button.label = baseframe.lock_button:CreateFontString (nil, "overlay", "GameFontNormal")
 		baseframe.lock_button.label:SetPoint ("right", baseframe.lock_button, "right")
-		baseframe.lock_button.label:SetTextColor (.3, .3, .3, .6)
+		baseframe.lock_button.label:SetTextColor (.6, .6, .6, .7)
 		baseframe.lock_button.label:SetJustifyH ("right")
 		baseframe.lock_button.label:SetText (Loc ["STRING_LOCK_WINDOW"])
 		baseframe.lock_button:SetWidth (baseframe.lock_button.label:GetStringWidth()+2)
@@ -3104,6 +3135,11 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 		
 		instancia.break_snap_button:SetScript ("OnClick", function()
 			instancia:Desagrupar (-1)
+			
+			--> hide tutorial
+			if (DetailsWindowGroupPopUp1 and DetailsWindowGroupPopUp1:IsShown()) then
+				DetailsWindowGroupPopUp1:Hide()
+			end
 		end)
 		
 		instancia.break_snap_button:SetScript ("OnEnter", unSnapButtonOnEnter)
@@ -4758,8 +4794,19 @@ local on_leave_menu = function (self, elapsed)
 end
 
 local OnClickNovoMenu = function (_, _, id, instance)
-	_detalhes.CriarInstancia (_, _, id)
+
+	local is_new
+	if (not _detalhes.tabela_instancias [id]) then
+		--> esta criando uma nova
+		is_new = true
+	end
+
+	local ninstance = _detalhes.CriarInstancia (_, _, id)
 	instance.baseframe.cabecalho.modo_selecao:GetScript ("OnEnter")(instance.baseframe.cabecalho.modo_selecao)
+	
+	if (ninstance and is_new) then
+		ninstance.baseframe.cabecalho.modo_selecao:GetScript ("OnEnter")(ninstance.baseframe.cabecalho.modo_selecao)
+	end
 end
 
 local build_mode_list = function (self, elapsed)
@@ -4839,7 +4886,6 @@ local build_mode_list = function (self, elapsed)
 					CoolTip:AddMenu (2, _detalhes.SoloTables.EnableSoloMode, instancia, ptable [4], true, ptable [1], ptable [2], true)
 				end
 			end
-			
 			CoolTip:SetWallpaper (2, [[Interface\SPELLBOOK\Spellbook-Page-1]], menu_wallpaper_tex, menu_wallpaper_color, true)
 		end
 		
@@ -4847,9 +4893,6 @@ local build_mode_list = function (self, elapsed)
 		GameCooltip:AddLine ("$div")
 		CoolTip:AddLine (Loc ["STRING_MENU_INSTANCE_CONTROL"])
 		CoolTip:AddIcon ([[Interface\AddOns\Details\images\modo_icones]], 1, 1, 20, 20, 0.625, 0.75, 0, 1)
-
-		--CoolTip:AddMenu (2, _detalhes.OpenOptionsWindow, true, 1, nil, "Cant Create Window", _, true)
-		--CoolTip:AddIcon ([[Interface\Buttons\UI-PlusButton-Up]], 2, 1, 16, 16)
 		
 		local HaveClosedInstances = false
 		for index = 1, math.min (#_detalhes.tabela_instancias, _detalhes.instances_amount), 1 do 
@@ -4861,7 +4904,7 @@ local build_mode_list = function (self, elapsed)
 		end
 		
 		if (_detalhes:GetNumInstancesAmount() < _detalhes:GetMaxInstancesAmount()) then
-			CoolTip:AddMenu (2, OnClickNovoMenu, true, instancia, nil, "Create Window", _, true)
+			CoolTip:AddMenu (2, OnClickNovoMenu, true, instancia, nil, Loc ["STRING_OPTIONS_WC_CREATE"], _, true)
 			CoolTip:AddIcon ([[Interface\Buttons\UI-AttributeButton-Encourage-Up]], 2, 1, 16, 16)
 			if (HaveClosedInstances) then
 				GameCooltip:AddLine ("$div", nil, 2, nil, -5, -11)
@@ -6715,6 +6758,8 @@ end
 		GameCooltip:AddIcon ([[Interface\Buttons\UI-StopButton]], 1, 1, 14, 14, 0, 1, 0, 1, "red")
 		GameCooltip:AddMenu (1, _detalhes.tabela_historico.resetar)
 		
+		GameCooltip:AddLine ("$div", nil, 1, nil, -5, -11)
+		
 		GameCooltip:AddLine (Loc ["STRING_ERASE_DATA_OVERALL"], nil, 1, "white", nil, _detalhes.font_sizes.menus, _detalhes.font_faces.menus)
 		GameCooltip:AddIcon ([[Interface\Buttons\UI-StopButton]], 1, 1, 14, 14, 0, 1, 0, 1, "orange")
 		GameCooltip:AddMenu (1, _detalhes.tabela_historico.resetar_overall)
@@ -7321,7 +7366,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 
 	
 -- ~delete ~erase ~reset
---> RESETAR HISTORICO ----------------------------------------------------------------------------------------------------------------------------------------------------
+--> reset ----------------------------------------------------------------------------------------------------------------------------------------------------
 
 	baseframe.cabecalho.reset = CreateFrame ("button", "DetailsClearSegmentsButton" .. instancia.meu_id, baseframe)
 	baseframe.cabecalho.reset:SetFrameLevel (baseframe.UPFrame:GetFrameLevel()+1)

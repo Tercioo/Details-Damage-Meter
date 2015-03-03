@@ -443,7 +443,7 @@
 				return aura_on_table
 			end
 			local aura_on = fw:CreateDropDown (f, aura_on_options, 1, 150, 20, "AuraOnDropdown", "$parentAuraOnDropdown")
-			local aura_on_label = fw:CreateLabel (f, "Target: ", nil, nil, "GameFontNormal")
+			local aura_on_label = fw:CreateLabel (f, "Trigger: ", nil, nil, "GameFontNormal")
 			aura_on:SetPoint ("left", aura_on_label, "right", 2, 0)
 			
 			--stack

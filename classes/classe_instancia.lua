@@ -2353,6 +2353,9 @@ function _detalhes:MontaAtributosOption (instancia, func)
 	
 	--> custom
 	
+	--GameCooltip:AddLine ("$div")
+	CoolTip:AddLine ("$div", nil, 1, -2, 1)
+	
 	CoolTip:AddMenu (1, func, nil, 5, nil, atributos.lista[5], nil, true)
 	CoolTip:AddIcon ("Interface\\AddOns\\Details\\images\\atributos_icones", 1, 1, 20, 20, p*(5-1), p*(5), 0, 1)
 	
@@ -2376,12 +2379,12 @@ function _detalhes:MontaAtributosOption (instancia, func)
 	GameCooltip:SetWallpaper (2, [[Interface\TALENTFRAME\WarriorArm-TopLeft]], {1, 0, 0, 1}, {1, 1, 1, 0.1})
 
 	if (#_detalhes.custom == 0) then
-		CoolTip:SetLastSelected (2, 5, 2)
+		CoolTip:SetLastSelected (2, 6, 2)
 	else
 		if (instancia.atributo == 5) then
-			CoolTip:SetLastSelected (2, 5, instancia.sub_atributo+2)
+			CoolTip:SetLastSelected (2, 6, instancia.sub_atributo+2)
 		else
-			CoolTip:SetLastSelected (2, 5, instancia.sub_atributo_last [5]+2)
+			CoolTip:SetLastSelected (2, 6, instancia.sub_atributo_last [5]+2)
 		end
 	end
 
@@ -2394,7 +2397,11 @@ function _detalhes:MontaAtributosOption (instancia, func)
 	CoolTip:SetOption ("SelectedTopAnchorMod", -2)
 	CoolTip:SetOption ("SelectedBottomAnchorMod", 2)
 	
-	CoolTip:SetLastSelected (1, atributo_ativo)
+	local last_selected = atributo_ativo
+	if (atributo_ativo == 5) then
+		last_selected = 6
+	end
+	CoolTip:SetLastSelected (1, last_selected)
 	
 	CoolTip:SetWallpaper (1, [[Interface\SPELLBOOK\DeathKnightBlood-TopLeft]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
 	--CoolTip:SetWallpaper (1, [[Interface\ACHIEVEMENTFRAME\UI-Achievement-Parchment-Horizontal-Desaturated]], nil, {1, 1, 1, 0.3})

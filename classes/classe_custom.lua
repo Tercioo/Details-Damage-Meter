@@ -740,8 +740,8 @@
 		return actor_table.value
 	end
 	
-	function atributo_custom:AddValue (actor, actortotal, checktop)
-		local actor_table = self:GetActorTable (actor)
+	function atributo_custom:AddValue (actor, actortotal, checktop, name_complement)
+		local actor_table = self:GetActorTable (actor, name_complement)
 		actor_table.my_actor = actor
 		actor_table.value = actor_table.value + actortotal
 		
@@ -754,8 +754,8 @@
 		return actor_table.value
 	end
 	
-	function atributo_custom:SetValue (actor, actortotal)
-		local actor_table = self:GetActorTable (actor)
+	function atributo_custom:SetValue (actor, actortotal, name_complement)
+		local actor_table = self:GetActorTable (actor, name_complement)
 		actor_table.my_actor = actor
 		actor_table.value = actortotal
 	end
@@ -764,7 +764,7 @@
 		actors.new_actor.classe = actors.actor.classe
 	end
 
-	function atributo_custom:GetActorTable (actor)
+	function atributo_custom:GetActorTable (actor, name_complement)
 		local index = self._NameIndexTable [actor.nome]
 		
 		if (index) then
@@ -783,7 +783,8 @@
 			value = _detalhes:GetOrderNumber (actor.nome),
 			}, atributo_custom.mt)
 			
-			new_actor.displayName = new_actor.nome
+			new_actor.name_complement = name_complement
+			new_actor.displayName = new_actor.nome .. (name_complement or "")
 			new_actor.spec = actor.spec
 			
 			if (actor.id) then
@@ -1347,7 +1348,7 @@
 			total_script = false,
 			script_version = 9,
 		}
---	/run_detalhes:AddDefaultCustomDisplays()
+--	/run _detalhes:AddDefaultCustomDisplays()
 		local have = false
 		for _, custom in ipairs (self.custom) do
 			if (custom.name == Loc ["STRING_CUSTOM_HEALTHSTONE_DEFAULT"] and (custom.script_version and custom.script_version >= Healthstone.script_version) ) then
@@ -1507,7 +1508,7 @@
 			desc = Loc ["STRING_CUSTOM_DTBS_DESC"],
 			source = false,
 			target = false,
-			script_version = 20,
+			script_version = 22,
 			on_shift_click = [[
 				local row, object, instance = ...
 				local spellname, _, spellicon = _detalhes.GetSpellInfo (object.id)
@@ -1649,11 +1650,14 @@
 				    end
 				end
 				
+				local aura = ""
 				if (WeakAuras) then
-					GameCooltip:AddLine (" ")
-					GameCooltip:AddLine ("Shift Click: Create WeakAura")
-					 GameCooltip:AddStatusBar (100, 1, 0, 0, 0, 0.6, true,  bar_background)
+				    aura = "|cFFffa200Shift Click|r: Create Aura"
 				end
+
+				GameCooltip:AddLine (" ")
+				GameCooltip:AddLine ("|cFFffa200Click|r: Report Results", aura, 1, "white", "white")
+				GameCooltip:AddStatusBar (100, 1, 0, 0, 0, 0.6, false,  bar_background)
 			]],
 		}
 
@@ -1665,14 +1669,20 @@
 			end
 		end
 		if (not have) then
+			setmetatable (DamageTakenBySpell, _detalhes.atributo_custom)
+			DamageTakenBySpell.__index = _detalhes.atributo_custom
+			
 			for i, custom in ipairs (self.custom) do
 				if (custom.name == Loc ["STRING_CUSTOM_DTBS"]) then
 					table.remove (self.custom, i)
+					tinsert (self.custom, i, DamageTakenBySpell)
+					have = true
 				end
 			end
-			setmetatable (DamageTakenBySpell, _detalhes.atributo_custom)
-			DamageTakenBySpell.__index = _detalhes.atributo_custom
-			self.custom [#self.custom+1] = DamageTakenBySpell
+			
+			if (not have) then
+				self.custom [#self.custom+1] = DamageTakenBySpell
+			end
 		end
 		
 		----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1686,7 +1696,7 @@
 			desc = Loc ["STRING_CUSTOM_MYSPELLS_DESC"],
 			source = false,
 			target = false,
-			script_version = 2,
+			script_version = 4,
 			script = [[
 				--get the parameters passed
 				local combat, instance_container, instance = ...
@@ -1695,30 +1705,46 @@
 
 				local player
 				local role = UnitGroupRolesAssigned ("player")
+				local pet_attribute
 
 				if (role == "DAMAGER") then
-				    player = combat (DETAILS_ATTRIBUTE_DAMAGE, _detalhes.playername)
+					player = combat (DETAILS_ATTRIBUTE_DAMAGE, _detalhes.playername)
+					pet_attribute = DETAILS_ATTRIBUTE_DAMAGE
 				elseif (role == "HEALER") then    
-				    player = combat (DETAILS_ATTRIBUTE_HEAL, _detalhes.playername)
+					player = combat (DETAILS_ATTRIBUTE_HEAL, _detalhes.playername)
+					pet_attribute = DETAILS_ATTRIBUTE_HEAL
 				else
-				    player = combat (DETAILS_ATTRIBUTE_DAMAGE, _detalhes.playername)
+					player = combat (DETAILS_ATTRIBUTE_DAMAGE, _detalhes.playername)
+					pet_attribute = DETAILS_ATTRIBUTE_DAMAGE
 				end
 
 				--do the loop
 
 				if (player) then
-				    local spells = player:GetSpellList()
-				    for spellid, spell in pairs (spells) do
-					instance_container:AddValue (spell, spell.total)
-					total = total + spell.total
-					if (top < spell.total) then
-					    top = spell.total
+					local spells = player:GetSpellList()
+					for spellid, spell in pairs (spells) do
+						instance_container:AddValue (spell, spell.total)
+						total = total + spell.total
+						if (top < spell.total) then
+							top = spell.total
+						end
+						amount = amount + 1
 					end
-					amount = amount + 1
-				    end
+				    
+					for _, PetName in ipairs (player.pets) do
+						local pet = combat (pet_attribute, PetName)
+						if (pet) then
+							for spellid, spell in pairs (pet:GetSpellList()) do
+								instance_container:AddValue (spell, spell.total, nil, " (" .. PetName:gsub ((" <.*"), "") .. ")")
+								total = total + spell.total
+								if (top < spell.total) then
+									top = spell.total
+								end
+								amount = amount + 1
+							end
+						end
+					end
 				end
-
-				--loop end
 
 				--return the values
 				return total, top, amount
@@ -1892,14 +1918,19 @@
 			end
 		end
 		if (not have) then
+			setmetatable (MySpells, _detalhes.atributo_custom)
+			MySpells.__index = _detalhes.atributo_custom
+			
 			for i, custom in ipairs (self.custom) do
 				if (custom.name == Loc ["STRING_CUSTOM_MYSPELLS"]) then
 					table.remove (self.custom, i)
+					tinsert (self.custom, i, MySpells)
+					have = true
 				end
 			end
-			setmetatable (MySpells, _detalhes.atributo_custom)
-			MySpells.__index = _detalhes.atributo_custom
-			self.custom [#self.custom+1] = MySpells
+			if (not have) then
+				self.custom [#self.custom+1] = MySpells
+			end
 		end		
 		
 		_detalhes:ResetCustomFunctionsCache()

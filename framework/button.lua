@@ -938,7 +938,7 @@ function gump:NewButton (parent, container, name, member, w, h, func, param1, pa
 	ButtonObject.button.text:SetPoint ("center", ButtonObject.button, "center")
 	
 	local text_width = ButtonObject.button.text:GetStringWidth()
-	if (text_width > w-15) then
+	if (text_width > w-15 and ButtonObject.button.text:GetText() ~= "") then
 		if (not short_method) then
 			local new_width = text_width+15
 			ButtonObject.button:SetWidth (new_width)

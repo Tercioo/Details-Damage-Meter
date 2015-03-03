@@ -915,7 +915,12 @@ function SlashCmdList.DETAILS (msg, editbox)
 			DetailsPosBox:SetPoint ("center", UIParent, "center")
 		end
 		
-		DetailsPosBox.MyObject.text = "{x = " .. x .. ", y = " .. y .. "}"
+		local one, two = rest:match("^(%S*)%s*(.-)$")
+		if (one == "2") then
+			DetailsPosBox.MyObject.text = "{x2 = " .. x .. ", y2 = " .. y .. "}"
+		else
+			DetailsPosBox.MyObject.text = "{x1 = " .. x .. ", y1 = " .. y .. "}"
+		end
 		DetailsPosBox.MyObject:SetFocus()
 		DetailsPosBox.MyObject:HighlightText()
 	

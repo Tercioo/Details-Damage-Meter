@@ -110,6 +110,12 @@ function _detalhes:OpenOptionsWindow (instance, no_reopen, section)
 			window.Disable3DColorPick:Hide()
 			window.Disable3DColorPick:Cancel()
 			GameCooltip:Hide()
+			
+			if (window.help_popups) then
+				for _, widget in ipairs (window.help_popups) do
+					widget:Hide()
+				end
+			end
 		end)
 		
 		--x 9 897 y 9 592
@@ -267,6 +273,15 @@ function _detalhes:OpenOptionsWindow (instance, no_reopen, section)
 		
 		local instances = g:NewDropDown (window, _, "$parentInstanceSelectDropdown", "instanceDropdown", 200, 18, buildInstanceMenu, nil)	
 		instances:SetPoint ("bottomright", window, "bottomright", -17, 09)
+		instances:SetHook ("OnEnter", function()
+			GameCooltip:Reset()
+			_detalhes:CooltipPreset (2)
+			GameCooltip:AddLine (Loc ["STRING_MINITUTORIAL_OPTIONS_PANEL1"])
+			GameCooltip:ShowCooltip (instances.widget, "tooltip")
+		end)
+		instances:SetHook ("OnLeave", function()
+			GameCooltip:Hide()
+		end)
 		
 		local instances_string = g:NewLabel (window, nil, nil, "instancetext", Loc ["STRING_OPTIONS_EDITINSTANCE"], "GameFontNormal", 12)
 		instances_string:SetPoint ("right", instances, "left", -2, 1)
@@ -279,13 +294,34 @@ function _detalhes:OpenOptionsWindow (instance, no_reopen, section)
 		DetailsOptionsWindowGroupEditingText:SetText ("Editing Group")
 		DetailsOptionsWindowGroupEditingText:SetPoint ("right", instances_string.widget, "left", -20, 0)
 		DetailsOptionsWindowGroupEditingText:SetTextColor (1, 0.8, 0)
-		group_editing.tooltip = "When checked, all windows in the group are also changed."
+		group_editing.tooltip = Loc ["STRING_MINITUTORIAL_OPTIONS_PANEL2"]
 		group_editing:SetHitRectInsets (0, -105, 0, 0)
 
 		group_editing:SetChecked (_detalhes.options_group_edit)
 		
 		group_editing:SetScript ("OnClick", function()
 			_detalhes.options_group_edit = group_editing:GetChecked()
+		end)
+		
+		local group_editing_help = group_editing:CreateTexture (nil, "overlay")
+		group_editing_help:SetSize (16, 16)
+		group_editing_help:SetPoint ("right", group_editing, "left", -1, 0)
+		group_editing_help:SetAlpha (0.6)
+		group_editing_help:SetTexture ([[Interface\GossipFrame\IncompleteQuestIcon]])
+		
+		local group_editing_help_frame = g:NewButton (group_editing, _, "$parentHelpButton", "HelpButton", 16, 16, _detalhes.empty_function)
+		group_editing_help_frame:SetPoint ("right", group_editing_help, "right", 1, 0)
+		--group_editing_help_frame:InstallCustomTexture()
+		group_editing_help_frame:SetHook ("OnEnter", function()
+			group_editing_help:SetTexture ([[Interface\GossipFrame\ActiveQuestIcon]])
+			GameCooltip:Reset()
+			_detalhes:CooltipPreset (2)
+			GameCooltip:AddLine (Loc ["STRING_MINITUTORIAL_OPTIONS_PANEL3"])
+			GameCooltip:ShowCooltip (group_editing_help_frame, "tooltip")
+		end)
+		group_editing_help_frame:SetHook ("OnLeave", function()
+			group_editing_help:SetTexture ([[Interface\GossipFrame\IncompleteQuestIcon]])
+			GameCooltip:Hide()
 		end)
 
 		instances.OnDisable = function (self)
@@ -1117,6 +1153,36 @@ local menus2 = {
 			end
 		end
 
+-------------------------------------------------------------------------------------------------------------------	
+	--> helps tips on first run ~tutorial
+		if (not _detalhes:GetTutorialCVar ("OPTIONS_PANEL_OPENED")) then
+			_detalhes:SetTutorialCVar ("OPTIONS_PANEL_OPENED", true)
+			
+			local create_test_bars = CreateFrame ("frame", "DetailsOptionsPanelPopUp1", DetailsOptionsWindow, "DetailsHelpBoxTemplate")
+			create_test_bars.ArrowDOWN:Show()
+			create_test_bars.ArrowGlowDOWN:Show()
+			create_test_bars.Text:SetText (Loc ["STRING_MINITUTORIAL_OPTIONS_PANEL4"])
+			create_test_bars:SetPoint ("top", fillbars.widget, "bottom", 0, -30)
+			create_test_bars:Show()
+			-- 
+			local group_edit = CreateFrame ("frame", "DetailsOptionsPanelPopUp1", DetailsOptionsWindow, "DetailsHelpBoxTemplate")
+			group_edit.ArrowDOWN:Show()
+			group_edit.ArrowGlowDOWN:Show()
+			group_edit.Text:SetText (Loc ["STRING_MINITUTORIAL_OPTIONS_PANEL5"])
+			group_edit:SetPoint ("top", group_editing, "bottom", 0, -30)
+			group_edit:Show()
+			-- 
+			local select_window = CreateFrame ("frame", "DetailsOptionsPanelPopUp1", DetailsOptionsWindow, "DetailsHelpBoxTemplate")
+			select_window.ArrowDOWN:Show()
+			select_window.ArrowGlowDOWN:Show()
+			select_window.Text:SetText (Loc ["STRING_MINITUTORIAL_OPTIONS_PANEL6"])
+			select_window:SetPoint ("top", instances.widget, "bottom", 0, -30)
+			select_window:Show()
+			
+			window.help_popups = {create_test_bars, group_edit, select_window}
+			
+		end
+	
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Advanced Settings - Tooltips ~20

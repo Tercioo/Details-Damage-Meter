@@ -242,6 +242,11 @@ function _detalhes.switch:ShowMe (instancia)
 			DetailsCtrlCloseWindowPanelTutorial.info_label:SetWidth (_detalhes.switch.frame:GetWidth()-30)
 			DetailsCtrlCloseWindowPanelTutorial.close_label:SetWidth (_detalhes.switch.frame:GetWidth()-30)
 			
+			_detalhes.switch.frame:SetPoint ("topleft", instancia.baseframe, "topleft", 0, 1)
+			_detalhes.switch.frame:SetPoint ("bottomright", instancia.baseframe, "bottomright", 0, 1)
+			_detalhes.switch.frame:SetBackdropColor (0.094, 0.094, 0.094, .8)
+			_detalhes.switch.frame:Show()
+			
 			return
 		end
 		
