@@ -10,6 +10,11 @@ function _detalhes:OpenNewsWindow (text_to_show, dumpvalues, keeptext)
 	news_window:Title (Loc ["STRING_NEWS_TITLE"])
 	
 	if (text_to_show and type (text_to_show) == "table") then
+	
+		DetailsNewsWindowLower:SetSize (450, 5000)
+		DetailsNewsWindowSlider:SetMinMaxValues (0, 5000)
+		DetailsNewsWindowText:SetHeight (5000)
+		
 		local s = ""
 		for _, text in ipairs (text_to_show) do
 			if (type (text) == "string" or type (text) == "number") then
@@ -18,13 +23,7 @@ function _detalhes:OpenNewsWindow (text_to_show, dumpvalues, keeptext)
 		end
 		
 		if (dumpvalues) then
-			for key, value in pairs (text_to_show) do
-				if (type (value) == "function" or type (value) == "table") then
-					s = s .. "[" .. key .. "] = " .. type (value) .. "\n"
-				else
-					s = s .. "[" .. key .. "] = " .. value .. "\n"
-				end
-			end
+			s = _detalhes.table.dump (text_to_show)
 		end
 		
 		if (keeptext) then
@@ -87,10 +86,9 @@ function _detalhes:CreateOrOpenNewsWindow()
 		local reinstall = _detalhes.gump:NewLabel (frame, nil, "$parentReinstall", nil, "", "GameFontHighlightLeft", 10)
 		reinstall:SetPoint ("left", textura, "right", 2, -2)
 		reinstall.text = Loc ["STRING_NEWS_REINSTALL"]
-		
-		
+
 		local frame_upper = CreateFrame ("scrollframe", nil, frame)
-		local frame_lower = CreateFrame ("frame", nil, frame_upper)
+		local frame_lower = CreateFrame ("frame", "DetailsNewsWindowLower", frame_upper)
 		frame_lower:SetSize (450, 2000)
 		frame_upper:SetPoint ("topleft", frame, "topleft", 15, -70)
 		frame_upper:SetWidth (465)
@@ -102,7 +100,7 @@ function _detalhes:CreateOrOpenNewsWindow()
 		frame_upper:SetBackdropColor (.1, .1, .1, .3)
 		frame_upper:SetScrollChild (frame_lower)
 		
-		local slider = CreateFrame ("slider", nil, frame)
+		local slider = CreateFrame ("slider", "DetailsNewsWindowSlider", frame)
 		slider.bg = slider:CreateTexture (nil, "background")
 		slider.bg:SetAllPoints (true)
 		slider.bg:SetTexture (0, 0, 0, 0.5)
@@ -134,7 +132,7 @@ function _detalhes:CreateOrOpenNewsWindow()
 				slider:SetValue (current - 20)
 		      end
 		end)
-  
+
 		--> text box
 		local texto = frame_lower:CreateFontString ("DetailsNewsWindowText", "overlay", "GameFontNormal")
 		texto:SetPoint ("topleft", frame_lower, "topleft")

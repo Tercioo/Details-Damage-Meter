@@ -233,7 +233,7 @@ local window_openned_at = time()
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> Avatar and Nickname Page
-
+--[=[
 		local bg555 = window:CreateTexture (nil, "overlay")
 		bg555:SetTexture ([[Interface\MainMenuBar\UI-MainMenuBar-EndCap-Human]])
 		bg555:SetPoint ("bottomright", window, "bottomright", -10, 10)
@@ -386,508 +386,10 @@ local window_openned_at = time()
 		for _, widget in ipairs (pages[#pages]) do 
 			widget:Hide()
 		end
+--]=]
 
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---> Skins Page
-
-	--SKINS
-
-		local bg55 = window:CreateTexture (nil, "overlay")
-		bg55:SetTexture ([[Interface\MainMenuBar\UI-MainMenuBar-EndCap-Human]])
-		bg55:SetPoint ("bottomright", window, "bottomright", -10, 10)
-		bg55:SetHeight (125*3)--125
-		bg55:SetWidth (89*3)--82
-		bg55:SetAlpha (.05)
-		bg55:SetTexCoord (1, 0, 0, 1)
-
-		local texto55 = window:CreateFontString (nil, "overlay", "GameFontNormal")
-		texto55:SetPoint ("topleft", window, "topleft", 20, -80)
-		texto55:SetText (Loc ["STRING_WELCOME_42"])
-
-		local texto555 = window:CreateFontString (nil, "overlay", "GameFontNormal")
-		--texto555:SetPoint ("topleft", window, "topleft", 30, -190)
-		texto555:SetText (Loc ["STRING_WELCOME_45"])
-		texto555:SetTextColor (1, 1, 1, 1)
-		
-		local changemind = g:NewLabel (window, _, "$parentChangeMind55Label", "changemind55Label", Loc ["STRING_WELCOME_2"], "GameFontNormal", 9, "orange")
-		window.changemind55Label:SetPoint ("center", window, "center")
-		window.changemind55Label:SetPoint ("bottom", window, "bottom", 0, 19)
-		window.changemind55Label.align = "|"
-		
-		local texto_appearance = window:CreateFontString (nil, "overlay", "GameFontNormal")
-		texto_appearance:SetPoint ("topleft", window, "topleft", 30, -110)
-		texto_appearance:SetText (Loc ["STRING_WELCOME_43"])
-		texto_appearance:SetWidth (460)
-		texto_appearance:SetHeight (100)
-		texto_appearance:SetJustifyH ("left")
-		texto_appearance:SetJustifyV ("top")
-		texto_appearance:SetTextColor (1, 1, 1, 1)
-		
-		local skins_image = window:CreateTexture (nil, "overlay")
-		skins_image:SetTexture ([[Interface\Addons\Details\images\icons2]])
-		skins_image:SetPoint ("topright", window, "topright", -30, -24)
-		skins_image:SetWidth (214)
-		skins_image:SetHeight (133)
-		skins_image:SetTexCoord (0, 0.41796875, 0, 0.259765625) --0, 0, 214 133
-		
-		--import settings
-		local import_label = g:NewLabel (window, _, "$parentImportSettingsLabel", "ImportLabel", Loc ["STRING_WELCOME_46"] .. ":", "GameFontNormal")
-		import_label:SetPoint ("topleft", window, "topleft", 30, -160)
-
-		local convert_table = {
-			["bartexture"] = "row_info-texture",
-			["barfont"] = "row_info-font_face",
-			["barfontsize"] = "row_info-font_size",
-			["barspacing"] = "row_info-space-between",
-			["barheight"] = "row_info-height",
-			["barbgcolor"] = "row_info-fixed_texture_background_color",
-			["reversegrowth"] = "bars_grow_direction",
-			["barcolor"] = "row_info-fixed_texture_color",
-			["title"] = "attribute_text",
-			["background"] = "null"
-		}
-		
-		local onSelectImport = function (_, _, keyname)
-			--window.ImportDropdown:Select (false)
-			local addon1_profile = _G.Skada.db.profile.windows [1]
-			local value = addon1_profile [keyname]
-			local dvalue = convert_table [keyname]
-			
-			if (dvalue) then
-			
-				local instance1 = _detalhes:GetInstance (1)
-			
-				if (keyname == "barbgcolor") then
-					instance1.row_info.fixed_texture_background_color[1] = value.r
-					instance1.row_info.fixed_texture_background_color[2] = value.g
-					instance1.row_info.fixed_texture_background_color[3] = value.b
-					instance1.row_info.fixed_texture_background_color[4] = value.a
-					value = instance1.row_info.fixed_texture_background_color
-					
-				elseif (keyname == "title") then
-					local v = instance1.attribute_text
-					v.enabled = true
-					v.text_face = value.font
-					v.anchor = {-17, 4}
-					v.text_size = value.fontsize
-					instance1.color[1], instance1.color[2], instance1.color[3], instance1.color[4] = value.color.r, value.color.g, value.color.b, value.color.a
-					value = v
-					
-				elseif (keyname == "background") then
-					instance1.bg_alpha = value.color.a
-					instance1.bg_r = value.color.r
-					instance1.bg_g = value.color.g
-					instance1.bg_b = value.color.b
-					instance1.backdrop_texture = value.texture
-					
-					instance1:ChangeSkin()
-					return
-				end
-			
-				local key1, key2, key3 = strsplit ("-", dvalue)
-				if (key3) then
-					instance1 [key1] [key2] [key3] = value
-				elseif (key2) then
-					instance1 [key1] [key2] = value
-				elseif (key1) then
-					instance1 [key1] = value
-				end
-				
-				instance1:ChangeSkin()
-			end
-			
-		end
-
-		local ImportMenu = function()
-			local options = {}
-			if (_G.Skada) then
-				tinsert (options, {value = "bartexture", label = Loc ["STRING_WELCOME_47"] .. "Skada)", onclick = onSelectImport, icon = [[Interface\FriendsFrame\StatusIcon-Online]]})
-				tinsert (options, {value = "barfont", label = Loc ["STRING_WELCOME_48"] .. "Skada)", onclick = onSelectImport, icon = [[Interface\FriendsFrame\StatusIcon-Online]]})
-				tinsert (options, {value = "barfontsize", label = Loc ["STRING_WELCOME_49"] .. "Skada)", onclick = onSelectImport, icon = [[Interface\FriendsFrame\StatusIcon-Online]]})
-				tinsert (options, {value = "barspacing", label = Loc ["STRING_WELCOME_50"] .. "Skada)", onclick = onSelectImport, icon = [[Interface\FriendsFrame\StatusIcon-Online]]})
-				tinsert (options, {value = "barheight", label = Loc ["STRING_WELCOME_51"] .. "Skada)", onclick = onSelectImport, icon = [[Interface\FriendsFrame\StatusIcon-Online]]})
-				tinsert (options, {value = "barbgcolor", label = Loc ["STRING_WELCOME_52"] .. "Skada)", onclick = onSelectImport, icon = [[Interface\FriendsFrame\StatusIcon-Online]]})
-				tinsert (options, {value = "reversegrowth", label = Loc ["STRING_WELCOME_53"] .. "Skada)", onclick = onSelectImport, icon = [[Interface\FriendsFrame\StatusIcon-Online]]})
-				tinsert (options, {value = "barcolor", label = Loc ["STRING_WELCOME_54"] .. "Skada)", onclick = onSelectImport, icon = [[Interface\FriendsFrame\StatusIcon-Online]]})
-				tinsert (options, {value = "title", label = Loc ["STRING_WELCOME_55"] .. "Skada)", onclick = onSelectImport, icon = [[Interface\FriendsFrame\StatusIcon-Online]]})
-				tinsert (options, {value = "background", label = Loc ["STRING_WELCOME_56"] .. "Skada)", onclick = onSelectImport, icon = [[Interface\FriendsFrame\StatusIcon-Online]]})
-				--tinsert (options, {value = "", label = "", onclick = onSelectImport, icon = [[Interface\FriendsFrame\StatusIcon-Online]]})
-			end
-			return options
-		end
-		
-		local import_dropdown = g:NewDropDown (window, _, "$parentImportDropdown", "ImportDropdown", 140, 20, ImportMenu, false)
-		import_dropdown:SetPoint ("left", import_label, "right", 2, 0)
-		import_dropdown.tooltip = Loc ["STRING_WELCOME_57"]
-		
-		--wallpapaer and skin
-		local wallpaper_label_switch = g:NewLabel (window, _, "$parentBackgroundLabel", "enablewallpaperLabel", Loc ["STRING_WELCOME_44"] .. ":", "GameFontNormal")
-		wallpaper_label_switch:SetPoint ("topleft", window, "topleft", 30, -200)
-		
-		--skin
-			local onSelectSkin = function (_, _, skin_name)
-				local instance1 = _detalhes:GetInstance (1)
-				instance1:ChangeSkin (skin_name)
-			end
-
-			local buildSkinMenu = function()
-				local skinOptions = {}
-				for skin_name, skin_table in pairs (_detalhes.skins) do
-					skinOptions [#skinOptions+1] = {value = skin_name, label = skin_name, onclick = onSelectSkin, icon = "Interface\\GossipFrame\\TabardGossipIcon", desc = skin_table.desc}
-				end
-				return skinOptions
-			end
-			
-			local instance1 = _detalhes:GetInstance (1)
-			local skin_dropdown = g:NewDropDown (window, _, "$parentSkinDropdown", "skinDropdown", 140, 20, buildSkinMenu, instance1.skin)
-			skin_dropdown.tooltip = Loc ["STRING_WELCOME_58"]
-			
-			local skin_label = g:NewLabel (window, _, "$parentSkinLabel", "skinLabel", Loc ["STRING_OPTIONS_INSTANCE_SKIN"] .. ":", "GameFontNormal")
-			skin_dropdown:SetPoint ("left", skin_label, "right", 2)
-			skin_label:SetPoint ("topleft", window, "topleft", 30, -140)
-			
-			--skin_dropdown:Select ("WoW Interface")
-		
-		--> icon type
-			local OnSelectIconFile = function (_, _, iconpath)
-				instance1:SetBarSettings (nil, nil, nil, nil, nil, nil, nil, nil, iconpath)
-				if (instance1.row_info.use_spec_icons) then
-					instance1:SetBarSpecIconSettings (false)
-				end
-			end
-			local OnSelectIconFileSpec = function (_, _, iconpath)
-				instance1:SetBarSpecIconSettings (true, iconpath, true)
-			end
-
-			local iconsize = {16, 16}
-			local icontexture = [[Interface\WorldStateFrame\ICONS-CLASSES]]
-			local iconcoords = {0.25, 0.50, 0, 0.25}
-			local list = {
-				{value = [[]], label = Loc ["STRING_OPTIONS_BAR_ICONFILE1"], onclick = OnSelectIconFile, icon = icontexture, texcoord = iconcoords, iconsize = iconsize, iconcolor = {1, 1, 1, .3}},
-				{value = [[Interface\AddOns\Details\images\classes_small]], label = Loc ["STRING_OPTIONS_BAR_ICONFILE2"], onclick = OnSelectIconFile, icon = icontexture, texcoord = iconcoords, iconsize = iconsize},
-				{value = [[Interface\AddOns\Details\images\spec_icons_normal]], label = "Specialization", onclick = OnSelectIconFileSpec, icon = [[Interface\AddOns\Details\images\icons]], texcoord = {2/512, 32/512, 480/512, 510/512}, iconsize = iconsize},
-				{value = [[Interface\AddOns\Details\images\spec_icons_normal_alpha]], label = "Specialization Alpha", onclick = OnSelectIconFileSpec, icon = [[Interface\AddOns\Details\images\icons]], texcoord = {2/512, 32/512, 480/512, 510/512}, iconsize = iconsize},
-				{value = [[Interface\AddOns\Details\images\classes_small_bw]], label = Loc ["STRING_OPTIONS_BAR_ICONFILE3"], onclick = OnSelectIconFile, icon = icontexture, texcoord = iconcoords, iconsize = iconsize},
-				{value = [[Interface\AddOns\Details\images\classes_small_alpha]], label = Loc ["STRING_OPTIONS_BAR_ICONFILE4"], onclick = OnSelectIconFile, icon = icontexture, texcoord = iconcoords, iconsize = iconsize},
-				{value = [[Interface\AddOns\Details\images\classes_small_alpha_bw]], label = Loc ["STRING_OPTIONS_BAR_ICONFILE6"], onclick = OnSelectIconFile, icon = icontexture, texcoord = iconcoords, iconsize = iconsize},
-				{value = [[Interface\AddOns\Details\images\classes]], label = Loc ["STRING_OPTIONS_BAR_ICONFILE5"], onclick = OnSelectIconFile, icon = icontexture, texcoord = iconcoords, iconsize = iconsize},
-			}
-			local BuiltIconList = function() 
-				return list
-			end
-			
-			local default
-			if (instance1.row_info.use_spec_icons) then
-				default = instance1.row_info.spec_file
-			else
-				default = instance1.row_info.icon_file
-			end
-			
-			local d = g:NewDropDown (window, _, "$parentIconSelectDropdown", "IconSelectDropdown", 140, 20, BuiltIconList, default)
-			
-			g:NewLabel (window, _, "$parentIconsAnchor", "rowIconsLabel", Loc ["STRING_OPTIONS_TEXT_ROWICONS_ANCHOR"], "GameFontNormal")
-			
-			d:SetPoint ("left", window.rowIconsLabel, "right", 2)
-			window.rowIconsLabel:SetPoint ("topleft", window, "topleft", 30, -180)
-		
-		--wallpapper
-			--> agora cria os 2 dropdown da categoria e wallpaper
-			
-			local onSelectSecTexture = function (_, _, texturePath) 
-				if (texturePath:find ("TALENTFRAME")) then
-					instance1:InstanceWallpaper (texturePath, nil, nil, {0, 1, 0, 0.703125}, nil, nil, {1, 1, 1, 1})
-				elseif (texturePath:find ("EncounterJournal")) then
-					instance1:InstanceWallpaper (texturePath, nil, nil, {0.06, 0.68, 0.1, 0.57}, nil, nil, {1, 1, 1, 1})
-				else
-					instance1:InstanceWallpaper (texturePath, nil, nil, {0, 1, 0, 1}, nil, nil, {1, 1, 1, 1})
-				end
-			end
-		
-			local subMenu = {
-				
-				["ARCHEOLOGY"] = {
-					{value = [[Interface\ARCHEOLOGY\Arch-BookCompletedLeft]], label = "Book Wallpaper", onclick = onSelectSecTexture, icon = [[Interface\ARCHEOLOGY\Arch-BookCompletedLeft]], texcoord = nil},
-					{value = [[Interface\ARCHEOLOGY\Arch-BookItemLeft]], label = "Book Wallpaper 2", onclick = onSelectSecTexture, icon = [[Interface\ARCHEOLOGY\Arch-BookItemLeft]], texcoord = nil},
-					{value = [[Interface\ARCHEOLOGY\Arch-Race-DraeneiBIG]], label = "Draenei", onclick = onSelectSecTexture, icon = [[Interface\ARCHEOLOGY\Arch-Race-DraeneiBIG]], texcoord = nil},
-					{value = [[Interface\ARCHEOLOGY\Arch-Race-DwarfBIG]], label = "Dwarf", onclick = onSelectSecTexture, icon = [[Interface\ARCHEOLOGY\Arch-Race-DwarfBIG]], texcoord = nil},
-					{value = [[Interface\ARCHEOLOGY\Arch-Race-NightElfBIG]], label = "Night Elf", onclick = onSelectSecTexture, icon = [[Interface\ARCHEOLOGY\Arch-Race-NightElfBIG]], texcoord = nil},
-					{value = [[Interface\ARCHEOLOGY\Arch-Race-OrcBIG]], label = "Orc", onclick = onSelectSecTexture, icon = [[Interface\ARCHEOLOGY\Arch-Race-OrcBIG]], texcoord = nil},
-					{value = [[Interface\ARCHEOLOGY\Arch-Race-PandarenBIG]], label = "Pandaren", onclick = onSelectSecTexture, icon = [[Interface\ARCHEOLOGY\Arch-Race-PandarenBIG]], texcoord = nil},
-					{value = [[Interface\ARCHEOLOGY\Arch-Race-TrollBIG]], label = "Troll", onclick = onSelectSecTexture, icon = [[Interface\ARCHEOLOGY\Arch-Race-TrollBIG]], texcoord = nil},
-
-					{value = [[Interface\ARCHEOLOGY\ArchRare-AncientShamanHeaddress]], label = "Ancient Shaman", onclick = onSelectSecTexture, icon = [[Interface\ARCHEOLOGY\ArchRare-AncientShamanHeaddress]], texcoord = nil},
-					{value = [[Interface\ARCHEOLOGY\ArchRare-BabyPterrodax]], label = "Baby Pterrodax", onclick = onSelectSecTexture, icon = [[Interface\ARCHEOLOGY\ArchRare-BabyPterrodax]], texcoord = nil},
-					{value = [[Interface\ARCHEOLOGY\ArchRare-ChaliceMountainKings]], label = "Chalice Mountain Kings", onclick = onSelectSecTexture, icon = [[Interface\ARCHEOLOGY\ArchRare-ChaliceMountainKings]], texcoord = nil},
-					{value = [[Interface\ARCHEOLOGY\ArchRare-ClockworkGnome]], label = "Clockwork Gnomes", onclick = onSelectSecTexture, icon = [[Interface\ARCHEOLOGY\ArchRare-ClockworkGnome]], texcoord = nil},
-					{value = [[Interface\ARCHEOLOGY\ArchRare-QueenAzsharaGown]], label = "Queen Azshara Gown", onclick = onSelectSecTexture, icon = [[Interface\ARCHEOLOGY\ArchRare-QueenAzsharaGown]], texcoord = nil},
-					{value = [[Interface\ARCHEOLOGY\ArchRare-QuilinStatue]], label = "Quilin Statue", onclick = onSelectSecTexture, icon = [[Interface\ARCHEOLOGY\ArchRare-QuilinStatue]], texcoord = nil},
-					{value = [[Interface\ARCHEOLOGY\Arch-TempRareSketch]], label = "Rare Sketch", onclick = onSelectSecTexture, icon = [[Interface\ARCHEOLOGY\Arch-TempRareSketch]], texcoord = nil},
-					{value = [[Interface\ARCHEOLOGY\ArchRare-ScepterofAzAqir]], label = "Scepter of Az Aqir", onclick = onSelectSecTexture, icon = [[Interface\ARCHEOLOGY\ArchRare-ScepterofAzAqir]], texcoord = nil},
-					{value = [[Interface\ARCHEOLOGY\ArchRare-ShriveledMonkeyPaw]], label = "Shriveled Monkey Paw", onclick = onSelectSecTexture, icon = [[Interface\ARCHEOLOGY\ArchRare-ShriveledMonkeyPaw]], texcoord = nil},
-					{value = [[Interface\ARCHEOLOGY\ArchRare-StaffofAmmunrae]], label = "Staff of Ammunrae", onclick = onSelectSecTexture, icon = [[Interface\ARCHEOLOGY\ArchRare-StaffofAmmunrae]], texcoord = nil},
-					{value = [[Interface\ARCHEOLOGY\ArchRare-TinyDinosaurSkeleton]], label = "Tiny Dinosaur", onclick = onSelectSecTexture, icon = [[Interface\ARCHEOLOGY\ArchRare-TinyDinosaurSkeleton]], texcoord = nil},
-					{value = [[Interface\ARCHEOLOGY\ArchRare-TyrandesFavoriteDoll]], label = "Tyrandes Favorite Doll", onclick = onSelectSecTexture, icon = [[Interface\ARCHEOLOGY\ArchRare-TyrandesFavoriteDoll]], texcoord = nil},
-					{value = [[Interface\ARCHEOLOGY\ArchRare-ZinRokhDestroyer]], label = "ZinRokh Destroyer", onclick = onSelectSecTexture, icon = [[Interface\ARCHEOLOGY\ArchRare-ZinRokhDestroyer]], texcoord = nil},
-				},
-				
-				["RAIDS"] = {
-					{value = [[Interface\EncounterJournal\UI-EJ-LOREBG-BlackrockCaverns]], label = "Blackrock Caverns", onclick = onSelectSecTexture, icon = [[Interface\EncounterJournal\UI-EJ-LOREBG-BlackrockCaverns]], texcoord = nil},
-					{value = [[Interface\EncounterJournal\UI-EJ-LOREBG-BlackrockSpire]], label = "Blackrock Spire", onclick = onSelectSecTexture, icon = [[Interface\EncounterJournal\UI-EJ-LOREBG-BlackrockSpire]], texcoord = nil},
-					{value = [[Interface\EncounterJournal\UI-EJ-LOREBG-DragonSoul]], label = "Dragon Soul", onclick = onSelectSecTexture, icon = [[Interface\EncounterJournal\UI-EJ-LOREBG-DragonSoul]], texcoord = nil},
-					{value = [[Interface\EncounterJournal\UI-EJ-LOREBG-EndTime]], label = "End Time", onclick = onSelectSecTexture, icon = [[Interface\EncounterJournal\UI-EJ-LOREBG-EndTime]], texcoord = nil},
-					{value = [[Interface\EncounterJournal\UI-EJ-LOREBG-Firelands1]], label = "Firelands", onclick = onSelectSecTexture, icon = [[Interface\EncounterJournal\UI-EJ-LOREBG-Firelands1]], texcoord = nil},
-					{value = [[Interface\EncounterJournal\UI-EJ-LOREBG-HallsofReflection]], label = "Halls of Reflection", onclick = onSelectSecTexture, icon = [[Interface\EncounterJournal\UI-EJ-LOREBG-HallsofReflection]], texcoord = nil},
-					{value = [[Interface\EncounterJournal\UI-EJ-LOREBG-HellfireCitadel]], label = "Hellfire Citadel", onclick = onSelectSecTexture, icon = [[Interface\EncounterJournal\UI-EJ-LOREBG-HellfireCitadel]], texcoord = nil},
-					{value = [[Interface\EncounterJournal\UI-EJ-LOREBG-Pandaria]], label = "Pandaria", onclick = onSelectSecTexture, icon = [[Interface\EncounterJournal\UI-EJ-LOREBG-Pandaria]], texcoord = nil},
-					{value = [[Interface\EncounterJournal\UI-EJ-LOREBG-RagefireChasm]], label = "Ragefire Chasm", onclick = onSelectSecTexture, icon = [[Interface\EncounterJournal\UI-EJ-LOREBG-RagefireChasm]], texcoord = nil},
-					{value = [[Interface\EncounterJournal\UI-EJ-LOREBG-SiegeofOrgrimmar]], label = "Siege of Orgrimmar", onclick = onSelectSecTexture, icon = [[Interface\EncounterJournal\UI-EJ-LOREBG-SiegeofOrgrimmar]], texcoord = nil},
-					{value = [[Interface\EncounterJournal\UI-EJ-LOREBG-TheNexus]], label = "The Nexus", onclick = onSelectSecTexture, icon = [[Interface\EncounterJournal\UI-EJ-LOREBG-TheNexus]], texcoord = nil},
-					{value = [[Interface\EncounterJournal\UI-EJ-LOREBG-TheOculus]], label = "The Oculus", onclick = onSelectSecTexture, icon = [[Interface\EncounterJournal\UI-EJ-LOREBG-TheOculus]], texcoord = nil},
-					{value = [[Interface\EncounterJournal\UI-EJ-LOREBG-TheStonecore]], label = "The Stonecore", onclick = onSelectSecTexture, icon = [[Interface\EncounterJournal\UI-EJ-LOREBG-TheStonecore]], texcoord = nil},
-					{value = [[Interface\EncounterJournal\UI-EJ-LOREBG-ThunderKingRaid]], label = "Throne of Thunder", onclick = onSelectSecTexture, icon = [[Interface\EncounterJournal\UI-EJ-LOREBG-ThunderKingRaid]], texcoord = nil},
-				},
-			
-				["LOGOS"] = {
-					{value = [[Interface\Timer\Alliance-Logo]], label = "For the Alliance", onclick = onSelectSecTexture, icon = [[Interface\Timer\Alliance-Logo]], texcoord = nil},
-					{value = [[Interface\Timer\Horde-Logo]], label = "For the Horde", onclick = onSelectSecTexture, icon = [[Interface\Timer\Horde-Logo]], texcoord = nil},
-					{value = [[Interface\Destiny\EndscreenImage]], label = "Pandaria Logo", onclick = onSelectSecTexture, icon = [[Interface\Destiny\EndscreenImage]], texcoord = nil},
-					{value = [[Interface\ARCHEOLOGY\ARCH-RACE-ORC]], label = "Orc Crest", onclick = onSelectSecTexture, icon = [[Interface\ARCHEOLOGY\ARCH-RACE-ORC]], texcoord = nil},
-					{value = [[Interface\ARCHEOLOGY\ARCH-RACE-DWARF]], label = "Dwarf Crest", onclick = onSelectSecTexture, icon = [[Interface\ARCHEOLOGY\ARCH-RACE-DWARF]], texcoord = nil},
-					{value = [[Interface\ARCHEOLOGY\ARCH-RACE-NIGHTELF]], label = "Night Elf Crest", onclick = onSelectSecTexture, icon = [[Interface\ARCHEOLOGY\ARCH-RACE-NIGHTELF]], texcoord = nil},
-					{value = [[Interface\ARCHEOLOGY\Arch-Race-Pandaren]], label = "Padaren Crest", onclick = onSelectSecTexture, icon = [[Interface\ARCHEOLOGY\Arch-Race-Pandaren]], texcoord = nil},
-					{value = [[Interface\ARCHEOLOGY\ARCH-RACE-TROLL]], label = "Troll Crest", onclick = onSelectSecTexture, icon = [[Interface\ARCHEOLOGY\ARCH-RACE-TROLL]], texcoord = nil},
-					{value = [[Interface\FlavorImages\BloodElfLogo-small]], label = "Blood Elf Crest", onclick = onSelectSecTexture, icon = [[Interface\FlavorImages\BloodElfLogo-small]], texcoord = nil},
-					{value = [[Interface\Glues\COMMON\Glues-Logo]], label = "Wow Logo", onclick = onSelectSecTexture, icon = [[Interface\Glues\COMMON\Glues-Logo]], texcoord = nil},
-					{value = [[Interface\Glues\COMMON\GLUES-WOW-BCLOGO]], label = "Burning Cruzade Logo", onclick = onSelectSecTexture, icon = [[Interface\Glues\COMMON\GLUES-WOW-BCLOGO]], texcoord = nil},
-					{value = [[Interface\Glues\COMMON\GLUES-WOW-CCLOGO]], label = "Cataclysm Logo", onclick = onSelectSecTexture, icon = [[Interface\Glues\COMMON\GLUES-WOW-CCLOGO]], texcoord = nil},
-					{value = [[Interface\Glues\COMMON\Glues-WOW-WoltkLogo]], label = "WotLK Logo", onclick = onSelectSecTexture, icon = [[Interface\Glues\COMMON\Glues-WOW-WoltkLogo]], texcoord = nil},
-				},				
-			
-				["CREDITS"] = {
-					{value = [[Interface\Glues\CREDITS\Arakkoa2]], label = "Arakkoa", onclick = onSelectSecTexture, icon = [[Interface\Glues\CREDITS\Arakkoa2]], texcoord = nil},
-					{value = [[Interface\Glues\CREDITS\Arcane_Golem2]], label = "Arcane Golem", onclick = onSelectSecTexture, icon = [[Interface\Glues\CREDITS\Arcane_Golem2]], texcoord = nil},
-					{value = [[Interface\Glues\CREDITS\Badlands3]], label = "Badlands", onclick = onSelectSecTexture, icon = [[Interface\Glues\CREDITS\Badlands3]], texcoord = nil},
-					{value = [[Interface\Glues\CREDITS\BD6]], label = "Draenei", onclick = onSelectSecTexture, icon = [[Interface\Glues\CREDITS\BD6]], texcoord = nil},
-					{value = [[Interface\Glues\CREDITS\Draenei_Character1]], label = "Draenei 2", onclick = onSelectSecTexture, icon = [[Interface\Glues\CREDITS\Draenei_Character1]], texcoord = nil},
-					{value = [[Interface\Glues\CREDITS\Draenei_Character2]], label = "Draenei 3", onclick = onSelectSecTexture, icon = [[Interface\Glues\CREDITS\Draenei_Character2]], texcoord = nil},
-					{value = [[Interface\Glues\CREDITS\Draenei_Crest2]], label = "Draenei Crest", onclick = onSelectSecTexture, icon = [[Interface\Glues\CREDITS\Draenei_Crest2]], texcoord = nil},
-					{value = [[Interface\Glues\CREDITS\Draenei_Female2]], label = "Draenei 4", onclick = onSelectSecTexture, icon = [[Interface\Glues\CREDITS\Draenei_Female2]], texcoord = nil},
-					{value = [[Interface\Glues\CREDITS\Draenei2]], label = "Draenei 5", onclick = onSelectSecTexture, icon = [[Interface\Glues\CREDITS\Draenei2]], texcoord = nil},
-					{value = [[Interface\Glues\CREDITS\Blood_Elf_One1]], label = "Kael'thas", onclick = onSelectSecTexture, icon = [[Interface\Glues\CREDITS\Blood_Elf_One1]], texcoord = nil},
-					{value = [[Interface\Glues\CREDITS\BD2]], label = "Blood Elf", onclick = onSelectSecTexture, icon = [[Interface\Glues\CREDITS\BD2]], texcoord = nil},
-					{value = [[Interface\Glues\CREDITS\BloodElf_Priestess_Master2]], label = "Blood elf 2", onclick = onSelectSecTexture, icon = [[Interface\Glues\CREDITS\BloodElf_Priestess_Master2]], texcoord = nil},
-					{value = [[Interface\Glues\CREDITS\Female_BloodElf2]], label = "Blood Elf 3", onclick = onSelectSecTexture, icon = [[Interface\Glues\CREDITS\Female_BloodElf2]], texcoord = nil},
-					{value = [[Interface\Glues\CREDITS\CinSnow01TGA3]], label = "Cin Snow", onclick = onSelectSecTexture, icon = [[Interface\Glues\CREDITS\CinSnow01TGA3]], texcoord = nil},
-					{value = [[Interface\Glues\CREDITS\DalaranDomeTGA3]], label = "Dalaran", onclick = onSelectSecTexture, icon = [[Interface\Glues\CREDITS\DalaranDomeTGA3]], texcoord = nil},
-					{value = [[Interface\Glues\CREDITS\Darnasis5]], label = "Darnasus", onclick = onSelectSecTexture, icon = [[Interface\Glues\CREDITS\Darnasis5]], texcoord = nil},
-					{value = [[Interface\Glues\CREDITS\Draenei_CityInt5]], label = "Exodar", onclick = onSelectSecTexture, icon = [[Interface\Glues\CREDITS\Draenei_CityInt5]], texcoord = nil},
-					{value = [[Interface\Glues\CREDITS\Shattrath6]], label = "Shattrath", onclick = onSelectSecTexture, icon = [[Interface\Glues\CREDITS\Shattrath6]], texcoord = nil},
-					{value = [[Interface\Glues\CREDITS\Demon_Chamber2]], label = "Demon Chamber", onclick = onSelectSecTexture, icon = [[Interface\Glues\CREDITS\Demon_Chamber2]], texcoord = nil},
-					{value = [[Interface\Glues\CREDITS\Demon_Chamber6]], label = "Demon Chamber 2", onclick = onSelectSecTexture, icon = [[Interface\Glues\CREDITS\Demon_Chamber6]], texcoord = nil},
-					{value = [[Interface\Glues\CREDITS\Dwarfhunter1]], label = "Dwarf Hunter", onclick = onSelectSecTexture, icon = [[Interface\Glues\CREDITS\Dwarfhunter1]], texcoord = nil},
-					{value = [[Interface\Glues\CREDITS\Fellwood5]], label = "Fellwood", onclick = onSelectSecTexture, icon = [[Interface\Glues\CREDITS\Fellwood5]], texcoord = nil},
-					{value = [[Interface\Glues\CREDITS\HordeBanner1]], label = "Horde Banner", onclick = onSelectSecTexture, icon = [[Interface\Glues\CREDITS\HordeBanner1]], texcoord = nil},
-					{value = [[Interface\Glues\CREDITS\Illidan_Concept1]], label = "Illidan", onclick = onSelectSecTexture, icon = [[Interface\Glues\CREDITS\Illidan_Concept1]], texcoord = nil},
-					{value = [[Interface\Glues\CREDITS\Illidan1]], label = "Illidan 2", onclick = onSelectSecTexture, icon = [[Interface\Glues\CREDITS\Illidan1]], texcoord = nil},
-					{value = [[Interface\Glues\CREDITS\Naaru_CrashSite2]], label = "Naaru Crash", onclick = onSelectSecTexture, icon = [[Interface\Glues\CREDITS\Naaru_CrashSite2]], texcoord = nil},
-					{value = [[Interface\Glues\CREDITS\NightElves1]], label = "Night Elves", onclick = onSelectSecTexture, icon = [[Interface\Glues\CREDITS\NightElves1]], texcoord = nil},
-					{value = [[Interface\Glues\CREDITS\Ocean2]], label = "Mountain", onclick = onSelectSecTexture, icon = [[Interface\Glues\CREDITS\Ocean2]], texcoord = nil},
-					{value = [[Interface\Glues\CREDITS\Tempest_Keep2]], label = "Tempest Keep", onclick = onSelectSecTexture, icon = [[Interface\Glues\CREDITS\Tempest_Keep2]], texcoord = nil},
-					{value = [[Interface\Glues\CREDITS\Tempest_Keep6]], label = "Tempest Keep 2", onclick = onSelectSecTexture, icon = [[Interface\Glues\CREDITS\Tempest_Keep6]], texcoord = nil},
-					{value = [[Interface\Glues\CREDITS\Terrokkar6]], label = "Terrokkar", onclick = onSelectSecTexture, icon = [[Interface\Glues\CREDITS\Terrokkar6]], texcoord = nil},
-					{value = [[Interface\Glues\CREDITS\ThousandNeedles2]], label = "Thousand Needles", onclick = onSelectSecTexture, icon = [[Interface\Glues\CREDITS\ThousandNeedles2]], texcoord = nil},
-					{value = [[Interface\Glues\CREDITS\Troll2]], label = "Troll", onclick = onSelectSecTexture, icon = [[Interface\Glues\CREDITS\Troll2]], texcoord = nil},
-					{value = [[Interface\Glues\CREDITS\LESSERELEMENTAL_FIRE_03B1]], label = "Fire Elemental", onclick = onSelectSecTexture, icon = [[Interface\Glues\CREDITS\LESSERELEMENTAL_FIRE_03B1]], texcoord = nil},
-				},
-			
-				["DEATHKNIGHT"] = {
-					{value = [[Interface\TALENTFRAME\bg-deathknight-blood]], label = "Blood", onclick = onSelectSecTexture, icon = [[Interface\ICONS\Spell_Deathknight_BloodPresence]], texcoord = nil},
-					{value = [[Interface\TALENTFRAME\bg-deathknight-frost]], label = "Frost", onclick = onSelectSecTexture, icon = [[Interface\ICONS\Spell_Deathknight_FrostPresence]], texcoord = nil},
-					{value = [[Interface\TALENTFRAME\bg-deathknight-unholy]], label = "Unholy", onclick = onSelectSecTexture, icon = [[Interface\ICONS\Spell_Deathknight_UnholyPresence]], texcoord = nil}
-				},
-				
-				["DRESSUP"] = {
-					{value = [[Interface\DRESSUPFRAME\DressUpBackground-BloodElf1]], label = "Blood Elf", onclick = onSelectSecTexture, icon = [[Interface\Glues\CHARACTERCREATE\UI-CHARACTERCREATE-RACES]], texcoord = {0.5, 0.625, 0.75, 1}},
-					{value = [[Interface\DRESSUPFRAME\DressUpBackground-DeathKnight1]], label = "Death Knight", onclick = onSelectSecTexture, icon = _detalhes.class_icons_small, texcoord = _detalhes.class_coords ["DEATHKNIGHT"]},
-					{value = [[Interface\DRESSUPFRAME\DressUpBackground-Draenei1]], label = "Draenei", onclick = onSelectSecTexture, icon = [[Interface\Glues\CHARACTERCREATE\UI-CHARACTERCREATE-RACES]], texcoord = {0.5, 0.625, 0.5, 0.75}},
-					{value = [[Interface\DRESSUPFRAME\DressUpBackground-Dwarf1]], label = "Dwarf", onclick = onSelectSecTexture, icon = [[Interface\Glues\CHARACTERCREATE\UI-CHARACTERCREATE-RACES]], texcoord = {0.125, 0.25, 0, 0.25}},
-					{value = [[Interface\DRESSUPFRAME\DRESSUPBACKGROUND-GNOME1]], label = "Gnome", onclick = onSelectSecTexture, icon = [[Interface\Glues\CHARACTERCREATE\UI-CHARACTERCREATE-RACES]], texcoord = {0.25, 0.375, 0, 0.25}},
-					{value = [[Interface\DRESSUPFRAME\DressUpBackground-Goblin1]], label = "Goblin", onclick = onSelectSecTexture, icon = [[Interface\Glues\CHARACTERCREATE\UI-CHARACTERCREATE-RACES]], texcoord = {0.625, 0.75, 0.75, 1}},
-					{value = [[Interface\DRESSUPFRAME\DressUpBackground-Human1]], label = "Human", onclick = onSelectSecTexture, icon = [[Interface\Glues\CHARACTERCREATE\UI-CHARACTERCREATE-RACES]], texcoord = {0, 0.125, 0.5, 0.75}},
-					{value = [[Interface\DRESSUPFRAME\DressUpBackground-NightElf1]], label = "Night Elf", onclick = onSelectSecTexture, icon = [[Interface\Glues\CHARACTERCREATE\UI-CHARACTERCREATE-RACES]], texcoord = {0.375, 0.5, 0, 0.25}},
-					{value = [[Interface\DRESSUPFRAME\DressUpBackground-Orc1]], label = "Orc", onclick = onSelectSecTexture, icon = [[Interface\Glues\CHARACTERCREATE\UI-CHARACTERCREATE-RACES]], texcoord = {0.375, 0.5, 0.25, 0.5}},
-					{value = [[Interface\DRESSUPFRAME\DressUpBackground-Pandaren1]], label = "Pandaren", onclick = onSelectSecTexture, icon = [[Interface\Glues\CHARACTERCREATE\UI-CHARACTERCREATE-RACES]], texcoord = {0.75, 0.875, 0.5, 0.75}},
-					{value = [[Interface\DRESSUPFRAME\DressUpBackground-Tauren1]], label = "Tauren", onclick = onSelectSecTexture, icon = [[Interface\Glues\CHARACTERCREATE\UI-CHARACTERCREATE-RACES]], texcoord = {0, 0.125, 0.25, 0.5}},
-					{value = [[Interface\DRESSUPFRAME\DRESSUPBACKGROUND-TROLL1]], label = "Troll", onclick = onSelectSecTexture, icon = [[Interface\Glues\CHARACTERCREATE\UI-CHARACTERCREATE-RACES]], texcoord = {0.25, 0.375, 0.75, 1}},
-					{value = [[Interface\DRESSUPFRAME\DressUpBackground-Scourge1]], label = "Undead", onclick = onSelectSecTexture, icon = [[Interface\Glues\CHARACTERCREATE\UI-CHARACTERCREATE-RACES]], texcoord = {0.125, 0.25, 0.75, 1}},
-					{value = [[Interface\DRESSUPFRAME\DressUpBackground-Worgen1]], label = "Worgen", onclick = onSelectSecTexture, icon = [[Interface\Glues\CHARACTERCREATE\UI-CHARACTERCREATE-RACES]], texcoord = {0.625, 0.75, 0, 0.25}},
-				},
-				
-				["DRUID"] = {
-					{value = [[Interface\TALENTFRAME\bg-druid-bear]], label = "Guardian", onclick = onSelectSecTexture, icon = [[Interface\ICONS\ability_racial_bearform]], texcoord = nil},
-					{value = [[Interface\TALENTFRAME\bg-druid-restoration]], label = "Restoration", onclick = onSelectSecTexture, icon = [[Interface\ICONS\spell_nature_healingtouch]], texcoord = nil},
-					{value = [[Interface\TALENTFRAME\bg-druid-cat]], label = "Feral", onclick = onSelectSecTexture, icon = [[Interface\ICONS\spell_shadow_vampiricaura]], texcoord = nil},
-					{value = [[Interface\TALENTFRAME\bg-druid-balance]], label = "Balance", onclick = onSelectSecTexture, icon = [[Interface\ICONS\spell_nature_starfall]], texcoord = nil}
-				},
-				
-				["HUNTER"] = {
-					{value = [[Interface\TALENTFRAME\bg-hunter-beastmaster]], label = "Beast Mastery", onclick = onSelectSecTexture, icon = [[Interface\ICONS\ability_hunter_bestialdiscipline]], texcoord = nil},
-					{value = [[Interface\TALENTFRAME\bg-hunter-marksman]], label = "Marksmanship", onclick = onSelectSecTexture, icon = [[Interface\ICONS\ability_hunter_focusedaim]], texcoord = nil},
-					{value = [[Interface\TALENTFRAME\bg-hunter-survival]], label = "Survival", onclick = onSelectSecTexture, icon = [[Interface\ICONS\ability_hunter_camouflage]], texcoord = nil}
-				},
-				
-				["MAGE"] = {
-					{value = [[Interface\TALENTFRAME\bg-mage-arcane]], label = "Arcane", onclick = onSelectSecTexture, icon = [[Interface\ICONS\spell_holy_magicalsentry]], texcoord = nil},
-					{value = [[Interface\TALENTFRAME\bg-mage-fire]], label = "Fire", onclick = onSelectSecTexture, icon = [[Interface\ICONS\spell_fire_firebolt02]], texcoord = nil},
-					{value = [[Interface\TALENTFRAME\bg-mage-frost]], label = "Frost", onclick = onSelectSecTexture, icon = [[Interface\ICONS\spell_frost_frostbolt02]], texcoord = nil}
-				},
-
-				["MONK"] = {
-					{value = [[Interface\TALENTFRAME\bg-monk-brewmaster]], label = "Brewmaster", onclick = onSelectSecTexture, icon = [[Interface\ICONS\monk_stance_drunkenox]], texcoord = nil},
-					{value = [[Interface\TALENTFRAME\bg-monk-mistweaver]], label = "Mistweaver", onclick = onSelectSecTexture, icon = [[Interface\ICONS\monk_stance_wiseserpent]], texcoord = nil},
-					{value = [[Interface\TALENTFRAME\bg-monk-battledancer]], label = "Windwalker", onclick = onSelectSecTexture, icon = [[Interface\ICONS\monk_stance_whitetiger]], texcoord = nil}
-				},
-
-				["PALADIN"] = {
-					{value = [[Interface\TALENTFRAME\bg-paladin-holy]], label = "Holy", onclick = onSelectSecTexture, icon = [[Interface\ICONS\spell_holy_holybolt]], texcoord = nil},
-					{value = [[Interface\TALENTFRAME\bg-paladin-protection]], label = "Protection", onclick = onSelectSecTexture, icon = [[Interface\ICONS\ability_paladin_shieldofthetemplar]], texcoord = nil},
-					{value = [[Interface\TALENTFRAME\bg-paladin-retribution]], label = "Retribution", onclick = onSelectSecTexture, icon = [[Interface\ICONS\spell_holy_auraoflight]], texcoord = nil}
-				},
-				
-				["PRIEST"] = {
-					{value = [[Interface\TALENTFRAME\bg-priest-discipline]], label = "Discipline", onclick = onSelectSecTexture, icon = [[Interface\ICONS\spell_holy_powerwordshield]], texcoord = nil},
-					{value = [[Interface\TALENTFRAME\bg-priest-holy]], label = "Holy", onclick = onSelectSecTexture, icon = [[Interface\ICONS\spell_holy_guardianspirit]], texcoord = nil},
-					{value = [[Interface\TALENTFRAME\bg-priest-shadow]], label = "Shadow", onclick = onSelectSecTexture, icon = [[Interface\ICONS\spell_shadow_shadowwordpain]], texcoord = nil}
-				},
-
-				["ROGUE"] = {
-					{value = [[Interface\TALENTFRAME\bg-rogue-assassination]], label = "Assassination", onclick = onSelectSecTexture, icon = [[Interface\ICONS\ability_rogue_eviscerate]], texcoord = nil},
-					{value = [[Interface\TALENTFRAME\bg-rogue-combat]], label = "Combat", onclick = onSelectSecTexture, icon = [[Interface\ICONS\ability_backstab]], texcoord = nil},
-					{value = [[Interface\TALENTFRAME\bg-rogue-subtlety]], label = "Subtlety", onclick = onSelectSecTexture, icon = [[Interface\ICONS\ability_stealth]], texcoord = nil}
-				},
-
-				["SHAMAN"] = {
-					{value = [[Interface\TALENTFRAME\bg-shaman-elemental]], label = "Elemental", onclick = onSelectSecTexture, icon = [[Interface\ICONS\spell_nature_lightning]], texcoord = nil},
-					{value = [[Interface\TALENTFRAME\bg-shaman-enhancement]], label = "Enhancement", onclick = onSelectSecTexture, icon = [[Interface\ICONS\spell_nature_lightningshield]], texcoord = nil},
-					{value = [[Interface\TALENTFRAME\bg-shaman-restoration]], label = "Restoration", onclick = onSelectSecTexture, icon = [[Interface\ICONS\spell_nature_magicimmunity]], texcoord = nil}	
-				},
-				
-				["WARLOCK"] = {
-					{value = [[Interface\TALENTFRAME\bg-warlock-affliction]], label = "Affliction", onclick = onSelectSecTexture, icon = [[Interface\ICONS\spell_shadow_deathcoil]], texcoord = nil},
-					{value = [[Interface\TALENTFRAME\bg-warlock-demonology]], label = "Demonology", onclick = onSelectSecTexture, icon = [[Interface\ICONS\spell_shadow_metamorphosis]], texcoord = nil},
-					{value = [[Interface\TALENTFRAME\bg-warlock-destruction]], label = "Destruction", onclick = onSelectSecTexture, icon = [[Interface\ICONS\spell_shadow_rainoffire]], texcoord = nil}
-				},
-				["WARRIOR"] = {
-					{value = [[Interface\TALENTFRAME\bg-warrior-arms]], label = "Arms", onclick = onSelectSecTexture, icon = [[Interface\ICONS\ability_warrior_savageblow]], texcoord = nil},
-					{value = [[Interface\TALENTFRAME\bg-warrior-fury]], label = "Fury", onclick = onSelectSecTexture, icon = [[Interface\ICONS\ability_warrior_innerrage]], texcoord = nil},
-					{value = [[Interface\TALENTFRAME\bg-warrior-protection]], label = "Protection", onclick = onSelectSecTexture, icon = [[Interface\ICONS\ability_warrior_defensivestance]], texcoord = nil}
-				},
-			}
-		
-			local buildBackgroundMenu2 = function() 
-				return  subMenu [window.backgroundDropdown.value] or {label = "-- -- --", value = 0}
-			end
-		
-			local onSelectMainTexture = function (_, _, choose)
-				window.backgroundDropdown2:Select (choose)
-			end
-		
-			local backgroundTable = {
-				{value = "ARCHEOLOGY", label = "Archeology", onclick = onSelectMainTexture, icon = [[Interface\ARCHEOLOGY\Arch-Icon-Marker]]},
-				{value = "CREDITS", label = "Burning Crusade", onclick = onSelectMainTexture, icon = [[Interface\ICONS\TEMP]]},
-				{value = "LOGOS", label = "Logos", onclick = onSelectMainTexture, icon = [[Interface\WorldStateFrame\ColumnIcon-FlagCapture0]]},
-				{value = "DRESSUP", label = "Race Background", onclick = onSelectMainTexture, icon = [[Interface\ICONS\INV_Chest_Cloth_17]]},
-				{value = "RAIDS", label = "Dungeons & Raids", onclick = onSelectMainTexture, icon = [[Interface\COMMON\friendship-FistHuman]]},
-				{value = "DEATHKNIGHT", label = "Death Knight", onclick = onSelectMainTexture, icon = _detalhes.class_icons_small, texcoord = _detalhes.class_coords ["DEATHKNIGHT"]},
-				{value = "DRUID", label = "Druid", onclick = onSelectMainTexture, icon = _detalhes.class_icons_small, texcoord = _detalhes.class_coords ["DRUID"]},
-				{value = "HUNTER", label = "Hunter", onclick = onSelectMainTexture, icon = _detalhes.class_icons_small, texcoord = _detalhes.class_coords ["HUNTER"]},
-				{value = "MAGE", label = "Mage", onclick = onSelectMainTexture, icon = _detalhes.class_icons_small, texcoord = _detalhes.class_coords ["MAGE"]},
-				{value = "MONK", label = "Monk", onclick = onSelectMainTexture, icon = _detalhes.class_icons_small, texcoord = _detalhes.class_coords ["MONK"]},
-				{value = "PALADIN", label = "Paladin", onclick = onSelectMainTexture, icon = _detalhes.class_icons_small, texcoord = _detalhes.class_coords ["PALADIN"]},
-				{value = "PRIEST", label = "Priest", onclick = onSelectMainTexture, icon = _detalhes.class_icons_small, texcoord = _detalhes.class_coords ["PRIEST"]},
-				{value = "ROGUE", label = "Rogue", onclick = onSelectMainTexture, icon = _detalhes.class_icons_small, texcoord = _detalhes.class_coords ["ROGUE"]},
-				{value = "SHAMAN", label = "Shaman", onclick = onSelectMainTexture, icon = _detalhes.class_icons_small, texcoord = _detalhes.class_coords ["SHAMAN"]},
-				{value = "WARLOCK", label = "Warlock", onclick = onSelectMainTexture, icon = _detalhes.class_icons_small, texcoord = _detalhes.class_coords ["WARLOCK"]},
-				{value = "WARRIOR", label = "Warrior", onclick = onSelectMainTexture, icon = _detalhes.class_icons_small, texcoord = _detalhes.class_coords ["WARRIOR"]},
-			}
-			local buildBackgroundMenu = function() return backgroundTable end		
-			
-			local wallpaper_switch = g:NewSwitch (window, _, "$parentUseBackgroundSlider", "useBackgroundSlider", 60, 20, _, _, instance.wallpaper.enabled)
-			wallpaper_switch.tooltip = Loc ["STRING_WELCOME_59"]
-			local wallpaper_dropdown1 = g:NewDropDown (window, _, "$parentBackgroundDropdown", "backgroundDropdown", 150, 20, buildBackgroundMenu, nil)
-			local wallpaper_dropdown2 = g:NewDropDown (window, _, "$parentBackgroundDropdown2", "backgroundDropdown2", 150, 20, buildBackgroundMenu2, nil)
-
-			wallpaper_switch:SetPoint ("left", wallpaper_label_switch, "right", 2)
-			wallpaper_dropdown1:SetPoint ("left", wallpaper_switch, "right", 2)
-			wallpaper_dropdown2:SetPoint ("left", wallpaper_dropdown1, "right", 2)
-			
-			function _detalhes:WelcomeWallpaperRefresh()
-				local spec = GetSpecialization()
-				if (spec) then
-					local id, name, description, icon, _background, role = GetSpecializationInfo (spec)
-					if (_background) then
-						local _, class = UnitClass ("player")
-						
-						local titlecase = function (first, rest)
-							return first:upper()..rest:lower()
-						end
-						class = class:gsub ("(%a)([%w_']*)", titlecase)
-						
-						local bg = "Interface\\TALENTFRAME\\" .. _background
-						
-						wallpaper_dropdown1:Select (class)
-						wallpaper_dropdown2:Select (1, true)
-						
-						instance.wallpaper.texture = bg
-						instance.wallpaper.texcoord = {0, 1, 0, 0.703125}
-						
-					end
-				end
-			end
-			
-			_detalhes:ScheduleTimer ("WelcomeWallpaperRefresh", 5)
-			
-			wallpaper_switch.OnSwitch = function (_, _, value)
-				instance.wallpaper.enabled = value
-				if (value) then
-					--> primeira vez que roda:
-					if (not instance.wallpaper.texture) then
-						local spec = GetSpecialization()
-						if (spec) then
-							local id, name, description, icon, _background, role = GetSpecializationInfo (spec)
-							if (_background) then
-								instance.wallpaper.texture = "Interface\\TALENTFRAME\\".._background
-							end
-						end
-						instance.wallpaper.texcoord = {0, 1, 0, 0.703125}
-					end
-					
-					instance.wallpaper.alpha = 0.35
-
-					instance:InstanceWallpaper (true)
-				else
-					instance:InstanceWallpaper (false)
-				end
-			end
-			
-		local created_test_bars = 0
-		local skins_frame_alert = CreateFrame ("frame", nil, window)
-		skins_frame_alert:SetScript ("OnShow", function()
-			if (created_test_bars < 2) then
-				_detalhes:CreateTestBars()
-				created_test_bars = created_test_bars + 1
-			end
-		end)
-
-		pages [#pages+1] = {import_label, import_dropdown, skins_frame_alert, bg55, texto55, texto555, skins_image, changemind, texto_appearance, skin_dropdown, skin_label, wallpaper_label_switch, wallpaper_switch, wallpaper_dropdown1, wallpaper_dropdown2, window.rowIconsLabel, window.IconSelectDropdown}
-		
-		for _, widget in ipairs (pages[#pages]) do 
-			widget:Hide()
-		end
-
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> page 2
-		
+	
 	-- DPS effective or active
 		
 		local ampulheta = window:CreateTexture (nil, "overlay")
@@ -962,11 +464,484 @@ local window_openned_at = time()
 		chronometer:SetScript ("OnClick", function() continuous:SetChecked (false); _detalhes.time_type = 1 end)
 		continuous:SetScript ("OnClick", function() chronometer:SetChecked (false); _detalhes.time_type = 2 end)
 		
-		pages [#pages+1] = {thedude, sword_icon, ampulheta, texto2, chronometer, continuous, chronometer_text, continuous_text, window.changemind2Label}
+		--
+		
+		local pleasewait = window:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+		pleasewait:SetPoint ("bottomright", forward, "topright")
+		
+		local free_frame3 = CreateFrame ("frame", nil, window)
+		function _detalhes:FreeTutorialFrame3()
+			if (window_openned_at+10 > time()) then
+				pleasewait:Show()
+				forward:Disable()
+				pleasewait:SetText ("wait... " .. window_openned_at + 10 - time())
+			else
+				pleasewait:Hide()
+				pleasewait:SetText ("")
+				forward:Enable()
+				_detalhes:CancelTimer (window.free_frame3_schedule)
+				window.free_frame3_schedule = nil
+			end
+		end
+		free_frame3:SetScript ("OnShow", function()
+			if (window_openned_at-10 > time()) then
+				forward:Disable()
+				if (window.free_frame3_schedule) then
+					_detalhes:CancelTimer (window.free_frame3_schedule)
+					window.free_frame3_schedule = nil
+				end
+				window.free_frame3_schedule = _detalhes:ScheduleRepeatingTimer ("FreeTutorialFrame3", 1)
+			end
+		end)
+		free_frame3:SetScript ("OnHide", function()
+			if (window.free_frame3_schedule) then
+				_detalhes:CancelTimer (window.free_frame3_schedule)
+				window.free_frame3_schedule = nil
+				pleasewait:SetText ("")
+				pleasewait:Hide()
+			end
+		end)		
+		
+		pages [#pages+1] = {pleasewait, free_frame3, thedude, sword_icon, ampulheta, texto2, chronometer, continuous, chronometer_text, continuous_text, window.changemind2Label}
+		
 		for _, widget in ipairs (pages[#pages]) do 
 			widget:Hide()
 		end
 
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> Skins Page
+
+	--SKINS
+
+		local bg55 = window:CreateTexture (nil, "overlay")
+		bg55:SetTexture ([[Interface\MainMenuBar\UI-MainMenuBar-EndCap-Human]])
+		bg55:SetPoint ("bottomright", window, "bottomright", -10, 10)
+		bg55:SetHeight (125*3)
+		bg55:SetWidth (89*3)
+		bg55:SetAlpha (.05)
+		bg55:SetTexCoord (1, 0, 0, 1)
+
+		local texto55 = window:CreateFontString (nil, "overlay", "GameFontNormal")
+		texto55:SetPoint ("topleft", window, "topleft", 20, -80)
+		texto55:SetText (Loc ["STRING_WELCOME_42"])
+
+		local texto555 = window:CreateFontString (nil, "overlay", "GameFontNormal")
+		texto555:SetText (Loc ["STRING_WELCOME_45"])
+		texto555:SetTextColor (1, 1, 1, 1)
+		
+		local changemind = g:NewLabel (window, _, "$parentChangeMind55Label", "changemind55Label", Loc ["STRING_WELCOME_2"], "GameFontNormal", 9, "orange")
+		window.changemind55Label:SetPoint ("center", window, "center")
+		window.changemind55Label:SetPoint ("bottom", window, "bottom", 0, 19)
+		window.changemind55Label.align = "|"
+		
+		local texto_appearance = window:CreateFontString (nil, "overlay", "GameFontNormal")
+		texto_appearance:SetPoint ("topleft", window, "topleft", 30, -110)
+		texto_appearance:SetText (Loc ["STRING_WELCOME_43"])
+		texto_appearance:SetWidth (460)
+		texto_appearance:SetHeight (100)
+		texto_appearance:SetJustifyH ("left")
+		texto_appearance:SetJustifyV ("top")
+		texto_appearance:SetTextColor (1, 1, 1, 1)
+		
+		local skins_image = window:CreateTexture (nil, "overlay")
+		skins_image:SetTexture ([[Interface\Addons\Details\images\icons2]])
+		skins_image:SetPoint ("topright", window, "topright", -50, -24)
+		skins_image:SetWidth (214*0.7)
+		skins_image:SetHeight (133*0.7)
+		skins_image:SetTexCoord (0, 0.41796875, 0, 0.259765625) --0, 0, 214 133
+		
+		--import settings
+		local import_label = g:NewLabel (window, _, "$parentImportSettingsLabel", "ImportLabel", Loc ["STRING_WELCOME_46"] .. ":", "GameFontNormal")
+		import_label:SetPoint ("topleft", window, "topleft", 30, -170)
+		
+		local onSelectImportRct = function (_, _, cluster_name)
+			for i = 1, 2 do
+				
+				local addon1_profile = _G.Recount.db.profile
+				local instance1 = _detalhes:GetInstance (i)
+				
+				if (addon1_profile and instance1) then
+					
+					if (cluster_name == "title_bar") then
+						
+						local buttons = addon1_profile.MainWindow.Buttons
+						instance1.menu_icons[2] = buttons.FileButton
+						instance1.menu_icons[4] = buttons.ReportButton
+						instance1.menu_icons[5] = buttons.ResetButton
+						instance1.menu_icons[6] = false --close button
+					
+					elseif (cluster_name == "bars") then
+						
+						local row_info = instance1.row_info
+						row_info.space.between = addon1_profile.RowSpacing
+						row_info.height = addon1_profile.RowHeight
+						
+						
+						
+					elseif (cluster_name == "window") then
+
+						local w, h = addon1_profile.MainWindow.Position.w, addon1_profile.MainWindow.Position.h
+						instance1.posicao.normal.w = w
+						instance1.posicao.normal.h = h
+						
+						instance1:RestoreMainWindowPosition()
+						
+					end
+					
+				end
+				
+			end
+		end
+		
+		local onSelectImportSkd = function (_, _, cluster_name)
+		
+			for i = 1, 2 do
+			
+				local addon1_profile = _G.Skada.db.profile.windows [i]
+				local instance1 = _detalhes:GetInstance (i)
+			
+				if (addon1_profile and instance1) then
+				
+					if (cluster_name == "title_bar") then
+					
+						local value = addon1_profile ["title"]
+						local v = instance1.attribute_text
+						v.enabled = true
+						v.text_face = value.font
+						v.anchor = {-17, 4}
+						v.text_size = value.fontsize
+						v.shadow = value.fontflags ~= ''
+						instance1.color[1], instance1.color[2], instance1.color[3], instance1.color[4] = value.color.r, value.color.g, value.color.b, value.color.a
+						instance1:StatusBarColor (value.color.r, value.color.g, value.color.b, value.color.a)
+						instance1.attribute_text = v
+						
+						local buttons = addon1_profile.buttons
+						instance1.menu_icons[2] = buttons.segment
+						instance1.menu_icons[4] = buttons.report
+						instance1.menu_icons[5] = buttons.reset
+						instance1.menu_icons[6] = false --close button
+						
+						instance1:ChangeSkin()
+						
+					elseif (cluster_name == "bars") then
+					
+						instance1:SetBarSettings (nil, nil, nil, nil, "DGround")
+						
+						local row_info = instance1.row_info
+						row_info.texture = addon1_profile.bartexture
+
+						row_info.font_face = addon1_profile.barfont
+						row_info.font_size = addon1_profile.barfontsize
+						row_info.space.between = addon1_profile.barspacing
+						row_info.height = addon1_profile.barheight
+						row_info.textL_outline = addon1_profile.barfontflags ~= ""
+						row_info.textR_outline = addon1_profile.barfontflags ~= ""
+						row_info.texture_class_colors = addon1_profile.classcolorbars
+						
+						local bg_color = row_info.fixed_texture_background_color
+						local barbgcolor = addon1_profile.barbgcolor
+						bg_color[1], bg_color[2], bg_color[3], bg_color[4] = barbgcolor.r, barbgcolor.g, barbgcolor.b, barbgcolor.a
+
+						local bar_color = row_info.fixed_texture_color
+						local barcolor = addon1_profile.barcolor
+						bar_color[1], bar_color[2], bar_color[3], bar_color[4] = barcolor.r, barcolor.g, barcolor.b, barcolor.a
+						
+						instance1.bars_grow_direction = addon1_profile.reversegrowth and 2 or 1
+						
+						instance1:ChangeSkin()
+						
+					elseif (cluster_name == "window") then
+						local value = addon1_profile.background
+						
+						if (value.color.r ~= 0 or value.color.g ~= 0 or value.color.b ~= 0.5) then
+							instance1.bg_alpha = value.color.a/2
+							instance1.bg_r = value.color.r
+							instance1.bg_g = value.color.g
+							instance1.bg_b = value.color.b
+							instance1.backdrop_texture = value.texture
+						end
+
+						instance1.libwindow.x = addon1_profile.x
+						instance1.libwindow.y = addon1_profile.y
+						instance1.libwindow.point = addon1_profile.point
+						instance1.libwindow.scale = addon1_profile.scale
+
+						local w, h = addon1_profile.barwidth, addon1_profile.background.height
+						instance1.posicao.normal.w = w
+						instance1.posicao.normal.h = h
+						
+						instance1:RestoreMainWindowPosition()
+						instance1:ChangeSkin()
+						
+						for _, win in ipairs (_G.Skada:GetWindows()) do
+							if (win:IsShown()) then
+								win.db.hidden = true
+								win:Hide()
+							end
+						end
+						
+					end
+				
+				end
+			
+			end
+
+		end
+
+		local ImportMenu = function()
+			local options = {}
+			if (_G.Skada) then
+				tinsert (options, {value = "title_bar", label = Loc ["STRING_WELCOME_70"] .. " (Skada)", onclick = onSelectImportSkd, icon = [[Interface\FriendsFrame\StatusIcon-Online]]})
+				tinsert (options, {value = "bars", label = Loc ["STRING_WELCOME_71"] .. " (Skada)", onclick = onSelectImportSkd, icon = [[Interface\FriendsFrame\StatusIcon-Online]]})
+				tinsert (options, {value = "window", label = Loc ["STRING_WELCOME_72"] .. " (Skada)", onclick = onSelectImportSkd, icon = [[Interface\FriendsFrame\StatusIcon-Online]], desc = "This option will hide Skada windows to avoid overlap on the same position. Use the command '/skada toggle' to bring it back again."})
+			end
+			
+			return options
+		end
+		
+		local import_dropdown = g:NewDropDown (window, _, "$parentImportDropdown", "ImportDropdown", 140, 20, ImportMenu, false)
+		import_dropdown:SetPoint ("left", import_label, "right", 2, 0)
+		import_dropdown.tooltip = Loc ["STRING_WELCOME_57"]
+		
+		if (not _G.Skada) then
+			import_dropdown:Disable()
+			import_label:SetTextColor (1, 0.8, 0, 0.3)
+		end
+		
+		--skin
+			local onSelectSkin = function (_, _, skin_name)
+				local instance1 = _detalhes:GetInstance (1)
+				if (instance1) then
+					instance1:ChangeSkin (skin_name)
+				end
+				local instance2 = _detalhes:GetInstance (2)
+				if (instance2) then
+					instance2:ChangeSkin (skin_name)
+				end
+			end
+
+			local buildSkinMenu = function()
+				local skinOptions = {}
+				for skin_name, skin_table in pairs (_detalhes.skins) do
+					skinOptions [#skinOptions+1] = {value = skin_name, label = skin_name, onclick = onSelectSkin, icon = "Interface\\GossipFrame\\TabardGossipIcon", desc = skin_table.desc}
+				end
+				return skinOptions
+			end
+			
+			local instance1 = _detalhes:GetInstance (1)
+			local skin_dropdown = g:NewDropDown (window, _, "$parentSkinDropdown", "skinDropdown", 140, 20, buildSkinMenu, instance1.skin)
+			skin_dropdown.tooltip = Loc ["STRING_WELCOME_58"]
+			
+			local skin_label = g:NewLabel (window, _, "$parentSkinLabel", "skinLabel", Loc ["STRING_OPTIONS_INSTANCE_SKIN"] .. ":", "GameFontNormal")
+			skin_dropdown:SetPoint ("left", skin_label, "right", 2)
+			skin_label:SetPoint ("topleft", window, "topleft", 30, -140)
+
+		-- create second window button
+			local new_window = function (_, _, self)
+				if (#_detalhes.tabela_instancias == 1) then
+					local newwindow = _detalhes:CreateInstance (true)
+					newwindow.baseframe:SetPoint ("topleft", _detalhes.tabela_instancias[1].baseframe, "topright", 50, 0)
+					newwindow.baseframe:SetPoint ("bottomleft", _detalhes.tabela_instancias[1].baseframe, "bottomright", 50, 0)
+					newwindow:SaveMainWindowPosition()
+					newwindow:RestoreMainWindowPosition()
+				end
+				self.MyObject:Disable()
+			end
+			local create_window_button = g:CreateButton (window, new_window, 150, 16, "Create 2nd Window")
+			create_window_button:InstallCustomTexture()
+			create_window_button:SetIcon ([[Interface\FriendsFrame\UI-FriendsList-Large-Up]], nil, nil, nil, {5/32, 26/32, 6/32, 26/32}, nil, 4, 2)
+			create_window_button:SetPoint ("topright", window, "topright", -70, -127)
+		
+			if (#_detalhes.tabela_instancias == 2) then
+				create_window_button:Disable()
+			end
+		
+		-- window color
+			window.editing_window = nil
+			local windowcolor_callback = function (button, r, g, b, a)
+				local instance = window.editing_window
+			
+				if (instance.menu_alpha.enabled and a ~= instance.color[4]) then
+					_detalhes:Msg (Loc ["STRING_OPTIONS_MENU_ALPHAWARNING"])
+					instance:InstanceColor (r, g, b, instance.menu_alpha.onleave, nil, true)
+					
+					if (_detalhes.options_group_edit) then
+						for _, this_instance in ipairs (instance:GetInstanceGroup()) do
+							if (this_instance ~= instance) then
+								this_instance:InstanceColor (r, g, b, instance.menu_alpha.onleave, nil, true)
+							end
+						end
+					end
+					
+					return
+				end
+				
+				instance:InstanceColor (r, g, b, a, nil, true)
+				if (_detalhes.options_group_edit) then
+					for _, this_instance in ipairs (instance:GetInstanceGroup()) do
+						if (this_instance ~= instance) then
+							this_instance:InstanceColor (r, g, b, a, nil, true)
+						end
+					end
+				end
+				
+				local instance2 = _detalhes:GetInstance (2)
+				if (instance2) then
+					instance2:InstanceColor (r, g, b, a, nil, true)
+				end
+			end
+			
+			local change_color = function()
+				window.editing_window = _detalhes:GetInstance (1)
+				local r, g, b, a = unpack (window.editing_window.color)
+				_detalhes.gump:ColorPick (window, r, g, b, a, windowcolor_callback)
+			end
+			
+			local window_color = g:CreateButton (window, change_color, 150, 16, "Change Color")
+			window_color:SetPoint ("topleft", create_window_button, "bottomleft", 0, -2)
+			window_color:InstallCustomTexture()
+			window_color:SetIcon ([[Interface\AddOns\Details\images\icons]], 14, 14, nil, {434/512, 466/512, 277/512, 307/512}, nil, 4, 2)
+		
+		-- show statusbar
+			g:NewSwitch (window, _, "$parentStatusbarSlider", "statusbarSlider", 60, 20, _, _, _detalhes:GetInstance(1).show_statusbar)
+			g:NewLabel (window, _, "$parentStatusbarLabel", "statusbarLabel", Loc ["STRING_OPTIONS_SHOW_STATUSBAR"] .. ":", "GameFontNormal")
+
+			window.statusbarLabel:SetPoint ("topleft", window_color, "bottomleft", 0, -8)
+			window.statusbarSlider:SetPoint ("left", window.statusbarLabel, "right", 2, -1)
+			window.statusbarSlider:SetFixedParameter (_detalhes:GetInstance (1))
+			
+			window.statusbarSlider.OnSwitch = function (self, instance, value)
+				instance = _detalhes:GetInstance (1)
+				if (value) then
+					instance:ShowStatusBar()
+				else
+					instance:HideStatusBar()
+				end
+				
+				local instance2 = _detalhes:GetInstance (2)
+				if (instance2) then
+					if (value) then
+						instance2:ShowStatusBar()
+					else
+						instance2:HideStatusBar()
+					end
+				end
+				
+				instance:BaseFrameSnap()
+			end
+
+		-- bar texture
+			local texture_icon = [[Interface\TARGETINGFRAME\UI-PhasingIcon]]
+			local texture_icon = [[Interface\AddOns\Details\images\icons]]
+			local texture_icon_size = {14, 14}
+			local texture_texcoord = {469/512, 505/512, 249/512, 284/512}
+		
+			--texture
+			local onSelectTexture = function (_, instance, textureName)
+				instance:SetBarSettings (nil, textureName)
+				
+				if (_detalhes.options_group_edit) then
+					for _, this_instance in ipairs (instance:GetInstanceGroup()) do
+						if (this_instance ~= instance) then
+							this_instance:SetBarSettings (nil, textureName)
+						end
+					end
+				end
+				
+				local instance2 = _detalhes:GetInstance (2)
+				if (instance2) then
+					instance2:SetBarSettings (nil, textureName)
+				end
+			end
+
+			local buildTextureMenu = function() 
+				local textures = SharedMedia:HashTable ("statusbar")
+				local texTable = {}
+				for name, texturePath in pairs (textures) do 
+					texTable[#texTable+1] = {value = name, label = name, iconsize = texture_icon_size, statusbar = texturePath,  onclick = onSelectTexture, icon = texture_icon, texcoord = texture_texcoord}
+				end
+				table.sort (texTable, function (t1, t2) return t1.label < t2.label end)
+				return texTable 
+			end
+			
+			g:NewLabel (window, _, "$parentTextureLabel", "textureLabel", Loc ["STRING_TEXTURE"] .. ":", "GameFontNormal")
+			g:NewDropDown (window, _, "$parentTextureDropdown", "textureDropdown", 120, 18, buildTextureMenu, nil)			
+			window.textureDropdown:SetFixedParameter (_detalhes:GetInstance(1))
+			window.textureDropdown:SetPoint ("left", window.textureLabel, "right", 2)
+			window.textureLabel:SetPoint ("topleft", window.statusbarLabel, "bottomleft", 0, -8)
+		
+		--> icon type
+			local OnSelectIconFile = function (_, _, iconpath)
+				instance1:SetBarSettings (nil, nil, nil, nil, nil, nil, nil, nil, iconpath)
+				if (instance1.row_info.use_spec_icons) then
+					instance1:SetBarSpecIconSettings (false)
+				end
+				
+				local instance2 = _detalhes:GetInstance (2)
+				if (instance2) then
+					instance2:SetBarSettings (nil, nil, nil, nil, nil, nil, nil, nil, iconpath)
+					if (instance2.row_info.use_spec_icons) then
+						instance2:SetBarSpecIconSettings (false)
+					end
+				end
+			end
+			local OnSelectIconFileSpec = function (_, _, iconpath)
+				instance1:SetBarSpecIconSettings (true, iconpath, true)
+				local instance2 = _detalhes:GetInstance (2)
+				if (instance2) then
+					instance2:SetBarSpecIconSettings (true, iconpath, true)
+				end
+			end
+
+			local iconsize = {16, 16}
+			local icontexture = [[Interface\WorldStateFrame\ICONS-CLASSES]]
+			local iconcoords = {0.25, 0.50, 0, 0.25}
+			local list = {
+				{value = [[]], label = Loc ["STRING_OPTIONS_BAR_ICONFILE1"], onclick = OnSelectIconFile, icon = icontexture, texcoord = iconcoords, iconsize = iconsize, iconcolor = {1, 1, 1, .3}},
+				{value = [[Interface\AddOns\Details\images\classes_small]], label = Loc ["STRING_OPTIONS_BAR_ICONFILE2"], onclick = OnSelectIconFile, icon = icontexture, texcoord = iconcoords, iconsize = iconsize},
+				{value = [[Interface\AddOns\Details\images\spec_icons_normal]], label = "Specialization", onclick = OnSelectIconFileSpec, icon = [[Interface\AddOns\Details\images\icons]], texcoord = {2/512, 32/512, 480/512, 510/512}, iconsize = iconsize},
+				{value = [[Interface\AddOns\Details\images\spec_icons_normal_alpha]], label = "Specialization Alpha", onclick = OnSelectIconFileSpec, icon = [[Interface\AddOns\Details\images\icons]], texcoord = {2/512, 32/512, 480/512, 510/512}, iconsize = iconsize},
+				{value = [[Interface\AddOns\Details\images\classes_small_bw]], label = Loc ["STRING_OPTIONS_BAR_ICONFILE3"], onclick = OnSelectIconFile, icon = icontexture, texcoord = iconcoords, iconsize = iconsize},
+				{value = [[Interface\AddOns\Details\images\classes_small_alpha]], label = Loc ["STRING_OPTIONS_BAR_ICONFILE4"], onclick = OnSelectIconFile, icon = icontexture, texcoord = iconcoords, iconsize = iconsize},
+				{value = [[Interface\AddOns\Details\images\classes_small_alpha_bw]], label = Loc ["STRING_OPTIONS_BAR_ICONFILE6"], onclick = OnSelectIconFile, icon = icontexture, texcoord = iconcoords, iconsize = iconsize},
+				{value = [[Interface\AddOns\Details\images\classes]], label = Loc ["STRING_OPTIONS_BAR_ICONFILE5"], onclick = OnSelectIconFile, icon = icontexture, texcoord = iconcoords, iconsize = iconsize},
+			}
+			local BuiltIconList = function() 
+				return list
+			end
+			
+			local default
+			if (instance1.row_info.use_spec_icons) then
+				default = instance1.row_info.spec_file
+			else
+				default = instance1.row_info.icon_file
+			end
+			
+			local d = g:NewDropDown (window, _, "$parentIconSelectDropdown", "IconSelectDropdown", 120, 18, BuiltIconList, default)
+			
+			g:NewLabel (window, _, "$parentIconsAnchor", "rowIconsLabel", Loc ["STRING_OPTIONS_TEXT_ROWICONS_ANCHOR"], "GameFontNormal")
+			
+			d:SetPoint ("left", window.rowIconsLabel, "right", 2)
+			
+			window.rowIconsLabel:SetPoint ("topleft", window.textureLabel, "bottomleft", 0, -8)
+
+		local created_test_bars = 0
+		local skins_frame_alert = CreateFrame ("frame", nil, window)
+		skins_frame_alert:SetScript ("OnShow", function()
+			if (created_test_bars < 2) then
+				_detalhes:CreateTestBars()
+				created_test_bars = created_test_bars + 1
+			end
+		end)
+
+		pages [#pages+1] = {import_label, import_dropdown, skins_frame_alert, bg55, texto55, texto555, skins_image, changemind, texto_appearance, skin_dropdown, skin_label, window.rowIconsLabel, window.IconSelectDropdown, create_window_button, window_color, window.statusbarLabel, window.statusbarSlider, window.textureLabel, window.textureDropdown}
+		
+		for _, widget in ipairs (pages[#pages]) do 
+			widget:Hide()
+		end
+		
+		
+		
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> page 4
 
@@ -1546,7 +1521,7 @@ local window_openned_at = time()
 		
 ------------------------------------------------------------------------------------------------------------------------------		
 		
-		--[[
+--[[		
 		forward:Click() 
 		forward:Click()
 		forward:Click()

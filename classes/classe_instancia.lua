@@ -2677,9 +2677,18 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 	local report_lines = {}
 
 	if (self.atributo == 5) then --> custom
-		report_lines [#report_lines+1] = "Details!: " .. self.customName .. " " .. Loc ["STRING_CUSTOM_REPORT"]
+		if (self.segmento == -1) then --overall
+			report_lines [#report_lines+1] = "Details!: " .. Loc ["STRING_OVERALL"] .. " " .. self.customName .. " " .. Loc ["STRING_CUSTOM_REPORT"]
+		else
+			report_lines [#report_lines+1] = "Details!: " .. self.customName .. " " .. Loc ["STRING_CUSTOM_REPORT"]
+		end
+
 	else
-		report_lines [#report_lines+1] = "Details!: " .. _detalhes.sub_atributos [self.atributo].lista [self.sub_atributo]
+		if (self.segmento == -1) then --overall
+			report_lines [#report_lines+1] = "Details!: " .. Loc ["STRING_OVERALL"] .. " " .. _detalhes.sub_atributos [self.atributo].lista [self.sub_atributo]
+		else
+			report_lines [#report_lines+1] = "Details!: " .. _detalhes.sub_atributos [self.atributo].lista [self.sub_atributo]
+		end
 	end
 	
 	local barras = self.barras
@@ -2699,6 +2708,8 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 	_detalhes.fontstring_len:SetFont (fonte, fontSize, flags)
 	_detalhes.fontstring_len:SetText ("hello details!")
 	local default_len = _detalhes.fontstring_len:GetStringWidth()
+	
+	local name_member = "nome"
 	
 	--> pegar a font do chat
 	--_detalhes.fontstring_len:
@@ -2763,7 +2774,10 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 			elseif (atributo == 5) then --> custom
 			
 				if (_detalhes.custom [self.sub_atributo]) then
-					total, container, first, container_amount = _detalhes.atributo_custom:RefreshWindow (self, self.showing, true, true)
+					total, container, first, container_amount, nm = _detalhes.atributo_custom:RefreshWindow (self, self.showing, true, true)
+					if (nm) then
+						name_member = nm
+					end
 					keyName = "report_value"
 				else
 					total, keyName, first, container_amount = _detalhes.atributo_damage:RefreshWindow (self, self.showing, true, true)
@@ -2790,7 +2804,7 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 						is_string = true
 					end
 					
-					local name = _thisActor.nome.." "
+					local name = _thisActor [name_member] .. " "
 					if (_detalhes.remove_realm_from_name and name:find ("-")) then
 						name = name:gsub (("%-.*"), "")
 					end
@@ -2904,7 +2918,10 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 					total, keyName, first, container_amount = _detalhes.atributo_misc:RefreshWindow (self, self.showing, true, true)
 				end
 			elseif (atributo == 5) then --> custom
-				total, container, first, container_amount = _detalhes.atributo_custom:RefreshWindow (self, self.showing, true, true)
+				total, container, first, container_amount, nm = _detalhes.atributo_custom:RefreshWindow (self, self.showing, true, true)
+				if (nm) then
+					name_member = nm
+				end
 				keyName = "report_value"				
 			end
 			
@@ -2923,7 +2940,7 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 						amount = _thisActor [keyName]
 					end
 					
-					local name = _thisActor.nome .. " "
+					local name = _thisActor [name_member] .. " "
 					
 					_detalhes.fontstring_len:SetText (name)
 					local stringlen = _detalhes.fontstring_len:GetStringWidth()
@@ -3008,7 +3025,8 @@ function _detalhes:envia_relatorio (linhas, custom)
 	
 	if (not custom) then
 		if (segmento == -1) then --overall
-			luta = Loc ["STRING_REPORT_LAST"] .. " " .. #_detalhes.tabela_historico.tabelas .. " " .. Loc ["STRING_REPORT_FIGHTS"]
+			--luta = Loc ["STRING_REPORT_LAST"] .. " " .. #_detalhes.tabela_historico.tabelas .. " " .. Loc ["STRING_REPORT_FIGHTS"]
+			luta = _detalhes.tabela_overall.overall_enemy_name
 			
 		elseif (segmento == 0) then --current
 		
@@ -3087,6 +3105,7 @@ function _detalhes:envia_relatorio (linhas, custom)
 			end
 		end
 
+		
 		linhas[1] = linhas[1] .. " " .. Loc ["STRING_REPORT"] .. " " .. luta
 
 	end

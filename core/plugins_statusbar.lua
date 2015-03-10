@@ -1,7 +1,3 @@
---File Revision: 1
---Last Modification: 27/07/2013
--- Change Log:
-	-- 27/07/2013: Finished alpha version.
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -25,8 +21,6 @@
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> status bar core functions
---[[	This file contains Api and Internal functions, plus 4 built-in plugins  
-	You can use this four plugins to learn how they works--]]
 
 	--> hida all micro frames
 	function _detalhes.StatusBar:Hide (instance, side)
@@ -289,7 +283,9 @@
 	local onEnterCooltipTexts = { 
 			{text = "|TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:14:14:0:1:512:512:8:70:224:306|t " .. Loc ["STRING_PLUGIN_TOOLTIP_LEFTBUTTON"]},
 			{text = "|TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:14:14:0:1:512:512:8:70:328:409|t " .. Loc ["STRING_PLUGIN_TOOLTIP_RIGHTBUTTON"]}}
-
+			
+	local on_enter_backdrop = {bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16}
+	
 	local OnEnter = function (frame)
 		
 		--|TTexturePath:							size X: size Y: point offset Y X : texture size : coordx1 L : coordx2 R : coordy1 T : coordy2 B |t 
@@ -297,21 +293,20 @@
 		
 		_detalhes.OnEnterMainWindow (frame.child.instance)
 		
-		local passou = 0
-		frame:SetScript ("OnUpdate", function (self, elapsed)
-			passou = passou + elapsed
-			if (passou > 0.5) then
-				if (not _detalhes.popup.mouseOver and not _detalhes.popup.buttonOver and not _detalhes.popup.active) then
-					GameCooltip:Reset()
-					GameCooltip:AddFromTable (onEnterCooltipTexts)
-					GameCooltip:SetOption ("TextSize", 9.5)
-					GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
-					GameCooltip:ShowCooltip (frame, "tooltip")
-				end
-				self:SetScript ("OnUpdate", nil)
-				_detalhes.popup.active = true
-			end
-		end)
+		frame:SetBackdrop (on_enter_backdrop)
+		frame:SetBackdropColor (0.7, 0.7, 0.7, 0.6)
+
+		GameCooltip:Reset()
+		GameCooltip:AddFromTable (onEnterCooltipTexts)
+		GameCooltip:SetOption ("TextSize", 9)
+		GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
+		
+		GameCooltip:SetOption ("ButtonHeightMod", -4)
+		GameCooltip:SetOption ("ButtonsYMod", -4)
+		GameCooltip:SetOption ("YSpacingMod", -4)
+		GameCooltip:SetOption ("FixedHeight", 46)
+		
+		GameCooltip:ShowCooltip (frame, "tooltip")
 
 		return true
 	end
@@ -319,24 +314,12 @@
 	--> on leave
 	local OnLeave = function (frame)
 	
+		frame:SetBackdrop (nil)
+	
 		_detalhes.OnLeaveMainWindow (frame.child.instance)
 	
-		if (_detalhes.popup.active) then
-			local passou = 0
-			frame:SetScript ("OnUpdate", function (self, elapsed)
-				passou = passou+elapsed
-				if (passou > 0.3) then
-					if (not _detalhes.popup.mouseOver and not _detalhes.popup.buttonOver and _detalhes.popup.Host == frame) then
-						_detalhes.popup:ShowMe (false)
-					end
-					_detalhes.popup.active = false
-					self:SetScript ("OnUpdate", nil)
-				end
-			end)
-		else
-			_detalhes.popup.active = false
-			frame:SetScript ("OnUpdate", nil)
-		end
+		_detalhes.popup:Hide()
+
 		return true
 	end
 
@@ -478,6 +461,7 @@
 	function _detalhes.StatusBar:CreateChildFrame (instance, name, w, h)
 		--local frame = _detalhes.gump:NewPanel (instance.baseframe.cabecalho.fechar, nil, name..instance:GetInstanceId(), nil, w or DEFAULT_CHILD_WIDTH, h or DEFAULT_CHILD_HEIGHT, false)
 		local frame = _detalhes.gump:NewPanel (instance.baseframe, nil, name..instance:GetInstanceId(), nil, w or DEFAULT_CHILD_WIDTH, h or DEFAULT_CHILD_HEIGHT, false)
+		frame:SetFrameLevel (instance.baseframe:GetFrameLevel()+4)
 
 		--create widgets
 		local text = _detalhes.gump:NewLabel (frame, nil, "$parentText", "text", "0")
@@ -1469,14 +1453,21 @@ window.instance = nil
 window:SetFrameStrata ("FULLSCREEN")
 window:DisableGradient()
 
+window:SetBackdrop ({bgFile =  [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 16, edgeFile = [[Interface\AddOns\Details\images\border_2]], edgeSize=12})
+window:SetBackdropColor (0, 0, 0, 0.9)
+
 local extraWindow = _detalhes.gump:NewPanel (window, nil, "DetailsStatusBarOptions2", "extra", 300, 180)
 extraWindow:SetPoint ("left", window, "right")
 extraWindow.close_with_right = true
 extraWindow.locked = false
+extraWindow:Hide()
+
 extraWindow:SetHook ("OnHide", function()
 	window:Hide()
 end)
 extraWindow:DisableGradient()
+extraWindow:SetBackdrop ({bgFile =  [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 16, edgeFile = [[Interface\AddOns\Details\images\border_2]], edgeSize=12})
+extraWindow:SetBackdropColor (0, 0, 0, 0.9)
 
 --> text style
 	_detalhes.gump:NewLabel (window, _, "$parentTextStyleLabel", "textstyle", Loc ["STRING_PLUGINOPTIONS_TEXTSTYLE"])

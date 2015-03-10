@@ -1,8 +1,3 @@
---File Revision: 1
---Last Modification: 27/07/2013
--- Change Log:
-	-- 27/07/2013: Finished alpha version.
-	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 	local _detalhes = _G._detalhes
@@ -217,6 +212,47 @@
 				t1 [key] = value
 			end
 		end
+	end
+	
+	function _detalhes.table.dump (t, s, deep)
+	
+		s = s or ""
+		deep = deep or 0
+		local space = ""
+		for i = 1, deep do
+			space = space .. "   "
+		end
+		
+		for key, value in pairs (t) do
+			
+			local tpe = _type (value)
+			
+			if (type (key) ~= "string") then
+				key = "unknown?"
+			end
+			
+			if (tpe == "table") then
+				s = s .. space .. "[" .. key .. "] = |cFFa9ffa9table {|r\n"
+				s = s .. _detalhes.table.dump (value, nil, deep+1)
+				s = s .. space .. "|cFFa9ffa9}|r\n"
+				
+			elseif (tpe == "string") then
+				s = s .. space .. "[" .. key .. "] = '|cFFfff1c1" .. value .. "|r'\n"
+				
+			elseif (tpe == "number") then
+				s = s .. space .. "[" .. key .. "] = |cFFffc1f4" .. value .. "|r\n"
+				
+			elseif (tpe == "function") then
+				s = s .. space .. "[" .. key .. "] = function()\n"
+				
+			elseif (tpe == "boolean") then
+				s = s .. space .. "[" .. key .. "] = |cFF99d0ff" .. (value and "true" or "false") .. "|r\n"
+				
+			end
+			
+		end
+		
+		return s
 	end
 	
 	function _detalhes:hex (num)

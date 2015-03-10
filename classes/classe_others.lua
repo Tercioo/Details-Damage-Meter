@@ -382,7 +382,13 @@ end
 
 function atributo_misc:ReportSingleCooldownLine (misc_actor, instancia)
 
-	local reportar = {"Details!: " .. misc_actor.nome .. " - " .. Loc ["STRING_ATTRIBUTE_MISC_DEFENSIVE_COOLDOWNS"]}
+	local reportar
+
+	if (instancia.segmento == -1) then --overall
+		reportar = {"Details!: " .. misc_actor.nome .. " - " .. Loc ["STRING_OVERALL"] .. " " .. Loc ["STRING_ATTRIBUTE_MISC_DEFENSIVE_COOLDOWNS"]}
+	else
+		reportar = {"Details!: " .. misc_actor.nome .. " - " .. Loc ["STRING_ATTRIBUTE_MISC_DEFENSIVE_COOLDOWNS"]}
+	end
 	
 	local meu_total = _math_floor (misc_actor.cooldowns_defensive)
 	local cooldowns = misc_actor.cooldowns_defensive_spells._ActorTable
@@ -1396,13 +1402,18 @@ function _detalhes:CatchRaidDebuffUptime (in_or_out) -- "DEBUFF_UPTIME_IN"
 	end
 end
 
-
+local runes_id = {
+	[175457] = true, -- focus
+	[175456] = true, --hyper
+	[175439] = true, --stout
+}
 
 function _detalhes:CatchRaidBuffUptime (in_or_out)
 
 	if (_IsInRaid()) then
 	
 		local pot_usage = {}
+		local focus_augmentation = {}
 	
 		--> raid groups
 		for raidIndex = 1, _GetNumGroupMembers() do
@@ -1422,6 +1433,8 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 						if (in_or_out == "BUFF_UPTIME_IN") then
 							if (_detalhes.PotionList [spellid]) then
 								pot_usage [playerName] = spellid
+							elseif (runes_id [spellid]) then
+								focus_augmentation [playerName] = true
 							end
 						end
 					end
@@ -1449,6 +1462,8 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 						if (in_or_out == "BUFF_UPTIME_IN") then
 							if (_detalhes.PotionList [spellid]) then
 								pot_usage [playerName] = spellid
+							elseif (runes_id [spellid]) then
+								focus_augmentation [playerName] = true
 							end
 						end
 					end
@@ -1467,6 +1482,8 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 					if (in_or_out == "BUFF_UPTIME_IN") then
 						if (_detalhes.PotionList [spellid]) then
 							pot_usage [playerName] = spellid
+						elseif (runes_id [spellid]) then
+							focus_augmentation [playerName] = true
 						end
 					end
 					
@@ -1487,13 +1504,14 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 			
 			_detalhes.pre_pot_used = string_output
 			
-			_detalhes:SendEvent ("COMBAT_PREPOTION_UPDATED", nil, pot_usage)
+			_detalhes:SendEvent ("COMBAT_PREPOTION_UPDATED", nil, pot_usage, focus_augmentation)
 		end
 		
 	elseif (_IsInGroup()) then
 	
 		local pot_usage = {}
-	
+		local focus_augmentation = {}
+		
 		for groupIndex = 1, _GetNumGroupMembers()-1 do 
 			for buffIndex = 1, 41 do
 				local name, _, _, _, _, _, _, unitCaster, _, _, spellid  = _UnitAura ("party"..groupIndex, buffIndex, nil, "HELPFUL")
@@ -1510,6 +1528,8 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 						if (in_or_out == "BUFF_UPTIME_IN") then
 							if (_detalhes.PotionList [spellid]) then
 								pot_usage [playerName] = spellid
+							elseif (runes_id [spellid]) then
+								focus_augmentation [playerName] = true
 							end
 						end
 					
@@ -1528,6 +1548,8 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 					if (in_or_out == "BUFF_UPTIME_IN") then
 						if (_detalhes.PotionList [spellid]) then
 							pot_usage [playerName] = spellid
+						elseif (runes_id [spellid]) then
+							focus_augmentation [playerName] = true
 						end
 					end
 				
@@ -1547,13 +1569,14 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 			end
 			
 			_detalhes.pre_pot_used = string_output
-			_detalhes:SendEvent ("COMBAT_PREPOTION_UPDATED", nil, pot_usage)
+			_detalhes:SendEvent ("COMBAT_PREPOTION_UPDATED", nil, pot_usage, focus_augmentation)
 		end
 		
 	else
 	
 		local pot_usage = {}
-	
+		local focus_augmentation = {}
+		
 		for buffIndex = 1, 41 do
 			local name, _, _, _, _, _, _, unitCaster, _, _, spellid  = _UnitAura ("player", buffIndex, nil, "HELPFUL")
 			if (name and unitCaster == "player") then
@@ -1564,6 +1587,8 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 					if (in_or_out == "BUFF_UPTIME_IN") then
 						if (_detalhes.PotionList [spellid]) then
 							pot_usage [playerName] = spellid
+						elseif (runes_id [spellid]) then
+							focus_augmentation [playerName] = true
 						end
 					end
 					
@@ -1584,7 +1609,7 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 			end
 			
 			_detalhes.pre_pot_used = string_output
-			_detalhes:SendEvent ("COMBAT_PREPOTION_UPDATED", nil, pot_usage)
+			_detalhes:SendEvent ("COMBAT_PREPOTION_UPDATED", nil, pot_usage, focus_augmentation)
 			
 		end
 		
@@ -1724,7 +1749,7 @@ function atributo_misc:ToolTipDefensiveCooldowns (instancia, numero, barra)
 	local meu_total = _math_floor (self ["cooldowns_defensive"])
 	local minha_tabela = self.cooldowns_defensive_spells._ActorTable
 	
---> habilidade usada para interromper
+--> spells
 	local cooldowns_usados = {}
 	
 	for _spellid, _tabela in _pairs (minha_tabela) do
@@ -1748,7 +1773,7 @@ function atributo_misc:ToolTipDefensiveCooldowns (instancia, numero, barra)
 		GameCooltip:AddLine (Loc ["STRING_NO_SPELL"]) 
 	end
 
---> quem foi que o cara reviveu
+--> targets
 	local meus_alvos = self.cooldowns_defensive_targets
 	local alvos = {}
 	
@@ -2387,7 +2412,7 @@ function atributo_misc:r_onlyrefresh_shadow (actor)
 	return shadow
 
 end
-	
+
 local somar_keys = function (habilidade, habilidade_tabela1)
 	for key, value in _pairs (habilidade) do 
 		if (_type (value) == "number") then
@@ -2405,7 +2430,7 @@ end
 local somar_habilidades = function (container1, container2)
 	for spellid, habilidade in _pairs (container2._ActorTable) do
 		local habilidade_tabela1 = container1:PegaHabilidade (spellid, true, nil, false)
-		somar_alvos (habilidade.targets, habilidade_tabela1.targets)
+		somar_alvos (habilidade_tabela1.targets, habilidade.targets)
 		somar_keys (habilidade, habilidade_tabela1)
 	end
 end

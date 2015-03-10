@@ -2005,7 +2005,12 @@ function _detalhes:ReportSingleLine (instancia, barra)
 		local actor_name = barra.texto_esquerdo:GetText() or ""
 		actor_name = actor_name:gsub ((".*%."), "")
 		
-		reportar = {"Details! " .. Loc ["STRING_CUSTOM_REPORT"] .. " " .. instancia.customName .. ": " .. actor_name}
+		if (instancia.segmento == -1) then --overall
+			reportar = {"Details!: "  .. Loc ["STRING_OVERALL"] .. " " .. instancia.customName .. ": " .. actor_name .. " " .. Loc ["STRING_CUSTOM_REPORT"]}
+		else
+			reportar = {"Details!: " .. instancia.customName .. ": " .. actor_name .. " " .. Loc ["STRING_CUSTOM_REPORT"]}
+		end
+		
 		--> dump cooltip
 		local GameCooltip = GameCooltip
 		
@@ -2016,7 +2021,7 @@ function _detalhes:ReportSingleLine (instancia, barra)
 		end
 		
 	else
-		reportar = {"Details! " .. Loc ["STRING_REPORT"] .. " " .. _detalhes.sub_atributos [instancia.atributo].lista [instancia.sub_atributo]}
+		reportar = {"Details!: " .. Loc ["STRING_REPORT"] .. " " .. _detalhes.sub_atributos [instancia.atributo].lista [instancia.sub_atributo]}
 		reportar [#reportar+1] = barra.texto_esquerdo:GetText() .. " " .. barra.texto_direita:GetText()
 	end
 

@@ -2598,6 +2598,8 @@
 			end
 		end
 		
+		current_combat.enemy = "Illidan Stormrage"
+		
 	end	
 	
 	--old versions dialog

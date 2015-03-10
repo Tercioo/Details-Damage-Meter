@@ -120,8 +120,12 @@ function SlashCmdList.DETAILS (msg, editbox)
 	elseif (command == Loc ["STRING_SLASH_CHANGES"] or command == Loc ["STRING_SLASH_CHANGES_ALIAS1"] or command == Loc ["STRING_SLASH_CHANGES_ALIAS2"] or command == "news" or command == "updates") then
 		_detalhes:OpenNewsWindow()
 	
+	elseif (command == "feedback") then
+		_detalhes.OpenFeedbackWindow()
+	
 -------- debug ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+	
 	elseif (msg == "exitlog") then
 	
 		local exitlog = _detalhes_global.exit_log

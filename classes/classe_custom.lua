@@ -191,6 +191,7 @@
 		instance_container:Remap()
 		
 		if (export) then
+		
 			-- key name value need to be formated
 			if (custom_object) then
 			
@@ -217,11 +218,22 @@
 					end
 					
 					actor.report_value = ptotal .. " (" .. percent .. "%)"
+					
+					if (actor.id) then
+						if (actor.id == 1) then
+							actor.report_name = GetSpellLink (6603)
+						elseif (actor.id > 10) then
+							actor.report_name = GetSpellLink (actor.id)
+						else
+							actor.report_name = actor.nome
+						end
+					end
+					
 				end
 
 			end
 			
-			return total, instance_container._ActorTable, top, amount
+			return total, instance_container._ActorTable, top, amount, "report_name"
 		end
 		
 		instance:AtualizarScrollBar (amount)
@@ -500,7 +512,7 @@
 		if (self.id) then
 			
 			--if (self.id == 1) then
-			--	self.classe = 1
+			--	print (self.classe)
 			--end
 			
 			local school_color = _detalhes.school_colors [self.classe]

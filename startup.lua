@@ -460,6 +460,7 @@ function _G._detalhes:Start()
 	if (self.is_first_run) then
 		_detalhes:OpenWelcomeWindow()
 	end
+	
 	--_detalhes:OpenWelcomeWindow() --debug
 	-- /run _detalhes:OpenWelcomeWindow()
 	

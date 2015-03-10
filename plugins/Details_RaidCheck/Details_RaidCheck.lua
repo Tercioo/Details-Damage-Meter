@@ -49,7 +49,16 @@ local food_list = {
 	[180759] = true, --
 	[180762] = true, --
 	[180760] = true, --
+}
 
+local focus_augmentation = 175457
+local hyper_augmentation = 175456
+local stout_augmentation = 175439
+
+local runes_id = {
+	[175457] = true, -- focus
+	[175456] = true, --hyper
+	[175439] = true, --stout
 }
 
 --> localization
@@ -59,7 +68,7 @@ local food_list = {
 	tinsert (UISpecialFrames, "DetailsRaidCheck")
 	DetailsRaidCheck:SetPluginDescription (Loc ["STRING_RAIDCHECK_PLUGIN_DESC"])
 
-	local version = "v0.3"
+	local version = "v0.4.1"
 	
 	local debugmode = false
 	
@@ -70,8 +79,10 @@ local food_list = {
 	
 		--> tables
 		DetailsRaidCheck.usedprepot_table = {}
+		DetailsRaidCheck.focusaug_table = {}
 		DetailsRaidCheck.haveflask_table = {}
 		DetailsRaidCheck.havefood_table = {}
+		DetailsRaidCheck.havefocusaug_table = {}
 		
 		DetailsRaidCheck.on_raid = false
 		DetailsRaidCheck.tracking_buffs = false
@@ -86,7 +97,7 @@ local food_list = {
 
 			elseif (event == "COMBAT_PREPOTION_UPDATED") then
 
-				DetailsRaidCheck.usedprepot_table = select (1, ...)
+				DetailsRaidCheck.usedprepot_table, DetailsRaidCheck.focusaug_table = select (1, ...)
 
 			elseif (event == "COMBAT_PLAYER_LEAVE") then
 				
@@ -185,7 +196,7 @@ local food_list = {
 		
 		local report_string1 = show_panel:CreateFontString (nil, "overlay", "GameFontNormal")
 		report_string1:SetPoint ("bottomleft", show_panel, "bottomleft", 10, 10)
-		report_string1:SetText ("|TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:12:12:0:1:512:512:8:70:225:307|t Report No Food/Flask  |TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:12:12:0:1:512:512:8:70:328:409|t Report No Pre-Pot  |TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:12:12:0:1:512:512:8:70:126:204|t Disable Plugin") 
+		report_string1:SetText ("|TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:12:12:0:1:512:512:8:70:225:307|t Report No Food/Flask  |TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:12:12:0:1:512:512:8:70:328:409|t Report No Pre-Pot  |TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:12:12:0:1:512:512:8:70:126:204|t Report No Rune") 
 		DetailsRaidCheck:SetFontSize (report_string1, 10)
 		DetailsRaidCheck:SetFontColor (report_string1, "white")
 		report_string1:SetAlpha (0.6)
@@ -229,22 +240,23 @@ local food_list = {
 
 		--
 		
-		local prepot_title = show_panel:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
-		prepot_title:SetJustifyH ("center")
-		prepot_title:SetPoint ("topleft", show_panel, "topleft", 205, -20)
-		prepot_title:SetText ("Used Pre Pot")
-		prepot_title:SetTextColor (0.8, 1, 0.8)
+		local focus_aug = show_panel:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+		focus_aug:SetJustifyH ("center")
+		focus_aug:SetPoint ("topleft", show_panel, "topleft", 205, -20)
+		--focus_aug:SetText ("Augmentation")
+		focus_aug:SetText ("No Rune")
+		focus_aug:SetTextColor (0.8, 0.8, 1)
 		
-		local prepot_str = show_panel:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
-		prepot_str:SetJustifyH ("left")
-		prepot_str:SetPoint ("topleft", prepot_title, "topleft", -11, -20)
+		local focus_aug2 = show_panel:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+		focus_aug2:SetJustifyH ("left")
+		focus_aug2:SetPoint ("topleft", focus_aug, "topleft", -9, -20)
 		
-		local prepot_image = show_panel:CreateTexture (nil, "artwork")
-		prepot_image:SetTexture ([[Interface\Garrison\GarrisonMissionUI2]])
-		prepot_image:SetTexCoord (680/1024, 888/1024, 429/1024, 477/1024)
-		prepot_image:SetPoint ("topleft", prepot_title, "topleft", -11, 3)
-		prepot_image:SetSize (prepot_title:GetStringWidth()+22, 19) --208, 48
-		prepot_image:SetVertexColor (.65, .65, .65)
+		local focus_aug_image2 = show_panel:CreateTexture (nil, "artwork")
+		focus_aug_image2:SetTexture ([[Interface\Garrison\GarrisonMissionUI2]])
+		focus_aug_image2:SetTexCoord (680/1024, 888/1024, 429/1024, 477/1024)
+		focus_aug_image2:SetPoint ("topleft", focus_aug, "topleft", -11, 3)
+		focus_aug_image2:SetSize (focus_aug:GetStringWidth()+22, 19) --208, 48
+		focus_aug_image2:SetVertexColor (.65, .65, .65)
 		
 		--
 		
@@ -264,6 +276,29 @@ local food_list = {
 		prepot_image2:SetPoint ("topleft", prepot_title2, "topleft", -11, 3)
 		prepot_image2:SetSize (prepot_title2:GetStringWidth()+22, 19) --208, 48
 		prepot_image2:SetVertexColor (.65, .65, .65)
+		
+		--
+		
+		local prepot_title = show_panel:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+		prepot_title:SetJustifyH ("center")
+		prepot_title:SetPoint ("topleft", show_panel, "topleft", 415, -20)
+		prepot_title:SetText ("Used Pre Pot")
+		prepot_title:SetTextColor (0.8, 1, 0.8)
+		
+		local prepot_str = show_panel:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+		prepot_str:SetJustifyH ("left")
+		prepot_str:SetPoint ("topleft", prepot_title, "topleft", -11, -20)
+		
+		local prepot_image = show_panel:CreateTexture (nil, "artwork")
+		prepot_image:SetTexture ([[Interface\Garrison\GarrisonMissionUI2]])
+		prepot_image:SetTexCoord (680/1024, 888/1024, 429/1024, 477/1024)
+		prepot_image:SetPoint ("topleft", prepot_title, "topleft", -11, 3)
+		prepot_image:SetSize (prepot_title:GetStringWidth()+22, 19) --208, 48
+		prepot_image:SetVertexColor (.65, .65, .65)
+		
+		prepot_title:Hide()
+		prepot_str:Hide()
+		prepot_image:Hide()
 		
 		--
 		
@@ -345,7 +380,30 @@ local food_list = {
 			
 			elseif (button == "MiddleButton") then
 				
-				_detalhes:DisablePlugin ("DETAILS_PLUGIN_RAIDCHECK")
+				--_detalhes:DisablePlugin ("DETAILS_PLUGIN_RAIDCHECK")
+				
+				--report focus aug
+				local s = "Details!: Not using Rune: "
+				
+				local amt = GetNumGroupMembers()
+				local _, _, difficulty = GetInstanceInfo()
+				if (difficulty == 16 and DetailsRaidCheck.db.mythic_1_4 and amt > 20) then
+					amt = 20
+				end
+				
+				for i = 1, amt do
+					local name = UnitName ("raid" .. i)
+					if (not DetailsRaidCheck.havefocusaug_table [name]) then
+						s = s .. DetailsRaidCheck:GetOnlyName (name) .. " "
+					end
+				end
+				
+				if (DetailsRaidCheck.db.use_report_panel) then
+					DetailsRaidCheck.report_lines = s
+					DetailsRaidCheck:SendReportWindow (reportFunc)
+				else
+					DetailsRaidCheck:SendMsgToChannel (s, "RAID")
+				end
 			
 			end
 			
@@ -353,7 +411,7 @@ local food_list = {
 		
 		local update_panel = function (self)
 		
-			local amount1, amount2, amount3, amount4  = 0, 0, 0, 0
+			local amount1, amount2, amount3, amount4, amount5  = 0, 0, 0, 0, 0
 			local s, f, p, n = "", "", "", ""
 			
 			local amt = GetNumGroupMembers()
@@ -450,7 +508,38 @@ local food_list = {
 			prepot_str:SetText (p)
 			prepot_str2:SetText (n)
 			
-			local bigger = math.max (amount1, amount2, amount3, amount4)
+			--> not used focus augmentation
+			n = ""
+			
+			local amt = GetNumGroupMembers()
+			local _, _, difficulty = GetInstanceInfo()
+			if (difficulty == 16 and DetailsRaidCheck.db.mythic_1_4 and amt > 20) then
+				amt = 20
+			end
+			
+			for i = 1, amt do
+			
+				local name = UnitName ("raid" .. i)
+				
+				if (not DetailsRaidCheck.havefocusaug_table [name]) then
+					local _, class = _UnitClass (name)
+					local class_color = "FFFFFFFF"
+					
+					if (class) then
+						local coords = CLASS_ICON_TCOORDS [class]
+						class_color = "|TInterface\\AddOns\\Details\\images\\classes_small_alpha:12:12:0:-5:128:128:" .. coords[1]*128 .. ":" .. coords[2]*128 .. ":" .. coords[3]*128 .. ":" .. coords[4]*128 .. "|t |c" .. RAID_CLASS_COLORS [class].colorStr
+					end
+				
+					n = n .. class_color .. DetailsRaidCheck:GetOnlyName (name) .. "|r\n"
+					
+					amount5 = amount5 + 1
+				end
+				
+			end
+			
+			focus_aug2:SetText (n)
+
+			local bigger = math.max (amount1, amount2, amount3, amount4, amount5)
 			show_panel:SetHeight (100 + (bigger * 10))
 			
 		end
@@ -514,6 +603,9 @@ local food_list = {
 			for player_name, have in pairs (DetailsRaidCheck.havefood_table) do
 				DetailsRaidCheck.havefood_table [player_name] = nil
 			end
+			for player_name, have in pairs (DetailsRaidCheck.havefocusaug_table) do
+				DetailsRaidCheck.havefocusaug_table [player_name] = nil
+			end
 			
 			local amt_players = GetNumGroupMembers()
 			local with_flask, with_food = 0, 0
@@ -531,6 +623,10 @@ local food_list = {
 					if (bname and food_list [spellid]) then
 						DetailsRaidCheck.havefood_table [name] = true
 						with_food = with_food + 1
+					end
+					
+					if (bname and runes_id [spellid]) then
+						DetailsRaidCheck.havefocusaug_table [name] = true
 					end
 				end
 			end
