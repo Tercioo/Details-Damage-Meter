@@ -15,6 +15,37 @@ function _detalhes:UpdateGears()
 	
 end
 
+
+
+------------------------------------------------------------------------------------------------------------
+
+function _detalhes:SetDeathLogLimit (limit)
+
+	if (limit and type (limit) == "number" and limit >= 8) then
+		_detalhes.deadlog_events = limit
+		
+		local combat = _detalhes.tabela_vigente
+
+		local wipe = table.wipe
+		for player_name, event_table in pairs (combat.player_last_events) do
+			if (limit > #event_table) then
+				for i = #event_table + 1, limit do
+					event_table [i] = {}
+				end
+			else
+				event_table.n = 1
+				for _, t in ipairs (event_table) do
+					wipe (t)
+				end
+			end
+		end
+		
+		_detalhes:UpdateParserGears()
+	end
+end
+
+------------------------------------------------------------------------------------------------------------
+
 function _detalhes:TrackSpecsNow (track_everything)
 
 	local spelllist = _detalhes.SpecSpellList

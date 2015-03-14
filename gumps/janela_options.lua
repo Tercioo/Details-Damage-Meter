@@ -4114,6 +4114,30 @@ function window:CreateFrame2()
 		frame2.timetypeDropdown:SetPoint ("left", frame2.timetypeLabel, "right", 2, 0)		
 
 		window:CreateLineBackground2 (frame2, "timetypeDropdown", "timetypeLabel", Loc ["STRING_OPTIONS_TIMEMEASURE_DESC"])
+		
+	--> death log limit
+		g:NewLabel (frame2, _, "$parentDeathLogLimitLabel", "DeathLogLimitLabel", Loc ["STRING_OPTIONS_DEATHLIMIT"], "GameFontHighlightLeft")
+		--
+		local onSelectDeathLogLimit = function (_, _, limit_amount)
+			_detalhes:SetDeathLogLimit (limit_amount)
+		end
+		local DeathLogLimitOptions = {
+			{value = 16, label = "16 Records", onclick = onSelectDeathLogLimit, icon = [[Interface\WorldStateFrame\ColumnIcon-GraveyardDefend0]]},
+			{value = 32, label = "32 Records", onclick = onSelectDeathLogLimit, icon = [[Interface\WorldStateFrame\ColumnIcon-GraveyardDefend0]]},
+			{value = 45, label = "45 Records", onclick = onSelectDeathLogLimit, icon = [[Interface\WorldStateFrame\ColumnIcon-GraveyardDefend0]]},
+		}
+		local buildDeathLogLimitMenu = function()
+			return DeathLogLimitOptions
+		end
+		local d = g:NewDropDown (frame2, _, "$parentDeathLogLimitDropdown", "DeathLogLimitDropdown", 160, 20, buildDeathLogLimitMenu, nil) -- func, default
+		d.onenter_backdrop = dropdown_backdrop_onenter
+		d.onleave_backdrop = dropdown_backdrop_onleave
+		d:SetBackdrop (dropdown_backdrop)
+		d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+		
+		frame2.DeathLogLimitDropdown:SetPoint ("left", frame2.DeathLogLimitLabel, "right", 2, 0)		
+
+		window:CreateLineBackground2 (frame2, "DeathLogLimitDropdown", "DeathLogLimitLabel", Loc ["STRING_OPTIONS_DEATHLIMIT_DESC"])
 
 	--> Erase Chart Data
 		g:NewLabel (frame2, _, "$parentEraseChartDataLabel", "EraseChartDataLabel", Loc ["STRING_OPTIONS_ERASECHARTDATA"], "GameFontHighlightLeft")
@@ -4407,16 +4431,17 @@ function window:CreateFrame2()
 			{"fragsPvpLabel", 2},
 			{"EraseChartDataLabel", 3},
 			{"timetypeLabel", 4, true},
+			{"DeathLogLimitLabel", 5, true},
 			
-			{"OverallDataLabel", 5, true},
-			{"OverallDataRaidBossLabel", 6},
-			{"OverallDataRaidCleaupLabel", 7},
-			{"OverallDataDungeonBossLabel", 8},
-			{"OverallDataDungeonCleaupLabel", 9},
-			{"OverallDataAllLabel", 10, true},
-			{"OverallNewBossLabel", 11, true},
-			{"OverallNewChallengeLabel", 12},
-			{"OverallOnLogoutLabel", 13},
+			{"DataCollectAnchorLabel", 6, true},
+			{"damageCaptureImage", 7},
+			{"healCaptureImage", 8},
+			{"energyCaptureImage", 9},
+			{"miscCaptureImage", 10},
+			{"auraCaptureImage", 11},
+			{"cloudCaptureLabel", 12, true},
+			
+
 		}
 		
 		window:arrange_menu (frame2, left_side, x, window.top_start_at)
@@ -4424,13 +4449,15 @@ function window:CreateFrame2()
 		local x = window.right_start_at
 		
 		local right_side = {
-			{"DataCollectAnchorLabel", 1, true},
-			{"damageCaptureImage", 2},
-			{"healCaptureImage", 3},
-			{"energyCaptureImage", 4},
-			{"miscCaptureImage", 5},
-			{"auraCaptureImage", 6},
-			{"cloudCaptureLabel", 7, true},
+			{"OverallDataLabel", 1, true},
+			{"OverallDataRaidBossLabel", 2},
+			{"OverallDataRaidCleaupLabel", 3},
+			{"OverallDataDungeonBossLabel", 4},
+			{"OverallDataDungeonCleaupLabel", 5},
+			{"OverallDataAllLabel", 6, true},
+			{"OverallNewBossLabel", 7, true},
+			{"OverallNewChallengeLabel", 8},
+			{"OverallOnLogoutLabel", 9},
 		}
 		
 		window:arrange_menu (frame2, right_side, x, -90)
@@ -10014,6 +10041,7 @@ end --> if not window
 		--> window 2
 		_G.DetailsOptionsWindow2FragsPvpSlider.MyObject:SetValue (_detalhes.only_pvp_frags)
 		_G.DetailsOptionsWindow2TTDropdown.MyObject:Select (_detalhes.time_type)
+		_G.DetailsOptionsWindow2DeathLogLimitDropdown.MyObject:Select (_detalhes.deadlog_events)
 
 		_G.DetailsOptionsWindow2EraseChartDataSlider.MyObject:SetValue (_detalhes.clear_graphic)
 

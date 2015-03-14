@@ -1,4 +1,4 @@
-	
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 	local _detalhes = 		_G._detalhes
@@ -110,6 +110,8 @@
 		local _recording_buffs_and_debuffs = false
 	--> in combat flag
 		local _in_combat = false
+	--> deathlog
+		local _death_event_amt = 16
 	--> hooks
 		local _hook_cooldowns = false
 		local _hook_deaths = false
@@ -144,6 +146,10 @@
 
 	------------------------------------------------------------------------------------------------
 	--> early checks and fixes
+
+--SPELL_DAMAGE,0000000000000000,nil,0x512,0x0,Player-1174-080D253A,"Neltuvak-Undermine",0x512,0x0,157247,"Reverberations",0x1,0000000000000000,0000000000000000,0,0,0,0,0,0,0,0,0.00,0.00,0,47061,-1,1,0,0,0,nil,nil,nil,nil
+--SPELL_DAMAGE,Creature-0-3020-1205-15169-79806-000003513D,"Stone Wall",0x2248,0x0,Player-3209-085116F5,"Xirodots-Azralon",0x514,0x0,161923,"Rune of Crushing Earth",0x8,0000000000000000,0000000000000000,0,0,0,0,0,0,0,0,0.00,0.00,0,72729,-1,8,0,0,0,nil,nil,nil,nil
+--SPELL_DAMAGE,0000000000000000,nil,0x514,0x0,Player-3677-070E7EAE,"Alithan-Garrosh",0x514,0x0,157659,"Rippling Smash",0x8,0000000000000000,0000000000000000,0,0,0,0,0,0,0,0,0.00,0.00,0,50610,-1,8,0,0,12765,nil,nil,nil,nil
 
 		if (who_serial == "") then
 			if (who_flags and _bit_band (who_flags, OBJECT_TYPE_PETS) ~= 0) then --> é um pet
@@ -362,6 +368,10 @@
 			
 			local this_event = t [i]
 			
+			if (not this_event) then
+				print ("event error", i, _death_event_amt)
+			end
+			
 			this_event [1] = true --> true if this is a damage || false for healing
 			this_event [2] = spellid --> spellid || false if this is a battle ress line
 			this_event [3] = amount --> amount of damage or healing
@@ -375,7 +385,7 @@
 			
 			i = i + 1
 			
-			if (i == 17) then
+			if (i == _death_event_amt+1) then
 				t.n = 1
 			else
 				t.n = i
@@ -456,7 +466,7 @@
 				this_event [10] = overkill
 				i = i + 1
 				
-				if (i == 17) then
+				if (i == _death_event_amt+1) then
 					t.n = 1
 				else
 					t.n = i
@@ -849,7 +859,7 @@
 			
 			i = i + 1
 			
-			if (i == 17) then
+			if (i == _death_event_amt+1) then
 				t.n = 1
 			else
 				t.n = i
@@ -980,7 +990,7 @@
 					-- jade spirit doesn't send who_name, that's a shame. 
 					if (who_name == alvo_name and raid_members_cache [who_serial] and _in_combat) then
 						--> call record buffs uptime
-	--[[not tail call, need to fix this]]	parser:add_buff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, "BUFF_UPTIME_IN")
+						parser:add_buff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, "BUFF_UPTIME_IN")
 					end
 				end
 		
@@ -1029,12 +1039,17 @@
 			------------------------------------------------------------------------------------------------
 			--> buff uptime
 				if (_recording_buffs_and_debuffs) then
+				
+					if (cc_spell_list [spellid]) then
+						parser:add_cc_done (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname)
+					end
+				
 					if (raid_members_cache [who_serial]) then
 						--> call record debuffs uptime
-	--[[not tail call, need to fix this]]	parser:add_debuff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, "DEBUFF_UPTIME_IN")
+						parser:add_debuff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, "DEBUFF_UPTIME_IN")
 	
-					elseif (raid_members_cache [alvo_serial] and not raid_members_cache [who_serial]) then --> alvo é da raide é alguem de fora da raide
-	--[[not tail call, need to fix this]]	parser:add_bad_debuff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spellschool, "DEBUFF_UPTIME_IN")
+					elseif (raid_members_cache [alvo_serial] and not raid_members_cache [who_serial]) then --> alvo é da raide e who é alguem de fora da raide
+						parser:add_bad_debuff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spellschool, "DEBUFF_UPTIME_IN")
 					end
 				end
 			
@@ -1104,6 +1119,50 @@
 			end
 		end
 	end
+	
+	function parser:add_cc_done (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname)
+	
+	------------------------------------------------------------------------------------------------
+	--> early checks and fixes
+		
+		_current_misc_container.need_refresh = true
+		
+	------------------------------------------------------------------------------------------------
+	--> get actors
+		local este_jogador = misc_cache [who_name]
+		if (not este_jogador) then
+			este_jogador = _current_misc_container:PegarCombatente (who_serial, who_name, who_flags, true)
+			misc_cache [who_name] = este_jogador
+		end
+		
+	------------------------------------------------------------------------------------------------
+	--> build containers on the fly
+		
+		if (not este_jogador.cc_done) then
+			este_jogador.cc_done = _detalhes:GetOrderNumber()
+			este_jogador.cc_done_spells = container_habilidades:NovoContainer (container_misc)
+			este_jogador.cc_done_targets = {}
+		end	
+
+	------------------------------------------------------------------------------------------------
+	--> add amount
+		
+		--> update last event
+		este_jogador.last_event = _tempo
+		
+		--> add amount
+		este_jogador.cc_done = este_jogador.cc_done + 1
+		este_jogador.cc_done_targets [alvo_name] = (este_jogador.cc_done_targets [alvo_name] or 0) + 1
+		
+		--> actor spells table
+		local spell = este_jogador.cc_done_spells._ActorTable [spellid]
+		if (not spell) then
+			spell = este_jogador.cc_done_spells:PegaHabilidade (spellid, true)
+		end
+		
+		spell.targets [alvo_name] = (spell.targets [alvo_name] or 0) + 1
+		spell.counter = spell.counter + 1
+	end
 
 	function parser:buff_refresh (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spellschool, tipo, amount)
 
@@ -1117,7 +1176,7 @@
 				if (_recording_buffs_and_debuffs) then
 					if (who_name == alvo_name and raid_members_cache [who_serial] and _in_combat) then
 						--> call record buffs uptime
-	--[[not tail call, need to fix this]]	parser:add_buff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, "BUFF_UPTIME_REFRESH")
+						parser:add_buff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, "BUFF_UPTIME_REFRESH")
 					end
 				end
 		
@@ -1183,9 +1242,9 @@
 				if (_recording_buffs_and_debuffs) then
 					if (raid_members_cache [who_serial]) then
 						--> call record debuffs uptime
-	--[[not tail call, need to fix this]]	parser:add_debuff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, "DEBUFF_UPTIME_REFRESH")
+						parser:add_debuff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, "DEBUFF_UPTIME_REFRESH")
 					elseif (raid_members_cache [alvo_serial] and not raid_members_cache [who_serial]) then --> alvo é da raide e o caster é inimigo
-	--[[not tail call, need to fix this]]	parser:add_bad_debuff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spellschool, "DEBUFF_UPTIME_REFRESH")
+						parser:add_bad_debuff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spellschool, "DEBUFF_UPTIME_REFRESH")
 					end
 				end
 		
@@ -1253,7 +1312,7 @@
 				if (_recording_buffs_and_debuffs) then
 					if (who_name == alvo_name and raid_members_cache [who_serial] and _in_combat) then
 						--> call record buffs uptime
-	--[[not tail call, need to fix this]]	parser:add_buff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, "BUFF_UPTIME_OUT")
+						parser:add_buff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, "BUFF_UPTIME_OUT")
 					end
 				end
 		
@@ -1311,9 +1370,9 @@
 				if (_recording_buffs_and_debuffs) then
 					if (raid_members_cache [who_serial]) then
 						--> call record debuffs uptime
-	--[[not tail call, need to fix this]]	parser:add_debuff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, "DEBUFF_UPTIME_OUT")
+						parser:add_debuff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, "DEBUFF_UPTIME_OUT")
 					elseif (raid_members_cache [alvo_serial] and not raid_members_cache [who_serial]) then --> alvo é da raide e o caster é inimigo
-	--[[not tail call, need to fix this]]	parser:add_bad_debuff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spellschool, "DEBUFF_UPTIME_OUT")
+						parser:add_bad_debuff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spellschool, "DEBUFF_UPTIME_OUT")
 					end
 				end
 			
@@ -1747,7 +1806,7 @@
 				this_event [6] = who_name --> source name
 				
 				i = i + 1
-				if (i == 17) then
+				if (i == _death_event_amt+1) then
 					t.n = 1
 				else
 					t.n = i
@@ -2257,20 +2316,20 @@
 				--lesses index = older / higher index = newer
 				
 				local last_index = t.n --or 'next index'
-				if (last_index < 17 and not t[last_index][4]) then
+				if (last_index < _death_event_amt+1 and not t[last_index][4]) then
 					for i = 1, last_index-1 do
-						if (t[i][4] and t[i][4]+16 > time) then
+						if (t[i][4] and t[i][4]+_death_event_amt > time) then
 							_table_insert (esta_morte, t[i])
 						end
 					end
 				else
-					for i = last_index, 16 do --next index to 16
-						if (t[i][4] and t[i][4]+16 > time) then
+					for i = last_index, _death_event_amt do --next index to 16
+						if (t[i][4] and t[i][4]+_death_event_amt > time) then
 							_table_insert (esta_morte, t[i])
 						end
 					end
 					for i = 1, last_index-1 do --1 to latest index
-						if (t[i][4] and t[i][4]+16 > time) then
+						if (t[i][4] and t[i][4]+_death_event_amt > time) then
 							_table_insert (esta_morte, t[i])
 						end
 					end
@@ -2287,11 +2346,11 @@
 					end
 				end
 				
-				if (_detalhes.deadlog_limit and #esta_morte > _detalhes.deadlog_limit) then
-					while (#esta_morte > _detalhes.deadlog_limit) do
-						_table_remove (esta_morte, 1)
-					end
-				end
+				--if (_detalhes.deadlog_limit and #esta_morte > _detalhes.deadlog_limit) then
+				--	while (#esta_morte > _detalhes.deadlog_limit) do
+				--		_table_remove (esta_morte, 1)
+				--	end
+				--end
 				
 				if (este_jogador.last_cooldown) then
 					local t = {}
@@ -2566,19 +2625,26 @@
 		if (_detalhes.is_in_arena and zoneType ~= "arena") then
 			_detalhes:LeftArena()
 		end
+		if (_detalhes.is_in_battleground and zoneType ~= "pvp") then
+			_detalhes.is_in_battleground = nil
+		end
 		
 		if (zoneType == "pvp") then
-			if (not _current_combat.pvp) then
+
+			if (_detalhes.debug) then
+				_detalhes:Msg ("(debug) battleground found.")
+			end
 			
-				if (_detalhes.debug) then
-					_detalhes:Msg ("(debug) battleground found, starting new combat table.")
-				end
-				
+			_detalhes.is_in_battleground = true
+			
+			if (_in_combat and not _current_combat.pvp) then
+				_detalhes:SairDoCombate()
+			end
+			
+			if (not _in_combat) then
 				_detalhes:EntrarEmCombate()
-				--> sinaliza que esse combate é pvp
 				_current_combat.pvp = true
-				_current_combat.is_pvp = {name = zoneName, zone = ZoneName, mapid = ZoneMapID}
-				_detalhes.listener:RegisterEvent ("CHAT_MSG_BG_SYSTEM_NEUTRAL")
+				_current_combat.is_pvp = {name = zoneName, mapid = ZoneMapID}
 			end
 		
 		elseif (zoneType == "arena") then
@@ -2725,20 +2791,6 @@
 		end
 
 		_table_wipe (_detalhes.encounter_table)
-	end
-	
-	function _detalhes.parser_functions:CHAT_MSG_BG_SYSTEM_NEUTRAL (...)
-		local frase = _select (1, ...)
-		--> reset combat timer
-		if ( (frase:find ("The battle") and frase:find ("has begun!") ) and _current_combat.pvp) then
-			--local tempo_do_combate = _tempo - _current_combat:GetStartTime()
-			local tempo_do_combate = _GetTime() - _current_combat:GetStartTime()
-			
-			_detalhes.tabela_overall:SetStartTime (_detalhes.tabela_overall:GetStartTime() + tempo_do_combate)
-			--_current_combat.start_time = _tempo
-			_current_combat:SetStartTime (_GetTime())
-			_detalhes.listener:UnregisterEvent ("CHAT_MSG_BG_SYSTEM_NEUTRAL")
-		end
 	end
 	
 	function _detalhes.parser_functions:UNIT_PET (...)
@@ -2907,7 +2959,23 @@
 			if (_detalhes.debug) then
 				_detalhes:Msg ("(debug) timer is a arena countdown.")
 			end
+		
+		elseif (_detalhes.is_in_battleground) then
+			
+			local timerType, timeSeconds, totalTime = select (1, ...)
+			
+			if (_detalhes.start_battleground) then
+				_detalhes:CancelTimer (_detalhes.start_battleground, true)
+			end
+			
+			_detalhes.start_battleground = _detalhes:ScheduleTimer ("CreateBattlegroundSegment", timeSeconds)
+
 		end
+	end
+	
+	function _detalhes:CreateBattlegroundSegment()
+		_current_combat:SetStartTime (_GetTime())
+		print ("Battleground has begun.")
 	end
 
 	-- ~load
@@ -3220,6 +3288,7 @@
 		
 		--> last events pointer
 		last_events_cache = _current_combat.player_last_events
+		_death_event_amt = _detalhes.deadlog_events
 
 		--> refresh total containers
 		_current_total = _current_combat.totals

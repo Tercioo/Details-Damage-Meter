@@ -227,8 +227,9 @@
 						else
 							actor.report_name = actor.nome
 						end
+					else
+						actor.report_name = actor.nome
 					end
-					
 				end
 
 			end
@@ -673,7 +674,7 @@
 		if (instancia.row_info.textL_show_number) then
 			bar_number = esta_barra.colocacao .. ". "
 		end
-		
+
 		if (self.enemy) then
 			if (self.arena_enemy) then
 				if (UsingCustomLeftText) then
@@ -783,21 +784,36 @@
 			return self._ActorTable [index]
 		else
 			--> if is a spell object
+			local class
 			if (actor.id) then
 				local spellname = _GetSpellInfo (actor.id)
 				actor.nome = spellname
 				actor.classe = actor.spellschool
+				class = actor.spellschool
+			else
+				class = actor.classe
+				if (class == "UNKNOW") then
+					--> try once again
+					class = _detalhes:GetClass (actor.nome)
+					if (class and class ~= "UNKNOW") then
+						actor.classe = class
+					end
+				end
 			end
 		
 			local new_actor = _setmetatable ({
 			nome = actor.nome,
-			classe = actor.classe,
+			classe = class,
 			value = _detalhes:GetOrderNumber (actor.nome),
 			}, atributo_custom.mt)
 			
 			new_actor.name_complement = name_complement
-			new_actor.displayName = new_actor.nome .. (name_complement or "")
+			new_actor.displayName = _detalhes:GetOnlyName (new_actor.nome) .. (name_complement or "")
 			new_actor.spec = actor.spec
+			
+			new_actor.enemy = actor.enemy
+			new_actor.arena_enemy = actor.arena_enemy
+			new_actor.arena_ally = actor.arena_ally
 			
 			if (actor.id) then
 				new_actor.id = actor.id
@@ -1696,6 +1712,111 @@
 				self.custom [#self.custom+1] = DamageTakenBySpell
 			end
 		end
+		
+		----------------------------------------------------------------------------------------------------------------------------------------------------
+		--doas
+		local CC_Done = {
+			name = "Crowd Control",
+			icon = [[Interface\ICONS\Spell_Frost_FreezingBreath]],
+			attribute = false,
+			spellid = false,
+			author = "Details!",
+			desc = "Show the crowd control amount for each player.",
+			source = false,
+			target = false,
+			script_version = 6,
+			script = [[
+				local combat, instance_container, instance = ...
+				local total, top, amount = 0, 0, 0
+
+				local misc_actors = combat:GetActorList (DETAILS_ATTRIBUTE_MISC)
+
+				for index, character in ipairs (misc_actors) do
+					if (character.cc_done) then
+						local cc_done = floor (character.cc_done)
+						instance_container:AddValue (character, cc_done)
+						total = total + cc_done
+						if (cc_done > top) then
+							top = cc_done
+						end
+						amount = amount + 1
+					end
+				end
+
+				return total, top, amount
+			]],
+			tooltip = [[
+				local actor, combat, instance = ...
+				local spells = {}
+				for spellid, spell in pairs (actor.cc_done_spells._ActorTable) do
+				    tinsert (spells, {spellid, spell.counter})
+				end
+
+				table.sort (spells, _detalhes.Sort2)
+
+				for index, spell in ipairs (spells) do
+				    local name, _, icon = GetSpellInfo (spell [1])
+				    GameCooltip:AddLine (name, spell [2])
+				    _detalhes:AddTooltipBackgroundStatusbar()
+				    GameCooltip:AddIcon (icon, 1, 1, 14, 14)
+				end
+
+				local targets = {}
+				for playername, amount in pairs (actor.cc_done_targets) do
+				    tinsert (targets, {playername, amount})
+				end
+
+				table.sort (targets, _detalhes.Sort2)
+
+				_detalhes:AddTooltipSpellHeaderText ("Targets", "yellow", r, g, b, #targets)
+				local class, _, _, _, _, r, g, b = _detalhes:GetClass (actor.nome)
+				GameCooltip:AddStatusBar (100, 1, r, g, b, 1)
+
+
+				for index, target in ipairs (targets) do
+				    GameCooltip:AddLine (target[1], target [2])
+				    _detalhes:AddTooltipBackgroundStatusbar()
+				    
+				    local class, _, _, _, _, r, g, b = _detalhes:GetClass (target [1])
+				    if (class and class ~= "UNKNOW") then
+					local texture, l, r, t, b = _detalhes:GetClassIcon (class)
+					GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small_alpha", 1, 1, 14, 14, l, r, t, b)
+				    else
+					GameCooltip:AddIcon ("Interface\\GossipFrame\\IncompleteQuestIcon", 1, 1, 14, 14)
+				    end
+				    --
+				end
+			]],
+			total_script = [[
+				local value, top, total, combat, instance = ...
+				return floor (value)
+			]],
+		}
+		
+--		/run _detalhes:AddDefaultCustomDisplays()
+		
+		local have = false
+		for _, custom in ipairs (self.custom) do
+			if (custom.name == "Crowd Control" and (custom.script_version and custom.script_version >= CC_Done.script_version) ) then
+				have = true
+				break
+			end
+		end
+		if (not have) then
+			setmetatable (CC_Done, _detalhes.atributo_custom)
+			CC_Done.__index = _detalhes.atributo_custom
+			
+			for i, custom in ipairs (self.custom) do
+				if (custom.name == "Crowd Control") then
+					table.remove (self.custom, i)
+					tinsert (self.custom, i, CC_Done)
+					have = true
+				end
+			end
+			if (not have) then
+				self.custom [#self.custom+1] = CC_Done
+			end
+		end	
 		
 		----------------------------------------------------------------------------------------------------------------------------------------------------
 		

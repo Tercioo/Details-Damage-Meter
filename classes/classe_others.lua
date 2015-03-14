@@ -198,53 +198,55 @@ function _detalhes:ToolTipDead (instancia, morte, esta_barra, keydown)
 		local time = event [4]
 		local source = event [6]
 
-		if (type (evtype) == "boolean") then
-			--> is damage or heal
-			if (evtype) then
-				--> damage
-				
-				local overkill = event [10] or 0
-				if (overkill > 0) then
-					amount = amount - overkill
-					overkill = " (" .. _detalhes:ToK (overkill) .. " |cFFFF8800overkill|r)"
-					GameCooltip:AddLine ("" .. _cstr ("%.1f", time - hora_da_morte) .. "s |cFFFFFF00" .. spellname .. "|r (|cFFC6B0D9" .. source .. "|r)", "-" .. _detalhes:ToK (amount) .. overkill .. " (" .. hp .. "%)", 1, "white", "white")
+		if (time + 12 > hora_da_morte) then
+			if (type (evtype) == "boolean") then
+				--> is damage or heal
+				if (evtype) then
+					--> damage
+					
+					local overkill = event [10] or 0
+					if (overkill > 0) then
+						amount = amount - overkill
+						overkill = " (" .. _detalhes:ToK (overkill) .. " |cFFFF8800overkill|r)"
+						GameCooltip:AddLine ("" .. _cstr ("%.1f", time - hora_da_morte) .. "s |cFFFFFF00" .. spellname .. "|r (|cFFC6B0D9" .. source .. "|r)", "-" .. _detalhes:ToK (amount) .. overkill .. " (" .. hp .. "%)", 1, "white", "white")
+					else
+						overkill = ""
+						GameCooltip:AddLine ("" .. _cstr ("%.1f", time - hora_da_morte) .. "s " .. spellname .. " (|cFFC6B0D9" .. source .. "|r)", "-" .. _detalhes:ToK (amount) .. overkill .. " (" .. hp .. "%)", 1, "white", "white")
+					end
+					
+					GameCooltip:AddIcon (spellicon)
+					
+					if (event [9]) then
+						--> friendly fire
+						GameCooltip:AddStatusBar (hp, 1, "darkorange", true)
+					else
+						--> from a enemy
+						GameCooltip:AddStatusBar (hp, 1, "red", true)
+					end
 				else
-					overkill = ""
-					GameCooltip:AddLine ("" .. _cstr ("%.1f", time - hora_da_morte) .. "s " .. spellname .. " (|cFFC6B0D9" .. source .. "|r)", "-" .. _detalhes:ToK (amount) .. overkill .. " (" .. hp .. "%)", 1, "white", "white")
+					--> heal
+					GameCooltip:AddLine ("" .. _cstr ("%.1f", time - hora_da_morte) .. "s " .. spellname .. " (|cFFC6B0D9" .. source .. "|r)", "+" .. _detalhes:ToK (amount) .. " (" .. hp .. "%)", 1, "white", "white")
+					GameCooltip:AddIcon (spellicon)
+					GameCooltip:AddStatusBar (hp, 1, "green", true)
+					
 				end
 				
-				GameCooltip:AddIcon (spellicon)
-				
-				if (event [9]) then
-					--> friendly fire
-					GameCooltip:AddStatusBar (hp, 1, "darkorange", true)
-				else
-					--> from a enemy
-					GameCooltip:AddStatusBar (hp, 1, "red", true)
+			elseif (type (evtype) == "number") then
+				if (evtype == 1) then
+					--> cooldown
+					GameCooltip:AddLine ("" .. _cstr ("%.1f", time - hora_da_morte) .. "s " .. spellname .. " (" .. source .. ")", "cooldown (" .. hp .. "%)", 1, "white", "white")
+					GameCooltip:AddIcon (spellicon)
+					GameCooltip:AddStatusBar (100, 1, "yellow", true)
+					
+				elseif (evtype == 2 and not battleress) then
+					--> battle ress
+					battleress = event
+					
+				elseif (evtype == 3) then
+					--> last cooldown used
+					lastcooldown = event
+					
 				end
-			else
-				--> heal
-				GameCooltip:AddLine ("" .. _cstr ("%.1f", time - hora_da_morte) .. "s " .. spellname .. " (|cFFC6B0D9" .. source .. "|r)", "+" .. _detalhes:ToK (amount) .. " (" .. hp .. "%)", 1, "white", "white")
-				GameCooltip:AddIcon (spellicon)
-				GameCooltip:AddStatusBar (hp, 1, "green", true)
-				
-			end
-			
-		elseif (type (evtype) == "number") then
-			if (evtype == 1) then
-				--> cooldown
-				GameCooltip:AddLine ("" .. _cstr ("%.1f", time - hora_da_morte) .. "s " .. spellname .. " (" .. source .. ")", "cooldown (" .. hp .. "%)", 1, "white", "white")
-				GameCooltip:AddIcon (spellicon)
-				GameCooltip:AddStatusBar (100, 1, "yellow", true)
-				
-			elseif (evtype == 2 and not battleress) then
-				--> battle ress
-				battleress = event
-				
-			elseif (evtype == 3) then
-				--> last cooldown used
-				lastcooldown = event
-				
 			end
 		end
 	end
@@ -278,6 +280,7 @@ function _detalhes:ToolTipDead (instancia, morte, esta_barra, keydown)
 	GameCooltip:SetOption ("LeftBorderSize", -4)
 	GameCooltip:SetOption ("RightBorderSize", 5)
 	GameCooltip:SetOption ("StatusBarTexture", [[Interface\AddOns\Details\images\bar4_reverse]])
+	GameCooltip:SetOption ("StatusBarTexture", [[Interface\AddOns\Details\images\BantoBar]])
 	GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0.64453125, 0}, {.8, .8, .8, 0.2}, true)
 	
 	local myPoint = _detalhes.tooltip.anchor_point
@@ -334,11 +337,15 @@ function atributo_misc:ReportSingleDeadLine (morte, instancia)
 				local elapsed = _cstr ("%.1f", evento [4] - time_of_death) .."s"
 				local spellname, _, spellicon = _GetSpellInfo (evento [2])
 				local spelllink
-				if (evento [2] > 10) then
+				
+				if (evento [2] == 1) then
+					spelllink = GetSpellLink (6603)
+				elseif (evento [2] > 10) then
 					spelllink = GetSpellLink (evento [2])
 				else
 					spelllink = spellname
 				end
+				
 				local source = _detalhes:GetOnlyName (evento [6])
 				local amount = evento [3]
 				local hp = _math_floor (evento [5] / max_health * 100)
@@ -2350,6 +2357,12 @@ function atributo_misc:r_onlyrefresh_shadow (actor)
 
 	_detalhes.refresh:r_atributo_misc (actor, shadow)
 
+	--> cc done
+		if (actor.cc_done) then
+			refresh_alvos (shadow.cc_done_targets, actor.cc_done_targets)
+			refresh_habilidades (shadow.cc_done_spells, actor.cc_done_spells)
+		end	
+	
 	--> cooldowns
 		if (actor.cooldowns_defensive) then
 			refresh_alvos (shadow.cooldowns_defensive_targets, actor.cooldowns_defensive_targets)
@@ -2463,6 +2476,19 @@ function atributo_misc:r_connect_shadow (actor, no_refresh)
 		_detalhes.refresh:r_atributo_misc (actor, shadow)
 	end
 
+	if (actor.cc_done) then
+		if (not shadow.cc_done_targets) then
+			shadow.cc_done = _detalhes:GetOrderNumber()
+			shadow.cc_done_targets = {}
+			shadow.cc_done_spells = container_habilidades:NovoContainer (_detalhes.container_type.CONTAINER_MISC_CLASS)
+		end
+	
+		shadow.cc_done = shadow.cc_done + actor.cc_done
+		
+		somar_alvos (shadow.cc_done_targets, actor.cc_done_targets)
+		somar_habilidades (shadow.cc_done_spells, actor.cc_done_spells)
+	end
+	
 	if (actor.cooldowns_defensive) then
 		if (not shadow.cooldowns_defensive_targets) then
 			shadow.cooldowns_defensive =  _detalhes:GetOrderNumber (actor.nome)
@@ -2650,6 +2676,16 @@ function _detalhes.refresh:r_atributo_misc (este_jogador, shadow)
 	_setmetatable (este_jogador, _detalhes.atributo_misc)
 	este_jogador.__index = _detalhes.atributo_misc
 	
+	--> refresh cc done
+	if (este_jogador.cc_done) then
+		if (shadow and not shadow.cc_done_targets) then
+			shadow.cc_done = 0
+			shadow.cc_done_targets = {}
+			shadow.cc_done_spells = container_habilidades:NovoContainer (_detalhes.container_type.CONTAINER_MISC_CLASS)
+		end
+		_detalhes.refresh:r_container_habilidades (este_jogador.cc_done_spells, shadow and shadow.cc_done_spells)
+	end	
+	
 	--> refresh interrupts
 	if (este_jogador.interrupt_targets) then
 		if (shadow and not shadow.interrupt_targets) then
@@ -2740,6 +2776,10 @@ function _detalhes.clear:c_atributo_misc (este_jogador)
 	este_jogador.links = nil
 	este_jogador.minha_barra = nil
 	
+	if (este_jogador.cc_done_targets) then
+		_detalhes.clear:c_container_habilidades (este_jogador.cc_done_spells)
+	end
+	
 	if (este_jogador.interrupt_targets) then
 		_detalhes.clear:c_container_habilidades (este_jogador.interrupt_spells)
 	end
@@ -2771,6 +2811,24 @@ function _detalhes.clear:c_atributo_misc (este_jogador)
 end
 
 atributo_misc.__add = function (tabela1, tabela2)
+
+	if (tabela2.cc_done) then
+		tabela1.cc_done = tabela1.cc_done + tabela2.cc_done
+		
+		for target_name, amount in _pairs (tabela2.cc_done_targets) do
+			tabela1.cc_done_targets [target_name] = (tabela1.cc_done_targets [target_name] or 0) + amount
+		end
+		
+		for spellid, habilidade in _pairs (tabela2.cc_done_spells._ActorTable) do 
+			local habilidade_tabela1 = tabela1.cc_done_spells:PegaHabilidade (spellid, true, nil, false)
+			
+			for target_name, amount in _pairs (habilidade.targets) do
+				habilidade_tabela1.targets [target_name] = (habilidade_tabela1.targets [target_name] or 0) + amount
+			end
+			
+			somar_keys (habilidade, habilidade_tabela1)
+		end
+	end
 
 	if (tabela2.interrupt) then
 	
@@ -3011,6 +3069,24 @@ local subtrair_keys = function (habilidade, habilidade_tabela1)
 end
 
 atributo_misc.__sub = function (tabela1, tabela2)
+
+	if (tabela2.cc_done) then
+		tabela1.cc_done = tabela1.cc_done - tabela2.cc_done
+		
+		for target_name, amount in _pairs (tabela2.cc_done_targets) do
+			tabela1.cc_done_targets [target_name] = (tabela1.cc_done_targets [target_name] or 0) - amount
+		end
+		
+		for spellid, habilidade in _pairs (tabela2.cc_done_spells._ActorTable) do 
+			local habilidade_tabela1 = tabela1.cc_done_spells:PegaHabilidade (spellid, true, nil, false)
+			
+			for target_name, amount in _pairs (habilidade.targets) do
+				habilidade_tabela1.targets [target_name] = (habilidade_tabela1.targets [target_name] or 0) - amount
+			end
+			
+			subtrair_keys (habilidade, habilidade_tabela1)
+		end
+	end
 
 	if (tabela2.interrupt) then
 		--> total de interrupts

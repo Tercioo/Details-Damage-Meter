@@ -877,7 +877,8 @@ local default_profile = {
 		trash_auto_remove = true,
 	
 	--> death log
-		deadlog_limit = 12,
+		deadlog_limit = 16,
+		deadlog_events = 16,
 	
 	--> report
 		report_lines = 5,

@@ -309,8 +309,10 @@
 --> core
 
 	function combate:CreateLastEventsTable (player_name)
-		--> sixteen indexes, thinking in 32 but it's just too much
-		local t = { {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {} }
+		local t = {}
+		for i = 1, _detalhes.deadlog_events do
+			t [i] = {}
+		end
 		t.n = 1
 		self.player_last_events [player_name] = t
 		return t

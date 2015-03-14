@@ -1892,6 +1892,33 @@ function _detalhes:AtualizaSegmentos_AfterCombat (instancia, historico)
 	
 end
 
+local function ValidateAttribute (atributo, sub_atributo)
+
+	if (atributo == 1) then
+		if (sub_atributo < 0 or sub_atributo > _detalhes.atributos[1]) then
+			return false
+		end
+	elseif (atributo == 2) then
+		if (sub_atributo < 0 or sub_atributo > _detalhes.atributos[2]) then
+			return false
+		end
+	elseif (atributo == 3) then
+		if (sub_atributo < 0 or sub_atributo > _detalhes.atributos[3]) then
+			return false
+		end
+	elseif (atributo == 4) then
+		if (sub_atributo < 0 or sub_atributo > _detalhes.atributos[4]) then
+			return false
+		end
+	elseif (atributo == 5) then
+		return true
+	else
+		return false
+	end
+	
+	return true
+end
+
 function _detalhes:SetDisplay (segmento, atributo, sub_atributo, iniciando_instancia, InstanceMode)
 	if (not self.meu_id) then
 		return
@@ -1916,7 +1943,7 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 		segmento = instancia
 		instancia = self
 	end
-	
+
 	if (InstanceMode and InstanceMode ~= instancia:GetMode()) then
 		instancia:AlteraModo (instancia, InstanceMode)
 	end
@@ -1992,6 +2019,12 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 		return
 	end
 
+	if (not ValidateAttribute (atributo, sub_atributo)) then
+		sub_atributo = 1
+		atributo = 1
+		_detalhes:Msg ("invalid attribute, switching to damage done.")
+	end
+	
 	--> Muda o segmento caso necessário
 	if (segmento ~= current_segmento or _detalhes.initializing or iniciando_instancia) then
 
@@ -2397,6 +2430,8 @@ function _detalhes:MontaAtributosOption (instancia, func)
 	CoolTip:SetOption ("SelectedTopAnchorMod", -2)
 	CoolTip:SetOption ("SelectedBottomAnchorMod", 2)
 	
+	CoolTip:SetOption ("TextFont",  _detalhes.font_faces.menus)
+	
 	local last_selected = atributo_ativo
 	if (atributo_ativo == 5) then
 		last_selected = 6
@@ -2777,6 +2812,7 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 					total, container, first, container_amount, nm = _detalhes.atributo_custom:RefreshWindow (self, self.showing, true, true)
 					if (nm) then
 						name_member = nm
+						print ("nm:", nm)
 					end
 					keyName = "report_value"
 				else
@@ -2788,7 +2824,6 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 				--print (total, keyName, first, atributo, container_amount)
 			end
 			
-
 			amt = math.min (amt, container_amount or 0)
 --amt é zero
 			for i = 1, amt do 
@@ -2803,7 +2838,7 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 						amount = _thisActor [keyName]
 						is_string = true
 					end
-					
+
 					local name = _thisActor [name_member] .. " "
 					if (_detalhes.remove_realm_from_name and name:find ("-")) then
 						name = name:gsub (("%-.*"), "")

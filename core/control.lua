@@ -411,6 +411,10 @@
 			
 			if (not _detalhes.tabela_vigente.is_boss) then
 
+				if (_detalhes.tabela_vigente.is_pvp) then
+					_detalhes:FlagActorsOnPvPCombat()
+				end
+			
 				local in_instance = IsInInstance() --> garrison returns party as instance type.
 				if ((InstanceType == "party" or InstanceType == "raid") and in_instance) then
 					_detalhes.tabela_vigente.is_trash = true
@@ -873,6 +877,14 @@
 				_detalhes:SendRaidData (_detalhes.network.ids.CLOUD_EQUALIZE, data)
 			end
 			
+		end
+		
+		function _detalhes:FlagActorsOnPvPCombat()
+			for class_type, container in _ipairs (_detalhes.tabela_vigente) do 
+				for _, actor in _ipairs (container._ActorTable) do 
+					actor.pvp_component = true
+				end
+			end
 		end
 		
 		function _detalhes:FlagActorsOnBossFight()

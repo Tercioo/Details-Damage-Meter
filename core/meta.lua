@@ -529,7 +529,7 @@
 							while (_iter.data) do --search key: ~deletar ~apagar
 								local can_erase = true
 								
-								if (_iter.data.grupo or _iter.data.boss or _iter.data.boss_fight_component) then
+								if (_iter.data.grupo or _iter.data.boss or _iter.data.boss_fight_component or _iter.data.pvp_component) then
 									can_erase = false
 								else
 									local owner = _iter.data.owner
@@ -606,7 +606,7 @@
 							while (_iter.data) do --search key: ~deletar ~apagar
 								local can_erase = true
 								
-								if (_iter.data.grupo or _iter.data.boss or _iter.data.boss_fight_component or IsBossEncounter) then
+								if (_iter.data.grupo or _iter.data.boss or _iter.data.boss_fight_component or IsBossEncounter or _iter.data.pvp_component) then
 									can_erase = false
 								else
 									local owner = _iter.data.owner

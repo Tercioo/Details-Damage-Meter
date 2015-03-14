@@ -142,6 +142,8 @@ function DetailsCreateCoolTip()
 		CoolTip.selected_anchor.top = 0
 		CoolTip.selected_anchor.bottom = 0
 		
+		CoolTip._default_font = SharedMedia:Fetch ("font", "Friz Quadrata TT")
+		
 	--> Create Frames
 	
 		--> main frame
@@ -667,10 +669,7 @@ function DetailsCreateCoolTip()
 						menuButton.leftText:SetFont (face, size, flags)
 					end
 				else
-					size = leftTextTable [6] or CoolTip.OptionsTable.TextSize or 10
-					face = leftTextTable [7] or [[Fonts\FRIZQT__.TTF]]
-					flags = leftTextTable [8] or CoolTip.OptionsTable.TextShadow or nil
-					menuButton.leftText:SetFont (face, size, flags)
+					menuButton.leftText:SetFont (CoolTip._default_font, leftTextTable [6] or CoolTip.OptionsTable.TextSize or 10, leftTextTable [8] or CoolTip.OptionsTable.TextShadow)
 				end
 				
 				local height_mod = CoolTip.OptionsTable.TextHeightMod or 0				
@@ -744,10 +743,7 @@ function DetailsCreateCoolTip()
 					end
 				
 				else
-					size = rightTextTable [6] or CoolTip.OptionsTable.TextSize or 10
-					face = rightTextTable [7] or [[Fonts\FRIZQT__.TTF]]
-					flags = rightTextTable [8] or CoolTip.OptionsTable.TextShadow or nil
-					menuButton.rightText:SetFont (face, size, flags)
+					menuButton.rightText:SetFont (CoolTip._default_font, rightTextTable [6] or CoolTip.OptionsTable.TextSize or 10, rightTextTable [8] or CoolTip.OptionsTable.TextShadow)
 				end
 				
 

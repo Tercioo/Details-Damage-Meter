@@ -151,6 +151,11 @@ function historico:adicionar (tabela)
 		--print ("0x10")
 	end
 	
+	if (not overall_added and (tabela.is_pvp or tabela.is_arena)) then --> is a PvP combat
+		overall_added = true
+		--print ("0x10")
+	end
+	
 	if (overall_added) then
 		if (_detalhes.debug) then
 			_detalhes:Msg ("(debug) overall data flag match with the current combat.")
