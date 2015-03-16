@@ -88,6 +88,7 @@ function historico:adicionar (tabela)
 	end
 
 	--> adiciona no index #1
+	
 	_table_insert (self.tabelas, 1, tabela)
 	
 	--_detalhes.encounter_counter
@@ -157,16 +158,20 @@ function historico:adicionar (tabela)
 	end
 	
 	if (overall_added) then
-		if (_detalhes.debug) then
-			_detalhes:Msg ("(debug) overall data flag match with the current combat.")
-		end
-		if (InCombatLockdown()) then
-			_detalhes.schedule_add_to_overall = true
-			if (_detalhes.debug) then
-				_detalhes:Msg ("(debug) player is in combat, scheduling overall addition.")
-			end
+		if (tabela.is_boss and tabela:GetCombatTime() < 30) then
+			_detalhes:Msg ("segment not added to overall (less than 30 seconds of combat time).")
 		else
-			historico:adicionar_overall (tabela)
+			if (_detalhes.debug) then
+				_detalhes:Msg ("(debug) overall data flag match with the current combat.")
+			end
+			if (InCombatLockdown()) then
+				_detalhes.schedule_add_to_overall = true
+				if (_detalhes.debug) then
+					_detalhes:Msg ("(debug) player is in combat, scheduling overall addition.")
+				end
+			else
+				historico:adicionar_overall (tabela)
+			end
 		end
 	end
 	
@@ -232,13 +237,39 @@ function historico:adicionar (tabela)
 	--> verifica se precisa apagar a última tabela do histórico
 	if (#self.tabelas > _detalhes.segments_amount) then
 		
-		local combat_removed = self.tabelas [#self.tabelas]
-	
-		--> diminuir quantidades no overall
-		--if (combat_removed.overall_added) then
-		--	_detalhes.tabela_overall = _detalhes.tabela_overall - combat_removed
-		--	print ("removendo combate 2")
-		--end
+		local combat_removed, combat_index
+		
+		--> verifica se estão dando try em um boss e remove o combate menos relevante
+		local bossid = tabela.is_boss and tabela.is_boss.id
+		
+		local last_segment = self.tabelas [#self.tabelas]
+		local last_bossid = last_segment.is_boss and last_segment.is_boss.id
+		
+		if (_detalhes.zone_type == "raid" and bossid and last_bossid and bossid == last_bossid) then
+		
+			local shorter_combat
+			local shorter_id
+			local min_time = 99999
+			
+			for i = 4, #self.tabelas do
+				local combat = self.tabelas [i]
+				if (combat.is_boss and combat.is_boss.id == bossid and combat:GetCombatTime() < min_time and not combat.is_boss.killed) then
+					shorter_combat = combat
+					shorter_id = i
+					min_time = combat:GetCombatTime()
+				end
+			end
+			
+			if (shorter_combat) then
+				combat_removed = shorter_combat
+				combat_index = shorter_id
+			end
+		end
+		
+		if (not combat_removed) then
+			combat_removed = self.tabelas [#self.tabelas]
+			combat_index = #self.tabelas
+		end
 
 		--> verificar novamente a time machine
 		for _, jogador in ipairs (combat_removed [1]._ActorTable) do --> damage
@@ -253,8 +284,8 @@ function historico:adicionar (tabela)
 		end
 		
 		--> remover
-		_table_remove (self.tabelas, #self.tabelas)
-		_detalhes:SendEvent ("DETAILS_DATA_SEGMENTREMOVED", nil, nil)
+		_table_remove (self.tabelas, combat_index)
+		_detalhes:SendEvent ("DETAILS_DATA_SEGMENTREMOVED")
 		
 	end
 	

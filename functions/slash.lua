@@ -935,7 +935,27 @@ function SlashCmdList.DETAILS (msg, editbox)
 			local _, _, flags = barra.texto_esquerdo:GetFont()
 			print ("outline:",flags)
 		end
+	
+	elseif (msg == "ilvl") then
+		local item_amount = 0
+		local item_level = 0
 		
+		for equip_id = 1, 17 do
+			if (equip_id ~= 4) then --shirt slot
+				local item = GetInventoryItemLink ("player", equip_id)
+				if (item) then
+					local name, link, quality, iLevel, reqLevel, class, subclass, maxStack, equipSlot, texture, vendorPrice = GetItemInfo (item)
+					if (iLevel) then
+						item_amount = item_amount + 1
+						item_level = item_level + iLevel
+					end
+				end
+			end
+		end
+		
+		local average = item_level / item_amount
+		print ("your item lvl:", average)
+	
 	else
 		
 		--if (_detalhes.opened_windows < 1) then

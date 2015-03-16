@@ -29,6 +29,8 @@
 	
 	local CONST_VERSION_CHECK = "CV"
 	
+	local CONST_ITEMLEVEL_DATA = "IL"
+	
 	local CONST_CLOUD_REQUEST = "CR"
 	local CONST_CLOUD_FOUND = "CF"
 	local CONST_CLOUD_DATARQ = "CD"
@@ -39,6 +41,7 @@
 		["HIGHFIVE_REQUEST"] = CONST_HIGHFIVE_REQUEST,
 		["HIGHFIVE_DATA"] = CONST_HIGHFIVE_DATA,
 		["VERSION_CHECK"] = CONST_VERSION_CHECK,
+		["ITEMLEVEL_DATA"] = CONST_ITEMLEVEL_DATA,
 		["CLOUD_REQUEST"] = CONST_CLOUD_REQUEST,
 		["CLOUD_FOUND"] = CONST_CLOUD_FOUND,
 		["CLOUD_DATARQ"] = CONST_CLOUD_DATARQ,
@@ -245,6 +248,7 @@
 		[CONST_HIGHFIVE_REQUEST] = _detalhes.network.HighFive_Request,
 		[CONST_HIGHFIVE_DATA] = _detalhes.network.HighFive_DataReceived,
 		[CONST_VERSION_CHECK] = _detalhes.network.Update_VersionReceived,
+		[CONST_ITEMLEVEL_DATA] = _detalhes.network.ItemLevel_Received,
 		
 		[CONST_CLOUD_REQUEST] = _detalhes.network.Cloud_Request,
 		[CONST_CLOUD_FOUND] = _detalhes.network.Cloud_Found,
@@ -452,6 +456,17 @@
 				end
 			end
 		end
+	end
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> item level
+	function _detalhes:SentMyItemLevel()
+		local overall, equipped = GetAverageItemLevel()
+		_detalhes:SendRaidData (CONST_ITEMLEVEL_DATA, overall)
+	end
+	
+	function _detalhes.network.ItemLevel_Received (player, realm, core_version, itemlevel)
+		_detalhes:IlvlFromNetwork (player, realm, core_version, itemlevel)
 	end
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

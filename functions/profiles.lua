@@ -943,9 +943,9 @@ local default_profile = {
 			anchor_relative = "top",
 			anchor_offset = {0, 0},
 			
-			border_texture = "Blizzard Tooltip",
-			border_color = {1, 1, 1, 1},
-			border_size = 16,
+			border_texture = "Details BarBorder 3",
+			border_color = {0.76, 0.76, 0.76, 1},
+			border_size = 14,
 		},
 	
 }
@@ -1054,6 +1054,8 @@ local default_global_data = {
 		},
 	--> auras
 		details_auras = {},
+	--> ilvl
+		item_level_pool = {},
 }
 
 _detalhes.default_global_data = default_global_data

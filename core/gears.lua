@@ -2,6 +2,8 @@ local _detalhes = 		_G._detalhes
 local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
 
 local UnitName = UnitName
+local UnitGUID = UnitGUID
+local UnitGroupRolesAssigned = UnitGroupRolesAssigned
 local select = select
 local floor = floor
 
@@ -293,6 +295,11 @@ function _detalhes:GetPerformanceRaidType()
 	return nil
 end
 
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> background tasks
+
+
 local background_tasks = {}
 local task_timers = {
 	["LOW"] = 30,
@@ -354,6 +361,10 @@ end
 
 _detalhes.background_tasks_loop = _detalhes:ScheduleRepeatingTimer ("DoBackgroundTasks", 120)
 
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> storage stuff
+
 local store_instances = {
 	[1205] = true, --Blackrock Foundry
 	[1228] = true, --Highmaul
@@ -384,181 +395,8 @@ function _detalhes:StoreEncounter (combat)
 	local diff = combat:GetDifficulty()
 	
 	--> check for heroic mode
-	if (diff == 5 or diff == 6 or diff == 15) then --test on raid finder  or diff == 7 or diff == 17
-	
-		local role = UnitGroupRolesAssigned ("player")
-		if (role ~= "DAMAGER" and role ~= "HEALER") then
-			return
-		end
-	
-		--> check if the storage is already loaded
-		if (not IsAddOnLoaded ("Details_DataStorage")) then
-			local loaded, reason = LoadAddOn ("Details_DataStorage")
-			if (not loaded) then
-				return
-			end
-		end
-		
-		--> get the storage table
-		local db = DetailsDataStorage
-		
-		if (not db and _detalhes.CreateStorageDB) then
-			db = _detalhes:CreateStorageDB()
-			if (not db) then
-				return
-			end
-		elseif (not db) then
-			return
-		end
-		
-		local self_database = db.SELF_STORAGE
-		
-		if (not self_database) then
-			--> outdate database?
-			return
-		end
-		
-		local heroic_branch = self_database ["HEROIC"]
-		if (not heroic_branch) then
-			heroic_branch = {}
-			self_database ["HEROIC"] = heroic_branch
-		end
-		
-		--> heroic database: numeric table with combats
-		local encounter_database = heroic_branch [encounter_id]
-		
-		if (not encounter_database) then
-			heroic_branch [encounter_id] = {}
-			encounter_database = heroic_branch [encounter_id]
-		end
-		
-		--> get player data
-		local t = {
-			total = 0,
-			spells = {},
-		}
-		
-		if (role == "DAMAGER") then
-			
-			local player = combat (1, _detalhes.playername)
-			
-			if (player) then
-				t.total = player.total
-				for spellid, spell in pairs (player.spells._ActorTable) do
-					t.spells [spellid] = spell.total
-				end
-			end
-			
-		elseif (role == "HEALER") then
-			local player = combat (2, _detalhes.playername)
-			if (player) then
-				t.total = player.total
-				for spellid, spell in pairs (player.spells._ActorTable) do
-					t.spells [spellid] = spell.total
-				end
-			end
-		end
+	if (diff == 14 or diff == 15 or diff == 16) then --test on raid finder  ' or diff == 17'
 
-		if (t.total > 0) then
-			local this_combat_data = {
-				total = t.total,
-				spells = t.spells,
-				date = date ("%H:%M %d/%m/%y"),
-				time = time(),
-				elapsed = combat:GetCombatTime(),
-			}
-			tinsert (encounter_database, this_combat_data)
-		end
-		
-	--> check for normal mode
-	elseif (diff == 3 or diff == 4 or diff == 14) then
-	
-		local role = UnitGroupRolesAssigned ("player")
-		if (role ~= "DAMAGER" and role ~= "HEALER") then
-			return
-		end
-	
-		--> check if the storage is already loaded
-		if (not IsAddOnLoaded ("Details_DataStorage")) then
-			local loaded, reason = LoadAddOn ("Details_DataStorage")
-			if (not loaded) then
-				return
-			end
-		end
-		
-		--> get the storage table
-		local db = DetailsDataStorage
-		
-		if (not db and _detalhes.CreateStorageDB) then
-			db = _detalhes:CreateStorageDB()
-			if (not db) then
-				return
-			end
-		elseif (not db) then
-			return
-		end
-
-		local self_database = db.SELF_STORAGE
-		
-		if (not self_database) then
-			--> outdate database?
-			return
-		end
-		
-		local normal_branch = self_database ["NORMAL"]
-		if (not normal_branch) then
-			normal_branch = {}
-			self_database ["NORMAL"] = normal_branch
-		end
-		
-		--> heroic database: numeric table with combats
-		local encounter_database = normal_branch [encounter_id]
-		
-		if (not encounter_database) then
-			normal_branch [encounter_id] = {}
-			encounter_database = normal_branch [encounter_id]
-		end
-		
-		--> get player data
-		local t = {
-			total = 0,
-			spells = {},
-			role = role,
-		}
-		
-		if (role == "DAMAGER") then
-			local player = combat (1, _detalhes.playername)
-			if (player) then
-				t.total = player.total
-				for spellid, spell in pairs (player.spells._ActorTable) do
-					t.spells [spellid] = spell.total
-				end
-			end
-			
-		elseif (role == "HEALER") then
-			local player = combat (2, _detalhes.playername)
-			if (player) then
-				t.total = player.total
-				for spellid, spell in pairs (player.spells._ActorTable) do
-					t.spells [spellid] = spell.total
-				end
-			end
-		end
-
-		if (t.total > 0) then
-			local this_combat_data = {
-				total = t.total,
-				spells = t.spells,
-				date = date ("%H:%M %d/%m/%y"),
-				time = time(),
-				elapsed = combat:GetCombatTime(),
-			}
-			tinsert (encounter_database, this_combat_data)
-		end
-	
-	--> check if is a mythic encounter and store the mythic encounter
-	elseif (difficulty == 16) then
-	
 		--> check the guild name
 		local match = 0
 		local guildName = select (1, GetGuildInfo ("player"))
@@ -578,7 +416,7 @@ function _detalhes:StoreEncounter (combat)
 		else
 			return
 		end
-
+		
 		--> check if the storage is already loaded
 		if (not IsAddOnLoaded ("Details_DataStorage")) then
 			local loaded, reason = LoadAddOn ("Details_DataStorage")
@@ -586,7 +424,7 @@ function _detalhes:StoreEncounter (combat)
 				return
 			end
 		end
-
+		
 		--> get the storage table
 		local db = DetailsDataStorage
 		
@@ -598,49 +436,276 @@ function _detalhes:StoreEncounter (combat)
 		elseif (not db) then
 			return
 		end
-
-		local raid_database = db.RAID_STORAGE
 		
-		if (not raid_database) then
-			db.RAID_STORAGE = {}
-			raid_database = db.RAID_STORAGE
+		local diff_storage = db [diff]
+		if (not diff_storage) then
+			db [diff] = {}
+			diff_storage = db [diff]
 		end
 		
-		--> encounter_database: numeric table with combats
-		local encounter_database = raid_database [encounter_id]
-		
+		local encounter_database = diff_storage [encounter_id]
 		if (not encounter_database) then
-			raid_database [encounter_id] = {}
-			encounter_database = raid_database [encounter_id]
+			diff_storage [encounter_id] = {}
+			encounter_database = diff_storage [encounter_id]
 		end
 		
-		--> get raid members data
 		local this_combat_data = {
 			damage = {},
-			heal = {},
+			healing = {},
 			date = date ("%H:%M %d/%m/%y"),
 			time = time(),
 			elapsed = combat:GetCombatTime(),
 			guild = guildName,
 		}
+
+		local damage_container_hash = combat [1]._NameIndexTable
+		local damage_container_pool = combat [1]._ActorTable
 		
-		for i = 1, raid_size do
-			local player_name, player_realm = UnitName ("raid" .. i)
-			if (player_realm and player_realm ~= "") then
-				player_name = player_name .. "-" .. player_realm
+		local healing_container_hash = combat [2]._NameIndexTable
+		local healing_container_pool = combat [2]._ActorTable
+
+		for i = 1, GetNumGroupMembers() do
+		
+			local role = UnitGroupRolesAssigned ("raid" .. i)
+			
+			if (role == "DAMAGER") then
+				local player_name, player_realm = UnitName ("raid" .. i)
+				if (player_realm and player_realm ~= "") then
+					player_name = player_name .. "-" .. player_realm
+				end
+				
+				local damage_actor = damage_container_pool [damage_container_hash [player_name]]
+				if (damage_actor) then
+					local guid = UnitGUID (player_name) or UnitGUID (UnitName ("raid" .. i))
+					this_combat_data.damage [player_name] = {floor (damage_actor.total), _detalhes.item_level_pool [guid] or 0}
+				end
+			elseif (role == "HEALER") then
+				local player_name, player_realm = UnitName ("raid" .. i)
+				if (player_realm and player_realm ~= "") then
+					player_name = player_name .. "-" .. player_realm
+				end
+				
+				local heal_actor = healing_container_pool [healing_container_hash [player_name]]
+				if (heal_actor) then
+					local guid = UnitGUID (player_name) or UnitGUID (UnitName ("raid" .. i))
+					this_combat_data.healing [player_name] = {floor (heal_actor.total), _detalhes.item_level_pool [guid] or 0}
+				end
 			end
 			
-			local damage_actor = combat (1, player_name)
-			if (damage_actor) then
-				this_combat_data.damage [player_name] = floor (damage_actor.total)
-			end
-			
-			local heal_actor = combat (2, player_name)
-			if (heal_actor) then
-				this_combat_data.heal [player_name] = floor (heal_actor.total)
-			end
 		end
 		
 		tinsert (encounter_database, this_combat_data)
+
+		print ("|cFFFFFF00Details! Storage|r: encounter saved!")
+		
 	end
+end
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> inspect stuff
+
+local ilvl_core = _detalhes:CreateEventListener()
+
+ilvl_core:RegisterEvent ("GROUP_ONENTER", "OnEnter")
+ilvl_core:RegisterEvent ("GROUP_ONLEAVE", "OnLeave")
+ilvl_core:RegisterEvent ("COMBAT_PLAYER_ENTER", "EnterCombat")
+ilvl_core:RegisterEvent ("COMBAT_PLAYER_LEAVE", "LeaveCombat")
+ilvl_core:RegisterEvent ("ZONE_TYPE_CHANGED", "ZoneChanged")
+
+local inspecting = {}
+local inspect_frame = CreateFrame ("frame")
+
+local check_inspect_queue = function()
+	for spellid, timeout_id in pairs (inspecting) do
+		return
+	end
+	
+	inspect_frame:UnregisterEvent ("INSPECT_READY")
+end
+
+local inspect_amout = function()
+	local i = 0
+	for spellid, timeout_id in pairs (inspecting) do
+		i = i + 1
+	end
+	return i
+end
+
+function _detalhes:IlvlFromNetwork (player, realm, core, ilvl)
+	local guid = UnitGUID (player .. "-" .. realm)
+	if (not guid) then
+		guid = UnitGUID (player)
+		if (not guid) then
+			return
+		end
+	end
+	
+	_detalhes.item_level_pool [guid] = {name = player, ilvl = ilvl, time = time()}
+end
+
+inspect_frame:SetScript ("OnEvent", function (self, event, ...)
+	local guid, unitid, arg3 = select (1, ...)
+
+	if (inspecting [guid]) then
+		local unitid, cancel_tread = inspecting [guid] [1], inspecting [guid] [2]
+		inspecting [guid] = nil
+		
+		ilvl_core:CancelTimer (cancel_tread)
+		
+		--> do inspect stuff
+		if (unitid) then
+			if (CheckInteractDistance (unitid, 1)) then
+				local item_amount = 0
+				local item_level = 0
+				
+				for equip_id = 1, 17 do
+					if (equip_id ~= 4) then --shirt slot
+						local item = GetInventoryItemLink (unitid, equip_id)
+						if (item) then
+							local name, link, quality, iLevel, reqLevel, class, subclass, maxStack, equipSlot, texture, vendorPrice = GetItemInfo (item)
+							if (iLevel) then
+								item_amount = item_amount + 1
+								item_level = item_level + iLevel
+							end
+						end
+					end
+				end
+				
+				local average = item_level / item_amount
+			
+				-- register
+				if (average > 0) then
+					_detalhes.item_level_pool [guid] = {name = UnitName (unitid), ilvl = average, time = time()}
+				end
+			end
+		end
+		
+		--> check queue
+		check_inspect_queue()
+	end
+end)
+
+function ilvl_core:InspectTimeOut (guid)
+	inspecting [guid] = nil
+	check_inspect_queue()
+end
+
+function ilvl_core:GetItemLevel (unitid, guid)
+	--> double check
+	if (UnitAffectingCombat ("player") or InCombatLockdown()) then
+		return
+	end
+	if (not unitid or not CanInspect (unitid) or not CheckInteractDistance (unitid, 1)) then
+		return
+	end
+	
+	inspect_frame:RegisterEvent ("INSPECT_READY")
+	inspecting [guid] = {unitid, ilvl_core:ScheduleTimer ("InspectTimeOut", 12, guid)}
+	
+	NotifyInspect (unitid)
+end
+
+function ilvl_core:Reset()
+	ilvl_core.raid_id = 1
+end
+
+function ilvl_core:Loop()
+	if (inspect_amout() > 1) then
+		return
+	end
+	
+	local members_amt = GetNumGroupMembers()
+	if (ilvl_core.raid_id > members_amt) then
+		ilvl_core.raid_id = 1
+	end
+	
+	local unitid = "raid" .. ilvl_core.raid_id
+	
+	local guid = UnitGUID (unitid)
+	if (not guid) then
+		ilvl_core.raid_id = ilvl_core.raid_id + 1
+		return
+	end
+	
+	if (inspecting [guid]) then
+		return
+	end
+	
+	local ilvl_table = _detalhes.ilevel:GetIlvl (guid)
+	if (ilvl_table and ilvl_table.time + 3600 > time()) then
+		ilvl_core.raid_id = ilvl_core.raid_id + 1
+		return
+	end
+	
+	ilvl_core:GetItemLevel (unitid, guid)
+	ilvl_core.raid_id = ilvl_core.raid_id + 1
+end
+
+function ilvl_core:EnterCombat()
+	if (ilvl_core.loop_process) then
+		ilvl_core:CancelTimer (ilvl_core.loop_process)
+		ilvl_core.loop_process = nil
+	end
+end
+
+local can_start_loop = function()
+	if (_detalhes:GetZoneType() ~= "raid" or ilvl_core.loop_process or _detalhes.in_combat) then
+		return false
+	end
+	return true
+end
+
+function ilvl_core:LeaveCombat()
+	if (can_start_loop()) then
+		ilvl_core:Reset()
+		ilvl_core.loop_process = ilvl_core:ScheduleRepeatingTimer ("Loop", 2)
+	end
+end
+
+function ilvl_core:ZoneChanged (zone_type)
+	if (can_start_loop()) then
+		ilvl_core:Reset()
+		ilvl_core.loop_process = ilvl_core:ScheduleRepeatingTimer ("Loop", 2)
+	end
+end
+
+function ilvl_core:OnEnter()
+	if (IsInRaid()) then
+		_detalhes:SentMyItemLevel()
+	end
+	
+	if (can_start_loop()) then
+		ilvl_core:Reset()
+		ilvl_core.loop_process = ilvl_core:ScheduleRepeatingTimer ("Loop", 2)
+	end
+end
+
+function ilvl_core:OnLeave()
+	if (ilvl_core.loop_process) then
+		ilvl_core:CancelTimer (ilvl_core.loop_process)
+		ilvl_core.loop_process = nil
+	end
+end
+
+--> ilvl API
+_detalhes.ilevel = {}
+
+function _detalhes.ilevel:GetPool()
+	return _detalhes.item_level_pool
+end
+
+function _detalhes.ilevel:GetIlvl (guid)
+	return _detalhes.item_level_pool [guid]
+end
+
+function _detalhes.ilevel:GetInOrder()
+	local order = {}
+	
+	for guid, t in pairs (_detalhes.item_level_pool) do
+		order [#order+1] = {t.name, t.ilvl, t.time}
+	end
+	
+	table.sort (order, _detalhes.Sort2)
+	
+	return order
 end

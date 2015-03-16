@@ -2387,7 +2387,7 @@ function _detalhes:MontaAtributosOption (instancia, func)
 	--> custom
 	
 	--GameCooltip:AddLine ("$div")
-	CoolTip:AddLine ("$div", nil, 1, -2, 1)
+	CoolTip:AddLine ("$div", nil, 1, -3, 1)
 	
 	CoolTip:AddMenu (1, func, nil, 5, nil, atributos.lista[5], nil, true)
 	CoolTip:AddIcon ("Interface\\AddOns\\Details\\images\\atributos_icones", 1, 1, 20, 20, p*(5-1), p*(5), 0, 1)

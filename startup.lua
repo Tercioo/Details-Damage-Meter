@@ -347,6 +347,25 @@ function _G._detalhes:Start()
 			_detalhes:AddDefaultCustomDisplays()
 			
 			--> Reset for the new structure
+			if (_detalhes_database.last_realversion and _detalhes_database.last_realversion < 64 and enable_reset_warning) then
+				function _detalhes:ResetDataStorage()
+					if (not IsAddOnLoaded ("Details_DataStorage")) then
+						local loaded, reason = LoadAddOn ("Details_DataStorage")
+						if (not loaded) then
+							return
+						end
+					end
+					
+					local db = DetailsDataStorage
+					if (db) then
+						table.wipe (db)
+					end
+					
+					DetailsDataStorage = _detalhes:CreateStorageDB()
+				end
+				_detalhes:ScheduleTimer ("ResetDataStorage", 1)
+			end
+			
 			if (_detalhes_database.last_realversion and _detalhes_database.last_realversion < 47 and enable_reset_warning) then
 				for i = #_detalhes.custom, 1, -1  do
 					_detalhes.atributo_custom:RemoveCustom (i)

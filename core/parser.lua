@@ -2606,17 +2606,19 @@
 		return _detalhes.zone_type
 	end
 	function _detalhes.parser_functions:ZONE_CHANGED_NEW_AREA (...)
+	
 		local zoneName, zoneType, _, _, _, _, _, zoneMapID = _GetInstanceInfo()
+		
+		_detalhes.zone_type = zoneType
+		_detalhes.zone_id = zoneMapID
+		_detalhes.zone_name = zoneName
+		
 		if (_detalhes.last_zone_type ~= zoneType) then
 			_detalhes:SendEvent ("ZONE_TYPE_CHANGED", nil, zoneType)
 			_detalhes.last_zone_type = zoneType
 		end
 		
 		_detalhes:CheckChatOnZoneChange (zoneType)
-		
-		_detalhes.zone_type = zoneType
-		_detalhes.zone_id = zoneMapID
-		_detalhes.zone_name = zoneName
 		
 		if (_detalhes.debug) then
 			_detalhes:Msg ("(debug) zone change:", _detalhes.zone_name, "is a", _detalhes.zone_type, "zone.")
@@ -2859,6 +2861,7 @@
 		
 		if (_detalhes.schedule_store_boss_encounter) then
 			if (not _detalhes.logoff_saving_data) then
+				--_detalhes.StoreEncounter()
 				local successful, errortext = pcall (_detalhes.StoreEncounter)
 				if (not successful) then
 					_detalhes:Msg ("error occurred on StoreEncounter():", errortext)

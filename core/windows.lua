@@ -388,7 +388,9 @@
  			return _detalhes:ScheduleTimer ("SaveMainWindowPosition", 1, self)
  		end
 		
-		self:SaveLibWindow()
+		if (self.mostrando ~= "solo") then
+			self:SaveLibWindow()
+		end
 
 		--> save the position
 		local _w = baseframe_width
