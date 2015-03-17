@@ -119,7 +119,7 @@ local _
 				true, -- [4]
 				true, -- [5]
 				false, -- [6]
-				["space"] = -4,
+				["space"] = -3,
 				["shadow"] = true,
 			},
 			["show_sidebars"] = true,
@@ -359,7 +359,7 @@ local _
 				true, -- [4]
 				true, -- [5]
 				false, -- [6]
-				["space"] = -4,
+				["space"] = -3,
 				["shadow"] = false,
 			},
 			["desaturated_menu"] = false,
@@ -637,7 +637,7 @@ local _
 				true, -- [4]
 				true, -- [5]
 				false, -- [6]
-				["space"] = -4,
+				["space"] = -3,
 				["shadow"] = false,
 			},
 			["desaturated_menu"] = false,
@@ -805,7 +805,7 @@ local _
 				true, -- [4]
 				true, -- [5]
 				false, -- [6]
-				["space"] = -4,
+				["space"] = -3,
 				["shadow"] = false,
 			},
 			["show_sidebars"] = false,
@@ -1144,7 +1144,7 @@ local _
 				true,
 				true, -- [5]
 				false, -- [6]
-				["space"] = -4,
+				["space"] = -3,
 				["shadow"] = true,
 			},
 			["desaturated_menu"] = false,
@@ -1585,7 +1585,7 @@ local _
 				true, -- [4]
 				true, -- [5]
 				false, -- [6]
-				["space"] = -4,
+				["space"] = -3,
 				["shadow"] = true,
 			},
 			["show_sidebars"] = true,
@@ -1763,7 +1763,7 @@ local _
 			["strata"] = "LOW",
 			["show_sidebars"] = true,
 			["hide_in_combat_alpha"] = 0,
-			["menu_icons"] = {true, true, true, true, true, false, ["space"] = -4, ["shadow"] = true},
+			["menu_icons"] = {true, true, true, true, true, false, ["space"] = -3, ["shadow"] = true},
 			["desaturated_menu"] = false,
 			["auto_hide_menu"] = {
 				["left"] = false,

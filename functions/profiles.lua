@@ -944,7 +944,8 @@ local default_profile = {
 			anchor_offset = {0, 0},
 			
 			border_texture = "Details BarBorder 3",
-			border_color = {0.76, 0.76, 0.76, 1},
+			--border_color = {0.76, 0.76, 0.76, 1},
+			border_color = {1, 1, 1, 1},
 			border_size = 14,
 		},
 	

@@ -79,15 +79,15 @@
 					<Anchor point="TOPLEFT" relativeTo="$Parent" relativePoint="BOTTOMLEFT"/>
 				</Anchors>
 				
-				<Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background-Dark" edgeFile="Interface\Buttons\UI-SliderBar-Border" tile="true">
+				<Backdrop bgFile="Interface\AddOns\Details\images\background" edgeFile="Interface\AddOns\Details\images\border_3" tile="true">
 					<EdgeSize>
-						<AbsValue val="10"/>
+						<AbsValue val="16"/>
 					</EdgeSize>
 					<TileSize>
 						<AbsValue val="256"/>
 					</TileSize>
 					<BackgroundInsets>
-						<AbsInset left="0" right="0" top="5" bottom="5"/>
+						<AbsInset left="4" right="4" top="4" bottom="5"/>
 					</BackgroundInsets>
 				</Backdrop>
 				
@@ -96,7 +96,7 @@
 						DetailsDropDownOptionsFrameOnHide (self);
 					</OnHide>
 					<OnLoad>
-						self:SetBackdropColor (1, 1, 1, 1);
+						self:SetBackdropColor (0, 0, 0, 0.95);
 					</OnLoad>
 				</Scripts>
 				
@@ -120,9 +120,9 @@
 						<Layers>
 							<Layer level="BACKGROUND">
 								<!-- selected texture -->
-								<Texture name="$parent_SelectedTexture" parentKey="selected" hidden="true" file="Interface\SPELLBOOK\Spellbook-Parts">
-									<Size x="150" y="35" />
-									<TexCoords left="0.31250000" right="0.78515625" top="0.00390625" bottom="0.36328125"/>
+								<Texture name="$parent_SelectedTexture" parentKey="selected" hidden="true" file="Interface\AddOns\Details\framework\cooltip_background">
+									<Size x="150" y="16" />
+									<!--<TexCoords left="0.31250000" right="0.78515625" top="0.00390625" bottom="0.36328125"/>-->
 									<Anchors>
 										<Anchor point="LEFT" relativeTo="$parent" relativePoint="LEFT" x="2" y="0"/>
 									</Anchors>
@@ -196,8 +196,8 @@
 				<Texture name="$parent_StatusBarTexture" parentKey="statusbar">
 					<Size x="150" y="20" />
 					<Anchors>
-						<Anchor point="LEFT" relativeTo="$parent" relativePoint="LEFT" x="0" y="0"/>
-						<Anchor point="RIGHT" relativeTo="$parent" relativePoint="RIGHT" x="0" y="0"/>
+						<Anchor point="LEFT" relativeTo="$parent" relativePoint="LEFT" x="1" y="0"/>
+						<Anchor point="RIGHT" relativeTo="$parent" relativePoint="RIGHT" x="-10" y="0"/>
 					</Anchors>
 				</Texture>
 			</Layer>

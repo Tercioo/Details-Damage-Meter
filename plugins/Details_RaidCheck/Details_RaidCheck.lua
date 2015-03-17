@@ -411,6 +411,10 @@ local runes_id = {
 		
 		local update_panel = function (self)
 		
+			if (not IsInRaid()) then
+				return
+			end
+		
 			local amount1, amount2, amount3, amount4, amount5  = 0, 0, 0, 0, 0
 			local s, f, p, n = "", "", "", ""
 			

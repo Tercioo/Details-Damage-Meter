@@ -184,6 +184,11 @@
 		--if (alvo_serial:find ("-76933-")) then
 		--	return
 		--end
+		
+		--> spirit link toten
+		if (spellid == 98021) then
+			return
+		end
 
 	------------------------------------------------------------------------------------------------	
 	--> check if need start an combat
@@ -670,6 +675,8 @@
 		if (alvo_pet) then
 			who_name, who_serial, who_flags = alvo_pet[1], alvo_pet[2], alvo_pet[3]
 		end
+		
+		--print ()
 
 		_detalhes.tabela_pets:Adicionar (alvo_serial, alvo_name, alvo_flags, who_serial, who_name, who_flags)
 		
@@ -776,6 +783,11 @@
 
 		--> no target, just ignore
 		if (not alvo_name) then
+			return
+		end
+		
+		--> spirit link toten
+		if (spellid == 98021) then
 			return
 		end
 		

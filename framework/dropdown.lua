@@ -557,13 +557,6 @@ function DetailsDropDownOnMouseDown (button)
 			local selectedTexture = _G [button:GetName() .. "_ScrollFrame_ScrollChild_SelectedTexture"]
 			local mouseOverTexture = _G [button:GetName() .. "_ScrollFrame_ScrollChild_MouseOverTexture"]
 			
-			--scrollFrame:SetFrameStrata ("DIALOG")
-			--scrollBorder:SetFrameStrata ("DIALOG")
-			--scrollChild:SetFrameStrata ("DIALOG")
-			
-			--print (scrollFrame:GetFrameStrata())
-			--print (_G ["DetailsOptionsWindow1FragsPvpSlider"]:GetFrameStrata())
-			
 			local i = 1
 			local showing = 0
 			local currentText = button.text:GetText() or ""
@@ -637,7 +630,7 @@ function DetailsDropDownOnMouseDown (button)
 					
 					if (currentText and currentText == _table.label) then
 						if (_table.icon) then
-							selectedTexture:SetPoint ("left", _this_row.icon, "right", -5, -2)
+							selectedTexture:SetPoint ("left", _this_row.icon, "left", -3, 0)
 						else
 							selectedTexture:SetPoint ("left", _this_row.statusbar, "left", 0, 0)
 						end
@@ -695,6 +688,8 @@ function DetailsDropDownOnMouseDown (button)
 				scrollChild:SetHeight ((showing*20)+20)
 				--mouse over texture
 				mouseOverTexture:SetWidth (frame_witdh-7)
+				--selected
+				selectedTexture:SetWidth (frame_witdh - 9)
 				
 				for index, row in ipairs (object.menus) do
 					row:SetPoint ("topright", scrollChild, "topright", -22, ((-index-1)*20)-5)
@@ -713,6 +708,8 @@ function DetailsDropDownOnMouseDown (button)
 				scrollFrame:SetHeight ((showing*20) + 25)
 				--mouse over texture
 				mouseOverTexture:SetWidth (frame_witdh-10)
+				--selected
+				selectedTexture:SetWidth (frame_witdh - 9)
 				
 				for index, row in ipairs (object.menus) do
 					row:SetPoint ("topright", scrollChild, "topright", -5, ((-index-1)*20)-5)
@@ -916,7 +913,7 @@ function gump:NewDropDown (parent, container, name, member, w, h, func, default)
 	
 	local scroll = _G [DropDownObject.dropdown:GetName() .. "_ScrollFrame"]
 
-	DropDownObject.scroll = gump:NewScrollBar (scroll, _G [DropDownObject.dropdown:GetName() .. "_ScrollFrame".."_ScrollChild"], -20, -18)
+	DropDownObject.scroll = gump:NewScrollBar (scroll, _G [DropDownObject.dropdown:GetName() .. "_ScrollFrame".."_ScrollChild"], -25, -18)
 	
 	function DropDownObject:HideScroll()
 		scroll.baixo:Hide()

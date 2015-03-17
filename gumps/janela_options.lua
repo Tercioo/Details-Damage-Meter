@@ -39,7 +39,14 @@ _detalhes.preset_version = preset_version
 
 local slider_backdrop = {edgeFile = "Interface\\Buttons\\UI-SliderBar-Border", edgeSize = 8,
 bgFile = [[Interface\ACHIEVEMENTFRAME\UI-GuildAchievement-Parchment-Horizontal-Desaturated]], tile = true, tileSize = 130, insets = {left = 1, right = 1, top = 5, bottom = 5}}
+
+local slider_backdrop = {bgFile = [[Interface\DialogFrame\UI-DialogBox-Background-Dark]], edgeFile = [[Interface\AddOns\Details\images\border_3]], tile=true,
+	edgeSize = 16, tileSize = 64, insets = {left = 3, right = 3, top = 4, bottom = 4}}
+
 local slider_backdrop_color = {1, 1, 1, 1}
+
+local slider_backdrop_color = {1, 1, 1, 0.5}
+local slider_backdrop_border_color = {.5, .5, .5}
 
 local button_color_rgb = {1, 0.93, 0.74}
 
@@ -48,6 +55,11 @@ local texture_select_icon, texture_select_texcoord = [[Interface\AddOns\Details\
 
 local dropdown_backdrop = {edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border", edgeSize = 10,
 bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background", tile = true, tileSize = 16, insets = {left = 1, right = 1, top = 0, bottom = 1}}
+
+local dropdown_backdrop = {edgeFile = [[Interface\AddOns\Details\images\border_2]], edgeSize = 14,
+bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background", tile = true, tileSize = 16, insets = {left = 3, right = 3, top = 4, bottom = 4}}
+dropdown_backdrop_border_color = {.7, .7, .7}
+
 local dropdown_backdrop_onenter = {0, 0, 0, 1}
 local dropdown_backdrop_onleave = {.1, .1, .1, .9}
 
@@ -1240,6 +1252,7 @@ function window:CreateFrame20()
 		local s = g:NewSlider (frame20, _, "$parentTooltipTextSizeSlider", "TooltipTextSizeSlider", SLIDER_WIDTH, 20, 8, 32, 1, tonumber (_detalhes.tooltip.fontsize))
 		s:SetBackdrop (slider_backdrop)
 		s:SetBackdropColor (unpack (slider_backdrop_color))
+		s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
 		s:SetThumbSize (50)
 	
 		frame20.TooltipTextSizeSlider:SetPoint ("left", frame20.TooltipTextSizeLabel, "right", 2)
@@ -1272,7 +1285,7 @@ function window:CreateFrame20()
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
-		d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+		d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))
 		
 		frame20.TooltipFontDropdown:SetPoint ("left", frame20.TooltipFontLabel, "right", 2)
 		
@@ -1315,15 +1328,17 @@ function window:CreateFrame20()
 		
 		local icon = [[Interface\COMMON\mini-hourglass]]
 		local iconcolor = {1, 1, 1, .5}
+		local iconsize = {14, 14}
+		
 		local abbreviationOptions = {
-			{value = 1, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_NONE"], desc = "Example: 305.500 -> 305500", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor}, --, desc = ""
-			{value = 2, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOK"], desc = "Example: 305.500 -> 305.5K", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor}, --, desc = ""
-			{value = 3, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOK2"], desc = "Example: 305.500 -> 305K", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor}, --, desc = ""
-			{value = 4, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOK0"], desc = "Example: 25.305.500 -> 25M", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor}, --, desc = ""
-			{value = 5, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOKMIN"], desc = "Example: 305.500 -> 305.5k", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor}, --, desc = ""
-			{value = 6, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOK2MIN"], desc = "Example: 305.500 -> 305k", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor}, --, desc = ""
-			{value = 7, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOK0MIN"], desc = "Example: 25.305.500 -> 25m", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor}, --, desc = ""
-			{value = 8, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_COMMA"], desc = "Example: 25305500 -> 25.305.500", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor} --, desc = ""
+			{value = 1, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_NONE"], desc = "Example: 305.500 -> 305500", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor, iconsize = iconsize}, --, desc = ""
+			{value = 2, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOK"], desc = "Example: 305.500 -> 305.5K", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor, iconsize = iconsize}, --, desc = ""
+			{value = 3, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOK2"], desc = "Example: 305.500 -> 305K", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor, iconsize = iconsize}, --, desc = ""
+			{value = 4, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOK0"], desc = "Example: 25.305.500 -> 25M", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor, iconsize = iconsize}, --, desc = ""
+			{value = 5, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOKMIN"], desc = "Example: 305.500 -> 305.5k", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor, iconsize = iconsize}, --, desc = ""
+			{value = 6, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOK2MIN"], desc = "Example: 305.500 -> 305k", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor, iconsize = iconsize}, --, desc = ""
+			{value = 7, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOK0MIN"], desc = "Example: 25.305.500 -> 25m", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor, iconsize = iconsize}, --, desc = ""
+			{value = 8, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_COMMA"], desc = "Example: 25305500 -> 25.305.500", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor, iconsize = iconsize} --, desc = ""
 		}
 		local buildAbbreviationMenu = function()
 			return abbreviationOptions
@@ -1333,7 +1348,7 @@ function window:CreateFrame20()
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
-		d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+		d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))
 		
 		frame20.TooltipdpsAbbreviateDropdown:SetPoint ("left", frame20.TooltipdpsAbbreviateLabel, "right", 2, 0)		
 		
@@ -1371,7 +1386,7 @@ function window:CreateFrame20()
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
-		d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+		d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))
 		
 		frame20.TooltipMaximizeDropdown:SetPoint ("left", frame20.TooltipMaximizeLabel, "right", 2, 0)		
 		
@@ -1415,7 +1430,7 @@ function window:CreateFrame20()
 			d.onenter_backdrop = dropdown_backdrop_onenter
 			d.onleave_backdrop = dropdown_backdrop_onleave
 			d:SetBackdrop (dropdown_backdrop)
-			d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+			d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))
 
 			frame20.BackdropBorderTextureDropdown:SetPoint ("left", frame20.BackdropBorderTextureLabel, "right", 2)
 			window:CreateLineBackground2 (frame20, "BackdropBorderTextureDropdown", "BackdropBorderTextureLabel", Loc ["STRING_OPTIONS_TOOLTIPS_BORDER_TEXTURE_DESC"])
@@ -1425,6 +1440,7 @@ function window:CreateFrame20()
 			local s = g:NewSlider (frame20, _, "$parentBackdropSizeHeight", "BackdropSizeSlider", SLIDER_WIDTH, 20, 1, 32, 1, _detalhes.tooltip.border_size)
 			s:SetBackdrop (slider_backdrop)
 			s:SetBackdropColor (unpack (slider_backdrop_color))
+			s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
 			s:SetThumbSize (50)
 
 			frame20.BackdropSizeSlider:SetPoint ("left", frame20.BackdropSizeLabel, "right", 2)
@@ -1493,7 +1509,7 @@ function window:CreateFrame20()
 			d.onenter_backdrop = dropdown_backdrop_onenter
 			d.onleave_backdrop = dropdown_backdrop_onleave
 			d:SetBackdrop (dropdown_backdrop)
-			d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+			d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))
 			
 			frame20.TooltipAnchorDropdown:SetPoint ("left", frame20.TooltipAnchorLabel, "right", 2, 0)
 			
@@ -1527,7 +1543,7 @@ function window:CreateFrame20()
 			d.onenter_backdrop = dropdown_backdrop_onenter
 			d.onleave_backdrop = dropdown_backdrop_onleave
 			d:SetBackdrop (dropdown_backdrop)
-			d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+			d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))
 			
 			frame20.TooltipAnchorSideDropdown:SetPoint ("left", frame20.TooltipAnchorSideLabel, "right", 2, 0)		
 			
@@ -1559,7 +1575,7 @@ function window:CreateFrame20()
 			d.onenter_backdrop = dropdown_backdrop_onenter
 			d.onleave_backdrop = dropdown_backdrop_onleave
 			d:SetBackdrop (dropdown_backdrop)
-			d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+			d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))
 			
 			frame20.TooltipRelativeSideDropdown:SetPoint ("left", frame20.TooltipRelativeSideLabel, "right", 2, 0)		
 			
@@ -1570,6 +1586,7 @@ function window:CreateFrame20()
 			local s = g:NewSlider (frame20, _, "$parentTooltipOffsetXSlider", "TooltipOffsetXSlider", SLIDER_WIDTH, 20, -100, 100, 1, tonumber (_detalhes.tooltip.anchor_offset[1]))
 			s:SetBackdrop (slider_backdrop)
 			s:SetBackdropColor (unpack (slider_backdrop_color))
+			s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
 			s:SetThumbSize (50)
 		
 			frame20.TooltipOffsetXSlider:SetPoint ("left", frame20.TooltipOffsetXLabel, "right", 2)
@@ -1583,6 +1600,7 @@ function window:CreateFrame20()
 			local s = g:NewSlider (frame20, _, "$parentTooltipOffsetYSlider", "TooltipOffsetYSlider", SLIDER_WIDTH, 20, -100, 100, 1, tonumber (_detalhes.tooltip.anchor_offset[2]))
 			s:SetBackdrop (slider_backdrop)
 			s:SetBackdropColor (unpack (slider_backdrop_color))
+			s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
 			s:SetThumbSize (50)
 		
 			frame20.TooltipOffsetYSlider:SetPoint ("left", frame20.TooltipOffsetYLabel, "right", 2)
@@ -1766,15 +1784,16 @@ function window:CreateFrame19()
 		end
 		local icon = [[Interface\COMMON\mini-hourglass]]
 		local iconcolor = {1, 1, 1, .5}
+		local iconsize = {14, 14}
 		local abbreviationOptions = {
-			{value = 1, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_NONE"], desc = Loc ["STRING_EXAMPLE"] .. ": 305.500 -> 305500", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor}, --, desc = ""
-			{value = 2, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOK"], desc = Loc ["STRING_EXAMPLE"] .. ": 305.500 -> 305.5K", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor}, --, desc = ""
-			{value = 3, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOK2"], desc = Loc ["STRING_EXAMPLE"] .. ": 305.500 -> 305K", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor}, --, desc = ""
-			{value = 4, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOK0"], desc = Loc ["STRING_EXAMPLE"] .. ": 25.305.500 -> 25M", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor}, --, desc = ""
-			{value = 5, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOKMIN"], desc = Loc ["STRING_EXAMPLE"] .. ": 305.500 -> 305.5k", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor}, --, desc = ""
-			{value = 6, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOK2MIN"], desc = Loc ["STRING_EXAMPLE"] .. ": 305.500 -> 305k", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor}, --, desc = ""
-			{value = 7, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOK0MIN"], desc = Loc ["STRING_EXAMPLE"] .. ": 25.305.500 -> 25m", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor}, --, desc = ""
-			{value = 8, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_COMMA"], desc = Loc ["STRING_EXAMPLE"] .. ": 25305500 -> 25.305.500", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor} --, desc = ""
+			{value = 1, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_NONE"], desc = Loc ["STRING_EXAMPLE"] .. ": 305.500 -> 305500", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor, iconsize = iconsize}, --, desc = ""
+			{value = 2, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOK"], desc = Loc ["STRING_EXAMPLE"] .. ": 305.500 -> 305.5K", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor, iconsize = iconsize}, --, desc = ""
+			{value = 3, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOK2"], desc = Loc ["STRING_EXAMPLE"] .. ": 305.500 -> 305K", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor, iconsize = iconsize}, --, desc = ""
+			{value = 4, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOK0"], desc = Loc ["STRING_EXAMPLE"] .. ": 25.305.500 -> 25M", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor, iconsize = iconsize}, --, desc = ""
+			{value = 5, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOKMIN"], desc = Loc ["STRING_EXAMPLE"] .. ": 305.500 -> 305.5k", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor, iconsize = iconsize}, --, desc = ""
+			{value = 6, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOK2MIN"], desc = Loc ["STRING_EXAMPLE"] .. ": 305.500 -> 305k", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor, iconsize = iconsize}, --, desc = ""
+			{value = 7, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOK0MIN"], desc = Loc ["STRING_EXAMPLE"] .. ": 25.305.500 -> 25m", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor, iconsize = iconsize}, --, desc = ""
+			{value = 8, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_COMMA"], desc = Loc ["STRING_EXAMPLE"] .. ": 25305500 -> 25.305.500", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor, iconsize = iconsize} --, desc = ""
 		}
 		local buildAbbreviationMenu = function()
 			return abbreviationOptions
@@ -1784,7 +1803,7 @@ function window:CreateFrame19()
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
-		d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+		d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))
 		
 		frame19.BrokerNumberAbbreviateDropdown:SetPoint ("left", frame19.BrokerNumberAbbreviateLabel, "right", 2, 0)		
 		
@@ -1886,7 +1905,7 @@ function window:CreateFrame18()
 			d.onenter_backdrop = dropdown_backdrop_onenter
 			d.onleave_backdrop = dropdown_backdrop_onleave
 			d:SetBackdrop (dropdown_backdrop)
-			d:SetBackdropColor (unpack (dropdown_backdrop_onleave))		
+			d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))		
 			
 			frame18.autoSwitchDropdown:SetPoint ("left", frame18.autoSwitchLabel, "right", 2, 0)		
 			
@@ -1916,7 +1935,7 @@ function window:CreateFrame18()
 			d.onenter_backdrop = dropdown_backdrop_onenter
 			d.onleave_backdrop = dropdown_backdrop_onleave
 			d:SetBackdrop (dropdown_backdrop)
-			d:SetBackdropColor (unpack (dropdown_backdrop_onleave))		
+			d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))		
 			
 			frame18.autoSwitchWipeDropdown:SetPoint ("left", frame18.AutoSwitchWipeLabel, "right", 2, 0)		
 			
@@ -1946,7 +1965,7 @@ function window:CreateFrame18()
 			d.onenter_backdrop = dropdown_backdrop_onenter
 			d.onleave_backdrop = dropdown_backdrop_onleave
 			d:SetBackdrop (dropdown_backdrop)
-			d:SetBackdropColor (unpack (dropdown_backdrop_onleave))		
+			d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))		
 			
 			frame18.AutoSwitchDamageNoCombatDropdown:SetPoint ("left", dps_icon1, "right", 2, 0)
 			frame18.AutoSwitchDamageNoCombatLabel:SetPoint ("left", dps_icon1, "left", 0, 0)
@@ -1977,7 +1996,7 @@ function window:CreateFrame18()
 			d.onenter_backdrop = dropdown_backdrop_onenter
 			d.onleave_backdrop = dropdown_backdrop_onleave
 			d:SetBackdrop (dropdown_backdrop)
-			d:SetBackdropColor (unpack (dropdown_backdrop_onleave))		
+			d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))		
 			
 			frame18.AutoSwitchDamageCombatDropdown:SetPoint ("left", frame18.AutoSwitchDamageCombatLabel, "right", 2, -1)		
 			frame18.AutoSwitchDamageCombatLabel:SetPoint ("left", dps_icon2, "right", 2, 1)
@@ -2008,7 +2027,7 @@ function window:CreateFrame18()
 			d.onenter_backdrop = dropdown_backdrop_onenter
 			d.onleave_backdrop = dropdown_backdrop_onleave
 			d:SetBackdrop (dropdown_backdrop)
-			d:SetBackdropColor (unpack (dropdown_backdrop_onleave))		
+			d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))		
 			
 			--frame18.AutoSwitchHealNoCombatDropdown:SetPoint ("left", frame18.AutoSwitchHealNoCombatLabel, "right", 2, 0)		
 			frame18.AutoSwitchHealNoCombatDropdown:SetPoint ("left", healer_icon1, "right", 2, 0)
@@ -2040,7 +2059,7 @@ function window:CreateFrame18()
 			d.onenter_backdrop = dropdown_backdrop_onenter
 			d.onleave_backdrop = dropdown_backdrop_onleave
 			d:SetBackdrop (dropdown_backdrop)
-			d:SetBackdropColor (unpack (dropdown_backdrop_onleave))		
+			d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))		
 			
 			--frame18.AutoSwitchHealCombatDropdown:SetPoint ("left", frame18.AutoSwitchHealCombatLabel, "right", 2, 0)		
 			frame18.AutoSwitchHealCombatDropdown:SetPoint ("left", frame18.AutoSwitchHealCombatLabel, "right", 2, -1)
@@ -2072,7 +2091,7 @@ function window:CreateFrame18()
 			d.onenter_backdrop = dropdown_backdrop_onenter
 			d.onleave_backdrop = dropdown_backdrop_onleave
 			d:SetBackdrop (dropdown_backdrop)
-			d:SetBackdropColor (unpack (dropdown_backdrop_onleave))		
+			d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))		
 			
 			frame18.AutoSwitchTankNoCombatDropdown:SetPoint ("left", tank_icon1, "right", 2, 0)		
 			frame18.AutoSwitchTankNoCombatLabel:SetPoint ("left", tank_icon1, "left", 0, 0)
@@ -2103,7 +2122,7 @@ function window:CreateFrame18()
 			d.onenter_backdrop = dropdown_backdrop_onenter
 			d.onleave_backdrop = dropdown_backdrop_onleave
 			d:SetBackdrop (dropdown_backdrop)
-			d:SetBackdropColor (unpack (dropdown_backdrop_onleave))		
+			d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))		
 			
 			frame18.AutoSwitchTankCombatDropdown:SetPoint ("left", frame18.AutoSwitchTankCombatLabel, "right", 2, -1)
 			frame18.AutoSwitchTankCombatLabel:SetPoint ("left", tank_icon2, "right", 2, 1)
@@ -2183,7 +2202,7 @@ function window:CreateFrame18()
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
-		d:SetBackdropColor (unpack (dropdown_backdrop_onleave))		
+		d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))		
 		
 		frame18.deleteInstanceDropdown:SetPoint ("left", frame18.deleteInstanceLabel, "right", 2, 0)		
 		
@@ -2239,7 +2258,7 @@ function window:CreateFrame18()
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
-		d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+		d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))
 		
 		g:NewLabel (frame18, _, "$parentFontLabel", "fontLabel", Loc ["STRING_OPTIONS_MENU_FONT_FACE"], "GameFontHighlightLeft")
 		frame18.fontDropdown:SetPoint ("left", frame18.fontLabel, "right", 2)
@@ -2343,7 +2362,7 @@ function window:CreateFrame18()
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
-		d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+		d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))
 		
 		frame18.ReportFormatDropdown:SetPoint ("left", frame18.ReportFormatLabel, "right", 2, 0)		
 		
@@ -2449,7 +2468,7 @@ function window:CreateFrame17()
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
-		d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+		d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))
 		
 		frame17.combatAlphaDropdown:SetPoint ("left", frame17.combatAlphaLabel, "right", 2, 0)		
 		
@@ -2460,6 +2479,7 @@ function window:CreateFrame17()
 		local s = g:NewSlider (frame17, _, "$parentHideOnCombatAlphaSlider", "hideOnCombatAlphaSlider", SLIDER_WIDTH, 20, 0, 100, 1, _G.DetailsOptionsWindow.instance.hide_in_combat_alpha) -- min, max, step, defaultv
 		s:SetBackdrop (slider_backdrop)
 		s:SetBackdropColor (unpack (slider_backdrop_color))
+		s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
 		s:SetThumbSize (50)
 		
 		frame17.hideOnCombatAlphaSlider:SetPoint ("left", frame17.hideOnCombatAlphaLabel, "right", 2, 0)
@@ -2490,13 +2510,13 @@ function window:CreateFrame17()
 		
 		local s = g:NewSlider (frame17, _, "$parentMenuOnEnterAlphaSlider", "menuOnEnterSlider", SLIDER_WIDTH, 20, 0, 1, 0.02, instance.menu_alpha.onenter, true)
 		s:SetBackdrop (slider_backdrop)
-		s:SetBackdropColor (unpack (slider_backdrop_color))
+		s:SetBackdropColor (unpack (slider_backdrop_color)); s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
 		s:SetThumbSize (50)
 		s.useDecimals = true
 		
 		local s = g:NewSlider (frame17, _, "$parentMenuOnLeaveAlphaSlider", "menuOnLeaveSlider", SLIDER_WIDTH, 20, 0, 1, 0.02, instance.menu_alpha.onleave, true)
 		s:SetBackdrop (slider_backdrop)
-		s:SetBackdropColor (unpack (slider_backdrop_color))
+		s:SetBackdropColor (unpack (slider_backdrop_color)); s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
 		s:SetThumbSize (50)
 		
 		frame17.menuOnEnterSlider.useDecimals = true
@@ -3355,11 +3375,11 @@ function window:CreateFrame14()
 		g:NewLabel (frame14, _, "$parentAttributeAnchorYLabel", "attributeAnchorYLabel", Loc ["STRING_OPTIONS_MENU_ATTRIBUTE_ANCHORY"], "GameFontHighlightLeft")
 		local s = g:NewSlider (frame14, _, "$parentAttributeAnchorXSlider", "attributeAnchorXSlider", SLIDER_WIDTH, 20, -20, 300, 1, instance.attribute_text.anchor [1])
 		s:SetBackdrop (slider_backdrop)
-		s:SetBackdropColor (unpack (slider_backdrop_color))
+		s:SetBackdropColor (unpack (slider_backdrop_color)); s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
 		s:SetThumbSize (50)
 		local s = g:NewSlider (frame14, _, "$parentAttributeAnchorYSlider", "attributeAnchorYSlider", SLIDER_WIDTH, 20, -100, 50, 1, instance.attribute_text.anchor [2])
 		s:SetBackdrop (slider_backdrop)
-		s:SetBackdropColor (unpack (slider_backdrop_color))
+		s:SetBackdropColor (unpack (slider_backdrop_color)); s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
 		s:SetThumbSize (50)
 		
 		frame14.attributeAnchorXSlider:SetPoint ("left", frame14.attributeAnchorXLabel, "right", 2)
@@ -3424,7 +3444,7 @@ function window:CreateFrame14()
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
-		d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+		d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))
 		
 		frame14.attributeFontDropdown:SetPoint ("left", frame14.attributeFontLabel, "right", 2)
 		
@@ -3434,7 +3454,7 @@ function window:CreateFrame14()
 		g:NewLabel (frame14, _, "$parentAttributeTextSizeLabel", "attributeTextSizeLabel", Loc ["STRING_OPTIONS_MENU_ATTRIBUTE_TEXTSIZE"], "GameFontHighlightLeft")
 		local s = g:NewSlider (frame14, _, "$parentAttributeTextSizeSlider", "attributeTextSizeSlider", SLIDER_WIDTH, 20, 8, 32, 1, tonumber ( instance.attribute_text.text_size))
 		s:SetBackdrop (slider_backdrop)
-		s:SetBackdropColor (unpack (slider_backdrop_color))
+		s:SetBackdropColor (unpack (slider_backdrop_color)); s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
 		s:SetThumbSize (50)			
 	
 		frame14.attributeTextSizeSlider:SetPoint ("left", frame14.attributeTextSizeLabel, "right", 2)
@@ -3709,7 +3729,7 @@ function window:CreateFrame1()
 		g:NewLabel (frame1, _, "$parentSliderLabel", "segmentsLabel", Loc ["STRING_OPTIONS_MAXSEGMENTS"], "GameFontHighlightLeft")
 		local s = g:NewSlider (frame1, _, "$parentSlider", "segmentsSlider", SLIDER_WIDTH, 20, 1, 25, 1, _detalhes.segments_amount)
 		s:SetBackdrop (slider_backdrop)
-		s:SetBackdropColor (unpack (slider_backdrop_color))
+		s:SetBackdropColor (unpack (slider_backdrop_color)); s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
 		s:SetThumbSize (50)
 		
 		frame1.segmentsSlider:SetPoint ("left", frame1.segmentsLabel, "right", 2, -1)
@@ -3739,7 +3759,7 @@ function window:CreateFrame1()
 		
 		local s = g:NewSlider (frame1, _, "$parentWheelSpeedSlider", "WheelSpeedSlider", SLIDER_WIDTH, 20, 1, 3, 1, _detalhes.scroll_speed)
 		s:SetBackdrop (slider_backdrop)
-		s:SetBackdropColor (unpack (slider_backdrop_color))
+		s:SetBackdropColor (unpack (slider_backdrop_color)); s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
 		s:SetThumbSize (50)
 		
 		frame1.WheelSpeedSlider:SetPoint ("left", frame1.WheelSpeedLabel, "right", 2, -1)
@@ -3755,7 +3775,7 @@ function window:CreateFrame1()
 		--
 		local s = g:NewSlider (frame1, _, "$parentSliderMaxInstances", "maxInstancesSlider", SLIDER_WIDTH, 20, 1, 30, 1, _detalhes.instances_amount) -- min, max, step, defaultv
 		s:SetBackdrop (slider_backdrop)
-		s:SetBackdropColor (unpack (slider_backdrop_color))
+		s:SetBackdropColor (unpack (slider_backdrop_color)); s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
 		s:SetThumbSize (50)
 		
 		frame1.maxInstancesSlider:SetPoint ("left", frame1.maxInstancesLabel, "right", 2, -1)
@@ -3766,7 +3786,7 @@ function window:CreateFrame1()
 		
 		window:CreateLineBackground2 (frame1, "maxInstancesSlider", "maxInstancesLabel", Loc ["STRING_OPTIONS_MAXINSTANCES_DESC"])
 
-	---> Abbreviation Type
+	--> Abbreviation Type
 		g:NewLabel (frame1, _, "$parentDpsAbbreviateLabel", "dpsAbbreviateLabel", Loc ["STRING_OPTIONS_PS_ABBREVIATE"], "GameFontHighlightLeft")
 		--
 		local onSelectTimeAbbreviation = function (_, _, abbreviationtype)
@@ -3783,15 +3803,16 @@ function window:CreateFrame1()
 		end
 		local icon = [[Interface\COMMON\mini-hourglass]]
 		local iconcolor = {1, 1, 1, .5}
+		local iconsize = {14, 14}
 		local abbreviationOptions = {
-			{value = 1, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_NONE"], desc = Loc ["STRING_EXAMPLE"] .. ": 305.500 -> 305500", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor}, --, desc = ""
-			{value = 2, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOK"], desc = Loc ["STRING_EXAMPLE"] .. ": 305.500 -> 305.5K", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor}, --, desc = ""
-			{value = 3, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOK2"], desc = Loc ["STRING_EXAMPLE"] .. ": 305.500 -> 305K", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor}, --, desc = ""
-			{value = 4, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOK0"], desc = Loc ["STRING_EXAMPLE"] .. ": 25.305.500 -> 25M", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor}, --, desc = ""
-			{value = 5, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOKMIN"], desc = Loc ["STRING_EXAMPLE"] .. ": 305.500 -> 305.5k", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor}, --, desc = ""
-			{value = 6, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOK2MIN"], desc = Loc ["STRING_EXAMPLE"] .. ": 305.500 -> 305k", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor}, --, desc = ""
-			{value = 7, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOK0MIN"], desc = Loc ["STRING_EXAMPLE"] .. ": 25.305.500 -> 25m", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor}, --, desc = ""
-			{value = 8, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_COMMA"], desc = Loc ["STRING_EXAMPLE"] .. ": 25305500 -> 25.305.500", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor} --, desc = ""
+			{value = 1, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_NONE"], desc = Loc ["STRING_EXAMPLE"] .. ": 305.500 -> 305500", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor, iconsize = iconsize}, --, desc = ""
+			{value = 2, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOK"], desc = Loc ["STRING_EXAMPLE"] .. ": 305.500 -> 305.5K", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor, iconsize = iconsize}, --, desc = ""
+			{value = 3, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOK2"], desc = Loc ["STRING_EXAMPLE"] .. ": 305.500 -> 305K", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor, iconsize = iconsize}, --, desc = ""
+			{value = 4, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOK0"], desc = Loc ["STRING_EXAMPLE"] .. ": 25.305.500 -> 25M", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor, iconsize = iconsize}, --, desc = ""
+			{value = 5, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOKMIN"], desc = Loc ["STRING_EXAMPLE"] .. ": 305.500 -> 305.5k", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor, iconsize = iconsize}, --, desc = ""
+			{value = 6, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOK2MIN"], desc = Loc ["STRING_EXAMPLE"] .. ": 305.500 -> 305k", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor, iconsize = iconsize}, --, desc = ""
+			{value = 7, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_TOK0MIN"], desc = Loc ["STRING_EXAMPLE"] .. ": 25.305.500 -> 25m", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor, iconsize = iconsize}, --, desc = ""
+			{value = 8, label = Loc ["STRING_OPTIONS_PS_ABBREVIATE_COMMA"], desc = Loc ["STRING_EXAMPLE"] .. ": 25305500 -> 25.305.500", onclick = onSelectTimeAbbreviation, icon = icon, iconcolor = iconcolor, iconsize = iconsize} --, desc = ""
 		}
 		local buildAbbreviationMenu = function()
 			return abbreviationOptions
@@ -3801,7 +3822,7 @@ function window:CreateFrame1()
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
-		d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+		d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))
 		
 		frame1.dpsAbbreviateDropdown:SetPoint ("left", frame1.dpsAbbreviateLabel, "right", 2, 0)		
 
@@ -3832,7 +3853,7 @@ function window:CreateFrame1()
 
 		local s = g:NewSlider (frame1, _, "$parentSliderUpdateSpeed", "updatespeedSlider", SLIDER_WIDTH, 20, 0.05, 3, 0.05, _detalhes.update_speed, true)
 		s:SetBackdrop (slider_backdrop)
-		s:SetBackdropColor (unpack (slider_backdrop_color))
+		s:SetBackdropColor (unpack (slider_backdrop_color)); s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
 		
 		g:NewLabel (frame1, _, "$parentUpdateSpeedLabel", "updatespeedLabel", Loc ["STRING_OPTIONS_WINDOWSPEED"], "GameFontHighlightLeft")
 		--
@@ -3964,7 +3985,7 @@ function window:CreateFrame1()
 			d.onenter_backdrop = dropdown_backdrop_onenter
 			d.onleave_backdrop = dropdown_backdrop_onleave
 			d:SetBackdrop (dropdown_backdrop)
-			d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+			d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))
 			
 			frame1.EraseDataDropdown:SetPoint ("left", frame1.EraseDataLabel, "right", 2, 0)		
 
@@ -4109,7 +4130,7 @@ function window:CreateFrame2()
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
-		d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+		d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))
 		
 		frame2.timetypeDropdown:SetPoint ("left", frame2.timetypeLabel, "right", 2, 0)		
 
@@ -4133,7 +4154,7 @@ function window:CreateFrame2()
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
-		d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+		d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))
 		
 		frame2.DeathLogLimitDropdown:SetPoint ("left", frame2.DeathLogLimitLabel, "right", 2, 0)		
 
@@ -4507,7 +4528,7 @@ function window:CreateFrame13()
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
-		d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+		d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))
 		
 		local select_profile_label = g:NewLabel (frame13, _, "$parentSelectProfileLabel", "selectProfileLabel", Loc ["STRING_OPTIONS_PROFILES_SELECT"], "GameFontHighlightLeft")
 		select_profile_dropdown:SetPoint ("left", select_profile_label, "right", 2, 0)
@@ -4593,7 +4614,7 @@ function window:CreateFrame13()
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
-		d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+		d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))
 		
 		local select_profileCopy_label = g:NewLabel (frame13, _, "$parentSelectProfileCopyLabel", "selectProfileCopyLabel", Loc ["STRING_OPTIONS_PROFILES_COPY"], "GameFontHighlightLeft")
 		select_profileCopy_dropdown:SetPoint ("left", select_profileCopy_label, "right", 2, 0)
@@ -4632,7 +4653,7 @@ function window:CreateFrame13()
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
-		d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+		d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))
 		
 		local select_profileErase_label = g:NewLabel (frame13, _, "$parentSelectProfileEraseLabel", "selectProfileLabel", Loc ["STRING_OPTIONS_PROFILES_ERASE"], "GameFontHighlightLeft")
 		select_profileErase_dropdown:SetPoint ("left", select_profileErase_label, "right", 2, 0)
@@ -4872,7 +4893,7 @@ function window:CreateFrame3()
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
-		d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+		d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))
 		
 		g:NewLabel (frame3, _, "$parentSkinLabel", "skinLabel", Loc ["STRING_OPTIONS_INSTANCE_SKIN"], "GameFontHighlightLeft")
 		
@@ -5058,7 +5079,7 @@ function window:CreateFrame3()
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
-		d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+		d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))
 		
 		frame3.customSkinSelectDropdown:SetPoint ("left", frame3.loadCustomSkinLabel, "right", 2, 0)
 		
@@ -5090,7 +5111,7 @@ function window:CreateFrame3()
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
-		d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+		d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))
 		
 		frame3.customSkinSelectToRemoveDropdown:SetPoint ("left", frame3.removeCustomSkinLabel, "right", 2, 0)
 
@@ -5139,7 +5160,7 @@ function window:CreateFrame3()
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
-		d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+		d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))
 		
 		frame3.CustomSkinSelectToExportDropdown:SetPoint ("left", frame3.ExportCustomSkinLabel, "right", 2, 0)
 
@@ -5234,7 +5255,7 @@ function window:CreateFrame4()
 		g:NewLabel (frame4, _, "$parentRowHeightLabel", "rowHeightLabel", Loc ["STRING_OPTIONS_BAR_HEIGHT"], "GameFontHighlightLeft")
 		local s = g:NewSlider (frame4, _, "$parentSliderRowHeight", "rowHeightSlider", SLIDER_WIDTH, 20, 10, 30, 1, tonumber (instance.row_info.height))
 		s:SetBackdrop (slider_backdrop)
-		s:SetBackdropColor (unpack (slider_backdrop_color))
+		s:SetBackdropColor (unpack (slider_backdrop_color)); s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
 		s:SetThumbSize (50)
 
 		frame4.rowHeightSlider:SetPoint ("left", frame4.rowHeightLabel, "right", 2)
@@ -5318,7 +5339,7 @@ function window:CreateFrame4()
 		local s = g:NewSlider (frame4, _, "$parentBarSpacementSizeSlider", "BarSpacementSlider", SLIDER_WIDTH, 20, 0, 10, 1, instance.row_info.space.between)
 		s:SetThumbSize (50)
 		s:SetBackdrop (slider_backdrop)
-		s:SetBackdropColor (unpack (slider_backdrop_color))
+		s:SetBackdropColor (unpack (slider_backdrop_color)); s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
 	
 		frame4.BarSpacementSlider:SetPoint ("left", frame4.BarSpacementLabel, "right", 2)
 		frame4.BarSpacementSlider:SetHook ("OnValueChange", function (self, instancia, amount)
@@ -5376,7 +5397,7 @@ function window:CreateFrame4()
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
-		d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+		d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))
 
 		frame4.textureDropdown:SetPoint ("left", frame4.textureLabel, "right", 2)
 		window:CreateLineBackground2 (frame4, "textureDropdown", "textureLabel", Loc ["STRING_OPTIONS_BAR_TEXTURE_DESC"])
@@ -5461,7 +5482,7 @@ function window:CreateFrame4()
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
-		d:SetBackdropColor (unpack (dropdown_backdrop_onleave))		
+		d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))		
 		
 		frame4.rowBackgroundDropdown:SetPoint ("left", frame4.rowBackgroundLabel, "right", 2)
 		window:CreateLineBackground2 (frame4, "rowBackgroundDropdown", "rowBackgroundLabel", Loc ["STRING_OPTIONS_BAR_BTEXTURE_DESC"])
@@ -5589,7 +5610,7 @@ function window:CreateFrame4()
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
-		d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+		d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))
 		
 		d:SetPoint ("left", frame4.iconFileLabel, "right", 2)
 		window:CreateLineBackground2 (frame4, "IconSelectDropdown", "iconFileLabel", Loc ["STRING_OPTIONS_BAR_ICONFILE_DESC2"])
@@ -5745,7 +5766,7 @@ function window:CreateFrame4()
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
-		d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+		d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))
 		
 		frame4.BackdropBorderTextureDropdown:SetPoint ("left", frame4.BackdropBorderTextureLabel, "right", 2)
 		window:CreateLineBackground2 (frame4, "BackdropBorderTextureDropdown", "BackdropBorderTextureLabel", Loc ["STRING_OPTIONS_BAR_BACKDROP_TEXTURE_DESC"])
@@ -5754,7 +5775,7 @@ function window:CreateFrame4()
 		g:NewLabel (frame4, _, "$parentBackdropSizeLabel", "BackdropSizeLabel", Loc ["STRING_OPTIONS_SIZE"], "GameFontHighlightLeft")
 		local s = g:NewSlider (frame4, _, "$parentBackdropSizeHeight", "BackdropSizeSlider", SLIDER_WIDTH, 20, 1, 20, 1, tonumber (instance.row_info.height))
 		s:SetBackdrop (slider_backdrop)
-		s:SetBackdropColor (unpack (slider_backdrop_color))
+		s:SetBackdropColor (unpack (slider_backdrop_color)); s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
 		s:SetThumbSize (50)
 
 		frame4.BackdropSizeSlider:SetPoint ("left", frame4.BackdropSizeLabel, "right", 2)
@@ -5877,7 +5898,7 @@ function window:CreateFrame5()
 	--> text size
 		local s = g:NewSlider (frame5, _, "$parentSliderFontSize", "fonsizeSlider", SLIDER_WIDTH, 20, 8, 32, 1, tonumber (instance.row_info.font_size))
 		s:SetBackdrop (slider_backdrop)
-		s:SetBackdropColor (unpack (slider_backdrop_color))
+		s:SetBackdropColor (unpack (slider_backdrop_color)); s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
 		s:SetThumbSize (50)
 		
 		g:NewLabel (frame5, _, "$parentFontSizeLabel", "fonsizeLabel", Loc ["STRING_OPTIONS_TEXT_SIZE"], "GameFontHighlightLeft")
@@ -5929,7 +5950,7 @@ function window:CreateFrame5()
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
-		d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+		d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))
 		
 		g:NewLabel (frame5, _, "$parentFontLabel", "fontLabel", Loc ["STRING_OPTIONS_TEXT_FONT"], "GameFontHighlightLeft")
 		frame5.fontDropdown:SetPoint ("left", frame5.fontLabel, "right", 2)
@@ -6068,7 +6089,7 @@ function window:CreateFrame5()
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
-		d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+		d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))
 		
 		g:NewLabel (frame5, _, "$parentPercentLabel", "percentLabel", Loc ["STRING_OPTIONS_PERCENT_TYPE"], "GameFontHighlightLeft")
 		frame5.percentDropdown:SetPoint ("left", frame5.percentLabel, "right", 2)
@@ -6418,7 +6439,7 @@ function window:CreateFrame5()
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
-		d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+		d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))
 		
 		g:NewLabel (frame5, _, "$parentBracketLabel", "BracketLabel", Loc ["STRING_OPTIONS_TEXT_SHOW_BRACKET"], "GameFontHighlightLeft")
 		frame5.BracketDropdown:SetPoint ("left", frame5.BracketLabel, "right", 2)
@@ -6459,7 +6480,7 @@ function window:CreateFrame5()
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
-		d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+		d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))
 		
 		g:NewLabel (frame5, _, "$parentSeparatorLabel", "SeparatorLabel", Loc ["STRING_OPTIONS_TEXT_SHOW_SEPARATOR"], "GameFontHighlightLeft")
 		frame5.SeparatorDropdown:SetPoint ("left", frame5.SeparatorLabel, "right", 2)
@@ -6759,19 +6780,19 @@ function window:CreateFrame6()
 			d.onenter_backdrop = dropdown_backdrop_onenter
 			d.onleave_backdrop = dropdown_backdrop_onleave
 			d:SetBackdrop (dropdown_backdrop)
-			d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+			d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))
 			
 			local d = g:NewDropDown (frame6, _, "$parentMicroDisplayCenterDropdown", "MicroDisplayCenterDropdown", DROPDOWN_WIDTH, 20, BuildCenterMicroMenu, nil)	
 			d.onenter_backdrop = dropdown_backdrop_onenter
 			d.onleave_backdrop = dropdown_backdrop_onleave
 			d:SetBackdrop (dropdown_backdrop)
-			d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+			d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))
 			
 			local d = g:NewDropDown (frame6, _, "$parentMicroDisplayRightDropdown", "MicroDisplayRightDropdown", DROPDOWN_WIDTH, 20, BuildRightMicroMenu, nil)	
 			d.onenter_backdrop = dropdown_backdrop_onenter
 			d.onleave_backdrop = dropdown_backdrop_onleave
 			d:SetBackdrop (dropdown_backdrop)
-			d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+			d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))
 			
 			frame6.MicroDisplayLeftDropdown:SetPoint ("left", frame6.MicroDisplayLeftLabel, "right", 2)
 			frame6.MicroDisplayCenterDropdown:SetPoint ("left", frame6.MicroDisplayCenterLabel, "right", 2)
@@ -6979,7 +7000,7 @@ function window:CreateFrame6()
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
-		d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+		d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))
 		
 		g:NewLabel (frame6, _, "$parentBackdropLabel", "backdropLabel", Loc ["STRING_OPTIONS_INSTANCE_BACKDROP"], "GameFontHighlightLeft")
 		frame6.backdropDropdown:SetPoint ("left", frame6.backdropLabel, "right", 2)
@@ -7013,7 +7034,7 @@ function window:CreateFrame6()
 			d.onenter_backdrop = dropdown_backdrop_onenter
 			d.onleave_backdrop = dropdown_backdrop_onleave
 			d:SetBackdrop (dropdown_backdrop)
-			d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+			d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))
 			
 			g:NewLabel (frame6, _, "$parentStrataLabel", "strataLabel", Loc ["STRING_OPTIONS_INSTANCE_STRATA"], "GameFontHighlightLeft")
 			frame6.strataDropdown:SetPoint ("left", frame6.strataLabel, "right", 2)
@@ -7048,7 +7069,7 @@ function window:CreateFrame6()
 	--> window scale
 			local s = g:NewSlider (frame6, _, "$parentWindowScaleSlider", "WindowScaleSlider", SLIDER_WIDTH, 20, 0.65, 1.5, 0.02, instance.window_scale, true)
 			s:SetBackdrop (slider_backdrop)
-			s:SetBackdropColor (unpack (slider_backdrop_color))
+			s:SetBackdropColor (unpack (slider_backdrop_color)); s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
 			s:SetThumbSize (50)
 			s.fine_tuning = 0.011
 			
@@ -7149,11 +7170,11 @@ function window:CreateFrame7()
 		-- menu anchors
 			local s = g:NewSlider (frame7, _, "$parentMenuAnchorXSlider", "menuAnchorXSlider", SLIDER_WIDTH, 20, -200, 200, 1, instance.menu_anchor[1])
 			s:SetBackdrop (slider_backdrop)
-			s:SetBackdropColor (unpack (slider_backdrop_color))
+			s:SetBackdropColor (unpack (slider_backdrop_color)); s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
 			s:SetThumbSize (50)			
 			local s = g:NewSlider (frame7, _, "$parentMenuAnchorYSlider", "menuAnchorYSlider", SLIDER_WIDTH, 20, -30, 30, 1, instance.menu_anchor[2])
 			s:SetBackdrop (slider_backdrop)
-			s:SetBackdropColor (unpack (slider_backdrop_color))
+			s:SetBackdropColor (unpack (slider_backdrop_color)); s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
 			s:SetThumbSize (50)
 			
 			g:NewLabel (frame7, _, "$parentMenuAnchorXLabel", "menuAnchorXLabel", Loc ["STRING_OPTIONS_MENU_X"], "GameFontHighlightLeft")
@@ -7447,7 +7468,7 @@ function window:CreateFrame7()
 	--icon sizes
 		local s = g:NewSlider (frame7, _, "$parentMenuIconSizeSlider", "menuIconSizeSlider", SLIDER_WIDTH, 20, 0.4, 1.6, 0.05, instance.menu_icons_size, true)
 		s:SetBackdrop (slider_backdrop)
-		s:SetBackdropColor (unpack (slider_backdrop_color))
+		s:SetBackdropColor (unpack (slider_backdrop_color)); s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
 		s.useDecimals = true
 		s.fine_tuning = 0.05
 		
@@ -7475,7 +7496,7 @@ function window:CreateFrame7()
 	
 		local s = g:NewSlider (frame7, _, "$parentMenuIconSpaceSlider", "MenuIconSpaceSlider", SLIDER_WIDTH, 20, -5, 10, 1, instance.menu_icons.space)
 		s:SetBackdrop (slider_backdrop)
-		s:SetBackdropColor (unpack (slider_backdrop_color))
+		s:SetBackdropColor (unpack (slider_backdrop_color)); s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
 		
 		g:NewLabel (frame7, _, "$parentMenuIconSpaceLabel", "MenuIconSpaceLabel", Loc ["STRING_OPTIONS_MENUS_SPACEMENT"], "GameFontHighlightLeft")
 		
@@ -7672,7 +7693,7 @@ function window:CreateFrame8()
 				g:NewLabel (frame8, _, "$parentModelUpperAlphaLabel", "ModelUpperAlphaLabel", Loc ["STRING_ALPHA"], "GameFontHighlightLeft")
 				local s = g:NewSlider (frame8, _, "$parentModelUpperAlphaSlider", "ModelUpperAlphaSlider", SLIDER_WIDTH, 20, 0, 1, 0.05, _G.DetailsOptionsWindow.instance.row_info.models.upper_alpha, true)
 				s:SetBackdrop (slider_backdrop)
-				s:SetBackdropColor (unpack (slider_backdrop_color))
+				s:SetBackdropColor (unpack (slider_backdrop_color)); s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
 				s:SetThumbSize (50)			
 			
 				frame8.ModelUpperAlphaSlider:SetPoint ("left", frame8.ModelUpperAlphaLabel, "right", 2)
@@ -7725,7 +7746,7 @@ function window:CreateFrame8()
 				g:NewLabel (frame8, _, "$parentModelLowerAlphaLabel", "ModelLowerAlphaLabel", Loc ["STRING_ALPHA"], "GameFontHighlightLeft")
 				local s = g:NewSlider (frame8, _, "$parentModelLowerAlphaSlider", "ModelLowerAlphaSlider", SLIDER_WIDTH, 20, 0, 1, 0.05, _G.DetailsOptionsWindow.instance.row_info.models.lower_alpha, true)
 				s:SetBackdrop (slider_backdrop)
-				s:SetBackdropColor (unpack (slider_backdrop_color))
+				s:SetBackdropColor (unpack (slider_backdrop_color)); s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
 				s:SetThumbSize (50)
 			
 				frame8.ModelLowerAlphaSlider:SetPoint ("left", frame8.ModelLowerAlphaLabel, "right", 2)
@@ -8035,7 +8056,7 @@ function window:CreateFrame9()
 			d.onenter_backdrop = dropdown_backdrop_onenter
 			d.onleave_backdrop = dropdown_backdrop_onleave
 			d:SetBackdrop (dropdown_backdrop)
-			d:SetBackdropColor (unpack (dropdown_backdrop_onleave))			
+			d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))			
 			
 			--> agora cria os 2 dropdown da categoria e wallpaper
 			
@@ -8332,14 +8353,14 @@ function window:CreateFrame9()
 			d.onenter_backdrop = dropdown_backdrop_onenter
 			d.onleave_backdrop = dropdown_backdrop_onleave
 			d:SetBackdrop (dropdown_backdrop)
-			d:SetBackdropColor (unpack (dropdown_backdrop_onleave))			
+			d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))			
 			
 			--wallpaper
 			local d = g:NewDropDown (frame9, _, "$parentBackgroundDropdown2", "backgroundDropdown2", DROPDOWN_WIDTH, 20, buildBackgroundMenu2, nil)
 			d.onenter_backdrop = dropdown_backdrop_onenter
 			d.onleave_backdrop = dropdown_backdrop_onleave
 			d:SetBackdrop (dropdown_backdrop)
-			d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+			d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))
 
 	-- Wallpaper Settings	
 
@@ -8705,61 +8726,14 @@ function window:CreateFrame10()
 		local titulo_performance_general_desc = g:NewLabel (frame10, _, "$parentTituloPersona2", "tituloPersona2Label", Loc ["STRING_OPTIONS_PERFORMANCE1_DESC"], "GameFontNormal", 9, "white")
 		titulo_performance_general_desc.width = 320
 		
-	--------------- Memory		
-		local s = g:NewSlider (frame10, _, "$parentSliderSegmentsSave", "segmentsSliderToSave", SLIDER_WIDTH, 20, 1, 25, 1, _detalhes.segments_amount_to_save)
-		s:SetBackdrop (slider_backdrop)
-		s:SetBackdropColor (unpack (slider_backdrop_color))
-		s:SetThumbSize (50)
-		
-		g:NewLabel (frame10, _, "$parentLabelMemory", "memoryLabel", Loc ["STRING_OPTIONS_MEMORYT"], "GameFontHighlightLeft")
-
-		local s = g:NewSlider (frame10, _, "$parentSliderMemory", "memorySlider", SLIDER_WIDTH, 20, 1, 4, 1, _detalhes.memory_threshold)
-		s:SetBackdrop (slider_backdrop)
-		s:SetBackdropColor (unpack (slider_backdrop_color))
-		
-		frame10.memorySlider:SetPoint ("left", frame10.memoryLabel, "right", 2, 0)
-		frame10.memorySlider:SetHook ("OnValueChange", function (slider, _, amount)
-			
-			amount = math.floor (amount)
-			
-			if (amount == 1) then
-				slider.amt:SetText ("<= 1gb")
-				_detalhes.memory_ram = 16
-				
-			elseif (amount == 2) then
-				slider.amt:SetText ("2gb")
-				_detalhes.memory_ram = 32
-				
-			elseif (amount == 3) then
-				slider.amt:SetText ("4gb")
-				_detalhes.memory_ram = 64
-				
-			elseif (amount == 4) then
-				slider.amt:SetText (">= 6gb")
-				_detalhes.memory_ram = 128
-				
-			end
-			
-			_detalhes.memory_threshold = amount
-			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
-			
-			return true
-		end)
-
-		frame10.memorySlider.thumb:SetSize (40, 12)
-		frame10.memorySlider.thumb:SetTexture ([[Interface\Buttons\UI-Listbox-Highlight2]])
-		frame10.memorySlider.thumb:SetVertexColor (.2, .2, .2, .9)
-		local t = _detalhes.memory_threshold
-		frame10.memorySlider:SetValue (1)
-		frame10.memorySlider:SetValue (2)
-		frame10.memorySlider:SetValue (t)
-		
-		window:CreateLineBackground2 (frame10, "memorySlider", "memoryLabel", Loc ["STRING_OPTIONS_MEMORYT_DESC"])
-		
 	--------------- Max Segments Saved
 		g:NewLabel (frame10, _, "$parentLabelSegmentsSave", "segmentsSaveLabel", Loc ["STRING_OPTIONS_SEGMENTSSAVE"], "GameFontHighlightLeft")
 		--
-		
+		local s = g:NewSlider (frame10, _, "$parentSliderSegmentsSave", "segmentsSliderToSave", SLIDER_WIDTH, 20, 1, 25, 1, _detalhes.segments_amount_to_save)
+		s:SetBackdrop (slider_backdrop)
+		s:SetBackdropColor (unpack (slider_backdrop_color)); s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
+		s:SetThumbSize (50)
+		--
 		frame10.segmentsSliderToSave:SetPoint ("left", frame10.segmentsSaveLabel, "right", 2, 0)
 		frame10.segmentsSliderToSave:SetHook ("OnValueChange", function (self, _, amount) --> slider, fixedValue, sliderValue
 			_detalhes.segments_amount_to_save = math.floor (amount)
@@ -8780,9 +8754,6 @@ function window:CreateFrame10()
 		
 		window:CreateLineBackground2 (frame10, "panicModeSlider", "panicModeLabel", Loc ["STRING_OPTIONS_PANIMODE_DESC"])
 		
-	--------------- Animate Rows
-		
-		
 	--------------- Animate scroll bar
 		g:NewLabel (frame10, _, "$parentAnimateScrollLabel", "animatescrollLabel", Loc ["STRING_OPTIONS_ANIMATESCROLL"], "GameFontHighlightLeft")
 		
@@ -8795,10 +8766,7 @@ function window:CreateFrame10()
 		end
 		
 		window:CreateLineBackground2 (frame10, "animatescrollSlider", "animatescrollLabel", Loc ["STRING_OPTIONS_ANIMATESCROLL_DESC"])
-		
-	--------------- Update Speed
 	
-		
 	--------------- Erase Trash
 		g:NewLabel (frame10, _, "$parentEraseTrash", "eraseTrashLabel", Loc ["STRING_OPTIONS_CLEANUP"], "GameFontHighlightLeft")
 		
@@ -8912,7 +8880,7 @@ function window:CreateFrame10()
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
-		d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+		d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))
 		
 		frame10.ProfileTypeDropdown:SetPoint ("left", frame10.ProfileTypeLabel, "right", 2)
 		
@@ -8955,7 +8923,7 @@ function window:CreateFrame10()
 		--update speed
 		local s = g:NewSlider (frame10, _, "$parentSliderUpdateSpeed", "updatespeedSlider", SLIDER_WIDTH, 20, 0.05, 3, 0.05, _detalhes.update_speed, true)
 		s:SetBackdrop (slider_backdrop)
-		s:SetBackdropColor (unpack (slider_backdrop_color))
+		s:SetBackdropColor (unpack (slider_backdrop_color)); s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
 		
 		g:NewLabel (frame10, _, "$parentUpdateSpeedLabel", "updatespeedLabel", Loc ["STRING_OPTIONS_WINDOWSPEED"], "GameFontHighlightLeft")
 		--
@@ -9082,10 +9050,10 @@ function window:CreateFrame10()
 		
 		local right_side = {
 			{"PerformanceAnchorLabel", 1, true},
-			{"memoryLabel", 2},
-			{"segmentsSaveLabel", 3},
-			{"panicModeLabel", 4},
-			{"eraseTrashLabel", 5},
+			--{"memoryLabel", 1, true},
+			{"segmentsSaveLabel", 2},
+			{"panicModeLabel", 3},
+			{"eraseTrashLabel", 4},
 		}
 		
 		window:arrange_menu (frame10, right_side, window.right_start_at, -90)
@@ -9171,7 +9139,7 @@ function window:CreateFrame11()
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
-		d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+		d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))
 		
 		frame11.InterruptsChannelDropdown:SetPoint ("left", frame11.InterruptsChannelLabel, "right", 2)
 		window:CreateLineBackground2 (frame11, "InterruptsChannelDropdown", "InterruptsChannelLabel", Loc ["STRING_OPTIONS_RT_INTERRUPTS_CHANNEL_DESC"])
@@ -9275,7 +9243,7 @@ function window:CreateFrame11()
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
-		d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+		d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))
 		
 		frame11.CooldownChannelDropdown:SetPoint ("left", frame11.CooldownChannelLabel, "right", 2)
 		window:CreateLineBackground2 (frame11, "CooldownChannelDropdown", "CooldownChannelLabel", Loc ["STRING_OPTIONS_RT_COOLDOWNS_CHANNEL_DESC"])
@@ -9446,7 +9414,7 @@ function window:CreateFrame11()
 		g:NewLabel (frame11, _, "$parentDeathsDamageLabel", "DeathsDamageLabel", Loc ["STRING_OPTIONS_RT_DEATHS_HITS"], "GameFontHighlightLeft")
 		local s = g:NewSlider (frame11, _, "$parentDeathsDamageSlider", "DeathsDamageSlider", SLIDER_WIDTH, 20, 1, 5, 1, _detalhes.announce_deaths.last_hits)
 		s:SetBackdrop (slider_backdrop)
-		s:SetBackdropColor (unpack (slider_backdrop_color))
+		s:SetBackdropColor (unpack (slider_backdrop_color)); s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
 		s:SetThumbSize (50)
 	
 		frame11.DeathsDamageSlider:SetPoint ("left", frame11.DeathsDamageLabel, "right", 2)
@@ -9460,7 +9428,7 @@ function window:CreateFrame11()
 		g:NewLabel (frame11, _, "$parentDeathsAmountLabel", "DeathsAmountLabel", Loc ["STRING_OPTIONS_RT_DEATHS_FIRST"], "GameFontHighlightLeft")
 		local s = g:NewSlider (frame11, _, "$parentDeathsAmountSlider", "DeathsAmountSlider", SLIDER_WIDTH, 20, 1, 30, 1, _detalhes.announce_deaths.only_first)
 		s:SetBackdrop (slider_backdrop)
-		s:SetBackdropColor (unpack (slider_backdrop_color))
+		s:SetBackdropColor (unpack (slider_backdrop_color)); s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
 		s:SetThumbSize (50)
 	
 		frame11.DeathsAmountSlider:SetPoint ("left", frame11.DeathsAmountLabel, "right", 2)
@@ -9491,7 +9459,7 @@ function window:CreateFrame11()
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
-		d:SetBackdropColor (unpack (dropdown_backdrop_onleave))
+		d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))
 		
 		frame11.DeathChannelDropdown:SetPoint ("left", frame11.DeathChannelLabel, "right", 2)
 		window:CreateLineBackground2 (frame11, "DeathChannelDropdown", "DeathChannelLabel", Loc ["STRING_OPTIONS_RT_DEATHS_WHERE_DESC"])
@@ -10258,7 +10226,6 @@ end --> if not window
 		_G.DetailsOptionsWindow8TotalBarIconTexture.MyObject:SetTexture (editing_instance.total_bar.icon)
 		
 		--> window 10	
-		_G.DetailsOptionsWindow10SliderMemory.MyObject:SetValue (_detalhes.memory_threshold)
 		_G.DetailsOptionsWindow10PanicModeSlider.MyObject:SetValue (_detalhes.segments_panic_mode)
 		_G.DetailsOptionsWindow10ClearAnimateScrollSlider.MyObject:SetValue (_detalhes.animate_scroll)
 		_G.DetailsOptionsWindow10SliderSegmentsSave.MyObject:SetValue (_detalhes.segments_amount_to_save)

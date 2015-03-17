@@ -348,6 +348,7 @@ function _G._detalhes:Start()
 			
 			--> Reset for the new structure
 			if (_detalhes_database.last_realversion and _detalhes_database.last_realversion < 64 and enable_reset_warning) then
+			
 				function _detalhes:ResetDataStorage()
 					if (not IsAddOnLoaded ("Details_DataStorage")) then
 						local loaded, reason = LoadAddOn ("Details_DataStorage")
@@ -364,6 +365,9 @@ function _G._detalhes:Start()
 					DetailsDataStorage = _detalhes:CreateStorageDB()
 				end
 				_detalhes:ScheduleTimer ("ResetDataStorage", 1)
+				
+				_detalhes:SetTooltipBackdrop (_detalhes.default_profile.tooltip.border_texture, _detalhes.default_profile.tooltip.border_size, table_deepcopy (_detalhes.default_profile.tooltip.border_color))
+				
 			end
 			
 			if (_detalhes_database.last_realversion and _detalhes_database.last_realversion < 47 and enable_reset_warning) then
