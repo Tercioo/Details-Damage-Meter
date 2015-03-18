@@ -428,7 +428,7 @@ end
 				break
 			end
 		end
-
+		
 		if (instance) then
 			if (instance:IsEnabled()) then
 				_detalhes:ShutDownAllInstances()
@@ -940,14 +940,12 @@ function _detalhes:agrupar_janelas (lados)
 				--> salva o snap
 				self.snap [4] = esta_instancia.meu_id
 				esta_instancia.snap [2] = self.meu_id
-				
-				--esta_instancia.baseframe.rodape.StatusBarLeftAnchor:SetPoint ("left", esta_instancia.baseframe.rodape.top_bg, "left", 25, 58)
-				--esta_instancia.baseframe.rodape.StatusBarCenterAnchor:SetPoint ("center", esta_instancia.baseframe.rodape.top_bg, "center", 20, 58)
-				--esta_instancia.baseframe.rodape.esquerdo:SetTexture ("Interface\\AddOns\\Details\\images\\bar_down_left_snap")
-				--esta_instancia.baseframe.rodape.esquerdo.have_snap = true
 
 			elseif (lado == 1) then --> esquerda
 				--> mover frame
+				
+				--print (esta_instancia.baseframe:GetPoint (0)[2], esta_instancia.baseframe:GetPoint (0)[2] == instancia.baseframe)
+				
 				instancia.baseframe:SetPoint ("TOPLEFT", esta_instancia.baseframe, "TOPRIGHT")
 				instancia.baseframe:SetPoint ("LEFT", esta_instancia.baseframe, "RIGHT")
 				instancia.baseframe:SetPoint ("BOTTOMLEFT", esta_instancia.baseframe, "BOTTOMRIGHT")
@@ -977,11 +975,7 @@ function _detalhes:agrupar_janelas (lados)
 				--> salva o snap
 				self.snap [2] = esta_instancia.meu_id
 				esta_instancia.snap [4] = self.meu_id
-				
-				--self.baseframe.rodape.StatusBarLeftAnchor:SetPoint ("left", self.baseframe.rodape.top_bg, "left", 25, 58)
-				--self.baseframe.rodape.StatusBarCenterAnchor:SetPoint ("center", self.baseframe.rodape.top_bg, "center", 20, 58)
-				--self.baseframe.rodape.esquerdo:SetTexture ([[Interface\AddOns\Details\images\bar_down_left_snap]])
-				--self.baseframe.rodape.esquerdo.have_snap = true
+
 			end
 			
 			if (not esta_instancia.ativa) then

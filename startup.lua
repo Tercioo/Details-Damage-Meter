@@ -347,7 +347,7 @@ function _G._detalhes:Start()
 			_detalhes:AddDefaultCustomDisplays()
 			
 			--> Reset for the new structure
-			if (_detalhes_database.last_realversion and _detalhes_database.last_realversion < 64 and enable_reset_warning) then
+			if (_detalhes_database.last_realversion and _detalhes_database.last_realversion < 65 and enable_reset_warning) then
 			
 				function _detalhes:ResetDataStorage()
 					if (not IsAddOnLoaded ("Details_DataStorage")) then

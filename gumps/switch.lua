@@ -115,6 +115,7 @@ do
 		window_color_texture:SetAlpha (1)
 		GameCooltip:Reset()
 		_detalhes:CooltipPreset (1)
+		GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, backgroundColor, _detalhes.tooltip_border_color)
 		GameCooltip:AddLine (Loc ["STRING_OPTIONS_INSTANCE_COLOR"])
 		GameCooltip:SetOwner (window_color.widget)
 		GameCooltip:SetType ("tooltip")
@@ -142,6 +143,7 @@ do
 		options_button_texture:SetAlpha (1)
 		GameCooltip:Reset()
 		_detalhes:CooltipPreset (1)
+		GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, backgroundColor, _detalhes.tooltip_border_color)
 		GameCooltip:AddLine (Loc ["STRING_INTERFACE_OPENOPTIONS"])
 		GameCooltip:SetOwner (window_color.widget)
 		GameCooltip:SetType ("tooltip")
@@ -591,6 +593,8 @@ function _detalhes:FastSwitch (_this)
 		GameCooltip:SetColor (1, {.1, .1, .1, .3})
 		GameCooltip:SetColor (2, {.1, .1, .1, .3})
 		GameCooltip:SetOption ("HeightAnchorMod", -7)
+		GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, backgroundColor, _detalhes.tooltip_border_color)
+		GameCooltip:SetBackdrop (2, _detalhes.tooltip_backdrop, backgroundColor, _detalhes.tooltip_border_color)
 		GameCooltip:ShowCooltip()
 
 	else --> botão esquerdo
@@ -885,6 +889,9 @@ local onenter = function (self)
 		GameCooltip:SetOption ("YSpacingMod", 0)
 		GameCooltip:SetOption ("IgnoreButtonAutoHeight", false)
 		
+		GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, backgroundColor, _detalhes.tooltip_border_color)
+		GameCooltip:SetBackdrop (2, _detalhes.tooltip_backdrop, backgroundColor, _detalhes.tooltip_border_color)
+		
 		GameCooltip:Show()
 	else
 		GameCooltip:Hide()
@@ -920,6 +927,8 @@ local oniconenter = function (self)
 	GameCooltip:SetOption ("ButtonsYMod", 0)
 	GameCooltip:SetOption ("YSpacingMod", 0)
 	GameCooltip:SetOption ("IgnoreButtonAutoHeight", false)
+	
+	GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, backgroundColor, _detalhes.tooltip_border_color)
 	
 	GameCooltip:Show()
 end

@@ -178,7 +178,7 @@ local runes_id = {
 		local show_panel = CreateFrame ("frame", nil, UIParent)
 		show_panel:SetSize (400, 300)
 		show_panel:SetPoint ("bottom", DetailsRaidCheck.ToolbarButton, "top", 0, 10)
-		show_panel:SetBackdrop ({bgFile = [[Interface\Garrison\GarrisonMissionUIInfoBoxBackgroundTile]], tileSize = 256, edgeFile = [[Interface\Tooltips\UI-Tooltip-Border]], edgeSize = 16, insets = {left = 4, right = 4, top = 2, bottom = 1}})
+		show_panel:SetBackdrop ({bgFile = [[Interface\Garrison\GarrisonMissionUIInfoBoxBackgroundTile]], tileSize = 256, edgeFile = [[Interface\AddOns\Details\images\border_2]], edgeSize = 16, insets = {left = 1, right = 1, top = 1, bottom = 1}})
 		show_panel:SetBackdropColor (1, 1, 1, 0.9)
 		show_panel:SetClampedToScreen (true)
 		show_panel:SetFrameStrata ("TOOLTIP")
@@ -186,8 +186,8 @@ local runes_id = {
 		--
 		
 		local bottom_gradient = show_panel:CreateTexture (nil, "artwork")
-		bottom_gradient:SetPoint ("bottomleft", show_panel, "bottomleft", 4, 4)
-		bottom_gradient:SetPoint ("bottomright", show_panel, "bottomright", -4, 4)
+		bottom_gradient:SetPoint ("bottomleft", show_panel, "bottomleft", 2, 2)
+		bottom_gradient:SetPoint ("bottomright", show_panel, "bottomright", -2, 2)
 		bottom_gradient:SetTexture ([[Interface\Garrison\GarrisonMissionUI2]])
 		bottom_gradient:SetTexCoord (485/1024, 737/1024, 377/1024, 418/1024)
 		bottom_gradient:SetHeight (45)

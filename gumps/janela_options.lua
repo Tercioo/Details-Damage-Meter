@@ -41,7 +41,7 @@ local slider_backdrop = {edgeFile = "Interface\\Buttons\\UI-SliderBar-Border", e
 bgFile = [[Interface\ACHIEVEMENTFRAME\UI-GuildAchievement-Parchment-Horizontal-Desaturated]], tile = true, tileSize = 130, insets = {left = 1, right = 1, top = 5, bottom = 5}}
 
 local slider_backdrop = {bgFile = [[Interface\DialogFrame\UI-DialogBox-Background-Dark]], edgeFile = [[Interface\AddOns\Details\images\border_3]], tile=true,
-	edgeSize = 16, tileSize = 64, insets = {left = 3, right = 3, top = 4, bottom = 4}}
+	edgeSize = 15, tileSize = 64, insets = {left = 3, right = 3, top = 4, bottom = 4}}
 
 local slider_backdrop_color = {1, 1, 1, 1}
 
@@ -62,6 +62,11 @@ dropdown_backdrop_border_color = {.7, .7, .7}
 
 local dropdown_backdrop_onenter = {0, 0, 0, 1}
 local dropdown_backdrop_onleave = {.1, .1, .1, .9}
+
+local SLIDER_WIDTH = 130
+local SLIDER_HEIGHT = 19
+local DROPDOWN_WIDTH = 160
+local COLOR_BUTTON_WIDTH = 160
 
 _detalhes.options_window_background = [[Interface\AddOns\Details\images\options_window]]
 
@@ -97,10 +102,14 @@ function _detalhes:OpenOptionsWindow (instance, no_reopen, section)
 	
 	if (not window) then
 
-		local SLIDER_WIDTH = 130
-		local DROPDOWN_WIDTH = 160
-		local COLOR_BUTTON_WIDTH = 160
-	
+		local config_slider = function (slider)
+			slider:SetBackdrop (slider_backdrop)
+			slider:SetBackdropColor (unpack (slider_backdrop_color))
+			slider:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
+			slider:SetThumbSize (50, 19)
+			slider.thumb:SetTexture ([[Interface\AddOns\Details\images\knob]])
+		end
+
 		-- Most of details widgets have the same 6 first parameters: parent, container, global name, parent key, width, height
 	
 		window = g:NewPanel (UIParent, _, "DetailsOptionsWindow", _, 897, 592)
@@ -1249,11 +1258,8 @@ function window:CreateFrame20()
 		
 		-- text size
 		g:NewLabel (frame20, _, "$parentTooltipTextSizeLabel", "TooltipTextSizeLabel", Loc ["STRING_OPTIONS_TOOLTIPS_FONTSIZE"], "GameFontHighlightLeft")
-		local s = g:NewSlider (frame20, _, "$parentTooltipTextSizeSlider", "TooltipTextSizeSlider", SLIDER_WIDTH, 20, 8, 32, 1, tonumber (_detalhes.tooltip.fontsize))
-		s:SetBackdrop (slider_backdrop)
-		s:SetBackdropColor (unpack (slider_backdrop_color))
-		s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
-		s:SetThumbSize (50)
+		local s = g:NewSlider (frame20, _, "$parentTooltipTextSizeSlider", "TooltipTextSizeSlider", SLIDER_WIDTH, SLIDER_HEIGHT, 8, 32, 1, tonumber (_detalhes.tooltip.fontsize))
+		config_slider (s)
 	
 		frame20.TooltipTextSizeSlider:SetPoint ("left", frame20.TooltipTextSizeLabel, "right", 2)
 		frame20.TooltipTextSizeSlider:SetHook ("OnValueChange", function (self, _, amount)
@@ -1437,11 +1443,8 @@ function window:CreateFrame20()
 			
 		--border size
 			g:NewLabel (frame20, _, "$parentBackdropSizeLabel", "BackdropSizeLabel", Loc ["STRING_OPTIONS_SIZE"], "GameFontHighlightLeft")
-			local s = g:NewSlider (frame20, _, "$parentBackdropSizeHeight", "BackdropSizeSlider", SLIDER_WIDTH, 20, 1, 32, 1, _detalhes.tooltip.border_size)
-			s:SetBackdrop (slider_backdrop)
-			s:SetBackdropColor (unpack (slider_backdrop_color))
-			s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
-			s:SetThumbSize (50)
+			local s = g:NewSlider (frame20, _, "$parentBackdropSizeHeight", "BackdropSizeSlider", SLIDER_WIDTH, SLIDER_HEIGHT, 1, 32, 1, _detalhes.tooltip.border_size)
+			config_slider (s)
 
 			frame20.BackdropSizeSlider:SetPoint ("left", frame20.BackdropSizeLabel, "right", 2)
 			frame20.BackdropSizeSlider:SetThumbSize (50)
@@ -1583,11 +1586,8 @@ function window:CreateFrame20()
 
 		--tooltip offset
 			g:NewLabel (frame20, _, "$parentTooltipOffsetXLabel", "TooltipOffsetXLabel", Loc ["STRING_OPTIONS_TOOLTIPS_OFFSETX"], "GameFontHighlightLeft")
-			local s = g:NewSlider (frame20, _, "$parentTooltipOffsetXSlider", "TooltipOffsetXSlider", SLIDER_WIDTH, 20, -100, 100, 1, tonumber (_detalhes.tooltip.anchor_offset[1]))
-			s:SetBackdrop (slider_backdrop)
-			s:SetBackdropColor (unpack (slider_backdrop_color))
-			s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
-			s:SetThumbSize (50)
+			local s = g:NewSlider (frame20, _, "$parentTooltipOffsetXSlider", "TooltipOffsetXSlider", SLIDER_WIDTH, SLIDER_HEIGHT, -100, 100, 1, tonumber (_detalhes.tooltip.anchor_offset[1]))
+			config_slider (s)
 		
 			frame20.TooltipOffsetXSlider:SetPoint ("left", frame20.TooltipOffsetXLabel, "right", 2)
 			frame20.TooltipOffsetXSlider:SetHook ("OnValueChange", function (self, _, amount)
@@ -1597,11 +1597,8 @@ function window:CreateFrame20()
 			window:CreateLineBackground2 (frame20, "TooltipOffsetXSlider", "TooltipOffsetXLabel", Loc ["STRING_OPTIONS_TOOLTIPS_OFFSETX_DESC"])
 			
 			g:NewLabel (frame20, _, "$parentTooltipOffsetYLabel", "TooltipOffsetYLabel", Loc ["STRING_OPTIONS_TOOLTIPS_OFFSETY"], "GameFontHighlightLeft")
-			local s = g:NewSlider (frame20, _, "$parentTooltipOffsetYSlider", "TooltipOffsetYSlider", SLIDER_WIDTH, 20, -100, 100, 1, tonumber (_detalhes.tooltip.anchor_offset[2]))
-			s:SetBackdrop (slider_backdrop)
-			s:SetBackdropColor (unpack (slider_backdrop_color))
-			s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
-			s:SetThumbSize (50)
+			local s = g:NewSlider (frame20, _, "$parentTooltipOffsetYSlider", "TooltipOffsetYSlider", SLIDER_WIDTH, SLIDER_HEIGHT, -100, 100, 1, tonumber (_detalhes.tooltip.anchor_offset[2]))
+			config_slider (s)
 		
 			frame20.TooltipOffsetYSlider:SetPoint ("left", frame20.TooltipOffsetYLabel, "right", 2)
 			frame20.TooltipOffsetYSlider:SetHook ("OnValueChange", function (self, _, amount)
@@ -2225,10 +2222,8 @@ function window:CreateFrame18()
 		
 		--> menu text size
 		g:NewLabel (frame18, _, "$parentMenuTextSizeLabel", "MenuTextSizeLabel", Loc ["STRING_OPTIONS_MENU_FONT_SIZE"], "GameFontHighlightLeft")
-		local s = g:NewSlider (frame18, _, "$parentMenuTextSizeSlider", "MenuTextSizeSlider", SLIDER_WIDTH, 20, 8, 32, 1, _detalhes.font_sizes.menus)
-		s:SetBackdrop (slider_backdrop)
-		s:SetBackdropColor (unpack (slider_backdrop_color))
-		s:SetThumbSize (50)			
+		local s = g:NewSlider (frame18, _, "$parentMenuTextSizeSlider", "MenuTextSizeSlider", SLIDER_WIDTH, SLIDER_HEIGHT, 8, 32, 1, _detalhes.font_sizes.menus)
+		config_slider (s)
 	
 		frame18.MenuTextSizeSlider:SetPoint ("left", frame18.MenuTextSizeLabel, "right", 2)
 	
@@ -2476,11 +2471,8 @@ function window:CreateFrame17()
 
 		g:NewLabel (frame17, _, "$parentHideOnCombatAlphaLabel", "hideOnCombatAlphaLabel", Loc ["STRING_ALPHA"], "GameFontHighlightLeft")
 		
-		local s = g:NewSlider (frame17, _, "$parentHideOnCombatAlphaSlider", "hideOnCombatAlphaSlider", SLIDER_WIDTH, 20, 0, 100, 1, _G.DetailsOptionsWindow.instance.hide_in_combat_alpha) -- min, max, step, defaultv
-		s:SetBackdrop (slider_backdrop)
-		s:SetBackdropColor (unpack (slider_backdrop_color))
-		s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
-		s:SetThumbSize (50)
+		local s = g:NewSlider (frame17, _, "$parentHideOnCombatAlphaSlider", "hideOnCombatAlphaSlider", SLIDER_WIDTH, SLIDER_HEIGHT, 0, 100, 1, _G.DetailsOptionsWindow.instance.hide_in_combat_alpha) -- min, max, step, defaultv
+		config_slider (s)
 		
 		frame17.hideOnCombatAlphaSlider:SetPoint ("left", frame17.hideOnCombatAlphaLabel, "right", 2, 0)
 		frame17.hideOnCombatAlphaSlider:SetHook ("OnValueChange", function (self, instance, amount) --> slider, fixedValue, sliderValue
@@ -2508,16 +2500,12 @@ function window:CreateFrame17()
 	
 		g:NewSwitch (frame17, _, "$parentMenuOnEnterLeaveAlphaSwitch", "alphaSwitch", 60, 20, _, _, instance.menu_alpha.enabled)
 		
-		local s = g:NewSlider (frame17, _, "$parentMenuOnEnterAlphaSlider", "menuOnEnterSlider", SLIDER_WIDTH, 20, 0, 1, 0.02, instance.menu_alpha.onenter, true)
-		s:SetBackdrop (slider_backdrop)
-		s:SetBackdropColor (unpack (slider_backdrop_color)); s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
-		s:SetThumbSize (50)
+		local s = g:NewSlider (frame17, _, "$parentMenuOnEnterAlphaSlider", "menuOnEnterSlider", SLIDER_WIDTH, SLIDER_HEIGHT, 0, 1, 0.02, instance.menu_alpha.onenter, true)
+		config_slider (s)
 		s.useDecimals = true
 		
-		local s = g:NewSlider (frame17, _, "$parentMenuOnLeaveAlphaSlider", "menuOnLeaveSlider", SLIDER_WIDTH, 20, 0, 1, 0.02, instance.menu_alpha.onleave, true)
-		s:SetBackdrop (slider_backdrop)
-		s:SetBackdropColor (unpack (slider_backdrop_color)); s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
-		s:SetThumbSize (50)
+		local s = g:NewSlider (frame17, _, "$parentMenuOnLeaveAlphaSlider", "menuOnLeaveSlider", SLIDER_WIDTH, SLIDER_HEIGHT, 0, 1, 0.02, instance.menu_alpha.onleave, true)
+		config_slider (s)
 		
 		frame17.menuOnEnterSlider.useDecimals = true
 		frame17.menuOnLeaveSlider.useDecimals = true
@@ -3373,14 +3361,10 @@ function window:CreateFrame14()
 	--anchors
 		g:NewLabel (frame14, _, "$parentAttributeAnchorXLabel", "attributeAnchorXLabel", Loc ["STRING_OPTIONS_MENU_ATTRIBUTE_ANCHORX"], "GameFontHighlightLeft")
 		g:NewLabel (frame14, _, "$parentAttributeAnchorYLabel", "attributeAnchorYLabel", Loc ["STRING_OPTIONS_MENU_ATTRIBUTE_ANCHORY"], "GameFontHighlightLeft")
-		local s = g:NewSlider (frame14, _, "$parentAttributeAnchorXSlider", "attributeAnchorXSlider", SLIDER_WIDTH, 20, -20, 300, 1, instance.attribute_text.anchor [1])
-		s:SetBackdrop (slider_backdrop)
-		s:SetBackdropColor (unpack (slider_backdrop_color)); s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
-		s:SetThumbSize (50)
-		local s = g:NewSlider (frame14, _, "$parentAttributeAnchorYSlider", "attributeAnchorYSlider", SLIDER_WIDTH, 20, -100, 50, 1, instance.attribute_text.anchor [2])
-		s:SetBackdrop (slider_backdrop)
-		s:SetBackdropColor (unpack (slider_backdrop_color)); s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
-		s:SetThumbSize (50)
+		local s = g:NewSlider (frame14, _, "$parentAttributeAnchorXSlider", "attributeAnchorXSlider", SLIDER_WIDTH, SLIDER_HEIGHT, -20, 300, 1, instance.attribute_text.anchor [1])
+		config_slider (s)
+		local s = g:NewSlider (frame14, _, "$parentAttributeAnchorYSlider", "attributeAnchorYSlider", SLIDER_WIDTH, SLIDER_HEIGHT, -100, 50, 1, instance.attribute_text.anchor [2])
+		config_slider (s)
 		
 		frame14.attributeAnchorXSlider:SetPoint ("left", frame14.attributeAnchorXLabel, "right", 2)
 		frame14.attributeAnchorYSlider:SetPoint ("left", frame14.attributeAnchorYLabel, "right", 2)
@@ -3452,10 +3436,8 @@ function window:CreateFrame14()
 		
 	--size
 		g:NewLabel (frame14, _, "$parentAttributeTextSizeLabel", "attributeTextSizeLabel", Loc ["STRING_OPTIONS_MENU_ATTRIBUTE_TEXTSIZE"], "GameFontHighlightLeft")
-		local s = g:NewSlider (frame14, _, "$parentAttributeTextSizeSlider", "attributeTextSizeSlider", SLIDER_WIDTH, 20, 8, 32, 1, tonumber ( instance.attribute_text.text_size))
-		s:SetBackdrop (slider_backdrop)
-		s:SetBackdropColor (unpack (slider_backdrop_color)); s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
-		s:SetThumbSize (50)			
+		local s = g:NewSlider (frame14, _, "$parentAttributeTextSizeSlider", "attributeTextSizeSlider", SLIDER_WIDTH, SLIDER_HEIGHT, 8, 32, 1, tonumber ( instance.attribute_text.text_size))
+		config_slider (s)
 	
 		frame14.attributeTextSizeSlider:SetPoint ("left", frame14.attributeTextSizeLabel, "right", 2)
 	
@@ -3605,7 +3587,7 @@ function window:CreateFrame1()
 		
 		local avatar_x_anchor2 = window.right_start_at - 15
 		
-		local box = g:NewTextEntry (frame1, _, "$parentNicknameEntry", "nicknameEntry", SLIDER_WIDTH, 20, onPressEnter)
+		local box = g:NewTextEntry (frame1, _, "$parentNicknameEntry", "nicknameEntry", SLIDER_WIDTH, SLIDER_HEIGHT, onPressEnter)
 		
 		frame1.nicknameEntry:SetPoint ("left", frame1.nicknameLabel, "right", 2, 0)
 
@@ -3727,10 +3709,8 @@ function window:CreateFrame1()
 		titulo_display_desc.width = 320
 		
 		g:NewLabel (frame1, _, "$parentSliderLabel", "segmentsLabel", Loc ["STRING_OPTIONS_MAXSEGMENTS"], "GameFontHighlightLeft")
-		local s = g:NewSlider (frame1, _, "$parentSlider", "segmentsSlider", SLIDER_WIDTH, 20, 1, 25, 1, _detalhes.segments_amount)
-		s:SetBackdrop (slider_backdrop)
-		s:SetBackdropColor (unpack (slider_backdrop_color)); s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
-		s:SetThumbSize (50)
+		local s = g:NewSlider (frame1, _, "$parentSlider", "segmentsSlider", SLIDER_WIDTH, SLIDER_HEIGHT, 1, 25, 1, _detalhes.segments_amount)
+		config_slider (s)
 		
 		frame1.segmentsSlider:SetPoint ("left", frame1.segmentsLabel, "right", 2, -1)
 		frame1.segmentsSlider:SetHook ("OnValueChange", function (self, _, amount) --> slider, fixedValue, sliderValue
@@ -3757,10 +3737,8 @@ function window:CreateFrame1()
 		g:NewLabel (frame1, _, "$parentWheelSpeedLabel", "WheelSpeedLabel", Loc ["STRING_OPTIONS_WHEEL_SPEED"], "GameFontHighlightLeft")
 		--
 		
-		local s = g:NewSlider (frame1, _, "$parentWheelSpeedSlider", "WheelSpeedSlider", SLIDER_WIDTH, 20, 1, 3, 1, _detalhes.scroll_speed)
-		s:SetBackdrop (slider_backdrop)
-		s:SetBackdropColor (unpack (slider_backdrop_color)); s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
-		s:SetThumbSize (50)
+		local s = g:NewSlider (frame1, _, "$parentWheelSpeedSlider", "WheelSpeedSlider", SLIDER_WIDTH, SLIDER_HEIGHT, 1, 3, 1, _detalhes.scroll_speed)
+		config_slider (s)
 		
 		frame1.WheelSpeedSlider:SetPoint ("left", frame1.WheelSpeedLabel, "right", 2, -1)
 		frame1.WheelSpeedSlider:SetHook ("OnValueChange", function (self, _, amount) --> slider, fixedValue, sliderValue
@@ -3773,10 +3751,8 @@ function window:CreateFrame1()
 	--> Max Instances
 		g:NewLabel (frame1, _, "$parentLabelMaxInstances", "maxInstancesLabel", Loc ["STRING_OPTIONS_MAXINSTANCES"], "GameFontHighlightLeft")
 		--
-		local s = g:NewSlider (frame1, _, "$parentSliderMaxInstances", "maxInstancesSlider", SLIDER_WIDTH, 20, 1, 30, 1, _detalhes.instances_amount) -- min, max, step, defaultv
-		s:SetBackdrop (slider_backdrop)
-		s:SetBackdropColor (unpack (slider_backdrop_color)); s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
-		s:SetThumbSize (50)
+		local s = g:NewSlider (frame1, _, "$parentSliderMaxInstances", "maxInstancesSlider", SLIDER_WIDTH, SLIDER_HEIGHT, 1, 30, 1, _detalhes.instances_amount) -- min, max, step, defaultv
+		config_slider (s)
 		
 		frame1.maxInstancesSlider:SetPoint ("left", frame1.maxInstancesLabel, "right", 2, -1)
 		frame1.maxInstancesSlider:SetHook ("OnValueChange", function (self, _, amount) --> slider, fixedValue, sliderValue
@@ -3851,9 +3827,8 @@ function window:CreateFrame1()
 		
 	--> update speed
 
-		local s = g:NewSlider (frame1, _, "$parentSliderUpdateSpeed", "updatespeedSlider", SLIDER_WIDTH, 20, 0.05, 3, 0.05, _detalhes.update_speed, true)
-		s:SetBackdrop (slider_backdrop)
-		s:SetBackdropColor (unpack (slider_backdrop_color)); s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
+		local s = g:NewSlider (frame1, _, "$parentSliderUpdateSpeed", "updatespeedSlider", SLIDER_WIDTH, SLIDER_HEIGHT, 0.05, 3, 0.05, _detalhes.update_speed, true)
+		config_slider (s)
 		
 		g:NewLabel (frame1, _, "$parentUpdateSpeedLabel", "updatespeedLabel", Loc ["STRING_OPTIONS_WINDOWSPEED"], "GameFontHighlightLeft")
 		--
@@ -5253,10 +5228,8 @@ function window:CreateFrame4()
 	
 	--> bar height
 		g:NewLabel (frame4, _, "$parentRowHeightLabel", "rowHeightLabel", Loc ["STRING_OPTIONS_BAR_HEIGHT"], "GameFontHighlightLeft")
-		local s = g:NewSlider (frame4, _, "$parentSliderRowHeight", "rowHeightSlider", SLIDER_WIDTH, 20, 10, 30, 1, tonumber (instance.row_info.height))
-		s:SetBackdrop (slider_backdrop)
-		s:SetBackdropColor (unpack (slider_backdrop_color)); s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
-		s:SetThumbSize (50)
+		local s = g:NewSlider (frame4, _, "$parentSliderRowHeight", "rowHeightSlider", SLIDER_WIDTH, SLIDER_HEIGHT, 10, 30, 1, tonumber (instance.row_info.height))
+		config_slider (s)
 
 		frame4.rowHeightSlider:SetPoint ("left", frame4.rowHeightLabel, "right", 2)
 		frame4.rowHeightSlider:SetThumbSize (50)
@@ -5336,10 +5309,8 @@ function window:CreateFrame4()
 		
 	-- spacement
 		g:NewLabel (frame4, _, "$parentBarSpacementLabel", "BarSpacementLabel", Loc ["STRING_OPTIONS_BAR_SPACING"], "GameFontHighlightLeft")
-		local s = g:NewSlider (frame4, _, "$parentBarSpacementSizeSlider", "BarSpacementSlider", SLIDER_WIDTH, 20, 0, 10, 1, instance.row_info.space.between)
-		s:SetThumbSize (50)
-		s:SetBackdrop (slider_backdrop)
-		s:SetBackdropColor (unpack (slider_backdrop_color)); s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
+		local s = g:NewSlider (frame4, _, "$parentBarSpacementSizeSlider", "BarSpacementSlider", SLIDER_WIDTH, SLIDER_HEIGHT, 0, 10, 1, instance.row_info.space.between)
+		config_slider (s)
 	
 		frame4.BarSpacementSlider:SetPoint ("left", frame4.BarSpacementLabel, "right", 2)
 		frame4.BarSpacementSlider:SetHook ("OnValueChange", function (self, instancia, amount)
@@ -5773,10 +5744,8 @@ function window:CreateFrame4()
 		
 		--size
 		g:NewLabel (frame4, _, "$parentBackdropSizeLabel", "BackdropSizeLabel", Loc ["STRING_OPTIONS_SIZE"], "GameFontHighlightLeft")
-		local s = g:NewSlider (frame4, _, "$parentBackdropSizeHeight", "BackdropSizeSlider", SLIDER_WIDTH, 20, 1, 20, 1, tonumber (instance.row_info.height))
-		s:SetBackdrop (slider_backdrop)
-		s:SetBackdropColor (unpack (slider_backdrop_color)); s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
-		s:SetThumbSize (50)
+		local s = g:NewSlider (frame4, _, "$parentBackdropSizeHeight", "BackdropSizeSlider", SLIDER_WIDTH, SLIDER_HEIGHT, 1, 20, 1, tonumber (instance.row_info.height))
+		config_slider (s)
 
 		frame4.BackdropSizeSlider:SetPoint ("left", frame4.BackdropSizeLabel, "right", 2)
 		frame4.BackdropSizeSlider:SetThumbSize (50)
@@ -5896,10 +5865,8 @@ function window:CreateFrame5()
 		window:CreateLineBackground2 (frame5, "fixedTextColor", "fixedTextColorLabel", Loc ["STRING_OPTIONS_TEXT_FIXEDCOLOR_DESC"])
 	
 	--> text size
-		local s = g:NewSlider (frame5, _, "$parentSliderFontSize", "fonsizeSlider", SLIDER_WIDTH, 20, 8, 32, 1, tonumber (instance.row_info.font_size))
-		s:SetBackdrop (slider_backdrop)
-		s:SetBackdropColor (unpack (slider_backdrop_color)); s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
-		s:SetThumbSize (50)
+		local s = g:NewSlider (frame5, _, "$parentSliderFontSize", "fonsizeSlider", SLIDER_WIDTH, SLIDER_HEIGHT, 8, 32, 1, tonumber (instance.row_info.font_size))
+		config_slider (s)
 		
 		g:NewLabel (frame5, _, "$parentFontSizeLabel", "fonsizeLabel", Loc ["STRING_OPTIONS_TEXT_SIZE"], "GameFontHighlightLeft")
 		frame5.fonsizeSlider:SetPoint ("left", frame5.fonsizeLabel, "right", 2)
@@ -7067,10 +7034,8 @@ function window:CreateFrame6()
 			
 		
 	--> window scale
-			local s = g:NewSlider (frame6, _, "$parentWindowScaleSlider", "WindowScaleSlider", SLIDER_WIDTH, 20, 0.65, 1.5, 0.02, instance.window_scale, true)
-			s:SetBackdrop (slider_backdrop)
-			s:SetBackdropColor (unpack (slider_backdrop_color)); s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
-			s:SetThumbSize (50)
+			local s = g:NewSlider (frame6, _, "$parentWindowScaleSlider", "WindowScaleSlider", SLIDER_WIDTH, SLIDER_HEIGHT, 0.65, 1.5, 0.02, instance.window_scale, true)
+			config_slider (s)
 			s.fine_tuning = 0.011
 			
 			frame6.WindowScaleSlider:SetHook ("OnValueChange", function (self, instance, amount) 
@@ -7168,14 +7133,10 @@ function window:CreateFrame7()
 		titulo_toolbar_desc.width = 320
 
 		-- menu anchors
-			local s = g:NewSlider (frame7, _, "$parentMenuAnchorXSlider", "menuAnchorXSlider", SLIDER_WIDTH, 20, -200, 200, 1, instance.menu_anchor[1])
-			s:SetBackdrop (slider_backdrop)
-			s:SetBackdropColor (unpack (slider_backdrop_color)); s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
-			s:SetThumbSize (50)			
-			local s = g:NewSlider (frame7, _, "$parentMenuAnchorYSlider", "menuAnchorYSlider", SLIDER_WIDTH, 20, -30, 30, 1, instance.menu_anchor[2])
-			s:SetBackdrop (slider_backdrop)
-			s:SetBackdropColor (unpack (slider_backdrop_color)); s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
-			s:SetThumbSize (50)
+			local s = g:NewSlider (frame7, _, "$parentMenuAnchorXSlider", "menuAnchorXSlider", SLIDER_WIDTH, SLIDER_HEIGHT, -200, 200, 1, instance.menu_anchor[1])
+			config_slider (s)
+			local s = g:NewSlider (frame7, _, "$parentMenuAnchorYSlider", "menuAnchorYSlider", SLIDER_WIDTH, SLIDER_HEIGHT, -30, 30, 1, instance.menu_anchor[2])
+			config_slider (s)
 			
 			g:NewLabel (frame7, _, "$parentMenuAnchorXLabel", "menuAnchorXLabel", Loc ["STRING_OPTIONS_MENU_X"], "GameFontHighlightLeft")
 			g:NewLabel (frame7, _, "$parentMenuAnchorYLabel", "menuAnchorYLabel", Loc ["STRING_OPTIONS_MENU_Y"], "GameFontHighlightLeft")
@@ -7466,9 +7427,8 @@ function window:CreateFrame7()
 			window:CreateLineBackground2 (frame7, "showButtons1Button", "showButtonsLabel", Loc ["STRING_OPTIONS_MENU_SHOWBUTTONS_DESC"])
 			
 	--icon sizes
-		local s = g:NewSlider (frame7, _, "$parentMenuIconSizeSlider", "menuIconSizeSlider", SLIDER_WIDTH, 20, 0.4, 1.6, 0.05, instance.menu_icons_size, true)
-		s:SetBackdrop (slider_backdrop)
-		s:SetBackdropColor (unpack (slider_backdrop_color)); s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
+		local s = g:NewSlider (frame7, _, "$parentMenuIconSizeSlider", "menuIconSizeSlider", SLIDER_WIDTH, SLIDER_HEIGHT, 0.4, 1.6, 0.05, instance.menu_icons_size, true)
+		config_slider (s)
 		s.useDecimals = true
 		s.fine_tuning = 0.05
 		
@@ -7494,9 +7454,8 @@ function window:CreateFrame7()
 		
 	--icon spacement
 	
-		local s = g:NewSlider (frame7, _, "$parentMenuIconSpaceSlider", "MenuIconSpaceSlider", SLIDER_WIDTH, 20, -5, 10, 1, instance.menu_icons.space)
-		s:SetBackdrop (slider_backdrop)
-		s:SetBackdropColor (unpack (slider_backdrop_color)); s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
+		local s = g:NewSlider (frame7, _, "$parentMenuIconSpaceSlider", "MenuIconSpaceSlider", SLIDER_WIDTH, SLIDER_HEIGHT, -5, 10, 1, instance.menu_icons.space)
+		config_slider (s)
 		
 		g:NewLabel (frame7, _, "$parentMenuIconSpaceLabel", "MenuIconSpaceLabel", Loc ["STRING_OPTIONS_MENUS_SPACEMENT"], "GameFontHighlightLeft")
 		
@@ -7691,10 +7650,8 @@ function window:CreateFrame8()
 
 			--> upper model alpha
 				g:NewLabel (frame8, _, "$parentModelUpperAlphaLabel", "ModelUpperAlphaLabel", Loc ["STRING_ALPHA"], "GameFontHighlightLeft")
-				local s = g:NewSlider (frame8, _, "$parentModelUpperAlphaSlider", "ModelUpperAlphaSlider", SLIDER_WIDTH, 20, 0, 1, 0.05, _G.DetailsOptionsWindow.instance.row_info.models.upper_alpha, true)
-				s:SetBackdrop (slider_backdrop)
-				s:SetBackdropColor (unpack (slider_backdrop_color)); s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
-				s:SetThumbSize (50)			
+				local s = g:NewSlider (frame8, _, "$parentModelUpperAlphaSlider", "ModelUpperAlphaSlider", SLIDER_WIDTH, SLIDER_HEIGHT, 0, 1, 0.05, _G.DetailsOptionsWindow.instance.row_info.models.upper_alpha, true)
+				config_slider (s)
 			
 				frame8.ModelUpperAlphaSlider:SetPoint ("left", frame8.ModelUpperAlphaLabel, "right", 2)
 			
@@ -7744,10 +7701,8 @@ function window:CreateFrame8()
 				
 			--> lower model alpha
 				g:NewLabel (frame8, _, "$parentModelLowerAlphaLabel", "ModelLowerAlphaLabel", Loc ["STRING_ALPHA"], "GameFontHighlightLeft")
-				local s = g:NewSlider (frame8, _, "$parentModelLowerAlphaSlider", "ModelLowerAlphaSlider", SLIDER_WIDTH, 20, 0, 1, 0.05, _G.DetailsOptionsWindow.instance.row_info.models.lower_alpha, true)
-				s:SetBackdrop (slider_backdrop)
-				s:SetBackdropColor (unpack (slider_backdrop_color)); s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
-				s:SetThumbSize (50)
+				local s = g:NewSlider (frame8, _, "$parentModelLowerAlphaSlider", "ModelLowerAlphaSlider", SLIDER_WIDTH, SLIDER_HEIGHT, 0, 1, 0.05, _G.DetailsOptionsWindow.instance.row_info.models.lower_alpha, true)
+				config_slider (s)
 			
 				frame8.ModelLowerAlphaSlider:SetPoint ("left", frame8.ModelLowerAlphaLabel, "right", 2)
 			
@@ -8729,10 +8684,8 @@ function window:CreateFrame10()
 	--------------- Max Segments Saved
 		g:NewLabel (frame10, _, "$parentLabelSegmentsSave", "segmentsSaveLabel", Loc ["STRING_OPTIONS_SEGMENTSSAVE"], "GameFontHighlightLeft")
 		--
-		local s = g:NewSlider (frame10, _, "$parentSliderSegmentsSave", "segmentsSliderToSave", SLIDER_WIDTH, 20, 1, 25, 1, _detalhes.segments_amount_to_save)
-		s:SetBackdrop (slider_backdrop)
-		s:SetBackdropColor (unpack (slider_backdrop_color)); s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
-		s:SetThumbSize (50)
+		local s = g:NewSlider (frame10, _, "$parentSliderSegmentsSave", "segmentsSliderToSave", SLIDER_WIDTH, SLIDER_HEIGHT, 1, 25, 1, _detalhes.segments_amount_to_save)
+		config_slider (s)
 		--
 		frame10.segmentsSliderToSave:SetPoint ("left", frame10.segmentsSaveLabel, "right", 2, 0)
 		frame10.segmentsSliderToSave:SetHook ("OnValueChange", function (self, _, amount) --> slider, fixedValue, sliderValue
@@ -8921,9 +8874,8 @@ function window:CreateFrame10()
 		--window:CreateLineBackground2 (frame10, "animateSlider", "animateLabel", Loc ["STRING_OPTIONS_ANIMATEBARS_DESC"])
 		
 		--update speed
-		local s = g:NewSlider (frame10, _, "$parentSliderUpdateSpeed", "updatespeedSlider", SLIDER_WIDTH, 20, 0.05, 3, 0.05, _detalhes.update_speed, true)
-		s:SetBackdrop (slider_backdrop)
-		s:SetBackdropColor (unpack (slider_backdrop_color)); s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
+		local s = g:NewSlider (frame10, _, "$parentSliderUpdateSpeed", "updatespeedSlider", SLIDER_WIDTH, SLIDER_HEIGHT, 0.05, 3, 0.05, _detalhes.update_speed, true)
+		config_slider (s)
 		
 		g:NewLabel (frame10, _, "$parentUpdateSpeedLabel", "updatespeedLabel", Loc ["STRING_OPTIONS_WINDOWSPEED"], "GameFontHighlightLeft")
 		--
@@ -9412,10 +9364,8 @@ function window:CreateFrame11()
 		
 		--slider para quantidade de danos a mostrar
 		g:NewLabel (frame11, _, "$parentDeathsDamageLabel", "DeathsDamageLabel", Loc ["STRING_OPTIONS_RT_DEATHS_HITS"], "GameFontHighlightLeft")
-		local s = g:NewSlider (frame11, _, "$parentDeathsDamageSlider", "DeathsDamageSlider", SLIDER_WIDTH, 20, 1, 5, 1, _detalhes.announce_deaths.last_hits)
-		s:SetBackdrop (slider_backdrop)
-		s:SetBackdropColor (unpack (slider_backdrop_color)); s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
-		s:SetThumbSize (50)
+		local s = g:NewSlider (frame11, _, "$parentDeathsDamageSlider", "DeathsDamageSlider", SLIDER_WIDTH, SLIDER_HEIGHT, 1, 5, 1, _detalhes.announce_deaths.last_hits)
+		config_slider (s)
 	
 		frame11.DeathsDamageSlider:SetPoint ("left", frame11.DeathsDamageLabel, "right", 2)
 		frame11.DeathsDamageSlider:SetHook ("OnValueChange", function (self, _, amount)
@@ -9426,10 +9376,8 @@ function window:CreateFrame11()
 		
 		--slider para limite de mortes para reportar
 		g:NewLabel (frame11, _, "$parentDeathsAmountLabel", "DeathsAmountLabel", Loc ["STRING_OPTIONS_RT_DEATHS_FIRST"], "GameFontHighlightLeft")
-		local s = g:NewSlider (frame11, _, "$parentDeathsAmountSlider", "DeathsAmountSlider", SLIDER_WIDTH, 20, 1, 30, 1, _detalhes.announce_deaths.only_first)
-		s:SetBackdrop (slider_backdrop)
-		s:SetBackdropColor (unpack (slider_backdrop_color)); s:SetBackdropBorderColor (unpack (slider_backdrop_border_color))
-		s:SetThumbSize (50)
+		local s = g:NewSlider (frame11, _, "$parentDeathsAmountSlider", "DeathsAmountSlider", SLIDER_WIDTH, SLIDER_HEIGHT, 1, 30, 1, _detalhes.announce_deaths.only_first)
+		config_slider (s)
 	
 		frame11.DeathsAmountSlider:SetPoint ("left", frame11.DeathsAmountLabel, "right", 2)
 		frame11.DeathsAmountSlider:SetHook ("OnValueChange", function (self, _, amount)

@@ -165,6 +165,8 @@ function atributo_misc:CreateBuffTargetObject()
 	}
 end
 
+local backgroundColor = {0, 0, 0, 1}
+
 function _detalhes:ToolTipDead (instancia, morte, esta_barra, keydown)
 	
 	local eventos = morte [1]
@@ -282,6 +284,8 @@ function _detalhes:ToolTipDead (instancia, morte, esta_barra, keydown)
 	GameCooltip:SetOption ("StatusBarTexture", [[Interface\AddOns\Details\images\bar4_reverse]])
 	GameCooltip:SetOption ("StatusBarTexture", [[Interface\AddOns\Details\images\BantoBar]])
 	GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0.64453125, 0}, {.8, .8, .8, 0.2}, true)
+	
+	GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, backgroundColor, _detalhes.tooltip_border_color)
 	
 	local myPoint = _detalhes.tooltip.anchor_point
 	local anchorPoint = _detalhes.tooltip.anchor_relative

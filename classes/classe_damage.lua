@@ -3623,7 +3623,19 @@ end
 								if (not habilidade_shadow [key]) then 
 									habilidade_shadow [key] = 0
 								end
-								habilidade_shadow [key] = habilidade_shadow [key] + value
+								
+								if (key == "n_min" or key == "c_min") then
+									if (habilidade_shadow [key] > value) then
+										habilidade_shadow [key] = value
+									end
+								elseif (key == "n_max" or key == "c_max") then
+									if (habilidade_shadow [key] < value) then
+										habilidade_shadow [key] = value
+									end
+								else
+									habilidade_shadow [key] = habilidade_shadow [key] + value
+								end
+
 							end
 						end
 					end
@@ -3688,7 +3700,19 @@ atributo_damage.__add = function (tabela1, tabela2)
 						if (not habilidade_tabela1 [key]) then 
 							habilidade_tabela1 [key] = 0
 						end
-						habilidade_tabela1 [key] = habilidade_tabela1 [key] + value
+						
+						if (key == "n_min" or key == "c_min") then
+							if (habilidade_tabela1 [key] > value) then
+								habilidade_tabela1 [key] = value
+							end
+						elseif (key == "n_max" or key == "c_max") then
+							if (habilidade_tabela1 [key] < value) then
+								habilidade_tabela1 [key] = value
+							end
+						else
+							habilidade_tabela1 [key] = habilidade_tabela1 [key] + value
+						end
+						
 					end
 				end
 			end
@@ -3751,7 +3775,17 @@ atributo_damage.__sub = function (tabela1, tabela2)
 						if (not habilidade_tabela1 [key]) then 
 							habilidade_tabela1 [key] = 0
 						end
-						habilidade_tabela1 [key] = habilidade_tabela1 [key] - value
+						if (key == "n_min" or key == "c_min") then
+							if (habilidade_tabela1 [key] > value) then
+								habilidade_tabela1 [key] = value
+							end
+						elseif (key == "n_max" or key == "c_max") then
+							if (habilidade_tabela1 [key] < value) then
+								habilidade_tabela1 [key] = value
+							end
+						else
+							habilidade_tabela1 [key] = habilidade_tabela1 [key] - value
+						end
 					end
 				end
 			end
