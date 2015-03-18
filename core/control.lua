@@ -995,7 +995,7 @@
 		
 		function _detalhes:AddTooltipSpellHeaderText (headerText, headerColor, r, g, b, amount)
 			if (_detalhes.tooltip.show_amount) then
-				GameCooltip:AddLine (headerText, "x" .. amount .. "", nil, headerColor, r, g, b, .2, 12)
+				GameCooltip:AddLine (headerText, "x" .. amount .. "", nil, headerColor, r, g, b, .5, 10)
 			else
 				GameCooltip:AddLine (headerText, nil, nil, headerColor, nil, 12)
 			end

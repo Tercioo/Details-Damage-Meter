@@ -55,8 +55,7 @@ local FormatTooltipNumber = ToKFunctions [8]
 local TooltipMaximizedMethod = 1
 
 local headerColor = "yellow"
-local key_overlay = {1, 1, 1, .1}
-local key_overlay_press = {1, 1, 1, .2}
+
 local actor_class_color_r, actor_class_color_g, actor_class_color_b
 
 local info = _detalhes.janela_info
@@ -973,11 +972,11 @@ function atributo_energy:ToolTipRegenRecebido (instancia, numero, barra, keydown
 	
 	local ismaximized = false
 	if (keydown == "shift" or TooltipMaximizedMethod == 2 or TooltipMaximizedMethod == 3) then
-		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay_press)
+		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, _detalhes.tooltip_key_size_width, _detalhes.tooltip_key_size_height, 0, 1, 0, 0.640625, _detalhes.tooltip_key_overlay2)
 		GameCooltip:AddStatusBar (100, 1, r, g, b, 1)
 		ismaximized = true
 	else
-		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay)
+		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, _detalhes.tooltip_key_size_width, _detalhes.tooltip_key_size_height, 0, 1, 0, 0.640625, _detalhes.tooltip_key_overlay1)
 		GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
 	end
 	
@@ -1035,11 +1034,11 @@ function atributo_energy:ToolTipRegenRecebido (instancia, numero, barra, keydown
 	
 	local ismaximized = false
 	if (keydown == "ctrl" or TooltipMaximizedMethod == 2 or TooltipMaximizedMethod == 4) then
-		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_ctrl]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay_press)
+		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_ctrl]], 1, 2, _detalhes.tooltip_key_size_width, _detalhes.tooltip_key_size_height, 0, 1, 0, 0.640625, _detalhes.tooltip_key_overlay2)
 		GameCooltip:AddStatusBar (100, 1, r, g, b, 1)
 		ismaximized = true
 	else
-		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_ctrl]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay)
+		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_ctrl]], 1, 2, _detalhes.tooltip_key_size_width, _detalhes.tooltip_key_size_height, 0, 1, 0, 0.640625, _detalhes.tooltip_key_overlay1)
 		GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
 	end
 	

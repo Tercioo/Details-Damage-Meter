@@ -147,10 +147,6 @@
 	------------------------------------------------------------------------------------------------
 	--> early checks and fixes
 
---SPELL_DAMAGE,0000000000000000,nil,0x512,0x0,Player-1174-080D253A,"Neltuvak-Undermine",0x512,0x0,157247,"Reverberations",0x1,0000000000000000,0000000000000000,0,0,0,0,0,0,0,0,0.00,0.00,0,47061,-1,1,0,0,0,nil,nil,nil,nil
---SPELL_DAMAGE,Creature-0-3020-1205-15169-79806-000003513D,"Stone Wall",0x2248,0x0,Player-3209-085116F5,"Xirodots-Azralon",0x514,0x0,161923,"Rune of Crushing Earth",0x8,0000000000000000,0000000000000000,0,0,0,0,0,0,0,0,0.00,0.00,0,72729,-1,8,0,0,0,nil,nil,nil,nil
---SPELL_DAMAGE,0000000000000000,nil,0x514,0x0,Player-3677-070E7EAE,"Alithan-Garrosh",0x514,0x0,157659,"Rippling Smash",0x8,0000000000000000,0000000000000000,0,0,0,0,0,0,0,0,0.00,0.00,0,50610,-1,8,0,0,12765,nil,nil,nil,nil
-
 		if (who_serial == "") then
 			if (who_flags and _bit_band (who_flags, OBJECT_TYPE_PETS) ~= 0) then --> é um pet
 				--> pets must have a serial
@@ -162,9 +158,11 @@
 		if (not alvo_name) then
 			--> no target name, just quit
 			return
+			
 		elseif (not who_name) then
 			--> no actor name, use spell name instead
-			who_name = "[*] "..spellname
+			who_name = "[*] " .. spellname
+			who_flags = 0xa48
 			who_serial = ""
 		end
 		
@@ -374,7 +372,7 @@
 			local this_event = t [i]
 			
 			if (not this_event) then
-				print ("event error", i, _death_event_amt)
+				print ("Parser Event Error -> Set to 16 DeathLogs and /reload", i, _death_event_amt)
 			end
 			
 			this_event [1] = true --> true if this is a damage || false for healing

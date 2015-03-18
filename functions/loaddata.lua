@@ -45,10 +45,6 @@ function _detalhes:ApplyBasicKeys()
 		self.default_texture = [[Interface\AddOns\Details\images\bar4]]
 		self.default_texture_name = "Details D'ictum"
 
-		self.tooltip_max_targets = 3
-		self.tooltip_max_abilities = 3
-		self.tooltip_max_pets = 1
-
 		self.class_coords_version = 1
 		self.class_colors_version = 1
 		

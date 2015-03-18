@@ -61,8 +61,12 @@
 	local CLASS_ICON_TCOORDS = _G.CLASS_ICON_TCOORDS
 	local is_player_class = _detalhes.player_class
 
-	local key_overlay = {1, 1, 1, .1}
-	local key_overlay_press = {1, 1, 1, .2}
+	_detalhes.tooltip_key_overlay1 = {1, 1, 1, .2}
+	_detalhes.tooltip_key_overlay2 = {1, 1, 1, .5}
+	
+	_detalhes.tooltip_key_size_width = 24
+	_detalhes.tooltip_key_size_height = 10
+
 	local headerColor = {1, 0.9, 0.0, 1}
 
 	local info = _detalhes.janela_info
@@ -423,10 +427,10 @@
 				
 				if (ismaximized) then
 					--highlight shift key
-					GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay_press)
+					GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, _detalhes.tooltip_key_size_width, _detalhes.tooltip_key_size_height, 0, 1, 0, 0.640625, _detalhes.tooltip_key_overlay2)
 					GameCooltip:AddStatusBar (100, 1, .1, .1, .1, 1)
 				else
-					GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay)
+					GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, _detalhes.tooltip_key_size_width, _detalhes.tooltip_key_size_height, 0, 1, 0, 0.640625, _detalhes.tooltip_key_overlay1)
 					GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
 				end
 			
@@ -1903,7 +1907,7 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 			_table_sort (ActorTargetsSortTable, _detalhes.Sort2)
 
 			--tooltip stuff
-			local tooltip_max_abilities = _detalhes.tooltip_max_abilities
+			local tooltip_max_abilities = _detalhes.tooltip.tooltip_max_abilities
 			if (instancia.sub_atributo == 2) then
 				tooltip_max_abilities = 6
 			end
@@ -1922,10 +1926,10 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 			
 			if (is_maximized) then
 				--highlight shift key
-				GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay_press)
+				GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, _detalhes.tooltip_key_size_width, _detalhes.tooltip_key_size_height, 0, 1, 0, 0.640625, _detalhes.tooltip_key_overlay2)
 				GameCooltip:AddStatusBar (100, 1, r, g, b, 1)
 			else
-				GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay)
+				GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, _detalhes.tooltip_key_size_width, _detalhes.tooltip_key_size_height, 0, 1, 0, 0.640625, _detalhes.tooltip_key_overlay1)
 				GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
 			end
 			
@@ -1951,7 +1955,7 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 				
 				_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_TARGETS"], headerColor, r, g, b, #ActorTargetsSortTable)
 
-				local max_targets = _detalhes.tooltip_max_targets
+				local max_targets = _detalhes.tooltip.tooltip_max_targets
 				local is_maximized = false
 				if (keydown == "ctrl" or TooltipMaximizedMethod == 2 or TooltipMaximizedMethod == 4) then
 					max_targets = 99
@@ -1962,10 +1966,10 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 				
 				if (is_maximized) then
 					--highlight
-					GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_ctrl]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay_press)
+					GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_ctrl]], 1, 2, _detalhes.tooltip_key_size_width, _detalhes.tooltip_key_size_height, 0, 1, 0, 0.640625, _detalhes.tooltip_key_overlay2)
 					GameCooltip:AddStatusBar (100, 1, r, g, b, 1)
 				else
-					GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_ctrl]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay)
+					GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_ctrl]], 1, 2, _detalhes.tooltip_key_size_width, _detalhes.tooltip_key_size_height, 0, 1, 0, 0.640625, _detalhes.tooltip_key_overlay1)
 					GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
 				end
 
@@ -2045,7 +2049,7 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 		
 		for index, _table in _ipairs (totais) do
 			
-			if (_table [2] > 0 and (index < 3 or ismaximized)) then
+			if (_table [2] > 0 and (index <= _detalhes.tooltip.tooltip_max_pets or ismaximized)) then
 			
 				if (not added_logo) then
 					added_logo = true
@@ -2055,10 +2059,10 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 					GameCooltip:AddIcon ([[Interface\COMMON\friendship-heart]], 1, 1, 14, 14, 0.21875, 0.78125, 0.09375, 0.6875)
 					
 					if (ismaximized) then
-						GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_alt]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay_press)
+						GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_alt]], 1, 2, _detalhes.tooltip_key_size_width, _detalhes.tooltip_key_size_height, 0, 1, 0, 0.640625, _detalhes.tooltip_key_overlay2)
 						GameCooltip:AddStatusBar (100, 1, r, g, b, 1)
 					else
-						GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_alt]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay)
+						GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_alt]], 1, 2, _detalhes.tooltip_key_size_width, _detalhes.tooltip_key_size_height, 0, 1, 0, 0.640625, _detalhes.tooltip_key_overlay1)
 						GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
 					end
 
@@ -2144,14 +2148,14 @@ function atributo_damage:ToolTip_DamageTaken (instancia, numero, barra, keydown)
 
 	if (ismaximized) then
 		--highlight
-		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay_press)
+		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, _detalhes.tooltip_key_size_width, _detalhes.tooltip_key_size_height, 0, 1, 0, 0.640625, _detalhes.tooltip_key_overlay2)
 		if (instancia.sub_atributo == 6) then
 			GameCooltip:AddStatusBar (100, 1, 0.7, g, b, 1)
 		else
 			GameCooltip:AddStatusBar (100, 1, r, g, b, 1)
 		end
 	else
-		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay)
+		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, _detalhes.tooltip_key_size_width, _detalhes.tooltip_key_size_height, 0, 1, 0, 0.640625, _detalhes.tooltip_key_overlay1)
 		if (instancia.sub_atributo == 6) then
 			GameCooltip:AddStatusBar (100, 1, 0.7, 0, 0, barAlha)
 		else
@@ -2271,15 +2275,15 @@ function atributo_damage:ToolTip_FriendlyFire (instancia, numero, barra, keydown
 	
 	local ismaximized = false
 	if (keydown == "shift" or TooltipMaximizedMethod == 2 or TooltipMaximizedMethod == 3) then
-		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay_press)
+		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, _detalhes.tooltip_key_size_width, _detalhes.tooltip_key_size_height, 0, 1, 0, 0.640625, _detalhes.tooltip_key_overlay2)
 		GameCooltip:AddStatusBar (100, 1, r, g, b, 1)
 		ismaximized = true
 	else
-		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay)
+		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, _detalhes.tooltip_key_size_width, _detalhes.tooltip_key_size_height, 0, 1, 0, 0.640625, _detalhes.tooltip_key_overlay1)
 		GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
 	end
 	
-	local max_abilities = _detalhes.tooltip_max_abilities
+	local max_abilities = _detalhes.tooltip.tooltip_max_abilities
 	if (ismaximized) then
 		max_abilities = 99
 	end
@@ -2308,15 +2312,15 @@ function atributo_damage:ToolTip_FriendlyFire (instancia, numero, barra, keydown
 	
 	local ismaximized = false
 	if (keydown == "ctrl" or TooltipMaximizedMethod == 2 or TooltipMaximizedMethod == 4) then
-		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_ctrl]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay_press)
+		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_ctrl]], 1, 2, _detalhes.tooltip_key_size_width, _detalhes.tooltip_key_size_height, 0, 1, 0, 0.640625, _detalhes.tooltip_key_overlay2)
 		GameCooltip:AddStatusBar (100, 1, r, g, b, 1)
 		ismaximized = true
 	else
-		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_ctrl]], 1, 2, 24, 12, 0, 1, 0, 0.640625, key_overlay)
+		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_ctrl]], 1, 2, _detalhes.tooltip_key_size_width, _detalhes.tooltip_key_size_height, 0, 1, 0, 0.640625, _detalhes.tooltip_key_overlay1)
 		GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
 	end
 	
-	local max_abilities2 = _detalhes.tooltip_max_abilities
+	local max_abilities2 = _detalhes.tooltip.tooltip_max_abilities
 	if (ismaximized) then
 		max_abilities2 = 99
 	end

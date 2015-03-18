@@ -947,6 +947,10 @@ local default_profile = {
 			--border_color = {0.76, 0.76, 0.76, 1},
 			border_color = {1, 1, 1, 1},
 			border_size = 14,
+			
+			tooltip_max_abilities = 5,
+			tooltip_max_targets = 2,
+			tooltip_max_pets = 2,
 		},
 	
 }

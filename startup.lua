@@ -368,6 +368,8 @@ function _G._detalhes:Start()
 				
 				_detalhes:SetTooltipBackdrop (_detalhes.default_profile.tooltip.border_texture, _detalhes.default_profile.tooltip.border_size, table_deepcopy (_detalhes.default_profile.tooltip.border_color))
 				
+				_detalhes.tooltip.show_amount = true
+				
 			end
 			
 			if (_detalhes_database.last_realversion and _detalhes_database.last_realversion < 47 and enable_reset_warning) then

@@ -956,6 +956,29 @@ function SlashCmdList.DETAILS (msg, editbox)
 		local average = item_level / item_amount
 		print ("your item lvl:", average)
 	
+	elseif (msg == "parser") then
+		
+		_detalhes:OnParserEvent (
+			"COMBAT_LOG_EVENT_UNFILTERED", --evento = 
+			1548754114, --time = 
+			"SPELL_DAMAGE", --token = 
+			nil, --hidding = 
+			"0000000000000000", --who_serial = 
+			nil, --who_name = 
+			0x514, --who_flags = 
+			0x0, --who_flags2 = 
+			"Player-3676-06F3C3FA", --alvo_serial = 
+			"Icybluefur-Area52", --alvo_name = 
+			0x514, --alvo_flags = 
+			0x0, --alvo_flags2 = 
+			157247, --spellid = 
+			"Reverberations", --spellname = 
+			0x1, --spelltype = 
+			4846, --amount = 
+			-1, --overkill = 
+			1 --school = 
+		)
+	
 	else
 		
 		--if (_detalhes.opened_windows < 1) then
