@@ -2192,7 +2192,7 @@
 		
 		if LDB then
 
-			local databroker = LDB:NewDataObject ("Details!", {
+			local databroker = LDB:NewDataObject ("Details", {
 				type = "data source",
 				icon = [[Interface\AddOns\Details\images\minimap]],
 				text = "0",
@@ -2303,8 +2303,8 @@
 				end,
 			})
 			
-			if (databroker and not LDBIcon:IsRegistered ("Details!")) then
-				LDBIcon:Register ("Details!", databroker, self.minimap)
+			if (databroker and not LDBIcon:IsRegistered ("Details")) then
+				LDBIcon:Register ("Details", databroker, self.minimap)
 			end
 			
 			_detalhes.databroker = databroker
@@ -2359,7 +2359,7 @@
 		if (_G.HotCorners) then
 			_G.HotCorners:RegisterHotCornerButton (
 				--> absolute name
-				"Details!",
+				"Details",
 				--> corner
 				"TOPLEFT", 
 				--> config table

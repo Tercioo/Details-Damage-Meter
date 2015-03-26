@@ -552,8 +552,11 @@ function _detalhes.switch:Config (_,_, atributo, sub_atributo)
 		return
 	end
 	
-	_detalhes.switch.table [_detalhes.switch.current_button].atributo = atributo
-	_detalhes.switch.table [_detalhes.switch.current_button].sub_atributo = sub_atributo
+	_detalhes.switch.table [_detalhes.switch.editing_bookmark].atributo = atributo
+	_detalhes.switch.table [_detalhes.switch.editing_bookmark].sub_atributo = sub_atributo
+	
+	_detalhes.switch.editing_bookmark = nil
+	
 	_detalhes.switch:Update()
 end
 
@@ -568,68 +571,71 @@ end
 		end
 	end
 	
-	local paramTable = _detalhes.switch.buttons [number] and _detalhes.switch.buttons [number].funcParam2
-	
-	if (paramTable) then
+	local bookmark = _detalhes.switch.table [number]
+
+	if (bookmark) then
 		_detalhes.switch.current_instancia = instance
-		if (not paramTable.atributo) then
-			_detalhes:Msg (string.format (Loc ["STRING_SWITCH_SELECTMSG"], number))
+		
+		if (not bookmark.atributo) then
+			return _detalhes:Msg (string.format (Loc ["STRING_SWITCH_SELECTMSG"], number))
 		end
-		return _detalhes:FastSwitch (paramTable)
+		
+		_detalhes:FastSwitch (nil, bookmark, number)
+		
+		--return _detalhes:FastSwitch (paramTable)
 	end
 		
 end
 
-function _detalhes:FastSwitch (_this)
-	_detalhes.switch.current_button = _this.button
-	
-	if (not _this.atributo) then --> botão direito
-	
+function _detalhes:FastSwitch (button, bookmark, bookmark_number, select_new)
+	if (select_new or not bookmark.atributo) then
 		GameCooltip:Reset()
 		GameCooltip:SetType (3)
 		GameCooltip:SetFixedParameter (_detalhes.switch.current_instancia)
-		GameCooltip:SetOwner (_detalhes.switch.buttons [_this.button])
+
+		GameCooltip:SetOwner (button)
+		
+		_detalhes.switch.editing_bookmark = bookmark_number
+		
 		_detalhes:MontaAtributosOption (_detalhes.switch.current_instancia, _detalhes.switch.Config)
 		GameCooltip:SetColor (1, {.1, .1, .1, .3})
 		GameCooltip:SetColor (2, {.1, .1, .1, .3})
 		GameCooltip:SetOption ("HeightAnchorMod", -7)
 		GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, backgroundColor, _detalhes.tooltip_border_color)
 		GameCooltip:SetBackdrop (2, _detalhes.tooltip_backdrop, backgroundColor, _detalhes.tooltip_border_color)
-		GameCooltip:ShowCooltip()
-
-	else --> botão esquerdo
-
-		if (IsShiftKeyDown()) then
-			--> get a closed window or created a new one.
-			local instance = _detalhes:CreateInstance()
-			
-			if (not instance) then
-				_detalhes.switch.CloseMe()
-				return _detalhes:Msg (Loc ["STRING_WINDOW_NOTFOUND"])
-			end
-			
-			_detalhes.switch.current_instancia = instance
-		end
-	
-		if (_detalhes.switch.current_instancia.modo == _detalhes._detalhes_props["MODO_ALONE"]) then
-			_detalhes.switch.current_instancia:AlteraModo (_detalhes.switch.current_instancia, 2)
-			
-		elseif (_detalhes.switch.current_instancia.modo == _detalhes._detalhes_props["MODO_RAID"]) then
-			_detalhes.switch.current_instancia:AlteraModo (_detalhes.switch.current_instancia, 2)
-
-		end
-		
-		_detalhes.switch.current_instancia:TrocaTabela (_detalhes.switch.current_instancia, true, _this.atributo, _this.sub_atributo)
-		_detalhes.switch.CloseMe()
-		
+		return GameCooltip:ShowCooltip()
 	end
+
+	if (IsShiftKeyDown()) then
+		--> get a closed window or created a new one.
+		local instance = _detalhes:CreateInstance()
+		
+		if (not instance) then
+			_detalhes.switch.CloseMe()
+			return _detalhes:Msg (Loc ["STRING_WINDOW_NOTFOUND"])
+		end
+		
+		_detalhes.switch.current_instancia = instance
+	end
+
+	if (_detalhes.switch.current_instancia.modo == _detalhes._detalhes_props["MODO_ALONE"]) then
+		_detalhes.switch.current_instancia:AlteraModo (_detalhes.switch.current_instancia, 2)
+	elseif (_detalhes.switch.current_instancia.modo == _detalhes._detalhes_props["MODO_RAID"]) then
+		_detalhes.switch.current_instancia:AlteraModo (_detalhes.switch.current_instancia, 2)
+	end
+	
+	_detalhes.switch.current_instancia:TrocaTabela (_detalhes.switch.current_instancia, true, bookmark.atributo, bookmark.sub_atributo)
+	_detalhes.switch.CloseMe()
 end
 
 -- nao tem suporte a solo mode tank mode
 -- nao tem suporte a custom até agora, não sei como vai ficar
 
 function _detalhes.switch:InitSwitch()
-	return _detalhes.switch:Update()
+	local instancia = _detalhes.tabela_instancias [1]
+	_detalhes.switch:ShowMe (instancia)
+	_detalhes.switch:CloseMe()
+	--return _detalhes.switch:Update()
 end
 
 function _detalhes.switch:OnRemoveCustom (CustomIndex)
@@ -655,40 +661,39 @@ function _detalhes.switch:Update()
 	local x = 10
 	local y = 5
 	local jump = false
-	local got_empty
 	local hide_the_rest
 	
-	for i = 1, slots do
+	local offset = FauxScrollFrame_GetOffset (DetailsSwitchPanelScroll)
+	local slots_shown = _detalhes.switch.slots
+	
+	for i = 1, slots_shown do
 
-		local options = _detalhes.switch.table [i]
-		if (not options) then 
-			options = {atributo = nil, sub_atributo = nil}
-			_detalhes.switch.table [i] = options
-		end
-
+		--bookmark index
+		local index = (offset * _detalhes.switch.vertical_amt) + i
+	
+		--button
 		local button = _detalhes.switch.buttons [i]
 		if (not button) then
 			button = _detalhes.switch:NewSwitchButton (_detalhes.switch.frame, i, x, y, jump)
 			button:SetFrameLevel (_detalhes.switch.frame:GetFrameLevel()+2)
 			_detalhes.switch.showing = _detalhes.switch.showing + 1
 		end
+
+		local options = _detalhes.switch.table [index]
+		if (not options and index <= 40) then 
+			options = {}
+			_detalhes.switch.table [index] = options
+		end
 		
-		local param2Table = {
-			["instancia"] = _detalhes.switch.current_instancia, 
-			["button"] = i, 
-			["atributo"] = options.atributo, 
-			["sub_atributo"] = options.sub_atributo
-		}
-		
-		button.funcParam2 = param2Table
-		button.button2.funcParam2 = param2Table
+		button.bookmark_number = index --button on icon
+		button.button2.bookmark_number = index --button on text
 		
 		local icone
 		local coords
 		local name
 		local vcolor
 		
-		if (options.sub_atributo) then
+		if (options and options.sub_atributo) then
 			if (options.atributo == 5) then --> custom
 				local CustomObject = _detalhes.custom [options.sub_atributo]
 				if (not CustomObject) then --> ele já foi deletado
@@ -716,43 +721,32 @@ function _detalhes.switch:Update()
 			coords = {0, 1, 0, 1}
 			name = Loc ["STRING_SWITCH_CLICKME"]
 			vcolor = vertex_color_unknown
-			got_empty = true
 		end
-		
-		--if (hide_the_rest) then
-			--button:Hide()
-			--button.button2:Hide()
-			--button.fundo:Hide()
-		--else
-			button:Show()
-			button.button2:Show()
-			button.fundo:Show()
-			
-			button.button2.texto:SetText (name)
-			
-			button.textureNormal:SetTexture (icone, true)
-			button.textureNormal:SetTexCoord (_unpack (coords))
-			button.textureNormal:SetVertexColor (_unpack (vcolor))
-			button.texturePushed:SetTexture (icone, true)
-			button.texturePushed:SetTexCoord (_unpack (coords))
-			button.texturePushed:SetVertexColor (_unpack (vcolor))
-			button.textureH:SetTexture (icone, true)
-			button.textureH:SetVertexColor (_unpack (vcolor))
-			button.textureH:SetTexCoord (_unpack (coords))
-			button:ChangeIcon (button.textureNormal, button.texturePushed, _, button.textureH)
 
-			if (name == Loc ["STRING_SWITCH_CLICKME"]) then
-				--button.button2.texto:SetTextColor (.3, .3, .3, 1)
-				button:SetAlpha (0.3)
-			else
-				--button.button2.texto:SetTextColor (.8, .8, .8, 1)
-				button:SetAlpha (1)
-			end
-			
-			if (got_empty) then
-				hide_the_rest = true
-			end
-		--end
+		button:Show()
+		button.button2:Show()
+		button.fundo:Show()
+		
+		button.button2.texto:SetText (name)
+		
+		button.textureNormal:SetTexture (icone, true)
+		button.textureNormal:SetTexCoord (_unpack (coords))
+		button.textureNormal:SetVertexColor (_unpack (vcolor))
+		button.texturePushed:SetTexture (icone, true)
+		button.texturePushed:SetTexCoord (_unpack (coords))
+		button.texturePushed:SetVertexColor (_unpack (vcolor))
+		button.textureH:SetTexture (icone, true)
+		button.textureH:SetVertexColor (_unpack (vcolor))
+		button.textureH:SetTexCoord (_unpack (coords))
+		button:ChangeIcon (button.textureNormal, button.texturePushed, nil, button.textureH)
+
+		if (name == Loc ["STRING_SWITCH_CLICKME"]) then
+			--button.button2.texto:SetTextColor (.3, .3, .3, 1)
+			button:SetAlpha (0.3)
+		else
+			--button.button2.texto:SetTextColor (.8, .8, .8, 1)
+			button:SetAlpha (1)
+		end
 		
 		if (jump) then 
 			x = x - 125
@@ -765,7 +759,15 @@ function _detalhes.switch:Update()
 		
 	end
 	
+	FauxScrollFrame_Update (DetailsSwitchPanelScroll, ceil (40 / _detalhes.switch.vertical_amt) , _detalhes.switch.horizontal_amt, 20)
 end
+
+local scroll = CreateFrame ("scrollframe", "DetailsSwitchPanelScroll", DetailsSwitchPanel, "FauxScrollFrameTemplate")
+scroll:SetAllPoints()
+scroll:SetScript ("OnVerticalScroll", function (self, offset) FauxScrollFrame_OnVerticalScroll (self, offset, 20, _detalhes.switch.Update) end) --altura
+scroll.ScrollBar:Hide()
+scroll.ScrollBar.ScrollUpButton:Hide()
+scroll.ScrollBar.ScrollDownButton:Hide()
 
 function _detalhes.switch:Resize (precisa_mostrar)
 
@@ -780,17 +782,21 @@ function _detalhes.switch:Resize (precisa_mostrar)
 	
 	local total_amt = horizontal_amt * vertical_amt
 	if (precisa_mostrar > total_amt) then
-		vertical_amt = floor ((window_height - y) / 15)
-		y_increment = 15
+		--vertical_amt = floor ((window_height - y) / 15)
+		--y_increment = 15
 	end
 	
-	local size = window_width / horizontal_amt
+	_detalhes.switch.y_increment = y_increment
 	
+	local size = window_width / horizontal_amt
 	local frame = _detalhes.switch.frame
 	
 	for index, button in ipairs (_detalhes.switch.buttons) do
 		button:Hide()
 	end
+	
+	_detalhes.switch.vertical_amt = vertical_amt
+	_detalhes.switch.horizontal_amt = horizontal_amt
 	
 	local i = 1
 	for vertical = 1, vertical_amt do
@@ -875,7 +881,7 @@ function _detalhes.switch:Resize2()
 end
 
 local onenter = function (self)
-	if (not _detalhes.switch.table [self.index].atributo) then
+	if (not _detalhes.switch.table [self.id].atributo) then
 		GameCooltip:Reset()
 		_detalhes:CooltipPreset (1)
 		GameCooltip:AddLine ("add bookmark")
@@ -939,6 +945,45 @@ local oniconleave = function (self)
 	end
 end
 
+local left_box_on_click = function (self, button)
+	if (button == "RightButton") then
+		--select another bookmark
+		_detalhes:FastSwitch (self, bookmark, self.bookmark_number, true)
+	else
+		--change the display
+		local bookmark = _detalhes.switch.table [self.bookmark_number]
+		if (bookmark.atributo) then
+			_detalhes:FastSwitch (self, bookmark, self.bookmark_number)
+		else
+			--invalid bookmark, select another bookmark
+			_detalhes:FastSwitch (self, bookmark, self.bookmark_number, true)
+		end
+	end
+end
+
+local right_box_on_click = function (self, button)
+	if (button == "RightButton") then
+		--close the bookmark menu
+		_detalhes.switch:CloseMe()
+	else
+		--change the display
+		local bookmark = _detalhes.switch.table [self.bookmark_number]
+		if (bookmark.atributo) then
+			_detalhes:FastSwitch (self, bookmark, self.bookmark_number)
+		else
+			--invalid bookmark, select another bookmark
+			_detalhes:FastSwitch (self, bookmark, self.bookmark_number, true)
+		end
+	end
+end
+
+local change_icon = function (self, icon1, icon2, icon3, icon4)
+	self:SetNormalTexture (icon1)
+	self:SetPushedTexture (icon2)
+	self:SetDisabledTexture (icon3)
+	self:SetHighlightTexture (icon4, "ADD")
+end
+	
 function _detalhes.switch:NewSwitchButton (frame, index, x, y, rightButton)
 
 	local paramTable = {
@@ -949,13 +994,14 @@ function _detalhes.switch:NewSwitchButton (frame, index, x, y, rightButton)
 		}
 
 	--botao dentro da caixa
-	local button = gump:NewDetailsButton (frame, frame, _, _detalhes.FastSwitch, nil, paramTable, 15, 15, "", "", "", "", 
-	{rightFunc = {func = _detalhes.FastSwitch, param1 = nil, param2 = {atributo = nil, button = index}}, OnGrab = "PassClick"}, "DetailsSwitchPanelButton_1_"..index)
+	local button = CreateFrame ("button", "DetailsSwitchPanelButton_1_"..index, frame)
+	button:SetSize (15, 15) 
 	button:SetPoint ("topleft", frame, "topleft", x, -y)
-	button.rightButton = rightButton
-	
-	button.MouseOnEnterHook = oniconenter
-	button.MouseOnLeaveHook = oniconleave
+	button:SetScript ("OnMouseDown", left_box_on_click)
+	button:SetScript ("OnEnter", oniconenter)
+	button:SetScript ("OnLeave", oniconleave)
+	button.ChangeIcon = change_icon
+	button.id = index
 	
 	--borda
 	button.fundo = button:CreateTexture (nil, "overlay")
@@ -984,10 +1030,15 @@ function _detalhes.switch:NewSwitchButton (frame, index, x, y, rightButton)
 	button.line2:SetPoint ("bottomleft", button, "bottomright", fundo_x, fundo_y)
 	
 	--botao do fundo marrom
-	local button2 = gump:NewDetailsButton (button, button, _, _detalhes.FastSwitch, nil, paramTable, 1, 1, button.line, "", "", button.line2, 
-	{rightFunc = {func = _detalhes.switch.CloseMe, param1 = nil, param2 = nil}, OnGrab = "PassClick"}, "DetailsSwitchPanelButton_2_"..index)
+	local button2 = CreateFrame ("button", "DetailsSwitchPanelButton_2_"..index, button)
+	button2:SetSize (1, 1)
 	button2:SetPoint ("topleft", button, "topright", 1, 0)
 	button2:SetPoint ("bottomright", button, "bottomright", 90, 0)
+	button2:SetScript ("OnMouseDown", right_box_on_click)
+	button2:SetScript ("OnEnter", onenter)
+	button2:SetScript ("OnLeave", onleave)
+	button2.id = index
+	
 	button.button2 = button2
 	
 	--icone
@@ -1017,8 +1068,6 @@ function _detalhes.switch:NewSwitchButton (frame, index, x, y, rightButton)
 	button2.MouseOnLeaveHook = onleave
 	
 	_detalhes.switch.buttons [index] = button
-	button.index = index
-	button2.index = index
 	
 	return button
 end

@@ -829,6 +829,7 @@ local default_profile = {
 	--> minimap
 		minimap = {hide = false, radius = 160, minimapPos = 220, onclick_what_todo = 1, text_type = 1, text_format = 3},
 		data_broker_text = "",
+		
 	--> horcorner
 		hotcorner_topleft = {hide = false},
 		
@@ -846,14 +847,16 @@ local default_profile = {
 	--> segments
 		segments_amount = 12,
 		segments_amount_to_save = 5,
-		segments_panic_mode = true,
+		segments_panic_mode = false,
 		segments_auto_erase = 1,
+		
 	--> instances
 		instances_amount = 5,
 		instances_segments_locked = false,
 		
 	--> if clear ungroup characters when logout
 		clear_ungrouped = true,
+		
 	--> if clear graphic data when logout
 		clear_graphic = true, 
 	

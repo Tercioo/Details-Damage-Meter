@@ -1,5 +1,5 @@
 
-DETAILS_STORAGE_VERSION = 3
+DETAILS_STORAGE_VERSION = 4
 
 function _detalhes:CreateStorageDB()
 	DetailsDataStorage = {
@@ -23,7 +23,7 @@ f:SetScript ("OnEvent", function (self, event, addonName)
 		
 		if (DetailsDataStorage.VERSION < DETAILS_STORAGE_VERSION) then
 			--> do revisions
-			if (DetailsDataStorage.VERSION < 3) then
+			if (DetailsDataStorage.VERSION < 4) then
 				table.wipe (DetailsDataStorage)
 				DetailsDataStorage = _detalhes:CreateStorageDB()
 			end

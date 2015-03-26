@@ -65,6 +65,8 @@ do
 		[7] = {name = Loc ["STRING_ENVIRONMENTAL_LAVA"], icon = [[Interface\ICONS\Ability_Rhyolith_Volcano]]},
 		[8] = {name = Loc ["STRING_ENVIRONMENTAL_SLIME"], icon = [[Interface\ICONS\Ability_Creature_Poison_02]]},
 		
+		[98021] = {name = Loc ["STRING_SPIRIT_LINK_TOTEM"]},
+		
 		[44461] = {name = GetSpellInfo (44461) .. " (" .. Loc ["STRING_EXPLOSION"] .. ")"}, --> Living Bomb (explosion)
 		
 		[161576] = {name = GetSpellInfo (161576) .. " (" .. Loc ["STRING_EXPLOSION"] .. ")"}, --> Ko'ragh's Overflowing Energy (explosion)

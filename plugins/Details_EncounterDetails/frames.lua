@@ -1175,6 +1175,7 @@ do
 		end
 	end
 
+	-- ~button
 	--summary
 	BossFrame.buttonSwitchNormal = DetailsFrameWork:NewDetailsButton (BossFrame, BossFrame, _, BossFrame.switch, "main", nil, 26, 33)
 	BossFrame.buttonSwitchNormal:SetPoint ("bottomright", BossFrame, "bottomright", -270, 5)
@@ -1211,6 +1212,23 @@ do
 	aa:SetWidth (26)
 	aa:SetHeight (33)
 	aa:SetAllPoints()
+	
+	--> tutorial frame
+	function EncounterDetails:ButtonsTutorial()
+	
+		local tutorial_frame = CreateFrame ("frame", nil, BossFrame)
+		tutorial_frame:SetFrameStrata ("FULLSCREEN")
+		tutorial_frame:SetPoint ("topleft", t, "topleft")
+		tutorial_frame:SetPoint ("bottomright", aa, "bottomright")
+	
+		local plugin_icon_alert = CreateFrame ("frame", "EncounterDetailsPopUp2", tutorial_frame, "DetailsHelpBoxTemplate")
+		plugin_icon_alert.ArrowUP:Show()
+		plugin_icon_alert.ArrowGlowUP:Show()
+		plugin_icon_alert.Text:SetText ("Select here, the module you want to see:")
+		plugin_icon_alert:SetPoint ("bottom", tutorial_frame, "top", 0, 30)
+		plugin_icon_alert:Show()
+
+	end
 	
 	u = BossFrame.buttonSwitchGraphic:CreateTexture (nil, "overlay")
 	u:SetTexture ("Interface\\AddOns\\Details_EncounterDetails\\images\\boss_frame_buttons")

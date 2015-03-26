@@ -121,6 +121,9 @@ do
 	function _detalhes:Class (actor)
 		return self.classe or actor.classe
 	end
+	function _detalhes:class (actor)
+		return self.classe or actor.classe
+	end
 	function _detalhes:GetActorSpells()
 		return self.spells._ActorTable
 	end

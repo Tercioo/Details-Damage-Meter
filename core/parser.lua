@@ -185,7 +185,7 @@
 		
 		--> spirit link toten
 		if (spellid == 98021) then
-			return
+			return parser:SLT_damage (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand, multistrike)
 		end
 
 	------------------------------------------------------------------------------------------------	
@@ -372,7 +372,7 @@
 			local this_event = t [i]
 			
 			if (not this_event) then
-				print ("Parser Event Error -> Set to 16 DeathLogs and /reload", i, _death_event_amt)
+				return print ("Parser Event Error -> Set to 16 DeathLogs and /reload", i, _death_event_amt)
 			end
 			
 			this_event [1] = true --> true if this is a damage || false for healing
@@ -539,6 +539,103 @@
 		return spell_damage_func (spell, alvo_serial, alvo_name, alvo_flags, amount, who_name, resisted, blocked, absorbed, critical, glacing, token, multistrike, isoffhand)
 	end
 
+	function parser:SLT_damage (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand, multistrike)
+		
+		--> get the damager and target actors
+		local este_jogador, meu_dono = damage_cache [who_serial] or damage_cache_pets [who_serial], damage_cache_petsOwners [who_serial]
+		
+		if (not este_jogador) then --> pode ser um desconhecido ou um pet
+		
+			este_jogador, meu_dono, who_name = _current_damage_container:PegarCombatente (who_serial, who_name, who_flags, true)
+			
+			if (meu_dono) then --> é um pet
+				damage_cache_pets [who_serial] = este_jogador
+				damage_cache_petsOwners [who_serial] = meu_dono
+				if (not damage_cache [meu_dono.serial]) then
+					damage_cache [meu_dono.serial] = meu_dono
+				end
+			else
+				if (who_flags) then --> ter certeza que não é um pet
+					if (who_serial ~= "") then
+						damage_cache [who_serial] = este_jogador
+					else
+						if (who_name:find ("%[")) then
+							local _, _, icon = _GetSpellInfo (spellid or 1)
+							este_jogador.spellicon = icon
+						end
+					end
+				end
+			end
+			
+		elseif (meu_dono) then
+			who_name = who_name .. " <" .. meu_dono.nome .. ">"
+		end
+		
+		--> his target
+		local jogador_alvo, alvo_dono = damage_cache [alvo_serial] or damage_cache_pets [alvo_serial], damage_cache_petsOwners [alvo_serial]
+		
+		if (not jogador_alvo) then
+		
+			jogador_alvo, alvo_dono, alvo_name = _current_damage_container:PegarCombatente (alvo_serial, alvo_name, alvo_flags, true)
+			
+			if (alvo_dono) then
+				damage_cache_pets [alvo_serial] = jogador_alvo
+				damage_cache_petsOwners [alvo_serial] = alvo_dono
+				--conferir se o dono já esta no cache
+				if (not damage_cache [alvo_dono.serial]) then
+					damage_cache [alvo_dono.serial] = alvo_dono
+				end
+			else
+				if (alvo_flags) then --> ter certeza que não é um pet
+					damage_cache [alvo_serial] = jogador_alvo
+				end
+			end
+		
+		elseif (alvo_dono) then
+			--> é um pet
+			alvo_name = alvo_name .. " <" .. alvo_dono.nome .. ">"
+		
+		end
+		
+		--> last event
+		este_jogador.last_event = _tempo
+		
+		--> record death log
+		local t = last_events_cache [alvo_name]
+		
+		if (not t) then
+			t = _current_combat:CreateLastEventsTable (alvo_name)
+		end
+		
+		local i = t.n
+		
+		local this_event = t [i]
+		
+		if (not this_event) then
+			return print ("Parser Event Error -> Set to 16 DeathLogs and /reload", i, _death_event_amt)
+		end
+		
+		this_event [1] = true --> true if this is a damage || false for healing
+		this_event [2] = spellid --> spellid || false if this is a battle ress line
+		this_event [3] = amount --> amount of damage or healing
+		this_event [4] = time --> parser time
+		this_event [5] = _UnitHealth (alvo_name) --> current unit heal
+		this_event [6] = who_name --> source name
+		this_event [7] = absorbed
+		this_event [8] = school
+		this_event [9] = false
+		this_event [10] = overkill
+		
+		i = i + 1
+		
+		if (i == _death_event_amt+1) then
+			t.n = 1
+		else
+			t.n = i
+		end
+		
+	end
+	
 	--function parser:swingmissed (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, missType, isOffHand, amountMissed)
 	function parser:swingmissed (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, missType, isOffHand, multistrike, amountMissed) --, isOffHand, multistrike, amountMissed, arg1
 		return parser:missed (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, 1, "Corpo-a-Corpo", 00000001, missType, isOffHand, multistrike, amountMissed) --, isOffHand, multistrike, amountMissed, arg1
@@ -786,7 +883,7 @@
 		
 		--> spirit link toten
 		if (spellid == 98021) then
-			return
+			return parser:SLT_healing (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amount, overhealing, absorbed, critical, multistrike, is_shield)
 		end
 		
 		--[[statistics]]-- _detalhes.statistics.heal_calls = _detalhes.statistics.heal_calls + 1
@@ -968,6 +1065,63 @@
 		end
 	end
 
+	function parser:SLT_healing (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amount, overhealing, absorbed, critical, multistrike, is_shield)
+	
+	--> get actors
+		local este_jogador, meu_dono = healing_cache [who_name]
+		if (not este_jogador) then --> pode ser um desconhecido ou um pet
+			este_jogador, meu_dono, who_name = _current_heal_container:PegarCombatente (who_serial, who_name, who_flags, true)
+			if (not meu_dono and who_flags) then --> se não for um pet, adicionar no cache
+				healing_cache [who_name] = este_jogador
+			end
+		end
+
+		local jogador_alvo, alvo_dono = healing_cache [alvo_name]
+		if (not jogador_alvo) then
+			jogador_alvo, alvo_dono, alvo_name = _current_heal_container:PegarCombatente (alvo_serial, alvo_name, alvo_flags, true)
+			if (not alvo_dono and alvo_flags) then
+				healing_cache [alvo_name] = jogador_alvo
+			end
+		end
+		
+		este_jogador.last_event = _tempo	
+
+		local t = last_events_cache [alvo_name]
+		
+		if (not t) then
+			t = _current_combat:CreateLastEventsTable (alvo_name)
+		end
+		
+		local i = t.n
+		
+		local this_event = t [i]
+		
+		this_event [1] = false --> true if this is a damage || false for healing
+		this_event [2] = spellid --> spellid || false if this is a battle ress line
+		this_event [3] = amount --> amount of damage or healing
+		this_event [4] = time --> parser time
+		this_event [5] = _UnitHealth (alvo_name) --> current unit heal
+		this_event [6] = who_name --> source name
+		this_event [7] = is_shield
+		this_event [8] = absorbed
+		
+		i = i + 1
+		
+		if (i == _death_event_amt+1) then
+			t.n = 1
+		else
+			t.n = i
+		end
+		
+		local spell = este_jogador.spells._ActorTable [spellid]
+		if (not spell) then
+			spell = este_jogador.spells:PegaHabilidade (spellid, true, token)
+			spell.neutral = true
+		end
+		
+		return spell_heal_func (spell, alvo_serial, alvo_name, alvo_flags, absorbed + amount - overhealing, who_name, absorbed, critical, overhealing, nil, multistrike)
+	end
+	
 -----------------------------------------------------------------------------------------------------------------------------------------
 	--> BUFFS & DEBUFFS 	serach key: ~buff ~aura ~shield								|
 -----------------------------------------------------------------------------------------------------------------------------------------

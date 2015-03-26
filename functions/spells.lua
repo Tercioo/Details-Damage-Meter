@@ -1432,67 +1432,141 @@ do
 			--[29842]	=	"WARRIOR", --undribled wrath
 	}
 	
+	-- updated on 24/03/2015 (@Tonyleila - WoWInterface)
 	_detalhes.CrowdControlSpells = {
 
+		--Racials
+			[28730]	= true, -- Arcane Torrent (be)
+			[47779]	= true, -- Arcane Torrent (be)
+			[50613]	= true, -- Arcane Torrent (be)
+			[107079]	= true, -- Quaking Palm (pandaren)
+			[20549]	= true, -- War Stomp (tauren)
+			
 		--death knight
-			[96294]	= true, --chains of ice
-
+			[108194]	= true, -- Asphyxiate
+			[96294]	= true, -- Chains of ice
+			[47481]	= true, -- Gnaw
+			[47528]	= true, -- Mind Freeze
+			[91797]	= true, -- Monstrous Blow
+			[115001]	= true, -- Remorseless Winter (Stunned)
+			[47476]	= true, -- Strangulate
+			
 		--druid
-			--hibernate
-			--[2637]	= true, --hibernate
-			[339]	= true, --entangling toots
+			[33786] 	= true, -- Cyclone
+			[339]	= true, -- Entangling Toots
+			[45334] 	= true, -- Immobilized (from Wild Charge)
+			[99]		= true, -- Incapacitating Roar
+			[22570] 	= true, -- Maim
+			[102359] 	= true, -- Mass Entanglement
+			[5211] 	= true, -- Mighty Bash (talent)
+			[163505] 	= true, -- Rake (stealth)
+			[106839]	= true, -- Skull Bash
+			[81261] 	= true, -- Solar Beam
+			[107566] 	= true, -- Staggering Shout
 
 		--hunter
-			[3355]	= true, --freezing trap
-			[24335]	= true, --wyvern sting
-			[136634]	= true, --narrow escape
-			--[4167]	= true, --web (spider)
-			--[19503]	= true, --scatter shot
-			
+			[117405]	= true, -- Binding Shot
+			[64803]	= true, -- Entrapment
+			[3355]	= true, -- Freezing trap
+			[24394]	= true, -- Intimidation (pet)
+			[128405]	= true, -- Narrow Escape
+			[136634]	= true, -- Narrow Wscape
+			[24335]	= true, -- Wyvern sting
+			[19386]	= true, -- Wyvern sting
+
 		--mage
-			[118]	= true, --polymorph sheep
-			[61305]	= true, --polymorph black cat
-			[28272]	= true, --polymorph pig
-			[61721]	= true, --polymorph rabbit
-			[61780]	= true, --polymorph turkey
-			[28271]	= true, --polymorph turtle
-			[122]	= true, --frost nova
-			[33395]	= true, --freeze
-			[111340]	= true, --ice ward
-			[82691]	= true, --ring of frost
+			[2139]	= true, -- Counterspell
+			[44572]	= true, -- Deep Freeze
+			[58534]	= true, -- Deep Freeze
+			[31661]	= true, -- Dragon's Breath
+			[33395]	= true, -- Freeze (pet)
+			[122]	= true, -- Frost Nova
+			[102051]	= true, -- Frostjaw
+			[157997]	= true, -- Ice Nova
+			[111340]	= true, -- Ice Ward
+			[118]	= true, -- Polymorph sheep
+			[28272]	= true, -- Polymorph pig
+			[126819]	= true, -- Polymorph pig 2
+			[61305]	= true, -- Polymorph black cat
+			[61721]	= true, -- Polymorph rabbit
+			[61780]	= true, -- Polymorph turkey
+			[28271]	= true, -- Polymorph turtle
+			[161354]	= true, -- Polymorph Monkey
+			[161353]	= true, -- Polymorph Polar Bear Cub
+			[161355]	= true, -- Polymorph Penguin
+			[82691]	= true, -- Ring of frost
 		
 		--monk
-			[116706]	= true, --disable
-		
+			[123393]	= true, -- Breath of Fire
+			[119392]	= true, -- Charging Ox Wave
+			[116706]	= true, -- Disable
+			[120086]	= true, -- Fists of Fury
+			[117418]	= true, -- Fists of Fury
+			[119381]	= true, -- Leg Sweep
+			[115078]	= true, -- Paralysis
+			[116705]	= true, -- Spear Hand Strike
+	    
 		--paladin
-			[105421]	= true, --blinding light
-			[20066]	= true, --repentance
-		--prist
-			--shackle undead
-			[8122]	= true, --psychic scream
-			[9484]	= true, --shackle undead
+			[31935]	= true, -- Avenger's Shield
+			[105421]	= true, -- Blinding light
+			[105593]	= true, -- Fist of Justice
+			[853]	= true, -- Hammer of Justice
+			[20066]	= true, -- Repentance
+			[145067]	= true, -- Turn Evil
 			
+		--priest
+			[605]	= true, -- Dominate Mind
+			[87194]	= true, -- Glyph of Mind Blast
+			[88625]	= true, -- Holy Word: Chastise
+			[64044]	= true, -- Psychic Horror
+			[8122]	= true, -- Psychic scream
+			[9484]	= true, -- Shackle undead
+			[15487]	= true, -- Silence
+			[131556]	= true, -- Sin and Punishment
+			[114404]	= true, -- Void Tendril's Grasp
+	    
 		--rogue
-			[2094]	= true, --blind
-			[1776]	= true, --gouge
-			[6770]	= true, --sap
-			[408]	= true, --kidney shot
-			[1833]	= true, --cheap shot
+			[2094]	= true, -- Blind
+			[1833]	= true, -- Cheap shot
+			[1330]	= true, -- Garrote
+			[1776]	= true, -- Gouge
+			[1766]	= true, -- Kick
+			[408]	= true, -- Kidney shot
+			[6770]	= true, -- Sap
+			[76577]	= true, -- Smoke Bomb
 		
 		--shaman
-			[51514]	= true, --hex
-			[64695]	= true, --earthgrab (earthgrab totem)
-			--[76780]	= true, --bind elemental
-		
+			[64695]	= true, -- Earthgrab (earthgrab totem)
+			[77505]	= true, -- Earthquake
+			[51514]	= true, -- Hex
+			[118905]	= true, -- Static Charge
+			[51490]	= true, -- Thunderstorm
+			[57994]	= true, -- Wind Shear
+	    
 		--warlock
-			[6358]	= true, --seduction (succubus)
-			[115268]	= true, --mesmerize (shivarra)
-			[118699]	= true, --fear
-			[5484]	= true, --howl of terror
-		
+			[89766]	= true, -- Axe Toss (Felguard)
+			[111397]	= true, -- Blood Horror
+			[170996]	= true, -- Debilitate (terrorguard)
+			[5782] 	= true, -- Fear
+			[118699]	= true, -- Fear		
+			[5484]	= true, -- Howl of terror
+			[115268]	= true, -- Mesmerize (shivarra)
+			[6789] 	= true, -- Mortal Coil
+			[6358]	= true, -- Seduction (succubus
+			[30283]	= true, -- Shadowfury
+			[19647]	= true, -- Spell Lock (Felhunters)
+			[31117]	= true, -- Unstable Affliction
+			
 		--warrior
-			[5246]	= true, --intimidating shout
-			[107566]	= true, --staggering shout
+			[100]	= true, -- Charge
+			[105771]	= true, -- Charge
+			[118895]	= true, -- Dragon Roar
+			[5246]	= true, -- Intimidating shout
+			[6552]	= true, -- Pummel 
+			[132168]	= true, -- Shockwave
+			[107566]	= true, -- Staggering shout
+			[132169]	= true, -- Storm Bolt
+			[7922]	= true, -- Warbringer
 	}
 
 	_detalhes.AbsorbSpells = {

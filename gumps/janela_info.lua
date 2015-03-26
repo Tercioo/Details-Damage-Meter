@@ -3304,6 +3304,12 @@ local row_on_enter = function (self)
 				GameTooltip:Show()	
 			end
 		end
+		
+		if (self.show == 98021) then
+			GameTooltip:SetOwner (self, "ANCHOR_TOPLEFT")
+			GameTooltip:AddLine (Loc ["STRING_SPIRIT_LINK_TOTEM_DESC"])
+			GameTooltip:Show()	
+		end
 	
 		--> da zoom no icone
 		self.icone:SetWidth (17)

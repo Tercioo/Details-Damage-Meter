@@ -394,8 +394,8 @@ function _detalhes:StoreEncounter (combat)
 	
 	local diff = combat:GetDifficulty()
 	
-	--> check for heroic mode
-	if (diff == 14 or diff == 15 or diff == 16) then --test on raid finder  ' or diff == 17'
+	--> check for heroic and mythic
+	if (diff == 15 or diff == 16) then --test on raid finder  ' or diff == 17' -- normal mode: diff == 14 or 
 
 		--> check the guild name
 		local match = 0
@@ -474,10 +474,12 @@ function _detalhes:StoreEncounter (combat)
 					player_name = player_name .. "-" .. player_realm
 				end
 				
+				local _, _, class = UnitClass (player_name)
+				
 				local damage_actor = damage_container_pool [damage_container_hash [player_name]]
 				if (damage_actor) then
 					local guid = UnitGUID (player_name) or UnitGUID (UnitName ("raid" .. i))
-					this_combat_data.damage [player_name] = {floor (damage_actor.total), _detalhes.item_level_pool [guid] or 0}
+					this_combat_data.damage [player_name] = {floor (damage_actor.total), _detalhes.item_level_pool [guid] and _detalhes.item_level_pool [guid].ilvl or 0, class or 0}
 				end
 			elseif (role == "HEALER") then
 				local player_name, player_realm = UnitName ("raid" .. i)
@@ -485,10 +487,12 @@ function _detalhes:StoreEncounter (combat)
 					player_name = player_name .. "-" .. player_realm
 				end
 				
+				local _, _, class = UnitClass (player_name)
+				
 				local heal_actor = healing_container_pool [healing_container_hash [player_name]]
 				if (heal_actor) then
 					local guid = UnitGUID (player_name) or UnitGUID (UnitName ("raid" .. i))
-					this_combat_data.healing [player_name] = {floor (heal_actor.total), _detalhes.item_level_pool [guid] or 0}
+					this_combat_data.healing [player_name] = {floor (heal_actor.total), _detalhes.item_level_pool [guid] and _detalhes.item_level_pool [guid].ilvl or 0, class or 0}
 				end
 			end
 			

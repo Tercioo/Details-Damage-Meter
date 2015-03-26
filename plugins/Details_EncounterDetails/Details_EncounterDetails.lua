@@ -262,6 +262,19 @@ local function CreatePluginFrames (data)
 		EncounterDetails.showing = true
 		--> [1] button to show [2] button animation: "star", "blink" or true (blink)
 		EncounterDetails:ShowToolbarIcon (EncounterDetails.ToolbarButton, "star")
+		
+		--EncounterDetails:SetTutorialCVar ("ENCOUNTER_DETAILS_TUTORIAL1", false)
+		
+		if (not EncounterDetails:GetTutorialCVar ("ENCOUNTER_DETAILS_TUTORIAL1")) then
+			EncounterDetails:SetTutorialCVar ("ENCOUNTER_DETAILS_TUTORIAL1", true)
+			local plugin_icon_alert = CreateFrame ("frame", "EncounterDetailsPopUp1", EncounterDetails.ToolbarButton, "DetailsHelpBoxTemplate")
+			plugin_icon_alert.ArrowUP:Show()
+			plugin_icon_alert.ArrowGlowUP:Show()
+			plugin_icon_alert.Text:SetText ("Encounter Details is Ready!\n\nTake a look in the encounter summary, click here!")
+			plugin_icon_alert:SetPoint ("bottom", EncounterDetails.ToolbarButton, "top", 0, 30)
+			plugin_icon_alert:Show()
+		end
+		
 	end
 	
 	-->  hide icon on toolbar
@@ -286,6 +299,13 @@ local function CreatePluginFrames (data)
 		if (EncounterDetailsFrame.ShowType == "graph") then
 			EncounterDetails:BuildDpsGraphic()
 		end
+		
+		--EncounterDetails:SetTutorialCVar ("ENCOUNTER_DETAILS_TUTORIAL2", false)
+		if (not EncounterDetails:GetTutorialCVar ("ENCOUNTER_DETAILS_TUTORIAL2")) then
+			EncounterDetails:SetTutorialCVar ("ENCOUNTER_DETAILS_TUTORIAL2", true)
+			EncounterDetails:ButtonsTutorial()
+		end
+		
 		return true
 	end
 	
