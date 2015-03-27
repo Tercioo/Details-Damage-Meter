@@ -417,6 +417,40 @@ end
 		end
 	end
 	
+	function _detalhes:CheckCoupleWindows (instance1, instance2)
+		instance1 = instance1 or _detalhes:GetInstance (1)
+		instance2 = instance2 or _detalhes:GetInstance (2)
+	
+		if (instance1 and instance2 and not instance1.ignore_mass_showhide and not instance1.ignore_mass_showhide) then
+			
+			instance1.baseframe:ClearAllPoints()
+			instance2.baseframe:ClearAllPoints()
+			
+			instance1:RestoreMainWindowPosition()
+			instance2:RestoreMainWindowPosition()
+		
+			instance1:AtualizaPontos()
+			instance2:AtualizaPontos()
+	
+			local _R, _T, _L, _B = _detalhes.VPL (instance2, instance1), _detalhes.VPB (instance2, instance1), _detalhes.VPR (instance2, instance1), _detalhes.VPT (instance2, instance1)
+			
+			if (_R) then
+				--print ("R")
+				instance2:MakeInstanceGroup ({false, false, 1, false})
+			elseif (_T) then
+				--print ("T")
+				instance2:MakeInstanceGroup ({false, false, false, 1})
+			elseif (_L) then
+				--print ("L")
+				instance2:MakeInstanceGroup ({1, false, false, false})
+			elseif (_B) then
+				--print ("B")
+				instance2:MakeInstanceGroup ({false, 1, false, false})
+			end
+		end
+	
+	end
+	
 	function _detalhes:ToggleWindows()
 	
 		local instance
@@ -435,11 +469,10 @@ end
 			else
 				_detalhes:ReabrirTodasInstancias()
 				
-				local instance2 = _detalhes:GetInstance(2)
-				if (instance2) then
-					_detalhes.move_janela_func (instance2.baseframe, true, instance2, true)
-					_detalhes.move_janela_func (instance2.baseframe, false, instance2, true)
-				end
+				local instance1 = _detalhes:GetInstance (1)
+				local instance2 = _detalhes:GetInstance (2)
+				
+				_detalhes:CheckCoupleWindows (instance1, instance2)
 			end
 		end
 	end

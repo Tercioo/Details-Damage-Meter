@@ -706,7 +706,7 @@ function _detalhes.ilevel:GetInOrder()
 	local order = {}
 	
 	for guid, t in pairs (_detalhes.item_level_pool) do
-		order [#order+1] = {t.name, t.ilvl, t.time}
+		order [#order+1] = {t.name, t.ilvl or 0, t.time}
 	end
 	
 	table.sort (order, _detalhes.Sort2)

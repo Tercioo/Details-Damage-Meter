@@ -462,7 +462,7 @@
 --> item level
 	function _detalhes:SentMyItemLevel()
 		local overall, equipped = GetAverageItemLevel()
-		_detalhes:SendRaidData (CONST_ITEMLEVEL_DATA, overall)
+		_detalhes:SendRaidData (CONST_ITEMLEVEL_DATA, equipped)
 	end
 	
 	function _detalhes.network.ItemLevel_Received (player, realm, core_version, itemlevel)

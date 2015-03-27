@@ -491,6 +491,13 @@ function _G._detalhes:Start()
 	--boss mobs callbacks
 	_detalhes:ScheduleTimer ("BossModsLink", 5)
 
+	local now = time()
+	for guid, t in pairs (_detalhes.item_level_pool) do
+		if (t.time+3600 < now) then
+			_detalhes.item_level_pool [guid] = nil
+		end
+	end
+	
 --[[
 function _detalhes:TestResize()
 	_detalhes:OpenNewsWindow ("TESTE, |TInterface\\AddOns\\Details\\images\\key_shift:20:40:0:0:64:64:0:64:0:40|t")

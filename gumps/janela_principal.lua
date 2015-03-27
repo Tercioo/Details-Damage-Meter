@@ -389,7 +389,7 @@ _detalhes.OnEnterMainWindow = OnEnterMainWindow
 
 local function VPL (instancia, esta_instancia)
 	--> conferir esquerda
-	if (instancia.ponto4.x < esta_instancia.ponto1.x) then --> a janela esta a esquerda
+	if (instancia.ponto4.x-0.5 < esta_instancia.ponto1.x) then --> a janela esta a esquerda
 		if (instancia.ponto4.x+20 > esta_instancia.ponto1.x) then --> a janela esta a menos de 20 pixels de distância
 			if (instancia.ponto4.y < esta_instancia.ponto1.y + 100 and instancia.ponto4.y > esta_instancia.ponto1.y - 100) then --> a janela esta a +20 ou -20 pixels de distância na vertical
 				return 1
@@ -413,7 +413,7 @@ end
 
 local function VPR (instancia, esta_instancia)
 	--> conferir lateral direita
-	if (instancia.ponto2.x > esta_instancia.ponto3.x) then --> a janela esta a direita
+	if (instancia.ponto2.x+0.5 > esta_instancia.ponto3.x) then --> a janela esta a direita
 		if (instancia.ponto2.x-20 < esta_instancia.ponto3.x) then --> a janela esta a menos de 20 pixels de distância
 			if (instancia.ponto2.y < esta_instancia.ponto3.y + 100 and instancia.ponto2.y > esta_instancia.ponto3.y - 100) then --> a janela esta a +20 ou -20 pixels de distância na vertical
 				return 3
@@ -434,6 +434,8 @@ local function VPT (instancia, esta_instancia)
 	end
 	return nil
 end
+
+_detalhes.VPT, _detalhes.VPR, _detalhes.VPB, _detalhes.VPL = VPT, VPR, VPB, VPL
 
 local color_red = {1, 0.2, 0.2}
 local color_green = {0.2, 1, 0.2}

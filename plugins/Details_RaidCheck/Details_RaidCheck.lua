@@ -36,19 +36,29 @@ local food_list = {
 	[175222] = true, --
 	[175223] = true, --
 	
-	[180745] = true, --
-	[180746] = true, --
-	[180747] = true, --
-	[180748] = true, --
-	[180749] = true, --
-	[180750] = true, --
+	[180745] = true, --125 crit
+	[180746] = true, --125 versa
+	[180747] = true, --187 stam
+	[180748] = true, --125 haste
+	[180749] = true, --125 multi
+	[180750] = true, --125 mastery
 	
-	[180757] = true, --
-	[180758] = true, --
-	[180761] = true, --
-	[180759] = true, --
-	[180762] = true, --
-	[180760] = true, --
+	--the food it self inside the player backback
+	[180757] = true, --125 multi
+	[180758] = true, --125 crit
+	[180761] = true, --125 haste
+	[180759] = true, --125 versa
+	[180762] = true, --125 mastery
+	[180760] = true, --187 stam
+}
+
+local best_food = {
+	[180745] = true, --125 crit
+	[180746] = true, --125 versa
+	[180747] = true, --187 stam
+	[180748] = true, --125 haste
+	[180749] = true, --125 multi
+	[180750] = true, --125 mastery
 }
 
 local focus_augmentation = 175457
@@ -68,7 +78,7 @@ local runes_id = {
 	tinsert (UISpecialFrames, "DetailsRaidCheck")
 	DetailsRaidCheck:SetPluginDescription (Loc ["STRING_RAIDCHECK_PLUGIN_DESC"])
 
-	local version = "v0.4.1"
+	local version = "v0.5"
 	
 	local debugmode = false
 	
@@ -176,7 +186,7 @@ local runes_id = {
 		end
 
 		local show_panel = CreateFrame ("frame", nil, UIParent)
-		show_panel:SetSize (400, 300)
+		show_panel:SetSize (500, 300)
 		show_panel:SetPoint ("bottom", DetailsRaidCheck.ToolbarButton, "top", 0, 10)
 		show_panel:SetBackdrop ({bgFile = [[Interface\Garrison\GarrisonMissionUIInfoBoxBackgroundTile]], tileSize = 256, edgeFile = [[Interface\AddOns\Details\images\border_2]], edgeSize = 16, insets = {left = 1, right = 1, top = 1, bottom = 1}})
 		show_panel:SetBackdropColor (1, 1, 1, 0.9)
@@ -262,7 +272,7 @@ local runes_id = {
 		
 		local prepot_title2 = show_panel:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
 		prepot_title2:SetJustifyH ("center")
-		prepot_title2:SetPoint ("topleft", show_panel, "topleft", 315, -20)
+		prepot_title2:SetPoint ("topleft", show_panel, "topleft", 300, -20)
 		prepot_title2:SetText ("No Pre Pot")
 		prepot_title2:SetTextColor (1, 0.8, 0.8)
 		
@@ -276,12 +286,52 @@ local runes_id = {
 		prepot_image2:SetPoint ("topleft", prepot_title2, "topleft", -11, 3)
 		prepot_image2:SetSize (prepot_title2:GetStringWidth()+22, 19) --208, 48
 		prepot_image2:SetVertexColor (.65, .65, .65)
+
+		--
+		local ilvl_title = show_panel:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+		ilvl_title:SetJustifyH ("center")
+		ilvl_title:SetPoint ("topleft", show_panel, "topleft", 400, -20)
+		ilvl_title:SetText ("Item LvL")
+		ilvl_title:SetTextColor (0.8, 1, 0.8)
+		
+		local ilvl_str = show_panel:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+		ilvl_str:SetJustifyH ("left")
+		ilvl_str:SetPoint ("topleft", ilvl_title, "topleft", -11, -20)
+		
+		local ilvl_image = show_panel:CreateTexture (nil, "artwork")
+		ilvl_image:SetTexture ([[Interface\Garrison\GarrisonMissionUI2]])
+		ilvl_image:SetTexCoord (680/1024, 888/1024, 429/1024, 477/1024)
+		ilvl_image:SetPoint ("topleft", ilvl_title, "topleft", -11, 3)
+		ilvl_image:SetSize (ilvl_title:GetStringWidth()+22, 19) --208, 48
+		ilvl_image:SetVertexColor (.65, .65, .65)
+		
+		--DISABLED
+		local bestfood_title = show_panel:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+		bestfood_title:SetJustifyH ("center")
+		bestfood_title:SetPoint ("topleft", show_panel, "topleft", 400, -20)
+		bestfood_title:SetText ("125 Food")
+		bestfood_title:SetTextColor (0.8, 1, 0.8)
+		
+		local bestfood_str = show_panel:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+		bestfood_str:SetJustifyH ("left")
+		bestfood_str:SetPoint ("topleft", bestfood_title, "topleft", -11, -20)
+		
+		local bestfood_image = show_panel:CreateTexture (nil, "artwork")
+		bestfood_image:SetTexture ([[Interface\Garrison\GarrisonMissionUI2]])
+		bestfood_image:SetTexCoord (680/1024, 888/1024, 429/1024, 477/1024)
+		bestfood_image:SetPoint ("topleft", bestfood_title, "topleft", -11, 3)
+		bestfood_image:SetSize (bestfood_title:GetStringWidth()+22, 19) --208, 48
+		bestfood_image:SetVertexColor (.65, .65, .65)
+		
+		bestfood_title:Hide()
+		bestfood_str:Hide()
+		bestfood_image:Hide()
 		
 		--
-		
+		--DISABLED
 		local prepot_title = show_panel:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
 		prepot_title:SetJustifyH ("center")
-		prepot_title:SetPoint ("topleft", show_panel, "topleft", 415, -20)
+		prepot_title:SetPoint ("topleft", show_panel, "topleft", 410, -20)
 		prepot_title:SetText ("Used Pre Pot")
 		prepot_title:SetTextColor (0.8, 1, 0.8)
 		
@@ -298,7 +348,7 @@ local runes_id = {
 		
 		prepot_title:Hide()
 		prepot_str:Hide()
-		prepot_image:Hide()
+		prepot_image:Hide()		
 		
 		--
 		
@@ -409,13 +459,59 @@ local runes_id = {
 			
 		end)
 		
-		local update_panel = function (self)
+		local update_panel = function (self, elapsed)
 		
 			if (not IsInRaid()) then
 				return
 			end
 		
-			local amount1, amount2, amount3, amount4, amount5  = 0, 0, 0, 0, 0
+			local amount1, amount2, amount3, amount4, amount5, amount6, amount7  = 0, 0, 0, 0, 0, 0, 0
+
+			--item lvl
+			self.one_second = self.one_second + elapsed
+			if (self.one_second > 5) then
+				self.one_second = 0
+				local ilvl = ""
+				for _, ilvl_char in ipairs (_detalhes.ilevel:GetInOrder()) do
+					local _, class = _UnitClass (ilvl_char [1])
+
+					if (class) then
+						local coords = CLASS_ICON_TCOORDS [class]
+						local class_color = "|TInterface\\AddOns\\Details\\images\\classes_small_alpha:12:12:0:-5:128:128:" .. coords[1]*128 .. ":" .. coords[2]*128 .. ":" .. coords[3]*128 .. ":" .. coords[4]*128 .. "|t |c" .. RAID_CLASS_COLORS [class].colorStr
+						
+						ilvl = ilvl .. class_color .. DetailsRaidCheck:GetOnlyName (ilvl_char [1]) .. "|r: " .. floor (ilvl_char[2]) .. "\n"
+						amount7 = amount7 + 1
+					end
+				end
+				
+				self.last_ilvl_amount = amount7
+				ilvl_str:SetText (ilvl)
+			else
+				amount7 = self.last_ilvl_amount or 0
+			end
+			--t.name, t.ilvl, t.time
+			
+			--best food
+			local b = ""
+			for name, foodid in pairs (DetailsRaidCheck.havefood_table) do
+				if (best_food [foodid]) then
+					--print (name, foodid, best_food [foodid], type (foodid))
+					local _, class = _UnitClass (name)
+					local class_color = "FFFFFFFF"
+					
+					if (class) then
+						local coords = CLASS_ICON_TCOORDS [class]
+						class_color = "|TInterface\\AddOns\\Details\\images\\classes_small_alpha:12:12:0:-5:128:128:" .. coords[1]*128 .. ":" .. coords[2]*128 .. ":" .. coords[3]*128 .. ":" .. coords[4]*128 .. "|t |c" .. RAID_CLASS_COLORS [class].colorStr
+					end
+					
+					b = b .. class_color .. DetailsRaidCheck:GetOnlyName (name) .. "|r\n"
+					
+					amount6 = amount6 + 1
+				end
+			end
+			bestfood_str:SetText (b)
+			
+			--food
 			local s, f, p, n = "", "", "", ""
 			
 			local amt = GetNumGroupMembers()
@@ -543,13 +639,14 @@ local runes_id = {
 			
 			focus_aug2:SetText (n)
 
-			local bigger = math.max (amount1, amount2, amount3, amount4, amount5)
+			local bigger = math.max (amount1, amount2, amount3, amount4, amount5, amount6)
 			show_panel:SetHeight (100 + (bigger * 10))
 			
 		end
 		
 		DetailsRaidCheck.ToolbarButton:SetScript ("OnEnter", function (self)
 			show_panel:Show()
+			show_panel.one_second = 6
 			show_panel:SetScript ("OnUpdate", update_panel)
 		end)
 		
@@ -620,17 +717,17 @@ local runes_id = {
 					local bname, _, _, _, _, _, _, _, _, _, spellid  = _UnitAura ("raid" .. i, buffIndex, nil, "HELPFUL")
 					
 					if (bname and flask_list [spellid]) then
-						DetailsRaidCheck.haveflask_table [name] = true
+						DetailsRaidCheck.haveflask_table [name] = spellid
 						with_flask = with_flask + 1
 					end
 					
 					if (bname and food_list [spellid]) then
-						DetailsRaidCheck.havefood_table [name] = true
+						DetailsRaidCheck.havefood_table [name] = spellid
 						with_food = with_food + 1
 					end
 					
 					if (bname and runes_id [spellid]) then
-						DetailsRaidCheck.havefocusaug_table [name] = true
+						DetailsRaidCheck.havefocusaug_table [name] = spellid
 					end
 				end
 			end
