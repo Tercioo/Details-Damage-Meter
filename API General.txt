@@ -1,0 +1,24 @@
+=======================================
+Item Level
+=======================================
+
+Details.ilevel:IsTrackerEnabled()
+return if the item level tracker is enabled.
+
+Details.ilevel:TrackItemLevel (bool)
+enable or disable the tracker, item level tracker only work when inside a raid instance and out of combat.
+
+Details.ilevel:GetPool()
+return a table containing all tracked players:
+{[GUID] = {["name"] = name-realm, ["ilvl"] = item level, ["time"] = time()}}
+
+Details.ilevel:GetIlvl (guid)
+return the item level table for the requested guid.
+
+Details.ilevel:GetInOrder()
+return a new numeric table with sorted in decreasing order:
+{{name-realm, item level, time()}, {name-realm, item level, time()}}
+
+=======================================
+
+=======================================

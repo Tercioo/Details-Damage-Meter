@@ -59,7 +59,7 @@ do
 		elseif (c == "PET") then
 			return [[Interface\AddOns\Details\images\classes_small]], 0.25, 0.49609375, 0.75, 1
 		else
-			return [[Interface\AddOns\Details\images\classes_small]], _unpack (CLASS_ICON_TCOORDS [c])
+			return [[Interface\AddOns\Details\images\classes_small]], _unpack (_detalhes.class_coords [c])
 		end
 	end
 	

@@ -936,6 +936,42 @@ function SlashCmdList.DETAILS (msg, editbox)
 			print ("outline:",flags)
 		end
 	
+	elseif (msg == "sell") then
+		
+		--sell gray
+		local c, i, n, v = 0
+		for b = 0, 4 do
+			for s = 1, GetContainerNumSlots(b) do 
+				i = {GetContainerItemInfo (b, s)}
+				n = i[7]
+				if n and string.find(n,"9d9d9d") then 
+					v = {GetItemInfo(n)}
+					q = i[2]
+					c = c+v[11]*q
+					UseContainerItem (b, s)
+					print (n, q)
+				end
+			end
+		end
+		print(GetCoinText(c))
+		
+		--sell green equip
+		local c, i, n, v = 0
+		for b = 0, 4 do
+			for s = 1, GetContainerNumSlots(b) do 
+				local texture, itemCount, locked, quality, readable, lootable, itemLink = GetContainerItemInfo (b, s)
+				if (quality == 2) then --a green item
+					local itemName, itemLink, itemRarity, itemLevel, _, itemType, itemSubType = GetItemInfo (itemLink)
+					if (itemType == "Armor" or itemType == "Weapon") then --a weapon or armor
+						if (itemLevel < 460) then
+							print ("Selling", itemName, itemType)
+							UseContainerItem (b, s)
+						end
+					end
+				end
+			end
+		end
+	
 	elseif (msg == "ilvl") then
 		local item_amount = 0
 		local item_level = 0

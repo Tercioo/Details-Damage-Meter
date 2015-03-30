@@ -472,6 +472,7 @@ local runes_id = {
 			if (self.one_second > 5) then
 				self.one_second = 0
 				local ilvl = ""
+				local average = 0
 				for _, ilvl_char in ipairs (_detalhes.ilevel:GetInOrder()) do
 					local _, class = _UnitClass (ilvl_char [1])
 
@@ -480,18 +481,25 @@ local runes_id = {
 						local class_color = "|TInterface\\AddOns\\Details\\images\\classes_small_alpha:12:12:0:-5:128:128:" .. coords[1]*128 .. ":" .. coords[2]*128 .. ":" .. coords[3]*128 .. ":" .. coords[4]*128 .. "|t |c" .. RAID_CLASS_COLORS [class].colorStr
 						
 						ilvl = ilvl .. class_color .. DetailsRaidCheck:GetOnlyName (ilvl_char [1]) .. "|r: " .. floor (ilvl_char[2]) .. "\n"
+						average = average + ilvl_char[2]
 						amount7 = amount7 + 1
 					end
 				end
 				
-				self.last_ilvl_amount = amount7
+				average = average / amount7
+				ilvl = ilvl .. "\n"
+				ilvl = ilvl .. "|TInterface\\TARGETINGFRAME\\PetBadge-Humanoid:12:12:0:-5:32:32:2:30:2:30|t Average: " .. format ("%.2f", average) .. "\n"
+				
 				ilvl_str:SetText (ilvl)
+				
+				self.last_ilvl_amount = amount7 + 2
 			else
 				amount7 = self.last_ilvl_amount or 0
 			end
 			--t.name, t.ilvl, t.time
 			
 			--best food
+			--[[
 			local b = ""
 			for name, foodid in pairs (DetailsRaidCheck.havefood_table) do
 				if (best_food [foodid]) then
@@ -510,6 +518,7 @@ local runes_id = {
 				end
 			end
 			bestfood_str:SetText (b)
+			--]]
 			
 			--food
 			local s, f, p, n = "", "", "", ""

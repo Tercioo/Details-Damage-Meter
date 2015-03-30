@@ -415,12 +415,22 @@
 	local get_player_dps = function()
 		local damage_player = _detalhes.tabela_vigente (1, _detalhes.playername)
 		if (damage_player) then
-			local combat_time = _detalhes.tabela_vigente:GetCombatTime()
-			if (combat_time > 0) then
-				return ToKFunctions [_detalhes.minimap.text_format] (_, damage_player.total / combat_time)
-			else
-				return 0
+			if (_detalhes.time_type == 1) then --activity time
+				local combat_time = damage_player:Tempo()
+				if (combat_time > 0) then
+					return ToKFunctions [_detalhes.minimap.text_format] (_, damage_player.total / combat_time)
+				else
+					return 0
+				end
+			else --effective time
+				local combat_time = _detalhes.tabela_vigente:GetCombatTime()
+				if (combat_time > 0) then
+					return ToKFunctions [_detalhes.minimap.text_format] (_, damage_player.total / combat_time)
+				else
+					return 0
+				end
 			end
+			return 0
 		else
 			return 0
 		end
@@ -429,12 +439,22 @@
 	local get_player_hps = function()
 		local heal_player = _detalhes.tabela_vigente (2, _detalhes.playername)
 		if (heal_player) then
-			local combat_time = _detalhes.tabela_vigente:GetCombatTime()
-			if (combat_time > 0) then
-				return ToKFunctions [_detalhes.minimap.text_format] (_, heal_player.total / combat_time)
-			else
-				return 0
+			if (_detalhes.time_type == 1) then --activity time
+				local combat_time = heal_player:Tempo()
+				if (combat_time > 0) then
+					return ToKFunctions [_detalhes.minimap.text_format] (_, heal_player.total / combat_time)
+				else
+					return 0
+				end
+			else --effective time
+				local combat_time = _detalhes.tabela_vigente:GetCombatTime()
+				if (combat_time > 0) then
+					return ToKFunctions [_detalhes.minimap.text_format] (_, heal_player.total / combat_time)
+				else
+					return 0
+				end
 			end
+			return 0
 		else
 			return 0
 		end

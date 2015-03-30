@@ -742,6 +742,8 @@
 --> cooltip presets
 	local preset2_backdrop = {bgFile = [[Interface\DialogFrame\UI-DialogBox-Background-Dark]], edgeFile = [[Interface\AddOns\Details\images\border_3]], tile=true,
 	edgeSize = 16, tileSize = 64, insets = {left = 3, right = 3, top = 4, bottom = 4}}
+	_detalhes.cooltip_preset2_backdrop = preset2_backdrop
+	local white_table = {1, 1, 1, 1}
 	
 	--"Details BarBorder 3"
 	function _detalhes:CooltipPreset (preset)
@@ -768,7 +770,7 @@
 			GameCooltip:SetOption ("IgnoreButtonAutoHeight", true)
 			GameCooltip:SetColor (1, 0.5, 0.5, 0.5, 0.5)
 			
-			GameCooltip:SetBackdrop (1, preset2_backdrop, nil, {1, 1, 1, 1})
+			GameCooltip:SetBackdrop (1, preset2_backdrop, nil, white_table)
 			
 		end
 	end

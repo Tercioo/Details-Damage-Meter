@@ -118,6 +118,15 @@ do
 		end
 		return self.nome:gsub (("%-.*"), "")
 	end
+	function _detalhes:GetCLName (id)
+		local name, realm = UnitName (id)
+		if (name) then
+			if (realm and realm ~= "") then
+				name = name .. "-" .. realm
+			end
+			return name
+		end
+	end
 	function _detalhes:Class (actor)
 		return self.classe or actor.classe
 	end

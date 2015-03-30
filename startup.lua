@@ -78,7 +78,7 @@ function _G._detalhes:Start()
 
 		--> bookmarks
 			if (self.switch.InitSwitch) then
-				self.switch:InitSwitch()
+				--self.switch:InitSwitch()
 			end
 			
 		--> custom window

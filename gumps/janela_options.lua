@@ -21,7 +21,7 @@
 	16 - data for charts
 	17 - auto hide settings
 	18 - misc settings
-	19 - externals widgets
+	19 - externals widgets (data feed)
 	20 - tooltip
 --]]
 
@@ -1806,6 +1806,19 @@ function window:CreateFrame19()
 		
 		window:CreateLineBackground2 (frame19, "BrokerNumberAbbreviateDropdown", "BrokerNumberAbbreviateLabel", Loc ["STRING_OPTIONS_PS_ABBREVIATE_DESC"])
 
+	--> item level tracker
+		--anchor
+		g:NewLabel (frame19, _, "$parentItemLevelTrackerAnchor", "ItemLevelTrackerAnchorLabel", Loc ["STRING_OPTIONS_ILVL_TRACKER"], "GameFontNormal")
+		--switch
+		g:NewLabel (frame19, _, "$parentItemLevelLabel", "ItemLevelLabel", Loc ["STRING_OPTIONS_ILVL_TRACKER_TEXT"], "GameFontHighlightLeft")
+		g:NewSwitch (frame19, _, "$parentItemLevelSlider", "ItemLevelSlider", 60, 20, _, _, _detalhes.ilevel:IsTrackerEnabled())
+		
+		frame19.ItemLevelSlider:SetPoint ("left", frame19.ItemLevelLabel, "right", 2, 0)
+		frame19.ItemLevelSlider.OnSwitch = function (self, _, value)
+			_detalhes.ilevel:TrackItemLevel (value)
+		end
+		window:CreateLineBackground2 (frame19, "ItemLevelSlider", "ItemLevelLabel", Loc ["STRING_OPTIONS_ILVL_TRACKER_DESC"])
+		
 	--> anchors:
 
 		local x = window.left_start_at
@@ -1822,6 +1835,8 @@ function window:CreateFrame19()
 			{"brokerAnchorLabel", 6, true},
 			{"brokerTextLabel", 7},
 			{"BrokerNumberAbbreviateLabel", 8},
+			{"ItemLevelTrackerAnchorLabel", 9, true},
+			{"ItemLevelLabel", 10}
 		}
 		
 		window:arrange_menu (frame19, left_side, x, -90)	
@@ -4095,6 +4110,7 @@ function window:CreateFrame2()
 			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		local timetypeOptions = {
+			--localize-me
 			{value = 1, label = "Activity Time", onclick = onSelectTimeType, icon = "Interface\\Icons\\Achievement_Quests_Completed_Daily_08", iconcolor = {1, .9, .9}, texcoord = {0.078125, 0.921875, 0.078125, 0.921875}}, --, desc = ""
 			{value = 2, label = "Effective Time", onclick = onSelectTimeType, icon = "Interface\\Icons\\Achievement_Quests_Completed_08"} --, desc = ""
 		}
@@ -10395,6 +10411,8 @@ end --> if not window
 		else
 			_G.DetailsOptionsWindow19HotcornerSlider.MyObject:SetValue (not _detalhes.hotcorner_topleft.hide)
 		end
+		
+		_G.DetailsOptionsWindow19ItemLevelSlider.MyObject:SetValue (_detalhes.track_item_level)
 
 		--> window 20
 		_G.DetailsOptionsWindow20TooltipTextColorPick.MyObject:SetColor (unpack (_detalhes.tooltip.fontcolor))

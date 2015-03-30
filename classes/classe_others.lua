@@ -166,6 +166,8 @@ function atributo_misc:CreateBuffTargetObject()
 end
 
 local backgroundColor = {0, 0, 0, 1}
+local backgroud_bar_damage = {value = 100, texture = [[Interface\AddOns\Details\images\bar_serenity]], color = {1, 0, 0, 0.1}}
+--local backgroud_bar_heal = {value = 100, texture = [[Interface\AddOns\Details\images\bar_background]], color = {0, 0, 0, 1}}
 
 function _detalhes:ToolTipDead (instancia, morte, esta_barra, keydown)
 	
@@ -220,16 +222,16 @@ function _detalhes:ToolTipDead (instancia, morte, esta_barra, keydown)
 					
 					if (event [9]) then
 						--> friendly fire
-						GameCooltip:AddStatusBar (hp, 1, "darkorange", true)
+						GameCooltip:AddStatusBar (hp, 1, "darkorange", true, backgroud_bar_damage)
 					else
 						--> from a enemy
-						GameCooltip:AddStatusBar (hp, 1, "red", true)
+						GameCooltip:AddStatusBar (hp, 1, "red", true, backgroud_bar_damage)
 					end
 				else
 					--> heal
 					GameCooltip:AddLine ("" .. _cstr ("%.1f", time - hora_da_morte) .. "s " .. spellname .. " (|cFFC6B0D9" .. source .. "|r)", "+" .. _detalhes:ToK (amount) .. " (" .. hp .. "%)", 1, "white", "white")
 					GameCooltip:AddIcon (spellicon)
-					GameCooltip:AddStatusBar (hp, 1, "green", true)
+					GameCooltip:AddStatusBar (hp, 1, "green", true) --, backgroud_bar_heal
 					
 				end
 				

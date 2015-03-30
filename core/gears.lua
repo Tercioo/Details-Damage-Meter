@@ -508,6 +508,7 @@ end
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> inspect stuff
 
+_detalhes.ilevel = {}
 local ilvl_core = _detalhes:CreateEventListener()
 
 ilvl_core:RegisterEvent ("GROUP_ONENTER", "OnEnter")
@@ -518,22 +519,17 @@ ilvl_core:RegisterEvent ("ZONE_TYPE_CHANGED", "ZoneChanged")
 
 local inspecting = {}
 local inspect_frame = CreateFrame ("frame")
+inspect_frame:RegisterEvent ("INSPECT_READY")
 
-local check_inspect_queue = function()
-	for spellid, timeout_id in pairs (inspecting) do
-		return
-	end
-	
-	inspect_frame:UnregisterEvent ("INSPECT_READY")
-end
+local two_hand = {
+	["INVTYPE_2HWEAPON"] = true,
+ 	["INVTYPE_RANGED"] = true,
+	["INVTYPE_RANGEDRIGHT"] = true,
+}
 
-local inspect_amout = function()
-	local i = 0
-	for spellid, timeout_id in pairs (inspecting) do
-		i = i + 1
-	end
-	return i
-end
+local MAX_INSPECT_AMOUNT = 1
+local MIN_ILEVEL_TO_STORE = 580
+local LOOP_TIME = 3
 
 function _detalhes:IlvlFromNetwork (player, realm, core, ilvl)
 	local guid = UnitGUID (player .. "-" .. realm)
@@ -547,51 +543,89 @@ function _detalhes:IlvlFromNetwork (player, realm, core, ilvl)
 	_detalhes.item_level_pool [guid] = {name = player, ilvl = ilvl, time = time()}
 end
 
-inspect_frame:SetScript ("OnEvent", function (self, event, ...)
-	local guid, unitid, arg3 = select (1, ...)
+--test on your self:
+--/run _detalhes.ilevel:CalcItemLevel ("player", UnitGUID("player"), true)
+--/run wipe (_detalhes.item_level_pool)
+function ilvl_core:CalcItemLevel (unitid, guid, shout)
+	
+	if (type (unitid) == "table") then
+		shout = unitid [3]
+		guid = unitid [2]
+		unitid = unitid [1]
+	end
 
+	if (CheckInteractDistance (unitid, 1)) then
+
+		--16 = all itens including main and off hand
+		local item_amount = 16
+		local item_level = 0
+		local failed = 0
+		
+		for equip_id = 1, 17 do
+			if (equip_id ~= 4) then --shirt slot
+				local item = GetInventoryItemLink (unitid, equip_id)
+				if (item) then
+					local _, _, _, iLevel, _, _, _, _, equipSlot = GetItemInfo (item)
+					if (iLevel and iLevel > 100) then
+						item_level = item_level + iLevel
+						-- 16 = main hand 17 = off hand
+						-- if using a two-hand, ignore the off hand slot
+						if (equip_id == 16 and two_hand [equipSlot]) then
+							item_amount = 15
+							break
+						end
+					end
+				else
+					failed = failed + 1
+					if (failed > 2) then
+						break
+					end
+				end
+			end
+		end
+		
+		local average = item_level / item_amount
+
+		-- register
+		if (average > 0) then
+			if (shout) then
+				_detalhes:Msg (name .. " item level: " .. average)
+			end
+			
+			if (average > MIN_ILEVEL_TO_STORE) then
+				local name = _detalhes:GetCLName (unitid)
+				_detalhes.item_level_pool [guid] = {name = name, ilvl = average, time = time()}
+			end
+		end
+	end
+end
+_detalhes.ilevel.CalcItemLevel = ilvl_core.CalcItemLevel
+
+inspect_frame:SetScript ("OnEvent", function (self, event, ...)
+	local guid = select (1, ...)
+	
 	if (inspecting [guid]) then
 		local unitid, cancel_tread = inspecting [guid] [1], inspecting [guid] [2]
 		inspecting [guid] = nil
+		ilvl_core.amt_inspecting = ilvl_core.amt_inspecting - 1
 		
 		ilvl_core:CancelTimer (cancel_tread)
 		
 		--> do inspect stuff
 		if (unitid) then
-			if (CheckInteractDistance (unitid, 1)) then
-				local item_amount = 0
-				local item_level = 0
-				
-				for equip_id = 1, 17 do
-					if (equip_id ~= 4) then --shirt slot
-						local item = GetInventoryItemLink (unitid, equip_id)
-						if (item) then
-							local name, link, quality, iLevel, reqLevel, class, subclass, maxStack, equipSlot, texture, vendorPrice = GetItemInfo (item)
-							if (iLevel) then
-								item_amount = item_amount + 1
-								item_level = item_level + iLevel
-							end
-						end
-					end
-				end
-				
-				local average = item_level / item_amount
-			
-				-- register
-				if (average > 0) then
-					_detalhes.item_level_pool [guid] = {name = UnitName (unitid), ilvl = average, time = time()}
-				end
-			end
+			local t = {unitid, guid}
+			--ilvl_core:ScheduleTimer ("CalcItemLevel", 0.5, t)
+			ilvl_core:ScheduleTimer ("CalcItemLevel", 0.5, t)
+			ilvl_core:ScheduleTimer ("CalcItemLevel", 2, t)
+			ilvl_core:ScheduleTimer ("CalcItemLevel", 4, t)
+			ilvl_core:ScheduleTimer ("CalcItemLevel", 8, t)
 		end
-		
-		--> check queue
-		check_inspect_queue()
 	end
 end)
 
 function ilvl_core:InspectTimeOut (guid)
 	inspecting [guid] = nil
-	check_inspect_queue()
+	ilvl_core.amt_inspecting = ilvl_core.amt_inspecting - 1
 end
 
 function ilvl_core:GetItemLevel (unitid, guid)
@@ -602,22 +636,48 @@ function ilvl_core:GetItemLevel (unitid, guid)
 	if (not unitid or not CanInspect (unitid) or not CheckInteractDistance (unitid, 1)) then
 		return
 	end
-	
-	inspect_frame:RegisterEvent ("INSPECT_READY")
+
 	inspecting [guid] = {unitid, ilvl_core:ScheduleTimer ("InspectTimeOut", 12, guid)}
-	
+	ilvl_core.amt_inspecting = ilvl_core.amt_inspecting + 1
+
 	NotifyInspect (unitid)
 end
 
+local NotifyInspectHook = function (unitid)
+	if (IsInRaid() and _detalhes:GetZoneType() == "raid") then
+		local guid = UnitGUID (unitid)
+		local name = _detalhes:GetCLName (unitid)
+		
+		if (guid and name and not inspecting [guid]) then
+			for i = 1, GetNumGroupMembers() do
+				if (name == _detalhes:GetCLName ("raid" .. i)) then
+					unitid = "raid" .. i
+					break
+				end
+			end
+			
+			inspecting [guid] = {unitid, ilvl_core:ScheduleTimer ("InspectTimeOut", 12, guid)}
+			ilvl_core.amt_inspecting = ilvl_core.amt_inspecting + 1
+		end
+	end
+end
+hooksecurefunc ("NotifyInspect", NotifyInspectHook)
+
 function ilvl_core:Reset()
 	ilvl_core.raid_id = 1
+	ilvl_core.amt_inspecting = 0
+	
+	for guid, t in pairs (inspecting) do
+		ilvl_core:CancelTimer (t[2])
+		inspecting [guid] = nil
+	end
 end
 
 function ilvl_core:Loop()
-	if (inspect_amout() > 1) then
+	if (ilvl_core.amt_inspecting >= MAX_INSPECT_AMOUNT) then
 		return
 	end
-	
+
 	local members_amt = GetNumGroupMembers()
 	if (ilvl_core.raid_id > members_amt) then
 		ilvl_core.raid_id = 1
@@ -634,7 +694,7 @@ function ilvl_core:Loop()
 	if (inspecting [guid]) then
 		return
 	end
-	
+
 	local ilvl_table = _detalhes.ilevel:GetIlvl (guid)
 	if (ilvl_table and ilvl_table.time + 3600 > time()) then
 		ilvl_core.raid_id = ilvl_core.raid_id + 1
@@ -653,7 +713,7 @@ function ilvl_core:EnterCombat()
 end
 
 local can_start_loop = function()
-	if (_detalhes:GetZoneType() ~= "raid" or ilvl_core.loop_process or _detalhes.in_combat) then
+	if (_detalhes:GetZoneType() ~= "raid" or ilvl_core.loop_process or _detalhes.in_combat or not _detalhes.track_item_level) then
 		return false
 	end
 	return true
@@ -662,14 +722,14 @@ end
 function ilvl_core:LeaveCombat()
 	if (can_start_loop()) then
 		ilvl_core:Reset()
-		ilvl_core.loop_process = ilvl_core:ScheduleRepeatingTimer ("Loop", 2)
+		ilvl_core.loop_process = ilvl_core:ScheduleRepeatingTimer ("Loop", LOOP_TIME)
 	end
 end
 
 function ilvl_core:ZoneChanged (zone_type)
 	if (can_start_loop()) then
 		ilvl_core:Reset()
-		ilvl_core.loop_process = ilvl_core:ScheduleRepeatingTimer ("Loop", 2)
+		ilvl_core.loop_process = ilvl_core:ScheduleRepeatingTimer ("Loop", LOOP_TIME)
 	end
 end
 
@@ -680,7 +740,7 @@ function ilvl_core:OnEnter()
 	
 	if (can_start_loop()) then
 		ilvl_core:Reset()
-		ilvl_core.loop_process = ilvl_core:ScheduleRepeatingTimer ("Loop", 2)
+		ilvl_core.loop_process = ilvl_core:ScheduleRepeatingTimer ("Loop", LOOP_TIME)
 	end
 end
 
@@ -692,7 +752,26 @@ function ilvl_core:OnLeave()
 end
 
 --> ilvl API
-_detalhes.ilevel = {}
+function _detalhes.ilevel:IsTrackerEnabled()
+	return _detalhes.track_item_level
+end
+function _detalhes.ilevel:TrackItemLevel (bool)
+	if (type (bool) == "boolean") then
+		if (bool) then
+			_detalhes.track_item_level = true
+			if (can_start_loop()) then
+				ilvl_core:Reset()
+				ilvl_core.loop_process = ilvl_core:ScheduleRepeatingTimer ("Loop", LOOP_TIME)
+			end
+		else
+			_detalhes.track_item_level = false
+			if (ilvl_core.loop_process) then
+				ilvl_core:CancelTimer (ilvl_core.loop_process)
+				ilvl_core.loop_process = nil
+			end
+		end
+	end
+end
 
 function _detalhes.ilevel:GetPool()
 	return _detalhes.item_level_pool

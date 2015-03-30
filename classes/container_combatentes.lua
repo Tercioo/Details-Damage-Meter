@@ -178,7 +178,7 @@
 					end
 				end
 				
-				if ( (_bit_band (flag, IS_GROUP_OBJECT) ~= 0 and novo_objeto.classe ~= "UNGROUPPLAYER")) then --> faz parte do grupo
+				if ((_bit_band (flag, IS_GROUP_OBJECT) ~= 0 and novo_objeto.classe ~= "UNKNOW" and novo_objeto.classe ~= "UNGROUPPLAYER") or _detalhes:IsInCache (serial)) then
 					novo_objeto.grupo = true
 					
 					if (_detalhes:IsATank (serial)) then

@@ -924,7 +924,7 @@ function gump:CriaJanelaInfo()
 	
 	--> tabs:
 	--> tab default
-	_detalhes:CreatePlayerDetailsTab ("Summary", --[1] tab name
+	_detalhes:CreatePlayerDetailsTab ("Summary", Loc ["STRING_INFO_TAB_SUMMARY"], --[1] tab name [2] localized name
 			function (tabOBject, playerObject) --[2] condition
 				if (playerObject) then 
 					return true 
@@ -1537,7 +1537,7 @@ function gump:CriaJanelaInfo()
 --]]
 		end
 		
-		_detalhes:CreatePlayerDetailsTab ("Avoidance", --[1] tab name
+		_detalhes:CreatePlayerDetailsTab ("Avoidance", Loc ["STRING_INFO_TAB_AVOIDANCE"], --[1] tab name [2] localized name
 			function (tabOBject, playerObject)  --[2] condition
 				if (playerObject.isTank) then 
 					return true 
@@ -2050,13 +2050,19 @@ function gump:CriaJanelaInfo()
 			local label2 = _G ["DetailsPlayerComparisonBox2"].name_label
 			local label3 = _G ["DetailsPlayerComparisonBox3"].name_label
 			
+			local label2_percent = _G ["DetailsPlayerComparisonBox2"].name_label_percent
+			local label3_percent = _G ["DetailsPlayerComparisonBox3"].name_label_percent
+			
 			if (players_to_compare [1]) then
 				label2:SetText (players_to_compare [1]:Name())
+				label2_percent:SetText (player:Name() .. " %")
 			end
 			if (players_to_compare [2]) then
 				label3:SetText (players_to_compare [2]:Name())
+				label3_percent:SetText (player:Name() .. " %")
 			else
-				label3:SetText ("Player 3")
+				label3:SetText ("")
+				label3_percent:SetText ("")
 			end
 			
 			refresh_comparison_box (DetailsPlayerComparisonBox1)
@@ -2802,6 +2808,13 @@ function gump:CriaJanelaInfo()
 			playername2:SetText ("Player 2")
 			frame2.name_label = playername2
 			
+			local playername2_percent = frame2:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+			playername2_percent:SetPoint ("bottomright", frame2, "topright", -2, 0)
+			playername2_percent:SetText ("Player 1 %")
+			playername2_percent:SetTextColor (.6, .6, .6)
+			
+			frame2.name_label_percent = playername2_percent
+			
 			--criar as barras do frame2
 			for i = 1, 9 do
 				create_bar ("DetailsPlayerComparisonBox2Bar"..i, frame2, i)
@@ -2833,6 +2846,12 @@ function gump:CriaJanelaInfo()
 			playername3:SetText ("Player 3")
 			frame3.name_label = playername3
 			
+			local playername3_percent = frame3:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+			playername3_percent:SetPoint ("bottomright", frame3, "topright", -2, 0)
+			playername3_percent:SetText ("Player 1 %")
+			playername3_percent:SetTextColor (.6, .6, .6)
+			frame3.name_label_percent = playername3_percent
+			
 			--criar as barras do frame3
 			for i = 1, 9 do
 				create_bar ("DetailsPlayerComparisonBox3Bar"..i, frame3, i)
@@ -2854,7 +2873,7 @@ function gump:CriaJanelaInfo()
 		end
 
 		-- ~compare
-		_detalhes:CreatePlayerDetailsTab ("Compare", --[1] tab name
+		_detalhes:CreatePlayerDetailsTab ("Compare", Loc ["STRING_INFO_TAB_COMPARISON"], --[1] tab name [2] localized name
 			function (tabOBject, playerObject)  --[2] condition
 			
 				if (info.atributo > 2) then
@@ -2916,6 +2935,23 @@ function gump:CriaJanelaInfo()
 				local tab = _detalhes.player_details_tabs [index]
 				
 				if (tab:condition (info.jogador, info.atributo, info.sub_atributo)) then
+				
+					if (tab.tabname == "Compare") then
+					
+						--_detalhes:SetTutorialCVar ("DETAILS_INFO_TUTORIAL1", false)
+					
+						if (not _detalhes:GetTutorialCVar ("DETAILS_INFO_TUTORIAL1")) then
+							_detalhes:SetTutorialCVar ("DETAILS_INFO_TUTORIAL1", true)
+							
+							local alert = CreateFrame ("frame", "DetailsInfoPopUp1", info, "DetailsHelpBoxTemplate")
+							alert.ArrowUP:Show()
+							alert.ArrowGlowUP:Show()
+							alert.Text:SetText (Loc ["STRING_INFO_TUTORIAL_COMPARISON1"])
+							alert:SetPoint ("bottom", tab, "top", 5, 28)
+							alert:Show()
+						end
+					end
+				
 					tab:Show()
 					amt_positive = amt_positive + 1
 					tab:SetPoint ("BOTTOMLEFT", info.container_barras, "TOPLEFT",  390 - (67 * (amt_positive-1)), 1)
@@ -2951,7 +2987,7 @@ end
 
 _detalhes.player_details_tabs = {}
 
-function _detalhes:CreatePlayerDetailsTab (tabname, condition, fillfunction, onclick, oncreate)
+function _detalhes:CreatePlayerDetailsTab (tabname, localized_name, condition, fillfunction, onclick, oncreate)
 	if (not tabname) then
 		tabname = "unnamed"
 	end
@@ -2959,7 +2995,7 @@ function _detalhes:CreatePlayerDetailsTab (tabname, condition, fillfunction, onc
 	local index = #_detalhes.player_details_tabs
 	
 	local newtab = CreateFrame ("button", "DetailsInfoWindowTab" .. index, info, "ChatTabTemplate")
-	newtab:SetText (tabname)
+	newtab:SetText (localized_name)
 	newtab:SetParent (info)
 	newtab:SetFrameStrata ("HIGH")
 	newtab:SetFrameLevel (info:GetFrameLevel()+1)
@@ -2967,6 +3003,7 @@ function _detalhes:CreatePlayerDetailsTab (tabname, condition, fillfunction, onc
 	
 	newtab.condition = condition
 	newtab.tabname = tabname
+	newtab.localized_name = localized_name
 	newtab.onclick = onclick
 	newtab.fillfunction = fillfunction
 	newtab.last_actor = {}

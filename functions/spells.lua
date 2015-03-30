@@ -1432,7 +1432,7 @@ do
 			--[29842]	=	"WARRIOR", --undribled wrath
 	}
 	
-	-- updated on 24/03/2015 (@Tonyleila - WoWInterface)
+	-- updated on 30/03/2015 (@Tonyleila - WoWInterface)
 	_detalhes.CrowdControlSpells = {
 
 		--Racials
@@ -1453,7 +1453,7 @@ do
 			
 		--druid
 			[33786] 	= true, -- Cyclone
-			[339]	= true, -- Entangling Toots
+			[339]		= true, -- Entangling Toots
 			[45334] 	= true, -- Immobilized (from Wild Charge)
 			[99]		= true, -- Incapacitating Roar
 			[22570] 	= true, -- Maim
@@ -1463,6 +1463,7 @@ do
 			[106839]	= true, -- Skull Bash
 			[81261] 	= true, -- Solar Beam
 			[107566] 	= true, -- Staggering Shout
+			[16979]	= true, -- Wild Charge (talent)
 
 		--hunter
 			[117405]	= true, -- Binding Shot
@@ -1480,11 +1481,11 @@ do
 			[58534]	= true, -- Deep Freeze
 			[31661]	= true, -- Dragon's Breath
 			[33395]	= true, -- Freeze (pet)
-			[122]	= true, -- Frost Nova
+			[122]		= true, -- Frost Nova
 			[102051]	= true, -- Frostjaw
 			[157997]	= true, -- Ice Nova
 			[111340]	= true, -- Ice Ward
-			[118]	= true, -- Polymorph sheep
+			[118]		= true, -- Polymorph sheep
 			[28272]	= true, -- Polymorph pig
 			[126819]	= true, -- Polymorph pig 2
 			[61305]	= true, -- Polymorph black cat
@@ -1510,12 +1511,13 @@ do
 			[31935]	= true, -- Avenger's Shield
 			[105421]	= true, -- Blinding light
 			[105593]	= true, -- Fist of Justice
-			[853]	= true, -- Hammer of Justice
+			[853]		= true, -- Hammer of Justice
+			[96231] 	= true, -- Rebuke
 			[20066]	= true, -- Repentance
 			[145067]	= true, -- Turn Evil
 			
 		--priest
-			[605]	= true, -- Dominate Mind
+			[605]		= true, -- Dominate Mind
 			[87194]	= true, -- Glyph of Mind Blast
 			[88625]	= true, -- Holy Word: Chastise
 			[64044]	= true, -- Psychic Horror
@@ -1531,7 +1533,7 @@ do
 			[1330]	= true, -- Garrote
 			[1776]	= true, -- Gouge
 			[1766]	= true, -- Kick
-			[408]	= true, -- Kidney shot
+			[408]		= true, -- Kidney shot
 			[6770]	= true, -- Sap
 			[76577]	= true, -- Smoke Bomb
 		
@@ -1552,14 +1554,16 @@ do
 			[5484]	= true, -- Howl of terror
 			[115268]	= true, -- Mesmerize (shivarra)
 			[6789] 	= true, -- Mortal Coil
-			[6358]	= true, -- Seduction (succubus
+			[115781]	= true, -- Optical Blast (improved spell lock from Grimoire of Supremacy)
+			[6358]	= true, -- Seduction (succubus)
 			[30283]	= true, -- Shadowfury
 			[19647]	= true, -- Spell Lock (Felhunters)
 			[31117]	= true, -- Unstable Affliction
 			
 		--warrior
-			[100]	= true, -- Charge
+			[100]		= true, -- Charge
 			[105771]	= true, -- Charge
+			[102060]	= true, -- Disrupting Shout
 			[118895]	= true, -- Dragon Roar
 			[5246]	= true, -- Intimidating shout
 			[6552]	= true, -- Pummel 
@@ -1573,7 +1577,7 @@ do
 
 		--priest
 			[47753]	=	true,  --Divine Aegis (discipline)
-			[17]	=		true,  --Power Word: Shield (discipline)
+			[17]		=	true,  --Power Word: Shield (discipline)
 			[114908]	=	true,  --Spirit Shell (discipline)
 			[114214]	=	true,  --Angelic Bulwark (talent)
 			[152118]	=	true,  --Clarity of Will (talent)

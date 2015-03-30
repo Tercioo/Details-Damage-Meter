@@ -859,6 +859,9 @@ local default_profile = {
 		
 	--> if clear graphic data when logout
 		clear_graphic = true, 
+		
+	--> item level tracker
+		track_item_level = true,
 	
 	--> text sizes
 		font_sizes = {menus = 10},
