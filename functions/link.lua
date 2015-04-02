@@ -195,6 +195,7 @@
 			["unit"] = "",
 			["spellIds"] = {},
 			["debuffType"] = "HARMFUL",
+			["names"] = {""},
 		},
 	}
 	local buff_prototype = {
@@ -204,6 +205,7 @@
 			["unit"] = "",
 			["spellIds"] = {},
 			["debuffType"] = "HELPFUL",
+			["names"] = {""},
 		},
 	}
 	local cast_prototype = {
@@ -247,7 +249,7 @@
 		},
 	}
 	
-	function _detalhes:CreateWeakAura (spellid, name, icon_texture, target, stacksize, sound, chat)
+	function _detalhes:CreateWeakAura (spellid, use_spellid, spellname, name, icon_texture, target, stacksize, sound, chat)
 	
 		if (not WeakAuras or not WeakAurasSaved) then
 			return
@@ -268,6 +270,7 @@
 				local add = _detalhes.table.copy ({}, debuff_prototype)
 				add.trigger.spellId = tostring (spellid)
 				add.trigger.spellIds[1] = spellid
+				add.trigger.names [1] = spellname
 				add.trigger.unit = "player"
 				_detalhes.table.deploy (icon, add)
 				
@@ -275,6 +278,7 @@
 				local add = _detalhes.table.copy ({}, debuff_prototype)
 				add.trigger.spellId = tostring (spellid)
 				add.trigger.spellIds[1] = spellid
+				add.trigger.names[1] = spellname
 				add.trigger.unit = "target"
 				_detalhes.table.deploy (icon, add)
 
@@ -282,6 +286,7 @@
 				local add = _detalhes.table.copy ({}, debuff_prototype)
 				add.trigger.spellId = tostring (spellid)
 				add.trigger.spellIds[1] = spellid
+				add.trigger.names[1] = spellname
 				add.trigger.unit = "focus"
 				_detalhes.table.deploy (icon, add)
 				
@@ -289,6 +294,7 @@
 				local add = _detalhes.table.copy ({}, buff_prototype)
 				add.trigger.spellId = tostring (spellid)
 				add.trigger.spellIds[1] = spellid
+				add.trigger.names[1] = spellname
 				add.trigger.unit = "player"
 				_detalhes.table.deploy (icon, add)
 				
@@ -296,6 +302,7 @@
 				local add = _detalhes.table.copy ({}, buff_prototype)
 				add.trigger.spellId = tostring (spellid)
 				add.trigger.spellIds[1] = spellid
+				add.trigger.names[1] = spellname
 				add.trigger.unit = "target"
 				_detalhes.table.deploy (icon, add)
 				
@@ -303,24 +310,46 @@
 				local add = _detalhes.table.copy ({}, buff_prototype)
 				add.trigger.spellId = tostring (spellid)
 				add.trigger.spellIds[1] = spellid
+				add.trigger.names[1] = spellname
 				add.trigger.unit = "focus"
 				_detalhes.table.deploy (icon, add)
 				
 			elseif (target == 21) then --Spell Cast Started
 				local add = _detalhes.table.copy ({}, cast_prototype)
 				add.trigger.spellId = tostring (spellid)
+				add.trigger.spellName = spellname
 				add.trigger.subeventSuffix = "_CAST_START"
+				if (not use_spellid) then
+					add.trigger.use_spellName = true
+					add.trigger.use_spellId = false
+				end
 				_detalhes.table.deploy (icon, add)
 				
 			elseif (target == 22) then --Spell Cast Successful
 				local add = _detalhes.table.copy ({}, cast_prototype)
 				add.trigger.spellId = tostring (spellid)
+				add.trigger.spellName = spellname
+				if (not use_spellid) then
+					add.trigger.use_spellName = true
+					add.trigger.use_spellId = false
+				end
 				_detalhes.table.deploy (icon, add)
 			end
 		else
 			icon.trigger.spellId = tostring (spellid)
+			icon.trigger.name = spellname
+			
 			tinsert (icon.trigger.spellIds, spellid)
 		end
+		
+		if (not use_spellid) then
+			icon.trigger.use_spellId = false
+			icon.trigger.fullscan = false
+			icon.trigger.spellId = nil
+			icon.trigger.spellIds = {}
+		end
+		
+		--print (use_spellid, icon.trigger.use_spellId, icon.trigger.fullscan)
 
 		if (stacksize and stacksize >= 1) then
 			stacksize = floor (stacksize)
@@ -369,7 +398,7 @@
 		if (not DetailsAuraPanel) then
 			
 			local f = CreateFrame ("frame", "DetailsAuraPanel", UIParent, "ButtonFrameTemplate")
-			f:SetSize (300, 350)
+			f:SetSize (300, 378)
 			f:SetPoint ("center", UIParent, "center")
 			f:SetFrameStrata ("HIGH")
 			f:SetToplevel (true)
@@ -401,15 +430,26 @@
 			local fw = _detalhes:GetFramework()
 			
 			--aura name
-			local name_label = fw:CreateLabel (f, "Name: ", nil, nil, "GameFontNormal")
+			local name_label = fw:CreateLabel (f, "Aura Name: ", nil, nil, "GameFontNormal")
 			local name_textentry = fw:CreateTextEntry (f, _detalhes.empty_function, 150, 20, "AuraName", "$parentAuraName")
 			name_textentry:SetPoint ("left", name_label, "right", 2, 0)
 			f.name = name_textentry
 			
+			--spellname
+			local spellname_label = fw:CreateLabel (f, "Spell Name: ", nil, nil, "GameFontNormal")
+			local spellname_textentry = fw:CreateTextEntry (f, _detalhes.empty_function, 150, 20, "SpellName", "$parentSpellName")
+			spellname_textentry:SetPoint ("left", spellname_label, "right", 2, 0)
+			f.spellname = spellname_textentry
 			--spellid
 			local auraid_label = fw:CreateLabel (f, "Spell Id: ", nil, nil, "GameFontNormal")
 			local auraid_textentry = fw:CreateTextEntry (f, _detalhes.empty_function, 150, 20, "AuraSpellId", "$parentAuraSpellId")
+			auraid_textentry:Disable()
 			auraid_textentry:SetPoint ("left", auraid_label, "right", 2, 0)
+			--use spellid
+			local usespellid_label = fw:CreateLabel (f, "Use SpellId: ", nil, nil, "GameFontNormal")
+			local aura_use_spellid = fw:CreateSwitch (f, function(_, _, state) if (state) then auraid_textentry:Enable() else auraid_textentry:Disable() end end, false, nil, nil, nil, nil, "UseSpellId")
+			aura_use_spellid:SetPoint ("left", usespellid_label, "right", 2, 0)
+			aura_use_spellid.tooltip = "Use the spell id instead of the spell name, for advanced users."
 			
 			--aura icon
 			local icon_label = fw:CreateLabel (f, "Icon: ", nil, nil, "GameFontNormal")
@@ -468,7 +508,7 @@
 			sound_effect:SetPoint ("left", sound_effect_label, "right", 2, 0)
 			
 			--say something
-			local say_something_label = fw:CreateLabel (f, "Chat Message: ", nil, nil, "GameFontNormal")
+			local say_something_label = fw:CreateLabel (f, "/Say: ", nil, nil, "GameFontNormal")
 			local say_something = fw:CreateTextEntry (f, _detalhes.empty_function, 150, 20, "SaySomething", "$parentSaySomething")
 			say_something:SetPoint ("left", say_something_label, "right", 2, 0)
 			
@@ -488,6 +528,8 @@
 			local create_func = function()
 				
 				local name = f.AuraName.text
+				local spellname = f.SpellName.text
+				local use_spellId = f.UseSpellId.value
 				local spellid = f.AuraSpellId.text
 				local icon = f.IconButton.icon.texture
 				local target = f.AuraOnDropdown.value
@@ -497,7 +539,7 @@
 				local addon = f.AuraAddonDropdown.value
 
 				if (addon == "WA") then
-					_detalhes:CreateWeakAura (spellid, name, icon, target, stacksize, sound, chat)
+					_detalhes:CreateWeakAura (spellid, use_spellId, spellname, name, icon, target, stacksize, sound, chat)
 				else
 					_detalhes:Msg ("No Aura Addon selected. Addons currently supported: WeakAuras 2.")
 				end
@@ -518,22 +560,28 @@
 			local y_start = 21
 			
 			name_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*1) + (50)) * -1)
-			auraid_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*2) + (50)) * -1)
-			icon_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*3) + (50)) * -1)
-			aura_on_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*4) + (50)) * -1)
-			stack_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*5) + (50)) * -1)
-			sound_effect_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*6) + (50)) * -1)
-			say_something_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*7) + (50)) * -1)
-			aura_addon_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*10) + (50)) * -1)
+			
+			spellname_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*2) + (60)) * -1)
+			auraid_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*3) + (60)) * -1)
+			usespellid_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*4) + (60)) * -1)
+			
+			icon_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*5) + (70)) * -1)
+			aura_on_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*6) + (70)) * -1)
+			stack_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*7) + (70)) * -1)
+			sound_effect_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*8) + (70)) * -1)
+			say_something_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*9) + (70)) * -1)
+			
+			aura_addon_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*11) + (60)) * -1)
 
-			create_button:SetPoint ("topleft", f, "topleft", x_start, ((y_start*12) + (50)) * -1)
-			cancel_button:SetPoint ("topright", f, "topright", x_start*-1, ((y_start*12) + (50)) * -1)
+			create_button:SetPoint ("topleft", f, "topleft", x_start, ((y_start*13) + (60)) * -1)
+			cancel_button:SetPoint ("topright", f, "topright", x_start*-1, ((y_start*13) + (60)) * -1)
 			
 		end
 		
 		DetailsAuraPanel.spellid = spellid
 		
-		DetailsAuraPanel.name.text = spellname
+		DetailsAuraPanel.name.text = spellname .. " (d!)"
+		DetailsAuraPanel.spellname.text = spellname
 		DetailsAuraPanel.AuraSpellId.text = tostring (spellid)
 		DetailsAuraPanel.icon.texture = spellicon
 		

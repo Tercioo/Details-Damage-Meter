@@ -1338,7 +1338,13 @@ do
 				emote_pool = emote_search_table
 			end
 			BossFrame.SearchResults:Show()
-			BossFrame.SearchResults:SetText ("Found " .. i .. " results")
+			BossFrame.SearchResults:SetText ("Found " .. i .. " matches")
+			
+			if (i > 0) then
+				BossFrame.ReportEmoteButton:Enable()
+			elseif (i == 0) then
+				BossFrame.ReportEmoteButton:Disable()
+			end
 		else
 			BossFrame.SearchResults:Hide()
 		end
@@ -1428,6 +1434,8 @@ do
 				local link = GetSpellLink (spell)
 				text = text:gsub ("(|Hspell).*(|h)", link)
 			end
+			-- remove unit links
+			text = text:gsub ("(|Hunit).-(|h)", "")
 			-- remove the left space
 			text = text:gsub ("^%s$", "")
 
@@ -1518,9 +1526,11 @@ do
 		if (searching == "") then
 			searching = nil
 			FauxScrollFrame_SetOffset (scrollframe, 0)
+			BossFrame.ReportEmoteButton:Disable()
 			scrollframe:Update()
 		else
 			FauxScrollFrame_SetOffset (scrollframe, 0)
+			BossFrame.ReportEmoteButton:Enable()
 			scrollframe:Update()
 		end
 	end)
@@ -1539,6 +1549,68 @@ do
 	tinsert (BossFrame.EmoteWidgets, search)
 	tinsert (BossFrame.EmoteWidgets, reset)
 	tinsert (BossFrame.EmoteWidgets, emotes_search_label)
+	
+	-- report button
+	local report_emote_button = DetailsFrameWork:NewButton (BossFrame, nil, "$parentReportEmoteButton", "ReportEmoteButton", 120, 20, function()
+		local reportFunc = function (IsCurrent, IsReverse, AmtLines)
+			local segment = EncounterDetails.charsaved.emotes and EncounterDetails.charsaved.emotes [emote_segment]
+
+			if (segment) then
+				EncounterDetails.report_lines = {"Details!: Emotes for " .. segment.boss}
+				local added = 0
+
+				for index = 1, 16 do
+					local bar = emote_lines [index]
+					if (bar:IsShown() and added < AmtLines) then
+						local time = bar.lefttext:GetText()
+						local text = bar.righttext:GetText()
+
+						--"|Hunit:77182:Oregorger|hOregorger prepares to cast |cFFFF0000|Hspell:156879|h[Blackrock Barrage]|h|r."
+						
+						-- remove textures
+						text = text:gsub ("(|T).*(|t)", "")
+						-- remove colors
+						text = text:gsub ("|c%x?%x?%x?%x?%x?%x?%x?%x?", "")
+						text = text:gsub ("|r", "")
+						-- replace links
+						for _, spellid in text:gmatch ("(|Hspell:)(.-)(|h)") do
+							local spell = tonumber (spellid)
+							local link = GetSpellLink (spell)
+							text = text:gsub ("(|Hspell).*(|h)", link)
+						end
+						-- remove unit links
+						text = text:gsub ("(|Hunit).-(|h)", "")
+						-- remove the left space
+						text = text:gsub ("^%s$", "")
+
+						tinsert (EncounterDetails.report_lines, time .. " " .. text)
+						added = added + 1
+						
+						if (added == AmtLines) then
+							break
+						end
+					end
+				end
+				
+				EncounterDetails:SendReportLines (EncounterDetails.report_lines)
+			else
+				EncounterDetails:Msg ("There is nothing to report.")
+			end
+		end
+
+		local use_slider = true
+		EncounterDetails:SendReportWindow (reportFunc, nil, nil, use_slider)
+	end, nil, nil, nil, "Report Lines")
+
+	report_emote_button:SetIcon ([[Interface\AddOns\Details\images\report_button]], 8, 16, nil, {0, 1, 0, 1}, nil, nil, 2)
+	
+	report_emote_button:SetPoint ("topleft", BossFrame.SearchResults, "bottomleft", 0, -2)
+	report_emote_button:InstallCustomTexture()
+	report_emote_button:Disable()
+	
+	tinsert (BossFrame.EmoteWidgets, report_emote_button)
+	
+	--
 	
 	for _, widget in pairs (BossFrame.EmoteWidgets) do
 		widget:Hide()

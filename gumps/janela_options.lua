@@ -1680,11 +1680,11 @@ function window:CreateFrame19()
 			frame19.minimapSlider.OnSwitch = function (self, _, value)
 				_detalhes.minimap.hide = not value
 				
-				LDBIcon:Refresh ("Details!", _detalhes.minimap)
+				LDBIcon:Refresh ("Details", _detalhes.minimap)
 				if (_detalhes.minimap.hide) then
-					LDBIcon:Hide ("Details!")
+					LDBIcon:Hide ("Details")
 				else
-					LDBIcon:Show ("Details!")
+					LDBIcon:Show ("Details")
 				end
 				
 				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)

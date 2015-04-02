@@ -510,6 +510,7 @@ end
 
 _detalhes.ilevel = {}
 local ilvl_core = _detalhes:CreateEventListener()
+ilvl_core.amt_inspecting = 0
 
 ilvl_core:RegisterEvent ("GROUP_ONENTER", "OnEnter")
 ilvl_core:RegisterEvent ("GROUP_ONLEAVE", "OnLeave")
@@ -529,7 +530,7 @@ local two_hand = {
 
 local MAX_INSPECT_AMOUNT = 1
 local MIN_ILEVEL_TO_STORE = 580
-local LOOP_TIME = 3
+local LOOP_TIME = 7
 
 function _detalhes:IlvlFromNetwork (player, realm, core, ilvl)
 	local guid = UnitGUID (player .. "-" .. realm)

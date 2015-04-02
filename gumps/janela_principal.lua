@@ -1809,10 +1809,30 @@ local barra_scripts_onenter = function (self)
 	self:SetBackdropColor (0.588, 0.588, 0.588, 0.7)
 
 	self.textura:SetBlendMode ("ADD")
-	--local r, g, b = self.textura:GetVertexColor()
-	--self.textura:SetVertexColor (math.min (r+0.1, 1), math.min (g+0.1, 1), math.min (b+0.1, 1))
-	--self.icone_classe:SetBlendMode ("ADD")
 
+	local lefttext = self.texto_esquerdo
+	if (lefttext:IsTruncated()) then
+		if (not _detalhes.left_anti_truncate) then
+			_detalhes.left_anti_truncate = CreateFrame ("frame", "DetailsLeftTextAntiTruncate", UIParent)
+			_detalhes.left_anti_truncate:SetBackdrop (gump_fundo_backdrop)
+			_detalhes.left_anti_truncate:SetBackdropColor (0, 0, 0, 0.8)
+			_detalhes.left_anti_truncate:SetFrameStrata ("FULLSCREEN")
+			_detalhes.left_anti_truncate.text = _detalhes.left_anti_truncate:CreateFontString (nil, "overlay", "GameFontNormal")
+			_detalhes.left_anti_truncate.text:SetPoint ("left", _detalhes.left_anti_truncate, "left", 3, 0) 
+		end
+		
+		_detalhes:SetFontSize (_detalhes.left_anti_truncate.text, self._instance.row_info.font_size)
+		_detalhes:SetFontFace (_detalhes.left_anti_truncate.text, self._instance.row_info.font_face_file)
+		_detalhes:SetFontColor (_detalhes.left_anti_truncate.text, lefttext:GetTextColor())
+		
+		_detalhes.left_anti_truncate:SetPoint ("left", lefttext, "left", -3, 0)
+		_detalhes.left_anti_truncate.text:SetText (lefttext:GetText())
+		
+		_detalhes.left_anti_truncate:SetSize (_detalhes.left_anti_truncate.text:GetStringWidth() + 3, self._instance.row_info.height)
+		_detalhes.left_anti_truncate:Show()
+		lefttext.untruncated = true
+	end
+	
 	self:SetScript ("OnUpdate", shift_monitor)
 end
 
@@ -1828,12 +1848,15 @@ local barra_scripts_onleave = function (self)
 	self:SetBackdropColor (0, 0, 0, 0)
 	
 	self.textura:SetBlendMode ("BLEND")
-	--self.icone_classe:SetBlendMode ("BLEND")
-	--local r, g, b = self.textura:GetVertexColor()
-	--self.textura:SetVertexColor (math.min (r+0.1, 1), math.min (g+0.1, 1), math.min (b+0.1, 1))
-	
+
 	self.showing_allspells = false
 	self:SetScript ("OnUpdate", nil)
+	
+	local lefttext = self.texto_esquerdo
+	if (lefttext.untruncated) then
+		lefttext.untruncated = nil
+		_detalhes.left_anti_truncate:Hide()
+	end
 end
 
 local barra_scripts_onmousedown = function (self, button)

@@ -1442,7 +1442,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 			if (not barra) then
 				barra = EncounterDetails:CreateRow (index, container, 3, 0, -6)
 				barra.TTT = "total_interrupt" -- tool tip type
-				barra.report_text = "Details! ".. Loc ["STRING_INTERRUPT_BY"]
+				barra.report_text = "Details! ".. Loc ["STRING_INTERRUPTS_OF"]
 				barra:SetBackdrop (backdrop_bar_onleave)
 				barra:SetBackdropColor (.0, .0, .0, 0.3)
 				barra:SetWidth (155)
@@ -1556,7 +1556,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 			if (not barra) then
 				barra = EncounterDetails:CreateRow (index, container, 3, 3, -6)
 				barra.TTT = "dispell" -- tool tip type
-				barra.report_text = "Details! ".. Loc ["STRING_DISPELLED_BY"]
+				barra.report_text = "Details! ".. Loc ["STRING_DISPELLS_OF"]
 				barra:SetBackdrop (backdrop_bar_onleave)
 				barra:SetBackdropColor (.0, .0, .0, 0.3)
 				barra:SetWidth (160)
