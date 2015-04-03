@@ -59,7 +59,8 @@ function  _detalhes:ScheduleUpdate (instancia)
 end
 
 local menu_wallpaper_tex = {.6, 0.1, 0, 0.64453125}
-local menu_wallpaper_color = {1, 1, 1, 0.1}
+--local menu_wallpaper_color = {1, 1, 1, 0.1}
+local menu_wallpaper_color = {.8, .8, .8, 0.2}
 
 --> skins TCoords
 
@@ -4852,7 +4853,6 @@ local build_mode_list = function (self, elapsed)
 		CoolTip:SetType ("menu")
 		CoolTip:SetLastSelected ("main", parameters_table [3])
 		CoolTip:SetFixedParameter (instancia)
-		CoolTip:SetColor ("main", "transparent")
 		
 		CoolTip:SetOption ("TextSize", _detalhes.font_sizes.menus)
 		CoolTip:SetOption ("TextFont", _detalhes.font_faces.menus)		
@@ -5031,9 +5031,9 @@ local build_mode_list = function (self, elapsed)
 		
 		_detalhes:SetMenuOwner (self, instancia)
 		
-		CoolTip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], menu_wallpaper_tex, menu_wallpaper_color, true)
 		CoolTip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
 		CoolTip:SetBackdrop (2, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
+		CoolTip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], menu_wallpaper_tex, menu_wallpaper_color, true)
 		
 		show_anti_overlap (instancia, self, "top")
 		

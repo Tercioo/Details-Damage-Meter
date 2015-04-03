@@ -2349,6 +2349,8 @@ function _detalhes:MontaSoloOption (instancia)
 end
 
 -- ~menu
+
+local wallpaper_bg_color = {.8, .8, .8, 0.2}
 function _detalhes:MontaAtributosOption (instancia, func)
 
 	func = func or instancia.TrocaTabela
@@ -2383,14 +2385,14 @@ function _detalhes:MontaAtributosOption (instancia, func)
 		CoolTip:AddIcon ("Interface\\AddOns\\Details\\images\\atributos_icones", 1, 1, 20, 20, p*(i-1), p*(i), 0, 1)
 		
 		if (i == 1) then
-			CoolTip:SetWallpaper (2, [[Interface\TALENTFRAME\WarlockDestruction-TopLeft]], {1, 0.22, 0, 0.55}, {1, 1, 1, .1})
+			CoolTip:SetWallpaper (2, [[Interface\TALENTFRAME\WarlockDestruction-TopLeft]], {1, 0.22, 0, 0.55}, wallpaper_bg_color)
 		elseif (i == 2) then
 			--CoolTip:SetWallpaper (2, [[Interface\TALENTFRAME\PriestHoly-TopLeft]], {0, .8, 0, 1}, {1, 1, 1, .1})
-			CoolTip:SetWallpaper (2, [[Interface\TALENTFRAME\bg-priest-holy]], {1, .6, 0, .2}, {1, 1, 1, .2})
+			CoolTip:SetWallpaper (2, [[Interface\TALENTFRAME\bg-priest-holy]], {1, .6, 0, .2}, wallpaper_bg_color)
 		elseif (i == 3) then
-			CoolTip:SetWallpaper (2, [[Interface\TALENTFRAME\ShamanEnhancement-TopLeft]], {0, 1, .2, .6}, {1, 1, 1, .1})
+			CoolTip:SetWallpaper (2, [[Interface\TALENTFRAME\ShamanEnhancement-TopLeft]], {0, 1, .2, .6}, wallpaper_bg_color)
 		elseif (i == 4) then
-			CoolTip:SetWallpaper (2, [[Interface\TALENTFRAME\WarlockCurses-TopLeft]], {.2, 1, 0, 1}, {1, 1, 1, .1})
+			CoolTip:SetWallpaper (2, [[Interface\TALENTFRAME\WarlockCurses-TopLeft]], {.2, 1, 0, 1}, wallpaper_bg_color)
 		end
 		
 		local options = sub_atributos [i].lista
@@ -2436,7 +2438,7 @@ function _detalhes:MontaAtributosOption (instancia, func)
 	end
 	
 	--> set the wallpaper on custom
-	GameCooltip:SetWallpaper (2, [[Interface\TALENTFRAME\WarriorArm-TopLeft]], {1, 0, 0, 1}, {1, 1, 1, 0.1})
+	GameCooltip:SetWallpaper (2, [[Interface\TALENTFRAME\WarriorArm-TopLeft]], {1, 0, 0, 1}, wallpaper_bg_color)
 
 	if (#_detalhes.custom == 0) then
 		CoolTip:SetLastSelected (2, 6, 2)
@@ -2465,7 +2467,7 @@ function _detalhes:MontaAtributosOption (instancia, func)
 	end
 	CoolTip:SetLastSelected (1, last_selected)
 	
-	CoolTip:SetWallpaper (1, [[Interface\SPELLBOOK\DeathKnightBlood-TopLeft]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
+	CoolTip:SetWallpaper (1, [[Interface\SPELLBOOK\DeathKnightBlood-TopLeft]], {.6, 0.1, 0, 0.64453125}, wallpaper_bg_color, true)
 	--CoolTip:SetWallpaper (1, [[Interface\ACHIEVEMENTFRAME\UI-Achievement-Parchment-Horizontal-Desaturated]], nil, {1, 1, 1, 0.3})
 	
 	return menu_principal, sub_menus

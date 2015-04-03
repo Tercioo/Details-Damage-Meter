@@ -1285,6 +1285,7 @@
 		end
 	end
 	
+	-- ~crowd control ~ccdone
 	function parser:add_cc_done (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname)
 	
 	------------------------------------------------------------------------------------------------
@@ -1294,10 +1295,14 @@
 		
 	------------------------------------------------------------------------------------------------
 	--> get actors
-		local este_jogador = misc_cache [who_name]
-		if (not este_jogador) then
-			este_jogador = _current_misc_container:PegarCombatente (who_serial, who_name, who_flags, true)
-			misc_cache [who_name] = este_jogador
+	
+		--> main actor
+		local este_jogador, meu_dono = misc_cache [who_name]
+		if (not este_jogador) then --> pode ser um desconhecido ou um pet
+			este_jogador, meu_dono, who_name = _current_misc_container:PegarCombatente (who_serial, who_name, who_flags, true)
+			if (not meu_dono) then --> se não for um pet, adicionar no cache
+				misc_cache [who_name] = este_jogador
+			end
 		end
 		
 	------------------------------------------------------------------------------------------------
@@ -1327,6 +1332,44 @@
 		
 		spell.targets [alvo_name] = (spell.targets [alvo_name] or 0) + 1
 		spell.counter = spell.counter + 1
+		
+		--> add the crowd control for the pet owner
+		if (meu_dono) then
+		
+			if (not meu_dono.cc_done) then
+				meu_dono.cc_done = _detalhes:GetOrderNumber()
+				meu_dono.cc_done_spells = container_habilidades:NovoContainer (container_misc)
+				meu_dono.cc_done_targets = {}
+			end
+			
+			--> add amount
+			meu_dono.cc_done = meu_dono.cc_done + 1
+			meu_dono.cc_done_targets [alvo_name] = (meu_dono.cc_done_targets [alvo_name] or 0) + 1
+			
+			--> actor spells table
+			local spell = meu_dono.cc_done_spells._ActorTable [spellid]
+			if (not spell) then
+				spell = meu_dono.cc_done_spells:PegaHabilidade (spellid, true)
+			end
+			
+			spell.targets [alvo_name] = (spell.targets [alvo_name] or 0) + 1
+			spell.counter = spell.counter + 1
+		end
+		
+		--> verifica a classe
+		if (who_flags and _bit_band (who_flags, OBJECT_TYPE_PLAYER) ~= 0) then
+			if (este_jogador.classe == "UNKNOW" or este_jogador.classe == "UNGROUPPLAYER") then
+				local damager_object = damage_cache [who_serial]
+				if (damager_object and (damager_object.classe ~= "UNKNOW" and damager_object.classe ~= "UNGROUPPLAYER")) then
+					este_jogador.classe = damager_object.classe
+				else
+					local healing_object = healing_cache [who_name]
+					if (healing_object and (healing_object.classe ~= "UNKNOW" and healing_object.classe ~= "UNGROUPPLAYER")) then
+						este_jogador.classe = healing_object.classe
+					end
+				end
+			end
+		end
 	end
 
 	function parser:buff_refresh (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spellschool, tipo, amount)

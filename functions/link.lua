@@ -251,15 +251,18 @@
 	
 	function _detalhes:CreateWeakAura (spellid, use_spellid, spellname, name, icon_texture, target, stacksize, sound, chat)
 	
+		--> check if wa is installed
 		if (not WeakAuras or not WeakAurasSaved) then
 			return
 		end
 		
+		--> check if there is a group for our auras
 		if (not WeakAurasSaved.displays ["Details! Aura Group"]) then
 			local group = _detalhes.table.copy ({}, group_prototype)
 			WeakAuras.Add (group)
 		end
 		
+		--> create the icon table
 		local icon = _detalhes.table.copy ({}, icon_prototype)
 		
 		icon.id = name
@@ -342,6 +345,7 @@
 			tinsert (icon.trigger.spellIds, spellid)
 		end
 		
+		--> if is a regular auras withour using spells ids
 		if (not use_spellid) then
 			icon.trigger.use_spellId = false
 			icon.trigger.fullscan = false
@@ -349,8 +353,7 @@
 			icon.trigger.spellIds = {}
 		end
 		
-		--print (use_spellid, icon.trigger.use_spellId, icon.trigger.fullscan)
-
+		--> check stack size
 		if (stacksize and stacksize >= 1) then
 			stacksize = floor (stacksize)
 			local add = _detalhes.table.copy ({}, stack_prototype)
@@ -358,20 +361,22 @@
 			_detalhes.table.deploy (icon, add)
 		end
 		
+		--> using sound
 		if (sound and sound ~= "" and sound ~= [[Interface\Quiet.ogg]]) then
 			local add = _detalhes.table.copy ({}, sound_prototype)
 			add.actions.start.sound = sound
 			_detalhes.table.deploy (icon, add)
 		end
 		
+		--> chat message
 		if (chat and chat ~= "") then
 			local add = _detalhes.table.copy ({}, sound_prototype)
 			add.actions.start.message = chat
 			_detalhes.table.deploy (icon, add)
 		end
 		
+		--> check if already exists a aura with this name
 		if (WeakAurasSaved.displays [icon.id]) then
-			-- already exists
 			for i = 2, 100 do
 				if (not WeakAurasSaved.displays [icon.id .. " (" .. i .. ")"]) then
 					icon.id = icon.id .. " (" .. i .. ")"
@@ -380,17 +385,12 @@
 			end
 		end
 		
+		--> add the aura on our group
 		tinsert (WeakAurasSaved.displays ["Details! Aura Group"].controlledChildren, icon.id)
 		
+		--> add the aura
 		WeakAuras.Add (icon)
-		
-		local options_frame = WeakAuras.OptionsFrame and WeakAuras.OptionsFrame()
-		if (options_frame and options_frame:IsShown()) then
-			--WeakAuras.ToggleOptions()
-			--WeakAuras.ToggleOptions()
-		else
-			--WeakAuras.OpenOptions()
-		end
+
 	end
 	
 	function _detalhes:OpenAuraPanel (spellid, spellname, spellicon)

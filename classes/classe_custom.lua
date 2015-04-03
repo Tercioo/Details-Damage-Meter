@@ -614,19 +614,19 @@
 				actor_class_color_r, actor_class_color_g, actor_class_color_b = self:GetBarColor()
 			end
 		end
-		
+
 		if (instancia.row_info.texture_class_colors) then
 			esta_barra.textura:SetVertexColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
 		end
 		if (instancia.row_info.texture_background_class_color) then
 			esta_barra.background:SetVertexColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
 		end	
-		
+
 		if (self.classe == "UNKNOW") then
 			esta_barra.icone_classe:SetTexture ("Interface\\LFGFRAME\\LFGROLE_BW")
 			esta_barra.icone_classe:SetTexCoord (.25, .5, 0, 1)
 			esta_barra.icone_classe:SetVertexColor (1, 1, 1)
-		
+
 		elseif (self.classe == "UNGROUPPLAYER") then
 			if (self.enemy) then
 				if (_detalhes.faction_against == "Horde") then
@@ -1724,7 +1724,7 @@
 			desc = "Show the crowd control amount for each player.",
 			source = false,
 			target = false,
-			script_version = 6,
+			script_version = 7,
 			script = [[
 				local combat, instance_container, instance = ...
 				local total, top, amount = 0, 0, 0
@@ -1732,7 +1732,7 @@
 				local misc_actors = combat:GetActorList (DETAILS_ATTRIBUTE_MISC)
 
 				for index, character in ipairs (misc_actors) do
-					if (character.cc_done) then
+					if (character.cc_done and character:IsPlayer()) then
 						local cc_done = floor (character.cc_done)
 						instance_container:AddValue (character, cc_done)
 						total = total + cc_done
