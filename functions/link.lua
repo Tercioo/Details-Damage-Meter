@@ -189,7 +189,7 @@
 	}
 	
 	local debuff_prototype = {
-		["cooldown"] = true,
+		["cooldown"] = false,
 		["trigger"] = {
 			["spellId"] = "0",
 			["unit"] = "",
@@ -199,7 +199,7 @@
 		},
 	}
 	local buff_prototype = {
-		["cooldown"] = true,
+		["cooldown"] = false,
 		["trigger"] = {
 			["spellId"] = "0",
 			["unit"] = "",
@@ -249,7 +249,24 @@
 		},
 	}
 	
-	function _detalhes:CreateWeakAura (spellid, use_spellid, spellname, name, icon_texture, target, stacksize, sound, chat)
+	local text_prototype = {
+		["fontSize"] = 20,
+		["displayStacks"] = "",
+		["stacksPoint"] = "BOTTOM",
+		["stacksContainment"] = "OUTSIDE",
+	}
+	
+	local glow_prototype = {
+		["actions"] = {
+			["start"] = {
+				["do_glow"] = true,
+				["glow_frame"] = "",
+				["glow_action"] = "show",
+			},
+		},
+	}
+	
+	function _detalhes:CreateWeakAura (spellid, use_spellid, spellname, name, icon_texture, target, stacksize, sound, chat, icon_text, icon_glow)
 	
 		--> check if wa is installed
 		if (not WeakAuras or not WeakAurasSaved) then
@@ -362,7 +379,7 @@
 		end
 		
 		--> using sound
-		if (sound and sound ~= "" and sound ~= [[Interface\Quiet.ogg]]) then
+		if (sound and sound ~= "" and not sound:find ("Quiet.ogg")) then
 			local add = _detalhes.table.copy ({}, sound_prototype)
 			add.actions.start.sound = sound
 			_detalhes.table.deploy (icon, add)
@@ -370,8 +387,14 @@
 		
 		--> chat message
 		if (chat and chat ~= "") then
-			local add = _detalhes.table.copy ({}, sound_prototype)
+			local add = _detalhes.table.copy ({}, chat_prototype)
 			add.actions.start.message = chat
+			_detalhes.table.deploy (icon, add)
+		end
+		
+		if (icon_text and icon_text ~= "") then
+			local add = _detalhes.table.copy ({}, text_prototype)
+			add.displayStacks = icon_text
 			_detalhes.table.deploy (icon, add)
 		end
 		
@@ -385,20 +408,38 @@
 			end
 		end
 		
+		--> check is is using glow effect
+		if (icon_glow) then
+			local add = _detalhes.table.copy ({}, glow_prototype)
+			add.actions.start.glow_frame = "WeakAuras:" .. icon.id
+			_detalhes.table.deploy (icon, add)
+		end
+		
 		--> add the aura on our group
 		tinsert (WeakAurasSaved.displays ["Details! Aura Group"].controlledChildren, icon.id)
 		
 		--> add the aura
 		WeakAuras.Add (icon)
+		
+		--> check if the options panel has loaded
+		local options_frame = WeakAuras.OptionsFrame and WeakAuras.OptionsFrame()
+		if (options_frame) then
+			if (options_frame and not options_frame:IsShown()) then
+				WeakAuras.ToggleOptions()
+			end
+			WeakAuras.NewDisplayButton (icon)
+		end
 
 	end
 	
 	function _detalhes:OpenAuraPanel (spellid, spellname, spellicon)
 		
+		spellname = select (1, GetSpellInfo (spellid))
+		
 		if (not DetailsAuraPanel) then
 			
 			local f = CreateFrame ("frame", "DetailsAuraPanel", UIParent, "ButtonFrameTemplate")
-			f:SetSize (300, 378)
+			f:SetSize (300, 420)
 			f:SetPoint ("center", UIParent, "center")
 			f:SetFrameStrata ("HIGH")
 			f:SetToplevel (true)
@@ -440,11 +481,14 @@
 			local spellname_textentry = fw:CreateTextEntry (f, _detalhes.empty_function, 150, 20, "SpellName", "$parentSpellName")
 			spellname_textentry:SetPoint ("left", spellname_label, "right", 2, 0)
 			f.spellname = spellname_textentry
+			spellname_textentry.tooltip = "Spell/Debuff/Buff to be tracked."
+			
 			--spellid
 			local auraid_label = fw:CreateLabel (f, "Spell Id: ", nil, nil, "GameFontNormal")
 			local auraid_textentry = fw:CreateTextEntry (f, _detalhes.empty_function, 150, 20, "AuraSpellId", "$parentAuraSpellId")
 			auraid_textentry:Disable()
 			auraid_textentry:SetPoint ("left", auraid_label, "right", 2, 0)
+			
 			--use spellid
 			local usespellid_label = fw:CreateLabel (f, "Use SpellId: ", nil, nil, "GameFontNormal")
 			local aura_use_spellid = fw:CreateSwitch (f, function(_, _, state) if (state) then auraid_textentry:Enable() else auraid_textentry:Disable() end end, false, nil, nil, nil, nil, "UseSpellId")
@@ -490,28 +534,71 @@
 			local stack_slider = fw:NewSlider (f, f, "$parentStackSlider", "StackSlider", 150, 20, 0, 30, 1, 0)
 			local stack_label = fw:CreateLabel (f, "Stack Size: ", nil, nil, "GameFontNormal")
 			stack_slider:SetPoint ("left", stack_label, "right", 2, 0)
+			stack_slider.tooltip = "Minimum amount of stacks to trigger the aura."
 			
 			--sound effect
 			local play_sound = function (self, fixedParam, file)
-				print (file)
 				PlaySoundFile (file, "Master")
 			end
+			
+			local sort = function (t1, t2)
+				return t1.name < t2.name
+			end
+			local titlecase = function (first, rest)
+				return first:upper()..rest:lower()
+			end
+			local iconsize = {14, 14}
+			
 			local sound_options = function()
-				local t = {{label = "No Sound", value = "", icon = [[Interface\Buttons\UI-GuildButton-MOTD-Disabled]]}}
+				local t = {{label = "No Sound", value = "", icon = [[Interface\Buttons\UI-GuildButton-MOTD-Disabled]], iconsize = iconsize}}
+				local sounds = {}
 				for name, soundFile in pairs (LibStub:GetLibrary("LibSharedMedia-3.0"):HashTable ("sound")) do
-					tinsert (t, {label = name, value = soundFile, icon = [[Interface\Buttons\UI-GuildButton-MOTD-Up]], onclick = play_sound})
+					name = name:gsub ("(%a)([%w_']*)", titlecase)
+					sounds [#sounds+1] = {name = name, file = soundFile}
+				end
+				table.sort (sounds, sort)
+				for _, sound in ipairs (sounds) do
+					tinsert (t, {label = sound.name, value = sound.file, icon = [[Interface\Buttons\UI-GuildButton-MOTD-Up]], onclick = play_sound, iconsize = iconsize})
 				end
 				return t
 			end
 			local sound_effect = fw:CreateDropDown (f, sound_options, 1, 150, 20, "SoundEffectDropdown", "$parentSoundEffectDropdown")
 			local sound_effect_label = fw:CreateLabel (f, "Play Sound: ", nil, nil, "GameFontNormal")
 			sound_effect:SetPoint ("left", sound_effect_label, "right", 2, 0)
+			sound_effect.tooltip = "Sound played when the aura triggers."
 			
 			--say something
 			local say_something_label = fw:CreateLabel (f, "/Say: ", nil, nil, "GameFontNormal")
 			local say_something = fw:CreateTextEntry (f, _detalhes.empty_function, 150, 20, "SaySomething", "$parentSaySomething")
 			say_something:SetPoint ("left", say_something_label, "right", 2, 0)
+			say_something.tooltip = "Your character /say this phrase when the aura triggers."
 			
+			--aura text
+			local aura_text_label = fw:CreateLabel (f, "Icon Text: ", nil, nil, "GameFontNormal")
+			local aura_text = fw:CreateTextEntry (f, _detalhes.empty_function, 150, 20, "AuraText", "$parentAuraText")
+			aura_text:SetPoint ("left", aura_text_label, "right", 2, 0)
+			aura_text.tooltip = "Text shown at aura's icon right side."
+			
+			--apply glow
+			local useglow_label = fw:CreateLabel (f, "Glow Effect: ", nil, nil, "GameFontNormal")
+			local useglow = fw:CreateSwitch (f, function(self, _, state) 
+				if (state and self.glow_test) then  
+					self.glow_test:Show()
+					self.glow_test.animOut:Stop()
+					self.glow_test.animIn:Play()
+				elseif (self.glow_test) then
+					self.glow_test.animIn:Stop()
+					self.glow_test.animOut:Play()
+				end 
+			end, false, nil, nil, nil, nil, "UseGlow")
+			useglow:SetPoint ("left", useglow_label, "right", 2, 0)
+			useglow.tooltip = "Do not rename the aura on WeakAuras options panel or the glow effect may not work."
+			
+			useglow.glow_test = CreateFrame ("frame", "DetailsAuraTextGlowTest", useglow.widget, "ActionBarButtonSpellActivationAlert")
+			useglow.glow_test:SetPoint ("topleft", useglow.widget, "topleft", -20, 2)
+			useglow.glow_test:SetPoint ("bottomright", useglow.widget, "bottomright", 20, -2)
+			useglow.glow_test:Hide()
+
 			--aura addon
 			local addon_options = function()
 				local t = {}
@@ -537,9 +624,12 @@
 				local sound = f.SoundEffectDropdown.value
 				local chat = f.SaySomething.text
 				local addon = f.AuraAddonDropdown.value
+				
+				local icon_text = f.AuraText.text
+				local icon_glow = f.UseGlow.value
 
 				if (addon == "WA") then
-					_detalhes:CreateWeakAura (spellid, use_spellId, spellname, name, icon, target, stacksize, sound, chat)
+					_detalhes:CreateWeakAura (spellid, use_spellId, spellname, name, icon, target, stacksize, sound, chat, icon_text, icon_glow)
 				else
 					_detalhes:Msg ("No Aura Addon selected. Addons currently supported: WeakAuras 2.")
 				end
@@ -560,21 +650,23 @@
 			local y_start = 21
 			
 			name_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*1) + (50)) * -1)
+			aura_on_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*2) + (50)) * -1)
 			
-			spellname_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*2) + (60)) * -1)
-			auraid_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*3) + (60)) * -1)
-			usespellid_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*4) + (60)) * -1)
+			spellname_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*3) + (60)) * -1)
+			auraid_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*4) + (60)) * -1)
+			usespellid_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*5) + (60)) * -1)
 			
-			icon_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*5) + (70)) * -1)
-			aura_on_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*6) + (70)) * -1)
+			icon_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*6) + (70)) * -1)
 			stack_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*7) + (70)) * -1)
 			sound_effect_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*8) + (70)) * -1)
 			say_something_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*9) + (70)) * -1)
+			aura_text_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*10) + (70)) * -1)
+			useglow_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*11) + (70)) * -1)
 			
-			aura_addon_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*11) + (60)) * -1)
+			aura_addon_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*13) + (60)) * -1)
 
-			create_button:SetPoint ("topleft", f, "topleft", x_start, ((y_start*13) + (60)) * -1)
-			cancel_button:SetPoint ("topright", f, "topright", x_start*-1, ((y_start*13) + (60)) * -1)
+			create_button:SetPoint ("topleft", f, "topleft", x_start, ((y_start*15) + (60)) * -1)
+			cancel_button:SetPoint ("topright", f, "topright", x_start*-1, ((y_start*15) + (60)) * -1)
 			
 		end
 		
@@ -584,6 +676,16 @@
 		DetailsAuraPanel.spellname.text = spellname
 		DetailsAuraPanel.AuraSpellId.text = tostring (spellid)
 		DetailsAuraPanel.icon.texture = spellicon
+
+		DetailsAuraPanel.UseGlow.glow_test.animIn:Stop()
+		DetailsAuraPanel.UseGlow.glow_test.animOut:Play()
+		DetailsAuraPanel.UseGlow:SetValue (false)
+		
+		DetailsAuraPanel.AuraOnDropdown:Select (1, true)
+		DetailsAuraPanel.StackSlider:SetValue (0)
+		DetailsAuraPanel.SoundEffectDropdown:Select (1, true)
+		DetailsAuraPanel.AuraText:SetText ("")
+		DetailsAuraPanel.SaySomething:SetText ("")
 		
 		DetailsAuraPanel:Show()
 	end
