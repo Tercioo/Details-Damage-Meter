@@ -305,6 +305,20 @@ local function CreatePluginFrames (data)
 			EncounterDetails:SetTutorialCVar ("ENCOUNTER_DETAILS_TUTORIAL2", true)
 			EncounterDetails:ButtonsTutorial()
 		end
+
+		--select latest emote segment
+		Details_EncounterDetailsEmotesSegmentDropdown.MyObject:Select (1)
+		Details_EncounterDetailsEmotesSegmentDropdown.MyObject:Refresh()
+		FauxScrollFrame_SetOffset (EncounterDetails_EmoteScroll, 0)
+		EncounterDetails:SetEmoteSegment (1)
+		EncounterDetails_EmoteScroll:Update()
+		
+		if (EncounterDetailsFrame.ShowType ~= "emotes") then
+			--hide emote frames
+			for _, widget in pairs (EncounterDetails.Frame.EmoteWidgets) do
+				widget:Hide()
+			end
+		end
 		
 		return true
 	end
@@ -856,7 +870,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 		end
 		EncounterDetails.update_enemy_spells()
 	end
-	
+
 	EncounterDetails.LastSegmentShown = _combat_object
 	
 -------------- set boss name and zone name --------------

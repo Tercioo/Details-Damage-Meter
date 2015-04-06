@@ -988,6 +988,7 @@
 		local textPoint = {"left", "right", -11, -5}
 		local avatarTexCoord = {0, 1, 0, 1}
 		local backgroundColor = {0, 0, 0, 0.6}
+		local avatarTextColor = {1, 1, 1, 1}
 		
 		function _detalhes:AddTooltipBackgroundStatusbar()
 			GameCooltip:AddStatusBar (100, 1, unpack (_detalhes.tooltip.background))
@@ -1056,7 +1057,7 @@
 						if (avatar [2] and avatar [4] and avatar [1]) then
 							GameCooltip:SetBannerImage (1, avatar [2], 80, 40, avatarPoint, avatarTexCoord, nil) --> overlay [2] avatar path
 							GameCooltip:SetBannerImage (2, avatar [4], 200, 55, backgroundPoint, avatar [5], avatar [6]) --> background
-							GameCooltip:SetBannerText (1, (not _detalhes.ignore_nicktag and avatar [1]) or objeto.nome, textPoint) --> text [1] nickname
+							GameCooltip:SetBannerText (1, (not _detalhes.ignore_nicktag and avatar [1]) or objeto.nome, textPoint, avatarTextColor, 14, SharedMedia:Fetch ("font", _detalhes.tooltip.fontface)) --> text [1] nickname
 						end
 					else
 						if (_detalhes.remove_realm_from_name and objeto.displayName:find ("%*")) then

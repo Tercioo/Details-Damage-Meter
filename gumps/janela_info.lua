@@ -223,6 +223,9 @@ end
 -- for beta todo: info background need a major rewrite
 function gump:TrocaBackgroundInfo()
 
+	info.bg3_sec_texture:Hide()
+	info.bg2_sec_texture:Hide()
+
 	if (info.atributo == 1) then --> DANO
 	
 		if (info.sub_atributo == 1 or info.sub_atributo == 2) then --> damage done / dps
@@ -243,6 +246,8 @@ function gump:TrocaBackgroundInfo()
 			if (info.tipo ~= 2) then --> janela com fundo diferente
 				info.bg1:SetTexture ([[Interface\AddOns\Details\images\info_window_background]])
 				info.bg1_sec_texture:SetTexture ([[Interface\AddOns\Details\images\info_window_damagetaken]])
+				info.bg3_sec_texture:Show()
+				info.bg2_sec_texture:Show()
 				info.tipo = 2
 			end
 			
@@ -254,6 +259,8 @@ function gump:TrocaBackgroundInfo()
 			if (info.tipo ~= 3) then --> janela com fundo diferente
 				info.bg1:SetTexture ([[Interface\AddOns\Details\images\info_window_background]])
 				info.bg1_sec_texture:SetTexture ([[Interface\AddOns\Details\images\info_window_damagetaken]])
+				info.bg3_sec_texture:Show()
+				info.bg2_sec_texture:Show()
 				info.tipo = 3
 			end
 			info.targets:SetText (Loc ["STRING_SPELLS"] .. ":")
@@ -262,6 +269,8 @@ function gump:TrocaBackgroundInfo()
 			if (info.tipo ~= 3) then --> janela com fundo diferente
 				info.bg1:SetTexture ([[Interface\AddOns\Details\images\info_window_background]])
 				info.bg1_sec_texture:SetTexture ([[Interface\AddOns\Details\images\info_window_damagetaken]])
+				info.bg3_sec_texture:Show()
+				info.bg2_sec_texture:Show()
 				info.tipo = 3
 			end
 			info.targets:SetText (Loc ["STRING_DAMAGE_TAKEN_FROM"])
@@ -290,6 +299,8 @@ function gump:TrocaBackgroundInfo()
 			if (info.tipo ~= 2) then --> janela com fundo diferente			
 				info.bg1:SetTexture ([[Interface\AddOns\Details\images\info_window_background]])
 				info.bg1_sec_texture:SetTexture ([[Interface\AddOns\Details\images\info_window_damagetaken]])
+				info.bg3_sec_texture:Show()
+				info.bg2_sec_texture:Show()
 				info.tipo = 2
 			end
 			
@@ -802,10 +813,26 @@ function gump:CriaJanelaInfo()
 	_detalhes:SetPlayerDetailsWindowTexture ("Interface\\AddOns\\Details\\images\\info_window_background")
 
 	este_gump.bg1_sec_texture = este_gump:CreateTexture (nil, "BORDER")
-	este_gump.bg1_sec_texture:SetDrawLayer ("BORDER", 2)
+	este_gump.bg1_sec_texture:SetDrawLayer ("BORDER", 4)
 	este_gump.bg1_sec_texture:SetPoint ("topleft", este_gump.bg1, "topleft", 348, -86)
 	este_gump.bg1_sec_texture:SetHeight (262)
 	este_gump.bg1_sec_texture:SetWidth (264)
+	
+	este_gump.bg2_sec_texture = este_gump:CreateTexture (nil, "BORDER")
+	este_gump.bg2_sec_texture:SetDrawLayer ("BORDER", 3)
+	este_gump.bg2_sec_texture:SetPoint ("topleft", este_gump.bg1_sec_texture, "topleft", 8, 0)
+	este_gump.bg2_sec_texture:SetPoint ("bottomright", este_gump.bg1_sec_texture, "bottomright", -30, 0)
+	este_gump.bg2_sec_texture:SetTexture ([[Interface\Glues\CREDITS\Warlords\Shadowmoon_Color_jlo3]])
+	este_gump.bg2_sec_texture:SetDesaturated (true)
+	este_gump.bg2_sec_texture:SetAlpha (0.3)
+	este_gump.bg2_sec_texture:Hide()
+
+	este_gump.bg3_sec_texture = este_gump:CreateTexture (nil, "BORDER")
+	este_gump.bg3_sec_texture:SetDrawLayer ("BORDER", 2)
+	este_gump.bg3_sec_texture:SetPoint ("topleft", este_gump.bg2_sec_texture, "topleft", 0, 0)
+	este_gump.bg3_sec_texture:SetPoint ("bottomright", este_gump.bg2_sec_texture, "bottomright", 0, 0)
+	este_gump.bg3_sec_texture:SetTexture (0, 0, 0, 1)
+	este_gump.bg3_sec_texture:Hide()
 	
 	--> botão de fechar
 	este_gump.fechar = _CreateFrame ("Button", nil, este_gump, "UIPanelCloseButton")
@@ -3240,6 +3267,10 @@ function _detalhes.janela_info:monta_relatorio (botao)
 			--> is a pet
 		else
 			nome = _GetSpellInfo (player.detalhes)
+			local spelllink = GetSpellLink (player.detalhes)
+			if (spelllink) then
+				nome = spelllink
+			end
 		end
 		
 		if (not nome) then
@@ -3280,6 +3311,9 @@ function _detalhes.janela_info:monta_relatorio (botao)
 			linha = linha..dano_porcento.." "
 		end
 
+		--> remove a cor da school
+		linha = linha:gsub ("|c%x?%x?%x?%x?%x?%x?%x?%x?", "")
+		linha = linha:gsub ("|r", "")
 		
 		report_lines [#report_lines+1] = linha
 		
@@ -3762,7 +3796,7 @@ function gump:CriaNovaBarraInfo2 (instancia, index)
 	return esta_barra
 end
 
-local x_start = 62
+local x_start = 61
 local y_start = -10
 
 function gump:CriaNovaBarraInfo3 (instancia, index)
@@ -3782,7 +3816,7 @@ function gump:CriaNovaBarraInfo3 (instancia, index)
 	y = y*-1
 	
 	esta_barra:SetPoint ("LEFT", janela, "LEFT", x_start, 0)
-	esta_barra:SetPoint ("RIGHT", janela, "RIGHT", 59, 0)
+	esta_barra:SetPoint ("RIGHT", janela, "RIGHT", 65, 0)
 	esta_barra:SetPoint ("TOP", janela, "TOP", 0, y+y_start)
 	
 	esta_barra:EnableMouse (true)

@@ -648,7 +648,7 @@ local runes_id = {
 			
 			focus_aug2:SetText (n)
 
-			local bigger = math.max (amount1, amount2, amount3, amount4, amount5, amount6)
+			local bigger = math.max (amount1, amount2, amount3, amount4, amount5, amount6, amount7)
 			show_panel:SetHeight (100 + (bigger * 10))
 			
 		end

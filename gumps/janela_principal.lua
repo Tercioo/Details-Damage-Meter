@@ -5424,7 +5424,7 @@ local build_segment_list = function (self, elapsed)
 			
 			-- combats added
 			local combats_added = _detalhes.tabela_overall.segments_added or _detalhes.empty_table
-			CoolTip:AddLine ("Segments" .. ":", #combats_added, 2, "white", "white")
+			CoolTip:AddLine (Loc ["STRING_SEGMENTS"] .. ":", #combats_added, 2, "white", "white")
 			
 			if (#combats_added > 0) then
 				CoolTip:AddLine ("", "", 2, "white", "white")

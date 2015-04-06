@@ -216,7 +216,7 @@ local blackrock_foundry = {
 		},
 		
 		[8] = {
-			boss = "Kromog, Legend of the Mountain",
+			boss = "Kromog",
 			portrait = [[Interface\ENCOUNTERJOURNAL\UI-EJ-BOSS-Kromog]],
 			
 			--> spell list

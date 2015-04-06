@@ -1490,6 +1490,10 @@ do
 		scrollframe:Update()
 	end
 	
+	function EncounterDetails:SetEmoteSegment (segment)
+		emote_segment = segment
+	end
+	
 	local segment_icon = [[Interface\AddOns\Details\images\icons]]
 	local segment_icon_coord = {0.7373046875, 0.9912109375, 0.6416015625, 0.7978515625}
 	local segment_icon_color = {1, 1, 1, 0.5}
