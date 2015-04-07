@@ -19,7 +19,7 @@ do
 	_detalhes.resize_debug = {}
 
 	local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
-
+ 
 --[[
 |cFFFFFF00-|r .\n\n
 |cFFFFFF00v3.12.5 (|cFFFFCC00May 03, 2015|r|cFFFFFF00)|r:\n\n
