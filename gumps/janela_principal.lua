@@ -1865,6 +1865,12 @@ local barra_scripts_onmousedown = function (self, button)
 		return
 	end
 	
+	local lefttext = self.texto_esquerdo
+	if (lefttext.untruncated) then
+		lefttext.untruncated = nil
+		_detalhes.left_anti_truncate:Hide()
+	end
+	
 	if (button == "RightButton") then
 		return _detalhes.switch:ShowMe (self._instance)
 	
