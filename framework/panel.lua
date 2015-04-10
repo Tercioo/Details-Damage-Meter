@@ -1225,6 +1225,29 @@ function gump:IconPick (callback, close_when_select)
 	
 end	
 
+local simple_panel_counter = 1
+local simple_panel_mouse_down = function (self, button)
+	if (button == "RightButton") then
+		if (self.IsMoving) then
+			self.IsMoving = false
+			self:StopMovingOrSizing()
+		end
+		self:Hide()
+		return
+	end
+	self.IsMoving = true
+	self:StartMoving()
+end
+local simple_panel_mouse_up = function (self, button)
+	if (self.IsMoving) then
+		self.IsMoving = false
+		self:StopMovingOrSizing()
+	end
+end
+local simple_panel_settitle = function (self, title)
+	self.title:SetText (title)
+end
+
 function gump:CreateSimplePanel (parent, w, h, title, name)
 	
 	if (not name) then
@@ -1937,26 +1960,5 @@ function gump:CreateChartPanel (parent, w, h, name)
 	return f
 end
 
-local simple_panel_counter = 1
-local simple_panel_mouse_down = function (self, button)
-	if (button == "RightButton") then
-		if (self.IsMoving) then
-			self.IsMoving = false
-			self:StopMovingOrSizing()
-		end
-		self:Hide()
-		return
-	end
-	self.IsMoving = true
-	self:StartMoving()
-end
-local simple_panel_mouse_up = function (self, button)
-	if (self.IsMoving) then
-		self.IsMoving = false
-		self:StopMovingOrSizing()
-	end
-end
-local simple_panel_settitle = function (self, title)
-	self.title:SetText (title)
-end
+
 

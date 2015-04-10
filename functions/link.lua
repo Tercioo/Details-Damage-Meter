@@ -266,7 +266,7 @@
 		},
 	}
 	
-	function _detalhes:CreateWeakAura (spellid, use_spellid, spellname, name, icon_texture, target, stacksize, sound, chat, icon_text, icon_glow)
+	function _detalhes:CreateWeakAura (spellid, use_spellid, spellname, name, icon_texture, target, stacksize, sound, chat, icon_text, icon_glow, encounter_id)
 	
 		--> check if wa is installed
 		if (not WeakAuras or not WeakAurasSaved) then
@@ -281,6 +281,11 @@
 		
 		--> create the icon table
 		local icon = _detalhes.table.copy ({}, icon_prototype)
+		
+		if (encounter_id) then
+			icon.load.use_encounterid = true
+			icon.load.encounterid = tostring (encounter_id)
+		end
 		
 		icon.id = name
 		icon.displayIcon = icon_texture
@@ -432,7 +437,7 @@
 
 	end
 	
-	function _detalhes:OpenAuraPanel (spellid, spellname, spellicon)
+	function _detalhes:OpenAuraPanel (spellid, spellname, spellicon, encounterid)
 		
 		spellname = select (1, GetSpellInfo (spellid))
 		
@@ -627,9 +632,11 @@
 				
 				local icon_text = f.AuraText.text
 				local icon_glow = f.UseGlow.value
+				
+				local eid = DetailsAuraPanel.encounterid
 
 				if (addon == "WA") then
-					_detalhes:CreateWeakAura (spellid, use_spellId, spellname, name, icon, target, stacksize, sound, chat, icon_text, icon_glow)
+					_detalhes:CreateWeakAura (spellid, use_spellId, spellname, name, icon, target, stacksize, sound, chat, icon_text, icon_glow, eid)
 				else
 					_detalhes:Msg ("No Aura Addon selected. Addons currently supported: WeakAuras 2.")
 				end
@@ -671,6 +678,7 @@
 		end
 		
 		DetailsAuraPanel.spellid = spellid
+		DetailsAuraPanel.encounterid = encounterid
 		
 		DetailsAuraPanel.name.text = spellname .. " (d!)"
 		DetailsAuraPanel.spellname.text = spellname

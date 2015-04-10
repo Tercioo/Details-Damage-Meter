@@ -122,6 +122,27 @@ function SlashCmdList.DETAILS (msg, editbox)
 	
 	elseif (command == "feedback") then
 		_detalhes.OpenFeedbackWindow()
+		
+	elseif (command == "profile") then
+		if (rest and rest ~= "") then
+		
+			local profile = _detalhes:GetProfile (rest)
+			if (not profile) then
+				return _detalhes:Msg ("Profile Not Found.")
+			end
+			
+			if (not _detalhes:ApplyProfile (rest)) then
+				return
+			end
+			
+			_detalhes:Msg (Loc ["STRING_OPTIONS_PROFILE_LOADED"], rest)
+			if (_G.DetailsOptionsWindow and _G.DetailsOptionsWindow:IsShown()) then
+				_G.DetailsOptionsWindow:Hide()
+				GameCooltip:Close()
+			end
+		else
+			_detalhes:Msg ("/details profile <profile name>")
+		end
 	
 -------- debug ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 

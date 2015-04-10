@@ -147,13 +147,13 @@ function DetailsCreateCoolTip()
 	--> Create Frames
 	
 		--> main frame
-		local frame1 = CreateFrame ("Frame", "CoolTipFrame1", UIParent, "CooltipMainFrameTemplate")
-		tinsert (UISpecialFrames, "CoolTipFrame1")
+		local frame1 = CreateFrame ("Frame", "GameCoolTipFrame1", UIParent, "CooltipMainFrameTemplate")
+		tinsert (UISpecialFrames, "GameCoolTipFrame1")
 		gump:CreateFlashAnimation (frame1)
 		
 		--> secondary frame
-		local frame2 = CreateFrame ("Frame", "CoolTipFrame2", UIParent, "CooltipMainFrameTemplate")
-		tinsert (UISpecialFrames, "CoolTipFrame2")
+		local frame2 = CreateFrame ("Frame", "GameCoolTipFrame2", UIParent, "CooltipMainFrameTemplate")
+		tinsert (UISpecialFrames, "GameCoolTipFrame2")
 		gump:CreateFlashAnimation (frame2)
 		frame2:SetClampedToScreen (true)
 		
@@ -1082,9 +1082,7 @@ function DetailsCreateCoolTip()
 		for i = 1, CoolTip.IndexesSub [index] do
 		
 			local menuButton = frame2.Lines [i]
-			
-			-- CoolTipFrame2.Lines [2].divbar
-			
+
 			if (menuButton.leftText:GetText() == "$div") then
 			
 				--> height

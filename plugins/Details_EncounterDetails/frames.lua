@@ -1661,9 +1661,9 @@ do
 		GameTooltip:Hide()
 	end
 	
-	local create_aura_func = function (spellid, _, self)
+	local create_aura_func = function (spellid, encounter_id, self)
 		local name, _, icon = EncounterDetails.getspellinfo (spellid)
-		EncounterDetails:OpenAuraPanel (spellid, name, self and self.MyObject._icon.texture)
+		EncounterDetails:OpenAuraPanel (spellid, name, self and self.MyObject._icon.texture, encounter_id)
 	end
 	
 	for i = 1, 10 do
@@ -1745,6 +1745,7 @@ do
 			end
 			
 			EncounterDetails_SpellAurasScroll.spell_pool = spell_list
+			EncounterDetails_SpellAurasScroll.encounter_id = combat.is_boss and combat.is_boss.id
 			EncounterDetails_SpellAurasScroll:Update()
 		end
 	end
@@ -1752,6 +1753,7 @@ do
 	local refresh_spellauras = function (self)
 		
 		local pool = EncounterDetails_SpellAurasScroll.spell_pool
+		local encounter_id = EncounterDetails_SpellAurasScroll.encounter_id
 		local offset = FauxScrollFrame_GetOffset (self)
 		
 		for bar_index = 1, 10 do 
@@ -1777,7 +1779,7 @@ do
 					bar.spellname:SetBackdropBorderColor (1, 1, 1)
 				end
 				
-				bar.aurabutton:SetClickFunction (create_aura_func, data [1])
+				bar.aurabutton:SetClickFunction (create_aura_func, data [1], encounter_id)
 
 			else
 				bar:Hide()

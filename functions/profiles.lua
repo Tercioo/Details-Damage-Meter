@@ -12,7 +12,7 @@
 function _detalhes:GetCurrentProfileName()
 
 	--> check is have a profile name
-		if (_detalhes_database.active_profile == "") then
+		if (_detalhes_database.active_profile == "") then --  or not _detalhes_database.active_profile
 			local character_key = UnitName ("player") .. "-" .. GetRealmName()
 			_detalhes_database.active_profile = character_key
 		end
@@ -104,7 +104,7 @@ function _detalhes:GetProfile (name, create)
 		end
 		
 		local profile = _detalhes_global.__profiles [name]
-		
+
 		if (not profile and not create) then
 			return false
 
