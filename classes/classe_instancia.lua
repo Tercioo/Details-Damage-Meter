@@ -1825,6 +1825,10 @@ end
 ------------------------------------------------------------------------------------------------------------------------
 
 function _detalhes:CheckSwitchToCurrent()
+	if (DetailsReportWindow and DetailsReportWindow:IsShown()) then
+		_detalhes.delay_CheckSwitchToCurrent = true
+		return
+	end
 	for _, instance in _ipairs (_detalhes.tabela_instancias) do
 		if (instance.ativa and instance.baseframe and instance.segmento ~= 0 and instance.auto_current) then
 			instance:TrocaTabela (0) --> muda o segmento pra current
@@ -1897,7 +1901,7 @@ function _detalhes:AtualizaSegmentos_AfterCombat (instancia, historico)
 	local segmento = instancia.segmento
 
 	local _fadeType, _fadeSpeed = _unpack (_detalhes.row_fade_in)
-	
+
 	if (segmento == _detalhes.segments_amount) then --> significa que o index [5] passou a ser [6] com a entrada da nova tabela
 		instancia.showing = historico.tabelas [_detalhes.segments_amount] --> então ele volta a pegar o index [5] que antes era o index [4]
 
@@ -1906,6 +1910,7 @@ function _detalhes:AtualizaSegmentos_AfterCombat (instancia, historico)
 		instancia.v_barras = true
 		instancia:ResetaGump()
 		instancia:AtualizaGumpPrincipal (true)
+		_detalhes:AtualizarJanela (instancia)
 		
 	elseif (segmento < _detalhes.segments_amount and segmento > 0) then
 		instancia.showing = historico.tabelas [segmento]
@@ -1915,6 +1920,7 @@ function _detalhes:AtualizaSegmentos_AfterCombat (instancia, historico)
 		instancia.v_barras = true
 		instancia:ResetaGump()
 		instancia:AtualizaGumpPrincipal (true)
+		_detalhes:AtualizarJanela (instancia)
 	end
 	
 end

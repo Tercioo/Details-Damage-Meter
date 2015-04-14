@@ -1172,7 +1172,9 @@ function TimeAttack:OnEvent (_, event, ...)
 				
 				--> Register needed events
 				_G._detalhes:RegisterEvent (TimeAttack, "COMBAT_PLAYER_ENTER")
-				
+				_G._detalhes:RegisterEvent (TimeAttack, "REALM_CHANNEL_ENTER")
+				_G._detalhes:RegisterEvent (TimeAttack, "REALM_CHANNEL_LEAVE")
+
 				--> create widgets
 				CreatePluginFrames()
 				

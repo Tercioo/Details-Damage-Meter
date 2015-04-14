@@ -572,6 +572,11 @@ General/Trade: 255 189 192
 		este_gump:SetScript ("OnHide", function (self)
 			_detalhes.janela_report.ativa = false
 			_detalhes.last_report_id = nil
+			
+			if (_detalhes.delay_CheckSwitchToCurrent) then
+				_detalhes.delay_CheckSwitchToCurrent = nil
+				_detalhes:CheckSwitchToCurrent()
+			end
 		end)
 
 		este_gump:SetWidth (320)

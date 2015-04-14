@@ -230,7 +230,7 @@
 --> internal functions
 -- _detalhes.statistics = {container_calls = 0, container_pet_calls = 0, container_unknow_pet = 0, damage_calls = 0, heal_calls = 0, absorbs_calls = 0, energy_calls = 0, pets_summons = 0}
 
-		-- ~start ~inicio
+		-- ~start ~inicio ~novo ñovo
 		function _detalhes:EntrarEmCombate (...)
 
 			if (_detalhes.debug) then
@@ -333,7 +333,7 @@
 			end
 		end
 		
-		-- ~end
+		-- ~end ~leave
 		function _detalhes:SairDoCombate (bossKilled, from_encounter_end)
 		
 			if (_detalhes.debug) then
@@ -592,8 +592,8 @@
 				_detalhes:CancelTimer (_detalhes.cloud_process)
 			end
 			
-			_detalhes.in_combat = false --sinaliza ao addon que não há combate no momento
-			_detalhes.leaving_combat = false --sinaliza que não esta mais saindo do combate
+			_detalhes.in_combat = false
+			_detalhes.leaving_combat = false
 			
 			_detalhes:OnCombatPhaseChanged()
 			_table_wipe (_detalhes.tabela_vigente.PhaseData.damage_section)
@@ -964,8 +964,23 @@
 			end
 		end
 
+		function _detalhes:PostponeInstanceToCurrent (instance)
+			if ((instance.last_interaction+6 < _detalhes._tempo) and (not DetailsReportWindow or not DetailsReportWindow:IsShown())) then
+				if (instance.segmento == 0) then
+					return _detalhes:TrocaSegmentoAtual (instance)
+				end
+			end
+			_detalhes:ScheduleTimer ("PostponeInstanceToCurrent", 2, instance)
+		end
+		
 		function _detalhes:TrocaSegmentoAtual (instancia)
 			if (instancia.segmento == 0) then --> esta mostrando a tabela Atual
+				
+				if ((instancia.last_interaction and (instancia.last_interaction+6 > _detalhes._tempo)) or (DetailsReportWindow and DetailsReportWindow:IsShown())) then
+					--> postpone
+					return _detalhes:ScheduleTimer ("PostponeInstanceToCurrent", 2, instancia)
+				end
+				
 				instancia.showing =_detalhes.tabela_vigente
 				instancia:ResetaGump()
 				_detalhes.gump:Fade (instancia, "in", nil, "barras")

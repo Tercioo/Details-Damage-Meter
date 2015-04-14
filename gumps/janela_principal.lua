@@ -348,6 +348,7 @@ local function OnEnterMainWindow (instancia, self)
 	instancia.is_interacting = true
 	instancia:SetMenuAlpha (nil, nil, nil, nil, true)
 	instancia:SetAutoHideMenu (nil, nil, true)
+	instancia.last_interaction = _detalhes._tempo or time()
 
 	if (instancia.baseframe:GetFrameLevel() > instancia.rowframe:GetFrameLevel()) then
 		instancia.rowframe:SetFrameLevel (instancia.baseframe:GetFrameLevel())

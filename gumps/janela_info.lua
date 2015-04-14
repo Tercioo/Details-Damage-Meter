@@ -29,6 +29,8 @@ local classe_icones = _G.CLASS_ICON_TCOORDS
 
 function _detalhes:AbreJanelaInfo (jogador, from_att_change)
 
+	--print (debugstack())
+
 	if (not _detalhes.row_singleclick_overwrite [self.atributo] or not _detalhes.row_singleclick_overwrite [self.atributo][self.sub_atributo]) then
 		_detalhes:FechaJanelaInfo()
 		return

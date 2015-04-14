@@ -312,8 +312,27 @@ end
 --[1] tabela [2] time [3] nome [4] classe [5] maxhealth [6] time of death
 --[1] true damage/ false heal [2] spellid [3] amount [4] time [5] current health [6] source
 
+local report_table = {}
+local ReportSingleDeathFunc = function (IsCurrent, IsReverse, AmtLines)
+
+	AmtLines = AmtLines + 1
+
+	local t = {}
+	for i = 1, _math_min (#report_table, AmtLines) do
+		local table = report_table [i]
+		t [#t+1] = table [1] .. table [4] .. table [2] .. table [3]
+	end
+	
+	local title = tremove (t, 1)
+	t = _detalhes.table.reverse (t)
+	tinsert (t, 1, title)
+	
+	_detalhes:SendReportLines (t)
+	
+end
+
 function atributo_misc:ReportSingleDeadLine (morte, instancia)
--- 
+
 	local barra = instancia.barras [morte.minha_barra]
 	
 	local max_health = morte [5]
@@ -333,11 +352,11 @@ function atributo_misc:ReportSingleDeadLine (morte, instancia)
 	end
 	local default_len = _detalhes.fontstring_len:GetStringWidth()
 	
-	local reportar = {"Details! " .. Loc ["STRING_REPORT_SINGLE_DEATH"] .. " " .. morte [3] .. " " .. Loc ["STRING_ACTORFRAME_REPORTAT"] .. " " .. morte [6]}
+	wipe (report_table)
+	local report_array = report_table
+	report_array[1] = {"Details! " .. Loc ["STRING_REPORT_SINGLE_DEATH"] .. " " .. morte [3] .. " " .. Loc ["STRING_ACTORFRAME_REPORTAT"] .. " " .. morte [6], "", "", ""}
 	
-	local report_array = {}
-	
-	for index, evento in _ipairs (morte [1]) do
+	for index, evento in _ipairs (_detalhes.table.reverse (morte [1])) do
 		if (evento [1] and type (evento [1]) == "boolean") then --> damage
 			if (evento [3]) then
 				local elapsed = _cstr ("%.1f", evento [4] - time_of_death) .."s"
@@ -381,16 +400,18 @@ function atributo_misc:ReportSingleDeadLine (morte, instancia)
 		end
 	end
 	
-	for index = #report_array, 1, -1 do
-		local table = report_array [index]
-		reportar [#reportar+1] = table [1] .. table [4] .. table [2] .. table [3]
-	end
+	_detalhes:SendReportWindow (ReportSingleDeathFunc, nil, nil, true)
+	
+	--for index = #report_array, 1, -1 do
+	--	local table = report_array [index]
+	--	reportar [#reportar+1] = table [1] .. table [4] .. table [2] .. table [3]
+	--end
 	
 	--for index, table in _ipairs (report_array) do
 	--	reportar [#reportar+1] = table [1] .. table [4] .. table [2] .. table [3]
 	--end
 	
-	return _detalhes:Reportar (reportar, {_no_current = true, _no_inverse = true, _custom = true})
+	--return _detalhes:Reportar (reportar, {_no_current = true, _no_inverse = true, _custom = true})
 end
 
 function atributo_misc:ReportSingleCooldownLine (misc_actor, instancia)

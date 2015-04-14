@@ -188,8 +188,30 @@
 		end
 		return false
 	end
+
+	--> reverse numerical table
+	function _detalhes:reverse_table (t)
+		local new = {}
+		local index = 1
+		for i = #t, 1, -1 do
+			new [index] = t[i]
+			index = index + 1
+		end
+		return new
+	end
 	
 	_detalhes.table = {}
+	
+	function _detalhes.table.reverse (t)
+		local new = {}
+		local index = 1
+		for i = #t, 1, -1 do
+			new [index] = t[i]
+			index = index + 1
+		end
+		return new
+	end
+	--yah, i know
 	
 	function _detalhes.table.copy (t1, t2)
 		local table_deepcopy = table_deepcopy
@@ -309,17 +331,6 @@
 		return from > #s and "" or s:match(".*%S", from)
 	end
 	
-	--> reverse numerical table
-	function _detalhes:reverse_table (t)
-		local new = {}
-		local index = 1
-		for i = #t, 1, -1 do
-			new [index] = t[i]
-			index = index + 1
-		end
-		return new
-	end
-
 -- lua base64 codec (c) 2006-2008 by Alex Kloss - http://www.it-rfc.de - licensed under the terms of the LGPL2 - http://lua-users.org/wiki/BaseSixtyFour
 do
 	_detalhes._encode = {}

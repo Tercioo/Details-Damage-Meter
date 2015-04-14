@@ -35,7 +35,11 @@ function historico:adicionar_overall (tabela)
 
 	--> store the segments added to the overall data
 	_detalhes.tabela_overall.segments_added = _detalhes.tabela_overall.segments_added or {}
-	tinsert (_detalhes.tabela_overall.segments_added, {name = tabela:GetCombatName (true), elapsed = tabela:GetCombatTime(), clock = tabela:GetDate()[1]})
+	tinsert (_detalhes.tabela_overall.segments_added, 1, {name = tabela:GetCombatName (true), elapsed = tabela:GetCombatTime(), clock = tabela:GetDate()[1]})
+	
+	if (#_detalhes.tabela_overall.segments_added > 20) then
+		tremove (_detalhes.tabela_overall.segments_added, 21)
+	end
 	
 	_detalhes.tabela_overall = _detalhes.tabela_overall + tabela
 	tabela.overall_added = true
@@ -291,8 +295,7 @@ function historico:adicionar (tabela)
 	
 	--> chama a função que irá atualizar as instâncias com segmentos no histórico
 	_detalhes:InstanciaCallFunction (_detalhes.AtualizaSegmentos_AfterCombat, self)
-	
-	_detalhes:InstanciaCallFunction (_detalhes.AtualizarJanela)
+	--_detalhes:InstanciaCallFunction (_detalhes.AtualizarJanela)
 end
 
 --> verifica se tem alguma instancia congelada mostrando o segmento recém liberado

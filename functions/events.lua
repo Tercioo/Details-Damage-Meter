@@ -1,13 +1,10 @@
---File Revision: 1
---Last Modification: 27/07/2013
--- Change Log:
-	-- 27/07/2013: Finished alpha version.
-	
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 	local _detalhes = _G._detalhes
 	local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
 	local _
+	
 	--> Event types:
 	_detalhes.RegistredEvents = {
 		--> instances
@@ -50,7 +47,12 @@
 		
 		--> buffs
 			["BUFF_UPDATE"] = {},
-			["BUFF_UPDATE_DEBUFFPOWER"] = {}
+			["BUFF_UPDATE_DEBUFFPOWER"] = {},
+			
+		--> network
+			["REALM_CHANNEL_ENTER"] = {},
+			["REALM_CHANNEL_LEAVE"] = {},
+		
 	}
 
 	local function AlreadyRegistred (_tables, _object)
@@ -93,6 +95,8 @@ local common_events = {
 	["GROUP_ONENTER"] = true,
 	["GROUP_ONLEAVE"] = true,
 	["ZONE_TYPE_CHANGED"] = true,
+	["REALM_CHANNEL_ENTER"] = true,
+	["REALM_CHANNEL_LEAVE"] = true,
 }
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

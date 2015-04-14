@@ -566,6 +566,8 @@
 		--> enter
 		JoinChannelByName (room_name)
 		_detalhes.is_connected = true
+		
+		_detalhes:SendEvent ("REALM_CHANNEL_ENTER")
 	end
 	
 	function _detalhes:LeaveChatChannel()
@@ -601,6 +603,8 @@
 		_detalhes.is_connected = false
 		
 		_detalhes.listener:UnregisterEvent ("CHAT_MSG_CHANNEL")
+		
+		_detalhes:SendEvent ("REALM_CHANNEL_LEAVE")
 	end
 	
 	function _detalhes:DoZoneCheck()
