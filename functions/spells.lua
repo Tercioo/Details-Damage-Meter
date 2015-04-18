@@ -1627,7 +1627,8 @@ do
 			[138925]	=	true, -- trinket "Stolen Relic of Zuldazar"
 
 	}
-	
+
+		-- ~cooldown 1 self
 	_detalhes.DefensiveCooldownSpellsNoBuff = {
 		
 		[20594] = {120, 8, 1}, --racial stoneform
@@ -1639,6 +1640,7 @@ do
 		[48743] = {120, 0, 1}, --Death Pact
 		[51052] = {120, 3, 0}, --Anti-Magic Zone
 		[152279] = {120, 6}, -- "Breath of Sindragosa"
+		[48982] = {30, 0, 1}, -- "Blood Täp"
 		
 		--["DRUID"] = {},
 		[740] = {480, 8, 0}, --Tranquility

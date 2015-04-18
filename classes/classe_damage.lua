@@ -3173,6 +3173,16 @@ function atributo_damage:MontaDetalhesDamageDone (spellid, barra, instancia)
 			end
 		end
 		
+		local hits_string = "" .. total_hits
+		
+		local misc_actor = info.instancia.showing (4, self:name())
+		if (misc_actor) then
+			local debuff_uptime = misc_actor.debuff_uptime_spells and misc_actor.debuff_uptime_spells._ActorTable [esta_magia.id] and misc_actor.debuff_uptime_spells._ActorTable [esta_magia.id].uptime
+			if (debuff_uptime) then
+				hits_string = hits_string .. "  |cFFDDDD44(" .. _math_floor (debuff_uptime / info.instancia.showing:GetCombatTime() * 100) .. "% uptime)|r"
+			end
+		end
+		
 		gump:SetaDetalheInfoTexto ( index, 100,
 			Loc ["STRING_GERAL"],
 			Loc ["STRING_DAMAGE"]..": ".._detalhes:ToK (esta_magia.total), 
@@ -3180,7 +3190,7 @@ function atributo_damage:MontaDetalhesDamageDone (spellid, barra, instancia)
 			schooltext, --offhand,
 			Loc ["STRING_AVERAGE"] .. ": " .. _detalhes:comma_value (media), 
 			this_dps,
-			Loc ["STRING_HITS"]..": " .. total_hits)
+			Loc ["STRING_HITS"]..": " .. hits_string)
 	
 	--> NORMAL
 		local normal_hits = esta_magia.n_amt
@@ -3280,6 +3290,8 @@ function atributo_damage:MontaDetalhesDamageDone (spellid, barra, instancia)
 			t4[8] = esta_magia.m_amt .. " / " .. _cstr ("%.1f", esta_magia.m_amt/total_hits*100) .. "%"
 
 		end
+		
+		
 	
 	_table_sort (data, _detalhes.Sort1)
 	
