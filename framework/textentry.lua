@@ -717,7 +717,7 @@ function gump:NewSpecialLuaEditorEntry (parent, w, h, member, name, nointent)
 	borderframe.ClearFocus = function_clearfocus
 	borderframe.SetFocus = function_setfocus
 	
-	if (not nointent) then
+	if ((not nointent) and (IndentationLib and IndentationLib.enable)) then
 		IndentationLib.enable (scrollframe.editbox, nil, 4)
 	end
 	
