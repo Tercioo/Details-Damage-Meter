@@ -36,9 +36,13 @@ local _
 		window:StopMovingOrSizing()
 	end)
 	
-	local background_frame_image = background_frame:CreateTexture (nil, "background")
-	background_frame_image:SetAllPoints (background_frame)
-	background_frame_image:SetTexture ([[Interface\AddOns\Details\images\welcome]])
+	background_frame:SetBackdrop ({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 64,
+	edgeFile = [[Interface\AddOns\Details\images\border_3]], edgeSize = 9, insets = {left = 2, right = 2, top = 3, bottom = 3}})
+	background_frame:SetBackdropColor (0, 0, 0, 0.95)
+	
+--	local background_frame_image = background_frame:CreateTexture (nil, "background")
+--	background_frame_image:SetAllPoints (background_frame)
+--	background_frame_image:SetTexture ([[Interface\AddOns\Details\images\welcome]])
 	
 	local haveHFlip = false
 	local haveVFlip = false

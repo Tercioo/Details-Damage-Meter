@@ -578,6 +578,9 @@ function gump:NewTextEntry (parent, container, name, member, w, h, func, param1,
 	
 	TextEntryObject.label = _G [name .. "_Desc"]
 	
+	TextEntryObject.editbox:SetBackdrop ({bgFile = [[Interface\AddOns\Details\images\background]], tileSize = 64, edgeFile = [[Interface\AddOns\Details\images\border_2]], edgeSize = 12, insets = {left = 1, right = 1, top = 1, bottom = 1}})
+	TextEntryObject.editbox:SetBackdropColor (0, 0, 0, 0.5)
+	
 	--> hooks
 		TextEntryObject.editbox:SetScript ("OnEnter", OnEnter)
 		TextEntryObject.editbox:SetScript ("OnLeave", OnLeave)

@@ -2384,6 +2384,16 @@ function atributo_misc:r_onlyrefresh_shadow (actor)
 
 	_detalhes.refresh:r_atributo_misc (actor, shadow)
 
+	--> spell cast
+	if (actor.spell_cast) then
+		if (not shadow.spell_cast) then
+			shadow.spell_cast = {}
+		end
+		for spellid, _ in _pairs (actor.spell_cast) do
+			shadow.spell_cast [spellid] = shadow.spell_cast [spellid] or 0
+		end
+	end
+	
 	--> cc done
 		if (actor.cc_done) then
 			refresh_alvos (shadow.cc_done_targets, actor.cc_done_targets)
@@ -2503,6 +2513,16 @@ function atributo_misc:r_connect_shadow (actor, no_refresh)
 		_detalhes.refresh:r_atributo_misc (actor, shadow)
 	end
 
+	if (actor.spell_cast) then
+		if (not shadow.spell_cast) then
+			shadow.spell_cast = {}
+		end
+		
+		for spellid, amount in _pairs (actor.spell_cast) do
+			shadow.spell_cast [spellid] = (shadow.spell_cast [spellid] or 0) + amount
+		end
+	end
+	
 	if (actor.cc_done) then
 		if (not shadow.cc_done_targets) then
 			shadow.cc_done = _detalhes:GetOrderNumber()
@@ -2703,6 +2723,13 @@ function _detalhes.refresh:r_atributo_misc (este_jogador, shadow)
 	_setmetatable (este_jogador, _detalhes.atributo_misc)
 	este_jogador.__index = _detalhes.atributo_misc
 	
+	--> refresh spell cast
+	if (este_jogador.spell_cast) then
+		if (shadow and not shadow.spell_cast) then
+			shadow.spell_cast = {}
+		end
+	end
+	
 	--> refresh cc done
 	if (este_jogador.cc_done) then
 		if (shadow and not shadow.cc_done_targets) then
@@ -2838,6 +2865,12 @@ function _detalhes.clear:c_atributo_misc (este_jogador)
 end
 
 atributo_misc.__add = function (tabela1, tabela2)
+
+	if (tabela2.spell_cast) then
+		for spellid, amount in _pairs (tabela2.spell_cast) do
+			tabela1.spell_cast [spellid] = (tabela1.spell_cast [spellid] or 0) + amount
+		end
+	end
 
 	if (tabela2.cc_done) then
 		tabela1.cc_done = tabela1.cc_done + tabela2.cc_done
@@ -3096,6 +3129,12 @@ local subtrair_keys = function (habilidade, habilidade_tabela1)
 end
 
 atributo_misc.__sub = function (tabela1, tabela2)
+
+	if (tabela2.spell_cast) then
+		for spellid, amount in _pairs (tabela2.spell_cast) do
+			tabela1.spell_cast [spellid] = (tabela1.spell_cast [spellid] or 0) - amount
+		end
+	end
 
 	if (tabela2.cc_done) then
 		tabela1.cc_done = tabela1.cc_done - tabela2.cc_done

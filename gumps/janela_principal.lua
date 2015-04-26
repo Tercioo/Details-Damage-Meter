@@ -58,10 +58,6 @@ function  _detalhes:ScheduleUpdate (instancia)
 	end
 end
 
-local menu_wallpaper_tex = {.6, 0.1, 0, 0.64453125}
---local menu_wallpaper_color = {1, 1, 1, 0.1}
-local menu_wallpaper_color = {.8, .8, .8, 0.2}
-
 --> skins TCoords
 
 --	0.00048828125
@@ -324,21 +320,27 @@ local function OnLeaveMainWindow (instancia, self)
 	
 	if (instancia.modo ~= _detalhes._detalhes_props["MODO_ALONE"] and not instancia.baseframe.isLocked) then
 
-		--> resizes and lock button
-		instancia.baseframe.resize_direita:SetAlpha (0)
-		instancia.baseframe.resize_esquerda:SetAlpha (0)
-		instancia.baseframe.lock_button:SetAlpha (0)
-		instancia.break_snap_button:SetAlpha (0)
+		--> resizes, lock and ungroup buttons
+		if (not _detalhes.disable_lock_ungroup_buttons) then
+			instancia.baseframe.resize_direita:SetAlpha (0)
+			instancia.baseframe.resize_esquerda:SetAlpha (0)
+			instancia.baseframe.lock_button:SetAlpha (0)
+			instancia.break_snap_button:SetAlpha (0)
+		end
 		
 		--> stretch button
-		--gump:Fade (instancia.baseframe.button_stretch, -1)
 		gump:Fade (instancia.baseframe.button_stretch, "ALPHA", 0)
 	
 	elseif (instancia.modo ~= _detalhes._detalhes_props["MODO_ALONE"] and instancia.baseframe.isLocked) then
-		instancia.baseframe.lock_button:SetAlpha (0)
+	
+		--> resizes, lock and ungroup buttons
+		if (not _detalhes.disable_lock_ungroup_buttons) then
+			instancia.baseframe.lock_button:SetAlpha (0)
+			instancia.break_snap_button:SetAlpha (0)
+		end
+		
 		gump:Fade (instancia.baseframe.button_stretch, "ALPHA", 0)
-		instancia.break_snap_button:SetAlpha (0)
-
+		
 	end
 end
 _detalhes.OnLeaveMainWindow = OnLeaveMainWindow
@@ -356,34 +358,40 @@ local function OnEnterMainWindow (instancia, self)
 	
 	if (instancia.modo ~= _detalhes._detalhes_props["MODO_ALONE"] and not instancia.baseframe.isLocked) then
 
-		--> resizes and lock button
-		instancia.baseframe.resize_direita:SetAlpha (1)
-		instancia.baseframe.resize_esquerda:SetAlpha (1)
-		instancia.baseframe.lock_button:SetAlpha (1)
+		--> resize, lock and ungroup buttons
+		if (not _detalhes.disable_lock_ungroup_buttons) then
+			instancia.baseframe.resize_direita:SetAlpha (1)
+			instancia.baseframe.resize_esquerda:SetAlpha (1)
+			instancia.baseframe.lock_button:SetAlpha (1)
+			
+			--> ungroup
+			for _, instancia_id in _pairs (instancia.snap) do
+				if (instancia_id) then
+					instancia.break_snap_button:SetAlpha (1)
+					break
+				end
+			end
+		end
 		
 		--> stretch button
 		gump:Fade (instancia.baseframe.button_stretch, "ALPHA", 0.6)
-	
-		--> snaps
-		for _, instancia_id in _pairs (instancia.snap) do
-			if (instancia_id) then
-				instancia.break_snap_button:SetAlpha (1)
-				break
-			end
-		end
 		
 	elseif (instancia.modo ~= _detalhes._detalhes_props["MODO_ALONE"] and instancia.baseframe.isLocked) then
-		instancia.baseframe.lock_button:SetAlpha (1)
-		gump:Fade (instancia.baseframe.button_stretch, "ALPHA", 0.6)
-		
-		--> snaps
-		for _, instancia_id in _pairs (instancia.snap) do
-			if (instancia_id) then
-				instancia.break_snap_button:Show()
-				instancia.break_snap_button:SetAlpha (1)
-				break
+	
+		if (not _detalhes.disable_lock_ungroup_buttons) then
+			instancia.baseframe.lock_button:SetAlpha (1)
+
+			--> ungroup
+			for _, instancia_id in _pairs (instancia.snap) do
+				if (instancia_id) then
+					instancia.break_snap_button:Show()
+					instancia.break_snap_button:SetAlpha (1)
+					break
+				end
 			end
 		end
+		
+		gump:Fade (instancia.baseframe.button_stretch, "ALPHA", 0.6)
 	
 	end
 end
@@ -999,8 +1007,8 @@ local BGFrame_scripts_onleave = function (self)
 end
 
 local BGFrame_scripts_onmousedown = function (self, button)
-
-	if (self.is_toolbar and self._instance.baseframe.isLocked and button == "LeftButton") then
+	-- /run Details.disable_stretch_from_toolbar = true
+	if (self.is_toolbar and self._instance.baseframe.isLocked and button == "LeftButton" and not _detalhes.disable_stretch_from_toolbar) then
 		return self._instance.baseframe.button_stretch:GetScript ("OnMouseDown") (self._instance.baseframe.button_stretch, "LeftButton")
 	end
 
@@ -1580,7 +1588,7 @@ local resize_scripts_onenter = function (self)
 		GameCooltip:SetOption ("TextSize", _detalhes.font_sizes.menus)
 		GameCooltip:SetOption ("TextFont", _detalhes.font_faces.menus)		
 		GameCooltip:SetOption ("NoLastSelectedBar", true)
-		GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], menu_wallpaper_tex, menu_wallpaper_color, true)
+		GameCooltip:SetWallpaper (1, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
 		GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
 		GameCooltip:SetOwner (self)
 		GameCooltip:ShowCooltip()
@@ -1631,7 +1639,7 @@ local lockFunctionOnEnter = function (self)
 		GameCooltip:SetOption ("NoLastSelectedBar", true)
 		GameCooltip:SetOption ("TextSize", _detalhes.font_sizes.menus)
 		GameCooltip:SetOption ("TextFont", _detalhes.font_faces.menus)
-		GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], menu_wallpaper_tex, menu_wallpaper_color, true)
+		GameCooltip:SetWallpaper (1, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
 		GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
 		GameCooltip:SetOwner (self)
 		GameCooltip:ShowCooltip()
@@ -1730,7 +1738,7 @@ local unSnapButtonOnEnter = function (self)
 	GameCooltip:AddFromTable (unSnapButtonTooltip)
 	GameCooltip:SetOption ("TextSize", _detalhes.font_sizes.menus)
 	GameCooltip:SetOption ("TextFont", _detalhes.font_faces.menus)
-	GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], menu_wallpaper_tex, menu_wallpaper_color, true)
+	GameCooltip:SetWallpaper (1, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
 	GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
 	GameCooltip:ShowCooltip (self, "tooltip")
 	
@@ -4903,7 +4911,7 @@ local build_mode_list = function (self, elapsed)
 				end
 			end
 			
-			CoolTip:SetWallpaper (2, [[Interface\SPELLBOOK\Spellbook-Page-1]], menu_wallpaper_tex, menu_wallpaper_color, true)
+			CoolTip:SetWallpaper (2, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
 			
 			if (amt <= 3) then
 				CoolTip:SetOption ("SubFollowButton", true)
@@ -4923,7 +4931,7 @@ local build_mode_list = function (self, elapsed)
 					CoolTip:AddMenu (2, _detalhes.SoloTables.EnableSoloMode, instancia, ptable [4], true, ptable [1], ptable [2], true)
 				end
 			end
-			CoolTip:SetWallpaper (2, [[Interface\SPELLBOOK\Spellbook-Page-1]], menu_wallpaper_tex, menu_wallpaper_color, true)
+			CoolTip:SetWallpaper (2, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
 		end
 		
 		--> window control
@@ -5027,7 +5035,7 @@ local build_mode_list = function (self, elapsed)
 		GameCooltip:AddIcon ([[Interface\Buttons\UI-Panel-MinimizeButton-Up]], 2, 1, 14, 14, 0.2, 0.8, 0.2, 0.8)
 		GameCooltip:AddMenu (2, _detalhes.close_instancia_func, instancia.baseframe.cabecalho.fechar)
 		
-		CoolTip:SetWallpaper (2, [[Interface\SPELLBOOK\Spellbook-Page-1]], menu_wallpaper_tex, menu_wallpaper_color, true)
+		CoolTip:SetWallpaper (2, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
 		
 		--> options
 		GameCooltip:AddLine ("$div")
@@ -5040,7 +5048,7 @@ local build_mode_list = function (self, elapsed)
 		
 		CoolTip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
 		CoolTip:SetBackdrop (2, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
-		CoolTip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], menu_wallpaper_tex, menu_wallpaper_color, true)
+		CoolTip:SetWallpaper (1, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
 		
 		show_anti_overlap (instancia, self, "top")
 		
@@ -5328,7 +5336,7 @@ local build_segment_list = function (self, elapsed)
 					CoolTip:AddIcon ([[Interface\QUESTFRAME\UI-Quest-BulletPoint]], "main", "left", 16, 16, nil, nil, nil, nil, empty_segment_color)
 					CoolTip:AddLine (Loc ["STRING_SEGMENT_EMPTY"], _, 2)
 					CoolTip:AddIcon ([[Interface\CHARACTERFRAME\Disconnect-Icon]], 2, 1, 12, 12, 0.3125, 0.65625, 0.265625, 0.671875)
-					CoolTip:SetWallpaper (2, [[Interface\SPELLBOOK\Spellbook-Page-1]], menu_wallpaper_tex, menu_wallpaper_color, true)
+					CoolTip:SetWallpaper (2, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
 				end
 				
 				if (menuIndex) then
@@ -5479,8 +5487,11 @@ local build_segment_list = function (self, elapsed)
 		
 		CoolTip:SetOption ("HeighMod", 12)
 
-		--CoolTip:SetWallpaper (1, [[Interface\ACHIEVEMENTFRAME\UI-Achievement-Parchment-Horizontal-Desaturated]], nil, {1, 1, 1, 0.3})
-		CoolTip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], menu_wallpaper_tex, menu_wallpaper_color, true)
+		--CoolTip:SetWallpaper (1, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
+		--CoolTip:SetWallpaper (1, _detalhes.tooltip.menus_bg_texture, {66/512, 1, 78/512, 435/512}, _detalhes.tooltip.menus_bg_color, true)
+		CoolTip:SetWallpaper (1, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
+		--CoolTip:SetWallpaper (1, _detalhes.tooltip.menus_bg_texture, {331/512, 63/512, 109/512, 143/512}, _detalhes.tooltip.menus_bg_color, true)
+
 		CoolTip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
 		CoolTip:SetBackdrop (2, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
 		
@@ -6801,7 +6812,7 @@ end
 		GameCooltip:AddIcon ([[Interface\Buttons\UI-StopButton]], 1, 1, 14, 14, 0, 1, 0, 1, "orange")
 		GameCooltip:AddMenu (1, _detalhes.tabela_historico.resetar_overall)
 		
-		GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], menu_wallpaper_tex, menu_wallpaper_color, true)
+		GameCooltip:SetWallpaper (1, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
 		GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
 		
 		show_anti_overlap (self.instance, self, "top")
@@ -6887,8 +6898,8 @@ end
 		GameCooltip:AddLine (Loc ["STRING_MENU_CLOSE_INSTANCE_DESC2"], nil, 2, "white", nil, _detalhes.font_sizes.menus, _detalhes.font_faces.menus)
 		GameCooltip:AddIcon ([[Interface\PaperDollInfoFrame\UI-GearManager-LeaveItem-Transparent]], 2, 1, 18, 18)
 		
-		GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], menu_wallpaper_tex, menu_wallpaper_color, true)
-		GameCooltip:SetWallpaper (2, [[Interface\SPELLBOOK\Spellbook-Page-1]], menu_wallpaper_tex, menu_wallpaper_color, true)
+		GameCooltip:SetWallpaper (1, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
+		GameCooltip:SetWallpaper (2, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
 		GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
 		GameCooltip:SetBackdrop (2, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
 		
@@ -7286,7 +7297,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 				GameCooltip:SetOption ("IgnoreButtonAutoHeight", false)
 				GameCooltip:AddLine ("All raid plugins already\nin use or disabled.", nil, 1, "white", nil, 10, SharedMedia:Fetch ("font", "Friz Quadrata TT"))
 				GameCooltip:AddIcon ([[Interface\GROUPFRAME\UI-GROUP-ASSISTANTICON]], 1, 1)
-				GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], menu_wallpaper_tex, menu_wallpaper_color, true)
+				GameCooltip:SetWallpaper (1, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
 			end
 		else
 			_detalhes:MontaAtributosOption (instancia)
@@ -7369,7 +7380,7 @@ function gump:CriaCabecalho (baseframe, instancia)
 				GameCooltip:AddIcon ([[Interface\Addons\Details\Images\report_button]], 1, 1, 12, 19)
 				GameCooltip:AddMenu (1, _detalhes.Reportar, instancia, nil, "INSTANCE" .. instancia.meu_id)
 				
-				GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], menu_wallpaper_tex, menu_wallpaper_color, true)
+				GameCooltip:SetWallpaper (1, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
 				GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
 				
 				show_anti_overlap (instancia, self, "top")

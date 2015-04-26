@@ -2155,11 +2155,40 @@
 	
 	--> search key: ~spellcast ~castspell ~cast
 	function parser:spellcast (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype)
+		
+	------------------------------------------------------------------------------------------------
+	--> early checks and fixes
+	
+		--> only capture if is in combat
+		if (not _in_combat) then
+			return
+		end
+		
+		if (not who_name) then
+			who_name = "[*] " .. spellname
+		end
 
-		--if (spellname == "Shield Block") then
-		--	print (who_name, spellid, spellname)
-		--end
+	------------------------------------------------------------------------------------------------
+	--> get actors
 
+		--> main actor
+		local este_jogador = misc_cache [who_name]
+		if (not este_jogador) then
+			este_jogador, meu_dono, who_name = _current_misc_container:PegarCombatente (who_serial, who_name, who_flags, true)
+			if (not meu_dono) then --> se não for um pet, adicionar no cache
+				misc_cache [who_name] = este_jogador
+			end
+		end
+		
+	------------------------------------------------------------------------------------------------
+	--> build containers on the fly
+		local spell_cast = este_jogador.spell_cast
+		if (not spell_cast) then
+			este_jogador.spell_cast = {[spellid] = 1}
+		else
+			spell_cast [spellid] = (spell_cast [spellid] or 0) + 1
+		end
+		
 	------------------------------------------------------------------------------------------------
 	--> record cooldowns cast which can't track with buff applyed.
 	
@@ -2176,9 +2205,8 @@
 					end
 				end
 				return parser:add_defensive_cooldown (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname)
-			else
-				return
 			end
+			
 		else
 			--> enemy successful casts (not interrupted)
 			if (_bit_band (who_flags, 0x00000040) ~= 0 and who_name) then --> byte 2 = 4 (enemy)

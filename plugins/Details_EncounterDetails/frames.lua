@@ -1632,7 +1632,7 @@ do
 	
 	BossFrame.EnemySpellsWidgets = {}
 
-	--> spells and auras
+	--> spells and auras ~auras
 
 	-- actor dropdown
 	
@@ -1666,6 +1666,34 @@ do
 		EncounterDetails:OpenAuraPanel (spellid, name, self and self.MyObject._icon.texture, encounter_id)
 	end
 	
+	local info_onenter = function (self)
+		local spellid = self._spellid
+		
+		local info = EncounterDetails.EnemySpellPool [spellid]
+		if (info) then
+			_detalhes:CooltipPreset (2)
+			GameCooltip:SetOption ("FixedWidth", false)
+			
+			for token, _ in pairs (info.token) do
+				GameCooltip:AddLine ("event:", token, 1, nil, "white")
+			end
+			
+			GameCooltip:AddLine ("source:", info.source, 1, nil, "white")
+			GameCooltip:AddLine ("school:", EncounterDetails:GetSpellSchoolFormatedName (info.school), 1, nil, "white")
+			
+			if (info.type) then
+				GameCooltip:AddLine ("aura type:", info.type, 1, nil, "white")
+			end
+			GameCooltip:ShowCooltip (self, "tooltip")
+		end
+		
+		self:SetBackdropColor (0.6, 0.6, 0.6, 0.5)
+	end
+	local info_onleave = function (self)
+		GameCooltip:Hide()
+		self:SetBackdropColor (0, 0, 0, 0.5)
+	end
+	
 	for i = 1, 10 do
 		local anchor_frame = CreateFrame ("frame", "BossFrameSpellAnchor" .. i, BossFrame)
 	
@@ -1677,13 +1705,13 @@ do
 		local spellicon = DetailsFrameWork:NewImage (spellicon_button, [[Interface\ICONS\TEMP]], 19, 19, "background", nil, "icon", "$parentIcon")
 		spellicon_button:InstallCustomTexture()
 		
-		local spellid = DetailsFrameWork:CreateTextEntry (anchor_frame, EncounterDetails.empty_function, 80, 20)
+		local spellid = DetailsFrameWork:CreateTextEntry (anchor_frame, EncounterDetails.empty_function, 60, 20)
 		spellid:SetHook ("OnEditFocusGained", on_focus_gain)
 		spellid:SetHook ("OnEditFocusLost", on_focus_lost)
 		spellid:SetHook ("OnEnter", on_enter_spell)
 		spellid:SetHook ("OnLeave", on_leave_spell)
 		
-		local spellname = DetailsFrameWork:CreateTextEntry (anchor_frame, EncounterDetails.empty_function, 160, 20)
+		local spellname = DetailsFrameWork:CreateTextEntry (anchor_frame, EncounterDetails.empty_function, 140, 20)
 		spellname:SetHook ("OnEditFocusGained", on_focus_gain)
 		spellname:SetHook ("OnEditFocusLost", on_focus_lost)
 		spellname:SetHook ("OnEnter", on_enter_spell)
@@ -1694,8 +1722,20 @@ do
 		spellid:SetPoint ("left", spellicon_button, "right", 4, 0)
 		spellname:SetPoint ("left", spellid, "right", 4, 0)
 		
+		local spellinfo = CreateFrame ("frame", nil, anchor_frame)
+		spellinfo:SetBackdrop ({bgFile = [[Interface\AddOns\Details\images\background]], tileSize = 64, edgeFile = [[Interface\AddOns\Details\images\border_2]], edgeSize = 12, insets = {left = 1, right = 1, top = 1, bottom = 1}})
+		spellinfo:SetBackdropColor (0, 0, 0, 0.5)
+		spellinfo:SetSize (60, 20)
+		spellinfo:SetScript ("OnEnter", info_onenter)
+		spellinfo:SetScript ("OnLeave", info_onleave)
+		
+		local spellinfotext = spellinfo:CreateFontString (nil, "overlay", "GameFontNormal")
+		spellinfotext:SetPoint ("center", spellinfo, "center")
+		spellinfotext:SetText ("info")
+		spellinfo:SetPoint ("left", spellname.widget, "right", 4, 0)
+		
 		local create_aura = DetailsFrameWork:NewButton (anchor_frame, nil, "$parentCreateAuraButton", "AuraButton", 105, 18, create_aura_func, nil, nil, nil, "Create Aura")
-		create_aura:SetPoint ("left", spellname, "right", 4, 0)
+		create_aura:SetPoint ("left", spellinfo, "right", 4, 0)
 		create_aura:InstallCustomTexture()
 		
 		anchor_frame.icon = spellicon
@@ -1703,6 +1743,7 @@ do
 		anchor_frame.spellname = spellname
 		anchor_frame.aurabutton = create_aura
 		anchor_frame.aurabutton._icon = spellicon
+		anchor_frame.info = spellinfo
 		
 		tinsert (spell_blocks, anchor_frame)
 		tinsert (BossFrame.EnemySpellsWidgets, anchor_frame)
@@ -1728,9 +1769,11 @@ do
 				for spellid, spell in pairs (npc.spells._ActorTable) do
 					if (spellid > 10) then
 						local name, _, icon = EncounterDetails.getspellinfo (spellid)
-						tinsert (spell_list, {spellid, name, icon})
+						tinsert (spell_list, {spellid, name, icon, nil, npc.serial})
 					end
 				end
+				
+				BossFrame.aura_npc_id2.text = EncounterDetails:GetNpcIdFromGuid (npc.serial)
 			end
 			
 			--heal
@@ -1739,9 +1782,11 @@ do
 				for spellid, spell in pairs (npc.spells._ActorTable) do
 					if (spellid > 10) then
 						local name, _, icon = EncounterDetails.getspellinfo (spellid)
-						tinsert (spell_list, {spellid, name, icon, true})
+						tinsert (spell_list, {spellid, name, icon, true, npc.serial})
 					end
 				end
+				
+				BossFrame.aura_npc_id2.text = EncounterDetails:GetNpcIdFromGuid (npc.serial)
 			end
 			
 			EncounterDetails_SpellAurasScroll.spell_pool = spell_list
@@ -1769,6 +1814,7 @@ do
 				
 				bar.spellid._spellid = data [1]
 				bar.spellname._spellid = data [1]
+				bar.info._spellid = data [1]
 				
 				local is_heal = data [4]
 				if (is_heal) then
@@ -1834,9 +1880,20 @@ do
 	bar_div:SetPoint ("TOPLEFT", BossFrame, "TOPLEFT", 244, -74)
 	bar_div:Hide()
 	
+	local npc_id = DetailsFrameWork:CreateLabel (BossFrame, "NpcID:", 11, nil, "GameFontHighlightSmall")
+	BossFrame.aura_npc_id = npc_id
+	npc_id:SetPoint ("topleft", BossFrame, "topleft", 25, -130)
+	npc_id:Hide()
+	local npc_id2 = DetailsFrameWork:CreateLabel (BossFrame, "", 11, nil, "GameFontHighlightSmall")
+	BossFrame.aura_npc_id2 = npc_id2
+	npc_id2:SetPoint ("left", npc_id, "right", 2, 0)
+	npc_id2:Hide()
+	
 	tinsert (BossFrame.EnemySpellsWidgets, EnemyActorSpells_label)
 	tinsert (BossFrame.EnemySpellsWidgets, EnemyActorSpells)
 	tinsert (BossFrame.EnemySpellsWidgets, bar_div)
+	tinsert (BossFrame.EnemySpellsWidgets, npc_id)
+	tinsert (BossFrame.EnemySpellsWidgets, npc_id2)
 	
 
 	

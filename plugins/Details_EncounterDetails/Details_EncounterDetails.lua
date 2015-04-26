@@ -1671,9 +1671,49 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 		end
 end
 
+local events_to_track = {
+	["SPELL_CAST_START"] = true, --not instant cast
+	["SPELL_CAST_SUCCESS"] = true, --not instant cast
+	["SPELL_AURA_APPLIED"] = true, --if is a debuff
+	["SPELL_DAMAGE"] = true, --damage
+	["SPELL_PERIODIC_DAMAGE"] = true, --dot damage
+	["SPELL_HEAL"] = true, --healing
+	["SPELL_PERIODIC_HEAL"] = true, --dot healing
+}
+
+local enemy_spell_pool
+local CLEvents = function (self, event, time, token, hidding, who_serial, who_name, who_flags, who_flags2, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, school, aura_type)
+	if (events_to_track [token] and _bit_band (who_flags or 0x0, 0x00000060) ~= 0) then
+		local t = enemy_spell_pool [spellid]
+		if (not t) then
+			t = {["token"] = {[token] = true}, ["source"] = who_name, ["school"] = school}
+			if (token == "SPELL_AURA_APPLIED") then
+				t.type = aura_type
+			end
+			enemy_spell_pool [spellid] = t
+			return
+			
+		elseif (t.token [token]) then
+			return
+		end
+		
+		t.token [token] = true
+		if (token == "SPELL_AURA_APPLIED") then
+			t.type = aura_type
+		end
+	end
+end
+
 function EncounterDetails:OnEvent (_, event, ...)
 
-	if (event == "ADDON_LOADED") then
+	if (event == "ENCOUNTER_START") then
+		--> tracks if a enemy spell is instant cast.
+		EncounterDetails.CLEvents:RegisterEvent ("COMBAT_LOG_EVENT_UNFILTERED")
+		
+	elseif (event == "ENCOUNTER_END") then
+		EncounterDetails.CLEvents:UnregisterEvent ("COMBAT_LOG_EVENT_UNFILTERED")
+	
+	elseif (event == "ADDON_LOADED") then
 		local AddonName = select (1, ...)
 		if (AddonName == "Details_EncounterDetails") then
 			
@@ -1713,9 +1753,11 @@ function EncounterDetails:OnEvent (_, event, ...)
 				if (type (install) == "table" and install.error) then
 					print (install.error)
 				end
-				
+--				table.wipe (EncounterDetailsDB.encounter_spells)
 				EncounterDetails.charsaved = EncounterDetailsDB or {emotes = {}}
 				EncounterDetailsDB = EncounterDetails.charsaved
+				
+				EncounterDetails.charsaved.encounter_spells = EncounterDetails.charsaved.encounter_spells or {}
 				
 				EncounterDetails.boss_emotes_table = EncounterDetails.charsaved.emotes
 				
@@ -1729,6 +1771,14 @@ function EncounterDetails:OnEvent (_, event, ...)
 				_G._detalhes:RegisterEvent (EncounterDetails, "GROUP_ONLEAVE")
 				
 				_G._detalhes:RegisterEvent (EncounterDetails, "ZONE_TYPE_CHANGED")
+				
+				EncounterDetailsFrame:RegisterEvent ("ENCOUNTER_START")
+				EncounterDetailsFrame:RegisterEvent ("ENCOUNTER_END")
+				EncounterDetails.EnemySpellPool = EncounterDetails.charsaved.encounter_spells
+				enemy_spell_pool = EncounterDetails.EnemySpellPool
+				EncounterDetails.CLEvents = CreateFrame ("frame", nil, UIParent)
+				EncounterDetails.CLEvents:SetScript ("OnEvent", CLEvents)
+				EncounterDetails.CLEvents:Hide()
 				
 				EncounterDetails.BossWhispColors = {
 					[1] = "RAID_BOSS_EMOTE",

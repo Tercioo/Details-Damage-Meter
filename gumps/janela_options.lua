@@ -53,12 +53,10 @@ local button_color_rgb = {1, 0.93, 0.74}
 local font_select_icon, font_select_texcoord = [[Interface\AddOns\Details\images\icons]], {472/512, 513/512, 186/512, 230/512}
 local texture_select_icon, texture_select_texcoord = [[Interface\AddOns\Details\images\icons]], {472/512, 513/512, 186/512, 230/512}
 
-local dropdown_backdrop = {edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border", edgeSize = 10,
-bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background", tile = true, tileSize = 16, insets = {left = 1, right = 1, top = 0, bottom = 1}}
-
 local dropdown_backdrop = {edgeFile = [[Interface\AddOns\Details\images\border_2]], edgeSize = 14,
-bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background", tile = true, tileSize = 16, insets = {left = 3, right = 3, top = 4, bottom = 4}}
+bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background", tile = true, tileSize = 16, insets = {left = 3, right = 3, top = 0, bottom = 0}}
 dropdown_backdrop_border_color = {.7, .7, .7}
+local dropdown_height = 16
 
 local dropdown_backdrop_onenter = {0, 0, 0, 1}
 local dropdown_backdrop_onleave = {.1, .1, .1, .9}
@@ -1287,7 +1285,7 @@ function window:CreateFrame20()
 		end
 
 		g:NewLabel (frame20, _, "$parentTooltipFontLabel", "TooltipFontLabel", Loc ["STRING_OPTIONS_TOOLTIPS_FONTFACE"] , "GameFontHighlightLeft")
-		local d = g:NewDropDown (frame20, _, "$parentTooltipFontDropdown", "TooltipFontDropdown", DROPDOWN_WIDTH, 20, build_tooltip_menu, _detalhes.tooltip.fontface)
+		local d = g:NewDropDown (frame20, _, "$parentTooltipFontDropdown", "TooltipFontDropdown", DROPDOWN_WIDTH, dropdown_height, build_tooltip_menu, _detalhes.tooltip.fontface)
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
@@ -1350,7 +1348,7 @@ function window:CreateFrame20()
 			return abbreviationOptions
 		end
 		
-		local d = g:NewDropDown (frame20, _, "$parentTooltipAbbreviateDropdown", "TooltipdpsAbbreviateDropdown", 160, 20, buildAbbreviationMenu, _detalhes.tooltip.abbreviation)
+		local d = g:NewDropDown (frame20, _, "$parentTooltipAbbreviateDropdown", "TooltipdpsAbbreviateDropdown", 160, dropdown_height, buildAbbreviationMenu, _detalhes.tooltip.abbreviation)
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
@@ -1388,7 +1386,7 @@ function window:CreateFrame20()
 			return maximizeOptions
 		end
 		
-		local d = g:NewDropDown (frame20, _, "$parentTooltipMaximizeDropdown", "TooltipMaximizeDropdown", 160, 20, buildMaximizeMenu, _detalhes.tooltip.maximize_method)
+		local d = g:NewDropDown (frame20, _, "$parentTooltipMaximizeDropdown", "TooltipMaximizeDropdown", 160, dropdown_height, buildMaximizeMenu, _detalhes.tooltip.maximize_method)
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
@@ -1432,7 +1430,7 @@ function window:CreateFrame20()
 			end
 			
 			g:NewLabel (frame20, _, "$parentBackdropBorderTextureLabel", "BackdropBorderTextureLabel", Loc ["STRING_TEXTURE"], "GameFontHighlightLeft")
-			local d = g:NewDropDown (frame20, _, "$parentBackdropBorderTextureDropdown", "BackdropBorderTextureDropdown", DROPDOWN_WIDTH, 20, buildTextureBackdropMenu, _detalhes.tooltip.border_texture)
+			local d = g:NewDropDown (frame20, _, "$parentBackdropBorderTextureDropdown", "BackdropBorderTextureDropdown", DROPDOWN_WIDTH, dropdown_height, buildTextureBackdropMenu, _detalhes.tooltip.border_texture)
 			d.onenter_backdrop = dropdown_backdrop_onenter
 			d.onleave_backdrop = dropdown_backdrop_onleave
 			d:SetBackdrop (dropdown_backdrop)
@@ -1508,7 +1506,7 @@ function window:CreateFrame20()
 				return anchorOptions
 			end
 			
-			local d = g:NewDropDown (frame20, _, "$parentTooltipAnchorDropdown", "TooltipAnchorDropdown", 160, 20, buildAnchorMenu, _detalhes.tooltip.anchored_to)
+			local d = g:NewDropDown (frame20, _, "$parentTooltipAnchorDropdown", "TooltipAnchorDropdown", 160, dropdown_height, buildAnchorMenu, _detalhes.tooltip.anchored_to)
 			d.onenter_backdrop = dropdown_backdrop_onenter
 			d.onleave_backdrop = dropdown_backdrop_onleave
 			d:SetBackdrop (dropdown_backdrop)
@@ -1542,7 +1540,7 @@ function window:CreateFrame20()
 				return anchorPointOptions
 			end
 			
-			local d = g:NewDropDown (frame20, _, "$parentTooltipAnchorSideDropdown", "TooltipAnchorSideDropdown", 160, 20, buildAnchorPointMenu, _detalhes.tooltip.anchor_point)
+			local d = g:NewDropDown (frame20, _, "$parentTooltipAnchorSideDropdown", "TooltipAnchorSideDropdown", 160, dropdown_height, buildAnchorPointMenu, _detalhes.tooltip.anchor_point)
 			d.onenter_backdrop = dropdown_backdrop_onenter
 			d.onleave_backdrop = dropdown_backdrop_onleave
 			d:SetBackdrop (dropdown_backdrop)
@@ -1574,7 +1572,7 @@ function window:CreateFrame20()
 				return anchorRelativeOptions
 			end
 			
-			local d = g:NewDropDown (frame20, _, "$parentTooltipRelativeSideDropdown", "TooltipRelativeSideDropdown", 160, 20, buildAnchorRelativeMenu, _detalhes.tooltip.anchor_relative)
+			local d = g:NewDropDown (frame20, _, "$parentTooltipRelativeSideDropdown", "TooltipRelativeSideDropdown", 160, dropdown_height, buildAnchorRelativeMenu, _detalhes.tooltip.anchor_relative)
 			d.onenter_backdrop = dropdown_backdrop_onenter
 			d.onleave_backdrop = dropdown_backdrop_onleave
 			d:SetBackdrop (dropdown_backdrop)
@@ -1607,6 +1605,22 @@ function window:CreateFrame20()
 			end)
 			window:CreateLineBackground2 (frame20, "TooltipOffsetYSlider", "TooltipOffsetYLabel", Loc ["STRING_OPTIONS_TOOLTIPS_OFFSETY_DESC"])
 
+	--> edit menu background
+		local edit_menu_bg_callback = function (width, height, overlayColor, alpha, texCoords)
+			_detalhes.tooltip.menus_bg_color[1] = overlayColor[1]
+			_detalhes.tooltip.menus_bg_color[2] = overlayColor[2]
+			_detalhes.tooltip.menus_bg_color[3] = overlayColor[3]
+			_detalhes.tooltip.menus_bg_color[4] = alpha
+			_detalhes.tooltip.menus_bg_coords = texCoords
+		end
+		local edit_menu_bg_func = function()
+			g:ImageEditor (edit_menu_bg_callback, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, 250, 300, nil, _detalhes.tooltip.menus_bg_color[4], true)
+		end
+		local edit_menu_bg = g:NewButton (frame20, nil, "$parentEditMenuBgButton", "EditMenuBgButton", window.buttons_width, 18, edit_menu_bg_func, nil, nil, nil, Loc ["STRING_OPTIONS_TOOLTIPS_MENU_WALLP"])
+		edit_menu_bg:InstallCustomTexture (nil, nil, nil, nil, nil, true)
+		edit_menu_bg:SetIcon ([[Interface\CHATFRAME\UI-ChatIcon-Maximize-Down]], 12, 12, nil, {6/32, 23/32, 10/32, 25/32}, nil, 4, 2)
+		window:CreateLineBackground2 (frame20, "EditMenuBgButton", "EditMenuBgButton", Loc ["STRING_OPTIONS_TOOLTIPS_MENU_WALLP_DESC"], nil, {1, 0.8, 0}, button_color_rgb)
+		
 	--> anchors:
 	
 		--general anchor
@@ -1651,6 +1665,7 @@ function window:CreateFrame20()
 			{"TooltipRelativeSideLabel", 5},
 			{"TooltipOffsetXLabel", 6, true},
 			{"TooltipOffsetYLabel", 7},
+			{edit_menu_bg, 8, true}, 
 		}
 		
 		window:arrange_menu (frame20, right_side, x, -90)
@@ -1706,7 +1721,7 @@ function window:CreateFrame19()
 				local build_menu = function()
 					return menu
 				end
-				local dropdown = g:NewDropDown (frame19, _, "$parentMinimapActionDropdown", "minimapActionDropdown", 160, 20, build_menu, _detalhes.minimap.onclick_what_todo)
+				local dropdown = g:NewDropDown (frame19, _, "$parentMinimapActionDropdown", "minimapActionDropdown", 160, dropdown_height, build_menu, _detalhes.minimap.onclick_what_todo)
 				dropdown.onenter_backdrop = dropdown_backdrop_onenter
 				dropdown.onleave_backdrop = dropdown_backdrop_onleave
 				dropdown:SetBackdrop (dropdown_backdrop)
@@ -1796,7 +1811,7 @@ function window:CreateFrame19()
 			return abbreviationOptions
 		end
 		
-		local d = g:NewDropDown (frame19, _, "$parentBrokerNumberAbbreviateDropdown", "BrokerNumberAbbreviateDropdown", 160, 20, buildAbbreviationMenu, _detalhes.minimap.text_format)
+		local d = g:NewDropDown (frame19, _, "$parentBrokerNumberAbbreviateDropdown", "BrokerNumberAbbreviateDropdown", 160, dropdown_height, buildAbbreviationMenu, _detalhes.minimap.text_format)
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
@@ -1913,7 +1928,7 @@ function window:CreateFrame18()
 				return BuildSwitchMenu()
 			end
 			
-			local d = g:NewDropDown (frame18, _, "$parentAutoSwitchDropdown", "autoSwitchDropdown", 160, 20, BuildThisMenu, 1)
+			local d = g:NewDropDown (frame18, _, "$parentAutoSwitchDropdown", "autoSwitchDropdown", 160, dropdown_height, BuildThisMenu, 1)
 			d.onenter_backdrop = dropdown_backdrop_onenter
 			d.onleave_backdrop = dropdown_backdrop_onleave
 			d:SetBackdrop (dropdown_backdrop)
@@ -1943,7 +1958,7 @@ function window:CreateFrame18()
 				return BuildSwitchMenu()
 			end
 			
-			local d = g:NewDropDown (frame18, _, "$parentAutoSwitchWipeDropdown", "autoSwitchWipeDropdown", 160, 20, BuildThisMenu, 1) -- func, default
+			local d = g:NewDropDown (frame18, _, "$parentAutoSwitchWipeDropdown", "autoSwitchWipeDropdown", 160, dropdown_height, BuildThisMenu, 1) -- func, default
 			d.onenter_backdrop = dropdown_backdrop_onenter
 			d.onleave_backdrop = dropdown_backdrop_onleave
 			d:SetBackdrop (dropdown_backdrop)
@@ -1973,7 +1988,7 @@ function window:CreateFrame18()
 				return BuildSwitchMenu()
 			end
 			
-			local d = g:NewDropDown (frame18, _, "$parentAutoSwitchDamageNoCombatDropdown", "AutoSwitchDamageNoCombatDropdown", 160, 20, BuildThisMenu, 1) -- func, default
+			local d = g:NewDropDown (frame18, _, "$parentAutoSwitchDamageNoCombatDropdown", "AutoSwitchDamageNoCombatDropdown", 160, dropdown_height, BuildThisMenu, 1) -- func, default
 			d.onenter_backdrop = dropdown_backdrop_onenter
 			d.onleave_backdrop = dropdown_backdrop_onleave
 			d:SetBackdrop (dropdown_backdrop)
@@ -2004,7 +2019,7 @@ function window:CreateFrame18()
 				return BuildSwitchMenu()
 			end
 			
-			local d = g:NewDropDown (frame18, _, "$parentAutoSwitchDamageCombatDropdown", "AutoSwitchDamageCombatDropdown", 160, 20, BuildThisMenu, 1) -- func, default
+			local d = g:NewDropDown (frame18, _, "$parentAutoSwitchDamageCombatDropdown", "AutoSwitchDamageCombatDropdown", 160, dropdown_height, BuildThisMenu, 1) -- func, default
 			d.onenter_backdrop = dropdown_backdrop_onenter
 			d.onleave_backdrop = dropdown_backdrop_onleave
 			d:SetBackdrop (dropdown_backdrop)
@@ -2035,7 +2050,7 @@ function window:CreateFrame18()
 				return BuildSwitchMenu()
 			end
 			
-			local d = g:NewDropDown (frame18, _, "$parentAutoSwitchHealNoCombatDropdown", "AutoSwitchHealNoCombatDropdown", 160, 20, BuildThisMenu, 1) -- func, default
+			local d = g:NewDropDown (frame18, _, "$parentAutoSwitchHealNoCombatDropdown", "AutoSwitchHealNoCombatDropdown", 160, dropdown_height, BuildThisMenu, 1) -- func, default
 			d.onenter_backdrop = dropdown_backdrop_onenter
 			d.onleave_backdrop = dropdown_backdrop_onleave
 			d:SetBackdrop (dropdown_backdrop)
@@ -2067,7 +2082,7 @@ function window:CreateFrame18()
 				return BuildSwitchMenu()
 			end
 			
-			local d = g:NewDropDown (frame18, _, "$parentAutoSwitchHealCombatDropdown", "AutoSwitchHealCombatDropdown", 160, 20, BuildThisMenu, 1) -- func, default
+			local d = g:NewDropDown (frame18, _, "$parentAutoSwitchHealCombatDropdown", "AutoSwitchHealCombatDropdown", 160, dropdown_height, BuildThisMenu, 1) -- func, default
 			d.onenter_backdrop = dropdown_backdrop_onenter
 			d.onleave_backdrop = dropdown_backdrop_onleave
 			d:SetBackdrop (dropdown_backdrop)
@@ -2099,7 +2114,7 @@ function window:CreateFrame18()
 				return BuildSwitchMenu()
 			end
 			
-			local d = g:NewDropDown (frame18, _, "$parentAutoSwitchTankNoCombatDropdown", "AutoSwitchTankNoCombatDropdown", 160, 20, BuildThisMenu, 1) -- func, default
+			local d = g:NewDropDown (frame18, _, "$parentAutoSwitchTankNoCombatDropdown", "AutoSwitchTankNoCombatDropdown", 160, dropdown_height, BuildThisMenu, 1) -- func, default
 			d.onenter_backdrop = dropdown_backdrop_onenter
 			d.onleave_backdrop = dropdown_backdrop_onleave
 			d:SetBackdrop (dropdown_backdrop)
@@ -2130,7 +2145,7 @@ function window:CreateFrame18()
 				return BuildSwitchMenu()
 			end
 			
-			local d = g:NewDropDown (frame18, _, "$parentAutoSwitchTankCombatDropdown", "AutoSwitchTankCombatDropdown", 160, 20, BuildThisMenu, 1) -- func, default
+			local d = g:NewDropDown (frame18, _, "$parentAutoSwitchTankCombatDropdown", "AutoSwitchTankCombatDropdown", 160, dropdown_height, BuildThisMenu, 1) -- func, default
 			d.onenter_backdrop = dropdown_backdrop_onenter
 			d.onleave_backdrop = dropdown_backdrop_onleave
 			d:SetBackdrop (dropdown_backdrop)
@@ -2210,7 +2225,7 @@ function window:CreateFrame18()
 			return InstanceList
 		end
 		
-		local d = g:NewDropDown (frame18, _, "$parentDeleteInstanceDropdown", "deleteInstanceDropdown", 160, 20, buildSelectDeleteInstance, 0) -- func, default
+		local d = g:NewDropDown (frame18, _, "$parentDeleteInstanceDropdown", "deleteInstanceDropdown", 160, dropdown_height, buildSelectDeleteInstance, 0) -- func, default
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
@@ -2264,7 +2279,7 @@ function window:CreateFrame18()
 			return fontTable 
 		end
 		
-		local d = g:NewDropDown (frame18, _, "$parentFontDropdown", "fontDropdown", DROPDOWN_WIDTH, 20, buildFontMenu, nil)		
+		local d = g:NewDropDown (frame18, _, "$parentFontDropdown", "fontDropdown", DROPDOWN_WIDTH, dropdown_height, buildFontMenu, nil)		
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
@@ -2298,6 +2313,18 @@ function window:CreateFrame18()
 		end
 		
 		window:CreateLineBackground2 (frame18, "DisableResetSlider", "DisableResetLabel", Loc ["STRING_OPTIONS_DISABLE_RESET_DESC"])
+		
+		--> disable lock resize ungroup buttons
+		g:NewLabel (frame18, _, "$parentDisableLockResizeUngroupLabel", "DisableLockResizeUngroupLabel", Loc ["STRING_OPTIONS_DISABLE_LOCK_RESIZE"], "GameFontHighlightLeft")
+		g:NewSwitch (frame18, _, "$parentDisableLockResizeUngroupSlider", "DisableLockResizeUngroupSlider", 60, 20, _, _, _detalhes.disable_lock_ungroup_buttons)
+
+		frame18.DisableLockResizeUngroupSlider:SetPoint ("left", frame18.DisableLockResizeUngroupLabel, "right", 2)
+		frame18.DisableLockResizeUngroupSlider.OnSwitch = function (_, _, value)
+			_detalhes.disable_lock_ungroup_buttons = value
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+		end
+		
+		window:CreateLineBackground2 (frame18, "DisableLockResizeUngroupSlider", "DisableLockResizeUngroupLabel", Loc ["STRING_OPTIONS_DISABLE_LOCK_RESIZE_DESC"])
 		
 		--> damage taken always on everything
 		g:NewLabel (frame18, _, "$parentDamageTakenEverythingLabel", "DamageTakenEverythingLabel", Loc ["STRING_OPTIONS_DTAKEN_EVERYTHING"], "GameFontHighlightLeft")
@@ -2368,7 +2395,7 @@ function window:CreateFrame18()
 		local BuildReportFormatOptions = function()
 			return ReportFormatOptions
 		end
-		local d = g:NewDropDown (frame18, _, "$parentReportFormatDropdown", "ReportFormatDropdown", 160, 20, BuildReportFormatOptions, nil)
+		local d = g:NewDropDown (frame18, _, "$parentReportFormatDropdown", "ReportFormatDropdown", 160, dropdown_height, BuildReportFormatOptions, nil)
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
@@ -2422,8 +2449,9 @@ function window:CreateFrame18()
 			{"fontLabel", 4},
 			{"DisableGroupsLabel", 5, true},
 			{"DisableResetLabel", 6},
-			{"DamageTakenEverythingLabel", 7},
-			{"scrollLabel", 8, true},
+			{"DisableLockResizeUngroupLabel", 7},
+			{"DamageTakenEverythingLabel", 8},
+			{"scrollLabel", 9, true},
 
 		}
 		
@@ -2474,7 +2502,7 @@ function window:CreateFrame17()
 			return typeCombatAlpha
 		end
 		
-		local d = g:NewDropDown (frame17, _, "$parentCombatAlphaDropdown", "combatAlphaDropdown", 160, 20, buildTypeCombatAlpha, nil)
+		local d = g:NewDropDown (frame17, _, "$parentCombatAlphaDropdown", "combatAlphaDropdown", 160, dropdown_height, buildTypeCombatAlpha, nil)
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
@@ -3439,7 +3467,7 @@ function window:CreateFrame14()
 		end
 
 		g:NewLabel (frame14, _, "$parentAttributeFontLabel", "attributeFontLabel", Loc ["STRING_OPTIONS_MENU_ATTRIBUTE_FONT"], "GameFontHighlightLeft")
-		local d = g:NewDropDown (frame14, _, "$parentAttributeFontDropdown", "attributeFontDropdown", DROPDOWN_WIDTH, 20, build_font_menu, instance.attribute_text.text_face)
+		local d = g:NewDropDown (frame14, _, "$parentAttributeFontDropdown", "attributeFontDropdown", DROPDOWN_WIDTH, dropdown_height, build_font_menu, instance.attribute_text.text_face)
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
@@ -3809,7 +3837,7 @@ function window:CreateFrame1()
 			return abbreviationOptions
 		end
 		
-		local d = g:NewDropDown (frame1, _, "$parentAbbreviateDropdown", "dpsAbbreviateDropdown", 160, 20, buildAbbreviationMenu, _detalhes.ps_abbreviation) -- func, default
+		local d = g:NewDropDown (frame1, _, "$parentAbbreviateDropdown", "dpsAbbreviateDropdown", 160, dropdown_height, buildAbbreviationMenu, _detalhes.ps_abbreviation) -- func, default
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
@@ -3971,7 +3999,7 @@ function window:CreateFrame1()
 				return EraseDataOptions
 			end
 			
-			local d = g:NewDropDown (frame1, _, "$parentEraseDataDropdown", "EraseDataDropdown", 160, 20, BuildEraseDataMenu, _detalhes.segments_auto_erase)
+			local d = g:NewDropDown (frame1, _, "$parentEraseDataDropdown", "EraseDataDropdown", 160, dropdown_height, BuildEraseDataMenu, _detalhes.segments_auto_erase)
 			d.onenter_backdrop = dropdown_backdrop_onenter
 			d.onleave_backdrop = dropdown_backdrop_onleave
 			d:SetBackdrop (dropdown_backdrop)
@@ -4117,7 +4145,7 @@ function window:CreateFrame2()
 		local buildTimeTypeMenu = function()
 			return timetypeOptions
 		end
-		local d = g:NewDropDown (frame2, _, "$parentTTDropdown", "timetypeDropdown", 160, 20, buildTimeTypeMenu, nil) -- func, default
+		local d = g:NewDropDown (frame2, _, "$parentTTDropdown", "timetypeDropdown", 160, dropdown_height, buildTimeTypeMenu, nil) -- func, default
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
@@ -4141,7 +4169,7 @@ function window:CreateFrame2()
 		local buildDeathLogLimitMenu = function()
 			return DeathLogLimitOptions
 		end
-		local d = g:NewDropDown (frame2, _, "$parentDeathLogLimitDropdown", "DeathLogLimitDropdown", 160, 20, buildDeathLogLimitMenu, nil) -- func, default
+		local d = g:NewDropDown (frame2, _, "$parentDeathLogLimitDropdown", "DeathLogLimitDropdown", 160, dropdown_height, buildDeathLogLimitMenu, nil) -- func, default
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
@@ -4514,7 +4542,7 @@ function window:CreateFrame13()
 			
 			return menu
 		end
-		local select_profile_dropdown = g:NewDropDown (frame13, _, "$parentSelectProfileDropdown", "selectProfileDropdown", 160, 20, build_profile_menu, 0)	
+		local select_profile_dropdown = g:NewDropDown (frame13, _, "$parentSelectProfileDropdown", "selectProfileDropdown", 160, dropdown_height, build_profile_menu, 0)	
 		local d = select_profile_dropdown
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
@@ -4598,7 +4626,7 @@ function window:CreateFrame13()
 			return menu
 		end
 		
-		local select_profileCopy_dropdown = g:NewDropDown (frame13, _, "$parentSelectProfileCopyDropdown", "selectProfileCopyDropdown", 160, 20, build_copy_menu, 0)	
+		local select_profileCopy_dropdown = g:NewDropDown (frame13, _, "$parentSelectProfileCopyDropdown", "selectProfileCopyDropdown", 160, dropdown_height, build_copy_menu, 0)	
 		select_profileCopy_dropdown:SetEmptyTextAndIcon (Loc ["STRING_OPTIONS_PROFILE_SELECT"])
 		
 		local d = select_profileCopy_dropdown
@@ -4637,7 +4665,7 @@ function window:CreateFrame13()
 			
 			return menu
 		end
-		local select_profileErase_dropdown = g:NewDropDown (frame13, _, "$parentSelectProfileEraseDropdown", "selectProfileEraseDropdown", 160, 20, build_erase_menu, 0)	
+		local select_profileErase_dropdown = g:NewDropDown (frame13, _, "$parentSelectProfileEraseDropdown", "selectProfileEraseDropdown", 160, dropdown_height, build_erase_menu, 0)	
 		select_profileErase_dropdown:SetEmptyTextAndIcon (Loc ["STRING_OPTIONS_PROFILE_SELECT"])
 		
 		local d = select_profileErase_dropdown
@@ -4880,7 +4908,7 @@ function window:CreateFrame3()
 		end	
 		
 		-- skin
-		local d = g:NewDropDown (frame3, _, "$parentSkinDropdown", "skinDropdown", 160, 20, buildSkinMenu, 1)
+		local d = g:NewDropDown (frame3, _, "$parentSkinDropdown", "skinDropdown", 160, dropdown_height, buildSkinMenu, 1)
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
@@ -5065,7 +5093,7 @@ function window:CreateFrame3()
 			return loadtable
 		end
 		
-		local d = g:NewDropDown (frame3, _, "$parentCustomSkinLoadDropdown", "customSkinSelectDropdown", 160, 20, buildCustomSkinMenu, 0) -- func, default
+		local d = g:NewDropDown (frame3, _, "$parentCustomSkinLoadDropdown", "customSkinSelectDropdown", 160, dropdown_height, buildCustomSkinMenu, 0) -- func, default
 		d:SetEmptyTextAndIcon (Loc ["STRING_OPTIONS_SKIN_SELECT"])
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
@@ -5097,7 +5125,7 @@ function window:CreateFrame3()
 			return loadtable2
 		end
 		
-		local d = g:NewDropDown (frame3, _, "$parentCustomSkinRemoveDropdown", "customSkinSelectToRemoveDropdown", 160, 20, buildCustomSkinToEraseMenu, 0) -- func, default
+		local d = g:NewDropDown (frame3, _, "$parentCustomSkinRemoveDropdown", "customSkinSelectToRemoveDropdown", 160, dropdown_height, buildCustomSkinToEraseMenu, 0) -- func, default
 		d:SetEmptyTextAndIcon (Loc ["STRING_OPTIONS_SKIN_SELECT"])
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
@@ -5146,7 +5174,7 @@ function window:CreateFrame3()
 			return loadtable2
 		end
 		
-		local d = g:NewDropDown (frame3, _, "$parentCustomSkinExportDropdown", "CustomSkinSelectToExportDropdown", 160, 20, buildCustomSkinToExportMenu, 0)
+		local d = g:NewDropDown (frame3, _, "$parentCustomSkinExportDropdown", "CustomSkinSelectToExportDropdown", 160, dropdown_height, buildCustomSkinToExportMenu, 0)
 		d:SetEmptyTextAndIcon (Loc ["STRING_OPTIONS_SKIN_SELECT"])
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
@@ -5380,7 +5408,7 @@ function window:CreateFrame4()
 		end
 		
 		g:NewLabel (frame4, _, "$parentTextureLabel", "textureLabel", Loc ["STRING_TEXTURE"], "GameFontHighlightLeft")
-		local d = g:NewDropDown (frame4, _, "$parentTextureDropdown", "textureDropdown", DROPDOWN_WIDTH, 20, buildTextureMenu, nil)			
+		local d = g:NewDropDown (frame4, _, "$parentTextureDropdown", "textureDropdown", DROPDOWN_WIDTH, dropdown_height, buildTextureMenu, nil)			
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
@@ -5465,7 +5493,7 @@ function window:CreateFrame4()
 		end
 		
 		g:NewLabel (frame4, _, "$parentRowBackgroundTextureLabel", "rowBackgroundLabel", Loc ["STRING_TEXTURE"], "GameFontHighlightLeft")
-		local d = g:NewDropDown (frame4, _, "$parentRowBackgroundTextureDropdown", "rowBackgroundDropdown", DROPDOWN_WIDTH, 20, buildTextureMenu2, nil)			
+		local d = g:NewDropDown (frame4, _, "$parentRowBackgroundTextureDropdown", "rowBackgroundDropdown", DROPDOWN_WIDTH, dropdown_height, buildTextureMenu2, nil)			
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
@@ -5593,7 +5621,7 @@ function window:CreateFrame4()
 			default = instance.row_info.icon_file
 		end
 		
-		local d = g:NewDropDown (frame4, _, "$parentIconSelectDropdown", "IconSelectDropdown", DROPDOWN_WIDTH, 20, BuiltIconList, default)
+		local d = g:NewDropDown (frame4, _, "$parentIconSelectDropdown", "IconSelectDropdown", DROPDOWN_WIDTH, dropdown_height, BuiltIconList, default)
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
@@ -5749,7 +5777,7 @@ function window:CreateFrame4()
 		end
 		
 		g:NewLabel (frame4, _, "$parentBackdropBorderTextureLabel", "BackdropBorderTextureLabel", Loc ["STRING_TEXTURE"], "GameFontHighlightLeft")
-		local d = g:NewDropDown (frame4, _, "$parentBackdropBorderTextureDropdown", "BackdropBorderTextureDropdown", DROPDOWN_WIDTH, 20, buildTextureBackdropMenu, nil)			
+		local d = g:NewDropDown (frame4, _, "$parentBackdropBorderTextureDropdown", "BackdropBorderTextureDropdown", DROPDOWN_WIDTH, dropdown_height, buildTextureBackdropMenu, nil)			
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
@@ -5929,7 +5957,7 @@ function window:CreateFrame5()
 			return fontTable 
 		end
 		
-		local d = g:NewDropDown (frame5, _, "$parentFontDropdown", "fontDropdown", DROPDOWN_WIDTH, 20, buildFontMenu, nil)		
+		local d = g:NewDropDown (frame5, _, "$parentFontDropdown", "fontDropdown", DROPDOWN_WIDTH, dropdown_height, buildFontMenu, nil)		
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
@@ -6068,7 +6096,7 @@ function window:CreateFrame5()
 			return percentTable 
 		end
 		
-		local d = g:NewDropDown (frame5, _, "$parentPercentDropdown", "percentDropdown", DROPDOWN_WIDTH, 20, buildPercentMenu, nil)
+		local d = g:NewDropDown (frame5, _, "$parentPercentDropdown", "percentDropdown", DROPDOWN_WIDTH, dropdown_height, buildPercentMenu, nil)
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
@@ -6418,7 +6446,7 @@ function window:CreateFrame5()
 			return BracketTable 
 		end
 		
-		local d = g:NewDropDown (frame5, _, "$parentBracketDropdown", "BracketDropdown", 60, 20, buildBracketMenu, nil)
+		local d = g:NewDropDown (frame5, _, "$parentBracketDropdown", "BracketDropdown", 60, dropdown_height, buildBracketMenu, nil)
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
@@ -6459,7 +6487,7 @@ function window:CreateFrame5()
 			return SeparatorTable 
 		end
 		
-		local d = g:NewDropDown (frame5, _, "$parentSeparatorDropdown", "SeparatorDropdown", 60, 20, buildSeparatorMenu, nil)
+		local d = g:NewDropDown (frame5, _, "$parentSeparatorDropdown", "SeparatorDropdown", 60, dropdown_height, buildSeparatorMenu, nil)
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
@@ -6759,19 +6787,19 @@ function window:CreateFrame6()
 				return options
 			end
 			
-			local d = g:NewDropDown (frame6, _, "$parentMicroDisplayLeftDropdown", "MicroDisplayLeftDropdown", DROPDOWN_WIDTH, 20, BuildLeftMicroMenu, nil)	
+			local d = g:NewDropDown (frame6, _, "$parentMicroDisplayLeftDropdown", "MicroDisplayLeftDropdown", DROPDOWN_WIDTH, dropdown_height, BuildLeftMicroMenu, nil)	
 			d.onenter_backdrop = dropdown_backdrop_onenter
 			d.onleave_backdrop = dropdown_backdrop_onleave
 			d:SetBackdrop (dropdown_backdrop)
 			d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))
 			
-			local d = g:NewDropDown (frame6, _, "$parentMicroDisplayCenterDropdown", "MicroDisplayCenterDropdown", DROPDOWN_WIDTH, 20, BuildCenterMicroMenu, nil)	
+			local d = g:NewDropDown (frame6, _, "$parentMicroDisplayCenterDropdown", "MicroDisplayCenterDropdown", DROPDOWN_WIDTH, dropdown_height, BuildCenterMicroMenu, nil)	
 			d.onenter_backdrop = dropdown_backdrop_onenter
 			d.onleave_backdrop = dropdown_backdrop_onleave
 			d:SetBackdrop (dropdown_backdrop)
 			d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))
 			
-			local d = g:NewDropDown (frame6, _, "$parentMicroDisplayRightDropdown", "MicroDisplayRightDropdown", DROPDOWN_WIDTH, 20, BuildRightMicroMenu, nil)	
+			local d = g:NewDropDown (frame6, _, "$parentMicroDisplayRightDropdown", "MicroDisplayRightDropdown", DROPDOWN_WIDTH, dropdown_height, BuildRightMicroMenu, nil)	
 			d.onenter_backdrop = dropdown_backdrop_onenter
 			d.onleave_backdrop = dropdown_backdrop_onleave
 			d:SetBackdrop (dropdown_backdrop)
@@ -6979,7 +7007,7 @@ function window:CreateFrame6()
 			return backdropTable 
 		end
 		
-		local d = g:NewDropDown (frame6, _, "$parentBackdropDropdown", "backdropDropdown", DROPDOWN_WIDTH, 20, buildBackdropMenu, nil)		
+		local d = g:NewDropDown (frame6, _, "$parentBackdropDropdown", "backdropDropdown", DROPDOWN_WIDTH, dropdown_height, buildBackdropMenu, nil)		
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
@@ -7013,7 +7041,7 @@ function window:CreateFrame6()
 			}
 			local buildStrataMenu = function() return strataTable end
 			
-			local d = g:NewDropDown (frame6, _, "$parentStrataDropdown", "strataDropdown", DROPDOWN_WIDTH, 20, buildStrataMenu, nil)		
+			local d = g:NewDropDown (frame6, _, "$parentStrataDropdown", "strataDropdown", DROPDOWN_WIDTH, dropdown_height, buildStrataMenu, nil)		
 			d.onenter_backdrop = dropdown_backdrop_onenter
 			d.onleave_backdrop = dropdown_backdrop_onleave
 			d:SetBackdrop (dropdown_backdrop)
@@ -8023,7 +8051,7 @@ function window:CreateFrame9()
 				return anchorMenu
 			end
 
-			local d = g:NewDropDown (frame9, _, "$parentAnchorDropdown", "anchorDropdown", DROPDOWN_WIDTH, 20, buildAnchorMenu, nil)			
+			local d = g:NewDropDown (frame9, _, "$parentAnchorDropdown", "anchorDropdown", DROPDOWN_WIDTH, dropdown_height, buildAnchorMenu, nil)			
 			d.onenter_backdrop = dropdown_backdrop_onenter
 			d.onleave_backdrop = dropdown_backdrop_onleave
 			d:SetBackdrop (dropdown_backdrop)
@@ -8320,14 +8348,14 @@ function window:CreateFrame9()
 			g:NewSwitch (frame9, _, "$parentUseBackgroundSlider", "useBackgroundSlider", 60, 20, _, _, _G.DetailsOptionsWindow.instance.wallpaper.enabled)
 			
 			--category
-			local d = g:NewDropDown (frame9, _, "$parentBackgroundDropdown", "backgroundDropdown", DROPDOWN_WIDTH, 20, buildBackgroundMenu, nil)
+			local d = g:NewDropDown (frame9, _, "$parentBackgroundDropdown", "backgroundDropdown", DROPDOWN_WIDTH, dropdown_height, buildBackgroundMenu, nil)
 			d.onenter_backdrop = dropdown_backdrop_onenter
 			d.onleave_backdrop = dropdown_backdrop_onleave
 			d:SetBackdrop (dropdown_backdrop)
 			d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))			
 			
 			--wallpaper
-			local d = g:NewDropDown (frame9, _, "$parentBackgroundDropdown2", "backgroundDropdown2", DROPDOWN_WIDTH, 20, buildBackgroundMenu2, nil)
+			local d = g:NewDropDown (frame9, _, "$parentBackgroundDropdown2", "backgroundDropdown2", DROPDOWN_WIDTH, dropdown_height, buildBackgroundMenu2, nil)
 			d.onenter_backdrop = dropdown_backdrop_onenter
 			d.onleave_backdrop = dropdown_backdrop_onleave
 			d:SetBackdrop (dropdown_backdrop)
@@ -8845,7 +8873,7 @@ function window:CreateFrame10()
 			return PerformanceProfileOptions
 		end
 		
-		local d = g:NewDropDown (frame10, _, "$parentProfileTypeDropdown", "ProfileTypeDropdown", 160, 20, BuildPerformanceProfileMenu, 0)
+		local d = g:NewDropDown (frame10, _, "$parentProfileTypeDropdown", "ProfileTypeDropdown", 160, dropdown_height, BuildPerformanceProfileMenu, 0)
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
@@ -9103,7 +9131,7 @@ function window:CreateFrame11()
 		end
 
 		g:NewLabel (frame11, _, "$parentInterruptsChannelLabel", "InterruptsChannelLabel", Loc ["STRING_OPTIONS_RT_INTERRUPTS_CHANNEL"] , "GameFontHighlightLeft")
-		local d = g:NewDropDown (frame11, _, "$parentInterruptsChannelDropdown", "InterruptsChannelDropdown", DROPDOWN_WIDTH, 20, build_channel_menu, _detalhes.announce_interrupts.channel)
+		local d = g:NewDropDown (frame11, _, "$parentInterruptsChannelDropdown", "InterruptsChannelDropdown", DROPDOWN_WIDTH, dropdown_height, build_channel_menu, _detalhes.announce_interrupts.channel)
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
@@ -9207,7 +9235,7 @@ function window:CreateFrame11()
 		end
 
 		g:NewLabel (frame11, _, "$parentCooldownChannelLabel", "CooldownChannelLabel", Loc ["STRING_OPTIONS_RT_COOLDOWNS_CHANNEL"] , "GameFontHighlightLeft")
-		local d = g:NewDropDown (frame11, _, "$parentCooldownChannelDropdown", "CooldownChannelDropdown", DROPDOWN_WIDTH, 20, build_channel_menu, _detalhes.announce_cooldowns.channel)
+		local d = g:NewDropDown (frame11, _, "$parentCooldownChannelDropdown", "CooldownChannelDropdown", DROPDOWN_WIDTH, dropdown_height, build_channel_menu, _detalhes.announce_cooldowns.channel)
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
@@ -9419,7 +9447,7 @@ function window:CreateFrame11()
 		end
 
 		g:NewLabel (frame11, _, "$parentDeathChannelLabel", "DeathChannelLabel", Loc ["STRING_OPTIONS_RT_DEATHS_WHERE"] , "GameFontHighlightLeft")
-		local d = g:NewDropDown (frame11, _, "$parentDeathChannelDropdown", "DeathChannelDropdown", DROPDOWN_WIDTH, 20, build_channel_menu, _detalhes.announce_deaths.where)
+		local d = g:NewDropDown (frame11, _, "$parentDeathChannelDropdown", "DeathChannelDropdown", DROPDOWN_WIDTH, dropdown_height, build_channel_menu, _detalhes.announce_deaths.where)
 		d.onenter_backdrop = dropdown_backdrop_onenter
 		d.onleave_backdrop = dropdown_backdrop_onleave
 		d:SetBackdrop (dropdown_backdrop)
@@ -9780,7 +9808,7 @@ function window:CreateFrame12()
 			plugin.__enabled = value
 			if (not value) then
 				for index, instancia in ipairs (_detalhes.tabela_instancias) do
-					if (instancia.modo == 1) then -- 1 = solo
+					if (instancia.modo == 1 and instancia.baseframe) then -- 1 = solo
 						_detalhes:TrocaTabela (instancia, 0, 1, 1, nil, 2)
 					end
 				end
@@ -10255,6 +10283,8 @@ end --> if not window
 		_G.DetailsOptionsWindow18ReportFormatDropdown.MyObject:Select (_detalhes.report_schema)
 		--disabled groups
 		_G.DetailsOptionsWindow18DisableGroupsSlider.MyObject:SetValue (_detalhes.disable_window_groups)
+		--disable lock resize ungroup buttons
+		_G.DetailsOptionsWindow18DisableLockResizeUngroupSlider.MyObject:SetValue (_detalhes.disable_lock_ungroup_buttons) 
 		--disable reset
 		_G.DetailsOptionsWindow18DisableResetSlider.MyObject:SetValue (_detalhes.disable_reset_button)
 		_G.DetailsOptionsWindow18UseScrollSlider.MyObject:SetValue (_detalhes.use_scroll)

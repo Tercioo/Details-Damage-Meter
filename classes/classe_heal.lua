@@ -1916,13 +1916,41 @@ function atributo_heal:MontaDetalhesHealingDone (spellid, barra)
 			heal_string = Loc ["STRING_HEAL"]
 		end
 		
+		local hits_string = "" .. total_hits
+		local cast_string = "Casted: "
+		
+		local misc_actor = info.instancia.showing (4, self:name())
+		if (misc_actor) then
+			local buff_uptime = misc_actor.buff_uptime_spells and misc_actor.buff_uptime_spells._ActorTable [spellid] and misc_actor.buff_uptime_spells._ActorTable [spellid].uptime
+			if (buff_uptime) then
+				hits_string = hits_string .. "  |cFFDDDD44(" .. _math_floor (buff_uptime / info.instancia.showing:GetCombatTime() * 100) .. "% uptime)|r"
+			end
+
+			local spell_cast = misc_actor.spell_cast and misc_actor.spell_cast [spellid]
+			
+			if (not spell_cast and misc_actor.spell_cast) then
+				local spellname = GetSpellInfo (spellid)
+				for casted_spellid, amount in _pairs (misc_actor.spell_cast) do
+					local casted_spellname = GetSpellInfo (casted_spellid)
+					if (casted_spellname == spellname) then
+						spell_cast = amount .. " (|cFFFFFF00?|r)"
+					end
+				end
+			end
+			if (not spell_cast) then
+				spell_cast = "(|cFFFFFF00?|r)"
+			end
+			cast_string = cast_string .. spell_cast
+		end		
+		
 		gump:SetaDetalheInfoTexto ( index, 100,
-			Loc ["STRING_GERAL"], 
+			--Loc ["STRING_GERAL"], 
+			cast_string, 
 			heal_string .. ": " .. _detalhes:ToK (esta_magia.total), 
 			"", --Loc ["STRING_PERCENTAGE"] .. ": " .. _cstr ("%.1f", esta_magia.total/total*100) .. "%",
 			Loc ["STRING_AVERAGE"] .. ": " .. _detalhes:comma_value (media), 
 			this_hps,
-			Loc ["STRING_HITS"] .. ": " .. total_hits) 
+			Loc ["STRING_HITS"] .. ": " .. hits_string) 
 	
 	--> NORMAL
 		local normal_hits = esta_magia.n_amt

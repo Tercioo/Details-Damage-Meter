@@ -947,7 +947,7 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 		local barras_container = instancia.barras
 
 		
-		for i = instancia.barraS[1], instancia.barraS[2], 1 do --> vai atualizar só o range que esta sendo mostrado
+		for i = instancia.barraS[1], instancia.barraS[2], 1 do 
 			atributo_damage:AtualizarFrags (ntable[i], qual_barra, i, instancia)
 			qual_barra = qual_barra+1
 		end
@@ -1051,7 +1051,7 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 		local qual_barra = 1
 		local barras_container = instancia.barras
 
-		for i = instancia.barraS[1], instancia.barraS[2], 1 do --> vai atualizar só o range que esta sendo mostrado
+		for i = instancia.barraS[1], instancia.barraS[2], 1 do 
 			vtable[i]:AtualizarVoidZone (qual_barra, i, instancia)
 			qual_barra = qual_barra+1
 		end
@@ -1251,35 +1251,39 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 			gump:Fade (row1, "out")
 			
 			if (following and myPos and myPos > instancia.rows_fit_in_window and instancia.barraS[2] < myPos) then
-				for i = instancia.barraS[1], iter_last-1, 1 do --> vai atualizar só o range que esta sendo mostrado
-					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
-					qual_barra = qual_barra+1
+				for i = instancia.barraS[1], iter_last-1, 1 do 
+					if (conteudo[i]) then
+						conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
+						qual_barra = qual_barra+1
+					end
 				end
 				
 				conteudo[myPos]:AtualizaBarra (instancia, barras_container, qual_barra, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
 				qual_barra = qual_barra+1
 			else
-				for i = instancia.barraS[1], iter_last, 1 do --> vai atualizar só o range que esta sendo mostrado
-					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
-					qual_barra = qual_barra+1
+				for i = instancia.barraS[1], iter_last, 1 do 
+					if (conteudo[i]) then
+						conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
+						qual_barra = qual_barra+1
+					end
 				end
 			end
 
 		else
 			if (following and myPos and myPos > instancia.rows_fit_in_window and instancia.barraS[2] < myPos) then
-				for i = instancia.barraS[1], instancia.barraS[2]-1, 1 do --> vai atualizar só o range que esta sendo mostrado
-					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
-					qual_barra = qual_barra+1
+				for i = instancia.barraS[1], instancia.barraS[2]-1, 1 do 
+					if (conteudo[i]) then
+						conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
+						qual_barra = qual_barra+1
+					end
 				end
 				
 				conteudo[myPos]:AtualizaBarra (instancia, barras_container, qual_barra, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
 				qual_barra = qual_barra+1
 			else
-				for i = instancia.barraS[1], instancia.barraS[2], 1 do --> vai atualizar só o range que esta sendo mostrado
-					if (not conteudo[i]) then
-						print ("error on update", amount, conteudo[i], #conteudo, instancia.barraS[1], instancia.barraS[2])
-					else
---[[ index nil value]]			conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
+				for i = instancia.barraS[1], instancia.barraS[2], 1 do 
+					if (conteudo[i]) then
+						conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
 						qual_barra = qual_barra+1
 					end
 				end
@@ -1311,33 +1315,41 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 			gump:Fade (row1, "out")
 			
 			if (following and myPos and myPos > instancia.rows_fit_in_window and instancia.barraS[2] < myPos) then
-				for i = iter_last-1, instancia.barraS[1], -1 do --> vai atualizar só o range que esta sendo mostrado
-					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
-					qual_barra = qual_barra+1
+				for i = iter_last-1, instancia.barraS[1], -1 do 
+					if (conteudo[i]) then
+						conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
+						qual_barra = qual_barra+1
+					end
 				end
 				
 				conteudo[myPos]:AtualizaBarra (instancia, barras_container, qual_barra, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
 				qual_barra = qual_barra+1
 			else
-				for i = iter_last, instancia.barraS[1], -1 do --> vai atualizar só o range que esta sendo mostrado
-					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
-					qual_barra = qual_barra+1
+				for i = iter_last, instancia.barraS[1], -1 do 
+					if (conteudo[i]) then
+						conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
+						qual_barra = qual_barra+1
+					end
 				end
 			end
 		else
 			if (following and myPos and myPos > instancia.rows_fit_in_window and instancia.barraS[2] < myPos) then
-				for i = instancia.barraS[2]-1, instancia.barraS[1], -1 do --> vai atualizar só o range que esta sendo mostrado
-					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
-					qual_barra = qual_barra+1
+				for i = instancia.barraS[2]-1, instancia.barraS[1], -1 do 
+					if (conteudo[i]) then
+						conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
+						qual_barra = qual_barra+1
+					end
 				end
 				
 				conteudo[myPos]:AtualizaBarra (instancia, barras_container, qual_barra, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
 				qual_barra = qual_barra+1
 			else
 				-- /run print (_detalhes:GetInstance(1).barraS[2]) -- vai do 5 ao 1 -- qual barra começa no 1 -- i = 5 até 1 -- player 5 atualiza na barra 1 / player 1 atualiza na barra 5
-				for i = instancia.barraS[2], instancia.barraS[1], -1 do --> vai atualizar só o range que esta sendo mostrado
-					conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
-					qual_barra = qual_barra+1
+				for i = instancia.barraS[2], instancia.barraS[1], -1 do 
+					if (conteudo[i]) then
+						conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
+						qual_barra = qual_barra+1
+					end
 				end
 			end
 		end
@@ -3174,6 +3186,7 @@ function atributo_damage:MontaDetalhesDamageDone (spellid, barra, instancia)
 		end
 		
 		local hits_string = "" .. total_hits
+		local cast_string = "Casted: "
 		
 		local misc_actor = info.instancia.showing (4, self:name())
 		if (misc_actor) then
@@ -3181,10 +3194,27 @@ function atributo_damage:MontaDetalhesDamageDone (spellid, barra, instancia)
 			if (debuff_uptime) then
 				hits_string = hits_string .. "  |cFFDDDD44(" .. _math_floor (debuff_uptime / info.instancia.showing:GetCombatTime() * 100) .. "% uptime)|r"
 			end
+
+			local spell_cast = misc_actor.spell_cast and misc_actor.spell_cast [spellid]
+			
+			if (not spell_cast and misc_actor.spell_cast) then
+				local spellname = GetSpellInfo (spellid)
+				for casted_spellid, amount in _pairs (misc_actor.spell_cast) do
+					local casted_spellname = GetSpellInfo (casted_spellid)
+					if (casted_spellname == spellname) then
+						spell_cast = amount .. " (|cFFFFFF00?|r)"
+					end
+				end
+			end
+			if (not spell_cast) then
+				spell_cast = "(|cFFFFFF00?|r)"
+			end
+			cast_string = cast_string .. spell_cast
 		end
 		
 		gump:SetaDetalheInfoTexto ( index, 100,
-			Loc ["STRING_GERAL"],
+			--Loc ["STRING_GERAL"],
+			cast_string,
 			Loc ["STRING_DAMAGE"]..": ".._detalhes:ToK (esta_magia.total), 
 			--Loc ["STRING_MULTISTRIKE"] .. ": " .. _cstr ("%.1f", esta_magia.counter/esta_magia.m_amt*100) .. "%", 
 			schooltext, --offhand,

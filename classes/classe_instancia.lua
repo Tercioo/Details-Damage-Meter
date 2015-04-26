@@ -2334,7 +2334,7 @@ function _detalhes:MontaRaidOption (instancia)
 	
 	GameCooltip:SetOption ("NoLastSelectedBar", true)
 	
-	GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
+	GameCooltip:SetWallpaper (1, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
 	return true
 end
 
@@ -2349,14 +2349,17 @@ function _detalhes:MontaSoloOption (instancia)
 		GameCooltip:SetLastSelected (1, _detalhes.SoloTables.Mode)
 	end
 	
-	GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
+	GameCooltip:SetWallpaper (1, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
 	
 	return true
 end
 
 -- ~menu
+local menu_wallpaper_tex = {63/512, 331/512, 109/512, 143/512}
+local menu_wallpaper_color = {.8, .8, .8, 0.2}
 
 local wallpaper_bg_color = {.8, .8, .8, 0.2}
+
 function _detalhes:MontaAtributosOption (instancia, func)
 
 	func = func or instancia.TrocaTabela
@@ -2473,8 +2476,7 @@ function _detalhes:MontaAtributosOption (instancia, func)
 	end
 	CoolTip:SetLastSelected (1, last_selected)
 	
-	CoolTip:SetWallpaper (1, [[Interface\SPELLBOOK\DeathKnightBlood-TopLeft]], {.6, 0.1, 0, 0.64453125}, wallpaper_bg_color, true)
-	--CoolTip:SetWallpaper (1, [[Interface\ACHIEVEMENTFRAME\UI-Achievement-Parchment-Horizontal-Desaturated]], nil, {1, 1, 1, 0.3})
+	CoolTip:SetWallpaper (1, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
 	
 	return menu_principal, sub_menus
 end

@@ -842,6 +842,8 @@ local default_profile = {
 		window_clamp = {-8, 0, 21, -14},
 		disable_window_groups = false,
 		disable_reset_button = false,
+		disable_lock_ungroup_buttons = false,
+		disable_stretch_from_toolbar = false,
 		damage_taken_everything = false,
 		
 	--> segments
@@ -957,6 +959,11 @@ local default_profile = {
 			tooltip_max_abilities = 5,
 			tooltip_max_targets = 2,
 			tooltip_max_pets = 2,
+			
+			menus_bg_coords = {331/512, 63/512, 109/512, 143/512},
+			menus_bg_color = {.8, .8, .8, 0.2},
+			menus_bg_texture = [[Interface\SPELLBOOK\Spellbook-Page-1]],
+			
 		},
 	
 }

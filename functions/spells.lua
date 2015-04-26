@@ -384,7 +384,6 @@ do
 		[23881] = 72, -- Bloodthirst
 		[23588] = 72, -- Crazed Berserker
 		[46917] = 72, -- Titan's Grip
-		[5308] = 72, -- Execute
 
 		--  Protection Warrior:
 		[152276] = 73, -- Gladiator's Resolve
@@ -409,7 +408,11 @@ do
 		[122509] = 73, -- Ultimatum
 		[29144] = 73, -- Unwavering Sentinel
 		[157497] = 73, -- Improved Block
-	
+		[6343] = 73, -- Thunder Clap
+		[71] = 73, -- Defensive Stance
+		[157494] = 73, -- Improved Defensive Stance
+		[57755] = 73, -- Heroic Throw
+
 	}
 	
 	_detalhes.ClassSpellList = {
@@ -1432,7 +1435,7 @@ do
 			--[29842]	=	"WARRIOR", --undribled wrath
 	}
 	
-	-- updated on 30/03/2015 (@Tonyleila - WoWInterface)
+	-- updated on 25/04/2015 (@Tonyleila - WoWInterface)
 	_detalhes.CrowdControlSpells = {
 
 		--Racials
@@ -1506,6 +1509,7 @@ do
 			[119381]	= true, -- Leg Sweep
 			[115078]	= true, -- Paralysis
 			[116705]	= true, -- Spear Hand Strike
+			[142895]	= true, -- Incapacitated (ring of peace)
 	    
 		--paladin
 			[31935]	= true, -- Avenger's Shield
