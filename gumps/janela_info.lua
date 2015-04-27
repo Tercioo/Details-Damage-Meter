@@ -2137,6 +2137,7 @@ function gump:CriaJanelaInfo()
 			end
 			table.sort (player_1_skills, _detalhes.Sort2)
 			local player_1_top = player_1_skills [1] [2]
+			bar1 [2]:SetStatusBarColor (1, 1, 1, 1)
 			
 			-- player 2
 			local player_2_skills = {}
@@ -2151,6 +2152,7 @@ function gump:CriaJanelaInfo()
 				end
 				table.sort (player_2_skills, _detalhes.Sort2)
 				player_2_top = player_2_skills [1] [2]
+				bar2 [2]:SetStatusBarColor (1, 1, 1, 1)
 			end
 			
 			-- player 3
@@ -2166,6 +2168,7 @@ function gump:CriaJanelaInfo()
 				end
 				table.sort (player_3_skills, _detalhes.Sort2)
 				player_3_top = player_3_skills [1] [2]
+				bar3 [2]:SetStatusBarColor (1, 1, 1, 1)
 			end
 			
 			-- build tooltip
@@ -2191,8 +2194,10 @@ function gump:CriaJanelaInfo()
 				bar [2].lefttext:SetText (index .. ". " .. name)
 				bar [2].righttext:SetText (_detalhes:ToK2Min (spell [2]))
 				bar [2]:SetValue (spell [2]/player_1_top*100)
+				bar [2].bg:Show()
 				
 				if (player_2) then
+				
 					local player_2_skill
 					local found_skill = false
 					for this_index, this_spell in _ipairs (player_2_skills) do
@@ -2204,6 +2209,7 @@ function gump:CriaJanelaInfo()
 							
 							bar [1]:SetTexture (icon)
 							bar [2].lefttext:SetText (this_index .. ". " .. name)
+							bar [2].bg:Show()
 							
 							if (spell [2] > this_spell [2]) then
 								local diff = spell [2] - this_spell [2]
@@ -2237,6 +2243,7 @@ function gump:CriaJanelaInfo()
 						bar [1]:SetTexture (nil)
 						bar [2].lefttext:SetText ("")
 						bar [2].righttext:SetText ("")
+						bar [2].bg:Hide()
 					end
 				end
 				
@@ -2252,6 +2259,7 @@ function gump:CriaJanelaInfo()
 							
 							bar [1]:SetTexture (icon)
 							bar [2].lefttext:SetText (this_index .. ". " .. name)
+							bar [2].bg:Show()
 							
 							if (spell [2] > this_spell [2]) then
 								local diff = spell [2] - this_spell [2]
@@ -2285,6 +2293,7 @@ function gump:CriaJanelaInfo()
 						bar [1]:SetTexture (nil)
 						bar [2].lefttext:SetText ("")
 						bar [2].righttext:SetText ("")
+						bar [2].bg:Hide()
 					end
 				end
 				
@@ -2352,6 +2361,7 @@ function gump:CriaJanelaInfo()
 			local player3_misc = info.instancia.showing (4, player3)
 			
 			local player1_uptime
+			local player1_casts
 			
 			if (bar1[2].righttext:GetText()) then
 				bar1[2]:SetStatusBarColor (1, 1, 1, 1)
@@ -2361,6 +2371,8 @@ function gump:CriaJanelaInfo()
 				frame1.tooltip.crit_label2:SetText (critical .. "%")
 				
 				if (player1_misc) then
+				
+					--uptime
 					local spell = player1_misc.debuff_uptime_spells and player1_misc.debuff_uptime_spells._ActorTable and player1_misc.debuff_uptime_spells._ActorTable [spellid]
 					if (spell) then
 						local minutos, segundos = _math_floor (spell.uptime/60), _math_floor (spell.uptime%60)
@@ -2368,6 +2380,29 @@ function gump:CriaJanelaInfo()
 						frame1.tooltip.uptime_label2:SetText (minutos .. "m" .. segundos .. "s")
 					else
 						frame1.tooltip.uptime_label2:SetText ("--x--x--")
+					end
+					
+					--total casts
+					local amt_casts = player1_misc.spell_cast and player1_misc.spell_cast [spellid]
+					if (amt_casts) then
+						frame1.tooltip.casts_label2:SetText (amt_casts)
+						player1_casts = amt_casts
+					else
+						local spellname = GetSpellInfo (spellid)
+						local extra_search_found
+						for casted_spellid, amount in _pairs (player1_misc.spell_cast) do
+							local casted_spellname = GetSpellInfo (casted_spellid)
+							if (casted_spellname == spellname) then
+								frame1.tooltip.casts_label2:SetText (amount)
+								player1_casts = amount
+								extra_search_found = true
+								break
+							end
+						end
+						
+						if (not extra_search_found) then
+							frame1.tooltip.casts_label2:SetText ("?")
+						end
 					end
 				else
 					frame1.tooltip.uptime_label2:SetText ("--x--x--")
@@ -2436,6 +2471,8 @@ function gump:CriaJanelaInfo()
 				end
 				
 				if (player2_misc) then
+				
+					--uptime
 					local spell = player2_misc.debuff_uptime_spells and player2_misc.debuff_uptime_spells._ActorTable and player2_misc.debuff_uptime_spells._ActorTable [spellid]
 					if (spell and spell.uptime) then
 						local minutos, segundos = _math_floor (spell.uptime/60), _math_floor (spell.uptime%60)
@@ -2463,8 +2500,47 @@ function gump:CriaJanelaInfo()
 					else
 						frame2.tooltip.uptime_label2:SetText ("--x--x--")
 					end
+					
+					--total casts
+					local amt_casts = player2_misc.spell_cast and player2_misc.spell_cast [spellid]
+					if (not amt_casts) then
+						local spellname = GetSpellInfo (spellid)
+						for casted_spellid, amount in _pairs (player2_misc.spell_cast) do
+							local casted_spellname = GetSpellInfo (casted_spellid)
+							if (casted_spellname == spellname) then
+								amt_casts = amount
+								break
+							end
+						end
+					end
+					
+					if (amt_casts) then
+						
+						if (not player1_casts) then
+							frame2.tooltip.casts_label2:SetText (amt_casts)
+						elseif (player1_casts > amt_casts) then
+							local diff = player1_casts - amt_casts
+							local up = diff / amt_casts * 100
+							up = _math_floor (up)
+							if (up > 999) then
+								up = ">" .. 999
+							end
+							frame2.tooltip.casts_label2:SetText (amt_casts .. " |c" .. minor .. up .. "%)|r")
+						else
+							local diff = amt_casts - player1_casts
+							local down = diff / player1_casts * 100
+							down = _math_floor (down)
+							if (down > 999) then
+								down = ">" .. 999
+							end
+							frame2.tooltip.casts_label2:SetText (amt_casts .. " |c" .. plus .. down .. "%)|r")
+						end
+					else
+						frame2.tooltip.casts_label2:SetText ("?")
+					end
 				else
 					frame2.tooltip.uptime_label2:SetText ("--x--x--")
+					
 				end
 
 				frame2.tooltip:Show()
@@ -2531,6 +2607,8 @@ function gump:CriaJanelaInfo()
 				end
 
 				if (player3_misc) then
+				
+					--uptime
 					local spell = player3_misc.debuff_uptime_spells and player3_misc.debuff_uptime_spells._ActorTable and player3_misc.debuff_uptime_spells._ActorTable [spellid]
 					if (spell and spell.uptime) then
 						local minutos, segundos = _math_floor (spell.uptime/60), _math_floor (spell.uptime%60)
@@ -2558,6 +2636,45 @@ function gump:CriaJanelaInfo()
 					else
 						frame3.tooltip.uptime_label2:SetText ("--x--x--")
 					end
+					
+					--total casts
+					local amt_casts = player3_misc.spell_cast and player3_misc.spell_cast [spellid]
+					if (not amt_casts) then
+						local spellname = GetSpellInfo (spellid)
+						for casted_spellid, amount in _pairs (player3_misc.spell_cast) do
+							local casted_spellname = GetSpellInfo (casted_spellid)
+							if (casted_spellname == spellname) then
+								amt_casts = amount
+								break
+							end
+						end
+					end
+					
+					if (amt_casts) then
+						
+						if (not player1_casts) then
+							frame3.tooltip.casts_label2:SetText (amt_casts)
+						elseif (player1_casts > amt_casts) then
+							local diff = player1_casts - amt_casts
+							local up = diff / amt_casts * 100
+							up = _math_floor (up)
+							if (up > 999) then
+								up = ">" .. 999
+							end
+							frame3.tooltip.casts_label2:SetText (amt_casts .. " |c" .. minor .. up .. "%)|r")
+						else
+							local diff = amt_casts - player1_casts
+							local down = diff / player1_casts * 100
+							down = _math_floor (down)
+							if (down > 999) then
+								down = ">" .. 999
+							end
+							frame3.tooltip.casts_label2:SetText (amt_casts .. " |c" .. plus .. down .. "%)|r")
+						end
+					else
+						frame3.tooltip.casts_label2:SetText ("?")
+					end					
+					
 				else
 					frame3.tooltip.uptime_label2:SetText ("--x--x--")
 				end
@@ -2706,57 +2823,28 @@ function gump:CriaJanelaInfo()
 				tooltip.uptime_label2:SetJustifyH ("right")
 				
 				local bg_color = {0.5, 0.5, 0.5}
-				local bg_texture = [[Interface\WorldStateFrame\WORLDSTATEFINALSCORE-HIGHLIGHT]]
-				local bg_alpha = 0.3
-				local bg_height = 20
+				local bg_texture = [[Interface\AddOns\Details\images\bar_background]]
+				local bg_alpha = 1
+				local bg_height = 12
+				local colors = {{26/255, 26/255, 26/255}, {19/255, 19/255, 19/255}, {26/255, 26/255, 26/255}, {34/255, 39/255, 42/255}, {42/255, 51/255, 60/255}}
 				
-				local bg_line1 = tooltip:CreateTexture (nil, "artwork")
-				bg_line1:SetTexture (bg_texture)
-				bg_line1:SetPoint ("topleft", tooltip, "topleft", 5, -10)
-				bg_line1:SetPoint ("topright", tooltip, "topright", -5, -10)
-				bg_line1:SetHeight (bg_height)
-				bg_line1:SetAlpha (bg_alpha)
-				bg_line1:SetVertexColor (unpack (bg_color))
-				
-				local bg_line2 = tooltip:CreateTexture (nil, "artwork")
-				bg_line2:SetTexture (bg_texture)
-				bg_line2:SetPoint ("topleft", tooltip, "topleft", 5, -22)
-				bg_line2:SetPoint ("topright", tooltip, "topright", -5, -22)
-				bg_line2:SetHeight (bg_height)
-				bg_line2:SetAlpha (bg_alpha)
-				bg_line2:SetVertexColor (unpack (bg_color))
-				
-				local bg_line3 = tooltip:CreateTexture (nil, "artwork")
-				bg_line3:SetTexture (bg_texture)
-				bg_line3:SetPoint ("topleft", tooltip, "topleft", 5, -34)
-				bg_line3:SetPoint ("topright", tooltip, "topright", -5, -34)
-				bg_line3:SetHeight (bg_height)
-				bg_line3:SetAlpha (bg_alpha)
-				bg_line3:SetVertexColor (unpack (bg_color))
-				
-				local bg_line4 = tooltip:CreateTexture (nil, "artwork")
-				bg_line4:SetTexture (bg_texture)
-				bg_line4:SetPoint ("topleft", tooltip, "topleft", 5, -46)
-				bg_line4:SetPoint ("topright", tooltip, "topright", -5, -46)
-				bg_line4:SetHeight (bg_height)
-				bg_line4:SetAlpha (bg_alpha)
-				bg_line4:SetVertexColor (unpack (bg_color))
-				
-				local bg_line5 = tooltip:CreateTexture (nil, "artwork")
-				bg_line5:SetTexture (bg_texture)
-				bg_line5:SetPoint ("topleft", tooltip, "topleft", 5, -56)
-				bg_line5:SetPoint ("topright", tooltip, "topright", -5, -56)
-				bg_line5:SetHeight (bg_height)
-				bg_line5:SetAlpha (bg_alpha)
-				bg_line5:SetVertexColor (unpack (bg_color))
+				for i = 1, 5 do
+					local bg_line1 = tooltip:CreateTexture (nil, "artwork")
+					bg_line1:SetTexture (bg_texture)
+					bg_line1:SetPoint ("topleft", tooltip, "topleft", 5, -9 + (((i-1) * 12) * -1))
+					bg_line1:SetPoint ("topright", tooltip, "topright", -5, -9 + (((i-1) * 12) * -1))
+					bg_line1:SetHeight (bg_height)
+					bg_line1:SetAlpha (bg_alpha)
+					bg_line1:SetVertexColor (unpack (colors[i]))
+				end
 				
 				return tooltip
 			end
 
 			local create_tooltip_target = function (name)
 				local tooltip = CreateFrame ("frame", name, UIParent)
-				tooltip:SetBackdrop({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], edgeFile = [[Interface\Tooltips\UI-Tooltip-Border]], tile = true, tileSize = 16, edgeSize = 12, insets = {left = 1, right = 1, top = 1, bottom = 1},})	
-				tooltip:SetBackdropColor (0, 0, 0, 1)
+				tooltip:SetBackdrop (_detalhes.tooltip_backdrop)
+				tooltip:SetBackdropColor (unpack (_detalhes.tooltip_border_color))
 				tooltip:SetSize (175, 67)
 				tooltip:SetFrameStrata ("tooltip")
 				tooltip.bars = {}
@@ -2767,8 +2855,11 @@ function gump:CriaJanelaInfo()
 						bar [2].lefttext:SetText ("")
 						bar [2].righttext:SetText ("")
 						bar [2]:SetValue (0)
+						bar [2].bg:Hide()
 					end
 				end
+				
+				local bars_colors = {{19/255, 19/255, 19/255}, {26/255, 26/255, 26/255}}
 				
 				function tooltip:CreateBar (index)
 				
@@ -2794,7 +2885,7 @@ function gump:CriaJanelaInfo()
 					bar:SetPoint ("topleft", spellicon, "topright", 0, 0)
 					bar:SetPoint ("topright", parent, "topright", -4, y)
 					bar:SetStatusBarTexture ([[Interface\AddOns\Details\images\bar_serenity]])
-					bar:SetStatusBarColor (.5, .5, .5, 1)
+					bar:SetStatusBarColor (.68, .68, .68, 1)
 					bar:SetMinMaxValues (0, 100)
 					bar:SetValue (0)
 					bar:SetHeight (14)
@@ -2823,6 +2914,17 @@ function gump:CriaJanelaInfo()
 					bar.righttext:SetPoint ("right", bar, "right", -2, 0)
 					bar.righttext:SetJustifyH ("right")
 					bar.righttext:SetTextColor (1, 1, 1, 1)
+					
+					local bg_line1 = bar:CreateTexture (nil, "artwork")
+					bg_line1:SetTexture ([[Interface\AddOns\Details\images\bar_background]])
+					bg_line1:SetAllPoints()
+					bg_line1:SetAlpha (0.7)
+					if (index % 2 == 0) then
+						bg_line1:SetVertexColor (_unpack (bars_colors [2]))
+					else
+						bg_line1:SetVertexColor (_unpack (bars_colors [2]))
+					end
+					bar.bg = bg_line1
 					
 					local object = {spellicon, bar}
 					tinsert (tooltip.bars, object)
