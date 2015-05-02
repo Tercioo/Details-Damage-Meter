@@ -76,6 +76,8 @@
 	
 	local ntable = {} --temp
 	local vtable = {} --temp
+	
+	local tooltip_temp_table = {}
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> exported functions
@@ -1855,8 +1857,10 @@ function atributo_damage:ToolTip (instancia, numero, barra, keydown)
 	else
 		if (instancia.sub_atributo == 1 or instancia.sub_atributo == 2) then --> damage done or Dps or enemy
 			return self:ToolTip_DamageDone (instancia, numero, barra, keydown)
-		elseif (instancia.sub_atributo == 3 or instancia.sub_atributo == 6) then --> damage taken
+		elseif (instancia.sub_atributo == 3) then --> damage taken
 			return self:ToolTip_DamageTaken (instancia, numero, barra, keydown)
+		elseif (instancia.sub_atributo == 6) then --> enemies
+			return self:ToolTip_Enemies (instancia, numero, barra, keydown)
 		elseif (instancia.sub_atributo == 4) then --> friendly fire
 			return self:ToolTip_FriendlyFire (instancia, numero, barra, keydown)
 		end
@@ -2105,6 +2109,111 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 	return true
 end
 
+function atributo_damage:ToolTip_Enemies (instancia, numero, barra, keydown)
+	
+	local owner = self.owner
+	if (owner and owner.classe) then
+		r, g, b = unpack (_detalhes.class_colors [owner.classe])
+	else
+		r, g, b = unpack (_detalhes.class_colors [self.classe])
+	end
+
+	local combat = instancia:GetShowingCombat()
+	local enemy_name = self:name()
+
+	--> enemy damage taken
+	local i = 1
+	local damage_taken = 0
+	for _, actor in _ipairs (combat[1]._ActorTable) do 
+		if (actor.grupo and actor.targets [self.nome]) then
+			local t = tooltip_temp_table [i]
+			if (not t) then
+				tooltip_temp_table [i] = {}
+				t = tooltip_temp_table [i]
+			end
+			t [1] = actor
+			t [2] = actor.targets [enemy_name] or 0
+			damage_taken = damage_taken + t [2]
+			i = i + 1
+		end
+	end
+	
+	for o = i, #tooltip_temp_table do
+		local t = tooltip_temp_table [o]
+		t[2] = 0
+		t[1] = 0
+	end
+
+	_table_sort (tooltip_temp_table, _detalhes.Sort2)
+	
+	-- enemy damage taken
+	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_DAMAGE_TAKEN_FROM"], headerColor, r, g, b, i-1)
+	GameCooltip:AddIcon ([[Interface\Buttons\UI-MicroStream-Red]], 1, 1, 14, 14, 0.1875, 0.8125, 0.15625, 0.78125)
+	GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, _detalhes.tooltip_key_size_width, _detalhes.tooltip_key_size_height, 0, 1, 0, 0.640625, _detalhes.tooltip_key_overlay2)
+	GameCooltip:AddStatusBar (100, 1, 0.7, g, b, 1)
+
+	--> build the tooltip
+	for o = 1, i-1 do
+
+		local player = tooltip_temp_table [o][1]
+		local total = tooltip_temp_table [o][2]
+		local player_name = _detalhes:GetOnlyName (player:name())
+	
+		if (player_name:find (_detalhes.playername)) then
+			GameCooltip:AddLine (player_name .. ": ", FormatTooltipNumber (_, total) .. " (" .. _cstr ("%.1f", (total / damage_taken) * 100) .. "%)", nil, "yellow")
+		else
+			GameCooltip:AddLine (player_name .. ": ", FormatTooltipNumber (_, total) .." (" .. _cstr ("%.1f", (total / damage_taken) * 100) .. "%)")
+		end
+		
+		local classe = player:class()
+		if (not classe) then
+			classe = "UNKNOW"
+		end
+		if (classe == "UNKNOW") then
+			GameCooltip:AddIcon ("Interface\\LFGFRAME\\LFGROLE_BW", nil, nil, 14, 14, .25, .5, 0, 1)
+		else
+			GameCooltip:AddIcon (instancia.row_info.icon_file, nil, nil, 14, 14, _unpack (_detalhes.class_coords [classe]))
+		end
+		_detalhes:AddTooltipBackgroundStatusbar()
+
+	end
+	
+	--> damage done and heal
+	GameCooltip:AddLine (" ")
+	GameCooltip:AddLine (Loc ["STRING_ATTRIBUTE_DAMAGE_DONE"], FormatTooltipNumber (_, _math_floor (self.total)))
+	local half = 0.00048828125
+	GameCooltip:AddIcon (instancia:GetSkinTexture(), 1, 1, 14, 14, 0.005859375 + half, 0.025390625 - half, 0.3623046875, 0.3818359375)
+	_detalhes:AddTooltipBackgroundStatusbar()
+	
+	local heal_actor = instancia.showing (2, self.nome)
+	if (heal_actor) then
+		GameCooltip:AddLine (Loc ["STRING_ATTRIBUTE_HEAL_DONE"], FormatTooltipNumber (_, _math_floor (heal_actor.heal_enemy_amt)))
+	else
+		GameCooltip:AddLine (Loc ["STRING_ATTRIBUTE_HEAL_DONE"], 0)
+	end
+	GameCooltip:AddIcon (instancia:GetSkinTexture(), 1, 1, 14, 14, 0.037109375 + half, 0.056640625 - half, 0.3623046875, 0.3818359375)
+	_detalhes:AddTooltipBackgroundStatusbar()
+	
+	--> enemy description
+	if (instancia.sub_atributo == 6) then
+		GameCooltip:AddLine (" ")
+		GameCooltip:AddLine (Loc ["STRING_LEFTCLICK_DAMAGETAKEN"])
+		GameCooltip:AddStatusBar (100, 1, 0, 0, 0, 0.7)
+		GameCooltip:AddLine (Loc ["STRING_MIDDLECLICK_DAMAGETAKEN"])
+		GameCooltip:AddStatusBar (100, 1, 0, 0, 0, 0.7)
+	end
+	
+	--> clean up
+	for o = 1, #tooltip_temp_table do
+		local t = tooltip_temp_table [o]
+		t[2] = 0
+		t[1] = 0
+	end
+	
+	return true
+	
+end
+
 ---------> DAMAGE TAKEN
 function atributo_damage:ToolTip_DamageTaken (instancia, numero, barra, keydown)
 
@@ -2123,15 +2232,23 @@ function atributo_damage:ToolTip_DamageTaken (instancia, numero, barra, keydown)
 	
 	local meus_agressores = {}
 
-	for nome, _ in _pairs (agressores) do --> lista de nomes
-		local este_agressor = showing._ActorTable [showing._NameIndexTable [nome]]
-		if (este_agressor) then --> checagem por causa do total e do garbage collector que não limpa os nomes que deram dano
-			local name = nome
-			local damage_amount = este_agressor.targets [self.nome]
-			
-			if (damage_amount) then
-				if (este_agressor:IsPlayer() or este_agressor:IsNeutralOrEnemy()) then
-					meus_agressores [#meus_agressores+1] = {name, damage_amount, este_agressor.classe, este_agressor}
+	if (instancia.sub_atributo == 6) then
+		for _, actor in _ipairs (showing._ActorTable) do 
+			if (actor.grupo and actor.targets [self.nome]) then
+				meus_agressores [#meus_agressores+1] = {actor.nome, actor.targets [self.nome], actor.classe, actor}
+			end
+		end
+	else
+		for nome, _ in _pairs (agressores) do --> lista de nomes
+			local este_agressor = showing._ActorTable [showing._NameIndexTable [nome]]
+			if (este_agressor) then --> checagem por causa do total e do garbage collector que não limpa os nomes que deram dano
+				local name = nome
+				local damage_amount = este_agressor.targets [self.nome]
+				
+				if (damage_amount) then
+					if (este_agressor:IsPlayer() or este_agressor:IsNeutralOrEnemy()) then
+						meus_agressores [#meus_agressores+1] = {name, damage_amount, este_agressor.classe, este_agressor}
+					end
 				end
 			end
 		end
@@ -3503,6 +3620,8 @@ end
 			for i = #vtable, 1, -1 do
 				vtable [i] = nil
 			end
+	
+			wipe (tooltip_temp_table)
 		end
 
 	--> atualize a funcao de abreviacao
@@ -3870,3 +3989,79 @@ function _detalhes.clear:c_atributo_damage (este_jogador)
 
 	_detalhes.clear:c_container_habilidades (este_jogador.spells)
 end
+
+
+--[[
+	--> enemy damage done
+	i = 1
+	local enemy = combat (1, enemy_name)
+	if (enemy) then
+	
+		local damage_done = 0
+		
+		--> get targets
+		for target_name, amount in _pairs (enemy.targets) do
+			local player = combat (1, target_name)
+			if (player and player.grupo) then
+				local t = tooltip_temp_table [i]
+				if (not t) then
+					tooltip_temp_table [i] = {}
+					t = tooltip_temp_table [i]
+				end
+				t [1] = player
+				t [2] = amount
+				damage_done = damage_done + amount
+				i = i + 1
+			end
+		end
+		
+		--> first clenup
+		for o = i, #tooltip_temp_table do
+			local t = tooltip_temp_table [o]
+			t[2] = 0
+			t[1] = 0
+		end
+
+		_table_sort (tooltip_temp_table, _detalhes.Sort2)
+		
+		--> enemy damage taken
+		_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_ATTRIBUTE_DAMAGE"], headerColor, r, g, b, i-1, true)
+		GameCooltip:AddIcon ([=[Interface\Buttons\UI-MicroStream-Green]=], 2, 1, 14, 14, 0.1875, 0.8125, 0.15625, 0.78125)
+		GameCooltip:AddIcon ([=[Interface\AddOns\Details\images\key_shift]=], 2, 2, _detalhes.tooltip_key_size_width, _detalhes.tooltip_key_size_height, 0, 1, 0, 0.640625, _detalhes.tooltip_key_overlay2)
+		GameCooltip:AddStatusBar (100, 2, 0.7, g, b, 1)
+		
+		--> build the tooltip
+		for o = 1, i-1 do
+
+			local player = tooltip_temp_table [o][1]
+			local total = tooltip_temp_table [o][2]
+			local player_name = player:name()
+		
+			if (player_name:find (_detalhes.playername)) then
+				GameCooltip:AddLine (player_name .. ": ", FormatTooltipNumber (_, total) .. " (" .. _cstr ("%.1f", (total / damage_done) * 100) .. "%)", 2, "yellow")
+			else
+				GameCooltip:AddLine (player_name .. ": ", FormatTooltipNumber (_, total) .." (" .. _cstr ("%.1f", (total / damage_done) * 100) .. "%)", 2)
+			end
+			
+			local classe = player:class()
+			if (not classe) then
+				classe = "UNKNOW"
+			end
+			if (classe == "UNKNOW") then
+				GameCooltip:AddIcon ("Interface\\LFGFRAME\\LFGROLE_BW", 2, nil, 14, 14, .25, .5, 0, 1)
+			else
+				GameCooltip:AddIcon (instancia.row_info.icon_file, 2, nil, 14, 14, _unpack (_detalhes.class_coords [classe]))
+			end
+			_detalhes:AddTooltipBackgroundStatusbar (2)
+
+		end
+		
+	end
+	
+	--> clean up
+	for o = 1, #tooltip_temp_table do
+		local t = tooltip_temp_table [o]
+		t[2] = 0
+		t[1] = 0
+	end
+--]]

@@ -1005,15 +1005,28 @@
 		local backgroundColor = {0, 0, 0, 0.6}
 		local avatarTextColor = {1, 1, 1, 1}
 		
-		function _detalhes:AddTooltipBackgroundStatusbar()
-			GameCooltip:AddStatusBar (100, 1, unpack (_detalhes.tooltip.background))
+		function _detalhes:AddTooltipBackgroundStatusbar (side)
+			if (not side) then
+				GameCooltip:AddStatusBar (100, 1, unpack (_detalhes.tooltip.background))
+			else
+				GameCooltip:AddStatusBar (100, 2, unpack (_detalhes.tooltip.background))
+			end
 		end
 		
-		function _detalhes:AddTooltipSpellHeaderText (headerText, headerColor, r, g, b, amount)
-			if (_detalhes.tooltip.show_amount) then
-				GameCooltip:AddLine (headerText, "x" .. amount .. "", nil, headerColor, r, g, b, .5, 10)
+		function _detalhes:AddTooltipSpellHeaderText (headerText, headerColor, r, g, b, amount, side)
+			if (not side) then
+				if (_detalhes.tooltip.show_amount) then
+					GameCooltip:AddLine (headerText, "x" .. amount .. "", nil, headerColor, r, g, b, .5, 10)
+				else
+					GameCooltip:AddLine (headerText, nil, nil, headerColor, nil, 12)
+				end
 			else
-				GameCooltip:AddLine (headerText, nil, nil, headerColor, nil, 12)
+				--> sub menu
+				if (_detalhes.tooltip.show_amount) then
+					GameCooltip:AddLine (headerText, "x" .. amount .. "", 2, headerColor, r, g, b, .5, 10)
+				else
+					GameCooltip:AddLine (headerText, nil, 2, headerColor, nil, 12)
+				end
 			end
 		end
 		

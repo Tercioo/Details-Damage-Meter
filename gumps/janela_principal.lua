@@ -374,7 +374,9 @@ local function OnEnterMainWindow (instancia, self)
 		end
 		
 		--> stretch button
-		gump:Fade (instancia.baseframe.button_stretch, "ALPHA", 0.6)
+		if (not _detalhes.disable_stretch_button) then
+			gump:Fade (instancia.baseframe.button_stretch, "ALPHA", 0.6)
+		end
 		
 	elseif (instancia.modo ~= _detalhes._detalhes_props["MODO_ALONE"] and instancia.baseframe.isLocked) then
 	
@@ -391,8 +393,9 @@ local function OnEnterMainWindow (instancia, self)
 			end
 		end
 		
-		gump:Fade (instancia.baseframe.button_stretch, "ALPHA", 0.6)
-	
+		if (not _detalhes.disable_stretch_button) then
+			gump:Fade (instancia.baseframe.button_stretch, "ALPHA", 0.6)
+		end
 	end
 end
 _detalhes.OnEnterMainWindow = OnEnterMainWindow
@@ -1399,6 +1402,10 @@ local resizeTooltip = {
 local resize_scripts_onmousedown = function (self, button)
 	_G.GameCooltip:ShowMe (false) --> Hide Cooltip
 	
+	if (_detalhes.disable_lock_ungroup_buttons) then
+		return
+	end
+	
 	if (not self:GetParent().isLocked and button == "LeftButton" and self._instance.modo ~= _detalhes._detalhes_props["MODO_ALONE"]) then 
 		self:GetParent().isResizing = true
 		self._instance:BaseFrameSnap()
@@ -1474,6 +1481,10 @@ local resize_scripts_onmousedown = function (self, button)
 end
 
 local resize_scripts_onmouseup = function (self, button)
+
+	if (_detalhes.disable_lock_ungroup_buttons) then
+		return
+	end
 
 	if (self.afundado) then
 		self.afundado = false
@@ -1575,6 +1586,11 @@ local resize_scripts_onhide = function (self)
 end
 
 local resize_scripts_onenter = function (self)
+
+	if (_detalhes.disable_lock_ungroup_buttons) then
+		return
+	end
+
 	if (self._instance.modo ~= _detalhes._detalhes_props["MODO_ALONE"] and not self._instance.baseframe.isLocked and not self.mostrando) then
 
 		OnEnterMainWindow (self._instance, self)
@@ -1626,6 +1642,11 @@ local lockButtonTooltip = {
 }
 
 local lockFunctionOnEnter = function (self)
+
+	if (_detalhes.disable_lock_ungroup_buttons) then
+		return
+	end
+
 	if (self.instancia.modo ~= _detalhes._detalhes_props["MODO_ALONE"] and not self.mostrando) then
 		OnEnterMainWindow (self.instancia, self)
 		
@@ -1670,6 +1691,11 @@ function _detalhes:DelayOptionsRefresh (instance, no_reopen)
 end
 
 local lockFunctionOnClick = function (button)
+
+	if (_detalhes.disable_lock_ungroup_buttons) then
+		return
+	end
+
 	local baseframe = button:GetParent()
 	if (baseframe.isLocked) then
 		baseframe.isLocked = false
@@ -1716,6 +1742,10 @@ local unSnapButtonTooltip = {
 }
 
 local unSnapButtonOnEnter = function (self)
+
+	if (_detalhes.disable_lock_ungroup_buttons) then
+		return
+	end
 
 	local have_snap = false
 	for _, instancia_id in _pairs (self.instancia.snap) do
@@ -2076,7 +2106,9 @@ local function button_stretch_scripts (baseframe, backgrounddisplay, instancia)
 
 	button:SetScript ("OnEnter", function (self)
 		self.mouse_over = true
-		gump:Fade (self, "ALPHA", 1)
+		if (not _detalhes.disable_stretch_button) then
+			gump:Fade (self, "ALPHA", 1)
+		end
 	end)
 	button:SetScript ("OnLeave", function (self)
 		self.mouse_over = false
@@ -2510,6 +2542,10 @@ function _detalhes:InstanceAlertTime (instance)
 	instance.alert_time = nil
 end
 
+local hide_click_func = function()
+	--empty
+end
+
 function _detalhes:InstanceAlert (msg, icon, time, clickfunc)
 	
 	if (not self.meu_id) then
@@ -2564,7 +2600,7 @@ function _detalhes:InstanceAlert (msg, icon, time, clickfunc)
 	if (clickfunc) then
 		self.alert.button:SetClickFunction (unpack (clickfunc))
 	else
-		self.alert.button.clickfunction = nil
+		self.alert.button:SetClickFunction (hide_click_func)
 	end
 
 	time = time or 15
@@ -3180,8 +3216,10 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 		instancia.break_snap_button.instancia = instancia
 		
 		instancia.break_snap_button:SetScript ("OnClick", function()
+			if (_detalhes.disable_lock_ungroup_buttons) then
+				return
+			end
 			instancia:Desagrupar (-1)
-			
 			--> hide tutorial
 			if (DetailsWindowGroupPopUp1 and DetailsWindowGroupPopUp1:IsShown()) then
 				DetailsWindowGroupPopUp1:Hide()
@@ -3190,7 +3228,6 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 		
 		instancia.break_snap_button:SetScript ("OnEnter", unSnapButtonOnEnter)
 		instancia.break_snap_button:SetScript ("OnLeave", unSnapButtonOnLeave)
-		
 
 		instancia.break_snap_button:SetNormalTexture (DEFAULT_SKIN)
 		instancia.break_snap_button:SetDisabledTexture (DEFAULT_SKIN)

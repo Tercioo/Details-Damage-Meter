@@ -844,6 +844,7 @@ local default_profile = {
 		disable_reset_button = false,
 		disable_lock_ungroup_buttons = false,
 		disable_stretch_from_toolbar = false,
+		disable_stretch_button = false,
 		damage_taken_everything = false,
 		
 	--> segments
@@ -1042,6 +1043,7 @@ local default_global_data = {
 		lastUpdateWarning = 0,
 		report_where = "SAY",
 		realm_sync = true,
+		spell_school_cache = {},
 	--> switch tables
 		switchSaved = {slots = 4, table = {
 			{["atributo"] = 1, ["sub_atributo"] = 1}, --damage done

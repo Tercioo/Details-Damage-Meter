@@ -91,6 +91,7 @@
 	local container_damage_target = _detalhes.container_type.CONTAINER_DAMAGETARGET_CLASS
 	local container_misc = _detalhes.container_type.CONTAINER_MISC_CLASS
 	
+	local OBJECT_TYPE_ENEMY = 0x00000040
 	local OBJECT_TYPE_PLAYER = 0x00000400
 	local OBJECT_TYPE_PETS = 0x00003000
 	local AFFILIATION_GROUP = 0x00000007
@@ -231,17 +232,19 @@
 	--> get actors
 	
 		--> damager
-		local este_jogador, meu_dono = damage_cache [who_serial] or damage_cache_pets [who_serial], damage_cache_petsOwners [who_serial]
+		local este_jogador, meu_dono = damage_cache [who_serial] or damage_cache_pets [who_serial] or damage_cache [who_name], damage_cache_petsOwners [who_serial]
 		
 		if (not este_jogador) then --> pode ser um desconhecido ou um pet
 		
 			este_jogador, meu_dono, who_name = _current_damage_container:PegarCombatente (who_serial, who_name, who_flags, true)
 			
 			if (meu_dono) then --> é um pet
-				damage_cache_pets [who_serial] = este_jogador
-				damage_cache_petsOwners [who_serial] = meu_dono
+				if (who_serial ~= "") then
+					damage_cache_pets [who_serial] = este_jogador
+					damage_cache_petsOwners [who_serial] = meu_dono
+				end
 				--conferir se o dono já esta no cache
-				if (not damage_cache [meu_dono.serial]) then
+				if (not damage_cache [meu_dono.serial] and meu_dono.serial ~= "") then
 					damage_cache [meu_dono.serial] = meu_dono
 				end
 			else
@@ -250,11 +253,12 @@
 						damage_cache [who_serial] = este_jogador
 					else
 						if (who_name:find ("%[")) then
+							damage_cache [who_name] = este_jogador
 							local _, _, icon = _GetSpellInfo (spellid or 1)
 							este_jogador.spellicon = icon
-							--print ("Spell Actor:", who_name)
+							--print ("no serial actor", spellname, who_name, "added to cache.")
 						else
-							--print ("No Serial Actor:", who_name)
+							--_detalhes:Msg ("Unknown actor with unknown serial ", spellname, who_name)
 						end
 					end
 				end
@@ -266,21 +270,23 @@
 		end
 		
 		--> his target
-		local jogador_alvo, alvo_dono = damage_cache [alvo_serial] or damage_cache_pets [alvo_serial], damage_cache_petsOwners [alvo_serial]
+		local jogador_alvo, alvo_dono = damage_cache [alvo_serial] or damage_cache_pets [alvo_serial] or damage_cache [alvo_name], damage_cache_petsOwners [alvo_serial]
 		
 		if (not jogador_alvo) then
 		
 			jogador_alvo, alvo_dono, alvo_name = _current_damage_container:PegarCombatente (alvo_serial, alvo_name, alvo_flags, true)
 			
 			if (alvo_dono) then
-				damage_cache_pets [alvo_serial] = jogador_alvo
-				damage_cache_petsOwners [alvo_serial] = alvo_dono
+				if (alvo_serial ~= "") then
+					damage_cache_pets [alvo_serial] = jogador_alvo
+					damage_cache_petsOwners [alvo_serial] = alvo_dono
+				end
 				--conferir se o dono já esta no cache
-				if (not damage_cache [alvo_dono.serial]) then
+				if (not damage_cache [alvo_dono.serial] and alvo_dono.serial ~= "") then
 					damage_cache [alvo_dono.serial] = alvo_dono
 				end
 			else
-				if (alvo_flags) then --> ter certeza que não é um pet
+				if (alvo_flags and alvo_serial ~= "") then --> ter certeza que não é um pet
 					damage_cache [alvo_serial] = jogador_alvo
 				end
 			end
@@ -383,7 +389,7 @@
 			this_event [5] = _UnitHealth (alvo_name) --> current unit heal
 			this_event [6] = who_name --> source name
 			this_event [7] = absorbed
-			this_event [8] = school
+			this_event [8] = spelltype or school
 			this_event [9] = false
 			this_event [10] = overkill
 			
@@ -446,7 +452,12 @@
 				spellid ~= 999997 --stagger
 		) then
 		
-			--> record death log
+			--> ignore soul link (damage from the warlock on his pet)
+			if (spellid == 108446) then
+				return
+			end
+		
+			--> record death log (o erro era o pet, não tinha tabela então dava erro)
 			if (este_jogador.grupo) then --> se tiver ele não adiciona o evento lá em cima
 				local t = last_events_cache [alvo_name]
 				
@@ -465,7 +476,7 @@
 				this_event [5] = _UnitHealth (alvo_name) --> current unit heal
 				this_event [6] = who_name --> source name
 				this_event [7] = absorbed
-				this_event [8] = school
+				this_event [8] = spelltype or school
 				this_event [9] = true
 				this_event [10] = overkill
 				i = i + 1
@@ -534,7 +545,10 @@
 		local spell = este_jogador.spells._ActorTable [spellid]
 		if (not spell) then
 			spell = este_jogador.spells:PegaHabilidade (spellid, true, token)
-			spell.spellschool = school
+			spell.spellschool = spelltype or school
+			if (_current_combat.is_boss and who_flags and _bit_band (who_flags, OBJECT_TYPE_ENEMY) ~= 0) then
+				_detalhes.spell_school_cache [spellname] = spelltype or school
+			end
 		end
 		
 		return spell_damage_func (spell, alvo_serial, alvo_name, alvo_flags, amount, who_name, resisted, blocked, absorbed, critical, glacing, token, multistrike, isoffhand)
@@ -542,17 +556,20 @@
 
 	function parser:SLT_damage (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand, multistrike)
 		
-		--> get the damager and target actors
-		local este_jogador, meu_dono = damage_cache [who_serial] or damage_cache_pets [who_serial], damage_cache_petsOwners [who_serial]
+		--> damager
+		local este_jogador, meu_dono = damage_cache [who_serial] or damage_cache_pets [who_serial] or damage_cache [who_name], damage_cache_petsOwners [who_serial]
 		
 		if (not este_jogador) then --> pode ser um desconhecido ou um pet
 		
 			este_jogador, meu_dono, who_name = _current_damage_container:PegarCombatente (who_serial, who_name, who_flags, true)
 			
 			if (meu_dono) then --> é um pet
-				damage_cache_pets [who_serial] = este_jogador
-				damage_cache_petsOwners [who_serial] = meu_dono
-				if (not damage_cache [meu_dono.serial]) then
+				if (who_serial ~= "") then
+					damage_cache_pets [who_serial] = este_jogador
+					damage_cache_petsOwners [who_serial] = meu_dono
+				end
+				--conferir se o dono já esta no cache
+				if (not damage_cache [meu_dono.serial] and meu_dono.serial ~= "") then
 					damage_cache [meu_dono.serial] = meu_dono
 				end
 			else
@@ -561,33 +578,40 @@
 						damage_cache [who_serial] = este_jogador
 					else
 						if (who_name:find ("%[")) then
+							damage_cache [who_name] = este_jogador
 							local _, _, icon = _GetSpellInfo (spellid or 1)
 							este_jogador.spellicon = icon
+							--print ("no serial actor", spellname, who_name, "added to cache.")
+						else
+							--_detalhes:Msg ("Unknown actor with unknown serial ", spellname, who_name)
 						end
 					end
 				end
 			end
 			
 		elseif (meu_dono) then
+			--> é um pet
 			who_name = who_name .. " <" .. meu_dono.nome .. ">"
 		end
 		
 		--> his target
-		local jogador_alvo, alvo_dono = damage_cache [alvo_serial] or damage_cache_pets [alvo_serial], damage_cache_petsOwners [alvo_serial]
+		local jogador_alvo, alvo_dono = damage_cache [alvo_serial] or damage_cache_pets [alvo_serial] or damage_cache [alvo_name], damage_cache_petsOwners [alvo_serial]
 		
 		if (not jogador_alvo) then
 		
 			jogador_alvo, alvo_dono, alvo_name = _current_damage_container:PegarCombatente (alvo_serial, alvo_name, alvo_flags, true)
 			
 			if (alvo_dono) then
-				damage_cache_pets [alvo_serial] = jogador_alvo
-				damage_cache_petsOwners [alvo_serial] = alvo_dono
+				if (alvo_serial ~= "") then
+					damage_cache_pets [alvo_serial] = jogador_alvo
+					damage_cache_petsOwners [alvo_serial] = alvo_dono
+				end
 				--conferir se o dono já esta no cache
-				if (not damage_cache [alvo_dono.serial]) then
+				if (not damage_cache [alvo_dono.serial] and alvo_dono.serial ~= "") then
 					damage_cache [alvo_dono.serial] = alvo_dono
 				end
 			else
-				if (alvo_flags) then --> ter certeza que não é um pet
+				if (alvo_flags and alvo_serial ~= "") then --> ter certeza que não é um pet
 					damage_cache [alvo_serial] = jogador_alvo
 				end
 			end
@@ -595,7 +619,6 @@
 		elseif (alvo_dono) then
 			--> é um pet
 			alvo_name = alvo_name .. " <" .. alvo_dono.nome .. ">"
-		
 		end
 		
 		--> last event
@@ -623,7 +646,7 @@
 		this_event [5] = _UnitHealth (alvo_name) --> current unit heal
 		this_event [6] = who_name --> source name
 		this_event [7] = absorbed
-		this_event [8] = school
+		this_event [8] = spelltype or school
 		this_event [9] = false
 		this_event [10] = overkill
 		
@@ -739,6 +762,10 @@
 			local spell = este_jogador.spells._ActorTable [spellid]
 			if (not spell) then
 				spell = este_jogador.spells:PegaHabilidade (spellid, true, token)
+				spell.spellschool = spelltype
+				if (_current_combat.is_boss and who_flags and _bit_band (who_flags, OBJECT_TYPE_ENEMY) ~= 0) then
+					_detalhes.spell_school_cache [spellname] = spelltype
+				end
 			end
 			return spell_damageMiss_func (spell, alvo_serial, alvo_name, alvo_flags, who_name, missType)		
 		end

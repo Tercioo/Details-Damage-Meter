@@ -1696,6 +1696,81 @@
 				tile = 1, tileSize = 16, edgeSize = 16, insets = {left = 5, right = 5, top = 5, bottom = 5}})
 				code_editor:SetBackdropColor (0, 0, 0, 1)
 				code_editor:Hide()
+				code_editor.font_size = 11
+				
+				local file, size, flags = code_editor.editbox:GetFont()
+				code_editor.editbox:SetFont (file, 11, flags)
+				
+				local expand_func = function()
+					if (code_editor.expanded) then
+						code_editor:SetSize (420, 238)
+						code_editor.expanded = nil
+					else
+						code_editor:SetSize (950, 800)
+						code_editor.expanded = true
+					end
+				end
+				
+				local font_change = function (size)
+					if (size) then
+						local file, size, flags = code_editor.editbox:GetFont()
+						code_editor.font_size = code_editor.font_size + 1
+						code_editor.editbox:SetFont (file, code_editor.font_size, flags)
+					else
+						local file, size, flags = code_editor.editbox:GetFont()
+						code_editor.font_size = code_editor.font_size - 1
+						code_editor.editbox:SetFont (file, code_editor.font_size, flags)
+					end
+				end
+				
+				local apply_code = function()
+				
+					_detalhes:ResetCustomFunctionsCache()
+				
+					if (DetailsCustomPanel.CodeEditing == 1) then
+						DetailsCustomPanel.code1 = custom_window.codeeditor:GetText()
+					elseif (DetailsCustomPanel.CodeEditing == 2) then
+						DetailsCustomPanel.code2 = custom_window.codeeditor:GetText()
+					elseif (DetailsCustomPanel.CodeEditing == 3) then
+						DetailsCustomPanel.code3 = custom_window.codeeditor:GetText()
+					elseif (DetailsCustomPanel.CodeEditing == 4) then
+						DetailsCustomPanel.code4 = custom_window.codeeditor:GetText()
+					end
+					
+					local main_code = DetailsCustomPanel.code1
+					local tooltip_code = DetailsCustomPanel.code2
+					local total_code = DetailsCustomPanel.code3
+					local percent_code = DetailsCustomPanel.code4
+					
+					local object = DetailsCustomPanel.IsEditing
+					object.script = main_code
+					object.tooltip = tooltip_code
+					
+					if (total_code ~= DetailsCustomPanel.code3_default) then
+						object.total_script = total_code
+					else
+						object.total_script = false
+					end
+					
+					if (percent_code ~= DetailsCustomPanel.code4_default) then
+						object.percent_script = percent_code
+					else
+						object.percent_script = false
+					end
+
+					return true
+				end
+				
+				local expand = gump:NewButton (code_editor, nil, "$parentExpand", "expandbutton", 8, 10, expand_func, 4, nil, nil, "^")
+				expand:SetPoint ("bottomleft", code_editor, "topleft", 3, 0)
+				local font_size1 = gump:NewButton (code_editor, nil, "$parentFont1", "font1button", 8, 10, font_change, true, nil, nil, "+")
+				font_size1:SetPoint ("left", expand, "right", -4, 2)
+				local font_size2 = gump:NewButton (code_editor, nil, "$parentFont2", "font2button", 8, 10, font_change, nil, nil, nil, "-")
+				font_size2:SetPoint ("left", font_size1, "right", -4, 2)
+				local apply1 = gump:NewButton (code_editor, nil, "$parentApply", "applybutton", 8, 10, apply_code, nil, nil, nil, "apply")
+				apply1:SetPoint ("left", font_size2, "right", -4, 1)
+				
+				--code_editor:SetWidth (650)
 				
 			--> select damage
 				DetailsCustomPanelAttributeMenu1:Click()
