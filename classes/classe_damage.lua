@@ -2109,6 +2109,7 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 	return true
 end
 
+local enemies_background = {value = 100, color = {0.1, 0.1, 0.15, 1}, texture = "Interface\\AddOns\\Details\\images\\bar_background2"}
 function atributo_damage:ToolTip_Enemies (instancia, numero, barra, keydown)
 	
 	local owner = self.owner
@@ -2153,6 +2154,8 @@ function atributo_damage:ToolTip_Enemies (instancia, numero, barra, keydown)
 	GameCooltip:AddStatusBar (100, 1, 0.7, g, b, 1)
 
 	--> build the tooltip
+	
+	local top = (tooltip_temp_table [1] and tooltip_temp_table [1][2]) or 0
 	for o = 1, i-1 do
 
 		local player = tooltip_temp_table [o][1]
@@ -2160,9 +2163,9 @@ function atributo_damage:ToolTip_Enemies (instancia, numero, barra, keydown)
 		local player_name = _detalhes:GetOnlyName (player:name())
 	
 		if (player_name:find (_detalhes.playername)) then
-			GameCooltip:AddLine (player_name .. ": ", FormatTooltipNumber (_, total) .. " (" .. _cstr ("%.1f", (total / damage_taken) * 100) .. "%)", nil, "yellow")
+			GameCooltip:AddLine (player_name .. " ", FormatTooltipNumber (_, total) .. " (" .. _cstr ("%.1f", (total / damage_taken) * 100) .. "%)", nil, "yellow")
 		else
-			GameCooltip:AddLine (player_name .. ": ", FormatTooltipNumber (_, total) .." (" .. _cstr ("%.1f", (total / damage_taken) * 100) .. "%)")
+			GameCooltip:AddLine (player_name .. " ", FormatTooltipNumber (_, total) .." (" .. _cstr ("%.1f", (total / damage_taken) * 100) .. "%)")
 		end
 		
 		local classe = player:class()
@@ -2174,7 +2177,12 @@ function atributo_damage:ToolTip_Enemies (instancia, numero, barra, keydown)
 		else
 			GameCooltip:AddIcon (instancia.row_info.icon_file, nil, nil, 14, 14, _unpack (_detalhes.class_coords [classe]))
 		end
-		_detalhes:AddTooltipBackgroundStatusbar()
+		
+		local r, g, b = unpack (_detalhes.class_colors [classe])
+		GameCooltip:AddStatusBar (total/top*100, 1, r, g, b, 1, false, enemies_background)
+		GameCooltip:SetOption ("StatusBarTexture", "Interface\\AddOns\\Details\\images\\bar_serenity")
+		
+		--_detalhes:AddTooltipBackgroundStatusbar()
 
 	end
 	

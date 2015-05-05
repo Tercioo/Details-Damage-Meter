@@ -625,17 +625,16 @@ function gump:NewFillPanel (parent, rows, name, member, w, h, total_lines, fill_
 	
 	local refresh_fillbox = function (self)
 		local offset = FauxScrollFrame_GetOffset (self)
-		local filled_lines = total_lines()
-		
+		local filled_lines = total_lines (panel)
+
 		for index = 1, #self.lines do
 		
 			local row = self.lines [index]
 			if (index <= filled_lines) then
 			
 				local real_index = index + offset
-			
-				local results = fill_row (real_index)
-				
+				local results = fill_row (real_index, panel)
+
 				if (results [1]) then
 				
 					row:Show()
@@ -670,9 +669,11 @@ function gump:NewFillPanel (parent, rows, name, member, w, h, total_lines, fill_
 							end
 							
 						else
-							--< text
+							--> text
 							row.row_widgets [i]:SetText (results [i])
-							
+							if (panel.rows [i].type == "entry") then
+								row.row_widgets [i]:SetCursorPosition (0)
+							end
 						end
 					end
 					
@@ -698,12 +699,11 @@ function gump:NewFillPanel (parent, rows, name, member, w, h, total_lines, fill_
 	end
 	
 	function panel:Refresh()
-		local filled_lines = total_lines()
-		local scroll_total_lines = #panel.scrollframe
+		local filled_lines = total_lines (panel)
+		local scroll_total_lines = #panel.scrollframe.lines
 		local line_height = options.rowheight
-		
-		FauxScrollFrame_Update (panel.scrollframe, filled_lines, scroll_total_lines, line_height)
 		refresh_fillbox (panel.scrollframe)
+		FauxScrollFrame_Update (panel.scrollframe, filled_lines, scroll_total_lines, line_height)
 	end
 	
 	local scrollframe = CreateFrame ("scrollframe", name .. "Scroll", panel.widget, "FauxScrollFrameTemplate")
@@ -719,11 +719,10 @@ function gump:NewFillPanel (parent, rows, name, member, w, h, total_lines, fill_
 	--create lines
 	local size = options.rowheight
 	local amount = math.floor (((h-21) / size))
-	
-	
+
 	for i = 1, amount do
 	
-		local row = gump:NewPanel (parent, nil, "$parentRow_" .. i, nil, 1, size)
+		local row = gump:NewPanel (panel, nil, "$parentRow_" .. i, nil, 1, size)
 		row.backdrop = {bgFile = [[Interface\DialogFrame\UI-DialogBox-Background]]}
 		row.color = {1, 1, 1, .2}
 		row:SetPoint ("topleft", scrollframe, "topleft", 0, (i-1) * size * -1)
@@ -748,8 +747,9 @@ function gump:NewFillPanel (parent, rows, name, member, w, h, total_lines, fill_
 			elseif (_type == "entry") then
 			
 				--> create editbox
-				local editbox = gump:NewTextEntry (row, nil, "$parentEntry" .. o, "entry", panel.rows [o].width, 20, panel.rows [o].func, i, o)
+				local editbox = gump:NewTextEntry (row, nil, "$parentEntry" .. i .. o .. math.random(100), "entry", panel.rows [o].width, 20, panel.rows [o].func, i, o)
 				editbox.align = "left"
+				
 				editbox:SetHook ("OnEnterPressed", function()
 					editbox.widget.focuslost = true
 					editbox:ClearFocus()
@@ -761,7 +761,6 @@ function gump:NewFillPanel (parent, rows, name, member, w, h, total_lines, fill_
 				editbox:SetBackdropColor (1, 1, 1, 0.1)
 				editbox:SetBackdropBorderColor (1, 1, 1, 0.1)
 				editbox.editbox.current_bordercolor = {1, 1, 1, 0.1}
-				
 				--> insert in the table
 				tinsert (row.row_widgets, editbox)
 			

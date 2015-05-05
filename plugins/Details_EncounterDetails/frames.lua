@@ -1632,7 +1632,7 @@ do
 	
 	BossFrame.EnemySpellsWidgets = {}
 
-	--> spells and auras ~auras
+	--> spells and auras ~auras ~spell
 
 	-- actor dropdown
 	

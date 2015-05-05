@@ -784,6 +784,13 @@
 			return
 		end
 		
+--4/22 18:07:54.369  SPELL_SUMMON,Player-3296-009371B2,"Façade-Anasterian(US)",0x514,0x0,Creature-0-3198-1448-2131-90477-0000380DAA,"Blood Globule",0xa28,0x0,180410,"Heart Seeker",0x1
+--5/4 15:45:24.222  SPELL_SUMMON,Player-3296-009576DD,"Àlëx-Brill(EU)",0x40514,0x0,Creature-0-2083-1448-25606-90513-000047BE44,"Fel Blood Globule",0xa28,0x0,180413,"Heart Seeker",0x1
+
+		if (spellid and (spellid == 180410 or spellid == 180413)) then -- Heart Seeker
+			return
+		end
+		
 		if (not who_name) then
 			who_name = "[*] " .. spellName
 		end
@@ -1082,6 +1089,9 @@
 			if (is_shield) then
 				spell.is_shield = true
 			end
+			if (_current_combat.is_boss and who_flags and _bit_band (who_flags, OBJECT_TYPE_ENEMY) ~= 0) then
+				_detalhes.spell_school_cache [spellname] = spelltype or school
+			end
 		end
 		
 		if (is_shield) then
@@ -1167,25 +1177,16 @@
 	--> handle shields
 
 		if (tipo == "BUFF") then
-		
-			--if (who_name == _detalhes.playername) then
-			--	print (spellid, spellname)
-			--end
 			------------------------------------------------------------------------------------------------
 			--> buff uptime
-			
-			--if (arg1 or arg2 or arg3) then
-			--	print (spellname, arg1, arg2, arg3)
-			--end
-			
+
 				if (_recording_buffs_and_debuffs) then
-					-- jade spirit doesn't send who_name, that's a shame. 
 					if (who_name == alvo_name and raid_members_cache [who_serial] and _in_combat) then
 						--> call record buffs uptime
 						parser:add_buff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, "BUFF_UPTIME_IN")
 					end
 				end
-		
+				
 			------------------------------------------------------------------------------------------------
 			--> healing done absorbs
 				if (absorb_spell_list [spellid] and _recording_healing and amount) then
@@ -1205,19 +1206,6 @@
 				elseif (defensive_cooldown_spell_list [spellid]) then
 					--> usou cooldown
 					return parser:add_defensive_cooldown (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname)
-				
-			------------------------------------------------------------------------------------------------
-			--> recording buffs
-				elseif (_recording_self_buffs) then
-					--> or alvo_name needded, seems jade spirit not send who_name correctly
-					if (who_name == _detalhes.playername or alvo_name == _detalhes.playername) then
-						local bufftable = _detalhes.Buffs.BuffsTable [spellname]
-						if (bufftable) then
-							return bufftable:UpdateBuff ("new")
-						else
-							return false
-						end
-					end
 
 			end
 

@@ -1013,6 +1013,9 @@ function SlashCmdList.DETAILS (msg, editbox)
 		local average = item_level / item_amount
 		print ("your item lvl:", average)
 	
+	elseif (msg == "forge") then
+		_detalhes:OpenForge()
+	
 	elseif (msg == "parser") then
 		
 		_detalhes:OnParserEvent (

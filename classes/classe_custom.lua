@@ -758,7 +758,7 @@
 		local actor_table = self:GetActorTable (actor)
 		return actor_table.value
 	end
-	
+	-- ~add
 	function atributo_custom:AddValue (actor, actortotal, checktop, name_complement)
 		local actor_table = self:GetActorTable (actor, name_complement)
 		actor_table.my_actor = actor
@@ -801,6 +801,12 @@
 				actor.nome = spellname
 				actor.classe = actor.spellschool
 				class = actor.spellschool
+				
+				local index = self._NameIndexTable [actor.nome]
+				if (index) then
+					return self._ActorTable [index]
+				end
+				
 			else
 				class = actor.classe
 				if (class == "UNKNOW") then
@@ -813,9 +819,9 @@
 			end
 		
 			local new_actor = _setmetatable ({
-			nome = actor.nome,
-			classe = class,
-			value = _detalhes:GetOrderNumber (actor.nome),
+				nome = actor.nome,
+				classe = class,
+				value = _detalhes:GetOrderNumber (actor.nome),
 			}, atributo_custom.mt)
 			
 			new_actor.name_complement = name_complement
@@ -1556,91 +1562,92 @@
 			desc = Loc ["STRING_CUSTOM_DTBS_DESC"],
 			source = false,
 			target = false,
-			script_version = 27,
+			script_version = 29,
 			on_shift_click = [[
 				local row, object, instance = ...
 				local spellname, _, spellicon = _detalhes.GetSpellInfo (object.id)
 				_detalhes:OpenAuraPanel (object.id, spellname, spellicon)
 			]],
 			script = [[
-			--> get the parameters passed
-			local combat, instance_container, instance = ...
-			--> declade the values to return
-			local total, top, amount = 0, 0, 0
-			--> get a list of all damage actors
-			local AllDamageCharacters = combat:GetActorList (DETAILS_ATTRIBUTE_DAMAGE)
+				--> get the parameters passed
+				local combat, instance_container, instance = ...
+				--> declade the values to return
+				local total, top, amount = 0, 0, 0
+				--> get a list of all damage actors
+				local AllDamageCharacters = combat:GetActorList (DETAILS_ATTRIBUTE_DAMAGE)
 
-			--> no amount increase for repeated spells
-			local NoRepeat = {}
+				--> no amount increase for repeated spells
+				local NoRepeat = {}
 
-			--> do a loop amoung the actors
-			for index, character in ipairs (AllDamageCharacters) do
-			    
-			    --> is the actor a player?
-			    if (character:IsPlayer()) then
-				
-				local taken_from = character.damage_from
-				
-				for source_name, _ in pairs (taken_from) do
+				--> do a loop amoung the actors
+				for index, character in ipairs (AllDamageCharacters) do
 				    
-				    local source = combat (1, source_name)
-				    
-				    if (source) then
-					--> came from an enemy
-					if (not source:IsPlayer()) then
+				    --> is the actor a player?
+				    if (character:IsPlayer()) then
+					
+					local taken_from = character.damage_from
+					
+					for source_name, _ in pairs (taken_from) do
 					    
-					    local AllSpells = source:GetSpellList()
-					    for spellid, spell in pairs (AllSpells) do
-						local on_player = spell.targets [character.nome]
-						
-						if (on_player and on_player >= 1) then                            
-						    instance_container:AddValue (spell, on_player)
-						    total = total + on_player
-						    local value = instance_container:GetValue (spell)
-						    if (value > top) then
-							top = value
+					    local source = combat (1, source_name)
+					    
+					    if (source) then
+						--> came from an enemy
+						if (not source:IsPlayer()) then
+						    
+						    local AllSpells = source:GetSpellList()
+						    for spellid, spell in pairs (AllSpells) do
+							local on_player = spell.targets [character.nome]
+							
+							if (on_player and on_player >= 1) then                            
+							    instance_container:AddValue (spell, on_player)
+							    total = total + on_player
+							    local value = instance_container:GetValue (spell)
+							    if (value > top) then
+								top = value
+							    end
+							    if (not NoRepeat [spellid]) then
+								amount = amount + 1
+								NoRepeat [spellid] = true
+							    end
+							end
 						    end
-						    if (not NoRepeat [spellid]) then
-							amount = amount + 1
-							NoRepeat [spellid] = true
+						    
+						elseif (source:IsGroupPlayer()) then -- friendly fire
+						    
+						    local AllSpells = source.friendlyfire [character.nome] and source.friendlyfire [character.nome].spells
+						    for spellid, on_player in pairs (AllSpells) do
+							if (on_player and on_player >= 1) then
+							    
+							    local spellname = select (1, GetSpellInfo(spellid))
+							    local TEMP_SPELL_OBJECT = _G ["DetailsDamageTakenBySpellTemp"..spellid]
+							    if (not TEMP_SPELL_OBJECT) then
+								TEMP_SPELL_OBJECT = {}
+								_G ["DetailsDamageTakenBySpellTemp"..spellid] = TEMP_SPELL_OBJECT
+							    end
+							    
+							    TEMP_SPELL_OBJECT.id = spellid
+							    TEMP_SPELL_OBJECT.spellschool =  1
+							    
+							    instance_container:AddValue (TEMP_SPELL_OBJECT, on_player)
+							    total = total + on_player
+							    local value = instance_container:GetValue (TEMP_SPELL_OBJECT)
+							    if (value > top) then
+								top = value
+							    end
+							    if (not NoRepeat [spellid]) then
+								amount = amount + 1
+								NoRepeat [spellid] = true
+							    end
+							end
 						    end
-						end
+						end 
 					    end
-					    
-					elseif (source:IsGroupPlayer()) then -- friendly fire
-					    
-					    local AllSpells = source.friendlyfire [character.nome] and source.friendlyfire [character.nome].spells
-					    for spellid, on_player in pairs (AllSpells) do
-						if (on_player and on_player >= 1) then
-						    
-						    local TEMP_SPELL_OBJECT = _G ["DetailsDamageTakenBySpellTemp"..spellid]
-						    if (not TEMP_SPELL_OBJECT) then
-							TEMP_SPELL_OBJECT = {}
-							_G ["DetailsDamageTakenBySpellTemp"..spellid] = TEMP_SPELL_OBJECT
-						    end
-						    
-						    TEMP_SPELL_OBJECT.id = spellid
-						    TEMP_SPELL_OBJECT.spellschool =  1
-						    
-						    instance_container:AddValue (TEMP_SPELL_OBJECT, on_player)
-						    total = total + on_player
-						    local value = instance_container:GetValue (TEMP_SPELL_OBJECT)
-						    if (value > top) then
-							top = value
-						    end
-						    if (not NoRepeat [spellid]) then
-							amount = amount + 1
-							NoRepeat [spellid] = true
-						    end
-						end
-					    end
-					end 
+					end            
 				    end
-				end            
-			    end
-			end
+				end
 
-			return total, top, amount
+				return total, top, amount
 			]],
 			
 			tooltip = [[
@@ -1649,6 +1656,10 @@
 			local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
 			local GameCooltip = GameCooltip
 			local from_spell = actor.id
+			local from_spellname
+			if (from_spell) then
+			    from_spellname = select (1, GetSpellInfo (actor.id))
+			end
 
 			--> get a list of all damage actors
 			local AllDamageCharacters = combat:GetActorList (DETAILS_ATTRIBUTE_DAMAGE)
@@ -1658,40 +1669,75 @@
 			local total = 0
 			local top = 0
 
+			local is_custom_spell = false
+			for _, spellcustom in ipairs (_detalhes.savedCustomSpells) do
+			    if (spellcustom[1] == from_spell) then
+				is_custom_spell = true
+			    end
+			end
+
 			for index, character in ipairs (AllDamageCharacters) do
 			    
-			    for playername, ff_table in pairs (character.friendlyfire) do
-				
-				if (ff_table.spells [from_spell]) then
-				    --> playername = target which suffered the damage
-				    --> character = who dealt the damage
-				    --> ff_table.spells [from_spell] = total done
-				    
-				    local damage_actor = combat (1, playername)
-				    local heal_actor = combat (2, playername)
-				    
-				    if ((damage_actor or heal_actor) and ( (damage_actor and damage_actor:IsPlayer()) or (heal_actor and heal_actor:IsPlayer()))) then
+			    if (is_custom_spell) then
+				for playername, ff_table in pairs (character.friendlyfire) do
+				    if (ff_table.spells [from_spell]) then
+					local damage_actor = combat (1, playername)
+					local heal_actor = combat (2, playername)
 					
-					local got
-					
-					for index, t in ipairs (Targets) do
-					    if (t[1] == playername) then
-						t[2] = t[2] + ff_table.spells [from_spell]
-						if (t[2] > top) then
-						    top = t[2]
-						end
-						got = true
-						break
-					    end
-					end
-					
-					if (not got) then
+					if ((damage_actor or heal_actor) and ( (damage_actor and damage_actor:IsPlayer()) or (heal_actor and heal_actor:IsPlayer()))) then
 					    
-					    Targets [#Targets+1] = {playername, ff_table.spells [from_spell]}
-					    if (ff_table.spells [from_spell] > top) then
-						top = ff_table.spells [from_spell]
+					    local got
+					    
+					    for index, t in ipairs (Targets) do
+						if (t[1] == playername) then
+						    t[2] = t[2] + ff_table.spells [from_spell]
+						    if (t[2] > top) then
+							top = t[2]
+						    end
+						    got = true
+						    break
+						end
+					    end
+					    
+					    if (not got) then
+						
+						Targets [#Targets+1] = {playername, ff_table.spells [from_spell]}
+						if (ff_table.spells [from_spell] > top) then
+						    top = ff_table.spells [from_spell]
+						end
 					    end
 					end
+				    end
+				end
+			    else
+				
+				for playername, ff_table in pairs (character.friendlyfire) do
+				    for spellid, amount in pairs (ff_table.spells) do
+					local spellname = select (1, GetSpellInfo (spellid))
+					if (spellname == from_spellname) then
+					    local damage_actor = combat (1, playername)
+					    local heal_actor = combat (2, playername)                    
+					    if ((damage_actor or heal_actor) and ( (damage_actor and damage_actor:IsPlayer()) or (heal_actor and heal_actor:IsPlayer()))) then
+						local got
+						for index, t in ipairs (Targets) do
+						    if (t[1] == playername) then
+							t[2] = t[2] + amount
+							if (t[2] > top) then
+							    top = t[2]
+							end
+							got = true
+							break
+						    end
+						end
+						
+						if (not got) then
+						    Targets [#Targets+1] = {playername, amount}
+						    if (amount > top) then
+							top = amount
+						    end
+						end                        
+					    end
+					end     
 				    end
 				end
 			    end
@@ -1739,19 +1785,57 @@
 				    end
 				end
 			    end
+			    
+			    if (not is_custom_spell) then
+				for spellid, spell in pairs (character.spells._ActorTable) do
+				    if (spellid ~= from_spell) then
+					local spellname = select (1, GetSpellInfo (spellid))
+					if (spellname == from_spellname) then
+					    for targetname, amount in pairs (spell.targets) do
+						
+						local got = false
+						
+						local damage_actor = combat (1, targetname)
+						local heal_actor = combat (2, targetname)
+						
+						if ( (damage_actor or heal_actor) and ( (damage_actor and damage_actor:IsPlayer()) or (heal_actor and heal_actor:IsPlayer()) ) ) then
+						    for index, t in ipairs (Targets) do
+							if (t[1] == targetname) then
+							    t[2] = t[2] + amount
+							    if (t[2] > top) then
+								top = t[2]
+							    end
+							    got = true
+							    break
+							end
+						    end
+						    if (not got) then
+							Targets [#Targets+1] = {targetname, amount}
+							if (amount > top) then
+							    top = amount
+							end
+						    end
+						end
+					    end
+					end                
+				    end             
+				end        
+			    end    
+			    
 			end
 
 			table.sort (Targets, _detalhes.Sort2)
 
 			GameCooltip:SetOption ("StatusBarTexture", "Interface\\AddOns\\Details\\images\\bar_serenity")
 
-			local bar_background = {value = 100, color = {0, 0, 0, 0.7}, texture = "Interface\\AddOns\\Details\\images\\bar4"}
+			--local bar_background = {value = 100, color = {0.1, 0.1, 0.1, 0.9}, texture = "Interface\\AddOns\\Details\\images\\bar_background"}
+			local bar_background = {value = 100, color = {0.1, 0.1, 0.15, 1}, texture = "Interface\\AddOns\\Details\\images\\bar_background2"}
 
 			for index, t in ipairs (Targets) do
 			    GameCooltip:AddLine (_detalhes:GetOnlyName(t[1]), _detalhes:ToK (t[2]))
 			    local class, _, _, _, _, r, g, b = _detalhes:GetClass (t[1])
 			    
-			    GameCooltip:AddStatusBar (t[2]/top*100, 1, r, g, b, 0.6, true,  bar_background)
+			    GameCooltip:AddStatusBar (t[2]/top*100, 1, r, g, b, 0.8, false,  bar_background)
 			    
 			    if (class) then
 				local texture, l, r, t, b = _detalhes:GetClassIcon (class)
@@ -1768,8 +1852,8 @@
 
 			GameCooltip:AddLine (" ")
 			GameCooltip:AddLine ("|cFFffa200Click|r: Report Results", aura, 1, "white", "white")
-			GameCooltip:AddStatusBar (100, 1, 0, 0, 0, 0.6, false,  bar_background)
-			]],
+			GameCooltip:AddStatusBar (100, 1, 0, 0, 0, 0.7, false,  bar_background)
+]],
 		}
 
 		local have = false

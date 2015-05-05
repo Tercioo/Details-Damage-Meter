@@ -875,10 +875,446 @@
 	end
 	
 	
-	
-	
-	
-	
-	
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> forge
 
+	function _detalhes:OpenForge()
+	
+		if (not DetailsForge) then
+		
+			local fw = _detalhes:GetFramework()
+			local lower = string.lower
+			
+			--main frame
+			local f = CreateFrame ("frame", "DetailsForge", UIParent, "ButtonFrameTemplate")
+			f:SetSize (900, 600)
+			f.TitleText:SetText ("Details! Forge")
+			--f.portrait:SetTexture ([[Interface\CHARACTERFRAME\TEMPORARYPORTRAIT-FEMALE-BLOODELF]])
+			f.portrait:SetTexture ([[Interface\ICONS\INV_Misc_ReforgedArchstone_01]])
+			f:SetPoint ("center", UIParent, "center")
+			f:SetFrameStrata ("HIGH")
+			f:SetToplevel (true)
+			f:SetMovable (true)
+			tinsert (UISpecialFrames, "DetailsAuraPanel")
+			f:SetScript ("OnMouseDown", function(self, button)
+				if (self.isMoving) then
+					return
+				end
+				if (button == "RightButton") then
+					self:Hide()
+				else
+					self:StartMoving() 
+					self.isMoving = true
+				end
+			end)
+			f:SetScript ("OnMouseUp", function(self, button) 
+				if (self.isMoving and button == "LeftButton") then
+					self:StopMovingOrSizing()
+					self.isMoving = nil
+				end
+			end)
+		
+			--modules
+			local all_modules = {}
+			local spell_already_added = {}
+			
+			f:SetScript ("OnHide", function()
+				for _, module in ipairs (all_modules) do
+					if (module.data) then
+						wipe (module.data)
+					end
+				end
+				wipe (spell_already_added)
+			end)
+			
+			local no_func = function()end
+			local nothing_to_show = {}
+			local current_module
+			local buttons = {}
+			
+			function f:InstallModule (module)
+				if (module and type (module) == "table") then
+					tinsert (all_modules, module)
+				end
+			end
+			
+			local all_players_module = {
+				name = "All Players",
+				desc = "Show a list of all player actors",
+				filters_widgets = function()
+					if (not DetailsForgeAllPlayersFilterPanel) then
+						local w = CreateFrame ("frame", "DetailsForgeAllPlayersFilterPanel", f)
+						w:SetSize (600, 20)
+						w:SetPoint ("topleft", f, "topleft", 120, -40)
+						local label = w:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+						label:SetText ("Player Name: ")
+						label:SetPoint ("left", w, "left", 5, 0)
+						local entry = fw:CreateTextEntry (w, nil, 120, 20, "entry", "DetailsForgeAllPlayersNameFilter")
+						entry:SetHook ("OnTextChanged", function() f:refresh() end)
+						entry:SetPoint ("left", label, "right", 2, 0)
+					end
+					return DetailsForgeAllPlayersFilterPanel
+				end,
+				search = function()
+					local t = {}
+					local filter = DetailsForgeAllPlayersNameFilter:GetText()
+					for _, actor in ipairs (_detalhes:GetCombat("current"):GetActorList (DETAILS_ATTRIBUTE_DAMAGE)) do
+						if (actor:IsGroupPlayer()) then
+							if (filter ~= "") then
+								filter = lower (filter)
+								local actor_name = lower (actor:name())
+								if (actor_name:find (filter)) then
+									t [#t+1] = actor
+								end
+							else
+								t [#t+1] = actor
+							end
+						end
+					end
+					return t
+				end,
+				header = {
+					{name = "Index", width = 40, type = "text", func = no_func},
+					{name = "Name", width = 150, type = "entry", func = no_func},
+					{name = "Class", width = 100, type = "entry", func = no_func},
+					{name = "GUID", width = 230, type = "entry", func = no_func},
+					{name = "Flag", width = 100, type = "entry", func = no_func},
+				},
+				fill_panel = false,
+				fill_gettotal = function (self) return #self.module.data end,
+				fill_fillrows = function (index, self) 
+					local data = self.module.data [index]
+					if (data) then
+						return {
+							index,
+							data:name() or "",
+							data:class() or "",
+							data.serial or "",
+							"0x" .. _detalhes:hex (data.flag_original)
+						}
+					else
+						return nothing_to_show
+					end
+				end,
+				fill_name = "DetailsForgeAllPlayersFillPanel",
+			}
+			f:InstallModule (all_players_module)
+			
+			-----------------------------------------------
+			local all_pets_module = {
+				name = "All Pets",
+				desc = "Show a list of all pet actors",
+				filters_widgets = function()
+					if (not DetailsForgeAllPetsFilterPanel) then
+						local w = CreateFrame ("frame", "DetailsForgeAllPetsFilterPanel", f)
+						w:SetSize (600, 20)
+						w:SetPoint ("topleft", f, "topleft", 120, -40)
+						--
+						local label = w:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+						label:SetText ("Pet Name: ")
+						label:SetPoint ("left", w, "left", 5, 0)
+						local entry = fw:CreateTextEntry (w, nil, 120, 20, "entry", "DetailsForgeAllPetsNameFilter")
+						entry:SetHook ("OnTextChanged", function() f:refresh() end)
+						entry:SetPoint ("left", label, "right", 2, 0)
+						--
+						local label = w:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+						label:SetText ("Owner Name: ")
+						label:SetPoint ("left", entry.widget, "right", 20, 0)
+						local entry = fw:CreateTextEntry (w, nil, 120, 20, "entry", "DetailsForgeAllPetsOwnerFilter")
+						entry:SetHook ("OnTextChanged", function() f:refresh() end)
+						entry:SetPoint ("left", label, "right", 2, 0)
+					end
+					return DetailsForgeAllPetsFilterPanel
+				end,
+				search = function()
+					local t = {}
+					local filter_petname = DetailsForgeAllPetsNameFilter:GetText()
+					local filter_ownername = DetailsForgeAllPetsOwnerFilter:GetText()
+					for _, actor in ipairs (_detalhes:GetCombat("current"):GetActorList (DETAILS_ATTRIBUTE_DAMAGE)) do
+						if (actor.owner) then
+							local can_add = true
+							if (filter_petname ~= "") then
+								filter_petname = lower (filter_petname)
+								local actor_name = lower (actor:name())
+								if (not actor_name:find (filter_petname)) then
+									can_add = false
+								end
+							end
+							if (filter_ownername ~= "") then
+								filter_ownername = lower (filter_ownername)
+								local actor_name = lower (actor.ownerName)
+								if (not actor_name:find (filter_ownername)) then
+									can_add = false
+								end
+							end
+							if (can_add) then
+								t [#t+1] = actor
+							end
+						end
+					end
+					return t
+				end,
+				header = {
+					{name = "Index", width = 40, type = "text", func = no_func},
+					{name = "Name", width = 150, type = "entry", func = no_func},
+					{name = "Owner", width = 150, type = "entry", func = no_func},
+					{name = "NpcID", width = 60, type = "entry", func = no_func},
+					{name = "GUID", width = 100, type = "entry", func = no_func},
+					{name = "Flag", width = 100, type = "entry", func = no_func},
+				},
+				fill_panel = false,
+				fill_gettotal = function (self) return #self.module.data end,
+				fill_fillrows = function (index, self) 
+					local data = self.module.data [index]
+					if (data) then
+						return {
+							index,
+							data:name():gsub ("(<).*(>)", "") or "",
+							data.ownerName or "",
+							_detalhes:GetNpcIdFromGuid (data.serial),
+							data.serial or "",
+							"0x" .. _detalhes:hex (data.flag_original)
+						}
+					else
+						return nothing_to_show
+					end
+				end,
+				fill_name = "DetailsForgeAllPetsFillPanel",
+			}
+			f:InstallModule (all_pets_module)			
+			
+			-----------------------------------------------
+			
+			local all_enemies_module = {
+				name = "All Enemies",
+				desc = "Show a list of all enemies actors",
+				filters_widgets = function()
+					if (not DetailsForgeAllEnemiesFilterPanel) then
+						local w = CreateFrame ("frame", "DetailsForgeAllEnemiesFilterPanel", f)
+						w:SetSize (600, 20)
+						w:SetPoint ("topleft", f, "topleft", 120, -40)
+						--
+						local label = w:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+						label:SetText ("Enemy Name: ")
+						label:SetPoint ("left", w, "left", 5, 0)
+						local entry = fw:CreateTextEntry (w, nil, 120, 20, "entry", "DetailsForgeAllEnemiesNameFilter")
+						entry:SetHook ("OnTextChanged", function() f:refresh() end)
+						entry:SetPoint ("left", label, "right", 2, 0)
+					end
+					return DetailsForgeAllEnemiesFilterPanel
+				end,
+				search = function()
+					local t = {}
+					local filter = DetailsForgeAllEnemiesNameFilter:GetText()
+					for _, actor in ipairs (_detalhes:GetCombat("current"):GetActorList (DETAILS_ATTRIBUTE_DAMAGE)) do
+						if (actor:IsNeutralOrEnemy()) then
+							if (filter ~= "") then
+								filter = lower (filter)
+								local actor_name = lower (actor:name())
+								if (actor_name:find (filter)) then
+									t [#t+1] = actor
+								end
+							else
+								t [#t+1] = actor
+							end
+						end
+					end
+					return t
+				end,
+				header = {
+					{name = "Index", width = 40, type = "text", func = no_func},
+					{name = "Name", width = 150, type = "entry", func = no_func},
+					{name = "NpcID", width = 60, type = "entry", func = no_func},
+					{name = "GUID", width = 230, type = "entry", func = no_func},
+					{name = "Flag", width = 100, type = "entry", func = no_func},
+				},
+				fill_panel = false,
+				fill_gettotal = function (self) return #self.module.data end,
+				fill_fillrows = function (index, self) 
+					local data = self.module.data [index]
+					if (data) then
+						return {
+							index,
+							data:name(),
+							_detalhes:GetNpcIdFromGuid (data.serial),
+							data.serial or "",
+							"0x" .. _detalhes:hex (data.flag_original)
+						}
+					else
+						return nothing_to_show
+					end
+				end,
+				fill_name = "DetailsForgeAllEnemiesFillPanel",
+			}
+			f:InstallModule (all_enemies_module)
+			
+			-----------------------------------------------
+			
+			local EncounterSpellEvents = EncounterDetailsDB and EncounterDetailsDB.encounter_spells
+			
+			local all_spells_module = {
+				name = "All Spells",
+				desc = "Show a list of all spells used",
+				filters_widgets = function()
+					if (not DetailsForgeAllSpellsFilterPanel) then
+						local w = CreateFrame ("frame", "DetailsForgeAllSpellsFilterPanel", f)
+						w:SetSize (600, 20)
+						w:SetPoint ("topleft", f, "topleft", 120, -40)
+						--
+						local label = w:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+						label:SetText ("Spell Name: ")
+						label:SetPoint ("left", w, "left", 5, 0)
+						local entry = fw:CreateTextEntry (w, nil, 120, 20, "entry", "DetailsForgeAllSpellsNameFilter")
+						entry:SetHook ("OnTextChanged", function() f:refresh() end)
+						entry:SetPoint ("left", label, "right", 2, 0)
+						--
+						local label = w:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+						label:SetText ("Caster Name: ")
+						label:SetPoint ("left", entry.widget, "right", 20, 0)
+						local entry = fw:CreateTextEntry (w, nil, 120, 20, "entry", "DetailsForgeAllSpellsCasterFilter")
+						entry:SetHook ("OnTextChanged", function() f:refresh() end)
+						entry:SetPoint ("left", label, "right", 2, 0)
+					end
+					return DetailsForgeAllSpellsFilterPanel
+				end,
+				search = function()
+					local t = {}
+					local filter_name = DetailsForgeAllSpellsNameFilter:GetText()
+					local filter_caster = DetailsForgeAllSpellsCasterFilter:GetText()
+					local combat = _detalhes:GetCombat("current")
+					local containers = {combat:GetActorList (DETAILS_ATTRIBUTE_DAMAGE), combat:GetActorList (DETAILS_ATTRIBUTE_HEAL), 
+					combat:GetActorList (DETAILS_ATTRIBUTE_ENERGY)}
+					wipe (spell_already_added)
+	
+					for _, container in ipairs (containers) do
+						for _, actor in ipairs (container) do
+							local can_add = true
+							if (filter_caster ~= "") then
+								filter_caster = lower (filter_caster)
+								local actor_name = lower (actor:name())
+								if (not actor_name:find (filter_caster)) then
+									can_add = false
+								end
+							end
+							if (can_add) then
+								for spellid, spell in pairs (actor:GetSpellList()) do
+									can_add = true
+									if (filter_name ~= "") then
+										filter_name = lower (filter_name)
+										local spellname = lower (select (1, GetSpellInfo (spellid)) or "-")
+										if (not spellname:find (filter_name)) then
+											can_add = false
+										end
+									end
+									if (can_add and not spell_already_added [spellid]) then
+										spell_already_added [spellid] = true
+										tinsert (t, {spell, actor})
+									end
+								end
+							end
+						end
+					end
+					return t
+				end,
+				header = {
+					{name = "Index", width = 40, type = "text", func = no_func},
+					{name = "Name", width = 150, type = "entry", func = no_func},
+					{name = "SpellID", width = 60, type = "entry", func = no_func},
+					{name = "School", width = 60, type = "entry", func = no_func},
+					{name = "Caster", width = 100, type = "entry", func = no_func},
+					{name = "Event", width = 300, type = "entry", func = no_func},
+				},
+				fill_panel = false,
+				fill_gettotal = function (self) return #self.module.data end,
+				fill_fillrows = function (index, self) 
+					local data = self.module.data [index]
+					if (data) then
+						local events = ""
+						if (EncounterSpellEvents and EncounterSpellEvents [data[1].id]) then
+							for token, _ in pairs (EncounterSpellEvents [data[1].id].token) do
+								token = token:gsub ("SPELL_", "")
+								events = events .. token .. ",  "
+							end
+							events = events:sub (1, #events - 3)
+						end
+						return {
+							index,
+							select (1, GetSpellInfo (data[1].id)) or "",
+							data[1].id or "",
+							_detalhes:GetSpellSchoolFormatedName (data[1].spellschool) or "",
+							data[2]:name(),
+							events
+						}
+					else
+						return nothing_to_show
+					end
+				end,
+				fill_name = "DetailsForgeAllSpellsFillPanel",
+			}
+			f:InstallModule (all_spells_module)
+			
+			-----------------------------------------------
+			
+			local select_module = function (module_number)
+			
+				if (current_module ~= module_number) then
+					local module = all_modules [current_module]
+					if (module) then
+						local filters = module.filters_widgets()
+						filters:Hide()
+						local fill_panel = module.fill_panel
+						fill_panel:Hide()
+					end
+				end
+				
+				for index, button in ipairs (buttons) do
+					button.textcolor = "white"
+				end
+				buttons[module_number].textcolor = "orange"
+				
+				local module = all_modules [module_number]
+				if (module) then
+					current_module = module_number
+					
+					local fillpanel = module.fill_panel
+					if (not fillpanel) then
+						fillpanel = fw:NewFillPanel (f, module.header, module.fill_name, nil, 740, 480, module.fill_gettotal, module.fill_fillrows, false)
+						fillpanel:SetPoint (120, -80)
+						fillpanel.module = module
+						module.fill_panel = fillpanel
+					end
+					
+					local filters = module.filters_widgets()
+					filters:Show()
+					
+					local data = module.search()
+					module.data = data
+					
+					fillpanel:Show()
+					fillpanel:Refresh()
+				end
+			end
+			
+			function f:refresh()
+				select_module (current_module)
+			end
+
+			for i = 1, #all_modules do
+				local module = all_modules [i]
+				local b = fw:CreateButton (f, select_module, 120, 12, module.name, i)
+				b.tooltip = module.desc
+				b.textalign = "<"
+				b:SetPoint ("topleft", f, "topleft", 10, (i*16*-1) - 67)
+				tinsert (buttons, b)
+			end
+
+			select_module (1)
+
+		end
+		
+		DetailsForge:Show()
+		
+	end
+
+	--_detalhes:ScheduleTimer ("OpenForge", 3)
 	
