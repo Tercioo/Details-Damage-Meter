@@ -795,8 +795,10 @@
 			local class
 			if (actor.id) then
 				local spellname, _, icon = _GetSpellInfo (actor.id)
-				if (not icon_cache [spellname]) then
+				if (not icon_cache [spellname] and spellname) then
 					icon_cache [spellname] = icon
+				elseif (not spellname) then
+					spellname = ""
 				end
 				actor.nome = spellname
 				actor.classe = actor.spellschool
