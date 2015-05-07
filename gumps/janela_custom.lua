@@ -146,10 +146,26 @@
 			custom_window.icon = custom_window:CreateTexture (nil, "background")
 			custom_window.icon:SetPoint ("topleft", custom_window, "topleft", 4, 0)
 			custom_window.icon:SetSize (64, 64)
-			custom_window.icon:SetDrawLayer ("background", 1)
+			custom_window.icon:SetDrawLayer ("background", 2)
 			custom_window.icon:SetTexture ([[Interface\AddOns\Details\images\classes_plus]])
 			custom_window.icon:SetTexCoord (0, 0.25, 0.25, 0.5)
 
+			--> menu background
+			custom_window.menubackground = custom_window:CreateTexture (nil, "background")
+			custom_window.menubackground:SetTexture ([[Interface\DialogFrame\UI-DialogBox-Background-Dark]])
+			custom_window.menubackground:SetPoint ("topleft", custom_window, "topleft", 19, -34)
+			custom_window.menubackground:SetSize (151, 326)
+			custom_window.menubackground:SetDrawLayer ("background", 1)
+			custom_window.menubackground:SetAlpha (0.75)
+			
+			--> select panel background
+			custom_window.selectbackground = custom_window:CreateTexture (nil, "background")
+			custom_window.selectbackground:SetTexture ([[Interface\DialogFrame\UI-DialogBox-Background-Dark]])
+			custom_window.selectbackground:SetPoint ("topleft", custom_window, "topleft", 175, -36)
+			custom_window.selectbackground:SetSize (666, 324)
+			custom_window.selectbackground:SetDrawLayer ("background", 1)
+			custom_window.selectbackground:SetAlpha (0.75)
+			
 			DetailsCustomPanel.BoxType = 1
 			DetailsCustomPanel.IsEditing = false
 			DetailsCustomPanel.IsImporting = false

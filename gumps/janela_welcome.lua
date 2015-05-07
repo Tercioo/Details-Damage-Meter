@@ -16,7 +16,7 @@ function _detalhes:OpenWelcomeWindow ()
 		
 		local instance = _detalhes.tabela_instancias [1]
 		
-		window = CreateFrame ("frame", "DetailsWelcomeWindow", UIParent)
+		window = _detalhes:CreateWelcomePanel ("DetailsWelcomeWindow", UIParent)
 		window:SetPoint ("center", UIParent, "center", -200, 0)
 		window:SetWidth (512)
 		window:SetHeight (265)

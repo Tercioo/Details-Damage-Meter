@@ -1591,28 +1591,52 @@
 			_detalhes:CriarInstancia (_, true)
 		end)	
 	
+	function _detalhes:CreateWelcomePanel (name, parent, width, height, make_movable)
+		local f = CreateFrame ("frame", name, parent or UIParent)
+		f:SetBackdrop ({bgFile = [[Interface\DialogFrame\UI-DialogBox-Background-Dark]], tile = true, tileSize = 128, insets = {left=3, right=3, top=3, bottom=3},
+		edgeFile = [[Interface\AddOns\Details\images\border_welcome]], edgeSize = 16})
+		f:SetBackdropColor (1, 1, 1, 0.75)
+		f:SetSize (width or 1, height or 1)
+		
+		if (make_movable) then
+			f:SetScript ("OnMouseDown", function(self, button)
+				if (self.isMoving) then
+					return
+				end
+				if (button == "RightButton") then
+					self:Hide()
+				else
+					self:StartMoving() 
+					self.isMoving = true
+				end
+			end)
+			f:SetScript ("OnMouseUp", function(self, button) 
+				if (self.isMoving and button == "LeftButton") then
+					self:StopMovingOrSizing()
+					self.isMoving = nil
+				end
+			end)
+			f:SetToplevel (true)
+			f:SetMovable (true)
+		end
+		
+		return f
+	end
+	
 	function _detalhes:OpenBrokerTextEditor()
 		
 		if (not DetailsWindowOptionsBrokerTextEditor) then
 
-			local panel = _detalhes.gump:NewPanel (UIParent, nil, "DetailsWindowOptionsBrokerTextEditor", nil, 650, 200)
+			local panel = _detalhes:CreateWelcomePanel ("DetailsWindowOptionsBrokerTextEditor", nil, 650, 210, true)
 			panel:SetPoint ("center", UIParent, "center")
 			panel:Hide()
 			panel:SetFrameStrata ("FULLSCREEN")
-			panel:SetBackdrop ({	bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 64, insets = {left=3, right=3, top=3, bottom=3}})
-			panel:DisableGradient()
-			panel:SetBackdropColor (0, 0, 0, 0)
-			panel.locked = false
 		
-			local bg_texture = _detalhes.gump:NewImage (panel, [[Interface\AddOns\Details\images\welcome]], 1, 1, "background")
-			bg_texture:SetPoint ("topleft", panel, "topleft")
-			bg_texture:SetPoint ("bottomright", panel, "bottomright")
-			
-			local textentry = _detalhes.gump:NewSpecialLuaEditorEntry (panel.widget, 450, 180, "editbox", "$parentEntry", true)
-			textentry:SetPoint ("topleft", panel.widget, "topleft", 10, -10)
+			local textentry = _detalhes.gump:NewSpecialLuaEditorEntry (panel, 450, 185, "editbox", "$parentEntry", true)
+			textentry:SetPoint ("topleft", panel, "topleft", 10, -12)
 			
 			textentry.editbox:SetScript ("OnTextChanged", function()
-				local text = panel.widget.editbox:GetText()
+				local text = panel.editbox:GetText()
 				_detalhes.data_broker_text = text
 				_detalhes:BrokerTick()
 				if (_G.DetailsOptionsWindow)  then
@@ -1642,7 +1666,7 @@
 			end
 			
 			local d = _detalhes.gump:NewDropDown (panel, _, "$parentTextOptionsDropdown", "TextOptionsDropdown", 150, 20, buildAddMenu, 1)
-			d:SetPoint ("topright", panel, "topright", -10, -14)
+			d:SetPoint ("topright", panel, "topright", -12, -14)
 			--d:SetFrameStrata ("TOOLTIP")
 
 			local optiontable = {"{dmg}", "{dps}", "{dpos}", "{ddiff}", "{heal}", "{hps}", "{hpos}", "{hdiff}", "{time}"}
@@ -1766,11 +1790,11 @@
 			
 			local color_button = _detalhes.gump:NewColorPickButton (panel, "$parentButton5", nil, color_func)
 			color_button:SetSize (80, 20)
-			color_button:SetPoint ("topright", panel, "topright", -10, -102)
+			color_button:SetPoint ("topright", panel, "topright", -12, -102)
 			color_button.tooltip = Loc ["STRING_OPTIONS_TEXTEDITOR_COLOR_TOOLTIP"]
 		
 			local done = function()
-				local text = panel.widget.editbox:GetText()
+				local text = panel.editbox:GetText()
 				_detalhes.data_broker_text = text
 				if (_G.DetailsOptionsWindow)  then
 					_G.DetailsOptionsWindow19BrokerEntry.MyObject:SetText (_detalhes.data_broker_text)
@@ -1782,7 +1806,7 @@
 			local ok_button = _detalhes.gump:NewButton (panel, nil, "$parentButtonOk", nil, 80, 20, done, nil, nil, nil, Loc ["STRING_OPTIONS_TEXTEDITOR_DONE"], 1)
 			ok_button.tooltip = Loc ["STRING_OPTIONS_TEXTEDITOR_DONE_TOOLTIP"]
 			ok_button:InstallCustomTexture()
-			ok_button:SetPoint ("topright", panel, "topright", -10, -174)
+			ok_button:SetPoint ("topright", panel, "topright", -12, -174)
 			
 			local reset_button = _detalhes.gump:NewButton (panel, nil, "$parentDefaultOk", nil, 80, 20, function() textentry.editbox:SetText ("") end, nil, nil, nil, "Reset", 1)
 			reset_button.tooltip = Loc ["STRING_OPTIONS_TEXTEDITOR_RESET_TOOLTIP"]
@@ -1796,51 +1820,44 @@
 		
 		end
 		
-		local panel = DetailsWindowOptionsBrokerTextEditor.MyObject
+		local panel = DetailsWindowOptionsBrokerTextEditor
 		
 		local text = _detalhes.data_broker_text:gsub ("||", "|")
 		panel.default_text = text
-		panel.widget.editbox:SetText (text)
+		panel.editbox:SetText (text)
 		
 		panel:Show()
 	end
 	
 --> row text editor
-	local panel = _detalhes.gump:NewPanel (UIParent, nil, "DetailsWindowOptionsBarTextEditor", nil, 650, 200)
+
+	local panel = _detalhes:CreateWelcomePanel ("DetailsWindowOptionsBarTextEditor", nil, 650, 210, true)
 	panel:SetPoint ("center", UIParent, "center")
 	panel:Hide()
 	panel:SetFrameStrata ("FULLSCREEN")
-	panel:SetBackdrop ({	bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 64, insets = {left=3, right=3, top=3, bottom=3}})
-	panel:DisableGradient()
-	panel:SetBackdropColor (0, 0, 0, 0)
-	panel.locked = false
 	
-	local bg_texture = _detalhes.gump:NewImage (panel, [[Interface\AddOns\Details\images\welcome]], 1, 1, "background")
-	bg_texture:SetPoint ("topleft", panel, "topleft")
-	bg_texture:SetPoint ("bottomright", panel, "bottomright")
-	
-	function panel.widget:Open (text, callback, host, default)
+	function panel:Open (text, callback, host, default)
 		if (host) then
 			panel:SetPoint ("center", host, "center")
 		end
 		
 		text = text:gsub ("||", "|")
 		panel.default_text = text
-		panel.widget.editbox:SetText (text)
+		panel.editbox:SetText (text)
 		panel.callback = callback
 		panel.default = default or ""
 		panel:Show()
 	end
 	
-	local textentry = _detalhes.gump:NewSpecialLuaEditorEntry (panel.widget, 450, 180, "editbox", "$parentEntry", true)
-	textentry:SetPoint ("topleft", panel.widget, "topleft", 10, -10)
+	local textentry = _detalhes.gump:NewSpecialLuaEditorEntry (panel, 450, 185, "editbox", "$parentEntry", true)
+	textentry:SetPoint ("topleft", panel, "topleft", 10, -12)
 	
 	local arg1_button = _detalhes.gump:NewButton (panel, nil, "$parentButton1", nil, 80, 20, function() textentry.editbox:Insert ("{data1}") end, nil, nil, nil, string.format (Loc ["STRING_OPTIONS_TEXTEDITOR_DATA"], "1"), 1)
 	local arg2_button = _detalhes.gump:NewButton (panel, nil, "$parentButton2", nil, 80, 20, function() textentry.editbox:Insert ("{data2}") end, nil, nil, nil, string.format (Loc ["STRING_OPTIONS_TEXTEDITOR_DATA"], "2"), 1)
 	local arg3_button = _detalhes.gump:NewButton (panel, nil, "$parentButton3", nil, 80, 20, function() textentry.editbox:Insert ("{data3}") end, nil, nil, nil, string.format (Loc ["STRING_OPTIONS_TEXTEDITOR_DATA"], "3"), 1)
-	arg1_button:SetPoint ("topright", panel, "topright", -10, -14)
-	arg2_button:SetPoint ("topright", panel, "topright", -10, -36)
-	arg3_button:SetPoint ("topright", panel, "topright", -10, -58)
+	arg1_button:SetPoint ("topright", panel, "topright", -12, -14)
+	arg2_button:SetPoint ("topright", panel, "topright", -12, -36)
+	arg3_button:SetPoint ("topright", panel, "topright", -12, -58)
 	arg1_button:InstallCustomTexture()
 	arg2_button:InstallCustomTexture()
 	arg3_button:InstallCustomTexture()
@@ -1961,8 +1978,8 @@
 	local func_button = _detalhes.gump:NewButton (panel, nil, "$parentButton4", nil, 80, 20, function() textentry.editbox:Insert ("{func local player = ...; return 0;}") end, nil, nil, nil, Loc ["STRING_OPTIONS_TEXTEDITOR_FUNC"], 1)
 	local color_button = _detalhes.gump:NewColorPickButton (panel, "$parentButton5", nil, color_func)
 	color_button:SetSize (80, 20)
-	func_button:SetPoint ("topright", panel, "topright", -10, -80)
-	color_button:SetPoint ("topright", panel, "topright", -10, -102)
+	func_button:SetPoint ("topright", panel, "topright", -12, -80)
+	color_button:SetPoint ("topright", panel, "topright", -12, -102)
 	func_button:InstallCustomTexture()
 	
 	color_button.tooltip = Loc ["STRING_OPTIONS_TEXTEDITOR_COLOR_TOOLTIP"]
@@ -1981,7 +1998,7 @@
 	--tok_button:SetPoint ("topright", panel, "topright", -100, -36)
 	
 	local done = function()
-		local text = panel.widget.editbox:GetText()
+		local text = panel.editbox:GetText()
 		text = text:gsub ("\n", "")
 		
 		local test = text
@@ -2007,7 +2024,7 @@
 	local ok_button = _detalhes.gump:NewButton (panel, nil, "$parentButtonOk", nil, 80, 20, done, nil, nil, nil, Loc ["STRING_OPTIONS_TEXTEDITOR_DONE"], 1)
 	ok_button.tooltip = Loc ["STRING_OPTIONS_TEXTEDITOR_DONE_TOOLTIP"]
 	ok_button:InstallCustomTexture()
-	ok_button:SetPoint ("topright", panel, "topright", -10, -174)
+	ok_button:SetPoint ("topright", panel, "topright", -12, -174)
 	
 	local reset_button = _detalhes.gump:NewButton (panel, nil, "$parentDefaultOk", nil, 80, 20, function() textentry.editbox:SetText (panel.default) end, nil, nil, nil, Loc ["STRING_OPTIONS_TEXTEDITOR_RESET"], 1)
 	reset_button.tooltip = Loc ["STRING_OPTIONS_TEXTEDITOR_RESET_TOOLTIP"]
@@ -2105,29 +2122,9 @@
 			end
 		end
 	
-		local f = CreateFrame ("frame", nil, UIParent) --"DetailsSelectProfile"
-		f:SetSize (250, 300)
-		
+		local f = _detalhes:CreateWelcomePanel (nil, nil, 250, 300, true)
 		f:SetPoint ("right", UIParent, "right", -5, 0)
-		
-		f:SetMovable (true)
-		f:SetScript ("OnMouseDown", function (self)
-			if (not self.moving) then
-				self:StartMoving()
-				self.moving = true
-			end
-		end)
-		f:SetScript ("OnMouseUp", function (self)
-			if (self.moving) then
-				self:StopMovingOrSizing()
-				self.moving = false
-			end
-		end)
-		
-		local background = f:CreateTexture (nil, "background")
-		background:SetAllPoints()
-		background:SetTexture ([[Interface\AddOns\Details\images\welcome]])
-		
+
 		local logo = f:CreateTexture (nil, "artwork")
 		logo:SetTexture ([[Interface\AddOns\Details\images\logotipo]])
 		logo:SetSize (256*0.8, 128*0.8)

@@ -143,8 +143,30 @@ function _detalhes:OpenOptionsWindow (instance, no_reopen, section)
 		background:SetPoint (0, 0)
 		background:SetDrawLayer ("border")
 		background:SetTexCoord (0, 0.8759765625, 0, 0.578125)
+		
+		local sub_background = window:CreateTexture ("DetailsOptionsWindowBackgroundWallpaper", "background")
+		--sub_background:SetTexture ([[Interface\FrameGeneral\UI-Background-Marble]], true)
+		sub_background:SetTexture ([[Interface\DialogFrame\UI-DialogBox-Background-Dark]])
+		sub_background:SetPoint ("topleft", window.widget, "topleft", 192, -80)
+		sub_background:SetPoint ("bottomright", window.widget, "bottomright", -30, 27)
+		--sub_background:SetVertTile (true)
+		--sub_background:SetHorizTile (true)
+		--sub_background:SetAlpha (0.81)
+		sub_background:SetAlpha (0.75)
+		--sub_background:Hide()
+		
+		local menu_background = window:CreateTexture ("DetailsOptionsWindowBackgroundMenu", "background")
+		--menu_background:SetTexture ([[Interface\AddOns\Details\images\options_window]], true)
+		menu_background:SetTexture ([[Interface\DialogFrame\UI-DialogBox-Background-Dark]])
+		menu_background:SetPoint ("topleft", window.widget, "topleft", 29, -78)
+		menu_background:SetSize (164, 488)
+		--menu_background:SetTexCoord (327/1024, 488/1024, 627/1024, 663/1024)
+		--menu_background:SetAlpha (0.81)
+		menu_background:SetAlpha (0.75)
+		--menu_background:SetVertTile (true)
+		--menu_background:Hide()
 
-		local bigdog = g:NewImage (window, [[Interface\MainMenuBar\UI-MainMenuBar-EndCap-Human]], 180, 200, nil, {1, 0, 0, 1}, "backgroundBigDog", "$parentBackgroundBigDog")
+		local bigdog = g:NewImage (window, [[Interface\MainMenuBar\UI-MainMenuBar-EndCap-Human]], 180*0.9, 200*0.9, nil, {1, 0, 0, 1}, "backgroundBigDog", "$parentBackgroundBigDog")
 		bigdog:SetPoint ("bottomright", window, "bottomright", -8, 31)
 		bigdog:SetAlpha (.25)
 		
@@ -8592,12 +8614,27 @@ function window:CreateFrame9()
 				f:SetSize (512, 150)
 				f:EnableMouse (true)
 				f:SetMovable (true)
-				f:SetScript ("OnMouseDown", function() f:StartMoving() end)
-				f:SetScript ("OnMouseUp", function() f:StopMovingOrSizing() end)
+				f:SetScript ("OnMouseDown", function(self, button)
+					if (self.isMoving) then
+						return
+					end
+					if (button == "RightButton") then
+						self:Hide()
+					else
+						self:StartMoving() 
+						self.isMoving = true
+					end
+				end)
+				f:SetScript ("OnMouseUp", function(self, button) 
+					if (self.isMoving and button == "LeftButton") then
+						self:StopMovingOrSizing()
+						self.isMoving = nil
+					end
+				end)
 				
-				local bg = f:CreateTexture (nil, "background")
-				bg:SetAllPoints()
-				bg:SetTexture ([[Interface\AddOns\Details\images\welcome]])
+				f:SetBackdrop ({bgFile = [[Interface\DialogFrame\UI-DialogBox-Background-Dark]], tile = true, tileSize = 128, insets = {left=3, right=3, top=3, bottom=3},
+				edgeFile = [[Interface\AddOns\Details\images\border_welcome]], edgeSize = 16})
+				f:SetBackdropColor (1, 1, 1, 0.75)
 				
 				tinsert (UISpecialFrames, "DetailsLoadWallpaperImage")
 				
@@ -9291,9 +9328,11 @@ function window:CreateFrame11()
 				local f = DetailsAnnounceSelectCooldownIgnored
 				f:SetSize (250, 400)
 				f:SetPoint ("center", UIParent, "center", 0, 0)
-				local bg = f:CreateTexture (nil, "background")
-				bg:SetAllPoints (f)
-				bg:SetTexture ([[Interface\AddOns\Details\images\welcome]])
+
+				f:SetBackdrop ({bgFile = [[Interface\DialogFrame\UI-DialogBox-Background-Dark]], tile = true, tileSize = 128, insets = {left=3, right=3, top=3, bottom=3},
+				edgeFile = [[Interface\AddOns\Details\images\border_welcome]], edgeSize = 16})
+				f:SetBackdropColor (1, 1, 1, 0.75)				
+				
 				f:SetFrameStrata ("FULLSCREEN")
 				local close = CreateFrame ("button", "DetailsAnnounceSelectCooldownIgnoredClose", f, "UIPanelCloseButton")
 				close:SetSize (32, 32)

@@ -1267,10 +1267,10 @@ function gump:CreateSimplePanel (parent, w, h, title, name)
 
 	f:SetScript ("OnMouseDown", simple_panel_mouse_down)
 	f:SetScript ("OnMouseUp", simple_panel_mouse_up)
-	
-	local bg = f:CreateTexture (nil, "background")
-	bg:SetAllPoints (f)
-	bg:SetTexture ([[Interface\AddOns\Details\images\welcome]])
+
+	f:SetBackdrop ({bgFile = [[Interface\DialogFrame\UI-DialogBox-Background-Dark]], tile = true, tileSize = 128, insets = {left=3, right=3, top=3, bottom=3},
+	edgeFile = [[Interface\AddOns\Details\images\border_welcome]], edgeSize = 16})
+	f:SetBackdropColor (1, 1, 1, 0.75)
 	
 	local close = CreateFrame ("button", name .. "Close", f, "UIPanelCloseButton")
 	close:SetSize (32, 32)

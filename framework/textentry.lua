@@ -724,7 +724,7 @@ function gump:NewSpecialLuaEditorEntry (parent, w, h, member, name, nointent)
 		IndentationLib.enable (scrollframe.editbox, nil, 4)
 	end
 	
-	borderframe:SetBackdrop ({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], edgeFile = [[Interface\Tooltips\UI-Tooltip-Border]], 
+	borderframe:SetBackdrop ({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], edgeFile = [[Interface\AddOns\Details\images\border_3]], 
 		tile = 1, tileSize = 16, edgeSize = 16, insets = {left = 5, right = 5, top = 5, bottom = 5}})
 	borderframe:SetBackdropColor (0.090195, 0.090195, 0.188234, 1)
 	borderframe:SetBackdropBorderColor (1, 1, 1, 1)
