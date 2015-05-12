@@ -467,7 +467,7 @@ end
 function gump:CriaDetalheInfo (index)
 
 	local info = {}
-	info.nome = _detalhes.janela_info.container_detalhes:CreateFontString (nil, "OVERLAY", "GameFontHighlightSmall")
+	info.nome = _detalhes.janela_info.container_detalhes:CreateFontString (nil, "OVERLAY", "GameFontNormal")
 	info.nome2 = _detalhes.janela_info.container_detalhes:CreateFontString (nil, "OVERLAY", "GameFontHighlightSmall")
 	info.dano = _detalhes.janela_info.container_detalhes:CreateFontString (nil, "OVERLAY", "GameFontHighlightSmall")
 	info.dano_porcento = _detalhes.janela_info.container_detalhes:CreateFontString (nil, "OVERLAY", "GameFontHighlightSmall")
@@ -766,7 +766,7 @@ local function cria_container_alvos (este_gump)
 	este_gump.container_alvos = container_alvos_window
 end
 
---> search key: ~create
+--> search key: ~create ~inicio
 function gump:CriaJanelaInfo()
 
 	--> cria a janela em si
@@ -813,7 +813,54 @@ function gump:CriaJanelaInfo()
 		este_gump.bg1:SetTexture (texture)
 	end
 	_detalhes:SetPlayerDetailsWindowTexture ("Interface\\AddOns\\Details\\images\\info_window_background")
-
+	
+	--
+	local alpha_bgs = 1
+	
+	local leftbars1_backgound = este_gump:CreateTexture (nil, "background")
+	leftbars1_backgound:SetTexture ([[Interface\DialogFrame\UI-DialogBox-Background-Dark]])
+	leftbars1_backgound:SetPoint ("topleft", este_gump, "topleft", 19, -74)
+	leftbars1_backgound:SetSize (303, 149)
+	leftbars1_backgound:SetAlpha (alpha_bgs)
+	
+	local leftbars2_backgound = este_gump:CreateTexture (nil, "background")
+	leftbars2_backgound:SetTexture ([[Interface\DialogFrame\UI-DialogBox-Background-Dark]])
+	leftbars2_backgound:SetPoint ("topleft", este_gump, "topleft", 19, -226)
+	leftbars2_backgound:SetSize (303, 122)
+	leftbars2_backgound:SetAlpha (alpha_bgs)
+	--
+	local right_background1 = este_gump:CreateTexture (nil, "background")
+	right_background1:SetTexture ([[Interface\DialogFrame\UI-DialogBox-Background-Dark]])
+	right_background1:SetPoint ("topleft", este_gump, "topleft", 357, -85)
+	right_background1:SetSize (220, 43)
+	right_background1:SetAlpha (alpha_bgs)
+	
+	local right_background2 = este_gump:CreateTexture (nil, "background")
+	right_background2:SetTexture ([[Interface\DialogFrame\UI-DialogBox-Background-Dark]])
+	right_background2:SetPoint ("topleft", este_gump, "topleft", 357, -135)
+	right_background2:SetSize (220, 48)
+	right_background2:SetAlpha (alpha_bgs)
+	
+	local right_background3 = este_gump:CreateTexture (nil, "background")
+	right_background3:SetTexture ([[Interface\DialogFrame\UI-DialogBox-Background-Dark]])
+	right_background3:SetPoint ("topleft", este_gump, "topleft", 357, -191)
+	right_background3:SetSize (220, 48)
+	right_background3:SetAlpha (alpha_bgs)
+	
+	local right_background4 = este_gump:CreateTexture (nil, "background")
+	right_background4:SetTexture ([[Interface\DialogFrame\UI-DialogBox-Background-Dark]])
+	right_background4:SetPoint ("topleft", este_gump, "topleft", 357, -246)
+	right_background4:SetSize (220, 48)
+	right_background4:SetAlpha (alpha_bgs)
+	
+	local right_background5 = este_gump:CreateTexture (nil, "background")
+	right_background5:SetTexture ([[Interface\DialogFrame\UI-DialogBox-Background-Dark]])
+	right_background5:SetPoint ("topleft", este_gump, "topleft", 357, -301)
+	right_background5:SetSize (220, 48)
+	right_background5:SetAlpha (alpha_bgs)
+	
+	--
+	
 	este_gump.bg1_sec_texture = este_gump:CreateTexture (nil, "BORDER")
 	este_gump.bg1_sec_texture:SetDrawLayer ("BORDER", 4)
 	este_gump.bg1_sec_texture:SetPoint ("topleft", este_gump.bg1, "topleft", 348, -86)

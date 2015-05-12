@@ -972,6 +972,14 @@ do
 	BossFrame.bg:SetHeight (512)
 	BossFrame.bg:SetTexture ("Interface\\AddOns\\Details_EncounterDetails\\images\\boss_bg_graphic") 
 	BossFrame.bg:SetDrawLayer ("BORDER", 1)
+	
+	BossFrame.bg_filler = BossFrame:CreateTexture (nil, "BORDER")
+	BossFrame.bg_filler:SetPoint ("TOPLEFT", BossFrame, "TOPLEFT", 20, -74)
+	BossFrame.bg_filler:SetSize (670, 239)
+	BossFrame.bg_filler:SetDrawLayer ("BORDER", 0)
+	BossFrame.bg_filler:SetTexture ([[Interface\FrameGeneral\UI-Background-Marble]], true)
+	BossFrame.bg_filler:SetVertTile (true)
+	BossFrame.bg_filler:SetHorizTile (true)
 
 	BossFrame.bg_main = BossFrame:CreateTexture (nil, "BORDER")
 	BossFrame.bg_main:SetPoint ("TOPLEFT", BossFrame, "TOPLEFT", 0, 0)
