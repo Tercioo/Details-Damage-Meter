@@ -1865,11 +1865,11 @@ function atributo_heal:MontaDetalhesHealingTaken (nome, barra)
 	end
 end
 
-local absorbed_table = {c = {180/255, 180/255, 180/255, 0.5}, p = 0}
+local absorbed_table = {c = {1, 1, 1, 0.5}, p = 0}
 local overhealing_table = {c = {0.5, 0.1, 0.1, 0.9}, p = 0}
-local normal_table = {c = {255/255, 180/255, 0/255, 0.5}, p = 0}
-local multistrike_table = {c = {223/255, 249/255, 45/255, 0.5}, p = 0}
-local critical_table = {c = {249/255, 74/255, 45/255, 0.5}, p = 0}
+local normal_table = {c = {1, 1, 1, 0.5}, p = 0}
+local multistrike_table = {c = {1, 1, 1, 0.5}, p = 0}
+local critical_table = {c = {1, 1, 1, 0.5}, p = 0}
 
 local data_table = {}
 local t1, t2, t3, t4 = {}, {}, {}, {}
