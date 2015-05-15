@@ -232,7 +232,6 @@ function gump:TrocaBackgroundInfo()
 	
 		if (info.sub_atributo == 1 or info.sub_atributo == 2) then --> damage done / dps
 			if (info.tipo ~= 1) then --> janela com as divisorias
-				info.bg1:SetTexture ([[Interface\AddOns\Details\images\info_window_background]])
 				info.bg1_sec_texture:SetTexture (nil)
 				info.tipo = 1
 			end
@@ -246,7 +245,6 @@ function gump:TrocaBackgroundInfo()
 			
 		elseif (info.sub_atributo == 3) then --> damage taken
 			if (info.tipo ~= 2) then --> janela com fundo diferente
-				info.bg1:SetTexture ([[Interface\AddOns\Details\images\info_window_background]])
 				info.bg1_sec_texture:SetTexture ([[Interface\AddOns\Details\images\info_window_damagetaken]])
 				info.bg3_sec_texture:Show()
 				info.bg2_sec_texture:Show()
@@ -259,7 +257,6 @@ function gump:TrocaBackgroundInfo()
 			
 		elseif (info.sub_atributo == 4) then --> friendly fire
 			if (info.tipo ~= 3) then --> janela com fundo diferente
-				info.bg1:SetTexture ([[Interface\AddOns\Details\images\info_window_background]])
 				info.bg1_sec_texture:SetTexture ([[Interface\AddOns\Details\images\info_window_damagetaken]])
 				info.bg3_sec_texture:Show()
 				info.bg2_sec_texture:Show()
@@ -269,7 +266,6 @@ function gump:TrocaBackgroundInfo()
 			
 		elseif (info.sub_atributo == 6) then --> enemies
 			if (info.tipo ~= 3) then --> janela com fundo diferente
-				info.bg1:SetTexture ([[Interface\AddOns\Details\images\info_window_background]])
 				info.bg1_sec_texture:SetTexture ([[Interface\AddOns\Details\images\info_window_damagetaken]])
 				info.bg3_sec_texture:Show()
 				info.bg2_sec_texture:Show()
@@ -281,7 +277,6 @@ function gump:TrocaBackgroundInfo()
 	elseif (info.atributo == 2) then --> HEALING
 		if (info.sub_atributo == 1 or info.sub_atributo == 2 or info.sub_atributo == 3) then --> damage done / dps
 			if (info.tipo ~= 1) then --> janela com as divisorias
-				info.bg1:SetTexture ([[Interface\AddOns\Details\images\info_window_background]])
 				info.bg1_sec_texture:SetTexture (nil)
 				info.tipo = 1
 			end
@@ -299,7 +294,6 @@ function gump:TrocaBackgroundInfo()
 			
 		elseif (info.sub_atributo == 4) then --> Healing taken
 			if (info.tipo ~= 2) then --> janela com fundo diferente			
-				info.bg1:SetTexture ([[Interface\AddOns\Details\images\info_window_background]])
 				info.bg1_sec_texture:SetTexture ([[Interface\AddOns\Details\images\info_window_damagetaken]])
 				info.bg3_sec_texture:Show()
 				info.bg2_sec_texture:Show()
@@ -313,7 +307,6 @@ function gump:TrocaBackgroundInfo()
 		
 	elseif (info.atributo == 3) then --> REGEN
 		if (info.tipo ~= 2) then --> janela com fundo diferente
-			info.bg1:SetTexture ([[Interface\AddOns\Details\images\info_window_background]])
 			info.bg1_sec_texture:SetTexture (nil)
 			info.tipo = 2
 		end
@@ -321,7 +314,6 @@ function gump:TrocaBackgroundInfo()
 	
 	elseif (info.atributo == 4) then --> MISC
 		if (info.tipo ~= 2) then --> janela com fundo diferente
-			info.bg1:SetTexture ([[Interface\AddOns\Details\images\info_window_background]])
 			info.bg1_sec_texture:SetTexture (nil)
 			info.tipo = 2
 		end
@@ -423,7 +415,7 @@ local function seta_scripts (este_gump)
 	este_gump.container_alvos.gump:SetScript ("OnMouseUp", mouse_up_func)
 
 	--> botão fechar
-	este_gump.fechar:SetScript ("OnClick", function (self) 
+	este_gump.close_button:SetScript ("OnClick", function (self) 
 		_detalhes:FechaJanelaInfo()
 	end)
 end
@@ -766,13 +758,189 @@ local function cria_container_alvos (este_gump)
 	este_gump.container_alvos = container_alvos_window
 end
 
+function _detalhes:InstallPDWSkin (skin_name, func)
+	if (not skin_name) then
+		return false -- sem nome
+	elseif (_detalhes.playerdetailwindow_skins [skin_name]) then
+		return false -- ja existe
+	end
+	
+	_detalhes.playerdetailwindow_skins [skin_name] = func
+	return true
+end
+
+function _detalhes:ApplyPDWSkin (skin_name)
+
+--already built
+	if (not DetailsPlayerDetailsWindow.Loaded) then
+		if (skin_name) then
+			_detalhes.player_details_window.skin = skin_name
+		end
+		return
+	end
+
+--hide extra frames
+	local window = DetailsPlayerDetailsWindow
+	if (window.extra_frames) then
+		for framename, frame in pairs (window.extra_frames) do
+			frame:Hide()
+		end
+	end
+
+--apply default first
+	local default_skin = _detalhes.playerdetailwindow_skins ["WoWClassic"]
+	pcall (default_skin.func)
+	
+--than do the change
+	if (not skin_name) then
+		skin_name = _detalhes.player_details_window.skin
+	end
+	
+	local skin = _detalhes.playerdetailwindow_skins [skin_name]
+	if (skin) then
+		local successful, errortext = pcall (skin.func)
+		if (not successful) then
+			_detalhes:Msg ("error occurred on skin call():", errortext)
+			local former_skin = _detalhes.playerdetailwindow_skins [_detalhes.player_details_window.skin]
+			pcall (former_skin.func)
+		else
+			_detalhes.player_details_window.skin = skin_name
+		end
+	else
+		_detalhes:Msg ("skin not found.")
+	end
+end
+
+function _detalhes:SetPlayerDetailsWindowTexture (texture)
+	DetailsPlayerDetailsWindow.bg1:SetTexture (texture)
+end
+
+function _detalhes:SetPDWBarConfig (texture)
+	local window = DetailsPlayerDetailsWindow
+
+	if (texture) then
+		_detalhes.player_details_window.bar_texture = texture
+		local texture = SharedMedia:Fetch ("statusbar", texture)
+		
+		for _, bar in ipairs (window.barras1) do
+			bar.textura:SetStatusBarTexture (texture)
+		end
+		for _, bar in ipairs (window.barras2) do
+			bar.textura:SetStatusBarTexture (texture)
+		end
+		for _, bar in ipairs (window.barras3) do
+			bar.textura:SetStatusBarTexture (texture)
+		end
+	end
+end
+
+local default_skin = function()
+	local window = DetailsPlayerDetailsWindow
+	window.bg1:SetTexture ([[Interface\AddOns\Details\images\info_window_background]])
+	window.bg1:SetSize (1024, 512)
+	window.bg1:SetAlpha (1)
+	window.bg1:SetVertexColor (1, 1, 1)
+	window:SetBackdrop (nil)
+	window:SetBackdropColor (1, 1, 1, 1)
+	window:SetBackdropBorderColor (1, 1, 1, 1)
+	window.classe_icone:SetDrawLayer ("background")
+	window.bg_icone_bg:Show()
+	window.bg_icone:Show()
+	
+	window.leftbars1_backgound:SetAlpha (1)
+	window.leftbars2_backgound:SetAlpha (1)
+	window.right_background1:SetAlpha (1)
+	window.right_background2:SetAlpha (1)
+	window.right_background3:SetAlpha (1)
+	window.right_background4:SetAlpha (1)
+	window.right_background5:SetAlpha (1)
+	
+	window.close_button:GetNormalTexture():SetDesaturated (false)
+	
+	window.title_string:ClearAllPoints()
+	window.title_string:SetPoint ("center", window, "center")
+	window.title_string:SetPoint ("top", window, "top", 0, -18)
+	window.title_string:SetParent (window)
+	
+	window.classe_icone:SetParent (window)
+	
+	window.close_button:SetWidth (32)
+	window.close_button:SetHeight (32)
+	window.close_button:SetPoint ("TOPRIGHT", window, "TOPRIGHT", 5, -8)
+	
+	window.avatar:SetParent (window)
+	
+	_detalhes:SetPDWBarConfig ("Skyline")
+end
+_detalhes:InstallPDWSkin ("WoWClassic", {func = default_skin, author = "Details! Team", version = "v1.0", desc = "Default skin."})
+
+local elvui_skin = function()
+	local window = DetailsPlayerDetailsWindow
+	window.bg1:SetTexture ([[Interface\AddOns\Details\images\background]], true)
+	window.bg1:SetAlpha (0.7)
+	window.bg1:SetVertexColor (0.27, 0.27, 0.27)
+	window.bg1:SetVertTile (true)
+	window.bg1:SetHorizTile (true)
+	window.bg1:SetSize (590, 354)
+	window.classe_icone:SetDrawLayer ("overlay")
+	window:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1})
+	window:SetBackdropColor (1, 1, 1, 1)
+	window:SetBackdropBorderColor (0, 0, 0, 1)
+	window.bg_icone_bg:Hide()
+	window.bg_icone:Hide()
+	
+	local bgs_alpha = 0.6
+	window.leftbars1_backgound:SetAlpha (bgs_alpha)
+	window.leftbars2_backgound:SetAlpha (bgs_alpha)
+	
+	window.right_background1:SetAlpha (bgs_alpha)
+	window.right_background2:SetAlpha (bgs_alpha)
+	window.right_background3:SetAlpha (bgs_alpha)
+	window.right_background4:SetAlpha (bgs_alpha)
+	window.right_background5:SetAlpha (bgs_alpha)
+	
+	window.close_button:GetNormalTexture():SetDesaturated (true)
+	
+	local titlebar = window.extra_frames ["ElvUITitleBar"]
+	if (not titlebar) then
+		titlebar = CreateFrame ("frame", nil, window)
+		titlebar:SetPoint ("topleft", window, "topleft", 2, -3)
+		titlebar:SetPoint ("topright", window, "topright", -2, -3)
+		titlebar:SetHeight (20)
+		titlebar:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]], tileSize = 64, tile = true})
+		titlebar:SetBackdropColor (.5, .5, .5, 1)
+		titlebar:SetBackdropBorderColor (0, 0, 0, 1)
+		window.extra_frames ["ElvUITitleBar"] = titlebar
+	else
+		titlebar:Show()
+	end
+	
+	window.title_string:ClearAllPoints()
+	window.title_string:SetPoint ("center", window, "center")
+	window.title_string:SetPoint ("top", window, "top", 0, -8)
+	window.title_string:SetParent (titlebar)
+	
+	window.classe_icone:SetParent (titlebar)
+	
+	window.close_button:SetWidth (20)
+	window.close_button:SetHeight (20)
+	window.close_button:SetPoint ("TOPRIGHT", window, "TOPRIGHT", 0, -3)
+	
+	window.avatar:SetParent (titlebar)
+end
+_detalhes:InstallPDWSkin ("ElvUI", {func = elvui_skin, author = "Details! Team", version = "v1.0", desc = "Skin compatible with ElvUI addon."})
+
 --> search key: ~create ~inicio
 function gump:CriaJanelaInfo()
 
 	--> cria a janela em si
 	local este_gump = info
+	este_gump.Loaded = true
+	
 	este_gump:SetFrameStrata ("HIGH")
 	este_gump:SetToplevel (true)
+	
+	este_gump.extra_frames = {}
 	
 	--> fehcar com o esc
 	tinsert (UISpecialFrames, este_gump:GetName())
@@ -788,9 +956,7 @@ function gump:CriaJanelaInfo()
 	
 	--> joga a janela para a global
 	_detalhes.janela_info = este_gump
-	
-	--> começa a montar as texturas <--
-	
+
 	--> icone da classe no canto esquerdo superior
 	este_gump.classe_icone = este_gump:CreateTexture (nil, "BACKGROUND")
 	este_gump.classe_icone:SetPoint ("TOPLEFT", este_gump, "TOPLEFT", 4, 0)
@@ -805,15 +971,10 @@ function gump:CriaJanelaInfo()
 	este_gump.classe_iconePlus:SetDrawLayer ("BACKGROUND", 2)
 	
 	--> top left
-	este_gump.bg1 = este_gump:CreateTexture (nil, "BORDER")
+	este_gump.bg1 = este_gump:CreateTexture ("DetailsPSWBackground", "BORDER")
 	este_gump.bg1:SetPoint ("TOPLEFT", este_gump, "TOPLEFT", 0, 0)
 	este_gump.bg1:SetDrawLayer ("BORDER", 1)
-	
-	function _detalhes:SetPlayerDetailsWindowTexture (texture)
-		este_gump.bg1:SetTexture (texture)
-	end
-	_detalhes:SetPlayerDetailsWindowTexture ("Interface\\AddOns\\Details\\images\\info_window_background")
-	
+
 	--
 	local alpha_bgs = 1
 	
@@ -822,45 +983,50 @@ function gump:CriaJanelaInfo()
 	leftbars1_backgound:SetPoint ("topleft", este_gump, "topleft", 19, -74)
 	leftbars1_backgound:SetSize (303, 149)
 	leftbars1_backgound:SetAlpha (alpha_bgs)
+	este_gump.leftbars1_backgound = leftbars1_backgound
 	
 	local leftbars2_backgound = este_gump:CreateTexture (nil, "background")
 	leftbars2_backgound:SetTexture ([[Interface\DialogFrame\UI-DialogBox-Background-Dark]])
 	leftbars2_backgound:SetPoint ("topleft", este_gump, "topleft", 19, -226)
 	leftbars2_backgound:SetSize (303, 122)
 	leftbars2_backgound:SetAlpha (alpha_bgs)
+	este_gump.leftbars2_backgound = leftbars2_backgound
 	--
 	local right_background1 = este_gump:CreateTexture (nil, "background")
 	right_background1:SetTexture ([[Interface\DialogFrame\UI-DialogBox-Background-Dark]])
 	right_background1:SetPoint ("topleft", este_gump, "topleft", 357, -85)
 	right_background1:SetSize (220, 43)
 	right_background1:SetAlpha (alpha_bgs)
+	este_gump.right_background1 = right_background1
 	
 	local right_background2 = este_gump:CreateTexture (nil, "background")
 	right_background2:SetTexture ([[Interface\DialogFrame\UI-DialogBox-Background-Dark]])
-	right_background2:SetPoint ("topleft", este_gump, "topleft", 357, -135)
+	right_background2:SetPoint ("topleft", este_gump, "topleft", 357, -136)
 	right_background2:SetSize (220, 48)
 	right_background2:SetAlpha (alpha_bgs)
+	este_gump.right_background2 = right_background2
 	
 	local right_background3 = este_gump:CreateTexture (nil, "background")
 	right_background3:SetTexture ([[Interface\DialogFrame\UI-DialogBox-Background-Dark]])
 	right_background3:SetPoint ("topleft", este_gump, "topleft", 357, -191)
 	right_background3:SetSize (220, 48)
 	right_background3:SetAlpha (alpha_bgs)
+	este_gump.right_background3 = right_background3
 	
 	local right_background4 = este_gump:CreateTexture (nil, "background")
 	right_background4:SetTexture ([[Interface\DialogFrame\UI-DialogBox-Background-Dark]])
 	right_background4:SetPoint ("topleft", este_gump, "topleft", 357, -246)
 	right_background4:SetSize (220, 48)
 	right_background4:SetAlpha (alpha_bgs)
+	este_gump.right_background4 = right_background4
 	
 	local right_background5 = este_gump:CreateTexture (nil, "background")
 	right_background5:SetTexture ([[Interface\DialogFrame\UI-DialogBox-Background-Dark]])
 	right_background5:SetPoint ("topleft", este_gump, "topleft", 357, -301)
 	right_background5:SetSize (220, 48)
 	right_background5:SetAlpha (alpha_bgs)
-	
+	este_gump.right_background5 = right_background5
 	--
-	
 	este_gump.bg1_sec_texture = este_gump:CreateTexture (nil, "BORDER")
 	este_gump.bg1_sec_texture:SetDrawLayer ("BORDER", 4)
 	este_gump.bg1_sec_texture:SetPoint ("topleft", este_gump.bg1, "topleft", 348, -86)
@@ -884,12 +1050,12 @@ function gump:CriaJanelaInfo()
 	este_gump.bg3_sec_texture:Hide()
 	
 	--> botão de fechar
-	este_gump.fechar = _CreateFrame ("Button", nil, este_gump, "UIPanelCloseButton")
-	este_gump.fechar:SetWidth (32)
-	este_gump.fechar:SetHeight (32)
-	este_gump.fechar:SetPoint ("TOPRIGHT", este_gump, "TOPRIGHT", 5, -8)
-	este_gump.fechar:SetText ("X")
-	este_gump.fechar:SetFrameLevel (este_gump:GetFrameLevel()+2)
+	este_gump.close_button = _CreateFrame ("Button", nil, este_gump, "UIPanelCloseButton")
+	este_gump.close_button:SetWidth (32)
+	este_gump.close_button:SetHeight (32)
+	este_gump.close_button:SetPoint ("TOPRIGHT", este_gump, "TOPRIGHT", 5, -8)
+	este_gump.close_button:SetText ("X")
+	este_gump.close_button:SetFrameLevel (este_gump:GetFrameLevel()+5)
 
 	este_gump.no_targets = este_gump:CreateTexture (nil, "overlay")
 	este_gump.no_targets:SetPoint ("BOTTOMLEFT", este_gump, "BOTTOMLEFT", 20, 6)
@@ -905,9 +1071,9 @@ function gump:CriaJanelaInfo()
 	este_gump.no_targets:Hide()
 	
 	--> titulo
-	gump:NewLabel (este_gump, este_gump, nil, "titulo", Loc ["STRING_PLAYER_DETAILS"], "GameFontHighlightLeft", 12, {227/255, 186/255, 4/255})
-	este_gump.titulo:SetPoint ("center", este_gump, "center")
-	este_gump.titulo:SetPoint ("top", este_gump, "top", 0, -18)
+	gump:NewLabel (este_gump, este_gump, nil, "title_string", Loc ["STRING_PLAYER_DETAILS"], "GameFontHighlightLeft", 12, {227/255, 186/255, 4/255})
+	este_gump.title_string:SetPoint ("center", este_gump, "center")
+	este_gump.title_string:SetPoint ("top", este_gump, "top", 0, -18)
 	
 	--> cria os textos da janela
 	cria_textos (este_gump)	
@@ -961,7 +1127,7 @@ function gump:CriaJanelaInfo()
 	este_gump.bg_icone:SetPoint ("TOPRIGHT", este_gump, "TOPRIGHT",  -15, -12)
 	este_gump.bg_icone:SetTexture ("Interface\\AddOns\\Details\\images\\icone_bg")
 	este_gump.bg_icone:Show()
-	
+
 	--este_gump:Hide()
 	
 	este_gump.spell_icone = este_gump:CreateTexture (nil, "ARTWORK")
@@ -970,6 +1136,8 @@ function gump:CriaJanelaInfo()
 	este_gump.spell_icone:SetHeight (34)
 	este_gump.spell_icone:SetDrawLayer ("ARTWORK", 0)
 	este_gump.spell_icone:Show()
+	este_gump.spell_icone:SetTexCoord (4/64, 60/64, 4/64, 60/64)
+	
 	
 	--> coisinhas do lado do icone
 	este_gump.apoio_icone_esquerdo = este_gump:CreateTexture (nil, "ARTWORK")
@@ -994,6 +1162,12 @@ function gump:CriaJanelaInfo()
 	"Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", nil, "DetailsJanelaInfoReport4")
 	este_gump.report_direita:SetPoint ("TOPRIGHT", este_gump, "TOPRIGHT",  -8, -57)	
 	este_gump.report_direita:Hide()
+	
+	--> apply default skin
+	_detalhes:ApplyPDWSkin()
+	
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> tabs
 
 	local red = "FFFFAAAA"
 	local green = "FFAAFFAA"
@@ -2437,7 +2611,7 @@ function gump:CriaJanelaInfo()
 					else
 						local spellname = GetSpellInfo (spellid)
 						local extra_search_found
-						for casted_spellid, amount in _pairs (player1_misc.spell_cast) do
+						for casted_spellid, amount in _pairs (player1_misc.spell_cast or {}) do
 							local casted_spellname = GetSpellInfo (casted_spellid)
 							if (casted_spellname == spellname) then
 								frame1.tooltip.casts_label2:SetText (amount)
@@ -2552,7 +2726,7 @@ function gump:CriaJanelaInfo()
 					local amt_casts = player2_misc.spell_cast and player2_misc.spell_cast [spellid]
 					if (not amt_casts) then
 						local spellname = GetSpellInfo (spellid)
-						for casted_spellid, amount in _pairs (player2_misc.spell_cast) do
+						for casted_spellid, amount in _pairs (player2_misc.spell_cast or {}) do
 							local casted_spellname = GetSpellInfo (casted_spellid)
 							if (casted_spellname == spellname) then
 								amt_casts = amount
@@ -2688,7 +2862,7 @@ function gump:CriaJanelaInfo()
 					local amt_casts = player3_misc.spell_cast and player3_misc.spell_cast [spellid]
 					if (not amt_casts) then
 						local spellname = GetSpellInfo (spellid)
-						for casted_spellid, amount in _pairs (player3_misc.spell_cast) do
+						for casted_spellid, amount in _pairs (player3_misc.spell_cast or {}) do
 							local casted_spellname = GetSpellInfo (casted_spellid)
 							if (casted_spellname == spellname) then
 								amt_casts = amount
@@ -3740,9 +3914,10 @@ local function CriaTexturaBarra (instancia, barra)
 	
 	barra.textura:SetAllPoints (barra)
 	barra.textura:SetAlpha (0.5)
-	--barra.textura:SetStatusBarTexture ([[Interface\AddOns\Details\images\bar_serenity]])
-	barra.textura:SetStatusBarTexture ([[Interface\AddOns\Details\images\bar_skyline]])
-	--barra.textura:SetStatusBarTexture (_detalhes.default_texture)
+	
+	local texture = SharedMedia:Fetch ("statusbar", _detalhes.player_details_window.bar_texture)
+	barra.textura:SetStatusBarTexture (texture)
+	
 	barra.textura:SetStatusBarColor (.5, .5, .5, 0)
 	barra.textura:SetMinMaxValues (0,100)
 	

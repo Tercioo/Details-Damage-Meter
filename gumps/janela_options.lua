@@ -5239,6 +5239,35 @@ function window:CreateFrame3()
 		
 		window:CreateLineBackground2 (frame3, "ImportButton", "ImportButton", Loc ["STRING_OPTIONS_SAVELOAD_IMPORT_DESC"], nil, {1, 0.8, 0}, button_color_rgb)
 	
+	--> player detail window
+		g:NewLabel (frame3, _, "$parentPDWAnchor", "PDWAnchor", Loc ["STRING_OPTIONS_PDW_ANCHOR"], "GameFontNormal")
+		
+		--skin
+		local onSelectPDWSkin = function (_, instance, skin_name)
+			_detalhes:ApplyPDWSkin (skin_name)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+		end
+
+		local buildPDWSkinMenu = function()
+			local skinOptions = {}
+			for skin_name, skin_table in pairs (_detalhes.playerdetailwindow_skins) do
+				local desc = "Author: |cFFFFFFFF" .. skin_table.author .. "|r\nVersion: |cFFFFFFFF" .. skin_table.version .. "|r\n\nDesc: |cFFFFFFFF" .. skin_table.desc .. "|r"
+				skinOptions [#skinOptions+1] = {value = skin_name, label = skin_name, onclick = onSelectPDWSkin, icon = "Interface\\GossipFrame\\TabardGossipIcon", desc = desc}
+			end
+			return skinOptions
+		end	
+		
+		-- skin
+		local d = g:NewDropDown (frame3, _, "$parentPDWSkinDropdown", "PDWSkinDropdown", 160, dropdown_height, buildPDWSkinMenu, 1)
+		d.onenter_backdrop = dropdown_backdrop_onenter
+		d.onleave_backdrop = dropdown_backdrop_onleave
+		d:SetBackdrop (dropdown_backdrop)
+		d:SetBackdropColor (unpack (dropdown_backdrop_onleave)); d:SetBackdropBorderColor (unpack (dropdown_backdrop_border_color))
+		
+		g:NewLabel (frame3, _, "$parentPDWSkinLabel", "PDWSkinLabel", Loc ["STRING_OPTIONS_INSTANCE_SKIN"], "GameFontHighlightLeft")
+		window:CreateLineBackground2 (frame3, "PDWSkinDropdown", "PDWSkinLabel", Loc ["STRING_OPTIONS_PDW_SKIN_DESC"])
+		frame3.PDWSkinDropdown:SetPoint ("left", frame3.PDWSkinLabel, "right", 2)
+	
 	--> extra Options
 		g:NewLabel (frame3, _, "$parentSkinExtraOptionsAnchor", "SkinExtraOptionsAnchor", Loc ["STRING_OPTIONS_SKIN_EXTRA_OPTIONS_ANCHOR"], "GameFontNormal")
 		--frame3.SkinExtraOptionsAnchor:Hide()
@@ -5271,7 +5300,10 @@ function window:CreateFrame3()
 			{"ImportButton", 9, true},
 			{"makeDefault", 10},
 			{"applyToAll", 11},
-			--{"", 10},
+			
+			{"PDWAnchor", 12, true},
+			{"PDWSkinLabel", 13},
+			
 		}
 		
 		window:arrange_menu (frame3, left_side, x, -90)
@@ -10075,6 +10107,8 @@ end --> if not window
 		
 		_G.DetailsOptionsWindow3SkinDropdown.MyObject:SetFixedParameter (editing_instance)
 		_G.DetailsOptionsWindow3SkinDropdown.MyObject:Select (skin)
+		
+		_G.DetailsOptionsWindow3PDWSkinDropdown.MyObject:Select (_detalhes.player_details_window.skin)
 		
 		local skin_object = editing_instance:GetSkin()
 		local skin_name_formated = skin:gsub (" ", "")

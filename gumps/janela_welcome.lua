@@ -193,6 +193,8 @@ function _detalhes:OpenWelcomeWindow ()
 			end
 		end
 		_detalhes.standard_skin = savedObject
+		
+		_detalhes:ApplyPDWSkin ("ElvUI")
 	end
 	
 -- frame alert

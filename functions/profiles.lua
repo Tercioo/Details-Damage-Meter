@@ -505,6 +505,9 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 		
 		--> update tooltip settings
 		_detalhes:SetTooltipBackdrop()
+		
+		--> update player detail window
+		_detalhes:ApplyPDWSkin()
 
 	if (_detalhes.initializing) then
 		_detalhes.profile_loaded = true
@@ -846,6 +849,13 @@ local default_profile = {
 		disable_stretch_from_toolbar = false,
 		disable_stretch_button = false,
 		damage_taken_everything = false,
+	
+	--> info window
+		player_details_window = {
+			skin = "WoWClassic",
+			bar_texture = "Skyline",
+			scale = 1,
+		},
 		
 	--> segments
 		segments_amount = 12,

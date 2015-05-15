@@ -161,8 +161,6 @@ function _G._detalhes:Start()
 			
 			function _detalhes:CheckWallpaperAfterStartup()
 			
-				--print ("1 Checking WallPaper...")
-			
 				if (not _detalhes.profile_loaded) then
 					return _detalhes:ScheduleTimer ("CheckWallpaperAfterStartup", 2)
 				end
@@ -173,16 +171,11 @@ function _G._detalhes:Start()
 						if (not instance.wallpaper.enabled) then
 							instance:InstanceWallpaper (false)
 						end
-						
-						--print ("==== 2 Moving Window ", instance.meu_id, instance.ativa)
-						--vardump (instance.snap)
-						--print ("===============")
-						
+					
 						instance.do_not_snap = true
 						self.move_janela_func (instance.baseframe, true, instance, true)
 						self.move_janela_func (instance.baseframe, false, instance, true)
 						instance.do_not_snap = false
-						
 					end
 				end
 				self.CheckWallpaperAfterStartup = nil
@@ -345,6 +338,17 @@ function _G._detalhes:Start()
 			
 			_detalhes:FillUserCustomSpells()
 			_detalhes:AddDefaultCustomDisplays()
+			
+			--> check elvui for the new player detail skin
+			if (_detalhes_database.last_realversion and _detalhes_database.last_realversion < 69 and enable_reset_warning) then
+				function _detalhes:PDWElvuiCheck()
+					local ElvUI = _G.ElvUI
+					if (ElvUI) then
+						_detalhes:ApplyPDWSkin ("ElvUI")
+					end
+				end
+				_detalhes:ScheduleTimer ("PDWElvuiCheck", 1)
+			end
 			
 			--> Reset for the new structure
 			if (_detalhes_database.last_realversion and _detalhes_database.last_realversion < 66 and enable_reset_warning) then
