@@ -22,6 +22,71 @@ local _UISpecialFrames = UISpecialFrames --> wow api locals
 
 --> details API functions -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+	function _detalhes:FastReportWindow (window)
+	
+		if (not DetailsReportWindow) then
+			gump:CriaJanelaReport()
+			DetailsReportWindow:Hide()
+		end
+		
+		local instance = _detalhes:GetInstance (window)
+		if (instance) then
+		
+			if (instance.atributo == 1) then
+				_detalhes.report_lines = 14
+			elseif (instance.atributo == 2) then
+				_detalhes.report_lines = 6
+			else
+				_detalhes.report_lines = max (10, instance.rows_fit_in_window)
+			end
+			
+			if (IsInRaid()) then
+				_detalhes.report_where = "RAID"
+			elseif (GetNumSubgroupMembers() > 0) then
+				_detalhes.report_where = "PARTY"
+			else
+				_detalhes.report_where = "SAY"
+			end
+			
+			instance:monta_relatorio()
+			
+		else
+			_detalhes:Msg (Loc ["STRING_WINDOW_NOTFOUND"])
+		end
+	end
+
+	function _detalhes.ReportFromLatest (_, _, index)
+		local t = _detalhes.latest_report_table [index]
+		
+		if (t) then
+		
+			if (not DetailsReportWindow) then
+				gump:CriaJanelaReport()
+				DetailsReportWindow:Hide()
+			end
+			
+			local id, attribute, subattribute, amt, report_where = unpack (t)
+			local instance = _detalhes:GetInstance (id)
+			_detalhes.report_lines = amt
+			_detalhes.report_where = report_where
+			
+			local cattribute, csubattribute = instance:GetDisplay()
+			instance:SetDisplay (nil, attribute, subattribute)
+
+			instance:monta_relatorio()
+			
+			instance:SetDisplay (nil, cattribute, csubattribute)
+			
+			if (index > 5) then
+				local t = _detalhes.latest_report_table [index]
+				tremove (_detalhes.latest_report_table, index)
+				tinsert (_detalhes.latest_report_table, 1, t)
+			end
+			
+			GameCooltip:Hide()
+		end
+	end
+
 	function _detalhes:SendReportLines (lines)
 		if (type (lines) == "string") then
 			lines = {lines}
@@ -230,7 +295,6 @@ local _UISpecialFrames = UISpecialFrames --> wow api locals
 
 --> dropdown menus
 
-local function cria_drop_down (este_gump)
 --[[
 Emote: 255 251 255
 Yell: 255 63 64
@@ -247,6 +311,23 @@ Raid Lead: 255 71 9
 BG Leader: 255 216 183
 General/Trade: 255 189 192
 --]]
+
+
+local icons_and_colors = {
+	["PARTY"] = {icon = [[Interface\FriendsFrame\UI-Toast-ToastIcons]], coords = {0.53125, 0.7265625, 0.078125, 0.40625}, color = {0.66, 0.65, 1}},
+	["RAID"] = {icon = [[Interface\FriendsFrame\UI-Toast-ToastIcons]], coords = {0.53125, 0.7265625, 0.078125, 0.40625}, color = {1, 0.49, 0}},
+	["GUILD"] = {icon = [[Interface\FriendsFrame\UI-Toast-ToastIcons]], coords = {0.8046875, 0.96875, 0.125, 0.390625}, color = {0.25, 0.98, 0.25}},
+	["OFFICER"] = {icon = [[Interface\FriendsFrame\UI-Toast-ToastIcons]], coords = {0.8046875, 0.96875, 0.125, 0.390625}, color = {0.25, 0.74, 0.25}},
+	["WHISPER"] = {icon = [[Interface\FriendsFrame\UI-Toast-ToastIcons]], coords = {0.0546875, 0.1953125, 0.625, 0.890625}, color = {1, 0.49, 1}},
+	["SAY"] = {icon = [[Interface\FriendsFrame\UI-Toast-ToastIcons]], coords = {0.0390625, 0.203125, 0.09375, 0.375}, color = {1, 1, 1}},
+	["COPY"] = {icon = [[Interface\Buttons\UI-GuildButton-PublicNote-Disabled]], coords = {0, 1, 0, 1}, color = {1, 1, 1}},
+}
+function _detalhes.GetReportIconAndColor (report_where)
+	local key = report_where:gsub ((".*|"), "")
+	return icons_and_colors [key]
+end
+
+local function cria_drop_down (este_gump)
 
 	local iconsize = {16, 16}
 

@@ -11,6 +11,13 @@
 		DetailsKeyBindScrollUp()
 	</Binding>
 
+	<Binding name="DETAILS_REPORT_WINDOW1" description="Report data shown on window #1." header="DETAILS_KEYBIND_REPORT" category="Details!">
+		_detalhes:FastReportWindow (1)
+	</Binding>
+	<Binding name="DETAILS_REPORT_WINDOW2" description="Report data shown on window #2." category="Details!">
+		_detalhes:FastReportWindow (2)
+	</Binding>
+
 	<Binding name="DETAILS_TOGGLE_ALL" description="open or close all windows" header="DETAILS_KEYBIND_WINDOW_CONTROL" category="Details!">
 		_detalhes:ToggleWindows()
 	</Binding>

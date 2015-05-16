@@ -2763,6 +2763,26 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 		end
 	end
 	
+	if (self.meu_id and self.atributo and self.sub_atributo and _detalhes.report_where ~= "WHISPER" and _detalhes.report_where ~= "WHISPER2") then
+		local already_exists
+		for index, reported in ipairs (_detalhes.latest_report_table) do
+			if (reported [1] == self.meu_id and reported [2] == self.atributo and reported [3] == self.sub_atributo and reported [5] == _detalhes.report_where) then
+				already_exists = index
+				break
+			end
+		end
+		if (already_exists) then
+			if (already_exists > 5) then
+				local t = _detalhes.latest_report_table [already_exists]
+				tremove (_detalhes.latest_report_table, already_exists)
+				tinsert (_detalhes.latest_report_table, 1, t)
+			end
+		else
+			tinsert (_detalhes.latest_report_table, 1, {self.meu_id, self.atributo, self.sub_atributo, amt, _detalhes.report_where})
+		end
+		tremove (_detalhes.latest_report_table, 11)
+	end
+	
 	local barras = self.barras
 	local esta_barra
 	

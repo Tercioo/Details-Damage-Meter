@@ -7413,6 +7413,24 @@ function gump:CriaCabecalho (baseframe, instancia)
 				GameCooltip:SetOption ("ButtonsYMod", -7)
 				GameCooltip:SetOption ("HeighMod", 8)
 				
+				local last_reports = _detalhes.latest_report_table
+				if (#last_reports > 0) then
+					for index = #last_reports, 1, -1 do
+						local report = last_reports [index]
+						local instance_number, attribute, subattribute, amt, report_where = unpack (report)
+						
+						local name = _detalhes:GetSubAttributeName (attribute, subattribute)
+						
+						local artwork =  _detalhes.GetReportIconAndColor (report_where)
+						
+						GameCooltip:AddLine (name, nil, 1, "white", nil, _detalhes.font_sizes.menus, _detalhes.font_faces.menus)
+						GameCooltip:AddIcon (artwork.icon, 1, 1, 14, 14, artwork.coords[1], artwork.coords[2], artwork.coords[3], artwork.coords[4], artwork.color, nil, false)
+						GameCooltip:AddMenu (1, _detalhes.ReportFromLatest, index)
+					end
+					
+					GameCooltip:AddLine ("$div")
+				end
+				
 				GameCooltip:AddLine (Loc ["STRING_REPORT_TOOLTIP"], nil, 1, "white", nil, _detalhes.font_sizes.menus, _detalhes.font_faces.menus)
 				GameCooltip:AddIcon ([[Interface\Addons\Details\Images\report_button]], 1, 1, 12, 19)
 				GameCooltip:AddMenu (1, _detalhes.Reportar, instancia, nil, "INSTANCE" .. instancia.meu_id)

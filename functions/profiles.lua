@@ -1086,6 +1086,8 @@ local default_global_data = {
 		details_auras = {},
 	--> ilvl
 		item_level_pool = {},
+	--> latest report
+		latest_report_table = {},
 }
 
 _detalhes.default_global_data = default_global_data
