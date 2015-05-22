@@ -2772,8 +2772,9 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 			end
 		end
 		if (already_exists) then
+			local t = _detalhes.latest_report_table [already_exists]
+			t [4] = amt
 			if (already_exists > 5) then
-				local t = _detalhes.latest_report_table [already_exists]
 				tremove (_detalhes.latest_report_table, already_exists)
 				tinsert (_detalhes.latest_report_table, 1, t)
 			end

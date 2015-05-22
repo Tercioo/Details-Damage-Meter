@@ -363,7 +363,37 @@ _detalhes.background_tasks_loop = _detalhes:ScheduleRepeatingTimer ("DoBackgroun
 
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
---> storage stuff
+--> storage stuff ~storage
+
+--global database
+function _detalhes:OpenRaidStorage()
+	--> check if the storage is already loaded
+	if (not IsAddOnLoaded ("Details_DataStorage")) then
+		local loaded, reason = LoadAddOn ("Details_DataStorage")
+		if (not loaded) then
+			return
+		end
+	end
+	
+	--> get the storage table
+	local db = DetailsDataStorage
+	
+	if (not db and _detalhes.CreateStorageDB) then
+		db = _detalhes:CreateStorageDB()
+		if (not db) then
+			return
+		end
+	elseif (not db) then
+		return
+	end
+	
+	--GlobalDatabase = {}
+	--UserChrStorage = {}
+	
+	return db
+end
+
+
 
 local store_instances = {
 	[1205] = true, --Blackrock Foundry

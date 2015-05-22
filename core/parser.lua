@@ -675,13 +675,17 @@
 	------------------------------------------------------------------------------------------------
 	--> early checks and fixes
 
-		if (not who_name) then
+		if (not alvo_name) then
+			--> no target name, just quit
+			return
+			
+		elseif (not who_name) then
 			--> no actor name, use spell name instead
 			who_name = "[*] " .. spellname
-		elseif (not who_name or not alvo_name) then
-			return --> just return
+			who_flags = 0xa48
+			who_serial = ""
 		end
-
+	
 	------------------------------------------------------------------------------------------------
 	--> get actors
 		--print ("MISS", "|", missType, "|", isOffHand, "|", multistrike, "|", amountMissed, "|", arg1)
@@ -1170,7 +1174,10 @@
 		if (not alvo_name) then
 			alvo_name = "[*] Unknown shield target"
 		elseif (not who_name) then 
+			--> no actor name, use spell name instead
 			who_name = "[*] " .. spellname
+			who_flags = 0xa48
+			who_serial = ""
 		end 
 
 	------------------------------------------------------------------------------------------------

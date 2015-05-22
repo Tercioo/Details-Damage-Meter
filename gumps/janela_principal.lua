@@ -7423,8 +7423,10 @@ function gump:CriaCabecalho (baseframe, instancia)
 						
 						local artwork =  _detalhes.GetReportIconAndColor (report_where)
 						
-						GameCooltip:AddLine (name, nil, 1, "white", nil, _detalhes.font_sizes.menus, _detalhes.font_faces.menus)
-						GameCooltip:AddIcon (artwork.icon, 1, 1, 14, 14, artwork.coords[1], artwork.coords[2], artwork.coords[3], artwork.coords[4], artwork.color, nil, false)
+						GameCooltip:AddLine (name .. " (#" .. amt .. ")", nil, 1, "white", nil, _detalhes.font_sizes.menus, _detalhes.font_faces.menus)
+						if (artwork) then
+							GameCooltip:AddIcon (artwork.icon, 1, 1, 14, 14, artwork.coords[1], artwork.coords[2], artwork.coords[3], artwork.coords[4], artwork.color, nil, false)
+						end
 						GameCooltip:AddMenu (1, _detalhes.ReportFromLatest, index)
 					end
 					

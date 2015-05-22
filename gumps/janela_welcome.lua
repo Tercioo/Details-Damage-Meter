@@ -177,7 +177,6 @@ function _detalhes:OpenWelcomeWindow ()
 		if (instance and instance.ativa) then
 			if (instance.skin ~= "ElvUI Frame Style") then
 				instance:ChangeSkin ("ElvUI Frame Style")
-				_detalhes:SetTooltipBackdrop ("Blizzard Tooltip", 16, {1, 1, 1, 0})
 			end
 		end
 
@@ -195,6 +194,7 @@ function _detalhes:OpenWelcomeWindow ()
 		_detalhes.standard_skin = savedObject
 		
 		_detalhes:ApplyPDWSkin ("ElvUI")
+		_detalhes:SetTooltipBackdrop ("Details BarBorder 3", 14, {0, 0, 0, 1})
 	end
 	
 -- frame alert
