@@ -4,6 +4,10 @@ local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
 local g =	_detalhes.gump
 local _
 
+function _detalhes:DumpTable (text_to_show, dumpvalues, keeptext)
+	return _detalhes:OpenNewsWindow (text_to_show, dumpvalues, keeptext)
+end
+
 function _detalhes:OpenNewsWindow (text_to_show, dumpvalues, keeptext)
 	local news_window = _detalhes:CreateOrOpenNewsWindow()
 	

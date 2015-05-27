@@ -23,8 +23,42 @@ do
 		return _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].trash_ids
 	end
 	
+	function _detalhes:GetInstanceIdFromEncounterId (encounterid)
+		for id, instanceTable in pairs (_detalhes.EncounterInformation) do
+			local ids = instanceTable.encounter_ids2
+			if (ids) then
+				if (ids [encounterid]) then
+					return id
+				end
+			end
+		end
+	end
+	
 	--> return the boss table using a encounter id
 	function _detalhes:GetBossEncounterDetailsFromEncounterId (mapid, encounterid)
+		if (not mapid) then
+			local bossIndex, instance
+			for id, instanceTable in pairs (_detalhes.EncounterInformation) do
+				local ids = instanceTable.encounter_ids2
+				if (ids) then
+					bossIndex = ids [encounterid]
+					if (bossIndex) then
+						instance = instanceTable
+						break
+					end
+				end
+			end
+			
+			if (instance) then
+				local bosses = instance.encounters
+				if (bosses) then
+					return bosses [bossIndex], instance
+				end
+			end
+			
+			return
+		end
+		
 		local bossindex = _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].encounter_ids and _detalhes.EncounterInformation [mapid].encounter_ids [encounterid]
 		if (bossindex) then
 			return _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].encounters [bossindex], bossindex

@@ -20,6 +20,9 @@ function SlashCmdList.DETAILS (msg, editbox)
 	if (command == Loc ["STRING_SLASH_NEW"] or command == "new") then
 		_detalhes:CriarInstancia (nil, true)
 		
+	elseif (command == Loc ["STRING_SLASH_HISTORY"] or command == "history") then
+		_detalhes:OpenRaidHistoryWindow()
+	
 	elseif (command == Loc ["STRING_SLASH_TOGGLE"] or command == "toggle") then
 		
 		local instance = rest:match ("^(%S*)%s*(.-)$")

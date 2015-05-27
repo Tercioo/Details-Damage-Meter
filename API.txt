@@ -43,6 +43,7 @@ DETAILS_SUBATTRIBUTE_DEBUFFUPTIME = 8
 TL;DR
 =======================================
 A history segment container is the higher table in the hierarchy, it holds combat objects.
+Current and overall combat objects are directly attached to the core. When a combat finishes, it detach and is sent to history container.
 A Combat Object has 4 tables: damage on index 1, healing on index 2, energy on index 3, misc on index 4.
 Those tables are called 'containers', these containers holds 'Actor Objects'.
 Actor Objects hold a target table and a spell table.
@@ -316,8 +317,11 @@ cc_break_spells =
 cc_break_oque = 
 
 
+Other API Calls:
+=======================================
 
-
+Details:SetDeathLogLimit (limit)
+Set the amount of lines to store on death log.
 
 
 

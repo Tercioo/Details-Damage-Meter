@@ -84,6 +84,8 @@
 		local last_events_cache = {} --> placeholder
 	--> pets
 		local container_pets = {} --> place holder
+	--> ignore deaths
+		local ignore_death = {}
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> constants
@@ -1186,6 +1188,12 @@
 		if (tipo == "BUFF") then
 			------------------------------------------------------------------------------------------------
 			--> buff uptime
+			
+				if (spellid == 27827) then --> spirit of redemption (holy priest)
+					parser:dead ("UNIT_DIED", time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags)
+					ignore_death [who_name] = true
+					return
+				end
 
 				if (_recording_buffs_and_debuffs) then
 					if (who_name == alvo_name and raid_members_cache [who_serial] and _in_combat) then
@@ -2547,6 +2555,11 @@
 				_in_combat
 			) then
 
+				if (ignore_death [alvo_name]) then
+					ignore_death [alvo_name] = nil
+					return
+				end
+			
 				_current_misc_container.need_refresh = true
 				
 				--> combat totals
@@ -3451,8 +3464,6 @@
 	end
 	
 	function _detalhes:ClearParserCache()
-		
-		--> clear cache | not sure if replacing the old table is the best approach
 	
 		_table_wipe (damage_cache)
 		_table_wipe (damage_cache_pets)
@@ -3460,6 +3471,7 @@
 		_table_wipe (healing_cache)
 		_table_wipe (energy_cache)
 		_table_wipe (misc_cache)
+		_table_wipe (ignore_death)
 	
 		damage_cache = setmetatable ({}, _detalhes.weaktable)
 		damage_cache_pets = setmetatable ({}, _detalhes.weaktable)

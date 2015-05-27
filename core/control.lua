@@ -466,6 +466,9 @@
 						_detalhes.schedule_store_boss_encounter = true
 					end
 					
+					_detalhes:SendEvent ("COMBAT_BOSS_DEFEATED", nil, _detalhes.tabela_vigente)
+				else
+					_detalhes:SendEvent ("COMBAT_BOSS_WIPE", nil, _detalhes.tabela_vigente)
 				end
 
 				--if (_detalhes:GetBossDetails (_detalhes.tabela_vigente.is_boss.mapid, _detalhes.tabela_vigente.is_boss.index) or ) then

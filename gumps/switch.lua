@@ -135,7 +135,7 @@ do
 	local options_button = gump:CreateButton (frame.topbg_frame, open_options, 14, 14, open_options)
 	options_button:SetPoint ("right", window_color, "left", -2, 0)
 	
-	local options_button_texture = gump:CreateImage (options_button, [[Interface\AddOns\Details\images\modo_icones]], 14, 14, "artwork", {0.5, 0.625, 0, 1})
+	local options_button_texture = gump:CreateImage (options_button, [[Interface\AddOns\Details\images\icons]], 14, 14, "artwork", {396/512, 428/512, 277/512, 307/512})
 	options_button_texture:SetAlpha (0.35)
 	options_button_texture:SetAllPoints()
 	
@@ -153,6 +153,60 @@ do
 		options_button_texture:SetAlpha (0.35)
 		GameCooltip:Hide()
 	end)
+	
+---------------------------------------------------------------------------------------------------------------------------
+
+	local open_forge = function()
+		_detalhes:OpenForge()
+	end
+	local forge_button = gump:CreateButton (frame.topbg_frame, open_forge, 14, 14, open_forge)
+	forge_button:SetPoint ("right", options_button, "left", -2, 0)
+	
+	local forge_button_texture = gump:CreateImage (forge_button, [[Interface\AddOns\Details\images\icons]], 14, 14, "artwork", {396/512, 428/512, 243/512, 273/512})
+	forge_button_texture:SetAlpha (0.35)
+	forge_button_texture:SetAllPoints()
+	
+	forge_button:SetHook ("OnEnter", function()
+		forge_button_texture:SetAlpha (1)
+		GameCooltip:Reset()
+		_detalhes:CooltipPreset (1)
+		GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, backgroundColor, _detalhes.tooltip_border_color)
+		GameCooltip:AddLine ("Open Forge")
+		GameCooltip:SetOwner (window_color.widget)
+		GameCooltip:SetType ("tooltip")
+		GameCooltip:Show()
+	end)
+	forge_button:SetHook ("OnLeave", function()
+		forge_button_texture:SetAlpha (0.35)
+		GameCooltip:Hide()
+	end)
+	
+---------------------------------------------------------------------------------------------------------------------------
+	
+	local open_history = function()
+		_detalhes:OpenRaidHistoryWindow()
+	end
+	local history_button = gump:CreateButton (frame.topbg_frame, open_history, 14, 14, open_history)
+	history_button:SetPoint ("right", forge_button, "left", -2, 0)
+	
+	local history_button_texture = gump:CreateImage (history_button, [[Interface\AddOns\Details\images\icons]], 14, 14, "artwork", {434/512, 466/512, 243/512, 273/512})
+	history_button_texture:SetAlpha (0.35)
+	history_button_texture:SetAllPoints()
+	
+	history_button:SetHook ("OnEnter", function()
+		history_button_texture:SetAlpha (1)
+		GameCooltip:Reset()
+		_detalhes:CooltipPreset (1)
+		GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, backgroundColor, _detalhes.tooltip_border_color)
+		GameCooltip:AddLine ("Open History Panel")
+		GameCooltip:SetOwner (window_color.widget)
+		GameCooltip:SetType ("tooltip")
+		GameCooltip:Show()
+	end)
+	history_button:SetHook ("OnLeave", function()
+		history_button_texture:SetAlpha (0.35)
+		GameCooltip:Hide()
+	end)	
 	
 ---------------------------------------------------------------------------------------------------------------------------
 	

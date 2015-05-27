@@ -1,4 +1,3 @@
---> this file controls the window position, size and others panels
 	
 	local _detalhes =	_G._detalhes
 	local Loc =			LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
@@ -1006,6 +1005,453 @@
 	function _detalhes:OpenTranslateWindow()
 		
 	end
+
+--> raid history window
+	function _detalhes:OpenRaidHistoryWindow()
+	
+		if (not _G.DetailsRaidHistoryWindow) then
+		
+			local db = _detalhes.storage:OpenRaidStorage()
+			if (not db) then
+				return _detalhes:Msg ("Fail to open raid storage, may be the addon is disabled.")
+			end
+		
+			local f = CreateFrame ("frame", "DetailsRaidHistoryWindow", UIParent, "ButtonFrameTemplate")
+			f:SetPoint ("center", UIParent, "center")
+			f:SetFrameStrata ("HIGH")
+			f:SetToplevel (true)
+			
+			f:SetMovable (true)
+			f:SetWidth (850)
+			f:SetHeight (500)
+			tinsert (UISpecialFrames, "DetailsRaidHistoryWindow")
+			
+			local background = f:CreateTexture (nil, "border")
+			background:SetAlpha (0.3)
+			background:SetPoint ("topleft", f, "topleft", 6, -65)
+			background:SetPoint ("bottomright", f, "bottomright", -10, 28)
+
+			local div = f:CreateTexture (nil, "artwork")
+			div:SetTexture ([[Interface\ACHIEVEMENTFRAME\UI-Achievement-MetalBorder-Left]])
+			div:SetAlpha (0.3)
+			div:SetPoint ("topleft", f, "topleft", 180, -64)
+			div:SetHeight (460)
+			
+			function f:SetBackgroundImage (encounterId)
+				local instanceId = _detalhes:GetInstanceIdFromEncounterId (encounterId)
+				if (instanceId) then
+					local file, L, R, T, B = _detalhes:GetRaidBackground (instanceId)
+					background:SetTexture (file)
+					background:SetTexCoord (L, R, T, B)
+				end
+			end
+			
+			f:SetScript ("OnMouseDown", function(self, button)
+				if (self.isMoving) then
+					return
+				end
+				if (button == "RightButton") then
+					self:Hide()
+				else
+					self:StartMoving() 
+					self.isMoving = true
+				end
+			end)
+			f:SetScript ("OnMouseUp", function(self, button) 
+				if (self.isMoving and button == "LeftButton") then
+					self:StopMovingOrSizing()
+					self.isMoving = nil
+				end
+			end)
+			
+			f.TitleText:SetText ("Raid History")
+			f.portrait:SetTexture ([[Interface\AddOns\Details\images\icons2]])
+			f.portrait:SetTexCoord (192/512, 258/512, 322/512, 388/512)
+			
+			local dropdown_size = 160
+			local icon = [[Interface\FriendsFrame\battlenet-status-offline]]
+			
+			local diff_list = {}
+			local raid_list = {}
+			local boss_list = {}
+			local guild_list = {}
+
+			local sort_alphabetical = function(a,b) return a[1] < b[1] end
+			local sort_alphabetical2 = function(a,b) return a.value < b.value end
+			
+			local on_select = function()
+				if (f.Refresh) then
+					f:Refresh()
+				end
+			end
+			
+			--> select raid:
+			local on_raid_select = function (_, _, raid)
+				on_select()
+			end
+			local build_raid_list = function()
+				return raid_list
+			end
+			local raid_dropdown = gump:CreateDropDown (f, build_raid_list, 1, dropdown_size, 20, "select_raid")
+			local raid_string = gump:CreateLabel (f, "Raid:", _, _, "GameFontNormal", "select_raid_label")
+			
+			--> select boss:
+			local on_boss_select = function (_, _, boss)
+				on_select()
+			end
+			local build_boss_list = function()
+				return boss_list
+			end
+			local boss_dropdown = gump:CreateDropDown (f, build_boss_list, 1, dropdown_size, 20, "select_boss")
+			local boss_string = gump:CreateLabel (f, "Boss:", _, _, "GameFontNormal", "select_boss_label")
+
+			--> select difficulty:
+			local on_diff_select = function (_, _, diff)
+				on_select()
+			end
+			
+			local build_diff_list = function()
+				return diff_list
+			end
+			local diff_dropdown = gump:CreateDropDown (f, build_diff_list, 1, dropdown_size, 20, "select_diff")
+			local diff_string = gump:CreateLabel (f, "Difficulty:", _, _, "GameFontNormal", "select_diff_label")
+			
+			--> select role:
+			local on_role_select = function (_, _, role)
+				on_select()
+			end
+			local build_role_list = function()
+				return {
+					{value = "damage", label = "Damager", icon = icon, onclick = on_role_select},
+					{value = "healing", label = "Healer", icon = icon, onclick = on_role_select}
+				}
+			end
+			local role_dropdown = gump:CreateDropDown (f, build_role_list, 1, dropdown_size, 20, "select_role")
+			local role_string = gump:CreateLabel (f, "Role:", _, _, "GameFontNormal", "select_role_label")
+			
+			--> select guild:
+			local on_guild_select = function (_, _, guild)
+				on_select()
+			end
+			local build_guild_list = function()
+				return guild_list
+			end
+			local guild_dropdown = gump:CreateDropDown (f, build_guild_list, 1, dropdown_size, 20, "select_guild")
+			local guild_string = gump:CreateLabel (f, "Guild:", _, _, "GameFontNormal", "select_guild_label")
+
+			--> select playerbase:
+			local on_player_select = function (_, _, player)
+				on_select()
+			end
+			local build_player_list = function()
+				return {
+					{value = 1, label = "Raid", icon = icon, onclick = on_player_select},
+					{value = 2, label = "Individual", icon = icon, onclick = on_player_select},
+				}
+			end
+			local player_dropdown = gump:CreateDropDown (f, build_player_list, 1, dropdown_size, 20, "select_player")
+			local player_string = gump:CreateLabel (f, "Player Base:", _, _, "GameFontNormal", "select_player_label")
+
+			--> select player:
+			local on_player2_select = function (_, _, player)
+				f:BuildPlayerTable (player)
+			end
+			local build_player2_list = function()
+				local encounterTable, guild, role = unpack (f.build_player2_data or {})
+				local t = {}
+				local already_listed = {}
+				if (encounterTable) then
+					for encounterIndex, encounter in ipairs (encounterTable) do
+						if (encounter.guild == guild) then
+							local roleTable = encounter [role]
+							for playerName, _ in pairs (roleTable) do
+								if (not already_listed [playerName]) then
+									tinsert (t, {value = playerName, label = playerName, icon = icon, onclick = on_player2_select})
+									already_listed [playerName] = true
+								end
+							end
+						end
+					end
+				end
+				
+				table.sort (t, sort_alphabetical2)
+				
+				return t
+			end
+			local player2_dropdown = gump:CreateDropDown (f, build_player2_list, 1, dropdown_size, 20, "select_player2")
+			local player2_string = gump:CreateLabel (f, "Player:", _, _, "GameFontNormal", "select_player2_label")
+
+			function f:UpdateDropdowns()
+				
+				--difficulty
+				wipe (diff_list)
+				wipe (boss_list)
+				wipe (raid_list)
+				wipe (guild_list)
+				
+				local boss_repeated = {}
+				local raid_repeated = {}
+				local guild_repeated = {}
+				
+				for difficulty, encounterIdTable in pairs (db) do
+				
+					if (type (difficulty) == "number") then
+						if (difficulty == 14) then
+							tinsert (diff_list, {value = 14, label = "Normal", icon = icon, onclick = on_diff_select})
+						elseif (difficulty == 15) then
+							tinsert (diff_list, {value = 15, label = "Heroic", icon = icon, onclick = on_diff_select})
+						elseif (difficulty == 16) then
+							tinsert (diff_list, {value = 16, label = "Mythic", icon = icon, onclick = on_diff_select})
+						end
+
+						for encounterId, encounterTable in pairs (encounterIdTable) do 
+							if (not boss_repeated [encounterId]) then
+								local encounter, instance = _detalhes:GetBossEncounterDetailsFromEncounterId (_, encounterId)
+								if (encounter) then
+									tinsert (boss_list, {value = encounterId, label = encounter.boss, icon = icon, onclick = on_boss_select})
+									boss_repeated [encounterId] = true
+									
+									if (not raid_repeated [instance.name]) then
+										tinsert (raid_list, {value = instance.id, label = instance.name, icon = icon, onclick = on_raid_select})
+										raid_repeated [instance.name] = true
+									end
+								end
+							end
+							
+							for index, encounter in ipairs (encounterTable) do
+								local guild = encounter.guild
+								if (not guild_repeated [guild]) then
+									tinsert (guild_list, {value = guild, label = guild, icon = icon, onclick = on_raid_select})
+									guild_repeated [guild] = true
+								end
+							end
+						end
+					end
+				end
+				
+				diff_dropdown:Refresh()
+				diff_dropdown:Select (1, true)
+				boss_dropdown:Refresh()
+				boss_dropdown:Select (1, true)
+				raid_dropdown:Refresh()
+				raid_dropdown:Select (1, true)
+				guild_dropdown:Refresh()
+				guild_dropdown:Select (1, true)
+				
+			end
+			
+			--> anchors:
+			raid_string:SetPoint ("topleft", f, "topleft", 10, -70)
+			raid_dropdown:SetPoint ("topleft", f, "topleft", 10, -85)
+			
+			boss_string:SetPoint ("topleft", f, "topleft", 10, -110)
+			boss_dropdown:SetPoint ("topleft", f, "topleft", 10, -125)
+			
+			diff_string:SetPoint ("topleft", f, "topleft", 10, -150)
+			diff_dropdown:SetPoint ("topleft", f, "topleft", 10, -165)
+			
+			role_string:SetPoint ("topleft", f, "topleft", 10, -190)
+			role_dropdown:SetPoint ("topleft", f, "topleft", 10, -205)
+			
+			guild_string:SetPoint ("topleft", f, "topleft", 10, -230)
+			guild_dropdown:SetPoint ("topleft", f, "topleft", 10, -245)
+			
+			player_string:SetPoint ("topleft", f, "topleft", 10, -270)
+			player_dropdown:SetPoint ("topleft", f, "topleft", 10, -285)
+			
+			player2_string:SetPoint ("topleft", f, "topleft", 10, -310)
+			player2_dropdown:SetPoint ("topleft", f, "topleft", 10, -325)
+			player2_string:Hide()
+			player2_dropdown:Hide()
+			
+			--> refresh the window:
+			
+			function f:BuildPlayerTable (playerName)
+				
+				local encounterTable, guild, role = unpack (f.build_player2_data or {})
+				local data = {}
+				
+				if (type (playerName) == "string" and string.len (playerName) > 1) then
+					for encounterIndex, encounter in ipairs (encounterTable) do
+						
+						if (encounter.guild == guild) then
+							local roleTable = encounter [role]
+							
+							local date = encounter.date
+							date = date:gsub (".*%s", "")
+							date = date:sub (1, -4)
+
+							local player = roleTable [playerName]
+							
+							if (player) then
+								tinsert (data, {text = date, value = player[1], data = player, fulldate = encounter.date})
+							end
+						end
+					end
+					
+					--> update graphic
+					if (not f.gframe) then
+					
+						local cooltip_block_bg = {0, 0, 0, 1}
+						local menu_wallpaper_tex = {.6, 0.1, 0, 0.64453125}
+						local menu_wallpaper_color = {1, 1, 1, 0.1}
+						
+						local onenter = function (self)
+							GameCooltip:Reset()
+							
+							GameCooltip:AddLine ("Total Done:", _detalhes:ToK2 (self.data.value))
+							GameCooltip:AddLine ("Item Level:", floor (self.data.data [2]))
+							GameCooltip:AddLine ("Date:", self.data.fulldate)
+							
+							GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], menu_wallpaper_tex, menu_wallpaper_color, true)
+							GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, cooltip_block_bg, _detalhes.tooltip_border_color)
+							GameCooltip:SetOwner (self.ball.tooltip_anchor)
+							GameCooltip:Show()
+						end
+						local onleave = function (self)
+							GameCooltip:Hide()
+						end
+						f.gframe = gump:CreateGFrame (f, 650, 400, 35, onenter, onleave, "gframe", "$parentGF")
+						f.gframe:SetPoint ("topleft", f, "topleft", 190, -65)
+					end
+					
+					f.gframe:Reset()
+					f.gframe:UpdateLines (data)
+					
+				end
+			end
+			
+			local fillpanel = gump:NewFillPanel (f, {}, "$parentFP", "fillpanel", 630, 400, false, false, true, nil)
+			fillpanel:SetPoint ("topleft", f, "topleft", 200, -65)
+			
+			function f:BuildRaidTable (encounterTable, guild, role)
+				
+				local header = {{name = "Player Name", type = "text"}} -- , width = 90
+				local players = {}
+				local players_index = {}
+				local amt_encounters = 0
+				
+				for encounterIndex, encounter in ipairs (encounterTable) do
+					if (encounter.guild == guild) then
+						local roleTable = encounter [role]
+						
+						local date = encounter.date
+						date = date:gsub (".*%s", "")
+						date = date:sub (1, -4)
+						amt_encounters = amt_encounters + 1
+						
+						tinsert (header, {name = date, type = "text"})
+						
+						for playerName, playerTable in pairs (roleTable) do
+							local index = players_index [playerName]
+							local player
+							
+							if (not index) then
+								player = {playerName}
+								for i = 2, encounterIndex-1 do
+									tinsert (player, "")
+								end
+								tinsert (player, _detalhes:ToK2 (playerTable [1]))
+								tinsert (players, player)
+								players_index [playerName] = #players
+							else
+								player = players [index]
+								for i = #player+1, encounterIndex-1 do
+									tinsert (player, "")
+								end
+								tinsert (player, _detalhes:ToK2 (playerTable [1]))
+							end
+							
+						end
+					end
+				end
+				
+				for index, playerTable in ipairs (players) do
+					for i = #playerTable, amt_encounters do
+						tinsert (playerTable, "")
+					end
+				end
+				
+				--_detalhes:DumpTable (players, true)
+				
+				table.sort (players, sort_alphabetical)
+				
+				fillpanel:SetFillFunction (function (index) return players [index] end)
+				fillpanel:SetTotalFunction (function() return #players end)
+
+				fillpanel:UpdateRows (header)
+				
+				fillpanel:Refresh()
+				
+			end
+			
+			function f:Refresh()
+				--> build the main table
+				local diff = diff_dropdown.value
+				local boss = boss_dropdown.value
+				local role = role_dropdown.value
+				local guild = guild_dropdown.value
+				local player = player_dropdown.value
+				
+				local diffTable = db [diff]
+				
+				f:SetBackgroundImage (boss)
+				
+				if (diffTable) then
+					local encounters = diffTable [boss]
+					if (encounters) then
+						if (player == 1) then --> raid
+							fillpanel:Show()
+							if (f.gframe) then
+								f.gframe:Hide()
+							end
+							player2_string:Hide()
+							player2_dropdown:Hide()
+							f:BuildRaidTable (encounters, guild, role)
+						elseif (player == 2) then --> only one player
+							fillpanel:Hide()
+							if (f.gframe) then
+								f.gframe:Show()
+							end
+							player2_string:Show()
+							player2_dropdown:Show()
+							f.build_player2_data = {encounters, guild, role}
+							player2_dropdown:Refresh()
+							player2_dropdown:Select (1, true)
+							f:BuildPlayerTable (player2_dropdown.value)
+						end
+					else
+						if (player == 1) then --> raid
+							fillpanel:Show()
+							if (f.gframe) then
+								f.gframe:Hide()
+							end
+							player2_string:Hide()
+							player2_dropdown:Hide()
+							f:BuildRaidTable ({}, guild, role)
+						elseif (player == 2) then --> only one player
+							fillpanel:Hide()
+							if (f.gframe) then
+								f.gframe:Show()
+							end
+							player2_string:Show()
+							player2_dropdown:Show()
+							f.build_player2_data = {{}, guild, role}
+							player2_dropdown:Refresh()
+							player2_dropdown:Select (1, true)
+							f:BuildPlayerTable (player2_dropdown.value)
+						end
+					end
+				end
+			end
+		
+		end
+		
+		_G.DetailsRaidHistoryWindow:UpdateDropdowns()
+		_G.DetailsRaidHistoryWindow:Refresh()
+		_G.DetailsRaidHistoryWindow:Show()
+		
+	end
 	
 --> feedback window
 	function _detalhes:OpenFeedbackWindow()
@@ -1996,10 +2442,12 @@
 	
 	--comma_button:SetPoint ("topright", panel, "topright", -100, -14)
 	--tok_button:SetPoint ("topright", panel, "topright", -100, -36)
-	
+
+
+
 	local done = function()
 		local text = panel.editbox:GetText()
-		text = text:gsub ("\n", "")
+		--text = text:gsub ("\n", "")
 		
 		local test = text
 	
@@ -2011,11 +2459,13 @@
 		code = code:gsub ("STR", test)
 
 		local f = loadstring (code)
-		local err, two = xpcall (f, errorhandler)
-		
-		if (not err) then
-			return
+		if (not f) then
+			print (f)
 		end
+		--local err, two = xpcall (f, errorhandler)
+		--if (not err) then
+		--	return
+		--end
 		
 		panel.callback (text)
 		panel:Hide()

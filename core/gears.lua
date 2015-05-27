@@ -17,8 +17,6 @@ function _detalhes:UpdateGears()
 	
 end
 
-
-
 ------------------------------------------------------------------------------------------------------------
 
 function _detalhes:SetDeathLogLimit (limit)
@@ -366,7 +364,9 @@ _detalhes.background_tasks_loop = _detalhes:ScheduleRepeatingTimer ("DoBackgroun
 --> storage stuff ~storage
 
 --global database
-function _detalhes:OpenRaidStorage()
+_detalhes.storage = {}
+
+function _detalhes.storage:OpenRaidStorage()
 	--> check if the storage is already loaded
 	if (not IsAddOnLoaded ("Details_DataStorage")) then
 		local loaded, reason = LoadAddOn ("Details_DataStorage")
@@ -386,14 +386,178 @@ function _detalhes:OpenRaidStorage()
 	elseif (not db) then
 		return
 	end
-	
-	--GlobalDatabase = {}
-	--UserChrStorage = {}
-	
+
 	return db
 end
 
+function _detalhes.storage:GetBestFromPlayer (diff, encounter_id, role, playername)
+	local db = _detalhes.storage:OpenRaidStorage()
+	
+	local best
+	local onencounter
+	
+	if (not role) then
+		role = "damage"
+	end
+	role = string.lower (role)
+	if (role == "damager") then
+		role = "damage"
+	elseif (role == "healer") then
+		role = "healing"
+	end
+	
+	local table = db [diff]
+	if (table) then
+		local encounters = table [encounter_id]
+		if (encounters) then
+			for index, encounter in ipairs (encounters) do
+				local player = encounter [role] and encounter [role] [playername]
+				if (player) then
+					if (best) then
+						if (player[1] > best[1]) then
+							onencounter = encounter
+							best = player
+						end
+					else
+						onencounter = encounter
+						best = player
+					end
+				end
+			end
+		end
+	end
+	
+	return best, onencounter
+end
 
+function _detalhes.storage:ListDiffs()
+	local db = _detalhes.storage:OpenRaidStorage()
+	local t = {}
+	for diff, _ in pairs (db) do
+		tinsert (t, diff)
+	end
+	return t
+end
+
+function _detalhes.storage:ListEncounters (diff)
+	local db = _detalhes.storage:OpenRaidStorage()
+	
+	local t = {}
+	if (diff) then
+		local table = db [diff]
+		if (table) then
+			for encounter_id, _ in pairs (table) do
+				tinsert (t, {diff, encounter_id})
+			end
+		end
+	else
+		for diff, table in pairs (db) do
+			for encounter_id, _ in pairs (table) do
+				tinsert (t, {diff, encounter_id})
+			end
+		end
+	end
+	
+	return t
+end
+
+function _detalhes.storage:GetPlayerData (diff, encounter_id, playername)
+	local db = _detalhes.storage:OpenRaidStorage()
+
+	local t = {}
+	assert (type (playername) == "string", "PlayerName must be a string.")
+
+	
+	if (not diff) then
+		for diff, table in pairs (db) do
+			if (encounter_id) then
+				local encounters = table [encounter_id]
+				if (encounters) then
+					for i = 1, #encounters do
+						local encounter = encounters [i]
+						local player = encounter.healing [playername] or encounter.damage [playername]
+						if (player) then
+							tinsert (t, player)
+						end
+					end
+				end
+			else
+				for encounter_id, encounters in pairs (table) do
+					for i = 1, #encounters do
+						local encounter = encounters [i]
+						local player = encounter.healing [playername] or encounter.damage [playername]
+						if (player) then
+							tinsert (t, player)
+						end
+					end
+				end
+			end
+		end
+	else
+		local table = db [diff]
+		if (table) then
+			if (encounter_id) then
+				local encounters = table [encounter_id]
+				if (encounters) then
+					for i = 1, #encounters do
+						local encounter = encounters [i]
+						local player = encounter.healing [playername] or encounter.damage [playername]
+						if (player) then
+							tinsert (t, player)
+						end
+					end
+				end
+			else
+				for encounter_id, encounters in pairs (table) do
+					for i = 1, #encounters do
+						local encounter = encounters [i]
+						local player = encounter.healing [playername] or encounter.damage [playername]
+						if (player) then
+							tinsert (t, player)
+						end
+					end
+				end
+			end
+		end
+	end
+	
+	return t
+end
+
+function _detalhes.storage:GetEncounterData (diff, encounter_id, guild)
+	local db = _detalhes.storage:OpenRaidStorage()
+
+	if (not diff) then
+		return db
+	end
+
+	local data = db [diff]
+	
+	assert (data, "Difficulty not found. Use: 14, 15 or 16.")
+	assert (type (encounter_id) == "number", "EncounterId must be a number.")
+	
+	data = data [encounter_id]
+	
+	local t = {}
+
+	if (not data) then
+		return t
+	end
+	
+	for i = 1, #data do
+		local encounter = data [i]
+		
+		if (guild) then
+			if (encounter.guild == guild) then
+				tinsert (t, encounter)
+			end
+		else
+			tinsert (t, encounter)
+		end
+	end
+	
+	return t
+end
 
 local store_instances = {
 	[1205] = true, --Blackrock Foundry
@@ -498,7 +662,7 @@ function _detalhes:StoreEncounter (combat)
 		
 			local role = UnitGroupRolesAssigned ("raid" .. i)
 			
-			if (role == "DAMAGER") then
+			if (role == "DAMAGER" or role == "TANK") then
 				local player_name, player_realm = UnitName ("raid" .. i)
 				if (player_realm and player_realm ~= "") then
 					player_name = player_name .. "-" .. player_realm
@@ -531,6 +695,26 @@ function _detalhes:StoreEncounter (combat)
 		tinsert (encounter_database, this_combat_data)
 
 		print ("|cFFFFFF00Details! Storage|r: encounter saved!")
+		
+		local myrole = UnitGroupRolesAssigned ("player")
+		local mybest, onencounter = _detalhes.storage:GetBestFromPlayer (diff, encounter_id, myrole, _detalhes.playername)
+		
+		print (myrole, mybest and mybest[1], mybest and mybest[2], mybest and mybest[3], onencounter and onencounter.date)
+		
+		if (mybest) then
+			local done = 0
+			if (myrole == "DAMAGER" or myrole == "TANK") then
+				done = combat (1, _detalhes.playername) and combat (1, _detalhes.playername).total
+			elseif (myrole == "HEALER") then
+				done = combat (2, _detalhes.playername) and combat (2, _detalhes.playername).total
+			end
+			
+			if (mybest[1] > done) then
+				print (Loc ["STRING_DETAILS1"] .. format (Loc ["STRING_SCORE_NOTBEST"], _detalhes:comma_value (done), mybest[1], onencounter.date, mybest[2]))
+			else
+				print (Loc ["STRING_DETAILS1"] .. format (Loc ["STRING_SCORE_BEST"], _detalhes:comma_value (done)))
+			end
+		end
 		
 	end
 end
@@ -660,7 +844,7 @@ function ilvl_core:InspectTimeOut (guid)
 end
 
 function ilvl_core:GetItemLevel (unitid, guid)
-	--> double check
+	--> ddouble check
 	if (UnitAffectingCombat ("player") or InCombatLockdown()) then
 		return
 	end

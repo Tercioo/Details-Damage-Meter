@@ -1,4 +1,8 @@
 
+local instance = Details:GetInstance (number)
+returns the window object.
+
+=============================================================
 
 instance:DesaturateMenu (enabled)
 enabled = boolean, if true, buttons on the window's title bar became black and white.
@@ -188,4 +192,27 @@ returns true with the 'self instance' is groupped with the passed instance objec
 
 instance:GetInstanceGroup()
 returns a table with instances objects of all instances inside the group.
+
+--------------------
+
+Details:SetWindowUpdateSpeed (interval, nosave)
+set the update speed of all windows, if nosave is true, it won't save this change (apply only).
+
+Details:SetUseAnimations (enabled, nosave)
+set on off bar animations on all windows, if nosave is true, it won't save this change (apply only).
+
+--------------------
+
+_detalhes:OpenForge()
+Open Forge Window.
+
+_detalhes:OpenRaidHistoryWindow()
+Open Raid History Window.
+
+_detalhes.switch:ShowMe (instance object)
+Open the bookmark panel on the top of the desired window.
+
+_detalhes.switch:CloseMe()
+Closes the bookmark panel.
+
 
