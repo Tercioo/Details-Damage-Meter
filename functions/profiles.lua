@@ -935,6 +935,8 @@ local default_profile = {
 		overall_clear_newchallenge = true,
 		overall_clear_logout = false,
 		close_shields = false,
+		pvp_as_group = true,
+		use_battleground_server_parser = true,
 	
 	--> skins
 		standard_skin = false,

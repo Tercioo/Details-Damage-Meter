@@ -4476,12 +4476,34 @@ function window:CreateFrame2()
 		
 		window:CreateLineBackground2 (frame2, "cloudCaptureSlider", "cloudCaptureLabel", Loc ["STRING_OPTIONS_CLOUD_DESC"] )
 
+	--> battleground
+		--> remote parser
+		g:NewLabel (frame2, _, "$parentRemoteParserLabel", "RemoteParserLabel", Loc ["STRING_OPTIONS_BG_REMOTE_PARSER"], "GameFontHighlightLeft")
+		g:NewSwitch (frame2, _, "$parentRemoteParserSlider", "RemoteParserSlider", 60, 20, _, _, _detalhes.use_battleground_server_parser)
+		frame2.RemoteParserSlider:SetPoint ("left", frame2.RemoteParserLabel, "right", 2)
+		frame2.RemoteParserSlider.OnSwitch = function (self, _, value)
+			_detalhes.use_battleground_server_parser = value
+		end
+		window:CreateLineBackground2 (frame2, "RemoteParserSlider", "RemoteParserLabel", Loc ["STRING_OPTIONS_BG_REMOTE_PARSER_DESC"])
+		
+		--> show all
+		g:NewLabel (frame2, _, "$parentShowAllLabel", "ShowAllLabel", Loc ["STRING_OPTIONS_BG_ALL_ALLY"], "GameFontHighlightLeft")
+		g:NewSwitch (frame2, _, "$parentShowAllSlider", "ShowAllSlider", 60, 20, _, _, _detalhes.pvp_as_group)
+		frame2.ShowAllSlider:SetPoint ("left", frame2.ShowAllLabel, "right", 2)
+		frame2.ShowAllSlider.OnSwitch = function (self, _, value)
+			_detalhes.pvp_as_group = value
+		end
+		window:CreateLineBackground2 (frame2, "ShowAllSlider", "ShowAllLabel", Loc ["STRING_OPTIONS_BG_ALL_ALLY_DESC"])
+		
+		
 	--> anchors
 	
 		--general anchor
 		g:NewLabel (frame2, _, "$parentGeneralAnchor", "GeneralAnchorLabel", Loc ["STRING_OPTIONS_GENERAL_ANCHOR"], "GameFontNormal")
 		--captures anchor
 		g:NewLabel (frame2, _, "$parentDataCollectAnchor", "DataCollectAnchorLabel", Loc ["STRING_OPTIONS_DATACOLLECT_ANCHOR"], "GameFontNormal")
+		--battleground anchor
+		g:NewLabel (frame2, _, "$parentBattlegroundAnchor", "BattlegroundAnchorLabel", Loc ["STRING_OPTIONS_BG_ANCHOR"], "GameFontNormal")
 		
 		local x = window.left_start_at
 		
@@ -4502,8 +4524,6 @@ function window:CreateFrame2()
 			{"miscCaptureImage", 10},
 			{"auraCaptureImage", 11},
 			{"cloudCaptureLabel", 12, true},
-			
-
 		}
 		
 		window:arrange_menu (frame2, left_side, x, window.top_start_at)
@@ -4520,6 +4540,10 @@ function window:CreateFrame2()
 			{"OverallNewBossLabel", 7, true},
 			{"OverallNewChallengeLabel", 8},
 			{"OverallOnLogoutLabel", 9},
+			
+			{"BattlegroundAnchorLabel", 10, true},
+			{"RemoteParserLabel", 11},
+			{"ShowAllLabel", 12},
 		}
 		
 		window:arrange_menu (frame2, right_side, x, -90)
@@ -10100,6 +10124,9 @@ end --> if not window
 		_G.DetailsOptionsWindow2CaptureAuraSlider.MyObject:SetValue (_detalhes.capture_real ["aura"])
 		_G.DetailsOptionsWindow2CloudAuraSlider.MyObject:SetValue (_detalhes.cloud_capture)
 		
+		_G.DetailsOptionsWindow2RemoteParserSlider.MyObject:SetValue (_detalhes.use_battleground_server_parser)
+		_G.DetailsOptionsWindow2ShowAllSlider.MyObject:SetValue (_detalhes.pvp_as_group)
+
 		--> window 3
 		
 		local skin = editing_instance.skin

@@ -288,7 +288,6 @@
 			
 --[[exported]]	function _detalhes:GetBarColor (actor)
 				actor = actor or self
-				
 				if (actor.monster) then
 					return _unpack (_detalhes.class_colors.ENEMY)
 					
@@ -1731,7 +1730,7 @@ end
 	end
 	if (instancia.row_info.texture_background_class_color) then
 		esta_barra.background:SetVertexColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
-	end	
+	end
 	
 	--icon
 	if (self.spellicon) then
@@ -1803,7 +1802,7 @@ end
 				else
 					esta_barra.texto_esquerdo:SetText (bar_number .. "|TInterface\\AddOns\\Details\\images\\icones_barra:"..instancia.row_info.height..":"..instancia.row_info.height..":0:0:256:32:0:32:0:32|t"..self.displayName) --seta o texto da esqueda -- HORDA
 				end
-			else
+			else --alliance
 				if (UsingCustomLeftText) then
 					esta_barra.texto_esquerdo:SetText (_string_replace (instancia.row_info.textL_custom_text, esta_barra.colocacao, self.displayName, "|TInterface\\AddOns\\Details\\images\\icones_barra:"..instancia.row_info.height..":"..instancia.row_info.height..":0:0:256:32:32:64:0:32|t"))
 				else
@@ -1811,9 +1810,11 @@ end
 				end
 			end
 			
-			if (instancia.row_info.texture_class_colors) then
+			--if (instancia.row_info.texture_class_colors and not instancia.showing.is_pvp) then
 				esta_barra.textura:SetVertexColor (0.94117, 0, 0.01960, 1)
-			end
+			--elseif (instancia.showing.is_pvp) then
+				--esta_barra.background:SetVertexColor (1, 0, 0, 0.05)
+			--end
 		end
 	else
 		if (self.arena_ally) then

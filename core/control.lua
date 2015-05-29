@@ -411,7 +411,7 @@
 			
 			if (not _detalhes.tabela_vigente.is_boss) then
 
-				if (_detalhes.tabela_vigente.is_pvp) then
+				if (_detalhes.tabela_vigente.is_pvp or _detalhes.tabela_vigente.is_arena) then
 					_detalhes:FlagActorsOnPvPCombat()
 				end
 			

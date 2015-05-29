@@ -5323,20 +5323,25 @@ local build_segment_list = function (self, elapsed)
 							CoolTip:SetWallpaper (2, [[Interface\BlackMarket\HotItemBanner]], unknown_boss_tex, unknown_boss_color, true)
 						end
 					
-					elseif (thisCombat.is_arena) then
-						
-						local file, coords = _detalhes:GetArenaInfo (thisCombat.is_arena.mapid)
-						
-						enemy = thisCombat.is_arena.name
-
-						CoolTip:AddLine (thisCombat.is_arena.name, _, 1, "yellow")
-						
+					elseif (thisCombat.is_pvp) then
+						CoolTip:AddLine (thisCombat.is_pvp.name, _, 1, "yellow")
+						enemy = thisCombat.is_pvp.name
 						CoolTip:AddIcon ([[Interface\AddOns\Details\images\icons]], "main", "left", 16, 12, 0.251953125, 0.306640625, 0.205078125, 0.248046875)
 						
+						local file, coords = _detalhes:GetBattlegroundInfo (thisCombat.is_pvp.mapid)
 						if (file) then
 							CoolTip:SetWallpaper (2, "Interface\\Glues\\LOADINGSCREENS\\" .. file, coords, empty_segment_color)
 						end
+					
+					elseif (thisCombat.is_arena) then
+						CoolTip:AddLine (thisCombat.is_arena.name, _, 1, "yellow")
+						enemy = thisCombat.is_arena.name
+						CoolTip:AddIcon ([[Interface\AddOns\Details\images\icons]], "main", "left", 16, 12, 0.251953125, 0.306640625, 0.205078125, 0.248046875)
 						
+						local file, coords = _detalhes:GetArenaInfo (thisCombat.is_arena.mapid)
+						if (file) then
+							CoolTip:SetWallpaper (2, "Interface\\Glues\\LOADINGSCREENS\\" .. file, coords, empty_segment_color)
+						end
 					else
 						enemy = thisCombat.enemy
 						if (enemy) then
@@ -5396,6 +5401,7 @@ local build_segment_list = function (self, elapsed)
 		CoolTip:AddIcon ([[Interface\QUESTFRAME\UI-Quest-BulletPoint]], "main", "left", 16, 16, nil, nil, nil, nil, "orange")
 			
 			local enemy = _detalhes.tabela_vigente.is_boss and _detalhes.tabela_vigente.is_boss.name or _detalhes.tabela_vigente.enemy or "--x--x--"
+			local file, coords
 			
 			if (_detalhes.tabela_vigente.is_boss and _detalhes.tabela_vigente.is_boss.name) then
 				local portrait = _detalhes:GetBossPortrait (_detalhes.tabela_vigente.is_boss.mapid, _detalhes.tabela_vigente.is_boss.index)
@@ -5415,11 +5421,20 @@ local build_segment_list = function (self, elapsed)
 						end
 					end
 				end
+			elseif (_detalhes.tabela_vigente.is_pvp) then
+				enemy = _detalhes.tabela_vigente.is_pvp.name
+				file, coords = _detalhes:GetBattlegroundInfo (_detalhes.tabela_vigente.is_pvp.mapid)
+			elseif (_detalhes.tabela_vigente.is_arena) then
+				enemy = _detalhes.tabela_vigente.is_arena.name
+				file, coords = _detalhes:GetArenaInfo (_detalhes.tabela_vigente.is_arena.mapid)
 			else
 				CoolTip:SetWallpaper (2, [[Interface\ACHIEVEMENTFRAME\UI-Achievement-StatsBackground]], segments_common_tex, segments_common_color)
 			end					
 			
 			CoolTip:AddLine (Loc ["STRING_SEGMENT_ENEMY"] .. ":", enemy, 2, "white", "white")
+			if (file) then
+				CoolTip:SetWallpaper (2, "Interface\\Glues\\LOADINGSCREENS\\" .. file, coords, empty_segment_color)
+			end
 			
 			if (not _detalhes.tabela_vigente:GetEndTime()) then
 				if (_detalhes.in_combat) then
@@ -5435,7 +5450,6 @@ local build_segment_list = function (self, elapsed)
 				CoolTip:AddLine (Loc ["STRING_SEGMENT_TIME"] .. ":", minutos.."m "..segundos.."s", 2, "white", "white") 
 			end
 
-			
 			CoolTip:AddLine (Loc ["STRING_SEGMENT_START"] .. ":", _detalhes.tabela_vigente.data_inicio, 2, "white", "white")
 			CoolTip:AddLine (Loc ["STRING_SEGMENT_END"] .. ":", _detalhes.tabela_vigente.data_fim or "in progress", 2, "white", "white") 
 		

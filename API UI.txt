@@ -215,4 +215,8 @@ Open the bookmark panel on the top of the desired window.
 _detalhes.switch:CloseMe()
 Closes the bookmark panel.
 
+_detalhes:GetArenaInfo (mapid)
+returns a table containing the texture file and coords for a arena.
 
+_detalhes:GetBattlegroundInfo (mapid)
+returns a table containing the texture file and coords for a battleground.

@@ -1006,7 +1006,7 @@
 		
 	end
 
---> raid history window
+--> raid history window ~history
 	function _detalhes:OpenRaidHistoryWindow()
 	
 		if (not _G.DetailsRaidHistoryWindow) then

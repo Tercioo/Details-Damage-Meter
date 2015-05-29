@@ -1,4 +1,3 @@
-
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 	local _detalhes = 		_G._detalhes
@@ -2899,6 +2898,7 @@
 			_detalhes:LeftArena()
 		end
 		if (_detalhes.is_in_battleground and zoneType ~= "pvp") then
+			_detalhes.pvp_parser_frame:StopBgUpdater()
 			_detalhes.is_in_battleground = nil
 		end
 		
@@ -2916,9 +2916,12 @@
 			
 			if (not _in_combat) then
 				_detalhes:EntrarEmCombate()
-				_current_combat.pvp = true
-				_current_combat.is_pvp = {name = zoneName, mapid = ZoneMapID}
 			end
+			
+			_current_combat.pvp = true
+			_current_combat.is_pvp = {name = zoneName, mapid = zoneMapID}
+		
+			_detalhes.pvp_parser_frame:StartBgUpdater()
 		
 		elseif (zoneType == "arena") then
 		
@@ -2938,9 +2941,9 @@
 				_detalhes.last_instance = zoneMapID
 			end
 			
-			if (_current_combat.pvp) then 
-				_current_combat.pvp = false
-			end
+			--if (_current_combat.pvp) then 
+			--	_current_combat.pvp = false
+			--end
 		end
 		
 		_detalhes:SchedulePetUpdate (7)
@@ -3698,3 +3701,87 @@
 			return nil --_detalhes:NewError ("Couldn't find a combat object for passed parameters")
 		end
 	end
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> battleground parser
+	
+	
+	
+	_detalhes.pvp_parser_frame:SetScript ("OnEvent", function (self, event)
+		self:ReadPvPData()
+	end)
+	
+	function _detalhes:BgScoreUpdate()
+		RequestBattlefieldScoreData()
+	end
+	
+	function _detalhes.pvp_parser_frame:StartBgUpdater()
+	
+		if (not _detalhes.use_battleground_server_parser) then
+			return
+		end
+	
+		_detalhes.pvp_parser_frame:RegisterEvent ("UPDATE_BATTLEFIELD_SCORE")
+		if (_detalhes.pvp_parser_frame.ticker) then
+			_detalhes:CancelTimer (_detalhes.pvp_parser_frame.ticker)
+		end
+		_detalhes.pvp_parser_frame.ticker = _detalhes:ScheduleRepeatingTimer ("BgScoreUpdate", 10)
+	end
+	
+	function _detalhes.pvp_parser_frame:StopBgUpdater()
+		_detalhes.pvp_parser_frame:UnregisterEvent ("UPDATE_BATTLEFIELD_SCORE")
+		_detalhes:CancelTimer (_detalhes.pvp_parser_frame.ticker)
+		_detalhes.pvp_parser_frame.ticker = nil
+	end
+	
+	function _detalhes.pvp_parser_frame:ReadPvPData()
+	
+		local players = GetNumBattlefieldScores()
+
+		for i = 1, players do
+		
+			local name, killingBlows, honorableKills, deaths, honorGained, faction, race, class, classToken, damageDone, healingDone, bgRating, ratingChange, preMatchMMR, mmrChange, talentSpec = GetBattlefieldScore (i)
+			
+			local actor = _detalhes.tabela_vigente (1, name)
+			if (actor) then
+				actor.total = damageDone
+				actor.classe = classToken
+			else
+				local guid = _UnitGUID (name)
+				if (guid) then
+					local flag
+					if (_detalhes.faction_id == faction) then --> is from the same faction
+						flag = 0x514
+					else
+						flag = 0x548
+					end
+					actor = _current_damage_container:PegarCombatente (guid, name, flag, true)
+					actor.total = _detalhes:GetOrderNumber()
+					actor.classe = classToken
+				end
+			end
+			
+			local actor = _detalhes.tabela_vigente (2, name)
+			if (actor) then
+				actor.total = healingDone
+				actor.classe = classToken
+			else
+				local guid = _UnitGUID (name)
+				if (guid) then
+					local flag
+					if (_detalhes.faction_id == faction) then --> is from the same faction
+						flag = 0x514
+					else
+						flag = 0x548
+					end
+					actor = _current_heal_container:PegarCombatente (guid, name, flag, true)
+					actor.total = _detalhes:GetOrderNumber()
+					actor.classe = classToken
+				end
+			end
+			
+		end
+		
+	end
+	
+	

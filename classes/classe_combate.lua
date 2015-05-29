@@ -74,6 +74,14 @@
 		return self.is_boss
 	end
 	
+	function combate:GetPvPInfo()
+		return self.is_pvp
+	end
+	
+	function combate:GetArenaInfo()
+		return self.is_arena
+	end
+	
 	function combate:GetDeaths()
 		return self.last_events_tables
 	end
@@ -203,7 +211,7 @@
 					esta_tabela.pvp = true --> o who é da facção oposta ou foi dado mind control
 				end
 			else
-				esta_tabela.pvp = true --> se ambos são friendly, seria isso um PVP entre jogadores da mesma facções?
+				esta_tabela.pvp = true --> se ambos são friendly, seria isso um PVP entre jogadores da mesma facção?
 			end
 		end
 

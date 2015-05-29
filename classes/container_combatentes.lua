@@ -184,6 +184,10 @@
 					if (_detalhes:IsATank (serial)) then
 						novo_objeto.isTank = true
 					end
+				else
+					if (_detalhes.pvp_as_group and _detalhes.tabela_vigente.is_pvp and _detalhes.is_in_battleground) then
+						novo_objeto.grupo = true
+					end
 				end
 				
 				if (_detalhes.is_in_arena) then
@@ -259,7 +263,7 @@
 			end
 			
 			--> é inimigo
-			if (_bit_band (flag, 0x00000040) ~= 0) then 
+			if (_bit_band (flag, REACTION_HOSTILE) ~= 0) then 
 				if (_bit_band (flag, OBJECT_TYPE_PLAYER) == 0 and _bit_band (flag, OBJECT_TYPE_PETGUARDIAN) == 0) then
 					novo_objeto.monster = true
 				end

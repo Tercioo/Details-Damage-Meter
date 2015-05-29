@@ -97,6 +97,14 @@ bossInfo = combat:GetBossInfo()
 returns the table containing informations about the boss encounter.
 table members: name, zone, mapid, diff, diff_string, id, ej_instance_id, killed, index
 
+battlegroudInfo = combat:GetPvPInfo()
+returns the table containing infos about the battlegroud:
+table members: name, mapid
+
+arenaInfo = combat:GetArenaInfo()
+returns the table containing infos about the arena:
+table members: name, mapid, zone
+
 time = combat:GetCombatTime()
 returns the length of the combat in seconds, if the combat is in progress, returns the current elapsed time.
 
@@ -134,6 +142,8 @@ DETAILS_TOTALS_ONLYGROUP = true
 
 total = combat:GetTotal ( attribute, subAttribute [, onlyGroup] )
 returns the total of the requested attribute.
+
+
 
 --------------------------------------------------------------------
 
