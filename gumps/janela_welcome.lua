@@ -30,7 +30,7 @@ function _detalhes:OpenWelcomeWindow ()
 		local background = window:CreateTexture (nil, "background")
 		background:SetPoint ("topleft", window, "topleft")
 		background:SetPoint ("bottomright", window, "bottomright")
-		background:SetTexture ([[Interface\AddOns\Details\images\welcome]])
+		--background:SetTexture ([[Interface\AddOns\Details\images\welcome]])
 		
 		local rodape_bg = window:CreateTexture (nil, "artwork")
 		rodape_bg:SetPoint ("bottomleft", window, "bottomleft", 11, 12)
