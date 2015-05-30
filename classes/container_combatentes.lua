@@ -185,7 +185,7 @@
 						novo_objeto.isTank = true
 					end
 				else
-					if (_detalhes.pvp_as_group and _detalhes.tabela_vigente.is_pvp and _detalhes.is_in_battleground) then
+					if (_detalhes.pvp_as_group and (_detalhes.tabela_vigente and _detalhes.tabela_vigente.is_pvp) and _detalhes.is_in_battleground) then
 						novo_objeto.grupo = true
 					end
 				end

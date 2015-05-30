@@ -2375,6 +2375,7 @@ function atributo_misc:r_onlyrefresh_shadow (actor)
 		shadow.classe = actor.classe
 		shadow.spec = actor.spec
 		shadow.grupo = actor.grupo
+		shadow.pvp = actor.pvp
 		shadow.isTank = actor.isTank
 		shadow.boss = actor.boss
 		shadow.boss_fight_component = actor.boss_fight_component
@@ -2501,6 +2502,7 @@ function atributo_misc:r_connect_shadow (actor, no_refresh)
 		shadow.classe = actor.classe
 		shadow.spec = actor.spec
 		shadow.grupo = actor.grupo
+		shadow.pvp = actor.pvp
 		shadow.isTank = actor.isTank
 		shadow.boss = actor.boss
 		shadow.boss_fight_component = actor.boss_fight_component

@@ -3675,6 +3675,7 @@ end
 					shadow.classe = actor.classe
 					shadow.spec = actor.spec
 					shadow.grupo = actor.grupo
+					shadow.pvp = actor.pvp
 					shadow.isTank = actor.isTank
 					shadow.boss = actor.boss
 					shadow.boss_fight_component = actor.boss_fight_component
@@ -3735,6 +3736,7 @@ end
 					shadow.spec = actor.spec
 					shadow.isTank = actor.isTank
 					shadow.grupo = actor.grupo
+					shadow.pvp = actor.pvp
 					shadow.boss = actor.boss
 					shadow.boss_fight_component = actor.boss_fight_component
 					shadow.fight_component = actor.fight_component
