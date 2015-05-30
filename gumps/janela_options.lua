@@ -4156,6 +4156,7 @@ function window:CreateFrame2()
 		--
 		local onSelectTimeType = function (_, _, timetype)
 			_detalhes.time_type = timetype
+			_detalhes.time_type_original = timetype
 			_detalhes:AtualizaGumpPrincipal (-1, true)
 			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end

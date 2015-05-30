@@ -19,19 +19,32 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> constants
 	local _tempo = _time()
-	local _tempo = _time()
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> core
 
 	timeMachine.ligada = false
 
-	function timeMachine:Core()
-
-		_tempo = _time()
-		_detalhes._tempo = _tempo
-		_detalhes:UpdateGears()
-
+	local calc_for_pvp = function (self)
+		for tipo, tabela in _pairs (self.tabelas) do
+			for nome, jogador in _ipairs (tabela) do
+				if (jogador) then
+					if (jogador.last_event+3 > _tempo) then --> okey o jogador esta dando dps
+						if (jogador.on_hold) then --> o dps estava pausado, retornar a ativa
+							jogador:HoldOn (false)
+						end
+					else
+						if (not jogador.on_hold) then --> não ta pausado, precisa por em pausa
+							--> verifica se esta castando alguma coisa que leve + que 3 segundos
+							jogador:HoldOn (true)
+						end
+					end
+				end
+			end
+		end
+	end
+	
+	local calc_for_pve = function (self)
 		for tipo, tabela in _pairs (self.tabelas) do
 			for nome, jogador in _ipairs (tabela) do
 				if (jogador) then
@@ -47,6 +60,18 @@
 					end
 				end
 			end
+		end
+	end
+	
+	function timeMachine:Core()
+		_tempo = _time()
+		_detalhes._tempo = _tempo
+		_detalhes:UpdateGears()
+
+		if (_detalhes.is_in_battleground or _detalhes.is_in_arena) then
+			return calc_for_pvp (self)
+		else
+			return calc_for_pve (self)
 		end
 	end
 
@@ -125,33 +150,67 @@
 	end
 
 	function _detalhes:Tempo()
-		if (self.end_time) then --> o tempo do jogador esta trancado
-			local t = self.end_time - self.start_time
-			if (t < 10) then
-				t = 10
-			end
-			return t
-		elseif (self.on_hold) then --> o tempo esta em pausa
-			local t = self.delay - self.start_time
-			if (t < 10) then
-				t = 10
-			end
-			return t
-		else
-			if (self.start_time == 0) then
-				return 10
-			end
-			local t = _tempo - self.start_time
-			if (t < 10) then
-				if (_detalhes.in_combat) then
-					local combat_time = _detalhes.tabela_vigente:GetCombatTime()
-					if (combat_time < 10) then
-						return combat_time
-					end
+	
+		if (self.pvp) then
+			--> pvp timer
+			if (self.end_time) then --> o tempo do jogador esta trancado
+				local t = self.end_time - self.start_time
+				if (t < 3) then
+					t = 3
 				end
-				t = 10
+				return t
+			elseif (self.on_hold) then --> o tempo esta em pausa
+				local t = self.delay - self.start_time
+				if (t < 3) then
+					t = 3
+				end
+				return t
+			else
+				if (self.start_time == 0) then
+					return 3
+				end
+				local t = _tempo - self.start_time
+				if (t < 3) then
+					if (_detalhes.in_combat) then
+						local combat_time = _detalhes.tabela_vigente:GetCombatTime()
+						if (combat_time < 3) then
+							return combat_time
+						end
+					end
+					t = 3
+				end
+				return t
 			end
-			return t
+		else
+			--> pve timer
+			if (self.end_time) then --> o tempo do jogador esta trancado
+				local t = self.end_time - self.start_time
+				if (t < 10) then
+					t = 10
+				end
+				return t
+			elseif (self.on_hold) then --> o tempo esta em pausa
+				local t = self.delay - self.start_time
+				if (t < 10) then
+					t = 10
+				end
+				return t
+			else
+				if (self.start_time == 0) then
+					return 10
+				end
+				local t = _tempo - self.start_time
+				if (t < 10) then
+					if (_detalhes.in_combat) then
+						local combat_time = _detalhes.tabela_vigente:GetCombatTime()
+						if (combat_time < 10) then
+							return combat_time
+						end
+					end
+					t = 10
+				end
+				return t
+			end
 		end
 	end
 

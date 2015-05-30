@@ -889,6 +889,7 @@ local default_profile = {
 		scroll_speed = 2,
 		update_speed = 1,
 		time_type = 2,
+		time_type_original = 2,
 		memory_threshold = 3,
 		memory_ram = 64,
 		remove_realm_from_name = true,
@@ -937,6 +938,7 @@ local default_profile = {
 		close_shields = false,
 		pvp_as_group = true,
 		use_battleground_server_parser = true,
+		force_activity_time_pvp = true,
 	
 	--> skins
 		standard_skin = false,

@@ -546,8 +546,9 @@
 			local tempo_do_combate = _detalhes.tabela_vigente:GetCombatTime()
 			local invalid_combat
 			
-			--if ( tempo_do_combate >= _detalhes.minimum_combat_time) then --> tempo minimo precisa ser 5 segundos pra acrecentar a tabela ao historico
-			if ( tempo_do_combate >= 5 or not _detalhes.tabela_historico.tabelas[1]) then --> tempo minimo precisa ser 5 segundos pra acrecentar a tabela ao historico
+			--if ( tempo_do_combate >= ) then --> tempo minimo precisa ser 5 segundos pra acrecentar a tabela ao historico
+			--if ( tempo_do_combate >= 5 or not _detalhes.tabela_historico.tabelas[1]) then --> tempo minimo precisa ser 5 segundos pra acrecentar a tabela ao historico
+			if ( tempo_do_combate >= _detalhes.minimum_combat_time or not _detalhes.tabela_historico.tabelas[1]) then --> tempo minimo precisa ser 5 segundos pra acrecentar a tabela ao historico
 				_detalhes.tabela_historico:adicionar (_detalhes.tabela_vigente) --move a tabela atual para dentro do histórico
 			else
 				--print ("combat invalid...")

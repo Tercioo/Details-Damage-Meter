@@ -495,6 +495,10 @@
 			self._ActorTable [size] = novo_objeto --> grava na tabela de indexes
 			self._NameIndexTable [nome] = size --> grava no hash map o index deste jogador
 
+			if (_detalhes.is_in_battleground or _detalhes.is_in_arena) then
+				novo_objeto.pvp = true
+			end
+			
 			return novo_objeto, dono_do_pet, nome
 		else
 			return nil, nil, nil

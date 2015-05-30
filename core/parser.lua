@@ -2888,6 +2888,8 @@
 			_detalhes.last_zone_type = zoneType
 		end
 		
+		_detalhes.time_type = _detalhes.time_type_original
+		
 		_detalhes:CheckChatOnZoneChange (zoneType)
 		
 		if (_detalhes.debug) then
@@ -2900,6 +2902,7 @@
 		if (_detalhes.is_in_battleground and zoneType ~= "pvp") then
 			_detalhes.pvp_parser_frame:StopBgUpdater()
 			_detalhes.is_in_battleground = nil
+			_detalhes.time_type = _detalhes.time_type_original
 		end
 		
 		if (zoneType == "pvp") then
@@ -2920,13 +2923,29 @@
 			
 			_current_combat.pvp = true
 			_current_combat.is_pvp = {name = zoneName, mapid = zoneMapID}
-		
-			_detalhes.pvp_parser_frame:StartBgUpdater()
+			
+			if (_detalhes.use_battleground_server_parser) then
+				if (_detalhes.time_type == 1) then
+					_detalhes.time_type_original = 1
+					_detalhes.time_type = 2
+				end
+				_detalhes.pvp_parser_frame:StartBgUpdater()
+			else
+				if (_detalhes.force_activity_time_pvp) then
+					_detalhes.time_type_original = _detalhes.time_type
+					_detalhes.time_type = 1
+				end
+			end
 		
 		elseif (zoneType == "arena") then
 		
 			if (_detalhes.debug) then
 				_detalhes:Msg ("(debug) zone type is arena.")
+			end
+		
+			if (_detalhes.force_activity_time_pvp) then
+				_detalhes.time_type_original = _detalhes.time_type
+				_detalhes.time_type = 1
 			end
 		
 			_detalhes.is_in_arena = true
@@ -3716,10 +3735,6 @@
 	end
 	
 	function _detalhes.pvp_parser_frame:StartBgUpdater()
-	
-		if (not _detalhes.use_battleground_server_parser) then
-			return
-		end
 	
 		_detalhes.pvp_parser_frame:RegisterEvent ("UPDATE_BATTLEFIELD_SCORE")
 		if (_detalhes.pvp_parser_frame.ticker) then
