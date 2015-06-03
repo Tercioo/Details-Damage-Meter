@@ -702,17 +702,17 @@ function _detalhes:StoreEncounter (combat)
 		print (myrole, mybest and mybest[1], mybest and mybest[2], mybest and mybest[3], onencounter and onencounter.date)
 		
 		if (mybest) then
-			local done = 0
+			local d_one = 0
 			if (myrole == "DAMAGER" or myrole == "TANK") then
-				done = combat (1, _detalhes.playername) and combat (1, _detalhes.playername).total
+				d_one = combat (1, _detalhes.playername) and combat (1, _detalhes.playername).total
 			elseif (myrole == "HEALER") then
-				done = combat (2, _detalhes.playername) and combat (2, _detalhes.playername).total
+				d_one = combat (2, _detalhes.playername) and combat (2, _detalhes.playername).total
 			end
 			
-			if (mybest[1] > done) then
-				print (Loc ["STRING_DETAILS1"] .. format (Loc ["STRING_SCORE_NOTBEST"], _detalhes:comma_value (done), mybest[1], onencounter.date, mybest[2]))
+			if (mybest[1] > d_one) then
+				print (Loc ["STRING_DETAILS1"] .. format (Loc ["STRING_SCORE_NOTBEST"], _detalhes:comma_value (d_one), mybest[1], onencounter.date, mybest[2]))
 			else
-				print (Loc ["STRING_DETAILS1"] .. format (Loc ["STRING_SCORE_BEST"], _detalhes:comma_value (done)))
+				print (Loc ["STRING_DETAILS1"] .. format (Loc ["STRING_SCORE_BEST"], _detalhes:comma_value (d_one)))
 			end
 		end
 		
@@ -725,6 +725,7 @@ end
 _detalhes.ilevel = {}
 local ilvl_core = _detalhes:CreateEventListener()
 ilvl_core.amt_inspecting = 0
+_detalhes.ilevel.core = ilvl_core
 
 ilvl_core:RegisterEvent ("GROUP_ONENTER", "OnEnter")
 ilvl_core:RegisterEvent ("GROUP_ONLEAVE", "OnLeave")
@@ -733,6 +734,15 @@ ilvl_core:RegisterEvent ("COMBAT_PLAYER_LEAVE", "LeaveCombat")
 ilvl_core:RegisterEvent ("ZONE_TYPE_CHANGED", "ZoneChanged")
 
 local inspecting = {}
+ilvl_core.forced_inspects = {}
+
+function ilvl_core:HasQueuedInspec (unitName)
+	local guid = UnitGUID (unitName)
+	if (guid) then
+		return ilvl_core.forced_inspects [guid]
+	end
+end
+
 local inspect_frame = CreateFrame ("frame")
 inspect_frame:RegisterEvent ("INSPECT_READY")
 
@@ -812,6 +822,44 @@ function ilvl_core:CalcItemLevel (unitid, guid, shout)
 				_detalhes.item_level_pool [guid] = {name = name, ilvl = average, time = time()}
 			end
 		end
+		
+		local spec = GetInspectSpecialization (unitid)
+		if (spec and spec ~= 0) then
+			_detalhes.cached_specs [guid] = spec
+		end
+		
+--------------------------------------------------------------------------------------------------------
+		
+		local talents = {}
+		for i = 1, 7 do
+			for o = 1, 3 do
+				local talentID, name, texture, selected, available = GetTalentInfo (i, o, 1, true, unitid)
+				if (selected) then
+					tinsert (talents, talentID)
+					break
+				end
+			end
+		end
+		
+		if (talents [1]) then
+			_detalhes.cached_talents [guid] = talents
+			--print (UnitName (unitid), "talents:", unpack (talents))
+		end
+		
+--------------------------------------------------------------------------------------------------------
+
+		if (ilvl_core.forced_inspects [guid]) then
+			if (type (ilvl_core.forced_inspects [guid].callback) == "function") then
+				local okey, errortext = pcall (ilvl_core.forced_inspects[guid].callback, guid, unitid, ilvl_core.forced_inspects[guid].param1, ilvl_core.forced_inspects[guid].param2)
+				if (not okey) then
+					_detalhes:Msg ("Error on QueryInspect callback: " .. errortext)
+				end
+			end
+			ilvl_core.forced_inspects [guid] = nil
+		end
+
+--------------------------------------------------------------------------------------------------------
+		
 	end
 end
 _detalhes.ilevel.CalcItemLevel = ilvl_core.CalcItemLevel
@@ -843,12 +891,21 @@ function ilvl_core:InspectTimeOut (guid)
 	ilvl_core.amt_inspecting = ilvl_core.amt_inspecting - 1
 end
 
-function ilvl_core:GetItemLevel (unitid, guid)
+function ilvl_core:ReGetItemLevel (t)
+	local unitid, guid, is_forced = unpack (t)
+	return ilvl_core:GetItemLevel (unitid, guid, is_forced)
+end
+
+function ilvl_core:GetItemLevel (unitid, guid, is_forced)
+
 	--> ddouble check
-	if (UnitAffectingCombat ("player") or InCombatLockdown()) then
+	if (not is_forced and (UnitAffectingCombat ("player") or InCombatLockdown())) then
 		return
 	end
 	if (not unitid or not CanInspect (unitid) or not CheckInteractDistance (unitid, 1)) then
+		if (is_forced) then
+			ilvl_core:ScheduleTimer ("ReGetItemLevel", 3, {unitid, guid, is_forced})
+		end
 		return
 	end
 
@@ -888,6 +945,42 @@ function ilvl_core:Reset()
 	end
 end
 
+function ilvl_core:QueryInspect (unitName, callback, param1)
+	local unitid
+
+	if (IsInRaid()) then
+		for i = 1, GetNumGroupMembers() do
+			if (GetUnitName ("raid" .. i, true) == unitName) then
+				unitid = "raid" .. i
+				break
+			end
+		end
+	elseif (IsInGroup()) then
+		for i = 1, GetNumGroupMembers()-1 do
+			if (GetUnitName ("party" .. i, true) == unitName) then
+				unitid = "party" .. i
+				break
+			end
+		end
+	end
+	
+	if (not unitid) then
+		return
+	end
+	
+	local guid = UnitGUID (unitid)
+	if (not guid or ilvl_core.forced_inspects [guid]) then
+		return
+	end
+	
+	if (inspecting [guid]) then
+		return
+	end
+	
+	ilvl_core.forced_inspects [guid] = {callback = callback, param1 = param1}
+	ilvl_core:GetItemLevel (unitid, guid, true)
+end
+
 function ilvl_core:Loop()
 	if (ilvl_core.amt_inspecting >= MAX_INSPECT_AMOUNT) then
 		return
@@ -898,7 +991,14 @@ function ilvl_core:Loop()
 		ilvl_core.raid_id = 1
 	end
 	
-	local unitid = "raid" .. ilvl_core.raid_id
+	local unitid
+	if (IsInRaid()) then
+		unitid = "raid" .. ilvl_core.raid_id
+	elseif (IsInGroup()) then
+		unitid = "party" .. ilvl_core.raid_id
+	else
+		return
+	end
 	
 	local guid = UnitGUID (unitid)
 	if (not guid) then

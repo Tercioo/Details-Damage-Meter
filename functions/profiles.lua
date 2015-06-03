@@ -988,6 +988,12 @@ _detalhes.default_profile = default_profile
 -- aqui fica as propriedades do jogador que não serão armazenadas no profile
 local default_player_data = {
 	--> current combat number
+	
+		cached_specs = {},
+		cached_talents = {},
+	
+		last_day = date ("%d"),
+	
 		combat_id = 0,
 		combat_counter = 0,
 		last_instance_id = 0,

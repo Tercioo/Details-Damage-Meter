@@ -824,6 +824,7 @@
 				nome = actor.nome,
 				classe = class,
 				value = _detalhes:GetOrderNumber (actor.nome),
+				is_custom = true,
 			}, atributo_custom.mt)
 			
 			new_actor.name_complement = name_complement

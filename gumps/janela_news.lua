@@ -5,7 +5,7 @@ local g =	_detalhes.gump
 local _
 
 function _detalhes:DumpTable (text_to_show, dumpvalues, keeptext)
-	return _detalhes:OpenNewsWindow (text_to_show, dumpvalues, keeptext)
+	return _detalhes:OpenNewsWindow (text_to_show, true, keeptext)
 end
 
 function _detalhes:OpenNewsWindow (text_to_show, dumpvalues, keeptext)

@@ -1034,9 +1034,9 @@
 			end
 		end
 		
-		function _detalhes:MontaTooltip (frame, qual_barra, keydown)
-			
+		function _detalhes:BuildInstanceBarTooltip (frame)
 			local GameCooltip = GameCooltip
+			
 			GameCooltip:Reset()
 			GameCooltip:SetType ("tooltip")
 			
@@ -1063,7 +1063,14 @@
 			else
 				GameCooltip:SetHost (DetailsTooltipAnchor, myPoint, anchorPoint, x_Offset, y_Offset)
 			end
+		end
+		
+		function _detalhes:MontaTooltip (frame, qual_barra, keydown)
+		
+			self:BuildInstanceBarTooltip (frame)
 			
+			local GameCooltip = GameCooltip
+		
 			local esta_barra = self.barras [qual_barra] --> barra que o mouse passou em cima e irá mostrar o tooltip
 			local objeto = esta_barra.minha_tabela --> pega a referencia da tabela --> retorna a classe_damage ou classe_heal
 			if (not objeto) then --> a barra não possui um objeto

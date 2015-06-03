@@ -85,6 +85,9 @@ function _detalhes:SaveConfig()
 	--> buffs
 		xpcall (_detalhes.Buffs.SaveBuffs, _detalhes.saver_error_func)
 	
+	--> date
+		_detalhes.last_day = date ("%d")
+	
 	--> salva o container do personagem
 		for key, value in pairs (_detalhes.default_player_data) do
 			if (not is_exception [key]) then

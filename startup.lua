@@ -494,12 +494,20 @@ function _G._detalhes:Start()
 	
 	--boss mobs callbacks
 	_detalhes:ScheduleTimer ("BossModsLink", 5)
-
+	
+	--> limit item level life for 24Hs
 	local now = time()
 	for guid, t in pairs (_detalhes.item_level_pool) do
-		if (t.time+3600 < now) then
+		if (t.time+86400 < now) then
 			_detalhes.item_level_pool [guid] = nil
 		end
+	end
+	
+	--> dailly reset of the cache for talents and specs.
+	local today = date ("%d")
+	if (_detalhes.last_day ~= today) then
+		wipe (_detalhes.cached_specs)
+		wipe (_detalhes.cached_talents)
 	end
 	
 --[[

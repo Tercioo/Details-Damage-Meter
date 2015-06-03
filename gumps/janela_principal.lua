@@ -2054,6 +2054,181 @@ local set_bar_value = function (self, value)
 	end
 end
 
+local icon_frame_on_enter = function (self)
+	local actor = self.row.minha_tabela
+	
+	if (actor) then
+		if (actor.is_custom) then
+			
+		
+		elseif (actor.dead_at) then
+			
+		
+		else
+			local serial = actor.serial
+			local name = actor:name()
+			local class = actor:class()
+			local spec = _detalhes.cached_specs [serial] or actor.spec
+			local talents = _detalhes.cached_talents [serial]
+			local ilvl = _detalhes.ilevel:GetIlvl (serial)
+			
+			local instance = _detalhes:GetInstance (self.row.instance_id)
+			
+			instance:BuildInstanceBarTooltip (self)
+			
+			local class_icon, class_L, class_R, class_T, class_B = _detalhes:GetClassIcon (class)
+			
+			local spec_id, spec_name, spec_description, spec_icon, spec_background, spec_role, spec_class = GetSpecializationInfoByID (spec or 0)
+			local spec_L, spec_R, spec_T, spec_B 
+			if (spec_id) then
+				spec_L, spec_R, spec_T, spec_B  = unpack (_detalhes.class_specs_coords [spec])
+			end
+
+			GameCooltip:AddLine (name, spec_name)
+			
+			GameCooltip:AddIcon ([[Interface\AddOns\Details\images\classes_small_alpha]], 1, 1, 16, 16, class_L, class_R, class_T, class_B)
+			GameCooltip:AddIcon ([[Interface\AddOns\Details\images\spec_icons_normal_alpha]], 1, 2, 16, 16, spec_L, spec_R, spec_T, spec_B)
+			
+			GameCooltip:AddLine ("")
+		
+			local talent_string = ""
+			if (talents) then
+				for i = 1, #talents do
+					local talentID, name, texture, selected, available = GetTalentInfoByID (talents [i])
+					talent_string = talent_string ..  " |T" .. texture .. ":16:16:0:0:64:64:4:60:4:60|t"
+				end
+			end
+			GameCooltip:AddLine ("Talents:", talent_string)
+			GameCooltip:AddStatusBar (100, 1, 0, 0, 0, 0.3)
+			GameCooltip:AddLine ("Item Level:", ilvl and format ("%.1f", ilvl.ilvl) or "??")
+			GameCooltip:AddStatusBar (100, 1, 0, 0, 0, 0.3)
+			GameCooltip:AddLine ("Class:", LOCALIZED_CLASS_NAMES_MALE [class])
+			GameCooltip:AddStatusBar (100, 1, 0, 0, 0, 0.3)
+			
+			--
+			
+			local damage = instance.showing (1, name)
+			local healing = instance.showing (2, name)
+			GameCooltip:AddLine ("Damage:", _detalhes:ToK2 (damage and damage.total or 0))
+			GameCooltip:AddStatusBar (100, 1, 0, 0, 0, 0.3)
+			GameCooltip:AddLine ("Healing:", _detalhes:ToK2 (healing and healing.total or 0))
+			GameCooltip:AddStatusBar (100, 1, 0, 0, 0, 0.3)
+			
+			--
+			
+			GameCooltip:AddLine ("")
+			GameCooltip:AddLine (Loc ["STRING_QUERY_INSPECT"], nil, 1, "orange")
+			--|TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:14:14:0:1:512:512:8:70:224:306|t
+			GameCooltip:AddIcon ([[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]], 1, 1, 12, 16, 8/512, 70/512, 224/512, 306/512)
+		
+			GameCooltip:SetOption ("StatusBarTexture", [[Interface\AddOns\Details\images\bar_skyline]])
+		
+			GameCooltip:ShowCooltip()
+			
+			self.unitname = name
+			self.showing = "actor"
+		end
+	end
+
+end
+local icon_frame_on_leave = function (self)
+	GameCooltip:Hide()
+	GameTooltip:Hide()
+end
+
+local icon_frame_events = _detalhes:CreateEventListener()
+function icon_frame_events:EnterCombat()
+	for anim, _ in pairs (_detalhes.icon_animations.load.in_use) do
+		anim.anim:Stop()
+		anim:Hide()
+		tinsert (_detalhes.icon_animations.load.available, anim)
+	end
+	wipe (_detalhes.icon_animations.load.in_use)
+end
+
+icon_frame_events:RegisterEvent ("COMBAT_PLAYER_ENTER", "EnterCombat")
+
+function icon_frame_events:CancelAnim (anim)
+	if (_detalhes.icon_animations.load.in_use [anim]) then
+		_detalhes.icon_animations.load.in_use [anim] = nil
+		tinsert (_detalhes.icon_animations.load.available, anim)
+		anim.anim:Stop()
+		anim:Hide()
+	end
+end
+
+local icon_frame_inspect_callback = function (guid, unitid, icon_frame)
+	local is_in_use = _detalhes.icon_animations.load.in_use [icon_frame.icon_animation]
+	if (is_in_use) then
+		tinsert (_detalhes.icon_animations.load.available, icon_frame.icon_animation)
+		_detalhes.icon_animations.load.in_use [icon_frame.icon_animation] = nil
+	end
+	
+	icon_frame.icon_animation.anim:Stop()
+	icon_frame.icon_animation:Hide()
+	
+	if (icon_frame:IsMouseOver()) then
+		icon_frame_on_enter (icon_frame)
+	end
+end
+
+local icon_frame_create_animation = function()
+	local f = CreateFrame ("frame", nil, UIParent)
+	f:SetFrameStrata ("FULLSCREEN")
+	f.anim = f:CreateAnimationGroup()
+	f.rotate = f.anim:CreateAnimation ("Rotation")
+	f.rotate:SetDegrees (360)
+	f.rotate:SetDuration (2)
+	f.anim:SetLooping ("repeat")
+	
+	local t = f:CreateTexture (nil, "overlay")
+	t:SetTexture ([[Interface\COMMON\StreamCircle]])
+	t:SetAlpha (0.7)
+	t:SetAllPoints()
+	
+	tinsert (_detalhes.icon_animations.load.available, f)
+end
+
+local icon_frame_on_click = function (self)
+	if (_detalhes.in_combat) then
+		_detalhes:Msg (Loc ["STRING_QUERY_INSPECT_FAIL1"])
+		return
+	end
+	if (self.showing == "actor") then
+	
+		if (_detalhes.ilevel.core:HasQueuedInspec (self.unitname)) then
+			return
+		end
+	
+		_detalhes.ilevel.core:QueryInspect (self.unitname, icon_frame_inspect_callback, self)
+		
+		--> icon animation
+		local anim = tremove (_detalhes.icon_animations.load.available)
+		if (not anim) then
+			icon_frame_create_animation()
+			anim = tremove (_detalhes.icon_animations.load.available)
+		end
+		
+		anim:Show()
+		anim:SetParent (self)
+		anim:ClearAllPoints()
+		anim:SetFrameStrata ("TOOLTIP")
+		anim:SetPoint ("center", self, "center")
+		anim:SetSize (self:GetWidth()*1.7, self:GetHeight()*1.7)
+		anim.anim:Play()
+		self.icon_animation = anim
+		
+		local pid = icon_frame_events:ScheduleTimer ("CancelAnim", 4, anim)
+		_detalhes.icon_animations.load.in_use [anim] = pid
+	end
+end
+
+local set_frame_icon_scripts = function (row)
+	row.icon_frame:SetScript ("OnEnter", icon_frame_on_enter)
+	row.icon_frame:SetScript ("OnLeave", icon_frame_on_leave)
+	row.icon_frame:SetScript ("OnMouseUp", icon_frame_on_click)
+end
+
 local function barra_scripts (esta_barra, instancia, i)
 	esta_barra._instance = instancia
 
@@ -2064,6 +2239,8 @@ local function barra_scripts (esta_barra, instancia, i)
 	esta_barra:SetScript ("OnClick", barra_scripts_onclick)
 	
 	esta_barra:SetScript ("OnShow", barra_scripts_onshow)
+	
+	set_frame_icon_scripts (esta_barra)
 	
 	esta_barra.SetValue = set_bar_value
 end
@@ -3458,7 +3635,14 @@ function gump:CriaNovaBarra (instancia, index)
 	icone_classe:SetTexture (instancia.row_info.icon_file)
 	icone_classe:SetTexCoord (.75, 1, .75, 1)
 	new_row.icone_classe = icone_classe
-
+	
+	local icon_frame = CreateFrame ("frame", "DetailsBarra_IconFrame_" .. instancia.meu_id .. "_" .. index, new_row.statusbar)
+	icon_frame:SetPoint ("topleft", icone_classe, "topleft")
+	icon_frame:SetPoint ("bottomright", icone_classe, "bottomright")
+	icon_frame:SetFrameLevel (new_row.statusbar:GetFrameLevel()+1)
+	icon_frame.row = new_row
+	new_row.icon_frame = icon_frame
+	
 	icone_classe:SetPoint ("left", new_row, "left")
 	new_row.statusbar:SetPoint ("topleft", icone_classe, "topright")
 	new_row.statusbar:SetPoint ("bottomright", new_row, "bottomright")
