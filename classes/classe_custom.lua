@@ -927,7 +927,8 @@
 			GameCooltip:AddIcon (custom_object:GetIcon(), 1, 1, 14, 14, 0.90625, 0.109375, 0.15625, 0.875)
 		end
 
-		GameCooltip:AddStatusBar (100, 1, r, g, b, 1)
+		--GameCooltip:AddStatusBar (100, 1, r, g, b, 1)
+		_detalhes:AddTooltipHeaderStatusbar (1, 1, 1, 0.6)
 		
 		if (custom_object:IsScripted()) then
 			if (custom_object.tooltip) then
@@ -1565,7 +1566,7 @@
 			desc = Loc ["STRING_CUSTOM_DTBS_DESC"],
 			source = false,
 			target = false,
-			script_version = 29,
+			script_version = 30,
 			on_shift_click = [[
 				local row, object, instance = ...
 				local spellname, _, spellicon = _detalhes.GetSpellInfo (object.id)
@@ -1832,7 +1833,12 @@
 			GameCooltip:SetOption ("StatusBarTexture", "Interface\\AddOns\\Details\\images\\bar_serenity")
 
 			--local bar_background = {value = 100, color = {0.1, 0.1, 0.1, 0.9}, texture = "Interface\\AddOns\\Details\\images\\bar_background"}
-			local bar_background = {value = 100, color = {0.1, 0.1, 0.15, 1}, texture = "Interface\\AddOns\\Details\\images\\bar_background2"}
+			local bar_background = DETAILS_DTBS_BACKGROUND
+			if (not bar_background) then
+			    local color = {0.1960, 0.1960, 0.1960, 0.9097}
+			    DETAILS_DTBS_BACKGROUND = {value = 100, color = color, texture = "Interface\\AddOns\\Details\\images\\bar_background2"}
+			    bar_background = DETAILS_DTBS_BACKGROUND
+			end
 
 			for index, t in ipairs (Targets) do
 			    GameCooltip:AddLine (_detalhes:GetOnlyName(t[1]), _detalhes:ToK (t[2]))
@@ -1855,8 +1861,9 @@
 
 			GameCooltip:AddLine (" ")
 			GameCooltip:AddLine ("|cFFffa200Click|r: Report Results", aura, 1, "white", "white")
-			GameCooltip:AddStatusBar (100, 1, 0, 0, 0, 0.7, false,  bar_background)
-]],
+			GameCooltip:AddStatusBar (100, 1, 0, 0, 0, 0.2, false,  bar_background)
+			GameCooltip:SetOption ("YSpacingMod", -1)
+			]],
 		}
 
 		local have = false
@@ -1999,7 +2006,7 @@
 			desc = Loc ["STRING_CUSTOM_MYSPELLS_DESC"],
 			source = false,
 			target = false,
-			script_version = 4,
+			script_version = 5,
 			script = [[
 				--get the parameters passed
 				local combat, instance_container, instance = ...
@@ -2054,155 +2061,187 @@
 			]],
 			
 			tooltip = [[
-				--config:
-				--Background RBG and Alpha:
-				local R, G, B, A = 0, 0, 0, 0.75
+			--config:
+			--Background RBG and Alpha:
+			local R, G, B, A = 0, 0, 0, 0.75
+			local R, G, B, A = 0.1960, 0.1960, 0.1960, 0.8697
 
-				--get the parameters passed
-				local spell, combat, instance = ...
+			--get the parameters passed
+			local spell, combat, instance = ...
 
-				--get the cooltip object (we dont use the convencional GameTooltip here)
-				local GC = GameCooltip
-				GC:SetOption ("YSpacingMod", 1)
+			--get the cooltip object (we dont use the convencional GameTooltip here)
+			local GC = GameCooltip
+			GC:SetOption ("YSpacingMod", 0)
 
-				local role = UnitGroupRolesAssigned ("player")
+			local role = UnitGroupRolesAssigned ("player")
 
-				if (spell.n_dmg) then
-				    
-				    local spellschool, schooltext = spell.spellschool, ""
-				    if (spellschool) then
-					local t = _detalhes.spells_school [spellschool]
-					if (t and t.name) then
-					    schooltext = t.formated
-					end
-				    end
-				    
-				    local total_hits = spell.counter
-				    local combat_time = instance.showing:GetCombatTime()
-				    
-				    --Cooltip code
-				    GC:AddLine ("Hits:", spell.counter)
-				    GC:AddStatusBar (100, 1, R, G, B, A)
-				    
-				    local average = spell.total / total_hits
-				    GC:AddLine ("Average:", _detalhes:ToK (average))
-				    GC:AddStatusBar (100, 1, R, G, B, A)
-				    
-				    GC:AddLine ("E-Dps:", _detalhes:ToK (spell.total / combat_time))
-				    GC:AddStatusBar (100, 1, R, G, B, A)
-				    
-				    GC:AddLine ("School:", schooltext)
-				    GC:AddStatusBar (100, 1, R, G, B, A)
-				    
-				    --GC:AddLine (" ")
-				    
-				    GC:AddLine ("Normal Hits: ", spell.n_amt .. " (" ..floor ( spell.n_amt/total_hits*100) .. "%)")
-				    GC:AddStatusBar (100, 1, R, G, B, A)
-				    
-				    local n_average = spell.n_dmg / spell.n_amt
-				    local T = (combat_time*spell.n_dmg)/spell.total
-				    local P = average/n_average*100
-				    T = P*T/100
-				    
-				    GC:AddLine ("Average / E-Dps: ",  _detalhes:ToK (n_average) .. " / " .. format ("%.1f",spell.n_dmg / T ))
-				    GC:AddStatusBar (100, 1, R, G, B, A)
-				    
-				    --GC:AddLine (" ")
-				    
-				    GC:AddLine ("Critical Hits: ", spell.c_amt .. " (" ..floor ( spell.c_amt/total_hits*100) .. "%)")
-				    GC:AddStatusBar (100, 1, R, G, B, A)
-				    
-				    if (spell.c_amt > 0) then
-					local c_average = spell.c_dmg/spell.c_amt
-					local T = (combat_time*spell.c_dmg)/spell.total
-					local P = average/c_average*100
-					T = P*T/100
-					local crit_dps = spell.c_dmg / T
-					
-					GC:AddLine ("Average / E-Dps: ",  _detalhes:ToK (c_average) .. " / " .. _detalhes:comma_value (crit_dps))
-				    else
-					GC:AddLine ("Average / E-Dps: ",  "0 / 0")    
-				    end
-				    
-				    GC:AddStatusBar (100, 1, R, G, B, A)
-				    
-				    --GC:AddLine (" ")
-				    
-				    GC:AddLine ("Multistrike: ", spell.m_amt .. " (" ..floor ( spell.m_amt/total_hits*100) .. "%)")
-				    GC:AddStatusBar (100, 1, R, G, B, A)
-				    
-				    GC:AddLine ("On Normal / On Critical:", spell.m_amt - spell.m_crit .. "  / " .. spell.m_crit)
-				    GC:AddStatusBar (100, 1, R, G, B, A)
-				    
-				elseif (spell.n_curado) then
-				    
-				    local spellschool, schooltext = spell.spellschool, ""
-				    if (spellschool) then
-					local t = _detalhes.spells_school [spellschool]
-					if (t and t.name) then
-					    schooltext = t.formated
-					end
-				    end
-				    
-				    local total_hits = spell.counter
-				    local combat_time = instance.showing:GetCombatTime()
-				    
-				    --Cooltip code
-				    GC:AddLine ("Hits:", spell.counter)
-				    GC:AddStatusBar (100, 1, R, G, B, A)
-				    
-				    local average = spell.total / total_hits
-				    GC:AddLine ("Average:", _detalhes:ToK (average))
-				    GC:AddStatusBar (100, 1, R, G, B, A)
-				    
-				    GC:AddLine ("E-Hps:", _detalhes:ToK (spell.total / combat_time))
-				    GC:AddStatusBar (100, 1, R, G, B, A)
-				    
-				    GC:AddLine ("School:", schooltext)
-				    GC:AddStatusBar (100, 1, R, G, B, A)
-				    
-				    --GC:AddLine (" ")
-				    
-				    GC:AddLine ("Normal Hits: ", spell.n_amt .. " (" ..floor ( spell.n_amt/total_hits*100) .. "%)")
-				    GC:AddStatusBar (100, 1, R, G, B, A)
-				    
-				    local n_average = spell.n_curado / spell.n_amt
-				    local T = (combat_time*spell.n_curado)/spell.total
-				    local P = average/n_average*100
-				    T = P*T/100
-				    
-				    GC:AddLine ("Average / E-Dps: ",  _detalhes:ToK (n_average) .. " / " .. format ("%.1f",spell.n_curado / T ))
-				    GC:AddStatusBar (100, 1, R, G, B, A)
-				    
-				    --GC:AddLine (" ")
-				    
-				    GC:AddLine ("Critical Hits: ", spell.c_amt .. " (" ..floor ( spell.c_amt/total_hits*100) .. "%)")
-				    GC:AddStatusBar (100, 1, R, G, B, A)
-				    
-				    if (spell.c_amt > 0) then
-					local c_average = spell.c_curado/spell.c_amt
-					local T = (combat_time*spell.c_curado)/spell.total
-					local P = average/c_average*100
-					T = P*T/100
-					local crit_dps = spell.c_curado / T
-					
-					GC:AddLine ("Average / E-Hps: ",  _detalhes:ToK (c_average) .. " / " .. _detalhes:comma_value (crit_dps))
-				    else
-					GC:AddLine ("Average / E-Hps: ",  "0 / 0")    
-				    end
-				    
-				    GC:AddStatusBar (100, 1, R, G, B, A)
-				    
-				    --GC:AddLine (" ")
-				    
-				    GC:AddLine ("Multistrike: ", spell.m_amt .. " (" ..floor ( spell.m_amt/total_hits*100) .. "%)")
-				    GC:AddStatusBar (100, 1, R, G, B, A)
-				    
-				    GC:AddLine ("On Normal / On Critical:", spell.m_amt - spell.m_crit .. "  / " .. spell.m_crit)
-				    GC:AddStatusBar (100, 1, R, G, B, A)
-				    
-				    
+			if (spell.n_dmg) then
+			    
+			    local spellschool, schooltext = spell.spellschool, ""
+			    if (spellschool) then
+				local t = _detalhes.spells_school [spellschool]
+				if (t and t.name) then
+				    schooltext = t.formated
 				end
+			    end
+			    
+			    local total_hits = spell.counter
+			    local combat_time = instance.showing:GetCombatTime()
+			    
+			    local debuff_uptime_total, cast_string = "", ""
+			    local misc_actor = instance.showing (4, _detalhes.playername)
+			    if (misc_actor) then
+				local debuff_uptime = misc_actor.debuff_uptime_spells and misc_actor.debuff_uptime_spells._ActorTable [spell.id] and misc_actor.debuff_uptime_spells._ActorTable [spell.id].uptime
+				if (debuff_uptime) then
+				    debuff_uptime_total = floor (debuff_uptime / instance.showing:GetCombatTime() * 100)
+				end
+				
+				local spell_cast = misc_actor.spell_cast and misc_actor.spell_cast [spell.id]
+				
+				if (not spell_cast and misc_actor.spell_cast) then
+				    local spellname = GetSpellInfo (spell.id)
+				    for casted_spellid, amount in pairs (misc_actor.spell_cast) do
+					local casted_spellname = GetSpellInfo (casted_spellid)
+					if (casted_spellname == spellname) then
+					    spell_cast = amount .. " (|cFFFFFF00?|r)"
+					end
+				    end
+				end
+				if (not spell_cast) then
+				    spell_cast = "(|cFFFFFF00?|r)"
+				end
+				cast_string = cast_string .. spell_cast
+			    end
+			    
+			    --Cooltip code
+			    GC:AddLine ("Casts:", cast_string or "?")
+			    GC:AddStatusBar (100, 1, R, G, B, A)
+			    
+			    if (debuff_uptime_total ~= "") then
+				GC:AddLine ("Uptime:", (debuff_uptime_total or "?") .. "%")
+				GC:AddStatusBar (100, 1, R, G, B, A)
+			    end
+			    
+			    GC:AddLine ("Hits:", spell.counter)
+			    GC:AddStatusBar (100, 1, R, G, B, A)
+			    
+			    local average = spell.total / total_hits
+			    GC:AddLine ("Average:", _detalhes:ToK (average))
+			    GC:AddStatusBar (100, 1, R, G, B, A)
+			    
+			    GC:AddLine ("E-Dps:", _detalhes:ToK (spell.total / combat_time))
+			    GC:AddStatusBar (100, 1, R, G, B, A)
+			    
+			    GC:AddLine ("School:", schooltext)
+			    GC:AddStatusBar (100, 1, R, G, B, A)
+			    
+			    --GC:AddLine (" ")
+			    
+			    GC:AddLine ("Normal Hits: ", spell.n_amt .. " (" ..floor ( spell.n_amt/total_hits*100) .. "%)")
+			    GC:AddStatusBar (100, 1, R, G, B, A)
+			    
+			    local n_average = spell.n_dmg / spell.n_amt
+			    local T = (combat_time*spell.n_dmg)/spell.total
+			    local P = average/n_average*100
+			    T = P*T/100
+			    
+			    GC:AddLine ("Average / E-Dps: ",  _detalhes:ToK (n_average) .. " / " .. format ("%.1f",spell.n_dmg / T ))
+			    GC:AddStatusBar (100, 1, R, G, B, A)
+			    
+			    --GC:AddLine (" ")
+			    
+			    GC:AddLine ("Critical Hits: ", spell.c_amt .. " (" ..floor ( spell.c_amt/total_hits*100) .. "%)")
+			    GC:AddStatusBar (100, 1, R, G, B, A)
+			    
+			    if (spell.c_amt > 0) then
+				local c_average = spell.c_dmg/spell.c_amt
+				local T = (combat_time*spell.c_dmg)/spell.total
+				local P = average/c_average*100
+				T = P*T/100
+				local crit_dps = spell.c_dmg / T
+				
+				GC:AddLine ("Average / E-Dps: ",  _detalhes:ToK (c_average) .. " / " .. _detalhes:comma_value (crit_dps))
+			    else
+				GC:AddLine ("Average / E-Dps: ",  "0 / 0")    
+			    end
+			    
+			    GC:AddStatusBar (100, 1, R, G, B, A)
+			    
+			    --GC:AddLine (" ")
+			    
+			    GC:AddLine ("Multistrike: ", spell.m_amt .. " (" ..floor ( spell.m_amt/total_hits*100) .. "%)")
+			    GC:AddStatusBar (100, 1, R, G, B, A)
+			    
+			    GC:AddLine ("On Normal / On Critical:", spell.m_amt - spell.m_crit .. "  / " .. spell.m_crit)
+			    GC:AddStatusBar (100, 1, R, G, B, A)
+			    
+			elseif (spell.n_curado) then
+			    
+			    local spellschool, schooltext = spell.spellschool, ""
+			    if (spellschool) then
+				local t = _detalhes.spells_school [spellschool]
+				if (t and t.name) then
+				    schooltext = t.formated
+				end
+			    end
+			    
+			    local total_hits = spell.counter
+			    local combat_time = instance.showing:GetCombatTime()
+			    
+			    --Cooltip code
+			    GC:AddLine ("Hits:", spell.counter)
+			    GC:AddStatusBar (100, 1, R, G, B, A)
+			    
+			    local average = spell.total / total_hits
+			    GC:AddLine ("Average:", _detalhes:ToK (average))
+			    GC:AddStatusBar (100, 1, R, G, B, A)
+			    
+			    GC:AddLine ("E-Hps:", _detalhes:ToK (spell.total / combat_time))
+			    GC:AddStatusBar (100, 1, R, G, B, A)
+			    
+			    GC:AddLine ("School:", schooltext)
+			    GC:AddStatusBar (100, 1, R, G, B, A)
+			    
+			    --GC:AddLine (" ")
+			    
+			    GC:AddLine ("Normal Hits: ", spell.n_amt .. " (" ..floor ( spell.n_amt/total_hits*100) .. "%)")
+			    GC:AddStatusBar (100, 1, R, G, B, A)
+			    
+			    local n_average = spell.n_curado / spell.n_amt
+			    local T = (combat_time*spell.n_curado)/spell.total
+			    local P = average/n_average*100
+			    T = P*T/100
+			    
+			    GC:AddLine ("Average / E-Dps: ",  _detalhes:ToK (n_average) .. " / " .. format ("%.1f",spell.n_curado / T ))
+			    GC:AddStatusBar (100, 1, R, G, B, A)
+			    
+			    --GC:AddLine (" ")
+			    
+			    GC:AddLine ("Critical Hits: ", spell.c_amt .. " (" ..floor ( spell.c_amt/total_hits*100) .. "%)")
+			    GC:AddStatusBar (100, 1, R, G, B, A)
+			    
+			    if (spell.c_amt > 0) then
+				local c_average = spell.c_curado/spell.c_amt
+				local T = (combat_time*spell.c_curado)/spell.total
+				local P = average/c_average*100
+				T = P*T/100
+				local crit_dps = spell.c_curado / T
+				
+				GC:AddLine ("Average / E-Hps: ",  _detalhes:ToK (c_average) .. " / " .. _detalhes:comma_value (crit_dps))
+			    else
+				GC:AddLine ("Average / E-Hps: ",  "0 / 0")    
+			    end
+			    
+			    GC:AddStatusBar (100, 1, R, G, B, A)
+			    
+			    --GC:AddLine (" ")
+			    
+			    GC:AddLine ("Multistrike: ", spell.m_amt .. " (" ..floor ( spell.m_amt/total_hits*100) .. "%)")
+			    GC:AddStatusBar (100, 1, R, G, B, A)
+			    
+			    GC:AddLine ("On Normal / On Critical:", spell.m_amt - spell.m_crit .. "  / " .. spell.m_crit)
+			    GC:AddStatusBar (100, 1, R, G, B, A)
+			end
 			]],
 			
 			percent_script = [[

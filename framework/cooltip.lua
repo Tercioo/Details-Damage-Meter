@@ -1355,7 +1355,7 @@ function DetailsCreateCoolTip()
 			elseif (CoolTip.OptionsTable.IgnoreButtonAutoHeight) then
 				frame1:SetHeight ( (temp+spacing) * -1)
 			else
-				frame1:SetHeight ( _math_max ( (frame1.hHeight * CoolTip.Indexes) + 12, 22 ))
+				frame1:SetHeight ( _math_max ( (frame1.hHeight * CoolTip.Indexes) + 12 + (spacing*-1), 22 ))
 			end
 		end
 

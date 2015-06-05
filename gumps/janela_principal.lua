@@ -2127,6 +2127,8 @@ local icon_frame_on_enter = function (self)
 				GameCooltip:AddLine ("Talents:", talent_string)
 				_detalhes:AddTooltipBackgroundStatusbar()
 				got_info = true
+			elseif (got_info) then
+				GameCooltip:AddLine ("Talents:", Loc ["STRING_QUERY_INSPECT_TALENTS"])
 			end
 			
 			GameCooltip:SetOption ("StatusBarTexture", [[Interface\AddOns\Details\images\bar_skyline]])

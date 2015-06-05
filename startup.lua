@@ -339,6 +339,24 @@ function _G._detalhes:Start()
 			_detalhes:FillUserCustomSpells()
 			_detalhes:AddDefaultCustomDisplays()
 			
+			--> tooltip background color update
+			if (_detalhes_database.last_realversion and _detalhes_database.last_realversion < 70 and enable_reset_warning) then
+				local bg = _detalhes.tooltip.background
+				bg [1] = 0.1960
+				bg [2] = 0.1960
+				bg [3] = 0.1960
+				bg [4] = 0.8697
+				
+				local border = _detalhes.tooltip.border_color
+				border [1] = 1
+				border [2] = 1
+				border [3] = 1
+				border [4] = 0
+				
+				--> refresh
+				_detalhes:SetTooltipBackdrop()
+			end
+			
 			--> check elvui for the new player detail skin
 			if (_detalhes_database.last_realversion and _detalhes_database.last_realversion < 69 and enable_reset_warning) then
 				function _detalhes:PDWElvuiCheck()

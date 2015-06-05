@@ -953,7 +953,7 @@ local default_profile = {
 			fontcolor = {1, 1, 1, 1}, 
 			fontcolor_right = {1, 0.7, 0, 1}, --{1, 0.9254, 0.6078, 1}
 			fontshadow = false, 
-			background = {0.1960, 0.1960, 0.1960, 0.8697}, 
+			background = {0.1960, 0.1960, 0.1960, 0.8697},
 			abbreviation = 2, -- 2 = ToK I Upper 5 = ToK I Lower -- was 8 
 			maximize_method = 1, 
 			show_amount = false, 
@@ -967,8 +967,7 @@ local default_profile = {
 			anchor_offset = {0, 0},
 			
 			border_texture = "Details BarBorder 3",
-			--border_color = {0.76, 0.76, 0.76, 1},
-			border_color = {1, 1, 1, 1},
+			border_color = {1, 1, 1, 0},
 			border_size = 14,
 			
 			tooltip_max_abilities = 5,
@@ -978,7 +977,6 @@ local default_profile = {
 			menus_bg_coords = {331/512, 63/512, 109/512, 143/512},
 			menus_bg_color = {.8, .8, .8, 0.2},
 			menus_bg_texture = [[Interface\SPELLBOOK\Spellbook-Page-1]],
-			
 		},
 	
 }
