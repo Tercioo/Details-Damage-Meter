@@ -973,11 +973,11 @@ function atributo_energy:ToolTipRegenRecebido (instancia, numero, barra, keydown
 	local ismaximized = false
 	if (keydown == "shift" or TooltipMaximizedMethod == 2 or TooltipMaximizedMethod == 3) then
 		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, _detalhes.tooltip_key_size_width, _detalhes.tooltip_key_size_height, 0, 1, 0, 0.640625, _detalhes.tooltip_key_overlay2)
-		GameCooltip:AddStatusBar (100, 1, r, g, b, 1)
+		_detalhes:AddTooltipHeaderStatusbar (r, g, b, 1)
 		ismaximized = true
 	else
 		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, _detalhes.tooltip_key_size_width, _detalhes.tooltip_key_size_height, 0, 1, 0, 0.640625, _detalhes.tooltip_key_overlay1)
-		GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
+		_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)
 	end
 	
 	local max = i
@@ -1035,11 +1035,11 @@ function atributo_energy:ToolTipRegenRecebido (instancia, numero, barra, keydown
 	local ismaximized = false
 	if (keydown == "ctrl" or TooltipMaximizedMethod == 2 or TooltipMaximizedMethod == 4) then
 		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_ctrl]], 1, 2, _detalhes.tooltip_key_size_width, _detalhes.tooltip_key_size_height, 0, 1, 0, 0.640625, _detalhes.tooltip_key_overlay2)
-		GameCooltip:AddStatusBar (100, 1, r, g, b, 1)
+		_detalhes:AddTooltipHeaderStatusbar (r, g, b, 1)
 		ismaximized = true
 	else
 		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_ctrl]], 1, 2, _detalhes.tooltip_key_size_width, _detalhes.tooltip_key_size_height, 0, 1, 0, 0.640625, _detalhes.tooltip_key_overlay1)
-		GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
+		_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)
 	end
 	
 	max = i

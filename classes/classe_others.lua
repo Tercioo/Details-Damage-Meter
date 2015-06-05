@@ -1112,7 +1112,7 @@ function atributo_misc:ToolTipCC (instancia, numero, barra)
 		local nome_magia, _, icone_magia = _GetSpellInfo (_spellid)
 		GameCooltip:AddLine (nome_magia, _tabela.cc_break .. " (" .. _cstr ("%.1f", _tabela.cc_break / meu_total * 100) .. "%)")
 		GameCooltip:AddIcon (icone_magia, nil, nil, 14, 14)
-		GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
+		_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)
 		
 		--> o que quebrou
 		local quebrou_oque = _tabela.cc_break_oque
@@ -1138,7 +1138,7 @@ function atributo_misc:ToolTipCC (instancia, numero, barra)
 				GameCooltip:AddIcon ("Interface\\LFGFRAME\\LFGROLE_BW", nil, 2, 14, 14, .25, .5, 0, 1)
 			end
 			
-			GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
+			_detalhes:AddTooltipBackgroundStatusbar()
 			
 		end
 	end
@@ -1169,7 +1169,7 @@ function atributo_misc:ToolTipDispell (instancia, numero, barra)
 	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_SPELLS"], headerColor, r, g, b, #meus_dispells)
 
 	GameCooltip:AddIcon ([[Interface\ICONS\Spell_Arcane_ArcaneTorrent]], 1, 1, 14, 14, 0.078125, 0.9375, 0.078125, 0.953125)
-	GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
+	_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)
 	
 	if (#meus_dispells > 0) then
 		for i = 1, _math_min (25, #meus_dispells) do
@@ -1177,7 +1177,7 @@ function atributo_misc:ToolTipDispell (instancia, numero, barra)
 			local nome_magia, _, icone_magia = _GetSpellInfo (esta_habilidade[1])
 			GameCooltip:AddLine (nome_magia..": ", esta_habilidade[2].." (".._cstr("%.1f", esta_habilidade[2]/meu_total*100).."%)")
 			GameCooltip:AddIcon (icone_magia, nil, nil, 14, 14)
-			GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
+			_detalhes:AddTooltipBackgroundStatusbar()
 		end
 	else
 		GameTooltip:AddLine (Loc ["STRING_NO_SPELL"])
@@ -1193,7 +1193,7 @@ function atributo_misc:ToolTipDispell (instancia, numero, barra)
 	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_DISPELLED"], headerColor, r, g, b, #buffs_dispelados)
 
 	GameCooltip:AddIcon ([[Interface\ICONS\Spell_Arcane_ManaTap]], 1, 1, 14, 14, 0.078125, 0.9375, 0.078125, 0.953125)
-	GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
+	_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)
 
 	if (#buffs_dispelados > 0) then
 		for i = 1, _math_min (25, #buffs_dispelados) do
@@ -1201,7 +1201,7 @@ function atributo_misc:ToolTipDispell (instancia, numero, barra)
 			local nome_magia, _, icone_magia = _GetSpellInfo (esta_habilidade[1])
 			GameCooltip:AddLine (nome_magia..": ", esta_habilidade[2].." (".._cstr("%.1f", esta_habilidade[2]/meu_total*100).."%)")
 			GameCooltip:AddIcon (icone_magia, nil, nil, 14, 14)
-			GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
+			_detalhes:AddTooltipBackgroundStatusbar()
 		end
 	end
 
@@ -1215,7 +1215,7 @@ function atributo_misc:ToolTipDispell (instancia, numero, barra)
 
 	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_TARGETS"], headerColor, r, g, b, #alvos_dispelados)
 	GameCooltip:AddIcon ([[Interface\ICONS\ACHIEVEMENT_GUILDPERK_EVERYONES A HERO_RANK2]], 1, 1, 14, 14, 0.078125, 0.9375, 0.078125, 0.953125)
-	GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
+	_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)
 	
 	for i = 1, _math_min (25, #alvos_dispelados) do
 		if (alvos_dispelados[i][2] < 1) then
@@ -1223,7 +1223,7 @@ function atributo_misc:ToolTipDispell (instancia, numero, barra)
 		end
 		
 		GameCooltip:AddLine (alvos_dispelados[i][1]..": ", _detalhes:comma_value (alvos_dispelados[i][2]) .." (".._cstr ("%.1f", alvos_dispelados[i][3]).."%)")
-		GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
+		_detalhes:AddTooltipBackgroundStatusbar()
 		
 		local targetActor = instancia.showing[4]:PegarCombatente (_, alvos_dispelados[i][1])
 		
@@ -1281,7 +1281,7 @@ function atributo_misc:ToolTipDispell (instancia, numero, barra)
 
 					_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_PETS"], headerColor, r, g, b, #totais)
 					GameCooltip:AddIcon ([[Interface\COMMON\friendship-heart]], 1, 1, 14, 14, 0.21875, 0.78125, 0.09375, 0.6875)
-					GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
+					_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)
 				end
 			
 				local n = _table [1]:gsub (("%s%<.*"), "")
@@ -1682,7 +1682,7 @@ function atributo_misc:ToolTipDebuffUptime (instancia, numero, barra)
 	
 	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_SPELLS"], headerColor, r, g, b, #debuffs_usados)
 	GameCooltip:AddIcon ([[Interface\ICONS\Ability_Warrior_Safeguard]], 1, 1, 14, 14, 0.9375, 0.078125, 0.078125, 0.953125)
-	GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
+	_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)
 
 	if (#debuffs_usados > 0) then
 		for i = 1, _math_min (30, #debuffs_usados) do
@@ -1693,14 +1693,14 @@ function atributo_misc:ToolTipDebuffUptime (instancia, numero, barra)
 				
 				local minutos, segundos = _math_floor (esta_habilidade[2]/60), _math_floor (esta_habilidade[2]%60)
 				if (esta_habilidade[2] >= _combat_time) then
-					GameCooltip:AddLine (nome_magia..": ", minutos .. "m " .. segundos .. "s" .. " (" .. _cstr ("%.1f", esta_habilidade[2] / _combat_time * 100) .. "%)", nil, "gray", "gray")
-					GameCooltip:AddStatusBar (100, nil, 1, 0, 1, .3, false)
+					--GameCooltip:AddLine (nome_magia..": ", minutos .. "m " .. segundos .. "s" .. " (" .. _cstr ("%.1f", esta_habilidade[2] / _combat_time * 100) .. "%)", nil, "gray", "gray")
+					--GameCooltip:AddStatusBar (100, nil, 1, 0, 1, .3, false)
 				elseif (minutos > 0) then
 					GameCooltip:AddLine (nome_magia..": ", minutos .. "m " .. segundos .. "s" .. " (" .. _cstr ("%.1f", esta_habilidade[2] / _combat_time * 100) .. "%)")
-					GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
+					_detalhes:AddTooltipBackgroundStatusbar()
 				else
 					GameCooltip:AddLine (nome_magia..": ", segundos .. "s" .. " (" .. _cstr ("%.1f", esta_habilidade[2] / _combat_time * 100) .. "%)")
-					GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
+					_detalhes:AddTooltipBackgroundStatusbar()
 				end
 				
 				GameCooltip:AddIcon (icone_magia, nil, nil, 14, 14) --0.03125, 0.96875, 0.03125, 0.96875
@@ -1739,7 +1739,7 @@ function atributo_misc:ToolTipBuffUptime (instancia, numero, barra)
 	
 	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_SPELLS"], headerColor, r, g, b, #buffs_usados)
 	GameCooltip:AddIcon ([[Interface\ICONS\Ability_Warrior_Safeguard]], 1, 1, 14, 14, 0.9375, 0.078125, 0.078125, 0.953125)
-	GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
+	_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)
 
 	if (#buffs_usados > 0) then
 		for i = 1, _math_min (30, #buffs_usados) do
@@ -1750,14 +1750,14 @@ function atributo_misc:ToolTipBuffUptime (instancia, numero, barra)
 				
 				local minutos, segundos = _math_floor (esta_habilidade[2]/60), _math_floor (esta_habilidade[2]%60)
 				if (esta_habilidade[2] >= _combat_time) then
-					GameCooltip:AddLine (nome_magia..": ", minutos .. "m " .. segundos .. "s" .. " (" .. _cstr ("%.1f", esta_habilidade[2] / _combat_time * 100) .. "%)", nil, "gray", "gray")
-					GameCooltip:AddStatusBar (100, nil, 1, 0, 1, .3, false)
+					--GameCooltip:AddLine (nome_magia..": ", minutos .. "m " .. segundos .. "s" .. " (" .. _cstr ("%.1f", esta_habilidade[2] / _combat_time * 100) .. "%)", nil, "gray", "gray")
+					--GameCooltip:AddStatusBar (100, nil, 1, 0, 1, .3, false)
 				elseif (minutos > 0) then
 					GameCooltip:AddLine (nome_magia..": ", minutos .. "m " .. segundos .. "s" .. " (" .. _cstr ("%.1f", esta_habilidade[2] / _combat_time * 100) .. "%)")
-					GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
+					_detalhes:AddTooltipBackgroundStatusbar()
 				else
 					GameCooltip:AddLine (nome_magia..": ", segundos .. "s" .. " (" .. _cstr ("%.1f", esta_habilidade[2] / _combat_time * 100) .. "%)")
-					GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
+					_detalhes:AddTooltipBackgroundStatusbar()
 				end
 				
 				GameCooltip:AddIcon (icone_magia, nil, nil, 14, 14) --0.03125, 0.96875, 0.03125, 0.96875
@@ -1793,7 +1793,7 @@ function atributo_misc:ToolTipDefensiveCooldowns (instancia, numero, barra)
 	
 	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_SPELLS"], headerColor, r, g, b, #cooldowns_usados)
 	GameCooltip:AddIcon ([[Interface\ICONS\Ability_Warrior_Safeguard]], 1, 1, 14, 14, 0.9375, 0.078125, 0.078125, 0.953125)
-	GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
+	_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)
 	
 	if (#cooldowns_usados > 0) then
 		for i = 1, _math_min (25, #cooldowns_usados) do
@@ -1801,7 +1801,7 @@ function atributo_misc:ToolTipDefensiveCooldowns (instancia, numero, barra)
 			local nome_magia, _, icone_magia = _GetSpellInfo (esta_habilidade[1])
 			GameCooltip:AddLine (nome_magia..": ", esta_habilidade[2].." (".._cstr("%.1f", esta_habilidade[2]/meu_total*100).."%)")
 			GameCooltip:AddIcon (icone_magia, nil, nil, 14, 14) --0.03125, 0.96875, 0.03125, 0.96875
-			GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
+			_detalhes:AddTooltipBackgroundStatusbar()
 		end
 	else
 		GameCooltip:AddLine (Loc ["STRING_NO_SPELL"]) 
@@ -1818,12 +1818,12 @@ function atributo_misc:ToolTipDefensiveCooldowns (instancia, numero, barra)
 	
 	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_TARGETS"], headerColor, r, g, b, #alvos)
 	GameCooltip:AddIcon ([[Interface\ICONS\Ability_Warrior_DefensiveStance]], 1, 1, 14, 14, 0.9375, 0.125, 0.0625, 0.9375)
-	GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
+	_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)
 	
 	if (#alvos > 0) then
 		for i = 1, _math_min (25, #alvos) do
 			GameCooltip:AddLine (alvos[i][1]..": ", alvos[i][2], 1, "white", "white")
-			GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
+			_detalhes:AddTooltipBackgroundStatusbar()
 			
 			GameCooltip:AddIcon ("Interface\\Icons\\PALADIN_HOLY", nil, nil, 14, 14)
 			
@@ -1869,7 +1869,7 @@ function atributo_misc:ToolTipRess (instancia, numero, barra)
 	
 	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_SPELLS"], headerColor, r, g, b, #meus_ress)
 	GameCooltip:AddIcon ([[Interface\ICONS\Ability_Paladin_BlessedMending]], 1, 1, 14, 14, 0.098125, 0.828125, 0.953125, 0.168125)
-	GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
+	_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)
 	
 	if (#meus_ress > 0) then
 		for i = 1, _math_min (3, #meus_ress) do
@@ -1877,7 +1877,7 @@ function atributo_misc:ToolTipRess (instancia, numero, barra)
 			local nome_magia, _, icone_magia = _GetSpellInfo (esta_habilidade[1])
 			GameCooltip:AddLine (nome_magia..": ", esta_habilidade[2].." (".._cstr("%.1f", esta_habilidade[2]/meu_total*100).."%)")
 			GameCooltip:AddIcon (icone_magia, nil, nil, 14, 14)
-			GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
+			_detalhes:AddTooltipBackgroundStatusbar()
 		end
 	else
 		GameCooltip:AddLine (Loc ["STRING_NO_SPELL"]) 
@@ -1896,12 +1896,12 @@ function atributo_misc:ToolTipRess (instancia, numero, barra)
 	--GameCooltip:AddIcon ([[Interface\ICONS\Ability_DeathKnight_IcyGrip]], 1, 1, 14, 14, 0.9375, 0.078125, 0.953125, 0.078125)
 	
 	GameCooltip:AddIcon ([[Interface\ICONS\Ability_Priest_Cascade]], 1, 1, 14, 14, 0.9375, 0.0625, 0.0625, 0.9375)
-	GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
+	_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)
 	
 	if (#alvos > 0) then
 		for i = 1, _math_min (3, #alvos) do
 			GameCooltip:AddLine (alvos[i][1]..": ", alvos[i][2])
-			GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
+			_detalhes:AddTooltipBackgroundStatusbar()
 			
 			local targetActor = instancia.showing[4]:PegarCombatente (_, alvos[i][1])
 			if (targetActor) then
@@ -1945,7 +1945,7 @@ function atributo_misc:ToolTipInterrupt (instancia, numero, barra)
 	
 	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_SPELLS"], headerColor, r, g, b, #meus_interrupts)
 	GameCooltip:AddIcon ([[Interface\ICONS\Ability_Warrior_PunishingBlow]], 1, 1, 14, 14, 0.9375, 0.078125, 0.078125, 0.953125)
-	GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
+	_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)
 	
 	if (#meus_interrupts > 0) then
 		for i = 1, _math_min (25, #meus_interrupts) do
@@ -1953,7 +1953,7 @@ function atributo_misc:ToolTipInterrupt (instancia, numero, barra)
 			local nome_magia, _, icone_magia = _GetSpellInfo (esta_habilidade[1])
 			GameCooltip:AddLine (nome_magia..": ", esta_habilidade[2].." (".._cstr("%.1f", esta_habilidade[2]/meu_total*100).."%)")
 			GameCooltip:AddIcon (icone_magia, nil, nil, 14, 14)
-			GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
+			_detalhes:AddTooltipBackgroundStatusbar()
 		end
 	else
 		GameTooltip:AddLine (Loc ["STRING_NO_SPELL"])
@@ -1969,7 +1969,7 @@ function atributo_misc:ToolTipInterrupt (instancia, numero, barra)
 	
 	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_SPELL_INTERRUPTED"] .. ":", headerColor, r, g, b, #habilidades_interrompidas)
 	GameCooltip:AddIcon ([[Interface\ICONS\Ability_Warrior_Sunder]], 1, 1, 14, 14, 0.078125, 0.9375, 0.128125, 0.913125)
-	GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
+	_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)
 	
 	if (#habilidades_interrompidas > 0) then
 		for i = 1, _math_min (25, #habilidades_interrompidas) do
@@ -1977,7 +1977,7 @@ function atributo_misc:ToolTipInterrupt (instancia, numero, barra)
 			local nome_magia, _, icone_magia = _GetSpellInfo (esta_habilidade[1])
 			GameCooltip:AddLine (nome_magia..": ", esta_habilidade[2].." (".._cstr("%.1f", esta_habilidade[2]/meu_total*100).."%)")
 			GameCooltip:AddIcon (icone_magia, nil, nil, 14, 14)
-			GameCooltip:AddStatusBar (100, 1, .1, .1, .1, .3)
+			_detalhes:AddTooltipBackgroundStatusbar()
 		end
 	end
 	
@@ -2022,7 +2022,7 @@ function atributo_misc:ToolTipInterrupt (instancia, numero, barra)
 
 					_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_PETS"], headerColor, r, g, b, #totais)
 					GameCooltip:AddIcon ([[Interface\COMMON\friendship-heart]], 1, 1, 14, 14, 0.21875, 0.78125, 0.09375, 0.6875)
-					GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
+					_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)
 				end
 			
 				local n = _table [1]:gsub (("%s%<.*"), "")

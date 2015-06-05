@@ -953,7 +953,7 @@ local default_profile = {
 			fontcolor = {1, 1, 1, 1}, 
 			fontcolor_right = {1, 0.7, 0, 1}, --{1, 0.9254, 0.6078, 1}
 			fontshadow = false, 
-			background = {0.1411, 0.1411, 0.1411, 0.8763}, 
+			background = {0.1960, 0.1960, 0.1960, 0.8697}, 
 			abbreviation = 2, -- 2 = ToK I Upper 5 = ToK I Lower -- was 8 
 			maximize_method = 1, 
 			show_amount = false, 

@@ -1071,17 +1071,17 @@ function atributo_heal:ToolTip_HealingTaken (instancia, numero, barra, keydown)
 	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_FROM"], headerColor, r, g, b, #meus_curadores)
 
 	GameCooltip:AddIcon ([[Interface\TUTORIALFRAME\UI-TutorialFrame-LevelUp]], 1, 1, 14, 14, 0.10546875, 0.89453125, 0.05859375, 0.6796875)
-	GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
+	_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)
 
 	local ismaximized = false
 	
 	if (keydown == "shift" or TooltipMaximizedMethod == 2 or TooltipMaximizedMethod == 3) then
 		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, _detalhes.tooltip_key_size_width, _detalhes.tooltip_key_size_height, 0, 1, 0, 0.640625, _detalhes.tooltip_key_overlay2)
-		GameCooltip:AddStatusBar (100, 1, r, g, b, 1)
+		_detalhes:AddTooltipHeaderStatusbar (r, g, b, 1)
 		ismaximized = true
 	else
 		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, _detalhes.tooltip_key_size_width, _detalhes.tooltip_key_size_height, 0, 1, 0, 0.640625, _detalhes.tooltip_key_overlay1)
-		GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
+		_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)
 	end
 
 	_table_sort (meus_curadores, function (a, b) return a[2] > b[2] end)
@@ -1167,11 +1167,11 @@ function atributo_heal:ToolTip_HealingDone (instancia, numero, barra, keydown)
 	local ismaximized = false
 	if (keydown == "shift" or TooltipMaximizedMethod == 2 or TooltipMaximizedMethod == 3) then
 		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, _detalhes.tooltip_key_size_width, _detalhes.tooltip_key_size_height, 0, 1, 0, 0.640625, _detalhes.tooltip_key_overlay2)
-		GameCooltip:AddStatusBar (100, 1, r, g, b, 1)
+		_detalhes:AddTooltipHeaderStatusbar (r, g, b, 1)
 		ismaximized = true
 	else
 		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, _detalhes.tooltip_key_size_width, _detalhes.tooltip_key_size_height, 0, 1, 0, 0.640625, _detalhes.tooltip_key_overlay1)
-		GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
+		_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)
 	end
 
 	local tooltip_max_abilities = _detalhes.tooltip.tooltip_max_abilities
@@ -1218,11 +1218,11 @@ function atributo_heal:ToolTip_HealingDone (instancia, numero, barra, keydown)
 		local ismaximized = false
 		if (keydown == "ctrl" or TooltipMaximizedMethod == 2 or TooltipMaximizedMethod == 4) then
 			GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_ctrl]], 1, 2, _detalhes.tooltip_key_size_width, _detalhes.tooltip_key_size_height, 0, 1, 0, 0.640625, _detalhes.tooltip_key_overlay2)
-			GameCooltip:AddStatusBar (100, 1, r, g, b, 1)
+			_detalhes:AddTooltipHeaderStatusbar (r, g, b, 1)
 			ismaximized = true
 		else
 			GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_ctrl]], 1, 2, _detalhes.tooltip_key_size_width, _detalhes.tooltip_key_size_height, 0, 1, 0, 0.640625, _detalhes.tooltip_key_overlay1)
-			GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
+			_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)
 		end
 		
 		local tooltip_max_abilities2 = _detalhes.tooltip.tooltip_max_targets
@@ -1331,10 +1331,10 @@ function atributo_heal:ToolTip_HealingDone (instancia, numero, barra, keydown)
 
 					if (ismaximized) then
 						GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_alt]], 1, 2, _detalhes.tooltip_key_size_width, _detalhes.tooltip_key_size_height, 0, 1, 0, 0.640625, _detalhes.tooltip_key_overlay2)
-						GameCooltip:AddStatusBar (100, 1, r, g, b, 1)
+						_detalhes:AddTooltipHeaderStatusbar (r, g, b, 1)
 					else
 						GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_alt]], 1, 2, _detalhes.tooltip_key_size_width, _detalhes.tooltip_key_size_height, 0, 1, 0, 0.640625, _detalhes.tooltip_key_overlay1)
-						GameCooltip:AddStatusBar (100, 1, r, g, b, barAlha)
+						_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)
 					end
 					
 				end

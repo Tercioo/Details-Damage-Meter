@@ -2059,7 +2059,15 @@ local icon_frame_on_enter = function (self)
 	
 	if (actor) then
 		if (actor.is_custom) then
-			
+			if (actor.id) then
+				GameTooltip:SetOwner (self, "ANCHOR_TOPLEFT", 0, 10)
+				if (actor.id == 1) then
+					GameTooltip:SetSpellByID (6603)
+				else
+					GameTooltip:SetSpellByID (actor.id)
+				end
+				GameTooltip:Show()
+			end
 		
 		elseif (actor.dead_at) then
 			
@@ -2072,6 +2080,8 @@ local icon_frame_on_enter = function (self)
 			local talents = _detalhes.cached_talents [serial]
 			local ilvl = _detalhes.ilevel:GetIlvl (serial)
 			
+			local icon_size = 16
+			
 			local instance = _detalhes:GetInstance (self.row.instance_id)
 			
 			instance:BuildInstanceBarTooltip (self)
@@ -2083,46 +2093,78 @@ local icon_frame_on_enter = function (self)
 			if (spec_id) then
 				spec_L, spec_R, spec_T, spec_B  = unpack (_detalhes.class_specs_coords [spec])
 			end
-
+			
 			GameCooltip:AddLine (name, spec_name)
+			if (class == "UNKNOW" or class == "UNGROUPPLAYER") then
+				GameCooltip:AddIcon ([[Interface\AddOns\Details\images\classes_small_alpha]], 1, 1, icon_size, icon_size, 0, 0.25, 0.75, 1)
+			else
+				GameCooltip:AddIcon ([[Interface\AddOns\Details\images\classes_small_alpha]], 1, 1, icon_size, icon_size, class_L, class_R, class_T, class_B)
+			end
 			
-			GameCooltip:AddIcon ([[Interface\AddOns\Details\images\classes_small_alpha]], 1, 1, 16, 16, class_L, class_R, class_T, class_B)
-			GameCooltip:AddIcon ([[Interface\AddOns\Details\images\spec_icons_normal_alpha]], 1, 2, 16, 16, spec_L, spec_R, spec_T, spec_B)
+			if (spec_L) then
+				GameCooltip:AddIcon ([[Interface\AddOns\Details\images\spec_icons_normal_alpha]], 1, 2, icon_size, icon_size, spec_L, spec_R, spec_T, spec_B)
+			else
+				GameCooltip:AddIcon ([[Interface\GossipFrame\IncompleteQuestIcon]], 1, 2, icon_size, icon_size)
+			end
+			_detalhes:AddTooltipHeaderStatusbar (r, g, b, 0.6)
 			
-			GameCooltip:AddLine ("")
-		
 			local talent_string = ""
 			if (talents) then
 				for i = 1, #talents do
 					local talentID, name, texture, selected, available = GetTalentInfoByID (talents [i])
-					talent_string = talent_string ..  " |T" .. texture .. ":16:16:0:0:64:64:4:60:4:60|t"
+					talent_string = talent_string ..  " |T" .. texture .. ":" .. 15 .. ":" .. 15 ..":0:0:64:64:4:60:4:60|t"
 				end
 			end
-			GameCooltip:AddLine ("Talents:", talent_string)
-			GameCooltip:AddStatusBar (100, 1, 0, 0, 0, 0.3)
-			GameCooltip:AddLine ("Item Level:", ilvl and format ("%.1f", ilvl.ilvl) or "??")
-			GameCooltip:AddStatusBar (100, 1, 0, 0, 0, 0.3)
-			GameCooltip:AddLine ("Class:", LOCALIZED_CLASS_NAMES_MALE [class])
-			GameCooltip:AddStatusBar (100, 1, 0, 0, 0, 0.3)
 			
-			--
+			local got_info
+			if (ilvl) then
+				GameCooltip:AddLine ("Item Level:", ilvl and floor (ilvl.ilvl) or "??")
+				_detalhes:AddTooltipBackgroundStatusbar()
+				got_info = true
+			end
+			
+			if (talent_string ~= "") then
+				GameCooltip:AddLine ("Talents:", talent_string)
+				_detalhes:AddTooltipBackgroundStatusbar()
+				got_info = true
+			end
+			
+			GameCooltip:SetOption ("StatusBarTexture", [[Interface\AddOns\Details\images\bar_skyline]])
+			GameCooltip:SetOption ("MinButtonHeight", 15)
+			GameCooltip:SetOption ("IgnoreButtonAutoHeight", true)
+			
+			if (not got_info) then
+				--GameCooltip:AddLine (" ")
+				
+				--GameCooltip:AddLine ("Click to retrive item level and talents.", nil, 1, "orange")
+				
+				GameCooltip:AddLine (Loc ["STRING_QUERY_INSPECT"], nil, 1, "orange")
+				GameCooltip:AddIcon ([[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]], 1, 1, 12, icon_size, 8/512, 70/512, 224/512, 306/512)
+				
+				GameCooltip:SetOption ("FixedHeight", 42)
+			else
+				
+				GameCooltip:SetOption ("FixedHeight", 58)
+			end
+			
+			--GameCooltip:AddLine ("Class:", LOCALIZED_CLASS_NAMES_MALE [class])
+			--_detalhes:AddTooltipBackgroundStatusbar()			
 			
 			local damage = instance.showing (1, name)
 			local healing = instance.showing (2, name)
-			GameCooltip:AddLine ("Damage:", _detalhes:ToK2 (damage and damage.total or 0))
-			GameCooltip:AddStatusBar (100, 1, 0, 0, 0, 0.3)
-			GameCooltip:AddLine ("Healing:", _detalhes:ToK2 (healing and healing.total or 0))
-			GameCooltip:AddStatusBar (100, 1, 0, 0, 0, 0.3)
+			--GameCooltip:AddLine ("Damage:", _detalhes:ToK2 (damage and damage.total or 0))
+			--_detalhes:AddTooltipBackgroundStatusbar()
+			--GameCooltip:AddLine ("Healing:", _detalhes:ToK2 (healing and healing.total or 0))
+			--_detalhes:AddTooltipBackgroundStatusbar()
 			
 			--
+			--GameCooltip:AddIcon ([[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]], 1, 1, 12, icon_size, 8/512, 70/512, 224/512, 306/512)
+			--_detalhes:AddTooltipBackgroundStatusbar()
 			
-			GameCooltip:AddLine ("")
-			GameCooltip:AddLine (Loc ["STRING_QUERY_INSPECT"], nil, 1, "orange")
-			--|TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:14:14:0:1:512:512:8:70:224:306|t
-			GameCooltip:AddIcon ([[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]], 1, 1, 12, 16, 8/512, 70/512, 224/512, 306/512)
-		
-			GameCooltip:SetOption ("StatusBarTexture", [[Interface\AddOns\Details\images\bar_skyline]])
-		
+
+			--GameCooltip:SetOption ("FixedHeight", 114)
+			
+			
 			GameCooltip:ShowCooltip()
 			
 			self.unitname = name
@@ -2142,6 +2184,9 @@ function icon_frame_events:EnterCombat()
 		anim.anim:Stop()
 		anim:Hide()
 		tinsert (_detalhes.icon_animations.load.available, anim)
+		
+		anim.icon_frame.icon_animation = nil
+		anim.icon_frame = nil
 	end
 	wipe (_detalhes.icon_animations.load.in_use)
 end
@@ -2154,6 +2199,9 @@ function icon_frame_events:CancelAnim (anim)
 		tinsert (_detalhes.icon_animations.load.available, anim)
 		anim.anim:Stop()
 		anim:Hide()
+		
+		anim.icon_frame.icon_animation = nil
+		anim.icon_frame = nil
 	end
 end
 
@@ -2170,6 +2218,9 @@ local icon_frame_inspect_callback = function (guid, unitid, icon_frame)
 	if (icon_frame:IsMouseOver()) then
 		icon_frame_on_enter (icon_frame)
 	end
+	
+	icon_frame.icon_animation.icon_frame = nil
+	icon_frame.icon_animation = nil
 end
 
 local icon_frame_create_animation = function()
@@ -2199,8 +2250,12 @@ local icon_frame_on_click = function (self)
 		if (_detalhes.ilevel.core:HasQueuedInspec (self.unitname)) then
 			return
 		end
-	
-		_detalhes.ilevel.core:QueryInspect (self.unitname, icon_frame_inspect_callback, self)
+
+		local does_query = _detalhes.ilevel.core:QueryInspect (self.unitname, icon_frame_inspect_callback, self)
+		
+		if (self.icon_animation) then
+			return
+		end
 		
 		--> icon animation
 		local anim = tremove (_detalhes.icon_animations.load.available)
@@ -2215,10 +2270,18 @@ local icon_frame_on_click = function (self)
 		anim:SetFrameStrata ("TOOLTIP")
 		anim:SetPoint ("center", self, "center")
 		anim:SetSize (self:GetWidth()*1.7, self:GetHeight()*1.7)
-		anim.anim:Play()
-		self.icon_animation = anim
 		
-		local pid = icon_frame_events:ScheduleTimer ("CancelAnim", 4, anim)
+		anim.anim:Play()
+		
+		self.icon_animation = anim
+		anim.icon_frame = self
+		
+		local pid
+		if (does_query) then
+			pid = icon_frame_events:ScheduleTimer ("CancelAnim", 4, anim)
+		else
+			pid = icon_frame_events:ScheduleTimer ("CancelAnim", 0.2, anim)
+		end
 		_detalhes.icon_animations.load.in_use [anim] = pid
 	end
 end

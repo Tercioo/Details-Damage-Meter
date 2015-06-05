@@ -892,11 +892,11 @@ function ilvl_core:InspectTimeOut (guid)
 end
 
 function ilvl_core:ReGetItemLevel (t)
-	local unitid, guid, is_forced = unpack (t)
-	return ilvl_core:GetItemLevel (unitid, guid, is_forced)
+	local unitid, guid, is_forced, try_number = unpack (t)
+	return ilvl_core:GetItemLevel (unitid, guid, is_forced, try_number)
 end
 
-function ilvl_core:GetItemLevel (unitid, guid, is_forced)
+function ilvl_core:GetItemLevel (unitid, guid, is_forced, try_number)
 
 	--> ddouble check
 	if (not is_forced and (UnitAffectingCombat ("player") or InCombatLockdown())) then
@@ -904,7 +904,13 @@ function ilvl_core:GetItemLevel (unitid, guid, is_forced)
 	end
 	if (not unitid or not CanInspect (unitid) or not CheckInteractDistance (unitid, 1)) then
 		if (is_forced) then
-			ilvl_core:ScheduleTimer ("ReGetItemLevel", 3, {unitid, guid, is_forced})
+			try_number = try_number or 0
+			if (try_number > 18) then
+				return
+			else
+				try_number = try_number + 1
+			end
+			ilvl_core:ScheduleTimer ("ReGetItemLevel", 3, {unitid, guid, is_forced, try_number})
 		end
 		return
 	end
@@ -962,23 +968,39 @@ function ilvl_core:QueryInspect (unitName, callback, param1)
 				break
 			end
 		end
+	else
+		unitid = unitName
 	end
 	
 	if (not unitid) then
-		return
+		return false
 	end
 	
 	local guid = UnitGUID (unitid)
-	if (not guid or ilvl_core.forced_inspects [guid]) then
-		return
+	if (not guid) then
+		return false
+	elseif (ilvl_core.forced_inspects [guid]) then
+		return true
 	end
 	
 	if (inspecting [guid]) then
-		return
+		return true
 	end
 	
 	ilvl_core.forced_inspects [guid] = {callback = callback, param1 = param1}
 	ilvl_core:GetItemLevel (unitid, guid, true)
+	
+	if (ilvl_core.clear_queued_list) then
+		ilvl_core:CancelTimer (ilvl_core.clear_queued_list)
+	end
+	ilvl_core.clear_queued_list = ilvl_core:ScheduleTimer ("ClearQueryInspectQueue", 60)
+	
+	return true
+end
+
+function ilvl_core:ClearQueryInspectQueue()
+	wipe (ilvl_core.forced_inspects)
+	ilvl_core.clear_queued_list = nil
 end
 
 function ilvl_core:Loop()

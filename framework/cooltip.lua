@@ -112,6 +112,7 @@ function DetailsCreateCoolTip()
 			["SelectedBottomAnchorMod"] = true,
 			["SelectedLeftAnchorMod"] = true,
 			["SelectedRightAnchorMod"] = true,
+			["MinButtonHeight"] = true,
 		}
 		
 		CoolTip.OptionsTable = {}
@@ -884,8 +885,19 @@ function DetailsCreateCoolTip()
 				
 				if (CoolTip.OptionsTable.StatusBarTexture) then
 					menuButton.statusbar.texture:SetTexture (CoolTip.OptionsTable.StatusBarTexture)
+				end
+				
+				if (StatusBar[8]) then
+					if (StatusBar[8]:find ("\\")) then
+						menuButton.statusbar.texture:SetTexture (StatusBar[8])
+					else
+						local texture = SharedMedia:Fetch ("statusbar", StatusBar[8])
+						menuButton.statusbar.texture:SetTexture (texture)
+					end
 				else
-					menuButton.statusbar.texture:SetTexture ("Interface\\PaperDollInfoFrame\\UI-Character-Skills-Bar")
+					if (not CoolTip.OptionsTable.StatusBarTexture) then
+						menuButton.statusbar.texture:SetTexture ("Interface\\PaperDollInfoFrame\\UI-Character-Skills-Bar")
+					end
 				end
 
 			else
@@ -1284,14 +1296,21 @@ function DetailsCreateCoolTip()
 			elseif (CoolTip.OptionsTable.IgnoreButtonAutoHeight) then
 			
 				local height = _math_max (menuButton.leftText:GetStringHeight(), menuButton.rightText:GetStringHeight(), menuButton.leftIcon:GetHeight(), menuButton.rightIcon:GetHeight())
+				if (CoolTip.OptionsTable.MinButtonHeight) then
+					height = max (CoolTip.OptionsTable.MinButtonHeight, height)
+				end
 				menuButton:SetHeight (height)
 				menuButton:SetPoint ("top", frame1, "top", 0, temp)
 				
 				temp = temp + ( height * -1) + spacing + (CoolTip.OptionsTable.ButtonsYMod or 0)
 				
 			else
-				menuButton:SetHeight (frame1.hHeight + (CoolTip.OptionsTable.ButtonHeightMod or 0))
-				menuButton:SetPoint ("top", frame1, "top", 0, ( ( (i-1) * frame1.hHeight) * -1) - 6 + (CoolTip.OptionsTable.ButtonsYMod or 0) + spacing)
+				local height = frame1.hHeight
+				if (CoolTip.OptionsTable.MinButtonHeight) then
+					height = max (CoolTip.OptionsTable.MinButtonHeight, height)
+				end
+				menuButton:SetHeight (height + (CoolTip.OptionsTable.ButtonHeightMod or 0))
+				menuButton:SetPoint ("top", frame1, "top", 0, ( ( (i-1) * height) * -1) - 6 + (CoolTip.OptionsTable.ButtonsYMod or 0) + spacing)
 			end
 			
 			--> points
@@ -1985,6 +2004,9 @@ function DetailsCreateCoolTip()
 			local f1Lines = frame1.Lines
 			for i = 1, #f1Lines do
 				f1Lines [i].statusbar.subMenuArrow:Hide()
+				if (f1Lines [i].divbar) then
+					f1Lines [i].divbar:Hide()
+				end
 			end
 		end
 
@@ -2184,7 +2206,7 @@ function DetailsCreateCoolTip()
 	--> parameters: value [, color red, color green, color blue, color alpha [, glow]]
 	--> can also use a table or html color name in color red and send glow in color green
 	
-		function CoolTip:AddStatusBar (statusbarValue, frame, ColorR, ColorG, ColorB, ColorA, statusbarGlow, backgroundBar)
+		function CoolTip:AddStatusBar (statusbarValue, frame, ColorR, ColorG, ColorB, ColorA, statusbarGlow, backgroundBar, BarTexture)
 		
 			--> need a previous line
 			if (CoolTip.Indexes == 0) then
@@ -2197,10 +2219,12 @@ function DetailsCreateCoolTip()
 			end
 		
 			if (type (ColorR) == "table" or type (ColorR) == "string") then
-				statusbarGlow, backgroundBar, ColorR, ColorG, ColorB, ColorA = ColorG, ColorB, gump:ParseColors (ColorR)
+				statusbarGlow, backgroundBar, BarTexture, ColorR, ColorG, ColorB, ColorA = ColorG, ColorB, ColorA, gump:ParseColors (ColorR)
 			elseif (type (ColorR) == "boolean") then
+				BarTexture = ColorB
 				backgroundBar = ColorG
 				statusbarGlow = ColorR
+				
 				ColorR, ColorG, ColorB, ColorA = 1, 1, 1, 1
 			else
 				--> error
@@ -2257,6 +2281,7 @@ function DetailsCreateCoolTip()
 			statusbarTable [5] = ColorA
 			statusbarTable [6] = statusbarGlow
 			statusbarTable [7] = backgroundBar
+			statusbarTable [8] = BarTexture
 			
 		end
 

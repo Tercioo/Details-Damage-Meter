@@ -1017,6 +1017,10 @@
 			end
 		end
 		
+		function _detalhes:AddTooltipHeaderStatusbar (r, g, b, a)
+			GameCooltip:AddStatusBar (100, 1, 1, 1, 1, a, nil, nil, [[Interface\WorldStateFrame\WORLDSTATEFINALSCORE-HIGHLIGHT]])
+		end
+		
 		function _detalhes:AddTooltipSpellHeaderText (headerText, headerColor, r, g, b, amount, side)
 			if (not side) then
 				if (_detalhes.tooltip.show_amount) then
@@ -1049,7 +1053,7 @@
 			GameCooltip:SetOption ("LeftBorderSize", -5)
 			GameCooltip:SetOption ("RightBorderSize", 5)
 			GameCooltip:SetOption ("MinWidth", _math_max (230, self.baseframe:GetWidth()*0.9))
-			GameCooltip:SetOption ("StatusBarTexture", [[Interface\WorldStateFrame\WORLDSTATEFINALSCORE-HIGHLIGHT]]) --[[Interface\Addons\Details\images\bar_flat]]
+			GameCooltip:SetOption ("StatusBarTexture", [[Interface\AddOns\Details\images\bar_background]])
 
 			GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, backgroundColor, _detalhes.tooltip_border_color) --{.090, .090, .188, .1}
 			

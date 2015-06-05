@@ -55,9 +55,12 @@ do
 		end
 	end
 	
+	--[1] = {name = Loc ["STRING_MELEE"], icon = [[Interface\AddOns\Details\images\melee.tga]]},
+	--[2] = {name = Loc ["STRING_AUTOSHOT"], icon = [[Interface\AddOns\Details\images\autoshot.tga]]},
+	
 	local default_user_spells = {
-		[1] = {name = Loc ["STRING_MELEE"], icon = [[Interface\AddOns\Details\images\melee.tga]]},
-		[2] = {name = Loc ["STRING_AUTOSHOT"], icon = [[Interface\AddOns\Details\images\autoshot.tga]]},
+		[1] = {name = Loc ["STRING_MELEE"], icon = [[Interface\ICONS\INV_Sword_04]]},
+		[2] = {name = Loc ["STRING_AUTOSHOT"], icon = [[Interface\ICONS\INV_Weapon_Bow_07]]},
 		[3] = {name = Loc ["STRING_ENVIRONMENTAL_FALLING"], icon = [[Interface\ICONS\Spell_Magic_FeatherFall]]},
 		[4] = {name = Loc ["STRING_ENVIRONMENTAL_DROWNING"], icon = [[Interface\ICONS\Ability_Suffocate]]},
 		[5] = {name = Loc ["STRING_ENVIRONMENTAL_FATIGUE"], icon = [[Interface\ICONS\Spell_Arcane_MindMastery]]},
