@@ -989,8 +989,10 @@ function atributo_energy:ToolTipRegenRecebido (instancia, numero, barra, keydown
 		max = 99
 	end
 
-	for o = 1, math.min (i, max) do
+	local icon_size = _detalhes.tooltip.icon_size
+	local icon_border = _detalhes.tooltip.icon_border_texcoord	
 	
+	for o = 1, math.min (i, max) do
 		local spell = energy_tooltips_table [o]
 		
 		if (spell [2] < 1) then
@@ -999,9 +1001,8 @@ function atributo_energy:ToolTipRegenRecebido (instancia, numero, barra, keydown
 	
 		local nome_magia, _, icone_magia = _GetSpellInfo (spell [1])
 		GameCooltip:AddLine (nome_magia..": ", FormatTooltipNumber (_,  spell [2]).." (".._cstr("%.1f", (spell [2]/total_regenerado) * 100).."%)")
-		GameCooltip:AddIcon (icone_magia)
+		GameCooltip:AddIcon (icone_magia, nil, nil, icon_size.W, icon_size.H, icon_border.L, icon_border.R, icon_border.T, icon_border.B)
 		_detalhes:AddTooltipBackgroundStatusbar()
-		
 	end
 	
 	--> players

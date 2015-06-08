@@ -1183,6 +1183,9 @@ function atributo_heal:ToolTip_HealingDone (instancia, numero, barra, keydown)
 		tooltip_max_abilities = 99
 	end
 	
+	local icon_size = _detalhes.tooltip.icon_size
+	local icon_border = _detalhes.tooltip.icon_border_texcoord
+	
 	for i = 1, _math_min (tooltip_max_abilities, #ActorHealingTable) do
 		if (ActorHealingTable[i][2] < 1) then
 			break
@@ -1196,7 +1199,7 @@ function atributo_heal:ToolTip_HealingDone (instancia, numero, barra, keydown)
 		else
 			GameCooltip:AddLine (ActorHealingTable[i][4][1]..": ", FormatTooltipNumber (_, ActorHealingTable[i][2]).." (".._cstr ("%.1f", ActorHealingTable[i][3]).."%)")
 		end
-		GameCooltip:AddIcon (ActorHealingTable[i][4][3], nil, nil, 14, 14)
+		GameCooltip:AddIcon (ActorHealingTable[i][4][3], nil, nil, icon_size.W, icon_size.H, icon_border.L, icon_border.R, icon_border.T, icon_border.B)
 		_detalhes:AddTooltipBackgroundStatusbar()
 	end
 	
@@ -1353,6 +1356,7 @@ function atributo_heal:ToolTip_HealingDone (instancia, numero, barra, keydown)
 	end
 	
 	--> absorbs vs heal
+	--[=[
 	if (instancia.sub_atributo == 1 or instancia.sub_atributo == 2) then
 		local total_healed = self.total - self.totalabsorb
 		local total_previned = self.totalabsorb
@@ -1391,6 +1395,7 @@ function atributo_heal:ToolTip_HealingDone (instancia, numero, barra, keydown)
 			GameCooltip:AddIcon ([[Interface\Glues\LOGIN\Glues-CheckBox-Check]], 1, 2, 14, 14, 1, 0, 0, 1)
 		end
 	end
+	--]=]
 	
 	return true
 end

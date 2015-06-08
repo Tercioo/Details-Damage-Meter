@@ -1057,7 +1057,7 @@ end
 --------------------------------------------- // TOOLTIPS // ---------------------------------------------
 
 
----------> TOOLTIPS BIFURCAÇÃO
+---------> TOOLTIPS BIFURCAÇÃO ~tooltip
 function atributo_misc:ToolTip (instancia, numero, barra, keydown)
 	--> seria possivel aqui colocar o icone da classe dele?
 	GameTooltip:ClearLines()
@@ -1105,7 +1105,9 @@ function atributo_misc:ToolTipCC (instancia, numero, barra)
 	local habilidades = self.cc_break_spells._ActorTable
 	
 	--> habilidade usada para tirar o CC
-
+	local icon_size = _detalhes.tooltip.icon_size
+	local icon_border = _detalhes.tooltip.icon_border_texcoord
+	
 	for _spellid, _tabela in _pairs (habilidades) do
 		
 		--> quantidade
@@ -1120,7 +1122,7 @@ function atributo_misc:ToolTipCC (instancia, numero, barra)
 			local nome_magia, _, icone_magia = _GetSpellInfo (spellid_quebrada)
 			GameCooltip:AddLine (nome_magia..": ", amt_quebrada)
 			GameCooltip:AddIcon ([[Interface\Buttons\UI-GroupLoot-Pass-Down]], nil, 1, 14, 14)
-			GameCooltip:AddIcon (icone_magia, nil, 2, 14, 14)
+			GameCooltip:AddIcon (icone_magia, nil, 2, icon_size.W, icon_size.H, icon_border.L, icon_border.R, icon_border.T, icon_border.B)
 			GameCooltip:AddStatusBar (100, 1, 1, 0, 0, .2)
 		end
 		
@@ -1171,12 +1173,15 @@ function atributo_misc:ToolTipDispell (instancia, numero, barra)
 	GameCooltip:AddIcon ([[Interface\ICONS\Spell_Arcane_ArcaneTorrent]], 1, 1, 14, 14, 0.078125, 0.9375, 0.078125, 0.953125)
 	_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)
 	
+	local icon_size = _detalhes.tooltip.icon_size
+	local icon_border = _detalhes.tooltip.icon_border_texcoord
+	
 	if (#meus_dispells > 0) then
 		for i = 1, _math_min (25, #meus_dispells) do
 			local esta_habilidade = meus_dispells[i]
 			local nome_magia, _, icone_magia = _GetSpellInfo (esta_habilidade[1])
 			GameCooltip:AddLine (nome_magia..": ", esta_habilidade[2].." (".._cstr("%.1f", esta_habilidade[2]/meu_total*100).."%)")
-			GameCooltip:AddIcon (icone_magia, nil, nil, 14, 14)
+			GameCooltip:AddIcon (icone_magia, nil, nil, icon_size.W, icon_size.H, icon_border.L, icon_border.R, icon_border.T, icon_border.B)
 			_detalhes:AddTooltipBackgroundStatusbar()
 		end
 	else
@@ -1200,7 +1205,7 @@ function atributo_misc:ToolTipDispell (instancia, numero, barra)
 			local esta_habilidade = buffs_dispelados[i]
 			local nome_magia, _, icone_magia = _GetSpellInfo (esta_habilidade[1])
 			GameCooltip:AddLine (nome_magia..": ", esta_habilidade[2].." (".._cstr("%.1f", esta_habilidade[2]/meu_total*100).."%)")
-			GameCooltip:AddIcon (icone_magia, nil, nil, 14, 14)
+			GameCooltip:AddIcon (icone_magia, nil, nil, icon_size.W, icon_size.H, icon_border.L, icon_border.R, icon_border.T, icon_border.B)
 			_detalhes:AddTooltipBackgroundStatusbar()
 		end
 	end
@@ -1684,6 +1689,9 @@ function atributo_misc:ToolTipDebuffUptime (instancia, numero, barra)
 	GameCooltip:AddIcon ([[Interface\ICONS\Ability_Warrior_Safeguard]], 1, 1, 14, 14, 0.9375, 0.078125, 0.078125, 0.953125)
 	_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)
 
+	local icon_size = _detalhes.tooltip.icon_size
+	local icon_border = _detalhes.tooltip.icon_border_texcoord
+	
 	if (#debuffs_usados > 0) then
 		for i = 1, _math_min (30, #debuffs_usados) do
 			local esta_habilidade = debuffs_usados[i]
@@ -1703,7 +1711,7 @@ function atributo_misc:ToolTipDebuffUptime (instancia, numero, barra)
 					_detalhes:AddTooltipBackgroundStatusbar()
 				end
 				
-				GameCooltip:AddIcon (icone_magia, nil, nil, 14, 14) --0.03125, 0.96875, 0.03125, 0.96875
+				GameCooltip:AddIcon (icone_magia, nil, nil, icon_size.W, icon_size.H, icon_border.L, icon_border.R, icon_border.T, icon_border.B)
 			end
 		end
 	else
@@ -1741,11 +1749,16 @@ function atributo_misc:ToolTipBuffUptime (instancia, numero, barra)
 	GameCooltip:AddIcon ([[Interface\ICONS\Ability_Warrior_Safeguard]], 1, 1, 14, 14, 0.9375, 0.078125, 0.078125, 0.953125)
 	_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)
 
+	local icon_size = _detalhes.tooltip.icon_size
+	local icon_border = _detalhes.tooltip.icon_border_texcoord
+	
 	if (#buffs_usados > 0) then
 		for i = 1, _math_min (30, #buffs_usados) do
 			local esta_habilidade = buffs_usados[i]
 			
-			if (esta_habilidade[2] > 0) then
+			local percent = esta_habilidade[2] / _combat_time * 100
+			
+			if (esta_habilidade[2] > 0 and percent < 99.5) then
 				local nome_magia, _, icone_magia = _GetSpellInfo (esta_habilidade[1])
 				
 				local minutos, segundos = _math_floor (esta_habilidade[2]/60), _math_floor (esta_habilidade[2]%60)
@@ -1753,14 +1766,14 @@ function atributo_misc:ToolTipBuffUptime (instancia, numero, barra)
 					--GameCooltip:AddLine (nome_magia..": ", minutos .. "m " .. segundos .. "s" .. " (" .. _cstr ("%.1f", esta_habilidade[2] / _combat_time * 100) .. "%)", nil, "gray", "gray")
 					--GameCooltip:AddStatusBar (100, nil, 1, 0, 1, .3, false)
 				elseif (minutos > 0) then
-					GameCooltip:AddLine (nome_magia..": ", minutos .. "m " .. segundos .. "s" .. " (" .. _cstr ("%.1f", esta_habilidade[2] / _combat_time * 100) .. "%)")
+					GameCooltip:AddLine (nome_magia..": ", minutos .. "m " .. segundos .. "s" .. " (" .. _cstr ("%.1f", percent) .. "%)")
 					_detalhes:AddTooltipBackgroundStatusbar()
 				else
-					GameCooltip:AddLine (nome_magia..": ", segundos .. "s" .. " (" .. _cstr ("%.1f", esta_habilidade[2] / _combat_time * 100) .. "%)")
+					GameCooltip:AddLine (nome_magia..": ", segundos .. "s" .. " (" .. _cstr ("%.1f", percent) .. "%)")
 					_detalhes:AddTooltipBackgroundStatusbar()
 				end
 				
-				GameCooltip:AddIcon (icone_magia, nil, nil, 14, 14) --0.03125, 0.96875, 0.03125, 0.96875
+				GameCooltip:AddIcon (icone_magia, nil, nil, icon_size.W, icon_size.H, icon_border.L, icon_border.R, icon_border.T, icon_border.B)
 			end
 		end
 	else
@@ -1795,12 +1808,15 @@ function atributo_misc:ToolTipDefensiveCooldowns (instancia, numero, barra)
 	GameCooltip:AddIcon ([[Interface\ICONS\Ability_Warrior_Safeguard]], 1, 1, 14, 14, 0.9375, 0.078125, 0.078125, 0.953125)
 	_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)
 	
+	local icon_size = _detalhes.tooltip.icon_size
+	local icon_border = _detalhes.tooltip.icon_border_texcoord
+	
 	if (#cooldowns_usados > 0) then
 		for i = 1, _math_min (25, #cooldowns_usados) do
 			local esta_habilidade = cooldowns_usados[i]
 			local nome_magia, _, icone_magia = _GetSpellInfo (esta_habilidade[1])
 			GameCooltip:AddLine (nome_magia..": ", esta_habilidade[2].." (".._cstr("%.1f", esta_habilidade[2]/meu_total*100).."%)")
-			GameCooltip:AddIcon (icone_magia, nil, nil, 14, 14) --0.03125, 0.96875, 0.03125, 0.96875
+			GameCooltip:AddIcon (icone_magia, nil, nil, icon_size.W, icon_size.H, icon_border.L, icon_border.R, icon_border.T, icon_border.B)
 			_detalhes:AddTooltipBackgroundStatusbar()
 		end
 	else
@@ -1935,6 +1951,9 @@ function atributo_misc:ToolTipInterrupt (instancia, numero, barra)
 	local meu_total = self ["interrupt"]
 	local minha_tabela = self.interrupt_spells._ActorTable
 	
+	local icon_size = _detalhes.tooltip.icon_size
+	local icon_border = _detalhes.tooltip.icon_border_texcoord
+	
 --> habilidade usada para interromper
 	local meus_interrupts = {}
 	
@@ -1952,7 +1971,7 @@ function atributo_misc:ToolTipInterrupt (instancia, numero, barra)
 			local esta_habilidade = meus_interrupts[i]
 			local nome_magia, _, icone_magia = _GetSpellInfo (esta_habilidade[1])
 			GameCooltip:AddLine (nome_magia..": ", esta_habilidade[2].." (".._cstr("%.1f", esta_habilidade[2]/meu_total*100).."%)")
-			GameCooltip:AddIcon (icone_magia, nil, nil, 14, 14)
+			GameCooltip:AddIcon (icone_magia, nil, nil, icon_size.W, icon_size.H, icon_border.L, icon_border.R, icon_border.T, icon_border.B)
 			_detalhes:AddTooltipBackgroundStatusbar()
 		end
 	else
@@ -1976,7 +1995,7 @@ function atributo_misc:ToolTipInterrupt (instancia, numero, barra)
 			local esta_habilidade = habilidades_interrompidas[i]
 			local nome_magia, _, icone_magia = _GetSpellInfo (esta_habilidade[1])
 			GameCooltip:AddLine (nome_magia..": ", esta_habilidade[2].." (".._cstr("%.1f", esta_habilidade[2]/meu_total*100).."%)")
-			GameCooltip:AddIcon (icone_magia, nil, nil, 14, 14)
+			GameCooltip:AddIcon (icone_magia, nil, nil, icon_size.W, icon_size.H, icon_border.L, icon_border.R, icon_border.T, icon_border.B)
 			_detalhes:AddTooltipBackgroundStatusbar()
 		end
 	end

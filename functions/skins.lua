@@ -1171,7 +1171,7 @@ local _
 					0,
 					0,
 				},
-				["icon_file"] = "Interface\\AddOns\\Details\\images\\classes_small_alpha",
+				["icon_file"] = "Interface\\AddOns\\Details\\images\\spec_icons_normal_alpha",
 				["textL_show_number"] = true,
 				["texture"] = "Skyline",
 				["texture_background_file"] = "Interface\\AddOns\\Details\\images\\bar4",
@@ -1455,7 +1455,6 @@ local _
 				["side"] = 2,
 			},
 			["bg_r"] = 0.3294,
-			["skin"] = "ElvUI Frame Style",
 			["following"] = {
 				["bar_color"] = {
 					1, -- [1]
@@ -1497,7 +1496,7 @@ local _
 			},
 			["row_info"] = {
 				["textR_outline"] = false,
-				["spec_file"] = "Interface\\AddOns\\Details\\images\\spec_icons_normal_alpha",
+				["spec_file"] = "Interface\\AddOns\\Details\\images\\spec_icons_normal",
 				["textL_outline"] = false,
 				["texture_highlight"] = "Interface\\FriendsFrame\\UI-FriendsList-Highlight",
 				["textR_show_data"] = {
@@ -1700,7 +1699,7 @@ local _
 				["textR_outline"] = false,
 				["textL_outline"] = false,
 				["textL_enable_custom_text"] = false,
-				["icon_file"] = "Interface\\AddOns\\Details\\images\\classes_small_alpha",
+				["icon_file"] = "Interface\\AddOns\\Details\\images\\spec_icons_normal",
 				["texture_background_file"] = "Interface\\AddOns\\Details\\images\\BantoBar",
 				["start_after_icon"] = false,
 				["texture_highlight"] = "Interface\\FriendsFrame\\UI-FriendsList-Highlight",

@@ -977,6 +977,9 @@ local default_profile = {
 			menus_bg_coords = {331/512, 63/512, 109/512, 143/512},
 			menus_bg_color = {.8, .8, .8, 0.2},
 			menus_bg_texture = [[Interface\SPELLBOOK\Spellbook-Page-1]],
+			
+			icon_border_texcoord = {L = 5/64, R = 59/64, T = 5/64, B = 59/64},
+			icon_size = {W = 13, H = 13}
 		},
 	
 }

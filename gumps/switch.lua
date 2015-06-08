@@ -704,10 +704,11 @@ function _detalhes.switch:OnRemoveCustom (CustomIndex)
 	end
 end
 
-local default_coords = {0, 1, 0, 1}
+local default_coords = {5/64, 59/64, 5/64, 59/64}
 local unknown_coords = {157/512, 206/512, 39/512,  89/512}
 local vertex_color_default = {1, 1, 1}
 local vertex_color_unknown = {1, 1, 1}
+local add_coords = {464/512, 473/512, 1/512, 11/512}
 
 function _detalhes.switch:Update()
 
@@ -746,16 +747,17 @@ function _detalhes.switch:Update()
 		local coords
 		local name
 		local vcolor
+		local add
 		
 		if (options and options.sub_atributo) then
 			if (options.atributo == 5) then --> custom
 				local CustomObject = _detalhes.custom [options.sub_atributo]
 				if (not CustomObject) then --> ele já foi deletado
-					--icone = "Interface\\ICONS\\Ability_DualWield"
 					icone = [[Interface\AddOns\Details\images\icons]]
-					coords = unknown_coords
+					coords = add_coords
 					name = Loc ["STRING_SWITCH_CLICKME"]
 					vcolor = vertex_color_unknown
+					add = true
 				else
 					icone = CustomObject.icon
 					coords = default_coords
@@ -769,12 +771,12 @@ function _detalhes.switch:Update()
 				vcolor = vertex_color_default
 			end
 		else
+
 			icone = [[Interface\AddOns\Details\images\icons]]
-			icone = [[Interface\Buttons\UI-AttributeButton-Encourage-Up]]
-			coords = unknown_coords
-			coords = {0, 1, 0, 1}
+			coords = add_coords
 			name = Loc ["STRING_SWITCH_CLICKME"]
 			vcolor = vertex_color_unknown
+			add = true
 		end
 
 		button:Show()
@@ -794,6 +796,12 @@ function _detalhes.switch:Update()
 		button.textureH:SetTexCoord (_unpack (coords))
 		button:ChangeIcon (button.textureNormal, button.texturePushed, nil, button.textureH)
 
+		if (add) then
+			button:SetSize (12, 12)
+		else
+			button:SetSize (15, 15)
+		end
+		
 		if (name == Loc ["STRING_SWITCH_CLICKME"]) then
 			--button.button2.texto:SetTextColor (.3, .3, .3, 1)
 			button:SetAlpha (0.3)
@@ -825,7 +833,7 @@ scroll.ScrollBar.ScrollDownButton:Hide()
 
 function _detalhes.switch:Resize (precisa_mostrar)
 
-	local x = 7
+	local x, x_original = 5, 5
 	local y = 5
 	local y_increment = 20
 	
@@ -854,7 +862,7 @@ function _detalhes.switch:Resize (precisa_mostrar)
 	
 	local i = 1
 	for vertical = 1, vertical_amt do
-		x = 7
+		x = x_original
 		for horizontal = 1, horizontal_amt do
 			local button = _detalhes.switch.buttons [i]
 			
@@ -959,6 +967,9 @@ local onenter = function (self)
 	
 	self.texto:SetTextColor (1, 1, 1, 1)
 	self.border:SetBlendMode ("ADD")
+	
+	self.button1_icon:SetBlendMode ("ADD")
+	
 end
 
 local onleave = function (self)
@@ -967,6 +978,7 @@ local onleave = function (self)
 	end
 	self.texto:SetTextColor (.8, .8, .8, 1)
 	self.border:SetBlendMode ("BLEND")
+	self.button1_icon:SetBlendMode ("BLEND")
 end
 
 local oniconenter = function (self)
@@ -1059,7 +1071,7 @@ function _detalhes.switch:NewSwitchButton (frame, index, x, y, rightButton)
 	
 	--borda
 	button.fundo = button:CreateTexture (nil, "overlay")
-	button.fundo:SetTexture ("Interface\\SPELLBOOK\\Spellbook-Parts")
+	--button.fundo:SetTexture ("Interface\\SPELLBOOK\\Spellbook-Parts")
 	button.fundo:SetTexCoord (0.00390625, 0.27734375, 0.44140625,0.69531250)
 	button.fundo:SetWidth (26)
 	button.fundo:SetHeight (24)
@@ -1072,7 +1084,7 @@ function _detalhes.switch:NewSwitchButton (frame, index, x, y, rightButton)
 	button.line:SetTexture ("Interface\\SPELLBOOK\\Spellbook-Parts")
 	button.line:SetTexCoord (0.31250000, 0.96484375, 0.37109375, 0.52343750)
 	button.line:SetWidth (85)
-	button.line:SetPoint ("topleft", button, "topright", fundo_x, 0)
+	button.line:SetPoint ("topleft", button, "topright", fundo_x-14, 0)
 	button.line:SetPoint ("bottomleft", button, "bottomright", fundo_x, fundo_y)
 	
 	--fundo marrom 2

@@ -868,6 +868,9 @@ local default_skin = function()
 	window.close_button:SetHeight (32)
 	window.close_button:SetPoint ("TOPRIGHT", window, "TOPRIGHT", 5, -8)
 	
+	window.options_button:SetPoint ("topright", window, "topright", -26, -16)
+	window.options_button:SetSize (16, 16)
+	
 	window.avatar:SetParent (window)
 	
 	_detalhes:SetPDWBarConfig ("Skyline")
@@ -925,6 +928,9 @@ local elvui_skin = function()
 	window.close_button:SetWidth (20)
 	window.close_button:SetHeight (20)
 	window.close_button:SetPoint ("TOPRIGHT", window, "TOPRIGHT", 0, -3)
+	
+	window.options_button:SetPoint ("topright", window, "topright", -17, -7)
+	window.options_button:SetSize (12, 12)
 	
 	window.avatar:SetParent (titlebar)
 end
@@ -1069,6 +1075,17 @@ function gump:CriaJanelaInfo()
 	este_gump.no_targets.text:SetText (Loc ["STRING_NO_TARGET_BOX"])
 	este_gump.no_targets.text:SetTextColor (1, 1, 1, .4)
 	este_gump.no_targets:Hide()
+	
+	--> botão de opções
+	local open_options = function()
+		_detalhes:OpenOptionsWindow (info.instancia, false, 6)
+		_detalhes:OpenOptionsWindow (info.instancia, false, 6)
+	end
+	este_gump.options_button = gump:CreateButton (este_gump, open_options, 16, 16, nil, nil, nil, [[Interface\Buttons\UI-OptionsButton]])
+	este_gump.options_button:SetPoint ("topright", este_gump, "topright", -26, -16)
+	este_gump.options_button:SetAlpha (0.5)
+	este_gump.options_button.button:GetNormalTexture():SetDesaturated (true)
+	este_gump.options_button.tooltip = "Select Skin"
 	
 	--> titulo
 	gump:NewLabel (este_gump, este_gump, nil, "title_string", Loc ["STRING_PLAYER_DETAILS"], "GameFontHighlightLeft", 12, {227/255, 186/255, 4/255})
