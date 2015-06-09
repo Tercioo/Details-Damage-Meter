@@ -2384,8 +2384,10 @@ local function button_stretch_scripts (baseframe, backgrounddisplay, instancia)
 		
 		if (instancia.stretch_button_side == 1) then
 			baseframe:StartSizing ("top")
+			baseframe.stretch_direction = "top"
 		elseif (instancia.stretch_button_side == 2) then
 			baseframe:StartSizing ("bottom")
+			baseframe.stretch_direction = "bottom"
 		end
 		
 		local linha_horizontal = {}
@@ -2472,6 +2474,8 @@ local function button_stretch_scripts (baseframe, backgrounddisplay, instancia)
 			instancia:RefreshBars()
 			instancia:InstanceReset()
 			instancia:ReajustaGump()
+			
+			baseframe.stretch_direction = nil
 			
 			if (instancia.stretchToo and #instancia.stretchToo > 0) then
 				for _, esta_instancia in ipairs (instancia.stretchToo) do 

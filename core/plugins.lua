@@ -207,6 +207,11 @@
 		
 	local OnEnableFunction = function (self)
 		self.__parent.Enabled = true
+		--self = frame __parent = plugin object
+		local instance = _detalhes:GetInstance (self.__parent.instance_id)
+		if (instance) then
+			self:SetParent (instance.baseframe)
+		end
 		_detalhes:SendEvent ("SHOW", self.__parent)
 	end
 

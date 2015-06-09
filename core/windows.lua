@@ -561,10 +561,19 @@
 					end
 				end
 			elseif (self.baseframe.isStretching and self.stretchToo and #self.stretchToo > 0) then
-				for _, instancia in _ipairs (self.stretchToo) do 
-					instancia.baseframe:SetHeight (self.baseframe:GetHeight())
-					local mod = (self.baseframe:GetHeight() - instancia.baseframe._place.altura) / 2
-					instancia:RestoreMainWindowPositionNoResize (instancia.baseframe._place, nil, mod)
+				if (self.baseframe.stretch_direction == "top") then
+					for _, instancia in _ipairs (self.stretchToo) do
+						instancia.baseframe:SetHeight (self.baseframe:GetHeight())
+						local mod = (self.baseframe:GetHeight() - instancia.baseframe._place.altura) / 2
+						instancia:RestoreMainWindowPositionNoResize (instancia.baseframe._place, nil, mod)
+					end
+				elseif (self.baseframe.stretch_direction == "bottom") then
+					for _, instancia in _ipairs (self.stretchToo) do
+						instancia.baseframe:SetHeight (self.baseframe:GetHeight())
+						local mod = (self.baseframe:GetHeight() - instancia.baseframe._place.altura) / 2
+						mod = mod * -1
+						instancia:RestoreMainWindowPositionNoResize (instancia.baseframe._place, nil, mod)
+					end
 				end
 			end
 			

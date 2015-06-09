@@ -149,12 +149,19 @@
 
 	_detalhes.string = {}
 	
-	--> replacing data
+	--> replacing data for custom texts
+	
+	local left_side_func
+	local right_side_func
+	
 	local args
 	local replace_arg = function (i)
 		return args [tonumber(i)]
 	end
 	local run_function = function (str)
+	
+		--str = [[local player, combat = ...;]] .. str
+	
 		local okey, value = _pcall (loadstring (str), args[4], args[5])
 		if (not okey) then
 			_detalhes:Msg ("|cFFFF9900error on custom text function|r:", value)
