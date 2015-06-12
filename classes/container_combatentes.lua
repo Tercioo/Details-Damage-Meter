@@ -269,9 +269,7 @@
 				end
 			end
 		end
-		
-		novo_objeto.flag_original = flag
-		novo_objeto.serial = serial
+
 	end
 
 	local pet_blacklist = {}
@@ -362,6 +360,8 @@
 
 			local novo_objeto = self.funcao_de_criacao (_, serial, nome)
 			novo_objeto.nome = nome
+			novo_objeto.flag_original = flag
+			novo_objeto.serial = serial
 
 		-- tipo do container
 	------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------	

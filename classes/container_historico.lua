@@ -162,7 +162,7 @@ function historico:adicionar (tabela)
 	end
 	
 	if (overall_added) then
-		if (tabela.is_boss and tabela:GetCombatTime() < 30) then
+		if (tabela.is_boss and tabela:InstanceType() == "raid" and tabela:GetCombatTime() < 30) then
 			_detalhes:Msg ("segment not added to overall (less than 30 seconds of combat time).")
 		else
 			if (_detalhes.debug) then

@@ -115,7 +115,22 @@ function _G._detalhes:Start()
 		
 	--> start instances updater
 	
-		_detalhes:CheckSwitchOnLogon()
+		self:CheckSwitchOnLogon()
+	
+		function _detalhes:ScheduledWindowUpdate (forced)
+			if (not forced and _detalhes.in_combat) then
+				return
+			end
+			_detalhes.scheduled_window_update = nil
+			_detalhes:AtualizaGumpPrincipal (-1, true)
+		end
+		function _detalhes:ScheduleWindowUpdate (time, forced)
+			if (_detalhes.scheduled_window_update) then
+				_detalhes:CancelTimer (_detalhes.scheduled_window_update)
+				_detalhes.scheduled_window_update = nil
+			end
+			_detalhes.scheduled_window_update = _detalhes:ScheduleTimer ("ScheduledWindowUpdate", time or 1, forced)
+		end
 	
 		self:AtualizaGumpPrincipal (-1, true)
 		self.atualizador = self:ScheduleRepeatingTimer ("AtualizaGumpPrincipal", _detalhes.update_speed, -1)

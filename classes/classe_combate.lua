@@ -62,6 +62,10 @@
 		return self [attribute]
 	end
 	
+	function combate:InstanceType()
+		return _rawget (self, "instance_type")
+	end
+	
 	function combate:IsTrash()
 		return _rawget (self, "is_trash")
 	end

@@ -2196,7 +2196,29 @@ end
 icon_frame_events:RegisterEvent ("COMBAT_PLAYER_ENTER", "EnterCombat")
 
 function icon_frame_events:CancelAnim (anim)
+
+	local anim, timeout = unpack (anim)
+
 	if (_detalhes.icon_animations.load.in_use [anim]) then
+	
+		if (timeout) then
+			local f = anim
+			if (not f.question_icon) then
+				f.question_icon = f.parent:GetParent():GetParent().border:CreateTexture (nil, "overlay")
+				f.question_icon:SetTexture ([[Interface\GossipFrame\ActiveLegendaryQuestIcon]])
+				f.question_icon:SetSize (16, 16)
+			end
+			f.question_icon:Show()
+			f.question_icon:SetPoint ("center", f.parent, "center")
+			
+			if (not _detalhes.HideBarQuestionIcon) then
+				function _detalhes:HideBarQuestionIcon (frame)
+					frame.question_icon:Hide()
+				end
+			end
+			_detalhes:ScheduleTimer ("HideBarQuestionIcon", 2, f)
+		end
+	
 		_detalhes.icon_animations.load.in_use [anim] = nil
 		tinsert (_detalhes.icon_animations.load.available, anim)
 		anim.anim:Stop()
@@ -2208,21 +2230,25 @@ function icon_frame_events:CancelAnim (anim)
 end
 
 local icon_frame_inspect_callback = function (guid, unitid, icon_frame)
+	if (icon_frame.icon_animation) then
+		icon_frame.icon_animation.anim:Stop()
+		icon_frame.icon_animation:Hide()
+	end
+
 	local is_in_use = _detalhes.icon_animations.load.in_use [icon_frame.icon_animation]
 	if (is_in_use) then
 		tinsert (_detalhes.icon_animations.load.available, icon_frame.icon_animation)
 		_detalhes.icon_animations.load.in_use [icon_frame.icon_animation] = nil
 	end
 	
-	icon_frame.icon_animation.anim:Stop()
-	icon_frame.icon_animation:Hide()
-	
 	if (icon_frame:IsMouseOver()) then
 		icon_frame_on_enter (icon_frame)
 	end
 	
-	icon_frame.icon_animation.icon_frame = nil
-	icon_frame.icon_animation = nil
+	if (icon_frame.icon_animation) then
+		icon_frame.icon_animation.icon_frame = nil
+		icon_frame.icon_animation = nil
+	end
 end
 
 local icon_frame_create_animation = function()
@@ -2242,7 +2268,14 @@ local icon_frame_create_animation = function()
 	tinsert (_detalhes.icon_animations.load.available, f)
 end
 
-local icon_frame_on_click = function (self)
+local icon_frame_on_click_down = function (self)
+	self:GetParent():GetParent().icone_classe:SetPoint ("left", self:GetParent():GetParent(), "left", 1, -1)
+end
+
+local icon_frame_on_click_up = function (self)
+
+	self:GetParent():GetParent().icone_classe:SetPoint ("left", self:GetParent():GetParent(), "left")
+
 	if (_detalhes.in_combat) then
 		_detalhes:Msg (Loc ["STRING_QUERY_INSPECT_FAIL1"])
 		return
@@ -2250,6 +2283,40 @@ local icon_frame_on_click = function (self)
 	if (self.showing == "actor") then
 	
 		if (_detalhes.ilevel.core:HasQueuedInspec (self.unitname)) then
+		
+			--> icon animation
+			local anim = tremove (_detalhes.icon_animations.load.available)
+			if (not anim) then
+				icon_frame_create_animation()
+				anim = tremove (_detalhes.icon_animations.load.available)
+			end
+		
+			local f = anim
+			if (not f.question_icon) then
+				f.question_icon = self:GetParent():GetParent().border:CreateTexture (nil, "overlay")
+				f.question_icon:SetTexture ([[Interface\GossipFrame\ActiveLegendaryQuestIcon]])
+				f.question_icon:SetSize (16, 16)
+			end
+
+			f.question_icon:ClearAllPoints()
+			f.question_icon:SetPoint ("center", self, "center")
+			f.question_icon:Show()
+			
+			if (not _detalhes.HideBarQuestionIcon) then
+				function _detalhes:HideBarQuestionIcon (frame)
+					frame.question_icon:Hide()
+				end
+			end
+			_detalhes:ScheduleTimer ("HideBarQuestionIcon", 1, f)
+		
+			self.icon_animation = anim
+			anim.icon_frame = self
+			
+			local pid
+			pid = icon_frame_events:ScheduleTimer ("CancelAnim", 1, {anim})
+			_detalhes.icon_animations.load.in_use [anim] = pid
+			anim.parent = self
+		
 			return
 		end
 
@@ -2280,18 +2347,24 @@ local icon_frame_on_click = function (self)
 		
 		local pid
 		if (does_query) then
-			pid = icon_frame_events:ScheduleTimer ("CancelAnim", 4, anim)
+			pid = icon_frame_events:ScheduleTimer ("CancelAnim", 4, {anim, true})
 		else
-			pid = icon_frame_events:ScheduleTimer ("CancelAnim", 0.2, anim)
+			pid = icon_frame_events:ScheduleTimer ("CancelAnim", 0.2, {anim})
 		end
 		_detalhes.icon_animations.load.in_use [anim] = pid
+		anim.parent = self
+		
+		if (anim.question_icon) then
+			anim.question_icon:Hide()
+		end
 	end
 end
 
 local set_frame_icon_scripts = function (row)
 	row.icon_frame:SetScript ("OnEnter", icon_frame_on_enter)
 	row.icon_frame:SetScript ("OnLeave", icon_frame_on_leave)
-	row.icon_frame:SetScript ("OnMouseUp", icon_frame_on_click)
+	row.icon_frame:SetScript ("OnMouseDown", icon_frame_on_click_down)
+	row.icon_frame:SetScript ("OnMouseUp", icon_frame_on_click_up)
 end
 
 local function barra_scripts (esta_barra, instancia, i)
