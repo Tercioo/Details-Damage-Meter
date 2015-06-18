@@ -946,6 +946,12 @@ local default_profile = {
 		profile_save_pos = true,
 		options_group_edit = true,
 		
+		chat_tab_embed = {
+			enabled = false,
+			tab_name = "",
+			single_window = false,
+		},
+		
 	--> tooltip
 		tooltip = {
 			fontface = "Friz Quadrata TT", 

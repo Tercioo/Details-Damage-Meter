@@ -542,6 +542,11 @@ function _G._detalhes:Start()
 		wipe (_detalhes.cached_specs)
 		wipe (_detalhes.cached_talents)
 	end
+
+
+	_detalhes.chat_embed:CheckChatEmbed (true)
+	
+	_detalhes.AddOnStartTime = GetTime()
 	
 --[[
 function _detalhes:TestResize()

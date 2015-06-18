@@ -18,6 +18,262 @@ function _detalhes:UpdateGears()
 end
 
 ------------------------------------------------------------------------------------------------------------
+--> chat hooks
+
+	_detalhes.chat_embed = _detalhes:CreateEventListener()
+	_detalhes.chat_embed.startup = true
+	
+	_detalhes.chat_embed.hook_settabname = function (frame, name, doNotSave)
+		if (not doNotSave) then
+			if (_detalhes.chat_tab_embed.enabled and _detalhes.chat_tab_embed.tab_name ~= "") then
+				if (_detalhes.chat_tab_embed_onframe == frame) then
+					_detalhes.chat_tab_embed.tab_name = name
+					_detalhes:DelayOptionsRefresh (_detalhes:GetInstance(1))
+				end
+			end
+		end
+	end
+	_detalhes.chat_embed.hook_closetab = function (frame, fallback)
+		if (_detalhes.chat_tab_embed.enabled and _detalhes.chat_tab_embed.tab_name ~= "") then
+			if (_detalhes.chat_tab_embed_onframe == frame) then
+				_detalhes.chat_tab_embed.enabled = false
+				_detalhes.chat_tab_embed.tab_name = ""
+				_detalhes.chat_tab_embed_onframe = nil
+				_detalhes:DelayOptionsRefresh (_detalhes:GetInstance(1))
+				_detalhes.chat_embed:ReleaseEmbed()
+			end
+		end
+	end
+	hooksecurefunc ("FCF_SetWindowName", _detalhes.chat_embed.hook_settabname)
+	hooksecurefunc ("FCF_Close", _detalhes.chat_embed.hook_closetab)
+	
+	function _detalhes.chat_embed:SetTabSettings (tab_name, is_enabled, is_single)
+	
+		local current_enabled_state = _detalhes.chat_tab_embed.enabled
+		local current_name = _detalhes.chat_tab_embed.tab_name
+	
+		tab_name = tab_name or _detalhes.chat_tab_embed.tab_name
+		if (is_enabled == nil) then
+			is_enabled = _detalhes.chat_tab_embed.enabled
+		end
+		if (is_single == nil) then
+			is_single = _detalhes.chat_tab_embed.single_window
+		end
+		
+		_detalhes.chat_tab_embed.tab_name = tab_name or ""
+		_detalhes.chat_tab_embed.enabled = is_enabled
+		_detalhes.chat_tab_embed.single_window = is_single
+		
+		if (current_name ~= tab_name) then
+			--> rename the tab on chat frame
+			local ChatFrame = _detalhes.chat_embed:GetTab (current_name)
+			if (ChatFrame) then
+				FCF_SetWindowName (ChatFrame, tab_name, false)
+			end
+		end
+		
+		if (is_enabled) then
+			--> need to make the embed
+			_detalhes.chat_embed:DoEmbed()
+		else
+			--> need to release the frame
+			if (current_enabled_state) then
+				_detalhes.chat_embed:ReleaseEmbed()
+			end
+		end
+	end
+	
+	function _detalhes.chat_embed:CheckChatEmbed (is_startup)
+		if (_detalhes.chat_tab_embed.enabled) then
+			_detalhes.chat_embed:DoEmbed (is_startup)
+		end
+	end
+	
+	--dom 
+-- 	/run _detalhes.chat_embed:SetTabSettings ("Dano", true, false)
+-- 	/run _detalhes.chat_embed:SetTabSettings (nil, false, false)
+--	/dump _detalhes.chat_tab_embed.tab_name
+
+	function _detalhes.chat_embed:DelayedChatEmbed (is_startup)
+		_detalhes.chat_embed.startup = nil
+		_detalhes.chat_embed:DoEmbed()
+	end
+
+	function _detalhes.chat_embed:DoEmbed (is_startup)
+		if (_detalhes.chat_embed.startup and not is_startup) then
+			if (_detalhes.AddOnStartTime + 5 < GetTime()) then
+				_detalhes.chat_embed.startup = nil
+			else
+				return
+			end
+		end
+		if (is_startup) then
+			return _detalhes.chat_embed:ScheduleTimer ("DelayedChatEmbed", 5)
+		end
+		local tabname = _detalhes.chat_tab_embed.tab_name
+		
+		if (_detalhes.chat_tab_embed.enabled and tabname ~= "") then
+			local ChatFrame, ChatFrameTab, ChatFrameBackground = _detalhes.chat_embed:GetTab (tabname)
+			
+			if (not ChatFrame) then
+				FCF_OpenNewWindow (tabname)
+				ChatFrame, ChatFrameTab, ChatFrameBackground = _detalhes.chat_embed:GetTab (tabname)
+			end
+			
+			if (ChatFrame) then
+				for index, t in pairs (ChatFrame.messageTypeList) do
+					ChatFrame_RemoveMessageGroup (ChatFrame, t)
+					ChatFrame.messageTypeList [index] = nil
+				end
+			
+				_detalhes.chat_tab_embed_onframe = ChatFrame
+			
+				if (_detalhes.chat_tab_embed.single_window) then
+					--> only one window
+					local window1 = _detalhes:GetInstance (1)
+					
+					window1:UngroupInstance()
+					window1.baseframe:ClearAllPoints()
+					
+					window1.baseframe:SetParent (ChatFrame)
+					window1.rowframe:SetParent (window1.baseframe)
+					window1.rowframe:ClearAllPoints()
+					window1.rowframe:SetAllPoints()
+					
+					local y_up = window1.toolbar_side == 1 and -20 or 0
+					local y_down = (window1.show_statusbar and 14 or 0) + (window1.toolbar_side == 2 and 20 or 0)
+					
+					window1.baseframe:SetPoint ("topleft", ChatFrameBackground, "topleft", 0, y_up)
+					window1.baseframe:SetPoint ("bottomright", ChatFrameBackground, "bottomright", 0, y_down)
+					
+					window1:LockInstance (true)
+					window1:SaveMainWindowPosition()
+					
+					local window2 = _detalhes:GetInstance (2)
+					if (window2) then
+						if (window2.baseframe:GetParent() == ChatFrame) then
+							--> need to detach
+							_detalhes.chat_embed:ReleaseEmbed (true)
+						end
+					end
+
+				else
+					--> window #1 and #2
+					local window1 = _detalhes:GetInstance (1)
+					local window2 = _detalhes:GetInstance (2)
+					if (not window2) then
+						window2 = _detalhes:CriarInstancia()
+					end
+					
+					window1:UngroupInstance()
+					window2:UngroupInstance()
+					window1.baseframe:ClearAllPoints()
+					window2.baseframe:ClearAllPoints()
+					
+					window1.baseframe:SetParent (ChatFrame)
+					window2.baseframe:SetParent (ChatFrame)
+					window1.rowframe:SetParent (window1.baseframe)
+					window2.rowframe:SetParent (window2.baseframe)
+
+					window1:LockInstance (true)
+					window2:LockInstance (true)
+					
+					local statusbar_enabled1 = window1.show_statusbar
+					local statusbar_enabled2 = window2.show_statusbar
+
+					table.wipe (window1.snap); table.wipe (window2.snap)
+					window1.snap [3] = 2; window2.snap [1] = 1;
+					window1.horizontalSnap = true; window2.horizontalSnap = true
+					
+					local y_up = window1.toolbar_side == 1 and -20 or 0
+					local y_down = (window1.show_statusbar and 14 or 0) + (window1.toolbar_side == 2 and 20 or 0)
+					
+					local width = ChatFrameBackground:GetWidth() / 2
+					local height = ChatFrameBackground:GetHeight() - y_down + y_up
+					
+					window1.baseframe:SetSize (width, height)
+					window2.baseframe:SetSize (width, height)
+					
+					window1.baseframe:SetPoint ("topleft", ChatFrameBackground, "topleft", 0, y_up)
+					window2.baseframe:SetPoint ("topright", ChatFrameBackground, "topright", 0, y_up)
+				
+					window1:SaveMainWindowPosition()
+					window2:SaveMainWindowPosition()
+					
+				--	/dump ChatFrame3Background:GetSize()
+--[[
+					_detalhes.move_janela_func (window1.baseframe, true, window1)
+					_detalhes.move_janela_func (window1.baseframe, false, window1)
+					_detalhes.move_janela_func (window2.baseframe, true, window2)
+					_detalhes.move_janela_func (window2.baseframe, false, window2)
+--]]
+				end
+			end
+		end
+	end
+	
+	function _detalhes.chat_embed:ReleaseEmbed (second_window)
+		--> release
+		local window1 = _detalhes:GetInstance (1)
+		local window2 = _detalhes:GetInstance (2)
+		
+		if (second_window) then
+			window2.baseframe:ClearAllPoints()
+			window2.baseframe:SetParent (UIParent)
+			window2.rowframe:SetParent (UIParent)
+			window2.baseframe:SetPoint ("center", UIParent, "center", 200, 0)
+			window2.rowframe:SetPoint ("center", UIParent, "center", 200, 0)
+			window2:LockInstance (false)
+			return
+		end
+		
+		window1.baseframe:ClearAllPoints()
+		window1.baseframe:SetParent (UIParent)
+		window1.rowframe:SetParent (UIParent)
+		window1.baseframe:SetPoint ("center", UIParent, "center")
+		window1.rowframe:SetPoint ("center", UIParent, "center")
+		window1:LockInstance (false)
+		
+		if (not _detalhes.chat_tab_embed.single_window and window2) then
+			window2.baseframe:ClearAllPoints()
+			window2.baseframe:SetParent (UIParent)
+			window2.rowframe:SetParent (UIParent)
+			window2.baseframe:SetPoint ("center", UIParent, "center", 200, 0)
+			window2.rowframe:SetPoint ("center", UIParent, "center", 200, 0)
+			window2:LockInstance (false)
+		end
+	end
+	
+	function _detalhes.chat_embed:GetTab (tabname)
+		tabname = tabname or _detalhes.chat_tab_embed.tab_name
+		for i = 1, 20 do
+			local tabtext = _G ["ChatFrame" .. i .. "TabText"]
+			if (tabtext) then
+				if (tabtext:GetText() == tabname) then
+					return _G ["ChatFrame" .. i], _G ["ChatFrame" .. i .. "Tab"], _G ["ChatFrame" .. i .. "Background"], i
+				end
+			end
+		end
+	end
+	
+--[[
+	--create a tab on chat
+	--FCF_OpenNewWindow(name)
+	--rename it? perhaps need to hook
+	--FCF_SetWindowName(chatFrame, name, true)    --FCF_SetWindowName(3, "DDD", true)
+	--/run local chatFrame = _G["ChatFrame3"]; FCF_SetWindowName(chatFrame, "DDD", true)
+
+	--FCF_SetWindowName(frame, name, doNotSave)
+	--API SetChatWindowName(frame:GetID(), name); -- set when doNotSave is false
+
+	-- need to store the chat frame reference
+	-- hook set window name and check if the rename was on our window
+
+	--FCF_Close
+	-- ^ when the window is closed
+--]]
+
+------------------------------------------------------------------------------------------------------------
 
 function _detalhes:SetDeathLogLimit (limit)
 

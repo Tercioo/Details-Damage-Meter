@@ -1278,7 +1278,7 @@ function window:CreateFrame20()
 		
 		-- text size
 		g:NewLabel (frame20, _, "$parentTooltipTextSizeLabel", "TooltipTextSizeLabel", Loc ["STRING_OPTIONS_TOOLTIPS_FONTSIZE"], "GameFontHighlightLeft")
-		local s = g:NewSlider (frame20, _, "$parentTooltipTextSizeSlider", "TooltipTextSizeSlider", SLIDER_WIDTH, SLIDER_HEIGHT, 8, 32, 1, tonumber (_detalhes.tooltip.fontsize))
+		local s = g:NewSlider (frame20, _, "$parentTooltipTextSizeSlider", "TooltipTextSizeSlider", SLIDER_WIDTH, SLIDER_HEIGHT, 5, 32, 1, tonumber (_detalhes.tooltip.fontsize))
 		config_slider (s)
 	
 		frame20.TooltipTextSizeSlider:SetPoint ("left", frame20.TooltipTextSizeLabel, "right", 2)
@@ -2274,7 +2274,7 @@ function window:CreateFrame18()
 		
 		--> menu text size
 		g:NewLabel (frame18, _, "$parentMenuTextSizeLabel", "MenuTextSizeLabel", Loc ["STRING_OPTIONS_MENU_FONT_SIZE"], "GameFontHighlightLeft")
-		local s = g:NewSlider (frame18, _, "$parentMenuTextSizeSlider", "MenuTextSizeSlider", SLIDER_WIDTH, SLIDER_HEIGHT, 8, 32, 1, _detalhes.font_sizes.menus)
+		local s = g:NewSlider (frame18, _, "$parentMenuTextSizeSlider", "MenuTextSizeSlider", SLIDER_WIDTH, SLIDER_HEIGHT, 5, 32, 1, _detalhes.font_sizes.menus)
 		config_slider (s)
 	
 		frame18.MenuTextSizeSlider:SetPoint ("left", frame18.MenuTextSizeLabel, "right", 2)
@@ -3501,7 +3501,7 @@ function window:CreateFrame14()
 		
 	--size
 		g:NewLabel (frame14, _, "$parentAttributeTextSizeLabel", "attributeTextSizeLabel", Loc ["STRING_OPTIONS_MENU_ATTRIBUTE_TEXTSIZE"], "GameFontHighlightLeft")
-		local s = g:NewSlider (frame14, _, "$parentAttributeTextSizeSlider", "attributeTextSizeSlider", SLIDER_WIDTH, SLIDER_HEIGHT, 8, 32, 1, tonumber ( instance.attribute_text.text_size))
+		local s = g:NewSlider (frame14, _, "$parentAttributeTextSizeSlider", "attributeTextSizeSlider", SLIDER_WIDTH, SLIDER_HEIGHT, 5, 32, 1, tonumber ( instance.attribute_text.text_size))
 		config_slider (s)
 	
 		frame14.attributeTextSizeSlider:SetPoint ("left", frame14.attributeTextSizeLabel, "right", 2)
@@ -5292,11 +5292,50 @@ function window:CreateFrame3()
 		g:NewLabel (frame3, _, "$parentPDWSkinLabel", "PDWSkinLabel", Loc ["STRING_OPTIONS_INSTANCE_SKIN"], "GameFontHighlightLeft")
 		window:CreateLineBackground2 (frame3, "PDWSkinDropdown", "PDWSkinLabel", Loc ["STRING_OPTIONS_PDW_SKIN_DESC"])
 		frame3.PDWSkinDropdown:SetPoint ("left", frame3.PDWSkinLabel, "right", 2)
+
+	--> chat tab embed
+		g:NewLabel (frame3, _, "$parentChatTabEmbedAnchor", "ChatTabEmbedAnchor", Loc ["STRING_OPTIONS_TABEMB_ANCHOR"], "GameFontNormal")
+		
+		--> enabled
+		g:NewSwitch (frame3, _, "$parentChatTabEmbedEnabledSlider", "ChatTabEmbedEnabledSlider", 60, 20, _, _, _detalhes.chat_tab_embed.enabled)			
+		g:NewLabel (frame3, _, "$parentChatTabEmbedEnabledLabel", "ChatTabEmbedEnabledLabel", Loc ["STRING_ENABLED"], "GameFontHighlightLeft")
+
+		frame3.ChatTabEmbedEnabledSlider:SetPoint ("left", frame3.ChatTabEmbedEnabledLabel, "right", 2)
+		frame3.ChatTabEmbedEnabledSlider.OnSwitch = function (self, instance, value)
+			_detalhes.chat_embed:SetTabSettings (_, value)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+		end
+		
+		window:CreateLineBackground2 (frame3, "ChatTabEmbedEnabledSlider", "ChatTabEmbedEnabledLabel", Loc ["STRING_OPTIONS_TABEMB_ENABLED_DESC"])
+		
+		--> window name
+		local tab_on_press_enter = function (_, _, text)
+			_detalhes.chat_embed:SetTabSettings (text)
+		end
+		local tabname = g:NewTextEntry (frame3, _, "$parentChatTabEmbedNameEntry", "ChatTabEmbedNameEntry", SLIDER_WIDTH, SLIDER_HEIGHT, tab_on_press_enter)
+		g:NewLabel (frame3, _, "$parentChatTabEmbedNameLabel", "ChatTabEmbedNameLabel", Loc ["STRING_OPTIONS_TABEMB_TABNAME"], "GameFontHighlightLeft")
+		tabname:SetPoint ("left", frame3.ChatTabEmbedNameLabel, "right", 2)
+		
+		window:CreateLineBackground2 (frame3, "ChatTabEmbedNameEntry", "ChatTabEmbedNameLabel", Loc ["STRING_OPTIONS_TABEMB_TABNAME_DESC"])
+		tabname.text = _detalhes.chat_tab_embed.tab_name
+		
+		--> one or two windows
+		g:NewSwitch (frame3, _, "$parentChatTabEmbed2WindowsSlider", "ChatTabEmbed2WindowsSlider", 60, 20, _, _, _detalhes.chat_tab_embed.single_window)			
+		g:NewLabel (frame3, _, "$parentChatTabEmbed2WindowsLabel", "ChatTabEmbed2WindowsLabel", Loc ["STRING_OPTIONS_TABEMB_SINGLE"], "GameFontHighlightLeft")
+
+		frame3.ChatTabEmbed2WindowsSlider:SetPoint ("left", frame3.ChatTabEmbed2WindowsLabel, "right", 2)
+		frame3.ChatTabEmbed2WindowsSlider.OnSwitch = function (self, instance, value)
+			_detalhes.chat_embed:SetTabSettings (_, _, value)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+		end
+		
+		window:CreateLineBackground2 (frame3, "ChatTabEmbed2WindowsSlider", "ChatTabEmbed2WindowsLabel", Loc ["STRING_OPTIONS_TABEMB_SINGLE_DESC"])
+		
 	
-	--> extra Options
+	--> extra Options -~-extra
 		g:NewLabel (frame3, _, "$parentSkinExtraOptionsAnchor", "SkinExtraOptionsAnchor", Loc ["STRING_OPTIONS_SKIN_EXTRA_OPTIONS_ANCHOR"], "GameFontNormal")
 		--frame3.SkinExtraOptionsAnchor:Hide()
-		frame3.SkinExtraOptionsAnchor:SetPoint (window.right_start_at, -90)
+		--frame3.SkinExtraOptionsAnchor:SetPoint (window.right_start_at, -90)
 		frame3.ExtraOptions = {}
 		
 	--> Anchors
@@ -5328,10 +5367,19 @@ function window:CreateFrame3()
 			
 			{"PDWAnchor", 12, true},
 			{"PDWSkinLabel", 13},
+		}
+		
+		local right_side = {
+			{"ChatTabEmbedAnchor", 1, true}, 
+			{"ChatTabEmbedEnabledLabel", 2}, 
+			{"ChatTabEmbedNameLabel", 3}, 
+			{"ChatTabEmbed2WindowsLabel", 4}, 
 			
+			{"SkinExtraOptionsAnchor", 5, true},
 		}
 		
 		window:arrange_menu (frame3, left_side, x, -90)
+		window:arrange_menu (frame3, right_side, window.right_start_at, -90)
 end
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -5988,7 +6036,7 @@ function window:CreateFrame5()
 		window:CreateLineBackground2 (frame5, "fixedTextColor", "fixedTextColorLabel", Loc ["STRING_OPTIONS_TEXT_FIXEDCOLOR_DESC"])
 	
 	--> text size
-		local s = g:NewSlider (frame5, _, "$parentSliderFontSize", "fonsizeSlider", SLIDER_WIDTH, SLIDER_HEIGHT, 8, 32, 1, tonumber (instance.row_info.font_size))
+		local s = g:NewSlider (frame5, _, "$parentSliderFontSize", "fonsizeSlider", SLIDER_WIDTH, SLIDER_HEIGHT, 5, 32, 1, tonumber (instance.row_info.font_size))
 		config_slider (s)
 		
 		g:NewLabel (frame5, _, "$parentFontSizeLabel", "fonsizeLabel", Loc ["STRING_OPTIONS_TEXT_SIZE"], "GameFontHighlightLeft")
@@ -10141,6 +10189,10 @@ end --> if not window
 		local skin_object = editing_instance:GetSkin()
 		local skin_name_formated = skin:gsub (" ", "")
 		
+		_G.DetailsOptionsWindow3ChatTabEmbedEnabledSlider.MyObject:SetValue (_detalhes.chat_tab_embed.enabled)
+		_G.DetailsOptionsWindow3ChatTabEmbedNameEntry.MyObject.text = _detalhes.chat_tab_embed.tab_name
+		_G.DetailsOptionsWindow3ChatTabEmbed2WindowsSlider.MyObject:SetValue (_detalhes.chat_tab_embed.single_window)
+		
 		--> hide all
 		for name, _ in pairs (_detalhes.skins) do
 			local name = name:gsub (" ", "")
@@ -10154,13 +10206,14 @@ end --> if not window
 			frame:Hide()
 		end
 		
-		--> create or show options if necessary
+		--> create or show options if necessary ~extra
 		if (skin_object.skin_options and not skin_object.options_created) then
 			skin_object.options_created = true
 
 			local f = CreateFrame ("frame", "DetailsSkinOptions" .. skin_name_formated, frame3)
 			frame3.ExtraOptions [skin_name_formated] = f
 			f:SetPoint ("topleft", frame3, "topleft", window.right_start_at, window.top_start_at + (25 * -1))
+			f:SetPoint ("topleft", frame3.SkinExtraOptionsAnchor.widget, "bottomleft", 0, -10)
 			f:SetSize (250, 400)
 
 			g:BuildMenu (f, skin_object.skin_options, 0, 0, 400)
