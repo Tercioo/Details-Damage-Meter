@@ -1,0 +1,6 @@
+## Interface: 60200
+## Title: Details: Hellfire Citadel
+## Notes: Plugin for Details
+## RequiredDeps: Details
+
+Details_RaidInfo-HellfireCitadel.lua

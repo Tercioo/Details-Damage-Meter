@@ -91,10 +91,8 @@ local function CreatePluginFrames (data)
 			VanguardFrame:RegisterEvent ("PLAYER_TARGET_CHANGED")
 			
 			Vanguard:ResetBars()
-			--Vanguard:ResetDebuffs() -- ??
 			
 			Vanguard:IdentifyTanks()
-			Vanguard.CurrentInstance = Vanguard:GetInstance (Vanguard.instance_id)
 			Vanguard.CurrentCombat = _detalhes:GetCombat ("current")
 
 			VanguardFrame:SetFrameStrata (Vanguard.CurrentInstance.baseframe:GetFrameStrata())

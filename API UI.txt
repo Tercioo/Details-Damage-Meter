@@ -150,6 +150,12 @@ no_save = boolean, if true, the values isn't set on the instance config table.
 instance:ShowSideBars() // instance:HideSideBars()
 Show or Hide the borders.
 
+instance:CreatePositionTable()
+Create a table with members: w, h, scale, point, x_legacy, y_legacy.
+
+instance:RestorePositionFromPositionTable (pos_table)
+Restore the window position from a saved position table.
+
 --------------------
 
 instance:InstanceMsg (text, icon, textcolor, iconcoords, iconcolor)
@@ -171,17 +177,17 @@ clickfunc = table {function, param1, param2, "left" or "right" button}
 
 --------------------
 
-_detalhes:SetTooltipBackdrop (border_texture, border_size, border_color)
+Details:SetTooltipBackdrop (border_texture, border_size, border_color)
 border_texture = string, border name for SharedMedia.
 border_size = number, border size.
 border_color = table {r, g, b, a}
 
-_detalhes:ReportSingleLine (instance, row object)
+Details:ReportSingleLine (instance, row object)
 get the text on the chosen row and open report dialog for the player.
 
 --------------------
 
-framework = _detalhes:GetFramework()
+framework = Details:GetFramework()
 returns the framework object.
 
 framework:RegisterForDetailsMove (frame, instance)
@@ -203,20 +209,31 @@ set on off bar animations on all windows, if nosave is true, it won't save this 
 
 --------------------
 
-_detalhes:OpenForge()
+Details.chat_embed:SetTabSettings (tab_name, is_enabled, is_single)
+set the tab embed stuff.
+
+Details.chat_embed:CheckChatEmbed()
+refresh the embed status.
+
+Details.chat_embed:GetTab (tabname)
+returns the ChatFrame, ChatFrameTab, ChatFrameBackground, TabIndex, of the tab.
+
+--------------------
+
+Details:OpenForge()
 Open Forge Window.
 
-_detalhes:OpenRaidHistoryWindow()
+Details:OpenRaidHistoryWindow()
 Open Raid History Window.
 
-_detalhes.switch:ShowMe (instance object)
+Details.switch:ShowMe (instance object)
 Open the bookmark panel on the top of the desired window.
 
-_detalhes.switch:CloseMe()
+Details.switch:CloseMe()
 Closes the bookmark panel.
 
-_detalhes:GetArenaInfo (mapid)
+Details:GetArenaInfo (mapid)
 returns a table containing the texture file and coords for a arena.
 
-_detalhes:GetBattlegroundInfo (mapid)
+Details:GetBattlegroundInfo (mapid)
 returns a table containing the texture file and coords for a battleground.

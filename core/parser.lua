@@ -308,10 +308,10 @@
 			amount = absorbed + (amount or 0)
 		end	
 	
-		if (este_jogador.grupo) then 
+		if (este_jogador.grupo and not este_jogador.arena_enemy) then --> source = friendly player
 			_current_gtotal [1] = _current_gtotal [1]+amount
 			
-		elseif (jogador_alvo.grupo) then
+		elseif (jogador_alvo.grupo) then --> source = arena enemy or friendly player
 
 			--> record avoidance only for tank actors
 			if (tanks_members_cache [alvo_serial]) then --> autoshot or melee hit
@@ -2868,10 +2868,92 @@
 			token_list ["UNIT_DESTROYED"] = parser.dead
 			
 		end
+
+	end
+	
+	parser.original_functions = {
+		["spell_dmg"] = parser.spell_dmg,
+		["swing"] = parser.swing,
+		["range"] = parser.range,
+		["rangemissed"] = parser.rangemissed,
+		["swingmissed"] = parser.swingmissed,
+		["missed"] = parser.missed,
+		["environment"] = parser.environment,
+		["heal"] = parser.heal,
+		["heal_absorb"] = parser.heal_absorb,
+		["buff"] = parser.buff,
+		["unbuff"] = parser.unbuff,
+		["buff_refresh"] = parser.buff_refresh,
+		["energize"] = parser.energize,
+		["spellcast"] = parser.spellcast,
+		["dispell"] = parser.dispell,
+		["break_cc"] = parser.break_cc,
+		["ress"] = parser.ress,
+		["interrupt"] = parser.interrupt,
+		["dead"] = parser.dead,
+	}
+	
+	function parser:SetParserFunction (token, func)
+		if (parser.original_functions [token]) then
+			if (type (func) == "function") then
+				parser [token] = func
+			else
+				parser [token] = parser.original_functions [token]
+			end
+			parser:RefreshFunctions()
+		else
+			return _detalhes:Msg ("Invalid Token for SetParserFunction.")
+		end
+	end
+	
+	local all_parser_tokens = {
+		["SPELL_PERIODIC_DAMAGE"] = "spell_dmg",
+		["SPELL_EXTRA_ATTACKS"] = "spell_dmg",
+		["SPELL_DAMAGE"] = "spell_dmg",
+		["SPELL_BUILDING_DAMAGE"] = "spell_dmg",
+		["SWING_DAMAGE"] = "swing",
+		["RANGE_DAMAGE"] = "range",
+		["DAMAGE_SHIELD"] = "spell_dmg",
+		["DAMAGE_SPLIT"] = "spell_dmg",
+		["RANGE_MISSED"] = "rangemissed",
+		["SWING_MISSED"] = "swingmissed",
+		["SPELL_MISSED"] = "missed",
+		["SPELL_PERIODIC_MISSED"] = "missed",
+		["SPELL_BUILDING_MISSED"] = "missed",
+		["DAMAGE_SHIELD_MISSED"] = "missed",
+		["ENVIRONMENTAL_DAMAGE"] = "environment",
+
+		["SPELL_HEAL"] = "heal",
+		["SPELL_PERIODIC_HEAL"] = "heal",
+		["SPELL_ABSORBED"] = "heal_absorb",
+
+		["SPELL_AURA_APPLIED"] = "buff",
+		["SPELL_AURA_REMOVED"] = "unbuff",
+		["SPELL_AURA_REFRESH"] = "buff_refresh",
+		["SPELL_ENERGIZE"] = "energize",
+		["SPELL_PERIODIC_ENERGIZE"] = "energize",
+	
+		["SPELL_CAST_SUCCESS"] = "spellcast",
+		["SPELL_DISPEL"] = "dispell",
+		["SPELL_STOLEN"] = "dispell",
+		["SPELL_AURA_BROKEN"] = "break_cc",
+		["SPELL_AURA_BROKEN_SPELL"] = "break_cc",
+		["SPELL_RESURRECT"] = "ress",
+		["SPELL_INTERRUPT"] = "interrupt",
+		["UNIT_DIED"] = "dead",
+		["UNIT_DESTROYED"] = "dead",
+	}
+	
+	function parser:RefreshFunctions()
+		for CLUE_ID, token in pairs (all_parser_tokens) do
+			if (token_list [CLUE_ID]) then --> not disabled
+				token_list [CLUE_ID] = parser [token]
+			end
+		end
 	end
 
 	-- PARSER
-	--serach key: ~parser ~event ~start ~inicio
+	--serach key: ~parser ~events ~start ~inicio
 	function _detalhes:GetZoneType()
 		return _detalhes.zone_type
 	end

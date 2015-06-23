@@ -1,6 +1,0 @@
-## Interface: 60100
-## Title: Details: Blackrock Foundry
-## Notes: Plugin for Details
-## RequiredDeps: Details
-
-Details_RaidInfo-BlackrockFoundry.lua

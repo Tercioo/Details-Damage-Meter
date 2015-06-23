@@ -1,6 +1,0 @@
-## Interface: 60100
-## Title: Details: Highmaul
-## Notes: Plugin for Details
-## RequiredDeps: Details
-
-Details_RaidInfo-Highmaul.lua

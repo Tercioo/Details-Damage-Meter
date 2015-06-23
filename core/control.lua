@@ -632,7 +632,7 @@
 		end
 
 		function _detalhes:GetPlayersInArena()
-			local aliados = GetNumGroupMembers (LE_PARTY_CATEGORY_HOME)
+			local aliados = GetNumGroupMembers() -- LE_PARTY_CATEGORY_HOME
 			for i = 1, aliados-1 do
 				local role = UnitGroupRolesAssigned ("party" .. i)
 				if (role ~= "NONE") then

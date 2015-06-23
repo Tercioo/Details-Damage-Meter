@@ -73,6 +73,26 @@ end
 		end
 		
 		if (is_enabled) then
+			--> was disabled, so we need to save the current window positions.
+			if (not current_enabled_state) then
+				local window1 = _detalhes:GetInstance (1)
+				if (window1) then
+					window1:SaveMainWindowPosition()
+					if (window1.libwindow) then
+						local pos = window1:CreatePositionTable()
+						_detalhes.chat_tab_embed.w1_pos = pos
+					end
+				end
+				local window2 = _detalhes:GetInstance (2)
+				if (window2) then
+					window2:SaveMainWindowPosition()
+					if (window2.libwindow) then
+						local pos = window2:CreatePositionTable()
+						_detalhes.chat_tab_embed.w2_pos = pos
+					end
+				end
+			end
+			
 			--> need to make the embed
 			_detalhes.chat_embed:DoEmbed()
 		else
@@ -224,6 +244,12 @@ end
 			window2.baseframe:SetPoint ("center", UIParent, "center", 200, 0)
 			window2.rowframe:SetPoint ("center", UIParent, "center", 200, 0)
 			window2:LockInstance (false)
+			window2:SaveMainWindowPosition()
+			
+			local previous_pos = _detalhes.chat_tab_embed.w2_pos
+			if (previous_pos) then
+				window2:RestorePositionFromPositionTable (previous_pos)
+			end
 			return
 		end
 		
@@ -233,6 +259,12 @@ end
 		window1.baseframe:SetPoint ("center", UIParent, "center")
 		window1.rowframe:SetPoint ("center", UIParent, "center")
 		window1:LockInstance (false)
+		window1:SaveMainWindowPosition()
+		
+		local previous_pos = _detalhes.chat_tab_embed.w1_pos
+		if (previous_pos) then
+			window1:RestorePositionFromPositionTable (previous_pos)
+		end
 		
 		if (not _detalhes.chat_tab_embed.single_window and window2) then
 			window2.baseframe:ClearAllPoints()
@@ -241,6 +273,12 @@ end
 			window2.baseframe:SetPoint ("center", UIParent, "center", 200, 0)
 			window2.rowframe:SetPoint ("center", UIParent, "center", 200, 0)
 			window2:LockInstance (false)
+			window2:SaveMainWindowPosition()
+			
+			local previous_pos = _detalhes.chat_tab_embed.w2_pos
+			if (previous_pos) then
+				window2:RestorePositionFromPositionTable (previous_pos)
+			end
 		end
 	end
 	

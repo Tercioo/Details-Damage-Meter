@@ -496,6 +496,48 @@
 		self.baseframe:SetPoint ("CENTER", _UIParent, "CENTER", novo_x + x, novo_y + y)
 		self.baseframe.BoxBarrasAltura = self.baseframe:GetHeight() - end_window_spacement --> espaço para o final da janela
 	end
+	
+	function _detalhes:CreatePositionTable()
+		local t = {pos_table = true}
+		
+		if (self.libwindow) then
+			t.x = self.libwindow.x
+			t.y = self.libwindow.y
+			t.scale = self.libwindow.scale
+			t.point = self.libwindow.point
+		end
+		
+		--> old way to save positions
+		t.x_legacy = self.posicao.normal.x
+		t.y_legacy = self.posicao.normal.y
+		
+		--> size
+		t.w = self.posicao.normal.w
+		t.h = self.posicao.normal.h
+		
+		return t
+	end
+	
+	function _detalhes:RestorePositionFromPositionTable (t)
+		if (not t.pos_table) then
+			return
+		end
+		
+		if (t.x) then
+			self.libwindow.x = t.x
+			self.libwindow.y = t.y
+			self.libwindow.scale = t.scale
+			self.libwindow.point = t.point
+		end
+		
+		self.posicao.normal.x = t.x_legacy
+		self.posicao.normal.y = t.y_legacy
+		
+		self.posicao.normal.w = t.w
+		self.posicao.normal.h = t.h
+		
+		return self:RestoreMainWindowPosition()
+	end
 
 	function _detalhes:ResetaGump (instancia, tipo, segmento)
 		if (not instancia or _type (instancia) == "boolean") then
