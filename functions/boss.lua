@@ -246,6 +246,47 @@ do
 		return 0
 	end
 	
+	function _detalhes:GetCurrentDungeonBossListFromEJ()
+		local EJ_CInstance = EJ_GetCurrentInstance()
+		if (EJ_CInstance and EJ_CInstance ~= 0) then
+			if (_detalhes.encounter_dungeons [EJ_CInstance]) then
+				return _detalhes.encounter_dungeons [EJ_CInstance]
+			end
+		
+			EJ_SelectInstance (EJ_CInstance)
+			
+			local name, description, bgImage, buttonImage, loreImage, dungeonAreaMapID, link = EJ_GetInstanceInfo (EJ_CInstance)
+			
+			local boss_list = {
+				[EJ_CInstance] = {name, description, bgImage, buttonImage, loreImage, dungeonAreaMapID, link}
+			}
+			
+			for i = 1, 20 do
+				local encounterName, description, encounterID, rootSectionID, link = EJ_GetEncounterInfoByIndex (i, EJ_CInstance)
+				if (encounterName) then
+					for o = 1, 6 do
+						local id, creatureName, creatureDescription, displayInfo, iconImage = EJ_GetCreatureInfo (o, encounterID)
+						if (id) then
+							boss_list [creatureName] = {encounterName, encounterID, creatureName, iconImage, EJ_CInstance}
+						else
+							break
+						end
+					end
+				else
+					break
+				end
+			end
+
+			_detalhes.encounter_dungeons [EJ_CInstance] = boss_list
+			
+			return boss_list
+		end
+	end
+	
+	function _detalhes:IsRaidRegistered (mapid)
+		return _detalhes.EncounterInformation [mapid] and true
+	end
+	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> core
 
@@ -254,3 +295,5 @@ do
 		return true
 	end
 end
+
+--functionas

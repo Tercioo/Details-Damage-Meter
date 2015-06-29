@@ -355,6 +355,8 @@ function historico:resetar()
 		_detalhes:CancelTimer (_detalhes.tabela_vigente.verifica_combate)
 	end
 	
+	_detalhes.last_closed_combat = nil
+	
 	--> fecha a janela de informações do jogador
 	_detalhes:FechaJanelaInfo()
 	

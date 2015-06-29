@@ -51,7 +51,13 @@
 			local in_instance = IsInInstance() --> garrison returns party as instance type.
 			
 			if ((InstanceType == "party" or InstanceType == "raid") and in_instance) then
-				return Loc ["STRING_SEGMENT_TRASH"]
+				if (InstanceType == "party") then
+					if (_detalhes:GetBossNames (_detalhes.zone_id)) then
+						return Loc ["STRING_SEGMENT_TRASH"]
+					end
+				else
+					return Loc ["STRING_SEGMENT_TRASH"]
+				end
 			end
 			
 			for _, actor in _ipairs (_detalhes.tabela_vigente[class_type_dano]._ActorTable) do 
@@ -86,6 +92,24 @@
 	
 	-- try get the current encounter name during the encounter
 	
+		local boss_found_not_registered = function (t, ZoneName, ZoneMapID, DifficultyID)
+			
+			local boss_table = {
+				index = 0,
+				name = t[1],
+				encounter = t[1],
+				zone = ZoneName,
+				mapid = ZoneMapID,
+				diff = DifficultyID,
+				diff_string = select (4, GetInstanceInfo()),
+				ej_instance_id = t[5],
+				id = t[2],
+				bossimage = t[4],
+			}
+			
+			_detalhes.tabela_vigente.is_boss = boss_table
+		end
+	
 		local boss_found = function (index, name, zone, mapid, diff, encounterid)
 		
 			local ejid = EJ_GetCurrentInstance()
@@ -104,6 +128,24 @@
 				ej_instance_id = ejid,
 				id = encounterid,
 			}
+			
+			if (not _detalhes:IsRaidRegistered (mapid) and _detalhes.zone_type == "raid") then
+				local boss_list = _detalhes:GetCurrentDungeonBossListFromEJ()
+				if (boss_list) then
+					local ActorsContainer = _detalhes.tabela_vigente [class_type_dano]._ActorTable
+					if (ActorsContainer) then
+						for index, Actor in _ipairs (ActorsContainer) do 
+							if (not Actor.grupo) then
+								if (boss_list [Actor.nome]) then
+									Actor.boss = true
+									boss_table.bossimage = boss_list [Actor.nome][4]
+									break
+								end
+							end
+						end
+					end
+				end
+			end
 			
 			_detalhes.tabela_vigente.is_boss = boss_table
 			
@@ -223,6 +265,24 @@
 				end
 			end
 			
+			local in_instance = IsInInstance() --> garrison returns party as instance type.
+			if ((InstanceType == "party" or InstanceType == "raid") and in_instance) then
+				local boss_list = _detalhes:GetCurrentDungeonBossListFromEJ()
+				if (boss_list) then
+					local ActorsContainer = _detalhes.tabela_vigente [class_type_dano]._ActorTable
+					if (ActorsContainer) then
+						for index, Actor in _ipairs (ActorsContainer) do 
+							if (not Actor.grupo) then
+								if (boss_list [Actor.nome]) then
+									Actor.boss = true
+									return boss_found_not_registered (boss_list [Actor.nome], ZoneName, ZoneMapID, DifficultyID)
+								end
+							end
+						end
+					end
+				end
+			end
+
 			return false
 		end
 
@@ -340,6 +400,12 @@
 				_detalhes:Msg ("(debug) ended a combat.")
 			end
 			
+			--> in case of something somehow someway call to close the same combat a second time.
+			if (_detalhes.tabela_vigente == _detalhes.last_closed_combat) then
+				return
+			end
+			_detalhes.last_closed_combat = _detalhes.tabela_vigente
+			
 			--if (_detalhes.statistics) then
 			--	for k, v in pairs (_detalhes.statistics) do
 			--		print (k, v)
@@ -381,7 +447,7 @@
 			
 			if (_detalhes.tabela_vigente.bossFunction) then
 				_detalhes:CancelTimer (_detalhes.tabela_vigente.bossFunction)
-				_detalhes.bossFunction = nil
+				_detalhes.tabela_vigente.bossFunction = nil
 			end
 
 			--> finaliza a checagem se esta ou não no combate -- finish combat check
@@ -409,6 +475,31 @@
 			local _, InstanceType = _GetInstanceInfo()
 			_detalhes.tabela_vigente.instance_type = InstanceType
 			
+			if (not _detalhes.tabela_vigente.is_boss and from_encounter_end and type (from_encounter_end) == "table") then
+				local encounterID, encounterName, difficultyID, raidSize, endStatus = unpack (from_encounter_end)
+				
+				if (encounterID) then
+					local ZoneName, InstanceType, DifficultyID, DifficultyName, _, _, _, ZoneMapID = GetInstanceInfo()
+					local ejid = EJ_GetCurrentInstance()
+					if (ejid == 0) then
+						ejid = _detalhes:GetInstanceEJID()
+					end
+					local _, boss_index = _detalhes:GetBossEncounterDetailsFromEncounterId (ZoneMapID, encounterID)
+
+					_detalhes.tabela_vigente.is_boss = {
+						index = boss_index or 0,
+						name = encounterName,
+						encounter = encounterName,
+						zone = ZoneName,
+						mapid = ZoneMapID,
+						diff = DifficultyID,
+						diff_string = DifficultyName,
+						ej_instance_id = ejid or 0,
+						id = encounterID,
+					}
+				end
+			end			
+			
 			if (not _detalhes.tabela_vigente.is_boss) then
 
 				if (_detalhes.tabela_vigente.is_pvp or _detalhes.tabela_vigente.is_arena) then
@@ -417,7 +508,13 @@
 			
 				local in_instance = IsInInstance() --> garrison returns party as instance type.
 				if ((InstanceType == "party" or InstanceType == "raid") and in_instance) then
-					_detalhes.tabela_vigente.is_trash = true
+					if (InstanceType == "party") then
+						if (_detalhes:GetBossNames (_detalhes.zone_id)) then
+							_detalhes.tabela_vigente.is_trash = true
+						end
+					else
+						_detalhes.tabela_vigente.is_trash = true
+					end
 				end
 				
 				if (not _detalhes.tabela_vigente.enemy) then
@@ -438,9 +535,10 @@
 				--> verifica memoria
 				_detalhes:FlagActorsOnCommonFight() --fight_component
 				_detalhes:CheckMemoryAfterCombat()
-				
+				--print ("isn't boss")
 			else
 			
+				--print ("is boss")
 				if (not InCombatLockdown() and not UnitAffectingCombat ("player")) then
 					_detalhes:FlagActorsOnBossFight()
 				else
@@ -448,8 +546,7 @@
 				end
 				
 				local boss_id = _detalhes.encounter_table.id
-				
-				
+
 				if (bossKilled) then
 					_detalhes.tabela_vigente.is_boss.killed = true
 					
@@ -629,6 +726,7 @@
 			else
 				_detalhes:SendEvent ("COMBAT_PLAYER_LEAVE", nil, _detalhes.tabela_vigente)
 			end
+			
 		end
 
 		function _detalhes:GetPlayersInArena()

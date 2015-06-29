@@ -380,10 +380,10 @@ listener:SetScript ("OnEvent", function (self, event, ...)
 	if (encounterID == 1784) then--"Tyrant Velhari"
 		if (event == "ENCOUNTER_START") then
 			--> replacing the healing done func
-			Details.parser:SetParserFunction ("heal", parser_heal)
+			--Details.parser:SetParserFunction ("heal", parser_heal)
 		else
 			--> restoring the func
-			Details.parser:SetParserFunction ("heal", nil)
+			--Details.parser:SetParserFunction ("heal", nil)
 		end
 	end
 	

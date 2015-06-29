@@ -5451,7 +5451,7 @@ local segments_common_tex, segments_common_color = {0.5078125, 0.1171875, 0.0175
 local unknown_boss_tex, unknown_boss_color = {0.14453125, 0.9296875, 0.2625, 0.6546875}, {1, 1, 1, 0.5}
 
 local party_line_color = {170/255, 167/255, 255/255, 1}
-local party_wallpaper_tex, party_wallpaper_color = {0.09, 0.698125, 0, 0.833984375}, {1, 1, 1, 0.5}
+local party_wallpaper_tex, party_wallpaper_color, raid_wallpaper_tex = {0.09, 0.698125, 0, 0.833984375}, {1, 1, 1, 0.5}, {33/512, 361/512, 45/512, 295/512}
 
 local segments_wallpaper_color = {1, 1, 1, 0.5}
 local segment_color_lime = {0, 1, 0, 1}
@@ -5627,7 +5627,7 @@ local build_segment_list = function (self, elapsed)
 							end
 						end
 						
-						local portrait = _detalhes:GetBossPortrait (thisCombat.is_boss.mapid, thisCombat.is_boss.index)
+						local portrait = _detalhes:GetBossPortrait (thisCombat.is_boss.mapid, thisCombat.is_boss.index) or thisCombat.is_boss.bossimage
 						if (portrait) then
 							CoolTip:AddIcon (portrait, 2, "top", 128, 64)
 						end
@@ -5636,17 +5636,20 @@ local build_segment_list = function (self, elapsed)
 						local background = _detalhes:GetRaidIcon (thisCombat.is_boss.mapid)
 						if (background) then
 							CoolTip:SetWallpaper (2, background, nil, segments_wallpaper_color)
-						elseif (thisCombat.instance_type == "party") then
-							local ej_id = thisCombat.is_boss.ej_instance_id
-							if (ej_id) then
-								local name, description, bgImage, buttonImage, loreImage, dungeonAreaMapID, link = EJ_GetInstanceInfo (ej_id)
-								if (bgImage) then
-									CoolTip:SetWallpaper (2, bgImage, party_wallpaper_tex, party_wallpaper_color)
-								end
-							end
 						else
-							
-							CoolTip:SetWallpaper (2, [[Interface\BlackMarket\HotItemBanner]], unknown_boss_tex, unknown_boss_color, true)
+							local ej_id = thisCombat.is_boss.ej_instance_id
+							if (ej_id and ej_id ~= 0) then
+								local name, description, bgImage, buttonImage, loreImage, dungeonAreaMapID, link = EJ_GetInstanceInfo (ej_id)
+								if (name) then
+									if (thisCombat.instance_type == "party") then
+										CoolTip:SetWallpaper (2, bgImage, party_wallpaper_tex, party_wallpaper_color)
+									else
+										CoolTip:SetWallpaper (2, loreImage, raid_wallpaper_tex, party_wallpaper_color)
+									end
+								end
+							else
+								CoolTip:SetWallpaper (2, [[Interface\BlackMarket\HotItemBanner]], unknown_boss_tex, unknown_boss_color, true)
+							end
 						end
 					
 					elseif (thisCombat.is_pvp) then
@@ -5730,7 +5733,7 @@ local build_segment_list = function (self, elapsed)
 			local file, coords
 			
 			if (_detalhes.tabela_vigente.is_boss and _detalhes.tabela_vigente.is_boss.name) then
-				local portrait = _detalhes:GetBossPortrait (_detalhes.tabela_vigente.is_boss.mapid, _detalhes.tabela_vigente.is_boss.index)
+				local portrait = _detalhes:GetBossPortrait (_detalhes.tabela_vigente.is_boss.mapid, _detalhes.tabela_vigente.is_boss.index) or _detalhes.tabela_vigente.is_boss.bossimage
 				if (portrait) then
 					CoolTip:AddIcon (portrait, 2, "top", 128, 64)
 				end
@@ -5738,12 +5741,16 @@ local build_segment_list = function (self, elapsed)
 				local background = _detalhes:GetRaidIcon (_detalhes.tabela_vigente.is_boss.mapid)
 				if (background) then
 					CoolTip:SetWallpaper (2, background, nil, segments_wallpaper_color)
-				elseif (_detalhes.tabela_vigente.instance_type == "party") then
+				else
 					local ej_id = _detalhes.tabela_vigente.is_boss.ej_instance_id
-					if (ej_id) then
+					if (ej_id and ej_id ~= 0) then
 						local name, description, bgImage, buttonImage, loreImage, dungeonAreaMapID, link = EJ_GetInstanceInfo (ej_id)
-						if (bgImage) then
-							CoolTip:SetWallpaper (2, bgImage, party_wallpaper_tex, party_wallpaper_color)
+						if (name) then
+							if (_detalhes.tabela_vigente.instance_type == "party") then
+								CoolTip:SetWallpaper (2, bgImage, party_wallpaper_tex, party_wallpaper_color)
+							else
+								CoolTip:SetWallpaper (2, loreImage, raid_wallpaper_tex, party_wallpaper_color)
+							end
 						end
 					end
 				end

@@ -3068,6 +3068,7 @@
 		end
 	
 		local encounterID, encounterName, difficultyID, raidSize = _select (1, ...)
+		--print ("START", encounterID, encounterName, difficultyID, raidSize)
 	
 		if (_in_combat and not _detalhes.tabela_vigente.is_boss) then
 			_detalhes:SairDoCombate()
@@ -3124,6 +3125,8 @@
 			_detalhes.encounter_table.index = boss_index
 		end
 		
+		--print ("Combat Start 2")
+		
 	end
 	
 	function _detalhes.parser_functions:ENCOUNTER_END (...)
@@ -3133,7 +3136,7 @@
 		end
 	
 		local encounterID, encounterName, difficultyID, raidSize, endStatus = _select (1, ...)
-	
+		
 		--_detalhes:Msg ("encounter against|cFFFFC000", encounterName, "|rended.")
 	
 		if (not _detalhes.encounter_table.start) then
@@ -3155,10 +3158,10 @@
 		if (_in_combat) then
 			if (endStatus == 1) then
 				_detalhes.encounter_table.kill = true
-				_detalhes:SairDoCombate (true, true) --killed
+				_detalhes:SairDoCombate (true, {encounterID, encounterName, difficultyID, raidSize, endStatus}) --killed
 			else
 				_detalhes.encounter_table.kill = false
-				_detalhes:SairDoCombate (false, true) --wipe
+				_detalhes:SairDoCombate (false, {encounterID, encounterName, difficultyID, raidSize, endStatus}) --wipe
 			end
 		else
 			if ((_detalhes.tabela_vigente:GetEndTime() or 0) + 2 >= _detalhes.encounter_table ["end"]) then
