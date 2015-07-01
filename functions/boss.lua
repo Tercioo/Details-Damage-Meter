@@ -211,7 +211,7 @@ do
 			--print (_detalhes.EncounterInformation [mapid])
 			--print (_detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].encounters)
 			--print (_detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].encounters and _detalhes.EncounterInformation [mapid].encounters [bossindex])
-			return _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].encounters [bossindex].portrait
+			return _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].encounters [bossindex] and _detalhes.EncounterInformation [mapid].encounters [bossindex].portrait
 		else
 			return false
 		end
