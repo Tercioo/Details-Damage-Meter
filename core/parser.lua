@@ -85,6 +85,8 @@
 		local container_pets = {} --> place holder
 	--> ignore deaths
 		local ignore_death = {}
+	--> special items
+		local soul_capacitor = {} --> trinket from Socrethar the Eternal
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> constants
@@ -190,7 +192,16 @@
 		if (spellid == 98021) then
 			return parser:SLT_damage (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand, multistrike)
 		end
-
+		
+		if (soul_capacitor [who_serial]) then
+			if (soul_capacitor [who_serial]+12 < _tempo) then
+				--> something went wrong, debuff didn't expired or we didn't saw it going out.
+				soul_capacitor [who_serial] = nil
+			else
+				return
+			end
+		end
+		
 	------------------------------------------------------------------------------------------------	
 	--> check if need start an combat
 
@@ -300,14 +311,14 @@
 		
 		--> last event
 		este_jogador.last_event = _tempo
-		
+
 	------------------------------------------------------------------------------------------------
 	--> group checks and avoidance
 
 		if (absorbed) then
 			amount = absorbed + (amount or 0)
-		end	
-	
+		end
+		
 		if (este_jogador.grupo and not este_jogador.arena_enemy) then --> source = friendly player
 			_current_gtotal [1] = _current_gtotal [1]+amount
 			
@@ -457,7 +468,7 @@
 			if (spellid == 108446) then
 				return
 			end
-		
+
 			--> record death log (o erro era o pet, não tinha tabela então dava erro)
 			if (este_jogador.grupo) then --> se tiver ele não adiciona o evento lá em cima
 				local t = last_events_cache [alvo_name]
@@ -700,6 +711,8 @@
 				return --> just return if actor doen't exist yet
 			end
 		end
+		
+		este_jogador.last_event = _tempo
 
 		if (tanks_members_cache [alvo_serial]) then --> only track tanks
 		
@@ -842,6 +855,7 @@
 		[114556] = true, -- Purgatory (DK)
 		[115069] = true, -- Stance of the Sturdy Ox (Monk)
 		[20711] = true, -- Spirit of Redemption (Priest)
+		[184553]  = true, --Soul Capacitor
 	}
 	
 	local ignored_overheal = {
@@ -1192,6 +1206,8 @@
 					parser:dead ("UNIT_DIED", time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags)
 					ignore_death [who_name] = true
 					return
+				elseif (spellid == 184293) then --> WOD trinket: Soul Capacitor T18
+					soul_capacitor [who_serial] = _tempo
 				end
 
 				if (_recording_buffs_and_debuffs) then
@@ -1552,7 +1568,11 @@
 						parser:add_buff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, "BUFF_UPTIME_OUT")
 					end
 				end
-		
+				
+				if (spellid == 184293) then --> WOD trinket: Soul Capacitor T18
+					soul_capacitor [who_serial] = nil
+				end
+				
 			------------------------------------------------------------------------------------------------
 			--> healing done (shields)
 				if (absorb_spell_list [spellid] and _recording_healing) then

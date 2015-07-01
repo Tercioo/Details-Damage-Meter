@@ -4125,18 +4125,20 @@ local fast_ps_func = function (self)
 	local combat_time = instance.showing:GetCombatTime()
 	local ps_type = _detalhes.ps_abbreviation
 
-	for i = 1, instance.rows_fit_in_window do --instance:GetNumRows()
-		local row = instance.barras [i] --instance:GetRow (i)
-		if (row and row:IsShown()) then
-			local actor = row.minha_tabela
-			if (actor) then
-				local dps_text = row.ps_text
-				if (dps_text) then
-					local new_dps = _math_floor (actor.total / combat_time)
-					local formated_dps = tok_functions [ps_type] (_, new_dps)
+	if (instance.rows_fit_in_window) then
+		for i = 1, instance.rows_fit_in_window do --instance:GetNumRows()
+			local row = instance.barras [i] --instance:GetRow (i)
+			if (row and row:IsShown()) then
+				local actor = row.minha_tabela
+				if (actor) then
+					local dps_text = row.ps_text
+					if (dps_text) then
+						local new_dps = _math_floor (actor.total / combat_time)
+						local formated_dps = tok_functions [ps_type] (_, new_dps)
 
-					row.texto_direita:SetText (row.texto_direita:GetText():gsub (dps_text, formated_dps))
-					row.ps_text = formated_dps
+						row.texto_direita:SetText (row.texto_direita:GetText():gsub (dps_text, formated_dps))
+						row.ps_text = formated_dps
+					end
 				end
 			end
 		end
@@ -5626,7 +5628,7 @@ local build_segment_list = function (self, elapsed)
 								CoolTip:AddLine (thisCombat.is_boss.name .." (#"..i..")", _, 1, "red")
 							end
 						end
-						
+
 						local portrait = _detalhes:GetBossPortrait (thisCombat.is_boss.mapid, thisCombat.is_boss.index) or thisCombat.is_boss.bossimage
 						if (portrait) then
 							CoolTip:AddIcon (portrait, 2, "top", 128, 64)
