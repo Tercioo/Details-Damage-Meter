@@ -373,6 +373,13 @@ function _G._detalhes:Start()
 			end
 			
 			--> check elvui for the new player detail skin
+			if (_detalhes_database.last_realversion and _detalhes_database.last_realversion < 71 and enable_reset_warning) then
+				function _detalhes:PDWElvuiCheck()
+					_detalhes:ApplyPDWSkin ("ElvUI")
+				end
+				_detalhes:ScheduleTimer ("PDWElvuiCheck", 2)
+			end
+			
 			if (_detalhes_database.last_realversion and _detalhes_database.last_realversion < 69 and enable_reset_warning) then
 				function _detalhes:PDWElvuiCheck()
 					local ElvUI = _G.ElvUI

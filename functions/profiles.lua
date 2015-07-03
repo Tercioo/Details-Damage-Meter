@@ -852,7 +852,7 @@ local default_profile = {
 	
 	--> info window
 		player_details_window = {
-			skin = "WoWClassic",
+			skin = "ElvUI",
 			bar_texture = "Skyline",
 			scale = 1,
 		},
