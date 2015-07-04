@@ -2840,15 +2840,16 @@ function atributo_damage:MontaInfoDamageDone()
 	--> add pets
 	local ActorPets = self.pets
 	--local class_color = RAID_CLASS_COLORS [self.classe] and RAID_CLASS_COLORS [self.classe].colorStr
-	local class_color = "FFDDDDDD"
-	local class_color = "FFDDDD44"
+	local class_color = "FFCCBBBB"
+	--local class_color = "FFDDDD44"
 	for _, PetName in _ipairs (ActorPets) do
 		local PetActor = instancia.showing (class_type, PetName)
 		if (PetActor) then 
 			local PetSkillsContainer = PetActor.spells._ActorTable
 			for _spellid, _skill in _pairs (PetSkillsContainer) do --> da foreach em cada spellid do container
 				local nome, _, icone = _GetSpellInfo (_spellid)
-				_table_insert (ActorSkillsSortTable, {_spellid, _skill.total, _skill.total/ActorTotalDamage*100, nome .. " |TInterface\\AddOns\\Details\\images\\classes_small_alpha:12:12:0:0:128:128:33:64:96:128|t|c" .. class_color .. PetName:gsub ((" <.*"), "") .. "|r", icone, PetActor, _skill.spellschool})
+				--_table_insert (ActorSkillsSortTable, {_spellid, _skill.total, _skill.total/ActorTotalDamage*100, nome .. " |TInterface\\AddOns\\Details\\images\\classes_small_alpha:12:12:0:0:128:128:33:64:96:128|t|c" .. class_color .. PetName:gsub ((" <.*"), "") .. "|r", icone, PetActor, _skill.spellschool})
+				_table_insert (ActorSkillsSortTable, {_spellid, _skill.total, _skill.total/ActorTotalDamage*100, nome .. " (|c" .. class_color .. PetName:gsub ((" <.*"), "") .. "|r)", icone, PetActor, _skill.spellschool})
 			end
 		end
 	end

@@ -817,7 +817,13 @@ do
 			end
 			
 			texture:ClearAllPoints()
+			
 			phase = math.min (phase, 5)
+			if (not phase_colors [phase]) then
+				_detalhes:Msg ("Phase out of range:", phase)
+				phase = math.max (phase, 1)
+			end
+
 			texture.texture:SetVertexColor (unpack (phase_colors [phase]))
 			local oc = texture.texture.original_color
 			oc[1], oc[2], oc[3] = unpack (phase_colors [phase])

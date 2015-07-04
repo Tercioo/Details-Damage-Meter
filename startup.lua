@@ -376,6 +376,10 @@ function _G._detalhes:Start()
 			if (_detalhes_database.last_realversion and _detalhes_database.last_realversion < 71 and enable_reset_warning) then
 				function _detalhes:PDWElvuiCheck()
 					_detalhes:ApplyPDWSkin ("ElvUI")
+					
+					_detalhes.class_specs_coords[62][1] = (128/512) + 0.001953125
+					_detalhes.class_specs_coords[70][1] = (128/512) + 0.001953125
+					_detalhes.class_specs_coords[258][1] = (320/512) + 0.001953125
 				end
 				_detalhes:ScheduleTimer ("PDWElvuiCheck", 2)
 			end
