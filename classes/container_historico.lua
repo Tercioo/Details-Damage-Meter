@@ -35,7 +35,8 @@ function historico:adicionar_overall (tabela)
 
 	--> store the segments added to the overall data
 	_detalhes.tabela_overall.segments_added = _detalhes.tabela_overall.segments_added or {}
-	tinsert (_detalhes.tabela_overall.segments_added, 1, {name = tabela:GetCombatName (true), elapsed = tabela:GetCombatTime(), clock = tabela:GetDate()[1]})
+	local this_clock = tabela.data_inicio
+	tinsert (_detalhes.tabela_overall.segments_added, 1, {name = tabela:GetCombatName (true), elapsed = tabela:GetCombatTime(), clock = this_clock})
 	
 	if (#_detalhes.tabela_overall.segments_added > 20) then
 		tremove (_detalhes.tabela_overall.segments_added, 21)

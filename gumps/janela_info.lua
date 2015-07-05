@@ -164,16 +164,18 @@ function _detalhes:AbreJanelaInfo (jogador, from_att_change, refresh)
 	info.classe_icone:SetTexture ("Interface\\AddOns\\Details\\images\\classes") --> top left
 	info.SetClassIcon (jogador, classe)
 
-	if (jogador.grupo and IsInRaid() and not avatar) then
-		for i = 1, GetNumGroupMembers() do
-			local playerName, realmName = UnitName ("raid" .. i)
-			if (realmName and realmName ~= "") then
-				playerName = playerName .. "-" .. realmName
-			end
-			if (playerName == jogador.nome) then
-				SetPortraitTexture (info.classe_icone, "raid" .. i)
-				info.classe_icone:SetTexCoord (0, 1, 0, 1)
-				break
+	if (_detalhes.player_details_window.skin == "WoWClassic") then
+		if (jogador.grupo and IsInRaid() and not avatar) then
+			for i = 1, GetNumGroupMembers() do
+				local playerName, realmName = UnitName ("raid" .. i)
+				if (realmName and realmName ~= "") then
+					playerName = playerName .. "-" .. realmName
+				end
+				if (playerName == jogador.nome) then
+					SetPortraitTexture (info.classe_icone, "raid" .. i)
+					info.classe_icone:SetTexCoord (0, 1, 0, 1)
+					break
+				end
 			end
 		end
 	end

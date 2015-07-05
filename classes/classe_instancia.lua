@@ -1567,7 +1567,7 @@ function _detalhes:CheckSwitchOnCombatEnd (nowipe, warning)
 	
 	if (warning and got_switch) then
 		local attribute_name = self:GetInstanceAttributeText()
-		self:InstanceAlert (string.format (Loc ["STRING_SWITCH_WARNING"], attribute_name), {[[Interface\AddOns\Details\images\sword]], 18, 18, false}, 4)
+		self:InstanceAlert (string.format (Loc ["STRING_SWITCH_WARNING"], attribute_name), {[[Interface\CHARACTERFRAME\UI-StateIcon]], 18, 18, false, 0.5, 1, 0, 0.5}, 4)
 	end
 	
 	if (self.switch_all_roles_after_wipe and not nowipe) then

@@ -2721,7 +2721,8 @@ function atributo_damage:MontaInfoDamageTaken()
 			texCoords = _detalhes.class_coords ["UNKNOW"]
 		end
 		
-		self:UpdadeInfoBar (barra, index, tabela[1], tabela[1], tabela[2], _detalhes:comma_value (tabela[2]), max_, tabela[3], "Interface\\AddOns\\Details\\images\\classes_small_alpha", true, texCoords, nil, tabela[4])
+		local formated_value = SelectedToKFunction (_, _math_floor (tabela[2]))
+		self:UpdadeInfoBar (barra, index, tabela[1], tabela[1], tabela[2], formated_value, max_, tabela[3], "Interface\\AddOns\\Details\\images\\classes_small_alpha", true, texCoords, nil, tabela[4])
 	end
 	
 end
@@ -2872,9 +2873,11 @@ function atributo_damage:MontaInfoDamageDone()
 		local name = tabela[4]
 		
 		if (info.sub_atributo == 2) then
-			self:UpdadeInfoBar (barra, index, tabela[1], name, tabela[2], _detalhes:comma_value (_math_floor (tabela[2]/meu_tempo)), max_, tabela[3], tabela[5], true, nil, tabela [7])
+			local formated_value = SelectedToKFunction (_, _math_floor (tabela[2]/meu_tempo))
+			self:UpdadeInfoBar (barra, index, tabela[1], name, tabela[2], formated_value, max_, tabela[3], tabela[5], true, nil, tabela [7])
 		else
-			self:UpdadeInfoBar (barra, index, tabela[1], name, tabela[2], _detalhes:comma_value (tabela[2]), max_, tabela[3], tabela[5], true, nil, tabela [7])
+			local formated_value = SelectedToKFunction (_, _math_floor (tabela[2]))
+			self:UpdadeInfoBar (barra, index, tabela[1], name, tabela[2], formated_value, max_, tabela[3], tabela[5], true, nil, tabela [7])
 		end
 		
 		self:FocusLock (barra, tabela[1])

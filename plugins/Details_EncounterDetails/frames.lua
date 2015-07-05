@@ -512,7 +512,9 @@ do
 		g.PhaseTextures = {}
 		
 		local phase_alpha = 0.5
-		local phase_colors = {{0.2, 1, 0.2, phase_alpha}, {1, 1, 0.2, phase_alpha}, {1, 0.2, 0.2, phase_alpha}, {0.2, 1, 1, phase_alpha}, {0.2, 0.2, 1, phase_alpha}}
+		local phase_colors = {{0.2, 1, 0.2, phase_alpha}, {1, 1, 0.2, phase_alpha}, {1, 0.2, 0.2, phase_alpha}, {0.2, 1, 1, phase_alpha}, {0.2, 0.2, 1, phase_alpha},
+			[1.5] = {0.25, 0.95, 0.25, phase_alpha}, [2.5] = {0.95, 0.95, 0.25, phase_alpha}, [3.5] = {0.95, 0.25, 0.25, phase_alpha}
+		}
 		
 		local phase_panel = CreateFrame ("frame", "EncounterDetailsPhasePanel", g)
 		phase_panel:SetFrameStrata ("TOOLTIP")

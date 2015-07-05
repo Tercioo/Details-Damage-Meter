@@ -1463,7 +1463,8 @@ function atributo_heal:MontaInfoHealTaken()
 			texCoords = _detalhes.class_coords ["UNKNOW"]
 		end
 		
-		self:UpdadeInfoBar (barra, index, tabela[1], tabela[1], tabela[2], _detalhes:comma_value (tabela[2]), max_, tabela[3], "Interface\\AddOns\\Details\\images\\classes_small", true, texCoords)
+		local formated_value = SelectedToKFunction (_, _math_floor (tabela[2]))
+		self:UpdadeInfoBar (barra, index, tabela[1], tabela[1], tabela[2], formated_value, max_, tabela[3], "Interface\\AddOns\\Details\\images\\classes_small", true, texCoords)
 	end	
 	
 end
@@ -1524,7 +1525,9 @@ function atributo_heal:MontaInfoOverHealing()
 		end
 
 		barra.texto_esquerdo:SetText (index..instancia.divisores.colocacao..tabela[4]) --seta o texto da esqueda
-		barra.texto_direita:SetText (_detalhes:comma_value (tabela[2]) .." ".. instancia.divisores.abre .. _cstr ("%.1f", tabela[3]) .."%".. instancia.divisores.fecha)
+		
+		local formated_value = SelectedToKFunction (_, _math_floor (tabela[2]))
+		barra.texto_direita:SetText (formated_value .." (".. _cstr ("%.1f", tabela[3]) .."%)")
 
 		barra.icone:SetTexture (tabela[5])
 
@@ -1651,9 +1654,11 @@ function atributo_heal:MontaInfoHealingDone()
 		barra.other_actor = tabela [6]
 		
 		if (info.sub_atributo == 2) then
-			self:UpdadeInfoBar (barra, index, tabela[1], tabela[4], tabela[2], _detalhes:comma_value (_math_floor (tabela[2]/meu_tempo)), max_, tabela[3], tabela[5], true)
+			local formated_value = SelectedToKFunction (_, _math_floor (tabela[2]/meu_tempo))
+			self:UpdadeInfoBar (barra, index, tabela[1], tabela[4], tabela[2], formated_value, max_, tabela[3], tabela[5], true)
 		else
-			self:UpdadeInfoBar (barra, index, tabela[1], tabela[4], tabela[2], _detalhes:comma_value (tabela[2]), max_, tabela[3], tabela[5], true)
+			local formated_value = SelectedToKFunction (_, _math_floor (tabela[2]))
+			self:UpdadeInfoBar (barra, index, tabela[1], tabela[4], tabela[2], formated_value, max_, tabela[3], tabela[5], true)
 		end
 
 		barra.minha_tabela = self
