@@ -854,6 +854,7 @@ function _detalhes.storage:GetEncounterData (diff, encounter_id, guild)
 end
 
 local store_instances = {
+	[1448] = true, --Hellfire Citadel
 	[1205] = true, --Blackrock Foundry
 	[1228] = true, --Highmaul
 	--[1136] = true, --SoO
