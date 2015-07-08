@@ -18,8 +18,6 @@ local _IsInGuild = IsInGuild --> wow api locals
 local _GetChannelList = GetChannelList --> wow api locals
 local _UIParent = UIParent --> wow api locals
 
-local _UISpecialFrames = UISpecialFrames --> wow api locals
-
 --> details API functions -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 	function _detalhes:FastReportWindow (window)
@@ -280,6 +278,13 @@ local _UISpecialFrames = UISpecialFrames --> wow api locals
 							if (botao == "LeftButton") then
 								self:StartMoving()
 								self.isMoving = true
+							elseif (botao == "RightButton") then
+								if (self.isMoving) then
+									self:StopMovingOrSizing()
+									savepos (self)
+									self.isMoving = false
+								end
+								self:Hide()
 							end
 						end)
 						
@@ -378,6 +383,7 @@ local function cria_drop_down (este_gump)
 		local select_output = gump:NewDropDown (este_gump, _, "$parentOutputDropdown", "select", 185, 20, build_list, 1)
 		select_output:SetPoint ("topleft", este_gump, "topleft", 107, -55)
 		este_gump.select = select_output.widget
+		este_gump.dropdown = select_output
 		
 		function select_output:CheckValid()
 			
@@ -502,7 +508,7 @@ local function cria_drop_down (este_gump)
 		
 		editbox:SetHeight (14)
 		editbox:SetWidth (120)
-		editbox:SetJustifyH ("LEFT")
+		editbox:SetJustifyH ("center")
 		editbox:EnableMouse(true)
 		editbox:SetBackdrop ({
 			bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
@@ -540,7 +546,7 @@ local function cria_drop_down (este_gump)
 		
 		editbox:SetScript ("OnEnter", function() 
 			editbox.mouse_over = true 
-			editbox:SetBackdropColor(0.1, 0.1, 0.1, 0.7)
+			--editbox:SetBackdropColor(0.1, 0.1, 0.1, 0.7)
 			if (editbox:GetText() == "" and not editbox.focus) then
 				editbox:SetText (Loc ["STRING_REPORTFRAME_INSERTNAME"])
 			end 
@@ -548,7 +554,7 @@ local function cria_drop_down (este_gump)
 		
 		editbox:SetScript ("OnLeave", function() 
 			editbox.mouse_over = false 
-			editbox:SetBackdropColor(0.0, 0.0, 0.0, 0.0)
+			--editbox:SetBackdropColor(0.0, 0.0, 0.0, 0.0)
 			if (not editbox:HasFocus()) then 
 				if (editbox:GetText() == Loc ["STRING_REPORTFRAME_INSERTNAME"]) then
 					editbox:SetText("") 
@@ -606,120 +612,479 @@ local function cria_drop_down (este_gump)
 
 --> frame creation function
 
+
+	local elvui_skin = function()
+	
+		local window = DetailsReportWindow
+	
+		local b_onenter = function (self)
+			self:SetBackdropColor (0.4, 0.4, 0.4, 0.6)
+			self.icon:SetBlendMode ("ADD")
+			_detalhes:SetFontColor (self.text, "yellow")
+		end
+		local b_onleave = function (self)
+			self:SetBackdropColor (0, 0, 0, 0.3)
+			self.icon:SetBlendMode ("BLEND")
+			_detalhes:SetFontColor (self.text, "white")
+		end
+	
+		for i = 1, 9 do --window.max_last_buttons
+			local b = window.recently_report_buttons [i]
+			
+			b:SetSize (120, 16)
+			b:SetPoint ("topleft", window, "topleft", 10, -12 + (i*17*-1))
+			b:Show()
+			b:SetBackdrop ({bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 16,
+			insets = {left = 0, right = 0, top = 0, bottom = 0}})
+			b:SetBackdropColor (0, 0, 0, 0.3)
+			b.text:SetTextColor (1, 1, 1, 1)
+			_detalhes:SetFontSize (b.text, 9)
+			
+			b:SetScript ("OnEnter", b_onenter)
+			b:SetScript ("OnLeave", b_onleave)
+		end
+
+		window.fechar:SetWidth (20)
+		window.fechar:SetHeight (20)
+		window.fechar:SetPoint ("TOPRIGHT", window, "TOPRIGHT", 0, -3)
+		window.fechar:Show()
+		window.fechar:GetNormalTexture():SetDesaturated (true)
+
+		local b = window.recently_report_buttons [10]
+		b:Hide()
+		
+		Details_Report_CB_1:Hide()
+		Details_Report_CB_2:Hide()
+		
+		window.dropdown:ClearAllPoints()
+		window.dropdown:SetWidth (155)
+		window.dropdown:SetPoint ("topleft", window, "topleft", 160, -30)
+		window.dropdown:SetBackdrop ({bgFile = [[Interface\DialogFrame\UI-DialogBox-Background-Dark]], edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, tile=true,
+		tileSize = 64, insets = {left = 0, right = 0, top = 0, bottom = 0}})
+		window.dropdown:SetBackdropBorderColor (0, 0, 0, 0.5)
+		window.dropdown:SetBackdropColor (0, 0, 0, 0.1)
+		
+		window.wisp_who:ClearAllPoints()
+		window.editbox:ClearAllPoints()
+		window.wisp_who:SetPoint ("topleft", window.dropdown.widget, "bottomleft", 0, -11)
+		window.editbox:SetPoint ("topleft", window.wisp_who, "bottomleft", 0, -3)
+		window.editbox:SetWidth (155)
+		window.editbox:SetHeight (20)
+		window.editbox:SetBackdrop ({bgFile = [[Interface\DialogFrame\UI-DialogBox-Background-Dark]], edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, tile=true,
+		tileSize = 64, insets = {left = 0, right = 0, top = 0, bottom = 0}})
+		window.editbox:SetBackdropBorderColor (0, 0, 0, 0.5)
+		window.editbox:SetBackdropColor (0, 0, 0, 0.3)
+		
+		window.linhas_amt:ClearAllPoints()
+		window.linhas_amt:SetPoint ("topleft", window.editbox, "bottomleft", 0, -11)
+		window.slider:ClearAllPoints()
+		window.slider:SetWidth (155)
+		window.slider:SetPoint ("topleft", window.linhas_amt, "bottomleft", 0, -3)
+		window.slider:SetBackdrop ({bgFile = [[Interface\DialogFrame\UI-DialogBox-Background-Dark]], edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, tile=true,
+		tileSize = 64, insets = {left = 0, right = 0, top = 0, bottom = 0}})
+		window.slider:SetBackdropBorderColor (0, 0, 0, 0.5)
+		window.slider:SetBackdropColor (0, 0, 0, 0.3)
+		
+		window.slider.thumb:SetTexture ([[Interface\AddOns\Details\images\icons2]])
+		window.slider.thumb:SetTexCoord (482/512, 492/512, 104/512, 120/512)
+		window.slider.thumb:SetSize (16, 16)
+		window.slider.thumb:SetVertexColor (0.6, 0.6, 0.6, 0.95)		
+		
+		window.enviar:ClearAllPoints()
+		window.enviar:SetPoint ("topleft", window.slider, "bottomleft", 0, -15)
+		window.enviar:SetBackdrop ({bgFile = [[Interface\DialogFrame\UI-DialogBox-Background-Dark]], edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, tile=true,
+		tileSize = 64, insets = {left = 0, right = 0, top = 0, bottom = 0}})
+		window.enviar:SetBackdropBorderColor (0, 0, 0, 0.5)
+		window.enviar:SetBackdropColor (0, 0, 0, 0.3)
+		window.enviar.Left:Hide()
+		window.enviar.Middle:Hide()
+		window.enviar.Right:Hide()
+		
+		window:SetWidth (342)
+		window:SetHeight (190)
+		window:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1})
+		window:SetBackdropColor (1, 1, 1, 1)
+		window:SetBackdropBorderColor (0, 0, 0, 1)
+	
+		if (not window.elvui_widgets) then
+			window.elvui_widgets = {}
+			
+			local titlebar = CreateFrame ("frame", window:GetName() .. "ElvUITitleBar", window)
+			titlebar:SetPoint ("topleft", window, "topleft", 2, -3)
+			titlebar:SetPoint ("topright", window, "topright", -2, -3)
+			titlebar:SetHeight (20)
+			titlebar:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]], tileSize = 64, tile = true})
+			titlebar:SetBackdropColor (.5, .5, .5, 1)
+			titlebar:SetBackdropBorderColor (0, 0, 0, 1)
+			
+			local bg1 = window:CreateTexture (nil, "background")
+			bg1:SetTexture ([[Interface\AddOns\Details\images\background]], true)
+			bg1:SetAlpha (0.7)
+			bg1:SetVertexColor (0.27, 0.27, 0.27)
+			bg1:SetVertTile (true)
+			bg1:SetHorizTile (true)
+			bg1:SetAllPoints()
+			
+			tinsert (window.all_widgets, bg1)
+			tinsert (window.elvui_widgets, bg1)
+			tinsert (window.all_widgets, titlebar)
+			tinsert (window.elvui_widgets, titlebar)
+		end
+
+		window.title:ClearAllPoints()
+		window.title:SetPoint ("center", window, "center")
+		window.title:SetPoint ("top", window, "top", 0, -7)
+		window.title:SetParent (_G [window:GetName() .. "ElvUITitleBar"])
+		window.title:SetTextColor (.8, .8, .8, 1)
+		window.title:Show()
+		
+		for _, widget in ipairs (window.elvui_widgets) do
+			widget:Show()
+		end
+		
+	end
+	
+	local classic_skin = function()
+	
+		local window = DetailsReportWindow
+	
+		local b_onenter = function (self)
+			self:SetBackdropColor (0.4, 0.4, 0.4, 0.6)
+			self.icon:SetBlendMode ("ADD")
+			_detalhes:SetFontColor (self.text, "yellow")
+		end
+		local b_onleave = function (self)
+			self:SetBackdropColor (0, 0, 0, 0.3)
+			self.icon:SetBlendMode ("BLEND")
+			_detalhes:SetFontColor (self.text, "white")
+		end
+	
+		for i = 1, 9 do --window.max_last_buttons
+			local b = window.recently_report_buttons [i]
+			
+			b:SetSize (120, 16)
+			b:SetPoint ("topleft", window, "topleft", 10, -50 + (i*17*-1))
+			b:Show()
+			b:SetBackdrop ({bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 16,
+			insets = {left = 0, right = 0, top = 0, bottom = 0}})
+			b:SetBackdropColor (0, 0, 0, 0.3)
+			b.text:SetTextColor (1, 1, 1, 1)
+			_detalhes:SetFontSize (b.text, 9)
+			
+			b:SetScript ("OnEnter", b_onenter)
+			b:SetScript ("OnLeave", b_onleave)
+		end
+		
+		local b = window.recently_report_buttons [10]
+		b:Hide()
+		
+		Details_Report_CB_1:Hide()
+		Details_Report_CB_2:Hide()
+		
+		window.dropdown:ClearAllPoints()
+		window.dropdown:SetWidth (145)
+		window.dropdown:SetPoint ("topleft", window, "topleft", 160, -68)
+		
+		
+		window.wisp_who:ClearAllPoints()
+		window.editbox:ClearAllPoints()
+		window.wisp_who:SetPoint ("topleft", window.dropdown.widget, "bottomleft", 0, -11)
+		window.editbox:SetPoint ("topleft", window.wisp_who, "bottomleft", 0, -3)
+		window.editbox:SetWidth (145)
+		window.editbox:SetHeight (20)
+		window.editbox:SetBackdrop ({bgFile = [[Interface\DialogFrame\UI-DialogBox-Background-Dark]], edgeFile = [[Interface\AddOns\Details\images\border_3]], tile=true,
+		edgeSize = 15, tileSize = 64, insets = {left = 3, right = 3, top = 4, bottom = 4}})
+		
+		window.linhas_amt:ClearAllPoints()
+		window.linhas_amt:SetPoint ("topleft", window.editbox, "bottomleft", 0, -11)
+		window.slider:ClearAllPoints()
+		window.slider :SetWidth (145)
+		window.slider:SetPoint ("topleft", window.linhas_amt, "bottomleft", 0, -3)
+		window.slider:SetBackdrop ({bgFile = [[Interface\DialogFrame\UI-DialogBox-Background-Dark]], edgeFile = [[Interface\AddOns\Details\images\border_3]], tile=true,
+		edgeSize = 15, tileSize = 64, insets = {left = 3, right = 3, top = 4, bottom = 4}})
+		
+		window.slider.thumb:SetTexture ("Interface\\Buttons\\UI-ScrollBar-Knob")
+		window.slider.thumb:SetSize (30, 24)
+		window.slider.thumb:SetAlpha (0.7)
+		
+		window.enviar:ClearAllPoints()
+		window.enviar:SetPoint ("topleft", window.slider, "bottomleft", 0, -11)
+		window.enviar.Left:Show()
+		window.enviar.Middle:Show()
+		window.enviar.Right:Show()
+		
+		window:SetWidth (342)
+		window:SetHeight (255)
+		window:SetBackdrop (nil)
+		
+		window.fechar:Hide()
+		window.title:Hide()
+		
+		if (not window.classic_widgets) then
+			window.classic_widgets = {}
+			
+			local f = CreateFrame ("frame", window:GetName() .. "F", window, "ButtonFrameTemplate")
+			f:SetAllPoints()
+			
+			f.portrait:SetTexture ("Interface\\AddOns\\Details\\images\\report_frame_icons")
+			f.portrait:SetTexCoord (1/256, 64/256, 1/256, 64/256)
+			
+			f.TitleText:SetText (Loc ["STRING_REPORTFRAME_WINDOW_TITLE"])
+			f:SetFrameLevel (window:GetFrameLevel()-1)
+			
+			_G [window:GetName() .. "FCloseButton"]:SetFrameLevel (window:GetFrameLevel()+1)
+			_G [window:GetName() .. "FCloseButton"]:SetScript ("OnClick", function()
+				window:Hide()
+			end)
+
+			tinsert (window.classic_widgets, f)
+			tinsert (window.all_widgets, f)
+		end
+
+		for _, widget in ipairs (window.classic_widgets) do
+			widget:Show()
+		end
+
+	end
+
+	
+	function _detalhes:UpdateRecentlyReported()
+		DetailsReportWindow:RefreshRecentlyReported()
+	end
+	function _detalhes:DelayUpdateReportWindowRecentlyReported()
+		if (DetailsReportWindow) then
+			_detalhes:ScheduleTimer ("UpdateRecentlyReported", 0.5)
+		end
+	end
+	
+	function _detalhes:CheckLastReportsIntegrity()
+		local last_reports = _detalhes.latest_report_table or {}
+		if (#last_reports > 0) then
+			local i = 1
+			for index = #last_reports, 1, -1 do
+				local report = last_reports [index]
+				local instance_id, atributo, sub_atributo, amt, where, custom_name = unpack (report)
+				if (atributo == 5) then
+					if (not custom_name) then
+						tremove (last_reports, index)
+					else
+						local found
+						for _, custom in ipairs (_detalhes.custom) do
+							if (custom.name == custom_name) then
+								found = true
+								break
+							end
+						end
+						if (not found) then
+							tremove (last_reports, index)
+						end
+					end
+				end
+			end
+		end
+	end
+	
 	function gump:CriaJanelaReport()
-		
-		local este_gump = _CreateFrame ("Frame", "DetailsReportWindow", _UIParent)
-		este_gump:SetPoint ("CENTER", UIParent, "CENTER")
-		este_gump:SetFrameStrata ("DIALOG")
-		
-		este_gump:SetScript ("OnShow", function (self)
-			local dropdown = este_gump.select.MyObject
-			local where = _detalhes.report_where
+
+		--> window
+			local window = _CreateFrame ("Frame", "DetailsReportWindow", _UIParent)
+			tinsert (UISpecialFrames, "DetailsReportWindow")
+			window:SetPoint ("CENTER", UIParent, "CENTER")
+			window:SetFrameStrata ("DIALOG")
+			window.skins = {}
+			window.all_widgets = {}
+			window.max_last_buttons = 10
 			
-			local list = este_gump.dropdown_func()
-			local found
+			window:EnableMouse (true)
+			window:SetResizable (false)
+			window:SetMovable (true)
+			restorepos (window)
+
+			_detalhes.janela_report = window
+	
+			_detalhes:InstallRPSkin ("WoWClassic", classic_skin)
+			_detalhes:InstallRPSkin ("ElvUI", elvui_skin)
+	
+		--> all new widgets:
 			
-			for index, option in ipairs (list) do
-				if (option.value == where) then
-					dropdown:Select (where)
-					found = true
-					break
+			--recently reported:
+			window.recently_report_buttons = {}
+			
+			function window:RefreshRecentlyReported()
+				for i = 1, window.max_last_buttons do
+					local b = window.recently_report_buttons [i]
+					b.icon:SetTexture (nil)
+					b:Hide()
+				end
+				
+				_detalhes:CheckLastReportsIntegrity()
+				
+				local last_reports = _detalhes.latest_report_table
+				if (#last_reports > 0) then
+					local i = 1
+					for index = 1, min (#last_reports, 10) do
+						local b = window.recently_report_buttons [i]
+						local report = last_reports [index]
+						local instance_number, attribute, subattribute, amt, report_where = unpack (report)
+						local name = _detalhes:GetSubAttributeName (attribute, subattribute)
+						local artwork =  _detalhes.GetReportIconAndColor (report_where)
+						
+						b.text:SetText (name .. " (#" .. amt .. ")")
+						b.index = index
+						if (artwork) then
+							b.icon:SetTexture (artwork.icon)
+							b.icon:SetTexCoord (artwork.coords[1], artwork.coords[2], artwork.coords[3], artwork.coords[4])
+							b.icon:SetVertexColor (unpack (artwork.color or {}))
+						end
+						
+						b:Show()
+						i = i + 1
+					end
 				end
 			end
 			
-			if (not found) then
-				if (_IsInRaid()) then
-					dropdown:Select ("RAID")
-					_detalhes.report_where = "RAID"
-					
-				elseif (GetNumSubgroupMembers() > 0) then
-					dropdown:Select ("PARTY")
-					_detalhes.report_where = "PARTY"
-					
-				elseif (_IsInGuild()) then
-					dropdown:Select ("GUILD")
-					_detalhes.report_where = "GUILD"
-					
-				else
-					dropdown:Select ("SAY")
-					_detalhes.report_where = "SAY"
+			local recently_on_click = function (self)
+				if (self.index) then
+					return _detalhes.ReportFromLatest (_, _, self.index)
+				end 
+			end
+			
+			for i = 1, window.max_last_buttons do
+				local b = CreateFrame ("button", "DetailsReportWindowRRB" .. i, window)
+				local icon = b:CreateTexture (nil, "overlay")
+				icon:SetPoint ("left", b, "left")
+				icon:SetSize (16, 16)
+				local text = b:CreateFontString (nil, "overlay", "GameFontNormal")
+				text:SetPoint ("left", icon, "right", 2, 0)
+				b.icon = icon
+				b.text = text
+				b:SetScript ("OnClick", recently_on_click)
+				tinsert (window.recently_report_buttons, b)
+			end
+
+		--> scritps
+			window:SetScript ("OnShow", function (self)
+				local dropdown = window.select.MyObject
+				local where = _detalhes.report_where
+				
+				local list = window.dropdown_func()
+				local found
+				
+				for index, option in ipairs (list) do
+					if (option.value == where) then
+						dropdown:Select (where)
+						found = true
+						break
+					end
 				end
-			end
-			
-		end)
+				
+				if (not found) then
+					if (_IsInRaid()) then
+						dropdown:Select ("RAID")
+						_detalhes.report_where = "RAID"
+						
+					elseif (GetNumSubgroupMembers() > 0) then
+						dropdown:Select ("PARTY")
+						_detalhes.report_where = "PARTY"
+						
+					elseif (_IsInGuild()) then
+						dropdown:Select ("GUILD")
+						_detalhes.report_where = "GUILD"
+						
+					else
+						dropdown:Select ("SAY")
+						_detalhes.report_where = "SAY"
+					end
+				end
+				
+				window:RefreshRecentlyReported()
+				
+			end)
 
-		_tinsert (_UISpecialFrames, este_gump:GetName())
-		
-		este_gump:SetScript ("OnHide", function (self)
-			_detalhes.janela_report.ativa = false
-			_detalhes.last_report_id = nil
-			
-			if (_detalhes.delay_CheckSwitchToCurrent) then
-				_detalhes.delay_CheckSwitchToCurrent = nil
-				_detalhes:CheckSwitchToCurrent()
-			end
-		end)
-
-		este_gump:SetWidth (320)
-		este_gump:SetHeight (128)
-		este_gump:EnableMouse (true)
-		este_gump:SetResizable (false)
-		este_gump:SetMovable (true)
-		restorepos (este_gump)
-
-		_detalhes.janela_report = este_gump
-		
-		--> icone
-		este_gump.icone = este_gump:CreateTexture (nil, "BACKGROUND")
-		este_gump.icone:SetPoint ("TOPLEFT", este_gump, "TOPLEFT", 40, -10)
-		este_gump.icone:SetTexture ("Interface\\AddOns\\Details\\images\\report_frame_icons") --> top left
-		este_gump.icone:SetWidth (64)
-		este_gump.icone:SetHeight (64)
-		este_gump.icone:SetTexCoord (1/256, 64/256, 1/256, 64/256) --left right top bottom
-		
-		--> cria as 2 partes do fundo da janela
-		este_gump.bg1 = este_gump:CreateTexture (nil, "BORDER")
-		este_gump.bg1:SetPoint ("TOPLEFT", este_gump, "TOPLEFT", 0, 0)
-		este_gump.bg1:SetTexture ("Interface\\AddOns\\Details\\images\\report_frame1") --> top left
-
-		este_gump.bg2 = este_gump:CreateTexture (nil, "BORDER")
-		este_gump.bg2:SetPoint ("TOPRIGHT", este_gump, "TOPRIGHT", 0, 0)
-		este_gump.bg2:SetTexture ("Interface\\AddOns\\Details\\images\\report_frame2") --> top right
-
+			window:SetScript ("OnHide", function (self)
+				_detalhes.janela_report.ativa = false
+				_detalhes.last_report_id = nil
+				
+				if (_detalhes.delay_CheckSwitchToCurrent) then
+					_detalhes.delay_CheckSwitchToCurrent = nil
+					_detalhes:CheckSwitchToCurrent()
+				end
+			end)
+	
 		--> botão de fechar
-		este_gump.fechar = CreateFrame ("Button", nil, este_gump, "UIPanelCloseButton")
-		este_gump.fechar:SetWidth (32)
-		este_gump.fechar:SetHeight (32)
-		este_gump.fechar:SetPoint ("TOPRIGHT", este_gump, "TOPRIGHT", -20, -23)
-		este_gump.fechar:SetText ("X")
-		este_gump.fechar:SetScript ("OnClick", function()
-			gump:Fade (este_gump, 1)
+		window.fechar = CreateFrame ("Button", nil, window, "UIPanelCloseButton")
+		window.fechar:SetScript ("OnClick", function()
+			gump:Fade (window, 1)
 			_detalhes.janela_report.ativa = false
 		end)	
 
-		este_gump.titulo = este_gump:CreateFontString (nil, "OVERLAY", "GameFontHighlightLeft")
-		este_gump.titulo:SetText (Loc ["STRING_REPORTFRAME_WINDOW_TITLE"])
-		este_gump.titulo:SetTextColor (0.999, 0.819, 0, 1)
-		este_gump.titulo:SetPoint ("topleft", este_gump, "topleft", 120, -33)
+		--> title
+		window.title = window:CreateFontString (nil, "OVERLAY", "GameFontHighlightLeft")
+		window.title:SetText (Loc ["STRING_REPORTFRAME_WINDOW_TITLE"])
 
-		seta_scripts (este_gump)
+		seta_scripts (window)
+		cria_drop_down (window)
+		cria_slider (window)
+		cria_wisper_field (window)
+		cria_check_buttons (window)
 
-		cria_drop_down (este_gump)
-		cria_slider (este_gump)
-		cria_wisper_field (este_gump)
-		cria_check_buttons (este_gump)
+		window.enviar = _CreateFrame ("Button", nil, window, "OptionsButtonTemplate")
+		window.enviar:SetPoint ("topleft", window.editbox, "topleft", 61, -19)
+		window.enviar:SetWidth (60)
+		window.enviar:SetHeight (15)
+		window.enviar:SetText (Loc ["STRING_REPORTFRAME_SEND"])
 
-		este_gump.enviar = _CreateFrame ("Button", nil, este_gump, "OptionsButtonTemplate")
+		gump:Fade (window, 1)
+		gump:CreateFlashAnimation (window)
 		
-		este_gump.enviar:SetPoint ("topleft", este_gump.editbox, "topleft", 61, -19)
+		--apply the current skin
+		_detalhes:ApplyRPSkin()
 		
-		este_gump.enviar:SetWidth (60)
-		este_gump.enviar:SetHeight (15)
-		este_gump.enviar:SetText (Loc ["STRING_REPORTFRAME_SEND"])
-
-		gump:Fade (este_gump, 1)
-		gump:CreateFlashAnimation (este_gump)
-		
-		return este_gump
+		return window
 		
 	end
+	
+	function _detalhes:InstallRPSkin (skin_name, func)
+		if (not DetailsReportWindow) then
+			gump:CriaJanelaReport()
+			DetailsReportWindow:Hide()
+		end
+	
+		if (not skin_name) then
+			return false -- sem nome
+		elseif (DetailsReportWindow.skins [skin_name]) then
+			return false -- ja existe
+		end
+		
+		DetailsReportWindow.skins [skin_name] = func
+		return true
+	end
+	
+	function _detalhes:ApplyRPSkin (skin_name)
+	
+		if (not DetailsReportWindow) then
+			gump:CriaJanelaReport()
+			DetailsReportWindow:Hide()
+		end
+		
+		if (not skin_name) then
+			skin_name = _detalhes.player_details_window.skin
+			if (not DetailsReportWindow.skins [skin_name]) then
+				skin_name = "ElvUI"
+			end
+		end
+	
+		local skin = DetailsReportWindow.skins [skin_name]
+		if (skin) then
+		
+			for _, widget in ipairs (DetailsReportWindow.all_widgets) do
+				widget:Hide()
+			end
+		
+			local successful, errortext = pcall (skin)
+			if (not successful) then
+				_detalhes:Msg ("error occurred on report window skin call():", errortext)
+				pcall (DetailsReportWindow.skins["ElvUI"])
+			end
+		end
+	end	

@@ -233,13 +233,28 @@ do
 		return _detalhes.atributos.lista [attribute]
 	end
 	
-	function _detalhes:GetSubAttributeName (attribute, subAttribute)
+	function _detalhes:GetSubAttributeName (attribute, subAttribute, customName)
 		if (attribute == 5) then
+		
 			local CustomObject = _detalhes.custom [subAttribute]
+			
+			if (CustomObject and customName and CustomObject.name == customName) then
+				return CustomObject.name
+				
+			elseif (CustomObject and customName and CustomObject.name ~= customName) then
+				for _, custom in ipairs (_detalhes.custom) do
+					if (custom.name == customName) then
+						return custom.name
+					end
+				end
+				return "--x--x--"
+			elseif (CustomObject and not customName) then
+				return CustomObject.name
+			end
+			
 			if (not CustomObject) then
 				return "--x--x--"
 			end
-			return CustomObject.name
 		end
 		return _detalhes.sub_atributos [attribute].lista [subAttribute]
 	end

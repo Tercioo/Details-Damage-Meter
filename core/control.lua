@@ -1067,7 +1067,7 @@
 		end
 
 		function _detalhes:PostponeInstanceToCurrent (instance)
-			if ((instance.last_interaction+6 < _detalhes._tempo) and (not DetailsReportWindow or not DetailsReportWindow:IsShown())) then
+			if (not instance.last_interaction or ((instance.last_interaction+6 < _detalhes._tempo) and (not DetailsReportWindow or not DetailsReportWindow:IsShown()))) then
 				if (instance.segmento == 0) then
 					return _detalhes:TrocaSegmentoAtual (instance)
 				end
@@ -1077,7 +1077,6 @@
 		
 		function _detalhes:TrocaSegmentoAtual (instancia)
 			if (instancia.segmento == 0) then --> esta mostrando a tabela Atual
-				
 				if ((instancia.last_interaction and (instancia.last_interaction+6 > _detalhes._tempo)) or (DetailsReportWindow and DetailsReportWindow:IsShown())) then
 					--> postpone
 					return _detalhes:ScheduleTimer ("PostponeInstanceToCurrent", 2, instancia)

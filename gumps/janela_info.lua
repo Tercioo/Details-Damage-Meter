@@ -833,6 +833,8 @@ function _detalhes:ApplyPDWSkin (skin_name)
 	if (info and info:IsShown() and info.jogador and info.jogador.classe) then
 		info.SetClassIcon (info.jogador, info.jogador.classe)
 	end
+	
+	_detalhes:ApplyRPSkin (skin_name)
 end
 
 function _detalhes:SetPlayerDetailsWindowTexture (texture)

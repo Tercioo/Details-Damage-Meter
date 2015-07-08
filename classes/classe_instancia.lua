@@ -2779,7 +2779,12 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 				tinsert (_detalhes.latest_report_table, 1, t)
 			end
 		else
-			tinsert (_detalhes.latest_report_table, 1, {self.meu_id, self.atributo, self.sub_atributo, amt, _detalhes.report_where})
+			if (self.atributo == 5) then
+				local custom_name = self:GetCustomObject():GetName()
+				tinsert (_detalhes.latest_report_table, 1, {self.meu_id, self.atributo, self.sub_atributo, amt, _detalhes.report_where, custom_name})
+			else
+				tinsert (_detalhes.latest_report_table, 1, {self.meu_id, self.atributo, self.sub_atributo, amt, _detalhes.report_where})
+			end
 		end
 		tremove (_detalhes.latest_report_table, 11)
 	end
@@ -3224,6 +3229,8 @@ function _detalhes:envia_relatorio (linhas, custom)
 		editbox:ClearFocus()
 	end
 
+	_detalhes:DelayUpdateReportWindowRecentlyReported()
+	
 	if (_detalhes.report_where == "COPY") then
 		return _detalhes:SendReportTextWindow (linhas)
 	end

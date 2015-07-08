@@ -7477,7 +7477,11 @@ function gump:CriaCabecalho (baseframe, instancia)
 
 	--> SELEÇÃO DO MODO ----------------------------------------------------------------------------------------------------------------------------------------------------
 	
-	baseframe.cabecalho.modo_selecao = gump:NewButton (baseframe, nil, "DetailsModeButton"..instancia.meu_id, nil, 16, 16, _detalhes.empty_function, nil, nil, [[Interface\AddOns\Details\images\modo_icone]])
+	local open_options_panel = function()
+		_detalhes:OpenOptionsWindow (instancia)
+	end
+	
+	baseframe.cabecalho.modo_selecao = gump:NewButton (baseframe, nil, "DetailsModeButton"..instancia.meu_id, nil, 16, 16, open_options_panel, nil, nil, [[Interface\AddOns\Details\images\modo_icone]])
 	baseframe.cabecalho.modo_selecao:SetPoint ("bottomleft", baseframe.cabecalho.ball, "bottomright", instancia.menu_anchor [1], instancia.menu_anchor [2])
 	baseframe.cabecalho.modo_selecao:SetFrameLevel (baseframe:GetFrameLevel()+5)
 	
@@ -7762,13 +7766,15 @@ function gump:CriaCabecalho (baseframe, instancia)
 				GameCooltip:SetOption ("ButtonsYMod", -7)
 				GameCooltip:SetOption ("HeighMod", 8)
 				
+				_detalhes:CheckLastReportsIntegrity()
+				
 				local last_reports = _detalhes.latest_report_table
 				if (#last_reports > 0) then
 					for index = #last_reports, 1, -1 do
 						local report = last_reports [index]
-						local instance_number, attribute, subattribute, amt, report_where = unpack (report)
+						local instance_number, attribute, subattribute, amt, report_where, custom_name = unpack (report)
 						
-						local name = _detalhes:GetSubAttributeName (attribute, subattribute)
+						local name = _detalhes:GetSubAttributeName (attribute, subattribute, custom_name)
 						
 						local artwork =  _detalhes.GetReportIconAndColor (report_where)
 						
