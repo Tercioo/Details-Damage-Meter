@@ -1823,11 +1823,6 @@ local shift_monitor = function (self)
 	end
 end
 
-local on_switch_show = function (instance)
-	instance:TrocaTabela (instance, true, 1, 6)
-	return true
-end
-
 local barra_backdrop_onenter = {
 	bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], 
 	tile = true, tileSize = 16,
@@ -1917,44 +1912,6 @@ local barra_scripts_onmousedown = function (self, button)
 
 	elseif (button == "LeftButton") then
 
-		if (self._instance.atributo == 1 and self._instance.sub_atributo == 6) then --> enemies
-		
-			local inimigo = self.minha_tabela.nome
-			local custom_name = inimigo .. Loc ["STRING_CUSTOM_ENEMY_DT"]
-		
-			--> procura se já tem um custom:
-			for index, CustomObject in _ipairs (_detalhes.custom) do
-				if (CustomObject:GetName() == custom_name) then
-					--> fix for not saving funcs on logout
-					if (not CustomObject.OnSwitchShow) then
-						CustomObject.OnSwitchShow = on_switch_show
-					end
-					return self._instance:TrocaTabela (self._instance.segmento, 5, index)
-				end
-			end
-
-			--> criar um custom para este actor.
-			local new_custom_object = {
-				name = custom_name,
-				icon = [[Interface\ICONS\Pet_Type_Undead]],
-				attribute = "damagedone",
-				author = _detalhes.playername,
-				desc = inimigo .. " Damage Taken",
-				source = "[raid]",
-				target = inimigo,
-				script = false,
-				tooltip = false,
-				temp = true,
-				OnSwitchShow = on_switch_show,
-			}
-	
-			tinsert (_detalhes.custom, new_custom_object)
-			setmetatable (new_custom_object, _detalhes.atributo_custom)
-			new_custom_object.__index = _detalhes.atributo_custom
-
-			return self._instance:TrocaTabela (self._instance.segmento, 5, #_detalhes.custom)
-			
-		end	
 	end
 	
 	self.texto_direita:SetPoint ("right", self.statusbar, "right", 1, -1)
@@ -1977,6 +1934,10 @@ local barra_scripts_onmousedown = function (self, button)
 end
 
 local barra_scripts_onmouseup = function (self, button)
+
+	local is_shift_down = _IsShiftKeyDown()
+	local is_control_down = _IsControlKeyDown()
+
 	if (self._instance.baseframe.isMoving) then
 		move_janela (self._instance.baseframe, false, self._instance)
 		self._instance:SaveMainWindowPosition()
@@ -1999,31 +1960,30 @@ local barra_scripts_onmouseup = function (self, button)
 
 	if (self.mouse_down and (self.mouse_down+0.4 > _GetTime() and (x == self.x and y == self.y)) or (x == self.x and y == self.y)) then
 		if (self.button == "LeftButton" or self.button == "MiddleButton") then
-			if (self._instance.atributo == 5 or _IsShiftKeyDown()) then 
+			if (self._instance.atributo == 5 or is_shift_down) then 
 				--> report
-				if (self._instance.atributo == 5 and _IsShiftKeyDown()) then
+				if (self._instance.atributo == 5 and is_shift_down) then
 					local custom = self._instance:GetCustomObject()
 					if (custom and custom.on_shift_click) then
 						local func = loadstring (custom.on_shift_click)
 						if (func) then
-						
 							local successful, errortext = pcall (func, self, self.minha_tabela, self._instance)
 							if (not successful) then
 								_detalhes:Msg ("error occurred custom script shift+click:", errortext)
 							end
-							
-							--local spellname, _, spellicon = _detalhes.getspellinfo (self.minha_tabela.id)
-							--_detalhes:OpenAuraPanel (self.minha_tabela.id, spellname, spellicon)
-							
-							--func (object.id, spellname, spellicon)
-							
 							return
 						end
 					end
 				end
+				
+				if (_detalhes.row_singleclick_overwrite [self._instance.atributo] and type (_detalhes.row_singleclick_overwrite [self._instance.atributo][self._instance.sub_atributo]) == "function") then
+					return _detalhes.row_singleclick_overwrite [self._instance.atributo][self._instance.sub_atributo] (_, self.minha_tabela, self._instance, is_shift_down, is_control_down)
+				end
+				
 				return _detalhes:ReportSingleLine (self._instance, self)
 			end
-			self._instance:AbreJanelaInfo (self.minha_tabela)
+			
+			self._instance:AbreJanelaInfo (self.minha_tabela, nil, nil, is_shift_down, is_control_down)
 		end
 	end
 end
@@ -2058,14 +2018,14 @@ local icon_frame_on_enter = function (self)
 	local actor = self.row.minha_tabela
 	
 	if (actor) then
-		if (actor.is_custom) then
-			if (actor.id) then
+		if (actor.frags) then
+		
+		
+		elseif (actor.is_custom or actor.byspell or actor.damage_spellid) then
+			local spellid = actor.damage_spellid or actor.id or actor[1]
+			if (spellid) then
 				GameTooltip:SetOwner (self, "ANCHOR_TOPLEFT", 0, 10)
-				if (actor.id == 1) then
-					GameTooltip:SetSpellByID (6603)
-				else
-					GameTooltip:SetSpellByID (actor.id)
-				end
+				_detalhes:GameTooltipSetSpellByID (spellid)
 				GameTooltip:Show()
 			end
 		
@@ -2280,6 +2240,7 @@ local icon_frame_on_click_up = function (self)
 		_detalhes:Msg (Loc ["STRING_QUERY_INSPECT_FAIL1"])
 		return
 	end
+	
 	if (self.showing == "actor") then
 	
 		if (_detalhes.ilevel.core:HasQueuedInspec (self.unitname)) then
@@ -2388,22 +2349,28 @@ function _detalhes:ReportSingleLine (instancia, barra)
 	local reportar
 	if (instancia.atributo == 5) then --> custom
 	
-		local actor_name = barra.texto_esquerdo:GetText() or ""
-		actor_name = actor_name:gsub ((".*%."), "")
-		
-		if (instancia.segmento == -1) then --overall
-			reportar = {"Details!: "  .. Loc ["STRING_OVERALL"] .. " " .. instancia.customName .. ": " .. actor_name .. " " .. Loc ["STRING_CUSTOM_REPORT"]}
-		else
-			reportar = {"Details!: " .. instancia.customName .. ": " .. actor_name .. " " .. Loc ["STRING_CUSTOM_REPORT"]}
-		end
-		
 		--> dump cooltip
 		local GameCooltip = GameCooltip
+		if (GameCoolTipFrame1:IsShown()) then
+			local actor_name = barra.texto_esquerdo:GetText() or ""
+			actor_name = actor_name:gsub ((".*%."), "")
+			
+			if (instancia.segmento == -1) then --overall
+				reportar = {"Details!: "  .. Loc ["STRING_OVERALL"] .. " " .. instancia.customName .. ": " .. actor_name .. " " .. Loc ["STRING_CUSTOM_REPORT"]}
+			else
+				reportar = {"Details!: " .. instancia.customName .. ": " .. actor_name .. " " .. Loc ["STRING_CUSTOM_REPORT"]}
+			end
 		
-		local amt = GameCooltip.Indexes
-		for i = 2, amt do
-			local left_text, right_text = GameCooltip:GetText (i)
-			reportar [#reportar+1] = (i-1) .. ". " .. left_text .. " ... " .. right_text
+			local amt = GameCooltip.Indexes
+			for i = 2, amt do
+				local left_text, right_text = GameCooltip:GetText (i)
+				reportar [#reportar+1] = (i-1) .. ". " .. left_text .. " ... " .. right_text
+			end
+		else
+			reportar = {"Details!: " .. instancia.customName .. ": " .. Loc ["STRING_CUSTOM_REPORT"]}
+			reportar [#reportar+1] = barra.texto_esquerdo:GetText() .. " " .. barra.texto_direita:GetText()
+			
+			--reportar [#reportar+1] = (i-1) .. ". " .. left_text .. " ... " .. right_text
 		end
 		
 	else

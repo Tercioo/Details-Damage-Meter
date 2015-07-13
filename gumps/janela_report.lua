@@ -631,7 +631,7 @@ local function cria_drop_down (este_gump)
 		for i = 1, 9 do --window.max_last_buttons
 			local b = window.recently_report_buttons [i]
 			
-			b:SetSize (120, 16)
+			b:SetSize (150, 16)
 			b:SetPoint ("topleft", window, "topleft", 10, -12 + (i*17*-1))
 			b:Show()
 			b:SetBackdrop ({bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 16,
@@ -653,12 +653,9 @@ local function cria_drop_down (este_gump)
 		local b = window.recently_report_buttons [10]
 		b:Hide()
 		
-		Details_Report_CB_1:Hide()
-		Details_Report_CB_2:Hide()
-		
 		window.dropdown:ClearAllPoints()
 		window.dropdown:SetWidth (155)
-		window.dropdown:SetPoint ("topleft", window, "topleft", 160, -30)
+		window.dropdown:SetPoint ("topleft", window, "topleft", 175, -30)
 		window.dropdown:SetBackdrop ({bgFile = [[Interface\DialogFrame\UI-DialogBox-Background-Dark]], edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, tile=true,
 		tileSize = 64, insets = {left = 0, right = 0, top = 0, bottom = 0}})
 		window.dropdown:SetBackdropBorderColor (0, 0, 0, 0.5)
@@ -666,7 +663,7 @@ local function cria_drop_down (este_gump)
 		
 		window.wisp_who:ClearAllPoints()
 		window.editbox:ClearAllPoints()
-		window.wisp_who:SetPoint ("topleft", window.dropdown.widget, "bottomleft", 0, -11)
+		window.wisp_who:SetPoint ("topleft", window.dropdown.widget, "bottomleft", 0, -10)
 		window.editbox:SetPoint ("topleft", window.wisp_who, "bottomleft", 0, -3)
 		window.editbox:SetWidth (155)
 		window.editbox:SetHeight (20)
@@ -676,7 +673,7 @@ local function cria_drop_down (este_gump)
 		window.editbox:SetBackdropColor (0, 0, 0, 0.3)
 		
 		window.linhas_amt:ClearAllPoints()
-		window.linhas_amt:SetPoint ("topleft", window.editbox, "bottomleft", 0, -11)
+		window.linhas_amt:SetPoint ("topleft", window.editbox, "bottomleft", 0, -10)
 		window.slider:ClearAllPoints()
 		window.slider:SetWidth (155)
 		window.slider:SetPoint ("topleft", window.linhas_amt, "bottomleft", 0, -3)
@@ -690,8 +687,24 @@ local function cria_drop_down (este_gump)
 		window.slider.thumb:SetSize (16, 16)
 		window.slider.thumb:SetVertexColor (0.6, 0.6, 0.6, 0.95)		
 		
+		Details_Report_CB_1:Hide()
+		local reverse_checkbox = Details_Report_CB_2
+		reverse_checkbox:Show()
+		reverse_checkbox:ClearAllPoints()
+		reverse_checkbox:SetBackdrop ({bgFile = [[Interface\DialogFrame\UI-DialogBox-Background-Dark]], edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, tile=true,
+		tileSize = 64, insets = {left = 0, right = 0, top = 0, bottom = 0}})
+		reverse_checkbox:SetBackdropBorderColor (0, 0, 0, 0.5)
+		reverse_checkbox:SetBackdropColor (0, 0, 0, 0.3)
+		reverse_checkbox:SetPoint ("topleft", window.slider, "bottomleft", 0, -8)
+		reverse_checkbox:SetSize (14, 14)
+		reverse_checkbox:SetNormalTexture (nil)
+		reverse_checkbox:SetPushedTexture (nil)
+		reverse_checkbox:SetHighlightTexture (nil)
+		_G [reverse_checkbox:GetName().."Text"]:ClearAllPoints()
+		_G [reverse_checkbox:GetName().."Text"]:SetPoint ("left", reverse_checkbox, "right", 2, 0)
+		
 		window.enviar:ClearAllPoints()
-		window.enviar:SetPoint ("topleft", window.slider, "bottomleft", 0, -15)
+		window.enviar:SetPoint ("topleft", reverse_checkbox, "bottomleft", 0, -8)
 		window.enviar:SetBackdrop ({bgFile = [[Interface\DialogFrame\UI-DialogBox-Background-Dark]], edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, tile=true,
 		tileSize = 64, insets = {left = 0, right = 0, top = 0, bottom = 0}})
 		window.enviar:SetBackdropBorderColor (0, 0, 0, 0.5)
@@ -762,7 +775,7 @@ local function cria_drop_down (este_gump)
 		for i = 1, 9 do --window.max_last_buttons
 			local b = window.recently_report_buttons [i]
 			
-			b:SetSize (120, 16)
+			b:SetSize (150, 16)
 			b:SetPoint ("topleft", window, "topleft", 10, -50 + (i*17*-1))
 			b:Show()
 			b:SetBackdrop ({bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 16,
@@ -783,12 +796,11 @@ local function cria_drop_down (este_gump)
 		
 		window.dropdown:ClearAllPoints()
 		window.dropdown:SetWidth (145)
-		window.dropdown:SetPoint ("topleft", window, "topleft", 160, -68)
-		
+		window.dropdown:SetPoint ("topleft", window, "topleft", 175, -68)
 		
 		window.wisp_who:ClearAllPoints()
 		window.editbox:ClearAllPoints()
-		window.wisp_who:SetPoint ("topleft", window.dropdown.widget, "bottomleft", 0, -11)
+		window.wisp_who:SetPoint ("topleft", window.dropdown.widget, "bottomleft", 0, -10)
 		window.editbox:SetPoint ("topleft", window.wisp_who, "bottomleft", 0, -3)
 		window.editbox:SetWidth (145)
 		window.editbox:SetHeight (20)
@@ -796,7 +808,7 @@ local function cria_drop_down (este_gump)
 		edgeSize = 15, tileSize = 64, insets = {left = 3, right = 3, top = 4, bottom = 4}})
 		
 		window.linhas_amt:ClearAllPoints()
-		window.linhas_amt:SetPoint ("topleft", window.editbox, "bottomleft", 0, -11)
+		window.linhas_amt:SetPoint ("topleft", window.editbox, "bottomleft", 0, -7)
 		window.slider:ClearAllPoints()
 		window.slider :SetWidth (145)
 		window.slider:SetPoint ("topleft", window.linhas_amt, "bottomleft", 0, -3)
@@ -807,8 +819,21 @@ local function cria_drop_down (este_gump)
 		window.slider.thumb:SetSize (30, 24)
 		window.slider.thumb:SetAlpha (0.7)
 		
+		Details_Report_CB_1:Hide()
+		local reverse_checkbox = Details_Report_CB_2
+		reverse_checkbox:Show()
+		reverse_checkbox:ClearAllPoints()
+		reverse_checkbox:SetBackdrop (nil)
+		reverse_checkbox:SetPoint ("topleft", window.slider, "bottomleft", -1, -4)
+		reverse_checkbox:SetSize (26, 26)
+		reverse_checkbox:SetNormalTexture ([[Interface\Buttons\UI-CheckBox-Up]])
+		reverse_checkbox:SetPushedTexture ([[Interface\Buttons\UI-CheckBox-Down]])
+		reverse_checkbox:SetHighlightTexture ([[Interface\Buttons\UI-CheckBox-Highlight]])
+		_G [reverse_checkbox:GetName().."Text"]:ClearAllPoints()
+		_G [reverse_checkbox:GetName().."Text"]:SetPoint ("left", reverse_checkbox, "right", 2, 0)
+		
 		window.enviar:ClearAllPoints()
-		window.enviar:SetPoint ("topleft", window.slider, "bottomleft", 0, -11)
+		window.enviar:SetPoint ("topleft", reverse_checkbox, "bottomleft", 0, -4)
 		window.enviar.Left:Show()
 		window.enviar.Middle:Show()
 		window.enviar.Right:Show()

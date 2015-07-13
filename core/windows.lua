@@ -1259,6 +1259,7 @@
 							if (not boss_repeated [encounterId]) then
 								local encounter, instance = _detalhes:GetBossEncounterDetailsFromEncounterId (_, encounterId)
 								if (encounter) then
+									--print ("encounter found", encounter.boss, encounter.name, instance)
 									tinsert (boss_list, {value = encounterId, label = encounter.boss, icon = icon, onclick = on_boss_select})
 									boss_repeated [encounterId] = true
 									

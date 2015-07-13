@@ -2704,7 +2704,10 @@ do
 	function _detalhes:GetSpellSchoolFormatedName (school)
 		return _detalhes.spells_school [school] and _detalhes.spells_school [school].formated or ""
 	end
-	
+	local default_school_color = {145/255, 180/255, 228/255}
+	function _detalhes:GetSpellSchoolColor (school)
+		return unpack (_detalhes.spells_school [school] and _detalhes.spells_school [school].decimals or default_school_color)
+	end
 	function _detalhes:GetCooldownList (class)
 		class = class or select (2, UnitClass ("player"))
 		return _detalhes.DefensiveCooldownSpells [class]

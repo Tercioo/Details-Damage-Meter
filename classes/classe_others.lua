@@ -449,50 +449,51 @@ function atributo_misc:ReportSingleCooldownLine (misc_actor, instancia)
 	return _detalhes:Reportar (reportar, {_no_current = true, _no_inverse = true, _custom = true})
 end
 
-function atributo_misc:ReportSingleBuffUptimeLine (misc_actor, instancia)
-	local reportar = {"Details!: " .. misc_actor.nome .. " - " .. Loc ["STRING_ATTRIBUTE_MISC_BUFF_UPTIME"]}
-	
-	local buffs = {}
-	local combat_time = instancia.showing:GetCombatTime()
-	
-	for spellid, spell in _pairs (misc_actor.buff_uptime_spells._ActorTable) do
-		buffs [#buffs+1] = {spellid, spell.uptime, spell}
-	end
-
-	_table_sort (buffs, _detalhes.Sort2)
-	
-	for i, spell in _ipairs (buffs) do
-		local spelllink = GetSpellLink (spell [1])
-		local m, s = _math_floor (spell [2] / 60), _math_floor (spell [2] % 60)
-		
-		reportar [#reportar+1] = spelllink .. ": " .. m .. "m " .. s .. "s (" .. _cstr ("%.1f", spell [2] / combat_time * 100) .. "%)"
-	end
-
-	return _detalhes:Reportar (reportar, {_no_current = true, _no_inverse = true, _custom = true})
+local buff_format_name = function (spellid)
+	return _detalhes:GetSpellLink (spellid)
+end
+local buff_format_amount = function (t)
+	local total, percent = unpack (t)
+	local m, s = _math_floor (total / 60), _math_floor (total % 60)
+	return _cstr ("%.1f", percent) .. "% (" .. m .. "m " .. s .. "s)"
+end
+local sort_buff_report = function (t1, t2)
+	return t1[2][1] > t2[2][1]
 end
 
-function atributo_misc:ReportSingleDebuffUptimeLine (misc_actor, instancia)
+function atributo_misc:ReportSingleBuffUptimeLine (misc_actor, instance)
+	local report_table = {"Details!: " .. misc_actor.nome .. " - " .. Loc ["STRING_ATTRIBUTE_MISC_BUFF_UPTIME"]}
+	
+	local buffs = {}
+	local combat_time = instance.showing:GetCombatTime()
+	
+	for spellid, spell in _pairs (misc_actor.buff_uptime_spells._ActorTable) do
+		local percent = spell.uptime / combat_time * 100
+		if (percent < 99.5) then
+			buffs [#buffs+1] = {spellid, {spell.uptime, percent}}
+		end
+	end
 
-	local reportar = {"Details!: " .. misc_actor.nome .. " - " .. Loc ["STRING_ATTRIBUTE_MISC_DEBUFF_UPTIME"]}
+	_table_sort (buffs, sort_buff_report)
+	_detalhes:FormatReportLines (report_table, buffs, buff_format_name, buff_format_amount)
+	return _detalhes:Reportar (report_table, {_no_current = true, _no_inverse = true, _custom = true})
+end
+
+function atributo_misc:ReportSingleDebuffUptimeLine (misc_actor, instance)
+	local report_table = {"Details!: " .. misc_actor.nome .. " - " .. Loc ["STRING_ATTRIBUTE_MISC_DEBUFF_UPTIME"]}
 
 	local debuffs = {}
-	local combat_time = instancia.showing:GetCombatTime()
+	local combat_time = instance.showing:GetCombatTime()
 	
 	for spellid, spell in _pairs (misc_actor.debuff_uptime_spells._ActorTable) do
-		debuffs [#debuffs+1] = {spellid, spell.uptime, spell}
+		local percent = spell.uptime / combat_time * 100
+		debuffs [#debuffs+1] = {spellid, {spell.uptime, percent}}
 	end
 
-	_table_sort (debuffs, _detalhes.Sort2)
-	
-	for i, spell in _ipairs (debuffs) do
-		local spelllink = GetSpellLink (spell [1])
-		local m, s = _math_floor (spell [2] / 60), _math_floor (spell [2] % 60)
-		
-		reportar [#reportar+1] = spelllink .. ": " .. m .. "m " .. s .. "s (" .. _cstr ("%.1f", spell [2] / combat_time * 100) .. "%)"
-	end
+	_table_sort (debuffs, sort_buff_report)
+	_detalhes:FormatReportLines (report_table, debuffs, buff_format_name, buff_format_amount)
 
-	return _detalhes:Reportar (reportar, {_no_current = true, _no_inverse = true, _custom = true})	
-
+	return _detalhes:Reportar (report_table, {_no_current = true, _no_inverse = true, _custom = true})	
 end
 
 function atributo_misc:DeadAtualizarBarra (morte, qual_barra, colocacao, instancia)
@@ -1003,7 +1004,7 @@ function atributo_misc:RefreshBarra (esta_barra, instancia, from_resize)
 	if (self.enemy) then
 		if (self.arena_enemy) then
 			if (UsingCustomLeftText) then
-				esta_barra.texto_esquerdo:SetText (_string_replace (instancia.row_info.textL_custom_text, esta_barra.colocacao, self.displayName, "|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. instancia.row_info.height .. ":" .. instancia.row_info.height .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t"))
+				esta_barra.texto_esquerdo:SetText (_string_replace (instancia.row_info.textL_custom_text, esta_barra.colocacao, self.displayName, "|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. instancia.row_info.height .. ":" .. instancia.row_info.height .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t", self, instancia.showing))
 			else
 				esta_barra.texto_esquerdo:SetText (bar_number .. "|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. instancia.row_info.height .. ":" .. instancia.row_info.height .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t" .. self.displayName)
 			end
@@ -1011,13 +1012,13 @@ function atributo_misc:RefreshBarra (esta_barra, instancia, from_resize)
 		else
 			if (_detalhes.faction_against == "Horde") then
 				if (UsingCustomLeftText) then
-					esta_barra.texto_esquerdo:SetText (_string_replace (instancia.row_info.textL_custom_text, esta_barra.colocacao, self.displayName, "|TInterface\\AddOns\\Details\\images\\icones_barra:"..instancia.row_info.height..":"..instancia.row_info.height..":0:0:256:32:0:32:0:32|t"))
+					esta_barra.texto_esquerdo:SetText (_string_replace (instancia.row_info.textL_custom_text, esta_barra.colocacao, self.displayName, "|TInterface\\AddOns\\Details\\images\\icones_barra:"..instancia.row_info.height..":"..instancia.row_info.height..":0:0:256:32:0:32:0:32|t", self, instancia.showing))
 				else
 					esta_barra.texto_esquerdo:SetText (bar_number .. "|TInterface\\AddOns\\Details\\images\\icones_barra:"..instancia.row_info.height..":"..instancia.row_info.height..":0:0:256:32:0:32:0:32|t"..self.displayName) --seta o texto da esqueda -- HORDA
 				end
 			else
 				if (UsingCustomLeftText) then
-					esta_barra.texto_esquerdo:SetText (_string_replace (instancia.row_info.textL_custom_text, esta_barra.colocacao, self.displayName, "|TInterface\\AddOns\\Details\\images\\icones_barra:"..instancia.row_info.height..":"..instancia.row_info.height..":0:0:256:32:32:64:0:32|t"))
+					esta_barra.texto_esquerdo:SetText (_string_replace (instancia.row_info.textL_custom_text, esta_barra.colocacao, self.displayName, "|TInterface\\AddOns\\Details\\images\\icones_barra:"..instancia.row_info.height..":"..instancia.row_info.height..":0:0:256:32:32:64:0:32|t", self, instancia.showing))
 				else
 					esta_barra.texto_esquerdo:SetText (bar_number .. "|TInterface\\AddOns\\Details\\images\\icones_barra:"..instancia.row_info.height..":"..instancia.row_info.height..":0:0:256:32:32:64:0:32|t"..self.displayName) --seta o texto da esqueda -- ALLY
 				end
@@ -1030,13 +1031,13 @@ function atributo_misc:RefreshBarra (esta_barra, instancia, from_resize)
 	else
 		if (self.arena_ally) then
 			if (UsingCustomLeftText) then
-				esta_barra.texto_esquerdo:SetText (_string_replace (instancia.row_info.textL_custom_text, esta_barra.colocacao, self.displayName, "|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. instancia.row_info.height .. ":" .. instancia.row_info.height .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t"))
+				esta_barra.texto_esquerdo:SetText (_string_replace (instancia.row_info.textL_custom_text, esta_barra.colocacao, self.displayName, "|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. instancia.row_info.height .. ":" .. instancia.row_info.height .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t", self, instancia.showing))
 			else
 				esta_barra.texto_esquerdo:SetText (bar_number .. "|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. instancia.row_info.height .. ":" .. instancia.row_info.height .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t" .. self.displayName)
 			end
 		else
 			if (UsingCustomLeftText) then
-				esta_barra.texto_esquerdo:SetText (_string_replace (instancia.row_info.textL_custom_text, esta_barra.colocacao, self.displayName, ""))
+				esta_barra.texto_esquerdo:SetText (_string_replace (instancia.row_info.textL_custom_text, esta_barra.colocacao, self.displayName, "", self, instancia.showing))
 			else
 				esta_barra.texto_esquerdo:SetText (bar_number .. self.displayName) --seta o texto da esqueda
 			end
@@ -1168,9 +1169,7 @@ function atributo_misc:ToolTipDispell (instancia, numero, barra)
 	end
 	_table_sort (meus_dispells, _detalhes.Sort2)
 	
-	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_SPELLS"], headerColor, r, g, b, #meus_dispells)
-
-	GameCooltip:AddIcon ([[Interface\ICONS\Spell_Arcane_ArcaneTorrent]], 1, 1, 14, 14, 0.078125, 0.9375, 0.078125, 0.953125)
+	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_SPELLS"], headerColor, #meus_dispells, [[Interface\ICONS\Spell_Arcane_ArcaneTorrent]], 0.078125, 0.9375, 0.078125, 0.953125)
 	_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)
 	
 	local icon_size = _detalhes.tooltip.icon_size
@@ -1195,9 +1194,7 @@ function atributo_misc:ToolTipDispell (instancia, numero, barra)
 	end
 	_table_sort (buffs_dispelados, _detalhes.Sort2)
 	
-	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_DISPELLED"], headerColor, r, g, b, #buffs_dispelados)
-
-	GameCooltip:AddIcon ([[Interface\ICONS\Spell_Arcane_ManaTap]], 1, 1, 14, 14, 0.078125, 0.9375, 0.078125, 0.953125)
+	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_DISPELLED"], headerColor, #buffs_dispelados, [[Interface\ICONS\Spell_Arcane_ManaTap]], 0.078125, 0.9375, 0.078125, 0.953125)
 	_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)
 
 	if (#buffs_dispelados > 0) then
@@ -1218,8 +1215,7 @@ function atributo_misc:ToolTipDispell (instancia, numero, barra)
 	end
 	_table_sort (alvos_dispelados, _detalhes.Sort2)
 
-	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_TARGETS"], headerColor, r, g, b, #alvos_dispelados)
-	GameCooltip:AddIcon ([[Interface\ICONS\ACHIEVEMENT_GUILDPERK_EVERYONES A HERO_RANK2]], 1, 1, 14, 14, 0.078125, 0.9375, 0.078125, 0.953125)
+	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_TARGETS"], headerColor, #alvos_dispelados, [[Interface\ICONS\ACHIEVEMENT_GUILDPERK_EVERYONES A HERO_RANK2]], 0.078125, 0.9375, 0.078125, 0.953125)
 	_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)
 	
 	for i = 1, _math_min (25, #alvos_dispelados) do
@@ -1284,8 +1280,7 @@ function atributo_misc:ToolTipDispell (instancia, numero, barra)
 				if (not added_logo) then
 					added_logo = true
 
-					_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_PETS"], headerColor, r, g, b, #totais)
-					GameCooltip:AddIcon ([[Interface\COMMON\friendship-heart]], 1, 1, 14, 14, 0.21875, 0.78125, 0.09375, 0.6875)
+					_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_PETS"], headerColor, #totais, [[Interface\COMMON\friendship-heart]], 0.21875, 0.78125, 0.09375, 0.6875)
 					_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)
 				end
 			
@@ -1685,8 +1680,7 @@ function atributo_misc:ToolTipDebuffUptime (instancia, numero, barra)
 	--_table_sort (debuffs_usados, Sort2Reverse)
 	_table_sort (debuffs_usados, _detalhes.Sort2)
 	
-	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_SPELLS"], headerColor, r, g, b, #debuffs_usados)
-	GameCooltip:AddIcon ([[Interface\ICONS\Ability_Warrior_Safeguard]], 1, 1, 14, 14, 0.9375, 0.078125, 0.078125, 0.953125)
+	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_SPELLS"], headerColor, #debuffs_usados, [[Interface\ICONS\Ability_Warrior_Safeguard]], 0.9375, 0.078125, 0.078125, 0.953125)
 	_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)
 
 	local icon_size = _detalhes.tooltip.icon_size
@@ -1745,8 +1739,7 @@ function atributo_misc:ToolTipBuffUptime (instancia, numero, barra)
 	--_table_sort (buffs_usados, Sort2Reverse)
 	_table_sort (buffs_usados, _detalhes.Sort2)
 	
-	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_SPELLS"], headerColor, r, g, b, #buffs_usados)
-	GameCooltip:AddIcon ([[Interface\ICONS\Ability_Warrior_Safeguard]], 1, 1, 14, 14, 0.9375, 0.078125, 0.078125, 0.953125)
+	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_SPELLS"], headerColor, #buffs_usados, [[Interface\ICONS\Ability_Warrior_Safeguard]], 0.9375, 0.078125, 0.078125, 0.953125)
 	_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)
 
 	local icon_size = _detalhes.tooltip.icon_size
@@ -1804,8 +1797,7 @@ function atributo_misc:ToolTipDefensiveCooldowns (instancia, numero, barra)
 	end
 	_table_sort (cooldowns_usados, _detalhes.Sort2)
 	
-	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_SPELLS"], headerColor, r, g, b, #cooldowns_usados)
-	GameCooltip:AddIcon ([[Interface\ICONS\Ability_Warrior_Safeguard]], 1, 1, 14, 14, 0.9375, 0.078125, 0.078125, 0.953125)
+	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_SPELLS"], headerColor, #cooldowns_usados, [[Interface\ICONS\Ability_Warrior_Safeguard]], 0.9375, 0.078125, 0.078125, 0.953125)
 	_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)
 	
 	local icon_size = _detalhes.tooltip.icon_size
@@ -1832,8 +1824,7 @@ function atributo_misc:ToolTipDefensiveCooldowns (instancia, numero, barra)
 	end
 	_table_sort (alvos, _detalhes.Sort2)
 	
-	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_TARGETS"], headerColor, r, g, b, #alvos)
-	GameCooltip:AddIcon ([[Interface\ICONS\Ability_Warrior_DefensiveStance]], 1, 1, 14, 14, 0.9375, 0.125, 0.0625, 0.9375)
+	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_TARGETS"], headerColor, #alvos, [[Interface\ICONS\Ability_Warrior_DefensiveStance]], 0.9375, 0.125, 0.0625, 0.9375)
 	_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)
 	
 	if (#alvos > 0) then
@@ -1883,8 +1874,7 @@ function atributo_misc:ToolTipRess (instancia, numero, barra)
 	end
 	_table_sort (meus_ress, _detalhes.Sort2)
 	
-	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_SPELLS"], headerColor, r, g, b, #meus_ress)
-	GameCooltip:AddIcon ([[Interface\ICONS\Ability_Paladin_BlessedMending]], 1, 1, 14, 14, 0.098125, 0.828125, 0.953125, 0.168125)
+	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_SPELLS"], headerColor, #meus_ress, [[Interface\ICONS\Ability_Paladin_BlessedMending]], 0.098125, 0.828125, 0.953125, 0.168125)
 	_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)
 	
 	if (#meus_ress > 0) then
@@ -1908,10 +1898,7 @@ function atributo_misc:ToolTipRess (instancia, numero, barra)
 	end
 	_table_sort (alvos, _detalhes.Sort2)
 	
-	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_TARGETS"], headerColor, r, g, b, #alvos)
-	--GameCooltip:AddIcon ([[Interface\ICONS\Ability_DeathKnight_IcyGrip]], 1, 1, 14, 14, 0.9375, 0.078125, 0.953125, 0.078125)
-	
-	GameCooltip:AddIcon ([[Interface\ICONS\Ability_Priest_Cascade]], 1, 1, 14, 14, 0.9375, 0.0625, 0.0625, 0.9375)
+	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_TARGETS"], headerColor, #alvos, [[Interface\ICONS\Ability_Priest_Cascade]], 0.9375, 0.0625, 0.0625, 0.9375)
 	_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)
 	
 	if (#alvos > 0) then
@@ -1962,8 +1949,7 @@ function atributo_misc:ToolTipInterrupt (instancia, numero, barra)
 	end
 	_table_sort (meus_interrupts, _detalhes.Sort2)
 	
-	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_SPELLS"], headerColor, r, g, b, #meus_interrupts)
-	GameCooltip:AddIcon ([[Interface\ICONS\Ability_Warrior_PunishingBlow]], 1, 1, 14, 14, 0.9375, 0.078125, 0.078125, 0.953125)
+	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_SPELLS"], headerColor, #meus_interrupts, [[Interface\ICONS\Ability_Warrior_PunishingBlow]], 0.9375, 0.078125, 0.078125, 0.953125)
 	_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)
 	
 	if (#meus_interrupts > 0) then
@@ -1986,8 +1972,7 @@ function atributo_misc:ToolTipInterrupt (instancia, numero, barra)
 	end
 	_table_sort (habilidades_interrompidas, _detalhes.Sort2)
 	
-	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_SPELL_INTERRUPTED"] .. ":", headerColor, r, g, b, #habilidades_interrompidas)
-	GameCooltip:AddIcon ([[Interface\ICONS\Ability_Warrior_Sunder]], 1, 1, 14, 14, 0.078125, 0.9375, 0.128125, 0.913125)
+	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_SPELL_INTERRUPTED"] .. ":", headerColor, #habilidades_interrompidas, [[Interface\ICONS\Ability_Warrior_Sunder]], 0.078125, 0.9375, 0.128125, 0.913125)
 	_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)
 	
 	if (#habilidades_interrompidas > 0) then
@@ -2039,8 +2024,7 @@ function atributo_misc:ToolTipInterrupt (instancia, numero, barra)
 				if (not added_logo) then
 					added_logo = true
 
-					_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_PETS"], headerColor, r, g, b, #totais)
-					GameCooltip:AddIcon ([[Interface\COMMON\friendship-heart]], 1, 1, 14, 14, 0.21875, 0.78125, 0.09375, 0.6875)
+					_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_PETS"], headerColor, #totais, [[Interface\COMMON\friendship-heart]], 0.21875, 0.78125, 0.09375, 0.6875)
 					_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)
 				end
 			

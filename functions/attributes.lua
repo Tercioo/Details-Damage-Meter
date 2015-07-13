@@ -14,6 +14,7 @@ do
 		--[[global]] DETAILS_SUBATTRIBUTE_FRAGS = 5
 		--[[global]] DETAILS_SUBATTRIBUTE_ENEMIES = 6
 		--[[global]] DETAILS_SUBATTRIBUTE_VOIDZONES = 7
+		--[[global]] DETAILS_SUBATTRIBUTE_BYSPELLS = 8
 
 	--[[global]] DETAILS_ATTRIBUTE_HEAL = 2
 	
@@ -51,6 +52,7 @@ do
 		"miscdata", --frags
 		"damage", --enemy damage
 		"aura", --auras
+		"damage", --damage taken by spell
 		
 		"heal", --healing done
 		"heal", --hps
@@ -83,7 +85,7 @@ do
 		
 		--[[ DAMAGE ]]
 			dano = 1,	--> identifier
-			[1] = 7,	-->  sub attributes 
+			[1] = 8,	-->  sub attributes 
 		
 		--[[ HEALING ]]
 			cura = 2,	--> identifier
@@ -123,6 +125,7 @@ do
 			frags = 5,
 			enemies = 6,
 			voidzones = 7,
+			damage_taken_by_spells = 8,
 			lista = {	--[[ String Names ]]
 				Loc ["STRING_ATTRIBUTE_DAMAGE_DONE"], 
 				Loc ["STRING_ATTRIBUTE_DAMAGE_DPS"],
@@ -131,6 +134,7 @@ do
 				Loc ["STRING_ATTRIBUTE_DAMAGE_FRAGS"],
 				Loc ["STRING_ATTRIBUTE_DAMAGE_ENEMIES"],
 				Loc ["STRING_ATTRIBUTE_DAMAGE_DEBUFFS"],
+				Loc ["STRING_ATTRIBUTE_DAMAGE_BYSPELL"],
 			},
 			icones = {
 				{"Interface\\AddOns\\Details\\images\\atributos_icones_damage", {0, .125, 0, 1}},
@@ -139,9 +143,10 @@ do
 				{"Interface\\AddOns\\Details\\images\\atributos_icones_damage", {.375, .5, 0, 1}},
 				{"Interface\\AddOns\\Details\\images\\atributos_icones_damage", {.5, 0.625, 0, 1}},
 				{"Interface\\AddOns\\Details\\images\\atributos_icones_damage", {0.625, .75, 0, 1}},
-				{"Interface\\AddOns\\Details\\images\\atributos_icones_damage", {.75, 0.875, 0, 1}}
+				{"Interface\\AddOns\\Details\\images\\atributos_icones_damage", {.75, 0.875, 0, 1}},
+				{"Interface\\AddOns\\Details\\images\\atributos_icones_damage", {0.875, 1, 0, 1}},
 			},
-			internal = {"total", "last_dps", "damage_taken", "friendlyfire_total", "frags", "enemies", "voidzones"}
+			internal = {"total", "last_dps", "damage_taken", "friendlyfire_total", "frags", "enemies", "voidzones", "damage_taken_by_spells"}
 		},
 
 		{

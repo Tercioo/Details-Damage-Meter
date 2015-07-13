@@ -52,7 +52,7 @@ function _G._detalhes:Start()
 
 	--> single click row function replace
 		--damage, dps, damage taken, friendly fire
-			self.row_singleclick_overwrite [1] = {true, true, true, true, self.atributo_damage.ReportSingleFragsLine, true, self.atributo_damage.ReportSingleVoidZoneLine} 
+			self.row_singleclick_overwrite [1] = {true, true, true, true, self.atributo_damage.ReportSingleFragsLine, self.atributo_damage.ReportEnemyDamageTaken, self.atributo_damage.ReportSingleVoidZoneLine, self.atributo_damage.ReportSingleDTBSLine}
 		--healing, hps, overheal, healing taken
 			self.row_singleclick_overwrite [2] = {true, true, true, true, false, self.atributo_heal.ReportSingleDamagePreventedLine} 
 		--mana, rage, energy, runepower
@@ -354,7 +354,32 @@ function _G._detalhes:Start()
 			_detalhes:FillUserCustomSpells()
 			_detalhes:AddDefaultCustomDisplays()
 			
-			--> tooltip background color update
+			--> erase the custom for damage taken by spell
+			if (_detalhes_database.last_realversion and _detalhes_database.last_realversion < 73 and enable_reset_warning) then
+			
+				local secure_func = function()
+					for i = #_detalhes.custom, 1, -1 do
+						local index = i
+						local CustomObject = _detalhes.custom [index]
+						
+						if (CustomObject:GetName() == Loc ["STRING_CUSTOM_DTBS"]) then
+							for o = 1, _detalhes.switch.slots do
+								local options = _detalhes.switch.table [o]
+								if (options and options.atributo == 5 and options.sub_atributo == index) then 
+									options.atributo = 1
+									options.sub_atributo = 8
+									_detalhes.switch:Update()
+								end
+							end
+						
+							_detalhes.atributo_custom:RemoveCustom (index)
+						end
+					end
+				end
+				pcall (secure_func)
+				
+			end
+			
 			if (_detalhes_database.last_realversion and _detalhes_database.last_realversion < 70 and enable_reset_warning) then
 				local bg = _detalhes.tooltip.background
 				bg [1] = 0.1960

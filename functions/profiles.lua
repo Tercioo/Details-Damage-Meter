@@ -955,7 +955,8 @@ local default_profile = {
 	--> tooltip
 		tooltip = {
 			fontface = "Friz Quadrata TT", 
-			fontsize = 10, 
+			fontsize = 10,
+			fontsize_title = 10,
 			fontcolor = {1, 1, 1, 1}, 
 			fontcolor_right = {1, 0.7, 0, 1}, --{1, 0.9254, 0.6078, 1}
 			fontshadow = false, 

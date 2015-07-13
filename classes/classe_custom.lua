@@ -197,19 +197,28 @@
 			
 				local percent_script = _detalhes.custom_function_cache [instance.customName .. "Percent"]
 				local total_script = _detalhes.custom_function_cache [instance.customName .. "Total"]
+				local okey
 				
 				for index, actor in _ipairs (instance_container._ActorTable) do 	
 					local percent, ptotal
 					if (percent_script) then
-						percent = percent_script (_math_floor (actor.value), top, total, combat, instance)
+						okey, percent = _pcall (percent_script, _math_floor (actor.value), top, total, combat, instance, actor)
+						if (not okey) then
+							_detalhes:Msg ("|cFFFF9900error on custom display function|r:", percent)
+							return _detalhes:EndRefresh (instance, 0, combat, combat [1])
+						end
 					else
 						percent = _cstr ("%.1f", _math_floor (actor.value) / total * 100)
 					end
 					
 					if (total_script) then
-						local value = total_script (_math_floor (actor.value), top, total, combat, instance)
+						local value = _pcall (total_script, _math_floor (actor.value), top, total, combat, instance, actor)
 						if (type (value) == "number") then
-							ptotal = SelectedToKFunction (_, value)
+							okey, ptotal = SelectedToKFunction (_, value)
+							if (not okey) then
+								_detalhes:Msg ("|cFFFF9900error on custom display function|r:", ptotal)
+								return _detalhes:EndRefresh (instance, 0, combat, combat [1])
+							end
 						else
 							ptotal = value
 						end
@@ -472,10 +481,15 @@
 		self.minha_barra = row
 		
 		local percent
+		local okey
 
 		if (percent_script) then
 			--local value, top, total, combat, instance = ...
-			percent = percent_script (self.value, top, total, combat, instance)
+			okey, percent = _pcall (percent_script, self.value, top, total, combat, instance, self)
+			if (not okey) then
+				_detalhes:Msg ("|cFFFF9900error on custom display function|r:", percent)
+				return _detalhes:EndRefresh (instance, 0, combat, combat [1])
+			end			
 		else
 			if (percentage_type == 1) then
 				percent = _cstr ("%.1f", self.value / total * 100)
@@ -491,7 +505,11 @@
 		end
 
 		if (total_script) then
-			local value = total_script (self.value, top, total, combat, instance)
+			local okey, value = _pcall (total_script, self.value, top, total, combat, instance, self)
+			if (not okey) then
+				_detalhes:Msg ("|cFFFF9900error on custom display function|r:", value)
+				return _detalhes:EndRefresh (instance, 0, combat, combat [1])
+			end
 			if (type (value) == "number") then
 				row.texto_direita:SetText (SelectedToKFunction (_, value) .. bars_brackets[1] .. percent .. bars_brackets[2])
 			else
@@ -905,6 +923,10 @@
 		--> get the custom object
 		local custom_object = instance:GetCustomObject()
 		
+		if (custom_object.notooltip) then
+			return
+		end
+		
 		--> get the actor
 		local actor = self.my_actor
 		
@@ -920,11 +942,9 @@
 		end
 		
 		if (actor.id) then
-			_detalhes:AddTooltipSpellHeaderText (select (1, _GetSpellInfo (actor.id)), "yellow", 1, 0, 0, 0)
-			GameCooltip:AddIcon (select (3, _GetSpellInfo (actor.id)), 1, 1, 14, 14, 0.90625, 0.109375, 0.15625, 0.875)
+			_detalhes:AddTooltipSpellHeaderText (select (1, _GetSpellInfo (actor.id)), "yellow", 1, select (3, _GetSpellInfo (actor.id)), 0.90625, 0.109375, 0.15625, 0.875)
 		else
-			_detalhes:AddTooltipSpellHeaderText (custom_object:GetName(), "yellow", 1, 0, 0, 0)
-			GameCooltip:AddIcon (custom_object:GetIcon(), 1, 1, 14, 14, 0.90625, 0.109375, 0.15625, 0.875)
+			_detalhes:AddTooltipSpellHeaderText (custom_object:GetName(), "yellow", 1, custom_object:GetIcon(), 0.90625, 0.109375, 0.15625, 0.875)
 		end
 
 		--GameCooltip:AddStatusBar (100, 1, r, g, b, 1)
@@ -1556,339 +1576,6 @@
 		end
 		
 ---------------------------------------
-
-		local DamageTakenBySpell = {
-			name = Loc ["STRING_CUSTOM_DTBS"],
-			icon = [[Interface\ICONS\spell_mage_infernoblast]],
-			attribute = false,
-			spellid = false,
-			author = "Details!",
-			desc = Loc ["STRING_CUSTOM_DTBS_DESC"],
-			source = false,
-			target = false,
-			script_version = 30,
-			on_shift_click = [[
-				local row, object, instance = ...
-				local spellname, _, spellicon = _detalhes.GetSpellInfo (object.id)
-				_detalhes:OpenAuraPanel (object.id, spellname, spellicon)
-			]],
-			script = [[
-				--> get the parameters passed
-				local combat, instance_container, instance = ...
-				--> declade the values to return
-				local total, top, amount = 0, 0, 0
-				--> get a list of all damage actors
-				local AllDamageCharacters = combat:GetActorList (DETAILS_ATTRIBUTE_DAMAGE)
-
-				--> no amount increase for repeated spells
-				local NoRepeat = {}
-
-				--> do a loop amoung the actors
-				for index, character in ipairs (AllDamageCharacters) do
-				    
-				    --> is the actor a player?
-				    if (character:IsPlayer()) then
-					
-					local taken_from = character.damage_from
-					
-					for source_name, _ in pairs (taken_from) do
-					    
-					    local source = combat (1, source_name)
-					    
-					    if (source) then
-						--> came from an enemy
-						if (not source:IsPlayer()) then
-						    
-						    local AllSpells = source:GetSpellList()
-						    for spellid, spell in pairs (AllSpells) do
-							local on_player = spell.targets [character.nome]
-							
-							if (on_player and on_player >= 1) then                            
-							    instance_container:AddValue (spell, on_player)
-							    total = total + on_player
-							    local value = instance_container:GetValue (spell)
-							    if (value > top) then
-								top = value
-							    end
-							    if (not NoRepeat [spellid]) then
-								amount = amount + 1
-								NoRepeat [spellid] = true
-							    end
-							end
-						    end
-						    
-						elseif (source:IsGroupPlayer()) then -- friendly fire
-						    
-						    local AllSpells = source.friendlyfire [character.nome] and source.friendlyfire [character.nome].spells
-						    for spellid, on_player in pairs (AllSpells) do
-							if (on_player and on_player >= 1) then
-							    
-							    local spellname = select (1, GetSpellInfo(spellid))
-							    local TEMP_SPELL_OBJECT = _G ["DetailsDamageTakenBySpellTemp"..spellid]
-							    if (not TEMP_SPELL_OBJECT) then
-								TEMP_SPELL_OBJECT = {}
-								_G ["DetailsDamageTakenBySpellTemp"..spellid] = TEMP_SPELL_OBJECT
-							    end
-							    
-							    TEMP_SPELL_OBJECT.id = spellid
-							    TEMP_SPELL_OBJECT.spellschool =  1
-							    
-							    instance_container:AddValue (TEMP_SPELL_OBJECT, on_player)
-							    total = total + on_player
-							    local value = instance_container:GetValue (TEMP_SPELL_OBJECT)
-							    if (value > top) then
-								top = value
-							    end
-							    if (not NoRepeat [spellid]) then
-								amount = amount + 1
-								NoRepeat [spellid] = true
-							    end
-							end
-						    end
-						end 
-					    end
-					end            
-				    end
-				end
-
-				return total, top, amount
-			]],
-			
-			tooltip = [[
-			--get the parameters passed
-			local actor, combat, instance = ...
-			local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
-			local GameCooltip = GameCooltip
-			local from_spell = actor.id
-			local from_spellname
-			if (from_spell) then
-			    from_spellname = select (1, GetSpellInfo (actor.id))
-			end
-
-			--> get a list of all damage actors
-			local AllDamageCharacters = combat:GetActorList (DETAILS_ATTRIBUTE_DAMAGE)
-
-			--> hold the targets
-			local Targets = {}
-			local total = 0
-			local top = 0
-
-			local is_custom_spell = false
-			for _, spellcustom in ipairs (_detalhes.savedCustomSpells) do
-			    if (spellcustom[1] == from_spell) then
-				is_custom_spell = true
-			    end
-			end
-
-			for index, character in ipairs (AllDamageCharacters) do
-			    
-			    if (is_custom_spell) then
-				for playername, ff_table in pairs (character.friendlyfire) do
-				    if (ff_table.spells [from_spell]) then
-					local damage_actor = combat (1, playername)
-					local heal_actor = combat (2, playername)
-					
-					if ((damage_actor or heal_actor) and ( (damage_actor and damage_actor:IsPlayer()) or (heal_actor and heal_actor:IsPlayer()))) then
-					    
-					    local got
-					    
-					    for index, t in ipairs (Targets) do
-						if (t[1] == playername) then
-						    t[2] = t[2] + ff_table.spells [from_spell]
-						    if (t[2] > top) then
-							top = t[2]
-						    end
-						    got = true
-						    break
-						end
-					    end
-					    
-					    if (not got) then
-						
-						Targets [#Targets+1] = {playername, ff_table.spells [from_spell]}
-						if (ff_table.spells [from_spell] > top) then
-						    top = ff_table.spells [from_spell]
-						end
-					    end
-					end
-				    end
-				end
-			    else
-				
-				for playername, ff_table in pairs (character.friendlyfire) do
-				    for spellid, amount in pairs (ff_table.spells) do
-					local spellname = select (1, GetSpellInfo (spellid))
-					if (spellname == from_spellname) then
-					    local damage_actor = combat (1, playername)
-					    local heal_actor = combat (2, playername)                    
-					    if ((damage_actor or heal_actor) and ( (damage_actor and damage_actor:IsPlayer()) or (heal_actor and heal_actor:IsPlayer()))) then
-						local got
-						for index, t in ipairs (Targets) do
-						    if (t[1] == playername) then
-							t[2] = t[2] + amount
-							if (t[2] > top) then
-							    top = t[2]
-							end
-							got = true
-							break
-						    end
-						end
-						
-						if (not got) then
-						    Targets [#Targets+1] = {playername, amount}
-						    if (amount > top) then
-							top = amount
-						    end
-						end                        
-					    end
-					end     
-				    end
-				end
-			    end
-			    
-			    --> search actors which used the spell shown in the bar
-			    local spell = character.spells._ActorTable [from_spell]
-			    
-			    if (spell) then
-				for targetname, amount in pairs (spell.targets) do
-				    
-				    local got = false
-				    
-				    local damage_actor = combat (1, targetname)
-				    local heal_actor = combat (2, targetname)
-				    
-				    if ( (damage_actor or heal_actor) and ( (damage_actor and damage_actor:IsPlayer()) or (heal_actor and heal_actor:IsPlayer()) ) ) then
-					for index, t in ipairs (Targets) do
-					    if (t[1] == targetname) then
-						t[2] = t[2] + amount
-						if (t[2] > top) then
-						    top = t[2]
-						end
-						got = true
-						break
-					    end
-					end
-					if (not got) then
-					    Targets [#Targets+1] = {targetname, amount}
-					    if (amount > top) then
-						top = amount
-					    end
-					end
-					--            else
-					--                for index, t in ipairs (Targets) do
-					--                    if (t[1] == Loc ["STRING_TARGETS_OTHER1"]) then
-					--                        t[2] = t[2] + amount
-					--                        got = true
-					--print (damage_actor and damage_actor.nome, heal_actor and heal_actor.nome)
-					--                        break
-					--                    end
-					--                end
-					--                if (not got) then
-					--                    Targets [#Targets+1] = {Loc ["STRING_TARGETS_OTHER1"], amount}
-					--                end
-				    end
-				end
-			    end
-			    
-			    if (not is_custom_spell) then
-				for spellid, spell in pairs (character.spells._ActorTable) do
-				    if (spellid ~= from_spell) then
-					local spellname = select (1, GetSpellInfo (spellid))
-					if (spellname == from_spellname) then
-					    for targetname, amount in pairs (spell.targets) do
-						
-						local got = false
-						
-						local damage_actor = combat (1, targetname)
-						local heal_actor = combat (2, targetname)
-						
-						if ( (damage_actor or heal_actor) and ( (damage_actor and damage_actor:IsPlayer()) or (heal_actor and heal_actor:IsPlayer()) ) ) then
-						    for index, t in ipairs (Targets) do
-							if (t[1] == targetname) then
-							    t[2] = t[2] + amount
-							    if (t[2] > top) then
-								top = t[2]
-							    end
-							    got = true
-							    break
-							end
-						    end
-						    if (not got) then
-							Targets [#Targets+1] = {targetname, amount}
-							if (amount > top) then
-							    top = amount
-							end
-						    end
-						end
-					    end
-					end                
-				    end             
-				end        
-			    end    
-			    
-			end
-
-			table.sort (Targets, _detalhes.Sort2)
-
-			GameCooltip:SetOption ("StatusBarTexture", "Interface\\AddOns\\Details\\images\\bar_serenity")
-
-			--local bar_background = {value = 100, color = {0.1, 0.1, 0.1, 0.9}, texture = "Interface\\AddOns\\Details\\images\\bar_background"}
-			local bar_background = DETAILS_DTBS_BACKGROUND
-			if (not bar_background) then
-			    local color = {0.1960, 0.1960, 0.1960, 0.9097}
-			    DETAILS_DTBS_BACKGROUND = {value = 100, color = color, texture = "Interface\\AddOns\\Details\\images\\bar_background2"}
-			    bar_background = DETAILS_DTBS_BACKGROUND
-			end
-
-			for index, t in ipairs (Targets) do
-			    GameCooltip:AddLine (_detalhes:GetOnlyName(t[1]), _detalhes:ToK (t[2]))
-			    local class, _, _, _, _, r, g, b = _detalhes:GetClass (t[1])
-			    
-			    GameCooltip:AddStatusBar (t[2]/top*100, 1, r, g, b, 0.8, false,  bar_background)
-			    
-			    if (class) then
-				local texture, l, r, t, b = _detalhes:GetClassIcon (class)
-				GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small_alpha", 1, 1, 14, 14, l, r, t, b)
-			    elseif (t[1] == Loc ["STRING_TARGETS_OTHER1"]) then
-				GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small_alpha", 1, 1, 14, 14, 0.25, 0.49609375, 0.75, 1)
-			    end
-			end
-
-			local aura = ""
-			if (WeakAuras) then
-			    aura = "|cFFffa200Shift Click|r: Create Aura"
-			end
-
-			GameCooltip:AddLine (" ")
-			GameCooltip:AddLine ("|cFFffa200Click|r: Report Results", aura, 1, "white", "white")
-			GameCooltip:AddStatusBar (100, 1, 0, 0, 0, 0.2, false,  bar_background)
-			GameCooltip:SetOption ("YSpacingMod", -1)
-			]],
-		}
-
-		local have = false
-		for _, custom in ipairs (self.custom) do
-			if (custom.name == Loc ["STRING_CUSTOM_DTBS"] and (custom.script_version and custom.script_version >= DamageTakenBySpell.script_version) ) then
-				have = true
-				break
-			end
-		end
-		if (not have) then
-			setmetatable (DamageTakenBySpell, _detalhes.atributo_custom)
-			DamageTakenBySpell.__index = _detalhes.atributo_custom
-			
-			for i, custom in ipairs (self.custom) do
-				if (custom.name == Loc ["STRING_CUSTOM_DTBS"]) then
-					table.remove (self.custom, i)
-					tinsert (self.custom, i, DamageTakenBySpell)
-					have = true
-				end
-			end
-			
-			if (not have) then
-				self.custom [#self.custom+1] = DamageTakenBySpell
-			end
-		end
 		
 		----------------------------------------------------------------------------------------------------------------------------------------------------
 		--doas
@@ -1945,10 +1632,9 @@
 
 				table.sort (targets, _detalhes.Sort2)
 
-				_detalhes:AddTooltipSpellHeaderText ("Targets", "yellow", r, g, b, #targets)
+				_detalhes:AddTooltipSpellHeaderText ("Targets", "yellow", #targets)
 				local class, _, _, _, _, r, g, b = _detalhes:GetClass (actor.nome)
 				GameCooltip:AddStatusBar (100, 1, r, g, b, 1)
-
 
 				for index, target in ipairs (targets) do
 				    GameCooltip:AddLine (target[1], target [2])

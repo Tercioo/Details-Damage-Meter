@@ -2181,6 +2181,15 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 			end
 		end
 		
+		if (not _detalhes:GetTutorialCVar ("ATTRIBUTE_SELECT_TUTORIAL2") and not _detalhes.initializing and not iniciando_instancia) then
+
+			if (not _G ["DetailsWelcomeWindow"] or not _G ["DetailsWelcomeWindow"]:IsShown()) then
+				--_detalhes:SetTutorialCVar ("ATTRIBUTE_SELECT_TUTORIAL2", true)
+				--_detalhes:TutorialBookmark (instancia)
+			end
+			
+		end
+		
 		if (_detalhes.cloud_process) then
 			
 			if (_detalhes.debug) then
@@ -2731,6 +2740,101 @@ local function GetDpsHps (_thisActor, key)
 	end
 end
 
+-- report_table: table sent to report func / data: numeric table {{value1, value2}} / f1: format value1 / f2: format value2
+local default_format_value1 = function (v) return v end
+local default_format_value2 = function (v) return v end
+local default_format_value3 = function (i, v1, v2) 
+	return "" .. i .. ". " .. v1 .. " " .. v2
+end
+
+function _detalhes:FormatReportLines (report_table, data, f1, f2, f3)
+	
+	f1 = f1 or default_format_value1
+	f2 = f2 or default_format_value2
+	f3 = f3 or default_format_value3
+	
+	if (not _detalhes.fontstring_len) then
+		_detalhes.fontstring_len = _detalhes.listener:CreateFontString (nil, "background", "GameFontNormal")
+	end
+	local _, fontSize = FCF_GetChatWindowInfo (1)
+	if (fontSize < 1) then
+		fontSize = 10
+	end
+	local fonte, _, flags = _detalhes.fontstring_len:GetFont()
+	_detalhes.fontstring_len:SetFont (fonte, fontSize, flags)
+	_detalhes.fontstring_len:SetText ("DEFAULT NAME")
+	local biggest_len = _detalhes.fontstring_len:GetStringWidth()		
+	
+	for index, t in ipairs (data) do
+		local v1 = f1 (t[1])
+		_detalhes.fontstring_len:SetText (v1)
+		local len = _detalhes.fontstring_len:GetStringWidth()
+		if (len > biggest_len) then
+			biggest_len = len
+		end
+	end
+	
+	if (biggest_len > 130) then
+		biggest_len = 130
+	end
+	
+	for index, t in ipairs (data) do
+		local v1, v2 = f1 (t[1]), f2 (t[2])
+		if (v1 and v2 and type (v1) == "string" and type (v2) == "string") then
+			v1 = v1 .. " "
+			_detalhes.fontstring_len:SetText (v1)
+			local len = _detalhes.fontstring_len:GetStringWidth()
+			
+			while (len < biggest_len) do 
+				v1 = v1 .. "."
+				_detalhes.fontstring_len:SetText (v1)
+				len = _detalhes.fontstring_len:GetStringWidth()
+			end			
+		
+			report_table [#report_table+1] = f3 (index, v1, v2)
+		end
+	end
+	
+end
+
+local report_name_function = function (name)
+	local name, index = unpack (name)
+	
+	if (_detalhes.remove_realm_from_name and name:find ("-")) then
+		return index .. ". " .. name:gsub (("%-.*"), "")
+	else
+		return index .. ". " .. name
+	end
+end
+
+local report_amount_function = function (t)
+	local amount, dps, percent, is_string, index = unpack (t)
+	
+	if (not is_string) then
+		if (dps) then
+			if (_detalhes.report_schema == 1) then
+				return _detalhes:ToKReport (_math_floor (amount)) .. " (" .. _detalhes:ToKMin (_math_floor (dps)) .. ", " .. percent .. "%)"
+			elseif (_detalhes.report_schema == 2) then
+				return percent .. "% (" .. _detalhes:ToKMin (_math_floor (dps)) .. ", " .. _detalhes:ToKReport ( _math_floor (amount)) .. ")"
+			elseif (_detalhes.report_schema == 3) then
+				return percent .. "% (" .. _detalhes:ToKReport ( _math_floor (amount) ) .. ", " .. _detalhes:ToKMin (_math_floor (dps)) .. ")"
+			end
+		else
+			if (_detalhes.report_schema == 1) then
+				return _detalhes:ToKReport (amount) .. " (" .. percent .. "%)"
+			else
+				return percent .. "% (" .. _detalhes:ToKReport (amount) .. ")"
+			end
+		end
+	else
+		return amount
+	end
+end
+
+local report_build_line = function (i, v1, v2) 
+	return v1 .. " " .. v2
+end
+
 --> Reportar o que esta na janela da instância
 function _detalhes:monta_relatorio (este_relatorio, custom)
 	
@@ -2791,327 +2895,171 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 	
 	local barras = self.barras
 	local esta_barra
-	
 	local is_current = _G ["Details_Report_CB_1"]:GetChecked()
 	local is_reverse = _G ["Details_Report_CB_2"]:GetChecked()
-	
-	if (not _detalhes.fontstring_len) then
-		_detalhes.fontstring_len = _detalhes.listener:CreateFontString (nil, "background", "GameFontNormal")
-	end
-	local _, fontSize = FCF_GetChatWindowInfo (1)
-	if (fontSize < 1) then
-		fontSize = 10
-	end
-	local fonte, _, flags = _detalhes.fontstring_len:GetFont()
-	_detalhes.fontstring_len:SetFont (fonte, fontSize, flags)
-	_detalhes.fontstring_len:SetText ("hello details!")
-	local default_len = _detalhes.fontstring_len:GetStringWidth()
-	
 	local name_member = "nome"
 	
-	--> pegar a font do chat
-	--_detalhes.fontstring_len:
+	if (not is_current) then
 	
-	if (not is_reverse) then
-	
-		if (not is_current) then 
-			--> assumindo que self é sempre uma instância aqui.
-			local total, keyName, keyNameSec, first
-			local container_amount = 0
-			local atributo = self.atributo
-			local container = self.showing [atributo]._ActorTable
-			
-			if (atributo == 1) then --> damage
+		local total, keyName, keyNameSec, first
+		local container_amount = 0
+		local atributo = self.atributo
+		local container = self.showing [atributo]._ActorTable
+		
+		if (atributo == 1) then --> damage
 
-				if (self.sub_atributo == 5) then --> frags
-					local frags = self.showing.frags
-					local reportarFrags = {}
-					for name, amount in pairs (frags) do 
-						--> string para imprimir direto sem calculos
-						reportarFrags [#reportarFrags+1] = {frag = tostring (amount), nome = name} 
-					end
-					container = reportarFrags
-					container_amount = #reportarFrags
-					keyName = "frag"
-					
-				elseif (self.sub_atributo == 7) then --> auras e voidzones
+			if (self.sub_atributo == 5) then --> frags
+				local frags = self.showing.frags
+				local reportarFrags = {}
+				for name, amount in pairs (frags) do 
+					--> string para imprimir direto sem calculos
+					reportarFrags [#reportarFrags+1] = {frag = tostring (amount), nome = name} 
+				end
+				container = reportarFrags
+				container_amount = #reportarFrags
+				keyName = "frag"
 				
-					total, keyName, first, container_amount, container = _detalhes.atributo_damage:RefreshWindow (self, self.showing, true, true)
-					
-					
-				else
-					total, keyName, first, container_amount = _detalhes.atributo_damage:RefreshWindow (self, self.showing, true, true)
-					if (self.sub_atributo == 1) then
-						keyNameSec = "dps"
-					elseif (self.sub_atributo == 2) then
-						
-					end
+			elseif (self.sub_atributo == 7) then --> auras e voidzones
+			
+				total, keyName, first, container_amount, container, name_member = _detalhes.atributo_damage:RefreshWindow (self, self.showing, true, true)
+			
+			elseif (self.sub_atributo == 8) then --> damage taken by spell
+			
+				total, keyName, first, container_amount, container = _detalhes.atributo_damage:RefreshWindow (self, self.showing, true, true)
+				
+				for _, t in ipairs (container) do
+					t.nome = _detalhes:GetSpellLink (t.spellid)
 				end
-			elseif (atributo == 2) then --> heal
-				total, keyName, first, container_amount = _detalhes.atributo_heal:RefreshWindow (self, self.showing, true, true)
-
+				
+			else
+				total, keyName, first, container_amount = _detalhes.atributo_damage:RefreshWindow (self, self.showing, true, true)
 				if (self.sub_atributo == 1) then
-					keyNameSec = "hps"
-				end
-			elseif (atributo == 3) then --> energy
-				total, keyName, first, container_amount = _detalhes.atributo_energy:RefreshWindow (self, self.showing, true, true)
-			elseif (atributo == 4) then --> misc
-				if (self.sub_atributo == 5) then --> mortes
-
-					local mortes = self.showing.last_events_tables
-					local reportarMortes = {}
-					for index, morte in ipairs (mortes) do 
-						reportarMortes [#reportarMortes+1] = {dead = morte [6], nome = morte [3]:gsub (("%-.*"), "")}
-					end
-					container = reportarMortes
-					container_amount = #reportarMortes
-					keyName = "dead"
-				else
-					total, keyName, first, container_amount = _detalhes.atributo_misc:RefreshWindow (self, self.showing, true, true)
-				end
-			elseif (atributo == 5) then --> custom
-			
-				if (_detalhes.custom [self.sub_atributo]) then
-					total, container, first, container_amount, nm = _detalhes.atributo_custom:RefreshWindow (self, self.showing, true, true)
-					if (nm) then
-						name_member = nm
-						print ("nm:", nm)
-					end
-					keyName = "report_value"
-				else
-					total, keyName, first, container_amount = _detalhes.atributo_damage:RefreshWindow (self, self.showing, true, true)
-					total = 1
-					atributo = 1
-					container = self.showing [atributo]._ActorTable
-				end
-				--print (total, keyName, first, atributo, container_amount)
-			end
-			
-			amt = math.min (amt, container_amount or 0)
---amt é zero
-			for i = 1, amt do 
-				local _thisActor = container [i]
-
-				if (_thisActor) then 
-
-					local amount, is_string
-					if (type (_thisActor [keyName]) == "number") then
-						amount = _math_floor (_thisActor [keyName])
-					else
-						amount = _thisActor [keyName]
-						is_string = true
-					end
-
-					local name = _thisActor [name_member] .. " "
-					if (_detalhes.remove_realm_from_name and name:find ("-")) then
-						name = name:gsub (("%-.*"), "")
-					end
+					keyNameSec = "dps"
+				elseif (self.sub_atributo == 2) then
 					
-					_detalhes.fontstring_len:SetText (name)
-					local stringlen = _detalhes.fontstring_len:GetStringWidth()
-					
-					while (stringlen < default_len) do 
-						name = name .. "."
-						_detalhes.fontstring_len:SetText (name)
-						stringlen = _detalhes.fontstring_len:GetStringWidth()
-					end
-					
-					local percent
-					
-					if (self.atributo == 2 and self.sub_atributo == 3) then --overheal
-						percent = _cstr ("%.1f", _thisActor.totalover / (_thisActor.totalover + _thisActor.total) * 100)
-					elseif (not is_string) then
-						percent = _cstr ("%.1f", amount/total*100)
-					end
-					
-					if (_type (amount) == "number" and amount > 0) then
-						if (keyNameSec) then
-							local dps = GetDpsHps (_thisActor, keyNameSec)
-							if (_detalhes.report_schema == 1) then
-								report_lines [#report_lines+1] = i .. ". " .. name .. " " .. _detalhes:ToKMin ( _math_floor (amount) ) .. " (" .. _detalhes:ToKMin (_math_floor (dps)) .. ", " .. percent .. "%)"
-							elseif (_detalhes.report_schema == 2) then
-								report_lines [#report_lines+1] = i .. ". " .. name .. " " .. percent .. "% (" .. _detalhes:ToKMin (_math_floor (dps)) .. ", " .. _detalhes:ToKMin ( _math_floor (amount)) .. ")"
-							elseif (_detalhes.report_schema == 3) then
-								report_lines [#report_lines+1] = i .. ". " .. name .. " " .. percent .. "% (" .. _detalhes:ToKMin ( _math_floor (amount) ) .. ", " .. _detalhes:ToKMin (_math_floor (dps)) .. ")"
-							end
-						else
-							if (_detalhes.report_schema == 1) then
-								report_lines [#report_lines+1] = i .. ". " .. name .. "   " .. _detalhes:ToKReport (amount) .. " (" .. percent .. "%)"
-							else
-								report_lines [#report_lines+1] = i .. ". " .. name .. "   " .. percent .. "% (" .. _detalhes:ToKReport (amount) .. ")"
-							end
-						end
-						
-					elseif (_type (amount) == "string") then
-					
-						report_lines [#report_lines+1] = i .. ". " .. name .. "   " .. amount
-						
-					else
-						break
-					end
-				else
-					break
 				end
 			end
-	
-		else
-			for i = 1, amt do
-				local ROW = self.barras [i]
-				if (ROW) then
-					if (not ROW.hidden or ROW.fading_out) then --> a barra esta visivel na tela
-						report_lines [#report_lines+1] = ROW.texto_esquerdo:GetText().."   ".. ROW.texto_direita:GetText()
-					else
-						break
-					end
-				else
-					break --> chegou a final, parar de pegar as linhas
-				end
+		elseif (atributo == 2) then --> heal
+			total, keyName, first, container_amount = _detalhes.atributo_heal:RefreshWindow (self, self.showing, true, true)
+
+			if (self.sub_atributo == 1) then
+				keyNameSec = "hps"
 			end
-		end
-		
-	else --> é reverso
-		report_lines[1] = report_lines[1].." (" .. Loc ["STRING_REPORTFRAME_REVERTED"] .. ")"
-		
-		if (not is_current) then 
-			--> assumindo que self é sempre uma instância aqui.
-			local total, keyName, first, container_amount
-			local atributo = self.atributo
-			
-			local container = self.showing [atributo]._ActorTable
-			local quantidade = 0
-			
-			if (atributo == 1) then --> damage
-				if (self.sub_atributo == 5) then --> frags
-					local frags = self.showing.frags
-					local reportarFrags = {}
-					for name, amount in pairs (frags) do 
-						--> string para imprimir direto sem calculos
-						reportarFrags [#reportarFrags+1] = {frag = tostring (amount), nome = name} 
-					end
-					container = reportarFrags
-					keyName = "frag"
-				else
-					if (self.sub_atributo == 1) then
-						keyNameSec = "dps"
-					end
-					total, keyName, first, container_amount = _detalhes.atributo_damage:RefreshWindow (self, self.showing, true, true)
+		elseif (atributo == 3) then --> energy
+			total, keyName, first, container_amount = _detalhes.atributo_energy:RefreshWindow (self, self.showing, true, true)
+		elseif (atributo == 4) then --> misc
+			if (self.sub_atributo == 5) then --> mortes
+
+				local mortes = self.showing.last_events_tables
+				local reportarMortes = {}
+				for index, morte in ipairs (mortes) do 
+					reportarMortes [#reportarMortes+1] = {dead = morte [6], nome = morte [3]:gsub (("%-.*"), "")}
 				end
-			elseif (atributo == 2) then --> heal
-				total, keyName, first, container_amount = _detalhes.atributo_heal:RefreshWindow (self, self.showing, true, true)
-				if (self.sub_atributo == 1) then
-					keyNameSec = "hps"
-				end
-			elseif (atributo == 3) then --> energy
-				total, keyName, first, container_amount = _detalhes.atributo_energy:RefreshWindow (self, self.showing, true, true)
-			elseif (atributo == 4) then --> misc
-				if (self.sub_atributo == 5) then --> mortes
-					local mortes = self.showing.last_events_tables
-					local reportarMortes = {}
-					for index, morte in ipairs (mortes) do 
-						reportarMortes [#reportarMortes+1] = {dead = morte [6], nome = morte [3]:gsub (("%-.*"), "")}
-					end
-					container = reportarMortes
-					keyName = "dead"
-				else
-					total, keyName, first, container_amount = _detalhes.atributo_misc:RefreshWindow (self, self.showing, true, true)
-				end
-			elseif (atributo == 5) then --> custom
+				container = reportarMortes
+				container_amount = #reportarMortes
+				keyName = "dead"
+			else
+				total, keyName, first, container_amount = _detalhes.atributo_misc:RefreshWindow (self, self.showing, true, true)
+			end
+		elseif (atributo == 5) then --> custom
+
+			if (_detalhes.custom [self.sub_atributo]) then
 				total, container, first, container_amount, nm = _detalhes.atributo_custom:RefreshWindow (self, self.showing, true, true)
 				if (nm) then
 					name_member = nm
 				end
-				keyName = "report_value"				
+				keyName = "report_value"
+			else
+				total, keyName, first, container_amount = _detalhes.atributo_damage:RefreshWindow (self, self.showing, true, true)
+				total = 1
+				atributo = 1
+				container = self.showing [atributo]._ActorTable
 			end
+			--print (total, keyName, first, atributo, container_amount)
+		end
+		
+		amt = math.min (amt, container_amount or 0)
+		local raw_data_to_report = {}
+		
+		for i = 1, container_amount do 
+			local actor = container [i]
 			
-			local this_amt = math.min (#container, container_amount or 0, amt)
-			this_amt = #container - this_amt
-
-			for i = container_amount, this_amt, -1 do 
-				
-				local _thisActor = container [i]
-				if (_thisActor) then
-				
-					local amount
-					if (type (_thisActor [keyName]) == "number") then
-						amount = _math_floor (_thisActor [keyName])
-					else
-						amount = _thisActor [keyName]
-					end
-					
-					local name = _thisActor [name_member] .. " "
-					
-					_detalhes.fontstring_len:SetText (name)
-					local stringlen = _detalhes.fontstring_len:GetStringWidth()
-					
-					while (stringlen < default_len) do 
-						name = name .. "."
-						_detalhes.fontstring_len:SetText (name)
-						stringlen = _detalhes.fontstring_len:GetStringWidth()
-					end				
-					
-					if (_type (amount) == "number") then
-						if (amount > 0) then 
-						
-							local percent
-							
-							if (self.atributo == 2 and self.sub_atributo == 3) then --overheal
-								percent = _cstr ("%.1f", _thisActor.totalover / (_thisActor.totalover + _thisActor.total) * 100)
-							else
-								percent = _cstr ("%.1f", amount/total*100)
-							end
-						
-							if (keyNameSec) then
-								local dps = GetDpsHps (_thisActor, keyNameSec)
-								if (_detalhes.report_schema == 1) then
-									report_lines [#report_lines+1] = i .. ". " .. name .. " " .. _detalhes:ToKMin ( _math_floor (amount) ) .. " (" .. _detalhes:ToKMin (_math_floor (dps)) .. ", " .. percent .. "%)"
-								elseif (_detalhes.report_schema == 2) then
-									report_lines [#report_lines+1] = i .. ". " .. name .. " " .. percent .. "% (" .. _detalhes:ToKMin (_math_floor (dps)) .. ", " .. _detalhes:ToKMin ( _math_floor (amount)) .. ")"
-								elseif (_detalhes.report_schema == 3) then
-									report_lines [#report_lines+1] = i .. ". " .. name .. " " .. percent .. "% (" .. _detalhes:ToKMin ( _math_floor (amount) ) .. ", " .. _detalhes:ToKMin (_math_floor (dps)) .. ")"
-								end
-							else
-								if (_detalhes.report_schema == 1) then
-									report_lines [#report_lines+1] = i .. ". " .. name .. "   " .. _detalhes:ToKReport (amount) .. " (" .. percent .. "%)"
-								else
-									report_lines [#report_lines+1] = i .. ". " .. name .. "   " .. _cstr ("%.1f", amount/total*100) .. "% (" .. percent .. ")"
-								end
-							end
-							
-							quantidade = quantidade + 1
-							if (quantidade == amt) then
-								break
-							end
-						end
-					elseif (_type (amount) == "string") then
-						report_lines [#report_lines+1] = i .. ". " .. name .. "   " .. amount
-					else
-						break
-					end
-				end
-			end
-		else
-			local nova_tabela = {}
+			if (actor) then 
 			
-			for i = 1, amt do
-				local ROW = self.barras [i]
-				if (ROW) then
-					if (not ROW.hidden or ROW.fading_out) then --> a barra esta visivel na tela
-						nova_tabela [#nova_tabela+1] = ROW.texto_esquerdo:GetText().."   ".. ROW.texto_direita:GetText()
-					else
-						break
-					end
+				-- get the total
+				local amount, is_string
+				if (type (actor [keyName]) == "number") then
+					amount = _math_floor (actor [keyName])
 				else
-					break
+					amount = actor [keyName]
+					is_string = true
 				end
-			end
-			
-			for i = #nova_tabela, 1, -1 do
-				report_lines [#report_lines+1] = nova_tabela[i]
+				
+				-- get the name
+				local name = actor [name_member] or ""
+				
+				if (not is_string) then
+					-- get the percent
+					local percent
+					if (self.atributo == 2 and self.sub_atributo == 3) then --overheal
+						percent = _cstr ("%.1f", actor.totalover / (actor.totalover + actor.total) * 100)
+					elseif (not is_string) then
+						percent = _cstr ("%.1f", amount / total * 100)
+					end
+					
+					-- get the dps
+					local dps = false
+					if (keyNameSec) then
+						dps = GetDpsHps (actor, keyNameSec)
+					end
+					
+					raw_data_to_report [#raw_data_to_report+1] = {{name, i}, {amount, dps, percent, false}}
+				else
+					raw_data_to_report [#raw_data_to_report+1] = {{name, i}, {amount, false, false, true}}
+				end
+				
+			else
+				break
 			end
 		end
 
+		if (is_reverse) then
+			local t = {}
+			for i = #raw_data_to_report, 1, -1 do
+				tinsert (t, raw_data_to_report [i])
+				if (#t >= amt) then
+					break
+				end
+			end
+			_detalhes:FormatReportLines (report_lines, t, report_name_function, report_amount_function, report_build_line)
+		else
+			for i = #raw_data_to_report, amt+1, -1 do
+				tremove (raw_data_to_report, i)
+			end
+			_detalhes:FormatReportLines (report_lines, raw_data_to_report, report_name_function, report_amount_function, report_build_line)
+		end
+
+	else
+		
+		local raw_data_to_report = {}
+		
+		for i = 1, amt do
+			local window_bar = self.barras [i]
+			if (window_bar) then
+				if (not window_bar.hidden or window_bar.fading_out) then
+					raw_data_to_report [#raw_data_to_report+1] = {window_bar.texto_esquerdo:GetText(), window_bar.texto_direita:GetText()}
+				else
+					break
+				end
+			else
+				break
+			end
+		end
+		
+		_detalhes:FormatReportLines (report_lines, raw_data_to_report, nil, nil, report_build_line)
+		
 	end
-	
+
 	return self:envia_relatorio (report_lines)
 	
 end

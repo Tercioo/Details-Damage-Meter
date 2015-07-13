@@ -1106,6 +1106,11 @@
 		local backgroundColor = {0, 0, 0, 0.6}
 		local avatarTextColor = {1, 1, 1, 1}
 		
+		function _detalhes:AddTooltipReportLineText()
+			GameCooltip:AddLine (Loc ["STRING_CLICK_REPORT_LINE1"], Loc ["STRING_CLICK_REPORT_LINE2"])
+			GameCooltip:AddStatusBar (100, 1, 0, 0, 0, 0.4)
+		end
+		
 		function _detalhes:AddTooltipBackgroundStatusbar (side)
 			if (not side) then
 				GameCooltip:AddStatusBar (100, 1, unpack (_detalhes.tooltip.background))
@@ -1118,20 +1123,15 @@
 			GameCooltip:AddStatusBar (100, 1, 1, 1, 1, a, nil, nil, [[Interface\WorldStateFrame\WORLDSTATEFINALSCORE-HIGHLIGHT]])
 		end
 		
-		function _detalhes:AddTooltipSpellHeaderText (headerText, headerColor, r, g, b, amount, side)
-			if (not side) then
-				if (_detalhes.tooltip.show_amount) then
-					GameCooltip:AddLine (headerText, "x" .. amount .. "", nil, headerColor, r, g, b, .5, 10)
-				else
-					GameCooltip:AddLine (headerText, nil, nil, headerColor, nil, 12)
-				end
+		function _detalhes:AddTooltipSpellHeaderText (headerText, headerColor, amount, iconTexture, L, R, T, B)
+			if (_detalhes.tooltip.show_amount) then
+				GameCooltip:AddLine (headerText, "x" .. amount .. "", nil, headerColor, 1, 1, 1, .4, _detalhes.tooltip.fontsize_title)
 			else
-				--> sub menu
-				if (_detalhes.tooltip.show_amount) then
-					GameCooltip:AddLine (headerText, "x" .. amount .. "", 2, headerColor, r, g, b, .5, 10)
-				else
-					GameCooltip:AddLine (headerText, nil, 2, headerColor, nil, 12)
-				end
+				GameCooltip:AddLine (headerText, nil, nil, headerColor, nil, _detalhes.tooltip.fontsize_title)
+			end
+
+			if (iconTexture) then
+				GameCooltip:AddIcon (iconTexture, 1, 1, 14, 14, L or 0, R or 1, T or 0, B or 1)
 			end
 		end
 		
@@ -1181,6 +1181,8 @@
 			--verifica por tooltips especiais:
 			if (objeto.dead) then --> é uma barra de dead
 				return _detalhes:ToolTipDead (self, objeto, esta_barra, keydown) --> instância, [morte], barra
+			elseif (objeto.byspell) then
+				return _detalhes:ToolTipBySpell (self, objeto, esta_barra, keydown)
 			elseif (objeto.frags) then
 				return _detalhes:ToolTipFrags (self, objeto, esta_barra, keydown)
 			elseif (objeto.boss_debuff) then
@@ -1200,11 +1202,11 @@
 							GameCooltip:SetBannerText (1, (not _detalhes.ignore_nicktag and avatar [1]) or objeto.nome, textPoint, avatarTextColor, 14, SharedMedia:Fetch ("font", _detalhes.tooltip.fontface)) --> text [1] nickname
 						end
 					else
-						if (_detalhes.remove_realm_from_name and objeto.displayName:find ("%*")) then
-							GameCooltip:SetBannerImage (1, [[Interface\AddOns\Details\images\background]], 20, 30, avatarPoint, avatarTexCoord, {0, 0, 0, 0}) --> overlay [2] avatar path
-							GameCooltip:SetBannerImage (2, [[Interface\PetBattles\Weather-BurntEarth]], 160, 30, {{"bottomleft", "topleft", 0, -5}, {"bottomright", "topright", 0, -5}}, {0.12, 0.88, 1, 0}, {0, 0, 0, 0.1}) --> overlay [2] avatar path {0, 0, 0, 0}
-							GameCooltip:SetBannerText (1, objeto.nome, {"left", "left", 11, -8}, {1, 1, 1, 0.7}, 10, SharedMedia:Fetch ("font", _detalhes.tooltip.fontface)) --> text [1] nickname
-						end
+						--if (_detalhes.remove_realm_from_name and objeto.displayName:find ("%*")) then
+						--	GameCooltip:SetBannerImage (1, [[Interface\AddOns\Details\images\background]], 20, 30, avatarPoint, avatarTexCoord, {0, 0, 0, 0}) --> overlay [2] avatar path
+						--	GameCooltip:SetBannerImage (2, [[Interface\PetBattles\Weather-BurntEarth]], 160, 30, {{"bottomleft", "topleft", 0, -5}, {"bottomright", "topright", 0, -5}}, {0.12, 0.88, 1, 0}, {0, 0, 0, 0.1}) --> overlay [2] avatar path {0, 0, 0, 0}
+						--	GameCooltip:SetBannerText (1, objeto.nome, {"left", "left", 11, -8}, {1, 1, 1, 0.7}, 10, SharedMedia:Fetch ("font", _detalhes.tooltip.fontface)) --> text [1] nickname
+						--end
 					end
 				end
 

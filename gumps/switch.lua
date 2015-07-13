@@ -699,7 +699,11 @@ function _detalhes.switch:OnRemoveCustom (CustomIndex)
 			--> precisa resetar esse aqui
 			options.atributo = nil
 			options.sub_atributo = nil
-			_detalhes.switch:Update()
+			
+			--update if already shown once at least
+			if (_detalhes.switch.vertical_amt) then
+				_detalhes.switch:Update()
+			end
 		end
 	end
 end

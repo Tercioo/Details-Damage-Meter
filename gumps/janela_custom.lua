@@ -1535,7 +1535,7 @@
 						gump:GradientEffect (button:GetParent(), "frame", _r, _g, _b, _a, OnEnterColors[1], OnEnterColors[2], OnEnterColors[3], OnEnterColors[4], .3)
 
 						GameTooltip:SetOwner (button, "ANCHOR_TOPLEFT")
-						GameTooltip:SetSpellByID (button.MyObject.spellid)
+						_detalhes:GameTooltipSetSpellByID (button.MyObject.spellid)
 						GameTooltip:Show()
 					end
 					local buttonMouseOut = function (button)

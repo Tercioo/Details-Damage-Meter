@@ -27,7 +27,7 @@ local classe_icones = _G.CLASS_ICON_TCOORDS
 --self = instancia
 --jogador = classe_damage ou classe_heal
 
-function _detalhes:AbreJanelaInfo (jogador, from_att_change, refresh)
+function _detalhes:AbreJanelaInfo (jogador, from_att_change, refresh, ShiftKeyDown, ControlKeyDown)
 
 	--print (debugstack())
 
@@ -39,7 +39,7 @@ function _detalhes:AbreJanelaInfo (jogador, from_att_change, refresh)
 			_detalhes:FechaJanelaInfo()
 			return
 		end
-		return _detalhes.row_singleclick_overwrite [self.atributo][self.sub_atributo] (_, jogador, self)
+		return _detalhes.row_singleclick_overwrite [self.atributo][self.sub_atributo] (_, jogador, self, ShiftKeyDown, ControlKeyDown)
 	end
 	
 	if (self.modo == _detalhes._detalhes_props["MODO_RAID"]) then
@@ -1711,7 +1711,7 @@ function gump:CriaJanelaInfo()
 					self:SetBackdrop ({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 512, edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border", edgeSize = 8})
 					self:SetBackdropColor (.5, .5, .5, .5)
 					GameTooltip:SetOwner (self, "ANCHOR_TOPLEFT")
-					GameTooltip:SetSpellByID (self.spellid)
+					_detalhes:GameTooltipSetSpellByID (self.spellid)
 					GameTooltip:Show()
 				end
 			end
@@ -4259,10 +4259,10 @@ end
 local miniframe_func_on_enter = function (self)
 	local barra = self:GetParent()
 	if (barra.show and type (barra.show) == "number") then
-		local spellname = GetSpellInfo (barra.show)
+		local spellname = _GetSpellInfo (barra.show)
 		if (spellname) then
 			GameTooltip:SetOwner (self, "ANCHOR_TOPLEFT")
-			GameTooltip:SetSpellByID (barra.show)
+			_detalhes:GameTooltipSetSpellByID (barra.show)
 			GameTooltip:Show()
 		end
 	end
