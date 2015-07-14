@@ -340,7 +340,7 @@ local _
 				["text_face"] = "Accidental Presidency",
 				["anchor"] = {
 					-18, -- [1]
-					4, -- [2]
+					3, -- [2]
 				},
 				["text_color"] = {
 					1, -- [1]
@@ -360,7 +360,7 @@ local _
 				true, -- [5]
 				false, -- [6]
 				["space"] = -3,
-				["shadow"] = false,
+				["shadow"] = true,
 			},
 			["desaturated_menu"] = false,
 			["micro_displays_side"] = 2,
@@ -752,7 +752,7 @@ local _
 		
 		instance_cprops = {
 			["show_statusbar"] = false,
-			["menu_icons_size"] = 0.850000023841858,
+			["menu_icons_size"] = 0.80,
 			["color"] = {
 				0.211764705882353, -- [1]
 				0.282352941176471, -- [2]
@@ -761,7 +761,7 @@ local _
 			},
 			["menu_anchor"] = {
 				17, -- [1]
-				0, -- [2]
+				-1, -- [2]
 				["side"] = 2,
 			},
 			["bg_r"] = 0,
@@ -786,7 +786,7 @@ local _
 				["text_face"] = "Accidental Presidency",
 				["anchor"] = {
 					-17, -- [1]
-					3, -- [2]
+					2, -- [2]
 				},
 				["text_size"] = 12,
 				["enable_custom_text"] = false,
@@ -852,7 +852,7 @@ local _
 				["font_face_file"] = "Interface\\Addons\\Details\\fonts\\Accidental Presidency.ttf",
 				["textL_custom_text"] = "{data1}. {data3}{data2}",
 				["font_size"] = 10,
-				["height"] = 15,
+				["height"] = 14,
 				["texture_file"] = "Interface\\AddOns\\Details\\images\\BantoBar",
 				["icon_file"] = "Interface\\AddOns\\Details\\images\\classes_small",
 				["textR_bracket"] = "(",
@@ -1111,7 +1111,7 @@ local _
 				["custom_text"] = "{name}",
 				["text_face"] = "FORCED SQUARE",
 				["anchor"] = {
-					-16,
+					-15,
 					5,
 				},
 				["text_size"] = 12,
@@ -1171,6 +1171,7 @@ local _
 					0,
 					0,
 				},
+				["use_spec_icons"] = true,
 				["icon_file"] = "Interface\\AddOns\\Details\\images\\spec_icons_normal_alpha",
 				["textL_show_number"] = true,
 				["texture"] = "Skyline",
@@ -1484,7 +1485,7 @@ local _
 				["text_face"] = "FORCED SQUARE",
 				["anchor"] = {
 					-19, -- [1]
-					6, -- [2]
+					5, -- [2]
 				},
 				["text_color"] = {
 					1, -- [1]
@@ -1698,6 +1699,7 @@ local _
 			["row_info"] = {
 				["textR_outline"] = false,
 				["textL_outline"] = false,
+				["use_spec_icons"] = true,
 				["textL_enable_custom_text"] = false,
 				["icon_file"] = "Interface\\AddOns\\Details\\images\\spec_icons_normal",
 				["texture_background_file"] = "Interface\\AddOns\\Details\\images\\BantoBar",
@@ -1803,7 +1805,7 @@ local _
 				["enable_custom_text"] = false,
 				["custom_text"] = "{name}",
 				["text_face"] = "FORCED SQUARE",
-				["anchor"] = {-18, 6},
+				["anchor"] = {-18, 5},
 				["text_color"] = {1,1,1,0.7},
 				["text_size"] = 12,
 			},
