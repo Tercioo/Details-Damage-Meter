@@ -134,7 +134,7 @@ _detalhes.instance_defaults = {
 		--blackwhiite icons
 		desaturated_menu = false, --mode segment attribute report
 		--icons on menu
-		menu_icons = {true, true, true, true, true, false, space = -4, shadow = false}, --mode segment attribute report reset close
+		menu_icons = {true, true, true, true, true, false, space = -3, shadow = false}, --mode segment attribute report reset close
 		--menu icons size multiplicator factor
 		menu_icons_size = 1.0, --mode segment attribute report
 		--auto hide menu buttons
@@ -149,7 +149,8 @@ _detalhes.instance_defaults = {
 			side = 1, 
 			shadow = false,
 			enable_custom_text = false,
-			custom_text = "{name}"
+			custom_text = "{name}",
+			show_timer = {true, true, true}, --raid encounter, battleground, arena
 		},
 	--auto hide window borders statusbar main menu
 		menu_alpha = {enabled = false, iconstoo = true, onenter = 1, onleave = 1, ignorebars = false},

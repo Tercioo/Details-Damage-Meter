@@ -3145,8 +3145,6 @@
 			_detalhes.encounter_table.index = boss_index
 		end
 		
-		--print ("Combat Start 2")
-		
 	end
 	
 	function _detalhes.parser_functions:ENCOUNTER_END (...)

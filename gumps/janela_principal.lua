@@ -1087,6 +1087,7 @@ local BFrame_scripts_onsizechange = function (self)
 	self._instance:ReajustaGump()
 	self._instance.oldwith = self:GetWidth()
 	_detalhes:SendEvent ("DETAILS_INSTANCE_SIZECHANGED", nil, self._instance)
+	self._instance:RefreshAttributeTextSize()
 end
 
 local BFrame_scripts_onenter = function (self)
@@ -5031,6 +5032,8 @@ function _detalhes:ToolbarMenuSetButtons (_mode, _segment, _attributes, _report,
 	local space = self.menu_icons.space
 	local shadow = self.menu_icons.shadow
 	
+	local total_buttons_shown = 0
+	
 	--> normal buttons
 
 	if (self.menu_anchor.side == 1) then
@@ -5060,6 +5063,8 @@ function _detalhes:ToolbarMenuSetButtons (_mode, _segment, _attributes, _report,
 					button:SetHighlightTexture ([[Interface\AddOns\Details\images\toolbar_icons]])
 					button:SetPushedTexture ([[Interface\AddOns\Details\images\toolbar_icons]])
 				end
+				
+				total_buttons_shown = total_buttons_shown + 1
 			else
 				button:Hide()
 			end
@@ -5094,6 +5099,8 @@ function _detalhes:ToolbarMenuSetButtons (_mode, _segment, _attributes, _report,
 					button:SetHighlightTexture ([[Interface\AddOns\Details\images\toolbar_icons]])
 					button:SetPushedTexture ([[Interface\AddOns\Details\images\toolbar_icons]])
 				end
+				
+				total_buttons_shown = total_buttons_shown + 1
 			else
 				button:Hide()
 			end
@@ -5147,9 +5154,14 @@ function _detalhes:ToolbarMenuSetButtons (_mode, _segment, _attributes, _report,
 					button:SetPushedTexture (button.__icon)
 					button:SetHighlightTexture (button.__icon, "ADD")
 				end
+				
+				total_buttons_shown = total_buttons_shown + 1
 			end
 		end
 	end
+	
+	self.total_buttons_shown = total_buttons_shown
+	self:RefreshAttributeTextSize()
 	
 	return true
 	
@@ -6246,7 +6258,78 @@ function _detalhes:LeftMenuAnchorSide (side)
 end
 
 -- ~attributemenu (text with attribute name)
-function _detalhes:AttributeMenu (enabled, pos_x, pos_y, font, size, color, side, shadow)
+function _detalhes:RefreshAttributeTextSize()
+	if (self.attribute_text.enabled and self.total_buttons_shown and self.baseframe and self.menu_attribute_string) then
+		local window_width = self:GetSize()
+		local buttons_shown = self.total_buttons_shown
+		local buttons_width, buttons_spacement = self.menu_icons_size * 16, self.menu_icons.space
+		
+		local width_by_buttons = (buttons_shown * buttons_width) + (buttons_spacement * (buttons_shown - 1))
+		
+		local text_size = window_width - width_by_buttons - 6
+		self.menu_attribute_string:SetWidth (text_size)
+		self.menu_attribute_string:SetHeight (self.attribute_text.text_size + 2)
+	end
+end
+
+function _detalhes:CheckForTextTimeCounter (combat_start)
+	if (combat_start) then
+		local combat = _detalhes.tabela_vigente
+		if (combat.is_boss) then
+			local lower = _detalhes:GetLowerInstanceNumber()
+			if (lower) then
+				local instance = _detalhes:GetInstance (lower)
+				if (instance.baseframe and instance:IsEnabled()) then
+					if (instance.attribute_text.show_timer [1]) then
+						if (_detalhes.instance_title_text_timer [instance.meu_id]) then
+							_detalhes:CancelTimer (_detalhes.instance_title_text_timer [instance.meu_id])
+						end
+						_detalhes.instance_title_text_timer [instance.meu_id] = _detalhes:ScheduleRepeatingTimer ("TitleTextTickTimer", 1, instance)
+					end
+				end
+			else
+				return
+			end
+		end
+	else
+		for _, instance in ipairs (_detalhes.tabela_instancias) do
+			if (_detalhes.instance_title_text_timer [instance.meu_id]) then
+				_detalhes:CancelTimer (_detalhes.instance_title_text_timer [instance.meu_id])
+				local current_text = instance.menu_attribute_string:GetText()
+				current_text = current_text:gsub ("%[.*%] ", "")
+				instance.menu_attribute_string:SetText (current_text)
+			end
+		end
+	end
+end
+
+local format_timer = function (t)
+	local m, s = _math_floor (t/60), _math_floor (t%60)
+	if (m < 1) then
+		m = "00"
+	elseif (m < 10) then
+		m = "0" .. m
+	end
+	if (s < 10) then
+		s = "0" .. s
+	end
+	return "[" .. m .. ":" .. s .. "]"
+end
+
+function _detalhes:TitleTextTickTimer (instance)
+	if (instance.attribute_text.enabled) then
+		local current_text = instance.menu_attribute_string:GetText()
+		if (not current_text:find ("%[.*%]")) then
+			instance.menu_attribute_string:SetText ("[00:01] " .. current_text)
+		else
+			local timer = format_timer (_detalhes.tabela_vigente:GetCombatTime())
+			current_text = current_text:gsub ("%[.*%]", timer)
+			instance.menu_attribute_string:SetText (current_text)
+		end
+	end
+end
+
+function _detalhes:AttributeMenu (enabled, pos_x, pos_y, font, size, color, side, shadow, timer_encounter, timer_bg, timer_arena)
 
 	if (type (enabled) ~= "boolean") then
 		enabled = self.attribute_text.enabled
@@ -6279,6 +6362,16 @@ function _detalhes:AttributeMenu (enabled, pos_x, pos_y, font, size, color, side
 		shadow = self.attribute_text.shadow
 	end
 	
+	if (type (timer_encounter) ~= "boolean") then
+		timer_encounter = self.attribute_text.show_timer [1]
+	end
+	if (type (timer_bg) ~= "boolean") then
+		timer_bg = self.attribute_text.show_timer [2]
+	end
+	if (type (timer_arena) ~= "boolean") then
+		timer_arena = self.attribute_text.show_timer [3]
+	end
+	
 	self.attribute_text.enabled = enabled
 	self.attribute_text.anchor [1] = pos_x
 	self.attribute_text.anchor [2] = pos_y
@@ -6287,6 +6380,9 @@ function _detalhes:AttributeMenu (enabled, pos_x, pos_y, font, size, color, side
 	self.attribute_text.text_color = color
 	self.attribute_text.side = side
 	self.attribute_text.shadow = shadow
+	self.attribute_text.show_timer [1] = timer_encounter
+	self.attribute_text.show_timer [2] = timer_bg
+	self.attribute_text.show_timer [3] = timer_arena
 	
 	--> enabled
 	if (not enabled and self.menu_attribute_string) then
@@ -6360,6 +6456,8 @@ function _detalhes:AttributeMenu (enabled, pos_x, pos_y, font, size, color, side
 	--shadow
 	_detalhes:SetFontOutline (self.menu_attribute_string, shadow)
 
+	--refresh size
+	self:RefreshAttributeTextSize()
 end
 
 -- ~backdrop

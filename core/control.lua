@@ -379,6 +379,7 @@
 			_detalhes:SendEvent ("COMBAT_PLAYER_ENTER", nil, _detalhes.tabela_vigente, _detalhes.encounter_table and _detalhes.encounter_table.id)
 			_detalhes:CheckSwitchToCurrent()
 			
+			_detalhes:CheckForTextTimeCounter (true)
 		end
 		
 		function _detalhes:DelayedSyncAlert()
@@ -726,6 +727,8 @@
 			else
 				_detalhes:SendEvent ("COMBAT_PLAYER_LEAVE", nil, _detalhes.tabela_vigente)
 			end
+			
+			_detalhes:CheckForTextTimeCounter()
 			
 		end
 

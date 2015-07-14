@@ -62,9 +62,6 @@
 		self.proximo_update = 0
 	end
 
---	/run print( _detalhes:GetInstance(1).rowframe:GetParent():GetName())	
---	/run print (DetailsBarra_1_1:GetParent():GetName())
-
 	function _detalhes:fazer_animacoes (amt_barras)
 		--aqui
 
@@ -1259,7 +1256,6 @@
 							if (not boss_repeated [encounterId]) then
 								local encounter, instance = _detalhes:GetBossEncounterDetailsFromEncounterId (_, encounterId)
 								if (encounter) then
-									--print ("encounter found", encounter.boss, encounter.name, instance)
 									tinsert (boss_list, {value = encounterId, label = encounter.boss, icon = icon, onclick = on_boss_select})
 									boss_repeated [encounterId] = true
 									
@@ -2501,19 +2497,19 @@
 		local text = panel.editbox:GetText()
 		--text = text:gsub ("\n", "")
 		
-		local test = text
+		--local test = text
 	
-		local function errorhandler(err)
-			return geterrorhandler()(err)
-		end
+		--local function errorhandler(err)
+		--	return geterrorhandler()(err)
+		--end
 
-		local code = [[local str = "STR"; str = _detalhes.string.replace (str, 100, 50, 75, {nome = "you", total = 10, total_without_pet = 5, damage_taken = 7, last_dps = 1, friendlyfire_total = 6, totalover = 2, totalabsorb = 4, totalover_without_pet = 6, healing_taken = 1, heal_enemy_amt = 2});]]
-		code = code:gsub ("STR", test)
+		--local code = [[local str = "STR"; str = _detalhes.string.replace (str, 100, 50, 75, {nome = "you", total = 10, total_without_pet = 5, damage_taken = 7, last_dps = 1, friendlyfire_total = 6, totalover = 2, totalabsorb = 4, totalover_without_pet = 6, healing_taken = 1, heal_enemy_amt = 2});]]
+		--code = code:gsub ("STR", test)
 
-		local f = loadstring (code)
-		if (not f) then
-			print (f)
-		end
+		--local f = loadstring (code)
+		--if (not f) then
+		--	print ("loadstring failed:", f)
+		--end
 		--local err, two = xpcall (f, errorhandler)
 		--if (not err) then
 		--	return

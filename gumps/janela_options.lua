@@ -3588,6 +3588,26 @@ function window:CreateFrame14()
 		--frame14.attributeSideSwitch:SetThumbSize (50)
 		window:CreateLineBackground2 (frame14, "attributeSideSwitch", "attributeSideLabel", Loc ["STRING_OPTIONS_MENU_ATTRIBUTE_SIDE_DESC"])
 
+	--show timer
+		--for encounters
+		
+		g:NewLabel (frame14, _, "$parentAttributeEncounterTimerLabel", "AttributeEncounterTimerLabel", Loc ["STRING_OPTIONS_MENU_ATTRIBUTE_ENCOUNTERTIMER"], "GameFontHighlightLeft")
+		g:NewSwitch (frame14, _, "$parentAttributeEncounterTimerSwitch", "AttributeEncounterTimerSwitch", 60, 20, nil, nil, instance.attribute_text.show_timer [1])
+		frame14.AttributeEncounterTimerSwitch:SetPoint ("left", frame14.AttributeEncounterTimerLabel, "right", 2)
+		frame14.AttributeEncounterTimerSwitch.OnSwitch = function (self, instance, value)
+			instance:AttributeMenu (nil, nil, nil, nil, nil, nil, nil, nil, value)
+			if (_detalhes.options_group_edit and not DetailsOptionsWindow.loading_settings) then
+				for _, this_instance in ipairs (instance:GetInstanceGroup()) do
+					if (this_instance ~= instance) then
+						this_instance:AttributeMenu (nil, nil, nil, nil, nil, nil, nil, nil, value)
+					end
+				end
+			end
+			
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+		end
+		window:CreateLineBackground2 (frame14, "AttributeEncounterTimerSwitch", "AttributeEncounterTimerLabel", Loc ["STRING_OPTIONS_MENU_ATTRIBUTE_ENCOUNTERTIMER_DESC"])
+		
 	--frame14.attributeLabel:SetPoint (10, -205)
 	
 		--general anchor
@@ -3600,16 +3620,17 @@ function window:CreateFrame14()
 		titulo_attributetext_desc:SetPoint (x, -50)
 		
 		local left_side = {
-			{"TextAnchorLabel", 6, true},
-			{"attributeTextColorLabel", 7},
-			{"attributeTextSizeLabel", 8},
-			{"attributeFontLabel", 9},
-			{"attributeShadowLabel", 10},
 			{"SettingsAnchorLabel", 1, true},
 			{"attributeEnabledLabel", 2},
 			{"attributeAnchorXLabel", 3},
 			{"attributeAnchorYLabel", 4},
 			{"attributeSideLabel", 5},
+			{"AttributeEncounterTimerLabel", 6},
+			{"TextAnchorLabel", 7, true},
+			{"attributeTextColorLabel", 8},
+			{"attributeTextSizeLabel", 9},
+			{"attributeFontLabel", 10},
+			{"attributeShadowLabel", 11},
 		}
 		
 		window:arrange_menu (frame14, left_side, x, -90)
@@ -10400,6 +10421,7 @@ end --> if not window
 		_G.DetailsOptionsWindow14AttributeFontDropdown.MyObject:SetFixedParameter (editing_instance)
 		_G.DetailsOptionsWindow14AttributeTextSizeSlider.MyObject:SetFixedParameter (editing_instance)
 		_G.DetailsOptionsWindow14AttributeShadowSwitch.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow14AttributeEncounterTimerSwitch.MyObject:SetFixedParameter (editing_instance)
 		
 		_G.DetailsOptionsWindow14AttributeEnabledSwitch.MyObject:SetValue (editing_instance.attribute_text.enabled)
 		_G.DetailsOptionsWindow14AttributeAnchorXSlider.MyObject:SetValue (editing_instance.attribute_text.anchor [1])
@@ -10408,6 +10430,7 @@ end --> if not window
 		_G.DetailsOptionsWindow14AttributeTextSizeSlider.MyObject:SetValue (tonumber (editing_instance.attribute_text.text_size))
 		_G.DetailsOptionsWindow14AttributeTextColorPick.MyObject:SetColor (unpack (editing_instance.attribute_text.text_color))
 		_G.DetailsOptionsWindow14AttributeShadowSwitch.MyObject:SetValue (editing_instance.attribute_text.shadow)
+		_G.DetailsOptionsWindow14AttributeEncounterTimerSwitch.MyObject:SetValue (editing_instance.attribute_text.show_timer [1])
 
 		_G.DetailsOptionsWindow14AttributeSideSwitch.MyObject:SetFixedParameter (editing_instance)
 		_G.DetailsOptionsWindow14AttributeSideSwitch.MyObject:SetValue (editing_instance.attribute_text.side)
