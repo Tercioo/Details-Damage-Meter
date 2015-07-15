@@ -69,7 +69,7 @@ function _detalhes:AbreJanelaInfo (jogador, from_att_change, refresh, ShiftKeyDo
 		end
 	end
 	
-	--> vamos passar os parâmetros para dentro da tabela da janela...
+	--> passar os parâmetros para dentro da tabela da janela.
 
 	info.ativo = true --> sinaliza o addon que a janela esta aberta
 	info.atributo = self.atributo --> instancia.atributo -> grava o atributo (damage, heal, etc)
@@ -3636,6 +3636,7 @@ function gump:CriaJanelaInfo()
 			compare_create --[5] oncreate
 		)
 	
+	-- ~tab
 		function este_gump:ShowTabs()
 			local amt_positive = 0
 
@@ -3659,6 +3660,16 @@ function gump:CriaJanelaInfo()
 							alert:SetPoint ("bottom", tab, "top", 5, 28)
 							alert:Show()
 						end
+						
+						local blink = _detalhes:GetTutorialCVar ("DETAILS_INFO_TUTORIAL2") or 0
+						if (blink < 10) then
+							_detalhes:SetTutorialCVar ("DETAILS_INFO_TUTORIAL2", blink+1)
+							if (not tab.glow.Flash) then
+								gump:CreateFlashAnimation (tab.glow)
+							end
+							tab.glow:Flash (4.5, 0.8, 6, false, 0, 0, "NONE")
+						end
+						
 					end
 				
 					tab:Show()

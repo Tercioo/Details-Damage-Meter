@@ -479,6 +479,7 @@ function DetailsDropDownOptionClick (button)
 		
 	--> set the value of selected option in main object
 		button.object.myvalue = button.table.value
+		button.object.myvaluelabel = button.table.label
 end
 
 function DropDownMetaFunctions:Open()
@@ -560,6 +561,7 @@ function DetailsDropDownOnMouseDown (button)
 			local i = 1
 			local showing = 0
 			local currentText = button.text:GetText() or ""
+			local currentIndex
 			
 			if (object.OnMouseDownHook) then
 				local interrupt = object.OnMouseDownHook (button, buttontype, menu, scrollFrame, scrollChild, selectedTexture)
@@ -568,7 +570,7 @@ function DetailsDropDownOnMouseDown (button)
 				end
 			end
 			
-			for _, _table in ipairs (menu) do 
+			for tindex, _table in ipairs (menu) do 
 				
 				local show = isOptionVisible (_table)
 
@@ -637,6 +639,8 @@ function DetailsDropDownOnMouseDown (button)
 						
 						selectedTexture:Show()
 						selectedTexture:SetVertexColor (1, 1, 1, .3);
+						
+						currentIndex = tindex
 						currentText = nil
 					end
 					
@@ -716,7 +720,12 @@ function DetailsDropDownOnMouseDown (button)
 				end
 			end
 
-			object.scroll:SetValue (0)
+			if (object.myvaluelabel and currentIndex) then
+				object.scroll:SetValue (max ((currentIndex*20) - 80, 0))
+			else
+				object.scroll:SetValue (0)
+			end
+			
 			object:Open()
 			
 		else
