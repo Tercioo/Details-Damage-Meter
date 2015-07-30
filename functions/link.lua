@@ -901,8 +901,8 @@
 	
 	function _detalhes:BossModsLink()
 		if (_G.DBM) then
-			local dbm_callback_phase = function (event, msg)
-
+			local dbm_callback_phase = function (event, msg, ...)
+			
 				local mod = _detalhes.encounter_table.DBM_Mod
 				
 				if (not mod) then
@@ -942,15 +942,23 @@
 			
 			DBM:RegisterCallback ("DBM_Announce", dbm_callback_phase)
 			DBM:RegisterCallback ("pull", dbm_callback_pull)
+			
+			--DBM:RegisterCallback ("DBM_TimerStart", function (a, b, c, d, e, f, g)
+			--	print (a, b, c, d, e, f, g)
+			--end)
 		end
+		
+		
 		
 		LoadAddOn ("BigWigs_Core")
 		
 		if (BigWigs and not _G.DBM) then
 			BigWigs:Enable()
 		
-			function _detalhes:BigWigs_Message (event, module, key, text)
-				--print ("new bigwigs message...")
+			function _detalhes:BigWigs_Message (event, module, key, text, ...)
+				
+				--print (event, module, key, text, ...)
+				
 				if (key == "stages") then
 					local phase = text:gsub (".*%s", "")
 					phase = tonumber (phase)
@@ -976,6 +984,11 @@
 			end
 			
 			BigWigs.RegisterMessage (_detalhes, "BigWigs_Message")
+			
+			--function _detalhes:BigWigs_StartBar (...)
+			--	print (...)
+			--end
+			--BigWigs.RegisterMessage (_detalhes, "BigWigs_StartBar")
 		end
 	end	
 	

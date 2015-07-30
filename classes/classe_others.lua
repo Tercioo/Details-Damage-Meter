@@ -1538,7 +1538,10 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 			for playername, potspellid in _pairs (pot_usage) do
 				local name, _, icon = _GetSpellInfo (potspellid)
 				local _, class = UnitClass (playername)
-				local class_color = RAID_CLASS_COLORS [class].colorStr
+				local class_color = ""
+				if (class and RAID_CLASS_COLORS [class]) then
+					class_color = RAID_CLASS_COLORS [class].colorStr
+				end
 				string_output = string_output .. "|c" .. class_color .. playername .. "|r |T" .. icon .. ":14:14:0:0:64:64:0:64:0:64|t "
 			end
 			
@@ -1604,7 +1607,10 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 			for playername, potspellid in _pairs (pot_usage) do
 				local name, _, icon = _GetSpellInfo (potspellid)
 				local _, class = UnitClass (playername)
-				local class_color = RAID_CLASS_COLORS [class].colorStr
+				local class_color = ""
+				if (class and RAID_CLASS_COLORS [class]) then
+					class_color = RAID_CLASS_COLORS [class].colorStr
+				end
 				string_output = string_output .. "|c" .. class_color .. playername .. "|r |T" .. icon .. ":14:14:0:0:64:64:0:64:0:64|t "
 			end
 			
@@ -1644,7 +1650,10 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 			for playername, potspellid in _pairs (pot_usage) do
 				local name, _, icon = _GetSpellInfo (potspellid)
 				local _, class = UnitClass (playername)
-				local class_color = RAID_CLASS_COLORS [class].colorStr
+				local class_color = ""
+				if (class and RAID_CLASS_COLORS [class]) then
+					class_color = RAID_CLASS_COLORS [class].colorStr
+				end
 				string_output = string_output .. "|c" .. class_color .. playername .. "|r |T" .. icon .. ":14:14:0:0:64:64:0:64:0:64|t "
 			end
 			

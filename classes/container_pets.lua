@@ -111,8 +111,38 @@ function container_pets:PegaDono (pet_serial, pet_nome, pet_flags)
 	return
 end
 
--->  ao ter raid roster update, precisa dar foreach no container de pets e verificar as flags
--->  o mesmo precisa ser feito com as tabelas de combate
+function container_pets:Unpet (...)
+	local unitid = ...
+
+	local owner_serial = _UnitGUID (unitid)
+	
+	if (owner_serial) then
+		--tira o pet existente da tabela de pets e do cache do core
+		local existing_pet_serial = _detalhes.pets_players [owner_serial]
+		if (existing_pet_serial) then
+			_detalhes.parser:RevomeActorFromCache (existing_pet_serial)
+			container_pets:Remover (existing_pet_serial)
+			_detalhes.pets_players [owner_serial] = nil
+		end
+		--verifica se há um pet novo deste jogador
+		local pet_serial = _UnitGUID (unitid .. "pet")
+		if (pet_serial) then
+			if (not _detalhes.tabela_pets.pets [pet_serial]) then
+				local nome, realm = _UnitName (unitid)
+				if (realm and realm ~= "") then
+					nome = nome.."-"..realm
+				end
+				_detalhes.tabela_pets:Adicionar (pet_serial, _UnitName (unitid .. "pet"), 0x1114, owner_serial, nome, 0x514)
+			end
+			_detalhes.parser:RevomeActorFromCache (pet_serial)
+			container_pets:PlayerPet (owner_serial, pet_serial)
+		end
+	end
+end
+
+function container_pets:PlayerPet (player_serial, pet_serial)
+	_detalhes.pets_players [player_serial] = pet_serial
+end
 
 function container_pets:BuscarPets()
 	if (_IsInRaid()) then
@@ -124,7 +154,10 @@ function container_pets:BuscarPets()
 					if (realm and realm ~= "") then
 						nome = nome.."-"..realm
 					end
-					_detalhes.tabela_pets:Adicionar (pet_serial, _UnitName ("raidpet"..i), 0x1114, _UnitGUID ("raid"..i), nome, 0x514)
+					local owner_serial = _UnitGUID ("raid"..i)
+					_detalhes.tabela_pets:Adicionar (pet_serial, _UnitName ("raidpet"..i), 0x1114, owner_serial, nome, 0x514)
+					_detalhes.parser:RevomeActorFromCache (pet_serial)
+					container_pets:PlayerPet (owner_serial, pet_serial)
 				end
 			end
 		end
@@ -162,7 +195,12 @@ function container_pets:BuscarPets()
 	end
 end
 
--- 4372 = 1114 -> pet control player -> friendly -> aff raid
+function container_pets:Remover (pet_serial)
+	if (_detalhes.tabela_pets.pets [pet_serial]) then
+		table.wipe (_detalhes.tabela_pets.pets [pet_serial])
+	end
+	_detalhes.tabela_pets.pets [pet_serial] = nil
+end
 
 function container_pets:Adicionar (pet_serial, pet_nome, pet_flags, dono_serial, dono_nome, dono_flags)
 

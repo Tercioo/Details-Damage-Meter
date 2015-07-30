@@ -1206,7 +1206,7 @@
 					parser:dead ("UNIT_DIED", time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags)
 					ignore_death [who_name] = true
 					return
-				elseif (spellid == 184293) then --> WOD trinket: Soul Capacitor T18
+				elseif (spellid == 184293) then --> WOD trinket: Soul Capacitor T18 (soul eruption 184559)
 					soul_capacitor [who_serial] = _tempo
 				end
 
@@ -3192,6 +3192,7 @@
 	end
 	
 	function _detalhes.parser_functions:UNIT_PET (...)
+		_detalhes.container_pets:Unpet (...)
 		_detalhes:SchedulePetUpdate (1)
 	end
 
@@ -3608,6 +3609,25 @@
 		
 		misc_cache = setmetatable ({}, _detalhes.weaktable)
 		
+	end
+	
+	function parser:RevomeActorFromCache (actor_serial, actor_name)
+		if (actor_name) then
+			damage_cache [actor_name] = nil
+			damage_cache_pets [actor_name] = nil
+			damage_cache_petsOwners [actor_name] = nil
+			healing_cache [actor_name] = nil
+			energy_cache [actor_name] = nil
+			misc_cache [actor_name] = nil
+		end
+		if (actor_serial) then
+			damage_cache [actor_serial] = nil
+			damage_cache_pets [actor_serial] = nil
+			damage_cache_petsOwners [actor_serial] = nil
+			healing_cache [actor_serial] = nil
+			energy_cache [actor_serial] = nil
+			misc_cache [actor_serial] = nil
+		end
 	end
 
 	function _detalhes:UptadeRaidMembersCache()
