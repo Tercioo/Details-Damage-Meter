@@ -146,27 +146,27 @@ do
 		[115181] = 268, -- Breath of Fire
 		[121253] = 268, -- Keg Smash
 		[115180] = 268, -- Dizzying Haze
+
+		-- Windwalker Monk:
+		[152175] = 269, -- Hurricane Strike
+		[116095] = 269, -- Disable
+		[122470] = 269, -- Touch of Karma
+		[124280] = 269, -- Touch of Karma
+		[128595] = 269, -- Combat Conditioning
+		[101545] = 269, -- Flying Serpent Kick
+		[113656] = 269, -- Fists of Fury
+		[117418] = 269, -- Fists of Fury
 		
 		-- Mistweaver Monk:
-		[115310] = 269, -- Revival
-		[116680] = 269, -- Thunder Focus Tea
-		[115460] = 269, -- Detonate Chi
-		[116670] = 269, -- Uplift
-		[115294] = 269, -- Mana Tea
-		[116849] = 269, -- Life Cocoon
-		[115151] = 269, -- Renewing Mist
-		[124682] = 269, -- Enveloping Mist
-		[115175] = 269, -- Soothing Mist
-		
-		-- Windwalker Monk:
-		[152175] = 270, -- Hurricane Strike
-		[116095] = 270, -- Disable
-		[122470] = 270, -- Touch of Karma
-		[124280] = 270, -- Touch of Karma
-		[128595] = 270, -- Combat Conditioning
-		[101545] = 270, -- Flying Serpent Kick
-		[113656] = 270, -- Fists of Fury
-		[117418] = 270, -- Fists of Fury
+		[115310] = 270, -- Revival
+		[116680] = 270, -- Thunder Focus Tea
+		[115460] = 270, -- Detonate Chi
+		[116670] = 270, -- Uplift
+		[115294] = 270, -- Mana Tea
+		[116849] = 270, -- Life Cocoon
+		[115151] = 270, -- Renewing Mist
+		[124682] = 270, -- Enveloping Mist
+		[115175] = 270, -- Soothing Mist
 		
 		-- Holy Paladin:
 		[156910] = 65, -- Beacon of Faith

@@ -170,7 +170,15 @@ function _G._detalhes:Start()
 				end
 			end
 			
-			_detalhes.ToolBar:ReorganizeIcons() --> refresh all skin
+			--> refresh lower instance plugin icons and skin
+			_detalhes.ToolBar:ReorganizeIcons() 
+			--> refresh skin for other windows
+			for i = lower_instance+1, #self.tabela_instancias do
+				local instance = self:GetInstance (i)
+				if (instance and instance.baseframe and instance.ativa) then
+					instance:ChangeSkin()
+				end
+			end
 		
 			self.RefreshAfterStartup = nil
 			
@@ -355,6 +363,17 @@ function _G._detalhes:Start()
 			_detalhes:AddDefaultCustomDisplays()
 			
 			--> erase the custom for damage taken by spell
+			if (_detalhes_database.last_realversion and _detalhes_database.last_realversion < 74 and enable_reset_warning) then
+				function _detalhes:FixMonkSpecIcons()
+					local m269 = _detalhes.class_specs_coords [269]
+					local m270 = _detalhes.class_specs_coords [270]
+					
+					m269[1], m269[2], m269[3], m269[4] = 448/512, 512/512, 64/512, 128/512
+					m270[1], m270[2], m270[3], m270[4] = 384/512, 448/512, 64/512, 128/512
+				end
+				_detalhes:ScheduleTimer ("FixMonkSpecIcons", 1)
+			end
+			
 			if (_detalhes_database.last_realversion and _detalhes_database.last_realversion < 73 and enable_reset_warning) then
 			
 				local secure_func = function()
