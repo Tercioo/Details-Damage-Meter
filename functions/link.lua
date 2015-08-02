@@ -944,7 +944,7 @@
 			DBM:RegisterCallback ("pull", dbm_callback_pull)
 			
 			--DBM:RegisterCallback ("DBM_TimerStart", function (a, b, c, d, e, f, g)
-			--	print (a, b, c, d, e, f, g)
+			--	print ("details", a, b, c, d, e, f, g)
 			--end)
 		end
 		

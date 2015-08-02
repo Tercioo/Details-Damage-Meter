@@ -173,10 +173,12 @@ function _G._detalhes:Start()
 			--> refresh lower instance plugin icons and skin
 			_detalhes.ToolBar:ReorganizeIcons() 
 			--> refresh skin for other windows
-			for i = lower_instance+1, #self.tabela_instancias do
-				local instance = self:GetInstance (i)
-				if (instance and instance.baseframe and instance.ativa) then
-					instance:ChangeSkin()
+			if (lower_instance) then
+				for i = lower_instance+1, #self.tabela_instancias do
+					local instance = self:GetInstance (i)
+					if (instance and instance.baseframe and instance.ativa) then
+						instance:ChangeSkin()
+					end
 				end
 			end
 		

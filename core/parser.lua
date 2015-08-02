@@ -3375,7 +3375,7 @@
 	
 	function _detalhes:CreateBattlegroundSegment()
 		_current_combat:SetStartTime (_GetTime())
-		print ("Battleground has begun.")
+		--print ("Battleground has begun.")
 	end
 
 	-- ~load

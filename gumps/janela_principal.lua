@@ -2724,14 +2724,16 @@ local function iterate_scroll_scripts (backgrounddisplay, backgroundframe, basef
 				end
 			elseif (delta < 0) then --> rolou pra baixo
 				local B = instancia.barraS[2]
-				if (B < (instancia.rows_showing or 0)) then
-					scrollbar:SetValue (scrollbar:GetValue() + instancia.row_height * _detalhes.scroll_speed)
-				else
-					local _, maxValue = scrollbar:GetMinMaxValues()
-					scrollbar:SetValue (maxValue)
-					scrollbar.ultimo = maxValue
-					baseframe.button_down:Disable()
-				end
+				--if (B) then
+					if (B < (instancia.rows_showing or 0)) then
+						scrollbar:SetValue (scrollbar:GetValue() + instancia.row_height * _detalhes.scroll_speed)
+					else
+						local _, maxValue = scrollbar:GetMinMaxValues()
+						scrollbar:SetValue (maxValue)
+						scrollbar.ultimo = maxValue
+						baseframe.button_down:Disable()
+					end
+				--end
 			end
 
 		end)
