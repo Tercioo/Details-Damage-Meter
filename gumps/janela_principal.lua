@@ -6157,6 +6157,18 @@ function _detalhes:DelayedCheckOutOfCombatAlpha (instance)
 	end
 end
 
+function _detalhes:DelayedCheckOutOfCombatAndGroupAlpha (instance)
+	if ((_detalhes.zone_type == "raid" or _detalhes.zone_type == "party") and IsInInstance()) then
+		if (UnitAffectingCombat ("player") or InCombatLockdown()) then
+			instance:SetWindowAlphaForCombat (true, true) --> hida a janela
+		else
+			instance:SetWindowAlphaForCombat (false) --> deshida a janela
+		end
+	else
+		instance:SetWindowAlphaForCombat (true, true) --> hida a janela
+	end
+end
+
 function _detalhes:SetCombatAlpha (modify_type, alpha_amount, interacting)
 
 	if (interacting) then
@@ -6176,6 +6188,24 @@ function _detalhes:SetCombatAlpha (modify_type, alpha_amount, interacting)
 			else
 				self:SetWindowAlphaForCombat (true, true) --> hida a janela
 			end
+		
+		elseif (self.hide_in_combat_type == 5) then --"While Not Inside Instance"
+			if ((_detalhes.zone_type == "raid" or _detalhes.zone_type == "party") and IsInInstance()) then
+				self:SetWindowAlphaForCombat (true, true) --> hida a janela
+			else
+				self:SetWindowAlphaForCombat (false) --> deshida a janela
+			end
+		
+		elseif (self.hide_in_combat_type == 6) then --"While Inside Instance"
+			if ((_detalhes.zone_type == "raid" or _detalhes.zone_type == "party") and IsInInstance()) then
+				self:SetWindowAlphaForCombat (false) --> deshida a janela
+			else
+				self:SetWindowAlphaForCombat (true, true) --> hida a janela
+			end
+			
+		elseif (self.hide_in_combat_type == 7) then --"Raid Debug" = Out of Combat and Inside Raid or Dungeon
+			_detalhes:ScheduleTimer ("DelayedCheckOutOfCombatAndGroupAlpha", 0.3, self)
+
 		end
 		
 		return

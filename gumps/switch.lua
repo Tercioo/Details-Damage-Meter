@@ -525,6 +525,10 @@ function _detalhes.switch:ShowMe (instancia)
 	local precisa_mostrar = 0
 	for i = 1, #_detalhes.switch.table do
 		local slot = _detalhes.switch.table [i]
+		if (not slot) then
+			_detalhes.switch.table [i] = {}
+			slot = _detalhes.switch.table [i]
+		end
 		if (slot.atributo) then
 			precisa_mostrar = precisa_mostrar + 1
 		else

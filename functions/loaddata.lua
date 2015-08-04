@@ -286,6 +286,14 @@ function _detalhes:LoadConfig()
 			_detalhes.switch.slots = _detalhes_global.switchSaved.slots
 			_detalhes.switch.table = _detalhes_global.switchSaved.table
 		
+			if (_detalhes.switch.table) then
+				for i = 1, #_detalhes.switch.table do
+					if (not _detalhes.switch.table [i]) then
+						_detalhes.switch.table [i] = {}
+					end
+				end
+			end
+		
 		--> last boss
 			_detalhes.last_encounter = _detalhes_database.last_encounter
 		
