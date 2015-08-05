@@ -556,10 +556,12 @@ function atributo_misc:DeadAtualizarBarra (morte, qual_barra, colocacao, instanc
 		esta_barra.icone_classe:SetTexCoord (_unpack (CLASS_ICON_TCOORDS [morte[4]]))
 	end
 	esta_barra.icone_classe:SetVertexColor (1, 1, 1)
-		
+	
 	if (esta_barra.mouse_over and not instancia.baseframe.isMoving) then --> precisa atualizar o tooltip
 		gump:UpdateTooltip (qual_barra, esta_barra, instancia)
 	end
+	
+	esta_barra.texto_esquerdo:SetSize (esta_barra:GetWidth() - esta_barra.texto_direita:GetStringWidth() - 20, 15)
 
 end
 
@@ -654,20 +656,11 @@ function atributo_misc:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 		local barras_container = instancia.barras
 		local percentage_type = instancia.row_info.percent_type
 
-		if (instancia.bars_sort_direction == 1) then
-			for i = instancia.barraS[1], instancia.barraS[2], 1 do --> vai atualizar só o range que esta sendo mostrado
-				if (mortes[i]) then --> correção para um raro e desconhecido problema onde mortes[i] é nil
-					atributo_misc:DeadAtualizarBarra (mortes[i], qual_barra, i, instancia)
-					qual_barra = qual_barra+1
-				end
-			end
-			
-		elseif (instancia.bars_sort_direction == 2) then
-			for i = instancia.barraS[2], instancia.barraS[1], 1 do --> vai atualizar só o range que esta sendo mostrado
+		for i = instancia.barraS[1], instancia.barraS[2], 1 do --> vai atualizar só o range que esta sendo mostrado
+			if (mortes[i]) then --> correção para um raro e desconhecido problema onde mortes[i] é nil
 				atributo_misc:DeadAtualizarBarra (mortes[i], qual_barra, i, instancia)
 				qual_barra = qual_barra+1
 			end
-			
 		end
 		
 		return _detalhes:EndRefresh (instancia, total, tabela_do_combate, showing) --> retorna a tabela que precisa ganhar o refresh
@@ -784,7 +777,7 @@ function atributo_misc:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 	end
 	
 	if (use_animations) then
-		instancia:fazer_animacoes()
+		instancia:fazer_animacoes (qual_barra-1)
 	end
 	
 	if (instancia.atributo == 5) then --> custom

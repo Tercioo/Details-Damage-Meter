@@ -7068,6 +7068,27 @@ function window:CreateFrame6()
 			ConfigLeftMicroFrameButton:SetNormalTexture ([[Interface\Buttons\UI-OptionsButton]])
 			ConfigLeftMicroFrameButton:SetHighlightTexture ([[Interface\Buttons\UI-OptionsButton]])
 			ConfigLeftMicroFrameButton.tooltip = Loc ["STRING_OPTIONS_MICRODISPLAYS_OPTION_TOOLTIP"]
+			
+	--> lock mini displays
+		g:NewSwitch (frame6, _, "$parentLockMiniDisplaysSlider", "LockMiniDisplaysSlider", 60, 20, _, _, instance.micro_displays_locked)
+		g:NewLabel (frame6, _, "$parentLockMiniDisplaysLabel", "LockMiniDisplaysLabel", Loc ["STRING_OPTIONS_MICRODISPLAY_LOCK"], "GameFontHighlightLeft")
+
+		frame6.LockMiniDisplaysSlider:SetPoint ("left", frame6.LockMiniDisplaysLabel, "right", 2)
+		frame6.LockMiniDisplaysSlider.OnSwitch = function (self, instance, value)
+
+			instance:MicroDisplaysLock (value)
+			if (_detalhes.options_group_edit and not DetailsOptionsWindow.loading_settings) then
+				for _, this_instance in ipairs (instance:GetInstanceGroup()) do
+					if (this_instance ~= instance) then
+						this_instance:MicroDisplaysLock (value)
+					end
+				end
+			end
+			
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+		end
+		
+		window:CreateLineBackground2 (frame6, "LockMiniDisplaysSlider", "LockMiniDisplaysLabel", Loc ["STRING_OPTIONS_MICRODISPLAY_LOCK_DESC"])
 	
 	--> sidebars
 		g:NewSwitch (frame6, _, "$parentSideBarsSlider", "sideBarsSlider", 60, 20, _, _, instance.show_sidebars)
@@ -7202,8 +7223,6 @@ function window:CreateFrame6()
 			frame6.strataDropdown:SetPoint ("left", frame6.strataLabel, "right", 2)
 			
 			window:CreateLineBackground2 (frame6, "strataDropdown", "strataLabel", Loc ["STRING_OPTIONS_INSTANCE_STRATA_DESC"])
-		
-		
 
 	--> statusbar color overwrite
 			g:NewLabel (frame6, _, "$parentStatusbarLabelAnchor", "statusbarAnchorLabel", Loc ["STRING_OPTIONS_INSTANCE_STATUSBAR_ANCHOR"], "GameFontNormal")
@@ -7308,7 +7327,8 @@ function window:CreateFrame6()
 			{"MicroDisplayCenterLabel", 6},
 			{"MicroDisplayRightLabel", 7},
 			{"instanceMicroDisplaysSideLabel", 8, true},
-			{"MicroDisplayWarningLabel", 9, true},
+			{"LockMiniDisplaysLabel", 9},
+			{"MicroDisplayWarningLabel", 10, true},
 		}
 	
 		window:arrange_menu (frame6, right_side, window.right_start_at, window.top_start_at)
@@ -10324,6 +10344,9 @@ end --> if not window
 
 		_G.DetailsOptionsWindow6WindowScaleSlider.MyObject:SetFixedParameter (editing_instance)
 		_G.DetailsOptionsWindow6WindowScaleSlider.MyObject:SetValue (editing_instance.window_scale)
+		
+		_G.DetailsOptionsWindow6LockMiniDisplaysSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow6LockMiniDisplaysSlider.MyObject:SetValue (editing_instance.micro_displays_locked)
 
 		----
 		

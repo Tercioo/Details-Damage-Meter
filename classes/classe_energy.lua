@@ -618,7 +618,7 @@ function atributo_energy:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 	end
 	
 	if (use_animations) then
-		instancia:fazer_animacoes()
+		instancia:fazer_animacoes (qual_barra-1)
 	end
 	
 	if (forcar) then

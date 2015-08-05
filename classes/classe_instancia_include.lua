@@ -119,6 +119,7 @@ _detalhes.instance_defaults = {
 		toolbar_side = 1,
 	--micro displays side
 		micro_displays_side = 2,
+		micro_displays_locked = true,
 	--stretch button anchor side (1 = top 2 = bottom)
 		stretch_button_side = 1,
 	--where plugins icon will be placed on main window toolbar (1 = left 2 = right)

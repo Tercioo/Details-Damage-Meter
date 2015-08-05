@@ -360,6 +360,9 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 					end
 				end
 				
+				--> apply default values if some key is missing
+				instance:LoadInstanceConfig()
+				
 				--> reset basic config
 				instance.snap = {}
 				instance.horizontalSnap = nil

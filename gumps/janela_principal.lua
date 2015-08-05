@@ -6061,8 +6061,9 @@ function _detalhes:ChangeSkin (skin_name)
 			self:HideSideBars()
 		end
 
-	--> refresh the side of the micro displays
+	--> refresh the side of the micro displays and its lock state
 		self:MicroDisplaysSide()
+		self:MicroDisplaysLock()
 		
 	--> update statusbar
 		if (self.show_statusbar) then
@@ -6657,6 +6658,19 @@ function _detalhes:GetInstanceIconsCurrentAlpha()
 		end
 	else
 		return 1
+	end
+end
+
+function _detalhes:MicroDisplaysLock (lockstate)
+	if (lockstate == nil) then
+		lockstate = self.micro_displays_locked
+	end
+	self.micro_displays_locked = lockstate
+	
+	if (lockstate) then --> is locked
+		_detalhes.StatusBar:LockDisplays (self, true)
+	else
+		_detalhes.StatusBar:LockDisplays (self, false)
 	end
 end
 

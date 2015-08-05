@@ -29,6 +29,9 @@ refresh_group = boolean, if true it apply the scale to all windows in the group 
 instance:MicroDisplaysSide (side)
 side = number, 1 = top side of the window, 2 = bottom.
 
+instance:MicroDisplaysLock (is_locked)
+is_locked = boolean, true is the micro displays are locked and cannot interact with the mouse.
+
 instance:SetAutoHideMenu (enabled)
 enabled = boolean, if true, the buttons on window's title bar auto hide when the player isn't interacting with the window.
 

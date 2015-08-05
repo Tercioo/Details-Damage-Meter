@@ -43,6 +43,20 @@
 		end
 	end
 	
+	function _detalhes.StatusBar:LockDisplays (instance, locked)
+		if (instance.StatusBar.center and instance.StatusBar.left and instance.StatusBar.right) then
+			if (locked) then
+				instance.StatusBar.center.frame:EnableMouse (false)
+				instance.StatusBar.left.frame:EnableMouse (false)
+				instance.StatusBar.right.frame:EnableMouse (false)
+			else
+				instance.StatusBar.center.frame:EnableMouse (true)
+				instance.StatusBar.left.frame:EnableMouse (true)
+				instance.StatusBar.right.frame:EnableMouse (true)
+			end
+		end
+	end
+	
 	--> create a plugin child for an instance
 	function _detalhes.StatusBar:CreateStatusBarChildForInstance (instance, pluginName)
 		local PluginObject = _detalhes.StatusBar.NameTable [pluginName]
@@ -291,7 +305,9 @@
 		--|TTexturePath:							size X: size Y: point offset Y X : texture size : coordx1 L : coordx2 R : coordy1 T : coordy2 B |t 
 		-- left click: 0.0019531:0.1484375:0.4257813:0.6210938 right click: 0.0019531:0.1484375:0.6269531:0.8222656
 		
-		_detalhes.OnEnterMainWindow (frame.child.instance)
+		local instance = frame.child.instance
+		
+		_detalhes.OnEnterMainWindow (instance)
 		
 		frame:SetBackdrop (on_enter_backdrop)
 		frame:SetBackdropColor (0.7, 0.7, 0.7, 0.6)
