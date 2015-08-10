@@ -1126,7 +1126,7 @@ function gump:IconPick (callback, close_when_select, param1, param2)
 		gump.IconPickFrame.preview.icon = preview_image
 		gump.IconPickFrame.preview:Hide()
 		
-		gump.IconPickFrame.searchLabel =  gump:NewLabel (gump.IconPickFrame, nil, "$parentSearchBoxLabel", nil, "search:", font, size, color)
+		gump.IconPickFrame.searchLabel =  gump:NewLabel (gump.IconPickFrame, nil, "$parentSearchBoxLabel", nil, "search:")
 		gump.IconPickFrame.searchLabel:SetPoint ("topleft", gump.IconPickFrame, "topleft", 12, -20)
 		gump.IconPickFrame.search = gump:NewTextEntry (gump.IconPickFrame, nil, "$parentSearchBox", nil, 140, 20)
 		gump.IconPickFrame.search:SetPoint ("left", gump.IconPickFrame.searchLabel, "right", 2, 0)

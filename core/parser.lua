@@ -3775,7 +3775,7 @@
 			return _current_combat
 		elseif (_type (_combat) == "number") then
 			if (_combat == -1) then --> overall
-				return _overall_combat
+				return _detalhes.tabela_overall
 			elseif (_combat == 0) then --> current
 				return _current_combat
 			else
@@ -3783,7 +3783,7 @@
 			end
 		elseif (_type (_combat) == "string") then
 			if (_combat == "overall") then
-				return _overall_combat
+				return _detalhes.tabela_overall
 			elseif (_combat == "current") then
 				return _current_combat
 			end

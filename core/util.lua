@@ -140,7 +140,11 @@
 	end
 	-- thanks http://richard.warburton.it
 	function _detalhes:comma_value (n)
+		if (not n) then return "0" end
 		n = _math_floor (n)
+		if (n == 0) then
+			return "0"
+		end
 		local left,num,right = _string_match (n,'^([^%d]*%d)(%d*)(.-)$')
 		return left..(num:reverse():gsub('(%d%d%d)','%1,'):reverse())..right
 	end

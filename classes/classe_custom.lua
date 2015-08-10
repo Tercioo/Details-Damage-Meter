@@ -1378,7 +1378,7 @@
 				local AllSpells = character:GetSpellList()
 				local found = false
 				for spellid, spell in pairs (AllSpells) do
-					if (spellid == 6262 or spellid == 156445 or spellid == 156438) then --healthstone, reju potion, health potion
+					if (spellid == 6262 or spellid == 156445 or spellid == 156438 or spellid == 82184) then --healthstone, reju potion, health potion, spinal healing injector
 						instance_container:AddValue (character, spell.total)
 						total = total + spell.total
 						if (top < spell.total) then
@@ -1424,12 +1424,19 @@
 				GameCooltip:AddIcon (select (3, GetSpellInfo (156438)), 1, 1, 16, 16)
 				GameCooltip:AddStatusBar (100, 1, R, G, B, A)
 			end
+			
+			local injector = actor:GetSpell (82184)
+			if (injector) then
+				GameCooltip:AddLine (select (1, GetSpellInfo(82184)),  _detalhes:ToK(injector.total))
+				GameCooltip:AddIcon (select (3, GetSpellInfo (82184)), 1, 1, 16, 16)
+				GameCooltip:AddStatusBar (100, 1, R, G, B, A)
+			end
 
 			--Cooltip code
 			]],
 			percent_script = false,
 			total_script = false,
-			script_version = 9,
+			script_version = 10,
 		}
 --	/run _detalhes:AddDefaultCustomDisplays()
 		local have = false
@@ -1593,7 +1600,7 @@
 			desc = "Show the crowd control amount for each player.",
 			source = false,
 			target = false,
-			script_version = 7,
+			script_version = 8,
 			script = [[
 				local combat, instance_container, instance = ...
 				local total, top, amount = 0, 0, 0
