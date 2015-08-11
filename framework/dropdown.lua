@@ -720,7 +720,7 @@ function DetailsDropDownOnMouseDown (button)
 				end
 			end
 
-			if (object.myvaluelabel and currentIndex) then
+			if (object.myvaluelabel and currentIndex and scrollFrame.slider:IsShown()) then
 				object.scroll:SetValue (max ((currentIndex*20) - 80, 0))
 			else
 				object.scroll:SetValue (0)

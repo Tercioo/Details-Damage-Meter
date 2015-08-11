@@ -31,6 +31,8 @@
 	
 	local CONST_ITEMLEVEL_DATA = "IL"
 	
+	local CONST_WIPE_CALL = "WI"
+	
 	local CONST_CLOUD_REQUEST = "CR"
 	local CONST_CLOUD_FOUND = "CF"
 	local CONST_CLOUD_DATARQ = "CD"
@@ -47,6 +49,7 @@
 		["CLOUD_DATARQ"] = CONST_CLOUD_DATARQ,
 		["CLOUD_DATARC"] = CONST_CLOUD_DATARC,
 		["CLOUD_EQUALIZE"] = CONST_CLOUD_EQUALIZE,
+		["WIPE_CALL"] = CONST_WIPE_CALL,
 	}
 	
 	local plugins_registred = {}
@@ -244,6 +247,15 @@
 		end
 	end
 	
+	function _detalhes.network.Wipe_Call (player, realm, core_version, ...)
+		local chr_name = Ambiguate (player .. "-" .. realm, "none")
+		if (UnitIsGroupLeader (chr_name)) then
+			if (UnitIsInMyGuild (chr_name)) then
+				_detalhes:CallWipe()
+			end
+		end
+	end
+	
 	_detalhes.network.functions = {
 		[CONST_HIGHFIVE_REQUEST] = _detalhes.network.HighFive_Request,
 		[CONST_HIGHFIVE_DATA] = _detalhes.network.HighFive_DataReceived,
@@ -255,6 +267,7 @@
 		[CONST_CLOUD_DATARQ] = _detalhes.network.Cloud_DataRequest,
 		[CONST_CLOUD_DATARC] = _detalhes.network.Cloud_DataReceived,
 		[CONST_CLOUD_EQUALIZE] = _detalhes.network.Cloud_Equalize,
+		[CONST_WIPE_CALL] = _detalhes.network.Wipe_Call,
 	}
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -396,8 +409,14 @@
 		_detalhes:SendCommMessage (CONST_DETAILS_PREFIX, _detalhes:Serialize (type, player, realm, _detalhes.realversion, ...), "RAID")
 	end
 	
+	function _detalhes:SendHomeRaidData (type, ...)
+		if (IsInRaid (LE_PARTY_CATEGORY_HOME) and IsInInstance()) then
+			_detalhes:SendCommMessage (CONST_DETAILS_PREFIX, _detalhes:Serialize (type, _UnitName ("player"), _GetRealmName(), _detalhes.realversion, ...), "RAID")
+		end
+	end
+	
 	function _detalhes:SendRaidData (type, ...)
-		if (IsInGroup (LE_PARTY_CATEGORY_INSTANCE) and IsInInstance()) then
+		if (IsInRaid (LE_PARTY_CATEGORY_INSTANCE) and IsInInstance()) then
 			_detalhes:SendCommMessage (CONST_DETAILS_PREFIX, _detalhes:Serialize (type, _UnitName ("player"), _GetRealmName(), _detalhes.realversion, ...), "INSTANCE_CHAT")
 		else
 			_detalhes:SendCommMessage (CONST_DETAILS_PREFIX, _detalhes:Serialize (type, _UnitName ("player"), _GetRealmName(), _detalhes.realversion, ...), "RAID")

@@ -146,6 +146,8 @@
 
 --	/run local f=CreateFrame("frame");f:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED");f:SetScript("OnEvent", function(self, ...)print (...);end)
 --	/run local f=CreateFrame("frame");f:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED");f:SetScript("OnEvent",function(self, ...) local a = select(6, ...);if (a=="<chr name>")then print (...) end end)
+
+--	/run local f=CreateFrame("frame");f:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED");f:SetScript("OnEvent",function(self, ...) local a = select(3, ...);print (a);if (a=="SPELL_CAST_SUCCESS")then print (...) end end)
 	
 	function parser:spell_dmg (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand, multistrike)
 
@@ -2714,6 +2716,7 @@
 	--serach key: ~capture
 
 	_detalhes.capture_types = {"damage", "heal", "energy", "miscdata", "aura", "spellcast"}
+	_detalhes.capture_schedules = {}
 
 	function _detalhes:CaptureIsAllEnabled()
 		for _, _thisType in _ipairs (_detalhes.capture_types) do 
@@ -2747,6 +2750,10 @@
 
 	function _detalhes:CaptureSet (on_off, capture_type, real, time)
 
+		if (on_off == nil) then
+			on_off = _detalhes.capture_real [capture_type]
+		end
+	
 		if (real) then
 			--> hard switch
 			_detalhes.capture_real [capture_type] = on_off
@@ -2755,16 +2762,35 @@
 			--> soft switch
 			_detalhes.capture_current [capture_type] = on_off
 			if (time) then
-				_detalhes:ScheduleTimer ("CaptureTimeout", time, capture_type)
+				local schedule_id = math.random (1, 10000000)
+				local new_schedule = _detalhes:ScheduleTimer ("CaptureTimeout", time, {capture_type, schedule_id})
+				tinsert (_detalhes.capture_schedules, {new_schedule, schedule_id})
 			end
 		end
 		
 		_detalhes:CaptureRefresh()
 	end
 
-	function _detalhes:CaptureTimeout (capture_type)
+	function _detalhes:CancelAllCaptureSchedules()
+		for i = 1, #_detalhes.capture_schedules do
+			local schedule_table, schedule_id = unpack (_detalhes.capture_schedules[i])
+			_detalhes:CancelTimer (schedule_table)
+		end
+		_table_wipe (_detalhes.capture_schedules)
+	end
+	
+	function _detalhes:CaptureTimeout (table)
+		local capture_type, schedule_id = unpack (table)
 		_detalhes.capture_current [capture_type] = _detalhes.capture_real [capture_type]
 		_detalhes:CaptureRefresh()
+		
+		for index, table in ipairs (_detalhes.capture_schedules) do
+			local id = table [2]
+			if (schedule_id == id) then
+				tremove (_detalhes.capture_schedules, index)
+				break
+			end
+		end
 	end
 
 	function _detalhes:CaptureDisable (capture_type)
@@ -2970,6 +2996,61 @@
 				token_list [CLUE_ID] = parser [token]
 			end
 		end
+	end
+	
+	function _detalhes:CallWipe (from_slash)
+		if (_detalhes.wipe_called) then
+			if (from_slash) then
+				return _detalhes:Msg (Loc ["STRING_WIPE_ERROR1"])
+			else
+				return
+			end
+		elseif (not _detalhes.encounter_table.id) then
+			if (from_slash) then
+				return _detalhes:Msg (Loc ["STRING_WIPE_ERROR2"])
+			else
+				return
+			end
+		end
+		
+		local eTable = _detalhes.encounter_table
+		
+		--> finish the encounter
+		local successful_ended = _detalhes.parser_functions:ENCOUNTER_END (eTable.id, eTable.name, eTable.diff, eTable.size, 0)
+	
+		if (successful_ended) then
+			--> we wiped
+			_detalhes.wipe_called = true
+			
+			--> cancel the on going captures schedules
+			_detalhes:CancelAllCaptureSchedules()
+			
+			--> disable it
+			_detalhes:CaptureSet (false, "damage", false)
+			_detalhes:CaptureSet (false, "energy", false)
+			_detalhes:CaptureSet (false, "aura", false)
+			_detalhes:CaptureSet (false, "energy", false)
+			_detalhes:CaptureSet (false, "spellcast", false)
+			
+			if (from_slash) then
+				if (UnitIsGroupLeader ("player")) then
+					_detalhes:SendHomeRaidData ("WI")
+				end
+			end
+			
+			local lower_instance = _detalhes:GetLowerInstanceNumber()
+			if (lower_instance) then
+				lower_instance = _detalhes:GetInstance (lower_instance)
+				lower_instance:InstanceAlert (Loc ["STRING_WIPE_ALERT"], {[[Interface\CHARACTERFRAME\UI-StateIcon]], 18, 18, false, 0.5, 1, 0, 0.5}, 4)
+			end
+		else
+			if (from_slash) then
+				return _detalhes:Msg (Loc ["STRING_WIPE_ERROR3"])
+			else
+				return
+			end
+		end
+
 	end
 
 	-- PARSER
@@ -3189,6 +3270,8 @@
 		end
 
 		_table_wipe (_detalhes.encounter_table)
+		
+		return true
 	end
 	
 	function _detalhes.parser_functions:UNIT_PET (...)
@@ -3289,6 +3372,21 @@
 			if (instancia.ativa) then
 				instancia:SetCombatAlpha (nil, nil, true)
 			end
+		end
+		
+		if (_detalhes.wipe_called) then
+			_detalhes.wipe_called = nil
+			_detalhes:CaptureSet (nil, "damage", true)
+			_detalhes:CaptureSet (nil, "energy", true)
+			_detalhes:CaptureSet (nil, "aura", true)
+			_detalhes:CaptureSet (nil, "energy", true)
+			_detalhes:CaptureSet (nil, "spellcast", true)
+			
+			_detalhes:CaptureSet (false, "damage", false, 10)
+			_detalhes:CaptureSet (false, "energy", false, 10)
+			_detalhes:CaptureSet (false, "aura", false, 10)
+			_detalhes:CaptureSet (false, "energy", false, 10)
+			_detalhes:CaptureSet (false, "spellcast", false, 10)
 		end
 
 	end
