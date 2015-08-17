@@ -1,146 +1,155 @@
 
 do
 
---load encounter journal
-if (not EJ_GetEncounterInfoByIndex (1, 669)) then
-	EJ_SelectInstance (669)
-end
+	function Details:InstallHellfireCitadelEncounter()
 
-local InstanceName = EJ_GetInstanceInfo (669)
+		--load encounter journal
+		if (not EJ_GetEncounterInfoByIndex (1, 669)) then
+			EJ_SelectInstance (669)
+		end
+		EJ_SelectInstance (669)
 
-local boss_1_name = EJ_GetEncounterInfoByIndex (1, 669)
-local boss_2_name = EJ_GetEncounterInfoByIndex (2, 669)
-local boss_3_name = EJ_GetEncounterInfoByIndex (3, 669)
-local boss_4_name = EJ_GetEncounterInfoByIndex (4, 669)
-local boss_5_name = EJ_GetEncounterInfoByIndex (5, 669)
-local boss_6_name = EJ_GetEncounterInfoByIndex (6, 669)
-local boss_7_name = EJ_GetEncounterInfoByIndex (7, 669)
-local boss_8_name = EJ_GetEncounterInfoByIndex (8, 669)
-local boss_9_name = EJ_GetEncounterInfoByIndex (9, 669)
-local boss_10_name = EJ_GetEncounterInfoByIndex (10, 669)
-local boss_11_name = EJ_GetEncounterInfoByIndex (11, 669)
-local boss_12_name = EJ_GetEncounterInfoByIndex (12, 669)
-local boss_13_name = EJ_GetEncounterInfoByIndex (13, 669)
+		local InstanceName = EJ_GetInstanceInfo (669)
 
-_detalhes:InstallEncounter ({
-	
-	id = 1448, --map id
-	ej_id = 669, --encounter journal id
-	name = InstanceName,
-	icons = [[Interface\AddOns\Details_RaidInfo-HellfireCitadel\boss_faces]],
-	icon = [[Interface\AddOns\Details_RaidInfo-HellfireCitadel\icon256x128]],
-	is_raid = true,
-	backgroundFile = {file = [[Interface\Glues\LOADINGSCREENS\LoadScreen_HellfireRaid]], coords = {0, 1, 296/1024, 880/1024}},
-	backgroundEJ = [[Interface\EncounterJournal\UI-EJ-LOREBG-HellfireRaid]],
-	-- 
-	boss_names = { 
-		boss_1_name, --"Hellfire Assault"
-		boss_2_name, --"Iron Reaver"
-		boss_3_name, --"Kormrok"
-		boss_4_name, --"Hellfire High Council"
-		boss_5_name, --"Kilrogg Deadeye"
-		boss_6_name, --"Gorefiend"
-		boss_7_name, --"Shadow-Lord Iskar"
-		boss_8_name, --"Socrethar the Eternal"
-		boss_9_name, --"Fel Lord Zakuun"
-		boss_10_name, --"Xhul'horac"
-		boss_11_name, --"Tyrant Velhari"
-		boss_12_name, --"Mannoroth"
-		boss_13_name, --"Archimonde"
-	},
-	
-	encounter_ids = { --encounter journal encounter id
-		1426,1425,1392,1432,1396,1372,1433,1427,1391,1447,1394,1395,1438,
-		[1426] = 1,
-		[1425] = 2,
-		[1392] = 3,
-		[1432] = 4,
-		[1396] = 5,
-		[1372] = 6,
-		[1433] = 7,
-		[1427] = 8,
-		[1391] = 9,
-		[1447] = 10,
-		[1394] = 11,
-		[1395] = 12,
-		[1438] = 13,
-	},
-	
-	encounter_ids2 = { --combatlog encounter id
-		[1778] = 1, --"Hellfire Assault"
-		[1785] = 2, --"Iron Reaver"
-		[1787] = 3, --"Kormrok"
-		[1798] = 4, --"Hellfire High Council"
-		[1786] = 5, --"Kilrogg Deadeye"
-		[1783] = 6, --"Gorefiend"
-		[1788] = 7, --"Shadow-Lord Iskar"
-		[1794] = 8, --"Socrethar the Eternal"
-		[1777] = 9, --"Fel Lord Zakuun"
-		[1800] = 10, --"Xhul'horac"
-		[1784] = 11, --"Tyrant Velhari"
-		[1795] = 12, --"Mannoroth"
-		[1799] = 13, --"Archimonde"
-	},
-	
-	boss_ids = { --npc ids
+		local boss_1_name = EJ_GetEncounterInfoByIndex (1, 669)
+		local boss_2_name = EJ_GetEncounterInfoByIndex (2, 669)
+		local boss_3_name = EJ_GetEncounterInfoByIndex (3, 669)
+		local boss_4_name = EJ_GetEncounterInfoByIndex (4, 669)
+		local boss_5_name = EJ_GetEncounterInfoByIndex (5, 669)
+		local boss_6_name = EJ_GetEncounterInfoByIndex (6, 669)
+		local boss_7_name = EJ_GetEncounterInfoByIndex (7, 669)
+		local boss_8_name = EJ_GetEncounterInfoByIndex (8, 669)
+		local boss_9_name = EJ_GetEncounterInfoByIndex (9, 669)
+		local boss_10_name = EJ_GetEncounterInfoByIndex (10, 669)
+		local boss_11_name = EJ_GetEncounterInfoByIndex (11, 669)
+		local boss_12_name = EJ_GetEncounterInfoByIndex (12, 669)
+		local boss_13_name = EJ_GetEncounterInfoByIndex (13, 669)
+
+		_detalhes:InstallEncounter ({
+			
+			id = 1448, --map id
+			ej_id = 669, --encounter journal id
+			name = InstanceName,
+			icons = [[Interface\AddOns\Details_RaidInfo-HellfireCitadel\boss_faces]],
+			icon = [[Interface\AddOns\Details_RaidInfo-HellfireCitadel\icon256x128]],
+			is_raid = true,
+			backgroundFile = {file = [[Interface\Glues\LOADINGSCREENS\LoadScreen_HellfireRaid]], coords = {0, 1, 296/1024, 880/1024}},
+			backgroundEJ = [[Interface\EncounterJournal\UI-EJ-LOREBG-HellfireRaid]],
+			-- 
+			boss_names = { 
+				boss_1_name, --"Hellfire Assault"
+				boss_2_name, --"Iron Reaver"
+				boss_3_name, --"Kormrok"
+				boss_4_name, --"Hellfire High Council"
+				boss_5_name, --"Kilrogg Deadeye"
+				boss_6_name, --"Gorefiend"
+				boss_7_name, --"Shadow-Lord Iskar"
+				boss_8_name, --"Socrethar the Eternal"
+				boss_9_name, --"Fel Lord Zakuun"
+				boss_10_name, --"Xhul'horac"
+				boss_11_name, --"Tyrant Velhari"
+				boss_12_name, --"Mannoroth"
+				boss_13_name, --"Archimonde"
+			},
+			
+			encounter_ids = { --encounter journal encounter id
+				1426,1425,1392,1432,1396,1372,1433,1427,1391,1447,1394,1395,1438,
+				[1426] = 1,
+				[1425] = 2,
+				[1392] = 3,
+				[1432] = 4,
+				[1396] = 5,
+				[1372] = 6,
+				[1433] = 7,
+				[1427] = 8,
+				[1391] = 9,
+				[1447] = 10,
+				[1394] = 11,
+				[1395] = 12,
+				[1438] = 13,
+			},
+			
+			encounter_ids2 = { --combatlog encounter id
+				[1778] = 1, --"Hellfire Assault"
+				[1785] = 2, --"Iron Reaver"
+				[1787] = 3, --"Kormrok"
+				[1798] = 4, --"Hellfire High Council"
+				[1786] = 5, --"Kilrogg Deadeye"
+				[1783] = 6, --"Gorefiend"
+				[1788] = 7, --"Shadow-Lord Iskar"
+				[1794] = 8, --"Socrethar the Eternal"
+				[1777] = 9, --"Fel Lord Zakuun"
+				[1800] = 10, --"Xhul'horac"
+				[1784] = 11, --"Tyrant Velhari"
+				[1795] = 12, --"Mannoroth"
+				[1799] = 13, --"Archimonde"
+			},
+			
+			boss_ids = { --npc ids
+				
+			},
+			encounters = {
+				[1] = {
+					boss = boss_1_name, --"Hellfire Assault"
+					portrait = [[Interface\ENCOUNTERJOURNAL\ui-ej-boss-hellfireassault]],
+				},
+				[2] = {
+					boss = boss_2_name, --"Iron Reaver",
+					portrait = [[Interface\ENCOUNTERJOURNAL\ui-ej-boss-felreaver]],
+				},
+				[3] = {
+					boss = boss_3_name, --"Kormrok",
+					portrait = [[Interface\ENCOUNTERJOURNAL\ui-ej-boss-kormok]],
+				},
+				[4] = {
+					boss = boss_4_name, --"Hellfire High Council",
+					portrait = [[Interface\ENCOUNTERJOURNAL\ui-ej-boss-gurtoggbloodboil]],
+				},
+				[5] = {
+					boss = boss_5_name, --"Kilrogg Deadeye",
+					portrait = [[Interface\ENCOUNTERJOURNAL\ui-ej-boss-kilroggdeadeye]],
+				},
+				[6] = {
+					boss = boss_6_name, --"Gorefiend",
+					portrait = [[Interface\ENCOUNTERJOURNAL\ui-ej-boss-gorefiend]],
+				},
+				[7] = {
+					boss = boss_7_name, --"Shadow-Lord Iskar",
+					portrait = [[Interface\ENCOUNTERJOURNAL\ui-ej-boss-shadowlordiskar]],
+				},
+				[8] = {
+					boss = boss_8_name, --"Socrethar the Eternal",
+					portrait = [[Interface\ENCOUNTERJOURNAL\ui-ej-boss-soulboundconstruct]],
+				},
+				[9] = {
+					boss = boss_9_name, --"Fel Lord Zakuun",
+					portrait = [[Interface\ENCOUNTERJOURNAL\UI-EJ-BOSS-FelLordZakuun]],
+				},
+				[10] = {
+					boss = boss_10_name, --"Xhul'horac",
+					portrait = [[Interface\ENCOUNTERJOURNAL\ui-ej-boss-xhulhorac]],
+				},
+				[11] = {
+					boss = boss_11_name, --"Tyrant Velhari",
+					portrait = [[Interface\ENCOUNTERJOURNAL\ui-ej-boss-tyrantvelhari]],
+				},
+				[12] = {
+					boss = boss_12_name, --"Mannoroth",
+					portrait = [[Interface\ENCOUNTERJOURNAL\ui-ej-boss-mannorothwod]],
+				},
+				[13] = {
+					boss = boss_13_name, --"Archimonde",
+					portrait = [[Interface\ENCOUNTERJOURNAL\ui-ej-boss-archimondewod]],
+				},
+			},
+		})
 		
-	},
-	encounters = {
-		[1] = {
-			boss = boss_1_name, --"Hellfire Assault"
-			portrait = [[Interface\ENCOUNTERJOURNAL\ui-ej-boss-hellfireassault]],
-		},
-		[2] = {
-			boss = boss_2_name, --"Iron Reaver",
-			portrait = [[Interface\ENCOUNTERJOURNAL\ui-ej-boss-felreaver]],
-		},
-		[3] = {
-			boss = boss_3_name, --"Kormrok",
-			portrait = [[Interface\ENCOUNTERJOURNAL\ui-ej-boss-kormok]],
-		},
-		[4] = {
-			boss = boss_4_name, --"Hellfire High Council",
-			portrait = [[Interface\ENCOUNTERJOURNAL\ui-ej-boss-gurtoggbloodboil]],
-		},
-		[5] = {
-			boss = boss_5_name, --"Kilrogg Deadeye",
-			portrait = [[Interface\ENCOUNTERJOURNAL\ui-ej-boss-kilroggdeadeye]],
-		},
-		[6] = {
-			boss = boss_6_name, --"Gorefiend",
-			portrait = [[Interface\ENCOUNTERJOURNAL\ui-ej-boss-gorefiend]],
-		},
-		[7] = {
-			boss = boss_7_name, --"Shadow-Lord Iskar",
-			portrait = [[Interface\ENCOUNTERJOURNAL\ui-ej-boss-shadowlordiskar]],
-		},
-		[8] = {
-			boss = boss_8_name, --"Socrethar the Eternal",
-			portrait = [[Interface\ENCOUNTERJOURNAL\ui-ej-boss-soulboundconstruct]],
-		},
-		[9] = {
-			boss = boss_9_name, --"Fel Lord Zakuun",
-			portrait = [[Interface\ENCOUNTERJOURNAL\UI-EJ-BOSS-FelLordZakuun]],
-		},
-		[10] = {
-			boss = boss_10_name, --"Xhul'horac",
-			portrait = [[Interface\ENCOUNTERJOURNAL\ui-ej-boss-xhulhorac]],
-		},
-		[11] = {
-			boss = boss_11_name, --"Tyrant Velhari",
-			portrait = [[Interface\ENCOUNTERJOURNAL\ui-ej-boss-tyrantvelhari]],
-		},
-		[12] = {
-			boss = boss_12_name, --"Mannoroth",
-			portrait = [[Interface\ENCOUNTERJOURNAL\ui-ej-boss-mannorothwod]],
-		},
-		[13] = {
-			boss = boss_13_name, --"Archimonde",
-			portrait = [[Interface\ENCOUNTERJOURNAL\ui-ej-boss-archimondewod]],
-		},
-	},
-})
-
+		Details.InstallHellfireCitadelEncounter = nil
+		
+	end
+	
+	Details:ScheduleTimer ("InstallHellfireCitadelEncounter", 2)
+	
 end
 
 --> replacement for healing function:

@@ -1106,6 +1106,9 @@ do
 			end
 			
 			BossFrame.segmentosDropdown:Enable()
+			
+			BossFrame.DBMBars:Refresh()
+			BossFrame.BigWigsBars:Refresh()
 		
 		elseif (to == "emotes") then 
 
@@ -1905,6 +1908,107 @@ do
 	npc_id2:SetPoint ("left", npc_id, "right", 2, 0)
 	npc_id2:Hide()
 	
+	--
+	local label_dbm_bars = DetailsFrameWork:CreateLabel (BossFrame, "DBM Bars:", 11, nil, "GameFontHighlightSmall")
+	label_dbm_bars:SetPoint ("topleft", BossFrame, "topleft", 25, -160)
+	local label_bw_bars = DetailsFrameWork:CreateLabel (BossFrame, "Big Wigs Bars:", 11, nil, "GameFontHighlightSmall")
+	label_bw_bars:SetPoint ("topleft", BossFrame, "topleft", 25, -205)
+	
+	local on_select_dbm_bar = function (_, _, timer_id)
+		local timer_table = EncounterDetails.db.encounter_timers_dbm [timer_id]
+		local spell = tonumber (timer_id:match ("(%d+)"))
+
+		if (spell > 30000) then
+			local spellname, _, spellicon = _GetSpellInfo (spell)
+			EncounterDetails:OpenAuraPanel (spell, spellname, spellicon, timer_table.id, DETAILS_WA_TRIGGER_DBM_TIMER, DETAILS_WA_AURATYPE_TEXT, {dbm_timer_id = timer_id, text = "== Next " .. spellname .. " In ==", text_size = 72})
+		else
+			local title, description, depth, abilityIcon, displayInfo, siblingID, nextSectionID, filteredByDifficulty, link, startsOpen, flag1, flag2, flag3, flag4 = EJ_GetSectionInfo (spell)
+			EncounterDetails:OpenAuraPanel (spell, title, abilityIcon, timer_table.id, DETAILS_WA_TRIGGER_DBM_TIMER, DETAILS_WA_AURATYPE_TEXT, {dbm_timer_id = timer_id, text = "== Next " .. title .. " In ==", text_size = 72})
+		end
+	end
+	
+	local on_select_bw_bar = function (_, _, timer_id)
+		local timer_table = EncounterDetails.db.encounter_timers_bw [timer_id]
+		local spell = timer_id
+		local int_spell = tonumber (spell)
+		
+		if (not int_spell) then
+			local spellname = timer_table [2]:gsub (" %(.%)", "")
+			EncounterDetails:OpenAuraPanel (spell, spellname, timer_table [4], timer_table.id, DETAILS_WA_TRIGGER_BW_TIMER, DETAILS_WA_AURATYPE_TEXT, {bw_timer_id = timer_id, text = "== Next " .. spellname .. " In ==", text_size = 72})
+		elseif (int_spell < 0) then
+			local title, description, depth, abilityIcon, displayInfo, siblingID, nextSectionID, filteredByDifficulty, link, startsOpen, flag1, flag2, flag3, flag4 = EJ_GetSectionInfo (abs (int_spell))
+			EncounterDetails:OpenAuraPanel (spell, title, abilityIcon, timer_table.id, DETAILS_WA_TRIGGER_BW_TIMER, DETAILS_WA_AURATYPE_TEXT, {bw_timer_id = timer_id, text = "== Next " .. title .. " In ==", text_size = 72})
+		else
+			local spellname, _, spellicon = _GetSpellInfo (int_spell)
+			EncounterDetails:OpenAuraPanel (spell, spellname, spellicon, timer_table.id, DETAILS_WA_TRIGGER_BW_TIMER, DETAILS_WA_AURATYPE_TEXT, {bw_timer_id = timer_id, text = "== Next " .. spellname .. " In ==", text_size = 72})
+		end
+	end
+	
+	local already_added = {}
+	local build_dbm_bars = function()
+		local t = {}
+		if (EncounterDetails.db) then
+			wipe (already_added)
+			local encounter_id = EncounterDetails_SpellAurasScroll.encounter_id
+			
+			for timer_id, timer_table in pairs (EncounterDetails.db.encounter_timers_dbm) do
+				if (timer_id:find ("Timer") and timer_table.id == encounter_id) then
+					local spell = tonumber (timer_id:match ("(%d+)"))
+					if (spell and not already_added [spell]) then
+						if (spell > 30000) then
+							local spellname, _, spellicon = _GetSpellInfo (spell)
+							tinsert (t, {label = spellname, value = timer_id, icon = spellicon, onclick = on_select_dbm_bar})
+						else
+							local title, description, depth, abilityIcon, displayInfo, siblingID, nextSectionID, filteredByDifficulty, link, startsOpen, flag1, flag2, flag3, flag4 = EJ_GetSectionInfo (spell)
+							tinsert (t, {label = title, value = timer_id, icon = abilityIcon, onclick = on_select_dbm_bar})
+						end
+						
+						already_added [spell] = true
+					end
+				end
+			end
+		end
+		return t
+	end
+	
+	local build_bigwigs_bars = function()
+		local t = {}
+		if (EncounterDetails.db) then
+			wipe (already_added)
+			local encounter_id = EncounterDetails_SpellAurasScroll.encounter_id
+			
+			for timer_id, timer_table in pairs (EncounterDetails.db.encounter_timers_bw) do
+				if (timer_table.id == encounter_id) then
+					local spell = timer_id
+					if (spell and not already_added [spell]) then	
+						local int_spell = tonumber (spell)
+						if (not int_spell) then
+							local spellname = timer_table [2]:gsub (" %(.%)", "")
+							tinsert (t, {label = spellname, value = timer_id, icon = timer_table [4], onclick = on_select_bw_bar})
+						elseif (int_spell < 0) then
+							local title, description, depth, abilityIcon, displayInfo, siblingID, nextSectionID, filteredByDifficulty, link, startsOpen, flag1, flag2, flag3, flag4 = EJ_GetSectionInfo (abs (int_spell))
+							tinsert (t, {label = title, value = timer_id, icon = abilityIcon, onclick = on_select_bw_bar})
+						else
+							local spellname, _, spellicon = _GetSpellInfo (int_spell)
+							tinsert (t, {label = spellname, value = timer_id, icon = spellicon, onclick = on_select_bw_bar})
+						end
+						
+						already_added [spell] = true
+					end
+				end
+			end
+		end
+		return t
+	end
+
+	local dropdown_dbm_bars = DetailsFrameWork:NewDropDown (BossFrame, _, "$parentDBMBarsDropdown", "DBMBars", 160, 20, build_dbm_bars, 1)
+	dropdown_dbm_bars:SetPoint ("topleft", label_dbm_bars, "bottomleft", -1, -2)
+	
+	local dropdown_bw_bars = DetailsFrameWork:NewDropDown (BossFrame, _, "$parentBigWigsBarsDropdown", "BigWigsBars", 160, 20, build_bigwigs_bars, 1)
+	dropdown_bw_bars:SetPoint ("topleft", label_bw_bars, "bottomleft", -1, -2)
+	
+	--
+	
 	tinsert (BossFrame.EnemySpellsWidgets, EnemyActorSpells_label)
 	tinsert (BossFrame.EnemySpellsWidgets, EnemyActorSpells)
 	tinsert (BossFrame.EnemySpellsWidgets, bar_div)
@@ -2441,6 +2545,12 @@ do
 			tinsert (EncounterDetails.current_whisper_table, {combat:GetCombatTime(), arg3, arg4, emote_table [arg2]})
 		end
 	end)
+	
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
 
 end
 end
+--endd

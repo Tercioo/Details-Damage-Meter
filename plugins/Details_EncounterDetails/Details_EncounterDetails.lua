@@ -104,20 +104,14 @@ local function CreatePluginFrames (data)
 			end
 			
 			local damage_done_func = function (support_table, time_table, tick_second)
-
 				local current_total_damage = _detalhes.tabela_vigente.totals_grupo[1]
-				
 				local current_damage = current_total_damage - support_table.last_damage
-				
 				time_table [tick_second] = current_damage
-				
 				if (current_damage > support_table.max_damage) then
 					support_table.max_damage = current_damage
 					time_table.max_damage = current_damage
 				end
-				
 				support_table.last_damage = current_total_damage
-			
 			end
 			
 			local string_damage_done_func = [[
@@ -147,6 +141,8 @@ local function CreatePluginFrames (data)
 			elseif (EncounterDetails.db.show_icon == 5) then
 				EncounterDetails:AutoShowIcon()
 			end
+			
+			EncounterDetails:CreateCallbackListeners()
 		
 		elseif (event == "COMBAT_PLAYER_ENTER") then --> combat started
 			if (EncounterDetails.showing and EncounterDetails.db.hide_on_combat) then
@@ -234,6 +230,83 @@ local function CreatePluginFrames (data)
 				EncounterDetails:ShowIcon()
 			end
 		end
+	end
+	
+	function EncounterDetails:CreateCallbackListeners()
+	
+		EncounterDetails.DBM_timers = {}
+		
+		local current_encounter = false
+		
+		local current_table_dbm = {}
+		local current_table_bigwigs = {}
+	
+		local event_frame = CreateFrame ("frame", nil, UIParent)
+		event_frame:SetScript ("OnEvent", function (self, event, ...)
+			if (event == "ENCOUNTER_START") then
+				local encounterID, encounterName, difficultyID, raidSize = select (1, ...)
+				current_encounter = encounterID
+				
+			elseif (event == "ENCOUNTER_END" or event == "PLAYER_REGEN_ENABLED") then
+				if (current_encounter) then
+					if (_G.DBM) then
+						for spell, timer_table in pairs (current_table_dbm) do
+							if (not EncounterDetails.db.encounter_timers_dbm [timer_table[1]] and timer_table[1]:find ("Timer")) then
+								timer_table.id = current_encounter
+								EncounterDetails.db.encounter_timers_dbm [timer_table[1]] = timer_table
+							end
+						end
+					end
+					if (BigWigs) then
+						for timer_id, timer_table in pairs (current_table_bigwigs) do
+							if (not EncounterDetails.db.encounter_timers_bw [timer_id]) then
+								timer_table.id = current_encounter
+								EncounterDetails.db.encounter_timers_bw [timer_id] = timer_table
+							end
+						end
+					end
+				end	
+				
+				current_encounter = false
+				wipe (current_table_dbm)
+				wipe (current_table_bigwigs)
+			end
+		end)
+		event_frame:RegisterEvent ("ENCOUNTER_START")
+		event_frame:RegisterEvent ("ENCOUNTER_END")
+		event_frame:RegisterEvent ("PLAYER_REGEN_ENABLED")
+		
+		--EncounterDetails.DBM_timers
+		
+		if (_G.DBM) then
+			local dbm_timer_callback = function (event, timer_id, message, duration)
+				local spell = tonumber (timer_id:match ("(%d+)"))
+				if (spell and not current_table_dbm [spell]) then
+					current_table_dbm [spell] = {timer_id, message, duration}
+				end
+			end
+			DBM:RegisterCallback ("DBM_TimerStart", dbm_timer_callback)
+		end
+		function EncounterDetails:RegisterBigWigsCallBack()
+			if (BigWigs) then
+				BigWigs:Enable()
+				function EncounterDetails:BigWigs_StartBar (event, module, spellid, bar_text, time, icon, ...)
+					spellid = tostring (spellid)
+					if (not current_table_bigwigs [spellid]) then
+						current_table_bigwigs [spellid] = {spellid, bar_text, time, icon}
+					end
+				end
+				BigWigs.RegisterMessage (EncounterDetails, "BigWigs_StartBar")
+			end
+		end
+		EncounterDetails:ScheduleTimer ("RegisterBigWigsCallBack", 5)
+	
+--BigWigs_StartBar BigWigs_Bosses_Brackenspore mind_fungus Mind Fungus 51 Interface\Icons\inv_mushroom_10 true
+--bigwigs startbar mind_fungus	
+
+--BigWigs_StartBar BigWigs_Bosses_Brackenspore 159996 Infesting Spores (2) 58 Interface\Icons\Ability_Creature_Disease_01
+--bigwigs startbar 160013
+	
 	end
 	
 	function EncounterDetails:WasEncounter()
@@ -1735,6 +1808,8 @@ function EncounterDetails:OnEvent (_, event, ...)
 					hide_on_combat = false, --hide the window when a new combat start
 					max_emote_segments = 3,
 					opened = 0,
+					encounter_timers_dbm = {},
+					encounter_timers_bw = {},
 				}
 
 				--> Install
