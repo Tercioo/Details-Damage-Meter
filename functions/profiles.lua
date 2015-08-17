@@ -869,6 +869,7 @@ local default_profile = {
 	--> instances
 		instances_amount = 5,
 		instances_segments_locked = false,
+		instances_disable_bar_highlight = false,
 		
 	--> if clear ungroup characters when logout
 		clear_ungrouped = true,

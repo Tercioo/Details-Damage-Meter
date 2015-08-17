@@ -1606,12 +1606,14 @@ extraWindow:SetBackdropColor (0, 0, 0, 0.9)
 		
 	end
 
-	local fontObjects = SharedMedia:HashTable ("font")
-	local fontTable = {}
-	for name, fontPath in pairs (fontObjects) do 
-		fontTable[#fontTable+1] = {value = name, label = name, onclick = onSelectFont, font = fontPath}
+	local buildFontMenu = function() 
+		local fontObjects = SharedMedia:HashTable ("font")
+		local fontTable = {}
+		for name, fontPath in pairs (fontObjects) do 
+			fontTable[#fontTable+1] = {value = name, label = name, onclick = onSelectFont, font = fontPath}
+		end
+		return fontTable
 	end
-	local buildFontMenu = function() return fontTable end
 	
 	_detalhes.gump:NewLabel (window, _, "$parentFontFaceLabel", "fontfaceLabel", Loc ["STRING_PLUGINOPTIONS_FONTFACE"])
 	window.fontfaceLabel:SetPoint (10, -75)

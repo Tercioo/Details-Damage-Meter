@@ -1074,21 +1074,41 @@
 		end
 
 		function _detalhes:PostponeInstanceToCurrent (instance)
-			if (not instance.last_interaction or ((instance.last_interaction+6 < _detalhes._tempo) and (not DetailsReportWindow or not DetailsReportWindow:IsShown()))) then
+			if (
+				not instance.last_interaction or 
+				(
+					(instance.ativa) and
+					(instance.last_interaction+3 < _detalhes._tempo) and 
+					(not DetailsReportWindow or not DetailsReportWindow:IsShown()) and 
+					(not _detalhes.janela_info:IsShown())
+				)
+			) then
+				instance._postponing_current = nil
 				if (instance.segmento == 0) then
 					return _detalhes:TrocaSegmentoAtual (instance)
+				else
+					return
 				end
 			end
-			_detalhes:ScheduleTimer ("PostponeInstanceToCurrent", 2, instance)
+			if (instance.is_interacting) then
+				instance.last_interaction = _detalhes._tempo
+			end
+			instance._postponing_current = _detalhes:ScheduleTimer ("PostponeInstanceToCurrent", 1, instance)
 		end
 		
 		function _detalhes:TrocaSegmentoAtual (instancia)
-			if (instancia.segmento == 0) then --> esta mostrando a tabela Atual
-				if ((instancia.last_interaction and (instancia.last_interaction+6 > _detalhes._tempo)) or (DetailsReportWindow and DetailsReportWindow:IsShown())) then
-					--> postpone
-					return _detalhes:ScheduleTimer ("PostponeInstanceToCurrent", 2, instancia)
+			if (instancia.segmento == 0 and instancia.baseframe and instancia.ativa) then
+				if (instancia.is_interacting) then
+					instancia.last_interaction = _detalhes._tempo
 				end
 				
+				if ((instancia.last_interaction and (instancia.last_interaction+3 > _detalhes._tempo)) or (DetailsReportWindow and DetailsReportWindow:IsShown()) or (_detalhes.janela_info:IsShown())) then
+					--> postpone
+					instancia._postponing_current = _detalhes:ScheduleTimer ("PostponeInstanceToCurrent", 1, instancia)
+					return
+				end
+				
+				instancia._postponing_current = nil
 				instancia.showing =_detalhes.tabela_vigente
 				instancia:ResetaGump()
 				_detalhes.gump:Fade (instancia, "in", nil, "barras")
@@ -1202,7 +1222,7 @@
 			
 				if (objeto.serial and objeto.serial ~= "") then
 					local avatar = NickTag:GetNicknameTable (objeto.serial, true)
-					if (avatar) then
+					if (avatar and not _detalhes.ignore_nicktag) then
 						if (avatar [2] and avatar [4] and avatar [1]) then
 							GameCooltip:SetBannerImage (1, avatar [2], 80, 40, avatarPoint, avatarTexCoord, nil) --> overlay [2] avatar path
 							GameCooltip:SetBannerImage (2, avatar [4], 200, 55, backgroundPoint, avatar [5], avatar [6]) --> background

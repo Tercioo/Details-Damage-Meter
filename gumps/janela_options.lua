@@ -2361,6 +2361,30 @@ function window:CreateFrame18()
 		
 		window:CreateLineBackground2 (frame18, "DisableLockResizeUngroupSlider", "DisableLockResizeUngroupLabel", Loc ["STRING_OPTIONS_DISABLE_LOCK_RESIZE_DESC"])
 		
+		--> disable stretch button
+		g:NewLabel (frame18, _, "$parentDisableStretchButtonLabel", "DisableStretchButtonLabel", Loc ["STRING_OPTIONS_DISABLE_STRETCH_BUTTON"], "GameFontHighlightLeft")
+		g:NewSwitch (frame18, _, "$parentDisableStretchButtonSlider", "DisableStretchButtonSlider", 60, 20, _, _, _detalhes.disable_stretch_button)
+
+		frame18.DisableStretchButtonSlider:SetPoint ("left", frame18.DisableStretchButtonLabel, "right", 2)
+		frame18.DisableStretchButtonSlider.OnSwitch = function (_, _, value)
+			_detalhes.disable_stretch_button = value
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+		end
+		
+		window:CreateLineBackground2 (frame18, "DisableStretchButtonSlider", "DisableStretchButtonLabel", Loc ["STRING_OPTIONS_DISABLE_STRETCH_BUTTON_DESC"])
+
+		--> disable bar highlight
+		g:NewLabel (frame18, _, "$parentDisableBarHighlightLabel", "DisableBarHighlightLabel", Loc ["STRING_OPTIONS_DISABLE_BARHIGHLIGHT"], "GameFontHighlightLeft")
+		g:NewSwitch (frame18, _, "$parentDisableBarHighlightSlider", "DisableBarHighlightSlider", 60, 20, _, _, _detalhes.instances_disable_bar_highlight)
+
+		frame18.DisableBarHighlightSlider:SetPoint ("left", frame18.DisableBarHighlightLabel, "right", 2)
+		frame18.DisableBarHighlightSlider.OnSwitch = function (_, _, value)
+			_detalhes.instances_disable_bar_highlight = value
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+		end
+		
+		window:CreateLineBackground2 (frame18, "DisableBarHighlightSlider", "DisableBarHighlightLabel", Loc ["STRING_OPTIONS_DISABLE_BARHIGHLIGHT_DESC"])
+		
 		--> damage taken always on everything
 		g:NewLabel (frame18, _, "$parentDamageTakenEverythingLabel", "DamageTakenEverythingLabel", Loc ["STRING_OPTIONS_DTAKEN_EVERYTHING"], "GameFontHighlightLeft")
 		g:NewSwitch (frame18, _, "$parentDamageTakenEverythingSlider", "DamageTakenEverythingSlider", 60, 20, _, _, _detalhes.damage_taken_everything)
@@ -2485,8 +2509,10 @@ function window:CreateFrame18()
 			{"DisableGroupsLabel", 5, true},
 			{"DisableResetLabel", 6},
 			{"DisableLockResizeUngroupLabel", 7},
-			{"DamageTakenEverythingLabel", 8},
-			{"scrollLabel", 9, true},
+			{"DisableStretchButtonLabel", 8},
+			{"DisableBarHighlightLabel", 9},
+			{"DamageTakenEverythingLabel", 10},
+			{"scrollLabel", 11, true},
 
 		}
 		
@@ -10641,6 +10667,10 @@ end --> if not window
 		_G.DetailsOptionsWindow18MenuTextSizeSlider.MyObject:SetValue (_detalhes.font_sizes.menus)
 		
 		_G.DetailsOptionsWindow18FontDropdown.MyObject:Select (_detalhes.font_faces.menus)
+		
+		
+		_G.DetailsOptionsWindow18DisableStretchButtonSlider.MyObject:SetValue (_detalhes.disable_stretch_button)
+		_G.DetailsOptionsWindow18DisableBarHighlightSlider.MyObject:SetValue (_detalhes.instances_disable_bar_highlight)
 		
 		--> window 19
 		_G.DetailsOptionsWindow19MinimapSlider.MyObject:SetValue (not _detalhes.minimap.hide)

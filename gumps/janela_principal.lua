@@ -1847,7 +1847,9 @@ local barra_scripts_onenter = function (self)
 	self:SetBackdrop (barra_backdrop_onenter)	
 	self:SetBackdropColor (0.588, 0.588, 0.588, 0.7)
 
-	self.textura:SetBlendMode ("ADD")
+	if (not _detalhes.instances_disable_bar_highlight) then
+		self.textura:SetBlendMode ("ADD")
+	end
 
 	local lefttext = self.texto_esquerdo
 	if (lefttext:IsTruncated()) then

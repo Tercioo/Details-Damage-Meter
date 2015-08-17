@@ -1824,15 +1824,46 @@ end
 
 ------------------------------------------------------------------------------------------------------------------------
 
-function _detalhes:CheckSwitchToCurrent()
-	if (DetailsReportWindow and DetailsReportWindow:IsShown()) then
-		_detalhes.delay_CheckSwitchToCurrent = true
-		return
-	end
-	for _, instance in _ipairs (_detalhes.tabela_instancias) do
-		if (instance.ativa and instance.baseframe and instance.segmento ~= 0 and instance.auto_current) then
+function _detalhes:PostponeSwitchToCurrent (instance)
+	if (
+		not instance.last_interaction or 
+		(
+			(instance.ativa) and
+			(instance.last_interaction+3 < _detalhes._tempo) and 
+			(not DetailsReportWindow or not DetailsReportWindow:IsShown()) and 
+			(not _detalhes.janela_info:IsShown())
+		)
+	) then
+		instance._postponing_switch = nil
+		if (instance.segmento > 0 and instance.auto_current) then
 			instance:TrocaTabela (0) --> muda o segmento pra current
 			instance:InstanceAlert (Loc ["STRING_CHANGED_TO_CURRENT"], {[[Interface\AddOns\Details\images\toolbar_icons]], 18, 18, false, 32/256, 64/256, 0, 1}, 6)
+			return
+		else
+			return
+		end
+	end
+	if (instance.is_interacting) then
+		instance.last_interaction = _detalhes._tempo
+	end
+	instance._postponing_switch = _detalhes:ScheduleTimer ("PostponeSwitchToCurrent", 1, instance)
+end
+
+function _detalhes:CheckSwitchToCurrent()
+	for _, instance in _ipairs (_detalhes.tabela_instancias) do
+		if (instance.ativa and instance.auto_current and instance.baseframe and instance.segmento > 0) then
+			if (instance.is_interacting) then
+				instance.last_interaction = _detalhes._tempo
+			end
+			
+			if ((instance.last_interaction and (instance.last_interaction+3 > _detalhes._tempo)) or (DetailsReportWindow and DetailsReportWindow:IsShown()) or (_detalhes.janela_info:IsShown())) then
+				--> postpone
+				instance._postponing_switch = _detalhes:ScheduleTimer ("PostponeSwitchToCurrent", 1, instance)
+			else
+				instance:TrocaTabela (0) --> muda o segmento pra current
+				instance:InstanceAlert (Loc ["STRING_CHANGED_TO_CURRENT"], {[[Interface\AddOns\Details\images\toolbar_icons]], 18, 18, false, 32/256, 64/256, 0, 1}, 6)
+				instance._postponing_switch = nil
+			end
 		end
 	end
 end
@@ -2092,7 +2123,7 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 		
 		if (_detalhes.instances_segments_locked and not iniciando_instancia) then
 			for _, instance in ipairs (_detalhes.tabela_instancias) do
-				if (instance.meu_id ~= instancia.meu_id and instance.ativa) then
+				if (instance.meu_id ~= instancia.meu_id and instance.ativa and not instance._postponing_switch and not instance._postponing_current) then
 					if (instance.modo == 2 or instance.modo == 3) then
 						--> na troca de segmento, conferir se a instancia esta frozen
 						if (instance.freezed) then

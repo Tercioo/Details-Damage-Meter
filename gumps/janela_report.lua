@@ -1029,11 +1029,6 @@ local function cria_drop_down (este_gump)
 			window:SetScript ("OnHide", function (self)
 				_detalhes.janela_report.ativa = false
 				_detalhes.last_report_id = nil
-				
-				if (_detalhes.delay_CheckSwitchToCurrent) then
-					_detalhes.delay_CheckSwitchToCurrent = nil
-					_detalhes:CheckSwitchToCurrent()
-				end
 			end)
 	
 		--> botão de fechar
