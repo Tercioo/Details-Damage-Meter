@@ -1643,6 +1643,18 @@ function window:CreateFrame20()
 		edit_menu_bg:SetIcon ([[Interface\CHATFRAME\UI-ChatIcon-Maximize-Down]], 12, 12, nil, {6/32, 23/32, 10/32, 25/32}, nil, 4, 2)
 		window:CreateLineBackground2 (frame20, "EditMenuBgButton", "EditMenuBgButton", Loc ["STRING_OPTIONS_TOOLTIPS_MENU_WALLP_DESC"], nil, {1, 0.8, 0}, button_color_rgb)
 		
+	--> disable cooltip wallpaper on submenus
+		g:NewLabel (frame20, _, "$parentCopyMainWallpaperLabel", "CopyMainWallpaperLabel", Loc ["STRING_OPTIONS_TOOLTIPS_IGNORESUBWALLPAPER"], "GameFontHighlightLeft")
+		g:NewSwitch (frame20, _, "$parentCopyMainWallpaperSlider", "CopyMainWallpaperSlider", 60, 20, _, _, _detalhes.tooltip.submenu_wallpaper)
+		frame20.CopyMainWallpaperSlider:SetPoint ("left", frame20.CopyMainWallpaperLabel, "right", 2)
+
+		frame20.CopyMainWallpaperSlider.OnSwitch = function (self, _, value)
+			_detalhes.tooltip.submenu_wallpaper = value
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+		end
+		
+		window:CreateLineBackground2 (frame20, "CopyMainWallpaperSlider", "CopyMainWallpaperLabel", Loc ["STRING_OPTIONS_TOOLTIPS_IGNORESUBWALLPAPER_DESC"])
+		
 	--> anchors:
 	
 		--general anchor
@@ -1668,13 +1680,10 @@ function window:CreateFrame20()
 			{"TooltipShowAmountLabel", 8},
 			{"TooltipdpsAbbreviateLabel", 10},
 			{"TooltipMaximizeLabel", 9},
-			
-			{"TooltipsBorderAnchorLabel", 11, true},
-			{"BackdropBorderTextureLabel", 14},
-			{"BackdropSizeLabel", 13},
-			{"BackdropColorLabel", 12},
+			{"CopyMainWallpaperLabel", 10},
+			{edit_menu_bg, 11, true},
 		}
-		
+
 		window:arrange_menu (frame20, left_side, x, -90)
 		
 		x = window.right_start_at
@@ -1687,7 +1696,11 @@ function window:CreateFrame20()
 			{"TooltipRelativeSideLabel", 5},
 			{"TooltipOffsetXLabel", 6, true},
 			{"TooltipOffsetYLabel", 7},
-			{edit_menu_bg, 8, true}, 
+			
+			{"TooltipsBorderAnchorLabel", 8, true},
+			{"BackdropBorderTextureLabel", 9},
+			{"BackdropSizeLabel", 10},
+			{"BackdropColorLabel", 11},
 		}
 		
 		window:arrange_menu (frame20, right_side, x, -90)
@@ -10669,6 +10682,8 @@ end --> if not window
 		_G.DetailsOptionsWindow20BackdropBorderTextureDropdown.MyObject:Select (_detalhes.tooltip.border_texture)
 		_G.DetailsOptionsWindow20BackdropSizeHeight.MyObject:SetValue (_detalhes.tooltip.border_size)
 		_G.DetailsOptionsWindow20BackdropColorPick.MyObject:SetColor (unpack (_detalhes.tooltip.border_color))
+		
+		_G.DetailsOptionsWindow20CopyMainWallpaperSlider.MyObject:SetValue (_detalhes.tooltip.submenu_wallpaper)
 		
 		----------
 		

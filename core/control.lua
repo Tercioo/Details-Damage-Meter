@@ -500,11 +500,15 @@
 					}
 				end
 			end			
-			
+
 			if (not _detalhes.tabela_vigente.is_boss) then
 
 				if (_detalhes.tabela_vigente.is_pvp or _detalhes.tabela_vigente.is_arena) then
 					_detalhes:FlagActorsOnPvPCombat()
+				end
+			
+				if (_detalhes.tabela_vigente.is_arena) then
+					_detalhes.tabela_vigente.enemy = "[" .. ARENA .. "] " ..  _detalhes.tabela_vigente.is_arena.name
 				end
 			
 				local in_instance = IsInInstance() --> garrison returns party as instance type.

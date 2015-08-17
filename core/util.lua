@@ -13,6 +13,7 @@
 	local _math_floor = math.floor --lua local
 	local _math_max = math.max --lua local
 	local _math_abs = math.abs --lua local
+	local _math_min = math.min --lua local
 	local _math_random = math.random --lua local
 	local _type = type --lua local
 	local _string_match = string.match --lua local
@@ -24,6 +25,7 @@
 	local _tonumber = tonumber
 	local _strsplit = strsplit
 	local _pcall = pcall
+	local _GetTime = GetTime
 	
 	local _UnitClass = UnitClass --wow api local
 	local _IsInRaid = IsInRaid --wow api local
@@ -502,6 +504,17 @@ end
 		return nil
 	end
 
+	--[[ test grayscale ]]
+	function _detalhes:teste_grayscale()
+		local instancia = _detalhes.tabela_instancias[1]
+		for i = 1, instancia.rows_created, 1 do
+			local barra = instancia.barras[i]
+			local red, green, blue, alpha = barra.textura:GetVertexColor()
+			local grayscale = (red*0.03+green+blue) / 3 --> grayscale lightness method
+			gump:GradientEffect ( barra.textura, "texture", red, green, blue, alpha, grayscale, grayscale, grayscale, alpha, 1)
+		end
+	end
+
 	local function frame_task (self, elapsed)
 
 		self.FrameTime = self.FrameTime + elapsed
@@ -509,34 +522,32 @@ end
 		if (self.HaveGradientEffect) then
 			
 			local done = false
-			
 			for index, ThisGradient in _ipairs (self.gradientes) do
 			
-				if (self.FrameTime >= ThisGradient.NextStepAt and not ThisGradient.done) then
-				
-					--> effects
+				if (not ThisGradient.done) then
+					
+					local percent = _math_min ((_GetTime() - ThisGradient.TimeStart) / ThisGradient.Duration * 100, 100)
+					local red_now = ThisGradient.StartRed + (percent  * ThisGradient.OnePercentRed)
+					local green_now = ThisGradient.StartGreen + (percent * ThisGradient.OnePercentGreen)
+					local blue_now = ThisGradient.StartBlue + (percent  * ThisGradient.OnePercentBlue)
+					local alpha_now = ThisGradient.StartAlpha + (percent  * ThisGradient.OnePercentAlpha)
+						
 					if (ThisGradient.ObjectType == "frame") then
-						local r, g, b, a = ThisGradient.Object:GetBackdropColor()
-						ThisGradient.Object:SetBackdropColor (r + ThisGradient.Colors.Red, g + ThisGradient.Colors.Green, b + ThisGradient.Colors.Blue, a + ThisGradient.Colors.Alpha)
+						ThisGradient.Object:SetBackdropColor (red_now, green_now, blue_now, alpha_now)
 					elseif (ThisGradient.ObjectType == "texture") then
-						local r, g, b, a = ThisGradient.Object:GetVertexColor()
-						ThisGradient.Object:SetVertexColor (r + ThisGradient.Colors.Red, g + ThisGradient.Colors.Green, b + ThisGradient.Colors.Blue, a + ThisGradient.Colors.Alpha)
+						ThisGradient.Object:SetVertexColor (red_now, green_now, blue_now, alpha_now)
 					end
 					
-					ThisGradient.OnStep = ThisGradient.OnStep + 1
-					if (ThisGradient.FinishStep == ThisGradient.OnStep) then
+					if (percent == 100) then
 						if (ThisGradient.Func) then
-							if (type (ThisGradient.Func) == "string") then
-								local f = loadstring (ThisGradient.Func)
-								f()
-							else
-								ThisGradient.Func()
+							local okey, errortext = _pcall (ThisGradient.Func, ThisGradient.FuncParam)
+							if (not okey) then
+								_detalhes:Msg ("GradientEffect() end function error:", errortext)
 							end
 						end
+					
 						ThisGradient.done = true
 						done = true
-					else
-						ThisGradient.NextStepAt = self.FrameTime + ThisGradient.SleepTime
 					end
 				end
 			end
@@ -565,19 +576,8 @@ end
 		end
 		
 	end
-
-	--[[ test grayscale ]]
-	function _detalhes:teste_grayscale()
-		local instancia = _detalhes.tabela_instancias[1]
-		for i = 1, instancia.rows_created, 1 do
-			local barra = instancia.barras[i]
-			local red, green, blue, alpha = barra.textura:GetVertexColor()
-			local grayscale = (red*0.03+green+blue) / 3 --> grayscale lightness method
-			gump:GradientEffect ( barra.textura, "texture", red, green, blue, alpha, grayscale, grayscale, grayscale, alpha, 1)
-		end
-	end
-
-	function gump:GradientEffect ( Object, ObjectType, StartRed, StartGreen, StartBlue, StartAlpha, EndRed, EndGreen, EndBlue, EndAlpha, Duration, EndFunction, FuncParam)
+	
+	function gump:GradientEffect (Object, ObjectType, StartRed, StartGreen, StartBlue, StartAlpha, EndRed, EndGreen, EndBlue, EndAlpha, Duration, EndFunction, FuncParam)
 		
 		if (type (StartRed) == "table" and type (StartGreen) == "table") then
 			Duration, EndFunction = StartBlue, StartAlpha
@@ -619,33 +619,28 @@ end
 			end
 		end
 
-		local MinFramesPerSecond = 10 --> at least 10 frames will be necessary
-		local ExecTime = Duration * 1000 --> value in miliseconds
-		local SleepTime = 100 --> 100 miliseconds
-		
-		local FrameAmount = _math_floor (ExecTime/100) --> amount of frames
-		
-		if (FrameAmount < MinFramesPerSecond) then
-			FrameAmount = MinFramesPerSecond
-			SleepTime = ExecTime/FrameAmount
+		if (EndFunction and _type (EndFunction) == "string") then
+			EndFunction = loadstring (EndFunction) or false
 		end
 		
-		local ColorStep = {}
-		ColorStep.Red = (EndRed - StartRed) / FrameAmount
-		ColorStep.Green = (EndGreen - StartGreen) / FrameAmount
-		ColorStep.Blue = (EndBlue - StartBlue) / FrameAmount
-		ColorStep.Alpha = (EndAlpha - StartAlpha) / FrameAmount
-
 		GradientFrameControl.gradientes [#GradientFrameControl.gradientes+1] = {
-			OnStep = 1,
-			FinishStep = FrameAmount,
-			SleepTime = SleepTime/1000,
-			NextStepAt = GradientFrameControl.FrameTime + (SleepTime/1000),
 			Object = Object,
 			ObjectType = string.lower (ObjectType),
-			Colors = ColorStep,
 			Func = EndFunction,
-			FuncParam = FuncParam}
+			FuncParam = FuncParam,
+			TimeStart = GetTime(),
+			Duration = Duration,
+			
+			StartRed = StartRed,
+			StartGreen = StartGreen,
+			StartBlue = StartBlue,
+			StartAlpha = StartAlpha,
+			
+			OnePercentRed = StartRed > EndRed and (StartRed - EndRed) / 100 * -1 or (EndRed - StartRed) / 100,
+			OnePercentGreen = StartGreen > EndGreen and (StartGreen - EndGreen) / 100 * -1 or (EndGreen - StartGreen) / 100,
+			OnePercentBlue = StartBlue > EndBlue and (StartBlue - EndBlue) / 100 * -1 or (EndBlue - StartBlue) / 100,
+			OnePercentAlpha = StartAlpha > EndAlpha and (StartAlpha - EndAlpha) / 100 * -1 or (EndAlpha - StartAlpha) /100,
+		}
 		
 		Object.HaveGradientEffect = true
 		GradientFrameControl.HaveGradientEffect = true

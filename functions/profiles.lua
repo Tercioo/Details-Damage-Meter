@@ -969,7 +969,8 @@ local default_profile = {
 			show_amount = false, 
 			commands = {},
 			header_text_color = {1, 0.9176, 0, 1}, --{1, 0.7, 0, 1}
-			
+			submenu_wallpaper = true,
+
 			anchored_to = 1,
 			anchor_screen_pos = {507.700, -350.500},
 			anchor_point = "bottom",

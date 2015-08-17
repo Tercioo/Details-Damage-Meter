@@ -999,26 +999,6 @@ function SlashCmdList.DETAILS (msg, editbox)
 			end
 		end
 	
-	elseif (msg == "ilvl") then
-		local item_amount = 0
-		local item_level = 0
-		
-		for equip_id = 1, 17 do
-			if (equip_id ~= 4) then --shirt slot
-				local item = GetInventoryItemLink ("player", equip_id)
-				if (item) then
-					local name, link, quality, iLevel, reqLevel, class, subclass, maxStack, equipSlot, texture, vendorPrice = GetItemInfo (item)
-					if (iLevel) then
-						item_amount = item_amount + 1
-						item_level = item_level + iLevel
-					end
-				end
-			end
-		end
-		
-		local average = item_level / item_amount
-		print ("your item lvl:", average)
-	
 	elseif (msg == "forge") then
 		_detalhes:OpenForge()
 	
@@ -1044,7 +1024,23 @@ function SlashCmdList.DETAILS (msg, editbox)
 			-1, --overkill = 
 			1 --school = 
 		)
-	
+		
+	elseif (msg == "ilvl") then
+		local ilvl_frame = CreateFrame ("GameTooltip", "details_ilvl_tooltip", UIParent, "GameTooltipTemplate");
+		local get_ilvl = function (itemLink)
+			ilvl_frame:SetOwner (UIParent, "ANCHOR_NONE")
+			ilvl_frame:ClearLines()
+			ilvl_frame:SetHyperlink (itemLink)
+			
+			for i = 1, 13 do
+				print (_G ["details_ilvl_tooltipTextLeft" .. i]:GetText())
+			end
+		end
+		
+		local item = GetInventoryItemLink ("player", 1)
+		print ("item:", item)
+		get_ilvl (item)
+		
 	else
 		
 		--if (_detalhes.opened_windows < 1) then

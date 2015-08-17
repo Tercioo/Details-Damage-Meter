@@ -258,6 +258,11 @@
 					novo_objeto.displayName = nome
 				end
 				
+				--local pet_npc_template = _detalhes:GetNpcIdFromGuid (serial)
+				--if (pet_npc_template == 86933) then --viviane
+				--	novo_objeto.grupo = true
+				--end
+				
 			else
 				novo_objeto.displayName = nome
 			end

@@ -1063,7 +1063,7 @@ function _detalhes:IlvlFromNetwork (player, realm, core, ilvl)
 	_detalhes.item_level_pool [guid] = {name = player, ilvl = ilvl, time = time()}
 end
 
---test on your self:
+--> test
 --/run _detalhes.ilevel:CalcItemLevel ("player", UnitGUID("player"), true)
 --/run wipe (_detalhes.item_level_pool)
 function ilvl_core:CalcItemLevel (unitid, guid, shout)
@@ -1076,7 +1076,7 @@ function ilvl_core:CalcItemLevel (unitid, guid, shout)
 
 	if (CheckInteractDistance (unitid, 1)) then
 
-		--16 = all itens including main and off hand
+		--> 16 = all itens including main and off hand
 		local item_amount = 16
 		local item_level = 0
 		local failed = 0
@@ -1086,10 +1086,22 @@ function ilvl_core:CalcItemLevel (unitid, guid, shout)
 				local item = GetInventoryItemLink (unitid, equip_id)
 				if (item) then
 					local _, _, _, iLevel, _, _, _, _, equipSlot = GetItemInfo (item)
-					if (iLevel and iLevel > 100) then
-						item_level = item_level + iLevel
-						-- 16 = main hand 17 = off hand
-						-- if using a two-hand, ignore the off hand slot
+					if (iLevel and iLevel >= 100) then
+						
+						local _, _, _, _, _, _, _, _, _, _, _, upgradeTypeID, _, numBonusIDs, bonusID1, bonusID2 = strsplit (":", item)
+
+						--> timewarped
+						if (upgradeTypeID == "512" and bonusID1 == "615") then
+							item_level = item_level + 660
+							if (bonusID2 == "656") then
+								item_level = item_level + 15
+							end
+						else
+							item_level = item_level + iLevel
+						end
+						
+						--> 16 = main hand 17 = off hand
+						-->  if using a two-hand, ignore the off hand slot
 						if (equip_id == 16 and two_hand [equipSlot]) then
 							item_amount = 15
 							break
@@ -1106,7 +1118,7 @@ function ilvl_core:CalcItemLevel (unitid, guid, shout)
 		
 		local average = item_level / item_amount
 
-		-- register
+		--> register
 		if (average > 0) then
 			if (shout) then
 				_detalhes:Msg (name .. " item level: " .. average)

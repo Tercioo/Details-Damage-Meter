@@ -199,12 +199,14 @@
 				local total_script = _detalhes.custom_function_cache [instance.customName .. "Total"]
 				local okey
 				
-				for index, actor in _ipairs (instance_container._ActorTable) do 	
+				for index, actor in _ipairs (instance_container._ActorTable) do
+				
 					local percent, ptotal
+					
 					if (percent_script) then
 						okey, percent = _pcall (percent_script, _math_floor (actor.value), top, total, combat, instance, actor)
 						if (not okey) then
-							_detalhes:Msg ("|cFFFF9900error on custom display function|r:", percent)
+							_detalhes:Msg ("|cFFFF9900percent script error|r:", percent)
 							return _detalhes:EndRefresh (instance, 0, combat, combat [1])
 						end
 					else
@@ -212,16 +214,16 @@
 					end
 					
 					if (total_script) then
-						local value = _pcall (total_script, _math_floor (actor.value), top, total, combat, instance, actor)
-						if (type (value) == "number") then
-							okey, ptotal = SelectedToKFunction (_, value)
-							if (not okey) then
-								_detalhes:Msg ("|cFFFF9900error on custom display function|r:", ptotal)
-								return _detalhes:EndRefresh (instance, 0, combat, combat [1])
-							end
-						else
-							ptotal = value
+						local okey, value = _pcall (total_script, _math_floor (actor.value), top, total, combat, instance, actor)
+						if (not okey) then
+							_detalhes:Msg ("|cFFFF9900total script error|r:", value)
+							return _detalhes:EndRefresh (instance, 0, combat, combat [1])
 						end
+						
+						if (type (value) == "number") then
+							value = SelectedToKFunction (_, value)
+						end
+						ptotal = value
 					else
 						ptotal = SelectedToKFunction (_, _math_floor (actor.value))
 					end
@@ -855,6 +857,7 @@
 			new_actor.spec = actor.spec
 			
 			new_actor.enemy = actor.enemy
+			new_actor.role = actor.role
 			new_actor.arena_enemy = actor.arena_enemy
 			new_actor.arena_ally = actor.arena_ally
 			
@@ -1600,7 +1603,7 @@
 			desc = "Show the crowd control amount for each player.",
 			source = false,
 			target = false,
-			script_version = 8,
+			script_version = 9,
 			script = [[
 				local combat, instance_container, instance = ...
 				local total, top, amount = 0, 0, 0
@@ -1646,7 +1649,7 @@
 
 				_detalhes:AddTooltipSpellHeaderText ("Targets", "yellow", #targets)
 				local class, _, _, _, _, r, g, b = _detalhes:GetClass (actor.nome)
-				GameCooltip:AddStatusBar (100, 1, r, g, b, 1)
+				_detalhes:AddTooltipHeaderStatusbar (1, 1, 1, 0.6)
 
 				for index, target in ipairs (targets) do
 				    GameCooltip:AddLine (target[1], target [2])

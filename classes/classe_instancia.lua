@@ -2366,9 +2366,16 @@ end
 -- ~menu
 local menu_wallpaper_tex = {63/512, 331/512, 109/512, 143/512}
 local menu_wallpaper_color = {.8, .8, .8, 0.2}
+local menu_wallpaper_custom_color = {1, 0, 0, 1}
 
 local wallpaper_bg_color = {.8, .8, .8, 0.2}
-
+local menu_icones = {
+	"Interface\\AddOns\\Details\\images\\atributos_icones_damage", 
+	"Interface\\AddOns\\Details\\images\\atributos_icones_heal", 
+	"Interface\\AddOns\\Details\\images\\atributos_icones_energyze",
+	"Interface\\AddOns\\Details\\images\\atributos_icones_misc"
+}
+	
 function _detalhes:MontaAtributosOption (instancia, func)
 
 	func = func or instancia.TrocaTabela
@@ -2385,13 +2392,6 @@ function _detalhes:MontaAtributosOption (instancia, func)
 	else
 		options = sub_atributos [atributo_ativo].lista
 	end
-	
-	local icones = {
-		"Interface\\AddOns\\Details\\images\\atributos_icones_damage", 
-		"Interface\\AddOns\\Details\\images\\atributos_icones_heal", 
-		"Interface\\AddOns\\Details\\images\\atributos_icones_energyze",
-		"Interface\\AddOns\\Details\\images\\atributos_icones_misc"
-	}
 
 	local CoolTip = _G.GameCooltip
 	local p = 0.125 --> 32/256
@@ -2402,15 +2402,19 @@ function _detalhes:MontaAtributosOption (instancia, func)
 		CoolTip:AddMenu (1, func, nil, i, nil, atributos.lista[i], nil, true)
 		CoolTip:AddIcon ("Interface\\AddOns\\Details\\images\\atributos_icones", 1, 1, 20, 20, p*(i-1), p*(i), 0, 1)
 		
-		if (i == 1) then
-			CoolTip:SetWallpaper (2, [[Interface\TALENTFRAME\WarlockDestruction-TopLeft]], {1, 0.22, 0, 0.55}, wallpaper_bg_color)
-		elseif (i == 2) then
-			--CoolTip:SetWallpaper (2, [[Interface\TALENTFRAME\PriestHoly-TopLeft]], {0, .8, 0, 1}, {1, 1, 1, .1})
-			CoolTip:SetWallpaper (2, [[Interface\TALENTFRAME\bg-priest-holy]], {1, .6, 0, .2}, wallpaper_bg_color)
-		elseif (i == 3) then
-			CoolTip:SetWallpaper (2, [[Interface\TALENTFRAME\ShamanEnhancement-TopLeft]], {0, 1, .2, .6}, wallpaper_bg_color)
-		elseif (i == 4) then
-			CoolTip:SetWallpaper (2, [[Interface\TALENTFRAME\WarlockCurses-TopLeft]], {.2, 1, 0, 1}, wallpaper_bg_color)
+		if (_detalhes.tooltip.submenu_wallpaper) then
+			if (i == 1) then
+				CoolTip:SetWallpaper (2, [[Interface\TALENTFRAME\WarlockDestruction-TopLeft]], {1, 0.22, 0, 0.55}, wallpaper_bg_color)
+			elseif (i == 2) then
+				CoolTip:SetWallpaper (2, [[Interface\TALENTFRAME\bg-priest-holy]], {1, .6, 0, .2}, wallpaper_bg_color)
+			elseif (i == 3) then
+				CoolTip:SetWallpaper (2, [[Interface\TALENTFRAME\ShamanEnhancement-TopLeft]], {0, 1, .2, .6}, wallpaper_bg_color)
+			elseif (i == 4) then
+				CoolTip:SetWallpaper (2, [[Interface\TALENTFRAME\WarlockCurses-TopLeft]], {.2, 1, 0, 1}, wallpaper_bg_color)
+			end
+		else
+			--> wallpaper = main window
+			CoolTip:SetWallpaper (2, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
 		end
 		
 		local options = sub_atributos [i].lista
@@ -2418,11 +2422,11 @@ function _detalhes:MontaAtributosOption (instancia, func)
 		for o = 1, atributos [i] do
 			if (_detalhes:CaptureIsEnabled ( _detalhes.atributos_capture [gindex] )) then
 				CoolTip:AddMenu (2, func, true, i, o, options[o], nil, true)
-				CoolTip:AddIcon (icones[i], 2, 1, 20, 20, p*(o-1), p*(o), 0, 1)
+				CoolTip:AddIcon (menu_icones[i], 2, 1, 20, 20, p*(o-1), p*(o), 0, 1)
 			else
 				CoolTip:AddLine (options[o], nil, 2, .5, .5, .5, 1)
 				CoolTip:AddMenu (2, func, true, i, o)
-				CoolTip:AddIcon (icones[i], 2, 1, 20, 20, p*(o-1), p*(o), 0, 1, {.3, .3, .3, 1})
+				CoolTip:AddIcon (menu_icones[i], 2, 1, 20, 20, p*(o-1), p*(o), 0, 1, {.3, .3, .3, 1})
 			end
 
 			gindex = gindex + 1
@@ -2456,7 +2460,11 @@ function _detalhes:MontaAtributosOption (instancia, func)
 	end
 	
 	--> set the wallpaper on custom
-	GameCooltip:SetWallpaper (2, [[Interface\TALENTFRAME\WarriorArm-TopLeft]], {1, 0, 0, 1}, wallpaper_bg_color)
+	if (_detalhes.tooltip.submenu_wallpaper) then
+		CoolTip:SetWallpaper (2, [[Interface\TALENTFRAME\WarriorArm-TopLeft]], menu_wallpaper_custom_color, wallpaper_bg_color)
+	else
+		CoolTip:SetWallpaper (2, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
+	end
 
 	if (#_detalhes.custom == 0) then
 		CoolTip:SetLastSelected (2, 6, 2)

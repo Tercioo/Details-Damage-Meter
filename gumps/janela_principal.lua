@@ -317,6 +317,7 @@ local function OnLeaveMainWindow (instancia, self)
 	instancia.is_interacting = false
 	instancia:SetMenuAlpha (nil, nil, nil, nil, true)
 	instancia:SetAutoHideMenu (nil, nil, true)
+	instancia:RefreshAttributeTextSize()
 	
 	if (instancia.modo ~= _detalhes._detalhes_props["MODO_ALONE"] and not instancia.baseframe.isLocked) then
 
@@ -350,6 +351,8 @@ local function OnEnterMainWindow (instancia, self)
 	instancia.is_interacting = true
 	instancia:SetMenuAlpha (nil, nil, nil, nil, true)
 	instancia:SetAutoHideMenu (nil, nil, true)
+	instancia:RefreshAttributeTextSize()
+	
 	instancia.last_interaction = _detalhes._tempo or time()
 
 	if (instancia.baseframe:GetFrameLevel() > instancia.rowframe:GetFrameLevel()) then
@@ -5616,23 +5619,28 @@ local build_segment_list = function (self, elapsed)
 						end
 						CoolTip:AddIcon ([[Interface\AddOns\Details\images\icons]], "main", "left", 16, 16, 0.96875, 1, 0, 0.03125)
 						
-						local background = _detalhes:GetRaidIcon (thisCombat.is_boss.mapid)
-						if (background) then
-							CoolTip:SetWallpaper (2, background, nil, segments_wallpaper_color)
-						else
-							local ej_id = thisCombat.is_boss.ej_instance_id
-							if (ej_id and ej_id ~= 0) then
-								local name, description, bgImage, buttonImage, loreImage, dungeonAreaMapID, link = EJ_GetInstanceInfo (ej_id)
-								if (name) then
-									if (thisCombat.instance_type == "party") then
-										CoolTip:SetWallpaper (2, bgImage, party_wallpaper_tex, party_wallpaper_color)
-									else
-										CoolTip:SetWallpaper (2, loreImage, raid_wallpaper_tex, party_wallpaper_color)
-									end
-								end
+						if (_detalhes.tooltip.submenu_wallpaper) then
+							local background = _detalhes:GetRaidIcon (thisCombat.is_boss.mapid)
+							if (background) then
+								CoolTip:SetWallpaper (2, background, nil, segments_wallpaper_color)
 							else
-								CoolTip:SetWallpaper (2, [[Interface\BlackMarket\HotItemBanner]], unknown_boss_tex, unknown_boss_color, true)
+								local ej_id = thisCombat.is_boss.ej_instance_id
+								if (ej_id and ej_id ~= 0) then
+									local name, description, bgImage, buttonImage, loreImage, dungeonAreaMapID, link = EJ_GetInstanceInfo (ej_id)
+									if (name) then
+										if (thisCombat.instance_type == "party") then
+											CoolTip:SetWallpaper (2, bgImage, party_wallpaper_tex, party_wallpaper_color)
+										else
+											CoolTip:SetWallpaper (2, loreImage, raid_wallpaper_tex, party_wallpaper_color)
+										end
+									end
+								else
+									CoolTip:SetWallpaper (2, [[Interface\BlackMarket\HotItemBanner]], unknown_boss_tex, unknown_boss_color, true)
+								end
 							end
+						else
+							--> wallpaper = main window
+							CoolTip:SetWallpaper (2, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
 						end
 					
 					elseif (thisCombat.is_pvp) then
@@ -5640,9 +5648,14 @@ local build_segment_list = function (self, elapsed)
 						enemy = thisCombat.is_pvp.name
 						CoolTip:AddIcon ([[Interface\AddOns\Details\images\icons]], "main", "left", 16, 12, 0.251953125, 0.306640625, 0.205078125, 0.248046875)
 						
-						local file, coords = _detalhes:GetBattlegroundInfo (thisCombat.is_pvp.mapid)
-						if (file) then
-							CoolTip:SetWallpaper (2, "Interface\\Glues\\LOADINGSCREENS\\" .. file, coords, empty_segment_color)
+						if (_detalhes.tooltip.submenu_wallpaper) then
+							local file, coords = _detalhes:GetBattlegroundInfo (thisCombat.is_pvp.mapid)
+							if (file) then
+								CoolTip:SetWallpaper (2, "Interface\\Glues\\LOADINGSCREENS\\" .. file, coords, empty_segment_color)
+							end
+						else
+							--> wallpaper = main window
+							CoolTip:SetWallpaper (2, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
 						end
 					
 					elseif (thisCombat.is_arena) then
@@ -5650,9 +5663,14 @@ local build_segment_list = function (self, elapsed)
 						enemy = thisCombat.is_arena.name
 						CoolTip:AddIcon ([[Interface\AddOns\Details\images\icons]], "main", "left", 16, 12, 0.251953125, 0.306640625, 0.205078125, 0.248046875)
 						
-						local file, coords = _detalhes:GetArenaInfo (thisCombat.is_arena.mapid)
-						if (file) then
-							CoolTip:SetWallpaper (2, "Interface\\Glues\\LOADINGSCREENS\\" .. file, coords, empty_segment_color)
+						if (_detalhes.tooltip.submenu_wallpaper) then
+							local file, coords = _detalhes:GetArenaInfo (thisCombat.is_arena.mapid)
+							if (file) then
+								CoolTip:SetWallpaper (2, "Interface\\Glues\\LOADINGSCREENS\\" .. file, coords, empty_segment_color)
+							end
+						else
+							--> wallpaper = main window
+							CoolTip:SetWallpaper (2, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
 						end
 					else
 						enemy = thisCombat.enemy
@@ -5668,7 +5686,12 @@ local build_segment_list = function (self, elapsed)
 							CoolTip:AddIcon ([[Interface\QUESTFRAME\UI-Quest-BulletPoint]], "main", "left", 16, 16)
 						end
 						
-						CoolTip:SetWallpaper (2, [[Interface\ACHIEVEMENTFRAME\UI-Achievement-StatsBackground]], segments_common_tex, segments_common_color)
+						if (_detalhes.tooltip.submenu_wallpaper) then
+							CoolTip:SetWallpaper (2, [[Interface\ACHIEVEMENTFRAME\UI-Achievement-StatsBackground]], segments_common_tex, segments_common_color)
+						else
+							--> wallpaper = main window
+							CoolTip:SetWallpaper (2, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
+						end
 						
 					end
 					
@@ -5721,21 +5744,26 @@ local build_segment_list = function (self, elapsed)
 					CoolTip:AddIcon (portrait, 2, "top", 128, 64)
 				end
 				
-				local background = _detalhes:GetRaidIcon (_detalhes.tabela_vigente.is_boss.mapid)
-				if (background) then
-					CoolTip:SetWallpaper (2, background, nil, segments_wallpaper_color)
-				else
-					local ej_id = _detalhes.tabela_vigente.is_boss.ej_instance_id
-					if (ej_id and ej_id ~= 0) then
-						local name, description, bgImage, buttonImage, loreImage, dungeonAreaMapID, link = EJ_GetInstanceInfo (ej_id)
-						if (name) then
-							if (_detalhes.tabela_vigente.instance_type == "party") then
-								CoolTip:SetWallpaper (2, bgImage, party_wallpaper_tex, party_wallpaper_color)
-							else
-								CoolTip:SetWallpaper (2, loreImage, raid_wallpaper_tex, party_wallpaper_color)
+				if (_detalhes.tooltip.submenu_wallpaper) then
+					local background = _detalhes:GetRaidIcon (_detalhes.tabela_vigente.is_boss.mapid)
+					if (background) then
+						CoolTip:SetWallpaper (2, background, nil, segments_wallpaper_color)
+					else
+						local ej_id = _detalhes.tabela_vigente.is_boss.ej_instance_id
+						if (ej_id and ej_id ~= 0) then
+							local name, description, bgImage, buttonImage, loreImage, dungeonAreaMapID, link = EJ_GetInstanceInfo (ej_id)
+							if (name) then
+								if (_detalhes.tabela_vigente.instance_type == "party") then
+									CoolTip:SetWallpaper (2, bgImage, party_wallpaper_tex, party_wallpaper_color)
+								else
+									CoolTip:SetWallpaper (2, loreImage, raid_wallpaper_tex, party_wallpaper_color)
+								end
 							end
 						end
 					end
+				else
+					--> wallpaper = main window
+					CoolTip:SetWallpaper (2, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
 				end
 			elseif (_detalhes.tabela_vigente.is_pvp) then
 				enemy = _detalhes.tabela_vigente.is_pvp.name
@@ -5744,12 +5772,23 @@ local build_segment_list = function (self, elapsed)
 				enemy = _detalhes.tabela_vigente.is_arena.name
 				file, coords = _detalhes:GetArenaInfo (_detalhes.tabela_vigente.is_arena.mapid)
 			else
-				CoolTip:SetWallpaper (2, [[Interface\ACHIEVEMENTFRAME\UI-Achievement-StatsBackground]], segments_common_tex, segments_common_color)
+				if (_detalhes.tooltip.submenu_wallpaper) then
+					CoolTip:SetWallpaper (2, [[Interface\ACHIEVEMENTFRAME\UI-Achievement-StatsBackground]], segments_common_tex, segments_common_color)
+				else
+					--> wallpaper = main window
+					CoolTip:SetWallpaper (2, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
+				end
 			end					
 			
 			CoolTip:AddLine (Loc ["STRING_SEGMENT_ENEMY"] .. ":", enemy, 2, "white", "white")
-			if (file) then
-				CoolTip:SetWallpaper (2, "Interface\\Glues\\LOADINGSCREENS\\" .. file, coords, empty_segment_color)
+			
+			if (_detalhes.tooltip.submenu_wallpaper) then
+				if (file) then
+					CoolTip:SetWallpaper (2, "Interface\\Glues\\LOADINGSCREENS\\" .. file, coords, empty_segment_color)
+				end
+			else
+				--> wallpaper = main window
+				CoolTip:SetWallpaper (2, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
 			end
 			
 			if (not _detalhes.tabela_vigente:GetEndTime()) then
@@ -5799,7 +5838,12 @@ local build_segment_list = function (self, elapsed)
 			
 			--CoolTip:SetWallpaper (2, [[Interface\ACHIEVEMENTFRAME\UI-Achievement-StatsBackground]], segments_common_tex, segments_common_color)
 			--CoolTip:SetWallpaper (2, [[Interface\PetBattles\MountJournal-NoMounts]], {0, 403/512, 0, 294/512}, {.5, .5, .5, 0.9})
-			CoolTip:SetWallpaper (2, [[Interface\PetPaperDollFrame\PetStatsBG-Hunter]], {321/512, 0, 0, 190/512}, {1, 1, 1, 0.9})
+			if (_detalhes.tooltip.submenu_wallpaper) then
+				CoolTip:SetWallpaper (2, [[Interface\PetPaperDollFrame\PetStatsBG-Hunter]], {321/512, 0, 0, 190/512}, {1, 1, 1, 0.9})
+			else
+				--> wallpaper = main window
+				CoolTip:SetWallpaper (2, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
+			end
 			
 			CoolTip:AddLine (Loc ["STRING_SEGMENT_START"] .. ":", _detalhes.tabela_overall.data_inicio, 2, "white", "white")
 			CoolTip:AddLine (Loc ["STRING_SEGMENT_END"] .. ":", _detalhes.tabela_overall.data_fim, 2, "white", "white")
@@ -6293,7 +6337,15 @@ end
 -- ~attributemenu (text with attribute name)
 function _detalhes:RefreshAttributeTextSize()
 	if (self.attribute_text.enabled and self.total_buttons_shown and self.baseframe and self.menu_attribute_string) then
+	
 		local window_width = self:GetSize()
+	
+		if (self.auto_hide_menu.left and not self.is_interacting) then
+			self.menu_attribute_string:SetWidth (window_width)
+			self.menu_attribute_string:SetHeight (self.attribute_text.text_size + 2)
+			return
+		end
+		
 		local buttons_shown = self.total_buttons_shown
 		local buttons_width, buttons_spacement = self.menu_icons_size * 16, self.menu_icons.space
 		
@@ -6577,6 +6629,7 @@ function _detalhes:SetAutoHideMenu (left, right, interacting)
 		end
 	end
 	
+	self:RefreshAttributeTextSize()
 	--auto_hide_menu = {left = false, right = false},
 
 end

@@ -3866,6 +3866,10 @@
 	function _detalhes:IsInCombat()
 		return _in_combat
 	end
+	
+	function _detalhes:IsInEncounter()
+		return _detalhes.encounter_table.id and true or false
+	end
 
 	--> get combat
 	function _detalhes:GetCombat (_combat)

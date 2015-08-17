@@ -156,7 +156,10 @@ reset when data is wiped and each character have its own combat number counter.
 
 Details:IsInCombat()
 returns if Details! is in combat or not.
- 
+
+Details:IsInEncounter()
+returns if Details! is in a raid encounter combat.
+
 damage, healing, energy, misc = Details:GetAllActors (combat, actorname)
 returns all the four actor objects for the requested combat and actor.
 combat must be a combat object.

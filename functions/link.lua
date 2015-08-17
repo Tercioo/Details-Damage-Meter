@@ -4,6 +4,10 @@
 	_detalhes.weaktable = {__mode = "v"}
 
 	--> globals
+	--[[global]] DETAILS_WA_AURATYPE_ICON = 1
+	--[[global]] DETAILS_WA_AURATYPE_TEXT = 2
+	--[[global]] DETAILS_WA_AURATYPE_BAR = 3
+	
 	--[[global]] DETAILS_WA_TRIGGER_DEBUFF_PLAYER = 1
 	--[[global]] DETAILS_WA_TRIGGER_DEBUFF_TARGET = 2
 	--[[global]] DETAILS_WA_TRIGGER_DEBUFF_FOCUS = 3
@@ -15,7 +19,96 @@
 	--[[global]] DETAILS_WA_TRIGGER_CAST_START = 7
 	--[[global]] DETAILS_WA_TRIGGER_CAST_OKEY = 8
 	
+	--[[global]] DETAILS_WA_TRIGGER_DBM_TIMER = 9
+	--[[global]] DETAILS_WA_TRIGGER_BW_TIMER = 10
+	
 	--weak auras
+	local group_prototype_boss_mods = {
+		["grow"] = "DOWN",
+		["controlledChildren"] = {},
+		["animate"] = true,
+		["xOffset"] = 0,
+		["border"] = "None",
+		["yOffset"] = 370,
+		["anchorPoint"] = "CENTER",
+		["untrigger"] = {},
+		["sort"] = "none",
+		["actions"] = {
+			["start"] = {},
+			["finish"] = {},
+			["init"] = {},
+		},
+		["space"] = 2,
+		["background"] = "None",
+		["expanded"] = true,
+		["constantFactor"] = "RADIUS",
+		["selfPoint"] = "TOP",
+		["borderOffset"] = 16,
+		["trigger"] = {
+			["type"] = "aura",
+			["spellIds"] = {
+			},
+			["names"] = {
+			},
+			["debuffType"] = "HELPFUL",
+			["unit"] = "player",
+		},
+		["animation"] = {
+			["start"] = {
+				["duration_type"] = "seconds",
+				["type"] = "none",
+			},
+			["main"] = {
+				["duration_type"] = "seconds",
+				["type"] = "none",
+			},
+			["finish"] = {
+				["duration_type"] = "seconds",
+				["type"] = "none",
+			},
+		},
+		["id"] = "Details! Boss Mods Group",
+		["backgroundInset"] = 0,
+		["frameStrata"] = 1,
+		["width"] = 359.096801757813,
+		["rotation"] = 0,
+		["radius"] = 200,
+		["numTriggers"] = 1,
+		["stagger"] = 0,
+		["height"] = 121.503601074219,
+		["align"] = "CENTER",
+		["load"] = {
+			["difficulty"] = {
+				["multi"] = {
+				},
+			},
+			["role"] = {
+				["multi"] = {
+				},
+			},
+			["use_class"] = false,
+			["talent"] = {
+				["multi"] = {
+				},
+			},
+			["race"] = {
+				["multi"] = {
+				},
+			},
+			["spec"] = {
+				["multi"] = {
+				},
+			},
+			["class"] = {
+			},
+			["size"] = {
+				["multi"] = {
+				},
+			},
+		},
+		["regionType"] = "dynamicgroup",
+	}
+	
 	local group_prototype = {
 		["xOffset"] = -678.999450683594,
 		["yOffset"] = 212.765991210938,
@@ -89,6 +182,574 @@
 		["untrigger"] = {},
 	}
 	
+	local bar_dbm_timerbar_prototype = {
+		["sparkWidth"] = 10,
+		["stacksSize"] = 12,
+		["xOffset"] = 0,
+		["stacksFlags"] = "None",
+		["yOffset"] = 239.568542480469,
+		["anchorPoint"] = "CENTER",
+		["borderColor"] = {1, 1, 1, 0.5},
+		["rotateText"] = "NONE",
+		["backgroundColor"] = {0, 0, 0, 0.5},
+		["fontFlags"] = "OUTLINE",
+		["icon_color"] = {1, 1, 1, 1},
+		["selfPoint"] = "CENTER",
+		["barColor"] = {1, 0, 0, 1},
+		["desaturate"] = false,
+		["progressPrecision"] = 1,
+		["sparkOffsetY"] = 0,
+		["load"] = {
+			["difficulty"] = {
+				["multi"] = {
+				},
+			},
+			["race"] = {
+				["multi"] = {
+				},
+			},
+			["talent"] = {
+				["multi"] = {
+				},
+			},
+			["role"] = {
+				["multi"] = {
+				},
+			},
+			["spec"] = {
+				["multi"] = {
+				},
+			},
+			["class"] = {
+				["multi"] = {
+				},
+			},
+			["size"] = {
+				["multi"] = {
+				},
+			},
+		},
+		["timerColor"] = {1, 1, 1, 1},
+		["regionType"] = "aurabar",
+		["stacks"] = true,
+		["texture"] = "Blizzard",
+		["textFont"] = "Friz Quadrata TT",
+		["zoom"] = 0,
+		["spark"] = false,
+		["timerFont"] = "Friz Quadrata TT",
+		["alpha"] = 1,
+		["borderInset"] = 11,
+		["textColor"] = {1, 1, 1, 1},
+		["borderBackdrop"] = "Blizzard Tooltip",
+		["customText"] = "function (expire, duration)\n    return format (\"%.1f\", duration)\nend \n\n",
+		["barInFront"] = true,
+		["sparkRotationMode"] = "AUTO",
+		["displayTextLeft"] = "%n",
+		["animation"] = {
+			["start"] = {
+				["duration_type"] = "seconds",
+				["type"] = "none",
+			},
+			["main"] = {
+				["duration_type"] = "seconds",
+				["type"] = "none",
+			},
+			["finish"] = {
+				["duration_type"] = "seconds",
+				["type"] = "none",
+			},
+		},
+		["trigger"] = {
+			["type"] = "custom",
+			["custom_hide"] = "timed",
+			["subeventSuffix"] = "_CAST_START",
+			["custom_type"] = "status",
+			["custom"] = "function()\n    if (InCombatLockdown() and aura_env.trigger_at and aura_env.trigger_at <= GetTime() and aura_env.untrigger_at and aura_env.untrigger_at >= GetTime()) then\n        return true\n    else\n        return false\n    end\nend\n",
+			["event"] = "Health",
+			["unit"] = "player",
+			["customDuration"] = "function()\n    if (aura_env.trigger_at and aura_env.trigger_at <= GetTime() and aura_env.untrigger_at and aura_env.untrigger_at >= GetTime()) then\n        return aura_env.untrigger_at - GetTime(), aura_env.countdown_at, true\n    else\n        return 0\n    end\nend\n",
+			["customName"] = "function()\n    return aura_env.ability_text\nend",
+			["spellIds"] = {
+			},
+			["customIcon"] = "function()\n    return aura_env.ability_icon    \nend\n",
+			["check"] = "update",
+			["subeventPrefix"] = "SPELL",
+			["names"] = {
+			},
+			["debuffType"] = "HELPFUL",
+		},
+		["text"] = true,
+		["stickyDuration"] = false,
+		["height"] = 40.115104675293,
+		["timerFlags"] = "None",
+		["sparkBlendMode"] = "ADD",
+		["backdropColor"] = {1, 1, 1, 0.5},
+		["untrigger"] = {
+			["custom"] = "function()\n    return true\nend",
+		},
+		["actions"] = {
+			["start"] = {
+			},
+			["finish"] = {
+			},
+			["init"] = {
+				["do_custom"] = true,
+				["custom"] = "\n\n",
+			},
+		},
+		["textFlags"] = "None",
+		["border"] = false,
+		["borderEdge"] = "None",
+		["sparkOffsetX"] = 0,
+		["borderSize"] = 16,
+		["stacksFont"] = "Friz Quadrata TT",
+		["icon_side"] = "LEFT",
+		["inverse"] = false,
+		["timer"] = true,
+		["sparkHeight"] = 30,
+		["sparkRotation"] = 0,
+		["displayTextRight"] = "%c",
+		["stacksColor"] = {1, 1, 1, 1},
+		["timerSize"] = 16,
+		["icon"] = true,
+		["textSize"] = 16,
+		["frameStrata"] = 1,
+		["width"] = 370,
+		["customTextUpdate"] = "event",
+		["sparkColor"] = {1, 1, 1, 1},
+		["numTriggers"] = 1,
+		["sparkDesature"] = false,
+		["orientation"] = "HORIZONTAL",
+		["borderOffset"] = 5,
+		["auto"] = true,
+		["sparkTexture"] = "Interface\\CastingBar\\UI-CastingBar-Spark",	
+	}
+	
+	local icon_dbm_timerbar_prototype = {
+		["xOffset"] = -391.000030517578,
+		["customText"] = "function (expire, duration)\n    return \"\" .. aura_env.ability_text\nend \n\n",
+		["yOffset"] = 300,
+		["anchorPoint"] = "CENTER",
+		["customTextUpdate"] = "event",
+		["actions"] = {
+			["start"] = {
+			},
+			["init"] = {
+				["do_custom"] = true,
+				["custom"] = "",
+			},
+			["finish"] = {
+			},
+		},
+		["fontFlags"] = "OUTLINE",
+		["selfPoint"] = "CENTER",
+		["trigger"] = {
+			["unevent"] = "auto",
+			["type"] = "custom",
+			["subeventPrefix"] = "SPELL",
+			["custom_type"] = "status",
+			["use_unit"] = true,
+			["spellIds"] = {
+			},
+			["event"] = "Health",
+			["unit"] = "player",
+			["customDuration"] = "function()\n    if (aura_env.trigger_at and aura_env.trigger_at <= GetTime() and aura_env.untrigger_at and aura_env.untrigger_at >= GetTime()) then\n        return aura_env.untrigger_at - GetTime(), aura_env.countdown_at\n    else\n        return 0\n    end\nend\n",
+			["customName"] = "function()\n    return aura_env.ability_name    \nend\n",
+			["custom"] = "function()\n    if (InCombatLockdown() and aura_env.trigger_at and aura_env.trigger_at <= GetTime() and aura_env.untrigger_at and aura_env.untrigger_at >= GetTime()) then\n        return true\n    else\n        return false\n    end\nend\n",
+			["customIcon"] = "function()\n    return aura_env.ability_icon    \nend\n",
+			["check"] = "update",
+			["names"] = {
+			},
+			["subeventSuffix"] = "_CAST_START",
+			["debuffType"] = "HELPFUL",
+		},
+		["desaturate"] = false,
+		["font"] = "Friz Quadrata TT",
+		["height"] = 194.575485229492,
+		["load"] = {
+			["difficulty"] = {
+				["multi"] = {
+				},
+			},
+			["race"] = {
+				["multi"] = {
+				},
+			},
+			["talent"] = {
+				["multi"] = {
+				},
+			},
+			["role"] = {
+				["multi"] = {
+				},
+			},
+			["spec"] = {
+				["multi"] = {
+				},
+			},
+			["class"] = {
+				["multi"] = {
+				},
+			},
+			["size"] = {
+				["multi"] = {
+				},
+			},
+		},
+		["fontSize"] = 20,
+		["displayStacks"] = "%c ",
+		["regionType"] = "icon",
+		["stacksContainment"] = "OUTSIDE",
+		["zoom"] = 0,
+		["auto"] = true,
+		["stacksPoint"] = "BOTTOM",
+		["color"] = {1, 1, 1, 1},
+		["frameStrata"] = 1,
+		["width"] = 186.000091552734,
+		["stickyDuration"] = false,
+		["untrigger"] = {
+			["custom"] = "function()\n    return true\nend",
+		},
+		["inverse"] = false,
+		["numTriggers"] = 1,
+		["animation"] = {
+			["start"] = {
+				["type"] = "none",
+				["duration_type"] = "seconds",
+			},
+			["main"] = {
+				["type"] = "none",
+				["duration_type"] = "seconds",
+			},
+			["finish"] = {
+				["type"] = "none",
+				["duration_type"] = "seconds",
+			},
+		},
+		["icon"] = true,
+		["cooldown"] = true,
+		["textColor"] = {1, 1, 1, 1},
+	}
+	
+	local text_dbm_timerbar_prototype = {
+		["outline"] = true,
+		["fontSize"] = 72,
+		["color"] = {1, 1, 1, 1},
+		["displayText"] = "%c",
+		["customText"] = "function()\n    local at = aura_env.untrigger_at\n    if (at) then\n        return \"\" .. aura_env.ability_text .. \"\\n\" .. format (\"%.1f\", at - GetTime())\n    else\n        return \"\"\n    end    \n    \nend",
+		["untrigger"] = {
+			["custom"] = "function()\n    return true\nend",
+		},
+		["regionType"] = "text",
+		["customTextUpdate"] = "update",
+		["init_completed"] = 1,
+		["actions"] = {
+			["start"] = {
+			},
+			["finish"] = {
+			},
+			["init"] = {
+				["do_custom"] = true,
+				["custom"] = "aura_env.countdown_at = 4\naura_env.ability_name = \"Test Bar\"\naura_env.ability_icon = \"Interface\\\\ICONS\\\\Ability_Mage_FireStarter\"\naura_env.ability_text = \"** Next TEST BAR In **\"\naura_env.aura_global_name = \"Test Bar\"\n\nlocal details_aura_env = _G.DetailsAuraEnv\nlocal details_aura_func_cache = _G.DetailsAuraFuncCache\nif (not details_aura_env) then\n    details_aura_env = {}\n    _G.DetailsAuraEnv = details_aura_env\nend\nif (not details_aura_func_cache) then\n    details_aura_func_cache = {}\n    _G.DetailsAuraFuncCache = details_aura_func_cache\nend\n\ndetails_aura_env [aura_env.aura_global_name] = aura_env\n\naura_env.Calllback_func = function (event, timer_id, message, duration)\n    if (timer_id:find (\"Test Bar\")) then\n        duration = duration:gsub (DBM_CORE_SEC, \"\")\n        duration = tonumber (duration)\n        local aura_env = details_aura_env [\"Test Bar\"]\n        aura_env.trigger_at = GetTime() + duration - aura_env.countdown_at\n        aura_env.untrigger_at = GetTime() + duration\n    end\nend\n\nlocal previous_func = details_aura_func_cache [aura_env.aura_global_name]\nif (previous_func and DBM:IsCallbackRegistered (\"DBM_TimerStart\", previous_func)) then\n    DBM:UnregisterCallback (\"DBM_TimerStart\", previous_func)\nend\n\ndetails_aura_func_cache [aura_env.aura_global_name] = aura_env.Calllback_func\nDBM:RegisterCallback (\"DBM_TimerStart\", aura_env.Calllback_func)",
+			},
+		},
+		["justify"] = "CENTER",
+		["selfPoint"] = "CENTER",
+		["trigger"] = {
+			["type"] = "custom",
+			["subeventSuffix"] = "_CAST_START",
+			["custom_type"] = "status",
+			["spellIds"] = {
+			},
+			["event"] = "Health",
+			["unit"] = "player",
+			["customDuration"] = "",
+			["customName"] = "",
+			["custom"] = "function()\n    if (InCombatLockdown() and aura_env.trigger_at and aura_env.trigger_at <= GetTime() and aura_env.untrigger_at and aura_env.untrigger_at >= GetTime()) then\n        return true\n    else\n        return false\n    end\nend\n",
+			["customIcon"] = "",
+			["check"] = "update",
+			["subeventPrefix"] = "SPELL",
+			["names"] = {
+			},
+			["debuffType"] = "HELPFUL",
+		},
+		["yOffset"] = 251.43896484375,
+		["frameStrata"] = 1,
+		["width"] = 43.6800079345703,
+		["animation"] = {
+			["start"] = {
+				["duration_type"] = "seconds",
+				["type"] = "none",
+			},
+			["main"] = {
+				["duration_type"] = "seconds",
+				["type"] = "none",
+			},
+			["finish"] = {
+				["duration_type"] = "seconds",
+				["type"] = "none",
+			},
+		},
+		["font"] = "Friz Quadrata TT",
+		["numTriggers"] = 1,
+		["xOffset"] = 0.999847412109,
+		["height"] = 71.9999771118164,
+		["load"] = {
+			["use_never"] = false,
+			["talent"] = {
+				["multi"] = {
+				},
+			},
+			["class"] = {
+				["multi"] = {
+				},
+			},
+			["difficulty"] = {
+				["multi"] = {
+				},
+			},
+			["role"] = {
+				["multi"] = {
+				},
+			},
+			["spec"] = {
+				["multi"] = {
+				},
+			},
+			["race"] = {
+				["multi"] = {
+				},
+			},
+			["size"] = {
+				["multi"] = {
+				},
+			},
+		},
+		["anchorPoint"] = "CENTER",
+	}
+	
+	local text_prototype = {
+		["outline"] = true,
+		["fontSize"] = 12,
+		["color"] = {1, 1, 1, 1},
+		["displayText"] = "",
+		["yOffset"] = 0,
+		["anchorPoint"] = "CENTER",
+		["customTextUpdate"] = "update",
+		["actions"] = {
+			["start"] = {
+			},
+			["finish"] = {
+			},
+			["init"] = {
+			},
+		},
+		["justify"] = "LEFT",
+		["selfPoint"] = "BOTTOM",
+		["trigger"] = {
+			["type"] = "aura",
+			["spellId"] = "0",
+			["subeventSuffix"] = "_CAST_START",
+			["custom_hide"] = "timed",
+			["event"] = "Health",
+			["subeventPrefix"] = "SPELL",
+			["debuffClass"] = "magic",
+			["use_spellId"] = true,
+			["spellIds"] = {},
+			["name_operator"] = "==",
+			["fullscan"] = true,
+			["unit"] = "player",
+			["names"] = {
+				"",
+			},
+			["debuffType"] = "HARMFUL",
+		},
+		["untrigger"] = {
+		},
+		["frameStrata"] = 1,
+		["width"] = 31.0000057220459,
+		["animation"] = {
+			["start"] = {
+				["duration_type"] = "seconds",
+				["type"] = "none",
+			},
+			["main"] = {
+				["duration_type"] = "seconds",
+				["type"] = "none",
+			},
+			["finish"] = {
+				["duration_type"] = "seconds",
+				["type"] = "none",
+			},
+		},
+		["font"] = "Friz Quadrata TT",
+		["numTriggers"] = 1,
+		["xOffset"] = 0,
+		["height"] = 11.8704862594604,
+		["load"] = {
+			["use_combat"] = true,
+			["race"] = {
+				["multi"] = {
+				},
+			},
+			["talent"] = {
+				["multi"] = {
+				},
+			},
+			["role"] = {
+				["multi"] = {
+				},
+			},
+			["spec"] = {
+				["multi"] = {
+				},
+			},
+			["class"] = {
+				["multi"] = {
+				},
+			},
+			["size"] = {
+				["multi"] = {
+				},
+			},
+		},
+		["regionType"] = "text",
+	}
+	
+	local aurabar_prototype = {
+		["sparkWidth"] = 10,
+		["stacksSize"] = 12,
+		["xOffset"] = 0,
+		["stacksFlags"] = "None",
+		["yOffset"] = 0,
+		["anchorPoint"] = "CENTER",
+		["borderColor"] = {1, 1, 1, 0.5},
+		["rotateText"] = "NONE",
+		["backgroundColor"] = { 0, 0, 0, 0.5,},
+		["fontFlags"] = "OUTLINE",
+		["icon_color"] = {1, 1, 1, 1},
+		["selfPoint"] = "CENTER",
+		["barColor"] = {1, 0, 0, 1},
+		["desaturate"] = false,
+		["sparkOffsetY"] = 0,
+		["load"] = {
+			["use_combat"] = true,
+			["race"] = {
+				["multi"] = {
+				},
+			},
+			["talent"] = {
+				["multi"] = {
+				},
+			},
+			["role"] = {
+				["multi"] = {
+				},
+			},
+			["spec"] = {
+				["multi"] = {
+				},
+			},
+			["class"] = {
+				["multi"] = {
+				},
+			},
+			["size"] = {
+				["multi"] = {
+				},
+			},
+		},
+		["timerColor"] = {1, 1, 1, 1},
+		["regionType"] = "aurabar",
+		["stacks"] = true,
+		["texture"] = "Blizzard",
+		["textFont"] = "Friz Quadrata TT",
+		["zoom"] = 0,
+		["spark"] = false,
+		["timerFont"] = "Friz Quadrata TT",
+		["alpha"] = 1,
+		["borderInset"] = 11,
+		["textColor"] = {1, 1, 1, 1},
+		["borderBackdrop"] = "Blizzard Tooltip",
+		["barInFront"] = true,
+		["sparkRotationMode"] = "AUTO",
+		["displayTextLeft"] = "%n",
+		["animation"] = {
+			["start"] = {
+				["duration_type"] = "seconds",
+				["type"] = "none",
+			},
+			["main"] = {
+				["duration_type"] = "seconds",
+				["type"] = "none",
+			},
+			["finish"] = {
+				["duration_type"] = "seconds",
+				["type"] = "none",
+			},
+		},
+		["trigger"] = {
+			["type"] = "aura",
+			["spellId"] = "0",
+			["subeventSuffix"] = "_CAST_START",
+			["custom_hide"] = "timed",
+			["event"] = "Health",
+			["subeventPrefix"] = "SPELL",
+			["debuffClass"] = "magic",
+			["use_spellId"] = true,
+			["spellIds"] = {},
+			["name_operator"] = "==",
+			["fullscan"] = true,
+			["unit"] = "player",
+			["names"] = {
+				"",
+			},
+			["debuffType"] = "HARMFUL",
+		},
+		["text"] = true,
+		["stickyDuration"] = false,
+		["height"] = 15,
+		["timerFlags"] = "None",
+		["sparkBlendMode"] = "ADD",
+		["backdropColor"] = {1, 1, 1, 0.5},
+		["untrigger"] = {
+		},
+		["actions"] = {
+			["start"] = {
+			},
+			["finish"] = {
+			},
+			["init"] = {
+			},
+		},
+		["textFlags"] = "None",
+		["border"] = false,
+		["borderEdge"] = "None",
+		["sparkOffsetX"] = 0,
+		["borderSize"] = 16,
+		["stacksFont"] = "Friz Quadrata TT",
+		["icon_side"] = "RIGHT",
+		["textSize"] = 12,
+		["timer"] = true,
+		["sparkHeight"] = 30,
+		["sparkRotation"] = 0,
+		["customTextUpdate"] = "update",
+		["stacksColor"] = {1, 1, 1, 1},
+		["displayTextRight"] = "%p",
+		["icon"] = true,
+		["inverse"] = false,
+		["frameStrata"] = 1,
+		["width"] = 200,
+		["sparkColor"] = {1, 1, 1, 1},
+		["timerSize"] = 12,
+		["numTriggers"] = 1,
+		["sparkDesature"] = false,
+		["orientation"] = "HORIZONTAL",
+		["borderOffset"] = 5,
+		["auto"] = true,
+		["sparkTexture"] = "Interface\\CastingBar\\UI-CastingBar-Spark",
+	}
+	
 	local icon_prototype = {
 		["yOffset"] = 202.07,
 		["xOffset"] = -296.82,
@@ -139,7 +800,7 @@
 			["fullscan"] = true,
 			["unit"] = "player",
 			["names"] = {
-				"", -- [1]
+				"",
 			},
 			["debuffType"] = "HARMFUL",
 		},
@@ -179,12 +840,7 @@
 				},
 			},
 		},
-		["textColor"] = {
-			1, -- [1]
-			1, -- [2]
-			1, -- [3]
-			1, -- [4]
-		},
+		["textColor"] = {1, 1, 1, 1},
 	}
 	
 	local actions_prototype = {
@@ -271,7 +927,7 @@
 		},
 	}
 	
-	local text_prototype = {
+	local widget_text_prototype = {
 		["fontSize"] = 20,
 		["displayStacks"] = "",
 		["stacksPoint"] = "BOTTOM",
@@ -288,7 +944,7 @@
 		},
 	}
 	
-	function _detalhes:CreateWeakAura (spellid, use_spellid, spellname, name, icon_texture, target, stacksize, sound, chat, icon_text, icon_glow, encounter_id, group, icon_size)
+	function _detalhes:CreateWeakAura (aura_type, spellid, use_spellid, spellname, name, icon_texture, target, stacksize, sound, chat, icon_text, icon_glow, encounter_id, group, icon_size, other_values)
 	
 		--> check if wa is installed
 		if (not WeakAuras or not WeakAurasSaved) then
@@ -301,142 +957,285 @@
 			WeakAuras.Add (group)
 		end
 		
+		if (not WeakAurasSaved.displays ["Details! Boss Mods Group"]) then
+			local group = _detalhes.table.copy ({}, group_prototype_boss_mods)
+			WeakAuras.Add (group)
+		end
+
 		--> create the icon table
-		local icon = _detalhes.table.copy ({}, icon_prototype)
+		local new_aura
 		icon_size = icon_size or 40
 		
-		if (encounter_id) then
-			icon.load.use_encounterid = true
-			icon.load.encounterid = tostring (encounter_id)
-		end
-		
-		icon.id = name
-		icon.displayIcon = icon_texture
-
-		if (target) then
-			if (target == 1) then --Debuff on Player
-				local add = _detalhes.table.copy ({}, debuff_prototype)
-				add.trigger.spellId = tostring (spellid)
-				add.trigger.spellIds[1] = spellid
-				add.trigger.names [1] = spellname
-				add.trigger.unit = "player"
-				_detalhes.table.deploy (icon, add)
-				
-			elseif (target == 2) then --Debuff on Target
-				local add = _detalhes.table.copy ({}, debuff_prototype)
-				add.trigger.spellId = tostring (spellid)
-				add.trigger.spellIds[1] = spellid
-				add.trigger.names[1] = spellname
-				add.trigger.unit = "target"
-				_detalhes.table.deploy (icon, add)
-
-			elseif (target == 3) then --Debuff on Focus
-				local add = _detalhes.table.copy ({}, debuff_prototype)
-				add.trigger.spellId = tostring (spellid)
-				add.trigger.spellIds[1] = spellid
-				add.trigger.names[1] = spellname
-				add.trigger.unit = "focus"
-				_detalhes.table.deploy (icon, add)
-				
-			elseif (target == 11) then --Buff on Player
-				local add = _detalhes.table.copy ({}, buff_prototype)
-				add.trigger.spellId = tostring (spellid)
-				add.trigger.spellIds[1] = spellid
-				add.trigger.names[1] = spellname
-				add.trigger.unit = "player"
-				_detalhes.table.deploy (icon, add)
-				
-			elseif (target == 12) then --Buff on Target
-				local add = _detalhes.table.copy ({}, buff_prototype)
-				add.trigger.spellId = tostring (spellid)
-				add.trigger.spellIds[1] = spellid
-				add.trigger.names[1] = spellname
-				add.trigger.unit = "target"
-				_detalhes.table.deploy (icon, add)
-				
-			elseif (target == 13) then --Buff on Focus
-				local add = _detalhes.table.copy ({}, buff_prototype)
-				add.trigger.spellId = tostring (spellid)
-				add.trigger.spellIds[1] = spellid
-				add.trigger.names[1] = spellname
-				add.trigger.unit = "focus"
-				_detalhes.table.deploy (icon, add)
-				
-			elseif (target == 21) then --Spell Cast Started
-				local add = _detalhes.table.copy ({}, cast_prototype)
-				add.trigger.spellId = tostring (spellid)
-				add.trigger.spellName = spellname
-				add.trigger.subeventSuffix = "_CAST_START"
-				if (not use_spellid) then
-					add.trigger.use_spellName = true
-					add.trigger.use_spellId = false
-				end
-				_detalhes.table.deploy (icon, add)
-				
-			elseif (target == 22) then --Spell Cast Successful
-				local add = _detalhes.table.copy ({}, cast_prototype)
-				add.trigger.spellId = tostring (spellid)
-				add.trigger.spellName = spellname
-				if (not use_spellid) then
-					add.trigger.use_spellName = true
-					add.trigger.use_spellId = false
-				end
-				_detalhes.table.deploy (icon, add)
+		if (other_values.dbm_timer_id or other_values.bw_timer_id) then
+			if (aura_type == "icon") then
+				new_aura = _detalhes.table.copy ({}, icon_dbm_timerbar_prototype)
+			elseif (aura_type == "aurabar") then
+				new_aura = _detalhes.table.copy ({}, bar_dbm_timerbar_prototype)
+			elseif (aura_type == "text") then
+				new_aura = _detalhes.table.copy ({}, text_dbm_timerbar_prototype)
 			end
-		else
-			icon.trigger.spellId = tostring (spellid)
-			icon.trigger.name = spellname
+
+			new_aura.actions.init.custom = [[
+				aura_env.dbm_timer_id = "@dbm_timer_id"
+				aura_env.bw_timer_id = "@bw_timer_id"
+				
+				aura_env.countdown_at = @countdown
+				aura_env.ability_name = "@name"
+				aura_env.ability_icon = [=[@icon]=]
+				aura_env.ability_text = "@text"
+				aura_env.aura_global_name = "@gname"
+
+				local details_aura_env = _G.DetailsAuraEnv
+				local details_aura_func_cache = _G.DetailsAuraFuncCache
+
+				if (not details_aura_env) then
+					details_aura_env = {}
+					_G.DetailsAuraEnv = details_aura_env
+				end
+				if (not details_aura_func_cache) then
+					details_aura_func_cache = {}
+					_G.DetailsAuraFuncCache = details_aura_func_cache
+				end
+
+				if (BigWigs) then
+					local old_aura_env = details_aura_env [aura_env.aura_global_name]
+					if (old_aura_env) then
+						old_aura_env:UnregisterMessage ("BigWigs_StartBar")
+					end
+				elseif (_G.DBM) then
+					local previous_func = details_aura_func_cache [aura_env.aura_global_name]
+					if (previous_func and DBM:IsCallbackRegistered ("DBM_TimerStart", previous_func)) then
+						DBM:UnregisterCallback ("DBM_TimerStart", previous_func)
+					end
+				end
+				
+				details_aura_env [aura_env.aura_global_name] = aura_env
+
+				if (_G.DBM) then
+					aura_env.Calllback_func = function (event, timer_id, message, duration)
+						local aura_env = DetailsAuraEnv ["@gname"]
+						if (timer_id:find (aura_env.dbm_timer_id)) then
+							duration = duration:gsub (DBM_CORE_SEC, "")
+							duration = tonumber (duration)
+							aura_env.trigger_at = GetTime() + duration - aura_env.countdown_at
+							aura_env.untrigger_at = GetTime() + duration
+						end
+					end
+					details_aura_func_cache [aura_env.aura_global_name] = aura_env.Calllback_func
+					DBM:RegisterCallback ("DBM_TimerStart", aura_env.Calllback_func)
+				end
+				if (BigWigs) then
+					function aura_env:BigWigs_StartBar (event, module, spellid, bar_text, time, icon, ...)
+						local aura_env = DetailsAuraEnv ["@gname"]
+						if (tostring (spellid) == aura_env.bw_timer_id) then
+							duration = time
+							aura_env.trigger_at = GetTime() + duration - aura_env.countdown_at
+							aura_env.untrigger_at = GetTime() + duration
+						end
+					end
+					BigWigs.RegisterMessage (aura_env, "BigWigs_StartBar")
+				end
+			]]
 			
-			tinsert (icon.trigger.spellIds, spellid)
+			local c = new_aura.actions.init.custom
+			
+			if (other_values.dbm_timer_id) then
+				local dbm_tid = tostring (other_values.dbm_timer_id):match ("%d+", 1)
+				c = c:gsub ("@dbm_timer_id", dbm_tid)
+				c = c:gsub ("@bw_timer_id", "Timer ID Not Set")
+				c = c:gsub ("@gname", "DetailsAura_" .. dbm_tid)
+				
+			elseif (other_values.bw_timer_id) then
+				local bw_tid = other_values.bw_timer_id
+				c = c:gsub ("@bw_timer_id", bw_tid)
+				c = c:gsub ("@dbm_timer_id", "Timer ID Not Set")
+				c = c:gsub ("@gname", "DetailsAura_" .. bw_tid)
+			end
+
+			if (aura_type == "aurabar") then
+				icon_text = icon_text:gsub ("= ", "")
+				icon_text = icon_text:gsub (" =", "")
+				icon_text = icon_text:gsub ("=", "")
+			end
+			
+			c = c:gsub ("@text", icon_text)
+			c = c:gsub ("@icon", icon_texture)
+			c = c:gsub ("@name", spellname)
+			c = c:gsub ("@countdown", floor (stacksize))
+			
+			new_aura.actions.init.custom = c
+
+			--> size
+			if (aura_type == "icon") then
+				new_aura.width = icon_size
+				new_aura.height = icon_size
+			elseif (aura_type == "aurabar") then
+				new_aura.width = min (icon_size, 370)
+				new_aura.height = 40
+			elseif (aura_type == "text") then
+				new_aura.fontSize = min (icon_size, 72)
+			end
+			
+		else
+		
+			if (aura_type == "icon") then
+				new_aura = _detalhes.table.copy ({}, icon_prototype)
+			elseif (aura_type == "aurabar") then
+				new_aura = _detalhes.table.copy ({}, aurabar_prototype)
+			elseif (aura_type == "text") then
+				new_aura = _detalhes.table.copy ({}, text_prototype)
+				new_aura.displayText = spellname
+			end
+		
+			if (target) then
+				if (target == 1) then --Debuff on Player
+					local add = _detalhes.table.copy ({}, debuff_prototype)
+					add.trigger.spellId = tostring (spellid)
+					add.trigger.spellIds[1] = spellid
+					add.trigger.names [1] = spellname
+					add.trigger.unit = "player"
+					_detalhes.table.deploy (new_aura, add)
+					
+				elseif (target == 2) then --Debuff on Target
+					local add = _detalhes.table.copy ({}, debuff_prototype)
+					add.trigger.spellId = tostring (spellid)
+					add.trigger.spellIds[1] = spellid
+					add.trigger.names[1] = spellname
+					add.trigger.unit = "target"
+					_detalhes.table.deploy (new_aura, add)
+
+				elseif (target == 3) then --Debuff on Focus
+					local add = _detalhes.table.copy ({}, debuff_prototype)
+					add.trigger.spellId = tostring (spellid)
+					add.trigger.spellIds[1] = spellid
+					add.trigger.names[1] = spellname
+					add.trigger.unit = "focus"
+					_detalhes.table.deploy (new_aura, add)
+					
+				elseif (target == 11) then --Buff on Player
+					local add = _detalhes.table.copy ({}, buff_prototype)
+					add.trigger.spellId = tostring (spellid)
+					add.trigger.spellIds[1] = spellid
+					add.trigger.names[1] = spellname
+					add.trigger.unit = "player"
+					_detalhes.table.deploy (new_aura, add)
+					
+				elseif (target == 12) then --Buff on Target
+					local add = _detalhes.table.copy ({}, buff_prototype)
+					add.trigger.spellId = tostring (spellid)
+					add.trigger.spellIds[1] = spellid
+					add.trigger.names[1] = spellname
+					add.trigger.unit = "target"
+					_detalhes.table.deploy (new_aura, add)
+					
+				elseif (target == 13) then --Buff on Focus
+					local add = _detalhes.table.copy ({}, buff_prototype)
+					add.trigger.spellId = tostring (spellid)
+					add.trigger.spellIds[1] = spellid
+					add.trigger.names[1] = spellname
+					add.trigger.unit = "focus"
+					_detalhes.table.deploy (new_aura, add)
+					
+				elseif (target == 21) then --Spell Cast Started
+					local add = _detalhes.table.copy ({}, cast_prototype)
+					add.trigger.spellId = tostring (spellid)
+					add.trigger.spellName = spellname
+					add.trigger.subeventSuffix = "_CAST_START"
+					if (not use_spellid) then
+						add.trigger.use_spellName = true
+						add.trigger.use_spellId = false
+					end
+					_detalhes.table.deploy (new_aura, add)
+					
+				elseif (target == 22) then --Spell Cast Successful
+					local add = _detalhes.table.copy ({}, cast_prototype)
+					add.trigger.spellId = tostring (spellid)
+					add.trigger.spellName = spellname
+					if (not use_spellid) then
+						add.trigger.use_spellName = true
+						add.trigger.use_spellId = false
+					end
+					_detalhes.table.deploy (new_aura, add)
+				end
+			else
+				new_aura.trigger.spellId = tostring (spellid)
+				new_aura.trigger.name = spellname
+				tinsert (new_aura.trigger.spellIds, spellid)
+			end
+			
+			--> if is a regular auras withour using spells ids
+			if (not use_spellid) then
+				new_aura.trigger.use_spellId = false
+				new_aura.trigger.fullscan = false
+				new_aura.trigger.spellId = nil
+				new_aura.trigger.spellIds = {}
+			end
+			
+			--> check stack size
+			if (stacksize and stacksize >= 1) then
+				stacksize = floor (stacksize)
+				local add = _detalhes.table.copy ({}, stack_prototype)
+				add.trigger.count = tostring (stacksize)
+				_detalhes.table.deploy (new_aura, add)
+			end
+			
+			--> icon text
+			if (icon_text and icon_text ~= "") then
+				if (aura_type == "text") then
+					new_aura.displayText = icon_text
+				else
+					local add = _detalhes.table.copy ({}, widget_text_prototype)
+					add.displayStacks = icon_text
+					_detalhes.table.deploy (new_aura, add)
+				end
+			end
+			
+			--> size
+			if (aura_type == "icon") then
+				new_aura.width = icon_size
+				new_aura.height = icon_size
+			elseif (aura_type == "aurabar") then
+				new_aura.width = min (icon_size, 250)
+				new_aura.height = 24
+			elseif (aura_type == "text") then
+				new_aura.fontSize = min (icon_size, 24)
+			end
 		end
 		
-		--> if is a regular auras withour using spells ids
-		if (not use_spellid) then
-			icon.trigger.use_spellId = false
-			icon.trigger.fullscan = false
-			icon.trigger.spellId = nil
-			icon.trigger.spellIds = {}
+		new_aura.id = name
+		new_aura.displayIcon = icon_texture		
+	
+		--> load by encounter id
+		if (encounter_id) then
+			new_aura.load.use_encounterid = true
+			new_aura.load.encounterid = tostring (encounter_id)
 		end
-		
-		--> check stack size
-		if (stacksize and stacksize >= 1) then
-			stacksize = floor (stacksize)
-			local add = _detalhes.table.copy ({}, stack_prototype)
-			add.trigger.count = tostring (stacksize)
-			_detalhes.table.deploy (icon, add)
-		end
-		
+
 		--> using sound
 		if (sound and type (sound) == "table") then
 			local add = _detalhes.table.copy ({}, sound_prototype_custom)
 			add.actions.start.sound_path = sound.sound_path
 			add.actions.start.sound_channel = sound.sound_channel or "Master"
-			_detalhes.table.deploy (icon, add)
+			_detalhes.table.deploy (new_aura, add)
 			
 		elseif (sound and sound ~= "" and not sound:find ("Quiet.ogg")) then
 			local add = _detalhes.table.copy ({}, sound_prototype)
 			add.actions.start.sound = sound
-			_detalhes.table.deploy (icon, add)
+			_detalhes.table.deploy (new_aura, add)
 		end
 		
 		--> chat message
 		if (chat and chat ~= "") then
 			local add = _detalhes.table.copy ({}, chat_prototype)
 			add.actions.start.message = chat
-			_detalhes.table.deploy (icon, add)
-		end
-		
-		if (icon_text and icon_text ~= "") then
-			local add = _detalhes.table.copy ({}, text_prototype)
-			add.displayStacks = icon_text
-			_detalhes.table.deploy (icon, add)
+			_detalhes.table.deploy (new_aura, add)
 		end
 		
 		--> check if already exists a aura with this name
-		if (WeakAurasSaved.displays [icon.id]) then
+		if (WeakAurasSaved.displays [new_aura.id]) then
 			for i = 2, 100 do
-				if (not WeakAurasSaved.displays [icon.id .. " (" .. i .. ")"]) then
-					icon.id = icon.id .. " (" .. i .. ")"
+				if (not WeakAurasSaved.displays [new_aura.id .. " (" .. i .. ")"]) then
+					new_aura.id = new_aura.id .. " (" .. i .. ")"
 					break
 				end
 			end
@@ -445,24 +1244,20 @@
 		--> check is is using glow effect
 		if (icon_glow) then
 			local add = _detalhes.table.copy ({}, glow_prototype)
-			add.actions.start.glow_frame = "WeakAuras:" .. icon.id
-			_detalhes.table.deploy (icon, add)
+			add.actions.start.glow_frame = "WeakAuras:" .. new_aura.id
+			_detalhes.table.deploy (new_aura, add)
 		end
 		
 		--> add the aura on a group
 		if (group) then
-			icon.parent = group
-			tinsert (WeakAurasSaved.displays [group].controlledChildren, icon.id)
+			new_aura.parent = group
+			tinsert (WeakAurasSaved.displays [group].controlledChildren, new_aura.id)
 		else
-			icon.parent = nil
+			new_aura.parent = nil
 		end
 		
-		--> icon size
-		icon.width = icon_size
-		icon.height = icon_size
-		
 		--> add the aura
-		WeakAuras.Add (icon)
+		WeakAuras.Add (new_aura)
 		
 		--> check if the options panel has loaded
 		local options_frame = WeakAuras.OptionsFrame and WeakAuras.OptionsFrame()
@@ -470,25 +1265,37 @@
 			if (options_frame and not options_frame:IsShown()) then
 				WeakAuras.ToggleOptions()
 			end
-			WeakAuras.NewDisplayButton (icon)
+			WeakAuras.NewDisplayButton (new_aura)
 		end
 
 	end
 	
-	function _detalhes:OpenAuraPanel (spellid, spellname, spellicon, encounterid, triggertype)
+	local empty_other_values = {}
+	function _detalhes:OpenAuraPanel (spellid, spellname, spellicon, encounterid, triggertype, auratype, other_values)
 		
-		spellname = select (1, GetSpellInfo (spellid))
+		if (not spellname) then
+			spellname = select (1, GetSpellInfo (spellid))
+		end
+
+		wipe (empty_other_values)
+		other_values = other_values or empty_other_values
 		
 		if (not DetailsAuraPanel) then
 			
 			--> check if there is a group for our auras
-			if (WeakAuras and WeakAurasSaved and not WeakAurasSaved.displays ["Details! Aura Group"]) then
-				local group = _detalhes.table.copy ({}, group_prototype)
-				WeakAuras.Add (group)
+			if (WeakAuras and WeakAurasSaved) then
+				if (not WeakAurasSaved.displays ["Details! Aura Group"]) then
+					local group = _detalhes.table.copy ({}, group_prototype)
+					WeakAuras.Add (group)
+				end
+				if (not WeakAurasSaved.displays ["Details! Boss Mods Group"]) then
+					local group = _detalhes.table.copy ({}, group_prototype_boss_mods)
+					WeakAuras.Add (group)
+				end
 			end
-			
+
 			local f = CreateFrame ("frame", "DetailsAuraPanel", UIParent, "ButtonFrameTemplate")
-			f:SetSize (300, 488)
+			f:SetSize (600, 488)
 			f:SetPoint ("center", UIParent, "center")
 			f:SetFrameStrata ("HIGH")
 			f:SetToplevel (true)
@@ -525,6 +1332,24 @@
 			name_textentry:SetPoint ("left", name_label, "right", 2, 0)
 			f.name = name_textentry
 			
+			--aura type
+			local on_select_aura_type = function (_, _, aura_type)
+				if (f.UpdateLabels) then
+					f:UpdateLabels()
+				end
+			end
+			local aura_type_table = {
+				{label = "Icon", value = "icon", onclick = on_select_aura_type}, --, icon = aura_on_icon
+				{label = "Text", value = "text", onclick = on_select_aura_type},
+				{label = "Progress Bar", value = "aurabar", onclick = on_select_aura_type},
+			}
+			local aura_type_options = function()
+				return aura_type_table
+			end
+			local aura_type = fw:CreateDropDown (f, aura_type_options, 1, 150, 20, "AuraTypeDropdown", "$parentAuraTypeDropdown")
+			local aura_type_label = fw:CreateLabel (f, "Aura Type: ", nil, nil, "GameFontNormal")
+			aura_type:SetPoint ("left", aura_type_label, "right", 2, 0)
+			
 			--spellname
 			local spellname_label = fw:CreateLabel (f, "Spell Name: ", nil, nil, "GameFontNormal")
 			local spellname_textentry = fw:CreateTextEntry (f, _detalhes.empty_function, 150, 20, "SpellName", "$parentSpellName")
@@ -559,18 +1384,27 @@
 			f.icon = icon_button_icon
 			
 			--target
+			local on_select_aura_trigger = function (_, _, aura_trigger)
+				if (f.UpdateLabels) then
+					f:UpdateLabels()
+				end
+			end
+			
 			local aura_on_icon = [[Interface\Buttons\UI-GroupLoot-DE-Down]]
 			local aura_on_table = {
-				{label = "Debuff on You", value = 1, icon = aura_on_icon},
-				{label = "Debuff on Target", value = 2, icon = aura_on_icon},
-				{label = "Debuff on Focus", value = 3, icon = aura_on_icon},
+				{label = "Debuff on You", value = 1, icon = aura_on_icon, onclick = on_select_aura_trigger},
+				{label = "Debuff on Target", value = 2, icon = aura_on_icon, onclick = on_select_aura_trigger},
+				{label = "Debuff on Focus", value = 3, icon = aura_on_icon, onclick = on_select_aura_trigger},
 				
-				{label = "Buff on You", value = 11, icon = aura_on_icon},
-				{label = "Buff on Target", value = 12, icon = aura_on_icon},
-				{label = "Buff on Focus", value = 13, icon = aura_on_icon},
+				{label = "Buff on You", value = 11, icon = aura_on_icon, onclick = on_select_aura_trigger},
+				{label = "Buff on Target", value = 12, icon = aura_on_icon, onclick = on_select_aura_trigger},
+				{label = "Buff on Focus", value = 13, icon = aura_on_icon, onclick = on_select_aura_trigger},
 				
-				{label = "Spell Cast Started", value = 21, icon = aura_on_icon},
-				{label = "Spell Cast Successful", value = 22, icon = aura_on_icon},
+				{label = "Spell Cast Started", value = 21, icon = aura_on_icon, onclick = on_select_aura_trigger},
+				{label = "Spell Cast Successful", value = 22, icon = aura_on_icon, onclick = on_select_aura_trigger},
+				
+				{label = "DBM Time Bar", value = 31, icon = aura_on_icon, onclick = on_select_aura_trigger},
+				{label = "BigWigs Time Bar", value = 32, icon = aura_on_icon, onclick = on_select_aura_trigger},
 			}
 			local aura_on_options = function()
 				return aura_on_table
@@ -686,7 +1520,7 @@
 			say_something.tooltip = "Your character /say this phrase when the aura triggers."
 			
 			--aura text
-			local aura_text_label = fw:CreateLabel (f, "Icon Text: ", nil, nil, "GameFontNormal")
+			local aura_text_label = fw:CreateLabel (f, "Aura Text: ", nil, nil, "GameFontNormal")
 			local aura_text = fw:CreateTextEntry (f, _detalhes.empty_function, 150, 20, "AuraText", "$parentAuraText")
 			aura_text:SetPoint ("left", aura_text_label, "right", 2, 0)
 			aura_text.tooltip = "Text shown at aura's icon right side."
@@ -717,9 +1551,9 @@
 			encounterid:SetPoint ("left", encounterid_label, "right", 2, 0)
 			encounterid.tooltip = "Only load this aura for this raid encounter."
 			
-			--icon size
+			--size
 			local icon_size_slider = fw:NewSlider (f, f, "$parentIconSizeSlider", "IconSizeSlider", 150, 20, 16, 256, 1, 64)
-			local icon_size_label = fw:CreateLabel (f, "Icon Size: ", nil, nil, "GameFontNormal")
+			local icon_size_label = fw:CreateLabel (f, "Size: ", nil, nil, "GameFontNormal")
 			icon_size_slider:SetPoint ("left", icon_size_label, "right", 2, 0)
 			icon_size_slider.tooltip = "Icon size, width and height."
 			
@@ -741,8 +1575,10 @@
 			local folder_texcoord = {435/512, 469/512, 189/512, 241/512}
 			local folder_iconsize = {14, 14}
 
+			local sort_func = function (t1, t2) return t1.label < t2.label end
+			
 			local weakauras_folder_options = function()
-				local t = {{label = "No Group", value = false, icon = folder_icon, texcoord = folder_texcoord, iconcolor = {0.8, 0.2, 0.2}, iconsize = folder_iconsize}}
+				local t = {}
 				if (WeakAuras and WeakAurasSaved) then
 					for display_name, aura_table in pairs (WeakAurasSaved.displays) do
 						if (aura_table.regionType == "dynamicgroup" or aura_table.regionType == "group") then
@@ -750,6 +1586,8 @@
 						end
 					end
 				end
+				table.sort (t, sort_func)
+				tinsert (t, 1, {label = "No Group", value = false, icon = folder_icon, texcoord = folder_texcoord, iconcolor = {0.8, 0.2, 0.2}, iconsize = folder_iconsize})
 				return t
 			end
 			
@@ -761,6 +1599,7 @@
 			local create_func = function()
 				
 				local name = f.AuraName.text
+				local aura_type_value = f.AuraTypeDropdown.value
 				local spellname = f.SpellName.text
 				local use_spellId = f.UseSpellId.value
 				local spellid = f.AuraSpellId.text
@@ -780,9 +1619,9 @@
 				if (eid == "") then
 					eid = nil
 				end
-
+				
 				if (addon == "WA") then
-					_detalhes:CreateWeakAura (spellid, use_spellId, spellname, name, icon, target, stacksize, sound, chat, icon_text, icon_glow, eid, folder, iconsize)
+					_detalhes:CreateWeakAura (aura_type_value, spellid, use_spellId, spellname, name, icon, target, stacksize, sound, chat, icon_text, icon_glow, eid, folder, iconsize, f.other_values)
 				else
 					_detalhes:Msg ("No Aura Addon selected. Addons currently supported: WeakAuras 2.")
 				end
@@ -800,23 +1639,30 @@
 			cancel_button:SetIcon ([[Interface\Buttons\UI-GroupLoot-Pass-Down]], nil, nil, nil, {0.125, 0.875, 0.125, 0.875}, nil, 4, 2)
 			
 			local x_start = 20
+			local x2_start = 320
 			local y_start = 21
 			
+			--aura name and the type
 			name_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*1) + (50)) * -1)
-			aura_on_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*2) + (50)) * -1)
+			aura_type_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*2) + (50)) * -1)
 			
-			spellname_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*3) + (60)) * -1)
-			auraid_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*4) + (60)) * -1)
-			usespellid_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*5) + (60)) * -1)
+			--triggers
+			aura_on_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*4) + (45)) * -1)
+			stack_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*5) + (45)) * -1)
+			encounterid_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*6) + (45)) * -1)
 			
-			icon_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*6) + (70)) * -1)
-			stack_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*7) + (70)) * -1)
-			sound_effect_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*8) + (70)) * -1)
-			say_something_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*9) + (70)) * -1)
-			aura_text_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*10) + (70)) * -1)
-			useglow_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*11) + (70)) * -1)
-			encounterid_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*12) + (70)) * -1)
-			icon_size_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*13) + (70)) * -1)
+			--about the spell
+			spellname_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*8) + (45)) * -1)
+			auraid_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*9) + (45)) * -1)
+			usespellid_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*10) + (45)) * -1)
+			
+			--configuration
+			icon_label:SetPoint ("topleft", f, "topleft", x2_start, ((y_start*1) + (50)) * -1)
+			sound_effect_label:SetPoint ("topleft", f, "topleft", x2_start, ((y_start*2) + (50)) * -1)
+			say_something_label:SetPoint ("topleft", f, "topleft", x2_start, ((y_start*3) + (50)) * -1)
+			aura_text_label:SetPoint ("topleft", f, "topleft", x2_start, ((y_start*4) + (50)) * -1)
+			useglow_label:SetPoint ("topleft", f, "topleft", x2_start, ((y_start*5) + (50)) * -1)
+			icon_size_label:SetPoint ("topleft", f, "topleft", x2_start, ((y_start*6) + (50)) * -1)
 			
 			aura_addon_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*15) + (60)) * -1)
 			weakauras_folder_label:SetPoint ("topleft", f, "topleft", x_start, ((y_start*16) + (60)) * -1)
@@ -824,11 +1670,53 @@
 			create_button:SetPoint ("topleft", f, "topleft", x_start, ((y_start*18) + (60)) * -1)
 			cancel_button:SetPoint ("topright", f, "topright", x_start*-1, ((y_start*18) + (60)) * -1)
 			
+			function f:UpdateLabels()
+			
+				local aura_type = f.AuraTypeDropdown.value
+				local trigger = f.AuraOnDropdown.value
+				
+				f.StackSlider:Enable()
+				f.StackSlider.tooltip = "Minimum amount of stacks to trigger the aura."
+				f.StackSlider:SetValue (0)
+				f.SpellName:Enable()
+				f.UseSpellId:Enable()
+				
+				if (aura_type == "icon") then
+					aura_text_label:SetText ("Icon Text: ")
+					icon_size_label:SetText ("Width/Height: ")
+					
+				elseif (aura_type == "text") then
+					aura_text_label:SetText ("Text: ")
+					icon_size_label:SetText ("Font Size: ")
+					
+				elseif (aura_type == "aurabar") then
+					aura_text_label:SetText ("Left Text: ")
+					icon_size_label:SetText ("Bar Width: ")
+					
+				end
+
+				if (trigger >= 1 and trigger <= 19) then --buff and debuff
+					stack_label:SetText ("Stack Size: ")
+					
+				elseif (trigger >= 20 and trigger <= 29) then --cast start and end
+					stack_label:SetText ("Stack Size: ")
+					f.StackSlider:Disable()
+				
+				elseif (trigger >= 30 and trigger <= 39) then --boss mods
+					stack_label:SetText ("Remaining Time:")
+					f.StackSlider:SetValue (4)
+					f.StackSlider.tooltip = "Will trigger when the bar remaining time reach this value."
+					f.SpellName:Disable()
+					f.UseSpellId:Disable()
+				end
+			end
 		end
 		
 		DetailsAuraPanel.spellid = spellid
 		DetailsAuraPanel.encounterid = encounterid
 		DetailsAuraPanel.EncounterIdText.text = encounterid or ""
+		
+		DetailsAuraPanel.other_values = other_values
 		
 		DetailsAuraPanel.WeakaurasFolderDropdown:Refresh()
 		if (encounterid) then
@@ -839,18 +1727,26 @@
 			DetailsAuraPanel.IconSizeSlider:SetValue (64)
 		end
 		
+		if (other_values.dbm_timer_id or other_values.bw_timer_id) then
+			DetailsAuraPanel.WeakaurasFolderDropdown:Select ("Details! Boss Mods Group")
+		end
+		
+		if (DetailsAuraPanel.other_values.text_size) then
+			DetailsAuraPanel.IconSizeSlider:SetValue (DetailsAuraPanel.other_values.text_size)
+		end
+		
 		DetailsAuraPanel.name.text = spellname .. " (d!)"
 		DetailsAuraPanel.spellname.text = spellname
 		DetailsAuraPanel.AuraSpellId.text = tostring (spellid)
 		DetailsAuraPanel.icon.texture = spellicon
-
+		
 		DetailsAuraPanel.UseGlow.glow_test.animIn:Stop()
 		DetailsAuraPanel.UseGlow.glow_test.animOut:Play()
 		DetailsAuraPanel.UseGlow:SetValue (false)
-
+		
 		DetailsAuraPanel.StackSlider:SetValue (0)
 		DetailsAuraPanel.SoundEffectDropdown:Select (1, true)
-		DetailsAuraPanel.AuraText:SetText ("")
+		DetailsAuraPanel.AuraText:SetText (DetailsAuraPanel.other_values.text or "")
 		DetailsAuraPanel.SaySomething:SetText ("")
 		
 		if (triggertype and type (triggertype) == "number") then
@@ -858,6 +1754,14 @@
 		else
 			DetailsAuraPanel.AuraOnDropdown:Select (1, true)
 		end
+		
+		if (auratype and type (auratype) == "number") then
+			DetailsAuraPanel.AuraTypeDropdown:Select (auratype, true)
+		else
+			DetailsAuraPanel.AuraTypeDropdown:Select (1, true)
+		end
+		
+		DetailsAuraPanel:UpdateLabels()
 		
 		DetailsAuraPanel:Show()
 	end
