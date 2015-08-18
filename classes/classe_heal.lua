@@ -1266,12 +1266,10 @@ function atributo_heal:ToolTip_HealingDone (instancia, numero, barra, keydown)
 	
 	--> PETS
 	local meus_pets = self.pets
-	
-	if (#meus_pets > 0 and (instancia.sub_atributo == 1 or instancia.sub_atributo == 2)) then --> teve ajudantes
+
+	if (#meus_pets > 0 and (instancia.sub_atributo == 1 or instancia.sub_atributo == 2 or instancia.sub_atributo == 3)) then --> teve ajudantes
 		
 		local quantidade = {} --> armazena a quantidade de pets iguais
-		local danos = {} --> armazena as habilidades
-		local alvos = {} --> armazena os alvos
 		local totais = {} --> armazena o dano total de cada objeto
 		
 		for index, nome in _ipairs (meus_pets) do
@@ -1279,34 +1277,21 @@ function atributo_heal:ToolTip_HealingDone (instancia, numero, barra, keydown)
 				quantidade [nome] = 1
 				
 				local my_self = instancia.showing [class_type]:PegarCombatente (nil, nome)
-				if (my_self) then
 				
-					local meu_total = my_self.total_without_pet
-					local tabela = my_self.spells._ActorTable
-					local meus_danos = {}
-					
+				if (my_self) then
 					local meu_tempo
 					if (_detalhes.time_type == 1 or not self.grupo) then
 						meu_tempo = my_self:Tempo()
 					elseif (_detalhes.time_type == 2) then
 						meu_tempo = instancia.showing:GetCombatTime()
 					end
-					totais [#totais+1] = {nome, my_self.total_without_pet, my_self.total_without_pet/meu_tempo}
 					
-					for spellid, tabela in _pairs (tabela) do
-						local nome, rank, icone = _GetSpellInfo (spellid)
-						_table_insert (meus_danos, {spellid, tabela.total, tabela.total/meu_total*100, {nome, rank, icone}})
+					if (instancia.sub_atributo == 3) then
+						totais [#totais+1] = {nome, my_self.totalover, my_self.total_without_pet}
+					else
+						totais [#totais+1] = {nome, my_self.total_without_pet, my_self.total_without_pet / meu_tempo}
 					end
-					_table_sort (meus_danos, _detalhes.Sort2)
-					danos [nome] = meus_danos
-					
-					local meus_inimigos = {}
-					tabela = my_self.targets
-					for target_name, amount in _pairs (tabela) do
-						_table_insert (meus_inimigos, {target_name, amount, amount / meu_total * 100})
-					end
-					_table_sort (meus_inimigos,_detalhes.Sort2)
-					alvos [nome] = meus_inimigos
+
 				end
 				
 			else
@@ -1314,7 +1299,6 @@ function atributo_heal:ToolTip_HealingDone (instancia, numero, barra, keydown)
 			end
 		end
 		
-		local _quantidade = 0
 		local added_logo = false
 
 		_table_sort (totais, _detalhes.Sort2)
@@ -1326,8 +1310,8 @@ function atributo_heal:ToolTip_HealingDone (instancia, numero, barra, keydown)
 		
 		for index, _table in _ipairs (totais) do
 			
-			if (_table [2] > 0 and (index < 3 or ismaximized)) then
-			
+			if (_table [2] >= 1 and (index < 3 or ismaximized)) then
+		
 				if (not added_logo) then
 					added_logo = true
 					_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_PETS"], headerColor, #totais, [[Interface\COMMON\friendship-heart]], 0.21875, 0.78125, 0.09375, 0.6875)
@@ -1343,7 +1327,10 @@ function atributo_heal:ToolTip_HealingDone (instancia, numero, barra, keydown)
 				end
 			
 				local n = _table [1]:gsub (("%s%<.*"), "")
-				if (instancia.sub_atributo == 2) then
+				if (instancia.sub_atributo == 3) then --overheal
+					GameCooltip:AddLine (n .. " (|cFFFF3333" .. _math_floor ( (_table [2] / (_table [2] + _table [3])) * 100)  .. "%|r):", FormatTooltipNumber (_,  _math_floor (_table [2])) .. " (" .. _math_floor ( (_table [2] / (_table [2] + _table [3])) * 100) .. "%)")
+					
+				elseif (instancia.sub_atributo == 2) then --hps
 					GameCooltip:AddLine (n, FormatTooltipNumber (_,  _math_floor (_table [3])) .. " (" .. _math_floor (_table [2]/self.total*100) .. "%)")
 				else
 					GameCooltip:AddLine (n, FormatTooltipNumber (_, _table [2]) .. " (" .. _math_floor (_table [2]/self.total*100) .. "%)")
@@ -1482,6 +1469,20 @@ function atributo_heal:MontaInfoOverHealing()
 		local nome, _, icone = _GetSpellInfo (spellid)
 		_table_insert (minhas_curas, {spellid, tabela.overheal, tabela.overheal/total*100, nome, icone})
 	end
+	
+	--> add pets
+	local ActorPets = self.pets
+	local class_color = "FFDDDDDD"
+	for _, PetName in _ipairs (ActorPets) do
+		local PetActor = instancia.showing (class_type, PetName)
+		if (PetActor) then 
+			local PetSkillsContainer = PetActor.spells._ActorTable
+			for _spellid, _skill in _pairs (PetSkillsContainer) do --> da foreach em cada spellid do container
+				local nome, _, icone = _GetSpellInfo (_spellid)
+				_table_insert (minhas_curas, {_spellid, _skill.overheal, _skill.overheal/total*100, nome .. " (|c" .. class_color .. PetName:gsub ((" <.*"), "") .. "|r)", icone, PetActor})
+			end
+		end
+	end
 
 	_table_sort (minhas_curas, _detalhes.Sort2)
 
@@ -1531,6 +1532,7 @@ function atributo_heal:MontaInfoOverHealing()
 
 		barra.icone:SetTexture (tabela[5])
 
+		barra.other_actor = tabela [6]
 		barra.minha_tabela = self
 		barra.show = tabela[1]
 		barra:Show()
