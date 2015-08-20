@@ -623,5 +623,7 @@ function _detalhes:TestResize()
 end
 _detalhes:ScheduleTimer ("TestResize", 3)
 --]]
+
+	local a,b=_detalhes.tooltip.header_statusbar,0.3;a[1]=b;a[2]=b;a[3]=b;a[4]=0.8;
 end
 
