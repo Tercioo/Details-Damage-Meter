@@ -970,6 +970,7 @@ local default_profile = {
 			show_amount = false, 
 			commands = {},
 			header_text_color = {1, 0.9176, 0, 1}, --{1, 0.7, 0, 1}
+			header_statusbar = {0.3, 0.3, 0.3, 0.8},
 			submenu_wallpaper = true,
 
 			anchored_to = 1,
