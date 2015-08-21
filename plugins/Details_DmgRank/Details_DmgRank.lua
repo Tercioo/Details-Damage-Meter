@@ -273,7 +273,6 @@ local function CreatePluginFrames (data)
 	--> background da badge e titulo
 	local bg1 = DetailsFrameWork:NewPanel (DmgRankFrame, _, "DetailsDmgRankBadgeBackground", _, 280, 75)
 	bg1:SetPoint ("topleft", DmgRankFrame, 10, -10)
-	bg1:DisableGradient()
 	
 	local GlowFrame = CreateFrame ("frame", "DetailsRankUpGlowFrame", bg1.widget, "DetailsAlertRankUpTemplate")
 	GlowFrame:SetPoint ("topleft", bg1.widget)

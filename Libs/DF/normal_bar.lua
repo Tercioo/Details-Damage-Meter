@@ -1,6 +1,9 @@
---> details main objects
-local _detalhes = 		_G._detalhes
-local gump = 			_detalhes.gump
+
+local DF = _G ["DetailsFramework"]
+if (not DF or not DetailsFrameworkCanLoad) then
+	return 
+end
+
 local _
 local _rawset = rawset --> lua locals
 local _rawget = rawget --> lua locals
@@ -189,10 +192,11 @@ local APIBarFunctions
 	end
 	--> color
 	local smember_color = function (_object, _value)
-		local _value1, _value2, _value3, _value4 = gump:ParseColors (_value)
+		local _value1, _value2, _value3, _value4 = DF:ParseColors (_value)
 		
 		_object.statusbar:SetStatusBarColor (_value1, _value2, _value3, _value4)
 		_object._texture.original_colors = {_value1, _value2, _value3, _value4}
+		_object.timer_texture:SetVertexColor (_value1, _value2, _value3, _value4)
 		return _object._texture:SetVertexColor (_value1, _value2, _value3, _value4)
 	end
 	--> icon
@@ -213,8 +217,10 @@ local APIBarFunctions
 		if (type (_value) == "table") then
 			local _value1, _value2 = _unpack (_value)
 			_object._texture:SetTexture (_value1)
+			_object.timer_texture:SetTexture (_value1)
 			if (_value2) then
 				_object._texture:SetTexCoord (_unpack (_value2))
+				_object.timer_texture:SetTexCoord (_unpack (_value2))
 			end
 		else
 			if (_value:find ("\\")) then
@@ -223,8 +229,10 @@ local APIBarFunctions
 				local file = SharedMedia:Fetch ("statusbar", _value)
 				if (file) then
 					_object._texture:SetTexture (file)
+					_object.timer_texture:SetTexture (file)
 				else
 					_object._texture:SetTexture (_value)
+					_object.timer_texture:SetTexture (_value)
 				end
 			end
 		end
@@ -232,24 +240,24 @@ local APIBarFunctions
 	end
 	--> font face
 	local smember_textfont = function (_object, _value)
-		_detalhes:SetFontFace (_object.textleft, _value)
-		return _detalhes:SetFontFace (_object.textright, _value)
+		DF:SetFontFace (_object.textleft, _value)
+		return DF:SetFontFace (_object.textright, _value)
 	end
 	--> font size
 	local smember_textsize = function (_object, _value)
-		_detalhes:SetFontSize (_object.textleft, _value)
-		return _detalhes:SetFontSize (_object.textright, _value)
+		DF:SetFontSize (_object.textleft, _value)
+		return DF:SetFontSize (_object.textright, _value)
 	end
 	--> font color
 	local smember_textcolor = function (_object, _value)
-		local _value1, _value2, _value3, _value4 = gump:ParseColors (_value)
+		local _value1, _value2, _value3, _value4 = DF:ParseColors (_value)
 		_object.textleft:SetTextColor (_value1, _value2, _value3, _value4)
 		return _object.textright:SetTextColor (_value1, _value2, _value3, _value4)
 	end
 	--> outline (shadow)
 	local smember_outline = function (_object, _value)
-		_detalhes:SetFontOutline (_object.textleft, _value)
-		return _detalhes:SetFontOutline (_object.textright, _value)
+		DF:SetFontOutline (_object.textleft, _value)
+		return DF:SetFontOutline (_object.textright, _value)
 	end
 
 	local set_members_function_index = {
@@ -305,7 +313,7 @@ local APIBarFunctions
 	
 --> set point
 	function BarMetaFunctions:SetPoint (v1, v2, v3, v4, v5)
-		v1, v2, v3, v4, v5 = gump:CheckPoints (v1, v2, v3, v4, v5, self)
+		v1, v2, v3, v4, v5 = DF:CheckPoints (v1, v2, v3, v4, v5, self)
 		if (not v1) then
 			print ("Invalid parameter for SetPoint")
 			return
@@ -338,7 +346,7 @@ local APIBarFunctions
 	
 --> set color
 	function BarMetaFunctions:SetColor (r, g, b, a)
-		r, g, b, a = gump:ParseColors (r, g, b, a)
+		r, g, b, a = DF:ParseColors (r, g, b, a)
 		
 		self._texture:SetVertexColor (r, g, b, a)
 		self.statusbar:SetStatusBarColor (r, g, b, a)
@@ -425,31 +433,14 @@ local APIBarFunctions
 			end
 		end
 		
-		if (not frame.MyObject.timer) then
-			local oc = frame.MyObject._texture.original_colors --original colors
-			gump:GradientEffect ( frame.MyObject._texture, "texture", oc[1], oc[2], oc[3], oc[4], oc[1]+0.2, oc[2]+0.2, oc[3]+0.2, oc[4], .2)
-			frame.MyObject.div:Show()
-			frame.MyObject.div:SetPoint ("left", frame, "left", frame:GetValue() * (frame:GetWidth()/100) - 16, 0)
-		else
-			local oc = frame.MyObject._texture.original_colors --original colors
-			gump:GradientEffect ( frame.MyObject._texture, "texture", oc[1], oc[2], oc[3], oc[4], oc[1]-0.2, oc[2]-0.2, oc[3]-0.2, oc[4]+.2, .2)
-		end
-		
 		frame.MyObject.background:Show()
 		
 		if (frame.MyObject.have_tooltip) then 
-			GameCooltip:Reset()
-			GameCooltip:AddLine (frame.MyObject.have_tooltip)
-			GameCooltip:ShowCooltip (frame, "tooltip")
+			GameCooltip2:Reset()
+			GameCooltip2:AddLine (frame.MyObject.have_tooltip)
+			GameCooltip2:ShowCooltip (frame, "tooltip")
 		end
-		
-		local parent = frame:GetParent().MyObject
-		if (parent and parent.type == "panel") then
-			if (parent.GradientEnabled) then
-				parent:RunGradient()
-			end
-		end
-		
+
 	end
 	
 	local OnLeave = function (frame)
@@ -460,28 +451,8 @@ local APIBarFunctions
 			end
 		end
 		
-		if (not frame.MyObject.timer) then
-			local oc = frame.MyObject._texture.original_colors --original colors
-			local r, g, b, a = frame.MyObject._texture:GetVertexColor()
-			gump:GradientEffect ( frame.MyObject._texture, "texture", r, g, b, a, oc[1], oc[2], oc[3], oc[4], .2)
-			frame.MyObject.div:Hide()
-			
-			--frame.MyObject.background:Hide()
-		else
-			local oc = frame.MyObject.background.original_colors --original colors
-			local r, g, b, a = frame.MyObject.background:GetVertexColor()
-			gump:GradientEffect ( frame.MyObject.background, "texture", r, g, b, a, oc[1], oc[2], oc[3], oc[4], .2)
-		end
-		
 		if (frame.MyObject.have_tooltip) then 
-			_detalhes.popup:ShowMe (false)
-		end
-		
-		local parent = frame:GetParent().MyObject
-		if (parent and parent.type == "panel") then
-			if (parent.GradientEnabled) then
-				parent:RunGradient (false)
-			end
+			GameCooltip2:ShowMe (false)
 		end
 	end
 	
@@ -575,6 +546,7 @@ local APIBarFunctions
 		
 		self.div_timer:Show()
 		self.background:Show()
+		self:Show()
 		
 		self.timer = true
 		
@@ -584,22 +556,22 @@ local APIBarFunctions
 ------------------------------------------------------------------------------------------------------------
 --> object constructor
 
-function DetailsNormalBar_OnCreate (self)
+function DetailsFrameworkNormalBar_OnCreate (self)
 	self.texture.original_colors = {1, 1, 1, 1}
 	self.background.original_colors = {.3, .3, .3, .3}
 	self.timertexture.original_colors = {.3, .3, .3, .3}
 	return true
 end
 
-function gump:CreateBar (parent, texture, w, h, value, member, name)
-	return gump:NewBar (parent, parent, name, member, w, h, value, texture)
+function DF:CreateBar (parent, texture, w, h, value, member, name)
+	return DF:NewBar (parent, parent, name, member, w, h, value, texture)
 end
 
-function gump:NewBar (parent, container, name, member, w, h, value, texture_name)
+function DF:NewBar (parent, container, name, member, w, h, value, texture_name)
 
 	if (not name) then
-		name = "DetailsBarNumber" .. gump.BarNameCounter
-		gump.BarNameCounter = gump.BarNameCounter + 1
+		name = "DetailsFrameworkBarNumber" .. DF.BarNameCounter
+		DF.BarNameCounter = DF.BarNameCounter + 1
 
 	elseif (not parent) then
 		return nil
@@ -645,7 +617,7 @@ function gump:NewBar (parent, container, name, member, w, h, value, texture_name
 	BarObject.container = container
 	
 	--> create widgets
-		BarObject.statusbar = CreateFrame ("statusbar", name, parent, "DetailsNormalBarTemplate")
+		BarObject.statusbar = CreateFrame ("statusbar", name, parent, "DetailsFrameworkNormalBarTemplate")
 		BarObject.widget = BarObject.statusbar
 		
 		if (not APIBarFunctions) then
@@ -654,7 +626,7 @@ function gump:NewBar (parent, container, name, member, w, h, value, texture_name
 			for funcName, funcAddress in pairs (idx) do 
 				if (not BarMetaFunctions [funcName]) then
 					BarMetaFunctions [funcName] = function (object, ...)
-						local x = loadstring ( "return _G."..object.statusbar:GetName()..":"..funcName.."(...)")
+						local x = loadstring ( "return _G['"..object.statusbar:GetName().."']:"..funcName.."(...)")
 						return x (...)
 					end
 				end

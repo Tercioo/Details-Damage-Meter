@@ -642,7 +642,7 @@ end
 		
 		--return _detalhes:FastSwitch (paramTable)
 	end
-		
+	
 end
 
 function _detalhes:FastSwitch (button, bookmark, bookmark_number, select_new)
@@ -659,8 +659,9 @@ function _detalhes:FastSwitch (button, bookmark, bookmark_number, select_new)
 		GameCooltip:SetColor (1, {.1, .1, .1, .3})
 		GameCooltip:SetColor (2, {.1, .1, .1, .3})
 		GameCooltip:SetOption ("HeightAnchorMod", -7)
-		GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, backgroundColor, _detalhes.tooltip_border_color)
-		GameCooltip:SetBackdrop (2, _detalhes.tooltip_backdrop, backgroundColor, _detalhes.tooltip_border_color)
+		GameCooltip:SetOption ("TextSize", _detalhes.font_sizes.menus)
+		GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
+		GameCooltip:SetBackdrop (2, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
 		return GameCooltip:ShowCooltip()
 	end
 
@@ -719,6 +720,11 @@ local vertex_color_unknown = {1, 1, 1}
 local add_coords = {464/512, 473/512, 1/512, 11/512}
 
 function _detalhes.switch:Update()
+
+	if (not _detalhes.switch.vertical_amt) then
+		--wasn't opened yet, so doesn't matter if we update or not.
+		return
+	end
 
 	local slots = _detalhes.switch.slots
 	local x = 10
@@ -1094,6 +1100,7 @@ function _detalhes.switch:NewSwitchButton (frame, index, x, y, rightButton)
 	button.line:SetWidth (85)
 	button.line:SetPoint ("topleft", button, "topright", fundo_x-14, 0)
 	button.line:SetPoint ("bottomleft", button, "bottomright", fundo_x, fundo_y)
+	button.line:SetAlpha (0.6)
 	
 	--fundo marrom 2
 	button.line2 = button:CreateTexture (nil, "background")

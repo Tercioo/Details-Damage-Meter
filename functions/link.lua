@@ -2336,7 +2336,7 @@
 			
 			-----------------------------------------------
 			
-			local select_module = function (module_number)
+			local select_module = function (a, b, module_number)
 			
 				if (current_module ~= module_number) then
 					local module = all_modules [current_module]
@@ -2377,7 +2377,7 @@
 			end
 			
 			function f:refresh()
-				select_module (current_module)
+				select_module (nil, nil, current_module)
 			end
 
 			for i = 1, #all_modules do
@@ -2389,7 +2389,7 @@
 				tinsert (buttons, b)
 			end
 
-			select_module (1)
+			select_module (nil, nil, 1)
 
 		end
 		

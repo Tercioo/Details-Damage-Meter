@@ -1,6 +1,9 @@
---> details main objects
-local _detalhes = 		_G._detalhes
-local gump = 			_detalhes.gump
+
+local DF = _G ["DetailsFramework"]
+if (not DF or not DetailsFrameworkCanLoad) then
+	return 
+end
+
 local _
 local _rawset = rawset --> lua local
 local _rawget = rawget --> lua local
@@ -10,7 +13,6 @@ local _type = type --> lua local
 local _math_floor = math.floor --> lua local
 local loadstring = loadstring --> lua local
 
-local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
 local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
 
 local cleanfunction = function() end
@@ -221,7 +223,7 @@ local NameLessSlider = 1
 	
 -- setpoint
 	function SliderMetaFunctions:SetPoint (v1, v2, v3, v4, v5)
-		v1, v2, v3, v4, v5 = gump:CheckPoints (v1, v2, v3, v4, v5, self)
+		v1, v2, v3, v4, v5 = DF:CheckPoints (v1, v2, v3, v4, v5, self)
 		if (not v1) then
 			print ("Invalid parameter for SetPoint")
 			return
@@ -283,7 +285,7 @@ local NameLessSlider = 1
 	function SliderMetaFunctions:Enable()
 		self.slider:Enable()
 		if (not self.lock_texture) then
-			gump:NewImage (self, [[Interface\PetBattles\PetBattle-LockIcon]], 12, 12, "overlay", {0.0546875, 0.9453125, 0.0703125, 0.9453125}, "lock_texture", "$parentLockTexture")
+			DF:NewImage (self, [[Interface\PetBattles\PetBattle-LockIcon]], 12, 12, "overlay", {0.0546875, 0.9453125, 0.0703125, 0.9453125}, "lock_texture", "$parentLockTexture")
 			self.lock_texture:SetDesaturated (true)
 			self.lock_texture:SetPoint ("center", self.amt, "center")
 		end
@@ -300,7 +302,7 @@ local NameLessSlider = 1
 		self:SetAlpha (.4)
 		
 		if (not self.lock_texture) then
-			gump:NewImage (self, [[Interface\PetBattles\PetBattle-LockIcon]], 12, 12, "overlay", {0.0546875, 0.9453125, 0.0703125, 0.9453125}, "lock_texture", "$parentLockTexture")
+			DF:NewImage (self, [[Interface\PetBattles\PetBattle-LockIcon]], 12, 12, "overlay", {0.0546875, 0.9453125, 0.0703125, 0.9453125}, "lock_texture", "$parentLockTexture")
 			self.lock_texture:SetDesaturated (true)
 			self.lock_texture:SetPoint ("center", self.amt, "center")
 		end
@@ -327,7 +329,7 @@ local NameLessSlider = 1
 			return
 		end
 	
-		DetailsFrameworkSliderButtons:ShowMe (slider)
+		DetailsFrameworkSliderButtons1:ShowMe (slider)
 	
 		if (slider.MyObject.OnEnterHook) then
 			local interrupt = slider.MyObject.OnEnterHook (slider)
@@ -338,25 +340,20 @@ local NameLessSlider = 1
 
 		slider.thumb:SetAlpha (1)
 	
-		if (slider.MyObject.have_tooltip and slider.MyObject.have_tooltip ~= Loc ["STRING_RIGHTCLICK_TYPEVALUE"]) then
-			--GameCooltip:Reset()
-			_detalhes:CooltipPreset (2)
-			GameCooltip:AddLine (slider.MyObject.have_tooltip)
-			GameCooltip:ShowCooltip (slider, "tooltip")
+		if (slider.MyObject.onenter_backdrop_border_color) then
+			slider:SetBackdropBorderColor (unpack (slider.MyObject.onenter_backdrop_border_color))
+		end
+	
+		if (slider.MyObject.have_tooltip and slider.MyObject.have_tooltip ~= "Right Click to Type the Value") then
+			GameCooltip2:Preset (2)
+			GameCooltip2:AddLine (slider.MyObject.have_tooltip)
+			GameCooltip2:ShowCooltip (slider, "tooltip")
 		else
-			_detalhes:CooltipPreset (1)
-			GameCooltip:AddLine (Loc ["STRING_RIGHTCLICK_TYPEVALUE"])
-			GameCooltip:AddIcon ([[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]], 1, 1, 16, 16, 0.015625, 0.15671875, 0.640625, 0.798828125)
-			GameCooltip:ShowCooltip (slider, "tooltip")
+			GameCooltip2:Preset (1)
+			GameCooltip2:AddLine ("Right Click to Type the Value")
+			GameCooltip2:AddIcon ([[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]], 1, 1, 16, 16, 0.015625, 0.15671875, 0.640625, 0.798828125)
+			GameCooltip2:ShowCooltip (slider, "tooltip")
 		end
-		
-		local parent = slider:GetParent().MyObject
-		if (parent and parent.type == "panel") then
-			if (parent.GradientEnabled) then
-				parent:RunGradient()
-			end
-		end
-		
 	end
 	
 	local OnLeave = function (slider)
@@ -365,7 +362,7 @@ local NameLessSlider = 1
 			return
 		end
 	
-		DetailsFrameworkSliderButtons:PrepareToHide()
+		DetailsFrameworkSliderButtons1:PrepareToHide()
 	
 		if (slider.MyObject.OnLeaveHook) then
 			local interrupt = slider.MyObject.OnLeaveHook (slider)
@@ -376,21 +373,18 @@ local NameLessSlider = 1
 		
 		slider.thumb:SetAlpha (.7)
 	
-		if (slider.MyObject.have_tooltip) then 
-			_detalhes.popup:ShowMe (false)
+		if (slider.MyObject.onleave_backdrop_border_color) then
+			slider:SetBackdropBorderColor (unpack (slider.MyObject.onleave_backdrop_border_color))
 		end
-		
-		local parent = slider:GetParent().MyObject
-		if (parent and parent.type == "panel") then
-			if (parent.GradientEnabled) then
-				parent:RunGradient (false)
-			end
+	
+		if (slider.MyObject.have_tooltip) then 
+			GameCooltip2:ShowMe (false)
 		end
 		
 	end
 	
 
-	local f = CreateFrame ("frame", "DetailsFrameworkSliderButtons", UIParent)
+	local f = CreateFrame ("frame", "DetailsFrameworkSliderButtons1", UIParent)
 	f:Hide()
 	--f:SetBackdrop ({bgFile = [[Interface\DialogFrame\UI-DialogBox-Background-Dark]], tile = true, tileSize = 5})
 	f:SetHeight (18)
@@ -685,7 +679,12 @@ local NameLessSlider = 1
 	
 	local OnValueChanged = function (slider)
 	
-		local amt = slider:GetValue()
+		local amt
+		if (slider.MyObject.useDecimals) then
+			amt = slider:GetValue()
+		else
+			amt = _math_floor (slider:GetValue())
+		end
 	
 		if (slider.MyObject.typing_value and not slider.MyObject.typing_can_change) then
 			slider.MyObject:SetValue (slider.MyObject.typing_value_started)
@@ -702,6 +701,10 @@ local NameLessSlider = 1
 			end
 		end
 
+		if (slider.MyObject.OnValueChanged) then
+			slider.MyObject.OnValueChanged (slider, slider.MyObject.FixedValue, amt)
+		end
+		
 		if (amt < 10 and amt >= 1) then
 			amt = "0"..amt
 		end
@@ -730,23 +733,35 @@ local SwitchOnClick = function (self, button, forced_value, value)
 	end
 
 	if (_rawget (slider, "value")) then --actived
-	
 		_rawset (slider, "value", false)
-		slider._text:SetText (slider._ltext)
-		slider._thumb:ClearAllPoints()
 		
-		slider:SetBackdropColor (1, 0, 0, 0.4)
-		slider._thumb:SetPoint ("left", slider.widget, "left")
-	
+		if (slider.backdrop_disabledcolor) then
+			slider:SetBackdropColor (unpack (slider.backdrop_disabledcolor))
+		else
+			slider:SetBackdropColor (1, 0, 0, 0.4)
+		end
+		
+		if (slider.is_checkbox) then
+			slider.checked_texture:Hide()
+		else
+			slider._text:SetText (slider._ltext)
+			slider._thumb:ClearAllPoints()
+			slider._thumb:SetPoint ("left", slider.widget, "left")
+		end
 	else
-	
 		_rawset (slider, "value", true)
-		slider._text:SetText (slider._rtext)
-		slider._thumb:ClearAllPoints()
-
-		slider:SetBackdropColor (0, 0, 1, 0.4)
-		slider._thumb:SetPoint ("right", slider.widget, "right")
-
+		if (slider.backdrop_enabledcolor) then
+			slider:SetBackdropColor (unpack (slider.backdrop_enabledcolor))
+		else
+			slider:SetBackdropColor (0, 0, 1, 0.4)
+		end
+		if (slider.is_checkbox) then
+			slider.checked_texture:Show()
+		else
+			slider._text:SetText (slider._rtext)
+			slider._thumb:ClearAllPoints()
+			slider._thumb:SetPoint ("right", slider.widget, "right")
+		end
 	end
 	
 	if (slider.OnSwitch and not forced_value) then
@@ -785,38 +800,82 @@ end
 
 local switch_disable = function (self)	
 	if (not self.lock_texture) then
-		gump:NewImage (self, [[Interface\PetBattles\PetBattle-LockIcon]], 12, 12, "overlay", {0.0546875, 0.9453125, 0.0703125, 0.9453125}, "lock_texture", "$parentLockTexture")
+		DF:NewImage (self, [[Interface\PetBattles\PetBattle-LockIcon]], 12, 12, "overlay", {0.0546875, 0.9453125, 0.0703125, 0.9453125}, "lock_texture", "$parentLockTexture")
 		self.lock_texture:SetDesaturated (true)
 		self.lock_texture:SetPoint ("center", self._thumb, "center")
 	end
 	
+	if (self.is_checkbox) then
+		self.checked_texture:Hide()
+	else
+		self._text:Hide()
+	end
+	
 	self.lock_texture:Show()
-	self._text:Hide()
 	self:SetAlpha (.4)
 	_rawset (self, "lockdown", true)
 end
 local switch_enable = function (self)
 	if (not self.lock_texture) then
-		gump:NewImage (self, [[Interface\PetBattles\PetBattle-LockIcon]], 12, 12, "overlay", {0.0546875, 0.9453125, 0.0703125, 0.9453125}, "lock_texture", "$parentLockTexture")
+		DF:NewImage (self, [[Interface\PetBattles\PetBattle-LockIcon]], 12, 12, "overlay", {0.0546875, 0.9453125, 0.0703125, 0.9453125}, "lock_texture", "$parentLockTexture")
 		self.lock_texture:SetDesaturated (true)
 		self.lock_texture:SetPoint ("center", self._thumb, "center")
 	end
 	
+	if (self.is_checkbox) then
+		if (_rawget (self, "value")) then
+			self.checked_texture:Show()
+		else
+			self.checked_texture:Hide()
+		end
+	else
+		self._text:Show()
+	end
+	
 	self.lock_texture:Hide()
-	self._text:Show()
 	self:SetAlpha (1)
 	return _rawset (self, "lockdown", false)
 end
 
-function gump:CreateSwitch (parent, on_switch, default_value, w, h, ltext, rtext, member, name, color_inverted, switch_func, return_func)
-	local switch = gump:NewSwitch (parent, parent, name, member, w or 60, h or 20, ltext, rtext, default_value, color_inverted, switch_func, return_func)
+local set_as_checkbok = function (self)
+	local checked = self:CreateTexture (nil, "overlay")
+	checked:SetTexture ([[Interface\Buttons\UI-CheckBox-Check]])
+	checked:SetPoint ("center", self.button, "center", -1, -1)
+	local size_pct = self:GetWidth()/32
+	checked:SetSize (32*size_pct, 32*size_pct)
+	self.checked_texture = checked
+	
+	self._thumb:Hide()
+	self._text:Hide()
+	
+	self.is_checkbox = true
+	
+	if (_rawget (self, "value")) then
+		self.checked_texture:Show()
+		if (self.backdrop_enabledcolor) then
+			self:SetBackdropColor (unpack (self.backdrop_enabledcolor))
+		else
+			self:SetBackdropColor (0, 0, 1, 0.4)
+		end		
+	else
+		self.checked_texture:Hide()
+		if (self.backdrop_disabledcolor) then
+			self:SetBackdropColor (unpack (self.backdrop_disabledcolor))
+		else
+			self:SetBackdropColor (0, 0, 1, 0.4)
+		end
+	end
+end
+
+function DF:CreateSwitch (parent, on_switch, default_value, w, h, ltext, rtext, member, name, color_inverted, switch_func, return_func, with_label, switch_template, label_template)
+	local switch, label = DF:NewSwitch (parent, parent, name, member, w or 60, h or 20, ltext, rtext, default_value, color_inverted, switch_func, return_func, with_label, switch_template, label_template)
 	if (on_switch) then
 		switch.OnSwitch = on_switch
 	end
-	return switch
+	return switch, label
 end
 
-function gump:NewSwitch (parent, container, name, member, w, h, ltext, rtext, default_value, color_inverted, switch_func, return_func)
+function DF:NewSwitch (parent, container, name, member, w, h, ltext, rtext, default_value, color_inverted, switch_func, return_func, with_label, switch_template, label_template)
 
 --> early checks
 	if (not name) then
@@ -835,7 +894,10 @@ function gump:NewSwitch (parent, container, name, member, w, h, ltext, rtext, de
 	
 --> build frames
 	
-	local slider = gump:NewButton (parent, container, name, member, w, h)
+	w = w or 60
+	h = h or 20
+	
+	local slider = DF:NewButton (parent, container, name, member, w, h)
 	
 	slider.switch_func = switch_func
 	slider.return_func = return_func
@@ -844,6 +906,8 @@ function gump:NewSwitch (parent, container, name, member, w, h, ltext, rtext, de
 	slider.SetFixedParameter = switch_set_fixparameter
 	slider.Disable = switch_disable
 	slider.Enable = switch_enable
+	slider.SetAsCheckBox = set_as_checkbok
+	slider.SetTemplate = SliderMetaFunctions.SetTemplate
 	
 	if (member) then
 		parent [member] = slider
@@ -875,16 +939,104 @@ function gump:NewSwitch (parent, container, name, member, w, h, ltext, rtext, de
 	slider:SetValue (default_value)
 
 	slider.isSwitch = true
+	
+	if (switch_template) then
+		slider:SetTemplate (switch_template)
+	end
+	
+	if (with_label) then
+		local label = DF:CreateLabel (slider.widget, with_label, nil, nil, nil, "label", nil, "overlay")
+		label.text = with_label
+		slider.widget:SetPoint ("left", label.widget, "right", 2, 0)
+		with_label = label
+		
+		if (label_template) then
+			label:SetTemplate (label_template)
+		end
+	end
 
-	return slider
+	return slider, with_label
 end
 
-function gump:NewSlider (parent, container, name, member, w, h, min, max, step, defaultv, isDecemal, isSwitch)
+function SliderMetaFunctions:SetTemplate (template)
+
+	--slider e switch
+	if (template.width) then
+		self:SetWidth (template.width)
+	end
+	if (template.height) then
+		self:SetHeight (template.height)
+	end
+	
+	if (template.backdrop) then
+		self:SetBackdrop (template.backdrop)
+	end
+	if (template.backdropcolor) then
+		local r, g, b, a = DF:ParseColors (template.backdropcolor)
+		self:SetBackdropColor (r, g, b, a)
+	end
+	if (template.backdropbordercolor) then
+		local r, g, b, a = DF:ParseColors (template.backdropbordercolor)
+		self:SetBackdropBorderColor (r, g, b, a)
+		self.onleave_backdrop_border_color = {r, g, b, a}
+	end
+	
+	if (template.onenterbordercolor) then
+		local r, g, b, a = DF:ParseColors (template.onenterbordercolor)
+		self.onenter_backdrop_border_color = {r, g, b, a}
+	end
+	
+	if (template.onleavebordercolor) then
+		local r, g, b, a = DF:ParseColors (template.onleavebordercolor)
+		self.onleave_backdrop_border_color = {r, g, b, a}
+	end
+
+	if (template.thumbtexture) then
+		if (self.thumb) then
+			self.thumb:SetTexture (template.thumbtexture)
+		end
+	end
+	if (template.thumbwidth) then
+		if (self.thumb) then
+			self.thumb:SetWidth (template.thumbwidth)
+		end
+	end
+	if (template.thumbheight) then
+		if (self.thumb) then
+			self.thumb:SetHeight (template.thumbheight)
+		end
+	end
+	if (template.thumbcolor) then
+		if (self.thumb) then
+			local r, g, b, a = DF:ParseColors (template.thumbcolor)
+			self.thumb:SetVertexColor (r, g, b, a)
+		end
+	end
+	
+	--switch only
+	if (template.enabled_backdropcolor) then
+		local r, g, b, a = DF:ParseColors (template.enabled_backdropcolor)
+		self.backdrop_enabledcolor = {r, g, b, a}
+	end
+	if (template.disabled_backdropcolor) then
+		local r, g, b, a = DF:ParseColors (template.disabled_backdropcolor)
+		self.backdrop_disabledcolor = {r, g, b, a}
+	end
+end
+
+function DF:CreateSlider (parent, w, h, min, max, step, defaultv, isDecemal, member, name, with_label, slider_template, label_template)
+	local slider, label = DF:NewSlider (parent, parent, name, member, w, h, min, max, step, defaultv, isDecemal, false, with_label, slider_template, label_template)
+	return slider, label
+end
+
+function DF:NewSlider (parent, container, name, member, w, h, min, max, step, defaultv, isDecemal, isSwitch, with_label, slider_template, label_template)
 	
 --> early checks
 	if (not name) then
-		return nil
-	elseif (not parent) then
+		name = "DetailsFrameworkSlider" .. DF.SliderCounter
+		DF.SliderCounter = DF.SliderCounter + 1
+	end
+	if (not parent) then
 		return nil
 	end
 	if (not container) then
@@ -914,6 +1066,9 @@ function gump:NewSlider (parent, container, name, member, w, h, min, max, step, 
 	step = step or 1
 	defaultv = defaultv or min
 	
+	w = w or 130
+	h = h or 19
+	
 	--> default members:
 		--> hooks
 		SliderObject.OnEnterHook = nil
@@ -928,7 +1083,6 @@ function gump:NewSlider (parent, container, name, member, w, h, min, max, step, 
 		SliderObject.FixedValue = nil
 		SliderObject.useDecimals = isDecemal or false
 		
-	--SliderObject.slider = CreateFrame ("slider", name, parent, "DetailsSliderTemplate")
 	SliderObject.slider = CreateFrame ("slider", name, parent)
 	SliderObject.widget = SliderObject.slider
 
@@ -938,7 +1092,7 @@ function gump:NewSlider (parent, container, name, member, w, h, min, max, step, 
 		for funcName, funcAddress in pairs (idx) do 
 			if (not SliderMetaFunctions [funcName]) then
 				SliderMetaFunctions [funcName] = function (object, ...)
-					local x = loadstring ( "return _G."..object.slider:GetName()..":"..funcName.."(...)")
+					local x = loadstring ( "return _G['"..object.slider:GetName().."']:"..funcName.."(...)")
 					return x (...)
 				end
 			end
@@ -946,8 +1100,8 @@ function gump:NewSlider (parent, container, name, member, w, h, min, max, step, 
 	end
 	
 	SliderObject.slider.MyObject = SliderObject
-	SliderObject.slider:SetWidth (w or 232)
-	SliderObject.slider:SetHeight (h or 20)
+	SliderObject.slider:SetWidth (w)
+	SliderObject.slider:SetHeight (h)
 	SliderObject.slider:SetOrientation ("horizontal")
 	SliderObject.slider:SetMinMaxValues (min, max)
 	SliderObject.slider:SetValueStep (step)
@@ -965,7 +1119,7 @@ function gump:NewSlider (parent, container, name, member, w, h, min, max, step, 
 	SliderObject.slider.thumb = SliderObject.thumb
 	
 	if (not isSwitch) then
-		SliderObject.have_tooltip = Loc ["STRING_RIGHTCLICK_TYPEVALUE"]
+		SliderObject.have_tooltip = "Right Click to Type the Value"
 	end
 	
 	SliderObject.amt = SliderObject.slider:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
@@ -999,6 +1153,21 @@ function gump:NewSlider (parent, container, name, member, w, h, min, max, step, 
 		
 	_setmetatable (SliderObject, SliderMetaFunctions)
 	
-	return SliderObject	
+	if (with_label) then
+		local label = DF:CreateLabel (SliderObject.slider, with_label, nil, nil, nil, "label", nil, "overlay")
+		label.text = with_label
+		SliderObject.slider:SetPoint ("left", label.widget, "right", 2, 0)
+		with_label = label
+		
+		if (label_template) then
+			label:SetTemplate (label_template)
+		end
+	end
+	
+	if (slider_template) then
+		SliderObject:SetTemplate (slider_template)
+	end
+	
+	return SliderObject, with_label
 	
 end

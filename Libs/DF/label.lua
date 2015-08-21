@@ -1,6 +1,9 @@
---> details main objects
-local _detalhes = 		_G._detalhes
-local gump = 			_detalhes.gump
+
+local DF = _G ["DetailsFramework"]
+if (not DF or not DetailsFrameworkCanLoad) then
+	return 
+end
+
 local _
 local _rawset = rawset --> lua local
 local _rawget = rawget --> lua local
@@ -108,16 +111,16 @@ local LabelMetaFunctions = {}
 	end
 	--> text color
 	local smember_textcolor = function (_object, _value)
-		local _value1, _value2, _value3, _value4 = gump:ParseColors (_value)
+		local _value1, _value2, _value3, _value4 = DF:ParseColors (_value)
 		return _object.label:SetTextColor (_value1, _value2, _value3, _value4)	
 	end
 	--> text font
 	local smember_textfont = function (_object, _value)
-		return _detalhes:SetFontFace (_object.label, _value)
+		return DF:SetFontFace (_object.label, _value)
 	end
 	--> text size
 	local smember_textsize = function (_object, _value)
-		return _detalhes:SetFontSize (_object.label, _value)
+		return DF:SetFontSize (_object.label, _value)
 	end
 	--> text align
 	local smember_textalign = function (_object, _value)
@@ -151,7 +154,7 @@ local LabelMetaFunctions = {}
 	end
 	--> outline (shadow)
 	local smember_outline = function (_object, _value)
-		_detalhes:SetFontOutline (_object.label, _value)
+		DF:SetFontOutline (_object.label, _value)
 	end
 	
 	local set_members_function_index = {
@@ -201,13 +204,13 @@ local LabelMetaFunctions = {}
 		if (arg2) then
 			return self.label:SetTextColor (color, arg2, arg3, arg4 or 1)
 		end
-		local _value1, _value2, _value3, _value4 = gump:ParseColors (color)
+		local _value1, _value2, _value3, _value4 = DF:ParseColors (color)
 		return self.label:SetTextColor (_value1, _value2, _value3, _value4)
 	end
 	
 -- setpoint
 	function LabelMetaFunctions:SetPoint (v1, v2, v3, v4, v5)
-		v1, v2, v3, v4, v5 = gump:CheckPoints (v1, v2, v3, v4, v5, self)
+		v1, v2, v3, v4, v5 = DF:CheckPoints (v1, v2, v3, v4, v5, self)
 		if (not v1) then
 			print ("Invalid parameter for SetPoint")
 			return
@@ -216,12 +219,29 @@ local LabelMetaFunctions = {}
 	end
 
 ------------------------------------------------------------------------------------------------------------
+
+	function LabelMetaFunctions:SetTemplate (template)
+		if (template.size) then
+			DF:SetFontSize (self.label, template.size)
+		end
+		if (template.color) then
+			local r, g, b, a = DF:ParseColors (template.color)
+			self:SetTextColor (r, g, b, a)
+		end
+		if (template.font) then
+			local SharedMedia = LibStub:GetLibrary ("LibSharedMedia-3.0")
+			local font = SharedMedia:Fetch ("font", template.font)
+			DF:SetFontFace (self.label, font)
+		end
+	end
+	
+------------------------------------------------------------------------------------------------------------
 --> object constructor
-function gump:CreateLabel (parent, text, size, color, font, member, name, layer)
-	return gump:NewLabel (parent, nil, name, member, text, font, size, color, layer)
+function DF:CreateLabel (parent, text, size, color, font, member, name, layer)
+	return DF:NewLabel (parent, nil, name, member, text, font, size, color, layer)
 end
 
-function gump:NewLabel (parent, container, name, member, text, font, size, color, layer)
+function DF:NewLabel (parent, container, name, member, text, font, size, color, layer)
 
 	if (not parent) then
 		return nil
@@ -231,8 +251,8 @@ function gump:NewLabel (parent, container, name, member, text, font, size, color
 	end
 	
 	if (not name) then
-		name = "DetailsLabelNumber" .. gump.LabelNameCounter
-		gump.LabelNameCounter = gump.LabelNameCounter + 1
+		name = "DetailsFrameworkLabelNumber" .. DF.LabelNameCounter
+		DF.LabelNameCounter = DF.LabelNameCounter + 1
 	end
 	
 	if (name:find ("$parent")) then
@@ -268,7 +288,7 @@ function gump:NewLabel (parent, container, name, member, text, font, size, color
 		for funcName, funcAddress in pairs (idx) do 
 			if (not LabelMetaFunctions [funcName]) then
 				LabelMetaFunctions [funcName] = function (object, ...)
-					local x = loadstring ( "return _G."..object.label:GetName()..":"..funcName.."(...)")
+					local x = loadstring ( "return _G['"..object.label:GetName().."']:"..funcName.."(...)")
 					return x (...)
 				end
 			end
@@ -277,18 +297,24 @@ function gump:NewLabel (parent, container, name, member, text, font, size, color
 	
 	LabelObject.label:SetText (text)
 	
-	if (size) then
-		_detalhes:SetFontSize (LabelObject.label, size)
+	if (color) then
+		local r, g, b, a = DF:ParseColors (color)
+		LabelObject.label:SetTextColor (r, g, b, a)
+	end	
+	
+	if (size and type (size) == "number") then
+		DF:SetFontSize (LabelObject.label, size)
 	end
 	
-	if (color) then
-		local r, g, b, a = gump:ParseColors (color)
-		LabelObject.label:SetTextColor (r, g, b, a)
-	end
+
 	
 	LabelObject.label:SetJustifyH ("LEFT")
 	
 	setmetatable (LabelObject, LabelMetaFunctions)
+
+	if (size and type (size) == "table") then
+		LabelObject:SetTemplate (size)
+	end
 	
 	return LabelObject
 end

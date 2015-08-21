@@ -42,21 +42,7 @@ functions\rowanimation.lua
 
 core\timemachine.lua
 
-framework\framework.lua
-framework\colors.lua
-framework\label.lua
-framework\slider.lua
-framework\itscroll.xml
-framework\picture.lua
-framework\help.lua
-framework\cooltip.xml
-framework\textentry.xml
-framework\panel.xml
-framework\normal_bar.xml
-framework\split_bar.xml
-framework\button.xml
-framework\dropdown.xml
-framework\pictureedit.lua
+
 
 gumps\anime.lua
 gumps\anime.xml

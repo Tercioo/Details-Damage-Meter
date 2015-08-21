@@ -1,8 +1,14 @@
-local _detalhes = _G._detalhes
-local gump = _detalhes.gump
+
+
+local DF = _G ["DetailsFramework"]
+if (not DF or not DetailsFrameworkCanLoad) then
+	return 
+end
+
 local _
 local _rawset = rawset --> lua local
 local _rawget = rawget --> lua local
+
 local APIHelpFunctions = false
 local HelpMetaFunctions = {}
 
@@ -44,7 +50,7 @@ function HelpMetaFunctions:AddHelp (width, height, x, y, buttonX, buttonY, text,
 end
 
 function HelpMetaFunctions:SetPoint (v1, v2, v3, v4, v5)
-	v1, v2, v3, v4, v5 = gump:CheckPoints (v1, v2, v3, v4, v5, self)
+	v1, v2, v3, v4, v5 = DF:CheckPoints (v1, v2, v3, v4, v5, self)
 	if (not v1) then
 		print ("Invalid parameter for SetPoint")
 		return
@@ -61,7 +67,7 @@ function HelpMetaFunctions:ShowHelp()
 end
 
 local nameCounter = 1
-function _detalhes.gump:NewHelp (parent, width, height, x, y, buttonWidth, buttonHeight, name)
+function DF:NewHelp (parent, width, height, x, y, buttonWidth, buttonHeight, name)
 
 	local help = {}
 	
@@ -69,7 +75,7 @@ function _detalhes.gump:NewHelp (parent, width, height, x, y, buttonWidth, butto
 		parent = parent.widget
 	end	
 	
-	local helpButton = CreateFrame ("button", name or "DetailsHelpButton"..nameCounter, parent, "MainHelpPlateButton")
+	local helpButton = CreateFrame ("button", name or "DetailsFrameworkHelpButton"..nameCounter, parent, "MainHelpPlateButton")
 	nameCounter = nameCounter + 1
 	
 	if (not APIHelpFunctions) then

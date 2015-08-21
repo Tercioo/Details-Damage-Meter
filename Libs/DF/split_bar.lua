@@ -1,6 +1,9 @@
---> details main objects
-local _detalhes = 		_G._detalhes
-local gump = 			_detalhes.gump
+
+local DF = _G ["DetailsFramework"]
+if (not DF or not DetailsFrameworkCanLoad) then
+	return 
+end
+
 local _
 local _rawset = rawset --> lua local
 local _rawget = rawget --> lua local
@@ -200,13 +203,13 @@ local APISplitBarFunctions
 	end
 	--> right color
 	local smember_rcolor = function (_object, _value)
-		local _value1, _value2, _value3, _value4 = gump:ParseColors (_value)
+		local _value1, _value2, _value3, _value4 = DF:ParseColors (_value)
 		_object.background.original_colors = {_value1, _value2, _value3, _value4}
 		return _object.background:SetVertexColor (_value1, _value2, _value3, _value4)
 	end
 	--> left color
 	local smember_lcolor = function (_object, _value)
-		local _value1, _value2, _value3, _value4 = gump:ParseColors (_value)
+		local _value1, _value2, _value3, _value4 = DF:ParseColors (_value)
 		
 		_object.statusbar:SetStatusBarColor (_value1, _value2, _value3, _value4)
 		_object.texture.original_colors = {_value1, _value2, _value3, _value4}
@@ -256,17 +259,17 @@ local APISplitBarFunctions
 	end
 	--> font face
 	local smember_textfont = function (_object, _value)
-		_detalhes:SetFontFace (_object.textleft, _value)
-		return _detalhes:SetFontFace (_object.textright, _value)
+		DF:SetFontFace (_object.textleft, _value)
+		return DF:SetFontFace (_object.textright, _value)
 	end
 	--> font size
 	local smember_textsize = function (_object, _value)
-		_detalhes:SetFontSize (_object.textleft, _value)
-		return _detalhes:SetFontSize (_object.textright, _value)
+		DF:SetFontSize (_object.textleft, _value)
+		return DF:SetFontSize (_object.textright, _value)
 	end
 	--> font color
 	local smember_textcolor = function (_object, _value)
-		local _value1, _value2, _value3, _value4 = gump:ParseColors (_value)
+		local _value1, _value2, _value3, _value4 = DF:ParseColors (_value)
 		_object.textleft:SetTextColor (_value1, _value2, _value3, _value4)
 		return _object.textright:SetTextColor (_value1, _value2, _value3, _value4)
 	end
@@ -325,7 +328,7 @@ local APISplitBarFunctions
 	
 -- setpoint
 	function SplitBarMetaFunctions:SetPoint (v1, v2, v3, v4, v5)
-		v1, v2, v3, v4, v5 = gump:CheckPoints (v1, v2, v3, v4, v5, self)
+		v1, v2, v3, v4, v5 = DF:CheckPoints (v1, v2, v3, v4, v5, self)
 		if (not v1) then
 			print ("Invalid parameter for SetPoint")
 			return
@@ -359,12 +362,12 @@ local APISplitBarFunctions
 	
 -- colors
 	function SplitBarMetaFunctions:SetLeftColor (r, g, b, a)
-		r, g, b, a = gump:ParseColors (r, g, b, a)
+		r, g, b, a = DF:ParseColors (r, g, b, a)
 		self.texture:SetVertexColor (r, g, b, a)
 		self.texture.original_colors = {r, g, b, a}
 	end
 	function SplitBarMetaFunctions:SetRightColor (r, g, b, a)
-		r, g, b, a = gump:ParseColors (r, g, b, a)
+		r, g, b, a = DF:ParseColors (r, g, b, a)
 		self.background:SetVertexColor (r, g, b, a)
 		self.background.original_colors = {r, g, b, a}
 	end
@@ -441,21 +444,12 @@ local APISplitBarFunctions
 			end
 		end
 
-		local oc = frame.MyObject.texture.original_colors --original colors
-		gump:GradientEffect ( frame.MyObject.texture, "texture", oc[1], oc[2], oc[3], oc[4], oc[1]+0.2, oc[2]+0.2, oc[3]+0.2, oc[4], .2)
 		frame.MyObject.div:SetPoint ("left", frame, "left", frame:GetValue() * (frame:GetWidth()/100) - 18, 0)
 		
 		if (frame.MyObject.have_tooltip) then
-			GameCooltip:Reset()
-			GameCooltip:AddLine (frame.MyObject.have_tooltip)
-			GameCooltip:ShowCooltip (frame, "tooltip")
-		end
-		
-		local parent = frame:GetParent().MyObject
-		if (parent and parent.type == "panel") then
-			if (parent.GradientEnabled) then
-				parent:RunGradient()
-			end
+			GameCooltip2:Reset()
+			GameCooltip2:AddLine (frame.MyObject.have_tooltip)
+			GameCooltip2:ShowCooltip (frame, "tooltip")
 		end
 	end
 	
@@ -466,20 +460,9 @@ local APISplitBarFunctions
 				return
 			end
 		end
-		
-		local oc = frame.MyObject.texture.original_colors --original colors
-		local r, g, b, a = frame.MyObject.texture:GetVertexColor()
-		gump:GradientEffect ( frame.MyObject.texture, "texture", r, g, b, a, oc[1], oc[2], oc[3], oc[4], .2)
-		
+
 		if (frame.MyObject.have_tooltip) then 
-			_detalhes.popup:ShowMe (false)
-		end
-		
-		local parent = frame:GetParent().MyObject
-		if (parent and parent.type == "panel") then
-			if (parent.GradientEnabled) then
-				parent:RunGradient (false)
-			end
+			DF.popup:ShowMe (false)
 		end
 	end
 	
@@ -538,20 +521,27 @@ local APISplitBarFunctions
 ------------------------------------------------------------------------------------------------------------
 --> object constructor
 
-function DetailsSplitlBar_OnCreate (self)
+function DetailsFrameworkSplitlBar_OnCreate (self)
 	self.texture.original_colors = {1, 1, 1, 1}
 	self.background.original_colors = {.5, .5, .5, 1}
 	self.spark:SetPoint ("left", self, "left", self:GetValue() * (self:GetWidth()/100) - 18, 0)
 	return true
 end
 
-function gump:NewSplitBar (parent, container, name, member, w, h)
+function DF:CreateSplitBar (parent, parent, w, h, member, name)
+	return DF:NewSplitBar (parent, container, name, member, w, h)
+end
+
+function DF:NewSplitBar (parent, container, name, member, w, h)
 	
 	if (not name) then
+		name = "DetailsFrameworkSplitbar" .. DF.SplitBarCounter
+		DF.SplitBarCounter = DF.SplitBarCounter + 1
+	end
+	if (not parent) then
 		return nil
-	elseif (not parent) then
-		return nil
-	elseif (not container) then
+	end
+	if (not container) then
 		container = parent
 	end
 	
@@ -587,7 +577,7 @@ function gump:NewSplitBar (parent, container, name, member, w, h)
 		SplitBarObject.container = container
 	
 	--> create widgets
-		SplitBarObject.statusbar = CreateFrame ("statusbar", name, parent, "DetailsSplitBarTemplate")
+		SplitBarObject.statusbar = CreateFrame ("statusbar", name, parent, "DetailsFrameworkSplitBarTemplate")
 		SplitBarObject.widget = SplitBarObject.statusbar
 		
 		if (not APISplitBarFunctions) then
@@ -596,7 +586,7 @@ function gump:NewSplitBar (parent, container, name, member, w, h)
 			for funcName, funcAddress in pairs (idx) do 
 				if (not SplitBarMetaFunctions [funcName]) then
 					SplitBarMetaFunctions [funcName] = function (object, ...)
-						local x = loadstring ( "return _G."..object.statusbar:GetName()..":"..funcName.."(...)")
+						local x = loadstring ( "return _G['"..object.statusbar:GetName().."']:"..funcName.."(...)")
 						return x (...)
 					end
 				end

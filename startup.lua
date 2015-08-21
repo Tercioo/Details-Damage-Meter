@@ -605,25 +605,6 @@ function _G._detalhes:Start()
 	
 	_detalhes.AddOnStartTime = GetTime()
 
---[[
-	local a = CreateFrame ("frame")
-	a:RegisterEvent ("PLAYER_REGEN_ENABLED")
-	a:RegisterEvent ("PLAYER_REGEN_DISABLED")
-	a:RegisterEvent ("ENCOUNTER_START")
-	a:RegisterEvent ("ENCOUNTER_END")
-	
-	a:SetScript ("OnEvent", function (self, event, ...)
-		print (event)
-	end)
---]]
-
---[[
-function _detalhes:TestResize()
-	_detalhes:OpenNewsWindow ("TESTE, |TInterface\\AddOns\\Details\\images\\key_shift:20:40:0:0:64:64:0:64:0:40|t")
-end
-_detalhes:ScheduleTimer ("TestResize", 3)
---]]
-
-	local a,b=_detalhes.tooltip.header_statusbar,0.3;a[1]=b;a[2]=b;a[3]=b;a[4]=0.8;
 end
 
+_detalhes.AddOnLoadFilesTime = GetTime()

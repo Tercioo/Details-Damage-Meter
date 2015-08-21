@@ -1,8 +1,12 @@
 do
-	local _detalhes = 		_G._detalhes
-	local gump = 			_detalhes.gump
 
-	gump.alias_text_colors = {
+	local DF = _G ["DetailsFramework"]
+	
+	if (not DF or not DetailsFrameworkCanLoad) then
+		return 
+	end
+
+	DF.alias_text_colors = {
 		["aliceblue"] = {0.941176, 0.972549, 1, 1},
 		["antiquewhite"] = {0.980392, 0.921569, 0.843137, 1},
 		["aqua"] = {0, 1, 1, 1},

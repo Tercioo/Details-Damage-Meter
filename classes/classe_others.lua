@@ -570,7 +570,7 @@ function atributo_misc:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 	local showing = tabela_do_combate [class_type] --> o que esta sendo mostrado -> [1] - dano [2] - cura --> pega o container com ._NameIndexTable ._ActorTable
 	
 	if (#showing._ActorTable < 1) then --> não há barras para mostrar
-		return _detalhes:EsconderBarrasNaoUsadas (instancia, showing)
+		return _detalhes:EsconderBarrasNaoUsadas (instancia, showing), "", 0, 0
 	end
 	
 	local total = 0	

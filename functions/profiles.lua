@@ -189,7 +189,32 @@ end
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> Profiles:
 	--> return the profile table requested
-	
+
+function _detalhes:CreatePanicWarning()
+	_detalhes.instance_load_failed = CreateFrame ("frame", "DetailsPanicWarningFrame", UIParent)
+	_detalhes.instance_load_failed:SetHeight (80)
+	--tinsert (UISpecialFrames, "DetailsPanicWarningFrame")
+	_detalhes.instance_load_failed.text = _detalhes.instance_load_failed:CreateFontString (nil, "overlay", "GameFontNormal")
+	_detalhes.instance_load_failed.text:SetPoint ("center", _detalhes.instance_load_failed, "center")
+	_detalhes.instance_load_failed.text:SetTextColor (1, 0.6, 0)
+	_detalhes.instance_load_failed:SetBackdrop ({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
+	_detalhes.instance_load_failed:SetBackdropColor (1, 0, 0, 0.2)
+	_detalhes.instance_load_failed:SetPoint ("topleft", UIParent, "topleft", 0, -250)
+	_detalhes.instance_load_failed:SetPoint ("topright", UIParent, "topright", 0, -250)
+end
+
+local safe_load = function (func, param1, param2)
+	local okey, errortext = pcall (func, param1, param2)
+	if (not okey) then
+		if (not _detalhes.instance_load_failed) then
+			_detalhes:CreatePanicWarning()
+		end
+		_detalhes.do_not_save_skins = true
+		_detalhes.instance_load_failed.text:SetText ("Failed to load a Details! window.\n/reload or reboot the game client may fix the problem.\nIf the problem persist, try /details reinstall.\nError: " .. errortext .. "")
+	end
+	return okey
+end
+
 function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 
 	--> get the profile
@@ -383,8 +408,11 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 				--> load data saved for this character only
 				instance:LoadLocalInstanceConfig()
 				if (skin.__was_opened) then	
-					--tinsert (_detalhes.resize_debug, #_detalhes.resize_debug+1, "libwindow X (383): " .. (instance.libwindow.x or 0))
-					instance:AtivarInstancia()
+					
+					if (not safe_load (_detalhes.AtivarInstancia, instance)) then
+						return
+					end
+					
 				else
 					instance.ativa = false
 				end
@@ -555,18 +583,20 @@ function _detalhes:SaveProfile (saveas)
 		end
 
 	--> save skins
-		table.wipe (profile.instances)
-
-		for index, instance in ipairs (_detalhes.tabela_instancias) do
-			local exported = instance:ExportSkin()
-			exported.__was_opened = instance:IsEnabled()
-			exported.__pos = table_deepcopy (instance:GetPosition())
-			exported.__locked = instance.isLocked
-			exported.__snap = table_deepcopy (instance.snap)
-			exported.__snapH = instance.horizontalSnap
-			exported.__snapV = instance.verticalSnap
-			profile.instances [index] = exported
+		if (not _detalhes.do_not_save_skins) then
+			table.wipe (profile.instances)
+			for index, instance in ipairs (_detalhes.tabela_instancias) do
+				local exported = instance:ExportSkin()
+				exported.__was_opened = instance:IsEnabled()
+				exported.__pos = table_deepcopy (instance:GetPosition())
+				exported.__locked = instance.isLocked
+				exported.__snap = table_deepcopy (instance.snap)
+				exported.__snapH = instance.horizontalSnap
+				exported.__snapV = instance.verticalSnap
+				profile.instances [index] = exported
+			end
 		end
+		_detalhes.do_not_save_skins = nil
 		
 		_detalhes:SaveLocalInstanceConfig()
 
@@ -870,6 +900,8 @@ local default_profile = {
 		instances_amount = 5,
 		instances_segments_locked = false,
 		instances_disable_bar_highlight = false,
+		instances_menu_click_to_open = false,
+		instances_no_libwindow = false,
 		
 	--> if clear ungroup characters when logout
 		clear_ungrouped = true,
@@ -970,7 +1002,7 @@ local default_profile = {
 			show_amount = false, 
 			commands = {},
 			header_text_color = {1, 0.9176, 0, 1}, --{1, 0.7, 0, 1}
-			header_statusbar = {0.3, 0.3, 0.3, 0.8},
+			header_statusbar = {0.3, 0.3, 0.3, 0.8, false, false, "WorldState Score"},
 			submenu_wallpaper = true,
 
 			anchored_to = 1,

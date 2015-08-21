@@ -320,10 +320,10 @@
 
 			_detalhes.tabela_vigente:seta_data (_detalhes._detalhes_props.DATA_TYPE_START) --seta na tabela do combate a data do inicio do combate -- setup time data
 			_detalhes.in_combat = true --sinaliza ao addon que há um combate em andamento -- in combat flag up
-			
 			_detalhes.tabela_vigente.combat_id = n_combate --> grava o número deste combate na tabela atual -- setup combat id on new table
-			
 			_detalhes.last_combat_pre_pot_used = nil
+			
+			_detalhes:FlagCurrentCombat()
 			
 			--> é o timer que ve se o jogador ta em combate ou não -- check if any party or raid members are in combat
 			_detalhes.tabela_vigente.verifica_combate = _detalhes:ScheduleRepeatingTimer ("EstaEmCombate", 1) 
@@ -648,15 +648,9 @@
 			local tempo_do_combate = _detalhes.tabela_vigente:GetCombatTime()
 			local invalid_combat
 			
-			--if ( tempo_do_combate >= ) then --> tempo minimo precisa ser 5 segundos pra acrecentar a tabela ao historico
-			--if ( tempo_do_combate >= 5 or not _detalhes.tabela_historico.tabelas[1]) then --> tempo minimo precisa ser 5 segundos pra acrecentar a tabela ao historico
-			if ( tempo_do_combate >= _detalhes.minimum_combat_time or not _detalhes.tabela_historico.tabelas[1]) then --> tempo minimo precisa ser 5 segundos pra acrecentar a tabela ao historico
+			if ((tempo_do_combate >= _detalhes.minimum_combat_time or not _detalhes.tabela_historico.tabelas[1]) and not _detalhes.tabela_vigente.discard_segment) then
 				_detalhes.tabela_historico:adicionar (_detalhes.tabela_vigente) --move a tabela atual para dentro do histórico
 			else
-				--print ("combat invalid...")
-				--> this is a little bit complicated, need a specific function for combat cancellation
-				--_table_wipe (_detalhes.tabela_vigente) --> descarta ela, não será mais usada
-				
 				invalid_combat = _detalhes.tabela_vigente
 				_detalhes.tabela_vigente = _detalhes.tabela_historico.tabelas[1] --> pega a tabela do ultimo combate
 
@@ -1147,8 +1141,12 @@
 		end
 		
 		function _detalhes:AddTooltipHeaderStatusbar (r, g, b, a)
-			GameCooltip:AddStatusBar (100, 1, 1, 1, 1, a, nil, nil, [[Interface\WorldStateFrame\WORLDSTATEFINALSCORE-HIGHLIGHT]])
+			--GameCooltip:AddStatusBar (100, 1, 1, 1, 1, a, nil, nil, [[Interface\WorldStateFrame\WORLDSTATEFINALSCORE-HIGHLIGHT]])
+			GameCooltip:AddStatusBar (100, 1, unpack (_detalhes.tooltip.header_statusbar))
+			
 		end
+		
+-- /run local a,b=_detalhes.tooltip.header_statusbar,0.3;a[1]=b;a[2]=b;a[3]=b;a[4]=0.8;
 		
 		function _detalhes:AddTooltipSpellHeaderText (headerText, headerColor, amount, iconTexture, L, R, T, B)
 			if (_detalhes.tooltip.show_amount) then

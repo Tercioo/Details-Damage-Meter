@@ -179,7 +179,6 @@ local function CreatePluginFrames()
 		bg1:SetBackdropColor ({.95, .95, .95, .6})
 		bg1:SetPoint ("center", TimeAttackFrame, 0, 50)
 		--> default panel options come with enabled gradiens, we want to disable this
-		bg1:DisableGradient()
 
 	--> this is the main table wich will hold the times and labels also is a class
 		local HistoryPanelObject = {
@@ -194,7 +193,7 @@ local function CreatePluginFrames()
 	--> build the button to switch between recent times and saved times
 		local displayTipes = {Loc ["STRING_RECENTLY"], Loc ["STRING_SAVED"]}
 		local switchButton
-		local function changedisplay (param)
+		local function changedisplay (self, button, param)
 			HistoryPanelObject.NowShowing = param
 			HistoryPanelObject:Refresh()
 			--HistoryPanelObject.NowShowing = math.abs (HistoryPanelObject.NowShowing-3)
@@ -221,7 +220,7 @@ local function CreatePluginFrames()
 	--> select realm history type
 		local on_select_historytype = function (_, _, type)
 			TimeAttack.db.realm_last_shown = type
-			changedisplay (3)
+			changedisplay (_, _, 3)
 		end
 		local menu = {
 			{value = 40, icon = icon, iconcolor = "orange", texcoord = textcoord, label = "40 seconds", onclick = on_select_historytype},
@@ -362,7 +361,7 @@ local function CreatePluginFrames()
 		end
 		
 	--> remove a saved or recently time
-		local remove = function (index)
+		local remove = function (self, button, index)
 			if (HistoryPanelObject.NowShowing == 1) then --> recently
 				table.remove (HistoryPanelObject.Recently, index)
 			else --> history
@@ -372,7 +371,7 @@ local function CreatePluginFrames()
 		end
 	
 	--> save a recently time
-		local save = function (RecentlyIndex)
+		local save = function (self, button, RecentlyIndex)
 			if (RecentlyIndex) then --> click on any label
 				local ToSaveTimeObject = HistoryPanelObject.Recently [RecentlyIndex]
 				if (ToSaveTimeObject and not ToSaveTimeObject.FinishSaved) then
@@ -629,7 +628,7 @@ local function CreatePluginFrames()
 			
 		end
 	
-	local WriteNoteStart = function (index)
+	local WriteNoteStart = function (self, button, index)
 	
 		if (HistoryPanelObject.NowShowing == 1 and HistoryPanelObject.Recently [index].note) then --> recently
 			NoteInsertField:SetText (HistoryPanelObject.Recently [index].note)
@@ -658,7 +657,6 @@ local function CreatePluginFrames()
 		{tile = true, tileSize = 16, bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background"}, {.1, .1, .1, .3})
 
 		LabelBackground:SetPoint ("topleft", TimeAttackFrame, TimeAttack.HistoryX, TimeAttack.HistoryY)
-		LabelBackground.frame.Gradient.OnEnter = {.9, .9, .9, 1}
 		LabelBackground.frame:SetFrameLevel (bg1.frame:GetFrameLevel()+1)
 		
 		LabelBackground:SetHook ("OnEnter", OnEnterHook)

@@ -1467,7 +1467,6 @@ window.close_with_right = true
 window.child = nil
 window.instance = nil
 window:SetFrameStrata ("FULLSCREEN")
-window:DisableGradient()
 
 window:SetBackdrop ({bgFile =  [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 16, edgeFile = [[Interface\AddOns\Details\images\border_2]], edgeSize=12})
 window:SetBackdropColor (0, 0, 0, 0.9)
@@ -1481,7 +1480,7 @@ extraWindow:Hide()
 extraWindow:SetHook ("OnHide", function()
 	window:Hide()
 end)
-extraWindow:DisableGradient()
+
 extraWindow:SetBackdrop ({bgFile =  [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 16, edgeFile = [[Interface\AddOns\Details\images\border_2]], edgeSize=12})
 extraWindow:SetBackdropColor (0, 0, 0, 0.9)
 

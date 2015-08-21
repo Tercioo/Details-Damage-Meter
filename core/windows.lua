@@ -429,8 +429,7 @@
 
 	function _detalhes:RestoreMainWindowPosition (pre_defined)
 	
-		if (not pre_defined and self.libwindow.x and self.mostrando == "normal") then
-		--if (not true and not pre_defined and self.libwindow.x and self.mostrando == "normal") then
+		if (not pre_defined and self.libwindow.x and self.mostrando == "normal" and not _detalhes.instances_no_libwindow) then
 			local s = self.window_scale
 			self.baseframe:SetScale (s)
 			self.rowframe:SetScale (s)
@@ -1551,7 +1550,7 @@
 				capsule.image:SetDesaturated (true)
 			end
 			
-			local on_click = function (website)
+			local on_click = function (_, _, website)
 				if (website == 1) then
 					_detalhes:CopyPaste ([[http://www.wowinterface.com/downloads/addcomment.php?action=addcomment&fileid=23056]])
 					
@@ -1609,12 +1608,12 @@
 				_detalhes.class_colors [self.MyObject.my_class][3] = b
 				_detalhes:AtualizaGumpPrincipal (-1, true)
 			end
-			local set_color = function (class, index, self, button)
+			local set_color = function (self, button, class, index)
 				local current_class_color = _detalhes.class_colors [class]
 				local r, g, b = unpack (current_class_color)
 				_detalhes.gump:ColorPick (self, r, g, b, 1, callback)
 			end
-		local reset_color = function (class, index, self, button)
+		local reset_color = function (self, button, class, index)
 				local color_table = RAID_CLASS_COLORS [class]
 				local r, g, b = color_table.r, color_table.g, color_table.b
 				self.MyObject.my_texture:SetVertexColor (r, g, b)
@@ -1685,7 +1684,7 @@
 			local panel = _G.DetailsBookmarkManager
 			panel.blocks = {}
 			
-			local clear_func = function (id)
+			local clear_func = function (self, button, id)
 				if (_detalhes.switch.table [id]) then
 					_detalhes.switch.table [id].atributo = nil
 					_detalhes.switch.table [id].sub_atributo = nil
@@ -1705,7 +1704,7 @@
 			end
 			
 			local cooltip_color = {.1, .1, .1, .3}
-			local set_att = function (id, _, self)
+			local set_att = function (self, button, id)
 				panel.selecting_slot = id
 				GameCooltip:Reset()
 				GameCooltip:SetType (3)
@@ -1714,6 +1713,10 @@
 				GameCooltip:SetColor (1, cooltip_color)
 				GameCooltip:SetColor (2, cooltip_color)
 				GameCooltip:SetOption ("HeightAnchorMod", -7)
+				GameCooltip:SetOption ("TextSize", _detalhes.font_sizes.menus)
+				GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
+				GameCooltip:SetBackdrop (2, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
+				
 				GameCooltip:ShowCooltip()
 			end
 			

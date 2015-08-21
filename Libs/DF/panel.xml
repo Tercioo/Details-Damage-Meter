@@ -2,7 +2,7 @@
 
 	<Script file="panel.lua"/>
 	
-	<Frame name="DetailsPanelTemplate" virtual="true">
+	<Frame name="DetailsFrameworkPanelTemplate" virtual="true">
 	
 		<Size x="100" y="100"/>
 	

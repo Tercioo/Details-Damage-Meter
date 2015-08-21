@@ -1,7 +1,10 @@
---> details main objects
-local _detalhes = 		_G._detalhes
-local gump = 			_detalhes.gump
 
+local DF = _G ["DetailsFramework"]
+if (not DF or not DetailsFrameworkCanLoad) then
+	return 
+end
+
+local _
 local _rawset = rawset --> lua local
 local _rawget = rawget --> lua local
 local _setmetatable = setmetatable --> lua local
@@ -10,7 +13,7 @@ local _type = type --> lua local
 local _math_floor = math.floor --> lua local
 local loadstring = loadstring --> lua local
 local _string_len = string.len --> lua local
-local _
+
 local cleanfunction = function() end
 local APIDropDownFunctions = false
 local DropDownMetaFunctions = {}
@@ -195,7 +198,7 @@ local DropDownMetaFunctions = {}
 
 --> setpoint
 	function DropDownMetaFunctions:SetPoint (v1, v2, v3, v4, v5)
-		v1, v2, v3, v4, v5 = gump:CheckPoints (v1, v2, v3, v4, v5, self)
+		v1, v2, v3, v4, v5 = DF:CheckPoints (v1, v2, v3, v4, v5, self)
 		if (not v1) then
 			print ("Invalid parameter for SetPoint")
 			return
@@ -326,7 +329,11 @@ function DropDownMetaFunctions:Refresh()
 end
 
 function DropDownMetaFunctions:NoOptionSelected()
+	if (self.no_options) then
+		return
+	end
 	self.label:SetText (self.empty_text or "no option selected")
+	self.label:SetPoint ("left", self.icon, "right", 2, 0)
 	self.label:SetTextColor (1, 1, 1, 0.4)
 	if (self.empty_icon) then
 		self.icon:SetTexture (self.empty_icon)
@@ -345,6 +352,7 @@ function DropDownMetaFunctions:NoOption (state)
 		self:SetAlpha (0.5)
 		self.no_options = true
 		self.label:SetText ("no options")
+		self.label:SetPoint ("left", self.icon, "right", 2, 0)
 		self.label:SetTextColor (1, 1, 1, 0.4)
 		self.icon:SetTexture ([[Interface\CHARACTERFRAME\UI-Player-PlayTimeUnhealthy]])
 		self.icon:SetTexCoord (0, 1, 0, 1)
@@ -433,7 +441,7 @@ function DropDownMetaFunctions:Selected (_table)
 		
 		if (_table.iconcolor) then
 			if (type (_table.iconcolor) == "string") then
-				self.icon:SetVertexColor (gump:ParseColors (_table.iconcolor))
+				self.icon:SetVertexColor (DF:ParseColors (_table.iconcolor))
 			else
 				self.icon:SetVertexColor (unpack (_table.iconcolor))
 			end
@@ -441,6 +449,7 @@ function DropDownMetaFunctions:Selected (_table)
 			self.icon:SetVertexColor (1, 1, 1, 1)
 		end
 		
+		self.icon:SetSize (self:GetHeight()-2, self:GetHeight()-2)
 	else
 		self.label:SetPoint ("left", self.label:GetParent(), "left", 4, 0)
 	end
@@ -448,7 +457,7 @@ function DropDownMetaFunctions:Selected (_table)
 	self.statusbar:SetTexture (_table.statusbar)
 	
 	if (_table.color) then
-		local _value1, _value2, _value3, _value4 = gump:ParseColors (_table.color)
+		local _value1, _value2, _value3, _value4 = DF:ParseColors (_table.color)
 		self.label:SetTextColor (_value1, _value2, _value3, _value4)
 	else
 		self.label:SetTextColor (1, 1, 1, 1)
@@ -464,7 +473,7 @@ function DropDownMetaFunctions:Selected (_table)
 
 end
 
-function DetailsDropDownOptionClick (button)
+function DetailsFrameworkDropDownOptionClick (button)
 
 	--> update name and icon on main frame
 	button.object:Selected (button.table)
@@ -504,41 +513,41 @@ function DropDownMetaFunctions:Close()
 	
 	local selectedTexture = _G [self:GetName() .. "_ScrollFrame_ScrollChild_SelectedTexture"]
 	selectedTexture:Hide()
-	
+	 
 	self.opened = false
 	last_opened = false
 end
 
 --> close by escape key
-function DetailsDropDownOptionsFrameOnHide (frame)
+function DetailsFrameworkDropDownOptionsFrameOnHide (frame)
 	frame:GetParent().MyObject:Close()
 end
 
-function DetailsDropDownOptionOnEnter (frame)
+function DetailsFrameworkDropDownOptionOnEnter (frame)
 	if (frame.table.desc) then
-		_detalhes:CooltipPreset (2)
-		GameCooltip:AddLine (frame.table.desc)
+		GameCooltip2:Preset (2)
+		GameCooltip2:AddLine (frame.table.desc)
 		if (frame.table.descfont) then
-			GameCooltip:SetOption ("TextFont", frame.table.descfont)
+			GameCooltip2:SetOption ("TextFont", frame.table.descfont)
 		end
 		
-		GameCooltip:SetHost (frame, "topleft", "topright", 10, 0)
+		GameCooltip2:SetHost (frame, "topleft", "topright", 10, 0)
 		
-		GameCooltip:ShowCooltip (nil, "tooltip")
+		GameCooltip2:ShowCooltip (nil, "tooltip")
 		frame.tooltip = true
 	end
 	frame:GetParent().mouseover:SetPoint ("left", frame)
 	frame:GetParent().mouseover:Show()
 end
 
-function DetailsDropDownOptionOnLeave (frame)
+function DetailsFrameworkDropDownOptionOnLeave (frame)
 	if (frame.table.desc) then
-		_detalhes.popup:ShowMe (false)
+		GameCooltip2:ShowMe (false)
 	end
 	frame:GetParent().mouseover:Hide()
 end
 
-function DetailsDropDownOnMouseDown (button)
+function DetailsFrameworkDropDownOnMouseDown (button)
 	
 	local object = button.MyObject
 
@@ -583,7 +592,7 @@ function DetailsDropDownOnMouseDown (button)
 						local name = button:GetName() .. "Row" .. i
 						local parent = scrollChild
 						
-						_this_row = CreateFrame ("Button", name, parent, "DetailsDropDownOptionTemplate")
+						_this_row = CreateFrame ("Button", name, parent, "DetailsFrameworkDropDownOptionTemplate")
 						local anchor_i = i-1
 						_this_row:SetPoint ("topleft", parent, "topleft", 5, (-anchor_i*20)-5)
 						_this_row:SetPoint ("topright", parent, "topright", -5, (-anchor_i*20)-5)
@@ -604,7 +613,7 @@ function DetailsDropDownOnMouseDown (button)
 						
 						if (_table.iconcolor) then
 							if (type (_table.iconcolor) == "string") then
-								_this_row.icon:SetVertexColor (gump:ParseColors (_table.iconcolor))
+								_this_row.icon:SetVertexColor (DF:ParseColors (_table.iconcolor))
 							else
 								_this_row.icon:SetVertexColor (unpack (_table.iconcolor))
 							end
@@ -638,14 +647,15 @@ function DetailsDropDownOnMouseDown (button)
 						end
 						
 						selectedTexture:Show()
-						selectedTexture:SetVertexColor (1, 1, 1, .3);
+						selectedTexture:SetVertexColor (1, 1, 1, .3)
+						selectedTexture:SetTexCoord (0, 29/32, 5/32, 27/32)
 						
 						currentIndex = tindex
 						currentText = nil
 					end
 					
 					if (_table.color) then
-						local _value1, _value2, _value3, _value4 = gump:ParseColors (_table.color)
+						local _value1, _value2, _value3, _value4 = DF:ParseColors (_table.color)
 						_this_row.label:SetTextColor (_value1, _value2, _value3, _value4)
 					else
 						_this_row.label:SetTextColor (1, 1, 1, 1)
@@ -740,7 +750,7 @@ function DetailsDropDownOnMouseDown (button)
 	
 end
 
-function DetailsDropDownOnEnter (self)
+function DetailsFrameworkDropDownOnEnter (self)
 
 	if (self.MyObject.OnEnterHook) then
 		local interrupt = self.MyObject.OnEnterHook (self)
@@ -755,28 +765,28 @@ function DetailsDropDownOnEnter (self)
 		self:SetBackdropColor (.2, .2, .2, .2)
 	end
 	
+	if (self.MyObject.onenter_backdrop_border_color) then
+		self:SetBackdropBorderColor (unpack (self.MyObject.onenter_backdrop_border_color))
+	end
+	
 	self.arrowTexture2:Show()
 	
 	if (self.MyObject.have_tooltip) then 
-		GameCooltip:Reset()
-		GameCooltip:SetType ("tooltip")
-		GameCooltip:SetColor ("main", "transparent")
-		_detalhes:CooltipPreset (2)
-		GameCooltip:AddLine (self.MyObject.have_tooltip)
-		GameCooltip:SetOwner (self)
-		GameCooltip:ShowCooltip()
-	end
-	
-	local parent = self:GetParent().MyObject
-	if (parent and parent.type == "panel") then
-		if (parent.GradientEnabled) then
-			parent:RunGradient()
+		GameCooltip2:Preset (2)
+		
+		if (type (self.MyObject.have_tooltip) == "function") then
+			GameCooltip2:AddLine (self.MyObject.have_tooltip() or "")
+		else
+			GameCooltip2:AddLine (self.MyObject.have_tooltip)
 		end
+
+		GameCooltip2:SetOwner (self)
+		GameCooltip2:ShowCooltip()
 	end
-	
+
 end
 
-function DetailsDropDownOnLeave (self)
+function DetailsFrameworkDropDownOnLeave (self)
 	if (self.MyObject.OnLeaveHook) then
 		local interrupt = self.MyObject.OnLeaveHook (self)
 		if (interrupt) then
@@ -790,25 +800,22 @@ function DetailsDropDownOnLeave (self)
 		self:SetBackdropColor (1, 1, 1, .5)
 	end
 	
+	if (self.MyObject.onleave_backdrop_border_color) then
+		self:SetBackdropBorderColor (unpack (self.MyObject.onleave_backdrop_border_color))
+	end
+	
 	self.arrowTexture2:Hide()
 	
 	if (self.MyObject.have_tooltip) then 
-		_detalhes.popup:ShowMe (false)
-	end
-	
-	local parent = self:GetParent().MyObject
-	if (parent and parent.type == "panel") then
-		if (parent.GradientEnabled) then
-			parent:RunGradient (false)
-		end
+		GameCooltip2:ShowMe (false)
 	end
 end
 
-function DetailsDropDownOnSizeChanged (self, w, h)
+function DetailsFrameworkDropDownOnSizeChanged (self, w, h)
 	self.MyObject.label:SetSize (self:GetWidth()-40, 10)
 end
 
-function DetailsDropDownOnShow (self)
+function DetailsFrameworkDropDownOnShow (self)
 	if (self.MyObject and self.MyObject.OnShowHook) then
 		local interrupt = self.MyObject.OnShowHook (self)
 		if (interrupt) then
@@ -817,7 +824,7 @@ function DetailsDropDownOnShow (self)
 	end
 end
 
-function DetailsDropDownOnHide (self)
+function DetailsFrameworkDropDownOnHide (self)
 	if (self.MyObject and self.MyObject.OnHideHook) then
 		local interrupt = self.MyObject.OnHideHook (self)
 		if (interrupt) then
@@ -828,20 +835,74 @@ function DetailsDropDownOnHide (self)
 	self.MyObject:Close()
 end
 
+function DF:BuildDropDownFontList (on_click, icon, icon_texcoord, icon_size)
+	local t = {}
+	local SharedMedia = LibStub:GetLibrary ("LibSharedMedia-3.0")
+	for name, fontPath in pairs (SharedMedia:HashTable ("font")) do 
+		t[#t+1] = {value = name, label = name, onclick = on_click, icon = icon, iconsize = icon_size, texcoord = icon_texcoord, font = fontPath, descfont = "abcdefg ABCDEFG"}
+	end
+	table.sort (t, function (t1, t2) return t1.label < t2.label end)
+	return t
+end
 
+------------------------------------------------------------------------------------------------------------
+function DropDownMetaFunctions:SetTemplate (template)
+
+	if (template.width) then
+		self:SetWidth (template.width)
+	end
+	if (template.height) then
+		self:SetHeight (template.height)
+	end
+	
+	if (template.backdrop) then
+		self:SetBackdrop (template.backdrop)
+	end
+	if (template.backdropcolor) then
+		local r, g, b, a = DF:ParseColors (template.backdropcolor)
+		self:SetBackdropColor (r, g, b, a)
+		self.onleave_backdrop = {r, g, b, a}
+	end
+	if (template.backdropbordercolor) then
+		local r, g, b, a = DF:ParseColors (template.backdropbordercolor)
+		self:SetBackdropBorderColor (r, g, b, a)
+		self.onleave_backdrop_border_color = {r, g, b, a}
+	end
+
+	if (template.onentercolor) then
+		local r, g, b, a = DF:ParseColors (template.onentercolor)
+		self.onenter_backdrop = {r, g, b, a}
+	end
+	
+	if (template.onleavecolor) then
+		local r, g, b, a = DF:ParseColors (template.onleavecolor)
+		self.onleave_backdrop = {r, g, b, a}
+	end
+	
+	if (template.onenterbordercolor) then
+		local r, g, b, a = DF:ParseColors (template.onenterbordercolor)
+		self.onenter_backdrop_border_color = {r, g, b, a}
+	end
+
+	if (template.onleavebordercolor) then
+		local r, g, b, a = DF:ParseColors (template.onleavebordercolor)
+		self.onleave_backdrop_border_color = {r, g, b, a}
+	end
+	
+end
 
 ------------------------------------------------------------------------------------------------------------
 --> object constructor
 
-function gump:CreateDropDown (parent, func, default, w, h, member, name)
-	return gump:NewDropDown (parent, parent, name, member, w, h, func, default)
+function DF:CreateDropDown (parent, func, default, w, h, member, name, template)
+	return DF:NewDropDown (parent, parent, name, member, w, h, func, default, template)
 end
 
-function gump:NewDropDown (parent, container, name, member, w, h, func, default)
+function DF:NewDropDown (parent, container, name, member, w, h, func, default, template)
 
 	if (not name) then
-		name = "DetailsDropDownNumber" .. gump.DropDownCounter
-		gump.DropDownCounter = gump.DropDownCounter + 1
+		name = "DetailsFrameworkDropDownNumber" .. DF.DropDownCounter
+		DF.DropDownCounter = DF.DropDownCounter + 1
 		
 	elseif (not parent) then
 		return nil
@@ -882,7 +943,7 @@ function gump:NewDropDown (parent, container, name, member, w, h, func, default)
 		DropDownObject.container = container
 		DropDownObject.have_tooltip = nil
 		
-	DropDownObject.dropdown = CreateFrame ("Button", name, parent, "DetailsDropDownTemplate")
+	DropDownObject.dropdown = CreateFrame ("Button", name, parent, "DetailsFrameworkDropDownTemplate")
 	DropDownObject.widget = DropDownObject.dropdown
 	
 	DropDownObject.__it = {nil, nil}
@@ -894,7 +955,7 @@ function gump:NewDropDown (parent, container, name, member, w, h, func, default)
 		for funcName, funcAddress in pairs (idx) do 
 			if (not DropDownMetaFunctions [funcName]) then
 				DropDownMetaFunctions [funcName] = function (object, ...)
-					local x = loadstring ( "return _G."..object.dropdown:GetName()..":"..funcName.."(...)")
+					local x = loadstring ( "return _G['"..object.dropdown:GetName().."']:"..funcName.."(...)")
 					return x (...)
 				end
 			end
@@ -922,7 +983,7 @@ function gump:NewDropDown (parent, container, name, member, w, h, func, default)
 	
 	local scroll = _G [DropDownObject.dropdown:GetName() .. "_ScrollFrame"]
 
-	DropDownObject.scroll = gump:NewScrollBar (scroll, _G [DropDownObject.dropdown:GetName() .. "_ScrollFrame".."_ScrollChild"], -25, -18)
+	DropDownObject.scroll = DF:NewScrollBar (scroll, _G [DropDownObject.dropdown:GetName() .. "_ScrollFrame".."_ScrollChild"], -25, -18)
 	
 	function DropDownObject:HideScroll()
 		scroll.baixo:Hide()
@@ -954,6 +1015,10 @@ function gump:NewDropDown (parent, container, name, member, w, h, func, default)
 		end
 	end
 
+	if (template) then
+		DropDownObject:SetTemplate (template)
+	end
+	
 	return DropDownObject	
 
 end

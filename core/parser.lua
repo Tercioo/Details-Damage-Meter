@@ -3055,6 +3055,17 @@
 
 	-- PARSER
 	--serach key: ~parser ~events ~start ~inicio
+	
+	function _detalhes:FlagCurrentCombat()
+		if (_detalhes.is_in_battleground) then
+			_detalhes.tabela_vigente.pvp = true
+			_detalhes.tabela_vigente.is_pvp = {name = _detalhes.zone_name, mapid = _detalhes.zone_id}
+		elseif (_detalhes.is_in_arena) then
+			_detalhes.tabela_vigente.arena = true
+			_detalhes.tabela_vigente.is_arena = {name = _detalhes.zone_name, zone = _detalhes.zone_name, mapid = _detalhes.zone_id}
+		end
+	end
+	
 	function _detalhes:GetZoneType()
 		return _detalhes.zone_type
 	end
@@ -3088,7 +3099,7 @@
 			_detalhes.time_type = _detalhes.time_type_original
 		end
 		
-		if (zoneType == "pvp") then
+		if (zoneType == "pvp") then --> battlegrounds
 
 			if (_detalhes.debug) then
 				_detalhes:Msg ("(debug) battleground found.")
@@ -3459,7 +3470,6 @@
 			end
 		
 		elseif (_detalhes.is_in_battleground) then
-			
 			local timerType, timeSeconds, totalTime = select (1, ...)
 			
 			if (_detalhes.start_battleground) then
@@ -3467,13 +3477,15 @@
 			end
 			
 			_detalhes.start_battleground = _detalhes:ScheduleTimer ("CreateBattlegroundSegment", timeSeconds)
-
 		end
 	end
 	
 	function _detalhes:CreateBattlegroundSegment()
-		_current_combat:SetStartTime (_GetTime())
-		--print ("Battleground has begun.")
+		if (_in_combat) then
+			_detalhes.tabela_vigente.discard_segment = true
+			_detalhes:SairDoCombate()
+		end
+		_detalhes:EntrarEmCombate()
 	end
 
 	-- ~load
@@ -3483,9 +3495,20 @@
 		
 		if (addon_name == "Details") then
 		
+			if (not _detalhes.gump) then
+				--> failed to load the framework.
+				
+				if (not _detalhes.instance_load_failed) then
+					_detalhes:CreatePanicWarning()
+				end
+				_detalhes.instance_load_failed.text:SetText ("Framework for Details! isn't loaded.\nIf you just updated the addon, please reboot the game client.\nWe apologize for the inconvenience and thank you for your comprehension.")
+				
+				return
+			end
+		
 			--> cooltip
 			if (not _G.GameCooltip) then
-				_detalhes.popup = DetailsCreateCoolTip()
+				_detalhes.popup = _G.GameCooltip
 			else
 				_detalhes.popup = _G.GameCooltip
 			end
@@ -3551,6 +3574,11 @@
 	local saver = CreateFrame ("frame", nil, UIParent)
 	saver:RegisterEvent ("PLAYER_LOGOUT")
 	saver:SetScript ("OnEvent", function (...)
+		
+		if (not _detalhes.gump) then
+			--> failed to load the framework.
+			return
+		end
 		
 		local saver_error = function (errortext)
 			_detalhes_global = _detalhes_global or {}
@@ -3984,9 +4012,13 @@
 			
 			local actor = _detalhes.tabela_vigente (1, name)
 			if (actor) then
+				if (damageDone == 0) then
+					damageDone = damageDone + _detalhes:GetOrderNumber()
+				end
 				actor.total = damageDone
 				actor.classe = classToken
-			else
+				
+			elseif (name ~= "Unknown") then
 				local guid = _UnitGUID (name)
 				if (guid) then
 					local flag
@@ -4003,9 +4035,13 @@
 			
 			local actor = _detalhes.tabela_vigente (2, name)
 			if (actor) then
+				if (healingDone == 0) then
+					healingDone = healingDone + _detalhes:GetOrderNumber()
+				end
 				actor.total = healingDone
 				actor.classe = classToken
-			else
+				
+			elseif (name ~= "Unknown") then
 				local guid = _UnitGUID (name)
 				if (guid) then
 					local flag

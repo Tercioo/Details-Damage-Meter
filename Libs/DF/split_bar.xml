@@ -2,7 +2,7 @@
 
 	<Script file="split_bar.lua"/>
 
-	<StatusBar name="DetailsSplitBarTemplate" virtual="true">
+	<StatusBar name="DetailsFrameworkSplitBarTemplate" virtual="true">
 		<Size x="300" y="14"/>
 		
 		<Layers>
@@ -74,7 +74,7 @@
 				self:SetStatusBarTexture (self.texture);
 				self:SetMinMaxValues (1, 100);
 				self:SetValue (50);
-				DetailsSplitlBar_OnCreate (self);
+				DetailsFrameworkSplitlBar_OnCreate (self);
 			</OnLoad>
 		</Scripts>
 		

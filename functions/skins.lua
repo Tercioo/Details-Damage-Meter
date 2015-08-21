@@ -141,8 +141,8 @@ local _
 			["bg_g"] = 0.0941,
 			["bars_grow_direction"] = 1,
 			["row_info"] = {
-				["textR_outline"] = false,
-				["spec_file"] = "Interface\\AddOns\\Details\\images\\spec_icons_normal",
+				["textR_outline"] = true,
+				["spec_file"] = "Interface\\AddOns\\Details\\images\\spec_icons_normal_alpha",
 				["textL_outline"] = true,
 				["texture_highlight"] = "Interface\\FriendsFrame\\UI-FriendsList-Highlight",
 				["textR_show_data"] = {
@@ -162,7 +162,7 @@ local _
 					["between"] = 1,
 				},
 				["texture_background_class_color"] = false,
-				["start_after_icon"] = true,
+				["start_after_icon"] = false,
 				["font_face_file"] = "Fonts\\ARIALN.TTF",
 				["textL_custom_text"] = "{data1}. {data3}{data2}",
 				["font_size"] = 10,
@@ -200,7 +200,7 @@ local _
 					0.619607, -- [3]
 					0.116164, -- [4]
 				},
-				["font_face"] = "Arial Narrow",
+				["font_face"] = "Accidental Presidency",
 				["texture_class_colors"] = true,
 				["backdrop"] = {
 					["enabled"] = false,

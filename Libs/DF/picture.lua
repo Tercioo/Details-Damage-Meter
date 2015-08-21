@@ -1,6 +1,9 @@
---> details main objects
-local _detalhes = 		_G._detalhes
-local gump = 			_detalhes.gump
+
+local DF = _G ["DetailsFramework"]
+if (not DF or not DetailsFrameworkCanLoad) then
+	return 
+end
+
 local _
 local _rawset = rawset --> lua local
 local _rawget = rawget --> lua local
@@ -13,7 +16,6 @@ local loadstring = loadstring --> lua local
 local cleanfunction = function() end
 local APIImageFunctions = false
 local ImageMetaFunctions = {}
-
 
 ------------------------------------------------------------------------------------------------------------
 --> metatables
@@ -90,11 +92,11 @@ local ImageMetaFunctions = {}
 	--> texture
 	local smember_texture = function (_object, _value)
 		if (type (_value) == "table") then
-			local r, g, b, a = gump:ParseColors (_value)
+			local r, g, b, a = DF:ParseColors (_value)
 			_object.image:SetTexture (r, g, b, a or 1)
 		else
-			if (gump:IsHtmlColor (_value)) then
-				local r, g, b, a = gump:ParseColors (_value)
+			if (DF:IsHtmlColor (_value)) then
+				local r, g, b, a = DF:ParseColors (_value)
 				_object.image:SetTexture (r, g, b, a or 1)
 			else
 				_object.image:SetTexture (_value)
@@ -116,11 +118,11 @@ local ImageMetaFunctions = {}
 	--> color
 	local smember_color = function (_object, _value)
 		if (type (_value) == "table") then
-			local r, g, b, a = gump:ParseColors (_value)
+			local r, g, b, a = DF:ParseColors (_value)
 			_object.image:SetTexture (r,g,b, a or 1)
 		else
-			if (gump:IsHtmlColor (_value)) then
-				local r, g, b, a = gump:ParseColors (_value)
+			if (DF:IsHtmlColor (_value)) then
+				local r, g, b, a = DF:ParseColors (_value)
 				_object.image:SetTexture (r, g, b, a or 1)
 			else
 				_object.image:SetTexture (_value)
@@ -180,7 +182,7 @@ local ImageMetaFunctions = {}
 	
 -- setpoint
 	function ImageMetaFunctions:SetPoint (v1, v2, v3, v4, v5)
-		v1, v2, v3, v4, v5 = gump:CheckPoints (v1, v2, v3, v4, v5, self)
+		v1, v2, v3, v4, v5 = DF:CheckPoints (v1, v2, v3, v4, v5, self)
 		if (not v1) then
 			print ("Invalid parameter for SetPoint")
 			return
@@ -204,19 +206,19 @@ local ImageMetaFunctions = {}
 ------------------------------------------------------------------------------------------------------------
 --> object constructor
 
-function gump:CreateImage (parent, texture, w, h, layer, coords, member, name)
-	return gump:NewImage (parent, texture, w, h, layer, coords, member, name)
+function DF:CreateImage (parent, texture, w, h, layer, coords, member, name)
+	return DF:NewImage (parent, texture, w, h, layer, coords, member, name)
 end
 
-function gump:NewImage (parent, texture, w, h, layer, coords, member, name)
+function DF:NewImage (parent, texture, w, h, layer, coords, member, name)
 
 	if (not parent) then
 		return nil
 	end
 	
 	if (not name) then
-		name = "DetailsPictureNumber" .. gump.PictureNameCounter
-		gump.PictureNameCounter = gump.PictureNameCounter + 1
+		name = "DetailsFrameworkPictureNumber" .. DF.PictureNameCounter
+		DF.PictureNameCounter = DF.PictureNameCounter + 1
 	end
 	
 	if (name:find ("$parent")) then
@@ -244,7 +246,7 @@ function gump:NewImage (parent, texture, w, h, layer, coords, member, name)
 		for funcName, funcAddress in pairs (idx) do 
 			if (not ImageMetaFunctions [funcName]) then
 				ImageMetaFunctions [funcName] = function (object, ...)
-					local x = loadstring ( "return _G."..object.image:GetName()..":"..funcName.."(...)")
+					local x = loadstring ( "return _G['"..object.image:GetName().."']:"..funcName.."(...)")
 					return x (...)
 				end
 			end
@@ -261,11 +263,11 @@ function gump:NewImage (parent, texture, w, h, layer, coords, member, name)
 	end
 	if (texture) then
 		if (type (texture) == "table") then
-			local r, g, b = gump:ParseColors (texture)
+			local r, g, b = DF:ParseColors (texture)
 			ImageObject.image:SetTexture (r,g,b)
 		else
-			if (gump:IsHtmlColor (texture)) then
-				local r, g, b = gump:ParseColors (texture)
+			if (DF:IsHtmlColor (texture)) then
+				local r, g, b = DF:ParseColors (texture)
 				ImageObject.image:SetTexture (r, g, b)
 			else
 				ImageObject.image:SetTexture (texture)

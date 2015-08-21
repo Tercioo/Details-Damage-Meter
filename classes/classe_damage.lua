@@ -1536,7 +1536,7 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 	--> não há barras para mostrar -- not have something to show
 	if (#showing._ActorTable < 1) then 
 		--> colocado isso recentemente para fazer as barras de dano sumirem na troca de atributo
-		return _detalhes:EsconderBarrasNaoUsadas (instancia, showing) 
+		return _detalhes:EsconderBarrasNaoUsadas (instancia, showing), "", 0, 0
 	end
 	
 	--> total
@@ -1982,7 +1982,7 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 				end
 			
 				if (#conteudo < 1) then
-					return _detalhes:EsconderBarrasNaoUsadas (instancia, showing)
+					return _detalhes:EsconderBarrasNaoUsadas (instancia, showing), "", 0, 0
 				end
 			
 				_table_sort (conteudo, _detalhes.SortKeySimple)

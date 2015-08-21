@@ -1,10 +1,10 @@
 
-local _detalhes = 		_G._detalhes
-local AceLocale = LibStub ("AceLocale-3.0")
-local Loc = AceLocale:GetLocale ( "Details" )
-local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
+local DF = _G ["DetailsFramework"]
+if (not DF or not DetailsFrameworkCanLoad) then
+	return 
+end
 
-local gump = 			_detalhes.gump
+local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
 local _
 --lua locals
 local _math_floor= math.floor
@@ -21,21 +21,22 @@ local _GetScreenWidth = GetScreenWidth
 local _GetScreenHeight = GetScreenHeight
 local _UIParent = UIParent
 local _CreateFrame = CreateFrame
-local _UISpecialFrames = UISpecialFrames
 
-function DetailsCreateCoolTip()
+local version = 2
 
-	if (_G.GameCooltip) then
-		return _G.GameCooltip
-	end
+function DF:CreateCoolTip()
 
 ----------------------------------------------------------------------
 	--> Cooltip Startup
 ----------------------------------------------------------------------
 
+	if (_G.GameCooltip2 and _G.GameCooltip2.version >= version) then
+		return
+	end
+
 	--> Start Cooltip Table
-		local CoolTip = {}
-		_G.GameCooltip = CoolTip
+		local CoolTip = {version = version}
+		_G.GameCooltip2 = CoolTip
 	
 	--> Containers
 		CoolTip.LeftTextTable = {}
@@ -52,6 +53,8 @@ function DetailsCreateCoolTip()
 		CoolTip.StatusBarTableSub = {}
 		CoolTip.WallpaperTable = {}
 		CoolTip.WallpaperTableSub = {}
+		
+		CoolTip.PopupFrameTable = {}
 		
 		CoolTip.FunctionsTableMain = {} --> menus
 		CoolTip.FunctionsTableSub = {} --> menus
@@ -112,7 +115,6 @@ function DetailsCreateCoolTip()
 			["SelectedBottomAnchorMod"] = true,
 			["SelectedLeftAnchorMod"] = true,
 			["SelectedRightAnchorMod"] = true,
-			["MinButtonHeight"] = true,
 		}
 		
 		CoolTip.OptionsTable = {}
@@ -148,28 +150,50 @@ function DetailsCreateCoolTip()
 	--> Create Frames
 	
 		--> main frame
-		local frame1 = CreateFrame ("Frame", "GameCoolTipFrame1", UIParent, "CooltipMainFrameTemplate")
-		tinsert (UISpecialFrames, "GameCoolTipFrame1")
-		gump:CreateFlashAnimation (frame1)
+		local frame1
+		if (not GameCooltipFrame1) then
+			frame1 = CreateFrame ("Frame", "GameCooltipFrame1", UIParent, "DFCooltipMainFrameTemplate")
+			tinsert (UISpecialFrames, "GameCooltipFrame1")
+			DF:CreateFlashAnimation (frame1)
+		else
+			frame1 = GameCooltipFrame1
+		end
+		
+		GameCooltipFrame1_FrameBackgroundCenter:SetTexture (DF.folder .. "cooltip_background")
+		GameCooltipFrame1_FrameBackgroundCenter:SetTexCoord (0.10546875, 0.89453125, 0, 1)
+		GameCooltipFrame1_FrameBackgroundLeft:SetTexture (DF.folder .. "cooltip_background")
+		GameCooltipFrame1_FrameBackgroundLeft:SetTexCoord (0, 0.103515625, 0, 1)
+		GameCooltipFrame1_FrameBackgroundRight:SetTexture (DF.folder .. "cooltip_background")
+		GameCooltipFrame1_FrameBackgroundRight:SetTexCoord (0.896484375, 1, 0, 1)
 		
 		--> secondary frame
-		local frame2 = CreateFrame ("Frame", "GameCoolTipFrame2", UIParent, "CooltipMainFrameTemplate")
-		tinsert (UISpecialFrames, "GameCoolTipFrame2")
-		gump:CreateFlashAnimation (frame2)
-		frame2:SetClampedToScreen (true)
-		
+		local frame2
+		if (not GameCooltipFrame2) then
+			frame2 = CreateFrame ("Frame", "GameCooltipFrame2", UIParent, "DFCooltipMainFrameTemplate")
+			tinsert (UISpecialFrames, "GameCooltipFrame2")
+			DF:CreateFlashAnimation (frame2)
+			frame2:SetClampedToScreen (true)
+		else
+			frame2 = GameCooltipFrame2
+		end
+
 		frame2:SetPoint ("bottomleft", frame1, "bottomright")
+		
+		GameCooltipFrame2_FrameBackgroundCenter:SetTexture (DF.folder .. "cooltip_background")
+		GameCooltipFrame2_FrameBackgroundCenter:SetTexCoord (0.10546875, 0.89453125, 0, 1)
+		GameCooltipFrame2_FrameBackgroundLeft:SetTexture (DF.folder .. "cooltip_background")
+		GameCooltipFrame2_FrameBackgroundLeft:SetTexCoord (0, 0.103515625, 0, 1)
+		GameCooltipFrame2_FrameBackgroundRight:SetTexture (DF.folder .. "cooltip_background")
+		GameCooltipFrame2_FrameBackgroundRight:SetTexCoord (0.896484375, 1, 0, 1)
 	
 		CoolTip.frame1 = frame1
 		CoolTip.frame2 = frame2
-		gump:Fade (frame1, 0)
-		gump:Fade (frame2, 0)
+		DF:Fade (frame1, 0)
+		DF:Fade (frame2, 0)
 
 		--> button containers
 		frame1.Lines = {}
 		frame2.Lines = {}
-		
-		
 
 ----------------------------------------------------------------------
 	--> Title Function 
@@ -235,11 +259,12 @@ function DetailsCreateCoolTip()
 			if (CoolTip.Type ~= 1 and CoolTip.Type ~= 2) then --> menu
 				CoolTip.active = true
 				CoolTip.mouseOver = true
+				CoolTip.had_interaction = true
 				self:SetScript ("OnUpdate", nil)
-				gump:Fade (self, 0)
+				DF:Fade (self, 0)
 				--rever
 				if (CoolTip.sub_menus) then
-					gump:Fade (frame2, 0)
+					DF:Fade (frame2, 0)
 				end
 			end
 		end)
@@ -251,9 +276,10 @@ function DetailsCreateCoolTip()
 			if (CoolTip.Type ~= 1 and CoolTip.Type ~= 2) then
 				CoolTip.active = true
 				CoolTip.mouseOver = true
+				CoolTip.had_interaction = true
 				self:SetScript ("OnUpdate", nil)
-				gump:Fade (self, 0)
-				gump:Fade (frame1, 0)
+				DF:Fade (self, 0)
+				DF:Fade (frame1, 0)
 			end
 		end)
 
@@ -261,11 +287,11 @@ function DetailsCreateCoolTip()
 					elapsedTime = elapsedTime+elapsed
 					if (elapsedTime > 0.7) then
 						if (not CoolTip.active and not CoolTip.buttonClicked and self == CoolTip.Host) then
-							gump:Fade (self, 1)
-							gump:Fade (frame2, 1)
+							DF:Fade (self, 1)
+							DF:Fade (frame2, 1)
 						elseif (not CoolTip.active) then
-							gump:Fade (self, 1)
-							gump:Fade (frame2, 1)
+							DF:Fade (self, 1)
+							DF:Fade (frame2, 1)
 						end
 						self:SetScript ("OnUpdate", nil)
 						frame2:SetScript ("OnUpdate", nil)
@@ -291,11 +317,11 @@ function DetailsCreateCoolTip()
 					elapsedTime = elapsedTime+elapsed
 					if (elapsedTime > 0.7) then
 						if (not CoolTip.active and not CoolTip.buttonClicked and self == CoolTip.Host) then
-							gump:Fade (self, 1)
-							gump:Fade (frame2, 1)
+							DF:Fade (self, 1)
+							DF:Fade (frame2, 1)
 						elseif (not CoolTip.active) then
-							gump:Fade (self, 1)
-							gump:Fade (frame2, 1)
+							DF:Fade (self, 1)
+							DF:Fade (frame2, 1)
 						end
 						self:SetScript ("OnUpdate", nil)
 						frame1:SetScript ("OnUpdate", nil)
@@ -341,7 +367,7 @@ function DetailsCreateCoolTip()
 		end
 	
 		function CoolTip:CreateButton (index, frame, name)
-			local new_button = CreateFrame ("Button", name, frame, "CooltipButtonTemplate")
+			local new_button = CreateFrame ("Button", name, frame, "DFCooltipButtonTemplate")
 			frame.Lines [index] = new_button
 			return new_button
 		end
@@ -360,25 +386,26 @@ function DetailsCreateCoolTip()
 								elapsedTime = elapsedTime+elapsed
 								if (elapsedTime > 0.7) then
 									if (not CoolTip.active and not CoolTip.buttonClicked) then
-										gump:Fade (frame1, 1)
-										gump:Fade (frame2, 1)
+										DF:Fade (frame1, 1)
+										DF:Fade (frame2, 1)
 							
 									elseif (not CoolTip.active) then
-										gump:Fade (frame1, 1)
-										gump:Fade (frame2, 1)
+										DF:Fade (frame1, 1)
+										DF:Fade (frame2, 1)
 									end
 									frame1:SetScript ("OnUpdate", nil)
 								end
 							end
 		
 		function CoolTip:NewMainButton (i)
-			local botao = CoolTip:CreateButton (i, frame1, "CooltipMainButton"..i)
+			local botao = CoolTip:CreateButton (i, frame1, "GameCooltipMainButton"..i)
 			
 			--> serach key: ~onenter
 			botao:SetScript ("OnEnter", function()
 							if (CoolTip.Type ~= 1 and CoolTip.Type ~= 2 and not botao.isDiv) then
 								CoolTip.active = true
 								CoolTip.mouseOver = true
+								CoolTip.had_interaction = true
 
 								frame1:SetScript ("OnUpdate", nil)
 								frame2:SetScript ("OnUpdate", nil)
@@ -391,7 +418,13 @@ function DetailsCreateCoolTip()
 									botao.leftIcon:SetBlendMode ("BLEND")
 								end
 
-								if (CoolTip.IndexesSub [botao.index] and CoolTip.IndexesSub [botao.index] > 0) then
+								if (CoolTip.PopupFrameTable [botao.index]) then
+									local on_enter, on_leave, param1, param2 = unpack (CoolTip.PopupFrameTable [botao.index])
+									if (on_enter) then
+										xpcall (on_enter, geterrorhandler(), frame1, param1, param2)
+									end
+								
+								elseif (CoolTip.IndexesSub [botao.index] and CoolTip.IndexesSub [botao.index] > 0) then
 									if (CoolTip.OptionsTable.SubMenuIsTooltip) then
 										CoolTip:ShowSub (botao.index)
 										botao.index = i
@@ -408,11 +441,12 @@ function DetailsCreateCoolTip()
 
 								else
 									--hide second frame
-									gump:Fade (frame2, 1)
+									DF:Fade (frame2, 1)
 									CoolTip.last_button = nil
 								end
 							else
 								CoolTip.mouseOver = true
+								CoolTip.had_interaction = true
 							end
 						end)
 						
@@ -430,6 +464,13 @@ function DetailsCreateCoolTip()
 								else
 									botao.leftIcon:SetBlendMode ("BLEND")
 									botao.rightIcon:SetBlendMode ("BLEND")
+								end
+								
+								if (CoolTip.PopupFrameTable [botao.index]) then
+									local on_enter, on_leave, param1, param2 = unpack (CoolTip.PopupFrameTable [botao.index])
+									if (on_leave) then
+										xpcall (on_leave, geterrorhandler(), frame1, param1, param2)
+									end
 								end
 								
 								elapsedTime = 0
@@ -450,18 +491,18 @@ function DetailsCreateCoolTip()
 								elapsedTime = elapsedTime+elapsed
 								if (elapsedTime > 0.7) then
 									if (not CoolTip.active and not CoolTip.buttonClicked) then
-										gump:Fade (frame1, 1)
-										gump:Fade (frame2, 1)
+										DF:Fade (frame1, 1)
+										DF:Fade (frame2, 1)
 									elseif (not CoolTip.active) then
-										gump:Fade (frame1, 1)
-										gump:Fade (frame2, 1)
+										DF:Fade (frame1, 1)
+										DF:Fade (frame2, 1)
 									end
 									frame2:SetScript ("OnUpdate", nil)
 								end
 							end
 		
 		function CoolTip:NewSecondaryButton (i)
-			local botao = CoolTip:CreateButton (i, frame2, "CooltipSecButton"..i)
+			local botao = CoolTip:CreateButton (i, frame2, "GameCooltipSecButton"..i)
 			
 			botao:SetScript ("OnEnter", function()
 							if (CoolTip.OptionsTable.SubMenuIsTooltip) then
@@ -470,6 +511,7 @@ function DetailsCreateCoolTip()
 							if (CoolTip.Type ~= 1 and CoolTip.Type ~= 2 and not botao.isDiv) then
 								CoolTip.active = true
 								CoolTip.mouseOver = true
+								CoolTip.had_interaction = true
 								
 								botao.background:Show()
 								
@@ -482,10 +524,11 @@ function DetailsCreateCoolTip()
 								frame1:SetScript ("OnUpdate", nil)
 								frame2:SetScript ("OnUpdate", nil)
 								
-								gump:Fade (frame1, 0)
-								gump:Fade (frame2, 0)
+								DF:Fade (frame1, 0)
+								DF:Fade (frame2, 0)
 							else
 								CoolTip.mouseOver = true
+								CoolTip.had_interaction = true
 							end
 						end)
 
@@ -618,7 +661,7 @@ function DetailsCreateCoolTip()
 				
 				if (r == 0 and g == 0 and b == 0 and a == 0) then
 					if (CoolTip.OptionsTable.TextColor) then
-						r, g, b, a = gump:ParseColors (CoolTip.OptionsTable.TextColor)
+						r, g, b, a = DF:ParseColors (CoolTip.OptionsTable.TextColor)
 						menuButton.leftText:SetTextColor (r, g, b, a)
 					else
 						menuButton.leftText:SetTextColor (1, 1, 1, 1)
@@ -628,7 +671,7 @@ function DetailsCreateCoolTip()
 				end
 				
 				if (CoolTip.OptionsTable.TextSize and not leftTextTable [6]) then
-					_detalhes:SetFontSize (menuButton.leftText, CoolTip.OptionsTable.TextSize)
+					DF:SetFontSize (menuButton.leftText, CoolTip.OptionsTable.TextSize)
 				end
 				
 				if (CoolTip.OptionsTable.LeftTextWidth) then
@@ -689,10 +732,10 @@ function DetailsCreateCoolTip()
 				if (r == 0 and g == 0 and b == 0 and a == 0) then
 					
 					if (CoolTip.OptionsTable.TextColorRight) then
-						r, g, b, a = gump:ParseColors (CoolTip.OptionsTable.TextColorRight)
+						r, g, b, a = DF:ParseColors (CoolTip.OptionsTable.TextColorRight)
 						menuButton.rightText:SetTextColor (r, g, b, a)
 					elseif (CoolTip.OptionsTable.TextColor) then
-						r, g, b, a = gump:ParseColors (CoolTip.OptionsTable.TextColor)
+						r, g, b, a = DF:ParseColors (CoolTip.OptionsTable.TextColor)
 						menuButton.rightText:SetTextColor (r, g, b, a)
 					else
 						menuButton.rightText:SetTextColor (1, 1, 1, 1)
@@ -702,7 +745,7 @@ function DetailsCreateCoolTip()
 				end
 				
 				if (CoolTip.OptionsTable.TextSize and not rightTextTable [6]) then
-					_detalhes:SetFontSize (menuButton.rightText, CoolTip.OptionsTable.TextSize)
+					DF:SetFontSize (menuButton.rightText, CoolTip.OptionsTable.TextSize)
 				end
 				
 				if (CoolTip.OptionsTable.RightTextWidth) then
@@ -759,7 +802,7 @@ function DetailsCreateCoolTip()
 				menuButton.leftIcon:SetHeight (leftIconTable [3])
 				menuButton.leftIcon:SetTexCoord (leftIconTable [4], leftIconTable [5], leftIconTable [6], leftIconTable [7])
 				
-				local ColorR, ColorG, ColorB, ColorA = gump:ParseColors (leftIconTable [8])
+				local ColorR, ColorG, ColorB, ColorA = DF:ParseColors (leftIconTable [8])
 				menuButton.leftIcon:SetVertexColor (ColorR, ColorG, ColorB, ColorA)
 				
 				if (CoolTip.OptionsTable.IconBlendMode) then
@@ -782,7 +825,7 @@ function DetailsCreateCoolTip()
 				menuButton.rightIcon:SetHeight (rightIconTable [3])
 				menuButton.rightIcon:SetTexCoord (rightIconTable [4], rightIconTable [5], rightIconTable [6], rightIconTable [7])
 				
-				local ColorR, ColorG, ColorB, ColorA = gump:ParseColors (rightIconTable [8])
+				local ColorR, ColorG, ColorB, ColorA = DF:ParseColors (rightIconTable [8])
 				menuButton.rightIcon:SetVertexColor (ColorR, ColorG, ColorB, ColorA)
 				
 				if (CoolTip.OptionsTable.IconBlendMode) then
@@ -868,12 +911,12 @@ function DetailsCreateCoolTip()
 				
 				if (StatusBar [7]) then
 					menuButton.statusbar2:SetValue (StatusBar[7].value)
-					menuButton.statusbar2.texture:SetTexture (StatusBar[7].texture or [[Interface\AddOns\Details\images\bar4_reverse]])
+					menuButton.statusbar2.texture:SetTexture (StatusBar[7].texture or [[Interface\RaidFrame\Raid-Bar-Hp-Fill]])
 					if (StatusBar[7].specialSpark) then
 						menuButton.spark2:Show()
 					end
 					if (StatusBar[7].color) then
-						local ColorR, ColorG, ColorB, ColorA = gump:ParseColors (StatusBar[7].color)
+						local ColorR, ColorG, ColorB, ColorA = DF:ParseColors (StatusBar[7].color)
 						menuButton.statusbar2:SetStatusBarColor (ColorR, ColorG, ColorB, ColorA)
 					else
 						menuButton.statusbar2:SetStatusBarColor (1, 1, 1, 1)
@@ -885,19 +928,8 @@ function DetailsCreateCoolTip()
 				
 				if (CoolTip.OptionsTable.StatusBarTexture) then
 					menuButton.statusbar.texture:SetTexture (CoolTip.OptionsTable.StatusBarTexture)
-				end
-				
-				if (StatusBar[8]) then
-					if (StatusBar[8]:find ("\\")) then
-						menuButton.statusbar.texture:SetTexture (StatusBar[8])
-					else
-						local texture = SharedMedia:Fetch ("statusbar", StatusBar[8])
-						menuButton.statusbar.texture:SetTexture (texture)
-					end
 				else
-					if (not CoolTip.OptionsTable.StatusBarTexture) then
-						menuButton.statusbar.texture:SetTexture ("Interface\\PaperDollInfoFrame\\UI-Character-Skills-Bar")
-					end
+					menuButton.statusbar.texture:SetTexture ("Interface\\PaperDollInfoFrame\\UI-Character-Skills-Bar")
 				end
 
 			else
@@ -967,7 +999,7 @@ function DetailsCreateCoolTip()
 			menuButton:SetPoint ("left", frame2, "left")
 			menuButton:SetPoint ("right", frame2, "right")
 			
-			gump:Fade (menuButton, 0)
+			DF:Fade (menuButton, 0)
 			
 			--> string length
 			local stringWidth = menuButton.leftText:GetStringWidth() + menuButton.rightText:GetStringWidth() + menuButton.leftIcon:GetWidth() + menuButton.rightIcon:GetWidth()
@@ -985,8 +1017,8 @@ function DetailsCreateCoolTip()
 	
 		function CoolTip:SetupWallpaper (wallpaperTable, wallpaper)
 			local texture = wallpaperTable [1]
-			if (gump:IsHtmlColor (texture) or type (texture) == "table") then
-				local r, g, b, a = gump:ParseColors (texture)
+			if (DF:IsHtmlColor (texture) or type (texture) == "table") then
+				local r, g, b, a = DF:ParseColors (texture)
 				wallpaper:SetTexture (r, g, b, a)
 			else
 				wallpaper:SetTexture (texture)
@@ -996,7 +1028,7 @@ function DetailsCreateCoolTip()
 			
 			local color = wallpaperTable[6]
 			if (color) then
-				local r, g, b, a = gump:ParseColors (color)
+				local r, g, b, a = DF:ParseColors (color)
 				wallpaper:SetVertexColor (r, g, b, a)
 			else
 				wallpaper:SetVertexColor (1, 1, 1, 1)
@@ -1016,7 +1048,7 @@ function DetailsCreateCoolTip()
 	function CoolTip:ShowSub (index)
 	
 		if (CoolTip.OptionsTable.IgnoreSubMenu) then
-			gump:Fade (frame2, 1)
+			DF:Fade (frame2, 1)
 			return
 		end
 	
@@ -1038,7 +1070,7 @@ function DetailsCreateCoolTip()
 		
 		--> pegar a fontsize da label principal
 		local mainButton = frame1.Lines [index]
-		local fontSize = _detalhes:GetFontSize (mainButton.leftText)
+		local fontSize = DF:GetFontSize (mainButton.leftText)
 		
 		local GotChecked = false
 		
@@ -1082,7 +1114,7 @@ function DetailsCreateCoolTip()
 		end
 		
 		for i = CoolTip.IndexesSub [index] + 1, #frame2.Lines do 
-			gump:Fade (frame2.Lines[i], 1)
+			DF:Fade (frame2.Lines[i], 1)
 		end
 
 		local spacing = 0
@@ -1094,7 +1126,9 @@ function DetailsCreateCoolTip()
 		for i = 1, CoolTip.IndexesSub [index] do
 		
 			local menuButton = frame2.Lines [i]
-
+			
+			-- CoolTipFrame2.Lines [2].divbar
+			
 			if (menuButton.leftText:GetText() == "$div") then
 			
 				--> height
@@ -1183,7 +1217,7 @@ function DetailsCreateCoolTip()
 			frame2:SetWidth (frame2.w + 44)
 		end
 		
-		gump:Fade (frame2, 0)
+		DF:Fade (frame2, 0)
 		
 		CoolTip:CheckOverlap()
 		
@@ -1212,7 +1246,7 @@ function DetailsCreateCoolTip()
 	end
 	
 	function CoolTip:HideSub()
-		gump:Fade (frame2, 1)
+		DF:Fade (frame2, 1)
 	end	
 	
 
@@ -1225,7 +1259,7 @@ function DetailsCreateCoolTip()
 	function CoolTip:monta_tooltip()
 		
 		--> hide sub frame
-		gump:Fade (frame2, 1)
+		DF:Fade (frame2, 1)
 		--> hide select bar
 		CoolTip:HideSelectedTexture (frame1)
 
@@ -1296,21 +1330,14 @@ function DetailsCreateCoolTip()
 			elseif (CoolTip.OptionsTable.IgnoreButtonAutoHeight) then
 			
 				local height = _math_max (menuButton.leftText:GetStringHeight(), menuButton.rightText:GetStringHeight(), menuButton.leftIcon:GetHeight(), menuButton.rightIcon:GetHeight())
-				if (CoolTip.OptionsTable.MinButtonHeight) then
-					height = max (CoolTip.OptionsTable.MinButtonHeight, height)
-				end
 				menuButton:SetHeight (height)
 				menuButton:SetPoint ("top", frame1, "top", 0, temp)
 				
 				temp = temp + ( height * -1) + spacing + (CoolTip.OptionsTable.ButtonsYMod or 0)
 				
 			else
-				local height = frame1.hHeight
-				if (CoolTip.OptionsTable.MinButtonHeight) then
-					height = max (CoolTip.OptionsTable.MinButtonHeight, height)
-				end
-				menuButton:SetHeight (height + (CoolTip.OptionsTable.ButtonHeightMod or 0))
-				menuButton:SetPoint ("top", frame1, "top", 0, ( ( (i-1) * height) * -1) - 6 + (CoolTip.OptionsTable.ButtonsYMod or 0) + spacing)
+				menuButton:SetHeight (frame1.hHeight + (CoolTip.OptionsTable.ButtonHeightMod or 0))
+				menuButton:SetPoint ("top", frame1, "top", 0, ( ( (i-1) * frame1.hHeight) * -1) - 6 + (CoolTip.OptionsTable.ButtonsYMod or 0) + spacing)
 			end
 			
 			--> points
@@ -1355,7 +1382,7 @@ function DetailsCreateCoolTip()
 			elseif (CoolTip.OptionsTable.IgnoreButtonAutoHeight) then
 				frame1:SetHeight ( (temp+spacing) * -1)
 			else
-				frame1:SetHeight ( _math_max ( (frame1.hHeight * CoolTip.Indexes) + 12 + (spacing*-1), 22 ))
+				frame1:SetHeight ( _math_max ( (frame1.hHeight * CoolTip.Indexes) + 12, 22 ))
 			end
 		end
 
@@ -1366,7 +1393,7 @@ function DetailsCreateCoolTip()
 		end
 		
 		--> unhide frame
-		gump:Fade (frame1, 0)
+		DF:Fade (frame1, 0)
 		CoolTip:SetMyPoint (host)
 		
 		--> fix sparks
@@ -1396,7 +1423,7 @@ function DetailsCreateCoolTip()
 		if (CoolTip.Indexes == 0) then
 			CoolTip:Reset()
 			CoolTip:SetType ("tooltip")
-			CoolTip:AddLine (Loc ["STRING_COOLTIP_NOOPTIONS"])
+			CoolTip:AddLine ("There is no options.")
 			CoolTip:ShowCooltip()
 			return
 		end
@@ -1415,12 +1442,12 @@ function DetailsCreateCoolTip()
 			frame2.w = 0
 			frame2:SetHeight (6)
 			if (CoolTip.SelectedIndexMain and CoolTip.IndexesSub [CoolTip.SelectedIndexMain] and CoolTip.IndexesSub [CoolTip.SelectedIndexMain] > 0) then
-				gump:Fade (frame2, 0)
+				DF:Fade (frame2, 0)
 			else
-				gump:Fade (frame2, 1)
+				DF:Fade (frame2, 1)
 			end
 		else
-			gump:Fade (frame2, 1)
+			DF:Fade (frame2, 1)
 		end
 		
 		CoolTip.active = true
@@ -1573,7 +1600,7 @@ function DetailsCreateCoolTip()
 			frame1.frameWallpaper:Hide()
 		end
 	
-		gump:Fade (frame1, 0)
+		DF:Fade (frame1, 0)
 
 		for i = 1, CoolTip.Indexes do
 			if (CoolTip.SelectedIndexMain and CoolTip.SelectedIndexMain == i) then
@@ -1858,7 +1885,7 @@ function DetailsCreateCoolTip()
 		end
 		
 		function CoolTip:SetColor (menuType, ...)
-			local ColorR, ColorG, ColorB, ColorA = gump:ParseColors (...)
+			local ColorR, ColorG, ColorB, ColorA = DF:ParseColors (...)
 			if ((type (menuType) == "string" and menuType == "main") or (type (menuType) == "number" and menuType == 1)) then
 				frame1.framebackgroundLeft:SetVertexColor (ColorR, ColorG, ColorB, ColorA)
 				frame1.framebackgroundRight:SetVertexColor (ColorR, ColorG, ColorB, ColorA)
@@ -1953,6 +1980,8 @@ function DetailsCreateCoolTip()
 			frame2:SetBackdropBorderColor (unpack (default_backdropborder_color))
 
 			--[
+			_table_wipe (CoolTip.PopupFrameTable)
+			
 			_table_wipe (CoolTip.LeftTextTable)
 			_table_wipe (CoolTip.LeftTextTableSub)
 			_table_wipe (CoolTip.RightTextTable)
@@ -2004,9 +2033,6 @@ function DetailsCreateCoolTip()
 			local f1Lines = frame1.Lines
 			for i = 1, #f1Lines do
 				f1Lines [i].statusbar.subMenuArrow:Hide()
-				if (f1Lines [i].divbar) then
-					f1Lines [i].divbar:Hide()
-				end
 			end
 		end
 
@@ -2206,7 +2232,7 @@ function DetailsCreateCoolTip()
 	--> parameters: value [, color red, color green, color blue, color alpha [, glow]]
 	--> can also use a table or html color name in color red and send glow in color green
 	
-		function CoolTip:AddStatusBar (statusbarValue, frame, ColorR, ColorG, ColorB, ColorA, statusbarGlow, backgroundBar, BarTexture)
+		function CoolTip:AddStatusBar (statusbarValue, frame, ColorR, ColorG, ColorB, ColorA, statusbarGlow, backgroundBar)
 		
 			--> need a previous line
 			if (CoolTip.Indexes == 0) then
@@ -2219,12 +2245,10 @@ function DetailsCreateCoolTip()
 			end
 		
 			if (type (ColorR) == "table" or type (ColorR) == "string") then
-				statusbarGlow, backgroundBar, BarTexture, ColorR, ColorG, ColorB, ColorA = ColorG, ColorB, ColorA, gump:ParseColors (ColorR)
+				statusbarGlow, backgroundBar, ColorR, ColorG, ColorB, ColorA = ColorG, ColorB, DF:ParseColors (ColorR)
 			elseif (type (ColorR) == "boolean") then
-				BarTexture = ColorB
 				backgroundBar = ColorG
 				statusbarGlow = ColorR
-				
 				ColorR, ColorG, ColorB, ColorA = 1, 1, 1, 1
 			else
 				--> error
@@ -2281,7 +2305,6 @@ function DetailsCreateCoolTip()
 			statusbarTable [5] = ColorA
 			statusbarTable [6] = statusbarGlow
 			statusbarTable [7] = backgroundBar
-			statusbarTable [8] = BarTexture
 			
 		end
 
@@ -2348,7 +2371,7 @@ function DetailsCreateCoolTip()
 			end
 			
 			if (color) then
-				local r, g, b, a = gump:ParseColors (color)
+				local r, g, b, a = DF:ParseColors (color)
 				fontstring:SetTextColor (r, g, b, a)
 			end
 			
@@ -2373,11 +2396,11 @@ function DetailsCreateCoolTip()
 				f:SetBackdrop (backdrop)
 			end
 			if (backdropcolor) then
-				local r, g, b, a = gump:ParseColors (backdropcolor)
+				local r, g, b, a = DF:ParseColors (backdropcolor)
 				f:SetBackdropColor (r, g, b, a)
 			end
 			if (bordercolor) then
-				local r, g, b, a = gump:ParseColors (bordercolor)
+				local r, g, b, a = DF:ParseColors (bordercolor)
 				f:SetBackdropBorderColor (r, g, b, a)
 			end
 			
@@ -2533,6 +2556,17 @@ function DetailsCreateCoolTip()
 		end
 	
 ----------------------------------------------------------------------
+	--> popup frame
+		function CoolTip:AddPopUpFrame (func_on_show, func_on_hide, param1, param2)
+			
+			-- act like a sub menu
+			if (CoolTip.Indexes > 0) then
+				CoolTip.PopupFrameTable [CoolTip.Indexes] = {func_on_show or false, func_on_hide or false, param1, param2}
+			end
+			
+		end
+
+----------------------------------------------------------------------
 	--> adds a line.
 	--> only works with cooltip type 1 and 2 (tooltip and tooltip with bars)
 	--> parameters: left text, right text [, L color R, L color G, L color B, L color A [, R color R, R color G, R color B, R color A [, wrap]]] 
@@ -2570,7 +2604,7 @@ function DetailsCreateCoolTip()
 				if (type (ColorR1) == "boolean" or not ColorR1) then
 					ColorR1, ColorG1, ColorB1, ColorA1 = 0, 0, 0, 0
 				else
-					ColorR1, ColorG1, ColorB1, ColorA1 = gump:ParseColors (ColorR1)
+					ColorR1, ColorG1, ColorB1, ColorA1 = DF:ParseColors (ColorR1)
 				end
 			end
 			
@@ -2580,7 +2614,7 @@ function DetailsCreateCoolTip()
 				if (type (ColorR2) == "boolean" or not ColorR2) then
 					ColorR2, ColorG2, ColorB2, ColorA2 = 0, 0, 0, 0
 				else
-					ColorR2, ColorG2, ColorB2, ColorA2 = gump:ParseColors (ColorR2)
+					ColorR2, ColorG2, ColorB2, ColorA2 = DF:ParseColors (ColorR2)
 				end
 			end
 			
@@ -2783,11 +2817,14 @@ function DetailsCreateCoolTip()
 	
 		--> serach key: ~start
 		function CoolTip:Show (frame, menuType, color)
+			CoolTip.had_interaction = false
 			return CoolTip:ShowCooltip (frame, menuType, color)
 		end
 		
 		function CoolTip:ShowCooltip (frame, menuType, color)
 
+			CoolTip.had_interaction = false
+		
 			if (frame) then
 				--> details framework
 				if (frame.dframework) then
@@ -2821,8 +2858,8 @@ function DetailsCreateCoolTip()
 	function CoolTip:Close()
 		CoolTip.active = false
 		CoolTip.Host = nil
-		gump:Fade (frame1, 1)
-		gump:Fade (frame2, 1)
+		DF:Fade (frame1, 1)
+		DF:Fade (frame2, 1)
 		
 	end
 	
@@ -2973,5 +3010,39 @@ function DetailsCreateCoolTip()
 	--> all done
 	CoolTip:ClearAllOptions()
 
+	local preset2_backdrop = {bgFile = [[Interface\DialogFrame\UI-DialogBox-Background-Dark]], edgeFile = DF.folder .. "border_3", tile=true,
+	edgeSize = 16, tileSize = 64, insets = {left = 3, right = 3, top = 4, bottom = 4}}
+
+	local white_table = {1, 1, 1, 1}
+	
+	function CoolTip:Preset (number)
+		self:Reset()
+		
+		if (number == 1) then
+			self:SetOption ("TextFont", "Friz Quadrata TT")
+			self:SetOption ("TextColor", "orange")
+			self:SetOption ("TextSize", 12)
+			self:SetOption ("ButtonsYMod", -4)
+			self:SetOption ("YSpacingMod", -4)
+			self:SetOption ("IgnoreButtonAutoHeight", true)
+			self:SetColor (1, 0.5, 0.5, 0.5, 0.5)
+			
+		elseif (number == 2) then
+			self:SetOption ("TextFont", "Friz Quadrata TT")
+			self:SetOption ("TextColor", "orange")
+			self:SetOption ("TextSize", 12)
+			self:SetOption ("FixedWidth", 220)
+			self:SetOption ("ButtonsYMod", -4)
+			self:SetOption ("YSpacingMod", -4)
+			self:SetOption ("IgnoreButtonAutoHeight", true)
+			self:SetColor (1, 0.5, 0.5, 0.5, 0.5)
+			
+			self:SetBackdrop (1, preset2_backdrop, nil, white_table)
+		end
+	end
+	
 	return CoolTip
+	
 end
+
+DF:CreateCoolTip()

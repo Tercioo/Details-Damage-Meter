@@ -1,7 +1,11 @@
---> details main objects
-local _detalhes = 		_G._detalhes
-local gump = 			_detalhes.gump
 
+local DF = _G ["DetailsFramework"]
+
+if (not DF or not DetailsFrameworkCanLoad) then
+	return 
+end
+
+local _
 local _rawset = rawset --> lua local
 local _rawget = rawget --> lua local
 local _setmetatable = setmetatable --> lua local
@@ -9,7 +13,7 @@ local _unpack = unpack --> lua local
 local _type = type --> lua local
 local _math_floor = math.floor --> lua local
 local loadstring = loadstring --> lua local
-local _
+
 local cleanfunction = function() end
 local APIButtonFunctions = false
 local ButtonMetaFunctions = {}
@@ -143,16 +147,16 @@ local ButtonMetaFunctions = {}
 	end
 	--> text color
 	local smember_textcolor = function (_object, _value)
-		local _value1, _value2, _value3, _value4 = gump:ParseColors (_value)
+		local _value1, _value2, _value3, _value4 = DF:ParseColors (_value)
 		return _object.button.text:SetTextColor (_value1, _value2, _value3, _value4)	
 	end
 	--> text font
 	local smember_textfont = function (_object, _value)
-		return _detalhes:SetFontFace (_object.button.text, _value)
+		return DF:SetFontFace (_object.button.text, _value)
 	end
 	--> text size
 	local smember_textsize = function (_object, _value)
-		return _detalhes:SetFontSize (_object.button.text, _value)
+		return DF:SetFontSize (_object.button.text, _value)
 	end
 	--> texture
 	local smember_texture = function (_object, _value)
@@ -244,9 +248,9 @@ local ButtonMetaFunctions = {}
 	
 -- setpoint
 	function ButtonMetaFunctions:SetPoint (v1, v2, v3, v4, v5)
-		v1, v2, v3, v4, v5 = gump:CheckPoints (v1, v2, v3, v4, v5, self)
+		v1, v2, v3, v4, v5 = DF:CheckPoints (v1, v2, v3, v4, v5, self)
 		if (not v1) then
-			print ("Invalid parameter for SetPoint")
+			error ("SetPoint: Invalid parameter.")
 			return
 		end
 		return self.widget:SetPoint (v1, v2, v3, v4, v5)
@@ -313,18 +317,18 @@ local ButtonMetaFunctions = {}
 		if (arg2) then
 			return self.button.text:SetTextColor (color, arg2, arg3, arg4 or 1)
 		end
-		local _value1, _value2, _value3, _value4 = gump:ParseColors (color)
+		local _value1, _value2, _value3, _value4 = DF:ParseColors (color)
 		return self.button.text:SetTextColor (_value1, _value2, _value3, _value4)
 	end
 	
 -- textsize
 	function ButtonMetaFunctions:SetTextSize (size)
-		return _detalhes:SetFontSize (self.button.text, _value)
+		return DF:SetFontSize (self.button.text, _value)
 	end
 	
 -- textfont
 	function ButtonMetaFunctions:SetTextFont (font)
-		return _detalhes:SetFontFace (_object.button.text, _value)
+		return DF:SetFontFace (_object.button.text, _value)
 	end
 	
 -- textures
@@ -401,7 +405,7 @@ local ButtonMetaFunctions = {}
 		end
 		if (overlay) then
 			if (type (overlay) == "string") then
-				local r, g, b, a = gump:ParseColors (overlay)
+				local r, g, b, a = DF:ParseColors (overlay)
 				self.icon:SetVertexColor (r, g, b, a)
 			else
 				self.icon:SetVertexColor (unpack (overlay))
@@ -425,7 +429,7 @@ local ButtonMetaFunctions = {}
 						loop = false
 						break
 					else
-						_detalhes:SetFontSize (self.button.text, textsize)
+						DF:SetFontSize (self.button.text, textsize)
 						text_width = self.button.text:GetStringWidth()
 						textsize = textsize - 1
 					end
@@ -612,17 +616,22 @@ local ButtonMetaFunctions = {}
 			end
 		end
 
-		if (button.MyObject.have_tooltip) then 
-			_detalhes:CooltipPreset (2)
-			GameCooltip:AddLine (button.MyObject.have_tooltip)
-			GameCooltip:ShowCooltip (button, "tooltip")
+		if (button.MyObject.onenter_backdrop_border_color) then
+			button:SetBackdropBorderColor (unpack (button.MyObject.onenter_backdrop_border_color))
 		end
 		
-		local parent = button:GetParent().MyObject
-		if (parent and parent.type == "panel") then
-			if (parent.GradientEnabled) then
-				parent:RunGradient()
+		if (button.MyObject.onenter_backdrop) then
+			button:SetBackdropColor (unpack (button.MyObject.onenter_backdrop))
+		end
+		
+		if (button.MyObject.have_tooltip) then 
+			GameCooltip2:Preset (2)
+			if (type (button.MyObject.have_tooltip) == "function") then
+				GameCooltip2:AddLine (button.MyObject.have_tooltip() or "")
+			else
+				GameCooltip2:AddLine (button.MyObject.have_tooltip)
 			end
+			GameCooltip2:ShowCooltip (button, "tooltip")
 		end
 	end
 	
@@ -657,16 +666,17 @@ local ButtonMetaFunctions = {}
 			end
 		end
 
-		if (button.MyObject.have_tooltip) then
-			if (GameCooltip:GetText (1) == button.MyObject.have_tooltip) then
-				GameCooltip:Hide()
-			end
+		if (button.MyObject.onleave_backdrop_border_color) then
+			button:SetBackdropBorderColor (unpack (button.MyObject.onleave_backdrop_border_color))
 		end
 		
-		local parent = button:GetParent().MyObject
-		if (parent and parent.type == "panel") then
-			if (parent.GradientEnabled) then
-				parent:RunGradient (false)
+		if (button.MyObject.onleave_backdrop) then
+			button:SetBackdropColor (unpack (button.MyObject.onleave_backdrop))
+		end
+		
+		if (button.MyObject.have_tooltip) then
+			if (GameCooltip2:GetText (1) == button.MyObject.have_tooltip or type (button.MyObject.have_tooltip) == "function") then
+				GameCooltip2:Hide()
 			end
 		end
 	end
@@ -846,25 +856,77 @@ local ButtonMetaFunctions = {}
 		y = _math_floor (y)
 		if ((button.mouse_down+0.4 > GetTime() and (x == button.x and y == button.y)) or (x == button.x and y == button.y)) then
 			if (buttontype == "LeftButton") then
-				button.MyObject.func (button.MyObject.param1, button.MyObject.param2, button, buttontype)
+				button.MyObject.func (button, buttontype, button.MyObject.param1, button.MyObject.param2)
 			else
-				button.MyObject.funcright (button.MyObject.param1, button.MyObject.param2, button, buttontype)
+				button.MyObject.funcright (button, buttontype, button.MyObject.param1, button.MyObject.param2)
 			end
 		end
 	end
 
 ------------------------------------------------------------------------------------------------------------
---> object constructor
 
-function gump:CreateButton (parent, func, w, h, text, param1, param2, texture, member, name, short_method)
-	return gump:NewButton (parent, parent, name, member, w, h, func, param1, param2, texture, text, short_method)
+function ButtonMetaFunctions:SetTemplate (template)
+	
+	if (template.width) then
+		self:SetWidth (template.width)
+	end
+	if (template.height) then
+		self:SetHeight (template.height)
+	end
+	
+	if (template.backdrop) then
+		self:SetBackdrop (template.backdrop)
+	end
+	if (template.backdropcolor) then
+		local r, g, b, a = DF:ParseColors (template.backdropcolor)
+		self:SetBackdropColor (r, g, b, a)
+		self.onleave_backdrop = {r, g, b, a}
+	end
+	if (template.backdropbordercolor) then
+		local r, g, b, a = DF:ParseColors (template.backdropbordercolor)
+		self:SetBackdropBorderColor (r, g, b, a)
+		self.onleave_backdrop_border_color = {r, g, b, a}
+	end
+	
+	if (template.onentercolor) then
+		local r, g, b, a = DF:ParseColors (template.onentercolor)
+		self.onenter_backdrop = {r, g, b, a}
+	end
+	
+	if (template.onleavecolor) then
+		local r, g, b, a = DF:ParseColors (template.onleavecolor)
+		self.onleave_backdrop = {r, g, b, a}
+	end
+	
+	if (template.onenterbordercolor) then
+		local r, g, b, a = DF:ParseColors (template.onenterbordercolor)
+		self.onenter_backdrop_border_color = {r, g, b, a}
+	end
+	
+	if (template.onleavebordercolor) then
+		local r, g, b, a = DF:ParseColors (template.onleavebordercolor)
+		self.onleave_backdrop_border_color = {r, g, b, a}
+	end
+	
+	if (template.icon) then
+		local i = template.icon
+		self:SetIcon (i.texture, i.width, i.height, i.layout, i.texcoord, i.color, i.textdistance, i.leftpadding)
+	end
+	
 end
 
-function gump:NewButton (parent, container, name, member, w, h, func, param1, param2, texture, text, short_method)
+------------------------------------------------------------------------------------------------------------
+--> object constructor
+
+function DF:CreateButton (parent, func, w, h, text, param1, param2, texture, member, name, short_method, button_template, text_template)
+	return DF:NewButton (parent, parent, name, member, w, h, func, param1, param2, texture, text, short_method, button_template, text_template)
+end
+
+function DF:NewButton (parent, container, name, member, w, h, func, param1, param2, texture, text, short_method, button_template, text_template)
 	
 	if (not name) then
-		name = "DetailsButtonNumber" .. gump.ButtonCounter
-		gump.ButtonCounter = gump.ButtonCounter + 1
+		name = "DetailsFrameworkButtonNumber" .. DF.ButtonCounter
+		DF.ButtonCounter = DF.ButtonCounter + 1
 		
 	elseif (not parent) then
 		return nil
@@ -876,8 +938,7 @@ function gump:NewButton (parent, container, name, member, w, h, func, param1, pa
 	if (name:find ("$parent")) then
 		name = name:gsub ("$parent", parent:GetName())
 	end
-	
-	
+
 	local ButtonObject = {type = "button", dframework = true}
 	
 	if (member) then
@@ -906,16 +967,20 @@ function gump:NewButton (parent, container, name, member, w, h, func, param1, pa
 		ButtonObject.options = {OnGrab = false}
 
 
-	ButtonObject.button = CreateFrame ("button", name, parent, "DetailsButtonTemplate")
+	ButtonObject.button = CreateFrame ("button", name, parent, "DetailsFrameworkButtonTemplate")
 	ButtonObject.widget = ButtonObject.button
 
+	--ButtonObject.button:SetBackdrop ({bgFile = DF.folder .. "background", tileSize = 64, edgeFile = DF.folder .. "border_2", edgeSize = 10, insets = {left = 1, right = 1, top = 1, bottom = 1}})
+	ButtonObject.button:SetBackdropColor (0, 0, 0, 0.4)
+	ButtonObject.button:SetBackdropBorderColor (1, 1, 1, 1)
+	
 	if (not APIButtonFunctions) then
 		APIButtonFunctions = true
 		local idx = getmetatable (ButtonObject.button).__index
 		for funcName, funcAddress in pairs (idx) do 
 			if (not ButtonMetaFunctions [funcName]) then
 				ButtonMetaFunctions [funcName] = function (object, ...)
-					local x = loadstring ( "return _G."..object.button:GetName()..":"..funcName.."(...)")
+					local x = loadstring ( "return _G['"..object.button:GetName().."']:"..funcName.."(...)")
 					return x (...)
 				end
 			end
@@ -950,7 +1015,7 @@ function gump:NewButton (parent, container, name, member, w, h, func, param1, pa
 					loop = false
 					break
 				else
-					_detalhes:SetFontSize (ButtonObject.button.text, textsize)
+					DF:SetFontSize (ButtonObject.button.text, textsize)
 					text_width = ButtonObject.button.text:GetStringWidth()
 					textsize = textsize - 1
 				end
@@ -965,6 +1030,21 @@ function gump:NewButton (parent, container, name, member, w, h, func, param1, pa
 	
 	ButtonObject.short_method = short_method
 	
+	if (text_template) then
+		if (text_template.size) then
+			DF:SetFontSize (ButtonObject.button.text, text_template.size)
+		end
+		if (text_template.color) then
+			local r, g, b, a = DF:ParseColors (text_template.color)
+			ButtonObject.button.text:SetTextColor (r, g, b, a)
+		end
+		if (text_template.font) then
+			local SharedMedia = LibStub:GetLibrary ("LibSharedMedia-3.0")
+			local font = SharedMedia:Fetch ("font", text_template.font)
+			DF:SetFontFace (ButtonObject.button.text, font)
+		end
+	end
+	
 	--> hooks
 		ButtonObject.button:SetScript ("OnEnter", OnEnter)
 		ButtonObject.button:SetScript ("OnLeave", OnLeave)
@@ -975,23 +1055,30 @@ function gump:NewButton (parent, container, name, member, w, h, func, param1, pa
 		
 	_setmetatable (ButtonObject, ButtonMetaFunctions)
 	
+	if (button_template) then
+		ButtonObject:SetTemplate (button_template)
+	end
+	
 	return ButtonObject
 	
 end
 
 local pickcolor_callback = function (self, r, g, b, a, button)
+	a = abs (a-1)
 	button.MyObject.color_texture:SetVertexColor (r, g, b, a)
 	button.MyObject:color_callback (r, g, b, a)
 end
-local pickcolor = function (alpha, param2, self)
+local pickcolor = function (self, alpha, param2)
 	local r, g, b, a = self.MyObject.color_texture:GetVertexColor()
-	gump:ColorPick (self, r, g, b, a, pickcolor_callback)
+	a = abs (a-1)
+	DF:ColorPick (self, r, g, b, a, pickcolor_callback)
 end
 
 local color_button_height = 16
 local color_button_width = 16
 
 local set_colorpick_color = function (button, r, g, b, a)
+	a = a or 1
 	button.color_texture:SetVertexColor (r, g, b, a)
 end
 
@@ -999,47 +1086,38 @@ local colorpick_cancel = function (self)
 	ColorPickerFrame:Hide()
 end
 
-function gump:NewColorPickButton (parent, name, member, callback, alpha)
+function DF:CreateColorPickButton (parent, name, member, callback, alpha, button_template)
+	return DF:NewColorPickButton (parent, name, member, callback, alpha, button_template)
+end
+
+function DF:NewColorPickButton (parent, name, member, callback, alpha, button_template)
 
 	--button
-	local button = gump:NewButton (parent, _, name, member, color_button_width, color_button_height, pickcolor, alpha, "param2")
-	button:InstallCustomTexture()
+	local button = DF:NewButton (parent, _, name, member, color_button_width, color_button_height, pickcolor, alpha, "param2", nil, nil, nil, button_template)
 	button.color_callback = callback
 	button.Cancel = colorpick_cancel
 	button.SetColor = set_colorpick_color
 	
-	button:SetBackdrop ({edgeFile = [[Interface\Tooltips\UI-Tooltip-Border]], edgeSize = 6,
-	bgFile = [[Interface\AddOns\Details\images\background]], insets = {left = 0, right = 0, top = 0, bottom = 0}})
+	if (not button_template) then
+		button:InstallCustomTexture()
+		button:SetBackdrop ({edgeFile = [[Interface\Tooltips\UI-Tooltip-Border]], edgeSize = 6,
+		bgFile = [[Interface\DialogFrame\UI-DialogBox-Background]], insets = {left = 0, right = 0, top = 0, bottom = 0}})
+	end
 	
 	--textura do fundo
-	local background = gump:NewImage (button, nil, color_button_width, color_button_height, nil, nil, nil, "$parentBck")
-	background:SetTexture ([[Interface\AddOns\Details\images\icons]])
+	local background = DF:NewImage (button, nil, color_button_width, color_button_height, nil, nil, nil, "$parentBck")
+	--background:SetTexture ([[Interface\AddOns\Details\images\icons]])
 	background:SetPoint ("topleft", button.widget, "topleft", 1, -2)
 	background:SetPoint ("bottomright", button.widget, "bottomright", -1, 1)
-	--background:SetTexCoord (0.337890625, 0.5859375, 0.625, 0.685546875) --173 320 300 351
-	background:SetTexCoord (0.337890625, 0.390625, 0.625, 0.658203125) --173 320 200 337
+	background:SetTexCoord (0.337890625, 0.390625, 0.625, 0.658203125)
 	background:SetDrawLayer ("background", 1)
 	
 	--textura da cor
-	local img = gump:NewImage (button, nil, color_button_width, color_button_height, nil, nil, "color_texture", "$parentTex")
+	local img = DF:NewImage (button, nil, color_button_width, color_button_height, nil, nil, "color_texture", "$parentTex")
 	img:SetTexture (1, 1, 1)
 	img:SetPoint ("topleft", button.widget, "topleft", 1, -2)
 	img:SetPoint ("bottomright", button.widget, "bottomright", -1, 1)
 	img:SetDrawLayer ("background", 2)
-	
-	--icone do color pick
-	--[[
-	local icon = gump:NewImage (button, nil, "$parentIcon", nil, 16, color_button_height)
-	icon:SetTexture ("Interface\\AddOns\\Details\\images\\icons")
-	icon:SetPoint ("topleft", button, "topleft", -1, 0)
-	icon:SetDrawLayer ("border", 3)
-	icon:SetTexCoord (0.640625, 0.6875, 0.630859375, 0.677734375) --328 323 352 347
-
-	text
-	local color_label = gump:NewLabel (button, nil, nil, nil, "color", "GameFontNormal")
-	color_label:SetDrawLayer ("border", 4)
-	color_label:SetPoint ("left", icon, "right", 2, 1)
-	--]]
 	
 	return button
 	

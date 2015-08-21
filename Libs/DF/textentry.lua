@@ -1,6 +1,9 @@
---> details main objects
-local _detalhes = 		_G._detalhes
-local gump = 			_detalhes.gump
+
+local DF = _G ["DetailsFramework"]
+if (not DF or not DetailsFrameworkCanLoad) then
+	return 
+end
+
 local _
 local _rawset = rawset --> lua local
 local _rawget = rawget --> lua local
@@ -15,7 +18,7 @@ local cleanfunction = function() end
 local APITextEntryFunctions = false
 local TextEntryMetaFunctions = {}
 
-gump.TextEntryCounter = 1
+DF.TextEntryCounter = 1
 
 ------------------------------------------------------------------------------------------------------------
 --> metatables
@@ -157,7 +160,7 @@ gump.TextEntryCounter = 1
 			self.space = Width
 		end
 		
-		MyAnchor, SnapTo, HisAnchor, x, y = gump:CheckPoints (MyAnchor, SnapTo, HisAnchor, x, y, self)
+		MyAnchor, SnapTo, HisAnchor, x, y = DF:CheckPoints (MyAnchor, SnapTo, HisAnchor, x, y, self)
 		if (not MyAnchor) then
 			print ("Invalid parameter for SetPoint")
 			return
@@ -256,6 +259,9 @@ gump.TextEntryCounter = 1
 			self.editbox:SetBackdropBorderColor (unpack (self.enabled_border_color))
 			self.editbox:SetBackdropColor (unpack (self.enabled_backdrop_color))
 			self.editbox:SetTextColor (unpack (self.enabled_text_color))
+			if (self.editbox.borderframe) then
+				self.editbox.borderframe:SetBackdropColor (unpack (self.editbox.borderframe.onleave_backdrop))
+			end
 		end
 	end
 	
@@ -270,6 +276,10 @@ gump.TextEntryCounter = 1
 			self.editbox:SetBackdropBorderColor (.5, .5, .5, .5)
 			self.editbox:SetBackdropColor (.5, .5, .5, .5)
 			self.editbox:SetTextColor (.5, .5, .5, .5)
+			
+			if (self.editbox.borderframe) then
+				self.editbox.borderframe:SetBackdropColor (.5, .5, .5, .5)
+			end
 		end
 	end
 	
@@ -285,9 +295,9 @@ gump.TextEntryCounter = 1
 		end
 	
 		if (textentry.MyObject.have_tooltip) then 
-			_detalhes:CooltipPreset (2)
-			GameCooltip:AddLine (textentry.MyObject.have_tooltip)
-			GameCooltip:ShowCooltip (textentry, "tooltip")
+			GameCooltip2:Preset (2)
+			GameCooltip2:AddLine (textentry.MyObject.have_tooltip)
+			GameCooltip2:ShowCooltip (textentry, "tooltip")
 		end
 		
 		textentry.mouse_over = true 
@@ -295,13 +305,6 @@ gump.TextEntryCounter = 1
 		if (textentry:IsEnabled()) then 
 			textentry.current_bordercolor = textentry.current_bordercolor or {textentry:GetBackdropBorderColor()}
 			textentry:SetBackdropBorderColor (1, 1, 1, 1)
-		end
-		
-		local parent = textentry:GetParent().MyObject
-		if (parent and parent.type == "panel") then
-			if (parent.GradientEnabled) then
-				parent:RunGradient()
-			end
 		end
 		
 	end
@@ -315,7 +318,7 @@ gump.TextEntryCounter = 1
 		end
 	
 		if (textentry.MyObject.have_tooltip) then 
-			_detalhes.popup:ShowMe (false)
+			GameCooltip2:ShowMe (false)
 		end
 		
 		textentry.mouse_over = false 
@@ -323,13 +326,7 @@ gump.TextEntryCounter = 1
 		if (textentry:IsEnabled()) then 
 			textentry:SetBackdropBorderColor (unpack (textentry.current_bordercolor))
 		end
-		
-		local parent = textentry:GetParent().MyObject
-		if (parent and parent.type == "panel") then
-			if (parent.GradientEnabled) then
-				parent:RunGradient (false)
-			end
-		end
+
 	end
 	
 	local OnHide = function (textentry)
@@ -359,7 +356,7 @@ gump.TextEntryCounter = 1
 			end
 		end
 	
-		local texto = _detalhes:trim (textentry:GetText())
+		local texto = DF:trim (textentry:GetText())
 		if (_string_len (texto) > 0) then 
 			textentry.text = texto
 			if (textentry.MyObject.func) then 
@@ -404,7 +401,7 @@ gump.TextEntryCounter = 1
 			end
 		
 			if (not textentry.focuslost) then
-				local texto = _detalhes:trim (textentry:GetText())
+				local texto = DF:trim (textentry:GetText())
 				if (_string_len (texto) > 0) then 
 					textentry.MyObject.currenttext = texto
 					if (textentry.MyObject.func) then 
@@ -470,17 +467,46 @@ gump.TextEntryCounter = 1
 	end
 	
 ------------------------------------------------------------------------------------------------------------
---> object constructor
 
-function gump:CreateTextEntry (parent, func, w, h, member, name)
-	return gump:NewTextEntry (parent, parent, name, member, w, h, func)
+function TextEntryMetaFunctions:SetTemplate (template)
+	if (template.width) then
+		self:SetWidth (template.width)
+	end
+	if (template.height) then
+		self:SetHeight (template.height)
+	end
+	
+	if (template.backdrop) then
+		self:SetBackdrop (template.backdrop)
+	end
+	if (template.backdropcolor) then
+		local r, g, b, a = DF:ParseColors (template.backdropcolor)
+		self:SetBackdropColor (r, g, b, a)
+		self.onleave_backdrop = {r, g, b, a}
+	end
+	if (template.backdropbordercolor) then
+		local r, g, b, a = DF:ParseColors (template.backdropbordercolor)
+		self:SetBackdropBorderColor (r, g, b, a)
+		self.editbox.current_bordercolor[1] = r
+		self.editbox.current_bordercolor[2] = g
+		self.editbox.current_bordercolor[3] = b
+		self.editbox.current_bordercolor[4] = a
+		self.onleave_backdrop_border_color = {r, g, b, a}
+	end
 end
 
-function gump:NewTextEntry (parent, container, name, member, w, h, func, param1, param2, space)
+------------------------------------------------------------------------------------------------------------
+--> object constructor
+
+function DF:CreateTextEntry (parent, func, w, h, member, name, with_label, entry_template, label_template)
+	return DF:NewTextEntry (parent, parent, name, member, w, h, func, nil, nil, nil, with_label, entry_template, label_template)
+end
+
+function DF:NewTextEntry (parent, container, name, member, w, h, func, param1, param2, space, with_label, entry_template, label_template)
 	
 	if (not name) then
-		name = "DetailsTextEntryNumber" .. gump.TextEntryCounter
-		gump.TextEntryCounter = gump.TextEntryCounter + 1
+		name = "DetailsFrameworkTextEntryNumber" .. DF.TextEntryCounter
+		DF.TextEntryCounter = DF.TextEntryCounter + 1
 		
 	elseif (not parent) then
 		return nil
@@ -525,7 +551,7 @@ function gump:NewTextEntry (parent, container, name, member, w, h, func, param1,
 		TextEntryObject.container = container
 		TextEntryObject.have_tooltip = nil
 
-	TextEntryObject.editbox = CreateFrame ("EditBox", name, parent, "DetailsEditBoxTemplate2")
+	TextEntryObject.editbox = CreateFrame ("EditBox", name, parent, "DetailsFrameworkEditBoxTemplate2")
 	TextEntryObject.widget = TextEntryObject.editbox
 	
 	TextEntryObject.editbox:SetTextInsets (3, 0, 0, -3)
@@ -536,7 +562,7 @@ function gump:NewTextEntry (parent, container, name, member, w, h, func, param1,
 		for funcName, funcAddress in pairs (idx) do 
 			if (not TextEntryMetaFunctions [funcName]) then
 				TextEntryMetaFunctions [funcName] = function (object, ...)
-					local x = loadstring ( "return _G."..object.editbox:GetName()..":"..funcName.."(...)")
+					local x = loadstring ( "return _G['"..object.editbox:GetName().."']:"..funcName.."(...)")
 					return x (...)
 				end
 			end
@@ -548,7 +574,7 @@ function gump:NewTextEntry (parent, container, name, member, w, h, func, param1,
 	if (not w and space) then
 		w = space
 	elseif (w and space) then
-		if (gump.debug) then
+		if (DF.debug) then
 			print ("warning: you are using width and space, try use only space for better results.")
 		end
 	end
@@ -568,6 +594,8 @@ function gump:NewTextEntry (parent, container, name, member, w, h, func, param1,
 	TextEntryObject.enabled_border_color = {TextEntryObject.editbox:GetBackdropBorderColor()}
 	TextEntryObject.enabled_backdrop_color = {TextEntryObject.editbox:GetBackdropColor()}
 	TextEntryObject.enabled_text_color = {TextEntryObject.editbox:GetTextColor()}
+	TextEntryObject.onleave_backdrop = {TextEntryObject.editbox:GetBackdropColor()}
+	TextEntryObject.onleave_backdrop_border_color = {TextEntryObject.editbox:GetBackdropBorderColor()}
 	
 	TextEntryObject.func = func
 	TextEntryObject.param1 = param1
@@ -578,8 +606,7 @@ function gump:NewTextEntry (parent, container, name, member, w, h, func, param1,
 	
 	TextEntryObject.label = _G [name .. "_Desc"]
 	
-	TextEntryObject.editbox:SetBackdrop ({bgFile = [[Interface\AddOns\Details\images\background]], tileSize = 64, edgeFile = [[Interface\AddOns\Details\images\border_2]], edgeSize = 12, insets = {left = 1, right = 1, top = 1, bottom = 1}})
-	TextEntryObject.editbox:SetBackdropColor (0, 0, 0, 0.5)
+	TextEntryObject.editbox:SetBackdrop ({bgFile = DF.folder .. "background", tileSize = 64, edgeFile = DF.folder .. "border_2", edgeSize = 10, insets = {left = 1, right = 1, top = 1, bottom = 1}})
 	
 	--> hooks
 		TextEntryObject.editbox:SetScript ("OnEnter", OnEnter)
@@ -597,82 +624,32 @@ function gump:NewTextEntry (parent, container, name, member, w, h, func, param1,
 		
 	_setmetatable (TextEntryObject, TextEntryMetaFunctions)
 	
-	return TextEntryObject	
-	
-end
-
-local SpellEntryOnEditFocusGained = 	function (self)
-	local start_build_cache = _detalhes:BuildSpellListSlow()
-	if (start_build_cache) then
-		DetailsLoadSpellCacheProgress:SetPoint ("left", self, "right", 2, 0)
-	end
-end
-
-local SpellEntryOnClickMenu = function (_, _, SpellID, editbox)
-	editbox:SetText (SpellID)
-	editbox:PressEnter()
-	editbox.HaveMenu = false
-	GameCooltip:ShowMe (false)
-end
-
-local SpellEntryOnTextChanged = function (editbox, userChanged)
-
-	if (not userChanged) then
-		return
-	elseif (not _detalhes.spellcachefull) then
-		return
-	end
-	
-	editbox = editbox.MyObject
-	
-	local text = editbox:GetText()
-	text = _detalhes:trim (text)
-	text = string.lower (text)
-	
-	local LetterIndex = string.sub (text, 1, 1)
-	local LetterIndex_CacheContainer = _detalhes.spellcachefull [LetterIndex]
-	
-	if (LetterIndex_CacheContainer) then
-	
-		local GameCooltip = _G.GameCooltip
-	
-		_detalhes:CooltipPreset (1)
-		GameCooltip:SetType ("menu")
-		GameCooltip:SetOwner (editbox.widget)
-		GameCooltip:SetOption ("NoLastSelectedBar", true)
-		GameCooltip:SetOption ("TextSize", 9)
-		
-		local i = 1
-
-		for SpellID, SpellTable in pairs (LetterIndex_CacheContainer) do 
-			if (string.lower (SpellTable[1]):find (text)) then 
-			
-				GameCooltip:AddMenu (1, SpellEntryOnClickMenu, SpellID, editbox, nil, SpellID..": "..SpellTable[1], SpellTable[2], true)
-				
-				if (i > 20) then
-					break
-				else
-					i = i + 1
-				end
-			end
+	if (with_label) then
+		local label = DF:CreateLabel (TextEntryObject.editbox, with_label, nil, nil, nil, "label", nil, "overlay")
+		label.text = with_label
+		TextEntryObject.editbox:SetPoint ("left", label.widget, "right", 2, 0)
+		if (label_template) then
+			label:SetTemplate (label_template)
 		end
-		
-		editbox.HaveMenu = true
-		GameCooltip.buttonOver = true
-		GameCooltip:ShowCooltip()
+		with_label = label
 	end
+	
+	if (entry_template) then
+		TextEntryObject:SetTemplate (entry_template)
+	end	
+	
+	return TextEntryObject, with_label
 	
 end
 
-function gump:NewSpellEntry (parent, func, w, h, param1, param2, member, name)
-	local editbox = gump:NewTextEntry (parent, parent, name, member, w, h, func, param1, param2)
+function DF:NewSpellEntry (parent, func, w, h, param1, param2, member, name)
+	local editbox = DF:NewTextEntry (parent, parent, name, member, w, h, func, param1, param2)
 	
 	editbox:SetHook ("OnEditFocusGained", SpellEntryOnEditFocusGained)
 	editbox:SetHook ("OnTextChanged", SpellEntryOnTextChanged)
 	
 	return editbox	
 end
-
 
 local function_gettext = function (self)
 	return self.editbox:GetText()
@@ -687,7 +664,7 @@ local function_setfocus = function (self)
 	return self.editbox:SetFocus (true)
 end
 
-function gump:NewSpecialLuaEditorEntry (parent, w, h, member, name, nointent)
+function DF:NewSpecialLuaEditorEntry (parent, w, h, member, name, nointent)
 	
 	if (name:find ("$parent")) then
 		name = name:gsub ("$parent", parent:GetName())
@@ -700,7 +677,7 @@ function gump:NewSpecialLuaEditorEntry (parent, w, h, member, name, nointent)
 		parent [member] = borderframe
 	end
 	
-	local scrollframe = CreateFrame ("ScrollFrame", name, borderframe, "DetailsEditBoxMultiLineTemplate")
+	local scrollframe = CreateFrame ("ScrollFrame", name, borderframe, "DetailsFrameworkEditBoxMultiLineTemplate")
 
 	scrollframe:SetScript ("OnSizeChanged", function (self)
 		scrollframe.editbox:SetSize (self:GetSize())
@@ -720,17 +697,32 @@ function gump:NewSpecialLuaEditorEntry (parent, w, h, member, name, nointent)
 	borderframe.ClearFocus = function_clearfocus
 	borderframe.SetFocus = function_setfocus
 	
-	if ((not nointent) and (IndentationLib and IndentationLib.enable)) then
+	borderframe.Enable = TextEntryMetaFunctions.Enable
+	borderframe.Disable = TextEntryMetaFunctions.Disable
+	
+	borderframe.SetTemplate = TextEntryMetaFunctions.SetTemplate
+	
+	if (not nointent) then
 		IndentationLib.enable (scrollframe.editbox, nil, 4)
 	end
 	
-	borderframe:SetBackdrop ({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], edgeFile = [[Interface\AddOns\Details\images\border_3]], 
+	borderframe:SetBackdrop ({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], edgeFile = [[Interface\Tooltips\UI-Tooltip-Border]], 
 		tile = 1, tileSize = 16, edgeSize = 16, insets = {left = 5, right = 5, top = 5, bottom = 5}})
+	
+	scrollframe.editbox.current_bordercolor = {1, 1, 1, 0.7}
+	borderframe:SetBackdropBorderColor (1, 1, 1, 0.7)
 	borderframe:SetBackdropColor (0.090195, 0.090195, 0.188234, 1)
-	borderframe:SetBackdropBorderColor (1, 1, 1, 1)
+	
+	borderframe.enabled_border_color = {borderframe:GetBackdropBorderColor()}
+	borderframe.enabled_backdrop_color = {borderframe:GetBackdropColor()}
+	borderframe.enabled_text_color = {scrollframe.editbox:GetTextColor()}
+
+	borderframe.onleave_backdrop = {scrollframe.editbox:GetBackdropColor()}
+	borderframe.onleave_backdrop_border_color = {scrollframe.editbox:GetBackdropBorderColor()}
 	
 	borderframe.scroll = scrollframe
 	borderframe.editbox = scrollframe.editbox
+	borderframe.editbox.borderframe = borderframe
 	
 	return borderframe
 end

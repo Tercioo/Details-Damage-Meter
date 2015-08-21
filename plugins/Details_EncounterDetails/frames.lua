@@ -1004,7 +1004,7 @@ do
 
 	--> revisar
 	BossFrame.Reset = function()
-		BossFrame.switch ("main")
+		BossFrame.switch (nil, nil, "main")
 		if (_G.DetailsRaidDpsGraph) then 
 			_G.DetailsRaidDpsGraph:ResetData()
 		end
@@ -1021,7 +1021,18 @@ do
 	local emote_segment = 1
 	local searching
 	
-	BossFrame.switch = function (to)
+	BossFrame.switch = function (to, _, to2)
+		if (type (to) == "string") then
+			to = to
+		elseif (type (to2) == "string") then
+			to = to2
+		end
+		
+		BossFrame.DBMBars:Hide()
+		BossFrame.BigWigsBars:Hide()
+		BossFrame.label_dbm_bars:Hide()
+		BossFrame.label_bw_bars:Hide()
+
 		if (to == "main") then 
 		
 			local bg_texture = BossFrame.bg_main
@@ -1106,6 +1117,11 @@ do
 			end
 			
 			BossFrame.segmentosDropdown:Enable()
+			
+			BossFrame.DBMBars:Show()
+			BossFrame.BigWigsBars:Show()
+			BossFrame.label_dbm_bars:Show()
+			BossFrame.label_bw_bars:Show()
 			
 			BossFrame.DBMBars:Refresh()
 			BossFrame.BigWigsBars:Refresh()
@@ -1680,7 +1696,7 @@ do
 		GameTooltip:Hide()
 	end
 	
-	local create_aura_func = function (spellid, encounter_id, self)
+	local create_aura_func = function (self, button, spellid, encounter_id)
 		local name, _, icon = EncounterDetails.getspellinfo (spellid)
 		EncounterDetails:OpenAuraPanel (spellid, name, self and self.MyObject._icon.texture, encounter_id)
 	end
@@ -1914,6 +1930,9 @@ do
 	local label_bw_bars = DetailsFrameWork:CreateLabel (BossFrame, "Big Wigs Bars:", 11, nil, "GameFontHighlightSmall")
 	label_bw_bars:SetPoint ("topleft", BossFrame, "topleft", 25, -205)
 	
+	BossFrame.label_dbm_bars = label_dbm_bars
+	BossFrame.label_bw_bars = label_bw_bars
+	
 	local on_select_dbm_bar = function (_, _, timer_id)
 		local timer_table = EncounterDetails.db.encounter_timers_dbm [timer_id]
 		local spell = tonumber (timer_id:match ("(%d+)"))
@@ -2006,6 +2025,11 @@ do
 	
 	local dropdown_bw_bars = DetailsFrameWork:NewDropDown (BossFrame, _, "$parentBigWigsBarsDropdown", "BigWigsBars", 160, 20, build_bigwigs_bars, 1)
 	dropdown_bw_bars:SetPoint ("topleft", label_bw_bars, "bottomleft", -1, -2)
+	
+	dropdown_dbm_bars:Hide()
+	dropdown_bw_bars:Hide()
+	label_dbm_bars:Hide()
+	label_bw_bars:Hide()
 	
 	--
 	

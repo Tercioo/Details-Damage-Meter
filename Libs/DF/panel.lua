@@ -1,7 +1,9 @@
---> details main objects
-local _detalhes = 		_G._detalhes
-local gump = 			_detalhes.gump
-local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
+
+local DF = _G ["DetailsFramework"]
+if (not DF or not DetailsFrameworkCanLoad) then
+	return 
+end
+
 local _
 --> lua locals
 local _rawset = rawset --> lua local
@@ -16,7 +18,7 @@ local cleanfunction = function() end
 local PanelMetaFunctions = {}
 local APIFrameFunctions
 
-simple_panel_counter = 1
+local simple_panel_counter = 1
 
 ------------------------------------------------------------------------------------------------------------
 --> metatables
@@ -106,7 +108,7 @@ simple_panel_counter = 1
 	end
 	--> backdrop color
 	local smember_color = function (_object, _value)
-		local _value1, _value2, _value3, _value4 = gump:ParseColors (_value)
+		local _value1, _value2, _value3, _value4 = DF:ParseColors (_value)
 		return _object:SetBackdropColor (_value1, _value2, _value3, _value4)
 	end
 	--> frame width
@@ -176,18 +178,18 @@ simple_panel_counter = 1
 			if (textType) then
 				textType = string.lower (textType)
 				if (textType == "short") then
-					text = Loc ["STRING_RIGHTCLICK_CLOSE_SHORT"]
+					text = "close window"
 				elseif (textType == "medium") then
-					text = Loc ["STRING_RIGHTCLICK_CLOSE_MEDIUM"]
+					text = "close window"
 				elseif (textType == "large") then
-					text = Loc ["STRING_RIGHTCLICK_CLOSE_LARGE"]
+					text = "close window"
 				end
 			else
-				text = Loc ["STRING_RIGHTCLICK_CLOSE_SHORT"]
+				text = "close window"
 			end
 		end
 		
-		return gump:NewLabel (self, _, "$parentRightMouseToClose", nil, "|TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:"..w..":"..h..":0:1:512:512:8:70:328:409|t " .. text)
+		return DF:NewLabel (self, _, "$parentRightMouseToClose", nil, "|TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:"..w..":"..h..":0:1:512:512:8:70:328:409|t " .. text)
 	end
 
 --> show & hide
@@ -202,7 +204,7 @@ simple_panel_counter = 1
 
 -- setpoint
 	function PanelMetaFunctions:SetPoint (v1, v2, v3, v4, v5)
-		v1, v2, v3, v4, v5 = gump:CheckPoints (v1, v2, v3, v4, v5, self)
+		v1, v2, v3, v4, v5 = DF:CheckPoints (v1, v2, v3, v4, v5, self)
 		if (not v1) then
 			print ("Invalid parameter for SetPoint")
 			return
@@ -257,11 +259,9 @@ simple_panel_counter = 1
 	function PanelMetaFunctions:SetBackdropColor (color, arg2, arg3, arg4)
 		if (arg2) then
 			self.frame:SetBackdropColor (color, arg2, arg3, arg4 or 1)
-			self.frame.Gradient.OnLeave = {color, arg2, arg3, arg4 or 1}
 		else
-			local _value1, _value2, _value3, _value4 = gump:ParseColors (color)
+			local _value1, _value2, _value3, _value4 = DF:ParseColors (color)
 			self.frame:SetBackdropColor (_value1, _value2, _value3, _value4)
-			self.frame.Gradient.OnLeave = {_value1, _value2, _value3, _value4}
 		end
 	end
 	
@@ -270,18 +270,8 @@ simple_panel_counter = 1
 		if (arg2) then
 			return self.frame:SetBackdropBorderColor (color, arg2, arg3, arg4)
 		end
-		local _value1, _value2, _value3, _value4 = gump:ParseColors (color)
+		local _value1, _value2, _value3, _value4 = DF:ParseColors (color)
 		self.frame:SetBackdropBorderColor (_value1, _value2, _value3, _value4)
-	end
-	
--- gradient colors
-	function PanelMetaFunctions:SetGradient (FadeType, color)
-		local _value1, _value2, _value3, _value4 = gump:ParseColors (color)
-		if (FadeType == "OnEnter") then
-			self.frame.Gradient.OnEnter = {_value1, _value2, _value3, _value4}
-		elseif (FadeType == "OnLeave") then
-			self.frame.Gradient.OnLeave = {_value1, _value2, _value3, _value4}
-		end
 	end
 	
 -- tooltip
@@ -320,14 +310,6 @@ simple_panel_counter = 1
 			self.widget:SetFrameStrata (strata)
 		end
 	end
-	
--- enable and disable gradients
-	function PanelMetaFunctions:DisableGradient()
-		self.GradientEnabled = false
-	end
-	function PanelMetaFunctions:EnableGradient()
-		self.GradientEnabled = true
-	end
 
 --> hooks
 	function PanelMetaFunctions:SetHook (hookType, func)
@@ -340,22 +322,6 @@ simple_panel_counter = 1
 
 ------------------------------------------------------------------------------------------------------------
 --> scripts
-
-	function PanelMetaFunctions:RunGradient (cancel)
-		if (type (cancel) == "boolean" and not canceal) then
-			local _r, _g, _b, _a = self.frame:GetBackdropColor()
-			if (_r) then
-				local OnLeaveColors = self.frame.Gradient.OnLeave
-				gump:GradientEffect (self.frame, "frame", _r, _g, _b, _a, OnLeaveColors[1], OnLeaveColors[2], OnLeaveColors[3], OnLeaveColors[4], .3)
-			end
-		else
-			local _r, _g, _b, _a = self.frame:GetBackdropColor()
-			if (_r) then
-				local OnEnterColors = self.frame.Gradient.OnEnter
-				gump:GradientEffect (self.frame, "frame", _r, _g, _b, _a, OnEnterColors[1], OnEnterColors[2], OnEnterColors[3], OnEnterColors[4], .3)
-			end
-		end
-	end
 	
 	local OnEnter = function (frame)
 		if (frame.MyObject.OnEnterHook) then
@@ -365,17 +331,13 @@ simple_panel_counter = 1
 			end
 		end
 		
-		if (frame.MyObject.GradientEnabled) then
-			frame.MyObject:RunGradient()
-		end
-		
 		if (frame.MyObject.have_tooltip) then 
-			GameCooltip:Reset()
-			GameCooltip:SetType ("tooltip")
-			GameCooltip:SetColor ("main", "transparent")
-			GameCooltip:AddLine (frame.MyObject.have_tooltip)
-			GameCooltip:SetOwner (frame)
-			GameCooltip:ShowCooltip()
+			GameCooltip2:Reset()
+			GameCooltip2:SetType ("tooltip")
+			GameCooltip2:SetColor ("main", "transparent")
+			GameCooltip2:AddLine (frame.MyObject.have_tooltip)
+			GameCooltip2:SetOwner (frame)
+			GameCooltip2:ShowCooltip()
 		end
 	end
 
@@ -387,12 +349,8 @@ simple_panel_counter = 1
 			end
 		end
 		
-		if (frame.MyObject.GradientEnabled) then
-			frame.MyObject:RunGradient (false)
-		end
-		
 		if (frame.MyObject.have_tooltip) then 
-			_detalhes.popup:ShowMe (false)
+			GameCooltip2:ShowMe (false)
 		end
 		
 	end
@@ -466,15 +424,15 @@ simple_panel_counter = 1
 	
 ------------------------------------------------------------------------------------------------------------
 --> object constructor
-function gump:CreatePanel (parent, w, h, backdrop, backdropcolor, bordercolor, member, name)
-	return gump:NewPanel (parent, parent, name, member, w, h, backdrop, backdropcolor, bordercolor)
+function DF:CreatePanel (parent, w, h, backdrop, backdropcolor, bordercolor, member, name)
+	return DF:NewPanel (parent, parent, name, member, w, h, backdrop, backdropcolor, bordercolor)
 end
 
-function gump:NewPanel (parent, container, name, member, w, h, backdrop, backdropcolor, bordercolor)
+function DF:NewPanel (parent, container, name, member, w, h, backdrop, backdropcolor, bordercolor)
 
 	if (not name) then
-		name = "DetailsPanelNumber" .. gump.PanelCounter
-		gump.PanelCounter = gump.PanelCounter + 1
+		name = "DetailsFrameworkPanelNumber" .. DF.PanelCounter
+		DF.PanelCounter = DF.PanelCounter + 1
 
 	elseif (not parent) then
 		parent = UIParent
@@ -511,11 +469,10 @@ function gump:NewPanel (parent, container, name, member, w, h, backdrop, backdro
 		PanelObject.OnMouseUpHook = nil
 		--> misc
 		PanelObject.is_locked = true
-		PanelObject.GradientEnabled = true
 		PanelObject.container = container
 		PanelObject.rightButtonClose = false
 	
-	PanelObject.frame = CreateFrame ("frame", name, parent, "DetailsPanelTemplate")
+	PanelObject.frame = CreateFrame ("frame", name, parent, "DetailsFrameworkPanelTemplate")
 	PanelObject.widget = PanelObject.frame
 	
 	if (not APIFrameFunctions) then
@@ -524,7 +481,7 @@ function gump:NewPanel (parent, container, name, member, w, h, backdrop, backdro
 		for funcName, funcAddress in pairs (idx) do 
 			if (not PanelMetaFunctions [funcName]) then
 				PanelMetaFunctions [funcName] = function (object, ...)
-					local x = loadstring ( "return _G."..object.frame:GetName()..":"..funcName.."(...)")
+					local x = loadstring ( "return _G['"..object.frame:GetName().."']:"..funcName.."(...)")
 					return x (...)
 				end
 			end
@@ -575,7 +532,7 @@ end
 local add_row = function (self, t, need_update)
 	local index = #self.rows+1
 	
-	local thisrow = gump:NewPanel (self, self, "$parentHeader_" .. self._name .. index, nil, 1, 20)
+	local thisrow = DF:NewPanel (self, self, "$parentHeader_" .. self._name .. index, nil, 1, 20)
 	thisrow.backdrop = {bgFile = [[Interface\DialogFrame\UI-DialogBox-Gold-Background]]}
 	thisrow.color = "silver"
 	thisrow.type = t.type
@@ -587,7 +544,7 @@ local add_row = function (self, t, need_update)
 	
 	thisrow.hidden = t.hidden or false
 	
-	local text = gump:NewLabel (thisrow, nil, self._name .. "$parentLabel" .. index, "text")
+	local text = DF:NewLabel (thisrow, nil, self._name .. "$parentLabel" .. index, "text")
 	text:SetPoint ("left", thisrow, "left", 2, 0)
 	text:SetText (t.name)
 
@@ -610,6 +567,7 @@ local align_rows = function (self)
 
 	local cur_width = 0
 	local row_width = self._width / rows_shown
+
 	local sindex = 1
 	
 	wipe (self._anchors)
@@ -617,7 +575,6 @@ local align_rows = function (self)
 	for index, row in ipairs (self.rows) do
 		if (not row.hidden) then
 			if (self._autowidth) then
-				--row:SetWidth (row_width)
 				if (self._raw_rows [index].width) then
 					row.width = self._raw_rows [index].width
 				else
@@ -788,19 +745,21 @@ local update_rows = function (self, updated_rows)
 		end
 	end
 	
+	self.current_header = updated_rows
+	
 	self:AlignRows()
 
 end
 
 local create_panel_text = function (self, row)
 	row.text_total = row.text_total + 1
-	local text = gump:NewLabel (row, nil, self._name .. "$parentLabel" .. row.text_total, "text" .. row.text_total)
+	local text = DF:NewLabel (row, nil, self._name .. "$parentLabel" .. row.text_total, "text" .. row.text_total)
 	tinsert (row.text_available, text)
 end
 
 local create_panel_entry = function (self, row)
 	row.entry_total = row.entry_total + 1
-	local editbox = gump:NewTextEntry (row, nil, "$parentEntry" .. row.entry_total, "entry", 120, 20)
+	local editbox = DF:NewTextEntry (row, nil, "$parentEntry" .. row.entry_total, "entry", 120, 20)
 	editbox.align = "left"
 	
 	editbox:SetHook ("OnEnterPressed", function()
@@ -820,12 +779,13 @@ end
 
 local create_panel_button = function (self, row)
 	row.button_total = row.button_total + 1
-	local button = gump:NewButton (row, nil, "$parentButton" .. row.button_total, "button" .. row.button_total, 120, 20)
-	button:InstallCustomTexture()
+	local button = DF:NewButton (row, nil, "$parentButton" .. row.button_total, "button" .. row.button_total, 120, 20)
+	--, nil, nil, nil, nil, nil, nil, DF:GetTemplate ("button", "OPTIONS_BUTTON_TEMPLATE")
+	--button:InstallCustomTexture()
 
 	--> create icon and the text
-	local icon = gump:NewImage (button, nil, 20, 20)
-	local text = gump:NewLabel (button)
+	local icon = DF:NewImage (button, nil, 20, 20)
+	local text = DF:NewLabel (button)
 	
 	button._icon = icon
 	button._text = text
@@ -843,18 +803,18 @@ end
 
 local create_panel_icon = function (self, row)
 	row.icon_total = row.icon_total + 1
-	local iconbutton = gump:NewButton (row, nil, "$parentIconButton" .. row.icon_total, "iconbutton", 22, 20)
+	local iconbutton = DF:NewButton (row, nil, "$parentIconButton" .. row.icon_total, "iconbutton", 22, 20)
 	iconbutton:InstallCustomTexture()
 	
 	iconbutton:SetHook ("OnEnter", button_on_enter)
 	iconbutton:SetHook ("OnLeave", button_on_leave)
 	
 	iconbutton:SetHook ("OnMouseUp", function()
-		gump:IconPick (icon_onclick, true, iconbutton)
+		DF:IconPick (icon_onclick, true, iconbutton)
 		return true
 	end)
 	
-	local icon = gump:NewImage (iconbutton, nil, 20, 20, "artwork", nil, "_icon", "$parentIcon" .. row.icon_total)
+	local icon = DF:NewImage (iconbutton, nil, 20, 20, "artwork", nil, "_icon", "$parentIcon" .. row.icon_total)
 	iconbutton._icon = icon
 
 	icon:SetPoint ("center", iconbutton, "center", 0, 0)
@@ -871,10 +831,31 @@ end
 local drop_header_function = function (self)
 	wipe (self.rows)
 end
- -- ~fillpanel
-function gump:NewFillPanel (parent, rows, name, member, w, h, total_lines, fill_row, autowidth, options)
+
+local fillpanel_update_size = function (self, elapsed)
+	local panel = self.MyObject
 	
-	local panel = gump:NewPanel (parent, parent, name, member, w, h)
+	panel._width = panel:GetWidth()
+	panel._height = panel:GetHeight()
+		
+	panel:UpdateRowAmount()
+	if (panel.current_header) then
+		update_rows (panel, panel.current_header)
+	end
+	panel:Refresh()
+	
+	self:SetScript ("OnUpdate", nil)
+end
+
+ -- ~fillpanel
+  --alias
+function DF:CreateFillPanel (parent, rows, w, h, total_lines, fill_row, autowidth, options, member, name)
+	return DF:NewFillPanel (parent, rows, name, member, w, h, total_lines, fill_row, autowidth, options)
+end
+ 
+function DF:NewFillPanel (parent, rows, name, member, w, h, total_lines, fill_row, autowidth, options)
+	
+	local panel = DF:NewPanel (parent, parent, name, member, w, h)
 	panel.backdrop = nil
 	
 	options = options or {rowheight = 20}
@@ -899,6 +880,10 @@ function gump:NewFillPanel (parent, rows, name, member, w, h, total_lines, fill_
 	panel._fillfunc = fill_row
 	panel._totalfunc = total_lines
 	panel._autowidth = autowidth
+	
+	panel:SetScript ("OnSizeChanged", function() 
+		panel:SetScript ("OnUpdate", fillpanel_update_size)
+	end)
 	
 	for index, t in ipairs (rows) do 
 		panel.AddRow (panel, t)
@@ -943,11 +928,7 @@ function gump:NewFillPanel (parent, rows, name, member, w, h, total_lines, fill_
 								button = button + 1
 								buttonwidget.index = real_index
 							
-								local func = function()
-									t.func (real_index, index)
-									panel:Refresh()
-								end
-								buttonwidget:SetClickFunction (func)
+
 							
 								if (type (results [index]) == "table") then
 									if (results [index].text) then
@@ -959,9 +940,24 @@ function gump:NewFillPanel (parent, rows, name, member, w, h, total_lines, fill_
 									end
 									
 									if (results [index].func) then
-										buttonwidget:SetClickFunction (results [index].func, real_index, results [index].value)
+										local func = function()
+											t.func (real_index, results [index].value)
+											panel:Refresh()
+										end
+										buttonwidget:SetClickFunction (func)
+									else
+										local func = function()
+											t.func (real_index, index)
+											panel:Refresh()
+										end
+										buttonwidget:SetClickFunction (func)
 									end
 								else
+									local func = function()
+										t.func (real_index, index)
+										panel:Refresh()
+									end
+									buttonwidget:SetClickFunction (func)
 									buttonwidget:SetText (results [index])
 								end
 								
@@ -1010,44 +1006,46 @@ function gump:NewFillPanel (parent, rows, name, member, w, h, total_lines, fill_
 	scrollframe.lines = {}
 	
 	--create lines
-	local size = options.rowheight
-	local amount = math.floor (((h-21) / size))
-	
-	for i = 1, amount do
-		--local row = gump:NewPanel (panel, nil, , nil, 1, size)
-		local row = CreateFrame ("frame", panel:GetName() .. "Row_" .. i, panel.widget)
-		row:SetSize (1, size)
-		row.color = {1, 1, 1, .2}
-		
-		row:SetBackdrop ({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]]})
-		
-		if (i%2 == 0) then
-			row:SetBackdropColor (.5, .5, .5, 0.2)
-		else
-			row:SetBackdropColor (1, 1, 1, 0.00)
+	function panel:UpdateRowAmount()
+		local size = options.rowheight
+		local amount = math.floor (((panel._height-21) / size))
+
+		for i = #scrollframe.lines+1, amount do
+			local row = CreateFrame ("frame", panel:GetName() .. "Row_" .. i, panel.widget)
+			row:SetSize (1, size)
+			row.color = {1, 1, 1, .2}
+			
+			row:SetBackdrop ({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]]})
+			
+			if (i%2 == 0) then
+				row:SetBackdropColor (.5, .5, .5, 0.2)
+			else
+				row:SetBackdropColor (1, 1, 1, 0.00)
+			end
+			
+			row:SetPoint ("topleft", scrollframe, "topleft", 0, (i-1) * size * -1)
+			row:SetPoint ("topright", scrollframe, "topright", 0, (i-1) * size * -1)
+			tinsert (scrollframe.lines, row)
+			
+			row.text_available = {}
+			row.text_inuse = {}
+			row.text_total = 0
+			
+			row.entry_available = {}
+			row.entry_inuse = {}
+			row.entry_total = 0
+			
+			row.button_available = {}
+			row.button_inuse = {}
+			row.button_total = 0
+			
+			row.icon_available = {}
+			row.icon_inuse = {}
+			row.icon_total = 0
 		end
-		
-		row:SetPoint ("topleft", scrollframe, "topleft", 0, (i-1) * size * -1)
-		row:SetPoint ("topright", scrollframe, "topright", 0, (i-1) * size * -1)
-		tinsert (scrollframe.lines, row)
-		
-		row.text_available = {}
-		row.text_inuse = {}
-		row.text_total = 0
-		
-		row.entry_available = {}
-		row.entry_inuse = {}
-		row.entry_total = 0
-		
-		row.button_available = {}
-		row.button_inuse = {}
-		row.button_total = 0
-		
-		row.icon_available = {}
-		row.icon_inuse = {}
-		row.icon_total = 0
 	end
-	
+	panel:UpdateRowAmount()
+
 	panel.AlignRows (panel)
 	
 	return panel
@@ -1067,7 +1065,7 @@ local color_pick_func_cancel = function()
 	ColorPickerFrame:dcallback (r, g, b, a, ColorPickerFrame.dframe)
 end
 
-function gump:ColorPick (frame, r, g, b, alpha, callback)
+function DF:ColorPick (frame, r, g, b, alpha, callback)
 
 	ColorPickerFrame:ClearAllPoints()
 	ColorPickerFrame:SetPoint ("bottomleft", frame, "topright", 0, 0)
@@ -1091,68 +1089,66 @@ function gump:ColorPick (frame, r, g, b, alpha, callback)
 end
 
 ------------icon pick
-function gump:IconPick (callback, close_when_select, param1, param2)
+function DF:IconPick (callback, close_when_select, param1, param2)
 
-	if (not gump.IconPickFrame) then 
+	if (not DF.IconPickFrame) then 
 	
 		local string_lower = string.lower
 	
-		gump.IconPickFrame = CreateFrame ("frame", "DetailsIconPickFrame", UIParent)
-		tinsert (UISpecialFrames, "DetailsIconPickFrame")
-		gump.IconPickFrame:SetFrameStrata ("DIALOG")
+		DF.IconPickFrame = CreateFrame ("frame", "DetailsFrameworkIconPickFrame", UIParent)
+		tinsert (UISpecialFrames, "DetailsFrameworkIconPickFrame")
+		DF.IconPickFrame:SetFrameStrata ("DIALOG")
 		
-		gump.IconPickFrame:SetPoint ("center", UIParent, "center")
-		gump.IconPickFrame:SetWidth (350)
-		gump.IconPickFrame:SetHeight (227)
-		gump.IconPickFrame:EnableMouse (true)
-		gump.IconPickFrame:SetMovable (true)
-		gump.IconPickFrame:SetBackdrop ({bgFile = "Interface\\AddOns\\Details\\images\\background", edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border", 
+		DF.IconPickFrame:SetPoint ("center", UIParent, "center")
+		DF.IconPickFrame:SetWidth (350)
+		DF.IconPickFrame:SetHeight (227)
+		DF.IconPickFrame:EnableMouse (true)
+		DF.IconPickFrame:SetMovable (true)
+		DF.IconPickFrame:SetBackdrop ({bgFile = DF.folder .. "background", edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border", 
 		tile = true, tileSize = 32, edgeSize = 32, insets = {left = 5, right = 5, top = 5, bottom = 5}})
 		
-		--local title = gump.IconPickFrame:CreateTitleRegion()
+		DF.IconPickFrame:SetBackdropBorderColor (170/255, 170/255, 170/255)
+		DF.IconPickFrame:SetBackdropColor (24/255, 24/255, 24/255, .8)
+		DF.IconPickFrame:SetFrameLevel (1)
 		
-		gump.IconPickFrame:SetBackdropBorderColor (170/255, 170/255, 170/255)
-		gump.IconPickFrame:SetBackdropColor (24/255, 24/255, 24/255, .8)
-		gump.IconPickFrame:SetFrameLevel (1)
+		DF.IconPickFrame.emptyFunction = function() end
+		DF.IconPickFrame.callback = DF.IconPickFrame.emptyFunction
 		
-		gump.IconPickFrame.emptyFunction = function() end
-		gump.IconPickFrame.callback = gump.IconPickFrame.emptyFunction
+		DF.IconPickFrame.preview =  CreateFrame ("frame", nil, UIParent)
+		DF.IconPickFrame.preview:SetFrameStrata ("tooltip")
+		DF.IconPickFrame.preview:SetSize (76, 76)
+		local preview_image = DF:NewImage (DF.IconPickFrame.preview, nil, 76, 76)
+		preview_image:SetAllPoints (DF.IconPickFrame.preview)
+		DF.IconPickFrame.preview.icon = preview_image
+		DF.IconPickFrame.preview:Hide()
 		
-		gump.IconPickFrame.preview =  CreateFrame ("frame", nil, UIParent)
-		gump.IconPickFrame.preview:SetFrameStrata ("tooltip")
-		gump.IconPickFrame.preview:SetSize (76, 76)
-		local preview_image = gump:NewImage (gump.IconPickFrame.preview, nil, 76, 76)
-		preview_image:SetAllPoints (gump.IconPickFrame.preview)
-		gump.IconPickFrame.preview.icon = preview_image
-		gump.IconPickFrame.preview:Hide()
-		
-		gump.IconPickFrame.searchLabel =  gump:NewLabel (gump.IconPickFrame, nil, "$parentSearchBoxLabel", nil, "search:")
-		gump.IconPickFrame.searchLabel:SetPoint ("topleft", gump.IconPickFrame, "topleft", 12, -20)
-		gump.IconPickFrame.search = gump:NewTextEntry (gump.IconPickFrame, nil, "$parentSearchBox", nil, 140, 20)
-		gump.IconPickFrame.search:SetPoint ("left", gump.IconPickFrame.searchLabel, "right", 2, 0)
-		gump.IconPickFrame.search:SetHook ("OnTextChanged", function() 
-			gump.IconPickFrame.searching = gump.IconPickFrame.search:GetText()
-			if (gump.IconPickFrame.searching == "") then
-				gump.IconPickFrameScroll:Show()
-				gump.IconPickFrame.searching = nil
-				gump.IconPickFrame.updateFunc()
+		DF.IconPickFrame.searchLabel =  DF:NewLabel (DF.IconPickFrame, nil, "$parentSearchBoxLabel", nil, "search:", font, size, color)
+		DF.IconPickFrame.searchLabel:SetPoint ("topleft", DF.IconPickFrame, "topleft", 12, -20)
+		DF.IconPickFrame.search = DF:NewTextEntry (DF.IconPickFrame, nil, "$parentSearchBox", nil, 140, 20)
+		DF.IconPickFrame.search:SetPoint ("left", DF.IconPickFrame.searchLabel, "right", 2, 0)
+		DF.IconPickFrame.search:SetHook ("OnTextChanged", function() 
+			DF.IconPickFrame.searching = DF.IconPickFrame.search:GetText()
+			if (DF.IconPickFrame.searching == "") then
+				DF.IconPickFrameScroll:Show()
+				DF.IconPickFrame.searching = nil
+				DF.IconPickFrame.updateFunc()
 			else
-				gump.IconPickFrameScroll:Hide()
-				FauxScrollFrame_SetOffset (gump.IconPickFrame, 1)
-				gump.IconPickFrame.last_filter_index = 1
-				gump.IconPickFrame.updateFunc()
+				DF.IconPickFrameScroll:Hide()
+				FauxScrollFrame_SetOffset (DF.IconPickFrame, 1)
+				DF.IconPickFrame.last_filter_index = 1
+				DF.IconPickFrame.updateFunc()
 			end
 		end)
 		
 		--> close button
-		local close_button = CreateFrame ("button", nil, gump.IconPickFrame, "UIPanelCloseButton")
+		local close_button = CreateFrame ("button", nil, DF.IconPickFrame, "UIPanelCloseButton")
 		close_button:SetWidth (32)
 		close_button:SetHeight (32)
-		close_button:SetPoint ("TOPRIGHT", gump.IconPickFrame, "TOPRIGHT", -8, -7)
+		close_button:SetPoint ("TOPRIGHT", DF.IconPickFrame, "TOPRIGHT", -8, -7)
 		close_button:SetFrameLevel (close_button:GetFrameLevel()+2)
 		
 		local MACRO_ICON_FILENAMES = {}
-		gump.IconPickFrame:SetScript ("OnShow", function()
+		DF.IconPickFrame:SetScript ("OnShow", function()
 		
 			MACRO_ICON_FILENAMES = {};
 			MACRO_ICON_FILENAMES[1] = "INV_MISC_QUESTIONMARK";
@@ -1194,37 +1190,37 @@ function gump:IconPick (callback, close_when_select, param1, param2)
 			
 		end)
 		
-		gump.IconPickFrame:SetScript ("OnHide", function()
+		DF.IconPickFrame:SetScript ("OnHide", function()
 			MACRO_ICON_FILENAMES = nil;
 			collectgarbage()
 		end)
 		
-		gump.IconPickFrame.buttons = {}
+		DF.IconPickFrame.buttons = {}
 		
 		local OnClickFunction = function (self) 
-			gump.IconPickFrame.callback (self.icon:GetTexture(), gump.IconPickFrame.param1, gump.IconPickFrame.param2)
-			if (gump.IconPickFrame.click_close) then
+			DF.IconPickFrame.callback (self.icon:GetTexture(), DF.IconPickFrame.param1, DF.IconPickFrame.param2)
+			if (DF.IconPickFrame.click_close) then
 				close_button:Click()
 			end
 		end
 		
 		local onenter = function (self)
-			gump.IconPickFrame.preview:SetPoint ("bottom", self, "top", 0, 2)
-			gump.IconPickFrame.preview.icon:SetTexture (self.icon:GetTexture())
-			gump.IconPickFrame.preview:Show()
+			DF.IconPickFrame.preview:SetPoint ("bottom", self, "top", 0, 2)
+			DF.IconPickFrame.preview.icon:SetTexture (self.icon:GetTexture())
+			DF.IconPickFrame.preview:Show()
 			self.icon:SetBlendMode ("ADD")
 		end
 		local onleave = function (self)
-			gump.IconPickFrame.preview:Hide()
+			DF.IconPickFrame.preview:Hide()
 			self.icon:SetBlendMode ("BLEND")
 		end
 		
-		local backdrop = {bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 16,
+		local backdrop = {bgFile = DF.folder .. "background", tile = true, tileSize = 16,
 		insets = {left = 0, right = 0, top = 0, bottom = 0}, edgeFile = [[Interface\DialogFrame\UI-DialogBox-Border]], edgeSize = 10}
 		
 		for i = 0, 9 do 
-			local newcheck = CreateFrame ("Button", "DetailsIconPickFrameButton"..(i+1), gump.IconPickFrame)
-			local image = newcheck:CreateTexture ("DetailsIconPickFrameButton"..(i+1).."Icon", "overlay")
+			local newcheck = CreateFrame ("Button", "DetailsFrameworkIconPickFrameButton"..(i+1), DF.IconPickFrame)
+			local image = newcheck:CreateTexture ("DetailsFrameworkIconPickFrameButton"..(i+1).."Icon", "overlay")
 			newcheck.icon = image
 			image:SetPoint ("topleft", newcheck, "topleft", 2, -2); image:SetPoint ("bottomright", newcheck, "bottomright", -2, 2)
 			newcheck:SetSize (30, 28)
@@ -1233,15 +1229,15 @@ function gump:IconPick (callback, close_when_select, param1, param2)
 			newcheck:SetScript ("OnClick", OnClickFunction)
 			newcheck.param1 = i+1
 			
-			newcheck:SetPoint ("topleft", gump.IconPickFrame, "topleft", 12 + (i*30), -40)
+			newcheck:SetPoint ("topleft", DF.IconPickFrame, "topleft", 12 + (i*30), -40)
 			newcheck:SetID (i+1)
-			gump.IconPickFrame.buttons [#gump.IconPickFrame.buttons+1] = newcheck
+			DF.IconPickFrame.buttons [#DF.IconPickFrame.buttons+1] = newcheck
 			newcheck:SetScript ("OnEnter", onenter)
 			newcheck:SetScript ("OnLeave", onleave)
 		end
 		for i = 11, 20 do
-			local newcheck = CreateFrame ("Button", "DetailsIconPickFrameButton"..i, gump.IconPickFrame)
-			local image = newcheck:CreateTexture ("DetailsIconPickFrameButton"..i.."Icon", "overlay")
+			local newcheck = CreateFrame ("Button", "DetailsFrameworkIconPickFrameButton"..i, DF.IconPickFrame)
+			local image = newcheck:CreateTexture ("DetailsFrameworkIconPickFrameButton"..i.."Icon", "overlay")
 			newcheck.icon = image
 			image:SetPoint ("topleft", newcheck, "topleft", 2, -2); image:SetPoint ("bottomright", newcheck, "bottomright", -2, 2)
 			newcheck:SetSize (30, 28)
@@ -1250,15 +1246,15 @@ function gump:IconPick (callback, close_when_select, param1, param2)
 			newcheck:SetScript ("OnClick", OnClickFunction)
 			newcheck.param1 = i
 			
-			newcheck:SetPoint ("topleft", "DetailsIconPickFrameButton"..(i-10), "bottomleft", 0, -1)
+			newcheck:SetPoint ("topleft", "DetailsFrameworkIconPickFrameButton"..(i-10), "bottomleft", 0, -1)
 			newcheck:SetID (i)
-			gump.IconPickFrame.buttons [#gump.IconPickFrame.buttons+1] = newcheck
+			DF.IconPickFrame.buttons [#DF.IconPickFrame.buttons+1] = newcheck
 			newcheck:SetScript ("OnEnter", onenter)
 			newcheck:SetScript ("OnLeave", onleave)
 		end
 		for i = 21, 30 do 
-			local newcheck = CreateFrame ("Button", "DetailsIconPickFrameButton"..i, gump.IconPickFrame)
-			local image = newcheck:CreateTexture ("DetailsIconPickFrameButton"..i.."Icon", "overlay")
+			local newcheck = CreateFrame ("Button", "DetailsFrameworkIconPickFrameButton"..i, DF.IconPickFrame)
+			local image = newcheck:CreateTexture ("DetailsFrameworkIconPickFrameButton"..i.."Icon", "overlay")
 			newcheck.icon = image
 			image:SetPoint ("topleft", newcheck, "topleft", 2, -2); image:SetPoint ("bottomright", newcheck, "bottomright", -2, 2)
 			newcheck:SetSize (30, 28)
@@ -1267,15 +1263,15 @@ function gump:IconPick (callback, close_when_select, param1, param2)
 			newcheck:SetScript ("OnClick", OnClickFunction)
 			newcheck.param1 = i
 			
-			newcheck:SetPoint ("topleft", "DetailsIconPickFrameButton"..(i-10), "bottomleft", 0, -1)
+			newcheck:SetPoint ("topleft", "DetailsFrameworkIconPickFrameButton"..(i-10), "bottomleft", 0, -1)
 			newcheck:SetID (i)
-			gump.IconPickFrame.buttons [#gump.IconPickFrame.buttons+1] = newcheck
+			DF.IconPickFrame.buttons [#DF.IconPickFrame.buttons+1] = newcheck
 			newcheck:SetScript ("OnEnter", onenter)
 			newcheck:SetScript ("OnLeave", onleave)
 		end
 		for i = 31, 40 do 
-			local newcheck = CreateFrame ("Button", "DetailsIconPickFrameButton"..i, gump.IconPickFrame)
-			local image = newcheck:CreateTexture ("DetailsIconPickFrameButton"..i.."Icon", "overlay")
+			local newcheck = CreateFrame ("Button", "DetailsFrameworkIconPickFrameButton"..i, DF.IconPickFrame)
+			local image = newcheck:CreateTexture ("DetailsFrameworkIconPickFrameButton"..i.."Icon", "overlay")
 			newcheck.icon = image
 			image:SetPoint ("topleft", newcheck, "topleft", 2, -2); image:SetPoint ("bottomright", newcheck, "bottomright", -2, 2)
 			newcheck:SetSize (30, 28)
@@ -1284,15 +1280,15 @@ function gump:IconPick (callback, close_when_select, param1, param2)
 			newcheck:SetScript ("OnClick", OnClickFunction)
 			newcheck.param1 = i
 			
-			newcheck:SetPoint ("topleft", "DetailsIconPickFrameButton"..(i-10), "bottomleft", 0, -1)
+			newcheck:SetPoint ("topleft", "DetailsFrameworkIconPickFrameButton"..(i-10), "bottomleft", 0, -1)
 			newcheck:SetID (i)
-			gump.IconPickFrame.buttons [#gump.IconPickFrame.buttons+1] = newcheck
+			DF.IconPickFrame.buttons [#DF.IconPickFrame.buttons+1] = newcheck
 			newcheck:SetScript ("OnEnter", onenter)
 			newcheck:SetScript ("OnLeave", onleave)
 		end
 		for i = 41, 50 do 
-			local newcheck = CreateFrame ("Button", "DetailsIconPickFrameButton"..i, gump.IconPickFrame)
-			local image = newcheck:CreateTexture ("DetailsIconPickFrameButton"..i.."Icon", "overlay")
+			local newcheck = CreateFrame ("Button", "DetailsFrameworkIconPickFrameButton"..i, DF.IconPickFrame)
+			local image = newcheck:CreateTexture ("DetailsFrameworkIconPickFrameButton"..i.."Icon", "overlay")
 			newcheck.icon = image
 			image:SetPoint ("topleft", newcheck, "topleft", 2, -2); image:SetPoint ("bottomright", newcheck, "bottomright", -2, 2)
 			newcheck:SetSize (30, 28)
@@ -1301,15 +1297,15 @@ function gump:IconPick (callback, close_when_select, param1, param2)
 			newcheck:SetScript ("OnClick", OnClickFunction)
 			newcheck.param1 = i
 			
-			newcheck:SetPoint ("topleft", "DetailsIconPickFrameButton"..(i-10), "bottomleft", 0, -1)
+			newcheck:SetPoint ("topleft", "DetailsFrameworkIconPickFrameButton"..(i-10), "bottomleft", 0, -1)
 			newcheck:SetID (i)
-			gump.IconPickFrame.buttons [#gump.IconPickFrame.buttons+1] = newcheck
+			DF.IconPickFrame.buttons [#DF.IconPickFrame.buttons+1] = newcheck
 			newcheck:SetScript ("OnEnter", onenter)
 			newcheck:SetScript ("OnLeave", onleave)
 		end
 		for i = 51, 60 do 
-			local newcheck = CreateFrame ("Button", "DetailsIconPickFrameButton"..i, gump.IconPickFrame)
-			local image = newcheck:CreateTexture ("DetailsIconPickFrameButton"..i.."Icon", "overlay")
+			local newcheck = CreateFrame ("Button", "DetailsFrameworkIconPickFrameButton"..i, DF.IconPickFrame)
+			local image = newcheck:CreateTexture ("DetailsFrameworkIconPickFrameButton"..i.."Icon", "overlay")
 			newcheck.icon = image
 			image:SetPoint ("topleft", newcheck, "topleft", 2, -2); image:SetPoint ("bottomright", newcheck, "bottomright", -2, 2)
 			newcheck:SetSize (30, 28)
@@ -1318,14 +1314,14 @@ function gump:IconPick (callback, close_when_select, param1, param2)
 			newcheck:SetScript ("OnClick", OnClickFunction)
 			newcheck.param1 = i
 			
-			newcheck:SetPoint ("topleft", "DetailsIconPickFrameButton"..(i-10), "bottomleft", 0, -1)
+			newcheck:SetPoint ("topleft", "DetailsFrameworkIconPickFrameButton"..(i-10), "bottomleft", 0, -1)
 			newcheck:SetID (i)
-			gump.IconPickFrame.buttons [#gump.IconPickFrame.buttons+1] = newcheck
+			DF.IconPickFrame.buttons [#DF.IconPickFrame.buttons+1] = newcheck
 			newcheck:SetScript ("OnEnter", onenter)
 			newcheck:SetScript ("OnLeave", onleave)
 		end
 		
-		local scroll = CreateFrame ("ScrollFrame", "DetailsIconPickFrameScroll", gump.IconPickFrame, "ListScrollFrameTemplate")
+		local scroll = CreateFrame ("ScrollFrame", "DetailsFrameworkIconPickFrameScroll", DF.IconPickFrame, "ListScrollFrameTemplate")
 
 		local ChecksFrame_Update = function (self)
 
@@ -1336,8 +1332,8 @@ function gump:IconPick (callback, close_when_select, param1, param2)
 
 			local texture
 			local filter
-			if (gump.IconPickFrame.searching) then
-				filter = string_lower (gump.IconPickFrame.searching)
+			if (DF.IconPickFrame.searching) then
+				filter = string_lower (DF.IconPickFrame.searching)
 			end
 			
 			if (filter and filter ~= "") then
@@ -1346,7 +1342,7 @@ function gump:IconPick (callback, close_when_select, param1, param2)
 				local tryed = 0
 				local found = 0
 				local type = type
-				local buttons = gump.IconPickFrame.buttons
+				local buttons = DF.IconPickFrame.buttons
 				index = 1
 				
 				for i = 1, 60 do
@@ -1371,7 +1367,7 @@ function gump:IconPick (callback, close_when_select, param1, param2)
 							macroPopupIcon:SetTexture (texture)
 							macroPopupButton:Show()
 							found = found + 1
-							gump.IconPickFrame.last_filter_index = o
+							DF.IconPickFrame.last_filter_index = o
 							index = o+1
 							break
 						else
@@ -1382,13 +1378,13 @@ function gump:IconPick (callback, close_when_select, param1, param2)
 				end
 			
 				for o = found+1, 60 do
-					macroPopupButton = _G ["DetailsIconPickFrameButton"..o]
+					macroPopupButton = _G ["DetailsFrameworkIconPickFrameButton"..o]
 					macroPopupButton:Hide()
 				end
 			else
 				for i = 1, 60 do
-					macroPopupIcon = _G ["DetailsIconPickFrameButton"..i.."Icon"]
-					macroPopupButton = _G ["DetailsIconPickFrameButton"..i]
+					macroPopupIcon = _G ["DetailsFrameworkIconPickFrameButton"..i.."Icon"]
+					macroPopupButton = _G ["DetailsFrameworkIconPickFrameButton"..i]
 					index = (macroPopupOffset * 10) + i
 					texture = MACRO_ICON_FILENAMES [index]
 					if ( index <= numMacroIcons and texture ) then
@@ -1412,24 +1408,24 @@ function gump:IconPick (callback, close_when_select, param1, param2)
 			FauxScrollFrame_Update (scroll, ceil (numMacroIcons / 10) , 5, 20 )
 		end
 
-		gump.IconPickFrame.updateFunc = ChecksFrame_Update
+		DF.IconPickFrame.updateFunc = ChecksFrame_Update
 		
-		scroll:SetPoint ("topleft", gump.IconPickFrame, "topleft", -18, -37)
+		scroll:SetPoint ("topleft", DF.IconPickFrame, "topleft", -18, -37)
 		scroll:SetWidth (330)
 		scroll:SetHeight (178)
 		scroll:SetScript ("OnVerticalScroll", function (self, offset) FauxScrollFrame_OnVerticalScroll (scroll, offset, 20, ChecksFrame_Update) end)
 		scroll.update = ChecksFrame_Update
-		gump.IconPickFrameScroll = scroll
-		gump.IconPickFrame:Hide()
+		DF.IconPickFrameScroll = scroll
+		DF.IconPickFrame:Hide()
 		
 	end
 	
-	gump.IconPickFrame.param1, gump.IconPickFrame.param2 = param1, param2
+	DF.IconPickFrame.param1, DF.IconPickFrame.param2 = param1, param2
 	
-	gump.IconPickFrame:Show()
-	gump.IconPickFrameScroll.update (gump.IconPickFrameScroll)
-	gump.IconPickFrame.callback = callback or gump.IconPickFrame.emptyFunction
-	gump.IconPickFrame.click_close = close_when_select
+	DF.IconPickFrame:Show()
+	DF.IconPickFrameScroll.update (DF.IconPickFrameScroll)
+	DF.IconPickFrame.callback = callback or DF.IconPickFrame.emptyFunction
+	DF.IconPickFrame.click_close = close_when_select
 	
 end	
 
@@ -1439,27 +1435,45 @@ local simple_panel_mouse_down = function (self, button)
 		if (self.IsMoving) then
 			self.IsMoving = false
 			self:StopMovingOrSizing()
+			if (self.db and self.db.position) then
+				DF:SavePositionOnScreen (self)
+			end
 		end
-		self:Hide()
+		if (not self.DontRightClickClose) then
+			self:Hide()
+		end
 		return
 	end
-	self.IsMoving = true
-	self:StartMoving()
+	if (not self.IsMoving and not self.IsLocked) then
+		self.IsMoving = true
+		self:StartMoving()
+	end
 end
 local simple_panel_mouse_up = function (self, button)
 	if (self.IsMoving) then
 		self.IsMoving = false
 		self:StopMovingOrSizing()
+		if (self.db and self.db.position) then
+			DF:SavePositionOnScreen (self)
+		end
 	end
 end
 local simple_panel_settitle = function (self, title)
-	self.title:SetText (title)
+	self.Title:SetText (title)
 end
 
-function gump:CreateSimplePanel (parent, w, h, title, name)
+local simple_panel_close_click = function (self)
+	self:GetParent():GetParent():Hide()
+end
+
+local SimplePanel_frame_backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true}
+local SimplePanel_frame_backdrop_color = {0, 0, 0, 0.9}
+local SimplePanel_frame_backdrop_border_color = {0, 0, 0, 1}
+
+function DF:CreateSimplePanel (parent, w, h, title, name)
 	
 	if (not name) then
-		name = "DetailsSimplePanel" .. simple_panel_counter
+		name = "DetailsFrameworkSimplePanel" .. simple_panel_counter
 		simple_panel_counter = simple_panel_counter + 1
 	end
 	if (not parent) then
@@ -1472,21 +1486,41 @@ function gump:CreateSimplePanel (parent, w, h, title, name)
 	f:SetFrameStrata ("FULLSCREEN")
 	f:EnableMouse()
 	f:SetMovable (true)
+	f:SetBackdrop (SimplePanel_frame_backdrop)
+	f:SetBackdropColor (unpack (SimplePanel_frame_backdrop_color))
+	f:SetBackdropBorderColor (unpack (SimplePanel_frame_backdrop_border_color))
 	tinsert (UISpecialFrames, name)
-
+	
+	local title_bar = CreateFrame ("frame", name .. "TitleBar", f)
+	title_bar:SetPoint ("topleft", f, "topleft", 2, -3)
+	title_bar:SetPoint ("topright", f, "topright", -2, -3)
+	title_bar:SetHeight (20)
+	title_bar:SetBackdrop (SimplePanel_frame_backdrop)
+	title_bar:SetBackdropColor (.2, .2, .2, 1)
+	title_bar:SetBackdropBorderColor (0, 0, 0, 1)
+	
+	local close = CreateFrame ("button", name and name .. "CloseButton", title_bar)
+	close:SetSize (16, 16)
+	close:SetNormalTexture (DF.folder .. "icons")
+	close:SetHighlightTexture (DF.folder .. "icons")
+	close:SetPushedTexture (DF.folder .. "icons")
+	close:GetNormalTexture():SetTexCoord (0, 16/128, 0, 1)
+	close:GetHighlightTexture():SetTexCoord (0, 16/128, 0, 1)
+	close:GetPushedTexture():SetTexCoord (0, 16/128, 0, 1)
+	close:SetAlpha (0.7)
+	close:SetScript ("OnClick", simple_panel_close_click)
+	f.Close = close
+	
+	local title_string = title_bar:CreateFontString (name and name .. "Title", "overlay", "GameFontNormal")
+	title_string:SetTextColor (.8, .8, .8, 1)
+	title_string:SetText (title or "")
+	f.Title = title_string
+	
+	f.Title:SetPoint ("center", title_bar, "center")
+	f.Close:SetPoint ("right", title_bar, "right", -2, 0)
+	
 	f:SetScript ("OnMouseDown", simple_panel_mouse_down)
 	f:SetScript ("OnMouseUp", simple_panel_mouse_up)
-
-	f:SetBackdrop ({bgFile = [[Interface\DialogFrame\UI-DialogBox-Background-Dark]], tile = true, tileSize = 128, insets = {left=3, right=3, top=3, bottom=3},
-	edgeFile = [[Interface\AddOns\Details\images\border_welcome]], edgeSize = 16})
-	f:SetBackdropColor (1, 1, 1, 0.75)
-	
-	local close = CreateFrame ("button", name .. "Close", f, "UIPanelCloseButton")
-	close:SetSize (32, 32)
-	close:SetPoint ("topright", f, "topright", 0, -12)
-
-	f.title = gump:CreateLabel (f, title or "", 12, nil, "GameFontNormal")
-	f.title:SetPoint ("top", f, "top", 0, -22)
 	
 	f.SetTitle = simple_panel_settitle
 	
@@ -1495,9 +1529,666 @@ function gump:CreateSimplePanel (parent, w, h, title, name)
 	return f
 end
 
+local Panel1PxBackdrop = {bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 64,
+edgeFile = DF.folder .. "border_3", edgeSize = 9, insets = {left = 2, right = 2, top = 3, bottom = 3}}
+
+local Panel1PxOnClickClose = function (self)
+	self:GetParent():Hide()
+end
+local Panel1PxOnToggleLock = function (self)
+	if (self.IsLocked) then
+		self.IsLocked = false
+		self:SetMovable (true)
+		self:EnableMouse (true)
+		self.Lock:GetNormalTexture():SetTexCoord (32/128, 48/128, 0, 1)
+		self.Lock:GetHighlightTexture():SetTexCoord (32/128, 48/128, 0, 1)
+		self.Lock:GetPushedTexture():SetTexCoord (32/128, 48/128, 0, 1)
+		if (self.OnUnlock) then
+			self:OnUnlock()
+		end
+		if (self.db) then
+			self.db.IsLocked = self.IsLocked
+		end
+	else
+		self.IsLocked = true
+		self:SetMovable (false)
+		self:EnableMouse (false)
+		self.Lock:GetNormalTexture():SetTexCoord (16/128, 32/128, 0, 1)
+		self.Lock:GetHighlightTexture():SetTexCoord (16/128, 32/128, 0, 1)
+		self.Lock:GetPushedTexture():SetTexCoord (16/128, 32/128, 0, 1)
+		if (self.OnLock) then
+			self:OnLock()
+		end
+		if (self.db) then
+			self.db.IsLocked = self.IsLocked
+		end
+	end
+end
+local Panel1PxOnClickLock = function (self)
+	local f = self:GetParent()
+	Panel1PxOnToggleLock (f)
+end
+local Panel1PxSetTitle = function (self, text)
+	self.Title:SetText (text or "")
+end
+
+local Panel1PxSetLocked= function (self, lock_state)
+	if (type (lock_state) ~= "boolean") then
+		return
+	end
+	if (lock_state) then
+		-- lock it
+		self.IsLocked = false
+		Panel1PxOnClickLock (self.Lock)
+	else
+		-- unlockit
+		self.IsLocked = true
+		Panel1PxOnClickLock (self.Lock)
+	end
+end
+
+local Panel1PxReadConfig = function (self)
+	local db = self.db
+	if (db) then
+		db.IsLocked = db.IsLocked or false
+		self.IsLocked = db.IsLocked
+		db.position = db.position or {x = 0, y = 0}
+		db.position.x = db.position.x or 0
+		db.position.y = db.position.y or 0
+		DF:RestoreFramePosition (self)
+	end
+end
+
+function DF:SavePositionOnScreen (frame)
+	if (frame.db and frame.db.position) then
+		local x, y = DF:GetPositionOnScreen (frame)
+		--print ("saving...", x, y, frame:GetName())
+		if (x and y) then
+			frame.db.position.x, frame.db.position.y = x, y
+		end
+	end
+end
+
+function DF:GetPositionOnScreen (frame)
+	local xOfs, yOfs = frame:GetCenter()
+	if (not xOfs) then
+		return
+	end
+	local scale = frame:GetEffectiveScale()
+	local UIscale = UIParent:GetScale()
+	xOfs = xOfs*scale - GetScreenWidth()*UIscale/2
+	yOfs = yOfs*scale - GetScreenHeight()*UIscale/2
+	return xOfs/UIscale, yOfs/UIscale
+end
+
+function DF:RestoreFramePosition (frame)
+	if (frame.db and frame.db.position) then
+		local scale, UIscale = frame:GetEffectiveScale(), UIParent:GetScale()
+		frame:ClearAllPoints()
+		frame.db.position.x = frame.db.position.x or 0
+		frame.db.position.y = frame.db.position.y or 0
+		frame:SetPoint ("center", UIParent, "center", frame.db.position.x * UIscale / scale, frame.db.position.y * UIscale / scale)
+	end
+end
+
+local Panel1PxSavePosition= function (self)
+	DF:SavePositionOnScreen (self)
+end
+
+local Panel1PxHasPosition = function (self)
+	local db = self.db
+	if (db) then
+		if (db.position and db.position.x and (db.position.x ~= 0 or db.position.y ~= 0)) then
+			return true
+		end
+	end
+end
+
+function DF:Create1PxPanel (parent, w, h, title, name, config, title_anchor, no_special_frame)
+	local f = CreateFrame ("frame", name, parent or UIParent)
+	f:SetSize (w or 100, h or 75)
+	f:SetPoint ("center", UIParent, "center")
+	
+	if (name and not no_special_frame) then
+		tinsert (UISpecialFrames, name)
+	end
+	
+	f:SetScript ("OnMouseDown", simple_panel_mouse_down)
+	f:SetScript ("OnMouseUp", simple_panel_mouse_up)
+	
+	f:SetBackdrop (Panel1PxBackdrop)
+	f:SetBackdropColor (0, 0, 0, 0.5)
+	
+	f.IsLocked = (config and config.IsLocked ~= nil and config.IsLocked) or false
+	f:SetMovable (true)
+	f:EnableMouse (true)
+	f:SetUserPlaced (true)
+	
+	f.db = config
+	--print (config.position.x, config.position.x)
+	Panel1PxReadConfig (f)
+	
+	local close = CreateFrame ("button", name and name .. "CloseButton", f)
+	close:SetSize (16, 16)
+	close:SetNormalTexture (DF.folder .. "icons")
+	close:SetHighlightTexture (DF.folder .. "icons")
+	close:SetPushedTexture (DF.folder .. "icons")
+	close:GetNormalTexture():SetTexCoord (0, 16/128, 0, 1)
+	close:GetHighlightTexture():SetTexCoord (0, 16/128, 0, 1)
+	close:GetPushedTexture():SetTexCoord (0, 16/128, 0, 1)
+	close:SetAlpha (0.7)
+	
+	local lock = CreateFrame ("button", name and name .. "LockButton", f)
+	lock:SetSize (16, 16)
+	lock:SetNormalTexture (DF.folder .. "icons")
+	lock:SetHighlightTexture (DF.folder .. "icons")
+	lock:SetPushedTexture (DF.folder .. "icons")
+	lock:GetNormalTexture():SetTexCoord (32/128, 48/128, 0, 1)
+	lock:GetHighlightTexture():SetTexCoord (32/128, 48/128, 0, 1)
+	lock:GetPushedTexture():SetTexCoord (32/128, 48/128, 0, 1)
+	lock:SetAlpha (0.7)
+	
+	close:SetPoint ("topright", f, "topright", -3, -3)
+	lock:SetPoint ("right", close, "left", 3, 0)
+	
+	close:SetScript ("OnClick", Panel1PxOnClickClose)
+	lock:SetScript ("OnClick", Panel1PxOnClickLock)
+	
+	local title_string = f:CreateFontString (name and name .. "Title", "overlay", "GameFontNormal")
+	title_string:SetPoint ("topleft", f, "topleft", 5, -5)
+	title_string:SetText (title or "")
+	
+	if (title_anchor) then
+		if (title_anchor == "top") then
+			title_string:ClearAllPoints()
+			title_string:SetPoint ("bottomleft", f, "topleft", 0, 0)
+			close:ClearAllPoints()
+			close:SetPoint ("bottomright", f, "topright", 0, 0)
+		end
+		f.title_anchor = title_anchor
+	end
+	
+	f.SetTitle = Panel1PxSetTitle
+	f.Title = title_string
+	f.Lock = lock
+	f.Close = close
+	f.HasPosition = Panel1PxHasPosition
+	f.SavePosition = Panel1PxSavePosition
+	
+	f.IsLocked = not f.IsLocked
+	f.SetLocked = Panel1PxSetLocked
+	Panel1PxOnToggleLock (f)
+	
+	return f
+end
 
 ------------------------------------------------------------------------------------------------------------------------------------------------
---> chart panel
+-- ~prompt
+function DF:ShowPromptPanel (message, func_true, func_false)
+	
+	if (not DF.prompt_panel) then
+		local f = CreateFrame ("frame", "DetailsFrameworkPrompt", UIParent) 
+		f:SetSize (400, 65)
+		f:SetFrameStrata ("DIALOG")
+		f:SetPoint ("center", UIParent, "center", 0, 300)
+		f:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
+		f:SetBackdropColor (0, 0, 0, 0.8)
+		f:SetBackdropBorderColor (0, 0, 0, 1)
+		
+		local prompt = f:CreateFontString (nil, "overlay", "GameFontNormal")
+		prompt:SetPoint ("top", f, "top", 0, -15)
+		prompt:SetJustifyH ("center")
+		f.prompt = prompt
+		
+		local button_true = DF:CreateButton (f, nil, 60, 20, "Yes")
+		button_true:SetPoint ("bottomleft", f, "bottomleft", 5, 5)
+		f.button_true = button_true
+
+		local button_false = DF:CreateButton (f, nil, 60, 20, "No")
+		button_false:SetPoint ("bottomright", f, "bottomright", -5, 5)
+		f.button_false = button_false
+		
+		button_true:SetClickFunction (function()
+			local my_func = button_true.true_function
+			if (my_func) then
+				local okey, errormessage = pcall (my_func, true)
+				if (not okey) then
+					print ("error:", errormessage)
+				end
+				f:Hide()
+			end
+		end)
+		
+		button_false:SetClickFunction (function()
+			local my_func = button_false.false_function
+			if (my_func) then
+				local okey, errormessage = pcall (my_func, true)
+				if (not okey) then
+					print ("error:", errormessage)
+				end
+				f:Hide()
+			end
+		end)
+		
+		f:Hide()
+		DF.promtp_panel = f
+	end
+	
+	assert (type (func_true) == "function" and type (func_false) == "function", "ShowPromptPanel expects two functions.")
+	
+	DF.promtp_panel.prompt:SetText (message)
+	DF.promtp_panel.button_true.true_function = func_true
+	DF.promtp_panel.button_false.false_function = func_false
+	
+	DF.promtp_panel:Show()
+end
+
+
+function DF:ShowTextPromptPanel (message, callback)
+	
+	if (not DF.text_prompt_panel) then
+		
+		local f = CreateFrame ("frame", "DetailsFrameworkPrompt", UIParent) 
+		f:SetSize (400, 100)
+		f:SetFrameStrata ("DIALOG")
+		f:SetPoint ("center", UIParent, "center", 0, 300)
+		f:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
+		f:SetBackdropColor (0, 0, 0, 0.8)
+		f:SetBackdropBorderColor (0, 0, 0, 1)
+		
+		local prompt = f:CreateFontString (nil, "overlay", "GameFontNormal")
+		prompt:SetPoint ("top", f, "top", 0, -15)
+		prompt:SetJustifyH ("center")
+		f.prompt = prompt
+		
+		local button_true = DF:CreateButton (f, nil, 60, 20, "Okey")
+		button_true:SetPoint ("bottomleft", f, "bottomleft", 10, 5)
+		f.button_true = button_true
+
+		local button_false = DF:CreateButton (f, function() f.textbox:ClearFocus(); f:Hide() end, 60, 20, "Cancel")
+		button_false:SetPoint ("bottomright", f, "bottomright", -10, 5)
+		f.button_false = button_false
+		
+		local textbox = DF:CreateTextEntry (f, function()end, 380, 20, "textbox", nil, nil, nil, nil)
+		textbox:SetPoint ("topleft", f, "topleft", 10, -45)
+
+		button_true:SetClickFunction (function()
+			local my_func = button_true.true_function
+			if (my_func) then
+				local okey, errormessage = pcall (my_func, textbox:GetText())
+				textbox:ClearFocus()
+				if (not okey) then
+					print ("error:", errormessage)
+				end
+				f:Hide()
+			end
+		end)
+	
+		f:Hide()
+		DF.text_prompt_panel = f
+	end
+
+	DF.text_prompt_panel:Show()
+	
+	DF.text_prompt_panel.prompt:SetText (message)
+	DF.text_prompt_panel.button_true.true_function = callback
+	DF.text_prompt_panel.textbox:SetText ("")
+	DF.text_prompt_panel.textbox:SetFocus (true)
+	
+end
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+--> options button -- ~options
+function DF:CreateOptionsButton (parent, callback, name)
+	
+	local b = CreateFrame ("button", name, parent)
+	b:SetSize (14, 14)
+	b:SetNormalTexture (DF.folder .. "icons")
+	b:SetHighlightTexture (DF.folder .. "icons")
+	b:SetPushedTexture (DF.folder .. "icons")
+	b:GetNormalTexture():SetTexCoord (48/128, 64/128, 0, 1)
+	b:GetHighlightTexture():SetTexCoord (48/128, 64/128, 0, 1)
+	b:GetPushedTexture():SetTexCoord (48/128, 64/128, 0, 1)
+	b:SetAlpha (0.7)
+	
+	b:SetScript ("OnClick", callback)
+	b:SetScript ("OnEnter", function (self) 
+		GameCooltip2:Reset()
+		GameCooltip2:AddLine ("Options")
+		GameCooltip2:ShowCooltip (self, "tooltip")
+	end)
+	b:SetScript ("OnLeave", function (self) 
+		GameCooltip2:Hide()
+	end)
+	
+	return b
+
+end
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+--> feedback panel -- ~feedback
+
+function DF:CreateFeedbackButton (parent, callback, name)
+	local b = CreateFrame ("button", name, parent)
+	b:SetSize (12, 13)
+	b:SetNormalTexture (DF.folder .. "mail")
+	b:SetPushedTexture (DF.folder .. "mail")
+	b:SetHighlightTexture (DF.folder .. "mail")
+	
+	b:SetScript ("OnClick", callback)
+	b:SetScript ("OnEnter", function (self) 
+		GameCooltip2:Reset()
+		GameCooltip2:AddLine ("Send Feedback")
+		GameCooltip2:ShowCooltip (self, "tooltip")
+	end)
+	b:SetScript ("OnLeave", function (self) 
+		GameCooltip2:Hide()
+	end)
+	
+	return b
+end
+
+local backdrop_fb_line = {bgFile = DF.folder .. "background", edgeFile = DF.folder .. "border_3", 
+tile = true, tileSize = 64, edgeSize = 8, insets = {left = 2, right = 2, top = 2, bottom = 2}}
+
+local on_enter_feedback = function (self)
+	self:SetBackdropColor (1, 1, 0, 0.5)
+end
+local on_leave_feedback = function (self)
+	self:SetBackdropColor (0, 0, 0, 0.3)
+end
+
+local on_click_feedback = function (self)
+
+	local feedback_link_textbox = DF.feedback_link_textbox
+	
+	if (not feedback_link_textbox) then
+		local editbox = DF:CreateTextEntry (AddonFeedbackPanel, _, 275, 34)
+		editbox:SetAutoFocus (false)
+		editbox:SetHook ("OnEditFocusGained", function() 
+			editbox.text = editbox.link
+			editbox:HighlightText()
+		end)
+		editbox:SetHook ("OnEditFocusLost", function() 
+			editbox:Hide()
+		end)
+		editbox:SetHook ("OnChar", function() 
+			editbox.text = editbox.link
+			editbox:HighlightText()
+		end)
+		editbox.text = ""
+		
+		DF.feedback_link_textbox = editbox
+		feedback_link_textbox = editbox
+	end
+	
+	feedback_link_textbox.link = self.link
+	feedback_link_textbox.text = self.link
+	feedback_link_textbox:Show()
+	
+	feedback_link_textbox:SetPoint ("topleft", self.icon, "topright", 3, 0)
+	
+	feedback_link_textbox:HighlightText()
+	
+	feedback_link_textbox:SetFocus()
+	feedback_link_textbox:SetFrameLevel (self:GetFrameLevel()+2)
+end
+
+local feedback_get_fb_line = function (self)
+
+	local line = self.feedback_lines [self.next_feedback]
+	if (not line) then
+		line = CreateFrame ("frame", "AddonFeedbackPanelFB" .. self.next_feedback, self)
+		line:SetBackdrop (backdrop_fb_line)
+		line:SetBackdropColor (0, 0, 0, 0.3)
+		line:SetSize (390, 42)
+		line:SetPoint ("topleft", self.feedback_anchor, "bottomleft", 0, -5 + ((self.next_feedback-1) * 46 * -1))
+		line:SetScript ("OnEnter", on_enter_feedback)
+		line:SetScript ("OnLeave", on_leave_feedback)
+		line:SetScript ("OnMouseUp", on_click_feedback)
+		
+		line.icon = line:CreateTexture (nil, "overlay")
+		line.icon:SetSize (90, 36)
+		
+		line.desc = line:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+		
+		line.icon:SetPoint ("left", line, "left", 5, 0)
+		line.desc:SetPoint ("left", line.icon, "right", 5, 0)
+		
+		local arrow = line:CreateTexture (nil, "overlay")
+		arrow:SetTexture ([[Interface\Buttons\JumpUpArrow]])
+		arrow:SetRotation (-1.55)
+		arrow:SetPoint ("right", line, "right", -5, 0)
+		
+		self.feedback_lines [self.next_feedback] = line
+	end
+	
+	self.next_feedback = self.next_feedback + 1
+	
+	return line
+end
+
+local on_click_feedback = function (self)
+
+	local feedback_link_textbox = DF.feedback_link_textbox
+	
+	if (not feedback_link_textbox) then
+		local editbox = DF:CreateTextEntry (AddonFeedbackPanel, _, 275, 34)
+		editbox:SetAutoFocus (false)
+		editbox:SetHook ("OnEditFocusGained", function() 
+			editbox.text = editbox.link
+			editbox:HighlightText()
+		end)
+		editbox:SetHook ("OnEditFocusLost", function() 
+			editbox:Hide()
+		end)
+		editbox:SetHook ("OnChar", function() 
+			editbox.text = editbox.link
+			editbox:HighlightText()
+		end)
+		editbox.text = ""
+		
+		DF.feedback_link_textbox = editbox
+		feedback_link_textbox = editbox
+	end
+	
+	feedback_link_textbox.link = self.link
+	feedback_link_textbox.text = self.link
+	feedback_link_textbox:Show()
+	
+	feedback_link_textbox:SetPoint ("topleft", self.icon, "topright", 3, 0)
+	
+	feedback_link_textbox:HighlightText()
+	
+	feedback_link_textbox:SetFocus()
+	feedback_link_textbox:SetFrameLevel (self:GetFrameLevel()+2)
+end
+
+local on_enter_addon = function (self)
+	if (self.tooltip) then
+		GameCooltip2:Preset (2)
+		GameCooltip2:AddLine ("|cFFFFFF00" .. self.name .. "|r")
+		GameCooltip2:AddLine ("")
+		GameCooltip2:AddLine (self.tooltip)
+		GameCooltip2:ShowCooltip (self, "tooltip")
+	end
+	self.icon:SetBlendMode ("ADD")
+end
+local on_leave_addon = function (self)
+	if (self.tooltip) then
+		GameCooltip2:Hide()
+	end
+	self.icon:SetBlendMode ("BLEND")
+end
+local on_click_addon = function (self)
+	local addon_link_textbox = DF.addon_link_textbox
+	
+	if (not addon_link_textbox) then
+		local editbox = DF:CreateTextEntry (AddonFeedbackPanel, _, 128, 64)
+		editbox:SetAutoFocus (false)
+		editbox:SetHook ("OnEditFocusGained", function() 
+			editbox.text = editbox.link
+			editbox:HighlightText()
+		end)
+		editbox:SetHook ("OnEditFocusLost", function() 
+			editbox:Hide()
+		end)
+		editbox:SetHook ("OnChar", function() 
+			editbox.text = editbox.link
+			editbox:HighlightText()
+		end)
+		editbox.text = ""
+		
+		DF.addon_link_textbox = editbox
+		addon_link_textbox = editbox
+	end
+	
+	addon_link_textbox.link = self.link
+	addon_link_textbox.text = self.link
+	addon_link_textbox:Show()
+	
+	addon_link_textbox:SetPoint ("topleft", self.icon, "topleft", 0, 0)
+	
+	addon_link_textbox:HighlightText()
+	
+	addon_link_textbox:SetFocus()
+	addon_link_textbox:SetFrameLevel (self:GetFrameLevel()+2)
+end
+
+local feedback_get_addons_line = function (self)
+	local line = self.addons_lines [self.next_addons]
+	if (not line) then
+	
+		line = CreateFrame ("frame", "AddonFeedbackPanelSA" .. self.next_addons, self)
+		line:SetSize (128, 64)
+
+		if (self.next_addons == 1) then
+			line:SetPoint ("topleft", self.addons_anchor, "bottomleft", 0, -5)
+		elseif (self.next_addons_line_break == self.next_addons) then
+			line:SetPoint ("topleft", self.addons_anchor, "bottomleft", 0, -5 + floor (self.next_addons_line_break/3) * 66 * -1)
+			self.next_addons_line_break = self.next_addons_line_break + 3
+		else
+			local previous = self.addons_lines [self.next_addons - 1]
+			line:SetPoint ("topleft", previous, "topright", 2, 0)
+		end
+
+		line:SetScript ("OnEnter", on_enter_addon)
+		line:SetScript ("OnLeave", on_leave_addon)
+		line:SetScript ("OnMouseUp", on_click_addon)
+		
+		line.icon = line:CreateTexture (nil, "overlay")
+		line.icon:SetSize (128, 64)
+
+		line.icon:SetPoint ("topleft", line, "topleft", 0, 0)
+		
+		self.addons_lines [self.next_addons] = line
+	end
+	
+	self.next_addons = self.next_addons + 1
+	
+	return line
+end
+
+local default_coords = {0, 1, 0, 1}
+local feedback_add_fb = function (self, table)
+	local line = self:GetFeedbackLine()
+	line.icon:SetTexture (table.icon)
+	line.icon:SetTexCoord (unpack (table.coords or default_coords))
+	line.desc:SetText (table.desc)
+	line.link = table.link
+	line:Show()
+end
+
+local feedback_add_addon = function (self, table)
+	local block = self:GetAddonsLine()
+	block.icon:SetTexture (table.icon)
+	block.icon:SetTexCoord (unpack (table.coords or default_coords))
+	block.link = table.link
+	block.tooltip = table.desc
+	block.name = table.name
+	block:Show()
+end
+
+local feedback_hide_all = function (self)
+	self.next_feedback = 1
+	self.next_addons = 1
+	
+	for index, line in ipairs (self.feedback_lines) do
+		line:Hide()
+	end
+	
+	for index, line in ipairs (self.addons_lines) do
+		line:Hide()
+	end
+end
+
+-- feedback_methods = { { icon = icon path, desc = description, link = url}}
+function DF:ShowFeedbackPanel (addon_name, version, feedback_methods, more_addons)
+
+	local f = _G.AddonFeedbackPanel
+
+	if (not f) then
+		f = DF:Create1PxPanel (UIParent, 400, 100, addon_name .. " Feedback", "AddonFeedbackPanel", nil)
+		f:SetFrameStrata ("FULLSCREEN")
+		f:SetPoint ("center", UIParent, "center")
+		f:SetBackdropColor (0, 0, 0, 0.8)
+		f.feedback_lines = {}
+		f.addons_lines = {}
+		f.next_feedback = 1
+		f.next_addons = 1
+		f.next_addons_line_break = 4
+		
+		local feedback_anchor = f:CreateFontString (nil, "overlay", "GameFontNormal")
+		feedback_anchor:SetText ("Feedback:")
+		feedback_anchor:SetPoint ("topleft", f, "topleft", 5, -30)
+		f.feedback_anchor = feedback_anchor
+		local excla_text = f:CreateFontString (nil, "overlay", "GameFontNormal")
+		excla_text:SetText ("click and copy the link")
+		excla_text:SetPoint ("topright", f, "topright", -5, -30)
+		excla_text:SetTextColor (1, 0.8, 0.2, 0.6)
+		
+		local addons_anchor = f:CreateFontString (nil, "overlay", "GameFontNormal")
+		addons_anchor:SetText ("AddOns From the Same Author:")
+		f.addons_anchor = addons_anchor
+		local excla_text2 = f:CreateFontString (nil, "overlay", "GameFontNormal")
+		excla_text2:SetText ("click and copy the link")
+		excla_text2:SetTextColor (1, 0.8, 0.2, 0.6)
+		f.excla_text2 = excla_text2
+		
+		f.GetFeedbackLine = feedback_get_fb_line
+		f.GetAddonsLine = feedback_get_addons_line
+		f.AddFeedbackMethod = feedback_add_fb
+		f.AddOtherAddon = feedback_add_addon
+		f.HideAll = feedback_hide_all
+
+		DF:SetFontSize (f.Title, 14)
+		
+	end
+	
+	f:HideAll()
+	f:SetTitle (addon_name)
+	
+	for index, feedback in ipairs (feedback_methods) do
+		f:AddFeedbackMethod (feedback)
+	end
+	
+	f.addons_anchor:SetPoint ("topleft", f, "topleft", 5, f.next_feedback * 50 * -1)
+	f.excla_text2:SetPoint ("topright", f, "topright", -5, f.next_feedback * 50 * -1)
+	
+	for index, addon in ipairs (more_addons) do
+		f:AddOtherAddon (addon)
+	end
+	
+	f:SetHeight (80 + ((f.next_feedback-1) * 50) + (ceil ((f.next_addons-1)/3) * 66))
+	
+	f:Show()
+	
+	return true
+end
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+--> chart panel -- ~chart
 
 local chart_panel_backdrop = {bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16,
 edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", edgeSize = 32, insets = {left = 5, right = 5, top = 5, bottom = 5}}
@@ -1552,13 +2243,17 @@ local chart_panel_set_scale = function (self, amt, func, text)
 		return
 	end
 	
-	local piece = amt / 8
+	local piece = amt / 1000 / 8
 	
 	for i = 1, 8 do
 		if (func) then
 			self ["dpsamt" .. math.abs (i-9)]:SetText ( func (piece*i) .. (text or ""))
 		else
-			self ["dpsamt" .. math.abs (i-9)]:SetText ( floor (piece*i) .. (text or ""))
+			if (piece*i > 1) then
+				self ["dpsamt" .. math.abs (i-9)]:SetText ( floor (piece*i) .. (text or ""))
+			else
+				self ["dpsamt" .. math.abs (i-9)]:SetText ( format ("%.3f", piece*i) .. (text or ""))
+			end
 		end
 	end
 end
@@ -1659,14 +2354,17 @@ local create_box = function (self, next_box)
 	local thisbox = {}
 	self.BoxLabels [next_box] = thisbox
 	
-	local box = gump:NewImage (self.Graphic, nil, 16, 16, "border")
-	local text = gump:CreateLabel (self.Graphic, nil, nil, nil, "GameFontNormal")
+	local box = DF:NewImage (self.Graphic, nil, 16, 16, "border")
 	
-	local border = gump:NewImage (self.Graphic, [[Interface\DialogFrame\UI-DialogBox-Gold-Corner]], 30, 30, "artwork")
+	local text = DF:NewLabel (self.Graphic)
+	
+	local border = DF:NewImage (self.Graphic, [[Interface\DialogFrame\UI-DialogBox-Gold-Corner]], 30, 30, "artwork")
 	border:SetPoint ("center", box, "center", -3, -4)
+	border:SetTexture ([[Interface\DialogFrame\UI-DialogBox-Gold-Corner]])
 	
-	local checktexture = gump:NewImage (self.Graphic, [[Interface\Buttons\UI-CheckBox-Check]], 18, 18, "overlay")
+	local checktexture = DF:NewImage (self.Graphic, [[Interface\Buttons\UI-CheckBox-Check]], 18, 18, "overlay")
 	checktexture:SetPoint ("center", box, "center", -1, -1)
+	checktexture:SetTexture ([[Interface\Buttons\UI-CheckBox-Check]])
 	
 	thisbox.box = box
 	thisbox.text = text
@@ -1674,7 +2372,11 @@ local create_box = function (self, next_box)
 	thisbox.check = checktexture
 	thisbox.enabled = true
 
-	local button = gump:CreateButton (self.Graphic, chart_panel_enable_line, 20, 20, "", self, thisbox)
+	local button = CreateFrame ("button", nil, self.Graphic)
+	button:SetSize (20, 20)
+	button:SetScript ("OnClick", function()
+		chart_panel_enable_line (self, thisbox)
+	end)
 	button:SetPoint ("center", box, "center")
 	
 	thisbox.button = button
@@ -1945,6 +2647,7 @@ local chart_panel_add_data = function (self, graphicData, color, name, elapsed_t
 	
 		self.max_value = max_value
 		f:SetScale (max_value)
+
 	end
 	
 	tinsert (f.GData, {_data, color or line_default_color, lineTexture, max_value, elapsed_time})
@@ -1989,7 +2692,7 @@ local chart_panel_onresize = function (self)
 	
 	for i = 1, 17 do
 		local label = self.TimeLabels [i]
-		label:SetPoint ("bottomleft", f, "bottomleft", 78 + ((i-1)*spacement), 13)
+		label:SetPoint ("bottomleft", self, "bottomleft", 78 + ((i-1)*spacement), 13)
 		label.line:SetHeight (height - 45)
 	end
 	
@@ -2054,11 +2757,11 @@ local chart_panel_right_click_close = function (self, value)
 	end
 end
 
-function gump:CreateChartPanel (parent, w, h, name)
+function DF:CreateChartPanel (parent, w, h, name)
 
 	if (not name) then
-		name = "DetailsPanelNumber" .. gump.PanelCounter
-		gump.PanelCounter = gump.PanelCounter + 1
+		name = "DFPanel" .. DF.PanelCounter
+		DF.PanelCounter = DF.PanelCounter + 1
 	end
 	
 	parent = parent or UIParent
@@ -2084,11 +2787,10 @@ function gump:CreateChartPanel (parent, w, h, name)
 	c:SetAlpha (0.9)
 	f.CloseButton = c
 	
-	local title = gump:NewLabel (f, nil, "$parentTitle", "chart_title", "Chart!", nil, 20, "yellow")
-	title:SetPoint (110, -13)
-	_detalhes:SetFontOutline (title, true)
+	local title = DF:NewLabel (f, nil, "$parentTitle", "chart_title", "Chart!", nil, 20, {1, 1, 0})
+	title:SetPoint ("topleft", f, "topleft", 110, -13)
 
-	local bottom_texture = gump:NewImage (f, nil, 702, 25, "background", nil, nil, "$parentBottomTexture")
+	local bottom_texture = DF:NewImage (f, nil, 702, 25, "background", nil, nil, "$parentBottomTexture")
 	bottom_texture:SetTexture (0, 0, 0, .6)
 	bottom_texture:SetPoint ("bottomleft", f, "bottomleft", 8, 7)
 	bottom_texture:SetPoint ("bottomright", f, "bottomright", -8, 7)
@@ -2101,12 +2803,16 @@ function gump:CreateChartPanel (parent, w, h, name)
 	
 	f.TimeLabels = {}
 	for i = 1, 17 do 
-		local time = gump:NewLabel (f, nil, "$parentTime"..i, nil, "00:00")
+		local time = f:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+		time:SetText ("00:00")
 		time:SetPoint ("bottomleft", f, "bottomleft", 78 + ((i-1)*36), 13)
 		f.TimeLabels [i] = time
-		local line = gump:NewImage (f, nil, 1, h-45, "border", nil, nil, "$parentTime"..i.."Bar")
+		
+		local line = f:CreateTexture (nil, "border")
+		line:SetSize (1, h-45)
 		line:SetTexture (1, 1, 1, .1)
 		line:SetPoint ("bottomleft", time, "topright", 0, -10)
+		line:Hide()
 		time.line = line
 	end
 	
@@ -2132,9 +2838,6 @@ function gump:CreateChartPanel (parent, w, h, name)
 		f.Graphic = g
 		f.GData = {}
 		f.OData = {}
-		
-		g:SetBackdrop ({bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 16})
-		g:SetBackdropColor (0, 0, 0, 0.8)
 	
 	--div lines
 		for i = 1, 8, 1 do
@@ -2143,10 +2846,13 @@ function gump:CreateChartPanel (parent, w, h, name)
 			line:SetWidth (670)
 			line:SetHeight (1.1)
 		
-			gump:NewLabel (f, f, nil, "dpsamt"..i, "100k", "GameFontHighlightSmall")
-			f["dpsamt"..i]:SetPoint ("TOPLEFT", f, "TOPLEFT", 27, -61 + (-(24.6*i)))
-			line:SetPoint ("topleft", f["dpsamt"..i].widget, "bottom", -27, 0)
-			f["dpsamt"..i].line = line
+			local s = f:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+			f ["dpsamt"..i] = s
+			s:SetText ("100k")
+			s:SetPoint ("topleft", f, "topleft", 27, -61 + (-(24.6*i)))
+		
+			line:SetPoint ("topleft", s, "bottom", -27, 0)
+			s.line = line
 		end
 	
 	f.SetTime = chart_panel_align_timelabels
@@ -2311,7 +3017,7 @@ local gframe_update = function (self, lines)
 	
 end
 
-function gump:CreateGFrame (parent, w, h, linewidth, onenter, onleave, member, name)
+function DF:CreateGFrame (parent, w, h, linewidth, onenter, onleave, member, name)
 	local f = CreateFrame ("frame", name, parent)
 	f:SetSize (w or 450, h or 150)
 	f.CustomLine = [[Interface\AddOns\Details\Libs\LibGraph-2.0\line]]
@@ -2335,99 +3041,3 @@ function gump:CreateGFrame (parent, w, h, linewidth, onenter, onleave, member, n
 	
 	return f
 end
-
---[=[
-
-function gframe:Reset()
-	for i = #gframe.GraphLib_Lines_Used, 1, -1 do
-		local line = tremove (gframe.GraphLib_Lines_Used)
-		tinsert (gframe.GraphLib_Lines, line)
-		line:Hide()
-	end
-end
-
-function DeathGraphs:ShowGraphicForDeath (data)
-	
-	gframe:Reset()
-	gframe:ShowGrid()
-	gframe:Show()
-
-	if (not data) then
-		return
-	end
-
-	local timeline = data [1]
-	local max_health = data[4]
-
-	if (#timeline < 16) then
-		while (#timeline < 16) do
-			table.insert (timeline, 1, {false, 0, 0, data[6], max_health, "-1"})
-		end
-	end
-	
-	log = timeline
-	
-	local h = gframe:GetHeight()/100
-
-	local o = 1
-	local lastlife = 156
-
-	--for i = 16, 1, -1 do
-	for i = 1, 16, 1 do
-		local t = timeline [i]
-		if (type (t) == "table") then
-		
-			--> death parser
-			
-			local evtype = t [1] --event type
-			local spellid = t [2] --spellid
-			local amount = t [3] --amount healed or damaged
-			local time = t [4] --time
-			local life = t [5] --health
-			local source = t [6] --source
-
-			local plife = life / max_health * 100
-			if (plife > 98) then
-				plife = 98
-			end
-			plife = plife*h
-			
-			local line
-			
-			line = g:DrawLine (gframe, (o-1)*29, lastlife, o*29, plife, 50, red, "overlay")
-
-			local ball = gballs [o]
-			ball:SetPoint ("bottomleft", gframe, "bottomleft", (o*29)-8, plife-8)
-			if (type (evtype) == "boolean" and evtype) then --> damage
-				ball.spellicon:SetTexture (select (3, GetSpellInfo (spellid)))
-				ball.spellicon:SetTexCoord (4/64, 60/64, 4/64, 60/64)
-			else
-				ball.spellicon:SetTexture (nil)
-			end
-			
-			ball.line = line
-			
-			local clock = data[6] - time
-			if (type (evtype) == "number" and evtype == 2) then
-				if (clock <= 100) then
-					timeline_bg.labels [o]:SetText (math.floor (clock))
-				else
-					timeline_bg.labels [o]:SetText (string.format ("%.1f", clock))
-				end
-			else
-				timeline_bg.labels [o]:SetText ("-" .. string.format ("%.1f", clock))
-			end
-			
-			local frame = gradeframes [o]
-			frame.data = t
-			
-			lastlife = plife
-			o = o + 1
-		end
-	end
-	
-	DeathGraphs:UpdateOverall()
-
-end
-
---]=]

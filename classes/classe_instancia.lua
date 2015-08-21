@@ -1040,9 +1040,14 @@ function _detalhes:UngroupInstance()
 	return self:Desagrupar (-1)
 end
 
-function _detalhes:Desagrupar (instancia, lado)
+function _detalhes:Desagrupar (instancia, lado, lado2)
+	if (lado2 == -1) then
+		instancia = lado
+		self = instancia
+		lado = lado2
+	end
 
-	if (self.meu_id) then --> significa que self é uma instancia
+	if (self.meu_id and not lado2) then --> significa que self é uma instancia
 		lado = instancia
 		instancia = self
 	end
@@ -2733,7 +2738,7 @@ function _detalhes:AlteraModo (instancia, qual, from_mode_menu)
 	_detalhes.popup:Select (1, checked)
 	
 	if (from_mode_menu) then
-		instancia.baseframe.cabecalho.modo_selecao:GetScript ("OnEnter")(instancia.baseframe.cabecalho.modo_selecao)
+		instancia.baseframe.cabecalho.modo_selecao:GetScript ("OnEnter")(instancia.baseframe.cabecalho.modo_selecao, _, true)
 		
 		--> running OnEnter does also trigger an instance enter event, so we need to manually leave the instance:
 		_detalhes.OnLeaveMainWindow (instancia, instancia.baseframe.cabecalho.modo_selecao)
@@ -2946,7 +2951,6 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 		local container = self.showing [atributo]._ActorTable
 		
 		if (atributo == 1) then --> damage
-
 			if (self.sub_atributo == 5) then --> frags
 				local frags = self.showing.frags
 				local reportarFrags = {}
@@ -3019,7 +3023,7 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 		
 		amt = math.min (amt, container_amount or 0)
 		local raw_data_to_report = {}
-		
+
 		for i = 1, container_amount do 
 			local actor = container [i]
 			

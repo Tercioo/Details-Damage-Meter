@@ -1,28 +1,30 @@
-local _detalhes = _G._detalhes
-local g = _detalhes.gump
-local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
+
+local DF = _G ["DetailsFramework"]
+if (not DF or not DetailsFrameworkCanLoad) then
+	return 
+end
+
 local _
 
-	local window = g:NewPanel (UIParent, nil, "DetailsImageEdit", nil, 100, 100, false)
+	local window = DF:NewPanel (UIParent, nil, "DetailsFrameworkImageEdit", nil, 100, 100, false)
 	window:SetPoint ("center", UIParent, "center")
 	window:SetResizable (true)
 	window:SetMovable (true)
-	tinsert (UISpecialFrames, "DetailsImageEdit")
+	tinsert (UISpecialFrames, "DetailsFrameworkImageEdit")
 	window:SetFrameStrata ("TOOLTIP")
-	
 	window:SetMaxResize (266, 226)
 	
 	window.hooks = {}
 	
-	local background = g:NewImage (window, nil, nil, nil, "background", nil, nil, "$parentBackground")
+	local background = DF:NewImage (window, nil, nil, nil, "background", nil, nil, "$parentBackground")
 	background:SetAllPoints()
 	background:SetTexture (0, 0, 0, .8)
 	
-	local edit_texture = g:NewImage (window, nil, 300, 250, "artwork", nil, nil, "$parentImage")
+	local edit_texture = DF:NewImage (window, nil, 300, 250, "artwork", nil, nil, "$parentImage")
 	edit_texture:SetAllPoints()
 	
-	local background_frame = CreateFrame ("frame", "DetailsImageEditBackground", DetailsImageEdit)
-	background_frame:SetPoint ("topleft", DetailsImageEdit, "topleft", -10, 12)
+	local background_frame = CreateFrame ("frame", "DetailsFrameworkImageEditBackground", DetailsFrameworkImageEdit)
+	background_frame:SetPoint ("topleft", DetailsFrameworkImageEdit, "topleft", -10, 12)
 	background_frame:SetFrameStrata ("DIALOG")
 	background_frame:SetSize (400, 252)
 	
@@ -36,23 +38,23 @@ local _
 		window:StopMovingOrSizing()
 	end)
 	
-	background_frame:SetBackdrop ({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 64,
-	edgeFile = [[Interface\AddOns\Details\images\border_3]], edgeSize = 9, insets = {left = 2, right = 2, top = 3, bottom = 3}})
-	background_frame:SetBackdropColor (0, 0, 0, 0.95)
+	background_frame:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
+	background_frame:SetBackdropColor (0, 0, 0, 0.9)
+	background_frame:SetBackdropBorderColor (0, 0, 0, 1)
 	
 	local haveHFlip = false
 	local haveVFlip = false
 	
 --> Top Slider
 	
-		local topCoordTexture = g:NewImage (window, nil, nil, nil, "overlay", nil, nil, "$parentImageTopCoord")
+		local topCoordTexture = DF:NewImage (window, nil, nil, nil, "overlay", nil, nil, "$parentImageTopCoord")
 		topCoordTexture:SetPoint ("topleft", window, "topleft")
 		topCoordTexture:SetPoint ("topright", window, "topright")
 		topCoordTexture.color = "red"
 		topCoordTexture.height = 1
 		topCoordTexture.alpha = .2
 		
-		local topSlider = g:NewSlider (window, nil, "$parentTopSlider", "topSlider", 100, 100, 0.1, 100, 0.1, 0)
+		local topSlider = DF:NewSlider (window, nil, "$parentTopSlider", "topSlider", 100, 100, 0.1, 100, 0.1, 0)
 		topSlider:SetAllPoints (window.widget)
 		topSlider:SetOrientation ("VERTICAL")
 		topSlider.backdrop = nil
@@ -69,7 +71,7 @@ local _
 		topSlider:SetHook ("OnValueChange", function (_, _, value)
 			topCoordTexture.image:SetHeight (window.frame:GetHeight()/100*value)
 			if (window.callback_func) then
-				window.accept (true)
+				window.accept (nil, nil, true)
 			end
 		end)
 		
@@ -77,14 +79,14 @@ local _
 
 --> Bottom Slider
 
-		local bottomCoordTexture = g:NewImage (window, nil, nil, nil, "overlay", nil, nil, "$parentImageBottomCoord")
+		local bottomCoordTexture = DF:NewImage (window, nil, nil, nil, "overlay", nil, nil, "$parentImageBottomCoord")
 		bottomCoordTexture:SetPoint ("bottomleft", window, "bottomleft", 0, 0)
 		bottomCoordTexture:SetPoint ("bottomright", window, "bottomright", 0, 0)
 		bottomCoordTexture.color = "red"
 		bottomCoordTexture.height = 1
 		bottomCoordTexture.alpha = .2
 
-		local bottomSlider= g:NewSlider (window, nil, "$parentBottomSlider", "bottomSlider", 100, 100, 0.1, 100, 0.1, 100)
+		local bottomSlider= DF:NewSlider (window, nil, "$parentBottomSlider", "bottomSlider", 100, 100, 0.1, 100, 0.1, 100)
 		bottomSlider:SetAllPoints (window.widget)
 		bottomSlider:SetOrientation ("VERTICAL")
 		bottomSlider.backdrop = nil
@@ -102,7 +104,7 @@ local _
 			value = math.abs (value-100)
 			bottomCoordTexture.image:SetHeight (math.max (window.frame:GetHeight()/100*value, 1))
 			if (window.callback_func) then
-				window.accept (true)
+				window.accept (nil, nil, true)
 			end
 		end)
 		
@@ -110,14 +112,14 @@ local _
 		
 --> Left Slider
 		
-		local leftCoordTexture = g:NewImage (window, nil, nil, nil, "overlay", nil, nil, "$parentImageLeftCoord")
+		local leftCoordTexture = DF:NewImage (window, nil, nil, nil, "overlay", nil, nil, "$parentImageLeftCoord")
 		leftCoordTexture:SetPoint ("topleft", window, "topleft", 0, 0)
 		leftCoordTexture:SetPoint ("bottomleft", window, "bottomleft", 0, 0)
 		leftCoordTexture.color = "red"
 		leftCoordTexture.width = 1
 		leftCoordTexture.alpha = .2
 		
-		local leftSlider = g:NewSlider (window, nil, "$parentLeftSlider", "leftSlider", 100, 100, 0.1, 100, 0.1, 0.1)
+		local leftSlider = DF:NewSlider (window, nil, "$parentLeftSlider", "leftSlider", 100, 100, 0.1, 100, 0.1, 0.1)
 		leftSlider:SetAllPoints (window.widget)
 		leftSlider.backdrop = nil
 		leftSlider.fractional = true
@@ -133,7 +135,7 @@ local _
 		leftSlider:SetHook ("OnValueChange", function (_, _, value)
 			leftCoordTexture.image:SetWidth (window.frame:GetWidth()/100*value)
 			if (window.callback_func) then
-				window.accept (true)
+				window.accept (nil, nil, true)
 			end
 		end)
 		
@@ -141,14 +143,14 @@ local _
 		
 --> Right Slider
 		
-		local rightCoordTexture = g:NewImage (window, nil, nil, nil, "overlay", nil, nil, "$parentImageRightCoord")
+		local rightCoordTexture = DF:NewImage (window, nil, nil, nil, "overlay", nil, nil, "$parentImageRightCoord")
 		rightCoordTexture:SetPoint ("topright", window, "topright", 0, 0)
 		rightCoordTexture:SetPoint ("bottomright", window, "bottomright", 0, 0)
 		rightCoordTexture.color = "red"
 		rightCoordTexture.width = 1
 		rightCoordTexture.alpha = .2
 		
-		local rightSlider = g:NewSlider (window, nil, "$parentRightSlider", "rightSlider", 100, 100, 0.1, 100, 0.1, 100)
+		local rightSlider = DF:NewSlider (window, nil, "$parentRightSlider", "rightSlider", 100, 100, 0.1, 100, 0.1, 100)
 		rightSlider:SetAllPoints (window.widget)
 		rightSlider.backdrop = nil
 		rightSlider.fractional = true
@@ -165,7 +167,7 @@ local _
 			value = math.abs (value-100)
 			rightCoordTexture.image:SetWidth (math.max (window.frame:GetWidth()/100*value, 1))
 			if (window.callback_func) then
-				window.accept (true)
+				window.accept (nil, nil, true)
 			end
 		end)
 		
@@ -173,12 +175,12 @@ local _
 		
 --> Edit Buttons
 
-	local buttonsBackground = g:NewPanel (UIParent, nil, "DetailsImageEditButtonsBg", nil, 115, 230)
+	local buttonsBackground = DF:NewPanel (UIParent, nil, "DetailsFrameworkImageEditButtonsBg", nil, 115, 230)
 	--buttonsBackground:SetPoint ("topleft", window, "topright", 2, 0)
 	buttonsBackground:SetPoint ("topright", background_frame, "topright", -8, -10)
 	buttonsBackground:Hide()
 	--buttonsBackground:SetMovable (true)
-	tinsert (UISpecialFrames, "DetailsImageEditButtonsBg")
+	tinsert (UISpecialFrames, "DetailsFrameworkImageEditButtonsBg")
 	buttonsBackground:SetFrameStrata ("TOOLTIP")
 	
 		local alphaFrameShown = false
@@ -188,7 +190,7 @@ local _
 		local alphaFrame
 		local originalColor = {0.9999, 0.8196, 0}
 		
-		local enableTexEdit = function (side, _, button)
+		local enableTexEdit = function (button, b, side)
 			
 			if (alphaFrameShown) then
 				alphaFrame:Hide()
@@ -220,20 +222,20 @@ local _
 			window [side.."Slider"]:Show()
 		end
 		
-		local leftTexCoordButton = g:NewButton (buttonsBackground, nil, "$parentLeftTexButton", nil, 100, 20, enableTexEdit, "left", nil, nil, Loc ["STRING_IMAGEEDIT_CROPLEFT"], 1)
+		local leftTexCoordButton = DF:NewButton (buttonsBackground, nil, "$parentLeftTexButton", nil, 100, 20, enableTexEdit, "left", nil, nil, "Crop Left", 1)
 		leftTexCoordButton:SetPoint ("topright", buttonsBackground, "topright", -8, -10)
-		local rightTexCoordButton = g:NewButton (buttonsBackground, nil, "$parentRightTexButton", nil, 100, 20, enableTexEdit, "right", nil, nil, Loc ["STRING_IMAGEEDIT_CROPRIGHT"], 1)
+		local rightTexCoordButton = DF:NewButton (buttonsBackground, nil, "$parentRightTexButton", nil, 100, 20, enableTexEdit, "right", nil, nil, "Crop Right", 1)
 		rightTexCoordButton:SetPoint ("topright", buttonsBackground, "topright", -8, -30)
-		local topTexCoordButton = g:NewButton (buttonsBackground, nil, "$parentTopTexButton", nil, 100, 20, enableTexEdit, "top", nil, nil, Loc ["STRING_IMAGEEDIT_CROPTOP"], 1)
+		local topTexCoordButton = DF:NewButton (buttonsBackground, nil, "$parentTopTexButton", nil, 100, 20, enableTexEdit, "top", nil, nil, "Crop Top", 1)
 		topTexCoordButton:SetPoint ("topright", buttonsBackground, "topright", -8, -50)
-		local bottomTexCoordButton = g:NewButton (buttonsBackground, nil, "$parentBottomTexButton", nil, 100, 20, enableTexEdit, "bottom", nil, nil, Loc ["STRING_IMAGEEDIT_CROPBOTTOM"], 1)
+		local bottomTexCoordButton = DF:NewButton (buttonsBackground, nil, "$parentBottomTexButton", nil, 100, 20, enableTexEdit, "bottom", nil, nil, "Crop Bottom", 1)
 		bottomTexCoordButton:SetPoint ("topright", buttonsBackground, "topright", -8, -70)
 		leftTexCoordButton:InstallCustomTexture()
 		rightTexCoordButton:InstallCustomTexture()
 		topTexCoordButton:InstallCustomTexture()
 		bottomTexCoordButton:InstallCustomTexture()
 		
-		local Alpha = g:NewButton (buttonsBackground, nil, "$parentBottomAlphaButton", nil, 100, 20, alpha, nil, nil, nil, Loc ["STRING_IMAGEEDIT_ALPHA"], 1)
+		local Alpha = DF:NewButton (buttonsBackground, nil, "$parentBottomAlphaButton", nil, 100, 20, alpha, nil, nil, nil, "Alpha", 1)
 		Alpha:SetPoint ("topright", buttonsBackground, "topright", -8, -115)
 		Alpha:InstallCustomTexture()
 		
@@ -242,12 +244,12 @@ local _
 			if (default) then
 				edit_texture:SetVertexColor (unpack (default))
 				if (window.callback_func) then
-					window.accept (true)
+					window.accept (nil, nil, true)
 				end
 			else
 				edit_texture:SetVertexColor (ColorPickerFrame:GetColorRGB())
 				if (window.callback_func) then
-					window.accept (true)
+					window.accept (nil, nil, true)
 				end
 			end
 		end
@@ -284,21 +286,21 @@ local _
 			end
 		end
 		
-		local changeColorButton = g:NewButton (buttonsBackground, nil, "$parentOverlayColorButton", nil, 100, 20, changeColor, nil, nil, nil, Loc ["STRING_COLOR"], 1)
+		local changeColorButton = DF:NewButton (buttonsBackground, nil, "$parentOverlayColorButton", nil, 100, 20, changeColor, nil, nil, nil, "Color", 1)
 		changeColorButton:SetPoint ("topright", buttonsBackground, "topright", -8, -95)
 		changeColorButton:InstallCustomTexture()
 		
-		alphaFrame = g:NewPanel (buttonsBackground, nil, "DetailsImageEditAlphaBg", nil, 40, 225)
+		alphaFrame = DF:NewPanel (buttonsBackground, nil, "DetailsFrameworkImageEditAlphaBg", nil, 40, 225)
 		alphaFrame:SetPoint ("topleft", buttonsBackground, "topright", 2, 0)
 		alphaFrame:Hide() 
-		local alphaSlider = g:NewSlider (alphaFrame, nil, "$parentAlphaSlider", "alphaSlider", 30, 220, 1, 100, 1, edit_texture:GetAlpha()*100)
+		local alphaSlider = DF:NewSlider (alphaFrame, nil, "$parentAlphaSlider", "alphaSlider", 30, 220, 1, 100, 1, edit_texture:GetAlpha()*100)
 		alphaSlider:SetPoint ("top", alphaFrame, "top", 0, -5)
 		alphaSlider:SetOrientation ("VERTICAL")
 		alphaSlider.thumb:SetSize (40, 30)
 		--leftSlider.backdrop = nil
 		--leftSlider.fractional = true
 		
-		local alpha = function(_, _, button)
+		local alpha = function (button)
 		
 			if (ColorPickerFrame:IsShown()) then
 				ColorPickerFrame:Hide()
@@ -328,7 +330,7 @@ local _
 		alphaSlider:SetHook ("OnValueChange", function (_, _, value)
 			edit_texture:SetAlpha (value/100)
 			if (window.callback_func) then
-				window.accept (true)
+				window.accept (nil, nil, true)
 			end
 		end)
 
@@ -372,37 +374,37 @@ local _
 			topCoordTexture:SetHeight (window.frame:GetHeight()/100*topSlider:GetValue())
 			
 			if (window.callback_func) then
-				window.accept (true)
+				window.accept (nil, nil, true)
 			end
 		end)
 		
 
 		
 	--> flip
-		local flip = function (side)
+		local flip = function (button, b, side)
 			if (side == 1) then
 				haveHFlip = not haveHFlip
 				if (window.callback_func) then
-					window.accept (true)
+					window.accept (nil, nil, true)
 				end
 			elseif (side == 2) then
 				haveVFlip = not haveVFlip
 				if (window.callback_func) then
-					window.accept (true)
+					window.accept (nil, nil, true)
 				end
 			end
 		end
 		
-		local flipButtonH = g:NewButton (buttonsBackground, nil, "$parentFlipButton", nil, 100, 20, flip, 1, nil, nil, Loc ["STRING_IMAGEEDIT_FLIPH"], 1)
+		local flipButtonH = DF:NewButton (buttonsBackground, nil, "$parentFlipButton", nil, 100, 20, flip, 1, nil, nil, "Flip H", 1)
 		flipButtonH:SetPoint ("topright", buttonsBackground, "topright", -8, -140)
 		flipButtonH:InstallCustomTexture()
 		--
-		local flipButtonV = g:NewButton (buttonsBackground, nil, "$parentFlipButton2", nil, 100, 20, flip, 2, nil, nil, Loc ["STRING_IMAGEEDIT_FLIPV"], 1)
+		local flipButtonV = DF:NewButton (buttonsBackground, nil, "$parentFlipButton2", nil, 100, 20, flip, 2, nil, nil, "Flip V", 1)
 		flipButtonV:SetPoint ("topright", buttonsBackground, "topright", -8, -160)
 		flipButtonV:InstallCustomTexture()
 		
 	--> accept
-		window.accept = function (keep_editing)
+		window.accept = function (self, b, keep_editing)
 		
 			if (not keep_editing) then
 				buttonsBackground:Hide()
@@ -433,7 +435,7 @@ local _
 			return window.callback_func (edit_texture.width, edit_texture.height, {edit_texture:GetVertexColor()}, edit_texture:GetAlpha(), coords, window.extra_param)
 		end
 		
-		local acceptButton = g:NewButton (buttonsBackground, nil, "$parentAcceptButton", nil, 100, 20, window.accept, nil, nil, nil, Loc ["STRING_IMAGEEDIT_DONE"], 1)
+		local acceptButton = DF:NewButton (buttonsBackground, nil, "$parentAcceptButton", nil, 100, 20, window.accept, nil, nil, nil, "Done", 1)
 		acceptButton:SetPoint ("topright", buttonsBackground, "topright", -8, -200)
 		acceptButton:InstallCustomTexture()
 		
@@ -443,7 +445,7 @@ window:Hide()
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 		
 		local ttexcoord
-		function g:ImageEditor (callback, texture, texcoord, colors, width, height, extraParam, alpha, maximize)
+		function DF:ImageEditor (callback, texture, texcoord, colors, width, height, extraParam, alpha, maximize)
 		
 			texcoord = texcoord or {0, 1, 0, 1}
 			ttexcoord = texcoord
@@ -461,22 +463,23 @@ window:Hide()
 			
 			edit_texture:SetAlpha (alpha)
 
-			_detalhes:ScheduleTimer ("RefreshImageEditor", 0.2)
+			DF:ScheduleTimer ("RefreshImageEditor", 0.2)
 			
 			window:Show()
 			window.callback_func = callback
 			window.extra_param = extraParam
 			buttonsBackground:Show()
+			buttonsBackground.widget:SetBackdrop (nil)
 			
 			table.wipe (window.hooks)
 		end
 		
-		function _detalhes:RefreshImageEditor()
+		function DF:RefreshImageEditor()
 		
 			if (edit_texture.maximize) then
-				DetailsImageEdit:SetSize (266, 226)
+				DetailsFrameworkImageEdit:SetSize (266, 226)
 			else
-				DetailsImageEdit:SetSize (edit_texture.width, edit_texture.height)
+				DetailsFrameworkImageEdit:SetSize (edit_texture.width, edit_texture.height)
 			end
 			
 			local l, r, t, b = unpack (ttexcoord)
@@ -502,7 +505,7 @@ window:Hide()
 			end
 
 			if (window.callback_func) then
-				window.accept (true)
+				window.accept (nil, nil, true)
 			end
 
 		end

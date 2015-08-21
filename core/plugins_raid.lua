@@ -104,7 +104,7 @@
 			
 			if (from_mode_menu) then
 				--refresh
-				instance.baseframe.cabecalho.modo_selecao:GetScript ("OnEnter")(instance.baseframe.cabecalho.modo_selecao)
+				instance.baseframe.cabecalho.modo_selecao:GetScript ("OnEnter")(instance.baseframe.cabecalho.modo_selecao, _, true)
 			end
 		else
 			if (not instance.wait_for_plugin) then

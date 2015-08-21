@@ -2,7 +2,7 @@
 
 	<Script file="textentry.lua"/>
 
-	<EditBox name="DetailsEditBoxTemplate2" virtual="true">
+	<EditBox name="DetailsFrameworkEditBoxTemplate2" virtual="true">
 		<Size x="232" y="20"/>
 		
 		<Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background" edgeFile="Interface\DialogFrame\UI-DialogBox-Border" tile="true">
@@ -34,7 +34,7 @@
 		
 	</EditBox>
 	
-	<ScrollFrame name="DetailsEditBoxMultiLineTemplate" inherits="UIPanelScrollFrameTemplate" virtual="true">
+	<ScrollFrame name="DetailsFrameworkEditBoxMultiLineTemplate" inherits="UIPanelScrollFrameTemplate" virtual="true">
 		<Size x="232" y="20"/>
 		<ScrollChild>
 			<EditBox name="$parentEditBox" multiLine="true" letters="255" autoFocus="false" countInvisibleLetters="true" parentKey="editbox">

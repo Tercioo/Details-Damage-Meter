@@ -9,9 +9,17 @@ function _detalhes:DumpTable (text_to_show, dumpvalues, keeptext)
 end
 
 function _detalhes:OpenNewsWindow (text_to_show, dumpvalues, keeptext)
+
 	local news_window = _detalhes:CreateOrOpenNewsWindow()
 	
 	news_window:Title (Loc ["STRING_NEWS_TITLE"])
+	
+	if (dumpvalues == "change_log" or text_to_show == "LeftButton") then
+		news_window:Text (Loc ["STRING_VERSION_LOG"])
+		news_window:Icon ([[Interface\AddOns\Details\images\icons2]], {108/512, 189/512, 319/512, 400/512})
+		news_window:Show()
+		return
+	end
 	
 	if (text_to_show and type (text_to_show) == "table") then
 	
@@ -46,7 +54,6 @@ function _detalhes:OpenNewsWindow (text_to_show, dumpvalues, keeptext)
 	end
 	
 	news_window:Icon ([[Interface\AddOns\Details\images\icons2]], {108/512, 189/512, 319/512, 400/512})
-	
 	news_window:Show()
 end
 

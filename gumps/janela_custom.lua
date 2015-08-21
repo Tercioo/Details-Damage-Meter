@@ -630,7 +630,7 @@
 				end
 			end
 
-			function DetailsCustomPanel.StartEditCode (code)
+			function DetailsCustomPanel.StartEditCode (_, _, code)
 				if (code == 1) then --> edit main code
 				
 					custom_window.codeeditor:SetText (DetailsCustomPanel.code1)
@@ -710,7 +710,7 @@
 				custom_window.menu [index] = {circle = circle, icon = texture, button = button}
 			end
 			
-			local build_menu = function (func, param2, self)
+			local build_menu = function (self, button, func, param2)
 				GameCooltip:Reset()
 				
 				for index, custom_object in _ipairs (_detalhes.custom) do
@@ -725,6 +725,9 @@
 				GameCooltip:SetOption ("IgnoreButtonAutoHeight", false)
 				GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], {.6, 0.1, 0, 0.64453125}, {1, 1, 1, 0.1}, true)
 				
+				GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
+				GameCooltip:SetBackdrop (2, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
+				
 				GameCooltip:SetType ("menu")
 				GameCooltip:SetHost (self, "left", "right", -7, 0)
 				GameCooltip:Show()
@@ -735,7 +738,6 @@
 				GameCooltip:Hide()
 				DetailsCustomPanel:StartEdit (custom_object)
 			end
-			--custom_window:CreateMenuButton ("Edit", "Interface\\ICONS\\INV_Feather_06", build_menu, start_edit, nil, "Select a display to edit.", "Edit", {0.93, 0.07, 0.07, 0.93}) --> localize
 			custom_window:CreateMenuButton (Loc ["STRING_CUSTOM_EDIT"], "Interface\\ICONS\\INV_Inscription_RunescrollOfFortitude_Red", build_menu, start_edit, nil, nil, "Edit", {0.07, 0.93, 0.07, 0.93}) --> localize
 			
 			--> remove button
@@ -1131,9 +1133,6 @@
 						button.MyObject.image:SetBlendMode ("ADD")
 						button.MyObject.line:SetBlendMode ("ADD")
 						button.MyObject.label:SetTextColor (1, 1, 1, 1)
-						local OnEnterColors = button:GetParent().Gradient.OnEnter
-						local _r, _g, _b, _a = button:GetParent():GetBackdropColor()
-						gump:GradientEffect (button:GetParent(), "frame", _r, _g, _b, _a, OnEnterColors[1], OnEnterColors[2], OnEnterColors[3], OnEnterColors[4], .3)
 						GameTooltip:SetOwner (button, "ANCHOR_TOPLEFT")
 						GameTooltip:AddLine (button.MyObject.actor)
 						GameTooltip:Show()
@@ -1150,11 +1149,6 @@
 						button.MyObject.image:SetBlendMode ("BLEND")
 						button.MyObject.line:SetBlendMode ("BLEND")
 						button.MyObject.label:SetTextColor (.8, .8, .8, .8)
-						local _r, _g, _b, _a = button:GetParent():GetBackdropColor()
-						if (_r) then
-							local OnLeaveColors = button:GetParent().Gradient.OnLeave
-							gump:GradientEffect (button:GetParent(), "frame", _r, _g, _b, _a, OnLeaveColors[1], OnLeaveColors[2], OnLeaveColors[3], OnLeaveColors[4], .3)
-						end
 						GameTooltip:Hide()
 						modelFrame:Hide()
 					end
@@ -1347,9 +1341,6 @@
 						button.MyObject.image:SetBlendMode ("ADD")
 						button.MyObject.line:SetBlendMode ("ADD")
 						button.MyObject.label:SetTextColor (1, 1, 1, 1)
-						local OnEnterColors = button:GetParent().Gradient.OnEnter
-						local _r, _g, _b, _a = button:GetParent():GetBackdropColor()
-						gump:GradientEffect (button:GetParent(), "frame", _r, _g, _b, _a, OnEnterColors[1], OnEnterColors[2], OnEnterColors[3], OnEnterColors[4], .3)
 						GameTooltip:SetOwner (button, "ANCHOR_TOPLEFT")
 						GameTooltip:AddLine (button.MyObject.actor)
 						GameTooltip:Show()
@@ -1366,11 +1357,6 @@
 						button.MyObject.image:SetBlendMode ("BLEND")
 						button.MyObject.line:SetBlendMode ("BLEND")
 						button.MyObject.label:SetTextColor (.8, .8, .8, .8)
-						local _r, _g, _b, _a = button:GetParent():GetBackdropColor()
-						if (_r) then
-							local OnLeaveColors = button:GetParent().Gradient.OnLeave
-							gump:GradientEffect (button:GetParent(), "frame", _r, _g, _b, _a, OnLeaveColors[1], OnLeaveColors[2], OnLeaveColors[3], OnLeaveColors[4], .3)
-						end
 						GameTooltip:Hide()
 						
 						modelFrame:Hide()
@@ -1530,9 +1516,6 @@
 						button.MyObject.image:SetBlendMode ("ADD")
 						button.MyObject.line:SetBlendMode ("ADD")
 						button.MyObject.label:SetTextColor (1, 1, 1, 1)
-						local OnEnterColors = button:GetParent().Gradient.OnEnter
-						local _r, _g, _b, _a = button:GetParent():GetBackdropColor()
-						gump:GradientEffect (button:GetParent(), "frame", _r, _g, _b, _a, OnEnterColors[1], OnEnterColors[2], OnEnterColors[3], OnEnterColors[4], .3)
 
 						GameTooltip:SetOwner (button, "ANCHOR_TOPLEFT")
 						_detalhes:GameTooltipSetSpellByID (button.MyObject.spellid)
@@ -1542,11 +1525,6 @@
 						button.MyObject.image:SetBlendMode ("BLEND")
 						button.MyObject.line:SetBlendMode ("BLEND")
 						button.MyObject.label:SetTextColor (.8, .8, .8, .8)
-						local _r, _g, _b, _a = button:GetParent():GetBackdropColor()
-						if (_r) then
-							local OnLeaveColors = button:GetParent().Gradient.OnLeave
-							gump:GradientEffect (button:GetParent(), "frame", _r, _g, _b, _a, OnLeaveColors[1], OnLeaveColors[2], OnLeaveColors[3], OnLeaveColors[4], .3)
-						end
 						GameTooltip:Hide()
 					end
 					
@@ -1759,6 +1737,11 @@
 					local percent_code = DetailsCustomPanel.code4
 					
 					local object = DetailsCustomPanel.IsEditing
+					
+					if (type (object) ~= "table") then
+						return _detalhes:Msg ("This object need to be saved before.")
+					end
+					
 					object.script = main_code
 					object.tooltip = tooltip_code
 					
