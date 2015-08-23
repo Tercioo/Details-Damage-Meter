@@ -182,7 +182,6 @@ function _detalhes:ToolTipDead (instancia, morte, esta_barra, keydown)
 	
 	GameCooltip:Reset()
 	GameCooltip:SetType ("tooltipbar")
-	--GameCooltip:SetOwner (esta_barra)
 	
 	GameCooltip:AddLine (Loc ["STRING_REPORT_LEFTCLICK"], nil, 1, _unpack (self.click_to_report_color))
 	GameCooltip:AddIcon ([[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]], 1, 1, 12, 16, 0.015625, 0.13671875, 0.4375, 0.59765625)
@@ -280,7 +279,10 @@ function _detalhes:ToolTipDead (instancia, morte, esta_barra, keydown)
 
 	GameCooltip:SetOption ("StatusBarHeightMod", -6)
 	GameCooltip:SetOption ("FixedWidth", 300)
-	GameCooltip:SetOption ("TextSize", 9)
+
+	GameCooltip:SetOption ("TextSize", _detalhes.tooltip.fontsize)
+	GameCooltip:SetOption ("TextFont",  _detalhes.tooltip.fontface)
+	
 	GameCooltip:SetOption ("LeftBorderSize", -4)
 	GameCooltip:SetOption ("RightBorderSize", 5)
 	GameCooltip:SetOption ("StatusBarTexture", [[Interface\AddOns\Details\images\bar4_reverse]])
