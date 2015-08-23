@@ -530,21 +530,30 @@ function _detalhes:OpenOptionsWindow (instance, no_reopen, section)
 
 	--> index dos menus
 	local menus_settings = {
+		--general settings
 		1, --display
 		2, --combat
 		20, --tooltip
 		19, --datafeed
 		13, --profiles
+		
+		--appearance
 		3, --skin
-		6, --window settings 
+
 		4, --row general
 		5, --row texts
 		8, --row advanced
+
 		14, -- title bar text
 		7, --title bar buttons
+		
+		6, --window settings 
 		17, --auto hide settings
-		9, --wallpaper
+		9, --wallpaper		
+		
 		18, --misc
+		
+		--advanced
 		11, --raid tools
 		10, --performance
 		12, --plugins
@@ -564,14 +573,18 @@ local menus = { --labels nos menus
 	
 	{
 		Loc ["STRING_OPTIONSMENU_SKIN"], 
-		Loc ["STRING_OPTIONSMENU_WINDOW"], 
+
 		Loc ["STRING_OPTIONSMENU_ROWSETTINGS"], 
 		Loc ["STRING_OPTIONSMENU_ROWTEXTS"], 
 		Loc ["STRING_OPTIONSMENU_ROWMODELS"], 
+
 		Loc ["STRING_OPTIONSMENU_TITLETEXT"], 
 		Loc ["STRING_OPTIONSMENU_LEFTMENU"], 
+		
+		Loc ["STRING_OPTIONSMENU_WINDOW"], 
 		Loc ["STRING_OPTIONSMENU_SHOWHIDE"], 
 		Loc ["STRING_OPTIONSMENU_WALLPAPER"], 
+		
 		Loc ["STRING_OPTIONSMENU_MISC"]
 	},
 	
@@ -5600,9 +5613,9 @@ function window:CreateFrame4()
 			
 			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
-		--frame4.classColorsLabel:SetPoint ("left", frame4.rowColorPick, "right", 3, 0)
-		window:CreateLineBackground2 (frame4, "classColorSlider", "classColorsLabel", Loc ["STRING_OPTIONS_BAR_COLORBYCLASS_DESC"])
-
+		
+		window:CreateLineBackground2 (frame4, "classColorSlider", "classColorsLabel", Loc ["STRING_OPTIONS_BAR_COLORBYCLASS_DESC"])		
+		
 	--> Bottom Texture
 	
 		--anchor
@@ -10707,6 +10720,7 @@ end --> if not window
 		--
 		_G.DetailsOptionsWindow4ClassColorSlider.MyObject:SetFixedParameter (editing_instance)
 		_G.DetailsOptionsWindow4ClassColorSlider.MyObject:SetValue (editing_instance.row_info.texture_class_colors)
+		
 		
 		_G.DetailsOptionsWindow5UseClassColorsLeftTextSlider.MyObject:SetFixedParameter (editing_instance)
 		_G.DetailsOptionsWindow5UseClassColorsLeftTextSlider.MyObject:SetValue (editing_instance.row_info.textL_class_colors)
