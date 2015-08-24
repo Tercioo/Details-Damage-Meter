@@ -947,53 +947,8 @@ function atributo_misc:RefreshBarra (esta_barra, instancia, from_resize)
 		esta_barra.background:SetVertexColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
 	end	
 	
-	if (self.classe == "UNKNOW") then
-		esta_barra.icone_classe:SetTexture ("Interface\\LFGFRAME\\LFGROLE_BW")
-		esta_barra.icone_classe:SetTexCoord (.25, .5, 0, 1)
-		esta_barra.icone_classe:SetVertexColor (1, 1, 1)
-	
-	elseif (self.classe == "UNGROUPPLAYER") then
-		if (self.enemy) then
-			if (_detalhes.faction_against == "Horde") then
-				esta_barra.icone_classe:SetTexture ("Interface\\ICONS\\Achievement_Character_Orc_Male")
-				esta_barra.icone_classe:SetTexCoord (0, 1, 0, 1)
-			else
-				esta_barra.icone_classe:SetTexture ("Interface\\ICONS\\Achievement_Character_Human_Male")
-				esta_barra.icone_classe:SetTexCoord (0, 1, 0, 1)
-			end
-		else
-			if (_detalhes.faction_against == "Horde") then
-				esta_barra.icone_classe:SetTexture ("Interface\\ICONS\\Achievement_Character_Human_Male")
-				esta_barra.icone_classe:SetTexCoord (0, 1, 0, 1)
-			else
-				esta_barra.icone_classe:SetTexture ("Interface\\ICONS\\Achievement_Character_Orc_Male")
-				esta_barra.icone_classe:SetTexCoord (0, 1, 0, 1)
-			end
-		end
-		esta_barra.icone_classe:SetVertexColor (1, 1, 1)
-	
-	elseif (self.classe == "PET") then
-		esta_barra.icone_classe:SetTexture (instancia.row_info.icon_file)
-		esta_barra.icone_classe:SetTexCoord (0.25, 0.49609375, 0.75, 1)
-		esta_barra.icone_classe:SetVertexColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
-
-	else
-		if (instancia.row_info.use_spec_icons) then
-			if (self.spec) then
-				esta_barra.icone_classe:SetTexture (instancia.row_info.spec_file)
-				esta_barra.icone_classe:SetTexCoord (_unpack (_detalhes.class_specs_coords [self.spec]))
-				esta_barra.icone_classe:SetVertexColor (1, 1, 1)
-			else
-				esta_barra.icone_classe:SetTexture ([[Interface\AddOns\Details\images\classes_small]])
-				esta_barra.icone_classe:SetTexCoord (_unpack (CLASS_ICON_TCOORDS [self.classe]))
-				esta_barra.icone_classe:SetVertexColor (1, 1, 1)
-			end
-		else
-			esta_barra.icone_classe:SetTexture (instancia.row_info.icon_file)
-			esta_barra.icone_classe:SetTexCoord (_unpack (CLASS_ICON_TCOORDS [self.classe]))
-			esta_barra.icone_classe:SetVertexColor (1, 1, 1)
-		end
-	end
+	--icon
+	self:SetClassIcon (esta_barra.icone_classe, instancia)
 	
 	--texture and text
 	

@@ -750,6 +750,58 @@
 			end
 		end
 		
+		local string_arena_enemyteam_damage = [[
+			local combat = _detalhes:GetCombat ("current")
+			local total = 0
+			
+			for _, actor in combat[1]:ListActors() do
+				if (actor.arena_enemy) then
+					total = total + actor.total
+				end
+			end
+			
+			return total
+		]]
+		
+		local string_arena_myteam_damage = [[
+			local combat = _detalhes:GetCombat ("current")
+			local total = 0
+			
+			for _, actor in combat[1]:ListActors() do
+				if (actor.arena_ally) then
+					total = total + actor.total
+				end
+			end
+			
+			return total
+		]]
+		
+		local string_arena_enemyteam_heal = [[
+			local combat = _detalhes:GetCombat ("current")
+			local total = 0
+			
+			for _, actor in combat[2]:ListActors() do
+				if (actor.arena_enemy) then
+					total = total + actor.total
+				end
+			end
+			
+			return total
+		]]
+
+		local string_arena_myteam_heal = [[
+			local combat = _detalhes:GetCombat ("current")
+			local total = 0
+			
+			for _, actor in combat[2]:ListActors() do
+				if (actor.arena_ally) then
+					total = total + actor.total
+				end
+			end
+			
+			return total
+		]]
+		
 		function _detalhes:CreateArenaSegment()
 		
 			_detalhes:GetPlayersInArena()
@@ -761,12 +813,20 @@
 				_detalhes:SairDoCombate()
 			end
 		
+			--> registra os gráficos
+			_detalhes:TimeDataRegister ("Your Team Damage", string_arena_myteam_damage, nil, "Details!", "v1.0", [[Interface\ICONS\Ability_DualWield]], true, true)
+			_detalhes:TimeDataRegister ("Enemy Team Damage", string_arena_enemyteam_damage, nil, "Details!", "v1.0", [[Interface\ICONS\Ability_DualWield]], true, true)
+		
+			_detalhes:TimeDataRegister ("Your Team Healing", string_arena_myteam_heal, nil, "Details!", "v1.0", [[Interface\ICONS\Ability_DualWield]], true, true)
+			_detalhes:TimeDataRegister ("Enemy Team Healing", string_arena_enemyteam_heal, nil, "Details!", "v1.0", [[Interface\ICONS\Ability_DualWield]], true, true)
+		
 			--> inicia um novo combate
 			_detalhes:EntrarEmCombate()
 		
 			--> sinaliza que esse combate é arena
 			_detalhes.tabela_vigente.arena = true
 			_detalhes.tabela_vigente.is_arena = {name = _detalhes.zone_name, zone = _detalhes.zone_name, mapid = _detalhes.zone_id}
+		
 		end
 		
 		function _detalhes:StartArenaSegment (...)
@@ -802,6 +862,13 @@
 			if (_detalhes.start_arena) then
 				_detalhes:CancelTimer (_detalhes.start_arena, true)
 			end
+			
+			_detalhes:TimeDataUnregister ("Your Team Damage")
+			_detalhes:TimeDataUnregister ("Enemy Team Damage")
+			
+			_detalhes:TimeDataUnregister ("Your Team Healing")
+			_detalhes:TimeDataUnregister ("Enemy Team Healing")
+			
 		end
 		
 		function _detalhes:MakeEqualizeOnActor (player, realm, receivedActor)

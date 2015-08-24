@@ -79,6 +79,7 @@
 		
 	end
 
+	--matrix = table containing {max_value = 0, last_value = 0}
 	function _detalhes:TimeDataRegister (name, func, matrix, author, version, icon, is_enabled, force_no_save)
 	
 		--> check name

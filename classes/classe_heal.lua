@@ -863,66 +863,7 @@ function atributo_heal:RefreshBarra (esta_barra, instancia, from_resize)
 	end	
 	
 	--icon
-
-	if (self.spellicon) then
-		esta_barra.icone_classe:SetTexture (self.spellicon)
-		esta_barra.icone_classe:SetTexCoord (0.078125, 0.921875, 0.078125, 0.921875)
-		esta_barra.icone_classe:SetVertexColor (1, 1, 1)
-		
-	elseif (self.classe == "UNKNOW") then
-		--esta_barra.icone_classe:SetTexture ("Interface\\LFGFRAME\\LFGROLE")
-		--esta_barra.icone_classe:SetTexCoord (.25, .5, 0, 1)
-		
-		--esta_barra.icone_classe:SetTexture ([[Interface\TARGETINGFRAME\PetBadge-Undead]])
-		--esta_barra.icone_classe:SetTexCoord (0.09375, 0.90625, 0.09375, 0.90625)
-		
-		esta_barra.icone_classe:SetTexture ([[Interface\AddOns\Details\images\classes_plus]])
-		esta_barra.icone_classe:SetTexCoord (0.50390625, 0.62890625, 0, 0.125)
-		
-		esta_barra.icone_classe:SetVertexColor (1, 1, 1)
-	
-	elseif (self.classe == "UNGROUPPLAYER") then
-		if (self.enemy) then
-			if (_detalhes.faction_against == "Horde") then
-				esta_barra.icone_classe:SetTexture ("Interface\\ICONS\\Achievement_Character_Orc_Male")
-				esta_barra.icone_classe:SetTexCoord (0, 1, 0, 1)
-			else
-				esta_barra.icone_classe:SetTexture ("Interface\\ICONS\\Achievement_Character_Human_Male")
-				esta_barra.icone_classe:SetTexCoord (0, 1, 0, 1)
-			end
-		else
-			if (_detalhes.faction_against == "Horde") then
-				esta_barra.icone_classe:SetTexture ("Interface\\ICONS\\Achievement_Character_Human_Male")
-				esta_barra.icone_classe:SetTexCoord (0, 1, 0, 1)
-			else
-				esta_barra.icone_classe:SetTexture ("Interface\\ICONS\\Achievement_Character_Orc_Male")
-				esta_barra.icone_classe:SetTexCoord (0, 1, 0, 1)
-			end
-		end
-		esta_barra.icone_classe:SetVertexColor (1, 1, 1)
-	
-	elseif (self.classe == "PET") then
-		esta_barra.icone_classe:SetTexture (instancia.row_info.icon_file)
-		esta_barra.icone_classe:SetTexCoord (0.25, 0.49609375, 0.75, 1)
-		esta_barra.icone_classe:SetVertexColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
-
-	else
-		if (instancia.row_info.use_spec_icons) then
-			if (self.spec) then
-				esta_barra.icone_classe:SetTexture (instancia.row_info.spec_file)
-				esta_barra.icone_classe:SetTexCoord (_unpack (_detalhes.class_specs_coords [self.spec]))
-				esta_barra.icone_classe:SetVertexColor (1, 1, 1)
-			else
-				esta_barra.icone_classe:SetTexture ([[Interface\AddOns\Details\images\classes_small]])
-				esta_barra.icone_classe:SetTexCoord (_unpack (CLASS_ICON_TCOORDS [self.classe]))
-				esta_barra.icone_classe:SetVertexColor (1, 1, 1)
-			end
-		else
-			esta_barra.icone_classe:SetTexture (instancia.row_info.icon_file)
-			esta_barra.icone_classe:SetTexCoord (_unpack (CLASS_ICON_TCOORDS [self.classe]))
-			esta_barra.icone_classe:SetVertexColor (1, 1, 1)
-		end
-	end
+	self:SetClassIcon (esta_barra.icone_classe, instancia)
 
 	--texture and text
 	
@@ -1698,15 +1639,25 @@ function atributo_heal:MontaInfoHealingDone()
 		if (index == 1) then
 			barra.textura:SetValue (100)
 		else
-			barra.textura:SetValue (tabela[2]/max_*100) --> muito mais rapido...
+			barra.textura:SetValue (tabela[2]/max_*100)
 		end
 		
-		barra.texto_esquerdo:SetText (index..instancia.divisores.colocacao..tabela[1]) --seta o texto da esqueda
+		local target_actor = instancia.showing (2, tabela[1])
+		if (target_actor) then
+			target_actor:SetClassIcon (barra.icone, instancia)
+		else
+			barra.icone:SetTexture ([[Interface\AddOns\Details\images\classes_small_alpha]]) --CLASSE
+			local texCoords = _detalhes.class_coords ["ENEMY"]
+			barra.icone:SetTexCoord (_unpack (texCoords))
+		end
+		
+		barra.texto_esquerdo:SetText (index .. ". " .. _detalhes:GetOnlyName (tabela[1]))
+		barra.textura:SetStatusBarColor (1, 1, 1, 1)
 		
 		if (info.sub_atributo == 2) then
-			barra.texto_direita:SetText (_detalhes:comma_value (_math_floor (tabela[2]/meu_tempo)) .." ".. instancia.divisores.abre .. _cstr ("%.1f", tabela[3]) .. instancia.divisores.fecha)
+			barra.texto_direita:SetText (_detalhes:comma_value (_math_floor (tabela[2]/meu_tempo)) .." (" .. _cstr ("%.1f", tabela[3]) .. "%)")
 		else
-			barra.texto_direita:SetText (_detalhes:comma_value (tabela[2]) .." ".. instancia.divisores.abre .. _cstr ("%.1f", tabela[3]) .. instancia.divisores.fecha)
+			barra.texto_direita:SetText (SelectedToKFunction (_, tabela[2]) .. " (" .. _cstr ("%.1f", tabela[3]) .. "%)")
 		end
 		
 		barra.minha_tabela = self
@@ -1793,13 +1744,13 @@ function atributo_heal:MontaTooltipAlvos (esta_barra, index, instancia)
 			if (is_hps) then
 				GameTooltip:AddDoubleLine (index..". |T"..icone..":0|t "..nome, _detalhes:comma_value (_math_floor (tabela[2]/meu_tempo)).." (".. _cstr ("%.1f", tabela[2]/total*100).."%)", 1, 1, 1, 1, 1, 1)
 			else
-				GameTooltip:AddDoubleLine (index..". |T"..icone..":0|t "..nome, _detalhes:comma_value (tabela[2]).." (".. _cstr ("%.1f", tabela[2]/total*100).."%)", 1, 1, 1, 1, 1, 1)
+				GameTooltip:AddDoubleLine (index..". |T"..icone..":0|t "..nome, SelectedToKFunction (_, tabela[2]).." (".. _cstr ("%.1f", tabela[2]/total*100).."%)", 1, 1, 1, 1, 1, 1)
 			end
 		else
 			if (is_hps) then
 				GameTooltip:AddDoubleLine (index..". "..nome, _detalhes:comma_value (_math_floor (tabela[2]/meu_tempo)).." (".. _cstr ("%.1f", tabela[2]/total*100).."%)", .65, .65, .65, .65, .65, .65)
 			else
-				GameTooltip:AddDoubleLine (index..". "..nome, _detalhes:comma_value (tabela[2]).." (".. _cstr ("%.1f", tabela[2]/total*100).."%)", .65, .65, .65, .65, .65, .65)
+				GameTooltip:AddDoubleLine (index..". "..nome, SelectedToKFunction (_, tabela[2]).." (".. _cstr ("%.1f", tabela[2]/total*100).."%)", .65, .65, .65, .65, .65, .65)
 			end
 		end
 	end

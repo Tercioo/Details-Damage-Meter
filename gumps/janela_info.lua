@@ -4332,6 +4332,8 @@ local target_on_enter = function (self)
 				meu_tempo = info.instancia.showing:GetCombatTime()
 			end
 			
+			local SelectedToKFunction = _detalhes.ToKFunctions [_detalhes.ps_abbreviation]
+			
 			for index, target in ipairs (ActorTargetsSortTable) do 
 				if (target [2] > 0) then
 					local class = _detalhes:GetClass (target [1])
@@ -4340,13 +4342,13 @@ local target_on_enter = function (self)
 						if (info.target_persecond) then
 							GameTooltip:AddDoubleLine (index .. ". |TInterface\\AddOns\\Details\\images\\classes_small_alpha:14:14:0:0:128:128:"..cords[1]*128 ..":"..cords[2]*128 ..":"..cords[3]*128 ..":"..cords[4]*128 .."|t " .. target [1], _detalhes:comma_value ( _math_floor (target [2] / meu_tempo) ), 1, 1, 1, 1, 1, 1)
 						else
-							GameTooltip:AddDoubleLine (index .. ". |TInterface\\AddOns\\Details\\images\\classes_small_alpha:14:14:0:0:128:128:"..cords[1]*128 ..":"..cords[2]*128 ..":"..cords[3]*128 ..":"..cords[4]*128 .."|t " .. target [1], _detalhes:comma_value (target [2]), 1, 1, 1, 1, 1, 1)
+							GameTooltip:AddDoubleLine (index .. ". |TInterface\\AddOns\\Details\\images\\classes_small_alpha:14:14:0:0:128:128:"..cords[1]*128 ..":"..cords[2]*128 ..":"..cords[3]*128 ..":"..cords[4]*128 .."|t " .. target [1], SelectedToKFunction (_, target [2]), 1, 1, 1, 1, 1, 1)
 						end
 					else
 						if (info.target_persecond) then
 							GameTooltip:AddDoubleLine (index .. ". " .. target [1], _detalhes:comma_value ( _math_floor (target [2] / meu_tempo)), 1, 1, 1, 1, 1, 1)
 						else
-							GameTooltip:AddDoubleLine (index .. ". " .. target [1], _detalhes:comma_value (target [2]), 1, 1, 1, 1, 1, 1)
+							GameTooltip:AddDoubleLine (index .. ". " .. target [1], SelectedToKFunction (_, target [2]), 1, 1, 1, 1, 1, 1)
 						end
 					end
 				end
