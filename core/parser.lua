@@ -981,7 +981,7 @@
 	------------------------------------------------------------------------------------------------
 	--> an enemy healing enemy or an player actor healing a enemy
 
-		if (_bit_band (alvo_flags, REACTION_FRIENDLY) == 0 and not _detalhes.is_in_arena) then
+		if (_bit_band (alvo_flags, REACTION_FRIENDLY) == 0 and not _detalhes.is_in_arena and not _detalhes.is_in_battleground) then
 			if (not este_jogador.heal_enemy [spellid]) then 
 				este_jogador.heal_enemy [spellid] = cura_efetiva
 			else

@@ -301,18 +301,20 @@
 				elseif (actor.owner) then
 					return _unpack (_detalhes.class_colors [actor.owner.classe])
 
-				elseif (actor.arena_enemy) then
-					return _unpack (_detalhes.class_colors.ARENA_ENEMY)
-				
-				elseif (actor.arena_ally) then
-					return _unpack (_detalhes.class_colors.ARENA_ALLY)
-				
+				elseif (actor.arena_team) then
+					if (actor.arena_team == 0) then
+						return _unpack (_detalhes.class_colors.ARENA_GREEN)
+					else
+						return _unpack (_detalhes.class_colors.ARENA_YELLOW)
+					end
+					
 				else
 					if (not is_player_class [actor.classe] and actor.flag_original and _bit_band (actor.flag_original, 0x00000020) ~= 0) then --> neutral
 						return _unpack (_detalhes.class_colors.NEUTRAL)
 					else
 						return _unpack (_detalhes.class_colors [actor.classe])
 					end
+					
 				end
 			end
 			

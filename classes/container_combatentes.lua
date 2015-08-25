@@ -192,12 +192,14 @@
 				
 				if (_detalhes.is_in_arena) then
 				
+					local my_team_color = GetBattlefieldArenaFaction()
+				
 					if (novo_objeto.grupo) then --> is ally
 						novo_objeto.arena_ally = true
-						
+						novo_objeto.arena_team = my_team_color
 					else --> is enemy
 						novo_objeto.arena_enemy = true
-						
+						novo_objeto.arena_team = 1 - my_team_color
 					end
 					
 					local arena_props = _detalhes.arena_table [nome]

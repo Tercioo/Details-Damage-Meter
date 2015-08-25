@@ -860,6 +860,7 @@
 			new_actor.role = actor.role
 			new_actor.arena_enemy = actor.arena_enemy
 			new_actor.arena_ally = actor.arena_ally
+			new_actor.arena_team = actor.arena_team
 			
 			if (actor.id) then
 				new_actor.id = actor.id

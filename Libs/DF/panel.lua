@@ -2239,18 +2239,22 @@ local chart_panel_align_timelabels = function (self, elapsed_time)
 end
 
 local chart_panel_set_scale = function (self, amt, func, text)
+
 	if (type (amt) ~= "number") then
 		return
 	end
 	
 	local piece = amt / 1000 / 8
+	if (not text or text == "") then
+		text = amt > 1000000 and "M" or amt > 1000 and "K"
+	end
 	
 	for i = 1, 8 do
 		if (func) then
 			self ["dpsamt" .. math.abs (i-9)]:SetText ( func (piece*i) .. (text or ""))
 		else
 			if (piece*i > 1) then
-				self ["dpsamt" .. math.abs (i-9)]:SetText ( floor (piece*i) .. (text or ""))
+				self ["dpsamt" .. math.abs (i-9)]:SetText ( format ("%.1f", piece*i) .. (text or ""))
 			else
 				self ["dpsamt" .. math.abs (i-9)]:SetText ( format ("%.3f", piece*i) .. (text or ""))
 			end
@@ -2377,7 +2381,7 @@ local create_box = function (self, next_box)
 	button:SetScript ("OnClick", function()
 		chart_panel_enable_line (self, thisbox)
 	end)
-	button:SetPoint ("center", box, "center")
+	button:SetPoint ("center", box.widget or box, "center")
 	
 	thisbox.button = button
 	
@@ -2553,7 +2557,7 @@ local chart_panel_add_data = function (self, graphicData, color, name, elapsed_t
 
 	local f = self
 	self = self.Graphic
-	
+
 	local _data = {}
 	local max_value = graphicData.max_value
 	local amount = #graphicData
