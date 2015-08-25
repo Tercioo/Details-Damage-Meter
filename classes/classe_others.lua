@@ -403,17 +403,6 @@ function atributo_misc:ReportSingleDeadLine (morte, instancia)
 	end
 	
 	_detalhes:SendReportWindow (ReportSingleDeathFunc, nil, nil, true)
-	
-	--for index = #report_array, 1, -1 do
-	--	local table = report_array [index]
-	--	reportar [#reportar+1] = table [1] .. table [4] .. table [2] .. table [3]
-	--end
-	
-	--for index, table in _ipairs (report_array) do
-	--	reportar [#reportar+1] = table [1] .. table [4] .. table [2] .. table [3]
-	--end
-	
-	--return _detalhes:Reportar (reportar, {_no_current = true, _no_inverse = true, _custom = true})
 end
 
 function atributo_misc:ReportSingleCooldownLine (misc_actor, instancia)

@@ -652,7 +652,13 @@
 				_detalhes.tabela_historico:adicionar (_detalhes.tabela_vigente) --move a tabela atual para dentro do histórico
 			else
 				invalid_combat = _detalhes.tabela_vigente
-				_detalhes.tabela_vigente = _detalhes.tabela_historico.tabelas[1] --> pega a tabela do ultimo combate
+				
+				--in case of a forced discard segment, just check a second time if we have a previous combat.
+				if (not _detalhes.tabela_historico.tabelas[1]) then
+					_detalhes.tabela_vigente = _detalhes.tabela_vigente
+				else
+					_detalhes.tabela_vigente = _detalhes.tabela_historico.tabelas[1] --> pega a tabela do ultimo combate
+				end
 
 				if (_detalhes.tabela_vigente:GetStartTime() == 0) then
 					--_detalhes.tabela_vigente.start_time = _detalhes._tempo
