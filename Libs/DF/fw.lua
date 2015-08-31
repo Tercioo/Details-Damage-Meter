@@ -596,7 +596,7 @@ end
 				-- do nothing
 		
 			elseif (widget_table.type == "label" or widget_table.type == "text") then
-				local label = DF:CreateLabel (parent, widget_table.get() or widget_table.text, widget_table.text_template or widget_table.size, widget_table.color, widget_table.font, nil, "$parentWidget" .. index, "overlay")
+				local label = DF:CreateLabel (parent, widget_table.get() or widget_table.text, widget_table.text_template or text_template or widget_table.size, widget_table.color, widget_table.font, nil, "$parentWidget" .. index, "overlay")
 				label._get = widget_table.get
 				label.widget_type = "label"
 				label:SetPoint (cur_x, cur_y)

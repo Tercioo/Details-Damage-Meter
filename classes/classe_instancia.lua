@@ -538,6 +538,8 @@ end
 	function _detalhes:AtivarInstancia (temp)
 	
 		self.ativa = true
+		self.cached_bar_width = self.cached_bar_width or 0
+		
 		local lower = _detalhes:GetLowerInstanceNumber()
 		
 		if (lower == self.meu_id) then
@@ -1280,6 +1282,7 @@ end
 			new_instance.largura_scroll = 26
 			new_instance.bar_mod = 0
 			new_instance.bgdisplay_loc = 0
+			new_instance.cached_bar_width = 0
 		
 		--> displaying row info
 			new_instance.rows_created = 0
@@ -1417,7 +1420,7 @@ function _detalhes:RestauraJanela (index, temp, load_only)
 		self.bar_mod = 0
 		self.bgdisplay_loc = 0
 		self.last_modo = self.last_modo or modo_grupo
-
+		self.cached_bar_width = self.cached_bar_width or 0
 		self.row_height = self.row_info.height + self.row_info.space.between
 		
 	--> create frames

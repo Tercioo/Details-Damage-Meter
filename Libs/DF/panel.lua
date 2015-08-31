@@ -988,6 +988,10 @@ function DF:NewFillPanel (parent, rows, name, member, w, h, total_lines, fill_ro
 	end
 	
 	function panel:Refresh()
+		if (type (panel._totalfunc) == "boolean") then
+			--> not yet initialized
+			return
+		end
 		local filled_lines = panel._totalfunc (panel)
 		local scroll_total_lines = #panel.scrollframe.lines
 		local line_height = options.rowheight

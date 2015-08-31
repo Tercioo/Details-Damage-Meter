@@ -128,6 +128,8 @@ _detalhes.instance_defaults = {
 		bars_grow_direction = 1,
 	--sort direction is the direction of results on bars (1 = top to bottom 2 = bottom to top)
 		bars_sort_direction = 1,
+	--left to right or right to left bars
+		bars_inverted = false,
 	--menus:
 		--anchor store the anchor point of main menu
 		menu_anchor = {5, 1, side = 1}, --mode segment attribute report on top position

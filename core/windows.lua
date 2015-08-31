@@ -72,8 +72,8 @@
 				local row_proxima = self.barras [i-1]
 				
 				if (row_proxima and not row.animacao_ignorar) then
-					local v = row.statusbar:GetValue()
-					local v_proxima = row_proxima.statusbar:GetValue()
+					local v = row.statusbar.value
+					local v_proxima = row_proxima.statusbar.value
 					
 					if (v_proxima > v) then
 						if (row.animacao_fim >= v_proxima) then
@@ -107,8 +107,8 @@
 				local row_proxima = self.barras [i+1]
 				
 				if (row_proxima and not row.animacao_ignorar) then
-					local v = row.statusbar:GetValue()
-					local v_proxima = row_proxima.statusbar:GetValue()
+					local v = row.statusbar.value
+					local v_proxima = row_proxima.statusbar.value
 					
 					if (v_proxima > v) then
 						if (row.animacao_fim >= v_proxima) then
@@ -141,7 +141,7 @@
 	end
 	
 	function _detalhes:AnimarBarra (esta_barra, fim)
-		esta_barra.inicio = esta_barra.statusbar:GetValue()
+		esta_barra.inicio = esta_barra.statusbar.value
 		esta_barra.fim = fim
 		esta_barra.tem_animacao = true
 		
@@ -646,6 +646,9 @@
 				self.rows_created = #self.barras
 			end
 			
+			--> faz um cache do tamanho das barras
+			self.cached_bar_width = self.barras[1] and self.barras[1]:GetWidth() or 0
+			
 			--> seta a largura das barras
 			if (self.bar_mod and self.bar_mod ~= 0) then
 				for index = 1, self.rows_fit_in_window do
@@ -656,8 +659,6 @@
 					self.barras [index]:SetWidth (self.baseframe:GetWidth()+self.row_info.space.right)
 				end
 			end
-			
-			
 
 			--> verifica se precisa esconder ou mostrar alguma barra
 			local A = self.barraS[1]

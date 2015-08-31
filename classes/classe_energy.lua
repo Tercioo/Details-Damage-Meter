@@ -238,64 +238,12 @@ function atributo_energy:AtualizarResources (qual_barra, colocacao, instancia)
 		gump:Fade (esta_barra, "out")
 	end
 	
+	--> texture color
 	actor_class_color_r, actor_class_color_g, actor_class_color_b = self:GetBarColor()
-	if (instancia.row_info.texture_class_colors) then
-		esta_barra.textura:SetVertexColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
-	end
-	
-	if (self.classe == "UNKNOW") then
-		esta_barra.icone_classe:SetTexture ([[Interface\AddOns\Details\images\classes_plus]])
-		esta_barra.icone_classe:SetTexCoord (0.50390625, 0.62890625, 0, 0.125)
-		esta_barra.icone_classe:SetVertexColor (1, 1, 1)
-		
-	elseif (self.classe == "UNGROUPPLAYER") then
-		if (self.enemy) then
-			if (_detalhes.faction_against == "Horde") then
-				esta_barra.icone_classe:SetTexture ("Interface\\ICONS\\Achievement_Character_Orc_Male")
-				esta_barra.icone_classe:SetTexCoord (0, 1, 0, 1)
-			else
-				esta_barra.icone_classe:SetTexture ("Interface\\ICONS\\Achievement_Character_Human_Male")
-				esta_barra.icone_classe:SetTexCoord (0, 1, 0, 1)
-			end
-		else
-			if (_detalhes.faction_against == "Horde") then
-				esta_barra.icone_classe:SetTexture ("Interface\\ICONS\\Achievement_Character_Human_Male")
-				esta_barra.icone_classe:SetTexCoord (0, 1, 0, 1)
-			else
-				esta_barra.icone_classe:SetTexture ("Interface\\ICONS\\Achievement_Character_Orc_Male")
-				esta_barra.icone_classe:SetTexCoord (0, 1, 0, 1)
-			end
-		end
-		esta_barra.icone_classe:SetVertexColor (1, 1, 1)
-		
-	elseif (self.classe == "PET") then
-		esta_barra.icone_classe:SetTexture (instancia.row_info.icon_file)
-		esta_barra.icone_classe:SetTexCoord (0.25, 0.49609375, 0.75, 1)
-		esta_barra.icone_classe:SetVertexColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
+	self:SetBarColors (esta_barra, instancia, actor_class_color_r, actor_class_color_g, actor_class_color_b)
+	--> icon
+	self:SetClassIcon (esta_barra.icone_classe, instancia, self.classe)
 
-	else
-		if (instancia.row_info.use_spec_icons) then
-			if (self.spec) then
-				esta_barra.icone_classe:SetTexture (instancia.row_info.spec_file)
-				esta_barra.icone_classe:SetTexCoord (_unpack (_detalhes.class_specs_coords [self.spec]))
-			else
-				esta_barra.icone_classe:SetTexture ([[Interface\AddOns\Details\images\classes_small]])
-				esta_barra.icone_classe:SetTexCoord (_unpack (CLASS_ICON_TCOORDS [self.classe]))
-			end
-		else
-			esta_barra.icone_classe:SetTexture (instancia.row_info.icon_file)
-			esta_barra.icone_classe:SetTexCoord (_unpack (CLASS_ICON_TCOORDS [self.classe]))
-		end
-		esta_barra.icone_classe:SetVertexColor (1, 1, 1)
-	end
-	
-	if (instancia.row_info.textL_class_colors) then
-		esta_barra.texto_esquerdo:SetTextColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
-	end
-	if (instancia.row_info.textR_class_colors) then
-		esta_barra.texto_direita:SetTextColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
-	end
-	
 end
 
 --> refresh function
@@ -759,76 +707,18 @@ end
 
 function atributo_energy:RefreshBarra (esta_barra, instancia, from_resize)
 	
+	local class, enemy, arena_enemy, arena_ally = self.classe, self.enemy, self.arena_enemy, self.arena_ally
+	
 	if (from_resize) then
 		actor_class_color_r, actor_class_color_g, actor_class_color_b = self:GetBarColor()
 	end
 	
-	if (instancia.row_info.texture_class_colors) then
-		esta_barra.textura:SetVertexColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
-	end
-	if (instancia.row_info.texture_background_class_color) then
-		esta_barra.background:SetVertexColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
-	end
-	
-	--icon
-	self:SetClassIcon (esta_barra.icone_classe, instancia)
-	
-	--texture and text
-	
-	local bar_number = ""
-	if (instancia.row_info.textL_show_number) then
-		bar_number = esta_barra.colocacao .. ". "
-	end
-	
-	if (self.enemy) then
-		if (self.arena_enemy) then
-			if (UsingCustomLeftText) then
-				esta_barra.texto_esquerdo:SetText (_string_replace (instancia.row_info.textL_custom_text, esta_barra.colocacao, self.displayName, "|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. instancia.row_info.height .. ":" .. instancia.row_info.height .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t", self, instancia.showing))
-			else
-				esta_barra.texto_esquerdo:SetText (bar_number .. "|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. instancia.row_info.height .. ":" .. instancia.row_info.height .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t" .. self.displayName)
-			end
-			esta_barra.textura:SetVertexColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
-		else
-			if (_detalhes.faction_against == "Horde") then
-				if (UsingCustomLeftText) then
-					esta_barra.texto_esquerdo:SetText (_string_replace (instancia.row_info.textL_custom_text, esta_barra.colocacao, self.displayName, "|TInterface\\AddOns\\Details\\images\\icones_barra:"..instancia.row_info.height..":"..instancia.row_info.height..":0:0:256:32:0:32:0:32|t", self, instancia.showing))
-				else
-					esta_barra.texto_esquerdo:SetText (bar_number .. "|TInterface\\AddOns\\Details\\images\\icones_barra:"..instancia.row_info.height..":"..instancia.row_info.height..":0:0:256:32:0:32:0:32|t"..self.displayName) --seta o texto da esqueda -- HORDA
-				end
-			else
-				if (UsingCustomLeftText) then
-					esta_barra.texto_esquerdo:SetText (_string_replace (instancia.row_info.textL_custom_text, esta_barra.colocacao, self.displayName, "|TInterface\\AddOns\\Details\\images\\icones_barra:"..instancia.row_info.height..":"..instancia.row_info.height..":0:0:256:32:32:64:0:32|t", self, instancia.showing))
-				else
-					esta_barra.texto_esquerdo:SetText (bar_number .. "|TInterface\\AddOns\\Details\\images\\icones_barra:"..instancia.row_info.height..":"..instancia.row_info.height..":0:0:256:32:32:64:0:32|t"..self.displayName) --seta o texto da esqueda -- ALLY
-				end
-			end
-			
-			if (instancia.row_info.texture_class_colors) then
-				esta_barra.textura:SetVertexColor (0.94117, 0, 0.01960, 1)
-			end
-		end
-	else
-		if (self.arena_ally) then
-			if (UsingCustomLeftText) then
-				esta_barra.texto_esquerdo:SetText (_string_replace (instancia.row_info.textL_custom_text, esta_barra.colocacao, self.displayName, "|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. instancia.row_info.height .. ":" .. instancia.row_info.height .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t", self, instancia.showing))
-			else
-				esta_barra.texto_esquerdo:SetText (bar_number .. "|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. instancia.row_info.height .. ":" .. instancia.row_info.height .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t" .. self.displayName)
-			end
-		else
-			if (UsingCustomLeftText) then
-				esta_barra.texto_esquerdo:SetText (_string_replace (instancia.row_info.textL_custom_text, esta_barra.colocacao, self.displayName, "", self, instancia.showing))
-			else
-				esta_barra.texto_esquerdo:SetText (bar_number .. self.displayName) --seta o texto da esqueda
-			end
-		end
-	end
-	
-	if (instancia.row_info.textL_class_colors) then
-		esta_barra.texto_esquerdo:SetTextColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
-	end
-	if (instancia.row_info.textR_class_colors) then
-		esta_barra.texto_direita:SetTextColor (actor_class_color_r, actor_class_color_g, actor_class_color_b)
-	end
+	--> icon
+	self:SetClassIcon (esta_barra.icone_classe, instancia, class)
+	--> texture color
+	self:SetBarColors (esta_barra, instancia, actor_class_color_r, actor_class_color_g, actor_class_color_b)
+	--> left text
+	self:SetBarLeftText (esta_barra, instancia, enemy, arena_enemy, arena_ally, UsingCustomLeftText)
 	
 	esta_barra.texto_esquerdo:SetSize (esta_barra:GetWidth() - esta_barra.texto_direita:GetStringWidth() - 20, 15)
 	

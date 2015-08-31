@@ -15,6 +15,7 @@ local segmentos = _detalhes.segmentos
 local _cstr = tostring
 local _math_ceil = math.ceil
 local _math_floor = math.floor
+local _math_max = math.max
 local _ipairs = ipairs
 local _pairs = pairs
 local _string_lower = string.lower
@@ -1852,7 +1853,11 @@ local barra_scripts_onenter = function (self)
 	self:SetBackdropColor (0.588, 0.588, 0.588, 0.7)
 
 	if (not _detalhes.instances_disable_bar_highlight) then
-		self.textura:SetBlendMode ("ADD")
+		if (self._instance.bars_inverted) then
+			self.right_to_left_texture:SetBlendMode ("ADD")
+		else
+			self.textura:SetBlendMode ("ADD")
+		end
 	end
 
 	local lefttext = self.texto_esquerdo
@@ -1892,7 +1897,11 @@ local barra_scripts_onleave = function (self)
 	self:SetBackdropBorderColor (0, 0, 0, 0)
 	self:SetBackdropColor (0, 0, 0, 0)
 	
-	self.textura:SetBlendMode ("BLEND")
+	if (self._instance.bars_inverted) then
+		self.right_to_left_texture:SetBlendMode ("BLEND")
+	else
+		self.textura:SetBlendMode ("BLEND")
+	end
 
 	self.showing_allspells = false
 	self:SetScript ("OnUpdate", nil)
@@ -1924,12 +1933,7 @@ local barra_scripts_onmousedown = function (self, button)
 
 	end
 	
-	self.texto_direita:SetPoint ("right", self.statusbar, "right", 1, -1)
-	if (self._instance.row_info.no_icon) then
-		self.texto_esquerdo:SetPoint ("left", self.statusbar, "left", 3, -1)
-	else
-		self.texto_esquerdo:SetPoint ("left", self.icone_classe, "right", 4, -1)
-	end
+	self._instance:HandleTextsOnMouseClick (self, "down")
 
 	self.mouse_down = _GetTime()
 	self.button = button
@@ -1957,12 +1961,7 @@ local barra_scripts_onmouseup = function (self, button)
 		end
 	end
 
-	self.texto_direita:SetPoint ("right", self.statusbar, "right")
-	if (self._instance.row_info.no_icon) then
-		self.texto_esquerdo:SetPoint ("left", self.statusbar, "left", 2, 0)
-	else
-		self.texto_esquerdo:SetPoint ("left", self.icone_classe, "right", 3, 0)
-	end
+	self._instance:HandleTextsOnMouseClick (self, "up")
 	
 	local x, y = _GetCursorPosition()
 	x = _math_floor (x)
@@ -2014,8 +2013,65 @@ local barra_scripts_onshow = function (self)
 	end
 end
 
+function _detalhes:HandleTextsOnMouseClick (row, type)
+
+	if (self.bars_inverted) then
+		if (type == "down") then
+			row.texto_direita:SetPoint ("left", row.statusbar, "left", 2, -1)
+			
+			if (self.row_info.no_icon) then
+				row.texto_esquerdo:SetPoint ("right", row.statusbar, "right", -1, -1)
+			else
+				row.texto_esquerdo:SetPoint ("right", row.icone_classe, "left", -1, -1)
+			end
+			
+		elseif (type == "up") then
+			row.texto_direita:SetPoint ("left", row.statusbar, "left", 1, 0)
+			
+			if (self.row_info.no_icon) then
+				row.texto_esquerdo:SetPoint ("right", row.statusbar, "right", -2, 0)
+			else
+				row.texto_esquerdo:SetPoint ("right", row.icone_classe, "left", -2, 0)
+			end
+		end
+
+	else
+		if (type == "down") then
+			row.texto_direita:SetPoint ("right", row.statusbar, "right", 1, -1)
+			if (self.row_info.no_icon) then
+				row.texto_esquerdo:SetPoint ("left", row.statusbar, "left", 3, -1)
+			else
+				row.texto_esquerdo:SetPoint ("left", row.icone_classe, "right", 4, -1)
+			end
+			
+		elseif (type == "up") then
+			row.texto_direita:SetPoint ("right", row.statusbar, "right")
+			if (self.row_info.no_icon) then
+				row.texto_esquerdo:SetPoint ("left", row.statusbar, "left", 2, 0)
+			else
+				row.texto_esquerdo:SetPoint ("left", row.icone_classe, "right", 3, 0)
+			end
+		end
+	end
+end
+
 local set_bar_value = function (self, value)
-	self.statusbar:SetValue (value)
+	if (self._instance.bars_inverted) then
+		self.statusbar:SetValue (0)
+		
+		local width = self._instance.cached_bar_width
+		local inverse_bar_size = width / 100 * value
+		local coord_inverse = inverse_bar_size / width
+		
+		inverse_bar_size = _math_max (inverse_bar_size, 0.00000001)
+		
+		self.right_to_left_texture:SetWidth (inverse_bar_size)
+		self.right_to_left_texture:SetTexCoord (coord_inverse, 0, 0, 1)
+	else
+		self.statusbar:SetValue (value)
+	end
+	
+	self.statusbar.value = value
 	
 	if (self.using_upper_3dmodels) then
 		local width = self:GetWidth()
@@ -3633,14 +3689,25 @@ function _detalhes:SetBarFollowPlayer (follow)
 	self:ReajustaGump()
 end
 
-function _detalhes:SetBarGrowDirection (direction)
+function _detalhes:SetBarOrientationDirection (orientation)
+	if (orientation == nil) then
+		orientation = self.bars_inverted
+	end
 
+	self.bars_inverted = orientation
+	
+	self:InstanceRefreshRows()
+	self:RefreshBars()
+	self:InstanceReset()
+	self:ReajustaGump()
+end
+
+function _detalhes:SetBarGrowDirection (direction)
 	if (not direction) then
 		direction = self.bars_grow_direction
 	end
 	
 	self.bars_grow_direction = direction
-	
 	local x = self.row_info.space.left
 	
 	if (direction == 1) then --> top to bottom
@@ -3716,6 +3783,14 @@ function gump:CriaNovaBarra (instancia, index)
 	
 	--> statusbar
 	new_row.statusbar = CreateFrame ("StatusBar", "DetailsBarra_Statusbar_"..instancia.meu_id.."_"..index, new_row)
+	--> right to left texture
+	new_row.statusbar.right_to_left_texture = new_row.statusbar:CreateTexture (nil, "overlay")
+	new_row.statusbar.right_to_left_texture:SetPoint ("topright", new_row.statusbar, "topright")
+	new_row.statusbar.right_to_left_texture:SetPoint ("bottomright", new_row.statusbar, "bottomright")
+	new_row.statusbar.right_to_left_texture:SetWidth (0.000000001)
+	new_row.statusbar.right_to_left_texture:Hide()
+	new_row.right_to_left_texture = new_row.statusbar.right_to_left_texture
+	
 	--> frame for hold the backdrop border
 	new_row.border = CreateFrame ("Frame", "DetailsBarra_Border_" .. instancia.meu_id .. "_" .. index, new_row.statusbar)
 	new_row.border:SetFrameLevel (new_row.statusbar:GetFrameLevel()+2)
@@ -3778,7 +3853,7 @@ function gump:CriaNovaBarra (instancia, index)
 	new_row.texto_direita = new_row.border:CreateFontString (nil, "overlay", "GameFontHighlight")
 	new_row.texto_direita:SetPoint ("right", new_row.statusbar, "right")
 	new_row.texto_direita:SetJustifyH ("right")
-	
+
 	--> set the onclick, on enter scripts
 	barra_scripts (new_row, instancia, index)
 
@@ -4200,6 +4275,9 @@ function _detalhes:InstanceRefreshRows (instancia)
 		return
 	end
 	
+	--> mirror
+		local is_mirror = self.bars_inverted
+	
 	--> texture
 		local texture_file = SharedMedia:Fetch ("statusbar", self.row_info.texture)
 		local texture_file2 = SharedMedia:Fetch ("statusbar", self.row_info.texture_background)
@@ -4273,22 +4351,68 @@ function _detalhes:InstanceRefreshRows (instancia)
 		row.icone_classe:SetHeight (height)
 		row.icone_classe:SetWidth (height)
 		
-		--> icon
-		if (no_icon) then
-			row.statusbar:SetPoint ("topleft", row, "topleft")
-			row.statusbar:SetPoint ("bottomright", row, "bottomright")
-			row.texto_esquerdo:SetPoint ("left", row.statusbar, "left", 2, 0)
-			row.icone_classe:Hide()
-		else
-			if (start_after_icon) then
-				row.statusbar:SetPoint ("topleft", row.icone_classe, "topright")
-			else
-				row.statusbar:SetPoint ("topleft", row, "topleft")
-			end
+		--> icon and texture anchors
+		if (not is_mirror) then
+
+			row.texto_esquerdo:ClearAllPoints()
+			row.texto_direita:ClearAllPoints()
+			row.texto_direita:SetJustifyH ("right")
+			row.texto_esquerdo:SetJustifyH ("left")
 			
-			row.statusbar:SetPoint ("bottomright", row, "bottomright")
-			row.texto_esquerdo:SetPoint ("left", row.icone_classe, "right", 3, 0)
-			row.icone_classe:Show()
+			row.texto_direita:SetPoint ("right", row.statusbar, "right")
+
+			if (no_icon) then
+				row.statusbar:SetPoint ("topleft", row, "topleft")
+				row.statusbar:SetPoint ("bottomright", row, "bottomright")
+				row.texto_esquerdo:SetPoint ("left", row.statusbar, "left", 2, 0)
+				row.icone_classe:Hide()
+			else
+				row.icone_classe:ClearAllPoints()
+				row.icone_classe:SetPoint ("left", row, "left")
+				row.icone_classe:Show()
+				
+				if (start_after_icon) then
+					row.statusbar:SetPoint ("topleft", row.icone_classe, "topright")
+				else
+					row.statusbar:SetPoint ("topleft", row, "topleft")
+				end
+				
+				row.statusbar:SetPoint ("bottomright", row, "bottomright")
+				row.texto_esquerdo:SetPoint ("left", row.icone_classe, "right", 3, 0)
+			end
+		else
+		
+			row.texto_esquerdo:ClearAllPoints()
+			row.texto_direita:ClearAllPoints()
+			row.texto_direita:SetJustifyH ("left")
+			row.texto_esquerdo:SetJustifyH ("right")
+			
+			row.texto_direita:SetPoint ("left", row.statusbar, "left", 1, 0)
+		
+			if (no_icon) then
+				row.statusbar:SetPoint ("topleft", row, "topleft")
+				row.statusbar:SetPoint ("bottomright", row, "bottomright")
+				row.texto_esquerdo:SetPoint ("right", row.statusbar, "right", -2, 0)
+				row.icone_classe:Hide()
+				
+				row.right_to_left_texture:SetPoint ("topright", row.statusbar, "topright")
+				row.right_to_left_texture:SetPoint ("bottomright", row.statusbar, "bottomright")
+			else
+			
+				row.icone_classe:ClearAllPoints()
+				row.icone_classe:SetPoint ("right", row, "right")
+				row.icone_classe:Show()
+				
+				if (start_after_icon) then
+					row.statusbar:SetPoint ("bottomright", row.icone_classe, "bottomleft")
+				else
+					row.statusbar:SetPoint ("bottomright", row, "bottomright")
+				end
+				
+				row.statusbar:SetPoint ("topleft", row, "topleft")
+
+				row.texto_esquerdo:SetPoint ("right", row.icone_classe, "left", -2, 0)
+			end
 		end
 	
 		if (not self.row_info.texture_background_class_color) then
@@ -4315,7 +4439,14 @@ function _detalhes:InstanceRefreshRows (instancia)
 		
 		--> texture:
 		row.textura:SetTexture (texture_file)
+		row.right_to_left_texture:SetTexture (texture_file)
 		row.background:SetTexture (texture_file2)
+		
+		if (is_mirror) then
+			row.right_to_left_texture:Show()
+		else
+			row.right_to_left_texture:Hide()
+		end
 		
 		--> texture class color: if true color changes on the fly through class refresh
 		if (not texture_class_color) then

@@ -1110,6 +1110,7 @@ local default_global_data = {
 		report_where = "SAY",
 		realm_sync = true,
 		spell_school_cache = {},
+		global_plugin_database = {},
 	--> switch tables
 		switchSaved = {slots = 4, table = {
 			{["atributo"] = 1, ["sub_atributo"] = 1}, --damage done

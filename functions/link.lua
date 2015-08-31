@@ -22,7 +22,118 @@
 	--[[global]] DETAILS_WA_TRIGGER_DBM_TIMER = 9
 	--[[global]] DETAILS_WA_TRIGGER_BW_TIMER = 10
 	
+	--[[global]] DETAILS_WA_TRIGGER_INTERRUPT = 11
+	
 	--weak auras
+	
+	local text_interrupt_prototype = {
+		["outline"] = true,
+		["fontSize"] = 12,
+		["color"] = {1, 1, 1, 1},
+		["displayText"] = "%c\n",
+		["customText"] = "function()\n    return aura_env.text\nend \n\n",
+		["yOffset"] = 174.820495605469,
+		["anchorPoint"] = "CENTER",
+		["customTextUpdate"] = "event",
+		["actions"] = {
+			["start"] = {
+				["do_custom"] = false,
+				["custom"] = "",
+			},
+			["finish"] = {
+			},
+			["init"] = {
+				["do_custom"] = true,
+				["custom"] = "aura_env.text = \"\"\naura_env.success = 0\naura_env.interrupted = 0",
+			},
+		},
+		["untrigger"] = {
+			["custom"] = "function()\n    return not InCombatLockdown()\nend\n",
+		},
+		["trigger"] = {
+			["spellId"] = "",
+			["message_operator"] = "==",
+			["subeventPrefix"] = "SPELL",
+			["unit"] = "player",
+			["debuffType"] = "HELPFUL",
+			["names"] = {
+			},
+			["use_addon"] = false,
+			["use_unit"] = true,
+			["subeventSuffix"] = "_CAST_SUCCESS",
+			["spellName"] = "",
+			["type"] = "custom",
+			["event"] = "Health",
+			["spellIds"] = {
+			},
+			["use_spellName"] = false,
+			["use_spellId"] = false,
+			["custom"] = "function (evento, time, token, hidding, who_serial, who_name, who_flags, who_flags2, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, extraSpellID, extraSpellName, extraSchool)\n    \n    if (evento == \"COMBAT_LOG_EVENT_UNFILTERED\") then\n        \n        if (token == \"SPELL_CAST_SUCCESS\" and spellid == 165416) then\n            aura_env.success = aura_env.success + 1\n            aura_env.text = aura_env.text .. \"SUCCESS! (\" .. aura_env.success .. \")\\n\"\n            \n            return true\n            \n        elseif (token == \"SPELL_INTERRUPT\" and extraSpellID == 165416) then\n            aura_env.interrupted = aura_env.interrupted + 1\n            aura_env.text = aura_env.text .. who_name ..  \" (\" .. aura_env.interrupted .. \") \".. \"\\n\"\n            return true\n        end\n    else\n        aura_env.text = \"\"\n        aura_env.success = 0\n        aura_env.interrupted = 0\n        return true        \n    end\n    \nend\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+			["events"] = "COMBAT_LOG_EVENT_UNFILTERED, ENCOUNTER_START",
+			["use_message"] = true,
+			["unevent"] = "timed",
+			["custom_type"] = "event",
+			["custom_hide"] = "custom",
+		},
+		["justify"] = "LEFT",
+		["selfPoint"] = "BOTTOM",
+		["additional_triggers"] = {
+		},
+		["xOffset"] = -403.999786376953,
+		["frameStrata"] = 1,
+		["width"] = 1.46286010742188,
+		["animation"] = {
+			["start"] = {
+				["duration_type"] = "seconds",
+				["type"] = "none",
+			},
+			["main"] = {
+				["duration_type"] = "seconds",
+				["type"] = "none",
+			},
+			["finish"] = {
+				["duration_type"] = "seconds",
+				["type"] = "none",
+			},
+		},
+		["font"] = "Friz Quadrata TT",
+		["numTriggers"] = 1,
+		["height"] = 23.6792984008789,
+		["regionType"] = "text",
+		["load"] = {
+			["talent"] = {
+				["multi"] = {
+				},
+			},
+			["class"] = {
+				["multi"] = {
+				},
+			},
+			["use_encounterid"] = true,
+			["difficulty"] = {
+				["multi"] = {
+				},
+			},
+			["role"] = {
+				["multi"] = {
+				},
+			},
+			["spec"] = {
+				["multi"] = {
+				},
+			},
+			["race"] = {
+				["multi"] = {
+				},
+			},
+			["size"] = {
+				["multi"] = {
+				},
+			},
+		},
+		["disjunctive"] = true,
+	}
+	
 	local group_prototype_boss_mods = {
 		["grow"] = "DOWN",
 		["controlledChildren"] = {},
@@ -436,7 +547,7 @@
 		["fontSize"] = 72,
 		["color"] = {1, 1, 1, 1},
 		["displayText"] = "%c",
-		["customText"] = "function()\n    local at = aura_env.untrigger_at\n    if (at) then\n        return \"\" .. aura_env.ability_text .. \"\\n\" .. format (\"%.1f\", at - GetTime())\n    else\n        return \"\"\n    end    \n    \nend",
+		["customText"] = "function()\n    local at = aura_env.untrigger_at\n    if (at) then\n        return \"\" .. aura_env.ability_text .. \"\\n==>     \" .. format (\"%.1f\", at - GetTime()) .. \"     <==\"\n    else\n        return \"\"\n    end    \n    \nend",
 		["untrigger"] = {
 			["custom"] = "function()\n    return true\nend",
 		},
@@ -966,7 +1077,45 @@
 		local new_aura
 		icon_size = icon_size or 40
 		
-		if (other_values.dbm_timer_id or other_values.bw_timer_id) then
+		if (target == 41) then -- interrupt
+			
+			chat = nil
+			sound = nil
+			icon_glow = nil
+			group = nil
+			
+			new_aura = _detalhes.table.copy ({}, text_interrupt_prototype)
+			
+			new_aura.trigger.custom = [[
+				function (event, time, token, hidding, who_serial, who_name, who_flags, who_flags2, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, extraSpellID, extraSpellName, extraSchool)
+					if (event == "COMBAT_LOG_EVENT_UNFILTERED") then
+						if (token == "SPELL_CAST_SUCCESS" and spellid == @spellid) then
+							aura_env.success = aura_env.success + 1
+							aura_env.text = aura_env.text .. "|cffffc5c5@spell_casted (" .. aura_env.success .. ")|r\n"
+						elseif (token == "SPELL_INTERRUPT" and extraSpellID == @spellid) then
+							aura_env.interrupted = aura_env.interrupted + 1
+							aura_env.text = aura_env.text .. "|cffc5ffc5" .. who_name ..  " (" .. aura_env.interrupted .. ") ".. "|r\n"
+						end
+						if (select (2, aura_env.text:gsub ("\n", "")) == 9) then
+							aura_env.text = aura_env.text:gsub (".-\n", "", 1)
+						end
+						return true
+					else
+						aura_env.text = ""
+						aura_env.success = 0
+						aura_env.interrupted = 0
+						return true        
+					end
+				end
+			]]
+			
+			new_aura.trigger.custom = new_aura.trigger.custom:gsub ("@spellid", spellid)
+			new_aura.trigger.custom = new_aura.trigger.custom:gsub ("@spell_casted", icon_text)
+	
+			--> size
+			new_aura.fontSize = max (icon_size, 24)
+		
+		elseif (other_values.dbm_timer_id or other_values.bw_timer_id) then
 			if (aura_type == "icon") then
 				new_aura = _detalhes.table.copy ({}, icon_dbm_timerbar_prototype)
 			elseif (aura_type == "aurabar") then
@@ -976,7 +1125,8 @@
 			end
 
 			new_aura.actions.init.custom = [[
-				aura_env.dbm_timer_id = "@dbm_timer_id"
+				aura_env.dbm_timer_id = @dbm_timer_id
+				aura_env.dbm_timer_id_str = "@dbm_timer_id"
 				aura_env.bw_timer_id = "@bw_timer_id"
 				
 				aura_env.countdown_at = @countdown
@@ -999,10 +1149,11 @@
 
 				if (BigWigs) then
 					local old_aura_env = details_aura_env [aura_env.aura_global_name]
-					if (old_aura_env) then
+					if (old_aura_env and old_aura_env.UnregisterMessage) then
 						old_aura_env:UnregisterMessage ("BigWigs_StartBar")
 					end
-				elseif (_G.DBM) then
+				end
+				if (_G.DBM) then
 					local previous_func = details_aura_func_cache [aura_env.aura_global_name]
 					if (previous_func and DBM:IsCallbackRegistered ("DBM_TimerStart", previous_func)) then
 						DBM:UnregisterCallback ("DBM_TimerStart", previous_func)
@@ -1012,11 +1163,10 @@
 				details_aura_env [aura_env.aura_global_name] = aura_env
 
 				if (_G.DBM) then
-					aura_env.Calllback_func = function (event, timer_id, message, duration)
+					aura_env.Calllback_func = function (bar_type, id, msg, timer, icon, _, spellId, colorId, modid)
 						local aura_env = DetailsAuraEnv ["@gname"]
-						if (timer_id:find (aura_env.dbm_timer_id)) then
-							duration = duration:gsub (DBM_CORE_SEC, "")
-							duration = tonumber (duration)
+						if ((type (id) == "string" and id:find (aura_env.dbm_timer_id)) or spellId == aura_env.dbm_timer_id or spellId == aura_env.dbm_timer_id_str) then
+							local duration = timer
 							aura_env.trigger_at = GetTime() + duration - aura_env.countdown_at
 							aura_env.untrigger_at = GetTime() + duration
 						end
@@ -1028,7 +1178,7 @@
 					function aura_env:BigWigs_StartBar (event, module, spellid, bar_text, time, icon, ...)
 						local aura_env = DetailsAuraEnv ["@gname"]
 						if (tostring (spellid) == aura_env.bw_timer_id) then
-							duration = time
+							local duration = time
 							aura_env.trigger_at = GetTime() + duration - aura_env.countdown_at
 							aura_env.untrigger_at = GetTime() + duration
 						end
@@ -1040,10 +1190,12 @@
 			local c = new_aura.actions.init.custom
 			
 			if (other_values.dbm_timer_id) then
-				local dbm_tid = tostring (other_values.dbm_timer_id):match ("%d+", 1)
-				c = c:gsub ("@dbm_timer_id", dbm_tid)
-				c = c:gsub ("@bw_timer_id", "Timer ID Not Set")
+				local dbm_tid = other_values.dbm_timer_id
+				c = c:gsub ("@dbm_timer_id_str", dbm_tid)
 				c = c:gsub ("@gname", "DetailsAura_" .. dbm_tid)
+				dbm_tid = dbm_tid:gsub ("ej", "")
+				c = c:gsub ("@dbm_timer_id", tonumber (dbm_tid))
+				c = c:gsub ("@bw_timer_id", "Timer ID Not Set")
 				
 			elseif (other_values.bw_timer_id) then
 				local bw_tid = other_values.bw_timer_id
@@ -1405,6 +1557,8 @@
 				
 				{label = "DBM Time Bar", value = 31, icon = aura_on_icon, onclick = on_select_aura_trigger},
 				{label = "BigWigs Time Bar", value = 32, icon = aura_on_icon, onclick = on_select_aura_trigger},
+				
+				{label = "Spell Interrupt", value = 41, icon = aura_on_icon, onclick = on_select_aura_trigger},
 			}
 			local aura_on_options = function()
 				return aura_on_table
@@ -1463,7 +1617,7 @@
 				["Water Drop"] = [[Sound\DOODAD\Hellfire_DW_Pipe_Type4_01.ogg]],
 				["Frog"] = [[Sound\EMITTERS\Emitter_Dalaran_Petstore_Frog_01.ogg]],
 			}
-				
+			
 			local sound_options = function()
 				local t = {{label = "No Sound", value = "", icon = [[Interface\Buttons\UI-GuildButton-MOTD-Disabled]], iconsize = iconsize}}
 				
@@ -1552,7 +1706,7 @@
 			encounterid.tooltip = "Only load this aura for this raid encounter."
 			
 			--size
-			local icon_size_slider = fw:NewSlider (f, f, "$parentIconSizeSlider", "IconSizeSlider", 150, 20, 16, 256, 1, 64)
+			local icon_size_slider = fw:NewSlider (f, f, "$parentIconSizeSlider", "IconSizeSlider", 150, 20, 8, 256, 1, 64)
 			local icon_size_label = fw:CreateLabel (f, "Size: ", nil, nil, "GameFontNormal")
 			icon_size_slider:SetPoint ("left", icon_size_label, "right", 2, 0)
 			icon_size_slider.tooltip = "Icon size, width and height."
@@ -1680,6 +1834,18 @@
 				f.StackSlider:SetValue (0)
 				f.SpellName:Enable()
 				f.UseSpellId:Enable()
+				f.AuraSpellId:Enable()
+				f.AuraName:Enable()
+				f.IconSizeSlider:Enable()
+				f.AuraTypeDropdown:Enable()
+				f.SoundEffectDropdown:Enable()
+				f.SaySomething:Enable()
+				f.IconButton:Enable()
+				f.AuraOnDropdown:Enable()
+				f.AuraText:Enable()
+				f.AuraText:SetText ("")
+				aura_text_label.text = "Aura Text: "
+				f.UseGlow:Enable()
 				
 				if (aura_type == "icon") then
 					aura_text_label:SetText ("Icon Text: ")
@@ -1708,8 +1874,28 @@
 					f.StackSlider.tooltip = "Will trigger when the bar remaining time reach this value."
 					f.SpellName:Disable()
 					f.UseSpellId:Disable()
+					
+				elseif (trigger == 41) then --interrupt
+					f.StackSlider:Disable()
+					f.SpellName:Disable()
+					f.UseSpellId:Disable()
+					DetailsAuraPanel.AuraTypeDropdown:Select (2, true)
+					f.SoundEffectDropdown:Disable()
+					f.SaySomething:Disable()
+					f.IconButton:Disable()
+					f.UseGlow:Disable()
+					icon_size_label:SetText ("Text Size: ")
+					f.IconSizeSlider:SetValue (11)
+					f.AuraText:SetText ("=Not Interrupted!=")
+					aura_text_label.text = "Not Interrupted: "
 				end
+				
+				if (DetailsAuraPanel.other_values and DetailsAuraPanel.other_values.text) then
+					DetailsAuraPanel.AuraText:SetText (DetailsAuraPanel.other_values.text)
+				end
+				
 			end
+			
 		end
 		
 		DetailsAuraPanel.spellid = spellid
@@ -1727,7 +1913,7 @@
 			DetailsAuraPanel.IconSizeSlider:SetValue (64)
 		end
 		
-		if (other_values.dbm_timer_id or other_values.bw_timer_id) then
+		if (DetailsAuraPanel.other_values.dbm_timer_id or DetailsAuraPanel.other_values.bw_timer_id) then
 			DetailsAuraPanel.WeakaurasFolderDropdown:Select ("Details! Boss Mods Group")
 		end
 		
@@ -1846,10 +2032,6 @@
 			
 			DBM:RegisterCallback ("DBM_Announce", dbm_callback_phase)
 			DBM:RegisterCallback ("pull", dbm_callback_pull)
-			
-			--DBM:RegisterCallback ("DBM_TimerStart", function (a, b, c, d, e, f, g)
-			--	print ("details", a, b, c, d, e, f, g)
-			--end)
 		end
 		
 		
@@ -1861,12 +2043,9 @@
 		
 			function _detalhes:BigWigs_Message (event, module, key, text, ...)
 				
-				--print (event, module, key, text, ...)
-				
 				if (key == "stages") then
 					local phase = text:gsub (".*%s", "")
 					phase = tonumber (phase)
-					--print ("Phase Changed!", phase)
 					
 					if (phase and type (phase) == "number" and _detalhes.encounter_table.phase ~= phase) then
 						--_detalhes:Msg ("Current phase:", phase)
@@ -1888,11 +2067,6 @@
 			end
 			
 			BigWigs.RegisterMessage (_detalhes, "BigWigs_Message")
-			
-			--function _detalhes:BigWigs_StartBar (...)
-			--	print (...)
-			--end
-			--BigWigs.RegisterMessage (_detalhes, "BigWigs_StartBar")
 		end
 	end	
 	

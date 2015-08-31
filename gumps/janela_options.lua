@@ -5446,30 +5446,11 @@ function window:CreateFrame4()
 		end)	
 		window:CreateLineBackground2 (frame4, "rowHeightSlider", "rowHeightLabel", Loc ["STRING_OPTIONS_BAR_HEIGHT_DESC"])
 	
-	--> bar grow direction
-		local grow_switch_func = function (slider, value)
-			if (value == 1) then
-				return true
-			elseif (value == 2) then
-				return false
-			end
-		end
-		local grow_return_func = function (slider, value)
-			if (value) then
-				return 1
-			else
-				return 2
-			end
-		end
+	local orientation_icon_size = {14, 14}
 	
-		g:NewSwitch (frame4, _, "$parentBarGrowDirectionSlider", "barGrowDirectionSlider", 80, 20, Loc ["STRING_BOTTOM"], Loc ["STRING_TOP"], instance.bars_grow_direction, nil, grow_switch_func, grow_return_func, nil, options_switch_template)
-		g:NewLabel (frame4, _, "$parentBarGrowDirectionLabel", "barGrowDirectionLabel", Loc ["STRING_OPTIONS_BARGROW_DIRECTION"], "GameFontHighlightLeft")
-
-		frame4.barGrowDirectionSlider:SetPoint ("left", frame4.barGrowDirectionLabel, "right", 2)
-		frame4.barGrowDirectionSlider:SetAsCheckBox()
-		frame4.barGrowDirectionSlider.OnSwitch = function (self, instance, value)
+	--> grow direction
+		local set_bar_grow_direction = function (_, instance, value)
 			instance:SetBarGrowDirection (value)
-			
 			if (_detalhes.options_group_edit and not DetailsOptionsWindow.loading_settings) then
 				for _, this_instance in ipairs (instance:GetInstanceGroup()) do
 					if (this_instance ~= instance) then
@@ -5477,20 +5458,54 @@ function window:CreateFrame4()
 					end
 				end
 			end
-			
 			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
-		frame4.barGrowDirectionSlider.thumb:SetSize (50, 12)
-		window:CreateLineBackground2 (frame4, "barGrowDirectionSlider", "barGrowDirectionLabel", Loc ["STRING_OPTIONS_BARGROW_DIRECTION_DESC"])
-			
-	-- bar sort direction
 		
-		g:NewSwitch (frame4, _, "$parentBarSortDirectionSlider", "barSortDirectionSlider", 80, 20, Loc ["STRING_BOTTOM"], Loc ["STRING_TOP"], instance.bars_sort_direction, nil, grow_switch_func, grow_return_func, nil, options_switch_template)
-		g:NewLabel (frame4, _, "$parentBarSortDirectionLabel", "barSortDirectionLabel", Loc ["STRING_OPTIONS_BARSORT_DIRECTION"], "GameFontHighlightLeft")
-
-		frame4.barSortDirectionSlider:SetPoint ("left", frame4.barSortDirectionLabel, "right", 2)
-		frame4.barSortDirectionSlider:SetAsCheckBox()
-		frame4.barSortDirectionSlider.OnSwitch = function (self, instance, value)
+		local grow_icon_size = {14, 14}
+		local grow_options = {
+			{value = 1, label = Loc ["STRING_TOP_TO_BOTTOM"], iconsize = orientation_icon_size, onclick = set_bar_grow_direction, icon = [[Interface\Calendar\MoreArrow]], texcoord = {0, 1, 0, 0.7}},
+			{value = 2, label = Loc ["STRING_BOTTOM_TO_TOP"], iconsize = orientation_icon_size, onclick = set_bar_grow_direction, icon = [[Interface\Calendar\MoreArrow]], texcoord = {0, 1, 0.7, 0}}
+		}
+		local grow_menu = function() 
+			return grow_options
+		end
+		
+		g:NewLabel (frame4, _, "$parentGrowLabel", "GrowLabel", Loc ["STRING_OPTIONS_BAR_GROW"], "GameFontHighlightLeft")
+		g:NewDropDown (frame4, _, "$parentGrowDropdown", "GrowDropdown", DROPDOWN_WIDTH, dropdown_height, grow_menu, nil, options_dropdown_template)
+		
+		frame4.GrowDropdown:SetPoint ("left", frame4.GrowLabel, "right", 2)
+		window:CreateLineBackground2 (frame4, "GrowDropdown", "GrowLabel", Loc ["STRING_OPTIONS_BAR_GROW_DESC"])
+	
+	--> orientation
+		--texture
+		local set_bar_orientation = function (_, instance, value)
+			instance:SetBarOrientationDirection (value)
+			if (_detalhes.options_group_edit and not DetailsOptionsWindow.loading_settings) then
+				for _, this_instance in ipairs (instance:GetInstanceGroup()) do
+					if (this_instance ~= instance) then
+						this_instance:SetBarOrientationDirection (value)
+					end
+				end
+			end
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+		end
+		
+		local orientation_options = {
+			{value = false, label = Loc ["STRING_LEFT_TO_RIGHT"], iconsize = orientation_icon_size, onclick = set_bar_orientation, icon = [[Interface\CHATFRAME\ChatFrameExpandArrow]]},
+			{value = true, label = Loc ["STRING_RIGHT_TO_LEFT"], iconsize = orientation_icon_size, onclick = set_bar_orientation, icon = [[Interface\CHATFRAME\ChatFrameExpandArrow]], texcoord = {1, 0, 0, 1}}
+		}
+		local orientation_menu = function() 
+			return orientation_options
+		end
+		
+		g:NewLabel (frame4, _, "$parentOrientationLabel", "OrientationLabel", Loc ["STRING_OPTIONS_BARORIENTATION"], "GameFontHighlightLeft")
+		g:NewDropDown (frame4, _, "$parentOrientationDropdown", "OrientationDropdown", DROPDOWN_WIDTH, dropdown_height, orientation_menu, nil, options_dropdown_template)			
+		
+		frame4.OrientationDropdown:SetPoint ("left", frame4.OrientationLabel, "right", 2)
+		window:CreateLineBackground2 (frame4, "OrientationDropdown", "OrientationLabel", Loc ["STRING_OPTIONS_BARORIENTATION_DESC"])
+	
+	--> sort direction
+		local set_bar_sorting = function (_, instance, value)
 			instance.bars_sort_direction = value
 			
 			if (_detalhes.options_group_edit and not DetailsOptionsWindow.loading_settings) then
@@ -5502,11 +5517,23 @@ function window:CreateFrame4()
 			end
 			
 			_detalhes:AtualizaGumpPrincipal (-1, true)
-			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)			
 		end
-		frame4.barSortDirectionSlider.thumb:SetSize (50, 12)
-		window:CreateLineBackground2 (frame4, "barSortDirectionSlider", "barSortDirectionLabel", Loc ["STRING_OPTIONS_BARSORT_DIRECTION_DESC"])
+
+		local sorting_options = {
+			{value = 1, label = Loc ["STRING_DESCENDING"], iconsize ={14, 14}, onclick = set_bar_sorting, icon = [[Interface\Calendar\MoreArrow]], texcoord = {0, 1, 0, 0.7}},
+			{value = 2, label = Loc ["STRING_ASCENDING"], iconsize = {14, 14}, onclick = set_bar_sorting, icon = [[Interface\Calendar\MoreArrow]], texcoord = {0, 1, 0.7, 0}}
+		}
+		local sorting_menu = function() 
+			return sorting_options
+		end
+
+		g:NewLabel (frame4, _, "$parentSortLabel", "SortLabel", Loc ["STRING_OPTIONS_BARSORT"], "GameFontHighlightLeft")
+		g:NewDropDown (frame4, _, "$parentSortDropdown", "SortDropdown", DROPDOWN_WIDTH, dropdown_height, sorting_menu, nil, options_dropdown_template)			
 		
+		frame4.SortDropdown:SetPoint ("left", frame4.SortLabel, "right", 2)
+		window:CreateLineBackground2 (frame4, "SortDropdown", "SortLabel", Loc ["STRING_OPTIONS_BARSORT_DESC"])
+
 	-- spacement
 		g:NewLabel (frame4, _, "$parentBarSpacementLabel", "BarSpacementLabel", Loc ["STRING_OPTIONS_BAR_SPACING"], "GameFontHighlightLeft")
 		local s = g:NewSlider (frame4, _, "$parentBarSpacementSizeSlider", "BarSpacementSlider", SLIDER_WIDTH, SLIDER_HEIGHT, 0, 10, 1, instance.row_info.space.between, nil, nil, nil, options_slider_template)
@@ -5996,23 +6023,22 @@ function window:CreateFrame4()
 			{frame4.iconFileLabel, 10},
 			{frame4.iconFileLabel2, 11},
 			{frame4.barStartLabel, 12},			
-
-
 		}
 		
 		local right_side = {
 			--basic
 			{frame4.RowGeneralAnchorLabel, 1, true},
-			{frame4.barGrowDirectionLabel, 2},
-			{frame4.barSortDirectionLabel, 3},
-			{frame4.rowHeightLabel, 4, true},
-			{frame4.BarSpacementLabel, 5},
+			{"GrowLabel", 2},
+			{"OrientationLabel", 3},
+			{"SortLabel", 4},
+			{frame4.rowHeightLabel, 5, true},
+			{frame4.BarSpacementLabel, 6},
 			--backdrop
-			{frame4.BackdropAnchorLabel, 6, true},
-			{frame4.BackdropColorLabel, 7},
-			{frame4.BackdropEnabledLabel, 8},
-			{frame4.BackdropSizeLabel, 9},
-			{frame4.BackdropBorderTextureLabel, 10},		
+			{frame4.BackdropAnchorLabel, 7, true},
+			{frame4.BackdropColorLabel, 8},
+			{frame4.BackdropEnabledLabel, 9},
+			{frame4.BackdropSizeLabel, 10},
+			{frame4.BackdropBorderTextureLabel, 11},
 		}
 
 		window:arrange_menu (frame4, left_side, x, -90)
@@ -10262,6 +10288,14 @@ end --> if not window
 		end
 		
 		--> window 4
+		
+		_G.DetailsOptionsWindow4OrientationDropdown.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow4OrientationDropdown.MyObject:Select (editing_instance.bars_inverted and 2 or 1, true)
+		_G.DetailsOptionsWindow4SortDropdown.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow4SortDropdown.MyObject:Select (editing_instance.bars_sort_direction, true)
+		_G.DetailsOptionsWindow4GrowDropdown.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow4GrowDropdown.MyObject:Select (editing_instance.bars_grow_direction, true)
+		
 		_G.DetailsOptionsWindow4BarSpacementSizeSlider.MyObject:SetFixedParameter (editing_instance)
 		_G.DetailsOptionsWindow4BarSpacementSizeSlider.MyObject:SetValue (editing_instance.row_info.space.between)
 		
@@ -10687,12 +10721,6 @@ end --> if not window
 		
 		_G.DetailsOptionsWindow6InstanceToolbarSideSlider.MyObject:SetFixedParameter (editing_instance)
 		_G.DetailsOptionsWindow6InstanceToolbarSideSlider.MyObject:SetValue (editing_instance.toolbar_side)
-		
-		_G.DetailsOptionsWindow4BarSortDirectionSlider.MyObject:SetFixedParameter (editing_instance)
-		_G.DetailsOptionsWindow4BarSortDirectionSlider.MyObject:SetValue (editing_instance.bars_sort_direction)
-		
-		_G.DetailsOptionsWindow4BarGrowDirectionSlider.MyObject:SetFixedParameter (editing_instance)
-		_G.DetailsOptionsWindow4BarGrowDirectionSlider.MyObject:SetValue (editing_instance.bars_grow_direction)
 		
 	----------------------------------------------------------------	
 		--instanceOverlayColorLabel

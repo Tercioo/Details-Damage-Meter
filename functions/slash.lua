@@ -1025,6 +1025,31 @@ function SlashCmdList.DETAILS (msg, editbox)
 			1 --school = 
 		)
 		
+	elseif (msg == "ejloot") then
+		EJ_SelectInstance (669) -- hellfire citadel
+		EJ_SetDifficulty (16)
+		
+		local r = {}
+		local total = 0
+		
+		for i = 1, 100 do
+			local name, description, encounterID, rootSectionID, link = EJ_GetEncounterInfoByIndex (i, 669)
+			if (name) then
+				EJ_SelectEncounter (encounterID)
+				print (name, encounterID, EJ_GetNumLoot())
+
+				for o = 1, EJ_GetNumLoot() do
+					local name, icon, slot, armorType, itemID, link, encounterID = EJ_GetLootInfoByIndex (o)
+					r[slot] = r[slot] or {}
+					tinsert (r[slot], {itemID, encounterID})
+					total = total + 1
+				end
+			end
+		end	
+	
+		print ("total loot", total)
+		_detalhes_global.ALOOT  = r
+	
 	elseif (msg == "ilvl") then
 		local ilvl_frame = CreateFrame ("GameTooltip", "details_ilvl_tooltip", UIParent, "GameTooltipTemplate");
 		local get_ilvl = function (itemLink)

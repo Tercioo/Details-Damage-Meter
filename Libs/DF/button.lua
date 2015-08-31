@@ -987,6 +987,7 @@ function DF:NewButton (parent, container, name, member, w, h, func, param1, para
 		end
 	end
 
+	
 	ButtonObject.button:SetWidth (w or 100)
 	ButtonObject.button:SetHeight (h or 20)
 	ButtonObject.button.MyObject = ButtonObject
