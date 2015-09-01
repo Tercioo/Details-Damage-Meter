@@ -3783,6 +3783,7 @@ function gump:CriaNovaBarra (instancia, index)
 	
 	--> statusbar
 	new_row.statusbar = CreateFrame ("StatusBar", "DetailsBarra_Statusbar_"..instancia.meu_id.."_"..index, new_row)
+	new_row.statusbar.value = 0
 	--> right to left texture
 	new_row.statusbar.right_to_left_texture = new_row.statusbar:CreateTexture (nil, "overlay")
 	new_row.statusbar.right_to_left_texture:SetPoint ("topright", new_row.statusbar, "topright")
