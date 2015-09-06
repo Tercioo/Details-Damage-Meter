@@ -127,6 +127,10 @@ local function CreatePluginFrames()
 		end
 	end
 	
+	local close_button = DpsTuningPlugin:CreateSoloCloseButton()
+	close_button:SetPoint ("TOPRIGHT", SDF, "TOPRIGHT", -15, 5)
+	close_button:SetSize (24, 24)
+	
 	function DpsTuningPlugin.GetActivityTime (thisspell, time)
 		if (thisspell.tempo_end) then --> o tempo do jogador esta trancado
 			local t = thisspell.tempo_end - thisspell.start

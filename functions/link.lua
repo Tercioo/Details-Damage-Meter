@@ -23,8 +23,119 @@
 	--[[global]] DETAILS_WA_TRIGGER_BW_TIMER = 10
 	
 	--[[global]] DETAILS_WA_TRIGGER_INTERRUPT = 11
+	--[[global]] DETAILS_WA_TRIGGER_DISPELL = 12
 	
 	--weak auras
+	
+	local text_dispell_prototype = {
+		["outline"] = true,
+		["fontSize"] = 24,
+		["color"] = {1, 1, 1, 1},
+		["displayText"] = "%c\n",
+		["customText"] = "function()\n    return aura_env.text\nend \n\n",
+		["untrigger"] = {
+			["custom"] = "function()\n    return not InCombatLockdown()\nend",
+		},
+		["regionType"] = "text",
+		["customTextUpdate"] = "event",
+		["actions"] = {
+			["start"] = {
+				["do_custom"] = false,
+				["custom"] = "",
+			},
+			["init"] = {
+				["do_custom"] = true,
+				["custom"] = "aura_env.text = \"\"\naura_env.success = 0\naura_env.dispelled = 0\naura_env.dispels_by = {}",
+			},
+			["finish"] = {
+			},
+		},
+		["anchorPoint"] = "CENTER",
+		["additional_triggers"] = {
+		},
+		["trigger"] = {
+			["spellId"] = "",
+			["message_operator"] = "==",
+			["unit"] = "player",
+			["debuffType"] = "HELPFUL",
+			["custom_hide"] = "custom",
+			["spellName"] = "",
+			["type"] = "custom",
+			["subeventSuffix"] = "_CAST_SUCCESS",
+			["custom_type"] = "event",
+			["unevent"] = "timed",
+			["use_addon"] = false,
+			["event"] = "Health",
+			["events"] = "COMBAT_LOG_EVENT_UNFILTERED, ENCOUNTER_START",
+			["use_spellName"] = false,
+			["use_spellId"] = false,
+			["custom"] = "function (event, time, token, hidding, who_serial, who_name, who_flags, who_flags2, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, extraSpellID, extraSpellName, extraSchool)\n    if (event == \"COMBAT_LOG_EVENT_UNFILTERED\") then\n        \n        if ((token == \"SPELL_DISPEL\" or token == \"SPELL_STOLEN\") and extraSpellID == 159947) then\n            aura_env.dispelled = aura_env.dispelled + 1\n            aura_env.dispels_by [who_name] = (aura_env.dispels_by [who_name] or 0) + 1\n            \n            aura_env.text = aura_env.text .. \"|cffd2e8ff\" .. who_name ..  \" (\" .. aura_env.dispels_by [who_name] .. \") \".. \"|r\\n\"\n            \n            if (select (2, aura_env.text:gsub (\"\\n\", \"\")) == 9) then\n                aura_env.text = aura_env.text:gsub (\".-\\n\", \"\", 1)\n            end\n            return true\n        end        \n    else\n        aura_env.text = \"\"\n        aura_env.success = 0\n        aura_env.dispelled = 0\n        wipe (aura_env.dispels_by)\n        return true        \n    end\nend",
+			["spellIds"] = {
+			},
+			["use_message"] = true,
+			["subeventPrefix"] = "SPELL",
+			["use_unit"] = true,
+			["names"] = {
+			},
+		},
+		["justify"] = "LEFT",
+		["selfPoint"] = "BOTTOM",
+		["disjunctive"] = true,
+		["frameStrata"] = 1,
+		["width"] = 1.46286010742188,
+		["animation"] = {
+			["start"] = {
+				["type"] = "none",
+				["duration_type"] = "seconds",
+			},
+			["main"] = {
+				["type"] = "none",
+				["duration_type"] = "seconds",
+			},
+			["finish"] = {
+				["type"] = "none",
+				["duration_type"] = "seconds",
+			},
+		},
+		["font"] = "Friz Quadrata TT",
+		["numTriggers"] = 1,
+		["xOffset"] = -403.999786376953,
+		["height"] = 47.3586845397949,
+		["displayIcon"] = "Interface\\Icons\\inv_misc_steelweaponchain",
+		["load"] = {
+			["talent"] = {
+				["multi"] = {
+				},
+			},
+			["encounterid"] = "1721",
+			["use_encounterid"] = true,
+			["difficulty"] = {
+				["multi"] = {
+				},
+			},
+			["role"] = {
+				["multi"] = {
+				},
+			},
+			["class"] = {
+				["multi"] = {
+				},
+			},
+			["race"] = {
+				["multi"] = {
+				},
+			},
+			["spec"] = {
+				["multi"] = {
+				},
+			},
+			["size"] = {
+				["multi"] = {
+				},
+			},
+		},
+		["yOffset"] = 174.820495605469,
+	}
 	
 	local text_interrupt_prototype = {
 		["outline"] = true,
@@ -294,11 +405,11 @@
 	}
 	
 	local bar_dbm_timerbar_prototype = {
-		["sparkWidth"] = 10,
+		["sparkWidth"] = 17,
 		["stacksSize"] = 12,
-		["xOffset"] = 0,
+		["xOffset"] = -278.999633789063,
 		["stacksFlags"] = "None",
-		["yOffset"] = 239.568542480469,
+		["yOffset"] = 182.37451171875,
 		["anchorPoint"] = "CENTER",
 		["borderColor"] = {1, 1, 1, 0.5},
 		["rotateText"] = "NONE",
@@ -306,9 +417,13 @@
 		["fontFlags"] = "OUTLINE",
 		["icon_color"] = {1, 1, 1, 1},
 		["selfPoint"] = "CENTER",
-		["barColor"] = {1, 0, 0, 1},
+		["barColor"] = {
+			0.996078431372549,
+			1,
+			0.976470588235294,
+			1,
+		},
 		["desaturate"] = false,
-		["progressPrecision"] = 1,
 		["sparkOffsetY"] = 0,
 		["load"] = {
 			["difficulty"] = {
@@ -346,13 +461,13 @@
 		["texture"] = "Blizzard",
 		["textFont"] = "Friz Quadrata TT",
 		["zoom"] = 0,
-		["spark"] = false,
+		["spark"] = true,
 		["timerFont"] = "Friz Quadrata TT",
 		["alpha"] = 1,
 		["borderInset"] = 11,
+		["displayIcon"] = "Interface\\Icons\\Spell_Shadow_MindTwisting",
 		["textColor"] = {1, 1, 1, 1},
 		["borderBackdrop"] = "Blizzard Tooltip",
-		["customText"] = "function (expire, duration)\n    return format (\"%.1f\", duration)\nend \n\n",
 		["barInFront"] = true,
 		["sparkRotationMode"] = "AUTO",
 		["displayTextLeft"] = "%n",
@@ -371,19 +486,19 @@
 			},
 		},
 		["trigger"] = {
-			["type"] = "custom",
-			["custom_hide"] = "timed",
+			["type"] = "status",
+			["use_id"] = true,
 			["subeventSuffix"] = "_CAST_START",
-			["custom_type"] = "status",
-			["custom"] = "function()\n    if (InCombatLockdown() and aura_env.trigger_at and aura_env.trigger_at <= GetTime() and aura_env.untrigger_at and aura_env.untrigger_at >= GetTime()) then\n        return true\n    else\n        return false\n    end\nend\n",
-			["event"] = "Health",
+			["id"] = "",
+			["remaining_operator"] = "<=",
+			["event"] = "DBM Timer",
 			["unit"] = "player",
-			["customDuration"] = "function()\n    if (aura_env.trigger_at and aura_env.trigger_at <= GetTime() and aura_env.untrigger_at and aura_env.untrigger_at >= GetTime()) then\n        return aura_env.untrigger_at - GetTime(), aura_env.countdown_at, true\n    else\n        return 0\n    end\nend\n",
-			["customName"] = "function()\n    return aura_env.ability_text\nend",
+			["use_remaining"] = true,
+			["remaining"] = "6",
 			["spellIds"] = {
 			},
-			["customIcon"] = "function()\n    return aura_env.ability_icon    \nend\n",
-			["check"] = "update",
+			["use_unit"] = true,
+			["unevent"] = "auto",
 			["subeventPrefix"] = "SPELL",
 			["names"] = {
 			},
@@ -391,22 +506,23 @@
 		},
 		["text"] = true,
 		["stickyDuration"] = false,
-		["height"] = 40.115104675293,
+		["height"] = 34.4247055053711,
 		["timerFlags"] = "None",
 		["sparkBlendMode"] = "ADD",
 		["backdropColor"] = {1, 1, 1, 0.5},
-		["untrigger"] = {
-			["custom"] = "function()\n    return true\nend",
-		},
 		["actions"] = {
 			["start"] = {
+				["do_custom"] = true,
+				["custom"] = "aura_env.untrigger_at = GetTime() + aura_env.remaining_trigger",
 			},
 			["finish"] = {
 			},
 			["init"] = {
 				["do_custom"] = true,
-				["custom"] = "\n\n",
+				["custom"] = "",
 			},
+		},
+		["untrigger"] = {
 		},
 		["textFlags"] = "None",
 		["border"] = false,
@@ -415,68 +531,99 @@
 		["borderSize"] = 16,
 		["stacksFont"] = "Friz Quadrata TT",
 		["icon_side"] = "LEFT",
-		["inverse"] = false,
+		["textSize"] = 14,
 		["timer"] = true,
-		["sparkHeight"] = 30,
+		["sparkHeight"] = 55,
 		["sparkRotation"] = 0,
-		["displayTextRight"] = "%c",
+		["customTextUpdate"] = "update",
 		["stacksColor"] = {1, 1, 1, 1},
-		["timerSize"] = 16,
+		["displayTextRight"] = "%p",
 		["icon"] = true,
-		["textSize"] = 16,
+		["inverse"] = false,
 		["frameStrata"] = 1,
-		["width"] = 370,
-		["customTextUpdate"] = "event",
+		["width"] = 371.000183105469,
 		["sparkColor"] = {1, 1, 1, 1},
+		["timerSize"] = 14,
 		["numTriggers"] = 1,
 		["sparkDesature"] = false,
 		["orientation"] = "HORIZONTAL",
 		["borderOffset"] = 5,
-		["auto"] = true,
-		["sparkTexture"] = "Interface\\CastingBar\\UI-CastingBar-Spark",	
+		["auto"] = false,
+		["sparkTexture"] = "Interface\\CastingBar\\UI-CastingBar-Spark",
 	}
 	
 	local icon_dbm_timerbar_prototype = {
-		["xOffset"] = -391.000030517578,
-		["customText"] = "function (expire, duration)\n    return \"\" .. aura_env.ability_text\nend \n\n",
-		["yOffset"] = 300,
-		["anchorPoint"] = "CENTER",
-		["customTextUpdate"] = "event",
+		["cooldown"] = true,
+		["fontSize"] = 14,
+		["displayStacks"] = "Proxima Abilidate Em:",
 		["actions"] = {
 			["start"] = {
+				["do_custom"] = true,
+				["custom"] = "aura_env.untrigger_at = GetTime() + aura_env.remaining_trigger",
+			},
+			["finish"] = {
 			},
 			["init"] = {
 				["do_custom"] = true,
 				["custom"] = "",
 			},
+		},
+		["color"] = {1, 1, 1, 1},
+		["width"] = 100,
+		["untrigger"] = {
+		},
+		["yOffset"] = 230.935302734375,
+		["anchorPoint"] = "CENTER",
+		["animation"] = {
+			["start"] = {
+				["duration_type"] = "seconds",
+				["type"] = "none",
+			},
+			["main"] = {
+				["duration_type"] = "seconds",
+				["type"] = "none",
+			},
 			["finish"] = {
+				["duration_type"] = "seconds",
+				["type"] = "none",
 			},
 		},
+		["regionType"] = "icon",
+		["stacksPoint"] = "BOTTOM",
+		["customTextUpdate"] = "update",
+		["icon"] = true,
 		["fontFlags"] = "OUTLINE",
+		["stacksContainment"] = "OUTSIDE",
+		["zoom"] = 0,
+		["auto"] = true,
 		["selfPoint"] = "CENTER",
 		["trigger"] = {
-			["unevent"] = "auto",
-			["type"] = "custom",
-			["subeventPrefix"] = "SPELL",
-			["custom_type"] = "status",
-			["use_unit"] = true,
+			["type"] = "status",
+			["use_id"] = true,
+			["subeventSuffix"] = "_CAST_START",
+			["id"] = "",
+			["remaining_operator"] = "<=",
+			["event"] = "DBM Timer",
+			["unit"] = "player",
+			["use_remaining"] = true,
+			["remaining"] = "6",
 			["spellIds"] = {
 			},
-			["event"] = "Health",
-			["unit"] = "player",
-			["customDuration"] = "function()\n    if (aura_env.trigger_at and aura_env.trigger_at <= GetTime() and aura_env.untrigger_at and aura_env.untrigger_at >= GetTime()) then\n        return aura_env.untrigger_at - GetTime(), aura_env.countdown_at\n    else\n        return 0\n    end\nend\n",
-			["customName"] = "function()\n    return aura_env.ability_name    \nend\n",
-			["custom"] = "function()\n    if (InCombatLockdown() and aura_env.trigger_at and aura_env.trigger_at <= GetTime() and aura_env.untrigger_at and aura_env.untrigger_at >= GetTime()) then\n        return true\n    else\n        return false\n    end\nend\n",
-			["customIcon"] = "function()\n    return aura_env.ability_icon    \nend\n",
-			["check"] = "update",
+			["use_unit"] = true,
+			["unevent"] = "auto",
+			["subeventPrefix"] = "SPELL",
 			["names"] = {
 			},
-			["subeventSuffix"] = "_CAST_START",
 			["debuffType"] = "HELPFUL",
 		},
+		["stickyDuration"] = false,
+		["frameStrata"] = 1,
 		["desaturate"] = false,
+		["xOffset"] = -486.999969482422,
 		["font"] = "Friz Quadrata TT",
-		["height"] = 194.575485229492,
+		["numTriggers"] = 1,
+		["inverse"] = true,
+		["height"] = 100,
 		["load"] = {
 			["difficulty"] = {
 				["multi"] = {
@@ -486,6 +633,7 @@
 				["multi"] = {
 				},
 			},
+			["use_encounterid"] = true,
 			["talent"] = {
 				["multi"] = {
 				},
@@ -507,86 +655,59 @@
 				},
 			},
 		},
-		["fontSize"] = 20,
-		["displayStacks"] = "%c ",
-		["regionType"] = "icon",
-		["stacksContainment"] = "OUTSIDE",
-		["zoom"] = 0,
-		["auto"] = true,
-		["stacksPoint"] = "BOTTOM",
-		["color"] = {1, 1, 1, 1},
-		["frameStrata"] = 1,
-		["width"] = 186.000091552734,
-		["stickyDuration"] = false,
-		["untrigger"] = {
-			["custom"] = "function()\n    return true\nend",
-		},
-		["inverse"] = false,
-		["numTriggers"] = 1,
-		["animation"] = {
-			["start"] = {
-				["type"] = "none",
-				["duration_type"] = "seconds",
-			},
-			["main"] = {
-				["type"] = "none",
-				["duration_type"] = "seconds",
-			},
-			["finish"] = {
-				["type"] = "none",
-				["duration_type"] = "seconds",
-			},
-		},
-		["icon"] = true,
-		["cooldown"] = true,
 		["textColor"] = {1, 1, 1, 1},
+		["displayIcon"] = "",
 	}
-	
+
 	local text_dbm_timerbar_prototype = {
 		["outline"] = true,
-		["fontSize"] = 72,
-		["color"] = {1, 1, 1, 1},
-		["displayText"] = "%c",
-		["customText"] = "function()\n    local at = aura_env.untrigger_at\n    if (at) then\n        return \"\" .. aura_env.ability_text .. \"\\n==>     \" .. format (\"%.1f\", at - GetTime()) .. \"     <==\"\n    else\n        return \"\"\n    end    \n    \nend",
-		["untrigger"] = {
-			["custom"] = "function()\n    return true\nend",
-		},
-		["regionType"] = "text",
+		["fontSize"] = 60,
+		["color"] = {0.8, 1, 0.8, 1},
+		["displayText"] = "%c\n",
+		["customText"] = "function()\n    local at = aura_env.untrigger_at\n    if (at) then\n        return \"\" .. aura_env.ability_text .. \"\\n==>     \" .. format (\"%.1f\", at - GetTime()) .. \"     <==\"\n    else\n        return \"\"\n    end    \n    \nend\n",
+		["yOffset"] = 157.554321289063,
+		["anchorPoint"] = "CENTER",
 		["customTextUpdate"] = "update",
-		["init_completed"] = 1,
 		["actions"] = {
 			["start"] = {
+				["do_custom"] = true,
+				["custom"] = "aura_env.untrigger_at = GetTime() + aura_env.remaining_trigger",
 			},
 			["finish"] = {
 			},
 			["init"] = {
 				["do_custom"] = true,
-				["custom"] = "aura_env.countdown_at = 4\naura_env.ability_name = \"Test Bar\"\naura_env.ability_icon = \"Interface\\\\ICONS\\\\Ability_Mage_FireStarter\"\naura_env.ability_text = \"** Next TEST BAR In **\"\naura_env.aura_global_name = \"Test Bar\"\n\nlocal details_aura_env = _G.DetailsAuraEnv\nlocal details_aura_func_cache = _G.DetailsAuraFuncCache\nif (not details_aura_env) then\n    details_aura_env = {}\n    _G.DetailsAuraEnv = details_aura_env\nend\nif (not details_aura_func_cache) then\n    details_aura_func_cache = {}\n    _G.DetailsAuraFuncCache = details_aura_func_cache\nend\n\ndetails_aura_env [aura_env.aura_global_name] = aura_env\n\naura_env.Calllback_func = function (event, timer_id, message, duration)\n    if (timer_id:find (\"Test Bar\")) then\n        duration = duration:gsub (DBM_CORE_SEC, \"\")\n        duration = tonumber (duration)\n        local aura_env = details_aura_env [\"Test Bar\"]\n        aura_env.trigger_at = GetTime() + duration - aura_env.countdown_at\n        aura_env.untrigger_at = GetTime() + duration\n    end\nend\n\nlocal previous_func = details_aura_func_cache [aura_env.aura_global_name]\nif (previous_func and DBM:IsCallbackRegistered (\"DBM_TimerStart\", previous_func)) then\n    DBM:UnregisterCallback (\"DBM_TimerStart\", previous_func)\nend\n\ndetails_aura_func_cache [aura_env.aura_global_name] = aura_env.Calllback_func\nDBM:RegisterCallback (\"DBM_TimerStart\", aura_env.Calllback_func)",
+				["custom"] = "",
 			},
 		},
 		["justify"] = "CENTER",
-		["selfPoint"] = "CENTER",
+		["selfPoint"] = "BOTTOM",
 		["trigger"] = {
-			["type"] = "custom",
+			["remaining_operator"] = "<=",
+			["message_operator"] = "find('%s')",
+			["names"] = {},
+			["remaining"] = "6",
+			["debuffType"] = "HELPFUL",
+			["use_id"] = true,
 			["subeventSuffix"] = "_CAST_START",
-			["custom_type"] = "status",
+			["id"] = "Timer186333cd asd",
+			["use_remaining"] = true,
+			["event"] = "DBM Timer",
+			["unevent"] = "auto",
+			["message"] = "",
+			["use_spellId"] = false,
 			["spellIds"] = {
 			},
-			["event"] = "Health",
+			["type"] = "status",
+			["use_message"] = false,
 			["unit"] = "player",
-			["customDuration"] = "",
-			["customName"] = "",
-			["custom"] = "function()\n    if (InCombatLockdown() and aura_env.trigger_at and aura_env.trigger_at <= GetTime() and aura_env.untrigger_at and aura_env.untrigger_at >= GetTime()) then\n        return true\n    else\n        return false\n    end\nend\n",
-			["customIcon"] = "",
-			["check"] = "update",
+			["use_unit"] = true,
 			["subeventPrefix"] = "SPELL",
-			["names"] = {
-			},
-			["debuffType"] = "HELPFUL",
 		},
-		["yOffset"] = 251.43896484375,
+		["untrigger"] = {
+		},
 		["frameStrata"] = 1,
-		["width"] = 43.6800079345703,
+		["width"] = 3.2914137840271,
 		["animation"] = {
 			["start"] = {
 				["duration_type"] = "seconds",
@@ -603,19 +724,18 @@
 		},
 		["font"] = "Friz Quadrata TT",
 		["numTriggers"] = 1,
-		["xOffset"] = 0.999847412109,
-		["height"] = 71.9999771118164,
+		["xOffset"] = -18.0000610351563,
+		["height"] = 114.000053405762,
 		["load"] = {
-			["use_never"] = false,
-			["talent"] = {
-				["multi"] = {
-				},
-			},
-			["class"] = {
-				["multi"] = {
-				},
-			},
 			["difficulty"] = {
+				["multi"] = {
+				},
+			},
+			["race"] = {
+				["multi"] = {
+				},
+			},
+			["talent"] = {
 				["multi"] = {
 				},
 			},
@@ -627,7 +747,7 @@
 				["multi"] = {
 				},
 			},
-			["race"] = {
+			["class"] = {
 				["multi"] = {
 				},
 			},
@@ -636,7 +756,7 @@
 				},
 			},
 		},
-		["anchorPoint"] = "CENTER",
+		["regionType"] = "text",
 	}
 	
 	local text_prototype = {
@@ -1113,7 +1233,46 @@
 			new_aura.trigger.custom = new_aura.trigger.custom:gsub ("@spell_casted", icon_text)
 	
 			--> size
-			new_aura.fontSize = max (icon_size, 24)
+			new_aura.fontSize = min (icon_size, 24)
+		
+		elseif (target == 42) then -- dispell
+		
+			chat = nil
+			sound = nil
+			icon_glow = nil
+			group = nil
+			
+			new_aura = _detalhes.table.copy ({}, text_dispell_prototype)
+			
+			new_aura.trigger.custom = [[
+				function (event, time, token, hidding, who_serial, who_name, who_flags, who_flags2, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, extraSpellID, extraSpellName, extraSchool)
+					if (event == "COMBAT_LOG_EVENT_UNFILTERED") then
+						if ((token == "SPELL_DISPEL" or token == "SPELL_STOLEN") and extraSpellID == @spellid) then
+							aura_env.dispelled = aura_env.dispelled + 1
+							aura_env.dispels_by [who_name] = (aura_env.dispels_by [who_name] or 0) + 1
+							aura_env.text = aura_env.text .. "|cffd2e8ff" .. who_name ..  " (" .. aura_env.dispels_by [who_name] .. ") ".. "|r\n"
+
+							if (select (2, aura_env.text:gsub ("\n", "")) == 11) then
+								aura_env.text = aura_env.text:gsub (".-\n", "", 2)
+								aura_env.text = "@title\n" .. aura_env.text
+							end
+							return true
+						end
+					else
+						aura_env.text = "@title\n"
+						aura_env.success = 0
+						aura_env.dispelled = 0
+						wipe (aura_env.dispels_by)
+						return true
+					end
+				end
+			]]
+			
+			new_aura.trigger.custom = new_aura.trigger.custom:gsub ("@spellid", spellid)
+			new_aura.trigger.custom = new_aura.trigger.custom:gsub ("@title", icon_text)
+	
+			--> size
+			new_aura.fontSize = min (icon_size, 24)
 		
 		elseif (other_values.dbm_timer_id or other_values.bw_timer_id) then
 			if (aura_type == "icon") then
@@ -1124,106 +1283,59 @@
 				new_aura = _detalhes.table.copy ({}, text_dbm_timerbar_prototype)
 			end
 
-			new_aura.actions.init.custom = [[
-				aura_env.dbm_timer_id = @dbm_timer_id
-				aura_env.dbm_timer_id_str = "@dbm_timer_id"
-				aura_env.bw_timer_id = "@bw_timer_id"
-				
-				aura_env.countdown_at = @countdown
-				aura_env.ability_name = "@name"
-				aura_env.ability_icon = [=[@icon]=]
-				aura_env.ability_text = "@text"
-				aura_env.aura_global_name = "@gname"
-
-				local details_aura_env = _G.DetailsAuraEnv
-				local details_aura_func_cache = _G.DetailsAuraFuncCache
-
-				if (not details_aura_env) then
-					details_aura_env = {}
-					_G.DetailsAuraEnv = details_aura_env
-				end
-				if (not details_aura_func_cache) then
-					details_aura_func_cache = {}
-					_G.DetailsAuraFuncCache = details_aura_func_cache
-				end
-
-				if (BigWigs) then
-					local old_aura_env = details_aura_env [aura_env.aura_global_name]
-					if (old_aura_env and old_aura_env.UnregisterMessage) then
-						old_aura_env:UnregisterMessage ("BigWigs_StartBar")
-					end
-				end
-				if (_G.DBM) then
-					local previous_func = details_aura_func_cache [aura_env.aura_global_name]
-					if (previous_func and DBM:IsCallbackRegistered ("DBM_TimerStart", previous_func)) then
-						DBM:UnregisterCallback ("DBM_TimerStart", previous_func)
-					end
-				end
-				
-				details_aura_env [aura_env.aura_global_name] = aura_env
-
-				if (_G.DBM) then
-					aura_env.Calllback_func = function (bar_type, id, msg, timer, icon, _, spellId, colorId, modid)
-						local aura_env = DetailsAuraEnv ["@gname"]
-						if ((type (id) == "string" and id:find (aura_env.dbm_timer_id)) or spellId == aura_env.dbm_timer_id or spellId == aura_env.dbm_timer_id_str) then
-							local duration = timer
-							aura_env.trigger_at = GetTime() + duration - aura_env.countdown_at
-							aura_env.untrigger_at = GetTime() + duration
-						end
-					end
-					details_aura_func_cache [aura_env.aura_global_name] = aura_env.Calllback_func
-					DBM:RegisterCallback ("DBM_TimerStart", aura_env.Calllback_func)
-				end
-				if (BigWigs) then
-					function aura_env:BigWigs_StartBar (event, module, spellid, bar_text, time, icon, ...)
-						local aura_env = DetailsAuraEnv ["@gname"]
-						if (tostring (spellid) == aura_env.bw_timer_id) then
-							local duration = time
-							aura_env.trigger_at = GetTime() + duration - aura_env.countdown_at
-							aura_env.untrigger_at = GetTime() + duration
-						end
-					end
-					BigWigs.RegisterMessage (aura_env, "BigWigs_StartBar")
-				end
-			]]
-			
-			local c = new_aura.actions.init.custom
-			
-			if (other_values.dbm_timer_id) then
-				local dbm_tid = other_values.dbm_timer_id
-				c = c:gsub ("@dbm_timer_id_str", dbm_tid)
-				c = c:gsub ("@gname", "DetailsAura_" .. dbm_tid)
-				dbm_tid = dbm_tid:gsub ("ej", "")
-				c = c:gsub ("@dbm_timer_id", tonumber (dbm_tid))
-				c = c:gsub ("@bw_timer_id", "Timer ID Not Set")
-				
-			elseif (other_values.bw_timer_id) then
-				local bw_tid = other_values.bw_timer_id
-				c = c:gsub ("@bw_timer_id", bw_tid)
-				c = c:gsub ("@dbm_timer_id", "Timer ID Not Set")
-				c = c:gsub ("@gname", "DetailsAura_" .. bw_tid)
-			end
-
 			if (aura_type == "aurabar") then
 				icon_text = icon_text:gsub ("= ", "")
 				icon_text = icon_text:gsub (" =", "")
 				icon_text = icon_text:gsub ("=", "")
+				new_aura.displayTextLeft = icon_text
+				new_aura.displayIcon = icon_texture
+				
+			elseif (aura_type == "icon") then
+				new_aura.displayStacks = icon_text
+				new_aura.displayIcon = icon_texture
+				
 			end
 			
-			c = c:gsub ("@text", icon_text)
-			c = c:gsub ("@icon", icon_texture)
-			c = c:gsub ("@name", spellname)
-			c = c:gsub ("@countdown", floor (stacksize))
+			local init_start = [[
+				aura_env.ability_text = "@text"
+				aura_env.remaining_trigger = @countdown
+			]]
+
+			init_start = init_start:gsub ("@text", icon_text)
+			init_start = init_start:gsub ("@countdown", floor (stacksize))
+			new_aura.trigger.remaining = tostring (floor (stacksize))
 			
-			new_aura.actions.init.custom = c
+			new_aura.actions.init.custom = init_start
+
+			if (other_values.dbm_timer_id) then
+				new_aura.trigger.event = "DBM Timer"
+				local timerId = tostring (other_values.dbm_timer_id)
+				if (timerId:find ("%s")) then
+					new_aura.trigger.id = ""
+					new_aura.trigger.use_id = false
+					new_aura.trigger.spellId_operator = "=="
+					new_aura.trigger.use_spellId = true
+					new_aura.trigger.spellId = tostring (other_values.spellid)
+				else
+					new_aura.trigger.id = timerId
+				end
+
+			elseif (other_values.bw_timer_id) then
+				new_aura.trigger.id = ""
+				new_aura.trigger.use_id = false
+				new_aura.trigger.spellId_operator = "=="
+				new_aura.trigger.use_spellId = true
+				new_aura.trigger.spellId = tostring (other_values.bw_timer_id)
+				new_aura.trigger.event = "BigWigs Timer"
+			end
 
 			--> size
 			if (aura_type == "icon") then
 				new_aura.width = icon_size
 				new_aura.height = icon_size
 			elseif (aura_type == "aurabar") then
-				new_aura.width = min (icon_size, 370)
-				new_aura.height = 40
+				new_aura.width = max (icon_size, 370)
+				new_aura.height = 38
 			elseif (aura_type == "text") then
 				new_aura.fontSize = min (icon_size, 72)
 			end
@@ -1448,7 +1560,7 @@
 
 			local f = CreateFrame ("frame", "DetailsAuraPanel", UIParent, "ButtonFrameTemplate")
 			f:SetSize (600, 488)
-			f:SetPoint ("center", UIParent, "center")
+			f:SetPoint ("center", UIParent, "center", 0, 150)
 			f:SetFrameStrata ("HIGH")
 			f:SetToplevel (true)
 			f:SetMovable (true)
@@ -1559,6 +1671,7 @@
 				{label = "BigWigs Time Bar", value = 32, icon = aura_on_icon, onclick = on_select_aura_trigger},
 				
 				{label = "Spell Interrupt", value = 41, icon = aura_on_icon, onclick = on_select_aura_trigger},
+				{label = "Spell Dispell", value = 42, icon = aura_on_icon, onclick = on_select_aura_trigger},
 			}
 			local aura_on_options = function()
 				return aura_on_table
@@ -1875,7 +1988,7 @@
 					f.SpellName:Disable()
 					f.UseSpellId:Disable()
 					
-				elseif (trigger == 41) then --interrupt
+				elseif (trigger == 41 or trigger == 42) then --interrupt or dispel
 					f.StackSlider:Disable()
 					f.SpellName:Disable()
 					f.UseSpellId:Disable()
@@ -1886,8 +1999,13 @@
 					f.UseGlow:Disable()
 					icon_size_label:SetText ("Text Size: ")
 					f.IconSizeSlider:SetValue (11)
-					f.AuraText:SetText ("=Not Interrupted!=")
-					aura_text_label.text = "Not Interrupted: "
+					if (trigger == 41) then
+						f.AuraText:SetText ("=Not Interrupted!=")
+						aura_text_label.text = "Not Interrupted: "
+					elseif (trigger == 42) then
+						f.AuraText:SetText (DetailsAuraPanel.name.text:gsub ("%(d!%)", "") .. "Dispells")
+						aura_text_label.text = "Title Text: "
+					end
 				end
 				
 				if (DetailsAuraPanel.other_values and DetailsAuraPanel.other_values.text) then
@@ -2194,7 +2312,7 @@
 			end
 			
 			local all_players_module = {
-				name = "All Players",
+				name = "Players",
 				desc = "Show a list of all player actors",
 				filters_widgets = function()
 					if (not DetailsForgeAllPlayersFilterPanel) then
@@ -2257,7 +2375,7 @@
 			
 			-----------------------------------------------
 			local all_pets_module = {
-				name = "All Pets",
+				name = "Pets",
 				desc = "Show a list of all pet actors",
 				filters_widgets = function()
 					if (not DetailsForgeAllPetsFilterPanel) then
@@ -2341,7 +2459,7 @@
 			-----------------------------------------------
 			
 			local all_enemies_module = {
-				name = "All Enemies",
+				name = "Enemies",
 				desc = "Show a list of all enemies actors",
 				filters_widgets = function()
 					if (not DetailsForgeAllEnemiesFilterPanel) then
@@ -2405,10 +2523,17 @@
 			
 			-----------------------------------------------
 			
+			local spell_open_aura_creator = function (row)
+				local data = all_modules [4].data [row]
+				local spellid = data[1].id
+				local spellname, _, spellicon = GetSpellInfo (spellid)
+				_detalhes:OpenAuraPanel (spellid, spellname, spellicon, data[3])
+			end			
+			
 			local EncounterSpellEvents = EncounterDetailsDB and EncounterDetailsDB.encounter_spells
 			
 			local all_spells_module = {
-				name = "All Spells",
+				name = "Spells",
 				desc = "Show a list of all spells used",
 				filters_widgets = function()
 					if (not DetailsForgeAllSpellsFilterPanel) then
@@ -2463,7 +2588,11 @@
 									end
 									if (can_add and not spell_already_added [spellid]) then
 										spell_already_added [spellid] = true
-										tinsert (t, {spell, actor})
+										local encounter_id
+										if (actor:IsNeutralOrEnemy()) then
+											encounter_id = combat.is_boss and combat.is_boss.id
+										end
+										tinsert (t, {spell, actor, encounter_id})
 									end
 								end
 							end
@@ -2476,8 +2605,9 @@
 					{name = "Name", width = 150, type = "entry", func = no_func},
 					{name = "SpellID", width = 60, type = "entry", func = no_func},
 					{name = "School", width = 60, type = "entry", func = no_func},
-					{name = "Caster", width = 100, type = "entry", func = no_func},
-					{name = "Event", width = 300, type = "entry", func = no_func},
+					{name = "Caster", width = 80, type = "entry", func = no_func},
+					{name = "Event", width = 260, type = "entry", func = no_func},
+					{name = "Create Aura", width = 40, type = "button", func = spell_open_aura_creator, icon = [[Interface\Buttons\UI-CheckBox-Check-Disabled]], notext = true, iconalign = "center"},
 				},
 				fill_panel = false,
 				fill_gettotal = function (self) return #self.module.data end,
@@ -2507,6 +2637,176 @@
 				fill_name = "DetailsForgeAllSpellsFillPanel",
 			}
 			f:InstallModule (all_spells_module)
+			
+			-----------------------------------------------
+			
+			local dbm_open_aura_creator = function (row)
+				local data = all_modules [5].data [row]
+				
+				local spellname, spellicon, _
+				if (type (data [7]) == "number") then
+					spellname, _, spellicon = GetSpellInfo (data [7])
+				else
+					if (data [7]) then
+						local spellid = data[7]:gsub ("ej", "")
+						spellid = tonumber (spellid)
+						local title, description, depth, abilityIcon, displayInfo, siblingID, nextSectionID, filteredByDifficulty, link, startsOpen, flag1, flag2, flag3, flag4 = EJ_GetSectionInfo (spellid)
+						spellname, spellicon = title, abilityIcon
+					else
+						return
+					end
+				end
+				
+				_detalhes:OpenAuraPanel (data[2], spellname, spellicon, data.id, DETAILS_WA_TRIGGER_DBM_TIMER, DETAILS_WA_AURATYPE_TEXT, {dbm_timer_id = data[2], text = "Next " .. spellname .. " In", text_size = 72, icon = spellicon})
+			end
+			
+			local dbm_timers_module = {
+				name = "DBM Timers",
+				desc = "Show a list of Dbm timers",
+				filters_widgets = function()
+					if (not DetailsForgeDBMBarsFilterPanel) then
+						local w = CreateFrame ("frame", "DetailsForgeDBMBarsFilterPanel", f)
+						w:SetSize (600, 20)
+						w:SetPoint ("topleft", f, "topleft", 120, -40)
+						local label = w:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+						label:SetText ("Bar Text: ")
+						label:SetPoint ("left", w, "left", 5, 0)
+						local entry = fw:CreateTextEntry (w, nil, 120, 20, "entry", "DetailsForgeDBMBarsTextFilter")
+						entry:SetHook ("OnTextChanged", function() f:refresh() end)
+						entry:SetPoint ("left", label, "right", 2, 0)
+					end
+					return DetailsForgeDBMBarsFilterPanel
+				end,
+				search = function()
+					local t = {}
+					local filter = DetailsForgeDBMBarsTextFilter:GetText()
+					local source = _detalhes.global_plugin_database ["DETAILS_PLUGIN_ENCOUNTER_DETAILS"] and _detalhes.global_plugin_database ["DETAILS_PLUGIN_ENCOUNTER_DETAILS"].encounter_timers_dbm or {}
+					for key, timer in pairs (source) do
+						if (filter ~= "") then
+							filter = lower (filter)
+							local bar_text = lower (timer [3])
+							if (bar_text:find (filter)) then
+								t [#t+1] = timer
+							end
+						else
+							t [#t+1] = timer
+						end
+					end
+					return t
+				end,
+				header = {
+					{name = "Index", width = 40, type = "text", func = no_func},
+					{name = "Bar Text", width = 160, type = "entry", func = no_func},
+					{name = "Id", width = 140, type = "entry", func = no_func},
+					{name = "Spell Id", width = 50, type = "entry", func = no_func},
+					{name = "Timer", width = 40, type = "entry", func = no_func},
+					{name = "Encounter Id", width = 100, type = "entry", func = no_func},
+					{name = "Create Aura", width = 120, type = "button", func = dbm_open_aura_creator, icon = [[Interface\Buttons\UI-CheckBox-Check-Disabled]], notext = true, iconalign = "center"},
+				},
+				fill_panel = false,
+				fill_gettotal = function (self) return #self.module.data end,
+				fill_fillrows = function (index, self) 
+					local data = self.module.data [index]
+					if (data) then
+						local encounter_id = data.id
+						return {
+							index,
+							data[3] or "",
+							data[2] or "",
+							data[7] or "",
+							data[4] or "0",
+							tostring (encounter_id) or "0"
+						}
+					else
+						return nothing_to_show
+					end
+				end,
+				fill_name = "DetailsForgeDBMBarsFillPanel",
+			}
+			f:InstallModule (dbm_timers_module)
+			
+			-----------------------------------------------
+			
+			local bw_open_aura_creator = function (row)
+			
+				local data = all_modules [6].data [row]
+				
+				local spellname, spellicon, _
+				local spellid = tonumber (data [2])
+				
+				if (type (spellid) == "number") then
+					if (spellid < 0) then
+						local title, description, depth, abilityIcon, displayInfo, siblingID, nextSectionID, filteredByDifficulty, link, startsOpen, flag1, flag2, flag3, flag4 = EJ_GetSectionInfo (abs (spellid))
+						spellname, spellicon = title, abilityIcon
+					else
+						spellname, _, spellicon = GetSpellInfo (spellid)
+					end
+					_detalhes:OpenAuraPanel (data [2], spellname, spellicon, data.id, DETAILS_WA_TRIGGER_BW_TIMER, DETAILS_WA_AURATYPE_TEXT, {bw_timer_id = data [2], text = "Next " .. spellname .. " In", text_size = 72, icon = spellicon})
+				end
+			end
+			
+			local bigwigs_timers_module = {
+				name = "BigWigs Timers",
+				desc = "Show a list of BigWigs timers",
+				filters_widgets = function()
+					if (not DetailsForgeBigWigsBarsFilterPanel) then
+						local w = CreateFrame ("frame", "DetailsForgeBigWigsBarsFilterPanel", f)
+						w:SetSize (600, 20)
+						w:SetPoint ("topleft", f, "topleft", 120, -40)
+						local label = w:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+						label:SetText ("Bar Text: ")
+						label:SetPoint ("left", w, "left", 5, 0)
+						local entry = fw:CreateTextEntry (w, nil, 120, 20, "entry", "DetailsForgeBigWigsBarsTextFilter")
+						entry:SetHook ("OnTextChanged", function() f:refresh() end)
+						entry:SetPoint ("left", label, "right", 2, 0)
+					end
+					return DetailsForgeBigWigsBarsFilterPanel
+				end,
+				search = function()
+					local t = {}
+					local filter = DetailsForgeBigWigsBarsTextFilter:GetText()
+					local source = _detalhes.global_plugin_database ["DETAILS_PLUGIN_ENCOUNTER_DETAILS"] and _detalhes.global_plugin_database ["DETAILS_PLUGIN_ENCOUNTER_DETAILS"].encounter_timers_bw or {}
+					for key, timer in pairs (source) do
+						if (filter ~= "") then
+							filter = lower (filter)
+							local bar_text = lower (timer [3])
+							if (bar_text:find (filter)) then
+								t [#t+1] = timer
+							end
+						else
+							t [#t+1] = timer
+						end
+					end
+					return t
+				end,
+				header = {
+					{name = "Index", width = 40, type = "text", func = no_func},
+					{name = "Bar Text", width = 160, type = "entry", func = no_func},
+					{name = "Spell Id", width = 50, type = "entry", func = no_func},
+					{name = "Timer", width = 40, type = "entry", func = no_func},
+					{name = "Encounter Id", width = 100, type = "entry", func = no_func},
+					{name = "Create Aura", width = 120, type = "button", func = bw_open_aura_creator, icon = [[Interface\Buttons\UI-CheckBox-Check-Disabled]], notext = true, iconalign = "center"},
+				},
+				fill_panel = false,
+				fill_gettotal = function (self) return #self.module.data end,
+				fill_fillrows = function (index, self) 
+					local data = self.module.data [index]
+					if (data) then
+						local encounter_id = data.id
+						return {
+							index,
+							data[3] or "",
+							data[2] or "",
+							data[4] or "",
+							tostring (encounter_id) or "0"
+						}
+					else
+						return nothing_to_show
+					end
+				end,
+				fill_name = "DetailsForgeBigWigsBarsFillPanel",
+			}
+			f:InstallModule (bigwigs_timers_module)
 			
 			-----------------------------------------------
 			

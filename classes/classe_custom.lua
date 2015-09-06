@@ -401,8 +401,8 @@
 				row1.texto_direita:SetText (_detalhes:ToK2 (total) .. " (" .. _detalhes:ToK (total / combat_time) .. ")")
 				
 				row1:SetValue (100)
-				local r, b, g = unpack (instance.total_bar.color)
-				row1.textura:SetVertexColor (r, b, g)
+				local r, g, b = unpack (instance.total_bar.color)
+				row1.textura:SetVertexColor (r, g, b)
 				
 				row1.icone_classe:SetTexture (instance.total_bar.icon)
 				row1.icone_classe:SetTexCoord (0.0625, 0.9375, 0.0625, 0.9375)
@@ -437,8 +437,8 @@
 				row1.texto_direita:SetText (_detalhes:ToK2 (total) .. " (" .. _detalhes:ToK (total / combat_time) .. ")")
 				
 				row1:SetValue (100)
-				local r, b, g = unpack (instance.total_bar.color)
-				row1.textura:SetVertexColor (r, b, g)
+				local r, g, b = unpack (instance.total_bar.color)
+				row1.textura:SetVertexColor (r, g, b)
 				
 				row1.icone_classe:SetTexture (instance.total_bar.icon)
 				row1.icone_classe:SetTexCoord (0.0625, 0.9375, 0.0625, 0.9375)
@@ -1540,7 +1540,7 @@
 		----------------------------------------------------------------------------------------------------------------------------------------------------
 		--doas
 		local CC_Done = {
-			name = "Crowd Control",
+			name = Loc ["STRING_CUSTOM_CC_DONE"],
 			icon = [[Interface\ICONS\Spell_Frost_FreezingBreath]],
 			attribute = false,
 			spellid = false,
@@ -1620,7 +1620,7 @@
 		
 		local have = false
 		for _, custom in ipairs (self.custom) do
-			if (custom.name == "Crowd Control" and (custom.script_version and custom.script_version >= CC_Done.script_version) ) then
+			if (custom.name == Loc ["STRING_CUSTOM_CC_DONE"] and (custom.script_version and custom.script_version >= CC_Done.script_version) ) then
 				have = true
 				break
 			end
@@ -1630,7 +1630,7 @@
 			CC_Done.__index = _detalhes.atributo_custom
 			
 			for i, custom in ipairs (self.custom) do
-				if (custom.name == "Crowd Control") then
+				if (custom.name == Loc ["STRING_CUSTOM_CC_DONE"]) then
 					table.remove (self.custom, i)
 					tinsert (self.custom, i, CC_Done)
 					have = true
@@ -1638,6 +1638,140 @@
 			end
 			if (not have) then
 				self.custom [#self.custom+1] = CC_Done
+			end
+		end	
+		
+		----------------------------------------------------------------------------------------------------------------------------------------------------
+		
+		local CC_Received = {
+			name = Loc ["STRING_CUSTOM_CC_RECEIVED"],
+			icon = [[Interface\ICONS\Spell_Mage_IceNova]],
+			attribute = false,
+			spellid = false,
+			author = "Details!",
+			desc = "Show the amount of crowd control received for each player.",
+			source = false,
+			target = false,
+			script_version = 1,
+			script = [[
+				local combat, instance_container, instance = ...
+				local total, top, amt = 0, 0, 0
+
+				local misc_actors = combat:GetActorList (DETAILS_ATTRIBUTE_MISC)
+				DETAILS_CUSTOM_CC_RECEIVED_CACHE = DETAILS_CUSTOM_CC_RECEIVED_CACHE or {}
+				wipe (DETAILS_CUSTOM_CC_RECEIVED_CACHE)
+
+				for index, character in ipairs (misc_actors) do
+				    if (character.cc_done and character:IsPlayer()) then
+					
+					for player_name, amount in pairs (character.cc_done_targets) do
+					    local target = combat (1, player_name) or combat (2, player_name)
+					    if (target and target:IsPlayer()) then
+						instance_container:AddValue (target, amount)
+						total = total + amount
+						if (amount > top) then
+						    top = amount
+						end
+						if (not DETAILS_CUSTOM_CC_RECEIVED_CACHE [player_name]) then
+						    DETAILS_CUSTOM_CC_RECEIVED_CACHE [player_name] = true
+						    amt = amt + 1
+						end
+					    end
+					end
+					
+				    end
+				end
+
+				return total, top, amt
+			]],
+			tooltip = [[
+				local actor, combat, instance = ...
+				local name = actor:name()
+				local spells, from = {}, {}
+				local misc_actors = combat:GetActorList (DETAILS_ATTRIBUTE_MISC)
+
+				for index, character in ipairs (misc_actors) do
+				    if (character.cc_done and character:IsPlayer()) then
+					local on_actor = character.cc_done_targets [name]
+					if (on_actor) then
+					    tinsert (from, {character:name(), on_actor})
+					    
+					    for spellid, spell in pairs (character.cc_done_spells._ActorTable) do
+						
+						local spell_on_actor = spell.targets [name]
+						if (spell_on_actor) then
+						    local has_spell
+						    for index, spell_table in ipairs (spells) do
+							if (spell_table [1] == spellid) then
+							    spell_table [2] = spell_table [2] + spell_on_actor
+							    has_spell = true
+							end
+						    end
+						    if (not has_spell) then
+							tinsert (spells, {spellid, spell_on_actor}) 
+						    end
+						end
+						
+					    end            
+					end
+				    end
+				end
+
+				table.sort (from, _detalhes.Sort2)
+				table.sort (spells, _detalhes.Sort2)
+
+				for index, spell in ipairs (spells) do
+				    local name, _, icon = GetSpellInfo (spell [1])
+				    GameCooltip:AddLine (name, spell [2])
+				    _detalhes:AddTooltipBackgroundStatusbar()
+				    GameCooltip:AddIcon (icon, 1, 1, 14, 14)    
+				end
+
+				_detalhes:AddTooltipSpellHeaderText ("From", "yellow", #from)
+				_detalhes:AddTooltipHeaderStatusbar (1, 1, 1, 0.6)
+
+				for index, t in ipairs (from) do
+				    GameCooltip:AddLine (t[1], t[2])
+				    _detalhes:AddTooltipBackgroundStatusbar()
+				    
+				    local class, _, _, _, _, r, g, b = _detalhes:GetClass (t [1])
+				    if (class and class ~= "UNKNOW") then
+					local texture, l, r, t, b = _detalhes:GetClassIcon (class)
+					GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small_alpha", 1, 1, 14, 14, l, r, t, b)
+				    else
+					GameCooltip:AddIcon ("Interface\\GossipFrame\\IncompleteQuestIcon", 1, 1, 14, 14)
+				    end     
+				    
+				end
+			]],
+			total_script = [[
+				local value, top, total, combat, instance = ...
+				return floor (value)
+			]],
+		}
+		
+--		/run _detalhes:AddDefaultCustomDisplays()
+		
+		local have = false
+		for _, custom in ipairs (self.custom) do
+			if (custom.name == Loc ["STRING_CUSTOM_CC_RECEIVED"] and (custom.script_version and custom.script_version >= CC_Received.script_version) ) then
+				have = true
+				break
+			end
+		end
+		if (not have) then
+			setmetatable (CC_Received, _detalhes.atributo_custom)
+			CC_Received.__index = _detalhes.atributo_custom
+			
+			for i, custom in ipairs (self.custom) do
+				if (custom.name == Loc ["STRING_CUSTOM_CC_RECEIVED"]) then
+					table.remove (self.custom, i)
+					tinsert (self.custom, i, CC_Received)
+					have = true
+				end
+			end
+			if (not have) then
+				self.custom [#self.custom+1] = CC_Received
 			end
 		end	
 		

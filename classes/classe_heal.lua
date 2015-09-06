@@ -414,8 +414,8 @@ function atributo_heal:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 			row1.texto_direita:SetText (_detalhes:ToK2 (total) .. " (" .. _detalhes:ToK (total / combat_time) .. ")")
 			
 			row1:SetValue (100)
-			local r, b, g = unpack (instancia.total_bar.color)
-			row1.textura:SetVertexColor (r, b, g)
+			local r, g, b = unpack (instancia.total_bar.color)
+			row1.textura:SetVertexColor (r, g, b)
 			
 			row1.icone_classe:SetTexture (instancia.total_bar.icon)
 			row1.icone_classe:SetTexCoord (0.0625, 0.9375, 0.0625, 0.9375)
@@ -478,8 +478,8 @@ function atributo_heal:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 			row1.texto_direita:SetText (_detalhes:ToK2 (total) .. " (" .. _detalhes:ToK (total / combat_time) .. ")")
 			
 			row1:SetValue (100)
-			local r, b, g = unpack (instancia.total_bar.color)
-			row1.textura:SetVertexColor (r, b, g)
+			local r, g, b = unpack (instancia.total_bar.color)
+			row1.textura:SetVertexColor (r, g, b)
 			
 			row1.icone_classe:SetTexture (instancia.total_bar.icon)
 			row1.icone_classe:SetTexCoord (0.0625, 0.9375, 0.0625, 0.9375)

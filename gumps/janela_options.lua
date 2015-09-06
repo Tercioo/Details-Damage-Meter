@@ -265,6 +265,15 @@ function _detalhes:OpenOptionsWindow (instance, no_reopen, section)
 		local desc_background = g:NewImage (window, [[Interface\AddOns\Details\images\options_window]], 253, 198, "artwork", {0.3193359375, 0.56640625, 0.685546875, 0.87890625}, "descBackgroundImage", "$parentDescBackgroundImage") -- 327 702 580 900
 		desc_background:SetPoint ("topleft", info_text, "topleft", 0, 0)
 		
+		--> forge and history buttons
+		local forge_button = g:NewButton (window, _, "$parentForgeButton", "ForgeButton", 90, 20, function() _detalhes:OpenForge(); window:Hide() end, nil, nil, nil, "Open Forge", 1) --, g:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE")
+		forge_button:SetIcon ([[Interface\AddOns\Details\images\icons]], nil, nil, nil, {396/512, 428/512, 243/512, 273/512}, nil, nil, 2)
+		forge_button:SetPoint ("topleft", 80, -61)
+		
+		local history_button = g:NewButton (window, _, "$parentHistoryButton", "HistoryButton", 90, 20, function() _detalhes:OpenRaidHistoryWindow(); window:Hide() end, nil, nil, nil, "Open History", 1) --, g:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE")
+		history_button:SetIcon ([[Interface\AddOns\Details\images\icons]], nil, nil, nil, {434/512, 466/512, 243/512, 273/512}, nil, nil, 2)
+		history_button:SetPoint ("topleft", 180, -61)
+		
 		--> select instance dropbox
 		local onSelectInstance = function (_, _, instance)
 		

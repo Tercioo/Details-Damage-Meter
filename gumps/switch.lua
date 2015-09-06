@@ -30,20 +30,22 @@ do
 	frame:SetFrameLevel (16)
 	
 	frame.background = frame:CreateTexture (nil, "background")
-	frame.background:SetTexture ([[Interface\Store\Store-Splash]])
-	frame.background:SetTexCoord (16/1024, 561/1024, 8/1024, 263/1024)
+	--frame.background:SetTexture ("Interface\\AddOns\\Details\\images\\background")
+	frame.background:SetTexture ([[Interface\SPELLBOOK\Spellbook-Page-1]])
+	frame.background:SetTexCoord (331/512, 63/512, 109/512, 143/512)
 	frame.background:SetAllPoints()
 	frame.background:SetDesaturated (true)
-	frame.background:SetVertexColor (.5, .5, .5, .85)
+	--frame.background:SetVertexColor (1, 1, 1, 0.1)
+	frame.background:SetVertexColor (.8, .8, .8, 0.8)
 	
 	frame.topbg = frame:CreateTexture (nil, "background")
-	frame.topbg:SetTexture ([[Interface\Scenarios\ScenariosParts]])
-	frame.topbg:SetTexCoord (100/512, 267/512, 143/512, 202/512)
+	frame.topbg:SetTexture ("Interface\\AddOns\\Details\\images\\background")
+	--frame.topbg:SetTexCoord (100/512, 267/512, 143/512, 202/512)
 	frame.topbg:SetPoint ("bottomleft", frame, "topleft")
 	frame.topbg:SetPoint ("bottomright", frame, "topright")
 	frame.topbg:SetHeight (20)
 	frame.topbg:SetDesaturated (true)
-	frame.topbg:SetVertexColor (.3, .3, .3, 1)
+	frame.topbg:SetVertexColor (0, 0, 0, 1)
 	
 	frame.topbg_frame = CreateFrame ("frame", nil, frame)
 	frame.topbg_frame:SetPoint ("bottomleft", frame, "topleft")
@@ -60,10 +62,10 @@ do
 	frame.star:SetTexture ([[Interface\Glues\CharacterSelect\Glues-AddOn-Icons]])
 	frame.star:SetTexCoord (0.75, 1, 0, 1)
 	frame.star:SetSize (16, 16)
-	frame.star:SetPoint ("bottomleft", frame, "topleft", 4, 0)
+	frame.star:SetPoint ("bottomleft", frame, "topleft", 4, 1)
 	
 	frame.title_label = frame:CreateFontString (nil, "overlay", "GameFontNormal")
-	frame.title_label:SetPoint ("left", frame.star, "right", 4, -1)
+	frame.title_label:SetPoint ("left", frame.star, "right", 4, 0)
 	frame.title_label:SetText ("Bookmark")
 
 ---------------------------------------------------------------------------------------------------------------------------
@@ -108,7 +110,7 @@ do
 	window_color:SetPoint ("bottomright", frame, "topright", -3, 2)
 	
 	local window_color_texture = gump:CreateImage (window_color, [[Interface\AddOns\Details\images\icons]], 14, 14, "artwork", {434/512, 466/512, 277/512, 307/512})
-	window_color_texture:SetAlpha (0.35)
+	window_color_texture:SetAlpha (0.55)
 	window_color_texture:SetAllPoints()
 	
 	window_color:SetHook ("OnEnter", function()
@@ -122,11 +124,239 @@ do
 		GameCooltip:Show()
 	end)
 	window_color:SetHook ("OnLeave", function()
-		window_color_texture:SetAlpha (0.35)
+		window_color_texture:SetAlpha (0.55)
 		GameCooltip:Hide()
 	end)
 	
 ---------------------------------------------------------------------------------------------------------------------------
+
+	local all_switch = CreateFrame ("frame", "DetailsAllAttributesFrame", UIParent)
+	all_switch:SetFrameStrata ("tooltip")
+	all_switch:Hide()
+	all_switch:SetSize (400, 150)
+	all_switch:SetClampedToScreen (true)
+	all_switch:SetBackdrop ({bgFile = "Interface\\AddOns\\Details\\images\\background", tile = true, tileSize = 16 })
+	all_switch:SetBackdropColor (0.05, 0.05, 0.05, 0.3)
+	all_switch.buttons = {}
+	
+	all_switch:SetScript ("OnMouseDown", function (self, button)
+		if (button == "RightButton") then
+			self:Hide()
+		end
+	end)
+	all_switch:SetScript ("OnEnter", function (self, button)
+		all_switch.interacting = true
+		all_switch.last_up = GetTime()
+	end)
+	all_switch:SetScript ("OnLeave", function (self, button)
+		all_switch.interacting = false
+		all_switch.last_up = GetTime()
+	end)
+	
+	local on_update_all_switch = function (self, elapsed)
+		if (not self.interacting) then
+			if (GetTime() > all_switch.last_up+2) then
+				local cursor_x, cursor_y = GetCursorPosition()
+				cursor_x, cursor_y = floor (cursor_x), floor (cursor_y)
+				if (all_switch.cursor_x ~= cursor_x or all_switch.cursor_y ~= cursor_y) then
+					self:Hide()
+				else
+					all_switch.last_up = GetTime()-1
+				end
+			end
+		end
+	end
+	
+	all_switch:SetScript ("OnHide", function (self)
+		all_switch:SetScript ("OnUpdate", nil)
+	end)
+	
+	DetailsSwitchPanel.all_switch = all_switch
+	
+	function _detalhes:ShowAllSwitch()
+		if (all_switch:IsShown()) then
+			return all_switch:Hide()
+		end
+		all_switch.instance = self
+		GameTooltip:Hide()
+		GameCooltip:Hide()
+		all_switch:ClearAllPoints()
+		all_switch:SetPoint ("bottom", self.baseframe.UPFrame, "top", 4)
+		all_switch:Show()
+		
+		if (_detalhes.switch.frame:IsShown()) then
+			_detalhes.switch:CloseMe()
+		end
+	end
+	
+	local on_click_all_switch_button = function (self, button)
+		if (button == "LeftButton") then
+			local attribute = self.attribute
+			local sub_attribute = self.sub_attribute
+			local instance = all_switch.instance
+			
+			if (instance.modo == _detalhes._detalhes_props["MODO_ALONE"] or instance.modo == _detalhes._detalhes_props["MODO_RAID"]) then
+				instance:AlteraModo (instance, 2)
+			end
+			instance:TrocaTabela (instance, true, attribute, sub_attribute)
+			all_switch:Hide()
+			
+		elseif (button == "RightButton") then
+			all_switch:Hide()
+		end
+	end
+	
+	local on_enter_all_switch_button = function (self)
+		_detalhes:SetFontColor (self.text, "orange")
+		self.texture:SetBlendMode ("ADD")
+		all_switch.interacting = true
+		all_switch.last_up = GetTime()
+	end
+	
+	local on_leave_all_switch_button = function (self)
+		_detalhes:SetFontColor (self.text, "white")
+		self.texture:SetBlendMode ("BLEND")
+		all_switch.interacting = false
+		all_switch.last_up = GetTime()
+	end
+	
+	all_switch.check_text_size = function (font_string)
+		local text_width = font_string:GetStringWidth()
+		while (text_width > 104) do
+			local text = font_string:GetText()
+			text = strsub (text, 1, #text-1)
+			font_string:SetText (text)
+			text_width = font_string:GetStringWidth()
+		end
+	end
+	
+	local create_all_switch_button = function (attribute, sub_attribute, x, y)
+		local button = CreateFrame ("button", "DetailsAllAttributesFrame" .. attribute .. sub_attribute, all_switch)
+		button:SetSize (100, 16)
+		button.texture = button:CreateTexture (nil, "overlay")
+		button.texture:SetPoint ("left", 0, 0)
+		button.texture:SetSize (16, 16)
+		button.text = button:CreateFontString (nil, "overlay", "GameFontNormal")
+		button.text:SetPoint ("left", button.texture, "right", 2, 0)
+		button.attribute = attribute
+		button.sub_attribute = sub_attribute
+		button:SetPoint ("topleft", x, y)
+		_detalhes:SetFontSize (button.text, 10)
+		_detalhes:SetFontColor (button.text, "white")
+		
+		button:SetScript ("OnClick", on_click_all_switch_button)
+		button:SetScript ("OnEnter", on_enter_all_switch_button)
+		button:SetScript ("OnLeave", on_leave_all_switch_button)
+		
+		button:RegisterForClicks ("LeftButtonDown", "RightButtonDown")
+
+		return button
+	end	
+	
+	all_switch:SetScript ("OnShow", function()
+		
+		if (not all_switch.already_built) then
+			local x, y = 5, -5
+			all_switch.higher_counter = 0
+
+			for attribute = 1, _detalhes.atributos[0] do 
+				--> localized attribute name
+				local loc_attribute_name = _detalhes.atributos.lista [attribute]
+
+				local title_icon = all_switch:CreateTexture (nil, "overlay")
+				title_icon:SetPoint ("topleft", x, y)
+				local texture, l, r, t, b = _detalhes:GetAttributeIcon (attribute)
+				title_icon:SetTexture (texture)
+				title_icon:SetTexCoord (l, r, t, b)
+				title_icon:SetSize (18, 18)
+				local title_str = all_switch:CreateFontString (nil, "overlay", "GameFontNormal")
+				title_str:SetPoint ("left", title_icon, "right", 2, 0)
+				title_str:SetText (loc_attribute_name)
+				
+				y = y - 20
+				
+				all_switch.buttons [attribute] = {}
+				for i = 1, #_detalhes.sub_atributos [attribute].lista do
+					--> localized sub attribute name
+					local loc_sub_attribute_name = _detalhes.sub_atributos [attribute].lista [i]
+					local button = create_all_switch_button (attribute, i, x, y)
+					button.text:SetText (loc_sub_attribute_name)
+					all_switch.check_text_size (button.text)
+					button.texture:SetTexture (_detalhes.sub_atributos [attribute].icones [i] [1])
+					button.texture:SetTexCoord (unpack (_detalhes.sub_atributos [attribute].icones [i] [2]))
+					tinsert (all_switch.buttons [attribute], button)
+					y = y - 17
+				end
+				
+				if (#_detalhes.sub_atributos [attribute].lista > all_switch.higher_counter) then
+					all_switch.higher_counter = #_detalhes.sub_atributos [attribute].lista
+				end
+				
+				x = x + 130
+				y = -5
+			end
+			
+			--> prepare for customs
+			all_switch.x = x
+			all_switch.y = -5
+			all_switch.buttons [_detalhes.atributos[0]+1] = {}
+			
+			local title_icon = all_switch:CreateTexture (nil, "overlay")
+			local texture, l, r, t, b = _detalhes:GetAttributeIcon (_detalhes.atributos[0]+1)
+			title_icon:SetTexture (texture)
+			title_icon:SetTexCoord (l, r, t, b)
+			title_icon:SetSize (18, 18)
+			local title_str = all_switch:CreateFontString (nil, "overlay", "GameFontNormal")
+			title_str:SetPoint ("left", title_icon, "right", 2, 0)
+			title_str:SetText (_detalhes.atributos.lista [_detalhes.atributos[0]+1])
+			
+			title_icon:SetPoint ("topleft", all_switch.x, all_switch.y)
+			all_switch.y = all_switch.y - 20
+			all_switch.title_custom = title_icon
+			
+			all_switch.already_built = true
+		end
+		
+		--> update customs
+		local custom_index = _detalhes.atributos[0]+1
+		for _, button in ipairs (all_switch.buttons [custom_index]) do
+			button:Hide()
+		end
+		
+		local button_index = 1
+		for i = #_detalhes.custom, 1, -1 do
+			local button = all_switch.buttons [custom_index] [button_index]
+			if (not button) then
+				button = create_all_switch_button (custom_index, i, all_switch.x, all_switch.y)
+				tinsert (all_switch.buttons [custom_index], button)
+				all_switch.y = all_switch.y - 17
+			end
+			
+			local custom = _detalhes.custom [i]
+			button.text:SetText (custom.name)
+			all_switch.check_text_size (button.text)
+			button.texture:SetTexture (custom.icon)
+			button.texture:SetTexCoord (0.078125, 0.921875, 0.078125, 0.921875)
+			button:Show()
+			
+			button_index = button_index + 1
+		end
+		
+		if (#_detalhes.custom > all_switch.higher_counter) then
+			all_switch.higher_counter = #_detalhes.custom
+		end
+		
+		all_switch:SetHeight ((all_switch.higher_counter * 17) + 20 + 10)
+		all_switch:SetWidth ((120 * 5) + (5 * 2) + (12*4))
+		
+		all_switch.last_up = GetTime()
+		local cursor_x, cursor_y = GetCursorPosition()
+		all_switch.cursor_x, all_switch.cursor_y = floor (cursor_x), floor (cursor_y)
+		all_switch:SetScript ("OnUpdate", on_update_all_switch)
+		
+	end) 
+	
+---------------------------------------------------------------------------------------------------------------------------	
 
 	local open_options = function()
 		_detalhes:OpenOptionsWindow (_detalhes.switch.current_instancia)
@@ -136,7 +366,7 @@ do
 	options_button:SetPoint ("right", window_color, "left", -2, 0)
 	
 	local options_button_texture = gump:CreateImage (options_button, [[Interface\AddOns\Details\images\icons]], 14, 14, "artwork", {396/512, 428/512, 277/512, 307/512})
-	options_button_texture:SetAlpha (0.35)
+	options_button_texture:SetAlpha (0.55)
 	options_button_texture:SetAllPoints()
 	
 	options_button:SetHook ("OnEnter", function()
@@ -150,7 +380,7 @@ do
 		GameCooltip:Show()
 	end)
 	options_button:SetHook ("OnLeave", function()
-		options_button_texture:SetAlpha (0.35)
+		options_button_texture:SetAlpha (0.55)
 		GameCooltip:Hide()
 	end)
 	
@@ -158,12 +388,13 @@ do
 
 	local open_forge = function()
 		_detalhes:OpenForge()
+		_detalhes.switch:CloseMe()
 	end
 	local forge_button = gump:CreateButton (frame.topbg_frame, open_forge, 14, 14, open_forge)
 	forge_button:SetPoint ("right", options_button, "left", -2, 0)
 	
 	local forge_button_texture = gump:CreateImage (forge_button, [[Interface\AddOns\Details\images\icons]], 14, 14, "artwork", {396/512, 428/512, 243/512, 273/512})
-	forge_button_texture:SetAlpha (0.35)
+	forge_button_texture:SetAlpha (0.55)
 	forge_button_texture:SetAllPoints()
 	
 	forge_button:SetHook ("OnEnter", function()
@@ -177,7 +408,7 @@ do
 		GameCooltip:Show()
 	end)
 	forge_button:SetHook ("OnLeave", function()
-		forge_button_texture:SetAlpha (0.35)
+		forge_button_texture:SetAlpha (0.55)
 		GameCooltip:Hide()
 	end)
 	
@@ -185,12 +416,13 @@ do
 	
 	local open_history = function()
 		_detalhes:OpenRaidHistoryWindow()
+		_detalhes.switch:CloseMe()
 	end
 	local history_button = gump:CreateButton (frame.topbg_frame, open_history, 14, 14, open_history)
 	history_button:SetPoint ("right", forge_button, "left", -2, 0)
 	
 	local history_button_texture = gump:CreateImage (history_button, [[Interface\AddOns\Details\images\icons]], 14, 14, "artwork", {434/512, 466/512, 243/512, 273/512})
-	history_button_texture:SetAlpha (0.35)
+	history_button_texture:SetAlpha (0.55)
 	history_button_texture:SetAllPoints()
 	
 	history_button:SetHook ("OnEnter", function()
@@ -204,7 +436,7 @@ do
 		GameCooltip:Show()
 	end)
 	history_button:SetHook ("OnLeave", function()
-		history_button_texture:SetAlpha (0.35)
+		history_button_texture:SetAlpha (0.55)
 		GameCooltip:Hide()
 	end)	
 	
@@ -603,6 +835,11 @@ function _detalhes.switch:ShowMe (instancia)
 	
 	_detalhes.switch:Resize (precisa_mostrar)
 	--instancia:StatusBarAlert (right_click_text, right_click_texture) --icon, color, time
+	
+	if (DetailsSwitchPanel.all_switch:IsShown()) then
+		return DetailsSwitchPanel.all_switch:Hide()
+	end
+	
 end
 
 function _detalhes.switch:Config (_,_, atributo, sub_atributo)
@@ -796,8 +1033,20 @@ function _detalhes.switch:Update()
 		button:Show()
 		button.button2:Show()
 		button.fundo:Show()
-		
+
+		local width, height = button.button2.texto:GetSize()
+		button.button2.texto:SetWidth (300)
 		button.button2.texto:SetText (name)
+		local text_width = button.button2.texto:GetStringWidth()
+		while (text_width > _detalhes.switch.text_size) do
+			_detalhes:SetFontSize (button.button2.texto, 9)
+			local text = button.button2.texto:GetText()
+			text = strsub (text, 1, #text-1)
+			button.button2.texto:SetText (text)
+			text_width = button.button2.texto:GetStringWidth()
+		end
+		
+		button.button2.texto:SetSize (width, height)
 		
 		button.textureNormal:SetTexture (icone, true)
 		button.textureNormal:SetTexCoord (_unpack (coords))
@@ -819,9 +1068,11 @@ function _detalhes.switch:Update()
 		if (name == Loc ["STRING_SWITCH_CLICKME"]) then
 			--button.button2.texto:SetTextColor (.3, .3, .3, 1)
 			button:SetAlpha (0.3)
+			button.button2.texto:SetPoint ("left", button, "right", 5, -1)
 		else
 			--button.button2.texto:SetTextColor (.8, .8, .8, 1)
 			button:SetAlpha (1)
+			button.button2.texto:SetPoint ("left", button, "right", 3, -1)
 		end
 		
 		if (jump) then 
@@ -849,7 +1100,7 @@ function _detalhes.switch:Resize (precisa_mostrar)
 
 	local x, x_original = 5, 5
 	local y = 5
-	local y_increment = 20
+	local y_increment = 18
 	
 	local window_width, window_height = _detalhes.switch.current_instancia:GetSize()
 	
@@ -873,6 +1124,8 @@ function _detalhes.switch:Resize (precisa_mostrar)
 	
 	_detalhes.switch.vertical_amt = vertical_amt
 	_detalhes.switch.horizontal_amt = horizontal_amt
+	
+	_detalhes.switch.text_size = size - 30
 	
 	local i = 1
 	for vertical = 1, vertical_amt do
@@ -978,10 +1231,9 @@ local onenter = function (self)
 	else
 		GameCooltip:Hide()
 	end
-	
-	self.texto:SetTextColor (1, 1, 1, 1)
+
+	_detalhes:SetFontColor (self.texto, "orange")
 	self.border:SetBlendMode ("ADD")
-	
 	self.button1_icon:SetBlendMode ("ADD")
 	
 end
@@ -990,7 +1242,7 @@ local onleave = function (self)
 	if (GameCooltip:IsTooltip()) then
 		GameCooltip:Hide()
 	end
-	self.texto:SetTextColor (.8, .8, .8, 1)
+	self.texto:SetTextColor (.9, .9, .9, .9)
 	self.border:SetBlendMode ("BLEND")
 	self.button1_icon:SetBlendMode ("BLEND")
 end
@@ -1016,6 +1268,8 @@ local oniconenter = function (self)
 	
 	GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, backgroundColor, _detalhes.tooltip_border_color)
 	
+	_detalhes:SetFontColor (self.texto, "orange")
+	
 	GameCooltip:Show()
 end
 
@@ -1023,6 +1277,8 @@ local oniconleave = function (self)
 	if (GameCooltip:IsTooltip()) then
 		GameCooltip:Hide()
 	end
+	
+	self.texto:SetTextColor (.9, .9, .9, .9)
 end
 
 local left_box_on_click = function (self, button)
@@ -1095,7 +1351,7 @@ function _detalhes.switch:NewSwitchButton (frame, index, x, y, rightButton)
 	local fundo_x = -3
 	local fundo_y = -5
 	button.line = button:CreateTexture (nil, "background")
-	button.line:SetTexture ("Interface\\SPELLBOOK\\Spellbook-Parts")
+--	button.line:SetTexture ("Interface\\SPELLBOOK\\Spellbook-Parts")
 	button.line:SetTexCoord (0.31250000, 0.96484375, 0.37109375, 0.52343750)
 	button.line:SetWidth (85)
 	button.line:SetPoint ("topleft", button, "topright", fundo_x-14, 0)
@@ -1104,7 +1360,7 @@ function _detalhes.switch:NewSwitchButton (frame, index, x, y, rightButton)
 	
 	--fundo marrom 2
 	button.line2 = button:CreateTexture (nil, "background")
-	button.line2:SetTexture ("Interface\\SPELLBOOK\\Spellbook-Parts")
+--	button.line2:SetTexture ("Interface\\SPELLBOOK\\Spellbook-Parts")
 	button.line2:SetTexCoord (0.31250000, 0.96484375, 0.37109375, 0.52343750)
 	button.line2:SetWidth (85)
 	button.line2:SetPoint ("topleft", button, "topright", fundo_x, 0)
@@ -1135,10 +1391,13 @@ function _detalhes.switch:NewSwitchButton (frame, index, x, y, rightButton)
 	button.textureH:SetAllPoints (button)
 	
 	--texto do atributo
-	gump:NewLabel (button2, button2, nil, "texto", "", "GameFontHighlightSmall")
+	gump:NewLabel (button2, button2, nil, "texto", "", "GameFontNormal")
 	button2.texto:SetPoint ("left", button, "right", 5, -1)
-	button2.texto:SetNonSpaceWrap (true)
-	button2.texto:SetTextColor (.8, .8, .8, 1)
+	button2.texto:SetTextColor (.9, .9, .9, .9)
+	
+	_detalhes:SetFontSize (button2.texto, 10)
+	
+	button.texto = button2.texto
 	
 	button2.button1_icon = button.textureNormal
 	button2.button1_icon2 = button.texturePushed
@@ -1152,3 +1411,4 @@ function _detalhes.switch:NewSwitchButton (frame, index, x, y, rightButton)
 	
 	return button
 end
+--doa

@@ -1933,55 +1933,42 @@ do
 	BossFrame.label_dbm_bars = label_dbm_bars
 	BossFrame.label_bw_bars = label_bw_bars
 	
-	local on_select_dbm_bar = function (_, _, timer_id)
-		local timer_table = EncounterDetails.db.encounter_timers_dbm [timer_id]
-		local spell = tonumber (timer_id:match ("(%d+)"))
-
-		if (spell > 30000) then
-			local spellname, _, spellicon = _GetSpellInfo (spell)
-			EncounterDetails:OpenAuraPanel (spell, spellname, spellicon, timer_table.id, DETAILS_WA_TRIGGER_DBM_TIMER, DETAILS_WA_AURATYPE_TEXT, {dbm_timer_id = timer_id, text = "== Next " .. spellname .. " In ==", text_size = 72})
-		else
-			local title, description, depth, abilityIcon, displayInfo, siblingID, nextSectionID, filteredByDifficulty, link, startsOpen, flag1, flag2, flag3, flag4 = EJ_GetSectionInfo (spell)
-			EncounterDetails:OpenAuraPanel (spell, title, abilityIcon, timer_table.id, DETAILS_WA_TRIGGER_DBM_TIMER, DETAILS_WA_AURATYPE_TEXT, {dbm_timer_id = timer_id, text = "== Next " .. title .. " In ==", text_size = 72})
-		end
+	local on_select_dbm_bar = function (_, _, value)
+		local timer_id, spellname, spellicon, encounterid, spellid = unpack (value)
+		EncounterDetails:OpenAuraPanel (timer_id, spellname, spellicon, encounterid, DETAILS_WA_TRIGGER_DBM_TIMER, DETAILS_WA_AURATYPE_TEXT, {dbm_timer_id = timer_id, spellid = spellid, text = "Next " .. spellname .. " In", text_size = 72, icon = spellicon})
 	end
 	
-	local on_select_bw_bar = function (_, _, timer_id)
-		local timer_table = EncounterDetails.db.encounter_timers_bw [timer_id]
-		local spell = timer_id
-		local int_spell = tonumber (spell)
-		
-		if (not int_spell) then
-			local spellname = timer_table [2]:gsub (" %(.%)", "")
-			EncounterDetails:OpenAuraPanel (spell, spellname, timer_table [4], timer_table.id, DETAILS_WA_TRIGGER_BW_TIMER, DETAILS_WA_AURATYPE_TEXT, {bw_timer_id = timer_id, text = "== Next " .. spellname .. " In ==", text_size = 72})
-		elseif (int_spell < 0) then
-			local title, description, depth, abilityIcon, displayInfo, siblingID, nextSectionID, filteredByDifficulty, link, startsOpen, flag1, flag2, flag3, flag4 = EJ_GetSectionInfo (abs (int_spell))
-			EncounterDetails:OpenAuraPanel (spell, title, abilityIcon, timer_table.id, DETAILS_WA_TRIGGER_BW_TIMER, DETAILS_WA_AURATYPE_TEXT, {bw_timer_id = timer_id, text = "== Next " .. title .. " In ==", text_size = 72})
-		else
-			local spellname, _, spellicon = _GetSpellInfo (int_spell)
-			EncounterDetails:OpenAuraPanel (spell, spellname, spellicon, timer_table.id, DETAILS_WA_TRIGGER_BW_TIMER, DETAILS_WA_AURATYPE_TEXT, {bw_timer_id = timer_id, text = "== Next " .. spellname .. " In ==", text_size = 72})
-		end
+	local on_select_bw_bar = function (_, _, value)
+		local timer_id, spellname, spellicon, encounterid = unpack (value)
+		EncounterDetails:OpenAuraPanel (timer_id, spellname, spellicon, encounterid, DETAILS_WA_TRIGGER_BW_TIMER, DETAILS_WA_AURATYPE_TEXT, {bw_timer_id = timer_id, text = "Next " .. spellname .. " In", text_size = 72, icon = spellicon})
 	end
 	
 	local already_added = {}
 	local build_dbm_bars = function()
 		local t = {}
-		if (EncounterDetails.db) then
+		local db = _detalhes.global_plugin_database ["DETAILS_PLUGIN_ENCOUNTER_DETAILS"]
+		if (db) then
 			wipe (already_added)
 			local encounter_id = EncounterDetails_SpellAurasScroll.encounter_id
 			
-			for timer_id, timer_table in pairs (EncounterDetails.db.encounter_timers_dbm) do
-				if (timer_id:find ("Timer") and timer_table.id == encounter_id) then
-					local spell = tonumber (timer_id:match ("(%d+)"))
+			for timer_id, timer_table in pairs (db.encounter_timers_dbm) do
+				if (timer_table.id == encounter_id) then
+					local spellId = timer_table [7]
+					local spellIcon = timer_table [5]
+					local spellName
+				
+					local spell = timer_id
+					spell = spell:gsub ("ej", "")
+					spell = tonumber (spell)
+					
 					if (spell and not already_added [spell]) then
 						if (spell > 30000) then
 							local spellname, _, spellicon = _GetSpellInfo (spell)
-							tinsert (t, {label = spellname, value = timer_id, icon = spellicon, onclick = on_select_dbm_bar})
+							tinsert (t, {label = spellname, value = {timer_table [2], spellname, spellIcon or spellicon, timer_table.id, timer_table [7]}, icon = spellIcon or spellicon, onclick = on_select_dbm_bar})
 						else
 							local title, description, depth, abilityIcon, displayInfo, siblingID, nextSectionID, filteredByDifficulty, link, startsOpen, flag1, flag2, flag3, flag4 = EJ_GetSectionInfo (spell)
-							tinsert (t, {label = title, value = timer_id, icon = abilityIcon, onclick = on_select_dbm_bar})
+							tinsert (t, {label = title, value = {timer_table [2], title, spellIcon or abilityIcon, timer_table.id, timer_table [7]}, icon = spellIcon or abilityIcon, onclick = on_select_dbm_bar})
 						end
-						
 						already_added [spell] = true
 					end
 				end
@@ -1992,24 +1979,25 @@ do
 	
 	local build_bigwigs_bars = function()
 		local t = {}
-		if (EncounterDetails.db) then
+		local db = _detalhes.global_plugin_database ["DETAILS_PLUGIN_ENCOUNTER_DETAILS"]
+		if (db) then
 			wipe (already_added)
 			local encounter_id = EncounterDetails_SpellAurasScroll.encounter_id
 			
-			for timer_id, timer_table in pairs (EncounterDetails.db.encounter_timers_bw) do
+			for timer_id, timer_table in pairs (db.encounter_timers_bw) do
 				if (timer_table.id == encounter_id) then
 					local spell = timer_id
 					if (spell and not already_added [spell]) then	
 						local int_spell = tonumber (spell)
 						if (not int_spell) then
 							local spellname = timer_table [2]:gsub (" %(.%)", "")
-							tinsert (t, {label = spellname, value = timer_id, icon = timer_table [4], onclick = on_select_bw_bar})
+							tinsert (t, {label = spellname, value = {timer_table [2], spellname, timer_table [5], timer_table.id}, icon = timer_table [5], onclick = on_select_bw_bar})
 						elseif (int_spell < 0) then
 							local title, description, depth, abilityIcon, displayInfo, siblingID, nextSectionID, filteredByDifficulty, link, startsOpen, flag1, flag2, flag3, flag4 = EJ_GetSectionInfo (abs (int_spell))
-							tinsert (t, {label = title, value = timer_id, icon = abilityIcon, onclick = on_select_bw_bar})
+							tinsert (t, {label = title, value = {timer_table [2], title, timer_table [5] or abilityIcon, timer_table.id}, icon = timer_table [5] or abilityIcon, onclick = on_select_bw_bar})
 						else
 							local spellname, _, spellicon = _GetSpellInfo (int_spell)
-							tinsert (t, {label = spellname, value = timer_id, icon = spellicon, onclick = on_select_bw_bar})
+							tinsert (t, {label = spellname, value = {timer_table [2], spellname, timer_table [5] or spellicon, timer_table.id}, icon = timer_table [5] or spellicon, onclick = on_select_bw_bar})
 						end
 						
 						already_added [spell] = true

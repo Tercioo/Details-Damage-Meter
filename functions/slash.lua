@@ -592,13 +592,6 @@ function SlashCmdList.DETAILS (msg, editbox)
 			end
 		end
 	
-	elseif (msg == "alert") then
-		
-		local instancia = _detalhes.tabela_instancias [1]
-		local f = function() print ("teste") end
-		instancia:InstanceAlert (Loc ["STRING_PLEASE_WAIT"], {[[Interface\COMMON\StreamCircle]], 22, 22, true}, 5, {f, "param1", "param2"})
-	
-	
 	elseif (msg == "comm") then
 		
 		local test_plugin = TESTPLUGIN
@@ -1066,6 +1059,24 @@ function SlashCmdList.DETAILS (msg, editbox)
 		print ("item:", item)
 		get_ilvl (item)
 		
+	elseif (msg == "score") then
+		
+		_detalhes:OpenRaidHistoryWindow ("Hellfire Citadel", 1800, 15, "DAMAGER", "Rock Lobster", 2, "Keyspell")
+	
+	elseif (msg == "alert") then
+		--local instancia = _detalhes.tabela_instancias [1]
+		local f = function (a, b, c, d, e, f, g) print (a, b, c, d, e, f, g) end
+		--instancia:InstanceAlert (Loc ["STRING_PLEASE_WAIT"], {[[Interface\COMMON\StreamCircle]], 22, 22, true}, 5, {f, 1, 2, 3, 4, 5})
+	
+		local lower_instance = _detalhes:GetLowerInstanceNumber()
+		if (lower_instance) then
+			local instance = _detalhes:GetInstance (lower_instance)
+			if (instance) then
+				local func = {_detalhes.OpenRaidHistoryWindow, _detalhes, "Hellfire Citadel", 1800, 15, "DAMAGER", "Rock Lobster", 2, "Keyspell"}
+				instance:InstanceAlert ("Boss Defeated, Open History! ", {[[Interface\AddOns\Details\images\icons]], 16, 16, false, 434/512, 466/512, 243/512, 273/512}, 40, func)
+			end
+		end
+	
 	else
 		
 		--if (_detalhes.opened_windows < 1) then

@@ -1033,10 +1033,14 @@ local BGFrame_scripts_onmousedown = function (self, button)
 			end
 		end
 	elseif (button == "RightButton") then
-		if (_detalhes.switch.current_instancia and _detalhes.switch.current_instancia == self._instance) then
-			_detalhes.switch:CloseMe()
+		if (self.is_toolbar) then
+			self._instance:ShowAllSwitch()
 		else
-			_detalhes.switch:ShowMe (self._instance)
+			if (_detalhes.switch.current_instancia and _detalhes.switch.current_instancia == self._instance) then
+				_detalhes.switch:CloseMe()
+			else
+				_detalhes.switch:ShowMe (self._instance)
+			end
 		end
 	end
 end
@@ -2951,10 +2955,12 @@ function _detalhes:InstanceAlert (msg, icon, time, clickfunc)
 		self.alert.icon:SetTexture (nil)
 	end
 	
+	self.alert.button.func = nil
+	wipe (self.alert.button.func_param)
+	
 	if (clickfunc) then
-		self.alert.button:SetClickFunction (unpack (clickfunc))
-	else
-		self.alert.button:SetClickFunction (hide_click_func)
+		self.alert.button.func = clickfunc[1]
+		self.alert.button.func_param = {unpack (clickfunc, 2)}
 	end
 
 	time = time or 15
@@ -2967,6 +2973,16 @@ function _detalhes:InstanceAlert (msg, icon, time, clickfunc)
 	
 	self.alert:Show()
 	self.alert:Play()
+end
+
+local alert_on_click = function (self, button)
+	if (self.func) then
+		local okey, errortext = pcall (self.func, unpack (self.func_param))
+		if (not okey) then
+			_detalhes:Msg ("error on alert function:", errortext)
+		end
+	end
+	self:GetParent():Hide()
 end
 
 function CreateAlertFrame (baseframe, instancia)
@@ -3021,10 +3037,14 @@ function CreateAlertFrame (baseframe, instancia)
 	icon:SetWidth (14)
 	icon:SetHeight (14)
 	
-	local button = gump:NewButton (alert_bg, nil, "DetailsInstance"..instancia.meu_id.."AlertButton", nil, 1, 1)
+	local button = CreateFrame ("button", "DetailsInstance"..instancia.meu_id.."AlertButton", alert_bg)
 	button:SetAllPoints()
-	button:SetHook ("OnMouseUp", function() alert_bg:Hide() end)
 	button:SetFrameStrata ("FULLSCREEN")
+	button:SetScript ("OnClick", alert_on_click)
+	button._instance = instancia
+	button.func_param = {}
+	
+	--local button = gump:NewButton (alert_bg, nil, "DetailsInstance"..instancia.meu_id.."AlertButton", nil, 1, 1)
 	
 	local RotateAnimGroup = rotate_frame:CreateAnimationGroup()
 	local rotate = RotateAnimGroup:CreateAnimation ("Rotation")

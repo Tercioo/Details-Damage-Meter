@@ -519,8 +519,8 @@ function atributo_misc:DeadAtualizarBarra (morte, qual_barra, colocacao, instanc
 	end
 	
 	local r, g, b, a = _unpack (_detalhes.class_colors [morte[4]])
-	_detalhes:SetBarColors (esta_barra, instancia, r, b, g, a)
-
+	esta_barra.textura:SetVertexColor (r, g, b, 1)
+	
 	if (instancia.row_info.use_spec_icons) then
 		local nome = morte[3]
 		local spec = instancia.showing (1, nome) and instancia.showing (1, nome).spec or (instancia.showing (2, nome) and instancia.showing (2, nome).spec)

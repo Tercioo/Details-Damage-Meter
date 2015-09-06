@@ -2537,9 +2537,6 @@ function _detalhes:MontaAtributosOption (instancia, func)
 	return menu_principal, sub_menus
 end
 
---> O Modo não vai afetar a tabela do SHOWING.
--- o modo é apenas afetado na hora de mostrar o que na tabela
-
 function _detalhes:ChangeIcon (icon)
 	
 	local skin = _detalhes.skins [self.skin]

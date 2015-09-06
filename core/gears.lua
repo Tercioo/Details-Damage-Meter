@@ -994,7 +994,7 @@ function _detalhes:StoreEncounter (combat)
 		local myrole = UnitGroupRolesAssigned ("player")
 		local mybest, onencounter = _detalhes.storage:GetBestFromPlayer (diff, encounter_id, myrole, _detalhes.playername)
 		
-		print (myrole, mybest and mybest[1], mybest and mybest[2], mybest and mybest[3], onencounter and onencounter.date)
+		--print (myrole, mybest and mybest[1], mybest and mybest[2], mybest and mybest[3], onencounter and onencounter.date)
 		
 		if (mybest) then
 			local d_one = 0
@@ -1005,12 +1005,26 @@ function _detalhes:StoreEncounter (combat)
 			end
 			
 			if (mybest[1] > d_one) then
-				print (Loc ["STRING_DETAILS1"] .. format (Loc ["STRING_SCORE_NOTBEST"], _detalhes:comma_value (d_one), mybest[1], onencounter.date, mybest[2]))
+				print (Loc ["STRING_DETAILS1"] .. format (Loc ["STRING_SCORE_NOTBEST"], _detalhes:comma_value (d_one), _detalhes:comma_value (mybest[1]), onencounter.date, mybest[2]))
 			else
 				print (Loc ["STRING_DETAILS1"] .. format (Loc ["STRING_SCORE_BEST"], _detalhes:comma_value (d_one)))
 			end
 		end
 		
+		local lower_instance = _detalhes:GetLowerInstanceNumber()
+		if (lower_instance) then
+			local instance = _detalhes:GetInstance (lower_instance)
+			if (instance) then
+				local my_role = UnitGroupRolesAssigned ("player")
+				if (my_role == "TANK") then
+					my_role = "DAMAGER"
+				end
+				local raid_name = GetInstanceInfo()
+				local func = {_detalhes.OpenRaidHistoryWindow, _detalhes, raid_name, encounter_id, diff, my_role, guildName, 2, UnitName ("player")}
+				local icon = {[[Interface\AddOns\Details\images\icons]], 16, 16, false, 434/512, 466/512, 243/512, 273/512}
+				instance:InstanceAlert ("Boss Defeated, Open History! ", icon, 40, func)
+			end
+		end
 	end
 end
 

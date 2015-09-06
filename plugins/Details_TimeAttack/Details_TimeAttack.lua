@@ -59,6 +59,10 @@ local function CreatePluginFrames()
 		TimeAttackFrame:SetWidth (300) --> need to be 300x300 to fit details window
 		TimeAttackFrame:SetHeight (300) --> need to be 300x300 to fit details window
 	
+		local close_button = TimeAttack:CreateSoloCloseButton()
+		close_button:SetPoint ("TOPRIGHT", TimeAttackFrame, "TOPRIGHT", -68, 3)
+		close_button:SetSize (24, 24)
+	
 	--> default background picture, will hold the actor spec background, like old school talent frame
 		local background = TimeAttackFrame:CreateTexture (nil, "background")
 	

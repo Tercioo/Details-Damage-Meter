@@ -1,8 +1,4 @@
---File Revision: 1
---Last Modification: 27/07/2013
--- Change Log:
-	-- 27/07/2013: Finished alpha version.
-	
+
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 	local _detalhes = _G._detalhes
@@ -35,6 +31,55 @@
 		_detalhes.SoloTables.Attribute = SoloInstance.atributo
 	end
 
+	function _detalhes:CreateSoloCloseButton()
+	
+		local plugin, frame = self, self.Frame
+		local button = CreateFrame ("Button", nil, frame, "UIPanelCloseButton")
+		
+		button:SetScript ("OnClick", function()
+			if (not button.close_confirmation) then
+				button.close_confirmation = gump:CreateSimplePanel (button, 296, 60, "", plugin.real_name .. "CloseConfirmation")
+				button.close_confirmation:SetPoint ("center", frame, 0, 0)
+				_G [button.close_confirmation:GetName() .. "TitleBar"]:Hide()
+				local fade_background = button.close_confirmation:CreateTexture (nil, "background")
+				fade_background:SetPoint ("topleft", frame, 0, 0)
+				fade_background:SetPoint ("bottomright", frame, 0, 0)
+				fade_background:SetTexture (0, 0, 0, 0.7)
+				
+				local close_func = function()
+					local instance = plugin:GetPluginInstance()
+					instance:ShutDown()
+					button.close_confirmation:Hide()
+				end
+				local group_func = function()
+					local instance = plugin:GetPluginInstance()
+					instance:AlteraModo (instance, DETAILS_MODE_GROUP)
+					button.close_confirmation:Hide()
+					
+					instance.baseframe.cabecalho.modo_selecao:GetScript ("OnEnter")(instance.baseframe.cabecalho.modo_selecao)
+				end
+				
+				local close_window = gump:NewButton (button.close_confirmation, _, "$parentCloseWindowButton", "CloseWindowButton", 140, 20, close_func, nil, nil, nil, Loc ["STRING_MENU_CLOSE_INSTANCE"], 1, gump:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
+				local back_to_group_and_raid = gump:NewButton (button.close_confirmation, _, "$parentBackToGroupButton", "BackToGroupButton", 140, 20, group_func, nil, nil, nil, Loc ["STRING_SWITCH_TO"] .. ": " .. Loc ["STRING_MODE_GROUP"], 2, gump:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
+				
+				close_window:SetIcon ([[Interface\Buttons\UI-Panel-MinimizeButton-Up]], nil, nil, nil, {0.143125, 0.8653125, 0.1446875, 0.8653125}, nil, nil, 2)
+				back_to_group_and_raid:SetIcon ([[Interface\AddOns\Details\images\modo_icones]], nil, nil, nil, {32/256, 32/256*2, 0, 1}, nil, nil, 2)
+				
+				close_window:SetPoint ("topleft", 3, -4)
+				close_window:SetPoint ("bottomright", -3, 31)
+				back_to_group_and_raid:SetPoint ("topleft", 3, -31)
+				back_to_group_and_raid:SetPoint ("bottomright", -3, 4)
+			end
+			
+			button.close_confirmation:Show()
+		end)
+		
+		button:SetWidth (20)
+		button:SetHeight (20)
+		--button:GetNormalTexture():SetDesaturated (true)
+		return button
+	end
+	
 	--> enable and disable Solo Mode for an Instance
 	function _detalhes:SoloMode (show)
 		if (show) then
@@ -153,7 +198,6 @@
 		instance:SoloMode (true)
 		
 		_detalhes.SoloTables:switch (nil, plugin_name)
-
 	end
 	
 	--> Build Solo Mode Tables and Functions
@@ -212,11 +256,14 @@
 
 			_detalhes.SoloTables.Plugins [_detalhes.SoloTables.Mode].Frame:Show()
 			_detalhes.SoloTables.Plugins [_detalhes.SoloTables.Mode].Frame:SetPoint ("TOPLEFT",_detalhes.SoloTables.instancia.bgframe)
+			_detalhes.SoloTables.Plugins [_detalhes.SoloTables.Mode].Frame:SetFrameLevel (20)
 			
 			_detalhes.SoloTables.instancia:ChangeIcon (_detalhes.SoloTables.Menu [_detalhes.SoloTables.Mode] [2])
 			
-			_detalhes:SendEvent ("DETAILS_INSTANCE_CHANGEATTRIBUTE", nil, _detalhes.SoloTables.instancia, _detalhes.SoloTables.instancia.atributo, _detalhes.SoloTables.instancia.sub_atributo)
+			_detalhes.SoloTables.Plugins [_detalhes.SoloTables.Mode].instance_id = _detalhes.SoloTables.instancia:GetId()
 			
+			_detalhes:SendEvent ("DETAILS_INSTANCE_CHANGEATTRIBUTE", nil, _detalhes.SoloTables.instancia, _detalhes.SoloTables.instancia.atributo, _detalhes.SoloTables.instancia.sub_atributo)
+
 		end
 		
 		return true

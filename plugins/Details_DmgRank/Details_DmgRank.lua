@@ -56,6 +56,10 @@ local function CreatePluginFrames (data)
 		end
 	end
 	
+	local close_button = DmgRank:CreateSoloCloseButton()
+	close_button:SetPoint ("TOPRIGHT", DmgRankFrame, "TOPRIGHT", 3, 5)
+	close_button:SetSize (24, 24)
+	
 ------------- Build Ranking ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 	--> damage goal table

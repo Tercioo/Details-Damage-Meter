@@ -2120,8 +2120,8 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 			row1.texto_direita:SetText (_detalhes:ToK2 (total) .. " (" .. _detalhes:ToK (total / combat_time) .. ")")
 			
 			row1:SetValue (100)
-			local r, b, g = unpack (instancia.total_bar.color)
-			row1.textura:SetVertexColor (r, b, g)
+			local r, g, b = unpack (instancia.total_bar.color)
+			row1.textura:SetVertexColor (r, g, b)
 			
 			row1.icone_classe:SetTexture (instancia.total_bar.icon)
 			row1.icone_classe:SetTexCoord (0.0625, 0.9375, 0.0625, 0.9375)
@@ -2184,8 +2184,8 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 			row1.texto_direita:SetText (_detalhes:ToK2 (total) .. " (" .. _detalhes:ToK (total / combat_time) .. ")")
 			
 			row1:SetValue (100)
-			local r, b, g = unpack (instancia.total_bar.color)
-			row1.textura:SetVertexColor (r, b, g)
+			local r, g, b = unpack (instancia.total_bar.color)
+			row1.textura:SetVertexColor (r, g, b)
 			
 			row1.icone_classe:SetTexture (instancia.total_bar.icon)
 			row1.icone_classe:SetTexCoord (0.0625, 0.9375, 0.0625, 0.9375)
@@ -2603,9 +2603,9 @@ end
 	if (enemy) then
 		if (arena_enemy) then
 			if (UsingCustomLeftText) then
-				bar.texto_esquerdo:SetText (_string_replace (instance.row_info.textL_custom_text, bar.colocacao, self.displayName, "|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. instance.row_info.height .. ":" .. instance.row_info.height .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t", self, instance.showing))
+				bar.texto_esquerdo:SetText (_string_replace (instance.row_info.textL_custom_text, bar.colocacao, self.displayName, "|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. instance.row_info.height .. ":" .. instance.row_info.height .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t ", self, instance.showing))
 			else
-				bar.texto_esquerdo:SetText (bar_number .. "|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. instance.row_info.height .. ":" .. instance.row_info.height .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t" .. self.displayName)
+				bar.texto_esquerdo:SetText (bar_number .. "|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. instance.row_info.height .. ":" .. instance.row_info.height .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t " .. self.displayName)
 			end
 		else
 			if (_detalhes.faction_against == "Horde") then
@@ -2625,9 +2625,9 @@ end
 	else
 		if (arena_ally) then
 			if (UsingCustomLeftText) then
-				bar.texto_esquerdo:SetText (_string_replace (instance.row_info.textL_custom_text, bar.colocacao, self.displayName, "|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. instance.row_info.height .. ":" .. instance.row_info.height .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t", self, instance.showing))
+				bar.texto_esquerdo:SetText (_string_replace (instance.row_info.textL_custom_text, bar.colocacao, self.displayName, "|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. instance.row_info.height .. ":" .. instance.row_info.height .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t ", self, instance.showing))
 			else
-				bar.texto_esquerdo:SetText (bar_number .. "|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. instance.row_info.height .. ":" .. instance.row_info.height .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t" .. self.displayName)
+				bar.texto_esquerdo:SetText (bar_number .. "|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. instance.row_info.height .. ":" .. instance.row_info.height .. ":0:0:256:256:" .. _detalhes.role_texcoord [self.role or "NONE"] .. "|t " .. self.displayName)
 			end
 		else
 			if (UsingCustomLeftText) then
@@ -2641,27 +2641,27 @@ end
 	set_text_size (bar, instance)
 end
 
---[[ exported]] function _detalhes:SetBarColors (bar, instance, r, b, g, a)
+--[[ exported]] function _detalhes:SetBarColors (bar, instance, r, g, b, a)
 
 	a = a or 1
 	
 	if (instance.row_info.texture_class_colors) then
 		if (instance.bars_inverted) then
-			bar.right_to_left_texture:SetVertexColor (r, b, g, a)
+			bar.right_to_left_texture:SetVertexColor (r, g, b, a)
 		else
-			bar.textura:SetVertexColor (r, b, g, a)
+			bar.textura:SetVertexColor (r, g, b, a)
 		end
 	end
 	
 	if (instance.row_info.texture_background_class_color) then
-		bar.background:SetVertexColor (r, b, g, a)
+		bar.background:SetVertexColor (r, g, b, a)
 	end
 	
 	if (instance.row_info.textL_class_colors) then
-		bar.texto_esquerdo:SetTextColor (r, b, g, a)
+		bar.texto_esquerdo:SetTextColor (r, g, b, a)
 	end
 	if (instance.row_info.textR_class_colors) then
-		bar.texto_direita:SetTextColor (r, b, g, a)
+		bar.texto_direita:SetTextColor (r, g, b, a)
 	end
 	
 end 

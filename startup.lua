@@ -365,6 +365,13 @@ function _G._detalhes:Start()
 			_detalhes:AddDefaultCustomDisplays()
 			
 			--> erase the custom for damage taken by spell
+			if (_detalhes_database.last_realversion and _detalhes_database.last_realversion < 75 and enable_reset_warning) then
+				if (_detalhes.global_plugin_database and _detalhes.global_plugin_database ["DETAILS_PLUGIN_ENCOUNTER_DETAILS"]) then
+					wipe (_detalhes.global_plugin_database ["DETAILS_PLUGIN_ENCOUNTER_DETAILS"].encounter_timers_dbm)
+					wipe (_detalhes.global_plugin_database ["DETAILS_PLUGIN_ENCOUNTER_DETAILS"].encounter_timers_bw)
+				end
+			end
+			
 			if (_detalhes_database.last_realversion and _detalhes_database.last_realversion < 74 and enable_reset_warning) then
 				function _detalhes:FixMonkSpecIcons()
 					local m269 = _detalhes.class_specs_coords [269]

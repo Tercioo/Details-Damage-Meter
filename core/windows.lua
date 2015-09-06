@@ -1055,7 +1055,7 @@
 	end
 
 --> raid history window ~history
-	function _detalhes:OpenRaidHistoryWindow()
+	function _detalhes:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild, _player_base, _player_name)
 	
 		if (not _G.DetailsRaidHistoryWindow) then
 		
@@ -1396,18 +1396,20 @@
 							
 							if (not index) then
 								player = {playerName}
-								for i = 2, encounterIndex-1 do
+								for i = 1, amt_encounters-1 do
 									tinsert (player, "")
 								end
-								tinsert (player, _detalhes:ToK2 (playerTable [1]))
+								tinsert (player, _detalhes:ToK2 (playerTable [1] / encounter.elapsed))
 								tinsert (players, player)
 								players_index [playerName] = #players
+								
+								--print ("not index", playerName, amt_encounters, date, 2, amt_encounters-1)
 							else
 								player = players [index]
-								for i = #player+1, encounterIndex-1 do
+								for i = #player+1, amt_encounters-1 do
 									tinsert (player, "")
 								end
-								tinsert (player, _detalhes:ToK2 (playerTable [1]))
+								tinsert (player, _detalhes:ToK2 (playerTable [1] / encounter.elapsed))
 							end
 							
 						end
@@ -1422,7 +1424,7 @@
 				
 				--_detalhes:DumpTable (players, true)
 				
-				table.sort (players, sort_alphabetical)
+				--table.sort (players, sort_alphabetical)
 				
 				fillpanel:SetFillFunction (function (index) return players [index] end)
 				fillpanel:SetTotalFunction (function() return #players end)
@@ -1433,7 +1435,7 @@
 				
 			end
 			
-			function f:Refresh()
+			function f:Refresh (player_name)
 				--> build the main table
 				local diff = diff_dropdown.value
 				local boss = boss_dropdown.value
@@ -1465,7 +1467,11 @@
 							player2_dropdown:Show()
 							f.build_player2_data = {encounters, guild, role}
 							player2_dropdown:Refresh()
-							player2_dropdown:Select (1, true)
+							if (player_name) then
+								player2_dropdown:Select (player_name)
+							else
+								player2_dropdown:Select (1, true)
+							end
 							f:BuildPlayerTable (player2_dropdown.value)
 						end
 					else
@@ -1499,6 +1505,36 @@
 		_G.DetailsRaidHistoryWindow:Refresh()
 		_G.DetailsRaidHistoryWindow:Show()
 		
+		if (_raid) then
+			DetailsRaidHistoryWindow.select_raid:Select (_raid)
+			_G.DetailsRaidHistoryWindow:Refresh()
+		end
+		if (_boss) then
+			DetailsRaidHistoryWindow.select_boss:Select (_boss)
+			_G.DetailsRaidHistoryWindow:Refresh()
+		end
+		if (_difficulty) then
+			DetailsRaidHistoryWindow.select_diff:Select (_difficulty)
+			_G.DetailsRaidHistoryWindow:Refresh()
+		end
+		if (_role) then
+			DetailsRaidHistoryWindow.select_role:Select (_role)
+			_G.DetailsRaidHistoryWindow:Refresh()
+		end
+		if (_guild) then
+			DetailsRaidHistoryWindow.select_guild:Select (_guild)
+			_G.DetailsRaidHistoryWindow:Refresh()
+		end
+		if (_player_base) then
+			DetailsRaidHistoryWindow.select_player:Select (_player_base)
+			_G.DetailsRaidHistoryWindow:Refresh()
+		end
+		if (_player_name) then
+			DetailsRaidHistoryWindow.select_player2:Refresh()
+			DetailsRaidHistoryWindow.select_player2:Select (_player_name)
+			_G.DetailsRaidHistoryWindow:Refresh (_player_name)
+		end
+
 	end
 	
 --> feedback window

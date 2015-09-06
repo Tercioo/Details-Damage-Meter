@@ -249,22 +249,26 @@ local function CreatePluginFrames (data)
 				
 			elseif (event == "ENCOUNTER_END" or event == "PLAYER_REGEN_ENABLED") then
 				if (current_encounter) then
+				
 					if (_G.DBM) then
+						local db = _detalhes.global_plugin_database ["DETAILS_PLUGIN_ENCOUNTER_DETAILS"]
 						for spell, timer_table in pairs (current_table_dbm) do
-							if (not EncounterDetails.db.encounter_timers_dbm [timer_table[1]] and timer_table[1]:find ("Timer")) then
+							if (not db.encounter_timers_dbm [timer_table[1]]) then
 								timer_table.id = current_encounter
-								EncounterDetails.db.encounter_timers_dbm [timer_table[1]] = timer_table
+								db.encounter_timers_dbm [timer_table[1]] = timer_table
 							end
 						end
 					end
 					if (BigWigs) then
+						local db = _detalhes.global_plugin_database ["DETAILS_PLUGIN_ENCOUNTER_DETAILS"]
 						for timer_id, timer_table in pairs (current_table_bigwigs) do
-							if (not EncounterDetails.db.encounter_timers_bw [timer_id]) then
+							if (not db.encounter_timers_bw [timer_id]) then
 								timer_table.id = current_encounter
-								EncounterDetails.db.encounter_timers_bw [timer_id] = timer_table
+								db.encounter_timers_bw [timer_id] = timer_table
 							end
 						end
 					end
+					
 				end	
 				
 				current_encounter = false
@@ -276,13 +280,16 @@ local function CreatePluginFrames (data)
 		event_frame:RegisterEvent ("ENCOUNTER_END")
 		event_frame:RegisterEvent ("PLAYER_REGEN_ENABLED")
 		
-		--EncounterDetails.DBM_timers
+--DBM_TimerStart Timer183828cdcount	2 Death Brand CD (2) 42.5 Interface\Icons\warlock_summon_doomguard cdcount 183828 1 1438		
+--DBM_TimerStart Timer183828cdcount	3 Death Brand CD (3) 42.5 Interface\Icons\warlock_summon_doomguard cdcount 183828 1 1438
 		
+		--EncounterDetails.DBM_timers
 		if (_G.DBM) then
-			local dbm_timer_callback = function (event, timer_id, message, duration)
-				local spell = tonumber (timer_id:match ("(%d+)"))
+			local dbm_timer_callback = function (bar_type, id, msg, timer, icon, bartype, spellId, colorId, modid)
+				--print (bar_type, id, msg, timer, icon, bartype, spellId, colorId, modid)
+				local spell = tostring (spellId)
 				if (spell and not current_table_dbm [spell]) then
-					current_table_dbm [spell] = {timer_id, message, duration}
+					current_table_dbm [spell] = {spell, id, msg, timer, icon, bartype, spellId, colorId, modid}
 				end
 			end
 			DBM:RegisterCallback ("DBM_TimerStart", dbm_timer_callback)
@@ -291,9 +298,10 @@ local function CreatePluginFrames (data)
 			if (BigWigs) then
 				BigWigs:Enable()
 				function EncounterDetails:BigWigs_StartBar (event, module, spellid, bar_text, time, icon, ...)
+					--print (event, module, spellid, bar_text, time, icon, ...)
 					spellid = tostring (spellid)
 					if (not current_table_bigwigs [spellid]) then
-						current_table_bigwigs [spellid] = {spellid, bar_text, time, icon}
+						current_table_bigwigs [spellid] = {(type (module) == "string" and module) or (module and module.moduleName) or "", spellid or "", bar_text or "", time or 0, icon or ""}
 					end
 				end
 				BigWigs.RegisterMessage (EncounterDetails, "BigWigs_StartBar")
@@ -1835,6 +1843,11 @@ function EncounterDetails:OnEvent (_, event, ...)
 				EncounterDetails.charsaved.encounter_spells = EncounterDetails.charsaved.encounter_spells or {}
 				
 				EncounterDetails.boss_emotes_table = EncounterDetails.charsaved.emotes
+				
+				--> build a table on global saved variables
+				if (not _detalhes.global_plugin_database ["DETAILS_PLUGIN_ENCOUNTER_DETAILS"]) then
+					_detalhes.global_plugin_database ["DETAILS_PLUGIN_ENCOUNTER_DETAILS"] = {encounter_timers_dbm = {}, encounter_timers_bw= {}}
+				end
 				
 				--> Register needed events
 				_G._detalhes:RegisterEvent (EncounterDetails, "COMBAT_PLAYER_ENTER")

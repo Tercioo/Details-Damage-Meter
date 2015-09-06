@@ -50,6 +50,8 @@ local food_list = {
 	[180759] = true, --125 versa
 	[180762] = true, --125 mastery
 	[180760] = true, --187 stam
+	
+	[188534] = true, --Felmouth Frenzy
 }
 
 local best_food = {
