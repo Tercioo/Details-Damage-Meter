@@ -30,8 +30,8 @@ do
 	frame:SetFrameLevel (16)
 	
 	frame.background = frame:CreateTexture (nil, "background")
-	--frame.background:SetTexture ("Interface\\AddOns\\Details\\images\\background")
-	frame.background:SetTexture ([[Interface\SPELLBOOK\Spellbook-Page-1]])
+	frame.background:SetTexture ("Interface\\AddOns\\Details\\images\\background")
+	--frame.background:SetTexture ([[Interface\SPELLBOOK\Spellbook-Page-1]])
 	frame.background:SetTexCoord (331/512, 63/512, 109/512, 143/512)
 	frame.background:SetAllPoints()
 	frame.background:SetDesaturated (true)
