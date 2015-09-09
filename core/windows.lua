@@ -1202,6 +1202,7 @@
 
 			--> select player:
 			local on_player2_select = function (_, _, player)
+				f.latest_player_selected = player
 				f:BuildPlayerTable (player)
 			end
 			local build_player2_list = function()
@@ -1332,7 +1333,7 @@
 							local player = roleTable [playerName]
 							
 							if (player) then
-								tinsert (data, {text = date, value = player[1], data = player, fulldate = encounter.date})
+								tinsert (data, {text = date, value = player[1], data = player, fulldate = encounter.date, elapsed = encounter.elapsed})
 							end
 						end
 					end
@@ -1346,10 +1347,23 @@
 						
 						local onenter = function (self)
 							GameCooltip:Reset()
+							GameCooltip:SetType ("tooltip")
+							
+							GameCooltip:SetOption ("TextSize", _detalhes.tooltip.fontsize)
+							GameCooltip:SetOption ("TextFont",  _detalhes.tooltip.fontface)
+							GameCooltip:SetOption ("TextColor", _detalhes.tooltip.fontcolor)
+							GameCooltip:SetOption ("TextColorRight", _detalhes.tooltip.fontcolor_right)
+							GameCooltip:SetOption ("TextShadow", _detalhes.tooltip.fontshadow and "OUTLINE")
+							
+							GameCooltip:SetOption ("LeftBorderSize", -5)
+							GameCooltip:SetOption ("RightBorderSize", 5)
+							GameCooltip:SetOption ("MinWidth", 175)
+							GameCooltip:SetOption ("StatusBarTexture", [[Interface\AddOns\Details\images\bar_background]])
 							
 							GameCooltip:AddLine ("Total Done:", _detalhes:ToK2 (self.data.value))
+							GameCooltip:AddLine ("Dps:", _detalhes:ToK2 (self.data.value / self.data.elapsed))
 							GameCooltip:AddLine ("Item Level:", floor (self.data.data [2]))
-							GameCooltip:AddLine ("Date:", self.data.fulldate)
+							GameCooltip:AddLine ("Date:", self.data.fulldate:gsub (".*%s", ""))
 							
 							GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], menu_wallpaper_tex, menu_wallpaper_color, true)
 							GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, cooltip_block_bg, _detalhes.tooltip_border_color)
@@ -1467,11 +1481,15 @@
 							player2_dropdown:Show()
 							f.build_player2_data = {encounters, guild, role}
 							player2_dropdown:Refresh()
+							
+							player_name = f.latest_player_selected or player_name
+							
 							if (player_name) then
 								player2_dropdown:Select (player_name)
 							else
 								player2_dropdown:Select (1, true)
 							end
+							
 							f:BuildPlayerTable (player2_dropdown.value)
 						end
 					else

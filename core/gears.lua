@@ -900,9 +900,11 @@ function _detalhes:StoreEncounter (combat)
 			end
 			
 			if (match < raid_size * 0.75) then
+				print ("|cFFFFFF00Details! Storage|r: can't save the encounter, need at least 75% of players be from your guild.")
 				return
 			end
 		else
+			print ("|cFFFFFF00Details! Storage|r: can't save the encounter, need at least 75% of players be from your guild.")
 			return
 		end
 		
@@ -910,6 +912,7 @@ function _detalhes:StoreEncounter (combat)
 		if (not IsAddOnLoaded ("Details_DataStorage")) then
 			local loaded, reason = LoadAddOn ("Details_DataStorage")
 			if (not loaded) then
+				print ("|cFFFFFF00Details! Storage|r: can't save the encounter, couldn't load DataStorage, may be the addon is disabled.")
 				return
 			end
 		end
@@ -1022,7 +1025,7 @@ function _detalhes:StoreEncounter (combat)
 				local raid_name = GetInstanceInfo()
 				local func = {_detalhes.OpenRaidHistoryWindow, _detalhes, raid_name, encounter_id, diff, my_role, guildName, 2, UnitName ("player")}
 				local icon = {[[Interface\AddOns\Details\images\icons]], 16, 16, false, 434/512, 466/512, 243/512, 273/512}
-				instance:InstanceAlert ("Boss Defeated, Open History! ", icon, 40, func)
+				instance:InstanceAlert ("Boss Defeated, Open History! ", icon, 40, func, true)
 			end
 		end
 	end

@@ -1073,7 +1073,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 			local instance = _detalhes:GetInstance (lower_instance)
 			if (instance) then
 				local func = {_detalhes.OpenRaidHistoryWindow, _detalhes, "Hellfire Citadel", 1800, 15, "DAMAGER", "Rock Lobster", 2, "Keyspell"}
-				instance:InstanceAlert ("Boss Defeated, Open History! ", {[[Interface\AddOns\Details\images\icons]], 16, 16, false, 434/512, 466/512, 243/512, 273/512}, 40, func)
+				instance:InstanceAlert ("Boss Defeated, Open History! ", {[[Interface\AddOns\Details\images\icons]], 16, 16, false, 434/512, 466/512, 243/512, 273/512}, 40, func, true)
 			end
 		end
 	

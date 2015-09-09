@@ -61,12 +61,14 @@ do
 	frame.star = frame:CreateTexture (nil, "overlay")
 	frame.star:SetTexture ([[Interface\Glues\CharacterSelect\Glues-AddOn-Icons]])
 	frame.star:SetTexCoord (0.75, 1, 0, 1)
+	frame.star:SetVertexColor (1, 0.8, 0.6)
 	frame.star:SetSize (16, 16)
 	frame.star:SetPoint ("bottomleft", frame, "topleft", 4, 1)
 	
 	frame.title_label = frame:CreateFontString (nil, "overlay", "GameFontNormal")
 	frame.title_label:SetPoint ("left", frame.star, "right", 4, 0)
-	frame.title_label:SetText ("Bookmark")
+	frame.title_label:SetTextColor (1, 0.8, 0.4)
+	frame.title_label:SetText (Loc ["STRING_KEYBIND_BOOKMARK"])
 
 ---------------------------------------------------------------------------------------------------------------------------
 

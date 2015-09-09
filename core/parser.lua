@@ -145,6 +145,9 @@
 	end
 
 --	/run local f=CreateFrame("frame");f:RegisterAllEvents();f:SetScript("OnEvent", function(self, ...)print (...);end)
+--	/run 
+--	local f=CreateFrame("frame");f:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED");f:SetScript("OnEvent", function(self, ...) print (...) end)
+
 	
 --	/run local f=CreateFrame("frame");f:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED");f:SetScript("OnEvent", function(self, ...)print (...);end)
 --	/run local f=CreateFrame("frame");f:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED");f:SetScript("OnEvent",function(self, ...) local a = select(6, ...);if (a=="<chr name>")then print (...) end end)

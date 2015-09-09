@@ -2904,7 +2904,7 @@ local hide_click_func = function()
 	--empty
 end
 
-function _detalhes:InstanceAlert (msg, icon, time, clickfunc)
+function _detalhes:InstanceAlert (msg, icon, time, clickfunc, doflash)
 	
 	if (not self.meu_id) then
 		local lower = _detalhes:GetLowerInstanceNumber()
@@ -2971,8 +2971,17 @@ function _detalhes:InstanceAlert (msg, icon, time, clickfunc)
 	self.alert:SetPoint ("left", self.baseframe, "left", 3, 0)
 	self.alert:SetPoint ("right", self.baseframe, "right", -3, 0)
 	
+	self.alert:SetFrameStrata ("TOOLTIP")
+	self.alert.button:SetFrameStrata ("TOOLTIP")
+	
 	self.alert:Show()
+	
+	if (doflash) then
+		self.alert:DoFlash()
+	end
+	
 	self.alert:Play()
+
 end
 
 local alert_on_click = function (self, button)
@@ -2985,7 +2994,7 @@ local alert_on_click = function (self, button)
 	self:GetParent():Hide()
 end
 
-function CreateAlertFrame (baseframe, instancia)
+local function CreateAlertFrame (baseframe, instancia)
 
 	local frame_upper = CreateFrame ("scrollframe", "DetailsAlertFrameScroll" .. instancia.meu_id, baseframe)
 	frame_upper:SetPoint ("bottom", baseframe, "bottom")
@@ -3024,7 +3033,7 @@ function CreateAlertFrame (baseframe, instancia)
 	local text = alert_bg:CreateFontString (nil, "overlay", "GameFontNormal")
 	text:SetPoint ("right", alert_bg, "right", -14, 0)
 	_detalhes:SetFontSize (text, 10)
-	text:SetTextColor (1, 1, 1, 1)
+	text:SetTextColor (1, 1, 1, 0.8)
 	
 	local rotate_frame = CreateFrame ("frame", "DetailsAlertFrameRotate" .. instancia.meu_id, alert_bg)
 	rotate_frame:SetWidth (12)
@@ -3044,8 +3053,6 @@ function CreateAlertFrame (baseframe, instancia)
 	button._instance = instancia
 	button.func_param = {}
 	
-	--local button = gump:NewButton (alert_bg, nil, "DetailsInstance"..instancia.meu_id.."AlertButton", nil, 1, 1)
-	
 	local RotateAnimGroup = rotate_frame:CreateAnimationGroup()
 	local rotate = RotateAnimGroup:CreateAnimation ("Rotation")
 	rotate:SetDegrees (360)
@@ -3057,7 +3064,6 @@ function CreateAlertFrame (baseframe, instancia)
 	local anime = alert_bg:CreateAnimationGroup()
 	anime.group = anime:CreateAnimation ("Translation")
 	anime.group:SetDuration (0.15)
-	--anime.group:SetSmoothing ("OUT")
 	anime.group:SetOffset (0, 10)
 	anime:SetScript ("OnFinished", function(self) 
 		alert_bg:Show()
@@ -3066,8 +3072,48 @@ function CreateAlertFrame (baseframe, instancia)
 		alert_bg:SetPoint ("right", baseframe, "right", -3, 0)
 	end)
 	
+	local on_enter_alert = function (self)
+		text:SetTextColor (1, 0.8, 0.3, 1)
+		icon:SetBlendMode ("ADD")
+	end
+	local on_leave_alert = function (self)
+		text:SetTextColor (1, 1, 1, 0.8)
+		icon:SetBlendMode ("BLEND")
+	end
+	
+	button:SetScript ("OnEnter", on_enter_alert)
+	button:SetScript ("OnLeave", on_leave_alert)
+
 	function alert_bg:Play()
 		anime:Play()
+	end
+	
+	local flash_texture = button:CreateTexture (nil, "overlay")
+	flash_texture:SetTexCoord (53/512, 347/512, 58/256, 120/256)
+	flash_texture:SetTexture ([[Interface\AchievementFrame\UI-Achievement-Alert-Glow]])
+	flash_texture:SetAllPoints()
+	flash_texture:SetBlendMode ("ADD")
+	local animation = flash_texture:CreateAnimationGroup()
+	local anim1 = animation:CreateAnimation ("ALPHA")
+	local anim2 = animation:CreateAnimation ("ALPHA")
+	anim1:SetOrder (1)
+	anim1:SetChange (1)
+	anim1:SetDuration (0.1)
+	anim2:SetOrder (2)
+	anim2:SetChange (-1)
+	anim2:SetDuration (0.2)
+	animation:SetScript ("OnFinished", function (self)
+		flash_texture:Hide()
+	end)
+	flash_texture:Hide()
+	
+	local do_flash = function()
+		flash_texture:Show()
+		animation:Play()
+	end
+	
+	function alert_bg:DoFlash()
+		C_Timer.After (0.23, do_flash)
 	end
 	
 	alert_bg.text = text
@@ -6517,8 +6563,7 @@ end
 
 function _detalhes:CheckForTextTimeCounter (combat_start)
 	if (combat_start) then
-		local combat = _detalhes.tabela_vigente
-		if (combat.is_boss) then
+		if (_detalhes.tabela_vigente.is_boss) then
 			local lower = _detalhes:GetLowerInstanceNumber()
 			if (lower) then
 				local instance = _detalhes:GetInstance (lower)
@@ -6532,6 +6577,10 @@ function _detalhes:CheckForTextTimeCounter (combat_start)
 				end
 			else
 				return
+			end
+		else
+			if (_detalhes.in_combat and _detalhes.zone_type == "raid") then
+				_detalhes:ScheduleTimer ("CheckForTextTimeCounter", 3, true)
 			end
 		end
 	else
