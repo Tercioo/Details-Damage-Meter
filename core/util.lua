@@ -151,6 +151,10 @@
 		return left..(num:reverse():gsub('(%d%d%d)','%1,'):reverse())..right
 	end
 	
+	function _detalhes:GetCurrentToKFunction()
+		return _detalhes.ToKFunctions [_detalhes.ps_abbreviation]
+	end
+	
 	_detalhes.ToKFunctions = {_detalhes.NoToK, _detalhes.ToK, _detalhes.ToK2, _detalhes.ToK0, _detalhes.ToKMin, _detalhes.ToK2Min, _detalhes.ToK0Min, _detalhes.comma_value}
 
 	_detalhes.string = {}

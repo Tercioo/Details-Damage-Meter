@@ -176,6 +176,39 @@ do
 	DetailsSwitchPanel.all_switch = all_switch
 	
 	function _detalhes:ShowAllSwitch()
+	
+		--_detalhes:SetTutorialCVar ("SWITCH_PANEL_FIRST_OPENED", false)
+		if (not _detalhes:GetTutorialCVar ("SWITCH_PANEL_FIRST_OPENED")) then
+			_detalhes:SetTutorialCVar ("SWITCH_PANEL_FIRST_OPENED", true)
+			local fake_window = _detalhes:CreateFakeWindow()
+			fake_window:SetPoint ("bottomleft", all_switch, "topleft", 0, 10)
+			
+			local all_switch_titlebar_help = CreateFrame ("frame", "DetailsSwitchAllPopUp1", fake_window, "DetailsHelpBoxTemplate")
+			all_switch_titlebar_help.ArrowUP:Show()
+			all_switch_titlebar_help.ArrowGlowUP:Show()
+			all_switch_titlebar_help.Text:SetText ("Right click on Title Bar to open all displays menu.")
+			all_switch_titlebar_help:SetPoint ("bottom", fake_window.TitleBar, "top", 0, 30)
+			all_switch_titlebar_help:Show()
+			
+			local all_switch_titlebar2_help = CreateFrame ("frame", "DetailsSwitchAllPopUp1", fake_window, "DetailsHelpBoxTemplate")
+			all_switch_titlebar2_help.ArrowLEFT:Show()
+			all_switch_titlebar2_help.ArrowGlowLEFT:Show()
+			all_switch_titlebar2_help.Text:SetText ("Right clicking anywhere else opens your Bookmarks.")
+			all_switch_titlebar2_help:SetPoint ("right", fake_window, "left", -30, 0)
+			all_switch_titlebar2_help:Show()
+			
+			local close = CreateFrame ("button", nil, fake_window)
+			close:SetPoint ("bottomright", fake_window, "bottomright", -10, 10)
+			close:SetScript ("OnClick", function() fake_window:Hide(); all_switch_titlebar2_help:Hide(); all_switch_titlebar_help:Hide() end)
+			close:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = "Interface\\AddOns\\Details\\images\\background", tile = true, tileSize = 16 })
+			close:SetBackdropColor (0.7, 0.7, 0.7, 0.4)
+			close:SetSize (100, 20)
+			local t = close:CreateFontString (nil, "overlay", "GameFontNormal")
+			t:SetPoint ("center", 0, 0)
+			t:SetText ("CLOSE")
+
+		end
+	
 		if (all_switch:IsShown()) then
 			return all_switch:Hide()
 		end

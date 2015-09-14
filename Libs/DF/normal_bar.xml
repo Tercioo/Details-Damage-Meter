@@ -23,6 +23,14 @@
 						<Anchor point="LEFT" relativeTo="$parent" />
 					</Anchors>
 				</Texture>
+				<Texture name="$parent_timerTextureR" hidden="true" parentKey="timertextureR" file = "Interface\PaperDollInfoFrame\UI-Character-Skills-Bar" horizTile="false" vertTile="false">
+					<Size x="300" y="14" />
+					<Color a = "1" r = "1" g = "1" b = "1" />
+					<Anchors>
+						<Anchor point="TOPRIGHT" relativeTo="$parent" x="0" y="0"/>
+						<Anchor point="BOTTOMRIGHT" relativeTo="$parent" x="0" y="0"/>
+					</Anchors>
+				</Texture>
 
 				<!-- statusbar texture -->
 				<Texture name="$parent_statusbarTexture" hidden="false" parentKey="texture" file = "Interface\PaperDollInfoFrame\UI-Character-Skills-Bar" horizTile="false" vertTile="false">

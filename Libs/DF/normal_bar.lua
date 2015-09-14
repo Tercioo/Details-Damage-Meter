@@ -509,48 +509,92 @@ local APIBarFunctions
 	
 	function BarMetaFunctions:OnTimerEnd()
 		if (self.OnTimerEndHook) then
-			local interrupt = self.OnTimerEndHook()
+			local interrupt = self.OnTimerEndHook (self)
 			if (interrupt) then
 				return
 			end
 		end
 		self.timer_texture:Hide()
+		self.timer_textureR:Hide()
 		self.div_timer:Hide()
 		self:Hide()
 		self.timer = false
 	end
 
 	local OnUpdate = function (self, elapsed)
-		local timepct = (elapsed / self.tempo) * 100
-		self.c = self.c - (timepct*self.width/100)
+		--> percent of elapsed
+		local pct = abs (self.end_timer - GetTime() - self.tempo) / self.tempo
+		if (self.inverse) then
+			self.t:SetWidth (self.total_size * pct)
+		else
+			self.t:SetWidth (self.total_size * abs (pct-1))
+		end
+		
+		--> right text
 		self.remaining = self.remaining - elapsed
-		self.righttext:SetText (_math_floor (self.remaining))
-		self.timertexture:SetWidth (self.c)
-		if (self.c < 1) then
+		if (self.MyObject.RightTextIsTimer) then
+			self.righttext:SetText (DF:IntegerToTimer (self.remaining))
+		else
+			self.righttext:SetText (_math_floor (self.remaining))
+		end
+
+		if (pct >= 1) then
+			self.righttext:SetText ("")
 			self:SetScript ("OnUpdate", nil)
 			self.MyObject:OnTimerEnd()
 		end
 	end
 	
 	function BarMetaFunctions:SetTimer (tempo)
-
-		self.statusbar.width = self.statusbar:GetWidth()
+		
+		-- o que é inverso
+			-- barra cheia 
+			-- barra vazia
+		-- o que é left to right
+			-- barra que faz da direita pra esquerda
+			-- contrário
+		
 		self.statusbar.tempo = tempo
 		self.statusbar.remaining = tempo
-		self.statusbar.c = self.statusbar.width
+		self.statusbar.total_size = self.statusbar:GetWidth()
+		self.statusbar.end_timer = GetTime() + tempo
+		self.statusbar.inverse = self.BarIsInverse
 		
-		self.timer_texture:Show()
-		self.timer_texture:SetWidth (self.statusbar.width)
-		self.statusbar.t = self.timer_texture
-		self (1)
+		self (0)
 		
 		self.div_timer:Show()
 		self.background:Show()
 		self:Show()
 		
+		if (self.LeftToRight) then
+			self.timer_texture:Hide()
+			self.timer_textureR:Show()
+			self.statusbar.t = self.timer_textureR
+			self.timer_textureR:ClearAllPoints()
+			self.timer_textureR:SetPoint ("right", self.statusbar, "right")
+			self.div_timer:SetPoint ("left", self.timer_textureR, "left", -14, -1)
+		else
+			self.timer_texture:Show()
+			self.timer_textureR:Hide()
+			self.statusbar.t = self.timer_texture
+			self.timer_texture:ClearAllPoints()
+			self.timer_texture:SetPoint ("left", self.statusbar, "left")
+			self.div_timer:SetPoint ("left", self.timer_texture, "right", -16, -1)
+		end
+		
+		if (self.BarIsInverse) then
+			self.statusbar.t:SetWidth (1)
+		else
+			self.statusbar.t:SetWidth (self.statusbar.total_size)
+		end
+		
 		self.timer = true
 		
-		self.statusbar:SetScript ("OnUpdate", OnUpdate)
+		DF:ScheduleTimer ("StartTimeBarAnimation", 0.1, self)
+	end
+	
+	function DF:StartTimeBarAnimation (timebar)
+		timebar.statusbar:SetScript ("OnUpdate", OnUpdate)
 	end
 	
 ------------------------------------------------------------------------------------------------------------
@@ -643,6 +687,9 @@ function DF:NewBar (parent, container, name, member, w, h, value, texture_name)
 		BarObject.timer_texture = _G [name .. "_timerTexture"]
 		BarObject.timer_texture:SetWidth (w)
 		BarObject.timer_texture:SetHeight (h)
+		
+		BarObject.timer_textureR = _G [name .. "_timerTextureR"]
+		BarObject.timer_textureR:Hide()
 		
 		BarObject._texture = _G [name .. "_statusbarTexture"]
 		BarObject.background = _G [name .. "_background"]

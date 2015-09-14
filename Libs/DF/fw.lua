@@ -1,5 +1,5 @@
 
-local major, minor = "DetailsFramework-1.0", 8
+local major, minor = "DetailsFramework-1.0", 9
 local DF, oldminor = LibStub:NewLibrary (major, minor)
 
 if (not DF) then
@@ -166,6 +166,10 @@ DF.www_icons = {
 	curse = {0, 0.7890625, 38/123, 79/128},
 	mmoc = {0, 0.7890625, 80/123, 123/128},
 }
+
+function DF:IntegerToTimer (value)
+	return "" .. floor (value/60) .. ":" .. format ("%02.f", value%60)
+end
 
 function DF:Embed (target)
 	for k, v in pairs (embed_functions) do

@@ -7996,6 +7996,52 @@ local modo_selecao_on_leave = function (self)
 	end
 end
 
+local title_bar_icons = {
+	{texture = [[Interface\AddOns\Details\images\toolbar_icons]], texcoord = {0/256, 32/256, 0, 1}},
+	{texture = [[Interface\AddOns\Details\images\toolbar_icons]], texcoord = {32/256, 64/256, 0, 1}},
+	{texture = [[Interface\AddOns\Details\images\toolbar_icons]], texcoord = {66/256, 93/256, 0, 1}},
+	{texture = [[Interface\AddOns\Details\images\toolbar_icons]], texcoord = {96/256, 128/256, 0, 1}},
+	{texture = [[Interface\AddOns\Details\images\toolbar_icons]], texcoord = {128/256, 160/256, 0, 1}},
+}
+function _detalhes:GetTitleBarIconsTexture (button)
+	return title_bar_icons [button] or title_bar_icons
+end
+
+function _detalhes:CreateFakeWindow()
+	local t = CreateFrame ("frame")
+	t:SetSize (200, 91)
+	t:SetBackdrop ({bgFile = "Interface\\AddOns\\Details\\images\\background", tile = true, tileSize = 16 })
+	t:SetBackdropColor (0.0941, 0.0941, 0.0941, 0.3)
+	local tb = CreateFrame ("frame", nil, t)
+	tb:SetPoint ("bottomleft", t, "topleft", 0, 0)
+	tb:SetPoint ("bottomright", t, "topright", 0, 0)
+	tb:SetHeight (16)
+	tb:SetBackdrop ({bgFile = "Interface\\AddOns\\Details\\images\\background", tile = true, tileSize = 16 })
+	tb:SetBackdropColor (0.7, 0.7, 0.7, 0.4)
+	local tt = tb:CreateFontString (nil, "overlay", "GameFontNormal")
+	_detalhes:SetFontColor (tt, "white")
+	_detalhes:SetFontSize (tt, 10)
+	_detalhes:SetFontFace (tt, LibStub:GetLibrary("LibSharedMedia-3.0"):Fetch ("font", "Accidental Presidency"))
+	tt:SetPoint ("bottomleft", tb, 3, 4)
+	tt:SetText ("Damage Done")
+	
+	t.TitleIcons = {}
+	for i = 1, 5 do
+		local b = tb:CreateTexture (nil, "overlay")
+		b:SetSize (12, 12)
+		b:SetPoint ("bottomright", tb, "bottomright", -((abs(i-6)-1)*11) - 1, 2)
+		local button_texture_texcoord = _detalhes:GetTitleBarIconsTexture (i)
+		b:SetTexture (button_texture_texcoord.texture)
+		b:SetTexCoord (unpack (button_texture_texcoord.texcoord))
+		tinsert (t.TitleIcons, b)
+	end
+	
+	t.TitleBar = tb
+	t.TitleText = tt
+	
+	return t
+end
+
 function gump:CriaCabecalho (baseframe, instancia)
 
 	baseframe.cabecalho = {}

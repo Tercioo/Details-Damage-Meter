@@ -145,8 +145,8 @@
 	end
 
 --	/run local f=CreateFrame("frame");f:RegisterAllEvents();f:SetScript("OnEvent", function(self, ...)print (...);end)
---	/run 
---	local f=CreateFrame("frame");f:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED");f:SetScript("OnEvent", function(self, ...) print (...) end)
+--	/run local f=CreateFrame("frame");f:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED");f:SetScript("OnEvent", function(self, ...) print (...) end)
+--	/run local f=CreateFrame("frame");f:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED");f:SetScript("OnEvent", function(self, ...) print (...) end)
 
 	
 --	/run local f=CreateFrame("frame");f:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED");f:SetScript("OnEvent", function(self, ...)print (...);end)
@@ -462,13 +462,13 @@
 	--> firendly fire
 
 		if (
-			(
+			--(
 				(_bit_band (alvo_flags, REACTION_FRIENDLY) ~= 0 and _bit_band (who_flags, REACTION_FRIENDLY) ~= 0) or --ajdt d' brx
-				(raid_members_cache [who_serial] and raid_members_cache [alvo_serial]) --amrl
-			) 
-			and 
+				(raid_members_cache [alvo_serial] and raid_members_cache [who_serial] and alvo_serial:find ("Player") and who_serial:find ("Player")) --amrl
+			--) 
+			--and 
 				--spellid ~= 124255 --stagger
-				spellid ~= 999997 --stagger
+				--spellid ~= 999997 --stagger
 		) then
 		
 			--> ignore soul link (damage from the warlock on his pet)

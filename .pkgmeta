@@ -12,3 +12,7 @@ move-folders:
     Details/plugins/Details_3DModelsPaths: Details_3DModelsPaths
     Details/plugins/Details_RaidCheck: Details_RaidCheck
     Details/plugins/Details_DpsTuning: Details_DpsTuning
+
+required-dependencies:
+    - details_raidpowerbars
+    - details-legacy-raids-info

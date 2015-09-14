@@ -934,7 +934,7 @@ local default_profile = {
 	
 	--> death log
 		deadlog_limit = 16,
-		deadlog_events = 16,
+		deadlog_events = 32,
 	
 	--> report
 		report_lines = 5,
