@@ -6585,7 +6585,7 @@ function _detalhes:CheckForTextTimeCounter (combat_start)
 		end
 	else
 		for _, instance in ipairs (_detalhes.tabela_instancias) do
-			if (_detalhes.instance_title_text_timer [instance.meu_id]) then
+			if (_detalhes.instance_title_text_timer [instance.meu_id] and instance.baseframe and instance:IsEnabled() and instance.menu_attribute_string) then
 				_detalhes:CancelTimer (_detalhes.instance_title_text_timer [instance.meu_id])
 				local current_text = instance.menu_attribute_string:GetText()
 				current_text = current_text:gsub ("%[.*%] ", "")

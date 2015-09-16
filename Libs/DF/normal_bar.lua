@@ -197,6 +197,9 @@ local APIBarFunctions
 		_object.statusbar:SetStatusBarColor (_value1, _value2, _value3, _value4)
 		_object._texture.original_colors = {_value1, _value2, _value3, _value4}
 		_object.timer_texture:SetVertexColor (_value1, _value2, _value3, _value4)
+		
+		_object.timer_textureR:SetVertexColor (_value1, _value2, _value3, _value4)
+
 		return _object._texture:SetVertexColor (_value1, _value2, _value3, _value4)
 	end
 	--> icon
@@ -218,9 +221,11 @@ local APIBarFunctions
 			local _value1, _value2 = _unpack (_value)
 			_object._texture:SetTexture (_value1)
 			_object.timer_texture:SetTexture (_value1)
+			_object.timer_textureR:SetTexture (_value1)
 			if (_value2) then
 				_object._texture:SetTexCoord (_unpack (_value2))
 				_object.timer_texture:SetTexCoord (_unpack (_value2))
+				_object.timer_textureR:SetTexCoord (_unpack (_value2))
 			end
 		else
 			if (_value:find ("\\")) then
@@ -230,9 +235,11 @@ local APIBarFunctions
 				if (file) then
 					_object._texture:SetTexture (file)
 					_object.timer_texture:SetTexture (file)
+					_object.timer_textureR:SetTexture (file)
 				else
 					_object._texture:SetTexture (_value)
 					_object.timer_texture:SetTexture (_value)
+					_object.timer_textureR:SetTexture (_value)
 				end
 			end
 		end

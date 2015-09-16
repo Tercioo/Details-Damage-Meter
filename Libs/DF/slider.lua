@@ -377,10 +377,8 @@ local NameLessSlider = 1
 			slider:SetBackdropBorderColor (unpack (slider.MyObject.onleave_backdrop_border_color))
 		end
 	
-		if (slider.MyObject.have_tooltip) then 
-			GameCooltip2:ShowMe (false)
-		end
-		
+		GameCooltip2:ShowMe (false)
+
 	end
 	
 
