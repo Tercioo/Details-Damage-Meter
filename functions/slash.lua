@@ -1063,6 +1063,26 @@ function SlashCmdList.DETAILS (msg, editbox)
 		
 		_detalhes:OpenRaidHistoryWindow ("Hellfire Citadel", 1800, 15, "DAMAGER", "Rock Lobster", 2, "Keyspell")
 	
+	elseif (msg == "bar") then
+		local bar = _G.DetailsTestBar
+		if (not bar) then
+			bar = Details.gump:CreateBar (UIParent, nil, 600, 200, 100, nil, "DetailsTestBar")
+			_G.DetailsTestBar = bar
+			bar:SetPoint ("center", 0, 0)
+			bar.RightTextIsTimer = true
+			bar.BarIsInverse = true
+		end
+		
+		bar.color = "HUNTER"
+		
+		local start = GetTime()-45
+		local fim = GetTime()+5
+		
+		bar:SetTimer (start, fim)
+		
+		--C_Timer.After (5, function() bar:CancelTimerBar() end)
+	
+	
 	elseif (msg == "alert") then
 		--local instancia = _detalhes.tabela_instancias [1]
 		local f = function (a, b, c, d, e, f, g) print (a, b, c, d, e, f, g) end

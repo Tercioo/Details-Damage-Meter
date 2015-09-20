@@ -15,6 +15,25 @@
 		return _detalhes.plugin_database [PluginAbsoluteName]
 	end
 	
+	function _detalhes:UpdatePluginBarsConfig()
+		local instance = self:GetPluginInstance()
+		if (instance) then
+			self.row_info = self.row_info or {}
+			_detalhes.table.copy (self.row_info, instance.row_info)
+			self.bars_grow_direction = instance.bars_grow_direction
+			self.row_height = instance.row_height
+			self:SetBarGrowDirection()
+		end
+	end
+	
+	function _detalhes:AttachToInstance()
+		local instance = self:GetPluginInstance()
+		if (instance) then
+			local w, h = instance:GetSize()
+			self.Frame:SetSize (w, h)
+		end
+	end
+	
 	function _detalhes:GetPluginInstance (PluginAbsoluteName)
 		local plugin = self
 		if (PluginAbsoluteName) then
@@ -240,10 +259,17 @@
 		print ("Thank You Sir!===================")
 	end
 
+	local register_event_func = function (self, event)
+		self.Frame:RegisterEvent (event)
+	end
+	local unregister_event_func = function (self, event)
+		self.Frame:UnregisterEvent (event)
+	end
+	
 	function _detalhes:NewPluginObject (FrameName, PluginOptions, PluginType)
 
 		PluginOptions = PluginOptions or 0x0
-		local NewPlugin = {__options = PluginOptions, __enabled = true}
+		local NewPlugin = {__options = PluginOptions, __enabled = true, RegisterEvent = register_event_func, UnregisterEvent = unregister_event_func}
 		
 		local Frame = CreateFrame ("Frame", FrameName, UIParent)
 		Frame:RegisterEvent ("ADDON_LOADED")

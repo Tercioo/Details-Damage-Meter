@@ -528,6 +528,24 @@ local APIBarFunctions
 		self.timer = false
 	end
 
+	function BarMetaFunctions:CancelTimerBar (no_timer_end)
+		if (not self.HasTimer) then
+			return
+		end
+		if (self.TimerScheduled) then
+			DF:CancelTimer (self.TimerScheduled)
+			self.TimerScheduled = nil
+		else
+			if (self.statusbar:GetScript ("OnUpdate")) then
+				self.statusbar:SetScript ("OnUpdate", nil)
+			end
+		end
+		self.righttext = ""
+		if (not no_timer_end) then
+			self:OnTimerEnd()
+		end
+	end
+
 	local OnUpdate = function (self, elapsed)
 		--> percent of elapsed
 		local pct = abs (self.end_timer - GetTime() - self.tempo) / self.tempo
@@ -548,23 +566,24 @@ local APIBarFunctions
 		if (pct >= 1) then
 			self.righttext:SetText ("")
 			self:SetScript ("OnUpdate", nil)
+			self.MyObject.HasTimer = nil
 			self.MyObject:OnTimerEnd()
 		end
 	end
 	
-	function BarMetaFunctions:SetTimer (tempo)
-		
-		-- o que é inverso
-			-- barra cheia 
-			-- barra vazia
-		-- o que é left to right
-			-- barra que faz da direita pra esquerda
-			-- contrário
-		
-		self.statusbar.tempo = tempo
-		self.statusbar.remaining = tempo
+	function BarMetaFunctions:SetTimer (tempo, end_at)
+
+		if (end_at) then
+			self.statusbar.tempo = end_at - tempo
+			self.statusbar.remaining = end_at - GetTime()
+			self.statusbar.end_timer = end_at
+		else
+			self.statusbar.tempo = tempo
+			self.statusbar.remaining = tempo
+			self.statusbar.end_timer = GetTime() + tempo
+		end
+
 		self.statusbar.total_size = self.statusbar:GetWidth()
-		self.statusbar.end_timer = GetTime() + tempo
 		self.statusbar.inverse = self.BarIsInverse
 		
 		self (0)
@@ -597,10 +616,12 @@ local APIBarFunctions
 		
 		self.timer = true
 		
-		DF:ScheduleTimer ("StartTimeBarAnimation", 0.1, self)
+		self.HasTimer = true
+		self.TimerScheduled = DF:ScheduleTimer ("StartTimeBarAnimation", 0.1, self)
 	end
 	
 	function DF:StartTimeBarAnimation (timebar)
+		timebar.TimerScheduled = nil
 		timebar.statusbar:SetScript ("OnUpdate", OnUpdate)
 	end
 	
@@ -723,4 +744,4 @@ function DF:NewBar (parent, container, name, member, w, h, value, texture_name)
 		end
 		
 	return BarObject
-end
+end --endd

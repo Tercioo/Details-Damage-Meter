@@ -1,5 +1,6 @@
 
-local major, minor = "DetailsFramework-1.0", 10
+local dversion = 10
+local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary (major, minor)
 
 if (not DF) then
@@ -23,6 +24,11 @@ DF.PanelCounter = 1
 DF.ButtonCounter = 1
 DF.SliderCounter = 1
 DF.SplitBarCounter = 1
+
+DF.FrameWorkVersion = tostring (dversion)
+function DF:PrintVersion()
+	print ("Details! Framework Version:", DF.FrameWorkVersion)
+end
 
 LibStub:GetLibrary("AceTimer-3.0"):Embed (DF)
 

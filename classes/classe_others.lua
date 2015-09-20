@@ -518,8 +518,9 @@ function atributo_misc:DeadAtualizarBarra (morte, qual_barra, colocacao, instanc
 		gump:Fade (esta_barra, "out")
 	end
 	
+	--> seta a cor da barra e a cor do texto caso eles esteja mostrando com a cor da classe
 	local r, g, b, a = _unpack (_detalhes.class_colors [morte[4]])
-	esta_barra.textura:SetVertexColor (r, g, b, 1)
+	_detalhes:SetBarColors (esta_barra, instancia, r, g, b, a)
 	
 	if (instancia.row_info.use_spec_icons) then
 		local nome = morte[3]

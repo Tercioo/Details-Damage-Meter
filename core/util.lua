@@ -247,7 +247,7 @@
 			if (type (value) == "table") then
 				t1 [key] = t1 [key] or {}
 				_detalhes.table.deploy (t1 [key], t2 [key])
-			else
+			elseif (t1 [key] == nil) then
 				t1 [key] = value
 			end
 		end

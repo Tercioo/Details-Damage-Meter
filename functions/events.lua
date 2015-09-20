@@ -110,9 +110,9 @@ local common_events = {
 
 		if (not _detalhes.RegistredEvents [event]) then
 			if (object.Msg) then
-				object:DelayMsg ("(debug) unknown event", event)
+				object:DelayMsg ("[debug] unknown event:", event, object.__name)
 			else
-				_detalhes:DelayMsg ("(debug) unknown event", event)
+				_detalhes:DelayMsg ("[debug] unknown event:", event, object.__name)
 			end
 			return
 		end

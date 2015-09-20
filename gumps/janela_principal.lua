@@ -3776,32 +3776,34 @@ function _detalhes:SetBarGrowDirection (direction)
 	self.bars_grow_direction = direction
 	local x = self.row_info.space.left
 	
+	local bars = self.barras or self.Bars --> .Bars for third-party plugins
+	local baseframe = self.baseframe or self.Frame --> .Frame for plugins
+	local height = self.row_height
+	
 	if (direction == 1) then --> top to bottom
-		for index, row in _ipairs (self.barras) do
-			local y = self.row_height * (index - 1)
+		for index, row in _ipairs (bars) do
+			local y = height * (index - 1)
 			y = y * -1
 			row:ClearAllPoints()
-			row:SetPoint ("topleft", self.baseframe, "topleft", x, y)
-			
+			row:SetPoint ("topleft", baseframe, "topleft", x, y)
 		end
-		
 	elseif (direction == 2) then --> bottom to top
-		for index, row in _ipairs (self.barras) do
-			local y = self.row_height * (index - 1)
+		for index, row in _ipairs (bars) do
+			local y = height * (index - 1)
 			row:ClearAllPoints()
-			row:SetPoint ("bottomleft", self.baseframe, "bottomleft", x, y + 2)
+			row:SetPoint ("bottomleft", baseframe, "bottomleft", x, y + 2)
 		end
-		
 	end
 	
 	--> update all row width
 	if (self.bar_mod and self.bar_mod ~= 0) then
-		for index = 1, #self.barras do
-			self.barras [index]:SetWidth (self.baseframe:GetWidth() + self.bar_mod)
+		for index = 1, #bars do
+			bars [index]:SetWidth (baseframe:GetWidth() + self.bar_mod)
 		end
 	else
-		for index = 1, #self.barras do
-			self.barras [index]:SetWidth (self.baseframe:GetWidth()+self.row_info.space.right)
+		for index = 1, #bars do
+			bars [index]:SetWidth (baseframe:GetWidth() + self.row_info.space.right)
+			--print (bars [index]:GetWidth(), baseframe:GetWidth())
 		end
 	end
 end
@@ -6618,6 +6620,12 @@ function _detalhes:TitleTextTickTimer (instance)
 			current_text = current_text:gsub ("%[.*%]", timer)
 			instance.menu_attribute_string:SetText (current_text)
 		end
+	end
+end
+
+function _detalhes:SetTitleBarText (text)
+	if (self.attribute_text.enabled and self.menu_attribute_string) then
+		self.menu_attribute_string:SetText (text)
 	end
 end
 

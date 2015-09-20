@@ -520,6 +520,10 @@
 				end
 				channel = "PRINT"
 			
+			elseif (where == 5) then --> officers
+				if (IsInGuild()) then
+					channel = "OFFICER"
+				end
 			end
 			
 			local only_first = _detalhes.announce_deaths.only_first

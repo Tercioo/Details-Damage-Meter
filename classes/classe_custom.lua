@@ -755,7 +755,7 @@
 	local icon_cache = {}
 	
 	function atributo_custom:GetActorTable (actor, name_complement)
-		local index = self._NameIndexTable [actor.nome]
+		local index = self._NameIndexTable [actor.nome or actor.name]
 		
 		if (index) then
 			return self._ActorTable [index]
@@ -779,10 +779,10 @@
 				end
 				
 			else
-				class = actor.classe
+				class = actor.classe or actor.class
 				if (class == "UNKNOW") then
 					--> try once again
-					class = _detalhes:GetClass (actor.nome)
+					class = _detalhes:GetClass (actor.nome or actor.name)
 					if (class and class ~= "UNKNOW") then
 						actor.classe = class
 					end
@@ -790,9 +790,9 @@
 			end
 		
 			local new_actor = _setmetatable ({
-				nome = actor.nome,
+				nome = actor.nome or actor.name,
 				classe = class,
-				value = _detalhes:GetOrderNumber (actor.nome),
+				value = _detalhes:GetOrderNumber(),
 				is_custom = true,
 			}, atributo_custom.mt)
 			
@@ -820,7 +820,7 @@
 				end
 			else
 				if (not new_actor.classe) then
-					new_actor.classe = _detalhes:GetClass (actor.nome) or "UNKNOW"
+					new_actor.classe = _detalhes:GetClass (actor.nome or actor.name) or "UNKNOW"
 				end
 				if (new_actor.classe == "UNGROUPPLAYER") then
 					atributo_custom:ScheduleTimer ("UpdateClass", 5, {new_actor = new_actor, actor = actor})
@@ -830,7 +830,7 @@
 			index = #self._ActorTable+1
 			
 			self._ActorTable [index] = new_actor
-			self._NameIndexTable [actor.nome] = index
+			self._NameIndexTable [actor.nome or actor.name] = index
 			return new_actor
 		end
 	end
