@@ -590,7 +590,7 @@ local function DispellInfo (dispell, barra)
 	_GameTooltip:AddLine (barra.texto_esquerdo:GetText())
 	
 	for index, tabela in _ipairs (tabela_jogadores) do
-		local coords = CLASS_ICON_TCOORDS [tabela[3]]
+		local coords = EncounterDetails.class_coords [tabela[3]]
 		if (not coords) then
 			GameTooltip:AddDoubleLine ("|TInterface\\GossipFrame\\DailyActiveQuestIcon:14:14:0:0:16:16:0:1:0:1".."|t "..tabela[1]..": ", tabela[2], 1, 1, 1, 1, 1, 1)
 		else
@@ -616,7 +616,7 @@ local function KickBy (magia, barra)
 	_GameTooltip:AddLine (barra.texto_esquerdo:GetText())
 	
 	for index, tabela in _ipairs (tabela_jogadores) do
-		local coords = CLASS_ICON_TCOORDS [tabela[3]]
+		local coords = EncounterDetails.class_coords [tabela[3]]
 		GameTooltip:AddDoubleLine ("|TInterface\\AddOns\\Details\\images\\classes_small:14:14:0:0:128:128:"..(coords[1]*128)..":"..(coords[2]*128)..":"..(coords[3]*128)..":"..(coords[4]*128).."|t "..tabela[1]..": ", tabela[2], 1, 1, 1, 1, 1, 1)
 	end
 end
@@ -641,7 +641,7 @@ local function EnemySkills (habilidade, barra)
 	_GameTooltip:AddLine (barra.texto_esquerdo:GetText())
 	
 	for index, tabela in _ipairs (tabela_jogadores) do
-		local coords = CLASS_ICON_TCOORDS [tabela[3]]
+		local coords = EncounterDetails.class_coords [tabela[3]]
 		if (coords) then
 			GameTooltip:AddDoubleLine ("|TInterface\\AddOns\\Details\\images\\classes_small:14:14:0:0:128:128:"..(coords[1]*128)..":"..(coords[2]*128)..":"..(coords[3]*128)..":"..(coords[4]*128).."|t "..tabela[1]..": ", _detalhes:comma_value(tabela[2]).." (".._cstr("%.1f", (tabela[2]/total) * 100).."%)", 1, 1, 1, 1, 1, 1)
 		end
@@ -1033,8 +1033,8 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 				end
 				
 				barra.icone:SetTexture ("Interface\\AddOns\\Details\\images\\classes_small")
-				if (CLASS_ICON_TCOORDS [jogador.classe]) then
-					barra.icone:SetTexCoord (_unpack (CLASS_ICON_TCOORDS [jogador.classe]))
+				if (EncounterDetails.class_coords [jogador.classe]) then
+					barra.icone:SetTexCoord (_unpack (EncounterDetails.class_coords [jogador.classe]))
 				end
 				
 				barra:Show()
@@ -1220,7 +1220,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 				end
 				
 				barra.icone:SetTexture (icone_magia)
-				--barra.icone:SetTexCoord (_unpack (CLASS_ICON_TCOORDS [jogador.classe]))
+				--barra.icone:SetTexCoord (_unpack (EncounterDetails.class_coords [jogador.classe]))
 				
 				barra:Show()
 				quantidade = quantidade + 1
@@ -1332,7 +1332,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 			
 			local dano_em_total = tabela.dano_em_total
 			for _, esta_tabela in _pairs (dano_em) do 
-				local coords = CLASS_ICON_TCOORDS [esta_tabela[3]]
+				local coords = EncounterDetails.class_coords [esta_tabela[3]]
 				GameTooltip:AddDoubleLine ("|TInterface\\AddOns\\Details\\images\\classes_small:14:14:0:0:128:128:"..(coords[1]*128)..":"..(coords[2]*128)..":"..(coords[3]*128)..":"..(coords[4]*128).."|t "..esta_tabela[1]..": ", _detalhes:comma_value(esta_tabela[2]).." (".. _cstr ("%.1f", esta_tabela[2]/dano_em_total*100) .."%)", 1, 1, 1, 1, 1, 1)
 			end
 			
@@ -1359,7 +1359,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 
 			for _, esta_tabela in _pairs (damage_from) do 
 
-				local coords = CLASS_ICON_TCOORDS [esta_tabela[3]]
+				local coords = EncounterDetails.class_coords [esta_tabela[3]]
 				if (coords) then
 					GameTooltip:AddDoubleLine ("|TInterface\\AddOns\\Details\\images\\classes_small:14:14:0:0:128:128:"..(coords[1]*128)..":"..(coords[2]*128)..":"..(coords[3]*128)..":"..(coords[4]*128).."|t "..esta_tabela[1]..": ", _detalhes:comma_value(esta_tabela[2]).." (".. _cstr ("%.1f", esta_tabela[2]/damage_from_total*100) .."%)", 1, 1, 1, 1, 1, 1)
 				else
@@ -1573,7 +1573,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 			end
 			
 			barra.icone:SetTexture (icone_magia)
-			--barra.icone:SetTexCoord (_unpack (CLASS_ICON_TCOORDS [jogador.classe]))
+			--barra.icone:SetTexCoord (_unpack (EncounterDetails.class_coords [jogador.classe]))
 			
 			barra:Show()
 			
@@ -1676,7 +1676,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 			end
 			
 			barra.icone:SetTexture (icone_magia)
-			--barra.icone:SetTexCoord (_unpack (CLASS_ICON_TCOORDS [jogador.classe]))
+			--barra.icone:SetTexCoord (_unpack (EncounterDetails.class_coords [jogador.classe]))
 			
 			barra:Show()
 			
@@ -1735,7 +1735,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 			barra.textura:SetValue (100)
 			
 			barra.icone:SetTexture ("Interface\\AddOns\\Details\\images\\classes_small")
-			barra.icone:SetTexCoord (_unpack (CLASS_ICON_TCOORDS [tabela [4]]))
+			barra.icone:SetTexCoord (_unpack (EncounterDetails.class_coords [tabela [4]]))
 			
 			barra:Show()
 			
