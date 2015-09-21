@@ -157,6 +157,10 @@
 				return self.grupo
 			end
 			
+--[[ exported]] 	function _detalhes:IsPetOrGuardian()
+				return self.owner and true or false
+			end			
+			
 --[[ exported]] 	function _detalhes:IsPlayer()
 				if (self.flag_original) then
 					if (_bit_band (self.flag_original, OBJECT_TYPE_PLAYER) ~= 0) then

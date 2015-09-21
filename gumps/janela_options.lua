@@ -4847,6 +4847,63 @@ function window:CreateFrame3()
 	
 	local frame3 = window.options [3][1]
 
+	--> custom skin texture
+	local custom_texture = g:NewTextEntry (frame3, _, "$parentCustomTextureEntry", "CustomTextureEntry", 120, TEXTENTRY_HEIGHT, nil, nil, nil, nil, nil, options_dropdown_template)
+	local custom_texture_label = g:NewLabel (frame3, _, "$parentCustomTextureLabel", "CustomTextureLabel", Loc ["STRING_CUSTOM_SKIN_TEXTURE"], "GameFontHighlightLeft")
+	custom_texture:SetPoint ("left", custom_texture_label, "right", 2, 0)
+
+	custom_texture:SetHook ("OnEnterPressed", function()
+		local instance = _G.DetailsOptionsWindow.instance
+		local file_name = custom_texture.text
+		
+		instance:SetUserCustomSkinFile (file_name)
+		
+		if (_detalhes.options_group_edit and not DetailsOptionsWindow.loading_settings) then
+			for _, this_instance in ipairs (instance:GetInstanceGroup()) do
+				if (this_instance ~= instance) then
+					this_instance:SetUserCustomSkinFile (file_name)
+				end
+			end
+		end
+
+		_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+	end)
+	
+	window:CreateLineBackground2 (frame3, "CustomTextureEntry", "CustomTextureLabel", Loc ["STRING_CUSTOM_SKIN_TEXTURE_DESC"])
+
+	local custom_texture_cancel = g:NewButton (frame3.CustomTextureEntry, _, "$parentCustomTextureCancel", "CustomTextureCancel", 20, 20, function (self)
+		local instance = _G.DetailsOptionsWindow.instance
+		
+		instance:SetUserCustomSkinFile ("")
+		
+		if (_detalhes.options_group_edit and not DetailsOptionsWindow.loading_settings) then
+			for _, this_instance in ipairs (instance:GetInstanceGroup()) do
+				if (this_instance ~= instance) then
+					this_instance:SetUserCustomSkinFile ("")
+				end
+			end
+		end
+
+		custom_texture:SetText ("")
+		_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+	end)
+	custom_texture_cancel:SetPoint ("left", frame3.CustomTextureEntry, "right", 2, 0)
+	custom_texture_cancel:SetNormalTexture ([[Interface\Buttons\UI-GroupLoot-Pass-Down]])
+	custom_texture_cancel:SetPushedTexture ([[Interface\Buttons\UI-GroupLoot-Pass-Up]])
+	custom_texture_cancel:GetNormalTexture():SetDesaturated (true)
+	custom_texture_cancel.tooltip = "Stop using the custom texture"
+	custom_texture_cancel:SetHook ("OnEnter", function (self, capsule)
+		self:GetNormalTexture():SetBlendMode("ADD")
+	end)
+	custom_texture_cancel:SetHook ("OnLeave", function (self, capsule)
+		self:GetNormalTexture():SetBlendMode("BLEND")
+	end)
+	
+	
+	
+	
+	
+	--> import box
 	function frame3:CreateImportBox()
 		local textbox = g:NewSpecialLuaEditorEntry (frame3, 443, 80, "TextBox", "$parentTextBox", true)
 		textbox:SetPoint ("bottomleft", frame3, "bottomleft", 30, 30)
@@ -5000,7 +5057,8 @@ function window:CreateFrame3()
 		local buildSkinMenu = function()
 			local skinOptions = {}
 			for skin_name, skin_table in pairs (_detalhes.skins) do
-				local desc = "Author: |cFFFFFFFF" .. skin_table.author .. "|r\nVersion: |cFFFFFFFF" .. skin_table.version .. "|r\nSite: |cFFFFFFFF" .. skin_table.site .. "|r\n\nDesc: |cFFFFFFFF" .. skin_table.desc .. "|r"
+				local file = skin_table.file:gsub ([[Interface\AddOns\Details\images\skins\]], "")
+				local desc = "Author: |cFFFFFFFF" .. skin_table.author .. "|r\nVersion: |cFFFFFFFF" .. skin_table.version .. "|r\nSite: |cFFFFFFFF" .. skin_table.site .. "|r\n\nDesc: |cFFFFFFFF" .. skin_table.desc .. "|r\n\nFile: |cFFFFFFFF" .. file .. ".tga|r"
 				skinOptions [#skinOptions+1] = {value = skin_name, label = skin_name, onclick = onSelectSkin, icon = "Interface\\GossipFrame\\TabardGossipIcon", desc = desc}
 			end
 			return skinOptions
@@ -5390,19 +5448,20 @@ function window:CreateFrame3()
 		local left_side = {
 			{"SkinSelectionAnchorLabel", 1, true},
 			{"skinLabel", 2},
-			{"SkinPresetAnchorLabel", 3, true},
-			{"saveSkinLabel", 4},
+			{custom_texture_label, 3},
+			{"SkinPresetAnchorLabel", 4, true},
+			{"saveSkinLabel", 5},
 			
-			{"loadCustomSkinLabel", 5, true},
-			{"removeCustomSkinLabel", 6},
-			{"ExportCustomSkinLabel", 7},
+			{"loadCustomSkinLabel", 6, true},
+			{"removeCustomSkinLabel", 7},
+			{"ExportCustomSkinLabel", 8},
 			
-			{"ImportButton", 9, true},
-			{"makeDefault", 10},
-			{"applyToAll", 11},
+			{"ImportButton", 10, true},
+			{"makeDefault", 11},
+			{"applyToAll", 12},
 			
-			{"PDWAnchor", 12, true},
-			{"PDWSkinLabel", 13},
+			{"PDWAnchor", 13, true},
+			{"PDWSkinLabel", 14},
 		}
 		
 		local right_side = {
@@ -5606,6 +5665,69 @@ function window:CreateFrame4()
 		frame4.textureDropdown:SetPoint ("left", frame4.textureLabel, "right", 2)
 		window:CreateLineBackground2 (frame4, "textureDropdown", "textureLabel", Loc ["STRING_OPTIONS_BAR_TEXTURE_DESC"])
 
+		
+		
+		
+		
+		--> custom bar texture
+		local custom_texture = g:NewTextEntry (frame4, _, "$parentCustomTextureEntry", "CustomTextureEntry", 120, TEXTENTRY_HEIGHT, nil, nil, nil, nil, nil, options_dropdown_template)
+		local custom_texture_label = g:NewLabel (frame4, _, "$parentCustomTextureLabel", "CustomTextureLabel", Loc ["STRING_OPTIONS_BARS_CUSTOM_TEXTURE"], "GameFontHighlightLeft")
+		custom_texture:SetPoint ("left", custom_texture_label, "right", 2, 0)
+
+		custom_texture:SetHook ("OnEnterPressed", function()
+			local instance = _G.DetailsOptionsWindow.instance
+			local file_name = custom_texture.text
+			
+			instance:SetBarSettings (nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, file_name)
+			
+			if (_detalhes.options_group_edit and not DetailsOptionsWindow.loading_settings) then
+				for _, this_instance in ipairs (instance:GetInstanceGroup()) do
+					if (this_instance ~= instance) then
+						this_instance:SetBarSettings (nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, file_name)
+					end
+				end
+			end
+
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+		end)
+		
+		window:CreateLineBackground2 (frame4, "CustomTextureEntry", "CustomTextureLabel", Loc ["STRING_CUSTOM_SKIN_TEXTURE_DESC"] .. Loc ["STRING_OPTIONS_BARS_CUSTOM_TEXTURE_DESC"])
+
+		local custom_texture_cancel = g:NewButton (frame4.CustomTextureEntry, _, "$parentCustomTextureCancel", "CustomTextureCancel", 20, 20, function (self)
+			local instance = _G.DetailsOptionsWindow.instance
+			
+			instance:SetBarSettings (nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "")
+			
+			if (_detalhes.options_group_edit and not DetailsOptionsWindow.loading_settings) then
+				for _, this_instance in ipairs (instance:GetInstanceGroup()) do
+					if (this_instance ~= instance) then
+						this_instance:SetBarSettings (nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, "")
+					end
+				end
+			end
+
+			custom_texture:SetText ("")
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+		end)
+		custom_texture_cancel:SetPoint ("left", frame4.CustomTextureEntry, "right", 2, 0)
+		custom_texture_cancel:SetNormalTexture ([[Interface\Buttons\UI-GroupLoot-Pass-Down]])
+		custom_texture_cancel:SetPushedTexture ([[Interface\Buttons\UI-GroupLoot-Pass-Up]])
+		custom_texture_cancel:GetNormalTexture():SetDesaturated (true)
+		custom_texture_cancel.tooltip = "Stop using the custom texture"
+		custom_texture_cancel:SetHook ("OnEnter", function (self, capsule)
+			self:GetNormalTexture():SetBlendMode("ADD")
+		end)
+		custom_texture_cancel:SetHook ("OnLeave", function (self, capsule)
+			self:GetNormalTexture():SetBlendMode("BLEND")
+		end)		
+		
+		
+		
+		
+		
+		
+		
+		
 		-- row texture color	
 		local rowcolor_callback = function (button, r, g, b, a)
 			_G.DetailsOptionsWindow.instance:SetBarSettings (nil, nil, nil, {r, g, b})
@@ -6020,18 +6142,19 @@ function window:CreateFrame4()
 			--textures
 			{frame4.rowUpperTextureLabel, 1, true},
 			{frame4.textureLabel, 2},
-			{frame4.classColorsLabel, 3},
-			{frame4.rowPickColorLabel, 4},
+			{custom_texture_label, 3},
+			{frame4.classColorsLabel, 4},
+			{frame4.rowPickColorLabel, 5},
 			
-			{frame4.rowLowerTextureLabel, 5, true},
-			{frame4.rowBackgroundLabel, 6},
-			{frame4.rowBackgroundColorByClassLabel, 7},
-			{frame4.rowBackgroundPickLabel, 8},
+			{frame4.rowLowerTextureLabel, 6, true},
+			{frame4.rowBackgroundLabel, 7},
+			{frame4.rowBackgroundColorByClassLabel, 8},
+			{frame4.rowBackgroundPickLabel, 9},
 			--icon
-			{frame4.rowIconsLabel, 9, true},
-			{frame4.iconFileLabel, 10},
-			{frame4.iconFileLabel2, 11},
-			{frame4.barStartLabel, 12},			
+			{frame4.rowIconsLabel, 10, true},
+			{frame4.iconFileLabel, 11},
+			{frame4.iconFileLabel2, 12},
+			{frame4.barStartLabel, 13},			
 		}
 		
 		local right_side = {
@@ -10258,6 +10381,8 @@ end --> if not window
 		local skin = editing_instance.skin
 		local frame3 = _G.DetailsOptionsWindow3
 		
+		_G.DetailsOptionsWindow3CustomTextureEntry:SetText (editing_instance.skin_custom)
+		
 		_G.DetailsOptionsWindow3SkinDropdown.MyObject:SetFixedParameter (editing_instance)
 		_G.DetailsOptionsWindow3SkinDropdown.MyObject:Select (skin)
 		
@@ -10300,6 +10425,8 @@ end --> if not window
 		end
 		
 		--> window 4
+		
+		_G.DetailsOptionsWindow4CustomTextureEntry:SetText (editing_instance.row_info.texture_custom)
 		
 		_G.DetailsOptionsWindow4OrientationDropdown.MyObject:SetFixedParameter (editing_instance)
 		_G.DetailsOptionsWindow4OrientationDropdown.MyObject:Select (editing_instance.bars_inverted and 2 or 1, true)

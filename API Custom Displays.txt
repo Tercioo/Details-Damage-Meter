@@ -1,0 +1,134 @@
+
+A custom display is made with 4 scripts:
+
+Required:
+Search - this is the main script, it's responsible to build a list of players to be show in the window.
+
+Optional:
+Tooltip - it run when the user hover over a bar.
+Total - runs when showing the bar, and helps format the total done.
+Percent - also runs when showing the bar, it formats the percentage amount.
+
+
+Search Code:
+- The script receives 3 parameters: *Combat, *Container and *Instance.
+*Combat - is the reference for the selected combat shown in the window (the one selected on segments menu).
+*Container - is the place where the display mantain stored the results, Details! get the content inside the container and use to update the window.
+*Instance - is the reference of the window where the custom display is being shown.
+
+- Also, the script must return three values: total made by all players, the amount of the top player and the amount of players found by the script.
+- The search script basicaly begins getting these three parameters and declaring our three return values:
+
+local combat, instance_container, instance = ...
+local total, top, amount = 0, 0, 0
+
+- Then, we build our search for wherever we want to show, here we are building an example for Damage Done by Pets and Guardians.
+- So, as we are working with damage, we want to get a list of Actors from the Damage Container of the combat and iterate it with ipairs:
+
+local damage_container = combat:GetActorList( DETAILS_ATTRIBUTE_DAMAGE )
+for i, actor in ipairs( damage_container ) do
+	--do stuff
+end
+
+- Actor, can be anything, a monster, player, boss, etc, so, we need to check if actor is a pet:
+
+if (actor:IsPetOrGuardian()) then
+	--do stuff
+end
+
+- Now we found a pet, we need to get the damage done and find who is the owner of this pet, after that, we also need to check if the owner is a player:
+
+local petOwner = actor.owner
+if (petOwner:IsPlayer()) then
+	local petDamage = actor.total
+end
+
+- The next step is add the pet owner into the Container:
+
+Container:AddValue (petOwner, petDamage)
+
+- And in the and, we need to get the total, top and amount values. This is generally calculated inside our loop above, but just calling the API for the result is more handy:
+
+total, top = Container:GetTotalAndHighestValue()
+amount = Container:GetNumActors()
+return total, top, amount
+
+
+The finished script looks like this:
+
+local Combat, Container, Instance = ...
+local total, top, amount = 0, 0, 0
+
+local damage_container = Combat:GetActorList( DETAILS_ATTRIBUTE_DAMAGE )
+for i, actor in ipairs( damage_container ) do
+	if (actor:IsPetOrGuardian()) then
+		local petOwner = actor.owner
+		if (petOwner:IsPlayer()) then
+			local petDamage = actor.total
+			Container:AddValue( petOwner, petDamage )
+		end
+	end
+end
+
+total, top = Container:GetTotalAndHighestValue()
+amount = Container:GetNumActors()
+
+return total, top, amount
+
+
+Tooltip Code:
+- The script receives 3 parameters: *Actor, *Combat and *Instance. This script has no return value.
+*Actor - in our case, actor is the petOwner.
+
+local Actor, Combat, Instance = ...
+local Format = Details:GetCurrentToKFunction()
+
+- What we want where is show all pets the player used in the combat and how much damage each one made.
+- The member .pets gives us a table with pet names that belongs to the actor.
+
+local actorPets = Actor.pets
+
+- Next move is iterate this table and get the pet actor from the combat.
+- In Details! always use ">= 1" not "> 0", also when not using our format functions, use at least floor()
+
+for i, petName in ipairs( actorPets ) do
+	local petActor = Combat( DETAILS_ATTRIBUTE_DAMAGE, petName)
+	if (petActor and petActor.total >= 1) then
+		--do stuff
+	end
+end
+
+- With the pet in hands, what we have to do now is add this pet to our tooltip.
+- Details! uses 'GameCooltip' which is slight different than 'GameTooltip':
+
+GameCooltip:AddLine( petName, Format( nil, petActor.total ) )
+Details:AddTooltipBackgroundStatusbar()
+
+
+The finished script looks like this:
+
+local Actor, Combat, Instance = ...
+local Format = Details:GetCurrentToKFunction()
+
+local actorPets = Actor.pets
+
+for i, petName in ipairs( actorPets ) do
+	local petActor = Combat( DETAILS_ATTRIBUTE_DAMAGE, petName)
+	if (petActor and petActor.total >= 1) then
+		GameCooltip:AddLine( petName, Format( nil, petActor.total ) )
+		Details:AddTooltipBackgroundStatusbar()
+	end
+end
+
+
+
+Total Code and Percent Code:
+- Details! build the total and the percent automatically, these scripts are for special cases where you want to show something different, e.g. convert total into seconds/minutes.
+- Both scripts receives 5 parameters, three are new to us:
+*Value - the total made by this actor.
+*Top - the value made by the rank 1 actor.
+*Total - the total made by all actors.
+
+local value, top, total, combat, instance = ...
+local result = floor (value)
+return total

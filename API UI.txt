@@ -94,7 +94,7 @@ width = number, most of the times is ignored due to anchors settings.
 height = number, most of the times is ignored due to anchors settings.
 overlay = table {r, b, g, a}
 
-instance:SetBarSettings (height, texture, colorclass, fixedcolor, backgroundtexture, backgroundcolorclass, backgroundfixedcolor, alpha, iconfile, barstart, spacement)
+instance:SetBarSettings (height, texture, colorclass, fixedcolor, backgroundtexture, backgroundcolorclass, backgroundfixedcolor, alpha, iconfile, barstart, spacement, customtexture)
 height = number, the height of the bars.
 texture = texture name (SharedMedia), used on the statubar bar.
 colorclass = boolean, if true, the bar is painted with the player's class color.
@@ -106,6 +106,10 @@ alpha = number.
 iconfile = string, icon file path to be used on bars.
 barstart = boolean, if true the bar attaches on the right side of the icon, else, on the left side (useful for transparent icons).
 spacement = number, how much space between bars.
+customtexture = string, file name of a .tga file inside WoW/Interface/ folder.
+
+instance:SetUserCustomSkinFile (filename)
+filename = string, name of the .tga file inside Interface folder to be used as the skin texture.
 
 instance:SetBarModel (upper_enabled, upper_model, upper_alpha, lower_enabled, lower_model, lower_alpha)
 upper_enabled = boolean

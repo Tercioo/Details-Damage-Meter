@@ -4108,7 +4108,7 @@ function _detalhes:SetBarSpecIconSettings (enabled, iconfile, fulltrack)
 	
 end
 
-function _detalhes:SetBarSettings (height, texture, colorclass, fixedcolor, backgroundtexture, backgroundcolorclass, backgroundfixedcolor, alpha, iconfile, barstart, spacement)
+function _detalhes:SetBarSettings (height, texture, colorclass, fixedcolor, backgroundtexture, backgroundcolorclass, backgroundfixedcolor, alpha, iconfile, barstart, spacement, texture_custom)
 	
 	--> bar start
 	if (type (barstart) == "boolean") then
@@ -4146,6 +4146,11 @@ function _detalhes:SetBarSettings (height, texture, colorclass, fixedcolor, back
 	if (texture) then
 		self.row_info.texture = texture
 		self.row_info.texture_file = SharedMedia:Fetch ("statusbar", texture)
+	end
+	
+	if (texture_custom) then
+		self.row_info.texture_custom = texture_custom
+		self.row_info.texture_custom_file = "Interface\\" .. self.row_info.texture_custom
 	end
 	
 	--> color by class
@@ -4350,7 +4355,16 @@ function _detalhes:InstanceRefreshRows (instancia)
 	--> texture
 		local texture_file = SharedMedia:Fetch ("statusbar", self.row_info.texture)
 		local texture_file2 = SharedMedia:Fetch ("statusbar", self.row_info.texture_background)
-	
+			--> update texture files
+			self.row_info.texture_file = texture_file
+			self.row_info.texture_background_file = texture_file2
+		
+		if (type (self.row_info.texture_custom) == "string" and self.row_info.texture_custom ~= "") then
+			texture_file = "Interface\\" .. self.row_info.texture_custom
+				--> update texture file
+				self.row_info.texture_custom_file = texture_file
+		end
+		
 	--> outline values
 		local left_text_outline = self.row_info.textL_outline
 		local right_text_outline = self.row_info.textR_outline
@@ -6122,6 +6136,20 @@ local build_segment_list = function (self, elapsed)
 end
 
 -- ~skin
+
+function _detalhes:SetUserCustomSkinFile (file)
+	if (type (file) ~= "string") then
+		error ("SetUserCustomSkinFile() file must be a string.")
+	end
+	
+	if (file:find ("\\") or file:find ("/")) then
+		error ("SetUserCustomSkinFile() file must be only the file name (with out up folders) and slashes.")
+	end
+	
+	self.skin_custom = file
+	self:ChangeSkin()
+end
+
 function _detalhes:ChangeSkin (skin_name)
 
 	if (not skin_name) then
@@ -6220,6 +6248,9 @@ function _detalhes:ChangeSkin (skin_name)
 	local skin_file = this_skin.file
 
 	--> set textures
+		if (self.skin_custom ~= "") then
+			skin_file = "Interface\\" .. self.skin_custom
+		end
 	
 		self.baseframe.cabecalho.ball:SetTexture (skin_file) --> bola esquerda
 		self.baseframe.cabecalho.emenda:SetTexture (skin_file) --> emenda que liga a bola a textura do centro

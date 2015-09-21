@@ -752,6 +752,25 @@
 		actors.new_actor.classe = actors.actor.classe
 	end
 
+	function atributo_custom:HasActor (actor)
+		return self._NameIndexTable [actor.nome or actor.name] and true or false
+	end
+	
+	function atributo_custom:GetNumActors()
+		return #self._ActorTable
+	end
+	
+	function atributo_custom:GetTotalAndHighestValue()
+		local total, top = 0, 0
+		for i, actor in ipairs (self._ActorTable) do
+			if (actor.value > top) then
+				top = actor.value
+			end
+			total = total + actor.value
+		end
+		return total, top
+	end
+	
 	local icon_cache = {}
 	
 	function atributo_custom:GetActorTable (actor, name_complement)

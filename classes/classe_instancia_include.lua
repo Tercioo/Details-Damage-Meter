@@ -95,6 +95,7 @@ _detalhes.instance_defaults = {
 		ignore_mass_showhide = false,
 	--skin
 		skin = _detalhes.default_skin_to_use,
+		skin_custom = "",
 	--scale
 		window_scale = 1.0,
 		libwindow = {},
@@ -203,8 +204,10 @@ _detalhes.instance_defaults = {
 				font_face_file = SharedMedia:Fetch ("font", "Arial Narrow"),
 			--bar texture
 				texture = "Details D'ictum",
+				texture_custom = "",
 			--bar texture name
 				texture_file = [[Interface\AddOns\Details\images\bar4]],
+				texture_custom_file = "Interface\\",
 			--bar texture on mouse over
 				texture_highlight = [[Interface\FriendsFrame\UI-FriendsList-Highlight]],
 			--bar background texture
