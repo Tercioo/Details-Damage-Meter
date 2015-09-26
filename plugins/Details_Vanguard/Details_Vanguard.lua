@@ -130,6 +130,11 @@ local function CreatePluginFrames (data)
 			end
 			
 			Vanguard:IdentifyTanks()
+			
+		elseif (event == "DETAILS_STARTED") then
+
+			Vanguard.CurrentInstance = Vanguard:GetInstance (Vanguard.instance_id)
+			Vanguard.CurrentCombat = Vanguard:GetCurrentCombat()
 
 		elseif (event == "DETAILS_INSTANCE_ENDRESIZE" or event == "DETAILS_INSTANCE_SIZECHANGED") then
 			--Vanguard:OnResize()
@@ -291,17 +296,18 @@ local function CreatePluginFrames (data)
 		self:SetWidth (width)
 		self:SetBackdropColor (unpack (Vanguard.db.tank_block_color))
 		self.texture:SetTexture (SharedMedia:Fetch ("statusbar", Vanguard.db.tank_block_texture))
-
 	end
 	
 	local debuff_on_enter = function (self)
 		if (self.spellid) then
+			self.texture:SetBlendMode ("ADD")
 			GameTooltip:SetOwner (self, "ANCHOR_TOPLEFT")
 			GameTooltip:SetSpellByID (self.spellid)
 			GameTooltip:Show()
 		end
 	end
 	local debuff_on_leave = function (self)
+		self.texture:SetBlendMode ("BLEND")
 		if (self.spellid) then
 			GameTooltip:Hide()
 		end
@@ -334,13 +340,14 @@ local function CreatePluginFrames (data)
 			f:SetPoint ("left", Vanguard.TankBlocks [index-1], "right", 5, 0)
 		end
 		
-		f:SetBackdrop ({bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 16, insets = {left = 0, right = 0, top = 0, bottom = 0}, edgeFile = [[Interface\DialogFrame\UI-DialogBox-Border]], edgeSize = 10})
+		f:SetBackdrop ({bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 16, insets = {left = 0, right = 0, top = 0, bottom = 0}, edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1})
 		f:SetBackdropColor (unpack (Vanguard.db.tank_block_color))
+		f:SetBackdropBorderColor (0, 0, 0, 1)
 		
 		--statusbar
 		f.statusbar = CreateFrame ("statusbar", nil, f)
-		f.statusbar:SetPoint ("topleft", f, "topleft", 5, -5)
-		f.statusbar:SetPoint ("bottomright", f, "bottomright", -5, 5)
+		f.statusbar:SetPoint ("topleft", f, "topleft", 1, -1)
+		f.statusbar:SetPoint ("bottomright", f, "bottomright", -1, 1)
 		f.texture = f.statusbar:CreateTexture (nil, "artwork")
 		f.statusbar:SetStatusBarTexture (f.texture)
 		f.statusbar:SetMinMaxValues (0, 100)
@@ -382,40 +389,46 @@ local function CreatePluginFrames (data)
 			support_frame:SetSize (24, 24)
 			support_frame:SetScript ("OnMouseUp", on_click)
 			
-			support_frame:SetScript ("OnEnter", debuff_on_enter)
-			support_frame:SetScript ("OnLeave", debuff_on_leave)
+			--support_frame:SetScript ("OnEnter", debuff_on_enter)
+			--support_frame:SetScript ("OnLeave", debuff_on_leave)
 			
 			local texture = support_frame:CreateTexture (nil, "overlay")
 			texture:SetSize (24, 24)
 			
+			local y = 3
+			
 			if (i == 1) then --> left
 				support_frame:SetPoint ("left", f, "left", 5, 0)
-				support_frame:SetPoint ("bottom", f, "bottom", 0, 5)
+				support_frame:SetPoint ("bottom", f, "bottom", 0, y)
 				
 				texture:SetPoint ("left", f, "left", 5, 0)
-				texture:SetPoint ("bottom", f, "bottom", 0, 5)
+				texture:SetPoint ("bottom", f, "bottom", 0, y)
 				
 			elseif (i == 2) then --> center
 				support_frame:SetPoint ("center", f, "center", 0, 0)
-				support_frame:SetPoint ("bottom", f, "bottom", 0, 5)
+				support_frame:SetPoint ("bottom", f, "bottom", 0, y)
 				
 				texture:SetPoint ("center", f, "center", 0, 0)
-				texture:SetPoint ("bottom", f, "bottom", 0, 5)
+				texture:SetPoint ("bottom", f, "bottom", 0, y)
 				
 			elseif (i == 3) then --> right
 				support_frame:SetPoint ("right", f, "right", -5, 0)
-				support_frame:SetPoint ("bottom", f, "bottom", 0, 5)
+				support_frame:SetPoint ("bottom", f, "bottom", 0, y)
 				
 				texture:SetPoint ("right", f, "right", -5, 0)
-				texture:SetPoint ("bottom", f, "bottom", 0, 5)
+				texture:SetPoint ("bottom", f, "bottom", 0, y)
 				
 			end
 
 			local dblock = CreateFrame ("cooldown", "VanguardTankBlock" .. index.. "Cooldown" .. i, support_frame, "CooldownFrameTemplate")
+			dblock:SetAlpha (0.7)
 			dblock:SetPoint ("topleft", texture, "topleft")
 			dblock:SetPoint ("bottomright", texture, "bottomright")
 			dblock:SetScript ("OnMouseUp", on_click)
 			dblock.texture = texture
+			
+			dblock:SetScript ("OnEnter", debuff_on_enter)
+			dblock:SetScript ("OnLeave", debuff_on_leave)
 
 			local stack = dblock:CreateFontString (nil, "overlay", "GameFontNormal")
 			stack:SetPoint ("bottomright", dblock, "bottomright", 8, 0)
@@ -512,6 +525,7 @@ local function CreatePluginFrames (data)
 	
 		Vanguard.Running = true
 		VanguardFrame:RegisterEvent ("UNIT_HEALTH")
+		VanguardFrame:RegisterEvent ("UNIT_HEALTH_FREQUENT")
 		--Vanguard:TrackDebuffsAlreadyApplied()
 		VanguardFrame:RegisterEvent ("COMBAT_LOG_EVENT_UNFILTERED")
 		
@@ -526,6 +540,7 @@ local function CreatePluginFrames (data)
 	
 		Vanguard.Running = false
 		VanguardFrame:UnregisterEvent ("UNIT_HEALTH")
+		VanguardFrame:UnregisterEvent ("UNIT_HEALTH_FREQUENT")
 		VanguardFrame:UnregisterEvent ("COMBAT_LOG_EVENT_UNFILTERED")
 	
 		if (Vanguard.track_incoming) then
@@ -536,15 +551,11 @@ local function CreatePluginFrames (data)
 	
 	function Vanguard:DebuffRefreshed (who_name, spellid)
 		local tank_index = Vanguard.TankHashNames [who_name]
-		--print ("On Refres tank index:", tank_index)
 		if (tank_index) then
 			local tframe = Vanguard.TankBlocks [tank_index]
-			--print ("Tank index OKE, tframe:", tframe)
 			for i = 1, 3 do
 				local dblock = tframe.debuffs_blocks [i]
 				if (dblock.support.spellid == spellid) then
-					--print ("REFRESH OKEY!")
-					
 					local debuff_name = GetSpellInfo (spellid)
 					local _, _, icon, count, _, duration, expirationTime = _UnitDebuff (who_name, debuff_name)
 					
@@ -613,6 +624,8 @@ local function CreatePluginFrames (data)
 					end
 					
 					dblock.texture:SetTexture (icon)
+					dblock.texture:SetTexCoord (0.078125, 0.921875, 0.078125, 0.921875)
+					
 					if (count and count > 0) then
 						dblock.stack:SetText (count)
 						dblock.stack_bg:Show()
@@ -624,6 +637,7 @@ local function CreatePluginFrames (data)
 					dblock:SetCooldown (GetTime(), expirationTime-GetTime(), 0, 0)
 					dblock.in_use = true
 					dblock.support.spellid = spellid
+					dblock.spellid = spellid
 					
 					for i = 1, 3 do
 						if (not tframe.debuffs_blocks [i].in_use) then
@@ -777,7 +791,7 @@ function Vanguard:OnEvent (_, event, arg1, token, time, who_serial, who_name, wh
 
 		end
 	
-	elseif (event == "UNIT_HEALTH") then
+	elseif (event == "UNIT_HEALTH" or event == "UNIT_HEALTH_FREQUENT") then
 		Vanguard:HealthChanged (arg1)
 		
 	elseif (event == "ADDON_LOADED") then
@@ -789,13 +803,13 @@ function Vanguard:OnEvent (_, event, arg1, token, time, who_serial, who_name, wh
 				
 				local MINIMAL_DETAILS_VERSION_REQUIRED = 1
 				local default_saved_table = {
-					show_inc_bars = true, 
+					show_inc_bars = false,
 					tank_block_size = 150, 
-					tank_block_color = {0, 0, 0, 0.8},
+					tank_block_color = {0.24705882, 0.0039215, 0, 0.8},
 					tank_block_texture = "Details Serenity",
 					first_run = false,
 				}
-				
+
 				--> Install
 				function Vanguard:OnDetailsEvent() end --> dummy func to stop warnings.
 				

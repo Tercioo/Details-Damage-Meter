@@ -180,7 +180,8 @@
 							end
 							
 							combate_overall.segments_added =combate_overall.segments_added or {}
-							tinsert (combate_overall.segments_added, {name = combate:GetCombatName (true), elapsed = combate:GetCombatTime(), clock = combate:GetDate()[1]})
+							local date_start, date_end = combate:GetDate()
+							tinsert (combate_overall.segments_added, {name = combate:GetCombatName (true), elapsed = combate:GetCombatTime(), clock = date_start})
 							
 						end
 					

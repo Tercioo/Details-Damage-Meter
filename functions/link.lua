@@ -2657,7 +2657,7 @@
 					end
 				end
 				
-				_detalhes:OpenAuraPanel (data[2], spellname, spellicon, data.id, DETAILS_WA_TRIGGER_DBM_TIMER, DETAILS_WA_AURATYPE_TEXT, {dbm_timer_id = data[2], text = "Next " .. spellname .. " In", text_size = 72, icon = spellicon})
+				_detalhes:OpenAuraPanel (data[2], spellname, spellicon, data.id, DETAILS_WA_TRIGGER_DBM_TIMER, DETAILS_WA_AURATYPE_TEXT, {dbm_timer_id = data[2], spellid = data[7], text = "Next " .. spellname .. " In", text_size = 72, icon = spellicon})
 			end
 			
 			local dbm_timers_module = {

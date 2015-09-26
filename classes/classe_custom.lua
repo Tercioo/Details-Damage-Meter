@@ -924,8 +924,12 @@
 		
 		if (custom_object:IsScripted()) then
 			if (custom_object.tooltip) then
-				local func = loadstring (custom_object.tooltip)
-				func (actor, instance.showing, instance)
+				local func = _detalhes.custom_function_cache [instance.customName .. "Tooltip"]
+				local okey, errortext = _pcall (func, actor, instance.showing, instance)
+				if (not okey) then
+					_detalhes:Msg ("|cFFFF9900error on custom display tooltip function|r:", errortext)
+					return false
+				end
 			end
 		else
 			--> get the attribute
@@ -1345,7 +1349,7 @@
 				local AllSpells = character:GetSpellList()
 				local found = false
 				for spellid, spell in pairs (AllSpells) do
-					if (spellid == 6262 or spellid == 156445 or spellid == 156438 or spellid == 82184) then --healthstone, reju potion, health potion, spinal healing injector
+					if (spellid == 6262 or spellid == 156445 or spellid == 156438 or spellid == 82184 or spellid == 173260) then --healthstone, reju potion, health potion, spinal healing injector, shieldtronic shield
 						instance_container:AddValue (character, spell.total)
 						total = total + spell.total
 						if (top < spell.total) then
@@ -1398,12 +1402,19 @@
 				GameCooltip:AddIcon (select (3, GetSpellInfo (82184)), 1, 1, 16, 16)
 				GameCooltip:AddStatusBar (100, 1, R, G, B, A)
 			end
+			
+			local shieldtronic = actor:GetSpell (173260)
+			if (shieldtronic) then
+				GameCooltip:AddLine (select (1, GetSpellInfo(173260)),  _detalhes:ToK(shieldtronic.total))
+				GameCooltip:AddIcon (select (3, GetSpellInfo (173260)), 1, 1, 16, 16)
+				GameCooltip:AddStatusBar (100, 1, R, G, B, A)
+			end
 
 			--Cooltip code
 			]],
 			percent_script = false,
 			total_script = false,
-			script_version = 10,
+			script_version = 12,
 		}
 --	/run _detalhes:AddDefaultCustomDisplays()
 		local have = false

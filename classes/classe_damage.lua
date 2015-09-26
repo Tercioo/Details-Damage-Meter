@@ -597,7 +597,6 @@
 
 		local spellname, _, spellicon = select (1, _GetSpellInfo (from_spell))
 		GameCooltip:AddLine (spellname .. " " .. Loc ["STRING_CUSTOM_ATTRIBUTE_DAMAGE"], nil, nil, headerColor, nil, 10)
-		--GameCooltip:AddIcon ([[Interface\ICONS\Spell_Mage_InfernoBlast]], 1, 1, 14, 14, 0.078125, 0.921875, 0.078125, 0.921875)
 		GameCooltip:AddIcon (spellicon, 1, 1, 14, 14, 0.078125, 0.921875, 0.078125, 0.921875)
 		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, _detalhes.tooltip_key_size_width, _detalhes.tooltip_key_size_height, 0, 1, 0, 0.640625, _detalhes.tooltip_key_overlay2)
 		_detalhes:AddTooltipHeaderStatusbar (1, 1, 1, 0.5)
@@ -621,7 +620,7 @@
 		GameCooltip:AddLine (" ")
 		_detalhes:AddTooltipReportLineText()
 		
-		GameCooltip:SetOption ("YSpacingMod", -1)
+		GameCooltip:SetOption ("YSpacingMod", 0)
 		GameCooltip:SetOwner (esta_barra)
 		GameCooltip:Show()
 		
@@ -3178,7 +3177,7 @@ function atributo_damage:ToolTip_Enemies (instancia, numero, barra, keydown)
 	--	t[1] = 0
 	--end
 	
-	GameCooltip:SetOption ("YSpacingMod", -1)
+	GameCooltip:SetOption ("YSpacingMod", 0)
 	
 	return true
 	

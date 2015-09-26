@@ -1202,7 +1202,7 @@
 		
 		function _detalhes:AddTooltipReportLineText()
 			GameCooltip:AddLine (Loc ["STRING_CLICK_REPORT_LINE1"], Loc ["STRING_CLICK_REPORT_LINE2"])
-			GameCooltip:AddStatusBar (100, 1, 0, 0, 0, 0.4)
+			GameCooltip:AddStatusBar (100, 1, 0, 0, 0, 0.8)
 		end
 		
 		function _detalhes:AddTooltipBackgroundStatusbar (side)
