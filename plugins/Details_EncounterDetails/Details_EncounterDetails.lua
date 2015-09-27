@@ -30,7 +30,7 @@ tinsert (UISpecialFrames, "Details_EncounterDetails")
 --> Main Frame
 local EncounterDetailsFrame = EncounterDetails.Frame
 
-EncounterDetails:SetPluginDescription ("Shows a summary for raid encounters containing dispels, interrupts, deaths, damage taken, graphic raid damage and more..")
+EncounterDetails:SetPluginDescription ("Raid encounters summary, show basic stuff like dispels, interrupts and also graphic charts, boss emotes and the Weakaura Creation Tool.")
 
 --> container types
 local class_type_damage = _detalhes.atributos.dano --> damage

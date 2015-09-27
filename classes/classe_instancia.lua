@@ -2526,6 +2526,8 @@ function _detalhes:MontaAtributosOption (instancia, func)
 	
 	CoolTip:SetOption ("TextFont",  _detalhes.font_faces.menus)
 	
+	_detalhes:SetTooltipMinWidth()
+	
 	local last_selected = atributo_ativo
 	if (atributo_ativo == 5) then
 		last_selected = 6

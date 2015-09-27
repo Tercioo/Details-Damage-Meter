@@ -5424,6 +5424,11 @@ local OnClickNovoMenu = function (_, _, id, instance)
 	end
 end
 
+function _detalhes:SetTooltipMinWidth()
+	GameCooltip:SetOption ("MinWidth", 140)
+--	/dump GameCooltipFrame1:GetWidth()
+end
+
 local build_mode_list = function (self, elapsed)
 
 	local CoolTip = GameCooltip
@@ -5451,6 +5456,8 @@ local build_mode_list = function (self, elapsed)
 		CoolTip:SetOption ("YSpacingMod", 1)
 		
 		CoolTip:SetOption ("HeighMod", 10)
+		
+		_detalhes:SetTooltipMinWidth()
 		
 		--CoolTip:SetOption ("FixedHeight", 106)
 		--CoolTip:SetOption ("FixedWidthSub", 146)
@@ -6117,6 +6124,9 @@ local build_segment_list = function (self, elapsed)
 		CoolTip:SetOption ("YSpacingModSub", -4)
 		
 		CoolTip:SetOption ("HeighMod", 12)
+		_detalhes:SetTooltipMinWidth()
+		
+		
 
 		--CoolTip:SetWallpaper (1, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
 		--CoolTip:SetWallpaper (1, _detalhes.tooltip.menus_bg_texture, {66/512, 1, 78/512, 435/512}, _detalhes.tooltip.menus_bg_color, true)
@@ -7605,6 +7615,8 @@ end
 		GameCooltip:SetOption ("ButtonsYMod", -7)
 		GameCooltip:SetOption ("HeighMod", 8)
 		
+		_detalhes:SetTooltipMinWidth()
+		
 		GameCooltip:AddLine (Loc ["STRING_ERASE_DATA"], nil, 1, "white", nil, _detalhes.font_sizes.menus, _detalhes.font_faces.menus)
 		GameCooltip:AddIcon ([[Interface\Buttons\UI-StopButton]], 1, 1, 14, 14, 0, 1, 0, 1, "red")
 		GameCooltip:AddMenu (1, _detalhes.tabela_historico.resetar)
@@ -7779,6 +7791,8 @@ local report_on_enter = function (self, motion, forced, from_click)
 	
 	GameCooltip:SetOption ("ButtonsYMod", -7)
 	GameCooltip:SetOption ("HeighMod", 8)
+	
+	_detalhes:SetTooltipMinWidth()
 	
 	_detalhes:CheckLastReportsIntegrity()
 	

@@ -1,8 +1,3 @@
---File Revision: 1
---Last Modification: 27/07/2013
--- Change Log:
-	-- 27/07/2013: Finished alpha version.
-	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 	local _detalhes = _G._detalhes
@@ -26,7 +21,6 @@
 
 		--> create button from template
 		local button = CreateFrame ("button", framename, _detalhes.listener, "DetailsToolbarButton")
-		--button:SetScript ("OnHide", function (self) print (debugstack()) end)
 		
 		--> sizes
 		if (w) then
@@ -42,8 +36,6 @@
 		--> tooltip and function on click
 		button.tooltip = tooltip
 		button:SetScript ("OnClick", func)
-
-		--print ("ED button 2:", ENCOUNTERDETAILS_BUTTON:GetAlpha(), ENCOUNTERDETAILS_BUTTON:IsShown())
 		
 		--> textures
 		button:SetNormalTexture (icon)
@@ -137,6 +129,31 @@
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> internal functions
+do
+	local PluginDescPanel = CreateFrame ("frame", "DetailsPluginDescPanel", UIParent)
+	PluginDescPanel:SetFrameStrata ("tooltip")
+	PluginDescPanel:Hide()
+	PluginDescPanel:SetWidth (205)
+	PluginDescPanel.BackdropTable = {}
+	
+	local background = PluginDescPanel:CreateTexture (nil, "artwork")
+	background:SetPoint ("topleft", 0, 0)
+	background:SetPoint ("bottomright", 0, 0)
+	PluginDescPanel.background = background
+	
+	local icon, title, desc = PluginDescPanel:CreateTexture (nil, "overlay"), PluginDescPanel:CreateFontString (nil, "overlay", "GameFontNormal"), PluginDescPanel:CreateFontString (nil, "overlay", "GameFontNormal")
+	icon:SetPoint ("topleft", 10, -10)
+	icon:SetSize (16, 16)
+	title:SetPoint ("left", icon, "right", 2, 0)
+	desc:SetPoint ("topleft", 13, -30)
+	desc:SetWidth (180)
+	desc:SetJustifyH ("left")
+	_detalhes:SetFontColor (desc, "white")
+	
+	PluginDescPanel.icon = icon
+	PluginDescPanel.title = title
+	PluginDescPanel.desc = desc
+end
 
 	--[[global]] function DetailsToolbarButtonOnEnter (button)
 	
@@ -146,22 +163,35 @@
 		end
 	
 		if (button.tooltip) then
-		
-			GameCooltip:Reset()
+			GameCooltip:Hide()
+			local plugin_object = _detalhes:GetPlugin (button.__name)
 			
-			--GameCooltip:SetOption ("FixedWidth", 200)
-			GameCooltip:SetOption ("ButtonsYMod", -3)
-			GameCooltip:SetOption ("YSpacingMod", -3)
-			GameCooltip:SetOption ("IgnoreButtonAutoHeight", true)
-			GameCooltip:SetColor (1, 0.5, 0.5, 0.5, 0.5)
+			local f = DetailsPluginDescPanel
+			f.icon:SetTexture (button.__icon)
+			f.title:SetText (button.__name)
+			f.desc:SetText (plugin_object:GetPluginDescription())
+			_detalhes:SetFontSize (f.desc, _detalhes.font_sizes.menus)
+			_detalhes:SetFontFace (f.desc, _detalhes.font_faces.menus)
 			
-			GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
+			f.background:SetTexture (_detalhes.tooltip.menus_bg_texture)
+			f.background:SetTexCoord (unpack (_detalhes.tooltip.menus_bg_coords))
+			f.background:SetVertexColor (unpack (_detalhes.tooltip.menus_bg_color))
+			f.background:SetDesaturated (true)
 			
-			--[[title]] GameCooltip:AddLine (button.__name, nil, 1, "orange", nil, 12, SharedMedia:Fetch ("font", "Friz Quadrata TT"))
-				GameCooltip:AddIcon (button.__icon, 1, 1, 16, 16)
-			----[[desc]] GameCooltip:AddLine (button.tooltip)
+			f.BackdropTable.bgFile = _detalhes.tooltip_backdrop.bgFile
+			f.BackdropTable.edgeFile = _detalhes.tooltip_backdrop.edgeFile
+			f.BackdropTable.tile = _detalhes.tooltip_backdrop.tile
+			f.BackdropTable.edgeSize = _detalhes.tooltip_backdrop.edgeSize
+			f.BackdropTable.tileSize = _detalhes.tooltip_backdrop.tileSize
 			
-			GameCooltip:ShowCooltip (button, "tooltip")
+			f:SetBackdrop (f.BackdropTable)
+			local r, g, b, a = _detalhes.gump:ParseColors (_detalhes.tooltip_border_color)
+			f:SetBackdropBorderColor (r, g, b, a)
+			
+			f:SetHeight (40 + f.desc:GetStringHeight())
+			f:SetPoint ("bottom", button, "top", 0, 5)
+			f:Show()
+			--SharedMedia:Fetch ("font", "Friz Quadrata TT")
 		end
 	end
 	--[[global]] function DetailsToolbarButtonOnLeave (button)
@@ -172,7 +202,7 @@
 		end
 	
 		if (button.tooltip) then
-			_detalhes.popup:ShowMe (false)
+			DetailsPluginDescPanel:Hide()
 		end
 	end	
 

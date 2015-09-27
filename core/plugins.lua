@@ -8,7 +8,7 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> details api functions
 	function _detalhes:GetPlugin (PAN) --plugin absolute name
-		return _detalhes.SoloTables.NameTable [PAN] or _detalhes.RaidTables.NameTable [PAN] or _detalhes.ToolBar.NameTable [PAN] or _detalhes.StatusBar.NameTable [PAN]
+		return _detalhes.SoloTables.NameTable [PAN] or _detalhes.RaidTables.NameTable [PAN] or _detalhes.ToolBar.NameTable [PAN] or _detalhes.StatusBar.NameTable [PAN] or _detalhes.PluginsLocalizedNames [PAN] or _detalhes.PluginsGlobalNames [PAN]
 	end
 	
 	function _detalhes:GetPluginSavedTable (PluginAbsoluteName)
@@ -61,7 +61,7 @@
 		self.__description = desc
 	end
 	function _detalhes:GetPluginDescription()
-		return self.__description
+		return self.__description or ""
 	end
 	
 	function _detalhes:DisablePlugin (AbsoluteName)
@@ -138,6 +138,9 @@
 		PluginObject.__version = Version or "v1.0.0"
 		PluginObject.__icon = PluginIcon or [[Interface\ICONS\Trade_Engineering]]
 		PluginObject.real_name = PluginAbsoluteName
+		
+		_detalhes.PluginsGlobalNames [PluginAbsoluteName] = PluginObject
+		_detalhes.PluginsLocalizedNames [PluginName] = PluginObject
 		
 		local saved_table
 		
