@@ -189,7 +189,7 @@ end
 			f:SetBackdropBorderColor (r, g, b, a)
 			
 			f:SetHeight (40 + f.desc:GetStringHeight())
-			f:SetPoint ("bottom", button, "top", 0, 5)
+			f:SetPoint ("bottom", button, "top", 0, 10)
 			f:Show()
 			--SharedMedia:Fetch ("font", "Friz Quadrata TT")
 		end

@@ -28,6 +28,7 @@
 	local _IsInRaid = IsInRaid --api local
 	local _IsInGroup = IsInGroup --api local
 	
+	local GetSpellInfo = GetSpellInfo --api local
 	local _GetSpellInfo = _detalhes.getspellinfo --details api
 	local _string_replace = _detalhes.string.replace --details api
 
@@ -1715,32 +1716,31 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 					
 								if (on_player and on_player >= 1) then
 								
-									local spellname = GetSpellInfo (spellid)
-									
-									local has_index = bs_index_table [spellname]
-									local this_spell
-									if (has_index) then
-										this_spell = bs_table [has_index]
-									else
-									
-										bs_index = bs_index + 1
-									
-										this_spell = bs_table [bs_index]
-										if (this_spell) then
-											this_spell [1] = spellid
-											this_spell [2] = 0
-											this_spell [3] = spell.spellschool or _detalhes.spell_school_cache [select (1, GetSpellInfo (spellid))] or 1
-											bs_index_table [spellname] = bs_index
+									local spellname = _GetSpellInfo (spellid)
+									if (spellname) then
+										local has_index = bs_index_table [spellname]
+										local this_spell
+										if (has_index) then
+											this_spell = bs_table [has_index]
 										else
-											this_spell = {spellid, 0, spell.spellschool or _detalhes.spell_school_cache [select (1, GetSpellInfo (spellid))] or 1}
-											bs_table [bs_index] = this_spell
-											bs_index_table [spellname] = bs_index
+											bs_index = bs_index + 1
+											this_spell = bs_table [bs_index]
+											if (this_spell) then
+												this_spell [1] = spellid
+												this_spell [2] = 0
+												this_spell [3] = spell.spellschool or _detalhes.spell_school_cache [select (1, GetSpellInfo (spellid))] or 1
+												bs_index_table [spellname] = bs_index
+											else
+												this_spell = {spellid, 0, spell.spellschool or _detalhes.spell_school_cache [select (1, GetSpellInfo (spellid))] or 1}
+												bs_table [bs_index] = this_spell
+												bs_index_table [spellname] = bs_index
+											end
 										end
-									
+										this_spell [2] = this_spell [2] + on_player
+										total = total + on_player
+									else
+										error ("error - no spell id for DTBS " .. spellid)
 									end
-									
-									this_spell [2] = this_spell [2] + on_player
-									total = total + on_player
 								end
 							end
 				    
@@ -1750,16 +1750,14 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 							for spellid, on_player in pairs (AllSpells) do
 								if (on_player and on_player >= 1) then
 								
-									local spellname = GetSpellInfo (spellid)
+									local spellname = _GetSpellInfo (spellid)
 									if (spellname) then
 										local has_index = bs_index_table [spellname]
 										local this_spell
 										if (has_index) then
 											this_spell = bs_table [has_index]
 										else
-										
 											bs_index = bs_index + 1
-										
 											this_spell = bs_table [bs_index]
 											if (this_spell) then
 												this_spell [1] = spellid
@@ -1771,13 +1769,11 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 												bs_table [bs_index] = this_spell
 												bs_index_table [spellname] = bs_index
 											end
-											
 										end
-										
 										this_spell [2] = this_spell [2] + on_player
 										total = total + on_player
 									else
-										_detalhes:Msg ("error - no spell id for DTBS friendly fire", spellid, spellname)
+										error ("error - no spell id for DTBS friendly fire " .. spellid)
 									end
 								end
 							end
