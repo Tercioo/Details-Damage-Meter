@@ -50,6 +50,19 @@
 		end
 		return 0
 	end
+	
+	function _detalhes:GetSourceFromNpcId (npcId)
+		for index, container in ipairs (_detalhes.tabela_vigente) do
+			if (index <= 4) then
+				local t = container._ActorTable
+				for i = 1, #t do
+					if (_detalhes:GetNpcIdFromGuid (t[i].serial) == npcId) then
+						return t[i].nome
+					end
+				end
+			end
+		end
+	end
 
 	--> get the fractional number representing the alphabetical letter
 	function _detalhes:GetOrderNumber (who_name)
@@ -153,6 +166,21 @@
 	
 	function _detalhes:GetCurrentToKFunction()
 		return _detalhes.ToKFunctions [_detalhes.ps_abbreviation]
+	end
+	
+	function _detalhes:Format (n, custom)
+		n = _math_floor (n)
+		if (custom) then
+			if (n > 999999) then
+				return _string_format (custom, n/1000000) .. "M"
+			elseif (n > 999) then
+				return _string_format (custom, (n/1000))
+			else
+				return n
+			end
+		else
+			return _detalhes.ToKFunctions [_detalhes.ps_abbreviation] (nil, n)
+		end
 	end
 	
 	_detalhes.ToKFunctions = {_detalhes.NoToK, _detalhes.ToK, _detalhes.ToK2, _detalhes.ToK0, _detalhes.ToKMin, _detalhes.ToK2Min, _detalhes.ToK0Min, _detalhes.comma_value}

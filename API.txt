@@ -3,6 +3,8 @@ It still is incomplete, we are working on.
 
 This is a diagram showing the structure: http://i.imgur.com/vyTjpFh.png
 
+
+
 Attributes:
 =======================================
 All these keys are globals:
@@ -40,15 +42,42 @@ DETAILS_SUBATTRIBUTE_DCOOLDOWN = 6
 DETAILS_SUBATTRIBUTE_BUFFUPTIME = 7
 DETAILS_SUBATTRIBUTE_DEBUFFUPTIME = 8
 
+
+
 TL;DR
 =======================================
-A history segment container is the higher table in the hierarchy, it holds combat objects.
-Current and overall combat objects are directly attached to the core. When a combat finishes, it detach and is sent to history container.
-A Combat Object has 4 tables: damage on index 1, healing on index 2, energy on index 3, misc on index 4.
-Those tables are called 'containers', these containers holds 'Actor Objects'.
-Actor Objects hold a target table and a spell table.
-Each player will have 4 tables, one for each attribute, e.g. 1 for store its damage, another for the healing done.
-Actor Objects also has specific members for each attribute, see below.
+Details! has three main objects: Combat, Container and Actor:
+
+"Combat" holds containers, when a fight is gone, the "Current Combat" is placed inside the History Segment.
+"Container" holds Actors.
+"Actor" has members telling what the player or npc has made in the combat.
+
+"Combat" has 4 indexes: [1] holds the Damage Container [2] Healing [3] Energy [4] Misc.
+These indexes are called "Attributes"
+
+"Actor" has different data depending on which container the actor are, for instance, if is a Damage Actor, it will have members like damage_taken, friendly fire,
+if is a Healing Actor, it will have members for overheal, absorbs etc.
+Actors also have tables for spells and targets.
+An Actor only is created inside a container when it performs an action which fits the container, for instance, if the player didn't restored any energy/mana/rage, etc,
+it won't have an actor inside the Energy Container.
+
+"History Segment" is a table, it holds combat objects of previous combats.
+
+==========
+|    COMBAT     | = { [1] = {DAMAGE CONTAINER}, [2] = {HEAL CONTAINER}, [3] = {ENERGY CONTAINER}, [4] = {MISC CONTAINER} }
+==========
+
+============
+|    CONTAINER    | = { ACTORS }
+============
+
+==========
+|      ACTOR     | = {attribute_keys, spells = {}, targets = {}}
+==========
+attribute keys are the members which holds all the totals made by the actor (see more below).
+spells = {spellid = {SPELL}} targets = {["targetname"] = amount}
+
+
 
 Getting Details! Object:
 =======================================
@@ -56,35 +85,54 @@ Just get the global 'Details', for instance:
 local details = _G.Details
 
 
+
+Important Functions:
+=======================================
+Details:Format (number, formatString)
+if formatString is nil, Format uses current format chosen on details options panel.
+
+Details:GetActorsOnDamageCache()
+only usable while in combat, it returns a numeric table with all damage actors in the group (combatlog flag matching 0x00000007).
+this table can be freely sorted.
+
+Details:GetActorsOnHealingCache()
+only usable while in combat, it returns a numeric table with all healing actors in the group (combatlog flag matching 0x00000007).
+this table can be freely sorted.
+
+*For out of combat, energy and misc containers or get all actors even pets, enemies etc, you may use Container:SortByKey(key) and Container:ListActors().
+
+
+
 Getting a Combat Object:
 =======================================
-
 combat = Details:GetCurrentCombat()
 returns the current combat object.
 
 combat = Details:GetCombat (combat)
 returns the requested combat object.
 if 'combat' is omitted, returns the current combat.
-combat can be a number: -1 for overall, 0 for current and > 0 for past segments.
+combat can be a number: -1 for overall, 0 for current and > 0 for past segments (1, 2, 3, ...).
 combat also can be a string "overall" or "current".
 
 history_segment_container = Details:GetCombatSegments()
 returns the numeric table containing all past segments.
 
+
+
 Gettings an Actor:
 =======================================
-
-local actor = Details:GetActor (combat = "current", attribute = 1, actorname = playername)
+local actor = Details:GetActor (combat = "current", attribute = DETAILS_ATTRIBUTE_DAMAGE, actorname = Details.playername)
 returns the actor for the requested combat, attribute and actor name.
-if all parameters are omitted, returns the damage actor object of the player for the current combat.
+if some parameter are omitted, it uses the default value which are current combat, damage container and the name of the player character.
+
+
 
 Combat Object:
 =======================================
-
 A Combat object is a table with 4 numerical indexes holding: damage, healing, energy and misc containers.
 function for combat objects:
 
-actor = combat ( attribute, character_name )
+actor = combat:GetActor ( attribute, character_name ) or actor = combat ( attribute, character_name )
 returns an actor object
 
 characterList = combat:GetActorList ( attribute )
@@ -129,6 +177,9 @@ returns the unique ID number for the combat.
 container = combat:GetContainer ( attribute )
 returns the container table for the requested attribute.
 
+roster = combat:GetRoster()
+returns a hash table with player names preset in the raid group at the start of the combat.
+
 chartData = combat:GetTimeData ( chart_data_name )
 returns the table containing the data for create a chart.
 
@@ -165,32 +216,65 @@ returns all the four actor objects for the requested combat and actor.
 combat must be a combat object.
 
 
+
 Container Object:
 =======================================
 
 A container is used to store actors, each combat have four containers, one for each attribute.
+There is spell containers which holds the spells used by actors, spell containers are more limited and have only few functions.
+
+ipairs() = container:ListActors()
+returns a iterated table of actors inside the container.
+Usage: 'for index, actor in container:ListActors() do'
+Note: if the container is a spell container, returns pairs() instead: 'for spellid, spelltable in container:ListActors() do'
+
+actor = container:GetActor (character_name)
+returns the actor, for spell container use the spellid instead.
+
+container:GetSpell (spellid)
+unique for spell container.
+e.g. actor.spells:GetSpell (spellid)
+return the spelltable for the requested spellid.
 
 amount = container:GetAmount (actorName [, key = "total"])
-returns the amount of the requested member key, is key is not passed, "total" is used.
+returns the amount of the requested member key, if key is not passed, "total" is used.
+
+container:SortByKey (keyname)
+sort the actor container placing in descending order actors with bigger amounts on their 'keyname'.
+*only works for actor container
+
+sourceName = container:GetSpellSource (spellid)
+return the name of the first actor found inside the container which used a spell with the desired spellid.
+note: this is important for multi-language auras/displays where you doesn't want to hardcode the npc name.
+*only works for actor container
 
 total = container:GetTotal (key = "total")
 returns the total amount of all actors inside the container, if key is omitted, "total" is used.
+*only works for actor container
 
 total = container:GetTotalOnRaid (key = "total", combat)
 similar to GetTotal, but only counts the total of raid members.
-
-ipairs_list = container:ListActors()
-returns a iterated table of actors inside the container.
-Usage: 'for index, actor in container:ListActors() do'
+combat is the combat object owner of this container.
+*only works for actor container
 
 
 Actor Object:
 =======================================
 
 Holds keys, spells and targets of a character.
+Actor can be anything, player, npc, pet, boss, enemy, etc.
 
 name = actor:name()
 returns the actor's name.
+
+class = actor:class()
+returns the actor class.
+
+guid = actor:guid()
+returns the GUID for this actor.
+
+flag = actor:flag()
+returns the combatlog flag for the actor.
 
 displayName = actor:GetDisplayName()
 returns the name shown on the player bar, can suffer modifications from realm name removed, nicknames, etc.
@@ -198,23 +282,23 @@ returns the name shown on the player bar, can suffer modifications from realm na
 name = actor:GetOnlyName()
 returns only the actor name, remove realm or owner names.
 
-class = actor:class()
-returns the actor class.
-
 activity = actor:Tempo()
 returns the activity time for the actor.
 
-isGroupMember = actor:IsGroupPlayer()
-return true if the actor is a player and member of the raid group.
-
 isPlayer = actor:IsPlayer()
 return true if the actor is a player.
+
+isGroupMember = actor:IsGroupPlayer()
+return true if the actor is a player and member of the raid group.
 
 IsneutralOrEnemy = actor:IsNeutralOrEnemy()
 return true if the actor is a neutral of an enemy.
 
 isEnemy = actor:IsEnemy()
 return true if the actor is a enemy.
+
+isPet = actor:IsPetOrGuardian()
+return true if the actor is a pet or guardian
 
 list = actor:GetSpellList()
 returns a hash table with spellid, spelltable.
@@ -231,6 +315,15 @@ returns the class color.
 texture, left, right, top, bottom = actor:GetClassIcon()
 returns the icon texture path and the texture's texcoords.
 
+
+
+Spell and Target Tables:
+=======================================
+Target and Spells are simple tables and has different member names and keys for each attribute.
+See below how each one is named on each attribute.
+
+
+
 Keys for Damage Actors:
 =======================================
 
@@ -243,16 +336,49 @@ actor.start_time = time when this actor started to apply damage.
 actor.end_time = time when the actor stopped with damage.
 actor.friendlyfire_total = amount of friendlyfire.
 
-containers:
+tables:
 actor.targets = hash table of targets: {[targetName] = amount}.
 actor.damage_from = hash table of actors which applied damage to this actor: {[aggresorName] = true}.
 actor.pets = numeric table of GUIDs of pets summoned by this actor.
 actor.friendlyfire = hash table of friendly fire targets: {[targetName] = table {total = 0, spells = hash table: {[spellId] = amount}}}
-actor.spells = hash table with spells used to apply damage: {[spellId] = spellTable}.
+actor.spells = spell container.
+
+spell:
+spell.total = total of damage by this spell.
+spell.counter = how many hits this spell made.
+spell.id = spellid
+
+spell.successful_casted = how many times this spell has been casted successfully (only for enemies).
+	- players has its own spell cast counter inside Misc Container with the member "spell_cast".
+	- the reason os this is spell_cast holds all spells regardless of its attribute (can hold healing/damage/energy/misc).
+
+spell.m_amt = multistrike hits.
+spell.m_dmg = multistrike damage.
+spell.m_crit = multistrike critical hits.
+spell.n_min = minimal damage made on a normal hit.
+spell.n_max = max damage made on a normal hit.
+spell.n_amt = amount of normal hits.
+spell.n_dmg = total amount made doing only normal hits.
+spell.c_min = minimal damage made on a critical hit.
+spell.c_max = max damage made on a critical hit.
+spell.c_amt = how many times this spell got a critical hit (doesn't count critical by multistrike).
+spell.c_dmg = total amount made doing only normal hits.
+spell.g_amt = how many glancing blows this spell has.
+spell.g_dmg = total damage made by glancing blows.
+spell.r_amt = total of times this spell got resisted by the target.
+spell.r_dmg = amount of damage made when it got resisted.
+spell.b_amt = amount of times this spell got blocked by the enemy.
+spell.b_dmg = damage made when the spell got blocked.
+spell.a_amt = amount of times this spell got absorbed.
+spell.a_dmg = total damage while absorbed.
+
+spell.targets = hash table containing {["targetname"] = total damage done by this spell on this target}
 
 Getting Dps:
-For activity time: actor.total / actor:Tempo() 
-For effective time: actor.total / combat:GetCombatTime()
+For activity time: DPS = actor.total / actor:Tempo() 
+For effective time: DPS = actor.total / combat:GetCombatTime()
+
+
 
 Keys for Healing Actors:
 =======================================
@@ -269,14 +395,44 @@ actor.last_event = when the last event for this actor occured.
 actor.start_time = time when this actor started to apply heals.
 actor.end_time = time when the actor stopped with healing.
 
-containers:
-actor.spells = hash table with spells used to apply heals: {[spellId] = spellTable}.
+tables:
+actor.spells = spell container.
 actor.targets = hash table of targets: {[targetName] = amount}.
 actor.targets_overheal = hash table of overhealed targets: {[targetName] = amount}.
 actor.targets_absorbs = hash table of shield absorbs: {[targetName] = amount}.
 actor.healing_from = hash table of actors which applied healing to this actor: {[healerName] = true}.
 actor.pets = numeric table of GUIDs of pets summoned by this actor.
 actor.heal_enemy = spells used to heal the enemy: {[spellid] = amount healed}
+
+spell:
+spell.total = total healing made by this spell.
+spell.counter = how many times this spell healed something.
+spell.id = spellid.
+
+spell.totalabsorb = only for shields, tells how much damage this spell prevented.
+spell.absorbed = is how many healing has been absorbed by some external mechanic like Befouled on Fel Lord Zakuun encounter.
+spell.overheal = amount of overheal made by this spell.
+spell.m_amt = multistrike hits.
+spell.m_healed = multistrike healed.
+spell.m_crit = multistrike critical hits.
+spell.n_min = minimal heal made on a normal hit.
+spell.n_max = max heal made on a normal hit.
+spell.n_amt = amount of normal hits.
+spell.n_curado = total amount made doing only normal hits (weird name I know).
+spell.c_min = minimal heal made on a critical hit.
+spell.c_max = max heal made on a critical hit.
+spell.c_amt = how many times this spell got a critical hit (doesn't count critical by multistrike).
+spell.c_curado = total amount made doing only normal hits.
+
+spell.targets = hash table containing {["targetname"] = total healing done by this spell on this target}
+spell.targets_overheal = hash table containing {["targetname"] = total overhealing by this spell on this target}
+spell.targets_absorbs = hash table containing {["targetname"] = total absorbs by shields (damage prevented) done by this spell on this target}
+
+Getting Hps:
+For activity time: HPS = actor.total / actor:Tempo() 
+For effective time: HPS = actor.total / combat:GetCombatTime()
+
+
 
 Keys for Energy Actors:
 =======================================
@@ -288,55 +444,300 @@ actor.resource_type = type of the resource used by the actor.
 
 actor.pets = numeric table of GUIDs of pets summoned by this actor.
 actor.targets = hash table of targets: {[targetName] = amount}.
-actor.spells = hash table with spells used to generate energy: {[spellId] = spellTable}.
+actor.spells = spell container.
+
+spell:
+total = total energy restored by this spell.
+counter = how many times this spell restored energy.
+id = spellid
+
+targets = hash table containing {["targetname"] = total energy produced towards this target}
+
+
 
 Keys for Misc Actors:
 =======================================
-these members and container may not be present on all actors, depends if the actor performed the action.
+these members and tables may not be present on all actors, depends what the actor performs during the combat, these tables are created on the fly by the parser.
 
-cc_done = amount of crowd control done.
-cc_done_targets = cc done targets {[targetName] = amount}.
-cc_done_spells = spells used to make the cc.
+- Crowd Control Done:
+actor.cc_done = amount of crowd control done.
+actor.cc_done_targets = hash table with target names and amount {[targetName] = amount}.
+actor.cc_done_spells = spell container.
 
-interrupt = amount of interrupts.
-interrupt_targets = target which was its spell interrupted {[targetName] = amount}.
-interrupt_spells = spells used to interrupt.
-interrompeu_oque = spells interrupted.
+spell:
+spell.counter = amount of times this spell has been used to perform a crowd control.
+spell.targets = hash table containing {["targetname"] = total of times this spell made a CC on this target}
 
-buff_uptime = seconds of all buff uptime.
-buff_uptime_targets = 
-buff_uptime_spells = 
 
-debuff_uptime = 
-debuff_uptime_targets = {[targetName] = amount}.
-debuff_uptime_spells = 
+- Interrupts:
+actor.interrupt = total amount of interrupts.
+actor.interrupt_targets = hash table with target names and amount {[targetName] = amount}.
+actor.interrupt_spells = spell container.
+actor.interrompeu_oque = hash table which tells what this actor interrupted {[spell interrupted spellid] = amount}
 
-cooldowns_defensive = amount of defensive cooldowns used.
-cooldowns_defensive_targets = in which player the cooldown was used.
-cooldowns_defensive_spells = spells used.
+spell:
+spell.counter = amount of interrupts performed by this spell.
+spell.interrompeu_oque = hash table talling what this spell interrupted {[spell interrupted spellid] = amount}
+spell.targets = hash table containing {["castername"] = total of times this spell interrupted something from this caster}
 
-ress = amount of resses.
-ress_targets = {[targetName] = amount}.
-ress_spells = 
 
-dispell = amount of dispells done.
-dispell_targets = {[targetName] = amount}.
-dispell_spells = 
-dispell_oque = 
+- Aura Uptime:
+actor.buff_uptime = seconds of all buffs uptime.
+actor.buff_uptime_spells = spell container.
+actor.debuff_uptime = seconds of all debuffs uptime.
+actor.debuff_uptime_spells = spell container.
 
-cc_break = 
-cc_break_targets = {[targetName] = amount}.
-cc_break_spells = 
-cc_break_oque = 
+spell:
+spell.id = spellid
+spell.uptime = uptime amount in seconds.
+
+
+- Cooldowns:
+actor.cooldowns_defensive = amount of defensive cooldowns used by this actor.
+actor.cooldowns_defensive_targets = in which player the cooldown was been used {[targetName] = amount}.
+actor.cooldowns_defensive_spells = spell container.
+
+spell:
+spell.id = spellid
+spell.counter = how many times the player used this cooldown.
+spell.targets = hash table with {["targetname"] = amount}
+
+
+- Ress
+actor.ress = amount of ress performed by this actor.
+actor.ress_targets = which actors got ressed by this actor {["targetname"] = amount}
+actor.ress_spells = spell container.
+
+spell:
+spell.ress = amount of resses made by this spell.
+spell.targets = hash table containing player names resurrected by this spell {["playername"] = amount}
+
+
+- Dispel (members has 2 "L" instead of 1)
+actor.dispell = amount of dispels done.
+actor.dispell_targets = hash table telling who got dispel from this actor {[targetName] = amount}.
+actor.dispell_spells = spell container.
+actor.dispell_oque = hash table with the ids of the spells dispelled by this actor {[spellid of the spell dispelled] = amount}
+
+spell:
+spell.dispell = amount of dispels by this spell.
+spell.dispell_oque = hash table with {[spellid of the spell dispelled]} = amount
+spell.targets = hash table with target names dispelled {["targetname"] = amount}
+
+
+- CC Break
+actor.cc_break = amount of times the actor broke a crowd control.
+actor.cc_break_targets = hash table containing who this actor broke the CC {[targetName] = amount}.
+actor.cc_break_spells = spell container.
+actor.cc_break_oque = hash table with spells broken {[CC spell id] = amount}
+
+spell:
+spell.cc_break = amount of CC broken by this spell.
+spell.cc_break_oque = hash table with {[CC spellid] = amount}
+spell.targets = hash table with {["targetname"] = amount}.
+
 
 
 Other API Calls:
 =======================================
 
+Details:GetSourceFromNpcId (npcId)
+return the npc name for the specific npcId.
+this is a expensive function, once you get a valid result, store the npc name somewhere.
+
+bestResult, encounterTable = Details.storage:GetBestFromPlayer (encounterDiff, encounterId, playerRole, playerName)
+query the storage for the best result of the player on the encounter.
+encounterDiff = raid difficult ID (15 for heroic, 16 for mythic).
+encounterId = may be found on "id" member getting combat:GetBossInfo().
+playerRole = "DAMAGER" or "HEALER", tanks are considered "DAMAGER".
+playerName = name of the player to query (with server name if the player is from another realm).
+bestResult = integer, best damage or healing done on the boss made by the player.
+encounterTable = {["date"] = formated time() ["time"] = time() ["elapsed"] = combat time ["guild"] = guild name ["damage"] = all damage players ["healing"] = all healers}
+
+heal_or_damage_done = Details.storage:GetPlayerData (encounterDiff, encounterId, playerName)
+query the storage for previous ecounter data for the player.
+returns a numeric table with the damage or healing done by the player on all encounters found.
+encounterDiff = raid difficult ID (15 for heroic, 16 for mythic).
+encounterId = may be found on "id" member getting combat:GetBossInfo().
+playerName = name of the player to query (with server name if the player is from another realm).
+
+itemLevel = Details.ilevel:GetIlvl (guid)
+returns a table with {name = "actor name", ilvl = itemLevel, time = time() when the item level was gotten}.
+return NIL if no data for the player is avaliable yet.
+
+talentsTable = Details:GetTalents (guid)
+if available, returns a table with 7 indexes with the talentId selected for each tree {talentId, talentId, talentId, talentId, talentId, talentId, talentId}.
+use with GetTalentInfoByID()
+
+spec = Details:GetSpec (guid)
+if available, return the spec id of the actor, use with GetSpecializationInfoByID()
+
 Details:SetDeathLogLimit (limit)
 Set the amount of lines to store on death log.
 
+npcId = Details:GetNpcIdFromGuid (guid)
+Extract the npcId from the actor guid.
 
 
 
+Examples:
+======================================= ---
+
+1) Get the player damage, heal, dps and hps:
+
+local combat = Details:GetCurrentCombat()
+local damageActor = combat:GetActor (DETAILS_ATTRIBUTE_DAMAGE, UnitName ("player"))
+local healingActor = combat:GetActor (DETAILS_ATTRIBUTE_HEAL, UnitName ("player"))
+or
+local damageActor = Details:GetActor ("current", DETAILS_ATTRIBUTE_DAMAGE, Details.playername)
+local healingActor = Details:GetActor ("current", DETAILS_ATTRIBUTE_HEAL, Details.playername)
+
+local totalDamage, totalHeal = damageActor.total, healingActor.total
+
+local effectiveDps, effectiveHps = totalDamage / combat:GetCombatTime(), totalHeal / combat:GetCombatTime()
+local activeDps, activeHps = totalDamage / damageActor:Tempo(), totalHeal / healingActor:Tempo()
+
+
+2) Get a list of all overhealing:
+
+-- get the combat, here we want the current combat:
+local combat = Details:GetCurrentCombat()
+
+-- as we want all players, we get here the container which stores all healing actors:
+local healingContainer = combat:GetContainer (DETAILS_ATTRIBUTE_HEAL)
+
+-- sort the container with the key "totalover" - we got this key from "Keys for Healing Actors":
+healingContainer:SortByKey ("totalover")
+
+-- now just iterate among the actors:
+local actorsFound = 0
+for i, actor in healingContainer:ListActors() do
+
+	-- inside the container has all entities which made any heal during the combat, here we check if the actor is a player for our group.
+	if (actor:IsGroupPlayer()) then
+		actorsFound = actorsFound + 1
+	end
+end
+
+
+3) Damage done to an add called "Grand Corruptor U'rogg":
+
+local combat = Details:GetCurrentCombat()
+local damageContainer = combat:GetContainer (DETAILS_ATTRIBUTE_DAMAGE)
+local targetName = "Grand Corruptor U'rogg"
+
+there is two ways for do this:
+
+1 - with an external table:
+
+	local actorsAmount = {}
+	for i, actor in damageContainer:ListActors() do
+		local amount = actor.targets [targetName]
+		if (amount and amount >= 1) then
+			tinsert (actorsAmount, {name = actor:name(), total = amount})
+		end
+	end
+
+	table.sort (actorsAmount, function (a,b) return a.total > b.total end)
+
+2 - replacing the member "custom" on the actor:
+
+	for i, actor in damageContainer:ListActors() do
+		if (actor:IsGroupPlayer()) then
+			local amount = actor.targets [targetName]
+			if (amount and amount >= 1) then
+				actor.custom = amount
+			else
+				actor.custom = 0
+			end
+		else
+			actor.custom = 0
+		end
+	end
+
+	damageContainer:SortByKey ("custom")
+
+	local actorsDamagedTheTarget = 0
+	for i, actor in damageContainer:ListActors() do
+		actorsDamagedTheTarget = actorsDamagedTheTarget + 1
+	end
+
+
+4) Get everyone who took damage from an ability:
+
+local combat = Details:GetCurrentCombat()
+local damageContainer = combat:GetContainer (DETAILS_ATTRIBUTE_DAMAGE)
+
+local targetSpell = 183449 --Felfire Volley from hellfire assault encounter
+local sourceNpc = "Gorebound Felcaster"
+--in cases of multi-language auras or displays, we doesn't want to hardcode the npc name.
+sourceNpc = damageContainer:GetSpellSource (targetSpell)
+
+--reset the custom member on all actors:
+for i, actor in damageContainer:ListActors() do
+	actor.custom = 0
+end
+
+local source = damageContainer:GetActor (sourceNpc)
+local felfireVolleySpell = source:GetSpell (targetSpell)
+if (felfireVolleySpell) then
+	for playerName, amount in pairs (felfireVolleySpell.targets) do
+		--players who took damage from this ability
+		--now this result may be placed on a external table or .custom may also be used
+		local targetActor = damageContainer:GetActor (playerName)
+		targetActor.custom = amount
+	end
+end
+
+damageContainer:SortByKey ("custom")
+
+
+5) Get damage taken by an enemy
+
+local combat = Details:GetCurrentCombat()
+local damageContainer = combat:GetContainer (DETAILS_ATTRIBUTE_DAMAGE)
+
+--get the npc name for multi-language auras or displays.
+local npcName = Details:GetSourceFromNpcId (90409) -- "Gorebound Felcaster"
+if (not npcName) then
+	npcName = Details:GetSourceFromNpcId (93931) -- "Gorebound Felcaster"
+end
+--once we get a valid npcName, we need to cache the name since GetSourceFromNpcId is an expensive call.
+aura_env.npcName = npcName -- for weakauras
+Details.cache_npc_ids [93931] = npcName --for details!
+Details.cache_npc_ids [90409] = npcName --for details!
+
+-- here, there is two ways:
+
+1 - iterage among all actor and get their .targets [npcName].
+
+	for i, actor in damageContainer:ListActors() do
+		local amount = actor.targets [npcName]
+		if (amount and amount >= 1) then
+			player.custom = amount
+		else
+			player.custom = 0
+		end
+	end
+	
+	damageContainer:SortByKey ("custom")
+
+
+2 - get the npc actor and its damage_from table.
+
+	local actor = damageContainer:GetActor (npcName)
+	if (actor) then
+		--reset the custom member on all actors:
+		for i, actor in damageContainer:ListActors() do
+			actor.custom = 0
+		end
+		for playerName, _ in pairs (actor.damage_from) do
+			local player = damageContainer:GetActor (playerName)
+			if (player:IsPlayer()) then --we only want players. pets always has their damage merged on its owner damage.
+				player.custom = actor.targets [npcName]
+			end
+		end
+		
+		damageContainer:SortByKey ("custom")
+	end
 

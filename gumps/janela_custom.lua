@@ -174,13 +174,17 @@
 			
 			DetailsCustomPanel.code1_default = [[
 							--get the parameters passed
-							local combat, instance_container, instance = ...
+							local Combat, CustomContainer, Instance = ...
 							--declade the values to return
 							local total, top, amount = 0, 0, 0
 							
 							--do the loop
-							
+								--CustomContainer:AddValue (actor, actor.value)
 							--loop end
+							
+							--if not managed inside the loop, get the values of total, top and amount
+							total, top = Container:GetTotalAndHighestValue()
+							amount = Container:GetNumActors()
 							
 							--return the values
 							return total, top, amount
@@ -1768,8 +1772,10 @@
 				font_size2:SetPoint ("left", font_size1, "right", -4, 2)
 				local apply1 = gump:NewButton (code_editor, nil, "$parentApply", "applybutton", 8, 10, apply_code, nil, nil, nil, "apply")
 				apply1:SetPoint ("left", font_size2, "right", -4, 1)
+
+				local open_API = gump:NewButton (code_editor, nil, "$parentOpenAPI", "openAPIbutton", 8, 10, _detalhes.OpenAPI, nil, nil, nil, "Open Details! API")
+				open_API:SetPoint ("left", apply1, "right", -4, -1)
 				
-				--code_editor:SetWidth (650)
 				
 			--> select damage
 				DetailsCustomPanelAttributeMenu1:Click()

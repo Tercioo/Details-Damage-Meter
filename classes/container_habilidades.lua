@@ -47,6 +47,17 @@ local _
 	function container_habilidades:GetSpell (id)
 		return self._ActorTable [id]
 	end
+	
+	function container_habilidades:GetAmount (id, key)
+		local spell = self._ActorTable [id]
+		if (spell) then
+			return spell [key]
+		end
+	end
+	
+	function container_habilidades:ListActors()
+		return _pairs (self._ActorTable)
+	end
 
 	function container_habilidades:PegaHabilidade (id, criar, token, cria_shadow)
 	

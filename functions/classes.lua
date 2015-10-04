@@ -100,17 +100,14 @@ do
 		CONTAINER_ENEMYDEBUFFTARGET_CLASS = 11
 	}
 
-	function _detalhes:name (actor)
-		return self.nome or actor.nome
-	end
 	function _detalhes:Name (actor)
-		return self.nome or actor.nome
+		return self.nome or actor and actor.nome
 	end
 	function _detalhes:GetName (actor)
-		return self.nome or actor.nome
+		return self.nome or actor and actor.nome
 	end
 	function _detalhes:GetDisplayName (actor)
-		return self.displayName or actor.displayName
+		return self.displayName or actor and actor.displayName
 	end
 	function _detalhes:GetOnlyName (string)
 		if (string) then
@@ -128,10 +125,16 @@ do
 		end
 	end
 	function _detalhes:Class (actor)
-		return self.classe or actor.classe
+		return self.classe or actor and actor.classe
 	end
-	function _detalhes:class (actor)
-		return self.classe or actor.classe
+	function _detalhes:GetActorClass (actor)
+		return self.classe or actor and actor.classe
+	end
+	function _detalhes:GetGUID (actor)
+		return self.serial or actor and actor.serial
+	end
+	function _detalhes:GetFlag (actor)
+		return self.flag_original or actor and actor.flag_original
 	end
 	function _detalhes:GetActorSpells()
 		return self.spells._ActorTable
@@ -139,4 +142,11 @@ do
 	function _detalhes:GetSpell (spellid)
 		return self.spells._ActorTable [spellid]
 	end
+	
+	--> inherits to all actors without placing it on _detalhes namespace.
+	_detalhes.container_combatentes.guid = _detalhes.GetGUID
+	_detalhes.container_combatentes.name = _detalhes.GetName
+	_detalhes.container_combatentes.class = _detalhes.GetActorClass
+	_detalhes.container_combatentes.flag = _detalhes.GetFlag
+
 end

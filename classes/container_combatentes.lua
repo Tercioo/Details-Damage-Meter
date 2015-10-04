@@ -60,6 +60,23 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> api functions
 
+	function container_combatentes:GetActor (actorName)
+		local index = self._NameIndexTable [actorName]
+		if (index) then
+			return self._ActorTable [index]
+		end
+	end
+	
+	function container_combatentes:GetSpellSource (spellid)
+		local t = self._ActorTable
+		print ("getting the source", spellid, #t)
+		for i = 1, #t do
+			if (t[i].spells._ActorTable [spellid]) then
+				return t[i].nome
+			end
+		end
+	end
+	
 	function container_combatentes:GetAmount (actorName, key)
 		key = key or "total"
 		local index = self._NameIndexTable [actorName]
@@ -514,6 +531,18 @@
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> core
+	
+	--_detalhes:AddToNpcIdCache (novo_objeto)
+	function _detalhes:AddToNpcIdCache (actor)
+		if (flag and serial) then
+			if (_bit_band (flag, REACTION_HOSTILE) ~= 0 and _bit_band (flag, OBJECT_TYPE_NPC) ~= 0 and _bit_band (flag, OBJECT_TYPE_PETGUARDIAN) == 0) then
+				local npc_id = _detalhes:GetNpcIdFromGuid (serial)
+				if (npc_id) then
+					_detalhes.cache_npc_ids [npc_id] = nome
+				end
+			end
+		end		
+	end
 
 	function _detalhes:UpdateContainerCombatentes()
 		container_pets = _detalhes.tabela_pets.pets
@@ -563,10 +592,11 @@
 
 	local bykey
 	local sort = function (t1, t2)
-		return t1 [bykey] > t2 [bykey]
+		return (t1 [bykey] or 0) > (t2 [bykey] or 0)
 	end
 	
 	function container_combatentes:SortByKey (key)
+		assert (type (key) == "string", "Container:SortByKey() expects a keyname on parameter 1.")
 		bykey = key
 		_table_sort (self._ActorTable, sort)
 		self:remapear()

@@ -789,7 +789,9 @@
 					spellname = ""
 				end
 				actor.nome = spellname
+				actor.name = spellname
 				actor.classe = actor.spellschool
+				actor.class = actor.spellschool
 				class = actor.spellschool
 				
 				local index = self._NameIndexTable [actor.nome]
@@ -799,6 +801,9 @@
 				
 			else
 				class = actor.classe or actor.class
+				if (not class or class == "UNKNOWN") then
+					class = "UNKNOW"
+				end
 				if (class == "UNKNOW") then
 					--> try once again
 					class = _detalhes:GetClass (actor.nome or actor.name)

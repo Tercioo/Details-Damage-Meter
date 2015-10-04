@@ -1103,10 +1103,12 @@ function _detalhes.switch:Update()
 		if (name == Loc ["STRING_SWITCH_CLICKME"]) then
 			--button.button2.texto:SetTextColor (.3, .3, .3, 1)
 			button:SetAlpha (0.3)
+			button.textureNormal:SetDesaturated (true)
 			button.button2.texto:SetPoint ("left", button, "right", 5, -1)
 		else
 			--button.button2.texto:SetTextColor (.8, .8, .8, 1)
 			button:SetAlpha (1)
+			button.textureNormal:SetDesaturated (false)
 			button.button2.texto:SetPoint ("left", button, "right", 3, -1)
 		end
 		

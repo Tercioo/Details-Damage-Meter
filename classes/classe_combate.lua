@@ -62,6 +62,10 @@
 		return self [attribute]
 	end
 	
+	function combate:GetRoster()
+		return self.raid_roster
+	end
+	
 	function combate:InstanceType()
 		return _rawget (self, "instance_type")
 	end
@@ -118,6 +122,14 @@
 		return self [container]._ActorTable
 	end
 
+	function combate:GetActor (container, name)
+		local index = self [container] and self [container]._NameIndexTable [name]
+		if (index) then
+			return self [container]._ActorTable [index]
+		end
+		return nil
+	end
+	
 	--return the combat time in seconds
 	function combate:GetFormatedCombatTime()
 		local time = self:GetCombatTime()

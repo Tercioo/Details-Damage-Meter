@@ -1453,3 +1453,11 @@ function _detalhes.ilevel:GetInOrder()
 	
 	return order
 end
+
+function _detalhes:GetTalents (guid)
+	return _detalhes.cached_talents [guid]
+end
+
+function _detalhes:GetSpec (guid)
+	return _detalhes.cached_specs [guid]
+end

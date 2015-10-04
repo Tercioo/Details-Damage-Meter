@@ -3,8 +3,8 @@
 
 		_ = nil
 		_detalhes = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0", "NickTag-1.0")
-		_detalhes.build_counter = 2005 --it's 2005 for release
-		_detalhes.userversion = "v4.0.3a"
+		_detalhes.build_counter = 2009 --it's 2009 for release
+		_detalhes.userversion = "v4.0.4"
 		_detalhes.realversion = 75 --core version
 		_detalhes.version = _detalhes.userversion .. " (core " .. _detalhes.realversion .. ")"
 		Details = _detalhes
@@ -22,7 +22,8 @@ do
 
 --[[
 |cFFFFFF00v4.0.3a (|cFFFFCC00Set 29, 2015|r|cFFFFFF00)|r:\n\n
-|cFFFFFF00-|r Fix for an error on Damage Taken By Spell display.\n\n
+|cFFFFFF00-|r Added slash command '/details api'.\n\n
+|cFFFFFF00-|r Major update on our .txt about the API, these files are on the root folder of details! at WoW/Interface/AddOns/Details.\n\n
 --]]
 
 --
@@ -79,6 +80,7 @@ do
 		-->  cache de grupo
 			_detalhes.cache_damage_group = {}
 			_detalhes.cache_healing_group = {}
+			_detalhes.cache_npc_ids = {}
 		--> cache de specs
 			_detalhes.cached_specs = {}
 			_detalhes.cached_talents = {}
