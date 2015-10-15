@@ -610,6 +610,60 @@ function _G._detalhes:Start()
 
 	_detalhes.chat_embed:CheckChatEmbed (true)
 	
+	--_detalhes:SetTutorialCVar ("MEMORY_USAGE_ALERT1", false)
+	if (not _detalhes:GetTutorialCVar ("MEMORY_USAGE_ALERT1")) then
+		function _detalhes:AlertAboutMemoryUsage()
+			if (DetailsWelcomeWindow and DetailsWelcomeWindow:IsShown()) then
+				return _detalhes:ScheduleTimer ("AlertAboutMemoryUsage", 30)
+			end
+			
+			local f = _detalhes.gump:CreateSimplePanel (UIParent, 500, 290, Loc ["STRING_MEMORY_ALERT_TITLE"], "AlertAboutMemoryUsagePanel", {NoTUISpecialFrame = true, DontRightClickClose = true})
+			f:SetPoint ("center", UIParent, "center", -200, 100)
+			f.Close:Hide()
+			_detalhes:SetFontColor (f.Title, "yellow")
+			
+			local gnoma = _detalhes.gump:CreateImage (f.TitleBar, [[Interface\AddOns\Details\images\icons2]], 104, 107, "overlay", {104/512, 0, 405/512, 1})
+			gnoma:SetPoint ("topright", 0, 14)
+			
+			local logo = _detalhes.gump:CreateImage (f, [[Interface\AddOns\Details\images\logotipo]])
+			logo:SetPoint ("topleft", -5, 15)
+			logo:SetSize (512*0.4, 256*0.4)
+			
+			local text1 = Loc ["STRING_MEMORY_ALERT_TEXT1"]
+			local text2 = Loc ["STRING_MEMORY_ALERT_TEXT2"]
+			local text3 = Loc ["STRING_MEMORY_ALERT_TEXT3"]
+			
+			local str1 = _detalhes.gump:CreateLabel (f, text1)
+			str1.width = 480
+			str1.fontsize = 12
+			str1:SetPoint ("topleft", 10, -100)
+			
+			local str2 = _detalhes.gump:CreateLabel (f, text2)
+			str2.width = 480
+			str2.fontsize = 12
+			str2:SetPoint ("topleft", 10, -150)
+			
+			local str3 = _detalhes.gump:CreateLabel (f, text3)
+			str3.width = 480
+			str3.fontsize = 12
+			str3:SetPoint ("topleft", 10, -200)
+			
+			local textbox = _detalhes.gump:CreateTextEntry (f, function()end, 350, 20, nil, nil, nil, _detalhes.gump:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
+			textbox:SetPoint ("topleft", 10, -250)
+			textbox:SetText ([[www.curse.com/addons/wow/addons-cpu-usage]])
+			textbox:SetHook ("OnEditFocusGained", function() textbox:HighlightText() end)
+			
+			local close_func = function()
+				_detalhes:SetTutorialCVar ("MEMORY_USAGE_ALERT1", true)
+				f:Hide()
+			end
+			local close = _detalhes.gump:CreateButton (f, close_func, 127, 20, Loc ["STRING_MEMORY_ALERT_BUTTON"], nil, nil, nil, nil, nil, nil, _detalhes.gump:GetTemplate ("button", "OPTIONS_BUTTON_TEMPLATE"))
+			close:SetPoint ("left", textbox, "right", 2, 0)
+			
+		end
+		_detalhes:ScheduleTimer ("AlertAboutMemoryUsage", 30) --30
+	end
+	
 	_detalhes.AddOnStartTime = GetTime()
 
 end

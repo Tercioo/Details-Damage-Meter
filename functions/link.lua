@@ -1177,6 +1177,8 @@
 	
 	function _detalhes:CreateWeakAura (aura_type, spellid, use_spellid, spellname, name, icon_texture, target, stacksize, sound, chat, icon_text, icon_glow, encounter_id, group, icon_size, other_values)
 	
+		--print (aura_type, spellid, use_spellid, spellname, name, icon_texture, target, stacksize, sound, chat, icon_text, icon_glow, encounter_id, group, icon_size, other_values)
+	
 		--> check if wa is installed
 		if (not WeakAuras or not WeakAurasSaved) then
 			return
@@ -1358,7 +1360,7 @@
 					add.trigger.spellIds[1] = spellid
 					add.trigger.names [1] = spellname
 					add.trigger.unit = "player"
-					_detalhes.table.deploy (new_aura, add)
+					_detalhes.table.overwrite (new_aura, add)
 					
 				elseif (target == 2) then --Debuff on Target
 					local add = _detalhes.table.copy ({}, debuff_prototype)
@@ -1366,7 +1368,7 @@
 					add.trigger.spellIds[1] = spellid
 					add.trigger.names[1] = spellname
 					add.trigger.unit = "target"
-					_detalhes.table.deploy (new_aura, add)
+					_detalhes.table.overwrite (new_aura, add)
 
 				elseif (target == 3) then --Debuff on Focus
 					local add = _detalhes.table.copy ({}, debuff_prototype)
@@ -1374,7 +1376,7 @@
 					add.trigger.spellIds[1] = spellid
 					add.trigger.names[1] = spellname
 					add.trigger.unit = "focus"
-					_detalhes.table.deploy (new_aura, add)
+					_detalhes.table.overwrite (new_aura, add)
 					
 				elseif (target == 11) then --Buff on Player
 					local add = _detalhes.table.copy ({}, buff_prototype)
@@ -1382,7 +1384,7 @@
 					add.trigger.spellIds[1] = spellid
 					add.trigger.names[1] = spellname
 					add.trigger.unit = "player"
-					_detalhes.table.deploy (new_aura, add)
+					_detalhes.table.overwrite (new_aura, add)
 					
 				elseif (target == 12) then --Buff on Target
 					local add = _detalhes.table.copy ({}, buff_prototype)
@@ -1390,7 +1392,7 @@
 					add.trigger.spellIds[1] = spellid
 					add.trigger.names[1] = spellname
 					add.trigger.unit = "target"
-					_detalhes.table.deploy (new_aura, add)
+					_detalhes.table.overwrite (new_aura, add)
 					
 				elseif (target == 13) then --Buff on Focus
 					local add = _detalhes.table.copy ({}, buff_prototype)
@@ -1398,7 +1400,7 @@
 					add.trigger.spellIds[1] = spellid
 					add.trigger.names[1] = spellname
 					add.trigger.unit = "focus"
-					_detalhes.table.deploy (new_aura, add)
+					_detalhes.table.overwrite (new_aura, add)
 					
 				elseif (target == 21) then --Spell Cast Started
 					local add = _detalhes.table.copy ({}, cast_prototype)
@@ -1409,7 +1411,7 @@
 						add.trigger.use_spellName = true
 						add.trigger.use_spellId = false
 					end
-					_detalhes.table.deploy (new_aura, add)
+					_detalhes.table.overwrite (new_aura, add)
 					
 				elseif (target == 22) then --Spell Cast Successful
 					local add = _detalhes.table.copy ({}, cast_prototype)
@@ -1419,7 +1421,7 @@
 						add.trigger.use_spellName = true
 						add.trigger.use_spellId = false
 					end
-					_detalhes.table.deploy (new_aura, add)
+					_detalhes.table.overwrite (new_aura, add)
 				end
 			else
 				new_aura.trigger.spellId = tostring (spellid)
@@ -1440,7 +1442,7 @@
 				stacksize = floor (stacksize)
 				local add = _detalhes.table.copy ({}, stack_prototype)
 				add.trigger.count = tostring (stacksize)
-				_detalhes.table.deploy (new_aura, add)
+				_detalhes.table.overwrite (new_aura, add)
 			end
 			
 			--> icon text
@@ -1450,7 +1452,7 @@
 				else
 					local add = _detalhes.table.copy ({}, widget_text_prototype)
 					add.displayStacks = icon_text
-					_detalhes.table.deploy (new_aura, add)
+					_detalhes.table.overwrite (new_aura, add)
 				end
 			end
 			
@@ -1480,19 +1482,19 @@
 			local add = _detalhes.table.copy ({}, sound_prototype_custom)
 			add.actions.start.sound_path = sound.sound_path
 			add.actions.start.sound_channel = sound.sound_channel or "Master"
-			_detalhes.table.deploy (new_aura, add)
+			_detalhes.table.overwrite (new_aura, add)
 			
 		elseif (sound and sound ~= "" and not sound:find ("Quiet.ogg")) then
 			local add = _detalhes.table.copy ({}, sound_prototype)
 			add.actions.start.sound = sound
-			_detalhes.table.deploy (new_aura, add)
+			_detalhes.table.overwrite (new_aura, add)
 		end
 		
 		--> chat message
 		if (chat and chat ~= "") then
 			local add = _detalhes.table.copy ({}, chat_prototype)
 			add.actions.start.message = chat
-			_detalhes.table.deploy (new_aura, add)
+			_detalhes.table.overwrite (new_aura, add)
 		end
 		
 		--> check if already exists a aura with this name
@@ -1509,7 +1511,7 @@
 		if (icon_glow) then
 			local add = _detalhes.table.copy ({}, glow_prototype)
 			add.actions.start.glow_frame = "WeakAuras:" .. new_aura.id
-			_detalhes.table.deploy (new_aura, add)
+			_detalhes.table.overwrite (new_aura, add)
 		end
 		
 		--> add the aura on a group

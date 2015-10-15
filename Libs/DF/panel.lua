@@ -1474,7 +1474,8 @@ local SimplePanel_frame_backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], e
 local SimplePanel_frame_backdrop_color = {0, 0, 0, 0.9}
 local SimplePanel_frame_backdrop_border_color = {0, 0, 0, 1}
 
-function DF:CreateSimplePanel (parent, w, h, title, name)
+local no_options = {}
+function DF:CreateSimplePanel (parent, w, h, title, name, panel_options)
 	
 	if (not name) then
 		name = "DetailsFrameworkSimplePanel" .. simple_panel_counter
@@ -1483,6 +1484,8 @@ function DF:CreateSimplePanel (parent, w, h, title, name)
 	if (not parent) then
 		parent = UIParent
 	end
+	
+	panel_options = panel_options or no_options
 
 	local f = CreateFrame ("frame", name, UIParent)
 	f:SetSize (w or 400, h or 250)
@@ -1493,7 +1496,12 @@ function DF:CreateSimplePanel (parent, w, h, title, name)
 	f:SetBackdrop (SimplePanel_frame_backdrop)
 	f:SetBackdropColor (unpack (SimplePanel_frame_backdrop_color))
 	f:SetBackdropBorderColor (unpack (SimplePanel_frame_backdrop_border_color))
-	tinsert (UISpecialFrames, name)
+	
+	f.DontRightClickClose = panel_options.DontRightClickClose
+	
+	if (not panel_options.NoTUISpecialFrame) then
+		tinsert (UISpecialFrames, name)
+	end
 	
 	local title_bar = CreateFrame ("frame", name .. "TitleBar", f)
 	title_bar:SetPoint ("topleft", f, "topleft", 2, -3)
@@ -1502,6 +1510,7 @@ function DF:CreateSimplePanel (parent, w, h, title, name)
 	title_bar:SetBackdrop (SimplePanel_frame_backdrop)
 	title_bar:SetBackdropColor (.2, .2, .2, 1)
 	title_bar:SetBackdropBorderColor (0, 0, 0, 1)
+	f.TitleBar = title_bar
 	
 	local close = CreateFrame ("button", name and name .. "CloseButton", title_bar)
 	close:SetSize (16, 16)

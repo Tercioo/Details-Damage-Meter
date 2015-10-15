@@ -3296,11 +3296,7 @@
 	end
 
 	function _detalhes.parser_functions:PLAYER_REGEN_DISABLED (...)
-		if (_detalhes.EncounterInformation [_detalhes.zone_id]) then 
-			_detalhes:ScheduleTimer ("ReadBossFrames", 1)
-			_detalhes:ScheduleTimer ("ReadBossFrames", 30)
-		end
-		
+
 		if (not _detalhes:CaptureGet ("damage")) then
 			_detalhes:EntrarEmCombate()
 		end

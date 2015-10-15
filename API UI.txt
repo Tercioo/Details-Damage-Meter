@@ -214,6 +214,8 @@ set the update speed of all windows, if nosave is true, it won't save this chang
 Details:SetUseAnimations (enabled, nosave)
 set on off bar animations on all windows, if nosave is true, it won't save this change (apply only).
 
+Details:SetTrashSuppression (seconds)
+how much time after a boss encounter kill, the window should not switch to trash segments.
 --------------------
 
 Details.chat_embed:SetTabSettings (tab_name, is_enabled, is_single)

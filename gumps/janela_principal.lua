@@ -115,7 +115,7 @@ end
 	
 	-- icones: 365 = 0.35693359375 // 397 = 0.38720703125
 	
-function _detalhes:AtualizarScrollBar (x)
+function _detalhes:AtualizarScrollBar (x) --> x = quantas barras esta sendo mostrado
 
 	local cabe = self.rows_fit_in_window --> quantas barras cabem na janela
 
@@ -348,13 +348,14 @@ end
 _detalhes.OnLeaveMainWindow = OnLeaveMainWindow
 
 local function OnEnterMainWindow (instancia, self)
-
 	instancia.is_interacting = true
 	instancia:SetMenuAlpha (nil, nil, nil, nil, true)
 	instancia:SetAutoHideMenu (nil, nil, true)
 	instancia:RefreshAttributeTextSize()
 	
-	instancia.last_interaction = _detalhes._tempo or time()
+	if (not instancia.last_interaction or instancia.last_interaction < _detalhes._tempo) then
+		instancia.last_interaction = _detalhes._tempo or time()
+	end
 
 	if (instancia.baseframe:GetFrameLevel() > instancia.rowframe:GetFrameLevel()) then
 		instancia.rowframe:SetFrameLevel (instancia.baseframe:GetFrameLevel())
@@ -1033,7 +1034,7 @@ local BGFrame_scripts_onmousedown = function (self, button)
 			end
 		end
 	elseif (button == "RightButton") then
-		if (self.is_toolbar) then
+		if (self.is_toolbar and not _detalhes.disable_alldisplays_window) then
 			self._instance:ShowAllSwitch()
 		else
 			if (_detalhes.switch.current_instancia and _detalhes.switch.current_instancia == self._instance) then
@@ -1613,6 +1614,10 @@ local resize_scripts_onenter = function (self)
 		GameCooltip:SetOption ("TextSize", _detalhes.font_sizes.menus)
 		GameCooltip:SetOption ("TextFont", _detalhes.font_faces.menus)		
 		GameCooltip:SetOption ("NoLastSelectedBar", true)
+
+		GameCooltip:SetOption ("YSpacingMod", -3)
+		GameCooltip:SetOption ("FixedHeight", 106)
+		
 		GameCooltip:SetWallpaper (1, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
 		GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
 		GameCooltip:SetOwner (self)
@@ -1669,6 +1674,10 @@ local lockFunctionOnEnter = function (self)
 		GameCooltip:SetOption ("NoLastSelectedBar", true)
 		GameCooltip:SetOption ("TextSize", _detalhes.font_sizes.menus)
 		GameCooltip:SetOption ("TextFont", _detalhes.font_faces.menus)
+		
+		GameCooltip:SetOption ("YSpacingMod", -3)
+		GameCooltip:SetOption ("FixedHeight", 32)
+		
 		GameCooltip:SetWallpaper (1, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
 		GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
 		GameCooltip:SetOwner (self)
@@ -1781,6 +1790,10 @@ local unSnapButtonOnEnter = function (self)
 	GameCooltip:AddFromTable (unSnapButtonTooltip)
 	GameCooltip:SetOption ("TextSize", _detalhes.font_sizes.menus)
 	GameCooltip:SetOption ("TextFont", _detalhes.font_faces.menus)
+	
+	GameCooltip:SetOption ("YSpacingMod", -3)
+	GameCooltip:SetOption ("FixedHeight", 32)
+	
 	GameCooltip:SetWallpaper (1, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
 	GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
 	GameCooltip:ShowCooltip (self, "tooltip")
@@ -2421,7 +2434,7 @@ function _detalhes:ReportSingleLine (instancia, barra)
 	
 		--> dump cooltip
 		local GameCooltip = GameCooltip
-		if (GameCoolTipFrame1:IsShown()) then
+		if (GameCooltipFrame1:IsShown()) then
 			local actor_name = barra.texto_esquerdo:GetText() or ""
 			actor_name = actor_name:gsub ((".*%."), "")
 			
@@ -2784,16 +2797,18 @@ local function iterate_scroll_scripts (backgrounddisplay, backgroundframe, basef
 		function (self, delta)
 			if (delta > 0) then --> rolou pra cima
 				local A = instancia.barraS[1]
-				if (A > 1) then
-					scrollbar:SetValue (scrollbar:GetValue() - instancia.row_height * _detalhes.scroll_speed)
-				else
-					scrollbar:SetValue (0)
-					scrollbar.ultimo = 0
-					baseframe.button_up:Disable()
+				if (A) then
+					if (A > 1) then
+						scrollbar:SetValue (scrollbar:GetValue() - instancia.row_height * _detalhes.scroll_speed)
+					else
+						scrollbar:SetValue (0)
+						scrollbar.ultimo = 0
+						baseframe.button_up:Disable()
+					end
 				end
 			elseif (delta < 0) then --> rolou pra baixo
 				local B = instancia.barraS[2]
-				--if (B) then
+				if (B) then
 					if (B < (instancia.rows_showing or 0)) then
 						scrollbar:SetValue (scrollbar:GetValue() + instancia.row_height * _detalhes.scroll_speed)
 					else
@@ -2802,7 +2817,7 @@ local function iterate_scroll_scripts (backgrounddisplay, backgroundframe, basef
 						scrollbar.ultimo = maxValue
 						baseframe.button_down:Disable()
 					end
-				--end
+				end
 			end
 
 		end)
@@ -5425,8 +5440,7 @@ local OnClickNovoMenu = function (_, _, id, instance)
 end
 
 function _detalhes:SetTooltipMinWidth()
-	GameCooltip:SetOption ("MinWidth", 140)
---	/dump GameCooltipFrame1:GetWidth()
+	GameCooltip:SetOption ("MinWidth", 155)
 end
 
 local build_mode_list = function (self, elapsed)
@@ -6125,13 +6139,8 @@ local build_segment_list = function (self, elapsed)
 		
 		CoolTip:SetOption ("HeighMod", 12)
 		_detalhes:SetTooltipMinWidth()
-		
-		
 
-		--CoolTip:SetWallpaper (1, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
-		--CoolTip:SetWallpaper (1, _detalhes.tooltip.menus_bg_texture, {66/512, 1, 78/512, 435/512}, _detalhes.tooltip.menus_bg_color, true)
 		CoolTip:SetWallpaper (1, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
-		--CoolTip:SetWallpaper (1, _detalhes.tooltip.menus_bg_texture, {331/512, 63/512, 109/512, 143/512}, _detalhes.tooltip.menus_bg_color, true)
 
 		CoolTip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
 		CoolTip:SetBackdrop (2, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
@@ -7608,7 +7617,7 @@ end
 		GameCooltip:Reset()
 		GameCooltip:SetType ("menu")
 		GameCooltip:SetOption ("ButtonsYMod", -2)
-		GameCooltip:SetOption ("YSpacingMod", 0)
+		GameCooltip:SetOption ("YSpacingMod", -3)
 		GameCooltip:SetOption ("TextHeightMod", 0)
 		GameCooltip:SetOption ("IgnoreButtonAutoHeight", false)
 		
@@ -7617,15 +7626,15 @@ end
 		
 		_detalhes:SetTooltipMinWidth()
 		
-		GameCooltip:AddLine (Loc ["STRING_ERASE_DATA"], nil, 1, "white", nil, _detalhes.font_sizes.menus, _detalhes.font_faces.menus)
-		GameCooltip:AddIcon ([[Interface\Buttons\UI-StopButton]], 1, 1, 14, 14, 0, 1, 0, 1, "red")
-		GameCooltip:AddMenu (1, _detalhes.tabela_historico.resetar)
-		
-		GameCooltip:AddLine ("$div", nil, 1, nil, -5, -11)
-		
 		GameCooltip:AddLine (Loc ["STRING_ERASE_DATA_OVERALL"], nil, 1, "white", nil, _detalhes.font_sizes.menus, _detalhes.font_faces.menus)
 		GameCooltip:AddIcon ([[Interface\Buttons\UI-StopButton]], 1, 1, 14, 14, 0, 1, 0, 1, "orange")
 		GameCooltip:AddMenu (1, _detalhes.tabela_historico.resetar_overall)
+		
+		GameCooltip:AddLine ("$div", nil, 1, nil, -5, -11)
+		
+		GameCooltip:AddLine (Loc ["STRING_ERASE_DATA"], nil, 1, "white", nil, _detalhes.font_sizes.menus, _detalhes.font_faces.menus)
+		GameCooltip:AddIcon ([[Interface\Buttons\UI-StopButton]], 1, 1, 14, 14, 0, 1, 0, 1, "red")
+		GameCooltip:AddMenu (1, _detalhes.tabela_historico.resetar)
 		
 		GameCooltip:SetWallpaper (1, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
 		GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
@@ -7813,7 +7822,7 @@ local report_on_enter = function (self, motion, forced, from_click)
 			GameCooltip:AddMenu (1, _detalhes.ReportFromLatest, index)
 		end
 		
-		GameCooltip:AddLine ("$div")
+		GameCooltip:AddLine ("$div", nil, nil, -4)
 	end
 	
 	GameCooltip:AddLine (Loc ["STRING_REPORT_TOOLTIP"], nil, 1, "white", nil, _detalhes.font_sizes.menus, _detalhes.font_faces.menus)

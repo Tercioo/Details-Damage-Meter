@@ -881,6 +881,7 @@ local default_profile = {
 		disable_lock_ungroup_buttons = false,
 		disable_stretch_from_toolbar = false,
 		disable_stretch_button = false,
+		disable_alldisplays_window = false,
 		damage_taken_everything = false,
 	
 	--> info window
@@ -902,6 +903,7 @@ local default_profile = {
 		instances_disable_bar_highlight = false,
 		instances_menu_click_to_open = false,
 		instances_no_libwindow = false,
+		instances_suppress_trash = 0,
 		
 	--> if clear ungroup characters when logout
 		clear_ungrouped = true,
@@ -1019,7 +1021,8 @@ local default_profile = {
 			tooltip_max_targets = 2,
 			tooltip_max_pets = 2,
 			
-			menus_bg_coords = {331/512, 63/512, 109/512, 143/512},
+			--menus_bg_coords = {331/512, 63/512, 109/512, 143/512}, --with gradient on right side
+			menus_bg_coords = {0.309777336120606, 0.924000015258789, 0.213000011444092, 0.279000015258789},
 			menus_bg_color = {.8, .8, .8, 0.2},
 			menus_bg_texture = [[Interface\SPELLBOOK\Spellbook-Page-1]],
 			

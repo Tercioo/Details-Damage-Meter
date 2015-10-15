@@ -1255,7 +1255,7 @@ function DF:CreateCoolTip()
 		row.leftText:SetHeight (10)
 	end
 
-	--> ~inicio ~start
+	--> ~inicio ~start ~tooltip
 	function CoolTip:monta_tooltip()
 		
 		--> hide sub frame
@@ -1417,7 +1417,7 @@ function DF:CreateCoolTip()
 		button.divbar:SetDesaturated (true)
 	end
 	
-	--> ~inicio ~start
+	--> ~inicio ~start ~menu
 	function CoolTip:monta_cooltip (host, instancia, options, sub_menus, icones, tamanho1, tamanho2, font, fontsize)
 
 		if (CoolTip.Indexes == 0) then

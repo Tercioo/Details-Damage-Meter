@@ -2543,8 +2543,10 @@ end
 		end
 	else
 		if (esta_barra.hidden or esta_barra.fading_in or esta_barra.faded) then
+			--> setando o valor  mesmo com animações pq o barra esta hidada com o value do último actor que ela mostrou
 			if (use_animations) then
 				esta_barra.animacao_fim = esta_porcentagem
+				esta_barra:SetValue (esta_porcentagem)
 			else
 				esta_barra:SetValue (esta_porcentagem)
 				esta_barra.animacao_ignorar = true

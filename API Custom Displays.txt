@@ -171,3 +171,36 @@ top is the amount of value of the actor with more value.
 container:WipeCustomActorContainer()
 removes all data from a custom container.
 this is automatically performed when the search script runs.
+
+
+Creating Customs from Plugins or 3rd Party Addons
+=======================================
+Custom Displays can be created through the Custom Display Manager accessed by Sword -> Customs -> Custom Display Manager.
+But if you are in a plugin or another addon you'll need to create a hard-coded custom table, and after that, install with InstallCustomObject().
+
+Details:InstallCustomObject (custom_object)
+Adds a custom display on Details!.
+custom_object is a table with several key telling what Details! should do when the user selects this custom on a window:
+
+name = the name of the custom display, is shown when the user is selecting on the list (string).
+icon = icon path, is shown together with the name (string).
+source = set false to use a custom search script (bool).
+attribute = always use false here to be able to use the scripted search (bool).
+spellid = the same as attribute, use false to be able to use the script (bool).
+target = set false here when using script (bool).
+author = who created this custom object (string).
+desc = description of what this display do (string).
+script_version = number to identify the version, when installing, Details! checks for custom displays with the same name and always use with the biggest script_version (number).
+script = the code used when searching for results (string-code).
+total_script = use total script when the result shown in the bar isn't the actor's total, e.g., an actor have 90 as total but you want to show "1min 30sec" instead.
+percent_script = similar to total_script, use when you need the percentage to be something different than the default one.
+tooltip = code ran when the user passes the mouse over a bar.
+
+Details:RemoveCustomObject (name)
+Removes a custom display.
+
+Details:GetCustomObject (name)
+Returns the object of a custom display already installed.
+
+
+

@@ -190,7 +190,11 @@
 				end
 			end
 			
-			_detalhes:SendEvent ("COMBAT_BOSS_FOUND", nil, index, name)
+			--> we the boss was found during the combat table creation, we must postpone the event trigger
+			if (not _detalhes.tabela_vigente.IsBeingCreated) then
+				_detalhes:SendEvent ("COMBAT_BOSS_FOUND", nil, index, name)
+				_detalhes:CheckFor_SuppressedWindowsOnEncounterFound()
+			end
 			
 			return boss_table
 		end
@@ -292,7 +296,7 @@
 
 		-- ~start ~inicio ~novo ñovo
 		function _detalhes:EntrarEmCombate (...)
-
+		
 			if (_detalhes.debug) then
 				_detalhes:Msg ("(debug) started a new combat.")
 			end
@@ -306,18 +310,19 @@
 			end
 
 			--> re-lock nos tempos da tabela passada -- lock again last table times
-			_detalhes.tabela_vigente:TravarTempos() --> lá em cima é feito wipe, não deveria ta dando merda nisso aqui? ou ela puxa da __index e da zero jogadores no mapa e container
+			_detalhes.tabela_vigente:TravarTempos()
 			
 			local n_combate = _detalhes:NumeroCombate (1) --aumenta o contador de combates -- combat number up
 			
 			--> cria a nova tabela de combates -- create new table
 			local ultimo_combate = _detalhes.tabela_vigente
 			_detalhes.tabela_vigente = _detalhes.combate:NovaTabela (true, _detalhes.tabela_overall, n_combate, ...) --cria uma nova tabela de combate
+			
+			--> flag this combat as being created
+			_detalhes.tabela_vigente.IsBeingCreated = true
+			
 			_detalhes.tabela_vigente.previous_combat = ultimo_combate
 			
-			--> verifica se há alguma instância mostrando o segmento atual -- change segment
-			_detalhes:InstanciaCallFunction (_detalhes.TrocaSegmentoAtual)
-
 			_detalhes.tabela_vigente:seta_data (_detalhes._detalhes_props.DATA_TYPE_START) --seta na tabela do combate a data do inicio do combate -- setup time data
 			_detalhes.in_combat = true --sinaliza ao addon que há um combate em andamento -- in combat flag up
 			_detalhes.tabela_vigente.combat_id = n_combate --> grava o número deste combate na tabela atual -- setup combat id on new table
@@ -340,8 +345,31 @@
 			_table_wipe (_detalhes.cache_healing_group)
 			_detalhes:UpdateParserGears()
 			
+			--> get all buff already applied before the combat start
+			_detalhes:CatchRaidBuffUptime ("BUFF_UPTIME_IN")
+			_detalhes:CatchRaidDebuffUptime ("DEBUFF_UPTIME_IN")
+			_detalhes:UptadeRaidMembersCache()
+			
+			--> we already have boss information? build .is_boss table
+			if (_detalhes.encounter_table.id and _detalhes.encounter_table ["start"] >= GetTime() - 3 and not _detalhes.encounter_table ["end"]) then
+				local encounter_table = _detalhes.encounter_table
+				--> boss_found will trigger "COMBAT_BOSS_FOUND" event, but at this point of the combat creation is safe to send it
+				boss_found (encounter_table.index, encounter_table.name, encounter_table.zone, encounter_table.mapid, encounter_table.diff, encounter_table.id)
+			else
+				--> if we don't have this infor right now, lets check in few seconds dop
+				if (_detalhes.EncounterInformation [_detalhes.zone_id]) then 
+					_detalhes:ScheduleTimer ("ReadBossFrames", 1)
+					_detalhes:ScheduleTimer ("ReadBossFrames", 30)
+				end
+			end
+			
+			--> if the window is showing current segment, switch it for the new combat
+			--> also if the window has auto current, jump to current segment
+			_detalhes:InstanciaCallFunction (_detalhes.TrocaSegmentoAtual, _detalhes.tabela_vigente.is_boss and true)			
+			
+			--> clear hosts and make the cloud capture stuff
 			_detalhes.host_of = nil
-			_detalhes.host_by = nil
+			_detalhes.host_by = nil			
 			
 			if (_detalhes.in_group and _detalhes.cloud_capture) then
 				if (_detalhes:IsInInstance() or _detalhes.debug) then
@@ -361,11 +389,7 @@
 					_detalhes:Msg ("(debug) isn't in group or cloud is turned off", _detalhes.in_group, _detalhes.cloud_capture)
 				end
 			end
-			
-			_detalhes:CatchRaidBuffUptime ("BUFF_UPTIME_IN")
-			_detalhes:CatchRaidDebuffUptime ("DEBUFF_UPTIME_IN")
-			_detalhes:UptadeRaidMembersCache()
-			
+		
 			--> hide / alpha / switch in combat
 			for index, instancia in ipairs (_detalhes.tabela_instancias) do 
 				if (instancia.ativa) then
@@ -376,9 +400,16 @@
 			
 			_detalhes:InstanceCall (_detalhes.CheckPsUpdate)
 			
-			_detalhes:SendEvent ("COMBAT_PLAYER_ENTER", nil, _detalhes.tabela_vigente, _detalhes.encounter_table and _detalhes.encounter_table.id)
-			_detalhes:CheckSwitchToCurrent()
+			--> combat creation is completed, remove the flag
+			_detalhes.tabela_vigente.IsBeingCreated = nil
 			
+			_detalhes:SendEvent ("COMBAT_PLAYER_ENTER", nil, _detalhes.tabela_vigente, _detalhes.encounter_table and _detalhes.encounter_table.id)
+			if (_detalhes.tabela_vigente.is_boss) then
+				--> the encounter was found through encounter_start event
+				_detalhes:SendEvent ("COMBAT_BOSS_FOUND", nil, _detalhes.tabela_vigente.is_boss.index, _detalhes.tabela_vigente.is_boss.name)
+			end
+			
+			_detalhes:CheckSwitchToCurrent()
 			_detalhes:CheckForTextTimeCounter (true)
 		end
 		
@@ -540,10 +571,8 @@
 				--> verifica memoria
 				_detalhes:FlagActorsOnCommonFight() --fight_component
 				_detalhes:CheckMemoryAfterCombat()
-				--print ("isn't boss")
 			else
 			
-				--print ("is boss")
 				if (not InCombatLockdown() and not UnitAffectingCombat ("player")) then
 					_detalhes:FlagActorsOnBossFight()
 				else
@@ -569,6 +598,8 @@
 					end
 					
 					_detalhes:SendEvent ("COMBAT_BOSS_DEFEATED", nil, _detalhes.tabela_vigente)
+					
+					_detalhes:CheckFor_TrashSuppressionOnEncounterEnd()
 				else
 					_detalhes:SendEvent ("COMBAT_BOSS_WIPE", nil, _detalhes.tabela_vigente)
 				end
@@ -1145,7 +1176,7 @@
 				not instance.last_interaction or 
 				(
 					(instance.ativa) and
-					(instance.last_interaction+3 < _detalhes._tempo) and 
+					(instance.last_interaction+3 < _tempo) and 
 					(not DetailsReportWindow or not DetailsReportWindow:IsShown()) and 
 					(not _detalhes.janela_info:IsShown())
 				)
@@ -1157,28 +1188,66 @@
 					return
 				end
 			end
-			if (instance.is_interacting) then
-				instance.last_interaction = _detalhes._tempo
+			if (instance.is_interacting and instance.last_interaction < _tempo) then
+				instance.last_interaction = _tempo
 			end
 			instance._postponing_current = _detalhes:ScheduleTimer ("PostponeInstanceToCurrent", 1, instance)
 		end
 		
-		function _detalhes:TrocaSegmentoAtual (instancia)
+		function _detalhes:TrocaSegmentoAtual (instancia, is_encounter)
 			if (instancia.segmento == 0 and instancia.baseframe and instancia.ativa) then
-				if (instancia.is_interacting) then
-					instancia.last_interaction = _detalhes._tempo
+			
+				if (not is_encounter) then
+					if (instancia.is_interacting) then
+						if (not instancia.last_interaction or instancia.last_interaction < _tempo) then
+							instancia.last_interaction = _tempo or time()
+						end
+					end
+					
+					if ((instancia.last_interaction and (instancia.last_interaction+3 > _detalhes._tempo)) or (DetailsReportWindow and DetailsReportWindow:IsShown()) or (_detalhes.janela_info:IsShown())) then
+						--> postpone
+						instancia._postponing_current = _detalhes:ScheduleTimer ("PostponeInstanceToCurrent", 1, instancia)
+						return
+					end
 				end
 				
-				if ((instancia.last_interaction and (instancia.last_interaction+3 > _detalhes._tempo)) or (DetailsReportWindow and DetailsReportWindow:IsShown()) or (_detalhes.janela_info:IsShown())) then
-					--> postpone
-					instancia._postponing_current = _detalhes:ScheduleTimer ("PostponeInstanceToCurrent", 1, instancia)
-					return
-				end
+				--print ("==> Changing the Segment now! - control.lua 1220")
 				
+				instancia.last_interaction = _tempo - 4 --pode setar, completou o ciclo
 				instancia._postponing_current = nil
-				instancia.showing =_detalhes.tabela_vigente
+				instancia.showing = _detalhes.tabela_vigente
 				instancia:ResetaGump()
 				_detalhes.gump:Fade (instancia, "in", nil, "barras")
+			end
+		end
+		
+		function _detalhes:SetTrashSuppression (n)
+			assert (type (n) == "number", "SetTrashSuppression expects a number on index 1.")
+			if (n < 0) then
+				n = 0
+			end
+			_detalhes.instances_suppress_trash = n
+		end
+		function _detalhes:CheckFor_SuppressedWindowsOnEncounterFound()
+			for _, instance in _detalhes:ListInstances() do
+				if (instance.ativa and instance.baseframe and instance.last_interaction > _tempo and instance.segmento == 0) then
+					_detalhes:TrocaSegmentoAtual (instance, true)
+				end
+			end
+		end
+		function _detalhes:CheckFor_EnabledTrashSuppression()
+			if (_detalhes.HasTrashSuppression and _detalhes.HasTrashSuppression > _tempo) then
+				self.last_interaction = _detalhes.HasTrashSuppression
+			end
+		end
+		function _detalhes:SetTrashSuppressionAfterEncounter()
+			_detalhes:InstanceCall ("CheckFor_EnabledTrashSuppression")
+		end
+		function _detalhes:CheckFor_TrashSuppressionOnEncounterEnd()
+			if (_detalhes.instances_suppress_trash > 0) then
+				_detalhes.HasTrashSuppression = _tempo + _detalhes.instances_suppress_trash
+				--> delaying in 3 seconds for other stuff like auto open windows after combat.
+				_detalhes:ScheduleTimer ("SetTrashSuppressionAfterEncounter", 3)
 			end
 		end
 

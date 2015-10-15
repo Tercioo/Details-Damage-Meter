@@ -281,6 +281,17 @@
 		end
 	end
 	
+	function _detalhes.table.overwrite (t1, t2)
+		for key, value in pairs (t2) do 
+			if (type (value) == "table") then
+				t1 [key] = t1 [key] or {}
+				_detalhes.table.overwrite (t1 [key], t2 [key])
+			else
+				t1 [key] = value
+			end
+		end
+	end	
+	
 	function _detalhes.table.dump (t, s, deep)
 	
 		s = s or ""

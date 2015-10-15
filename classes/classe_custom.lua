@@ -1050,6 +1050,15 @@
 		_detalhes.switch:OnRemoveCustom (index)
 	end
 	
+	--> export for plugins
+	function _detalhes:RemoveCustomObject (object_name)
+		for index, object in ipairs (_detalhes.custom) do
+			if (object.name == object_name) then
+				return atributo_custom:RemoveCustom (index)
+			end
+		end
+	end
+	
 	function _detalhes:ResetCustomFunctionsCache()
 		table.wipe (_detalhes.custom_function_cache)
 	end
@@ -1096,6 +1105,37 @@
 		TooltipMaximizedMethod = _detalhes.tooltip.maximize_method
 		atributo_custom:UpdateDamageDoneBracket()
 		atributo_custom:UpdateHealingDoneBracket()
+	end
+	
+	function _detalhes:InstallCustomObject (object)
+		local have = false
+		if (object.script_version) then
+			for _, custom in ipairs (_detalhes.custom) do
+				if (custom.name == object.name and (custom.script_version and custom.script_version >= object.script_version) ) then
+					have = true
+					break
+				end
+			end
+		else
+			for _, custom in ipairs (_detalhes.custom) do
+				if (custom.name == object.name) then
+					have = true
+					break
+				end
+			end
+		end
+		
+		if (not have) then
+			for i, custom in ipairs (_detalhes.custom) do
+				if (custom.name == object.name) then
+					table.remove (_detalhes.custom, i)
+					break
+				end
+			end
+			setmetatable (object, _detalhes.atributo_custom)
+			object.__index = _detalhes.atributo_custom
+			_detalhes.custom [#_detalhes.custom+1] = object
+		end
 	end
 
 	function _detalhes:AddDefaultCustomDisplays()

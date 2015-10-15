@@ -799,13 +799,13 @@ function atributo_heal:RefreshBarra2 (esta_barra, instancia, tabela_anterior, fo
 
 		if (esta_barra.hidden or esta_barra.fading_in or esta_barra.faded) then
 		
+			esta_barra:SetValue (esta_porcentagem)
 			if (use_animations) then
 				esta_barra.animacao_fim = esta_porcentagem
 			else
-				esta_barra:SetValue (esta_porcentagem)
 				esta_barra.animacao_ignorar = true
 			end
-				
+			
 			gump:Fade (esta_barra, "out")
 			
 			if (instancia.row_info.texture_class_colors) then

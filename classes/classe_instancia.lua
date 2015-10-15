@@ -202,8 +202,16 @@ function _detalhes:GetShowingCombat()
 	return self.showing
 end
 
-function _detalhes:GetCustomObject()
-	return _detalhes.custom [self.sub_atributo]
+function _detalhes:GetCustomObject (object_name)
+	if (object_name) then
+		for _, object in ipairs (_detalhes.custom) do
+			if (object.name == object_name) then
+				return object
+			end
+		end
+	else
+		return _detalhes.custom [self.sub_atributo]
+	end
 end
 
 function _detalhes:ResetAttribute()
@@ -373,7 +381,6 @@ end
 			_detalhes.solo = nil
 		end
 		
-		--print ("Abertas: " .. _detalhes.opened_windows)
 		if (not _detalhes.initializing) then
 			_detalhes:SendEvent ("DETAILS_INSTANCE_CLOSE", nil, self)
 		end
@@ -435,16 +442,12 @@ end
 			local _R, _T, _L, _B = _detalhes.VPL (instance2, instance1), _detalhes.VPB (instance2, instance1), _detalhes.VPR (instance2, instance1), _detalhes.VPT (instance2, instance1)
 			
 			if (_R) then
-				--print ("R")
 				instance2:MakeInstanceGroup ({false, false, 1, false})
 			elseif (_T) then
-				--print ("T")
 				instance2:MakeInstanceGroup ({false, false, false, 1})
 			elseif (_L) then
-				--print ("L")
 				instance2:MakeInstanceGroup ({1, false, false, false})
 			elseif (_B) then
-				--print ("B")
 				instance2:MakeInstanceGroup ({false, 1, false, false})
 			end
 		end
@@ -582,6 +585,8 @@ end
 		
 		self:SetCombatAlpha (nil, nil, true)
 		self:DesaturateMenu()
+		
+		self:CheckFor_EnabledTrashSuppression()
 		
 		if (not temp and not _detalhes.initializing) then
 			_detalhes:SendEvent ("DETAILS_INSTANCE_OPEN", nil, self)
@@ -808,7 +813,6 @@ function _detalhes:BaseFrameSnap()
 	
 	local my_baseframe = self.baseframe
 	for lado, snap_to in _pairs (self.snap) do
-		--print ("DEBUG instancia " .. snap_to .. " lado "..lado)
 		local instancia_alvo = _detalhes.tabela_instancias [snap_to]
 
 		if (instancia_alvo.ativa and instancia_alvo.baseframe) then
@@ -979,8 +983,6 @@ function _detalhes:agrupar_janelas (lados)
 			elseif (lado == 1) then --> esquerda
 				--> mover frame
 				
-				--print (esta_instancia.baseframe:GetPoint (0)[2], esta_instancia.baseframe:GetPoint (0)[2] == instancia.baseframe)
-				
 				instancia.baseframe:SetPoint ("TOPLEFT", esta_instancia.baseframe, "TOPRIGHT")
 				instancia.baseframe:SetPoint ("LEFT", esta_instancia.baseframe, "RIGHT")
 				instancia.baseframe:SetPoint ("BOTTOMLEFT", esta_instancia.baseframe, "BOTTOMRIGHT")
@@ -1061,7 +1063,6 @@ function _detalhes:Desagrupar (instancia, lado, lado2)
 	_detalhes:DelayOptionsRefresh (nil, true)
 	
 	if (not lado) then
-		--print ("DEBUG: Desagrupar esta sem lado")
 		return
 	end
 	
@@ -1107,7 +1108,6 @@ function _detalhes:Desagrupar (instancia, lado, lado2)
 	local esta_instancia = _detalhes.tabela_instancias [instancia.snap[lado]]
 	
 	if (not esta_instancia) then
-		--print ("DEBUG: Erro, a instancia nao existe")
 		return
 	end
 	
@@ -1135,11 +1135,6 @@ function _detalhes:Desagrupar (instancia, lado, lado2)
 		esta_instancia:SaveMainWindowPosition()
 		esta_instancia:RestoreMainWindowPosition()	
 	end
-	
-	--print ("DEBUG: Details: Instancias desagrupadas")
-	
-	--_detalhes:RefreshAgrupamentos()
-	
 end
 
 function _detalhes:SnapTextures (remove)
@@ -1549,6 +1544,8 @@ end
 --backtable indexes: [1]: mode [2]: attribute [3]: sub attribute [4]: segment [5]: raidmode index [6]: solomode index
 function _detalhes:CheckSwitchOnCombatEnd (nowipe, warning)
 
+	local old_attribute, old_sub_atribute = self:GetDisplay()
+
 	self:SwitchBack()
 	
 	local role = _UnitGroupRolesAssigned ("player")
@@ -1574,8 +1571,11 @@ function _detalhes:CheckSwitchOnCombatEnd (nowipe, warning)
 	end
 	
 	if (warning and got_switch) then
-		local attribute_name = self:GetInstanceAttributeText()
-		self:InstanceAlert (string.format (Loc ["STRING_SWITCH_WARNING"], attribute_name), {[[Interface\CHARACTERFRAME\UI-StateIcon]], 18, 18, false, 0.5, 1, 0, 0.5}, 4)
+		local current_attribute, current_sub_atribute = self:GetDisplay()
+		if (current_attribute ~= old_attribute or current_sub_atribute ~= old_sub_atribute) then
+			local attribute_name = self:GetInstanceAttributeText()
+			self:InstanceAlert (string.format (Loc ["STRING_SWITCH_WARNING"], attribute_name), {[[Interface\CHARACTERFRAME\UI-StateIcon]], 18, 18, false, 0.5, 1, 0, 0.5}, 4)
+		end
 	end
 	
 	if (self.switch_all_roles_after_wipe and not nowipe) then
@@ -1691,8 +1691,6 @@ function _detalhes:ApplySavedSkin (style)
 	local skin = style.skin
 	self.skin = ""
 	self:ChangeSkin (skin)
-	
-	-- /script print (_detalhes.tabela_instancias[1].baseframe:GetAlpha())
 
 	--> overwrite all instance parameters with saved ones
 	for key, value in pairs (style) do
@@ -1780,9 +1778,6 @@ end
 function _detalhes:SetBackgroundAlpha (alpha)
 	if (not alpha) then
 		alpha = self.bg_alpha
---	else
---		print (alpha)
---		alpha = _detalhes:Scale (0, 1, 0.2, 1, alpha) - 0.8
 	end
 	
 	self.bgdisplay:SetBackdropColor (self.bg_r, self.bg_g, self.bg_b, alpha)
@@ -1851,7 +1846,7 @@ function _detalhes:PostponeSwitchToCurrent (instance)
 			return
 		end
 	end
-	if (instance.is_interacting) then
+	if (instance.is_interacting and instance.last_interaction < _detalhes._tempo) then
 		instance.last_interaction = _detalhes._tempo
 	end
 	instance._postponing_switch = _detalhes:ScheduleTimer ("PostponeSwitchToCurrent", 1, instance)
@@ -1860,7 +1855,7 @@ end
 function _detalhes:CheckSwitchToCurrent()
 	for _, instance in _ipairs (_detalhes.tabela_instancias) do
 		if (instance.ativa and instance.auto_current and instance.baseframe and instance.segmento > 0) then
-			if (instance.is_interacting) then
+			if (instance.is_interacting and instance.last_interaction < _detalhes._tempo) then
 				instance.last_interaction = _detalhes._tempo
 			end
 			
@@ -1924,6 +1919,7 @@ function _detalhes:AtualizaSegmentos (instancia)
 		elseif (instancia.segmento == 0) then
 			--instancia.baseframe.rodape.segmento:SetText (segmentos.current) --> localiza-me
 			instancia.showing = _detalhes.tabela_vigente
+			--print ("==> Changing the Segment now! - classe_instancia.lua 1922")
 		else
 			instancia.showing = _detalhes.tabela_historico.tabelas [instancia.segmento]
 			--instancia.baseframe.rodape.segmento:SetText (segmentos.past..instancia.segmento) --> localiza-me
@@ -1943,7 +1939,7 @@ function _detalhes:AtualizaSegmentos_AfterCombat (instancia, historico)
 
 	if (segmento == _detalhes.segments_amount) then --> significa que o index [5] passou a ser [6] com a entrada da nova tabela
 		instancia.showing = historico.tabelas [_detalhes.segments_amount] --> então ele volta a pegar o index [5] que antes era o index [4]
-
+		--print ("==> Changing the Segment now! - classe_instancia.lua 1942")
 		gump:Fade (instancia, _fadeType, _fadeSpeed, "barras")
 		instancia.showing[instancia.atributo].need_refresh = true
 		instancia.v_barras = true
@@ -1953,6 +1949,7 @@ function _detalhes:AtualizaSegmentos_AfterCombat (instancia, historico)
 		
 	elseif (segmento < _detalhes.segments_amount and segmento > 0) then
 		instancia.showing = historico.tabelas [segmento]
+		--print ("==> Changing the Segment now! - classe_instancia.lua 1952")
 		
 		gump:Fade (instancia, _fadeType, _fadeSpeed, "barras") --"in", nil
 		instancia.showing[instancia.atributo].need_refresh = true
@@ -2115,6 +2112,7 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 			instancia.showing = _detalhes.tabela_overall
 		elseif (segmento == 0) then --> combate atual
 			instancia.showing = _detalhes.tabela_vigente
+			--print ("==> Changing the Segment now! - classe_instancia.lua 2115")
 		else --> alguma tabela do histórico
 			instancia.showing = _detalhes.tabela_historico.tabelas [segmento]
 		end
@@ -2147,7 +2145,7 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 						if (segmento == -1) then --> overall
 							instance.showing = _detalhes.tabela_overall
 						elseif (segmento == 0) then --> combate atual
-							instance.showing = _detalhes.tabela_vigente
+							instance.showing = _detalhes.tabela_vigente; --print ("==> Changing the Segment now! - classe_instancia.lua 2148")
 						else --> alguma tabela do histórico
 							instance.showing = _detalhes.tabela_historico.tabelas [segmento]
 						end
@@ -2176,8 +2174,6 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 	end
 
 	--> Muda o atributo caso  necessário
-	--print ("DEBUG atributos", instancia, segmento, atributo, sub_atributo, iniciando_instancia)
-
 	if (atributo == 5) then
 		if (#_detalhes.custom < 1) then 
 			atributo = 1
@@ -2276,7 +2272,6 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 		instancia.sub_atributo = sub_atributo
 		
 		if (sub_attribute_click) then
-			--print ("aqui", instancia.sub_atributo)
 			instancia.sub_atributo_last [instancia.atributo] = instancia.sub_atributo
 		end
 		
@@ -2317,7 +2312,6 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 	
 	if (not _detalhes.initializing and not iniciando_instancia) then
 		instancia:ResetaGump()
-		--print ("atualizando: ", instancia.atributo, instancia.sub_atributo)
 		instancia:AtualizaGumpPrincipal (true)
 	end
 
@@ -2542,8 +2536,6 @@ end
 function _detalhes:ChangeIcon (icon)
 	
 	local skin = _detalhes.skins [self.skin]
-
-	--print (debugstack())
 	
 	if (not self.hide_icon) then
 		if (skin.icon_on_top) then
@@ -2639,11 +2631,9 @@ function _detalhes:AlteraModo (instancia, qual, from_mode_menu)
 		if (not instancia.atributo) then
 			instancia.atributo = 1
 			instancia.sub_atributo = 1
-			--print ("Details found a internal probleam and fixed: 'instancia.atributo' were null, now is 1.")
 		end
 		if (not instancia.showing[instancia.atributo]) then
-			instancia.showing = _detalhes.tabela_vigente
-			--print ("Details found a internal problem and fixed: container for instancia.showing were null, now is current combat.")
+			instancia.showing = _detalhes.tabela_vigente; --print ("==> Changing the Segment now! - classe_instancia.lua 2636")
 		end
 		instancia.atributo = instancia.atributo or 1
 		instancia.showing[instancia.atributo].need_refresh = true
@@ -3020,7 +3010,6 @@ function _detalhes:monta_relatorio (este_relatorio, custom)
 				atributo = 1
 				container = self.showing [atributo]._ActorTable
 			end
-			--print (total, keyName, first, atributo, container_amount)
 		end
 		
 		amt = math.min (amt, container_amount or 0)

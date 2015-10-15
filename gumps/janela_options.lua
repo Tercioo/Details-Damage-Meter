@@ -752,9 +752,43 @@ local menus2 = {
 		selected_texture:SetVertexColor (1, 1, 1, 0.8)
 		selected_texture:SetBlendMode ("ADD")
 
-		local button_onenter = function (self)
+		local is_appearance = {
+			[3] = true,
+			[4] = true,
+			[5] = true,
+			[8] = true,
+			[14] = true,
+			[7] = true,
+			[6] = true,
+			[17] = true,
+			[9] = true,
+			[18] = true,
+		}
+		local button_onenter = function (self, capsule)
 			self.MyObject.my_bg_texture:SetVertexColor (1, 1, 1, 1)
 			self.MyObject.textcolor = "yellow"
+			
+			--[[
+			if (is_appearance [capsule.menu_index]) then
+				GameCooltip:Reset()
+				GameCooltip:SetType ("tooltip")
+				
+				_detalhes:CooltipPreset (2)
+				GameCooltip:AddLine (Loc ["STRING_OPTIONS_SKIN_A_DESC"])
+				GameCooltip:AddLine (" ")
+				GameCooltip:AddLine ("Editing Window: 1")
+				GameCooltip:AddLine ("You may change the editing window at the bottom right corner.")
+		
+				GameCooltip:SetOption ("FixedWidth", 200)
+				--GameCooltip:SetOption ("TextSize", _detalhes.font_sizes.menus)
+				--GameCooltip:SetOption ("TextFont", _detalhes.font_faces.menus)		
+				GameCooltip:SetOption ("NoLastSelectedBar", true)
+				GameCooltip:SetWallpaper (1, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
+				GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
+				GameCooltip:SetOwner (self, "topright", "topleft", -5, 0)
+				GameCooltip:ShowCooltip()
+			end
+			--]]
 		end
 		local button_onleave = function (self)
 			self.MyObject.my_bg_texture:SetVertexColor (1, 1, 1, .5)
@@ -763,6 +797,7 @@ local menus2 = {
 			else
 				self.MyObject.textcolor = selected_textcolor
 			end
+			GameCooltip:Hide()
 		end
 		local button_mouse_up = function (button)
 			button = button.MyObject
@@ -798,6 +833,7 @@ local menus2 = {
 					button.textcolor = textcolor
 					button.textsize = 11
 					button.my_bg_texture = texture
+					button.menu_index = menus_settings [true_index]
 					tinsert (all_buttons, button)
 					y = y - 16
 					
@@ -2460,8 +2496,34 @@ function window:CreateFrame18()
 		frame18.ReportFormatDropdown:SetPoint ("left", frame18.ReportFormatLabel, "right", 2, 0)		
 		
 		window:CreateLineBackground2 (frame18, "ReportFormatDropdown", "ReportFormatLabel", Loc ["STRING_OPTIONS_REPORT_SCHEMA_DESC"])
-		
 	
+	
+	--> trash suppression
+		g:NewLabel (frame18, _, "$parentTrashSuppressionLabel", "TrashSuppressionLabel", "Trash Suppression", "GameFontHighlightLeft")
+		g:NewSlider (frame18, _, "$parentTrashSuppressionSlider", "TrashSuppressionSlider", SLIDER_WIDTH, SLIDER_HEIGHT, 0, 180, 1, _detalhes.instances_suppress_trash, nil, nil, nil, options_slider_template)
+
+		frame18.TrashSuppressionSlider:SetPoint ("left", frame18.TrashSuppressionLabel, "right", 2)
+	
+		frame18.TrashSuppressionSlider:SetHook ("OnValueChange", function (_, _, amount)
+			_detalhes:SetTrashSuppression (amount)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+		end)
+		
+		window:CreateLineBackground2 (frame18, "TrashSuppressionSlider", "TrashSuppressionLabel", "For |cFFFFFF00X|r seconds, suppress auto switching to show trash segments (|cFFFFFF00only after defeat a boss encounter|r).")
+
+	--> disable all displays window
+		g:NewLabel (frame18, _, "$parentDisableAllDisplaysWindowLabel", "DisableAllDisplaysWindowLabel", Loc ["STRING_OPTIONS_DISABLE_ALLDISPLAYSWINDOW"], "GameFontHighlightLeft")
+		g:NewSwitch (frame18, _, "$parentDisableAllDisplaysWindowSlider", "DisableAllDisplaysWindowSlider", 60, 20, _, _, _detalhes.disable_alldisplays_window, nil, nil, nil, nil, options_switch_template)
+
+		frame18.DisableAllDisplaysWindowSlider:SetPoint ("left", frame18.DisableAllDisplaysWindowLabel, "right", 2)
+		frame18.DisableAllDisplaysWindowSlider:SetAsCheckBox()
+		frame18.DisableAllDisplaysWindowSlider.OnSwitch = function (_, _, value)
+			_detalhes.disable_alldisplays_window = value
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+		end
+		
+		window:CreateLineBackground2 (frame18, "DisableAllDisplaysWindowSlider", "DisableAllDisplaysWindowLabel", Loc ["STRING_OPTIONS_DISABLE_ALLDISPLAYSWINDOW_DESC"])
+		
 	--> Anchors
 		
 		g:NewLabel (frame18, _, "$parentInstancesMiscAnchor", "instancesMiscLabel", Loc ["STRING_OPTIONS_INSTANCES"], "GameFontNormal")
@@ -2489,11 +2551,12 @@ function window:CreateFrame18()
 			
 			{"autoSwitchLabel", 8, true},
 			{"AutoSwitchWipeLabel", 9},
-			
 			{"autoCurrentLabel", 10},
-			{"reportAnchorLabel", 11, true},
-			{"ReportHelpfulLinkLabel", 12},
-			{"ReportFormatLabel", 13},
+			{"TrashSuppressionLabel", 11},
+			
+			{"reportAnchorLabel", 12, true},
+			{"ReportHelpfulLinkLabel", 13},
+			{"ReportFormatLabel", 14},
 		}
 		
 		window:arrange_menu (frame18, left_side, x, -90)
@@ -2508,9 +2571,10 @@ function window:CreateFrame18()
 			{"DisableLockResizeUngroupLabel", 7},
 			{"DisableStretchButtonLabel", 8},
 			{"DisableBarHighlightLabel", 9},
-			{"DamageTakenEverythingLabel", 10},
-			{"ClickToOpenMenusLabel", 11},
-			{"scrollLabel", 12, true},
+			{"DisableAllDisplaysWindowLabel", 10},
+			{"DamageTakenEverythingLabel", 11},
+			{"ClickToOpenMenusLabel", 12},
+			{"scrollLabel", 13, true},
 
 		}
 		
@@ -10067,7 +10131,11 @@ function window:CreateFrame12()
 			if (not value) then
 				for index, instancia in ipairs (_detalhes.tabela_instancias) do
 					if (instancia.modo == 4) then -- 4 = raid
-						_detalhes:TrocaTabela (instancia, 0, 1, 1, nil, 2)
+						if (instancia:IsEnabled()) then
+							_detalhes:TrocaTabela (instancia, 0, 1, 1, nil, 2)
+						else
+							instancia.modo = 2 -- group mode
+						end
 					end
 				end
 			end
@@ -10791,13 +10859,14 @@ end --> if not window
 		end
 		
 		_G.DetailsOptionsWindow18AutoCurrentSlider.MyObject:SetFixedParameter (editing_instance)
-		_G.DetailsOptionsWindow18AutoCurrentSlider.MyObject:SetValue (editing_instance.auto_current)	
+		_G.DetailsOptionsWindow18AutoCurrentSlider.MyObject:SetValue (editing_instance.auto_current)
+		_G.DetailsOptionsWindow18TrashSuppressionSlider.MyObject:SetValue (editing_instance.instances_suppress_trash)
 		
 		_G.DetailsOptionsWindow18MenuTextSizeSlider.MyObject:SetValue (_detalhes.font_sizes.menus)
 		
 		_G.DetailsOptionsWindow18FontDropdown.MyObject:Select (_detalhes.font_faces.menus)
-		
-		
+
+		_G.DetailsOptionsWindow18DisableAllDisplaysWindowSlider.MyObject:SetValue (_detalhes.disable_alldisplays_window)
 		_G.DetailsOptionsWindow18DisableStretchButtonSlider.MyObject:SetValue (_detalhes.disable_stretch_button)
 		_G.DetailsOptionsWindow18DisableBarHighlightSlider.MyObject:SetValue (_detalhes.instances_disable_bar_highlight)
 		_G.DetailsOptionsWindow18ClickToOpenMenusSlider.MyObject:SetValue (_detalhes.instances_menu_click_to_open)
