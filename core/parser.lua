@@ -3550,7 +3550,7 @@
 		_detalhes.pet_battle = false
 		for index, instance in _ipairs (_detalhes.tabela_instancias) do
 			if (instance.ativa) then
-				instance:SetWindowAlphaForCombat()
+				instance:SetCombatAlpha (nil, nil, true)
 			end
 		end
 	end

@@ -1838,7 +1838,7 @@ function atributo_heal:MontaDetalhesHealingDone (spellid, barra)
 		end
 		
 		local hits_string = "" .. total_hits
-		local cast_string = "Casted: "
+		local cast_string = Loc ["STRING_CAST"] .. ": "
 		
 		local misc_actor = info.instancia.showing (4, self:name())
 		if (misc_actor) then
