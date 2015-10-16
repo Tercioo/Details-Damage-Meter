@@ -1172,6 +1172,7 @@ function atributo_misc:ToolTipDispell (instancia, numero, barra)
 end
 
 local UnitReaction = UnitReaction
+local UnitDebuff = UnitDebuff
 
 function _detalhes:CloseEnemyDebuffsUptime()
 	local combat = _detalhes.tabela_vigente
@@ -1215,29 +1216,34 @@ function _detalhes:CatchRaidDebuffUptime (in_or_out) -- "DEBUFF_UPTIME_IN"
 		return
 	end
 
+	local cacheGetTime = GetTime()
+	
 	if (_IsInRaid()) then
 	
 		local checked = {}
 		
 		for raidIndex = 1, _GetNumGroupMembers() do
-			local his_target = _UnitGUID ("raid"..raidIndex.."target")
-			local rect = UnitReaction ("raid"..raidIndex.."target", "player")
-			if (his_target and rect and not checked [his_target] and rect <= 4) then
-				
-				checked [his_target] = true
-				
-				for debuffIndex = 1, 41 do
-					local name, _, _, _, _, _, _, unitCaster, _, _, spellid  = UnitDebuff ("raid"..raidIndex.."target", debuffIndex)
-					if (name and unitCaster) then
-						local playerName, realmName = _UnitName (unitCaster)
-						local playerGUID = _UnitGUID (unitCaster)
-
-						if (playerGUID) then
-							if (realmName and realmName ~= "") then
-								playerName = playerName .. "-" .. realmName
+		
+			local target = "raid"..raidIndex.."target"
+			local his_target = _UnitGUID (target)
+			
+			if (his_target and not checked [his_target]) then
+				local rect = UnitReaction (target, "player")
+				if (rect and rect <= 4) then
+					
+					checked [his_target] = true
+					
+					for debuffIndex = 1, 41 do
+						local name, _, _, _, _, _, _, unitCaster, _, _, spellid = UnitDebuff (target, debuffIndex)
+						if (name and unitCaster) then
+							local playerGUID = _UnitGUID (unitCaster)
+							if (playerGUID) then
+								local playerName, realmName = _UnitName (unitCaster)
+								if (realmName and realmName ~= "") then
+									playerName = playerName .. "-" .. realmName
+								end
+								_detalhes.parser:add_debuff_uptime (nil, cacheGetTime, playerGUID, playerName, 0x00000417, his_target, _UnitName (target), 0x842, spellid, name, in_or_out)
 							end
-							
-							_detalhes.parser:add_debuff_uptime (nil, GetTime(), playerGUID, playerName, 0x00000417, his_target, _UnitName ("raid"..raidIndex.."target"), 0x842, spellid, name, in_or_out)
 						end
 					end
 				end
@@ -1325,19 +1331,23 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 		local focus_augmentation = {}
 	
 		--> raid groups
+		local cacheGetTime = GetTime()
+		
 		for raidIndex = 1, _GetNumGroupMembers() do
-			for buffIndex = 1, 41 do
-				local name, _, _, _, _, _, _, unitCaster, _, _, spellid  = _UnitAura ("raid"..raidIndex, buffIndex, nil, "HELPFUL")
-				
-				if (name and unitCaster == "raid"..raidIndex) then
-					local playerName, realmName = _UnitName ("raid"..raidIndex)
-					local playerGUID = _UnitGUID ("raid"..raidIndex)
-					if (playerGUID) then
-						if (realmName and realmName ~= "") then
-							playerName = playerName .. "-" .. realmName
-						end
-						
-						_detalhes.parser:add_buff_uptime (nil, GetTime(), playerGUID, playerName, 0x00000514, playerGUID, playerName, 0x00000514, spellid, name, in_or_out)
+			local RaidIndex = "raid" .. raidIndex
+			local playerGUID = _UnitGUID (RaidIndex)
+
+			if (playerGUID) then
+			
+				local playerName, realmName = _UnitName (RaidIndex)
+				if (realmName and realmName ~= "") then
+					playerName = playerName .. "-" .. realmName
+				end
+			
+				for buffIndex = 1, 41 do
+					local name, _, _, _, _, _, _, unitCaster, _, _, spellid  = _UnitAura (RaidIndex, buffIndex, nil, "HELPFUL")
+					if (name and unitCaster == RaidIndex) then
+						_detalhes.parser:add_buff_uptime (nil, cacheGetTime, playerGUID, playerName, 0x00000514, playerGUID, playerName, 0x00000514, spellid, name, in_or_out)
 						
 						if (in_or_out == "BUFF_UPTIME_IN") then
 							if (_detalhes.PotionList [spellid]) then
@@ -1355,18 +1365,20 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 		
 		--> player sub group
 		for partyIndex = 1, _GetNumSubgroupMembers() do
-			for buffIndex = 1, 41 do
-				local name, _, _, _, _, _, _, unitCaster, _, _, spellid  = _UnitAura ("party"..partyIndex, buffIndex, nil, "HELPFUL")
-				
-				if (name and unitCaster == "party"..partyIndex) then
-					local playerName, realmName = _UnitName ("party"..partyIndex)
-					local playerGUID = _UnitGUID ("party" .. partyIndex)
-					if (playerGUID) then
-						if (realmName and realmName ~= "") then
-							playerName = playerName .. "-" .. realmName
-						end
-						
-						_detalhes.parser:add_buff_uptime (nil, GetTime(), playerGUID, playerName, 0x00000514, playerGUID, playerName, 0x00000514, spellid, name, in_or_out)
+			local PartyIndex = "party" .. partyIndex
+			local playerGUID = _UnitGUID (PartyIndex)
+			
+			if (playerGUID) then
+			
+				local playerName, realmName = _UnitName (PartyIndex)
+				if (realmName and realmName ~= "") then
+					playerName = playerName .. "-" .. realmName
+				end
+			
+				for buffIndex = 1, 41 do
+					local name, _, _, _, _, _, _, unitCaster, _, _, spellid  = _UnitAura (PartyIndex, buffIndex, nil, "HELPFUL")
+					if (name and unitCaster == PartyIndex) then
+						_detalhes.parser:add_buff_uptime (nil, cacheGetTime, playerGUID, playerName, 0x00000514, playerGUID, playerName, 0x00000514, spellid, name, in_or_out)
 						
 						if (in_or_out == "BUFF_UPTIME_IN") then
 							if (_detalhes.PotionList [spellid]) then
@@ -1396,7 +1408,7 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 						end
 					end
 					
-					_detalhes.parser:add_buff_uptime (nil, GetTime(), playerGUID, playerName, 0x00000514, playerGUID, playerName, 0x00000514, spellid, name, in_or_out)
+					_detalhes.parser:add_buff_uptime (nil, cacheGetTime, playerGUID, playerName, 0x00000514, playerGUID, playerName, 0x00000514, spellid, name, in_or_out)
 				end
 			end
 		end

@@ -1,5 +1,5 @@
 
-local dversion = 11
+local dversion = 12
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary (major, minor)
 
@@ -101,6 +101,25 @@ DF.table = {}
 
 function DF:GetFrameworkFolder()
 	return DF.folder
+end
+
+function DF:FadeFrame (frame, t)
+	if (t == 0) then
+		frame.hidden = false
+		frame.faded = false
+		frame.fading_out = false
+		frame.fading_in = false
+		frame:Show()
+		frame:SetAlpha (1)
+		
+	elseif (t == 1) then
+		frame.hidden = true
+		frame.faded = true
+		frame.fading_out = false
+		frame.fading_in = false
+		frame:SetAlpha (0)
+		frame:Hide()
+	end
 end
 
 function DF.table.reverse (t)
@@ -317,162 +336,6 @@ function DF:CreateFlashAnimation (frame, onFinishFunc, onLoopFunc)
 	frame.Stop = stop
 end
 
------------------------------------------
-
-local fade_IN_finished_func = function (frame)
-	if (frame.fading_in) then
-		frame.hidden = true
-		frame.faded = true
-		frame.fading_in = false
-		frame:Hide()
-	end
-end
-
-local fade_OUT_finished_func = function (frame)
-	if (frame:IsShown() and frame.fading_out) then
-		frame.hidden = false
-		frame.faded = false
-		frame.fading_out = false
-	else
-		frame:SetAlpha(0)
-	end
-end
-
-local just_fade_func = function (frame)
-	frame.hidden = false
-	frame.faded = true
-	frame.fading_in = false
-end
-
-local anim_OUT_alpha_func = function (frame)
-	frame.fading_out = false
-end
-
-local anim_IN_alpha_func = function (frame)
-	frame.fading_in = false
-end
-
-function DF:Fade (frame, tipo, velocidade, parametros)
-	
-	if (_type (frame) == "table") then 
-		if (frame.dframework) then
-			frame = frame.widget
-		end
-	end
-	
-	velocidade = velocidade or 0.3
-	
-	if (upper (tipo) == "IN") then
-
-		if (frame:GetAlpha() == 0 and frame.hidden and not frame.fading_out) then --> ja esta escondida
-			return
-		elseif (frame.fading_in) then --> ja esta com uma animação, se for true
-			return
-		end
-		
-		if (frame.fading_out) then --> se tiver uma animação de aparecer em andamento se for true
-			frame.fading_out = false
-		end
-
-		UIFrameFadeIn (frame, velocidade, frame:GetAlpha(), 0)
-		frame.fading_in = true
-		
-		frame.fadeInfo.finishedFunc = fade_IN_finished_func
-		frame.fadeInfo.finishedArg1 = frame
-		
-	elseif (upper (tipo) == "OUT") then --> aparecer
-		if (frame:GetAlpha() == 1 and not frame.hidden and not frame.fading_in) then --> ja esta na tela
-			return
-		elseif (frame.fading_out) then --> já ta com fading out
-			return
-		end
-		
-		if (frame.fading_in) then --> se tiver uma animação de hidar em andamento se for true
-			frame.fading_in = false
-		end
-		
-		frame:Show()
-		UIFrameFadeOut (frame, velocidade, frame:GetAlpha(), 1.0)
-		frame.fading_out = true
-		
-		frame.fadeInfo.finishedFunc = fade_OUT_finished_func
-		frame.fadeInfo.finishedArg1 = frame
-			
-	elseif (tipo == 0) then --> força o frame a ser mostrado
-		frame.hidden = false
-		frame.faded = false
-		frame.fading_out = false
-		frame.fading_in = false
-		frame:Show()
-		frame:SetAlpha (1)
-		
-	elseif (tipo == 1) then --> força o frame a ser hidado
-		frame.hidden = true
-		frame.faded = true
-		frame.fading_out = false
-		frame.fading_in = false
-		frame:SetAlpha (0)
-		frame:Hide()
-		
-	elseif (tipo == -1) then --> apenas da fade sem hidar
-		if (frame:GetAlpha() == 0 and frame.hidden and not frame.fading_out) then --> ja esta escondida
-			return
-		elseif (frame.fading_in) then --> ja esta com uma animação, se for true
-			return
-		end
-		
-		if (frame.fading_out) then --> se tiver uma animação de aparecer em andamento se for true
-			frame.fading_out = false
-		end
-
-		UIFrameFadeIn (frame, velocidade, frame:GetAlpha(), 0)
-		frame.fading_in = true
-		frame.fadeInfo.finishedFunc = just_fade_func
-		frame.fadeInfo.finishedArg1 = frame
-
-	elseif (upper (tipo) == "ALPHAANIM") then
-
-		local value = velocidade
-		local currentApha = frame:GetAlpha()
-		frame:Show()
-		
-		if (currentApha < value) then
-			if (frame.fading_in) then --> se tiver uma animação de hidar em andamento se for true
-				frame.fading_in = false
-				frame.fadeInfo.finishedFunc = nil
-			end
-			UIFrameFadeOut (frame, 0.3, currentApha, value)
-			frame.fading_out = true
-
-			frame.fadeInfo.finishedFunc = anim_OUT_alpha_func
-			frame.fadeInfo.finishedArg1 = frame
-
-		else
-			if (frame.fading_out) then --> se tiver uma animação de hidar em andamento se for true
-				frame.fading_out = false
-				frame.fadeInfo.finishedFunc = nil
-			end
-			UIFrameFadeIn (frame, 0.3, currentApha, value)
-			frame.fading_in = true
-			
-			frame.fadeInfo.finishedFunc = anim_IN_alpha_func
-			frame.fadeInfo.finishedArg1 = frame
-		end
-
-	elseif (upper (tipo) == "ALPHA") then --> setando um alpha determinado
-		if (frame.fading_in or frame.fading_out) then
-			frame.fadeInfo.finishedFunc = nil
-			UIFrameFadeIn (frame, velocidade, frame:GetAlpha(), frame:GetAlpha())
-		end
-		frame.hidden = false
-		frame.faded = false
-		frame.fading_in = false
-		frame.fading_out = false
-		frame:Show()
-		frame:SetAlpha (velocidade)
-	end
-end
-	
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> points
 
