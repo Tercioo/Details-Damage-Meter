@@ -359,7 +359,7 @@ local _
 				true, -- [4]
 				true, -- [5]
 				false, -- [6]
-				["space"] = -3,
+				["space"] = -2,
 				["shadow"] = true,
 			},
 			["desaturated_menu"] = false,

@@ -739,7 +739,7 @@ local window_openned_at = time()
 			skin_label:SetPoint ("topleft", window, "topleft", 30, -140)
 
 		-- create second window button
-			local new_window = function (_, _, self)
+			local new_window = function (self)
 				if (#_detalhes.tabela_instancias == 1) then
 					local newwindow = _detalhes:CreateInstance (true)
 					newwindow.baseframe:SetPoint ("topleft", _detalhes.tabela_instancias[1].baseframe, "topright", 50, 0)

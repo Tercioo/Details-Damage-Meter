@@ -4768,8 +4768,11 @@ function _detalhes:SetWindowAlphaForInteract (alpha)
 			
 			self.baseframe:SetAlpha (alpha)
 		end
-
 	end
+	
+	if (_detalhes.debug) then
+		_detalhes:Msg ("(debug) setting window alpha for SetWindowAlphaForInteract() -> ", alpha)
+	end	
 	
 end
 
@@ -4822,6 +4825,10 @@ function _detalhes:SetWindowAlphaForCombat (entering_in_combat, true_hide)
 		gump:Fade (self.baseframe, _unpack (_detalhes.windows_fade_in))
 		gump:Fade (self.rowframe, _unpack (_detalhes.windows_fade_in))
 		self:SetIconAlpha (nil, true)
+		
+		if (_detalhes.debug) then
+			_detalhes:Msg ("(debug) hiding window SetWindowAlphaForCombat()", amount, rowsamount, menuamount)
+		end
 	else
 	
 		self.baseframe:Show()
@@ -4831,6 +4838,10 @@ function _detalhes:SetWindowAlphaForCombat (entering_in_combat, true_hide)
 		gump:Fade (self.rowframe, "ALPHAANIM", rowsamount)
 		gump:Fade (self.baseframe, "ALPHAANIM", rowsamount)
 		self:SetIconAlpha (menuamount)
+		
+		if (_detalhes.debug) then
+			_detalhes:Msg ("(debug) showing window SetWindowAlphaForCombat()", amount, rowsamount, menuamount)
+		end
 	end
 	
 	if (self.show_statusbar) then
@@ -6473,7 +6484,6 @@ end
 function _detalhes:SetCombatAlpha (modify_type, alpha_amount, interacting)
 
 	if (interacting) then
-		
 		if (self.hide_in_combat_type == 1) then --None
 			return
 			

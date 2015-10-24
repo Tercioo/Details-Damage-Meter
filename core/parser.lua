@@ -3308,7 +3308,7 @@
 		end
 		
 		for index, instancia in ipairs (_detalhes.tabela_instancias) do 
-			if (instancia.ativa) then
+			if (instancia.ativa and instancia.hide_in_combat_type ~= 1) then --> 1 = none, we doesn't need to call
 				instancia:SetCombatAlpha (nil, nil, true)
 			end
 		end
@@ -3381,7 +3381,7 @@
 		end
 		
 		for index, instancia in ipairs (_detalhes.tabela_instancias) do 
-			if (instancia.ativa) then
+			if (instancia.ativa and instancia.hide_in_combat_type ~= 1) then --> 1 = none, we doesn't need to call
 				instancia:SetCombatAlpha (nil, nil, true)
 			end
 		end
@@ -3541,6 +3541,9 @@
 		_detalhes.pet_battle = true
 		for index, instance in _ipairs (_detalhes.tabela_instancias) do
 			if (instance.ativa) then
+				if (_detalhes.debug) then
+					_detalhes:Msg ("(debug 1) hidding windows for Pet Battle.")
+				end
 				instance:SetWindowAlphaForCombat (true, true)
 			end
 		end
@@ -3550,7 +3553,17 @@
 		_detalhes.pet_battle = false
 		for index, instance in _ipairs (_detalhes.tabela_instancias) do
 			if (instance.ativa) then
-				instance:SetCombatAlpha (nil, nil, true)
+				if (instance.hide_in_combat_type == 1) then
+					if (_detalhes.debug) then
+						_detalhes:Msg ("(debug 1) restoring windows after Pet Battle.")
+					end
+					instance:SetWindowAlphaForCombat()
+				else
+					if (_detalhes.debug) then
+						_detalhes:Msg ("(debug 2) restoring windows after Pet Battle.")
+					end
+					instance:SetCombatAlpha (nil, nil, true)
+				end
 			end
 		end
 	end

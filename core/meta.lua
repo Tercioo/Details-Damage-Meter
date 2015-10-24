@@ -730,9 +730,6 @@
 
 	function _detalhes:CheckMemoryAfterCombat()
 		if (_detalhes.next_memory_check < time() and not InCombatLockdown() and not UnitAffectingCombat ("player")) then
-			if (_detalhes.debug) then
-				_detalhes:Msg ("(debug) checking memory after combat.")
-			end
 			_detalhes.next_memory_check = time()+_detalhes.intervalo_memoria
 			UpdateAddOnMemoryUsage()
 			local memory = GetAddOnMemoryUsage ("Details")
@@ -747,12 +744,9 @@
 			UpdateAddOnMemoryUsage()
 			local memory = GetAddOnMemoryUsage ("Details")
 			if (_detalhes.debug) then
-				_detalhes:Msg ("(debug) checking memory periodically. Using: ",math.floor (memory), "of", _detalhes.memory_ram * 1000)
+				_detalhes:Msg ("(debug) checking memory periodically. Using: ",math.floor (memory))
 			end
 			if (memory > _detalhes.memory_ram * 1000) then
-				if (_detalhes.debug) then
-					_detalhes:Msg ("(debug) Memory is too high, starting garbage collector")
-				end
 				_detalhes:IniciarColetaDeLixo (1, 60) --> sending 1 only check for combat and ignore garbage collect cooldown
 			end
 		end
@@ -764,9 +758,6 @@
 			if (_detalhes.ultima_coleta + _detalhes.intervalo_coleta > _detalhes._tempo + 1)  then
 				return
 			elseif (_detalhes.in_combat or _InCombatLockdown() or _detalhes:IsInInstance()) then 
-				if (_detalhes.debug) then
-					_detalhes:Msg ("(debug) garbage collect queued due combatlockdown (forced false)")
-				end
 				_detalhes:ScheduleTimer ("IniciarColetaDeLixo", 5) 
 				return
 			end
@@ -774,9 +765,6 @@
 			if (type (forcar) ~= "boolean") then
 				if (forcar == 1) then
 					if (_detalhes.in_combat or _InCombatLockdown()) then
-						if (_detalhes.debug) then
-							_detalhes:Msg ("(debug) garbage collect queued due combatlockdown (forced 1)")
-						end
 						_detalhes:ScheduleTimer ("IniciarColetaDeLixo", 5, forcar) 
 						return
 					end
@@ -824,9 +812,9 @@
 		_detalhes:ManutencaoTimeMachine()
 		
 		--> print cache states
-		if (_detalhes.debug) then
-			_detalhes:Msg ("(debug) removed: damage "..damage.." heal "..heal.." energy "..energy.." misc "..misc)
-		end
+		--if (_detalhes.debug) then
+		--	_detalhes:Msg ("(debug) removed: damage "..damage.." heal "..heal.." energy "..energy.." misc "..misc)
+		--end
 		
 		--> elimina pets antigos
 		_detalhes:LimparPets()
@@ -845,8 +833,8 @@
 		if (_detalhes.debug) then
 			collectgarbage()
 			UpdateAddOnMemoryUsage()
-			local memory2 = GetAddOnMemoryUsage ("Details")
-			_detalhes:Msg ("(debug) memory before: "..memory.." memory after: "..memory2)
+			--local memory2 = GetAddOnMemoryUsage ("Details")
+			--_detalhes:Msg ("(debug) memory before: "..memory.." memory after: "..memory2)
 		end
 		
 	end
@@ -904,9 +892,9 @@
 		
 		end
 		
-		if (_detalhes.debug) then
+		--if (_detalhes.debug) then
 			-- _detalhes:Msg ("- garbage collect:", tipo, "actors removed:",_iter.cleaned)
-		end
+		--end
 		
 		if (_iter.cleaned > 0) then
 			ReconstroiMapa (_combate [tipo])
