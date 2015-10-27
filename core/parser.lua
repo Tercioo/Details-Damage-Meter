@@ -3075,8 +3075,12 @@
 		return _detalhes.zone_type
 	end
 	function _detalhes.parser_functions:ZONE_CHANGED_NEW_AREA (...)
+		return _detalhes:ScheduleTimer ("Check_ZONE_CHANGED_NEW_AREA", 0.5)
+	end
 	
+	function _detalhes:Check_ZONE_CHANGED_NEW_AREA (...)
 		local zoneName, zoneType, _, _, _, _, _, zoneMapID = _GetInstanceInfo()
+		--print (GetInstanceInfo())
 		
 		_detalhes.zone_type = zoneType
 		_detalhes.zone_id = zoneMapID
