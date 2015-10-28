@@ -84,9 +84,118 @@
 		return _table
 	end
 	
-	--> load specific ToK functions for krKR language
+	--krKR by @yuk6196 (http://wow.curseforge.com/profiles/yuk6196)
+	function _detalhes:UseEastAsianNumericalSystem()
+	
+		function _detalhes:ToK (numero)
+			if (numero > 100000000) then
+				return _string_format ("%.2f", numero/100000000) .. Loc ["STRING_ABBREVIATE_LETTER_B_UPPER"]
+			elseif (numero > 10000) then
+				return _string_format ("%.2f", numero/10000) ..Loc ["STRING_ABBREVIATE_LETTER_M_UPPER"]
+			elseif (numero > 1000) then
+				return _string_format ("%.1f", numero/1000) ..Loc ["STRING_ABBREVIATE_LETTER_K_UPPER"]
+			end
+			return numero
+		end
+
+		function _detalhes:ToK2 (numero)
+			if (numero > 99999999) then
+				return _string_format ("%.2f", numero/100000000) .. Loc ["STRING_ABBREVIATE_LETTER_B_UPPER"]
+			elseif (numero > 999999) then
+				return _string_format ("%.2f", numero/10000) .. Loc ["STRING_ABBREVIATE_LETTER_M_UPPER"]
+			elseif (numero > 99999) then
+				return _math_floor (numero/10000) .. Loc ["STRING_ABBREVIATE_LETTER_M_UPPER"]
+			elseif (numero > 9999) then
+				return _string_format ("%.1f", (numero/10000)) .. Loc ["STRING_ABBREVIATE_LETTER_M_UPPER"]
+			elseif (numero > 999) then
+				return _string_format ("%.1f", (numero/1000)) .. Loc ["STRING_ABBREVIATE_LETTER_K_UPPER"]
+			end
+			return _string_format ("%.1f", numero)
+		end
+		
+		--> short numbers no numbers after comma
+		function _detalhes:ToK0 (numero)
+			if (numero > 100000000) then
+				return _string_format ("%.0f", numero/100000000) ..Loc ["STRING_ABBREVIATE_LETTER_B_UPPER"]
+			elseif (numero > 10000) then
+				return _string_format ("%.0f", numero/10000) ..Loc ["STRING_ABBREVIATE_LETTER_M_UPPER"]
+			elseif (numero > 1000) then
+				return _string_format ("%.0f", numero/1000) ..Loc ["STRING_ABBREVIATE_LETTER_K_UPPER"]
+			end
+			return _string_format ("%.0f", numero)
+		end
+
+		function _detalhes:ToKMin (numero)
+			if (numero > 100000000) then
+				return _string_format ("%.2f", numero/100000000) ..Loc ["STRING_ABBREVIATE_LETTER_B_UPPER"]
+			elseif (numero > 10000) then
+				return _string_format ("%.2f", numero/10000) ..Loc ["STRING_ABBREVIATE_LETTER_M_LOWER"]
+			elseif (numero > 1000) then
+				return _string_format ("%.1f", numero/1000) ..Loc ["STRING_ABBREVIATE_LETTER_K_LOWER"]
+			end
+			return numero
+		end
+		
+		function _detalhes:ToK2Min (numero)
+			if (numero > 99999999) then
+				return _string_format ("%.2f", numero/100000000) .. Loc ["STRING_ABBREVIATE_LETTER_B_LOWER"]
+			elseif (numero > 999999) then
+				return _string_format ("%.2f", numero/10000) .. Loc ["STRING_ABBREVIATE_LETTER_M_LOWER"]
+			elseif (numero > 99999) then
+				return _math_floor (numero/10000) .. Loc ["STRING_ABBREVIATE_LETTER_M_LOWER"]
+			elseif (numero > 9999) then
+				return _string_format ("%.1f", (numero/10000)) .. Loc ["STRING_ABBREVIATE_LETTER_M_LOWER"]
+			elseif (numero > 999) then
+				return _string_format ("%.1f", (numero/1000)) .. Loc ["STRING_ABBREVIATE_LETTER_K_LOWER"]
+			end
+			return _string_format ("%.1f", numero)
+		end
+		
+		--> short numbers no numbers after comma
+		function _detalhes:ToK0Min (numero)
+			if (numero > 100000000) then
+				return _string_format ("%.0f", numero/100000000) ..Loc ["STRING_ABBREVIATE_LETTER_B_UPPER"]
+			elseif (numero > 10000) then
+				return _string_format ("%.0f", numero/10000) ..Loc ["STRING_ABBREVIATE_LETTER_M_LOWER"]
+			elseif (numero > 1000) then
+				return _string_format ("%.0f", numero/1000) ..Loc ["STRING_ABBREVIATE_LETTER_K_LOWER"]
+			end
+			return _string_format ("%.0f", numero)
+		end
+		
+		--> short numbers no numbers after comma
+		function _detalhes:ToKReport (numero)
+			if (numero > 100000000) then
+				return _string_format ("%.2f", numero/100000000) ..Loc ["STRING_ABBREVIATE_LETTER_B_UPPER"]
+			elseif (numero > 10000) then
+				return _sting_format ("%.1f", numero/10000) ..Loc ["STRING_ABBREVIATE_LETTER_M_UPPER"]
+			elseif (numero > 1000) then
+				return _string_format ("%.0f", numero/1000) ..Loc ["STRING_ABBREVIATE_LETTER_K_UPPER"]
+			end
+			return numero
+		end
+		
+		function _detalhes:Format (n, custom)
+			n = _math_floor (n)
+			if (custom) then
+				if (n > 99999999) then
+					return _string_format (custom, n/100000000) .. Loc ["STRING_ABBREVIATE_LETTER_B_UPPER"]
+				elseif (n > 9999) then
+					return _string_format (custom, n/10000) .. Loc ["STRING_ABBREVIATE_LETTER_M_UPPER"]
+				elseif (n > 999) then
+					return _string_format (custom, (n/1000))
+				else
+					return n
+				end
+			else
+				return _detalhes.ToKFunctions [_detalhes.ps_abbreviation] (nil, n)
+			end
+		end
+	end	
+	
+	--> load specific ToK functions for East Asia region
 	if (LibStub("AceLocale-3.0"):NewLocale ("Details", "koKR")) then
-		_detalhes:LoadKoreanToKFunctions()
+		_detalhes:UseEastAsianNumericalSystem()
 	else
 		--> load the defaults for all other languages
 	
@@ -1016,103 +1125,4 @@ end
 		end
 	end
 
-	function _detalhes:LoadKoreanToKFunctions()
-	
-		function _detalhes:ToK (numero)
-			if (numero > 100000000) then
-				return _string_format ("%.2f", numero/100000000) .. Loc ["STRING_ABBREVIATE_LETTER_B_UPPER"]
-			elseif (numero > 10000) then
-				return _string_format ("%.2f", numero/10000) ..Loc ["STRING_ABBREVIATE_LETTER_M_UPPER"]
-			elseif (numero > 1000) then
-				return _string_format ("%.1f", numero/1000) ..Loc ["STRING_ABBREVIATE_LETTER_K_UPPER"]
-			end
-			return numero
-		end
-		
-		function _detalhes:ToK2 (numero)
-			if (numero > 99999999) then
-				return _string_format ("%.2f", numero/100000000) .. Loc ["STRING_ABBREVIATE_LETTER_B_UPPER"]
-			elseif (numero > 9999) then
-				return _math_floor (numero/10000) .. Loc ["STRING_ABBREVIATE_LETTER_M_UPPER"]
-			elseif (numero > 999) then
-				return _string_format ("%.1f", (numero/1000)) .. Loc ["STRING_ABBREVIATE_LETTER_K_UPPER"]
-			end
-			return _string_format ("%.1f", numero)
- 		end
-		
-		--> short numbers no numbers after comma
-		function _detalhes:ToK0 (numero)
-			if (numero > 100000000) then
-				return _string_format ("%.0f", numero/100000000) ..Loc ["STRING_ABBREVIATE_LETTER_B_UPPER"]
-			elseif (numero > 10000) then
-				return _string_format ("%.0f", numero/10000) ..Loc ["STRING_ABBREVIATE_LETTER_M_UPPER"]
-			elseif (numero > 1000) then
-				return _string_format ("%.0f", numero/1000) ..Loc ["STRING_ABBREVIATE_LETTER_K_UPPER"]
-			end
-			return _string_format ("%.0f", numero)
-		end
 
-		function _detalhes:ToKMin (numero)
-			if (numero > 100000000) then
-				return _string_format ("%.2f", numero/100000000) ..Loc ["STRING_ABBREVIATE_LETTER_B_UPPER"]
-			elseif (numero > 10000) then
-				return _string_format ("%.2f", numero/10000) ..Loc ["STRING_ABBREVIATE_LETTER_M_LOWER"]
-			elseif (numero > 1000) then
-				return _string_format ("%.1f", numero/1000) ..Loc ["STRING_ABBREVIATE_LETTER_K_LOWER"]
-			end
-			return numero
-		end
-		
-		function _detalhes:ToK2Min (numero)
-			if (numero > 99999999) then
-				return _string_format ("%.2f", numero/100000000) .. Loc ["STRING_ABBREVIATE_LETTER_B_UPPER"]
-			elseif (numero > 9999) then
-				return _math_floor (numero/10000) .. Loc ["STRING_ABBREVIATE_LETTER_M_LOWER"]
-			elseif (numero > 999) then
-				return _string_format ("%.1f", (numero/1000)) .. Loc ["STRING_ABBREVIATE_LETTER_K_LOWER"]
-			end
-			return _string_format ("%.1f", numero)
-		end
-		
-		--> short numbers no numbers after comma
-		function _detalhes:ToK0Min (numero)
-			if (numero > 100000000) then
-				return _string_format ("%.0f", numero/100000000) ..Loc ["STRING_ABBREVIATE_LETTER_B_UPPER"]
-			elseif (numero > 10000) then
-				return _string_format ("%.0f", numero/10000) ..Loc ["STRING_ABBREVIATE_LETTER_M_LOWER"]
-			elseif (numero > 1000) then
-				return _string_format ("%.0f", numero/1000) ..Loc ["STRING_ABBREVIATE_LETTER_K_LOWER"]
-			end
-			return _string_format ("%.0f", numero)
-		end
-		
-		--> short numbers no numbers after comma
-		function _detalhes:ToKReport (numero)
-			if (numero > 100000000) then
-				return _string_format ("%.2f", numero/100000000) ..Loc ["STRING_ABBREVIATE_LETTER_B_UPPER"]
-			elseif (numero > 10000) then
-				return _sting_format ("%.1f", numero/10000) ..Loc ["STRING_ABBREVIATE_LETTER_M_UPPER"]
-			elseif (numero > 1000) then
-				return _string_format ("%.0f", numero/1000) ..Loc ["STRING_ABBREVIATE_LETTER_K_UPPER"]
-			end
-			return numero
-		end
-		
-		function _detalhes:Format (n, custom)
-			n = _math_floor (n)
-			if (custom) then
-				if (n > 99999999) then
-					return _string_format (custom, n/100000000) .. Loc ["STRING_ABBREVIATE_LETTER_B_UPPER"]
-				elseif (n > 9999) then
-					return _string_format (custom, n/10000) .. Loc ["STRING_ABBREVIATE_LETTER_M_UPPER"]
-				elseif (n > 999) then
-					return _string_format (custom, (n/1000))
-				else
-					return n
-				end
-			else
-				return _detalhes.ToKFunctions [_detalhes.ps_abbreviation] (nil, n)
-			end
-		end
-		
-	end
