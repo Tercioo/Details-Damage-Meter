@@ -545,7 +545,7 @@ function _G._detalhes:Start()
 			_detalhes:ScheduleTimer ("FadeStartVersion", 12)
 			
 		end
-	end	
+	end
 	
 	function _detalhes:OpenOptionsWindowAtStart()
 		--_detalhes:OpenOptionsWindow (_detalhes.tabela_instancias[1])

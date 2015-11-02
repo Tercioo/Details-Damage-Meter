@@ -463,8 +463,16 @@ local window_openned_at = time()
 			continuous:SetChecked (true)
 		end
 		
-		chronometer:SetScript ("OnClick", function() continuous:SetChecked (false); _detalhes.time_type = 1 end)
-		continuous:SetScript ("OnClick", function() chronometer:SetChecked (false); _detalhes.time_type = 2 end)
+		chronometer:SetScript ("OnClick", function() 
+			chronometer:SetChecked (true); 
+			continuous:SetChecked (false); 
+			_detalhes.time_type = 1 
+		end)
+		continuous:SetScript ("OnClick", function() 
+			continuous:SetChecked (true); 
+			chronometer:SetChecked (false); 
+			_detalhes.time_type = 2 
+		end)
 		
 		--
 		
@@ -502,9 +510,103 @@ local window_openned_at = time()
 				pleasewait:SetText ("")
 				pleasewait:Hide()
 			end
-		end)		
+		end)
 		
 		pages [#pages+1] = {pleasewait, free_frame3, thedude, sword_icon, ampulheta, texto2, chronometer, continuous, chronometer_text, continuous_text, window.changemind2Label}
+		
+		for _, widget in ipairs (pages[#pages]) do 
+			widget:Hide()
+		end
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> numeral system
+
+		local numeral_image = window:CreateTexture (nil, "overlay")
+		
+		numeral_image:SetTexture ([[Interface\MainMenuBar\UI-MainMenuBar-EndCap-Human]])
+		numeral_image:SetPoint ("bottomright", window, "bottomright", -10, 10)
+		numeral_image:SetHeight (125*3)--125
+		numeral_image:SetWidth (89*3)--82
+		numeral_image:SetAlpha (.05)
+		numeral_image:SetTexCoord (1, 0, 0, 1)		
+		
+		g:NewLabel (window, _, "$parentChangeMindNumeralLabel", "changemindNumeralLabel", Loc ["STRING_WELCOME_2"], "GameFontNormal", 9, "orange")
+		window.changemindNumeralLabel:SetPoint ("center", window, "center")
+		window.changemindNumeralLabel:SetPoint ("bottom", window, "bottom", 0, 19)
+		window.changemindNumeralLabel.align = "|"
+
+		local texto2Numeral = window:CreateFontString (nil, "overlay", "GameFontNormal")
+		texto2Numeral:SetPoint ("topleft", window, "topleft", 20, -80)
+		texto2Numeral:SetText (Loc ["STRING_NUMERALSYSTEM_DESC"] .. ":")
+		
+		local NumeralType1 = CreateFrame ("CheckButton", "WelcomeWindowNumeralType1", window, "ChatConfigCheckButtonTemplate")
+		NumeralType1:SetPoint ("topleft", window, "topleft", 20, -110)
+		local NumeralType2 = CreateFrame ("CheckButton", "WelcomeWindowNumeralType2", window, "ChatConfigCheckButtonTemplate")
+		NumeralType2:SetPoint ("topleft", window, "topleft", 20, -170)
+		
+		_G ["WelcomeWindowNumeralType1Text"]:SetText (Loc ["STRING_NUMERALSYSTEM_ARABIC_WESTERN"] .. ": " .. Loc ["STRING_NUMERALSYSTEM_ARABIC_WESTERN_DESC"])
+		_G ["WelcomeWindowNumeralType2Text"]:SetText (Loc ["STRING_NUMERALSYSTEM_MYRIAD_EASTASIA"] .. ": " .. Loc ["STRING_NUMERALSYSTEM_ARABIC_MYRIAD_EASTASIA"])
+
+		local sword_icon2 = window:CreateTexture (nil, "overlay")
+		sword_icon2:SetTexture ([[Interface\Addons\Details\images\icons2]])
+		sword_icon2:SetPoint ("topright", window, "topright", -30, -10)
+		sword_icon2:SetSize (128*1.4, 64*1.4)
+		sword_icon2:SetTexCoord (330/512, 509/512, 437/512, 509/512)
+		sword_icon2:SetDrawLayer ("overlay", 2)
+		
+		local thedude2 = window:CreateTexture (nil, "overlay")
+		--thedude2:SetTexture ([[Interface\TUTORIALFRAME\UI-TutorialFrame-TheDude]])
+		thedude2:SetPoint ("bottomright", sword_icon, "bottomleft", 70, 19)
+		thedude2:SetWidth (128*1.0)
+		thedude2:SetHeight (128*1.0)
+		thedude2:SetTexCoord (0, 1, 0, 1)
+		thedude2:SetDrawLayer ("overlay", 3)
+		
+		local NumeralType1_text = window:CreateFontString (nil, "overlay", "GameFontNormal")
+		NumeralType1_text:SetText ("1K = 1.000 |cFFFFCC00| |r10K = 10.000 |cFFFFCC00| |r100K = 100.000 |cFFFFCC00| |r1M = 1.000.000")
+		NumeralType1_text:SetWidth (500)
+		NumeralType1_text:SetHeight (40)
+		NumeralType1_text:SetJustifyH ("left")
+		NumeralType1_text:SetJustifyV ("top")
+		NumeralType1_text:SetTextColor (.8, .8, .8, 1)
+		--NumeralType1_text:SetPoint ("topleft", _G ["WelcomeWindowNumeralType1Text"], "topright", 0, 0)
+		NumeralType1_text:SetPoint ("topleft", window, "topleft", 40, -130)
+		
+		local NumeralType2_text = window:CreateFontString (nil, "overlay", "GameFontNormal")
+		NumeralType2_text:SetText ("1천 = 1.000 |cFFFFCC00| |r1만 = 10.000 |cFFFFCC00| |r10만 = 100.000 |cFFFFCC00| |r100만 = 1.000.000")
+		NumeralType2_text:SetWidth (500)
+		NumeralType2_text:SetHeight (40)
+		NumeralType2_text:SetJustifyH ("left")
+		NumeralType2_text:SetJustifyV ("top")
+		NumeralType2_text:SetTextColor (.8, .8, .8, 1)
+		--NumeralType2_text:SetPoint ("topleft", _G ["WelcomeWindowNumeralType2Text"], "topright", 0, 0)
+		NumeralType2_text:SetPoint ("topleft", window, "topleft", 40, -190)
+		
+		NumeralType1:SetHitRectInsets (0, -70, 0, 0)
+		NumeralType2:SetHitRectInsets (0, -70, 0, 0)
+		
+		if (_detalhes.numerical_system == 1) then --> west
+			NumeralType1:SetChecked (true)
+			NumeralType2:SetChecked (false)
+		elseif (_detalhes.numerical_system == 2) then --> east
+			NumeralType1:SetChecked (false)
+			NumeralType2:SetChecked (true)
+		end
+		
+		NumeralType1:SetScript ("OnClick", function() 
+			NumeralType1:SetChecked (true); 
+			NumeralType2:SetChecked (false); 
+			_detalhes.numerical_system = 1
+			_detalhes:SelectNumericalSystem()
+		end)
+		NumeralType2:SetScript ("OnClick", function() 
+			NumeralType2:SetChecked (true); 
+			NumeralType1:SetChecked (false); 
+			_detalhes.numerical_system = 2 
+			_detalhes:SelectNumericalSystem()
+		end)
+		
+		pages [#pages+1] = {thedude2, sword_icon2, numeral_image, texto2Numeral, NumeralType1, NumeralType2, NumeralType1_text, NumeralType2_text, window.changemindNumeralLabel}
 		
 		for _, widget in ipairs (pages[#pages]) do 
 			widget:Hide()

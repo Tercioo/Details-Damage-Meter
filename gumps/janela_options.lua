@@ -3955,13 +3955,8 @@ function window:CreateFrame1()
 		local onSelectTimeAbbreviation = function (_, _, abbreviationtype)
 			_detalhes.ps_abbreviation = abbreviationtype
 			
-			_detalhes.atributo_damage:UpdateSelectedToKFunction()
-			_detalhes.atributo_heal:UpdateSelectedToKFunction()
-			_detalhes.atributo_energy:UpdateSelectedToKFunction()
-			_detalhes.atributo_misc:UpdateSelectedToKFunction()
-			_detalhes.atributo_custom:UpdateSelectedToKFunction()
+			_detalhes:UpdateToKFunctions()
 			
-			_detalhes:AtualizaGumpPrincipal (-1, true)
 			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		local icon = [[Interface\COMMON\mini-hourglass]]
@@ -3982,11 +3977,12 @@ function window:CreateFrame1()
 		end
 		
 		local d = g:NewDropDown (frame1, _, "$parentAbbreviateDropdown", "dpsAbbreviateDropdown", 160, dropdown_height, buildAbbreviationMenu, _detalhes.ps_abbreviation, options_dropdown_template)
-		
 		frame1.dpsAbbreviateDropdown:SetPoint ("left", frame1.dpsAbbreviateLabel, "right", 2, 0)		
-
 		window:CreateLineBackground2 (frame1, "dpsAbbreviateDropdown", "dpsAbbreviateLabel", Loc ["STRING_OPTIONS_PS_ABBREVIATE_DESC"])
 		
+	
+	--> avatar
+	
 		local avatar = NickTag:GetNicknameAvatar (UnitGUID ("player"), NICKTAG_DEFAULT_AVATAR, true)
 		local background, cords, color = NickTag:GetNicknameBackground (UnitGUID ("player"), NICKTAG_DEFAULT_BACKGROUND, NICKTAG_DEFAULT_BACKGROUND_CORDS, {1, 1, 1, 1}, true)
 		
@@ -3995,6 +3991,29 @@ function window:CreateFrame1()
 		frame1.avatarPreview2.texcoord = cords
 		frame1.avatarPreview2:SetVertexColor (unpack (color))
 
+	--> numerical system
+		g:NewLabel (frame1, _, "$parentNumericalSystemLabel", "NumericalSystemLabel", Loc ["STRING_NUMERALSYSTEM"], "GameFontHighlightLeft")
+		
+		local onSelectNumeralSystem = function (_, _, systemNumber)
+			_detalhes:SelectNumericalSystem (systemNumber)
+		end
+		
+
+
+
+		local numeralSystems = {
+			{value = 1, label = Loc ["STRING_NUMERALSYSTEM_ARABIC_WESTERN"], desc = "1K = 1.000 \n10K = 10.000 \n100K = 100.000 \n1M = 1.000.000", onclick = onSelectNumeralSystem, icon = icon, iconcolor = iconcolor, iconsize = iconsize},
+			{value = 2, label = Loc ["STRING_NUMERALSYSTEM_MYRIAD_EASTASIA"], desc = "1천 = 1.000 \n1만 = 10.000 \n10만 = 100.000 \n100만 = 1.000.000", onclick = onSelectNumeralSystem, icon = icon, iconcolor = iconcolor, iconsize = iconsize},
+		}
+		
+		local buildNumeralSystemsMenu = function()
+			return numeralSystems
+		end
+		
+		local d = g:NewDropDown (frame1, _, "$parentNumericalSystemOfADropdown", "NumericalSystemDropdown", 160, dropdown_height, buildNumeralSystemsMenu, _detalhes.numerical_system, options_dropdown_template)
+		d:SetPoint ("left", frame1.NumericalSystemLabel, "right", 2, 0)		
+		window:CreateLineBackground2 (frame1, "NumericalSystemDropdown", "NumericalSystemLabel", Loc ["STRING_NUMERALSYSTEM_DESC"])
+		
 	--> animate bars 
 	
 		g:NewLabel (frame1, _, "$parentAnimateLabel", "animateLabel", Loc ["STRING_OPTIONS_ANIMATEBARS"], "GameFontHighlightLeft")
@@ -4221,11 +4240,12 @@ function window:CreateFrame1()
 			
 			{"maxInstancesLabel", 7, true},
 			{"dpsAbbreviateLabel", 8},
+			{"NumericalSystemLabel", 9},
 			
-			{frame1.ToolsLabel, 9, true},
-			{frame1.EraseDataLabel, 10},
-			{frame1.BookmarkButton, 11},
-			{frame1.ClassColorsButton, 12},
+			{frame1.ToolsLabel, 10, true},
+			{frame1.EraseDataLabel, 11},
+			{frame1.BookmarkButton, 12},
+			{frame1.ClassColorsButton, 13},
 			
 			--{"WindowControlsLabel", 9, true},
 			--{"LockButton", 10},
@@ -10370,6 +10390,7 @@ end --> if not window
 		_G.DetailsOptionsWindow1Slider.MyObject:SetValue (_detalhes.segments_amount) --segments
 		_G.DetailsOptionsWindow1SegmentsLockedSlider.MyObject:SetValue (_detalhes.instances_segments_locked) --locked segments
 		
+		_G.DetailsOptionsWindow1NumericalSystemOfADropdown.MyObject:Select (_detalhes.numerical_system)
 		
 		_G.DetailsOptionsWindow1WheelSpeedSlider.MyObject:SetValue (_detalhes.scroll_speed)
 		_G.DetailsOptionsWindow1SliderMaxInstances.MyObject:SetValue (_detalhes.instances_amount)

@@ -246,3 +246,9 @@ returns a table containing the texture file and coords for a arena.
 
 Details:GetBattlegroundInfo (mapid)
 returns a table containing the texture file and coords for a battleground.
+
+Details:GelectNumericalSystem()
+returns a number indicating which are the current numerical system: 1 for american/european, 2 for asian.
+
+Details:SelectNumericalSystem (system)
+Set the numerical system to be used, 1 for american/european, 2 for asian.

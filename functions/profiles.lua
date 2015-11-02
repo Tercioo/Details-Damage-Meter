@@ -539,6 +539,9 @@ function _detalhes:ApplyProfile (profile_name, nosave, is_copy)
 		
 		--> update player detail window
 		_detalhes:ApplyPDWSkin()
+		
+		--> update the numerical system
+		_detalhes:SelectNumericalSystem()
 
 	if (_detalhes.initializing) then
 		_detalhes.profile_loaded = true
@@ -914,11 +917,12 @@ local default_profile = {
 	--> item level tracker
 		track_item_level = true,
 	
-	--> text sizes
+	--> text settings
 		font_sizes = {menus = 10},
 		font_faces = {menus = "Friz Quadrata TT"},
 		ps_abbreviation = 3,
 		total_abbreviation = 2,
+		numerical_system = 1,
 	
 	--> performance
 		use_row_animations = false,
