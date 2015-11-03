@@ -89,28 +89,65 @@
 	--krKR by @yuk6196 (http://wow.curseforge.com/profiles/yuk6196)
 	function _detalhes:UseEastAsianNumericalSystem()
 	
+		--> try to auto detect the language
+		local symbol_1K, symbol_10K, symbol_1B
+		if (LibStub("AceLocale-3.0"):NewLocale ("Details", "koKR")) then --Korea
+			symbol_1K, symbol_10K, symbol_1B = "천", "만", "억"
+		elseif (LibStub("AceLocale-3.0"):NewLocale ("Details", "zhCN")) then --China
+			symbol_1K, symbol_10K, symbol_1B = "천", "万", "亿"
+		elseif (LibStub("AceLocale-3.0"):NewLocale ("Details", "zhTW")) then --Taiwan
+			symbol_1K, symbol_10K, symbol_1B = "천", "萬", "億"
+		end
+		
+		--> override, force details! to use symbols for a specific language.
+		--> usage: _detalhes:SetNumericalSystemOverride (language)  language can be:  "kr", "cn", "tw"
+		
+		--> just in case the user mess up something
+		if (type (_detalhes.numerical_system_symbols) ~= "string") then
+			_detalhes.numerical_system_symbols = "auto"
+		end
+		
+		--> do the override
+		if (_detalhes.numerical_system_symbols ~= "auto") then
+			local locale = string.lower (_detalhes.numerical_system_symbols)
+			
+			if (locale == "kr") then
+				symbol_1K, symbol_10K, symbol_1B = "천", "만", "억"
+			elseif (locale == "cn") then
+				symbol_1K, symbol_10K, symbol_1B = "천", "万", "亿"
+			elseif (locale == "tw") then
+				symbol_1K, symbol_10K, symbol_1B = "천", "萬", "億"
+			end
+		end
+		
+		if (not symbol_1K) then
+			--> if a english client is trying to use east asian numeral system and there is no override, let's just use the chinese as default.
+			--> if the user is from kr or tw and want to use english client,  an override must be used.
+			symbol_1K, symbol_10K, symbol_1B = "천", "万", "亿"
+		end
+	
 		function _detalhes:ToK (numero)
 			if (numero > 100000000) then
-				return _string_format ("%.2f", numero/100000000) .. "억"
+				return _string_format ("%.2f", numero/100000000) .. symbol_1B
 			elseif (numero > 10000) then
-				return _string_format ("%.2f", numero/10000) .. "만"
+				return _string_format ("%.2f", numero/10000) .. symbol_10K
 			elseif (numero > 1000) then
-				return _string_format ("%.1f", numero/1000) .. "천"
+				return _string_format ("%.1f", numero/1000) .. symbol_1K
 			end
 			return numero
 		end
 
 		function _detalhes:ToK2 (numero)
 			if (numero > 99999999) then
-				return _string_format ("%.2f", numero/100000000) .. "억"
+				return _string_format ("%.2f", numero/100000000) .. symbol_1B
 			elseif (numero > 999999) then
-				return _string_format ("%.2f", numero/10000) .. "만"
+				return _string_format ("%.2f", numero/10000) .. symbol_10K
 			elseif (numero > 99999) then
-				return _math_floor (numero/10000) .. "만"
+				return _math_floor (numero/10000) .. symbol_10K
 			elseif (numero > 9999) then
-				return _string_format ("%.1f", (numero/10000)) .. "만"
+				return _string_format ("%.1f", (numero/10000)) .. symbol_10K
 			elseif (numero > 999) then
-				return _string_format ("%.1f", (numero/1000)) .. "천"
+				return _string_format ("%.1f", (numero/1000)) .. symbol_1K
 			end
 			return _string_format ("%.1f", numero)
 		end
@@ -118,37 +155,37 @@
 		--> short numbers no numbers after comma
 		function _detalhes:ToK0 (numero)
 			if (numero > 100000000) then
-				return _string_format ("%.0f", numero/100000000) .. "억"
+				return _string_format ("%.0f", numero/100000000) .. symbol_1B
 			elseif (numero > 10000) then
-				return _string_format ("%.0f", numero/10000) .. "만"
+				return _string_format ("%.0f", numero/10000) .. symbol_10K
 			elseif (numero > 1000) then
-				return _string_format ("%.0f", numero/1000) .. "천"
+				return _string_format ("%.0f", numero/1000) .. symbol_1K
 			end
 			return _string_format ("%.0f", numero)
 		end
 
 		function _detalhes:ToKMin (numero)
 			if (numero > 100000000) then
-				return _string_format ("%.2f", numero/100000000) .. "억"
+				return _string_format ("%.2f", numero/100000000) .. symbol_1B
 			elseif (numero > 10000) then
-				return _string_format ("%.2f", numero/10000) .. "만"
+				return _string_format ("%.2f", numero/10000) .. symbol_10K
 			elseif (numero > 1000) then
-				return _string_format ("%.1f", numero/1000) .. "천"
+				return _string_format ("%.1f", numero/1000) .. symbol_1K
 			end
 			return numero
 		end
 		
 		function _detalhes:ToK2Min (numero)
 			if (numero > 99999999) then
-				return _string_format ("%.2f", numero/100000000) .. "억"
+				return _string_format ("%.2f", numero/100000000) .. symbol_1B
 			elseif (numero > 999999) then
-				return _string_format ("%.2f", numero/10000) .. "만"
+				return _string_format ("%.2f", numero/10000) .. symbol_10K
 			elseif (numero > 99999) then
-				return _math_floor (numero/10000) .. "만"
+				return _math_floor (numero/10000) .. symbol_10K
 			elseif (numero > 9999) then
-				return _string_format ("%.1f", (numero/10000)) .. "만"
+				return _string_format ("%.1f", (numero/10000)) .. symbol_10K
 			elseif (numero > 999) then
-				return _string_format ("%.1f", (numero/1000)) .. "천"
+				return _string_format ("%.1f", (numero/1000)) .. symbol_1K
 			end
 			return _string_format ("%.1f", numero)
 		end
@@ -156,11 +193,11 @@
 		--> short numbers no numbers after comma
 		function _detalhes:ToK0Min (numero)
 			if (numero > 100000000) then
-				return _string_format ("%.0f", numero/100000000) .. "억"
+				return _string_format ("%.0f", numero/100000000) .. symbol_1B
 			elseif (numero > 10000) then
-				return _string_format ("%.0f", numero/10000) .. "만"
+				return _string_format ("%.0f", numero/10000) .. symbol_10K
 			elseif (numero > 1000) then
-				return _string_format ("%.0f", numero/1000) .. "천"
+				return _string_format ("%.0f", numero/1000) .. symbol_1K
 			end
 			return _string_format ("%.0f", numero)
 		end
@@ -168,11 +205,11 @@
 		--> short numbers no numbers after comma
 		function _detalhes:ToKReport (numero)
 			if (numero > 100000000) then
-				return _string_format ("%.2f", numero/100000000) .. "억"
+				return _string_format ("%.2f", numero/100000000) .. symbol_1B
 			elseif (numero > 10000) then
-				return _string_format ("%.1f", numero/10000) .. "만"
+				return _string_format ("%.1f", numero/10000) .. symbol_10K
 			elseif (numero > 1000) then
-				return _string_format ("%.0f", numero/1000) .. "천"
+				return _string_format ("%.0f", numero/1000) .. symbol_1K
 			end
 			return numero
 		end
@@ -181,9 +218,9 @@
 			n = _math_floor (n)
 			if (custom) then
 				if (n > 99999999) then
-					return _string_format (custom, n/100000000) .. "억"
+					return _string_format (custom, n/100000000) .. symbol_1B
 				elseif (n > 9999) then
-					return _string_format (custom, n/10000) .. "만"
+					return _string_format (custom, n/10000) .. symbol_10K
 				elseif (n > 999) then
 					return _string_format (custom, (n/1000))
 				else
@@ -349,6 +386,16 @@
 ------------------------------------------------------------------------------------------------------------
 --> numerical system
 
+	function _detalhes:SetNumericalSystemOverride (language)
+		if (not language) then
+			language = "auto"
+		end
+		_detalhes.numerical_system_symbols = language
+		_detalhes:Msg ("NumSystem override is now:", language)
+		
+		_detalhes:SelectNumericalSystem()
+	end
+	
 	function _detalhes:GetNumericalSystem()
 		return _detalhes.numerical_system
 	end

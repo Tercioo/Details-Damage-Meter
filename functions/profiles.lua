@@ -923,6 +923,7 @@ local default_profile = {
 		ps_abbreviation = 3,
 		total_abbreviation = 2,
 		numerical_system = 1,
+		numerical_system_symbols = "auto",
 	
 	--> performance
 		use_row_animations = false,
