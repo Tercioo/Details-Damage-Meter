@@ -92,11 +92,11 @@
 		--> try to auto detect the language
 		local symbol_1K, symbol_10K, symbol_1B
 		if (LibStub("AceLocale-3.0"):NewLocale ("Details", "koKR")) then --Korea
-			symbol_1K, symbol_10K, symbol_1B = "천", "만", "억"
+			symbol_1K, symbol_10K, symbol_1B = "千", "만", "억"
 		elseif (LibStub("AceLocale-3.0"):NewLocale ("Details", "zhCN")) then --China
-			symbol_1K, symbol_10K, symbol_1B = "천", "万", "亿"
+			symbol_1K, symbol_10K, symbol_1B = "千", "万", "亿"
 		elseif (LibStub("AceLocale-3.0"):NewLocale ("Details", "zhTW")) then --Taiwan
-			symbol_1K, symbol_10K, symbol_1B = "천", "萬", "億"
+			symbol_1K, symbol_10K, symbol_1B = "千", "萬", "億"
 		end
 		
 		--> override, force details! to use symbols for a specific language.
