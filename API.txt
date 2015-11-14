@@ -215,6 +215,9 @@ damage, healing, energy, misc = Details:GetAllActors (combat, actorname)
 returns all the four actor objects for the requested combat and actor.
 combat must be a combat object.
 
+Details:UnpackDeathTable (deathTable)
+break a death table returning the data from it:
+playername, playerclass, deathtime, deathcombattime, deathtimestring, playermaxhealth, deathevents, lastcooldown = Details:UnpackDeathTable (deathTable)
 
 
 Container Object:

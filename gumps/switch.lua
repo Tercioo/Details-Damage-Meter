@@ -579,7 +579,7 @@ function _detalhes.switch:ShowMe (instancia)
 		
 		if (not _detalhes.switch.segments_blocks) then
 		
-			local segment_switch = function (segment, _, _, button)
+			local segment_switch = function (self, button, segment)
 				if (button == "LeftButton") then
 					_detalhes.switch.current_instancia:TrocaTabela (segment)
 					_detalhes.switch.CloseMe()

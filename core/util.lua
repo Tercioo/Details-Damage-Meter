@@ -63,6 +63,19 @@
 			end
 		end
 	end
+	
+	function _detalhes:UnpackDeathTable (t)
+		local deathevents = t[1]
+		local deathtime = t[2]
+		local playername = t[3]
+		local playerclass = t[4]
+		local playermaxhealth = t[5]
+		local deathtimestring = t[6]
+		local lastcooldown = t.last_cooldown
+		local deathcombattime = t.dead_at
+		
+		return playername, playerclass, deathtime, deathcombattime, deathtimestring, playermaxhealth, deathevents, lastcooldown
+	end
 
 	--> get the fractional number representing the alphabetical letter
 	function _detalhes:GetOrderNumber (who_name)

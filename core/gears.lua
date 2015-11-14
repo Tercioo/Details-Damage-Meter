@@ -170,7 +170,7 @@ end
 					window1:SaveMainWindowPosition()
 					
 					local window2 = _detalhes:GetInstance (2)
-					if (window2) then
+					if (window2 and window2.baseframe) then
 						if (window2.baseframe:GetParent() == ChatFrame) then
 							--> need to detach
 							_detalhes.chat_embed:ReleaseEmbed (true)
