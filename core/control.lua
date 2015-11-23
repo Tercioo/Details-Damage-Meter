@@ -1041,6 +1041,11 @@
 		
 		function _detalhes:EqualizeActors (host_of)
 		
+			--> Disabling the sync. Since WoD combatlog are sent between player on phased zones during encounters.
+			if (not host_of) then
+				return
+			end
+		
 			if (_detalhes.debug) then
 				_detalhes:Msg ("(debug) sending equilize actor data")
 			end
