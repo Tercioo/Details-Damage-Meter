@@ -278,7 +278,7 @@ function _detalhes:ToolTipDead (instancia, morte, esta_barra, keydown)
 	end
 
 	GameCooltip:SetOption ("StatusBarHeightMod", -6)
-	GameCooltip:SetOption ("FixedWidth", 300)
+	GameCooltip:SetOption ("FixedWidth", (type (_detalhes.death_tooltip_width) == "number" and _detalhes.death_tooltip_width) or 300)
 
 	GameCooltip:SetOption ("TextSize", _detalhes.tooltip.fontsize)
 	GameCooltip:SetOption ("TextFont",  _detalhes.tooltip.fontface)

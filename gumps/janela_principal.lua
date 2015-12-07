@@ -5057,7 +5057,7 @@ function gump:CriaRodape (baseframe, instancia)
 
 	baseframe.rodape = {}
 	
-	--> esquerdo
+	--> esquerdo com statusbar
 	baseframe.rodape.esquerdo = instancia.floatingframe:CreateTexture (nil, "overlay")
 	baseframe.rodape.esquerdo:SetPoint ("topright", baseframe, "bottomleft", 16, 0)
 	baseframe.rodape.esquerdo:SetTexture (DEFAULT_SKIN)
@@ -5065,13 +5065,29 @@ function gump:CriaRodape (baseframe, instancia)
 	baseframe.rodape.esquerdo:SetWidth (32)
 	baseframe.rodape.esquerdo:SetHeight (32)
 	
-	--> direito
+	--> esquerdo sem statusbar
+	baseframe.rodape.esquerdo_nostatusbar = instancia.floatingframe:CreateTexture (nil, "overlay")
+	baseframe.rodape.esquerdo_nostatusbar:SetPoint ("topright", baseframe, "bottomleft", 16, 14)
+	baseframe.rodape.esquerdo_nostatusbar:SetTexture (DEFAULT_SKIN)
+	baseframe.rodape.esquerdo_nostatusbar:SetTexCoord (unpack (COORDS_PIN_LEFT))
+	baseframe.rodape.esquerdo_nostatusbar:SetWidth (32)
+	baseframe.rodape.esquerdo_nostatusbar:SetHeight (32)
+	
+	--> direito com statusbar
 	baseframe.rodape.direita = instancia.floatingframe:CreateTexture (nil, "overlay")
 	baseframe.rodape.direita:SetPoint ("topleft", baseframe, "bottomright", -16, 0)
 	baseframe.rodape.direita:SetTexture (DEFAULT_SKIN)
 	baseframe.rodape.direita:SetTexCoord (unpack (COORDS_PIN_RIGHT))
 	baseframe.rodape.direita:SetWidth (32)
 	baseframe.rodape.direita:SetHeight (32)
+	
+	--> direito sem statusbar
+	baseframe.rodape.direita_nostatusbar = instancia.floatingframe:CreateTexture (nil, "overlay")
+	baseframe.rodape.direita_nostatusbar:SetPoint ("topleft", baseframe, "bottomright", -16, 14)
+	baseframe.rodape.direita_nostatusbar:SetTexture (DEFAULT_SKIN)
+	baseframe.rodape.direita_nostatusbar:SetTexCoord (unpack (COORDS_PIN_RIGHT))
+	baseframe.rodape.direita_nostatusbar:SetWidth (32)
+	baseframe.rodape.direita_nostatusbar:SetHeight (32)
 	
 	--> barra centro
 	baseframe.rodape.top_bg = baseframe:CreateTexture (nil, "background")
@@ -5081,7 +5097,7 @@ function gump:CriaRodape (baseframe, instancia)
 	baseframe.rodape.top_bg:SetHeight (128)
 	baseframe.rodape.top_bg:SetPoint ("left", baseframe.rodape.esquerdo, "right", -16, -48)
 	baseframe.rodape.top_bg:SetPoint ("right", baseframe.rodape.direita, "left", 16, -48)
-
+	
 	local StatusBarLeftAnchor = CreateFrame ("frame", "DetailsStatusBarAnchorLeft" .. instancia.meu_id, baseframe)
 	StatusBarLeftAnchor:SetPoint ("left", baseframe.rodape.top_bg, "left", 5, 57)
 	StatusBarLeftAnchor:SetWidth (1)
@@ -6299,6 +6315,8 @@ function _detalhes:ChangeSkin (skin_name)
 		self.baseframe.rodape.top_bg:SetTexture (skin_file) --> rodape top background
 		self.baseframe.rodape.esquerdo:SetTexture (skin_file) --> rodape esquerdo
 		self.baseframe.rodape.direita:SetTexture (skin_file) --> rodape direito
+		self.baseframe.rodape.esquerdo_nostatusbar:SetTexture (skin_file) --> rodape direito
+		self.baseframe.rodape.direita_nostatusbar:SetTexture (skin_file) --> rodape direito
 		
 		self.baseframe.button_stretch.texture:SetTexture (skin_file) --> botão de esticar a janela
 		
@@ -7518,6 +7536,11 @@ function _detalhes:HideStatusBar (instancia)
 	self.baseframe.rodape.StatusBarCenterAnchor:Hide()
 	self.baseframe.DOWNFrame:Hide()
 	
+	--debug
+	self.baseframe.rodape.direita_nostatusbar:Show()
+	self.baseframe.rodape.esquerdo_nostatusbar:Show()
+	--
+	
 	if (self.toolbar_side == 2) then
 		self:ToolbarSide()
 	end
@@ -7551,6 +7574,10 @@ function _detalhes:StatusBarColor (r, g, b, a, no_save)
 	self.baseframe.rodape.esquerdo:SetAlpha (a)
 	self.baseframe.rodape.direita:SetVertexColor (r, g, b)
 	self.baseframe.rodape.direita:SetAlpha (a)
+	self.baseframe.rodape.direita_nostatusbar:SetVertexColor (r, g, b)
+	self.baseframe.rodape.esquerdo_nostatusbar:SetVertexColor (r, g, b)
+	self.baseframe.rodape.direita_nostatusbar:SetAlpha (a)
+	self.baseframe.rodape.esquerdo_nostatusbar:SetAlpha (a)
 	self.baseframe.rodape.top_bg:SetVertexColor (r, g, b)
 	self.baseframe.rodape.top_bg:SetAlpha (a)
 	
@@ -7569,6 +7596,11 @@ function _detalhes:ShowStatusBar (instancia)
 	self.baseframe.rodape.StatusBarLeftAnchor:Show()
 	self.baseframe.rodape.StatusBarCenterAnchor:Show()
 	self.baseframe.DOWNFrame:Show()
+	
+	--debug
+	self.baseframe.rodape.direita_nostatusbar:Hide()
+	self.baseframe.rodape.esquerdo_nostatusbar:Hide()
+	--
 	
 	self:ToolbarSide()
 	

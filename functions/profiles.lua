@@ -982,6 +982,7 @@ local default_profile = {
 		pvp_as_group = true,
 		use_battleground_server_parser = true,
 		force_activity_time_pvp = true,
+		death_tooltip_width = 300,
 	
 	--> skins
 		standard_skin = false,

@@ -143,6 +143,8 @@ function _detalhes:OpenOptionsWindow (instance, no_reopen, section)
 		window.close_with_right = true
 		window.backdrop = nil
 		
+		window.using_skin = 1
+		
 		DetailsOptionsWindow.instance = instance
 		DetailsOptionsWindow.loading_settings = true
 		
@@ -198,6 +200,7 @@ function _detalhes:OpenOptionsWindow (instance, no_reopen, section)
 		window_icon:SetDrawLayer ("background")
 		window_icon:SetTexCoord (0, 0.054199, 0.591308, 0.646972) --605 663
 
+		
 		--> title
 		local title = g:NewLabel (window, nil, nil, "title", Loc ["STRING_OPTIONS_WINDOW"], "GameFontHighlightLeft", 12, {227/255, 186/255, 4/255})
 		title:SetPoint ("center", window, "center")
@@ -676,9 +679,12 @@ local menus2 = {
 				info_text:Hide()
 				window.descAnchorImage:Hide()
 				window.descBackgroundImage:Hide()
-				window.descAnchorTopLeftImage:Show()
-				window.descAnchorBottomLeftImage:Show()
-				window.descAnchorTopRightImage:Show()
+				
+				if (window.using_skin == 1) then --normal skin
+					window.descAnchorTopLeftImage:Show()
+					window.descAnchorBottomLeftImage:Show()
+					window.descAnchorTopRightImage:Show()
+				end
 			end
 			
 		end
@@ -1306,6 +1312,29 @@ local menus2 = {
 			
 		end
 	
+	
+	--SKINS
+		function window:UseElvUISkin()
+			background:SetTexture ([[Interface\AddOns\Details\images\background]])
+			background:SetVertexColor (0.27, 0.27, 0.27, 0.7)
+			window:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1})
+			window:SetBackdropColor (1, 1, 1, 1)
+			window:SetBackdropBorderColor (0, 0, 0, 1)
+			
+			bigdog:Hide()
+			window.descAnchorTopLeftImage:Hide()
+			window.descAnchorBottomLeftImage:Hide()
+			window.descAnchorTopRightImage:Hide()
+			
+			window.using_skin = 2
+		end
+		
+		--window:UseElvUISkin()
+		
+		function window:UseClassicSkin()
+		
+			window.using_skin = 1
+		end
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Advanced Settings - Tooltips ~20
