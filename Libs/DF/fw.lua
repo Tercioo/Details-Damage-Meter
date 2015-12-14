@@ -1,5 +1,5 @@
 
-local dversion = 12
+local dversion = 13
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary (major, minor)
 
@@ -203,6 +203,10 @@ function DF:Embed (target)
 	end
 	self.embeds [target] = true
 	return target
+end
+
+function DF:RemoveRealmName (name)
+	return name:gsub (("%-.*"), "")
 end
 
 function DF:RemoveRealName (name)
@@ -878,4 +882,11 @@ function DF:GetTemplate (type, template_name)
 	end
 	return template_table [template_name]
 end
-	
+
+function DF.GetParentName (frame)
+	local parentName = frame:GetName()
+	if (not parentName) then
+		error ("Details! FrameWork: called $parent but parent was no name.", 2)
+	end
+	return parentName
+end

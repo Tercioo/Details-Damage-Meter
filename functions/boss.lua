@@ -25,9 +25,17 @@ do
 	
 	function _detalhes:GetInstanceIdFromEncounterId (encounterid)
 		for id, instanceTable in pairs (_detalhes.EncounterInformation) do
+			--combatlog encounter id
 			local ids = instanceTable.encounter_ids2
 			if (ids) then
 				if (ids [encounterid]) then
+					return id
+				end
+			end
+			--encounter journal id
+			local ids_ej = instanceTable.encounter_ids
+			if (ids) then
+				if (ids_ej [encounterid]) then
 					return id
 				end
 			end

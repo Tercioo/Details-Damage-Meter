@@ -854,7 +854,10 @@ local ButtonMetaFunctions = {}
 		local x, y = GetCursorPosition()
 		x = _math_floor (x)
 		y = _math_floor (y)
-		if ((button.mouse_down+0.4 > GetTime() and (x == button.x and y == button.y)) or (x == button.x and y == button.y)) then
+		if (
+			(x == button.x and y == button.y) or
+			(button.mouse_down+0.5 > GetTime() and button:IsMouseOver())
+		) then
 			if (buttontype == "LeftButton") then
 				button.MyObject.func (button, buttontype, button.MyObject.param1, button.MyObject.param2)
 			else
@@ -936,7 +939,8 @@ function DF:NewButton (parent, container, name, member, w, h, func, param1, para
 	end
 	
 	if (name:find ("$parent")) then
-		name = name:gsub ("$parent", parent:GetName())
+		local parentName = DF.GetParentName (parent)
+		name = name:gsub ("$parent", parentName)
 	end
 
 	local ButtonObject = {type = "button", dframework = true}
