@@ -1608,18 +1608,9 @@ local resize_scripts_onenter = function (self)
 		self.texture:SetBlendMode ("ADD")
 		self.mostrando = true
 		
-		GameCooltip:Reset()
-		GameCooltip:SetType ("tooltip")
+		_detalhes:CooltipPreset (2.1)
 		GameCooltip:AddFromTable (resizeTooltip)
-		GameCooltip:SetOption ("TextSize", _detalhes.font_sizes.menus)
-		GameCooltip:SetOption ("TextFont", _detalhes.font_faces.menus)		
-		GameCooltip:SetOption ("NoLastSelectedBar", true)
 
-		GameCooltip:SetOption ("YSpacingMod", -3)
-		GameCooltip:SetOption ("FixedHeight", 106)
-		
-		GameCooltip:SetWallpaper (1, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
-		GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
 		GameCooltip:SetOwner (self)
 		GameCooltip:ShowCooltip()
 	end
@@ -1668,18 +1659,10 @@ local lockFunctionOnEnter = function (self)
 		
 		self.label:SetTextColor (1, 1, 1, .6)
 
-		GameCooltip:Reset()
-		GameCooltip:SetType ("tooltip")
+		_detalhes:CooltipPreset (2.1)
+		GameCooltip:SetOption ("FixedWidth", 180)
 		GameCooltip:AddFromTable (lockButtonTooltip)
-		GameCooltip:SetOption ("NoLastSelectedBar", true)
-		GameCooltip:SetOption ("TextSize", _detalhes.font_sizes.menus)
-		GameCooltip:SetOption ("TextFont", _detalhes.font_faces.menus)
-		
-		GameCooltip:SetOption ("YSpacingMod", -3)
-		GameCooltip:SetOption ("FixedHeight", 32)
-		
-		GameCooltip:SetWallpaper (1, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
-		GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
+
 		GameCooltip:SetOwner (self)
 		GameCooltip:ShowCooltip()
 	end
@@ -1786,16 +1769,10 @@ local unSnapButtonOnEnter = function (self)
 	OnEnterMainWindow (self.instancia, self)
 	self.mostrando = true
 	
-	GameCooltip:Reset()
+	_detalhes:CooltipPreset (2.1)
+	GameCooltip:SetOption ("FixedWidth", 180)
 	GameCooltip:AddFromTable (unSnapButtonTooltip)
-	GameCooltip:SetOption ("TextSize", _detalhes.font_sizes.menus)
-	GameCooltip:SetOption ("TextFont", _detalhes.font_faces.menus)
 	
-	GameCooltip:SetOption ("YSpacingMod", -3)
-	GameCooltip:SetOption ("FixedHeight", 32)
-	
-	GameCooltip:SetWallpaper (1, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
-	GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
 	GameCooltip:ShowCooltip (self, "tooltip")
 	
 end
@@ -3525,7 +3502,7 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 	--> alert frame
 		baseframe.alert = CreateAlertFrame (baseframe, instancia)
 	
--- resizers & lock button ------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- resizers & lock button ~lock ------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 	--> right resizer
 		baseframe.resize_direita = CreateFrame ("button", "Details_Resize_Direita"..ID, baseframe)
@@ -4175,9 +4152,9 @@ function _detalhes:SetBarSettings (height, texture, colorclass, fixedcolor, back
 	
 	--> fixed color
 	if (fixedcolor) then
-		local red, green, blue, alpha = gump:ParseColors (fixedcolor)
+		local red, green, blue = gump:ParseColors (fixedcolor)
 		local c = self.row_info.fixed_texture_color
-		c[1], c[2], c[3], c[4] = red, green, blue, alpha
+		c[1], c[2], c[3], c[4] = red, green, blue, self.row_info.alpha
 	end
 	
 	--> background texture

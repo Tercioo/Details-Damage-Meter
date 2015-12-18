@@ -787,10 +787,18 @@
 --> panels
 
 --> cooltip presets
-	local preset2_backdrop = {bgFile = [[Interface\DialogFrame\UI-DialogBox-Background-Dark]], edgeFile = [[Interface\AddOns\Details\images\border_3]], tile=true,
+	local preset3_backdrop = {bgFile = [[Interface\DialogFrame\UI-DialogBox-Background-Dark]], edgeFile = [[Interface\AddOns\Details\images\border_3]], tile=true,
 	edgeSize = 16, tileSize = 64, insets = {left = 3, right = 3, top = 4, bottom = 4}}
-	_detalhes.cooltip_preset2_backdrop = preset2_backdrop
+	
+	_detalhes.cooltip_preset3_backdrop = preset3_backdrop
+	
 	local white_table = {1, 1, 1, 1}
+	local black_table = {0, 0, 0, 1}
+	local gray_table = {0.37, 0.37, 0.37, 1}
+
+	local preset2_backdrop = {bgFile = [[Interface\AddOns\Details\images\background]], edgeFile = [[Interface\Buttons\WHITE8X8]], tile=true,
+	edgeSize = 1, tileSize = 64, insets = {left = 0, right = 0, top = 0, bottom = 0}}
+	_detalhes.cooltip_preset2_backdrop = preset2_backdrop
 	
 	--"Details BarBorder 3"
 	function _detalhes:CooltipPreset (preset)
@@ -815,10 +823,34 @@
 			GameCooltip:SetOption ("ButtonsYMod", -4)
 			GameCooltip:SetOption ("YSpacingMod", -4)
 			GameCooltip:SetOption ("IgnoreButtonAutoHeight", true)
+			GameCooltip:SetColor (1, 0, 0, 0, 0)
+			
+			GameCooltip:SetBackdrop (1, preset2_backdrop, gray_table, black_table)	
+			
+		elseif (preset == 2.1) then
+			GameCooltip:SetOption ("TextFont", "Friz Quadrata TT")
+			GameCooltip:SetOption ("TextColor", "orange")
+			GameCooltip:SetOption ("TextSize", 10)
+			GameCooltip:SetOption ("FixedWidth", 220)
+			GameCooltip:SetOption ("ButtonsYMod", 0)
+			GameCooltip:SetOption ("YSpacingMod", -4)
+			GameCooltip:SetOption ("IgnoreButtonAutoHeight", true)
+			GameCooltip:SetColor (1, 0, 0, 0, 0)
+			
+			GameCooltip:SetBackdrop (1, preset2_backdrop, gray_table, black_table)
+			
+		elseif (preset == 3) then
+			GameCooltip:SetOption ("TextFont", "Friz Quadrata TT")
+			GameCooltip:SetOption ("TextColor", "orange")
+			GameCooltip:SetOption ("TextSize", 12)
+			GameCooltip:SetOption ("FixedWidth", 220)
+			GameCooltip:SetOption ("ButtonsYMod", -4)
+			GameCooltip:SetOption ("YSpacingMod", -4)
+			GameCooltip:SetOption ("IgnoreButtonAutoHeight", true)
 			GameCooltip:SetColor (1, 0.5, 0.5, 0.5, 0.5)
 			
-			GameCooltip:SetBackdrop (1, preset2_backdrop, nil, white_table)
-			
+			GameCooltip:SetBackdrop (1, preset3_backdrop, nil, white_table)
+
 		end
 	end
 

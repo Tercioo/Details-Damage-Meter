@@ -933,8 +933,11 @@ do
 	BossFrame:SetFrameStrata ("HIGH")
 	BossFrame:SetToplevel (true)
 	
+	-- ~size
 	BossFrame:SetWidth (698)
 	BossFrame:SetHeight (354)
+	
+	
 	BossFrame:EnableMouse (true)
 	BossFrame:SetResizable (false)
 	BossFrame:SetMovable (true)

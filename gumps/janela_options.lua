@@ -200,14 +200,13 @@ function _detalhes:OpenOptionsWindow (instance, no_reopen, section)
 		window_icon:SetDrawLayer ("background")
 		window_icon:SetTexCoord (0, 0.054199, 0.591308, 0.646972) --605 663
 
-		
 		--> title
-		local title = g:NewLabel (window, nil, nil, "title", Loc ["STRING_OPTIONS_WINDOW"], "GameFontHighlightLeft", 12, {227/255, 186/255, 4/255})
+		local title = g:NewLabel (window, nil, "$parentTitleLabel", "title", Loc ["STRING_OPTIONS_WINDOW"], "GameFontHighlightLeft", 12, {227/255, 186/255, 4/255})
 		title:SetPoint ("center", window, "center")
 		title:SetPoint ("top", window, "top", 0, -28)
 		
 		--> edit what label
-		local editing = g:NewLabel (window, nil, nil, "editing", Loc ["STRING_OPTIONS_GENERAL"], "QuestFont_Large", 20, "white")
+		local editing = g:NewLabel (window, nil, "$parentEditingLabel", "editing", Loc ["STRING_OPTIONS_GENERAL"], "QuestFont_Large", 20, "white")
 		--editing:SetPoint ("topleft", window, "topleft", 90, -57)
 		editing:SetPoint ("topright", window, "topright", -30, -62)
 		editing.options = {Loc ["STRING_OPTIONS_GENERAL"], Loc ["STRING_OPTIONS_APPEARANCE"], Loc ["STRING_OPTIONS_PERFORMANCE"], Loc ["STRING_OPTIONS_PLUGINS"]}
@@ -232,7 +231,7 @@ function _detalhes:OpenOptionsWindow (instance, no_reopen, section)
 		editing.apoio_icone_direito:SetHeight (13)		
 		
 		--> close button
-		local close_button = CreateFrame ("button", nil, window.widget, "UIPanelCloseButton")
+		local close_button = CreateFrame ("button", "DetailsOptionsWindowCloseButton", window.widget, "UIPanelCloseButton")
 		close_button:SetWidth (32)
 		close_button:SetHeight (32)
 		close_button:SetPoint ("TOPRIGHT", window.widget, "TOPRIGHT", 0, -19)
@@ -240,7 +239,7 @@ function _detalhes:OpenOptionsWindow (instance, no_reopen, section)
 		close_button:SetFrameLevel (close_button:GetFrameLevel()+2)
 		
 		--> desc text (on the right)
-		local info_text = g:NewLabel (window, nil, nil, "infotext", "", "GameFontNormal", 12)
+		local info_text = g:NewLabel (window, nil, "$parentInfoTextLabel", "infotext", "", "GameFontNormal", 12)
 		info_text:SetPoint ("topleft", window, "topleft", 560, -109)
 		info_text.width = 300
 		info_text.height = 380
@@ -272,11 +271,11 @@ function _detalhes:OpenOptionsWindow (instance, no_reopen, section)
 		local forge_button = g:NewButton (window, _, "$parentForgeButton", "ForgeButton", 90, 20, function() _detalhes:OpenForge(); window:Hide() end, nil, nil, nil, "Open Forge", 1) --, g:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE")
 		forge_button:SetIcon ([[Interface\AddOns\Details\images\icons]], nil, nil, nil, {396/512, 428/512, 243/512, 273/512}, nil, nil, 2)
 		forge_button:SetPoint ("topleft", 80, -61)
-		
+
 		local history_button = g:NewButton (window, _, "$parentHistoryButton", "HistoryButton", 90, 20, function() _detalhes:OpenRaidHistoryWindow(); window:Hide() end, nil, nil, nil, "Open History", 1) --, g:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE")
 		history_button:SetIcon ([[Interface\AddOns\Details\images\icons]], nil, nil, nil, {434/512, 466/512, 243/512, 273/512}, nil, nil, 2)
 		history_button:SetPoint ("topleft", 180, -61)
-		
+
 		--> select instance dropbox
 		local onSelectInstance = function (_, _, instance)
 		
@@ -359,7 +358,7 @@ function _detalhes:OpenOptionsWindow (instance, no_reopen, section)
 			GameCooltip:Hide()
 		end)
 		
-		local instances_string = g:NewLabel (window, nil, nil, "instancetext", Loc ["STRING_OPTIONS_EDITINSTANCE"], "GameFontNormal", 12)
+		local instances_string = g:NewLabel (window, nil, "$parentInstanceDropdownLabel", "instancetext", Loc ["STRING_OPTIONS_EDITINSTANCE"], "GameFontNormal", 12)
 		instances_string:SetPoint ("right", instances, "left", -2, 1)
 
 		--
@@ -470,16 +469,22 @@ function _detalhes:OpenOptionsWindow (instance, no_reopen, section)
 		hide_3d_world:Hide()
 	
 	--> create bars
-
+		
+		g:NewColor ("C_OptionsButtonOrange", 0.9999, 0.8196, 0, 1)
+		
+		local extra_buttons_on_enter = function (self, capsule)
+			capsule.textcolor = "yellow"
+		end
+		local extra_buttons_on_leave = function (self, capsule)
+			capsule.textcolor = "C_OptionsButtonOrange"
+		end
+	
 		local fillbars = g:NewButton (window, _, "$parentCreateExampleBarsButton", nil, 110, 14, _detalhes.CreateTestBars, nil, nil, nil, Loc ["STRING_OPTIONS_TESTBARS"], 1)
 		fillbars:SetPoint ("bottomleft", window.widget, "bottomleft", 41, 12)
 		fillbars.textalign = "left"
-		fillbars:SetHook ("OnEnter", function()
-			fillbars:SetTextColor (1, 1, 0)
-		end)
-		fillbars:SetHook ("OnLeave", function()
-			fillbars:SetTextColor (0.9999, 0.8196, 0, 1)
-		end)
+		fillbars.textcolor = "C_OptionsButtonOrange"
+		fillbars:SetHook ("OnEnter", extra_buttons_on_enter)
+		fillbars:SetHook ("OnLeave", extra_buttons_on_leave)
 		
 		local fillbars_image = g:NewImage (window, [[Interface\Buttons\UI-RADIOBUTTON]], 8, 9, "artwork", {20/64, 27/64, 4/16, 11/16})
 		fillbars_image:SetPoint ("right", fillbars, "left", -1, 0)
@@ -489,12 +494,9 @@ function _detalhes:OpenOptionsWindow (instance, no_reopen, section)
 		local changelog = g:NewButton (window, _, "$parentOpenChangeLogButton", nil, 110, 14, _detalhes.OpenNewsWindow, "change_log", nil, nil, Loc ["STRING_OPTIONS_CHANGELOG"], 1)
 		changelog:SetPoint ("left", fillbars, "right", 10, 0)
 		changelog.textalign = "left"
-		changelog:SetHook ("OnEnter", function()
-			changelog:SetTextColor (1, 1, 0)
-		end)
-		changelog:SetHook ("OnLeave", function()
-			changelog:SetTextColor (0.9999, 0.8196, 0, 1)
-		end)
+		changelog.textcolor = "C_OptionsButtonOrange"
+		changelog:SetHook ("OnEnter", extra_buttons_on_enter)
+		changelog:SetHook ("OnLeave", extra_buttons_on_leave)
 		
 		local changelog_image = g:NewImage (window, [[Interface\Buttons\UI-RADIOBUTTON]], 8, 9, "artwork", {20/64, 27/64, 4/16, 11/16})
 		changelog_image:SetPoint ("right", changelog, "left", -1, 0)
@@ -504,12 +506,9 @@ function _detalhes:OpenOptionsWindow (instance, no_reopen, section)
 		local feedback_button = g:NewButton (window, _, "$parentOpenFeedbackButton", nil, 80, 14, _detalhes.OpenFeedbackWindow, nil, nil, nil, Loc ["STRING_OPTIONS_SENDFEEDBACK"], 1)
 		feedback_button:SetPoint ("left", changelog, "right", 10, 0)
 		feedback_button.textalign = "left"
-		feedback_button:SetHook ("OnEnter", function()
-			feedback_button:SetTextColor (1, 1, 0)
-		end)
-		feedback_button:SetHook ("OnLeave", function()
-			feedback_button:SetTextColor (0.9999, 0.8196, 0, 1)
-		end)
+		feedback_button.textcolor = "C_OptionsButtonOrange"
+		feedback_button:SetHook ("OnEnter", extra_buttons_on_enter)
+		feedback_button:SetHook ("OnLeave", extra_buttons_on_leave)
 		
 		local feedback_image = g:NewImage (window, [[Interface\Buttons\UI-RADIOBUTTON]], 8, 9, "artwork", {20/64, 27/64, 4/16, 11/16})
 		feedback_image:SetPoint ("right", feedback_button, "left", -1, 0)
@@ -699,51 +698,45 @@ local menus2 = {
 
 		--> menu anchor textures
 		
-		--general settings
-			local g_settings = g:NewButton (window, _, "$parentGeneralSettingsButton", "g_settings", 150, 33, function() end, 0x1)
-			
-			g:NewLabel (window, _, "$parentgeneral_settings_text", "GeneralSettingsLabel", Loc ["STRING_OPTIONS_GENERAL"], "GameFontNormal", 12)
-			window.GeneralSettingsLabel:SetPoint ("topleft", g_settings, "topleft", 35, -11)
+		local menu_frame = CreateFrame("frame", "DetailsOptionsWindowMenuAnchor", window.widget)
+		menu_frame:SetPoint ("TopLeft", window.widget, "TopLeft", 0, -90)
+		menu_frame:SetSize (1, 1)
 		
-			local g_settings_texture = g:NewImage (window, [[Interface\AddOns\Details\images\options_window]], 160, 33, nil, nil, "GeneralSettingsTexture", "$parentGeneralSettingsTexture")
+		--general settings
+			local g_settings = g:NewButton (menu_frame, _, "$parentGeneralSettingsButton", "g_settings", 150, 33, function() end, 0x1)
+			
+			g:NewLabel (menu_frame, _, "$parentgeneral_settings_text", "GeneralSettingsLabel", Loc ["STRING_OPTIONS_GENERAL"], "GameFontNormal", 12)
+			menu_frame.GeneralSettingsLabel:SetPoint ("topleft", g_settings, "topleft", 35, -11)
+		
+			local g_settings_texture = g:NewImage (menu_frame, [[Interface\AddOns\Details\images\options_window]], 160, 33, nil, nil, "GeneralSettingsTexture", "$parentGeneralSettingsTexture")
 			g_settings_texture:SetTexCoord (0, 0.15625, 0.685546875, 0.7177734375)
 			g_settings_texture:SetPoint ("topleft", g_settings, "topleft", 0, 0)
 
 		--apparance
-			local g_appearance = g:NewButton (window, _, "$parentAppearanceButton", "g_appearance", 150, 33, function() end, 0x2)
+			local g_appearance = g:NewButton (menu_frame, _, "$parentAppearanceButton", "g_appearance", 150, 33, function() end, 0x2)
 
-			g:NewLabel (window, _, "$parentappearance_settings_text", "AppearanceSettingsLabel", Loc ["STRING_OPTIONS_APPEARANCE"], "GameFontNormal", 12)
-			window.AppearanceSettingsLabel:SetPoint ("topleft", g_appearance, "topleft", 35, -11)
+			g:NewLabel (menu_frame, _, "$parentappearance_settings_text", "AppearanceSettingsLabel", Loc ["STRING_OPTIONS_APPEARANCE"], "GameFontNormal", 12)
+			menu_frame.AppearanceSettingsLabel:SetPoint ("topleft", g_appearance, "topleft", 35, -11)
 		
-			local g_appearance_texture = g:NewImage (window, [[Interface\AddOns\Details\images\options_window]], 160, 33, nil, nil, "AppearanceSettingsTexture", "$parentAppearanceSettingsTexture")
+			local g_appearance_texture = g:NewImage (menu_frame, [[Interface\AddOns\Details\images\options_window]], 160, 33, nil, nil, "AppearanceSettingsTexture", "$parentAppearanceSettingsTexture")
 			g_appearance_texture:SetTexCoord (0, 0.15625, 0.71875, 0.7509765625)
 			g_appearance_texture:SetPoint ("topleft", g_appearance, "topleft", 0, 0)
-		
-		--performance
-		--[
-			--local g_performance = g:NewButton (window, _, "$parentPerformanceButton", "g_appearance", 150, 33, function() end, 0x3)
 
-			--g:NewLabel (window, _, "$parentperformance_settings_text", "PerformanceSettingsLabel", Loc ["STRING_OPTIONS_PERFORMANCE"], "GameFontNormal", 12)
-			--window.PerformanceSettingsLabel:SetPoint ("topleft", g_performance, "topleft", 35, -11)
-		
-			--local g_performance_texture = g:NewImage (window, [[Interface\AddOns\Details\images\options_window]], 160, 33, nil, nil, "PerformanceSettingsTexture", "$parentPerformanceSettingsTexture")
-			--g_performance_texture:SetTexCoord (0, 0.15625, 0.751953125, 0.7841796875)
-			--g_performance_texture:SetPoint ("topleft", g_performance, "topleft", 0, 0)
-		--]]
 		--advanced
-			local g_advanced = g:NewButton (window, _, "$parentAdvancedButton", "g_advanced", 150, 33, function() end, 0x4)
+			local g_advanced = g:NewButton (menu_frame, _, "$parentAdvancedButton", "g_advanced", 150, 33, function() end, 0x4)
 			
-			g:NewLabel (window, _, "$parentadvanced_settings_text", "AdvancedSettingsLabel", Loc ["STRING_OPTIONS_ADVANCED"], "GameFontNormal", 12)
-			window.AdvancedSettingsLabel:SetPoint ("topleft", g_advanced, "topleft", 35, -11)
+			g:NewLabel (menu_frame, _, "$parentadvanced_settings_text", "AdvancedSettingsLabel", Loc ["STRING_OPTIONS_ADVANCED"], "GameFontNormal", 12)
+			menu_frame.AdvancedSettingsLabel:SetPoint ("topleft", g_advanced, "topleft", 35, -11)
 		
-			local g_advanced_texture = g:NewImage (window, [[Interface\AddOns\Details\images\options_window]], 160, 33, nil, nil, "AdvancedSettingsTexture", "$parentAdvancedSettingsTexture")
+			local g_advanced_texture = g:NewImage (menu_frame, [[Interface\AddOns\Details\images\options_window]], 160, 33, nil, nil, "AdvancedSettingsTexture", "$parentAdvancedSettingsTexture")
 			g_advanced_texture:SetTexCoord (0, 0.15625, 0.8173828125, 0.849609375)
 			g_advanced_texture:SetPoint ("topleft", g_advanced, "topleft", 0, 0)
 
 		
+		
 		--> create menus
 		local anchors = {g_settings, g_appearance, g_advanced} --g_performance
-		local y = -90
+		local y = 0
 		local sub_menu_index = 1
 		
 		local textcolor = {.8, .8, .8, 1}
@@ -773,28 +766,6 @@ local menus2 = {
 		local button_onenter = function (self, capsule)
 			self.MyObject.my_bg_texture:SetVertexColor (1, 1, 1, 1)
 			self.MyObject.textcolor = "yellow"
-			
-			--[[
-			if (is_appearance [capsule.menu_index]) then
-				GameCooltip:Reset()
-				GameCooltip:SetType ("tooltip")
-				
-				_detalhes:CooltipPreset (2)
-				GameCooltip:AddLine (Loc ["STRING_OPTIONS_SKIN_A_DESC"])
-				GameCooltip:AddLine (" ")
-				GameCooltip:AddLine ("Editing Window: 1")
-				GameCooltip:AddLine ("You may change the editing window at the bottom right corner.")
-		
-				GameCooltip:SetOption ("FixedWidth", 200)
-				--GameCooltip:SetOption ("TextSize", _detalhes.font_sizes.menus)
-				--GameCooltip:SetOption ("TextFont", _detalhes.font_faces.menus)		
-				GameCooltip:SetOption ("NoLastSelectedBar", true)
-				GameCooltip:SetWallpaper (1, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
-				GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
-				GameCooltip:SetOwner (self, "topright", "topleft", -5, 0)
-				GameCooltip:ShowCooltip()
-			end
-			--]]
 		end
 		local button_onleave = function (self)
 			self.MyObject.my_bg_texture:SetVertexColor (1, 1, 1, .5)
@@ -828,12 +799,12 @@ local menus2 = {
 				
 				for i = 1, amount do 
 				
-					local texture = g:NewImage (window, [[Interface\ARCHEOLOGY\ArchaeologyParts]], 130, 14, nil, nil, nil, "$parentButton_" .. index .. "_" .. i .. "_texture")
+					local texture = g:NewImage (menu_frame, [[Interface\ARCHEOLOGY\ArchaeologyParts]], 130, 14, nil, nil, nil, "$parentButton_" .. index .. "_" .. i .. "_texture")
 					texture:SetTexCoord (0.146484375, 0.591796875, 0.0546875, 0.26171875)
 					texture:SetPoint (38, y-2)
 					texture:SetVertexColor (1, 1, 1, .5)
 
-					local button = g:NewButton (window, _, "$parentButton_" .. index .. "_" .. i, nil, 150, 18, select_options, menus_settings [true_index], true_index, "", menus [index] [i])
+					local button = g:NewButton (menu_frame, _, "$parentButton_" .. index .. "_" .. i, nil, 150, 18, select_options, menus_settings [true_index], true_index, "", menus [index] [i])
 					button:SetPoint (40, y)
 					button.textalign = "<"
 					button.textcolor = textcolor
@@ -976,14 +947,14 @@ local menus2 = {
 			container_window.slider:cimaPoint (0, 1)
 			container_window.slider:baixoPoint (0, -3)
 			container_window.wheel_jump = 80
-
+			
 			container_window.ultimo = 0
 			container_window.gump = container_slave
 			container_window.container_slave = container_slave
 			
 			return container_window
 		end
-		
+
 		table.insert (window.options [1], window:create_box_no_scroll (1))
 		table.insert (window.options [2], window:create_box_no_scroll (2))
 		table.insert (window.options [3], window:create_box_no_scroll (3))
@@ -1252,6 +1223,9 @@ local menus2 = {
 		
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 		
+		window.title_y_pos = -30
+		window.title_y_pos2 = -50
+		
 		window.left_start_at = 30
 		window.right_start_at = 360
 		window.top_start_at = -90
@@ -1313,26 +1287,216 @@ local menus2 = {
 		end
 	
 	
-	--SKINS
+	--SKINS ~skins ~elvui
 		function window:UseElvUISkin()
+		
+			local window_widget = window.widget
+		
+			--> title bar
+			local titlebar = CreateFrame ("frame", window:GetName() .. "OptionsTitleBar", window_widget)
+			titlebar:SetPoint ("topleft", window_widget, "topleft", 2, -3)
+			titlebar:SetPoint ("topright", window_widget, "topright", -2, -3)
+			titlebar:SetHeight (20)
+			titlebar:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]], tileSize = 64, tile = true})
+			titlebar:SetBackdropColor (.5, .5, .5, 1)
+			titlebar:SetBackdropBorderColor (0, 0, 0, 1)
+		
+			--> move the title text to titlebar
+			title:ClearAllPoints()
+			title:SetParent (titlebar)
+			title:SetPoint ("center", titlebar, "center")
+			--title:SetPoint ("top", titlebar, "top", 0, -6)
+		
+			--> move the close button to titlebar
+			close_button:SetWidth (20)
+			close_button:SetHeight (20)
+			close_button:SetPoint ("TOPRIGHT", window_widget, "TOPRIGHT", 0, -3)
+			close_button:Show()
+			close_button:GetNormalTexture():SetDesaturated (true)
+		
+			--> create a new background texture
 			background:SetTexture ([[Interface\AddOns\Details\images\background]])
 			background:SetVertexColor (0.27, 0.27, 0.27, 0.7)
 			window:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1})
 			window:SetBackdropColor (1, 1, 1, 1)
 			window:SetBackdropBorderColor (0, 0, 0, 1)
 			
+			--> change the icon to a transparent one
+			window_icon:SetTexCoord (740/1024, 810/1024, 660/1024, 740/1024)
+			window_icon:SetSize (70, 80)
+			window_icon:SetParent (titlebar)
+			window_icon:SetPoint (12, -12)
+			window_icon:Hide()
+			
+			--> decrease the width of menu background
+			menu_background:SetSize (163, 488)
+			menu_background:SetPoint ("topleft", window.widget, "topleft", 23, -78)
+			menu_background:Hide()
+			sub_background:SetPoint ("topleft", window.widget, "topleft", 192, -80)
+			sub_background:SetPoint ("bottomright", window.widget, "bottomright", -30, 27)
+			sub_background:Hide()
+
+			--> hide the dog and other stuff
 			bigdog:Hide()
 			window.descAnchorTopLeftImage:Hide()
 			window.descAnchorBottomLeftImage:Hide()
 			window.descAnchorTopRightImage:Hide()
 			
+			--> set the point of the editing label
+			editing:SetPoint ("topright", window, "topright", -12, -62)
+			editing:SetPoint ("topright", window, "topright", -30, -90)
+			editing:Hide()
+			
+			--> instance selection dropdown
+			instances:SetPoint ("bottomright", window, "bottomright", -12, 16)
+			instances:SetTemplate (options_dropdown_template)
+			
+			--> buttons:
+			
+			--> location
+			fillbars:SetPoint ("bottomleft", window.widget, "bottomleft", 17, 16)
+			
+			forge_button:SetTemplate (options_button_template)
+			forge_button:SetSize(120, 20) --
+			history_button:SetTemplate (options_button_template)
+			history_button:SetSize(120, 20)
+			fillbars:SetTemplate (options_button_template)
+			fillbars:SetSize(120, 20)
+			changelog:SetTemplate (options_button_template)
+			changelog:SetSize(120, 20)
+			feedback_button:SetTemplate (options_button_template)
+			feedback_button:SetSize(120, 20)
+			
+			--feedback_button.textcolor = "white"
+			--changelog.textcolor = "white"
+			--fillbars.textcolor = "white"
+			history_button.textcolor = "C_OptionsButtonOrange"
+			forge_button.textcolor = "C_OptionsButtonOrange"
+			
+			history_button:SetHook ("OnEnter", extra_buttons_on_enter)
+			history_button:SetHook ("OnLeave", extra_buttons_on_leave)
+			forge_button:SetHook ("OnEnter", extra_buttons_on_enter)
+			forge_button:SetHook ("OnLeave", extra_buttons_on_leave)
+			
+			feedback_button.textsize = 10
+			changelog.textsize = 10
+			fillbars.textsize = 10
+			history_button.textsize = 10
+			forge_button.textsize = 10
+			
+			fillbars:SetIcon ("Interface\\AddOns\\Details\\images\\icons", nil, nil, nil, {323/512, 365/512, 42/512, 78/512}, {1, 1, 1, 0.6}, 4, 2)
+			changelog:SetIcon ("Interface\\AddOns\\Details\\images\\icons", nil, nil, nil, {367/512, 399/512, 43/512, 76/512}, {1, 1, 1, 0.8}, 4, 2)
+			feedback_button:SetIcon ("Interface\\FriendsFrame\\UI-Toast-BroadcastIcon", nil, nil, nil, {4/32, 27/32, 5/32, 25/32}, {1, 1, 1, 0.8}, 4, 2)
+			
+			changelog_image:Hide()
+			fillbars_image:Hide()
+			feedback_image:Hide()
+			
+			history_button:ClearAllPoints()
+			forge_button:ClearAllPoints()
+			--forge_button:SetPoint ("topright", -17, -47)
+			forge_button:SetPoint ("bottomleft", fillbars, "topleft", 0, 2)
+			--history_button:SetPoint ("right", forge_button, "left", -2, 0)
+			history_button:SetPoint ("bottomleft", changelog, "topleft", 0, 2)
+			--forge_button:Hide()
+			--history_button:Hide()
+
+			--group_editing_help:ClearAllPoints()
+			--group_editing_help:SetPoint ("bottomleft", instances_string.widget, "topleft", -5, 2)
+			--group_editing:ClearAllPoints()
+			--group_editing:SetPoint ("left", group_editing_help, "right", 2, 0)
+			--DetailsOptionsWindowGroupEditingText:ClearAllPoints()
+			--DetailsOptionsWindowGroupEditingText:SetPoint ("left", group_editing, "right", 2, 0)
+			DetailsOptionsWindowGroupEditingText:ClearAllPoints()
+			DetailsOptionsWindowGroupEditingText:SetPoint ("bottomright", instances.widget, "topright", 0, 2)
+			
+			_detalhes:SetFontSize (DetailsOptionsWindowGroupEditingText, 10)
+			instances_string.textsize = 10
+			instances_string:SetPoint ("right", instances, "left", -2, 0)
+			--forge_button.textsize = 10
+			
+			--> menus height
+			
+			window.title_y_pos = -8
+			window.title_y_pos2 = -28
+			window.top_start_at = -90
+			
+			local YMod = 45
+			local XMod = 6
+			
+			menu_frame:SetPoint ("TopLeft", window.widget, "TopLeft", -6, -90 + YMod)
+			
+			YMod = 42
+			
+			--> modify the scrollbars
+			for i, container in ipairs (window.options) do
+				for hash, frame in pairs (container) do
+					if (frame:GetName():find ("DetailsOptionsWindow") or frame:GetName():find ("ContainerScroll12")) then
+					
+						frame:SetPoint ("TOPLEFT", window.widget, "TOPLEFT", 198 + XMod, -88 + YMod)
+
+						local up = frame.cima
+						local down = frame.baixo
+						local slider = frame.slider
+						
+						slider:SetPoint ("TOPLEFT", frame, "TOPRIGHT", 3, -20)
+						slider:Altura (429)
+						
+						up:SetNormalTexture ([[Interface\Buttons\Arrow-Up-Up]])
+						up:SetPushedTexture ([[Interface\Buttons\Arrow-Up-Down]])
+						up:SetDisabledTexture ([[Interface\Buttons\Arrow-Up-Disabled]])
+						up:GetNormalTexture():ClearAllPoints()
+						up:GetPushedTexture():ClearAllPoints()
+						up:GetDisabledTexture():ClearAllPoints()
+						up:GetNormalTexture():SetPoint ("center", up, "center", 1, 1)
+						up:GetPushedTexture():SetPoint ("center", up, "center", 1, 1)
+						up:GetDisabledTexture():SetPoint ("center", up, "center", 1, 1)
+						up:SetSize (16, 16)
+						up:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]]})
+						up:SetBackdropColor (0, 0, 0, 0.3)
+						up:SetBackdropBorderColor (0, 0, 0, 1)
+						
+						down:SetNormalTexture ([[Interface\Buttons\Arrow-Down-Up]])
+						down:SetPushedTexture ([[Interface\Buttons\Arrow-Down-Down]])
+						down:SetDisabledTexture ([[Interface\Buttons\Arrow-Down-Disabled]])
+						down:GetNormalTexture():ClearAllPoints()
+						down:GetPushedTexture():ClearAllPoints()
+						down:GetDisabledTexture():ClearAllPoints()
+						down:GetNormalTexture():SetPoint ("center", down, "center", 1, -5)
+						down:GetPushedTexture():SetPoint ("center", down, "center", 1, -5)
+						down:GetDisabledTexture():SetPoint ("center", down, "center", 1, -5)
+						down:SetSize (16, 16)
+						down:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]]})
+						down:SetBackdropColor (0, 0, 0, 0.35)
+						down:SetBackdropBorderColor (0, 0, 0, 1)
+					
+						slider:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]]})
+						slider:SetBackdropColor (0, 0, 0, 0.35)
+						slider:SetBackdropBorderColor (0, 0, 0, 1)
+					
+						slider:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]]})
+						slider:SetBackdropColor (0, 0, 0, 0.35)
+						slider:SetBackdropBorderColor (0, 0, 0, 1)
+
+						slider:cimaPoint (0, 13)
+						slider:baixoPoint (0, -13)
+						slider.thumb:SetTexture ([[Interface\AddOns\Details\images\icons2]])
+						slider.thumb:SetTexCoord (482/512, 492/512, 104/512, 120/512)
+						slider.thumb:SetSize (12, 12)
+						slider.thumb:SetVertexColor (0.6, 0.6, 0.6, 0.95)
+					end
+				end
+			end			
+		
 			window.using_skin = 2
 		end
 		
-		--window:UseElvUISkin()
+		if (_detalhes.player_details_window.skin == "ElvUI") then
+			window:UseElvUISkin()
+		end
 		
+		--> is the default one, doesn't need to change anything
 		function window:UseClassicSkin()
-		
 			window.using_skin = 1
 		end
 
@@ -1344,7 +1508,7 @@ function window:CreateFrame20()
 	local frame20 = window.options [20][1]
 
 		local titulo_tooltips = g:NewLabel (frame20, _, "$parentTituloTooltipsText", "tooltipsTituloLabel", Loc ["STRING_OPTIONS_TOOLTIPS_TITLE"], "GameFontNormal", 16)
-		local titulo_tooltips_desc = g:NewLabel (frame20, _, "$parentTituloTooltipsText2", "tooltips2TituloLabel", Loc ["STRING_OPTIONS_TOOLTIPS_TITLE_DESC"], "GameFontNormal", 9, "white")
+		local titulo_tooltips_desc = g:NewLabel (frame20, _, "$parentTituloTooltipsText2", "tooltips2TituloLabel", Loc ["STRING_OPTIONS_TOOLTIPS_TITLE_DESC"], "GameFontNormal", 10, "white")
 		titulo_tooltips_desc.width = 350
 		titulo_tooltips_desc.height = 20
 		
@@ -1753,8 +1917,8 @@ function window:CreateFrame20()
 		
 		local x = window.left_start_at
 		
-		titulo_tooltips:SetPoint (x, -30)
-		titulo_tooltips_desc:SetPoint (x, -50)
+		titulo_tooltips:SetPoint (x, window.title_y_pos)
+		titulo_tooltips_desc:SetPoint (x, window.title_y_pos2)
 		
 		local left_side = {
 			{"TooltipsTextsAnchorLabel", 1, true},
@@ -1772,7 +1936,7 @@ function window:CreateFrame20()
 			{edit_menu_bg, 11, true},
 		}
 
-		window:arrange_menu (frame20, left_side, x, -90)
+		window:arrange_menu (frame20, left_side, x, window.top_start_at)
 		
 		x = window.right_start_at
 		
@@ -1791,7 +1955,7 @@ function window:CreateFrame20()
 			{"BackdropColorLabel", 11},
 		}
 		
-		window:arrange_menu (frame20, right_side, x, -90)
+		window:arrange_menu (frame20, right_side, x, window.top_start_at)
 		
 end
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1802,7 +1966,7 @@ function window:CreateFrame19()
 	local frame19 = window.options [19][1]
 
 		local titulo_externals = g:NewLabel (frame19, _, "$parentTituloExternalsText", "ExternalsTituloLabel", Loc ["STRING_OPTIONS_EXTERNALS_TITLE"], "GameFontNormal", 16)
-		local titulo_externals_desc = g:NewLabel (frame19, _, "$parentTituloExternalsText2", "Externals2TituloLabel", Loc ["STRING_OPTIONS_EXTERNALS_TITLE2"], "GameFontNormal", 9, "white")
+		local titulo_externals_desc = g:NewLabel (frame19, _, "$parentTituloExternalsText2", "Externals2TituloLabel", Loc ["STRING_OPTIONS_EXTERNALS_TITLE2"], "GameFontNormal", 10, "white")
 		titulo_externals_desc.width = 350
 		titulo_externals_desc.height = 20
 	
@@ -1957,8 +2121,8 @@ function window:CreateFrame19()
 
 		local x = window.left_start_at
 		
-		titulo_externals:SetPoint (x, -30)
-		titulo_externals_desc:SetPoint (x, -50)
+		titulo_externals:SetPoint (x, window.title_y_pos)
+		titulo_externals_desc:SetPoint (x, window.title_y_pos2)
 		
 		local left_side = {
 			{"minimapAnchorLabel", 1, true},
@@ -1973,7 +2137,7 @@ function window:CreateFrame19()
 			{"ItemLevelLabel", 10}
 		}
 		
-		window:arrange_menu (frame19, left_side, x, -90)	
+		window:arrange_menu (frame19, left_side, x, window.top_start_at)	
 		
 end
 
@@ -1985,7 +2149,7 @@ function window:CreateFrame18()
 	local frame18 = window.options [18][1]
 
 		local titulo_misc_settings = g:NewLabel (frame18, _, "$parentTituloMiscSettingsText", "MiscSettingsLabel", Loc ["STRING_OPTIONS_MISCTITLE"], "GameFontNormal", 16)
-		local titulo_misc_settings_desc = g:NewLabel (frame18, _, "$parentTituloMiscSettingsText2", "Misc2SettingsLabel", Loc ["STRING_OPTIONS_MISCTITLE2"], "GameFontNormal", 9, "white")
+		local titulo_misc_settings_desc = g:NewLabel (frame18, _, "$parentTituloMiscSettingsText2", "Misc2SettingsLabel", Loc ["STRING_OPTIONS_MISCTITLE2"], "GameFontNormal", 10, "white")
 		titulo_misc_settings_desc.width = 350
 		titulo_misc_settings_desc.height = 20
 	
@@ -2564,8 +2728,8 @@ function window:CreateFrame18()
 		
 		local x = window.left_start_at
 		
-		titulo_misc_settings:SetPoint (x, -30)
-		titulo_misc_settings_desc:SetPoint (x, -50)
+		titulo_misc_settings:SetPoint (x, window.title_y_pos)
+		titulo_misc_settings_desc:SetPoint (x, window.title_y_pos2)
 		
 		local left_side = {
 			{"switchesAnchorLabel", 1, true},
@@ -2588,7 +2752,7 @@ function window:CreateFrame18()
 			{"ReportFormatLabel", 14},
 		}
 		
-		window:arrange_menu (frame18, left_side, x, -90)
+		window:arrange_menu (frame18, left_side, x, window.top_start_at)
 		
 		local right_side = {
 			{"instancesMiscLabel", 1, true},
@@ -2607,7 +2771,7 @@ function window:CreateFrame18()
 
 		}
 		
-		window:arrange_menu (frame18, right_side, window.right_start_at, -90)
+		window:arrange_menu (frame18, right_side, window.right_start_at, window.top_start_at)
 end
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2618,7 +2782,7 @@ function window:CreateFrame17()
 	local frame17 = window.options [17][1]
 	
 		local titulo_instance_settings = g:NewLabel (frame17, _, "$parentTituloInstanceSettingsText", "InstanceSettingsLabel", Loc ["STRING_OPTIONS_SHOWHIDE"], "GameFontNormal", 16)
-		local titulo_instance_settings_desc = g:NewLabel (frame17, _, "$parentInstanceSettingsText2", "InstanceSettingsLabel", Loc ["STRING_OPTIONS_SHOWHIDE_DESC"], "GameFontNormal", 9, "white")
+		local titulo_instance_settings_desc = g:NewLabel (frame17, _, "$parentInstanceSettingsText2", "InstanceSettingsLabel", Loc ["STRING_OPTIONS_SHOWHIDE_DESC"], "GameFontNormal", 10, "white")
 		titulo_instance_settings_desc:SetSize (450, 20)
 	
 	--> combat alpha modifier
@@ -2791,8 +2955,8 @@ function window:CreateFrame17()
 
 		local x = window.left_start_at
 		
-		titulo_instance_settings:SetPoint (x, -30)
-		titulo_instance_settings_desc:SetPoint (x, -50)
+		titulo_instance_settings:SetPoint (x, window.title_y_pos)
+		titulo_instance_settings_desc:SetPoint (x, window.title_y_pos2)
 		
 		local left_side = {
 			{"hideInCombatAnchor", 1, true},
@@ -2806,7 +2970,7 @@ function window:CreateFrame17()
 			{"menuOnLeaveLabel", 8},
 		}
 		
-		window:arrange_menu (frame17, left_side, x, -90)
+		window:arrange_menu (frame17, left_side, x, window.top_start_at)
 end
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2819,7 +2983,7 @@ function window:CreateFrame16()
 
 	--> title
 		local titulo_datacharts = g:NewLabel (frame16, _, "$parentTituloDataChartsText", "DataChartsLabel", Loc ["STRING_OPTIONS_DATACHARTTITLE"], "GameFontNormal", 16)
-		local titulo_datacharts_desc = g:NewLabel (frame16, _, "$parentDataChartsText2", "DataCharts2Label", Loc ["STRING_OPTIONS_DATACHARTTITLE_DESC"], "GameFontNormal", 9, "white")
+		local titulo_datacharts_desc = g:NewLabel (frame16, _, "$parentDataChartsText2", "DataCharts2Label", Loc ["STRING_OPTIONS_DATACHARTTITLE_DESC"], "GameFontNormal", 10, "white")
 		titulo_datacharts_desc.width = 350
 	
 	--> warning
@@ -3239,7 +3403,7 @@ function window:CreateFrame16()
 	
 		--> anchors
 			local start = 25
-			capture_name:SetPoint (start, -30)
+			capture_name:SetPoint (start, window.title_y_pos)
 			capture_icon:SetPoint (start, -55)
 			capture_author:SetPoint (start, -80)
 			capture_version:SetPoint (start, -105)
@@ -3259,8 +3423,8 @@ function window:CreateFrame16()
 	
 	--> anchors
 	
-		titulo_datacharts:SetPoint (10, -10)
-		titulo_datacharts_desc:SetPoint (10, -30)
+		titulo_datacharts:SetPoint (10, window.title_y_pos)
+		titulo_datacharts_desc:SetPoint (10, window.title_y_pos2)
 		
 		panel:SetPoint (10, -70)
 end
@@ -3275,7 +3439,7 @@ function window:CreateFrame15()
 
 	--> title
 		local titulo_customspells = g:NewLabel (frame15, _, "$parentTituloCustomSpellsText", "customSpellsTextLabel", Loc ["STRING_OPTIONS_CUSTOMSPELLTITLE"], "GameFontNormal", 16)
-		local titulo_customspells_desc = g:NewLabel (frame15, _, "$parentCustomSpellsText2", "customSpellsText2Label", Loc ["STRING_OPTIONS_CUSTOMSPELLTITLE_DESC"], "GameFontNormal", 9, "white")
+		local titulo_customspells_desc = g:NewLabel (frame15, _, "$parentCustomSpellsText2", "customSpellsText2Label", Loc ["STRING_OPTIONS_CUSTOMSPELLTITLE_DESC"], "GameFontNormal", 10, "white")
 		titulo_customspells_desc.width = 350		
 	
 		local name_entry_func = function (index, text)
@@ -3508,8 +3672,8 @@ function window:CreateFrame15()
 	
 	--> anchors
 	
-		titulo_customspells:SetPoint (10, -10)
-		titulo_customspells_desc:SetPoint (10, -30)
+		titulo_customspells:SetPoint (10, window.title_y_pos)
+		titulo_customspells_desc:SetPoint (10, window.title_y_pos2)
 		
 		panel:SetPoint (10, -70)
 end
@@ -3524,7 +3688,7 @@ function window:CreateFrame14()
 		local frame14 = window.options [14][1]
 
 		local titulo_attributetext = g:NewLabel (frame14, _, "$parentTituloAttributeText", "attributeTextLabel", Loc ["STRING_OPTIONS_ATTRIBUTE_TEXT"], "GameFontNormal", 16)
-		local titulo_attributetext_desc = g:NewLabel (frame14, _, "$parentAttributeText2", "attributeText2Label", Loc ["STRING_OPTIONS_ATTRIBUTE_TEXT_DESC"], "GameFontNormal", 9, "white")
+		local titulo_attributetext_desc = g:NewLabel (frame14, _, "$parentAttributeText2", "attributeText2Label", Loc ["STRING_OPTIONS_ATTRIBUTE_TEXT_DESC"], "GameFontNormal", 10, "white")
 		titulo_attributetext_desc.width = 350
 		
 --attribute text
@@ -3743,8 +3907,8 @@ function window:CreateFrame14()
 		
 		local x = window.left_start_at
 		
-		titulo_attributetext:SetPoint (x, -30)
-		titulo_attributetext_desc:SetPoint (x, -50)
+		titulo_attributetext:SetPoint (x, window.title_y_pos)
+		titulo_attributetext_desc:SetPoint (x, window.title_y_pos2)
 		
 		local left_side = {
 			{"SettingsAnchorLabel", 1, true},
@@ -3760,7 +3924,7 @@ function window:CreateFrame14()
 			{"attributeShadowLabel", 11},
 		}
 		
-		window:arrange_menu (frame14, left_side, x, -90)
+		window:arrange_menu (frame14, left_side, x, window.top_start_at)
 
 	
 end
@@ -3789,7 +3953,7 @@ function window:CreateFrame1()
 		end
 		
 		local titulo_persona = g:NewLabel (frame1, _, "$parentTituloPersona", "tituloPersonaLabel", Loc ["STRING_OPTIONS_SOCIAL"], "GameFontNormal", 16)
-		local titulo_persona_desc = g:NewLabel (frame1, _, "$parentTituloPersona2", "tituloPersona2Label", Loc ["STRING_OPTIONS_SOCIAL_DESC"], "GameFontNormal", 9, "white")
+		local titulo_persona_desc = g:NewLabel (frame1, _, "$parentTituloPersona2", "tituloPersona2Label", Loc ["STRING_OPTIONS_SOCIAL_DESC"], "GameFontNormal", 10, "white")
 		titulo_persona_desc.width = 350
 		
 	--> persona
@@ -3920,7 +4084,7 @@ function window:CreateFrame1()
 	--> Max Segments
 	
 		local titulo_display = g:NewLabel (frame1, _, "$parentTituloDisplay", "tituloDisplayLabel", Loc ["STRING_OPTIONSMENU_DISPLAY"], "GameFontNormal", 16) --> localize-me
-		local titulo_display_desc = g:NewLabel (frame1, _, "$parentTituloDisplay2", "tituloDisplay2Label", Loc ["STRING_OPTIONSMENU_DISPLAY_DESC"], "GameFontNormal", 9, "white") --> localize-me
+		local titulo_display_desc = g:NewLabel (frame1, _, "$parentTituloDisplay2", "tituloDisplay2Label", Loc ["STRING_OPTIONSMENU_DISPLAY_DESC"], "GameFontNormal", 10, "white") --> localize-me
 		titulo_display_desc.width = 320
 		
 		g:NewLabel (frame1, _, "$parentSliderLabel", "segmentsLabel", Loc ["STRING_OPTIONS_MAXSEGMENTS"], "GameFontHighlightLeft")
@@ -4094,7 +4258,7 @@ function window:CreateFrame1()
 		--lock unlock
 			g:NewButton (frame1, _, "$parentLockButton", "LockButton", window.buttons_width, window.buttons_height, _detalhes.lock_instance_function, nil, nil, nil, Loc ["STRING_OPTIONS_WC_LOCK"], 1, options_button_template)
 			--frame1.LockButton:InstallCustomTexture (nil, nil, nil, nil, nil, true)
-			
+
 			window:CreateLineBackground2 (frame1, "LockButton", "LockButton", Loc ["STRING_OPTIONS_WC_LOCK_DESC"], nil, {1, 0.8, 0}, button_color_rgb)
 			
 			frame1.LockButton:SetIcon ([[Interface\PetBattles\PetBattle-LockIcon]], nil, nil, nil, {0.0703125, 0.9453125, 0.0546875, 0.9453125}, nil, nil, 2)
@@ -4222,12 +4386,12 @@ function window:CreateFrame1()
 
 		local w_start = 10
 	
-		titulo_display:SetPoint (window.left_start_at, -30)
-		titulo_display_desc:SetPoint (window.left_start_at, -50)
+		titulo_display:SetPoint (window.left_start_at, window.title_y_pos)
+		titulo_display_desc:SetPoint (window.left_start_at, window.title_y_pos2)
 		
 		local avatar_x_anchor = window.right_start_at
 		
-		frame1.GeneralIdentityLabel:SetPoint (avatar_x_anchor, -90)
+		frame1.GeneralIdentityLabel:SetPoint (avatar_x_anchor, window.top_start_at)
 		
 		frame1.nicknameLabel:SetPoint (avatar_x_anchor, -115)
 		frame1.chooseAvatarButton:SetPoint (avatar_x_anchor+1, -140)
@@ -4300,7 +4464,7 @@ function window:CreateFrame2()
 		
 	--> titles
 		local titulo_combattweeks = g:NewLabel (frame2, _, "$parentTituloCombatTweeks", "tituloCombatTweeksLabel", Loc ["STRING_OPTIONS_COMBATTWEEKS"], "GameFontNormal", 16)
-		local titulo_combattweeks_desc = g:NewLabel (frame2, _, "$parentCombatTweeks2", "tituloCombatTweeks2Label", Loc ["STRING_OPTIONS_COMBATTWEEKS_DESC"], "GameFontNormal", 9, "white")
+		local titulo_combattweeks_desc = g:NewLabel (frame2, _, "$parentCombatTweeks2", "tituloCombatTweeks2Label", Loc ["STRING_OPTIONS_COMBATTWEEKS_DESC"], "GameFontNormal", 10,"white")
 		titulo_combattweeks_desc.width = 320
 
 		
@@ -4683,8 +4847,8 @@ function window:CreateFrame2()
 		
 		local x = window.left_start_at
 		
-		titulo_combattweeks:SetPoint (x, -30)
-		titulo_combattweeks_desc:SetPoint (x, -50)
+		titulo_combattweeks:SetPoint (x, window.title_y_pos)
+		titulo_combattweeks_desc:SetPoint (x, window.title_y_pos2)
 
 		local left_side = {
 			{"GeneralAnchorLabel", 1, true},
@@ -4722,7 +4886,7 @@ function window:CreateFrame2()
 			{"ShowAllLabel", 12},
 		}
 		
-		window:arrange_menu (frame2, right_side, x, -90)
+		window:arrange_menu (frame2, right_side, x, window.top_start_at)
 		
 end
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -4735,7 +4899,7 @@ function window:CreateFrame13()
 
 	--> profiles title
 		local titulo_profiles = g:NewLabel (frame13, _, "$parentTituloProfiles", "tituloProfilesLabel", Loc ["STRING_OPTIONS_PROFILES_TITLE"], "GameFontNormal", 16)
-		local titulo_profiles_desc = g:NewLabel (frame13, _, "$parentTituloProfiles2", "tituloProfiles2Label", Loc ["STRING_OPTIONS_PROFILES_TITLE_DESC"], "GameFontNormal", 9, "white")
+		local titulo_profiles_desc = g:NewLabel (frame13, _, "$parentTituloProfiles2", "tituloProfiles2Label", Loc ["STRING_OPTIONS_PROFILES_TITLE_DESC"], "GameFontNormal", 10,"white")
 		titulo_profiles_desc.width = 320
 
 	--> current profile
@@ -4932,8 +5096,8 @@ function window:CreateFrame13()
 		
 		local x = window.left_start_at
 		
-		titulo_profiles:SetPoint (x, -30)
-		titulo_profiles_desc:SetPoint (x, -50)
+		titulo_profiles:SetPoint (x, window.title_y_pos)
+		titulo_profiles_desc:SetPoint (x, window.title_y_pos2)
 
 		local left_side = {
 			{"ProfileAnchorLabel", 1, true},
@@ -5077,7 +5241,7 @@ function window:CreateFrame3()
 	
 	--> Skin
 		local titulo_skin = g:NewLabel (frame3, _, "$parentTituloSkin", "tituloSkinLabel", Loc ["STRING_OPTIONS_SKIN_A"], "GameFontNormal", 16)
-		local titulo_skin_desc = g:NewLabel (frame3, _, "$parentTituloSkin2", "tituloSkin2Label", Loc ["STRING_OPTIONS_SKIN_A_DESC"], "GameFontNormal", 9, "white")
+		local titulo_skin_desc = g:NewLabel (frame3, _, "$parentTituloSkin2", "tituloSkin2Label", Loc ["STRING_OPTIONS_SKIN_A_DESC"], "GameFontNormal", 10, "white")
 		titulo_skin_desc.width = 320
 		
 	--> create functions and frames first:
@@ -5542,7 +5706,7 @@ function window:CreateFrame3()
 	--> extra Options -~-extra
 		g:NewLabel (frame3, _, "$parentSkinExtraOptionsAnchor", "SkinExtraOptionsAnchor", Loc ["STRING_OPTIONS_SKIN_EXTRA_OPTIONS_ANCHOR"], "GameFontNormal")
 		--frame3.SkinExtraOptionsAnchor:Hide()
-		--frame3.SkinExtraOptionsAnchor:SetPoint (window.right_start_at, -90)
+		--frame3.SkinExtraOptionsAnchor:SetPoint (window.right_start_at, window.top_start_at)
 		frame3.ExtraOptions = {}
 		
 	--> Anchors
@@ -5555,8 +5719,8 @@ function window:CreateFrame3()
 		
 		local x = window.left_start_at
 		
-		titulo_skin:SetPoint (x, -30)
-		titulo_skin_desc:SetPoint (x, -50)
+		titulo_skin:SetPoint (x, window.title_y_pos)
+		titulo_skin_desc:SetPoint (x, window.title_y_pos2)
 		
 		local left_side = {
 			{"SkinSelectionAnchorLabel", 1, true},
@@ -5586,8 +5750,8 @@ function window:CreateFrame3()
 			{"SkinExtraOptionsAnchor", 5, true},
 		}
 		
-		window:arrange_menu (frame3, left_side, x, -90)
-		window:arrange_menu (frame3, right_side, window.right_start_at, -90)
+		window:arrange_menu (frame3, left_side, x, window.top_start_at)
+		window:arrange_menu (frame3, right_side, window.right_start_at, window.top_start_at)
 end
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -5599,7 +5763,7 @@ function window:CreateFrame4()
 
 	--> bars general
 		local titulo_bars = g:NewLabel (frame4, _, "$parentTituloPersona", "tituloBarsLabel", Loc ["STRING_OPTIONS_BARS"], "GameFontNormal", 16)
-		local titulo_bars_desc = g:NewLabel (frame4, _, "$parentTituloPersona2", "tituloBars2Label", Loc ["STRING_OPTIONS_BARS_DESC"], "GameFontNormal", 9, "white")
+		local titulo_bars_desc = g:NewLabel (frame4, _, "$parentTituloPersona2", "tituloBars2Label", Loc ["STRING_OPTIONS_BARS_DESC"], "GameFontNormal", 10, "white")
 		titulo_bars_desc.width = 320
 	
 	--> general anchor
@@ -5778,10 +5942,6 @@ function window:CreateFrame4()
 		frame4.textureDropdown:SetPoint ("left", frame4.textureLabel, "right", 2)
 		window:CreateLineBackground2 (frame4, "textureDropdown", "textureLabel", Loc ["STRING_OPTIONS_BAR_TEXTURE_DESC"])
 
-		
-		
-		
-		
 		--> custom bar texture
 		local custom_texture = g:NewTextEntry (frame4, _, "$parentCustomTextureEntry", "CustomTextureEntry", 120, TEXTENTRY_HEIGHT, nil, nil, nil, nil, nil, options_dropdown_template)
 		local custom_texture_label = g:NewLabel (frame4, _, "$parentCustomTextureLabel", "CustomTextureLabel", Loc ["STRING_OPTIONS_BARS_CUSTOM_TEXTURE"], "GameFontHighlightLeft")
@@ -5833,25 +5993,18 @@ function window:CreateFrame4()
 		custom_texture_cancel:SetHook ("OnLeave", function (self, capsule)
 			self:GetNormalTexture():SetBlendMode("BLEND")
 		end)		
-		
-		
-		
-		
-		
-		
-		
-		
-		-- row texture color	
+
+		-- row texture color
 		local rowcolor_callback = function (button, r, g, b, a)
-			_G.DetailsOptionsWindow.instance:SetBarSettings (nil, nil, nil, {r, g, b})
 			_G.DetailsOptionsWindow.instance.row_info.alpha = a
+			_G.DetailsOptionsWindow.instance:SetBarSettings (nil, nil, nil, {r, g, b})
 			_G.DetailsOptionsWindow.instance:SetBarSettings (nil, nil, nil, nil, nil, nil, nil, a)
 			
 			if (_detalhes.options_group_edit and not DetailsOptionsWindow.loading_settings) then
 				for _, this_instance in ipairs (_G.DetailsOptionsWindow.instance:GetInstanceGroup()) do
 					if (this_instance ~= _G.DetailsOptionsWindow.instance) then
-						this_instance:SetBarSettings (nil, nil, nil, {r, g, b})
 						this_instance.row_info.alpha = a
+						this_instance:SetBarSettings (nil, nil, nil, {r, g, b})
 						this_instance:SetBarSettings (nil, nil, nil, nil, nil, nil, nil, a)
 					end
 				end
@@ -6248,8 +6401,8 @@ function window:CreateFrame4()
 	--> Anchors:
 		local x = window.left_start_at
 		
-		titulo_bars:SetPoint (x, -30)
-		titulo_bars_desc:SetPoint (x, -50)
+		titulo_bars:SetPoint (x, window.title_y_pos)
+		titulo_bars_desc:SetPoint (x, window.title_y_pos2)
 
 		local left_side = {
 			--textures
@@ -6286,8 +6439,8 @@ function window:CreateFrame4()
 			{frame4.BackdropBorderTextureLabel, 11},
 		}
 
-		window:arrange_menu (frame4, left_side, x, -90)
-		window:arrange_menu (frame4, right_side, 360, -90)
+		window:arrange_menu (frame4, left_side, x, window.top_start_at)
+		window:arrange_menu (frame4, right_side, 360, window.top_start_at)
 
 end
 
@@ -6301,7 +6454,7 @@ function window:CreateFrame5()
 	
 	--> bars text
 		local titulo_texts = g:NewLabel (frame5, _, "$parentTituloPersona", "tituloBarsLabel", Loc ["STRING_OPTIONS_TEXT"], "GameFontNormal", 16)
-		local titulo_texts_desc = g:NewLabel (frame5, _, "$parentTituloPersona2", "tituloBars2Label", Loc ["STRING_OPTIONS_TEXT_DESC"], "GameFontNormal", 9, "white")
+		local titulo_texts_desc = g:NewLabel (frame5, _, "$parentTituloPersona2", "tituloBars2Label", Loc ["STRING_OPTIONS_TEXT_DESC"], "GameFontNormal", 10, "white")
 		titulo_texts_desc.width = 320
 	
 	--> text color
@@ -6784,7 +6937,7 @@ function window:CreateFrame5()
 			if (_detalhes.options_group_edit and not DetailsOptionsWindow.loading_settings) then
 				for _, this_instance in ipairs (instance:GetInstanceGroup()) do
 					if (this_instance ~= instance) then
-						instance:SetBarRightTextSettings (value)
+						this_instance:SetBarRightTextSettings (value)
 					end
 				end
 			end
@@ -6806,7 +6959,7 @@ function window:CreateFrame5()
 			if (_detalhes.options_group_edit and not DetailsOptionsWindow.loading_settings) then
 				for _, this_instance in ipairs (instance:GetInstanceGroup()) do
 					if (this_instance ~= instance) then
-						instance:SetBarRightTextSettings (nil, value)
+						this_instance:SetBarRightTextSettings (nil, value)
 					end
 				end
 			end
@@ -6829,7 +6982,7 @@ function window:CreateFrame5()
 			if (_detalhes.options_group_edit and not DetailsOptionsWindow.loading_settings) then
 				for _, this_instance in ipairs (instance:GetInstanceGroup()) do
 					if (this_instance ~= instance) then
-						instance:SetBarRightTextSettings (nil, nil, value)
+						this_instance:SetBarRightTextSettings (nil, nil, value)
 					end
 				end
 			end
@@ -6846,7 +6999,7 @@ function window:CreateFrame5()
 			if (_detalhes.options_group_edit and not DetailsOptionsWindow.loading_settings) then
 				for _, this_instance in ipairs (instance:GetInstanceGroup()) do
 					if (this_instance ~= instance) then
-						instance:SetBarRightTextSettings (nil, nil, nil, value)
+						this_instance:SetBarRightTextSettings (nil, nil, nil, value)
 					end
 				end
 			end
@@ -6880,7 +7033,7 @@ function window:CreateFrame5()
 			if (_detalhes.options_group_edit and not DetailsOptionsWindow.loading_settings) then
 				for _, this_instance in ipairs (instance:GetInstanceGroup()) do
 					if (this_instance ~= instance) then
-						instance:SetBarRightTextSettings (nil, nil, nil, nil, value)
+						this_instance:SetBarRightTextSettings (nil, nil, nil, nil, value)
 					end
 				end
 			end
@@ -6923,8 +7076,8 @@ function window:CreateFrame5()
 		
 		local x = window.left_start_at
 		
-		titulo_texts:SetPoint (x, -30)
-		titulo_texts_desc:SetPoint (x, -50)
+		titulo_texts:SetPoint (x, window.title_y_pos)
+		titulo_texts_desc:SetPoint (x, window.title_y_pos2)
 
 		local left_side = {
 			{"LeftTextAnchorLabel", 1, true},
@@ -6974,7 +7127,7 @@ function window:CreateFrame6()
 
 	--> window
 		local titulo_instance = g:NewLabel (frame6, _, "$parentTituloPersona", "tituloBarsLabel", Loc ["STRING_OPTIONS_WINDOW_TITLE"], "GameFontNormal", 16)
-		local titulo_instance_desc = g:NewLabel (frame6, _, "$parentTituloPersona2", "tituloBars2Label", Loc ["STRING_OPTIONS_WINDOW_TITLE_DESC"], "GameFontNormal", 9, "white")
+		local titulo_instance_desc = g:NewLabel (frame6, _, "$parentTituloPersona2", "tituloBars2Label", Loc ["STRING_OPTIONS_WINDOW_TITLE_DESC"], "GameFontNormal", 10, "white")
 		titulo_instance_desc.width = 320
 
 	--> window color
@@ -7553,8 +7706,8 @@ function window:CreateFrame6()
 		
 		local x = window.left_start_at
 		
-		titulo_instance:SetPoint (x, -30)
-		titulo_instance_desc:SetPoint (x, -50)
+		titulo_instance:SetPoint (x, window.title_y_pos)
+		titulo_instance_desc:SetPoint (x, window.title_y_pos2)
 		
 		local left_side = {
 			{"AdjustmentsAnchorLabel", 1, true},
@@ -7600,7 +7753,7 @@ function window:CreateFrame7()
 	local frame7 = window.options [7][1]
 	
 		local titulo_toolbar = g:NewLabel (frame7, _, "$parentTituloToolbar", "tituloToolbarLabel", Loc ["STRING_OPTIONS_TOOLBAR_SETTINGS"], "GameFontNormal", 16)
-		local titulo_toolbar_desc = g:NewLabel (frame7, _, "$parentTituloToolbar2", "tituloToolbar2Label", Loc ["STRING_OPTIONS_TOOLBAR_SETTINGS_DESC"], "GameFontNormal", 9, "white")
+		local titulo_toolbar_desc = g:NewLabel (frame7, _, "$parentTituloToolbar2", "tituloToolbar2Label", Loc ["STRING_OPTIONS_TOOLBAR_SETTINGS_DESC"], "GameFontNormal", 10, "white")
 		titulo_toolbar_desc.width = 320
 
 		-- menu anchors
@@ -8010,8 +8163,8 @@ function window:CreateFrame7()
 		
 		local x = window.left_start_at
 		
-		titulo_toolbar:SetPoint (x, -30)
-		titulo_toolbar_desc:SetPoint (x, -50)
+		titulo_toolbar:SetPoint (x, window.title_y_pos)
+		titulo_toolbar_desc:SetPoint (x, window.title_y_pos2)
 		
 		local left_side = {
 			{"LeftMenuAnchorLabel", 1, true},
@@ -8029,7 +8182,7 @@ function window:CreateFrame7()
 			{"pluginIconsDirectionLabel", 12},
 		}
 		
-		window:arrange_menu (frame7, left_side, x, -90)
+		window:arrange_menu (frame7, left_side, x, window.top_start_at)
 	
 		
 end
@@ -8043,7 +8196,7 @@ function window:CreateFrame8()
 		local frame8 = window.options [8][1]
 
 		local titulo_toolbar = g:NewLabel (frame8, _, "$parentTituloToolbar_buttons", "tituloToolbarLabel", Loc ["STRING_OPTIONS_ROWADV_TITLE"], "GameFontNormal", 16)
-		local titulo_toolbar_desc = g:NewLabel (frame8, _, "$parentTituloToolbar_buttons", "tituloToolbar2Label", Loc ["STRING_OPTIONS_ROWADV_TITLE_DESC"], "GameFontNormal", 9, "white")
+		local titulo_toolbar_desc = g:NewLabel (frame8, _, "$parentTituloToolbar_buttons", "tituloToolbar2Label", Loc ["STRING_OPTIONS_ROWADV_TITLE_DESC"], "GameFontNormal", 10, "white")
 		titulo_toolbar_desc.width = 320
 	
 		--> models
@@ -8374,8 +8527,8 @@ function window:CreateFrame8()
 		
 		local x = window.left_start_at
 		
-		titulo_toolbar:SetPoint (x, -30)
-		titulo_toolbar_desc:SetPoint (x, -50)
+		titulo_toolbar:SetPoint (x, window.title_y_pos)
+		titulo_toolbar_desc:SetPoint (x, window.title_y_pos2)
 		
 		local left_side = {
 			{"ModelUpperAnchor", 1, true},
@@ -8395,7 +8548,7 @@ function window:CreateFrame8()
 			{"totalBarOnlyInGroupLabel", 13},
 		}
 		
-		window:arrange_menu (frame8, left_side, x, -90)
+		window:arrange_menu (frame8, left_side, x, window.top_start_at)
 		
 		local right_side = {
 			{"BarUpdateRateAnchor", 1, true},
@@ -8417,7 +8570,7 @@ function window:CreateFrame9()
 	local frame9 = window.options [9][1]
 
 		local titulo_wallpaper = g:NewLabel (frame9, _, "$parentTituloPersona", "tituloBarsLabel", Loc ["STRING_OPTIONS_WP"], "GameFontNormal", 16)
-		local titulo_wallpaper_desc = g:NewLabel (frame9, _, "$parentTituloPersona2", "tituloBars2Label", Loc ["STRING_OPTIONS_WP_DESC"], "GameFontNormal", 9, "white")
+		local titulo_wallpaper_desc = g:NewLabel (frame9, _, "$parentTituloPersona2", "tituloBars2Label", Loc ["STRING_OPTIONS_WP_DESC"], "GameFontNormal", 10, "white")
 		titulo_wallpaper_desc.width = 320
 		
 		--> wallpaper
@@ -8757,7 +8910,7 @@ function window:CreateFrame9()
 			}
 		
 			local buildBackgroundMenu2 = function() 
-				return  subMenu [frame9.backgroundDropdown.value] or {label = "-- -- --", value = 0}
+				return  subMenu [frame9.backgroundDropdown.value] or {label = "", value = 0}
 			end
 		
 			local onSelectMainTexture = function (_, instance, choose)
@@ -8969,7 +9122,7 @@ function window:CreateFrame9()
 			preview:SetVertexColor (unpack (w.overlay))
 			preview:SetAlpha (w.alpha)
 
-			frame9.wallpaperCurrentLabel1text.text = w.texture or "-- -- --"
+			frame9.wallpaperCurrentLabel1text.text = w.texture or ""
 			frame9.wallpaperCurrentLabel2text.text = a
 			frame9.wallpaperCurrentLabel3text.text = red
 			frame9.wallpaperCurrentLabel4text.text = green
@@ -9118,8 +9271,8 @@ function window:CreateFrame9()
 		
 		local x = window.left_start_at
 		
-		titulo_wallpaper:SetPoint (x, -30)
-		titulo_wallpaper_desc:SetPoint (x, -50)
+		titulo_wallpaper:SetPoint (x, window.title_y_pos)
+		titulo_wallpaper_desc:SetPoint (x, window.title_y_pos2)
 		
 		local left_side = {
 			{"WallpaperAnchorLabel", 1, true},
@@ -9143,12 +9296,12 @@ function window:CreateFrame9()
 		frame9.wallpaperCurrentLabel9:SetPoint ("topleft", frame9.wallpaperCurrentLabel8, "bottomleft", 0, downY)
 		
 
-		window:arrange_menu (frame9, left_side, x, -90)
+		window:arrange_menu (frame9, left_side, x, window.top_start_at)
 		
 		local right_side = {
 			{"wallpaperPreviewAnchorLabel", 1, true},
 		}
-		window:arrange_menu (frame9, right_side, window.right_start_at, -90)
+		window:arrange_menu (frame9, right_side, window.right_start_at, window.top_start_at)
 	
 		local right_side2 = {
 			{"WallpaperLoadTitleAnchor", 1, true},
@@ -9170,7 +9323,7 @@ function window:CreateFrame10()
 		local frame11 = window.options [11][1]
 		
 		local titulo_performance_general = g:NewLabel (frame10, _, "$parentTituloPerformance1", "tituloPerformance1Label", Loc ["STRING_OPTIONS_PERFORMANCE1"], "GameFontNormal", 16)
-		local titulo_performance_general_desc = g:NewLabel (frame10, _, "$parentTituloPersona2", "tituloPersona2Label", Loc ["STRING_OPTIONS_PERFORMANCE1_DESC"], "GameFontNormal", 9, "white")
+		local titulo_performance_general_desc = g:NewLabel (frame10, _, "$parentTituloPersona2", "tituloPersona2Label", Loc ["STRING_OPTIONS_PERFORMANCE1_DESC"], "GameFontNormal", 10, "white")
 		titulo_performance_general_desc.width = 320
 		
 	--------------- Max Segments Saved
@@ -9481,8 +9634,8 @@ function window:CreateFrame10()
 		
 		local x = window.left_start_at
 		
-		titulo_performance_general:SetPoint (x, -30)
-		titulo_performance_general_desc:SetPoint (x, -50)
+		titulo_performance_general:SetPoint (x, window.title_y_pos)
+		titulo_performance_general_desc:SetPoint (x, window.title_y_pos2)
 		
 		local left_side = {
 			{"PerformanceProfilesAnchorLabel", 1, true},
@@ -9497,7 +9650,7 @@ function window:CreateFrame10()
 			{"auraCaptureLabel", 10},
 		}
 		
-		window:arrange_menu (frame10, left_side, window.left_start_at, -90)
+		window:arrange_menu (frame10, left_side, window.left_start_at, window.top_start_at)
 		
 		local right_side = {
 			{"PerformanceAnchorLabel", 1, true},
@@ -9507,7 +9660,7 @@ function window:CreateFrame10()
 			{"eraseTrashLabel", 4},
 		}
 		
-		window:arrange_menu (frame10, right_side, window.right_start_at, -90)
+		window:arrange_menu (frame10, right_side, window.right_start_at, window.top_start_at)
 
 end
 
@@ -9521,7 +9674,7 @@ function window:CreateFrame11()
 
 	--> title
 		local titulo1 = g:NewLabel (frame11, _, "$parentTituloRaidTools", "RaidToolsLabel", Loc ["STRING_OPTIONS_RT_TITLE"], "GameFontNormal", 16)
-		local titulo1_desc = g:NewLabel (frame11, _, "$parentTituloRaidToolsDesc", "RaidToolsDescLabel", Loc ["STRING_OPTIONS_RT_TITLE_DESC"], "GameFontNormal", 9, "white")
+		local titulo1_desc = g:NewLabel (frame11, _, "$parentTituloRaidToolsDesc", "RaidToolsDescLabel", Loc ["STRING_OPTIONS_RT_TITLE_DESC"], "GameFontNormal", 10, "white")
 		titulo1_desc.width = 320
 	
 		local text_entry_size = 140
@@ -9945,8 +10098,8 @@ function window:CreateFrame11()
 		
 		local x = window.left_start_at
 		
-		titulo1:SetPoint (x, -30)
-		titulo1_desc:SetPoint (x, -50)
+		titulo1:SetPoint (x, window.title_y_pos)
+		titulo1_desc:SetPoint (x, window.title_y_pos2)
 		
 		local left_side = {
 			{"AnnouncersInterrupt", 1, true},
@@ -9963,7 +10116,7 @@ function window:CreateFrame11()
 
 		}
 		
-		window:arrange_menu (frame11, left_side, window.left_start_at, -90)
+		window:arrange_menu (frame11, left_side, window.left_start_at, window.top_start_at)
 		
 		local right_side = {
 			{"AnnouncersDeaths", 1, true},
@@ -9976,7 +10129,7 @@ function window:CreateFrame11()
 			{"EnabledFirstHitLabel", 8},
 		}
 		
-		window:arrange_menu (frame11, right_side, window.right_start_at, -90)
+		window:arrange_menu (frame11, right_side, window.right_start_at, window.top_start_at)
 	
 end
 
@@ -11032,7 +11185,8 @@ end --> if not window
 		--_G.DetailsOptionsWindow6BackgroundColorTexture.MyObject:SetTexture (editing_instance.bg_r, editing_instance.bg_g, editing_instance.bg_b)
 		_G.DetailsOptionsWindow6WindowBackgroundColorPick.MyObject:SetColor (editing_instance.bg_r, editing_instance.bg_g, editing_instance.bg_b, editing_instance.bg_alpha)
 		
-		_G.DetailsOptionsWindow4RowColorPick.MyObject:SetColor (unpack (editing_instance.row_info.fixed_texture_color))
+		local r1, g1, b1 = unpack (editing_instance.row_info.fixed_texture_color)
+		_G.DetailsOptionsWindow4RowColorPick.MyObject:SetColor ( r1, g1, b1, editing_instance.row_info.alpha)
 		
 		_G.DetailsOptionsWindow5FixedTextColor.MyObject:SetColor (unpack (editing_instance.row_info.fixed_text_color))
 		
@@ -11045,9 +11199,21 @@ end --> if not window
 		else
 			_G.DetailsOptionsWindowInstanceSelectDropdown.MyObject:Select (editing_instance.meu_id, true)
 			GameCooltip:Reset()
-			--_detalhes:CooltipPreset (1)
-			GameCooltip:AddLine ("editing window:", editing_instance.meu_id)
-			GameCooltip:ShowCooltip (_G.DetailsOptionsWindowInstanceSelectDropdown, "tooltip")
+
+			GameCooltip:SetOption ("TextFont", "Friz Quadrata TT")
+			GameCooltip:SetOption ("TextColor", "orange")
+			GameCooltip:SetOption ("TextSize", 12)
+			GameCooltip:SetOption ("FixedWidth", 220)
+			GameCooltip:SetOption ("ButtonsYMod", -4)
+			GameCooltip:SetOption ("YSpacingMod", -4)
+			GameCooltip:SetOption ("IgnoreButtonAutoHeight", true)
+			GameCooltip:SetColor (1, 0.5, 0.5, 0.5, 0.5)
+			
+			GameCooltip:SetBackdrop (1, {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, tileSize = 64, tile = true}, "black", "white")
+			
+			GameCooltip:AddLine ("Editing Window:", editing_instance.meu_id)
+			GameCooltip:SetOwner (_G.DetailsOptionsWindowInstanceSelectDropdown, "bottom", "top", -212, -6)
+			GameCooltip:ShowCooltip (nil, "tooltip")
 			
 			if (_G.DetailsOptionsWindow.MyObject.is_window_settings [_G.DetailsOptionsWindow.MyObject.current_selected]) then
 				_G.DetailsOptionsWindowInstanceSelectDropdown.MyObject:Enable()

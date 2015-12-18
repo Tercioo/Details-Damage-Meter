@@ -1819,5 +1819,266 @@ local _
 		}
 	})	
 	
+	
+	_detalhes:InstallSkin ("New Gray", {
+		file = [[Interface\AddOns\Details\images\skins\classic_skin_v1]],
+		author = "Details!", 
+		version = "1.0", 
+		site = "unknown", 
+		desc = "Simple skin with soft gray color and half transparent frames.", --\n
+		
+		--micro frames
+		micro_frames = {
+			color = {1, 1, 1, 1}, 
+			font = "Accidental Presidency", 
+			size = 10,
+			textymod = 1,
+		},
+		
+		can_change_alpha_head = true, 
+		icon_anchor_main = {-1, -5}, 
+		icon_anchor_plugins = {-7, -13}, 
+		icon_plugins_size = {19, 18},
+		
+		--anchors:
+		icon_point_anchor = {-37, 0},
+		left_corner_anchor = {-107, 0},
+		right_corner_anchor = {96, 0},
+
+		icon_point_anchor_bottom = {-37, 12},
+		left_corner_anchor_bottom = {-107, 0},
+		right_corner_anchor_bottom = {96, 0},
+		
+		icon_on_top = true,
+		icon_ignore_alpha = true,
+		icon_titletext_position = {3, 3},
+		
+		--overwrites
+		instance_cprops = {
+			["show_statusbar"] = false,
+			["menu_icons_size"] = 0.850000023841858,
+			["color"] = {
+				0.447058823529412, -- [1]
+				0.447058823529412, -- [2]
+				0.447058823529412, -- [3]
+				0.131542265415192, -- [4]
+			},
+			["menu_anchor"] = {
+				16, -- [1]
+				0, -- [2]
+				["side"] = 2,
+			},
+			["bg_r"] = 0.0941176470588235,
+			["color_buttons"] = {
+				1, -- [1]
+				1, -- [2]
+				1, -- [3]
+				1, -- [4]
+			},
+			["bars_sort_direction"] = 1,
+			["row_show_animation"] = {
+				["anim"] = "Fade",
+				["options"] = {
+				},
+			},
+			["total_bar"] = {
+				["enabled"] = false,
+				["only_in_group"] = true,
+				["icon"] = "Interface\\ICONS\\INV_Sigil_Thorim",
+				["color"] = {
+					1, -- [1]
+					1, -- [2]
+					1, -- [3]
+				},
+			},
+			["attribute_text"] = {
+				["enabled"] = true,
+				["shadow"] = false,
+				["side"] = 1,
+				["text_color"] = {
+					0.933333333333333, -- [1]
+					0.933333333333333, -- [2]
+					0.933333333333333, -- [3]
+					1, -- [4]
+				},
+				["custom_text"] = "{name}",
+				["text_face"] = "Accidental Presidency",
+				["anchor"] = {
+					-18, -- [1]
+					3, -- [2]
+				},
+				["show_timer"] = {
+					true, -- [1]
+					true, -- [2]
+					true, -- [3]
+				},
+				["enable_custom_text"] = false,
+				["text_size"] = 12,
+			},
+			["bars_grow_direction"] = 1,
+			["menu_alpha"] = {
+				["enabled"] = false,
+				["onleave"] = 1,
+				["ignorebars"] = false,
+				["iconstoo"] = true,
+				["onenter"] = 1,
+			},
+			["bg_b"] = 0.0941176470588235,
+			["grab_on_top"] = false,
+			["menu_anchor_down"] = {
+				16, -- [1]
+				-3, -- [2]
+			},
+			["statusbar_info"] = {
+				["alpha"] = 0.131542265415192,
+				["overlay"] = {
+					0.447058823529412, -- [1]
+					0.447058823529412, -- [2]
+					0.447058823529412, -- [3]
+				},
+			},
+			["hide_in_combat_alpha"] = 0,
+			["plugins_grow_direction"] = 1,
+			["menu_icons"] = {
+				true, -- [1]
+				true, -- [2]
+				true, -- [3]
+				true, -- [4]
+				true, -- [5]
+				false, -- [6]
+				["space"] = -1,
+				["shadow"] = false,
+			},
+			["desaturated_menu"] = true,
+			["show_sidebars"] = false,
+			["bg_alpha"] = 0.0242124795913696,
+			["instance_button_anchor"] = {
+				-27, -- [1]
+				1, -- [2]
+			},
+			["backdrop_texture"] = "Details Ground",
+			["version"] = 3,
+			["hide_icon"] = true,
+			["skin"] = "Minimalistic",
+			["toolbar_side"] = 1,
+			["bg_g"] = 0.0941176470588235,
+			["micro_displays_side"] = 2,
+			["wallpaper"] = {
+				["overlay"] = {
+					0.999997794628143, -- [1]
+					0.999997794628143, -- [2]
+					0.999997794628143, -- [3]
+					0.498038113117218, -- [4]
+				},
+				["width"] = 266.000061035156,
+				["texcoord"] = {
+					0.00100000001490116, -- [1]
+					1, -- [2]
+					0.00100000001490116, -- [3]
+					0.703000030517578, -- [4]
+				},
+				["enabled"] = false,
+				["anchor"] = "all",
+				["height"] = 225.999984741211,
+				["alpha"] = 0.498039245605469,
+				["texture"] = "Interface\\TALENTFRAME\\bg-priest-shadow",
+			},
+			["stretch_button_side"] = 1,
+			["micro_displays_locked"] = true,
+			["row_info"] = {
+				["textR_outline"] = false,
+				["spec_file"] = "Interface\\AddOns\\Details\\images\\spec_icons_normal_alpha",
+				["textL_outline"] = true,
+				["texture_highlight"] = "Interface\\FriendsFrame\\UI-FriendsList-Highlight",
+				["textR_show_data"] = {
+					true, -- [1]
+					true, -- [2]
+					true, -- [3]
+				},
+				["textL_enable_custom_text"] = false,
+				["fixed_text_color"] = {
+					1, -- [1]
+					1, -- [2]
+					1, -- [3]
+				},
+				["space"] = {
+					["right"] = 0,
+					["left"] = 0,
+					["between"] = 0,
+				},
+				["texture_background_class_color"] = false,
+				["start_after_icon"] = false,
+				["font_face_file"] = "Interface\\Addons\\Details\\fonts\\Accidental Presidency.ttf",
+				["textL_custom_text"] = "{data1}. {data3}{data2}",
+				["font_size"] = 10,
+				["height"] = 14,
+				["texture_file"] = "Interface\\AddOns\\Details\\images\\bar_background",
+				["icon_file"] = "Interface\\AddOns\\Details\\images\\classes_small_alpha",
+				["textR_bracket"] = "(",
+				["texture_custom"] = "",
+				["fixed_texture_color"] = {
+					0.498039215686275, -- [1]
+					0.498039215686275, -- [2]
+					0.498039215686275, -- [3]
+					1, -- [4]
+				},
+				["textL_show_number"] = true,
+				["use_spec_icons"] = true,
+				["textR_custom_text"] = "{data1} ({data2}, {data3}%)",
+				["texture"] = "DGround",
+				["models"] = {
+					["upper_model"] = "Spells\\AcidBreath_SuperGreen.M2",
+					["lower_model"] = "World\\EXPANSION02\\DOODADS\\Coldarra\\COLDARRALOCUS.m2",
+					["upper_alpha"] = 0.5,
+					["lower_enabled"] = false,
+					["lower_alpha"] = 0.1,
+					["upper_enabled"] = false,
+				},
+				["texture_custom_file"] = "Interface\\",
+				["percent_type"] = 1,
+				["textR_enable_custom_text"] = false,
+				["fixed_texture_background_color"] = {
+					0, -- [1]
+					0, -- [2]
+					0, -- [3]
+					0.150228589773178, -- [4]
+				},
+				["textR_class_colors"] = false,
+				["alpha"] = 0.439999997615814,
+				["no_icon"] = false,
+				["texture_background_file"] = "Interface\\AddOns\\Details\\images\\bar4_reverse",
+				["texture_background"] = "Details D'ictum (reverse)",
+				["font_face"] = "Accidental Presidency",
+				["texture_class_colors"] = false,
+				["textL_class_colors"] = false,
+				["fast_ps_update"] = false,
+				["textR_separator"] = ",",
+				["backdrop"] = {
+					["enabled"] = false,
+					["texture"] = "Details BarBorder 2",
+					["color"] = {
+						1, -- [1]
+						1, -- [2]
+						1, -- [3]
+						1, -- [4]
+					},
+					["size"] = 12,
+				},
+			},
+			["bars_inverted"] = false,
+		},
+		
+		callback = function (skin, instance, just_updating)
+			--none
+		end,
+		
+		skin_options = {
+			{spacement = true, type = "button", name = "Shadowy Title Bar", func = Minimalistic_Shadow, desc = "Adds shadow on title bar components."},
+			{type = "button", name = Loc ["STRING_OPTIONS_SKIN_RESET_TOOLTIP"], func = reset_tooltip, desc = Loc ["STRING_OPTIONS_SKIN_RESET_TOOLTIP_DESC"]},
+			{type = "button", name = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON3"], func = set_tooltip_elvui2, desc = Loc ["STRING_OPTIONS_SKIN_ELVUI_BUTTON3_DESC"]},
+		}
+		
+	})	
+	
 	--alpha = 0.4980392451398075,
 	

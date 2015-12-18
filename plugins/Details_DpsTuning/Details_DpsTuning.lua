@@ -123,6 +123,15 @@ local function CreatePluginFrames()
 		
 		elseif (event == "PLUGIN_ENABLED") then
 			--> plugin got enabled on details options panel
+			
+		elseif (event == "DETAILS_DATA_RESET") then
+			--> data on details! got reseted. need to reset the plugin as well
+			
+			DpsTuningPlugin:TrackBuffsAtEnd()
+			DpsTuningPlugin:CancelTicker()
+			SDF:UnregisterEvent ("COMBAT_LOG_EVENT_UNFILTERED")
+	
+			DpsTuningPlugin:OnDataReset (...)
 		
 		end
 	end
@@ -755,6 +764,7 @@ local function CreatePluginFrames()
 		end
 		
 		--uptime
+		
 		local misc = DpsTuningPlugin.CurCombat (DETAILS_ATTRIBUTE_MISC, DpsTuningPlugin.playername)
 		if (misc) then
 			local debuff_uptime = misc.debuff_uptime
@@ -1060,6 +1070,34 @@ local function CreatePluginFrames()
 		end
 	end
 	
+	function DpsTuningPlugin:OnDataReset (...)
+		DpsTuningPlugin.CurCombat = nil
+		DpsTuningPlugin.CurPlayer = nil
+		
+		table.wipe (spell_activity)
+		table.wipe (buff_activity)
+		table.wipe (spell_graphic_data)
+		table.wipe (buff_graphic_data)
+		table.wipe (power_amount_chart_table)
+		
+		DpsTuningPlugin:ClearBuffBlocks()
+		
+		SDF.OpenGraphicButton:Disable()
+		SDF.OpenGraphicButton2:Disable()
+		SDF.OpenGraphicButton3:Disable()
+		
+		if (DpsTuningPlugin.SpellBars) then
+			for bar_index = 1, 9 do 
+				local bar = DpsTuningPlugin.SpellBars [bar_index]
+				if (bar) then
+					bar:Hide()
+				end
+			end
+		end
+		
+		DpsTuningPlugin.FinishedAt = 0
+	end
+	
 	function DpsTuningPlugin:OnCombatStart (...)
 	
 		if (DpsTuningPlugin.FinishedAt+10 > ClockTime()) then
@@ -1138,6 +1176,8 @@ local function CreatePluginFrames()
 		end
 	end
 	
+
+	
 	function DpsTuningPlugin:CancelTicker()
 		if (DpsTuningPlugin.TimerTick) then
 			DpsTuningPlugin:CancelTimer (DpsTuningPlugin.TimerTick)
@@ -1183,7 +1223,7 @@ function DpsTuningPlugin:OnEvent (_, event, ...)
 				}
 				
 				--> Install plugin inside details
-				local install = _G._detalhes:InstallPlugin ("SOLO", "Dps Tuning", "Interface\\Icons\\Ability_Racial_RocketBarrage", DpsTuningPlugin, "DETAILS_PLUGIN_DPS_TUNING", MINIMAL_DETAILS_VERSION_REQUIRED, "Details! Team", "v1.01", default_settings)
+				local install = _G._detalhes:InstallPlugin ("SOLO", "Dps Tuning", "Interface\\Icons\\Ability_Racial_RocketBarrage", DpsTuningPlugin, "DETAILS_PLUGIN_DPS_TUNING", MINIMAL_DETAILS_VERSION_REQUIRED, "Details! Team", "v1.1", default_settings)
 				if (type (install) == "table" and install.error) then
 					print (install.error)
 				end

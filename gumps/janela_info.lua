@@ -2598,7 +2598,8 @@ function gump:CriaJanelaInfo()
 		local compare_fill = function (tab, player, combat)
 			local players_to_compare = tab.players
 			
-			DetailsPlayerComparisonBox1.name_label:SetText (player:Name())
+			local defaultPlayerName = _detalhes:GetOnlyName (player:Name())
+			DetailsPlayerComparisonBox1.name_label:SetText (defaultPlayerName)
 			
 			local label2 = _G ["DetailsPlayerComparisonBox2"].name_label
 			local label3 = _G ["DetailsPlayerComparisonBox3"].name_label
@@ -2607,12 +2608,14 @@ function gump:CriaJanelaInfo()
 			local label3_percent = _G ["DetailsPlayerComparisonBox3"].name_label_percent
 			
 			if (players_to_compare [1]) then
-				label2:SetText (players_to_compare [1]:Name())
-				label2_percent:SetText (player:Name() .. " %")
+				local playerName = _detalhes:GetOnlyName (players_to_compare [1]:Name())
+				label2:SetText (playerName)
+				label2_percent:SetText (defaultPlayerName .. " %")
 			end
 			if (players_to_compare [2]) then
-				label3:SetText (players_to_compare [2]:Name())
-				label3_percent:SetText (player:Name() .. " %")
+				local playerName = _detalhes:GetOnlyName (players_to_compare [2]:Name())
+				label3:SetText (playerName)
+				label3_percent:SetText (defaultPlayerName .. " %")
 			else
 				label3:SetText ("")
 				label3_percent:SetText ("")

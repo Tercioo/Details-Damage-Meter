@@ -59,7 +59,7 @@
 	local FormatTooltipNumber = ToKFunctions [8]
 	local TooltipMaximizedMethod = 1
 
-	local CLASS_ICON_TCOORDS = _G.CLASS_ICON_TCOORDS
+	--local CLASS_ICON_TCOORDS = _G.CLASS_ICON_TCOORDS
 	local is_player_class = _detalhes.player_class
 
 	_detalhes.tooltip_key_overlay1 = {1, 1, 1, .2}
@@ -2711,13 +2711,13 @@ end
 				texture:SetTexCoord (_unpack (_detalhes.class_specs_coords [self.spec]))
 				texture:SetVertexColor (1, 1, 1)
 			else
-				texture:SetTexture ([[Interface\AddOns\Details\images\classes_small]])
-				texture:SetTexCoord (_unpack (CLASS_ICON_TCOORDS [classe]))
+				texture:SetTexture (instance.row_info.icon_file or [[Interface\AddOns\Details\images\classes_small]])
+				texture:SetTexCoord (_unpack (_detalhes.class_coords [classe]))
 				texture:SetVertexColor (1, 1, 1)
 			end
 		else
 			texture:SetTexture (instance and instance.row_info.icon_file or [[Interface\AddOns\Details\images\classes_small]])
-			texture:SetTexCoord (_unpack (CLASS_ICON_TCOORDS [classe]))
+			texture:SetTexCoord (_unpack (_detalhes.class_coords [classe]))
 			texture:SetVertexColor (1, 1, 1)
 		end
 	end
@@ -2779,6 +2779,9 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 	if (owner and owner.classe) then
 		r, g, b = unpack (_detalhes.class_colors [owner.classe])
 	else
+		if (not _detalhes.class_colors [self.classe]) then
+			return print ("Details!: error class not found:", self.classe, "for", self.nome)
+		end
 		r, g, b = unpack (_detalhes.class_colors [self.classe])
 	end
 
@@ -3533,8 +3536,8 @@ function atributo_damage:MontaInfoFriendlyFire()
 		
 		barra.icone:SetTexture (info.instancia.row_info.icon_file)
 		
-		if (CLASS_ICON_TCOORDS [classe]) then
-			barra.icone:SetTexCoord (_unpack (CLASS_ICON_TCOORDS [classe]))
+		if (_detalhes.class_coords [classe]) then
+			barra.icone:SetTexCoord (_unpack (_detalhes.class_coords [classe]))
 		else
 			barra.icone:SetTexture (nil)
 		end
@@ -3642,7 +3645,7 @@ function atributo_damage:MontaInfoDamageTaken()
 
 		self:FocusLock (barra, tabela[1])
 		
-		local texCoords = CLASS_ICON_TCOORDS [tabela[4]]
+		local texCoords = _detalhes.class_coords [tabela[4]]
 		if (not texCoords) then
 			texCoords = _detalhes.class_coords ["UNKNOW"]
 		end
