@@ -9,6 +9,8 @@ local floor = floor
 
 local GetNumGroupMembers = GetNumGroupMembers
 
+local ItemUpgradeInfo = LibStub("LibItemUpgradeInfo-1.0")
+
 function _detalhes:UpdateGears()
 	
 	_detalhes:UpdateParser()
@@ -1105,9 +1107,24 @@ function ilvl_core:CalcItemLevel (unitid, guid, shout)
 					local _, _, _, iLevel, _, _, _, _, equipSlot = GetItemInfo (item)
 					if (iLevel and iLevel >= 100) then
 						
-						local _, _, _, _, _, _, _, _, _, _, _, upgradeTypeID, _, numBonusIDs, bonusID1, bonusID2 = strsplit (":", item)
+						--local _, _, _, _, _, _, _, _, _, _, _, upgradeTypeID, _, numBonusIDs, bonusID1, bonusID2 = strsplit (":", item)
+
+						--> upgrades handle by LibItemUpgradeInfo-1.0
+						--> http://www.wowace.com/addons/libitemupgradeinfo-1-0/
+						if (ItemUpgradeInfo) then
+							local upgrade, max, delta = ItemUpgradeInfo:GetItemUpgradeInfo (item)
+							if (upgrade) then
+								local ilvl = ItemUpgradeInfo:GetUpgradedItemLevel (item)
+								item_level = item_level + (ilvl or iLevel)
+							else
+								item_level = item_level + iLevel
+							end
+						else
+							item_level = item_level + iLevel
+						end
 
 						--> timewarped
+						--[[
 						if (upgradeTypeID == "512" and bonusID1 == "615") then
 							item_level = item_level + 660
 							if (bonusID2 == "656") then
@@ -1116,6 +1133,7 @@ function ilvl_core:CalcItemLevel (unitid, guid, shout)
 						else
 							item_level = item_level + iLevel
 						end
+						--]]
 						
 						--> 16 = main hand 17 = off hand
 						-->  if using a two-hand, ignore the off hand slot

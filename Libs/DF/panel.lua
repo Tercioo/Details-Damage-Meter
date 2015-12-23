@@ -1433,6 +1433,29 @@ function DF:IconPick (callback, close_when_select, param1, param2)
 	
 end	
 
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+function DF:ShowPanicWarning (text)
+	if (not DF.PanicWarningWindow) then
+		DF.PanicWarningWindow = CreateFrame ("frame", "DetailsFrameworkPanicWarningWindow", UIParent)
+		DF.PanicWarningWindow:SetHeight (80)
+		DF.PanicWarningWindow:SetBackdrop ({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
+		DF.PanicWarningWindow:SetBackdropColor (1, 0, 0, 0.2)
+		DF.PanicWarningWindow:SetPoint ("topleft", UIParent, "topleft", 0, -250)
+		DF.PanicWarningWindow:SetPoint ("topright", UIParent, "topright", 0, -250)
+		
+		DF.PanicWarningWindow.text = DF.PanicWarningWindow:CreateFontString (nil, "overlay", "GameFontNormal")
+		DF.PanicWarningWindow.text:SetPoint ("center", DF.PanicWarningWindow, "center")
+		DF.PanicWarningWindow.text:SetTextColor (1, 0.6, 0)
+	end
+	
+	DF.PanicWarningWindow.text:SetText (text)
+	DF.PanicWarningWindow:Show()
+end
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
 local simple_panel_counter = 1
 local simple_panel_mouse_down = function (self, button)
 	if (button == "RightButton") then

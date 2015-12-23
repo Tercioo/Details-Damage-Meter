@@ -1233,10 +1233,10 @@
 			
 			new_aura.trigger.custom = new_aura.trigger.custom:gsub ("@spellid", spellid)
 			new_aura.trigger.custom = new_aura.trigger.custom:gsub ("@spell_casted", icon_text)
-	
+			
 			--> size
 			new_aura.fontSize = min (icon_size, 24)
-		
+			
 		elseif (target == 42) then -- dispell
 		
 			chat = nil

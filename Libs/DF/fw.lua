@@ -1,5 +1,5 @@
 
-local dversion = 13
+local dversion = 14
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary (major, minor)
 
@@ -95,6 +95,7 @@ local embed_functions = {
 	"www_icons",
 	"GetTemplate",
 	"GetFrameworkFolder",
+	"ShowPanicWarning",
 }
 
 DF.table = {}

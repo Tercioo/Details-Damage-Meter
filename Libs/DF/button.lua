@@ -385,14 +385,14 @@ local ButtonMetaFunctions = {}
 	end
 
 -- icon
-	function ButtonMetaFunctions:SetIcon (texture, width, height, layout, texcoord, overlay, textdistance, leftpadding)
+	function ButtonMetaFunctions:SetIcon (texture, width, height, layout, texcoord, overlay, textdistance, leftpadding, textheight)
 		if (not self.icon) then
 			self.icon = self:CreateTexture (nil, "artwork")
 			self.icon:SetSize (self.height*0.8, self.height*0.8)
 			self.icon:SetPoint ("left", self.widget, "left", 4 + (leftpadding or 0), 0)
 			self.icon.leftpadding = leftpadding or 0
 			self.widget.text:ClearAllPoints()
-			self.widget.text:SetPoint ("left", self.icon, "right", textdistance or 2, 0)
+			self.widget.text:SetPoint ("left", self.icon, "right", textdistance or 2, 0 + (textheight or 0))
 		end
 		
 		self.icon:SetTexture (texture)
