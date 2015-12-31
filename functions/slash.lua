@@ -1046,6 +1046,8 @@ function SlashCmdList.DETAILS (msg, editbox)
 		_detalhes_global.ALOOT  = r
 	
 	elseif (msg == "ilvl") then
+	
+		--
 		local ilvl_frame = CreateFrame ("GameTooltip", "details_ilvl_tooltip", UIParent, "GameTooltipTemplate");
 		local get_ilvl = function (itemLink)
 			ilvl_frame:SetOwner (UIParent, "ANCHOR_NONE")
@@ -1053,13 +1055,29 @@ function SlashCmdList.DETAILS (msg, editbox)
 			ilvl_frame:SetHyperlink (itemLink)
 			
 			for i = 1, 13 do
-				print (_G ["details_ilvl_tooltipTextLeft" .. i]:GetText())
+				local text = _G ["details_ilvl_tooltipTextLeft" .. i] and _G ["details_ilvl_tooltipTextLeft" .. i]:GetText()
+				if (text and text:find (ITEM_UPGRADE_STAT_AVERAGE_ITEM_LEVEL)) then
+					print ("ItemLevel:", text:gsub (ITEM_UPGRADE_STAT_AVERAGE_ITEM_LEVEL, ""))
+					break
+				end
 			end
 		end
 		
-		local item = GetInventoryItemLink ("player", 1)
-		print ("item:", item)
+		local item = GetInventoryItemLink ("player", 14)
 		get_ilvl (item)
+
+		print (item)
+		local ItemUpgradeInfo = LibStub("LibItemUpgradeInfo-1.0")
+		local SlotNames = "Trinket1"
+		local Slot = GetInventoryItemLink ("player", GetInventorySlotInfo (("%sSlot"):format (SlotNames)))
+		print (Slot)
+		--local upgrade, max, delta = ItemUpgradeInfo:GetItemUpgradeInfo (item)
+		local upgrade, max, delta = ItemUpgradeInfo:GetItemUpgradeInfo (item)
+		local ilvl = ItemUpgradeInfo:GetUpgradedItemLevel (item)
+		
+		print (ilvl, upgrade, max, delta)
+		
+		print (GetItemInfo (item))
 		
 	elseif (msg == "score") then
 		

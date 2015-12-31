@@ -2,10 +2,10 @@
 ## Title: Lib: ItemUpgradeInfo-1.0
 ## Notes: Database of item upgrade IDs
 ## Author: eridius
-## Version: Release-60203-13 6.2.2
-## X-Revision: 3155174
+## Version: Release-60203-15 6.2.2
+## X-Revision: efdd719
 ## X-Category: Library
-## X-Curse-Packaged-Version: Release-60203-13
+## X-Curse-Packaged-Version: Release-60203-15
 ## X-Curse-Project-Name: LibItemUpgradeInfo-1.0
 ## X-Curse-Project-ID: libitemupgradeinfo-1-0
 ## X-Curse-Repository-ID: wow/libitemupgradeinfo-1-0/mainline

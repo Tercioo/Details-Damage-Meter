@@ -1104,21 +1104,16 @@ function ilvl_core:CalcItemLevel (unitid, guid, shout)
 			if (equip_id ~= 4) then --shirt slot
 				local item = GetInventoryItemLink (unitid, equip_id)
 				if (item) then
-					local _, _, _, iLevel, _, _, _, _, equipSlot = GetItemInfo (item)
-					if (iLevel and iLevel >= 100) then
+					local _, _, itemRarity, iLevel, _, _, _, _, equipSlot = GetItemInfo (item)
+					if (iLevel) then
 						
 						--local _, _, _, _, _, _, _, _, _, _, _, upgradeTypeID, _, numBonusIDs, bonusID1, bonusID2 = strsplit (":", item)
 
 						--> upgrades handle by LibItemUpgradeInfo-1.0
 						--> http://www.wowace.com/addons/libitemupgradeinfo-1-0/
 						if (ItemUpgradeInfo) then
-							local upgrade, max, delta = ItemUpgradeInfo:GetItemUpgradeInfo (item)
-							if (upgrade) then
-								local ilvl = ItemUpgradeInfo:GetUpgradedItemLevel (item)
-								item_level = item_level + (ilvl or iLevel)
-							else
-								item_level = item_level + iLevel
-							end
+							local ilvl = ItemUpgradeInfo:GetUpgradedItemLevel (item)
+							item_level = item_level + (ilvl or iLevel)
 						else
 							item_level = item_level + iLevel
 						end
