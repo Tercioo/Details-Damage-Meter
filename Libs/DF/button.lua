@@ -932,7 +932,7 @@ function DF:NewButton (parent, container, name, member, w, h, func, param1, para
 		DF.ButtonCounter = DF.ButtonCounter + 1
 		
 	elseif (not parent) then
-		return nil
+		return error ("Details! FrameWork: parent not found.", 2)
 	end
 	if (not container) then
 		container = parent

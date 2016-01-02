@@ -1288,9 +1288,8 @@
 		end
 		
 		function _detalhes:AddTooltipHeaderStatusbar (r, g, b, a)
-			--GameCooltip:AddStatusBar (100, 1, 1, 1, 1, a, nil, nil, [[Interface\WorldStateFrame\WORLDSTATEFINALSCORE-HIGHLIGHT]])
-			GameCooltip:AddStatusBar (100, 1, unpack (_detalhes.tooltip.header_statusbar))
-			
+			local r, g, b, a, statusbarGlow, backgroundBar = unpack (_detalhes.tooltip.header_statusbar)
+			GameCooltip:AddStatusBar (100, 1, r, g, b, a, statusbarGlow, backgroundBar, "Skyline")
 		end
 		
 -- /run local a,b=_detalhes.tooltip.header_statusbar,0.3;a[1]=b;a[2]=b;a[3]=b;a[4]=0.8;
@@ -1319,12 +1318,15 @@
 			GameCooltip:SetOption ("TextColorRight", _detalhes.tooltip.fontcolor_right)
 			GameCooltip:SetOption ("TextShadow", _detalhes.tooltip.fontshadow and "OUTLINE")
 			
-			GameCooltip:SetOption ("LeftBorderSize", -5)
-			GameCooltip:SetOption ("RightBorderSize", 5)
+			GameCooltip:SetOption ("LeftBorderSize", -8)
+			GameCooltip:SetOption ("RightBorderSize", 8)
+			GameCooltip:SetOption ("ButtonsYMod", 4)
+			
 			GameCooltip:SetOption ("MinWidth", _math_max (230, self.baseframe:GetWidth()*0.9))
 			GameCooltip:SetOption ("StatusBarTexture", [[Interface\AddOns\Details\images\bar_background]])
 
-			GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, backgroundColor, _detalhes.tooltip_border_color) --{.090, .090, .188, .1}
+			--GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, backgroundColor, _detalhes.tooltip_border_color) --{.090, .090, .188, .1}
+			GameCooltip:SetBackdrop (1, _detalhes.cooltip_preset2_backdrop, {0.37, 0.37, 0.37, 1}, {0, 0, 0, 1})
 			
 			local myPoint = _detalhes.tooltip.anchor_point
 			local anchorPoint = _detalhes.tooltip.anchor_relative

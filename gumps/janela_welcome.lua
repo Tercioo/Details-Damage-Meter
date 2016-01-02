@@ -18,6 +18,7 @@ function _detalhes:OpenWelcomeWindow ()
 		
 		window = _detalhes:CreateWelcomePanel ("DetailsWelcomeWindow", UIParent)
 		window:SetPoint ("center", UIParent, "center", -200, 0)
+		window:SetBackdropColor (0, 0, 0, 0.75)
 		window:SetWidth (512)
 		window:SetHeight (265)
 		window:SetMovable (true)
@@ -26,7 +27,7 @@ function _detalhes:OpenWelcomeWindow ()
 		window:SetScript ("OnHide", function()
 			_detalhes.tabela_historico:resetar()
 		end)
-		
+
 		local background = window:CreateTexture (nil, "background")
 		background:SetPoint ("topleft", window, "topleft")
 		background:SetPoint ("bottomright", window, "bottomright")
@@ -159,6 +160,9 @@ function _detalhes:OpenWelcomeWindow ()
 					
 				end
 			
+				--> overriting the results
+				_detalhes.update_speed = 0.3
+				
 				DetailsWelcomeWindowSliderUpdateSpeed.MyObject:SetValue (_detalhes.update_speed)
 				DetailsWelcomeWindowAnimateSlider.MyObject:SetValue (_detalhes.use_row_animations)
 
@@ -1145,16 +1149,16 @@ local window_openned_at = time()
 		window.DpsHpsSlider.tooltip = Loc ["STRING_WELCOME_64"]
 	--]]
 	--------------- Max Segments
-		g:NewLabel (window, _, "$parentSliderLabel", "segmentsLabel", Loc ["STRING_WELCOME_21"] .. ":", "GameFontNormal")
-		window.segmentsLabel:SetPoint (31, -210)
+	--	g:NewLabel (window, _, "$parentSliderLabel", "segmentsLabel", Loc ["STRING_WELCOME_21"] .. ":", "GameFontNormal")
+	--	window.segmentsLabel:SetPoint (31, -210)
 		--
-		g:NewSlider (window, _, "$parentSlider", "segmentsSlider", 120, 20, 1, 25, 1, _detalhes.segments_amount) -- min, max, step, defaultv
-		window.segmentsSlider:SetPoint ("left", window.segmentsLabel, "right", 2, 0)
-		window.segmentsSlider:SetHook ("OnValueChange", function (self, _, amount) --> slider, fixedValue, sliderValue
-			_detalhes.segments_amount = math.floor (amount)
-		end)
-		window.segmentsSlider.tooltip = Loc ["STRING_WELCOME_22"]
-		
+	--	g:NewSlider (window, _, "$parentSlider", "segmentsSlider", 120, 20, 1, 25, 1, _detalhes.segments_amount) -- min, max, step, defaultv
+	--	window.segmentsSlider:SetPoint ("left", window.segmentsLabel, "right", 2, 0)
+	--	window.segmentsSlider:SetHook ("OnValueChange", function (self, _, amount) --> slider, fixedValue, sliderValue
+	--		_detalhes.segments_amount = math.floor (amount)
+	--	end)
+	--	window.segmentsSlider.tooltip = Loc ["STRING_WELCOME_22"]
+	
 	--------------
 		local mech_icon = window:CreateTexture (nil, "overlay")
 		mech_icon:SetTexture ([[Interface\Vehicles\UI-Vehicles-Endcap-Alliance]])
@@ -1203,8 +1207,8 @@ local window_openned_at = time()
 		end)
 	
 	----------------
-		
-		pages [#pages+1] = {update_frame_alert, mech_icon2, mech_icon, window.segmentsLabel, window.segmentsSlider, bg, texto4, interval_text, dance_text, window.updatespeedLabel, window.updatespeedSlider, window.animateLabel, window.animateSlider, window.changemind4Label, window.DpsHpsLabel, window.DpsHpsSlider}
+		-- window.segmentsLabel, window.segmentsSlider, 
+		pages [#pages+1] = {update_frame_alert, mech_icon2, mech_icon, bg, texto4, interval_text, dance_text, window.updatespeedLabel, window.updatespeedSlider, window.animateLabel, window.animateSlider, window.changemind4Label, window.DpsHpsLabel, window.DpsHpsSlider}
 		
 		for _, widget in ipairs (pages[#pages]) do 
 			widget:Hide()

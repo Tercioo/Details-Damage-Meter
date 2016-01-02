@@ -18,7 +18,6 @@ local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
 local cleanfunction = function() end
 local APISliderFunctions = false
 local SliderMetaFunctions = {}
-local NameLessSlider = 1
 
 ------------------------------------------------------------------------------------------------------------
 --> metatables
@@ -877,10 +876,10 @@ function DF:NewSwitch (parent, container, name, member, w, h, ltext, rtext, defa
 
 --> early checks
 	if (not name) then
-		name = "DetailsFrameWorkSlider" .. NameLessSlider
-		NameLessSlider = NameLessSlider + 1
+		name = "DetailsFrameWorkSlider" .. DF.SwitchCounter
+		DF.SwitchCounter = DF.SwitchCounter + 1
 	elseif (not parent) then
-		return nil
+		return error ("Details! FrameWork: parent not found.", 2)
 	end
 	if (not container) then
 		container = parent
@@ -1035,14 +1034,15 @@ function DF:NewSlider (parent, container, name, member, w, h, min, max, step, de
 		DF.SliderCounter = DF.SliderCounter + 1
 	end
 	if (not parent) then
-		return nil
+		return error ("Details! FrameWork: parent not found.", 2)
 	end
 	if (not container) then
 		container = parent
 	end
 	
 	if (name:find ("$parent")) then
-		name = name:gsub ("$parent", parent:GetName())
+		local parentName = DF.GetParentName (parent)
+		name = name:gsub ("$parent", parentName)
 	end
 	
 	local SliderObject = {type = "slider", dframework = true}

@@ -794,7 +794,7 @@
 	
 	local white_table = {1, 1, 1, 1}
 	local black_table = {0, 0, 0, 1}
-	local gray_table = {0.37, 0.37, 0.37, 1}
+	local gray_table = {0.37, 0.37, 0.37, 0.95}
 
 	local preset2_backdrop = {bgFile = [[Interface\AddOns\Details\images\background]], edgeFile = [[Interface\Buttons\WHITE8X8]], tile=true,
 	edgeSize = 1, tileSize = 64, insets = {left = 0, right = 0, top = 0, bottom = 0}}
@@ -824,6 +824,9 @@
 			GameCooltip:SetOption ("YSpacingMod", -4)
 			GameCooltip:SetOption ("IgnoreButtonAutoHeight", true)
 			GameCooltip:SetColor (1, 0, 0, 0, 0)
+			
+			GameCooltip:SetOption ("LeftBorderSize", -5)
+			GameCooltip:SetOption ("RightBorderSize", 5)
 			
 			GameCooltip:SetBackdrop (1, preset2_backdrop, gray_table, black_table)	
 			
@@ -2177,7 +2180,7 @@
 	
 	function _detalhes:CreateWelcomePanel (name, parent, width, height, make_movable)
 		local f = CreateFrame ("frame", name, parent or UIParent)
-		f:SetBackdrop ({bgFile = [[Interface\DialogFrame\UI-DialogBox-Background-Dark]], tile = true, tileSize = 128, insets = {left=3, right=3, top=3, bottom=3},
+		f:SetBackdrop ({bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 128, insets = {left=3, right=3, top=3, bottom=3},
 		edgeFile = [[Interface\AddOns\Details\images\border_welcome]], edgeSize = 16})
 		f:SetBackdropColor (1, 1, 1, 0.75)
 		f:SetSize (width or 1, height or 1)

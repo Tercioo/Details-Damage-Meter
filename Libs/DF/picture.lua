@@ -213,7 +213,7 @@ end
 function DF:NewImage (parent, texture, w, h, layer, coords, member, name)
 
 	if (not parent) then
-		return nil
+		return error ("Details! FrameWork: parent not found.", 2)
 	end
 	
 	if (not name) then
@@ -222,7 +222,8 @@ function DF:NewImage (parent, texture, w, h, layer, coords, member, name)
 	end
 	
 	if (name:find ("$parent")) then
-		name = name:gsub ("$parent", parent:GetName())
+		local parentName = DF.GetParentName (parent)
+		name = name:gsub ("$parent", parentName)
 	end
 	
 	local ImageObject = {type = "image", dframework = true}

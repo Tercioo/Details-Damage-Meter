@@ -1020,7 +1020,7 @@ local default_profile = {
 			anchor_offset = {0, 0},
 			
 			border_texture = "Details BarBorder 3",
-			border_color = {1, 1, 1, 0},
+			border_color = {0, 0, 0, 1},
 			border_size = 14,
 			
 			tooltip_max_abilities = 5,

@@ -11,6 +11,7 @@
 	local _math_floor = math.floor --lua locals
 
 	local _UnitAura = UnitAura
+	local _
 	
 	local gump = _detalhes.gump --details local
 
@@ -59,8 +60,8 @@
 					instance.baseframe.cabecalho.modo_selecao:GetScript ("OnEnter")(instance.baseframe.cabecalho.modo_selecao)
 				end
 				
-				local close_window = gump:NewButton (button.close_confirmation, _, "$parentCloseWindowButton", "CloseWindowButton", 140, 20, close_func, nil, nil, nil, Loc ["STRING_MENU_CLOSE_INSTANCE"], 1, gump:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
-				local back_to_group_and_raid = gump:NewButton (button.close_confirmation, _, "$parentBackToGroupButton", "BackToGroupButton", 140, 20, group_func, nil, nil, nil, Loc ["STRING_SWITCH_TO"] .. ": " .. Loc ["STRING_MODE_GROUP"], 2, gump:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
+				local close_window = gump:NewButton (button.close_confirmation, nil, "$parentCloseWindowButton", "CloseWindowButton", 140, 20, close_func, nil, nil, nil, Loc ["STRING_MENU_CLOSE_INSTANCE"], 1, gump:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
+				local back_to_group_and_raid = gump:NewButton (button.close_confirmation, nil, "$parentBackToGroupButton", "BackToGroupButton", 140, 20, group_func, nil, nil, nil, Loc ["STRING_SWITCH_TO"] .. ": " .. Loc ["STRING_MODE_GROUP"], 2, gump:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
 				
 				close_window:SetIcon ([[Interface\Buttons\UI-Panel-MinimizeButton-Up]], nil, nil, nil, {0.143125, 0.8653125, 0.1446875, 0.8653125}, nil, nil, 2)
 				back_to_group_and_raid:SetIcon ([[Interface\AddOns\Details\images\modo_icones]], nil, nil, nil, {32/256, 32/256*2, 0, 1}, nil, nil, 2)

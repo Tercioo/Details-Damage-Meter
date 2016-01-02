@@ -244,7 +244,7 @@ end
 function DF:NewLabel (parent, container, name, member, text, font, size, color, layer)
 
 	if (not parent) then
-		return nil
+		return error ("Details! FrameWork: parent not found.", 2)
 	end
 	if (not container) then
 		container = parent
@@ -256,9 +256,8 @@ function DF:NewLabel (parent, container, name, member, text, font, size, color, 
 	end
 	
 	if (name:find ("$parent")) then
-		local pname = parent:GetName()
-		assert (pname, "label used $parent but parent has no name.")
-		name = name:gsub ("$parent", parent:GetName())
+		local parentName = DF.GetParentName (parent)
+		name = name:gsub ("$parent", parentName)
 	end
 	
 	local LabelObject = {type = "label", dframework = true}

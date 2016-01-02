@@ -183,6 +183,13 @@ DF.TextEntryCounter = 1
 
 	end
 	
+	function TextEntryMetaFunctions:SetText (text)
+		self.editbox:SetText (text)
+	end	
+	function TextEntryMetaFunctions:GetText()
+		return self.editbox:GetText()
+	end
+	
 --> frame levels
 	function TextEntryMetaFunctions:GetFrameLevel()
 		return self.editbox:GetFrameLevel()
@@ -470,23 +477,23 @@ DF.TextEntryCounter = 1
 
 function TextEntryMetaFunctions:SetTemplate (template)
 	if (template.width) then
-		self:SetWidth (template.width)
+		self.editbox:SetWidth (template.width)
 	end
 	if (template.height) then
-		self:SetHeight (template.height)
+		self.editbox:SetHeight (template.height)
 	end
 	
 	if (template.backdrop) then
-		self:SetBackdrop (template.backdrop)
+		self.editbox:SetBackdrop (template.backdrop)
 	end
 	if (template.backdropcolor) then
 		local r, g, b, a = DF:ParseColors (template.backdropcolor)
-		self:SetBackdropColor (r, g, b, a)
+		self.editbox:SetBackdropColor (r, g, b, a)
 		self.onleave_backdrop = {r, g, b, a}
 	end
 	if (template.backdropbordercolor) then
 		local r, g, b, a = DF:ParseColors (template.backdropbordercolor)
-		self:SetBackdropBorderColor (r, g, b, a)
+		self.editbox:SetBackdropBorderColor (r, g, b, a)
 		self.editbox.current_bordercolor[1] = r
 		self.editbox.current_bordercolor[2] = g
 		self.editbox.current_bordercolor[3] = b
@@ -509,7 +516,7 @@ function DF:NewTextEntry (parent, container, name, member, w, h, func, param1, p
 		DF.TextEntryCounter = DF.TextEntryCounter + 1
 		
 	elseif (not parent) then
-		return nil
+		return error ("Details! FrameWork: parent not found.", 2)
 	end
 	
 	if (not container) then
@@ -517,7 +524,8 @@ function DF:NewTextEntry (parent, container, name, member, w, h, func, param1, p
 	end
 	
 	if (name:find ("$parent")) then
-		name = name:gsub ("$parent", parent:GetName())
+		local parentName = DF.GetParentName (parent)
+		name = name:gsub ("$parent", parentName)
 	end
 	
 	local TextEntryObject = {type = "textentry", dframework = true}
@@ -667,7 +675,8 @@ end
 function DF:NewSpecialLuaEditorEntry (parent, w, h, member, name, nointent)
 	
 	if (name:find ("$parent")) then
-		name = name:gsub ("$parent", parent:GetName())
+		local parentName = DF.GetParentName (parent)
+		name = name:gsub ("$parent", parentName)
 	end
 	
 	local borderframe = CreateFrame ("Frame", name, parent)

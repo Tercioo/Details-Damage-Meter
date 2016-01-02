@@ -646,13 +646,14 @@ function DF:NewBar (parent, container, name, member, w, h, value, texture_name)
 		DF.BarNameCounter = DF.BarNameCounter + 1
 
 	elseif (not parent) then
-		return nil
+		return error ("Details! FrameWork: parent not found.", 2)
 	elseif (not container) then
 		container = parent
 	end
 	
 	if (name:find ("$parent")) then
-		name = name:gsub ("$parent", parent:GetName())
+		local parentName = DF.GetParentName (parent)
+		name = name:gsub ("$parent", parentName)
 	end
 	
 	local BarObject = {type = "bar", dframework = true}

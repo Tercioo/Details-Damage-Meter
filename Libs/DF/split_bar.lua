@@ -539,14 +539,15 @@ function DF:NewSplitBar (parent, container, name, member, w, h)
 		DF.SplitBarCounter = DF.SplitBarCounter + 1
 	end
 	if (not parent) then
-		return nil
+		return error ("Details! FrameWork: parent not found.", 2)
 	end
 	if (not container) then
 		container = parent
 	end
 	
 	if (name:find ("$parent")) then
-		name = name:gsub ("$parent", parent:GetName())
+		local parentName = DF.GetParentName (parent)
+		name = name:gsub ("$parent", parentName)
 	end
 	
 	local SplitBarObject = {type = "barsplit", dframework = true}

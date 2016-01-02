@@ -905,14 +905,15 @@ function DF:NewDropDown (parent, container, name, member, w, h, func, default, t
 		DF.DropDownCounter = DF.DropDownCounter + 1
 		
 	elseif (not parent) then
-		return nil
+		return error ("Details! FrameWork: parent not found.", 2)
 	end
 	if (not container) then
 		container = parent
 	end
 	
 	if (name:find ("$parent")) then
-		name = name:gsub ("$parent", parent:GetName())
+		local parentName = DF.GetParentName (parent)
+		name = name:gsub ("$parent", parentName)
 	end
 	
 	local DropDownObject = {type = "dropdown", dframework = true}

@@ -2138,35 +2138,31 @@ local icon_frame_on_enter = function (self)
 			
 			local got_info
 			if (ilvl) then
-				GameCooltip:AddLine ("Item Level:", ilvl and floor (ilvl.ilvl) or "??")
+				GameCooltip:AddLine (STAT_AVERAGE_ITEM_LEVEL .. ":", ilvl and floor (ilvl.ilvl) or "??") --> Loc from GlobalStrings.lua
 				_detalhes:AddTooltipBackgroundStatusbar()
 				got_info = true
 			end
 			
 			if (talent_string ~= "") then
-				GameCooltip:AddLine ("Talents:", talent_string)
+				GameCooltip:AddLine (TALENTS .. ":", talent_string) --> Loc from GlobalStrings.lua
 				_detalhes:AddTooltipBackgroundStatusbar()
 				got_info = true
 			elseif (got_info) then
-				GameCooltip:AddLine ("Talents:", Loc ["STRING_QUERY_INSPECT_TALENTS"])
+				GameCooltip:AddLine (TALENTS .. ":", Loc ["STRING_QUERY_INSPECT_TALENTS"]) --> Loc from GlobalStrings.lua
 			end
 			
 			GameCooltip:SetOption ("StatusBarTexture", [[Interface\AddOns\Details\images\bar_skyline]])
 			GameCooltip:SetOption ("MinButtonHeight", 15)
-			GameCooltip:SetOption ("IgnoreButtonAutoHeight", true)
+			GameCooltip:SetOption ("IgnoreButtonAutoHeight", false)
 			
 			if (not got_info) then
 				--GameCooltip:AddLine (" ")
-				
 				--GameCooltip:AddLine ("Click to retrive item level and talents.", nil, 1, "orange")
-				
 				GameCooltip:AddLine (Loc ["STRING_QUERY_INSPECT"], nil, 1, "orange")
 				GameCooltip:AddIcon ([[Interface\TUTORIALFRAME\UI-TUTORIAL-FRAME]], 1, 1, 12, icon_size, 8/512, 70/512, 224/512, 306/512)
-				
 				GameCooltip:SetOption ("FixedHeight", 42)
 			else
-				
-				GameCooltip:SetOption ("FixedHeight", 58)
+				GameCooltip:SetOption ("FixedHeight", 52)
 			end
 			
 			--GameCooltip:AddLine ("Class:", LOCALIZED_CLASS_NAMES_MALE [class])
@@ -5641,6 +5637,7 @@ local build_mode_list = function (self, elapsed)
 		_detalhes:SetMenuOwner (self, instancia)
 		
 		CoolTip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
+		--CoolTip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
 		CoolTip:SetBackdrop (2, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
 		CoolTip:SetWallpaper (1, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
 		

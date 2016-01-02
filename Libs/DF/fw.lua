@@ -1,5 +1,5 @@
 
-local dversion = 14
+local dversion = 15
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary (major, minor)
 
@@ -11,19 +11,24 @@ end
 DetailsFrameworkCanLoad = true
 local SharedMedia = LibStub:GetLibrary ("LibSharedMedia-3.0")
 
+local _
 local _type = type
 local _unpack = unpack
-local _
 local upper = string.upper
 
-DF.LabelNameCounter = 1
-DF.PictureNameCounter = 1
-DF.BarNameCounter = 1
-DF.DropDownCounter = 1
-DF.PanelCounter = 1
-DF.ButtonCounter = 1
-DF.SliderCounter = 1
-DF.SplitBarCounter = 1
+--> will always give a very random name for our widgets
+local init_counter = math.random (1, 1000000)
+
+DF.LabelNameCounter = DF.LabelNameCounter or init_counter
+DF.PictureNameCounter = DF.PictureNameCounter or init_counter
+DF.BarNameCounter = DF.BarNameCounter or init_counter
+DF.DropDownCounter = DF.DropDownCounter or init_counter
+DF.PanelCounter = DF.PanelCounter or init_counter
+DF.SimplePanelCounter = DF.SimplePanelCounter or init_counter
+DF.ButtonCounter = DF.ButtonCounter or init_counter
+DF.SliderCounter = DF.SliderCounter or init_counter
+DF.SwitchCounter = DF.SwitchCounter or init_counter
+DF.SplitBarCounter = DF.SplitBarCounter or init_counter
 
 DF.FrameWorkVersion = tostring (dversion)
 function DF:PrintVersion()
@@ -32,12 +37,14 @@ end
 
 LibStub:GetLibrary("AceTimer-3.0"):Embed (DF)
 
+--> get the working folder
 do
 	local path = string.match (debugstack (1, 1, 0), "AddOns\\(.+)fw.lua")
 	if (path) then
 		DF.folder = "Interface\\AddOns\\" .. path
 	else
-		DF.folder = ""
+		--> if not found, try to use the last valid one
+		DF.folder = DF.folder or ""
 	end
 end
 
@@ -94,6 +101,7 @@ local embed_functions = {
 	"ShowTextPromptPanel",
 	"www_icons",
 	"GetTemplate",
+	"InstallTemplate",
 	"GetFrameworkFolder",
 	"ShowPanicWarning",
 }
@@ -868,17 +876,40 @@ DF.slider_templates ["OPTIONS_SLIDER_TEMPLATE"] = {
 	thumbcolor = {0, 0, 0, 0.5},
 }
 
-function DF:GetTemplate (type, template_name)
+function DF:InstallTemplate (widget_type, template_name, template)
+	widget_type = string.lower (widget_type)
+	
 	local template_table
-	if (type == "font") then
+	if (widget_type == "font") then
 		template_table = DF.font_templates
-	elseif (type == "dropdown") then
+	elseif (widget_type == "dropdown") then
 		template_table = DF.dropdown_templates
-	elseif (type == "button") then
+	elseif (widget_type == "button") then
 		template_table = DF.button_templates
-	elseif (type == "switch") then
+	elseif (widget_type == "switch") then
 		template_table = DF.switch_templates
-	elseif (type == "slider") then
+	elseif (widget_type == "slider") then
+		template_table = DF.slider_templates
+	end
+
+	template_table [template_name] = template
+	
+	return template
+end
+
+function DF:GetTemplate (widget_type, template_name)
+	widget_type = string.lower (widget_type)
+
+	local template_table
+	if (widget_type == "font") then
+		template_table = DF.font_templates
+	elseif (widget_type == "dropdown") then
+		template_table = DF.dropdown_templates
+	elseif (widget_type == "button") then
+		template_table = DF.button_templates
+	elseif (widget_type == "switch") then
+		template_table = DF.switch_templates
+	elseif (widget_type == "slider") then
 		template_table = DF.slider_templates
 	end
 	return template_table [template_name]

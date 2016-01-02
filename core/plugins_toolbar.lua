@@ -3,6 +3,7 @@
 	local _detalhes = _G._detalhes
 	local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
 	local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
+	local _
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> local pointers
@@ -179,9 +180,9 @@ end
 			f.background:SetDesaturated (true)
 			
 			f.BackdropTable.bgFile = _detalhes.tooltip_backdrop.bgFile
-			f.BackdropTable.edgeFile = _detalhes.tooltip_backdrop.edgeFile
+			f.BackdropTable.edgeFile = [[Interface\Buttons\WHITE8X8]] --_detalhes.tooltip_backdrop.edgeFile
 			f.BackdropTable.tile = _detalhes.tooltip_backdrop.tile
-			f.BackdropTable.edgeSize = _detalhes.tooltip_backdrop.edgeSize
+			f.BackdropTable.edgeSize = 1 --_detalhes.tooltip_backdrop.edgeSize
 			f.BackdropTable.tileSize = _detalhes.tooltip_backdrop.tileSize
 			
 			f:SetBackdrop (f.BackdropTable)

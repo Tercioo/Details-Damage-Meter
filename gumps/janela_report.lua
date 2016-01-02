@@ -628,11 +628,14 @@ local function cria_drop_down (este_gump)
 			_detalhes:SetFontColor (self.text, "white")
 		end
 	
+		window.last_reported_label:SetPoint ("topleft", window, "topleft", 5, -28)
+		gump:SetFontSize (window.last_reported_label, 10)
+	
 		for i = 1, 9 do --window.max_last_buttons
 			local b = window.recently_report_buttons [i]
 			
 			b:SetSize (150, 16)
-			b:SetPoint ("topleft", window, "topleft", 10, -12 + (i*17*-1))
+			b:SetPoint ("topleft", window, "topleft", 5, -28 + (i*17*-1))
 			b:Show()
 			b:SetBackdrop ({bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 16,
 			insets = {left = 0, right = 0, top = 0, bottom = 0}})
@@ -772,11 +775,14 @@ local function cria_drop_down (este_gump)
 			_detalhes:SetFontColor (self.text, "white")
 		end
 	
-		for i = 1, 9 do --window.max_last_buttons
+		window.last_reported_label:SetPoint ("topleft", window, "topleft", 10, -69)
+		_detalhes:SetFontSize (window.last_reported_label, 10)
+		
+		for i = 1, 8 do --window.max_last_buttons
 			local b = window.recently_report_buttons [i]
 			
 			b:SetSize (150, 16)
-			b:SetPoint ("topleft", window, "topleft", 10, -50 + (i*17*-1))
+			b:SetPoint ("topleft", window, "topleft", 10, -67 + (i*17*-1))
 			b:Show()
 			b:SetBackdrop ({bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 16,
 			insets = {left = 0, right = 0, top = 0, bottom = 0}})
@@ -789,6 +795,8 @@ local function cria_drop_down (este_gump)
 		end
 		
 		local b = window.recently_report_buttons [10]
+		b:Hide()
+		b = window.recently_report_buttons [9]
 		b:Hide()
 		
 		Details_Report_CB_1:Hide()
@@ -973,6 +981,10 @@ local function cria_drop_down (este_gump)
 					return _detalhes.ReportFromLatest (_, _, self.index)
 				end 
 			end
+			
+			local last_reported_label = window:CreateFontString (nil, "overlay", "GameFontNormal")
+			window.last_reported_label = last_reported_label
+			window.last_reported_label:SetText (Loc ["STRING_REPORTHISTORY"] .. ":")
 			
 			for i = 1, window.max_last_buttons do
 				local b = CreateFrame ("button", "DetailsReportWindowRRB" .. i, window)

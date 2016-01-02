@@ -893,7 +893,7 @@ function DF:CreateCoolTip()
 		end
 		
 		function CoolTip:StatusBar (menuButton, StatusBar)
-
+		
 			if (StatusBar) then
 			
 				menuButton.statusbar:SetValue (StatusBar [1])
@@ -926,19 +926,38 @@ function DF:CreateCoolTip()
 					menuButton.spark2:Hide()
 				end
 				
+				if (StatusBar [8]) then
+					local texture = SharedMedia:Fetch ("statusbar", StatusBar [8], true)
+					if (texture) then
+						menuButton.statusbar.texture:SetTexture (texture)
+					else
+						menuButton.statusbar.texture:SetTexture (StatusBar [8])
+					end
+				elseif (CoolTip.OptionsTable.StatusBarTexture) then
+					local texture = SharedMedia:Fetch ("statusbar", CoolTip.OptionsTable.StatusBarTexture, true)
+					if (texture) then
+						menuButton.statusbar.texture:SetTexture (texture)
+					else
+						menuButton.statusbar.texture:SetTexture (CoolTip.OptionsTable.StatusBarTexture)
+					end
+				else
+					menuButton.statusbar.texture:SetTexture ("Interface\\PaperDollInfoFrame\\UI-Character-Skills-Bar")
+				end				
+				
+				--[[
 				if (CoolTip.OptionsTable.StatusBarTexture) then
 					menuButton.statusbar.texture:SetTexture (CoolTip.OptionsTable.StatusBarTexture)
 				else
 					menuButton.statusbar.texture:SetTexture ("Interface\\PaperDollInfoFrame\\UI-Character-Skills-Bar")
 				end
-
+			--]]
 			else
 				menuButton.statusbar:SetValue (0)
 				menuButton.statusbar2:SetValue (0)
 				menuButton.spark:Hide()
 				menuButton.spark2:Hide()
 			end
-
+			
 			if (CoolTip.OptionsTable.LeftBorderSize) then
 				menuButton.statusbar:SetPoint ("left", menuButton, "left", 10 + CoolTip.OptionsTable.LeftBorderSize, 0)
 			else
@@ -1382,7 +1401,7 @@ function DF:CreateCoolTip()
 			elseif (CoolTip.OptionsTable.IgnoreButtonAutoHeight) then
 				frame1:SetHeight ( (temp+spacing) * -1)
 			else
-				frame1:SetHeight ( _math_max ( (frame1.hHeight * CoolTip.Indexes) + 12, 22 ))
+				frame1:SetHeight ( _math_max ( (frame1.hHeight * CoolTip.Indexes) + 8 + ((CoolTip.OptionsTable.ButtonsYMod or 0)*-1), 22 ))
 			end
 		end
 
@@ -1938,8 +1957,8 @@ function DF:CreateCoolTip()
 ----------------------------------------------------------------------
 	--> Reset cooltip
 	
-	local default_backdrop = {bgFile=[[Interface\DialogFrame\UI-DialogBox-Background-Dark]], edgeFile=[[Interface\Tooltips\UI-Tooltip-Border]], tile=true,
-	edgeSize=16, tileSize=16, insets = {left=3, right=3, top=4, bottom=4}}
+	local default_backdrop = {bgFile = [[Interface\DialogFrame\UI-DialogBox-Background-Dark]], edgeFile = [[Interface\Buttons\WHITE8X8]], tile = true,
+	edgeSize = 1, tileSize = 16, insets = {left = 0, right = 0, top = 0, bottom = 0}}
 	local default_backdrop_color = {0.09019, 0.09019, 0.18823, 1}
 	local default_backdropborder_color = {1, 1, 1, 1}
 	
@@ -2232,7 +2251,7 @@ function DF:CreateCoolTip()
 	--> parameters: value [, color red, color green, color blue, color alpha [, glow]]
 	--> can also use a table or html color name in color red and send glow in color green
 	
-		function CoolTip:AddStatusBar (statusbarValue, frame, ColorR, ColorG, ColorB, ColorA, statusbarGlow, backgroundBar)
+		function CoolTip:AddStatusBar (statusbarValue, frame, ColorR, ColorG, ColorB, ColorA, statusbarGlow, backgroundBar, barTexture)
 		
 			--> need a previous line
 			if (CoolTip.Indexes == 0) then
@@ -2305,6 +2324,7 @@ function DF:CreateCoolTip()
 			statusbarTable [5] = ColorA
 			statusbarTable [6] = statusbarGlow
 			statusbarTable [7] = backgroundBar
+			statusbarTable [8] = barTexture
 			
 		end
 
