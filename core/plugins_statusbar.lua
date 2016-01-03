@@ -730,16 +730,22 @@ do
 			return
 		end
 		
-		function PSegment:NewCombat (combat_table)
+		--> initialize and reset 'can_schedule' variable
+		function PSegment:NewCombat()
+			PSegment.can_schedule = 1
+			PSegment:Change()
+		end
+		function PSegment:OnSegmentChange()
 			PSegment.can_schedule = 1
 			PSegment:Change()
 		end
 
+		--> on 'can_schedule' timeout, re-run the Change() function
 		function PSegment:SchduleGetName()
 			PSegment:Change()
 		end
 		
-		function PSegment:Change (combat_table, segment_number)
+		function PSegment:Change()
 		
 			for index, child in _ipairs (PSegment.childs) do
 			
@@ -860,7 +866,7 @@ do
 		end
 		
 		--> Register needed events
-		_detalhes:RegisterEvent (PSegment, "DETAILS_INSTANCE_CHANGESEGMENT", PSegment.Change)
+		_detalhes:RegisterEvent (PSegment, "DETAILS_INSTANCE_CHANGESEGMENT", PSegment.OnSegmentChange)
 		_detalhes:RegisterEvent (PSegment, "DETAILS_DATA_RESET", PSegment.Change)
 		_detalhes:RegisterEvent (PSegment, "COMBAT_PLAYER_ENTER", PSegment.NewCombat)
 		
