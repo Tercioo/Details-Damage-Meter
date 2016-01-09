@@ -2728,6 +2728,12 @@ end
 	
 	local class, enemy, arena_enemy, arena_ally = self.classe, self.enemy, self.arena_enemy, self.arena_ally
 	
+	if (not class) then
+		_detalhes:Msg ("Warning, actor without a class:", self.nome, self.flag_original, self.serial)
+		self.classe = "UNKNOW"
+		class = "UNKNOW"
+	end
+	
 	if (from_resize) then
 		actor_class_color_r, actor_class_color_g, actor_class_color_b = self:GetBarColor()
 	end
