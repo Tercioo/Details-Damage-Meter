@@ -405,175 +405,324 @@
 	}
 	
 	local bar_dbm_timerbar_prototype = {
-		["sparkWidth"] = 17,
-		["stacksSize"] = 12,
-		["xOffset"] = -278.999633789063,
-		["stacksFlags"] = "None",
-		["yOffset"] = 182.37451171875,
-		["anchorPoint"] = "CENTER",
-		["borderColor"] = {1, 1, 1, 0.5},
-		["rotateText"] = "NONE",
-		["backgroundColor"] = {0, 0, 0, 0.5},
-		["fontFlags"] = "OUTLINE",
-		["icon_color"] = {1, 1, 1, 1},
-		["selfPoint"] = "CENTER",
-		["barColor"] = {
-			0.996078431372549,
-			1,
-			0.976470588235294,
-			1,
-		},
-		["desaturate"] = false,
-		["sparkOffsetY"] = 0,
-		["load"] = {
-			["difficulty"] = {
-				["multi"] = {
+			["sparkWidth"] = 30,
+			["stacksSize"] = 12,
+			["xOffset"] = -102.999938964844,
+			["stacksFlags"] = "None",
+			["yOffset"] = 328.723449707031,
+			["anchorPoint"] = "CENTER",
+			["borderColor"] = {0, 0, 0, 1},
+			["rotateText"] = "NONE",
+			["backgroundColor"] = {
+				0, -- [1]
+				0, -- [2]
+				0, -- [3]
+				0.5, -- [4]
+			},
+			["fontFlags"] = "OUTLINE",
+			["icon_color"] = {
+				1, -- [1]
+				1, -- [2]
+				1, -- [3]
+				1, -- [4]
+			},
+			["selfPoint"] = "CENTER",
+			["barColor"] = {
+				0.976470588235294, -- [1]
+				0.992156862745098, -- [2]
+				1, -- [3]
+				0.683344513177872, -- [4]
+			},
+			["desaturate"] = false,
+			["sparkOffsetY"] = 0,
+			["load"] = {
+				["difficulty"] = {
+					["multi"] = {
+					},
+				},
+				["race"] = {
+					["multi"] = {
+					},
+				},
+				["role"] = {
+					["multi"] = {
+					},
+				},
+				["talent"] = {
+					["multi"] = {
+					},
+				},
+				["class"] = {
+					["multi"] = {
+					},
+				},
+				["spec"] = {
+					["multi"] = {
+					},
+				},
+				["faction"] = {
+					["multi"] = {
+					},
+				},
+				["size"] = {
+					["multi"] = {
+					},
 				},
 			},
-			["race"] = {
-				["multi"] = {
+			["timerColor"] = {
+				1, -- [1]
+				1, -- [2]
+				1, -- [3]
+				1, -- [4]
+			},
+			["regionType"] = "aurabar",
+			["stacks"] = false,
+			["sparkDesaturate"] = false,
+			["texture"] = "Blizzard Raid Bar",
+			["textFont"] = "Friz Quadrata TT",
+			["zoom"] = 0.3,
+			["spark"] = true,
+			["timerFont"] = "Friz Quadrata TT",
+			["alpha"] = 1,
+			["borderInset"] = 4,
+			["displayIcon"] = "REPLACE-ME",
+			["textColor"] = {
+				1, -- [1]
+				1, -- [2]
+				1, -- [3]
+				1, -- [4]
+			},
+			["borderBackdrop"] = "Blizzard Tooltip",
+			["barInFront"] = true,
+			["sparkRotationMode"] = "AUTO",
+			["displayTextLeft"] = "REPLACE-ME",
+			["animation"] = {
+				["start"] = {
+					["duration_type"] = "seconds",
+					["type"] = "none",
+				},
+				["main"] = {
+					["duration_type"] = "seconds",
+					["type"] = "none",
+				},
+				["finish"] = {
+					["duration_type"] = "seconds",
+					["type"] = "none",
 				},
 			},
-			["talent"] = {
-				["multi"] = {
+			["trigger"] = {
+				["type"] = "custom",
+				["subeventSuffix"] = "_CAST_START",
+				["custom"] = "function() return true end",
+				["event"] = "Health",
+				["unit"] = "player",
+				["customDuration"] = "function()\n    return aura_env.reimaningTime, (aura_env.enabledAt or 0) + aura_env.reimaningTime\nend",
+				["custom_type"] = "status",
+				["spellIds"] = {
+				},
+				["custom_hide"] = "timed",
+				["check"] = "update",
+				["subeventPrefix"] = "SPELL",
+				["names"] = {
+				},
+				["debuffType"] = "HELPFUL",
+			},
+			["text"] = true,
+			["stickyDuration"] = false,
+			["height"] = 40,
+			["timerFlags"] = "None",
+			["sparkBlendMode"] = "ADD",
+			["backdropColor"] = {
+				0, -- [1]
+				0, -- [2]
+				0, -- [3]
+				1, -- [4]
+			},
+			["additional_triggers"] = {
+				{
+					["trigger"] = {
+						["type"] = "status",
+						["spellId"] = "999999",
+						["subeventSuffix"] = "_CAST_START",
+						["use_spellId"] = true,
+						["remaining_operator"] = "<=",
+						["event"] = "DBM Timer",
+						["subeventPrefix"] = "SPELL",
+						["remaining"] = "5",
+						["unit"] = "player",
+						["use_unit"] = true,
+						["unevent"] = "auto",
+						["use_remaining"] = true,
+					},
+					["untrigger"] = {
+					},
+				}, -- [1]
+			},
+			["actions"] = {
+				["start"] = {
+					["do_custom"] = true,
+					["custom"] = "aura_env.enabledAt = GetTime()",
+				},
+				["finish"] = {
+				},
+				["init"] = {
+					["do_custom"] = true,
+					["custom"] = "aura_env.reimaningTime = 5",
 				},
 			},
-			["role"] = {
-				["multi"] = {
-				},
+			["untrigger"] = {
 			},
-			["spec"] = {
-				["multi"] = {
-				},
+			["textFlags"] = "None",
+			["border"] = false,
+			["borderEdge"] = "1 Pixel",
+			["sparkOffsetX"] = 1,
+			["borderSize"] = 1,
+			["stacksFont"] = "Friz Quadrata TT",
+			["icon_side"] = "LEFT",
+			["textSize"] = 16,
+			["timer"] = true,
+			["sparkHeight"] = 73,
+			["sparkRotation"] = 0,
+			["customTextUpdate"] = "update",
+			["stacksColor"] = {
+				1, -- [1]
+				1, -- [2]
+				1, -- [3]
+				1, -- [4]
 			},
-			["class"] = {
-				["multi"] = {
-				},
+			["displayTextRight"] = "%p",
+			["icon"] = true,
+			["inverse"] = false,
+			["frameStrata"] = 1,
+			["width"] = 450,
+			["sparkColor"] = {
+				0.976470588235294, -- [1]
+				0.992156862745098, -- [2]
+				1, -- [3]
+				0.355040311813355, -- [4]
 			},
-			["size"] = {
-				["multi"] = {
-				},
-			},
-		},
-		["timerColor"] = {1, 1, 1, 1},
-		["regionType"] = "aurabar",
-		["stacks"] = true,
-		["texture"] = "Blizzard",
-		["textFont"] = "Friz Quadrata TT",
-		["zoom"] = 0,
-		["spark"] = true,
-		["timerFont"] = "Friz Quadrata TT",
-		["alpha"] = 1,
-		["borderInset"] = 11,
-		["displayIcon"] = "Interface\\Icons\\Spell_Shadow_MindTwisting",
-		["textColor"] = {1, 1, 1, 1},
-		["borderBackdrop"] = "Blizzard Tooltip",
-		["barInFront"] = true,
-		["sparkRotationMode"] = "AUTO",
-		["displayTextLeft"] = "%n",
-		["animation"] = {
-			["start"] = {
-				["duration_type"] = "seconds",
-				["type"] = "none",
-			},
-			["main"] = {
-				["duration_type"] = "seconds",
-				["type"] = "none",
-			},
-			["finish"] = {
-				["duration_type"] = "seconds",
-				["type"] = "none",
-			},
-		},
-		["trigger"] = {
-			["type"] = "status",
-			["use_id"] = true,
-			["subeventSuffix"] = "_CAST_START",
-			["id"] = "",
-			["remaining_operator"] = "<=",
-			["event"] = "DBM Timer",
-			["unit"] = "player",
-			["use_remaining"] = true,
-			["remaining"] = "6",
-			["spellIds"] = {
-			},
-			["use_unit"] = true,
-			["unevent"] = "auto",
-			["subeventPrefix"] = "SPELL",
-			["names"] = {
-			},
-			["debuffType"] = "HELPFUL",
-		},
-		["text"] = true,
-		["stickyDuration"] = false,
-		["height"] = 34.4247055053711,
-		["timerFlags"] = "None",
-		["sparkBlendMode"] = "ADD",
-		["backdropColor"] = {1, 1, 1, 0.5},
-		["actions"] = {
-			["start"] = {
-				["do_custom"] = true,
-				["custom"] = "aura_env.untrigger_at = GetTime() + aura_env.remaining_trigger",
-			},
-			["finish"] = {
-			},
-			["init"] = {
-				["do_custom"] = true,
-				["custom"] = "",
-			},
-		},
-		["untrigger"] = {
-		},
-		["textFlags"] = "None",
-		["border"] = false,
-		["borderEdge"] = "None",
-		["sparkOffsetX"] = 0,
-		["borderSize"] = 16,
-		["stacksFont"] = "Friz Quadrata TT",
-		["icon_side"] = "LEFT",
-		["textSize"] = 14,
-		["timer"] = true,
-		["sparkHeight"] = 55,
-		["sparkRotation"] = 0,
-		["customTextUpdate"] = "update",
-		["stacksColor"] = {1, 1, 1, 1},
-		["displayTextRight"] = "%p",
-		["icon"] = true,
-		["inverse"] = false,
-		["frameStrata"] = 1,
-		["width"] = 371.000183105469,
-		["sparkColor"] = {1, 1, 1, 1},
-		["timerSize"] = 14,
-		["numTriggers"] = 1,
-		["sparkDesature"] = false,
-		["orientation"] = "HORIZONTAL",
-		["borderOffset"] = 5,
-		["auto"] = false,
-		["sparkTexture"] = "Interface\\CastingBar\\UI-CastingBar-Spark",
+			["timerSize"] = 16,
+			["numTriggers"] = 2,
+			["sparkDesature"] = false,
+			["orientation"] = "HORIZONTAL",
+			["borderOffset"] = 10,
+			["auto"] = true,
+			["sparkTexture"] = "Interface\\CastingBar\\UI-CastingBar-Spark",
 	}
-	
+
 	local icon_dbm_timerbar_prototype = {
-		["cooldown"] = true,
-		["fontSize"] = 14,
-		["displayStacks"] = "Proxima Abilidate Em:",
+		["xOffset"] = -110,
+		["yOffset"] = 182.978759765625,
+		["anchorPoint"] = "CENTER",
+		["customTextUpdate"] = "update",
+		["icon"] = true,
+		["fontFlags"] = "OUTLINE",
+		["selfPoint"] = "CENTER",
+		["trigger"] = {
+			["type"] = "custom",
+			["subeventSuffix"] = "_CAST_START",
+			["event"] = "Health",
+			["unit"] = "player",
+			["customDuration"] = "function()\n    return aura_env.reimaningTime, (aura_env.enabledAt or 0) + aura_env.reimaningTime\nend",
+			["custom"] = "function() return true end",
+			["spellIds"] = {
+			},
+			["custom_type"] = "status",
+			["check"] = "update",
+			["subeventPrefix"] = "SPELL",
+			["names"] = {
+			},
+			["debuffType"] = "HELPFUL",
+		},
+		["desaturate"] = false,
+		["font"] = "Friz Quadrata TT",
+		["height"] = 200.170227050781,
+		["load"] = {
+			["difficulty"] = {
+				["multi"] = {
+				},
+			},
+			["race"] = {
+				["multi"] = {
+				},
+			},
+			["role"] = {
+				["multi"] = {
+				},
+			},
+			["talent"] = {
+				["multi"] = {
+				},
+			},
+			["spec"] = {
+				["multi"] = {
+				},
+			},
+			["class"] = {
+				["multi"] = {
+				},
+			},
+			["faction"] = {
+				["multi"] = {
+				},
+			},
+			["size"] = {
+				["multi"] = {
+				},
+			},
+		},
+		["fontSize"] = 24,
+		["displayStacks"] = "",
+		["regionType"] = "icon",
+		["init_completed"] = 1,
 		["actions"] = {
 			["start"] = {
 				["do_custom"] = true,
-				["custom"] = "aura_env.untrigger_at = GetTime() + aura_env.remaining_trigger",
+				["custom"] = "aura_env.enabledAt = GetTime()\n\n\n\n",
 			},
 			["finish"] = {
 			},
 			["init"] = {
 				["do_custom"] = true,
-				["custom"] = "",
+				["custom"] = "aura_env.reimaningTime = 5",
 			},
 		},
-		["color"] = {1, 1, 1, 1},
-		["width"] = 100,
+		["cooldown"] = true,
+		["stacksContainment"] = "OUTSIDE",
+		["zoom"] = 0.3,
+		["auto"] = true,
+		["additional_triggers"] = {
+			{
+				["trigger"] = {
+					["type"] = "status",
+					["spellId"] = "999999",
+					["subeventSuffix"] = "_CAST_START",
+					["use_spellId"] = true,
+					["remaining_operator"] = "<=",
+					["event"] = "DBM Timer",
+					["subeventPrefix"] = "SPELL",
+					["remaining"] = "5",
+					["unit"] = "player",
+					["use_unit"] = true,
+					["unevent"] = "auto",
+					["use_remaining"] = true,
+				},
+				["untrigger"] = {
+				},
+			}, -- [1]
+		},
+		["color"] = {
+			1, -- [1]
+			1, -- [2]
+			1, -- [3]
+			1, -- [4]
+		},
+		["frameStrata"] = 1,
+		["width"] = 206.000076293945,
 		["untrigger"] = {
 		},
-		["yOffset"] = 230.935302734375,
-		["anchorPoint"] = "CENTER",
+		["inverse"] = false,
+		["numTriggers"] = 2,
 		["animation"] = {
 			["start"] = {
 				["duration_type"] = "seconds",
@@ -588,75 +737,15 @@
 				["type"] = "none",
 			},
 		},
-		["regionType"] = "icon",
-		["stacksPoint"] = "BOTTOM",
-		["customTextUpdate"] = "update",
-		["icon"] = true,
-		["fontFlags"] = "OUTLINE",
-		["stacksContainment"] = "OUTSIDE",
-		["zoom"] = 0,
-		["auto"] = true,
-		["selfPoint"] = "CENTER",
-		["trigger"] = {
-			["type"] = "status",
-			["use_id"] = true,
-			["subeventSuffix"] = "_CAST_START",
-			["id"] = "",
-			["remaining_operator"] = "<=",
-			["event"] = "DBM Timer",
-			["unit"] = "player",
-			["use_remaining"] = true,
-			["remaining"] = "6",
-			["spellIds"] = {
-			},
-			["use_unit"] = true,
-			["unevent"] = "auto",
-			["subeventPrefix"] = "SPELL",
-			["names"] = {
-			},
-			["debuffType"] = "HELPFUL",
-		},
 		["stickyDuration"] = false,
-		["frameStrata"] = 1,
-		["desaturate"] = false,
-		["xOffset"] = -486.999969482422,
-		["font"] = "Friz Quadrata TT",
-		["numTriggers"] = 1,
-		["inverse"] = true,
-		["height"] = 100,
-		["load"] = {
-			["difficulty"] = {
-				["multi"] = {
-				},
-			},
-			["race"] = {
-				["multi"] = {
-				},
-			},
-			["use_encounterid"] = true,
-			["talent"] = {
-				["multi"] = {
-				},
-			},
-			["role"] = {
-				["multi"] = {
-				},
-			},
-			["spec"] = {
-				["multi"] = {
-				},
-			},
-			["class"] = {
-				["multi"] = {
-				},
-			},
-			["size"] = {
-				["multi"] = {
-				},
-			},
+		["displayIcon"] = "Interface\\Icons\\Spell_Fire_Fire",
+		["stacksPoint"] = "BOTTOM",
+		["textColor"] = {
+			1, -- [1]
+			1, -- [2]
+			1, -- [3]
+			1, -- [4]
 		},
-		["textColor"] = {1, 1, 1, 1},
-		["displayIcon"] = "",
 	}
 
 	local text_dbm_timerbar_prototype = {
@@ -1277,6 +1366,8 @@
 			new_aura.fontSize = min (icon_size, 24)
 		
 		elseif (other_values.dbm_timer_id or other_values.bw_timer_id) then
+		
+			--> create the default aura table
 			if (aura_type == "icon") then
 				new_aura = _detalhes.table.copy ({}, icon_dbm_timerbar_prototype)
 			elseif (aura_type == "aurabar") then
@@ -1285,52 +1376,18 @@
 				new_aura = _detalhes.table.copy ({}, text_dbm_timerbar_prototype)
 			end
 
+			--> text and icon
 			if (aura_type == "aurabar") then
 				icon_text = icon_text:gsub ("= ", "")
 				icon_text = icon_text:gsub (" =", "")
 				icon_text = icon_text:gsub ("=", "")
 				new_aura.displayTextLeft = icon_text
 				new_aura.displayIcon = icon_texture
-				
 			elseif (aura_type == "icon") then
 				new_aura.displayStacks = icon_text
 				new_aura.displayIcon = icon_texture
-				
 			end
 			
-			local init_start = [[
-				aura_env.ability_text = "@text"
-				aura_env.remaining_trigger = @countdown
-			]]
-
-			init_start = init_start:gsub ("@text", icon_text)
-			init_start = init_start:gsub ("@countdown", floor (stacksize))
-			new_aura.trigger.remaining = tostring (floor (stacksize))
-			
-			new_aura.actions.init.custom = init_start
-
-			if (other_values.dbm_timer_id) then
-				new_aura.trigger.event = "DBM Timer"
-				local timerId = tostring (other_values.dbm_timer_id)
-				if (timerId:find ("%s")) then
-					new_aura.trigger.id = ""
-					new_aura.trigger.use_id = false
-					new_aura.trigger.spellId_operator = "=="
-					new_aura.trigger.use_spellId = true
-					new_aura.trigger.spellId = tostring (other_values.spellid)
-				else
-					new_aura.trigger.id = timerId
-				end
-
-			elseif (other_values.bw_timer_id) then
-				new_aura.trigger.id = ""
-				new_aura.trigger.use_id = false
-				new_aura.trigger.spellId_operator = "=="
-				new_aura.trigger.use_spellId = true
-				new_aura.trigger.spellId = tostring (other_values.bw_timer_id)
-				new_aura.trigger.event = "BigWigs Timer"
-			end
-
 			--> size
 			if (aura_type == "icon") then
 				new_aura.width = icon_size
@@ -1340,6 +1397,62 @@
 				new_aura.height = 38
 			elseif (aura_type == "text") then
 				new_aura.fontSize = min (icon_size, 72)
+			end
+			
+			--> trigger
+			if (aura_type == "text") then
+				local init_start = [[
+					aura_env.ability_text = "@text"
+					aura_env.remaining_trigger = @countdown
+				]]
+
+				init_start = init_start:gsub ("@text", icon_text)
+				init_start = init_start:gsub ("@countdown", floor (stacksize))
+				new_aura.trigger.remaining = tostring (floor (stacksize))
+				
+				new_aura.actions.init.custom = init_start
+
+				if (other_values.dbm_timer_id) then
+					new_aura.trigger.event = "DBM Timer"
+					local timerId = tostring (other_values.dbm_timer_id)
+					if (timerId:find ("%s")) then
+						new_aura.trigger.id = ""
+						new_aura.trigger.use_id = false
+						new_aura.trigger.spellId_operator = "=="
+						new_aura.trigger.use_spellId = true
+						new_aura.trigger.spellId = tostring (other_values.spellid)
+					else
+						new_aura.trigger.id = timerId
+					end
+				elseif (other_values.bw_timer_id) then
+					new_aura.trigger.id = ""
+					new_aura.trigger.use_id = false
+					new_aura.trigger.spellId_operator = "=="
+					new_aura.trigger.use_spellId = true
+					new_aura.trigger.spellId = tostring (other_values.bw_timer_id)
+					new_aura.trigger.event = "BigWigs Timer"
+				end
+				
+			elseif (aura_type == "aurabar" or aura_type == "icon") then
+				local trigger = new_aura.additional_triggers[1].trigger
+				
+				local init_start = [[
+					aura_env.reimaningTime = @countdown
+				]]
+				init_start = init_start:gsub ("@countdown", floor (stacksize))
+				new_aura.actions.init.custom = init_start
+				
+				if (other_values.dbm_timer_id) then
+					trigger.event = "DBM Timer"
+					trigger.spellId = tostring (other_values.spellid)
+					trigger.remaining = tostring (floor (stacksize))
+					
+				elseif (other_values.bw_timer_id) then
+					trigger.event = "BigWigs Timer"
+					trigger.spellId = tostring (other_values.bw_timer_id)
+					trigger.remaining = tostring (floor (stacksize))
+					trigger.spellId_operator = "=="
+				end
 			end
 			
 		else

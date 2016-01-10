@@ -1235,7 +1235,7 @@
 		end
 		function _detalhes:CheckFor_SuppressedWindowsOnEncounterFound()
 			for _, instance in _detalhes:ListInstances() do
-				if (instance.ativa and instance.baseframe and instance.last_interaction > _tempo and instance.segmento == 0) then
+				if (instance.ativa and instance.baseframe and (not instance.last_interaction or instance.last_interaction > _tempo) and instance.segmento == 0) then
 					_detalhes:TrocaSegmentoAtual (instance, true)
 				end
 			end

@@ -386,6 +386,9 @@
 			novo_objeto.nome = nome
 			novo_objeto.flag_original = flag
 			novo_objeto.serial = serial
+			
+			--> seta a classe default para desconhecido, assim nenhum objeto fica com classe nil
+			novo_objeto.classe = "UNKNOW"
 
 		-- tipo do container
 	------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------	
