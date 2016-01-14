@@ -1322,6 +1322,8 @@
 			GameCooltip:SetOption ("RightBorderSize", 8)
 			GameCooltip:SetOption ("ButtonsYMod", 4)
 			
+			GameCooltip:SetOption ("RightTextMargin", 0)
+			
 			GameCooltip:SetOption ("MinWidth", _math_max (230, self.baseframe:GetWidth()*0.9))
 			GameCooltip:SetOption ("StatusBarTexture", [[Interface\AddOns\Details\images\bar_background]])
 

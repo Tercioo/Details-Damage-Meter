@@ -67,6 +67,7 @@ function DF:CreateCoolTip()
 
 	--options table
 		CoolTip.OptionsList = {
+			["RightTextMargin"] = true,
 			["IconSize"] = true,
 			["HeightAnchorMod"] = true,
 			["WidthAnchorMod"] = true,
@@ -651,6 +652,8 @@ function DF:CreateCoolTip()
 			menuButton.leftText:SetHeight (0)
 			menuButton.rightText:SetWidth (0)
 			menuButton.rightText:SetHeight (0)
+
+			menuButton.rightText:SetPoint ("right", menuButton.rightIcon, "left", CoolTip.OptionsTable.RightTextMargin or -3, 0)
 
 			--> set text
 			if (leftTextTable) then
