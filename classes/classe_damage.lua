@@ -379,6 +379,8 @@
 			
 			pets = {},
 			
+			raid_targets = {},
+			
 			friendlyfire_total = 0,
 			friendlyfire = {},
 

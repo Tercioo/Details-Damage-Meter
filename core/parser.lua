@@ -107,6 +107,17 @@
 	local ENVIRONMENTAL_LAVA_NAME = Loc ["STRING_ENVIRONMENTAL_LAVA"]
 	local ENVIRONMENTAL_SLIME_NAME = Loc ["STRING_ENVIRONMENTAL_SLIME"]
 	
+	local RAID_TARGET_FLAGS = {
+		[128] = true, --0x80 skull
+		[64] = true, --0x40 cross
+		[32] = true, --0x20 square
+		[16] = true, --0x10 moon
+		[8] = true, --0x8 triangle
+		[4] = true, --0x4 diamond
+		[2] = true, --0x2 circle
+		[1] = true, --0x1 star
+	}
+	
 	--> recording data options flags
 		local _recording_self_buffs = false
 		local _recording_ability_with_buffs = false
@@ -127,6 +138,7 @@
 		local _hook_battleress_container = _detalhes.hooks ["HOOK_BATTLERESS"]
 		local _hook_interrupt_container = _detalhes.hooks ["HOOK_INTERRUPT"]
 
+		
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> internal functions
 
@@ -134,27 +146,26 @@
 	--> DAMAGE 	serach key: ~damage											|
 -----------------------------------------------------------------------------------------------------------------------------------------
 
-	function parser:swing (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand, multistrike)
-		return parser:spell_dmg (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, 1, "Corpo-a-Corpo", 00000001, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand, multistrike) --> localize-me
+	function parser:swing (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand, multistrike)
+		return parser:spell_dmg (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, 1, "Corpo-a-Corpo", 00000001, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand, multistrike) --> localize-me
 																		--spellid, spellname, spelltype
 	end
 
-	function parser:range (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand, multistrike)
-		return parser:spell_dmg (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, 2, "Tiro-Automático", 00000001, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand, multistrike)  --> localize-me
+	function parser:range (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand, multistrike)
+		return parser:spell_dmg (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, 2, "Tiro-Automático", 00000001, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand, multistrike)  --> localize-me
 																		--spellid, spellname, spelltype
 	end
 
 --	/run local f=CreateFrame("frame");f:RegisterAllEvents();f:SetScript("OnEvent", function(self, ...)print (...);end)
 --	/run local f=CreateFrame("frame");f:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED");f:SetScript("OnEvent", function(self, ...) print (...) end)
---	/run local f=CreateFrame("frame");f:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED");f:SetScript("OnEvent", function(self, ...) print (...) end)
-
+--	/run local f=CreateFrame("frame");f:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED");f:SetScript("OnE
 	
 --	/run local f=CreateFrame("frame");f:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED");f:SetScript("OnEvent", function(self, ...)print (...);end)
 --	/run local f=CreateFrame("frame");f:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED");f:SetScript("OnEvent",function(self, ...) local a = select(6, ...);if (a=="<chr name>")then print (...) end end)
 
 --	/run local f=CreateFrame("frame");f:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED");f:SetScript("OnEvent",function(self, ...) local a = select(3, ...);print (a);if (a=="SPELL_CAST_SUCCESS")then print (...) end end)
 	
-	function parser:spell_dmg (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand, multistrike)
+	function parser:spell_dmg (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand, multistrike)
 
 	------------------------------------------------------------------------------------------------
 	--> early checks and fixes
@@ -549,14 +560,24 @@
 			meu_dono.targets [alvo_name] = (meu_dono.targets [alvo_name] or 0) + amount
 
 			meu_dono.last_event = _tempo
+			
+			if (RAID_TARGET_FLAGS [alvo_flags2]) then
+				--> add the amount done for the owner
+				meu_dono.raid_targets [alvo_flags2] = (meu_dono.raid_targets [alvo_flags2] or 0) + amount
+			end
 		end
-
+		
+		--> raid targets
+		if (RAID_TARGET_FLAGS [alvo_flags2]) then
+			este_jogador.raid_targets [alvo_flags2] = (este_jogador.raid_targets [alvo_flags2] or 0) + amount
+		end
+		
 		--> actor
 		este_jogador.total = este_jogador.total + amount
 		
 		--> actor without pets
 		este_jogador.total_without_pet = este_jogador.total_without_pet + amount
-
+		
 		--> actor targets
 		este_jogador.targets [alvo_name] = (este_jogador.targets [alvo_name] or 0) + amount
 		
@@ -680,16 +701,16 @@
 	end
 	
 	--function parser:swingmissed (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, missType, isOffHand, amountMissed)
-	function parser:swingmissed (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, missType, isOffHand, multistrike, amountMissed) --, isOffHand, multistrike, amountMissed, arg1
-		return parser:missed (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, 1, "Corpo-a-Corpo", 00000001, missType, isOffHand, multistrike, amountMissed) --, isOffHand, multistrike, amountMissed, arg1
+	function parser:swingmissed (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, missType, isOffHand, multistrike, amountMissed) --, isOffHand, multistrike, amountMissed, arg1
+		return parser:missed (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, 1, "Corpo-a-Corpo", 00000001, missType, isOffHand, multistrike, amountMissed) --, isOffHand, multistrike, amountMissed, arg1
 	end
 
-	function parser:rangemissed (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, missType, isOffHand, multistrike, amountMissed) --, isOffHand, multistrike, amountMissed, arg1
-		return parser:missed (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, 2, "Tiro-Automático", 00000001, missType, isOffHand, multistrike, amountMissed) --, isOffHand, multistrike, amountMissed, arg1
+	function parser:rangemissed (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, missType, isOffHand, multistrike, amountMissed) --, isOffHand, multistrike, amountMissed, arg1
+		return parser:missed (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, 2, "Tiro-Automático", 00000001, missType, isOffHand, multistrike, amountMissed) --, isOffHand, multistrike, amountMissed, arg1
 	end
 
 	-- ~miss
-	function parser:missed (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, missType, isOffHand, multistrike, amountMissed, arg1)
+	function parser:missed (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, missType, isOffHand, multistrike, amountMissed, arg1)
 
 	------------------------------------------------------------------------------------------------
 	--> early checks and fixes
@@ -772,13 +793,13 @@
 		if (missType == "ABSORB") then
 		
 			if (token == "SWING_MISSED") then
-				return parser:swing ("SWING_DAMAGE", time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, amountMissed, -1, 1, nil, nil, nil, false, false, false, false, multistrike)
+				return parser:swing ("SWING_DAMAGE", time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, amountMissed, -1, 1, nil, nil, nil, false, false, false, false, multistrike)
 				
 			elseif (token == "RANGE_MISSED") then
-				return parser:range ("RANGE_DAMAGE", time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amountMissed, -1, 1, nil, nil, nil, false, false, false, false, multistrike)
+				return parser:range ("RANGE_DAMAGE", time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, amountMissed, -1, 1, nil, nil, nil, false, false, false, false, multistrike)
 				
 			else
-				return parser:spell_dmg (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amountMissed, -1, 1, nil, nil, nil, false, false, false, false, multistrike)
+				return parser:spell_dmg (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, amountMissed, -1, 1, nil, nil, nil, false, false, false, false, multistrike)
 				
 			end
 		
@@ -801,7 +822,7 @@
 -----------------------------------------------------------------------------------------------------------------------------------------
 	--> SUMMON 	serach key: ~summon										|
 -----------------------------------------------------------------------------------------------------------------------------------------
-	function parser:summon (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellName)
+	function parser:summon (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellName)
 	
 		--[[statistics]]-- _detalhes.statistics.pets_summons = _detalhes.statistics.pets_summons + 1
 
@@ -872,7 +893,7 @@
 		[152118] = true, --Clarity of Will
 	}
 	
-	function parser:heal_absorb (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spellschool, owner_serial, owner_name, owner_flags, owner_flags2, shieldid, shieldname, shieldtype, amount)
+	function parser:heal_absorb (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spellschool, owner_serial, owner_name, owner_flags, owner_flags2, shieldid, shieldname, shieldtype, amount)
 		
 		--[[statistics]]-- _detalhes.statistics.absorbs_calls = _detalhes.statistics.absorbs_calls + 1
 		
@@ -910,11 +931,11 @@
 		end
 		
 		--> chamar a função de cura pra contar a cura
-		return parser:heal (token, time, owner_serial, owner_name, owner_flags, alvo_serial, alvo_name, alvo_flags, shieldid, shieldname, shieldtype, amount, 0, 0, nil, nil, true)
+		return parser:heal (token, time, owner_serial, owner_name, owner_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, shieldid, shieldname, shieldtype, amount, 0, 0, nil, nil, true)
 		
 	end
 
-	function parser:heal (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amount, overhealing, absorbed, critical, multistrike, is_shield)
+	function parser:heal (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, amount, overhealing, absorbed, critical, multistrike, is_shield)
 	
 	------------------------------------------------------------------------------------------------
 	--> early checks and fixes
@@ -1190,7 +1211,7 @@
 	--> BUFFS & DEBUFFS 	serach key: ~buff ~aura ~shield								|
 -----------------------------------------------------------------------------------------------------------------------------------------
 
-	function parser:buff (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spellschool, tipo, amount, arg1, arg2, arg3)
+	function parser:buff (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spellschool, tipo, amount, arg1, arg2, arg3)
 
 	--> not yet well know about unnamed buff casters
 		if (not alvo_name) then
@@ -1220,7 +1241,7 @@
 				if (_recording_buffs_and_debuffs) then
 					if (who_name == alvo_name and raid_members_cache [who_serial] and _in_combat) then
 						--> call record buffs uptime
-						parser:add_buff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, "BUFF_UPTIME_IN")
+						parser:add_buff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, "BUFF_UPTIME_IN")
 					end
 				end
 				
@@ -1242,7 +1263,7 @@
 			--> defensive cooldowns
 				elseif (defensive_cooldown_spell_list [spellid]) then
 					--> usou cooldown
-					return parser:add_defensive_cooldown (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname)
+					return parser:add_defensive_cooldown (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname)
 
 			end
 
@@ -1258,15 +1279,15 @@
 				if (_recording_buffs_and_debuffs) then
 				
 					if (cc_spell_list [spellid]) then
-						parser:add_cc_done (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname)
+						parser:add_cc_done (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname)
 					end
 				
 					if (raid_members_cache [who_serial]) then
 						--> call record debuffs uptime
-						parser:add_debuff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, "DEBUFF_UPTIME_IN")
+						parser:add_debuff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, "DEBUFF_UPTIME_IN")
 	
 					elseif (raid_members_cache [alvo_serial] and not raid_members_cache [who_serial]) then --> alvo é da raide e who é alguem de fora da raide
-						parser:add_bad_debuff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spellschool, "DEBUFF_UPTIME_IN")
+						parser:add_bad_debuff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spellschool, "DEBUFF_UPTIME_IN")
 					end
 				end
 			
@@ -1338,7 +1359,7 @@
 	end
 	
 	-- ~crowd control ~ccdone
-	function parser:add_cc_done (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname)
+	function parser:add_cc_done (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname)
 	
 	------------------------------------------------------------------------------------------------
 	--> early checks and fixes
@@ -1424,7 +1445,7 @@
 		end
 	end
 
-	function parser:buff_refresh (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spellschool, tipo, amount)
+	function parser:buff_refresh (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spellschool, tipo, amount)
 
 	------------------------------------------------------------------------------------------------
 	--> handle shields
@@ -1436,7 +1457,7 @@
 				if (_recording_buffs_and_debuffs) then
 					if (who_name == alvo_name and raid_members_cache [who_serial] and _in_combat) then
 						--> call record buffs uptime
-						parser:add_buff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, "BUFF_UPTIME_REFRESH")
+						parser:add_buff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, "BUFF_UPTIME_REFRESH")
 					end
 				end
 		
@@ -1456,7 +1477,7 @@
 						escudo [alvo_name][spellid][who_name] = amount
 						
 						if (overheal > 0) then
-							return parser:heal (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, nil, 0, _math_ceil (overheal), 0, 0, nil, true)
+							return parser:heal (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, nil, 0, _math_ceil (overheal), 0, 0, nil, true)
 						end
 					
 						--local absorb = escudo [alvo_name][spellid][who_name] - amount
@@ -1474,7 +1495,7 @@
 			--> defensive cooldowns
 				elseif (defensive_cooldown_spell_list [spellid]) then
 					--> usou cooldown
-					return parser:add_defensive_cooldown (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname)
+					return parser:add_defensive_cooldown (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname)
 					
 			------------------------------------------------------------------------------------------------
 			--> recording buffs
@@ -1502,9 +1523,9 @@
 				if (_recording_buffs_and_debuffs) then
 					if (raid_members_cache [who_serial]) then
 						--> call record debuffs uptime
-						parser:add_debuff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, "DEBUFF_UPTIME_REFRESH")
+						parser:add_debuff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, "DEBUFF_UPTIME_REFRESH")
 					elseif (raid_members_cache [alvo_serial] and not raid_members_cache [who_serial]) then --> alvo é da raide e o caster é inimigo
-						parser:add_bad_debuff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spellschool, "DEBUFF_UPTIME_REFRESH")
+						parser:add_bad_debuff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spellschool, "DEBUFF_UPTIME_REFRESH")
 					end
 				end
 		
@@ -1560,7 +1581,7 @@
 		end
 	end
 
-	function parser:unbuff (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spellschool, tipo, amount)
+	function parser:unbuff (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spellschool, tipo, amount)
 
 	------------------------------------------------------------------------------------------------
 	--> handle shields
@@ -1572,7 +1593,7 @@
 				if (_recording_buffs_and_debuffs) then
 					if (who_name == alvo_name and raid_members_cache [who_serial] and _in_combat) then
 						--> call record buffs uptime
-						parser:add_buff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, "BUFF_UPTIME_OUT")
+						parser:add_buff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, "BUFF_UPTIME_OUT")
 					end
 				end
 				
@@ -1591,7 +1612,7 @@
 							escudo [alvo_name][spellid][who_name] = 0
 
 							if (overheal and overheal > 0) then
-								return parser:heal (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, nil, 0, _math_ceil (overheal), 0, 0, nil, true)
+								return parser:heal (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, nil, 0, _math_ceil (overheal), 0, 0, nil, true)
 							else
 								return
 							end
@@ -1634,9 +1655,9 @@
 				if (_recording_buffs_and_debuffs) then
 					if (raid_members_cache [who_serial]) then
 						--> call record debuffs uptime
-						parser:add_debuff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, "DEBUFF_UPTIME_OUT")
+						parser:add_debuff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, "DEBUFF_UPTIME_OUT")
 					elseif (raid_members_cache [alvo_serial] and not raid_members_cache [who_serial]) then --> alvo é da raide e o caster é inimigo
-						parser:add_bad_debuff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spellschool, "DEBUFF_UPTIME_OUT")
+						parser:add_bad_debuff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spellschool, "DEBUFF_UPTIME_OUT")
 					end
 				end
 			
@@ -1681,7 +1702,7 @@
 	--> MISC 	search key: ~buffuptime ~buffsuptime									|
 -----------------------------------------------------------------------------------------------------------------------------------------
 
-	function parser:add_bad_debuff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spellschool, in_out)
+	function parser:add_bad_debuff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spellschool, in_out)
 		
 		if (not alvo_name) then
 			--> no target name, just quit
@@ -1761,7 +1782,7 @@
 	end
 
 	-- ~debuff
-	function parser:add_debuff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, in_out)
+	function parser:add_debuff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, in_out)
 	------------------------------------------------------------------------------------------------
 	--> early checks and fixes
 		
@@ -1799,7 +1820,7 @@
 		
 	end
 
-	function parser:add_buff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, in_out)
+	function parser:add_buff_uptime (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, in_out)
 	
 	------------------------------------------------------------------------------------------------
 	--> early checks and fixes
@@ -1890,7 +1911,7 @@
 		[SPELL_POWER_BURNING_EMBERS] = {file = [[Interface\PLAYERFRAME\Warlock-DestructionUI]], coords = {3/256, 33/256, 23/64, 52/64}}
 		}
 
-	function parser:energize (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amount, powertype, p6, p7)
+	function parser:energize (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, amount, powertype, p6, p7)
 
 	------------------------------------------------------------------------------------------------
 	--> early checks and fixes
@@ -2003,7 +2024,7 @@
 	--> MISC 	search key: ~cooldown											|
 -----------------------------------------------------------------------------------------------------------------------------------------
 
-	function parser:add_defensive_cooldown (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname)
+	function parser:add_defensive_cooldown (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname)
 	
 	------------------------------------------------------------------------------------------------
 	--> early checks and fixes
@@ -2106,7 +2127,7 @@
 
 	
 	--serach key: ~interrupt
-	function parser:interrupt (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, extraSpellID, extraSpellName, extraSchool)
+	function parser:interrupt (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, extraSpellID, extraSpellName, extraSchool)
 
 	------------------------------------------------------------------------------------------------
 	--> early checks and fixes
@@ -2210,7 +2231,7 @@
 	end
 	
 	--> search key: ~spellcast ~castspell ~cast
-	function parser:spellcast (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype)
+	function parser:spellcast (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype)
 		
 	------------------------------------------------------------------------------------------------
 	--> early checks and fixes
@@ -2260,7 +2281,7 @@
 						alvo_name = Loc ["STRING_RAID_WIDE"]
 					end
 				end
-				return parser:add_defensive_cooldown (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname)
+				return parser:add_defensive_cooldown (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname)
 			end
 			
 		else
@@ -2284,7 +2305,7 @@
 
 	
 	--serach key: ~dispell
-	function parser:dispell (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, extraSpellID, extraSpellName, extraSchool, auraType)
+	function parser:dispell (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, extraSpellID, extraSpellName, extraSchool, auraType)
 		
 	------------------------------------------------------------------------------------------------
 	--> early checks and fixes
@@ -2373,7 +2394,7 @@
 	end
 
 	--serach key: ~ress
-	function parser:ress (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname)
+	function parser:ress (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname)
 
 	------------------------------------------------------------------------------------------------
 	--> early checks and fixes
@@ -2469,7 +2490,7 @@
 	end
 
 	--serach key: ~cc
-	function parser:break_cc (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, extraSpellID, extraSpellName, extraSchool, auraType)
+	function parser:break_cc (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, extraSpellID, extraSpellName, extraSchool, auraType)
 
 	------------------------------------------------------------------------------------------------
 	--> early checks and fixes
@@ -2682,7 +2703,7 @@
 		end
 	end
 
-	function parser:environment (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, env_type, amount)
+	function parser:environment (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, env_type, amount)
 	
 		local spelid
 	
@@ -2706,7 +2727,7 @@
 			spelid = 8
 		end
 	
-		return parser:spell_dmg (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spelid or 1, env_type, 00000003, amount, -1, 1) --> localize-me
+		return parser:spell_dmg (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spelid or 1, env_type, 00000003, amount, -1, 1) --> localize-me
 	end
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -3662,6 +3683,9 @@
 	--> end
 	
 	-- ~parserstart ~startparser
+	
+	
+	
 	function _detalhes:OnParserEvent (evento, time, token, hidding, who_serial, who_name, who_flags, who_flags2, alvo_serial, alvo_name, alvo_flags, alvo_flags2, ...)
 		local funcao = token_list [token]
 
@@ -3669,7 +3693,7 @@
 			--if (token ~= "SPELL_AURA_REFRESH" and token ~= "SPELL_AURA_REMOVED" and token ~= "SPELL_AURA_APPLIED") then
 			--	print ("running func:", token)
 			--end
-			return funcao (nil, token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, ... )
+			return funcao (nil, token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, ...)
 		else
 			return
 		end
@@ -4034,7 +4058,7 @@
 					damageDone = damageDone + _detalhes:GetOrderNumber()
 				end
 				actor.total = damageDone
-				actor.classe = classToken
+				actor.classe = classToken or "UNKNOW"
 				
 			elseif (name ~= "Unknown") then
 				local guid = _UnitGUID (name)
@@ -4047,7 +4071,7 @@
 					end
 					actor = _current_damage_container:PegarCombatente (guid, name, flag, true)
 					actor.total = _detalhes:GetOrderNumber()
-					actor.classe = classToken
+					actor.classe = classToken or "UNKNOW"
 				end
 			end
 			
@@ -4057,7 +4081,7 @@
 					healingDone = healingDone + _detalhes:GetOrderNumber()
 				end
 				actor.total = healingDone
-				actor.classe = classToken
+				actor.classe = classToken or "UNKNOW"
 				
 			elseif (name ~= "Unknown") then
 				local guid = _UnitGUID (name)
@@ -4070,7 +4094,7 @@
 					end
 					actor = _current_heal_container:PegarCombatente (guid, name, flag, true)
 					actor.total = _detalhes:GetOrderNumber()
-					actor.classe = classToken
+					actor.classe = classToken or "UNKNOW"
 				end
 			end
 			

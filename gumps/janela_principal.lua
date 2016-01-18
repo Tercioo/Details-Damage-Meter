@@ -5782,6 +5782,8 @@ local build_segment_list = function (self, elapsed)
 	local instancia = parameters_table [1]
 	parameters_table[2] = parameters_table[2] + elapsed
 	
+	local battleground_color = {1, 0.666, 0, 1}
+	
 	if (parameters_table[2] > 0.15) then
 		self:SetScript ("OnUpdate", nil)
 	
@@ -5886,7 +5888,7 @@ local build_segment_list = function (self, elapsed)
 						end
 					
 					elseif (thisCombat.is_pvp) then
-						CoolTip:AddLine (thisCombat.is_pvp.name, _, 1, "yellow")
+						CoolTip:AddLine (thisCombat.is_pvp.name, _, 1, battleground_color)
 						enemy = thisCombat.is_pvp.name
 						CoolTip:AddIcon ([[Interface\AddOns\Details\images\icons]], "main", "left", 16, 12, 0.251953125, 0.306640625, 0.205078125, 0.248046875)
 						

@@ -2130,6 +2130,230 @@
 			end
 		end		
 		
+		----------------------------------------------------------------------------------------------------------------------------------------------------
+		
+		local DamageOnSkullTarget = {
+			name = Loc ["STRING_CUSTOM_DAMAGEONSKULL"],
+			icon = [[Interface\TARGETINGFRAME\UI-RaidTargetingIcon_8]],
+			attribute = false,
+			spellid = false,
+			author = "Details!",
+			desc = Loc ["STRING_CUSTOM_DAMAGEONSKULL_DESC"],
+			source = false,
+			target = false,
+			script_version = 2,
+			script = [[
+				--get the parameters passed
+				local Combat, CustomContainer, Instance = ...
+				--declade the values to return
+				local total, top, amount = 0, 0, 0
+				
+				--raid target flags: 
+				-- 128: skull 
+				-- 64: cross
+				-- 32: square
+				-- 16: moon
+				-- 8: triangle
+				-- 4: diamond
+				-- 2: circle
+				-- 1: star
+				
+				--do the loop
+				for _, actor in ipairs (Combat:GetActorList (DETAILS_ATTRIBUTE_DAMAGE)) do
+				    if (actor:IsPlayer()) then
+					if (actor.raid_targets [128]) then
+					    CustomContainer:AddValue (actor, actor.raid_targets [128])
+					end        
+				    end
+				end
+
+				--if not managed inside the loop, get the values of total, top and amount
+				total, top = CustomContainer:GetTotalAndHighestValue()
+				amount = CustomContainer:GetNumActors()
+
+				--return the values
+				return total, top, amount
+			]],
+			tooltip = [[
+				--get the parameters passed
+				local actor, combat, instance = ...
+
+				--get the cooltip object (we dont use the convencional GameTooltip here)
+				local GameCooltip = GameCooltip
+
+				--Cooltip code
+				local format_func = Details:GetCurrentToKFunction()
+
+				--Cooltip code
+				local RaidTargets = actor.raid_targets
+
+				local DamageOnStar = RaidTargets [128]
+				if (DamageOnStar) then
+				    --RAID_TARGET_8 is the built-in localized word for 'Skull'.
+				    GameCooltip:AddLine (RAID_TARGET_8 .. ":", format_func (_, DamageOnStar))
+				    GameCooltip:AddIcon ("Interface\\TARGETINGFRAME\\UI-RaidTargetingIcon_8", 1, 1, 14, 14)
+				    Details:AddTooltipBackgroundStatusbar()
+				end
+			]],
+		}
+		
+--		/run _detalhes:AddDefaultCustomDisplays()
+		
+		local have = false
+		for _, custom in ipairs (self.custom) do
+			if (custom.name == Loc ["STRING_CUSTOM_DAMAGEONSKULL"] and (custom.script_version and custom.script_version >= DamageOnSkullTarget.script_version) ) then
+				have = true
+				break
+			end
+		end
+		if (not have) then
+			setmetatable (DamageOnSkullTarget, _detalhes.atributo_custom)
+			DamageOnSkullTarget.__index = _detalhes.atributo_custom
+			
+			for i, custom in ipairs (self.custom) do
+				if (custom.name == Loc ["STRING_CUSTOM_DAMAGEONSKULL"]) then
+					table.remove (self.custom, i)
+					tinsert (self.custom, i, DamageOnSkullTarget)
+					have = true
+				end
+			end
+			if (not have) then
+				self.custom [#self.custom+1] = DamageOnSkullTarget
+			end
+		end	
+		
+		----------------------------------------------------------------------------------------------------------------------------------------------------
+		
+		local DamageOnAnyTarget = {
+			name = Loc ["STRING_CUSTOM_DAMAGEONANYMARKEDTARGET"],
+			icon = [[Interface\TARGETINGFRAME\UI-RaidTargetingIcon_5]],
+			attribute = false,
+			spellid = false,
+			author = "Details!",
+			desc = Loc ["STRING_CUSTOM_DAMAGEONANYMARKEDTARGET_DESC"],
+			source = false,
+			target = false,
+			script_version = 2,
+			script = [[
+				--get the parameters passed
+				local Combat, CustomContainer, Instance = ...
+				--declade the values to return
+				local total, top, amount = 0, 0, 0
+
+				--do the loop
+				for _, actor in ipairs (Combat:GetActorList (DETAILS_ATTRIBUTE_DAMAGE)) do
+				    if (actor:IsPlayer()) then
+					local total = (actor.raid_targets [1] or 0) --star
+					total = total + (actor.raid_targets [2] or 0) --circle
+					total = total + (actor.raid_targets [4] or 0) --diamond
+					total = total + (actor.raid_targets [8] or 0) --tiangle
+					total = total + (actor.raid_targets [16] or 0) --moon
+					total = total + (actor.raid_targets [32] or 0) --square
+					total = total + (actor.raid_targets [64] or 0) --cross
+					
+					if (total > 0) then
+					    CustomContainer:AddValue (actor, total)
+					end
+				    end
+				end
+
+				--if not managed inside the loop, get the values of total, top and amount
+				total, top = CustomContainer:GetTotalAndHighestValue()
+				amount = CustomContainer:GetNumActors()
+
+				--return the values
+				return total, top, amount
+			]],
+			tooltip = [[
+				--get the parameters passed
+				local actor, combat, instance = ...
+
+				--get the cooltip object
+				local GameCooltip = GameCooltip
+
+				local format_func = Details:GetCurrentToKFunction()
+
+				--Cooltip code
+				local RaidTargets = actor.raid_targets
+
+				local DamageOnStar = RaidTargets [1]
+				if (DamageOnStar) then
+				    GameCooltip:AddLine (RAID_TARGET_1 .. ":", format_func (_, DamageOnStar))
+				    GameCooltip:AddIcon ("Interface\\TARGETINGFRAME\\UI-RaidTargetingIcon_1", 1, 1, 14, 14)
+				    Details:AddTooltipBackgroundStatusbar()
+				end
+
+				local DamageOnCircle = RaidTargets [2]
+				if (DamageOnCircle) then
+				    GameCooltip:AddLine (RAID_TARGET_2 .. ":", format_func (_, DamageOnCircle))
+				    GameCooltip:AddIcon ("Interface\\TARGETINGFRAME\\UI-RaidTargetingIcon_2", 1, 1, 14, 14)
+				    Details:AddTooltipBackgroundStatusbar()
+				end
+
+				local DamageOnDiamond = RaidTargets [4]
+				if (DamageOnDiamond) then
+				    GameCooltip:AddLine (RAID_TARGET_3 .. ":", format_func (_, DamageOnDiamond))
+				    GameCooltip:AddIcon ("Interface\\TARGETINGFRAME\\UI-RaidTargetingIcon_3", 1, 1, 14, 14)
+				    Details:AddTooltipBackgroundStatusbar()
+				end
+
+				local DamageOnTriangle = RaidTargets [8]
+				if (DamageOnTriangle) then
+				    GameCooltip:AddLine (RAID_TARGET_4 .. ":", format_func (_, DamageOnTriangle))
+				    GameCooltip:AddIcon ("Interface\\TARGETINGFRAME\\UI-RaidTargetingIcon_4", 1, 1, 14, 14)
+				    Details:AddTooltipBackgroundStatusbar()
+				end
+
+				local DamageOnMoon = RaidTargets [16]
+				if (DamageOnMoon) then
+				    GameCooltip:AddLine (RAID_TARGET_5 .. ":", format_func (_, DamageOnMoon))
+				    GameCooltip:AddIcon ("Interface\\TARGETINGFRAME\\UI-RaidTargetingIcon_5", 1, 1, 14, 14)
+				    Details:AddTooltipBackgroundStatusbar()
+				end
+
+				local DamageOnSquare = RaidTargets [32]
+				if (DamageOnSquare) then
+				    GameCooltip:AddLine (RAID_TARGET_6 .. ":", format_func (_, DamageOnSquare))
+				    GameCooltip:AddIcon ("Interface\\TARGETINGFRAME\\UI-RaidTargetingIcon_6", 1, 1, 14, 14)
+				    Details:AddTooltipBackgroundStatusbar()
+				end
+
+				local DamageOnCross = RaidTargets [64]
+				if (DamageOnCross) then
+				    GameCooltip:AddLine (RAID_TARGET_7 .. ":", format_func (_, DamageOnCross))
+				    GameCooltip:AddIcon ("Interface\\TARGETINGFRAME\\UI-RaidTargetingIcon_7", 1, 1, 14, 14)
+				    Details:AddTooltipBackgroundStatusbar()
+				end
+			]],
+		}
+		
+--		/run _detalhes:AddDefaultCustomDisplays()
+		
+		local have = false
+		for _, custom in ipairs (self.custom) do
+			if (custom.name == Loc ["STRING_CUSTOM_DAMAGEONANYMARKEDTARGET"] and (custom.script_version and custom.script_version >= DamageOnAnyTarget.script_version) ) then
+				have = true
+				break
+			end
+		end
+		if (not have) then
+			setmetatable (DamageOnAnyTarget, _detalhes.atributo_custom)
+			DamageOnAnyTarget.__index = _detalhes.atributo_custom
+			
+			for i, custom in ipairs (self.custom) do
+				if (custom.name == Loc ["STRING_CUSTOM_DAMAGEONANYMARKEDTARGET"]) then
+					table.remove (self.custom, i)
+					tinsert (self.custom, i, DamageOnAnyTarget)
+					have = true
+				end
+			end
+			if (not have) then
+				self.custom [#self.custom+1] = DamageOnAnyTarget
+			end
+		end	
+		
+		----------------------------------------------------------------------------------------------------------------------------------------------------
+		
 		_detalhes:ResetCustomFunctionsCache()
 		
 	end
