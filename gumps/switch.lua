@@ -877,13 +877,24 @@ function _detalhes.switch:ShowMe (instancia)
 	
 end
 
-function _detalhes.switch:Config (_,_, atributo, sub_atributo)
+-- ~setting
+function _detalhes.switch:Config (_, _, atributo, sub_atributo)
 	if (not sub_atributo) then 
 		return
 	end
-	
-	_detalhes.switch.table [_detalhes.switch.editing_bookmark].atributo = atributo
-	_detalhes.switch.table [_detalhes.switch.editing_bookmark].sub_atributo = sub_atributo
+
+	if (type (atributo) == "string") then
+		--> is a plugin?
+		local plugin = _detalhes:GetPlugin (atributo)
+		if (plugin) then
+			_detalhes.switch.table [_detalhes.switch.editing_bookmark].atributo = "plugin"
+			_detalhes.switch.table [_detalhes.switch.editing_bookmark].sub_atributo = atributo
+		end
+	else
+		--> is a attribute or custom script
+		_detalhes.switch.table [_detalhes.switch.editing_bookmark].atributo = atributo
+		_detalhes.switch.table [_detalhes.switch.editing_bookmark].sub_atributo = sub_atributo
+	end
 	
 	_detalhes.switch.editing_bookmark = nil
 	
@@ -918,7 +929,13 @@ end
 end
 
 function _detalhes:FastSwitch (button, bookmark, bookmark_number, select_new)
-	if (select_new or not bookmark.atributo) then
+
+	local UnknownPlugin = bookmark.atributo == "plugin" and not _detalhes:GetPlugin (bookmark.sub_atributo)
+
+	if (select_new or not bookmark.atributo or UnknownPlugin) then
+	
+		--> monta o menu para escolher qual atributo colocar ~select
+	
 		GameCooltip:Reset()
 		GameCooltip:SetType (3)
 		GameCooltip:SetFixedParameter (_detalhes.switch.current_instancia)
@@ -928,6 +945,45 @@ function _detalhes:FastSwitch (button, bookmark, bookmark_number, select_new)
 		_detalhes.switch.editing_bookmark = bookmark_number
 		
 		_detalhes:MontaAtributosOption (_detalhes.switch.current_instancia, _detalhes.switch.Config)
+		
+			--> build raid plugins list
+			GameCooltip:AddLine (Loc ["STRING_MODE_RAID"])
+			GameCooltip:AddMenu (1, function() end, 4, true)
+			GameCooltip:AddIcon ([[Interface\AddOns\Details\images\modo_icones]], 1, 1, 20, 20, 32/256*3, 32/256*4, 0, 1)
+			
+			local available_plugins = _detalhes.RaidTables:GetAvailablePlugins()
+
+			if (#available_plugins >= 0) then
+				local amt = 0
+				
+				for index, ptable in ipairs (available_plugins) do
+					if (ptable [3].__enabled) then
+						GameCooltip:AddMenu (2, _detalhes.switch.Config, _detalhes.switch.current_instancia, ptable [4], true, ptable [1], ptable [2], true) --PluginName, PluginIcon, PluginObject, PluginAbsoluteName
+						amt = amt + 1
+					end
+				end
+				
+				GameCooltip:SetWallpaper (2, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
+				
+				if (amt <= 3) then
+					GameCooltip:SetOption ("SubFollowButton", true)
+				end
+			end
+
+			--> build self plugins list
+			GameCooltip:AddLine (Loc ["STRING_MODE_SELF"])
+			GameCooltip:AddMenu (1, function() end, 1, true)
+			GameCooltip:AddIcon ([[Interface\AddOns\Details\images\modo_icones]], 1, 1, 20, 20, 0, 32/256, 0, 1)
+
+			if (#_detalhes.SoloTables.Menu > 0) then
+				for index, ptable in ipairs (_detalhes.SoloTables.Menu) do 
+					if (ptable [3].__enabled) then
+						GameCooltip:AddMenu (2, _detalhes.switch.Config, _detalhes.switch.current_instancia, ptable [4], true, ptable [1], ptable [2], true)
+					end
+				end
+				GameCooltip:SetWallpaper (2, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
+			end
+		
 		GameCooltip:SetColor (1, {.1, .1, .1, .3})
 		GameCooltip:SetColor (2, {.1, .1, .1, .3})
 		GameCooltip:SetOption ("HeightAnchorMod", -7)
@@ -955,7 +1011,19 @@ function _detalhes:FastSwitch (button, bookmark, bookmark_number, select_new)
 		_detalhes.switch.current_instancia:AlteraModo (_detalhes.switch.current_instancia, 2)
 	end
 	
-	_detalhes.switch.current_instancia:TrocaTabela (_detalhes.switch.current_instancia, true, bookmark.atributo, bookmark.sub_atributo)
+	if (bookmark.atributo == "plugin") then
+		--> is a plugin, check if is a raid or solo plugin
+		if (_detalhes.RaidTables.NameTable [bookmark.sub_atributo]) then
+			_detalhes.RaidTables:EnableRaidMode (_detalhes.switch.current_instancia, bookmark.sub_atributo)
+		elseif (_detalhes.SoloTables.NameTable [bookmark.sub_atributo]) then
+			_detalhes.SoloTables:EnableSoloMode (_detalhes.switch.current_instancia, bookmark.sub_atributo)
+		else
+			_detalhes:Msg ("Plugin not found.")
+		end
+	else
+		_detalhes.switch.current_instancia:TrocaTabela (_detalhes.switch.current_instancia, true, bookmark.atributo, bookmark.sub_atributo)
+	end
+
 	_detalhes.switch.CloseMe()
 end
 
@@ -1049,6 +1117,21 @@ function _detalhes.switch:Update()
 					coords = default_coords
 					name = CustomObject.name
 					vcolor = vertex_color_default
+				end
+				
+			elseif (options.atributo == "plugin") then --> plugin
+				local plugin = _detalhes:GetPlugin (options.sub_atributo)
+				if (plugin) then
+					icone =  plugin.__icon
+					coords = default_coords
+					name = plugin.__name
+					vcolor = vertex_color_default
+				else
+					icone = [[Interface\AddOns\Details\images\icons]]
+					coords = add_coords
+					name = Loc ["STRING_SWITCH_CLICKME"]
+					vcolor = vertex_color_unknown
+					add = true
 				end
 			else
 				icone = _detalhes.sub_atributos [options.atributo].icones [options.sub_atributo] [1]
