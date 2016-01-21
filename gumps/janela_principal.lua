@@ -3773,13 +3773,27 @@ function _detalhes:SetBarGrowDirection (direction)
 			local y = height * (index - 1)
 			y = y * -1
 			row:ClearAllPoints()
-			row:SetPoint ("topleft", baseframe, "topleft", x, y)
+			
+			if (self.toolbar_side == 1) then 
+				--> if titlebar is attached to the top side, don't add any midifiers
+				row:SetPoint ("topleft", baseframe, "topleft", x, y)
+			else
+				--> if the titlebar is on the bottom side, remove the gap between the baseframe and the titlebar
+				row:SetPoint ("topleft", baseframe, "topleft", x, y - 1)
+			end
 		end
+		
 	elseif (direction == 2) then --> bottom to top
 		for index, row in _ipairs (bars) do
 			local y = height * (index - 1)
 			row:ClearAllPoints()
-			row:SetPoint ("bottomleft", baseframe, "bottomleft", x, y + 2)
+			if (self.toolbar_side == 1) then 
+				--> if the titlebar is attached to the top side, we want to align bars a little above
+				row:SetPoint ("bottomleft", baseframe, "bottomleft", x, y + 2)
+			else
+				--> the titlebar is on the bottom side, align bars on the bottom
+				row:SetPoint ("bottomleft", baseframe, "bottomleft", x, y + 0)
+			end
 		end
 	end
 	
@@ -7212,6 +7226,8 @@ function _detalhes:ToolbarSide (side)
 	
 	self:AttributeMenu()
 	
+	--> update the grow direction to update the gap between the titlebar and the baseframe
+	self:SetBarGrowDirection()
 end
 
 function _detalhes:StretchButtonAlwaysOnTop (on_top)
