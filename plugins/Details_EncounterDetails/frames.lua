@@ -102,7 +102,17 @@ do
 				name = "Emote Segments Amount",
 				usedecimals = true,
 			},
-			
+			{
+				type = "range",
+				get = function() return EncounterDetails.db.window_scale end,
+				set = function (self, fixedparam, value) EncounterDetails.db.window_scale = value; EncounterDetails:RefreshScale() end,
+				min = 0.65,
+				max = 1.50,
+				step = 0.1,
+				desc = "Set the window size",
+				name = "Window Scale",
+				usedecimals = true,
+			},
 			
 		}
 		
@@ -116,6 +126,13 @@ do
 		end
 		EncounterDetailsOptionsWindow:Show()
 	end
+	
+	function EncounterDetails:RefreshScale()
+		local scale = EncounterDetails.db.window_scale
+		if (EncounterDetails.Frame) then
+			EncounterDetails.Frame:SetScale (scale)
+		end
+	end	
 	
 	function EncounterDetails:CreateRowTexture (row)
 		row.textura = CreateFrame ("StatusBar", nil, row)

@@ -930,7 +930,7 @@ end
 
 function _detalhes:FastSwitch (button, bookmark, bookmark_number, select_new)
 
-	local UnknownPlugin = bookmark.atributo == "plugin" and not _detalhes:GetPlugin (bookmark.sub_atributo)
+	local UnknownPlugin = bookmark and bookmark.atributo == "plugin" and not _detalhes:GetPlugin (bookmark.sub_atributo)
 
 	if (select_new or not bookmark.atributo or UnknownPlugin) then
 	

@@ -91,6 +91,7 @@ local function CreatePluginFrames (data)
 		--> when main frame is shown on screen
 		elseif (event == "SHOW") then --> plugin hidded, disabled
 			self.open = true
+			EncounterDetails:RefreshScale()
 		
 		--> when details finish his startup and are ready to work
 		elseif (event == "DETAILS_STARTED") then
@@ -1818,6 +1819,7 @@ function EncounterDetails:OnEvent (_, event, ...)
 					opened = 0,
 					encounter_timers_dbm = {},
 					encounter_timers_bw = {},
+					window_scale = 1,
 				}
 
 				--> Install
