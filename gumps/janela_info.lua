@@ -22,6 +22,7 @@ local sub_atributos = _detalhes.sub_atributos
 
 local info = _detalhes.janela_info
 local classe_icones = _G.CLASS_ICON_TCOORDS
+local container3_bars_pointFunc
 
 ------------------------------------------------------------------------------------------------------------------------------
 --self = instancia
@@ -192,13 +193,20 @@ function gump:TrocaBackgroundInfo()
 	info.bg3_sec_texture:Hide()
 	info.bg2_sec_texture:Hide()
 
+	info.apoio_icone_esquerdo:Show()
+	info.apoio_icone_direito:Show()
+	
+	info.report_direita:Hide()
+	
+	for i = 1, 5 do
+		info ["right_background" .. i]:Show()
+	end
+	
 	if (info.atributo == 1) then --> DANO
 	
 		if (info.sub_atributo == 1 or info.sub_atributo == 2) then --> damage done / dps
-			if (info.tipo ~= 1) then --> janela com as divisorias
-				info.bg1_sec_texture:SetTexture (nil)
-				info.tipo = 1
-			end
+			info.bg1_sec_texture:SetTexture (nil)
+			info.tipo = 1
 			
 			if (info.sub_atributo == 2) then
 				info.targets:SetText (Loc ["STRING_TARGETS"] .. " " .. Loc ["STRING_ATTRIBUTE_DAMAGE_DPS"] .. ":")
@@ -208,42 +216,57 @@ function gump:TrocaBackgroundInfo()
 			end
 			
 		elseif (info.sub_atributo == 3) then --> damage taken
-			if (info.tipo ~= 2) then --> janela com fundo diferente
-				info.bg1_sec_texture:SetTexture ([[Interface\AddOns\Details\images\info_window_damagetaken]])
-				info.bg3_sec_texture:Show()
-				info.bg2_sec_texture:Show()
-				info.tipo = 2
+
+			info.bg1_sec_texture:SetTexture ([[Interface\AddOns\Details\images\info_window_damagetaken]])
+			info.bg3_sec_texture:Show()
+			info.bg2_sec_texture:Show()
+			info.tipo = 2
+
+			for i = 1, 5 do
+				info ["right_background" .. i]:Hide()
 			end
 			
 			info.targets:SetText (Loc ["STRING_TARGETS"] .. ":")
 			info.no_targets:Show()
 			info.no_targets.text:Show()
 			
+			info.apoio_icone_esquerdo:Hide()
+			info.apoio_icone_direito:Hide()
+			info.report_direita:Show()
+			
 		elseif (info.sub_atributo == 4) then --> friendly fire
-			if (info.tipo ~= 3) then --> janela com fundo diferente
-				info.bg1_sec_texture:SetTexture ([[Interface\AddOns\Details\images\info_window_damagetaken]])
-				info.bg3_sec_texture:Show()
-				info.bg2_sec_texture:Show()
-				info.tipo = 3
+			info.bg1_sec_texture:SetTexture ([[Interface\AddOns\Details\images\info_window_damagetaken]])
+			info.bg3_sec_texture:Show()
+			info.bg2_sec_texture:Show()
+			info.tipo = 3
+			
+			for i = 1, 5 do
+				info ["right_background" .. i]:Hide()
 			end
+			
 			info.targets:SetText (Loc ["STRING_SPELLS"] .. ":")
 			
+			info.apoio_icone_esquerdo:Hide()
+			info.apoio_icone_direito:Hide()
+			info.report_direita:Show()
+			
 		elseif (info.sub_atributo == 6) then --> enemies
-			if (info.tipo ~= 3) then --> janela com fundo diferente
-				info.bg1_sec_texture:SetTexture ([[Interface\AddOns\Details\images\info_window_damagetaken]])
-				info.bg3_sec_texture:Show()
-				info.bg2_sec_texture:Show()
-				info.tipo = 3
+			info.bg1_sec_texture:SetTexture ([[Interface\AddOns\Details\images\info_window_damagetaken]])
+			info.bg3_sec_texture:Show()
+			info.bg2_sec_texture:Show()
+			info.tipo = 3
+			
+			for i = 1, 5 do
+				info ["right_background" .. i]:Hide()
 			end
+			
 			info.targets:SetText (Loc ["STRING_DAMAGE_TAKEN_FROM"])
 		end
 		
 	elseif (info.atributo == 2) then --> HEALING
 		if (info.sub_atributo == 1 or info.sub_atributo == 2 or info.sub_atributo == 3) then --> damage done / dps
-			if (info.tipo ~= 1) then --> janela com as divisorias
-				info.bg1_sec_texture:SetTexture (nil)
-				info.tipo = 1
-			end
+			info.bg1_sec_texture:SetTexture (nil)
+			info.tipo = 1
 			
 			if (info.sub_atributo == 3) then
 				info.targets:SetText (Loc ["STRING_OVERHEALED"] .. ":")
@@ -257,32 +280,34 @@ function gump:TrocaBackgroundInfo()
 			end
 			
 		elseif (info.sub_atributo == 4) then --> Healing taken
-			if (info.tipo ~= 2) then --> janela com fundo diferente			
-				info.bg1_sec_texture:SetTexture ([[Interface\AddOns\Details\images\info_window_damagetaken]])
-				info.bg3_sec_texture:Show()
-				info.bg2_sec_texture:Show()
-				info.tipo = 2
+			info.bg1_sec_texture:SetTexture ([[Interface\AddOns\Details\images\info_window_damagetaken]])
+			info.bg3_sec_texture:Show()
+			info.bg2_sec_texture:Show()
+			info.tipo = 2
+
+			for i = 1, 5 do
+				info ["right_background" .. i]:Hide()
 			end
 			
 			info.targets:SetText (Loc ["STRING_TARGETS"] .. ":")
 			info.no_targets:Show()
 			info.no_targets.text:Show()
+			
+			info.apoio_icone_esquerdo:Hide()
+			info.apoio_icone_direito:Hide()
+			info.report_direita:Show()
 		end
 		
 	elseif (info.atributo == 3) then --> REGEN
-		if (info.tipo ~= 2) then --> janela com fundo diferente
-			info.bg1_sec_texture:SetTexture (nil)
-			info.tipo = 2
-		end
+		info.bg1_sec_texture:SetTexture (nil)
+		info.tipo = 2
 		info.targets:SetText ("Vindo de:")
 	
 	elseif (info.atributo == 4) then --> MISC
-		if (info.tipo ~= 2) then --> janela com fundo diferente
-			info.bg1_sec_texture:SetTexture (nil)
-			info.tipo = 2
-		end
+		info.bg1_sec_texture:SetTexture (nil)
+		info.tipo = 2
+
 		info.targets:SetText (Loc ["STRING_TARGETS"] .. ":")
-		
 	end
 end
 
@@ -421,13 +446,13 @@ local detalhes_inforeport_onleave = function (self)
 end
 
 function gump:CriaDetalheInfo (index)
-
 	local info = {}
 	
-	info.bg = _CreateFrame ("StatusBar", nil, _detalhes.janela_info.container_detalhes)
+	info.bg = _CreateFrame ("StatusBar", "DetailsPlayerDetailsWindow_DetalheInfoBG" .. index, _detalhes.janela_info.container_detalhes)
 	info.bg:SetStatusBarTexture ("Interface\\AddOns\\Details\\images\\bar_detalhes2")
 	info.bg:SetMinMaxValues (0, 100)
 	info.bg:SetValue (100)
+	info.bg:SetSize (219, 47)
 	
 	info.nome = info.bg:CreateFontString (nil, "OVERLAY", "GameFontNormal")
 	info.nome2 = info.bg:CreateFontString (nil, "OVERLAY", "GameFontHighlightSmall")
@@ -436,10 +461,7 @@ function gump:CriaDetalheInfo (index)
 	info.dano_media = info.bg:CreateFontString (nil, "OVERLAY", "GameFontHighlightSmall")
 	info.dano_dps = info.bg:CreateFontString (nil, "OVERLAY", "GameFontHighlightSmall")
 	
-	info.bg:SetWidth (219)
-	info.bg:SetHeight (47)
-	
-	info.bg.overlay = info.bg:CreateTexture (nil, "ARTWORK")
+	info.bg.overlay = info.bg:CreateTexture ("DetailsPlayerDetailsWindow_DetalheInfoBG_Overlay" .. index, "ARTWORK")
 	info.bg.overlay:SetTexture ("Interface\\AddOns\\Details\\images\\overlay_detalhes")
 	info.bg.overlay:SetWidth (241)
 	info.bg.overlay:SetHeight (61)
@@ -457,7 +479,7 @@ function gump:CriaDetalheInfo (index)
 	info.bg.reportar:SetScript ("OnEnter", detalhes_inforeport_onenter)
 	info.bg.reportar:SetScript ("OnLeave", detalhes_inforeport_onleave)
 
-	info.bg_end = info.bg:CreateTexture (nil, "BACKGROUND")
+	info.bg_end = info.bg:CreateTexture ("DetailsPlayerDetailsWindow_DetalheInfoBG_bg_end" .. index, "BACKGROUND")
 	info.bg_end:SetHeight (47)
 	info.bg_end:SetTexture ("Interface\\AddOns\\Details\\images\\bar_detalhes2_end")
 
@@ -535,7 +557,7 @@ function gump:SetaDetalheInfoTexto (index, p, arg1, arg2, arg3, arg4, arg5, arg6
 		--	info.bg_end:Hide()
 		--else
 			info.bg_end:Show()
-			info.bg_end:SetPoint ("LEFT", info.bg, "LEFT", (info.bg:GetValue()*2.19)-6, 0)
+			info.bg_end:SetPoint ("LEFT", info.bg, "LEFT", (info.bg:GetValue() * (info.bg:GetWidth()/100)) - 6, 0) -- 2.19
 		--end
 		
 		info.bg:Show()
@@ -918,9 +940,6 @@ local default_skin = function()
 	window.container_alvos:SetPoint ("BOTTOMLEFT", window, "BOTTOMLEFT", 20, 6)
 	window.container_alvos:SetSize (300, 100)
 	
-	--info container
-	info:SetDetailInfoConfigs ("Interface\\AddOns\\Details\\images\\bar_detalhes2", {1, 1, 1, 0.5}, 0, 0)
-	
 	--icons
 	window.SetClassIcon = default_icon_change
 	window.apoio_icone_direito:SetBlendMode ("BLEND")
@@ -932,6 +951,60 @@ local default_skin = function()
 	
 	--report button
 	window.topleft_report:SetPoint ("BOTTOMLEFT", window.container_barras, "TOPLEFT",  33, 3)
+
+	--no targets texture
+	window.no_targets:SetPoint ("BOTTOMLEFT", window, "BOTTOMLEFT", 20, 6)
+	window.no_targets:SetSize (301, 100)
+	window.no_targets:SetAlpha (1)
+	
+	--right panel textures
+	window.bg2_sec_texture:SetPoint ("topleft", window.bg1_sec_texture, "topleft", 8, 0)
+	window.bg2_sec_texture:SetPoint ("bottomright", window.bg1_sec_texture, "bottomright", -30, 0)
+	window.bg2_sec_texture:SetTexture ([[Interface\Glues\CREDITS\Warlords\Shadowmoon_Color_jlo3]])
+	window.bg2_sec_texture:SetDesaturated (true)
+	window.bg2_sec_texture:SetAlpha (0.3)
+
+	window.bg3_sec_texture:SetPoint ("topleft", window.bg2_sec_texture, "topleft", 0, 0)
+	window.bg3_sec_texture:SetPoint ("bottomright", window.bg2_sec_texture, "bottomright", 0, 0)
+	window.bg3_sec_texture:SetTexture (0, 0, 0, 1)
+	
+	--the 5 spell details blocks
+	for i, infoblock in ipairs (_detalhes.janela_info.grupos_detalhes) do
+		infoblock.bg:SetSize (219, 47) --219 original
+	end
+	local xLocation = {-85, -136, -191, -246, -301}
+	local heightTable = {43, 48, 48, 48, 48}
+	for i = 1, 5 do
+		window ["right_background" .. i]:SetPoint ("topleft", window, "topleft", 357, xLocation [i]) --357 original
+		window ["right_background" .. i]:SetSize (220, heightTable [i]) --220
+	end
+	--info container
+	info:SetDetailInfoConfigs ("Interface\\AddOns\\Details\\images\\bar_detalhes2", {1, 1, 1, 0.5}, 0, 0)
+
+	window.bg1_sec_texture:SetPoint ("topleft", window.bg1, "topleft", 348, -86)
+	window.bg1_sec_texture:SetHeight (262)
+	window.bg1_sec_texture:SetWidth (264)
+	
+	--container bars 3
+	local x_start = 61
+	local y_start = -10
+	local janela = window.container_detalhes
+	
+	container3_bars_pointFunc = function (barra, index)
+		local y = (index-1) * 17
+		y = y*-1
+		barra:SetPoint ("LEFT", janela, "LEFT", x_start, 0)
+		barra:SetPoint ("RIGHT", janela, "RIGHT", 65, 0)
+		barra:SetPoint ("TOP", janela, "TOP", 0, y+y_start)
+	end
+	
+	for index, barra in ipairs (window.barras3) do
+		local y = (index-1) * 17
+		y = y*-1
+		barra:SetPoint ("LEFT", janela, "LEFT", x_start, 0)
+		barra:SetPoint ("RIGHT", janela, "RIGHT", 65, 0)
+		barra:SetPoint ("TOP", janela, "TOP", 0, y+y_start)
+	end
 
 	--scrollbar
 	window.container_barras.cima:SetNormalTexture ("Interface\\BUTTONS\\UI-ScrollBar-ScrollUpButton-Up")
@@ -1101,12 +1174,66 @@ local elvui_skin = function()
 	--report button
 	window.topleft_report:SetPoint ("BOTTOMLEFT", window.container_barras, "TOPLEFT",  43, 2)
 	
-	--info container
-	info:SetDetailInfoConfigs ("Interface\\AddOns\\Details\\images\\bar_serenity", {1, 1, 1, 0.35}, -1, 0)
-	
 	--icons
 	window.apoio_icone_direito:SetBlendMode ("ADD")
 	window.apoio_icone_esquerdo:SetBlendMode ("ADD")
+	
+	--no targets texture
+	window.no_targets:SetPoint ("BOTTOMLEFT", window, "BOTTOMLEFT", 3, 6)
+	window.no_targets:SetSize (318, 100)
+	window.no_targets:SetAlpha (0.4)
+	
+	--right panel textures
+	window.bg2_sec_texture:SetPoint ("topleft", window.bg1_sec_texture, "topleft", 7, 0)
+	window.bg2_sec_texture:SetPoint ("bottomright", window.bg1_sec_texture, "bottomright", -30, 0)
+	window.bg2_sec_texture:SetTexture ([[Interface\Glues\CREDITS\Warlords\Shadowmoon_Color_jlo3]])
+	window.bg2_sec_texture:SetDesaturated (true)
+	window.bg2_sec_texture:SetAlpha (0)
+	
+	--window.bg2_sec_texture:SetAlpha (0.3)
+
+	window.bg3_sec_texture:SetPoint ("topleft", window.bg2_sec_texture, "topleft", 0, 0)
+	window.bg3_sec_texture:SetPoint ("bottomright", window.bg2_sec_texture, "bottomright", 0, 0)
+	window.bg3_sec_texture:SetTexture (0, 0, 0, 0.3)	
+	
+	--the 5 spell details blocks
+	for i, infoblock in ipairs (_detalhes.janela_info.grupos_detalhes) do
+		infoblock.bg:SetSize (227, 47) --219 original
+	end
+	local xLocation = {-85, -136, -191, -246, -301}
+	local heightTable = {43, 48, 48, 48, 47}
+	for i = 1, 5 do
+		window ["right_background" .. i]:SetPoint ("topleft", window, "topleft", 351, xLocation [i]) --357 original
+		window ["right_background" .. i]:SetSize (230, heightTable [i]) --220
+	end
+	--info container
+	info:SetDetailInfoConfigs ("Interface\\AddOns\\Details\\images\\bar_serenity", {1, 1, 1, 0.35}, -6, 0)
+
+	window.bg1_sec_texture:SetPoint ("topleft", window.bg1, "topleft", 344, -86)
+	window.bg1_sec_texture:SetHeight (262)
+	window.bg1_sec_texture:SetWidth (264)	
+
+	--container 3 bars
+	local x_start = 56
+	local y_start = -10
+
+	local janela = window.container_detalhes
+	
+	container3_bars_pointFunc = function (barra, index)
+		local y = (index-1) * 17
+		y = y*-1
+		barra:SetPoint ("LEFT", janela, "LEFT", x_start, 0)
+		barra:SetPoint ("RIGHT", janela, "RIGHT", 62, 0)
+		barra:SetPoint ("TOP", janela, "TOP", 0, y+y_start)
+	end
+	
+	for index, barra in ipairs (window.barras3) do
+		local y = (index-1) * 17
+		y = y*-1
+		barra:SetPoint ("LEFT", janela, "LEFT", x_start, 0)
+		barra:SetPoint ("RIGHT", janela, "RIGHT", 62, 0)
+		barra:SetPoint ("TOP", janela, "TOP", 0, y+y_start)
+	end
 	
 	--scrollbar
 	window.container_barras.cima:SetNormalTexture ([[Interface\Buttons\Arrow-Up-Up]])
@@ -1265,48 +1392,48 @@ function gump:CriaJanelaInfo()
 	local alpha_bgs = 1
 
 	--
-	local right_background1 = este_gump:CreateTexture (nil, "background")
+	local right_background1 = este_gump:CreateTexture ("DetailsPlayerDetailsWindow_right_background1", "background")
 	right_background1:SetTexture ([[Interface\DialogFrame\UI-DialogBox-Background-Dark]])
 	right_background1:SetPoint ("topleft", este_gump, "topleft", 357, -85)
 	right_background1:SetSize (220, 43)
 	right_background1:SetAlpha (alpha_bgs)
 	este_gump.right_background1 = right_background1
 	
-	local right_background2 = este_gump:CreateTexture (nil, "background")
+	local right_background2 = este_gump:CreateTexture ("DetailsPlayerDetailsWindow_right_background2", "background")
 	right_background2:SetTexture ([[Interface\DialogFrame\UI-DialogBox-Background-Dark]])
 	right_background2:SetPoint ("topleft", este_gump, "topleft", 357, -136)
 	right_background2:SetSize (220, 48)
 	right_background2:SetAlpha (alpha_bgs)
 	este_gump.right_background2 = right_background2
 	
-	local right_background3 = este_gump:CreateTexture (nil, "background")
+	local right_background3 = este_gump:CreateTexture ("DetailsPlayerDetailsWindow_right_background3", "background")
 	right_background3:SetTexture ([[Interface\DialogFrame\UI-DialogBox-Background-Dark]])
 	right_background3:SetPoint ("topleft", este_gump, "topleft", 357, -191)
 	right_background3:SetSize (220, 48)
 	right_background3:SetAlpha (alpha_bgs)
 	este_gump.right_background3 = right_background3
 	
-	local right_background4 = este_gump:CreateTexture (nil, "background")
+	local right_background4 = este_gump:CreateTexture ("DetailsPlayerDetailsWindow_right_background4", "background")
 	right_background4:SetTexture ([[Interface\DialogFrame\UI-DialogBox-Background-Dark]])
 	right_background4:SetPoint ("topleft", este_gump, "topleft", 357, -246)
 	right_background4:SetSize (220, 48)
 	right_background4:SetAlpha (alpha_bgs)
 	este_gump.right_background4 = right_background4
 	
-	local right_background5 = este_gump:CreateTexture (nil, "background")
+	local right_background5 = este_gump:CreateTexture ("DetailsPlayerDetailsWindow_right_background5", "background")
 	right_background5:SetTexture ([[Interface\DialogFrame\UI-DialogBox-Background-Dark]])
 	right_background5:SetPoint ("topleft", este_gump, "topleft", 357, -301)
 	right_background5:SetSize (220, 48)
 	right_background5:SetAlpha (alpha_bgs)
 	este_gump.right_background5 = right_background5
 	--
-	este_gump.bg1_sec_texture = este_gump:CreateTexture (nil, "BORDER")
+	este_gump.bg1_sec_texture = este_gump:CreateTexture ("DetailsPlayerDetailsWindow_BG1_SEC_Texture", "BORDER")
 	este_gump.bg1_sec_texture:SetDrawLayer ("BORDER", 4)
 	este_gump.bg1_sec_texture:SetPoint ("topleft", este_gump.bg1, "topleft", 348, -86)
 	este_gump.bg1_sec_texture:SetHeight (262)
 	este_gump.bg1_sec_texture:SetWidth (264)
 	
-	este_gump.bg2_sec_texture = este_gump:CreateTexture (nil, "BORDER")
+	este_gump.bg2_sec_texture = este_gump:CreateTexture ("DetailsPlayerDetailsWindow_BG2_SEC_Texture", "BORDER")
 	este_gump.bg2_sec_texture:SetDrawLayer ("BORDER", 3)
 	este_gump.bg2_sec_texture:SetPoint ("topleft", este_gump.bg1_sec_texture, "topleft", 8, 0)
 	este_gump.bg2_sec_texture:SetPoint ("bottomright", este_gump.bg1_sec_texture, "bottomright", -30, 0)
@@ -1315,7 +1442,7 @@ function gump:CriaJanelaInfo()
 	este_gump.bg2_sec_texture:SetAlpha (0.3)
 	este_gump.bg2_sec_texture:Hide()
 
-	este_gump.bg3_sec_texture = este_gump:CreateTexture (nil, "BORDER")
+	este_gump.bg3_sec_texture = este_gump:CreateTexture ("DetailsPlayerDetailsWindow_BG3_SEC_Texture", "BORDER")
 	este_gump.bg3_sec_texture:SetDrawLayer ("BORDER", 2)
 	este_gump.bg3_sec_texture:SetPoint ("topleft", este_gump.bg2_sec_texture, "topleft", 0, 0)
 	este_gump.bg3_sec_texture:SetPoint ("bottomright", este_gump.bg2_sec_texture, "bottomright", 0, 0)
@@ -1330,7 +1457,7 @@ function gump:CriaJanelaInfo()
 	este_gump.close_button:SetText ("X")
 	este_gump.close_button:SetFrameLevel (este_gump:GetFrameLevel()+5)
 
-	este_gump.no_targets = este_gump:CreateTexture (nil, "overlay")
+	este_gump.no_targets = este_gump:CreateTexture ("DetailsPlayerDetailsWindow_no_targets", "overlay")
 	este_gump.no_targets:SetPoint ("BOTTOMLEFT", este_gump, "BOTTOMLEFT", 20, 6)
 	este_gump.no_targets:SetSize (301, 100)
 	este_gump.no_targets:SetTexture ([[Interface\QUESTFRAME\UI-QUESTLOG-EMPTY-TOPLEFT]])
@@ -1463,8 +1590,8 @@ function gump:CriaJanelaInfo()
 	--> botão de reportar da caixa da direita, onde estão os 5 quadrados
 	este_gump.report_direita = gump:NewDetailsButton (este_gump, este_gump, nil, _detalhes.Reportar, este_gump, 2, 16, 16,
 	"Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", "Interface\\COMMON\\VOICECHAT-ON", nil, "DetailsJanelaInfoReport4")
-	este_gump.report_direita:SetPoint ("TOPRIGHT", este_gump, "TOPRIGHT",  -8, -57)	
-	este_gump.report_direita:Hide()
+	este_gump.report_direita:SetPoint ("TOPRIGHT", este_gump, "TOPRIGHT",  -10, -70)	
+	este_gump.report_direita:Show()
 	
 	--> apply default skin
 	_detalhes:ApplyPDWSkin()
@@ -3942,18 +4069,18 @@ function _detalhes.janela_info:monta_relatorio (botao)
 			
 			--dano                       --damage tanken (mostra as magias que o alvo usou)
 		elseif ( (atributo == 1 and sub_atributo == 3) or atributo == 3) then
-		
-			report_lines = {"Details! " .. Loc ["STRING_ACTORFRAME_REPORTTO"] .. " " .. _detalhes.sub_atributos [1].lista [1] .. " " .. Loc ["STRING_ACTORFRAME_REPORTOF"] .. " " .. player.detalhes.. " " .. Loc ["STRING_ACTORFRAME_REPORTAT"] .. " " .. player.nome}
-
-			for index, barra in _ipairs (info.barras3) do 
-			
-				if (barra:IsShown()) then
-					report_lines [#report_lines+1] = barra.texto_esquerdo:GetText().." -> ".. barra.texto_direita:GetText()
+			if (player.detalhes) then
+				report_lines = {"Details! " .. Loc ["STRING_ACTORFRAME_REPORTTO"] .. " " .. _detalhes.sub_atributos [1].lista [1] .. " " .. Loc ["STRING_ACTORFRAME_REPORTOF"] .. " " .. player.detalhes.. " " .. Loc ["STRING_ACTORFRAME_REPORTAT"] .. " " .. player.nome}
+				for index, barra in _ipairs (info.barras3) do 
+					if (barra:IsShown()) then
+						report_lines [#report_lines+1] = barra.texto_esquerdo:GetText().." ....... ".. barra.texto_direita:GetText()
+					end
+					if (index == amt) then
+						break
+					end
 				end
-				if (index == amt) then
-					break
-				end
-				
+			else
+				report_lines = {}
 			end
 		end
 		
@@ -4514,9 +4641,11 @@ function gump:CriaNovaBarraInfo3 (instancia, index)
 	local y = (index-1) * 17
 	y = y*-1
 	
-	esta_barra:SetPoint ("LEFT", janela, "LEFT", x_start, 0)
-	esta_barra:SetPoint ("RIGHT", janela, "RIGHT", 65, 0)
-	esta_barra:SetPoint ("TOP", janela, "TOP", 0, y+y_start)
+	--esta_barra:SetPoint ("LEFT", janela, "LEFT", x_start, 0)
+	--esta_barra:SetPoint ("RIGHT", janela, "RIGHT", 65, 0)
+	--esta_barra:SetPoint ("TOP", janela, "TOP", 0, y+y_start)
+	
+	container3_bars_pointFunc (esta_barra, index)
 	
 	esta_barra:EnableMouse (true)
 	

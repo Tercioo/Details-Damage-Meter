@@ -100,7 +100,7 @@ do
 					
 					if (Actor.minha_barra and type (Actor.minha_barra) == "table") then
 						Actor.minha_barra.minha_tabela = nil
-						_detalhes:ScheduleWindowUpdate()
+						_detalhes:ScheduleWindowUpdate (2, true)
 					end
 				
 					return class
@@ -120,7 +120,7 @@ do
 			
 			if (Actor.minha_barra and type (Actor.minha_barra) == "table") then
 				Actor.minha_barra.minha_tabela = nil
-				_detalhes:ScheduleWindowUpdate()
+				_detalhes:ScheduleWindowUpdate (2, true)
 			end
 			
 			return class
@@ -178,7 +178,7 @@ do
 						
 						if (Actor.minha_barra and type (Actor.minha_barra) == "table") then
 							Actor.minha_barra.minha_tabela = nil
-							_detalhes:ScheduleWindowUpdate()
+							_detalhes:ScheduleWindowUpdate (2, true)
 						end
 					
 						return spec
@@ -201,7 +201,7 @@ do
 							
 							if (Actor.minha_barra and type (Actor.minha_barra) == "table") then
 								Actor.minha_barra.minha_tabela = nil
-								_detalhes:ScheduleWindowUpdate()
+								_detalhes:ScheduleWindowUpdate (2, true)
 							end
 						
 							return spec
@@ -232,7 +232,7 @@ do
 										
 										if (Actor.minha_barra and type (Actor.minha_barra) == "table") then
 											Actor.minha_barra.minha_tabela = nil
-											_detalhes:ScheduleWindowUpdate()
+											_detalhes:ScheduleWindowUpdate (2, true)
 										end
 									
 										return spec
@@ -274,7 +274,7 @@ do
 			
 			if (Actor.minha_barra and type (Actor.minha_barra) == "table") then
 				Actor.minha_barra.minha_tabela = nil
-				_detalhes:ScheduleWindowUpdate()
+				_detalhes:ScheduleWindowUpdate (2, true)
 			end
 		
 			return spec
@@ -298,7 +298,7 @@ do
 						
 						if (Actor.minha_barra and type (Actor.minha_barra) == "table") then
 							Actor.minha_barra.minha_tabela = nil
-							_detalhes:ScheduleWindowUpdate()
+							_detalhes:ScheduleWindowUpdate (2, true)
 						end
 					
 						return spec
@@ -322,7 +322,7 @@ do
 						
 						if (Actor.minha_barra and type (Actor.minha_barra) == "table") then
 							Actor.minha_barra.minha_tabela = nil
-							_detalhes:ScheduleWindowUpdate()
+							_detalhes:ScheduleWindowUpdate (2, true)
 						end
 					
 						return spec
@@ -353,7 +353,7 @@ do
 							
 							if (Actor.minha_barra and type (Actor.minha_barra) == "table") then
 								Actor.minha_barra.minha_tabela = nil
-								_detalhes:ScheduleWindowUpdate()
+								_detalhes:ScheduleWindowUpdate (2, true)
 							end
 						
 							return spec
@@ -378,7 +378,7 @@ do
 			
 			if (Actor.minha_barra and type (Actor.minha_barra) == "table") then
 				Actor.minha_barra.minha_tabela = nil
-				_detalhes:ScheduleWindowUpdate()
+				_detalhes:ScheduleWindowUpdate (2, true)
 			end
 			
 			return spec

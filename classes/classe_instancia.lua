@@ -3104,6 +3104,11 @@ function _detalhes:envia_relatorio (linhas, custom)
 	local luta = nil
 	
 	if (not custom) then
+	
+		if (not linhas[1]) then
+			return _detalhes:Msg (Loc ["STRING_ACTORFRAME_NOTHING"])
+		end
+	
 		if (segmento == -1) then --overall
 			--luta = Loc ["STRING_REPORT_LAST"] .. " " .. #_detalhes.tabela_historico.tabelas .. " " .. Loc ["STRING_REPORT_FIGHTS"]
 			luta = _detalhes.tabela_overall.overall_enemy_name

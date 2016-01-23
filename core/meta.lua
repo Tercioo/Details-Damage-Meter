@@ -525,6 +525,7 @@
 					--> Limpa tabelas que não estejam em grupo
 					if (conteudo) then
 						if (_detalhes.clear_ungrouped) then
+						--if (not _detalhes.clear_ungrouped) then
 							local _iter = {index = 1, data = conteudo[1], cleaned = 0} --> ._ActorTable[1] para pegar o primeiro index
 
 							while (_iter.data) do --search key: ~deletar ~apagar
@@ -601,6 +602,8 @@
 					if (conteudo) then
 
 						if (_detalhes.clear_ungrouped) then
+						--não deleta dummies e actors de fora do grupo
+						--if (not _detalhes.clear_ungrouped) then
 						
 							local _iter = {index = 1, data = conteudo[1], cleaned = 0} --> ._ActorTable[1] para pegar o primeiro index
 
