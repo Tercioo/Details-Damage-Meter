@@ -350,6 +350,13 @@
 					if (absorbed) then
 						amount = (amount or 0) - absorbed
 					end
+				else
+					--> advanced damage taken
+					if (_detalhes.damage_taken_everything) then
+						if (absorbed) then
+							amount = (amount or 0) - absorbed
+						end
+					end
 				end
 				--]]
 				

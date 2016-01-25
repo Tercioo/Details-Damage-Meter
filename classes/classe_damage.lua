@@ -4769,6 +4769,11 @@ end
 					shadow.targets [target_name] = (shadow.targets [target_name] or 0) + amount
 				end
 				
+			--> copiar o container de raid targets
+				for flag, amount in _pairs (actor.raid_targets) do
+					shadow.raid_targets [flag] = (shadow.raid_targets [flag] or 0) + amount
+				end
+			
 			--> copia o container de habilidades (captura de dados)
 				for spellid, habilidade in _pairs (actor.spells._ActorTable) do 
 					--> cria e soma o valor
@@ -4846,6 +4851,11 @@ atributo_damage.__add = function (tabela1, tabela2)
 			tabela1.targets [target_name] = (tabela1.targets [target_name] or 0) + amount
 		end
 		
+	--> soma o container de raid targets
+		for flag, amount in _pairs (tabela2.raid_targets) do
+			tabela1.raid_targets [flag] = (tabela1.raid_targets [flag] or 0) + amount
+		end
+		
 	--> soma o container de habilidades
 		for spellid, habilidade in _pairs (tabela2.spells._ActorTable) do 
 			--> pega a habilidade no primeiro ator
@@ -4915,6 +4925,13 @@ atributo_damage.__sub = function (tabela1, tabela2)
 			local alvo_tabela1 = tabela1.targets [target_name]
 			if (alvo_tabela1) then
 				tabela1.targets [target_name] = tabela1.targets [target_name] - amount
+			end
+		end
+		
+	--> reduz o container de raid targets
+		for flag, amount in _pairs (tabela2.raid_targets) do
+			if (tabela1.raid_targets [flag]) then
+				tabela1.raid_targets [flag] = _math_max (tabela1.raid_targets [flag] - amount, 0)
 			end
 		end
 		

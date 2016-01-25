@@ -8144,6 +8144,58 @@ function _detalhes:CreateFakeWindow()
 	return t
 end
 
+local function click_to_change_segment (instancia, buttontype)
+	if (buttontype == "LeftButton") then
+	
+		local segmento_goal = instancia.segmento + 1
+		if (segmento_goal > segments_used) then
+			segmento_goal = -1
+		elseif (segmento_goal > _detalhes.segments_amount) then
+			segmento_goal = -1
+		end
+		
+		local total_shown = segments_filled+2
+		local goal = segmento_goal+1
+		
+		local select_ = math.abs (goal - total_shown)
+		GameCooltip:Select (1, select_)
+		
+		instancia:TrocaTabela (segmento_goal)
+		
+		segmento_on_enter (instancia.baseframe.cabecalho.segmento.widget, _, true, true)
+		
+	elseif (buttontype == "RightButton") then
+	
+		local segmento_goal = instancia.segmento - 1
+		if (segmento_goal < -1) then
+			segmento_goal = segments_used
+		end
+		
+		local total_shown = segments_filled+2
+		local goal = segmento_goal+1
+		
+		local select_ = math.abs (goal - total_shown)
+		GameCooltip:Select (1, select_)
+		
+		instancia:TrocaTabela (segmento_goal)
+		segmento_on_enter (instancia.baseframe.cabecalho.segmento.widget, _, true, true)
+	
+	elseif (buttontype == "MiddleButton") then
+		
+		local segmento_goal = 0
+		
+		local total_shown = segments_filled+2
+		local goal = segmento_goal+1
+		
+		local select_ = math.abs (goal - total_shown)
+		GameCooltip:Select (1, select_)
+		
+		instancia:TrocaTabela (segmento_goal)
+		segmento_on_enter (instancia.baseframe.cabecalho.segmento.widget, _, true, true)
+		
+	end
+end
+
 function gump:CriaCabecalho (baseframe, instancia)
 
 	baseframe.cabecalho = {}
@@ -8327,9 +8379,11 @@ function gump:CriaCabecalho (baseframe, instancia)
 	
 	
 	--> SELECIONAR O SEGMENTO  ----------------------------------------------------------------------------------------------------------------------------------------------------
-	local segmento_button_click = function()
+	local segmento_button_click = function (self, button, param1)
 		if (_detalhes.instances_menu_click_to_open) then
 			segmento_on_enter (instancia.baseframe.cabecalho.segmento.widget, _, true, true)
+		else
+			click_to_change_segment (instancia, button)
 		end
 	end
 	
@@ -8337,6 +8391,9 @@ function gump:CriaCabecalho (baseframe, instancia)
 	baseframe.cabecalho.segmento:SetFrameLevel (baseframe.UPFrame:GetFrameLevel()+1)
 	baseframe.cabecalho.segmento.widget._instance = instancia
 	baseframe.cabecalho.segmento:SetPoint ("left", baseframe.cabecalho.modo_selecao, "right", 0, 0)
+	
+	--> ativa botão do meio e direito
+	baseframe.cabecalho.segmento:SetClickFunction (segmento_button_click, nil, nil, "rightclick")
 
 	baseframe.cabecalho.segmento:SetScript ("OnEnter", segmento_on_enter)
 	baseframe.cabecalho.segmento:SetScript ("OnLeave", segmento_on_leave)	
