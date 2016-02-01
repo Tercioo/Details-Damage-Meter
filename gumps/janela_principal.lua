@@ -523,8 +523,9 @@ local show_instance_ids = function()
 		if (instance:IsEnabled()) then
 			local id_texture1 = instance.baseframe.id_texture1
 			if (not id_texture1) then
-				instance.baseframe.id_texture1 = instance.baseframe:CreateTexture (nil, "overlay")
-				instance.baseframe.id_texture2 = instance.baseframe:CreateTexture (nil, "overlay")
+				--instancia.
+				instance.baseframe.id_texture1 = instance.floatingframe:CreateTexture (nil, "overlay")
+				instance.baseframe.id_texture2 = instance.floatingframe:CreateTexture (nil, "overlay")
 				instance.baseframe.id_texture1:SetTexture ([[Interface\Timer\BigTimerNumbers]])
 				instance.baseframe.id_texture2:SetTexture ([[Interface\Timer\BigTimerNumbers]])
 			end
@@ -7135,7 +7136,7 @@ function _detalhes:SetWindowScale (scale, from_options)
 	end
 end
 
-function _detalhes:ToolbarSide (side)
+function _detalhes:ToolbarSide (side, only_update_anchors)
 	
 	if (not side) then
 		side = self.toolbar_side
@@ -7146,18 +7147,31 @@ function _detalhes:ToolbarSide (side)
 	local skin = _detalhes.skins [self.skin]
 	
 	if (side == 1) then --> top
-		--> ball point
+	
+		local anchor_mod = not self.show_sidebars and skin.instance_cprops.show_sidebars_need_resize_by or 0
+	
+		--> icon (ball) point
 		self.baseframe.cabecalho.ball_point:ClearAllPoints()
-		self.baseframe.cabecalho.ball_point:SetPoint ("bottomleft", self.baseframe, "topleft", unpack (skin.icon_point_anchor))
+
+		local x, y = unpack (skin.icon_point_anchor)
+		x = x + (anchor_mod)
+		self.baseframe.cabecalho.ball_point:SetPoint ("bottomleft", self.baseframe, "topleft", x, y)
+		
 		--> ball
 		self.baseframe.cabecalho.ball:SetTexCoord (unpack (COORDS_LEFT_BALL))
 		self.baseframe.cabecalho.ball:ClearAllPoints()
-		self.baseframe.cabecalho.ball:SetPoint ("bottomleft", self.baseframe, "topleft", unpack (skin.left_corner_anchor))
+		
+		local x, y = unpack (skin.left_corner_anchor)
+		x = x + (anchor_mod)
+		self.baseframe.cabecalho.ball:SetPoint ("bottomleft", self.baseframe, "topleft", x, y)
 
 		--> ball r
 		self.baseframe.cabecalho.ball_r:SetTexCoord (unpack (COORDS_RIGHT_BALL))
 		self.baseframe.cabecalho.ball_r:ClearAllPoints()
-		self.baseframe.cabecalho.ball_r:SetPoint ("bottomright", self.baseframe, "topright", unpack (skin.right_corner_anchor))
+		
+		local x, y = unpack (skin.right_corner_anchor)
+		x = x + ((anchor_mod) * -1)
+		self.baseframe.cabecalho.ball_r:SetPoint ("bottomright", self.baseframe, "topright", x, y)
 
 		--> tex coords
 		self.baseframe.cabecalho.emenda:SetTexCoord (unpack (COORDS_LEFT_CONNECTOR))
@@ -7181,21 +7195,30 @@ function _detalhes:ToolbarSide (side)
 		if (self.show_statusbar) then
 			y = -14
 		end
+		
+		local anchor_mod = not self.show_sidebars and skin.instance_cprops.show_sidebars_need_resize_by or 0
 	
 		--> ball point
 		self.baseframe.cabecalho.ball_point:ClearAllPoints()
+		
 		local _x, _y = unpack (skin.icon_point_anchor_bottom)
+		_x = _x + (anchor_mod)
 		self.baseframe.cabecalho.ball_point:SetPoint ("topleft", self.baseframe, "bottomleft", _x, _y + y)
+		
 		--> ball
 		self.baseframe.cabecalho.ball:ClearAllPoints()
+		
 		local _x, _y = unpack (skin.left_corner_anchor_bottom)
+		_x = _x + (anchor_mod)
 		self.baseframe.cabecalho.ball:SetPoint ("topleft", self.baseframe, "bottomleft", _x, _y + y)
 		local l, r, t, b = unpack (COORDS_LEFT_BALL)
 		self.baseframe.cabecalho.ball:SetTexCoord (l, r, b, t)
 
 		--> ball r
 		self.baseframe.cabecalho.ball_r:ClearAllPoints()
+		
 		local _x, _y = unpack (skin.right_corner_anchor_bottom)
+		_x = _x + ((anchor_mod) * -1)
 		self.baseframe.cabecalho.ball_r:SetPoint ("topright", self.baseframe, "bottomright", _x, _y + y)
 		local l, r, t, b = unpack (COORDS_RIGHT_BALL)
 		self.baseframe.cabecalho.ball_r:SetTexCoord (l, r, b, t)
@@ -7217,6 +7240,11 @@ function _detalhes:ToolbarSide (side)
 		self.baseframe.UPFrameLeftPart:ClearAllPoints()
 		self.baseframe.UPFrameLeftPart:SetPoint ("topleft", self.baseframe, "bottomleft", 0, 0)
 
+	end
+	
+	if (only_update_anchors) then
+		--> ShowSideBars depends on this and creates a infinite loop
+		return
 	end
 	
 	--> update top menus
@@ -7499,7 +7527,9 @@ function _detalhes:ShowSideBars (instancia)
 		end
 	end
 	
-	self:SetBarGrowDirection()
+	--self:SetBarGrowDirection()
+	--passando true - apenas atulizar as anchors
+	self:ToolbarSide (nil, true)
 	
 end
 
@@ -7510,14 +7540,32 @@ function _detalhes:HideSideBars (instancia)
 	
 	self.show_sidebars = false
 	
-	self.row_info.space.left = 0
-	self.row_info.space.right = 0
-	
+	local this_skin = _detalhes.skins [self.skin]
+	local space_config = this_skin.instance_cprops and this_skin.instance_cprops.row_info and this_skin.instance_cprops.row_info.space
+	if (space_config) then
+		if (space_config.left_noborder) then
+			self.row_info.space.left = space_config.left_noborder
+		else
+			self.row_info.space.left = 0
+		end
+		
+		if (space_config.right_noborder) then
+			self.row_info.space.right = space_config.right_noborder
+		else
+			self.row_info.space.right = 0
+		end
+	else
+		self.row_info.space.left = 0
+		self.row_info.space.right = 0
+	end
+
 	self.baseframe.barra_esquerda:Hide()
 	self.baseframe.barra_direita:Hide()
 	self.baseframe.barra_fundo:Hide()
 	
-	self:SetBarGrowDirection()
+	--self:SetBarGrowDirection() --já é chamado no toolbarside
+	--passando true - apenas atulizar as anchors
+	self:ToolbarSide (nil, true)
 end
 
 function _detalhes:HideStatusBar (instancia)

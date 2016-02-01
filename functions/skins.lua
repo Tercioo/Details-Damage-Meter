@@ -1572,6 +1572,9 @@ local _
 					["texture"] = "Details BarBorder 2",
 				},
 			},
+			
+			["show_sidebars_need_resize_by"] = 1,
+			
 			["auto_hide_menu"] = {
 				["left"] = false,
 				["right"] = false,
@@ -1711,7 +1714,9 @@ local _
 				["fixed_text_color"] = {0.905882352941177,0.905882352941177,0.905882352941177,1},
 				["space"] = {
 					["right"] = -3,
+					["right_noborder"] = -3,
 					["left"] = 1,
+					["left_noborder"] = 1,
 					["between"] = 1,
 				},
 				["texture"] = "Skyline",
@@ -1763,6 +1768,7 @@ local _
 			["plugins_grow_direction"] = 1,
 			["strata"] = "LOW",
 			["show_sidebars"] = true,
+			["show_sidebars_need_resize_by"] = 1,
 			["hide_in_combat_alpha"] = 0,
 			["menu_icons"] = {true, true, true, true, true, false, ["space"] = -2, ["shadow"] = true},
 			["desaturated_menu"] = false,
@@ -1770,7 +1776,7 @@ local _
 				["left"] = false,
 				["right"] = false,
 			},
-			["window_scale"] = 1.00999999046326,
+			["window_scale"] = 1.0,
 			["grab_on_top"] = false,
 			["menu_anchor_down"] = {16, -2},
 			["statusbar_info"] = {
