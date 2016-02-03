@@ -139,6 +139,14 @@ do
 	all_switch:SetClampedToScreen (true)
 	all_switch:SetBackdrop ({bgFile = "Interface\\AddOns\\Details\\images\\background", tile = true, tileSize = 16 })
 	all_switch:SetBackdropColor (0.05, 0.05, 0.05, 0.3)
+	all_switch.background = all_switch:CreateTexture ("DetailsAllAttributesFrameBackground", "background")
+	all_switch.background:SetDrawLayer ("background", 2)
+	all_switch.background:SetPoint ("topleft", all_switch, "topleft", 4, -4)
+	all_switch.background:SetPoint ("bottomright", all_switch, "bottomright", -4, 4)
+	all_switch.wallpaper = all_switch:CreateTexture ("DetailsAllAttributesFrameWallPaper", "background")
+	all_switch.wallpaper:SetDrawLayer ("background", 4)
+	all_switch.wallpaper:SetPoint ("topleft", all_switch, "topleft", 4, -4)
+	all_switch.wallpaper:SetPoint ("bottomright", all_switch, "bottomright", -4, 4)
 	all_switch.buttons = {}
 	
 	all_switch:SetScript ("OnMouseDown", function (self, button)
@@ -171,7 +179,7 @@ do
 	
 	all_switch:SetScript ("OnHide", function (self)
 		all_switch:SetScript ("OnUpdate", nil)
-	end)
+	end)	
 	
 	DetailsSwitchPanel.all_switch = all_switch
 	
@@ -388,6 +396,20 @@ do
 		local cursor_x, cursor_y = GetCursorPosition()
 		all_switch.cursor_x, all_switch.cursor_y = floor (cursor_x), floor (cursor_y)
 		all_switch:SetScript ("OnUpdate", on_update_all_switch)
+		
+		all_switch.wallpaper:SetTexture (_detalhes.tooltip.menus_bg_texture)
+		all_switch.wallpaper:SetTexCoord (unpack (_detalhes.tooltip.menus_bg_coords))
+		all_switch.wallpaper:SetVertexColor (unpack (_detalhes.tooltip.menus_bg_color))
+		all_switch.wallpaper:SetDesaturated (true)
+		
+		--the background on cooltip at the menus, are transparent
+		--all_switch.background:SetTexture ("Interface\\AddOns\\Details\\Libs\\DF\\cooltip_background")
+		--all_switch.background:SetTexCoord (0.10546875, 0.89453125, 0, 1)
+		--all_switch.background:SetVertexColor (0.2, 0.2, 0.2, 1)
+		
+		all_switch:SetBackdrop (_detalhes.tooltip_backdrop)
+		all_switch:SetBackdropColor (0.09019, 0.09019, 0.18823, 1)
+		all_switch:SetBackdropBorderColor (unpack (_detalhes.tooltip_border_color))
 		
 	end) 
 	

@@ -247,6 +247,11 @@
 			else
 				--> entrar em combate se for dot e for do jogador e o ultimo combate ter sido a mais de 10 segundos atrás
 				if (token == "SPELL_PERIODIC_DAMAGE" and who_name == _detalhes.playername) then
+					--> ignora burning rush se o jogador estiver fora de combate
+					if (spellid == 111400) then
+						return
+					end
+					--> faz o calculo dos 10 segundos
 					if (_detalhes.last_combat_time+10 < _tempo) then
 						_detalhes:EntrarEmCombate (who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags)
 					end
