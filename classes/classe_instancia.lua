@@ -3268,7 +3268,11 @@ function _detalhes:envia_relatorio (linhas, custom)
 		local alvo
 		if (_UnitExists ("target")) then
 			if (_UnitIsPlayer ("target")) then
-				alvo = _UnitName ("target")
+				local nome, realm = _UnitName ("target")
+				if (realm and realm ~= "") then
+					nome = nome.."-"..realm
+				end
+				alvo = nome
 			else
 				_detalhes:Msg (Loc ["STRING_REPORT_INVALIDTARGET"])
 				return

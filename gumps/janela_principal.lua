@@ -2084,6 +2084,11 @@ end
 local icon_frame_on_enter = function (self)
 	local actor = self.row.minha_tabela
 	
+	if (self.row.icone_classe:GetTexture() ~= "") then
+		--self.row.icone_classe:SetSize (self.row.icone_classe:GetWidth()+1, self.row.icone_classe:GetWidth()+1)
+		--self.row.icone_classe:SetBlendMode ("ADD")
+	end
+	
 	if (actor) then
 		if (actor.frags) then
 		
@@ -2201,6 +2206,11 @@ end
 local icon_frame_on_leave = function (self)
 	GameCooltip:Hide()
 	GameTooltip:Hide()
+	
+	if (self.row.icone_classe:GetTexture() ~= "") then
+		--self.row.icone_classe:SetSize (self.row.icone_classe:GetWidth()-1, self.row.icone_classe:GetWidth()-1)
+		--self.row.icone_classe:SetBlendMode ("BLEND")
+	end
 end
 
 local icon_frame_events = _detalhes:CreateEventListener()

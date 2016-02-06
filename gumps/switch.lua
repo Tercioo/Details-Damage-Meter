@@ -26,6 +26,13 @@ do
 	frame:SetBackdropBorderColor (170/255, 170/255, 170/255)
 	frame:SetBackdropColor (0, 0, 0, .7)
 	
+	DetailsSwitchPanel.HoverOverBackground = {.6, .6, .6, .2}
+	
+	frame.hover_over_texture = frame:CreateTexture (nil, "border")
+	frame.hover_over_texture:SetTexture (unpack (DetailsSwitchPanel.HoverOverBackground))
+	frame.hover_over_texture:SetSize (130, 18)
+	frame.hover_over_texture:Hide()
+	
 	frame:SetFrameStrata ("FULLSCREEN")
 	frame:SetFrameLevel (16)
 	
@@ -131,7 +138,7 @@ do
 	end)
 	
 ---------------------------------------------------------------------------------------------------------------------------
-
+	--> ~all
 	local all_switch = CreateFrame ("frame", "DetailsAllAttributesFrame", UIParent)
 	all_switch:SetFrameStrata ("tooltip")
 	all_switch:Hide()
@@ -249,18 +256,41 @@ do
 		end
 	end
 	
+	local hover_over_texture = all_switch:CreateTexture (nil, "border")
+	hover_over_texture:SetTexture (unpack (DetailsSwitchPanel.HoverOverBackground))
+	hover_over_texture:SetSize (130, 18)
+	hover_over_texture:Hide()
+	
+	local icon_size = 16
+	local text_color = {.9, .9, .9, 1}
+	
 	local on_enter_all_switch_button = function (self)
 		_detalhes:SetFontColor (self.text, "orange")
-		self.texture:SetBlendMode ("ADD")
 		all_switch.interacting = true
 		all_switch.last_up = GetTime()
+		
+		hover_over_texture:SetSize (130, 18)
+		hover_over_texture:ClearAllPoints()
+		hover_over_texture:SetPoint ("topleft", self, "topleft", -2, 1)
+		hover_over_texture:Show()
+		--self.texture:SetSize (icon_size+1, icon_size+1)
 	end
 	
 	local on_leave_all_switch_button = function (self)
-		_detalhes:SetFontColor (self.text, "white")
-		self.texture:SetBlendMode ("BLEND")
+		_detalhes:SetFontColor (self.text, text_color)
 		all_switch.interacting = false
 		all_switch.last_up = GetTime()
+		hover_over_texture:Hide()
+		--self.texture:SetSize (icon_size, icon_size)
+	end
+
+	local on_enter_all_switch_button_icon = function (self)
+		self.MainFrame.texture:SetBlendMode ("ADD")
+		on_enter_all_switch_button (self.MainFrame)
+	end
+	local on_leave_all_switch_button_icon = function (self)
+		self.MainFrame.texture:SetBlendMode ("BLEND")
+		on_leave_all_switch_button (self.MainFrame)
 	end
 	
 	all_switch.check_text_size = function (font_string)
@@ -275,21 +305,32 @@ do
 	
 	local create_all_switch_button = function (attribute, sub_attribute, x, y)
 		local button = CreateFrame ("button", "DetailsAllAttributesFrame" .. attribute .. sub_attribute, all_switch)
-		button:SetSize (100, 16)
+		button:SetSize (130, 16)
 		button.texture = button:CreateTexture (nil, "overlay")
 		button.texture:SetPoint ("left", 0, 0)
-		button.texture:SetSize (16, 16)
+		button.texture:SetSize (icon_size, icon_size)
+		
+		local texture_highlight_frame = CreateFrame ("button", "DetailsAllAttributesFrame" .. attribute .. sub_attribute .. "IconFrame", button)
+		texture_highlight_frame:SetSize (icon_size, icon_size)
+		texture_highlight_frame:SetPoint ("left", 0, 0)
+		texture_highlight_frame.texture = button.texture
+		texture_highlight_frame.MainFrame = button
+		
 		button.text = button:CreateFontString (nil, "overlay", "GameFontNormal")
 		button.text:SetPoint ("left", button.texture, "right", 2, 0)
 		button.attribute = attribute
 		button.sub_attribute = sub_attribute
 		button:SetPoint ("topleft", x, y)
 		_detalhes:SetFontSize (button.text, 10)
-		_detalhes:SetFontColor (button.text, "white")
+		_detalhes:SetFontColor (button.text, text_color)
 		
 		button:SetScript ("OnClick", on_click_all_switch_button)
 		button:SetScript ("OnEnter", on_enter_all_switch_button)
 		button:SetScript ("OnLeave", on_leave_all_switch_button)
+		
+		texture_highlight_frame:SetScript ("OnClick", on_click_all_switch_button)
+		texture_highlight_frame:SetScript ("OnEnter", on_enter_all_switch_button_icon)
+		texture_highlight_frame:SetScript ("OnLeave", on_leave_all_switch_button_icon)
 		
 		button:RegisterForClicks ("LeftButtonDown", "RightButtonDown")
 
@@ -299,7 +340,7 @@ do
 	all_switch:SetScript ("OnShow", function()
 		
 		if (not all_switch.already_built) then
-			local x, y = 5, -5
+			local x, y = 8, -8
 			all_switch.higher_counter = 0
 
 			for attribute = 1, _detalhes.atributos[0] do 
@@ -336,12 +377,12 @@ do
 				end
 				
 				x = x + 130
-				y = -5
+				y = -8
 			end
 			
 			--> prepare for customs
 			all_switch.x = x
-			all_switch.y = -5
+			all_switch.y = -8
 			all_switch.buttons [_detalhes.atributos[0]+1] = {}
 			
 			local title_icon = all_switch:CreateTexture (nil, "overlay")
@@ -389,7 +430,7 @@ do
 			all_switch.higher_counter = #_detalhes.custom
 		end
 		
-		all_switch:SetHeight ((all_switch.higher_counter * 17) + 20 + 10)
+		all_switch:SetHeight ((all_switch.higher_counter * 17) + 20 + 16)
 		all_switch:SetWidth ((120 * 5) + (5 * 2) + (12*4))
 		
 		all_switch.last_up = GetTime()
@@ -625,8 +666,8 @@ function _detalhes.switch:ShowMe (instancia)
 			end
 			
 			local on_enter = function (self)
-				self.MyObject.this_background:SetBlendMode ("ADD")
-				self.MyObject.boss_texture:SetBlendMode ("ADD")
+				--self.MyObject.this_background:SetBlendMode ("ADD")
+				--self.MyObject.boss_texture:SetBlendMode ("ADD")
 			end
 			
 			local on_leave = function (self)
@@ -1375,8 +1416,14 @@ local onenter = function (self)
 	end
 
 	_detalhes:SetFontColor (self.texto, "orange")
-	self.border:SetBlendMode ("ADD")
-	self.button1_icon:SetBlendMode ("ADD")
+	--self.border:SetBlendMode ("ADD")
+	--self.button1_icon:SetBlendMode ("ADD")
+	
+	DetailsSwitchPanel.hover_over_texture:SetSize (self:GetWidth(), self:GetHeight()) --size of button
+	DetailsSwitchPanel.hover_over_texture:ClearAllPoints()
+	DetailsSwitchPanel.hover_over_texture:SetPoint ("topleft", self, "topleft", -18, 1)
+	DetailsSwitchPanel.hover_over_texture:SetPoint ("bottomright", self, "bottomright", 8, -1)
+	DetailsSwitchPanel.hover_over_texture:Show()
 	
 end
 
@@ -1472,7 +1519,7 @@ function _detalhes.switch:NewSwitchButton (frame, index, x, y, rightButton)
 		}
 
 	--botao dentro da caixa
-	local button = CreateFrame ("button", "DetailsSwitchPanelButton_1_"..index, frame)
+	local button = CreateFrame ("button", "DetailsSwitchPanelButton_1_"..index, frame) --botao com o icone
 	button:SetSize (15, 15) 
 	button:SetPoint ("topleft", frame, "topleft", x, -y)
 	button:SetScript ("OnMouseDown", left_box_on_click)
@@ -1509,7 +1556,7 @@ function _detalhes.switch:NewSwitchButton (frame, index, x, y, rightButton)
 	button.line2:SetPoint ("bottomleft", button, "bottomright", fundo_x, fundo_y)
 	
 	--botao do fundo marrom
-	local button2 = CreateFrame ("button", "DetailsSwitchPanelButton_2_"..index, button)
+	local button2 = CreateFrame ("button", "DetailsSwitchPanelButton_2_"..index, button) --botao com o texto
 	button2:SetSize (1, 1)
 	button2:SetPoint ("topleft", button, "topright", 1, 0)
 	button2:SetPoint ("bottomright", button, "bottomright", 90, 0)

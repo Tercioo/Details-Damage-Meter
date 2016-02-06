@@ -19,7 +19,7 @@
 	14 - title bar text
 	15 - custom spells
 	16 - data for charts
-	17 - auto hide settings
+	17 - automatization settings
 	18 - misc settings
 	19 - externals widgets (data feed)
 	20 - tooltip
@@ -67,22 +67,6 @@ local TEXTENTRY_HEIGHT = 18
 local DROPDOWN_WIDTH = 160
 local COLOR_BUTTON_WIDTH = 160
 
-g.button_templates ["DETAILS_SKIN_OPTION_BUTTON_TEMPLATE"] = {
-	backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true},
-	backdropcolor = {1, 1, 1, .5},
-	backdropbordercolor = {0, 0, 0, 1},
-	width = 160,
-	height = 18,
-	icon = {texture = [[Interface\Buttons\UI-OptionsButton]], width = 12, height = 12, color = {1, 0.8, 0, 1}, textdistance = 3, leftpadding = 2},
-}
-g.button_templates ["DETAILS_TITLEBAR_OPTION_BUTTON_TEMPLATE"] = {
-	backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true},
-	backdropcolor = {1, 1, 1, .1},
-	backdropbordercolor = {0, 0, 0, 1},
-	width = 21,
-	height = 21,
-}
-
 _detalhes.options_window_background = [[Interface\AddOns\Details\images\options_window]]
 
 function _detalhes:SetOptionsWindowTexture (texture)
@@ -122,7 +106,23 @@ function _detalhes:OpenOptionsWindow (instance, no_reopen, section)
 		local options_slider_template = g:GetTemplate ("slider", "OPTIONS_SLIDER_TEMPLATE")
 		local options_switch_template = g:GetTemplate ("switch", "OPTIONS_CHECKBOX_BRIGHT_TEMPLATE")
 		
-	
+		g:InstallTemplate ("button", "DETAILS_TITLEBAR_OPTION_BUTTON_TEMPLATE", {
+			backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true},
+			backdropcolor = {1, 1, 1, .1},
+			backdropbordercolor = {0, 0, 0, 1},
+			width = 21,
+			height = 21,
+			onentercolor = {1, 1, 1, .3},
+		})
+		g:InstallTemplate ("button", "DETAILS_SKIN_OPTION_BUTTON_TEMPLATE", {
+			backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true},
+			backdropcolor = {1, 1, 1, .5},
+			backdropbordercolor = {0, 0, 0, 1},
+			width = 160,
+			height = 18,
+			icon = {texture = [[Interface\Buttons\UI-OptionsButton]], width = 12, height = 12, color = {1, 0.8, 0, 1}, textdistance = 3, leftpadding = 2},
+		})
+
 		local config_slider = function (slider)
 			slider:SetBackdrop (slider_backdrop)
 			slider:SetBackdropColor (unpack (slider_backdrop_color))
@@ -539,6 +539,10 @@ function _detalhes:OpenOptionsWindow (instance, no_reopen, section)
 		
 	--> left panel buttons
 
+	--mudando a ordem do menu
+	--menus_settings = { muda a pocição de qual menu será mostrado
+	--menus = { muda a pocição do text no menu
+	
 	--> index dos menus
 	local menus_settings = {
 		--general settings
@@ -555,8 +559,8 @@ function _detalhes:OpenOptionsWindow (instance, no_reopen, section)
 		5, --row texts
 		8, --row advanced
 
-		14, -- title bar text
-		7, --title bar buttons
+		7, -- title bar buttons
+		14, --title bar text
 		
 		6, --window settings 
 		17, --auto hide settings
@@ -589,14 +593,14 @@ local menus = { --labels nos menus
 		Loc ["STRING_OPTIONSMENU_ROWTEXTS"], 
 		Loc ["STRING_OPTIONSMENU_ROWMODELS"], 
 
-		Loc ["STRING_OPTIONSMENU_TITLETEXT"], 
 		Loc ["STRING_OPTIONSMENU_LEFTMENU"], 
+		Loc ["STRING_OPTIONSMENU_TITLETEXT"], 
 		
 		Loc ["STRING_OPTIONSMENU_WINDOW"], 
-		Loc ["STRING_OPTIONSMENU_SHOWHIDE"], 
+		Loc ["STRING_OPTIONSMENU_AUTOMATIC"],
 		Loc ["STRING_OPTIONSMENU_WALLPAPER"], 
 		
-		Loc ["STRING_OPTIONSMENU_MISC"]
+		"-- -- --", --Loc ["STRING_OPTIONSMENU_MISC"]
 	},
 	
 	{	
@@ -625,8 +629,9 @@ local menus2 = {
 		Loc ["STRING_OPTIONSMENU_TITLETEXT"], --14
 		Loc ["STRING_OPTIONSMENU_SPELLS"], --15
 		Loc ["STRING_OPTIONSMENU_DATACHART"], --16
-		Loc ["STRING_OPTIONSMENU_SHOWHIDE"], --17
-		Loc ["STRING_OPTIONSMENU_MISC"], --18
+		Loc ["STRING_OPTIONSMENU_AUTOMATIC"], --17
+		--Loc ["STRING_OPTIONSMENU_MISC"], --18
+		"-- -- --", --18
 		Loc ["STRING_OPTIONSMENU_DATAFEED"], --19
 		Loc ["STRING_OPTIONSMENU_TOOLTIP"], --20
 	}
@@ -1236,7 +1241,7 @@ local menus2 = {
 		function window:arrange_menu (frame, t, x, y_start)		
 			local y = y_start
 		
-			table.sort (t, function (a, b) return a[2] < b[2] end)
+			--table.sort (t, function (a, b) return a[2] < b[2] end)
 		
 			for index, _table in ipairs (t) do
 				local widget = _table [1]
@@ -1923,8 +1928,8 @@ function window:CreateFrame20()
 		local left_side = {
 			{"TooltipsTextsAnchorLabel", 1, true},
 			{"TooltipShadowLabel", 2},
-			{"TooltipTextColorLabel", 4},
-			{"TooltipTextSizeLabel", 3},
+			{"TooltipTextColorLabel", 3},
+			{"TooltipTextSizeLabel", 4},
 			{"TooltipFontLabel", 5},
 			
 			{"TooltipsAnchorLabel", 6, true},
@@ -2117,7 +2122,49 @@ function window:CreateFrame19()
 		end
 		window:CreateLineBackground2 (frame19, "ItemLevelSlider", "ItemLevelLabel", Loc ["STRING_OPTIONS_ILVL_TRACKER_DESC"])
 		
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+	--> Report
+		--heal links
+		g:NewLabel (frame19, _, "$parentReportHelpfulLinkLabel", "ReportHelpfulLinkLabel", Loc ["STRING_OPTIONS_REPORT_HEALLINKS"], "GameFontHighlightLeft")
+		g:NewSwitch (frame19, _, "$parentReportHelpfulLinkSlider", "ReportHelpfulLinkSlider", 60, 20, _, _, _detalhes.report_heal_links, nil, nil, nil, nil, options_switch_template)
+
+		frame19.ReportHelpfulLinkSlider:SetPoint ("left", frame19.ReportHelpfulLinkLabel, "right", 2)
+		frame19.ReportHelpfulLinkSlider:SetAsCheckBox()
+		frame19.ReportHelpfulLinkSlider.OnSwitch = function (_, _, value)
+			_detalhes.report_heal_links = value
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+		end
+		
+		window:CreateLineBackground2 (frame19, "ReportHelpfulLinkSlider", "ReportHelpfulLinkLabel", Loc ["STRING_OPTIONS_REPORT_HEALLINKS_DESC"])
+	
+		--report format
+		g:NewLabel (frame19, _, "$parentReportFormatLabel", "ReportFormatLabel", Loc ["STRING_OPTIONS_REPORT_SCHEMA"], "GameFontHighlightLeft")
+		
+		local onSelectReportFormatAlpha = function (_, _, value)
+			_detalhes.report_schema = value
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+		end
+		local coords = {1, 0, 0, 1}
+		local ReportFormatOptions = {
+			{value = 1, label = Loc ["STRING_OPTIONS_REPORT_SCHEMA1"], onclick = onSelectReportFormatAlpha, icon = [[Interface\Buttons\UI-GuildButton-MOTD-Disabled]], texcoord = coords, desc = "1. Jack .. 128.9k (29.9k, 23.33%)"},
+			{value = 2, label = Loc ["STRING_OPTIONS_REPORT_SCHEMA2"], onclick = onSelectReportFormatAlpha, icon = [[Interface\Buttons\UI-GuildButton-MOTD-Disabled]], texcoord = coords, desc = "1. Jack .. 23.33% (29.9k, 128.9k)"},
+			{value = 3, label = Loc ["STRING_OPTIONS_REPORT_SCHEMA3"], onclick = onSelectReportFormatAlpha, icon = [[Interface\Buttons\UI-GuildButton-MOTD-Disabled]], texcoord = coords, desc = "1. Jack .. 23.33% (128.9k 29.9k)"},
+		}
+		local BuildReportFormatOptions = function()
+			return ReportFormatOptions
+		end
+		local d = g:NewDropDown (frame19, _, "$parentReportFormatDropdown", "ReportFormatDropdown", 160, dropdown_height, BuildReportFormatOptions, nil, options_dropdown_template)
+		
+		frame19.ReportFormatDropdown:SetPoint ("left", frame19.ReportFormatLabel, "right", 2, 0)		
+		
+		window:CreateLineBackground2 (frame19, "ReportFormatDropdown", "ReportFormatLabel", Loc ["STRING_OPTIONS_REPORT_SCHEMA_DESC"])
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+		
 	--> anchors:
+	
+		g:NewLabel (frame19, _, "$parentReportAnchor", "reportAnchorLabel", Loc ["STRING_OPTIONS_REPORT_ANCHOR"], "GameFontNormal")
 
 		local x = window.left_start_at
 		
@@ -2139,6 +2186,14 @@ function window:CreateFrame19()
 		
 		window:arrange_menu (frame19, left_side, x, window.top_start_at)	
 		
+		local right_side = {
+			{"reportAnchorLabel", 1, true},
+			{"ReportHelpfulLinkLabel", 2},
+			{"ReportFormatLabel", 3},	
+		}
+		
+		window:arrange_menu (frame19, right_side, window.right_start_at, window.top_start_at)		
+
 end
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2153,621 +2208,18 @@ function window:CreateFrame18()
 		titulo_misc_settings_desc.width = 350
 		titulo_misc_settings_desc.height = 20
 	
-		local Current_Switch_Func = function()end
-	
-		local BuildSwitchMenu = function()
-		
-			window.lastSwitchList = {}
-			local t = {{value = 0, label = "do not switch", color = {.7, .7, .7, 1}, onclick = Current_Switch_Func, icon = [[Interface\Glues\LOGIN\Glues-CheckBox-Check]]}}
-			
-			local attributes = _detalhes.sub_atributos
-			local i = 1
-			
-			for atributo, sub_atributo in ipairs (attributes) do
-				local icones = sub_atributo.icones
-				for index, att_name in ipairs (sub_atributo.lista) do
-					local texture, texcoord = unpack (icones [index])
-					tinsert (t, {value = i, label = att_name, onclick = Current_Switch_Func, icon = texture, texcoord = texcoord})
-					window.lastSwitchList [i] = {atributo, index, i}
-					i = i + 1
-				end
-			end
-			
-			for index, ptable in ipairs (_detalhes.RaidTables.Menu) do
-				tinsert (t, {value = i, label = ptable [1], onclick = Current_Switch_Func, icon = ptable [2]})
-				window.lastSwitchList [i] = {"raid", ptable [4], i}
-				i = i + 1
-			end
-		
-			return t
-		end
-	
-		local healer_icon1 = g:NewImage (frame18, [[Interface\LFGFRAME\UI-LFG-ICON-ROLES]], 20, 20, nil, {GetTexCoordsForRole("HEALER")}, "HealerIcon1", "$parentHealerIcon1")
-		local healer_icon2 = g:NewImage (frame18, [[Interface\LFGFRAME\UI-LFG-ICON-ROLES]], 20, 20, nil, {GetTexCoordsForRole("HEALER")}, "HealerIcon2", "$parentHealerIcon2")
-
-		local dps_icon1 = g:NewImage (frame18, [[Interface\LFGFRAME\UI-LFG-ICON-ROLES]], 20, 20, nil, {GetTexCoordsForRole("DAMAGER")}, "DpsIcon1", "$parentDpsIcon1")
-		local dps_icon2 = g:NewImage (frame18, [[Interface\LFGFRAME\UI-LFG-ICON-ROLES]], 20, 20, nil, {GetTexCoordsForRole("DAMAGER")}, "DpsIcon2", "$parentDpsIcon2")
-		
-		local tank_icon1 = g:NewImage (frame18, [[Interface\LFGFRAME\UI-LFG-ICON-ROLES]], 20, 20, nil, {GetTexCoordsForRole("TANK")}, "TankIcon1", "$parentTankIcon1")
-		local tank_icon2 = g:NewImage (frame18, [[Interface\LFGFRAME\UI-LFG-ICON-ROLES]], 20, 20, nil, {GetTexCoordsForRole("TANK")}, "TankIcon2", "$parentTankIcon2")
-	
-		-- auto switch all roles in combat
-			g:NewLabel (frame18, _, "$parentAutoSwitchLabel", "autoSwitchLabel", Loc ["STRING_OPTIONS_AUTO_SWITCH"], "GameFontHighlightLeft")
-			--
-			local OnSelectAutoSwitchOnCombatAllRoles = function (_, _, switch_to)
-				if (switch_to == 0) then
-					_G.DetailsOptionsWindow.instance.switch_all_roles_in_combat = false
-					return
-				end
-				
-				local selected = window.lastSwitchList [switch_to]
-				_G.DetailsOptionsWindow.instance.switch_all_roles_in_combat = selected
-				
-				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
-			end
-
-			local BuildThisMenu = function()
-				Current_Switch_Func = OnSelectAutoSwitchOnCombatAllRoles
-				return BuildSwitchMenu()
-			end
-			
-			local d = g:NewDropDown (frame18, _, "$parentAutoSwitchDropdown", "autoSwitchDropdown", 160, dropdown_height, BuildThisMenu, 1, options_dropdown_template)
-			
-			frame18.autoSwitchDropdown:SetPoint ("left", frame18.autoSwitchLabel, "right", 2, 0)		
-			
-			window:CreateLineBackground2 (frame18, "autoSwitchDropdown", "autoSwitchLabel", Loc ["STRING_OPTIONS_AUTO_SWITCH_DESC"])
-		
-		-- auto switch after a wipe
-			g:NewLabel (frame18, _, "$parentAutoSwitchWipeLabel", "AutoSwitchWipeLabel", Loc ["STRING_OPTIONS_AUTO_SWITCH_WIPE"], "GameFontHighlightLeft")
-			--
-			local OnSelectAutoSwitchWipe = function (_, _, switch_to)
-				if (switch_to == 0) then
-					_G.DetailsOptionsWindow.instance.switch_all_roles_after_wipe = false
-					return
-				end
-				
-				local selected = window.lastSwitchList [switch_to]
-				_G.DetailsOptionsWindow.instance.switch_all_roles_after_wipe = selected
-				
-				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
-			end
-			
-			local BuildThisMenu = function()
-				Current_Switch_Func = OnSelectAutoSwitchWipe
-				return BuildSwitchMenu()
-			end
-			
-			local d = g:NewDropDown (frame18, _, "$parentAutoSwitchWipeDropdown", "autoSwitchWipeDropdown", 160, dropdown_height, BuildThisMenu, 1, options_dropdown_template)
-			
-			frame18.autoSwitchWipeDropdown:SetPoint ("left", frame18.AutoSwitchWipeLabel, "right", 2, 0)		
-			
-			window:CreateLineBackground2 (frame18, "autoSwitchWipeDropdown", "AutoSwitchWipeLabel", Loc ["STRING_OPTIONS_AUTO_SWITCH_WIPE_DESC"])
-
-		-- auto switch damage no in combat
-			g:NewLabel (frame18, _, "$parentAutoSwitchDamageNoCombatLabel", "AutoSwitchDamageNoCombatLabel", "", "GameFontHighlightLeft")
-			--
-			local OnSelectAutoSwitchDamageNoCombat = function (_, _, switch_to)
-				if (switch_to == 0) then
-					_G.DetailsOptionsWindow.instance.switch_damager = false
-					return
-				end
-				
-				local selected = window.lastSwitchList [switch_to]
-				_G.DetailsOptionsWindow.instance.switch_damager = selected
-				
-				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
-			end
-			
-			local BuildThisMenu = function()
-				Current_Switch_Func = OnSelectAutoSwitchDamageNoCombat
-				return BuildSwitchMenu()
-			end
-			
-			local d = g:NewDropDown (frame18, _, "$parentAutoSwitchDamageNoCombatDropdown", "AutoSwitchDamageNoCombatDropdown", 160, dropdown_height, BuildThisMenu, 1, options_dropdown_template)
-			
-			frame18.AutoSwitchDamageNoCombatDropdown:SetPoint ("left", dps_icon1, "right", 2, 0)
-			frame18.AutoSwitchDamageNoCombatLabel:SetPoint ("left", dps_icon1, "left", 0, 0)
-			
-			window:CreateLineBackground2 (frame18, "AutoSwitchDamageNoCombatDropdown", "AutoSwitchDamageNoCombatLabel", Loc ["STRING_OPTIONS_AUTO_SWITCH_DAMAGER_DESC"], dps_icon1)
-
-		-- auto switch damage in combat
-			g:NewLabel (frame18, _, "$parentAutoSwitchDamageCombatLabel", "AutoSwitchDamageCombatLabel", Loc ["STRING_OPTIONS_AUTO_SWITCH_COMBAT"], "GameFontHighlightLeft")
-			--
-			local OnSelectAutoSwitchDamageCombat = function (_, _, switch_to)
-				if (switch_to == 0) then
-					_G.DetailsOptionsWindow.instance.switch_damager_in_combat = false
-					return
-				end
-				
-				local selected = window.lastSwitchList [switch_to]
-				_G.DetailsOptionsWindow.instance.switch_damager_in_combat = selected
-				
-				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
-			end
-			
-			local BuildThisMenu = function()
-				Current_Switch_Func = OnSelectAutoSwitchDamageCombat
-				return BuildSwitchMenu()
-			end
-			
-			local d = g:NewDropDown (frame18, _, "$parentAutoSwitchDamageCombatDropdown", "AutoSwitchDamageCombatDropdown", 160, dropdown_height, BuildThisMenu, 1, options_dropdown_template)
-			
-			frame18.AutoSwitchDamageCombatDropdown:SetPoint ("left", frame18.AutoSwitchDamageCombatLabel, "right", 2, -1)		
-			frame18.AutoSwitchDamageCombatLabel:SetPoint ("left", dps_icon2, "right", 2, 1)
-			
-			window:CreateLineBackground2 (frame18, "AutoSwitchDamageCombatDropdown", "AutoSwitchDamageCombatLabel", Loc ["STRING_OPTIONS_AUTO_SWITCH_DAMAGER_DESC"], dps_icon2)
-
-		-- auto switch heal in no combat
-			g:NewLabel (frame18, _, "$parentAutoSwitchHealNoCombatLabel", "AutoSwitchHealNoCombatLabel", "", "GameFontHighlightLeft")
-			--
-			local OnSelectAutoSwitchHealNoCombat = function (_, _, switch_to)
-				if (switch_to == 0) then
-					_G.DetailsOptionsWindow.instance.switch_healer = false
-					return
-				end
-				
-				local selected = window.lastSwitchList [switch_to]
-				_G.DetailsOptionsWindow.instance.switch_healer = selected
-				
-				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
-			end
-			
-			local BuildThisMenu = function()
-				Current_Switch_Func = OnSelectAutoSwitchHealNoCombat
-				return BuildSwitchMenu()
-			end
-			
-			local d = g:NewDropDown (frame18, _, "$parentAutoSwitchHealNoCombatDropdown", "AutoSwitchHealNoCombatDropdown", 160, dropdown_height, BuildThisMenu, 1, options_dropdown_template)
-			
-			--frame18.AutoSwitchHealNoCombatDropdown:SetPoint ("left", frame18.AutoSwitchHealNoCombatLabel, "right", 2, 0)		
-			frame18.AutoSwitchHealNoCombatDropdown:SetPoint ("left", healer_icon1, "right", 2, 0)
-			frame18.AutoSwitchHealNoCombatLabel:SetPoint ("left", healer_icon1, "left", 0, 0)
-			
-			window:CreateLineBackground2 (frame18, "AutoSwitchHealNoCombatDropdown", "AutoSwitchHealNoCombatLabel", Loc ["STRING_OPTIONS_AUTO_SWITCH_HEALER_DESC"], healer_icon1)
-
-		-- auto switch heal in combat
-			g:NewLabel (frame18, _, "$parentAutoSwitchHealCombatLabel", "AutoSwitchHealCombatLabel", Loc ["STRING_OPTIONS_AUTO_SWITCH_COMBAT"], "GameFontHighlightLeft")
-			--
-			local OnSelectAutoSwitchHealCombat = function (_, _, switch_to)
-				if (switch_to == 0) then
-					_G.DetailsOptionsWindow.instance.switch_healer_in_combat = false
-					return
-				end
-				
-				local selected = window.lastSwitchList [switch_to]
-				_G.DetailsOptionsWindow.instance.switch_healer_in_combat = selected
-				
-				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
-			end
-			
-			local BuildThisMenu = function()
-				Current_Switch_Func = OnSelectAutoSwitchHealCombat
-				return BuildSwitchMenu()
-			end
-			
-			local d = g:NewDropDown (frame18, _, "$parentAutoSwitchHealCombatDropdown", "AutoSwitchHealCombatDropdown", 160, dropdown_height, BuildThisMenu, 1, options_dropdown_template)
-			
-			--frame18.AutoSwitchHealCombatDropdown:SetPoint ("left", frame18.AutoSwitchHealCombatLabel, "right", 2, 0)		
-			frame18.AutoSwitchHealCombatDropdown:SetPoint ("left", frame18.AutoSwitchHealCombatLabel, "right", 2, -1)
-			frame18.AutoSwitchHealCombatLabel:SetPoint ("left", healer_icon2, "right", 2, 1)
-			
-			window:CreateLineBackground2 (frame18, "AutoSwitchHealCombatDropdown", "AutoSwitchHealCombatLabel", Loc ["STRING_OPTIONS_AUTO_SWITCH_HEALER_DESC"], healer_icon2)
-			
-		-- auto switch tank in no combat
-			g:NewLabel (frame18, _, "$parentAutoSwitchTankNoCombatLabel", "AutoSwitchTankNoCombatLabel", "", "GameFontHighlightLeft")
-			--
-			local OnSelectAutoSwitchTankNoCombat = function (_, _, switch_to)
-				if (switch_to == 0) then
-					_G.DetailsOptionsWindow.instance.switch_tank = false
-					return
-				end
-				
-				local selected = window.lastSwitchList [switch_to]
-				_G.DetailsOptionsWindow.instance.switch_tank = selected
-				
-				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
-			end
-			
-			local BuildThisMenu = function()
-				Current_Switch_Func = OnSelectAutoSwitchTankNoCombat
-				return BuildSwitchMenu()
-			end
-			
-			local d = g:NewDropDown (frame18, _, "$parentAutoSwitchTankNoCombatDropdown", "AutoSwitchTankNoCombatDropdown", 160, dropdown_height, BuildThisMenu, 1, options_dropdown_template)
-
-			frame18.AutoSwitchTankNoCombatDropdown:SetPoint ("left", tank_icon1, "right", 2, 0)		
-			frame18.AutoSwitchTankNoCombatLabel:SetPoint ("left", tank_icon1, "left", 0, 0)
-			
-			window:CreateLineBackground2 (frame18, "AutoSwitchTankNoCombatDropdown", "AutoSwitchTankNoCombatLabel", Loc ["STRING_OPTIONS_AUTO_SWITCH_TANK_DESC"], tank_icon1)
-
-		-- auto switch tank in combat
-			g:NewLabel (frame18, _, "$parentAutoSwitchTankCombatLabel", "AutoSwitchTankCombatLabel", Loc ["STRING_OPTIONS_AUTO_SWITCH_COMBAT"], "GameFontHighlightLeft")
-			--
-			local OnSelectAutoSwitchTankCombat = function (_, _, switch_to)
-				if (switch_to == 0) then
-					_G.DetailsOptionsWindow.instance.switch_tank_in_combat = false
-					return
-				end
-				
-				local selected = window.lastSwitchList [switch_to]
-				_G.DetailsOptionsWindow.instance.switch_tank_in_combat = selected
-				
-				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
-			end
-			
-			local BuildThisMenu = function()
-				Current_Switch_Func = OnSelectAutoSwitchTankCombat
-				return BuildSwitchMenu()
-			end
-			
-			local d = g:NewDropDown (frame18, _, "$parentAutoSwitchTankCombatDropdown", "AutoSwitchTankCombatDropdown", 160, dropdown_height, BuildThisMenu, 1, options_dropdown_template)
-			
-			frame18.AutoSwitchTankCombatDropdown:SetPoint ("left", frame18.AutoSwitchTankCombatLabel, "right", 2, -1)
-			frame18.AutoSwitchTankCombatLabel:SetPoint ("left", tank_icon2, "right", 2, 1)
-			
-			window:CreateLineBackground2 (frame18, "AutoSwitchTankCombatDropdown", "AutoSwitchTankCombatLabel", Loc ["STRING_OPTIONS_AUTO_SWITCH_TANK_DESC"], tank_icon2)
-		
-		
-		--> auto current segment
-		g:NewSwitch (frame18, _, "$parentAutoCurrentSlider", "autoCurrentSlider", 60, 20, _, _, instance.auto_current, nil, nil, nil, nil, options_switch_template)
-		g:NewLabel (frame18, _, "$parentAutoCurrentLabel", "autoCurrentLabel", Loc ["STRING_OPTIONS_INSTANCE_CURRENT"], "GameFontHighlightLeft")
-
-		frame18.autoCurrentSlider:SetPoint ("left", frame18.autoCurrentLabel, "right", 2)
-		frame18.autoCurrentSlider:SetAsCheckBox()
-		frame18.autoCurrentSlider.OnSwitch = function (self, instance, value)
-			instance.auto_current = value
-			
-			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
-		end
-		
-		window:CreateLineBackground2 (frame18, "autoCurrentSlider", "autoCurrentLabel", Loc ["STRING_OPTIONS_INSTANCE_CURRENT_DESC"])
-
-	--> instances
-	
-		g:NewLabel (frame18, _, "$parentDeleteInstanceLabel", "deleteInstanceLabel", Loc ["STRING_OPTIONS_INSTANCE_DELETE"], "GameFontHighlightLeft")
-		
-		local onSelectDeleteInstance = function (_, _, selected)
-			frame18.deleteInstanceButton.selected_instance = selected
-		end
-		
-		local buildSelectDeleteInstance = function()
-			local InstanceList = {}
-			for index = 1, math.min (#_detalhes.tabela_instancias, _detalhes.instances_amount), 1 do 
-				local _this_instance = _detalhes.tabela_instancias [index]
-
-				--> pegar o que ela ta mostrando
-				local atributo = _this_instance.atributo
-				local sub_atributo = _this_instance.sub_atributo
-				
-				if (atributo == 5) then --> custom
-					local CustomObject = _detalhes.custom [sub_atributo]
-					
-					if (CustomObject) then
-						InstanceList [#InstanceList+1] = {value = index, label = _detalhes.atributos.lista [atributo] .. " - " .. CustomObject.name, onclick = onSelectDeleteInstance, icon = CustomObject.icon}
-					else
-						InstanceList [#InstanceList+1] = {value = index, label = "unknown" .. " - " .. " invalid custom", onclick = onSelectDeleteInstance, icon = [[Interface\COMMON\VOICECHAT-MUTED]]}
-					end
-					
-				else
-					local modo = _this_instance.modo
-					
-					if (modo == 1) then --alone
-						atributo = _detalhes.SoloTables.Mode or 1
-						local SoloInfo = _detalhes.SoloTables.Menu [atributo]
-						if (SoloInfo) then
-							InstanceList [#InstanceList+1] = {value = index, label = "#".. index .. " " .. SoloInfo [1], onclick = onSelectDeleteInstance, icon = SoloInfo [2]}
-						else
-							InstanceList [#InstanceList+1] = {value = index, label = "#".. index .. " unknown", onclick = onSelectDeleteInstance, icon = ""}
-						end
-						
-					elseif (modo == 4) then --raid
-						atributo = _detalhes.RaidTables.Mode or 1
-						local RaidInfo = _detalhes.RaidTables.Menu [atributo]
-						if (RaidInfo) then
-							InstanceList [#InstanceList+1] = {value = index, label = "#".. index .. " " .. RaidInfo [1], onclick = onSelectDeleteInstance, icon = RaidInfo [2]}
-						else
-							InstanceList [#InstanceList+1] = {value = index, label = "#".. index .. " unknown", onclick = onSelectDeleteInstance, icon = ""}
-						end
-					else
-						InstanceList [#InstanceList+1] = {value = index, label = "#".. index .. " " .. _detalhes.atributos.lista [atributo] .. " - " .. _detalhes.sub_atributos [atributo].lista [sub_atributo], onclick = onSelectDeleteInstance, icon = _detalhes.sub_atributos [atributo].icones[sub_atributo] [1], texcoord = _detalhes.sub_atributos [atributo].icones[sub_atributo] [2]}
-						
-					end
-				end
-			end
-			return InstanceList
-		end
-		
-		local d = g:NewDropDown (frame18, _, "$parentDeleteInstanceDropdown", "deleteInstanceDropdown", 160, dropdown_height, buildSelectDeleteInstance, 0, options_dropdown_template)
-		
-		frame18.deleteInstanceDropdown:SetPoint ("left", frame18.deleteInstanceLabel, "right", 2, 0)		
-		
-		local desc = window:CreateLineBackground2 (frame18, "deleteInstanceDropdown", "deleteInstanceLabel", Loc ["STRING_OPTIONS_INSTANCE_DELETE_DESC"])
-		desc:SetWidth (180)
-		
-		local delete_instance = function (self)
-			if (self.selected_instance) then
-				_detalhes:DeleteInstance (self.selected_instance)
-				ReloadUI()
-			end
-		end
-		
-		local confirm_button = CreateFrame ("button", "DetailsDeleteInstanceButton", frame18, "OptionsButtonTemplate")
-		confirm_button:SetSize (60, 20)
-		confirm_button:SetPoint ("left", frame18.deleteInstanceDropdown.widget, "right", 2, 0)
-		confirm_button:SetText ("confirm")
-		confirm_button:SetScript ("OnClick", delete_instance)
-		frame18.deleteInstanceButton = confirm_button
-		
-		--> menu text size
-		g:NewLabel (frame18, _, "$parentMenuTextSizeLabel", "MenuTextSizeLabel", Loc ["STRING_OPTIONS_MENU_FONT_SIZE"], "GameFontHighlightLeft")
-		local s = g:NewSlider (frame18, _, "$parentMenuTextSizeSlider", "MenuTextSizeSlider", SLIDER_WIDTH, SLIDER_HEIGHT, 5, 32, 1, _detalhes.font_sizes.menus, nil, nil, nil, options_slider_template)
-		--config_slider (s)
-	
-		frame18.MenuTextSizeSlider:SetPoint ("left", frame18.MenuTextSizeLabel, "right", 2)
-	
-		frame18.MenuTextSizeSlider:SetHook ("OnValueChange", function (_, _, amount)
-			_detalhes.font_sizes.menus = amount
-			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
-		end)
-		
-		window:CreateLineBackground2 (frame18, "MenuTextSizeSlider", "MenuTextSizeLabel", Loc ["STRING_OPTIONS_MENU_FONT_SIZE_DESC"])
-		
-		--> menu text face
-		local onSelectFont = function (_, _, fontName)
-			_detalhes.font_faces.menus = fontName
-		end
-		
-		local buildFontMenu = function() 
-			local fontObjects = SharedMedia:HashTable ("font")
-			local fontTable = {}
-			for name, fontPath in pairs (fontObjects) do 
-				fontTable[#fontTable+1] = {value = name, label = name, icon = font_select_icon, texcoord = font_select_texcoord, onclick = onSelectFont, font = fontPath, descfont = name, desc = Loc ["STRING_MUSIC_DETAILS_ROBERTOCARLOS"]}
-			end
-			table.sort (fontTable, function (t1, t2) return t1.label < t2.label end)
-			return fontTable 
-		end
-		
-		local d = g:NewDropDown (frame18, _, "$parentFontDropdown", "fontDropdown", DROPDOWN_WIDTH, dropdown_height, buildFontMenu, nil, options_dropdown_template)
-		
-		g:NewLabel (frame18, _, "$parentFontLabel", "fontLabel", Loc ["STRING_OPTIONS_MENU_FONT_FACE"], "GameFontHighlightLeft")
-		frame18.fontDropdown:SetPoint ("left", frame18.fontLabel, "right", 2)
-
-		window:CreateLineBackground2 (frame18, "fontDropdown", "fontLabel", Loc ["STRING_OPTIONS_MENU_FONT_FACE_DESC"])	
-		
-		--> disable groups
-		g:NewLabel (frame18, _, "$parentDisableGroupsLabel", "DisableGroupsLabel", Loc ["STRING_OPTIONS_DISABLE_GROUPS"], "GameFontHighlightLeft")
-		g:NewSwitch (frame18, _, "$parentDisableGroupsSlider", "DisableGroupsSlider", 60, 20, _, _, _detalhes.disable_window_groups, nil, nil, nil, nil, options_switch_template)
-
-		frame18.DisableGroupsSlider:SetPoint ("left", frame18.DisableGroupsLabel, "right", 2)
-		frame18.DisableGroupsSlider:SetAsCheckBox()
-		frame18.DisableGroupsSlider.OnSwitch = function (_, _, value)
-			_detalhes.disable_window_groups = value
-			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
-		end
-		
-		window:CreateLineBackground2 (frame18, "DisableGroupsSlider", "DisableGroupsLabel", Loc ["STRING_OPTIONS_DISABLE_GROUPS_DESC"])
-	
-		--> disable reset button
-		g:NewLabel (frame18, _, "$parentDisableResetLabel", "DisableResetLabel", Loc ["STRING_OPTIONS_DISABLE_RESET"], "GameFontHighlightLeft")
-		g:NewSwitch (frame18, _, "$parentDisableResetSlider", "DisableResetSlider", 60, 20, _, _, _detalhes.disable_reset_button, nil, nil, nil, nil, options_switch_template)
-
-		frame18.DisableResetSlider:SetPoint ("left", frame18.DisableResetLabel, "right", 2)
-		frame18.DisableResetSlider:SetAsCheckBox()
-		frame18.DisableResetSlider.OnSwitch = function (_, _, value)
-			_detalhes.disable_reset_button = value
-			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
-		end
-		
-		window:CreateLineBackground2 (frame18, "DisableResetSlider", "DisableResetLabel", Loc ["STRING_OPTIONS_DISABLE_RESET_DESC"])
-		
-		--> disable lock resize ungroup buttons
-		g:NewLabel (frame18, _, "$parentDisableLockResizeUngroupLabel", "DisableLockResizeUngroupLabel", Loc ["STRING_OPTIONS_DISABLE_LOCK_RESIZE"], "GameFontHighlightLeft")
-		g:NewSwitch (frame18, _, "$parentDisableLockResizeUngroupSlider", "DisableLockResizeUngroupSlider", 60, 20, _, _, _detalhes.disable_lock_ungroup_buttons, nil, nil, nil, nil, options_switch_template)
-
-		frame18.DisableLockResizeUngroupSlider:SetPoint ("left", frame18.DisableLockResizeUngroupLabel, "right", 2)
-		frame18.DisableLockResizeUngroupSlider:SetAsCheckBox()
-		frame18.DisableLockResizeUngroupSlider.OnSwitch = function (_, _, value)
-			_detalhes.disable_lock_ungroup_buttons = value
-			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
-		end
-		
-		window:CreateLineBackground2 (frame18, "DisableLockResizeUngroupSlider", "DisableLockResizeUngroupLabel", Loc ["STRING_OPTIONS_DISABLE_LOCK_RESIZE_DESC"])
-		
-		--> disable stretch button
-		g:NewLabel (frame18, _, "$parentDisableStretchButtonLabel", "DisableStretchButtonLabel", Loc ["STRING_OPTIONS_DISABLE_STRETCH_BUTTON"], "GameFontHighlightLeft")
-		g:NewSwitch (frame18, _, "$parentDisableStretchButtonSlider", "DisableStretchButtonSlider", 60, 20, _, _, _detalhes.disable_stretch_button, nil, nil, nil, nil, options_switch_template)
-
-		frame18.DisableStretchButtonSlider:SetPoint ("left", frame18.DisableStretchButtonLabel, "right", 2)
-		frame18.DisableStretchButtonSlider:SetAsCheckBox()
-		frame18.DisableStretchButtonSlider.OnSwitch = function (_, _, value)
-			_detalhes.disable_stretch_button = value
-			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
-		end
-		
-		window:CreateLineBackground2 (frame18, "DisableStretchButtonSlider", "DisableStretchButtonLabel", Loc ["STRING_OPTIONS_DISABLE_STRETCH_BUTTON_DESC"])
-
-		--> disable bar highlight
-		g:NewLabel (frame18, _, "$parentDisableBarHighlightLabel", "DisableBarHighlightLabel", Loc ["STRING_OPTIONS_DISABLE_BARHIGHLIGHT"], "GameFontHighlightLeft")
-		g:NewSwitch (frame18, _, "$parentDisableBarHighlightSlider", "DisableBarHighlightSlider", 60, 20, _, _, _detalhes.instances_disable_bar_highlight, nil, nil, nil, nil, options_switch_template)
-
-		frame18.DisableBarHighlightSlider:SetPoint ("left", frame18.DisableBarHighlightLabel, "right", 2)
-		frame18.DisableBarHighlightSlider:SetAsCheckBox()
-		frame18.DisableBarHighlightSlider.OnSwitch = function (_, _, value)
-			_detalhes.instances_disable_bar_highlight = value
-			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
-		end
-		
-		window:CreateLineBackground2 (frame18, "DisableBarHighlightSlider", "DisableBarHighlightLabel", Loc ["STRING_OPTIONS_DISABLE_BARHIGHLIGHT_DESC"])
-		
-		--> damage taken always on everything
-		g:NewLabel (frame18, _, "$parentDamageTakenEverythingLabel", "DamageTakenEverythingLabel", Loc ["STRING_OPTIONS_DTAKEN_EVERYTHING"], "GameFontHighlightLeft")
-		g:NewSwitch (frame18, _, "$parentDamageTakenEverythingSlider", "DamageTakenEverythingSlider", 60, 20, _, _, _detalhes.damage_taken_everything, nil, nil, nil, nil, options_switch_template)
-
-		frame18.DamageTakenEverythingSlider:SetPoint ("left", frame18.DamageTakenEverythingLabel, "right", 2)
-		frame18.DamageTakenEverythingSlider:SetAsCheckBox()
-		frame18.DamageTakenEverythingSlider.OnSwitch = function (_, _, value)
-			_detalhes.damage_taken_everything = value
-			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
-		end
-		
-		window:CreateLineBackground2 (frame18, "DamageTakenEverythingSlider", "DamageTakenEverythingLabel", Loc ["STRING_OPTIONS_DTAKEN_EVERYTHING_DESC"])
-		
-		--> click to open menus
-		g:NewLabel (frame18, _, "$parentClickToOpenMenusLabel", "ClickToOpenMenusLabel", Loc ["STRING_OPTIONS_CLICK_TO_OPEN_MENUS"], "GameFontHighlightLeft")
-		g:NewSwitch (frame18, _, "$parentClickToOpenMenusSlider", "ClickToOpenMenusSlider", 60, 20, _, _, _detalhes.instances_menu_click_to_open, nil, nil, nil, nil, options_switch_template)
-
-		frame18.ClickToOpenMenusSlider:SetPoint ("left", frame18.ClickToOpenMenusLabel, "right", 2)
-		frame18.ClickToOpenMenusSlider:SetAsCheckBox()
-		frame18.ClickToOpenMenusSlider.OnSwitch = function (_, _, value)
-			_detalhes.instances_menu_click_to_open = value
-			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
-		end
-		
-		window:CreateLineBackground2 (frame18, "ClickToOpenMenusSlider", "ClickToOpenMenusLabel", Loc ["STRING_OPTIONS_CLICK_TO_OPEN_MENUS_DESC"])
-	
-	--> Use Scroll Bar
-		g:NewLabel (frame18, _, "$parentUseScrollLabel", "scrollLabel", Loc ["STRING_OPTIONS_SCROLLBAR"], "GameFontHighlightLeft")
-		--
-		g:NewSwitch (frame18, _, "$parentUseScrollSlider", "scrollSlider", 60, 20, _, _, _detalhes.use_scroll, nil, nil, nil, nil, options_switch_template)
-		frame18.scrollSlider:SetPoint ("left", frame18.scrollLabel, "right", 2, 0)
-		frame18.scrollSlider:SetAsCheckBox()
-		frame18.scrollSlider.OnSwitch = function (self, _, value) --> slider, fixedValue, sliderValue
-			_detalhes.use_scroll = value
-			if (not value) then
-				for index = 1, #_detalhes.tabela_instancias do
-					local instance = _detalhes.tabela_instancias [index]
-					if (instance.baseframe) then --fast check if instance already been initialized
-						instance:EsconderScrollBar (true, true)
-					end
-				end
-			end
-			--hard instances reset
-			_detalhes:InstanciaCallFunction (_detalhes.gump.Fade, "in", nil, "barras")
-			_detalhes:InstanciaCallFunction (_detalhes.AtualizaSegmentos) -- atualiza o instancia.showing para as novas tabelas criadas
-			_detalhes:InstanciaCallFunction (_detalhes.AtualizaSoloMode_AfertReset) -- verifica se precisa zerar as tabela da janela solo mode
-			_detalhes:InstanciaCallFunction (_detalhes.ResetaGump) --_detalhes:ResetaGump ("de todas as instancias")
-			_detalhes:AtualizaGumpPrincipal (-1, true) --atualiza todas as instancias
-			
-			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
-		end
-		
-		window:CreateLineBackground2 (frame18, "scrollSlider", "scrollLabel", Loc ["STRING_OPTIONS_SCROLLBAR_DESC"])
-	
-	--> Report
-		--heal links
-		g:NewLabel (frame18, _, "$parentReportHelpfulLinkLabel", "ReportHelpfulLinkLabel", Loc ["STRING_OPTIONS_REPORT_HEALLINKS"], "GameFontHighlightLeft")
-		g:NewSwitch (frame18, _, "$parentReportHelpfulLinkSlider", "ReportHelpfulLinkSlider", 60, 20, _, _, _detalhes.report_heal_links, nil, nil, nil, nil, options_switch_template)
-
-		frame18.ReportHelpfulLinkSlider:SetPoint ("left", frame18.ReportHelpfulLinkLabel, "right", 2)
-		frame18.ReportHelpfulLinkSlider:SetAsCheckBox()
-		frame18.ReportHelpfulLinkSlider.OnSwitch = function (_, _, value)
-			_detalhes.report_heal_links = value
-			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
-		end
-		
-		window:CreateLineBackground2 (frame18, "ReportHelpfulLinkSlider", "ReportHelpfulLinkLabel", Loc ["STRING_OPTIONS_REPORT_HEALLINKS_DESC"])
-	
-		--report format
-		
-		g:NewLabel (frame18, _, "$parentReportFormatLabel", "ReportFormatLabel", Loc ["STRING_OPTIONS_REPORT_SCHEMA"], "GameFontHighlightLeft")
-		
-		local onSelectReportFormatAlpha = function (_, _, value)
-			_detalhes.report_schema = value
-			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
-		end
-		local coords = {1, 0, 0, 1}
-		local ReportFormatOptions = {
-			{value = 1, label = Loc ["STRING_OPTIONS_REPORT_SCHEMA1"], onclick = onSelectReportFormatAlpha, icon = [[Interface\Buttons\UI-GuildButton-MOTD-Disabled]], texcoord = coords, desc = "1. Jack .. 128.9k (29.9k, 23.33%)"},
-			{value = 2, label = Loc ["STRING_OPTIONS_REPORT_SCHEMA2"], onclick = onSelectReportFormatAlpha, icon = [[Interface\Buttons\UI-GuildButton-MOTD-Disabled]], texcoord = coords, desc = "1. Jack .. 23.33% (29.9k, 128.9k)"},
-			{value = 3, label = Loc ["STRING_OPTIONS_REPORT_SCHEMA3"], onclick = onSelectReportFormatAlpha, icon = [[Interface\Buttons\UI-GuildButton-MOTD-Disabled]], texcoord = coords, desc = "1. Jack .. 23.33% (128.9k 29.9k)"},
-		}
-		local BuildReportFormatOptions = function()
-			return ReportFormatOptions
-		end
-		local d = g:NewDropDown (frame18, _, "$parentReportFormatDropdown", "ReportFormatDropdown", 160, dropdown_height, BuildReportFormatOptions, nil, options_dropdown_template)
-		
-		frame18.ReportFormatDropdown:SetPoint ("left", frame18.ReportFormatLabel, "right", 2, 0)		
-		
-		window:CreateLineBackground2 (frame18, "ReportFormatDropdown", "ReportFormatLabel", Loc ["STRING_OPTIONS_REPORT_SCHEMA_DESC"])
-	
-	
-	--> trash suppression
-		g:NewLabel (frame18, _, "$parentTrashSuppressionLabel", "TrashSuppressionLabel", "Trash Suppression", "GameFontHighlightLeft")
-		g:NewSlider (frame18, _, "$parentTrashSuppressionSlider", "TrashSuppressionSlider", SLIDER_WIDTH, SLIDER_HEIGHT, 0, 180, 1, _detalhes.instances_suppress_trash, nil, nil, nil, options_slider_template)
-
-		frame18.TrashSuppressionSlider:SetPoint ("left", frame18.TrashSuppressionLabel, "right", 2)
-	
-		frame18.TrashSuppressionSlider:SetHook ("OnValueChange", function (_, _, amount)
-			_detalhes:SetTrashSuppression (amount)
-			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
-		end)
-		
-		window:CreateLineBackground2 (frame18, "TrashSuppressionSlider", "TrashSuppressionLabel", "For |cFFFFFF00X|r seconds, suppress auto switching to show trash segments (|cFFFFFF00only after defeat a boss encounter|r).")
-
-	--> disable all displays window
-		g:NewLabel (frame18, _, "$parentDisableAllDisplaysWindowLabel", "DisableAllDisplaysWindowLabel", Loc ["STRING_OPTIONS_DISABLE_ALLDISPLAYSWINDOW"], "GameFontHighlightLeft")
-		g:NewSwitch (frame18, _, "$parentDisableAllDisplaysWindowSlider", "DisableAllDisplaysWindowSlider", 60, 20, _, _, _detalhes.disable_alldisplays_window, nil, nil, nil, nil, options_switch_template)
-
-		frame18.DisableAllDisplaysWindowSlider:SetPoint ("left", frame18.DisableAllDisplaysWindowLabel, "right", 2)
-		frame18.DisableAllDisplaysWindowSlider:SetAsCheckBox()
-		frame18.DisableAllDisplaysWindowSlider.OnSwitch = function (_, _, value)
-			_detalhes.disable_alldisplays_window = value
-			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
-		end
-		
-		window:CreateLineBackground2 (frame18, "DisableAllDisplaysWindowSlider", "DisableAllDisplaysWindowLabel", Loc ["STRING_OPTIONS_DISABLE_ALLDISPLAYSWINDOW_DESC"])
-		
-	--> Anchors
-		
-		g:NewLabel (frame18, _, "$parentInstancesMiscAnchor", "instancesMiscLabel", Loc ["STRING_OPTIONS_INSTANCES"], "GameFontNormal")
-		g:NewLabel (frame18, _, "$parentSwitchesAnchor", "switchesAnchorLabel", Loc ["STRING_OPTIONS_SWITCH_ANCHOR"], "GameFontNormal")
-		
-		g:NewLabel (frame18, _, "$parentReportAnchor", "reportAnchorLabel", Loc ["STRING_OPTIONS_REPORT_ANCHOR"], "GameFontNormal")
-		
-		--frame18.totalBarPickColorLabel:SetPoint ("left", frame18.totalBarIconTexture, "right", 10, 0)
-		
-		local x = window.left_start_at
-		
-		titulo_misc_settings:SetPoint (x, window.title_y_pos)
-		titulo_misc_settings_desc:SetPoint (x, window.title_y_pos2)
-		
-		local left_side = {
-			{"switchesAnchorLabel", 1, true},
-
-			{dps_icon1, 2},
-			{healer_icon1, 3},
-			{tank_icon1, 4},
-			
-			{dps_icon2, 5, true},
-			{healer_icon2, 6},
-			{tank_icon2, 7},
-			
-			{"autoSwitchLabel", 8, true},
-			{"AutoSwitchWipeLabel", 9},
-			{"autoCurrentLabel", 10},
-			{"TrashSuppressionLabel", 11},
-			
-			{"reportAnchorLabel", 12, true},
-			{"ReportHelpfulLinkLabel", 13},
-			{"ReportFormatLabel", 14},
-		}
-		
-		window:arrange_menu (frame18, left_side, x, window.top_start_at)
-		
 		local right_side = {
-			{"instancesMiscLabel", 1, true},
-			{"deleteInstanceLabel", 2},
-			{"MenuTextSizeLabel", 3, true},
-			{"fontLabel", 4},
-			{"DisableGroupsLabel", 5, true},
-			{"DisableResetLabel", 6},
-			{"DisableLockResizeUngroupLabel", 7},
-			{"DisableStretchButtonLabel", 8},
-			{"DisableBarHighlightLabel", 9},
-			{"DisableAllDisplaysWindowLabel", 10},
-			{"DamageTakenEverythingLabel", 11},
-			{"ClickToOpenMenusLabel", 12},
-			{"scrollLabel", 13, true},
+			--{"instancesMiscLabel", 1, true},
+			--{"deleteInstanceLabel", 2},
+
+			--{"DisableGroupsLabel", 5, true},
+			--{"DisableLockResizeUngroupLabel", 7},
+			--{"DisableStretchButtonLabel", 8},
+			--{"DisableBarHighlightLabel", 9},
+			--{"DisableAllDisplaysWindowLabel", 10},
+			--{"DamageTakenEverythingLabel", 10},
+			
+			--{"scrollLabel", 11, true},
 
 		}
 		
@@ -2775,15 +2227,15 @@ function window:CreateFrame18()
 end
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- Advanced Settings - Hide/Show Controls ~17
+-- Advanced Settings - Automatization Settings ~17
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 function window:CreateFrame17()
 	
 	local frame17 = window.options [17][1]
-	
-		local titulo_instance_settings = g:NewLabel (frame17, _, "$parentTituloInstanceSettingsText", "InstanceSettingsLabel", Loc ["STRING_OPTIONS_SHOWHIDE"], "GameFontNormal", 16)
-		local titulo_instance_settings_desc = g:NewLabel (frame17, _, "$parentInstanceSettingsText2", "InstanceSettingsLabel", Loc ["STRING_OPTIONS_SHOWHIDE_DESC"], "GameFontNormal", 10, "white")
-		titulo_instance_settings_desc:SetSize (450, 20)
+
+		local titulo_automatization_settings = g:NewLabel (frame17, _, "$parentTituloAutomatizationSettingsText", "AutomatizationSettingsLabel", Loc ["STRING_OPTIONSMENU_AUTOMATIC_TITLE"], "GameFontNormal", 16)
+		local titulo_automatization_settings_desc = g:NewLabel (frame17, _, "$parentAutomatizationSettingsText2", "AutomatizationSettingsLabel2", Loc ["STRING_OPTIONSMENU_AUTOMATIC_TITLE_DESC"], "GameFontNormal", 10, "white")
+		titulo_automatization_settings_desc:SetSize (450, 20)
 	
 	--> combat alpha modifier
 	
@@ -2951,14 +2403,323 @@ function window:CreateFrame17()
 			return true
 		end)		
 
-	--> anchors
+		
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+		local Current_Switch_Func = function()end
+	
+		local BuildSwitchMenu = function()
+		
+			window.lastSwitchList = {}
+			local t = {{value = 0, label = "do not switch", color = {.7, .7, .7, 1}, onclick = Current_Switch_Func, icon = [[Interface\Glues\LOGIN\Glues-CheckBox-Check]]}}
+			
+			local attributes = _detalhes.sub_atributos
+			local i = 1
+			
+			for atributo, sub_atributo in ipairs (attributes) do
+				local icones = sub_atributo.icones
+				for index, att_name in ipairs (sub_atributo.lista) do
+					local texture, texcoord = unpack (icones [index])
+					tinsert (t, {value = i, label = att_name, onclick = Current_Switch_Func, icon = texture, texcoord = texcoord})
+					window.lastSwitchList [i] = {atributo, index, i}
+					i = i + 1
+				end
+			end
+			
+			for index, ptable in ipairs (_detalhes.RaidTables.Menu) do
+				tinsert (t, {value = i, label = ptable [1], onclick = Current_Switch_Func, icon = ptable [2]})
+				window.lastSwitchList [i] = {"raid", ptable [4], i}
+				i = i + 1
+			end
+		
+			return t
+		end
+	
+		local healer_icon1 = g:NewImage (frame17, [[Interface\LFGFRAME\UI-LFG-ICON-ROLES]], 20, 20, nil, {GetTexCoordsForRole("HEALER")}, "HealerIcon1", "$parentHealerIcon1")
+		local healer_icon2 = g:NewImage (frame17, [[Interface\LFGFRAME\UI-LFG-ICON-ROLES]], 20, 20, nil, {GetTexCoordsForRole("HEALER")}, "HealerIcon2", "$parentHealerIcon2")
+
+		local dps_icon1 = g:NewImage (frame17, [[Interface\LFGFRAME\UI-LFG-ICON-ROLES]], 20, 20, nil, {GetTexCoordsForRole("DAMAGER")}, "DpsIcon1", "$parentDpsIcon1")
+		local dps_icon2 = g:NewImage (frame17, [[Interface\LFGFRAME\UI-LFG-ICON-ROLES]], 20, 20, nil, {GetTexCoordsForRole("DAMAGER")}, "DpsIcon2", "$parentDpsIcon2")
+		
+		local tank_icon1 = g:NewImage (frame17, [[Interface\LFGFRAME\UI-LFG-ICON-ROLES]], 20, 20, nil, {GetTexCoordsForRole("TANK")}, "TankIcon1", "$parentTankIcon1")
+		local tank_icon2 = g:NewImage (frame17, [[Interface\LFGFRAME\UI-LFG-ICON-ROLES]], 20, 20, nil, {GetTexCoordsForRole("TANK")}, "TankIcon2", "$parentTankIcon2")
+	
+		-- auto switch all roles in combat
+			g:NewLabel (frame17, _, "$parentAutoSwitchLabel", "autoSwitchLabel", Loc ["STRING_OPTIONS_AUTO_SWITCH"], "GameFontHighlightLeft")
+			--
+			local OnSelectAutoSwitchOnCombatAllRoles = function (_, _, switch_to)
+				if (switch_to == 0) then
+					_G.DetailsOptionsWindow.instance.switch_all_roles_in_combat = false
+					return
+				end
+				
+				local selected = window.lastSwitchList [switch_to]
+				_G.DetailsOptionsWindow.instance.switch_all_roles_in_combat = selected
+				
+				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+			end
+
+			local BuildThisMenu = function()
+				Current_Switch_Func = OnSelectAutoSwitchOnCombatAllRoles
+				return BuildSwitchMenu()
+			end
+			
+			local d = g:NewDropDown (frame17, _, "$parentAutoSwitchDropdown", "autoSwitchDropdown", 160, dropdown_height, BuildThisMenu, 1, options_dropdown_template)
+			
+			frame17.autoSwitchDropdown:SetPoint ("left", frame17.autoSwitchLabel, "right", 2, 0)		
+			
+			window:CreateLineBackground2 (frame17, "autoSwitchDropdown", "autoSwitchLabel", Loc ["STRING_OPTIONS_AUTO_SWITCH_DESC"])
+		
+		-- auto switch after a wipe
+			g:NewLabel (frame17, _, "$parentAutoSwitchWipeLabel", "AutoSwitchWipeLabel", Loc ["STRING_OPTIONS_AUTO_SWITCH_WIPE"], "GameFontHighlightLeft")
+			--
+			local OnSelectAutoSwitchWipe = function (_, _, switch_to)
+				if (switch_to == 0) then
+					_G.DetailsOptionsWindow.instance.switch_all_roles_after_wipe = false
+					return
+				end
+				
+				local selected = window.lastSwitchList [switch_to]
+				_G.DetailsOptionsWindow.instance.switch_all_roles_after_wipe = selected
+				
+				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+			end
+			
+			local BuildThisMenu = function()
+				Current_Switch_Func = OnSelectAutoSwitchWipe
+				return BuildSwitchMenu()
+			end
+			
+			local d = g:NewDropDown (frame17, _, "$parentAutoSwitchWipeDropdown", "autoSwitchWipeDropdown", 160, dropdown_height, BuildThisMenu, 1, options_dropdown_template)
+			
+			frame17.autoSwitchWipeDropdown:SetPoint ("left", frame17.AutoSwitchWipeLabel, "right", 2, 0)		
+			
+			window:CreateLineBackground2 (frame17, "autoSwitchWipeDropdown", "AutoSwitchWipeLabel", Loc ["STRING_OPTIONS_AUTO_SWITCH_WIPE_DESC"])
+
+		-- auto switch damage no in combat
+			g:NewLabel (frame17, _, "$parentAutoSwitchDamageNoCombatLabel", "AutoSwitchDamageNoCombatLabel", "", "GameFontHighlightLeft")
+			--
+			local OnSelectAutoSwitchDamageNoCombat = function (_, _, switch_to)
+				if (switch_to == 0) then
+					_G.DetailsOptionsWindow.instance.switch_damager = false
+					return
+				end
+				
+				local selected = window.lastSwitchList [switch_to]
+				_G.DetailsOptionsWindow.instance.switch_damager = selected
+				
+				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+			end
+			
+			local BuildThisMenu = function()
+				Current_Switch_Func = OnSelectAutoSwitchDamageNoCombat
+				return BuildSwitchMenu()
+			end
+			
+			local d = g:NewDropDown (frame17, _, "$parentAutoSwitchDamageNoCombatDropdown", "AutoSwitchDamageNoCombatDropdown", 160, dropdown_height, BuildThisMenu, 1, options_dropdown_template)
+			
+			frame17.AutoSwitchDamageNoCombatDropdown:SetPoint ("left", dps_icon1, "right", 2, 0)
+			frame17.AutoSwitchDamageNoCombatLabel:SetPoint ("left", dps_icon1, "left", 0, 0)
+			
+			window:CreateLineBackground2 (frame17, "AutoSwitchDamageNoCombatDropdown", "AutoSwitchDamageNoCombatLabel", Loc ["STRING_OPTIONS_AUTO_SWITCH_DAMAGER_DESC"], dps_icon1)
+
+		-- auto switch damage in combat
+			g:NewLabel (frame17, _, "$parentAutoSwitchDamageCombatLabel", "AutoSwitchDamageCombatLabel", Loc ["STRING_OPTIONS_AUTO_SWITCH_COMBAT"], "GameFontHighlightLeft")
+			--
+			local OnSelectAutoSwitchDamageCombat = function (_, _, switch_to)
+				if (switch_to == 0) then
+					_G.DetailsOptionsWindow.instance.switch_damager_in_combat = false
+					return
+				end
+				
+				local selected = window.lastSwitchList [switch_to]
+				_G.DetailsOptionsWindow.instance.switch_damager_in_combat = selected
+				
+				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+			end
+			
+			local BuildThisMenu = function()
+				Current_Switch_Func = OnSelectAutoSwitchDamageCombat
+				return BuildSwitchMenu()
+			end
+			
+			local d = g:NewDropDown (frame17, _, "$parentAutoSwitchDamageCombatDropdown", "AutoSwitchDamageCombatDropdown", 160, dropdown_height, BuildThisMenu, 1, options_dropdown_template)
+			
+			frame17.AutoSwitchDamageCombatDropdown:SetPoint ("left", frame17.AutoSwitchDamageCombatLabel, "right", 2, -1)		
+			frame17.AutoSwitchDamageCombatLabel:SetPoint ("left", dps_icon2, "right", 2, 1)
+			
+			window:CreateLineBackground2 (frame17, "AutoSwitchDamageCombatDropdown", "AutoSwitchDamageCombatLabel", Loc ["STRING_OPTIONS_AUTO_SWITCH_DAMAGER_DESC"], dps_icon2)
+
+		-- auto switch heal in no combat
+			g:NewLabel (frame17, _, "$parentAutoSwitchHealNoCombatLabel", "AutoSwitchHealNoCombatLabel", "", "GameFontHighlightLeft")
+			--
+			local OnSelectAutoSwitchHealNoCombat = function (_, _, switch_to)
+				if (switch_to == 0) then
+					_G.DetailsOptionsWindow.instance.switch_healer = false
+					return
+				end
+				
+				local selected = window.lastSwitchList [switch_to]
+				_G.DetailsOptionsWindow.instance.switch_healer = selected
+				
+				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+			end
+			
+			local BuildThisMenu = function()
+				Current_Switch_Func = OnSelectAutoSwitchHealNoCombat
+				return BuildSwitchMenu()
+			end
+			
+			local d = g:NewDropDown (frame17, _, "$parentAutoSwitchHealNoCombatDropdown", "AutoSwitchHealNoCombatDropdown", 160, dropdown_height, BuildThisMenu, 1, options_dropdown_template)
+			
+			--frame17.AutoSwitchHealNoCombatDropdown:SetPoint ("left", frame17.AutoSwitchHealNoCombatLabel, "right", 2, 0)		
+			frame17.AutoSwitchHealNoCombatDropdown:SetPoint ("left", healer_icon1, "right", 2, 0)
+			frame17.AutoSwitchHealNoCombatLabel:SetPoint ("left", healer_icon1, "left", 0, 0)
+			
+			window:CreateLineBackground2 (frame17, "AutoSwitchHealNoCombatDropdown", "AutoSwitchHealNoCombatLabel", Loc ["STRING_OPTIONS_AUTO_SWITCH_HEALER_DESC"], healer_icon1)
+
+		-- auto switch heal in combat
+			g:NewLabel (frame17, _, "$parentAutoSwitchHealCombatLabel", "AutoSwitchHealCombatLabel", Loc ["STRING_OPTIONS_AUTO_SWITCH_COMBAT"], "GameFontHighlightLeft")
+			--
+			local OnSelectAutoSwitchHealCombat = function (_, _, switch_to)
+				if (switch_to == 0) then
+					_G.DetailsOptionsWindow.instance.switch_healer_in_combat = false
+					return
+				end
+				
+				local selected = window.lastSwitchList [switch_to]
+				_G.DetailsOptionsWindow.instance.switch_healer_in_combat = selected
+				
+				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+			end
+			
+			local BuildThisMenu = function()
+				Current_Switch_Func = OnSelectAutoSwitchHealCombat
+				return BuildSwitchMenu()
+			end
+			
+			local d = g:NewDropDown (frame17, _, "$parentAutoSwitchHealCombatDropdown", "AutoSwitchHealCombatDropdown", 160, dropdown_height, BuildThisMenu, 1, options_dropdown_template)
+			
+			--frame17.AutoSwitchHealCombatDropdown:SetPoint ("left", frame17.AutoSwitchHealCombatLabel, "right", 2, 0)		
+			frame17.AutoSwitchHealCombatDropdown:SetPoint ("left", frame17.AutoSwitchHealCombatLabel, "right", 2, -1)
+			frame17.AutoSwitchHealCombatLabel:SetPoint ("left", healer_icon2, "right", 2, 1)
+			
+			window:CreateLineBackground2 (frame17, "AutoSwitchHealCombatDropdown", "AutoSwitchHealCombatLabel", Loc ["STRING_OPTIONS_AUTO_SWITCH_HEALER_DESC"], healer_icon2)
+			
+		-- auto switch tank in no combat
+			g:NewLabel (frame17, _, "$parentAutoSwitchTankNoCombatLabel", "AutoSwitchTankNoCombatLabel", "", "GameFontHighlightLeft")
+			--
+			local OnSelectAutoSwitchTankNoCombat = function (_, _, switch_to)
+				if (switch_to == 0) then
+					_G.DetailsOptionsWindow.instance.switch_tank = false
+					return
+				end
+				
+				local selected = window.lastSwitchList [switch_to]
+				_G.DetailsOptionsWindow.instance.switch_tank = selected
+				
+				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+			end
+			
+			local BuildThisMenu = function()
+				Current_Switch_Func = OnSelectAutoSwitchTankNoCombat
+				return BuildSwitchMenu()
+			end
+			
+			local d = g:NewDropDown (frame17, _, "$parentAutoSwitchTankNoCombatDropdown", "AutoSwitchTankNoCombatDropdown", 160, dropdown_height, BuildThisMenu, 1, options_dropdown_template)
+
+			frame17.AutoSwitchTankNoCombatDropdown:SetPoint ("left", tank_icon1, "right", 2, 0)		
+			frame17.AutoSwitchTankNoCombatLabel:SetPoint ("left", tank_icon1, "left", 0, 0)
+			
+			window:CreateLineBackground2 (frame17, "AutoSwitchTankNoCombatDropdown", "AutoSwitchTankNoCombatLabel", Loc ["STRING_OPTIONS_AUTO_SWITCH_TANK_DESC"], tank_icon1)
+
+		-- auto switch tank in combat
+			g:NewLabel (frame17, _, "$parentAutoSwitchTankCombatLabel", "AutoSwitchTankCombatLabel", Loc ["STRING_OPTIONS_AUTO_SWITCH_COMBAT"], "GameFontHighlightLeft")
+			--
+			local OnSelectAutoSwitchTankCombat = function (_, _, switch_to)
+				if (switch_to == 0) then
+					_G.DetailsOptionsWindow.instance.switch_tank_in_combat = false
+					return
+				end
+				
+				local selected = window.lastSwitchList [switch_to]
+				_G.DetailsOptionsWindow.instance.switch_tank_in_combat = selected
+				
+				_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+			end
+			
+			local BuildThisMenu = function()
+				Current_Switch_Func = OnSelectAutoSwitchTankCombat
+				return BuildSwitchMenu()
+			end
+			
+			local d = g:NewDropDown (frame17, _, "$parentAutoSwitchTankCombatDropdown", "AutoSwitchTankCombatDropdown", 160, dropdown_height, BuildThisMenu, 1, options_dropdown_template)
+			
+			frame17.AutoSwitchTankCombatDropdown:SetPoint ("left", frame17.AutoSwitchTankCombatLabel, "right", 2, -1)
+			frame17.AutoSwitchTankCombatLabel:SetPoint ("left", tank_icon2, "right", 2, 1)
+			
+			window:CreateLineBackground2 (frame17, "AutoSwitchTankCombatDropdown", "AutoSwitchTankCombatLabel", Loc ["STRING_OPTIONS_AUTO_SWITCH_TANK_DESC"], tank_icon2)
+		
+		
+		--> auto current segment
+		g:NewSwitch (frame17, _, "$parentAutoCurrentSlider", "autoCurrentSlider", 60, 20, _, _, instance.auto_current, nil, nil, nil, nil, options_switch_template)
+		g:NewLabel (frame17, _, "$parentAutoCurrentLabel", "autoCurrentLabel", Loc ["STRING_OPTIONS_INSTANCE_CURRENT"], "GameFontHighlightLeft")
+
+		frame17.autoCurrentSlider:SetPoint ("left", frame17.autoCurrentLabel, "right", 2)
+		frame17.autoCurrentSlider:SetAsCheckBox()
+		frame17.autoCurrentSlider.OnSwitch = function (self, instance, value)
+			instance.auto_current = value
+			
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+		end
+		
+		window:CreateLineBackground2 (frame17, "autoCurrentSlider", "autoCurrentLabel", Loc ["STRING_OPTIONS_INSTANCE_CURRENT_DESC"])
+
+	--> trash suppression
+		g:NewLabel (frame17, _, "$parentTrashSuppressionLabel", "TrashSuppressionLabel", "Trash Suppression", "GameFontHighlightLeft")
+		g:NewSlider (frame17, _, "$parentTrashSuppressionSlider", "TrashSuppressionSlider", SLIDER_WIDTH, SLIDER_HEIGHT, 0, 180, 1, _detalhes.instances_suppress_trash, nil, nil, nil, options_slider_template)
+
+		frame17.TrashSuppressionSlider:SetPoint ("left", frame17.TrashSuppressionLabel, "right", 2)
+	
+		frame17.TrashSuppressionSlider:SetHook ("OnValueChange", function (_, _, amount)
+			_detalhes:SetTrashSuppression (amount)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+		end)
+		
+		window:CreateLineBackground2 (frame17, "TrashSuppressionSlider", "TrashSuppressionLabel", "For |cFFFFFF00X|r seconds, suppress auto switching to show trash segments (|cFFFFFF00only after defeat a boss encounter|r).")
+
+		
+		
+	--> Anchors
+		
+		g:NewLabel (frame17, _, "$parentInstancesMiscAnchor", "instancesMiscLabel", Loc ["STRING_OPTIONS_INSTANCES"], "GameFontNormal")
+		g:NewLabel (frame17, _, "$parentSwitchesAnchor", "switchesAnchorLabel", Loc ["STRING_OPTIONS_SWITCH_ANCHOR"], "GameFontNormal")
+		
 		local x = window.left_start_at
 		
-		titulo_instance_settings:SetPoint (x, window.title_y_pos)
-		titulo_instance_settings_desc:SetPoint (x, window.title_y_pos2)
+		titulo_automatization_settings:SetPoint (x, window.title_y_pos)
+		titulo_automatization_settings_desc:SetPoint (x, window.title_y_pos2)
 		
 		local left_side = {
+			{"switchesAnchorLabel", 1, true},
+			
+			{dps_icon1, 2},
+			{healer_icon1, 3},
+			{tank_icon1, 4},
+			
+			{dps_icon2, 5, true},
+			{healer_icon2, 6},
+			{tank_icon2, 7},
+			
+			{"autoSwitchLabel", 8, true},
+			{"AutoSwitchWipeLabel", 9},
+			{"autoCurrentLabel", 10},
+			{"TrashSuppressionLabel", 11},
+		}
+		
+		window:arrange_menu (frame17, left_side, x, window.top_start_at)
+
+		local right_side = {
 			{"hideInCombatAnchor", 1, true},
 			{"combatAlphaLabel", 2},
 			{"hideOnCombatAlphaLabel", 3},
@@ -2970,7 +2731,10 @@ function window:CreateFrame17()
 			{"menuOnLeaveLabel", 8},
 		}
 		
-		window:arrange_menu (frame17, left_side, x, window.top_start_at)
+		window:arrange_menu (frame17, right_side, window.right_start_at, window.top_start_at)
+		
+		
+		
 end
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -3899,11 +3663,10 @@ function window:CreateFrame14()
 		end
 		window:CreateLineBackground2 (frame14, "AttributeEncounterTimerSwitch", "AttributeEncounterTimerLabel", Loc ["STRING_OPTIONS_MENU_ATTRIBUTE_ENCOUNTERTIMER_DESC"])
 		
-	--frame14.attributeLabel:SetPoint (10, -205)
-	
 		--general anchor
-		g:NewLabel (frame14, _, "$parentAttributeTextTextAnchor", "TextAnchorLabel", Loc ["STRING_OPTIONS_MENU_ATTRIBUTETEXT_ANCHOR"], "GameFontNormal")
+		g:NewLabel (frame14, _, "$parentAttributeTextTextAnchor", "TextAnchorLabel", Loc ["STRING_OPTIONS_TOOLTIP_ANCHORTEXTS"], "GameFontNormal")
 		g:NewLabel (frame14, _, "$parentAttributeTextSettingsAnchor", "SettingsAnchorLabel", Loc ["STRING_OPTIONS_MENU_ATTRIBUTESETTINGS_ANCHOR"], "GameFontNormal")
+		g:NewLabel (frame14, _, "$parentLayoutSettingsAnchor", "LayoutAnchorLabel", Loc ["STRING_OPTIONS_ROW_SETTING_ANCHOR"], "GameFontNormal")
 		
 		local x = window.left_start_at
 		
@@ -3913,15 +3676,19 @@ function window:CreateFrame14()
 		local left_side = {
 			{"SettingsAnchorLabel", 1, true},
 			{"attributeEnabledLabel", 2},
-			{"attributeAnchorXLabel", 3},
-			{"attributeAnchorYLabel", 4},
-			{"attributeSideLabel", 5},
-			{"AttributeEncounterTimerLabel", 6},
-			{"TextAnchorLabel", 7, true},
-			{"attributeTextColorLabel", 8},
-			{"attributeTextSizeLabel", 9},
-			{"attributeFontLabel", 10},
-			{"attributeShadowLabel", 11},
+			{"AttributeEncounterTimerLabel", 2},
+			
+			{"LayoutAnchorLabel", 3, true},
+			
+			{"attributeAnchorXLabel", 5},
+			{"attributeAnchorYLabel", 6},
+			{"attributeSideLabel", 7},
+
+			{"TextAnchorLabel", 8, true},
+			{"attributeTextColorLabel", 9},
+			{"attributeTextSizeLabel", 10},
+			{"attributeFontLabel", 11},
+			{"attributeShadowLabel", 12},
 		}
 		
 		window:arrange_menu (frame14, left_side, x, window.top_start_at)
@@ -4524,17 +4291,6 @@ function window:CreateFrame2()
 
 		window:CreateLineBackground2 (frame2, "DeathLogLimitDropdown", "DeathLogLimitLabel", Loc ["STRING_OPTIONS_DEATHLIMIT_DESC"])
 
-	--> Erase Chart Data
-		g:NewLabel (frame2, _, "$parentEraseChartDataLabel", "EraseChartDataLabel", Loc ["STRING_OPTIONS_ERASECHARTDATA"], "GameFontHighlightLeft")
-		g:NewSwitch (frame2, _, "$parentEraseChartDataSlider", "EraseChartDataSlider", 60, 20, _, _, false, nil, nil, nil, nil, options_switch_template)
-		frame2.EraseChartDataSlider:SetPoint ("left", frame2.EraseChartDataLabel, "right", 2, 0)
-		frame2.EraseChartDataSlider:SetAsCheckBox()
-		frame2.EraseChartDataSlider.OnSwitch = function (self, _, value)
-			_detalhes.clear_graphic = value
-			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
-		end
-		window:CreateLineBackground2 (frame2, "EraseChartDataSlider", "EraseChartDataLabel", Loc ["STRING_OPTIONS_ERASECHARTDATA_DESC"])
-		
 	--> Overall Data
 		g:NewLabel (frame2, _, "$parentOverallDataAnchor", "OverallDataLabel", Loc ["STRING_OPTIONS_OVERALL_ANCHOR"], "GameFontNormal")
 		
@@ -4691,128 +4447,6 @@ function window:CreateFrame2()
 		--
 		window:CreateLineBackground2 (frame2, "OverallOnLogoutSlider", "OverallOnLogoutLabel", Loc ["STRING_OPTIONS_OVERALL_LOGOFF_DESC"])
 		
-	--> captures
-			
-		--> icons
-		g:NewImage (frame2, [[Interface\AddOns\Details\images\atributos_captures]], 20, 20, nil, nil, "damageCaptureImage", "$parentCaptureDamage")
-		frame2.damageCaptureImage:SetTexCoord (0, 0.125, 0, 1)
-		
-		g:NewImage (frame2, [[Interface\AddOns\Details\images\atributos_captures]], 20, 20, nil, nil, "healCaptureImage", "$parentCaptureHeal")
-		frame2.healCaptureImage:SetTexCoord (0.125, 0.25, 0, 1)
-		
-		g:NewImage (frame2, [[Interface\AddOns\Details\images\atributos_captures]], 20, 20, nil, nil, "energyCaptureImage", "$parentCaptureEnergy")
-		frame2.energyCaptureImage:SetTexCoord (0.25, 0.375, 0, 1)
-		
-		g:NewImage (frame2, [[Interface\AddOns\Details\images\atributos_captures]], 20, 20, nil, nil, "miscCaptureImage", "$parentCaptureMisc")
-		frame2.miscCaptureImage:SetTexCoord (0.375, 0.5, 0, 1)
-		
-		g:NewImage (frame2, [[Interface\AddOns\Details\images\atributos_captures]], 20, 20, nil, nil, "auraCaptureImage", "$parentCaptureAura")
-		frame2.auraCaptureImage:SetTexCoord (0.5, 0.625, 0, 1)
-		
-		--> labels
-		g:NewLabel (frame2, _, "$parentCaptureDamageLabel", "damageCaptureLabel", Loc ["STRING_OPTIONS_CDAMAGE"], "GameFontHighlightLeft")
-		frame2.damageCaptureLabel:SetPoint ("left", frame2.damageCaptureImage, "right", 2)
-		
-		g:NewLabel (frame2, _, "$parentCaptureHealLabel", "healCaptureLabel", Loc ["STRING_OPTIONS_CHEAL"], "GameFontHighlightLeft")
-		frame2.healCaptureLabel:SetPoint ("left", frame2.healCaptureImage, "right", 2)
-		
-		g:NewLabel (frame2, _, "$parentCaptureEnergyLabel", "energyCaptureLabel", Loc ["STRING_OPTIONS_CENERGY"], "GameFontHighlightLeft")
-		frame2.energyCaptureLabel:SetPoint ("left", frame2.energyCaptureImage, "right", 2)
-		
-		g:NewLabel (frame2, _, "$parentCaptureMiscLabel", "miscCaptureLabel", Loc ["STRING_OPTIONS_CMISC"], "GameFontHighlightLeft")
-		frame2.miscCaptureLabel:SetPoint ("left", frame2.miscCaptureImage, "right", 2)
-		
-		g:NewLabel (frame2, _, "$parentCaptureAuraLabel", "auraCaptureLabel", Loc ["STRING_OPTIONS_CAURAS"], "GameFontHighlightLeft")
-		frame2.auraCaptureLabel:SetPoint ("left", frame2.auraCaptureImage, "right", 2)
-		
-		--> switches
-		
-		local switch_icon_color = function (icon, on_off)
-			icon:SetDesaturated (not on_off)
-		end
-		
-		g:NewSwitch (frame2, _, "$parentCaptureDamageSlider", "damageCaptureSlider", 60, 20, _, _, _detalhes.capture_real ["damage"], nil, nil, nil, nil, options_switch_template)
-		frame2.damageCaptureSlider:SetPoint ("left", frame2.damageCaptureLabel, "right", 2)
-		frame2.damageCaptureSlider:SetAsCheckBox()
-		frame2.damageCaptureSlider.OnSwitch = function (self, _, value)
-			_detalhes:CaptureSet (value, "damage", true)
-			if (value) then
-				_detalhes:CaptureSet (true, "spellcast", true)
-			end
-			switch_icon_color (frame2.damageCaptureImage, value)
-		end
-		switch_icon_color (frame2.damageCaptureImage, _detalhes.capture_real ["damage"])
-		
-		window:CreateLineBackground2 (frame2, "damageCaptureSlider", "damageCaptureLabel", Loc ["STRING_OPTIONS_CDAMAGE_DESC"], frame2.damageCaptureImage)
-		
-		g:NewSwitch (frame2, _, "$parentCaptureHealSlider", "healCaptureSlider", 60, 20, _, _, _detalhes.capture_real ["heal"], nil, nil, nil, nil, options_switch_template)
-		frame2.healCaptureSlider:SetPoint ("left", frame2.healCaptureLabel, "right", 2)
-		frame2.healCaptureSlider:SetAsCheckBox()
-		frame2.healCaptureSlider.OnSwitch = function (self, _, value)
-			_detalhes:CaptureSet (value, "heal", true)
-			if (value) then
-				_detalhes:CaptureSet (true, "spellcast", true)
-			end
-			switch_icon_color (frame2.healCaptureImage, value)
-		end
-		switch_icon_color (frame2.healCaptureImage, _detalhes.capture_real ["heal"])
-		
-		window:CreateLineBackground2 (frame2, "healCaptureSlider", "healCaptureLabel", Loc ["STRING_OPTIONS_CHEAL_DESC"], frame2.healCaptureImage)
-		
-		g:NewSwitch (frame2, _, "$parentCaptureEnergySlider", "energyCaptureSlider", 60, 20, _, _, _detalhes.capture_real ["energy"], nil, nil, nil, nil, options_switch_template)
-		frame2.energyCaptureSlider:SetPoint ("left", frame2.energyCaptureLabel, "right", 2)
-		frame2.energyCaptureSlider:SetAsCheckBox()
-
-		frame2.energyCaptureSlider.OnSwitch = function (self, _, value)
-			_detalhes:CaptureSet (value, "energy", true)
-			if (value) then
-				_detalhes:CaptureSet (true, "spellcast", true)
-			end
-			switch_icon_color (frame2.energyCaptureImage, value)
-		end
-		switch_icon_color (frame2.energyCaptureImage, _detalhes.capture_real ["energy"])
-		
-		window:CreateLineBackground2 (frame2, "energyCaptureSlider", "energyCaptureLabel", Loc ["STRING_OPTIONS_CENERGY_DESC"], frame2.energyCaptureImage)
-		
-		g:NewSwitch (frame2, _, "$parentCaptureMiscSlider", "miscCaptureSlider", 60, 20, _, _, _detalhes.capture_real ["miscdata"], nil, nil, nil, nil, options_switch_template)
-		frame2.miscCaptureSlider:SetPoint ("left", frame2.miscCaptureLabel, "right", 2)
-		frame2.miscCaptureSlider:SetAsCheckBox()
-		frame2.miscCaptureSlider.OnSwitch = function (self, _, value)
-			_detalhes:CaptureSet (value, "miscdata", true)
-			if (value) then
-				_detalhes:CaptureSet (true, "spellcast", true)
-			end
-			switch_icon_color (frame2.miscCaptureImage, value)
-		end
-		switch_icon_color (frame2.miscCaptureImage, _detalhes.capture_real ["miscdata"])
-		
-		window:CreateLineBackground2 (frame2, "miscCaptureSlider", "miscCaptureLabel", Loc ["STRING_OPTIONS_CMISC_DESC"], frame2.miscCaptureImage)
-		
-		g:NewSwitch (frame2, _, "$parentCaptureAuraSlider", "auraCaptureSlider", 60, 20, _, _, _detalhes.capture_real ["aura"], nil, nil, nil, nil, options_switch_template)
-		frame2.auraCaptureSlider:SetPoint ("left", frame2.auraCaptureLabel, "right", 2)
-		frame2.auraCaptureSlider:SetAsCheckBox()
-		frame2.auraCaptureSlider.OnSwitch = function (self, _, value)
-			_detalhes:CaptureSet (value, "aura", true)
-			if (value) then
-				_detalhes:CaptureSet (true, "spellcast", true)
-			end
-			switch_icon_color (frame2.auraCaptureImage, value)
-		end
-		switch_icon_color (frame2.auraCaptureImage, _detalhes.capture_real ["aura"])
-		
-		window:CreateLineBackground2 (frame2, "auraCaptureSlider", "auraCaptureLabel", Loc ["STRING_OPTIONS_CAURAS_DESC"], frame2.auraCaptureImage)
-			
-		--> cloud capture
-		g:NewLabel (frame2, _, "$parentCloudCaptureLabel", "cloudCaptureLabel", Loc ["STRING_OPTIONS_CLOUD"], "GameFontHighlightLeft")
-
-		g:NewSwitch (frame2, _, "$parentCloudAuraSlider", "cloudCaptureSlider", 60, 20, _, _, _detalhes.cloud_capture, nil, nil, nil, nil, options_switch_template)
-		frame2.cloudCaptureSlider:SetPoint ("left", frame2.cloudCaptureLabel, "right", 2)
-		frame2.cloudCaptureSlider:SetAsCheckBox()
-		frame2.cloudCaptureSlider.OnSwitch = function (self, _, value)
-			_detalhes.cloud_capture = value
-		end
-		
-		window:CreateLineBackground2 (frame2, "cloudCaptureSlider", "cloudCaptureLabel", Loc ["STRING_OPTIONS_CLOUD_DESC"] )
 
 	--> battleground
 		--> remote parser
@@ -4835,13 +4469,28 @@ function window:CreateFrame2()
 		end
 		window:CreateLineBackground2 (frame2, "ShowAllSlider", "ShowAllLabel", Loc ["STRING_OPTIONS_BG_ALL_ALLY_DESC"])
 		
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+		--> damage taken always on everything
+		g:NewLabel (frame2, _, "$parentDamageTakenEverythingLabel", "DamageTakenEverythingLabel", Loc ["STRING_OPTIONS_DTAKEN_EVERYTHING"], "GameFontHighlightLeft")
+		g:NewSwitch (frame2, _, "$parentDamageTakenEverythingSlider", "DamageTakenEverythingSlider", 60, 20, _, _, _detalhes.damage_taken_everything, nil, nil, nil, nil, options_switch_template)
+
+		frame2.DamageTakenEverythingSlider:SetPoint ("left", frame2.DamageTakenEverythingLabel, "right", 2)
+		frame2.DamageTakenEverythingSlider:SetAsCheckBox()
+		frame2.DamageTakenEverythingSlider.OnSwitch = function (_, _, value)
+			_detalhes.damage_taken_everything = value
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+		end
+		
+		window:CreateLineBackground2 (frame2, "DamageTakenEverythingSlider", "DamageTakenEverythingLabel", Loc ["STRING_OPTIONS_DTAKEN_EVERYTHING_DESC"])
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 		
 	--> anchors
 	
 		--general anchor
 		g:NewLabel (frame2, _, "$parentGeneralAnchor", "GeneralAnchorLabel", Loc ["STRING_OPTIONS_GENERAL_ANCHOR"], "GameFontNormal")
-		--captures anchor
-		g:NewLabel (frame2, _, "$parentDataCollectAnchor", "DataCollectAnchorLabel", Loc ["STRING_OPTIONS_DATACOLLECT_ANCHOR"], "GameFontNormal")
 		--battleground anchor
 		g:NewLabel (frame2, _, "$parentBattlegroundAnchor", "BattlegroundAnchorLabel", Loc ["STRING_OPTIONS_BG_ANCHOR"], "GameFontNormal")
 		
@@ -4853,21 +4502,19 @@ function window:CreateFrame2()
 		local left_side = {
 			{"GeneralAnchorLabel", 1, true},
 			{"fragsPvpLabel", 2},
-			{"EraseChartDataLabel", 3},
+			--{"EraseChartDataLabel", 3},
 			{"timetypeLabel", 4, true},
-			{"DeathLogLimitLabel", 5, true},
+			{"DeathLogLimitLabel", 5, },
+			{"DamageTakenEverythingLabel", 6, true},
 			
-			{"DataCollectAnchorLabel", 6, true},
-			{"damageCaptureImage", 7},
-			{"healCaptureImage", 8},
-			{"energyCaptureImage", 9},
-			{"miscCaptureImage", 10},
-			{"auraCaptureImage", 11},
-			{"cloudCaptureLabel", 12, true},
+			{"BattlegroundAnchorLabel", 10, true},
+			{"RemoteParserLabel", 11},
+			{"ShowAllLabel", 12},
+
 		}
 		
 		window:arrange_menu (frame2, left_side, x, window.top_start_at)
-
+		
 		local x = window.right_start_at
 		
 		local right_side = {
@@ -4880,10 +4527,7 @@ function window:CreateFrame2()
 			{"OverallNewBossLabel", 7, true},
 			{"OverallNewChallengeLabel", 8},
 			{"OverallOnLogoutLabel", 9},
-			
-			{"BattlegroundAnchorLabel", 10, true},
-			{"RemoteParserLabel", 11},
-			{"ShowAllLabel", 12},
+
 		}
 		
 		window:arrange_menu (frame2, right_side, x, window.top_start_at)
@@ -6398,6 +6042,23 @@ function window:CreateFrame4()
 
 		local background = window:CreateLineBackground2 (frame4, "BackdropColorPick", "BackdropColorLabel", Loc ["STRING_OPTIONS_BAR_BACKDROP_COLOR_DESC"])
 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+		
+		--> disable bar highlight
+		g:NewLabel (frame4, _, "$parentDisableBarHighlightLabel", "DisableBarHighlightLabel", Loc ["STRING_OPTIONS_DISABLE_BARHIGHLIGHT"], "GameFontHighlightLeft")
+		g:NewSwitch (frame4, _, "$parentDisableBarHighlightSlider", "DisableBarHighlightSlider", 60, 20, _, _, _detalhes.instances_disable_bar_highlight, nil, nil, nil, nil, options_switch_template)
+		
+		frame4.DisableBarHighlightSlider:SetPoint ("left", frame4.DisableBarHighlightLabel, "right", 2)
+		frame4.DisableBarHighlightSlider:SetAsCheckBox()
+		frame4.DisableBarHighlightSlider.OnSwitch = function (_, _, value)
+			_detalhes.instances_disable_bar_highlight = value
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+		end
+		
+		window:CreateLineBackground2 (frame4, "DisableBarHighlightSlider", "DisableBarHighlightLabel", Loc ["STRING_OPTIONS_DISABLE_BARHIGHLIGHT_DESC"])
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+		
 	--> Anchors:
 		local x = window.left_start_at
 		
@@ -6431,12 +6092,13 @@ function window:CreateFrame4()
 			{"SortLabel", 4},
 			{frame4.rowHeightLabel, 5, true},
 			{frame4.BarSpacementLabel, 6},
+			{"DisableBarHighlightLabel", 7},
 			--backdrop
-			{frame4.BackdropAnchorLabel, 7, true},
-			{frame4.BackdropColorLabel, 8},
-			{frame4.BackdropEnabledLabel, 9},
-			{frame4.BackdropSizeLabel, 10},
-			{frame4.BackdropBorderTextureLabel, 11},
+			{frame4.BackdropAnchorLabel, 8, true},
+			{frame4.BackdropColorLabel, 9},
+			{frame4.BackdropEnabledLabel, 10},
+			{frame4.BackdropSizeLabel, 11},
+			{frame4.BackdropBorderTextureLabel, 12},
 		}
 
 		window:arrange_menu (frame4, left_side, x, window.top_start_at)
@@ -7699,10 +7361,165 @@ function window:CreateFrame6()
 		end
 		
 		window:CreateLineBackground2 (frame6, "IgnoreMassShowHideSlider", "IgnoreMassShowHideLabel", Loc ["STRING_OPTIONS_WINDOW_IGNOREMASSTOGGLE_DESC"])			
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+		--> disable groups
+		g:NewLabel (frame6, _, "$parentDisableGroupsLabel", "DisableGroupsLabel", Loc ["STRING_OPTIONS_DISABLE_GROUPS"], "GameFontHighlightLeft")
+		g:NewSwitch (frame6, _, "$parentDisableGroupsSlider", "DisableGroupsSlider", 60, 20, _, _, _detalhes.disable_window_groups, nil, nil, nil, nil, options_switch_template)
+
+		frame6.DisableGroupsSlider:SetPoint ("left", frame6.DisableGroupsLabel, "right", 2)
+		frame6.DisableGroupsSlider:SetAsCheckBox()
+		frame6.DisableGroupsSlider.OnSwitch = function (_, _, value)
+			_detalhes.disable_window_groups = value
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+		end
+		
+		window:CreateLineBackground2 (frame6, "DisableGroupsSlider", "DisableGroupsLabel", Loc ["STRING_OPTIONS_DISABLE_GROUPS_DESC"])
+	
+
+		--> disable lock resize ungroup buttons
+		g:NewLabel (frame6, _, "$parentDisableLockResizeUngroupLabel", "DisableLockResizeUngroupLabel", Loc ["STRING_OPTIONS_DISABLE_LOCK_RESIZE"], "GameFontHighlightLeft")
+		g:NewSwitch (frame6, _, "$parentDisableLockResizeUngroupSlider", "DisableLockResizeUngroupSlider", 60, 20, _, _, _detalhes.disable_lock_ungroup_buttons, nil, nil, nil, nil, options_switch_template)
+
+		frame6.DisableLockResizeUngroupSlider:SetPoint ("left", frame6.DisableLockResizeUngroupLabel, "right", 2)
+		frame6.DisableLockResizeUngroupSlider:SetAsCheckBox()
+		frame6.DisableLockResizeUngroupSlider.OnSwitch = function (_, _, value)
+			_detalhes.disable_lock_ungroup_buttons = value
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+		end
+		
+		window:CreateLineBackground2 (frame6, "DisableLockResizeUngroupSlider", "DisableLockResizeUngroupLabel", Loc ["STRING_OPTIONS_DISABLE_LOCK_RESIZE_DESC"])
+		
+		--> disable stretch button
+		g:NewLabel (frame6, _, "$parentDisableStretchButtonLabel", "DisableStretchButtonLabel", Loc ["STRING_OPTIONS_DISABLE_STRETCH_BUTTON"], "GameFontHighlightLeft")
+		g:NewSwitch (frame6, _, "$parentDisableStretchButtonSlider", "DisableStretchButtonSlider", 60, 20, _, _, _detalhes.disable_stretch_button, nil, nil, nil, nil, options_switch_template)
+
+		frame6.DisableStretchButtonSlider:SetPoint ("left", frame6.DisableStretchButtonLabel, "right", 2)
+		frame6.DisableStretchButtonSlider:SetAsCheckBox()
+		frame6.DisableStretchButtonSlider.OnSwitch = function (_, _, value)
+			_detalhes.disable_stretch_button = value
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+		end
+		
+		window:CreateLineBackground2 (frame6, "DisableStretchButtonSlider", "DisableStretchButtonLabel", Loc ["STRING_OPTIONS_DISABLE_STRETCH_BUTTON_DESC"])
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+	--> instances
+	
+		g:NewLabel (frame6, _, "$parentDeleteInstanceLabel", "deleteInstanceLabel", Loc ["STRING_OPTIONS_INSTANCE_DELETE"], "GameFontHighlightLeft")
+		
+		local onSelectDeleteInstance = function (_, _, selected)
+			frame6.deleteInstanceButton.selected_instance = selected
+		end
+		
+		local buildSelectDeleteInstance = function()
+			local InstanceList = {}
+			for index = 1, math.min (#_detalhes.tabela_instancias, _detalhes.instances_amount), 1 do 
+				local _this_instance = _detalhes.tabela_instancias [index]
+
+				--> pegar o que ela ta mostrando
+				local atributo = _this_instance.atributo
+				local sub_atributo = _this_instance.sub_atributo
+				
+				if (atributo == 5) then --> custom
+					local CustomObject = _detalhes.custom [sub_atributo]
+					
+					if (CustomObject) then
+						InstanceList [#InstanceList+1] = {value = index, label = _detalhes.atributos.lista [atributo] .. " - " .. CustomObject.name, onclick = onSelectDeleteInstance, icon = CustomObject.icon}
+					else
+						InstanceList [#InstanceList+1] = {value = index, label = "unknown" .. " - " .. " invalid custom", onclick = onSelectDeleteInstance, icon = [[Interface\COMMON\VOICECHAT-MUTED]]}
+					end
+					
+				else
+					local modo = _this_instance.modo
+					
+					if (modo == 1) then --alone
+						atributo = _detalhes.SoloTables.Mode or 1
+						local SoloInfo = _detalhes.SoloTables.Menu [atributo]
+						if (SoloInfo) then
+							InstanceList [#InstanceList+1] = {value = index, label = "#".. index .. " " .. SoloInfo [1], onclick = onSelectDeleteInstance, icon = SoloInfo [2]}
+						else
+							InstanceList [#InstanceList+1] = {value = index, label = "#".. index .. " unknown", onclick = onSelectDeleteInstance, icon = ""}
+						end
+						
+					elseif (modo == 4) then --raid
+						atributo = _detalhes.RaidTables.Mode or 1
+						local RaidInfo = _detalhes.RaidTables.Menu [atributo]
+						if (RaidInfo) then
+							InstanceList [#InstanceList+1] = {value = index, label = "#".. index .. " " .. RaidInfo [1], onclick = onSelectDeleteInstance, icon = RaidInfo [2]}
+						else
+							InstanceList [#InstanceList+1] = {value = index, label = "#".. index .. " unknown", onclick = onSelectDeleteInstance, icon = ""}
+						end
+					else
+						InstanceList [#InstanceList+1] = {value = index, label = "#".. index .. " " .. _detalhes.atributos.lista [atributo] .. " - " .. _detalhes.sub_atributos [atributo].lista [sub_atributo], onclick = onSelectDeleteInstance, icon = _detalhes.sub_atributos [atributo].icones[sub_atributo] [1], texcoord = _detalhes.sub_atributos [atributo].icones[sub_atributo] [2]}
+						
+					end
+				end
+			end
+			return InstanceList
+		end
+		
+		local d = g:NewDropDown (frame6, _, "$parentDeleteInstanceDropdown", "deleteInstanceDropdown", 160, dropdown_height, buildSelectDeleteInstance, 0, options_dropdown_template)
+		d:SetBackdropBorderColor (.5, .2, .2, 0.4)
+		frame6.deleteInstanceDropdown:SetPoint ("left", frame6.deleteInstanceLabel, "right", 2, 0)		
+		
+		local desc = window:CreateLineBackground2 (frame6, "deleteInstanceDropdown", "deleteInstanceLabel", Loc ["STRING_OPTIONS_INSTANCE_DELETE_DESC"])
+		desc:SetWidth (180)
+		
+		local delete_instance = function (self)
+			if (self.selected_instance) then
+				_detalhes:DeleteInstance (self.selected_instance)
+				ReloadUI()
+			end
+		end
+		
+		local confirm_button = CreateFrame ("button", "DetailsDeleteInstanceButton", frame6, "OptionsButtonTemplate")
+		confirm_button:SetSize (60, 20)
+		confirm_button:SetPoint ("left", frame6.deleteInstanceDropdown.widget, "right", 2, 0)
+		confirm_button:SetText ("confirm")
+		confirm_button:SetScript ("OnClick", delete_instance)
+		frame6.deleteInstanceButton = confirm_button
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+	--> Use Scroll Bar
+		g:NewLabel (frame6, _, "$parentUseScrollLabel", "scrollLabel", Loc ["STRING_OPTIONS_SCROLLBAR"], "GameFontHighlightLeft")
+		--
+		g:NewSwitch (frame6, _, "$parentUseScrollSlider", "scrollSlider", 60, 20, _, _, _detalhes.use_scroll, nil, nil, nil, nil, options_switch_template)
+		frame6.scrollSlider:SetPoint ("left", frame6.scrollLabel, "right", 2, 0)
+		frame6.scrollSlider:SetAsCheckBox()
+		frame6.scrollSlider.OnSwitch = function (self, _, value) --> slider, fixedValue, sliderValue
+			_detalhes.use_scroll = value
+			if (not value) then
+				for index = 1, #_detalhes.tabela_instancias do
+					local instance = _detalhes.tabela_instancias [index]
+					if (instance.baseframe) then --fast check if instance already been initialized
+						instance:EsconderScrollBar (true, true)
+					end
+				end
+			end
+			--hard instances reset
+			_detalhes:InstanciaCallFunction (_detalhes.gump.Fade, "in", nil, "barras")
+			_detalhes:InstanciaCallFunction (_detalhes.AtualizaSegmentos) -- atualiza o instancia.showing para as novas tabelas criadas
+			_detalhes:InstanciaCallFunction (_detalhes.AtualizaSoloMode_AfertReset) -- verifica se precisa zerar as tabela da janela solo mode
+			_detalhes:InstanciaCallFunction (_detalhes.ResetaGump) --_detalhes:ResetaGump ("de todas as instancias")
+			_detalhes:AtualizaGumpPrincipal (-1, true) --atualiza todas as instancias
+			
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+		end
+		
+		window:CreateLineBackground2 (frame6, "scrollSlider", "scrollLabel", Loc ["STRING_OPTIONS_SCROLLBAR_DESC"])
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+		
 		
 	--> general anchor
-		g:NewLabel (frame6, _, "$parentAdjustmentsAnchor", "AdjustmentsAnchorLabel", Loc ["STRING_OPTIONS_WINDOW_ANCHOR"], "GameFontNormal")
+		g:NewLabel (frame6, _, "$parentAdjustmentsAnchor", "AdjustmentsAnchorLabel", Loc ["STRING_OPTIONS_ROW_SETTING_ANCHOR"], "GameFontNormal")
 		g:NewLabel (frame6, _, "$parentAdjustments2Anchor", "AdjustmentsAnchor2Label", Loc ["STRING_OPTIONS_WINDOW_ANCHOR_ANCHORS"], "GameFontNormal")
+		g:NewLabel (frame6, _, "$parentInstancesMiscAnchor", "WindowAnchorLabel", Loc ["STRING_OPTIONS_INSTANCES"], "GameFontNormal")
 		
 		local x = window.left_start_at
 		
@@ -7713,16 +7530,19 @@ function window:CreateFrame6()
 			{"AdjustmentsAnchorLabel", 1, true},
 			{"windowPickColorLabel", 2},
 			{"windowBackgroundPickColorLabel", 3},
-			{"WindowScaleLabel", 4, true},
-			{"sideBarsLabel", 5, true},
+			{"WindowScaleLabel", 4},
+			{"sideBarsLabel", 5},
 			{"IgnoreMassShowHideLabel", 6},
 			{"strataLabel", 7},
 			{"backdropLabel", 8},
+			{"DisableGroupsLabel", 9, true},
+			{"DisableLockResizeUngroupLabel", 10},
+			{"DisableStretchButtonLabel", 11},
 			
-			{"AdjustmentsAnchor2Label", 9, true},
-			{"instanceToolbarSideLabel", 10},
-			{"stretchAnchorLabel", 11, true},
-			{"stretchAlwaysOnTopLabel", 12},
+			--{"AdjustmentsAnchor2Label", 12},
+			{"instanceToolbarSideLabel", 12, true},
+			{"stretchAnchorLabel", 13},
+			{"stretchAlwaysOnTopLabel", 14},
 		}
 		
 		window:arrange_menu (frame6, left_side, x, window.top_start_at)
@@ -7737,10 +7557,17 @@ function window:CreateFrame6()
 			{"MicroDisplayRightLabel", 7},
 			{"instanceMicroDisplaysSideLabel", 8, true},
 			{"LockMiniDisplaysLabel", 9},
-			{"MicroDisplayWarningLabel", 10, true},
+			{"MicroDisplayWarningLabel", 10},
 		}
-	
+		
 		window:arrange_menu (frame6, right_side, window.right_start_at, window.top_start_at)
+		
+		local right_side2 = {
+			{"WindowAnchorLabel", 1, true},
+			{"deleteInstanceLabel", 2},
+			{"scrollLabel", 3},
+		}
+		window:arrange_menu (frame6, right_side2, window.right_start_at, window.top_start_at-294)
 	
 end
 
@@ -8006,18 +7833,13 @@ function window:CreateFrame7()
 			end
 			
 			local t = g:GetTemplate ("button", "DETAILS_TITLEBAR_OPTION_BUTTON_TEMPLATE")
+			
 			local button1 = g:NewButton (frame7, _, "$parentShowButtons1", "showButtons1Button", 21, 21, func, 1, nil, nil, nil, nil, t)
-			--button1:InstallCustomTexture()
 			local button2 = g:NewButton (frame7, _, "$parentShowButtons2", "showButtons2Button", 21, 21, func, 2, nil, nil, nil, nil, t)
-			--button2:InstallCustomTexture()
 			local button3 = g:NewButton (frame7, _, "$parentShowButtons3", "showButtons3Button", 21, 21, func, 3, nil, nil, nil, nil, t)
-			--button3:InstallCustomTexture()
 			local button4 = g:NewButton (frame7, _, "$parentShowButtons4", "showButtons4Button", 21, 21, func, 4, nil, nil, nil, nil, t)
-			--button4:InstallCustomTexture()
 			local button5 = g:NewButton (frame7, _, "$parentShowButtons5", "showButtons5Button", 21, 21, func, 5, nil, nil, nil, nil, t)
-			--button5:InstallCustomTexture()
 			local button6 = g:NewButton (frame7, _, "$parentShowButtons6", "showButtons6Button", 21, 21, func, 6, nil, nil, nil, nil, t)
-			--button6:InstallCustomTexture()
 
 			function frame7:update_icon_buttons (instance)
 				for i = 1, 6 do 
@@ -8062,7 +7884,7 @@ function window:CreateFrame7()
 		s:SetThumbSize (24)
 		s.fine_tuning = 0.05
 		
-		g:NewLabel (frame7, _, "$parentMenuIconSizeLabel", "menuIconSizeLabel", Loc ["STRING_OPTIONS_MENU_BUTTONSSIZE"], "GameFontHighlightLeft")
+		g:NewLabel (frame7, _, "$parentMenuIconSizeLabel", "menuIconSizeLabel", Loc ["STRING_OPTIONS_SIZE"], "GameFontHighlightLeft")
 		
 		frame7.menuIconSizeSlider:SetPoint ("left", frame7.menuIconSizeLabel, "right", 2, -1)
 		
@@ -8153,13 +7975,93 @@ function window:CreateFrame7()
 			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end
 		window:CreateLineBackground2 (frame7, "autoHideLeftMenuSwitch", "autoHideLeftMenuLabel", Loc ["STRING_OPTIONS_MENU_AUTOHIDE_DESC"])
-	--right
+	
+	
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------	
+
+		--> click to open menus
+		g:NewLabel (frame7, _, "$parentClickToOpenMenusLabel", "ClickToOpenMenusLabel", Loc ["STRING_OPTIONS_CLICK_TO_OPEN_MENUS"], "GameFontHighlightLeft")
+		g:NewSwitch (frame7, _, "$parentClickToOpenMenusSlider", "ClickToOpenMenusSlider", 60, 20, _, _, _detalhes.instances_menu_click_to_open, nil, nil, nil, nil, options_switch_template)
+
+		frame7.ClickToOpenMenusSlider:SetPoint ("left", frame7.ClickToOpenMenusLabel, "right", 2)
+		frame7.ClickToOpenMenusSlider:SetAsCheckBox()
+		frame7.ClickToOpenMenusSlider.OnSwitch = function (_, _, value)
+			_detalhes.instances_menu_click_to_open = value
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+		end
+		
+		window:CreateLineBackground2 (frame7, "ClickToOpenMenusSlider", "ClickToOpenMenusLabel", Loc ["STRING_OPTIONS_CLICK_TO_OPEN_MENUS_DESC"])
+
+		--> disable reset button
+		g:NewLabel (frame7, _, "$parentDisableResetLabel", "DisableResetLabel", Loc ["STRING_OPTIONS_DISABLE_RESET"], "GameFontHighlightLeft")
+		g:NewSwitch (frame7, _, "$parentDisableResetSlider", "DisableResetSlider", 60, 20, _, _, _detalhes.disable_reset_button, nil, nil, nil, nil, options_switch_template)
+
+		frame7.DisableResetSlider:SetPoint ("left", frame7.DisableResetLabel, "right", 2)
+		frame7.DisableResetSlider:SetAsCheckBox()
+		frame7.DisableResetSlider.OnSwitch = function (_, _, value)
+			_detalhes.disable_reset_button = value
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+		end
+		
+		window:CreateLineBackground2 (frame7, "DisableResetSlider", "DisableResetLabel", Loc ["STRING_OPTIONS_DISABLE_RESET_DESC"])
+
+		--> menu text face
+		local onSelectFont = function (_, _, fontName)
+			_detalhes.font_faces.menus = fontName
+		end
+		
+		local buildFontMenu = function() 
+			local fontObjects = SharedMedia:HashTable ("font")
+			local fontTable = {}
+			for name, fontPath in pairs (fontObjects) do 
+				fontTable[#fontTable+1] = {value = name, label = name, icon = font_select_icon, texcoord = font_select_texcoord, onclick = onSelectFont, font = fontPath, descfont = name, desc = Loc ["STRING_MUSIC_DETAILS_ROBERTOCARLOS"]}
+			end
+			table.sort (fontTable, function (t1, t2) return t1.label < t2.label end)
+			return fontTable 
+		end
+		
+		local d = g:NewDropDown (frame7, _, "$parentFontDropdown", "fontDropdown", DROPDOWN_WIDTH, dropdown_height, buildFontMenu, nil, options_dropdown_template)
+		
+		g:NewLabel (frame7, _, "$parentFontLabel", "fontLabel", Loc ["STRING_OPTIONS_MENU_FONT_FACE"], "GameFontHighlightLeft")
+		frame7.fontDropdown:SetPoint ("left", frame7.fontLabel, "right", 2)
+
+		window:CreateLineBackground2 (frame7, "fontDropdown", "fontLabel", Loc ["STRING_OPTIONS_MENU_FONT_FACE_DESC"])	
+		
+		--> menu text size
+		g:NewLabel (frame7, _, "$parentMenuTextSizeLabel", "MenuTextSizeLabel", Loc ["STRING_OPTIONS_MENU_FONT_SIZE"], "GameFontHighlightLeft")
+		local s = g:NewSlider (frame7, _, "$parentMenuTextSizeSlider", "MenuTextSizeSlider", SLIDER_WIDTH, SLIDER_HEIGHT, 5, 32, 1, _detalhes.font_sizes.menus, nil, nil, nil, options_slider_template)
+	
+		frame7.MenuTextSizeSlider:SetPoint ("left", frame7.MenuTextSizeLabel, "right", 2)
+	
+		frame7.MenuTextSizeSlider:SetHook ("OnValueChange", function (_, _, amount)
+			_detalhes.font_sizes.menus = amount
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+		end)
+		
+		window:CreateLineBackground2 (frame7, "MenuTextSizeSlider", "MenuTextSizeLabel", Loc ["STRING_OPTIONS_MENU_FONT_SIZE_DESC"])
+
+		--> disable all displays window
+		g:NewLabel (frame7, _, "$parentDisableAllDisplaysWindowLabel", "DisableAllDisplaysWindowLabel", Loc ["STRING_OPTIONS_DISABLE_ALLDISPLAYSWINDOW"], "GameFontHighlightLeft")
+		g:NewSwitch (frame7, _, "$parentDisableAllDisplaysWindowSlider", "DisableAllDisplaysWindowSlider", 60, 20, _, _, _detalhes.disable_alldisplays_window, nil, nil, nil, nil, options_switch_template)
+
+		frame7.DisableAllDisplaysWindowSlider:SetPoint ("left", frame7.DisableAllDisplaysWindowLabel, "right", 2)
+		frame7.DisableAllDisplaysWindowSlider:SetAsCheckBox()
+		frame7.DisableAllDisplaysWindowSlider.OnSwitch = function (_, _, value)
+			_detalhes.disable_alldisplays_window = value
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+		end
+		
+		window:CreateLineBackground2 (frame7, "DisableAllDisplaysWindowSlider", "DisableAllDisplaysWindowLabel", Loc ["STRING_OPTIONS_DISABLE_ALLDISPLAYSWINDOW_DESC"])		
+		
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------	
 
 		
 	--> Anchors
 	
 		--general anchor
 		g:NewLabel (frame7, _, "$parentLeftMenuAnchor", "LeftMenuAnchorLabel", Loc ["STRING_OPTIONS_LEFT_MENU_ANCHOR"], "GameFontNormal")
+		g:NewLabel (frame7, _, "$parentLayoutAnchor", "LayoutAnchorLabel", Loc ["STRING_OPTIONS_ROW_SETTING_ANCHOR"], "GameFontNormal")
 		
 		local x = window.left_start_at
 		
@@ -8167,22 +8069,34 @@ function window:CreateFrame7()
 		titulo_toolbar_desc:SetPoint (x, window.title_y_pos2)
 		
 		local left_side = {
-			{"LeftMenuAnchorLabel", 1, true},
+			{"LayoutAnchorLabel", 1, true},
 			{label_icons, 2},
 			{"menuIconSizeLabel", 3},
 			{"desaturateMenuLabel", 4},
 			{"MenuIconShadowLabel", 5},
+			
 			{"menuAnchorXLabel", 6, true},
 			{"menuAnchorYLabel", 7},
 			{"MenuIconSpaceLabel", 8},
 			
 			{"hideIconLabel", 9, true},
-			{"autoHideLeftMenuLabel", 10},
-			{"menuAnchorSideLabel", 11},
-			{"pluginIconsDirectionLabel", 12},
+			{"menuAnchorSideLabel", 10},
+			{"pluginIconsDirectionLabel", 11},
 		}
 		
 		window:arrange_menu (frame7, left_side, x, window.top_start_at)
+	
+		local right_side = {
+			{"LeftMenuAnchorLabel", 1, true},
+			{"MenuTextSizeLabel", 2},
+			{"fontLabel", 3},
+			{"DisableResetLabel", 4},
+			{"ClickToOpenMenusLabel", 5},
+			{"autoHideLeftMenuLabel", 6},
+			{"DisableAllDisplaysWindowLabel", 7},
+		}
+		
+		window:arrange_menu (frame7, right_side, window.right_start_at, window.top_start_at)
 	
 		
 end
@@ -9281,7 +9195,10 @@ function window:CreateFrame9()
 			{"selectwallpaperLabel", 4},
 			{"anchorLabel", 5},
 			{"editImage", 6},
-			{"wallpaperCurrentAnchorLabel", 7, true},
+			--{"wallpaperCurrentAnchorLabel", 7, true},
+			--{"wallpaperCurrentAnchorLabel"}, --invisible space
+			{"WallpaperLoadTitleAnchor", 1, true},
+			{"LoadImage", 2},
 		}
 		
 		local downY = -5
@@ -9295,7 +9212,28 @@ function window:CreateFrame9()
 		frame9.wallpaperCurrentLabel8:SetPoint ("topleft", frame9.wallpaperCurrentLabel7, "bottomleft", 0, downY)
 		frame9.wallpaperCurrentLabel9:SetPoint ("topleft", frame9.wallpaperCurrentLabel8, "bottomleft", 0, downY)
 		
-
+		--hide current
+		frame9.wallpaperCurrentAnchorLabel:Hide()
+		frame9.wallpaperCurrentLabel1:Hide()
+		frame9.wallpaperCurrentLabel2:Hide()
+		frame9.wallpaperCurrentLabel3:Hide()
+		frame9.wallpaperCurrentLabel4:Hide()
+		frame9.wallpaperCurrentLabel5:Hide()
+		frame9.wallpaperCurrentLabel6:Hide()
+		frame9.wallpaperCurrentLabel7:Hide()
+		frame9.wallpaperCurrentLabel8:Hide()
+		frame9.wallpaperCurrentLabel9:Hide()
+		frame9.wallpaperCurrentLabel1text:Hide()
+		frame9.wallpaperCurrentLabel2text:Hide()
+		frame9.wallpaperCurrentLabel3text:Hide()
+		frame9.wallpaperCurrentLabel4text:Hide()
+		frame9.wallpaperCurrentLabel5text:Hide()
+		frame9.wallpaperCurrentLabel6text:Hide()
+		frame9.wallpaperCurrentLabel7text:Hide()
+		frame9.wallpaperCurrentLabel8text:Hide()
+		frame9.wallpaperCurrentLabel9text:Hide()
+		
+		
 		window:arrange_menu (frame9, left_side, x, window.top_start_at)
 		
 		local right_side = {
@@ -9304,8 +9242,7 @@ function window:CreateFrame9()
 		window:arrange_menu (frame9, right_side, window.right_start_at, window.top_start_at)
 	
 		local right_side2 = {
-			{"WallpaperLoadTitleAnchor", 1, true},
-			{"LoadImage", 2},
+
 		}
 		window:arrange_menu (frame9, right_side2, window.right_start_at, -250)
 		
@@ -9627,7 +9564,151 @@ function window:CreateFrame10()
 		
 		lock_profile()
 		
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+	--> captures
+			
+		--> icons
+		g:NewImage (frame10, [[Interface\AddOns\Details\images\atributos_captures]], 20, 20, nil, nil, "damageCaptureImage2", "$parentCaptureDamage2")
+		frame10.damageCaptureImage2:SetTexCoord (0, 0.125, 0, 1)
+		
+		g:NewImage (frame10, [[Interface\AddOns\Details\images\atributos_captures]], 20, 20, nil, nil, "healCaptureImage2", "$parentCaptureHeal2")
+		frame10.healCaptureImage2:SetTexCoord (0.125, 0.25, 0, 1)
+		
+		g:NewImage (frame10, [[Interface\AddOns\Details\images\atributos_captures]], 20, 20, nil, nil, "energyCaptureImage2", "$parentCaptureEnergy2")
+		frame10.energyCaptureImage2:SetTexCoord (0.25, 0.375, 0, 1)
+		
+		g:NewImage (frame10, [[Interface\AddOns\Details\images\atributos_captures]], 20, 20, nil, nil, "miscCaptureImage2", "$parentCaptureMisc2")
+		frame10.miscCaptureImage2:SetTexCoord (0.375, 0.5, 0, 1)
+		
+		g:NewImage (frame10, [[Interface\AddOns\Details\images\atributos_captures]], 20, 20, nil, nil, "auraCaptureImage2", "$parentCaptureAura2")
+		frame10.auraCaptureImage2:SetTexCoord (0.5, 0.625, 0, 1)
+		
+		--> labels
+		g:NewLabel (frame10, _, "$parentCaptureDamageLabel2", "damageCaptureLabel2", Loc ["STRING_OPTIONS_CDAMAGE"], "GameFontHighlightLeft")
+		frame10.damageCaptureLabel2:SetPoint ("left", frame10.damageCaptureImage2, "right", 2, 0)
+		
+		g:NewLabel (frame10, _, "$parentCaptureHealLabel2", "healCaptureLabel2", Loc ["STRING_OPTIONS_CHEAL"], "GameFontHighlightLeft")
+		frame10.healCaptureLabel2:SetPoint ("left", frame10.healCaptureImage2, "right", 2, 0)
+		
+		g:NewLabel (frame10, _, "$parentCaptureEnergyLabel2", "energyCaptureLabel2", Loc ["STRING_OPTIONS_CENERGY"], "GameFontHighlightLeft")
+		frame10.energyCaptureLabel2:SetPoint ("left", frame10.energyCaptureImage2, "right", 2, 0)
+		
+		g:NewLabel (frame10, _, "$parentCaptureMiscLabel2", "miscCaptureLabel2", Loc ["STRING_OPTIONS_CMISC"], "GameFontHighlightLeft")
+		frame10.miscCaptureLabel2:SetPoint ("left", frame10.miscCaptureImage2, "right", 2, 0)
+		
+		g:NewLabel (frame10, _, "$parentCaptureAuraLabel2", "auraCaptureLabel2", Loc ["STRING_OPTIONS_CAURAS"], "GameFontHighlightLeft")
+		frame10.auraCaptureLabel2:SetPoint ("left", frame10.auraCaptureImage2, "right", 2, 0)
+		
+		--> switches
+		
+		local switch_icon_color = function (icon, on_off)
+			icon:SetDesaturated (not on_off)
+		end
+		
+		g:NewSwitch (frame10, _, "$parentCaptureDamageSlider2", "damageCaptureSlider2", 60, 20, _, _, _detalhes.capture_real ["damage"], nil, nil, nil, nil, options_switch_template)
+		frame10.damageCaptureSlider2:SetPoint ("left", frame10.damageCaptureLabel2, "right", 2)
+		frame10.damageCaptureSlider2:SetAsCheckBox()
+		frame10.damageCaptureSlider2.OnSwitch = function (self, _, value)
+			_detalhes:CaptureSet (value, "damage", true)
+			if (value) then
+				_detalhes:CaptureSet (true, "spellcast", true)
+			end
+			switch_icon_color (frame10.damageCaptureImage2, value)
+		end
+		switch_icon_color (frame10.damageCaptureImage2, _detalhes.capture_real ["damage"])
+		
+		window:CreateLineBackground2 (frame10, "damageCaptureSlider2", "damageCaptureLabel", Loc ["STRING_OPTIONS_CDAMAGE_DESC"], frame10.damageCaptureImage)
+		
+		g:NewSwitch (frame10, _, "$parentCaptureHealSlider2", "healCaptureSlider2", 60, 20, _, _, _detalhes.capture_real ["heal"], nil, nil, nil, nil, options_switch_template)
+		frame10.healCaptureSlider2:SetPoint ("left", frame10.healCaptureLabel2, "right", 2)
+		frame10.healCaptureSlider2:SetAsCheckBox()
+		frame10.healCaptureSlider2.OnSwitch = function (self, _, value)
+			_detalhes:CaptureSet (value, "heal", true)
+			if (value) then
+				_detalhes:CaptureSet (true, "spellcast", true)
+			end
+			switch_icon_color (frame10.healCaptureImage2, value)
+		end
+		switch_icon_color (frame10.healCaptureImage2, _detalhes.capture_real ["heal"])
+		
+		window:CreateLineBackground2 (frame10, "healCaptureSlider2", "healCaptureLabel2", Loc ["STRING_OPTIONS_CHEAL_DESC"], frame10.healCaptureImage)
+		
+		g:NewSwitch (frame10, _, "$parentCaptureEnergySlider2", "energyCaptureSlider2", 60, 20, _, _, _detalhes.capture_real ["energy"], nil, nil, nil, nil, options_switch_template)
+		frame10.energyCaptureSlider2:SetPoint ("left", frame10.energyCaptureLabel2, "right", 2)
+		frame10.energyCaptureSlider2:SetAsCheckBox()
+
+		frame10.energyCaptureSlider2.OnSwitch = function (self, _, value)
+			_detalhes:CaptureSet (value, "energy", true)
+			if (value) then
+				_detalhes:CaptureSet (true, "spellcast", true)
+			end
+			switch_icon_color (frame10.energyCaptureImage2, value)
+		end
+		switch_icon_color (frame10.energyCaptureImage2, _detalhes.capture_real ["energy"])
+		
+		window:CreateLineBackground2 (frame10, "energyCaptureSlider2", "energyCaptureLabel2", Loc ["STRING_OPTIONS_CENERGY_DESC"], frame10.energyCaptureImage)
+		
+		g:NewSwitch (frame10, _, "$parentCaptureMiscSlider2", "miscCaptureSlider2", 60, 20, _, _, _detalhes.capture_real ["miscdata"], nil, nil, nil, nil, options_switch_template)
+		frame10.miscCaptureSlider2:SetPoint ("left", frame10.miscCaptureLabel2, "right", 2)
+		frame10.miscCaptureSlider2:SetAsCheckBox()
+		frame10.miscCaptureSlider2.OnSwitch = function (self, _, value)
+			_detalhes:CaptureSet (value, "miscdata", true)
+			if (value) then
+				_detalhes:CaptureSet (true, "spellcast", true)
+			end
+			switch_icon_color (frame10.miscCaptureImage2, value)
+		end
+		switch_icon_color (frame10.miscCaptureImage2, _detalhes.capture_real ["miscdata"])
+		
+		window:CreateLineBackground2 (frame10, "miscCaptureSlider2", "miscCaptureLabel2", Loc ["STRING_OPTIONS_CMISC_DESC"], frame10.miscCaptureImage)
+		
+		g:NewSwitch (frame10, _, "$parentCaptureAuraSlider2", "auraCaptureSlider2", 60, 20, _, _, _detalhes.capture_real ["aura"], nil, nil, nil, nil, options_switch_template)
+		frame10.auraCaptureSlider2:SetPoint ("left", frame10.auraCaptureLabel2, "right", 2)
+		frame10.auraCaptureSlider2:SetAsCheckBox()
+		frame10.auraCaptureSlider2.OnSwitch = function (self, _, value)
+			_detalhes:CaptureSet (value, "aura", true)
+			if (value) then
+				_detalhes:CaptureSet (true, "spellcast", true)
+			end
+			switch_icon_color (frame10.auraCaptureImage2, value)
+		end
+		switch_icon_color (frame10.auraCaptureImage2, _detalhes.capture_real ["aura"])
+		
+		window:CreateLineBackground2 (frame10, "auraCaptureSlider2", "auraCaptureLabel2", Loc ["STRING_OPTIONS_CAURAS_DESC"], frame10.auraCaptureImage)
+		
+		--> cloud capture
+		g:NewLabel (frame10, _, "$parentCloudCaptureLabel", "cloudCaptureLabel", Loc ["STRING_OPTIONS_CLOUD"], "GameFontHighlightLeft")
+
+		g:NewSwitch (frame10, _, "$parentCloudAuraSlider", "cloudCaptureSlider", 60, 20, _, _, _detalhes.cloud_capture, nil, nil, nil, nil, options_switch_template)
+		frame10.cloudCaptureSlider:SetPoint ("left", frame10.cloudCaptureLabel, "right", 2)
+		frame10.cloudCaptureSlider:SetAsCheckBox()
+		frame10.cloudCaptureSlider.OnSwitch = function (self, _, value)
+			_detalhes.cloud_capture = value
+		end
+		
+		window:CreateLineBackground2 (frame10, "cloudCaptureSlider", "cloudCaptureLabel", Loc ["STRING_OPTIONS_CLOUD_DESC"] )
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+	--> Erase Chart Data
+		g:NewLabel (frame10, _, "$parentEraseChartDataLabel", "EraseChartDataLabel", Loc ["STRING_OPTIONS_ERASECHARTDATA"], "GameFontHighlightLeft")
+		g:NewSwitch (frame10, _, "$parentEraseChartDataSlider", "EraseChartDataSlider", 60, 20, _, _, false, nil, nil, nil, nil, options_switch_template)
+		frame10.EraseChartDataSlider:SetPoint ("left", frame10.EraseChartDataLabel, "right", 2, 0)
+		frame10.EraseChartDataSlider:SetAsCheckBox()
+		frame10.EraseChartDataSlider.OnSwitch = function (self, _, value)
+			_detalhes.clear_graphic = value
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+		end
+		window:CreateLineBackground2 (frame10, "EraseChartDataSlider", "EraseChartDataLabel", Loc ["STRING_OPTIONS_ERASECHARTDATA_DESC"])
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+		
 	--> Anchors
+	
+		--captures anchor
+		g:NewLabel (frame10, _, "$parentDataCollectAnchor", "DataCollectAnchorLabel", Loc ["STRING_OPTIONS_DATACOLLECT_ANCHOR"], "GameFontNormal")
 	
 		--general anchor
 		g:NewLabel (frame10, _, "$parentPerformanceAnchor", "PerformanceAnchorLabel", Loc ["STRING_OPTIONS_PERFORMANCE_ANCHOR"], "GameFontNormal")
@@ -9658,6 +9739,16 @@ function window:CreateFrame10()
 			{"segmentsSaveLabel", 2},
 			{"panicModeLabel", 3},
 			{"eraseTrashLabel", 4},
+			{"EraseChartDataLabel", 5},
+			
+			{"DataCollectAnchorLabel", 5, true},
+			{"damageCaptureImage2", 6},
+			{"healCaptureImage2", 7},
+			{"energyCaptureImage2", 8},
+			{"miscCaptureImage2", 9},
+			{"auraCaptureImage2", 10},
+			{"cloudCaptureLabel", 11, true},			
+			
 		}
 		
 		window:arrange_menu (frame10, right_side, window.right_start_at, window.top_start_at)
@@ -10618,8 +10709,6 @@ end --> if not window
 		_G.DetailsOptionsWindow2TTDropdown.MyObject:Select (_detalhes.time_type)
 		_G.DetailsOptionsWindow2DeathLogLimitDropdown.MyObject:Select (_detalhes.deadlog_events)
 
-		_G.DetailsOptionsWindow2EraseChartDataSlider.MyObject:SetValue (_detalhes.clear_graphic)
-
 		_G.DetailsOptionsWindow2OverallDataRaidBossSlider.MyObject:SetValue (bit.band (_detalhes.overall_flag, 0x1) ~= 0)
 		_G.DetailsOptionsWindow2OverallDataRaidCleaupSlider.MyObject:SetValue (bit.band (_detalhes.overall_flag, 0x2) ~= 0)
 		_G.DetailsOptionsWindow2OverallDataDungeonBossSlider.MyObject:SetValue (bit.band (_detalhes.overall_flag, 0x4) ~= 0)
@@ -10637,16 +10726,12 @@ end --> if not window
 		_G.DetailsOptionsWindow2OverallNewChallengeSlider.MyObject:SetValue (_detalhes.overall_clear_newchallenge)
 		_G.DetailsOptionsWindow2OverallOnLogoutSlider.MyObject:SetValue (_detalhes.overall_clear_logout)
 		
-		_G.DetailsOptionsWindow2CaptureDamageSlider.MyObject:SetValue (_detalhes.capture_real ["damage"])
-		_G.DetailsOptionsWindow2CaptureHealSlider.MyObject:SetValue (_detalhes.capture_real ["heal"])
-		_G.DetailsOptionsWindow2CaptureEnergySlider.MyObject:SetValue (_detalhes.capture_real ["energy"])
-		_G.DetailsOptionsWindow2CaptureMiscSlider.MyObject:SetValue (_detalhes.capture_real ["miscdata"])
-		_G.DetailsOptionsWindow2CaptureAuraSlider.MyObject:SetValue (_detalhes.capture_real ["aura"])
-		_G.DetailsOptionsWindow2CloudAuraSlider.MyObject:SetValue (_detalhes.cloud_capture)
-		
 		_G.DetailsOptionsWindow2RemoteParserSlider.MyObject:SetValue (_detalhes.use_battleground_server_parser)
 		_G.DetailsOptionsWindow2ShowAllSlider.MyObject:SetValue (_detalhes.pvp_as_group)
 
+		--damage taken advanced
+		_G.DetailsOptionsWindow2DamageTakenEverythingSlider.MyObject:SetValue (_detalhes.damage_taken_everything)
+		
 		--> window 3
 		
 		local skin = editing_instance.skin
@@ -10730,6 +10815,9 @@ end --> if not window
 		_G.DetailsOptionsWindow4IconSelectDropdown.MyObject:Select (default)
 		_G.DetailsOptionsWindow4IconFileEntry:SetText (default)
 		
+		--disable bar highlight
+		_G.DetailsOptionsWindow4DisableBarHighlightSlider.MyObject:SetValue (_detalhes.instances_disable_bar_highlight)
+		
 		--> window 5
 		
 		_G.DetailsOptionsWindow5PercentDropdown.MyObject:SetFixedParameter (editing_instance)
@@ -10793,6 +10881,15 @@ end --> if not window
 		_G.DetailsOptionsWindow6MicroDisplayCenterDropdown.MyObject:SetFixedParameter (editing_instance)
 		_G.DetailsOptionsWindow6MicroDisplayRightDropdown.MyObject:SetFixedParameter (editing_instance)
 		
+		--scroll bar
+		_G.DetailsOptionsWindow6UseScrollSlider.MyObject:SetValue (_detalhes.use_scroll)
+		--disabled groups
+		_G.DetailsOptionsWindow6DisableGroupsSlider.MyObject:SetValue (_detalhes.disable_window_groups)
+		--disable lock resize ungroup buttons
+		_G.DetailsOptionsWindow6DisableLockResizeUngroupSlider.MyObject:SetValue (_detalhes.disable_lock_ungroup_buttons) 
+		--disable stretch
+		_G.DetailsOptionsWindow6DisableStretchButtonSlider.MyObject:SetValue (_detalhes.disable_stretch_button)
+		
 		--_detalhes.StatusBar.Plugins[1].real_name
 		--_detalhes.StatusBar.Plugins[1].__name
 
@@ -10828,6 +10925,17 @@ end --> if not window
 		_G.DetailsOptionsWindow7MenuAnchorYSlider.MyObject:SetFixedParameter (editing_instance)
 		_G.DetailsOptionsWindow7:update_menuanchor_xy (editing_instance)
 
+		--click to open menus
+		_G.DetailsOptionsWindow7ClickToOpenMenusSlider.MyObject:SetValue (_detalhes.instances_menu_click_to_open)
+		--menu font
+		_G.DetailsOptionsWindow7FontDropdown.MyObject:Select (_detalhes.font_faces.menus)
+		--disable reset
+		_G.DetailsOptionsWindow7DisableResetSlider.MyObject:SetValue (_detalhes.disable_reset_button)
+		--menu font size
+		_G.DetailsOptionsWindow7MenuTextSizeSlider.MyObject:SetValue (_detalhes.font_sizes.menus)
+		--disable all displays on titlebar right click
+		_G.DetailsOptionsWindow7DisableAllDisplaysWindowSlider.MyObject:SetValue (_detalhes.disable_alldisplays_window)
+		
 		--> window 8
 
 		_G.DetailsOptionsWindow8ModelUpperEnabledSlider.MyObject:SetFixedParameter (editing_instance)
@@ -10861,6 +10969,17 @@ end --> if not window
 		_G.DetailsOptionsWindow10PanicModeSlider.MyObject:SetValue (_detalhes.segments_panic_mode)
 		_G.DetailsOptionsWindow10ClearAnimateScrollSlider.MyObject:SetValue (_detalhes.animate_scroll)
 		_G.DetailsOptionsWindow10SliderSegmentsSave.MyObject:SetValue (_detalhes.segments_amount_to_save)
+		
+		_G.DetailsOptionsWindow10CaptureDamageSlider.MyObject:SetValue (_detalhes.capture_real ["damage"])
+		_G.DetailsOptionsWindow10CaptureHealSlider.MyObject:SetValue (_detalhes.capture_real ["heal"])
+		_G.DetailsOptionsWindow10CaptureEnergySlider.MyObject:SetValue (_detalhes.capture_real ["energy"])
+		_G.DetailsOptionsWindow10CaptureMiscSlider.MyObject:SetValue (_detalhes.capture_real ["miscdata"])
+		_G.DetailsOptionsWindow10CaptureAuraSlider.MyObject:SetValue (_detalhes.capture_real ["aura"])
+		
+		--cloud capture
+		_G.DetailsOptionsWindow10CloudAuraSlider.MyObject:SetValue (_detalhes.cloud_capture)
+		--erase charts
+		_G.DetailsOptionsWindow10EraseChartDataSlider.MyObject:SetValue (_detalhes.clear_graphic)
 		
 		--> window 11
 
@@ -10920,33 +11039,21 @@ end --> if not window
 		
 		--> window 18
 		
-		--report
-		_G.DetailsOptionsWindow18ReportHelpfulLinkSlider.MyObject:SetValue (_detalhes.report_heal_links)
-		_G.DetailsOptionsWindow18ReportFormatDropdown.MyObject:Select (_detalhes.report_schema)
-		--disabled groups
-		_G.DetailsOptionsWindow18DisableGroupsSlider.MyObject:SetValue (_detalhes.disable_window_groups)
-		--disable lock resize ungroup buttons
-		_G.DetailsOptionsWindow18DisableLockResizeUngroupSlider.MyObject:SetValue (_detalhes.disable_lock_ungroup_buttons) 
-		--disable reset
-		_G.DetailsOptionsWindow18DisableResetSlider.MyObject:SetValue (_detalhes.disable_reset_button)
-		_G.DetailsOptionsWindow18UseScrollSlider.MyObject:SetValue (_detalhes.use_scroll)
-		_G.DetailsOptionsWindow18DamageTakenEverythingSlider.MyObject:SetValue (_detalhes.damage_taken_everything)
-		
 		--auto switch
 		local switch_tank_in_combat = editing_instance.switch_tank_in_combat
 		if (switch_tank_in_combat) then
 			if (switch_tank_in_combat [1] == "raid") then
 				local plugin_object = _detalhes:GetPlugin (switch_tank_in_combat[2])
 				if (plugin_object) then
-					_G.DetailsOptionsWindow18AutoSwitchTankCombatDropdown.MyObject:Select (plugin_object.__name)
+					_G.DetailsOptionsWindow17AutoSwitchTankCombatDropdown.MyObject:Select (plugin_object.__name)
 				else
-					_G.DetailsOptionsWindow18AutoSwitchTankCombatDropdown.MyObject:Select (1, true)
+					_G.DetailsOptionsWindow17AutoSwitchTankCombatDropdown.MyObject:Select (1, true)
 				end
 			else
-				_G.DetailsOptionsWindow18AutoSwitchTankCombatDropdown.MyObject:Select (switch_tank_in_combat[3]+1, true)
+				_G.DetailsOptionsWindow17AutoSwitchTankCombatDropdown.MyObject:Select (switch_tank_in_combat[3]+1, true)
 			end
 		else
-			_G.DetailsOptionsWindow18AutoSwitchTankCombatDropdown.MyObject:Select (1, true)
+			_G.DetailsOptionsWindow17AutoSwitchTankCombatDropdown.MyObject:Select (1, true)
 		end
 		
 		local switch_tank = editing_instance.switch_tank
@@ -10954,15 +11061,15 @@ end --> if not window
 			if (switch_tank [1] == "raid") then
 				local plugin_object = _detalhes:GetPlugin (switch_tank[2])
 				if (plugin_object) then
-					_G.DetailsOptionsWindow18AutoSwitchTankNoCombatDropdown.MyObject:Select (plugin_object.__name)
+					_G.DetailsOptionsWindow17AutoSwitchTankNoCombatDropdown.MyObject:Select (plugin_object.__name)
 				else
-					_G.DetailsOptionsWindow18AutoSwitchTankNoCombatDropdown.MyObject:Select (1, true)
+					_G.DetailsOptionsWindow17AutoSwitchTankNoCombatDropdown.MyObject:Select (1, true)
 				end
 			else
-				_G.DetailsOptionsWindow18AutoSwitchTankNoCombatDropdown.MyObject:Select (switch_tank[3]+1, true)
+				_G.DetailsOptionsWindow17AutoSwitchTankNoCombatDropdown.MyObject:Select (switch_tank[3]+1, true)
 			end
 		else
-			_G.DetailsOptionsWindow18AutoSwitchTankNoCombatDropdown.MyObject:Select (1, true)
+			_G.DetailsOptionsWindow17AutoSwitchTankNoCombatDropdown.MyObject:Select (1, true)
 		end
 		
 		local switch_healer_in_combat = editing_instance.switch_healer_in_combat
@@ -10970,15 +11077,15 @@ end --> if not window
 			if (switch_healer_in_combat [1] == "raid") then
 				local plugin_object = _detalhes:GetPlugin (switch_healer_in_combat[2])
 				if (plugin_object) then
-					_G.DetailsOptionsWindow18AutoSwitchHealCombatDropdown.MyObject:Select (plugin_object.__name)
+					_G.DetailsOptionsWindow17AutoSwitchHealCombatDropdown.MyObject:Select (plugin_object.__name)
 				else
-					_G.DetailsOptionsWindow18AutoSwitchHealCombatDropdown.MyObject:Select (1, true)
+					_G.DetailsOptionsWindow17AutoSwitchHealCombatDropdown.MyObject:Select (1, true)
 				end
 			else
-				_G.DetailsOptionsWindow18AutoSwitchHealCombatDropdown.MyObject:Select (switch_healer_in_combat[3]+1, true)
+				_G.DetailsOptionsWindow17AutoSwitchHealCombatDropdown.MyObject:Select (switch_healer_in_combat[3]+1, true)
 			end
 		else
-			_G.DetailsOptionsWindow18AutoSwitchHealCombatDropdown.MyObject:Select (1, true)
+			_G.DetailsOptionsWindow17AutoSwitchHealCombatDropdown.MyObject:Select (1, true)
 		end
 		
 		local switch_healer = editing_instance.switch_healer
@@ -10986,15 +11093,15 @@ end --> if not window
 			if (switch_healer [1] == "raid") then
 				local plugin_object = _detalhes:GetPlugin (switch_healer[2])
 				if (plugin_object) then
-					_G.DetailsOptionsWindow18AutoSwitchHealNoCombatDropdown.MyObject:Select (plugin_object.__name)
+					_G.DetailsOptionsWindow17AutoSwitchHealNoCombatDropdown.MyObject:Select (plugin_object.__name)
 				else
-					_G.DetailsOptionsWindow18AutoSwitchHealNoCombatDropdown.MyObject:Select (1, true)
+					_G.DetailsOptionsWindow17AutoSwitchHealNoCombatDropdown.MyObject:Select (1, true)
 				end
 			else
-				_G.DetailsOptionsWindow18AutoSwitchHealNoCombatDropdown.MyObject:Select (switch_healer[3]+1, true)
+				_G.DetailsOptionsWindow17AutoSwitchHealNoCombatDropdown.MyObject:Select (switch_healer[3]+1, true)
 			end
 		else
-			_G.DetailsOptionsWindow18AutoSwitchHealNoCombatDropdown.MyObject:Select (1, true)
+			_G.DetailsOptionsWindow17AutoSwitchHealNoCombatDropdown.MyObject:Select (1, true)
 		end
 		
 		local switch_damager_in_combat = editing_instance.switch_damager_in_combat
@@ -11002,15 +11109,15 @@ end --> if not window
 			if (switch_damager_in_combat [1] == "raid") then
 				local plugin_object = _detalhes:GetPlugin (switch_damager_in_combat[2])
 				if (plugin_object) then
-					_G.DetailsOptionsWindow18AutoSwitchDamageCombatDropdown.MyObject:Select (plugin_object.__name)
+					_G.DetailsOptionsWindow17AutoSwitchDamageCombatDropdown.MyObject:Select (plugin_object.__name)
 				else
-					_G.DetailsOptionsWindow18AutoSwitchDamageCombatDropdown.MyObject:Select (1, true)
+					_G.DetailsOptionsWindow17AutoSwitchDamageCombatDropdown.MyObject:Select (1, true)
 				end
 			else
-				_G.DetailsOptionsWindow18AutoSwitchDamageCombatDropdown.MyObject:Select (switch_damager_in_combat[3]+1, true)
+				_G.DetailsOptionsWindow17AutoSwitchDamageCombatDropdown.MyObject:Select (switch_damager_in_combat[3]+1, true)
 			end
 		else
-			_G.DetailsOptionsWindow18AutoSwitchDamageCombatDropdown.MyObject:Select (1, true)
+			_G.DetailsOptionsWindow17AutoSwitchDamageCombatDropdown.MyObject:Select (1, true)
 		end
 		
 		local switch_damager = editing_instance.switch_damager
@@ -11018,15 +11125,15 @@ end --> if not window
 			if (switch_damager [1] == "raid") then
 				local plugin_object = _detalhes:GetPlugin (switch_damager[2])
 				if (plugin_object) then
-					_G.DetailsOptionsWindow18AutoSwitchDamageNoCombatDropdown.MyObject:Select (plugin_object.__name)
+					_G.DetailsOptionsWindow17AutoSwitchDamageNoCombatDropdown.MyObject:Select (plugin_object.__name)
 				else
-					_G.DetailsOptionsWindow18AutoSwitchDamageNoCombatDropdown.MyObject:Select (1, true)
+					_G.DetailsOptionsWindow17AutoSwitchDamageNoCombatDropdown.MyObject:Select (1, true)
 				end
 			else
-				_G.DetailsOptionsWindow18AutoSwitchDamageNoCombatDropdown.MyObject:Select (switch_damager[3]+1, true)
+				_G.DetailsOptionsWindow17AutoSwitchDamageNoCombatDropdown.MyObject:Select (switch_damager[3]+1, true)
 			end
 		else
-			_G.DetailsOptionsWindow18AutoSwitchDamageNoCombatDropdown.MyObject:Select (1, true)
+			_G.DetailsOptionsWindow17AutoSwitchDamageNoCombatDropdown.MyObject:Select (1, true)
 		end
 		
 		local switch_all_roles_after_wipe = editing_instance.switch_all_roles_after_wipe
@@ -11034,15 +11141,15 @@ end --> if not window
 			if (switch_all_roles_after_wipe [1] == "raid") then
 				local plugin_object = _detalhes:GetPlugin (switch_all_roles_after_wipe[2])
 				if (plugin_object) then
-					_G.DetailsOptionsWindow18AutoSwitchWipeDropdown.MyObject:Select (plugin_object.__name)
+					_G.DetailsOptionsWindow17AutoSwitchWipeDropdown.MyObject:Select (plugin_object.__name)
 				else
-					_G.DetailsOptionsWindow18AutoSwitchWipeDropdown.MyObject:Select (1, true)
+					_G.DetailsOptionsWindow17AutoSwitchWipeDropdown.MyObject:Select (1, true)
 				end
 			else
-				_G.DetailsOptionsWindow18AutoSwitchWipeDropdown.MyObject:Select (switch_all_roles_after_wipe[3]+1, true)
+				_G.DetailsOptionsWindow17AutoSwitchWipeDropdown.MyObject:Select (switch_all_roles_after_wipe[3]+1, true)
 			end
 		else
-			_G.DetailsOptionsWindow18AutoSwitchWipeDropdown.MyObject:Select (1, true)
+			_G.DetailsOptionsWindow17AutoSwitchWipeDropdown.MyObject:Select (1, true)
 		end
 		
 		local autoswitch = editing_instance.switch_all_roles_in_combat
@@ -11050,30 +11157,21 @@ end --> if not window
 			if (autoswitch [1] == "raid") then
 				local plugin_object = _detalhes:GetPlugin (autoswitch[2])
 				if (plugin_object) then
-					_G.DetailsOptionsWindow18AutoSwitchDropdown.MyObject:Select (plugin_object.__name)
+					_G.DetailsOptionsWindow17AutoSwitchDropdown.MyObject:Select (plugin_object.__name)
 				else
-					_G.DetailsOptionsWindow18AutoSwitchDropdown.MyObject:Select (1, true)
+					_G.DetailsOptionsWindow17AutoSwitchDropdown.MyObject:Select (1, true)
 				end
 			else
-				_G.DetailsOptionsWindow18AutoSwitchDropdown.MyObject:Select (autoswitch[3]+1, true)
+				_G.DetailsOptionsWindow17AutoSwitchDropdown.MyObject:Select (autoswitch[3]+1, true)
 			end
 		else
-			_G.DetailsOptionsWindow18AutoSwitchDropdown.MyObject:Select (1, true)
+			_G.DetailsOptionsWindow17AutoSwitchDropdown.MyObject:Select (1, true)
 		end
 		
-		_G.DetailsOptionsWindow18AutoCurrentSlider.MyObject:SetFixedParameter (editing_instance)
-		_G.DetailsOptionsWindow18AutoCurrentSlider.MyObject:SetValue (editing_instance.auto_current)
-		_G.DetailsOptionsWindow18TrashSuppressionSlider.MyObject:SetValue (editing_instance.instances_suppress_trash)
-		
-		_G.DetailsOptionsWindow18MenuTextSizeSlider.MyObject:SetValue (_detalhes.font_sizes.menus)
-		
-		_G.DetailsOptionsWindow18FontDropdown.MyObject:Select (_detalhes.font_faces.menus)
+		_G.DetailsOptionsWindow17AutoCurrentSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow17AutoCurrentSlider.MyObject:SetValue (editing_instance.auto_current)
+		_G.DetailsOptionsWindow17TrashSuppressionSlider.MyObject:SetValue (editing_instance.instances_suppress_trash)
 
-		_G.DetailsOptionsWindow18DisableAllDisplaysWindowSlider.MyObject:SetValue (_detalhes.disable_alldisplays_window)
-		_G.DetailsOptionsWindow18DisableStretchButtonSlider.MyObject:SetValue (_detalhes.disable_stretch_button)
-		_G.DetailsOptionsWindow18DisableBarHighlightSlider.MyObject:SetValue (_detalhes.instances_disable_bar_highlight)
-		_G.DetailsOptionsWindow18ClickToOpenMenusSlider.MyObject:SetValue (_detalhes.instances_menu_click_to_open)
-		
 		--> window 19
 		_G.DetailsOptionsWindow19MinimapSlider.MyObject:SetValue (not _detalhes.minimap.hide)
 		_G.DetailsOptionsWindow19MinimapActionDropdown.MyObject:Select (_detalhes.minimap.onclick_what_todo)
@@ -11092,6 +11190,10 @@ end --> if not window
 		
 		_G.DetailsOptionsWindow19ItemLevelSlider.MyObject:SetValue (_detalhes.track_item_level)
 
+		--report
+		_G.DetailsOptionsWindow19ReportHelpfulLinkSlider.MyObject:SetValue (_detalhes.report_heal_links)
+		_G.DetailsOptionsWindow19ReportFormatDropdown.MyObject:Select (_detalhes.report_schema)
+		
 		--> window 20
 		_G.DetailsOptionsWindow20TooltipTextColorPick.MyObject:SetColor (unpack (_detalhes.tooltip.fontcolor))
 		_G.DetailsOptionsWindow20TooltipTextColorPickRight.MyObject:SetColor (unpack (_detalhes.tooltip.fontcolor_right))
