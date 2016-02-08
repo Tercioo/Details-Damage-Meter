@@ -960,7 +960,7 @@ function _detalhes.switch:Config (_, _, atributo, sub_atributo)
 	end
 	
 	_detalhes.switch.editing_bookmark = nil
-	
+	GameCooltip:Hide()
 	_detalhes.switch:Update()
 end
 

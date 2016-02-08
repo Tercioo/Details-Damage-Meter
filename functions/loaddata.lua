@@ -320,10 +320,26 @@ function _detalhes:LoadConfig()
 			
 	--> profile
 	
+		local unitname = UnitName ("player")
+	
+		--> fix for old versions
+		if (type (_detalhes.always_use_profile) == "string") then
+			_detalhes.always_use_profile_name = _detalhes.always_use_profile
+			_detalhes.always_use_profile = true
+		end
+		
 		--> check for "always use this profile"
-			if (_detalhes.always_use_profile and type (_detalhes.always_use_profile) == "string") then
-				_detalhes_database.active_profile = _detalhes.always_use_profile
+			if (_detalhes.always_use_profile and not _detalhes.always_use_profile_exception [unitname]) then
+				local profile_name = _detalhes.always_use_profile_name
+				if (profile_name and _detalhes:GetProfile (profile_name)) then
+					_detalhes_database.active_profile = profile_name
+				end
 			end
+		
+		--> old version
+		--	if (_detalhes.always_use_profile and type (_detalhes.always_use_profile) == "string") then
+		--		_detalhes_database.active_profile = _detalhes.always_use_profile
+		--	end
 	
 		--> character first run
 			if (_detalhes_database.active_profile == "") then

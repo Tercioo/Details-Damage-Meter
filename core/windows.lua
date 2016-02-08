@@ -2700,7 +2700,7 @@
 			return
 		elseif (_detalhes.is_first_run) then
 			return
-		elseif (_detalhes.always_use_profile and type (_detalhes.always_use_profile) == "string") then
+		elseif (_detalhes.always_use_profile) then -- and type (_detalhes.always_use_profile) == "string"
 			return
 		else
 			--> check is this is the first run of the addon (after being installed)

@@ -3848,24 +3848,6 @@ function window:CreateFrame1()
 		
 		window:CreateLineBackground2 (frame1, "realmNameSlider", "realmNameLabel", Loc ["STRING_OPTIONS_REALMNAME_DESC"])
 
-	--> Max Segments
-	
-		local titulo_display = g:NewLabel (frame1, _, "$parentTituloDisplay", "tituloDisplayLabel", Loc ["STRING_OPTIONSMENU_DISPLAY"], "GameFontNormal", 16) --> localize-me
-		local titulo_display_desc = g:NewLabel (frame1, _, "$parentTituloDisplay2", "tituloDisplay2Label", Loc ["STRING_OPTIONSMENU_DISPLAY_DESC"], "GameFontNormal", 10, "white") --> localize-me
-		titulo_display_desc.width = 320
-		
-		g:NewLabel (frame1, _, "$parentSliderLabel", "segmentsLabel", Loc ["STRING_OPTIONS_MAXSEGMENTS"], "GameFontHighlightLeft")
-		local s = g:NewSlider (frame1, _, "$parentSlider", "segmentsSlider", SLIDER_WIDTH, SLIDER_HEIGHT, 1, 25, 1, _detalhes.segments_amount, nil, nil, nil, options_slider_template)
-		--config_slider (s)
-		
-		frame1.segmentsSlider:SetPoint ("left", frame1.segmentsLabel, "right", 2, -1)
-		frame1.segmentsSlider:SetHook ("OnValueChange", function (self, _, amount) --> slider, fixedValue, sliderValue
-			_detalhes.segments_amount = math.floor (amount)
-			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
-		end)
-		
-		window:CreateLineBackground2 (frame1, "segmentsSlider", "segmentsLabel", Loc ["STRING_OPTIONS_MAXSEGMENTS_DESC"])
-	
 	--> Segments Locked
 	
 		g:NewLabel (frame1, _, "$parentSegmentsLockedLabel", "SegmentsLockedLabel", Loc ["STRING_OPTIONS_LOCKSEGMENTS"], "GameFontHighlightLeft")
@@ -4143,7 +4125,38 @@ function window:CreateFrame1()
 			frame1.ClassColorsButton:SetIcon ([[Interface\AddOns\Details\images\icons]], nil, nil, nil, {430/512, 459/512, 4/512, 30/512}, nil, nil, 2) -- , "orange"
 			frame1.ClassColorsButton:SetTextColor (button_color_rgb)
 		
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+	--> Time Type
+		g:NewLabel (frame1, _, "$parentTimeTypeLabel", "timetypeLabel", Loc ["STRING_OPTIONS_TIMEMEASURE"], "GameFontHighlightLeft")
+		--
+		local onSelectTimeType = function (_, _, timetype)
+			_detalhes.time_type = timetype
+			_detalhes.time_type_original = timetype
+			_detalhes:AtualizaGumpPrincipal (-1, true)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+		end
+		local timetypeOptions = {
+			--localize-me
+			{value = 1, label = "Activity Time", onclick = onSelectTimeType, icon = "Interface\\Icons\\Achievement_Quests_Completed_Daily_08", iconcolor = {1, .9, .9}, texcoord = {0.078125, 0.921875, 0.078125, 0.921875}}, --, desc = ""
+			{value = 2, label = "Effective Time", onclick = onSelectTimeType, icon = "Interface\\Icons\\Achievement_Quests_Completed_08"} --, desc = ""
+		}
+		local buildTimeTypeMenu = function()
+			return timetypeOptions
+		end
+		local d = g:NewDropDown (frame1, _, "$parentTTDropdown", "timetypeDropdown", 160, dropdown_height, buildTimeTypeMenu, nil, options_dropdown_template)
+		
+		frame1.timetypeDropdown:SetPoint ("left", frame1.timetypeLabel, "right", 2, 0)		
+
+		window:CreateLineBackground2 (frame1, "timetypeDropdown", "timetypeLabel", Loc ["STRING_OPTIONS_TIMEMEASURE_DESC"])
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+		
 	--> anchors
+	
+		local titulo_display = g:NewLabel (frame1, _, "$parentTituloDisplay", "tituloDisplayLabel", Loc ["STRING_OPTIONSMENU_DISPLAY"], "GameFontNormal", 16) --> localize-me
+		local titulo_display_desc = g:NewLabel (frame1, _, "$parentTituloDisplay2", "tituloDisplay2Label", Loc ["STRING_OPTIONSMENU_DISPLAY_DESC"], "GameFontNormal", 10, "white") --> localize-me
+		titulo_display_desc.width = 320	
 	
 		g:NewLabel (frame1, _, "$parentGeneralAnchor", "GeneralAnchorLabel", Loc ["STRING_OPTIONS_GENERAL_ANCHOR"], "GameFontNormal")
 		g:NewLabel (frame1, _, "$parentIdentityAnchor", "GeneralIdentityLabel", Loc ["STRING_OPTIONS_AVATAR_ANCHOR"], "GameFontNormal")
@@ -4152,7 +4165,7 @@ function window:CreateFrame1()
 		g:NewLabel (frame1, _, "$parentToolsAnchor", "ToolsLabel", Loc ["STRING_OPTIONS_TOOLS_ANCHOR"], "GameFontNormal")
 
 		local w_start = 10
-	
+		
 		titulo_display:SetPoint (window.left_start_at, window.title_y_pos)
 		titulo_display_desc:SetPoint (window.left_start_at, window.title_y_pos2)
 		
@@ -4175,6 +4188,8 @@ function window:CreateFrame1()
 		--frame1.BookmarkButton:SetPoint (avatar_x_anchor, -315)
 		--frame1.ClassColorsButton:SetPoint (avatar_x_anchor, -340)
 		
+
+		
 		local x = avatar_x_anchor
 		
 		local right_side = {
@@ -4195,8 +4210,8 @@ function window:CreateFrame1()
 			
 			{"WheelSpeedLabel", 4},
 			
-			{"SegmentsLockedLabel", 5, true},
-			{"segmentsLabel", 6},
+			{"SegmentsLockedLabel", 5},
+			{"timetypeLabel", 6, true},
 			
 			{"maxInstancesLabel", 7, true},
 			{"dpsAbbreviateLabel", 8},
@@ -4221,7 +4236,7 @@ function window:CreateFrame1()
 end		
 		
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- General Settings - Combat ~2 
+-- General Settings - Combat PvP PvE ~2 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	
 function window:CreateFrame2()
@@ -4247,30 +4262,7 @@ function window:CreateFrame2()
 		end
 		
 		window:CreateLineBackground2 (frame2, "fragsPvpSlider", "fragsPvpLabel", Loc ["STRING_OPTIONS_PVPFRAGS_DESC"])
-		
-	--> Time Type
-		g:NewLabel (frame2, _, "$parentTimeTypeLabel", "timetypeLabel", Loc ["STRING_OPTIONS_TIMEMEASURE"], "GameFontHighlightLeft")
-		--
-		local onSelectTimeType = function (_, _, timetype)
-			_detalhes.time_type = timetype
-			_detalhes.time_type_original = timetype
-			_detalhes:AtualizaGumpPrincipal (-1, true)
-			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
-		end
-		local timetypeOptions = {
-			--localize-me
-			{value = 1, label = "Activity Time", onclick = onSelectTimeType, icon = "Interface\\Icons\\Achievement_Quests_Completed_Daily_08", iconcolor = {1, .9, .9}, texcoord = {0.078125, 0.921875, 0.078125, 0.921875}}, --, desc = ""
-			{value = 2, label = "Effective Time", onclick = onSelectTimeType, icon = "Interface\\Icons\\Achievement_Quests_Completed_08"} --, desc = ""
-		}
-		local buildTimeTypeMenu = function()
-			return timetypeOptions
-		end
-		local d = g:NewDropDown (frame2, _, "$parentTTDropdown", "timetypeDropdown", 160, dropdown_height, buildTimeTypeMenu, nil, options_dropdown_template)
-		
-		frame2.timetypeDropdown:SetPoint ("left", frame2.timetypeLabel, "right", 2, 0)		
 
-		window:CreateLineBackground2 (frame2, "timetypeDropdown", "timetypeLabel", Loc ["STRING_OPTIONS_TIMEMEASURE_DESC"])
-		
 	--> death log limit
 		g:NewLabel (frame2, _, "$parentDeathLogLimitLabel", "DeathLogLimitLabel", Loc ["STRING_OPTIONS_DEATHLIMIT"], "GameFontHighlightLeft")
 		--
@@ -4503,7 +4495,7 @@ function window:CreateFrame2()
 			{"GeneralAnchorLabel", 1, true},
 			{"fragsPvpLabel", 2},
 			--{"EraseChartDataLabel", 3},
-			{"timetypeLabel", 4, true},
+			--{"timetypeLabel", 4, true},
 			{"DeathLogLimitLabel", 5, },
 			{"DamageTakenEverythingLabel", 6, true},
 			
@@ -4557,8 +4549,35 @@ function window:CreateFrame13()
 		
 		window:CreateLineBackground2 (frame13, info_holder_frame, current_profile_label.widget, Loc ["STRING_OPTIONS_PROFILES_CURRENT_DESC"])
 	
+	--> exclamation warning about an exception on this character for use profile on all characters
+		local exclamation_frame = CreateFrame ("frame", nil, frame13)
+		exclamation_frame:SetSize (16, 16)
+		local exclamation_frame_texture = exclamation_frame:CreateTexture (nil, "overlay")
+		exclamation_frame_texture:SetTexture ([[Interface\DialogFrame\UI-Dialog-Icon-AlertNew]])
+		exclamation_frame_texture:SetAllPoints()
+		exclamation_frame:SetScript ("OnEnter", function (self)
+			--show tooltip
+			_detalhes:CooltipPreset (2)
+			GameCooltip:AddLine (Loc ["STRING_OPTIONS_PROFILE_OVERWRITTEN"])
+			GameCooltip:ShowCooltip (self, "tooltip")
+		end)
+		exclamation_frame:SetScript ("OnLeave", function()
+			--hide tooltip
+			GameCooltip:Hide()
+		end)
+		exclamation_frame:Hide()
+		exclamation_frame:SetFrameLevel (30)
+	
 	--> select profile
 		local profile_selected = function (_, instance, profile_name)
+		
+			if (_detalhes.always_use_profile) then
+				local unitname = UnitName ("player")
+				_detalhes.always_use_profile_exception [unitname] = true
+				--show a exclamation on the always use this profile
+				exclamation_frame:Show()
+			end
+		
 			_detalhes:ApplyProfile (profile_name)
 			_detalhes:Msg (Loc ["STRING_OPTIONS_PROFILE_LOADED"], profile_name)
 			_detalhes:OpenOptionsWindow (_G.DetailsOptionsWindow.instance)
@@ -4577,27 +4596,99 @@ function window:CreateFrame13()
 		
 		local select_profile_label = g:NewLabel (frame13, _, "$parentSelectProfileLabel", "selectProfileLabel", Loc ["STRING_OPTIONS_PROFILES_SELECT"], "GameFontHighlightLeft")
 		select_profile_dropdown:SetPoint ("left", select_profile_label, "right", 2, 0)
-	
-		window:CreateLineBackground2 (frame13, select_profile_dropdown, select_profile_label, Loc ["STRING_OPTIONS_PROFILES_SELECT_DESC"])
-	
-	--> always use this profile
-		g:NewLabel (frame13, _, "$parentAlwaysUseLabel", "AlwaysUseLabel", Loc ["STRING_OPTIONS_ALWAYS_USE"], "GameFontHighlightLeft")
 		
+		window:CreateLineBackground2 (frame13, select_profile_dropdown, select_profile_label, Loc ["STRING_OPTIONS_PROFILES_SELECT_DESC"])
+		
+	--> always use this profile dropdown
+		local profile_selected_alwaysuse = function (_, instance, profile_name)
+			
+			--if (not _detalhes.always_use_profile or not profile_name) then
+			--	return
+			--end
+			
+			_detalhes.always_use_profile_name = profile_name
+			local unitname = UnitName ("player")
+			_detalhes.always_use_profile_exception [unitname] = nil
+			
+			_detalhes:ApplyProfile (profile_name)
+			
+			_detalhes:Msg (Loc ["STRING_OPTIONS_PROFILE_LOADED"], profile_name)
+			_detalhes:OpenOptionsWindow (_G.DetailsOptionsWindow.instance)
+		end
+		local build_profile_menu = function()
+			local menu = {}
+			for index, profile_name in ipairs (_detalhes:GetProfileList()) do 
+				menu [#menu+1] = {value = profile_name, label = profile_name, onclick = profile_selected_alwaysuse, icon = "Interface\\MINIMAP\\Vehicle-HammerGold-3"}
+			end
+			return menu
+		end
+	
+		local select_alwaysuseprofile_dropdown = g:NewDropDown (frame13, _, "$parentSelectAlwaysuseprofileDropdown", "SelectAlwaysuseprofileDropdown", 160, dropdown_height, build_profile_menu, _detalhes.always_use_profile_name, options_dropdown_template)
+		select_alwaysuseprofile_dropdown:SetEmptyTextAndIcon ("Select Profile")
+
+		local select_alwaysuseprofile_label = g:NewLabel (frame13, _, "$parentSelectAlwaysuseprofileLabel", "SelectAlwaysuseprofileLabel", "Select Profile", "GameFontHighlightLeft")
+		select_alwaysuseprofile_dropdown:SetPoint ("left", select_alwaysuseprofile_label, "right", 2, 0)
+		
+		window:CreateLineBackground2 (frame13, select_alwaysuseprofile_dropdown,  select_alwaysuseprofile_label, Loc ["STRING_OPTIONS_PROFILE_GLOBAL"])
+		
+	
+	--> always use this profile checkbox
+		g:NewLabel (frame13, _, "$parentAlwaysUseLabel", "AlwaysUseLabel", Loc ["STRING_OPTIONS_ALWAYS_USE"], "GameFontHighlightLeft")
 		g:NewSwitch (frame13, _, "$parentAlwaysUseSlider", "AlwaysUseSlider", 60, 20, _, _, _detalhes.always_use_profile, nil, nil, nil, nil, options_switch_template)
+		
+		--set the point of the exclamation image
+		exclamation_frame:SetPoint ("left", frame13.AlwaysUseSlider.widget, "right", 2, 0)
 		
 		frame13.AlwaysUseSlider:SetPoint ("left", frame13.AlwaysUseLabel, "right", 2, -1)
 		frame13.AlwaysUseSlider:SetAsCheckBox()
 		frame13.AlwaysUseSlider.OnSwitch = function (self, _, value) 
 			if (value) then
-				_detalhes.always_use_profile = select_profile_dropdown:GetValue()
+				_detalhes.always_use_profile = true
+				_detalhes.always_use_profile_name = select_profile_dropdown:GetValue()
+				
+				--enable the dropdown
+				frame13.SelectAlwaysuseprofileDropdown:Enable()
+				
+				--set the dropdown value to the current profile selected
+				frame13.SelectAlwaysuseprofileDropdown:Select (_detalhes.always_use_profile_name)
+				
+				--remove this character from the exception list
+				local unitname = UnitName ("player")
+				_detalhes.always_use_profile_exception [unitname] = nil
+				exclamation_frame:Hide()
 			else
 				_detalhes.always_use_profile = false
+				--disable the dropdown
+				frame13.SelectAlwaysuseprofileDropdown:Disable()
+				
+				--remove this character from the exception list
+				local unitname = UnitName ("player")
+				_detalhes.always_use_profile_exception [unitname] = nil
+				exclamation_frame:Hide()
 			end
 		end
 		frame13.AlwaysUseSlider:SetPoint ("left", frame13.AlwaysUseLabel, "right", 3, 0)
 		window:CreateLineBackground2 (frame13, "AlwaysUseSlider", "AlwaysUseLabel", Loc ["STRING_OPTIONS_ALWAYS_USE_DESC"])
-	
-	
+
+		function frame13:update_profile_settings()
+			if (_detalhes.always_use_profile) then
+				frame13.SelectAlwaysuseprofileDropdown:Enable()
+				frame13.SelectAlwaysuseprofileDropdown:Select (_detalhes.always_use_profile_name)
+				
+				local unitname = UnitName ("player")
+				if (_detalhes.always_use_profile_exception [unitname]) then
+					exclamation_frame:Show()
+				else
+					exclamation_frame:Hide()
+				end
+			else
+				exclamation_frame:Hide()
+				frame13.SelectAlwaysuseprofileDropdown:Disable()
+			end
+		end
+		
+		
+		
 	--> new profile
 		local profile_name = g:NewTextEntry (frame13, _, "$parentProfileNameEntry", "profileNameEntry", 120, TEXTENTRY_HEIGHT, nil, nil, nil, nil, nil, options_dropdown_template)
 		local profile_name_label = g:NewLabel (frame13, _, "$parentProfileNameLabel", "profileNameLabel", Loc ["STRING_OPTIONS_PROFILES_CREATE"], "GameFontHighlightLeft")
@@ -4746,9 +4837,12 @@ function window:CreateFrame13()
 		local left_side = {
 			{"ProfileAnchorLabel", 1, true},
 			{current_profile_label, 2},
-			{select_profile_label, 3, true},
-			{"AlwaysUseLabel", 4},
-			{"PosAndSizeLabel", 5},
+			{select_profile_label, 3},
+			
+			{"AlwaysUseLabel", 4, true},
+			{select_alwaysuseprofile_label, 4},
+			
+			{"PosAndSizeLabel", 5, true},
 			{profile_name_label, 6, true},
 			{select_profileCopy_label, 7},
 			{select_profileErase_label, 8},
@@ -9704,6 +9798,21 @@ function window:CreateFrame10()
 		window:CreateLineBackground2 (frame10, "EraseChartDataSlider", "EraseChartDataLabel", Loc ["STRING_OPTIONS_ERASECHARTDATA_DESC"])
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+	--> Max Segments
+	
+		g:NewLabel (frame10, _, "$parentSliderLabel", "segmentsLabel", Loc ["STRING_OPTIONS_MAXSEGMENTS"], "GameFontHighlightLeft")
+		local s = g:NewSlider (frame10, _, "$parentSlider", "segmentsSlider", SLIDER_WIDTH, SLIDER_HEIGHT, 1, 25, 1, _detalhes.segments_amount, nil, nil, nil, options_slider_template)
+		
+		frame10.segmentsSlider:SetPoint ("left", frame10.segmentsLabel, "right", 2, -1)
+		frame10.segmentsSlider:SetHook ("OnValueChange", function (self, _, amount) --> slider, fixedValue, sliderValue
+			_detalhes.segments_amount = math.floor (amount)
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+		end)
+		
+		window:CreateLineBackground2 (frame10, "segmentsSlider", "segmentsLabel", Loc ["STRING_OPTIONS_MAXSEGMENTS_DESC"])
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 		
 	--> Anchors
 	
@@ -9736,6 +9845,7 @@ function window:CreateFrame10()
 		local right_side = {
 			{"PerformanceAnchorLabel", 1, true},
 			--{"memoryLabel", 1, true},
+			{"segmentsLabel", 6},
 			{"segmentsSaveLabel", 2},
 			{"panicModeLabel", 3},
 			{"eraseTrashLabel", 4},
@@ -10660,7 +10770,6 @@ end --> if not window
 	
 		--> window 1
 		_G.DetailsOptionsWindow1RealmNameSlider.MyObject:SetValue (_detalhes.remove_realm_from_name)
-		_G.DetailsOptionsWindow1Slider.MyObject:SetValue (_detalhes.segments_amount) --segments
 		_G.DetailsOptionsWindow1SegmentsLockedSlider.MyObject:SetValue (_detalhes.instances_segments_locked) --locked segments
 		
 		_G.DetailsOptionsWindow1NumericalSystemOfADropdown.MyObject:Select (_detalhes.numerical_system)
@@ -10706,7 +10815,7 @@ end --> if not window
 		
 		--> window 2
 		_G.DetailsOptionsWindow2FragsPvpSlider.MyObject:SetValue (_detalhes.only_pvp_frags)
-		_G.DetailsOptionsWindow2TTDropdown.MyObject:Select (_detalhes.time_type)
+		_G.DetailsOptionsWindow1TTDropdown.MyObject:Select (_detalhes.time_type)
 		_G.DetailsOptionsWindow2DeathLogLimitDropdown.MyObject:Select (_detalhes.deadlog_events)
 
 		_G.DetailsOptionsWindow2OverallDataRaidBossSlider.MyObject:SetValue (bit.band (_detalhes.overall_flag, 0x1) ~= 0)
@@ -10980,6 +11089,9 @@ end --> if not window
 		_G.DetailsOptionsWindow10CloudAuraSlider.MyObject:SetValue (_detalhes.cloud_capture)
 		--erase charts
 		_G.DetailsOptionsWindow10EraseChartDataSlider.MyObject:SetValue (_detalhes.clear_graphic)
+		--segments amount
+		_G.DetailsOptionsWindow10Slider.MyObject:SetValue (_detalhes.segments_amount) --segments
+		
 		
 		--> window 11
 
@@ -10996,6 +11108,8 @@ end --> if not window
 		
 		_G.DetailsOptionsWindow13PosAndSizeSlider.MyObject:SetValue (_detalhes.profile_save_pos)
 		--_G.DetailsOptionsWindow13AlwaysUseSlider.MyObject:SetValue (_detalhes.always_use_profile)
+		
+		_G.DetailsOptionsWindow13:update_profile_settings()
 
 		--> window 14
 
@@ -11293,7 +11407,7 @@ end --> if not window
 		_G.DetailsOptionsWindow5FixedTextColor.MyObject:SetColor (unpack (editing_instance.row_info.fixed_text_color))
 		
 		_G.DetailsOptionsWindow1NicknameEntry.MyObject.text = _detalhes:GetNickname (UnitGUID ("player"), UnitName ("player"), true) or ""
-		_G.DetailsOptionsWindow2TTDropdown.MyObject:Select (_detalhes.time_type, true)
+		_G.DetailsOptionsWindow1TTDropdown.MyObject:Select (_detalhes.time_type, true)
 		
 		_G.DetailsOptionsWindow.MyObject.instance = instance
 		

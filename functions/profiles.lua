@@ -1111,6 +1111,8 @@ local default_global_data = {
 	--> profile pool
 		__profiles = {},
 		always_use_profile = false,
+		always_use_profile_name = "",
+		always_use_profile_exception = {},
 		custom = {},
 		savedStyles = {},
 		savedCustomSpells = {},
