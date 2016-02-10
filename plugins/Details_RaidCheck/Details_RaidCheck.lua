@@ -188,20 +188,31 @@ local runes_id = {
 		end
 
 		local show_panel = CreateFrame ("frame", nil, UIParent)
-		show_panel:SetSize (500, 300)
+		show_panel:SetSize (505, 300)
 		show_panel:SetPoint ("bottom", DetailsRaidCheck.ToolbarButton, "top", 0, 10)
-		show_panel:SetBackdrop ({bgFile = [[Interface\Garrison\GarrisonMissionUIInfoBoxBackgroundTile]], tileSize = 256, edgeFile = [[Interface\AddOns\Details\images\border_2]], edgeSize = 16, insets = {left = 1, right = 1, top = 1, bottom = 1}})
-		show_panel:SetBackdropColor (1, 1, 1, 0.9)
 		show_panel:SetClampedToScreen (true)
 		show_panel:SetFrameStrata ("TOOLTIP")
-
+		
+		show_panel.wallpaper = show_panel:CreateTexture (nil, "background")
+		show_panel.wallpaper:SetDrawLayer ("background", 4)
+		show_panel.wallpaper:SetPoint ("topleft", show_panel, "topleft", 4, -4)
+		show_panel.wallpaper:SetPoint ("bottomright", show_panel, "bottomright", -4, 4)
+		
+		show_panel:SetBackdrop (_detalhes.tooltip_backdrop)
+		show_panel:SetBackdropColor (0.09019, 0.09019, 0.18823, 1)
+		show_panel:SetBackdropBorderColor (unpack (_detalhes.tooltip_border_color))
+		show_panel.wallpaper:SetTexture (_detalhes.tooltip.menus_bg_texture)
+		show_panel.wallpaper:SetTexCoord (unpack (_detalhes.tooltip.menus_bg_coords))
+		show_panel.wallpaper:SetVertexColor (unpack (_detalhes.tooltip.menus_bg_color))
+		show_panel.wallpaper:SetDesaturated (true)
+		
 		--
 		
 		local bottom_gradient = show_panel:CreateTexture (nil, "artwork")
 		bottom_gradient:SetPoint ("bottomleft", show_panel, "bottomleft", 2, 2)
 		bottom_gradient:SetPoint ("bottomright", show_panel, "bottomright", -2, 2)
-		bottom_gradient:SetTexture ([[Interface\Garrison\GarrisonMissionUI2]])
-		bottom_gradient:SetTexCoord (485/1024, 737/1024, 377/1024, 418/1024)
+		bottom_gradient:SetTexture ("Interface\\AddOns\\Details\\images\\skins\\elvui")
+		bottom_gradient:SetTexCoord (0.0480000019073486, 0.298000011444092, 0.755999984741211, 0.630999984741211) --0.63
 		bottom_gradient:SetHeight (45)
 
 		--
@@ -225,7 +236,7 @@ local runes_id = {
 		food_str:SetPoint ("topleft", food_title, "topleft", -9, -20)
 		
 		local food_image = show_panel:CreateTexture (nil, "artwork")
-		food_image:SetTexture ([[Interface\Garrison\GarrisonMissionUI2]])
+		--food_image:SetTexture ([[Interface\Garrison\GarrisonMissionUI2]])
 		food_image:SetTexCoord (680/1024, 888/1024, 429/1024, 477/1024)
 		food_image:SetPoint ("topleft", food_title, "topleft", -11, 3)
 		food_image:SetSize (food_title:GetStringWidth()+20, 19) --208, 48
@@ -244,7 +255,7 @@ local runes_id = {
 		flask_str:SetPoint ("topleft", flask_title, "topleft", -9, -20)
 		
 		local flask_image = show_panel:CreateTexture (nil, "artwork")
-		flask_image:SetTexture ([[Interface\Garrison\GarrisonMissionUI2]])
+		--flask_image:SetTexture ([[Interface\Garrison\GarrisonMissionUI2]])
 		flask_image:SetTexCoord (680/1024, 888/1024, 429/1024, 477/1024)
 		flask_image:SetPoint ("topleft", flask_title, "topleft", -11, 3)
 		flask_image:SetSize (flask_title:GetStringWidth()+20, 19) --208, 48
@@ -264,7 +275,7 @@ local runes_id = {
 		focus_aug2:SetPoint ("topleft", focus_aug, "topleft", -9, -20)
 		
 		local focus_aug_image2 = show_panel:CreateTexture (nil, "artwork")
-		focus_aug_image2:SetTexture ([[Interface\Garrison\GarrisonMissionUI2]])
+		--focus_aug_image2:SetTexture ([[Interface\Garrison\GarrisonMissionUI2]])
 		focus_aug_image2:SetTexCoord (680/1024, 888/1024, 429/1024, 477/1024)
 		focus_aug_image2:SetPoint ("topleft", focus_aug, "topleft", -11, 3)
 		focus_aug_image2:SetSize (focus_aug:GetStringWidth()+22, 19) --208, 48
@@ -283,7 +294,7 @@ local runes_id = {
 		prepot_str2:SetPoint ("topleft", prepot_title2, "topleft", -9, -20)
 		
 		local prepot_image2 = show_panel:CreateTexture (nil, "artwork")
-		prepot_image2:SetTexture ([[Interface\Garrison\GarrisonMissionUI2]])
+		--prepot_image2:SetTexture ([[Interface\Garrison\GarrisonMissionUI2]])
 		prepot_image2:SetTexCoord (680/1024, 888/1024, 429/1024, 477/1024)
 		prepot_image2:SetPoint ("topleft", prepot_title2, "topleft", -11, 3)
 		prepot_image2:SetSize (prepot_title2:GetStringWidth()+22, 19) --208, 48
@@ -301,7 +312,7 @@ local runes_id = {
 		ilvl_str:SetPoint ("topleft", ilvl_title, "topleft", -11, -20)
 		
 		local ilvl_image = show_panel:CreateTexture (nil, "artwork")
-		ilvl_image:SetTexture ([[Interface\Garrison\GarrisonMissionUI2]])
+		--ilvl_image:SetTexture ([[Interface\Garrison\GarrisonMissionUI2]])
 		ilvl_image:SetTexCoord (680/1024, 888/1024, 429/1024, 477/1024)
 		ilvl_image:SetPoint ("topleft", ilvl_title, "topleft", -11, 3)
 		ilvl_image:SetSize (ilvl_title:GetStringWidth()+22, 19) --208, 48
@@ -319,7 +330,7 @@ local runes_id = {
 		bestfood_str:SetPoint ("topleft", bestfood_title, "topleft", -11, -20)
 		
 		local bestfood_image = show_panel:CreateTexture (nil, "artwork")
-		bestfood_image:SetTexture ([[Interface\Garrison\GarrisonMissionUI2]])
+		--bestfood_image:SetTexture ([[Interface\Garrison\GarrisonMissionUI2]])
 		bestfood_image:SetTexCoord (680/1024, 888/1024, 429/1024, 477/1024)
 		bestfood_image:SetPoint ("topleft", bestfood_title, "topleft", -11, 3)
 		bestfood_image:SetSize (bestfood_title:GetStringWidth()+22, 19) --208, 48
@@ -342,7 +353,7 @@ local runes_id = {
 		prepot_str:SetPoint ("topleft", prepot_title, "topleft", -11, -20)
 		
 		local prepot_image = show_panel:CreateTexture (nil, "artwork")
-		prepot_image:SetTexture ([[Interface\Garrison\GarrisonMissionUI2]])
+		--prepot_image:SetTexture ([[Interface\Garrison\GarrisonMissionUI2]])
 		prepot_image:SetTexCoord (680/1024, 888/1024, 429/1024, 477/1024)
 		prepot_image:SetPoint ("topleft", prepot_title, "topleft", -11, 3)
 		prepot_image:SetSize (prepot_title:GetStringWidth()+22, 19) --208, 48

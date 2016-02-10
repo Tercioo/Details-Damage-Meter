@@ -1416,12 +1416,14 @@
 					new_aura.trigger.event = "DBM Timer"
 					local timerId = tostring (other_values.dbm_timer_id)
 					if (timerId:find ("%s")) then
+						--spellid timers
 						new_aura.trigger.id = ""
 						new_aura.trigger.use_id = false
 						new_aura.trigger.spellId_operator = "=="
 						new_aura.trigger.use_spellId = true
 						new_aura.trigger.spellId = tostring (other_values.spellid)
 					else
+						--ej timers
 						new_aura.trigger.id = timerId
 					end
 				elseif (other_values.bw_timer_id) then
