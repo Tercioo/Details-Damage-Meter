@@ -1409,23 +1409,26 @@
 				init_start = init_start:gsub ("@text", icon_text)
 				init_start = init_start:gsub ("@countdown", floor (stacksize))
 				new_aura.trigger.remaining = tostring (floor (stacksize))
-				
 				new_aura.actions.init.custom = init_start
 
 				if (other_values.dbm_timer_id) then
 					new_aura.trigger.event = "DBM Timer"
 					local timerId = tostring (other_values.dbm_timer_id)
-					if (timerId:find ("%s")) then
+					
+					--print ("timerId:", other_values.dbm_timer_id, type (other_values.dbm_timer_id), timerId:find ("%s"))
+					--other_values.spellid
+					
+					--if (timerId:find ("%s")) then
 						--spellid timers
 						new_aura.trigger.id = ""
 						new_aura.trigger.use_id = false
 						new_aura.trigger.spellId_operator = "=="
 						new_aura.trigger.use_spellId = true
 						new_aura.trigger.spellId = tostring (other_values.spellid)
-					else
+					--else
 						--ej timers
-						new_aura.trigger.id = timerId
-					end
+					--	new_aura.trigger.id = timerId
+					--end
 				elseif (other_values.bw_timer_id) then
 					new_aura.trigger.id = ""
 					new_aura.trigger.use_id = false
@@ -1442,17 +1445,16 @@
 					aura_env.reimaningTime = @countdown
 				]]
 				init_start = init_start:gsub ("@countdown", floor (stacksize))
+				trigger.remaining = tostring (floor (stacksize))
 				new_aura.actions.init.custom = init_start
 				
 				if (other_values.dbm_timer_id) then
 					trigger.event = "DBM Timer"
 					trigger.spellId = tostring (other_values.spellid)
-					trigger.remaining = tostring (floor (stacksize))
 					
 				elseif (other_values.bw_timer_id) then
 					trigger.event = "BigWigs Timer"
 					trigger.spellId = tostring (other_values.bw_timer_id)
-					trigger.remaining = tostring (floor (stacksize))
 					trigger.spellId_operator = "=="
 				end
 			end
@@ -1653,6 +1655,19 @@
 	
 	local empty_other_values = {}
 	function _detalhes:OpenAuraPanel (spellid, spellname, spellicon, encounterid, triggertype, auratype, other_values)
+		
+		-- other_values DBM:
+		-- text_size 72
+		-- dbm_timer_id Timer183254cd
+		-- text Next Allure of Flames In
+		-- spellid 183254
+		-- icon Interface\Icons\Spell_Fire_FelFlameStrike
+		
+		-- other_values BW:
+		-- bw_timer_id 183828
+		-- text Next Death Brand In
+		-- icon Interface\Icons\warlock_summon_doomguard
+		-- text_size 72
 		
 		if (not spellname) then
 			spellname = select (1, GetSpellInfo (spellid))
@@ -2859,6 +2874,10 @@
 						spellname, _, spellicon = GetSpellInfo (spellid)
 					end
 					_detalhes:OpenAuraPanel (data [2], spellname, spellicon, data.id, DETAILS_WA_TRIGGER_BW_TIMER, DETAILS_WA_AURATYPE_TEXT, {bw_timer_id = data [2], text = "Next " .. spellname .. " In", text_size = 72, icon = spellicon})
+					
+				elseif (type (data [2]) == "string") then
+					--> "Xhul'horac" Imps
+					_detalhes:OpenAuraPanel (data [2], data[3], data[5], data.id, DETAILS_WA_TRIGGER_BW_TIMER, DETAILS_WA_AURATYPE_TEXT, {bw_timer_id = data [2], text = "Next " .. (data[3] or "") .. " In", text_size = 72, icon = data[5]})
 				end
 			end
 			
