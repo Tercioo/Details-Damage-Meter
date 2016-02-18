@@ -3825,6 +3825,15 @@ function window:CreateFrame1()
 		g:NewLabel (frame1, _, "$parentIgnoreNicknamesLabel", "IgnoreNicknamesLabel", Loc ["STRING_OPTIONS_IGNORENICKNAME"], "GameFontHighlightLeft")
 		g:NewSwitch (frame1, _, "$parentIgnoreNicknamesSlider", "IgnoreNicknamesSlider", 60, 20, _, _, _detalhes.ignore_nicktag, nil, nil, nil, nil, options_switch_template)
 		frame1.IgnoreNicknamesSlider:SetPoint ("left", frame1.IgnoreNicknamesLabel, "right", 2)
+		
+		if (not frame1.IgnoreNicknamesSlider.SetAsCheckBox) then
+			print ("================")
+			print ("================")
+			print ("Details!: |cFFFFFF00A very old Framework version is installed by another addon, please update (if you have any of these installed): |cFFFFFFFFIskarAssist|r, |cFFFFFFFFSalvageYardSeller|r, |cFFFFFFFFHansgar&Franzok Assist|r and |cFFFFFFFFFlashTaskbar|r.|r")
+			print ("================")
+			print ("================")
+		end
+		
 		frame1.IgnoreNicknamesSlider:SetAsCheckBox()
 
 		frame1.IgnoreNicknamesSlider.OnSwitch = function (self, _, value)
