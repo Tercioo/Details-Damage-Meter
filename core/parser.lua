@@ -2672,7 +2672,11 @@
 
 					for _, func in _ipairs (_hook_deaths_container) do 
 						local new_death_table = table_deepcopy (esta_morte)
-						func (nil, token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, new_death_table, este_jogador.last_cooldown, death_at, max_health)
+						local successful, errortext = pcall (func, nil, token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, new_death_table, este_jogador.last_cooldown, death_at, max_health)
+						if (not successful) then
+							_detalhes:Msg ("error occurred on a death hook function:", errortext)
+						end
+						--func (nil, token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, new_death_table, este_jogador.last_cooldown, death_at, max_health)
 					end
 				end
 				

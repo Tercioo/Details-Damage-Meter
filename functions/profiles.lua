@@ -610,6 +610,7 @@ end
 local default_profile = {
 
 	--> spec coords
+--	/run Details.class_specs_coords = nil
 		class_specs_coords = {
 			[250] = {0, 64/512, 0, 64/512}, --> blood dk
 			[251] = {64/512, 128/512, 0, 64/512}, --> frost dk
@@ -638,7 +639,7 @@ local default_profile = {
 			
 			[256] = {192/512, 256/512, 128/512, 192/512}, --> priest disc
 			[257] = {256/512, 320/512, 128/512, 192/512}, --> priest holy
-			[258] = {(320/512) + 0.001953125, 384/512, 128/512, 192/512}, --> priest shadow
+			[258] = {(320/512) + (0.001953125 * 4), 384/512, 128/512, 192/512}, --> priest shadow
 			
 			[259] = {384/512, 448/512, 128/512, 192/512}, --> rogue assassination
 			[260] = {448/512, 512/512, 128/512, 192/512}, --> rogue combat

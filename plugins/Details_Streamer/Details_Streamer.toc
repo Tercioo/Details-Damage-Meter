@@ -1,0 +1,10 @@
+## Interface: 60200
+## Title: Details!: Streamer (plugin)
+## Notes: Show which spells you are casting, viewers can see what are you doing and follow your steps.
+## RequiredDeps: Details
+
+#@no-lib-strip@
+embeds.xml
+#@end-no-lib-strip@
+
+Details_Streamer.lua

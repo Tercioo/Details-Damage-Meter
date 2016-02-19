@@ -29,6 +29,13 @@
 			return false, "Invalid hook type."
 		end
 		
+		for _, this_func in ipairs (_detalhes.hooks [hook_type]) do
+			if (this_func == func) then
+				--> already installed
+				return
+			end
+		end
+		
 		_detalhes.hooks [hook_type] [#_detalhes.hooks [hook_type] + 1] = func
 		
 		_detalhes.hooks [hook_type].enabled = true
