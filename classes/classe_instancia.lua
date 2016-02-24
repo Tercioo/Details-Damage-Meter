@@ -1531,7 +1531,24 @@ function _detalhes:SwitchTo (switch_table, nosave)
 	end
 
 	if (switch_table [1] == "raid") then
-		_detalhes.RaidTables:EnableRaidMode (self, switch_table [2])
+		local plugin_global_name, can_switch = switch_table[2], true
+
+		--plugin global name
+		for _, instance in ipairs (_detalhes.tabela_instancias) do 
+			if (instance ~= self and instance:IsEnabled() and instance.baseframe and instance.modo == modo_raid) then
+				if (instance.current_raid_plugin == plugin_global_name) then
+					can_switch = false
+					break
+				end
+			end
+		end
+		
+		if (can_switch) then
+			_detalhes.RaidTables:EnableRaidMode (self, switch_table [2])
+		else
+			local plugin = _detalhes:GetPlugin (plugin_global_name)
+			_detalhes:Msg ("Auto Switch: a window is already showing " .. (plugin.__name or "" .. ", please review your switch config."))
+		end
 	else
 		--muda para um atributo normal
 		if (self.modo ~= _detalhes._detalhes_props["MODO_GROUP"]) then
