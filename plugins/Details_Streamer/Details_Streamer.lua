@@ -11,7 +11,7 @@ local SOF = StreamOverlay.Frame
 --> shortcut for details framework
 local fw = StreamOverlay.gump 
 
-StreamOverlay.CurrentVersion = "v1.0"
+StreamOverlay.CurrentVersion = "v1.1"
 
 --> mantaing the tables for casts, has hash indexes of numbers pointing to tables, tables inside store data of the UNIT_CAST events
 --> also mantain information about the cast, if is done, interrupted, channeled, instant.
@@ -79,6 +79,7 @@ local function CreatePluginFrames()
 	end
 
 	function StreamOverlay:OnEnablePlugin()
+	
 		--> show the frame and restore position
 		SOF:Show()
 		local LibWindow = LibStub ("LibWindow-1.1")
@@ -149,13 +150,50 @@ local function CreatePluginFrames()
 		GameTooltip:Hide()
 	end)
 	
+	
+	
+	
+	SOF:SetScript ("OnMouseDown", function (self)
+
+	end)
+	SOF:SetScript ("OnMouseUp", function (self)
+
+	end)	
+	
+	
+	titlebar:SetScript ("OnMouseDown", function (self, button) 
+		if (not SOF.moving and not StreamOverlay.db.main_frame_locked) then
+			SOF:StartMoving()
+			SOF.moving = true
+			SOF.movingAt = GetTime()
+		end
+	end)
+	
 	titlebar:SetScript ("OnMouseUp", function (self, button) 
+	
+		if (SOF.movingAt) then
+			if (SOF.moving) then
+				SOF.moving = false
+				SOF:StopMovingOrSizing()
+				local LibWindow = LibStub ("LibWindow-1.1")
+				LibWindow.SavePosition (SOF)
+			end
+			
+			if (SOF.movingAt+0.200 < GetTime()) then
+				return
+			end
+			SOF.movingAt = nil
+		end
+	
 		if (button == "LeftButton") then
 			--open options
 			StreamOverlay.OpenOptionsPanel()
 		elseif (button == "RightButton") then
 			--lock the frame
 			StreamOverlay:SetLocked (not StreamOverlay.db.main_frame_locked)
+			if (StreamOverlayOptionsPanel) then
+				StreamOverlayOptionsPanel:RefreshOptions()
+			end
 		end
 	end)
 	
@@ -1108,7 +1146,6 @@ function StreamOverlay:SetLocked (state)
 	
 end
 
-
 function StreamOverlay.OpenOptionsPanel()
 
 	if (not StreamOverlayOptionsPanel) then
@@ -1362,7 +1399,88 @@ function StreamOverlay.OpenOptionsPanel()
 		
 		
 		
-		fw:BuildMenu (options_frame, options, 15, -77, 340, true, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
+		fw:BuildMenu (options_frame, options, 15, -100, 380, true, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
+		
+		--select profile dropdown
+		local select_profile = function (_, _, profileName)
+		
+			local pname = UnitName ("player") .. " - " .. GetRealmName()
+			
+			--> save the current config on the profile
+			local current_profile = Details_StreamerDB.characters [pname]
+			local current_ptable = Details_StreamerDB.profiles [current_profile]
+			_detalhes.table.overwrite (current_ptable, StreamOverlay.db) --overwrite the profile with the local settings
+			
+			--> get the selected profile and overwrite the settings
+			local ptable = Details_StreamerDB.profiles [profileName]
+			_detalhes.table.overwrite (StreamOverlay.db, ptable) --overwrite the local settings with the profile settings
+			Details_StreamerDB.characters [pname] = profileName
+			
+			--> set the window location
+			local LibWindow = LibStub ("LibWindow-1.1")
+			LibWindow.RegisterConfig (SOF, StreamOverlay.db)
+			LibWindow.RestorePosition (SOF)
+			LibWindow.SavePosition (SOF)
+			
+			--> set locked and the backdrop color
+			StreamOverlay:SetLocked (StreamOverlay.db.main_frame_locked)
+			StreamOverlay:SetBackgroundColor (unpack (StreamOverlay.db.main_frame_color))
+			
+			--> update the minimap icon
+			if (LDBIcon) then
+				LDBIcon:Refresh ("DetailsStreamer", StreamOverlay.db.minimap)
+			end
+			
+			--> update all settings
+			StreamOverlay:RefreshAllBattleLineStyle()
+			
+			--> update the options panel
+			options_frame:RefreshOptions()
+		end
+		
+		local select_profile_fill = function()
+			local t = {}
+			for profileName, _ in pairs (Details_StreamerDB.profiles) do
+				t [#t+1] = {value = profileName, label = profileName, onclick = select_profile}
+			end
+			return t
+		end
+		
+		local label_profile = Details.gump:CreateLabel (options_frame, "Profile" .. ": ", Details.gump:GetTemplate ("font", "OPTIONS_FONT_TEMPLATE"))
+		local dropdown_profile = Details.gump:CreateDropDown (options_frame, select_profile_fill, _, 160, 20, "dropdown_profile", _, Details.gump:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
+		dropdown_profile:SetPoint ("left", label_profile, "right", 2, 0)
+		label_profile:SetPoint ("topleft", options_frame, "topleft", 15, -65)
+		
+		local pname = UnitName ("player") .. " - " .. GetRealmName()
+		dropdown_profile:Select (Details_StreamerDB.characters [pname])
+		
+		--> new profile button
+		if (not Details_StreamerDB.profiles [pname]) then
+			local add_profile = function()
+				--profile name
+				local pname = UnitName ("player") .. " - " .. GetRealmName()
+				--default if is first run
+				Details_StreamerDB.characters [pname] = pname
+				--load dbtable
+				Details_StreamerDB.profiles [pname] = {}
+				_detalhes.table.overwrite (Details_StreamerDB.profiles [pname], StreamOverlay.db)
+				--StreamOverlay.db = Details_StreamerDB.profiles [pname] --no can't change the local database table
+				
+				options_frame.NewProfileButton:Hide()
+				
+				--> update all settings
+				StreamOverlay:RefreshAllBattleLineStyle()
+				
+				--> update the options panel
+				options_frame:RefreshOptions()
+				dropdown_profile:Select (Details_StreamerDB.characters [pname])
+				
+			end
+			options_frame.NewProfileButton = Details.gump:CreateButton (options_frame, add_profile, 60, 18, "New Profiile", _, _, _, _, _, _, Details.gump:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"), Details.gump:GetTemplate ("font", "OPTIONS_FONT_TEMPLATE"))
+			options_frame.NewProfileButton:SetPoint ("left", dropdown_profile, "right", 4, 0)
+			
+		end
+		
 	end
 	
 	StreamOverlayOptionsPanel:Show()
@@ -1412,12 +1530,19 @@ function StreamOverlay:OnEvent (_, event, ...)
 					print (install.error)
 				end
 				
+				Details_StreamerDB = Details_StreamerDB or {characters = {}, profiles = {}}
+				
 				StreamOverlay:CreateMinimapIcon()
 				
 				StreamOverlay:SetPluginDescription ("Show in real time the spells you are casting.\n\nThe viewer can now follow what you are doing, what spells you are casting, learn your rotation.\n\nAlso tells who is the target and its class/spec on raiding or role if you are in arena.\n\nWhen you die, the panel is filled with your death log.")
 				
 				if (StreamOverlay.db.is_first_run) then
-					Details:DisablePlugin ("DETAILS_PLUGIN_STREAM_OVERLAY")
+					if (Details:GetTutorialCVar ("STREAMER_PLUGIN_FIRSTRUN")) then
+						Details:DisablePlugin ("DETAILS_PLUGIN_STREAM_OVERLAY")
+						StreamOverlay.db.is_first_run = false
+					else
+						Details:DisablePlugin ("DETAILS_PLUGIN_STREAM_OVERLAY")
+					end
 				end
 				
 				if (StreamOverlay.db.is_first_run and not Details:GetTutorialCVar ("STREAMER_PLUGIN_FIRSTRUN")) then
@@ -1429,7 +1554,7 @@ function StreamOverlay:OnEvent (_, event, ...)
 						end
 						
 						StreamOverlay.ShowWelcomeFrame:Cancel()
-					
+						
 						local welcome_window = CreateFrame ("frame", "StreamOverlayWelcomeWindow", UIParent)
 						welcome_window:SetPoint ("center", UIParent, "center")
 						welcome_window:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
@@ -1454,7 +1579,7 @@ function StreamOverlay:OnEvent (_, event, ...)
 						
 						text1:SetPoint ("topleft", welcome_window, "topleft", 10, -120)
 						text2:SetPoint ("topleft", welcome_window, "topleft", 10, -140)
-					
+						
 						local close_func = function()
 							StreamOverlay.db.is_first_run = false
 							Details:SetTutorialCVar ("STREAMER_PLUGIN_FIRSTRUN", true)
@@ -1466,13 +1591,33 @@ function StreamOverlay:OnEvent (_, event, ...)
 					end
 					
 					StreamOverlay.ShowWelcomeFrame = C_Timer.NewTicker (5, show_frame)
-
+				
 				end
 				
 				--wipe (StreamOverlay.db)
+				SOF:RegisterEvent ("PLAYER_LOGOUT")
+				
+				--profile name
+				local pname = UnitName ("player") .. " - " .. GetRealmName()
+				--default if is first run
+				local next_pname = next (Details_StreamerDB.profiles or {})
+				Details_StreamerDB.characters [pname] = Details_StreamerDB.characters [pname] or next_pname or pname
+				
+				--load dbtable
+				local ptable = Details_StreamerDB.profiles [ Details_StreamerDB.characters [pname] ] or {} --already existen config set or empty table
+				_detalhes.table.overwrite (StreamOverlay.db, ptable) --profile overwrite the local settings
+				_detalhes.table.deploy (ptable, StreamOverlay.db) --local settings deploy stuff which non exist on profile
+				
+				Details_StreamerDB.profiles [ Details_StreamerDB.characters [pname] ] = ptable
 				
 			end
 		end
+		
+	elseif (event == "PLAYER_LOGOUT") then
+		
+		local pname = UnitName ("player") .. " - " .. GetRealmName()
+		Details_StreamerDB.profiles [ Details_StreamerDB.characters [pname] ] = StreamOverlay.db
+		
 	end
 end
 
