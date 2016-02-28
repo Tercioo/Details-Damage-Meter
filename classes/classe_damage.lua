@@ -909,9 +909,9 @@
 		local bars_show_data = instancia.row_info.textR_show_data
 		local bars_brackets = instancia:GetBarBracket()
 		
-		local spell_damage = tabela [2]
+		local spell_damage = tabela [2] -- spell_damage passar por uma ToK function, precisa ser number
 		if (not bars_show_data [1]) then
-			spell_damage = ""
+			spell_damage = tabela [2] --damage taken by spell não tem PS, então é obrigado a passar o dano total
 		end
 		if (not bars_show_data [3]) then
 			porcentagem = ""
@@ -919,7 +919,7 @@
 			porcentagem = porcentagem .. "%"
 		end
 		
-		esta_barra.texto_direita:SetText (SelectedToKFunction (_, spell_damage) .. bars_brackets[1] .. porcentagem .. bars_brackets[2])
+		esta_barra.texto_direita:SetText ((spell_damage and SelectedToKFunction (_, spell_damage) or "") .. bars_brackets[1] .. porcentagem .. bars_brackets[2])
 		
 		esta_barra.texto_esquerdo:SetTextColor (1, 1, 1, 1)
 		esta_barra.texto_direita:SetTextColor (1, 1, 1, 1)
