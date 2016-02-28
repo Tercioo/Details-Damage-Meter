@@ -2,10 +2,11 @@ local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
 local SharedMedia = LibStub:GetLibrary ("LibSharedMedia-3.0")
 local LDB = LibStub ("LibDataBroker-1.1", true)
 local LDBIcon = LDB and LibStub ("LibDBIcon-1.0", true)
+local LibWindow = LibStub ("LibWindow-1.1")
 
 --> create the plugin object
 local StreamOverlay = _detalhes:NewPluginObject ("Details_StreamOverlay", DETAILSPLUGIN_ALWAYSENABLED)
-tinsert (UISpecialFrames, "Details_StreamOverlays")
+--tinsert (UISpecialFrames, "Details_StreamOverlays")
 --> main frame (shortcut)
 local SOF = StreamOverlay.Frame
 --> shortcut for details framework
@@ -82,10 +83,9 @@ local function CreatePluginFrames()
 	
 		--> show the frame and restore position
 		SOF:Show()
-		local LibWindow = LibStub ("LibWindow-1.1")
-		LibWindow.RegisterConfig (SOF, StreamOverlay.db)
-		LibWindow.RestorePosition (SOF)
-		LibWindow.SavePosition (SOF)
+		
+		--> restore size and location
+		StreamOverlay:RestoreWindowSizeAndLocation()
 		
 		--> refresh the frame
 		StreamOverlay:Refresh()
@@ -123,10 +123,8 @@ local function CreatePluginFrames()
 		LDBIcon:Refresh ("DetailsStreamer", StreamOverlay.db.minimap)
 		StreamOverlay.db.minimap.hide = realstate
 		
-		--> save position and hide the frame
-		local LibWindow = LibStub ("LibWindow-1.1")
-		LibWindow.RegisterConfig (SOF, StreamOverlay.db)
-		LibWindow.SavePosition (SOF)
+		--> save position, size and hide the frame
+		StreamOverlay:SaveWindowSizeAnLocation()
 		SOF:Hide()
 	end
 	
@@ -150,16 +148,12 @@ local function CreatePluginFrames()
 		GameTooltip:Hide()
 	end)
 	
-	
-	
-	
 	SOF:SetScript ("OnMouseDown", function (self)
 
 	end)
 	SOF:SetScript ("OnMouseUp", function (self)
 
 	end)	
-	
 	
 	titlebar:SetScript ("OnMouseDown", function (self, button) 
 		if (not SOF.moving and not StreamOverlay.db.main_frame_locked) then
@@ -175,8 +169,7 @@ local function CreatePluginFrames()
 			if (SOF.moving) then
 				SOF.moving = false
 				SOF:StopMovingOrSizing()
-				local LibWindow = LibStub ("LibWindow-1.1")
-				LibWindow.SavePosition (SOF)
+				StreamOverlay:SaveWindowSizeAnLocation()
 			end
 			
 			if (SOF.movingAt+0.200 < GetTime()) then
@@ -207,6 +200,25 @@ local function CreatePluginFrames()
 	SOF:SetClampedToScreen (true)
 	SOF:SetMinResize (150, 40)
 	SOF:SetMaxResize (800, 1024)
+	
+	function StreamOverlay:SaveWindowSizeAnLocation()
+		--> save size first
+		StreamOverlay.db.main_frame_size [1] = SOF:GetWidth()
+		StreamOverlay.db.main_frame_size [2] = SOF:GetHeight()
+		--> save position
+		LibWindow.RegisterConfig (SOF, StreamOverlay.db)
+		LibWindow.SavePosition (SOF)
+	end
+	function StreamOverlay:RestoreWindowSizeAndLocation()
+		--> restore the size first
+		SOF:SetSize (unpack (StreamOverlay.db.main_frame_size))
+		--> set the window location
+		LibWindow.RegisterConfig (SOF, StreamOverlay.db)
+		LibWindow.RestorePosition (SOF)
+		LibWindow.SavePosition (SOF)
+		--> set the frame strata
+		SOF:SetFrameStrata (StreamOverlay.db.main_frame_strata)
+	end
 
 	--> two resizers
 	local left_resize = CreateFrame ("button", "DetailsStreamerLeftResizer", SOF)
@@ -236,8 +248,8 @@ local function CreatePluginFrames()
 			SOF.resizing = false
 			SOF:StopMovingOrSizing()
 			StreamOverlay:Refresh()
-			local LibWindow = LibStub ("LibWindow-1.1")
-			LibWindow.SavePosition (SOF)
+			
+			StreamOverlay:SaveWindowSizeAnLocation()
 		end
 	end)
 	right_resize:SetScript ("OnMouseDown", function (self)
@@ -251,8 +263,8 @@ local function CreatePluginFrames()
 			SOF.resizing = false
 			SOF:StopMovingOrSizing()
 			StreamOverlay:Refresh()
-			local LibWindow = LibStub ("LibWindow-1.1")
-			LibWindow.SavePosition (SOF)
+			
+			StreamOverlay:SaveWindowSizeAnLocation()
 		end
 	end)
 	
@@ -270,8 +282,8 @@ local function CreatePluginFrames()
 		if (SOF.moving) then
 			SOF.moving = false
 			SOF:StopMovingOrSizing()
-			local LibWindow = LibStub ("LibWindow-1.1")
-			LibWindow.SavePosition (SOF)
+			
+			StreamOverlay:SaveWindowSizeAnLocation()
 		end
 	end)
 	
@@ -1162,7 +1174,7 @@ function StreamOverlay.OpenOptionsPanel()
 		options_frame:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
 		options_frame:SetBackdropColor (0, 0, 0, 0.5)
 		options_frame:SetBackdropBorderColor (0, 0, 0, 1)
-		options_frame:SetHeight (340)
+		options_frame:SetHeight (360)
 		
 		-- select texture
 		local set_row_texture = function (_, _, value)
@@ -1224,6 +1236,18 @@ function StreamOverlay.OpenOptionsPanel()
 		for _, arrow in ipairs (arrows) do 
 			arrowIconTable[#arrowIconTable+1] = {value = arrow, label = arrow:gsub ("Interface(.*)\\", ""), onclick = set_arrow_texture, icon = arrow}
 		end
+		--
+		local set_window_strata = function (_, _, strata)
+			StreamOverlay.db.main_frame_strata = strata
+			SOF:SetFrameStrata (strata)
+		end
+		local strataTable = {
+			{value = "BACKGROUND", label = "Background", onclick = set_window_strata, icon = [[Interface\Buttons\UI-MicroStream-Green]], iconcolor = {0, .5, 0, .8}, texcoord = nil},
+			{value = "LOW", label = "Low", onclick = set_window_strata, icon = [[Interface\Buttons\UI-MicroStream-Green]] , texcoord = nil},
+			{value = "MEDIUM", label = "Medium", onclick = set_window_strata, icon = [[Interface\Buttons\UI-MicroStream-Yellow]] , texcoord = nil},
+			{value = "HIGH", label = "High", onclick = set_window_strata, icon = [[Interface\Buttons\UI-MicroStream-Yellow]] , iconcolor = {1, .7, 0, 1}, texcoord = nil},
+			{value = "DIALOG", label = "Dialog", onclick = set_window_strata, icon = [[Interface\Buttons\UI-MicroStream-Red]] , iconcolor = {1, 0, 0, 1},  texcoord = nil},
+		}
 		--
 		local options = {
 		
@@ -1395,11 +1419,43 @@ function StreamOverlay.OpenOptionsPanel()
 				desc = "Adjust the arrow positioning on Y axis.",
 				name = "Arrow Anchor Y",
 			},
+			
+			{type = "space"},
+			
+			{
+				type = "range",
+				get = function() return StreamOverlay.db.main_frame_size[1] end,
+				set = function (self, fixedparam, value) StreamOverlay.db.main_frame_size[1] = value; StreamOverlay:RestoreWindowSizeAndLocation() end,
+				min = 150,
+				max = 800,
+				step = 1,
+				desc = "Adjust the window width.",
+				name = "Window Width",
+			},
+			
+			{
+				type = "range",
+				get = function() return StreamOverlay.db.main_frame_size[2] end,
+				set = function (self, fixedparam, value) StreamOverlay.db.main_frame_size[2] = value; StreamOverlay:RestoreWindowSizeAndLocation() end,
+				min = 40,
+				max = 1024,
+				step = 1,
+				desc = "Adjust the window height.",
+				name = "Window Height",
+			},
+			
+			{
+				type = "select",
+				get = function() return StreamOverlay.db.main_frame_strata end,
+				values = function() return strataTable end,
+				desc = "How high the frame is placed in your interface, high values makes it be shown above backpack, talents frame, etc.",
+				name = "Window Strata"
+			},
+			
+			
 		}
 		
-		
-		
-		fw:BuildMenu (options_frame, options, 15, -100, 380, true, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
+		fw:BuildMenu (options_frame, options, 15, -100, 400, true, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
 		
 		--select profile dropdown
 		local select_profile = function (_, _, profileName)
@@ -1413,14 +1469,14 @@ function StreamOverlay.OpenOptionsPanel()
 			
 			--> get the selected profile and overwrite the settings
 			local ptable = Details_StreamerDB.profiles [profileName]
+			
+			_detalhes.table.deploy (ptable, StreamOverlay.DefaultConfigTable) --update with any new config from the default table
 			_detalhes.table.overwrite (StreamOverlay.db, ptable) --overwrite the local settings with the profile settings
+			
 			Details_StreamerDB.characters [pname] = profileName
 			
-			--> set the window location
-			local LibWindow = LibStub ("LibWindow-1.1")
-			LibWindow.RegisterConfig (SOF, StreamOverlay.db)
-			LibWindow.RestorePosition (SOF)
-			LibWindow.SavePosition (SOF)
+			--> restore size and location
+			StreamOverlay:RestoreWindowSizeAndLocation()
 			
 			--> set locked and the backdrop color
 			StreamOverlay:SetLocked (StreamOverlay.db.main_frame_locked)
@@ -1464,6 +1520,7 @@ function StreamOverlay.OpenOptionsPanel()
 				--load dbtable
 				Details_StreamerDB.profiles [pname] = {}
 				_detalhes.table.overwrite (Details_StreamerDB.profiles [pname], StreamOverlay.db)
+				_detalhes.table.deploy (Details_StreamerDB.profiles [pname], StreamOverlay.DefaultConfigTable) --update with any new config from the default table
 				--StreamOverlay.db = Details_StreamerDB.profiles [pname] --no can't change the local database table
 				
 				options_frame.NewProfileButton:Hide()
@@ -1505,6 +1562,8 @@ function StreamOverlay:OnEvent (_, event, ...)
 				local default_options_table = {
 					main_frame_locked = false,
 					main_frame_color = {0, 0, 0, .2},
+					main_frame_size = {250, 230},
+					main_frame_strata = "LOW",
 					row_height = 20,
 					row_spacement = 21,
 					row_texture = "Details Serenity",
@@ -1523,6 +1582,8 @@ function StreamOverlay:OnEvent (_, event, ...)
 					
 					is_first_run = true,
 				}
+				
+				StreamOverlay.DefaultConfigTable = default_options_table
 				
 				--> Install
 				local install, saveddata = _G._detalhes:InstallPlugin ("TOOLBAR", "Streamer", [[Interface\MINIMAP\MOVIERECORDINGICON]], StreamOverlay, "DETAILS_PLUGIN_STREAM_OVERLAY", MINIMAL_DETAILS_VERSION_REQUIRED, "Details! Team", StreamOverlay.CurrentVersion, default_options_table)
