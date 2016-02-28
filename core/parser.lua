@@ -389,6 +389,14 @@
 					mob ["HITS"] = mob ["HITS"] + 1
 				end
 				
+				if (blocked and blocked > 0) then
+					overall ["BLOCKED_HITS"] = overall ["BLOCKED_HITS"] + 1
+					mob ["BLOCKED_HITS"] = mob ["BLOCKED_HITS"] + 1
+					overall ["BLOCKED_AMT"] = overall ["BLOCKED_AMT"] + blocked
+					mob ["BLOCKED_AMT"] = mob ["BLOCKED_AMT"] + blocked
+					print (alvo_name, "block", blocked)
+				end
+				
 				--> absorbs status
 				if (absorbed) then
 					--> aqui pode ser apenas absorb parcial

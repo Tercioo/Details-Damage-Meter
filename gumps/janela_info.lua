@@ -1735,6 +1735,33 @@ function gump:CriaJanelaInfo()
 			parrypersecond_amt:SetText ("0")
 			tab.parrypersecond = parrypersecond_amt
 
+			-- block
+			local block = frame:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			block:SetPoint ("topleft", frame, "topleft", 15, -180)
+			block:SetText ("Block:") --> localize-me
+			block:SetTextColor (.8, .8, .8, 1)
+			local block_amt = frame:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			block_amt:SetPoint ("left", block,  "right", 2, 0)
+			block_amt:SetText ("0")
+			tab.block = block_amt
+			
+			local blockpersecond = frame:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			blockpersecond:SetPoint ("topleft", frame, "topleft", 20, -195)
+			blockpersecond:SetText ("Per Second:") --> localize-me
+			local blockpersecond_amt = frame:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			blockpersecond_amt:SetPoint ("left", blockpersecond,  "right", 2, 0)
+			blockpersecond_amt:SetText ("0")
+			tab.blockpersecond = blockpersecond_amt
+			
+			local blockeddamage = frame:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			blockeddamage:SetPoint ("topleft", frame, "topleft", 20, -210)
+			blockeddamage:SetText ("Damage Blocked:") --> localize-me
+			local blockeddamage_amt = frame:CreateFontString (nil, "artwork", "GameFontHighlightSmall")
+			blockeddamage_amt:SetPoint ("left", blockeddamage,  "right", 2, 0)
+			blockeddamage_amt:SetText ("0")
+			tab.blockeddamage_amt = blockeddamage_amt
+			
+			
 		--> ABSORBS
 		
 			local absorb_texture = frame:CreateTexture (nil, "artwork")
@@ -2015,6 +2042,19 @@ function gump:CriaJanelaInfo()
 				end
 				local ps, diff = getpercent (totalparry, last_total_parry, elapsed_time, true)
 				tab.parrypersecond:SetText (string.format ("%.2f", ps) .. " (" .. diff .. ")")
+				
+			--> block
+				local totalblock = playerdamage.avoidance.overall.BLOCKED_HITS
+				tab.block:SetText (totalblock)
+				
+				local last_total_block = 0
+				if (last_actor and last_actor.avoidance) then
+					last_total_block = last_actor.avoidance.overall.BLOCKED_HITS / last_combat:GetCombatTime()
+				end
+				local ps, diff = getpercent (totalblock, last_total_block, elapsed_time, true)
+				tab.blockpersecond:SetText (string.format ("%.2f", ps) .. " (" .. diff .. ")")
+				
+				tab.blockeddamage_amt:SetText (_detalhes:ToK2 (playerdamage.avoidance.overall.BLOCKED_AMT))
 				
 			--> absorb
 				local fullabsorb = playerdamage.avoidance.overall.FULL_ABSORBED
@@ -3595,12 +3635,20 @@ function gump:CriaJanelaInfo()
 				return tooltip
 			end
 			
+			local frame_backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]], tileSize = 64, tile = true}
+			local frame_backdrop_color = {0, 0, 0, .95}
+			local frame_backdrop_border_color = {.2, .2, .2, 1}
+			
+			
 			local frame1 = CreateFrame ("scrollframe", "DetailsPlayerComparisonBox1", frame, "FauxScrollFrameTemplate")
 			frame1:SetScript ("OnVerticalScroll", function (self, offset) FauxScrollFrame_OnVerticalScroll (self, offset, 14, refresh_comparison_box) end)			
-			frame1:SetSize (175, 150)
+			frame1:SetSize (190, 150)
 			frame1:SetPoint ("topleft", frame, "topleft", 10, -30)
-			frame1:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border", tile = true, tileSize = 16, edgeSize = 10, insets = {left = 1, right = 1, top = 0, bottom = 1},})	
-			frame1:SetBackdropColor (0, 0, 0, .7)
+			
+			frame1:SetBackdrop (frame_backdrop)
+			frame1:SetBackdropColor (unpack (frame_backdrop_color))
+			frame1:SetBackdropBorderColor (unpack (frame_backdrop_border_color))
+
 			frame1.bars = {}
 			frame1.tab = tab
 			frame1.tooltip = create_tooltip ("DetailsPlayerComparisonBox1Tooltip")
@@ -3618,10 +3666,11 @@ function gump:CriaJanelaInfo()
 			--cria o box dos targets
 			local target1 = CreateFrame ("scrollframe", "DetailsPlayerComparisonTarget1", frame, "FauxScrollFrameTemplate")
 			target1:SetScript ("OnVerticalScroll", function (self, offset) FauxScrollFrame_OnVerticalScroll (self, offset, 14, refresh_target_box) end)			
-			target1:SetSize (175, 70)
+			target1:SetSize (190, 70)
 			target1:SetPoint ("topleft", frame1, "bottomleft", 0, -10)
-			target1:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border", tile = true, tileSize = 16, edgeSize = 10, insets = {left = 1, right = 1, top = 0, bottom = 1},})	
-			target1:SetBackdropColor (0, 0, 0, .7)
+			target1:SetBackdrop (frame_backdrop)
+			target1:SetBackdropColor (unpack (frame_backdrop_color))
+			target1:SetBackdropBorderColor (unpack (frame_backdrop_border_color))
 			target1.bars = {}
 			target1.tab = tab
 			target1.tooltip = create_tooltip_target ("DetailsPlayerComparisonTarget1Tooltip")
@@ -3632,13 +3681,17 @@ function gump:CriaJanelaInfo()
 			end
 			
 --------------------------------------------
+
 			local frame2 = CreateFrame ("frame", "DetailsPlayerComparisonBox2", frame)
 			local frame3 = CreateFrame ("frame", "DetailsPlayerComparisonBox3", frame)
 			
-			frame2:SetPoint ("topleft", frame1, "topright", 25, 0)
-			frame2:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border", tile = true, tileSize = 16, edgeSize = 10, insets = {left = 1, right = 1, top = 0, bottom = 1},})	
+			frame2:SetPoint ("topleft", frame1, "topright", 27, 0)
 			frame2:SetSize (170, 150)
-			frame2:SetBackdropColor (0, 0, 0, .7)
+			
+			frame2:SetBackdrop (frame_backdrop)
+			frame2:SetBackdropColor (unpack (frame_backdrop_color))
+			frame2:SetBackdropBorderColor (unpack (frame_backdrop_border_color))
+			
 			frame2.bars = {}
 			frame2.tooltip = create_tooltip ("DetailsPlayerComparisonBox2Tooltip")
 			
@@ -3663,8 +3716,9 @@ function gump:CriaJanelaInfo()
 			local target2 = CreateFrame ("frame", "DetailsPlayerComparisonTarget2", frame)
 			target2:SetSize (170, 70)
 			target2:SetPoint ("topleft", frame2, "bottomleft", 0, -10)
-			target2:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border", tile = true, tileSize = 16, edgeSize = 10, insets = {left = 1, right = 1, top = 0, bottom = 1},})	
-			target2:SetBackdropColor (0, 0, 0, .7)
+			target2:SetBackdrop (frame_backdrop)
+			target2:SetBackdropColor (unpack (frame_backdrop_color))
+			target2:SetBackdropBorderColor (unpack (frame_backdrop_border_color))
 			target2.bars = {}
 			target2.tooltip = create_tooltip_target ("DetailsPlayerComparisonTarget2Tooltip")
 			
@@ -3673,10 +3727,14 @@ function gump:CriaJanelaInfo()
 				create_bar ("DetailsPlayerComparisonTarget2Bar"..i, target2, i, nil, true)
 			end
 			
+-----------------------------------------------------------------------
+			
 			frame3:SetPoint ("topleft", frame2, "topright", 5, 0)
-			frame3:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border", tile = true, tileSize = 16, edgeSize = 10, insets = {left = 1, right = 1, top = 0, bottom = 1},})	
 			frame3:SetSize (170, 150)
-			frame3:SetBackdropColor (0, 0, 0, .7)
+			frame3:SetBackdrop (frame_backdrop)
+			frame3:SetBackdropColor (unpack (frame_backdrop_color))
+			frame3:SetBackdropBorderColor (unpack (frame_backdrop_border_color))
+			
 			frame3.bars = {}
 			frame3.tooltip = create_tooltip ("DetailsPlayerComparisonBox3Tooltip")
 			
@@ -3700,8 +3758,9 @@ function gump:CriaJanelaInfo()
 			local target3 = CreateFrame ("frame", "DetailsPlayerComparisonTarget3", frame)
 			target3:SetSize (170, 70)
 			target3:SetPoint ("topleft", frame3, "bottomleft", 0, -10)
-			target3:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border", tile = true, tileSize = 16, edgeSize = 10, insets = {left = 1, right = 1, top = 0, bottom = 1},})	
-			target3:SetBackdropColor (0, 0, 0, .7)
+			target3:SetBackdrop (frame_backdrop)
+			target3:SetBackdropColor (unpack (frame_backdrop_color))
+			target3:SetBackdropBorderColor (unpack (frame_backdrop_border_color))
 			target3.bars = {}
 			target3.tooltip = create_tooltip_target ("DetailsPlayerComparisonTarget3Tooltip")
 			
@@ -3880,10 +3939,25 @@ function _detalhes:CreatePlayerDetailsTab (tabname, localized_name, condition, f
 	end
 	
 	newtab.frame:SetBackdrop({
-		bgFile = [[Interface\ACHIEVEMENTFRAME\UI-GuildAchievement-Parchment-Horizontal-Desaturated]], tile = true, tileSize = 512,
-		edgeFile = [[Interface\ACHIEVEMENTFRAME\UI-Achievement-WoodBorder]], edgeSize = 32,
-		insets = {left = 0, right = 0, top = 0, bottom = 0}})		
-	newtab.frame:SetBackdropColor (.5, .50, .50, 1)
+		--bgFile = [[Interface\ACHIEVEMENTFRAME\UI-GuildAchievement-Parchment-Horizontal-Desaturated]], tile = true, tileSize = 512,
+		--edgeFile = [[Interface\ACHIEVEMENTFRAME\UI-Achievement-WoodBorder]], edgeSize = 32,
+		
+		edgeFile = [[Interface\Buttons\WHITE8X8]], 
+		edgeSize = 1, 
+		--bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], 
+		bgFile = [[Interface\AddOns\Details\images\background]],
+		tileSize = 64, 
+		tile = true,
+		insets = {left = 0, right = 0, top = 0, bottom = 0}}
+		)
+		
+		newtab.frame:SetBackdropColor (.5, .50, .50, 1)
+		
+		newtab.frame:SetBackdropColor (0, 0, 0, 0.95)
+		newtab.frame:SetBackdropBorderColor (.3, .3, .3, 1)
+		
+		--local f = CreateFrame ("frame", nil, newtab)
+		--f:Set
 	
 	
 	newtab.frame:SetPoint ("TOPLEFT", info.container_barras, "TOPLEFT", 0, 0)

@@ -106,12 +106,17 @@
 				if (no_overall) then
 					local t = {["ALL"] = 0, ["DODGE"] = 0, ["PARRY"] = 0, ["HITS"] = 0, ["ABSORB"] = 0, --quantas vezes foi dodge, parry, quandos hits tomou, quantos absorbs teve
 					["FULL_HIT"] = 0, ["FULL_ABSORBED"] = 0, ["PARTIAL_ABSORBED"] = 0, --full hit full absorbed and partial absortion
-					["FULL_HIT_AMT"] = 0, ["PARTIAL_ABSORB_AMT"] = 0, ["ABSORB_AMT"] = 0, ["FULL_ABSORB_AMT"] = 0} --amounts
+					["FULL_HIT_AMT"] = 0, ["PARTIAL_ABSORB_AMT"] = 0, ["ABSORB_AMT"] = 0, ["FULL_ABSORB_AMT"] = 0, --amounts
+					["BLOCKED_HITS"] = 0, ["BLOCKED_AMT"] = 0, --amount of hits blocked - amout of damage mitigated
+					} 
 					return t
 				else
 					local t = {overall = {["ALL"] = 0, ["DODGE"] = 0, ["PARRY"] = 0, ["HITS"] = 0, ["ABSORB"] = 0, --quantas vezes foi dodge, parry, quandos hits tomou, quantos absorbs teve
 					["FULL_HIT"] = 0, ["FULL_ABSORBED"] = 0, ["PARTIAL_ABSORBED"] = 0, --full hit full absorbed and partial absortion
-					["FULL_HIT_AMT"] = 0, ["PARTIAL_ABSORB_AMT"] = 0, ["ABSORB_AMT"] = 0, ["FULL_ABSORB_AMT"] = 0}} --amounts
+					["FULL_HIT_AMT"] = 0, ["PARTIAL_ABSORB_AMT"] = 0, ["ABSORB_AMT"] = 0, ["FULL_ABSORB_AMT"] = 0, --amounts
+					["BLOCKED_HITS"] = 0, ["BLOCKED_AMT"] = 0, --amount of hits blocked - amout of damage mitigated
+					}
+					}
 					return t
 				end
 			end
