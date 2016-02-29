@@ -394,7 +394,7 @@
 					mob ["BLOCKED_HITS"] = mob ["BLOCKED_HITS"] + 1
 					overall ["BLOCKED_AMT"] = overall ["BLOCKED_AMT"] + blocked
 					mob ["BLOCKED_AMT"] = mob ["BLOCKED_AMT"] + blocked
-					print (alvo_name, "block", blocked)
+					--print (alvo_name, "block", blocked)
 				end
 				
 				--> absorbs status
