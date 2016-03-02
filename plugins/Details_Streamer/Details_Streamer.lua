@@ -3,6 +3,7 @@ local SharedMedia = LibStub:GetLibrary ("LibSharedMedia-3.0")
 local LDB = LibStub ("LibDataBroker-1.1", true)
 local LDBIcon = LDB and LibStub ("LibDBIcon-1.0", true)
 local LibWindow = LibStub ("LibWindow-1.1")
+local _
 
 --> create the plugin object
 local StreamOverlay = _detalhes:NewPluginObject ("Details_StreamOverlay", DETAILSPLUGIN_ALWAYSENABLED)
@@ -1503,7 +1504,7 @@ function StreamOverlay.OpenOptionsPanel()
 		end
 		
 		local label_profile = Details.gump:CreateLabel (options_frame, "Profile" .. ": ", Details.gump:GetTemplate ("font", "OPTIONS_FONT_TEMPLATE"))
-		local dropdown_profile = Details.gump:CreateDropDown (options_frame, select_profile_fill, _, 160, 20, "dropdown_profile", _, Details.gump:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
+		local dropdown_profile = Details.gump:CreateDropDown (options_frame, select_profile_fill, nil, 160, 20, "dropdown_profile", nil, Details.gump:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
 		dropdown_profile:SetPoint ("left", label_profile, "right", 2, 0)
 		label_profile:SetPoint ("topleft", options_frame, "topleft", 15, -65)
 		
