@@ -12,6 +12,7 @@ local StreamOverlay = _detalhes:NewPluginObject ("Details_StreamOverlay", DETAIL
 local SOF = StreamOverlay.Frame
 --> shortcut for details framework
 local fw = StreamOverlay.gump 
+local player_name
 
 StreamOverlay.CurrentVersion = "v1.1"
 
@@ -105,6 +106,9 @@ local function CreatePluginFrames()
 		
 		--> enable the tick update
 		listener:SetScript ("OnUpdate", listener.track_spell_cast)
+		
+		--> refresh dps frame
+		StreamOverlay:UpdateDpsHpsFrameConfig()
 	end
 	
 	function StreamOverlay:OnDisablePlugin()
@@ -127,6 +131,9 @@ local function CreatePluginFrames()
 		--> save position, size and hide the frame
 		StreamOverlay:SaveWindowSizeAnLocation()
 		SOF:Hide()
+		
+		--> refresh dps frame
+		StreamOverlay:UpdateDpsHpsFrameConfig (true)
 	end
 	
 	--> title bar, only shown when the frame isn't locked
@@ -206,21 +213,29 @@ local function CreatePluginFrames()
 		--> save size first
 		StreamOverlay.db.main_frame_size [1] = SOF:GetWidth()
 		StreamOverlay.db.main_frame_size [2] = SOF:GetHeight()
-		--> save position
+		--> save main frame position
 		LibWindow.RegisterConfig (SOF, StreamOverlay.db)
 		LibWindow.SavePosition (SOF)
+		--> save the dps frame position
+		LibWindow.RegisterConfig (StreamerOverlayDpsHpsFrame, StreamOverlay.db.per_second)
+		LibWindow.SavePosition (StreamerOverlayDpsHpsFrame)
 	end
 	function StreamOverlay:RestoreWindowSizeAndLocation()
 		--> restore the size first
 		SOF:SetSize (unpack (StreamOverlay.db.main_frame_size))
-		--> set the window location
+		--> set the main window location
 		LibWindow.RegisterConfig (SOF, StreamOverlay.db)
 		LibWindow.RestorePosition (SOF)
 		LibWindow.SavePosition (SOF)
+		--> set the dps frame location
+		LibWindow.RegisterConfig (StreamerOverlayDpsHpsFrame, StreamOverlay.db.per_second)
+		LibWindow.RestorePosition (StreamerOverlayDpsHpsFrame)
+		LibWindow.SavePosition (StreamerOverlayDpsHpsFrame)
 		--> set the frame strata
 		SOF:SetFrameStrata (StreamOverlay.db.main_frame_strata)
+		StreamerOverlayDpsHpsFrame:SetFrameStrata (StreamOverlay.db.main_frame_strata)
 	end
-
+	
 	--> two resizers
 	local left_resize = CreateFrame ("button", "DetailsStreamerLeftResizer", SOF)
 	local right_resize = CreateFrame ("button", "DetailsStreamerRightResizer", SOF)
@@ -485,6 +500,10 @@ local function CreatePluginFrames()
 		for i, row in ipairs (StreamOverlay.battle_lines) do
 			StreamOverlay:SetBattleLineStyle (row, i)
 		end
+
+		--> update the dps hps frame text
+		StreamOverlay:SetFontFace (StreamerOverlayDpsHpsFrameText, SharedMedia:Fetch ("font", StreamOverlay.db.font_face))
+		StreamOverlay:SetFontColor (StreamerOverlayDpsHpsFrameText, StreamOverlay.db.font_color)
 	end
 	
 	function StreamOverlay:SetBattleLineStyle (row, index)
@@ -1157,7 +1176,128 @@ function StreamOverlay:SetLocked (state)
 		SOF:EnableMouse (true)
 	end
 	
+	StreamOverlay:UpdateDpsHpsFrameConfig()
 end
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+--on screen hps dps
+
+local screen_frame = CreateFrame ("frame", "StreamerOverlayDpsHpsFrame", UIParent)
+screen_frame:SetSize (70, 20)
+screen_frame:SetBackdrop ({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tile = true, tileSize = 16, insets = {left = 0, right = 0, top = 0, bottom = 0}})
+screen_frame:SetBackdropColor (.1, .1, .1, .9)
+screen_frame:SetMovable (true)
+screen_frame:Hide()
+screen_frame:SetPoint ("center", UIParent, "center")
+screen_frame:SetScript ("OnMouseDown", function (self)
+	if (not screen_frame.moving and not StreamOverlay.db.main_frame_locked) then
+		screen_frame:StartMoving()
+		screen_frame.moving = true
+		screen_frame.movingAt = GetTime()
+	end
+end)
+screen_frame:SetScript ("OnMouseUp", function (self)
+	if (screen_frame.movingAt) then
+		if (screen_frame.moving) then
+			screen_frame.moving = false
+			screen_frame:StopMovingOrSizing()
+			StreamOverlay:SaveWindowSizeAnLocation()
+		end
+		
+		if (screen_frame.movingAt+0.200 < GetTime()) then
+			return
+		end
+		screen_frame.movingAt = nil
+		
+		StreamOverlay.OpenOptionsPanel()
+	end
+end)
+screen_frame:SetScript ("OnEnter", function (self) 
+	GameTooltip:SetOwner (self)
+	GameTooltip:SetOwner (self, "ANCHOR_TOPLEFT")
+	GameTooltip:AddLine ("|cFFFF7700Left Click|r: Open Options\n|cFFFF7700Slash Command|r: /streamer")
+	GameTooltip:Show()
+end)
+screen_frame:SetScript ("OnLeave", function() 
+	GameTooltip:Hide()
+end)
+	
+	
+local screen_frame_text = screen_frame:CreateFontString ("StreamerOverlayDpsHpsFrameText", "overlay", "GameFontNormal")
+screen_frame_text:SetPoint ("center", screen_frame, "center")
+screen_frame.text = screen_frame_text
+
+local screen_frame_attribute = 1
+local format_function
+
+function StreamOverlay:UpdateDpsHpsFrameConfig (PluginDisabled)
+	
+	if (PluginDisabled) then
+		if (StreamOverlay.DpsHpsTick) then
+			StreamOverlay.DpsHpsTick:Cancel()
+			StreamOverlay.DpsHpsTick = nil
+		end
+		screen_frame:Hide()
+		return
+	end
+	
+	local db = StreamOverlay.db.per_second
+
+	StreamOverlay:SetFontSize (screen_frame.text, db.size)
+	StreamOverlay:SetFontOutline (screen_frame.text, db.font_shadow)
+	screen_frame:SetScale (db.scale)
+	
+	screen_frame_attribute = db.attribute_type
+	format_function = Details:GetCurrentToKFunction()
+	
+	if (StreamOverlay.db.main_frame_locked) then
+		screen_frame:SetBackdrop (nil)
+		screen_frame:EnableMouse (false)
+	else
+		screen_frame:SetBackdrop ({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tile = true, tileSize = 16, insets = {left = 0, right = 0, top = 0, bottom = 0}})
+		screen_frame:SetBackdropColor (.1, .1, .1, .9)
+		screen_frame:EnableMouse (true)
+	end
+	
+	if (db.enabled) then
+		screen_frame:Show()
+		if (StreamOverlay.DpsHpsTick) then
+			StreamOverlay.DpsHpsTick:Cancel()
+			StreamOverlay.DpsHpsTick = nil
+		end
+		StreamOverlay.DpsHpsTick = C_Timer.NewTicker (db.update_speed, StreamOverlay.UpdateDpsHpsFrame)
+	else
+		screen_frame:Hide()
+		if (StreamOverlay.DpsHpsTick) then
+			StreamOverlay.DpsHpsTick:Cancel()
+			StreamOverlay.DpsHpsTick = nil
+		end
+	end
+	
+	--> update the dps hps frame text
+	StreamOverlay:SetFontFace (StreamerOverlayDpsHpsFrameText, SharedMedia:Fetch ("font", StreamOverlay.db.font_face))
+	StreamOverlay:SetFontColor (StreamerOverlayDpsHpsFrameText, StreamOverlay.db.font_color)
+	
+end
+
+function StreamOverlay:UpdateDpsHpsFrame()
+	--> low level actor parsing - we can just use Details:GetActor(), but is faster without having to call functions
+	local container = _detalhes.tabela_vigente [screen_frame_attribute]
+	local actor = container._ActorTable [container._NameIndexTable [player_name]]
+	
+	if (actor) then
+		screen_frame_text:SetText (format_function (_, actor.total / _detalhes.tabela_vigente:GetCombatTime()))
+	else
+		if (StreamOverlay.db.per_second.attribute_type == 1) then
+			screen_frame_text:SetText ("DPS")
+		else
+			screen_frame_text:SetText ("HPS")
+		end
+	end
+end
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 function StreamOverlay.OpenOptionsPanel()
 
@@ -1175,7 +1315,8 @@ function StreamOverlay.OpenOptionsPanel()
 		options_frame:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
 		options_frame:SetBackdropColor (0, 0, 0, 0.5)
 		options_frame:SetBackdropBorderColor (0, 0, 0, 1)
-		options_frame:SetHeight (360)
+		options_frame:SetWidth (520)
+		options_frame:SetHeight (500)
 		
 		-- select texture
 		local set_row_texture = function (_, _, value)
@@ -1241,6 +1382,7 @@ function StreamOverlay.OpenOptionsPanel()
 		local set_window_strata = function (_, _, strata)
 			StreamOverlay.db.main_frame_strata = strata
 			SOF:SetFrameStrata (strata)
+			StreamerOverlayDpsHpsFrame:SetFrameStrata (strata)
 		end
 		local strataTable = {
 			{value = "BACKGROUND", label = "Background", onclick = set_window_strata, icon = [[Interface\Buttons\UI-MicroStream-Green]], iconcolor = {0, .5, 0, .8}, texcoord = nil},
@@ -1248,6 +1390,14 @@ function StreamOverlay.OpenOptionsPanel()
 			{value = "MEDIUM", label = "Medium", onclick = set_window_strata, icon = [[Interface\Buttons\UI-MicroStream-Yellow]] , texcoord = nil},
 			{value = "HIGH", label = "High", onclick = set_window_strata, icon = [[Interface\Buttons\UI-MicroStream-Yellow]] , iconcolor = {1, .7, 0, 1}, texcoord = nil},
 			{value = "DIALOG", label = "Dialog", onclick = set_window_strata, icon = [[Interface\Buttons\UI-MicroStream-Red]] , iconcolor = {1, 0, 0, 1},  texcoord = nil},
+		}
+		--
+		local set_attribute= function (_, _, value)
+			StreamOverlay.db.per_second.attribute_type = value
+		end
+		local attributeTable = {
+			{value = 1, label = "DPS", onclick = set_attribute},
+			{value = 2, label = "HPS", onclick = set_attribute},
 		}
 		--
 		local options = {
@@ -1349,7 +1499,87 @@ function StreamOverlay.OpenOptionsPanel()
 				desc = "Color used on texts.",
 				name = "Text Color"
 			},
+
+			{type = "space"},
 			
+			{
+				type = "toggle",
+				name = "Show Dps/Hps",
+				desc = "Show in the screen your current Dps or Hps.",
+				order = 1,
+				get = function() return StreamOverlay.db.per_second.enabled end,
+				set = function (self, val) 
+					StreamOverlay.db.per_second.enabled = not StreamOverlay.db.per_second.enabled
+					-- update hps dps frame
+					StreamOverlay:UpdateDpsHpsFrameConfig()
+				end,
+			},
+			
+			{
+				type = "select",
+				get = function() return StreamOverlay.db.per_second.attribute_type end,
+				values = function() return attributeTable end,
+				desc = "Show DPS or HPS.",
+				name = "Show"
+			},
+			
+			{
+				type = "range",
+				get = function() return StreamOverlay.db.per_second.size end,
+				set = function (self, fixedparam, value) StreamOverlay.db.per_second.size = value; 
+					-- update hps dps frame
+					StreamOverlay:UpdateDpsHpsFrameConfig()
+				end,
+				min = 8,
+				max = 32,
+				step = 1,
+				desc = "The size of the text.",
+				name = "Dps/Hps Text Size",
+			},
+			
+			{
+				type = "range",
+				get = function() return StreamOverlay.db.per_second.scale end,
+				set = function (self, fixedparam, value) StreamOverlay.db.per_second.scale = value; 
+					-- update hps dps frame
+					StreamOverlay:UpdateDpsHpsFrameConfig()
+				end,
+				min = 0.65,
+				max = 1.5,
+				step = 1,
+				desc = "The size of the text.",
+				name = "Dps/Hps Scale",
+				usedecimals = true,
+			},
+			
+			{
+				type = "range",
+				get = function() return StreamOverlay.db.per_second.update_speed end,
+				set = function (self, fixedparam, value) StreamOverlay.db.per_second.update_speed = value; 
+					-- update hps dps frame
+					StreamOverlay:UpdateDpsHpsFrameConfig()
+				end,
+				min = 0.016,
+				max = 1,
+				step = 0.016,
+				desc = "How fast the frame get updated.",
+				name = "Dps/Hps Update Speed",
+				usedecimals = true,
+			},
+			
+			{
+				type = "toggle",
+				name = "Dps/Hps Text Shadow",
+				desc = "Enable text shadow.",
+				order = 1,
+				get = function() return StreamOverlay.db.per_second.font_shadow end,
+				set = function (self, val) 
+					StreamOverlay.db.per_second.font_shadow = not StreamOverlay.db.per_second.font_shadow
+					-- update hps dps frame
+					StreamOverlay:UpdateDpsHpsFrameConfig()
+				end,
+			},
+
 			{type = "space"},
 			
 			{
@@ -1456,7 +1686,7 @@ function StreamOverlay.OpenOptionsPanel()
 			
 		}
 		
-		fw:BuildMenu (options_frame, options, 15, -100, 400, true, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
+		fw:BuildMenu (options_frame, options, 15, -100, 540, true, options_text_template, options_dropdown_template, options_switch_template, true, options_slider_template, options_button_template)
 		
 		--select profile dropdown
 		local select_profile = function (_, _, profileName)
@@ -1552,6 +1782,8 @@ function StreamOverlay:OnEvent (_, event, ...)
 		local AddonName = select (1, ...)
 		if (AddonName == "Details_Streamer") then
 			
+			player_name = UnitName ("player")
+			
 			if (_G._detalhes) then
 
 				--> create widgets
@@ -1580,6 +1812,15 @@ function StreamOverlay:OnEvent (_, event, ...)
 					arrow_anchor_y = 0,
 					
 					minimap = {hide = false, radius = 160, minimapPos = 160},
+					
+					per_second = {
+						enabled = false,
+						size = 32,
+						scale = 1.5,
+						font_shadow = true,
+						attribute_type = 1,
+						update_speed = 0.05,
+					},
 					
 					is_first_run = true,
 				}

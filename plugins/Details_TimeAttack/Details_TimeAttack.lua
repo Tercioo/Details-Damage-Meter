@@ -910,7 +910,8 @@ end
 function TimeAttack:CheckTimeAttackTutorial()
 	--TimeAttack:SetTutorialCVar ("TIME_ATTACK_TUTORIAL1", nil)
 	if (not TimeAttack:GetTutorialCVar ("TIME_ATTACK_TUTORIAL1")) then
-		TimeAttackFrame:RegisterEvent ("PLAYER_TARGET_CHANGED")
+		--tutorial disabled
+		--TimeAttackFrame:RegisterEvent ("PLAYER_TARGET_CHANGED")
 	end
 end
 
