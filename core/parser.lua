@@ -3713,6 +3713,10 @@
 	function _detalhes:OnParserEvent (evento, time, token, hidding, who_serial, who_name, who_flags, who_flags2, alvo_serial, alvo_name, alvo_flags, alvo_flags2, ...)
 		local funcao = token_list [token]
 
+--		if (who_name == "Ditador") then
+--			print (token, alvo_name, ...)
+--		end
+		
 		if (funcao) then
 			--if (token ~= "SPELL_AURA_REFRESH" and token ~= "SPELL_AURA_REMOVED" and token ~= "SPELL_AURA_APPLIED") then
 			--	print ("running func:", token)

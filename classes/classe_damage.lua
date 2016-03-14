@@ -4776,6 +4776,7 @@ end
 				
 			--> copiar o container de raid targets
 				for flag, amount in _pairs (actor.raid_targets) do
+					shadow.raid_targets = shadow.raid_targets or {} --deu invalido noutro dia
 					shadow.raid_targets [flag] = (shadow.raid_targets [flag] or 0) + amount
 				end
 			
