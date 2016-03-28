@@ -10,7 +10,7 @@ do
 	local _
 
 	--> minimal details version required to run this plugin
-	local MINIMAL_DETAILS_VERSION_REQUIRED = 76
+	local MINIMAL_DETAILS_VERSION_REQUIRED = 81
 	local CLEECH_VERSION = "v1.0"
 
 	--> create a plugin object
@@ -89,10 +89,10 @@ do
 				
 				if (total_leech > 0) then
 					for from, leech_amount in pairs (rosterLeechAmount) do
-						if not combat.PlayerLeechTrinket [from] then
-							combat.PlayerLeechTrinket [from] = 0
+						if (not calcLeech.combat.PlayerLeechTrinket [from]) then
+							calcLeech.combat.PlayerLeechTrinket [from] = 0
 						end 
-						combat.PlayerLeechTrinket [from] = combat.PlayerLeechTrinket [from] + (healed * (leech_amount / total_leech))
+						calcLeech.combat.PlayerLeechTrinket [from] = calcLeech.combat.PlayerLeechTrinket [from] + (healed * (leech_amount / total_leech))
 					end	
 				end
 			end
@@ -110,6 +110,8 @@ do
 	--> when receiving an event from details, handle it here
 	local player_has_trinket = function (combat)
 	
+		calcLeech.combat = combat
+	
 		-->  check if exists a custom display to show the trinket leech
 		local customObject = calcLeech:GetCustomObject (CUSTOM_DISPLAY_NAME)
 		if (customObject) then
@@ -121,7 +123,7 @@ do
 			create_custom_object()
 		end
 		
-		combat.PlayerLeechTrinket = {}
+		calcLeech.combat.PlayerLeechTrinket = {}
 		
 		f:RegisterEvent ("COMBAT_LOG_EVENT_UNFILTERED")
 		
@@ -172,7 +174,7 @@ do
 				end
 				
 				--> Install: install -> if successful installed; saveddata -> a table saved inside details db, used to save small amount of data like configs
-				local install, saveddata = Details:InstallPlugin ("TOOLBAR", "Leech Trinket", "Interface\\Icons\\Ability_Warrior_BattleShout", calcLeech, "DETAILS_PLUGIN_LEECH_TRINKET", MINIMAL_DETAILS_VERSION_REQUIRED, "Details! Team", CLEECH_VERSION)
+				local install, saveddata = Details:InstallPlugin ("TOOLBAR", "Leech Trinket", "Interface\\Icons\\spell_shadow_lifedrain02", calcLeech, "DETAILS_PLUGIN_LEECH_TRINKET", MINIMAL_DETAILS_VERSION_REQUIRED, "Details! Team", CLEECH_VERSION)
 				if (type (install) == "table" and install.error) then
 					print (install.error)
 				end
