@@ -1,0 +1,6 @@
+## Interface: 60200
+## Title: Details Calc Leech
+## Notes: Plugin for Details
+## RequiredDeps: Details
+
+Details_CalcLeech.lua

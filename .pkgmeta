@@ -13,3 +13,4 @@ move-folders:
     Details/plugins/Details_RaidCheck: Details_RaidCheck
     Details/plugins/Details_DpsTuning: Details_DpsTuning
     Details/plugins/Details_Streamer: Details_Streamer
+    Details/plugins/Details_CalcLeech: Details_CalcLeech
