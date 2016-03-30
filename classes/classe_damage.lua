@@ -1752,35 +1752,37 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 							end
 				    
 						elseif (source:IsGroupPlayer()) then -- friendly fire
-				    
+						
 							local AllSpells = source.friendlyfire [character.nome] and source.friendlyfire [character.nome].spells
-							for spellid, on_player in pairs (AllSpells) do
-								if (on_player and on_player >= 1) then
-								
-									local spellname = _GetSpellInfo (spellid)
-									if (spellname) then
-										local has_index = bs_index_table [spellname]
-										local this_spell
-										if (has_index) then
-											this_spell = bs_table [has_index]
-										else
-											bs_index = bs_index + 1
-											this_spell = bs_table [bs_index]
-											if (this_spell) then
-												this_spell [1] = spellid
-												this_spell [2] = 0
-												this_spell [3] = _detalhes.spell_school_cache [select (1, GetSpellInfo (spellid))] or 1
-												bs_index_table [spellname] = bs_index
+							if (AllSpells) then -- se não existir pode ter vindo de um pet, talvez
+								for spellid, on_player in pairs (AllSpells) do
+									if (on_player and on_player >= 1) then
+									
+										local spellname = _GetSpellInfo (spellid)
+										if (spellname) then
+											local has_index = bs_index_table [spellname]
+											local this_spell
+											if (has_index) then
+												this_spell = bs_table [has_index]
 											else
-												this_spell = {spellid, 0, _detalhes.spell_school_cache [select (1, GetSpellInfo (spellid))] or 1}
-												bs_table [bs_index] = this_spell
-												bs_index_table [spellname] = bs_index
+												bs_index = bs_index + 1
+												this_spell = bs_table [bs_index]
+												if (this_spell) then
+													this_spell [1] = spellid
+													this_spell [2] = 0
+													this_spell [3] = _detalhes.spell_school_cache [select (1, GetSpellInfo (spellid))] or 1
+													bs_index_table [spellname] = bs_index
+												else
+													this_spell = {spellid, 0, _detalhes.spell_school_cache [select (1, GetSpellInfo (spellid))] or 1}
+													bs_table [bs_index] = this_spell
+													bs_index_table [spellname] = bs_index
+												end
 											end
+											this_spell [2] = this_spell [2] + on_player
+											total = total + on_player
+										else
+											error ("error - no spell id for DTBS friendly fire " .. spellid)
 										end
-										this_spell [2] = this_spell [2] + on_player
-										total = total + on_player
-									else
-										error ("error - no spell id for DTBS friendly fire " .. spellid)
 									end
 								end
 							end

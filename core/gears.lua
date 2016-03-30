@@ -9,7 +9,8 @@ local floor = floor
 
 local GetNumGroupMembers = GetNumGroupMembers
 
-local ItemUpgradeInfo = LibStub("LibItemUpgradeInfo-1.0")
+local ItemUpgradeInfo = LibStub ("LibItemUpgradeInfo-1.0")
+local LibGroupInSpecT = LibStub ("LibGroupInSpecT-1.1")
 
 function _detalhes:UpdateGears()
 	
@@ -1474,3 +1475,29 @@ end
 function _detalhes:GetSpec (guid)
 	return _detalhes.cached_specs [guid]
 end
+
+if (LibGroupInSpecT) then
+	function _detalhes:LibGroupInSpecT_UpdateReceived (event, guid, unitid, info)
+		--> update talents
+		local talents = _detalhes.cached_talents [guid] or {}
+		local i = 1
+		for talentId, _ in pairs (info.talents) do 
+			talents [i] = talentId
+			i = i + 1
+		end
+		_detalhes.cached_talents [guid] = talents
+		
+		--> update spec
+		if (info.global_spec_id and info.global_spec_id ~= 0) then
+			if (not _detalhes.class_specs_coords [info.global_spec_id]) then
+				print ("Details! Spec Id Invalid:", info.global_spec_id, info.name)
+			else
+				_detalhes.cached_specs [guid] = info.global_spec_id
+			end
+		end
+		
+		--print ("LibGroupInSpecT Received from", info.name, info.global_spec_id)
+	end
+	LibGroupInSpecT.RegisterCallback (_detalhes, "GroupInSpecT_Update", "LibGroupInSpecT_UpdateReceived")
+end
+
