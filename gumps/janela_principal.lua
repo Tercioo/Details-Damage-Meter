@@ -7782,6 +7782,23 @@ end
 			_detalhes:Msg (Loc ["STRING_CLOSEALL"])
 		end
 		
+		--> tutorial, how to fully delete a window
+		--_detalhes:SetTutorialCVar ("FULL_DELETE_WINDOW", false)
+		
+		if (not _detalhes:GetTutorialCVar ("FULL_DELETE_WINDOW")) then
+			_detalhes:SetTutorialCVar ("FULL_DELETE_WINDOW", true)
+			
+			local panel = gump:Create1PxPanel (UIParent, 600, 100, "|cFFFFFFFFDetails!, the window hit the ground, bang bang...|r", nil, nil, nil, nil)
+			panel:SetBackdropColor (0, 0, 0, 0.9)
+			panel:SetPoint ("center", UIParent, "center")
+			
+			local s = panel:CreateFontString (nil, "overlay", "GameFontNormal")
+			s:SetPoint ("center", panel, "center")
+			s:SetText (Loc ["STRING_TUTORIAL_FULLY_DELETE_WINDOW"])
+			
+			panel:Show()
+		end
+		
 		GameCooltip:Hide()
 	end
 	_detalhes.close_instancia_func = close_button_onclick

@@ -72,7 +72,7 @@ do
 	f:SetScript ("OnEvent", function (self, event, time, token, hidding, who_serial, who_name, who_flags, who_flags2, target_serial, target_name, target_flags, target_flags2, spellid, spellname, spelltype, amount, overhealing, absorbed, critical, multistrike, is_shield)
 		if (token == "SPELL_HEAL" and spellid == 143924) then --http://www.wowhead.com/spell=143924/leech
 			
-			--> The next few lines of code is based on an aura for WeakAuras 2, I couldn't find who is the original author for give the credits.
+			--> The next few lines of code is based on an aura for WeakAuras 2, I couldn't find who is the original author since this same code is used on many different versions of the aura.
 			--> If you are the original author, please contact-me on curseforge so I can add the credits here.
 			local healed = amount - overhealing
 			if (healed > 0) then
