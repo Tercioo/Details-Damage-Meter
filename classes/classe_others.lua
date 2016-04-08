@@ -1242,7 +1242,7 @@ function _detalhes:CatchRaidDebuffUptime (in_or_out) -- "DEBUFF_UPTIME_IN"
 								if (realmName and realmName ~= "") then
 									playerName = playerName .. "-" .. realmName
 								end
-								_detalhes.parser:add_debuff_uptime (nil, cacheGetTime, playerGUID, playerName, 0x00000417, his_target, _UnitName (target), 0x842, spellid, name, in_or_out)
+								_detalhes.parser:add_debuff_uptime (nil, cacheGetTime, playerGUID, playerName, 0x00000417, his_target, _UnitName (target), 0x842, nil, spellid, name, in_or_out)
 							end
 						end
 					end
@@ -1271,7 +1271,7 @@ function _detalhes:CatchRaidDebuffUptime (in_or_out) -- "DEBUFF_UPTIME_IN"
 								playerName = playerName .. "-" .. realmName
 							end
 							
-							_detalhes.parser:add_debuff_uptime (nil, GetTime(), playerGUID, playerName, 0x00000417, his_target, _UnitName ("party"..raidIndex.."target"), 0x842, spellid, name, in_or_out)
+							_detalhes.parser:add_debuff_uptime (nil, GetTime(), playerGUID, playerName, 0x00000417, his_target, _UnitName ("party"..raidIndex.."target"), 0x842, nil, spellid, name, in_or_out)
 						end
 					end
 				end
@@ -1290,7 +1290,7 @@ function _detalhes:CatchRaidDebuffUptime (in_or_out) -- "DEBUFF_UPTIME_IN"
 						if (realmName and realmName ~= "") then
 							playerName = playerName .. "-" .. realmName
 						end
-						_detalhes.parser:add_debuff_uptime (nil, GetTime(), playerGUID, playerName, 0x00000417, his_target, _UnitName ("playertarget"), 0x842, spellid, name, in_or_out)
+						_detalhes.parser:add_debuff_uptime (nil, GetTime(), playerGUID, playerName, 0x00000417, his_target, _UnitName ("playertarget"), 0x842, nil, spellid, name, in_or_out)
 					end
 				end
 			end
@@ -1309,7 +1309,7 @@ function _detalhes:CatchRaidDebuffUptime (in_or_out) -- "DEBUFF_UPTIME_IN"
 						if (realmName and realmName ~= "") then
 							playerName = playerName .. "-" .. realmName
 						end
-						_detalhes.parser:add_debuff_uptime (nil, GetTime(), playerGUID, playerName, 0x00000417, his_target, _UnitName ("playertarget"), 0x842, spellid, name, in_or_out)
+						_detalhes.parser:add_debuff_uptime (nil, GetTime(), playerGUID, playerName, 0x00000417, his_target, _UnitName ("playertarget"), 0x842, nil, spellid, name, in_or_out)
 					end
 				end
 			end
@@ -1518,8 +1518,7 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 							focus_augmentation [playerName] = true
 						end
 					end
-					
-					_detalhes.parser:add_buff_uptime (nil, GetTime(), playerGUID, playerName, 0x00000417, playerGUID, playerName, 0x00000417, spellid, name, in_or_out)
+					_detalhes.parser:add_buff_uptime (nil, GetTime(), playerGUID, playerName, 0x00000417, playerGUID, playerName, 0x00000417, nil, spellid, name, in_or_out)
 				end
 			end
 		end
@@ -1527,7 +1526,6 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 		--[
 		if (in_or_out == "BUFF_UPTIME_IN") then
 			local string_output = "pre-potion: "
-			
 			for playername, potspellid in _pairs (pot_usage) do
 				local name, _, icon = _GetSpellInfo (potspellid)
 				local _, class = UnitClass (playername)
@@ -1540,7 +1538,6 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 			
 			_detalhes.pre_pot_used = string_output
 			_detalhes:SendEvent ("COMBAT_PREPOTION_UPDATED", nil, pot_usage, focus_augmentation)
-			
 		end
 		
 		--]]
