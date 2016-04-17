@@ -2088,3 +2088,274 @@ local _
 	
 	--alpha = 0.4980392451398075,
 	
+	
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+_detalhes:InstallSkin ("Overwatch", {
+	file = [[Interface\AddOns\Details\images\skins\overwatch]],
+	author = "Details!", 
+	version = "1.0", 
+	site = "unknown", 
+	desc = "Based on the new shooter from Blizzard.", 
+	
+	--general
+	can_change_alpha_head = true, 
+
+	--icon anchors
+	icon_anchor_main = {-4, -5},
+	icon_anchor_plugins = {-7, -13},
+	icon_plugins_size = {19, 18},
+
+	--micro frames
+	micro_frames = {
+		color = {1, 1, 1, 0.7},
+		font = "FORCED SQUARE", 
+		size = 10,
+		textymod = 1,
+	},
+	
+	-- the four anchors (for when the toolbar is on the top side)
+	icon_point_anchor = {-35, -0.5},
+	left_corner_anchor = {-107, 0},
+	right_corner_anchor = {96, 0},
+	
+	-- the four anchors (for when the toolbar is on the bottom side)
+	icon_point_anchor_bottom = {-37, 12},
+	left_corner_anchor_bottom = {-107, 0},
+	right_corner_anchor_bottom = {96, 0},
+
+	--[[ callback function execute after all changes on the window, first argument is this skin table, second is the instance where the skin was applied --]]
+	callback = function (self, instance) end,
+	--[[ control_script is a OnUpdate script, it start right after all changes on the window and also after the callback --]]
+	--[[ control_script_on_start run before the control_script, use it to reset values if needed --]]
+	control_script_on_start = nil,
+	control_script = nil,
+	
+	--instance overwrites
+	--[[ when a skin is selected, all customized properties of the window is reseted and then the overwrites are applied]]
+	--[[ for the complete cprop list see the file classe_instancia_include.lua]]
+	
+	icon_on_top = true,
+	icon_ignore_alpha = true,
+	icon_titletext_position = {2, 5},
+	
+	instance_cprops = {
+		["menu_icons_size"] = 0.899999976158142,
+		["color"] = {
+			1, -- [1]
+			1, -- [2]
+			1, -- [3]
+			1, -- [4]
+		},
+		["menu_anchor"] = {
+			17, -- [1]
+			1, -- [2]
+			["side"] = 2,
+		},
+		["bg_r"] = 1,
+		["color_buttons"] = {
+			1, -- [1]
+			1, -- [2]
+			1, -- [3]
+			1, -- [4]
+		},
+		["bars_grow_direction"] = 1,
+		["menu_anchor_down"] = {
+			16, -- [1]
+			-2, -- [2]
+		},
+		["bars_sort_direction"] = 1,
+		["total_bar"] = {
+			["enabled"] = false,
+			["only_in_group"] = true,
+			["icon"] = "Interface\\ICONS\\INV_Sigil_Thorim",
+			["color"] = {
+				1, -- [1]
+				1, -- [2]
+				1, -- [3]
+			},
+		},
+		["instance_button_anchor"] = {
+			-27, -- [1]
+			1, -- [2]
+		},
+		["version"] = 3,
+		["row_info"] = {
+			["textR_outline"] = true,
+			["spec_file"] = "Interface\\AddOns\\Details\\images\\spec_icons_normal",
+			["textL_outline"] = true,
+			["texture_highlight"] = "Interface\\FriendsFrame\\UI-FriendsList-Highlight",
+			["textR_show_data"] = {
+				true, -- [1]
+				true, -- [2]
+				true, -- [3]
+			},
+			["percent_type"] = 1,
+			["fixed_text_color"] = {
+				1, -- [1]
+				1, -- [2]
+				1, -- [3]
+			},
+			["space"] = {
+				["right"] = 0,
+				["left"] = 0,
+				["between"] = 1,
+			},
+			["texture_background_class_color"] = false,
+			["start_after_icon"] = true,
+			["font_face_file"] = "Interface\\Addons\\Details\\fonts\\Accidental Presidency.ttf",
+			["textL_custom_text"] = "{data1}.  {data3}{data2}",
+			["font_size"] = 10,
+			["height"] = 14,
+			["texture_file"] = "Interface\\Addons\\Grid2\\media\\white16x16",
+			["icon_file"] = "Interface\\AddOns\\Details\\images\\classes_small_alpha",
+			["textR_bracket"] = "(",
+			["textR_enable_custom_text"] = true,
+			["fixed_texture_color"] = {
+				1, -- [1]
+				1, -- [2]
+				1, -- [3]
+				0.379999995231628, -- [4]
+			},
+			["textL_show_number"] = true,
+			["backdrop"] = {
+				["enabled"] = false,
+				["size"] = 4,
+				["color"] = {
+					0, -- [1]
+					0, -- [2]
+					0, -- [3]
+					1, -- [4]
+				},
+				["texture"] = "Details BarBorder 2",
+			},
+			["textR_custom_text"] = "{data1} (|cffC9C9C9{data2}, {data3}%|r)",
+			["fixed_texture_background_color"] = {
+				0, -- [1]
+				0, -- [2]
+				0, -- [3]
+				0.208013236522675, -- [4]
+			},
+			["models"] = {
+				["upper_model"] = "Spells\\AcidBreath_SuperGreen.M2",
+				["lower_model"] = "World\\EXPANSION02\\DOODADS\\Coldarra\\COLDARRALOCUS.m2",
+				["upper_alpha"] = 0.5,
+				["lower_enabled"] = false,
+				["lower_alpha"] = 0.1,
+				["upper_enabled"] = false,
+			},
+			["texture_custom_file"] = "Interface\\",
+			["textL_class_colors"] = false,
+			["texture_custom"] = "",
+			["texture"] = "Grid2 Flat",
+			["textR_class_colors"] = false,
+			["alpha"] = 0.379999995231628,
+			["no_icon"] = false,
+			["texture_background"] = "DGround",
+			["texture_background_file"] = "Interface\\AddOns\\Details\\images\\bar_background",
+			["font_face"] = "Accidental Presidency",
+			["texture_class_colors"] = false,
+			["textL_enable_custom_text"] = true,
+			["fast_ps_update"] = false,
+			["textR_separator"] = ",",
+			["use_spec_icons"] = true,
+		},
+		["menu_alpha"] = {
+			["enabled"] = false,
+			["onenter"] = 1,
+			["iconstoo"] = true,
+			["ignorebars"] = false,
+			["onleave"] = 1,
+		},
+		["micro_displays_locked"] = true,
+		["grab_on_top"] = false,
+		["strata"] = "BACKGROUND",
+		["row_show_animation"] = {
+			["anim"] = "Fade",
+			["options"] = {
+			},
+		},
+		["statusbar_info"] = {
+			["alpha"] = 1,
+			["overlay"] = {
+				1, -- [1]
+				1, -- [2]
+				1, -- [3]
+			},
+		},
+		["menu_icons"] = {
+			true, -- [1]
+			true, -- [2]
+			true, -- [3]
+			true, -- [4]
+			true, -- [5]
+			false, -- [6]
+			["space"] = -2,
+			["shadow"] = true,
+		},
+		["desaturated_menu"] = true,
+		["micro_displays_side"] = 2,
+		["window_scale"] = 1,
+		["bars_inverted"] = false,
+		["hide_icon"] = true,
+		["bg_alpha"] = 0,
+		["toolbar_side"] = 1,
+		["bg_g"] = 1,
+		["backdrop_texture"] = "Solid",
+		["show_statusbar"] = false,
+		["plugins_grow_direction"] = 1,
+		["wallpaper"] = {
+			["enabled"] = true,
+			["texture"] = "Interface\\AddOns\\Details\\images\\skins\\overwatch",
+			["texcoord"] = {
+				0.0580000019073486, -- [1]
+				0.275, -- [2]
+				0.765, -- [3]
+				0.644000015258789, -- [4]
+			},
+			["overlay"] = {
+				0.999997794628143, -- [1]
+				0.999997794628143, -- [2]
+				0.999997794628143, -- [3]
+				0.498038113117218, -- [4]
+			},
+			["anchor"] = "all",
+			["height"] = 226.000061035156,
+			["alpha"] = 0.498039245605469,
+			["width"] = 266.000061035156,
+		},
+		["stretch_button_side"] = 1,
+		["show_sidebars"] = false,
+		["attribute_text"] = {
+			["show_timer"] = {
+				true, -- [1]
+				true, -- [2]
+				true, -- [3]
+			},
+			["shadow"] = false,
+			["side"] = 1,
+			["text_color"] = {
+				1, -- [1]
+				1, -- [2]
+				1, -- [3]
+				0.917582094669342, -- [4]
+			},
+			["custom_text"] = "{name}",
+			["text_face"] = "Accidental Presidency",
+			["anchor"] = {
+				-20, -- [1]
+				3, -- [2]
+			},
+			["text_size"] = 14,
+			["enable_custom_text"] = false,
+			["enabled"] = true,
+		},
+		["bg_b"] = 1,
+	},
+	
+	skin_options = {
+	}
+})
+
+	
