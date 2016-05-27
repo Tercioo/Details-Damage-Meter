@@ -441,6 +441,9 @@ function atributo_misc:ReportSingleCooldownLine (misc_actor, instancia)
 end
 
 local buff_format_name = function (spellid)
+	if (_type (spellid) == "string") then
+		return spellid
+	end
 	return _detalhes:GetSpellLink (spellid)
 end
 local buff_format_amount = function (t)
