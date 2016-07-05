@@ -504,7 +504,7 @@ function _G._detalhes:Start()
 		
 			--version
 			self.gump:Fade (instance._version, 0)
-			instance._version:SetText ("Details! Beta " .. _detalhes.userversion .. " (core: " .. self.realversion .. ")")
+			instance._version:SetText ("Details! " .. _detalhes.userversion .. " (core: " .. self.realversion .. ")")
 			instance._version:SetPoint ("bottomleft", instance.baseframe, "bottomleft", 5, 1)
 
 			if (instance.auto_switch_to_old) then
