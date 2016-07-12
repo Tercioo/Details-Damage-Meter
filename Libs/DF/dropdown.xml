@@ -79,15 +79,15 @@
 					<Anchor point="TOPLEFT" relativeTo="$Parent" relativePoint="BOTTOMLEFT"/>
 				</Anchors>
 				
-				<Backdrop bgFile="Interface\AddOns\Details\images\background" edgeFile="Interface\AddOns\Details\images\border_3" tile="true">
+				<Backdrop bgFile="Interface\AddOns\Details\images\background" edgeFile="Interface\Buttons\WHITE8X8" tile="true">
 					<EdgeSize>
-						<AbsValue val="16"/>
+						<AbsValue val="1"/>
 					</EdgeSize>
 					<TileSize>
 						<AbsValue val="256"/>
 					</TileSize>
 					<BackgroundInsets>
-						<AbsInset left="4" right="4" top="4" bottom="5"/>
+						<AbsInset left="0" right="0" top="0" bottom="0"/>
 					</BackgroundInsets>
 				</Backdrop>
 				
@@ -97,6 +97,7 @@
 					</OnHide>
 					<OnLoad>
 						self:SetBackdropColor (0, 0, 0, 0.95);
+						self:SetBackdropBorderColor (.2, .20, .20, 0.95);
 					</OnLoad>
 				</Scripts>
 				

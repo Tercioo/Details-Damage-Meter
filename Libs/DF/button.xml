@@ -19,7 +19,7 @@
 			</Layer>
 			
 			<Layer level="OVERLAY">
-				<Texture name="$parent_TextureDisabled" setAllPoints="true" hidden="true" parentKey="texture_disabled" file = "Interface\AddOns\Details\images\button_disable_overlay"/>
+				<Texture name="$parent_TextureDisabled" setAllPoints="true" hidden="true" parentKey="texture_disabled" file = "Interface\Tooltips\UI-Tooltip-Background"/>
 			</Layer>
 			
 		</Layers>
@@ -28,6 +28,8 @@
 		
 			<OnDisable>
 				self.texture_disabled:Show()
+				self.texture_disabled:SetVertexColor (0, 0, 0)
+				self.texture_disabled:SetAlpha (.5)
 			</OnDisable>
 			
 			<OnEnable>
