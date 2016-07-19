@@ -509,12 +509,12 @@ local BarMetaFunctions = _G [DF.GlobalWidgetControlNames ["normal_bar"]]
 --> timer
 	
 	function BarMetaFunctions:OnTimerEnd()
-		if (self.OnTimerEndHook) then
-			local interrupt = self.OnTimerEndHook (self)
-			if (interrupt) then
-				return
-			end
+		local capsule = self
+		local kill = capsule:RunHooksForWidget ("OnTimerEnd", self.widget, button, capsule)
+		if (kill) then
+			return
 		end
+	
 		self.timer_texture:Hide()
 		self.timer_textureR:Hide()
 		self.div_timer:Hide()
@@ -720,6 +720,7 @@ function DF:NewBar (parent, container, name, member, w, h, value, texture_name)
 			OnShow = {},
 			OnMouseDown = {},
 			OnMouseUp = {},
+			OnTimerEnd = {},
 		}
 	
 		BarObject.statusbar:SetScript ("OnEnter", OnEnter)
