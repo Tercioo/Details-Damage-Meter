@@ -3148,7 +3148,7 @@ function gump:CriaJanelaInfo()
 				
 				if (critical > bar2[3][3]) then
 					local diff = critical - bar2[3][3]
-					local up = diff / bar2[3][3] * 100
+					local up = diff / math.max (bar2[3][3] * 100, 0.1)
 					up = _math_floor (up)
 					if (up > 999) then
 						up = ">" .. 999
@@ -3156,7 +3156,7 @@ function gump:CriaJanelaInfo()
 					frame2.tooltip.crit_label2:SetText (bar2[3][3] .. "%" .. " |c" .. minor .. up .. "%)|r")
 				else
 					local diff = bar2[3][3] - critical
-					local down = diff / critical * 100
+					local down = diff / math.max (critical * 100, 0.1)
 					down = _math_floor (down)
 					if (down > 999) then
 						down = ">" .. 999
@@ -4439,12 +4439,18 @@ local function CriaTexturaBarra (instancia, barra)
 	local texture = SharedMedia:Fetch ("statusbar", _detalhes.player_details_window.bar_texture)
 	barra.textura:SetStatusBarTexture (texture)
 	
+	--barra.textura:SetStatusBarTexture ([[Interface\AddOns\Details\Images\bar_skyline.tga]])
+	--barra.textura:SetStatusBarTexture ([[Interface\AddOns\Details\Images\bar_serenity]])
+	barra.textura:SetStatusBarTexture (.6, .6, .6, 1)
+
+	--print (texture, _detalhes.player_details_window.bar_texture)
+	
 	barra.textura:SetStatusBarColor (.5, .5, .5, 0)
 	barra.textura:SetMinMaxValues (0,100)
 	
 	barra.textura.bg = barra.textura:CreateTexture (nil, "background")
 	barra.textura.bg:SetAllPoints()
-	barra.textura.bg:SetTexture (1, 1, 1, 0.08)
+	barra.textura.bg:SetColorTexture (1, 1, 1, 0.08)
 	
 	if (barra.targets) then
 		barra.targets:SetParent (barra.textura)

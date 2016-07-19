@@ -15,7 +15,18 @@ local loadstring = loadstring --> lua local
 
 local cleanfunction = function() end
 local APILabelFunctions = false
-local LabelMetaFunctions = {}
+
+do
+	local metaPrototype = {
+		WidgetType = "label",
+		SetHook = DF.SetHook,
+		RunHooksForWidget = DF.RunHooksForWidget,
+	}
+
+	_G [DF.GlobalWidgetControlNames ["label"]] = _G [DF.GlobalWidgetControlNames ["label"]] or metaPrototype
+end
+
+local LabelMetaFunctions = _G [DF.GlobalWidgetControlNames ["label"]]
 
 ------------------------------------------------------------------------------------------------------------
 --> metatables
@@ -58,23 +69,21 @@ local LabelMetaFunctions = {}
 		return fontsize
 	end
 
-
-	local get_members_function_index = {
-		["shown"] = gmember_shown,
-		["width"] = gmember_width,
-		["height"] = gmember_height,
-		["text"] = gmember_text,
-		["fontcolor"] = gmember_textcolor,
-		["fontface"] = gmember_textfont,
-		["fontsize"] = gmember_textsize,
-		["textcolor"] = gmember_textcolor, --alias
-		["textfont"] = gmember_textfont, --alias
-		["textsize"] = gmember_textsize --alias
-	}
+	LabelMetaFunctions.GetMembers = LabelMetaFunctions.GetMembers or {}
+	LabelMetaFunctions.GetMembers ["shown"] = gmember_shown
+	LabelMetaFunctions.GetMembers ["width"] = gmember_width
+	LabelMetaFunctions.GetMembers ["height"] = gmember_height
+	LabelMetaFunctions.GetMembers ["text"] = gmember_text
+	LabelMetaFunctions.GetMembers ["fontcolor"] = gmember_textcolor
+	LabelMetaFunctions.GetMembers ["fontface"] = gmember_textfont
+	LabelMetaFunctions.GetMembers ["fontsize"] = gmember_textsize
+	LabelMetaFunctions.GetMembers ["textcolor"] = gmember_textcolor --alias
+	LabelMetaFunctions.GetMembers ["textfont"] = gmember_textfont --alias
+	LabelMetaFunctions.GetMembers ["textsize"] = gmember_textsize --alias
 
 	LabelMetaFunctions.__index = function (_table, _member_requested)
 
-		local func = get_members_function_index [_member_requested]
+		local func = LabelMetaFunctions.GetMembers [_member_requested]
 		if (func) then
 			return func (_table, _member_requested)
 		end
@@ -157,27 +166,26 @@ local LabelMetaFunctions = {}
 		DF:SetFontOutline (_object.label, _value)
 	end
 	
-	local set_members_function_index = {
-		["show"] = smember_show,
-		["hide"] = smember_hide,
-		["align"] = smember_textalign,
-		["valign"] = smember_textvalign,
-		["text"] = smember_text,
-		["width"] = smember_width,
-		["height"] = smember_height,
-		["fontcolor"] = smember_textcolor,
-		["color"] = smember_textcolor,--alias
-		["fontface"] = smember_textfont,
-		["fontsize"] = smember_textsize,
-		["textcolor"] = smember_textcolor,--alias
-		["textfont"] = smember_textfont,--alias
-		["textsize"] = smember_textsize,--alias
-		["shadow"] = smember_outline,
-		["outline"] = smember_outline,--alias
-	}
+	LabelMetaFunctions.SetMembers = LabelMetaFunctions.SetMembers or {}
+	LabelMetaFunctions.SetMembers["show"] = smember_show
+	LabelMetaFunctions.SetMembers["hide"] = smember_hide
+	LabelMetaFunctions.SetMembers["align"] = smember_textalign
+	LabelMetaFunctions.SetMembers["valign"] = smember_textvalign
+	LabelMetaFunctions.SetMembers["text"] = smember_text
+	LabelMetaFunctions.SetMembers["width"] = smember_width
+	LabelMetaFunctions.SetMembers["height"] = smember_height
+	LabelMetaFunctions.SetMembers["fontcolor"] = smember_textcolor
+	LabelMetaFunctions.SetMembers["color"] = smember_textcolor--alias
+	LabelMetaFunctions.SetMembers["fontface"] = smember_textfont
+	LabelMetaFunctions.SetMembers["fontsize"] = smember_textsize
+	LabelMetaFunctions.SetMembers["textcolor"] = smember_textcolor--alias
+	LabelMetaFunctions.SetMembers["textfont"] = smember_textfont--alias
+	LabelMetaFunctions.SetMembers["textsize"] = smember_textsize--alias
+	LabelMetaFunctions.SetMembers["shadow"] = smember_outline
+	LabelMetaFunctions.SetMembers["outline"] = smember_outline--alias
 	
 	LabelMetaFunctions.__newindex = function (_table, _key, _value)
-		local func = set_members_function_index [_key]
+		local func = LabelMetaFunctions.SetMembers [_key]
 		if (func) then
 			return func (_table, _value)
 		else
@@ -305,7 +313,8 @@ function DF:NewLabel (parent, container, name, member, text, font, size, color, 
 		DF:SetFontSize (LabelObject.label, size)
 	end
 	
-
+	LabelObject.HookList = {
+	}
 	
 	LabelObject.label:SetJustifyH ("LEFT")
 	

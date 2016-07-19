@@ -85,7 +85,7 @@
 		self.targets [nome] = self.targets [nome] or 0
 	end
 
-	function habilidade_dano:Add (serial, nome, flag, amount, who_nome, resisted, blocked, absorbed, critical, glacing, token, multistrike, isoffhand)
+	function habilidade_dano:Add (serial, nome, flag, amount, who_nome, resisted, blocked, absorbed, critical, glacing, token, isoffhand)
 
 		self.total = self.total + amount
 		

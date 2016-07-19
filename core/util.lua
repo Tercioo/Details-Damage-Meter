@@ -1001,11 +1001,14 @@ end
 		
 		FlashAnimation.fadeOut = FlashAnimation:CreateAnimation ("Alpha") --> fade out anime
 		FlashAnimation.fadeOut:SetOrder (1)
-		FlashAnimation.fadeOut:SetChange (1)
+		
+		FlashAnimation.fadeOut:SetFromAlpha (0)
+		FlashAnimation.fadeOut:SetToAlpha (1)
 		
 		FlashAnimation.fadeIn = FlashAnimation:CreateAnimation ("Alpha") --> fade in anime
 		FlashAnimation.fadeIn:SetOrder (2)
-		FlashAnimation.fadeIn:SetChange (-1)
+		FlashAnimation.fadeIn:SetFromAlpha (0)
+		FlashAnimation.fadeIn:SetToAlpha (1)
 		
 		frame.FlashAnimation = FlashAnimation
 		FlashAnimation.frame = frame

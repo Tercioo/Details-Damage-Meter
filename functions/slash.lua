@@ -1103,6 +1103,74 @@ function SlashCmdList.DETAILS (msg, editbox)
 		--C_Timer.After (5, function() bar:CancelTimerBar() end)
 	
 	
+	elseif (msg == "q") then
+	
+		local myframe = TestFrame
+		if (not myframe) then
+			myframe = TestFrame or CreateFrame ("frame", "TestFrame", UIParent)
+			myframe:SetPoint ("center", UIParent, "center")
+			myframe:SetSize (300, 300)
+			myframe.texture = myframe:CreateTexture (nil, "overlay")
+			myframe.texture:SetAllPoints()
+			myframe.texture:SetTexture ([[Interface\AddOns\WorldQuestTracker\media\icon_flag_common]])
+		else
+			if (myframe.texture:IsShown()) then
+				myframe.texture:Hide()
+			else
+				print (myframe.texture:GetTexture())
+				myframe.texture:Show()
+				print (myframe.texture:GetTexture())
+			end
+		end
+		
+		
+		
+		if (true) then
+			return
+		end
+	
+		local y = -50
+		local allspecs = {}
+		
+		for a, b in pairs (_detalhes.class_specs_coords) do
+			tinsert (allspecs, a)
+		end
+		
+		for i = 1, 10 do
+	
+			local a = CreateFrame ("statusbar", nil, UIParent)
+			a:SetPoint ("topleft", UIParent, "topleft", i*32, y)
+			a:SetSize (32, 32)
+			a:SetMinMaxValues (0, 1)
+			
+			local texture = a:CreateTexture (nil, "overlay")
+			texture:SetSize (32, 32)
+			texture:SetPoint ("topleft")
+			
+			if (i%10 == 0) then
+				y = y - 32
+			end
+
+--	/run for o=1,10 do local f=CreateFrame("frame");f:SetPoint("center");f:SetSize(300,300); local t=f:CreateTexture(nil,"overlay");t:SetAllPoints();f:SetScript("OnUpdate",function() t:SetTexture("Interface\\1024")end);end;
+--	https://www.dropbox.com/s/ulyeqa2z0ummlu7/1024.tga?dl=0
+
+			local time = 0
+			a:SetScript ("OnUpdate", function (self, deltaTime)
+				time = time + deltaTime
+				
+				--texture:SetSize (math.random (50, 300), math.random (50, 300))
+				--local spec = allspecs [math.random (#allspecs)]
+				texture:SetTexture ([[Interface\AddOns\Details\images\options_window]])
+				--texture:SetTexture ([[Interface\Store\Store-Splash]])
+				--texture:SetTexture ([[Interface\AddOns\Details\images\options_window]])
+				--texture:SetTexture ([[Interface\CHARACTERFRAME\Button_BloodPresence_DeathKnight]])
+				--texture:SetTexCoord (unpack (_detalhes.class_specs_coords [spec]))
+				
+				--a:SetAlpha (abs (math.sin (time)))
+				--a:SetValue (abs (math.sin (time)))
+			end)
+		end
+	
 	elseif (msg == "alert") then
 		--local instancia = _detalhes.tabela_instancias [1]
 		local f = function (a, b, c, d, e, f, g) print (a, b, c, d, e, f, g) end

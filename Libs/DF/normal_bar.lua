@@ -15,8 +15,19 @@ local _math_floor = math.floor --> lua locals
 local SharedMedia = LibStub:GetLibrary ("LibSharedMedia-3.0")
 
 local cleanfunction = function() end
-local BarMetaFunctions = {}
 local APIBarFunctions
+
+do
+	local metaPrototype = {
+		WidgetType = "normal_bar",
+		SetHook = DF.SetHook,
+		RunHooksForWidget = DF.RunHooksForWidget,
+	}
+
+	_G [DF.GlobalWidgetControlNames ["normal_bar"]] = _G [DF.GlobalWidgetControlNames ["normal_bar"]] or metaPrototype
+end
+
+local BarMetaFunctions = _G [DF.GlobalWidgetControlNames ["normal_bar"]]
 
 ------------------------------------------------------------------------------------------------------------
 --> metatables
@@ -111,28 +122,27 @@ local APIBarFunctions
 		return _object.textleft:GetTextColor()
 	end
 
-	local get_members_function_index = {
-		["tooltip"] = gmember_tooltip,
-		["shown"] = gmember_shown,
-		["width"] = gmember_width,
-		["height"] = gmember_height,
-		["value"] = gmember_value,
-		["lefttext"] = gmember_ltext,
-		["righttext"] = gmember_rtext,
-		["color"] = gmember_color,
-		["icon"] = gmember_icon,
-		["texture"] = gmember_texture,
-		["fontsize"] = gmember_textsize,
-		["fontface"] = gmember_textfont,
-		["fontcolor"] = gmember_textcolor,
-		["textsize"] = gmember_textsize, --alias
-		["textfont"] = gmember_textfont, --alias
-		["textcolor"] = gmember_textcolor --alias
-	}
+	BarMetaFunctions.GetMembers = BarMetaFunctions.GetMembers or {}
+	BarMetaFunctions.GetMembers ["tooltip"] = gmember_tooltip
+	BarMetaFunctions.GetMembers ["shown"] = gmember_shown
+	BarMetaFunctions.GetMembers ["width"] = gmember_width
+	BarMetaFunctions.GetMembers ["height"] = gmember_height
+	BarMetaFunctions.GetMembers ["value"] = gmember_value
+	BarMetaFunctions.GetMembers ["lefttext"] = gmember_ltext
+	BarMetaFunctions.GetMembers ["righttext"] = gmember_rtext
+	BarMetaFunctions.GetMembers ["color"] = gmember_color
+	BarMetaFunctions.GetMembers ["icon"] = gmember_icon
+	BarMetaFunctions.GetMembers ["texture"] = gmember_texture
+	BarMetaFunctions.GetMembers ["fontsize"] = gmember_textsize
+	BarMetaFunctions.GetMembers ["fontface"] = gmember_textfont
+	BarMetaFunctions.GetMembers ["fontcolor"] = gmember_textcolor
+	BarMetaFunctions.GetMembers ["textsize"] = gmember_textsize --alias
+	BarMetaFunctions.GetMembers ["textfont"] = gmember_textfont --alias
+	BarMetaFunctions.GetMembers ["textcolor"] = gmember_textcolor --alias
 	
 	BarMetaFunctions.__index = function (_table, _member_requested)
 
-		local func = get_members_function_index [_member_requested]
+		local func = BarMetaFunctions.GetMembers [_member_requested]
 		if (func) then
 			return func (_table, _member_requested)
 		end
@@ -267,30 +277,29 @@ local APIBarFunctions
 		return DF:SetFontOutline (_object.textright, _value)
 	end
 
-	local set_members_function_index = {
-		["tooltip"] = smember_tooltip,
-		["shown"] = smember_shown,
-		["width"] = smember_width,
-		["height"] = smember_height,
-		["value"] = smember_value,
-		["righttext"] = smember_rtext,
-		["lefttext"] = smember_ltext,
-		["color"] = smember_color,
-		["icon"] = smember_icon,
-		["texture"] = smember_texture,
-		["fontsize"] = smember_textsize,
-		["fontface"] = smember_textfont,
-		["fontcolor"] = smember_textcolor,
-		["textsize"] = smember_textsize, --alias
-		["textfont"] = smember_textfont, --alias
-		["textcolor"] = smember_textcolor, --alias
-		["shadow"] = smember_outline,
-		["outline"] = smember_outline, --alias
-	}
+	BarMetaFunctions.SetMembers = BarMetaFunctions.SetMembers or {}
+	BarMetaFunctions.SetMembers["tooltip"] = smember_tooltip
+	BarMetaFunctions.SetMembers["shown"] = smember_shown
+	BarMetaFunctions.SetMembers["width"] = smember_width
+	BarMetaFunctions.SetMembers["height"] = smember_height
+	BarMetaFunctions.SetMembers["value"] = smember_value
+	BarMetaFunctions.SetMembers["righttext"] = smember_rtext
+	BarMetaFunctions.SetMembers["lefttext"] = smember_ltext
+	BarMetaFunctions.SetMembers["color"] = smember_color
+	BarMetaFunctions.SetMembers["icon"] = smember_icon
+	BarMetaFunctions.SetMembers["texture"] = smember_texture
+	BarMetaFunctions.SetMembers["fontsize"] = smember_textsize
+	BarMetaFunctions.SetMembers["fontface"] = smember_textfont
+	BarMetaFunctions.SetMembers["fontcolor"] = smember_textcolor
+	BarMetaFunctions.SetMembers["textsize"] = smember_textsize --alias
+	BarMetaFunctions.SetMembers["textfont"] = smember_textfont --alias
+	BarMetaFunctions.SetMembers["textcolor"] = smember_textcolor --alias
+	BarMetaFunctions.SetMembers["shadow"] = smember_outline
+	BarMetaFunctions.SetMembers["outline"] = smember_outline --alias
 	
 	BarMetaFunctions.__newindex = function (_table, _key, _value)
 	
-		local func = set_members_function_index [_key]
+		local func = BarMetaFunctions.SetMembers [_key]
 		if (func) then
 			return func (_table, _value)
 		else
@@ -420,24 +429,14 @@ local APIBarFunctions
 		self.container = container
 	end
 	
---> hooks
-	function BarMetaFunctions:SetHook (hookType, func)
-		if (func) then
-			_rawset (self, hookType.."Hook", func)
-		else
-			_rawset (self, hookType.."Hook", nil)
-		end
-	end
-	
 ------------------------------------------------------------------------------------------------------------
 --> scripts
 
 	local OnEnter = function (frame)
-		if (frame.MyObject.OnEnterHook) then
-			local interrupt = frame.MyObject.OnEnterHook (frame, frame.MyObject)
-			if (interrupt) then
-				return
-			end
+		local capsule = frame.MyObject
+		local kill = capsule:RunHooksForWidget ("OnEnter", frame, capsule)
+		if (kill) then
+			return
 		end
 		
 		frame.MyObject.background:Show()
@@ -451,11 +450,10 @@ local APIBarFunctions
 	end
 	
 	local OnLeave = function (frame)
-		if (frame.MyObject.OnLeaveHook) then
-			local interrupt = frame.MyObject.OnLeaveHook (frame)
-			if (interrupt) then
-				return
-			end
+		local capsule = frame.MyObject
+		local kill = capsule:RunHooksForWidget ("OnLeave", frame, capsule)
+		if (kill) then
+			return
 		end
 		
 		if (frame.MyObject.have_tooltip) then 
@@ -464,29 +462,26 @@ local APIBarFunctions
 	end
 	
 	local OnHide = function (frame)
-		if (frame.MyObject.OnHideHook) then
-			local interrupt = frame.MyObject.OnHideHook (frame)
-			if (interrupt) then
-				return
-			end
+		local capsule = frame.MyObject
+		local kill = capsule:RunHooksForWidget ("OnHide", frame, capsule)
+		if (kill) then
+			return
 		end
 	end
 	
 	local OnShow = function (frame)
-		if (frame.MyObject.OnShowHook) then
-			local interrupt = frame.MyObject.OnShowHook (frame)
-			if (interrupt) then
-				return
-			end
+		local capsule = frame.MyObject
+		local kill = capsule:RunHooksForWidget ("OnShow", frame, capsule)
+		if (kill) then
+			return
 		end
 	end
 	
 	local OnMouseDown = function (frame, button)
-		if (frame.MyObject.OnMouseDownHook) then
-			local interrupt = frame.MyObject.OnMouseDownHook (frame, button)
-			if (interrupt) then
-				return
-			end
+		local capsule = frame.MyObject
+		local kill = capsule:RunHooksForWidget ("OnMouseDown", frame, button, capsule)
+		if (kill) then
+			return
 		end
 		
 		if (not frame.MyObject.container.isLocked and frame.MyObject.container:IsMovable()) then
@@ -498,11 +493,10 @@ local APIBarFunctions
 	end
 	
 	local OnMouseUp = function (frame, button)
-		if (frame.MyObject.OnMouseUpHook) then
-			local interrupt = frame.MyObject.OnMouseUpHook (frame, button)
-			if (interrupt) then
-				return
-			end
+		local capsule = frame.MyObject
+		local kill = capsule:RunHooksForWidget ("OnMouseUp", frame, button, capsule)
+		if (kill) then
+			return
 		end
 		
 		if (frame.MyObject.container.isMoving) then
@@ -674,18 +668,8 @@ function DF:NewBar (parent, container, name, member, w, h, value, texture_name)
 	h = h or 14
 
 	--> default members:
-		--> hooks
-		BarObject.OnEnterHook = nil
-		BarObject.OnLeaveHook = nil
-		BarObject.OnHideHook = nil
-		BarObject.OnShowHook = nil
-		BarObject.OnMouseDownHook = nil
-		BarObject.OnMouseUpHook = nil
-		BarObject.OnTimerEndHook = nil
 		--> misc
-		BarObject.tooltip = nil
 		BarObject.locked = false
-		BarObject.have_tooltip = nil
 
 	BarObject.container = container
 	
@@ -729,6 +713,15 @@ function DF:NewBar (parent, container, name, member, w, h, value, texture_name)
 		BarObject.div_timer = _G [name .. "_sparkTimer"]
 	
 	--> hooks
+		BarObject.HookList = {
+			OnEnter = {},
+			OnLeave = {},
+			OnHide = {},
+			OnShow = {},
+			OnMouseDown = {},
+			OnMouseUp = {},
+		}
+	
 		BarObject.statusbar:SetScript ("OnEnter", OnEnter)
 		BarObject.statusbar:SetScript ("OnLeave", OnLeave)
 		BarObject.statusbar:SetScript ("OnHide", OnHide)

@@ -16,7 +16,18 @@ local _string_len = string.len --> lua local
 
 local cleanfunction = function() end
 local APIDropDownFunctions = false
-local DropDownMetaFunctions = {}
+
+do
+	local metaPrototype = {
+		WidgetType = "dropdown",
+		SetHook = DF.SetHook,
+		RunHooksForWidget = DF.RunHooksForWidget,
+	}
+
+	_G [DF.GlobalWidgetControlNames ["dropdown"]] = _G [DF.GlobalWidgetControlNames ["dropdown"]] or metaPrototype
+end
+
+local DropDownMetaFunctions = _G [DF.GlobalWidgetControlNames ["dropdown"]]
 
 ------------------------------------------------------------------------------------------------------------
 --> metatables
@@ -65,21 +76,20 @@ local DropDownMetaFunctions = {}
 		return _rawget (self, "realsizeH")
 	end
 	
-	local get_members_function_index = {
-		["value"] = gmember_value,
-		["text"] = gmember_text,
-		["shown"] = gmember_shown,
-		["width"] = gmember_width,
-		["menuwidth"] = gmember_menuwidth,
-		["height"] = gmember_height,
-		["menuheight"] = gmember_menuheight,
-		["tooltip"] = gmember_tooltip,
-		["func"] = gmember_function,
-	}
+	DropDownMetaFunctions.GetMembers = DropDownMetaFunctions.GetMembers or {}
+	DropDownMetaFunctions.GetMembers ["value"] = gmember_value
+	DropDownMetaFunctions.GetMembers ["text"] = gmember_text
+	DropDownMetaFunctions.GetMembers ["shown"] = gmember_shown
+	DropDownMetaFunctions.GetMembers ["width"] = gmember_width
+	DropDownMetaFunctions.GetMembers ["menuwidth"] = gmember_menuwidth
+	DropDownMetaFunctions.GetMembers ["height"] = gmember_height
+	DropDownMetaFunctions.GetMembers ["menuheight"] = gmember_menuheight
+	DropDownMetaFunctions.GetMembers ["tooltip"] = gmember_tooltip
+	DropDownMetaFunctions.GetMembers ["func"] = gmember_function	
 	
 	DropDownMetaFunctions.__index = function (_table, _member_requested)
 
-		local func = get_members_function_index [_member_requested]
+		local func = DropDownMetaFunctions.GetMembers [_member_requested]
 		if (func) then
 			return func (_table, _member_requested)
 		end
@@ -135,19 +145,18 @@ local DropDownMetaFunctions = {}
 		_object:SetMenuSize (nil, _value)
 	end
 	
-	local set_members_function_index = {
-		["tooltip"] = smember_tooltip,
-		["show"] = smember_show,
-		["hide"] = smember_hide,
-		["width"] = smember_width,
-		["menuwidth"] = smember_menuwidth,
-		["height"] = smember_height,
-		["menuheight"] = smember_menuheight,
-		["func"] = smember_function,
-	}
+	DropDownMetaFunctions.SetMembers = DropDownMetaFunctions.SetMembers or {}
+	DropDownMetaFunctions.SetMembers ["tooltip"] = smember_tooltip
+	DropDownMetaFunctions.SetMembers ["show"] = smember_show
+	DropDownMetaFunctions.SetMembers ["hide"] = smember_hide
+	DropDownMetaFunctions.SetMembers ["width"] = smember_width
+	DropDownMetaFunctions.SetMembers ["menuwidth"] = smember_menuwidth
+	DropDownMetaFunctions.SetMembers ["height"] = smember_height
+	DropDownMetaFunctions.SetMembers ["menuheight"] = smember_menuheight
+	DropDownMetaFunctions.SetMembers ["func"] = smember_function
 	
 	DropDownMetaFunctions.__newindex = function (_table, _key, _value)
-		local func = set_members_function_index [_key]
+		local func = DropDownMetaFunctions.SetMembers [_key]
 		if (func) then
 			return func (_table, _value)
 		else
@@ -283,15 +292,6 @@ local DropDownMetaFunctions = {}
 --> fixed value
 	function DropDownMetaFunctions:SetFixedParameter (value)
 		_rawset (self, "FixedValue", value)
-	end
-	
---> hooks
-	function DropDownMetaFunctions:SetHook (hookType, func)
-		if (func) then
-			_rawset (self, hookType.."Hook", func)
-		else
-			_rawset (self, hookType.."Hook", nil)
-		end
 	end
 	
 ------------------------------------------------------------------------------------------------------------
@@ -752,11 +752,10 @@ end
 
 function DetailsFrameworkDropDownOnEnter (self)
 
-	if (self.MyObject.OnEnterHook) then
-		local interrupt = self.MyObject.OnEnterHook (self)
-		if (interrupt) then
-			return
-		end
+	local capsule = self.MyObject
+	local kill = capsule:RunHooksForWidget ("OnEnter", self, capsule)
+	if (kill) then
+		return
 	end
 
 	if (self.MyObject.onenter_backdrop) then
@@ -787,11 +786,10 @@ function DetailsFrameworkDropDownOnEnter (self)
 end
 
 function DetailsFrameworkDropDownOnLeave (self)
-	if (self.MyObject.OnLeaveHook) then
-		local interrupt = self.MyObject.OnLeaveHook (self)
-		if (interrupt) then
-			return
-		end
+	local capsule = self.MyObject
+	local kill = capsule:RunHooksForWidget ("OnLeave", self, capsule)
+	if (kill) then
+		return
 	end
 
 	if (self.MyObject.onleave_backdrop) then
@@ -816,20 +814,18 @@ function DetailsFrameworkDropDownOnSizeChanged (self, w, h)
 end
 
 function DetailsFrameworkDropDownOnShow (self)
-	if (self.MyObject and self.MyObject.OnShowHook) then
-		local interrupt = self.MyObject.OnShowHook (self)
-		if (interrupt) then
-			return
-		end
+	local capsule = self.MyObject
+	local kill = capsule:RunHooksForWidget ("OnShow", self, capsule)
+	if (kill) then
+		return
 	end
 end
 
 function DetailsFrameworkDropDownOnHide (self)
-	if (self.MyObject and self.MyObject.OnHideHook) then
-		local interrupt = self.MyObject.OnHideHook (self)
-		if (interrupt) then
-			return
-		end
+	local capsule = self.MyObject
+	local kill = capsule:RunHooksForWidget ("OnHide", self, capsule)
+	if (kill) then
+		return
 	end
 	
 	self.MyObject:Close()
@@ -934,15 +930,8 @@ function DF:NewDropDown (parent, container, name, member, w, h, func, default, t
 	end
 
 	--> default members:
-		--> hooks
-		DropDownObject.OnEnterHook = nil
-		DropDownObject.OnLeaveHook = nil
-		DropDownObject.OnHideHook = nil
-		DropDownObject.OnShowHook = nil
-		DropDownObject.OnMouseDownHook = nil
 		--> misc
 		DropDownObject.container = container
-		DropDownObject.have_tooltip = nil
 		
 	DropDownObject.dropdown = CreateFrame ("Button", name, parent, "DetailsFrameworkDropDownTemplate")
 	DropDownObject.widget = DropDownObject.dropdown
@@ -1002,11 +991,22 @@ function DF:NewDropDown (parent, container, name, member, w, h, func, default, t
 	DropDownObject:HideScroll()
 	DropDownObject.label:SetSize (DropDownObject.dropdown:GetWidth()-40, 10)
 	
+	DropDownObject.HookList = {
+		OnEnter = {},
+		OnLeave = {},
+		OnHide = {},
+		OnShow = {},
+	}	
+	
+	DropDownObject.dropdown:SetScript ("OnShow", DetailsFrameworkDropDownOnShow)
+	DropDownObject.dropdown:SetScript ("OnHide", DetailsFrameworkDropDownOnHide)
+	DropDownObject.dropdown:SetScript ("OnEnter", DetailsFrameworkDropDownOnEnter)
+	DropDownObject.dropdown:SetScript ("OnLeave", DetailsFrameworkDropDownOnLeave)
+	
 	--> setup class
 	_setmetatable (DropDownObject, DropDownMetaFunctions)
-	
+
 	--> initialize first menu selected
-	
 	if (type (default) == "string") then
 		DropDownObject:Select (default)
 		
@@ -1020,6 +1020,6 @@ function DF:NewDropDown (parent, container, name, member, w, h, func, default, t
 		DropDownObject:SetTemplate (template)
 	end
 	
-	return DropDownObject	
+	return DropDownObject
 
 end

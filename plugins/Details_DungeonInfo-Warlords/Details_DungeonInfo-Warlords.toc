@@ -1,4 +1,4 @@
-## Interface: 60200
+## Interface: 70000
 ## Title: Details: Warlords of Draenor Dungeons
 ## Notes: Plugin for Details
 ## RequiredDeps: Details

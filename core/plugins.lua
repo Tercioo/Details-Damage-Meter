@@ -277,7 +277,11 @@
 		local Frame = CreateFrame ("Frame", FrameName, UIParent)
 		Frame:RegisterEvent ("ADDON_LOADED")
 		Frame:RegisterEvent ("PLAYER_LOGOUT")
-		Frame:SetScript ("OnEvent", function(event, ...) return NewPlugin:OnEvent (event, ...) end)
+		Frame:SetScript ("OnEvent", function(event, ...) 
+			if (NewPlugin.OnEvent) then
+				return NewPlugin:OnEvent (event, ...) 
+			end
+		end)
 		
 		Frame:SetFrameStrata ("HIGH")
 		Frame:SetFrameLevel (6)

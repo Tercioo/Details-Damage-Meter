@@ -13,8 +13,19 @@ local _type = type --> lua local
 local _math_floor = math.floor --> lua local
 
 local cleanfunction = function() end
-local SplitBarMetaFunctions = {}
 local APISplitBarFunctions
+
+do
+	local metaPrototype = {
+		WidgetType = "split_bar",
+		SetHook = DF.SetHook,
+		RunHooksForWidget = DF.RunHooksForWidget,
+	}
+
+	_G [DF.GlobalWidgetControlNames ["split_bar"]] = _G [DF.GlobalWidgetControlNames ["split_bar"]] or metaPrototype
+end
+
+local SplitBarMetaFunctions = _G [DF.GlobalWidgetControlNames ["split_bar"]]
 
 ------------------------------------------------------------------------------------------------------------
 --> metatables
@@ -122,30 +133,29 @@ local APISplitBarFunctions
 		return _object.textleft:GetTextColor()
 	end
 	
-	local get_members_function_index = {
-		["tooltip"] = gmember_tooltip,
-		["shown"] = gmember_shown,
-		["width"] = gmember_width,
-		["height"] = gmember_height,
-		["value"] = gmember_value,
-		["righttext"] = gmember_rtext,
-		["lefttext"] = gmember_ltext,
-		["rightcolor"] = gmember_rcolor,
-		["leftcolor"] = gmember_lcolor,
-		["righticon"] = gmember_ricon,
-		["lefticon"] = gmember_licon,
-		["texture"] = gmember_texture,
-		["fontsize"] = gmember_textsize,
-		["fontface"] = gmember_textfont,
-		["fontcolor"] = gmember_textcolor,
-		["textsize"] = gmember_textsize, --alias
-		["textfont"] = gmember_textfont, --alias
-		["textcolor"] = gmember_textcolor --alias
-	}
+	SplitBarMetaFunctions.GetMembers = SplitBarMetaFunctions.GetMembers or {}
+	SplitBarMetaFunctions.GetMembers ["tooltip"] = gmember_tooltip
+	SplitBarMetaFunctions.GetMembers ["shown"] = gmember_shown
+	SplitBarMetaFunctions.GetMembers ["width"] = gmember_width
+	SplitBarMetaFunctions.GetMembers ["height"] = gmember_height
+	SplitBarMetaFunctions.GetMembers ["value"] = gmember_value
+	SplitBarMetaFunctions.GetMembers ["righttext"] = gmember_rtext
+	SplitBarMetaFunctions.GetMembers ["lefttext"] = gmember_ltext
+	SplitBarMetaFunctions.GetMembers ["rightcolor"] = gmember_rcolor
+	SplitBarMetaFunctions.GetMembers ["leftcolor"] = gmember_lcolor
+	SplitBarMetaFunctions.GetMembers ["righticon"] = gmember_ricon
+	SplitBarMetaFunctions.GetMembers ["lefticon"] = gmember_licon
+	SplitBarMetaFunctions.GetMembers ["texture"] = gmember_texture
+	SplitBarMetaFunctions.GetMembers ["fontsize"] = gmember_textsize
+	SplitBarMetaFunctions.GetMembers ["fontface"] = gmember_textfont
+	SplitBarMetaFunctions.GetMembers ["fontcolor"] = gmember_textcolor
+	SplitBarMetaFunctions.GetMembers ["textsize"] = gmember_textsize --alias
+	SplitBarMetaFunctions.GetMembers ["textfont"] = gmember_textfont --alias
+	SplitBarMetaFunctions.GetMembers ["textcolor"] = gmember_textcolor --alias
 	
 	SplitBarMetaFunctions.__index = function (_table, _member_requested)
 
-		local func = get_members_function_index [_member_requested]
+		local func = SplitBarMetaFunctions.GetMembers [_member_requested]
 		if (func) then
 			return func (_table, _member_requested)
 		end
@@ -274,29 +284,28 @@ local APISplitBarFunctions
 		return _object.textright:SetTextColor (_value1, _value2, _value3, _value4)
 	end
 
-	local set_members_function_index = {
-		["tooltip"] = smember_tooltip,
-		["shown"] = smember_shown,
-		["width"] = smember_width,
-		["height"] = smember_height,
-		["value"] = smember_value,
-		["righttext"] = smember_rtext,
-		["lefttext"] = smember_ltext,
-		["rightcolor"] = smember_rcolor,
-		["leftcolor"] = smember_lcolor,
-		["righticon"] = smember_ricon,
-		["lefticon"] = smember_licon,
-		["texture"] = smember_texture,
-		["fontsize"] = smember_textsize,
-		["fontface"] = smember_textfont,
-		["fontcolor"] = smember_textcolor,
-		["textsize"] = smember_textsize, --alias
-		["textfont"] = smember_textfont, --alias
-		["textcolor"] = smember_textcolor --alias
-	}
+	SplitBarMetaFunctions.SetMembers = SplitBarMetaFunctions.SetMembers or {}
+	SplitBarMetaFunctions.SetMembers ["tooltip"] = smember_tooltip
+	SplitBarMetaFunctions.SetMembers ["shown"] = smember_shown
+	SplitBarMetaFunctions.SetMembers ["width"] = smember_width
+	SplitBarMetaFunctions.SetMembers ["height"] = smember_height
+	SplitBarMetaFunctions.SetMembers ["value"] = smember_value
+	SplitBarMetaFunctions.SetMembers ["righttext"] = smember_rtext
+	SplitBarMetaFunctions.SetMembers ["lefttext"] = smember_ltext
+	SplitBarMetaFunctions.SetMembers ["rightcolor"] = smember_rcolor
+	SplitBarMetaFunctions.SetMembers ["leftcolor"] = smember_lcolor
+	SplitBarMetaFunctions.SetMembers ["righticon"] = smember_ricon
+	SplitBarMetaFunctions.SetMembers ["lefticon"] = smember_licon
+	SplitBarMetaFunctions.SetMembers ["texture"] = smember_texture
+	SplitBarMetaFunctions.SetMembers ["fontsize"] = smember_textsize
+	SplitBarMetaFunctions.SetMembers ["fontface"] = smember_textfont
+	SplitBarMetaFunctions.SetMembers ["fontcolor"] = smember_textcolor
+	SplitBarMetaFunctions.SetMembers ["textsize"] = smember_textsize --alias
+	SplitBarMetaFunctions.SetMembers ["textfont"] = smember_textfont --alias
+	SplitBarMetaFunctions.SetMembers ["textcolor"] = smember_textcolor --alias
 	
 	SplitBarMetaFunctions.__newindex = function (_table, _key, _value)
-		local func = set_members_function_index [_key]
+		local func = SplitBarMetaFunctions.SetMembers [_key]
 		if (func) then
 			return func (_table, _value)
 		else
@@ -425,23 +434,13 @@ local APISplitBarFunctions
 		end
 	end
 
---> hooks
-	function SplitBarMetaFunctions:SetHook (hookType, func)
-		if (func) then
-			_rawset (self, hookType.."Hook", func)
-		else
-			_rawset (self, hookType.."Hook", nil)
-		end
-	end
-
 ------------------------------------------------------------------------------------------------------------
 --> scripts
 	local OnEnter = function (frame)
-		if (frame.MyObject.OnEnterHook) then
-			local interrupt = frame.MyObject.OnEnterHook (frame)
-			if (interrupt) then
-				return
-			end
+		local capsule = frame.MyObject
+		local kill = capsule:RunHooksForWidget ("OnEnter", frame, capsule)
+		if (kill) then
+			return
 		end
 
 		frame.MyObject.div:SetPoint ("left", frame, "left", frame:GetValue() * (frame:GetWidth()/100) - 18, 0)
@@ -454,11 +453,10 @@ local APISplitBarFunctions
 	end
 	
 	local OnLeave = function (frame)
-		if (frame.MyObject.OnLeaveHook) then
-			local interrupt = frame.MyObject.OnLeaveHook (frame)
-			if (interrupt) then
-				return
-			end
+		local capsule = frame.MyObject
+		local kill = capsule:RunHooksForWidget ("OnLeave", frame, capsule)
+		if (kill) then
+			return
 		end
 
 		if (frame.MyObject.have_tooltip) then 
@@ -467,29 +465,26 @@ local APISplitBarFunctions
 	end
 	
 	local OnHide = function (frame)
-		if (frame.MyObject.OnHideHook) then
-			local interrupt = frame.MyObject.OnHideHook (frame)
-			if (interrupt) then
-				return
-			end
+		local capsule = frame.MyObject
+		local kill = capsule:RunHooksForWidget ("OnHide", frame, capsule)
+		if (kill) then
+			return
 		end
 	end
 	
 	local OnShow = function (frame)
-		if (frame.MyObject.OnShowHook) then
-			local interrupt = frame.MyObject.OnShowHook (frame)
-			if (interrupt) then
-				return
-			end
+		local capsule = frame.MyObject
+		local kill = capsule:RunHooksForWidget ("OnShow", frame, capsule)
+		if (kill) then
+			return
 		end
 	end
 	
 	local OnMouseDown = function (frame, button)
-		if (frame.MyObject.OnMouseDownHook) then
-			local interrupt = frame.MyObject.OnMouseDownHook (frame, button)
-			if (interrupt) then
-				return
-			end
+		local capsule = frame.MyObject
+		local kill = capsule:RunHooksForWidget ("OnMouseDown", frame, button, capsule)
+		if (kill) then
+			return
 		end
 		
 		if (not frame.MyObject.container.isLocked and frame.MyObject.container:IsMovable()) then
@@ -501,11 +496,10 @@ local APISplitBarFunctions
 	end
 	
 	local OnMouseUp = function (frame, button)
-		if (frame.MyObject.OnMouseUpHook) then
-			local interrupt = frame.MyObject.OnMouseUpHook (frame, button)
-			if (interrupt) then
-				return
-			end
+		local capsule = frame.MyObject
+		local kill = capsule:RunHooksForWidget ("OnMouseUp", frame, button, capsule)
+		if (kill) then
+			return
 		end
 		
 		if (frame.MyObject.container.isMoving) then
@@ -564,17 +558,8 @@ function DF:NewSplitBar (parent, container, name, member, w, h)
 	end
 
 	--> default members:
-		--> hooks
-		SplitBarObject.OnEnterHook = nil
-		SplitBarObject.OnLeaveHook = nil
-		SplitBarObject.OnHideHook = nil
-		SplitBarObject.OnShowHook = nil
-		SplitBarObject.OnMouseDownHook = nil
-		SplitBarObject.OnMouseUpHook = nil
 		--> misc
-		SplitBarObject.tooltip = nil
 		SplitBarObject.locked = false
-		SplitBarObject.have_tooltip = nil
 		SplitBarObject.container = container
 	
 	--> create widgets
@@ -610,15 +595,25 @@ function DF:NewSplitBar (parent, container, name, member, w, h)
 		
 		SplitBarObject.div = _G [name .. "_Spark"]
 
-		
+	
 	--> hooks
-		SplitBarObject.statusbar:SetScript ("OnEnter", OnEnter)
-		SplitBarObject.statusbar:SetScript ("OnLeave", OnLeave)
-		SplitBarObject.statusbar:SetScript ("OnHide", OnHide)
-		SplitBarObject.statusbar:SetScript ("OnShow", OnShow)
-		SplitBarObject.statusbar:SetScript ("OnMouseDown", OnMouseDown)
-		SplitBarObject.statusbar:SetScript ("OnMouseUp", OnMouseUp)
-		SplitBarObject.statusbar:SetScript ("OnSizeChanged", OnSizeChanged)
+	SplitBarObject.HookList = {
+		OnEnter = {},
+		OnLeave = {},
+		OnHide = {},
+		OnShow = {},
+		OnMouseDown = {},
+		OnMouseUp = {},
+		OnSizeChanged = {},
+	}
+	
+	SplitBarObject.statusbar:SetScript ("OnEnter", OnEnter)
+	SplitBarObject.statusbar:SetScript ("OnLeave", OnLeave)
+	SplitBarObject.statusbar:SetScript ("OnHide", OnHide)
+	SplitBarObject.statusbar:SetScript ("OnShow", OnShow)
+	SplitBarObject.statusbar:SetScript ("OnMouseDown", OnMouseDown)
+	SplitBarObject.statusbar:SetScript ("OnMouseUp", OnMouseUp)
+	SplitBarObject.statusbar:SetScript ("OnSizeChanged", OnSizeChanged)
 		
 	_setmetatable (SplitBarObject, SplitBarMetaFunctions)
 	

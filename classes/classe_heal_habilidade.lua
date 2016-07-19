@@ -54,7 +54,7 @@
 		return _newHealSpell
 	end
 
-	function habilidade_cura:Add (serial, nome, flag, amount, who_nome, absorbed, critical, overhealing, is_shield, multistrike)
+	function habilidade_cura:Add (serial, nome, flag, amount, who_nome, absorbed, critical, overhealing, is_shield)
 
 		amount = amount or 0
 		self.total = self.total + amount

@@ -66,34 +66,34 @@ local function CreatePluginFrames (data)
 	DmgRank.TimeGoal = {
 	
 		--> The 30 seconds Trial
-		{time = 30, damage = 350000, name = Loc ["CHALLENGENAME_1"]}, -- Ready to Raid -- rank 2 -->  -- Patrulha --> ~11K DPS required
-		{time = 30, damage = 420000, name = Loc ["CHALLENGENAME_2"]}, -- Damage Practice --rank 3 -->  -- Soldier --> ~14K DPS required
-		{time = 30, damage = 500000, name = Loc ["CHALLENGENAME_3"]}, -- The Training Continue... -- rank 4 -->  -- Corporal --> ~16K DPS required
+		{time = 30, damage = 3500000, name = Loc ["CHALLENGENAME_1"]}, -- Ready to Raid -- rank 2 -->  -- Patrulha --> ~11K DPS required
+		{time = 30, damage = 4200000, name = Loc ["CHALLENGENAME_2"]}, -- Damage Practice --rank 3 -->  -- Soldier --> ~14K DPS required
+		{time = 30, damage = 5000000, name = Loc ["CHALLENGENAME_3"]}, -- The Training Continue... -- rank 4 -->  -- Corporal --> ~16K DPS required
 		
 		--> 90 seconds bracket
-		{time = 90, damage = 1601010, name = Loc ["CHALLENGENAME_4"]}, -- You Just Need a Little More Time -- rank 5 -->  -- Sergeant --> ~17K DPS required
-		{time = 90, damage = 1666660, name = Loc ["CHALLENGENAME_5"]}, -- Became a Knight -- rank 6 -->  -- Sergeant --> ~18K DPS required
+		{time = 90, damage = 16010100, name = Loc ["CHALLENGENAME_4"]}, -- You Just Need a Little More Time -- rank 5 -->  -- Sergeant --> ~17K DPS required
+		{time = 90, damage = 16666600, name = Loc ["CHALLENGENAME_5"]}, -- Became a Knight -- rank 6 -->  -- Sergeant --> ~18K DPS required
 		
 		--> middle bracket
-		{time = 120, damage = 2254120, name = Loc ["CHALLENGENAME_6"]}, -- Two Minutes -- rank 7 -->   Iron Knight --> ~18K DPS required
-		{time = 120, damage = 2409500, name = Loc ["CHALLENGENAME_7"]}, --rank 8 -->  Steel Knight --> ~20K DPS required
-		{time = 180, damage = 3390000, name = Loc ["CHALLENGENAME_8"]}, --rank 9 -->  --> The High Knight --> ~18K DPS required
-		{time = 180, damage = 3499000, name = Loc ["CHALLENGENAME_9"]}, --rank 10 --> Yes Sir! --   Thorium Knight --> ~19K DPS required
-		{time = 180, damage = 3784051, name = Loc ["CHALLENGENAME_10"]}, --rank 11 --> Salute  --   Silver Lieutenant --> ~21K DPS required
+		{time = 120, damage = 22541200, name = Loc ["CHALLENGENAME_6"]}, -- Two Minutes -- rank 7 -->   Iron Knight --> ~18K DPS required
+		{time = 120, damage = 24095000, name = Loc ["CHALLENGENAME_7"]}, --rank 8 -->  Steel Knight --> ~20K DPS required
+		{time = 180, damage = 33900000, name = Loc ["CHALLENGENAME_8"]}, --rank 9 -->  --> The High Knight --> ~18K DPS required
+		{time = 180, damage = 34990000, name = Loc ["CHALLENGENAME_9"]}, --rank 10 --> Yes Sir! --   Thorium Knight --> ~19K DPS required
+		{time = 180, damage = 37840510, name = Loc ["CHALLENGENAME_10"]}, --rank 11 --> Salute  --   Silver Lieutenant --> ~21K DPS required
 		
 		--> burst bracket
-		{time = 40, damage = 1351144, name = Loc ["CHALLENGENAME_11"]}, --rank 12 --> In Burst We Trust  --   Gold Lieutenant --> ~33K DPS required
-		{time = 40, damage = 1494404, name = Loc ["CHALLENGENAME_12"]}, --rank 13 -->  Watch me Explode  --   Stone Guardian --> ~37K DPS required
-		{time = 40, damage = 1569900, name = Loc ["CHALLENGENAME_13"]}, --rank 14 --> T.N.T--   Fel Guardian --> ~39K DPS required
+		{time = 40, damage = 13511440, name = Loc ["CHALLENGENAME_11"]}, --rank 12 --> In Burst We Trust  --   Gold Lieutenant --> ~33K DPS required
+		{time = 40, damage = 14944040, name = Loc ["CHALLENGENAME_12"]}, --rank 13 -->  Watch me Explode  --   Stone Guardian --> ~37K DPS required
+		{time = 40, damage = 15699000, name = Loc ["CHALLENGENAME_13"]}, --rank 14 --> T.N.T--   Fel Guardian --> ~39K DPS required
 		
 		--> long run bracket
-		{time = 300, damage = 6211201, name = Loc ["CHALLENGENAME_14"]}, --rank 15 --> Time is Damage My Friend --   Titan Guardian --> ~20K DPS required
-		{time = 300, damage = 6842459, name = Loc ["CHALLENGENAME_15"]}, --rank 16 - Just a Little Patience -->  Bronze Centurion --> ~22K DPS required
-		{time = 300, damage = 7511983, name = Loc ["CHALLENGENAME_16"]}, --rank 17 -->  Silver Centurion --> ~25K DPS required
+		{time = 300, damage = 62112010, name = Loc ["CHALLENGENAME_14"]}, --rank 15 --> Time is Damage My Friend --   Titan Guardian --> ~20K DPS required
+		{time = 300, damage = 68424590, name = Loc ["CHALLENGENAME_15"]}, --rank 16 - Just a Little Patience -->  Bronze Centurion --> ~22K DPS required
+		{time = 300, damage = 75119830, name = Loc ["CHALLENGENAME_16"]}, --rank 17 -->  Silver Centurion --> ~25K DPS required
 		
-		{time = 120, damage = 4011100, name = Loc ["CHALLENGENAME_17"]}, --rank 18 -->  Flame Centurion --> ~33K DPS required
-		{time = 120, damage = 4300000, name = Loc ["CHALLENGENAME_18"]}, --rank 19 -->  Lower Vanquisher --> 35K DPS required
-		{time = 60, damage = 2650000, name = Loc ["CHALLENGENAME_19"]}, --rank 20 -->  Middle Vanquisher --> 44K DPS required
+		{time = 120, damage = 40111000, name = Loc ["CHALLENGENAME_17"]}, --rank 18 -->  Flame Centurion --> ~33K DPS required
+		{time = 120, damage = 43000000, name = Loc ["CHALLENGENAME_18"]}, --rank 19 -->  Lower Vanquisher --> 35K DPS required
+		{time = 60, damage = 26500000, name = Loc ["CHALLENGENAME_19"]}, --rank 20 -->  Middle Vanquisher --> 44K DPS required
 		
 		--> end
 		{time = nil, damage = nil, name = ""}, --rank 21 --> none

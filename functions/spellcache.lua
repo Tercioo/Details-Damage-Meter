@@ -86,16 +86,16 @@ do
 		[88082] = {name = GetSpellInfo (88082) .. " (" .. Loc ["STRING_MIRROR_IMAGE"] .. ")"}, --> Mirror Image's Fireball (mage)
 		
 		[94472] = {name = GetSpellInfo (94472) .. " (" .. Loc ["STRING_CRITICAL_ONLY"] .. ")"}, --> Atonement critical hit (priest)
-		[140816] = {name = GetSpellInfo (140816) .. " (" .. Loc ["STRING_CRITICAL_ONLY"] .. ")"}, --> Power Word: Solace critical hit  (priest)
+		--[140816] = {name = GetSpellInfo (140816) .. " (" .. Loc ["STRING_CRITICAL_ONLY"] .. ")"}, --> Power Word: Solace critical hit  (priest)
 		
 		[33778] = {name = GetSpellInfo (33778) .. " (bloom)"}, --lifebloom (bloom)
 		
 		[121414] = {name = GetSpellInfo (121414) .. " (Glaive #1)"}, --> glaive toss (hunter)
 		[120761] = {name = GetSpellInfo (120761) .. " (Glaive #2)"}, --> glaive toss (hunter)
 		
-		[108686] = {name = GetSpellInfo (108686) .. " (" .. GetSpellInfo (108683) .. ")" }, --> immolate (brimstone)
-		[108685] = {name = GetSpellInfo (108685) .. " (" .. GetSpellInfo (108683) .. ")" }, --> conflagrate (brimstone)
-		[114654] = {name = GetSpellInfo (114654) .. " (" .. GetSpellInfo (108683) .. ")" }, --> incinetate (brimstone)
+		--[108686] = {name = GetSpellInfo (108686) .. " (" .. GetSpellInfo (108683) .. ")" }, --> immolate (brimstone)
+		--[108685] = {name = GetSpellInfo (108685) .. " (" .. GetSpellInfo (108683) .. ")" }, --> conflagrate (brimstone)
+		--[114654] = {name = GetSpellInfo (114654) .. " (" .. GetSpellInfo (108683) .. ")" }, --> incinetate (brimstone)
 	}
 
 -- removed on warlords of draenor:

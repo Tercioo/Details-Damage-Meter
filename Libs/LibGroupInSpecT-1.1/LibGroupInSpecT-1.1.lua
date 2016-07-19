@@ -73,7 +73,7 @@
 --     Returns an array with the set of unit ids for the current group.
 --]]
 
-local MAJOR, MINOR = "LibGroupInSpecT-1.1", tonumber (("$Revision: 78 $"):match ("(%d+)") or 0)
+local MAJOR, MINOR = "LibGroupInSpecT-1.1", tonumber (("$Revision: 79 $"):match ("(%d+)") or 0)
 
 if not LibStub then error(MAJOR.." requires LibStub") end
 local lib = LibStub:NewLibrary (MAJOR, MINOR)
@@ -570,7 +570,7 @@ function lib:BuildInfo (unit)
 
   info.glyphs = wipe (info.glyphs or {})
   local glyph_info = self.static_cache.glyph_info
-  for idx = 1,NUM_GLYPH_SLOTS do
+  for idx = 1, (NUM_GLYPH_SLOTS or 0) do
     local enabled, glyph_type, _, spell_id, icon, glyph_id = GetGlyphSocketInfo (idx, nil, is_inspect, unit)
     if spell_id and not glyph_info[spell_id] then -- not already available in the cache
       glyph_info[spell_id] = {}
@@ -695,7 +695,7 @@ function lib:SendLatestSpecData ()
     glyphstr = glyphstr..COMMS_DELIM..(glyph.idx or "")..COMMS_DELIM..(glyph.glyph_id or "")..COMMS_DELIM..(glyph.glyph_type or "")
     glyphCount = glyphCount + 1
   end
-  for i=glyphCount,NUM_GLYPH_SLOTS do
+  for i=glyphCount,(NUM_GLYPH_SLOTS or 0) do
     datastr = datastr..COMMS_DELIM..0
     glyphstr = glyphstr..COMMS_DELIM..COMMS_DELIM..COMMS_DELIM -- unused entry, but keep format sound
   end
@@ -723,7 +723,7 @@ msg_idx.guid           = msg_idx.fmt + 1
 msg_idx.global_spec_id = msg_idx.guid + 1
 msg_idx.talents        = msg_idx.global_spec_id + 1
 msg_idx.glyphs         = msg_idx.talents + MAX_TALENT_TIERS
-msg_idx.glyph_detail   = msg_idx.glyphs + NUM_GLYPH_SLOTS
+msg_idx.glyph_detail   = msg_idx.glyphs + (NUM_GLYPH_SLOTS or 0)
 
 function lib:CHAT_MSG_ADDON (prefix, datastr, scope, sender)
   if prefix ~= COMMS_PREFIX or scope ~= self.commScope then return end

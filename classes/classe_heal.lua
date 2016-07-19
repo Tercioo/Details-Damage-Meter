@@ -1878,6 +1878,8 @@ function atributo_heal:MontaDetalhesHealingDone (spellid, barra)
 		if (normal_hits > 0) then
 			local normal_curado = esta_magia.n_curado
 			local media_normal = normal_curado/normal_hits
+			media_normal = max (media_normal, 0.000001)
+			
 			local T = (meu_tempo*normal_curado)/esta_magia.total
 			local P = media/media_normal*100
 			T = P*T/100

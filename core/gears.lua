@@ -10,7 +10,9 @@ local floor = floor
 local GetNumGroupMembers = GetNumGroupMembers
 
 local ItemUpgradeInfo = LibStub ("LibItemUpgradeInfo-1.0")
-local LibGroupInSpecT = LibStub ("LibGroupInSpecT-1.1")
+
+--LibGroupInSpecT-1.1 is giving errors on Legion Beta
+--local LibGroupInSpecT = LibStub ("LibGroupInSpecT-1.1")
 
 function _detalhes:UpdateGears()
 	

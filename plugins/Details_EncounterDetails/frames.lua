@@ -823,7 +823,7 @@ do
 				
 				local t = f:CreateTexture (nil, "artwork")
 				t:SetAllPoints()
-				t:SetTexture (1, 1, 1, phase_alpha)
+				t:SetColorTexture (1, 1, 1, phase_alpha)
 				t.original_color = {1, 1, 1}
 				f.texture = t
 
@@ -892,7 +892,7 @@ do
 		for i = 1, 8, 1 do
 		
 			local line = g:CreateTexture (nil, "overlay")
-			line:SetTexture (.5, .5, .5, .7)
+			line:SetColorTexture (.5, .5, .5, .7)
 			line:SetWidth (670)
 			line:SetHeight (1)
 			line:SetVertexColor (.4, .4, .4, .8)
@@ -915,7 +915,7 @@ do
 			texture:SetWidth (9)
 			texture:SetHeight (9)
 			texture:SetPoint ("TOPLEFT", EncounterDetails.Frame, "TOPLEFT", (i*65) + 299, -81)
-			texture:SetTexture (unpack (grafico_cores[i]))
+			texture:SetColorTexture (unpack (grafico_cores[i]))
 			local text = g:CreateFontString (nil, "OVERLAY", "GameFontHighlightSmall")
 			text:SetPoint ("LEFT", texture, "right", 2, 0)
 			text:SetJustifyH ("LEFT")
@@ -933,14 +933,14 @@ do
 		v:SetHeight (238)
 		v:SetPoint ("top", g, "top", 0, 1)
 		v:SetPoint ("left", g, "left", 55, 0)
-		v:SetTexture (1, 1, 1, 1)
+		v:SetColorTexture (1, 1, 1, 1)
 		
 		local h = g:CreateTexture (nil, "overlay")
 		h:SetWidth (668)
 		h:SetHeight (2)
 		h:SetPoint ("top", g, "top", 0, -217)
 		h:SetPoint ("left", g, "left")
-		h:SetTexture (1, 1, 1, 1)
+		h:SetColorTexture (1, 1, 1, 1)
 	end
 	
 	local BossFrame = EncounterDetails.Frame
@@ -1293,7 +1293,7 @@ do
 	u:SetAllPoints (BossFrame.buttonSwitchNormal)
 	
 	selected = BossFrame.buttonSwitchGraphic:CreateTexture (nil, "overlay")
-	selected:SetTexture (1, 1, 1, .1)
+	selected:SetColorTexture (1, 1, 1, .1)
 	selected:SetWidth (22)
 	selected:SetHeight (28)
 	selected:SetPoint ("center", BossFrame.buttonSwitchNormal, "center", 0, 0)

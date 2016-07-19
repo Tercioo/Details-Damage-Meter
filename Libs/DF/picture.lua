@@ -15,7 +15,18 @@ local loadstring = loadstring --> lua local
 
 local cleanfunction = function() end
 local APIImageFunctions = false
-local ImageMetaFunctions = {}
+
+do
+	local metaPrototype = {
+		WidgetType = "image",
+		SetHook = DF.SetHook,
+		RunHooksForWidget = DF.RunHooksForWidget,
+	}
+
+	_G [DF.GlobalWidgetControlNames ["image"]] = _G [DF.GlobalWidgetControlNames ["image"]] or metaPrototype
+end
+
+local ImageMetaFunctions = _G [DF.GlobalWidgetControlNames ["image"]]
 
 ------------------------------------------------------------------------------------------------------------
 --> metatables
@@ -48,17 +59,16 @@ local ImageMetaFunctions = {}
 		return _object.image:GetAlpha()
 	end
 
-	local get_members_function_index = {
-		["shown"] = gmember_shown,
-		["alpha"] = gmember_alpha,
-		["width"] = gmember_width,
-		["height"] = gmember_height,
-		["texture"] = gmember_texture,
-	}
-	
+	ImageMetaFunctions.GetMembers = ImageMetaFunctions.GetMembers or {}
+	ImageMetaFunctions.GetMembers ["shown"] = gmember_shown
+	ImageMetaFunctions.GetMembers ["alpha"] = gmember_alpha
+	ImageMetaFunctions.GetMembers ["width"] = gmember_width
+	ImageMetaFunctions.GetMembers ["height"] = gmember_height
+	ImageMetaFunctions.GetMembers ["texture"] = gmember_texture
+
 	ImageMetaFunctions.__index = function (_table, _member_requested)
 
-		local func = get_members_function_index [_member_requested]
+		local func = ImageMetaFunctions.GetMembers [_member_requested]
 		if (func) then
 			return func (_table, _member_requested)
 		end
@@ -146,20 +156,19 @@ local ImageMetaFunctions = {}
 		end
 	end
 
-	local set_members_function_index = {
-		["show"] = smember_show,
-		["hide"] = smember_hide,
-		["alpha"] = smember_alpha,
-		["width"] = smember_width,
-		["height"] = smember_height,
-		["texture"] = smember_texture,
-		["texcoord"] = smember_texcoord,
-		["color"] = smember_color,
-		["blackwhite"] = smember_desaturated,
-	}
-	
+	ImageMetaFunctions.SetMembers = ImageMetaFunctions.SetMembers or {}
+	ImageMetaFunctions.SetMembers ["show"] = smember_show
+	ImageMetaFunctions.SetMembers ["hide"] = smember_hide
+	ImageMetaFunctions.SetMembers ["alpha"] = smember_alpha
+	ImageMetaFunctions.SetMembers ["width"] = smember_width
+	ImageMetaFunctions.SetMembers ["height"] = smember_height
+	ImageMetaFunctions.SetMembers ["texture"] = smember_texture
+	ImageMetaFunctions.SetMembers ["texcoord"] = smember_texcoord
+	ImageMetaFunctions.SetMembers ["color"] = smember_color
+	ImageMetaFunctions.SetMembers ["blackwhite"] = smember_desaturated
+
 	ImageMetaFunctions.__newindex = function (_table, _key, _value)
-		local func = set_members_function_index [_key]
+		local func = ImageMetaFunctions.SetMembers [_key]
 		if (func) then
 			return func (_table, _value)
 		else
@@ -279,6 +288,9 @@ function DF:NewImage (parent, texture, w, h, layer, coords, member, name)
 	if (coords and type (coords) == "table" and coords [4]) then
 		ImageObject.image:SetTexCoord (unpack (coords))
 	end
+	
+	ImageObject.HookList = {
+	}
 	
 	setmetatable (ImageObject, ImageMetaFunctions)
 	

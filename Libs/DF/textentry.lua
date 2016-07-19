@@ -16,9 +16,19 @@ local _string_len = string.len --> lua local
 
 local cleanfunction = function() end
 local APITextEntryFunctions = false
-local TextEntryMetaFunctions = {}
 
-DF.TextEntryCounter = 1
+do
+	local metaPrototype = {
+		WidgetType = "textentry",
+		SetHook = DF.SetHook,
+		RunHooksForWidget = DF.RunHooksForWidget,
+	}
+
+	_G [DF.GlobalWidgetControlNames ["textentry"]] = _G [DF.GlobalWidgetControlNames ["textentry"]] or metaPrototype
+end
+
+local TextEntryMetaFunctions = _G [DF.GlobalWidgetControlNames ["textentry"]]
+DF.TextEntryCounter = DF.TextEntryCounter or 1
 
 ------------------------------------------------------------------------------------------------------------
 --> metatables
@@ -51,17 +61,15 @@ DF.TextEntryCounter = 1
 		return _object.editbox:GetText()
 	end
 
-	local get_members_function_index = {
-		["tooltip"] = gmember_tooltip,
-		["shown"] = gmember_shown,
-		["width"] = gmember_width,
-		["height"] = gmember_height,
-		["text"] = gmember_text,
-	}
+	TextEntryMetaFunctions.GetMembers = TextEntryMetaFunctions.GetMembers or {}
+	TextEntryMetaFunctions.GetMembers ["tooltip"] = gmember_tooltip
+	TextEntryMetaFunctions.GetMembers ["shown"] = gmember_shown
+	TextEntryMetaFunctions.GetMembers ["width"] = gmember_width
+	TextEntryMetaFunctions.GetMembers ["height"] = gmember_height
+	TextEntryMetaFunctions.GetMembers ["text"] = gmember_text
 
 	TextEntryMetaFunctions.__index = function (_table, _member_requested)
-
-		local func = get_members_function_index [_member_requested]
+		local func = TextEntryMetaFunctions.GetMembers [_member_requested]
 		if (func) then
 			return func (_table, _member_requested)
 		end
@@ -121,19 +129,18 @@ DF.TextEntryCounter = 1
 		return _object.editbox:SetJustifyH (string.lower (_value))
 	end
 	
-	local set_members_function_index = {
-		["tooltip"] = smember_tooltip,
-		["show"] = smember_show,
-		["hide"] = smember_hide,
-		["width"] = smember_width,
-		["height"] = smember_height,
-		["text"] = smember_text,
-		["multiline"] = smember_multiline,
-		["align"] = smember_horizontalpos,
-	}
+	TextEntryMetaFunctions.SetMembers = TextEntryMetaFunctions.SetMembers or {}
+	TextEntryMetaFunctions.SetMembers ["tooltip"] = smember_tooltip
+	TextEntryMetaFunctions.SetMembers ["show"] = smember_show
+	TextEntryMetaFunctions.SetMembers ["hide"] = smember_hide
+	TextEntryMetaFunctions.SetMembers ["width"] = smember_width
+	TextEntryMetaFunctions.SetMembers ["height"] = smember_height
+	TextEntryMetaFunctions.SetMembers ["text"] = smember_text
+	TextEntryMetaFunctions.SetMembers ["multiline"] = smember_multiline
+	TextEntryMetaFunctions.SetMembers ["align"] = smember_horizontalpos
 	
 	TextEntryMetaFunctions.__newindex = function (_table, _key, _value)
-		local func = set_members_function_index [_key]
+		local func = TextEntryMetaFunctions.SetMembers [_key]
 		if (func) then
 			return func (_table, _value)
 		else
@@ -143,6 +150,21 @@ DF.TextEntryCounter = 1
 
 ------------------------------------------------------------------------------------------------------------
 --> methods
+	local cleanfunction = function()end
+	function TextEntryMetaFunctions:SetEnterFunction (func, param1, param2)
+		if (func) then
+			_rawset (self, "func", func)
+		else
+			_rawset (self, "func", cleanfunction)
+		end
+		
+		if (param1 ~= nil) then
+			_rawset (self, "param1", param1)
+		end
+		if (param2 ~= nil) then
+			_rawset (self, "param2", param2)
+		end
+	end
 
 --> set point
 	function TextEntryMetaFunctions:SetPoint (MyAnchor, SnapTo, HisAnchor, x, y, Width)
@@ -252,14 +274,6 @@ DF.TextEntryCounter = 1
 	end
 	
 --> hooks
-	function TextEntryMetaFunctions:SetHook (hookType, func)
-		if (func) then
-			_rawset (self, hookType.."Hook", func)
-		else
-			_rawset (self, hookType.."Hook", nil)
-		end
-	end
-	
 	function TextEntryMetaFunctions:Enable()
 		if (not self.editbox:IsEnabled()) then
 			self.editbox:Enable()
@@ -291,19 +305,19 @@ DF.TextEntryCounter = 1
 	end
 	
 ------------------------------------------------------------------------------------------------------------
---> scripts
-	local OnEnter = function (textentry)
+--> scripts and hooks
 
-		if (textentry.MyObject.OnEnterHook) then
-			local interrupt = textentry.MyObject.OnEnterHook (textentry)
-			if (interrupt) then
-				return
-			end
+	local OnEnter = function (textentry)
+		local capsule = textentry.MyObject
+		
+		local kill = capsule:RunHooksForWidget ("OnEnter", textentry, capsule)
+		if (kill) then
+			return
 		end
-	
-		if (textentry.MyObject.have_tooltip) then 
+
+		if (capsule.have_tooltip) then 
 			GameCooltip2:Preset (2)
-			GameCooltip2:AddLine (textentry.MyObject.have_tooltip)
+			GameCooltip2:AddLine (capsule.have_tooltip)
 			GameCooltip2:ShowCooltip (textentry, "tooltip")
 		end
 		
@@ -313,17 +327,16 @@ DF.TextEntryCounter = 1
 			textentry.current_bordercolor = textentry.current_bordercolor or {textentry:GetBackdropBorderColor()}
 			textentry:SetBackdropBorderColor (1, 1, 1, 1)
 		end
-		
 	end
 	
 	local OnLeave = function (textentry)
-		if (textentry.MyObject.OnLeaveHook) then
-			local interrupt = textentry.MyObject.OnLeaveHook (textentry)
-			if (interrupt) then
-				return
-			end
-		end
+		local capsule = textentry.MyObject
 	
+		local kill = capsule:RunHooksForWidget ("OnLeave", textentry, capsule)
+		if (kill) then
+			return
+		end
+
 		if (textentry.MyObject.have_tooltip) then 
 			GameCooltip2:ShowMe (false)
 		end
@@ -333,34 +346,32 @@ DF.TextEntryCounter = 1
 		if (textentry:IsEnabled()) then 
 			textentry:SetBackdropBorderColor (unpack (textentry.current_bordercolor))
 		end
-
 	end
 	
 	local OnHide = function (textentry)
-		if (textentry.MyObject.OnHideHook) then
-			local interrupt = textentry.MyObject.OnHideHook (textentry)
-			if (interrupt) then
-				return
-			end
+		local capsule = textentry.MyObject
+		
+		local kill = capsule:RunHooksForWidget ("OnHide", textentry, capsule)
+		if (kill) then
+			return
 		end
 	end
 	
 	local OnShow = function (textentry)
-		if (textentry.MyObject.OnShowHook) then
-			local interrupt = textentry.MyObject.OnShowHook (textentry)
-			if (interrupt) then
-				return
-			end
+		local capsule = textentry.MyObject
+		
+		local kill = capsule:RunHooksForWidget ("OnShow", textentry, capsule)
+		if (kill) then
+			return
 		end
 	end
 
-	local OnEnterPressed = function (textentry, byScript) 
+	local OnEnterPressed = function (textentry, byScript)
+		local capsule = textentry.MyObject
 	
-		if (textentry.MyObject.OnEnterPressedHook) then
-			local interrupt = textentry.MyObject.OnEnterPressedHook (textentry)
-			if (interrupt) then
-				return
-			end
+		local kill = capsule:RunHooksForWidget ("OnEnterPressed", textentry, capsule)
+		if (kill) then
+			return
 		end
 	
 		local texto = DF:trim (textentry:GetText())
@@ -373,38 +384,47 @@ DF.TextEntryCounter = 1
 			textentry:SetText ("")
 			textentry.MyObject.currenttext = ""
 		end
-		textentry.focuslost = true --> perdeu_focus isso aqui pra quando estiver editando e clicar em outra caixa
-		textentry:ClearFocus()
 		
-		if (textentry.MyObject.tab_on_enter and textentry.MyObject.next) then
-			textentry.MyObject.next:SetFocus()
+		if (not capsule.NoClearFocusOnEnterPressed) then
+			textentry.focuslost = true --> quando estiver editando e clicar em outra caixa
+			textentry:ClearFocus()
+			
+			if (textentry.MyObject.tab_on_enter and textentry.MyObject.next) then
+				textentry.MyObject.next:SetFocus()
+			end
 		end
 	end
 	
 	local OnEscapePressed = function (textentry)
+		local capsule = textentry.MyObject
 	
-		if (textentry.MyObject.OnEscapePressedHook) then
-			local interrupt = textentry.MyObject.OnEscapePressedHook (textentry)
-			if (interrupt) then
-				return
-			end
-		end
-	
-		--textentry:SetText("") 
-		--textentry.MyObject.currenttext = ""
+		local kill = capsule:RunHooksForWidget ("OnEscapePressed", textentry, capsule)
+		if (kill) then
+			return
+		end	
+
 		textentry.focuslost = true
 		textentry:ClearFocus() 
 	end
 	
+	local OnSpacePressed = function (textentry)
+		local capsule = textentry.MyObject
+		
+		local kill = capsule:RunHooksForWidget ("OnSpacePressed", textentry, capsule)
+		if (kill) then
+			return
+		end
+	end
+	
 	local OnEditFocusLost = function (textentry)
 
+		local capsule = textentry.MyObject
+	
 		if (textentry:IsShown()) then
 		
-			if (textentry.MyObject.OnEditFocusLostHook) then
-				local interrupt = textentry.MyObject.OnEditFocusLostHook (textentry)
-				if (interrupt) then
-					return
-				end
+			local kill = capsule:RunHooksForWidget ("OnEditFocusLost", textentry, capsule)
+			if (kill) then
+				return
 			end
 		
 			if (not textentry.focuslost) then
@@ -428,39 +448,42 @@ DF.TextEntryCounter = 1
 	end
 	
 	local OnEditFocusGained = function (textentry)
-		if (textentry.MyObject.OnEditFocusGainedHook) then
-			local interrupt = textentry.MyObject.OnEditFocusGainedHook (textentry)
-			if (interrupt) then
-				return
-			end
+	
+		local capsule = textentry.MyObject
+		
+		local kill = capsule:RunHooksForWidget ("OnEditFocusGained", textentry, capsule)
+		if (kill) then
+			return
 		end
+
 		textentry.MyObject.label:SetTextColor (1, 1, 1, 1)
 	end
 	
-	local OnChar = function (textentry, text) 
-		if (textentry.MyObject.OnCharHook) then
-			local interrupt = textentry.MyObject.OnCharHook (textentry, text)
-			if (interrupt) then
-				return
-			end
+	local OnChar = function (textentry, char)
+		local capsule = textentry.MyObject
+	
+		local kill = capsule:RunHooksForWidget ("OnChar", textentry, char, capsule)
+		if (kill) then
+			return
 		end
 	end
 	
 	local OnTextChanged = function (textentry, byUser) 
-		if (textentry.MyObject.OnTextChangedHook) then
-			local interrupt = textentry.MyObject.OnTextChangedHook (textentry, byUser)
-			if (interrupt) then
-				return
-			end
+		local capsule = textentry.MyObject
+		
+		local kill = capsule:RunHooksForWidget ("OnTextChanged", textentry, byUser, capsule)
+		if (kill) then
+			return
 		end
 	end
 	
 	local OnTabPressed = function (textentry) 
-		if (textentry.MyObject.OnTabPressedHook) then
-			local interrupt = textentry.MyObject.OnTabPressedHook (textentry, byUser)
-			if (interrupt) then
-				return
-			end
+	
+		local capsule = textentry.MyObject
+	
+		local kill = capsule:RunHooksForWidget ("OnTabPressed", textentry, byUser, capsule)
+		if (kill) then
+			return
 		end
 		
 		if (textentry.MyObject.next) then 
@@ -583,7 +606,7 @@ function DF:NewTextEntry (parent, container, name, member, w, h, func, param1, p
 		w = space
 	elseif (w and space) then
 		if (DF.debug) then
-			print ("warning: you are using width and space, try use only space for better results.")
+			--print ("warning: you are using width and space, try use only space for better results.")
 		end
 	end
 	
@@ -617,6 +640,22 @@ function DF:NewTextEntry (parent, container, name, member, w, h, func, param1, p
 	TextEntryObject.editbox:SetBackdrop ({bgFile = DF.folder .. "background", tileSize = 64, edgeFile = DF.folder .. "border_2", edgeSize = 10, insets = {left = 1, right = 1, top = 1, bottom = 1}})
 	
 	--> hooks
+	
+		TextEntryObject.HookList = {
+			OnEnter = {},
+			OnLeave = {},
+			OnHide = {},
+			OnShow = {},
+			OnEnterPressed = {},
+			OnEscapePressed = {},
+			OnSpacePressed = {},
+			OnEditFocusLost = {},
+			OnEditFocusGained = {},
+			OnChar = {},
+			OnTextChanged = {},
+			OnTabPressed = {},
+		}
+	
 		TextEntryObject.editbox:SetScript ("OnEnter", OnEnter)
 		TextEntryObject.editbox:SetScript ("OnLeave", OnLeave)
 		TextEntryObject.editbox:SetScript ("OnHide", OnHide)
@@ -624,6 +663,7 @@ function DF:NewTextEntry (parent, container, name, member, w, h, func, param1, p
 		
 		TextEntryObject.editbox:SetScript ("OnEnterPressed", OnEnterPressed)
 		TextEntryObject.editbox:SetScript ("OnEscapePressed", OnEscapePressed)
+		TextEntryObject.editbox:SetScript ("OnSpacePressed", OnSpacePressed)
 		TextEntryObject.editbox:SetScript ("OnEditFocusLost", OnEditFocusLost)
 		TextEntryObject.editbox:SetScript ("OnEditFocusGained", OnEditFocusGained)
 		TextEntryObject.editbox:SetScript ("OnChar", OnChar)
@@ -653,8 +693,8 @@ end
 function DF:NewSpellEntry (parent, func, w, h, param1, param2, member, name)
 	local editbox = DF:NewTextEntry (parent, parent, name, member, w, h, func, param1, param2)
 	
-	editbox:SetHook ("OnEditFocusGained", SpellEntryOnEditFocusGained)
-	editbox:SetHook ("OnTextChanged", SpellEntryOnTextChanged)
+--	editbox:SetHook ("OnEditFocusGained", SpellEntryOnEditFocusGained)
+--	editbox:SetHook ("OnTextChanged", SpellEntryOnTextChanged)
 	
 	return editbox	
 end
@@ -735,3 +775,274 @@ function DF:NewSpecialLuaEditorEntry (parent, w, h, member, name, nointent)
 	
 	return borderframe
 end
+
+
+------------------------------------------------------------------------------------
+--auto complete
+
+-- block -------------------
+--code author Saiket from  http://www.wowinterface.com/forums/showpost.php?p=245759&postcount=6
+--- @return StartPos, EndPos of highlight in this editbox.
+local function GetTextHighlight ( self )
+	local Text, Cursor = self:GetText(), self:GetCursorPosition();
+	self:Insert( "" ); -- Delete selected text
+	local TextNew, CursorNew = self:GetText(), self:GetCursorPosition();
+	-- Restore previous text
+	self:SetText( Text );
+	self:SetCursorPosition( Cursor );
+	local Start, End = CursorNew, #Text - ( #TextNew - CursorNew );
+	self:HighlightText( Start, End );
+	return Start, End;
+end
+local StripColors;
+do
+	local CursorPosition, CursorDelta;
+	--- Callback for gsub to remove unescaped codes.
+	local function StripCodeGsub ( Escapes, Code, End )
+		if ( #Escapes % 2 == 0 ) then -- Doesn't escape Code
+			if ( CursorPosition and CursorPosition >= End - 1 ) then
+				CursorDelta = CursorDelta - #Code;
+			end
+			return Escapes;
+		end
+	end
+	--- Removes a single escape sequence.
+	local function StripCode ( Pattern, Text, OldCursor )
+		CursorPosition, CursorDelta = OldCursor, 0;
+		return Text:gsub( Pattern, StripCodeGsub ), OldCursor and CursorPosition + CursorDelta;
+	end
+	--- Strips Text of all color escape sequences.
+	-- @param Cursor  Optional cursor position to keep track of.
+	-- @return Stripped text, and the updated cursor position if Cursor was given.
+	function StripColors ( Text, Cursor )
+		Text, Cursor = StripCode( "(|*)(|c%x%x%x%x%x%x%x%x)()", Text, Cursor );
+		return StripCode( "(|*)(|r)()", Text, Cursor );
+	end
+end
+
+local COLOR_END = "|r";
+--- Wraps this editbox's selected text with the given color.
+local function ColorSelection ( self, ColorCode )
+	local Start, End = GetTextHighlight( self );
+	local Text, Cursor = self:GetText(), self:GetCursorPosition();
+	if ( Start == End ) then -- Nothing selected
+		--Start, End = Cursor, Cursor; -- Wrap around cursor
+		return; -- Wrapping the cursor in a color code and hitting backspace crashes the client!
+	end
+	-- Find active color code at the end of the selection
+	local ActiveColor;
+	if ( End < #Text ) then -- There is text to color after the selection
+		local ActiveEnd;
+		local CodeEnd, _, Escapes, Color = 0;
+		while ( true ) do
+			_, CodeEnd, Escapes, Color = Text:find( "(|*)(|c%x%x%x%x%x%x%x%x)", CodeEnd + 1 );
+			if ( not CodeEnd or CodeEnd > End ) then
+				break;
+			end
+			if ( #Escapes % 2 == 0 ) then -- Doesn't escape Code
+				ActiveColor, ActiveEnd = Color, CodeEnd;
+			end
+		end
+
+		if ( ActiveColor ) then
+			-- Check if color gets terminated before selection ends
+			CodeEnd = 0;
+			while ( true ) do
+				_, CodeEnd, Escapes = Text:find( "(|*)|r", CodeEnd + 1 );
+				if ( not CodeEnd or CodeEnd > End ) then
+					break;
+				end
+				if ( CodeEnd > ActiveEnd and #Escapes % 2 == 0 ) then -- Terminates ActiveColor
+					ActiveColor = nil;
+					break;
+				end
+			end
+		end
+	end
+
+	local Selection = Text:sub( Start + 1, End );
+	-- Remove color codes from the selection
+	local Replacement, CursorReplacement = StripColors( Selection, Cursor - Start );
+
+	self:SetText( ( "" ):join(
+		Text:sub( 1, Start ),
+		ColorCode, Replacement, COLOR_END,
+		ActiveColor or "", Text:sub( End + 1 )
+	) );
+
+	-- Restore cursor and highlight, adjusting for wrapper text
+	Cursor = Start + CursorReplacement;
+	if ( CursorReplacement > 0 ) then -- Cursor beyond start of color code
+		Cursor = Cursor + #ColorCode;
+	end
+	if ( CursorReplacement >= #Replacement ) then -- Cursor beyond end of color
+		Cursor = Cursor + #COLOR_END;
+	end
+	
+	self:SetCursorPosition( Cursor );
+	-- Highlight selection and wrapper
+	self:HighlightText( Start, #ColorCode + ( #Replacement - #Selection ) + #COLOR_END + End );
+end
+-- end of the block ---------------------
+
+local get_last_word = function (self)
+	self.lastword = ""
+	local cursor_pos = self.editbox:GetCursorPosition()
+	local text = self.editbox:GetText()
+	for i = cursor_pos, 1, -1 do
+		local character = text:sub (i, i)
+		if (character:match ("%a")) then
+			self.lastword = character .. self.lastword
+		else
+			break
+		end
+	end
+end
+
+--On Text Changed
+local AutoComplete_OnTextChanged = function (editboxWidget, byUser, capsule)
+	capsule = capsule or editboxWidget.MyObject
+	
+	local chars_now = editboxWidget:GetText():len()
+	if (not editboxWidget.ignore_textchange) then
+		--> backspace
+		if (chars_now == capsule.characters_count -1) then
+			capsule.lastword = capsule.lastword:sub (1, capsule.lastword:len()-1)
+		--> delete lots of text
+		elseif (chars_now < capsule.characters_count) then
+			--o auto complete selecionou outra palavra bem menor e caiu nesse filtro
+			editboxWidget.end_selection = nil
+			capsule:GetLastWord()
+		end
+	else
+		editboxWidget.ignore_textchange = nil
+	end
+	capsule.characters_count = chars_now
+end
+
+local AutoComplete_OnSpacePressed = function (editboxWidget, capsule)
+	capsule = capsule or editboxWidget.MyObject
+
+--	if (not gotMatch) then
+		--editboxWidget.end_selection = nil
+--	end
+end
+
+local AutoComplete_OnEscapePressed = function (editboxWidget)
+	editboxWidget.end_selection = nil
+end
+
+local AutoComplete_OnEnterPressed = function (editboxWidget)
+
+	local capsule = editboxWidget.MyObject
+	if (editboxWidget.end_selection) then
+		editboxWidget:SetCursorPosition (editboxWidget.end_selection)
+		editboxWidget:HighlightText (0, 0)
+		editboxWidget.end_selection = nil
+		--editboxWidget:Insert (" ") --estava causando a adição de uma palavra a mais quando o próximo catactere for um espaço
+	else
+		if (editboxWidget:IsMultiLine()) then
+			editboxWidget:Insert ("\n")
+			--reseta a palavra se acabou de ganhar focus e apertou enter
+			if (editboxWidget.focusGained) then
+				capsule.lastword = ""
+				editboxWidget.focusGained = nil
+			end
+		else
+			editboxWidget:Insert ("")
+			editboxWidget.focuslost = true
+			editboxWidget:ClearFocus()
+		end
+	end
+	capsule.lastword = ""
+
+end
+
+local AutoComplete_OnEditFocusGained = function (editboxWidget)
+	local capsule = editboxWidget.MyObject
+	capsule:GetLastWord()
+	editboxWidget.end_selection = nil
+	editboxWidget.focusGained = true
+	capsule.characters_count = editboxWidget:GetText():len()	
+end
+
+local AutoComplete_OnChar = function (editboxWidget, char, capsule)
+	if (char == "") then
+		return
+	end
+	
+	capsule = capsule or editboxWidget.MyObject
+ 	editboxWidget.end_selection = nil
+	
+	if (editboxWidget.ignore_input) then
+		return
+	end
+	
+	--reseta a palavra se acabou de ganhar focus e apertou espaço
+	if (editboxWidget.focusGained and char == " ") then
+		capsule.lastword = ""
+		editboxWidget.focusGained = nil
+	else
+		editboxWidget.focusGained = nil
+	end
+	
+	if (char:match ("%a") or (char == " " and capsule.lastword ~= "")) then
+		capsule.lastword = capsule.lastword .. char
+	else
+		capsule.lastword = ""
+	end
+	
+	editboxWidget.ignore_input = true
+	if (capsule.lastword:len() >= 2) then
+	
+		local wordList = capsule [capsule.poolName]
+		if (not wordList) then
+			if (DF.debug) then
+				error ("Details! Framework: Invalid word list table.")
+			end
+			return
+		end
+	
+		for i = 1, #wordList do
+			local thisWord = wordList [i]
+			if (thisWord and (thisWord:find ("^" .. capsule.lastword) or thisWord:lower():find ("^" .. capsule.lastword))) then
+				local rest = thisWord:gsub (capsule.lastword, "")
+				rest = rest:lower():gsub (capsule.lastword, "")
+				local cursor_pos = editboxWidget:GetCursorPosition()
+				editboxWidget:Insert (rest)
+				editboxWidget:HighlightText (cursor_pos, cursor_pos + rest:len())
+				editboxWidget:SetCursorPosition (cursor_pos)
+				editboxWidget.end_selection = cursor_pos + rest:len()
+				editboxWidget.ignore_textchange = true
+				break
+			end
+		end
+	
+	end
+	editboxWidget.ignore_input = false
+end
+
+function TextEntryMetaFunctions:SetAsAutoComplete (poolName)
+	
+	self.lastword = ""
+	self.characters_count = 0
+	self.poolName = poolName
+	self.GetLastWord = get_last_word --editbox:GetLastWord()
+	self.NoClearFocusOnEnterPressed = true --avoid auto clear focus
+	
+	self:SetHook ("OnEditFocusGained", AutoComplete_OnEditFocusGained)
+	self.editbox:HookScript ("OnEscapePressed", AutoComplete_OnEscapePressed)
+	
+--	self:SetHook ("OnTextChanged", AutoComplete_OnTextChanged)
+	self:SetHook ("OnEnterPressed", AutoComplete_OnEnterPressed)
+--	self:SetHook ("OnChar", AutoComplete_OnChar)
+--	self:SetHook ("OnSpacePressed", AutoComplete_OnSpacePressed)
+	
+	self.editbox:SetScript ("OnTextChanged", AutoComplete_OnTextChanged)
+--	self.editbox:SetScript ("OnEnterPressed", AutoComplete_OnEnterPressed)
+	self.editbox:SetScript ("OnChar", AutoComplete_OnChar)
+	self.editbox:SetScript ("OnSpacePressed", AutoComplete_OnSpacePressed)
+
+end
+
+-- endp

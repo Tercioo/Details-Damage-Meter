@@ -3102,10 +3102,16 @@ local function CreateAlertFrame (baseframe, instancia)
 	local anim1 = animation:CreateAnimation ("ALPHA")
 	local anim2 = animation:CreateAnimation ("ALPHA")
 	anim1:SetOrder (1)
-	anim1:SetChange (1)
+	
+	anim1:SetFromAlpha (0)
+	anim1:SetToAlpha (1)
+	
 	anim1:SetDuration (0.1)
 	anim2:SetOrder (2)
-	anim2:SetChange (-1)
+	
+	anim1:SetFromAlpha (1)
+	anim1:SetToAlpha (0)
+	
 	anim2:SetDuration (0.2)
 	animation:SetScript ("OnFinished", function (self)
 		flash_texture:Hide()

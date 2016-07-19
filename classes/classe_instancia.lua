@@ -3249,7 +3249,11 @@ function _detalhes:envia_relatorio (linhas, custom)
 		channel = to_who:gsub ((".*|"), "")
 
 		for i = 1, #linhas do 
-			_SendChatMessage (linhas[i], "CHANNEL", nil, _GetChannelName (channel))
+			if (channel == "Trade") then
+				channel = "Trade - City"
+			end
+			local channelName = GetChannelName (channel)
+			_SendChatMessage (linhas[i], "CHANNEL", nil, channelName)
 		end
 		
 		return

@@ -330,6 +330,9 @@
 			end
 			
 --[[exported]]	function _detalhes:GetSpellLink (spellid)
+				if (_type (spellid) ~= "number") then
+					return spellid
+				end
 				if (spellid == 1) then --melee
 					return GetSpellLink (6603)
 				elseif (spellid == 2) then --autoshot
@@ -1426,6 +1429,9 @@
 			end
 			
 			local _, _, _, _, _, r, g, b = _detalhes:GetClass (t[1])
+			if (first == 0) then
+				first = 0.0000000001
+			end
 			GameCooltip:AddStatusBar (debuff_table.damage / first * 100, 1, r, g, b, 1, false, enemies_background)
 			--_detalhes:AddTooltipBackgroundStatusbar()
 		
@@ -2143,7 +2149,6 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 						qual_barra = qual_barra+1
 					end
 				end
-				
 				conteudo[myPos]:AtualizaBarra (instancia, barras_container, qual_barra, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
 				qual_barra = qual_barra+1
 			else
@@ -2169,6 +2174,7 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 			else
 				for i = instancia.barraS[1], instancia.barraS[2], 1 do 
 					if (conteudo[i]) then
+						
 						conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
 						qual_barra = qual_barra+1
 					end
@@ -2282,10 +2288,10 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 	
 	esta_barra.minha_tabela = self --> grava uma referência desse objeto na barra
 	self.minha_barra = esta_barra --> grava uma referência da barra no objeto
-	
+
 	esta_barra.colocacao = lugar --> salva na barra qual a colocação mostrada.
 	self.colocacao = lugar --> salva no objeto qual a colocação mostrada
-	
+
 	local damage_total = self.total --> total de dano que este jogador deu
 	local dps
 	
@@ -2332,7 +2338,6 @@ function atributo_damage:AtualizaBarra (instancia, barras_container, qual_barra,
 	-- >>>>>>>>>>>>>>> texto da direita
 
 	if (sub_atributo == 1) then --> mostrando damage done
-	
 		dps = _math_floor (dps)
 		local formated_damage = SelectedToKFunction (_, damage_total)
 		local formated_dps = SelectedToKFunction (_, dps)
@@ -2875,6 +2880,7 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 					else
 						GameCooltip:AddLine (nome_magia..": ", FormatTooltipNumber (_, _math_floor (SkillTable [3])) .." (".._cstr("%.1f", SkillTable [2]/ActorDamage*100).."%)")
 					end
+					
 					GameCooltip:AddIcon (icone_magia, nil, nil, icon_size.W, icon_size.H, icon_border.L, icon_border.R, icon_border.T, icon_border.B)
 					_detalhes:AddTooltipBackgroundStatusbar()
 				end

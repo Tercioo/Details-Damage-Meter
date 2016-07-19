@@ -795,7 +795,7 @@
 	local white_table = {1, 1, 1, 1}
 	local black_table = {0, 0, 0, 1}
 	local gray_table = {0.37, 0.37, 0.37, 0.95}
-
+	
 	local preset2_backdrop = {bgFile = [[Interface\AddOns\Details\images\background]], edgeFile = [[Interface\Buttons\WHITE8X8]], tile=true,
 	edgeSize = 1, tileSize = 64, insets = {left = 0, right = 0, top = 0, bottom = 0}}
 	_detalhes.cooltip_preset2_backdrop = preset2_backdrop
@@ -1722,7 +1722,7 @@
 			end
 			
 			local reset = gump:NewLabel (panel, panel, nil, nil, "|TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:" .. 20 .. ":" .. 20 .. ":0:1:512:512:8:70:328:409|t " .. Loc ["STRING_OPTIONS_CLASSCOLOR_RESET"])
-			reset:SetPoint ("bottomright", panel, "bottomright", -23, 38)
+			reset:SetPoint ("bottomright", panel, "bottomright", -23, 08)
 			local reset_texture = gump:CreateImage (panel, [[Interface\MONEYFRAME\UI-MONEYFRAME-BORDER]], 138, 45, "border")
 			reset_texture:SetPoint ("center", reset, "center", 0, -7)
 			reset_texture:SetDesaturated (true)

@@ -15,8 +15,19 @@ local _math_floor = math.floor --> lua local
 local loadstring = loadstring --> lua local
 
 local cleanfunction = function() end
-local PanelMetaFunctions = {}
 local APIFrameFunctions
+
+do
+	local metaPrototype = {
+		WidgetType = "panel",
+		SetHook = DF.SetHook,
+		RunHooksForWidget = DF.RunHooksForWidget,
+	}
+
+	_G [DF.GlobalWidgetControlNames ["panel"]] = _G [DF.GlobalWidgetControlNames ["panel"]] or metaPrototype
+end
+
+local PanelMetaFunctions = _G [DF.GlobalWidgetControlNames ["panel"]]
 
 ------------------------------------------------------------------------------------------------------------
 --> metatables
@@ -58,19 +69,18 @@ local APIFrameFunctions
 		return _rawget (_object, "is_locked")
 	end
 
-	local get_members_function_index = {
-		["tooltip"] = gmember_tooltip,
-		["shown"] = gmember_shown,
-		["color"] = gmember_color,
-		["backdrop"] = gmember_backdrop,
-		["width"] = gmember_width,
-		["height"] = gmember_height,
-		["locked"] = gmember_locked,
-	}
+	PanelMetaFunctions.GetMembers = PanelMetaFunctions.GetMembers or {}
+	PanelMetaFunctions.GetMembers ["tooltip"] = gmember_tooltip
+	PanelMetaFunctions.GetMembers ["shown"] = gmember_shown
+	PanelMetaFunctions.GetMembers ["color"] = gmember_color
+	PanelMetaFunctions.GetMembers ["backdrop"] = gmember_backdrop
+	PanelMetaFunctions.GetMembers ["width"] = gmember_width
+	PanelMetaFunctions.GetMembers ["height"] = gmember_height
+	PanelMetaFunctions.GetMembers ["locked"] = gmember_locked
 	
 	PanelMetaFunctions.__index = function (_table, _member_requested)
 
-		local func = get_members_function_index [_member_requested]
+		local func = PanelMetaFunctions.GetMembers [_member_requested]
 		if (func) then
 			return func (_table, _member_requested)
 		end
@@ -140,20 +150,19 @@ local APIFrameFunctions
 		return _rawset (_object, "rightButtonClose", _value)
 	end
 	
-	local set_members_function_index = {
-		["tooltip"] = smember_tooltip,
-		["show"] = smember_show,
-		["hide"] = smember_hide,
-		["color"] = smember_color,
-		["backdrop"] = smember_backdrop,
-		["width"] = smember_width,
-		["height"] = smember_height,
-		["locked"] = smember_locked,
-		["close_with_right"] = smember_right_close,
-	}
-	
+	PanelMetaFunctions.SetMembers = PanelMetaFunctions.SetMembers or {}
+	PanelMetaFunctions.SetMembers["tooltip"] = smember_tooltip
+	PanelMetaFunctions.SetMembers["show"] = smember_show
+	PanelMetaFunctions.SetMembers["hide"] = smember_hide
+	PanelMetaFunctions.SetMembers["color"] = smember_color
+	PanelMetaFunctions.SetMembers["backdrop"] = smember_backdrop
+	PanelMetaFunctions.SetMembers["width"] = smember_width
+	PanelMetaFunctions.SetMembers["height"] = smember_height
+	PanelMetaFunctions.SetMembers["locked"] = smember_locked
+	PanelMetaFunctions.SetMembers["close_with_right"] = smember_right_close
+
 	PanelMetaFunctions.__newindex = function (_table, _key, _value)
-		local func = set_members_function_index [_key]
+		local func = PanelMetaFunctions.SetMembers [_key]
 		if (func) then
 			return func (_table, _value)
 		else
@@ -309,24 +318,14 @@ local APIFrameFunctions
 		end
 	end
 
---> hooks
-	function PanelMetaFunctions:SetHook (hookType, func)
-		if (func) then
-			_rawset (self, hookType.."Hook", func)
-		else
-			_rawset (self, hookType.."Hook", nil)
-		end
-	end
-
 ------------------------------------------------------------------------------------------------------------
 --> scripts
 	
 	local OnEnter = function (frame)
-		if (frame.MyObject.OnEnterHook) then
-			local interrupt = frame.MyObject.OnEnterHook (frame, frame.MyObject)
-			if (interrupt) then
-				return
-			end
+		local capsule = frame.MyObject
+		local kill = capsule:RunHooksForWidget ("OnEnter", frame, capsule)
+		if (kill) then
+			return
 		end
 		
 		if (frame.MyObject.have_tooltip) then 
@@ -340,11 +339,10 @@ local APIFrameFunctions
 	end
 
 	local OnLeave = function (frame)
-		if (frame.MyObject.OnLeaveHook) then
-			local interrupt = frame.MyObject.OnLeaveHook (frame, frame.MyObject)
-			if (interrupt) then
-				return
-			end
+		local capsule = frame.MyObject
+		local kill = capsule:RunHooksForWidget ("OnLeave", frame, capsule)
+		if (kill) then
+			return
 		end
 		
 		if (frame.MyObject.have_tooltip) then 
@@ -354,29 +352,26 @@ local APIFrameFunctions
 	end
 	
 	local OnHide = function (frame)
-		if (frame.MyObject.OnHideHook) then
-			local interrupt = frame.MyObject.OnHideHook (frame, frame.MyObject)
-			if (interrupt) then
-				return
-			end
+		local capsule = frame.MyObject
+		local kill = capsule:RunHooksForWidget ("OnHide", frame, capsule)
+		if (kill) then
+			return
 		end
 	end
 	
 	local OnShow = function (frame)
-		if (frame.MyObject.OnShowHook) then
-			local interrupt = frame.MyObject.OnShowHook (frame, frame.MyObject)
-			if (interrupt) then
-				return
-			end
+		local capsule = frame.MyObject
+		local kill = capsule:RunHooksForWidget ("OnShow", frame, capsule)
+		if (kill) then
+			return
 		end
 	end
 	
 	local OnMouseDown = function (frame, button)
-		if (frame.MyObject.OnMouseDownHook) then
-			local interrupt = frame.MyObject.OnMouseDownHook (frame, button, frame.MyObject)
-			if (interrupt) then
-				return
-			end
+		local capsule = frame.MyObject
+		local kill = capsule:RunHooksForWidget ("OnMouseDown", frame, button, capsule)
+		if (kill) then
+			return
 		end
 		
 		if (frame.MyObject.container == UIParent) then
@@ -396,11 +391,10 @@ local APIFrameFunctions
 	end
 	
 	local OnMouseUp = function (frame, button)
-		if (frame.MyObject.OnMouseUpHook) then
-			local interrupt = frame.MyObject.OnMouseUpHook (frame, button, frame.MyObject)
-			if (interrupt) then
-				return
-			end
+		local capsule = frame.MyObject
+		local kill = capsule:RunHooksForWidget ("OnMouseUp", frame, button, capsule)
+		if (kill) then
+			return
 		end
 		
 		if (button == "RightButton" and frame.MyObject.rightButtonClose) then
@@ -456,15 +450,7 @@ function DF:NewPanel (parent, container, name, member, w, h, backdrop, backdropc
 		container = container.widget
 	end
 
-	
 	--> default members:
-		--> hooks
-		PanelObject.OnEnterHook = nil
-		PanelObject.OnLeaveHook = nil
-		PanelObject.OnHideHook = nil
-		PanelObject.OnShowHook = nil
-		PanelObject.OnMouseDownHook = nil
-		PanelObject.OnMouseUpHook = nil
 		--> misc
 		PanelObject.is_locked = true
 		PanelObject.container = container
@@ -490,6 +476,15 @@ function DF:NewPanel (parent, container, name, member, w, h, backdrop, backdropc
 	PanelObject.frame:SetHeight (h or 100)
 	
 	PanelObject.frame.MyObject = PanelObject
+	
+	PanelObject.HookList = {
+		OnEnter = {},
+		OnLeave = {},
+		OnHide = {},
+		OnShow = {},
+		OnMouseDown = {},
+		OnMouseUp = {},
+	}
 	
 	--> hooks
 		PanelObject.frame:SetScript ("OnEnter", OnEnter)
@@ -968,8 +963,13 @@ function DF:NewFillPanel (parent, rows, name, member, w, h, total_lines, fill_ro
 								iconwidget.line = index
 								iconwidget.index = real_index
 								
-								local result = results [index]:gsub (".-%\\", "")
-								iconwidget._icon.texture = results [index]
+								--print (index, results [index])
+								if (type (results [index]) == "string") then
+									local result = results [index]:gsub (".-%\\", "")
+									iconwidget._icon.texture = results [index]
+								else
+									iconwidget._icon:SetTexture (results [index])
+								end
 								
 								iconwidget:Show()
 							end
@@ -1494,8 +1494,27 @@ local SimplePanel_frame_backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], e
 local SimplePanel_frame_backdrop_color = {0, 0, 0, 0.9}
 local SimplePanel_frame_backdrop_border_color = {0, 0, 0, 1}
 
+function DF:CreateScaleBar (frame, config)
+	local scaleBar = DF:CreateSlider (frame, 120, 14, 0.6, 1.6, 0.1, config.scale, true, "ScaleBar", nil, "Scale:", DF:GetTemplate ("slider", "OPTIONS_SLIDER_TEMPLATE"), DF:GetTemplate ("font", "OPTIONS_FONT_TEMPLATE"))
+	scaleBar:SetPoint ("right", frame.Close, "left", -2, 0)
+	scaleBar:SetFrameLevel (DF.FRAMELEVEL_OVERLAY)
+	scaleBar.OnValueChanged = function (_, _, value)
+		config.scale = value
+		if (not scaleBar.IsValueChanging) then
+			frame:SetScale (config.scale)
+		end
+	end
+	scaleBar:SetHook ("OnMouseUp", function()
+		frame:SetScale (config.scale)
+	end)
+end
+
 local no_options = {}
-function DF:CreateSimplePanel (parent, w, h, title, name, panel_options)
+function DF:CreateSimplePanel (parent, w, h, title, name, panel_options, db)
+
+	if (db and name and not db [name]) then
+		db [name] = {scale = 1}
+	end
 	
 	if (not name) then
 		name = "DetailsFrameworkSimplePanel" .. DF.SimplePanelCounter
@@ -1533,6 +1552,7 @@ function DF:CreateSimplePanel (parent, w, h, title, name, panel_options)
 	f.TitleBar = title_bar
 	
 	local close = CreateFrame ("button", name and name .. "CloseButton", title_bar)
+	close:SetFrameLevel (DF.FRAMELEVEL_OVERLAY)
 	close:SetSize (16, 16)
 	close:SetNormalTexture (DF.folder .. "icons")
 	close:SetHighlightTexture (DF.folder .. "icons")
@@ -1548,6 +1568,11 @@ function DF:CreateSimplePanel (parent, w, h, title, name, panel_options)
 	title_string:SetTextColor (.8, .8, .8, 1)
 	title_string:SetText (title or "")
 	f.Title = title_string
+	
+	if (panel_options.UseScaleBar and db [name]) then
+		DF:CreateScaleBar (f, db [name])
+		f:SetScale (db [name].scale)
+	end
 	
 	f.Title:SetPoint ("center", title_bar, "center")
 	f.Close:SetPoint ("right", title_bar, "right", -2, 0)
@@ -2477,7 +2502,7 @@ local chart_panel_add_label = function (self, color, name, type, number)
 	thisbox.type = type
 	thisbox.index = number
 
-	thisbox.box:SetTexture (unpack (color))
+	thisbox.box:SetColorTexture (unpack (color))
 	thisbox.text:SetText (name)
 	
 	thisbox.check:Show()
@@ -2519,7 +2544,7 @@ local draw_overlay = function (self, this_overlay, overlayData, color)
 			this_block:SetWidth (pixel*5)
 		end
 		
-		this_block:SetTexture (r, g, b, 0.25)
+		this_block:SetColorTexture (r, g, b, 0.25)
 		this_block:Show()
 		
 		index = index + 1
@@ -2831,7 +2856,7 @@ function DF:CreateChartPanel (parent, w, h, name)
 	title:SetPoint ("topleft", f, "topleft", 110, -13)
 
 	local bottom_texture = DF:NewImage (f, nil, 702, 25, "background", nil, nil, "$parentBottomTexture")
-	bottom_texture:SetTexture (0, 0, 0, .6)
+	bottom_texture:SetColorTexture (0, 0, 0, .6)
 	bottom_texture:SetPoint ("bottomleft", f, "bottomleft", 8, 7)
 	bottom_texture:SetPoint ("bottomright", f, "bottomright", -8, 7)
 
@@ -2850,7 +2875,7 @@ function DF:CreateChartPanel (parent, w, h, name)
 		
 		local line = f:CreateTexture (nil, "border")
 		line:SetSize (1, h-45)
-		line:SetTexture (1, 1, 1, .1)
+		line:SetColorTexture (1, 1, 1, .1)
 		line:SetPoint ("bottomleft", time, "topright", 0, -10)
 		line:Hide()
 		time.line = line
@@ -2882,7 +2907,7 @@ function DF:CreateChartPanel (parent, w, h, name)
 	--div lines
 		for i = 1, 8, 1 do
 			local line = g:CreateTexture (nil, "overlay")
-			line:SetTexture (1, 1, 1, .2)
+			line:SetColorTexture (1, 1, 1, .2)
 			line:SetWidth (670)
 			line:SetHeight (1.1)
 		
@@ -2966,7 +2991,7 @@ local gframe_create_line = function (self)
 	t:SetWidth (1)
 	t:SetPoint ("topright", f, "topright")
 	t:SetPoint ("bottomright", f, "bottomright")
-	t:SetTexture (1, 1, 1, .1)
+	t:SetColorTexture (1, 1, 1, .1)
 	f.grid = t
 	
 	local b = f:CreateTexture (nil, "overlay")
@@ -3081,3 +3106,234 @@ function DF:CreateGFrame (parent, w, h, linewidth, onenter, onleave, member, nam
 	
 	return f
 end
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- ~buttoncontainer
+
+function DF:CreateButtonContainer (parent, name)
+	local f = CreateFrame ("frame", name, parent)
+--	f.
+end
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> options tabs and buttons -dot
+
+function DF:FindHighestParent (self)
+	local f
+	if (self:GetParent() == UIParent) then
+		f = self
+	end
+	if (not f) then
+		f = self
+		for i = 1, 6 do
+			local parent = f:GetParent()
+			if (parent == UIParent) then
+				break
+			else
+				f = parent
+			end
+		end
+	end
+	
+	return f
+end
+
+DF.TabContainerFunctions = {}
+
+local button_tab_template = DF.table.copy ({}, DF:GetTemplate ("button", "OPTIONS_BUTTON_TEMPLATE"))
+button_tab_template.backdropbordercolor = nil
+
+DF.TabContainerFunctions.CreateUnderlineGlow = function (button)
+	local selectedGlow = button:CreateTexture (nil, "background", -4)
+	selectedGlow:SetPoint ("topleft", button.widget, "bottomleft", -7, 0)
+	selectedGlow:SetPoint ("topright", button.widget, "bottomright", 7, 0)
+	selectedGlow:SetTexture ([[Interface\BUTTONS\UI-Panel-Button-Glow]])
+	selectedGlow:SetTexCoord (0, 95/128, 30/64, 38/64)
+	selectedGlow:SetBlendMode ("ADD")
+	selectedGlow:SetHeight (8)
+	selectedGlow:SetAlpha (.75)
+	selectedGlow:Hide()
+	button.selectedUnderlineGlow = selectedGlow
+end
+
+DF.TabContainerFunctions.OnMouseDown = function (self, button)
+	--> search for UIParent
+	local f = DF:FindHighestParent (self)
+	local container = self:GetParent()
+	
+	if (button == "LeftButton") then
+		if (not f.IsMoving and f:IsMovable()) then
+			f:StartMoving()
+			f.IsMoving = true
+		end
+	elseif (button == "RightButton") then
+		if (not f.IsMoving and container.IsContainer) then
+			if (self.IsFrontPage) then
+				if (container.CanCloseWithRightClick) then
+					if (f.CloseFunction) then
+						f:CloseFunction()
+					else
+						f:Hide()
+					end
+				end
+			else
+				--goes back to front page
+				DF.TabContainerFunctions.SelectIndex (self, _, 1)
+			end
+		end
+	end
+end
+
+DF.TabContainerFunctions.OnMouseUp = function (self, button)
+	local f = DF:FindHighestParent (self)
+	if (f.IsMoving) then
+		f:StopMovingOrSizing()
+		f.IsMoving = false
+	end
+end
+
+DF.TabContainerFunctions.SelectIndex = function (self, fixedParam, menuIndex)
+	local mainFrame = self.AllFrames and self or self.mainFrame or self:GetParent()
+	
+	for i = 1, #mainFrame.AllFrames do
+		mainFrame.AllFrames[i]:Hide()
+		if (mainFrame.ButtonNotSelectedBorderColor) then
+			mainFrame.AllButtons[i]:SetBackdropBorderColor (unpack (mainFrame.ButtonNotSelectedBorderColor))
+		end
+		if (mainFrame.AllButtons[i].selectedUnderlineGlow) then
+			mainFrame.AllButtons[i].selectedUnderlineGlow:Hide()
+		end
+	end
+	
+	mainFrame.AllFrames[menuIndex]:Show()
+	if (mainFrame.ButtonSelectedBorderColor) then
+		mainFrame.AllButtons[menuIndex]:SetBackdropBorderColor (unpack (mainFrame.ButtonSelectedBorderColor))
+	end
+	if (mainFrame.AllButtons[menuIndex].selectedUnderlineGlow) then
+		mainFrame.AllButtons[menuIndex].selectedUnderlineGlow:Show()
+	end
+	mainFrame.CurrentIndex = menuIndex
+end
+
+DF.TabContainerFunctions.SetIndex = function (self, index)
+	self.CurrentIndex = index
+end
+
+local tab_container_on_show = function (self)
+	local index = self.CurrentIndex
+	self.SelectIndex (self.AllButtons[index], nil, index)
+end
+
+function DF:CreateTabContainer (parent, title, frame_name, frame_list, options_table)
+	
+	local options_text_template = DF:GetTemplate ("font", "OPTIONS_FONT_TEMPLATE")
+	local options_dropdown_template = DF:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE")
+	local options_switch_template = DF:GetTemplate ("switch", "OPTIONS_CHECKBOX_TEMPLATE")
+	local options_slider_template = DF:GetTemplate ("slider", "OPTIONS_SLIDER_TEMPLATE")
+	local options_button_template = DF:GetTemplate ("button", "OPTIONS_BUTTON_TEMPLATE")
+	
+	options_table = options_table or {}
+	local frame_width = parent:GetWidth()
+	local frame_height = parent:GetHeight()
+	local y_offset = options_table.y_offset or 0
+	local button_width = options_table.button_width or 160
+	local button_height = options_table.button_height or 20
+	local button_anchor_x = options_table.button_x or 230
+	local button_anchor_y = options_table.button_y or -32
+	local button_text_size = options_table.button_text_size or 10
+	
+	local mainFrame = CreateFrame ("frame", frame_name, parent.widget or parent)
+	mainFrame:SetAllPoints()
+	DF:Mixin (mainFrame, DF.TabContainerFunctions)
+	
+	local mainTitle = DF:CreateLabel (mainFrame, title, 24, "white")
+	mainTitle:SetPoint ("topleft", mainFrame, "topleft", 10, -30 + y_offset)
+	
+	mainFrame:SetFrameLevel (200)
+	
+	mainFrame.AllFrames = {}
+	mainFrame.AllButtons = {}
+	mainFrame.CurrentIndex = 1
+	mainFrame.IsContainer = true
+	mainFrame.ButtonSelectedBorderColor = options_table.button_selected_border_color or {1, 1, 0, 1}
+	mainFrame.ButtonNotSelectedBorderColor = options_table.button_border_color or {0, 0, 0, 0}
+	
+	if (options_table.right_click_interact ~= nil) then
+		mainFrame.CanCloseWithRightClick = options_table.right_click_interact
+	else
+		mainFrame.CanCloseWithRightClick = true
+	end
+	
+	for i, frame in ipairs (frame_list) do
+		local f = CreateFrame ("frame", "$parent" .. frame.name, mainFrame)
+		f:SetAllPoints()
+		f:SetFrameLevel (210)
+		f:Hide()
+		
+		local title = DF:CreateLabel (f, frame.title, 16, "silver")
+		title:SetPoint ("topleft", mainTitle, "bottomleft", 0, 0)
+		
+		local tabButton = DF:CreateButton (mainFrame, DF.TabContainerFunctions.SelectIndex, button_width, button_height, frame.title, i, nil, nil, nil, nil, false, button_tab_template)
+		tabButton:SetFrameLevel (220)
+		tabButton.textsize = button_text_size
+		tabButton.mainFrame = mainFrame
+		DF.TabContainerFunctions.CreateUnderlineGlow (tabButton)
+		
+		if (i == 1) then
+			local right_click_to_back = DF:CreateLabel (f, "right click to close", 10, "gray")
+			right_click_to_back:SetPoint ("bottomright", f, "bottomright", -1, 0)
+			f.IsFrontPage = true
+		else
+			local right_click_to_back = DF:CreateLabel (f, "right click to go back to main menu", 10, "gray")
+			right_click_to_back:SetPoint ("bottomright", f, "bottomright", -1, 0)
+		end
+		
+		f:SetScript ("OnMouseDown", DF.TabContainerFunctions.OnMouseDown)
+		f:SetScript ("OnMouseUp", DF.TabContainerFunctions.OnMouseUp)
+		
+		tinsert (mainFrame.AllFrames, f)
+		tinsert (mainFrame.AllButtons, tabButton)
+	end
+	
+	--order buttons
+	local x = button_anchor_x
+	local y = button_anchor_y
+	local space_for_buttons = frame_width - (#frame_list*3) - button_anchor_x
+	local amount_buttons_per_row = floor (space_for_buttons / button_width)
+	local last_button = mainFrame.AllButtons[1]
+	
+	mainFrame.AllButtons[1]:SetPoint ("topleft", mainTitle, "topleft", x, y)
+	x = x + button_width + 2
+	
+	for i = 2, #mainFrame.AllButtons do
+		local button = mainFrame.AllButtons [i]
+		button:SetPoint ("topleft", mainTitle, "topleft", x, y)
+		x = x + button_width + 2
+		
+		if (i % amount_buttons_per_row == 0) then
+			x = button_anchor_x
+			y = y - button_height - 1
+		end
+	end
+	
+	--> when show the frame, reset to the current internal index
+	mainFrame:SetScript ("OnShow", tab_container_on_show)
+	--> select the first frame
+	mainFrame.SelectIndex (mainFrame.AllButtons[1], nil, 1)
+
+	return mainFrame
+end
+
+
+
+
+
+
+
+
+
+
+
+

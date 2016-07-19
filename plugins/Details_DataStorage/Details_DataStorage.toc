@@ -1,4 +1,4 @@
-## Interface: 60200
+## Interface: 70000
 ## Title: Details Storage
 ## Notes: Stores information for Details!
 ## DefaultState: Enabled

@@ -4,7 +4,7 @@
 -- NickTag:SetNickname (name) -> set the player nick name, after set nicktag will broadcast the nick over addon guild channel.
 -- 
 
-local major, minor = "NickTag-1.0", 7
+local major, minor = "NickTag-1.0", 8
 local NickTag, oldminor = LibStub:NewLibrary (major, minor)
 
 if (not NickTag) then 
@@ -474,7 +474,9 @@ end
 			if (NickTag.debug) then
 				NickTag:Msg ("SendRevision() -> SENT")
 			end
-			NickTag:SendCommMessage ("NickTag", NickTag:Serialize (CONST_COMM_LOGONREVISION, battlegroup_serial, myPersona [CONST_INDEX_REVISION], UnitName ("player"), GetRealmName(), minor), "GUILD")
+			if (IsInGuild()) then
+				NickTag:SendCommMessage ("NickTag", NickTag:Serialize (CONST_COMM_LOGONREVISION, battlegroup_serial, myPersona [CONST_INDEX_REVISION], UnitName ("player"), GetRealmName(), minor), "GUILD")
+			end
 		end
 	end
 	
@@ -483,7 +485,9 @@ end
 		if (NickTag.debug) then
 			NickTag:Msg ("RequestPersona() -> requesting of " .. target)
 		end
-		NickTag:SendCommMessage ("NickTag", NickTag:Serialize (CONST_COMM_REQUESTPERSONA, 0, 0, UnitName ("player"), GetRealmName(), minor), "WHISPER", target)
+		if (IsInGuild()) then
+			NickTag:SendCommMessage ("NickTag", NickTag:Serialize (CONST_COMM_REQUESTPERSONA, 0, 0, UnitName ("player"), GetRealmName(), minor), "WHISPER", target)
+		end
 	end
 
 	--> this broadcast my persona to entire guild when i update my persona or send my persona to someone who doesn't have it or need to update.
@@ -506,14 +510,18 @@ end
 		
 		if (target) then
 			--> was requested
-			NickTag:SendCommMessage ("NickTag", NickTag:Serialize (CONST_COMM_FULLPERSONA, battlegroup_serial, NickTag:GetNicknameTable (battlegroup_serial), minor), "WHISPER", target)
+			if (IsInGuild()) then
+				NickTag:SendCommMessage ("NickTag", NickTag:Serialize (CONST_COMM_FULLPERSONA, battlegroup_serial, NickTag:GetNicknameTable (battlegroup_serial), minor), "WHISPER", target)
+			end
 		else
 			--> updating my own persona
 			NickTag.send_scheduled = false
 			--> need to increase 1 revision
 			NickTag:IncRevision()
 			--> broadcast over guild channel
-			NickTag:SendCommMessage ("NickTag", NickTag:Serialize (CONST_COMM_FULLPERSONA, battlegroup_serial, NickTag:GetNicknameTable (battlegroup_serial), minor), "GUILD")
+			if (IsInGuild()) then
+				NickTag:SendCommMessage ("NickTag", NickTag:Serialize (CONST_COMM_FULLPERSONA, battlegroup_serial, NickTag:GetNicknameTable (battlegroup_serial), minor), "GUILD")
+			end
 		end
 	end
 

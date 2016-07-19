@@ -17,6 +17,41 @@ do
 	}
 	
 	_detalhes.SpecSpellList = {
+	
+		--demonhunter shared
+--		[185123] = ??, -- "Throw Glaive"
+--		[196718] = ??, -- "Darkness"
+--		[183752] = ??, -- "Consume Magic"
+--		[131347] = ??, -- "Glide"
+--		[200166] = ??, -- "Metamorphosis"
+
+		-- havoc demon hunter --577
+		[198793] = 577, -- "Vengeful Retreat"
+		[162243] = 577, -- "Demon's Bite"
+		[213241] = 577, -- "Felblade"
+		[213243] = 577, -- "Felblade"
+		[179057] = 577, -- "Chaos Nova"
+		[188499] = 577, -- "Blade Dance"
+		[198013] = 577, -- "Eye Beam"
+		[201467] = 577, -- "Fury of the Illidari"
+		[178963] = 577, -- "Consume Soul"
+		[162794] = 577, -- "Chaos Strike"
+		[211881] = 577, -- "Fel Eruption"
+		[201427] = 577, -- "Annihilation"
+		[210152] = 577, -- "Death Sweep"
+	
+		-- vengeance demon hunter --581
+		[203782] = 581, -- "Shear"
+		[203720] = 581, -- "Demon Spikes"
+		[218256] = 581, -- "Empower Wards"
+		[203798] = 581, -- "Soul Cleave"
+		[202137] = 581, -- "Sigil of Silence"
+		[204490] = 581, -- "Sigil of Silence"
+		[204596] = 581, -- "Sigil of Flame"
+		[204598] = 581, -- "Sigil of Flame"
+		[204021] = 581, -- "Fiery Brand"
+		[202138] = 581, -- "Sigil of Chains"
+		[207407] = 581, -- "Soul Carver"
 
 		-- Unholy Death Knight:
 		[165395] = 252, -- Necrosis

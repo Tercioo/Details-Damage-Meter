@@ -146,13 +146,13 @@
 	--> DAMAGE 	serach key: ~damage											|
 -----------------------------------------------------------------------------------------------------------------------------------------
 
-	function parser:swing (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand, multistrike)
-		return parser:spell_dmg (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, 1, "Corpo-a-Corpo", 00000001, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand, multistrike) --> localize-me
+	function parser:swing (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand)
+		return parser:spell_dmg (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, 1, "Corpo-a-Corpo", 00000001, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand) --> localize-me
 																		--spellid, spellname, spelltype
 	end
 
-	function parser:range (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand, multistrike)
-		return parser:spell_dmg (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, 2, "Tiro-Automático", 00000001, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand, multistrike)  --> localize-me
+	function parser:range (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand)
+		return parser:spell_dmg (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, 2, "Tiro-Automático", 00000001, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand)  --> localize-me
 																		--spellid, spellname, spelltype
 	end
 
@@ -165,7 +165,7 @@
 
 --	/run local f=CreateFrame("frame");f:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED");f:SetScript("OnEvent",function(self, ...) local a = select(3, ...);print (a);if (a=="SPELL_CAST_SUCCESS")then print (...) end end)
 	
-	function parser:spell_dmg (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand, multistrike)
+	function parser:spell_dmg (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand)
 
 	------------------------------------------------------------------------------------------------
 	--> early checks and fixes
@@ -208,7 +208,7 @@
 		
 		--> spirit link toten
 		if (spellid == 98021) then
-			return parser:SLT_damage (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand, multistrike)
+			return parser:SLT_damage (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand)
 		end
 		
 		if (soul_capacitor [who_serial]) then
@@ -539,6 +539,10 @@
 			end
 		
 			--> faz a adição do friendly fire
+			--if (not amount) then
+				--print ("No AMOUNT")
+				--print (token, who_name, who_flags, alvo_name, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand)
+			--end
 			este_jogador.friendlyfire_total = este_jogador.friendlyfire_total + amount
 			
 			local friend = este_jogador.friendlyfire [alvo_name] or este_jogador:CreateFFTable (alvo_name)
@@ -611,10 +615,10 @@
 			end
 		end
 		
-		return spell_damage_func (spell, alvo_serial, alvo_name, alvo_flags, amount, who_name, resisted, blocked, absorbed, critical, glacing, token, multistrike, isoffhand)
+		return spell_damage_func (spell, alvo_serial, alvo_name, alvo_flags, amount, who_name, resisted, blocked, absorbed, critical, glacing, token, isoffhand)
 	end
 
-	function parser:SLT_damage (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand, multistrike)
+	function parser:SLT_damage (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand)
 		
 		--> damager
 		local este_jogador, meu_dono = damage_cache [who_serial] or damage_cache_pets [who_serial] or damage_cache [who_name], damage_cache_petsOwners [who_serial]
@@ -721,16 +725,16 @@
 	end
 	
 	--function parser:swingmissed (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, missType, isOffHand, amountMissed)
-	function parser:swingmissed (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, missType, isOffHand, multistrike, amountMissed) --, isOffHand, multistrike, amountMissed, arg1
-		return parser:missed (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, 1, "Corpo-a-Corpo", 00000001, missType, isOffHand, multistrike, amountMissed) --, isOffHand, multistrike, amountMissed, arg1
+	function parser:swingmissed (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, missType, isOffHand, amountMissed) --, isOffHand, amountMissed, arg1
+		return parser:missed (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, 1, "Corpo-a-Corpo", 00000001, missType, isOffHand, amountMissed) --, isOffHand, amountMissed, arg1
 	end
 
-	function parser:rangemissed (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, missType, isOffHand, multistrike, amountMissed) --, isOffHand, multistrike, amountMissed, arg1
-		return parser:missed (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, 2, "Tiro-Automático", 00000001, missType, isOffHand, multistrike, amountMissed) --, isOffHand, multistrike, amountMissed, arg1
+	function parser:rangemissed (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, missType, isOffHand, amountMissed) --, isOffHand, amountMissed, arg1
+		return parser:missed (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, 2, "Tiro-Automático", 00000001, missType, isOffHand, amountMissed) --, isOffHand, amountMissed, arg1
 	end
 
 	-- ~miss
-	function parser:missed (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, missType, isOffHand, multistrike, amountMissed, arg1)
+	function parser:missed (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, missType, isOffHand, amountMissed, arg1)
 
 	------------------------------------------------------------------------------------------------
 	--> early checks and fixes
@@ -748,7 +752,7 @@
 	
 	------------------------------------------------------------------------------------------------
 	--> get actors
-		--print ("MISS", "|", missType, "|", isOffHand, "|", multistrike, "|", amountMissed, "|", arg1)
+		--print ("MISS", "|", missType, "|", isOffHand, "|", amountMissed, "|", arg1)
 		
 		--> 'misser'
 		local este_jogador = damage_cache [who_serial]
@@ -813,13 +817,13 @@
 		if (missType == "ABSORB") then
 		
 			if (token == "SWING_MISSED") then
-				return parser:swing ("SWING_DAMAGE", time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, amountMissed, -1, 1, nil, nil, nil, false, false, false, false, multistrike)
+				return parser:swing ("SWING_DAMAGE", time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, amountMissed, -1, 1, nil, nil, nil, false, false, false, false)
 				
 			elseif (token == "RANGE_MISSED") then
-				return parser:range ("RANGE_DAMAGE", time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, amountMissed, -1, 1, nil, nil, nil, false, false, false, false, multistrike)
+				return parser:range ("RANGE_DAMAGE", time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, amountMissed, -1, 1, nil, nil, nil, false, false, false, false)
 				
 			else
-				return parser:spell_dmg (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, amountMissed, -1, 1, nil, nil, nil, false, false, false, false, multistrike)
+				return parser:spell_dmg (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, amountMissed, -1, 1, nil, nil, nil, false, false, false, false)
 				
 			end
 		
@@ -955,7 +959,7 @@
 		
 	end
 
-	function parser:heal (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, amount, overhealing, absorbed, critical, multistrike, is_shield)
+	function parser:heal (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, amount, overhealing, absorbed, critical, is_shield)
 	
 	------------------------------------------------------------------------------------------------
 	--> early checks and fixes
@@ -985,7 +989,7 @@
 		
 		--> spirit link toten
 		if (spellid == 98021) then
-			return parser:SLT_healing (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amount, overhealing, absorbed, critical, multistrike, is_shield)
+			return parser:SLT_healing (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amount, overhealing, absorbed, critical, is_shield)
 		end
 		
 		--[[statistics]]-- _detalhes.statistics.heal_calls = _detalhes.statistics.heal_calls + 1
@@ -1163,14 +1167,14 @@
 		
 		if (is_shield) then
 			--return spell:Add (alvo_serial, alvo_name, alvo_flags, cura_efetiva, who_name, 0, 		  nil, 	     overhealing, true)
-			return spell_heal_func (spell, alvo_serial, alvo_name, alvo_flags, cura_efetiva, who_name, 0, 		  nil, 	     overhealing, true, multistrike)
+			return spell_heal_func (spell, alvo_serial, alvo_name, alvo_flags, cura_efetiva, who_name, 0, 		  nil, 	     overhealing, true)
 		else
 			--return spell:Add (alvo_serial, alvo_name, alvo_flags, cura_efetiva, who_name, absorbed, critical, overhealing)
-			return spell_heal_func (spell, alvo_serial, alvo_name, alvo_flags, cura_efetiva, who_name, absorbed, critical, overhealing, nil, multistrike)
+			return spell_heal_func (spell, alvo_serial, alvo_name, alvo_flags, cura_efetiva, who_name, absorbed, critical, overhealing)
 		end
 	end
 
-	function parser:SLT_healing (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amount, overhealing, absorbed, critical, multistrike, is_shield)
+	function parser:SLT_healing (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amount, overhealing, absorbed, critical, is_shield)
 	
 	--> get actors
 		local este_jogador, meu_dono = healing_cache [who_name]
@@ -1224,7 +1228,7 @@
 			spell.neutral = true
 		end
 		
-		return spell_heal_func (spell, alvo_serial, alvo_name, alvo_flags, absorbed + amount - overhealing, who_name, absorbed, critical, overhealing, nil, multistrike)
+		return spell_heal_func (spell, alvo_serial, alvo_name, alvo_flags, absorbed + amount - overhealing, who_name, absorbed, critical, overhealing, nil)
 	end
 	
 -----------------------------------------------------------------------------------------------------------------------------------------
@@ -1883,6 +1887,26 @@
 	--> ENERGY	serach key: ~energy												|
 -----------------------------------------------------------------------------------------------------------------------------------------
 
+--SPELL_POWER_MANA = 0;
+--SPELL_POWER_RAGE = 1;
+SPELL_POWER_FOCUS = 2;
+--SPELL_POWER_ENERGY = 3;
+--SPELL_POWER_COMBO_POINTS = 4;
+--SPELL_POWER_RUNES = 5;
+--SPELL_POWER_RUNIC_POWER = 6;
+--SPELL_POWER_SOUL_SHARDS = 7;
+--SPELL_POWER_LUNAR_POWER = 8;
+--SPELL_POWER_HOLY_POWER = 9;
+SPELL_POWER_ALTERNATE_POWER = 10;
+--SPELL_POWER_MAELSTROM = 11;
+--SPELL_POWER_CHI = 12;
+--SPELL_POWER_INSANITY = 13;
+SPELL_POWER_OBSOLETE = 14;
+SPELL_POWER_OBSOLETE2 = 15;
+--SPELL_POWER_ARCANE_CHARGES = 16;
+--SPELL_POWER_FURY = 17;
+--SPELL_POWER_PAIN = 18;
+
 	local energy_types = {
 		[SPELL_POWER_MANA] = true,
 		[SPELL_POWER_RAGE] = true,
@@ -1891,45 +1915,60 @@
 	}
 	
 	local resource_types = {
-		[SPELL_POWER_DEMONIC_FURY] = true, --warlock demonology
-		[SPELL_POWER_BURNING_EMBERS] = true, --warlock destruction
-		[SPELL_POWER_SHADOW_ORBS] = true, --shadow priest
+		[SPELL_POWER_INSANITY] = true, --shadow priest
 		[SPELL_POWER_CHI] = true, --monk
 		[SPELL_POWER_HOLY_POWER] = true, --paladins
-		[SPELL_POWER_ECLIPSE] = true, --balance druids
+		[SPELL_POWER_LUNAR_POWER] = true, --balance druids
 		[SPELL_POWER_SOUL_SHARDS] = true, --warlock affliction
-		[4] = true, --combo points
+		[SPELL_POWER_COMBO_POINTS] = true, --combo points
+		[SPELL_POWER_MAELSTROM] = true, --shamans
+		[SPELL_POWER_PAIN] = true, --demonhuinter
+		[SPELL_POWER_RUNES] = true, --dk
+		[SPELL_POWER_ARCANE_CHARGES] = true, --mage
+		[SPELL_POWER_FURY] = true, --warrior
 	}
 	
 	local resource_power_type = {
-		[4] = SPELL_POWER_ENERGY, --combo points
-		[SPELL_POWER_SOUL_SHARDS] = SPELL_POWER_MANA,
-		[SPELL_POWER_ECLIPSE] = SPELL_POWER_MANA,
-		[SPELL_POWER_HOLY_POWER] = SPELL_POWER_MANA,
-		[SPELL_POWER_SHADOW_ORBS] = SPELL_POWER_MANA,
-		[SPELL_POWER_DEMONIC_FURY] = SPELL_POWER_MANA,
-		[SPELL_POWER_BURNING_EMBERS] = SPELL_POWER_MANA,
+		[SPELL_POWER_COMBO_POINTS] = SPELL_POWER_ENERGY, --combo points
+		[SPELL_POWER_SOUL_SHARDS] = SPELL_POWER_MANA, --warlock
+		[SPELL_POWER_LUNAR_POWER] = SPELL_POWER_MANA, --druid
+		[SPELL_POWER_HOLY_POWER] = SPELL_POWER_MANA, --paladin
+		[SPELL_POWER_INSANITY] = SPELL_POWER_MANA, --shadowpriest
+		[SPELL_POWER_MAELSTROM] = SPELL_POWER_MANA, --shaman
+		[SPELL_POWER_CHI] = SPELL_POWER_MANA, --monk
+		[SPELL_POWER_PAIN] = SPELL_POWER_ENERGY, --demonhuinter
+		[SPELL_POWER_RUNES] = SPELL_POWER_RUNIC_POWER, --dk
+		[SPELL_POWER_ARCANE_CHARGES] = SPELL_POWER_MANA, --mage
+		[SPELL_POWER_FURY] = SPELL_POWER_RAGE, --warrioor
 	}
 	
 	_detalhes.resource_strings = {
-		[4] = "Combo Point",
+		[SPELL_POWER_COMBO_POINTS] = "Combo Point",
 		[SPELL_POWER_SOUL_SHARDS] = "Soul Shard",
-		[SPELL_POWER_ECLIPSE] = "Eclipse",
+		[SPELL_POWER_LUNAR_POWER] = "Lunar Power",
 		[SPELL_POWER_HOLY_POWER] = "Holy Power",
-		[SPELL_POWER_SHADOW_ORBS] = "Shadow Orb",
-		[SPELL_POWER_DEMONIC_FURY] = "Demonic Fury",
-		[SPELL_POWER_BURNING_EMBERS] = "Burning Embers",
+		[SPELL_POWER_INSANITY] = "Insanity",
+		[SPELL_POWER_MAELSTROM] = "Maelstrom",
+		[SPELL_POWER_CHI] = "Chi",
+		[SPELL_POWER_PAIN] = "Pain",
+		[SPELL_POWER_RUNES] = "Runes",
+		[SPELL_POWER_ARCANE_CHARGES] = "Arcane Charge",
+		[SPELL_POWER_FURY] = "Rage",
 	}
 	
 	_detalhes.resource_icons = {
-		[4] = {file = [[Interface\CHARACTERFRAME\ComboPoint]], coords = {1/32, 18/32, 1/16, 14/16}},
-		[SPELL_POWER_SOUL_SHARDS] = {file = [[Interface\PLAYERFRAME\UI-WARLOCKSHARD]], coords = {2/64, 2/64, 17/128, 16/128}},
-		[SPELL_POWER_ECLIPSE] = {file = [[Interface\PLAYERFRAME\DruidEclipse]], coords = {117/256, 138/256, 72/128, 113/128}},
+		[SPELL_POWER_COMBO_POINTS] = {file = [[Interface\PLAYERFRAME\ClassOverlayComboPoints]], coords = {58/128, 74/128, 25/64, 39/64}},
+		[SPELL_POWER_SOUL_SHARDS] = {file = [[Interface\PLAYERFRAME\UI-WARLOCKSHARD]], coords = {3/64, 17/64, 2/128, 16/128}},
+		[SPELL_POWER_LUNAR_POWER] = {file = [[Interface\PLAYERFRAME\DruidEclipse]], coords = {117/256, 140/256, 83/128, 115/128}},
 		[SPELL_POWER_HOLY_POWER] = {file = [[Interface\PLAYERFRAME\PALADINPOWERTEXTURES]], coords = {75/256, 94/256, 87/128, 100/128}},
-		[SPELL_POWER_SHADOW_ORBS] = {file = [[Interface\PLAYERFRAME\Priest-ShadowUI]], coords = {119/256, 150/256, 61/128, 94/128}},
-		[SPELL_POWER_DEMONIC_FURY] = {file = [[Interface\PLAYERFRAME\Warlock-DemonologyUI]], coords = {76/256, 109/256, 90/256, 104/256}},
-		[SPELL_POWER_BURNING_EMBERS] = {file = [[Interface\PLAYERFRAME\Warlock-DestructionUI]], coords = {3/256, 33/256, 23/64, 52/64}}
-		}
+		[SPELL_POWER_INSANITY] = {file = [[Interface\PLAYERFRAME\Priest-ShadowUI]], coords = {119/256, 150/256, 61/128, 94/128}},
+		[SPELL_POWER_MAELSTROM] = {file = [[Interface\PLAYERFRAME\MonkNoPower]], coords = {0, 1, 0, 1}},
+		[SPELL_POWER_CHI] = {file = [[Interface\PLAYERFRAME\MonkLightPower]], coords = {0, 1, 0, 1}},
+		[SPELL_POWER_PAIN] = {file = [[Interface\PLAYERFRAME\Deathknight-Energize-Blood]], coords = {0, 1, 0, 1}},
+		[SPELL_POWER_RUNES] = {file = [[Interface\PLAYERFRAME\UI-PlayerFrame-Deathknight-SingleRune]], coords = {0, 1, 0, 1}},
+		[SPELL_POWER_ARCANE_CHARGES] = {file = [[Interface\PLAYERFRAME\MageArcaneCharges]], coords = {68/256, 90/256, 68/128, 91/128}},
+		[SPELL_POWER_FURY] = {file = [[Interface\PLAYERFRAME\UI-PlayerFrame-Deathknight-Blood-On]], coords = {0, 1, 0, 1}},
+	}
 
 	function parser:energize (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, amount, powertype, p6, p7)
 
@@ -3507,7 +3546,8 @@
 			_detalhes:Msg ("(debug) found a timer.")
 		end
 	
-		if (C_Scenario.IsChallengeMode() and _detalhes.overall_clear_newchallenge) then
+		--if (C_Scenario.IsChallengeMode() and _detalhes.overall_clear_newchallenge) then
+		if (_detalhes.overall_clear_newchallenge) then --C_Scenario.IsChallengeMode() and  parece que não existe mais
 			_detalhes.historico:resetar_overall()
 			if (_detalhes.debug) then
 				_detalhes:Msg ("(debug) timer is a challenge mode start.")
@@ -3713,6 +3753,10 @@
 	function _detalhes:OnParserEvent (evento, time, token, hidding, who_serial, who_name, who_flags, who_flags2, alvo_serial, alvo_name, alvo_flags, alvo_flags2, ...)
 		local funcao = token_list [token]
 
+--		if (token == "COMBATANT_INFO") then
+--			print ("COMBATANT_INFO", evento, time, token, hidding, who_serial, who_name, who_flags, who_flags2, alvo_serial, alvo_name, alvo_flags, alvo_flags2)
+--		end
+		
 --		if (who_name == "Ditador") then
 --			print (token, alvo_name, ...)
 --		end

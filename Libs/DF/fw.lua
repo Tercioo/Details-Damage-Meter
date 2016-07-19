@@ -1,5 +1,5 @@
 
-local dversion = 19
+local dversion = 22
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary (major, minor)
 
@@ -29,6 +29,9 @@ DF.ButtonCounter = DF.ButtonCounter or init_counter
 DF.SliderCounter = DF.SliderCounter or init_counter
 DF.SwitchCounter = DF.SwitchCounter or init_counter
 DF.SplitBarCounter = DF.SplitBarCounter or init_counter
+
+DF.FRAMELEVEL_OVERLAY = 750
+DF.FRAMELEVEL_BACKGROUND = 150
 
 DF.FrameWorkVersion = tostring (dversion)
 function DF:PrintVersion()
@@ -104,12 +107,19 @@ local embed_functions = {
 	"InstallTemplate",
 	"GetFrameworkFolder",
 	"ShowPanicWarning",
+	"SetFrameworkDebugState",
+	"FindHighestParent",
+	"OpenInterfaceProfile",
 }
 
 DF.table = {}
 
 function DF:GetFrameworkFolder()
 	return DF.folder
+end
+
+function DF:SetFrameworkDebugState (state)
+	DF.debug = state
 end
 
 function DF:FadeFrame (frame, t)
@@ -332,11 +342,13 @@ function DF:CreateFlashAnimation (frame, onFinishFunc, onLoopFunc)
 	
 	FlashAnimation.fadeOut = FlashAnimation:CreateAnimation ("Alpha") --> fade out anime
 	FlashAnimation.fadeOut:SetOrder (1)
-	FlashAnimation.fadeOut:SetChange (1)
+	FlashAnimation.fadeOut:SetFromAlpha (0)
+	FlashAnimation.fadeOut:SetToAlpha (1)
 	
 	FlashAnimation.fadeIn = FlashAnimation:CreateAnimation ("Alpha") --> fade in anime
 	FlashAnimation.fadeIn:SetOrder (2)
-	FlashAnimation.fadeIn:SetChange (-1)
+	FlashAnimation.fadeIn:SetFromAlpha (1)
+	FlashAnimation.fadeIn:SetToAlpha (0)
 	
 	frame.FlashAnimation = FlashAnimation
 	FlashAnimation.frame = frame
@@ -473,6 +485,8 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> menus
 	
+	local disable_on_combat = {}
+	
 	function DF:BuildMenu (parent, menu, x_offset, y_offset, height, use_two_points, text_template, dropdown_template, switch_template, switch_is_box, slider_template, button_template)
 		
 		if (not parent.widget_list) then
@@ -487,6 +501,8 @@ end
 		height = height*-1
 		
 		for index, widget_table in ipairs (menu) do 
+		
+			local widget_created
 		
 			if (widget_table.type == "blank" or widget_table.type == "space") then
 				-- do nothing
@@ -513,6 +529,7 @@ end
 				end
 				
 				tinsert (parent.widget_list, dropdown)
+				widget_created = dropdown
 				
 			elseif (widget_table.type == "toggle" or widget_table.type == "switch") then
 				local switch = DF:NewSwitch (parent, nil, "$parentWidget" .. index, nil, 60, 20, nil, nil, widget_table.get(), nil, nil, nil, nil, switch_template)
@@ -535,6 +552,7 @@ end
 				end
 				
 				tinsert (parent.widget_list, switch)
+				widget_created = switch
 				
 			elseif (widget_table.type == "range" or widget_table.type == "slider") then
 				local is_decimanls = widget_table.usedecimals
@@ -554,6 +572,7 @@ end
 				end
 				
 				tinsert (parent.widget_list, slider)
+				widget_created = slider
 				
 			elseif (widget_table.type == "color" or widget_table.type == "color") then
 				local colorpick = DF:NewColorPickButton (parent, "$parentWidget" .. index, nil, widget_table.set, nil, button_template)
@@ -578,6 +597,7 @@ end
 				end
 				
 				tinsert (parent.widget_list, colorpick)
+				widget_created = colorpick
 				
 			elseif (widget_table.type == "execute" or widget_table.type == "button") then
 			
@@ -596,7 +616,12 @@ end
 				end
 				
 				tinsert (parent.widget_list, button)
+				widget_created = button
 				
+			end
+			
+			if (widget_table.nocombat) then
+				tinsert (disable_on_combat, widget_created)
 			end
 		
 			if (widget_table.spacement) then
@@ -605,16 +630,59 @@ end
 				cur_y = cur_y - 20
 			end
 			
-			if (cur_y < height) then
+			if (widget_table.type == "breakline" or cur_y < height) then
 				cur_y = y_offset
 				cur_x = cur_x + max_x + 30
-				
 				max_x = 0
 			end
 		
 		end
 		
+		DF.RefreshUnsafeOptionsWidgets()
+		
 	end
+	
+	local lock_notsafe_widgets = function()
+		for _, widget in ipairs (disable_on_combat) do
+			widget:Disable()
+		end
+	end
+	local unlock_notsafe_widgets = function()
+		for _, widget in ipairs (disable_on_combat) do
+			widget:Enable()
+		end
+	end
+	function DF.RefreshUnsafeOptionsWidgets()
+		if (DF.PlayerHasCombatFlag) then
+			lock_notsafe_widgets()
+		else
+			unlock_notsafe_widgets()
+		end
+	end
+	DF.PlayerHasCombatFlag = false
+	local ProtectCombatFrame = CreateFrame ("frame")
+	ProtectCombatFrame:RegisterEvent ("PLAYER_REGEN_ENABLED")
+	ProtectCombatFrame:RegisterEvent ("PLAYER_REGEN_DISABLED")
+	ProtectCombatFrame:RegisterEvent ("PLAYER_ENTERING_WORLD")
+	ProtectCombatFrame:SetScript ("OnEvent", function (self, event)
+		if (event == "PLAYER_ENTERING_WORLD") then
+			if (InCombatLockdown()) then
+				DF.PlayerHasCombatFlag = true
+			else
+				DF.PlayerHasCombatFlag = false
+			end
+			DF.RefreshUnsafeOptionsWidgets()
+			
+		elseif (event == "PLAYER_REGEN_ENABLED") then
+			DF.PlayerHasCombatFlag = false
+			DF.RefreshUnsafeOptionsWidgets()
+			
+		elseif (event == "PLAYER_REGEN_DISABLED") then
+			DF.PlayerHasCombatFlag = true
+			DF.RefreshUnsafeOptionsWidgets()
+			
+		end
+	end)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> tutorials
@@ -921,4 +989,140 @@ function DF.GetParentName (frame)
 		error ("Details! FrameWork: called $parent but parent was no name.", 2)
 	end
 	return parentName
+end
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> widget scripts and hooks
+
+function DF:RunHooksForWidget (event, ...)
+	local hooks = self.HookList [event]
+	
+	if (not hooks) then
+		print (self.widget:GetName(), "sem hook para", event)
+		return
+	end
+	
+	for i, func in ipairs (hooks) do
+		local success, canInterrupt = pcall (func, ...)
+		if (not success) then
+			error ("Details! Framework: " .. event .. " hook for " .. self:GetName() .. ": " .. canInterrupt)
+		elseif (canInterrupt) then
+			return true
+		end
+	end
+end
+
+function DF:SetHook (hookType, func)
+	if (self.HookList [hookType]) then
+		if (type (func) == "function") then
+			local isRemoval = false
+			for i = #self.HookList [hookType], 1, -1 do
+				if (self.HookList [hookType] [i] == func) then
+					tremove (self.HookList [hookType], i)
+					isRemoval = true
+					break
+				end
+			end
+			if (not isRemoval) then
+				tinsert (self.HookList [hookType], func)
+			end
+		else 
+			if (DF.debug) then
+				error ("Details! Framework: invalid function for widget " .. self.WidgetType .. ".")
+			end
+		end
+	else
+		if (DF.debug) then
+			error ("Details! Framework: unknown hook type for widget " .. self.WidgetType .. ": '" .. hookType .. "'.")
+		end
+	end
+end
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--> members
+
+DF.GlobalWidgetControlNames = {
+	textentry = "DF_TextEntryMetaFunctions",
+	button = "DF_ButtonMetaFunctions",
+	panel = "DF_PanelMetaFunctions",
+	dropdown = "DF_DropdownMetaFunctions",
+	label = "DF_LabelMetaFunctions",
+	normal_bar = "DF_NormalBarMetaFunctions",
+	image = "DF_ImageMetaFunctions",
+	slider = "DF_SliderMetaFunctions",
+	split_bar = "DF_SplitBarMetaFunctions",
+}
+
+function DF:AddMemberForWidget (widgetName, memberType, memberName, func)
+	if (DF.GlobalWidgetControlNames [widgetName]) then
+		if (type (memberName) == "string" and (memberType == "SET" or memberType == "GET")) then
+			if (func) then
+				local widgetControlObject = _G [DF.GlobalWidgetControlNames [widgetName]]
+				
+				if (memberType == "SET") then
+					widgetControlObject ["SetMembers"] [memberName] = func
+				elseif (memberType == "GET") then
+					widgetControlObject ["GetMembers"] [memberName] = func
+				end
+			else
+				if (DF.debug) then
+					error ("Details! Framework: AddMemberForWidget invalid function.")
+				end
+			end
+		else
+			if (DF.debug) then
+				error ("Details! Framework: AddMemberForWidget unknown memberName or memberType.")
+			end
+		end
+	else
+		if (DF.debug) then
+			error ("Details! Framework: AddMemberForWidget unknown widget type: " .. (widgetName or "") .. ".")
+		end
+	end
+end
+
+-----------------------------
+
+function DF:OpenInterfaceProfile()
+	InterfaceOptionsFrame_OpenToCategory (self.__name)
+	InterfaceOptionsFrame_OpenToCategory (self.__name)
+	for i = 1, 100 do
+		local button = _G ["InterfaceOptionsFrameAddOnsButton" .. i]
+		if (button) then
+			local text = _G ["InterfaceOptionsFrameAddOnsButton" .. i .. "Text"]
+			if (text) then
+				text = text:GetText()
+				if (text == self.__name) then
+					local toggle = _G ["InterfaceOptionsFrameAddOnsButton" .. i .. "Toggle"]
+					if (toggle) then
+						if (toggle:GetNormalTexture():GetTexture():find ("PlusButton")) then
+							--is minimized, need expand
+							toggle:Click()
+							_G ["InterfaceOptionsFrameAddOnsButton" .. i+1]:Click()
+						elseif (toggle:GetNormalTexture():GetTexture():find ("MinusButton")) then
+							--isn't minimized
+							_G ["InterfaceOptionsFrameAddOnsButton" .. i+1]:Click()
+						end
+					end
+					break
+				end
+			end
+		else
+			self:Msg ("Couldn't not find the profile panel.")
+			break
+		end
+	end
+end
+
+-----------------------------
+--safe copy from blizz api
+function DF:Mixin (object, ...)
+	for i = 1, select("#", ...) do
+		local mixin = select(i, ...);
+		for k, v in pairs(mixin) do
+			object[k] = v;
+		end
+	end
+
+	return object;
 end

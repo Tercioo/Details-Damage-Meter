@@ -1727,7 +1727,6 @@
 			local name_textentry = fw:CreateTextEntry (f, _detalhes.empty_function, 150, 20, "AuraName", "$parentAuraName")
 			name_textentry:SetPoint ("left", name_label, "right", 2, 0)
 			f.name = name_textentry
-			f.entry_name = name_textentry
 			
 			--aura type
 			local on_select_aura_type = function (_, _, aura_type)

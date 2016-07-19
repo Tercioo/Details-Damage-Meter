@@ -16,7 +16,18 @@ local loadstring = loadstring --> lua local
 
 local cleanfunction = function() end
 local APIButtonFunctions = false
-local ButtonMetaFunctions = {}
+
+do
+	local metaPrototype = {
+		WidgetType = "button",
+		SetHook = DF.SetHook,
+		RunHooksForWidget = DF.RunHooksForWidget,
+	}
+
+	_G [DF.GlobalWidgetControlNames ["button"]] = _G [DF.GlobalWidgetControlNames ["button"]] or metaPrototype
+end
+
+local ButtonMetaFunctions = _G [DF.GlobalWidgetControlNames ["button"]]
 
 ------------------------------------------------------------------------------------------------------------
 --> metatables
@@ -75,26 +86,25 @@ local ButtonMetaFunctions = {}
 		return _rawget (_object, "is_locked")
 	end
 
-	local get_members_function_index = {
-		["tooltip"] = gmember_tooltip,
-		["shown"] = gmember_shown,
-		["width"] = gmember_width,
-		["height"] = gmember_height,
-		["text"] = gmember_text,
-		["clickfunction"] = gmember_function,
-		["texture"] = gmember_texture,
-		["locked"] = gmember_locked,
-		["fontcolor"] = gmember_textcolor,
-		["fontface"] = gmember_textfont,
-		["fontsize"] = gmember_textsize,
-		["textcolor"] = gmember_textcolor, --alias
-		["textfont"] = gmember_textfont, --alias
-		["textsize"] = gmember_textsize --alias
-	}
+	ButtonMetaFunctions.GetMembers = ButtonMetaFunctions.GetMembers or {}
+	ButtonMetaFunctions.GetMembers ["tooltip"] = gmember_tooltip
+	ButtonMetaFunctions.GetMembers ["shown"] = gmember_shown
+	ButtonMetaFunctions.GetMembers ["width"] = gmember_width
+	ButtonMetaFunctions.GetMembers ["height"] = gmember_height
+	ButtonMetaFunctions.GetMembers ["text"] = gmember_text
+	ButtonMetaFunctions.GetMembers ["clickfunction"] = gmember_function
+	ButtonMetaFunctions.GetMembers ["texture"] = gmember_texture
+	ButtonMetaFunctions.GetMembers ["locked"] = gmember_locked
+	ButtonMetaFunctions.GetMembers ["fontcolor"] = gmember_textcolor
+	ButtonMetaFunctions.GetMembers ["fontface"] = gmember_textfont
+	ButtonMetaFunctions.GetMembers ["fontsize"] = gmember_textsize
+	ButtonMetaFunctions.GetMembers ["textcolor"] = gmember_textcolor --alias
+	ButtonMetaFunctions.GetMembers ["textfont"] = gmember_textfont --alias
+	ButtonMetaFunctions.GetMembers ["textsize"] = gmember_textsize --alias	
 
 	ButtonMetaFunctions.__index = function (_table, _member_requested)
 
-		local func = get_members_function_index [_member_requested]
+		local func = ButtonMetaFunctions.GetMembers [_member_requested]
 		if (func) then
 			return func (_table, _member_requested)
 		end
@@ -206,25 +216,24 @@ local ButtonMetaFunctions = {}
 			_object.capsule_textalign = "right"
 		end
 	end
-
-	local set_members_function_index = {
-		["tooltip"] = smember_tooltip,
-		["show"] = smember_show,
-		["hide"] = smember_hide,
-		["width"] = smember_width,
-		["height"] = smember_height,
-		["text"] = smember_text,
-		["clickfunction"] = smember_function,
-		["textcolor"] = smember_textcolor,
-		["textfont"] = smember_textfont,
-		["textsize"] = smember_textsize,
-		["texture"] = smember_texture,
-		["locked"] = smember_locked,
-		["textalign"] = smember_textalign,
-	}
+	
+	ButtonMetaFunctions.SetMembers = ButtonMetaFunctions.SetMembers or {}
+	ButtonMetaFunctions.SetMembers ["tooltip"] = smember_tooltip
+	ButtonMetaFunctions.SetMembers ["show"] = smember_show
+	ButtonMetaFunctions.SetMembers ["hide"] = smember_hide
+	ButtonMetaFunctions.SetMembers ["width"] = smember_width
+	ButtonMetaFunctions.SetMembers ["height"] = smember_height
+	ButtonMetaFunctions.SetMembers ["text"] = smember_text
+	ButtonMetaFunctions.SetMembers ["clickfunction"] = smember_function
+	ButtonMetaFunctions.SetMembers ["textcolor"] = smember_textcolor
+	ButtonMetaFunctions.SetMembers ["textfont"] = smember_textfont
+	ButtonMetaFunctions.SetMembers ["textsize"] = smember_textsize
+	ButtonMetaFunctions.SetMembers ["texture"] = smember_texture
+	ButtonMetaFunctions.SetMembers ["locked"] = smember_locked
+	ButtonMetaFunctions.SetMembers ["textalign"] = smember_textalign
 	
 	ButtonMetaFunctions.__newindex = function (_table, _key, _value)
-		local func = set_members_function_index [_key]
+		local func = ButtonMetaFunctions.SetMembers [_key]
 		if (func) then
 			return func (_table, _value)
 		else
@@ -473,15 +482,6 @@ local ButtonMetaFunctions = {}
 		return self.funcright()
 	end
 
---> hooks
-	function ButtonMetaFunctions:SetHook (hookType, func)
-		if (func) then
-			_rawset (self, hookType.."Hook", func)
-		else
-			_rawset (self, hookType.."Hook", nil)
-		end
-	end
-
 --> custom textures
 	function ButtonMetaFunctions:InstallCustomTexture (texture, rect, coords, use_split, side_textures, side_textures2)
 	
@@ -587,6 +587,8 @@ local ButtonMetaFunctions = {}
 
 	local OnEnter = function (button)
 
+		local capsule = button.MyObject
+
 		if (button.textureTopLeft) then
 			button.textureLeft:SetTexCoord (0, 4/128, 40/128, 56/128)
 			button.textureRight:SetTexCoord (124/128, 1, 40/128, 56/128)
@@ -598,12 +600,10 @@ local ButtonMetaFunctions = {}
 			button.textureBottomLeft:SetTexCoord (0, 8/128, 56/128, 64/128)
 			button.textureBottomRight:SetTexCoord (120/128, 1, 56/128, 64/128)
 		end
-	
-		if (button.MyObject.OnEnterHook) then
-			local interrupt = button.MyObject.OnEnterHook (button, button.MyObject)
-			if (interrupt) then
-				return
-			end
+		
+		local kill = capsule:RunHooksForWidget ("OnEnter", button, capsule)
+		if (kill) then
+			return
 		end
 
 		button.MyObject.is_mouse_over = true
@@ -637,6 +637,8 @@ local ButtonMetaFunctions = {}
 	
 	local OnLeave = function (button)
 	
+		local capsule = button.MyObject
+		
 		if (button.textureLeft and not button.MyObject.is_mouse_down) then
 			button.textureLeft:SetTexCoord (0, 4/128, 9/128, 24/128)
 			button.textureRight:SetTexCoord (124/128, 1, 9/128, 24/128)
@@ -648,12 +650,10 @@ local ButtonMetaFunctions = {}
 			button.textureBottomLeft:SetTexCoord (0, 8/128, 24/128, 32/128)
 			button.textureBottomRight:SetTexCoord (120/128, 1, 24/128, 32/128)
 		end
-	
-		if (button.MyObject.OnLeaveHook) then
-			local interrupt = button.MyObject.OnLeaveHook (button, button.MyObject)
-			if (interrupt) then
-				return
-			end
+		
+		local kill = capsule:RunHooksForWidget ("OnLeave", button, capsule)
+		if (kill) then
+			return
 		end
 		
 		button.MyObject.is_mouse_over = false
@@ -682,27 +682,27 @@ local ButtonMetaFunctions = {}
 	end
 	
 	local OnHide = function (button)
-		if (button.MyObject.OnHideHook) then
-			local interrupt = button.MyObject.OnHideHook (button, button.MyObject)
-			if (interrupt) then
-				return
-			end
+		local capsule = button.MyObject
+		local kill = capsule:RunHooksForWidget ("OnHide", button, capsule)
+		if (kill) then
+			return
 		end
 	end
 	
 	local OnShow = function (button)
-		if (button.MyObject.OnShowHook) then
-			local interrupt = button.MyObject.OnShowHook (button, button.MyObject)
-			if (interrupt) then
-				return
-			end
+		local capsule = button.MyObject
+		local kill = capsule:RunHooksForWidget ("OnShow", button, capsule)
+		if (kill) then
+			return
 		end
 	end
 	
 	local OnMouseDown = function (button, buttontype)
+		local capsule = button.MyObject
+		
 		if (not button:IsEnabled()) then
 			return
-		end
+		end		
 		
 		if (button.textureTopLeft) then
 			button.textureLeft:SetTexCoord (0, 4/128, 72/128, 88/128)
@@ -715,12 +715,10 @@ local ButtonMetaFunctions = {}
 			button.textureBottomLeft:SetTexCoord (0, 8/128, 88/128, 96/128)
 			button.textureBottomRight:SetTexCoord (120/128, 1, 88/128, 96/128)
 		end
-		
-		if (button.MyObject.OnMouseDownHook) then
-			local interrupt = button.MyObject.OnMouseDownHook (button, buttontype, button.MyObject)
-			if (interrupt) then
-				return
-			end
+
+		local kill = capsule:RunHooksForWidget ("OnMouseDown", button, capsule)
+		if (kill) then
+			return
 		end
 		
 		button.MyObject.is_mouse_down = true
@@ -803,11 +801,10 @@ local ButtonMetaFunctions = {}
 			end
 		end
 		
-		if (button.MyObject.OnMouseUpHook) then
-			local interrupt = button.MyObject.OnMouseUpHook (button, buttontype, button.MyObject)
-			if (interrupt) then
-				return
-			end
+		local capsule = button.MyObject
+		local kill = capsule:RunHooksForWidget ("OnMouseUp", button, capsule)
+		if (kill) then
+			return
 		end
 		
 		button.MyObject.is_mouse_down = false
@@ -957,19 +954,9 @@ function DF:NewButton (parent, container, name, member, w, h, func, param1, para
 	end
 	
 	--> default members:
-		--> hooks
-		ButtonObject.OnEnterHook = nil
-		ButtonObject.OnLeaveHook = nil
-		ButtonObject.OnHideHook = nil
-		ButtonObject.OnShowHook = nil
-		ButtonObject.OnMouseDownHook = nil
-		ButtonObject.OnMouseUpHook = nil
-		--> misc
 		ButtonObject.is_locked = true
 		ButtonObject.container = container
-		ButtonObject.have_tooltip = nil
 		ButtonObject.options = {OnGrab = false}
-
 
 	ButtonObject.button = CreateFrame ("button", name, parent, "DetailsFrameworkButtonTemplate")
 	ButtonObject.widget = ButtonObject.button
@@ -1006,12 +993,15 @@ function DF:NewButton (parent, container, name, member, w, h, func, param1, para
 	
 	ButtonObject.button.text:SetText (text)
 	ButtonObject.button.text:SetPoint ("center", ButtonObject.button, "center")
-	
+
 	local text_width = ButtonObject.button.text:GetStringWidth()
 	if (text_width > w-15 and ButtonObject.button.text:GetText() ~= "") then
-		if (not short_method) then
+		if (short_method == false) then --> if is false, do not use auto resize
+			--do nothing
+		elseif (not short_method) then --> if the value is omitted, use the default resize
 			local new_width = text_width+15
 			ButtonObject.button:SetWidth (new_width)
+			
 		elseif (short_method == 1) then
 			local loop = true
 			local textsize = 11
@@ -1051,6 +1041,15 @@ function DF:NewButton (parent, container, name, member, w, h, func, param1, para
 	end
 	
 	--> hooks
+		ButtonObject.HookList = {
+			OnEnter = {},
+			OnLeave = {},
+			OnHide = {},
+			OnShow = {},
+			OnMouseDown = {},
+			OnMouseUp = {},
+		}
+	
 		ButtonObject.button:SetScript ("OnEnter", OnEnter)
 		ButtonObject.button:SetScript ("OnLeave", OnLeave)
 		ButtonObject.button:SetScript ("OnHide", OnHide)
@@ -1119,7 +1118,7 @@ function DF:NewColorPickButton (parent, name, member, callback, alpha, button_te
 	
 	--textura da cor
 	local img = DF:NewImage (button, nil, color_button_width, color_button_height, nil, nil, "color_texture", "$parentTex")
-	img:SetTexture (1, 1, 1)
+	img:SetColorTexture (1, 1, 1)
 	img:SetPoint ("topleft", button.widget, "topleft", 1, -2)
 	img:SetPoint ("bottomright", button.widget, "bottomright", -1, 1)
 	img:SetDrawLayer ("background", 2)
