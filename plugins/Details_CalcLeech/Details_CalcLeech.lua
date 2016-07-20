@@ -11,7 +11,7 @@ do
 
 	--> minimal details version required to run this plugin
 	local MINIMAL_DETAILS_VERSION_REQUIRED = 81
-	local CLEECH_VERSION = "v1.1"
+	local CLEECH_VERSION = "v1.2"
 
 	--> create a plugin object
 	local calcLeech = Details:NewPluginObject ("Details_CalcLeech", DETAILSPLUGIN_ALWAYSENABLED)
@@ -80,10 +80,12 @@ do
 				local total_leech = 0
 				
 				for i = 1, 40 do 
-					local name, _, _, _, _, _, _, source, _, _, id, _, _, _, leech = UnitAura (target_name, i)
-					if (name and id == 184671 and source) then
-						rosterLeechAmount [UnitName (source)] = leech
-						total_leech = total_leech + leech
+					local name, _, _, _, _, _, _, source, _, _, id, _, _, _, _, _, leech = UnitAura (target_name, i)
+					if (type (leech) == "number") then
+						if (name and id == 184671 and source) then
+							rosterLeechAmount [UnitName (source)] = leech
+							total_leech = total_leech + leech
+						end
 					end
 				end 
 				

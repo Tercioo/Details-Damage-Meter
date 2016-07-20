@@ -3,8 +3,8 @@
 
 		_ = nil
 		_detalhes = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0", "NickTag-1.0")
-		_detalhes.build_counter = 2694 --it's 2694 for release
-		_detalhes.userversion = "v5.10"
+		_detalhes.build_counter = 2696 --it's 2696 for release
+		_detalhes.userversion = "v5.10a"
 		_detalhes.realversion = 109 --core version
 		_detalhes.version = _detalhes.userversion .. " (core " .. _detalhes.realversion .. ")"
 		Details = _detalhes
@@ -21,12 +21,14 @@ do
 	local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
 
 --[[
-|cFFFFFF00v5.9 (|cFFFFCC00July 19, 2016|r|cFFFFFF00)|r:\n\n
-|cFFFFFF00-|r Using .BLP format for images. If you have FPS drops, delete ALL .TGA files inside the folder Details/Images/\n\n
+|cFFFFFF00v5.10a (|cFFFFCC00July 20, 2016|r|cFFFFFF00)|r:\n\n
+|cFFFFFF00-|r FIxed an issue with Calc Leech plugin.\n\n
 --]]
 --
 
-	Loc ["STRING_VERSION_LOG"] = "|cFFFFFF00v5.10 (|cFFFFCC00July 19, 2016|r|cFFFFFF00)|r:\n\n|cFFFFFF00-|r Using .BLP format for images. If you have FPS drops caused by Details!, delete ALL .TGA files inside the folder Details/Images/\n\n|cFFFFFF00v5.8 (|cFFFFCC00July 11, 2016|r|cFFFFFF00)|r:\n\n|cFFFFFF00-|r Big framework update. May have some bugs, please report to us if you find any.\n\n|cFFFFFF00v5.8 (|cFFFFCC00June 27, 2016|r|cFFFFFF00)|r:\n\n|cFFFFFF00-|r Energy and Resources are working properly now.\n\n|cFFFFFF00-|r Added raid information for The Emerald Nightmare.\n\n|cFFFFFF00v5.7 (|cFFFFCC00June 16, 2016|r|cFFFFFF00)|r:\n\n|cFFFFFF00-|r Most of the raid plugins got added on this version.\n\n|cFFFFFF00-|r Plugin 'Damage, The Game!' also got damage goals updated.\n\n|cFFFFFF00v5.5 (|cFFFFCC00June 03, 2016|r|cFFFFFF00)|r:\n\n|cFFFFFF00-|r Default skin is now 'Safe Skin Legion Beta' which helps a little with the disabled texture issue.\n|cFFFFFF00-|r If you're using another skin, you may change at the options panel /details options > Skin Selection.\n|cFFFFFF00-|r You also can disable the class icons at Bars: General > Icon File.\n\n|cFFFFFF00v5.4 (|cFFFFCC00May 19, 2016|r|cFFFFFF00)|r:\n\n|cFFFFFF00-|r Tracking spec for Demon Hunters is now implemented, you may see spec icons for demon hunters now.\n\n|cFFFFFF00-|r Fix some issues with Healing display.\n\n|cFFFFFF00v5.3a (|cFFFFCC00May 16, 2016|r|cFFFFFF00)|r:\n\n|cFFFFFF00-|r Fixed tooltip spell icons.\n\n|cFFFFFF00-|r Fixed some issues with demon hunter class icons."
+
+
+	Loc ["STRING_VERSION_LOG"] = "|cFFFFFF00v5.10a (|cFFFFCC00July 20, 2016|r|cFFFFFF00)|r:\n\n|cFFFFFF00-|r FIxed an issue with Calc Leech plugin.\n\n|cFFFFFF00v5.10 (|cFFFFCC00July 19, 2016|r|cFFFFFF00)|r:\n\n|cFFFFFF00-|r Using .BLP format for images. If you have FPS drops caused by Details!, delete ALL .TGA files inside the folder Details/Images/\n\n|cFFFFFF00v5.8 (|cFFFFCC00July 11, 2016|r|cFFFFFF00)|r:\n\n|cFFFFFF00-|r Big framework update. May have some bugs, please report to us if you find any.\n\n|cFFFFFF00v5.8 (|cFFFFCC00June 27, 2016|r|cFFFFFF00)|r:\n\n|cFFFFFF00-|r Energy and Resources are working properly now.\n\n|cFFFFFF00-|r Added raid information for The Emerald Nightmare.\n\n|cFFFFFF00v5.7 (|cFFFFCC00June 16, 2016|r|cFFFFFF00)|r:\n\n|cFFFFFF00-|r Most of the raid plugins got added on this version.\n\n|cFFFFFF00-|r Plugin 'Damage, The Game!' also got damage goals updated.\n\n|cFFFFFF00v5.5 (|cFFFFCC00June 03, 2016|r|cFFFFFF00)|r:\n\n|cFFFFFF00-|r Default skin is now 'Safe Skin Legion Beta' which helps a little with the disabled texture issue.\n|cFFFFFF00-|r If you're using another skin, you may change at the options panel /details options > Skin Selection.\n|cFFFFFF00-|r You also can disable the class icons at Bars: General > Icon File.\n\n|cFFFFFF00v5.4 (|cFFFFCC00May 19, 2016|r|cFFFFFF00)|r:\n\n|cFFFFFF00-|r Tracking spec for Demon Hunters is now implemented, you may see spec icons for demon hunters now.\n\n|cFFFFFF00-|r Fix some issues with Healing display.\n\n|cFFFFFF00v5.3a (|cFFFFCC00May 16, 2016|r|cFFFFFF00)|r:\n\n|cFFFFFF00-|r Fixed tooltip spell icons.\n\n|cFFFFFF00-|r Fixed some issues with demon hunter class icons."
 
 	Loc ["STRING_DETAILS1"] = "|cffffaeaeDetails!:|r "
 
