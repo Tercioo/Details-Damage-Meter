@@ -196,7 +196,8 @@
 		--end
 		
 		--using pattern, calling API is too slow here
-		if (alvo_serial:match ("^Creature%-0%-%d+%-%d+%-%d+%-76933%-%w+$")) then
+		--if (alvo_serial:match ("^Creature%-0%-%d+%-%d+%-%d+%-76933%-%w+$")) then
+		if (alvo_serial:match ("^Creature%-0%-%d+%-%d+%-%d+%-103679%-%w+$")) then
 			return
 		end
 		
