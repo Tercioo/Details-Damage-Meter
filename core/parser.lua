@@ -87,7 +87,10 @@
 		local ignore_death = {}
 	--> special items
 		local soul_capacitor = {} --> trinket from Socrethar the Eternal
-	
+		local paladin_gbom = {} --greater blessing of might
+		local shaman_slash = {} --storm lash
+		local source_cache = {} --store the source's guid, name and flag
+		
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> constants
 
@@ -117,6 +120,19 @@
 		[2] = true, --0x2 circle
 		[1] = true, --0x1 star
 	}
+	
+	local WARRIOR_RAMPAGE = {
+		[184707] = true,
+		[184709] = true,
+		[201364] = true,
+		[201363] = true,
+	}
+	
+	local SPELLID_WARRIOR_RAMPAGE = 218617
+	local SPELLID_SHAMAN_SLASH_AURA = 195222
+	local SPELLID_SHAMAN_SLASH_DAMAGE = 195256
+	local SPELLID_PALADIN_GBOM_AURA = 203528
+	local SPELLID_PALADIN_GBOM_DAMAGE = 205729
 	
 	--> recording data options flags
 		local _recording_self_buffs = false
@@ -152,8 +168,7 @@
 	end
 
 	function parser:range (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand)
-		return parser:spell_dmg (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, 2, "Tiro-Automático", 00000001, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand)  --> localize-me
-																		--spellid, spellname, spelltype
+		return parser:spell_dmg (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand)  --> localize-me
 	end
 
 --	/run local f=CreateFrame("frame");f:RegisterAllEvents();f:SetScript("OnEvent", function(self, ...)print (...);end)
@@ -162,7 +177,6 @@
 	
 --	/run local f=CreateFrame("frame");f:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED");f:SetScript("OnEvent", function(self, ...)print (...);end)
 --	/run local f=CreateFrame("frame");f:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED");f:SetScript("OnEvent",function(self, ...) local a = select(6, ...);if (a=="<chr name>")then print (...) end end)
-
 --	/run local f=CreateFrame("frame");f:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED");f:SetScript("OnEvent",function(self, ...) local a = select(3, ...);print (a);if (a=="SPELL_CAST_SUCCESS")then print (...) end end)
 	
 	function parser:spell_dmg (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand)
@@ -212,6 +226,17 @@
 			return parser:SLT_damage (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand)
 		end
 		
+		if (WARRIOR_RAMPAGE [spellid]) then
+			spellid = SPELLID_WARRIOR_RAMPAGE
+		end
+		
+		if (spellid == SPELLID_PALADIN_GBOM_DAMAGE) then
+			who_serial, who_name, who_flags = parser:GetRealHitSourceFromBuffOwner (paladin_gbom, who_serial, who_name, who_flags)
+		elseif (spellid == SPELLID_SHAMAN_SLASH_DAMAGE) then
+			who_serial, who_name, who_flags = parser:GetRealHitSourceFromBuffOwner (shaman_slash, who_serial, who_name, who_flags)
+		end
+		
+		--> REMOVE AFTER LEGION LAUNCH
 		if (soul_capacitor [who_serial]) then
 			if (soul_capacitor [who_serial]+12 < _tempo) then
 				--> something went wrong, debuff didn't expired or we didn't saw it going out.
@@ -225,7 +250,7 @@
 	--> check if need start an combat
 
 		if (not _in_combat) then
-			if (	token ~= "SPELL_PERIODIC_DAMAGE" and 
+			if (	token ~= "SPELL_PERIODIC_DAMAGE" and spellid ~= SPELLID_PALADIN_GBOM_DAMAGE and
 				( 
 					(who_flags and _bit_band (who_flags, AFFILIATION_GROUP) ~= 0 and _UnitAffectingCombat (who_name) )
 					or 
@@ -1233,7 +1258,7 @@
 	end
 	
 -----------------------------------------------------------------------------------------------------------------------------------------
-	--> BUFFS & DEBUFFS 	serach key: ~buff ~aura ~shield								|
+	--> BUFFS & DEBUFFS 	search key: ~buff ~aura ~shield								|
 -----------------------------------------------------------------------------------------------------------------------------------------
 
 	function parser:buff (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spellschool, tipo, amount, arg1, arg2, arg3)
@@ -1254,13 +1279,23 @@
 		if (tipo == "BUFF") then
 			------------------------------------------------------------------------------------------------
 			--> buff uptime
-			
+				
 				if (spellid == 27827) then --> spirit of redemption (holy priest)
 					parser:dead ("UNIT_DIED", time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags)
 					ignore_death [who_name] = true
 					return
-				elseif (spellid == 184293) then --> WOD trinket: Soul Capacitor T18 (soul eruption 184559)
+					
+				elseif (spellid == 184293) then --> WOD trinket: Soul Capacitor T18 (soul eruption 184559) --REMOVE ON LEGION LAUNCH
 					soul_capacitor [who_serial] = _tempo
+					
+				elseif (spellid == SPELLID_SHAMAN_SLASH_AURA) then --shaman slash
+					--> handle the bugg on parser time
+					parser:Handle3rdPartyBuff (shaman_slash, who_serial, alvo_serial, true, who_name, who_flags)
+					
+				elseif (spellid == SPELLID_PALADIN_GBOM_AURA) then --paladin gbom
+					--> handle the buff on parser time
+					parser:Handle3rdPartyBuff (paladin_gbom, who_serial, alvo_serial, true, who_name, who_flags)
+					
 				end
 
 				if (_recording_buffs_and_debuffs) then
@@ -1622,8 +1657,15 @@
 					end
 				end
 				
-				if (spellid == 184293) then --> WOD trinket: Soul Capacitor T18
+				if (spellid == 184293) then --> WOD trinket: Soul Capacitor T18 REMOVE ON LEGION LAUNCH
 					soul_capacitor [who_serial] = nil
+					
+				elseif (spellid == SPELLID_SHAMAN_SLASH_AURA) then --shaman slash
+					parser:Handle3rdPartyBuff (shaman_slash, who_serial, alvo_serial)
+				
+				elseif (spellid == SPELLID_PALADIN_GBOM_AURA) then --paladin gbom
+					parser:Handle3rdPartyBuff (paladin_gbom, who_serial, alvo_serial)
+
 				end
 				
 			------------------------------------------------------------------------------------------------
@@ -2797,6 +2839,106 @@ SPELL_POWER_OBSOLETE2 = 15;
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> core
 
+	local shaman_slash = {} --storm lash
+	--[[	
+		paladin buffs = {}
+		player = paladin buffs [ target GUID  ]
+		
+		paladin buffs [ GUID ] = {sourceGUID, sourceGUID, sourceGUID, offset = X}
+		it's a table with a indexed side and a hash side
+		on index side, there is GUIDs of all paladins that buffed the player
+		on the hash side, there is a member 'offset' which points the index of the next paladin to attribute the damage to
+	--]]
+	
+	function parser:WipeSourceCache()
+		wipe (source_cache)
+		wipe (paladin_gbom)
+		wipe (shaman_slash)
+	end
+	
+	function parser:Handle3rdPartyBuffs_OnEncounterStart()
+		--> wipe and rebuild the list
+		parser:WipeSourceCache()
+		local get_name = _detalhes.GetCLName
+		
+		for i = 1, _GetNumGroupMembers() do 
+			for auraIndex = 1, 40 do
+				--gbom
+				local name, rank, texture, count, debuffType, duration, expirationTime, caster, canStealOrPurge, nameplateShowPersonal, spellId = UnitAura ("raid" .. i, auraIndex, "HELPFUL")
+				if (spellId == SPELLID_SHAMAN_SLASH_AURA) then
+					local source_serial = UnitGUID (caster)
+					local target_serial = UnitGUID ("raid" .. i)
+					local name, flag = get_name (_, caster), 0x514
+					parser:Handle3rdPartyBuff (shaman_slash, source_serial, target_serial, true, name, flag)
+					
+				elseif (spellId == SPELLID_PALADIN_GBOM_AURA) then
+					local source_serial = UnitGUID (caster)
+					local target_serial = UnitGUID ("raid" .. i)
+					local name, flag = get_name (_, caster), 0x514
+					parser:Handle3rdPartyBuff (paladin_gbom, source_serial, target_serial, true, name, flag)
+				end
+			end
+		end
+	end
+	
+	function parser:GetRealHitSourceFromBuffOwner (container, actor_serial, acter_name, acter_flags) --actor can be anything, a player, pet, etc
+		local target_buffs = container [actor_serial]
+		if (target_buffs) then
+			local real_source = source_cache [target_buffs [target_buffs.offset]]
+			--> set the next source
+			target_buffs.offset = (target_buffs.offset % #target_buffs) + 1
+			if (real_source) then
+				return unpack (real_source)
+			else
+				print ("Details! Debug: buff real source not found.")
+			end
+		end
+		return actor_serial, acter_name, acter_flags
+	end
+	
+	function parser:Handle3rdPartyBuff (container, source, target, is_applying, name, flags) --source/target are GUIDs/is_applying bool/name and flag are from the caster
+		if (is_applying) then
+			local target_buffs = container [target]
+			if (not target_buffs) then
+				--> create the source pool
+				container [target] = {source, ["offset"] = 1}
+				--> add the source to source cache
+				if (not source_cache [source]) then
+					source_cache [source] = {source, name, flags}
+				end
+			else
+				--> is already on the pool
+				for i = 1, #target_buffs do
+					if (target_buffs [i] == source) then
+						--target_buffs.offset = i
+						return
+					end
+				end
+				target_buffs [#target_buffs+1] = source
+				--target_buffs.offset = #target_buffs
+			end
+		else
+			local target_buffs = container [target]
+			if (target_buffs) then
+				for i = 1, #target_buffs do
+					if (target_buffs [i] == source) then
+						tremove (target_buffs, i)
+						if (#target_buffs == 0) then
+							--> drop the table
+							container [target] = nil
+						else
+							--> if the target was the last index, the offset is nil
+							if (not target_buffs [i]) then
+								target_buffs.offset = target_buffs.offset - 1
+							end
+						end
+						return
+					end
+				end
+			end
+		end
+	end
+
 	local token_list = {
 		-- neutral
 		["SPELL_SUMMON"] = parser.summon,
@@ -3171,6 +3313,8 @@ SPELL_POWER_OBSOLETE2 = 15;
 		_detalhes.zone_id = zoneMapID
 		_detalhes.zone_name = zoneName
 		
+		parser:WipeSourceCache()
+		
 		if (_detalhes.last_zone_type ~= zoneType) then
 			_detalhes:SendEvent ("ZONE_TYPE_CHANGED", nil, zoneType)
 			_detalhes.last_zone_type = zoneType
@@ -3331,6 +3475,7 @@ SPELL_POWER_OBSOLETE2 = 15;
 			_detalhes.encounter_table.index = boss_index
 		end
 		
+		parser:Handle3rdPartyBuffs_OnEncounterStart()
 	end
 	
 	function _detalhes.parser_functions:ENCOUNTER_END (...)

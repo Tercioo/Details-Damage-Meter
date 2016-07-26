@@ -3330,10 +3330,263 @@ end
 
 
 
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- ~listbox
+
+local simple_list_box_ResetWidgets = function (self)
+	for _, widget in ipairs (self.widgets) do 
+		widget:Hide()
+	end
+	self.nextWidget = 1
+end
+
+local simple_list_box_onenter = function (self, capsule)
+	self:GetParent().options.onenter (self, capsule, capsule.value)
+end
+
+local simple_list_box_onleave = function (self, capsule)
+	self:GetParent().options.onleave (self, capsule, capsule.value)
+	GameTooltip:Hide()
+end
+
+local simple_list_box_GetOrCreateWidget = function (self)
+	local index = self.nextWidget
+	local widget = self.widgets [index]
+	if (not widget) then
+		widget = DF:CreateButton (self, function()end, self.options.width, self.options.row_height, "", nil, nil, nil, nil, nil, nil, DF:GetTemplate ("button", "OPTIONS_BUTTON_TEMPLATE"))
+		widget:SetHook ("OnEnter", simple_list_box_onenter)
+		widget:SetHook ("OnLeave", simple_list_box_onleave)
+		widget.textcolor = self.options.textcolor
+		tinsert (self.widgets, widget)
+	end
+	self.nextWidget = self.nextWidget + 1
+	return widget
+end
+
+local simple_list_box_RefreshWidgets = function (self)
+	self:ResetWidgets()
+	local amt = 0
+	for value, _ in pairs (self.list_table) do
+		local widget = self:GetOrCreateWidget()
+		widget:SetPoint ("topleft", self, "topleft", 1, -self.options.row_height * (self.nextWidget-2) - 4)
+		widget:SetPoint ("topright", self, "topright", -1, -self.options.row_height * (self.nextWidget-2) - 4)
+		widget:SetClickFunction (self.func, value)
+		widget.value = value
+		
+		if (self.options.icon) then
+			if (type (self.options.icon) == "string" or type (self.options.icon) == "number") then
+				widget:SetIcon (self.options.icon, self.options.row_height, self.options.row_height)
+			elseif (type (self.options.icon) == "function") then
+				local icon = self.options.icon (value)
+				if (icon) then
+					widget:SetIcon (icon, self.options.row_height, self.options.row_height)
+				end
+			end
+		else
+			widget:SetIcon ("", self.options.row_height, self.options.row_height)
+		end
+		
+		if (self.options.text) then
+			if (type (self.options.text) == "function") then
+				local text = self.options.text (value)
+				if (text) then
+					widget:SetText (text)
+				else
+					widget:SetText ("")
+				end
+			else
+				widget:SetText (self.options.text or "")
+			end
+		else
+			widget:SetText ("")
+		end
+		
+		widget.value = value
+		widget:Show()
+		amt = amt + 1
+	end
+	if (amt == 0) then
+		self.EmptyLabel:Show()
+	else
+		self.EmptyLabel:Hide()
+	end
+end
+
+local backdrop = {bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16, edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1}
+local default_options = {
+	height = 400, 
+	row_height = 16,
+	width = 230, 
+	icon = false, 
+	text = "",
+	textcolor = "wheat",
+	onenter = function (self, capsule)
+		if (capsule) then
+			capsule.textcolor = "white"
+		end
+	end,
+	onleave = function (self, capsule)
+		if (capsule) then
+			capsule.textcolor = self:GetParent().options.textcolor
+		end
+		GameTooltip:Hide()
+	end,
+}
+
+local simple_list_box_SetData = function (self, t)
+	self.list_table = t
+end
+
+function DF:CreateSimpleListBox (parent, name, title, empty_text, list_table, onclick, options)
+	local f = CreateFrame ("frame", name, parent)
+	
+	f.ResetWidgets = simple_list_box_ResetWidgets
+	f.GetOrCreateWidget = simple_list_box_GetOrCreateWidget
+	f.Refresh = simple_list_box_RefreshWidgets
+	f.SetData = simple_list_box_SetData
+	f.nextWidget = 1
+	f.list_table = list_table
+	f.func = function (self, button, value)
+		onclick (value)
+		f:Refresh()
+	end
+	f.widgets = {}
+	f:SetBackdrop (backdrop)
+	f:SetBackdropColor (0, 0, 0, 0.3)
+	f:SetBackdropBorderColor (0, 0, 0, 0.5)
+	f.options = options or {}
+	self.table.deploy (f.options, default_options)
+	
+	f:SetSize (f.options.width + 2, f.options.height)
+	
+	local name = DF:CreateLabel (f, title, 12, "silver")
+	name:SetTemplate (DF:GetTemplate ("font", "OPTIONS_FONT_TEMPLATE"))
+	name:SetPoint ("bottomleft", f, "topleft", 0, 2)
+	f.Title = name
+	
+	local emptyLabel = DF:CreateLabel (f, empty_text, 12, "gray")
+	emptyLabel:SetAlpha (.6)
+	emptyLabel:SetSize (f.options.width-10, f.options.height)
+	emptyLabel:SetPoint ("center", 0, 0)
+	emptyLabel:Hide()
+	emptyLabel.align = "center"
+	f.EmptyLabel = emptyLabel
+	
+	return f
+end
 
 
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- ~scrollbox
 
 
+-- preciso de uma fauxscroll que seja facil de lidar
+-- ele cria scroll aqui, preciso falar a função que cria a linha e a função que atualiza
+-- precisa passsar o tamanho em height width quantas barras vai mostrar
+-- search box incluso opcionalmente
+
+
+DF.SortFunctions = {}
+
+local SortMember = ""
+local SortByMember = function (t1, t2)
+	return t1[SortMember] > t2[SortMember]
+end
+local SortByMemberReverse = function (t1, t2)
+	return t1[SortMember] < t2[SortMember]
+end
+
+DF.SortFunctions.Sort = function (self, t, by, is_reverse)
+	SortMember = by
+	if (not is_reverse) then
+		table.sort (t, SortByMember)
+	else
+		table.sort (t, SortByMemberReverse)
+	end
+end
+
+
+DF.ScrollBoxFunctions = {}
+
+DF.ScrollBoxFunctions.Refresh = function (self)
+	for _, frame in ipairs (self.Frames) do 
+		frame:Hide()
+		frame._InUse = nil
+	end
+	
+	local offset = 0
+	if (self.IsFauxScroll) then
+		FauxScrollFrame_Update (self, #self.data, self.LineAmount, self.LineHeight+1)
+		offset = FauxScrollFrame_GetOffset (self)
+	end	
+	
+	local okay, totalLines = pcall (self.refresh_func, self, self.data, offset, #self.Frames)
+	if (not okay) then
+		error ("Details! FrameWork: Refresh(): " .. result)
+	end
+
+	for _, frame in ipairs (self.Frames) do 
+		if (not frame._InUse) then
+			frame:Hide()
+		else
+			frame:Show()
+		end
+	end
+	
+	self:Show()
+	
+	return self.Frames
+end
+
+DF.ScrollBoxFunctions.OnVerticalScroll = function (self, offset)
+	FauxScrollFrame_OnVerticalScroll (self, offset, self.LineHeight, self.Refresh)
+	return true
+end
+
+DF.ScrollBoxFunctions.CreateLine = function (self, func)
+	local okay, newLine = pcall (func, self, #self.Frames+1)
+	if (okay) then
+		tinsert (self.Frames, newLine)
+		return newLine
+	else
+		error ("Details! FrameWork: CreateLine(): " .. newLine)
+	end
+end
+
+DF.ScrollBoxFunctions.GetLine = function (self, line_index)
+	local line = self.Frames [line_index]
+	if (line) then
+		line._InUse = true
+	end
+	return line
+end
+
+DF.ScrollBoxFunctions.SetData = function (self, data)
+	self.data = data
+end
+DF.ScrollBoxFunctions.GetData = function (self)
+	return self.data
+end
+
+function DF:CreateScrollBox (parent, name, refresh_func, data, width, height, line_amount, line_height)
+	local scroll = CreateFrame ("scrollframe", name, parent, "FauxScrollFrameTemplate")
+	
+	scroll:SetSize (width, height)
+	scroll.LineAmount = line_amount
+	scroll.LineHeight = line_height
+	scroll.IsFauxScroll = true
+	scroll.Frames = {}
+	
+	DF:Mixin (scroll, DF.SortFunctions)
+	DF:Mixin (scroll, DF.ScrollBoxFunctions)
+	
+	scroll.refresh_func = refresh_func
+	scroll.data = data
+	
+	scroll:SetScript ("OnVerticalScroll", scroll.OnVerticalScroll)
+	
+	return scroll
+end
 
 
 

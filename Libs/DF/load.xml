@@ -20,4 +20,5 @@
 	<Include file="panel.xml"/>
 
 	<Script file="pictureedit.lua"/>
+	<Script file="auras.lua"/>
 </Ui>

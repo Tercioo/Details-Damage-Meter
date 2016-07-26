@@ -161,10 +161,12 @@ function historico:adicionar (tabela)
 		overall_added = true
 		--print ("0x10")
 	end
-	
+
 	if (overall_added) then
 		if (tabela.is_boss and tabela:InstanceType() == "raid" and tabela:GetCombatTime() < 30) then
-			_detalhes:Msg ("segment not added to overall (less than 30 seconds of combat time).")
+			if (_detalhes.debug) then
+				_detalhes:Msg ("segment not added to overall (less than 30 seconds of combat time).")
+			end
 		else
 			if (_detalhes.debug) then
 				_detalhes:Msg ("(debug) overall data flag match with the current combat.")

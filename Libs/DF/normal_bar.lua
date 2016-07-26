@@ -510,11 +510,11 @@ local BarMetaFunctions = _G [DF.GlobalWidgetControlNames ["normal_bar"]]
 	
 	function BarMetaFunctions:OnTimerEnd()
 		local capsule = self
-		local kill = capsule:RunHooksForWidget ("OnTimerEnd", self.widget, button, capsule)
+		local kill = capsule:RunHooksForWidget ("OnTimerEnd", self.widget, capsule)
 		if (kill) then
 			return
 		end
-	
+		
 		self.timer_texture:Hide()
 		self.timer_textureR:Hide()
 		self.div_timer:Hide()
