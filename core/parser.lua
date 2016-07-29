@@ -3405,6 +3405,19 @@ SPELL_POWER_OBSOLETE2 = 15;
 		return _detalhes.parser_functions:ZONE_CHANGED_NEW_AREA (...)
 	end
 	
+	function _detalhes.parser_functions:PLAYER_SPECIALIZATION_CHANGED()
+		local specIndex = GetSpecialization()
+		if (specIndex) then
+			local specID = GetSpecializationInfo (specIndex)
+			if (specID and specID ~= 0) then
+				local guid = UnitGUID ("player")
+				if (guid) then
+					_detalhes.cached_specs [guid] = specID
+				end
+			end
+		end
+	end
+	
 	-- ~encounter
 	function _detalhes.parser_functions:ENCOUNTER_START (...)
 	

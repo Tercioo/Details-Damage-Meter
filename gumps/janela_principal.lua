@@ -6209,6 +6209,10 @@ function _detalhes:SetUserCustomSkinFile (file)
 	self:ChangeSkin()
 end
 
+function _detalhes:RefreshMicroDisplays()
+	_detalhes.StatusBar:UpdateOptions (self)
+end
+
 function _detalhes:ChangeSkin (skin_name)
 
 	if (not skin_name) then
@@ -6406,6 +6410,7 @@ function _detalhes:ChangeSkin (skin_name)
 	--> refresh the side of the micro displays and its lock state
 		self:MicroDisplaysSide()
 		self:MicroDisplaysLock()
+		self:RefreshMicroDisplays()
 		
 	--> update statusbar
 		if (self.show_statusbar) then

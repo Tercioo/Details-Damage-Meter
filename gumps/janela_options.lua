@@ -2676,7 +2676,7 @@ function window:CreateFrame17()
 		window:CreateLineBackground2 (frame17, "autoCurrentSlider", "autoCurrentLabel", Loc ["STRING_OPTIONS_INSTANCE_CURRENT_DESC"])
 
 	--> trash suppression
-		g:NewLabel (frame17, _, "$parentTrashSuppressionLabel", "TrashSuppressionLabel", "Trash Suppression", "GameFontHighlightLeft")
+		g:NewLabel (frame17, _, "$parentTrashSuppressionLabel", "TrashSuppressionLabel", Loc ["STRING_OPTIONS_TRASH_SUPPRESSION"], "GameFontHighlightLeft")
 		g:NewSlider (frame17, _, "$parentTrashSuppressionSlider", "TrashSuppressionSlider", SLIDER_WIDTH, SLIDER_HEIGHT, 0, 180, 1, _detalhes.instances_suppress_trash, nil, nil, nil, options_slider_template)
 
 		frame17.TrashSuppressionSlider:SetPoint ("left", frame17.TrashSuppressionLabel, "right", 2)
@@ -2686,7 +2686,7 @@ function window:CreateFrame17()
 			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 		end)
 		
-		window:CreateLineBackground2 (frame17, "TrashSuppressionSlider", "TrashSuppressionLabel", "For |cFFFFFF00X|r seconds, suppress auto switching to show trash segments (|cFFFFFF00only after defeat a boss encounter|r).")
+		window:CreateLineBackground2 (frame17, "TrashSuppressionSlider", "TrashSuppressionLabel", Loc ["STRING_OPTIONS_TRASH_SUPPRESSION_DESC"])
 
 		
 		

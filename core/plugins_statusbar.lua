@@ -1662,7 +1662,7 @@ extraWindow:SetBackdropColor (0, 0, 0, 0.9)
 		
 		_G.DetailsStatusBarOptionsTextStyleDropdown.MyObject:SetFixedParameter (child)
 		
-		_G.DetailsStatusBarOptionsTextColorTexture:SetTexture (child.options.textColor[1], child.options.textColor[2], child.options.textColor[3], child.options.textColor[4])
+		_G.DetailsStatusBarOptionsTextColorTexture:SetColorTexture (child.options.textColor[1], child.options.textColor[2], child.options.textColor[3], child.options.textColor[4])
 
 		_G.DetailsStatusBarOptionsSliderFontSize.MyObject:SetFixedParameter (child)
 		_G.DetailsStatusBarOptionsSliderFontSize.MyObject:SetValue (child.options.textSize)

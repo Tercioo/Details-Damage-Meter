@@ -43,7 +43,7 @@ local _
 	
 	--> install wow interface skin:
 	_detalhes:InstallSkin ("WoW Interface", {
-		file = [[Interface\AddOns\Details\images\skins\default_skin]], 
+		file = [[Interface\AddOns\Details\images\skins\default_skin.blp]], 
 		author = "Details!", 
 		version = "1.0", 
 		site = "unknown", 
@@ -274,7 +274,7 @@ local _
 	end
 	
 	_detalhes:InstallSkin ("Minimalistic", {
-		file = [[Interface\AddOns\Details\images\skins\classic_skin_v1]],
+		file = [[Interface\AddOns\Details\images\skins\classic_skin_v1.blp]],
 		author = "Details!", 
 		version = "1.0", 
 		site = "unknown", 
@@ -496,7 +496,7 @@ local _
 	})
 	
 	_detalhes:InstallSkin ("Minimalistic v2", {
-		file = [[Interface\AddOns\Details\images\skins\classic_skin]],
+		file = [[Interface\AddOns\Details\images\skins\classic_skin.blp]],
 		author = "Details!", 
 		version = "1.0", 
 		site = "unknown", 
@@ -716,7 +716,7 @@ local _
 	})
 
 	_detalhes:InstallSkin ("Serenity", {
-		file = [[Interface\AddOns\Details\images\skins\flat_skin]],
+		file = [[Interface\AddOns\Details\images\skins\flat_skin.blp]],
 		author = "Details!", 
 		version = "1.0", 
 		site = "unknown", 
@@ -1010,7 +1010,7 @@ local _
 	end
 	
 	_detalhes:InstallSkin ("Forced Square", {
-		file = [[Interface\AddOns\Details\images\skins\simplygray_skin]],
+		file = [[Interface\AddOns\Details\images\skins\simplygray_skin.blp]],
 		author = "Details!", 
 		version = "1.0", 
 		site = "unknown", 
@@ -1273,7 +1273,7 @@ local _
 	
 	--> install imperial skin:
 	_detalhes:InstallSkin ("Imperial Skin", {
-		file = "Interface\\AddOns\\Details\\images\\skins\\imperial_skin", 
+		file = "Interface\\AddOns\\Details\\images\\skins\\imperial_skin.blp", 
 		author = "Details!", 
 		version = "1.1", 
 		site = "unknown", 
@@ -1395,7 +1395,7 @@ local _
 
 	
 	_detalhes:InstallSkin ("ElvUI Frame Style", {
-		file = [[Interface\AddOns\Details\images\skins\elvui]],
+		file = [[Interface\AddOns\Details\images\skins\elvui.blp]],
 		author = "Details!", 
 		version = "1.0", 
 		site = "unknown", 
@@ -1644,7 +1644,7 @@ local _
 	})
 	
 	_detalhes:InstallSkin ("ElvUI Style II", {
-		file = [[Interface\AddOns\Details\images\skins\elvui_opaque]],
+		file = [[Interface\AddOns\Details\images\skins\elvui_opaque.blp]],
 		author = "Details!", 
 		version = "1.0", 
 		site = "unknown", 
@@ -1827,7 +1827,7 @@ local _
 	
 	
 	_detalhes:InstallSkin ("New Gray", {
-		file = [[Interface\AddOns\Details\images\skins\classic_skin_v1]],
+		file = [[Interface\AddOns\Details\images\skins\classic_skin_v1.blp]],
 		author = "Details!", 
 		version = "1.0", 
 		site = "unknown", 
@@ -2087,7 +2087,7 @@ local _
 	})	
 	
 	_detalhes:InstallSkin ("Safe Skin Legion Beta", {
-		file = [[Interface\AddOns\Details\images\skins\classic_skin_v1]],
+		file = [[Interface\AddOns\Details\images\skins\classic_skin_v1.blp]],
 		author = "Details!", 
 		version = "1.0", 
 		site = "unknown", 

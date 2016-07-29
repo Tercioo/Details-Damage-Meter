@@ -1,5 +1,5 @@
 
-local dversion = 27
+local dversion = 29
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary (major, minor)
 
@@ -111,6 +111,8 @@ local embed_functions = {
 	"FindHighestParent",
 	"OpenInterfaceProfile",
 	"CreateInCombatTexture",
+	"CreateAnimationHub",
+	"CreateAnimation",
 }
 
 DF.table = {}
@@ -1160,3 +1162,39 @@ function DF:Mixin (object, ...)
 
 	return object;
 end
+
+-----------------------------
+
+function DF:CreateAnimationHub (parent, onPlay, onFinished)
+	local newAnimation = parent:CreateAnimationGroup()
+	newAnimation:SetScript ("OnPlay", onPlay)
+	newAnimation:SetScript ("OnFinished", onFinished)
+	newAnimation.NextAnimation = 1
+	return newAnimation
+end
+
+function DF:CreateAnimation (animation, type, duration, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
+	local anim = animation:CreateAnimation (type)
+
+	anim:SetOrder (animation.NextAnimation)
+	anim:SetDuration (duration)
+	
+	if (type == "Alpha") then
+		anim:SetFromAlpha (arg1)
+		anim:SetToAlpha (arg2)
+		
+	elseif (type == "Scale") then
+		anim:SetFromScale (arg1, arg2)
+		anim:SetToScale (arg3, arg4)
+		anim:SetOrigin (arg5 or "center", arg6 or 0, arg7 or 0) --point, x, y
+	
+	elseif (type == "Rotation") then
+		anim:SetDegrees (arg1) --degree
+		anim:SetOrigin (arg2 or "center", arg3 or 0, arg4 or 0) --point, x, y
+	end
+	
+	animation.NextAnimation = animation.NextAnimation + 1	
+	return anim
+end
+
+

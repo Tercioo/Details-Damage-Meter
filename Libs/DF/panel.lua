@@ -2523,7 +2523,7 @@ local draw_overlay = function (self, this_overlay, overlayData, color)
 
 	local pixel = self.Graphic:GetWidth() / self.TimeScale
 	local index = 1
-	local r, g, b = unpack (color)
+	local r, g, b = unpack (color or line_default_color)
 	
 	for i = 1, #overlayData, 2 do
 		local aura_start = overlayData [i]

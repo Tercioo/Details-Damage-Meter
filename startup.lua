@@ -260,6 +260,8 @@ function _G._detalhes:Start()
 			self.listener:RegisterEvent ("PLAYER_ROLES_ASSIGNED")
 			self.listener:RegisterEvent ("ROLE_CHANGED_INFORM")
 			
+			self.listener:RegisterEvent ("PLAYER_SPECIALIZATION_CHANGED")
+			
 			self.parser_frame:RegisterEvent ("COMBAT_LOG_EVENT_UNFILTERED")
 
 	--> group
@@ -504,7 +506,7 @@ function _G._detalhes:Start()
 		
 			--version
 			self.gump:Fade (instance._version, 0)
-			instance._version:SetText ("Details! " .. _detalhes.userversion .. " (core: " .. self.realversion .. ")")
+			instance._version:SetText ("Details! Beta " .. _detalhes.userversion .. " (core: " .. self.realversion .. ")")
 			instance._version:SetPoint ("bottomleft", instance.baseframe, "bottomleft", 5, 1)
 
 			if (instance.auto_switch_to_old) then
@@ -607,6 +609,8 @@ function _G._detalhes:Start()
 		wipe (_detalhes.cached_talents)
 	end
 
+	--> get the player spec
+	C_Timer.After (2, _detalhes.parser_functions.PLAYER_SPECIALIZATION_CHANGED)
 
 	_detalhes.chat_embed:CheckChatEmbed (true)
 	

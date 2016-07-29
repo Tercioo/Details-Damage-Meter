@@ -37,17 +37,6 @@
 --     }
 --     ...
 --   }
---   .glyphs = {
---     [<spell_id>] = {
---       .idx -- 1 to NUM_GLYPH_SLOTS
---       .glyph_id
---       .glyph_type
---       .name_localized
---       .icon
---       .spell_id
---     }
---     ...
---   },
 --   .lku -- last known unit id
 --   .not_visible
 --
@@ -73,7 +62,7 @@
 --     Returns an array with the set of unit ids for the current group.
 --]]
 
-local MAJOR, MINOR = "LibGroupInSpecT-1.1", tonumber (("$Revision: 79 $"):match ("(%d+)") or 0)
+local MAJOR, MINOR = "LibGroupInSpecT-1.1", tonumber (("$Revision: 83 $"):match ("(%d+)") or 0)
 
 if not LibStub then error(MAJOR.." requires LibStub") end
 local lib = LibStub:NewLibrary (MAJOR, MINOR)
@@ -88,7 +77,7 @@ local REMOVE_EVENT = "GroupInSpecT_Remove"
 local INSPECT_READY_EVENT = "GroupInSpecT_InspectReady"
 
 local COMMS_PREFIX = "LGIST11"
-local COMMS_FMT = "0"
+local COMMS_FMT = "1"
 local COMMS_DELIM = "\a"
 
 local INSPECT_DELAY = 1.5
@@ -161,7 +150,6 @@ end
 local CanInspect                      = _G.CanInspect
 local ClearInspectPlayer              = _G.ClearInspectPlayer
 local GetClassInfo                    = _G.GetClassInfo
-local GetGlyphSocketInfo              = _G.GetGlyphSocketInfo
 local GetNumSubgroupMembers           = _G.GetNumSubgroupMembers
 local GetNumSpecializationsForClassID = _G.GetNumSpecializationsForClassID
 local GetPlayerInfoByGUID             = _G.GetPlayerInfoByGUID
@@ -198,7 +186,7 @@ local global_spec_id_roles_detailed = {
   -- Hunter
   [253] = "ranged", -- Beast Mastery
   [254] = "ranged", -- Marksmanship
-  [255] = "ranged", -- Survival
+  [255] = "melee", -- Survival
   -- Mage
   [62] = "ranged", -- Arcane
   [63] = "ranged", -- Fire
@@ -241,24 +229,10 @@ local class_fixed_roles = {
 }
 
 local class_fixed_roles_detailed = {
-  HUNTER = "ranged",
   MAGE = "ranged",
   ROGUE = "melee",
   WARLOCK = "ranged",
 }
-
-local warrior_protection_spec_id = 73
-local warrior_anger_management_talent = 21204
-local warrior_ravager_talent = 21205
-local warrior_gladiators_resolve_talent = 21206
-local warrior_gladiator_stance = GetSpellInfo(156291)
-
-local function HasGladiatorStance (unit, info)
-  -- Check for "not the other two level-100 talents" in case talent info isn't ready.
-  local talents = info.talents
-  return talents and (talents[warrior_gladiators_resolve_talent] or (not talents[warrior_anger_management_talent] and not talents[warrior_ravager_talent])) and UnitBuff(unit, warrior_gladiator_stance)
-end
-
 
 -- Inspects only work after being fully logged in, so track that
 function lib:PLAYER_LOGIN ()
@@ -275,8 +249,6 @@ function lib:PLAYER_LOGIN ()
   frame:RegisterEvent ("UNIT_SPELLCAST_SUCCEEDED")
   frame:RegisterEvent ("UNIT_NAME_UPDATE")
   frame:RegisterEvent ("UNIT_AURA")
-  frame:RegisterEvent ("GLYPH_ADDED")
-  frame:RegisterEvent ("GLYPH_REMOVED")
   frame:RegisterEvent ("CHAT_MSG_ADDON")
   RegisterAddonMessagePrefix (COMMS_PREFIX)
 
@@ -321,7 +293,6 @@ end
 
 -- Caches to deal with API shortcomings as well as performance
 lib.static_cache.global_specs = {}           -- [gspec]         -> { .idx, .name_localized, .description, .icon, .background, .role }
-lib.static_cache.glyph_info = {}             -- [spell_id]      -> { .idx, .name_localized, .icon, .glyph_type, .glyph_id }
 lib.static_cache.class_to_class_id = {}      -- [CLASS]         -> class_id
 
 -- The talents cache can no longer be pre-fetched on login, but is now constructed class-by-class as we inspect people.
@@ -540,15 +511,6 @@ function lib:BuildInfo (unit)
     info.spec_role_detailed  = global_spec_id_roles_detailed[gspec_id]
   end
 
-  -- Fix role if unit is a protection warrior in Gladiator Stance.
-  -- Check for "not the other two level-100 talents" in case talent info isn't ready.
-  if info.global_spec_id == warrior_protection_spec_id then
-    if HasGladiatorStance (unit, info) then
-      info.spec_role = "DAMAGER"
-      info.spec_role_detailed = "melee"
-    end
-  end
-
   if not info.spec_role then info.spec_role = class and class_fixed_roles[class] end
   if not info.spec_role_detailed then info.spec_role_detailed = class and class_fixed_roles_detailed[class] end
 
@@ -568,24 +530,7 @@ function lib:BuildInfo (unit)
     end
   end
 
-  info.glyphs = wipe (info.glyphs or {})
-  local glyph_info = self.static_cache.glyph_info
-  for idx = 1, (NUM_GLYPH_SLOTS or 0) do
-    local enabled, glyph_type, _, spell_id, icon, glyph_id = GetGlyphSocketInfo (idx, nil, is_inspect, unit)
-    if spell_id and not glyph_info[spell_id] then -- not already available in the cache
-      glyph_info[spell_id] = {}
-      local glyph = glyph_info[spell_id]
-      glyph.spell_id = spell_id
-      glyph.glyph_type = glyph_type
-      glyph.idx = idx
-      glyph.icon = icon
-      glyph.glyph_id = glyph_id
-      glyph.name_localized = spell_id and (GetSpellInfo (spell_id)) or nil
-    end
-    if enabled and spell_id then
-      info.glyphs[spell_id] = glyph_info[spell_id]
-    end
-  end
+  info.glyphs = wipe (info.glyphs or {}) -- kept for addons that still refer to this
 
   if is_inspect and not UnitIsVisible (unit) and UnitIsConnected (unit) then info.not_visible = true end
 
@@ -676,8 +621,8 @@ function lib:SendLatestSpecData ()
   local info = self.cache[guid]
   if not info then return end
 
-  -- fmt, guid, global_spec_id, talent1 -> MAX_TALENT_TIERS, glyph1 -> NUM_GLYPH_SLOTS, glyph1 detail, glyph 2 detail,
-  -- sequentially, allow no gaps for missing talents/glyphs we decode by index on the receiving end.
+  -- fmt, guid, global_spec_id, talent1 -> MAX_TALENT_TIERS
+  -- sequentially, allow no gaps for missing talents we decode by index on the receiving end.
   local datastr = COMMS_FMT..COMMS_DELIM..guid..COMMS_DELIM..(info.global_spec_id or 0)
   local talentCount = 1
   for k in pairs(info.talents) do
@@ -687,19 +632,6 @@ function lib:SendLatestSpecData ()
   for i=talentCount,MAX_TALENT_TIERS do
     datastr = datastr..COMMS_DELIM..0
   end
-
-  local glyphCount = 1
-  local glyphstr = ""
-  for k,glyph in pairs(info.glyphs) do -- specifically ordered because we pull them out by index on the other end
-    datastr = datastr..COMMS_DELIM..k
-    glyphstr = glyphstr..COMMS_DELIM..(glyph.idx or "")..COMMS_DELIM..(glyph.glyph_id or "")..COMMS_DELIM..(glyph.glyph_type or "")
-    glyphCount = glyphCount + 1
-  end
-  for i=glyphCount,(NUM_GLYPH_SLOTS or 0) do
-    datastr = datastr..COMMS_DELIM..0
-    glyphstr = glyphstr..COMMS_DELIM..COMMS_DELIM..COMMS_DELIM -- unused entry, but keep format sound
-  end
-  datastr = datastr..glyphstr
 
   --[===[@debug@
   debug ("Sending LGIST update to "..scope) --@end-debug@]===]
@@ -722,8 +654,7 @@ msg_idx.fmt            = 1
 msg_idx.guid           = msg_idx.fmt + 1
 msg_idx.global_spec_id = msg_idx.guid + 1
 msg_idx.talents        = msg_idx.global_spec_id + 1
-msg_idx.glyphs         = msg_idx.talents + MAX_TALENT_TIERS
-msg_idx.glyph_detail   = msg_idx.glyphs + (NUM_GLYPH_SLOTS or 0)
+msg_idx.end_talents    = msg_idx.talents + MAX_TALENT_TIERS - 1
 
 function lib:CHAT_MSG_ADDON (prefix, datastr, scope, sender)
   if prefix ~= COMMS_PREFIX or scope ~= self.commScope then return end
@@ -768,20 +699,11 @@ function lib:CHAT_MSG_ADDON (prefix, datastr, scope, sender)
   info.spec_role           = gspecs[gspec_id].role
   info.spec_role_detailed  = global_spec_id_roles_detailed[gspec_id]
 
-  -- Fix role if unit is a protection warrior in Gladiator Stance.
-  -- Check for "not the other two level-100 talents" in case talent info isn't ready.
-  if info.global_spec_id == warrior_protection_spec_id then
-    if HasGladiatorStance (unit, info) then
-      info.spec_role = "DAMAGER"
-      info.spec_role_detailed = "melee"
-    end
-  end
-
   local need_inspect = nil
   info.talents = wipe (info.talents or {})
   local talents = self.static_cache.talents[info.class_id]
   if talents then -- The group entry is created before we have inspect-data, so may not have cached talents yet
-    for i = msg_idx.talents, msg_idx.glyphs - 1 do
+    for i = msg_idx.talents, msg_idx.end_talents do
       local talent_id = tonumber (data[i])
       if talent_id and talent_id > 0 then
         if talents[talent_id] then
@@ -797,29 +719,7 @@ function lib:CHAT_MSG_ADDON (prefix, datastr, scope, sender)
     need_inspect = 1
   end
 
-  local glyph_info = self.static_cache.glyph_info
-  info.glyphs = wipe (info.glyphs or {})
-  for i = msg_idx.glyphs, msg_idx.glyph_detail - 1 do
-    local spell_id = tonumber (data[i])
-    if spell_id and spell_id > 0 then
-      if not glyph_info[spell_id] then -- not yet in cache, add it
-        glyph_info[spell_id] = {}
-        local glyph = glyph_info[spell_id]
-        glyph.spell_id = spell_id
-
-        local offs = (i - msg_idx.glyphs) * 3 -- glyph details come in 3s (idx,glyph_id,glyph_type) so offset our index
-        local start = msg_idx.glyph_detail
-        glyph.idx        = tonumber (data[start + offs])
-        glyph.glyph_id   = tonumber (data[start + offs + 1])
-        glyph.glyph_type = tonumber (data[start + offs + 2])
-
-        local name, _, icon = GetSpellInfo(spell_id)
-        glyph.name_localized = name
-        glyph.icon           = icon
-      end
-      info.glyphs[spell_id] = glyph_info[spell_id]
-    end
-  end
+  info.glyphs = wipe (info.glyphs or {}) -- kept for addons that still refer to this
 
   local mainq, staleq = self.state.mainq, self.state.staleq
   local want_inspect = not need_inspect and self.inspect_ready_used and (mainq[guid] or staleq[guid]) and 1 or nil
@@ -855,16 +755,6 @@ function lib:PLAYER_SPECIALIZATION_CHANGED (unit)
   if unit and UnitIsUnit (unit, "player") then
     self:DoPlayerUpdate ()
   end
-end
-
-
-function lib:GLYPH_ADDED ()
-  self:DoPlayerUpdate ()
-end
-
-
-function lib:GLYPH_REMOVED ()
-  self:DoPlayerUpdate ()
 end
 
 
@@ -905,22 +795,6 @@ function lib:UNIT_AURA (unit)
         end
         --@end-debug@]===]
         info.not_visible = true
-      end
-    end
-
-    -- Fix role if unit is a protection warrior in Gladiator Stance.
-    -- Check for "not the other two level-100 talents" in case talent info isn't ready.
-    if info.global_spec_id == warrior_protection_spec_id then
-      if HasGladiatorStance (unit, info) then
-        if info.spec_role ~= "DAMAGER" then
-          info.spec_role = "DAMAGER"
-          info.spec_role_detailed = "melee"
-          self.events:Fire (UPDATE_EVENT, guid, unit, info)
-        end
-      elseif info.spec_role ~= "TANK" then
-        info.spec_role = "TANK"
-        info.spec_role_detailed = "tank"
-        self.events:Fire (UPDATE_EVENT, guid, unit, info)
       end
     end
   end
