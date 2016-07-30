@@ -42,7 +42,6 @@
 	local container_enemydebufftarget_target = _detalhes.container_type.CONTAINER_ENEMYDEBUFFTARGET_CLASS
 
 	local container_pets = {}
-	local cached_specs = _detalhes.cached_specs
 	
 	--> flags
 	local REACTION_HOSTILE	=	0x00000040
@@ -69,7 +68,7 @@
 	
 	function container_combatentes:GetSpellSource (spellid)
 		local t = self._ActorTable
-		print ("getting the source", spellid, #t)
+		--print ("getting the source", spellid, #t)
 		for i = 1, #t do
 			if (t[i].spells._ActorTable [spellid]) then
 				return t[i].nome
@@ -144,8 +143,10 @@
 				novo_objeto.spec = have_cached
 				--> check is didn't changed the spec:
 				_detalhes:ScheduleTimer ("ReGuessSpec", 15, {novo_objeto, self})
+				--print (nome, "spec em cache:", have_cached)
 			else
 				_detalhes:ScheduleTimer ("GuessSpec", 3, {novo_objeto, self, 1})
+				--print (nome, "nao tem")
 			end
 		end
 	

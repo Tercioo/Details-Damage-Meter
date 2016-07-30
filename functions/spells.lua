@@ -16,7 +16,7 @@ do
 		[175821] = true, --draenic pure rage potion
 	}
 	
-	_detalhes.SpecSpellList = {
+	_detalhes.SpecSpellList = { --~spec
 	
 		--demonhunter shared
 --		[185123] = ??, -- "Throw Glaive"
@@ -66,8 +66,12 @@ do
 		-- Frost Death Knight:
 		[130735] = 251, -- Soul Reaper
 		[51271] = 251, -- Pillar of Frost
-		[49020] = 251, -- Obliterate
-		[49143] = 251, -- Frost Strike
+		[49020] = 251, -- Obliterate --old?
+		[66198] = 251, -- Obliterate Off-Hand
+		[222024] = 251, -- Obliterate
+		[49143] = 251, -- Frost Strike --old?
+		[222026] = 251, -- Frost Strike
+		[66196] = 251, -- Frost Strike Off-Hand
 		[49184] = 251, -- Howling Blast
 		
 		-- Blood Death Knight:
@@ -226,7 +230,9 @@ do
 		[20164] = 70, -- Seal of Justice
 		[879] = 70, -- Exorcism
 		[53385] = 70, -- Divine Storm
-		[85256] = 70, -- Templar's Verdict
+		[224266] = 70, -- Templar's Verdict
+		[224239] = 70, -- Divine Storm
+		[184575] = 70, --Blade of Justice
 
 		-- Discipline Priest:
 		[152118] = 256, -- Clarity of Will
@@ -263,19 +269,33 @@ do
 		[15407] = 258, -- Mind Flay
 		
 		-- Assassination Rogue:
-		[79140] = 259, -- Vendetta
-		[111240] = 259, -- Dispatch
 		[32645] = 259, -- Envenom
 		[1329] = 259, -- Mutilate
+		[5374] = 259, -- Mutilate
+		[27576] = 259, -- Mutilate Off-Hand
 		[79134] = 259, -- Venomous Wounds
+		[192759] = 259, -- Kingsbane
+		[222062] = 259, -- Kingsbane
+		[192760] = 259, -- Kingsbane
+		[185565] = 259, -- Poisoned Knife
+		[51723] = 259, -- Fan of Knives
+		[703] = 259, -- Garrote
+		[192434] = 259, -- From the Shadows
+		[1943] = 259, -- Rupture
 	
-		-- Combat Rogue:
-		[51690] = 260, -- Killing Spree
-		[84617] = 260, -- Revealing Strike
+		-- Outlaw Rogue:
+		[2098] = 260, -- Run Through
+		[193315] = 260, -- Saber Slash
+		[185763] = 260, -- Pistol Shot
+		[199804] = 260, -- Between the Eyes
+		[86392] = 260, -- Main Gauche
 	
 		-- Subtlety Rogue:
 		[53] = 261, -- Backstab
-		[16511] = 261, -- Hemorrhage
+		[197835] = 261, -- Shuriken Storm
+		[196819] = 261, -- Eviscerate
+		[121473] = 261, -- Shadow Blade
+		[195452] = 261, -- Nightblade
 
 		-- Elemental Shaman:
 		[165399] = 262, -- Elemental Overload

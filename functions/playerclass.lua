@@ -252,7 +252,6 @@ do
 	function _detalhes:GuessSpec (t)
 		
 		local Actor, container, tries = t[1], t[2], t[3]
-		
 		if (not Actor) then
 			return false
 		end
@@ -283,6 +282,7 @@ do
 		--> get from the spell cast list
 		if (_detalhes.tabela_vigente) then
 			local misc_actor = _detalhes.tabela_vigente (4, Actor.nome)
+			
 			if (misc_actor and misc_actor.spell_cast) then
 				for spellid, _ in pairs (misc_actor.spell_cast) do
 					local spec = SpecSpellList [spellid]
@@ -302,6 +302,29 @@ do
 						end
 					
 						return spec
+					end
+				end
+			else
+				if (Actor.spells) then --> correcao pros containers misc, precisa pegar os diferentes tipos de containers de  lá
+					for spellid, _ in _pairs (Actor.spells._ActorTable) do 
+						local spec = SpecSpellList [spellid]
+						if (spec) then
+							_detalhes.cached_specs [Actor.serial] = spec
+						
+							Actor.spec = spec
+							Actor.guessing_spec = nil
+							
+							if (container) then
+								container.need_refresh = true
+							end
+							
+							if (Actor.minha_barra and type (Actor.minha_barra) == "table") then
+								Actor.minha_barra.minha_tabela = nil
+								_detalhes:ScheduleWindowUpdate (2, true)
+							end
+						
+							return spec
+						end
 					end
 				end
 			end
