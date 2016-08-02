@@ -3968,7 +3968,7 @@ function gump:CriaNovaBarra (instancia, index)
 	return new_row
 end
 
-function _detalhes:SetBarTextSettings (size, font, fixedcolor, leftcolorbyclass, rightcolorbyclass, leftoutline, rightoutline, customrighttextenabled, customrighttext, percentage_type, showposition, customlefttextenabled, customlefttext)
+function _detalhes:SetBarTextSettings (size, font, fixedcolor, leftcolorbyclass, rightcolorbyclass, leftoutline, rightoutline, customrighttextenabled, customrighttext, percentage_type, showposition, customlefttextenabled, customlefttext, smalloutline_left, smalloutlinecolor_left, smalloutline_right, smalloutlinecolor_right)
 	
 	--> size
 	if (size) then
@@ -4006,6 +4006,25 @@ function _detalhes:SetBarTextSettings (size, font, fixedcolor, leftcolorbyclass,
 	--> right text outline
 	if (type (rightoutline) == "boolean") then
 		self.row_info.textR_outline = rightoutline
+	end
+	
+	-- left text small outline and small outline color
+	if (type (smalloutline_left) == "boolean") then
+		self.row_info.textL_outline_small = smalloutline_left
+	end
+	if (smalloutlinecolor_left) then
+		local red, green, blue, alpha = gump:ParseColors (smalloutlinecolor_left)
+		local c = self.row_info.textL_outline_small_color
+		c[1], c[2], c[3], c[4] = red, green, blue, alpha
+	end
+	-- right text small outline and small outline color
+	if (type (smalloutline_right) == "boolean") then
+		self.row_info.textR_outline_small = smalloutline_right
+	end
+	if (smalloutlinecolor_right) then
+		local red, green, blue, alpha = gump:ParseColors (smalloutlinecolor_right)
+		local c = self.row_info.textR_outline_small_color
+		c[1], c[2], c[3], c[4] = red, green, blue, alpha
 	end
 	
 	--> custom left text
@@ -4393,6 +4412,10 @@ function _detalhes:InstanceRefreshRows (instancia)
 	--> outline values
 		local left_text_outline = self.row_info.textL_outline
 		local right_text_outline = self.row_info.textR_outline
+		local textL_outline_small = self.row_info.textL_outline_small
+		local textL_outline_small_color = self.row_info.textL_outline_small_color
+		local textR_outline_small = self.row_info.textR_outline_small
+		local textR_outline_small_color = self.row_info.textR_outline_small_color
 	
 	--> texture color values
 		local texture_class_color = self.row_info.texture_class_colors
@@ -4543,6 +4566,20 @@ function _detalhes:InstanceRefreshRows (instancia)
 			self:SetFontOutline (row.texto_direita, right_text_outline)
 		else
 			self:SetFontOutline (row.texto_direita, nil)
+		end
+		
+		--> small outline
+		if (textL_outline_small) then
+			local c = textL_outline_small_color
+			row.texto_esquerdo:SetShadowColor (c[1], c[2], c[3], c[4])
+		else
+			row.texto_esquerdo:SetShadowColor (0, 0, 0, 0)
+		end
+		if (textR_outline_small) then
+			local c = textR_outline_small_color
+			row.texto_direita:SetShadowColor (c[1], c[2], c[3], c[4])
+		else
+			row.texto_direita:SetShadowColor (0, 0, 0, 0)
 		end
 		
 		--> texture:

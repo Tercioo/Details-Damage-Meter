@@ -192,8 +192,12 @@ _detalhes.instance_defaults = {
 				fixed_text_color = {1, 1, 1},
 			--left text outline effect
 				textL_outline = true,
+				textL_outline_small = true,
+				textL_outline_small_color = {0, 0, 0, 1},
 			--right text outline effect
 				textR_outline = false,
+				textR_outline_small = true,
+				textR_outline_small_color = {0, 0, 0, 1},
 			--bar height
 				height = 14,
 			--font size

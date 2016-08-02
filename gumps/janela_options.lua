@@ -6211,7 +6211,7 @@ end
 
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- Appearance - Texts ~5
+-- Appearance - Texts 6
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 function window:CreateFrame5()
 
@@ -6365,6 +6365,51 @@ function window:CreateFrame5()
 		
 		window:CreateLineBackground2 (frame5, "textLeftOutlineSlider", "textLeftOutlineLabel", Loc ["STRING_OPTIONS_TEXT_LOUTILINE_DESC"])
 		
+	--> left outline small
+		g:NewSwitch (frame5, _, "$parentTextLeftOutlineSmallSlider", "textLeftOutlineSmallSlider", 60, 20, _, _, instance.row_info.textL_outline_small, nil, nil, nil, nil, options_switch_template)
+		g:NewLabel (frame5, _, "$parentTextLeftOutlineSmallLabel", "textLeftOutlineSmallLabel", "Outline", "GameFontHighlightLeft")
+		
+		frame5.textLeftOutlineSmallSlider:SetPoint ("left", frame5.textLeftOutlineSmallLabel, "right", 2)
+		frame5.textLeftOutlineSmallSlider:SetAsCheckBox()
+		frame5.textLeftOutlineSmallSlider.OnSwitch = function (self, instance, value)
+			instance:SetBarTextSettings (nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, value)
+			--(13, smalloutline_left, smalloutlinecolor_left, smalloutline_right, smalloutlinecolor_right)
+			--14 15 16 17
+			
+			if (_detalhes.options_group_edit and not DetailsOptionsWindow.loading_settings) then
+				for _, this_instance in ipairs (instance:GetInstanceGroup()) do
+					if (this_instance ~= instance) then
+						this_instance:SetBarTextSettings (nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, value)
+					end
+				end
+			end
+			
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+		end
+		
+		window:CreateLineBackground2 (frame5, "textLeftOutlineSmallSlider", "textLeftOutlineSmallLabel", "Text Outline")
+		
+	--> outline small color
+		local left_outline_small_callback = function (button, r, g, b, a)
+			local instance = _G.DetailsOptionsWindow.instance
+			instance:SetBarTextSettings (nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, {r, g, b, a})
+			
+			if (_detalhes.options_group_edit and not DetailsOptionsWindow.loading_settings) then
+				for _, this_instance in ipairs (instance:GetInstanceGroup()) do
+					if (this_instance ~= instance) then
+						this_instance:SetBarTextSettings (nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, {r, g, b, a})
+					end
+				end
+			end
+			
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+		end
+		g:NewColorPickButton (frame5, "$parentOutlineSmallColorLeft", "OutlineSmallColorLeft", left_outline_small_callback, false, options_button_template)
+		local OutlineSmallColorTextLeft = g:NewLabel (frame5, _, "$parentOutlineSmallLabelLeft", "OutlineSmallColorLabelLeft", "Outline Color", "GameFontHighlightLeft")
+		frame5.OutlineSmallColorLeft:SetPoint ("left", OutlineSmallColorTextLeft, "right", 2, 0)
+
+		window:CreateLineBackground2 (frame5, "OutlineSmallColorLeft", "OutlineSmallColorLabelLeft", "Outline Color")
+
 	--> left show positio number
 		g:NewSwitch (frame5, _, "$parentPositionNumberSlider", "PositionNumberSlider", 60, 20, _, _, instance.row_info.textL_show_number, nil, nil, nil, nil, options_switch_template)
 		g:NewLabel (frame5, _, "$parentPositionNumberLabel", "PositionNumberLabel", Loc ["STRING_OPTIONS_TEXT_LPOSITION"], "GameFontHighlightLeft")
@@ -6847,6 +6892,8 @@ function window:CreateFrame5()
 		local left_side = {
 			{"LeftTextAnchorLabel", 1, true},
 			{"textLeftOutlineLabel", 2},
+			{"textLeftOutlineSmallLabel", 2},
+			{"OutlineSmallColorLabelLeft", 2},
 			{"classColorsLeftTextLabel", 3},
 			{"PositionNumberLabel", 4},
 			{"cutomLeftTextLabel", 5, true},
@@ -10968,6 +11015,23 @@ end --> if not window
 		_G.DetailsOptionsWindow5RightTextShowPSSlider.MyObject:SetValue (editing_instance.row_info.textR_show_data [2])
 		_G.DetailsOptionsWindow5RightTextShowPercentSlider.MyObject:SetValue (editing_instance.row_info.textR_show_data [3])
 
+		_G.DetailsOptionsWindow5UseClassColorsLeftTextSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow5UseClassColorsLeftTextSlider.MyObject:SetValue (editing_instance.row_info.textL_class_colors)
+		_G.DetailsOptionsWindow5UseClassColorsRightTextSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow5UseClassColorsRightTextSlider.MyObject:SetValue (editing_instance.row_info.textR_class_colors)
+		
+		local r, g, b, a = unpack (editing_instance.row_info.textL_outline_small_color)
+		_G.DetailsOptionsWindow5OutlineSmallColorLeft.MyObject:SetColor (r, g, b, a)
+	
+		_G.DetailsOptionsWindow5TextLeftOutlineSmallSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow5TextLeftOutlineSmallSlider.MyObject:SetValue (editing_instance.row_info.textL_outline_small)
+		
+		
+		_G.DetailsOptionsWindow5TextLeftOutlineSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow5TextLeftOutlineSlider.MyObject:SetValue (editing_instance.row_info.textL_outline)
+		_G.DetailsOptionsWindow5TextRightOutlineSlider.MyObject:SetFixedParameter (editing_instance)
+		_G.DetailsOptionsWindow5TextRightOutlineSlider.MyObject:SetValue (editing_instance.row_info.textR_outline)
+		
 		--> window 6
 		_G.DetailsOptionsWindow6BackdropDropdown.MyObject:SetFixedParameter (editing_instance)
 		_G.DetailsOptionsWindow6BackdropDropdown.MyObject:Select (editing_instance.backdrop_texture)
@@ -11384,17 +11448,7 @@ end --> if not window
 		--
 		_G.DetailsOptionsWindow4ClassColorSlider.MyObject:SetFixedParameter (editing_instance)
 		_G.DetailsOptionsWindow4ClassColorSlider.MyObject:SetValue (editing_instance.row_info.texture_class_colors)
-		
-		
-		_G.DetailsOptionsWindow5UseClassColorsLeftTextSlider.MyObject:SetFixedParameter (editing_instance)
-		_G.DetailsOptionsWindow5UseClassColorsLeftTextSlider.MyObject:SetValue (editing_instance.row_info.textL_class_colors)
-		_G.DetailsOptionsWindow5UseClassColorsRightTextSlider.MyObject:SetFixedParameter (editing_instance)
-		_G.DetailsOptionsWindow5UseClassColorsRightTextSlider.MyObject:SetValue (editing_instance.row_info.textR_class_colors)
-		
-		_G.DetailsOptionsWindow5TextLeftOutlineSlider.MyObject:SetFixedParameter (editing_instance)
-		_G.DetailsOptionsWindow5TextLeftOutlineSlider.MyObject:SetValue (editing_instance.row_info.textL_outline)
-		_G.DetailsOptionsWindow5TextRightOutlineSlider.MyObject:SetFixedParameter (editing_instance)
-		_G.DetailsOptionsWindow5TextRightOutlineSlider.MyObject:SetValue (editing_instance.row_info.textR_outline)
+
 		--
 		_G.DetailsOptionsWindow9UseBackgroundSlider.MyObject:SetFixedParameter (editing_instance)
 		_G.DetailsOptionsWindow9BackgroundDropdown.MyObject:SetFixedParameter (editing_instance)

@@ -2881,7 +2881,7 @@ SPELL_POWER_OBSOLETE2 = 15;
 		end
 	end
 	
-	function parser:GetRealHitSourceFromBuffOwner (container, actor_serial, acter_name, acter_flags) --actor can be anything, a player, pet, etc
+	function parser:GetRealHitSourceFromBuffOwner (container, actor_serial, actor_name, actor_flags) --actor can be anything, a player, pet, etc
 		local target_buffs = container [actor_serial]
 		if (target_buffs) then
 			local real_source = source_cache [target_buffs [target_buffs.offset]]
@@ -2890,10 +2890,11 @@ SPELL_POWER_OBSOLETE2 = 15;
 			if (real_source) then
 				return unpack (real_source)
 			else
-				print ("Details! Debug: buff real source not found.")
+				--print ("Details! Debug: buff real source not found.")
+				return actor_serial, actor_name, actor_flags
 			end
 		end
-		return actor_serial, acter_name, acter_flags
+		return actor_serial, actor_name, actor_flags
 	end
 	
 	function parser:Handle3rdPartyBuff (container, source, target, is_applying, name, flags) --source/target are GUIDs/is_applying bool/name and flag are from the caster
