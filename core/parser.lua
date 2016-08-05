@@ -2865,17 +2865,19 @@ SPELL_POWER_OBSOLETE2 = 15;
 			for auraIndex = 1, 40 do
 				--gbom
 				local name, rank, texture, count, debuffType, duration, expirationTime, caster, canStealOrPurge, nameplateShowPersonal, spellId = UnitAura ("raid" .. i, auraIndex, "HELPFUL")
-				if (spellId == SPELLID_SHAMAN_SLASH_AURA) then
-					local source_serial = UnitGUID (caster)
-					local target_serial = UnitGUID ("raid" .. i)
-					local name, flag = get_name (_, caster), 0x514
-					parser:Handle3rdPartyBuff (shaman_slash, source_serial, target_serial, true, name, flag)
-					
-				elseif (spellId == SPELLID_PALADIN_GBOM_AURA) then
-					local source_serial = UnitGUID (caster)
-					local target_serial = UnitGUID ("raid" .. i)
-					local name, flag = get_name (_, caster), 0x514
-					parser:Handle3rdPartyBuff (paladin_gbom, source_serial, target_serial, true, name, flag)
+				if (name and caster and (UnitInRaid (caster) or UnitInParty (caster))) then
+					if (spellId == SPELLID_SHAMAN_SLASH_AURA) then
+						local source_serial = UnitGUID (caster)
+						local target_serial = UnitGUID ("raid" .. i)
+						local name, flag = get_name (_, caster), 0x514
+						parser:Handle3rdPartyBuff (shaman_slash, source_serial, target_serial, true, name, flag)
+						
+					elseif (spellId == SPELLID_PALADIN_GBOM_AURA) then
+						local source_serial = UnitGUID (caster)
+						local target_serial = UnitGUID ("raid" .. i)
+						local name, flag = get_name (_, caster), 0x514
+						parser:Handle3rdPartyBuff (paladin_gbom, source_serial, target_serial, true, name, flag)
+					end
 				end
 			end
 		end
