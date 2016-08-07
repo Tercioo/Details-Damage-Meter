@@ -22,6 +22,8 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> constants
 
+	local CONST_REALM_SYNC_ENABLED = false
+
 	local CONST_DETAILS_PREFIX = "DTLS"
 
 	local CONST_HIGHFIVE_REQUEST = "HI"
@@ -551,7 +553,7 @@
 
 	--> entrar no canal após logar no servidor
 	function _detalhes:EnterChatChannel()
-		if (not _detalhes.realm_sync) then
+		if (not _detalhes.realm_sync or not CONST_REALM_SYNC_ENABLED) then
 			return
 		end
 		
@@ -590,7 +592,7 @@
 	end
 	
 	function _detalhes:LeaveChatChannel()
-		if (not _detalhes.realm_sync) then
+		if (not _detalhes.realm_sync or not CONST_REALM_SYNC_ENABLED) then
 			return
 		end
 	
@@ -652,7 +654,7 @@
 	end
 	
 	function _detalhes:CheckChatOnZoneChange()
-		if (not _detalhes.realm_sync) then
+		if (not _detalhes.realm_sync or not CONST_REALM_SYNC_ENABLED) then
 			return
 		end
 		_detalhes:ScheduleTimer ("DoZoneCheck", 2)
