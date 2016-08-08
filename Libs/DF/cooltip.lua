@@ -156,6 +156,9 @@ function DF:CreateCoolTip()
 			frame1 = CreateFrame ("Frame", "GameCooltipFrame1", UIParent, "DFCooltipMainFrameTemplate")
 			tinsert (UISpecialFrames, "GameCooltipFrame1")
 			DF:CreateFlashAnimation (frame1)
+			
+			DF:CreateBorder (frame1)
+			
 		else
 			frame1 = GameCooltipFrame1
 		end
@@ -174,6 +177,8 @@ function DF:CreateCoolTip()
 			tinsert (UISpecialFrames, "GameCooltipFrame2")
 			DF:CreateFlashAnimation (frame2)
 			frame2:SetClampedToScreen (true)
+			
+			DF:CreateBorder (frame2)
 		else
 			frame2 = GameCooltipFrame2
 		end
@@ -602,7 +607,7 @@ function DF:CreateCoolTip()
 			CoolTip:ShowSelectedTexture (frame)
 		end
 		
-		local OnClickFunctionButtonPrincipal = function (self)
+		local OnClickFunctionButtonPrincipal = function (self, button)
 					if (CoolTip.IndexesSub [self.index] and CoolTip.IndexesSub [self.index] > 0) then
 						CoolTip:ShowSub (self.index)
 						CoolTip.last_button = self.index
@@ -619,18 +624,18 @@ function DF:CreateCoolTip()
 					
 					if (CoolTip.FunctionsTableMain [self.index]) then
 						local parameterTable = CoolTip.ParametersTableMain [self.index]
-						CoolTip.FunctionsTableMain [self.index] (_, CoolTip.FixedValue, parameterTable [1], parameterTable [2], parameterTable [3])
+						CoolTip.FunctionsTableMain [self.index] (_, CoolTip.FixedValue, parameterTable [1], parameterTable [2], parameterTable [3], button)
 					end
 				end
 				
-		local OnClickFunctionButtonSecundario = function (self)
+		local OnClickFunctionButtonSecundario = function (self, button)
 					CoolTip.buttonClicked = true
 					
 					CoolTip:SetSelectedAnchor (frame2, self)
 					
 					if (CoolTip.FunctionsTableSub [self.mainIndex] and CoolTip.FunctionsTableSub [self.mainIndex] [self.index]) then
 						local parameterTable = CoolTip.ParametersTableSub [self.mainIndex] [self.index]
-						CoolTip.FunctionsTableSub [self.mainIndex] [self.index] (_, CoolTip.FixedValue, parameterTable [1], parameterTable [2], parameterTable [3])
+						CoolTip.FunctionsTableSub [self.mainIndex] [self.index] (_, CoolTip.FixedValue, parameterTable [1], parameterTable [2], parameterTable [3], button)
 					end
 					
 					local botao_p = frame1.Lines [self.mainIndex]
@@ -2846,6 +2851,11 @@ function DF:CreateCoolTip()
 		
 		function CoolTip:ShowCooltip (frame, menuType, color)
 
+			frame1:SetFrameStrata ("TOOLTIP")
+			frame2:SetFrameStrata ("TOOLTIP")
+			frame1:SetParent (UIParent)
+			frame2:SetParent (UIParent)
+		
 			CoolTip.had_interaction = false
 		
 			if (frame) then
@@ -3066,10 +3076,10 @@ function DF:CreateCoolTip()
 			self:SetOption ("YSpacingMod", -4)
 			self:SetOption ("IgnoreButtonAutoHeight", true)
 			
-			--self:SetColor (1, 0.5, 0.5, 0.5, 0.5)
 			self:SetColor (1, 0.5, 0.5, 0.5, 0)
 			
 			self:SetBackdrop (1, preset2_backdrop, gray_table, black_table)
+			self:SetBackdrop (2, preset2_backdrop, gray_table, black_table)
 		end
 	end
 	

@@ -235,25 +235,37 @@ do
 		[184575] = 70, --Blade of Justice
 
 		-- Discipline Priest:
+		--[109964] = 256, -- Spirit Shell
+		--[47753] = 256, -- Divine Aegis
+		--[132157] = 256, -- Holy Nova
 		[152118] = 256, -- Clarity of Will
-		[109964] = 256, -- Spirit Shell
 		[62618] = 256, -- Power Word: Barrier
+		[194509] = 256, -- Power Word: Radiance
+		[129250] = 256, -- Power Word: Solace
 		[33206] = 256, -- Pain Suppression
 		[81751] = 256, -- Atonement
 		[94472] = 256, -- Atonement (crit)
-		[47753] = 256, -- Divine Aegis
-		[132157] = 256, -- Holy Nova
 		[47750] = 256, -- Penance
+		[214621] = 256, -- Schism
+		[200829] = 256, -- Plea
+		[47536] = 256, -- Rapture
+		[204197] = 256, -- Purge the Wicked
+
 		
 		-- Holy Priest:
 		[155245] = 257, -- Clarity of Purpose
 		[64843] = 257, -- Divine Hymn
 		[34861] = 257, -- Circle of Healing
 		[32546] = 257, -- Binding Heal
-		--[596] = 257, -- Prayer of Healing
-		[126135] = 257, -- Lightwell
+		[596] = 257, -- Prayer of Healing
+		[88625] = 257, -- Holy Word: Chastise
+		[2050] = 257, -- Holy Word: Serenity
+		[34861] = 257, -- Holy Word: Sanctify
+		[47788] = 257, -- Guardian Spirit
+		[132157] = 257, -- Holy Nova
+		--[126135] = 257, -- Lightwell
 		[139] = 257, -- Renew
-		--[88625] = 257, -- Holy Word: Chastise
+
 	
 		-- Shadow Priest:
 		--[127632] = 258, -- Cascade
@@ -264,9 +276,11 @@ do
 		[73510] = 258, -- Mind Spike
 		[78203] = 258, -- Shadowy Apparitions
 		[34914] = 258, -- Vampiric Touch
-		[2944] = 258, -- Devouring Plague
+		--[2944] = 258, -- Devouring Plague
 		[8092] = 258, -- Mind Blast
 		[15407] = 258, -- Mind Flay
+		[228266] = 258, -- Void Bolt
+		[228260] = 258, --Void Eruption
 		
 		-- Assassination Rogue:
 		[32645] = 259, -- Envenom
