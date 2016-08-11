@@ -114,6 +114,16 @@ end
 	local COORDS_PIN_RIGHT = {0.03564453125, 0.06494140625, 0.30126953125, 0.33056640625} -- 36 308 67 339 -ok
 	
 	-- icones: 365 = 0.35693359375 // 397 = 0.38720703125
+
+	local menus_backdrop = {
+		edgeFile = [[Interface\Buttons\WHITE8X8]],
+		edgeSize=1,
+		bgFile="Interface\\DialogFrame\\UI-DialogBox-Background-Dark",
+		tileSize=16,
+		tile=true,
+		insets = {top=0, right=0, left=0, bottom=0}
+	}
+	local menus_bordercolor = {0, 0, 0, .25}
 	
 function _detalhes:AtualizarScrollBar (x) --> x = quantas barras esta sendo mostrado
 
@@ -5710,9 +5720,8 @@ local build_mode_list = function (self, elapsed)
 		
 		_detalhes:SetMenuOwner (self, instancia)
 		
-		CoolTip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
-		--CoolTip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
-		CoolTip:SetBackdrop (2, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
+		CoolTip:SetBackdrop (1, menus_backdrop, nil, menus_bordercolor)
+		CoolTip:SetBackdrop (2, menus_backdrop, nil, menus_bordercolor)
 		CoolTip:SetWallpaper (1, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
 		
 		show_anti_overlap (instancia, self, "top")
@@ -5934,6 +5943,18 @@ local build_segment_list = function (self, elapsed)
 						local portrait = _detalhes:GetBossPortrait (thisCombat.is_boss.mapid, thisCombat.is_boss.index) or thisCombat.is_boss.bossimage
 						if (portrait) then
 							CoolTip:AddIcon (portrait, 2, "top", 128, 64)
+						else
+							local encounter_name = thisCombat.is_boss.encounter
+							local instanceID = thisCombat.is_boss.ej_instance_id
+							if (encounter_name and instanceID) then
+								local index, name, description, encounterID, rootSectionID, link = _detalhes:GetEncounterInfoFromEncounterName (instanceID, encounter_name)
+								if (index and name and encounterID) then
+									local id, name, description, displayInfo, iconImage = EJ_GetCreatureInfo (index, encounterID)
+									if (iconImage) then
+										CoolTip:AddIcon (iconImage, 2, "top", 128, 64)
+									end
+								end
+							end
 						end
 						CoolTip:AddIcon ([[Interface\AddOns\Details\images\icons]], "main", "left", 16, 16, 0.96875, 1, 0, 0.03125)
 						
@@ -6060,6 +6081,19 @@ local build_segment_list = function (self, elapsed)
 				local portrait = _detalhes:GetBossPortrait (_detalhes.tabela_vigente.is_boss.mapid, _detalhes.tabela_vigente.is_boss.index) or _detalhes.tabela_vigente.is_boss.bossimage
 				if (portrait) then
 					CoolTip:AddIcon (portrait, 2, "top", 128, 64)
+				else
+					local thisCombat = _detalhes.tabela_vigente
+					local encounter_name = thisCombat.is_boss.encounter
+					local instanceID = thisCombat.is_boss.ej_instance_id
+					if (encounter_name and instanceID) then
+						local index, name, description, encounterID, rootSectionID, link = _detalhes:GetEncounterInfoFromEncounterName (instanceID, encounter_name)
+						if (index and name and encounterID) then
+							local id, name, description, displayInfo, iconImage = EJ_GetCreatureInfo (index, encounterID)
+							if (iconImage) then
+								CoolTip:AddIcon (iconImage, 2, "top", 128, 64)
+							end
+						end
+					end
 				end
 				
 				if (_detalhes.tooltip.submenu_wallpaper) then
@@ -6219,8 +6253,8 @@ local build_segment_list = function (self, elapsed)
 
 		CoolTip:SetWallpaper (1, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
 
-		CoolTip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
-		CoolTip:SetBackdrop (2, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
+		CoolTip:SetBackdrop (1, menus_backdrop, nil, menus_bordercolor)
+		CoolTip:SetBackdrop (2, menus_backdrop, nil, menus_bordercolor)
 		
 		show_anti_overlap (instancia, self, "top")
 		
@@ -7783,7 +7817,7 @@ end
 		GameCooltip:AddMenu (1, _detalhes.tabela_historico.resetar)
 		
 		GameCooltip:SetWallpaper (1, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
-		GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
+		GameCooltip:SetBackdrop (1, menus_backdrop, nil, menus_bordercolor)
 		
 		show_anti_overlap (self.instance, self, "top")
 		
@@ -7892,8 +7926,8 @@ end
 		
 		GameCooltip:SetWallpaper (1, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
 		GameCooltip:SetWallpaper (2, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
-		GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
-		GameCooltip:SetBackdrop (2, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
+		GameCooltip:SetBackdrop (1, menus_backdrop, nil, menus_bordercolor)
+		GameCooltip:SetBackdrop (2, menus_backdrop, nil, menus_bordercolor)
 		
 		show_anti_overlap (self.instance, self, "top")
 		
@@ -7993,7 +8027,7 @@ local report_on_enter = function (self, motion, forced, from_click)
 	GameCooltip:AddMenu (1, _detalhes.Reportar, instancia, nil, "INSTANCE" .. instancia.meu_id)
 	
 	GameCooltip:SetWallpaper (1, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
-	GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
+	GameCooltip:SetBackdrop (1, menus_backdrop, nil, menus_bordercolor)
 	
 	show_anti_overlap (instancia, self, "top")
 	_detalhes:SetMenuOwner (self, instancia)
@@ -8068,8 +8102,8 @@ local atributo_on_enter = function (self, motion, forced, from_click)
 		_detalhes:MontaAtributosOption (instancia)
 	end
 	
-	GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
-	GameCooltip:SetBackdrop (2, _detalhes.tooltip_backdrop, nil, _detalhes.tooltip_border_color)
+	GameCooltip:SetBackdrop (1, menus_backdrop, nil, menus_bordercolor)
+	GameCooltip:SetBackdrop (2, menus_backdrop, nil, menus_bordercolor)
 	GameCooltip:SetOption ("TextSize", _detalhes.font_sizes.menus)
 	
 	_detalhes:SetMenuOwner (self, instancia)

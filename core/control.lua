@@ -1306,6 +1306,8 @@
 			end
 		end
 		
+		local bgColor, borderColor = {0.37, 0.37, 0.37, 1}, {0, 0, 0, .2}
+		
 		function _detalhes:BuildInstanceBarTooltip (frame)
 			local GameCooltip = GameCooltip
 			
@@ -1318,8 +1320,8 @@
 			GameCooltip:SetOption ("TextColorRight", _detalhes.tooltip.fontcolor_right)
 			GameCooltip:SetOption ("TextShadow", _detalhes.tooltip.fontshadow and "OUTLINE")
 			
-			GameCooltip:SetOption ("LeftBorderSize", -8)
-			GameCooltip:SetOption ("RightBorderSize", 8)
+			GameCooltip:SetOption ("LeftBorderSize", -4)
+			GameCooltip:SetOption ("RightBorderSize", 4)
 			GameCooltip:SetOption ("ButtonsYMod", 4)
 			
 			GameCooltip:SetOption ("RightTextMargin", 0)
@@ -1328,7 +1330,7 @@
 			GameCooltip:SetOption ("StatusBarTexture", [[Interface\AddOns\Details\images\bar_background]])
 
 			--GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, backgroundColor, _detalhes.tooltip_border_color) --{.090, .090, .188, .1}
-			GameCooltip:SetBackdrop (1, _detalhes.cooltip_preset2_backdrop, {0.37, 0.37, 0.37, 1}, {0, 0, 0, 1})
+			GameCooltip:SetBackdrop (1, _detalhes.cooltip_preset2_backdrop, bgColor, borderColor)
 			
 			local myPoint = _detalhes.tooltip.anchor_point
 			local anchorPoint = _detalhes.tooltip.anchor_relative

@@ -183,7 +183,7 @@ function DF:CreateCoolTip()
 			frame2 = GameCooltipFrame2
 		end
 
-		frame2:SetPoint ("bottomleft", frame1, "bottomright")
+		frame2:SetPoint ("bottomleft", frame1, "bottomright", 4, 0)
 		
 		GameCooltipFrame2_FrameBackgroundCenter:SetTexture (DF.folder .. "cooltip_background")
 		GameCooltipFrame2_FrameBackgroundCenter:SetTexCoord (0.10546875, 0.89453125, 0, 1)
@@ -598,11 +598,11 @@ function DF:CreateCoolTip()
 			frame.selectedTop:ClearAllPoints()
 			frame.selectedBottom:ClearAllPoints()
 		
-			frame.selectedTop:SetPoint ("topleft", button, "topleft", left, top) --
-			frame.selectedTop:SetPoint ("topright", button, "topright", right, top) --
+			frame.selectedTop:SetPoint ("topleft", button, "topleft", left+1, top) --
+			frame.selectedTop:SetPoint ("topright", button, "topright", right-1, top) --
 			
-			frame.selectedBottom:SetPoint ("bottomleft", button, "bottomleft", left, bottom) --
-			frame.selectedBottom:SetPoint ("bottomright", button, "bottomright", right, bottom) --
+			frame.selectedBottom:SetPoint ("bottomleft", button, "bottomleft", left+1, bottom) --
+			frame.selectedBottom:SetPoint ("bottomright", button, "bottomright", right-1, bottom) --
 
 			CoolTip:ShowSelectedTexture (frame)
 		end
@@ -871,7 +871,7 @@ function DF:CreateCoolTip()
 						end
 					end
 				else
-					menuButton.leftText:SetWidth (CoolTip.OptionsTable.FixedWidth - menuButton.leftIcon:GetWidth() - menuButton.rightText:GetStringWidth() - menuButton.rightIcon:GetWidth() - 30)
+					menuButton.leftText:SetWidth (CoolTip.OptionsTable.FixedWidth - menuButton.leftIcon:GetWidth() - menuButton.rightText:GetStringWidth() - menuButton.rightIcon:GetWidth() - 22)
 				end
 			else
 				if (not CoolTip.OptionsTable.FixedWidthSub) then
@@ -882,7 +882,7 @@ function DF:CreateCoolTip()
 						end
 					end
 				else
-					menuButton.leftText:SetWidth (CoolTip.OptionsTable.FixedWidthSub - menuButton.leftIcon:GetWidth() - 20)
+					menuButton.leftText:SetWidth (CoolTip.OptionsTable.FixedWidthSub - menuButton.leftIcon:GetWidth() - 12)
 				end
 			end
 			
@@ -1016,15 +1016,14 @@ function DF:CreateCoolTip()
 			--> setup statusbar
 			CoolTip:StatusBar (menuButton, CoolTip.StatusBarTableSub [mainMenuIndex] and CoolTip.StatusBarTableSub [mainMenuIndex] [index])
 
-
 			--> click
 			menuButton:RegisterForClicks ("LeftButtonDown")
 			
 			menuButton:ClearAllPoints()
 			menuButton:SetPoint ("center", frame2, "center")
 			menuButton:SetPoint ("top", frame2, "top", 0, (((index-1)*20)*-1)-3)
-			menuButton:SetPoint ("left", frame2, "left")
-			menuButton:SetPoint ("right", frame2, "right")
+			menuButton:SetPoint ("left", frame2, "left", -4, 0)
+			menuButton:SetPoint ("right", frame2, "right", 4, 0)
 			
 			DF:FadeFrame (menuButton, 0)
 			
@@ -1165,8 +1164,8 @@ function DF:CreateCoolTip()
 				menuButton:ClearAllPoints()
 				
 				menuButton:SetPoint ("center", frame2, "center")
-				menuButton:SetPoint ("left", frame2, "left")
-				menuButton:SetPoint ("right", frame2, "right")
+				menuButton:SetPoint ("left", frame2, "left", -4, 0)
+				menuButton:SetPoint ("right", frame2, "right", 4, 0)
 				
 				menuButton.rightText:SetText ("")
 				
@@ -1209,8 +1208,8 @@ function DF:CreateCoolTip()
 				if (CoolTip.OptionsTable.YSpacingModSub) then
 					spacing = spacing + CoolTip.OptionsTable.YSpacingModSub
 				end
-				menuButton:SetPoint ("left", frame2, "left")
-				menuButton:SetPoint ("right", frame2, "right")
+				menuButton:SetPoint ("left", frame2, "left", -4, 0)
+				menuButton:SetPoint ("right", frame2, "right", 4, 0)
 				
 				if (menuButton.divbar) then
 					menuButton.divbar:Hide()
@@ -1253,21 +1252,21 @@ function DF:CreateCoolTip()
 			local button = frame1.Lines [index]
 		
 			frame2:ClearAllPoints()
-			frame2:SetPoint ("left", button, "right")
+			frame2:SetPoint ("left", button, "right", 4, 0)
 			
 		elseif (CoolTip.OptionsTable.SubFollowButton and CoolTip.frame2_leftside) then
 		
 			local button = frame1.Lines [index]
 		
 			frame2:ClearAllPoints()
-			frame2:SetPoint ("right", button, "left")
+			frame2:SetPoint ("right", button, "left", -4, 0)
 			
 		elseif (CoolTip.frame2_leftside) then
 			frame2:ClearAllPoints()
-			frame2:SetPoint ("bottomright", frame1, "bottomleft")
+			frame2:SetPoint ("bottomright", frame1, "bottomleft", -4, 0)
 		else
 			frame2:ClearAllPoints()
-			frame2:SetPoint ("bottomleft", frame1, "bottomright")
+			frame2:SetPoint ("bottomleft", frame1, "bottomright", 4, 0)
 		end
 		
 	end
@@ -1344,8 +1343,8 @@ function DF:CreateCoolTip()
 			
 			menuButton:ClearAllPoints()
 			menuButton:SetPoint ("center", frame1, "center")
-			menuButton:SetPoint ("left", frame1, "left")
-			menuButton:SetPoint ("right", frame1, "right")
+			menuButton:SetPoint ("left", frame1, "left", -4, 0)
+			menuButton:SetPoint ("right", frame1, "right", 4, 0)
 			
 			--> height
 			if (CoolTip.OptionsTable.AlignAsBlizzTooltip) then
@@ -1536,8 +1535,8 @@ function DF:CreateCoolTip()
 				menuButton:SetHeight (4)
 				--> points
 				menuButton:ClearAllPoints()				
-				menuButton:SetPoint ("left", frame1, "left")
-				menuButton:SetPoint ("right", frame1, "right")
+				menuButton:SetPoint ("left", frame1, "left", -4, 0)
+				menuButton:SetPoint ("right", frame1, "right", 4, 0)
 				menuButton:SetPoint ("center", frame1, "center")
 				
 				local div_size_up = tonumber (CoolTip.LeftTextTable [i] [2])
@@ -1579,8 +1578,8 @@ function DF:CreateCoolTip()
 				if (CoolTip.OptionsTable.YSpacingMod) then
 					spacing = spacing + CoolTip.OptionsTable.YSpacingMod
 				end
-				menuButton:SetPoint ("left", frame1, "left")
-				menuButton:SetPoint ("right", frame1, "right")
+				menuButton:SetPoint ("left", frame1, "left", -4, 0)
+				menuButton:SetPoint ("right", frame1, "right", 4, 0)
 			
 				if (menuButton.divbar) then
 					menuButton.divbar:Hide()
@@ -1716,7 +1715,7 @@ function DF:CreateCoolTip()
 						CoolTip.overlap_checked = true
 						
 						frame2:ClearAllPoints()
-						frame2:SetPoint ("bottomright", frame1, "bottomleft")
+						frame2:SetPoint ("bottomright", frame1, "bottomleft", 4, 0)
 						CoolTip.frame2_leftside = true
 						--> diff
 						return CoolTip:SetMyPoint (host, CoolTip.internal_x_mod , CoolTip.internal_y_mod)
@@ -1748,7 +1747,7 @@ function DF:CreateCoolTip()
 						local diff = f2_start_point - f1_end_point
 
 						frame2:ClearAllPoints()
-						frame2:SetPoint ("bottomright", frame1, "bottomleft")
+						frame2:SetPoint ("bottomright", frame1, "bottomleft", 4, 0)
 						CoolTip.frame2_leftside = true
 					end
 				
@@ -1976,7 +1975,7 @@ function DF:CreateCoolTip()
 		function CoolTip:Reset()
 
 			frame2:ClearAllPoints()
-			frame2:SetPoint ("bottomleft", frame1, "bottomright")
+			frame2:SetPoint ("bottomleft", frame1, "bottomright", 4, 0)
 		
 			CoolTip:HideSelectedTexture (frame1)
 			CoolTip:HideSelectedTexture (frame2)

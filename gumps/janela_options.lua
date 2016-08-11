@@ -350,7 +350,7 @@ function _detalhes:OpenOptionsWindow (instance, no_reopen, section)
 		instances:SetPoint ("bottomright", window, "bottomright", -17, 09)
 		instances:SetHook ("OnEnter", function()
 			GameCooltip:Reset()
-			_detalhes:CooltipPreset (2)
+			GameCooltip:Preset (2)
 			GameCooltip:AddLine (Loc ["STRING_MINITUTORIAL_OPTIONS_PANEL1"])
 			GameCooltip:ShowCooltip (instances.widget, "tooltip")
 		end)
@@ -390,7 +390,7 @@ function _detalhes:OpenOptionsWindow (instance, no_reopen, section)
 		group_editing_help_frame:SetHook ("OnEnter", function()
 			group_editing_help:SetTexture ([[Interface\GossipFrame\ActiveQuestIcon]])
 			GameCooltip:Reset()
-			_detalhes:CooltipPreset (2)
+			GameCooltip:Preset (2)
 			GameCooltip:AddLine (Loc ["STRING_MINITUTORIAL_OPTIONS_PANEL3"])
 			GameCooltip:ShowCooltip (group_editing_help_frame, "tooltip")
 		end)
@@ -1118,7 +1118,8 @@ local menus2 = {
 			end
 			
 			if (self.parent and self.parent.info) then
-				_detalhes:CooltipPreset (2)
+				--GameCooltip:Preset (2)
+				GameCooltip:Preset (2)
 				GameCooltip:AddLine (self.parent.info)
 				GameCooltip:ShowCooltip (self, "tooltip")
 				return true
@@ -3782,7 +3783,7 @@ function window:CreateFrame1()
 				frame1.ChooseAvatarLabel:SetTextColor (1, 1, 1)
 			end
 			
-			_detalhes:CooltipPreset (2)
+			GameCooltip:Preset (2)
 			GameCooltip:AddLine (Loc ["STRING_OPTIONS_AVATAR_DESC"])
 			GameCooltip:ShowCooltip (frame1.chooseAvatarButton.widget, "tooltip")
 			--frame1.avatarPreview:SetBlendMode ("ADD")
@@ -4566,7 +4567,7 @@ function window:CreateFrame13()
 		exclamation_frame_texture:SetAllPoints()
 		exclamation_frame:SetScript ("OnEnter", function (self)
 			--show tooltip
-			_detalhes:CooltipPreset (2)
+			GameCooltip:Preset (2)
 			GameCooltip:AddLine (Loc ["STRING_OPTIONS_PROFILE_OVERWRITTEN"])
 			GameCooltip:ShowCooltip (self, "tooltip")
 		end)
@@ -7483,7 +7484,7 @@ function window:CreateFrame6()
 			window:CreateLineBackground2 (frame6, "WindowScaleSlider", "WindowScaleLabel", Loc ["STRING_OPTIONS_WINDOW_SCALE_DESC"])
 			
 			frame6.WindowScaleSlider:SetHook ("OnEnter", function()
-				_detalhes:CooltipPreset (2)
+				GameCooltip:Preset (2)
 				GameCooltip:AddLine (string.format (Loc ["STRING_OPTIONS_WINDOW_SCALE_DESC"], _G.DetailsOptionsWindow.instance.window_scale))
 				GameCooltip:ShowCooltip (frame6.WindowScaleSlider.widget, "tooltip")
 				return true
@@ -10416,7 +10417,7 @@ function window:CreateFrame12()
 		if (self.plugin) then
 			local desc = self.plugin:GetPluginDescription()
 			if (desc) then
-				_detalhes:CooltipPreset (2)
+				GameCooltip:Preset (2)
 				GameCooltip:AddLine (desc)
 				GameCooltip:SetType ("tooltip")
 				GameCooltip:SetOwner (self, "bottomleft", "topleft", 150, -2)

@@ -90,9 +90,13 @@ function DF:CreateAuraConfigPanel (parent, name, db, method_change_callback, opt
 		if (method == 0x1) then
 			f_auto:Show()
 			f_manual:Hide()
+			f.desc_label.text = "Auras are being tracked automatically, the addon controls what to show. You may entry an aura to ignore.\nCast spells to fill the Buff and Buff available boxes."
+			f.desc_label:SetPoint ("topleft", f.tracking_method, "topright", 10, 8)
 		elseif (method == 0x2) then
 			f_auto:Hide()
 			f_manual:Show()
+			f.desc_label.text = "Auras are being tracked manually, the addon only check for auras you entered below."
+			f.desc_label:SetPoint ("topleft", f.tracking_method, "topright", 10, 1)
 		end
 	end
 	
@@ -102,7 +106,7 @@ function DF:CreateAuraConfigPanel (parent, name, db, method_change_callback, opt
 			{label = "Manual", value = 0x2, onclick = on_select_tracking_option, desc = "Do not show any aura by default, you need to manually add each aura you want to track."},
 		}
 	end
-
+	
 	local tracking_method_label = self:CreateLabel (f, "Tracking Aura Method:", 12, "orange")
 	local tracking_method = self:CreateDropDown (f, tracking_options, f.db.aura_tracker.track_method, 120, 20, "dropdown_tracking_method", _, self:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE"))
 	
@@ -112,6 +116,11 @@ function DF:CreateAuraConfigPanel (parent, name, db, method_change_callback, opt
 	tracking_method.tooltip = "Choose which aura tracking method you want to use."
 	f.tracking_method = tracking_method
 	
+	f.desc_label = self:CreateLabel (f, "", 10, "silver")
+	f.desc_label:SetSize (400, 40)
+	f.desc_label:SetPoint ("topleft", tracking_method, "topright", 10, 8)
+	f.desc_label:SetJustifyV ("top")
+
 --------automatic
 
 	local ALL_BUFFS = {}
@@ -169,7 +178,7 @@ function DF:CreateAuraConfigPanel (parent, name, db, method_change_callback, opt
 	
 	--como ira preencher ela no inicio e como ficara o lance dos profiles
 
-	local y = -30
+	local y = -40
 	buff_available:SetPoint ("topleft", f_auto, "topleft", 0, y)
 	buff_ignored:SetPoint ("topleft", f_auto, "topleft", 6 + width, y)
 	debuff_available:SetPoint ("topleft", f_auto, "topleft", 12 + (width*2), y)
@@ -231,8 +240,11 @@ function DF:CreateAuraConfigPanel (parent, name, db, method_change_callback, opt
 	local scroll_lines = 15
 	local scroll_line_height = 20
 	
+	local backdrop_color = {.8, .8, .8, 0.2}
+	local backdrop_color_on_enter = {.8, .8, .8, 0.4}
+	
 	local line_onenter = function (self)
-		self:SetBackdropColor (.3, .3, .3, 0.4)
+		self:SetBackdropColor (unpack (backdrop_color_on_enter))
 		local spellid = select (7, GetSpellInfo (self.value))
 		if (spellid) then
 			GameTooltip:SetOwner (self, "ANCHOR_RIGHT");
@@ -242,8 +254,9 @@ function DF:CreateAuraConfigPanel (parent, name, db, method_change_callback, opt
 			GameTooltip:Show()
 		end
 	end
+	
 	local line_onleave = function (self)
-		self:SetBackdropColor (0, 0, 0, 0.2)
+		self:SetBackdropColor (unpack (backdrop_color))
 		GameTooltip:Hide()
 	end
 	local line_onclick = function (self)
@@ -269,7 +282,7 @@ function DF:CreateAuraConfigPanel (parent, name, db, method_change_callback, opt
 		line:SetScript ("OnClick", line_onclick)
 		
 		line:SetBackdrop ({bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
-		line:SetBackdropColor (0, 0, 0, 0.2)
+		line:SetBackdropColor (unpack (backdrop_color))
 		
 		local icon = line:CreateTexture ("$parentIcon", "overlay")
 		icon:SetSize (scroll_line_height, scroll_line_height)
@@ -349,7 +362,18 @@ function DF:CreateAuraConfigPanel (parent, name, db, method_change_callback, opt
 		new_buff_entry:SetText ("")
 		new_buff_entry:ClearFocus()
 		if (text ~= "") then
-			tinsert (f.db.aura_tracker.buff, text)
+			--> check for more than one spellname
+			if (text:find (";")) then
+				for _, spellname in ipairs ({strsplit (";", text)}) do
+					spellname = self:trim (spellname)
+					if (string.len (spellname) > 0) then
+						tinsert (f.db.aura_tracker.buff, spellname)
+					end
+				end
+			else
+				tinsert (f.db.aura_tracker.buff, text)
+			end
+			
 			buffs_added:Refresh()
 		end
 	end, 100, 20, "Add Buff", nil, nil, nil, nil, nil, nil, DF:GetTemplate ("button", "OPTIONS_BUTTON_TEMPLATE"))
@@ -358,17 +382,61 @@ function DF:CreateAuraConfigPanel (parent, name, db, method_change_callback, opt
 		new_debuff_entry:SetText ("")
 		new_debuff_entry:ClearFocus()
 		if (text ~= "") then
-			tinsert (f.db.aura_tracker.debuff, text)
+			--> check for more than one spellname
+			if (text:find (";")) then
+				for _, spellname in ipairs ({strsplit (";", text)}) do
+					spellname = self:trim (spellname)
+					if (string.len (spellname) > 0) then
+						tinsert (f.db.aura_tracker.debuff, spellname)
+					end
+				end
+			else
+				tinsert (f.db.aura_tracker.debuff, text)
+			end
 			debuffs_added:Refresh()
 		end
 	end, 100, 20, "Add Debuff", nil, nil, nil, nil, nil, nil, DF:GetTemplate ("button", "OPTIONS_BUTTON_TEMPLATE"))
+	
+	local multiple_spells_label = DF:CreateLabel (buffs_added, "You can add multiple auras at once by separating them with ';'.\nExample: Fireball; Frostbolt; Flamestrike", 10, "gray")
+	multiple_spells_label:SetSize (350, 60)
+	multiple_spells_label:SetJustifyV ("top")
+	
+	local export_box = self:CreateTextEntry (f_manual, function()end, 242, 20, "ExportAuraTextBox", _, _, options_dropdown_template)
+	
+	local export_buff_button = self:CreateButton (f_manual, function()
+		local str = ""
+		for _, spellname in ipairs (f.db.aura_tracker.buff) do
+			str = str .. spellname .. "; "
+		end
+		export_box.text = str
+		export_box:SetFocus (true)
+		export_box:HighlightText()
+		
+	end, 120, 20, "Export Buffs", nil, nil, nil, nil, nil, nil, DF:GetTemplate ("button", "OPTIONS_BUTTON_TEMPLATE"))
+	
+	local export_debuff_button = self:CreateButton (f_manual, function()
+		local str = ""
+		for _, spellname in ipairs (f.db.aura_tracker.debuff) do
+			str = str .. spellname .. "; "
+		end
+		export_box.text = str
+		export_box:SetFocus (true)
+		export_box:HighlightText()
+		
+	end, 120, 20, "Export Debuffs", nil, nil, nil, nil, nil, nil, DF:GetTemplate ("button", "OPTIONS_BUTTON_TEMPLATE"))
+	
+	multiple_spells_label:SetPoint ("topleft", f_manual, "topleft", 480, -120)
+	
+	export_buff_button:SetPoint ("topleft", f_manual, "topleft", 480, -160)
+	export_debuff_button:SetPoint ("left",export_buff_button, "right", 2, 0)
+	export_box:SetPoint ("topleft", f_manual, "topleft", 480, -185)
 	
 	new_buff_string:SetPoint ("topleft", f_manual, "topleft", 480, -40)
 	new_buff_entry:SetPoint ("topleft", new_buff_string, "bottomleft", 0, -2)
 	add_buff_button:SetPoint ("left", new_buff_entry, "right", 2, 0)
 	add_buff_button.tooltip = "Add the aura to be tracked.\n\nClick an aura on the list to remove it."
 	
-	new_debuff_string:SetPoint ("topleft", f_manual, "topleft", 480, -200)
+	new_debuff_string:SetPoint ("topleft", f_manual, "topleft", 480, -80)
 	new_debuff_entry:SetPoint ("topleft", new_debuff_string, "bottomleft", 0, -2)
 	add_debuff_button:SetPoint ("left", new_debuff_entry, "right", 2, 0)
 	add_debuff_button.tooltip = "Add the aura to be tracked.\n\nClick an aura on the list to remove it."

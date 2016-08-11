@@ -189,6 +189,19 @@ do
 		return _detalhes.EncounterInformation [mapid] and _detalhes.EncounterInformation [mapid].encounters [bossindex]
 	end
 	
+	function _detalhes:GetEncounterInfoFromEncounterName (EJID, encountername)
+		EJ_SelectInstance (EJID)
+		for i = 1, 20 do
+			local name = EJ_GetEncounterInfoByIndex (i, EJID)
+			if (not name) then
+				return
+			end
+			if (name == encountername or name:find (encountername)) then
+				return i, EJ_GetEncounterInfoByIndex (i, EJID)
+			end
+		end
+	end
+	
 	--> return the wallpaper for the raid instance
 	function _detalhes:GetRaidBackground (mapid)
 		local bosstables = _detalhes.EncounterInformation [mapid]

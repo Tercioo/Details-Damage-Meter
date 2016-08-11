@@ -1,5 +1,5 @@
 
-local dversion = 34
+local dversion = 35
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary (major, minor)
 
@@ -1194,6 +1194,10 @@ function DF:CreateAnimation (animation, type, order, duration, arg1, arg2, arg3,
 	elseif (type == "ROTATION") then
 		anim:SetDegrees (arg1) --degree
 		anim:SetOrigin (arg2 or "center", arg3 or 0, arg4 or 0) --point, x, y
+		
+	elseif (type == "TRANSLATION") then
+		anim:SetOffset (arg1, arg2)
+		
 	end
 	
 	animation.NextAnimation = animation.NextAnimation + 1	

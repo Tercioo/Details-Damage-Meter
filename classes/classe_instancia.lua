@@ -2023,6 +2023,10 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 		instancia = self
 	end
 	
+	if (iniciando_instancia == "LeftButton") then
+		iniciando_instancia = nil
+	end
+	
 	if (_type (instancia) == "number") then
 		sub_atributo = atributo
 		atributo = segmento
@@ -2214,10 +2218,10 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 			return --nao faz nada quando clicar no botão
 		end
 		
-		atributo_changed = true
+		atributo_changed  = true
 		instancia.atributo = atributo
 		instancia.sub_atributo = instancia.sub_atributo_last [atributo]
-		
+
 		--> troca icone
 		instancia:ChangeIcon()
 		
@@ -2326,7 +2330,7 @@ function _detalhes:TrocaTabela (instancia, segmento, atributo, sub_atributo, ini
 	instancia.v_barras = true
 	
 	instancia.showing [atributo].need_refresh = true
-	
+
 	if (not _detalhes.initializing and not iniciando_instancia) then
 		instancia:ResetaGump()
 		instancia:AtualizaGumpPrincipal (true)

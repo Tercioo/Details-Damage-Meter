@@ -500,13 +500,14 @@ function _G._detalhes:Start()
 			dev_text:SetAlpha (.3)
 			
 			if (self.tutorial.logons < 50) then
-				dev_text:SetText ("Details is Under\nDevelopment")
-				dev_icon:SetTexture ([[Interface\DialogFrame\UI-Dialog-Icon-AlertOther]])
+				--dev_text:SetText ("Details is Under\nDevelopment")
+				--dev_icon:SetTexture ([[Interface\DialogFrame\UI-Dialog-Icon-AlertOther]])
 			end
 		
 			--version
 			self.gump:Fade (instance._version, 0)
-			instance._version:SetText ("Details! Beta " .. _detalhes.userversion .. " (core: " .. self.realversion .. ")")
+			instance._version:SetText ("Details! " .. _detalhes.userversion .. " (core " .. self.realversion .. ")")
+			instance._version:SetTextColor (1, 1, 1, .35)
 			instance._version:SetPoint ("bottomleft", instance.baseframe, "bottomleft", 5, 1)
 
 			if (instance.auto_switch_to_old) then

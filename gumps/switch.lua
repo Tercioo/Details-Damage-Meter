@@ -39,11 +39,11 @@ do
 	frame.background = frame:CreateTexture (nil, "background")
 	frame.background:SetTexture ("Interface\\AddOns\\Details\\images\\background")
 	--frame.background:SetTexture ([[Interface\SPELLBOOK\Spellbook-Page-1]])
-	frame.background:SetTexCoord (331/512, 63/512, 109/512, 143/512)
+	--frame.background:SetTexCoord (331/512, 63/512, 109/512, 143/512)
 	frame.background:SetAllPoints()
 	frame.background:SetDesaturated (true)
 	--frame.background:SetVertexColor (1, 1, 1, 0.1)
-	frame.background:SetVertexColor (.8, .8, .8, 0.8)
+	frame.background:SetVertexColor (0, 0, 0, .8)
 	
 	frame.topbg = frame:CreateTexture (nil, "background")
 	frame.topbg:SetTexture ("Interface\\AddOns\\Details\\images\\background")
@@ -543,7 +543,7 @@ do
 	function _detalhes.switch:CloseMe()
 		_detalhes.switch.frame:Hide()
 		GameCooltip:Hide()
-		_detalhes.switch.frame:SetBackdropColor (24/255, 24/255, 24/255, .8)
+		_detalhes.switch.frame:SetBackdropColor (0, 0, 0, .7)
 		_detalhes.switch.current_instancia:StatusBarAlert (nil)
 		_detalhes.switch.current_instancia = nil
 	end
@@ -847,7 +847,7 @@ function _detalhes.switch:ShowMe (instancia)
 	
 	_detalhes.switch.frame:SetPoint ("topleft", instancia.baseframe, "topleft", 0, 1)
 	_detalhes.switch.frame:SetPoint ("bottomright", instancia.baseframe, "bottomright", 0, 1)
-	_detalhes.switch.frame:SetBackdropColor (0.094, 0.094, 0.094, .8)
+	_detalhes.switch.frame:SetBackdropColor (0, 0, 0, .7)
 	
 	local altura = instancia.baseframe:GetHeight()
 	local mostrar_quantas = _math_floor (altura / _detalhes.switch.button_height) * 2

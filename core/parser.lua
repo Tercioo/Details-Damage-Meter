@@ -121,6 +121,13 @@
 		[1] = true, --0x1 star
 	}
 	
+	local override_spellId = {
+		[184707] = 218617, --warrior rampage
+		[184709] = 218617, --warrior rampage
+		[201364] = 218617, --warrior rampage
+		[201363] = 218617, --warrior rampage
+	}
+	
 	local WARRIOR_RAMPAGE = {
 		[184707] = true,
 		[184709] = true,
