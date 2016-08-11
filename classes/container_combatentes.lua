@@ -56,6 +56,24 @@
 	local OBJECT_TYPE_PLAYER =	0x00000400
 	local OBJECT_TYPE_PETS = 	OBJECT_TYPE_PET + OBJECT_TYPE_GUARDIAN
 
+	local KirinTor = GetFactionInfoByID (1090) or "1"
+	local Valarjar = GetFactionInfoByID (1948) or "1"
+	local HighmountainTribe = GetFactionInfoByID (1828) or "1"
+	local CourtofFarondis = GetFactionInfoByID (1900) or "1"
+	local Dreamweavers = GetFactionInfoByID (1883) or "1"
+	local TheNightfallen = GetFactionInfoByID (1859) or "1"
+	local TheWardens = GetFactionInfoByID (1894) or "1"
+
+	local IsFactionNpc = {
+		[KirinTor] = true,
+		[Valarjar] = true,
+		[HighmountainTribe] = true,
+		[CourtofFarondis] = true,
+		[Dreamweavers] = true,
+		[TheNightfallen] = true,
+		[TheWardens] = true,
+	}
+	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> api functions
 
@@ -299,6 +317,7 @@
 	local pet_blacklist = {}
 	local pet_tooltip_frame = _G.DetailsPetOwnerFinder
 	local pet_text_object = _G ["DetailsPetOwnerFinderTextLeft2"]
+	local follower_text_object = _G ["DetailsPetOwnerFinderTextLeft3"]
 	
 	local find_pet_owner = function (serial, nome, flag, self)
 	
@@ -306,10 +325,17 @@
 		pet_tooltip_frame:SetHyperlink ("unit:" .. serial or "")
 		
 		local text = pet_text_object:GetText()
-		--print ("Unknow Owner:", nome, "ToolTip Text:", text)
-		
 		if (text and text ~= "") then
 			text = text:gsub ("'s", "") --> enUS
+			
+			if (IsFactionNpc [text]) then
+				text = follower_text_object:GetText()
+				if (text) then
+					text = text:gsub ("'s", "") --> enUS
+				else
+					return
+				end
+			end
 			
 			for _, ownerName in _ipairs ({strsplit (" ", text)}) do
 				local cur_combat = _detalhes.tabela_vigente
@@ -365,7 +391,6 @@
 			if (flag and _bit_band (flag, OBJECT_TYPE_PETGUARDIAN) ~= 0) then
 			
 				--[[statistics]]-- _detalhes.statistics.container_unknow_pet = _detalhes.statistics.container_unknow_pet + 1
-			
 				local find_nome, find_owner = find_pet_owner (serial, nome, flag, self)
 				if (find_nome and find_owner) then
 					nome, dono_do_pet = find_nome, find_owner
@@ -389,6 +414,11 @@
 			
 			--> seta a classe default para desconhecido, assim nenhum objeto fica com classe nil
 			novo_objeto.classe = "UNKNOW"
+
+--8/11 00:57:49.096  SPELL_DAMAGE,
+--Creature-0-2084-1220-24968-110715-00002BF677,"Archmage Modera",0x2111,0x0,
+--Creature-0-2084-1220-24968-94688-00002BF6A7,"Diseased Grub",0x10a48,0x0,
+--220128,"Frost Nova",0x10,Creature-0-2084-1220-24968-94688-00002BF6A7,0000000000000000,63802,311780,0,0,1,0,0,0,4319.26,4710.75,110,10271,-1,16,0,0,0,nil,nil,nil
 
 		-- tipo do container
 	------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------	
