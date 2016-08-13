@@ -5548,12 +5548,12 @@ local build_mode_list = function (self, elapsed)
 		CoolTip:SetOption ("ButtonHeightMod", -5)
 		
 		CoolTip:SetOption ("ButtonsYModSub", -3)
-		CoolTip:SetOption ("ButtonsYMod", -10)
+		CoolTip:SetOption ("ButtonsYMod", -6)
 		
 		CoolTip:SetOption ("YSpacingModSub", -3)
 		CoolTip:SetOption ("YSpacingMod", 1)
 		
-		CoolTip:SetOption ("HeighMod", 10)
+		CoolTip:SetOption ("HeighMod", 3)
 		
 		_detalhes:SetTooltipMinWidth()
 		
@@ -7801,8 +7801,8 @@ end
 		GameCooltip:SetOption ("TextHeightMod", 0)
 		GameCooltip:SetOption ("IgnoreButtonAutoHeight", false)
 		
-		GameCooltip:SetOption ("ButtonsYMod", -7)
-		GameCooltip:SetOption ("HeighMod", 8)
+		GameCooltip:SetOption ("ButtonsYMod", -3)
+		GameCooltip:SetOption ("HeighMod", 3)
 		
 		_detalhes:SetTooltipMinWidth()
 		
@@ -7995,8 +7995,8 @@ local report_on_enter = function (self, motion, forced, from_click)
 	GameCooltip:SetOption ("TextHeightMod", 0)
 	GameCooltip:SetOption ("IgnoreButtonAutoHeight", false)
 	
-	GameCooltip:SetOption ("ButtonsYMod", -7)
-	GameCooltip:SetOption ("HeighMod", 8)
+	GameCooltip:SetOption ("ButtonsYMod", -3)
+	GameCooltip:SetOption ("HeighMod", 3)
 	
 	_detalhes:SetTooltipMinWidth()
 	

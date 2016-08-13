@@ -1306,7 +1306,7 @@
 			end
 		end
 		
-		local bgColor, borderColor = {0.37, 0.37, 0.37, 1}, {0, 0, 0, .2}
+		local bgColor, borderColor = {0.37, 0.37, 0.37, .75}, {.30, .30, .30, .3}
 		
 		function _detalhes:BuildInstanceBarTooltip (frame)
 			local GameCooltip = GameCooltip

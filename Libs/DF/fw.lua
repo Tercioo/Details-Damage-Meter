@@ -1,5 +1,5 @@
 
-local dversion = 35
+local dversion = 37
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary (major, minor)
 
@@ -1234,9 +1234,9 @@ function DF:CreateBorder (parent, alpha1, alpha2, alpha3)
 		Layer1 = {},
 		Layer2 = {},
 		Layer3 = {},
-		Alpha1 = default_border_color1,
-		Alpha2 = default_border_color2,
-		Alpha3 = default_border_color3,
+		Alpha1 = alpha1 or default_border_color1,
+		Alpha2 = alpha2 or default_border_color2,
+		Alpha3 = alpha3 or default_border_color3,
 	}
 	
 	parent.SetBorderAlpha = SetBorderAlpha
@@ -1244,15 +1244,15 @@ function DF:CreateBorder (parent, alpha1, alpha2, alpha3)
 	local border1 = parent:CreateTexture (nil, "background")
 	border1:SetPoint ("topleft", parent, "topleft", -1, 1)
 	border1:SetPoint ("bottomleft", parent, "bottomleft", -1, -1)
-	border1:SetColorTexture (0, 0, 0, default_border_color1)
+	border1:SetColorTexture (0, 0, 0, alpha1 or default_border_color1)
 	local border2 = parent:CreateTexture (nil, "background")
 	border2:SetPoint ("topleft", parent, "topleft", -2, 2)
 	border2:SetPoint ("bottomleft", parent, "bottomleft", -2, -2)
-	border2:SetColorTexture (0, 0, 0, default_border_color2)
+	border2:SetColorTexture (0, 0, 0, alpha2 or default_border_color2)
 	local border3 = parent:CreateTexture (nil, "background")
 	border3:SetPoint ("topleft", parent, "topleft", -3, 3)
 	border3:SetPoint ("bottomleft", parent, "bottomleft", -3, -3)
-	border3:SetColorTexture (0, 0, 0, default_border_color3)
+	border3:SetColorTexture (0, 0, 0, alpha3 or default_border_color3)
 	
 	tinsert (parent.Borders.Layer1, border1)
 	tinsert (parent.Borders.Layer2, border2)
@@ -1261,15 +1261,15 @@ function DF:CreateBorder (parent, alpha1, alpha2, alpha3)
 	local border1 = parent:CreateTexture (nil, "background")
 	border1:SetPoint ("topleft", parent, "topleft", 0, 1)
 	border1:SetPoint ("topright", parent, "topright", 1, 1)
-	border1:SetColorTexture (0, 0, 0, default_border_color1)
+	border1:SetColorTexture (0, 0, 0, alpha1 or default_border_color1)
 	local border2 = parent:CreateTexture (nil, "background")
 	border2:SetPoint ("topleft", parent, "topleft", -1, 2)
 	border2:SetPoint ("topright", parent, "topright", 2, 2)
-	border2:SetColorTexture (0, 0, 0, default_border_color2)
+	border2:SetColorTexture (0, 0, 0, alpha2 or default_border_color2)
 	local border3 = parent:CreateTexture (nil, "background")
 	border3:SetPoint ("topleft", parent, "topleft", -2, 3)
 	border3:SetPoint ("topright", parent, "topright", 3, 3)
-	border3:SetColorTexture (0, 0, 0, default_border_color3)
+	border3:SetColorTexture (0, 0, 0, alpha3 or default_border_color3)
 	
 	tinsert (parent.Borders.Layer1, border1)
 	tinsert (parent.Borders.Layer2, border2)
@@ -1278,15 +1278,15 @@ function DF:CreateBorder (parent, alpha1, alpha2, alpha3)
 	local border1 = parent:CreateTexture (nil, "background")
 	border1:SetPoint ("topright", parent, "topright", 1, 0)
 	border1:SetPoint ("bottomright", parent, "bottomright", 1, -1)
-	border1:SetColorTexture (0, 0, 0, default_border_color1)
+	border1:SetColorTexture (0, 0, 0, alpha1 or default_border_color1)
 	local border2 = parent:CreateTexture (nil, "background")
 	border2:SetPoint ("topright", parent, "topright", 2, 1)
 	border2:SetPoint ("bottomright", parent, "bottomright", 2, -2)
-	border2:SetColorTexture (0, 0, 0, default_border_color2)
+	border2:SetColorTexture (0, 0, 0, alpha2 or default_border_color2)
 	local border3 = parent:CreateTexture (nil, "background")
 	border3:SetPoint ("topright", parent, "topright", 3, 2)
 	border3:SetPoint ("bottomright", parent, "bottomright", 3, -3)
-	border3:SetColorTexture (0, 0, 0, default_border_color3)
+	border3:SetColorTexture (0, 0, 0, alpha3 or default_border_color3)
 	
 	tinsert (parent.Borders.Layer1, border1)
 	tinsert (parent.Borders.Layer2, border2)
@@ -1295,15 +1295,15 @@ function DF:CreateBorder (parent, alpha1, alpha2, alpha3)
 	local border1 = parent:CreateTexture (nil, "background")
 	border1:SetPoint ("bottomleft", parent, "bottomleft", 0, -1)
 	border1:SetPoint ("bottomright", parent, "bottomright", 0, -1)
-	border1:SetColorTexture (0, 0, 0, default_border_color1)
+	border1:SetColorTexture (0, 0, 0, alpha1 or default_border_color1)
 	local border2 = parent:CreateTexture (nil, "background")
 	border2:SetPoint ("bottomleft", parent, "bottomleft", -1, -2)
 	border2:SetPoint ("bottomright", parent, "bottomright", 1, -2)
-	border2:SetColorTexture (0, 0, 0, default_border_color2)
+	border2:SetColorTexture (0, 0, 0, alpha2 or default_border_color2)
 	local border3 = parent:CreateTexture (nil, "background")
 	border3:SetPoint ("bottomleft", parent, "bottomleft", -2, -3)
 	border3:SetPoint ("bottomright", parent, "bottomright", 2, -3)
-	border3:SetColorTexture (0, 0, 0, default_border_color3)
+	border3:SetColorTexture (0, 0, 0, alpha3 or default_border_color3)
 	
 	tinsert (parent.Borders.Layer1, border1)
 	tinsert (parent.Borders.Layer2, border2)

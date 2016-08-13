@@ -2531,10 +2531,10 @@ function _detalhes:MontaAtributosOption (instancia, func)
 	end
 
 	CoolTip:SetOption ("StatusBarTexture", [[Interface\AddOns\Details\images\bar4_vidro]])
-	CoolTip:SetOption ("ButtonsYMod", -7)
-	CoolTip:SetOption ("ButtonsYModSub", -7)
-	CoolTip:SetOption ("HeighMod", 8)
-	CoolTip:SetOption ("HeighModSub", 8)
+	CoolTip:SetOption ("ButtonsYMod", -5)
+	CoolTip:SetOption ("ButtonsYModSub", -5)
+	CoolTip:SetOption ("HeighMod", 6)
+	CoolTip:SetOption ("HeighModSub", 6)
 	
 	CoolTip:SetOption ("SelectedTopAnchorMod", -2)
 	CoolTip:SetOption ("SelectedBottomAnchorMod", 2)
