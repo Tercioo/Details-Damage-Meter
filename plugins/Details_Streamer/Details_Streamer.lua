@@ -998,6 +998,8 @@ local lastChannelSpell = ""
 
 listener:SetScript ("OnEvent", function (self, event, ...)
 
+	--print (self, event, ...)
+
 	if (event == "UNIT_SPELLCAST_SENT") then
 		local unitID, spell, rank, target, id = ...
 		if (unitID == "player") then
@@ -1027,12 +1029,15 @@ listener:SetScript ("OnEvent", function (self, event, ...)
 		local unitID, spell, rank, id, spellID = ...
 		
 		if (unitID == "player") then
+			id = lastchannelid
+		
 			if (not CastsTable [id]) then
 				--print ("not", " - ", id, " - ", lastChannelSpell)
 				id = lastChannelSpell
+				if (not id or not CastsTable [id]) then
+					return
+				end
 			end
-			
-			id = lastchannelid
 			CastsTable [id].Interrupted = true
 			ischanneling = false
 			lastchannelid = nil
