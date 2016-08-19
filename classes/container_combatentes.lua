@@ -412,6 +412,8 @@
 			novo_objeto.flag_original = flag
 			novo_objeto.serial = serial
 			
+			--novo_objeto.grupo = true
+			
 			--> seta a classe default para desconhecido, assim nenhum objeto fica com classe nil
 			novo_objeto.classe = "UNKNOW"
 

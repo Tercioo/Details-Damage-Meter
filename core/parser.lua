@@ -88,7 +88,8 @@
 	--> special items
 		local soul_capacitor = {} --> trinket from Socrethar the Eternal
 		local paladin_gbom = {} --greater blessing of might
-		local shaman_slash = {} --storm lash
+		local shaman_slash = {} --storm slash
+		local shaman_slash_timers = {} --storm slash
 		local source_cache = {} --store the source's guid, name and flag
 		
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -140,6 +141,9 @@
 	local SPELLID_SHAMAN_SLASH_DAMAGE = 195256
 	local SPELLID_PALADIN_GBOM_AURA = 203528
 	local SPELLID_PALADIN_GBOM_DAMAGE = 205729
+	
+	local SPELLNAME_SHAMAN_SLASH = GetSpellInfo (195222)
+	local SPELLNAME_PALADIN_GBOM = GetSpellInfo (203528)
 	
 	--> recording data options flags
 		local _recording_self_buffs = false
@@ -238,9 +242,9 @@
 		end
 		
 		if (spellid == SPELLID_PALADIN_GBOM_DAMAGE) then
-			who_serial, who_name, who_flags = parser:GetRealHitSourceFromBuffOwner (paladin_gbom, who_serial, who_name, who_flags)
+			who_serial, who_name, who_flags = parser:GetRealHitSourceFromBuffOwner (paladin_gbom, who_serial, who_name, who_flags, SPELLNAME_PALADIN_GBOM)
 		elseif (spellid == SPELLID_SHAMAN_SLASH_DAMAGE) then
-			who_serial, who_name, who_flags = parser:GetRealHitSourceFromBuffOwner (shaman_slash, who_serial, who_name, who_flags)
+			who_serial, who_name, who_flags = parser:GetRealHitSourceFromBuffOwner (shaman_slash, who_serial, who_name, who_flags, SPELLNAME_SHAMAN_SLASH)
 		end
 		
 		--> REMOVE AFTER LEGION LAUNCH
@@ -1296,7 +1300,12 @@
 					soul_capacitor [who_serial] = _tempo
 					
 				elseif (spellid == SPELLID_SHAMAN_SLASH_AURA) then --shaman slash
-					--> handle the bugg on parser time
+					--> handle the buff on parser time
+					if (shaman_slash_timers [who_serial] and shaman_slash_timers [who_serial] [alvo_serial]) then
+						_detalhes:CancelTimer (shaman_slash_timers [who_serial] [alvo_serial])
+						shaman_slash_timers [who_serial] [alvo_serial] = nil
+					end
+					
 					parser:Handle3rdPartyBuff (shaman_slash, who_serial, alvo_serial, true, who_name, who_flags)
 					
 				elseif (spellid == SPELLID_PALADIN_GBOM_AURA) then --paladin gbom
@@ -1677,7 +1686,11 @@
 					soul_capacitor [who_serial] = nil
 					
 				elseif (spellid == SPELLID_SHAMAN_SLASH_AURA) then --shaman slash
-					parser:Handle3rdPartyBuff (shaman_slash, who_serial, alvo_serial)
+					--as @Kihra from WCL mentioned, slash has a travel time, the hit may land after the buff has gone
+					local delay_timer = _detalhes:ScheduleTimer ("HandleSlashUnbuff", 2.5, shaman_slash, who_serial, alvo_serial)
+					shaman_slash_timers [who_serial] = shaman_slash_timers [who_serial] or {}
+					shaman_slash_timers [who_serial] [alvo_serial] = delay_timer
+					--parser:Handle3rdPartyBuff (shaman_slash, who_serial, alvo_serial)
 				
 				elseif (spellid == SPELLID_PALADIN_GBOM_AURA) then --paladin gbom
 					parser:Handle3rdPartyBuff (paladin_gbom, who_serial, alvo_serial)
@@ -2724,7 +2737,15 @@ SPELL_POWER_OBSOLETE2 = 15;
 					ignore_death [alvo_name] = nil
 					return
 				end
-			
+
+				if (alvo_name == _detalhes.playername) then
+					--print ("DEATH", GetTime())
+					
+					if (_detalhes.LatestCombatDone and _detalhes.LatestCombatDone+0.2 > GetTime()) then
+					--	print ("Eh Maior que 0.2")
+					end
+				end
+				
 				_current_misc_container.need_refresh = true
 				
 				--> combat totals
@@ -2855,7 +2876,6 @@ SPELL_POWER_OBSOLETE2 = 15;
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> core
 
-	local shaman_slash = {} --storm lash
 	--[[	
 		paladin buffs = {}
 		player = paladin buffs [ target GUID  ]
@@ -2877,20 +2897,43 @@ SPELL_POWER_OBSOLETE2 = 15;
 		parser:WipeSourceCache()
 		local get_name = _detalhes.GetCLName
 		
-		for i = 1, _GetNumGroupMembers() do 
+		local unit_type = IsInRaid() and "raid" or "party"
+		
+		for i = 1, (_GetNumGroupMembers() + (unit_type == "party" and -1 or 0)) do 
 			for auraIndex = 1, 40 do
 				--gbom
-				local name, rank, texture, count, debuffType, duration, expirationTime, caster, canStealOrPurge, nameplateShowPersonal, spellId = UnitAura ("raid" .. i, auraIndex, "HELPFUL")
+				local name, rank, texture, count, debuffType, duration, expirationTime, caster, canStealOrPurge, nameplateShowPersonal, spellId = UnitAura (unit_type .. i, auraIndex, "HELPFUL")
 				if (name and caster and (UnitInRaid (caster) or UnitInParty (caster))) then
 					if (spellId == SPELLID_SHAMAN_SLASH_AURA) then
 						local source_serial = UnitGUID (caster)
-						local target_serial = UnitGUID ("raid" .. i)
+						local target_serial = UnitGUID (unit_type .. i)
 						local name, flag = get_name (_, caster), 0x514
 						parser:Handle3rdPartyBuff (shaman_slash, source_serial, target_serial, true, name, flag)
 						
 					elseif (spellId == SPELLID_PALADIN_GBOM_AURA) then
 						local source_serial = UnitGUID (caster)
-						local target_serial = UnitGUID ("raid" .. i)
+						local target_serial = UnitGUID (unit_type .. i)
+						local name, flag = get_name (_, caster), 0x514
+						parser:Handle3rdPartyBuff (paladin_gbom, source_serial, target_serial, true, name, flag)
+					end
+				end
+			end
+		end
+		
+		if (unit_type == "party") then
+			for auraIndex = 1, 40 do
+				--gbom
+				local name, rank, texture, count, debuffType, duration, expirationTime, caster, canStealOrPurge, nameplateShowPersonal, spellId = UnitAura ("player", auraIndex, "HELPFUL")
+				if (name and caster and (UnitInParty (caster))) then
+					if (spellId == SPELLID_SHAMAN_SLASH_AURA) then
+						local source_serial = UnitGUID (caster)
+						local target_serial = UnitGUID ("player")
+						local name, flag = get_name (_, caster), 0x514
+						parser:Handle3rdPartyBuff (shaman_slash, source_serial, target_serial, true, name, flag)
+						
+					elseif (spellId == SPELLID_PALADIN_GBOM_AURA) then
+						local source_serial = UnitGUID (caster)
+						local target_serial = UnitGUID ("player")
 						local name, flag = get_name (_, caster), 0x514
 						parser:Handle3rdPartyBuff (paladin_gbom, source_serial, target_serial, true, name, flag)
 					end
@@ -2899,7 +2942,7 @@ SPELL_POWER_OBSOLETE2 = 15;
 		end
 	end
 	
-	function parser:GetRealHitSourceFromBuffOwner (container, actor_serial, actor_name, actor_flags) --actor can be anything, a player, pet, etc
+	function parser:GetRealHitSourceFromBuffOwner (container, actor_serial, actor_name, actor_flags, spellname) --actor can be anything, a player, pet, etc
 		local target_buffs = container [actor_serial]
 		if (target_buffs) then
 			local real_source = source_cache [target_buffs [target_buffs.offset]]
@@ -2908,7 +2951,14 @@ SPELL_POWER_OBSOLETE2 = 15;
 			if (real_source) then
 				return unpack (real_source)
 			else
-				--print ("Details! Debug: buff real source not found.")
+				--query the player buffs if not found on cache
+				local name, rank, texture, count, debuffType, duration, expirationTime, caster, canStealOrPurge, nameplateShowPersonal, spellId = UnitAura (actor_name, spellname)
+				if (name) then
+					local source_serial = UnitGUID (caster)
+					if (source_serial) then
+						parser:Handle3rdPartyBuff (container, source_serial, actor_serial, true, _detalhes:GetCLName (caster), 0x514)
+					end
+				end
 				return actor_serial, actor_name, actor_flags
 			end
 		end
@@ -2956,6 +3006,13 @@ SPELL_POWER_OBSOLETE2 = 15;
 				end
 			end
 		end
+	end
+	
+	function _detalhes:HandleSlashUnbuff (shaman_slash, who_serial, alvo_serial)
+		--local container, who_serial, alvo_serial = unpack (data)
+--		print ("slash unbuff:", shaman_slash, who_serial, alvo_serial)
+		parser:Handle3rdPartyBuff (shaman_slash, who_serial, alvo_serial)
+		shaman_slash_timers [who_serial] [alvo_serial] = nil
 	end
 
 	local token_list = {
@@ -3581,6 +3638,9 @@ SPELL_POWER_OBSOLETE2 = 15;
 	end
 
 	function _detalhes.parser_functions:PLAYER_REGEN_ENABLED (...)
+	
+		_detalhes.LatestCombatDone = GetTime()
+--		print ("REGEN ENABLED", GetTime())
 	
 		--> playing alone, just finish the combat right now
 		if (not _IsInGroup() and not IsInRaid()) then	

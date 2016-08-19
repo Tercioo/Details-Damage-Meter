@@ -655,7 +655,7 @@ function DF:NewTextEntry (parent, container, name, member, w, h, func, param1, p
 			OnTextChanged = {},
 			OnTabPressed = {},
 		}
-	
+		
 		TextEntryObject.editbox:SetScript ("OnEnter", OnEnter)
 		TextEntryObject.editbox:SetScript ("OnLeave", OnLeave)
 		TextEntryObject.editbox:SetScript ("OnHide", OnHide)

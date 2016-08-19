@@ -1,5 +1,5 @@
 
-local dversion = 37
+local dversion = 41
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary (major, minor)
 
@@ -113,6 +113,8 @@ local embed_functions = {
 	"CreateInCombatTexture",
 	"CreateAnimationHub",
 	"CreateAnimation",
+	"CreateScrollBox",
+	"CreateBorder",
 }
 
 DF.table = {}

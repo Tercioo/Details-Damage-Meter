@@ -4356,7 +4356,7 @@ function atributo_damage:MontaDetalhesDamageDone (spellid, barra, instancia)
 			t1[5] = Loc ["STRING_MAXIMUM_SHORT"] .. ": " .. _detalhes:comma_value (esta_magia.n_max)
 			t1[6] = Loc ["STRING_AVERAGE"] .. ": " .. _detalhes:comma_value (media_normal)
 			t1[7] = Loc ["STRING_DPS"] .. ": " .. _detalhes:comma_value (normal_dmg/T)
-			t1[8] = normal_hits .. " / " .. _cstr ("%.1f", normal_hits/total_hits*100) .. "%"
+			t1[8] = normal_hits .. " [|cFFC0C0C0" .. _cstr ("%.1f", normal_hits/total_hits*100) .. "%|r]"
 			
 		end
 
@@ -4372,7 +4372,7 @@ function atributo_damage:MontaDetalhesDamageDone (spellid, barra, instancia)
 			end
 			
 			critical_table.p = esta_magia.c_amt/total_hits*100
-
+			
 			data[#data+1] = t2
 			
 			t2[1] = esta_magia.c_amt
@@ -4382,7 +4382,7 @@ function atributo_damage:MontaDetalhesDamageDone (spellid, barra, instancia)
 			t2[5] = Loc ["STRING_MAXIMUM_SHORT"] .. ": " .. _detalhes:comma_value (esta_magia.c_max)
 			t2[6] = Loc ["STRING_AVERAGE"] .. ": " .. _detalhes:comma_value (media_critico)
 			t2[7] = Loc ["STRING_DPS"] .. ": " .. _detalhes:comma_value (crit_dps)
-			t2[8] = esta_magia.c_amt .. " / " .. _cstr ("%.1f", esta_magia.c_amt/total_hits*100) .. "%"
+			t2[8] = esta_magia.c_amt .. " [|cFFC0C0C0" .. _cstr ("%.1f", esta_magia.c_amt/total_hits*100) .. "%|r]"
 
 		end
 		

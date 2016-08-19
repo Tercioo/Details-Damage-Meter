@@ -3050,8 +3050,11 @@ local gframe_update = function (self, lines)
 		end
 	end
 	
+	self.MaxValue = max_value
+	
 	local o = 1
 	local lastvalue = self:GetHeight()/2
+	max_value = math.max (max_value, 0.0000001)
 	
 	for i = 1, min (amtlines, self._maxlines) do
 		
@@ -3095,6 +3098,8 @@ function DF:CreateGFrame (parent, w, h, linewidth, onenter, onleave, member, nam
 	f.GetLine = gframe_getline
 	f.Reset = gframe_reset
 	f.UpdateLines = gframe_update
+	
+	f.MaxValue = 0
 	
 	f._lines = {}
 	
@@ -3522,7 +3527,7 @@ DF.ScrollBoxFunctions.Refresh = function (self)
 	
 	local okay, totalLines = pcall (self.refresh_func, self, self.data, offset, #self.Frames)
 	if (not okay) then
-		error ("Details! FrameWork: Refresh(): " .. result)
+		error ("Details! FrameWork: Refresh(): " .. totalLines)
 	end
 
 	for _, frame in ipairs (self.Frames) do 

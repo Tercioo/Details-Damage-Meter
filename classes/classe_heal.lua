@@ -1926,7 +1926,7 @@ function atributo_heal:MontaDetalhesHealingDone (spellid, barra)
 			t2[5] = Loc ["STRING_MAXIMUM_SHORT"] .. ": " .. _detalhes:comma_value (esta_magia.c_max)
 			t2[6] = Loc ["STRING_AVERAGE"] .. ": " .. _detalhes:comma_value (media_critico)
 			t2[7] = Loc ["STRING_HPS"] .. ": " .. _detalhes:comma_value (crit_hps)
-			t2[8] = esta_magia.c_amt .. " / ".. _cstr ("%.1f", esta_magia.c_amt/total_hits*100) .. "%"
+			t2[8] = esta_magia.c_amt .. " [|cFFC0C0C0".. _cstr ("%.1f", esta_magia.c_amt/total_hits*100) .. "%|r]"
 			
 		end
 		
@@ -1951,7 +1951,7 @@ function atributo_heal:MontaDetalhesHealingDone (spellid, barra)
 			t3[5] = "On Normals: " .. (esta_magia.m_amt - esta_magia.m_crit)
 			t3[6] = Loc ["STRING_AVERAGE"] .. ": " .. _detalhes:comma_value (multistrike_heal / multistrike_hits)
 			t3[7] = Loc ["STRING_HPS"] .. ": " .. _detalhes:comma_value (multistrike_heal / T)
-			t3[8] = multistrike_hits .. " / " .. _cstr ("%.1f", multistrike_hits / total_hits * 100) .. "%"
+			t3[8] = multistrike_hits .. " [|cFFC0C0C0" .. _cstr ("%.1f", multistrike_hits / total_hits * 100) .. "%|r]"
 
 		end
 		
