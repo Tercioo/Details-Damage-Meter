@@ -670,7 +670,16 @@ function _G._detalhes:Start()
 	end
 	
 	_detalhes.AddOnStartTime = GetTime()
-
+	
+	--_detalhes.player_details_window.skin = "ElvUI"
+	if (_detalhes.player_details_window.skin ~= "ElvUI") then
+		local reset_player_detail_window = function()
+			_detalhes:ApplyPDWSkin ("ElvUI")
+		end
+		C_Timer.After (2, reset_player_detail_window)
+	end
+	
+	_detalhes.tooltip.tooltip_max_abilities = 8
 end
 
 _detalhes.AddOnLoadFilesTime = GetTime()

@@ -5485,8 +5485,8 @@ function window:CreateFrame3()
 			{"makeDefault", 11},
 			{"applyToAll", 12},
 			
-			{"PDWAnchor", 13, true},
-			{"PDWSkinLabel", 14},
+			--{"PDWAnchor", 13, true},
+			--{"PDWSkinLabel", 14},
 		}
 		
 		local right_side = {

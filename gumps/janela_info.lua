@@ -3191,7 +3191,7 @@ function gump:CriaJanelaInfo()
 			local hits = bar1[3][1]
 			local average = bar1[3][2]
 			local critical = bar1[3][3]
-
+			
 			local player1_misc = info.instancia.showing (4, player1)
 			local player2_misc = info.instancia.showing (4, player2)
 			local player3_misc = info.instancia.showing (4, player3)
@@ -3199,12 +3199,29 @@ function gump:CriaJanelaInfo()
 			local player1_uptime
 			local player1_casts
 			
+			local COMPARE_FIRSTPLAYER_PERCENT = "100%"
+			local COMPARE_UNKNOWNDATA = "-"
+			
 			if (bar1[2].righttext:GetText()) then
 				bar1[2]:SetStatusBarColor (1, 1, 1, 1)
 				bar1[2].icon:SetTexCoord (.1, .9, .1, .9)
-				frame1.tooltip.hits_label2:SetText (hits)
-				frame1.tooltip.average_label2:SetText (_detalhes:ToK2Min (average))
-				frame1.tooltip.crit_label2:SetText (critical .. "%")
+				
+				frame1.tooltip.hits_label3:SetText (hits)
+				frame1.tooltip.average_label3:SetText (_detalhes:ToK2Min (average))
+				frame1.tooltip.crit_label3:SetText (critical .. "%")
+				
+				--2 = far left text (percent comparison)
+				--3 = total in numbers
+				
+				_detalhes.gump:SetFontColor (frame1.tooltip.hits_label2, "gray")
+				_detalhes.gump:SetFontColor (frame1.tooltip.average_label2, "gray")
+				_detalhes.gump:SetFontColor (frame1.tooltip.crit_label2, "gray")
+				_detalhes.gump:SetFontColor (frame1.tooltip.casts_label2, "gray")
+				_detalhes.gump:SetFontColor (frame1.tooltip.uptime_label2, "gray")
+				
+				frame1.tooltip.hits_label2:SetText (COMPARE_FIRSTPLAYER_PERCENT)
+				frame1.tooltip.average_label2:SetText (COMPARE_FIRSTPLAYER_PERCENT)
+				frame1.tooltip.crit_label2:SetText (COMPARE_FIRSTPLAYER_PERCENT)
 				
 				if (player1_misc) then
 				
@@ -3213,15 +3230,25 @@ function gump:CriaJanelaInfo()
 					if (spell) then
 						local minutos, segundos = _math_floor (spell.uptime/60), _math_floor (spell.uptime%60)
 						player1_uptime = spell.uptime
-						frame1.tooltip.uptime_label2:SetText (minutos .. "m" .. segundos .. "s")
+						frame1.tooltip.uptime_label3:SetText (minutos .. "m" .. segundos .. "s")
+						frame1.tooltip.uptime_label2:SetText (COMPARE_FIRSTPLAYER_PERCENT)
+						_detalhes.gump:SetFontColor (frame1.tooltip.uptime_label2, "gray")
+						_detalhes.gump:SetFontColor (frame1.tooltip.uptime_label3, "white")
 					else
-						frame1.tooltip.uptime_label2:SetText ("--x--x--")
+						frame1.tooltip.uptime_label3:SetText (COMPARE_UNKNOWNDATA)
+						frame1.tooltip.uptime_label2:SetText (COMPARE_UNKNOWNDATA)
+						_detalhes.gump:SetFontColor (frame1.tooltip.uptime_label2, "gray")
+						_detalhes.gump:SetFontColor (frame1.tooltip.uptime_label3, "gray")
 					end
 					
 					--total casts
 					local amt_casts = player1_misc.spell_cast and player1_misc.spell_cast [spellid]
 					if (amt_casts) then
-						frame1.tooltip.casts_label2:SetText (amt_casts)
+						frame1.tooltip.casts_label3:SetText (amt_casts)
+						frame1.tooltip.casts_label2:SetText (COMPARE_FIRSTPLAYER_PERCENT)
+						
+						_detalhes.gump:SetFontColor (frame1.tooltip.casts_label3, "white")
+						
 						player1_casts = amt_casts
 					else
 						local spellname = GetSpellInfo (spellid)
@@ -3229,7 +3256,11 @@ function gump:CriaJanelaInfo()
 						for casted_spellid, amount in _pairs (player1_misc.spell_cast or {}) do
 							local casted_spellname = GetSpellInfo (casted_spellid)
 							if (casted_spellname == spellname) then
-								frame1.tooltip.casts_label2:SetText (amount)
+								frame1.tooltip.casts_label3:SetText (amount)
+								frame1.tooltip.casts_label2:SetText (COMPARE_FIRSTPLAYER_PERCENT)
+								
+								_detalhes.gump:SetFontColor (frame1.tooltip.casts_label3, "white")
+								
 								player1_casts = amount
 								extra_search_found = true
 								break
@@ -3237,11 +3268,23 @@ function gump:CriaJanelaInfo()
 						end
 						
 						if (not extra_search_found) then
+							frame1.tooltip.casts_label3:SetText ("?")
 							frame1.tooltip.casts_label2:SetText ("?")
+							
+							_detalhes.gump:SetFontColor (frame1.tooltip.casts_label3, "silver")
+							_detalhes.gump:SetFontColor (frame1.tooltip.casts_label2, "silver")
 						end
 					end
 				else
-					frame1.tooltip.uptime_label2:SetText ("--x--x--")
+					frame1.tooltip.uptime_label3:SetText (COMPARE_UNKNOWNDATA)
+					frame1.tooltip.uptime_label2:SetText (COMPARE_UNKNOWNDATA)
+					_detalhes.gump:SetFontColor (frame1.tooltip.uptime_label2, "gray")
+					_detalhes.gump:SetFontColor (frame1.tooltip.uptime_label3, "gray")
+					
+					frame1.tooltip.casts_label3:SetText ("?")
+					frame1.tooltip.casts_label2:SetText ("?")
+					_detalhes.gump:SetFontColor (frame1.tooltip.casts_label3, "gray")
+					_detalhes.gump:SetFontColor (frame1.tooltip.casts_label2, "gray")
 				end
 				
 				frame1.tooltip:Show()
@@ -3252,6 +3295,7 @@ function gump:CriaJanelaInfo()
 				bar2 [2]:SetStatusBarColor (unpack (bar_color_on_enter))
 				bar2[2].icon:SetTexCoord (.1, .9, .1, .9)
 				
+				-- hits
 				if (hits > bar2[3][1]) then
 					local diff = hits - bar2[3][1]
 					local up = diff / bar2[3][1] * 100
@@ -3272,6 +3316,7 @@ function gump:CriaJanelaInfo()
 					frame2.tooltip.hits_label2:SetText (" |c" .. plus .. down .. "%|r")
 				end
 				
+				--average
 				if (average > bar2[3][2]) then
 					local diff = average - bar2[3][2]
 					local up = diff / bar2[3][2] * 100
@@ -3292,18 +3337,32 @@ function gump:CriaJanelaInfo()
 					frame2.tooltip.average_label2:SetText (" |c" .. plus .. down .. "%|r")
 				end
 				
+				--criticals
 				if (critical > bar2[3][3]) then
-					local diff = critical - bar2[3][3]
-					local up = diff / math.max (bar2[3][3] * 100, 0.1)
-					up = _math_floor (up)
-					if (up > 999) then
+					--[[
+					local percent = abs ((bar2[3][3] / critical * 100) -100)
+					percent = _math_floor (percent)
+					if (percent > 999) then
 						up = "" .. 999
 					end
 					frame2.tooltip.crit_label3:SetText (bar2[3][3] .. "%")
-					frame2.tooltip.crit_label2:SetText (" |c" .. minor .. up .. "%|r")
+					frame2.tooltip.crit_label2:SetText (" |c" .. minor .. percent .. "%|r")
+					--]]
+					local diff = critical - bar2[3][3]
+					diff = diff / bar2[3][3] * 100
+					diff = _math_floor (diff)
+					if (diff > 999) then
+						diff = "" .. 999
+					end
+					frame2.tooltip.crit_label3:SetText (bar2[3][3] .. "%")
+					frame2.tooltip.crit_label2:SetText (" |c" .. minor .. diff .. "%|r")
 				else
 					local diff = bar2[3][3] - critical
-					local down = diff / math.max (critical * 100, 0.1)
+					local down = diff / math.max (critical, 0.1) * 100
+					--bar2[3][3] = 62 critical = 53 diff = 9
+					--print (diff, bar2[3][3], critical)
+					--print (math.max (critical * 100, 0.1))
+					
 					down = _math_floor (down)
 					if (down > 999) then
 						down = "" .. 999
@@ -3312,6 +3371,7 @@ function gump:CriaJanelaInfo()
 					frame2.tooltip.crit_label2:SetText (" |c" .. plus .. down .. "%|r")
 				end
 				
+				--update and total casts
 				if (player2_misc) then
 				
 					--uptime
@@ -3342,8 +3402,15 @@ function gump:CriaJanelaInfo()
 							frame2.tooltip.uptime_label3:SetText (minutos .. "m" .. segundos .. "s")
 							frame2.tooltip.uptime_label2:SetText ("|c" .. plus .. down .. "%|r")
 						end
+						
+						_detalhes.gump:SetFontColor (frame2.tooltip.uptime_label3, "white")
+						_detalhes.gump:SetFontColor (frame2.tooltip.uptime_label2, "white")
+						
 					else
-						frame2.tooltip.uptime_label2:SetText ("--x--x--")
+						frame2.tooltip.uptime_label3:SetText (COMPARE_UNKNOWNDATA)
+						frame2.tooltip.uptime_label2:SetText (COMPARE_UNKNOWNDATA)
+						_detalhes.gump:SetFontColor (frame2.tooltip.uptime_label3, "gray")
+						_detalhes.gump:SetFontColor (frame2.tooltip.uptime_label2, "gray")
 					end
 					
 					--total casts
@@ -3358,11 +3425,12 @@ function gump:CriaJanelaInfo()
 							end
 						end
 					end
-					
 					if (amt_casts) then
 						
 						if (not player1_casts) then
-							frame2.tooltip.casts_label2:SetText (amt_casts)
+							frame2.tooltip.casts_label3:SetText (amt_casts)
+							frame2.tooltip.casts_label2:SetText (COMPARE_UNKNOWNDATA)
+							
 						elseif (player1_casts > amt_casts) then
 							local diff = player1_casts - amt_casts
 							local up = diff / amt_casts * 100
@@ -3379,15 +3447,23 @@ function gump:CriaJanelaInfo()
 							if (down > 999) then
 								down = "" .. 999
 							end
-							frame3.tooltip.casts_label3:SetText (amt_casts)
+							frame2.tooltip.casts_label3:SetText (amt_casts)
 							frame2.tooltip.casts_label2:SetText ("|c" .. plus .. down .. "%|r")
 						end
+						
+						_detalhes.gump:SetFontColor (frame2.tooltip.casts_label3, "white")
+						_detalhes.gump:SetFontColor (frame2.tooltip.casts_label2, "white")
 					else
 						frame2.tooltip.casts_label2:SetText ("?")
+						frame2.tooltip.casts_label3:SetText ("?")
+						_detalhes.gump:SetFontColor (frame2.tooltip.casts_label3, "gray")
+						_detalhes.gump:SetFontColor (frame2.tooltip.casts_label2, "gray")
 					end
 				else
-					frame2.tooltip.uptime_label2:SetText ("--x--x--")
-					
+					frame2.tooltip.casts_label2:SetText (COMPARE_UNKNOWNDATA)
+					frame2.tooltip.casts_label2:SetText (COMPARE_UNKNOWNDATA)
+					frame2.tooltip.uptime_label3:SetText (COMPARE_UNKNOWNDATA)
+					frame2.tooltip.uptime_label2:SetText (COMPARE_UNKNOWNDATA)
 				end
 
 				frame2.tooltip:Show()
@@ -3399,6 +3475,7 @@ function gump:CriaJanelaInfo()
 				bar3 [2]:SetStatusBarColor (unpack (bar_color_on_enter))
 				bar3[2].icon:SetTexCoord (.1, .9, .1, .9)
 				
+				--hits
 				if (hits > bar3[3][1]) then
 					local diff = hits - bar3[3][1]
 					local up = diff / bar3[3][1] * 100
@@ -3419,6 +3496,7 @@ function gump:CriaJanelaInfo()
 					frame3.tooltip.hits_label2:SetText (" |c" .. plus .. down .. "%|r")
 				end
 
+				--average
 				if (average > bar3[3][2]) then
 					local diff = average - bar3[3][2]
 					local up = diff / bar3[3][2] * 100
@@ -3439,18 +3517,30 @@ function gump:CriaJanelaInfo()
 					frame3.tooltip.average_label2:SetText (" |c" .. plus .. down .. "%|r")
 				end
 				
+				--critical
 				if (critical > bar3[3][3]) then
-					local diff = critical - bar3[3][3]
-					local up = diff / bar3[3][3] * 100
-					up = _math_floor (up)
-					if (up > 999) then
-						up = "" .. 999
+					--[[
+					local percent = abs ((bar3[3][3] / critical * 100) -100)
+					--local diff = critical - bar3[3][3]
+					--local up = diff / bar3[3][3] * 100
+					percent = _math_floor (percent)
+					if (percent > 999) then
+						percent = "" .. 999
 					end
 					frame3.tooltip.crit_label3:SetText (bar3[3][3] .. "%")
-					frame3.tooltip.crit_label2:SetText (" |c" .. minor .. up .. "%|r")
+					frame3.tooltip.crit_label2:SetText (" |c" .. minor .. percent .. "%|r")
+					--]]
+					local diff = critical - bar3[3][3]
+					diff = diff / bar3[3][3] * 100
+					diff = _math_floor (diff)
+					if (diff > 999) then
+						diff = "" .. 999
+					end
+					frame3.tooltip.crit_label3:SetText (bar3[3][3] .. "%")
+					frame3.tooltip.crit_label2:SetText (" |c" .. minor .. diff .. "%|r")
 				else
 					local diff = bar3[3][3] - critical
-					local down = diff / critical * 100
+					local down = diff / math.max (critical, 0.1) * 100
 					down = _math_floor (down)
 					if (down > 999) then
 						down = "" .. 999
@@ -3459,6 +3549,7 @@ function gump:CriaJanelaInfo()
 					frame3.tooltip.crit_label2:SetText (" |c" .. plus .. down .. "%|r")
 				end
 
+				--uptime and casts
 				if (player3_misc) then
 				
 					--uptime
@@ -3489,8 +3580,14 @@ function gump:CriaJanelaInfo()
 							frame3.tooltip.uptime_label3:SetText (minutos .. "m" .. segundos .. "s")
 							frame3.tooltip.uptime_label2:SetText ("|c" .. plus .. down .. "%|r")
 						end
+						
+						_detalhes.gump:SetFontColor (frame3.tooltip.casts_label3, "white")
+						_detalhes.gump:SetFontColor (frame3.tooltip.casts_label2, "white")
 					else
-						frame3.tooltip.uptime_label2:SetText ("--x--x--")
+						frame3.tooltip.uptime_label3:SetText (COMPARE_UNKNOWNDATA)
+						frame3.tooltip.uptime_label2:SetText (COMPARE_UNKNOWNDATA)
+						_detalhes.gump:SetFontColor (frame3.tooltip.uptime_label3, "gray")
+						_detalhes.gump:SetFontColor (frame3.tooltip.uptime_label2, "gray")
 					end
 					
 					--total casts
@@ -3527,14 +3624,23 @@ function gump:CriaJanelaInfo()
 								down = "" .. 999
 							end
 							frame3.tooltip.casts_label3:SetText (amt_casts)
-							frame3.tooltip.casts_label2:SetText (" |c" .. plus .. down .. "%)|r")
+							frame3.tooltip.casts_label2:SetText (" |c" .. plus .. down .. "%|r")
 						end
+						
+						_detalhes.gump:SetFontColor (frame3.tooltip.casts_label3, "white")
+						_detalhes.gump:SetFontColor (frame3.tooltip.casts_label2, "white")
 					else
 						frame3.tooltip.casts_label2:SetText ("?")
+						frame3.tooltip.casts_label3:SetText ("?")
+						_detalhes.gump:SetFontColor (frame3.tooltip.casts_label3, "gray")
+						_detalhes.gump:SetFontColor (frame3.tooltip.casts_label2, "gray")
 					end					
 					
 				else
-					frame3.tooltip.uptime_label2:SetText ("--x--x--")
+					frame3.tooltip.casts_label3:SetText (COMPARE_UNKNOWNDATA)
+					frame3.tooltip.casts_label2:SetText (COMPARE_UNKNOWNDATA)
+					frame3.tooltip.uptime_label3:SetText (COMPARE_UNKNOWNDATA)
+					frame3.tooltip.uptime_label2:SetText (COMPARE_UNKNOWNDATA)
 				end
 				
 				frame3.tooltip:Show()
@@ -3637,7 +3743,7 @@ function gump:CriaJanelaInfo()
 				_detalhes.gump:CreateBorder (tooltip)
 				
 				tooltip:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]], tileSize = 64, tile = true})
-				tooltip:SetBackdropColor (unpack (_detalhes.tooltip_border_color))
+				tooltip:SetBackdropColor (0, 0, 0, 1)
 				tooltip:SetBackdropBorderColor (0, 0, 0, 1)
 				tooltip:SetSize (275, 77)
 				tooltip:SetFrameStrata ("tooltip")
@@ -3739,7 +3845,7 @@ function gump:CriaJanelaInfo()
 			local create_tooltip_target = function (name)
 				local tooltip = CreateFrame ("frame", name, UIParent)
 				tooltip:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\AddOns\Details\images\background]], tileSize = 64, tile = true})
-				tooltip:SetBackdropColor (unpack (_detalhes.tooltip_border_color))
+				tooltip:SetBackdropColor (0, 0, 0, 1)
 				tooltip:SetBackdropBorderColor (0, 0, 0, 1)
 				tooltip:SetSize (175, 67)
 				tooltip:SetFrameStrata ("tooltip")

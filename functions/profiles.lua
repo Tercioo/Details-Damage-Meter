@@ -1038,7 +1038,7 @@ local default_profile = {
 			border_color = {0, 0, 0, 1},
 			border_size = 14,
 			
-			tooltip_max_abilities = 5,
+			tooltip_max_abilities = 8,
 			tooltip_max_targets = 2,
 			tooltip_max_pets = 2,
 			
