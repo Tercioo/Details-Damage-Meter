@@ -79,6 +79,34 @@ do
 		end
 	end
 	
+	function _detalhes:GetPlayerIcon (playerName, segment)
+		segment = segment or _detalhes.tabela_vigente
+		
+		local texture
+		local L, R, T, B
+
+		local playerObject = segment (1, playerName)
+		if (not playerObject or not playerObject.spec) then
+			playerObject = segment (2, playerName)
+		end
+		
+		if (playerObject) then
+			local spec = playerObject.spec
+			if (spec) then
+				texture = [[Interface\AddOns\Details\images\spec_icons_normal]]
+				L, R, T, B = unpack (_detalhes.class_specs_coords [spec])
+			else
+				texture = [[Interface\AddOns\Details\images\classes_small]]
+				L, R, T, B = unpack (_detalhes.class_coords [playerObject.classe or "UNKNOW"])
+			end
+		else
+			texture = [[Interface\AddOns\Details\images\classes_small]]
+			L, R, T, B = unpack (_detalhes.class_coords ["UNKNOW"])
+		end
+		
+		return texture, L, R, T, B
+	end
+	
 	function _detalhes:GuessClass (t)
 	
 		local Actor, container, tries = t[1], t[2], t[3]

@@ -2339,9 +2339,13 @@ function gump:CriaJanelaInfo()
 		local frame_backdrop_color = {0, 0, 0, 0.35}
 		local frame_backdrop_border_color = {0, 0, 0, 0}
 		
-		local spell_compare_frame_width = {290, 220, 220}
+		local spell_compare_frame_width = {298, 225, 226}
 		local spell_compare_frame_height = 200
-		local target_compare_frame_height = 120
+		local target_compare_frame_height = 142
+		
+		local xLocation = 2
+		local yLocation = -20
+		local targetBars = 9
 		
 		local fill_compare_targets = function (self, player, other_players, target_pool)
 			
@@ -2353,7 +2357,7 @@ function gump:CriaJanelaInfo()
 			local total = player.total_without_pet
 			
 			if (not target_pool [1]) then
-				for i = 1, 7 do 
+				for i = 1, targetBars do 
 					local bar = self.bars [i]
 					local bar_2 = frame2.bars [i]
 					local bar_3 = frame3.bars [i]
@@ -2423,7 +2427,7 @@ function gump:CriaJanelaInfo()
 				end
 			end
 
-			for i = 1, 7 do 
+			for i = 1, targetBars do 
 				local bar = self.bars [i]
 				local bar_2 = frame2.bars [i]
 				local bar_3 = frame3.bars [i]
@@ -2558,7 +2562,7 @@ function gump:CriaJanelaInfo()
 									down = "" .. 999
 								end
 								bar_3 [2].righttext:SetText (_detalhes:ToK2Min (player_3_target_total))
-								bar_3 [2].righttext:SetText (" |c" .. plus .. down .. "%)|r")
+								bar_3 [2].righttext:SetText (" |c" .. plus .. down .. "%|r")
 							end
 							
 							--bar_3 [2]:SetValue (player_3_target_total / player_3_top * 100)
@@ -2885,7 +2889,8 @@ function gump:CriaJanelaInfo()
 			end
 			table.sort (target_pool, _detalhes.Sort2)
 			
-			FauxScrollFrame_Update (self, math.max (#target_pool, 5), 4, 14)
+			FauxScrollFrame_Update (self, #target_pool, targetBars, 14)
+			self:Show()
 
 			fill_compare_targets (self, self.tab.player, self.tab.players, target_pool)
 		end
@@ -3101,7 +3106,7 @@ function gump:CriaJanelaInfo()
 								if (up > 999) then
 									up = "" .. 999
 								end
-								bar [2].righttext:SetText (_detalhes:ToK2Min (this_spell [2]) .. " |c" .. minor .. up .. "%)|r")
+								bar [2].righttext:SetText (_detalhes:ToK2Min (this_spell [2]) .. " |c" .. minor .. up .. "%|r")
 							else
 								local diff = this_spell [2] - spell [2]
 								local down = diff / spell [2] * 100
@@ -3581,8 +3586,8 @@ function gump:CriaJanelaInfo()
 							frame3.tooltip.uptime_label2:SetText ("|c" .. plus .. down .. "%|r")
 						end
 						
-						_detalhes.gump:SetFontColor (frame3.tooltip.casts_label3, "white")
-						_detalhes.gump:SetFontColor (frame3.tooltip.casts_label2, "white")
+						_detalhes.gump:SetFontColor (frame3.tooltip.uptime_label3, "white")
+						_detalhes.gump:SetFontColor (frame3.tooltip.uptime_label2, "white")
 					else
 						frame3.tooltip.uptime_label3:SetText (COMPARE_UNKNOWNDATA)
 						frame3.tooltip.uptime_label2:SetText (COMPARE_UNKNOWNDATA)
@@ -3672,12 +3677,12 @@ function gump:CriaJanelaInfo()
 		
 			local create_bar = function (name, parent, index, main, is_target)
 				local y = ((index-1) * -15) - 7
-			
+		
 				local spellicon = parent:CreateTexture (nil, "overlay")
 				spellicon:SetSize (14, 14)
 				spellicon:SetPoint ("topleft", parent, "topleft", 4, y)
 				spellicon:SetTexture ([[Interface\InventoryItems\WoWUnknownItem01]])
-			
+		
 				local bar = CreateFrame ("StatusBar", name, parent)
 				bar.index = index
 				bar:SetPoint ("topleft", spellicon, "topright", 0, 0)
@@ -3688,7 +3693,7 @@ function gump:CriaJanelaInfo()
 				bar:SetValue (100)
 				bar:SetHeight (14)
 				bar.icon = spellicon
-				
+		
 				if (is_target) then
 					bar:SetScript ("OnEnter", on_enter_target)
 					bar:SetScript ("OnLeave", on_leave_target)
@@ -3696,9 +3701,9 @@ function gump:CriaJanelaInfo()
 					bar:SetScript ("OnEnter", on_enter)
 					bar:SetScript ("OnLeave", on_leave)
 				end
-				
+		
 				bar.lefttext = bar:CreateFontString (nil, "OVERLAY", "GameFontHighlightSmall")
-				
+		
 				local _, size, flags = bar.lefttext:GetFont()
 				local font = SharedMedia:Fetch ("font", "Arial Narrow")
 				bar.lefttext:SetFont (font, 11)
@@ -3957,7 +3962,7 @@ function gump:CriaJanelaInfo()
 			local frame1 = CreateFrame ("scrollframe", "DetailsPlayerComparisonBox1", frame, "FauxScrollFrameTemplate")
 			frame1:SetScript ("OnVerticalScroll", function (self, offset) FauxScrollFrame_OnVerticalScroll (self, offset, 14, refresh_comparison_box) end)			
 			frame1:SetSize (spell_compare_frame_width[1], spell_compare_frame_height)
-			frame1:SetPoint ("topleft", frame, "topleft", 10, -30)
+			frame1:SetPoint ("topleft", frame, "topleft", xLocation, yLocation)
 			
 			frame1:SetBackdrop (frame_backdrop)
 			frame1:SetBackdropColor (unpack (frame_backdrop_color))
@@ -3992,7 +3997,7 @@ function gump:CriaJanelaInfo()
 			target1.tooltip:SetWidth (spell_compare_frame_width[1])
 			
 			--criar as barras do target1
-			for i = 1, 7 do
+			for i = 1, targetBars do
 				create_bar ("DetailsPlayerComparisonTarget1Bar"..i, target1, i, true, true)
 			end
 			
@@ -4052,7 +4057,7 @@ function gump:CriaJanelaInfo()
 			target2.tooltip:SetWidth (spell_compare_frame_width[2])
 			
 			--criar as barras do target2
-			for i = 1, 7 do
+			for i = 1, targetBars do
 				create_bar ("DetailsPlayerComparisonTarget2Bar"..i, target2, i, nil, true)
 			end
 			
@@ -4107,20 +4112,20 @@ function gump:CriaJanelaInfo()
 			target3.tooltip:SetWidth (spell_compare_frame_width[3])
 			
 			--criar as barras do target1
-			for i = 1, 7 do
+			for i = 1, targetBars do
 				create_bar ("DetailsPlayerComparisonTarget3Bar"..i, target3, i, nil, true)
 			end
 		end
-
-
+		
+		
 		-- ~compare
 		_detalhes:CreatePlayerDetailsTab ("Compare", Loc ["STRING_INFO_TAB_COMPARISON"], --[1] tab name [2] localized name
 			function (tabOBject, playerObject)  --[2] condition
-			
+				
 				if (info.atributo > 2) then
 					return false
 				end
-
+				
 				local same_class = {}
 				local class = playerObject.classe
 				local my_spells = {}
@@ -4302,7 +4307,7 @@ function _detalhes:CreatePlayerDetailsTab (tabname, localized_name, condition, f
 		)
 		
 		--newtab.frame:SetBackdropColor (.5, .50, .50, 1)
-		newtab.frame:SetBackdropColor (0, 0, 0, 0.05)
+		newtab.frame:SetBackdropColor (0, 0, 0, 0.3)
 		newtab.frame:SetBackdropBorderColor (.3, .3, .3, 0)
 		
 		--local f = CreateFrame ("frame", nil, newtab)

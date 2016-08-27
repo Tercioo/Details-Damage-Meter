@@ -61,7 +61,10 @@ local function CreatePluginFrames (data)
 	--> OnEvent Table
 	function ThreatMeter:OnDetailsEvent (event, ...)
 	
-		if (event == "HIDE") then --> plugin hidded, disabled
+		if (event == "DETAILS_STARTED") then
+			ThreatMeter:RefreshRows()
+			
+		elseif (event == "HIDE") then --> plugin hidded, disabled
 			ThreatMeter.Actived = false
 			ThreatMeter:Cancel()
 		
@@ -189,12 +192,19 @@ local function CreatePluginFrames (data)
 		
 	end
 	
+	local SharedMedia = LibStub:GetLibrary ("LibSharedMedia-3.0")
+
 	function ThreatMeter:RefreshRow (row)
 	
 		local instance = ThreatMeter:GetPluginInstance()
-	
+		
 		row.textsize = instance.row_info.font_size
-		row.textfont = instance.row_info.font_face
+		
+		local font = SharedMedia:Fetch ("font", instance.row_info.font_face, true) or instance.row_info.font_face
+		
+		--print (font, instance.row_info.font_face)
+		
+		row.textfont = font
 		row.texture = instance.row_info.texture
 		row.shadow = instance.row_info.textL_outline
 		
