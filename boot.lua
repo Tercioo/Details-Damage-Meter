@@ -1,10 +1,10 @@
- -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> global name declaration
 
 		_ = nil
 		_detalhes = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0", "NickTag-1.0")
-		_detalhes.build_counter = 2899 --it's 2885 for release
-		_detalhes.userversion = "v7.0.3.2899"
+		_detalhes.build_counter = 2920 --it's 2885 for release
+		_detalhes.userversion = "v7.0.3.2920"
 		_detalhes.realversion = 111 --core version
 		_detalhes.version = _detalhes.userversion .. " (core " .. _detalhes.realversion .. ")"
 		Details = _detalhes

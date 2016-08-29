@@ -765,12 +765,6 @@ function DF:CreateCoolTip()
 					menuButton.rightText:SetWidth (0)
 				end
 				
-				if (CoolTip.OptionsTable.RightTextHeight) then
-					menuButton.rightText:SetHeight (CoolTip.OptionsTable.RightTextHeight)
-				else
-					menuButton.rightText:SetHeight (0)
-				end
-				
 				if (CoolTip.OptionsTable.TextFont and not rightTextTable [7]) then
 					if (_G [CoolTip.OptionsTable.TextFont]) then
 						menuButton.rightText:SetFontObject (CoolTip.OptionsTable.TextFont)
@@ -860,8 +854,17 @@ function DF:CreateCoolTip()
 				menuButton.rightIcon:SetHeight (CoolTip.OptionsTable.IconSize)
 			end
 			
+			menuButton.leftText:SetHeight (0)
+			menuButton.rightText:SetHeight (0)
+			
 			if (CoolTip.Type == 2) then
 				CoolTip:LeftTextSpace (menuButton)
+			end
+			if (CoolTip.OptionsTable.LeftTextHeight) then
+				menuButton.leftText:SetHeight (CoolTip.OptionsTable.LeftTextHeight)
+			end
+			if (CoolTip.OptionsTable.RightTextHeight) then
+				menuButton.rightText:SetHeight (CoolTip.OptionsTable.RightTextHeight)
 			end
 			
 			--> string length

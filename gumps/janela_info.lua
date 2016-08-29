@@ -2872,8 +2872,6 @@ function gump:CriaJanelaInfo()
 	
 		local refresh_comparison_box = function (self)
 			--atualiza a scroll
-			--FauxScrollFrame_Update (self, math.max (self.tab.spells_amt, 10), 9, 15)
-			
 			fill_compare_actors (self, self.tab.player, self.tab.players)
 			FauxScrollFrame_Update (self, self.tab.spells_amt, 12, 15)
 			self:Show()
@@ -3963,11 +3961,12 @@ function gump:CriaJanelaInfo()
 			frame1:SetScript ("OnVerticalScroll", function (self, offset) FauxScrollFrame_OnVerticalScroll (self, offset, 14, refresh_comparison_box) end)			
 			frame1:SetSize (spell_compare_frame_width[1], spell_compare_frame_height)
 			frame1:SetPoint ("topleft", frame, "topleft", xLocation, yLocation)
+			_detalhes.gump:ReskinSlider (frame1)
 			
 			frame1:SetBackdrop (frame_backdrop)
 			frame1:SetBackdropColor (unpack (frame_backdrop_color))
 			frame1:SetBackdropBorderColor (unpack (frame_backdrop_border_color))
-
+			
 			frame1.bars = {}
 			frame1.tab = tab
 			frame1.tooltip = create_tooltip ("DetailsPlayerComparisonBox1Tooltip")
@@ -3988,6 +3987,8 @@ function gump:CriaJanelaInfo()
 			target1:SetScript ("OnVerticalScroll", function (self, offset) FauxScrollFrame_OnVerticalScroll (self, offset, 14, refresh_target_box) end)			
 			target1:SetSize (spell_compare_frame_width[1], target_compare_frame_height)
 			target1:SetPoint ("topleft", frame1, "bottomleft", 0, -10)
+			_detalhes.gump:ReskinSlider (target1)
+			
 			target1:SetBackdrop (frame_backdrop)
 			target1:SetBackdropColor (unpack (frame_backdrop_color))
 			target1:SetBackdropBorderColor (unpack (frame_backdrop_border_color))

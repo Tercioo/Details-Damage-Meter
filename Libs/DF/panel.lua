@@ -3009,7 +3009,7 @@ local gframe_create_line = function (self)
 	
 	local timeline = f:CreateFontString (nil, "overlay", "GameFontNormal")
 	timeline:SetPoint ("bottomright", f, "bottomright", -2, 0)
-	_detalhes:SetFontSize (timeline, 8)
+	DF:SetFontSize (timeline, 8)
 	f.timeline = timeline
 	
 	return f
