@@ -319,6 +319,53 @@
 	local pet_text_object = _G ["DetailsPetOwnerFinderTextLeft2"]
 	local follower_text_object = _G ["DetailsPetOwnerFinderTextLeft3"]
 	
+	local line1 = _G ["DetailsPetOwnerFinderTextLeft2"]
+	local line2 = _G ["DetailsPetOwnerFinderTextLeft3"]
+
+	local find_pet_found_owner = function (ownerName, serial, nome, flag, self)
+		local ownerGuid = _UnitGUID (ownerName)
+		if (ownerGuid) then
+			_detalhes.tabela_pets:Adicionar (serial, nome, flag, ownerGuid, ownerName, 0x00000417)
+			local nome_dele, dono_nome, dono_serial, dono_flag = _detalhes.tabela_pets:PegaDono (serial, nome, flag)
+			
+			local dono_do_pet
+			if (nome_dele and dono_nome) then
+				nome = nome_dele
+				dono_do_pet = self:PegarCombatente (dono_serial, dono_nome, dono_flag, true, nome)
+			end
+
+			return nome, dono_do_pet
+		end	
+	end
+	
+	local find_pet_owner = function (serial, nome, flag, self)
+		if (not _detalhes.tabela_vigente) then
+			return
+		end
+		
+		pet_tooltip_frame:SetOwner (WorldFrame, "ANCHOR_NONE")
+		pet_tooltip_frame:SetHyperlink ("unit:" .. serial or "")
+		
+		local text1 = line1:GetText()
+		if (text1 and text1 ~= "") then
+			for playerName, _ in _pairs (_detalhes.tabela_vigente.raid_roster) do
+				if (text1:find (playerName)) then
+					return find_pet_found_owner (playerName, serial, nome, flag, self)
+				end
+			end
+		end
+		
+		local text2 = line2:GetText()
+		if (text2 and text2 ~= "") then
+			for playerName, _ in _pairs (_detalhes.tabela_vigente.raid_roster) do
+				if (text2:find (playerName)) then
+					return find_pet_found_owner (playerName, serial, nome, flag, self)
+				end
+			end
+		end
+	end
+	
+	--[[
 	local find_pet_owner = function (serial, nome, flag, self)
 	
 		pet_tooltip_frame:SetOwner (WorldFrame, "ANCHOR_NONE")
@@ -359,6 +406,7 @@
 			end
 		end
 	end
+	--]]
 	
 	function container_combatentes:PegarCombatente (serial, nome, flag, criar)
 
