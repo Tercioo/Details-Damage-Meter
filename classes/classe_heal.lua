@@ -1002,7 +1002,7 @@ end
 local background_heal_vs_absorbs = {value = 100, color = {1, 1, 0, .25}, specialSpark = false, texture = [[Interface\AddOns\Details\images\bar4_glass]]}
 
 function atributo_heal:ToolTip_HealingDone (instancia, numero, barra, keydown)
-
+	
 	local owner = self.owner
 	if (owner and owner.classe) then
 		r, g, b = unpack (_detalhes.class_colors [owner.classe])
@@ -1013,7 +1013,7 @@ function atributo_heal:ToolTip_HealingDone (instancia, numero, barra, keydown)
 	local ActorHealingTable = {}
 	local ActorHealingTargets = {}
 	local ActorSkillsContainer = self.spells._ActorTable
-
+	
 	local actor_key, skill_key = "total", "total"
 	if (instancia.sub_atributo == 3) then
 		actor_key, skill_key = "totalover", "overheal"
@@ -1224,6 +1224,57 @@ function atributo_heal:ToolTip_HealingDone (instancia, numero, barra, keydown)
 		end
 		
 	end
+	
+	
+	--> ~Phases
+	local segment = instancia:GetShowingCombat()
+	if (segment and self.grupo) then
+		local bossInfo = segment:GetBossInfo()
+		local phasesInfo = segment:GetPhases()
+		if (bossInfo and phasesInfo) then
+			if (#phasesInfo > 1) then
+				
+				--_detalhes:AddTooltipSpellHeaderText ("Phases", headerColor, 1, [[Interface\Garrison\MobileAppIcons]], 2*130/1024, 3*130/1024, 5*130/1024, 6*130/1024)
+				--_detalhes:AddTooltipSpellHeaderText ("Phases", headerColor, 1, [[Interface\Garrison\orderhall-missions-mechanic10]], 0, 1, 0, 1)
+				_detalhes:AddTooltipSpellHeaderText ("Phases", headerColor, 1, [[Interface\Garrison\orderhall-missions-mechanic8]], 11/64, 53/64, 11/64, 53/64)
+				--GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, _detalhes.tooltip_key_size_width, _detalhes.tooltip_key_size_height, 0, 1, 0, 0.640625, _detalhes.tooltip_key_overlay1)
+				_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)
+				
+				local playerPhases = {}
+				local totalDamage = 0
+				
+				for phase, playersTable in pairs (phasesInfo.heal) do --each phase
+				
+					local allPlayers = {} --all players for this phase
+					for playerName, amount in pairs (playersTable) do
+						tinsert (allPlayers, {playerName, amount})
+						totalDamage = totalDamage + amount
+					end
+					table.sort (allPlayers, function(a, b) return a[2] > b[2] end)
+					
+					local myRank = 0
+					for i = 1, #allPlayers do
+						if (allPlayers [i] [1] == self.nome) then
+							myRank = i
+							break
+						end
+					end
+					
+					tinsert (playerPhases, {phase, playersTable [self.nome] or 0, myRank, playersTable [self.nome]/totalDamage*100})
+				end
+				
+				table.sort (playerPhases, function(a, b) return a[1] < b[1] end)
+				
+				for i = 1, #playerPhases do
+					--[1] Phase Number [2] Amount Done [3] Rank [4] Percent
+					GameCooltip:AddLine ("|cFFF0F0F0Phase|r " .. playerPhases [i][1], FormatTooltipNumber (_, playerPhases [i][2]) .. " (|cFFFFFF00#" .. playerPhases [i][3] ..  "|r, " .. _cstr ("%.1f", playerPhases [i][4]) .. "%)")
+					GameCooltip:AddIcon ([[Interface\Garrison\orderhall-missions-mechanic9]], 1, 1, 14, 14, 11/64, 53/64, 11/64, 53/64)
+					_detalhes:AddTooltipBackgroundStatusbar()
+				end
+			end
+		end
+	end
+	
 	
 	--> absorbs vs heal
 	--[=[

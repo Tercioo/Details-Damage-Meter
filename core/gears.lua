@@ -1067,8 +1067,28 @@ local two_hand = {
 }
 
 local MAX_INSPECT_AMOUNT = 1
-local MIN_ILEVEL_TO_STORE = 580
+local MIN_ILEVEL_TO_STORE = 50
 local LOOP_TIME = 7
+
+local artifact_offhands = {
+	["133959"] = true, --mage fire
+	["128293"] = true, --dk frost
+	["127830"] = true, --dh havoc
+	["128831"] = true, --dh vengeance
+	["128859"] = true, --druid feral
+	["128822"] = true, --druid guardian
+	["133948"] = true, --monk ww
+	["128866"] = true, --paladin prot
+	["133958"] = true, --priest shadow
+	["128869"] = true, --rogue assassination
+	["134552"] = true, --rogue outlaw
+	["128479"] = true, --rogue subtlety
+	["128936"] = true, --shaman elemental
+	["128873"] = true, --shaman en
+	["128934"] = true, --shaman resto
+	["137246"] = true, --warlock demo
+	["128289"] = true, --warrior prot
+}
 
 function _detalhes:IlvlFromNetwork (player, realm, core, ilvl)
 	local guid = UnitGUID (player .. "-" .. realm)
@@ -1101,6 +1121,7 @@ function ilvl_core:CalcItemLevel (unitid, guid, shout)
 		local failed = 0
 		
 		for equip_id = 1, 17 do
+
 			if (equip_id ~= 4) then --shirt slot
 				local item = GetInventoryItemLink (unitid, equip_id)
 				if (item) then
@@ -1108,9 +1129,17 @@ function ilvl_core:CalcItemLevel (unitid, guid, shout)
 					if (iLevel) then
 						
 						--local _, _, _, _, _, _, _, _, _, _, _, upgradeTypeID, _, numBonusIDs, bonusID1, bonusID2 = strsplit (":", item)
-
 						--> upgrades handle by LibItemUpgradeInfo-1.0
 						--> http://www.wowace.com/addons/libitemupgradeinfo-1-0/
+
+						if (equip_id == 17) then
+							local itemId = select (2, strsplit (":", item))
+							if (artifact_offhands [itemId]) then
+								item_amount = 15
+								break
+							end
+						end
+						
 						if (ItemUpgradeInfo) then
 							local ilvl = ItemUpgradeInfo:GetUpgradedItemLevel (item)
 							item_level = item_level + (ilvl or iLevel)
@@ -1147,7 +1176,8 @@ function ilvl_core:CalcItemLevel (unitid, guid, shout)
 		end
 		
 		local average = item_level / item_amount
-
+		--print (UnitName (unitid), "ILVL:", average, unitid, "items:", item_amount)
+		
 		--> register
 		if (average > 0) then
 			if (shout) then
@@ -1259,14 +1289,15 @@ function ilvl_core:GetItemLevel (unitid, guid, is_forced, try_number)
 end
 
 local NotifyInspectHook = function (unitid)
-	if (IsInRaid() and _detalhes:GetZoneType() == "raid") then
+	local unit = unitid:gsub ("%d+", "")
+	
+	if ((IsInRaid() or IsInGroup()) and (_detalhes:GetZoneType() == "raid" or _detalhes:GetZoneType() == "party")) then
 		local guid = UnitGUID (unitid)
 		local name = _detalhes:GetCLName (unitid)
-		
 		if (guid and name and not inspecting [guid]) then
 			for i = 1, GetNumGroupMembers() do
-				if (name == _detalhes:GetCLName ("raid" .. i)) then
-					unitid = "raid" .. i
+				if (name == _detalhes:GetCLName (unit .. i)) then
+					unitid = unit .. i
 					break
 				end
 			end
@@ -1358,13 +1389,13 @@ function ilvl_core:Loop()
 	else
 		return
 	end
-	
+
 	local guid = UnitGUID (unitid)
 	if (not guid) then
 		ilvl_core.raid_id = ilvl_core.raid_id + 1
 		return
 	end
-	
+
 	if (inspecting [guid]) then
 		return
 	end
@@ -1387,7 +1418,7 @@ function ilvl_core:EnterCombat()
 end
 
 local can_start_loop = function()
-	if (_detalhes:GetZoneType() ~= "raid" or ilvl_core.loop_process or _detalhes.in_combat or not _detalhes.track_item_level) then
+	if ((_detalhes:GetZoneType() ~= "raid" and _detalhes:GetZoneType() ~= "party") or ilvl_core.loop_process or _detalhes.in_combat or not _detalhes.track_item_level) then
 		return false
 	end
 	return true

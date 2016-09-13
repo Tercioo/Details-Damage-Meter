@@ -22,7 +22,12 @@ function historico:NovoHistorico()
 end
 
 function historico:adicionar_overall (tabela)
+	if (tabela:GetCombatTime() <= 10) then
+		return
+	end
+
 	if (_detalhes.overall_clear_newboss) then
+		--> only for raids
 		if (tabela.instance_type == "raid" and tabela.is_boss) then
 			if (_detalhes.last_encounter ~= _detalhes.last_encounter2) then
 				for index, combat in ipairs (_detalhes.tabela_historico.tabelas) do 
@@ -53,18 +58,21 @@ function historico:adicionar_overall (tabela)
 		end
 	end
 	
-	if (_detalhes.tabela_overall.start_time == 0) then
-		_detalhes.tabela_overall:SetStartTime (tabela.start_time)
-		_detalhes.tabela_overall:SetEndTime (tabela.end_time)
-	else
-		_detalhes.tabela_overall:SetStartTime (tabela.start_time - _detalhes.tabela_overall:GetCombatTime())
-		_detalhes.tabela_overall:SetEndTime (tabela.end_time)
-	end
-	
-	if (_detalhes.tabela_overall.data_inicio == 0) then
-		_detalhes.tabela_overall.data_inicio = _detalhes.tabela_vigente.data_inicio or 0
-	end
-	
+	--
+		if (_detalhes.tabela_overall.start_time == 0) then
+			--print ("start_time == 0 NO!")
+			_detalhes.tabela_overall:SetStartTime (tabela.start_time)
+			_detalhes.tabela_overall:SetEndTime (tabela.end_time)
+		else
+			--print ("start_time ~= 0 OKAY", tabela.start_time, _detalhes.tabela_overall:GetCombatTime(), tabela.start_time - _detalhes.tabela_overall:GetCombatTime())
+			_detalhes.tabela_overall:SetStartTime (tabela.start_time - _detalhes.tabela_overall:GetCombatTime())
+			_detalhes.tabela_overall:SetEndTime (tabela.end_time)
+		end
+		
+		if (_detalhes.tabela_overall.data_inicio == 0) then
+			_detalhes.tabela_overall.data_inicio = _detalhes.tabela_vigente.data_inicio or 0
+		end
+	--
 	_detalhes.tabela_overall:seta_data (_detalhes._detalhes_props.DATA_TYPE_END)
 	
 	_detalhes:ClockPluginTickOnSegment()

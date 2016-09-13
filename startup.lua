@@ -679,7 +679,7 @@ function _G._detalhes:Start()
 		C_Timer.After (2, reset_player_detail_window)
 	end
 	
-	_detalhes.tooltip.tooltip_max_abilities = 8
+	_detalhes.tooltip.tooltip_max_abilities = 5
 end
 
 _detalhes.AddOnLoadFilesTime = GetTime()

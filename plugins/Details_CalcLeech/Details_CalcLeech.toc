@@ -1,6 +1,0 @@
-## Interface: 70000
-## Title: Details Calc Leech
-## Notes: Plugin for Details
-## RequiredDeps: Details
-
-Details_CalcLeech.lua

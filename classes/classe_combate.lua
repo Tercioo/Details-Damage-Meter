@@ -82,6 +82,10 @@
 		return self.is_boss
 	end
 	
+	function combate:GetPhases()
+		return self.PhaseData
+	end
+	
 	function combate:GetPvPInfo()
 		return self.is_pvp
 	end

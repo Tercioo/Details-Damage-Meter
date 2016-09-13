@@ -5946,16 +5946,19 @@ local build_segment_list = function (self, elapsed)
 						else
 							local encounter_name = thisCombat.is_boss.encounter
 							local instanceID = thisCombat.is_boss.ej_instance_id
-							if (encounter_name and instanceID) then
+							if (encounter_name and instanceID and instanceID ~= 0) then
 								local index, name, description, encounterID, rootSectionID, link = _detalhes:GetEncounterInfoFromEncounterName (instanceID, encounter_name)
 								if (index and name and encounterID) then
-									local id, name, description, displayInfo, iconImage = EJ_GetCreatureInfo (index, encounterID)
+									--EJ_SelectInstance (instanceID)
+									--creature info pode ser sempre 1, não usar o index do boss
+									local id, name, description, displayInfo, iconImage = EJ_GetCreatureInfo (1, encounterID)
 									if (iconImage) then
 										CoolTip:AddIcon (iconImage, 2, "top", 128, 64)
 									end
 								end
 							end
 						end
+
 						CoolTip:AddIcon ([[Interface\AddOns\Details\images\icons]], "main", "left", 16, 16, 0.96875, 1, 0, 0.03125)
 						
 						if (_detalhes.tooltip.submenu_wallpaper) then
@@ -7250,7 +7253,14 @@ function _detalhes:ToolbarSide (side, only_update_anchors)
 		self.baseframe.cabecalho.ball_point:SetPoint ("bottomleft", self.baseframe, "topleft", x, y)
 		
 		--> ball
-		self.baseframe.cabecalho.ball:SetTexCoord (unpack (COORDS_LEFT_BALL))
+		if (self.hide_icon) then
+			self.baseframe.cabecalho.ball:SetTexCoord (unpack (COORDS_LEFT_BALL_NO_ICON))
+			self.baseframe.cabecalho.emenda:SetTexCoord (unpack (COORDS_LEFT_CONNECTOR_NO_ICON))
+		else
+			self.baseframe.cabecalho.ball:SetTexCoord (unpack (COORDS_LEFT_BALL))
+			self.baseframe.cabecalho.emenda:SetTexCoord (unpack (COORDS_LEFT_CONNECTOR))
+		end
+		
 		self.baseframe.cabecalho.ball:ClearAllPoints()
 		
 		local x, y = unpack (skin.left_corner_anchor)
@@ -7266,7 +7276,6 @@ function _detalhes:ToolbarSide (side, only_update_anchors)
 		self.baseframe.cabecalho.ball_r:SetPoint ("bottomright", self.baseframe, "topright", x, y)
 
 		--> tex coords
-		self.baseframe.cabecalho.emenda:SetTexCoord (unpack (COORDS_LEFT_CONNECTOR))
 		self.baseframe.cabecalho.top_bg:SetTexCoord (unpack (COORDS_TOP_BACKGROUND))
 
 		--> up frames
@@ -7475,7 +7484,7 @@ function _detalhes:HideMainIcon (value)
 	if (type (value) ~= "boolean") then
 		value = self.hide_icon
 	end
-
+	
 	if (value) then
 	
 		self.hide_icon = true

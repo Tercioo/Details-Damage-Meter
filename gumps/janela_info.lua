@@ -2627,6 +2627,11 @@ function gump:CriaJanelaInfo()
 				spells_sorted [#spells_sorted+1] = {spelltable, spelltable.total}
 			end
 			table.sort (spells_sorted, _detalhes.Sort2)
+			
+			--precisa pegar os pets do jogador aqui
+			--for petGUID, _ in pairs ({}) do
+			--	
+			--end
 		
 			self.player = player:Name()
 		

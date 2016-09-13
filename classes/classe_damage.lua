@@ -2062,7 +2062,7 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 	end
 
 	instancia:AtualizarScrollBar (amount)
-
+	
 	local qual_barra = 1
 	local barras_container = instancia.barras
 	local percentage_type = instancia.row_info.percent_type
@@ -2118,10 +2118,12 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 		instancia.player_top_dps_threshold = instancia.player_top_dps - (instancia.player_top_dps * 0.65)
 	end
 	
+	local totalBarIsShown
+	
 	if (instancia.bars_sort_direction == 1) then --top to bottom
 		
 		if (use_total_bar and instancia.barraS[1] == 1) then
-		
+			
 			qual_barra = 2
 			local iter_last = instancia.barraS[2]
 			if (iter_last == instancia.rows_fit_in_window) then
@@ -2141,6 +2143,7 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 			row1.icone_classe:SetTexCoord (0.0625, 0.9375, 0.0625, 0.9375)
 			
 			gump:Fade (row1, "out")
+			totalBarIsShown = true
 			
 			if (following and myPos and myPos > instancia.rows_fit_in_window and instancia.barraS[2] < myPos) then
 				for i = instancia.barraS[1], iter_last-1, 1 do 
@@ -2205,6 +2208,7 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 			row1.icone_classe:SetTexCoord (0.0625, 0.9375, 0.0625, 0.9375)
 			
 			gump:Fade (row1, "out")
+			totalBarIsShown = true
 			
 			if (following and myPos and myPos > instancia.rows_fit_in_window and instancia.barraS[2] < myPos) then
 				for i = iter_last-1, instancia.barraS[1], -1 do 
@@ -2246,6 +2250,12 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 			end
 		end
 	
+	end
+	
+	if (totalBarIsShown) then
+		instancia:AtualizarScrollBar (amount + 1)
+	else
+		instancia:AtualizarScrollBar (amount)
 	end
 	
 	if (use_animations) then
@@ -3013,6 +3023,55 @@ function atributo_damage:ToolTip_DamageDone (instancia, numero, barra, keydown)
 			end
 		end
 			
+	end
+	
+	--> ~Phases
+	local segment = instancia:GetShowingCombat()
+	if (segment and self.grupo) then
+		local bossInfo = segment:GetBossInfo()
+		local phasesInfo = segment:GetPhases()
+		if (bossInfo and phasesInfo) then
+			if (#phasesInfo > 1) then
+				
+				--_detalhes:AddTooltipSpellHeaderText ("Phases", headerColor, 1, [[Interface\Garrison\MobileAppIcons]], 2*130/1024, 3*130/1024, 5*130/1024, 6*130/1024)
+				--_detalhes:AddTooltipSpellHeaderText ("Phases", headerColor, 1, [[Interface\Garrison\orderhall-missions-mechanic10]], 0, 1, 0, 1)
+				_detalhes:AddTooltipSpellHeaderText ("Phases", headerColor, 1, [[Interface\Garrison\orderhall-missions-mechanic8]], 11/64, 53/64, 11/64, 53/64)
+				--GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, _detalhes.tooltip_key_size_width, _detalhes.tooltip_key_size_height, 0, 1, 0, 0.640625, _detalhes.tooltip_key_overlay1)
+				_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)
+				
+				local playerPhases = {}
+				local totalDamage = 0
+				
+				for phase, playersTable in pairs (phasesInfo.damage) do --each phase
+				
+					local allPlayers = {} --all players for this phase
+					for playerName, amount in pairs (playersTable) do
+						tinsert (allPlayers, {playerName, amount})
+						totalDamage = totalDamage + amount
+					end
+					table.sort (allPlayers, function(a, b) return a[2] > b[2] end)
+					
+					local myRank = 0
+					for i = 1, #allPlayers do
+						if (allPlayers [i] [1] == self.nome) then
+							myRank = i
+							break
+						end
+					end
+					
+					tinsert (playerPhases, {phase, playersTable [self.nome] or 0, myRank, playersTable [self.nome]/totalDamage*100})
+				end
+				
+				table.sort (playerPhases, function(a, b) return a[1] < b[1] end)
+				
+				for i = 1, #playerPhases do
+					--[1] Phase Number [2] Amount Done [3] Rank [4] Percent
+					GameCooltip:AddLine ("|cFFF0F0F0Phase|r " .. playerPhases [i][1], FormatTooltipNumber (_, playerPhases [i][2]) .. " (|cFFFFFF00#" .. playerPhases [i][3] ..  "|r, " .. _cstr ("%.1f", playerPhases [i][4]) .. "%)")
+					GameCooltip:AddIcon ([[Interface\Garrison\orderhall-missions-mechanic9]], 1, 1, 14, 14, 11/64, 53/64, 11/64, 53/64)
+					_detalhes:AddTooltipBackgroundStatusbar()
+				end
+			end
+		end
 	end
 	
 	return true

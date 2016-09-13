@@ -122,6 +122,7 @@
 		[1] = true, --0x1 star
 	}
 	
+	--> spellIds override
 	local override_spellId = {
 		[184707] = 218617, --warrior rampage
 		[184709] = 218617, --warrior rampage

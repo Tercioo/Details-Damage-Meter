@@ -545,9 +545,12 @@
 				local in_instance = IsInInstance() --> garrison returns party as instance type.
 				if ((InstanceType == "party" or InstanceType == "raid") and in_instance) then
 					if (InstanceType == "party") then
-						if (_detalhes:GetBossNames (_detalhes.zone_id)) then
-							_detalhes.tabela_vigente.is_trash = true
-						end
+						--if (_detalhes:GetBossNames (_detalhes.zone_id)) then
+						--	_detalhes.tabela_vigente.is_trash = true
+						--end
+						
+						--> is new dungeon?
+						_detalhes.tabela_vigente.is_trash = true
 					else
 						_detalhes.tabela_vigente.is_trash = true
 					end
@@ -1412,6 +1415,7 @@
 			--> primeira atualização após uma mudança de segmento -->  verifica se há mais barras sendo mostradas do que o necessário	
 			--------------------
 				if (instancia.v_barras) then
+					--print ("mostrando", instancia.rows_showing, instancia.rows_created)
 					for barra_numero = instancia.rows_showing+1, instancia.rows_created do
 						_detalhes.gump:Fade (instancia.barras[barra_numero], "in")
 					end
@@ -1544,8 +1548,9 @@
 	end
 
 	function _detalhes:CheckForAutoErase (mapid)
-
 		if (_detalhes.last_instance_id ~= mapid) then
+			_detalhes.tabela_historico:resetar_overall()
+		
 			if (_detalhes.segments_auto_erase == 2) then
 				--ask
 				_detalhes:ScheduleTimer ("AutoEraseConfirm", 1)

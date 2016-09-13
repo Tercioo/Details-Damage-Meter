@@ -1045,6 +1045,90 @@ function SlashCmdList.DETAILS (msg, editbox)
 		print ("total loot", total)
 		_detalhes_global.ALOOT  = r
 	
+	elseif (msg == "ilvl2") then
+
+		local item_amount = 16
+		local item_level = 0
+		local failed = 0
+		local unitid = "player"
+		local two_hand = {
+			["INVTYPE_2HWEAPON"] = true,
+			["INVTYPE_RANGED"] = true,
+			["INVTYPE_RANGEDRIGHT"] = true,
+		}
+		
+		for equip_id = 1, 17 do
+
+			if (equip_id ~= 4) then --shirt slot
+				local item = GetInventoryItemLink (unitid, equip_id)
+				if (item) then
+					local iName, _, itemRarity, iLevel, _, _, _, _, equipSlot = GetItemInfo (item)
+					if (iLevel) then
+						
+						--local _, _, _, _, _, _, _, _, _, _, _, upgradeTypeID, _, numBonusIDs, bonusID1, bonusID2 = strsplit (":", item)
+						--> upgrades handle by LibItemUpgradeInfo-1.0
+						--> http://www.wowace.com/addons/libitemupgradeinfo-1-0/
+						
+						local artifact_offhands = {
+							["133959"] = true, --mage fire
+							["128293"] = true, --dk frost
+							["127830"] = true, --dh havoc
+							["128831"] = true, --dh vengeance
+							["128859"] = true, --druid feral
+							["128822"] = true, --druid guardian
+							["133948"] = true, --monk ww
+							["128866"] = true, --paladin prot
+							["133958"] = true, --priest shadow
+							["128869"] = true, --rogue assassination
+							["134552"] = true, --rogue outlaw
+							["128479"] = true, --rogue subtlety
+							["128936"] = true, --shaman elemental
+							["128873"] = true, --shaman en
+							["128934"] = true, --shaman resto
+							["137246"] = true, --warlock demo
+							["128289"] = true, --warrior prot
+						}
+						
+						
+						if (equip_id == 17) then
+							local itemId = select (2, strsplit (":", item))
+							if (artifact_offhands [itemId]) then
+								item_amount = 15
+								break
+							end
+						end
+						
+						local ItemUpgradeInfo = LibStub ("LibItemUpgradeInfo-1.0")
+						if (ItemUpgradeInfo) then
+							local ilvl = ItemUpgradeInfo:GetUpgradedItemLevel (item)
+							item_level = item_level + (ilvl or iLevel)
+							--print (iName, ilvl, iLevel)
+						else
+							item_level = item_level + iLevel
+							--print (iName, iLevel)
+						end
+						
+						--> 16 = main hand 17 = off hand
+						-->  if using a two-hand, ignore the off hand slot
+						if (equip_id == 16 and two_hand [equipSlot]) then
+							item_amount = 15
+							break
+						end
+					end
+				else
+					failed = failed + 1
+					if (failed > 2) then
+						break
+					end
+				end
+			end
+		end
+		
+		local average = item_level / item_amount
+		
+		print (item_level, item_amount, "ilvl:", average)
+	
+	
 	elseif (msg == "ilvl") then
 	
 		--

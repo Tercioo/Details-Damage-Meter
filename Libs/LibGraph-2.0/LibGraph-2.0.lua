@@ -1,6 +1,6 @@
 --[[
 Name: LibGraph-2.0
-Revision: $Rev: 51 $
+Revision: $Rev: 54 $
 Author(s): Cryect (cryect@gmail.com), Xinhuan
 Website: http://www.wowace.com/
 Documentation: http://www.wowace.com/wiki/GraphLib
@@ -11,7 +11,7 @@ Description: Allows for easy creation of graphs
 --Thanks to Nelson Minar for catching several errors where width was being used instead of height (damn copy and paste >_>)
 
 local major = "LibGraph-2.0"
-local minor = 90000 + tonumber(("$Revision: 52 $"):match("(%d+)"))
+local minor = 90000 + tonumber(("$Revision: 54 $"):match("(%d+)"))
 
 
 --Search for just Addon\\ at the front since the interface part often gets trimmed
@@ -267,7 +267,7 @@ end
 function lib:CreateGraphLine(name, parent, relative, relativeTo, offsetX, offsetY, Width, Height)
 	local graph
 	local i
-	graph = CreateFrame("Frame",name, parent)
+	graph = CreateFrame("Frame", name, parent)
 
 
 	graph:SetPoint(relative, parent, relativeTo, offsetX, offsetY)
@@ -1287,7 +1287,7 @@ function GraphFunctions:SetYLabels(Left, Right)
 	self.YLabelsRight = Right
 end
 
-function GraphFunctions:SetLineTexture (texture)
+function GraphFunctions:SetLineTexture(texture)
 	if (type (texture) ~= "string") then
 		return assert (false, "Parameter 1 for SetLineTexture must be a string")
 	end
@@ -1301,7 +1301,7 @@ function GraphFunctions:SetLineTexture (texture)
 	end
 end
 
-function GraphFunctions:SetBorderSize (border, size)
+function GraphFunctions:SetBorderSize(border, size)
 	border = string.lower (border)
 	
 	if (type (size) ~= "number") then
@@ -1336,10 +1336,12 @@ function GraphFunctions:CreateGridlines()
 	if self.YGridInterval then
 		local LowerYGridLine, UpperYGridLine, TopSpace
 		LowerYGridLine = self.YMin / self.YGridInterval
-		LowerYGridLine = math_max(math_floor(LowerYGridLine),math_ceil(LowerYGridLine))
+		LowerYGridLine = math_max(math_floor(LowerYGridLine), math_ceil(LowerYGridLine))
 		UpperYGridLine = self.YMax / self.YGridInterval
-		UpperYGridLine = math_min(math_floor(UpperYGridLine),math_ceil(UpperYGridLine))
+		UpperYGridLine = math_min(math_floor(UpperYGridLine), math_ceil(UpperYGridLine))
+		--UpperYGridLine = math_min(UpperYGridLine, self.YGridMax or 16)
 		TopSpace = Height * (1 - (UpperYGridLine * self.YGridInterval - self.YMin) / (self.YMax - self.YMin))
+
 		for i = LowerYGridLine, UpperYGridLine do
 			if i ~= 0 or not self.YAxisDrawn then
 				local YPos, T
@@ -1381,6 +1383,7 @@ function GraphFunctions:CreateGridlines()
 		LowerXGridLine = math_max(math_floor(LowerXGridLine), math_ceil(LowerXGridLine))
 		UpperXGridLine = self.XMax / self.XGridInterval
 		UpperXGridLine = math_min(math_floor(UpperXGridLine), math_ceil(UpperXGridLine))
+		--UpperXGridLine = math_min(UpperXGridLine, self.XGridMax or 16)
 
 		for i = LowerXGridLine, UpperXGridLine do
 			if i ~= 0 or not self.XAxisDrawn then
@@ -1650,6 +1653,15 @@ function GraphFunctions:OnUpdateGraphRealtime()
 			if MaxY ~= 0 and math_abs(self.YMax - MaxY) > 0.01 then
 				self.YMax = MaxY
 				self.NeedsUpdate = true
+
+				local Spacing
+				if self.YMax < 25 then
+					Spacing = -1
+				else
+					Spacing = math.log(self.YMax / 100) / math.log(2)
+				end
+
+				self.YGridInterval = 25 * math.pow(2, math.floor(Spacing))
 			end
 		end
 		self:SetBars()
@@ -1695,33 +1707,33 @@ function GraphFunctions:RefreshLineGraph()
 
 		if not self.LockOnXMin then
 			if (self.CustomLeftBorder) then
-				self.XMin=MinX+self.CustomLeftBorder --> custom size of left border
+				self.XMin = MinX + self.CustomLeftBorder --> custom size of left border
 			else
-				self.XMin=MinX-XBorder
+				self.XMin = MinX - XBorder
 			end
 		end
 		
 		if not self.LockOnXMax then
 			if (self.CustomRightBorder) then
-				self.XMax=MaxX+self.CustomRightBorder --> custom size of right border
+				self.XMax = MaxX + self.CustomRightBorder --> custom size of right border
 			else
-				self.XMax=MaxX+XBorder
+				self.XMax = MaxX + XBorder
 			end
 		end
 		
 		if not self.LockOnYMin then
 			if (self.CustomBottomBorder) then
-				self.YMin=MinY+self.CustomBottomBorder --> custom size of bottom border
+				self.YMin = MinY + self.CustomBottomBorder --> custom size of bottom border
 			else
-				self.YMin=MinY-YBorder
+				self.YMin = MinY - YBorder
 			end
 		end
 		
 		if not self.LockOnYMax then
 			if (self.CustomTopBorder) then
-				self.YMax=MaxY+self.CustomTopBorder --> custom size of top border
+				self.YMax = MaxY + self.CustomTopBorder --> custom size of top border
 			else
-				self.YMax=MaxY+YBorder
+				self.YMax = MaxY + YBorder
 			end
 		end
 
@@ -2052,7 +2064,7 @@ function lib:DrawBar(C, sx, sy, ex, ey, color, level)
 
 	if not Bar then
 		Bar = C:CreateTexture(nil, "ARTWORK")
-		Bar:SetTexture(1, 1, 1, 1)
+		Bar:SetColorTexture(1, 1, 1, 1)
 
 		Tri = C:CreateTexture(nil, "ARTWORK")
 		Tri:SetTexture(TextureDirectory.."triangle")
