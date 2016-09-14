@@ -1467,6 +1467,9 @@ function gump:CriaJanelaInfo()
 	este_gump.options_button.button:GetNormalTexture():SetDesaturated (true)
 	este_gump.options_button.tooltip = "Select Skin"
 	
+	--> desativando o botão de config
+	este_gump.options_button:Hide()
+	
 	--> titulo
 	gump:NewLabel (este_gump, este_gump, nil, "title_string", Loc ["STRING_PLAYER_DETAILS"], "GameFontHighlightLeft", 12, {227/255, 186/255, 4/255})
 	este_gump.title_string:SetPoint ("center", este_gump, "center")

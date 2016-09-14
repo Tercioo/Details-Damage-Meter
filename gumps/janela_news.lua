@@ -10,6 +10,8 @@ end
 
 function _detalhes:OpenNewsWindow (text_to_show, dumpvalues, keeptext)
 
+	_detalhes.latest_news_saw = _detalhes.userversion
+
 	local news_window = _detalhes:CreateOrOpenNewsWindow()
 	
 	news_window:Title (Loc ["STRING_NEWS_TITLE"])
