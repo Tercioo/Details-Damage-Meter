@@ -7,70 +7,41 @@ local _UnitGroupRolesAssigned = UnitGroupRolesAssigned
 local CLASS_ICON_TCOORDS = CLASS_ICON_TCOORDS
 
 local flask_list = {
-	[156064] = true, --Greater Draenic Agility Flask
-	[156070] = true, --Draenic Intellect Flask
-	[156071] = true, --Draenic Strength Flask
-	[156073] = true, --Draenic Agility Flask
-	[156077] = true, --Draenic Stamina Flask
-	[156079] = true, --Greater Draenic Intellect Flask
-	[156080] = true, --Greater Draenic Strength Flask
-	[156084] = true, --Greater Draenic Stamina Flask
+	[188033] = true, --Flask of the Seventh Demon
+	[188031] = true, --Flask of the Whispered Pact
+	[188034] = true, --Flask of the Countless Armies
+	[188035] = true, --Flask of Ten Thousand Scars
 }
 
 local food_list = {
-	[160600] = true, --
-	[160724] = true, --
-	[160726] = true, --
-	[160793] = true, --
-	[160832] = true, --
-	[160839] = true, --
-	[160883] = true, --
-	[160889] = true, --
-	[160893] = true, --
-	[160897] = true, --
-	[160900] = true, --
-	[160902] = true, --
-	[175218] = true, --
-	[175219] = true, --
-	[175220] = true, --
-	[175222] = true, --
-	[175223] = true, --
+	tier1 = {
+		[201330] = true, --225 haste - 201496
+		[201334] = true, --225 versatility - 201498
+		[201332] = true, --225 mastery - 201497
+		[201223] = true, --225 critical - 201413
+		
+		[201499] = true, --deals damage - Spiced Rib Roast
+	},
 	
-	[180745] = true, --125 crit
-	[180746] = true, --125 versa
-	[180747] = true, --187 stam
-	[180748] = true, --125 haste
-	[180749] = true, --125 multi
-	[180750] = true, --125 mastery
+	tier2 = {
+		[225598] = true, --300 haste - 201501
+		[225600] = true, --300 versatility - 201503
+		[225599] = true, --300 mastery - 201502
+		[225597] = true, --300 critical - 201500
+		[225601] = true, --deals damage - 201504
+	},
 	
-	--the food it self inside the player backback
-	[180757] = true, --125 multi
-	[180758] = true, --125 crit
-	[180761] = true, --125 haste
-	[180759] = true, --125 versa
-	[180762] = true, --125 mastery
-	[180760] = true, --187 stam
-	
-	[188534] = true, --Felmouth Frenzy
+	tier3 = {
+		[225603] = true, --375 haste - 201506
+		[225605] = true, --375 versatility - 201508
+		[225604] = true, --375 mastery - 201507
+		[225602] = true, --375 critical - 201505
+		[225606] = true, --deals damage - 201511
+	},
 }
-
-local best_food = {
-	[180745] = true, --125 crit
-	[180746] = true, --125 versa
-	[180747] = true, --187 stam
-	[180748] = true, --125 haste
-	[180749] = true, --125 multi
-	[180750] = true, --125 mastery
-}
-
-local focus_augmentation = 175457
-local hyper_augmentation = 175456
-local stout_augmentation = 175439
 
 local runes_id = {
-	[175457] = true, -- focus
-	[175456] = true, --hyper
-	[175439] = true, --stout
+	[224001] = true,
 }
 
 --> localization
@@ -80,9 +51,10 @@ local runes_id = {
 	tinsert (UISpecialFrames, "DetailsRaidCheck")
 	DetailsRaidCheck:SetPluginDescription (Loc ["STRING_RAIDCHECK_PLUGIN_DESC"])
 
-	local version = "v0.5"
+	local version = "v0.6"
 	
 	local debugmode = false
+	--local debugmode = true
 	
 	local CreatePluginFrames = function()
 	
@@ -219,7 +191,8 @@ local runes_id = {
 		
 		local report_string1 = show_panel:CreateFontString (nil, "overlay", "GameFontNormal")
 		report_string1:SetPoint ("bottomleft", show_panel, "bottomleft", 10, 10)
-		report_string1:SetText ("|TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:12:12:0:1:512:512:8:70:225:307|t Report No Food/Flask  |TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:12:12:0:1:512:512:8:70:328:409|t Report No Pre-Pot  |TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:12:12:0:1:512:512:8:70:126:204|t Report No Rune") 
+		report_string1:SetText ("|TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:12:12:0:1:512:512:8:70:225:307|t Report No Food/Flask  |TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:12:12:0:1:512:512:8:70:328:409|t Report No Pre-Pot  |TInterface\\TUTORIALFRAME\\UI-TUTORIAL-FRAME:12:12:0:1:512:512:8:70:126:204|t Report No Rune  |  |cFFFFFFFFShift+Click: Options|r") 
+
 		DetailsRaidCheck:SetFontSize (report_string1, 10)
 		DetailsRaidCheck:SetFontColor (report_string1, "white")
 		report_string1:SetAlpha (0.6)
@@ -376,6 +349,11 @@ local runes_id = {
 		DetailsRaidCheck.ToolbarButton:RegisterForClicks ("AnyUp")
 		DetailsRaidCheck.ToolbarButton:SetScript ("OnClick", function (self, button)
 			
+			if (IsShiftKeyDown()) then
+				DetailsRaidCheck.OpenOptionsPanel()
+				return
+			end
+			
 			if (button == "LeftButton") then
 				--> link no food/flask
 				local s, added = "Details!: No Flask or Food: ", {}
@@ -510,28 +488,6 @@ local runes_id = {
 				amount7 = self.last_ilvl_amount or 0
 			end
 			--t.name, t.ilvl, t.time
-			
-			--best food
-			--[[
-			local b = ""
-			for name, foodid in pairs (DetailsRaidCheck.havefood_table) do
-				if (best_food [foodid]) then
-					--print (name, foodid, best_food [foodid], type (foodid))
-					local _, class = _UnitClass (name)
-					local class_color = "FFFFFFFF"
-					
-					if (class) then
-						local coords = CLASS_ICON_TCOORDS [class]
-						class_color = "|TInterface\\AddOns\\Details\\images\\classes_small_alpha:12:12:0:-5:128:128:" .. coords[1]*128 .. ":" .. coords[2]*128 .. ":" .. coords[3]*128 .. ":" .. coords[4]*128 .. "|t |c" .. RAID_CLASS_COLORS [class].colorStr
-					end
-					
-					b = b .. class_color .. DetailsRaidCheck:GetOnlyName (name) .. "|r\n"
-					
-					amount6 = amount6 + 1
-				end
-			end
-			bestfood_str:SetText (b)
-			--]]
 			
 			--food
 			local s, f, p, n = "", "", "", ""
@@ -743,9 +699,25 @@ local runes_id = {
 						with_flask = with_flask + 1
 					end
 					
-					if (bname and food_list [spellid]) then
-						DetailsRaidCheck.havefood_table [name] = spellid
-						with_food = with_food + 1
+					if (DetailsRaidCheck.db.food_tier1) then
+						if (bname and food_list.tier1 [spellid]) then
+							DetailsRaidCheck.havefood_table [name] = 1
+							with_food = with_food + 1
+						end
+					end
+					
+					if (DetailsRaidCheck.db.food_tier2) then
+						if (bname and food_list.tier2 [spellid]) then
+							DetailsRaidCheck.havefood_table [name] = 2
+							with_food = with_food + 1
+						end
+					end
+					
+					if (DetailsRaidCheck.db.food_tier3) then
+						if (bname and food_list.tier3 [spellid]) then
+							DetailsRaidCheck.havefood_table [name] = 3
+							with_food = with_food + 1
+						end
 					end
 					
 					if (bname and runes_id [spellid]) then
@@ -836,9 +808,31 @@ local build_options_panel = function()
 			desc = "If enabled, clicking to report open the report panel instead (to be able to choose where to send the report).",
 			name = "Use Report Panel"
 		},
+		
+		{
+			type = "toggle",
+			get = function() return DetailsRaidCheck.db.food_tier1 end,
+			set = function (self, fixedparam, value) DetailsRaidCheck.db.food_tier1 = value end,
+			desc = "Consider players using Tier 1 food.",
+			name = "Food Tier 1 [225]"
+		},
+		{
+			type = "toggle",
+			get = function() return DetailsRaidCheck.db.food_tier2 end,
+			set = function (self, fixedparam, value) DetailsRaidCheck.db.food_tier2 = value end,
+			desc = "Consider players using Tier 2 food.",
+			name = "Food Tier 2 [300]"
+		},
+		{
+			type = "toggle",
+			get = function() return DetailsRaidCheck.db.food_tier3 end,
+			set = function (self, fixedparam, value) DetailsRaidCheck.db.food_tier3 = value end,
+			desc = "Consider players using Tier 3 food.",
+			name = "Food Tier 3 [375]"
+		},
 	}
 	
-	_detalhes.gump:BuildMenu (options_frame, menu, 15, -65, 260)
+	_detalhes.gump:BuildMenu (options_frame, menu, 15, -65, 180)
 
 end
 
@@ -868,6 +862,10 @@ end
 						pre_pot_tanks = false, --do not report pre pot for tanks
 						mythic_1_4 = true, --only track groups 1-4 on mythic
 						use_report_panel = true, --if true, shows the report panel
+						
+						food_tier1 = true, --legion food tiers
+						food_tier2 = true,
+						food_tier3 = true,
 					}
 					
 					--> install

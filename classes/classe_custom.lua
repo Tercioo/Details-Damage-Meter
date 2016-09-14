@@ -1149,7 +1149,7 @@
 			desc = Loc ["STRING_CUSTOM_POT_DEFAULT_DESC"],
 			source = false,
 			target = false,
-			script_version = 1,
+			script_version = 2,
 			script = [[
 				--init:
 				local combat, instance_container, instance = ...
@@ -1170,8 +1170,7 @@
 					local debuff_uptime_container = player.debuff_uptime and player.debuff_uptime_spells and player.debuff_uptime_spells._ActorTable
 					if (debuff_uptime_container) then
 					    --potion of focus (can't use as pre-potion, so, its amount is always 1
-					    local focus_potion = debuff_uptime_container [156432] --WoD
-					    --local focus_potion = debuff_uptime_container [105701] --MoP
+					    local focus_potion = debuff_uptime_container [188030] --Legion
 					    if (focus_potion) then
 						total = total + 1
 						found_potion = true
@@ -1188,8 +1187,7 @@
 					if (buff_uptime_container) then
 					    
 					    --potion of the jade serpent
-					    local jade_serpent_potion = buff_uptime_container [156426] --WoD
-					    --local jade_serpent_potion = buff_uptime_container [105702] --MoP
+					    local jade_serpent_potion = buff_uptime_container [188027] --Legion
 					    if (jade_serpent_potion) then
 						local used = jade_serpent_potion.activedamt
 						if (used > 0) then
@@ -1204,8 +1202,7 @@
 					    end
 					    
 					    --potion of mogu power
-					    local mogu_power_potion = buff_uptime_container [156428] --WoD
-					    --local mogu_power_potion = buff_uptime_container [105706] --MoP
+					    local mogu_power_potion = buff_uptime_container [188028] --Legion
 					    if (mogu_power_potion) then
 						local used = mogu_power_potion.activedamt
 						if (used > 0) then
@@ -1219,26 +1216,10 @@
 						end
 					    end
 					    
-					    --virmen's bite
-					    local virmens_bite_potion = buff_uptime_container [156423] --WoD
-					    --local virmens_bite_potion = buff_uptime_container [105697] --MoP
-					    if (virmens_bite_potion) then
-						local used = virmens_bite_potion.activedamt
-						if (used > 0) then
-						    total = total + used
-						    found_potion = true
-						    if (used > top) then
-							top = used
-						    end
-						    --add amount to the player 
-						    instance_container:AddValue (player, used)
-						end
-					    end
-					    
-					    --pure rage
-					    local pure_rage_potion = buff_uptime_container [175821] --WoD
-					    if (pure_rage_potion) then
-						local used = pure_rage_potion.activedamt
+					    --mana potion
+					    local mana_potion = buff_uptime_container [188017] --Legion
+					    if (mana_potion) then
+						local used = mana_potion.activedamt
 						if (used > 0) then
 						    total = total + used
 						    found_potion = true
@@ -1251,8 +1232,7 @@
 					    end
 					    
 					    --potion of the mountains
-					    local mountains_potion = buff_uptime_container [156430] --WoD
-					    --local mountains_potion = buff_uptime_container [105698] --MoP
+					    local mountains_potion = buff_uptime_container [188029] --Legion
 					    if (mountains_potion) then
 						local used = mountains_potion.activedamt
 						if (used > 0) then
@@ -1283,11 +1263,9 @@
 			--get the debuff container for potion of focus
 			local debuff_uptime_container = player.debuff_uptime and player.debuff_uptime_spells and player.debuff_uptime_spells._ActorTable
 			if (debuff_uptime_container) then
-			    local focus_potion = debuff_uptime_container [156432] --WoD
-			    --local focus_potion = debuff_uptime_container [105701] --MoP
+			    local focus_potion = debuff_uptime_container [188030] --Legion
 			    if (focus_potion) then
-				local name, _, icon = GetSpellInfo (156432) --WoD
-				--local name, _, icon = GetSpellInfo (105701) --MoP
+				local name, _, icon = GetSpellInfo (188030) --Legion
 				GameCooltip:AddLine (name, 1) --> can use only 1 focus potion (can't be pre-potion)
 				_detalhes:AddTooltipBackgroundStatusbar()
 				GameCooltip:AddIcon (icon, 1, 1, 14, 14)
@@ -1298,53 +1276,36 @@
 			local buff_uptime_container = player.buff_uptime and player.buff_uptime_spells and player.buff_uptime_spells._ActorTable
 			if (buff_uptime_container) then
 			    --potion of the jade serpent
-			    local jade_serpent_potion = buff_uptime_container [156426] --WoD
-			    --local jade_serpent_potion = buff_uptime_container [105702] --MoP
+			    local jade_serpent_potion = buff_uptime_container [188027] --Legion
 			    if (jade_serpent_potion) then
-				local name, _, icon = GetSpellInfo (156426) --WoD
-				--local name, _, icon = GetSpellInfo (105702) --MoP
+				local name, _, icon = GetSpellInfo (188027) --Legion
 				GameCooltip:AddLine (name, jade_serpent_potion.activedamt)
 				_detalhes:AddTooltipBackgroundStatusbar()
 				GameCooltip:AddIcon (icon, 1, 1, 14, 14)
 			    end
 			    
 			    --potion of mogu power
-			    local mogu_power_potion = buff_uptime_container [156428] --WoD
-			    --local mogu_power_potion = buff_uptime_container [105706] --MoP
+			    local mogu_power_potion = buff_uptime_container [188028] --Legion
 			    if (mogu_power_potion) then
-				local name, _, icon = GetSpellInfo (156428) --WoD
-				--local name, _, icon = GetSpellInfo (105706) --MoP
+				local name, _, icon = GetSpellInfo (188028) --Legion
 				GameCooltip:AddLine (name, mogu_power_potion.activedamt)
 				_detalhes:AddTooltipBackgroundStatusbar()
 				GameCooltip:AddIcon (icon, 1, 1, 14, 14)
 			    end
 			    
-			    --pure rage
-			    local pure_rage_potion = buff_uptime_container [175821] --WoD
-			    if (pure_rage_potion) then
-				local name, _, icon = GetSpellInfo (175821) --WoD
-				GameCooltip:AddLine (name, pure_rage_potion.activedamt)
-				_detalhes:AddTooltipBackgroundStatusbar()
-				GameCooltip:AddIcon (icon, 1, 1, 14, 14)
-			    end
-			    
-			    --virmen's bite
-			    local virmens_bite_potion = buff_uptime_container [156423] --WoD
-			    --local virmens_bite_potion = buff_uptime_container [105697] --MoP
-			    if (virmens_bite_potion) then
-				local name, _, icon = GetSpellInfo (156423) --WoD
-				--local name, _, icon = GetSpellInfo (105697) --MoP
-				GameCooltip:AddLine (name, virmens_bite_potion.activedamt)
+			    --mana potion
+			    local mana_potion = buff_uptime_container [188017] --Legion
+			    if (mana_potion) then
+				local name, _, icon = GetSpellInfo (188017) --Legion
+				GameCooltip:AddLine (name, mana_potion.activedamt)
 				_detalhes:AddTooltipBackgroundStatusbar()
 				GameCooltip:AddIcon (icon, 1, 1, 14, 14)
 			    end
 			    
 			    --potion of the mountains
-			    local mountains_potion = buff_uptime_container [156430] --WoD
-			    --local mountains_potion = buff_uptime_container [105698] --MoP
+			    local mountains_potion = buff_uptime_container [188029] --Legion
 			    if (mountains_potion) then
-				local name, _, icon = GetSpellInfo (156430) --WoD
-				--local name, _, icon = GetSpellInfo (105698) --MoP
+				local name, _, icon = GetSpellInfo (188029) --Legion
 				GameCooltip:AddLine (name, mountains_potion.activedamt)
 				_detalhes:AddTooltipBackgroundStatusbar()
 				GameCooltip:AddIcon (icon, 1, 1, 14, 14)
@@ -1373,6 +1334,7 @@
 		
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --		/run _detalhes:AddDefaultCustomDisplays()
+
 		local Healthstone = {
 			name = Loc ["STRING_CUSTOM_HEALTHSTONE_DEFAULT"],
 			icon = [[Interface\ICONS\warlock_ healthstone]],
@@ -1394,7 +1356,7 @@
 				local AllSpells = character:GetSpellList()
 				local found = false
 				for spellid, spell in pairs (AllSpells) do
-					if (spellid == 6262 or spellid == 156445 or spellid == 156438 or spellid == 82184 or spellid == 173260) then --healthstone, reju potion, health potion, spinal healing injector, shieldtronic shield
+					if (DETAILS_HEALTH_POTION_LIST [spellid]) then
 						instance_container:AddValue (character, spell.total)
 						total = total + spell.total
 						if (top < spell.total) then
@@ -1427,31 +1389,17 @@
 				GameCooltip:AddStatusBar (100, 1, R, G, B, A)
 			end
 			
-			local pot = actor:GetSpell (156445)
+			local pot = actor:GetSpell (DETAILS_HEALTH_POTION_ID)
 			if (pot) then
-				GameCooltip:AddLine (select (1, GetSpellInfo(156445)),  _detalhes:ToK(pot.total))
-				GameCooltip:AddIcon (select (3, GetSpellInfo (156445)), 1, 1, 16, 16)
+				GameCooltip:AddLine (select (1, GetSpellInfo(DETAILS_HEALTH_POTION_ID)),  _detalhes:ToK(pot.total))
+				GameCooltip:AddIcon (select (3, GetSpellInfo (DETAILS_HEALTH_POTION_ID)), 1, 1, 16, 16)
 				GameCooltip:AddStatusBar (100, 1, R, G, B, A)
 			end
 			
-			local pot = actor:GetSpell (156438)
+			local pot = actor:GetSpell (DETAILS_REJU_POTION_ID)
 			if (pot) then
-				GameCooltip:AddLine (select (1, GetSpellInfo(156438)),  _detalhes:ToK(pot.total))
-				GameCooltip:AddIcon (select (3, GetSpellInfo (156438)), 1, 1, 16, 16)
-				GameCooltip:AddStatusBar (100, 1, R, G, B, A)
-			end
-			
-			local injector = actor:GetSpell (82184)
-			if (injector) then
-				GameCooltip:AddLine (select (1, GetSpellInfo(82184)),  _detalhes:ToK(injector.total))
-				GameCooltip:AddIcon (select (3, GetSpellInfo (82184)), 1, 1, 16, 16)
-				GameCooltip:AddStatusBar (100, 1, R, G, B, A)
-			end
-			
-			local shieldtronic = actor:GetSpell (173260)
-			if (shieldtronic) then
-				GameCooltip:AddLine (select (1, GetSpellInfo(173260)),  _detalhes:ToK(shieldtronic.total))
-				GameCooltip:AddIcon (select (3, GetSpellInfo (173260)), 1, 1, 16, 16)
+				GameCooltip:AddLine (select (1, GetSpellInfo(DETAILS_REJU_POTION_ID)),  _detalhes:ToK(pot.total))
+				GameCooltip:AddIcon (select (3, GetSpellInfo (DETAILS_REJU_POTION_ID)), 1, 1, 16, 16)
 				GameCooltip:AddStatusBar (100, 1, R, G, B, A)
 			end
 
@@ -1459,7 +1407,7 @@
 			]],
 			percent_script = false,
 			total_script = false,
-			script_version = 12,
+			script_version = 13,
 		}
 --	/run _detalhes:AddDefaultCustomDisplays()
 		local have = false

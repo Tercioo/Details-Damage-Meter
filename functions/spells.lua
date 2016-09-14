@@ -4,16 +4,34 @@ do
 	
 	_detalhes.PotionList = {
 		--> MoP
-		[105702] = true, --jade serpent
-		[105706] = true, --mogu power
-		[105697] = true, --virmen's bite
-		[105698] = true, --montains
+--		[105702] = true, --jade serpent
+--		[105706] = true, --mogu power
+--		[105697] = true, --virmen's bite
+--		[105698] = true, --montains
+
 		--> WoD
-		[156426] = true, --draenic intellect potion
-		[156430] = true, --draenic armor potion
-		[156423] = true, --draenic agility potion
-		[156428] = true, --draenic strength potion
-		[175821] = true, --draenic pure rage potion
+--		[156426] = true, --draenic intellect potion
+--		[156430] = true, --draenic armor potion
+--		[156423] = true, --draenic agility potion
+--		[156428] = true, --draenic strength potion
+--		[175821] = true, --draenic pure rage potion
+
+		--> Legion
+		[188028] = true, --Potion of the Old War
+		[188027] = true, --Potion of Deadly Grace
+		[188029] = true, --Unbending Potion
+		[188017] = true, --Ancient Mana Potion
+		[188030] = true, --Leytorrent Potion	
+		
+		--mana and heal potions
+--		[188016] = true, --Ancient Healing Potion
+--		[188018] = true, --Ancient Rejuvenation Potion
+		
+		--flask
+--		[188033] = true, --Flask of the Seventh Demon
+--		[188031] = true, --Flask of the Whispered Pact
+--		[188034] = true, --Flask of the Countless Armies
+--		[188035] = true, --Flask of Ten Thousand Scars
 	}
 	
 	_detalhes.SpecSpellList = { --~spec
