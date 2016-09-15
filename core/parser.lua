@@ -3417,7 +3417,7 @@ SPELL_POWER_OBSOLETE2 = 15;
 		if (zoneType == "pvp") then --> battlegrounds
 
 			if (_detalhes.debug) then
-				_detalhes:Msg ("(debug) battleground found.")
+				_detalhes:Msg ("(debug) zone type is now 'pvp'.")
 			end
 			
 			_detalhes.is_in_battleground = true
@@ -3449,7 +3449,7 @@ SPELL_POWER_OBSOLETE2 = 15;
 		elseif (zoneType == "arena") then
 		
 			if (_detalhes.debug) then
-				_detalhes:Msg ("(debug) zone type is arena.")
+				_detalhes:Msg ("(debug) zone type is now 'arena'.")
 			end
 		
 			if (_detalhes.force_activity_time_pvp) then
@@ -3786,19 +3786,23 @@ SPELL_POWER_OBSOLETE2 = 15;
 		end
 	
 		--if (C_Scenario.IsChallengeMode() and _detalhes.overall_clear_newchallenge) then
-		if (_detalhes.overall_clear_newchallenge) then --C_Scenario.IsChallengeMode() and  parece que não existe mais
-			_detalhes.historico:resetar_overall()
+--		if (_detalhes.overall_clear_newchallenge) then --C_Scenario.IsChallengeMode() and  parece que não existe mais
+--			_detalhes.historico:resetar_overall()
+--			if (_detalhes.debug) then
+--				_detalhes:Msg ("(debug) timer is a challenge mode start.")
+--			end
+		
+		if (_detalhes.is_in_arena) then
 			if (_detalhes.debug) then
-				_detalhes:Msg ("(debug) timer is a challenge mode start.")
+				_detalhes:Msg ("(debug) timer is an arena countdown.")
 			end
-			
-		elseif (_detalhes.is_in_arena) then
 			_detalhes:StartArenaSegment (...)
-			if (_detalhes.debug) then
-				_detalhes:Msg ("(debug) timer is a arena countdown.")
-			end
 		
 		elseif (_detalhes.is_in_battleground) then
+			if (_detalhes.debug) then
+				_detalhes:Msg ("(debug) timer is a battleground countdown.")
+			end
+			
 			local timerType, timeSeconds, totalTime = select (1, ...)
 			
 			if (_detalhes.start_battleground) then

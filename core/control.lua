@@ -886,7 +886,7 @@
 		function _detalhes:EnteredInArena()
 
 			if (_detalhes.debug) then
-				_detalhes:Msg ("(debug) arena detected.")
+				_detalhes:Msg ("(debug) the player EnteredInArena().")
 			end
 		
 			_detalhes.arena_begun = false
@@ -895,6 +895,10 @@
 		end
 		
 		function _detalhes:LeftArena()
+		
+			if (_detalhes.debug) then
+				_detalhes:Msg ("(debug) player LeftArena().")
+			end
 		
 			_detalhes.is_in_arena = false
 			_detalhes.arena_begun = false
