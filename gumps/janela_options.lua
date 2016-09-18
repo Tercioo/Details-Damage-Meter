@@ -3439,8 +3439,20 @@ function window:CreateFrame15()
 	
 		titulo_customspells:SetPoint (10, window.title_y_pos)
 		titulo_customspells_desc:SetPoint (10, window.title_y_pos2)
+		panel:SetPoint (10, -80)
 		
-		panel:SetPoint (10, -70)
+	--> consilidade spells
+		g:NewLabel (frame15, _, "$parentConsolidadeSpellsLabel", "ConsolidadeSpellsLabel", Loc ["STRING_OPTIONSMENU_SPELLS_CONSOLIDATE"], "GameFontHighlightLeft")
+		g:NewSwitch (frame15, _, "$parentConsolidadeSpellsSwitch", "ConsolidadeSpellsSwitch", 60, 20, nil, nil, _detalhes.override_spellids, nil, nil, nil, nil, options_switch_template)
+		frame15.ConsolidadeSpellsLabel:SetPoint ("left", frame15.ConsolidadeSpellsSwitch, "right", 3)
+		frame15.ConsolidadeSpellsSwitch:SetAsCheckBox()
+		frame15.ConsolidadeSpellsSwitch.OnSwitch = function (self, instance, value)
+			_detalhes.override_spellids = value
+			_detalhes:UpdateParserGears()
+		end
+		window:CreateLineBackground2 (frame15, "ConsolidadeSpellsSwitch", "ConsolidadeSpellsLabel", "")
+		frame15.ConsolidadeSpellsSwitch:SetPoint (10, -55)
+		_detalhes:SetFontSize (frame15.ConsolidadeSpellsLabel, 12)
 end
 
 		

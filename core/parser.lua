@@ -86,7 +86,7 @@
 	--> ignore deaths
 		local ignore_death = {}
 	--> special items
-		local soul_capacitor = {} --> trinket from Socrethar the Eternal
+		--local soul_capacitor = {} --> trinket from Socrethar the Eternal --WOD only
 		local paladin_gbom = {} --greater blessing of might
 		local shaman_slash = {} --storm slash
 		local shaman_slash_timers = {} --storm slash
@@ -128,16 +128,20 @@
 		[184709] = 218617, --warrior rampage
 		[201364] = 218617, --warrior rampage
 		[201363] = 218617, --warrior rampage
+		
+		[222031] = 199547, --deamonhunter ChaosStrike
+		[200685] = 199552, --deamonhunter Blade Dance
+		[210155] = 210153, --deamonhunter Death Sweep
+		[227518] = 201428, --deamonhunter Annihilation
+		[187727] = 178741, --deamonhunter Immolation Aura
+		
+		[205164] = 205165, --death knight Crystalline Swords
+		
+		[193315] = 197834, --rogue Saber Slash
+		[202822] = 202823, --rogue greed
 	}
+	local is_using_spellId_override = false
 	
-	local WARRIOR_RAMPAGE = {
-		[184707] = true,
-		[184709] = true,
-		[201364] = true,
-		[201363] = true,
-	}
-	
-	local SPELLID_WARRIOR_RAMPAGE = 218617
 	local SPELLID_SHAMAN_SLASH_AURA = 195222
 	local SPELLID_SHAMAN_SLASH_DAMAGE = 195256
 	local SPELLID_PALADIN_GBOM_AURA = 203528
@@ -238,8 +242,8 @@
 			return parser:SLT_damage (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand)
 		end
 		
-		if (WARRIOR_RAMPAGE [spellid]) then
-			spellid = SPELLID_WARRIOR_RAMPAGE
+		if (is_using_spellId_override) then
+			spellid = override_spellId [spellid] or spellid
 		end
 		
 		if (spellid == SPELLID_PALADIN_GBOM_DAMAGE) then
@@ -249,14 +253,14 @@
 		end
 		
 		--> REMOVE AFTER LEGION LAUNCH
-		if (soul_capacitor [who_serial]) then
-			if (soul_capacitor [who_serial]+12 < _tempo) then
-				--> something went wrong, debuff didn't expired or we didn't saw it going out.
-				soul_capacitor [who_serial] = nil
-			else
-				return
-			end
-		end
+		--if (soul_capacitor [who_serial]) then
+		--	if (soul_capacitor [who_serial]+12 < _tempo) then
+		--		--> something went wrong, debuff didn't expired or we didn't saw it going out.
+		--		soul_capacitor [who_serial] = nil
+		--	else
+		--		return
+		--	end
+		--end
 	
 	------------------------------------------------------------------------------------------------	
 	--> check if need start an combat
@@ -866,6 +870,11 @@
 			end
 		
 		else
+			--colocando aqui apenas pois ele confere o override dentro do damage
+			if (is_using_spellId_override) then
+				spellid = override_spellId [spellid] or spellid
+			end
+		
 			--> actor spells table
 			local spell = este_jogador.spells._ActorTable [spellid]
 			if (not spell) then
@@ -895,9 +904,9 @@
 --4/22 18:07:54.369  SPELL_SUMMON,Player-3296-009371B2,"Façade-Anasterian(US)",0x514,0x0,Creature-0-3198-1448-2131-90477-0000380DAA,"Blood Globule",0xa28,0x0,180410,"Heart Seeker",0x1
 --5/4 15:45:24.222  SPELL_SUMMON,Player-3296-009576DD,"Àlëx-Brill(EU)",0x40514,0x0,Creature-0-2083-1448-25606-90513-000047BE44,"Fel Blood Globule",0xa28,0x0,180413,"Heart Seeker",0x1
 
-		if (spellid and (spellid == 180410 or spellid == 180413)) then -- Heart Seeker
-			return
-		end
+		--if (spellid and (spellid == 180410 or spellid == 180413)) then -- Heart Seeker --> WOD Kilrogg encounter
+		--	return
+		--end
 		
 		if (not who_name) then
 			who_name = "[*] " .. spellName
@@ -1028,6 +1037,10 @@
 		--> spirit link toten
 		if (spellid == 98021) then
 			return parser:SLT_healing (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amount, overhealing, absorbed, critical, is_shield)
+		end
+		
+		if (is_using_spellId_override) then
+			spellid = override_spellId [spellid] or spellid
 		end
 		
 		--[[statistics]]-- _detalhes.statistics.heal_calls = _detalhes.statistics.heal_calls + 1
@@ -1297,8 +1310,8 @@
 					ignore_death [who_name] = true
 					return
 					
-				elseif (spellid == 184293) then --> WOD trinket: Soul Capacitor T18 (soul eruption 184559) --REMOVE ON LEGION LAUNCH
-					soul_capacitor [who_serial] = _tempo
+				--elseif (spellid == 184293) then --> WOD trinket: Soul Capacitor T18 (soul eruption 184559) --REMOVE ON LEGION LAUNCH
+				--	soul_capacitor [who_serial] = _tempo
 					
 				elseif (spellid == SPELLID_SHAMAN_SLASH_AURA) then --shaman slash
 					--> handle the buff on parser time
@@ -1683,10 +1696,10 @@
 					end
 				end
 				
-				if (spellid == 184293) then --> WOD trinket: Soul Capacitor T18 REMOVE ON LEGION LAUNCH
-					soul_capacitor [who_serial] = nil
+				--if (spellid == 184293) then --> WOD trinket: Soul Capacitor T18 REMOVE ON LEGION LAUNCH
+				--	soul_capacitor [who_serial] = nil
 					
-				elseif (spellid == SPELLID_SHAMAN_SLASH_AURA) then --shaman slash
+				if (spellid == SPELLID_SHAMAN_SLASH_AURA) then --shaman slash
 					--as @Kihra from WCL mentioned, slash has a travel time, the hit may land after the buff has gone
 					local delay_timer = _detalhes:ScheduleTimer ("HandleSlashUnbuff", 2.5, shaman_slash, who_serial, alvo_serial)
 					shaman_slash_timers [who_serial] = shaman_slash_timers [who_serial] or {}
@@ -4232,6 +4245,8 @@ SPELL_POWER_OBSOLETE2 = 15;
 		else
 			_hook_interrupt = false
 		end
+		
+		is_using_spellId_override = _detalhes.override_spellids
 		
 		return _detalhes:ClearParserCache()
 	end

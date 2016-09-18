@@ -317,8 +317,8 @@
 					else
 						return _unpack (_detalhes.class_colors.ARENA_YELLOW)
 					end
-				elseif (actor.enemy and not actor.arena_enemy) then
-					return 0.94117, 0.1, 0.1, 1
+				--elseif (actor.enemy and not actor.arena_enemy) then
+				--	return 0.94117, 0.1, 0.1, 1
 				else
 					if (not is_player_class [actor.classe] and actor.flag_original and _bit_band (actor.flag_original, 0x00000020) ~= 0) then --> neutral
 						return _unpack (_detalhes.class_colors.NEUTRAL)
