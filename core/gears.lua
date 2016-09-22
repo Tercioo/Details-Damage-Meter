@@ -1135,8 +1135,14 @@ function ilvl_core:CalcItemLevel (unitid, guid, shout)
 						if (equip_id == 17) then
 							local itemId = select (2, strsplit (":", item))
 							if (artifact_offhands [itemId]) then
-								item_amount = 15
-								break
+								local mainHand = GetInventoryItemLink (unitid, 16)
+								if (mainHand) then
+									local iName, _, itemRarity, mainHandILevel, _, _, _, _, equipSlot = GetItemInfo (mainHand)
+									if (iLevel) then
+										item = mainHand
+										iLevel = mainHandILevel
+									end
+								end
 							end
 						end
 						

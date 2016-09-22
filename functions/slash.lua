@@ -1088,13 +1088,18 @@ function SlashCmdList.DETAILS (msg, editbox)
 							["137246"] = true, --warlock demo
 							["128289"] = true, --warrior prot
 						}
-						
-						
+
 						if (equip_id == 17) then
 							local itemId = select (2, strsplit (":", item))
 							if (artifact_offhands [itemId]) then
-								item_amount = 15
-								break
+								local mainHand = GetInventoryItemLink (unitid, 16)
+								if (mainHand) then
+									local iName, _, itemRarity, mainHandILevel, _, _, _, _, equipSlot = GetItemInfo (mainHand)
+									if (iLevel) then
+										item = mainHand
+										iLevel = mainHandILevel
+									end
+								end
 							end
 						end
 						
@@ -1125,9 +1130,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 		end
 		
 		local average = item_level / item_amount
-		
-		print (item_level, item_amount, "ilvl:", average)
-	
+		print ("gear score:", item_level, "item amount:", item_amount, "ilvl:", average)
 	
 	elseif (msg == "ilvl") then
 	
