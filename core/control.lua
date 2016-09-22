@@ -554,6 +554,12 @@
 					else
 						_detalhes.tabela_vigente.is_trash = true
 					end
+				else
+					if (not in_instance) then
+						if (_detalhes.world_combat_is_trash) then
+							_detalhes.tabela_vigente.is_temporary = true
+						end
+					end
 				end
 				
 				if (not _detalhes.tabela_vigente.enemy) then

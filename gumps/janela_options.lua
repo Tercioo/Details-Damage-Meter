@@ -9470,6 +9470,7 @@ function window:CreateFrame10()
 	--------------- Erase Trash
 		g:NewLabel (frame10, _, "$parentEraseTrash", "eraseTrashLabel", Loc ["STRING_OPTIONS_CLEANUP"], "GameFontHighlightLeft")
 		
+
 		--
 		g:NewSwitch (frame10, _, "$parentRemoveTrashSlider", "removeTrashSlider", 60, 20, _, _, _detalhes.trash_auto_remove, nil, nil, nil, nil, options_switch_template)
 		frame10.removeTrashSlider:SetPoint ("left", frame10.eraseTrashLabel, "right")
@@ -9481,6 +9482,20 @@ function window:CreateFrame10()
 		
 		window:CreateLineBackground2 (frame10, "removeTrashSlider", "eraseTrashLabel", Loc ["STRING_OPTIONS_CLEANUP_DESC"])
 
+	--------------- Consider World as Trash
+		g:NewLabel (frame10, _, "$parentWorldAsTrash", "WorldAsTrashLabel", Loc ["STRING_OPTIONS_PERFORMANCE_ERASEWORLD"], "GameFontHighlightLeft")
+		
+		--
+		g:NewSwitch (frame10, _, "$parentWorldAsTrashSlider", "WorldAsTrashSlider", 60, 20, _, _, _detalhes.world_combat_is_trash, nil, nil, nil, nil, options_switch_template)
+		frame10.WorldAsTrashSlider:SetPoint ("left", frame10.WorldAsTrashLabel, "right")
+		frame10.WorldAsTrashSlider:SetAsCheckBox()
+		frame10.WorldAsTrashSlider.OnSwitch = function (self, _, amount)
+			_detalhes.world_combat_is_trash = amount
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+		end
+		
+		window:CreateLineBackground2 (frame10, "WorldAsTrashSlider", "WorldAsTrashLabel", Loc ["STRING_OPTIONS_PERFORMANCE_ERASEWORLD_DESC"])
+		
 	--> performance profiles
 	
 		--enabled func
@@ -9918,6 +9933,7 @@ function window:CreateFrame10()
 			{"segmentsSaveLabel", 2},
 			{"panicModeLabel", 3},
 			{"eraseTrashLabel", 4},
+			{"WorldAsTrashLabel", 4},
 			{"EraseChartDataLabel", 5},
 			
 			{"DataCollectAnchorLabel", 5, true},
@@ -11161,6 +11177,10 @@ end --> if not window
 		_G.DetailsOptionsWindow8TotalBarIconTexture.MyObject:SetTexture (editing_instance.total_bar.icon)
 		
 		--> window 10	
+		
+		_G.DetailsOptionsWindow10RemoveTrashSlider.MyObject:SetValue (_detalhes.trash_auto_remove)
+		_G.DetailsOptionsWindow10WorldAsTrashSlider.MyObject:SetValue (_detalhes.world_combat_is_trash)
+
 		_G.DetailsOptionsWindow10PanicModeSlider.MyObject:SetValue (_detalhes.segments_panic_mode)
 		_G.DetailsOptionsWindow10ClearAnimateScrollSlider.MyObject:SetValue (_detalhes.animate_scroll)
 		_G.DetailsOptionsWindow10SliderSegmentsSave.MyObject:SetValue (_detalhes.segments_amount_to_save)

@@ -222,7 +222,7 @@ function historico:adicionar (tabela)
 		
 			if (_terceiro_combate) then
 			
-				if (_terceiro_combate.is_trash and not _terceiro_combate.is_boss) then
+				if ((_terceiro_combate.is_trash and not _terceiro_combate.is_boss) or (_terceiro_combate.is_temporary)) then
 					--if (_terceiro_combate.overall_added) then
 					--	_detalhes.tabela_overall = _detalhes.tabela_overall - _terceiro_combate
 					--	print ("removendo combate 1")

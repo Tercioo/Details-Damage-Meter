@@ -953,7 +953,8 @@ local default_profile = {
 		remove_realm_from_name = true,
 		trash_concatenate = false,
 		trash_auto_remove = true,
-	
+		world_combat_is_trash = false,
+		
 	--> death log
 		deadlog_limit = 16,
 		deadlog_events = 32,
