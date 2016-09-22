@@ -310,6 +310,7 @@
 			
 			if (custom ~= "") then
 				custom = custom:gsub ("{spell}", spellname)
+				custom = custom:gsub ("{target}", alvo_name or "")
 				custom = custom:gsub ("{next}", next)
 				_detalhes:SendMsgToChannel (custom, channel, _detalhes.announce_interrupts.whisper)
 			else
@@ -335,6 +336,7 @@
 			if (custom ~= "") then
 				custom = custom:gsub ("{spell}", spellname)
 				custom = custom:gsub ("{next}", who_name)
+				custom = custom:gsub ("{target}", alvo_name or "")
 				_detalhes:SendMsgToChannel (custom, "PRINT")
 			else
 				local minute, second = _detalhes:GetCombat():GetFormatedCombatTime()
@@ -409,7 +411,7 @@
 			
 			if (custom ~= "") then
 				custom = custom:gsub ("{spell}", spellname)
-				custom = custom:gsub ("{target}", alvo_name)
+				custom = custom:gsub ("{target}", alvo_name or "")
 				_detalhes:SendMsgToChannel (custom, channel, _detalhes.announce_interrupts.whisper)
 			else
 				local msg

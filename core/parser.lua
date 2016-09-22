@@ -134,6 +134,7 @@
 		[210155] = 210153, --deamonhunter Death Sweep
 		[227518] = 201428, --deamonhunter Annihilation
 		[187727] = 178741, --deamonhunter Immolation Aura
+		[201789] = 201628, --deamonhunter Fury of the Illidari
 		
 		[205164] = 205165, --death knight Crystalline Swords
 		

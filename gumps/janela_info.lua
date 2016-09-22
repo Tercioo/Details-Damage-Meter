@@ -2025,6 +2025,12 @@ function gump:CriaJanelaInfo()
 				[871] = true, --shield wall
 				[112048] = true, --shield barrier
 			},
+			["DEMONHUNTER"] = {
+				[178740] = true, --immolation aura --178741
+				[203819] = true, --Demon Spikes
+				[187827] = true, --Metamorphosis
+				[218256] = true, --Empower Wards
+			},
 		}
 		
 		local avoidance_fill = function (tab, player, combat)
