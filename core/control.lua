@@ -296,9 +296,10 @@
 
 		-- ~start ~inicio ~novo ñovo
 		function _detalhes:EntrarEmCombate (...)
-		
 			if (_detalhes.debug) then
-				_detalhes:Msg ("(debug) started a new combat.")
+				_detalhes:Msg ("(debug) |cFFFFFF00started a new combat|r|cFFFF7700", _detalhes.encounter_table and _detalhes.encounter_table.name or "")
+				local from = debugstack (2, 1, 0)
+				print (from)
 			end
 
 			if (not _detalhes.tabela_historico.tabelas[1]) then 
@@ -375,19 +376,19 @@
 				if (_detalhes:IsInInstance() or _detalhes.debug) then
 					if (not _detalhes:CaptureIsAllEnabled()) then
 						_detalhes:ScheduleSendCloudRequest()
-						if (_detalhes.debug) then
-							_detalhes:Msg ("(debug) requesting a cloud server.")
-						end
+						--if (_detalhes.debug) then
+						--	_detalhes:Msg ("(debug) requesting a cloud server.")
+						--end
 					end
 				else
-					if (_detalhes.debug) then
-						_detalhes:Msg ("(debug) isn't inside a registred instance", _detalhes:IsInInstance())
-					end
+					--if (_detalhes.debug) then
+					--	_detalhes:Msg ("(debug) isn't inside a registred instance", _detalhes:IsInInstance())
+					--end
 				end
 			else
-				if (_detalhes.debug) then
-					_detalhes:Msg ("(debug) isn't in group or cloud is turned off", _detalhes.in_group, _detalhes.cloud_capture)
-				end
+				--if (_detalhes.debug) then
+				--	_detalhes:Msg ("(debug) isn't in group or cloud is turned off", _detalhes.in_group, _detalhes.cloud_capture)
+				--end
 			end
 		
 			--> hide / alpha / switch in combat
@@ -429,7 +430,7 @@
 		function _detalhes:SairDoCombate (bossKilled, from_encounter_end)
 		
 			if (_detalhes.debug) then
-				_detalhes:Msg ("(debug) ended a combat.")
+				_detalhes:Msg ("(debug) |cFFFFFF00ended a combat|r|cFFFF7700", _detalhes.encounter_table and _detalhes.encounter_table.name or "")
 			end
 			
 			--> in case of something somehow someway call to close the same combat a second time.
@@ -573,8 +574,8 @@
 				end
 				
 				if (_detalhes.debug) then
-					_detalhes:Msg ("(debug) forcing equalize actors behavior.")
-					_detalhes:EqualizeActorsSchedule (_detalhes.host_of)
+				--	_detalhes:Msg ("(debug) forcing equalize actors behavior.")
+				--	_detalhes:EqualizeActorsSchedule (_detalhes.host_of)
 				end
 				
 				--> verifica memoria

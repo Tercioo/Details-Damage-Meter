@@ -180,7 +180,8 @@ function historico:adicionar (tabela)
 				_detalhes:Msg ("(debug) overall data flag match with the current combat.")
 			end
 			if (InCombatLockdown()) then
-				_detalhes.schedule_add_to_overall = true
+				_detalhes.schedule_add_to_overall = _detalhes.schedule_add_to_overall or {}
+				tinsert (_detalhes.schedule_add_to_overall, tabela)
 				if (_detalhes.debug) then
 					_detalhes:Msg ("(debug) player is in combat, scheduling overall addition.")
 				end
@@ -351,6 +352,10 @@ function historico:resetar_overall()
 				instancia:ReajustaGump()
 			end
 		end
+		
+		if (_detalhes.schedule_add_to_overall) then
+			wipe (_detalhes.schedule_add_to_overall)
+		end
 	end
 	
 	_detalhes:ClockPluginTickOnSegment()
@@ -380,6 +385,10 @@ function historico:resetar()
 	_table_wipe (_detalhes.tabela_vigente)
 	_table_wipe (_detalhes.tabela_overall)
 	_table_wipe (_detalhes.spellcache)
+	
+	if (_detalhes.schedule_add_to_overall) then
+		wipe (_detalhes.schedule_add_to_overall)
+	end
 	
 	_detalhes:LimparPets()
 	_detalhes:ResetSpecCache (true) --> forçar
@@ -428,16 +437,6 @@ function historico:resetar()
 	
 	_detalhes:SendEvent ("DETAILS_DATA_RESET", nil, nil)
 	
-	--if (InCombatLockdown() and UnitAffectingCombat ("player")) then
-	--	_detalhes:ScheduleTimer ("DelayCheckCombat", 1)
-	--end
-	
-end
-
-function _detalhes:DelayCheckCombat()
-	if (InCombatLockdown() and UnitAffectingCombat ("player") and not _detalhes.in_combat) then
-		_detalhes:EntrarEmCombate()
-	end
 end
 
 function _detalhes.refresh:r_historico (este_historico)

@@ -145,7 +145,7 @@
 			timeMachine.tabelas [tipo] = t
 			
 			if (_detalhes.debug) then
-				_detalhes:Msg ("timemachine r"..removed.."| e"..#t.."| t"..tipo)
+				--_detalhes:Msg ("timemachine r"..removed.."| e"..#t.."| t"..tipo)
 			end
 		end
 	end

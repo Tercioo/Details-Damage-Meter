@@ -1,5 +1,5 @@
 
-local dversion = 45
+local dversion = 46
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary (major, minor)
 
@@ -115,6 +115,7 @@ local embed_functions = {
 	"CreateAnimation",
 	"CreateScrollBox",
 	"CreateBorder",
+	"FormatNumber",
 }
 
 DF.table = {}
@@ -216,6 +217,43 @@ DF.www_icons = {
 	curse = {0, 0.7890625, 38/123, 79/128},
 	mmoc = {0, 0.7890625, 80/123, 123/128},
 }
+
+local symbol_1K, symbol_10K, symbol_1B
+if (GetLocale() == "koKR") then
+	symbol_1K, symbol_10K, symbol_1B = "천", "만", "억"
+elseif (GetLocale() == "zhCN") then
+	symbol_1K, symbol_10K, symbol_1B = "천", "万", "亿"
+elseif (GetLocale() == "zhTW") then
+	symbol_1K, symbol_10K, symbol_1B = "천", "萬", "億"
+end
+
+if (symbol_1K) then
+	function DF.FormatNumber (numero)
+		if (numero > 99999999) then
+			return format ("%.2f", numero/100000000) .. symbol_1B
+		elseif (numero > 999999) then
+			return format ("%.2f", numero/10000) .. symbol_10K
+		elseif (numero > 99999) then
+			return floor (numero/10000) .. symbol_10K
+		elseif (numero > 9999) then
+			return format ("%.1f", (numero/10000)) .. symbol_10K
+		elseif (numero > 999) then
+			return format ("%.1f", (numero/1000)) .. symbol_1K
+		end
+		return format ("%.1f", numero)
+	end
+else
+	function DF.FormatNumber (numero)
+		if (numero > 999999) then
+			return format ("%.2f", numero/1000000) .. "M"
+		elseif (numero > 99999) then
+			return floor (numero/1000) .. "K"
+		elseif (numero > 999) then
+			return format ("%.1f", (numero/1000)) .. "K"
+		end
+		return format ("%.1f", numero)
+	end
+end
 
 function DF:IntegerToTimer (value)
 	return "" .. floor (value/60) .. ":" .. format ("%02.f", value%60)

@@ -1070,6 +1070,7 @@ local MAX_INSPECT_AMOUNT = 1
 local MIN_ILEVEL_TO_STORE = 50
 local LOOP_TIME = 7
 
+--if the item is an artifact off-hand, get the item level of the main hand
 local artifact_offhands = {
 	["133959"] = true, --mage fire
 	["128293"] = true, --dk frost
@@ -1078,7 +1079,6 @@ local artifact_offhands = {
 	["128859"] = true, --druid feral
 	["128822"] = true, --druid guardian
 	["133948"] = true, --monk ww
-	["128866"] = true, --paladin prot
 	["133958"] = true, --priest shadow
 	["128869"] = true, --rogue assassination
 	["134552"] = true, --rogue outlaw
@@ -1086,8 +1086,13 @@ local artifact_offhands = {
 	["128936"] = true, --shaman elemental
 	["128873"] = true, --shaman en
 	["128934"] = true, --shaman resto
-	["137246"] = true, --warlock demo
-	["128289"] = true, --warrior prot
+}
+
+--if the artifact has its main piece as the offhand, when scaning the main hand get the ilevel of the off-hand.
+local offhand_ismain = {
+	["137246"] = true, --warlock demo / spine of thalkiel
+	["128288"] = true, --warrior prot / scaleshard
+	["128867"] = true, --paladin prot / oathseeker
 }
 
 function _detalhes:IlvlFromNetwork (player, realm, core, ilvl)
@@ -1132,7 +1137,22 @@ function ilvl_core:CalcItemLevel (unitid, guid, shout)
 						--> upgrades handle by LibItemUpgradeInfo-1.0
 						--> http://www.wowace.com/addons/libitemupgradeinfo-1-0/
 
-						if (equip_id == 17) then
+						if (equip_id == 16) then --main hand
+							local itemId = select (2, strsplit (":", item))
+							--print (itemId, offhand_ismain [itemId], UnitName (unitid))
+							--128867 nil Lithedora EmeraldDream
+							if (offhand_ismain [itemId]) then
+								local offHand = GetInventoryItemLink (unitid, 17)
+								if (offHand) then
+									local iName, _, itemRarity, offHandILevel, _, _, _, _, equipSlot = GetItemInfo (offHand)
+									if (offHandILevel) then
+										item = offHand
+										iLevel = offHandILevel
+									end
+								end
+							end
+							
+						elseif (equip_id == 17) then --off-hand
 							local itemId = select (2, strsplit (":", item))
 							if (artifact_offhands [itemId]) then
 								local mainHand = GetInventoryItemLink (unitid, 16)

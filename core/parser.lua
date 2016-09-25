@@ -3513,7 +3513,7 @@ SPELL_POWER_OBSOLETE2 = 15;
 	function _detalhes.parser_functions:ENCOUNTER_START (...)
 	
 		if (_detalhes.debug) then
-			_detalhes:Msg ("(debug) ENCOUNTER_START event triggered.")
+			_detalhes:Msg ("(debug) |cFFFFFF00ENCOUNTER_START|r event triggered.")
 		end
 	
 		_detalhes.latest_ENCOUNTER_END = _detalhes.latest_ENCOUNTER_END or 0
@@ -3585,7 +3585,14 @@ SPELL_POWER_OBSOLETE2 = 15;
 	function _detalhes.parser_functions:ENCOUNTER_END (...)
 	
 		if (_detalhes.debug) then
-			_detalhes:Msg ("(debug) ENCOUNTER_END event triggered.")
+			_detalhes:Msg ("(debug) |cFFFFFF00ENCOUNTER_END|r event triggered.")
+		end
+		
+		if (_detalhes.zone_type == "party") then
+			if (_detalhes.debug) then
+				_detalhes:Msg ("(debug) the zone type is 'party', ignoring ENCOUNTER_END.")
+			end
+			return
 		end
 	
 		local encounterID, encounterName, difficultyID, raidSize, endStatus = _select (1, ...)
@@ -3677,19 +3684,21 @@ SPELL_POWER_OBSOLETE2 = 15;
 
 		if (_detalhes.schedule_remove_overall) then
 			if (_detalhes.debug) then
-				_detalhes:Msg ("(debug) found schedule overall data deletion.")
+				_detalhes:Msg ("(debug) found schedule overall data clean up.")
 			end
 			_detalhes.schedule_remove_overall = false
 			_detalhes.tabela_historico:resetar_overall()
 		end
 		
-		if (_detalhes.schedule_add_to_overall) then
+		if (_detalhes.schedule_add_to_overall and _detalhes.schedule_add_to_overall [1]) then
 			if (_detalhes.debug) then
-				_detalhes:Msg ("(debug) found schedule overall data addition.")
+				_detalhes:Msg ("(debug) adding ", #_detalhes.schedule_add_to_overall, "combats in queue to overall data.")
 			end
-			_detalhes.schedule_add_to_overall = false
-
-			_detalhes.historico:adicionar_overall (_detalhes.tabela_vigente)
+			
+			for i = #_detalhes.schedule_add_to_overall, 1, -1 do
+				local CombatToAdd = tremove (_detalhes.schedule_add_to_overall, i)
+				_detalhes.historico:adicionar_overall (CombatToAdd)
+			end
 		end
 		
 		if (_detalhes.schedule_store_boss_encounter) then
