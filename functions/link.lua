@@ -1960,7 +1960,7 @@
 			local addon_options = function()
 				local t = {}
 				if (WeakAuras) then
-					tinsert (t, {label = "Weak Auras 2", value = "WA", icon = [[Interface\AddOns\WeakAuras\icon]]})
+					tinsert (t, {label = "Weak Auras 2", value = "WA", icon = [[Interface\AddOns\WeakAuras\Media\Textures\icon]]})
 				end
 				return t
 			end

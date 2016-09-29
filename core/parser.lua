@@ -103,6 +103,7 @@
 	local OBJECT_TYPE_PETS = 0x00003000
 	local AFFILIATION_GROUP = 0x00000007
 	local REACTION_FRIENDLY = 0x00000010 
+	local REACTION_MINE = 0x00000001 
 	
 	local ENVIRONMENTAL_FALLING_NAME = Loc ["STRING_ENVIRONMENTAL_FALLING"]
 	local ENVIRONMENTAL_DROWNING_NAME = Loc ["STRING_ENVIRONMENTAL_DROWNING"]
@@ -251,6 +252,12 @@
 			who_serial, who_name, who_flags = parser:GetRealHitSourceFromBuffOwner (paladin_gbom, who_serial, who_name, who_flags, SPELLNAME_PALADIN_GBOM)
 		elseif (spellid == SPELLID_SHAMAN_SLASH_DAMAGE) then
 			who_serial, who_name, who_flags = parser:GetRealHitSourceFromBuffOwner (shaman_slash, who_serial, who_name, who_flags, SPELLNAME_SHAMAN_SLASH)
+		end
+		
+		if (spellid == 220893) then --Rogue's Akaari's Soul - Soul Rip
+			if (who_flags and _bit_band (who_flags, REACTION_MINE) ~= 0) then
+				who_serial, who_name, who_flags = UnitGUID ("player"), _detalhes.playername, 0x00000417
+			end
 		end
 		
 		--> REMOVE AFTER LEGION LAUNCH
