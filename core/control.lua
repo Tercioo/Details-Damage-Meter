@@ -691,6 +691,8 @@
 			
 			if ((tempo_do_combate >= _detalhes.minimum_combat_time or not _detalhes.tabela_historico.tabelas[1]) and not _detalhes.tabela_vigente.discard_segment) then
 				_detalhes.tabela_historico:adicionar (_detalhes.tabela_vigente) --move a tabela atual para dentro do histórico
+				
+				_detalhes:CanSendMissData()
 			else
 				invalid_combat = _detalhes.tabela_vigente
 				
@@ -920,6 +922,116 @@
 			_detalhes:TimeDataUnregister ("Your Team Healing")
 			_detalhes:TimeDataUnregister ("Enemy Team Healing")
 			
+		end
+		
+		local validSpells = {
+			[220893] = {class = "ROGUE", spec = 261, maxPercent = 0.075, container = 1, commID = "MISSDATA_ROGUE_SOULRIP"},
+			--[11366] = {class = "MAGE", spec = 63, maxPercent = 0.9, container = 1, commID = "MISSDATA_ROGUE_SOULRIP"},
+		}
+		function _detalhes:CanSendMissData()
+			if (not IsInRaid() and not IsInGroup()) then
+				return
+			end
+			local _, playerClass = UnitClass ("player")
+			local specIndex = GetSpecialization()
+			local playerSpecID
+			if (specIndex) then
+				playerSpecID = GetSpecializationInfo (specIndex)
+			end
+
+			if (playerSpecID and playerClass) then
+				for spellID, t in pairs (validSpells) do
+					if (playerClass == t.class and playerSpecID == t.spec) then
+						_detalhes:SendMissData (spellID, t.container, _detalhes.network.ids [t.commID])
+					end
+				end
+			end
+			return false
+		end
+		
+		function _detalhes:SendMissData (spellID, containerType, commID)
+			local combat = _detalhes.tabela_vigente
+			if (combat) then
+				local damageActor = combat (containerType, _detalhes.playername)
+				if (damageActor) then
+					local spell = damageActor.spells:GetSpell (spellID)
+					if (spell) then
+						local data = {
+							[1] = containerType,
+							[2] = spellID,
+							[3] = spell.total,
+							[4] = spell.counter
+						}
+						
+						if (_detalhes.debug) then
+							_detalhes:Msg ("(debug) sending miss data packet:", spellID, containerType, commID)
+						end
+						
+						_detalhes:SendRaidOrPartyData (commID, data)
+					end
+				end
+			end
+		end
+		
+		function _detalhes.HandleMissData (playerName, data)
+			local combat = _detalhes.tabela_vigente
+			
+			if (_detalhes.debug) then
+				_detalhes:Msg ("(debug) miss data received from:", playerName, "spellID:", data [2], data [3], data [4])
+			end
+			
+			if (combat) then
+				local containerType = data[1]
+				if (type (containerType) ~= "number" or containerType < 1 or containerType > 4) then
+					return
+				end
+
+				local damageActor = combat (containerType, playerName)
+				if (damageActor) then
+					local spellID = data[2] --a spellID has been passed?
+					if (not spellID or type (spellID) ~= "number") then
+						return
+					end
+
+					local validateSpell = validSpells [spellID]
+					if (not validateSpell) then --is a valid spell?
+						return
+					end
+
+					--does the target player fit in the spell requirement on OUR end?
+					local class, spec, maxPercent = validateSpell.class, validateSpell.spec, validateSpell.maxPercent
+					if (class ~= damageActor.classe or spec ~= damageActor.spec) then
+						return
+					end
+
+					local total, counter = data[3], data[4]
+					if (type (total) ~= "number" or type (counter) ~= "number") then
+						return
+					end
+
+					if (total > (damageActor.total * maxPercent)) then
+						return
+					end
+
+					local spellObject = damageActor.spells:PegaHabilidade (spellID, true)
+					if (spellObject) then
+						if (spellObject.total < total and total > 0 and damageActor.nome ~= _detalhes.playername) then
+							local difference = total - spellObject.total
+							if (difference > 0) then
+								spellObject.total = total
+								spellObject.counter = counter
+								damageActor.total = damageActor.total + difference
+								
+								combat [containerType].need_refresh = true
+								
+								if (_detalhes.debug) then
+									_detalhes:Msg ("(debug) miss data successful added from:", playerName, data [2], "difference:", difference)
+								end
+							end
+						end
+					end
+				end
+			end
 		end
 		
 		function _detalhes:MakeEqualizeOnActor (player, realm, receivedActor)

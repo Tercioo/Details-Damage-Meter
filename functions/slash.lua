@@ -886,13 +886,26 @@ function SlashCmdList.DETAILS (msg, editbox)
 		end
 
 	--> debug
-	elseif (msg == "debug") then
+	elseif (command == "debug") then
 		if (_detalhes.debug) then
 			_detalhes.debug = false
 			print (Loc ["STRING_DETAILS1"] .. "diagnostic mode has been turned off.")
+			return
 		else
 			_detalhes.debug = true
 			print (Loc ["STRING_DETAILS1"] .. "diagnostic mode has been turned on.")
+			
+			if (rest and rest ~= "") then
+				if (rest == "-clear") then
+					_detalhes_global.debug_chr_log = ""
+					print (Loc ["STRING_DETAILS1"] .. "log for characters has been wiped.")
+					return
+				end
+				_detalhes.debug_chr = rest
+				_detalhes_global.debug_chr_log = _detalhes_global.debug_chr_log or ""
+				print (Loc ["STRING_DETAILS1"] .. "diagnostic for character " .. rest .. " turned on.")
+				return
+			end
 		end
 	
 	--> debug combat log
@@ -1368,3 +1381,5 @@ function _detalhes:CreateListPanel()
 	
 	return _detalhes.ListPanel
 end
+
+--endd elsee

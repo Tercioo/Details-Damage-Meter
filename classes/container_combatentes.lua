@@ -454,7 +454,7 @@
 		
 		--> não achou, criar
 		elseif (criar) then
-
+	
 			local novo_objeto = self.funcao_de_criacao (_, serial, nome)
 			novo_objeto.nome = nome
 			novo_objeto.flag_original = flag
@@ -605,6 +605,18 @@
 			if (_detalhes.is_in_battleground or _detalhes.is_in_arena) then
 				novo_objeto.pvp = true
 			end
+			
+			if (_detalhes.debug) then	
+				if (_detalhes.debug_chr and nome:find (_detalhes.debug_chr) and self.tipo == 1) then
+					local logLine = ""
+					local when = "[" .. date ("%H:%M:%S") .. format (".%4f", GetTime()-floor (GetTime())) .. "]"
+					local log = "actor created - class: " .. (novo_objeto.classe or "noclass")
+					local from = debugstack (2, 1, 0)
+					logLine = logLine .. when .. " " .. log .. " " .. from .. "\n"
+					
+					_detalhes_global.debug_chr_log = _detalhes_global.debug_chr_log .. logLine
+				end
+			end			
 			
 			return novo_objeto, dono_do_pet, nome
 		else

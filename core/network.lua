@@ -41,6 +41,8 @@
 	local CONST_CLOUD_DATARC = "CE"
 	local CONST_CLOUD_EQUALIZE = "EQ"
 	
+	local CONST_ROGUE_SR = "SR" --soul rip from akaari's soul (LEGION ONLY)
+	
 	_detalhes.network.ids = {
 		["HIGHFIVE_REQUEST"] = CONST_HIGHFIVE_REQUEST,
 		["HIGHFIVE_DATA"] = CONST_HIGHFIVE_DATA,
@@ -51,7 +53,10 @@
 		["CLOUD_DATARQ"] = CONST_CLOUD_DATARQ,
 		["CLOUD_DATARC"] = CONST_CLOUD_DATARC,
 		["CLOUD_EQUALIZE"] = CONST_CLOUD_EQUALIZE,
+		
 		["WIPE_CALL"] = CONST_WIPE_CALL,
+		
+		["MISSDATA_ROGUE_SOULRIP"] = CONST_ROGUE_SR, --soul rip from akaari's soul (LEGION ONLY)
 	}
 	
 	local plugins_registred = {}
@@ -258,6 +263,29 @@
 		end
 	end
 	
+	function _detalhes.network.HandleMissData (player, realm, core_version, data)
+	
+--		[1] - container
+--		[2] - spellid
+--		[3] - spell total
+--		[4] - spell counter
+
+		core_version = tonumber (core_version) or 0
+		if (core_version ~= _detalhes.realversion) then
+			if (core_version > _detalhes.realversion) then
+				_detalhes:Msg ("your Details! is out dated and cannot communicate with other players.")
+			end
+			return
+		end
+		if (type (player) ~= "string") then
+			return
+		end
+		local playerName = _detalhes:GetCLName (player)
+		if (playerName) then
+			_detalhes.HandleMissData (playerName, data)
+		end
+	end
+	
 	_detalhes.network.functions = {
 		[CONST_HIGHFIVE_REQUEST] = _detalhes.network.HighFive_Request,
 		[CONST_HIGHFIVE_DATA] = _detalhes.network.HighFive_DataReceived,
@@ -270,6 +298,8 @@
 		[CONST_CLOUD_DATARC] = _detalhes.network.Cloud_DataReceived,
 		[CONST_CLOUD_EQUALIZE] = _detalhes.network.Cloud_Equalize,
 		[CONST_WIPE_CALL] = _detalhes.network.Wipe_Call,
+		
+		[CONST_ROGUE_SR] = _detalhes.network.HandleMissData, --soul rip from akaari's soul (LEGION ONLY)
 	}
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -430,6 +460,14 @@
 			_detalhes:SendCommMessage (CONST_DETAILS_PREFIX, _detalhes:Serialize (type, _UnitName ("player"), _GetRealmName(), _detalhes.realversion, ...), "INSTANCE_CHAT")
 		else
 			_detalhes:SendCommMessage (CONST_DETAILS_PREFIX, _detalhes:Serialize (type, _UnitName ("player"), _GetRealmName(), _detalhes.realversion, ...), "PARTY")
+		end
+	end
+	
+	function _detalhes:SendRaidOrPartyData (type, ...)
+		if (IsInRaid()) then
+			_detalhes:SendRaidData (type, ...)
+		elseif (IsInGroup()) then
+			_detalhes:SendPartyData (type, ...)
 		end
 	end
 	
