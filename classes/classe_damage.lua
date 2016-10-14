@@ -1401,7 +1401,10 @@
 		GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, _detalhes.tooltip_key_size_width, _detalhes.tooltip_key_size_height, 0, 1, 0, 0.640625, _detalhes.tooltip_key_overlay2)
 
 		--for target_name, debuff_table in _pairs (container) do 
-		local first = tooltip_void_zone_temp [1] and tooltip_void_zone_temp [1][3].damage
+		local first = tooltip_void_zone_temp [1] and tooltip_void_zone_temp [1][3]
+		if (type (first) == "table") then
+			first = first.damage
+		end
 		
 		tooltip_void_zone_temp.spellid = actor.damage_spellid
 		tooltip_void_zone_temp.current_actor = actor

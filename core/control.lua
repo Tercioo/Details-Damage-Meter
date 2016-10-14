@@ -1036,6 +1036,10 @@
 		
 		function _detalhes:MakeEqualizeOnActor (player, realm, receivedActor)
 		
+			if (true) then --> disabled for testing
+				return
+			end
+		
 			local combat = _detalhes:GetCombat ("current")
 			local damage, heal, energy, misc = _detalhes:GetAllActors ("current", player)
 			
@@ -1168,7 +1172,7 @@
 		function _detalhes:EqualizeActors (host_of)
 		
 			--> Disabling the sync. Since WoD combatlog are sent between player on phased zones during encounters.
-			if (not host_of) then
+			if (not host_of or true) then --> full disabled for testing
 				return
 			end
 		
