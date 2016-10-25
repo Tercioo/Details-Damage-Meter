@@ -582,6 +582,7 @@ local align_rows = function (self)
 				tinsert (self._anchors, cur_width)
 				cur_width = cur_width + self._raw_rows [index].width + 1
 			end
+			
 			row:Show()
 
 			local type = row.type
@@ -597,6 +598,9 @@ local align_rows = function (self)
 					tinsert (line.text_inuse, text)
 					text:SetPoint ("left", line, "left", self._anchors [#self._anchors], 0)
 					text:SetWidth (row.width)
+					
+					DF:SetFontSize (text, row.textsize or 10)
+					text:SetJustifyH (row.textalign or "left")
 				end
 			elseif (type == "entry") then
 				for i = 1, #self.scrollframe.lines do
@@ -692,12 +696,19 @@ local update_rows = function (self, updated_rows)
 		else
 			raw.name = t.name
 			raw.hidden = t.hidden or false
+			raw.textsize = t.textsize
+			raw.textalign = t.textalign
 			
 			local widget = self.rows [i]
 			widget.name = t.name
+			widget.textsize = t.textsize
+			widget.textalign = t.textalign
 			widget.hidden = t.hidden or false
 			
 			widget.text:SetText (t.name)
+			DF:SetFontSize (widget.text, raw.textsize or 10)
+			widget.text:SetJustifyH (raw.textalign or "left")
+			
 		end
 	end
 	
@@ -908,6 +919,10 @@ function DF:NewFillPanel (parent, rows, name, member, w, h, total_lines, fill_ro
 								fontstring:SetText (results [index])
 								fontstring.index = real_index
 								fontstring:Show()
+								
+								if (true) then
+									--print (t.hello)
+								end
 
 							elseif (t.type == "entry") then
 								local entrywidget = row.entry_inuse [entry]

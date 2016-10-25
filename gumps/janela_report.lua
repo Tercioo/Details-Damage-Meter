@@ -943,6 +943,16 @@ local function cria_drop_down (este_gump)
 			--recently reported:
 			window.recently_report_buttons = {}
 			
+			local history_Background = window:CreateTexture (nil, "background")
+			history_Background:SetColorTexture (0, 0, 0, .3)
+			history_Background:SetSize (160, 158)
+			history_Background:SetPoint ("topleft", window, "topleft", 3, -25)
+			
+			local separador = window:CreateTexture (nil, "border")
+			separador:SetColorTexture (0, 0, 0, .6)
+			separador:SetSize (2, 158)
+			separador:SetPoint ("topleft", history_Background, "topright", 0, 0)
+			
 			function window:RefreshRecentlyReported()
 				for i = 1, window.max_last_buttons do
 					local b = window.recently_report_buttons [i]

@@ -1,5 +1,5 @@
 
-local dversion = 46
+local dversion = 48
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary (major, minor)
 
@@ -222,9 +222,9 @@ local symbol_1K, symbol_10K, symbol_1B
 if (GetLocale() == "koKR") then
 	symbol_1K, symbol_10K, symbol_1B = "천", "만", "억"
 elseif (GetLocale() == "zhCN") then
-	symbol_1K, symbol_10K, symbol_1B = "천", "万", "亿"
+	symbol_1K, symbol_10K, symbol_1B = "千", "万", "亿"
 elseif (GetLocale() == "zhTW") then
-	symbol_1K, symbol_10K, symbol_1B = "천", "萬", "億"
+	symbol_1K, symbol_10K, symbol_1B = "千", "萬", "億"
 end
 
 if (symbol_1K) then
