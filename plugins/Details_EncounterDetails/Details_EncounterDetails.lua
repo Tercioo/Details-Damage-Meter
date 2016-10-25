@@ -342,21 +342,50 @@ local function CreatePluginFrames (data)
 	end
 	
 	--> show icon on toolbar
+	
+	local re_ShowIconBallonTutorial = function()
+		EncounterDetails:ShowIconBallonTutorial()
+	end
+	
+	function EncounterDetails:ShowIconBallonTutorial()
+		if (InCombatLockdown()) then
+			C_Timer.After (5, function()
+				--print ("in combat")
+				re_ShowIconBallonTutorial()
+			end)
+			return
+		end
+	
+		local hook_AlertButtonCloseButton = function()
+			--print ("done tutorial")
+			EncounterDetails:SetTutorialCVar ("ENCOUNTER_DETAILS_BALLON_TUTORIAL1", true)
+		end
+		
+		if (EncounterDetailsTutorialAlertButton1 or not EncounterDetails.ToolbarButton or not EncounterDetails.ToolbarButton:IsShown()) then
+			--print (EncounterDetailsTutorialAlertButton1, not EncounterDetails.ToolbarButton, not EncounterDetails.ToolbarButton:IsShown())
+			return
+		end
+		
+		local alert = CreateFrame ("frame", "EncounterDetailsTutorialAlertButton1", EncounterDetails.ToolbarButton, "MicroButtonAlertTemplate")
+		alert:SetFrameLevel (302)
+		alert.label = "Click here (on the skull icon) to bring the Encounter Details panel"
+		alert.Text:SetSpacing (4)
+		MicroButtonAlert_SetText (alert, alert.label)
+		alert:SetPoint ("bottom", EncounterDetails.ToolbarButton, "top", 0, 22)
+		alert.CloseButton:HookScript ("OnClick", hook_AlertButtonCloseButton)
+		alert:Show()
+		
+		--print ("showing ballon")
+	end
+	
 	function EncounterDetails:ShowIcon()
 		EncounterDetails.showing = true
 		--> [1] button to show [2] button animation: "star", "blink" or true (blink)
 		EncounterDetails:ShowToolbarIcon (EncounterDetails.ToolbarButton, "star")
-		
-		--EncounterDetails:SetTutorialCVar ("ENCOUNTER_DETAILS_TUTORIAL1", false)
-		
-		if (not EncounterDetails:GetTutorialCVar ("ENCOUNTER_DETAILS_TUTORIAL1")) then
-			EncounterDetails:SetTutorialCVar ("ENCOUNTER_DETAILS_TUTORIAL1", true)
-			local plugin_icon_alert = CreateFrame ("frame", "EncounterDetailsPopUp1", EncounterDetails.ToolbarButton, "DetailsHelpBoxTemplate")
-			plugin_icon_alert.ArrowUP:Show()
-			plugin_icon_alert.ArrowGlowUP:Show()
-			plugin_icon_alert.Text:SetText ("Encounter Details is Ready!\n\nTake a look in the encounter summary, click here!")
-			plugin_icon_alert:SetPoint ("bottom", EncounterDetails.ToolbarButton, "top", 0, 30)
-			plugin_icon_alert:Show()
+
+		if (not EncounterDetails:GetTutorialCVar ("ENCOUNTER_DETAILS_BALLON_TUTORIAL1")) then
+			--print ("nao viu o tutorial ainda")
+			C_Timer.After (2, EncounterDetails.ShowIconBallonTutorial)
 		end
 		
 	end
@@ -366,6 +395,79 @@ local function CreatePluginFrames (data)
 		EncounterDetails.showing = false
 		EncounterDetails:HideToolbarIcon (EncounterDetails.ToolbarButton)
 	end
+	
+	local re_ShowTutorialAlert = function()
+		EncounterDetails:ShowTutorial()
+	end
+	local hook_AlertCloseButton = function()
+		re_ShowTutorialAlert()
+	end
+	
+	function EncounterDetails:ShowTutorial()
+	--EncounterDetails.db.AlertTutorialStep = 1
+		if (not EncounterDetails.Frame:IsShown()) then
+			return
+		end
+	
+		EncounterDetails.db.AlertTutorialStep = EncounterDetails.db.AlertTutorialStep or 1
+	
+		if (EncounterDetails.db.AlertTutorialStep == 1) then
+			local alert = CreateFrame ("frame", "EncounterDetailsTutorialAlert1", EncounterDetails.Frame, "MicroButtonAlertTemplate")
+			alert:SetFrameLevel (302)
+			alert.label = "on this tab, you see the damage chart for the latest tries on the encounter"
+			alert.Text:SetSpacing (4)
+			MicroButtonAlert_SetText (alert, alert.label)
+			alert:SetPoint ("bottom", EncounterDetails.Frame.buttonSwitchGraphic.widget, "top", 0, 22)
+			alert.CloseButton:HookScript ("OnClick", hook_AlertCloseButton)
+			alert:Show()
+			EncounterDetails.Frame.buttonSwitchGraphic:Click()
+			--
+			EncounterDetails.db.AlertTutorialStep = EncounterDetails.db.AlertTutorialStep + 1
+			
+		elseif (EncounterDetails.db.AlertTutorialStep == 2) then
+			local alert = CreateFrame ("frame", "EncounterDetailsTutorialAlert2", EncounterDetails.Frame, "MicroButtonAlertTemplate")
+			alert:SetFrameLevel (302)
+			alert.label = "on Emotes you can check what the boss printed to chat"
+			alert.Text:SetSpacing (4)
+			MicroButtonAlert_SetText (alert, alert.label)
+			alert:SetPoint ("bottom", EncounterDetails.Frame.buttonSwitchBossEmotes.widget, "top", 0, 22)
+			alert.CloseButton:HookScript ("OnClick", hook_AlertCloseButton)
+			alert:Show()
+			EncounterDetails.Frame.buttonSwitchBossEmotes:Click()
+			--
+			EncounterDetails.db.AlertTutorialStep = EncounterDetails.db.AlertTutorialStep + 1
+			
+		elseif (EncounterDetails.db.AlertTutorialStep == 3) then
+			local alert = CreateFrame ("frame", "EncounterDetailsTutorialAlert3", EncounterDetails.Frame, "MicroButtonAlertTemplate")
+			alert:SetFrameLevel (302)
+			alert.label = "here you create weakauras for boss abilities or DBM/BigWigs boss timers"
+			alert.Text:SetSpacing (4)
+			MicroButtonAlert_SetText (alert, alert.label)
+			alert:SetPoint ("bottom", EncounterDetails.Frame.buttonSwitchSpellsAuras.widget, "top", 0, 22)
+			alert.CloseButton:HookScript ("OnClick", hook_AlertCloseButton)
+			alert:Show()
+			EncounterDetails.Frame.buttonSwitchSpellsAuras:Click()
+			--
+			EncounterDetails.db.AlertTutorialStep = EncounterDetails.db.AlertTutorialStep + 1
+			
+		elseif (EncounterDetails.db.AlertTutorialStep == 4) then
+			local alert = CreateFrame ("frame", "EncounterDetailsTutorialAlert4", EncounterDetails.Frame, "MicroButtonAlertTemplate")
+			alert:SetFrameLevel (302)
+			alert.label = "see damage done and time spent on each phase of the encounter"
+			alert.Text:SetSpacing (4)
+			MicroButtonAlert_SetText (alert, alert.label)
+			alert:SetPoint ("bottom", EncounterDetails.Frame.buttonSwitchPhases.widget, "top", 0, 22)
+			alert.CloseButton:HookScript ("OnClick", hook_AlertCloseButton)
+			alert:Show()
+			EncounterDetails.Frame.buttonSwitchPhases:Click()
+			--
+			EncounterDetails.db.AlertTutorialStep = EncounterDetails.db.AlertTutorialStep + 1
+			
+		end
+		
+	end
+	
+	
 	
 	--> user clicked on button, need open or close window
 	function EncounterDetails:OpenWindow()
@@ -397,7 +499,9 @@ local function CreatePluginFrames (data)
 				widget:Hide()
 			end
 		end
-		
+
+		C_Timer.After (3, function() EncounterDetails:ShowTutorial() end)
+
 		return true
 	end
 	
@@ -597,11 +701,11 @@ local function DispellInfo (dispell, barra)
 	for index, tabela in _ipairs (tabela_jogadores) do
 		local coords = EncounterDetails.class_coords [tabela[3]]
 		if (not coords) then
-			GameCooltip:AddLine (tabela[1], tabela[2])
+			GameCooltip:AddLine (tabela[1], tabela[2], 1, "white", "orange")
 			GameCooltip:AddIcon ("Interface\\GossipFrame\\DailyActiveQuestIcon")
 			--GameTooltip:AddDoubleLine ("|TInterface\\GossipFrame\\DailyActiveQuestIcon:14:14:0:0:16:16:0:1:0:1".."|t "..tabela[1], tabela[2], 1, 1, 1, 1, 1, 1)
 		else
-			GameCooltip:AddLine (tabela[1], tabela[2])
+			GameCooltip:AddLine (tabela[1], tabela[2], 1, "white", "orange")
 			GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small", nil, 1, 14, 14, (coords[1]), (coords[2]), (coords[3]), (coords[4]))
 			--GameTooltip:AddDoubleLine ("|TInterface\\AddOns\\Details\\images\\classes_small:14:14:0:0:128:128:"..(coords[1]*128)..":"..(coords[2]*128)..":"..(coords[3]*128)..":"..(coords[4]*128).."|t "..tabela[1]..": ", tabela[2], 1, 1, 1, 1, 1, 1)
 		end
@@ -865,6 +969,8 @@ function EncounterDetails:SetRowScripts (barra, index, container)
 				DamageTakenDetails (self.jogador, barra)
 				
 			elseif (self.TTT == "adds_container") then
+				GameCooltip:AddLine ("Hover over the arrows for:", "", 1, "white")
+				
 				GameCooltip:AddLine ("Damage Taken")
 				GameCooltip:AddIcon ("Interface\\Buttons\\UI-MicroStream-Green", 1, 1, 14, 14, 0, 1, 1, 0)
 				
@@ -1420,7 +1526,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 			for _, esta_tabela in _pairs (dano_em) do 
 				local coords = EncounterDetails.class_coords [esta_tabela[3]]
 				
-				GameCooltip:AddLine (esta_tabela[1]..": ", _detalhes:ToK (esta_tabela[2]).." (".. _cstr ("%.1f", esta_tabela[2]/dano_em_total*100) .."%)")
+				GameCooltip:AddLine (esta_tabela[1]..": ", _detalhes:ToK (esta_tabela[2]).." (".. _cstr ("%.1f", esta_tabela[2]/dano_em_total*100) .."%)", 1, "white", "orange")
 
 				--GameTooltip:AddDoubleLine ("|TInterface\\AddOns\\Details\\images\\classes_small:14:14:0:0:128:128:"..(coords[1]*128)..":"..(coords[2]*128)..":"..(coords[3]*128)..":"..(coords[4]*128).."|t "..esta_tabela[1]..": ", _detalhes:comma_value(esta_tabela[2]).." (".. _cstr ("%.1f", esta_tabela[2]/dano_em_total*100) .."%)", 1, 1, 1, 1, 1, 1)
 				GameCooltip:AddIcon ([[Interface\AddOns\Details\images\classes_small]], 1, 1, 14, 14, (coords[1]), (coords[2]), (coords[3]), (coords[4]))
@@ -1466,7 +1572,7 @@ function EncounterDetails:OpenAndRefresh (_, segment)
 				local coords = EncounterDetails.class_coords [esta_tabela[3]]
 				if (coords) then
 					--GameTooltip:AddDoubleLine ("|TInterface\\AddOns\\Details\\images\\classes_small:14:14:0:0:128:128:"..(coords[1]*128)..":"..(coords[2]*128)..":"..(coords[3]*128)..":"..(coords[4]*128).."|t "..esta_tabela[1]..": ", _detalhes:comma_value(esta_tabela[2]).." (".. _cstr ("%.1f", esta_tabela[2]/damage_from_total*100) .."%)", 1, 1, 1, 1, 1, 1)
-					GameCooltip:AddLine (esta_tabela[1]..": ", _detalhes:ToK (esta_tabela[2]).." (".. _cstr ("%.1f", esta_tabela[2]/damage_from_total*100) .."%)")
+					GameCooltip:AddLine (esta_tabela[1]..": ", _detalhes:ToK (esta_tabela[2]).." (".. _cstr ("%.1f", esta_tabela[2]/damage_from_total*100) .."%)", 1, "white", "orange")
 					GameCooltip:AddIcon ([[Interface\AddOns\Details\images\classes_small]], 1, 1, 14, 14, (coords[1]), (coords[2]), (coords[3]), (coords[4]))
 					GameCooltip:AddStatusBar (0, 1, 1, 1, 1, 1, false, {value = 100, color = {.3, .3, .3, 1}, specialSpark = false, texture = [[Interface\AddOns\Details\images\bar_serenity]]})
 					

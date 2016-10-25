@@ -1,4 +1,4 @@
-## Interface: 70000
+## Interface: 70100
 ## Title: Details Raid Check (plugin)
 ## Notes: Show a icon on Details title bar showing flask, food, pre-pots.
 ## RequiredDeps: Details

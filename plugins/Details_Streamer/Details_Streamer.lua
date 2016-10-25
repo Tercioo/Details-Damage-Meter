@@ -996,7 +996,28 @@ local lastspell, lastcastid, lastchannelid, ischanneling
 local channelspells = {}
 local lastChannelSpell = ""
 
+local APM = 0
+local ACTIONS = 0
+local ACTIONS_EVENT_TIME = {}
+local AMP_Tick = C_Timer.NewTicker (1, function()
+	APM = ACTIONS * 60
+	--print ("APM:", APM)
+	ACTIONS = 0
+end)
+local APM_FRAME = CreateFrame ("frame", "DetailsAPMFrame", UIParent)
+APM_FRAME:RegisterEvent ("PLAYER_STARTED_MOVING")
+APM_FRAME:RegisterEvent ("PLAYER_STOPPED_MOVING")
+APM_FRAME:SetScript ("OnEvent", function()
+	ACTIONS = ACTIONS + 1
+end)
+
 listener:SetScript ("OnEvent", function (self, event, ...)
+
+if (event ~= "UNIT_SPELLCAST_SENT" and event ~= "UNIT_SPELLCAST_SUCCEEDED" and ACTIONS_EVENT_TIME [event] ~= GetTime()) then
+	ACTIONS = ACTIONS + 1
+	ACTIONS_EVENT_TIME [event] = GetTime()
+	--print (event, GetTime())
+end
 
 	--print (self, event, ...)
 
