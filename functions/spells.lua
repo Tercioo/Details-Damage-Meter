@@ -21,7 +21,8 @@ do
 		[188027] = true, --Potion of Deadly Grace
 		[188029] = true, --Unbending Potion
 		[188017] = true, --Ancient Mana Potion
-		[188030] = true, --Leytorrent Potion	
+		[188030] = true, --Leytorrent Potion
+		[229206] = true, --Potion of Prolongued Power
 		
 		--mana and heal potions
 --		[188016] = true, --Ancient Healing Potion

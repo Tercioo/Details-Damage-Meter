@@ -1149,7 +1149,7 @@
 			desc = Loc ["STRING_CUSTOM_POT_DEFAULT_DESC"],
 			source = false,
 			target = false,
-			script_version = 2,
+			script_version = 3,
 			script = [[
 				--init:
 				local combat, instance_container, instance = ...
@@ -1231,6 +1231,21 @@
 						end
 					    end
 					    
+					    --potion of prolongued power
+					    local prolongued_power = buff_uptime_container [229206] --Legion
+					    if (prolongued_power) then
+						local used = prolongued_power.activedamt
+						if (used > 0) then
+						    total = total + used
+						    found_potion = true
+						    if (used > top) then
+							top = used
+						    end
+						    --add amount to the player 
+						    instance_container:AddValue (player, used)
+						end
+					    end
+					    
 					    --potion of the mountains
 					    local mountains_potion = buff_uptime_container [188029] --Legion
 					    if (mountains_potion) then
@@ -1298,6 +1313,15 @@
 			    if (mana_potion) then
 				local name, _, icon = GetSpellInfo (188017) --Legion
 				GameCooltip:AddLine (name, mana_potion.activedamt)
+				_detalhes:AddTooltipBackgroundStatusbar()
+				GameCooltip:AddIcon (icon, 1, 1, 14, 14)
+			    end
+			    
+			    --prolongued power
+			    local prolongued_power = buff_uptime_container [229206] --Legion
+			    if (prolongued_power) then
+				local name, _, icon = GetSpellInfo (229206) --Legion
+				GameCooltip:AddLine (name, prolongued_power.activedamt)
 				_detalhes:AddTooltipBackgroundStatusbar()
 				GameCooltip:AddIcon (icon, 1, 1, 14, 14)
 			    end

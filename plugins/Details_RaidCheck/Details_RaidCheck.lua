@@ -44,6 +44,27 @@ local runes_id = {
 	[224001] = true,
 }
 
+local get_unit_id = function (i)
+	local unitID
+	
+	local unitType = "raid"
+	if (not IsInRaid()) then --o jogador esta em grupo
+		unitType = "party"
+	end
+	
+	if (unitType == "party") then
+		if (i == GetNumGroupMembers()) then
+			unitID = "player"
+		else
+			unitID = unitType .. i
+		end
+	else
+		unitID = unitType .. i
+	end
+	
+	return unitID
+end
+
 --> localization
 	local Loc = LibStub ("AceLocale-3.0"):GetLocale ("Details")
 --> create the plugin object
@@ -365,7 +386,9 @@ local runes_id = {
 				end
 				
 				for i = 1, amt, 1 do
-					local name = UnitName ("raid" .. i)
+					local unitID = get_unit_id (i)
+					
+					local name = UnitName (unitID)
 					if (not DetailsRaidCheck.havefood_table [name]) then
 						added [name] = true
 						s = s .. DetailsRaidCheck:GetOnlyName (name) .. " "
@@ -380,7 +403,11 @@ local runes_id = {
 					DetailsRaidCheck.report_lines = s
 					DetailsRaidCheck:SendReportWindow (reportFunc)
 				else
-					DetailsRaidCheck:SendMsgToChannel (s, "RAID")
+					if (IsInRaid()) then
+						DetailsRaidCheck:SendMsgToChannel (s, "RAID")
+					else
+						DetailsRaidCheck:SendMsgToChannel (s, "PARTY")
+					end
 				end
 				
 			elseif (button == "RightButton") then
@@ -396,11 +423,12 @@ local runes_id = {
 				
 				for i = 1, amt, 1 do
 				
-					local role = _UnitGroupRolesAssigned ("raid" .. i)
+					local unitID = get_unit_id (i)
+					local role = _UnitGroupRolesAssigned (unitID)
 			
 					if (role == "DAMAGER" or (role == "HEALER" and DetailsRaidCheck.db.pre_pot_healers) or (role == "TANK" and DetailsRaidCheck.db.pre_pot_tanks)) then
 				
-						local playerName, realmName = _UnitName ("raid" .. i)
+						local playerName, realmName = _UnitName (unitID)
 						if (realmName and realmName ~= "") then
 							playerName = playerName .. "-" .. realmName
 						end
@@ -416,13 +444,14 @@ local runes_id = {
 					DetailsRaidCheck.report_lines = s
 					DetailsRaidCheck:SendReportWindow (reportFunc)
 				else
-					DetailsRaidCheck:SendMsgToChannel (s, "RAID")
+					if (IsInRaid()) then
+						DetailsRaidCheck:SendMsgToChannel (s, "RAID")
+					else
+						DetailsRaidCheck:SendMsgToChannel (s, "PARTY")
+					end
 				end
 			
 			elseif (button == "MiddleButton") then
-				
-				--_detalhes:DisablePlugin ("DETAILS_PLUGIN_RAIDCHECK")
-				
 				--report focus aug
 				local s = "Details!: Not using Rune: "
 				
@@ -433,7 +462,8 @@ local runes_id = {
 				end
 				
 				for i = 1, amt do
-					local name = UnitName ("raid" .. i)
+					local unitID = get_unit_id (i)
+					local name = UnitName (unitID)
 					if (not DetailsRaidCheck.havefocusaug_table [name]) then
 						s = s .. DetailsRaidCheck:GetOnlyName (name) .. " "
 					end
@@ -443,7 +473,11 @@ local runes_id = {
 					DetailsRaidCheck.report_lines = s
 					DetailsRaidCheck:SendReportWindow (reportFunc)
 				else
-					DetailsRaidCheck:SendMsgToChannel (s, "RAID")
+					if (IsInRaid()) then
+						DetailsRaidCheck:SendMsgToChannel (s, "RAID")
+					else
+						DetailsRaidCheck:SendMsgToChannel (s, "PARTY")
+					end
 				end
 			
 			end
@@ -451,8 +485,8 @@ local runes_id = {
 		end)
 		
 		local update_panel = function (self, elapsed)
-		
-			if (not IsInRaid()) then
+
+			if (not IsInRaid() and not IsInGroup()) then
 				return
 			end
 		
@@ -497,11 +531,14 @@ local runes_id = {
 			if (difficulty == 16 and DetailsRaidCheck.db.mythic_1_4 and amt > 20) then
 				amt = 20
 			end
-			
+
 			for i = 1, amt, 1 do
 			
-				local name = UnitName ("raid" .. i)
+				--UNITID
+				local unitID = get_unit_id (i)
+				local name = UnitName (unitID)
 				
+				--FOOD
 				if (not DetailsRaidCheck.havefood_table [name]) then
 					local _, class = _UnitClass (name)
 					local class_color = "FFFFFFFF"
@@ -516,6 +553,7 @@ local runes_id = {
 					amount1 = amount1 + 1
 				end
 				
+				--FLASK
 				if (not DetailsRaidCheck.haveflask_table [name]) then
 					local _, class = _UnitClass (name)
 					local class_color = "FFFFFFFF"
@@ -534,7 +572,7 @@ local runes_id = {
 			food_str:SetText (s)
 			flask_str:SetText (f)
 
-			--> used pre pot
+			--DID PRE POT
 			for player_name, potid in pairs (DetailsRaidCheck.usedprepot_table) do
 				local name, _, icon = _GetSpellInfo (potid)
 				local _, class = _UnitClass (player_name)
@@ -549,7 +587,7 @@ local runes_id = {
 				amount3 = amount3 + 1
 			end
 			
-			--> not used pre pot
+			--NO PRE POT
 			local amt = GetNumGroupMembers()
 			local _, _, difficulty = GetInstanceInfo()
 			if (difficulty == 16 and DetailsRaidCheck.db.mythic_1_4 and amt > 20) then
@@ -558,10 +596,12 @@ local runes_id = {
 			
 			for i = 1, amt, 1 do
 
-				local role = _UnitGroupRolesAssigned ("raid" .. i)
+				local unitID = get_unit_id (i)
+			
+				local role = _UnitGroupRolesAssigned (unitID)
 			
 				if (role == "DAMAGER" or (role == "HEALER" and DetailsRaidCheck.db.pre_pot_healers) or (role == "TANK" and DetailsRaidCheck.db.pre_pot_tanks)) then
-					local playerName, realmName = _UnitName ("raid" .. i)
+					local playerName, realmName = _UnitName (unitID)
 					if (realmName and realmName ~= "") then
 						playerName = playerName .. "-" .. realmName
 					end
@@ -586,7 +626,7 @@ local runes_id = {
 			prepot_str:SetText (p)
 			prepot_str2:SetText (n)
 			
-			--> not used focus augmentation
+			-- NO RUNE
 			n = ""
 			
 			local amt = GetNumGroupMembers()
@@ -597,7 +637,8 @@ local runes_id = {
 			
 			for i = 1, amt do
 			
-				local name = UnitName ("raid" .. i)
+				local unitID = get_unit_id (i)
+				local name = UnitName (unitID)
 				
 				if (not DetailsRaidCheck.havefocusaug_table [name]) then
 					local _, class = _UnitClass (name)
@@ -652,8 +693,7 @@ local runes_id = {
 			if (not zone_type) then
 				zone_type = select (2, GetInstanceInfo())
 			end
-			
-			if (zone_type == "raid") then
+			if (zone_type == "raid" or zone_type == "party") then
 			
 				DetailsRaidCheck:ShowToolbarIcon (DetailsRaidCheck.ToolbarButton, "star")
 			
@@ -690,9 +730,12 @@ local runes_id = {
 			local with_flask, with_food = 0, 0
 			
 			for i = 1, amt_players, 1 do
-				local name = _UnitName ("raid" .. i)
+			
+				local unitID = get_unit_id (i)
+				local name = _UnitName (unitID)
+				
 				for buffIndex = 1, 41 do
-					local bname, _, _, _, _, _, _, _, _, _, spellid  = _UnitAura ("raid" .. i, buffIndex, nil, "HELPFUL")
+					local bname, _, _, _, _, _, _, _, _, _, spellid  = _UnitAura (unitID, buffIndex, nil, "HELPFUL")
 					
 					if (bname and flask_list [spellid]) then
 						DetailsRaidCheck.haveflask_table [name] = spellid
