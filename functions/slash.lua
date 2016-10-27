@@ -56,6 +56,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 	
 	elseif (command == Loc ["STRING_SLASH_SHOW"] or command == Loc ["STRING_SLASH_SHOW_ALIAS1"] or command == "show") then
 	
+		_detalhes.LastShowCommand = GetTime()
 		local instance = rest:match ("^(%S*)%s*(.-)$")
 		instance = tonumber (instance)
 		if (instance) then
