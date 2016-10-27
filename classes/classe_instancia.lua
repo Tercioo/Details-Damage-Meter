@@ -583,7 +583,30 @@ end
 			end
 		end
 		
-		self:SetCombatAlpha (nil, nil, true)
+		if (type (self.hide_in_combat_type) == "number" and self.hide_in_combat_type > 1 and _detalhes.LastShowCommand and _detalhes.LastShowCommand+10 > GetTime()) then
+			self:ToolbarMenuButtons()
+			self:ToolbarSide()
+			self:AttributeMenu()
+			
+			_detalhes.WindowAutoHideTick = _detalhes.WindowAutoHideTick or {}
+			if (_detalhes.WindowAutoHideTick [self.meu_id]) then
+				_detalhes.WindowAutoHideTick [self.meu_id]:Cancel()
+			end
+			_detalhes.WindowAutoHideTick [self.meu_id] = C_Timer.NewTicker (10, function()
+				if (self.last_interaction) then
+					if (self.last_interaction + 10 < _detalhes._tempo) then
+						self:SetCombatAlpha (nil, nil, true)
+						_detalhes.WindowAutoHideTick [self.meu_id]:Cancel()
+					end
+				else
+					self:SetCombatAlpha (nil, nil, true)
+					_detalhes.WindowAutoHideTick [self.meu_id]:Cancel()
+				end
+			end)
+		else
+			self:SetCombatAlpha (nil, nil, true)
+		end
+		
 		self:DesaturateMenu()
 		
 		self:CheckFor_EnabledTrashSuppression()
