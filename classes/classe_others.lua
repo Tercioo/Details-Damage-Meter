@@ -694,7 +694,6 @@ function atributo_misc:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 			--if (refresh_needed) then
 				_table_sort (conteudo, _detalhes.SortGroupIfHaveKey)
 			--end
-			
 			for index, player in _ipairs (conteudo) do
 				if (player.grupo) then --> é um player e esta em grupo
 					if (not player[keyName] or player[keyName] < 1) then --> dano menor que 1, interromper o loop
@@ -712,7 +711,6 @@ function atributo_misc:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 			end
 		
 		end
-	
 	end
 
 	--> refaz o mapa do container
@@ -753,9 +751,11 @@ function atributo_misc:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 		end
 		
 	elseif (instancia.bars_sort_direction == 2) then --bottom to top
-		for i = instancia.barraS[2], instancia.barraS[1], 1 do --> vai atualizar só o range que esta sendo mostrado
-			conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, nil, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator)
-			qual_barra = qual_barra+1
+		for i = instancia.barraS[2], instancia.barraS[1], -1 do --> vai atualizar só o range que esta sendo mostrado
+			if (conteudo[i]) then
+				conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, nil, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator)
+				qual_barra = qual_barra+1
+			end
 		end
 		
 	end
