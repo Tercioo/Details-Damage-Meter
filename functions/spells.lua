@@ -240,7 +240,7 @@ do
 		
 		-- Protection Paladin:
 		[53600] = 66, -- Shield of the Righteous
-		[26573] = 66, -- Consecration
+		--[26573] = 66, -- Consecration
 		[119072] = 66, -- Holy Wrath
 		[31935] = 66, -- Avenger's Shield
 
