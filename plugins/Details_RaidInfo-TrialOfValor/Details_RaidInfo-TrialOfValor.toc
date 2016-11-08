@@ -1,0 +1,6 @@
+## Interface: 70100
+## Title: Details: Trial Of Valor
+## Notes: Plugin for Details
+## RequiredDeps: Details
+
+Details_RaidInfo-TrialOfValor.lua

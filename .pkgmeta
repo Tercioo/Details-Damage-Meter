@@ -12,3 +12,4 @@ move-folders:
     Details/plugins/Details_Streamer: Details_Streamer
     Details/plugins/Details_RaidInfo-EmeraldNightmare: Details_RaidInfo-EmeraldNightmare
     Details/plugins/Details_RaidInfo-Nighthold: Details_RaidInfo-Nighthold
+    Details/plugins/Details_RaidInfo-TrialOfValor: Details_RaidInfo-TrialOfValor 
