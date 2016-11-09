@@ -1303,7 +1303,10 @@
 	
 		local t = {}
 		for index, void_table in ipairs (tooltip_void_zone_temp) do
-			if (void_table[2] > 0) then
+			--irá reportar dano zero também
+			if (void_table[1] and type (void_table[1]) == "string" and void_table[2] and void_table[3] and type (void_table[3]) == "table") then
+				print (void_table[1], void_table[2], void_table[3])
+			
 				local actor_table = {_detalhes:GetOnlyName (void_table[1])}
 				local m, s = _math_floor (void_table[3].uptime / 60), _math_floor (void_table[3].uptime % 60)
 				if (m > 0) then
@@ -3435,13 +3438,13 @@ function atributo_damage:ToolTip_FriendlyFire (instancia, numero, barra, keydown
 		if (actor) then
 			DamagedPlayers [#DamagedPlayers+1] = {target_name, ff_table.total, actor.classe}
 			for spellid, amount in _pairs (ff_table.spells) do
-				Skills [#Skills+1] = {spellid, amount}
+				Skills [spellid] = (Skills [spellid] or 0) + amount
+				--Skills [#Skills+1] = {spellid, amount}
 			end
 		end
 	end
 	
 	_table_sort (DamagedPlayers, _detalhes.Sort2)
-	_table_sort (Skills, _detalhes.Sort2)
 
 	_detalhes:AddTooltipSpellHeaderText (Loc ["STRING_TARGETS"], headerColor, #DamagedPlayers, [[Interface\Addons\Details\images\icons]], 0.126953125, 0.224609375, 0.056640625, 0.140625)
 	
@@ -3500,9 +3503,16 @@ function atributo_damage:ToolTip_FriendlyFire (instancia, numero, barra, keydown
 	local icon_size = _detalhes.tooltip.icon_size
 	local icon_border = _detalhes.tooltip.icon_border_texcoord
 	
-	for i = 1, _math_min (max_abilities2, #Skills) do
-		local nome, _, icone = _GetSpellInfo (Skills[i][1])
-		GameCooltip:AddLine (nome .. ": ", FormatTooltipNumber (_, Skills[i][2]).." (".._cstr("%.1f", Skills[i][2]/FriendlyFireTotal*100).."%)")
+	--spells usadas no friendly fire
+	local SpellsInOrder = {}
+	for spellID, amount in _pairs (Skills) do
+		SpellsInOrder [#SpellsInOrder+1] = {spellID, amount}
+	end
+	_table_sort (SpellsInOrder, _detalhes.Sort2)
+	
+	for i = 1, _math_min (max_abilities2, #SpellsInOrder) do
+		local nome, _, icone = _GetSpellInfo (SpellsInOrder[i][1])
+		GameCooltip:AddLine (nome .. ": ", FormatTooltipNumber (_, SpellsInOrder[i][2]).." (".._cstr("%.1f", SpellsInOrder[i][2]/FriendlyFireTotal*100).."%)")
 		GameCooltip:AddIcon (icone, nil, nil, icon_size.W, icon_size.H, icon_border.L, icon_border.R, icon_border.T, icon_border.B)
 		_detalhes:AddTooltipBackgroundStatusbar()
 	end	

@@ -3,7 +3,7 @@
 
 		_ = nil
 		_detalhes = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0", "NickTag-1.0")
-		_detalhes.build_counter = 3202
+		_detalhes.build_counter = 3212
 		_detalhes.userversion = "v7.1.0." .. _detalhes.build_counter
 		_detalhes.realversion = 115 --core version
 		_detalhes.version = _detalhes.userversion .. " (core " .. _detalhes.realversion .. ")"
@@ -21,10 +21,9 @@ do
 	local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
 
 --[[
-|cFFFFFF00v7.0.3.3202.115 (|cFFFFCC00November 08th, 2016|r|cFFFFFF00)|r:\n\n
-|cFFFFFF00-|r Weakauras creator shall now work correctly with Trials of Valor.\n\n
-|cFFFFFF00-|r Raid history should now be recording your Trials of Valor kills.\n\n
-|cFFFFFF00-|r Added Trials of Valor raid info, good luck and have fun!.\n\n
+|cFFFFFF00v7.0.3.3212.115 (|cFFFFCC00November 09th, 2016|r|cFFFFFF00)|r:\n\n
+|cFFFFFF00-|r Fixed Friendly Fire tooltip where it was showing one entry for each spell on each target.\n\n
+|cFFFFFF00-|r Fixed an issue with Auras & Void Zone where wasn't possible to report when the aura has zero damage.\n\n
 --]]
 --
 
