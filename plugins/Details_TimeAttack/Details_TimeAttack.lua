@@ -9,6 +9,7 @@ local _UnitAura = UnitAura --> wow api local
 
 local _math_floor = math.floor --> lua library local
 local _cstr = string.format --> lua library local
+local _ 
 
 --> Create the plugin Object
 local TimeAttack = _detalhes:NewPluginObject ("Details_TimeAttack")

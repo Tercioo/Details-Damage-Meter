@@ -15,6 +15,7 @@ local _cstr = string.format --> lua library local
 local GetSpellBonusDamage = GetSpellBonusDamage
 local UnitAura = UnitAura --> wow api local
 local GetTime = GetTime --> wow api local
+local _
 
 local _GetSpellInfo =_detalhes.getspellinfo --> details api local
 

@@ -141,7 +141,13 @@
 		
 		[193315] = 197834, --rogue Saber Slash
 		[202822] = 202823, --rogue greed
+		
+		[233496] = 233490, --Unstable Affliction
+		[233497] = 233490, --Unstable Affliction
+		[233498] = 233490, --Unstable Affliction
+		[233499] = 233490, --Unstable Affliction
 	}
+	
 	local is_using_spellId_override = false
 	
 	local SPELLID_SHAMAN_SLASH_AURA = 195222
@@ -4197,6 +4203,10 @@ SPELL_POWER_OBSOLETE2 = 15;
 			if (role == "TANK") then
 				tanks_members_cache [_UnitGUID ("player")] = true
 			end
+		end
+		
+		if (_detalhes.iam_a_tank) then
+			tanks_members_cache [_UnitGUID ("player")] = true
 		end
 	end
 
