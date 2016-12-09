@@ -1702,6 +1702,25 @@ function _detalhes:DelayOptionsRefresh (instance, no_reopen)
 	end
 end
 
+function _detalhes:RefreshLockedState()
+	if (not self.baseframe and self.meu_id and self:IsEnabled()) then
+		self:ScheduleTimer ("RefreshLockedState", 1)
+		return
+	elseif (not self.baseframe) then
+		return
+	end
+	
+	if (self.baseframe.isLocked) then
+		self.baseframe.resize_direita:EnableMouse (false)
+		self.baseframe.resize_esquerda:EnableMouse (false)
+	else
+		self.baseframe.resize_direita:EnableMouse (true)
+		self.baseframe.resize_esquerda:EnableMouse (true)	
+	end
+	
+	return true
+end
+
 local lockFunctionOnClick = function (button, button_type, button2)
 
 	if (_detalhes.disable_lock_ungroup_buttons) then
@@ -1711,7 +1730,7 @@ local lockFunctionOnClick = function (button, button_type, button2)
 	if (not button:GetParent().instance) then
 		button = button2 --from any other button
 	end
-	
+
 	local baseframe = button:GetParent()
 	if (baseframe.isLocked) then
 		baseframe.isLocked = false
@@ -1721,9 +1740,8 @@ local lockFunctionOnClick = function (button, button_type, button2)
 		baseframe.resize_direita:SetAlpha (1)
 		baseframe.resize_esquerda:SetAlpha (1)
 		button:ClearAllPoints()
-		button:SetPoint ("right", baseframe.resize_direita, "left", -1, 1.5)		
+		button:SetPoint ("right", baseframe.resize_direita, "left", -1, 1.5)	
 	else
-	
 		--> tutorial
 		if (not _detalhes:GetTutorialCVar ("WINDOW_LOCK_UNLOCK1") and not _detalhes.initializing) then
 			_detalhes:SetTutorialCVar ("WINDOW_LOCK_UNLOCK1", true)
@@ -1747,9 +1765,11 @@ local lockFunctionOnClick = function (button, button_type, button2)
 		baseframe.resize_esquerda:SetAlpha (0)
 	end
 	
-	_detalhes:DelayOptionsRefresh()
+	baseframe.instance:RefreshLockedState()
 	
+	_detalhes:DelayOptionsRefresh()
 end
+
 _detalhes.lock_instance_function = lockFunctionOnClick
 
 local unSnapButtonTooltip = {
@@ -6453,7 +6473,7 @@ function _detalhes:ChangeSkin (skin_name)
 	else
 		self.baseframe.cabecalho.ball:SetAlpha (self.color[4])
 	end
-
+	
 ----------> update abbreviation function on the class files
 	
 	_detalhes.atributo_damage:UpdateSelectedToKFunction()
@@ -6544,7 +6564,10 @@ function _detalhes:ChangeSkin (skin_name)
 		
 	--> set the scale
 		self:SetWindowScale()
-		
+	
+	-->: refresh lock buttons
+		self:RefreshLockedState()
+	
 	if (not just_updating or _detalhes.initializing) then
 		if (this_skin.callback) then
 			this_skin:callback (self, just_updating)
