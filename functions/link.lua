@@ -2289,6 +2289,7 @@
 		LoadAddOn ("BigWigs_Core")
 		
 		if (BigWigs and not _G.DBM) then
+		--if (BigWigs) then
 			BigWigs:Enable()
 		
 			function _detalhes:BigWigs_Message (event, module, key, text, ...)
@@ -2316,7 +2317,10 @@
 				end
 			end
 			
-			BigWigs.RegisterMessage (_detalhes, "BigWigs_Message")
+			if (BigWigs.RegisterMessage) then
+				BigWigs.RegisterMessage (_detalhes, "BigWigs_Message")
+				--print (BigWigs.RegisterMessage)
+			end
 		end
 	end	
 	

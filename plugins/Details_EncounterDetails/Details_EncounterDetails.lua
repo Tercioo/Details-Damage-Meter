@@ -307,7 +307,9 @@ local function CreatePluginFrames (data)
 						current_table_bigwigs [spellid] = {(type (module) == "string" and module) or (module and module.moduleName) or "", spellid or "", bar_text or "", time or 0, icon or ""}
 					end
 				end
-				BigWigs.RegisterMessage (EncounterDetails, "BigWigs_StartBar")
+				if (BigWigs.RegisterMessage) then
+					BigWigs.RegisterMessage (EncounterDetails, "BigWigs_StartBar")
+				end
 			end
 		end
 		EncounterDetails:ScheduleTimer ("RegisterBigWigsCallBack", 5)
@@ -370,6 +372,7 @@ local function CreatePluginFrames (data)
 		alert:SetFrameLevel (302)
 		alert.label = "Click here (on the skull icon) to bring the Encounter Details panel"
 		alert.Text:SetSpacing (4)
+		alert:SetClampedToScreen (true)
 		MicroButtonAlert_SetText (alert, alert.label)
 		alert:SetPoint ("bottom", EncounterDetails.ToolbarButton, "top", 0, 22)
 		alert.CloseButton:HookScript ("OnClick", hook_AlertButtonCloseButton)
@@ -383,6 +386,7 @@ local function CreatePluginFrames (data)
 		--> [1] button to show [2] button animation: "star", "blink" or true (blink)
 		EncounterDetails:ShowToolbarIcon (EncounterDetails.ToolbarButton, "star")
 
+		--EncounterDetails:SetTutorialCVar ("ENCOUNTER_DETAILS_BALLON_TUTORIAL1", false) --debug
 		if (not EncounterDetails:GetTutorialCVar ("ENCOUNTER_DETAILS_BALLON_TUTORIAL1")) then
 			--print ("nao viu o tutorial ainda")
 			C_Timer.After (2, EncounterDetails.ShowIconBallonTutorial)
