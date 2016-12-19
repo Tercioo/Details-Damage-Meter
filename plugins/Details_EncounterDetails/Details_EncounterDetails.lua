@@ -298,8 +298,7 @@ local function CreatePluginFrames (data)
 			DBM:RegisterCallback ("DBM_TimerStart", dbm_timer_callback)
 		end
 		function EncounterDetails:RegisterBigWigsCallBack()
-			if (BigWigs) then
-				BigWigs:Enable()
+			if (BigWigsLoader) then
 				function EncounterDetails:BigWigs_StartBar (event, module, spellid, bar_text, time, icon, ...)
 					--print (event, module, spellid, bar_text, time, icon, ...)
 					spellid = tostring (spellid)
@@ -307,8 +306,8 @@ local function CreatePluginFrames (data)
 						current_table_bigwigs [spellid] = {(type (module) == "string" and module) or (module and module.moduleName) or "", spellid or "", bar_text or "", time or 0, icon or ""}
 					end
 				end
-				if (BigWigs.RegisterMessage) then
-					BigWigs.RegisterMessage (EncounterDetails, "BigWigs_StartBar")
+				if (BigWigsLoader.RegisterMessage) then
+					BigWigsLoader.RegisterMessage (EncounterDetails, "BigWigs_StartBar")
 				end
 			end
 		end

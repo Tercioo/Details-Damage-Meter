@@ -2284,14 +2284,7 @@
 			DBM:RegisterCallback ("pull", dbm_callback_pull)
 		end
 		
-		
-		
-		LoadAddOn ("BigWigs_Core")
-		
-		if (BigWigs and not _G.DBM) then
-		--if (BigWigs) then
-			BigWigs:Enable()
-		
+		if (BigWigsLoader and not _G.DBM) then
 			function _detalhes:BigWigs_Message (event, module, key, text, ...)
 				
 				if (key == "stages") then
@@ -2299,8 +2292,6 @@
 					phase = tonumber (phase)
 					
 					if (phase and type (phase) == "number" and _detalhes.encounter_table.phase ~= phase) then
-						--_detalhes:Msg ("Current phase:", phase)
-						
 						_detalhes:OnCombatPhaseChanged()
 						
 						_detalhes.encounter_table.phase = phase
@@ -2316,10 +2307,9 @@
 					
 				end
 			end
-			
-			if (BigWigs.RegisterMessage) then
-				BigWigs.RegisterMessage (_detalhes, "BigWigs_Message")
-				--print (BigWigs.RegisterMessage)
+
+			if (BigWigsLoader.RegisterMessage) then
+				BigWigsLoader.RegisterMessage (_detalhes, "BigWigs_Message")
 			end
 		end
 	end	
