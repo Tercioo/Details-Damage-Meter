@@ -1816,7 +1816,7 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 			_table_sort (bs_table, _detalhes.Sort2)
 			instancia.top = bs_table [1][2]
 		end
-	
+		
 		local total2 = bs_index
 		
 		if (exportar) then 

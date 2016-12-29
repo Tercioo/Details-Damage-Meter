@@ -3519,6 +3519,14 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 	
 -- instance mini widgets -------------------------------------------------------------------------------------------------------------------------------------------------
 
+	--> overall data warning
+		instancia.overall_data_warning = backgrounddisplay:CreateFontString (nil, "overlay", "GameFontHighlightSmall")
+		instancia.overall_data_warning:SetHeight (64)
+		instancia.overall_data_warning:SetPoint ("center", backgrounddisplay, "center")
+		instancia.overall_data_warning:SetTextColor (.8, .8, .8, .5)
+		instancia.overall_data_warning:Hide()
+		instancia.overall_data_warning:SetText (Loc ["STRING_TUTORIAL_OVERALL1"])
+
 	--> freeze icon
 		instancia.freeze_icon = backgrounddisplay:CreateTexture (nil, "overlay")
 			instancia.freeze_icon:SetWidth (64)
@@ -3782,6 +3790,20 @@ function gump:CriaJanelaPrincipal (ID, instancia, criando)
 	return baseframe, backgroundframe, backgrounddisplay, scrollbar
 	
 end
+
+function _detalhes:IsShowingOverallDataWarning()
+	return self.overall_data_warning:IsShown()
+end
+
+function _detalhes:ShowOverallDataWarning (state)
+	if (state) then
+		self.overall_data_warning:Show()
+		self.overall_data_warning:SetWidth (self:GetSize() - 20)
+	else
+		self.overall_data_warning:Hide()
+	end
+end
+
 
 function _detalhes:SetBarFollowPlayer (follow)
 	

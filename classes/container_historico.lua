@@ -73,9 +73,21 @@ function historico:adicionar_overall (tabela)
 			_detalhes.tabela_overall.data_inicio = _detalhes.tabela_vigente.data_inicio or 0
 		end
 	--
+	
 	_detalhes.tabela_overall:seta_data (_detalhes._detalhes_props.DATA_TYPE_END)
 	
 	_detalhes:ClockPluginTickOnSegment()
+	
+	for id, instance in _detalhes:ListInstances() do
+		if (instance:IsEnabled()) then
+			if (instance:GetSegment() == -1) then
+				instance:ForceRefresh()
+				--instance:AtualizaGumpPrincipal (true)
+				--print ("isntance", id, "overall updated.")
+			end
+		end
+	end
+	
 end
 
 function _detalhes:GetCurrentCombat()

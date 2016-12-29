@@ -1533,7 +1533,7 @@
 				return instancia:MontaTooltip (esta_barra, qual_barra)
 			end
 		end
-
+		
 		function _detalhes:EndRefresh (instancia, total, tabela_do_combate, showing)
 			_detalhes:EsconderBarrasNaoUsadas (instancia, showing)
 		end
@@ -1547,6 +1547,20 @@
 						_detalhes.gump:Fade (instancia.barras[barra_numero], "in")
 					end
 					instancia.v_barras = false
+					
+					if (instancia.rows_showing == 0 and instancia:GetSegment() == -1) then -- -1 overall data
+						if (not instancia:IsShowingOverallDataWarning()) then
+							local tutorial = _detalhes:GetTutorialCVar ("OVERALLDATA_WARNING1") or 0
+							if (tutorial < 10) then
+								_detalhes:SetTutorialCVar ("OVERALLDATA_WARNING1", tutorial + 1)
+								instancia:ShowOverallDataWarning (true)
+							end
+						end
+					else
+						if (instancia:IsShowingOverallDataWarning()) then
+							instancia:ShowOverallDataWarning (false)
+						end
+					end
 				end
 
 			return showing
@@ -1586,6 +1600,10 @@
 
 		end
 
+		function _detalhes:ForceRefresh()
+			self:AtualizaGumpPrincipal (true)
+		end
+		
 		function _detalhes:AtualizaGumpPrincipal (instancia, forcar)
 			
 			if (not instancia or type (instancia) == "boolean") then --> o primeiro parâmetro não foi uma instância ou ALL
