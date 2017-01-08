@@ -3821,6 +3821,14 @@ SPELL_POWER_OBSOLETE2 = 15;
 			_detalhes:Msg ("(debug) found a timer.")
 		end
 	
+		local name, groupType, _, difficult = GetInstanceInfo()
+		if (groupType == "party" and difficult == "Mythic" and _detalhes.overall_clear_newchallenge) then
+			_detalhes.historico:resetar_overall()
+			if (_detalhes.debug) then
+				_detalhes:Msg ("(debug) timer is for a mythic+ dungeon, overall has been reseted.")
+			end
+		end
+		
 		--if (C_Scenario.IsChallengeMode() and _detalhes.overall_clear_newchallenge) then
 --		if (_detalhes.overall_clear_newchallenge) then --C_Scenario.IsChallengeMode() and  parece que não existe mais
 --			_detalhes.historico:resetar_overall()
@@ -3828,6 +3836,7 @@ SPELL_POWER_OBSOLETE2 = 15;
 --				_detalhes:Msg ("(debug) timer is a challenge mode start.")
 --			end
 		
+	
 		if (_detalhes.is_in_arena) then
 			if (_detalhes.debug) then
 				_detalhes:Msg ("(debug) timer is an arena countdown.")
