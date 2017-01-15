@@ -3822,7 +3822,7 @@ SPELL_POWER_OBSOLETE2 = 15;
 		end
 	
 		local name, groupType, _, difficult = GetInstanceInfo()
-		if (groupType == "party" and difficult == "Mythic" and _detalhes.overall_clear_newchallenge) then
+		if (groupType == "party" and difficult == "Mythic Keystone" and _detalhes.overall_clear_newchallenge) then
 			_detalhes.historico:resetar_overall()
 			if (_detalhes.debug) then
 				_detalhes:Msg ("(debug) timer is for a mythic+ dungeon, overall has been reseted.")
