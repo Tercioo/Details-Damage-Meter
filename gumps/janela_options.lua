@@ -9036,6 +9036,7 @@ function window:CreateFrame9()
 			if (value) then
 				--> primeira vez que roda:
 				if (not instance.wallpaper.texture) then
+					--[[ 7.1.5 isn't sending the background on the 5º return value ~cleanup
 					local spec = GetSpecialization()
 					if (spec) then
 						local id, name, description, icon, _background, role = GetSpecializationInfo (spec)
@@ -9044,6 +9045,8 @@ function window:CreateFrame9()
 						end
 					end
 					instance.wallpaper.texcoord = {0, 1, 0, 0.703125}
+					--]]
+					instance.wallpaper.texture = "Interface\\AddOns\\Details\\images\\background"
 				end
 				
 				instance:InstanceWallpaper (true)

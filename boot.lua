@@ -3,9 +3,9 @@
 
 		_ = nil
 		_detalhes = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0", "NickTag-1.0")
-		_detalhes.build_counter = 3276
-		_detalhes.userversion = "v7.1.0." .. _detalhes.build_counter
-		_detalhes.realversion = 115 --core version
+		_detalhes.build_counter = 3305
+		_detalhes.userversion = "v7.1.5." .. _detalhes.build_counter
+		_detalhes.realversion = 116 --core version
 		_detalhes.version = _detalhes.userversion .. " (core " .. _detalhes.realversion .. ")"
 		Details = _detalhes
 
@@ -21,8 +21,9 @@ do
 	local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
 
 --[[
-|cFFFFFF00v7.1.0.3276.115 (|cFFFFCC00Jan 08th, 2016|r|cFFFFFF00)|r:\n\n
-|cFFFFFF00-|r Fixed the overall data not reseting when starting a new mythic+ dungeon.\n\n
+|cFFFFFF00v7.1.5.3305.116 (|cFFFFCC00Jan 15th, 2016|r|cFFFFFF00)|r:\n\n
+|cFFFFFF00-|r Another fix for mythic dungeons overall data reset (thanks Tharai @ Curseforge).\n\n
+|cFFFFFF00-|r Fix for spec detection on PvP Arenas  (thanks Pas06 @ Curseforge).\n\n
 --]]
 --
 

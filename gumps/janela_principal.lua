@@ -2150,7 +2150,7 @@ local icon_frame_on_enter = function (self)
 			
 			local class_icon, class_L, class_R, class_T, class_B = _detalhes:GetClassIcon (class)
 			
-			local spec_id, spec_name, spec_description, spec_icon, spec_background, spec_role, spec_class = GetSpecializationInfoByID (spec or 0)
+			local spec_id, spec_name, spec_description, spec_icon, spec_role, spec_class = GetSpecializationInfoByID (spec or 0) --thanks pas06
 			local spec_L, spec_R, spec_T, spec_B 
 			if (spec_id) then
 				spec_L, spec_R, spec_T, spec_B  = unpack (_detalhes.class_specs_coords [spec])
@@ -4759,6 +4759,7 @@ function _detalhes:InstanceWallpaper (texture, anchor, alpha, texcoord, width, h
 	end
 	
 	if (not wallpaper.texture and not texture) then
+	--[[ 7.1.5 isn't sending the background on the 5º return value ~cleanup
 		local spec = GetSpecialization()
 		if (spec) then
 			local _, _, _, _, _background = GetSpecializationInfo (spec)
@@ -4766,6 +4767,8 @@ function _detalhes:InstanceWallpaper (texture, anchor, alpha, texcoord, width, h
 				texture = "Interface\\TALENTFRAME\\".._background
 			end
 		end
+	--]]	
+		texture = "Interface\\AddOns\\Details\\images\\background"
 		
 		texcoord = {0, 1, 0, 0.7}
 		alpha = 0.5

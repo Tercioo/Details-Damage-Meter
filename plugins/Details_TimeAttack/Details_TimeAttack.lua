@@ -69,6 +69,7 @@ local function CreatePluginFrames()
 	
 	--> some times the current spec isn't avaliable yet, so we try to catch 5 seconds after character logon
 		function _detalhes:TimeAttackStartupBackground()
+			--[[
 			local spec = GetSpecialization()
 			if (spec) then
 				local id, name, description, icon, _background, role = GetSpecializationInfo (spec)
@@ -76,6 +77,8 @@ local function CreatePluginFrames()
 					background:SetTexture ("Interface\\TALENTFRAME\\".._background)
 				end
 			end
+			--]]
+			background:SetTexture ("Interface\\AddOns\\Details\\images\\background")
 		end
 		TimeAttack:ScheduleTimer ("TimeAttackStartupBackground", 5)
 	

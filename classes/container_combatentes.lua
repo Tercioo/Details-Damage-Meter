@@ -256,7 +256,7 @@
 							if (name == nome) then
 								local spec = GetArenaOpponentSpec (i)
 								if (spec) then
-									local id, name, description, icon, background, role, class = GetSpecializationInfoByID (spec)
+									local id, name, description, icon, role, class = GetSpecializationInfoByID (spec) --thanks pas06
 									novo_objeto.role = role
 									novo_objeto.classe = class
 									novo_objeto.enemy = true

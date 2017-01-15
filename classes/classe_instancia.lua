@@ -1253,6 +1253,8 @@ end
 			end
 			
 		--> setup default wallpaper
+			new_instance.wallpaper.texture = "Interface\\AddOns\\Details\\images\\background"
+			--[[ 7.1.5 isn't sending the background on the 5º return value ~cleanup
 			local spec = GetSpecialization()
 			if (spec) then
 				local id, name, description, icon, _background, role = GetSpecializationInfo (spec)
@@ -1264,6 +1266,7 @@ end
 					end
 				end
 			end
+			--]]
 		
 		--> finish
 			return new_instance
@@ -1281,6 +1284,8 @@ end
 		--> setup all config
 			new_instance:ResetInstanceConfig()
 			--> setup default wallpaper
+			new_instance.wallpaper.texture = "Interface\\AddOns\\Details\\images\\background"
+			--[[ 7.1.5 isn't sending the background on the 5º return value ~cleanup
 			local spec = GetSpecialization()
 			if (spec) then
 				local id, name, description, icon, _background, role = GetSpecializationInfo (spec)
@@ -1292,7 +1297,7 @@ end
 					end
 				end
 			end
-
+			--]]
 		--> internal stuff
 			new_instance.barras = {} --container que irá armazenar todas as barras
 			new_instance.barraS = {nil, nil} --de x até x são as barras que estão sendo mostradas na tela
