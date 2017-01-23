@@ -3151,16 +3151,18 @@ function _detalhes:envia_relatorio (linhas, custom)
 
 	local segmento = self.segmento
 	local luta = nil
+	local combatObject
 	
 	if (not custom) then
 	
 		if (not linhas[1]) then
 			return _detalhes:Msg (Loc ["STRING_ACTORFRAME_NOTHING"])
 		end
-	
+
 		if (segmento == -1) then --overall
 			--luta = Loc ["STRING_REPORT_LAST"] .. " " .. #_detalhes.tabela_historico.tabelas .. " " .. Loc ["STRING_REPORT_FIGHTS"]
 			luta = _detalhes.tabela_overall.overall_enemy_name
+			combatObject = _detalhes.tabela_overall
 			
 		elseif (segmento == 0) then --current
 		
@@ -3186,6 +3188,9 @@ function _detalhes:envia_relatorio (linhas, custom)
 			if (not luta) then
 				luta = _detalhes.segmentos.current
 			end
+			
+			combatObject = _detalhes.tabela_vigente
+			
 		else
 			if (segmento == 1) then
 			
@@ -3212,6 +3217,8 @@ function _detalhes:envia_relatorio (linhas, custom)
 					luta = Loc ["STRING_REPORT_LASTFIGHT"]
 				end
 				
+				combatObject = _detalhes.tabela_historico.tabelas[1]
+				
 			else
 			
 				if (_detalhes.tabela_historico.tabelas[segmento].is_boss) then
@@ -3236,19 +3243,29 @@ function _detalhes:envia_relatorio (linhas, custom)
 				if (not luta) then
 					luta = " (" .. segmento .. " " .. Loc ["STRING_REPORT_PREVIOUSFIGHTS"] .. ")"
 				end
+				
+				combatObject = _detalhes.tabela_historico.tabelas[segmento]
 			end
 		end
-
 		
 		linhas[1] = linhas[1] .. " " .. Loc ["STRING_REPORT"] .. " " .. luta
 
 	end
 	
-	if (_detalhes.time_type == 2) then
-		linhas[1] = linhas[1] .. " (Ef)"
-	else
-		linhas[1] = linhas[1] .. " (Ac)"
+	--adicionar o tempo de luta
+	local segmentTime = ""
+	if (combatObject) then
+		local time = combatObject:GetCombatTime()
+		segmentTime = _detalhes.gump:IntegerToTimer (time or 0)
 	end
+	
+	--effective ou active time
+	if (_detalhes.time_type == 2) then
+		linhas[1] = linhas[1] .. " [" .. segmentTime .. " EF]"
+	else
+		linhas[1] = linhas[1] .. " [" .. segmentTime .. " AC]"
+	end
+	
 	
 	local editbox = _detalhes.janela_report.editbox
 	if (editbox.focus) then --> não precionou enter antes de clicar no okey

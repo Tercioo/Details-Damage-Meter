@@ -6133,6 +6133,7 @@ local build_segment_list = function (self, elapsed)
 					local thisCombat = _detalhes.tabela_vigente
 					local encounter_name = thisCombat.is_boss.encounter
 					local instanceID = thisCombat.is_boss.ej_instance_id
+					instanceID = tonumber (instanceID)
 					if (encounter_name and instanceID) then
 						local index, name, description, encounterID, rootSectionID, link = _detalhes:GetEncounterInfoFromEncounterName (instanceID, encounter_name)
 						if (index and name and encounterID) then

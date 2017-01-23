@@ -1059,8 +1059,11 @@ _detalhes.default_profile = default_profile
 
 -- aqui fica as propriedades do jogador que não serão armazenadas no profile
 local default_player_data = {
+
+	--> force all fonts to have this outline
+		force_font_outline = "",
+
 	--> current combat number
-	
 		cached_specs = {},
 		cached_talents = {},
 	

@@ -745,8 +745,30 @@ end
 				outline = "THICKOUTLINE"
 			end
 		end
+		
+		if (_detalhes.force_font_outline ~= "") then
+			if (_detalhes.force_font_outline == "OUTLINE") then
+				outline = "OUTLINE"
+			elseif (_detalhes.force_font_outline == "THICKOUTLINE") then
+				outline = "THICKOUTLINE"
+			elseif (_detalhes.force_font_outline == "MONOCHROME") then
+				outline = "MONOCHROME"
+			end
+		end
 
 		fontString:SetFont (fonte, size, outline)
+	end
+	
+	function _detalhes:UseOutline (outline)
+		outline = outline or ""
+		_detalhes.force_font_outline = outline
+		for ID, instance in _detalhes:ListInstances() do
+			if (instance:IsEnabled()) then
+				instance:RefreshBars()
+				instance:InstanceReset()
+				instance:ReajustaGump()
+			end
+		end
 	end
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
