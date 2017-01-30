@@ -3,7 +3,7 @@
 
 		_ = nil
 		_detalhes = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0", "NickTag-1.0")
-		_detalhes.build_counter = 3315
+		_detalhes.build_counter = 3325
 		_detalhes.userversion = "v7.1.5." .. _detalhes.build_counter
 		_detalhes.realversion = 116 --core version
 		_detalhes.version = _detalhes.userversion .. " (core " .. _detalhes.realversion .. ")"
@@ -21,14 +21,11 @@ do
 	local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
 
 --[[
-|cFFFFFF00v7.1.5.3315.116 (|cFFFFCC00Jan 23th, 2016|r|cFFFFFF00)|r:\n\n
-|cFFFFFF00-|r Ticket #162: 'no Monochrome font' available, added an experimental slash command: /run _detalhes:UseOutline ("MONOCHROME").\n\n
-|cFFFFFF00-|r Ticket #158: 'no elapsed time shown on report to chat', added the elapsed time when reporting a segment.\n\n
-|cFFFFFF00-|r Ticket #164: 'error when browsing segments', an attempt to fix the problem has been made.\n\n
+|cFFFFFF00v7.1.5.3325.116 (|cFFFFCC00Jan 30th, 2016|r|cFFFFFF00)|r:\n\n
+|cFFFFFF00-|r Ticket #166: add 'toggle spark option on Streamer plugin'.\n\n
+|cFFFFFF00-|r Fixed a random error '1263' which some users were getting.\n\n
 
-|cFFFFFF00v7.1.5.3305.116 (|cFFFFCC00Jan 15th, 2016|r|cFFFFFF00)|r:\n\n
-|cFFFFFF00-|r Another fix for mythic dungeons overall data reset (thanks Tharai @ Curseforge).\n\n
-|cFFFFFF00-|r Fix for spec detection on PvP Arenas  (thanks Pas06 @ Curseforge).\n\n
+
 --]]
 --
 

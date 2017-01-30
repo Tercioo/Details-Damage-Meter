@@ -1260,7 +1260,7 @@ function atributo_heal:ToolTip_HealingDone (instancia, numero, barra, keydown)
 						end
 					end
 					
-					tinsert (playerPhases, {phase, playersTable [self.nome] or 0, myRank, playersTable [self.nome]/totalDamage*100})
+					tinsert (playerPhases, {phase, playersTable [self.nome] or 0, myRank, (playersTable [self.nome] or 0) / totalDamage * 100})
 				end
 				
 				table.sort (playerPhases, function(a, b) return a[1] < b[1] end)

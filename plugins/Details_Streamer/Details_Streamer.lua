@@ -402,7 +402,13 @@ local function CreatePluginFrames()
 				end
 
 				line.statusbar:SetValue (percent)
-				line.spark:Show()
+				
+				if (StreamOverlay.db.use_spark) then
+					line.spark:Show()
+				else
+					line.spark:Hide()
+				end
+				
 				if (castinfo.Success) then
 					line.spark:SetVertexColor (1, 1, 1, 0.4)
 					line.spark:SetPoint ("left", line.statusbar, "left", (line.statusbar:GetWidth() / 100 * percent) - 8, 0)
@@ -902,7 +908,11 @@ listener.track_spell_cast = function()
 						percent = math.abs (percent - 100)
 						castinfo.Percent = percent
 						line.statusbar:SetValue (percent)
-						line.spark:Show()
+						if (StreamOverlay.db.use_spark) then
+							line.spark:Show()
+						else
+							line.spark:Hide()
+						end
 						line.spark:SetVertexColor (1, 1, 1, 0.5 + (percent/100))
 						line.spark:SetVertexColor (1, 1, 1, 1)
 						line.spark:SetPoint ("left", line.statusbar, "left", (line.statusbar:GetWidth() / 100 * percent) - 6, 0)
@@ -921,7 +931,11 @@ listener.track_spell_cast = function()
 						local percent = current / diff * 100
 						castinfo.Percent = percent
 						line.statusbar:SetValue (percent)
-						line.spark:Show()
+						if (StreamOverlay.db.use_spark) then
+							line.spark:Show()
+						else
+							line.spark:Hide()
+						end
 						line.spark:SetVertexColor (1, 1, 1, 0.5 + (percent/100))
 						line.spark:SetPoint ("left", line.statusbar, "left", (line.statusbar:GetWidth() / 100 * percent) - 6, 0)
 					end
@@ -945,7 +959,13 @@ listener.track_spell_cast = function()
 					local percent = current / diff * 100
 					castinfo.Percent = percent
 					line.statusbar:SetValue (percent)
-					line.spark:Show()
+					
+					if (StreamOverlay.db.use_spark) then
+						line.spark:Show()
+					else
+						line.spark:Hide()
+					end
+					
 					line.spark:SetVertexColor (1, 1, 1, 0.5 + (percent/100))
 					line.spark:SetPoint ("left", line.statusbar, "left", (line.statusbar:GetWidth() / 100 * percent) - 6, 0)
 				end
@@ -1717,7 +1737,20 @@ function StreamOverlay.OpenOptionsPanel()
 				desc = "How high the frame is placed in your interface, high values makes it be shown above backpack, talents frame, etc.",
 				name = "Window Strata"
 			},
-			
+				
+			{type = "space"},
+			{
+				type = "toggle",
+				name = "Show Spark",
+				desc = "Show or hide the spark at bars",
+				order = 1,
+				get = function() return StreamOverlay.db.use_spark end,
+				set = function (self, val) 
+					StreamOverlay.db.use_spark = not StreamOverlay.db.use_spark
+					
+					
+				end,
+			},
 			
 		}
 		
@@ -1847,6 +1880,8 @@ function StreamOverlay:OnEvent (_, event, ...)
 					arrow_anchor_y = 0,
 					
 					minimap = {hide = false, radius = 160, minimapPos = 160},
+					
+					use_spark = true,
 					
 					per_second = {
 						enabled = false,
