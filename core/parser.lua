@@ -3422,6 +3422,12 @@ SPELL_POWER_OBSOLETE2 = 15;
 		if (_detalhes.last_zone_type ~= zoneType) then
 			_detalhes:SendEvent ("ZONE_TYPE_CHANGED", nil, zoneType)
 			_detalhes.last_zone_type = zoneType
+			
+			for index, instancia in ipairs (_detalhes.tabela_instancias) do 
+				if (instancia.ativa and instancia.hide_in_combat_type ~= 1) then --> 1 = none, we doesn't need to call
+					instancia:SetCombatAlpha (nil, nil, true)
+				end
+			end
 		end
 		
 		_detalhes.time_type = _detalhes.time_type_original

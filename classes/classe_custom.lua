@@ -2326,6 +2326,126 @@
 		
 		----------------------------------------------------------------------------------------------------------------------------------------------------
 		
+		
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+		
+		local DynamicOverallDamage = {
+			name = "Dynamic Overall Damage",
+			icon = [[Interface\ICONS\Achievement_Quests_Completed_08]],
+			attribute = false,
+			spellid = false,
+			author = "Details!",
+			desc = "Show overall damage done on the fly.",
+			source = false,
+			target = false,
+			script_version = 1,
+			script = [[
+				--init:
+				local combat, instance_container, instance = ...
+				local total, top, amount = 0, 0, 0
+
+				--get the overall combat
+				local OverallCombat = Details:GetCombat (-1)
+				--get the current combat
+				local CurrentCombat = Details:GetCombat (0)
+
+				--get the damage actor container for overall
+				local damage_container_overall = combat:GetActorList ( DETAILS_ATTRIBUTE_DAMAGE )
+				--get the damage actor container for current
+				local damage_container_current = combat:GetActorList ( DETAILS_ATTRIBUTE_DAMAGE )
+
+				--do the loop:
+				for _, player in ipairs ( damage_container_overall ) do 
+				    --only player in group
+				    if (player:IsGroupPlayer()) then
+					instance_container:AddValue (player, player.total)
+				    end
+				end
+
+				for _, player in ipairs ( damage_container_current ) do 
+				    --only player in group
+				    if (player:IsGroupPlayer()) then
+					instance_container:AddValue (player, player.total)
+				    end
+				end
+
+				total, top =  instance_container:GetTotalAndHighestValue()
+				amount =  instance_container:GetNumActors()
+
+				--return:
+				return total, top, amount
+			]],
+			tooltip = [[
+				--get the parameters passed
+				local actor, combat, instance = ...
+
+				--get the cooltip object (we dont use the convencional GameTooltip here)
+				local GameCooltip = GameCooltip2
+
+				--Cooltip code
+				--get the overall combat
+				local OverallCombat = Details:GetCombat (-1)
+				--get the current combat
+				local CurrentCombat = Details:GetCombat (0)
+
+				local AllSpells = {}
+
+				--overall
+				local player = OverallCombat [1]:GetActor (actor.nome)
+				local playerSpells = player:GetSpellList()
+				for spellID, spellTable in pairs (playerSpells) do
+				    AllSpells [spellID] = spellTable.total
+				end
+
+				--current
+				local player = CurrentCombat [1]:GetActor (actor.nome)
+				local playerSpells = player:GetSpellList()
+				for spellID, spellTable in pairs (playerSpells) do
+				    AllSpells [spellID] = (AllSpells [spellID] or 0) + (spellTable.total or 0)
+				end
+
+				local sortedList = {}
+				for spellID, total in pairs (AllSpells) do
+				    tinsert (sortedList, {spellID, total})
+				end
+				table.sort (sortedList, Details.Sort2)
+
+				local format_func = Details:GetCurrentToKFunction()
+
+				--build the tooltip
+				for i, t in ipairs (sortedList) do
+				    local spellID, total = unpack (t)
+				    if (total > 1) then
+					local spellName, _, spellIcon = Details.GetSpellInfo (spellID)
+					
+					GameCooltip:AddLine (spellName, format_func (_, total))
+					Details:AddTooltipBackgroundStatusbar()
+					GameCooltip:AddIcon (spellIcon, 1, 1, 14, 14)
+				    end
+				end
+			]],
+		}
+
+		local have = false
+		for _, custom in ipairs (self.custom) do
+			if (custom.name == "Dynamic Overall Damage" and (custom.script_version and custom.script_version >= DynamicOverallDamage.script_version) ) then
+				have = true
+				break
+			end
+		end
+		if (not have) then
+			for i, custom in ipairs (self.custom) do
+				if (custom.name == "Dynamic Overall Damage") then
+					table.remove (self.custom, i)
+				end
+			end
+			setmetatable (DynamicOverallDamage, _detalhes.atributo_custom)
+			DynamicOverallDamage.__index = _detalhes.atributo_custom		
+			self.custom [#self.custom+1] = DynamicOverallDamage
+		end
+		
+---------------------------------------		
+		
 		_detalhes:ResetCustomFunctionsCache()
 		
 	end

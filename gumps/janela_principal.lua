@@ -1868,6 +1868,14 @@ local barra_backdrop_onleave = {
 	insets = {left = 1, right = 1, top = 0, bottom = 1}
 }
 
+--> pre creating the truncate frame
+	_detalhes.left_anti_truncate = CreateFrame ("frame", "DetailsLeftTextAntiTruncate", UIParent)
+	_detalhes.left_anti_truncate:SetBackdrop (gump_fundo_backdrop)
+	_detalhes.left_anti_truncate:SetBackdropColor (0, 0, 0, 0.8)
+	_detalhes.left_anti_truncate:SetFrameStrata ("FULLSCREEN")
+	_detalhes.left_anti_truncate.text = _detalhes.left_anti_truncate:CreateFontString (nil, "overlay", "GameFontNormal")
+	_detalhes.left_anti_truncate.text:SetPoint ("left", _detalhes.left_anti_truncate, "left", 3, 0) 
+
 local barra_scripts_onenter = function (self)
 	self.mouse_over = true
 	OnEnterMainWindow (self._instance, self)
@@ -1888,12 +1896,7 @@ local barra_scripts_onenter = function (self)
 	local lefttext = self.texto_esquerdo
 	if (lefttext:IsTruncated()) then
 		if (not _detalhes.left_anti_truncate) then
-			_detalhes.left_anti_truncate = CreateFrame ("frame", "DetailsLeftTextAntiTruncate", UIParent)
-			_detalhes.left_anti_truncate:SetBackdrop (gump_fundo_backdrop)
-			_detalhes.left_anti_truncate:SetBackdropColor (0, 0, 0, 0.8)
-			_detalhes.left_anti_truncate:SetFrameStrata ("FULLSCREEN")
-			_detalhes.left_anti_truncate.text = _detalhes.left_anti_truncate:CreateFontString (nil, "overlay", "GameFontNormal")
-			_detalhes.left_anti_truncate.text:SetPoint ("left", _detalhes.left_anti_truncate, "left", 3, 0) 
+			
 		end
 		
 		_detalhes:SetFontSize (_detalhes.left_anti_truncate.text, self._instance.row_info.font_size)
@@ -4878,6 +4881,7 @@ function _detalhes:SetWindowAlphaForInteract (alpha)
 	
 end
 
+-- ~autohide ãutohide
 function _detalhes:SetWindowAlphaForCombat (entering_in_combat, true_hide)
 
 	local amount, rowsamount, menuamount
@@ -6660,17 +6664,19 @@ function _detalhes:SetCombatAlpha (modify_type, alpha_amount, interacting)
 			end
 		
 		elseif (self.hide_in_combat_type == 5) then --"While Not Inside Instance"
-			if ((_detalhes.zone_type == "raid" or _detalhes.zone_type == "party") and IsInInstance()) then
-				self:SetWindowAlphaForCombat (true, true) --> hida a janela
-			else
+			local isInInstance = IsInInstance()
+			if (isInInstance or _detalhes.zone_type == "raid" or _detalhes.zone_type == "party") then
 				self:SetWindowAlphaForCombat (false) --> deshida a janela
+			else
+				self:SetWindowAlphaForCombat (true, true) --> hida a janela
 			end
 		
 		elseif (self.hide_in_combat_type == 6) then --"While Inside Instance"
-			if ((_detalhes.zone_type == "raid" or _detalhes.zone_type == "party") and IsInInstance()) then
-				self:SetWindowAlphaForCombat (false) --> deshida a janela
-			else
+			local isInInstance = IsInInstance()
+			if (isInInstance or _detalhes.zone_type == "raid" or _detalhes.zone_type == "party") then
 				self:SetWindowAlphaForCombat (true, true) --> hida a janela
+			else
+				self:SetWindowAlphaForCombat (false) --> deshida a janela
 			end
 			
 		elseif (self.hide_in_combat_type == 7) then --"Raid Debug" = Out of Combat and Inside Raid or Dungeon
