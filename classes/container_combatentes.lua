@@ -333,7 +333,7 @@
 				nome = nome_dele
 				dono_do_pet = self:PegarCombatente (dono_serial, dono_nome, dono_flag, true, nome)
 			end
-
+			
 			return nome, dono_do_pet
 		end	
 	end
@@ -349,8 +349,10 @@
 		local text1 = line1:GetText()
 		if (text1 and text1 ~= "") then
 			for playerName, _ in _pairs (_detalhes.tabela_vigente.raid_roster) do
+				local pName = playerName
+				playerName = playerName:gsub ("%-.*", "") --remove realm name
 				if (text1:find (playerName)) then
-					return find_pet_found_owner (playerName, serial, nome, flag, self)
+					return find_pet_found_owner (pName, serial, nome, flag, self)
 				end
 			end
 		end
@@ -358,8 +360,10 @@
 		local text2 = line2:GetText()
 		if (text2 and text2 ~= "") then
 			for playerName, _ in _pairs (_detalhes.tabela_vigente.raid_roster) do
+				local pName = playerName
+				playerName = playerName:gsub ("%-.*", "") --remove realm name
 				if (text2:find (playerName)) then
-					return find_pet_found_owner (playerName, serial, nome, flag, self)
+					return find_pet_found_owner (pName, serial, nome, flag, self)
 				end
 			end
 		end

@@ -3,7 +3,7 @@
 
 		_ = nil
 		_detalhes = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0", "NickTag-1.0")
-		_detalhes.build_counter = 3370
+		_detalhes.build_counter = 3410
 		_detalhes.userversion = "v7.1.5." .. _detalhes.build_counter
 		_detalhes.realversion = 116 --core version
 		_detalhes.version = _detalhes.userversion .. " (core " .. _detalhes.realversion .. ")"
@@ -21,10 +21,11 @@ do
 	local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
 
 --[[
-|cFFFFFF00v7.1.5.3369.116 (|cFFFFCC00Feb 07th, 2016|r|cFFFFFF00)|r:\n\n
-|cFFFFFF00-|r Added custom display 'Dynamic Overall Damage' for mythic dungeons.\n\n
-|cFFFFFF00-|r Fix for Ticket #168: 'Auto Hide While [Not] Inside Instance is broken'.\n\n
-|cFFFFFF00-|r The bar truncate frame 'DetailsLeftTextAntiTruncate' is now created on Details! load instead on demand.\n\n
+|cFFFFFF00v7.1.5.3410.116 (|cFFFFCC00Feb 16th, 2016|r|cFFFFFF00)|r:\n\n
+|cFFFFFF00-|r Ticket #167 fix: Light of the Martyr self-damage now does reduce the healing done (following WCL method).\n\n
+|cFFFFFF00-|r Fixed an issue where sometimes BeastMaster's Hati pet wasn't detected correctly.\n\n
+
+
 
 
 
