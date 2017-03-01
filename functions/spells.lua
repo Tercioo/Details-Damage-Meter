@@ -1541,7 +1541,10 @@ do
 			[91797]	= true, -- Monstrous Blow
 			[115001]	= true, -- Remorseless Winter (Stunned)
 			[47476]	= true, -- Strangulate
-			
+		
+		--deamon hunter
+			[217832]	= true, -- Imprison
+		
 		--druid
 			[33786] 	= true, -- Cyclone
 			[339]		= true, -- Entangling Toots
@@ -1555,6 +1558,7 @@ do
 			[81261] 	= true, -- Solar Beam
 			[107566] 	= true, -- Staggering Shout
 			[16979]	= true, -- Wild Charge (talent)
+			[209753]	= true, -- Cyclone (honor talent)
 
 		--hunter
 			[117405]	= true, -- Binding Shot
@@ -1651,6 +1655,7 @@ do
 			[30283]	= true, -- Shadowfury
 			[19647]	= true, -- Spell Lock (Felhunters)
 			[31117]	= true, -- Unstable Affliction
+			[179057]	= true, --Chaos Nova
 			
 		--warrior
 			[100]		= true, -- Charge
