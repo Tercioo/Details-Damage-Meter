@@ -3745,6 +3745,7 @@ function window:CreateFrame1()
 		local avatar_x_anchor2 = window.right_start_at - 15
 		
 		local box = g:NewTextEntry (frame1, _, "$parentNicknameEntry", "nicknameEntry", SLIDER_WIDTH, TEXTENTRY_HEIGHT, onPressEnter, nil, nil, nil, nil, options_dropdown_template)
+		box:SetFontObject ("SystemFont_Outline_Small")
 		
 		frame1.nicknameEntry:SetPoint ("left", frame1.nicknameLabel, "right", 2, 0)
 

@@ -4651,6 +4651,7 @@ function _detalhes:InstanceRefreshRows (instancia)
 		--> texture class color: if true color changes on the fly through class refresh
 		if (not texture_class_color) then
 			row.textura:SetVertexColor (texture_r, texture_g, texture_b, alpha)
+			row.right_to_left_texture:SetVertexColor (texture_r, texture_g, texture_b, alpha)
 		else
 			local r, g, b = row.textura:GetVertexColor()
 			row.textura:SetVertexColor (r, g, b, alpha)
