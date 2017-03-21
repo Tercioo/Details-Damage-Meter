@@ -1,5 +1,5 @@
 --> customized display script
-
+	
 	local _detalhes = 		_G._detalhes
 	local gump = 			_detalhes.gump
 	local _
@@ -8,7 +8,7 @@
 	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> local pointers
-
+	
 	local _cstr = string.format --lua local
 	local _math_floor = math.floor --lua local
 	local _table_sort = table.sort --lua local
@@ -2338,7 +2338,7 @@
 			desc = "Show overall damage done on the fly.",
 			source = false,
 			target = false,
-			script_version = 1,
+			script_version = 2,
 			script = [[
 				--init:
 				local combat, instance_container, instance = ...
@@ -2349,10 +2349,14 @@
 				--get the current combat
 				local CurrentCombat = Details:GetCombat (0)
 
+				if (not OverallCombat.GetActorList or not CurrentCombat.GetActorList) then
+				    return 0, 0, 0
+				end
+
 				--get the damage actor container for overall
-				local damage_container_overall = combat:GetActorList ( DETAILS_ATTRIBUTE_DAMAGE )
+				local damage_container_overall = OverallCombat:GetActorList ( DETAILS_ATTRIBUTE_DAMAGE )
 				--get the damage actor container for current
-				local damage_container_current = combat:GetActorList ( DETAILS_ATTRIBUTE_DAMAGE )
+				local damage_container_current = CurrentCombat:GetActorList ( DETAILS_ATTRIBUTE_DAMAGE )
 
 				--do the loop:
 				for _, player in ipairs ( damage_container_overall ) do 
@@ -2362,10 +2366,12 @@
 				    end
 				end
 
-				for _, player in ipairs ( damage_container_current ) do 
-				    --only player in group
-				    if (player:IsGroupPlayer()) then
-					instance_container:AddValue (player, player.total)
+				if (Details.in_combat) then
+				    for _, player in ipairs ( damage_container_current ) do 
+					--only player in group
+					if (player:IsGroupPlayer()) then
+					    instance_container:AddValue (player, player.total)        
+					end
 				    end
 				end
 
@@ -2424,6 +2430,27 @@
 				    end
 				end
 			]],
+			
+			total_script = [[
+				local value, top, total, combat, instance = ...
+
+				--get the time of overall combat
+				local OverallCombatTime = Details:GetCombat (-1):GetCombatTime()
+
+				--get the time of current combat if the player is in combat
+				if (Details.in_combat) then
+				    local CurrentCombatTime = Details:GetCombat (0):GetCombatTime()
+				    OverallCombatTime = OverallCombatTime + CurrentCombatTime
+				end
+
+				--build the string
+				local ToK = Details:GetCurrentToKFunction()
+				local s = ToK (_, total / OverallCombatTime)
+				s = ToK (_, total) .. " (" .. s .. ", "
+
+				return s
+			]],
+			
 		}
 
 		local have = false

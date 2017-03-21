@@ -875,8 +875,8 @@
 			}
 			
 			local attributes = {
-				{icon = [[Interface\ICONS\Spell_Fire_Fireball02]], label = Loc ["STRING_CUSTOM_ATTRIBUTE_DAMAGE"], box = 1, attribute = "damagedone", boxtype = 1},
-				{icon = [[Interface\ICONS\SPELL_NATURE_HEALINGTOUCH]], label = Loc ["STRING_CUSTOM_ATTRIBUTE_HEAL"], box = 1, attribute = "healdone", boxtype = 1},
+				--{icon = [[Interface\ICONS\Spell_Fire_Fireball02]], label = Loc ["STRING_CUSTOM_ATTRIBUTE_DAMAGE"], box = 1, attribute = "damagedone", boxtype = 1},
+				--{icon = [[Interface\ICONS\SPELL_NATURE_HEALINGTOUCH]], label = Loc ["STRING_CUSTOM_ATTRIBUTE_HEAL"], box = 1, attribute = "healdone", boxtype = 1},
 				{icon = [[Interface\ICONS\INV_Inscription_Scroll]], label = Loc ["STRING_CUSTOM_ATTRIBUTE_SCRIPT"], box = 2, attribute = false, boxtype = 2},
 				
 				--{icon = [[Interface\ICONS\INV_Inscription_Scroll]], label = "Custom Script", box = 2, attribute = false, boxtype = 2},
@@ -1042,7 +1042,8 @@
 				accept_button:SetPoint ("left", cancel_button, "right", 2, 0)
 				accept_button:InstallCustomTexture()
 				
-
+				cancel_button:SetFrameLevel (500)
+				accept_button:SetFrameLevel (500)
 			
 			--> create box type 1
 				local box1 = _CreateFrame ("frame", "DetailsCustomPanelBox1", custom_window)
@@ -1764,18 +1765,40 @@
 					return true
 				end
 				
-				local expand = gump:NewButton (code_editor, nil, "$parentExpand", "expandbutton", 8, 10, expand_func, 4, nil, nil, "^")
+				local supportFrame = CreateFrame ("frame", "$parentSupportFrame", custom_window)
+				supportFrame:SetFrameLevel (500)
+				
+				local expand = gump:NewButton (supportFrame, nil, "$parentExpand", "expandbutton", 8, 10, expand_func, 4, nil, nil, "^")
 				expand:SetPoint ("bottomleft", code_editor, "topleft", 3, 0)
-				local font_size1 = gump:NewButton (code_editor, nil, "$parentFont1", "font1button", 8, 10, font_change, true, nil, nil, "+")
+				local font_size1 = gump:NewButton (supportFrame, nil, "$parentFont1", "font1button", 8, 10, font_change, true, nil, nil, "+")
 				font_size1:SetPoint ("left", expand, "right", -4, 2)
-				local font_size2 = gump:NewButton (code_editor, nil, "$parentFont2", "font2button", 8, 10, font_change, nil, nil, nil, "-")
+				local font_size2 = gump:NewButton (supportFrame, nil, "$parentFont2", "font2button", 8, 10, font_change, nil, nil, nil, "-")
 				font_size2:SetPoint ("left", font_size1, "right", -4, 2)
-				local apply1 = gump:NewButton (code_editor, nil, "$parentApply", "applybutton", 8, 10, apply_code, nil, nil, nil, "apply")
+				local apply1 = gump:NewButton (supportFrame, nil, "$parentApply", "applybutton", 8, 10, apply_code, nil, nil, nil, "apply")
 				apply1:SetPoint ("left", font_size2, "right", -4, 1)
-
-				local open_API = gump:NewButton (code_editor, nil, "$parentOpenAPI", "openAPIbutton", 8, 10, _detalhes.OpenAPI, nil, nil, nil, "Open Details! API")
+				local open_API = gump:NewButton (supportFrame, nil, "$parentOpenAPI", "openAPIbutton", 8, 10, _detalhes.OpenAPI, nil, nil, nil, "Open Details! API")
 				open_API:SetPoint ("left", apply1, "right", -4, -1)
 				
+				code_editor:SetScript ("OnShow", function()
+					expand:Show()
+					font_size1:Show()
+					font_size2:Show()
+					apply1:Show()
+					open_API:Show()
+				end)
+				code_editor:SetScript ("OnHide", function()
+					expand:Hide()
+					font_size1:Hide()
+					font_size2:Hide()
+					apply1:Hide()
+					open_API:Hide()
+				end)
+				
+				expand:Hide()
+				font_size1:Hide()
+				font_size2:Hide()
+				apply1:Hide()
+				open_API:Hide()
 				
 			--> select damage
 				DetailsCustomPanelAttributeMenu1:Click()
