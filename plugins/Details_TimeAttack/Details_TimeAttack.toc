@@ -1,4 +1,4 @@
-## Interface: 70100
+## Interface: 70200
 ## Title: Details TimeAttack (plugin)
 ## Notes: Plugin for Details
 ## SavedVariablesPerCharacter: _detalhes_databaseTimeAttack

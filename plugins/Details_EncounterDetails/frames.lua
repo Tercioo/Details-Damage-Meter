@@ -8,7 +8,9 @@ do
 	local _math_floor = math.floor
 	local _cstr = string.format
 	local _GetSpellInfo = _detalhes.getspellinfo
-
+	local _
+	
+	
 	local PhaseButtonTemplate = {
 		backdrop = {edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true},
 		backdropcolor = {.3, .3, .3, .5},

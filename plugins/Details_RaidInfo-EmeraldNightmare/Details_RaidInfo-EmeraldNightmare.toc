@@ -1,4 +1,4 @@
-## Interface: 70100
+## Interface: 70200
 ## Title: Details: Emerald Nightmare
 ## Notes: Plugin for Details
 ## RequiredDeps: Details

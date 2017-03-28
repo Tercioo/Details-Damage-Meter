@@ -2,7 +2,7 @@
 do
 
 	local INSTANCE_EJID = 786
-	local INSTANCE_MAPID = 0--?
+	local INSTANCE_MAPID = 1530--?
 	local HDPATH = "Details_RaidInfo-Nighthold"
 	local LOADINGSCREEN_FILE, LOADINGSCREEN_COORDS  = "LoadScreen_SuramarRaid", {0, 1, 282/1024, 872/1024}
 	local EJ_LOREBG = "UI-EJ-LOREBG-TheNighthold"

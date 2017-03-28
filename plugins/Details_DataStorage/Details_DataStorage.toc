@@ -1,4 +1,4 @@
-## Interface: 70100
+## Interface: 70200
 ## Title: Details Storage
 ## Notes: Stores information for Details!
 ## DefaultState: Enabled

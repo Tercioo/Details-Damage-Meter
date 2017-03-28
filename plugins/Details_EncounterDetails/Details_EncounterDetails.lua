@@ -1,6 +1,7 @@
 local AceLocale = LibStub ("AceLocale-3.0")
 local Loc = AceLocale:GetLocale ("Details_EncounterDetails")
 local Graphics = LibStub:GetLibrary("LibGraph-2.0")
+local _ 
 
 --> Needed locals
 local _GetTime = GetTime --> wow api local
