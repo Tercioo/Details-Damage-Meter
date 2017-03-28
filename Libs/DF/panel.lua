@@ -3103,7 +3103,7 @@ end
 function DF:CreateGFrame (parent, w, h, linewidth, onenter, onleave, member, name)
 	local f = CreateFrame ("frame", name, parent)
 	f:SetSize (w or 450, h or 150)
-	f.CustomLine = [[Interface\AddOns\Details\Libs\LibGraph-2.0\line]]
+	--f.CustomLine = [[Interface\AddOns\Details\Libs\LibGraph-2.0\line]]
 	
 	if (member) then
 		parent [member] = f

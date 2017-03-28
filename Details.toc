@@ -1,4 +1,4 @@
-## Interface: 70100
+## Interface: 70200
 ## Title: Details
 ## Notes: Computes detailed infos about combats.
 ## SavedVariables: _detalhes_global
@@ -9,16 +9,6 @@ Libs\libs.xml
 #@end-no-lib-strip@
 
 locales\Details-enUS.lua
-locales\Details-deDE.lua
-locales\Details-esES.lua
-locales\Details-esMX.lua
-locales\Details-frFR.lua
-locales\Details-itIT.lua
-locales\Details-koKR.lua
-locales\Details-ptBR.lua
-locales\Details-ruRU.lua
-locales\Details-zhCN.lua
-locales\Details-zhTW.lua
 
 boot.lua
 indent.lua

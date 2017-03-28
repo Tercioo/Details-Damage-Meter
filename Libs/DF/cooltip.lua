@@ -901,7 +901,7 @@ function DF:CreateCoolTip()
 		
 		function CoolTip:RefreshSpark (menuButton)
 			menuButton.spark:ClearAllPoints()
-			menuButton.spark:SetPoint ("LEFT", menuButton.statusbar, "LEFT", (menuButton.statusbar:GetValue() * (menuButton.statusbar:GetWidth() / 100)) - 3, 0)
+			menuButton.spark:SetPoint ("LEFT", menuButton.statusbar, "LEFT", (menuButton.statusbar:GetValue() * (menuButton.statusbar:GetWidth() / 100)) - 5, 0)
 			menuButton.spark2:ClearAllPoints()
 			menuButton.spark2:SetPoint ("left", menuButton.statusbar, "left", menuButton.statusbar:GetValue() * (menuButton.statusbar:GetWidth()/100) - 16, 0)
 		end

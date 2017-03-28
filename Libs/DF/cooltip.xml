@@ -173,12 +173,12 @@
 							<Color a = "1" r = "1" g = "1" b = "1" />
 						</Texture>
 						<!-- spark -->
-						<Texture name="$parent_Spark" hidden="true" parentKey="spark" file = "Interface\AddOns\Details\images\bar_detalhes2_end">
+						<Texture name="$parent_Spark" hidden="true" parentKey="spark" file = "Interface\CastingBar\UI-CastingBar-Spark" alphaMode="ADD">
 							<Size>
-								<AbsDimension x="8" y="18"/>
+								<AbsDimension x="12" y="24"/>
 							</Size>
 							<Anchors>
-								<Anchor point="LEFT" relativeTo="$parent" relativePoint="RIGHT" x="-16" y="-1"/>
+								<Anchor point="LEFT" relativeTo="$parent" relativePoint="RIGHT" x="-20" y="-1"/>
 							</Anchors>
 						</Texture>
 					</Layer>

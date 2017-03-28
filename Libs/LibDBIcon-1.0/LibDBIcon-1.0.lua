@@ -1,12 +1,39 @@
+--[[
+Name: DBIcon-1.0
+Revision: $Rev: 56 $
+Author(s): Rabbit (rabbit.magtheridon@gmail.com)
+Description: Allows addons to register to recieve a lightweight minimap icon as an alternative to more heavy LDB displays.
+Dependencies: LibStub
+License: GPL v2 or later.
+]]
+
+--[[
+Copyright (C) 2008-2011 Rabbit
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+]]
 
 -----------------------------------------------------------------------
--- LibDBIcon-1.0
+-- DBIcon-1.0
 --
--- Allows addons to easily create a lightweight minimap icon as an alternative to heavier LDB displays.
+-- Disclaimer: Most of this code was ripped from Barrel but fixed, streamlined
+--             and cleaned up a lot so that it no longer sucks.
 --
 
 local DBICON10 = "LibDBIcon-1.0"
-local DBICON10_MINOR = 34 -- Bump on changes
+local DBICON10_MINOR = tonumber(("$Rev: 56 $"):match("(%d+)"))
 if not LibStub then error(DBICON10 .. " requires LibStub.") end
 local ldb = LibStub("LibDataBroker-1.1", true)
 if not ldb then error(DBICON10 .. " requires LibDataBroker-1.1.") end
@@ -19,7 +46,7 @@ lib.callbackRegistered = lib.callbackRegistered or nil
 lib.callbacks = lib.callbacks or LibStub("CallbackHandler-1.0"):New(lib)
 lib.notCreated = lib.notCreated or {}
 
-function lib:IconCallback(event, name, key, value)
+function lib:IconCallback(event, name, key, value, dataobj)
 	if lib.objects[name] then
 		if key == "icon" then
 			lib.objects[name].icon:SetTexture(value)
@@ -46,6 +73,7 @@ if not lib.callbackRegistered then
 	lib.callbackRegistered = true
 end
 
+-- Tooltip code ripped from StatBlockCore by Funkydude
 local function getAnchors(frame)
 	local x, y = frame:GetCenter()
 	if not x or not y then return "CENTER" end
@@ -75,7 +103,7 @@ end
 
 --------------------------------------------------------------------------------
 
-local onClick, onMouseUp, onMouseDown, onDragStart, onDragStop, updatePosition
+local onClick, onMouseUp, onMouseDown, onDragStart, onDragStop, onDragEnd, updatePosition
 
 do
 	local minimapShapes = {
