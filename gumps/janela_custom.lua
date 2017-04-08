@@ -1704,9 +1704,15 @@
 					if (code_editor.expanded) then
 						code_editor:SetSize (420, 238)
 						code_editor.expanded = nil
+						
+						custom_window.box0.cancelbutton:SetPoint ("bottomleft", attribute_box, "bottomright", 37, -10)
+						--custom_window.box0.acceptbutton:SetPoint ("left", cancel_button, "right", 2, 0)
 					else
 						code_editor:SetSize (950, 800)
 						code_editor.expanded = true
+						
+						custom_window.box0.cancelbutton:SetPoint ("bottomleft", attribute_box, "bottomright", -237, -10)
+						--custom_window.box0.acceptbutton:SetPoint
 					end
 				end
 				

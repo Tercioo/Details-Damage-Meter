@@ -1878,6 +1878,8 @@
 								this_block.bg:SetVertexColor (.4, .4, .4, .6)
 							end
 						else
+							bookmark.atributo = bookmark.atributo or 1
+							bookmark.sub_atributo = bookmark.sub_atributo or 1
 							this_block.label.text = _detalhes.sub_atributos [bookmark.atributo].lista [bookmark.sub_atributo]
 							this_block.icon.texture = _detalhes.sub_atributos [bookmark.atributo].icones [bookmark.sub_atributo] [1]
 							this_block.icon.texcoord = _detalhes.sub_atributos [bookmark.atributo].icones [bookmark.sub_atributo] [2]
