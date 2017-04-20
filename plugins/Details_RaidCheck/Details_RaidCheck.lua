@@ -44,6 +44,20 @@ local runes_id = {
 	[224001] = true,
 }
 
+local feasts = { --7.2
+	[201638] = true, -- 500 str
+	[201639] = true, -- 500 agi
+	[201640] = true, -- 500 int
+	[201641] = true, -- 700 stam
+
+	[201636] = true, -- 400 int
+	[201634] = true, -- 400 str
+	[201635] = true, -- 400 agi
+	[201637] = true, -- 600 stam
+}
+
+-- 
+
 local get_unit_id = function (i)
 	local unitID
 	
@@ -740,6 +754,11 @@ end
 					if (bname and flask_list [spellid]) then
 						DetailsRaidCheck.haveflask_table [name] = spellid
 						with_flask = with_flask + 1
+					end
+					
+					if (bname and feasts [spellid]) then
+						DetailsRaidCheck.havefood_table [name] = 1
+						with_food = with_food + 1
 					end
 					
 					if (DetailsRaidCheck.db.food_tier1) then
