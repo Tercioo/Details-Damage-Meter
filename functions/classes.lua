@@ -142,6 +142,9 @@ do
 	function _detalhes:GetSpell (spellid)
 		return self.spells._ActorTable [spellid]
 	end
+	function _detalhes:Pets()
+		return self.pets
+	end
 	
 	--> inherits to all actors without placing it on _detalhes namespace.
 	_detalhes.container_combatentes.guid = _detalhes.GetGUID

@@ -2630,17 +2630,22 @@ function gump:CriaJanelaInfo()
 
 		local fill_compare_actors = function (self, player, other_players)
 			
-			--primeiro preenche a nossa barra
+			--main player skills
 			local spells_sorted = {}
 			for spellid, spelltable in _pairs (player.spells._ActorTable) do
 				spells_sorted [#spells_sorted+1] = {spelltable, spelltable.total}
 			end
-			table.sort (spells_sorted, _detalhes.Sort2)
 			
-			--precisa pegar os pets do jogador aqui
-			--for petGUID, _ in pairs ({}) do
-			--	
-			--end
+			--main player pets
+			for petIndex, petName in _ipairs (player:Pets()) do
+				local petActor = info.instancia.showing [player.tipo]:PegarCombatente (nil, petName)
+				if (petActor) then
+					for _spellid, _skill in _pairs (petActor:GetActorSpells()) do
+						spells_sorted [#spells_sorted+1] = {_skill, _skill.total, petName}
+					end
+				end
+			end
+			table.sort (spells_sorted, _detalhes.Sort2)
 		
 			self.player = player:Name()
 		
@@ -2661,9 +2666,21 @@ function gump:CriaJanelaInfo()
 				frame2.player = other_players [1]:Name()
 				player_2_total = other_players [1].total_without_pet
 				player_2_spells_sorted = {}
+				
+				--player 2 spells
 				for spellid, spelltable in _pairs (other_players [1].spells._ActorTable) do
 					player_2_spells_sorted [#player_2_spells_sorted+1] = {spelltable, spelltable.total}
 				end
+				--player 2 pets
+				for petIndex, petName in _ipairs (other_players [1]:Pets()) do
+					local petActor = info.instancia.showing [player.tipo]:PegarCombatente (nil, petName)
+					if (petActor) then
+						for _spellid, _skill in _pairs (petActor:GetActorSpells()) do
+							player_2_spells_sorted [#player_2_spells_sorted+1] = {_skill, _skill.total, petName}
+						end
+					end
+				end
+				
 				table.sort (player_2_spells_sorted, _detalhes.Sort2)
 				player_2_top = player_2_spells_sorted [1] [2]
 				player_2_spell_info = {}
@@ -2690,9 +2707,20 @@ function gump:CriaJanelaInfo()
 				player_3_spell_info = {}
 				
 				if (other_players [2]) then
+					--player 3 spells
 					for spellid, spelltable in _pairs (other_players [2].spells._ActorTable) do
 						player_3_spells_sorted [#player_3_spells_sorted+1] = {spelltable, spelltable.total}
 					end
+					--player 3 pets
+					for petIndex, petName in _ipairs (other_players [2]:Pets()) do
+						local petActor = info.instancia.showing [player.tipo]:PegarCombatente (nil, petName)
+						if (petActor) then
+							for _spellid, _skill in _pairs (petActor:GetActorSpells()) do
+								player_3_spells_sorted [#player_3_spells_sorted+1] = {_skill, _skill.total, petName}
+							end
+						end
+					end
+					
 					table.sort (player_3_spells_sorted, _detalhes.Sort2)
 					player_3_top = player_3_spells_sorted [1] [2]
 					for index, spelltable in _ipairs (player_3_spells_sorted) do 
@@ -2705,27 +2733,47 @@ function gump:CriaJanelaInfo()
 				local bar = self.bars [i]
 				local index = i + offset
 				
+				--main player spells
 				local data = spells_sorted [index]
 				
-				if (data) then
-					--seta no box principal
-					local spellid = data [1].id
-					local name, _, icon = _GetSpellInfo (spellid)
-					bar [1]:SetTexture (icon) --bar[1] = spellicon bar[2] = statusbar
-					bar [1]:SetTexCoord (unpack (IconTexCoord)) --bar[1] = spellicon bar[2] = statusbar
-					bar [2].lefttext:SetText (index .. ". " .. name)
-					bar [2].lefttext:SetTextColor (1, 1, 1, 1)
-					bar [2].righttext:SetText (_detalhes:ToK2Min (data [2])) -- .. " (" .. _math_floor (data [2] / total * 100) .. "%)"
-					bar [2]:SetValue (data [2] / top * 100)
-					--bar [2]:SetValue (100)
-					bar [3][1] = data [1].counter --tooltip hits
-					bar [3][2] = data [2] / data [1].counter --tooltip average
-					bar [3][3] = _math_floor (data [1].c_amt / data [1].counter * 100) --tooltip critical
-					bar [3][4] = spellid
-					
-					--seta no segundo box
+				if (data) then --if exists
+				
+					--main player - seta no primeiro box
+						local spellid = data [1].id
+						local name, _, icon = _GetSpellInfo (spellid)
+						local petName = data [3]
+						
+						bar [1]:SetTexture (icon) --bar[1] = spellicon bar[2] = statusbar
+						bar [1]:SetTexCoord (unpack (IconTexCoord)) --bar[1] = spellicon bar[2] = statusbar
+						
+						if (petName) then
+							bar [2].lefttext:SetText (index .. ". " .. name .. " (|cFFCCBBBB" .. petName:gsub (" <.*", "") .. "|r)")
+						else
+							bar [2].lefttext:SetText (index .. ". " .. name)
+						end
+						bar [2].lefttext:SetTextColor (1, 1, 1, 1)
+						bar [2].righttext:SetText (_detalhes:ToK2Min (data [2])) -- .. " (" .. _math_floor (data [2] / total * 100) .. "%)"
+						bar [2]:SetValue (data [2] / top * 100)
+						--bar [2]:SetValue (100)
+						bar [3][1] = data [1].counter --tooltip hits
+						bar [3][2] = data [2] / data [1].counter --tooltip average
+						bar [3][3] = _math_floor (data [1].c_amt / data [1].counter * 100) --tooltip critical
+						bar [3][4] = spellid
+
+					--player 2
 					local player_2 = other_players [1]
 					local spell = player_2 and player_2.spells._ActorTable [spellid]
+					
+					if (not spell and petName) then
+						for _petIndex, _petName in _ipairs (player_2:Pets()) do
+							if (_petName:gsub (" <.*", "") == petName:gsub (" <.*", "")) then
+								local petActor = info.instancia.showing [player.tipo]:PegarCombatente (nil, _petName)
+								spell = petActor and petActor.spells._ActorTable [spellid]
+								name = name .. " (|cFFCCBBBB" .. _petName:gsub (" <.*", "") .. "|r)"
+							end
+						end
+					end
+					
 					local bar_2 = frame2 and frame2.bars [i]
 					
 					-- ~compare
@@ -2785,12 +2833,23 @@ function gump:CriaJanelaInfo()
 						bar_2 [2]:SetValue (0)
 					end
 					
-					--seta o terceiro box
+					--player 3
 					local bar_3 = frame3 and frame3.bars [i]
 					
 					if (player_3_total) then
 						local player_3 = other_players [2]
 						local spell = player_3 and player_3.spells._ActorTable [spellid]
+						
+						if (not spell and petName) then
+							for _petIndex, _petName in _ipairs (player_3:Pets()) do
+								if (_petName:gsub (" <.*", "") == petName:gsub (" <.*", "")) then
+									local petActor = info.instancia.showing [player.tipo]:PegarCombatente (nil, _petName)
+									spell = petActor and petActor.spells._ActorTable [spellid]
+									local name, _, icon = _GetSpellInfo (spellid)
+									name = name .. " (|cFFCCBBBB" .. _petName:gsub (" <.*", "") .. "|r)"
+								end
+							end
+						end
 						
 						if (spell) then
 							bar_3 [1]:SetTexture (icon)

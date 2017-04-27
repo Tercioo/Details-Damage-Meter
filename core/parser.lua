@@ -2035,10 +2035,10 @@ SPELL_POWER_OBSOLETE2 = 15;
 		[SPELL_POWER_SOUL_SHARDS] = true, --warlock affliction
 		[SPELL_POWER_COMBO_POINTS] = true, --combo points
 		[SPELL_POWER_MAELSTROM] = true, --shamans
-		[SPELL_POWER_PAIN] = true, --demonhuinter
+		[SPELL_POWER_PAIN] = true, --demonhunter tank
 		[SPELL_POWER_RUNES] = true, --dk
 		[SPELL_POWER_ARCANE_CHARGES] = true, --mage
-		[SPELL_POWER_FURY] = true, --warrior
+		[SPELL_POWER_FURY] = true, --warrior demonhunter dps
 	}
 	
 	local resource_power_type = {
@@ -2052,7 +2052,7 @@ SPELL_POWER_OBSOLETE2 = 15;
 		[SPELL_POWER_PAIN] = SPELL_POWER_ENERGY, --demonhuinter
 		[SPELL_POWER_RUNES] = SPELL_POWER_RUNIC_POWER, --dk
 		[SPELL_POWER_ARCANE_CHARGES] = SPELL_POWER_MANA, --mage
-		[SPELL_POWER_FURY] = SPELL_POWER_RAGE, --warrioor
+		[SPELL_POWER_FURY] = SPELL_POWER_RAGE, --warrior
 	}
 	
 	_detalhes.resource_strings = {
@@ -2084,7 +2084,7 @@ SPELL_POWER_OBSOLETE2 = 15;
 	}
 
 	function parser:energize (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, amount, powertype, p6, p7)
-
+	
 	------------------------------------------------------------------------------------------------
 	--> early checks and fixes
 
@@ -2111,6 +2111,12 @@ SPELL_POWER_OBSOLETE2 = 15;
 		--[[statistics]]-- _detalhes.statistics.energy_calls = _detalhes.statistics.energy_calls + 1
 
 		_current_energy_container.need_refresh = true
+
+--print (who_name, spellid, spellname, spelltype, amount, powertype, p6, p7) powertype = 0 p6 = 17
+--4/27 13:45:54.903  SPELL_ENERGIZE,
+--Player-3208-0A085522,"Licelystiri-Nemesis",0x511,0x0,
+--Player-3208-0A085522,"Licelystiri-Nemesis",0x511,0x0,
+--162243,"Demon's Bite",0x1,Player-3208-0A085522,0000000000000000,233158,242700,3555,662,17,70,100,0,1030.46,3134.93,660,28,0,17,100		
 		
 	------------------------------------------------------------------------------------------------
 	--> get actors
