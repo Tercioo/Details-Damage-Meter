@@ -2000,25 +2000,27 @@
 	--> ENERGY	serach key: ~energy												|
 -----------------------------------------------------------------------------------------------------------------------------------------
 
---SPELL_POWER_MANA = 0;
---SPELL_POWER_RAGE = 1;
-SPELL_POWER_FOCUS = 2;
---SPELL_POWER_ENERGY = 3;
---SPELL_POWER_COMBO_POINTS = 4;
---SPELL_POWER_RUNES = 5;
---SPELL_POWER_RUNIC_POWER = 6;
---SPELL_POWER_SOUL_SHARDS = 7;
---SPELL_POWER_LUNAR_POWER = 8;
---SPELL_POWER_HOLY_POWER = 9;
-SPELL_POWER_ALTERNATE_POWER = 10;
---SPELL_POWER_MAELSTROM = 11;
---SPELL_POWER_CHI = 12;
---SPELL_POWER_INSANITY = 13;
-SPELL_POWER_OBSOLETE = 14;
-SPELL_POWER_OBSOLETE2 = 15;
---SPELL_POWER_ARCANE_CHARGES = 16;
---SPELL_POWER_FURY = 17;
---SPELL_POWER_PAIN = 18;
+local PowerEnum = Enum and Enum.PowerType
+
+SPELL_POWER_MANA = SPELL_POWER_MANA or (PowerEnum and PowerEnum.Mana) or 0
+SPELL_POWER_RAGE = SPELL_POWER_RAGE or (PowerEnum and PowerEnum.Rage) or 1
+SPELL_POWER_FOCUS = SPELL_POWER_FOCUS or (PowerEnum and PowerEnum.Focus) or 2
+SPELL_POWER_ENERGY = SPELL_POWER_ENERGY or (PowerEnum and PowerEnum.Energy) or 3
+SPELL_POWER_COMBO_POINTS =SPELL_POWER_COMBO_POINTS or (PowerEnum and PowerEnum.ComboPoints) or 4
+SPELL_POWER_RUNES = SPELL_POWER_RUNES or (PowerEnum and PowerEnum.Runes) or 5
+SPELL_POWER_RUNIC_POWER = SPELL_POWER_RUNIC_POWER or (PowerEnum and PowerEnum.RunicPower) or 6
+SPELL_POWER_SOUL_SHARDS = SPELL_POWER_SOUL_SHARDS or (PowerEnum and PowerEnum.SoulShards) or 7
+SPELL_POWER_LUNAR_POWER = SPELL_POWER_LUNAR_POWER or (PowerEnum and PowerEnum.LunarPower) or 8
+SPELL_POWER_HOLY_POWER = SPELL_POWER_HOLY_POWER  or (PowerEnum and PowerEnum.HolyPower) or 9
+SPELL_POWER_ALTERNATE_POWER = SPELL_POWER_ALTERNATE_POWER or (PowerEnum and PowerEnum.Alternate) or 10
+SPELL_POWER_MAELSTROM = SPELL_POWER_MAELSTROM or (PowerEnum and PowerEnum.Maelstrom) or 11
+SPELL_POWER_CHI = SPELL_POWER_CHI or (PowerEnum and PowerEnum.Chi) or 12
+SPELL_POWER_INSANITY = SPELL_POWER_INSANITY or (PowerEnum and PowerEnum.Insanity) or 13
+SPELL_POWER_OBSOLETE = SPELL_POWER_OBSOLETE or (PowerEnum and PowerEnum.Obsolete) or 14
+SPELL_POWER_OBSOLETE2 = SPELL_POWER_OBSOLETE2 or (PowerEnum and PowerEnum.Obsolete2) or 15
+SPELL_POWER_ARCANE_CHARGES = SPELL_POWER_ARCANE_CHARGES or (PowerEnum and PowerEnum.ArcaneCharges) or 16
+SPELL_POWER_FURY = SPELL_POWER_FURY or (PowerEnum and PowerEnum.Fury) or 17
+SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 18
 
 	local energy_types = {
 		[SPELL_POWER_MANA] = true,
