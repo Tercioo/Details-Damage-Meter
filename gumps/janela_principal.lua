@@ -6139,7 +6139,7 @@ local build_segment_list = function (self, elapsed)
 					local encounter_name = thisCombat.is_boss.encounter
 					local instanceID = thisCombat.is_boss.ej_instance_id
 					instanceID = tonumber (instanceID)
-					if (encounter_name and instanceID) then
+					if (encounter_name and instanceID and instanceID ~= 0) then
 						local index, name, description, encounterID, rootSectionID, link = _detalhes:GetEncounterInfoFromEncounterName (instanceID, encounter_name)
 						if (index and name and encounterID) then
 							local id, name, description, displayInfo, iconImage = EJ_GetCreatureInfo (index, encounterID)
