@@ -16,6 +16,7 @@ externals:
     Libs/LibGroupInSpecT-1.1: https://repos.wowace.com/wow/libgroupinspect/trunk
     Libs/LibItemUpgradeInfo-1.0: https://repos.wowace.com/wow/libitemupgradeinfo-1-0
     Libs/NickTag-1.0: https://repos.curseforge.com/wow/nicktag
+    Libs/LibDataBroker-1.1: https://repos.wowace.com/wow/libdatabroker-1-1
 
 move-folders:
     Details/plugins/Details_DmgRank: Details_DmgRank
