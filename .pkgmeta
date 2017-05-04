@@ -10,11 +10,11 @@ externals:
     Libs/LibGraph-2.0: https://repos.wowace.com/wow/libgraph-2-0/trunk/LibGraph-2.0
     Libs/LibDBIcon-1.0: https://repos.wowace.com/wow/libdbicon-1-0/trunk/LibDBIcon-1.0
     Libs/LibWindow-1.1: https://repos.wowace.com/wow/libwindow-1-1/trunk/LibWindow-1.1
-    Libs/LibCompress: https://repos.wowace.com/wow/libcompress/trunk/
+    Libs/LibCompress: https://repos.wowace.com/wow/libcompress/trunk
     Libs/LibDataBroker-1.1: https://repos.wowace.com/wow/libdatabroker-1-1
-    Libs/LibGroupInSpecT-1.1: https://repos.wowace.com/wow/libgroupinspect/trunk/LibGroupInSpecT-1.1
-    Libs/LibItemUpgradeInfo-1.0: https://repos.wowace.com/wow/libitemupgradeinfo-1-0/LibItemUpgradeInfo-1.0
-    Libs/NickTag-1.0: https://repos.curseforge.com/wow/nicktag/NickTag-1.0
+    Libs/LibGroupInSpecT-1.1: https://repos.wowace.com/wow/libgroupinspect/trunk
+    Libs/LibItemUpgradeInfo-1.0: https://repos.wowace.com/wow/libitemupgradeinfo-1-0
+    Libs/NickTag-1.0: https://repos.curseforge.com/wow/nicktag
 
 move-folders:
     Details/plugins/Details_DmgRank: Details_DmgRank
