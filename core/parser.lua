@@ -991,6 +991,124 @@
 		[152118] = true, --Clarity of Will
 	}
 	
+	function parser:heal_denied (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellidAbsorb, spellnameAbsorb, spellschoolAbsorb, serialHealer, nameHealer, flagsHealer, flags2Healer, spellidHeal, spellnameHeal, typeHeal, amountDenied)
+	
+		if (not _in_combat) then
+			return
+		end
+	
+		--> check invalid serial against pets
+		if (who_serial == "") then
+			if (who_flags and _bit_band (who_flags, OBJECT_TYPE_PETS) ~= 0) then --> é um pet
+				return
+			end
+		end
+
+		--> no name, use spellname
+		if (not who_name) then
+			who_name = "[*] "..spellname
+		end
+		
+		--> no target, just ignore
+		if (not alvo_name) then
+			return
+		end
+		
+		--> if no spellid
+		if (not spellidAbsorb) then
+			spellidAbsorb = 1
+			spellnameAbsorb = "unknown"
+			spellschoolAbsorb = 1
+		end
+		
+		if (is_using_spellId_override) then
+			spellidAbsorb = override_spellId [spellidAbsorb] or spellidAbsorb
+			spellidHeal = override_spellId [spellidHeal] or spellidHeal
+		end
+		
+	------------------------------------------------------------------------------------------------
+	--> get actors
+
+		local este_jogador, meu_dono = healing_cache [who_name]
+		if (not este_jogador) then --> pode ser um desconhecido ou um pet
+			este_jogador, meu_dono, who_name = _current_heal_container:PegarCombatente (who_serial, who_name, who_flags, true)
+			if (not meu_dono and who_flags) then --> se não for um pet, adicionar no cache
+				healing_cache [who_name] = este_jogador
+			end
+		end
+
+		local jogador_alvo, alvo_dono = healing_cache [alvo_name]
+		if (not jogador_alvo) then
+			jogador_alvo, alvo_dono, alvo_name = _current_heal_container:PegarCombatente (alvo_serial, alvo_name, alvo_flags, true)
+			if (not alvo_dono and alvo_flags) then
+				healing_cache [alvo_name] = jogador_alvo
+			end
+		end
+		
+		este_jogador.last_event = _tempo
+
+		------------------------------------------------
+		
+		este_jogador.totaldenied = este_jogador.totaldenied + amountDenied
+
+		--> actor spells table
+		local spell = este_jogador.spells._ActorTable [spellidAbsorb]
+		if (not spell) then
+			spell = este_jogador.spells:PegaHabilidade (spellidAbsorb, true, token)
+			if (_current_combat.is_boss and who_flags and _bit_band (who_flags, OBJECT_TYPE_ENEMY) ~= 0) then
+				_detalhes.spell_school_cache [spellnameAbsorb] = spellschoolAbsorb or 1
+			end
+		end
+		
+		--return spell:Add (alvo_serial, alvo_name, alvo_flags, cura_efetiva, who_name, absorbed, critical, overhealing)
+		return spell_heal_func (spell, alvo_serial, alvo_name, alvo_flags, amountDenied, spellidHeal, token, critical, overhealing)
+		
+		
+	--print ("|token:", token, "|time:", time, "|whoserial:", who_serial, "|whoname:", who_name, "|whoflags:", who_flags, "|alvoserial:", alvo_serial, "|alvoname:", alvo_name, "|alvoflags", alvo_flags, "|alvoflags2:", alvo_flags2, "|spellidAbsorb:", spellidAbsorb, "|spellnameABsorb", spellnameAbsorb, "|spellschoolAbsorb", spellschoolAbsorb, "|serialhealer:", serialHealer, "|nameHealer:", nameHealer, "|flagsHealer:", flagsHealer, "|flagsHealer2:", flags2Healer, "|spellidHeal:", spellidHeal, "|spellnameHeal:", spellnameHeal, "|typeHeal:", typeHeal, "|amountDenied:", amountDenied)
+		
+		
+	--[[
+		1 toekn SPELL_HEAL_ABSORBED 
+		2 time 1493837437.157 
+		3 who serial Player-3209-0514A56A 
+		4 who name Bombadão 
+		5 who flags 1297 
+		6 alvo serial Player-3209-0514A56A 
+		7 alvo name Bombadão 
+		8 alvo flags 1297
+		9 alvo flags2 0
+		10 spellid 116888 
+		11 spellname Shroud of Purgatory 
+		12 school 12
+		
+		13 GUID - Player-3209-0514A56A 
+		14 PLAYERNAME - Bombadão 
+		15 FLAGS 1297
+		16 FLAGS2 0
+		17 SPELLID 116888
+		18 SPELLNAME Healing Potion 
+		19 ? 1
+		20 ? 2677
+		primeiro actor é o quem comandou o absorb
+		o segundo é a vitima seguido da magia que o primeiro actor usou pra o absorb
+		o terceiro é a vitima com a magia que ela usou e foi absorvida
+		5/3 11:54:58.346  SPELL_HEAL_ABSORBED,
+		Player-3209-051429E9,"Mephisstoo-Azralon",0x10548,0x0,Player-3209-05144527,"Keyspell-Azralon",0x511,0x0,223929,"Necrotic Wound",0x28,Player-3209-05144527,"Keyspell-Azralon",0x511,0x0,188016,"Ancient Healing Potion",0x1,254466		
+		
+		--heal pot spellID: 28495 - heal 2841
+
+		1 SPELL_HEAL_ABSORBED 2 1493837944.856 3 Player-3209-0514A56A 4 Bombadão 5 1297 6 Player-3209-0514A56A 7 Bombadão 8 1297 9 0 10 116888 11 Shroud of Purgatory 12 32 13 Player-3209-0514A56A 14 Bombadão 15 1297 16 0 17 116888 18 Healing Potion 19 1 20 1860 21 nil 22 nil 23 nil 24 nil 25 nil 26 nil 27 nil	
+	
+		1 SPELL_HEAL_ABSORBED 2 1493839447.257 3 Player-3209-0514A56A 4 Bombadão 5 1297 6 Player-3209-0514A56A 7 Bombadão 8 1297 9 0 10 nil 11 nil 12 nil 13 Player-3209-05DE3E42 14 Yakumile 15 1298 16 0 17 116888 18 Holy Word: Serenity 19 2 20 2690 21 nil 22 nil 		
+
+		1 SPELL_HEAL_ABSORBED 2 1493840761.019 3 Player-3209-0514A56A 4 Bombadão 5 1297 6 Player-3209-0514A56A 7 Bombadão 8 1297 9 0 10 nil 11 nil 12 nil 13 Player-57-06AB4689 14 Yakumile 15 1298 16 0 17 116888 18 Circle of Healing 19 2 20 673 21 nil 22 nil 23 nil 24 nil 25 nil 26 nil 27 nil
+		
+oken: SPELL_HEAL_ABSORBED ime: 1493841853.862 |whoserial: Player-3209-0514A56A |whoname: Bombadão |whoflags: 1297 |alvoserial: Player-3209-0514A56A |alvoname: Bombadão |alvoflags 1297 |alvoflags2: 0 |spellidAbsorb: 116888 |spellnameABsorb Shroud of Purgatory |spellschoolAbsorb 32 |serialhealer: Player-3209-0514A56A 
+ameHealer: Bombadão |flagsHealer: 1297 |flagsHealer2: 0 |spellidHeal: 116888 |spellnameHeal: Healing Potion ypeHeal: 1 |amountDenied: 870		
+		
+--]]	
+	end
+	
 	function parser:heal_absorb (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spellschool, owner_serial, owner_name, owner_flags, owner_flags2, shieldid, shieldname, shieldtype, amount)
 		
 		--[[statistics]]-- _detalhes.statistics.absorbs_calls = _detalhes.statistics.absorbs_calls + 1
@@ -3174,6 +3292,7 @@ SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 18
 		elseif (capture_type == "heal") then
 			token_list ["SPELL_HEAL"] = nil
 			token_list ["SPELL_PERIODIC_HEAL"] = nil
+			token_list ["SPELL_HEAL_ABSORBED"] = nil
 			token_list ["SPELL_ABSORBED"] = nil
 			_recording_healing = false
 		
@@ -3239,6 +3358,7 @@ SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 18
 		elseif (capture_type == "heal") then
 			token_list ["SPELL_HEAL"] = parser.heal
 			token_list ["SPELL_PERIODIC_HEAL"] = parser.heal
+			token_list ["SPELL_HEAL_ABSORBED"] = parser.heal_denied
 			token_list ["SPELL_ABSORBED"] = parser.heal_absorb
 			_recording_healing = true
 
@@ -3284,6 +3404,7 @@ SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 18
 		["environment"] = parser.environment,
 		["heal"] = parser.heal,
 		["heal_absorb"] = parser.heal_absorb,
+		["heal_denied"] = parser.heal_denied,
 		["buff"] = parser.buff,
 		["unbuff"] = parser.unbuff,
 		["buff_refresh"] = parser.buff_refresh,
@@ -3328,6 +3449,7 @@ SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 18
 
 		["SPELL_HEAL"] = "heal",
 		["SPELL_PERIODIC_HEAL"] = "heal",
+		["SPELL_HEAL_ABSORBED"] = "heal_denied",
 		["SPELL_ABSORBED"] = "heal_absorb",
 
 		["SPELL_AURA_APPLIED"] = "buff",

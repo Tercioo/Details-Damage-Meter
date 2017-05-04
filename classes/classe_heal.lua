@@ -79,6 +79,7 @@ function atributo_heal:NovaTabela (serial, nome, link)
 		total = alphabetical,
 		totalover = alphabetical,
 		totalabsorb = alphabetical,
+		totaldenied = alphabetical,
 		custom = 0,
 		
 		total_without_pet = alphabetical,
@@ -230,6 +231,8 @@ function atributo_heal:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 				keyName = "heal_enemy_amt"
 			elseif (sub_atributo == 6) then --> absorbs
 				keyName = "totalabsorb"
+			elseif (sub_atributo == 7) then --> heal absorb
+				keyName = "totaldenied"
 			end
 		else
 			keyName = exportar.key
@@ -251,6 +254,8 @@ function atributo_heal:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 			keyName = "heal_enemy_amt"
 		elseif (sub_atributo == 6) then --> absorbs
 			keyName = "totalabsorb"
+		elseif (sub_atributo == 7) then --> heal absorb
+			keyName = "totaldenied"
 		end
 	end
 
@@ -768,6 +773,28 @@ function atributo_heal:AtualizaBarra (instancia, barras_container, qual_barra, l
 				esta_barra.texto_direita:SetText (formated_absorbs .. bars_brackets[1] .. porcentagem .. bars_brackets[2])
 			end
 			esta_porcentagem = _math_floor ((self.totalabsorb/instancia.top) * 100)
+			
+		elseif (sub_atributo == 7) then --> mostrando cura negada
+			
+			local formated_absorbs = SelectedToKFunction (_, self.totaldenied)
+		
+			if (UsingCustomRightText) then
+				esta_barra.texto_direita:SetText (_string_replace (instancia.row_info.textR_custom_text, formated_absorbs, "", porcentagem, self, instancia.showing))
+			else
+			
+				if (not bars_show_data [1]) then
+					formated_absorbs = ""
+				end
+				if (not bars_show_data [3]) then
+					porcentagem = ""
+				else
+					porcentagem = porcentagem .. "%"
+				end
+			
+				esta_barra.texto_direita:SetText (formated_absorbs .. bars_brackets[1] .. porcentagem .. bars_brackets[2])
+			end
+			esta_porcentagem = _math_floor ((self.totaldenied/instancia.top) * 100)
+			
 		end
 	end
 	
@@ -920,13 +947,170 @@ function atributo_heal:ToolTip (instancia, numero, barra, keydown)
 		elseif (instancia.sub_atributo == 6) then --> healing done, HPS or Overheal	
 			return self:ToolTip_HealingDone (instancia, numero, barra, keydown)
 		elseif (instancia.sub_atributo == 4) then --> healing taken
-			return self:ToolTip_HealingTaken (instancia, numero, barra, keydown)
+			return self:ToolTip_HealingDenied (instancia, numero, barra, keydown)
+		elseif (instancia.sub_atributo == 7) then --> heal denied
+			return self:ToolTip_HealingDenied (instancia, numero, barra, keydown)
 		end
 	end
 end
 --> tooltip locals
 local r, g, b
 local barAlha = .6
+
+---------> HEAL DENIED
+function atributo_heal:ToolTip_HealingDenied (instancia, numero, barra, keydown)
+
+	local owner = self.owner
+	if (owner and owner.classe) then
+		r, g, b = unpack (_detalhes.class_colors [owner.classe])
+	else
+		r, g, b = unpack (_detalhes.class_colors [self.classe])
+	end
+
+	local container = instancia.showing [2]
+	local totalDenied = self.totaldenied
+	
+	local spellList = {} --spells the player used to deny heal
+	local targetList = {} --all players affected
+	local spellsDenied = {} --all spells which had heal denied
+	
+	local icon_size = _detalhes.tooltip.icon_size
+	local icon_border = _detalhes.tooltip.icon_border_texcoord
+	
+	for spellID, spell in _pairs (self.spells._ActorTable) do 
+		if (spell.totaldenied > 0 and spell.heal_denied) then
+			--my spells which denied heal
+			tinsert (spellList, {spell, spell.totaldenied}) 
+			
+			--players affected
+			for playerName, amount in _pairs (spell.targets) do
+				targetList [playerName] = (targetList [playerName] or 0) + amount
+			end
+			
+			--spells with heal denied
+			for spellID, amount in _pairs (spell.heal_denied) do 
+				spellsDenied [spellID] = (spellsDenied [spellID] or 0) + amount
+			end
+		end
+	end
+
+	--Spells 
+		table.sort (spellList, _detalhes.sort2)
+		_detalhes:AddTooltipSpellHeaderText ("Spells", headerColor, #spellList, [[Interface\TUTORIALFRAME\UI-TutorialFrame-LevelUp]], 0.10546875, 0.89453125, 0.05859375, 0.6796875)
+		_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)
+		
+		local ismaximized = false
+		if (keydown == "shift" or TooltipMaximizedMethod == 2 or TooltipMaximizedMethod == 3) then
+			GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, _detalhes.tooltip_key_size_width, _detalhes.tooltip_key_size_height, 0, 1, 0, 0.640625, _detalhes.tooltip_key_overlay2)
+			_detalhes:AddTooltipHeaderStatusbar (r, g, b, 1)
+			ismaximized = true
+		else
+			GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_shift]], 1, 2, _detalhes.tooltip_key_size_width, _detalhes.tooltip_key_size_height, 0, 1, 0, 0.640625, _detalhes.tooltip_key_overlay1)
+			_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)
+		end
+
+		local tooltip_max_abilities = _detalhes.tooltip.tooltip_max_abilities
+		if (ismaximized) then
+			tooltip_max_abilities = 99
+		end
+		
+		for i = 1, _math_min (tooltip_max_abilities, #spellList) do
+			local spellObject, spellTotal = unpack (spellList [i])
+		
+			if (spellTotal < 1) then
+				break
+			end
+
+			local spellName, _, spellIcon = _GetSpellInfo (spellObject.id)
+			
+			GameCooltip:AddLine (spellName .. ": ", FormatTooltipNumber (_, spellTotal) .. " (" .. _cstr ("%.1f", spellTotal / totalDenied) .."%)")
+
+			GameCooltip:AddIcon (spellIcon, nil, nil, icon_size.W, icon_size.H, icon_border.L, icon_border.R, icon_border.T, icon_border.B)
+			_detalhes:AddTooltipBackgroundStatusbar()
+		end
+
+
+	--Target Players
+		local playerSorted = {}
+		for playerName, amount in _pairs (targetList) do
+			tinsert (playerSorted, {playerName, amount})
+		end
+		table.sort (playerSorted, _detalhes.sort2)
+		_detalhes:AddTooltipSpellHeaderText ("Targets", headerColor, #playerSorted, [[Interface\TUTORIALFRAME\UI-TutorialFrame-LevelUp]], 0.10546875, 0.89453125, 0.05859375, 0.6796875)
+		_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)	
+	
+		local ismaximized = false
+		if (keydown == "ctrl" or TooltipMaximizedMethod == 2 or TooltipMaximizedMethod == 4) then
+			GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_ctrl]], 1, 2, _detalhes.tooltip_key_size_width, _detalhes.tooltip_key_size_height, 0, 1, 0, 0.640625, _detalhes.tooltip_key_overlay2)
+			_detalhes:AddTooltipHeaderStatusbar (r, g, b, 1)
+			ismaximized = true
+		else
+			GameCooltip:AddIcon ([[Interface\AddOns\Details\images\key_ctrl]], 1, 2, _detalhes.tooltip_key_size_width, _detalhes.tooltip_key_size_height, 0, 1, 0, 0.640625, _detalhes.tooltip_key_overlay1)
+			_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)
+		end
+		
+		local tooltip_max_abilities2 = _detalhes.tooltip.tooltip_max_targets
+		if (ismaximized) then
+			tooltip_max_abilities2 = 99
+		end
+		
+		for i = 1, _math_min (tooltip_max_abilities2, #playerSorted) do
+		
+			local playerName, amountDenied = unpack (playerSorted [i])
+			
+			GameCooltip:AddLine (playerName .. ": ", FormatTooltipNumber (_, amountDenied) .." (" .. _cstr ("%.1f", amountDenied / totalDenied * 100) .. "%)")
+			_detalhes:AddTooltipBackgroundStatusbar()
+			
+			local targetActor = container:PegarCombatente (nil, playerName) or instancia.showing [1]:PegarCombatente (nil, playerName)
+			if (targetActor) then
+				local classe = targetActor.classe
+				if (not classe) then
+					classe = "UNKNOW"
+				end
+				if (classe == "UNKNOW") then
+					GameCooltip:AddIcon ("Interface\\LFGFRAME\\LFGROLE_BW", nil, nil, 14, 14, .25, .5, 0, 1)
+				else
+					GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small", nil, nil, 14, 14, _unpack (_detalhes.class_coords [classe]))
+				end
+			end
+		
+		end
+
+	-- Spells Affected
+		local spellsSorted = {}
+		for spellID, amount in _pairs (spellsDenied) do
+			tinsert (spellsSorted, {spellID, amount})
+		end
+		table.sort (spellsSorted, _detalhes.sort2)
+		_detalhes:AddTooltipSpellHeaderText ("Spells Affected", headerColor, #spellsSorted, [[Interface\TUTORIALFRAME\UI-TutorialFrame-LevelUp]], 0.10546875, 0.89453125, 0.05859375, 0.6796875)
+		_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)
+	
+		local ismaximized = false
+		local tooltip_max_abilities3 = _detalhes.tooltip.tooltip_max_targets
+		if (keydown == "alt" or TooltipMaximizedMethod == 2 or TooltipMaximizedMethod == 5) then
+			tooltip_max_abilities3 = 99
+			ismaximized = true
+		end
+	
+		for i = 1, _math_min (tooltip_max_abilities3, #spellsSorted) do
+	
+			local spellID, spellTotal = unpack (spellsSorted [i])
+		
+			if (spellTotal < 1) then
+				break
+			end
+
+			local spellName, _, spellIcon = _GetSpellInfo (spellID)
+			
+			GameCooltip:AddLine (spellName .. ": ", FormatTooltipNumber (_, spellTotal) .. " (" .. _cstr ("%.1f", spellTotal / totalDenied) .."%)")
+
+			GameCooltip:AddIcon (spellIcon, nil, nil, icon_size.W, icon_size.H, icon_border.L, icon_border.R, icon_border.T, icon_border.B)
+			_detalhes:AddTooltipBackgroundStatusbar()
+	
+		end
+
+	return true
+end
 
 ---------> HEALING TAKEN
 function atributo_heal:ToolTip_HealingTaken (instancia, numero, barra, keydown)
@@ -2157,6 +2341,18 @@ end
 							habilidade_shadow.targets_absorbs [target_name] = 0
 						end
 					end
+					
+					--> copia o container de heal negado se ele existir
+					if (habilidade.heal_denied) then
+						--> cria o container na shadow de ele não existir
+						habilidade_shadow.heal_denied = habilidade_shadow.heal_denied or {}
+						--> copia
+						for spellID, amount in _pairs (habilidade.heal_denied) do
+							if (not habilidade_shadow.heal_denied [spellID]) then
+								habilidade_shadow.heal_denied [spellID] = 0
+							end
+						end
+					end
 
 				end
 			
@@ -2207,6 +2403,8 @@ end
 				shadow.totalabsorb = shadow.totalabsorb + actor.totalabsorb
 			--> total de cura feita em inimigos (captura de dados)
 				shadow.heal_enemy_amt = shadow.heal_enemy_amt + actor.heal_enemy_amt
+			--> total de heal negado
+				shadow.totaldenied = shadow.totaldenied + actor.totaldenied
 			--> total sem pets (captura de dados)
 				shadow.total_without_pet = shadow.total_without_pet + actor.total_without_pet
 				shadow.totalover_without_pet = shadow.totalover_without_pet + actor.totalover_without_pet
@@ -2260,6 +2458,16 @@ end
 						habilidade_shadow.targets_absorbs [target_name] = (habilidade_shadow.targets_absorbs [target_name] or 0) + amount
 					end
 					
+					--> copia o container de heal negado se ele existir
+					if (habilidade.heal_denied) then
+						--> cria o container na shadow de ele não existir
+						habilidade_shadow.heal_denied = habilidade_shadow.heal_denied or {}
+						--> copia
+						for spellID, amount in _pairs (habilidade.heal_denied) do
+							habilidade_shadow.heal_denied [spellID] = (habilidade_shadow.heal_denied [spellID] or 0) + amount
+						end
+					end					
+					
 					--> soma todos os demais valores
 					for key, value in _pairs (habilidade) do 
 						if (_type (value) == "number") then
@@ -2307,6 +2515,9 @@ atributo_heal.__add = function (tabela1, tabela2)
 		tabela1.totalabsorb = tabela1.totalabsorb + tabela2.totalabsorb
 	--> total de cura feita em inimigos
 		tabela1.heal_enemy_amt = tabela1.heal_enemy_amt + tabela2.heal_enemy_amt
+	--> total de cura negada
+		tabela1.totaldenied = tabela1.totaldenied + tabela2.totaldenied
+		
 	--> total sem pets
 		tabela1.total_without_pet = tabela1.total_without_pet + tabela2.total_without_pet
 		tabela1.totalover_without_pet = tabela1.totalover_without_pet + tabela2.totalover_without_pet
@@ -2352,6 +2563,17 @@ atributo_heal.__add = function (tabela1, tabela2)
 			for target_name, amount in _pairs (habilidade.targets_absorbs) do 
 				habilidade_tabela1.targets_absorbs = (habilidade_tabela1.targets_absorbs [target_name] or 0) + amount
 			end
+			
+			--> copia o container de heal negado se ele existir
+			if (habilidade.heal_denied) then
+				--> cria o container na shadow de ele não existir
+				habilidade_tabela1.heal_denied = habilidade_tabela1.heal_denied or {}
+				--> copia
+				for spellID, amount in _pairs (habilidade.heal_denied) do
+					habilidade_tabela1.heal_denied [spellID] = (habilidade_tabela1.heal_denied [spellID] or 0) + amount
+				end
+			end
+			
 			--> soma os valores da habilidade
 			for key, value in _pairs (habilidade) do 
 				if (_type (value) == "number") then
@@ -2392,6 +2614,9 @@ atributo_heal.__sub = function (tabela1, tabela2)
 		tabela1.totalabsorb = tabela1.totalabsorb - tabela2.totalabsorb
 	--> total de cura feita em inimigos
 		tabela1.heal_enemy_amt = tabela1.heal_enemy_amt - tabela2.heal_enemy_amt
+	--> total de cura negada
+		tabela1.totaldenied = tabela1.totaldenied - tabela2.totaldenied
+	
 	--> total sem pets
 		tabela1.total_without_pet = tabela1.total_without_pet - tabela2.total_without_pet
 		tabela1.totalover_without_pet = tabela1.totalover_without_pet - tabela2.totalover_without_pet
@@ -2442,6 +2667,16 @@ atributo_heal.__sub = function (tabela1, tabela2)
 			for target_name, amount in _pairs (habilidade.targets_absorbs) do 
 				if (habilidade_tabela1.targets_absorbs [target_name]) then
 					habilidade_tabela1.targets_absorbs [target_name] = habilidade_tabela1.targets_absorbs [target_name] - amount
+				end
+			end
+			
+			--> copia o container de heal negado se ele existir
+			if (habilidade.heal_denied) then
+				--> cria o container na shadow de ele não existir
+				habilidade_tabela1.heal_denied = habilidade_tabela1.heal_denied or {}
+				--> copia
+				for spellID, amount in _pairs (habilidade.heal_denied) do
+					habilidade_tabela1.heal_denied [spellID] = (habilidade_tabela1.heal_denied [spellID] or 0) - amount
 				end
 			end
 			

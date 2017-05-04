@@ -27,6 +27,7 @@
 			totalabsorb = 0,
 			absorbed = 0,
 			overheal = 0,
+			totaldenied = 0,
 			
 			--> multistrike
 			m_amt = 0,
@@ -54,21 +55,25 @@
 		return _newHealSpell
 	end
 
-	function habilidade_cura:Add (serial, nome, flag, amount, who_nome, absorbed, critical, overhealing, is_shield)
+	function habilidade_cura:Add (serial, nome, flag, amount, extraSpellID, absorbed, critical, overhealing, is_shield)
 
 		amount = amount or 0
-		self.total = self.total + amount
 		self.targets [nome] = (self.targets [nome] or 0) + amount
 
-		if (multistrike) then
-			self.m_amt = self.m_amt + 1
-			self.m_healed = self.m_healed + amount
+		if (absorbed == "SPELL_HEAL_ABSORBED") then
+			self.counter = self.counter + 1
+			self.totaldenied = self.totaldenied + amount
 			
-			if (critical) then
-				self.m_crit = self.m_crit + 1
+			--create the denied table spells, on the fly
+			if (not self.heal_denied) then
+				self.heal_denied = {}
 			end
+			
+			self.heal_denied [extraSpellID] = (self.heal_denied [extraSpellID] or 0) + amount
+			
 		else
 		
+			self.total = self.total + amount
 			self.counter = self.counter + 1
 			
 			if (absorbed and absorbed > 0) then
