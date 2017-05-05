@@ -140,8 +140,8 @@ end
 
 function _detalhes:ContainerSortHeal (container, amount, keyName2)
 	keyName = keyName2
-	_table_sort (container,  _detalhes.SortKeySimpleHeal)
-	
+	_table_sort (container, _detalhes.SortKeySimpleHeal)
+
 	if (amount) then 
 		for i = amount, 1, -1 do --> de trás pra frente
 			if (container[i][keyName] < 1) then
@@ -267,7 +267,7 @@ function atributo_heal:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 		instancia.top = conteudo[1][keyName]
 	
 	elseif (instancia.modo == modo_ALL or sub_atributo == 5) then --> mostrando ALL
-	
+
 		amount = _detalhes:ContainerSortHeal (conteudo, amount, keyName)
 
 		if (sub_atributo == 2) then --hps
@@ -345,7 +345,7 @@ function atributo_heal:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 	--> refaz o mapa do container
 	--> se for cache não precisa remapear
 	showing:remapear()
-
+	
 	if (exportar) then 
 		return total, keyName, instancia.top, amount
 	end
@@ -354,7 +354,7 @@ function atributo_heal:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 		instancia:EsconderScrollBar()
 		return _detalhes:EndRefresh (instancia, total, tabela_do_combate, showing) --> retorna a tabela que precisa ganhar o refresh
 	end
-
+	
 	--estra mostrando ALL então posso seguir o padrão correto? primeiro, atualiza a scroll bar...
 	instancia:AtualizarScrollBar (amount)
 	
@@ -438,6 +438,7 @@ function atributo_heal:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 				conteudo[myPos]:AtualizaBarra (instancia, barras_container, qual_barra, myPos, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
 				qual_barra = qual_barra+1
 			else
+			
 				for i = instancia.barraS[1], iter_last, 1 do --> vai atualizar só o range que esta sendo mostrado
 					if (conteudo[i]) then
 						conteudo[i]:AtualizaBarra (instancia, barras_container, qual_barra, i, total, sub_atributo, forcar, keyName, combat_time, percentage_type, use_animations, bars_show_data, bars_brackets, bars_separator) 
@@ -995,7 +996,7 @@ function atributo_heal:ToolTip_HealingDenied (instancia, numero, barra, keydown)
 	end
 
 	--Spells 
-		table.sort (spellList, _detalhes.sort2)
+		table.sort (spellList, _detalhes.Sort2)
 		_detalhes:AddTooltipSpellHeaderText ("Spells", headerColor, #spellList, [[Interface\TUTORIALFRAME\UI-TutorialFrame-LevelUp]], 0.10546875, 0.89453125, 0.05859375, 0.6796875)
 		_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)
 		
@@ -1029,13 +1030,14 @@ function atributo_heal:ToolTip_HealingDenied (instancia, numero, barra, keydown)
 			_detalhes:AddTooltipBackgroundStatusbar()
 		end
 
+	-- follow esta bugado com este display
 
 	--Target Players
 		local playerSorted = {}
 		for playerName, amount in _pairs (targetList) do
 			tinsert (playerSorted, {playerName, amount})
 		end
-		table.sort (playerSorted, _detalhes.sort2)
+		table.sort (playerSorted, _detalhes.Sort2)
 		_detalhes:AddTooltipSpellHeaderText ("Targets", headerColor, #playerSorted, [[Interface\TUTORIALFRAME\UI-TutorialFrame-LevelUp]], 0.10546875, 0.89453125, 0.05859375, 0.6796875)
 		_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)	
 	
@@ -1081,7 +1083,7 @@ function atributo_heal:ToolTip_HealingDenied (instancia, numero, barra, keydown)
 		for spellID, amount in _pairs (spellsDenied) do
 			tinsert (spellsSorted, {spellID, amount})
 		end
-		table.sort (spellsSorted, _detalhes.sort2)
+		table.sort (spellsSorted, _detalhes.Sort2)
 		_detalhes:AddTooltipSpellHeaderText ("Spells Affected", headerColor, #spellsSorted, [[Interface\TUTORIALFRAME\UI-TutorialFrame-LevelUp]], 0.10546875, 0.89453125, 0.05859375, 0.6796875)
 		_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)
 	

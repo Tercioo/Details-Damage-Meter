@@ -3,7 +3,7 @@
 
 		_ = nil
 		_detalhes = LibStub("AceAddon-3.0"):NewAddon("_detalhes", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0", "NickTag-1.0")
-		_detalhes.build_counter = 3640
+		_detalhes.build_counter = 3652
 		_detalhes.userversion = "v7.2.0." .. _detalhes.build_counter
 		_detalhes.realversion = 117 --core version
 		_detalhes.version = _detalhes.userversion .. " (core " .. _detalhes.realversion .. ")"
@@ -21,11 +21,10 @@ do
 	local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
 
 --[[
-|cFFFFFF00v7.2.0.3640.116 (|cFFFFCC00May 04th, 2016|r|cFFFFFF00)|r:\n\n
+|cFFFFFF00v7.2.0.3652.116 (|cFFFFCC00May 04th, 2016|r|cFFFFFF00)|r:\n\n
 |cFFFFFF00-|r Added Heal Absorbed display under Heal bracket.\n\n
-Heal Absoorb are the heal denied by abilities such like DK's Necrotic Strike or raid boss Chromatic Anomaly's 'Time Release' ability.
-The tooltip of this display shows which players got heal denied, which abilities absorbed the heal, which abilities tried to heal but got the heal denied.
-
+Heal Absoorb are the heal denied by abilities such like DK's Necrotic Strike or raid boss Chromatic Anomaly's 'Time Release' ability.\n
+The tooltip of this display shows which players got heal denied, which abilities absorbed the heal, which abilities tried to heal but got the heal denied.\n
 --]]
 --
 

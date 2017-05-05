@@ -993,6 +993,8 @@
 	
 	function parser:heal_denied (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellidAbsorb, spellnameAbsorb, spellschoolAbsorb, serialHealer, nameHealer, flagsHealer, flags2Healer, spellidHeal, spellnameHeal, typeHeal, amountDenied)
 	
+	--	print (who_name, alvo_name, nameHealer, spellidHeal, spellnameHeal, typeHeal, amountDenied)
+	
 		if (not _in_combat) then
 			return
 		end
