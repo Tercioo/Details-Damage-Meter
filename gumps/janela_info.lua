@@ -2764,7 +2764,7 @@ function gump:CriaJanelaInfo()
 					local player_2 = other_players [1]
 					local spell = player_2 and player_2.spells._ActorTable [spellid]
 					
-					if (not spell and petName) then
+					if (not spell and petName and player_2) then
 						for _petIndex, _petName in _ipairs (player_2:Pets()) do
 							if (_petName:gsub (" <.*", "") == petName:gsub (" <.*", "")) then
 								local petActor = info.instancia.showing [player.tipo]:PegarCombatente (nil, _petName)
@@ -2840,7 +2840,7 @@ function gump:CriaJanelaInfo()
 						local player_3 = other_players [2]
 						local spell = player_3 and player_3.spells._ActorTable [spellid]
 						
-						if (not spell and petName) then
+						if (not spell and petName and player_3) then
 							for _petIndex, _petName in _ipairs (player_3:Pets()) do
 								if (_petName:gsub (" <.*", "") == petName:gsub (" <.*", "")) then
 									local petActor = info.instancia.showing [player.tipo]:PegarCombatente (nil, _petName)
