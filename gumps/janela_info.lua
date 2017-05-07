@@ -1,3 +1,5 @@
+--errors ~pet
+
 local _detalhes = 		_G._detalhes
 local Loc = LibStub ("AceLocale-3.0"):GetLocale ( "Details" )
 local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
@@ -2683,6 +2685,8 @@ function gump:CriaJanelaInfo()
 				
 				table.sort (player_2_spells_sorted, _detalhes.Sort2)
 				player_2_top = player_2_spells_sorted [1] [2]
+				--se não existir uma magia no jogador e o jogador tiver um pet, ele não vai encontrar um valor em [1] e dar
+				-- ~pet
 				player_2_spell_info = {}
 				for index, spelltable in _ipairs (player_2_spells_sorted) do 
 					player_2_spell_info [spelltable[1].id] = index
@@ -3037,6 +3041,7 @@ function gump:CriaJanelaInfo()
 				end
 			end
 			table.sort (player_1_skills, _detalhes.Sort2)
+-- ~pet
 			local player_1_top = player_1_skills [1] [2]
 			bar1 [2]:SetStatusBarColor (1, 1, 1, 1)
 			

@@ -102,6 +102,10 @@
 		return self.combat_counter
 	end
 	
+	function combate:GetAlteranatePower()
+		return self.alternate_power
+	end
+	
 	--return the name of the encounter or enemy
 	function combate:GetCombatName (try_find)
 		if (self.is_pvp) then
@@ -166,7 +170,7 @@
 	end
 
 	--return the total of a specific attribute
-	local power_table = {0, 1, 3, 6}
+	local power_table = {0, 1, 3, 6, 0, "alternatepower"}
 	
 	function combate:GetTotal (attribute, subAttribute, onlyGroup)
 		if (attribute == 1 or attribute == 2) then
@@ -196,6 +200,12 @@
 		end
 		
 		return 0
+	end
+	
+	function combate:CreateAlternatePowerTable (actorName)
+		local t = {last = 0, total = 0}
+		self.alternate_power [actorName] = t
+		return t
 	end
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -252,6 +262,9 @@
 		esta_tabela.frags = {}
 		esta_tabela.frags_need_refresh = false
 		
+		--> alternate power
+		esta_tabela.alternate_power = {}
+		
 		--> time data container
 		esta_tabela.TimeData = _detalhes:TimeDataCreateCombatTables()
 		esta_tabela.PhaseData = {{1, 1}, damage = {}, heal = {}, damage_section = {}, heal_section = {}} --[1] phase number [2] phase started
@@ -290,7 +303,8 @@
 				[0] = 0, --> mana
 				[1] = 0, --> rage
 				[3] = 0, --> energy (rogues cat)
-				[6] = 0 --> runepower (dk)
+				[6] = 0, --> runepower (dk)
+				alternatepower = 0,
 			},
 			{--> misc
 				cc_break = 0, --> armazena quantas quebras de CC
@@ -316,7 +330,8 @@
 				[0] = 0, --> mana
 				[1] = 0, --> rage
 				[3] = 0, --> energy (rogues cat)
-				[6] = 0 --> runepower (dk)
+				[6] = 0, --> runepower (dk)
+				alternatepower = 0,
 			}, 
 			{--> misc
 				cc_break = 0, --> armazena quantas quebras de CC
@@ -467,7 +482,17 @@
 				end
 			end
 			combate1.frags_need_refresh = true
-			
+		
+		--> alternate power
+			local overallPowerTable = combate1.alternate_power
+			for actorName, powerTable in pairs (combate2.alternate_power) do 
+				local power = overallPowerTable [actorName]
+				if (power) then
+					power.total = power.total - powerTable.total
+				end
+				combate2.alternate_power [actorName].last = 0
+			end
+		
 		return combate1
 		
 	end
@@ -495,6 +520,17 @@
 				shadow.grupo = actor.grupo
 			end
 		end
+		
+		--> alternate power
+			local overallPowerTable = combate1.alternate_power
+			for actorName, powerTable in pairs (combate2.alternate_power) do 
+				local power = overallPowerTable [actorName]
+				if (not power) then
+					power = combate1:CreateAlternatePowerTable (actorName)
+				end
+				power.total = power.total + powerTable.total
+				combate2.alternate_power [actorName].last = 0
+			end
 
 		return combate1
 	end

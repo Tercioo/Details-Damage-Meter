@@ -76,6 +76,7 @@ function atributo_energy:NovaTabela (serial, nome, link)
 		total = alphabetical,
 		received = alphabetical,
 		resource = alphabetical,
+		alternatepower = alphabetical,
 
 		last_value = nil,
 
@@ -146,6 +147,10 @@ local sort_energy = function (t1, t2)
 	end
 end
 
+local sort_energyalternate = function (t1, t2)
+	return t1.alternatepower > t2.alternatepower
+end
+
 local sort_energy_group = function (t1, t2)
 	if (t1.grupo and t2.grupo) then
 		if (t1.powertype == power_type and t2.powertype == power_type) then
@@ -164,6 +169,20 @@ local sort_energy_group = function (t1, t2)
 			return false
 		else
 			return t1.received > t2.received
+		end
+	end
+end
+
+local sort_alternateenergy_group = function (t1, t2)
+	if (t1.grupo and t2.grupo) then
+		return t1.alternatepower > t2.alternatepower
+	else
+		if (t1.grupo) then
+			return true
+		elseif (t2.grupo) then
+			return false
+		else
+			return t1.alternatepower > t2.alternatepower
 		end
 	end
 end
@@ -341,58 +360,93 @@ function atributo_energy:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 	
 	keyName = "received"
 	
+	if (sub_atributo == 6) then
+		keyName = "alternatepower"
+	end
+	
 	if (exportar) then
 		if (_type (exportar) == "boolean") then 		
-			keyName = "received"
+			--keyName = "received"
 		else
 			keyName = exportar.key
 			modo = exportar.modo		
 		end
 	else
-		keyName = "received"
+		--keyName = "received"
 	end
 	
 	if (modo == modo_ALL) then
 	
-		_table_sort (conteudo, sort_energy)
+		_table_sort (conteudo, sort_energyalternate)
 		
-		for i = amount, 1, -1 do
-			if (conteudo[i].received < 1) then
-				amount = amount-1
-			elseif (conteudo[i].powertype ~= power_type) then
-				amount = amount-1
-			else
-				break
-			end
-		end
-		
-
-		total = tabela_do_combate.totals [class_type] [power_type]
-		instancia.top = conteudo[1].received
-		
-	elseif (modo == modo_GROUP) then
-		
-		_table_sort (conteudo, sort_energy_group)
-		
-		for index, player in _ipairs (conteudo) do
-			if (player.grupo) then
-				if (player.received < 1) then
-					amount = index - 1
-					break
-				elseif (player.powertype ~= power_type) then
-					amount = index - 1
+		if (keyName == "alternatepower") then
+			for i = amount, 1, -1 do
+				if (conteudo[i].alternatepower < 1) then
+					amount = amount-1
+				else
 					break
 				end
-				
-				total = total + player.received
-			else
-				amount = index-1
-				break
 			end
+			
+			total = tabela_do_combate.totals [class_type] ["alternatepower"]
+			instancia.top = conteudo[1].alternatepower
+		else
+			for i = amount, 1, -1 do
+				if (conteudo[i].received < 1) then
+					amount = amount-1
+				elseif (conteudo[i].powertype ~= power_type) then
+					amount = amount-1
+				else
+					break
+				end
+			end
+			
+			total = tabela_do_combate.totals [class_type] [power_type]
+			instancia.top = conteudo[1].received
 		end
 		
-		instancia.top = conteudo[1].received
+	elseif (modo == modo_GROUP) then
+		if (keyName == "alternatepower") then
 		
+			_table_sort (conteudo, sort_alternateenergy_group)
+			
+			for index, player in _ipairs (conteudo) do
+				if (player.grupo) then
+					if (player.alternatepower < 1) then
+						amount = index - 1
+						break
+					end
+					
+					total = total + player.alternatepower
+				else
+					amount = index-1
+					break
+				end
+			end
+			instancia.top = conteudo[1].alternatepower
+
+		else
+		
+			_table_sort (conteudo, sort_energy_group)
+		
+			for index, player in _ipairs (conteudo) do
+				if (player.grupo) then
+					if (player.received < 1) then
+						amount = index - 1
+						break
+					elseif (player.powertype ~= power_type) then
+						amount = index - 1
+						break
+					end
+					
+					total = total + player.received
+				else
+					amount = index-1
+					break
+				end
+			end
+			instancia.top = conteudo[1].received
+		end
 	end
 
 	showing:remapear()
@@ -1369,6 +1423,7 @@ end
 			--> total das energias (captura de dados)
 				shadow.total = shadow.total + actor.total
 				shadow.received = shadow.received + actor.received
+				shadow.alternatepower = shadow.alternatepower + actor.alternatepower
 				
 				if (not actor.powertype) then
 					--print ("actor without powertype", actor.nome, actor.powertype)
@@ -1449,6 +1504,7 @@ atributo_energy.__add = function (tabela1, tabela2)
 	--> total and received
 		tabela1.total = tabela1.total + tabela2.total
 		tabela1.received = tabela1.received + tabela2.received
+		tabela1.alternatepower = tabela1.alternatepower + tabela2.alternatepower
 	
 	--> targets
 		for target_name, amount in _pairs (tabela2.targets) do 
@@ -1486,6 +1542,7 @@ atributo_energy.__sub = function (tabela1, tabela2)
 	--> total and received
 		tabela1.total = tabela1.total - tabela2.total
 		tabela1.received = tabela1.received - tabela2.received
+		tabela1.alternatepower = tabela1.alternatepower - tabela2.alternatepower
 	
 	--> targets
 		for target_name, amount in _pairs (tabela2.targets) do 

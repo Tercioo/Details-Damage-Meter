@@ -64,13 +64,16 @@
 			self.counter = self.counter + 1
 			self.totaldenied = self.totaldenied + amount
 			
+			local healerName = critical
+			
 			--create the denied table spells, on the fly
 			if (not self.heal_denied) then
 				self.heal_denied = {}
+				self.heal_denied_healers = {}
 			end
 			
 			self.heal_denied [extraSpellID] = (self.heal_denied [extraSpellID] or 0) + amount
-			
+			self.heal_denied_healers [healerName] = (self.heal_denied_healers [healerName] or 0) + amount
 		else
 		
 			self.total = self.total + amount

@@ -1063,7 +1063,7 @@
 		end
 		
 		--return spell:Add (alvo_serial, alvo_name, alvo_flags, cura_efetiva, who_name, absorbed, critical, overhealing)
-		return spell_heal_func (spell, alvo_serial, alvo_name, alvo_flags, amountDenied, spellidHeal, token, critical, overhealing)
+		return spell_heal_func (spell, alvo_serial, alvo_name, alvo_flags, amountDenied, spellidHeal, token, nameHealer, overhealing)
 		
 		
 	--print ("|token:", token, "|time:", time, "|whoserial:", who_serial, "|whoname:", who_name, "|whoflags:", who_flags, "|alvoserial:", alvo_serial, "|alvoname:", alvo_name, "|alvoflags", alvo_flags, "|alvoflags2:", alvo_flags2, "|spellidAbsorb:", spellidAbsorb, "|spellnameABsorb", spellnameAbsorb, "|spellschoolAbsorb", spellschoolAbsorb, "|serialhealer:", serialHealer, "|nameHealer:", nameHealer, "|flagsHealer:", flagsHealer, "|flagsHealer2:", flags2Healer, "|spellidHeal:", spellidHeal, "|spellnameHeal:", spellnameHeal, "|typeHeal:", typeHeal, "|amountDenied:", amountDenied)
@@ -2122,25 +2122,25 @@ ameHealer: Bombadão |flagsHealer: 1297 |flagsHealer2: 0 |spellidHeal: 116888 |sp
 
 local PowerEnum = Enum and Enum.PowerType
 
-SPELL_POWER_MANA = SPELL_POWER_MANA or (PowerEnum and PowerEnum.Mana) or 0
-SPELL_POWER_RAGE = SPELL_POWER_RAGE or (PowerEnum and PowerEnum.Rage) or 1
-SPELL_POWER_FOCUS = SPELL_POWER_FOCUS or (PowerEnum and PowerEnum.Focus) or 2
-SPELL_POWER_ENERGY = SPELL_POWER_ENERGY or (PowerEnum and PowerEnum.Energy) or 3
-SPELL_POWER_COMBO_POINTS =SPELL_POWER_COMBO_POINTS or (PowerEnum and PowerEnum.ComboPoints) or 4
-SPELL_POWER_RUNES = SPELL_POWER_RUNES or (PowerEnum and PowerEnum.Runes) or 5
-SPELL_POWER_RUNIC_POWER = SPELL_POWER_RUNIC_POWER or (PowerEnum and PowerEnum.RunicPower) or 6
-SPELL_POWER_SOUL_SHARDS = SPELL_POWER_SOUL_SHARDS or (PowerEnum and PowerEnum.SoulShards) or 7
-SPELL_POWER_LUNAR_POWER = SPELL_POWER_LUNAR_POWER or (PowerEnum and PowerEnum.LunarPower) or 8
-SPELL_POWER_HOLY_POWER = SPELL_POWER_HOLY_POWER  or (PowerEnum and PowerEnum.HolyPower) or 9
-SPELL_POWER_ALTERNATE_POWER = SPELL_POWER_ALTERNATE_POWER or (PowerEnum and PowerEnum.Alternate) or 10
-SPELL_POWER_MAELSTROM = SPELL_POWER_MAELSTROM or (PowerEnum and PowerEnum.Maelstrom) or 11
-SPELL_POWER_CHI = SPELL_POWER_CHI or (PowerEnum and PowerEnum.Chi) or 12
-SPELL_POWER_INSANITY = SPELL_POWER_INSANITY or (PowerEnum and PowerEnum.Insanity) or 13
-SPELL_POWER_OBSOLETE = SPELL_POWER_OBSOLETE or (PowerEnum and PowerEnum.Obsolete) or 14
-SPELL_POWER_OBSOLETE2 = SPELL_POWER_OBSOLETE2 or (PowerEnum and PowerEnum.Obsolete2) or 15
-SPELL_POWER_ARCANE_CHARGES = SPELL_POWER_ARCANE_CHARGES or (PowerEnum and PowerEnum.ArcaneCharges) or 16
-SPELL_POWER_FURY = SPELL_POWER_FURY or (PowerEnum and PowerEnum.Fury) or 17
-SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 18
+local SPELL_POWER_MANA = SPELL_POWER_MANA or (PowerEnum and PowerEnum.Mana) or 0
+local SPELL_POWER_RAGE = SPELL_POWER_RAGE or (PowerEnum and PowerEnum.Rage) or 1
+local SPELL_POWER_FOCUS = SPELL_POWER_FOCUS or (PowerEnum and PowerEnum.Focus) or 2
+local SPELL_POWER_ENERGY = SPELL_POWER_ENERGY or (PowerEnum and PowerEnum.Energy) or 3
+local SPELL_POWER_COMBO_POINTS2 = SPELL_POWER_COMBO_POINTS or (PowerEnum and PowerEnum.ComboPoints) or 4
+local SPELL_POWER_RUNES = SPELL_POWER_RUNES or (PowerEnum and PowerEnum.Runes) or 5
+local SPELL_POWER_RUNIC_POWER = SPELL_POWER_RUNIC_POWER or (PowerEnum and PowerEnum.RunicPower) or 6
+local SPELL_POWER_SOUL_SHARDS = SPELL_POWER_SOUL_SHARDS or (PowerEnum and PowerEnum.SoulShards) or 7
+local SPELL_POWER_LUNAR_POWER = SPELL_POWER_LUNAR_POWER or (PowerEnum and PowerEnum.LunarPower) or 8
+local SPELL_POWER_HOLY_POWER = SPELL_POWER_HOLY_POWER  or (PowerEnum and PowerEnum.HolyPower) or 9
+local SPELL_POWER_ALTERNATE_POWER = SPELL_POWER_ALTERNATE_POWER or (PowerEnum and PowerEnum.Alternate) or 10
+local SPELL_POWER_MAELSTROM = SPELL_POWER_MAELSTROM or (PowerEnum and PowerEnum.Maelstrom) or 11
+local SPELL_POWER_CHI = SPELL_POWER_CHI or (PowerEnum and PowerEnum.Chi) or 12
+local SPELL_POWER_INSANITY = SPELL_POWER_INSANITY or (PowerEnum and PowerEnum.Insanity) or 13
+local SPELL_POWER_OBSOLETE = SPELL_POWER_OBSOLETE or (PowerEnum and PowerEnum.Obsolete) or 14
+local SPELL_POWER_OBSOLETE2 = SPELL_POWER_OBSOLETE2 or (PowerEnum and PowerEnum.Obsolete2) or 15
+local SPELL_POWER_ARCANE_CHARGES = SPELL_POWER_ARCANE_CHARGES or (PowerEnum and PowerEnum.ArcaneCharges) or 16
+local SPELL_POWER_FURY = SPELL_POWER_FURY or (PowerEnum and PowerEnum.Fury) or 17
+local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 18
 
 	local energy_types = {
 		[SPELL_POWER_MANA] = true,
@@ -2155,7 +2155,7 @@ SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 18
 		[SPELL_POWER_HOLY_POWER] = true, --paladins
 		[SPELL_POWER_LUNAR_POWER] = true, --balance druids
 		[SPELL_POWER_SOUL_SHARDS] = true, --warlock affliction
-		[SPELL_POWER_COMBO_POINTS] = true, --combo points
+		[SPELL_POWER_COMBO_POINTS2] = true, --combo points
 		[SPELL_POWER_MAELSTROM] = true, --shamans
 		[SPELL_POWER_PAIN] = true, --demonhunter tank
 		[SPELL_POWER_RUNES] = true, --dk
@@ -2164,7 +2164,7 @@ SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 18
 	}
 	
 	local resource_power_type = {
-		[SPELL_POWER_COMBO_POINTS] = SPELL_POWER_ENERGY, --combo points
+		[SPELL_POWER_COMBO_POINTS2] = SPELL_POWER_ENERGY, --combo points
 		[SPELL_POWER_SOUL_SHARDS] = SPELL_POWER_MANA, --warlock
 		[SPELL_POWER_LUNAR_POWER] = SPELL_POWER_MANA, --druid
 		[SPELL_POWER_HOLY_POWER] = SPELL_POWER_MANA, --paladin
@@ -2178,7 +2178,7 @@ SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 18
 	}
 	
 	_detalhes.resource_strings = {
-		[SPELL_POWER_COMBO_POINTS] = "Combo Point",
+		[SPELL_POWER_COMBO_POINTS2] = "Combo Point",
 		[SPELL_POWER_SOUL_SHARDS] = "Soul Shard",
 		[SPELL_POWER_LUNAR_POWER] = "Lunar Power",
 		[SPELL_POWER_HOLY_POWER] = "Holy Power",
@@ -2192,7 +2192,7 @@ SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 18
 	}
 	
 	_detalhes.resource_icons = {
-		[SPELL_POWER_COMBO_POINTS] = {file = [[Interface\PLAYERFRAME\ClassOverlayComboPoints]], coords = {58/128, 74/128, 25/64, 39/64}},
+		[SPELL_POWER_COMBO_POINTS2] = {file = [[Interface\PLAYERFRAME\ClassOverlayComboPoints]], coords = {58/128, 74/128, 25/64, 39/64}},
 		[SPELL_POWER_SOUL_SHARDS] = {file = [[Interface\PLAYERFRAME\UI-WARLOCKSHARD]], coords = {3/64, 17/64, 2/128, 16/128}},
 		[SPELL_POWER_LUNAR_POWER] = {file = [[Interface\PLAYERFRAME\DruidEclipse]], coords = {117/256, 140/256, 83/128, 115/128}},
 		[SPELL_POWER_HOLY_POWER] = {file = [[Interface\PLAYERFRAME\PALADINPOWERTEXTURES]], coords = {75/256, 94/256, 87/128, 100/128}},
@@ -2204,12 +2204,57 @@ SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 18
 		[SPELL_POWER_ARCANE_CHARGES] = {file = [[Interface\PLAYERFRAME\MageArcaneCharges]], coords = {68/256, 90/256, 68/128, 91/128}},
 		[SPELL_POWER_FURY] = {file = [[Interface\PLAYERFRAME\UI-PlayerFrame-Deathknight-Blood-On]], coords = {0, 1, 0, 1}},
 	}
+	
+	local AlternatePowerEnableFrame = CreateFrame ("frame")
+	local AlternatePowerMonitorFrame = CreateFrame ("frame")
+	
+	AlternatePowerEnableFrame:RegisterEvent ("UNIT_POWER_BAR_SHOW")
+	AlternatePowerEnableFrame:RegisterEvent ("UNIT_POWER_BAR_HIDE")
+	
+	AlternatePowerEnableFrame:SetScript ("OnEvent", function (self, event)
+		if (event == "UNIT_POWER_BAR_SHOW") then
+			AlternatePowerMonitorFrame:RegisterEvent ("UNIT_POWER")
+		else
+			AlternatePowerMonitorFrame:UnregisterEvent ("UNIT_POWER")
+		end
+	end)
+
+	AlternatePowerMonitorFrame:SetScript ("OnEvent", function (self, event, unitID, powerType)
+		if (powerType == "ALTERNATE") then
+			local actorName = _detalhes:GetCLName (unitID)
+			if (actorName) then
+				local power = _current_combat.alternate_power [actorName]
+				if (not power) then
+					power = _current_combat:CreateAlternatePowerTable (actorName)
+				end
+				local currentPower = UnitPower (unitID, 10)
+				if (currentPower and currentPower > power.last) then
+					local addPower = currentPower - power.last
+					power.total = power.total + addPower
+
+					--> main actor
+					local este_jogador = energy_cache [actorName]
+					if (not este_jogador) then --> pode ser um desconhecido ou um pet
+						este_jogador, meu_dono, actorName = _current_energy_container:PegarCombatente (UnitGUID (unitID), actorName, 0x514, true)
+						energy_cache [actorName] = este_jogador
+					end
+					este_jogador.alternatepower = este_jogador.alternatepower + addPower
+					
+					_current_energy_container.need_refresh = true
+				end
+				
+				power.last = currentPower or 0
+			end
+		end
+	end)
 
 	function parser:energize (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, amount, powertype, p6, p7)
 	
 	------------------------------------------------------------------------------------------------
 	--> early checks and fixes
 
+		--print (who_name, alvo_name, spellid, spellname, spelltype, amount, powertype)
+	
 		if (not who_name) then
 			who_name = "[*] "..spellname
 		elseif (not alvo_name) then
@@ -2254,6 +2299,10 @@ SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 18
 			if (not meu_dono) then --> se não for um pet, adicionar no cache
 				energy_cache [who_name] = este_jogador
 			end
+		end
+		
+		if (not este_jogador.powertype) then
+			este_jogador.powertype = powertype
 		end
 		
 		--> target

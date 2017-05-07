@@ -266,7 +266,7 @@ function atributo_heal:RefreshWindow (instancia, tabela_do_combate, forcar, expo
 		--> grava o total
 		instancia.top = conteudo[1][keyName]
 	
-	elseif (instancia.modo == modo_ALL or sub_atributo == 5) then --> mostrando ALL
+	elseif (instancia.modo == modo_ALL or sub_atributo == 5 or sub_atributo == 7) then --> mostrando ALL
 
 		amount = _detalhes:ContainerSortHeal (conteudo, amount, keyName)
 
@@ -974,6 +974,7 @@ function atributo_heal:ToolTip_HealingDenied (instancia, numero, barra, keydown)
 	local spellList = {} --spells the player used to deny heal
 	local targetList = {} --all players affected
 	local spellsDenied = {} --all spells which had heal denied
+	local healersDenied = {} --heal denied on healers 
 	
 	local icon_size = _detalhes.tooltip.icon_size
 	local icon_border = _detalhes.tooltip.icon_border_texcoord
@@ -991,6 +992,11 @@ function atributo_heal:ToolTip_HealingDenied (instancia, numero, barra, keydown)
 			--spells with heal denied
 			for spellID, amount in _pairs (spell.heal_denied) do 
 				spellsDenied [spellID] = (spellsDenied [spellID] or 0) + amount
+			end
+			
+			--healers denied
+			for healerName, amount in _pairs (spell.heal_denied_healers) do 
+				healersDenied [healerName] = (healersDenied [healerName] or 0) + amount
 			end
 		end
 	end
@@ -1110,7 +1116,38 @@ function atributo_heal:ToolTip_HealingDenied (instancia, numero, barra, keydown)
 			_detalhes:AddTooltipBackgroundStatusbar()
 	
 		end
-
+		
+	--healers denied
+	
+		_detalhes:AddTooltipSpellHeaderText ("Healers", headerColor, #spellsSorted, [[Interface\TUTORIALFRAME\UI-TutorialFrame-LevelUp]], 0.10546875, 0.89453125, 0.05859375, 0.6796875)
+		_detalhes:AddTooltipHeaderStatusbar (r, g, b, barAlha)
+	
+		local healersSorted = {}
+		for healerName, amount in _pairs (healersDenied) do
+			tinsert (healersSorted, {healerName, amount})
+		end
+		table.sort (healersSorted, _detalhes.Sort2)
+			
+		for i = 1, #healersSorted do
+			local playerName, amountDenied = unpack (healersSorted [i])
+			
+			GameCooltip:AddLine (playerName .. ": ", FormatTooltipNumber (_, amountDenied) .." (" .. _cstr ("%.1f", amountDenied / totalDenied * 100) .. "%)")
+			_detalhes:AddTooltipBackgroundStatusbar()
+			
+			local targetActor = container:PegarCombatente (nil, playerName) or instancia.showing [1]:PegarCombatente (nil, playerName)
+			if (targetActor) then
+				local classe = targetActor.classe
+				if (not classe) then
+					classe = "UNKNOW"
+				end
+				if (classe == "UNKNOW") then
+					GameCooltip:AddIcon ("Interface\\LFGFRAME\\LFGROLE_BW", nil, nil, 14, 14, .25, .5, 0, 1)
+				else
+					GameCooltip:AddIcon ("Interface\\AddOns\\Details\\images\\classes_small", nil, nil, 14, 14, _unpack (_detalhes.class_coords [classe]))
+				end
+			end
+	end
+	
 	return true
 end
 
@@ -2348,12 +2385,18 @@ end
 					if (habilidade.heal_denied) then
 						--> cria o container na shadow de ele não existir
 						habilidade_shadow.heal_denied = habilidade_shadow.heal_denied or {}
+						habilidade_shadow.heal_denied_healers = habilidade_shadow.heal_denied_healers or {}
 						--> copia
 						for spellID, amount in _pairs (habilidade.heal_denied) do
 							if (not habilidade_shadow.heal_denied [spellID]) then
 								habilidade_shadow.heal_denied [spellID] = 0
 							end
 						end
+						for healerName, amount in _pairs (habilidade.heal_denied_healers) do
+							if (not habilidade_shadow.heal_denied_healers [healerName]) then
+								habilidade_shadow.heal_denied_healers [healerName] = 0
+							end
+						end						
 					end
 
 				end
@@ -2464,9 +2507,13 @@ end
 					if (habilidade.heal_denied) then
 						--> cria o container na shadow de ele não existir
 						habilidade_shadow.heal_denied = habilidade_shadow.heal_denied or {}
+						habilidade_shadow.heal_denied_healers = habilidade_shadow.heal_denied_healers or {}
 						--> copia
 						for spellID, amount in _pairs (habilidade.heal_denied) do
 							habilidade_shadow.heal_denied [spellID] = (habilidade_shadow.heal_denied [spellID] or 0) + amount
+						end
+						for healerName, amount in _pairs (habilidade.heal_denied_healers) do
+							habilidade_shadow.heal_denied_healers [healerName] = (habilidade_shadow.heal_denied_healers [healerName] or 0) + amount
 						end
 					end					
 					
@@ -2570,9 +2617,13 @@ atributo_heal.__add = function (tabela1, tabela2)
 			if (habilidade.heal_denied) then
 				--> cria o container na shadow de ele não existir
 				habilidade_tabela1.heal_denied = habilidade_tabela1.heal_denied or {}
+				habilidade_tabela1.heal_denied_healers = habilidade_tabela1.heal_denied_healers or {}
 				--> copia
 				for spellID, amount in _pairs (habilidade.heal_denied) do
 					habilidade_tabela1.heal_denied [spellID] = (habilidade_tabela1.heal_denied [spellID] or 0) + amount
+				end
+				for healerName, amount in _pairs (habilidade.heal_denied_healers) do
+					habilidade_tabela1.heal_denied_healers [healerName] = (habilidade_tabela1.heal_denied_healers [healerName] or 0) + amount
 				end
 			end
 			
@@ -2676,9 +2727,13 @@ atributo_heal.__sub = function (tabela1, tabela2)
 			if (habilidade.heal_denied) then
 				--> cria o container na shadow de ele não existir
 				habilidade_tabela1.heal_denied = habilidade_tabela1.heal_denied or {}
+				habilidade_tabela1.heal_denied_healers = habilidade_tabela1.heal_denied_healers or {}
 				--> copia
 				for spellID, amount in _pairs (habilidade.heal_denied) do
 					habilidade_tabela1.heal_denied [spellID] = (habilidade_tabela1.heal_denied [spellID] or 0) - amount
+				end
+				for healerName, amount in _pairs (habilidade.heal_denied_healers) do
+					habilidade_tabela1.heal_denied_healers [healerName] = (habilidade_tabela1.heal_denied_healers [healerName] or 0) - amount
 				end
 			end
 			

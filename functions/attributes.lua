@@ -33,6 +33,7 @@ do
 		--[[global]] DETAILS_SUBATTRIBUTE_REGENENERGY = 3
 		--[[global]] DETAILS_SUBATTRIBUTE_REGENRUNE = 4
 		--[[global]] DETAILS_SUBATTRIBUTE_RESOURCES = 5
+		--[[global]] DETAILS_SUBATTRIBUTE_ALTERNATEPOWER = 6
 	
 	--[[global]] DETAILS_ATTRIBUTE_MISC = 4
 	
@@ -68,6 +69,7 @@ do
 		"energy", --energy generated
 		"energy", --runic power generated
 		"energy", --resources
+		"energy", --alternate power
 		
 		"miscdata", --cc breaks
 		"miscdata", --ress
@@ -95,7 +97,7 @@ do
 		
 		--[[ ENERGY ]]
 			e_energy = 3,--> identifier
-			[3] = 5,	-->  sub attributes 
+			[3] = 6,	-->  sub attributes 
 		
 		--[[ MISC ]]
 			misc = 4,	--> identifier
@@ -189,12 +191,14 @@ do
 			energy_ganha = 3, --id 3
 			rune_ganha = 4, --id 6
 			resources = 5, --
+			alternatepower = 6, --
 			lista = {	--[[ String Names ]]
 				Loc ["STRING_ATTRIBUTE_ENERGY_MANA"],
 				Loc ["STRING_ATTRIBUTE_ENERGY_RAGE"],
 				Loc ["STRING_ATTRIBUTE_ENERGY_ENERGY"],
 				Loc ["STRING_ATTRIBUTE_ENERGY_RUNEPOWER"],
 				Loc ["STRING_ATTRIBUTE_ENERGY_RESOURCES"],
+				"Alternate Power (in testing)",
 			},
 			icones = {
 				{"Interface\\AddOns\\Details\\images\\atributos_icones_energyze", {0, .125, 0, 1}},
@@ -202,8 +206,9 @@ do
 				{"Interface\\AddOns\\Details\\images\\atributos_icones_energyze", {.25, .375, 0, 1}},
 				{"Interface\\AddOns\\Details\\images\\atributos_icones_energyze", {.375, .5, 0, 1}},
 				{"Interface\\AddOns\\Details\\images\\atributos_icones_energyze", {.5, .625, 0, 1}},
+				{"Interface\\AddOns\\Details\\images\\atributos_icones_energyze", {.625, .75, 0, 1}},
 			},
-			internal = {"mana", "e_rage", "e_energy", "runepower", "resource"}
+			internal = {"mana", "e_rage", "e_energy", "runepower", "resource", "alternatepower"}
 		},
 		
 		{
