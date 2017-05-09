@@ -2684,7 +2684,7 @@ function gump:CriaJanelaInfo()
 				end
 				
 				table.sort (player_2_spells_sorted, _detalhes.Sort2)
-				player_2_top = player_2_spells_sorted [1] [2]
+				player_2_top = (player_2_spells_sorted [1] and player_2_spells_sorted [1] [2]) or 0
 				--se não existir uma magia no jogador e o jogador tiver um pet, ele não vai encontrar um valor em [1] e dar
 				-- ~pet
 				player_2_spell_info = {}
