@@ -275,7 +275,9 @@
 	function _detalhes:UseWestNumericalSystem()
 		--> short numbers
 		function _detalhes:ToK (numero)
-			if (numero > 1000000) then
+			if (numero > 999999999) then
+				return format ("%.2f", numero/1000000000) .. "B"
+			elseif (numero > 1000000) then
 				return _string_format ("%.2f", numero/1000000) .. "M"
 			elseif (numero > 1000) then
 				return _string_format ("%.1f", numero/1000) .. "K"
@@ -284,7 +286,9 @@
 		end
 		
 		function _detalhes:ToK2 (numero)
-			if (numero > 999999) then
+			if (numero > 999999999) then
+				return format ("%.2f", numero/1000000000) .. "B"
+			elseif (numero > 999999) then
 				return _string_format ("%.2f", numero/1000000) .. "M"
 			elseif (numero > 99999) then
 				return _math_floor (numero/1000) .. "K"
@@ -296,7 +300,9 @@
 		
 		--> short numbers no numbers after comma
 		function _detalhes:ToK0 (numero)
-			if (numero > 1000000) then
+			if (numero > 999999999) then
+				return format ("%.2f", numero/1000000000) .. "B"
+			elseif (numero > 1000000) then
 				return _string_format ("%.0f", numero/1000000) .. "M"
 			elseif (numero > 1000) then
 				return _string_format ("%.0f", numero/1000) .. "K"

@@ -250,7 +250,7 @@
 			return parser:SLT_damage (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand)
 			
 		--> Light of the Martyr - paladin spell which causes damage to the caster it self
-		elseif (spellid == 196917) then
+		elseif (spellid == 196917) then -- or spellid == 183998 < healing part
 			local healingActor = healing_cache [who_name]
 			if (healingActor and healingActor.spells) then
 				local spell = healingActor.spells._ActorTable [spellid]

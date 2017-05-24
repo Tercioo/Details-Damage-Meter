@@ -136,6 +136,18 @@ do
 			end
 		end
 
+		if (not Actor.nome) then
+			if (not _detalhes.NoActorNameWarning) then
+				print ("==============")
+				_detalhes:Msg ("Unhandled Exception: Actor has no name, ContainerID: ", container.tipo)
+				_detalhes:Msg ("After the current combat, reset data and use /reload.")
+				_detalhes:Msg ("Report this issue to the Author: Actor with no name, container: ", container.tipo)
+				print ("==============")
+				_detalhes.NoActorNameWarning = true
+			end
+			return
+		end
+		
 		local class = _detalhes:GetClass (Actor.nome)
 		if (class) then
 			Actor.classe = class
@@ -155,7 +167,9 @@ do
 		end
 		
 		if (tries and tries < 10) then 
-			_detalhes:ScheduleTimer ("GuessClass", 2, {Actor, container, tries+1})
+			t[3] = tries + 1 --thanks @Farmbuyer on curseforge
+			--_detalhes:ScheduleTimer ("GuessClass", 2, {Actor, container, tries+1})
+			_detalhes:ScheduleTimer ("GuessClass", 2, t) --passing the same table instead of creating a new one
 		end
 		
 		return false
@@ -276,7 +290,7 @@ do
 			end
 		end
 	end
-		
+	
 	function _detalhes:GuessSpec (t)
 		
 		local Actor, container, tries = t[1], t[2], t[3]
@@ -434,9 +448,10 @@ do
 			
 			return spec
 		end
-		
+
 		if (tries and tries < 10) then 
-			_detalhes:ScheduleTimer ("GuessSpec", 3, {Actor, container, tries+1})
+			t[3] = tries + 1
+			_detalhes:ScheduleTimer ("GuessSpec", 3, t)
 		end
 		
 		return false

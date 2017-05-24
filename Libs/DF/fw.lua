@@ -1,5 +1,5 @@
 
-local dversion = 49
+local dversion = 50
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary (major, minor)
 
@@ -244,7 +244,9 @@ if (symbol_1K) then
 	end
 else
 	function DF.FormatNumber (numero)
-		if (numero > 999999) then
+		if (numero > 999999999) then
+			return format ("%.2f", numero/1000000000) .. "B"
+		elseif (numero > 999999) then
 			return format ("%.2f", numero/1000000) .. "M"
 		elseif (numero > 99999) then
 			return floor (numero/1000) .. "K"
