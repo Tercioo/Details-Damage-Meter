@@ -499,7 +499,6 @@ do
 		[6343] = 73, -- Thunder Clap
 		[71] = 73, -- Defensive Stance
 		[157494] = 73, -- Improved Defensive Stance
-		[57755] = 73, -- Heroic Throw
 
 	}
 	

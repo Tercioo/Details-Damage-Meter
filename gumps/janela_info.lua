@@ -3042,7 +3042,7 @@ function gump:CriaJanelaInfo()
 			end
 			table.sort (player_1_skills, _detalhes.Sort2)
 -- ~pet
-			local player_1_top = player_1_skills [1] [2]
+			local player_1_top = player_1_skills [1] and player_1_skills [1][2] or 0
 			bar1 [2]:SetStatusBarColor (1, 1, 1, 1)
 			
 			-- player 2
