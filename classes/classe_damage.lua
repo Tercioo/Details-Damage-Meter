@@ -369,6 +369,7 @@
 			tipo = class_type,
 			
 			total = alphabetical,
+			totalabsorbed = alphabetical,
 			total_without_pet = alphabetical,
 			custom = 0,
 			
@@ -4854,6 +4855,7 @@ end
 				
 			--> total de dano (captura de dados)
 				shadow.total = shadow.total + actor.total				
+				shadow.totalabsorbed = shadow.totalabsorbed + actor.totalabsorbed
 			--> total de dano sem o pet (captura de dados)
 				shadow.total_without_pet = shadow.total_without_pet + actor.total_without_pet
 			--> total de dano que o ator sofreu (captura de dados)
@@ -4943,6 +4945,7 @@ atributo_damage.__add = function (tabela1, tabela2)
 	
 	--> total de dano
 		tabela1.total = tabela1.total + tabela2.total
+		tabela1.totalabsorbed = tabela1.totalabsorbed + tabela2.totalabsorbed
 	--> total de dano sem o pet
 		tabela1.total_without_pet = tabela1.total_without_pet + tabela2.total_without_pet
 	--> total de dano que o cara levou
@@ -5022,6 +5025,8 @@ atributo_damage.__sub = function (tabela1, tabela2)
 	
 	--> total de dano
 		tabela1.total = tabela1.total - tabela2.total
+		tabela1.totalabsorbed = tabela1.totalabsorbed - tabela2.totalabsorbed
+		
 	--> total de dano sem o pet
 		tabela1.total_without_pet = tabela1.total_without_pet - tabela2.total_without_pet
 	--> total de dano que o cara levou

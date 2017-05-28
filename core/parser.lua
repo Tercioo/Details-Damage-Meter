@@ -289,6 +289,11 @@
 		--	end
 		--end
 	
+	
+--	if (absorbed and absorbed > 0) then
+--		print ("dano absorbido", spellname, absorbed)
+--	end
+	
 	------------------------------------------------------------------------------------------------	
 	--> check if need start an combat
 
@@ -823,6 +828,10 @@
 	--> get actors
 		--print ("MISS", "|", missType, "|", isOffHand, "|", amountMissed, "|", arg1)
 		
+	
+		--print (missType, who_name,  spellname, amountMissed)
+		
+		
 		--> 'misser'
 		local este_jogador = damage_cache [who_serial]
 		if (not este_jogador) then
@@ -886,12 +895,15 @@
 		if (missType == "ABSORB") then
 		
 			if (token == "SWING_MISSED") then
+				este_jogador.totalabsorbed = este_jogador.totalabsorbed + amountMissed
 				return parser:swing ("SWING_DAMAGE", time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, amountMissed, -1, 1, nil, nil, nil, false, false, false, false)
 				
 			elseif (token == "RANGE_MISSED") then
+				este_jogador.totalabsorbed = este_jogador.totalabsorbed + amountMissed
 				return parser:range ("RANGE_DAMAGE", time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, amountMissed, -1, 1, nil, nil, nil, false, false, false, false)
 				
 			else
+				este_jogador.totalabsorbed = este_jogador.totalabsorbed + amountMissed
 				return parser:spell_dmg (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, amountMissed, -1, 1, nil, nil, nil, false, false, false, false)
 				
 			end
