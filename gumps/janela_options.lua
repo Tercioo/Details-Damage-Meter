@@ -10305,8 +10305,7 @@ function window:CreateFrame11()
 		--slider para quantidade de danos a mostrar
 		g:NewLabel (frame11, _, "$parentDeathsDamageLabel", "DeathsDamageLabel", Loc ["STRING_OPTIONS_RT_DEATHS_HITS"], "GameFontHighlightLeft")
 		local s = g:NewSlider (frame11, _, "$parentDeathsDamageSlider", "DeathsDamageSlider", SLIDER_WIDTH, SLIDER_HEIGHT, 1, 5, 1, _detalhes.announce_deaths.last_hits, nil, nil, nil, options_slider_template)
-		--config_slider (s)
-	
+
 		frame11.DeathsDamageSlider:SetPoint ("left", frame11.DeathsDamageLabel, "right", 2)
 		frame11.DeathsDamageSlider:SetHook ("OnValueChange", function (self, _, amount)
 			_detalhes.announce_deaths.last_hits = amount
@@ -10351,6 +10350,59 @@ function window:CreateFrame11()
 		frame11.DeathChannelDropdown:SetPoint ("left", frame11.DeathChannelLabel, "right", 2)
 		window:CreateLineBackground2 (frame11, "DeathChannelDropdown", "DeathChannelLabel", Loc ["STRING_OPTIONS_RT_DEATHS_WHERE_DESC"])
 
+	--> death recap
+		--enabled?
+		g:NewLabel (frame11, _, "$parentEnableDeathRecapLabel", "EnableDeathRecapLabel", "Enabled", "GameFontHighlightLeft")
+		g:NewSwitch (frame11, _, "$parentEnableDeathRecapSlider", "EnableDeathRecapSlider", 60, 20, _, _, _detalhes.death_recap.enabled, nil, nil, nil, nil, options_switch_template)
+
+		frame11.EnableDeathRecapSlider:SetPoint ("left", frame11.EnableDeathRecapLabel, "right", 2)
+		frame11.EnableDeathRecapSlider:SetAsCheckBox()
+		frame11.EnableDeathRecapSlider.OnSwitch = function (_, _, value)
+			_detalhes.death_recap.enabled = value
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+		end
+		
+		window:CreateLineBackground2 (frame11, "EnableDeathRecapSlider", "EnableDeathRecapLabel", "Modify the Blizzard's Death Recap screen.")
+		
+		--time relevance
+		g:NewLabel (frame11, _, "$parentDeathRecapRelevanceLabel", "DeathRecapRelevanceLabel", "Relevance Time", "GameFontHighlightLeft")
+		g:NewSlider (frame11, _, "$parentDeathRecapRelevanceSlider", "DeathRecapRelevanceSlider", SLIDER_WIDTH, SLIDER_HEIGHT, 1, 12, 1, _detalhes.death_recap.relevance_time, nil, nil, nil, options_slider_template)
+
+		frame11.DeathRecapRelevanceSlider:SetPoint ("left", frame11.DeathRecapRelevanceLabel, "right", 2)
+		frame11.DeathsDamageSlider:SetHook ("OnValueChange", function (self, _, amount)
+			_detalhes.death_recap.relevance_time = amount
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+		end)
+		
+		window:CreateLineBackground2 (frame11, "DeathRecapRelevanceSlider", "DeathRecapRelevanceLabel", "Attempt to fill the Death Recap with high damage (discart low hits) in the relevant time before death.")
+		
+		--show life
+		g:NewLabel (frame11, _, "$parentEnableDeathRecapLifePercentLabel", "EnableDeathRecapLifePercentLabel", "Life Percent", "GameFontHighlightLeft")
+		g:NewSwitch (frame11, _, "$parentEnableDeathRecapLifePercentSlider", "EnableDeathRecapLifePercentSlider", 60, 20, _, _, _detalhes.death_recap.show_life_percent, nil, nil, nil, nil, options_switch_template)
+
+		frame11.EnableDeathRecapLifePercentSlider:SetPoint ("left", frame11.EnableDeathRecapLifePercentLabel, "right", 2)
+		frame11.EnableDeathRecapLifePercentSlider:SetAsCheckBox()
+		frame11.EnableDeathRecapLifePercentSlider.OnSwitch = function (_, _, value)
+			_detalhes.death_recap.show_life_percent = value
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+		end
+		
+		window:CreateLineBackground2 (frame11, "EnableDeathRecapLifePercentSlider", "EnableDeathRecapLifePercentLabel", "Show the percent of life the player had when received the hit.")
+		
+		--show segments
+		g:NewLabel (frame11, _, "$parentEnableDeathRecapSegmentsLabel", "EnableDeathRecapSegmentsLabel", "Segment List", "GameFontHighlightLeft")
+		g:NewSwitch (frame11, _, "$parentEnableDeathRecapSegmentsSlider", "EnableDeathRecapSegmentsSlider", 60, 20, _, _, _detalhes.death_recap.show_segments, nil, nil, nil, nil, options_switch_template)
+
+		frame11.EnableDeathRecapSegmentsSlider:SetPoint ("left", frame11.EnableDeathRecapSegmentsLabel, "right", 2)
+		frame11.EnableDeathRecapSegmentsSlider:SetAsCheckBox()
+		frame11.EnableDeathRecapSegmentsSlider.OnSwitch = function (_, _, value)
+			_detalhes.death_recap.show_segments = value
+			_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+		end
+		
+		window:CreateLineBackground2 (frame11, "EnableDeathRecapSegmentsSlider", "EnableDeathRecapSegmentsLabel", "Show a list of the latest segments in case you want to see recaps from previous fights.")
+		
+		
 	--> general tools
 		--> pre pots
 		g:NewLabel (frame11, _, "$parentEnabledPrePotLabel", "EnabledPrePotLabel", Loc ["STRING_OPTIONS_RT_INFOS_PREPOTION"], "GameFontHighlightLeft")
@@ -10384,6 +10436,7 @@ function window:CreateFrame11()
 		g:NewLabel (frame11, _, "$parentAnnouncersAnchorInterrupt", "AnnouncersInterrupt", Loc ["STRING_OPTIONS_RT_INTERRUPT_ANCHOR"], "GameFontNormal")
 		g:NewLabel (frame11, _, "$parentAnnouncersAnchorCooldowns", "AnnouncersCooldowns", Loc ["STRING_OPTIONS_RT_COOLDOWNS_ANCHOR"], "GameFontNormal")
 		g:NewLabel (frame11, _, "$parentAnnouncersAnchorDeaths", "AnnouncersDeaths", Loc ["STRING_OPTIONS_RT_DEATHS_ANCHOR"], "GameFontNormal")
+		g:NewLabel (frame11, _, "$parentAnnouncersAnchorDeathRecap", "AnnouncersDeathRecap", "Death Recap:", "GameFontNormal")
 		g:NewLabel (frame11, _, "$parentAnnouncersAnchorOther", "AnnouncersOther", Loc ["STRING_OPTIONS_RT_OTHER_ANCHOR"], "GameFontNormal")
 		
 		local x = window.left_start_at
@@ -10414,6 +10467,12 @@ function window:CreateFrame11()
 			{"DeathChannelLabel", 3},
 			{"DeathsDamageLabel", 4},
 			{"DeathsAmountLabel", 5},
+			
+			{"AnnouncersDeathRecap", 5, true},
+			{"EnableDeathRecapLabel", 5},
+			{"DeathRecapRelevanceLabel", 5},
+			{"EnableDeathRecapLifePercentLabel", 5},
+			{"EnableDeathRecapSegmentsLabel", 5},
 			{"AnnouncersOther", 6, true},
 			{"EnabledPrePotLabel", 7},
 			{"EnabledFirstHitLabel", 8},

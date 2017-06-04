@@ -1177,6 +1177,13 @@ local default_global_data = {
 		item_level_pool = {},
 	--> latest report
 		latest_report_table = {},
+	--> death recap
+		death_recap = {
+			enabled = true,
+			relevance_time = 7,
+			show_life_percent = false,
+			show_segments = false,
+		},
 }
 
 _detalhes.default_global_data = default_global_data

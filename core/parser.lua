@@ -204,7 +204,7 @@
 --	/run local f=CreateFrame("frame");f:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED");f:SetScript("OnEvent",function(self, ...) local a = select(3, ...);print (a);if (a=="SPELL_CAST_SUCCESS")then print (...) end end)
 	
 	function parser:spell_dmg (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand)
-
+	
 	------------------------------------------------------------------------------------------------
 	--> early checks and fixes
 
@@ -253,12 +253,13 @@
 		elseif (spellid == 196917) then -- or spellid == 183998 < healing part
 			local healingActor = healing_cache [who_name]
 			if (healingActor and healingActor.spells) then
-				local spell = healingActor.spells._ActorTable [spellid]
-				if (spell) then
-					healingActor.total = healingActor.total - (amount or 0)
-					spell.total = spell.total - (amount or 0)
-					return
-				end
+				healingActor.total = healingActor.total - (amount or 0)
+				
+				--local spell = healingActor.spells._ActorTable [spellid]
+				--if (spell) then
+				--	spell.total = spell.total - (amount or 0)
+				--	return
+				--end
 			end
 			return --> ignore this event
 		end
