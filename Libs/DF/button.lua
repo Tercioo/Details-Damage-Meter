@@ -394,7 +394,7 @@ local ButtonMetaFunctions = _G [DF.GlobalWidgetControlNames ["button"]]
 	end
 
 -- icon
-	function ButtonMetaFunctions:SetIcon (texture, width, height, layout, texcoord, overlay, textdistance, leftpadding, textheight)
+	function ButtonMetaFunctions:SetIcon (texture, width, height, layout, texcoord, overlay, textdistance, leftpadding, textheight, short_method)
 		if (not self.icon) then
 			self.icon = self:CreateTexture (nil, "artwork")
 			self.icon:SetSize (self.height*0.8, self.height*0.8)
@@ -427,9 +427,13 @@ local ButtonMetaFunctions = _G [DF.GlobalWidgetControlNames ["button"]]
 		local iconw = self.icon:GetWidth()
 		local text_width = self.button.text:GetStringWidth()
 		if (text_width > w-15-iconw) then
-			if (not short_method) then
+
+			if (short_method == false) then
+			
+			elseif (not short_method) then
 				local new_width = text_width+15+iconw
 				self.button:SetWidth (new_width)
+				
 			elseif (short_method == 1) then
 				local loop = true
 				local textsize = 11
@@ -443,6 +447,7 @@ local ButtonMetaFunctions = _G [DF.GlobalWidgetControlNames ["button"]]
 						textsize = textsize - 1
 					end
 				end
+				
 			end
 		end
 		
@@ -1015,6 +1020,9 @@ function DF:NewButton (parent, container, name, member, w, h, func, param1, para
 					textsize = textsize - 1
 				end
 			end
+			
+		elseif (short_method == 2) then
+			
 		end
 	end
 	

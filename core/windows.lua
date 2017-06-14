@@ -1096,7 +1096,7 @@
 		
 			local db = _detalhes.storage:OpenRaidStorage()
 			if (not db) then
-				return _detalhes:Msg ("Fail to open raid storage, may be the addon is disabled.")
+				return _detalhes:Msg ("Fail to open 'Details Storage', maybe the addon is disabled?")
 			end
 		
 			local f = CreateFrame ("frame", "DetailsRaidHistoryWindow", UIParent, "ButtonFrameTemplate")
@@ -1109,17 +1109,115 @@
 			f:SetHeight (500)
 			tinsert (UISpecialFrames, "DetailsRaidHistoryWindow")
 			
+			f.Mode = 1
+			
+			--wallpaper
 			local background = f:CreateTexture (nil, "border")
 			background:SetAlpha (0.3)
 			background:SetPoint ("topleft", f, "topleft", 6, -65)
 			background:SetPoint ("bottomright", f, "bottomright", -10, 28)
 
+			--separate menu and main list
 			local div = f:CreateTexture (nil, "artwork")
 			div:SetTexture ([[Interface\ACHIEVEMENTFRAME\UI-Achievement-MetalBorder-Left]])
 			div:SetAlpha (0.3)
 			div:SetPoint ("topleft", f, "topleft", 180, -64)
 			div:SetHeight (460)
 			
+			--select history or guild rank
+			local options_switch_template = _detalhes.gump:GetTemplate ("switch", "OPTIONS_CHECKBOX_TEMPLATE")
+			local options_text_template = _detalhes.gump:GetTemplate ("font", "OPTIONS_FONT_TEMPLATE")
+			local options_button_template = _detalhes.gump:GetTemplate ("button", "OPTIONS_BUTTON_TEMPLATE")
+			
+			local select_history = function()
+				f.GuildRankCheckBox:SetValue (false)
+				f.HistoryCheckBox:SetValue (true)
+				f.Mode = 1
+				_G.DetailsRaidHistoryWindow:Refresh()
+			end
+			local select_guildrank = function()
+				f.HistoryCheckBox:SetValue (false)
+				f.GuildRankCheckBox:SetValue (true)
+				DetailsRaidHistoryWindow.select_player:Select (1, true)
+				f.select_player2:Hide()
+				f.select_player2_label:Hide()
+				f.Mode = 2
+				_G.DetailsRaidHistoryWindow:Refresh()
+			end
+
+			local HistoryCheckBox, HistoryLabel = _detalhes.gump:CreateSwitch (f, select_history, true, 18, 18, "", "", "HistoryCheckBox", nil, nil, nil, nil, "Show History", options_switch_template) --, options_text_template
+			HistoryLabel:ClearAllPoints()
+			HistoryCheckBox:ClearAllPoints()
+			HistoryCheckBox:SetPoint ("topleft", f, "topleft", 100, -34)
+			HistoryLabel:SetPoint ("left", HistoryCheckBox, "right", 2, 0)
+			HistoryCheckBox:SetAsCheckBox()
+			
+			local GuildRankCheckBox, GuildRankLabel = _detalhes.gump:CreateSwitch (f, select_guildrank, false, 18, 18, "", "", "GuildRankCheckBox", nil, nil, nil, nil, "Show Guild Rank", options_switch_template) --, options_text_template
+			GuildRankLabel:ClearAllPoints()
+			GuildRankCheckBox:ClearAllPoints()
+			GuildRankCheckBox:SetPoint ("topleft", f, "topleft", 240, -34)
+			GuildRankLabel:SetPoint ("left", GuildRankCheckBox, "right", 2, 0)
+			GuildRankCheckBox:SetAsCheckBox()
+			
+			local guild_sync = function()
+				_detalhes.storage:DBGuildSync()
+				f.GuildSyncButton:Disable()
+
+				if (not f.SyncTexture) then
+					local workingFrame = CreateFrame ("frame", nil, f)
+					f.WorkingFrame = workingFrame
+					workingFrame:SetSize (1, 1)
+					f.SyncTextureBackground = workingFrame:CreateTexture (nil, "border")
+					f.SyncTextureBackground:SetPoint ("bottomright", f, "bottomright", -5, -1)
+					f.SyncTextureBackground:SetTexture ([[Interface\COMMON\StreamBackground]])
+					f.SyncTextureBackground:SetSize (32, 32)
+					f.SyncTextureCircle = workingFrame:CreateTexture (nil, "artwork")
+					f.SyncTextureCircle:SetPoint ("center", f.SyncTextureBackground, "center", 0, 0)
+					f.SyncTextureCircle:SetTexture ([[Interface\COMMON\StreamCircle]])
+					f.SyncTextureCircle:SetSize (32, 32)
+					f.SyncTextureGrade = workingFrame:CreateTexture (nil, "overlay")
+					f.SyncTextureGrade:SetPoint ("center", f.SyncTextureBackground, "center", 0, 0)
+					f.SyncTextureGrade:SetTexture ([[Interface\COMMON\StreamFrame]])
+					f.SyncTextureGrade:SetSize (32, 32)
+					
+					local animationHub = _detalhes.gump:CreateAnimationHub (workingFrame)
+					animationHub:SetLooping ("Repeat")
+					f.WorkingAnimation = animationHub
+					
+					local rotation = _detalhes.gump:CreateAnimation (animationHub, "ROTATION", 1, 3, -360)
+					rotation:SetTarget (f.SyncTextureCircle)
+					--_detalhes.gump:CreateAnimation (animationHub, "ALPHA", 1, 0.5, 0, 1)
+
+					f.SyncText = workingFrame:CreateFontString (nil, "border", "GameFontNormal")
+					f.SyncText:SetPoint ("right", f.SyncTextureBackground, "left", 0, 0)
+					f.SyncText:SetText ("working")
+					
+					local endAnimationHub = _detalhes.gump:CreateAnimationHub (workingFrame, nil, function() workingFrame:Hide() end)
+					_detalhes.gump:CreateAnimation (endAnimationHub, "ALPHA", 1, 0.5, 1, 0)
+					f.EndAnimationHub = endAnimationHub
+				end
+				
+				f.WorkingFrame:Show()
+				f.WorkingAnimation:Play()
+				
+				C_Timer.NewTicker (10, function (self)
+					if (not _detalhes.LastGuildSyncReceived) then
+						f.GuildSyncButton:Enable()
+						f.EndAnimationHub:Play()
+					elseif (_detalhes.LastGuildSyncReceived+10 < GetTime()) then
+						f.GuildSyncButton:Enable()
+						f.EndAnimationHub:Play()
+						self:Cancel()
+					end
+				end)
+				
+			end
+			
+			local GuildSyncButton = _detalhes.gump:CreateButton (f, guild_sync, 130, 20, "Sync With Guild", nil, nil, nil, "GuildSyncButton", nil, nil, options_button_template, options_text_template)
+			GuildSyncButton:SetPoint ("topright", f, "topright", -20, -34)
+			GuildSyncButton:SetIcon ([[Interface\GLUES\CharacterSelect\RestoreButton]], 12, 12, "overlay", {0.2, .8, 0.2, .8}, nil, 4)
+			
+			--
 			function f:SetBackgroundImage (encounterId)
 				local instanceId = _detalhes:GetInstanceIdFromEncounterId (encounterId)
 				if (instanceId) then
@@ -1147,7 +1245,7 @@
 				end
 			end)
 			
-			f.TitleText:SetText ("Raid History")
+			f.TitleText:SetText ("Details! Raid Ranking")
 			f.portrait:SetTexture ([[Interface\AddOns\Details\images\icons2]])
 			f.portrait:SetTexCoord (192/512, 258/512, 322/512, 388/512)
 			
@@ -1170,6 +1268,7 @@
 			
 			--> select raid:
 			local on_raid_select = function (_, _, raid)
+				f:UpdateDropdowns (true)
 				on_select()
 			end
 			local build_raid_list = function()
@@ -1265,7 +1364,7 @@
 			local player2_dropdown = gump:CreateDropDown (f, build_player2_list, 1, dropdown_size, 20, "select_player2")
 			local player2_string = gump:CreateLabel (f, "Player:", _, _, "GameFontNormal", "select_player2_label")
 
-			function f:UpdateDropdowns()
+			function f:UpdateDropdowns (DoNotSelectRaid)
 				
 				--difficulty
 				wipe (diff_list)
@@ -1276,6 +1375,8 @@
 				local boss_repeated = {}
 				local raid_repeated = {}
 				local guild_repeated = {}
+				
+				local raidSelected = DetailsRaidHistoryWindow.select_raid:GetValue()
 				
 				for difficulty, encounterIdTable in pairs (db) do
 				
@@ -1292,13 +1393,18 @@
 							if (not boss_repeated [encounterId]) then
 								local encounter, instance = _detalhes:GetBossEncounterDetailsFromEncounterId (_, encounterId)
 								if (encounter) then
-									tinsert (boss_list, {value = encounterId, label = encounter.boss, icon = icon, onclick = on_boss_select})
-									boss_repeated [encounterId] = true
+									
+									local InstanceID = _detalhes:GetInstanceIdFromEncounterId (encounterId)
+									if (raidSelected == InstanceID) then
+										tinsert (boss_list, {value = encounterId, label = encounter.boss, icon = icon, onclick = on_boss_select})
+										boss_repeated [encounterId] = true
+									end
 									
 									if (not raid_repeated [instance.name]) then
 										tinsert (raid_list, {value = instance.id, label = instance.name, icon = icon, onclick = on_raid_select})
 										raid_repeated [instance.name] = true
 									end
+									
 								end
 							end
 							
@@ -1317,11 +1423,47 @@
 				diff_dropdown:Select (1, true)
 				boss_dropdown:Refresh()
 				boss_dropdown:Select (1, true)
-				raid_dropdown:Refresh()
-				raid_dropdown:Select (1, true)
+				if (not DoNotSelectRaid) then
+					raid_dropdown:Refresh()
+					raid_dropdown:Select (1, true)
+				end
 				guild_dropdown:Refresh()
 				guild_dropdown:Select (1, true)
 				
+			end
+			
+			function f.UpdateBossDropdown()
+			
+				local raidSelected = DetailsRaidHistoryWindow.select_raid:GetValue()
+				local boss_repeated = {}
+				wipe (boss_list)
+				
+				for difficulty, encounterIdTable in pairs (db) do
+					if (type (difficulty) == "number") then
+						if (difficulty == 14) then
+							tinsert (diff_list, {value = 14, label = "Normal", icon = icon, onclick = on_diff_select})
+						elseif (difficulty == 15) then
+							tinsert (diff_list, {value = 15, label = "Heroic", icon = icon, onclick = on_diff_select})
+						elseif (difficulty == 16) then
+							tinsert (diff_list, {value = 16, label = "Mythic", icon = icon, onclick = on_diff_select})
+						end
+
+						for encounterId, encounterTable in pairs (encounterIdTable) do 
+							if (not boss_repeated [encounterId]) then
+								local encounter, instance = _detalhes:GetBossEncounterDetailsFromEncounterId (_, encounterId)
+								if (encounter) then
+									local InstanceID = _detalhes:GetInstanceIdFromEncounterId (encounterId)
+									if (raidSelected == InstanceID) then
+										tinsert (boss_list, {value = encounterId, label = encounter.boss, icon = icon, onclick = on_boss_select})
+										boss_repeated [encounterId] = true
+									end
+								end
+							end
+						end
+					end
+				end
+				
+				boss_dropdown:Refresh()
 			end
 			
 			--> anchors:
@@ -1421,11 +1563,86 @@
 			local fillpanel = gump:NewFillPanel (f, {}, "$parentFP", "fillpanel", 630, 400, false, false, true, nil)
 			fillpanel:SetPoint ("topleft", f, "topleft", 200, -65)
 			
+			function f:BuildGuildRankTable (encounterTable, guild, role)
+				
+				local header = {{name = "Player Name", type = "text"}, {name = "Total", type = "text"}, {name = "Per Second", type = "text"}, {name = "Length", type = "text"}, {name = "Item Level", type = "text"}, {name = "Date", type = "text"}}
+				local players = {}
+				local players_index = {}
+				
+				local playerScore = {}
+				
+				--get the best of each player
+				for encounterIndex, encounter in ipairs (encounterTable) do
+					if (encounter.guild == guild) then
+						local roleTable = encounter [role]
+						
+						local date = encounter.date
+						date = date:gsub (".*%s", "")
+						date = date:sub (1, -4)
+						
+						for playerName, playerTable in pairs (roleTable) do
+						
+							if (not playerScore [playerName]) then
+								playerScore [playerName] = {
+									total = 0,
+									ps = 0,
+									ilvl = 0,
+									date = 0,
+									class = 0,
+									length = 0,
+								}
+							end
+						
+							local total = playerTable [1]
+							if (total > playerScore [playerName].total) then
+								playerScore [playerName].total = total
+								playerScore [playerName].ps = total / encounter.elapsed
+								playerScore [playerName].ilvl = playerTable [2]
+								playerScore [playerName].length = encounter.elapsed
+								playerScore [playerName].date = date
+								playerScore [playerName].class = playerTable [3]
+							end
+						end
+					end
+				end
+				
+				local sortTable = {}
+				for playerName, t in pairs (playerScore) do
+					local className = select (2, GetClassInfo (t.class or 0))
+					local classColor = "FFFFFFFF"
+					if (className) then
+						classColor = RAID_CLASS_COLORS [className] and RAID_CLASS_COLORS [className].colorStr
+					end
+				
+					tinsert (sortTable, {
+						"|c" .. classColor .. playerName .. "|r",
+						_detalhes:comma_value (t.total),
+						_detalhes:ToK2 (t.ps),
+						_detalhes.gump:IntegerToTimer (t.length),
+						floor (t.ilvl),
+						t.date,
+						t.total,
+					})
+				end
+				table.sort (sortTable, function(a, b) return a[7] > b[7] end)
+				
+				fillpanel:SetFillFunction (function (index) return sortTable [index] end)
+				fillpanel:SetTotalFunction (function() return #sortTable end)
+				fillpanel:UpdateRows (header)
+				fillpanel:Refresh()
+			end
+			
 			function f:BuildRaidTable (encounterTable, guild, role)
+				
+				if (f.Mode == 2) then
+					f:BuildGuildRankTable (encounterTable, guild, role)
+					return
+				end
 				
 				local header = {{name = "Player Name", type = "text"}} -- , width = 90
 				local players = {}
 				local players_index = {}
+				local player_class = {}
 				local amt_encounters = 0
 				
 				for encounterIndex, encounter in ipairs (encounterTable) do
@@ -1445,6 +1662,7 @@
 							
 							if (not index) then
 								player = {playerName}
+								player_class [playerName] = playerTable [3]
 								for i = 1, amt_encounters-1 do
 									tinsert (player, "")
 								end
@@ -1469,11 +1687,13 @@
 					for i = #playerTable, amt_encounters do
 						tinsert (playerTable, "")
 					end
+
+					local className = select (2, GetClassInfo (player_class [playerTable [1]] or 0))
+					if (className) then
+						local classColor = RAID_CLASS_COLORS [className] and RAID_CLASS_COLORS [className].colorStr
+						playerTable [1] = "|c" .. classColor .. playerTable [1] .. "|r"
+					end
 				end
-				
-				--_detalhes:DumpTable (players, true)
-				
-				--table.sort (players, sort_alphabetical)
 				
 				fillpanel:SetFillFunction (function (index) return players [index] end)
 				fillpanel:SetTotalFunction (function() return #players end)
@@ -1481,7 +1701,6 @@
 				fillpanel:UpdateRows (header)
 				
 				fillpanel:Refresh()
-				
 			end
 			
 			function f:Refresh (player_name)
@@ -1495,6 +1714,7 @@
 				local diffTable = db [diff]
 				
 				f:SetBackgroundImage (boss)
+				--_detalhes:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild, _player_base, _player_name)
 				
 				if (diffTable) then
 					local encounters = diffTable [boss]
@@ -1555,12 +1775,15 @@
 		end
 		
 		_G.DetailsRaidHistoryWindow:UpdateDropdowns()
+		_G.DetailsRaidHistoryWindow:UpdateDropdowns()
+		
 		_G.DetailsRaidHistoryWindow:Refresh()
 		_G.DetailsRaidHistoryWindow:Show()
 		
 		if (_raid) then
 			DetailsRaidHistoryWindow.select_raid:Select (_raid)
 			_G.DetailsRaidHistoryWindow:Refresh()
+			DetailsRaidHistoryWindow.UpdateBossDropdown()
 		end
 		if (_boss) then
 			DetailsRaidHistoryWindow.select_boss:Select (_boss)

@@ -316,7 +316,23 @@
 					else
 						link = GetSpellLink (spellid)
 					end
-					_detalhes:Msg ("First hit: " .. (link or "") .. " from " .. (who_name or "Unknown"))
+					
+					--check boss targets
+					local gotTarget = false
+					for i = 1, 5 do
+						local boss = UnitExists ("boss" .. i)
+						if (boss) then
+							local target = UnitName ("boss" .. i .. "target")
+							if (target and type (target) == "string" and not gotTarget) then
+								_detalhes:Msg ("|cFFFFFF00First hit|r: " .. (link or "") .. " from " .. (who_name or "Unknown") .. " |cFFFFFF00First Boss Target|r: " .. target)
+								gotTarget = true
+							end
+						end
+					end
+					
+					if (not gotTarget) then
+						_detalhes:Msg ("First hit: " .. (link or "") .. " from " .. (who_name or "Unknown"))
+					end
 				end
 				_detalhes:EntrarEmCombate (who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags)
 			else
@@ -3928,7 +3944,9 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			
 			for i = #_detalhes.schedule_add_to_overall, 1, -1 do
 				local CombatToAdd = tremove (_detalhes.schedule_add_to_overall, i)
-				_detalhes.historico:adicionar_overall (CombatToAdd)
+				if (CombatToAdd) then
+					_detalhes.historico:adicionar_overall (CombatToAdd)
+				end
 			end
 		end
 		

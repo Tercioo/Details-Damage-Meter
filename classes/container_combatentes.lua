@@ -206,7 +206,7 @@
 						novo_objeto.displayName = nome:gsub (("%-.*"), "")
 						
 					elseif (_detalhes.remove_realm_from_name) then
-						novo_objeto.displayName = nome:gsub (("%-.*"), "%*")
+						novo_objeto.displayName = nome:gsub (("%-.*"), "%*") --nome = nil
 						
 					else
 						novo_objeto.displayName = nome

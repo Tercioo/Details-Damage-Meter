@@ -35,6 +35,8 @@
 	
 	local CONST_WIPE_CALL = "WI"
 	
+	local CONST_GUILD_SYNC = "GS"
+	
 	local CONST_CLOUD_REQUEST = "CR"
 	local CONST_CLOUD_FOUND = "CF"
 	local CONST_CLOUD_DATARQ = "CD"
@@ -55,6 +57,8 @@
 		["CLOUD_EQUALIZE"] = CONST_CLOUD_EQUALIZE,
 		
 		["WIPE_CALL"] = CONST_WIPE_CALL,
+		
+		["GUILD_SYNC"] = CONST_GUILD_SYNC,
 		
 		["MISSDATA_ROGUE_SOULRIP"] = CONST_ROGUE_SR, --soul rip from akaari's soul (LEGION ONLY)
 	}
@@ -263,6 +267,90 @@
 		end
 	end
 	
+	--guild sync R = someone pressed the sync button
+	--guild sync L = list of fights IDs
+	--guild sync G = requested a list of encounters
+	--guild sync A = received missing encounters, add them
+	
+	function _detalhes.network.GuildSync (player, realm, core_version, type, data)
+		local chr_name = Ambiguate (player .. "-" .. realm, "none")
+		
+		if (UnitName ("player") == chr_name) then
+			return
+		end
+		
+		if (core_version ~= _detalhes.realversion) then
+			if (core_version > _detalhes.realversion) then
+				--_detalhes:Msg ("your Details! is out dated and cannot perform the action, please update it.")
+			end
+			return false
+		end
+		
+		if (type == "R") then --RoS
+			_detalhes.LastGuildSyncDataTime1 = _detalhes.LastGuildSyncDataTime1 or 0
+			
+			--build our table and send to the player
+			if (_detalhes.LastGuildSyncDataTime1 > GetTime()) then
+				--return false
+			end
+			
+			local IDs = _detalhes.storage:GetIDsToGuildSync()
+			
+			if (IDs [1]) then
+				local from = UnitName ("player")
+				local realm = GetRealmName()
+				_detalhes:SendCommMessage (CONST_DETAILS_PREFIX, _detalhes:Serialize (CONST_GUILD_SYNC, from, realm, _detalhes.realversion, "L", IDs), "WHISPER", chr_name)
+			end
+			
+			_detalhes.LastGuildSyncDataTime1 = GetTime() + 60
+			return true
+			
+		elseif (type == "L") then --RoC
+			local MissingIDs = _detalhes.storage:CheckMissingIDsToGuildSync (data)
+			
+			if (MissingIDs [1]) then
+				local from = UnitName ("player")
+				local realm = GetRealmName()
+				_detalhes:SendCommMessage (CONST_DETAILS_PREFIX, _detalhes:Serialize (CONST_GUILD_SYNC, from, realm, _detalhes.realversion, "G", MissingIDs), "WHISPER", chr_name)
+			end
+			return true
+			
+		elseif (type == "G") then --RoS
+			local EncounterData = _detalhes.storage:BuildEncounterDataToGuildSync (data)
+			
+			if (EncounterData [1]) then
+				local task = C_Timer.NewTicker (4, function (task)
+					task.TickID = task.TickID + 1
+					local data = task.EncounterData [task.TickID]
+					
+					if (not data) then
+						task:Cancel()
+						return
+					end
+					
+					local from = UnitName ("player")
+					local realm = GetRealmName()
+					_detalhes:SendCommMessage (CONST_DETAILS_PREFIX, _detalhes:Serialize (CONST_GUILD_SYNC, from, realm, _detalhes.realversion, "A", data), "WHISPER", task.Target)
+					
+					if (_detalhes.debug) then
+						_detalhes:Msg ("(debug) [RoS-EncounterSync] send-task sending data #" .. task.TickID .. ".")
+					end
+				end)
+				
+				task.TickID = 0
+				task.EncounterData = EncounterData
+				task.Target = chr_name
+			end	
+			return true
+			
+		elseif (type == "A") then --RoC
+			_detalhes.storage:AddGuildSyncData (data)
+			return true
+			
+		end
+		
+	end
+	
 	function _detalhes.network.HandleMissData (player, realm, core_version, data)
 	
 --		[1] - container
@@ -298,6 +386,8 @@
 		[CONST_CLOUD_DATARC] = _detalhes.network.Cloud_DataReceived,
 		[CONST_CLOUD_EQUALIZE] = _detalhes.network.Cloud_Equalize,
 		[CONST_WIPE_CALL] = _detalhes.network.Wipe_Call,
+		
+		[CONST_GUILD_SYNC] = _detalhes.network.GuildSync,
 		
 		[CONST_ROGUE_SR] = _detalhes.network.HandleMissData, --soul rip from akaari's soul (LEGION ONLY)
 	}

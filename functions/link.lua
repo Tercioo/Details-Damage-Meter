@@ -3096,7 +3096,7 @@ local create_deathrecap_line = function (parent, n)
 	lifePercent:SetAlpha (textAlpha)
 	
 	--text setup
-	amount:SetWidth (75)
+	amount:SetWidth (85)
 	amount:SetJustifyH ("right")
 	lifePercent:SetWidth (36)
 	lifePercent:SetJustifyH ("right")

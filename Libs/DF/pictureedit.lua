@@ -12,7 +12,7 @@ local _
 	window:SetMovable (true)
 	tinsert (UISpecialFrames, "DetailsFrameworkImageEdit")
 	window:SetFrameStrata ("TOOLTIP")
-	window:SetMaxResize (266, 226)
+	window:SetMaxResize (650, 500)
 	
 	window.hooks = {}
 	
@@ -20,13 +20,13 @@ local _
 	background:SetAllPoints()
 	background:SetTexture (0, 0, 0, .8)
 	
-	local edit_texture = DF:NewImage (window, nil, 300, 250, "artwork", nil, nil, "$parentImage")
+	local edit_texture = DF:NewImage (window, nil, 650, 500, "artwork", nil, nil, "$parentImage")
 	edit_texture:SetAllPoints()
 	
 	local background_frame = CreateFrame ("frame", "DetailsFrameworkImageEditBackground", DetailsFrameworkImageEdit)
 	background_frame:SetPoint ("topleft", DetailsFrameworkImageEdit, "topleft", -10, 12)
 	background_frame:SetFrameStrata ("DIALOG")
-	background_frame:SetSize (400, 252)
+	background_frame:SetSize (800, 540)
 	
 	background_frame:SetResizable (true)
 	background_frame:SetMovable (true)
@@ -50,7 +50,7 @@ local _
 		local topCoordTexture = DF:NewImage (window, nil, nil, nil, "overlay", nil, nil, "$parentImageTopCoord")
 		topCoordTexture:SetPoint ("topleft", window, "topleft")
 		topCoordTexture:SetPoint ("topright", window, "topright")
-		topCoordTexture.color = "red"
+		topCoordTexture:SetColorTexture (1, 0, 0)
 		topCoordTexture.height = 1
 		topCoordTexture.alpha = .2
 		
@@ -63,9 +63,9 @@ local _
 		topSlider:SetHook ("OnLeave", function() return true end)
 
 		local topSliderThumpTexture = topSlider:CreateTexture (nil, "overlay")
-		topSliderThumpTexture:SetTexture (1, 1, 1)
+		topSliderThumpTexture:SetColorTexture (1, 1, 1)
 		topSliderThumpTexture:SetWidth (512)
-		topSliderThumpTexture:SetHeight (3)
+		topSliderThumpTexture:SetHeight (1)
 		topSlider:SetThumbTexture (topSliderThumpTexture)
 
 		topSlider:SetHook ("OnValueChange", function (_, _, value)
@@ -82,7 +82,7 @@ local _
 		local bottomCoordTexture = DF:NewImage (window, nil, nil, nil, "overlay", nil, nil, "$parentImageBottomCoord")
 		bottomCoordTexture:SetPoint ("bottomleft", window, "bottomleft", 0, 0)
 		bottomCoordTexture:SetPoint ("bottomright", window, "bottomright", 0, 0)
-		bottomCoordTexture.color = "red"
+		bottomCoordTexture:SetColorTexture (1, 0, 0)
 		bottomCoordTexture.height = 1
 		bottomCoordTexture.alpha = .2
 
@@ -95,9 +95,9 @@ local _
 		bottomSlider:SetHook ("OnLeave", function() return true end)
 
 		local bottomSliderThumpTexture = bottomSlider:CreateTexture (nil, "overlay")
-		bottomSliderThumpTexture:SetTexture (1, 1, 1)
+		bottomSliderThumpTexture:SetColorTexture (1, 1, 1)
 		bottomSliderThumpTexture:SetWidth (512)
-		bottomSliderThumpTexture:SetHeight (3)
+		bottomSliderThumpTexture:SetHeight (1)
 		bottomSlider:SetThumbTexture (bottomSliderThumpTexture)
 
 		bottomSlider:SetHook ("OnValueChange", function (_, _, value)
@@ -115,7 +115,7 @@ local _
 		local leftCoordTexture = DF:NewImage (window, nil, nil, nil, "overlay", nil, nil, "$parentImageLeftCoord")
 		leftCoordTexture:SetPoint ("topleft", window, "topleft", 0, 0)
 		leftCoordTexture:SetPoint ("bottomleft", window, "bottomleft", 0, 0)
-		leftCoordTexture.color = "red"
+		leftCoordTexture:SetColorTexture (1, 0, 0)
 		leftCoordTexture.width = 1
 		leftCoordTexture.alpha = .2
 		
@@ -127,8 +127,8 @@ local _
 		leftSlider:SetHook ("OnLeave", function() return true end)
 		
 		local leftSliderThumpTexture = leftSlider:CreateTexture (nil, "overlay")
-		leftSliderThumpTexture:SetTexture (1, 1, 1)
-		leftSliderThumpTexture:SetWidth (3)
+		leftSliderThumpTexture:SetColorTexture (1, 1, 1)
+		leftSliderThumpTexture:SetWidth (1)
 		leftSliderThumpTexture:SetHeight (512)
 		leftSlider:SetThumbTexture (leftSliderThumpTexture)
 		
@@ -146,7 +146,7 @@ local _
 		local rightCoordTexture = DF:NewImage (window, nil, nil, nil, "overlay", nil, nil, "$parentImageRightCoord")
 		rightCoordTexture:SetPoint ("topright", window, "topright", 0, 0)
 		rightCoordTexture:SetPoint ("bottomright", window, "bottomright", 0, 0)
-		rightCoordTexture.color = "red"
+		rightCoordTexture:SetColorTexture (1, 0, 0)
 		rightCoordTexture.width = 1
 		rightCoordTexture.alpha = .2
 		
@@ -158,8 +158,8 @@ local _
 		rightSlider:SetHook ("OnLeave", function() return true end)
 		--[
 		local rightSliderThumpTexture = rightSlider:CreateTexture (nil, "overlay")
-		rightSliderThumpTexture:SetTexture (1, 1, 1)
-		rightSliderThumpTexture:SetWidth (3)
+		rightSliderThumpTexture:SetColorTexture (1, 1, 1)
+		rightSliderThumpTexture:SetWidth (1)
 		rightSliderThumpTexture:SetHeight (512)
 		rightSlider:SetThumbTexture (rightSliderThumpTexture)
 		--]]
@@ -399,9 +399,98 @@ local _
 		flipButtonH:SetPoint ("topright", buttonsBackground, "topright", -8, -140)
 		flipButtonH:InstallCustomTexture()
 		--
-		local flipButtonV = DF:NewButton (buttonsBackground, nil, "$parentFlipButton2", nil, 100, 20, flip, 2, nil, nil, "Flip V", 1)
-		flipButtonV:SetPoint ("topright", buttonsBackground, "topright", -8, -160)
-		flipButtonV:InstallCustomTexture()
+
+		
+	--> select area to crop
+		local DragFrame = CreateFrame ("frame", nil, background_frame)
+		DragFrame:EnableMouse (false)
+		DragFrame:SetFrameStrata ("TOOLTIP")
+		DragFrame:SetPoint ("topleft", edit_texture.widget, "topleft")
+		DragFrame:SetPoint ("bottomright", edit_texture.widget, "bottomright")
+		DragFrame:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Worldmap\UI-QuestBlob-Inside]], tileSize = 256, tile = true})
+		DragFrame:SetBackdropColor (1, 1, 1, .2)
+		DragFrame:Hide()
+		
+		local SelectionBox_Up = DragFrame:CreateTexture (nil, "overlay")
+		SelectionBox_Up:SetHeight (1)
+		SelectionBox_Up:SetColorTexture (1, 1, 1)
+		local SelectionBox_Down = DragFrame:CreateTexture (nil, "overlay")
+		SelectionBox_Down:SetHeight (1)		
+		SelectionBox_Down:SetColorTexture (1, 1, 1)
+		local SelectionBox_Left = DragFrame:CreateTexture (nil, "overlay")
+		SelectionBox_Left:SetWidth (1)
+		SelectionBox_Left:SetColorTexture (1, 1, 1)
+		local SelectionBox_Right = DragFrame:CreateTexture (nil, "overlay")
+		SelectionBox_Right:SetWidth (1)
+		SelectionBox_Right:SetColorTexture (1, 1, 1)
+		
+		function DragFrame.ClearSelectionBoxPoints()
+			SelectionBox_Up:ClearAllPoints()
+			SelectionBox_Down:ClearAllPoints()
+			SelectionBox_Left:ClearAllPoints()
+			SelectionBox_Right:ClearAllPoints()
+		end
+		
+		local StartCrop = function()
+			DragFrame:Show()
+			DragFrame:EnableMouse (true)
+		end
+		
+		local CropSelection = DF:NewButton (buttonsBackground, nil, "$parentCropSelection", nil, 100, 20, StartCrop, 2, nil, nil, "Crop Selection", 1)
+		--CropSelection:SetPoint ("topright", buttonsBackground, "topright", -8, -260)
+		CropSelection:InstallCustomTexture()
+		
+		DragFrame.OnTick = function (self, deltaTime)
+			local x1, y1 = unpack (self.ClickedAt)
+			local x2, y2 = GetCursorPosition()
+			DragFrame.ClearSelectionBoxPoints()
+			
+			print (x1, y1, x2, y2)
+			
+			if (x2 > x1) then
+				--right
+				if (y1 > y2) then
+					--top
+					SelectionBox_Up:SetPoint ("topleft", UIParent, "bottomleft", x1, y1)
+					SelectionBox_Up:SetPoint ("topright", UIParent, "bottomleft", x2, y1)
+					
+					SelectionBox_Left:SetPoint ("topleft", UIParent, "bottomleft", x1, y1)
+					SelectionBox_Left:SetPoint ("bottomleft", UIParent, "bottomleft", x1, y2)
+					
+					print (1)
+				else
+					--bottom
+					
+				end
+			else
+				--left
+				if (y2 > y1) then
+					--top
+					
+				else
+					--bottom
+					
+				end
+			end
+			
+		end
+		
+		DragFrame:SetScript ("OnMouseDown", function (self, MouseButton)
+			if (MouseButton == "LeftButton") then
+				self.ClickedAt = {GetCursorPosition()}
+				DragFrame:SetScript ("OnUpdate", DragFrame.OnTick)
+				
+			end
+		end)
+		DragFrame:SetScript ("OnMouseUp", function (self, MouseButton)
+			if (MouseButton == "LeftButton") then
+				self.ReleaseAt = {GetCursorPosition()}
+				DragFrame:EnableMouse (false)
+				DragFrame:Hide()
+				DragFrame:SetScript ("OnUpdate", nil)
+				print (self.ClickedAt[1], self.ClickedAt[2], self.ReleaseAt[1], self.ReleaseAt[2])
+			end
+		end)
 		
 	--> accept
 		window.accept = function (self, b, keep_editing)

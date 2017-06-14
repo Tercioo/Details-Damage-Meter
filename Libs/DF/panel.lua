@@ -1526,7 +1526,7 @@ end
 
 local no_options = {}
 function DF:CreateSimplePanel (parent, w, h, title, name, panel_options, db)
-
+	
 	if (db and name and not db [name]) then
 		db [name] = {scale = 1}
 	end
@@ -1540,7 +1540,7 @@ function DF:CreateSimplePanel (parent, w, h, title, name, panel_options, db)
 	end
 	
 	panel_options = panel_options or no_options
-
+	
 	local f = CreateFrame ("frame", name, UIParent)
 	f:SetSize (w or 400, h or 250)
 	f:SetPoint ("center", UIParent, "center", 0, 0)

@@ -1,5 +1,5 @@
 
-local dversion = 50
+local dversion = 52
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary (major, minor)
 
@@ -304,10 +304,18 @@ function DF:GetFontFace (fontString)
 	return fontface
 end
 
+local ValidOutlines = {
+	["NONE"] = true,
+	["MONOCHROME"] = true,
+	["OUTLINE"] = true,
+	["THICKOUTLINE"] = true,
+}
 function DF:SetFontOutline (fontString, outline)
 	local fonte, size = fontString:GetFont()
 	if (outline) then
-		if (_type (outline) == "boolean" and outline) then
+		if (ValidOutlines [outline]) then
+			outline = outline
+		elseif (_type (outline) == "boolean" and outline) then
 			outline = "OUTLINE"
 		elseif (outline == 1) then
 			outline = "OUTLINE"
@@ -650,7 +658,7 @@ end
 				
 			elseif (widget_table.type == "execute" or widget_table.type == "button") then
 			
-				local button = DF:NewButton (parent, nil, "$parentWidget" .. index, nil, 120, 18, widget_table.func, widget_table.param1, widget_table.param2, nil, widget_table.name, nil, button_template)
+				local button = DF:NewButton (parent, nil, "$parentWidget" .. index, nil, 120, 18, widget_table.func, widget_table.param1, widget_table.param2, nil, widget_table.name, nil, button_template, text_template)
 				if (not button_template) then
 					button:InstallCustomTexture()
 				end
@@ -666,6 +674,28 @@ end
 				
 				tinsert (parent.widget_list, button)
 				widget_created = button
+				
+				
+			elseif (widget_table.type == "textentry") then
+				local textentry = DF:CreateTextEntry (parent, widget_table.func, 120, 18, nil, "$parentWidget" .. index, nil, button_template)
+				textentry.tooltip = widget_table.desc
+				textentry.text = widget_table.get()
+				textentry._get = widget_table.get
+				textentry.widget_type = "textentry"
+				textentry:SetHook ("OnEnterPressed", widget_table.set)
+				textentry:SetHook ("OnEditFocusLost", widget_table.set)
+
+				local label = DF:NewLabel (parent, nil, "$parentLabel" .. index, nil, widget_table.name .. (use_two_points and ": " or ""), "GameFontNormal", widget_table.text_template or text_template or 12)
+				textentry:SetPoint ("left", label, "right", 2)
+				label:SetPoint (cur_x, cur_y)
+
+				local size = label.widget:GetStringWidth() + 60 + 4
+				if (size > max_x) then
+					max_x = size
+				end
+				
+				tinsert (parent.widget_list, textentry)
+				widget_created = textentry
 				
 			end
 			
@@ -840,6 +870,8 @@ end
 					widget:Select (widget._get())
 				elseif (widget.widget_type == "toggle" or widget.widget_type == "range") then
 					widget:SetValue (widget._get())
+				elseif (widget.widget_type == "textentry") then
+					widget:SetText (widget._get())
 				elseif (widget.widget_type == "color") then
 					local default_value, g, b, a = widget._get()
 					if (type (default_value) == "table") then

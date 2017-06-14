@@ -11,6 +11,9 @@ local GetNumGroupMembers = GetNumGroupMembers
 local ItemUpgradeInfo = LibStub ("LibItemUpgradeInfo-1.0")
 local LibGroupInSpecT = LibStub ("LibGroupInSpecT-1.1")
 
+local storageDebug = false
+local store_instances = _detalhes.InstancesToStoreData
+
 function _detalhes:UpdateGears()
 	
 	_detalhes:UpdateParser()
@@ -686,6 +689,46 @@ function _detalhes.storage:OpenRaidStorage()
 	return db
 end
 
+function _detalhes.storage:GetBestFromGuild (diff, encounter_id, role)
+	local db = _detalhes.storage:OpenRaidStorage()
+	
+	local best = 0
+	local bestplayername
+	local onencounter
+	
+	if (not role) then
+		role = "damage"
+	end
+	role = string.lower (role)
+	if (role == "damager") then
+		role = "damage"
+	elseif (role == "healer") then
+		role = "healing"
+	end
+	
+	local table = db [diff]
+	if (table) then
+		local encounters = table [encounter_id]
+		if (encounters) then
+			for index, encounter in ipairs (encounters) do
+				
+				local players = encounter [role]
+				if (players) then
+					for playername, t in pairs (players) do
+						if (t[1] > best) then
+							best = t [1]
+							bestplayername = playername
+							onencounter = encounter
+						end
+					end
+				end
+			end
+		end
+	end
+	
+	return best, bestplayername, onencounter
+end
+
 function _detalhes.storage:GetBestFromPlayer (diff, encounter_id, role, playername)
 	local db = _detalhes.storage:OpenRaidStorage()
 	
@@ -724,6 +767,210 @@ function _detalhes.storage:GetBestFromPlayer (diff, encounter_id, role, playerna
 	end
 	
 	return best, onencounter
+end
+
+function _detalhes.storage:DBGuildSync()
+
+	_detalhes:SendGuildData ("GS", "R")
+	
+end
+
+--remote call RoS
+function _detalhes.storage:GetIDsToGuildSync()
+	local db = _detalhes.storage:OpenRaidStorage()
+	local IDs = {}
+	
+	--build the encounter ID list
+
+	for diff, diffTable in pairs (db or {}) do
+		if (type (diffTable) == "table") then
+			for encounterID, encounterTable in pairs (diffTable) do
+				for index, encounter in ipairs (encounterTable) do
+					tinsert (IDs, encounter.time)
+				end
+			end
+		end
+	end
+	
+	if (_detalhes.debug) then
+		_detalhes:Msg ("(debug) [RoS-EncounterSync] sending " .. #IDs .. " IDs.")
+	end
+	
+	return IDs
+end
+
+--local call RoC - received the encounter IDS - need to know which fights is missing
+function _detalhes.storage:CheckMissingIDsToGuildSync (IDsList)
+	local db = _detalhes.storage:OpenRaidStorage()
+	
+	if (type (IDsList) ~= "table") then
+		if (_detalhes.debug) then
+			_detalhes:Msg ("(debug) [RoS-EncounterSync] RoC IDsList isn't a table.")
+		end
+		return
+	end
+	
+	--this will prevent to request the same fight from multiple people
+	_detalhes.RecentRequestedIDs = _detalhes.RecentRequestedIDs or {}
+	
+	--store the IDs which need to be sync
+	local RequestIDs = {}
+	
+	--check missing IDs
+	for index, ID in ipairs (IDsList) do
+		local found = false
+
+		for diff, diffTable in pairs (db or {}) do
+			if (type (diffTable) == "table") then
+				for encounterID, encounterTable in pairs (diffTable) do
+					for index, encounter in ipairs (encounterTable) do
+						if (ID == encounter.time) then
+							found = true
+							break
+						end
+					end
+				end
+			end
+		end
+		
+		if (not found) then
+			if (not _detalhes.RecentRequestedIDs [ID]) then
+				tinsert (RequestIDs, ID)
+				_detalhes.RecentRequestedIDs [ID] = true
+			end
+		end
+	end
+	
+	if (_detalhes.debug) then
+		_detalhes:Msg ("(debug) [RoC-EncounterSync] RoS found " .. #RequestIDs .. " encounters out dated.")
+	end
+	
+	return RequestIDs
+end
+
+--remote call RoS - build the encounter list from the IDsList
+function _detalhes.storage:BuildEncounterDataToGuildSync (IDsList)
+	local db = _detalhes.storage:OpenRaidStorage()
+	
+	if (type (IDsList) ~= "table") then
+		if (_detalhes.debug) then
+			_detalhes:Msg ("(debug) [RoS-EncounterSync] IDsList isn't a table.")
+		end
+		return
+	end
+	
+	local EncounterList = {}
+	local CurrentTable = {}
+	tinsert (EncounterList, CurrentTable)
+	
+	local AmtToSend = 0
+	local MaxAmount = 0
+	
+	if (_detalhes.debug) then
+		_detalhes:Msg ("(debug) [RoS-EncounterSync] the client requested " .. #IDsList .. " encounters.")
+	end
+	
+	for index, ID in ipairs (IDsList) do
+		
+		for diff, diffTable in pairs (db or {}) do
+			if (type (diffTable) == "table") then
+				for encounterID, encounterTable in pairs (diffTable) do
+					for index, encounter in ipairs (encounterTable) do
+						if (ID == encounter.time) then
+							--send this encounter
+							CurrentTable [diff] = CurrentTable [diff] or {}
+							CurrentTable [diff] [encounterID] = CurrentTable [diff] [encounterID] or {}
+							
+							tinsert (CurrentTable [diff] [encounterID], encounter)
+							
+							AmtToSend = AmtToSend + 1
+							MaxAmount = MaxAmount + 1
+							
+							if (MaxAmount == 3) then
+								CurrentTable = {}
+								tinsert (EncounterList, CurrentTable)
+								MaxAmount = 0
+							end
+						end
+					end
+				end
+			end
+		end
+		
+	end
+	
+	if (_detalhes.debug) then
+		_detalhes:Msg ("(debug) [RoS-EncounterSync] sending " .. AmtToSend .. " encounters.")
+	end
+	
+	return EncounterList
+end
+
+local have_encounter = function (db, ID)
+	for diff, diffTable in pairs (db or {}) do
+		if (type (diffTable) == "table") then
+			for encounterID, encounterTable in pairs (diffTable) do
+				for index, encounter in ipairs (encounterTable) do
+					if (ID == encounter.time) then
+						return true
+					end
+				end
+			end
+		end
+	end
+	return false
+end
+
+--local call RoC - add the fights to the client db
+function _detalhes.storage:AddGuildSyncData (data)
+	local db = _detalhes.storage:OpenRaidStorage()
+	
+	local AddedAmount = 0
+	_detalhes.LastGuildSyncReceived = GetTime()
+	
+	for diff, diffTable in pairs (data) do
+		if (type (diff) == "number" and type (diffTable) == "table") then
+			for encounterID, encounterTable in pairs (diffTable) do
+				if (type (encounterID) == "number" and type (encounterTable) == "table") then
+					for index, encounter in ipairs (encounterTable) do
+						--validate the encounter
+						if (type (encounter.time) == "number" and type (encounter.guild) == "string" and type (encounter.date) == "string" and type (encounter.healing) == "table" and type (encounter.elapsed) == "number" and type (encounter.damage) == "table") then
+							--check if this encounter already has been added from another sync
+							if (not have_encounter (db, encounter.time)) then
+								db [diff] = db [diff] or {}
+								db [diff] [encounterID] = db [diff] [encounterID] or {}
+								
+								tinsert (db [diff] [encounterID], encounter)
+								
+								if (_G.DetailsRaidHistoryWindow and _G.DetailsRaidHistoryWindow:IsShown()) then
+									_G.DetailsRaidHistoryWindow:Refresh()
+								end
+								
+								AddedAmount = AddedAmount + 1
+							else
+								if (_detalhes.debug) then
+									_detalhes:Msg ("(debug) [RoS-EncounterSync] received a duplicated encounter table.")
+								end
+							end
+						else
+							if (_detalhes.debug) then
+								_detalhes:Msg ("(debug) [RoS-EncounterSync] received an invalid encounter table.")
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+	
+	if (_detalhes.debug) then
+		_detalhes:Msg ("(debug) [RoS-EncounterSync] added " .. AddedAmount .. " to database.")
+	end
+	
+	if (_G.DetailsRaidHistoryWindow and _G.DetailsRaidHistoryWindow:IsShown()) then
+		_G.DetailsRaidHistoryWindow:UpdateDropdowns()
+		_G.DetailsRaidHistoryWindow:Refresh()
+	end
 end
 
 function _detalhes.storage:ListDiffs()
@@ -855,24 +1102,23 @@ function _detalhes.storage:GetEncounterData (diff, encounter_id, guild)
 	return t
 end
 
-local store_instances = {
-	[1448] = true, --Hellfire Citadel
-	[1205] = true, --Blackrock Foundry
-	[1228] = true, --Highmaul
-	--[1136] = true, --SoO
-}
-
 function _detalhes:StoreEncounter (combat)
 
 	combat = combat or _detalhes.tabela_vigente
 	
 	if (not combat) then
+		if (_detalhes.debug) then
+			print ("|cFFFFFF00Details! Storage|r: combat not found.")
+		end
 		return
 	end
 
 	local name, type, difficulty, difficultyName, maxPlayers, playerDifficulty, isDynamicInstance, mapID, instanceGroupSize = GetInstanceInfo()
 	
 	if (not store_instances [mapID]) then
+		if (_detalhes.debug) then
+			print ("|cFFFFFF00Details! Storage|r: instance not allowed.")
+		end
 		return
 	end
 	
@@ -880,13 +1126,16 @@ function _detalhes:StoreEncounter (combat)
 	local encounter_id = boss_info and boss_info.id
 	
 	if (not encounter_id) then
+		if (_detalhes.debug) then
+			print ("|cFFFFFF00Details! Storage|r: encounter ID not found.")
+		end
 		return
 	end
 	
 	local diff = combat:GetDifficulty()
 	
 	--> check for heroic and mythic
-	if (diff == 15 or diff == 16) then --test on raid finder  ' or diff == 17' -- normal mode: diff == 14 or 
+	if (storageDebug or (diff == 15 or diff == 16)) then --test on raid finder  ' or diff == 17' -- normal mode: diff == 14 or 
 
 		--> check the guild name
 		local match = 0
@@ -901,12 +1150,16 @@ function _detalhes:StoreEncounter (combat)
 				end
 			end
 			
-			if (match < raid_size * 0.75) then
-				print ("|cFFFFFF00Details! Storage|r: can't save the encounter, need at least 75% of players be from your guild.")
+			if (match < raid_size * 0.75 and not storageDebug) then
+				if (_detalhes.debug) then
+					print ("|cFFFFFF00Details! Storage|r: can't save the encounter, need at least 75% of players be from your guild.")
+				end
 				return
 			end
 		else
-			print ("|cFFFFFF00Details! Storage|r: can't save the encounter, need at least 75% of players be from your guild.")
+			if (_detalhes.debug) then
+				print ("|cFFFFFF00Details! Storage|r: can't save the encounter, need at least 75% of players be from your guild.")
+			end
 			return
 		end
 		
@@ -914,7 +1167,9 @@ function _detalhes:StoreEncounter (combat)
 		if (not IsAddOnLoaded ("Details_DataStorage")) then
 			local loaded, reason = LoadAddOn ("Details_DataStorage")
 			if (not loaded) then
-				print ("|cFFFFFF00Details! Storage|r: can't save the encounter, couldn't load DataStorage, may be the addon is disabled.")
+				if (_detalhes.debug) then
+					print ("|cFFFFFF00Details! Storage|r: can't save the encounter, couldn't load DataStorage, may be the addon is disabled.")
+				end
 				return
 			end
 		end
@@ -962,34 +1217,35 @@ function _detalhes:StoreEncounter (combat)
 		
 			local role = UnitGroupRolesAssigned ("raid" .. i)
 			
-			if (role == "DAMAGER" or role == "TANK") then
-				local player_name, player_realm = UnitName ("raid" .. i)
-				if (player_realm and player_realm ~= "") then
-					player_name = player_name .. "-" .. player_realm
-				end
-				
-				local _, _, class = UnitClass (player_name)
-				
-				local damage_actor = damage_container_pool [damage_container_hash [player_name]]
-				if (damage_actor) then
-					local guid = UnitGUID (player_name) or UnitGUID (UnitName ("raid" .. i))
-					this_combat_data.damage [player_name] = {floor (damage_actor.total), _detalhes.item_level_pool [guid] and _detalhes.item_level_pool [guid].ilvl or 0, class or 0}
-				end
-			elseif (role == "HEALER") then
-				local player_name, player_realm = UnitName ("raid" .. i)
-				if (player_realm and player_realm ~= "") then
-					player_name = player_name .. "-" .. player_realm
-				end
-				
-				local _, _, class = UnitClass (player_name)
-				
-				local heal_actor = healing_container_pool [healing_container_hash [player_name]]
-				if (heal_actor) then
-					local guid = UnitGUID (player_name) or UnitGUID (UnitName ("raid" .. i))
-					this_combat_data.healing [player_name] = {floor (heal_actor.total), _detalhes.item_level_pool [guid] and _detalhes.item_level_pool [guid].ilvl or 0, class or 0}
+			if (UnitIsInMyGuild ("raid" .. i)) then
+				if (role == "DAMAGER" or role == "TANK") then
+					local player_name, player_realm = UnitName ("raid" .. i)
+					if (player_realm and player_realm ~= "") then
+						player_name = player_name .. "-" .. player_realm
+					end
+					
+					local _, _, class = UnitClass (player_name)
+					
+					local damage_actor = damage_container_pool [damage_container_hash [player_name]]
+					if (damage_actor) then
+						local guid = UnitGUID (player_name) or UnitGUID (UnitName ("raid" .. i))
+						this_combat_data.damage [player_name] = {floor (damage_actor.total), _detalhes.item_level_pool [guid] and _detalhes.item_level_pool [guid].ilvl or 0, class or 0}
+					end
+				elseif (role == "HEALER") then
+					local player_name, player_realm = UnitName ("raid" .. i)
+					if (player_realm and player_realm ~= "") then
+						player_name = player_name .. "-" .. player_realm
+					end
+					
+					local _, _, class = UnitClass (player_name)
+					
+					local heal_actor = healing_container_pool [healing_container_hash [player_name]]
+					if (heal_actor) then
+						local guid = UnitGUID (player_name) or UnitGUID (UnitName ("raid" .. i))
+						this_combat_data.healing [player_name] = {floor (heal_actor.total), _detalhes.item_level_pool [guid] and _detalhes.item_level_pool [guid].ilvl or 0, class or 0}
+					end
 				end
 			end
-			
 		end
 		
 		tinsert (encounter_database, this_combat_data)
@@ -1016,6 +1272,13 @@ function _detalhes:StoreEncounter (combat)
 			end
 		end
 		
+		--guild best
+		local amount, playerName, encounterObject = _detalhes.storage:GetBestFromGuild (diff, encounter_id, myrole)
+		if (amount > 0) then
+			--> player got the high score on his guild
+			
+		end
+		
 		local lower_instance = _detalhes:GetLowerInstanceNumber()
 		if (lower_instance) then
 			local instance = _detalhes:GetInstance (lower_instance)
@@ -1029,6 +1292,10 @@ function _detalhes:StoreEncounter (combat)
 				local icon = {[[Interface\AddOns\Details\images\icons]], 16, 16, false, 434/512, 466/512, 243/512, 273/512}
 				instance:InstanceAlert ("Boss Defeated, Open History! ", icon, 40, func, true)
 			end
+		end
+	else
+		if (_detalhes.debug) then
+			print ("|cFFFFFF00Details! Storage|r: raid difficulty must be heroic or mythic.")
 		end
 	end
 end

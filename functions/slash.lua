@@ -25,7 +25,7 @@ function SlashCmdList.DETAILS (msg, editbox)
 	elseif (command == Loc ["STRING_SLASH_NEW"] or command == "new") then
 		_detalhes:CriarInstancia (nil, true)
 		
-	elseif (command == Loc ["STRING_SLASH_HISTORY"] or command == "history") then
+	elseif (command == Loc ["STRING_SLASH_HISTORY"] or command == "history" or command == "score" or command == "rank" or command == "ranking") then
 		_detalhes:OpenRaidHistoryWindow()
 	
 	elseif (command == Loc ["STRING_SLASH_TOGGLE"] or command == "toggle") then
@@ -1285,6 +1285,34 @@ function SlashCmdList.DETAILS (msg, editbox)
 				instance:InstanceAlert ("Boss Defeated, Open History! ", {[[Interface\AddOns\Details\images\icons]], 16, 16, false, 434/512, 466/512, 243/512, 273/512}, 40, func, true)
 			end
 		end
+
+	elseif (msg == "teste1") then	-- /de teste1
+		_detalhes:OpenRaidHistoryWindow (1530, 1886, 15, "damage", "Rock Lobster", 2, "Keyspell") --, _role, _guild, _player_base, _player_name)
+	
+	elseif (msg == "recordtest") then	
+
+		local f = DetailsRecordFrameAnimation 
+		if (not f) then
+			f = CreateFrame ("frame", "DetailsRecordFrameAnimation", UIParent)
+			
+			--estrela no inicio dando um giro
+			--Interface\Cooldown\star4
+			--efeito de batida?
+			--Interface\Artifacts\ArtifactAnim2
+			
+			
+			
+			local DF = _detalhes.gump
+			
+			local animationHub = DF:CreateAnimationHub (f, function() f:Show() end)
+
+			DF:CreateAnimation (animationHub, "Scale", 1, .10, .9, .9, 1.1, 1.1)
+			DF:CreateAnimation (animationHub, "Scale", 2, .10, 1.2, 1.2, 1, 1)
+			
+			
+		end
+		
+		
 	
 	else
 		
@@ -1383,4 +1411,5 @@ function _detalhes:CreateListPanel()
 	return _detalhes.ListPanel
 end
 
+--doe
 --endd elsee

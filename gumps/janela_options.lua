@@ -272,7 +272,7 @@ function _detalhes:OpenOptionsWindow (instance, no_reopen, section)
 		forge_button:SetIcon ([[Interface\AddOns\Details\images\icons]], nil, nil, nil, {396/512, 428/512, 243/512, 273/512}, nil, nil, 2)
 		forge_button:SetPoint ("topleft", 80, -61)
 
-		local history_button = g:NewButton (window, _, "$parentHistoryButton", "HistoryButton", 90, 20, function() _detalhes:OpenRaidHistoryWindow(); window:Hide() end, nil, nil, nil, "Open History", 1) --, g:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE")
+		local history_button = g:NewButton (window, _, "$parentHistoryButton", "HistoryButton", 90, 20, function() _detalhes:OpenRaidHistoryWindow(); window:Hide() end, nil, nil, nil, "Guild Rank", 1) --, g:GetTemplate ("dropdown", "OPTIONS_DROPDOWN_TEMPLATE")
 		history_button:SetIcon ([[Interface\AddOns\Details\images\icons]], nil, nil, nil, {434/512, 466/512, 243/512, 273/512}, nil, nil, 2)
 		history_button:SetPoint ("topleft", 180, -61)
 
