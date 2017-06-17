@@ -2330,7 +2330,7 @@
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 		
 		local DynamicOverallDamage = {
-			name = "Dynamic Overall Damage",
+			name = Loc ["STRING_CUSTOM_DYNAMICOVERAL"], --"Dynamic Overall Damage",
 			icon = [[Interface\ICONS\Achievement_Quests_Completed_08]],
 			attribute = false,
 			spellid = false,
@@ -2455,14 +2455,14 @@
 
 		local have = false
 		for _, custom in ipairs (self.custom) do
-			if (custom.name == "Dynamic Overall Damage" and (custom.script_version and custom.script_version >= DynamicOverallDamage.script_version) ) then
+			if (custom.name == Loc ["STRING_CUSTOM_DYNAMICOVERAL"] and (custom.script_version and custom.script_version >= DynamicOverallDamage.script_version) ) then
 				have = true
 				break
 			end
 		end
 		if (not have) then
 			for i, custom in ipairs (self.custom) do
-				if (custom.name == "Dynamic Overall Damage") then
+				if (custom.name == Loc ["STRING_CUSTOM_DYNAMICOVERAL"]) then
 					table.remove (self.custom, i)
 				end
 			end
@@ -2474,7 +2474,7 @@
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 		
 		local DamageOnShields = {
-			name = "Damage on Shields",
+			name = Loc ["STRING_CUSTOM_DAMAGEONSHIELDS"],
 			icon = [[Interface\ICONS\Spell_Holy_PowerWordShield]],
 			attribute = false,
 			spellid = false,
@@ -2556,14 +2556,14 @@
 
 		local have = false
 		for _, custom in ipairs (self.custom) do
-			if (custom.name == "Damage on Shields" and (custom.script_version and custom.script_version >= DamageOnShields.script_version) ) then
+			if (custom.name == Loc ["STRING_CUSTOM_DAMAGEONSHIELDS"] and (custom.script_version and custom.script_version >= DamageOnShields.script_version) ) then
 				have = true
 				break
 			end
 		end
 		if (not have) then
 			for i, custom in ipairs (self.custom) do
-				if (custom.name == "Damage on Shields") then
+				if (custom.name == Loc ["STRING_CUSTOM_DAMAGEONSHIELDS"]) then
 					table.remove (self.custom, i)
 				end
 			end

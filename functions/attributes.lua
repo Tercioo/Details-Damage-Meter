@@ -169,7 +169,7 @@ do
 				Loc ["STRING_ATTRIBUTE_HEAL_TAKEN"],
 				Loc ["STRING_ATTRIBUTE_HEAL_ENEMY"],
 				Loc ["STRING_ATTRIBUTE_HEAL_PREVENT"],
-				"Heal Absorbed (in testing)",
+				Loc ["STRING_ATTRIBUTE_HEAL_ABSORBED"],
 			},
 		
 			icones = {
@@ -198,7 +198,7 @@ do
 				Loc ["STRING_ATTRIBUTE_ENERGY_ENERGY"],
 				Loc ["STRING_ATTRIBUTE_ENERGY_RUNEPOWER"],
 				Loc ["STRING_ATTRIBUTE_ENERGY_RESOURCES"],
-				"Alternate Power (in testing)",
+				Loc ["STRING_ATTRIBUTE_ENERGY_ALTERNATEPOWER"],
 			},
 			icones = {
 				{"Interface\\AddOns\\Details\\images\\atributos_icones_energyze", {0, .125, 0, 1}},

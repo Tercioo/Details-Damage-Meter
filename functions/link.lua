@@ -3169,10 +3169,57 @@ local create_deathrecap_line = function (parent, n)
 end
 
 local OpenDetailsDeathRecapAtSegment = function (segment)
-	_detalhes.OpenDetailsDeathRecap (segment)
+	_detalhes.OpenDetailsDeathRecap (segment, RecapID)
 end
 
-function _detalhes.OpenDetailsDeathRecap (segment)
+function _detalhes.BuildDeathTableFromRecap (recapID)
+	local events = DeathRecap_GetEvents (recapID)
+	
+	--check if it is a valid recap
+	if (not events or #events <= 0) then
+		DeathRecapFrame.Unavailable:Show()
+		return
+	end
+	
+	--build an death log using details format
+	ArtificialDeathLog = {
+		{}, --deathlog events
+		(events [1] and events [1].timestamp) or (DeathRecapFrame and DeathRecapFrame.DeathTimeStamp) or 0, --time of death
+		UnitName ("player"),
+		select (2, UnitClass ("player")),
+		UnitHealthMax ("player"),
+		"0m 0s", --formated fight time
+		["dead"] = true,
+		["last_cooldown"] = false,
+		["dead_at"] = 0,
+		n = 1
+	}
+	
+	for i = 1, #events do
+		local evtData = events [i]
+		local spellId, spellName, texture = DeathRecapFrame_GetEventInfo ( evtData )	
+
+		local ev = {
+			true, 
+			spellId or 0, 
+			evtData.amount or 0,
+			evtData.timestamp or 0, --?
+			evtData.currentHP or 0,
+			evtData.sourceName or "--x--x--",
+			evtData.absorbed or 0,
+			evtData.school or 0,
+			false,
+			evtData.overkill
+		}
+		
+		tinsert (ArtificialDeathLog[1], ev)
+		ArtificialDeathLog.n = ArtificialDeathLog.n + 1
+	end
+	
+	return ArtificialDeathLog
+end
+
+function _detalhes.OpenDetailsDeathRecap (segment, RecapID)
 	
 		if (not _detalhes.death_recap.enabled) then
 			if (Details.DeathRecap and Details.DeathRecap.Lines) then
@@ -3195,6 +3242,8 @@ function _detalhes.OpenDetailsDeathRecap (segment)
 		if (not Details.DeathRecap) then
 			Details.DeathRecap = CreateFrame ("frame", "DetailsDeathRecap", DeathRecapFrame)
 			Details.DeathRecap:SetAllPoints()
+			
+			DeathRecapFrame.Title:SetText (DeathRecapFrame.Title:GetText() .. " (by Details!)")
 			
 			--lines
 			Details.DeathRecap.Lines = {}
@@ -3259,7 +3308,7 @@ function _detalhes.OpenDetailsDeathRecap (segment)
 				_detalhes.gump:SetFontColor (Details.DeathRecap.Segments [1].text, "orange")
 			else
 				_detalhes.gump:SetFontColor (Details.DeathRecap.Segments [segment].text, "orange")
-				death = _detalhes.tabela_historico.tabelas [segment].last_events_tables
+				death = _detalhes.tabela_historico.tabelas [segment] and _detalhes.tabela_historico.tabelas [segment].last_events_tables
 			end
 			
 		else
@@ -3268,165 +3317,180 @@ function _detalhes.OpenDetailsDeathRecap (segment)
 			end
 		end
 
-		if (not death) then
-			return
+		--if couldn't find the requested log from details!, so, import the log from the blizzard death recap
+		--or if the player cliced on the chat link for the recap
+		local ArtificialDeathLog
+		if (not death or RecapID) then
+			if (segment) then
+				--nop, the player requested a death log from details it self but the log does not exists
+				DeathRecapFrame.Unavailable:Show()
+				return
+			end
+			--get the death events from the blizzard's recap
+			ArtificialDeathLog = _detalhes.BuildDeathTableFromRecap (RecapID)
 		end
+		
+		DeathRecapFrame.Unavailable:Hide()
 		
 		--get the relevance config
 		local relevanceTime = _detalhes.death_recap.relevance_time
 
-		--for index, t in ipairs (death) do
-		for index = #death, 1, -1 do
-			local t = death [index]
-		
-			if (t [3] == _detalhes.playername) then
-				
-				local events = t [1]
-				local timeOfDeath = t [2]
-				
-				local BiggestDamageHits = {}
-				for i = #events, 1, -1 do
-					tinsert (BiggestDamageHits, events [i])
+		local t
+		if (ArtificialDeathLog) then
+			t = ArtificialDeathLog
+		else
+			for index = #death, 1, -1 do
+				if (death [index] [3] == _detalhes.playername) then
+					t = death [index]
+					break
 				end
-				table.sort (BiggestDamageHits, function (t1, t2) 
-					return t1[3] > t2[3]
-				end)
-				for i = #BiggestDamageHits, 1, -1 do
-					if (BiggestDamageHits [i][4] + relevanceTime < timeOfDeath) then
-						tremove (BiggestDamageHits, i)
-					end
+			end
+		end
+
+		if (t) then
+			local events = t [1]
+			local timeOfDeath = t [2]
+			
+			local BiggestDamageHits = {}
+			for i = #events, 1, -1 do
+				tinsert (BiggestDamageHits, events [i])
+			end
+			table.sort (BiggestDamageHits, function (t1, t2) 
+				return t1[3] > t2[3]
+			end)
+			for i = #BiggestDamageHits, 1, -1 do
+				if (BiggestDamageHits [i][4] + relevanceTime < timeOfDeath) then
+					tremove (BiggestDamageHits, i)
 				end
-				
-				--verifica se o evento que matou o jogador esta na lista, se nao, adiciona no primeiro index do BiggestDamageHits
-				local hitKill
-				for i = #events, 1, -1 do
-					local event = events [i]
-					local evType = event [1]
-					if (type (evType) == "boolean" and evType) then
-						hitKill = event
+			end
+			
+			--verifica se o evento que matou o jogador esta na lista, se nao, adiciona no primeiro index do BiggestDamageHits
+			local hitKill
+			for i = #events, 1, -1 do
+				local event = events [i]
+				local evType = event [1]
+				if (type (evType) == "boolean" and evType) then
+					hitKill = event
+					break
+				end
+			end
+			if (hitKill) then
+				local haveHitKill = false
+				for index, t in ipairs (BiggestDamageHits) do
+					if (t == hitKill) then
+						haveHitKill = true
 						break
 					end
 				end
-				if (hitKill) then
-					local haveHitKill = false
-					for index, t in ipairs (BiggestDamageHits) do
-						if (t == hitKill) then
-							haveHitKill = true
-							break
-						end
-					end
-					if (not haveHitKill) then
-						tinsert (BiggestDamageHits, 1, hitKill)
-					end
+				if (not haveHitKill) then
+					tinsert (BiggestDamageHits, 1, hitKill)
 				end
-
-				
-				--tem menos que 10 eventos com grande dano dentro dos ultimos 5 segundos
-				--precisa preencher com danos pequenos
-				if (#BiggestDamageHits < 10) then
-					for i = #events, 1, -1 do
-						local event = events [i]
-						local evType = event [1]
-						if (type (evType) == "boolean" and evType) then
-							local alreadyHave = false
-							for index, t in ipairs (BiggestDamageHits) do
-								if (t == event) then
-									alreadyHave = true
-									break
-								end
-							end
-							if (not alreadyHave) then
-								tinsert (BiggestDamageHits, event)
-								if (#BiggestDamageHits == 10) then
-									break
-								end
-							end
-						end
-					end
-				else
-					--encurta a tabela em no maximo 10 eventos
-					while (#BiggestDamageHits > 10) do 
-						tremove (BiggestDamageHits, 11)
-					end
-				end
-				
-				table.sort (BiggestDamageHits, function (t1, t2) 
-					return t1[4] > t2[4]
-				end)
-				
-				local events = BiggestDamageHits
-				
-				local maxHP = t [5]
-				local lineIndex = 10
-				
-				--for i = #events, 1, -1 do
-				for i, event in ipairs (events) do 
-					local event = events [i]
-					
-					local evType = event [1]
-					local hp = min (floor (event [5] / maxHP * 100), 100)
-					local spellName, _, spellIcon = _detalhes.GetSpellInfo (event [2])
-					local amount = event [3]
-					local eventTime = event [4]
-					local source = event [6]
-					local overkill = event [10] or 0
-					
-					if (type (evType) == "boolean" and evType) then
-						
-						local line = Details.DeathRecap.Lines [lineIndex]
-						
-						if (line) then
-							line.timeAt:SetText (format ("%.1f", eventTime - timeOfDeath) .. "s")
-							line.spellIcon:SetTexture (spellIcon)
-							line.TopFader:Hide()
-							--line.spellIcon:SetTexCoord (.1, .9, .1, .9)
-							
-							--line.sourceName:SetText ("|cFFC6B0D9" .. source .. "|r")
-							line.sourceName:SetText (spellName)
-							
-							if (amount > 1000) then
-								--line.amount:SetText ("-" .. _detalhes:ToK (amount))
-								line.amount:SetText ("-" .. amount)
-							else
-								line.amount:SetText ("-" .. floor (amount))
-							end
-							
-							line.lifePercent:SetText (hp .. "%")
-							line.spellid = event [2]
-							
-							line:Show()
-							
-							if (_detalhes.death_recap.show_life_percent) then
-								line.lifePercent:Show()
-								line.amount:SetPoint ("left", line, "left", 220, 0)
-								line.lifePercent:SetPoint ("left", line, "left", 320, 0)
-							else
-								line.lifePercent:Hide()
-								line.amount:SetPoint ("left", line, "left", 280, 0)
-								--line.lifePercent:SetPoint ("left", line, "left", 320, 0)
-							end
-						end
-						
-						lineIndex = lineIndex - 1
-					end
-				end
-				
-				local lastLine = Details.DeathRecap.Lines [lineIndex + 1]
-				if (lastLine) then
-					lastLine.TopFader:Show()
-				end
-				
-				DeathRecapFrame.Unavailable:Hide()
-				
-				break
 			end
+
+			
+			--tem menos que 10 eventos com grande dano dentro dos ultimos 5 segundos
+			--precisa preencher com danos pequenos
+			if (#BiggestDamageHits < 10) then
+				for i = #events, 1, -1 do
+					local event = events [i]
+					local evType = event [1]
+					if (type (evType) == "boolean" and evType) then
+						local alreadyHave = false
+						for index, t in ipairs (BiggestDamageHits) do
+							if (t == event) then
+								alreadyHave = true
+								break
+							end
+						end
+						if (not alreadyHave) then
+							tinsert (BiggestDamageHits, event)
+							if (#BiggestDamageHits == 10) then
+								break
+							end
+						end
+					end
+				end
+			else
+				--encurta a tabela em no maximo 10 eventos
+				while (#BiggestDamageHits > 10) do 
+					tremove (BiggestDamageHits, 11)
+				end
+			end
+			
+			table.sort (BiggestDamageHits, function (t1, t2) 
+				return t1[4] > t2[4]
+			end)
+			
+			local events = BiggestDamageHits
+			
+			local maxHP = t [5]
+			local lineIndex = 10
+			
+			--for i = #events, 1, -1 do
+			for i, event in ipairs (events) do 
+				local event = events [i]
+				
+				local evType = event [1]
+				local hp = min (floor (event [5] / maxHP * 100), 100)
+				local spellName, _, spellIcon = _detalhes.GetSpellInfo (event [2])
+				local amount = event [3]
+				local eventTime = event [4]
+				local source = event [6]
+				local overkill = event [10] or 0
+				
+				if (type (evType) == "boolean" and evType) then
+					
+					local line = Details.DeathRecap.Lines [lineIndex]
+					
+					if (line) then
+						line.timeAt:SetText (format ("%.1f", eventTime - timeOfDeath) .. "s")
+						line.spellIcon:SetTexture (spellIcon)
+						line.TopFader:Hide()
+						--line.spellIcon:SetTexCoord (.1, .9, .1, .9)
+						
+						--line.sourceName:SetText ("|cFFC6B0D9" .. source .. "|r")
+						line.sourceName:SetText (spellName)
+						
+						if (amount > 1000) then
+							--line.amount:SetText ("-" .. _detalhes:ToK (amount))
+							line.amount:SetText ("-" .. amount)
+						else
+							line.amount:SetText ("-" .. floor (amount))
+						end
+						
+						line.lifePercent:SetText (hp .. "%")
+						line.spellid = event [2]
+						
+						line:Show()
+						
+						if (_detalhes.death_recap.show_life_percent) then
+							line.lifePercent:Show()
+							line.amount:SetPoint ("left", line, "left", 220, 0)
+							line.lifePercent:SetPoint ("left", line, "left", 320, 0)
+						else
+							line.lifePercent:Hide()
+							line.amount:SetPoint ("left", line, "left", 280, 0)
+							--line.lifePercent:SetPoint ("left", line, "left", 320, 0)
+						end
+					end
+					
+					lineIndex = lineIndex - 1
+				end
+			end
+			
+			local lastLine = Details.DeathRecap.Lines [lineIndex + 1]
+			if (lastLine) then
+				lastLine.TopFader:Show()
+			end
+			
+			DeathRecapFrame.Unavailable:Hide()
 		end
 
 end
 
 hooksecurefunc (_G, "DeathRecap_LoadUI", function()
-	hooksecurefunc (_G, "DeathRecapFrame_OpenRecap", function()
-		_detalhes.OpenDetailsDeathRecap()
+	hooksecurefunc (_G, "DeathRecapFrame_OpenRecap", function (RecapID)
+		_detalhes.OpenDetailsDeathRecap (nil, RecapID)
 	end)
 end)
 

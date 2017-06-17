@@ -461,6 +461,24 @@
 		end
 	end
 	
+	local get_raid_dps = function()
+		local damage_raid = _detalhes.tabela_vigente and _detalhes.tabela_vigente.totals [1]
+		if (damage_raid ) then
+			return ToKFunctions [_detalhes.minimap.text_format] (_, damage_raid / _detalhes.tabela_vigente:GetCombatTime())
+		else
+			return 0
+		end
+	end
+	
+	local get_raid_hps = function()
+		local healing_raid = _detalhes.tabela_vigente and _detalhes.tabela_vigente.totals [2]
+		if (healing_raid ) then
+			return ToKFunctions [_detalhes.minimap.text_format] (_, healing_raid / _detalhes.tabela_vigente:GetCombatTime())
+		else
+			return 0
+		end
+	end	
+	
 	local get_player_damage = function()
 		local damage_player = _detalhes.tabela_vigente(1, _detalhes.playername)
 		if (damage_player) then
@@ -480,13 +498,14 @@
 	end
 	
 	local parse_broker_text = function()
-	
 		local text = _detalhes.data_broker_text
 		if (text == "") then
 			return
 		end
 		
 		text = text:gsub ("{dmg}", get_player_damage)
+		text = text:gsub ("{rdps}", get_raid_dps)
+		text = text:gsub ("{rhps}", get_raid_hps)
 		text = text:gsub ("{dps}", get_player_dps)
 		text = text:gsub ("{heal}", get_player_heal)
 		text = text:gsub ("{hps}", get_player_hps)

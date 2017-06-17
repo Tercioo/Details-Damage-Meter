@@ -580,7 +580,7 @@
 				
 				--> verifica memoria
 				_detalhes:FlagActorsOnCommonFight() --fight_component
-				_detalhes:CheckMemoryAfterCombat()
+				--_detalhes:CheckMemoryAfterCombat() -- 7.2.5 is doing some weird errors even out of combat
 			else
 			
 				if (not InCombatLockdown() and not UnitAffectingCombat ("player")) then

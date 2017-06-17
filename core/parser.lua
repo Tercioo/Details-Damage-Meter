@@ -203,6 +203,32 @@
 --	/run local f=CreateFrame("frame");f:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED");f:SetScript("OnEvent",function(self, ...) local a = select(6, ...);if (a=="<chr name>")then print (...) end end)
 --	/run local f=CreateFrame("frame");f:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED");f:SetScript("OnEvent",function(self, ...) local a = select(3, ...);print (a);if (a=="SPELL_CAST_SUCCESS")then print (...) end end)
 	
+	local who_aggro = function (self)
+		if ((_detalhes.LastPullMsg or 0) + 30 > time()) then
+			_detalhes.WhoAggroTimer = nil
+			return
+		end
+		_detalhes.LastPullMsg = time()
+	
+		--local hitLine = self.HitBy or "|cFFFFFF00First Hit|r: *?* from *?* "
+		local hitLine = self.HitBy or "|cFFFFFF00First Hit|r: *?*"
+		local targetLine = ""
+		
+		for i = 1, 5 do
+			local boss = UnitExists ("boss" .. i)
+			if (boss) then
+				local target = UnitName ("boss" .. i .. "target")
+				if (target and type (target) == "string") then
+					targetLine = " |cFFFFFF00Boss First Target|r: " .. target
+					break
+				end
+			end
+		end
+		
+		_detalhes:Msg (hitLine .. targetLine)
+		_detalhes.WhoAggroTimer = nil
+	end
+	
 	function parser:spell_dmg (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand)
 	
 	------------------------------------------------------------------------------------------------
@@ -317,22 +343,11 @@
 						link = GetSpellLink (spellid)
 					end
 					
-					--check boss targets
-					local gotTarget = false
-					for i = 1, 5 do
-						local boss = UnitExists ("boss" .. i)
-						if (boss) then
-							local target = UnitName ("boss" .. i .. "target")
-							if (target and type (target) == "string" and not gotTarget) then
-								_detalhes:Msg ("|cFFFFFF00First hit|r: " .. (link or "") .. " from " .. (who_name or "Unknown") .. " |cFFFFFF00First Boss Target|r: " .. target)
-								gotTarget = true
-							end
-						end
+					if (_detalhes.WhoAggroTimer) then
+						_detalhes.WhoAggroTimer:Cancel()
 					end
-					
-					if (not gotTarget) then
-						_detalhes:Msg ("First hit: " .. (link or "") .. " from " .. (who_name or "Unknown"))
-					end
+					_detalhes.WhoAggroTimer = C_Timer.NewTimer (0.5, who_aggro)
+					_detalhes.WhoAggroTimer.HitBy = "|cFFFFFF00First Hit|r: " .. (link or "") .. " from " .. (who_name or "Unknown")
 				end
 				_detalhes:EntrarEmCombate (who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags)
 			else
@@ -3758,7 +3773,6 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	
 	-- ~encounter
 	function _detalhes.parser_functions:ENCOUNTER_START (...)
-	
 		if (_detalhes.debug) then
 			_detalhes:Msg ("(debug) |cFFFFFF00ENCOUNTER_START|r event triggered.")
 		end
@@ -3766,6 +3780,10 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		_detalhes.latest_ENCOUNTER_END = _detalhes.latest_ENCOUNTER_END or 0
 		if (_detalhes.latest_ENCOUNTER_END + 10 > _GetTime()) then
 			return
+		end
+		
+		if (not _detalhes.WhoAggroTimer) then
+			_detalhes.WhoAggroTimer = C_Timer.NewTimer (0.5, who_aggro)
 		end
 	
 		local encounterID, encounterName, difficultyID, raidSize = _select (1, ...)
