@@ -1052,7 +1052,11 @@
 
 		--> no name, use spellname
 		if (not who_name) then
-			who_name = "[*] "..spellname
+			if (not spellname) then
+				--print ("ERROR:", token, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellidAbsorb, spellnameAbsorb, spellschoolAbsorb, serialHealer, nameHealer, flagsHealer, flags2Healer, spellidHeal, spellnameHeal, typeHeal, amountDenied)
+			end
+			--who_name = "[*] "..spellname
+			who_name = "[*] " .. (spellname or "--unknown spell--")
 		end
 		
 		--> no target, just ignore
@@ -1217,6 +1221,7 @@ ameHealer: Bombadão |flagsHealer: 1297 |flagsHealer2: 0 |spellidHeal: 116888 |sp
 
 		--> no name, use spellname
 		if (not who_name) then
+			--who_name = "[*] " .. (spellname or "--unknown spell--")
 			who_name = "[*] "..spellname
 		end
 
