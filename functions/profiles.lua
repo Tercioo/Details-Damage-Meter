@@ -1184,6 +1184,12 @@ local default_global_data = {
 			show_life_percent = false,
 			show_segments = false,
 		},
+		boss_mods_timers = {
+			encounter_timers_dbm = {},
+			encounter_timers_bw = {},
+		},
+		spell_pool = {},
+		encounter_spell_pool = {},
 }
 
 _detalhes.default_global_data = default_global_data

@@ -777,6 +777,9 @@
 			
 			_detalhes:CheckForTextTimeCounter()
 			
+			
+			_detalhes.StoreSpells()
+			
 		end
 
 		function _detalhes:GetPlayersInArena()

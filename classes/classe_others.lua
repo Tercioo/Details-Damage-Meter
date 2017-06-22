@@ -1352,8 +1352,7 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 				for buffIndex = 1, 41 do
 					local name, _, _, _, _, _, _, unitCaster, _, _, spellid  = _UnitAura (RaidIndex, buffIndex, nil, "HELPFUL")
 					if (name and unitCaster == RaidIndex) then
-						_detalhes.parser:add_buff_uptime (nil, cacheGetTime, playerGUID, playerName, 0x00000514, playerGUID, playerName, 0x00000514, spellid, name, in_or_out)
-						
+						_detalhes.parser:add_buff_uptime (nil, cacheGetTime, playerGUID, playerName, 0x00000514, playerGUID, playerName, 0x00000514, 0x0, spellid, name, in_or_out)
 						if (in_or_out == "BUFF_UPTIME_IN") then
 							if (_detalhes.PotionList [spellid]) then
 								pot_usage [playerName] = spellid
@@ -1383,7 +1382,7 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 				for buffIndex = 1, 41 do
 					local name, _, _, _, _, _, _, unitCaster, _, _, spellid  = _UnitAura (PartyIndex, buffIndex, nil, "HELPFUL")
 					if (name and unitCaster == PartyIndex) then
-						_detalhes.parser:add_buff_uptime (nil, cacheGetTime, playerGUID, playerName, 0x00000514, playerGUID, playerName, 0x00000514, spellid, name, in_or_out)
+						_detalhes.parser:add_buff_uptime (nil, cacheGetTime, playerGUID, playerName, 0x00000514, playerGUID, playerName, 0x00000514, 0x0, spellid, name, in_or_out)
 						
 						if (in_or_out == "BUFF_UPTIME_IN") then
 							if (_detalhes.PotionList [spellid]) then
@@ -1413,7 +1412,7 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 						end
 					end
 					
-					_detalhes.parser:add_buff_uptime (nil, cacheGetTime, playerGUID, playerName, 0x00000514, playerGUID, playerName, 0x00000514, spellid, name, in_or_out)
+					_detalhes.parser:add_buff_uptime (nil, cacheGetTime, playerGUID, playerName, 0x00000514, playerGUID, playerName, 0x00000514, 0x0, spellid, name, in_or_out)
 				end
 			end
 		end
@@ -1462,7 +1461,7 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 							end
 						end
 					
-						_detalhes.parser:add_buff_uptime (nil, GetTime(), playerGUID, playerName, 0x00000417, playerGUID, playerName, 0x00000417, spellid, name, in_or_out)
+						_detalhes.parser:add_buff_uptime (nil, GetTime(), playerGUID, playerName, 0x00000417, playerGUID, playerName, 0x00000417, 0x0, spellid, name, in_or_out)
 					end
 				end
 			end
@@ -1482,7 +1481,7 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 						end
 					end
 				
-					_detalhes.parser:add_buff_uptime (nil, GetTime(), playerGUID, playerName, 0x00000417, playerGUID, playerName, 0x00000417, spellid, name, in_or_out)
+					_detalhes.parser:add_buff_uptime (nil, GetTime(), playerGUID, playerName, 0x00000417, playerGUID, playerName, 0x00000417, 0x0, spellid, name, in_or_out)
 				end
 			end
 		end
@@ -1523,7 +1522,7 @@ function _detalhes:CatchRaidBuffUptime (in_or_out)
 							focus_augmentation [playerName] = true
 						end
 					end
-					_detalhes.parser:add_buff_uptime (nil, GetTime(), playerGUID, playerName, 0x00000417, playerGUID, playerName, 0x00000417, nil, spellid, name, in_or_out)
+					_detalhes.parser:add_buff_uptime (nil, GetTime(), playerGUID, playerName, 0x00000417, playerGUID, playerName, 0x00000417, 0x0, spellid, name, in_or_out)
 				end
 			end
 		end
