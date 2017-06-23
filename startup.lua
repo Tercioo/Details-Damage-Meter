@@ -222,7 +222,10 @@ function _G._detalhes:Start()
 		self.intervalo_memoria = 180
 		--self.intervalo_memoria = 20
 		self.garbagecollect = self:ScheduleRepeatingTimer ("IniciarColetaDeLixo", self.intervalo_coleta)
-		self.memorycleanup = self:ScheduleRepeatingTimer ("CheckMemoryPeriodically", self.intervalo_memoria)
+		
+		--desativado, algo bugou no 7.2.5
+		--self.memorycleanup = self:ScheduleRepeatingTimer ("CheckMemoryPeriodically", self.intervalo_memoria)
+		
 		self.next_memory_check = time()+self.intervalo_memoria
 
 	--> role

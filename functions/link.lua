@@ -76,8 +76,7 @@
 			["use_message"] = true,
 			["subeventPrefix"] = "SPELL",
 			["use_unit"] = true,
-			["names"] = {
-			},
+			["names"] = {},
 		},
 		["justify"] = "LEFT",
 		["selfPoint"] = "BOTTOM",
@@ -168,8 +167,7 @@
 			["subeventPrefix"] = "SPELL",
 			["unit"] = "player",
 			["debuffType"] = "HELPFUL",
-			["names"] = {
-			},
+			["names"] = {},
 			["use_addon"] = false,
 			["use_unit"] = true,
 			["subeventSuffix"] = "_CAST_SUCCESS",
@@ -271,8 +269,7 @@
 			["type"] = "aura",
 			["spellIds"] = {
 			},
-			["names"] = {
-			},
+			["names"] = {},
 			["debuffType"] = "HELPFUL",
 			["unit"] = "player",
 		},
@@ -524,8 +521,7 @@
 				["custom_hide"] = "timed",
 				["check"] = "update",
 				["subeventPrefix"] = "SPELL",
-				["names"] = {
-				},
+				["names"] = {},
 				["debuffType"] = "HELPFUL",
 			},
 			["text"] = true,
@@ -631,8 +627,7 @@
 			["custom_type"] = "status",
 			["check"] = "update",
 			["subeventPrefix"] = "SPELL",
-			["names"] = {
-			},
+			["names"] = {},
 			["debuffType"] = "HELPFUL",
 		},
 		["desaturate"] = false,
@@ -880,9 +875,7 @@
 			["name_operator"] = "==",
 			["fullscan"] = true,
 			["unit"] = "player",
-			["names"] = {
-				"",
-			},
+			["names"] = {},
 			["debuffType"] = "HARMFUL",
 		},
 		["untrigger"] = {
@@ -1022,9 +1015,7 @@
 			["name_operator"] = "==",
 			["fullscan"] = true,
 			["unit"] = "player",
-			["names"] = {
-				"",
-			},
+			["names"] = {},
 			["debuffType"] = "HARMFUL",
 		},
 		["text"] = true,
@@ -1120,9 +1111,7 @@
 			["name_operator"] = "==",
 			["fullscan"] = true,
 			["unit"] = "player",
-			["names"] = {
-				"",
-			},
+			["names"] = {},
 			["debuffType"] = "HARMFUL",
 		},
 		["desaturate"] = false,
@@ -1183,7 +1172,7 @@
 			["unit"] = "",
 			["spellIds"] = {},
 			["debuffType"] = "HARMFUL",
-			["names"] = {""},
+			["names"] = {},
 		},
 	}
 	local buff_prototype = {
@@ -1193,7 +1182,7 @@
 			["unit"] = "",
 			["spellIds"] = {},
 			["debuffType"] = "HELPFUL",
-			["names"] = {""},
+			["names"] = {},
 		},
 	}
 	local cast_prototype = {
@@ -1547,12 +1536,12 @@
 				tinsert (new_aura.trigger.spellIds, spellid)
 			end
 			
-			--> if is a regular auras withour using spells ids
+			--> if is a regular auras without using spells ids
 			if (not use_spellid) then
 				new_aura.trigger.use_spellId = false
 				new_aura.trigger.fullscan = false
 				new_aura.trigger.spellId = nil
-				new_aura.trigger.spellIds = {}
+				--new_aura.trigger.spellIds = {}
 			end
 			
 			--> check stack size
@@ -2599,6 +2588,7 @@
 			f:SetFrameStrata ("HIGH")
 			f:SetToplevel (true)
 			f:SetMovable (true)
+			f.Title:SetTextColor (1, .8, .2)
 
 			local have_plugins_enabled
 			
@@ -2960,11 +2950,12 @@
 				end,
 				header = {
 					{name = L["STRING_FORGE_HEADER_INDEX"], width = 40, type = "text", func = no_func},
-					{name = L["STRING_FORGE_HEADER_NAME"], width = 150, type = "entry", func = no_func},
+					{name = L["STRING_FORGE_HEADER_ICON"], width = 40, type = "texture"},
+					{name = L["STRING_FORGE_HEADER_NAME"], width = 150, type = "entry", func = no_func, onenter = function(self) GameTooltip:SetOwner (self.widget, "ANCHOR_TOPLEFT"); _detalhes:GameTooltipSetSpellByID (self.id); GameTooltip:Show() end, onleave = function(self) GameTooltip:Hide() end},
 					{name = L["STRING_FORGE_HEADER_SPELLID"], width = 60, type = "entry", func = no_func},
 					{name = L["STRING_FORGE_HEADER_SCHOOL"], width = 60, type = "entry", func = no_func},
-					{name = L["STRING_FORGE_HEADER_CASTER"], width = 80, type = "entry", func = no_func},
-					{name = L["STRING_FORGE_HEADER_EVENT"], width = 260, type = "entry", func = no_func},
+					{name = L["STRING_FORGE_HEADER_CASTER"], width = 120, type = "entry", func = no_func},
+					{name = L["STRING_FORGE_HEADER_EVENT"], width = 180, type = "entry", func = no_func},
 					{name = L["STRING_FORGE_HEADER_CREATEAURA"], width = 86, type = "button", func = spell_open_aura_creator, icon = [[Interface\AddOns\WeakAuras\Media\Textures\icon]], notext = true, iconalign = "center"},
 				},
 				fill_panel = false,
@@ -2980,11 +2971,12 @@
 							end
 							events = events:sub (1, #events - 3)
 						end
-						local spellName = GetSpellInfo (data[1])
+						local spellName, _, spellIcon = GetSpellInfo (data[1])
 						local classColor = RAID_CLASS_COLORS [data[2]] and RAID_CLASS_COLORS [data[2]].colorStr or "FFFFFFFF"
 						return {
 							index,
-							spellName or "",
+							spellIcon,
+							{text = spellName or "", id = data[1] or 1},
 							data[1] or "",
 							_detalhes:GetSpellSchoolFormatedName (_detalhes.spell_school_cache [spellName]) or "",
 							"|c" .. classColor .. data[2] .. "|r",
@@ -3094,16 +3086,19 @@
 					
 					return t
 				end,
+				
 				header = {
 					{name = L["STRING_FORGE_HEADER_INDEX"], width = 40, type = "text", func = no_func},
-					{name = L["STRING_FORGE_HEADER_NAME"], width = 150, type = "entry", func = no_func},
-					{name = L["STRING_FORGE_HEADER_SPELLID"], width = 60, type = "entry", func = no_func},
+					{name = L["STRING_FORGE_HEADER_ICON"], width = 40, type = "texture"},
+					{name = L["STRING_FORGE_HEADER_NAME"], width = 151, type = "entry", func = no_func, onenter = function(self) GameTooltip:SetOwner (self.widget, "ANCHOR_TOPLEFT"); _detalhes:GameTooltipSetSpellByID (self.id); GameTooltip:Show() end, onleave = function(self) GameTooltip:Hide() end},
+					{name = L["STRING_FORGE_HEADER_SPELLID"], width = 55, type = "entry", func = no_func},
 					{name = L["STRING_FORGE_HEADER_SCHOOL"], width = 60, type = "entry", func = no_func},
 					{name = L["STRING_FORGE_HEADER_CASTER"], width = 80, type = "entry", func = no_func},
-					{name = L["STRING_FORGE_HEADER_EVENT"], width = 160, type = "entry", func = no_func},
-					{name = L["STRING_FORGE_HEADER_ENCOUNTERNAME"], width = 120, type = "entry", func = no_func},
+					{name = L["STRING_FORGE_HEADER_EVENT"], width = 150, type = "entry", func = no_func},
+					{name = L["STRING_FORGE_HEADER_ENCOUNTERNAME"], width = 95, type = "entry", func = no_func},
 					{name = L["STRING_FORGE_HEADER_CREATEAURA"], width = 86, type = "button", func = spell_encounter_open_aura_creator, icon = [[Interface\AddOns\WeakAuras\Media\Textures\icon]], notext = true, iconalign = "center"},
 				},
+				
 				fill_panel = false,
 				fill_gettotal = function (self) return #self.module.data end,
 				fill_fillrows = function (index, self) 
@@ -3119,11 +3114,12 @@
 							events = events:sub (1, #events - 3)
 						end
 						
-						local spellName = GetSpellInfo (data[1])
+						local spellName, _, spellIcon = GetSpellInfo (data[1])
 						
 						return {
 							index,
-							spellName or "",
+							spellIcon,
+							{text = spellName or "", id = data[1] or 1},
 							data[1] or "",
 							_detalhes:GetSpellSchoolFormatedName (_detalhes.spell_school_cache [spellName]) or "",
 							data[3] .. "|r",
@@ -3141,7 +3137,7 @@
 			-----------------------------------------------
 			
 			local dbm_open_aura_creator = function (row)
-				local data = all_modules [2].data [row]
+				local data = all_modules [3].data [row]
 				
 				local spellname, spellicon, _
 				if (type (data [7]) == "number") then
@@ -3223,13 +3219,14 @@
 				end,
 				header = {
 					{name = L["STRING_FORGE_HEADER_INDEX"], width = 40, type = "text", func = no_func},
-					{name = L["STRING_FORGE_HEADER_BARTEXT"], width = 160, type = "entry", func = no_func},
-					{name = L["STRING_FORGE_HEADER_ID"], width = 140, type = "entry", func = no_func},
+					{name = L["STRING_FORGE_HEADER_ICON"], width = 40, type = "texture"},
+					{name = L["STRING_FORGE_HEADER_BARTEXT"], width = 150, type = "entry", func = no_func, onenter = function(self) GameTooltip:SetOwner (self.widget, "ANCHOR_TOPLEFT"); _detalhes:GameTooltipSetSpellByID (self.id); GameTooltip:Show() end, onleave = function(self) GameTooltip:Hide() end},
+					{name = L["STRING_FORGE_HEADER_ID"], width = 130, type = "entry", func = no_func},
 					{name = L["STRING_FORGE_HEADER_SPELLID"], width = 50, type = "entry", func = no_func},
 					{name = L["STRING_FORGE_HEADER_TIMER"], width = 40, type = "entry", func = no_func},
 					{name = L["STRING_FORGE_HEADER_ENCOUNTERID"], width = 80, type = "entry", func = no_func},
-					{name = L["STRING_FORGE_HEADER_ENCOUNTERNAME"], width = 120, type = "entry", func = no_func},
-					{name = L["STRING_FORGE_HEADER_CREATEAURA"], width = 120, type = "button", func = dbm_open_aura_creator, icon = [[Interface\AddOns\WeakAuras\Media\Textures\icon]], notext = true, iconalign = "center"},
+					{name = L["STRING_FORGE_HEADER_ENCOUNTERNAME"], width = 110, type = "entry", func = no_func},
+					{name = L["STRING_FORGE_HEADER_CREATEAURA"], width = 80, type = "button", func = dbm_open_aura_creator, icon = [[Interface\AddOns\WeakAuras\Media\Textures\icon]], notext = true, iconalign = "center"},
 				},
 				
 				fill_panel = false,
@@ -3240,10 +3237,19 @@
 						local encounter_id = data.id
 						local bossDetails, bossIndex = _detalhes:GetBossEncounterDetailsFromEncounterId (nil, data.id)
 						local bossName = bossDetails and bossDetails.boss or "--x--x--"
+
+						local abilityID = tonumber (data [7])
+						local spellName, _, spellIcon
+						if (abilityID) then
+							if (abilityID > 0) then
+								spellName, _, spellIcon = GetSpellInfo (abilityID)
+							end
+						end
 						
 						return {
 							index,
-							data[3] or "",
+							spellIcon,
+							{text = data[3] or "", id = abilityID and abilityID > 0 and abilityID or 0},
 							data[2] or "",
 							data[7] or "",
 							data[4] or "0",
@@ -3262,7 +3268,7 @@
 			
 			local bw_open_aura_creator = function (row)
 			
-				local data = all_modules [3].data [row]
+				local data = all_modules [4].data [row]
 				
 				local spellname, spellicon, _
 				local spellid = tonumber (data [2])
@@ -3347,7 +3353,8 @@
 				end,
 				header = {
 					{name = L["STRING_FORGE_HEADER_INDEX"], width = 40, type = "text", func = no_func},
-					{name = L["STRING_FORGE_HEADER_BARTEXT"], width = 160, type = "entry", func = no_func},
+					{name = L["STRING_FORGE_HEADER_ICON"], width = 40, type = "texture"},
+					{name = L["STRING_FORGE_HEADER_BARTEXT"], width = 200, type = "entry", func = no_func, onenter = function(self) GameTooltip:SetOwner (self.widget, "ANCHOR_TOPLEFT"); _detalhes:GameTooltipSetSpellByID (self.id); GameTooltip:Show() end, onleave = function(self) GameTooltip:Hide() end},
 					{name = L["STRING_FORGE_HEADER_SPELLID"], width = 50, type = "entry", func = no_func},
 					{name = L["STRING_FORGE_HEADER_TIMER"], width = 40, type = "entry", func = no_func},
 					{name = L["STRING_FORGE_HEADER_ENCOUNTERID"], width = 80, type = "entry", func = no_func},
@@ -3363,9 +3370,18 @@
 						local bossDetails, bossIndex = _detalhes:GetBossEncounterDetailsFromEncounterId (nil, data.id)
 						local bossName = bossDetails and bossDetails.boss or "--x--x--"
 						
+						local abilityID = tonumber (data[2])
+						local spellName, _, spellIcon
+						if (abilityID) then
+							if (abilityID > 0) then
+								spellName, _, spellIcon = GetSpellInfo (abilityID)
+							end
+						end
+
 						return {
 							index,
-							data[3] or "",
+							spellIcon,
+							{text = data[3] or "", id = abilityID and abilityID > 0 and abilityID or 0},
 							data[2] or "",
 							data[4] or "",
 							tostring (encounter_id) or "0",
@@ -3409,7 +3425,7 @@
 						
 						local background = fillpanel:CreateTexture (nil, "background")
 						background:SetAllPoints()
-						background:SetColorTexture (0, 0, 0, 0.6)
+						background:SetColorTexture (0, 0, 0, 0.8)
 						
 						module.fill_panel = fillpanel
 					end

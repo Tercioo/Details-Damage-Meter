@@ -731,6 +731,7 @@
 		end
 	end
 
+	--desativado 7.2.5 veio com algum bug e a checagem de memoria esta sendo feita durante o combate
 	function _detalhes:CheckMemoryAfterCombat()
 		if (_detalhes.next_memory_check < time() and not InCombatLockdown() and not UnitAffectingCombat ("player")) then
 			_detalhes.next_memory_check = time()+_detalhes.intervalo_memoria
@@ -741,6 +742,7 @@
 			end
 		end
 	end
+	
 	function _detalhes:CheckMemoryPeriodically()
 		if (_detalhes.next_memory_check <= time() and not _InCombatLockdown() and not _detalhes.in_combat and not UnitAffectingCombat ("player")) then
 			_detalhes.next_memory_check = time() + _detalhes.intervalo_memoria - 3

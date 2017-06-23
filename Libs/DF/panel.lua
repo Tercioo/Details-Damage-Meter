@@ -517,9 +517,15 @@ end
 
 local button_on_enter = function (self)
 	self.MyObject._icon:SetBlendMode ("ADD")
+	if (self.MyObject.onenter_func) then
+		pcall (self.MyObject.onenter_func, self.MyObject)
+	end
 end
 local button_on_leave = function (self)
 	self.MyObject._icon:SetBlendMode ("BLEND")
+	if (self.MyObject.onleave_func) then
+		pcall (self.MyObject.onleave_func, self.MyObject)
+	end
 end
 
 local add_row = function (self, t, need_update)
@@ -536,6 +542,9 @@ local add_row = function (self, t, need_update)
 	thisrow.iconalign = t.iconalign
 	
 	thisrow.hidden = t.hidden or false
+	
+	thisrow.onenter = t.onenter
+	thisrow.onleave = t.onleave
 	
 	local text = DF:NewLabel (thisrow, nil, self._name .. "$parentLabel" .. index, "text")
 	text:SetPoint ("left", thisrow, "left", 2, 0)
@@ -618,6 +627,16 @@ local align_rows = function (self)
 						entry:SetWidth (row.width)
 					end
 					entry.func = row.func
+					
+					entry.onenter_func = nil
+					entry.onleave_func = nil
+					
+					if (row.onenter) then
+						entry.onenter_func = row.onenter
+					end
+					if (row.onleave) then
+						entry.onleave_func = row.onleave
+					end
 				end
 			elseif (type == "button") then
 				for i = 1, #self.scrollframe.lines do
@@ -652,7 +671,17 @@ local align_rows = function (self)
 					if (row.name and not row.notext) then
 						button._text:SetPoint ("left", button._icon, "right", 2, 0)
 						button._text.text = row.name
-					end					
+					end
+					
+					button.onenter_func = nil
+					button.onleave_func = nil
+					
+					if (row.onenter) then
+						button.onenter_func = row.onenter
+					end
+					if (row.onleave) then
+						button.onleave_func = row.onleave
+					end
 					
 				end
 			elseif (type == "icon") then
@@ -667,6 +696,19 @@ local align_rows = function (self)
 					icon:SetPoint ("left", line, "left", self._anchors [#self._anchors] + ( ((row.width or 22) - 22) / 2), 0)
 					icon.func = row.func
 				end
+				
+			elseif (type == "texture") then
+				for i = 1, #self.scrollframe.lines do
+					local line = self.scrollframe.lines [i]
+					local texture = tremove (line.texture_available)
+					if (not texture) then
+						self:CreateRowTexture (line)
+						texture = tremove (line.texture_available)
+					end
+					tinsert (line.texture_inuse, texture)
+					texture:SetPoint ("left", line, "left", self._anchors [#self._anchors] + ( ((row.width or 22) - 22) / 2), 0)
+				end
+				
 			end
 			
 			sindex = sindex + 1
@@ -687,6 +729,7 @@ local align_rows = function (self)
 end
 
 local update_rows = function (self, updated_rows)
+
 	for i = 1, #updated_rows do
 		local t = updated_rows [i]
 		local raw = self._raw_rows [i]
@@ -704,6 +747,11 @@ local update_rows = function (self, updated_rows)
 			widget.textsize = t.textsize
 			widget.textalign = t.textalign
 			widget.hidden = t.hidden or false
+			
+			--
+			widget.onenter = t.onenter
+			widget.onleave = t.onleave
+			--
 			
 			widget.text:SetText (t.name)
 			DF:SetFontSize (widget.text, raw.textsize or 10)
@@ -747,6 +795,13 @@ local update_rows = function (self, updated_rows)
 		for i = 1, #row.icon_available do
 			row.icon_available[i]:Hide()
 		end
+		
+		for i = #row.texture_inuse, 1, -1 do
+			tinsert (row.texture_available, tremove (row.texture_inuse, i))
+		end
+		for i = 1, #row.texture_available do
+			row.texture_available[i]:Hide()
+		end
 	end
 	
 	self.current_header = updated_rows
@@ -771,7 +826,18 @@ local create_panel_entry = function (self, row)
 		editbox:ClearFocus()
 		editbox.func (editbox.index, editbox.text)
 		return true
-	end) 
+	end)
+	
+	editbox:SetHook ("OnEnter", function()
+		if (editbox.onenter_func) then
+			pcall (editbox.onenter_func, editbox)
+		end
+	end)
+	editbox:SetHook ("OnLeave", function()
+		if (editbox.onleave_func) then
+			pcall (editbox.onleave_func, editbox)
+		end
+	end)
 	
 	editbox:SetBackdrop ({bgFile = [[Interface\DialogFrame\UI-DialogBox-Background]], edgeFile = "Interface\\ChatFrame\\ChatFrameBackground", edgeSize = 1})
 	editbox:SetBackdropColor (1, 1, 1, 0.1)
@@ -784,8 +850,6 @@ end
 local create_panel_button = function (self, row)
 	row.button_total = row.button_total + 1
 	local button = DF:NewButton (row, nil, "$parentButton" .. row.button_total, "button" .. row.button_total, 120, 20)
-	--, nil, nil, nil, nil, nil, nil, DF:GetTemplate ("button", "OPTIONS_BUTTON_TEMPLATE")
-	--button:InstallCustomTexture()
 
 	--> create icon and the text
 	local icon = DF:NewImage (button, nil, 20, 20)
@@ -824,6 +888,12 @@ local create_panel_icon = function (self, row)
 	icon:SetPoint ("center", iconbutton, "center", 0, 0)
 
 	tinsert (row.icon_available, iconbutton)
+end
+
+local create_panel_texture = function (self, row)
+	row.texture_total = row.texture_total + 1
+	local texture = DF:NewImage (row, nil, 20, 20, "artwork", nil, "_icon" .. row.texture_total, "$parentIcon" .. row.texture_total)
+	tinsert (row.texture_available, texture)
 end
 
 local set_fill_function = function (self, func)
@@ -872,6 +942,7 @@ function DF:NewFillPanel (parent, rows, name, member, w, h, total_lines, fill_ro
 	panel.CreateRowEntry = create_panel_entry
 	panel.CreateRowButton = create_panel_button
 	panel.CreateRowIcon = create_panel_icon
+	panel.CreateRowTexture = create_panel_texture
 	panel.SetFillFunction = set_fill_function
 	panel.SetTotalFunction = set_total_function
 	panel.DropHeader = drop_header_function
@@ -909,7 +980,7 @@ function DF:NewFillPanel (parent, rows, name, member, w, h, total_lines, fill_ro
 				if (results [1]) then
 					row:Show()
 
-					local text, entry, button, icon = 1, 1, 1, 1
+					local text, entry, button, icon, texture = 1, 1, 1, 1, 1
 					
 					for index, t in ipairs (panel.rows) do
 						if (not t.hidden) then
@@ -919,25 +990,30 @@ function DF:NewFillPanel (parent, rows, name, member, w, h, total_lines, fill_ro
 								fontstring:SetText (results [index])
 								fontstring.index = real_index
 								fontstring:Show()
-								
-								if (true) then
-									--print (t.hello)
-								end
 
 							elseif (t.type == "entry") then
 								local entrywidget = row.entry_inuse [entry]
 								entry = entry + 1
-								entrywidget:SetText (results [index])
 								entrywidget.index = real_index
+								
+								if (type (results [index]) == "table") then
+									entrywidget:SetText (results [index].text)
+									entrywidget.id = results [index].id
+									entrywidget.data1 = results [index].data1
+									entrywidget.data2 = results [index].data2
+								else
+									entrywidget:SetText (results [index])
+								end
+								
+								entrywidget:SetCursorPosition(0)
+								
 								entrywidget:Show()
 								
 							elseif (t.type == "button") then
 								local buttonwidget = row.button_inuse [button]
 								button = button + 1
 								buttonwidget.index = real_index
-							
 
-							
 								if (type (results [index]) == "table") then
 									if (results [index].text) then
 										buttonwidget:SetText (results [index].text)
@@ -960,6 +1036,11 @@ function DF:NewFillPanel (parent, rows, name, member, w, h, total_lines, fill_ro
 										end
 										buttonwidget:SetClickFunction (func)
 									end
+									
+									buttonwidget.id = results [index].id
+									buttonwidget.data1 = results [index].data1
+									buttonwidget.data2 = results [index].data2
+									
 								else
 									local func = function()
 										t.func (real_index, index)
@@ -987,6 +1068,22 @@ function DF:NewFillPanel (parent, rows, name, member, w, h, total_lines, fill_ro
 								end
 								
 								iconwidget:Show()
+								
+							elseif (t.type == "texture") then
+								local texturewidget = row.texture_inuse [texture]
+								texture = texture + 1
+								
+								texturewidget.line = index
+								texturewidget.index = real_index
+
+								if (type (results [index]) == "string") then
+									local result = results [index]:gsub (".-%\\", "")
+									texturewidget.texture = results [index]
+								else
+									texturewidget:SetTexture (results [index])
+								end
+								
+								texturewidget:Show()
 							end
 						end
 					end
@@ -1059,6 +1156,10 @@ function DF:NewFillPanel (parent, rows, name, member, w, h, total_lines, fill_ro
 			row.icon_available = {}
 			row.icon_inuse = {}
 			row.icon_total = 0
+
+			row.texture_available = {}
+			row.texture_inuse = {}
+			row.texture_total = 0
 		end
 	end
 	panel:UpdateRowAmount()
