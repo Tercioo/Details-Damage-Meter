@@ -148,8 +148,7 @@
 		[233499] = 233490, --Unstable Affliction
 	}
 	
-	local is_using_spellId_override = false
-	
+	--> stormlash and greater blessing of the might
 	local SPELLID_SHAMAN_SLASH_AURA = 195222
 	local SPELLID_SHAMAN_SLASH_DAMAGE = 195256
 	local SPELLID_PALADIN_GBOM_AURA = 203528
@@ -157,6 +156,19 @@
 	
 	local SPELLNAME_SHAMAN_SLASH = GetSpellInfo (195222)
 	local SPELLNAME_PALADIN_GBOM = GetSpellInfo (203528)
+	
+	--> spells with special treatment
+	local special_damage_spells = {
+		[98021] = true, --> Spirit Link Toten
+		[96917] = true, --> Light of the Martyr
+		[SPELLID_PALADIN_GBOM_DAMAGE] = true,
+		[SPELLID_SHAMAN_SLASH_DAMAGE] = true,
+		[220893] = true, --> Akaari's Soul
+		[124255] = true, --> Stagger
+	}
+	
+	--> is parser allowed to replace spellIDs?
+	local is_using_spellId_override = false
 	
 	--> recording data options flags
 		local _recording_self_buffs = false
@@ -270,60 +282,47 @@
 		--if (alvo_serial:find ("-76933-")) then
 		--	return
 		--end
-		
-		--> spirit link toten
-		if (spellid == 98021) then
-			return parser:SLT_damage (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand)
-			
-		--> Light of the Martyr - paladin spell which causes damage to the caster it self
-		elseif (spellid == 196917) then -- or spellid == 183998 < healing part
-			local healingActor = healing_cache [who_name]
-			if (healingActor and healingActor.spells) then
-				healingActor.total = healingActor.total - (amount or 0)
-				
-				--local spell = healingActor.spells._ActorTable [spellid]
-				--if (spell) then
-				--	spell.total = spell.total - (amount or 0)
-				--	return
-				--end
-			end
-			return --> ignore this event
-		end
-		
+
+		--> if the parser are allowed to replace spellIDs
 		if (is_using_spellId_override) then
 			spellid = override_spellId [spellid] or spellid
 		end
 		
-		if (spellid == SPELLID_PALADIN_GBOM_DAMAGE) then
-			who_serial, who_name, who_flags = parser:GetRealHitSourceFromBuffOwner (paladin_gbom, who_serial, who_name, who_flags, SPELLNAME_PALADIN_GBOM)
-		elseif (spellid == SPELLID_SHAMAN_SLASH_DAMAGE) then
-			who_serial, who_name, who_flags = parser:GetRealHitSourceFromBuffOwner (shaman_slash, who_serial, who_name, who_flags, SPELLNAME_SHAMAN_SLASH)
-		end
-		
-		if (spellid == 220893) then --Rogue's Akaari's Soul - Soul Rip
-			if (who_flags and _bit_band (who_flags, REACTION_MINE) ~= 0) then
-				who_serial, who_name, who_flags = UnitGUID ("player"), _detalhes.playername, 0x00000417
+		--> avoid doing spellID checks on each iteration
+		if (special_damage_spells [spellid]) then
+			--> stagger
+			if (spellid == 124255) then
+				return parser:MonkStagger_damage (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand)
+			
+			--> spirit link toten
+			elseif (spellid == 98021) then
+				return parser:SLT_damage (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand)
+				
+			--> Light of the Martyr - paladin spell which causes damage to the caster it self
+			elseif (spellid == 196917) then -- or spellid == 183998 < healing part
+				local healingActor = healing_cache [who_name]
+				if (healingActor and healingActor.spells) then
+					healingActor.total = healingActor.total - (amount or 0)
+				end
+				return --> ignore this event
+			
+			--> paladin and shaman special conditions, change source
+			elseif (spellid == SPELLID_PALADIN_GBOM_DAMAGE) then
+				who_serial, who_name, who_flags = parser:GetRealHitSourceFromBuffOwner (paladin_gbom, who_serial, who_name, who_flags, SPELLNAME_PALADIN_GBOM)
+			elseif (spellid == SPELLID_SHAMAN_SLASH_DAMAGE) then
+				who_serial, who_name, who_flags = parser:GetRealHitSourceFromBuffOwner (shaman_slash, who_serial, who_name, who_flags, SPELLNAME_SHAMAN_SLASH)
+			
+			--> Rogue's Akaari's Soul - Soul Rip
+			elseif (spellid == 220893) then
+				if (who_flags and _bit_band (who_flags, REACTION_MINE) ~= 0) then
+					who_serial, who_name, who_flags = UnitGUID ("player"), _detalhes.playername, 0x00000417
+				end
 			end
 		end
-		
-		--> REMOVE AFTER LEGION LAUNCH
-		--if (soul_capacitor [who_serial]) then
-		--	if (soul_capacitor [who_serial]+12 < _tempo) then
-		--		--> something went wrong, debuff didn't expired or we didn't saw it going out.
-		--		soul_capacitor [who_serial] = nil
-		--	else
-		--		return
-		--	end
-		--end
-	
-	
---	if (absorbed and absorbed > 0) then
---		print ("dano absorbido", spellname, absorbed)
---	end
 	
 	------------------------------------------------------------------------------------------------	
 	--> check if need start an combat
-
+	
 		if (not _in_combat) then
 			if (	token ~= "SPELL_PERIODIC_DAMAGE" and spellid ~= SPELLID_PALADIN_GBOM_DAMAGE and
 				( 
@@ -372,7 +371,7 @@
 	------------------------------------------------------------------------------------------------
 	--> get actors
 	
-		--> damager
+		--> source damager
 		local este_jogador, meu_dono = damage_cache [who_serial] or damage_cache_pets [who_serial] or damage_cache [who_name], damage_cache_petsOwners [who_serial]
 		
 		if (not este_jogador) then --> pode ser um desconhecido ou um pet
@@ -455,21 +454,23 @@
 
 			--> record avoidance only for tank actors
 			if (tanks_members_cache [alvo_serial]) then --> autoshot or melee hit
+			
 				--> monk's stagger
-				--[
 				if (jogador_alvo.classe == "MONK") then
 					if (absorbed) then
-						amount = (amount or 0) - absorbed
+						--> the absorbed amount was staggered and should not be count as damage taken now
+						--> this absorbed will hit the player with the stagger debuff
+						amount = (amount or 0) - absorbed 
 					end
 				else
 					--> advanced damage taken
+					--if advanced  damage taken is enabled, the damage taken to tanks acts like the monk stuff above
 					if (_detalhes.damage_taken_everything) then
 						if (absorbed) then
 							amount = (amount or 0) - absorbed
 						end
 					end
 				end
-				--]]
 				
 				--> avoidance
 				local avoidance = jogador_alvo.avoidance
@@ -599,13 +600,8 @@
 	--> firendly fire
 
 		if (
-			--(
-				(_bit_band (alvo_flags, REACTION_FRIENDLY) ~= 0 and _bit_band (who_flags, REACTION_FRIENDLY) ~= 0) or --ajdt d' brx
-				(raid_members_cache [alvo_serial] and raid_members_cache [who_serial] and alvo_serial:find ("Player") and who_serial:find ("Player")) --amrl
-			--) 
-			--and 
-				--spellid ~= 124255 --stagger
-				--spellid ~= 999997 --stagger
+			(_bit_band (alvo_flags, REACTION_FRIENDLY) ~= 0 and _bit_band (who_flags, REACTION_FRIENDLY) ~= 0) or --ajdt d' brx
+			(raid_members_cache [alvo_serial] and raid_members_cache [who_serial] and alvo_serial:find ("Player") and who_serial:find ("Player")) --amrl
 		) then
 		
 			--> ignore soul link (damage from the warlock on his pet)
@@ -643,12 +639,7 @@
 					t.n = i
 				end
 			end
-		
-			--> faz a adição do friendly fire
-			--if (not amount) then
-				--print ("No AMOUNT")
-				--print (token, who_name, who_flags, alvo_name, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand)
-			--end
+
 			este_jogador.friendlyfire_total = este_jogador.friendlyfire_total + amount
 			
 			local friend = este_jogador.friendlyfire [alvo_name] or este_jogador:CreateFFTable (alvo_name)
@@ -724,6 +715,149 @@
 		return spell_damage_func (spell, alvo_serial, alvo_name, alvo_flags, amount, who_name, resisted, blocked, absorbed, critical, glacing, token, isoffhand)
 	end
 
+	
+	function parser:MonkStagger_damage (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand)
+		
+		--> tag the container to refresh
+			_current_damage_container.need_refresh = true
+		
+		--> get the monk damage object
+			local este_jogador, meu_dono = damage_cache [who_serial] or damage_cache_pets [who_serial] or damage_cache [who_name], damage_cache_petsOwners [who_serial]
+			
+			if (not este_jogador) then --> pode ser um desconhecido ou um pet
+				este_jogador, meu_dono, who_name = _current_damage_container:PegarCombatente (who_serial, who_name, who_flags, true)
+				if (meu_dono) then --> é um pet
+					if (who_serial ~= "") then
+						damage_cache_pets [who_serial] = este_jogador
+						damage_cache_petsOwners [who_serial] = meu_dono
+					end
+					--conferir se o dono já esta no cache
+					if (not damage_cache [meu_dono.serial] and meu_dono.serial ~= "") then
+						damage_cache [meu_dono.serial] = meu_dono
+					end
+				else
+					if (who_flags) then --> ter certeza que não é um pet
+						if (who_serial ~= "") then
+							damage_cache [who_serial] = este_jogador
+						else
+							if (who_name:find ("%[")) then
+								damage_cache [who_name] = este_jogador
+								local _, _, icon = _GetSpellInfo (spellid or 1)
+								este_jogador.spellicon = icon
+								--print ("no serial actor", spellname, who_name, "added to cache.")
+							else
+								--_detalhes:Msg ("Unknown actor with unknown serial ", spellname, who_name)
+							end
+						end
+					end
+				end
+				
+			elseif (meu_dono) then
+				--> é um pet
+				who_name = who_name .. " <" .. meu_dono.nome .. ">"
+			end
+		
+		--> last event
+			este_jogador.last_event = _tempo
+		
+		--> amount
+			amount = (amount or 0)
+			local total_amount = amount + (absorbed or 0)
+			
+		--> damage taken
+			este_jogador.damage_taken = este_jogador.damage_taken + amount
+			if (not este_jogador.damage_from [who_name]) then --> adiciona a pool de dano tomado de quem
+				este_jogador.damage_from [who_name] = true
+			end
+			
+		--> friendly fire
+			--total
+			este_jogador.friendlyfire_total = este_jogador.friendlyfire_total + amount
+			--from who
+			local friend = este_jogador.friendlyfire [who_name] or este_jogador:CreateFFTable (who_name)
+			friend.total = friend.total + amount
+			friend.spells [spellid] = (friend.spells [spellid] or 0) + amount
+
+		--> record death log
+			local t = last_events_cache [who_name]
+			
+			if (not t) then
+				t = _current_combat:CreateLastEventsTable (who_name)
+			end
+			
+			local i = t.n
+			
+			local this_event = t [i]
+			
+			if (not this_event) then
+				return print ("Parser Event Error -> Set to 16 DeathLogs and /reload", i, _death_event_amt)
+			end
+			
+			this_event [1] = true --> true if this is a damage || false for healing
+			this_event [2] = spellid --> spellid || false if this is a battle ress line
+			this_event [3] = amount --> amount of damage or healing
+			this_event [4] = time --> parser time
+			this_event [5] = _UnitHealth (who_name) --> current unit heal
+			this_event [6] = who_name --> source name
+			this_event [7] = absorbed
+			this_event [8] = school
+			this_event [9] = true --> friendly fire
+			this_event [10] = overkill
+			
+			i = i + 1
+			
+			if (i == _death_event_amt+1) then
+				t.n = 1
+			else
+				t.n = i
+			end			
+			
+		--> avoidance
+			local avoidance = este_jogador.avoidance
+			if (not avoidance) then
+				este_jogador.avoidance = _detalhes:CreateActorAvoidanceTable()
+				avoidance = este_jogador.avoidance
+			end
+			
+			local overall = avoidance.overall
+			
+			local mob = avoidance [who_name]
+			if (not mob) then --> if isn't in the table, build on the fly
+				mob =  _detalhes:CreateActorAvoidanceTable (true)
+				avoidance [who_name] = mob
+			end				
+			
+			overall ["ALL"] = overall ["ALL"] + 1  --> qualtipo de hit ou absorb
+			mob ["ALL"] = mob ["ALL"] + 1  --> qualtipo de hit ou absorb
+			
+			if (blocked and blocked > 0) then
+				overall ["BLOCKED_HITS"] = overall ["BLOCKED_HITS"] + 1
+				mob ["BLOCKED_HITS"] = mob ["BLOCKED_HITS"] + 1
+				overall ["BLOCKED_AMT"] = overall ["BLOCKED_AMT"] + blocked
+				mob ["BLOCKED_AMT"] = mob ["BLOCKED_AMT"] + blocked
+			end
+			
+			--> absorbs status
+			if (absorbed) then
+				--> aqui pode ser apenas absorb parcial
+				overall ["ABSORB"] = overall ["ABSORB"] + 1
+				overall ["PARTIAL_ABSORBED"] = overall ["PARTIAL_ABSORBED"] + 1
+				overall ["PARTIAL_ABSORB_AMT"] = overall ["PARTIAL_ABSORB_AMT"] + absorbed
+				overall ["ABSORB_AMT"] = overall ["ABSORB_AMT"] + absorbed
+				mob ["ABSORB"] = mob ["ABSORB"] + 1
+				mob ["PARTIAL_ABSORBED"] = mob ["PARTIAL_ABSORBED"] + 1
+				mob ["PARTIAL_ABSORB_AMT"] = mob ["PARTIAL_ABSORB_AMT"] + absorbed
+				mob ["ABSORB_AMT"] = mob ["ABSORB_AMT"] + absorbed
+			else
+				--> adicionar aos hits sem absorbs
+				overall ["FULL_HIT"] = overall ["FULL_HIT"] + 1
+				overall ["FULL_HIT_AMT"] = overall ["FULL_HIT_AMT"] + amount
+				mob ["FULL_HIT"] = mob ["FULL_HIT"] + 1
+				mob ["FULL_HIT_AMT"] = mob ["FULL_HIT_AMT"] + amount
+			end
+		
+	end
+	
 	function parser:SLT_damage (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand)
 		
 		--> damager

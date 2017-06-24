@@ -3319,19 +3319,40 @@ function atributo_damage:ToolTip_DamageTaken (instancia, numero, barra, keydown)
 			end
 		end
 	else
-		for nome, _ in _pairs (agressores) do --> lista de nomes
+		
+		--> aggressors
+		for nome, _ in _pairs (agressores) do --who damaged the player
+			--get the aggressor
 			local este_agressor = showing._ActorTable [showing._NameIndexTable [nome]]
 			if (este_agressor) then --> checagem por causa do total e do garbage collector que não limpa os nomes que deram dano
 				local name = nome
+				local table_added
 				local damage_amount = este_agressor.targets [self.nome]
 				
 				if (damage_amount) then
 					if (este_agressor:IsPlayer() or este_agressor:IsNeutralOrEnemy()) then
-						meus_agressores [#meus_agressores+1] = {name, damage_amount, este_agressor.classe, este_agressor}
+						table_added = {name, damage_amount, este_agressor.classe, este_agressor}
+						meus_agressores [#meus_agressores+1] = table_added
+					end
+				end
+				
+				--special cases - Monk stagger
+				if (nome == self.nome and self.classe == "MONK") then
+					local ff = este_agressor.friendlyfire [nome]
+					if (ff and ff.total > 0) then
+						local staggerDamage = ff.spells [124255]
+						if (staggerDamage > 0) then
+							if (table_added) then
+								table_added [2] = table_added [2] + staggerDamage
+							else
+								meus_agressores [#meus_agressores+1] = {name, staggerDamage, "MONK", este_agressor}
+							end
+						end
 					end
 				end
 			end
 		end
+
 	end
 
 	_table_sort (meus_agressores, _detalhes.Sort2)
@@ -3374,9 +3395,14 @@ function atributo_damage:ToolTip_DamageTaken (instancia, numero, barra, keydown)
 	local icon_border = _detalhes.tooltip.icon_border_texcoord
 	
 	for i = 1, max do
-	
+
 		local aggressor = meus_agressores[i][4]
-		if (aggressor:IsNeutralOrEnemy()) then
+		
+		--only shows damage from enemies or from the player it self
+		--the player it self can only be placed on the list by the iteration above
+		--the iteration doesnt check friendly fire for all actors, only a few cases like Monk Stagger
+		
+		if (aggressor:IsNeutralOrEnemy() or aggressor.nome == self.nome) then
 		
 			local all_spells = {}
 		
@@ -3384,6 +3410,14 @@ function atributo_damage:ToolTip_DamageTaken (instancia, numero, barra, keydown)
 				local on_target = spell.targets [self.nome]
 				if (on_target) then
 					tinsert (all_spells, {spellid, on_target, aggressor.nome})
+				end
+			end
+			
+			--friendly fire
+			local friendlyFire = aggressor.friendlyfire [self.nome]
+			if (friendlyFire) then
+				for spellid, amount in _pairs (friendlyFire.spells) do
+					tinsert (all_spells, {spellid, amount, aggressor.nome})
 				end
 			end
 			
