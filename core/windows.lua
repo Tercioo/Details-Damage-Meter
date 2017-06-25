@@ -3306,7 +3306,7 @@
 		
 			local who = actors_name [math.random (1, #actors_name)]
 		
-			local robot = current_combat[1]:PegarCombatente (0x0000000000000, who[1], 0x114, true)
+			local robot = current_combat[1]:PegarCombatente ("0x0000-0000-0000", who[1], 0x114, true)
 			robot.grupo = true
 			
 			robot.classe = who [2]
@@ -3355,7 +3355,7 @@
 			total_damage = total_damage + robot.total
 			
 			if (robot.nome == "King Djoffrey") then
-				local robot_death = current_combat[4]:PegarCombatente (0x0000000000000, robot.nome, 0x114, true)
+				local robot_death = current_combat[4]:PegarCombatente ("0x0000-0000-0000", robot.nome, 0x114, true)
 				robot_death.grupo = true
 				robot_death.classe = robot.classe
 				local esta_morte = {{true, 96648, 100000, time(), 0, "Lady Holenna"}, {true, 96648, 100000, time()-52, 100000, "Lady Holenna"}, {true, 96648, 100000, time()-86, 200000, "Lady Holenna"}, {true, 96648, 100000, time()-101, 300000, "Lady Holenna"}, {false, 55296, 400000, time()-54, 400000, "King Djoffrey"}, {true, 14185, 0, time()-59, 400000, "Lady Holenna"}, {false, 87351, 400000, time()-154, 400000, "King Djoffrey"}, {false, 56236, 400000, time()-158, 400000, "King Djoffrey"} } 
@@ -3369,7 +3369,7 @@
 			end
 			
 			local who = actors_name [math.random (1, #actors_name)]
-			local robot = current_combat[2]:PegarCombatente (0x0000000000000, who[1], 0x114, true)
+			local robot = current_combat[2]:PegarCombatente ("0x0000-0000-0000", who[1], 0x114, true)
 			robot.grupo = true
 			robot.classe = who[2]
 			
