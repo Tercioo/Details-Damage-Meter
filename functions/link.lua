@@ -2609,6 +2609,34 @@
 				nopluginLabel:SetText (L["STRING_FORGE_ENABLEPLUGINS"])
 			end
 			
+			if (not _detalhes:GetTutorialCVar ("FORGE_TUTORIAL")) then
+				local tutorialFrame = CreateFrame ("frame", "$parentTutorialFrame", f)
+				tutorialFrame:SetPoint ("center", f, "center")
+				tutorialFrame:SetFrameStrata ("DIALOG")
+				tutorialFrame:SetSize (400, 300)
+				tutorialFrame:SetBackdrop ({bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 16,
+				insets = {left = 0, right = 0, top = 0, bottom = 0}, edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize=1})
+				tutorialFrame:SetBackdropColor (0, 0, 0, 1)
+				
+				tutorialFrame.Title = _detalhes.gump:CreateLabel (tutorialFrame, L["STRING_FORGE_TUTORIAL_TITLE"], 12, "orange")
+				tutorialFrame.Desc = _detalhes.gump:CreateLabel (tutorialFrame, L["STRING_FORGE_TUTORIAL_DESC"], 12)
+				tutorialFrame.Desc.width = 370
+				tutorialFrame.Example = _detalhes.gump:CreateLabel (tutorialFrame, L["STRING_FORGE_TUTORIAL_VIDEO"], 12)
+				
+				tutorialFrame.Title:SetPoint ("top", tutorialFrame, "top", 0, -5)
+				tutorialFrame.Desc:SetPoint ("topleft", tutorialFrame, "topleft", 10, -45)
+				tutorialFrame.Example:SetPoint ("topleft", tutorialFrame, "topleft", 10, -110)
+				
+				local editBox = _detalhes.gump:CreateTextEntry (tutorialFrame, function()end, 375, 20, nil, nil, nil, entry_template, label_template)
+				editBox:SetPoint ("topleft", tutorialFrame.Example, "bottomleft", 0, -10) 
+				editBox:SetText ([[https://www.youtube.com/watch?v=om0k1Yj2pEw]])
+				editBox:SetTemplate (_detalhes.gump:GetTemplate ("button", "OPTIONS_BUTTON_TEMPLATE"))
+				
+				local closeButton = _detalhes.gump:CreateButton (tutorialFrame, function() _detalhes:SetTutorialCVar ("FORGE_TUTORIAL", true); tutorialFrame:Hide() end, 80, 20, L["STRING_OPTIONS_CHART_CLOSE"])
+				closeButton:SetPoint ("bottom", tutorialFrame, "bottom", 0, 10)
+				closeButton:SetTemplate (_detalhes.gump:GetTemplate ("button", "OPTIONS_BUTTON_TEMPLATE"))
+			end
+			
 			--modules
 			local all_modules = {}
 			local spell_already_added = {}

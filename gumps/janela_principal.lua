@@ -5761,15 +5761,28 @@ local build_mode_list = function (self, elapsed)
 		
 		CoolTip:SetWallpaper (2, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
 		
-		--> options
+		--> space
 		GameCooltip:AddLine ("$div")
 		
+		--> forge and history buttons
+		CoolTip:AddLine (Loc ["STRING_MODE_OPENFORGE"])
+		CoolTip:AddMenu (1, _detalhes.OpenForge)
+		CoolTip:AddIcon ([[Interface\MINIMAP\Vehicle-HammerGold-3]], 1, 1, 16, 16, 0, 1, 0, 1)
+		
+		CoolTip:AddLine (Loc ["STRING_MODE_OPENGUILDDAMAGERANK"])
+		CoolTip:AddMenu (1, _detalhes.OpenRaidHistoryWindow)
+		CoolTip:AddIcon ([[Interface\PvPRankBadges\PvPRank08]], 1, 1, 16, 16, 0, 1, 0, 1)
+		
+		--> space
+		GameCooltip:AddLine ("$div")
+		
+		--> options
 		CoolTip:AddLine (Loc ["STRING_OPTIONS_WINDOW"])
 		CoolTip:AddMenu (1, _detalhes.OpenOptionsWindow)
 		CoolTip:AddIcon ([[Interface\AddOns\Details\images\modo_icones]], 1, 1, 20, 20, 0.5, 0.625, 0, 1)
 		
+		--> finishes the menu
 		_detalhes:SetMenuOwner (self, instancia)
-		
 		CoolTip:SetBackdrop (1, menus_backdrop, nil, menus_bordercolor)
 		CoolTip:SetBackdrop (2, menus_backdrop, nil, menus_bordercolor)
 		CoolTip:SetWallpaper (1, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)

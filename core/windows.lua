@@ -1096,7 +1096,7 @@
 		
 			local db = _detalhes.storage:OpenRaidStorage()
 			if (not db) then
-				return _detalhes:Msg ("Fail to open 'Details Storage', maybe the addon is disabled?")
+				return _detalhes:Msg (Loc ["STRING_GUILDDAMAGERANK_DATABASEERROR"])
 			end
 		
 			local f = CreateFrame ("frame", "DetailsRaidHistoryWindow", UIParent, "ButtonFrameTemplate")
@@ -1110,6 +1110,37 @@
 			tinsert (UISpecialFrames, "DetailsRaidHistoryWindow")
 			
 			f.Mode = 1
+			
+			if (not _detalhes:GetTutorialCVar ("HISTORYPANEL_TUTORIAL")) then
+				local tutorialFrame = CreateFrame ("frame", "$parentTutorialFrame", f)
+				tutorialFrame:SetPoint ("center", f, "center")
+				tutorialFrame:SetFrameStrata ("DIALOG")
+				tutorialFrame:SetSize (400, 300)
+				tutorialFrame:SetBackdrop ({bgFile = [[Interface\AddOns\Details\images\background]], tile = true, tileSize = 16,
+				insets = {left = 0, right = 0, top = 0, bottom = 0}, edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize=1})
+				tutorialFrame:SetBackdropColor (0, 0, 0, 1)
+				
+				tutorialFrame.Title = _detalhes.gump:CreateLabel (tutorialFrame, Loc ["STRING_MODE_OPENGUILDDAMAGERANK"], 12, "orange")
+				tutorialFrame.Title:SetPoint ("top", tutorialFrame, "top", 0, -5)
+				
+				tutorialFrame.Desc = _detalhes.gump:CreateLabel (tutorialFrame, Loc ["STRING_GUILDDAMAGERANK_TUTORIAL_DESC"], 12)
+				tutorialFrame.Desc.width = 370
+				tutorialFrame.Desc:SetPoint ("topleft", tutorialFrame, "topleft", 10, -45)
+
+				--[[
+				tutorialFrame.Example:SetPoint ("topleft", tutorialFrame, "topleft", 10, -110)
+				tutorialFrame.Example = _detalhes.gump:CreateLabel (tutorialFrame, Loc ["STRING_FORGE_TUTORIAL_VIDEO"], 12)
+				
+				local editBox = _detalhes.gump:CreateTextEntry (tutorialFrame, function()end, 375, 20, nil, nil, nil, entry_template, label_template)
+				editBox:SetPoint ("topleft", tutorialFrame.Example, "bottomleft", 0, -10) 
+				editBox:SetText ()
+				editBox:SetTemplate (_detalhes.gump:GetTemplate ("button", "OPTIONS_BUTTON_TEMPLATE"))
+				--]]
+				
+				local closeButton = _detalhes.gump:CreateButton (tutorialFrame, function() _detalhes:SetTutorialCVar ("HISTORYPANEL_TUTORIAL", true); tutorialFrame:Hide() end, 80, 20, Loc ["STRING_OPTIONS_CHART_CLOSE"])
+				closeButton:SetPoint ("bottom", tutorialFrame, "bottom", 0, 10)
+				closeButton:SetTemplate (_detalhes.gump:GetTemplate ("button", "OPTIONS_BUTTON_TEMPLATE"))
+			end			
 			
 			--wallpaper
 			local background = f:CreateTexture (nil, "border")
@@ -1145,14 +1176,14 @@
 				_G.DetailsRaidHistoryWindow:Refresh()
 			end
 
-			local HistoryCheckBox, HistoryLabel = _detalhes.gump:CreateSwitch (f, select_history, true, 18, 18, "", "", "HistoryCheckBox", nil, nil, nil, nil, "Show History", options_switch_template) --, options_text_template
+			local HistoryCheckBox, HistoryLabel = _detalhes.gump:CreateSwitch (f, select_history, true, 18, 18, "", "", "HistoryCheckBox", nil, nil, nil, nil, Loc ["STRING_GUILDDAMAGERANK_SHOWHISTORY"], options_switch_template) --, options_text_template
 			HistoryLabel:ClearAllPoints()
 			HistoryCheckBox:ClearAllPoints()
 			HistoryCheckBox:SetPoint ("topleft", f, "topleft", 100, -34)
 			HistoryLabel:SetPoint ("left", HistoryCheckBox, "right", 2, 0)
 			HistoryCheckBox:SetAsCheckBox()
 			
-			local GuildRankCheckBox, GuildRankLabel = _detalhes.gump:CreateSwitch (f, select_guildrank, false, 18, 18, "", "", "GuildRankCheckBox", nil, nil, nil, nil, "Show Guild Rank", options_switch_template) --, options_text_template
+			local GuildRankCheckBox, GuildRankLabel = _detalhes.gump:CreateSwitch (f, select_guildrank, false, 18, 18, "", "", "GuildRankCheckBox", nil, nil, nil, nil, Loc ["STRING_GUILDDAMAGERANK_SHOWRANK"], options_switch_template) --, options_text_template
 			GuildRankLabel:ClearAllPoints()
 			GuildRankCheckBox:ClearAllPoints()
 			GuildRankCheckBox:SetPoint ("topleft", f, "topleft", 240, -34)
@@ -1213,7 +1244,7 @@
 				
 			end
 			
-			local GuildSyncButton = _detalhes.gump:CreateButton (f, guild_sync, 130, 20, "Sync With Guild", nil, nil, nil, "GuildSyncButton", nil, nil, options_button_template, options_text_template)
+			local GuildSyncButton = _detalhes.gump:CreateButton (f, guild_sync, 130, 20, Loc ["STRING_GUILDDAMAGERANK_SYNCBUTTONTEXT"], nil, nil, nil, "GuildSyncButton", nil, nil, options_button_template, options_text_template)
 			GuildSyncButton:SetPoint ("topright", f, "topright", -20, -34)
 			GuildSyncButton:SetIcon ([[Interface\GLUES\CharacterSelect\RestoreButton]], 12, 12, "overlay", {0.2, .8, 0.2, .8}, nil, 4)
 			
@@ -1275,7 +1306,7 @@
 				return raid_list
 			end
 			local raid_dropdown = gump:CreateDropDown (f, build_raid_list, 1, dropdown_size, 20, "select_raid")
-			local raid_string = gump:CreateLabel (f, "Raid:", _, _, "GameFontNormal", "select_raid_label")
+			local raid_string = gump:CreateLabel (f, Loc ["STRING_GUILDDAMAGERANK_RAID"] .. ":", _, _, "GameFontNormal", "select_raid_label")
 			
 			--> select boss:
 			local on_boss_select = function (_, _, boss)
@@ -1285,7 +1316,7 @@
 				return boss_list
 			end
 			local boss_dropdown = gump:CreateDropDown (f, build_boss_list, 1, dropdown_size, 20, "select_boss")
-			local boss_string = gump:CreateLabel (f, "Boss:", _, _, "GameFontNormal", "select_boss_label")
+			local boss_string = gump:CreateLabel (f, Loc ["STRING_GUILDDAMAGERANK_BOSS"] .. ":", _, _, "GameFontNormal", "select_boss_label")
 
 			--> select difficulty:
 			local on_diff_select = function (_, _, diff)
@@ -1296,7 +1327,7 @@
 				return diff_list
 			end
 			local diff_dropdown = gump:CreateDropDown (f, build_diff_list, 1, dropdown_size, 20, "select_diff")
-			local diff_string = gump:CreateLabel (f, "Difficulty:", _, _, "GameFontNormal", "select_diff_label")
+			local diff_string = gump:CreateLabel (f, Loc ["STRING_GUILDDAMAGERANK_DIFF"] .. ":", _, _, "GameFontNormal", "select_diff_label")
 			
 			--> select role:
 			local on_role_select = function (_, _, role)
@@ -1309,7 +1340,7 @@
 				}
 			end
 			local role_dropdown = gump:CreateDropDown (f, build_role_list, 1, dropdown_size, 20, "select_role")
-			local role_string = gump:CreateLabel (f, "Role:", _, _, "GameFontNormal", "select_role_label")
+			local role_string = gump:CreateLabel (f, Loc ["STRING_GUILDDAMAGERANK_ROLE"] .. ":", _, _, "GameFontNormal", "select_role_label")
 			
 			--> select guild:
 			local on_guild_select = function (_, _, guild)
@@ -1319,7 +1350,7 @@
 				return guild_list
 			end
 			local guild_dropdown = gump:CreateDropDown (f, build_guild_list, 1, dropdown_size, 20, "select_guild")
-			local guild_string = gump:CreateLabel (f, "Guild:", _, _, "GameFontNormal", "select_guild_label")
+			local guild_string = gump:CreateLabel (f, Loc ["STRING_GUILDDAMAGERANK_GUILD"] .. ":", _, _, "GameFontNormal", "select_guild_label")
 
 			--> select playerbase:
 			local on_player_select = function (_, _, player)
@@ -1327,12 +1358,12 @@
 			end
 			local build_player_list = function()
 				return {
-					{value = 1, label = "Raid", icon = icon, onclick = on_player_select},
-					{value = 2, label = "Individual", icon = icon, onclick = on_player_select},
+					{value = 1, label = Loc ["STRING_GUILDDAMAGERANK_PLAYERBASE_RAID"], icon = icon, onclick = on_player_select},
+					{value = 2, label = Loc ["STRING_GUILDDAMAGERANK_PLAYERBASE_INDIVIDUAL"], icon = icon, onclick = on_player_select},
 				}
 			end
 			local player_dropdown = gump:CreateDropDown (f, build_player_list, 1, dropdown_size, 20, "select_player")
-			local player_string = gump:CreateLabel (f, "Player Base:", _, _, "GameFontNormal", "select_player_label")
+			local player_string = gump:CreateLabel (f, Loc ["STRING_GUILDDAMAGERANK_PLAYERBASE"] .. ":", _, _, "GameFontNormal", "select_player_label")
 
 			--> select player:
 			local on_player2_select = function (_, _, player)
@@ -1362,7 +1393,7 @@
 				return t
 			end
 			local player2_dropdown = gump:CreateDropDown (f, build_player2_list, 1, dropdown_size, 20, "select_player2")
-			local player2_string = gump:CreateLabel (f, "Player:", _, _, "GameFontNormal", "select_player2_label")
+			local player2_string = gump:CreateLabel (f, Loc ["STRING_GUILDDAMAGERANK_PLAYERBASE_PLAYER"] .. ":", _, _, "GameFontNormal", "select_player2_label")
 
 			function f:UpdateDropdowns (DoNotSelectRaid)
 				
