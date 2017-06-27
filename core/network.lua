@@ -286,7 +286,7 @@
 			return false
 		end
 		
-		if (type == "R") then --RoS
+		if (type == "R") then --RoS - somebody requested IDs of stored encounters
 			_detalhes.LastGuildSyncDataTime1 = _detalhes.LastGuildSyncDataTime1 or 0
 			
 			--build our table and send to the player
@@ -305,7 +305,7 @@
 			_detalhes.LastGuildSyncDataTime1 = GetTime() + 60
 			return true
 			
-		elseif (type == "L") then --RoC
+		elseif (type == "L") then --RoC - the player received the IDs list and send back which IDs he doesn't have
 			local MissingIDs = _detalhes.storage:CheckMissingIDsToGuildSync (data)
 			
 			if (MissingIDs [1]) then
@@ -315,7 +315,7 @@
 			end
 			return true
 			
-		elseif (type == "G") then --RoS
+		elseif (type == "G") then --RoS - the 'server' send the encounter dps table to the player which requested
 			local EncounterData = _detalhes.storage:BuildEncounterDataToGuildSync (data)
 			
 			if (EncounterData [1]) then
@@ -343,8 +343,8 @@
 			end	
 			return true
 			
-		elseif (type == "A") then --RoC
-			_detalhes.storage:AddGuildSyncData (data)
+		elseif (type == "A") then --RoC - the player received the dps table and should now add it to the db
+			_detalhes.storage:AddGuildSyncData (data, player)
 			return true
 			
 		end

@@ -775,18 +775,69 @@ function _detalhes.storage:DBGuildSync()
 	
 end
 
+local OnlyFromCurrentRaidTier = true
+local encounter_is_current_tier = function (encounterID)
+	if (OnlyFromCurrentRaidTier) then
+		local mapID = _detalhes:GetInstanceIdFromEncounterId (encounterID)
+		if (mapID) then
+			if (_detalhes.current_raid_tier_mapid ~= mapID) then
+				return false
+			end
+		end
+	end
+	return true
+end
+
+local have_encounter = function (db, ID)
+	local minTime = ID - 120
+	local maxTime = ID + 120
+	
+	for diff, diffTable in pairs (db or {}) do
+		if (type (diffTable) == "table") then
+			for encounterID, encounterTable in pairs (diffTable) do
+				for index, encounter in ipairs (encounterTable) do
+					--check if the encounter fits in the timespam window
+					if (encounter.time >= minTime and encounter.time <= maxTime) then
+						return true
+					end
+					if (encounter.servertime) then
+						if (encounter.servertime >= minTime and encounter.servertime <= maxTime) then
+							return true
+						end
+					end
+				end
+			end
+		end
+	end
+	return false
+end
+
+local have_recent_requested_encounter = function (ID)
+	local minTime = ID - 120
+	local maxTime = ID + 120
+	
+	for requestedID, _ in pairs (_detalhes.RecentRequestedIDs) do
+		if (requestedID >= minTime and requestedID <= maxTime) then
+			return true
+		end
+	end
+end
+
 --remote call RoS
 function _detalhes.storage:GetIDsToGuildSync()
 	local db = _detalhes.storage:OpenRaidStorage()
 	local IDs = {}
 	
 	--build the encounter ID list
-
 	for diff, diffTable in pairs (db or {}) do
 		if (type (diffTable) == "table") then
 			for encounterID, encounterTable in pairs (diffTable) do
-				for index, encounter in ipairs (encounterTable) do
-					tinsert (IDs, encounter.time)
+				if (encounter_is_current_tier (encounterID)) then
+					for index, encounter in ipairs (encounterTable) do
+						if (encounter.servertime) then
+							tinsert (IDs, encounter.servertime)
+						end
+					end
 				end
 			end
 		end
@@ -798,6 +849,7 @@ function _detalhes.storage:GetIDsToGuildSync()
 	
 	return IDs
 end
+
 
 --local call RoC - received the encounter IDS - need to know which fights is missing
 function _detalhes.storage:CheckMissingIDsToGuildSync (IDsList)
@@ -818,23 +870,8 @@ function _detalhes.storage:CheckMissingIDsToGuildSync (IDsList)
 	
 	--check missing IDs
 	for index, ID in ipairs (IDsList) do
-		local found = false
-
-		for diff, diffTable in pairs (db or {}) do
-			if (type (diffTable) == "table") then
-				for encounterID, encounterTable in pairs (diffTable) do
-					for index, encounter in ipairs (encounterTable) do
-						if (ID == encounter.time) then
-							found = true
-							break
-						end
-					end
-				end
-			end
-		end
-		
-		if (not found) then
-			if (not _detalhes.RecentRequestedIDs [ID]) then
+		if (not have_encounter (db, ID)) then
+			if (not have_recent_requested_encounter (ID)) then
 				tinsert (RequestIDs, ID)
 				_detalhes.RecentRequestedIDs [ID] = true
 			end
@@ -876,7 +913,8 @@ function _detalhes.storage:BuildEncounterDataToGuildSync (IDsList)
 			if (type (diffTable) == "table") then
 				for encounterID, encounterTable in pairs (diffTable) do
 					for index, encounter in ipairs (encounterTable) do
-						if (ID == encounter.time) then
+					
+						if (ID == encounter.time or ID == encounter.servertime) then --> the time here is always exactly
 							--send this encounter
 							CurrentTable [diff] = CurrentTable [diff] or {}
 							CurrentTable [diff] [encounterID] = CurrentTable [diff] [encounterID] or {}
@@ -906,23 +944,9 @@ function _detalhes.storage:BuildEncounterDataToGuildSync (IDsList)
 	return EncounterList
 end
 
-local have_encounter = function (db, ID)
-	for diff, diffTable in pairs (db or {}) do
-		if (type (diffTable) == "table") then
-			for encounterID, encounterTable in pairs (diffTable) do
-				for index, encounter in ipairs (encounterTable) do
-					if (ID == encounter.time) then
-						return true
-					end
-				end
-			end
-		end
-	end
-	return false
-end
 
 --local call RoC - add the fights to the client db
-function _detalhes.storage:AddGuildSyncData (data)
+function _detalhes.storage:AddGuildSyncData (data, source)
 	local db = _detalhes.storage:OpenRaidStorage()
 	
 	local AddedAmount = 0
@@ -934,23 +958,30 @@ function _detalhes.storage:AddGuildSyncData (data)
 				if (type (encounterID) == "number" and type (encounterTable) == "table") then
 					for index, encounter in ipairs (encounterTable) do
 						--validate the encounter
-						if (type (encounter.time) == "number" and type (encounter.guild) == "string" and type (encounter.date) == "string" and type (encounter.healing) == "table" and type (encounter.elapsed) == "number" and type (encounter.damage) == "table") then
-							--check if this encounter already has been added from another sync
-							if (not have_encounter (db, encounter.time)) then
-								db [diff] = db [diff] or {}
-								db [diff] [encounterID] = db [diff] [encounterID] or {}
-								
-								tinsert (db [diff] [encounterID], encounter)
-								
-								if (_G.DetailsRaidHistoryWindow and _G.DetailsRaidHistoryWindow:IsShown()) then
-									_G.DetailsRaidHistoryWindow:Refresh()
+						if (type (encounter.servertime) == "number" and type (encounter.time) == "number" and type (encounter.guild) == "string" and type (encounter.date) == "string" and type (encounter.healing) == "table" and type (encounter.elapsed) == "number" and type (encounter.damage) == "table") then
+							--check if the encounter is from the current raiding tier
+							if (encounter_is_current_tier (encounterID)) then
+								--check if this encounter already has been added from another sync
+								if (not have_encounter (db, encounter.servertime)) then
+									db [diff] = db [diff] or {}
+									db [diff] [encounterID] = db [diff] [encounterID] or {}
+									
+									tinsert (db [diff] [encounterID], encounter)
+									
+									if (_G.DetailsRaidHistoryWindow and _G.DetailsRaidHistoryWindow:IsShown()) then
+										_G.DetailsRaidHistoryWindow:Refresh()
+									end
+									
+									AddedAmount = AddedAmount + 1
+								else
+									if (_detalhes.debug) then
+										_detalhes:Msg ("(debug) [RoS-EncounterSync] received a duplicated encounter table.")
+									end
 								end
-								
-								AddedAmount = AddedAmount + 1
 							else
 								if (_detalhes.debug) then
-									_detalhes:Msg ("(debug) [RoS-EncounterSync] received a duplicated encounter table.")
-								end
+									_detalhes:Msg ("(debug) [RoS-EncounterSync] received an old tier encounter.")
+								end		
 							end
 						else
 							if (_detalhes.debug) then
@@ -1203,6 +1234,7 @@ function _detalhes:StoreEncounter (combat)
 			healing = {},
 			date = date ("%H:%M %d/%m/%y"),
 			time = time(),
+			servertime = GetServerTime(),
 			elapsed = combat:GetCombatTime(),
 			guild = guildName,
 		}
