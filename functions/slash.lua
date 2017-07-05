@@ -1289,6 +1289,19 @@ function SlashCmdList.DETAILS (msg, editbox)
 	elseif (msg == "teste1") then	-- /de teste1
 		_detalhes:OpenRaidHistoryWindow (1530, 1886, 15, "damage", "Rock Lobster", 2, "Keyspell") --, _role, _guild, _player_base, _player_name)
 	
+	elseif (msg == "qq") then	
+		local my_role = "DAMAGER"
+		local raid_name = "Tomb of Sargeras"
+		local guildName = "Rock Lobster"
+		local func = {_detalhes.OpenRaidHistoryWindow, _detalhes, raid_name, 2050, 15, my_role, guildName} --, 2, UnitName ("player")
+		--local icon = {[[Interface\AddOns\Details\images\icons]], 16, 16, false, 434/512, 466/512, 243/512, 273/512}
+		local icon = {[[Interface\PvPRankBadges\PvPRank08]], 16, 16, false, 0, 1, 0, 1}
+		
+		local lower_instance = _detalhes:GetLowerInstanceNumber()
+		local instance = _detalhes:GetInstance (lower_instance)
+		
+		instance:InstanceAlert ("Boss Defeated! Show Ranking", icon, 10, func, true)
+	
 	elseif (msg == "recordtest") then	
 
 		local f = DetailsRecordFrameAnimation 

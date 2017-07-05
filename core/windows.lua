@@ -1109,7 +1109,7 @@
 			f:SetHeight (500)
 			tinsert (UISpecialFrames, "DetailsRaidHistoryWindow")
 			
-			f.Mode = 1
+			f.Mode = 2
 			
 			if (not _detalhes:GetTutorialCVar ("HISTORYPANEL_TUTORIAL")) then
 				local tutorialFrame = CreateFrame ("frame", "$parentTutorialFrame", f)
@@ -1165,6 +1165,7 @@
 				f.HistoryCheckBox:SetValue (true)
 				f.Mode = 1
 				_G.DetailsRaidHistoryWindow:Refresh()
+				f.ReportButton:Hide()
 			end
 			local select_guildrank = function()
 				f.HistoryCheckBox:SetValue (false)
@@ -1174,16 +1175,17 @@
 				f.select_player2_label:Hide()
 				f.Mode = 2
 				_G.DetailsRaidHistoryWindow:Refresh()
+				f.ReportButton:Show()
 			end
 
-			local HistoryCheckBox, HistoryLabel = _detalhes.gump:CreateSwitch (f, select_history, true, 18, 18, "", "", "HistoryCheckBox", nil, nil, nil, nil, Loc ["STRING_GUILDDAMAGERANK_SHOWHISTORY"], options_switch_template) --, options_text_template
+			local HistoryCheckBox, HistoryLabel = _detalhes.gump:CreateSwitch (f, select_history, false, 18, 18, "", "", "HistoryCheckBox", nil, nil, nil, nil, Loc ["STRING_GUILDDAMAGERANK_SHOWHISTORY"], options_switch_template) --, options_text_template
 			HistoryLabel:ClearAllPoints()
 			HistoryCheckBox:ClearAllPoints()
 			HistoryCheckBox:SetPoint ("topleft", f, "topleft", 100, -34)
 			HistoryLabel:SetPoint ("left", HistoryCheckBox, "right", 2, 0)
 			HistoryCheckBox:SetAsCheckBox()
 			
-			local GuildRankCheckBox, GuildRankLabel = _detalhes.gump:CreateSwitch (f, select_guildrank, false, 18, 18, "", "", "GuildRankCheckBox", nil, nil, nil, nil, Loc ["STRING_GUILDDAMAGERANK_SHOWRANK"], options_switch_template) --, options_text_template
+			local GuildRankCheckBox, GuildRankLabel = _detalhes.gump:CreateSwitch (f, select_guildrank, true, 18, 18, "", "", "GuildRankCheckBox", nil, nil, nil, nil, Loc ["STRING_GUILDDAMAGERANK_SHOWRANK"], options_switch_template) --, options_text_template
 			GuildRankLabel:ClearAllPoints()
 			GuildRankCheckBox:ClearAllPoints()
 			GuildRankCheckBox:SetPoint ("topleft", f, "topleft", 240, -34)
@@ -1248,6 +1250,34 @@
 			GuildSyncButton:SetPoint ("topright", f, "topright", -20, -34)
 			GuildSyncButton:SetIcon ([[Interface\GLUES\CharacterSelect\RestoreButton]], 12, 12, "overlay", {0.2, .8, 0.2, .8}, nil, 4)
 			
+			
+			function f.BuildReport()
+				if (f.LatestResourceTable) then
+					local reportFunc = function (IsCurrent, IsReverse, AmtLines)
+						local result = {}
+						
+						local bossName = f.select_boss.label:GetText()
+						
+						tinsert (result, "Details!: Damage Rank for: " .. (bossName or "--x--x--"))
+						for i = 1, AmtLines do
+							if (f.LatestResourceTable[i]) then
+								tinsert (result, f.LatestResourceTable[i][1] .. ": " .. f.LatestResourceTable[i][2])
+							else
+								break
+							end
+						end
+					
+						Details:SendReportLines (result)
+					end
+					
+					Details:SendReportWindow (reportFunc, nil, nil, true)
+				end
+			end
+			
+			local ReportButton = _detalhes.gump:CreateButton (f, f.BuildReport, 130, 20, Loc ["STRING_OPTIONS_REPORT_ANCHOR"]:gsub (":", ""), nil, nil, nil, "ReportButton", nil, nil, options_button_template, options_text_template)
+			ReportButton:SetPoint ("right", GuildSyncButton, "left", -2, 0)
+			ReportButton:SetIcon ([[Interface\GLUES\CharacterSelect\RestoreButton]], 12, 12, "overlay", {0.2, .8, 0.2, .8}, nil, 4)			
+
 			--
 			function f:SetBackgroundImage (encounterId)
 				local instanceId = _detalhes:GetInstanceIdFromEncounterId (encounterId)
@@ -1277,8 +1307,10 @@
 			end)
 			
 			f.TitleText:SetText ("Details! Raid Ranking")
-			f.portrait:SetTexture ([[Interface\AddOns\Details\images\icons2]])
-			f.portrait:SetTexCoord (192/512, 258/512, 322/512, 388/512)
+			--f.portrait:SetTexture ([[Interface\AddOns\Details\images\icons2]])
+			f.portrait:SetTexture ([[Interface\PVPFrame\PvPPrestigeIcons]])
+			f.portrait:SetTexCoord (270/1024, 384/1024, 128/512, 256/512)
+			--f.portrait:SetTexCoord (192/512, 258/512, 322/512, 388/512)
 			
 			local dropdown_size = 160
 			local icon = [[Interface\FriendsFrame\battlenet-status-offline]]
@@ -1413,11 +1445,28 @@
 				
 					if (type (difficulty) == "number") then
 						if (difficulty == 14) then
-							tinsert (diff_list, {value = 14, label = "Normal", icon = icon, onclick = on_diff_select})
+							--tinsert (diff_list, {value = 14, label = "Normal", icon = icon, onclick = on_diff_select})
+							--print ("has normal encounter")
 						elseif (difficulty == 15) then
-							tinsert (diff_list, {value = 15, label = "Heroic", icon = icon, onclick = on_diff_select})
+							local alreadyHave = false
+							for i, t in ipairs (diff_list) do
+								if (t.label == "Heroic") then
+									alreadyHave = true
+								end
+							end
+							if (not alreadyHave) then
+								tinsert (diff_list, 1, {value = 15, label = "Heroic", icon = icon, onclick = on_diff_select})
+							end
 						elseif (difficulty == 16) then
-							tinsert (diff_list, {value = 16, label = "Mythic", icon = icon, onclick = on_diff_select})
+							local alreadyHave = false
+							for i, t in ipairs (diff_list) do
+								if (t.label == "Mythic") then
+									alreadyHave = true
+								end
+							end
+							if (not alreadyHave) then
+								tinsert (diff_list, {value = 16, label = "Mythic", icon = icon, onclick = on_diff_select})
+							end
 						end
 
 						for encounterId, encounterTable in pairs (encounterIdTable) do 
@@ -1450,6 +1499,9 @@
 					end
 				end
 				
+				table.sort (boss_list, function (t1, t2) return t1.label < t2.label end)
+				
+				
 				diff_dropdown:Refresh()
 				diff_dropdown:Select (1, true)
 				boss_dropdown:Refresh()
@@ -1472,11 +1524,28 @@
 				for difficulty, encounterIdTable in pairs (db) do
 					if (type (difficulty) == "number") then
 						if (difficulty == 14) then
-							tinsert (diff_list, {value = 14, label = "Normal", icon = icon, onclick = on_diff_select})
+							--tinsert (diff_list, {value = 14, label = "Normal", icon = icon, onclick = on_diff_select})
+							--print ("has normal encounter")
 						elseif (difficulty == 15) then
-							tinsert (diff_list, {value = 15, label = "Heroic", icon = icon, onclick = on_diff_select})
+							local alreadyHave = false
+							for i, t in ipairs (diff_list) do
+								if (t.label == "Heroic") then
+									alreadyHave = true
+								end
+							end
+							if (not alreadyHave) then
+								tinsert (diff_list, 1, {value = 15, label = "Heroic", icon = icon, onclick = on_diff_select})
+							end
 						elseif (difficulty == 16) then
-							tinsert (diff_list, {value = 16, label = "Mythic", icon = icon, onclick = on_diff_select})
+							local alreadyHave = false
+							for i, t in ipairs (diff_list) do
+								if (t.label == "Mythic") then
+									alreadyHave = true
+								end
+							end
+							if (not alreadyHave) then
+								tinsert (diff_list, {value = 16, label = "Mythic", icon = icon, onclick = on_diff_select})
+							end
 						end
 
 						for encounterId, encounterTable in pairs (encounterIdTable) do 
@@ -1494,6 +1563,7 @@
 					end
 				end
 				
+				table.sort (boss_list, function (t1, t2) return t1.label < t2.label end)
 				boss_dropdown:Refresh()
 			end
 			
@@ -1596,7 +1666,7 @@
 			
 			function f:BuildGuildRankTable (encounterTable, guild, role)
 				
-				local header = {{name = "Player Name", type = "text"}, {name = "Total", type = "text"}, {name = "Per Second", type = "text"}, {name = "Length", type = "text"}, {name = "Item Level", type = "text"}, {name = "Date", type = "text"}}
+				local header = {{name = "Player Name", type = "text"}, {name = "Per Second", type = "text"}, {name = "Total", type = "text"}, {name = "Length", type = "text"}, {name = "Item Level", type = "text"}, {name = "Date", type = "text"}}
 				local players = {}
 				local players_index = {}
 				
@@ -1625,7 +1695,10 @@
 							end
 						
 							local total = playerTable [1]
-							if (total > playerScore [playerName].total) then
+							local dps = total / encounter.elapsed
+							
+							--if (total > playerScore [playerName].total) then
+							if (dps > playerScore [playerName].ps) then
 								playerScore [playerName].total = total
 								playerScore [playerName].ps = total / encounter.elapsed
 								playerScore [playerName].ilvl = playerTable [2]
@@ -1647,20 +1720,23 @@
 				
 					tinsert (sortTable, {
 						"|c" .. classColor .. playerName .. "|r",
-						_detalhes:comma_value (t.total),
-						_detalhes:ToK2 (t.ps),
+						_detalhes:comma_value (t.ps),
+						_detalhes:ToK2 (t.total),
 						_detalhes.gump:IntegerToTimer (t.length),
 						floor (t.ilvl),
 						t.date,
 						t.total,
+						t.ps,
 					})
 				end
-				table.sort (sortTable, function(a, b) return a[7] > b[7] end)
+				table.sort (sortTable, function(a, b) return a[8] > b[8] end)
 				
 				fillpanel:SetFillFunction (function (index) return sortTable [index] end)
 				fillpanel:SetTotalFunction (function() return #sortTable end)
 				fillpanel:UpdateRows (header)
 				fillpanel:Refresh()
+				
+				f.LatestResourceTable = sortTable
 			end
 			
 			function f:BuildRaidTable (encounterTable, guild, role)
@@ -1728,10 +1804,11 @@
 				
 				fillpanel:SetFillFunction (function (index) return players [index] end)
 				fillpanel:SetTotalFunction (function() return #players end)
-
+				
 				fillpanel:UpdateRows (header)
 				
 				fillpanel:Refresh()
+				fillpanel:SetPoint ("topleft", f, "topleft", 200, -65)
 			end
 			
 			function f:Refresh (player_name)

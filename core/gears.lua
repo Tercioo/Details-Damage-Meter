@@ -1320,9 +1320,10 @@ function _detalhes:StoreEncounter (combat)
 					my_role = "DAMAGER"
 				end
 				local raid_name = GetInstanceInfo()
-				local func = {_detalhes.OpenRaidHistoryWindow, _detalhes, raid_name, encounter_id, diff, my_role, guildName, 2, UnitName ("player")}
-				local icon = {[[Interface\AddOns\Details\images\icons]], 16, 16, false, 434/512, 466/512, 243/512, 273/512}
-				instance:InstanceAlert ("Boss Defeated, Open History! ", icon, 40, func, true)
+				local func = {_detalhes.OpenRaidHistoryWindow, _detalhes, raid_name, encounter_id, diff, my_role, guildName} --, 2, UnitName ("player")
+				--local icon = {[[Interface\AddOns\Details\images\icons]], 16, 16, false, 434/512, 466/512, 243/512, 273/512}
+				local icon = {[[Interface\PvPRankBadges\PvPRank08]], 16, 16, false, 0, 1, 0, 1}
+				instance:InstanceAlert (Loc ["STRING_GUILDDAMAGERANK_WINDOWALERT"], icon, 10, func, true)
 			end
 		end
 	else

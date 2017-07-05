@@ -3057,7 +3057,7 @@ function gump:CriaJanelaInfo()
 					end
 				end
 				table.sort (player_2_skills, _detalhes.Sort2)
-				player_2_top = player_2_skills [1] [2]
+				player_2_top = player_2_skills [1] and player_2_skills [1][2] or 0
 				bar2 [2]:SetStatusBarColor (unpack (bar_color_on_enter))
 			end
 			
@@ -3073,7 +3073,7 @@ function gump:CriaJanelaInfo()
 					end
 				end
 				table.sort (player_3_skills, _detalhes.Sort2)
-				player_3_top = player_3_skills [1] [2]
+				player_3_top = player_3_skills [1] and player_3_skills [1][2] or 0
 				bar3 [2]:SetStatusBarColor (unpack (bar_color_on_enter))
 			end
 			

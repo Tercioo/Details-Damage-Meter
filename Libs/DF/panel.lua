@@ -977,7 +977,7 @@ function DF:NewFillPanel (parent, rows, name, member, w, h, total_lines, fill_ro
 				local real_index = index + offset
 				local results = panel._fillfunc (real_index, panel)
 				
-				if (results [1]) then
+				if (results and results [1]) then
 					row:Show()
 
 					local text, entry, button, icon, texture = 1, 1, 1, 1, 1
@@ -1107,6 +1107,7 @@ function DF:NewFillPanel (parent, rows, name, member, w, h, total_lines, fill_ro
 		local line_height = options.rowheight
 		refresh_fillbox (panel.scrollframe)
 		FauxScrollFrame_Update (panel.scrollframe, filled_lines, scroll_total_lines, line_height)
+		panel.scrollframe:Show()
 	end
 	
 	local scrollframe = CreateFrame ("scrollframe", name .. "Scroll", panel.widget, "FauxScrollFrameTemplate")

@@ -3041,7 +3041,18 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		
 		if (not spellname) then
 			spellname = "Melee"
-		end	
+		end
+
+		if (not alvo_name) then
+			--> no target name, just quit
+			return
+			
+		elseif (not who_name) then
+			--> no actor name, use spell name instead
+			who_name = "[*] " .. spellname
+			who_flags = 0xa48
+			who_serial = ""
+		end
 
 		_current_misc_container.need_refresh = true
 
