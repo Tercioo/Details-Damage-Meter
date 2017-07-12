@@ -1084,18 +1084,16 @@
 		["auto"] = false,
 		["animation"] = {
 			["start"] = {
+				["type"] = "none",
 				["duration_type"] = "seconds",
-				["type"] = "preset",
-				["preset"] = "grow",
 			},
 			["main"] = {
+				["type"] = "none",
 				["duration_type"] = "seconds",
-				["type"] = "preset",
-				["preset"] = "pulse",
 			},
 			["finish"] = {
-				["duration_type"] = "seconds",
 				["type"] = "none",
+				["duration_type"] = "seconds",
 			},
 		},
 		["trigger"] = {
@@ -1514,6 +1512,7 @@
 					add.trigger.spellId = tostring (spellid)
 					add.trigger.spellName = spellname
 					add.trigger.subeventSuffix = "_CAST_START"
+					add.trigger.duration = stacksize
 					if (not use_spellid) then
 						add.trigger.use_spellName = true
 						add.trigger.use_spellId = false
@@ -1803,7 +1802,8 @@
 			aura_on:SetPoint ("left", aura_on_label, "right", 2, 0)
 			
 			--stack
-			local stack_slider = fw:NewSlider (f, f, "$parentStackSlider", "StackSlider", 150, 20, 0, 30, 1, 0)
+			local stack_slider = fw:NewSlider (f, f, "$parentStackSlider", "StackSlider", 150, 20, 0, 30, 1, 0, true)
+			stack_slider.useDecimals = true
 			local stack_label = fw:CreateLabel (f, "Stack Size: ", nil, nil, "GameFontNormal")
 			stack_slider:SetPoint ("left", stack_label, "right", 2, 0)
 			stack_slider.tooltip = "Minimum amount of stacks to trigger the aura."
@@ -2085,23 +2085,25 @@
 				if (aura_type == "icon") then
 					aura_text_label:SetText ("Icon Text: ")
 					icon_size_label:SetText ("Width/Height: ")
+					f.IconSizeSlider:SetValue (64)
 					
 				elseif (aura_type == "text") then
 					aura_text_label:SetText ("Text: ")
 					icon_size_label:SetText ("Font Size: ")
+					f.IconSizeSlider:SetValue (12)
 					
 				elseif (aura_type == "aurabar") then
 					aura_text_label:SetText ("Left Text: ")
 					icon_size_label:SetText ("Bar Width: ")
-					
+					f.IconSizeSlider:SetValue (250)
 				end
 
 				if (trigger >= 1 and trigger <= 19) then --buff and debuff
 					stack_label:SetText ("Stack Size: ")
-					
-				elseif (trigger >= 20 and trigger <= 29) then --cast start and end
-					stack_label:SetText ("Stack Size: ")
-					f.StackSlider:Disable()
+				
+				elseif (trigger >= 20 and trigger <= 29) then --cast end cast start
+					stack_label:SetText ("Duration: ")
+					f.StackSlider:SetValue (2)
 				
 				elseif (trigger >= 30 and trigger <= 39) then --boss mods
 					stack_label:SetText ("Remaining Time:")

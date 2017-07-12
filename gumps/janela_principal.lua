@@ -1816,7 +1816,14 @@ local unSnapButtonOnLeave = function (self)
 	end
 end
 
+--> this should run only when the mouse is over a instance bar
 local shift_monitor = function (self)
+
+	if (not self:IsMouseOver()) then
+		self:SetScript ("OnUpdate", shift_monitor)
+		return
+	end
+
 	if (_IsShiftKeyDown()) then
 		if (not self.showing_allspells) then
 			self.showing_allspells = true

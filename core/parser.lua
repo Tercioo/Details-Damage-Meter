@@ -177,6 +177,7 @@
 		local _recording_buffs_and_debuffs = false
 	--> in combat flag
 		local _in_combat = false
+		local _current_encounter_id
 	--> deathlog
 		local _death_event_amt = 16
 	--> hooks
@@ -190,7 +191,10 @@
 		local _hook_battleress_container = _detalhes.hooks ["HOOK_BATTLERESS"]
 		local _hook_interrupt_container = _detalhes.hooks ["HOOK_INTERRUPT"]
 
-		
+	--> kil jaeden encounter:
+	--> REMOVE THIS ON 7.3 RELEASE
+	local _encounter_kiljaeden_eruptingreflection_loc = "Erupting Reflection"
+	
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --> internal functions
 
@@ -275,6 +279,22 @@
 		--if (alvo_serial:match ("^Creature%-0%-%d+%-%d+%-%d+%-76933%-%w+$")) then
 		if (alvo_serial:match ("^Creature%-0%-%d+%-%d+%-%d+%-103679%-%w+$")) then
 			return
+		end
+		
+		--Erupting Reflection on kiljaeden encounter on ToS
+		--REMOVE THIS ON 7.3 RELEASE
+		if (_current_encounter_id == 2051) then --2051 = kiljaeden
+			if (alvo_serial:match ("^Creature%-0%-%d+%-%d+%-%d+%-119206%-%w+$")) then
+				if (_encounter_kiljaeden_eruptingreflection_loc == "Erupting Reflection") then
+					_encounter_kiljaeden_eruptingreflection_loc = GetSpellInfo (236710)
+				end
+				alvo_name = _encounter_kiljaeden_eruptingreflection_loc
+			elseif (who_serial:match ("^Creature%-0%-%d+%-%d+%-%d+%-119206%-%w+$")) then
+				if (_encounter_kiljaeden_eruptingreflection_loc == "Erupting Reflection") then
+					_encounter_kiljaeden_eruptingreflection_loc = GetSpellInfo (236710)
+				end
+				who_name = _encounter_kiljaeden_eruptingreflection_loc
+			end
 		end
 		
 		--> Second try with :find
@@ -3938,6 +3958,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	
 		local encounterID, encounterName, difficultyID, raidSize = _select (1, ...)
 		--print ("START", encounterID, encounterName, difficultyID, raidSize)
+		
+		_current_encounter_id = encounterID
 	
 		if (_in_combat and not _detalhes.tabela_vigente.is_boss) then
 			_detalhes:SairDoCombate()
@@ -4002,6 +4024,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		if (_detalhes.debug) then
 			_detalhes:Msg ("(debug) |cFFFFFF00ENCOUNTER_END|r event triggered.")
 		end
+		
+		_current_encounter_id = nil
 		
 		if (_detalhes.zone_type == "party") then
 			if (_detalhes.debug) then
@@ -4077,7 +4101,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	function _detalhes.parser_functions:PLAYER_REGEN_ENABLED (...)
 	
 		_detalhes.LatestCombatDone = GetTime()
---		print ("REGEN ENABLED", GetTime())
+		
+		_current_encounter_id = nil
 	
 		--> playing alone, just finish the combat right now
 		if (not _IsInGroup() and not IsInRaid()) then	
