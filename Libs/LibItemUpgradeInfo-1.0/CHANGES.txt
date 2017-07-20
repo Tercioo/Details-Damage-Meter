@@ -1,0 +1,18 @@
+tag 5876ed6c59ef3d2568d88b9bba9ec77682e6074e Release-70200-28
+Author:	Alar of Runetotem <alar@aspide.it>
+Date:	Tue Mar 28 12:21:53 2017 +0200
+
+Toc updated to 70200
+
+commit 7c5485ab35700b2e38a008feb84e4af34b7396f0
+Author: Alar of Runetotem <alar@aspide.it>
+Date:   Tue Mar 28 12:07:53 2017 +0200
+
+    Updated TOC to 70200
+
+commit c4ed50190aad123c1297705da7f38c86f7ab1d10
+Author: Alar of Runetotem <alar@aspide.it>
+Date:   Tue Mar 28 11:30:56 2017 +0200
+
+    toc update
+

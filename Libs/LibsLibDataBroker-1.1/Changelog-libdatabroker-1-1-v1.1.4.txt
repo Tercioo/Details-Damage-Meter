@@ -1,0 +1,33 @@
+tag v1.1.4
+ddb0519a000c69ddf3a28c3f9fe2e62bb3fd00c5
+Tekkub <tekkub@gmail.com>
+2008-11-06 22:03:04 -0700
+
+Build 1.1.4
+
+
+--------------------
+
+Tekkub:
+	Add pairs and ipairs iters, since we can't use the normal iters on our dataobjs
+	Simplify readme, all docs have been moved into GitHub wiki pages
+	Documentation on how to use LDB data (for display addons)
+	Add StatBlockCore forum link
+	Add link to Fortress thread
+	And rearrange the addon list a bit too
+	Make field lists into nice pretty tables
+	Add list of who is using LDB
+	Always with the typos, I hate my fingers
+	Add tooltiptext and OnTooltipShow to data addon spec
+	Readme rejiggering
+	Add in some documentation on how to push data into LDB
+	Meh, fuck you textile
+	Adding readme
+	Pass current dataobj with attr change callbacks to avoid excessive calls to :GetDataObjectByName
+Tekkub Stoutwrithe:
+	Make passed dataobj actually work
+	I always forget the 'then'
+	Minor memory optimization
+	- Only hold upvalues to locals in the functions called frequently
+	 - Retain the metatable across future lib upgrades (the one in v1 will be lost)
+	Allow caller to pass a pre-populated table to NewDataObject
