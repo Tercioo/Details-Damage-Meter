@@ -1,5 +1,3 @@
-package-as: Details
-
 move-folders:
     Details/plugins/Details_DmgRank: Details_DmgRank
     Details/plugins/Details_EncounterDetails: Details_EncounterDetails

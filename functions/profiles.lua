@@ -1121,7 +1121,11 @@ local default_player_data = {
 			enabled = true,
 			channel = "SELF",
 		},
-		
+	--> benchmark
+		benchmark_db = {
+			frame = {},
+			
+		},
 }
 
 _detalhes.default_player_data = default_player_data
@@ -1139,6 +1143,7 @@ local default_global_data = {
 		savedCustomSpells = {},
 		savedTimeCaptures = {},
 		lastUpdateWarning = 0,
+		update_warning_timeout = 30,
 		report_where = "SAY",
 		realm_sync = true,
 		spell_school_cache = {},
@@ -1190,6 +1195,72 @@ local default_global_data = {
 		},
 		spell_pool = {},
 		encounter_spell_pool = {},
+		
+	-- important auras
+	--[=[
+		important_auras = {
+			[577] = {}, -- Havoc Demon Hunter
+			[581] = {}, -- Vengeance Demon Hunter
+
+			[252] = {}, -- Unholy Death Knight
+			[251] = {}, -- Frost Death Knight
+			[250] = {}, -- Blood Death Knight
+			
+			[102] = {}, -- Balance Druid
+			[103] = {}, -- Feral Druid
+			[104] = {}, -- Guardian Druid
+			[105] = {}, -- Restoration Druid
+			
+			[253] = {}, -- Beast Mastery Hunter
+			[254] = {}, -- Marksmanship Hunter
+			[255] = {}, -- Survival Hunter
+			
+			[62] = { -- Arcane Mage
+				
+			}, 
+			[63] = { -- Fire Mage
+				157644, --Enhanced Pyrotechnics
+				48107, --Heating Up
+				48108, --Hot Streak!
+				194329, --Pyretic Incantation
+				
+			}, 
+			[64] = { -- Frost Mage
+				44544, --fingers of frost
+				195418, --chain reaction
+				190446, --brain freeze
+				12472, --icyveins
+			}, 
+			
+			[268] = {}, -- Brewmaster Monk
+			[269] = {}, -- Windwalker Monk
+			[270] = {}, -- Mistweaver Monk
+			
+			[65] = {}, -- Holy Paladin
+			[66] = {}, -- Protection Paladin
+			[70] = {}, -- Retribution Paladin
+			
+			[256] = {}, -- Discipline Priest
+			[257] = {}, -- Holy Priest
+			[258] = {}, -- Shadow Priest
+			
+			[259] = {}, -- Assassination Rogue
+			[260] = {}, -- Outlaw Rogue
+			[261] = {}, -- Subtlety Rogue
+			
+			[262] = {}, -- Elemental Shaman
+			[263] = {}, -- Enhancement Shaman
+			[264] = {}, -- Restoration Shaman
+			
+			[265] = {}, -- Affliction Warlock
+			[266] = {}, -- Demonology Warlock
+			[267] = {}, -- Destruction Warlock
+			
+			[71] = {}, -- Arms Warrior
+			[72] = {}, -- Fury Warrior
+			[73] = {}, -- Protection Warrior
+		},
+	--]=]
 }
 
 _detalhes.default_global_data = default_global_data

@@ -97,7 +97,7 @@
 				if (lower_instance) then
 					lower_instance = _detalhes:GetInstance (lower_instance)
 					if (lower_instance) then
-						lower_instance:InstanceAlert ("Update Available!", {[[Interface\GossipFrame\AvailableQuestIcon]], 16, 16, false}, 360, {_detalhes.OpenUpdateWindow})
+						lower_instance:InstanceAlert ("Update Available!", {[[Interface\GossipFrame\AvailableQuestIcon]], 16, 16, false}, _detalhes.update_warning_timeout, {_detalhes.OpenUpdateWindow})
 					end
 				end
 				_detalhes.lastUpdateWarning = time()

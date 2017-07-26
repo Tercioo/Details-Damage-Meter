@@ -32,13 +32,19 @@
 		if (token == "BUFF_UPTIME" or token == "DEBUFF_UPTIME") then
 			_newMiscSpell.uptime = 0
 			_newMiscSpell.actived = false
-			_newMiscSpell.activedamt = 0
+			_newMiscSpell.activedamt = 0 --são quantos estao ativados no momento
+			_newMiscSpell.refreshamt = 0
+			_newMiscSpell.appliedamt = 0
+			
 		elseif (token == "SPELL_INTERRUPT") then
 			_newMiscSpell.interrompeu_oque = {}
+			
 		elseif (token == "SPELL_DISPEL" or token == "SPELL_STOLEN") then
 			_newMiscSpell.dispell_oque = {}
+			
 		elseif (token == "SPELL_AURA_BROKEN" or token == "SPELL_AURA_BROKEN_SPELL") then
 			_newMiscSpell.cc_break_oque = {}
+			
 		end	
 		
 		return _newMiscSpell
@@ -46,6 +52,8 @@
 
 	function habilidade_misc:Add (serial, nome, flag, who_nome, token, spellID, spellName)
 
+		--print (self.id, GetSpellInfo (self.id))
+	
 		if (spellID == "BUFF_OR_DEBUFF") then
 			
 			if (spellName == "COOLDOWN") then
@@ -56,8 +64,8 @@
 			elseif (spellName == "BUFF_UPTIME_REFRESH") then
 				if (self.actived_at and self.actived) then
 					self.uptime = self.uptime + _detalhes._tempo - self.actived_at
+					self.refreshamt = self.refreshamt + 1
 					token.buff_uptime = token.buff_uptime + _detalhes._tempo - self.actived_at --> token = actor misc object
-					
 				end
 				self.actived_at = _detalhes._tempo
 				self.actived = true
@@ -73,6 +81,7 @@
 			elseif (spellName == "BUFF_UPTIME_IN" or spellName == "DEBUFF_UPTIME_IN") then
 				self.actived = true
 				self.activedamt = self.activedamt + 1
+				self.appliedamt = self.appliedamt + 1
 				
 				if (self.actived_at and self.actived and spellName == "DEBUFF_UPTIME_IN") then
 					--> ja esta ativo em outro mob e jogou num novo
@@ -85,6 +94,7 @@
 			elseif (spellName == "DEBUFF_UPTIME_REFRESH") then
 				if (self.actived_at and self.actived) then
 					self.uptime = self.uptime + _detalhes._tempo - self.actived_at
+					self.refreshamt = self.refreshamt + 1
 					token.debuff_uptime = token.debuff_uptime + _detalhes._tempo - self.actived_at
 				end
 				self.actived_at = _detalhes._tempo

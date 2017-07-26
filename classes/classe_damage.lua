@@ -3594,18 +3594,18 @@ function atributo_damage:MontaInfo()
 end
 
 ---------> DETALHES bloco da direita BIFURCAÇÃO
-function atributo_damage:MontaDetalhes (spellid, barra)
+function atributo_damage:MontaDetalhes (spellid, barra, instancia)
 	if (info.sub_atributo == 1 or info.sub_atributo == 2) then
-		return self:MontaDetalhesDamageDone (spellid, barra)
+		return self:MontaDetalhesDamageDone (spellid, barra, instancia)
 	elseif (info.sub_atributo == 3) then
-		return self:MontaDetalhesDamageTaken (spellid, barra)
+		return self:MontaDetalhesDamageTaken (spellid, barra, instancia)
 	elseif (info.sub_atributo == 4) then
-		return self:MontaDetalhesFriendlyFire (spellid, barra)
+		return self:MontaDetalhesFriendlyFire (spellid, barra, instancia)
 	elseif (info.sub_atributo == 6) then
 		if (_bit_band (self.flag_original, 0x00000400) ~= 0) then --é um jogador
-			return self:MontaDetalhesDamageDone (spellid, barra)
+			return self:MontaDetalhesDamageDone (spellid, barra, instancia)
 		end
-		return self:MontaDetalhesEnemy (spellid, barra)
+		return self:MontaDetalhesEnemy (spellid, barra, instancia)
 		--return self:MontaDetalhesDamageDone (spellid, barra)
 	end
 end
@@ -3705,7 +3705,7 @@ function atributo_damage:MontaInfoFriendlyFire()
 		barra:Show()
 
 		if (self.detalhes and self.detalhes == barra.show) then
-			self:MontaDetalhes (self.detalhes, barra)
+			self:MontaDetalhes (self.detalhes, barra, instancia)
 		end
 	end
 
@@ -3815,10 +3815,17 @@ end
 		row.textura:SetValue (value/max*100)
 	end
 	
-	row.texto_esquerdo:SetText (index .. ". " .. name)
+	if (type (index) == "number") then
+		row.texto_esquerdo:SetText (index .. ". " .. name)
+	else
+		row.texto_esquerdo:SetText (name)
+	end
+	
 	row.texto_esquerdo.text = row.texto_esquerdo:GetText()
 	
-	row.texto_direita:SetText (value_formated .. " (" .. _cstr ("%.1f", percent) .."%)")
+	if (value_formated) then
+		row.texto_direita:SetText (value_formated .. " (" .. _cstr ("%.1f", percent) .."%)")
+	end
 	
 	row.texto_esquerdo:SetSize (row:GetWidth() - row.texto_direita:GetStringWidth() - 40, 15)
 
@@ -3937,12 +3944,27 @@ function atributo_damage:MontaInfoDamageDone()
 	
 	_table_sort (ActorSkillsSortTable, _detalhes.Sort2)
 
-	gump:JI_AtualizaContainerBarras (#ActorSkillsSortTable)
+	gump:JI_AtualizaContainerBarras (#ActorSkillsSortTable + 1)
 
 	local max_ = ActorSkillsSortTable[1] and ActorSkillsSortTable[1][2] or 0 --> dano que a primeiro magia vez
 
 	local barra
+	
+	--aura bar
+	if (false) then --> disabled for now
+		barra = barras [1]
+		if (not barra) then
+			barra = gump:CriaNovaBarraInfo1 (instancia, 1)
+		end
+		self:UpdadeInfoBar (barra, "", -51, "Auras", max_, false, max_, 100, [[Interface\BUTTONS\UI-GroupLoot-DE-Up]], true, nil, nil)
+		barra.textura:SetStatusBarColor (_detalhes.gump:ParseColors ("purple"))
+	end
+	
+	--spell bars
 	for index, tabela in _ipairs (ActorSkillsSortTable) do
+		
+		--index = index + 1 --with the aura bar
+		index = index
 		barra = barras [index]
 		if (not barra) then
 			barra = gump:CriaNovaBarraInfo1 (instancia, index)
@@ -3954,14 +3976,13 @@ function atributo_damage:MontaInfoDamageDone()
 		
 		if (info.sub_atributo == 2) then
 			local formated_value = SelectedToKFunction (_, _math_floor (tabela[2]/meu_tempo))
-			self:UpdadeInfoBar (barra, index, tabela[1], name, tabela[2], formated_value, max_, tabela[3], tabela[5], true, nil, tabela [7])
+			self:UpdadeInfoBar (barra, index-1, tabela[1], name, tabela[2], formated_value, max_, tabela[3], tabela[5], true, nil, tabela [7])
 		else
 			local formated_value = SelectedToKFunction (_, _math_floor (tabela[2]))
-			self:UpdadeInfoBar (barra, index, tabela[1], name, tabela[2], formated_value, max_, tabela[3], tabela[5], true, nil, tabela [7])
+			self:UpdadeInfoBar (barra, index-1, tabela[1], name, tabela[2], formated_value, max_, tabela[3], tabela[5], true, nil, tabela [7])
 		end
 		
 		self:FocusLock (barra, tabela[1])
-
 	end
 	
 	--> TOP INIMIGOS
@@ -4374,6 +4395,56 @@ local critical_table = {c = {1, 1, 1, 0.5}, p = 0}
 local data_table = {}
 local t1, t2, t3, t4 = {}, {}, {}, {}
 
+local function FormatSpellString(str)
+	return (string.gsub(str, "%d+", function(spellID)
+				local name, _, icon = GetSpellInfo (spellID);
+				return string.format("|T%s:16|t", icon);
+			end));
+end
+
+
+local MontaDetalhesBuffProcs = function (actor, row, instance)
+	
+	instance = instance or info.instancia
+	
+	local spec = actor.spec
+	if (spec) then
+		local mainAuras = _detalhes.important_auras [spec]
+		if (mainAuras) then
+			local miscActor = instance:GetShowingCombat():GetActor (4, actor:name())
+			if (miscActor and miscActor.buff_uptime_spells) then
+				--> get the auras
+				local added = 0
+				for i = 1, #mainAuras do
+					local spellID = mainAuras [i]
+					local spellObject = miscActor.buff_uptime_spells._ActorTable [spellID]
+					if (spellObject) then
+						local spellName, spellIcon = GetSpellInfo (spellID)
+						local spellUptime = spellObject.uptime
+						local spellApplies = spellObject.appliedamt
+						local spellRefreshes = spellObject.refreshamt
+						
+						gump:SetaDetalheInfoTexto (i, 100, FormatSpellString ("" .. spellID .. " " .. spellName), "Activations: " .. spellApplies, " ", "Refreshes: " .. spellRefreshes, " ", "Uptime: " .. spellUptime .. "s")
+						added = added + 1
+					end
+				end
+				
+				for i = added + 1, 5 do
+					gump:HidaDetalheInfo (i)
+				end
+				
+				return
+			end
+		end
+	end
+	
+	for i = 1, 5 do
+		gump:HidaDetalheInfo (i)
+	end
+end
+
+
+
 function atributo_damage:MontaDetalhesDamageDone (spellid, barra, instancia)
 
 	local esta_magia
@@ -4383,6 +4454,10 @@ function atributo_damage:MontaDetalhesDamageDone (spellid, barra, instancia)
 		esta_magia = self.spells._ActorTable [spellid]
 	end
 
+	if (spellid == -51) then
+		return MontaDetalhesBuffProcs (self, barra, instancia)
+	end
+	
 	if (not esta_magia) then
 		return
 	end

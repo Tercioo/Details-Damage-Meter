@@ -162,6 +162,8 @@ function atributo_misc:CreateBuffTargetObject()
 		uptime = 0,
 		actived = false,
 		activedamt = 0,
+		refreshamt = 0,
+		appliedamt = 0,
 	}
 end
 
@@ -248,7 +250,12 @@ function _detalhes:ToolTipDead (instancia, morte, esta_barra, keydown)
 				elseif (evtype == 3) then
 					--> last cooldown used
 					lastcooldown = event
-					
+				
+				elseif (evtype == 4) then
+					GameCooltip:AddLine ("" .. _cstr ("%.1f", time - hora_da_morte) .. "s [x" .. amount .. "] " .. spellname .. " (" .. source .. ")", "debuff (" .. hp .. "%)", 1, "white", "white")
+					GameCooltip:AddIcon (spellicon)
+					GameCooltip:AddStatusBar (100, 1, "purple", true)
+				
 				end
 			end
 		end
@@ -399,6 +406,20 @@ function atributo_misc:ReportSingleDeadLine (morte, instancia)
 			else
 				tinsert (report_array, {elapsed .. " ", spellname, " (" .. source .. ")", "+" .. _detalhes:ToK (amount) .. " (" .. hp .. "%) "})
 			end
+			
+		elseif (type (evento [1]) == "number" and evento [1] == 4) then --> debuff
+			
+			local elapsed = _cstr ("%.1f", evento [4] - time_of_death) .."s"
+			local spelllink = GetSpellLink (evento [2])
+			local source = _detalhes:GetOnlyName (evento [6])
+			local spellname, _, spellicon = _GetSpellInfo (evento [2])
+			local stacks = evento [3]
+			local hp = _math_floor (evento [5] / max_health * 100)
+			if (hp > 100) then 
+				hp = 100
+			end
+
+			tinsert (report_array, {elapsed .. " ", "x" .. stacks .. "" .. spelllink, " (" .. source .. ")", "(" .. hp .. "%) "})
 		end
 	end
 	
@@ -2495,6 +2516,8 @@ function atributo_misc:r_connect_shadow (actor, no_refresh)
 				end
 				t.uptime = t.uptime + amount.uptime
 				t.activedamt = t.activedamt + amount.activedamt
+				t.refreshamt = t.refreshamt + amount.refreshamt
+				t.appliedamt = t.appliedamt + amount.appliedamt
 			else
 				shadow.debuff_uptime_targets [target_name] = (shadow.debuff_uptime_targets [target_name] or 0) + amount
 			end
@@ -2881,6 +2904,8 @@ atributo_misc.__add = function (tabela1, tabela2)
 				end
 				t.uptime = t.uptime + amount.uptime
 				t.activedamt = t.activedamt + amount.activedamt
+				t.refreshamt = t.refreshamt + amount.refreshamt
+				t.appliedamt = t.appliedamt + amount.appliedamt
 			else
 				tabela1.debuff_uptime_targets [target_name] = (tabela1.debuff_uptime_targets [target_name] or 0) + amount
 			end
@@ -3115,6 +3140,8 @@ atributo_misc.__sub = function (tabela1, tabela2)
 				end
 				t.uptime = t.uptime - amount.uptime
 				t.activedamt = t.activedamt - amount.activedamt
+				t.refreshamt = t.refreshamt - amount.refreshamt
+				t.appliedamt = t.appliedamt - amount.appliedamt
 			else
 				tabela2.debuff_uptime_targets [target_name] = (tabela2.debuff_uptime_targets [target_name] or 0) - amount
 			end
