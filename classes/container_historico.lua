@@ -435,7 +435,14 @@ function historico:resetar()
 	_detalhes:UpdateParserGears()
 
 	if (not InCombatLockdown() and not UnitAffectingCombat ("player")) then
-		collectgarbage()
+		--> workarround for the "script run too long" issue while outside the combat lockdown
+		local cleargarbage = function()
+			collectgarbage()
+		end
+		local successful, errortext = pcall (cleargarbage)
+		if (not successful) then
+			_detalhes:Msg ("couldn't call collectgarbage()")
+		end
 	else
 		_detalhes.schedule_hard_garbage_collect = true
 	end

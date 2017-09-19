@@ -228,7 +228,7 @@
 		_detalhes.LastPullMsg = time()
 	
 		--local hitLine = self.HitBy or "|cFFFFFF00First Hit|r: *?* from *?* "
-		local hitLine = self.HitBy or "|cFFFFFF00First Hit|r: *?*"
+		local hitLine = self.HitBy or "|cFFFFBB00First Hit|r: *?*"
 		local targetLine = ""
 		
 		for i = 1, 5 do
@@ -236,7 +236,7 @@
 			if (boss) then
 				local target = UnitName ("boss" .. i .. "target")
 				if (target and type (target) == "string") then
-					targetLine = " |cFFFFFF00Boss First Target|r: " .. target
+					targetLine = " |cFFFFBB00Boss First Target|r: " .. target
 					break
 				end
 			end
@@ -245,6 +245,63 @@
 		_detalhes:Msg (hitLine .. targetLine)
 		_detalhes.WhoAggroTimer = nil
 	end
+	
+	local lastRecordFound = {id = 0, diff = 0, combatTime = 0}
+	
+	_detalhes.PrintEncounterRecord = function (self)
+		--> this block won't execute if the storage isn't loaded
+		--> self is a timer reference from C_Timer
+		
+		local encounterID = self.Boss
+		local diff = self.Diff
+		
+		if (diff == 15 or diff == 16) then
+		
+			local value, rank, combatTime = 0, 0, 0
+		
+			if (encounterID == lastRecordFound.id and diff == lastRecordFound.diff) then
+				--> is the same encounter, no need to find the value again.
+				value, rank, combatTime = lastRecordFound.value, lastRecordFound.rank, lastRecordFound.combatTime
+			else
+				local db = _detalhes.GetStorage()
+				
+				local role = UnitGroupRolesAssigned ("player")
+				local isDamage = (role == "DAMAGER") or (role == "TANK") --or true
+				local bestRank, encounterTable = _detalhes.storage:GetBestFromPlayer (diff, encounterID, isDamage and "damage" or "healing", _detalhes.playername, true)
+				
+				if (bestRank) then
+					local playerTable, onEncounter, rankPosition = _detalhes.storage:GetPlayerGuildRank (diff, encounterID, isDamage and "damage" or "healing", _detalhes.playername, true)
+
+					value = bestRank[1] or 0
+					rank = rankPosition or 0
+					combatTime = encounterTable.elapsed
+					
+					--> if found the result, cache the values so no need to search again next pull
+					lastRecordFound.value = value
+					lastRecordFound.rank = rank
+					lastRecordFound.id = encounterID
+					lastRecordFound.diff = diff
+					lastRecordFound.combatTime = combatTime
+				else
+					--> if didn't found, no reason to search again on next pull
+					lastRecordFound.value = 0
+					lastRecordFound.rank = 0
+					lastRecordFound.combatTime = 0
+					lastRecordFound.id = encounterID
+					lastRecordFound.diff = diff
+				end
+			end
+			
+			_detalhes:Msg ("|cFFFFBB00Your Best Score|r:", _detalhes:ToK2 ((value) / combatTime) .. " [|cFFFFFF00Guild Rank: " .. rank .. "|r]")
+			
+			if ((not combatTime or combatTime == 0) and not _detalhes.SyncWarning) then
+				_detalhes:Msg ("|cFFFF3300you may need sync the rank within the guild, type '|cFFFFFF00/details rank|r'|r")
+				_detalhes.SyncWarning = true
+			end
+		end
+		
+	end
+	
 	
 	function parser:spell_dmg (token, time, who_serial, who_name, who_flags, alvo_serial, alvo_name, alvo_flags, alvo_flags2, spellid, spellname, spelltype, amount, overkill, school, resisted, blocked, absorbed, critical, glacing, crushing, isoffhand)
 	
@@ -4007,8 +4064,16 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			_detalhes:EnteredInArena()
 			
 		else
-			if ((zoneType == "raid" or zoneType == "party") and select (1, IsInInstance())) then
+			local inInstance = IsInInstance()
+			if ((zoneType == "raid" or zoneType == "party") and inInstance) then
 				_detalhes:CheckForAutoErase (zoneMapID)
+				
+				--> if the current raid is current tier raid, pre-load the storage database
+				if (zoneType == "raid") then
+					if (_detalhes.InstancesToStoreData [zoneMapID]) then
+						_detalhes.ScheduleLoadStorage()
+					end
+				end
 			end
 		
 			if (_detalhes:IsInInstance()) then
@@ -4046,28 +4111,31 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		if (_detalhes.debug) then
 			_detalhes:Msg ("(debug) |cFFFFFF00ENCOUNTER_START|r event triggered.")
 		end
-	
+		
 		_detalhes.latest_ENCOUNTER_END = _detalhes.latest_ENCOUNTER_END or 0
 		if (_detalhes.latest_ENCOUNTER_END + 10 > _GetTime()) then
 			return
 		end
+
+		--> leave the current combat when the encounter start, if is doing a mythic plus dungeons, check if the options alows to create a dedicated segment for the boss fight
+		if ((_in_combat and not _detalhes.tabela_vigente.is_boss) and (not _detalhes.MythicPlus.Started or _detalhes.mythic_plus.boss_dedicated_segment)) then
+			_detalhes:SairDoCombate()
+		end
+		
+		local encounterID, encounterName, difficultyID, raidSize = _select (1, ...)
 		
 		if (not _detalhes.WhoAggroTimer and _detalhes.announce_firsthit.enabled) then
 			_detalhes.WhoAggroTimer = C_Timer.NewTimer (0.5, who_aggro)
 		end
-	
-		local encounterID, encounterName, difficultyID, raidSize = _select (1, ...)
-		--print ("START", encounterID, encounterName, difficultyID, raidSize)
 		
-		_current_encounter_id = encounterID
-	
-		if (_in_combat and not _detalhes.tabela_vigente.is_boss) then
-			_detalhes:SairDoCombate()
-			--_detalhes:Msg ("encounter against|cFFFFFF00", encounterName, "|rbegan, GL HF!")
-		else
-			--_detalhes:Msg ("encounter against|cFFFFC000", encounterName, "|rbegan, GL HF!")
+		if (IsInGuild() and IsInRaid() and _detalhes.announce_damagerecord.enabled and _detalhes.StorageLoaded) then
+			_detalhes.TellDamageRecord = C_Timer.NewTimer (0.6, _detalhes.PrintEncounterRecord)
+			_detalhes.TellDamageRecord.Boss = encounterID
+			_detalhes.TellDamageRecord.Diff = difficultyID
 		end
-	
+
+		_current_encounter_id = encounterID
+		
 		local dbm_mod, dbm_time = _detalhes.encounter_table.DBM_Mod, _detalhes.encounter_table.DBM_ModTime
 		_table_wipe (_detalhes.encounter_table)
 		
@@ -4116,7 +4184,10 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			_detalhes.encounter_table.index = boss_index
 		end
 		
-		parser:Handle3rdPartyBuffs_OnEncounterStart()
+		if (not _detalhes.MythicPlus.Started or (_detalhes.MythicPlus.Started and not _in_combat)) then
+			parser:Handle3rdPartyBuffs_OnEncounterStart()
+		end
+		
 	end
 	
 	function _detalhes.parser_functions:ENCOUNTER_END (...)
@@ -4127,7 +4198,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		
 		_current_encounter_id = nil
 		
-		if (_detalhes.zone_type == "party") then
+		local _, instanceType = GetInstanceInfo() --> let's make sure it isn't a dungeon
+		if (_detalhes.zone_type == "party" or instanceType == "party") then
 			if (_detalhes.debug) then
 				_detalhes:Msg ("(debug) the zone type is 'party', ignoring ENCOUNTER_END.")
 			end
@@ -4210,11 +4282,31 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			_detalhes:SairDoCombate()
 		end
 		
+		if (_detalhes.schedule_mythicdungeon_trash_merge) then
+			_detalhes.schedule_mythicdungeon_trash_merge = nil
+			DetailsMythicPlusFrame.MergeTrashCleanup()
+		end
+		
+		if (_detalhes.schedule_mythicdungeon_endtrash_merge) then
+			_detalhes.schedule_mythicdungeon_endtrash_merge = nil
+			DetailsMythicPlusFrame.MergeRemainingTrashAfterAllBossesDone()
+		end
+		
+		if (_detalhes.schedule_mythicdungeon_overallrun_merge) then
+			_detalhes.schedule_mythicdungeon_overallrun_merge = nil
+			DetailsMythicPlusFrame.MergeSegmentsOnEnd()
+		end
+		
 		--> aqui, tentativa de fazer o timer da janela do Solo funcionar corretamente:
 		if (_detalhes.solo and _detalhes.PluginCount.SOLO > 0) then
 			if (_detalhes.SoloTables.Plugins [_detalhes.SoloTables.Mode].Stop) then
 				_detalhes.SoloTables.Plugins [_detalhes.SoloTables.Mode].Stop()
 			end
+		end
+		
+		if (_detalhes.schedule_storage_load) then
+			_detalhes.schedule_storage_load = nil
+			_detalhes.ScheduleLoadStorage()
 		end
 		
 		if (_detalhes.schedule_flag_boss_components) then
@@ -4350,14 +4442,6 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			_detalhes:Msg ("(debug) found a timer.")
 		end
 	
-		local name, groupType, _, difficult = GetInstanceInfo()
-		if (groupType == "party" and difficult == "Mythic Keystone" and _detalhes.overall_clear_newchallenge) then
-			_detalhes.historico:resetar_overall()
-			if (_detalhes.debug) then
-				_detalhes:Msg ("(debug) timer is for a mythic+ dungeon, overall has been reseted.")
-			end
-		end
-		
 		--if (C_Scenario.IsChallengeMode() and _detalhes.overall_clear_newchallenge) then
 --		if (_detalhes.overall_clear_newchallenge) then --C_Scenario.IsChallengeMode() and  parece que não existe mais
 --			_detalhes.historico:resetar_overall()

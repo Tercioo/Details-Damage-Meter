@@ -689,12 +689,59 @@ function _detalhes.storage:OpenRaidStorage()
 	return db
 end
 
-function _detalhes.storage:GetBestFromGuild (diff, encounter_id, role)
+function _detalhes.storage:HaveDataForEncounter (diff, encounter_id, guild_name)
 	local db = _detalhes.storage:OpenRaidStorage()
 	
+	if (not db) then
+		return
+	end
+	
+	if (guild_name and type (guild_name) == "boolean") then
+		guild_name = GetGuildInfo ("player")
+	end
+	
+	local table = db [diff]
+	if (table) then
+		local encounters = table [encounter_id]
+		if (encounters) then
+			--> didn't requested a guild name, so just return 'we have data for this encounter'
+			if (not guild_name) then
+				return true
+			end
+			
+			--> data for a specific guild is requested, check if there is data for the guild
+			for index, encounter in ipairs (encounters) do
+				if (encounter.guild == guild_name) then
+					return true
+				end
+			end
+		end
+	end
+end
+
+function _detalhes.storage:GetBestFromGuild (diff, encounter_id, role, dps, guild_name)
+	local db = _detalhes.storage:OpenRaidStorage()
+	
+	if (not db) then
+		return
+	end
+	
+	if (not guild_name) then
+		guild_name = GetGuildInfo ("player")
+	end
+	
+	if (not guild_name) then
+		if (_detalhes.debug) then
+			_detalhes:Msg ("(debug) GetBestFromGuild() guild name invalid.")
+		end
+		return
+	end
+	
 	local best = 0
+	local bestdps = 0
 	local bestplayername
 	local onencounter
+	local bestactor
 	
 	if (not role) then
 		role = "damage"
@@ -711,14 +758,26 @@ function _detalhes.storage:GetBestFromGuild (diff, encounter_id, role)
 		local encounters = table [encounter_id]
 		if (encounters) then
 			for index, encounter in ipairs (encounters) do
-				
-				local players = encounter [role]
-				if (players) then
-					for playername, t in pairs (players) do
-						if (t[1] > best) then
-							best = t [1]
-							bestplayername = playername
-							onencounter = encounter
+				if (encounter.guild == guild_name) then
+					local players = encounter [role]
+					if (players) then
+						for playername, t in pairs (players) do
+							if (dps) then
+								if (t[1]/encounter.elapsed > bestdps) then
+									bestdps = t[1]/encounter.elapsed
+									bestplayername = playername
+									onencounter = encounter
+									bestactor = t
+								end
+							else
+								if (t[1] > best) then
+									best = t [1]
+									bestplayername = playername
+									onencounter = encounter
+									bestactor = t
+								end
+
+							end
 						end
 					end
 				end
@@ -726,14 +785,107 @@ function _detalhes.storage:GetBestFromGuild (diff, encounter_id, role)
 		end
 	end
 	
-	return best, bestplayername, onencounter
+	return t, onencounter
 end
 
-function _detalhes.storage:GetBestFromPlayer (diff, encounter_id, role, playername)
+function _detalhes.storage:GetPlayerGuildRank (diff, encounter_id, role, playername, dps, guild_name)
+
 	local db = _detalhes.storage:OpenRaidStorage()
+	
+	if (not db) then
+		return
+	end
+	
+	if (not guild_name) then
+		guild_name = GetGuildInfo ("player")
+	end
+	
+	if (not guild_name) then
+		if (_detalhes.debug) then
+			_detalhes:Msg ("(debug) GetBestFromGuild() guild name invalid.")
+		end
+		return
+	end
+	
+	if (not role) then
+		role = "damage"
+	end
+	role = string.lower (role)
+	if (role == "damager") then
+		role = "damage"
+	elseif (role == "healer") then
+		role = "healing"
+	end
+	
+	local playerScore = {}
+	
+	local _table = db [diff]
+	if (_table) then
+		local encounters = _table [encounter_id]
+		if (encounters) then
+			for index, encounter in ipairs (encounters) do
+				if (encounter.guild == guild_name) then
+					local roleTable = encounter [role]
+					for playerName, playerTable in pairs (roleTable) do
+					
+						if (not playerScore [playerName]) then
+							playerScore [playerName] = {0, 0, {}}
+						end
+					
+						local total = playerTable[1]
+						local persecond = total / encounter.elapsed
+						
+						if (dps) then
+							if (persecond > playerScore [playerName][2]) then
+								playerScore [playerName][1] = total
+								playerScore [playerName][2] = total / encounter.elapsed
+								playerScore [playerName][3] = playerTable
+								playerScore [playerName][4] = encounter
+							end
+						else
+							if (total > playerScore [playerName][1]) then
+								playerScore [playerName][1] = total
+								playerScore [playerName][2] = total / encounter.elapsed
+								playerScore [playerName][3] = playerTable
+								playerScore [playerName][4] = encounter
+							end
+						end
+					end
+				end
+			end
+			
+			if (not playerScore [playername]) then
+				return
+			end
+			
+			local t = {}
+			for playerName, playerTable in pairs (playerScore) do
+				playerTable [5]  = playerName
+				tinsert (t, playerTable)
+			end
+			
+			table.sort (t, dps and _detalhes.Sort2 or _detalhes.Sort1)
+			
+			for i = 1, #t do
+				if (t[i][5] == playername) then
+					return t[i][3], t[i][4], i
+				end
+			end
+		end
+	end
+
+end
+
+function _detalhes.storage:GetBestFromPlayer (diff, encounter_id, role, playername, dps)
+	local db = _detalhes.storage:OpenRaidStorage()
+	
+	if (not db) then
+		return
+	end
 	
 	local best
 	local onencounter
+	local topdps
 	
 	if (not role) then
 		role = "damage"
@@ -753,13 +905,22 @@ function _detalhes.storage:GetBestFromPlayer (diff, encounter_id, role, playerna
 				local player = encounter [role] and encounter [role] [playername]
 				if (player) then
 					if (best) then
-						if (player[1] > best[1]) then
-							onencounter = encounter
-							best = player
+						if (dps) then
+							if (player[1]/encounter.elapsed > topdps) then
+								onencounter = encounter
+								best = player
+								topdps = player[1]/encounter.elapsed
+							end
+						else
+							if (player[1] > best[1]) then
+								onencounter = encounter
+								best = player
+							end
 						end
 					else
 						onencounter = encounter
 						best = player
+						topdps = player[1]/encounter.elapsed
 					end
 				end
 			end
@@ -1133,6 +1294,94 @@ function _detalhes.storage:GetEncounterData (diff, encounter_id, guild)
 	return t
 end
 
+local create_storage_tables = function()
+	--> get the storage table
+	local db = DetailsDataStorage
+	
+	if (not db and _detalhes.CreateStorageDB) then
+		db = _detalhes:CreateStorageDB()
+		if (not db) then
+			return
+		end
+	elseif (not db) then
+		return
+	end
+	
+	return db
+end
+
+function _detalhes.ScheduleLoadStorage()
+	if (InCombatLockdown() or UnitAffectingCombat ("player")) then
+		if (_detalhes.debug) then
+			print ("|cFFFFFF00Details! storage scheduled to load (player in combat).")
+		end
+		_detalhes.schedule_storage_load = true
+		return
+	else
+		if (not IsAddOnLoaded ("Details_DataStorage")) then
+			local loaded, reason = LoadAddOn ("Details_DataStorage")
+			if (not loaded) then
+				if (_detalhes.debug) then
+					print ("|cFFFFFF00Details! Storage|r: can't load storage, may be the addon is disabled.")
+				end
+				return
+			end
+			
+			create_storage_tables()
+		end
+	end
+	
+	if (IsAddOnLoaded ("Details_DataStorage")) then
+		_detalhes.schedule_storage_load = nil
+		_detalhes.StorageLoaded = true
+		if (_detalhes.debug) then
+			print ("|cFFFFFF00Details! storage loaded.")
+		end
+	else
+		if (_detalhes.debug) then
+			print ("|cFFFFFF00Details! fail to load storage, scheduled once again.")
+		end
+		_detalhes.schedule_storage_load = true
+	end
+end
+
+function _detalhes.GetStorage()
+	return DetailsDataStorage
+end
+
+function _detalhes.OpenStorage()
+	--if the player is in combat, this function return false, if failed to load by other reason it returns nil
+
+	--> check if the storage is already loaded
+	if (not IsAddOnLoaded ("Details_DataStorage")) then
+		--> can't open it during combat
+		if (InCombatLockdown() or UnitAffectingCombat ("player")) then
+			if (_detalhes.debug) then
+				print ("|cFFFFFF00Details! Storage|r: can't load storage due to combat.")
+			end
+			return false
+		end
+	
+		local loaded, reason = LoadAddOn ("Details_DataStorage")
+		if (not loaded) then
+			if (_detalhes.debug) then
+				print ("|cFFFFFF00Details! Storage|r: can't load storage, may be the addon is disabled.")
+			end
+			return
+		end
+		
+		local db = create_storage_tables()
+		
+		if (db and IsAddOnLoaded ("Details_DataStorage")) then
+			_detalhes.StorageLoaded = true
+		end
+		
+		return DetailsDataStorage
+	else
+		return DetailsDataStorage
+	end
+end
+
 function _detalhes:StoreEncounter (combat)
 
 	combat = combat or _detalhes.tabela_vigente
@@ -1238,7 +1487,7 @@ function _detalhes:StoreEncounter (combat)
 			elapsed = combat:GetCombatTime(),
 			guild = guildName,
 		}
-
+		
 		local damage_container_hash = combat [1]._NameIndexTable
 		local damage_container_pool = combat [1]._ActorTable
 		
@@ -1282,33 +1531,27 @@ function _detalhes:StoreEncounter (combat)
 		
 		tinsert (encounter_database, this_combat_data)
 
-		print ("|cFFFFFF00Details! Storage|r: encounter saved!")
+		--print ("|cFFFFFF00Details! Storage|r: encounter saved!")
 		
 		local myrole = UnitGroupRolesAssigned ("player")
-		local mybest, onencounter = _detalhes.storage:GetBestFromPlayer (diff, encounter_id, myrole, _detalhes.playername)
+		local mybest, onencounter = _detalhes.storage:GetBestFromPlayer (diff, encounter_id, myrole, _detalhes.playername, true) --> get dps or hps
+		local myBestDps = mybest [1] / onencounter.elapsed
 		
 		--print (myrole, mybest and mybest[1], mybest and mybest[2], mybest and mybest[3], onencounter and onencounter.date)
 		
 		if (mybest) then
 			local d_one = 0
 			if (myrole == "DAMAGER" or myrole == "TANK") then
-				d_one = combat (1, _detalhes.playername) and combat (1, _detalhes.playername).total
+				d_one = combat (1, _detalhes.playername) and combat (1, _detalhes.playername).total / combat:GetCombatTime()
 			elseif (myrole == "HEALER") then
-				d_one = combat (2, _detalhes.playername) and combat (2, _detalhes.playername).total
+				d_one = combat (2, _detalhes.playername) and combat (2, _detalhes.playername).total / combat:GetCombatTime()
 			end
 			
-			if (mybest[1] > d_one) then
-				print (Loc ["STRING_DETAILS1"] .. format (Loc ["STRING_SCORE_NOTBEST"], _detalhes:comma_value (d_one), _detalhes:comma_value (mybest[1]), onencounter.date, mybest[2]))
+			if (myBestDps > d_one) then
+				print (Loc ["STRING_DETAILS1"] .. format (Loc ["STRING_SCORE_NOTBEST"], _detalhes:ToK2 (d_one), _detalhes:ToK2 (myBestDps), onencounter.date, mybest[2]))
 			else
-				print (Loc ["STRING_DETAILS1"] .. format (Loc ["STRING_SCORE_BEST"], _detalhes:comma_value (d_one)))
+				print (Loc ["STRING_DETAILS1"] .. format (Loc ["STRING_SCORE_BEST"], _detalhes:ToK2 (d_one)))
 			end
-		end
-		
-		--guild best
-		local amount, playerName, encounterObject = _detalhes.storage:GetBestFromGuild (diff, encounter_id, myrole)
-		if (amount > 0) then
-			--> player got the high score on his guild
-			
 		end
 		
 		local lower_instance = _detalhes:GetLowerInstanceNumber()
@@ -1323,7 +1566,7 @@ function _detalhes:StoreEncounter (combat)
 				local func = {_detalhes.OpenRaidHistoryWindow, _detalhes, raid_name, encounter_id, diff, my_role, guildName} --, 2, UnitName ("player")
 				--local icon = {[[Interface\AddOns\Details\images\icons]], 16, 16, false, 434/512, 466/512, 243/512, 273/512}
 				local icon = {[[Interface\PvPRankBadges\PvPRank08]], 16, 16, false, 0, 1, 0, 1}
-				instance:InstanceAlert (Loc ["STRING_GUILDDAMAGERANK_WINDOWALERT"], icon, 10, func, true)
+				instance:InstanceAlert (Loc ["STRING_GUILDDAMAGERANK_WINDOWALERT"], icon, _detalhes.update_warning_timeout, func, true)
 			end
 		end
 	else

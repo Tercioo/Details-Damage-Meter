@@ -803,6 +803,11 @@ end
 				end
 			end
 		end
+		
+		--mythic dungeon test
+		if (_detalhes.MythicPlus.Started and _detalhes.mythic_plus.always_in_combat) then
+			return true
+		end
 
 		_detalhes:SairDoCombate()
 	end

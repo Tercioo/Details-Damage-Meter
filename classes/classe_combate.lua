@@ -53,6 +53,16 @@
 		return self.data_inicio, self.data_fim
 	end
 	
+	--set the combat date
+	function combate:SetDate (started, ended)
+		if (started and type (started) == "string") then
+			self.data_inicio = started
+		end
+		if (ended and type (ended) == "string") then
+			self.data_fim = ended
+		end		
+	end
+	
 	--return data for charts
 	function combate:GetTimeData (name)
 		return self.TimeData [name]
@@ -88,6 +98,24 @@
 	
 	function combate:GetPvPInfo()
 		return self.is_pvp
+	end
+	
+	function combate:GetMythicDungeonInfo()
+		return self.is_mythic_dungeon
+	end
+
+	function combate:GetMythicDungeonTrashInfo()
+		return self.is_mythic_dungeon_trash
+	end
+	
+	function combate:IsMythicDungeon()
+		local is_segment = self.is_mythic_dungeon_segment
+		local run_id = self.is_mythic_dungeon_run_id
+		return is_segment, run_id
+	end
+	
+	function combate:IsMythicDungeonOverall()
+		return self.is_mythic_dungeon and self.is_mythic_dungeon.OverallSegment
 	end
 	
 	function combate:GetArenaInfo()
@@ -500,19 +528,23 @@
 	combate.__add = function (combate1, combate2)
 
 		local all_containers = {combate2 [class_type_dano]._ActorTable, combate2 [class_type_cura]._ActorTable, combate2 [class_type_e_energy]._ActorTable, combate2 [class_type_misc]._ActorTable}
+		local custom_combat
+		if (combate1 ~= _detalhes.tabela_overall) then
+			custom_combat = combate1
+		end
 		
 		for class_type, actor_container in ipairs (all_containers) do
 			for _, actor in ipairs (actor_container) do
 				local shadow
 				
 				if (class_type == class_type_dano) then
-					shadow = _detalhes.atributo_damage:r_connect_shadow (actor, true)
+					shadow = _detalhes.atributo_damage:r_connect_shadow (actor, true, custom_combat)
 				elseif (class_type == class_type_cura) then
-					shadow = _detalhes.atributo_heal:r_connect_shadow (actor, true)
+					shadow = _detalhes.atributo_heal:r_connect_shadow (actor, true, custom_combat)
 				elseif (class_type == class_type_e_energy) then
-					shadow = _detalhes.atributo_energy:r_connect_shadow (actor, true)
+					shadow = _detalhes.atributo_energy:r_connect_shadow (actor, true, custom_combat)
 				elseif (class_type == class_type_misc) then
-					shadow = _detalhes.atributo_misc:r_connect_shadow (actor, true)
+					shadow = _detalhes.atributo_misc:r_connect_shadow (actor, true, custom_combat)
 				end
 				
 				shadow.boss_fight_component = actor.boss_fight_component

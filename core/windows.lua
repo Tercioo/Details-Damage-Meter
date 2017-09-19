@@ -1090,7 +1090,7 @@
 	end
 
 --> raid history window ~history
-	function _detalhes:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild, _player_base, _player_name)
+	function _detalhes:OpenRaidHistoryWindow (_raid, _boss, _difficulty, _role, _guild, _player_base, _player_name, _history_type)
 	
 		if (not _G.DetailsRaidHistoryWindow) then
 		
@@ -1195,7 +1195,7 @@
 			local guild_sync = function()
 				_detalhes.storage:DBGuildSync()
 				f.GuildSyncButton:Disable()
-
+				
 				if (not f.SyncTexture) then
 					local workingFrame = CreateFrame ("frame", nil, f)
 					f.WorkingFrame = workingFrame
@@ -1220,7 +1220,7 @@
 					local rotation = _detalhes.gump:CreateAnimation (animationHub, "ROTATION", 1, 3, -360)
 					rotation:SetTarget (f.SyncTextureCircle)
 					--_detalhes.gump:CreateAnimation (animationHub, "ALPHA", 1, 0.5, 0, 1)
-
+					
 					f.SyncText = workingFrame:CreateFontString (nil, "border", "GameFontNormal")
 					f.SyncText:SetPoint ("right", f.SyncTextureBackground, "left", 0, 0)
 					f.SyncText:SetText ("working")
@@ -1250,24 +1250,29 @@
 			GuildSyncButton:SetPoint ("topright", f, "topright", -20, -34)
 			GuildSyncButton:SetIcon ([[Interface\GLUES\CharacterSelect\RestoreButton]], 12, 12, "overlay", {0.2, .8, 0.2, .8}, nil, 4)
 			
-			
 			function f.BuildReport()
 				if (f.LatestResourceTable) then
 					local reportFunc = function (IsCurrent, IsReverse, AmtLines)
+
+						local bossName = f.select_boss.label:GetText()
+						local bossDiff = f.select_diff.label:GetText()
+						local reportTable = {"Details!: DPS Rank for: " .. (bossDiff or "") .. " " .. (bossName or "--x--x--")}
 						local result = {}
 						
-						local bossName = f.select_boss.label:GetText()
-						
-						tinsert (result, "Details!: Damage Rank for: " .. (bossName or "--x--x--"))
 						for i = 1, AmtLines do
 							if (f.LatestResourceTable[i]) then
-								tinsert (result, f.LatestResourceTable[i][1] .. ": " .. f.LatestResourceTable[i][2])
+								local playerName = f.LatestResourceTable[i][1]
+								playerName = playerName:gsub ("%|c%x%x%x%x%x%x%x%x", "")
+								playerName = playerName:gsub ("%|r", "")
+								playerName = playerName:gsub (".*%s", "")
+								tinsert (result, {playerName, f.LatestResourceTable[i][2]})
 							else
 								break
 							end
 						end
 					
-						Details:SendReportLines (result)
+						_detalhes:FormatReportLines (reportTable, result)
+						Details:SendReportLines (reportTable)
 					end
 					
 					Details:SendReportWindow (reportFunc, nil, nil, true)
@@ -1304,6 +1309,18 @@
 					self:StopMovingOrSizing()
 					self.isMoving = nil
 				end
+			end)
+			
+			f:SetScript ("OnHide", function()
+				--> save latest shown state
+				f.LatestSelection = f.LatestSelection or {}
+				f.LatestSelection.Raid = DetailsRaidHistoryWindow.select_raid.value
+				f.LatestSelection.Boss = DetailsRaidHistoryWindow.select_boss.value
+				f.LatestSelection.Diff = DetailsRaidHistoryWindow.select_diff.value
+				f.LatestSelection.Role = DetailsRaidHistoryWindow.select_role.value
+				f.LatestSelection.Guild = DetailsRaidHistoryWindow.select_guild.value
+				f.LatestSelection.PlayerBase = DetailsRaidHistoryWindow.select_player.value
+				f.LatestSelection.PlayerName = DetailsRaidHistoryWindow.select_player2.value
 			end)
 			
 			f.TitleText:SetText ("Details! Raid Ranking")
@@ -1429,6 +1446,8 @@
 
 			function f:UpdateDropdowns (DoNotSelectRaid)
 				
+				local currentGuild = guild_dropdown.value
+				
 				--difficulty
 				wipe (diff_list)
 				wipe (boss_list)
@@ -1473,7 +1492,6 @@
 							if (not boss_repeated [encounterId]) then
 								local encounter, instance = _detalhes:GetBossEncounterDetailsFromEncounterId (_, encounterId)
 								if (encounter) then
-									
 									local InstanceID = _detalhes:GetInstanceIdFromEncounterId (encounterId)
 									if (raidSelected == InstanceID) then
 										tinsert (boss_list, {value = encounterId, label = encounter.boss, icon = icon, onclick = on_boss_select})
@@ -1491,7 +1509,7 @@
 							for index, encounter in ipairs (encounterTable) do
 								local guild = encounter.guild
 								if (not guild_repeated [guild]) then
-									tinsert (guild_list, {value = guild, label = guild, icon = icon, onclick = on_raid_select})
+									tinsert (guild_list, {value = guild, label = guild, icon = icon, onclick = on_guild_select})
 									guild_repeated [guild] = true
 								end
 							end
@@ -1510,9 +1528,13 @@
 					raid_dropdown:Refresh()
 					raid_dropdown:Select (1, true)
 				end
-				guild_dropdown:Refresh()
-				guild_dropdown:Select (1, true)
 				
+				guild_dropdown:Refresh()
+				if (currentGuild) then
+					guild_dropdown:Select (currentGuild)
+				else
+					guild_dropdown:Select (1, true)
+				end
 			end
 			
 			function f.UpdateBossDropdown()
@@ -1611,40 +1633,26 @@
 							local player = roleTable [playerName]
 							
 							if (player) then
-								tinsert (data, {text = date, value = player[1], data = player, fulldate = encounter.date, elapsed = encounter.elapsed})
+							
+								--tinsert (data, {text = date, value = player[1], data = player, fulldate = encounter.date, elapsed = encounter.elapsed})
+								tinsert (data, {text = date, value = player[1]/encounter.elapsed, utext = _detalhes:ToK2 (player[1]/encounter.elapsed), data = player, fulldate = encounter.date, elapsed = encounter.elapsed})
 							end
 						end
 					end
 					
 					--> update graphic
 					if (not f.gframe) then
-					
-						local cooltip_block_bg = {0, 0, 0, 1}
-						local menu_wallpaper_tex = {.6, 0.1, 0, 0.64453125}
-						local menu_wallpaper_color = {1, 1, 1, 0.1}
 						
 						local onenter = function (self)
 							GameCooltip:Reset()
 							GameCooltip:SetType ("tooltip")
-							
-							GameCooltip:SetOption ("TextSize", _detalhes.tooltip.fontsize)
-							GameCooltip:SetOption ("TextFont",  _detalhes.tooltip.fontface)
-							GameCooltip:SetOption ("TextColor", _detalhes.tooltip.fontcolor)
-							GameCooltip:SetOption ("TextColorRight", _detalhes.tooltip.fontcolor_right)
-							GameCooltip:SetOption ("TextShadow", _detalhes.tooltip.fontshadow and "OUTLINE")
-							
-							GameCooltip:SetOption ("LeftBorderSize", -5)
-							GameCooltip:SetOption ("RightBorderSize", 5)
-							GameCooltip:SetOption ("MinWidth", 175)
-							GameCooltip:SetOption ("StatusBarTexture", [[Interface\AddOns\Details\images\bar_background]])
-							
-							GameCooltip:AddLine ("Total Done:", _detalhes:ToK2 (self.data.value))
-							GameCooltip:AddLine ("Dps:", _detalhes:ToK2 (self.data.value / self.data.elapsed))
-							GameCooltip:AddLine ("Item Level:", floor (self.data.data [2]))
-							GameCooltip:AddLine ("Date:", self.data.fulldate:gsub (".*%s", ""))
-							
-							GameCooltip:SetWallpaper (1, [[Interface\SPELLBOOK\Spellbook-Page-1]], menu_wallpaper_tex, menu_wallpaper_color, true)
-							GameCooltip:SetBackdrop (1, _detalhes.tooltip_backdrop, cooltip_block_bg, _detalhes.tooltip_border_color)
+							GameCooltip:Preset (2)
+
+							GameCooltip:AddLine ("Total Done:", _detalhes:ToK2 (self.data.value), 1, "white")
+							GameCooltip:AddLine ("Dps:", _detalhes:ToK2 (self.data.value / self.data.elapsed), 1, "white")
+							GameCooltip:AddLine ("Item Level:", floor (self.data.data [2]), 1, "white")
+							GameCooltip:AddLine ("Date:", self.data.fulldate:gsub (".*%s", ""), 1, "white")
+
 							GameCooltip:SetOwner (self.ball.tooltip_anchor)
 							GameCooltip:Show()
 						end
@@ -1729,7 +1737,14 @@
 						t.ps,
 					})
 				end
+				
 				table.sort (sortTable, function(a, b) return a[8] > b[8] end)
+				
+				--> add the number before the player name
+				for i = 1, #sortTable do
+					local t = sortTable [i]
+					t [1] = i .. ". " .. t [1]
+				end
 				
 				fillpanel:SetFillFunction (function (index) return sortTable [index] end)
 				fillpanel:SetTotalFunction (function() return #sortTable end)
@@ -1789,6 +1804,9 @@
 						end
 					end
 				end
+				
+				--> sort alphabetical
+				table.sort (players, function(a, b) return a[1] < b[1] end)
 				
 				for index, playerTable in ipairs (players) do
 					for i = #playerTable, amt_encounters do
@@ -1882,11 +1900,39 @@
 		
 		end
 		
+		
+		--> table means some button send the request - nil for other ways
+		if (type (_raid) == "table" or (not _raid and not _boss and not _difficulty and not _role and not _guild and not _player_base and not _player_name)) then
+			local f = _G.DetailsRaidHistoryWindow
+			if (f.LatestSelection) then
+				_raid = f.LatestSelection.Raid
+				_boss = f.LatestSelection.Boss
+				_difficulty = f.LatestSelection.Diff
+				_role = f.LatestSelection.Role
+				_guild = f.LatestSelection.Guild
+				_player_base = f.LatestSelection.PlayerBase
+				_player_name = f.LatestSelection.PlayerBase
+			end
+		end
+		
 		_G.DetailsRaidHistoryWindow:UpdateDropdowns()
 		_G.DetailsRaidHistoryWindow:UpdateDropdowns()
 		
 		_G.DetailsRaidHistoryWindow:Refresh()
 		_G.DetailsRaidHistoryWindow:Show()
+		
+		if (_history_type == 1 or _history_type == 2) then
+			DetailsRaidHistoryWindow.Mode = _history_type
+			if (DetailsRaidHistoryWindow.Mode == 1) then
+				--overall
+				DetailsRaidHistoryWindow.HistoryCheckBox:SetValue (true)
+				DetailsRaidHistoryWindow.GuildRankCheckBox:SetValue (false)
+			elseif (DetailsRaidHistoryWindow.Mode == 2) then
+				--guild rank
+				DetailsRaidHistoryWindow.GuildRankCheckBox:SetValue (true)
+				DetailsRaidHistoryWindow.HistoryCheckBox:SetValue (false)
+			end
+		end
 		
 		if (_raid) then
 			DetailsRaidHistoryWindow.select_raid:Select (_raid)
@@ -1906,6 +1952,9 @@
 			_G.DetailsRaidHistoryWindow:Refresh()
 		end
 		if (_guild) then
+			if (type (_guild) == "boolean") then
+				_guild = GetGuildInfo ("player")
+			end
 			DetailsRaidHistoryWindow.select_guild:Select (_guild)
 			_G.DetailsRaidHistoryWindow:Refresh()
 		end

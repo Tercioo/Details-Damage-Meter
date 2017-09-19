@@ -1395,10 +1395,12 @@ end
 			return shadow
 		end
 	
-		function atributo_energy:r_connect_shadow (actor, no_refresh)
+		function atributo_energy:r_connect_shadow (actor, no_refresh, combat_object)
+		
+			local host_combat = combat_object or _detalhes.tabela_overall
 		
 			--> criar uma shadow desse ator se ainda não tiver uma
-				local overall_energy = _detalhes.tabela_overall [3]
+				local overall_energy = host_combat [3]
 				local shadow = overall_energy._ActorTable [overall_energy._NameIndexTable [actor.nome]]
 
 				if (not shadow) then 
@@ -1438,10 +1440,10 @@ end
 				end
 			
 			--> total no combate overall (captura de dados)
-				_detalhes.tabela_overall.totals[3] [actor.powertype] = _detalhes.tabela_overall.totals[3] [actor.powertype] + actor.total
+				host_combat.totals[3] [actor.powertype] = host_combat.totals[3] [actor.powertype] + actor.total
 				
 				if (actor.grupo) then
-					_detalhes.tabela_overall.totals_grupo[3][actor.powertype] = _detalhes.tabela_overall.totals_grupo[3][actor.powertype] + actor.total
+					host_combat.totals_grupo[3][actor.powertype] = host_combat.totals_grupo[3][actor.powertype] + actor.total
 				end
 
 			--> targets

@@ -1,4 +1,4 @@
-## Interface: 70200
+## Interface: 70300
 ## Title: Details
 ## Notes: Computes detailed infos about combats.
 ## SavedVariables: _detalhes_global

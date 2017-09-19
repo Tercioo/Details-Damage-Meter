@@ -1223,12 +1223,26 @@ function DF:IconPick (callback, close_when_select, param1, param2)
 		DF.IconPickFrame:SetHeight (227)
 		DF.IconPickFrame:EnableMouse (true)
 		DF.IconPickFrame:SetMovable (true)
-		DF.IconPickFrame:SetBackdrop ({bgFile = DF.folder .. "background", edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border", 
-		tile = true, tileSize = 32, edgeSize = 32, insets = {left = 5, right = 5, top = 5, bottom = 5}})
 		
-		DF.IconPickFrame:SetBackdropBorderColor (170/255, 170/255, 170/255)
+		DF.IconPickFrame:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
+
+		DF.IconPickFrame:SetBackdropBorderColor (0, 0, 0)
 		DF.IconPickFrame:SetBackdropColor (24/255, 24/255, 24/255, .8)
 		DF.IconPickFrame:SetFrameLevel (1)
+		
+		DF.IconPickFrame:SetScript ("OnMouseDown", function (self)
+			if (not self.isMoving) then
+				DF.IconPickFrame:StartMoving()
+				self.isMoving = true
+			end
+		end)
+		
+		DF.IconPickFrame:SetScript ("OnMouseUp", function (self)
+			if (self.isMoving) then
+				DF.IconPickFrame:StopMovingOrSizing()
+				self.isMoving = nil
+			end
+		end)
 		
 		DF.IconPickFrame.emptyFunction = function() end
 		DF.IconPickFrame.callback = DF.IconPickFrame.emptyFunction
@@ -1267,37 +1281,37 @@ function DF:IconPick (callback, close_when_select, param1, param2)
 		close_button:SetFrameLevel (close_button:GetFrameLevel()+2)
 		
 		local MACRO_ICON_FILENAMES = {}
-		DF.IconPickFrame:SetScript ("OnShow", function()
+		local SPELLNAMES_CACHE = {}
 		
-			MACRO_ICON_FILENAMES = {};
-			MACRO_ICON_FILENAMES[1] = "INV_MISC_QUESTIONMARK";
+		DF.IconPickFrame:SetScript ("OnShow", function()
+			
+			MACRO_ICON_FILENAMES [1] = "INV_MISC_QUESTIONMARK";
 			local index = 2;
 		
 			for i = 1, GetNumSpellTabs() do
-				local tab, tabTex, offset, numSpells, _ = GetSpellTabInfo(i);
-				offset = offset + 1;
-				local tabEnd = offset + numSpells;
+				local tab, tabTex, offset, numSpells, _ = GetSpellTabInfo (i)
+				offset = offset + 1
+				local tabEnd = offset + numSpells
+				
 				for j = offset, tabEnd - 1 do
 					--to get spell info by slot, you have to pass in a pet argument
-					local spellType, ID = GetSpellBookItemInfo(j, "player"); 
+					local spellType, ID = GetSpellBookItemInfo (j, "player")
 					if (spellType ~= "FUTURESPELL") then
-						local spellTexture = strupper(GetSpellBookItemTexture(j, "player"));
-						if ( not string.match( spellTexture, "INTERFACE\\BUTTONS\\") ) then
-							MACRO_ICON_FILENAMES[index] = gsub( spellTexture, "INTERFACE\\ICONS\\", "");
-							index = index + 1;
-						end
-					end
-					if (spellType == "FLYOUT") then
-						local _, _, numSlots, isKnown = GetFlyoutInfo(ID);
+						MACRO_ICON_FILENAMES [index] = GetSpellBookItemTexture (j, "player") or 0
+						index = index + 1;
+						
+					elseif (spellType == "FLYOUT") then
+						local _, _, numSlots, isKnown = GetFlyoutInfo (ID)
 						if (isKnown and numSlots > 0) then
 							for k = 1, numSlots do 
-								local spellID, overrideSpellID, isKnown = GetFlyoutSlotInfo(ID, k)
+								local spellID, overrideSpellID, isKnown = GetFlyoutSlotInfo (ID, k)
 								if (isKnown) then
-									MACRO_ICON_FILENAMES[index] = gsub( strupper(GetSpellTexture(spellID)), "INTERFACE\\ICONS\\", ""); 
+									MACRO_ICON_FILENAMES [index] = GetSpellTexture (spellID) or 0
 									index = index + 1;
 								end
 							end
 						end
+						
 					end
 				end
 			end
@@ -1305,12 +1319,12 @@ function DF:IconPick (callback, close_when_select, param1, param2)
 			GetLooseMacroItemIcons (MACRO_ICON_FILENAMES)
 			GetLooseMacroIcons (MACRO_ICON_FILENAMES)
 			GetMacroIcons (MACRO_ICON_FILENAMES)
-			GetMacroItemIcons (MACRO_ICON_FILENAMES )
-			
+			GetMacroItemIcons (MACRO_ICON_FILENAMES)
+
 		end)
 		
 		DF.IconPickFrame:SetScript ("OnHide", function()
-			MACRO_ICON_FILENAMES = nil;
+			wipe (MACRO_ICON_FILENAMES)
 			collectgarbage()
 		end)
 		
@@ -1454,77 +1468,61 @@ function DF:IconPick (callback, close_when_select, param1, param2)
 			if (DF.IconPickFrame.searching) then
 				filter = string_lower (DF.IconPickFrame.searching)
 			end
+
+			local pool
+			local shown = 0
 			
 			if (filter and filter ~= "") then
-				
-				local ignored = 0
-				local tryed = 0
-				local found = 0
-				local type = type
-				local buttons = DF.IconPickFrame.buttons
-				index = 1
-				
-				for i = 1, 60 do
-					
-					macroPopupIcon = buttons[i].icon
-					macroPopupButton = buttons[i]
-
-					for o = index, numMacroIcons do
-					
-						tryed = tryed + 1
-					
-						texture = MACRO_ICON_FILENAMES [o]
-						if (type (texture) == "number") then
-							macroPopupIcon:SetToFileData (texture)
-							texture = macroPopupIcon:GetTexture()
-							macroPopupIcon:SetTexture (nil)
-						else
-							texture = "INTERFACE\\ICONS\\" .. texture
-						end
-						
-						if (texture and texture:find (filter)) then
-							macroPopupIcon:SetTexture (texture)
-							macroPopupButton:Show()
-							found = found + 1
-							DF.IconPickFrame.last_filter_index = o
-							index = o+1
-							break
-						else
-							ignored = ignored + 1
-						end
-						
+				if (#SPELLNAMES_CACHE == 0) then
+					--build name cache
+					local GetSpellInfo = GetSpellInfo
+					for i = 1, #MACRO_ICON_FILENAMES do
+						local spellName = GetSpellInfo (MACRO_ICON_FILENAMES [i])
+						SPELLNAMES_CACHE [i] = spellName or "NULL"
 					end
 				end
-			
-				for o = found+1, 60 do
-					macroPopupButton = _G ["DetailsFrameworkIconPickFrameButton"..o]
-					macroPopupButton:Hide()
+				
+				--do the filter
+				pool = {}
+				for i = 1, #SPELLNAMES_CACHE do
+					if (SPELLNAMES_CACHE [i]:find (filter)) then
+						pool [#pool+1] = MACRO_ICON_FILENAMES [i]
+						shown = shown + 1
+					end
 				end
 			else
-				for i = 1, 60 do
-					macroPopupIcon = _G ["DetailsFrameworkIconPickFrameButton"..i.."Icon"]
-					macroPopupButton = _G ["DetailsFrameworkIconPickFrameButton"..i]
-					index = (macroPopupOffset * 10) + i
-					texture = MACRO_ICON_FILENAMES [index]
-					if ( index <= numMacroIcons and texture ) then
-
-						if (type (texture) == "number") then
-							macroPopupIcon:SetToFileData (texture)
-						else
-							macroPopupIcon:SetTexture ("INTERFACE\\ICONS\\" .. texture)
-						end
-
-						macroPopupIcon:SetTexCoord (4/64, 60/64, 4/64, 60/64)
-						macroPopupButton.IconID = index
-						macroPopupButton:Show()
-					else
-						macroPopupButton:Hide()
-					end
-				end
+				shown = nil
 			end
 			
+			if (not pool) then
+				pool = MACRO_ICON_FILENAMES
+			end
+			
+			for i = 1, 60 do
+				macroPopupIcon = _G ["DetailsFrameworkIconPickFrameButton"..i.."Icon"]
+				macroPopupButton = _G ["DetailsFrameworkIconPickFrameButton"..i]
+				index = (macroPopupOffset * 10) + i
+				texture = pool [index]
+				if ( index <= numMacroIcons and texture ) then
+
+					if (type (texture) == "number") then
+						macroPopupIcon:SetTexture (texture)
+					else
+						macroPopupIcon:SetTexture ("INTERFACE\\ICONS\\" .. texture)
+					end
+
+					macroPopupIcon:SetTexCoord (4/64, 60/64, 4/64, 60/64)
+					macroPopupButton.IconID = index
+					macroPopupButton:Show()
+				else
+					macroPopupButton:Hide()
+				end
+			end
+
+			pool = nil
+			
 			-- Scrollbar stuff
-			FauxScrollFrame_Update (scroll, ceil (numMacroIcons / 10) , 5, 20 )
+			FauxScrollFrame_Update (scroll, ceil ((shown or numMacroIcons) / 10) , 5, 20 )
 		end
 
 		DF.IconPickFrame.updateFunc = ChecksFrame_Update
@@ -3124,6 +3122,16 @@ local gframe_create_line = function (self)
 	spellicon:SetSize (16, 16)
 	f.spellicon = spellicon
 	
+	local text = f:CreateFontString (nil, "overlay", "GameFontNormal")
+	local textBackground = f:CreateTexture (nil, "artwork")
+	textBackground:SetSize (30, 16)
+	textBackground:SetColorTexture (0, 0, 0, 0.5)
+	textBackground:SetPoint ("bottom", f.ball, "top", 0, -6)
+	text:SetPoint ("center", textBackground, "center")
+	DF:SetFontSize (text, 10)
+	f.text = text
+	f.textBackground = textBackground
+	
 	local timeline = f:CreateFontString (nil, "overlay", "GameFontNormal")
 	timeline:SetPoint ("bottomright", f, "bottomright", -2, 0)
 	DF:SetFontSize (timeline, 8)
@@ -3194,6 +3202,15 @@ local gframe_update = function (self, lines)
 		line.spellicon:SetTexture (nil)
 		line.timeline:SetText (data.text)
 		line.timeline:Show()
+		
+		if (data.utext) then
+			line.text:Show()
+			line.textBackground:Show()
+			line.text:SetText (data.utext)
+		else
+			line.text:Hide()
+			line.textBackground:Hide()
+		end
 		
 		line.data = data
 		

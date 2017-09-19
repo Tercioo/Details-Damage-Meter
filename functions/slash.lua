@@ -907,6 +907,95 @@ function SlashCmdList.DETAILS (msg, editbox)
 				print (Loc ["STRING_DETAILS1"] .. "diagnostic for character " .. rest .. " turned on.")
 				return
 			end
+			
+			local current_combat = _detalhes.tabela_vigente
+			
+			if (not _detalhes.DebugWindow) then
+				_detalhes.DebugWindow = _detalhes.gump:CreateSimplePanel (UIParent, 800, 600, "Details! Debug", "DetailsDebugPanel")
+				local TextBox = _detalhes.gump:NewSpecialLuaEditorEntry (_detalhes.DebugWindow, 760, 560, "text", "$parentTextEntry", true)
+				TextBox:SetPoint ("center", _detalhes.DebugWindow, "center", 0, -10)
+				TextBox:SetBackdrop ({edgeFile = [[Interface\Buttons\WHITE8X8]], edgeSize = 1, bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], tileSize = 64, tile = true})
+				TextBox:SetBackdropColor (0, 0, 0, 0.9)
+				TextBox:SetBackdropBorderColor (0, 0, 0, 1)
+				_detalhes.DebugWindow.TextBox = TextBox
+			end
+			
+			local text = [[
+Hello World!
+Details! Damage Meter Debug
+Release Version: @VERSION Core Version: @CORE
+
+Update Thread Status:
+Tick Rate: @TICKRATE
+Threat Health: @TICKHEALTH
+Last Tick: @TICKLAST
+Next Tick In: @TICKNEXT
+
+Current Combat Status:
+ID: @COMBATID
+Container Status: @COMBATCONTAINERS
+Damage Container Actors: @COMBATDAMAGEACTORS actors found
+
+Parser Status:
+Parser Health: @PARSERHEALTH
+Parser Capture Status: @PARSERCAPTURE
+
+Lower Instance Status (window 1):
+Is Shown: @INSTANCESHOWN
+Segment Status: @INSTANCESEGMENT
+Damage Update Status: @INSTANCEDAMAGESTATUS
+
+]]
+			
+			text = text:gsub ([[@VERSION]], _detalhes.userversion)
+			text = text:gsub ([[@CORE]], _detalhes.realversion)
+
+			text = text:gsub ([[@TICKRATE]], _detalhes.update_speed)
+			text = text:gsub ([[@TICKHEALTH]], _detalhes:TimeLeft (_detalhes.atualizador) ~= 0 and "|cFF22FF22good|r" or "|cFFFF2222bad|r")
+			text = text:gsub ([[@TICKLAST]], _detalhes.LastUpdateTick .. " (" .. _detalhes._tempo - _detalhes.LastUpdateTick .. " seconds ago)")
+			text = text:gsub ([[@TICKNEXT]], _detalhes:TimeLeft (_detalhes.atualizador))
+			
+			text = text:gsub ([[@COMBATID]], _detalhes.combat_id)
+			text = text:gsub ([[@COMBATCONTAINERS]], _detalhes.tabela_vigente[1] and _detalhes.tabela_vigente[2] and _detalhes.tabela_vigente[3] and _detalhes.tabela_vigente[4] and "|cFF22FF22good|r" or "|cFFFF2222bad|r")
+			text = text:gsub ([[@COMBATDAMAGEACTORS]], #_detalhes.tabela_vigente[1] and _detalhes.tabela_vigente[1]._ActorTable and #_detalhes.tabela_vigente[1]._ActorTable)
+			
+			text = text:gsub ([[@PARSERHEALTH]], _detalhes.parser_frame:GetScript ("OnEvent") == _detalhes.OnParserEvent and "|cFF22FF22good|r" or "|cFFFF2222bad|r")
+			
+			local captureStr = ""
+			for _ , captureName in ipairs (_detalhes.capture_types) do
+				if (_detalhes.capture_current [captureName]) then
+					captureStr = captureStr .. " " .. captureName .. ": |cFF22FF22okay|r"
+				else
+					captureStr = captureStr .. " " .. captureName .. ": |cFFFF2222X|r"
+				end
+			end
+			text = text:gsub ([[@PARSERCAPTURE]], captureStr)
+			
+			local instance = _detalhes:GetLowerInstanceNumber()
+			if (instance) then
+				instance = _detalhes:GetInstance (instance)
+			end
+			
+			if (instance) then
+				if (instance:IsEnabled()) then
+					text = text:gsub ([[@INSTANCESHOWN]], "|cFF22FF22good|r")
+				else
+					text = text:gsub ([[@INSTANCESHOWN]], "|cFFFFFF22not visible|r")
+				end
+				
+				text = text:gsub ([[@INSTANCESEGMENT]], (instance.showing == _detalhes.tabela_vigente and "|cFF22FF22good|r" or "|cFFFFFF22isn't the current combat object|r") .. (" window segment: " .. instance:GetSegment()))
+				
+				text = text:gsub ([[@INSTANCEDAMAGESTATUS]], (_detalhes._tempo - (_detalhes.LastFullDamageUpdate or 0)) < 3 and "|cFF22FF22good|r" or "|cFFFF2222last update registered is > than 3 seconds, is there actors to show?|r")
+			else
+				text = text:gsub ([[@INSTANCESHOWN]], "|cFFFFFF22not found|r")
+				text = text:gsub ([[@INSTANCESEGMENT]], "|cFFFFFF22not found|r")
+				text = text:gsub ([[@INSTANCEDAMAGESTATUS]], "|cFFFFFF22not found|r")
+				
+			end
+
+			_detalhes.DebugWindow.TextBox:SetText (text)
+			
+			_detalhes.DebugWindow:Show()
 		end
 	
 	--> debug combat log
@@ -1301,6 +1390,96 @@ function SlashCmdList.DETAILS (msg, editbox)
 		local instance = _detalhes:GetInstance (lower_instance)
 		
 		instance:InstanceAlert ("Boss Defeated! Show Ranking", icon, 10, func, true)
+	
+	elseif (msg == "merge") then
+		
+		--> at this point, details! should not be in combat
+		if (_detalhes.in_combat) then
+			_detalhes:Msg ("already in combat, closing current segment.")
+			_detalhes:SairDoCombate()
+		end
+		
+		--> create a new combat to be the overall for the mythic run
+		_detalhes:EntrarEmCombate()
+		
+		--> get the current combat just created and the table with all past segments
+		local newCombat = _detalhes:GetCurrentCombat()
+		local segmentHistory = _detalhes:GetCombatSegments()
+		local totalTime = 0
+		local startDate, endDate = "", ""
+		local lastSegment
+		local segmentsAdded = 0
+		
+		--> add all boss segments from this run to this new segment
+		for i = 1, 25 do
+			local pastCombat = segmentHistory [i]
+			if (pastCombat and pastCombat ~= newCombat) then
+				newCombat = newCombat + pastCombat
+				totalTime = totalTime + pastCombat:GetCombatTime()
+				if (i == 1) then
+					local _, endedDate = pastCombat:GetDate()
+					endDate = endedDate
+				end
+				lastSegment = pastCombat
+				segmentsAdded = segmentsAdded + 1
+			end
+		end
+		
+		if (lastSegment) then
+			startDate = lastSegment:GetDate()
+		end
+		
+		_detalhes:Msg ("done merging " .. segmentsAdded .. " segments.")
+
+		--[[ --mythic+ debug
+		--> tag the segment as mythic overall segment
+		newCombat.is_mythic_dungeon = {
+			MapID = _detalhes.MythicPlus.Dungeon,
+			StartedAt = _detalhes.MythicPlus.StartedAt, --the start of the run
+			EndedAt = _detalhes.MythicPlus.EndedAt, --the end of the run
+			SegmentID = "overall", --segment number within the dungeon
+			--EncounterID = encounterID,
+			--EncounterName = encounterName,
+			RunID = _detalhes.MythicPlus.RunID,
+			OverallSegment = true,
+		}
+		--]]
+		
+		--> set some data
+		newCombat:SetStartTime (GetTime() - totalTime)
+		newCombat:SetEndTime (GetTime())
+		
+		newCombat.data_inicio = startDate
+		newCombat.data_fim = endDate
+		
+		--> immediatly finishes the segment just started
+		_detalhes:SairDoCombate()
+		
+		--> cleanup the past segments table
+		for i = 25, 1, -1 do
+			local pastCombat = segmentHistory [i]
+			if (pastCombat and pastCombat ~= newCombat) then
+				wipe (pastCombat)
+				segmentHistory [i] = nil
+			end
+		end
+		
+		--> clear memory
+		collectgarbage()		
+
+		_detalhes:InstanciaCallFunction (_detalhes.gump.Fade, "in", nil, "barras")
+		_detalhes:InstanciaCallFunction (_detalhes.AtualizaSegmentos)
+		_detalhes:InstanciaCallFunction (_detalhes.AtualizaSoloMode_AfertReset)
+		_detalhes:InstanciaCallFunction (_detalhes.ResetaGump)
+		_detalhes:AtualizaGumpPrincipal (-1, true)
+	
+	elseif (msg == "record") then	
+			
+			
+			_detalhes.ScheduleLoadStorage()
+			_detalhes.TellDamageRecord = C_Timer.NewTimer (0.6, _detalhes.PrintEncounterRecord)
+			_detalhes.TellDamageRecord.Boss = 2032
+			_detalhes.TellDamageRecord.Diff = 16
 	
 	elseif (msg == "recordtest") then	
 

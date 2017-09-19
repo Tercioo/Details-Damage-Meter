@@ -265,6 +265,737 @@ function _G._detalhes:Start()
 			
 			self.listener:RegisterEvent ("PLAYER_SPECIALIZATION_CHANGED")
 			
+			--test immersion stuff
+			------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------			
+			
+			local immersionFrame = CreateFrame ("frame", "DetailsImmersionFrame", UIParent)
+			immersionFrame:RegisterEvent ("ZONE_CHANGED_NEW_AREA")
+			immersionFrame.DevelopmentDebug = false
+			
+			--> check if can enabled the immersino stuff
+			
+			function immersionFrame.CheckIfCanEnableImmersion()
+				local mapFileName = GetMapInfo()	
+				if (mapFileName and mapFileName:find ("InvasionPoint")) then
+					self.immersion_enabled = true
+					if (immersionFrame.DevelopmentDebug) then
+						print ("Details!", "CheckIfCanEnableImmersion() > immersion enabled.")
+					end
+				else
+					if (self.immersion_enabled) then
+						if (immersionFrame.DevelopmentDebug) then
+							print ("Details!", "CheckIfCanEnableImmersion() > immersion disabled.")
+						end
+						self.immersion_enabled = nil
+					end
+				end
+			end
+
+			--> check events
+			immersionFrame:SetScript ("OnEvent", function (_, event, ...)
+				if (event == "ZONE_CHANGED_NEW_AREA") then
+					C_Timer.After (3, immersionFrame.CheckIfCanEnableImmersion)
+				end
+			end)
+			
+			
+			--test mythic + stuff
+			------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+			
+			--> data for the current mythic + dungeon
+			self.MythicPlus = {
+				RunID = 0,
+			}
+			
+			-- ~mythic ~dungeon
+			local newFrame = CreateFrame ("frame", "DetailsMythicPlusFrame", UIParent)
+			newFrame.DevelopmentDebug = false
+			
+			--[
+				newFrame:RegisterEvent ("CHALLENGE_MODE_START")
+				newFrame:RegisterEvent ("CHALLENGE_MODE_COMPLETED")
+				newFrame:RegisterEvent ("ZONE_CHANGED_NEW_AREA")
+				newFrame:RegisterEvent ("ENCOUNTER_END")
+			--]]
+			
+			--[[
+				all mythic segments have:
+					.is_mythic_dungeon_segment = true
+					.is_mythic_dungeon_run_id = run id from details.profile.mythic_dungeon_id
+				boss, 'trash overall' and 'dungeon overall' segments have:
+					.is_mythic_dungeon 
+				boss segments have:
+					.is_boss
+				'trash overall' segments have:
+					.is_mythic_dungeon with .SegmentID = "trashoverall"
+				'dungeon overall' segment have:
+					.is_mythic_dungeon with .SegmentID = "overall"
+				
+			--]]
+			
+			--precisa converter um wipe em um trash segment? provavel que sim
+			
+			-- at the end of a mythic run, if enable on settings, merge all the segments from the mythic run into only one
+			function newFrame.MergeSegmentsOnEnd()
+				if (newFrame.DevelopmentDebug) then
+					print ("Details!", "MythicDungeonFinished() > starting to merge mythic segments.", "InCombatLockdown():", InCombatLockdown())
+				end
+				
+				--> create a new combat to be the overall for the mythic run
+				self:EntrarEmCombate()
+				
+				--> get the current combat just created and the table with all past segments
+				local newCombat = self:GetCurrentCombat()
+				local segmentHistory = self:GetCombatSegments()
+
+				local totalTime = 0
+				local startDate, endDate = "", ""
+				local lastSegment
+
+				--> add all boss segments from this run to this new segment
+				for i = 1, 25 do --> from the newer combat to the oldest
+					local pastCombat = segmentHistory [i]
+					if (pastCombat and pastCombat.is_mythic_dungeon and pastCombat.is_mythic_dungeon.RunID == self.mythic_dungeon_id) then
+						local canAddThisSegment = true
+						if (_detalhes.mythic_plus.make_overall_boss_only) then
+							if (not pastCombat.is_boss) then
+								canAddThisSegment = false
+							end
+						end
+						
+						if (canAddThisSegment) then
+							newCombat = newCombat + pastCombat
+							totalTime = totalTime + pastCombat:GetCombatTime()
+							
+							if (newFrame.DevelopmentDebug) then
+								print ("MythicDungeonFinished() > adding time:", pastCombat:GetCombatTime(), pastCombat.is_boss and pastCombat.is_boss.name)
+							end
+							
+							if (endDate == "") then
+								local _, whenEnded = pastCombat:GetDate()
+								endDate =whenEnded
+							end
+							lastSegment = pastCombat
+						end
+					end
+				end
+				
+				--> get the date where the first segment started
+				if (lastSegment) then
+					startDate = lastSegment:GetDate()
+				end
+				
+				if (newFrame.DevelopmentDebug) then
+					print ("Details!", "MythicDungeonFinished() > totalTime:", totalTime, "startDate:", startDate)
+				end
+				
+				local zoneName, instanceType, difficultyID, difficultyName, maxPlayers, dynamicDifficulty, isDynamic, instanceMapID, instanceGroupSize = GetInstanceInfo()
+				
+				--> tag the segment as mythic overall segment
+				newCombat.is_mythic_dungeon = {
+					StartedAt = self.MythicPlus.StartedAt, --the start of the run
+					EndedAt = self.MythicPlus.EndedAt, --the end of the run
+					SegmentID = "overall", --segment number within the dungeon
+					RunID = self.mythic_dungeon_id,
+					OverallSegment = true,
+					ZoneName = self.MythicPlus.DungeonName,
+					MapID = instanceMapID,
+					Level = self.MythicPlus.Level,
+					EJID = self.MythicPlus.ejID,
+				}
+				
+				newCombat.is_mythic_dungeon_segment = true
+				newCombat.is_mythic_dungeon_run_id = self.mythic_dungeon_id
+				
+				--> set the segment time and date
+				newCombat:SetStartTime (GetTime() - totalTime)
+				newCombat:SetEndTime (GetTime())
+				newCombat:SetDate (startDate, endDate)
+
+				--> immediatly finishes the segment just started
+				self:SairDoCombate()
+				
+				--> update all windows
+				self:InstanciaCallFunction (self.gump.Fade, "in", nil, "barras")
+				self:InstanciaCallFunction (self.AtualizaSegmentos)
+				self:InstanciaCallFunction (self.AtualizaSoloMode_AfertReset)
+				self:InstanciaCallFunction (self.ResetaGump)
+				self:AtualizaGumpPrincipal (-1, true)
+				
+				if (newFrame.DevelopmentDebug) then
+					print ("Details!", "MythicDungeonFinished() > finished merging segments.")
+					print ("Details!", "MythicDungeonFinished() > all done, check in the segments list if everything is correct, if something is weird: '/details feedback' thanks in advance!")
+				end			
+			
+			end
+			
+			--> after each boss fight, if enalbed on settings, create an extra segment with all trash segments from the boss just killed
+			function newFrame.MergeTrashCleanup()
+				if (newFrame.DevelopmentDebug) then
+					print ("Details!", "MergeTrashCleanup() > running", newFrame.TrashMergeScheduled and #newFrame.TrashMergeScheduled)
+				end
+				
+				local segmentsToMerge = newFrame.TrashMergeScheduled
+				
+				--> table exists and there's at least one segment
+				if (segmentsToMerge and segmentsToMerge[1]) then
+					--> do the merge
+					
+					--> leave combat if still tagged as combat
+					if (self.in_combat) then
+						if (newFrame.DevelopmentDebug) then
+							print ("Details!", "MergeTrashCleanup() > was in combat, calling SairDoCombate()", _detalhes.tabela_vigente, _detalhes.tabela_vigente.is_boss)
+						end
+						self:SairDoCombate()
+					end
+					
+					--> create a new combat to be the overall for the mythic run
+					self:EntrarEmCombate()
+					
+					--> get the current combat just created and the table with all past segments
+					local newCombat = self:GetCurrentCombat()
+					local totalTime = 0
+					local startDate, endDate = "", ""
+					local lastSegment
+					
+					--> add segments
+					for _, pastCombat in ipairs (segmentsToMerge) do
+						newCombat = newCombat + pastCombat
+						totalTime = totalTime + pastCombat:GetCombatTime()
+						
+						--> tag this combat as already added to a boss trash overall
+						pastCombat._trashoverallalreadyadded = true
+						
+						if (endDate == "") then
+							local _, whenEnded = pastCombat:GetDate()
+							endDate = whenEnded
+						end
+						lastSegment = pastCombat
+					end
+					
+					--> get the date where the first segment started
+					if (lastSegment) then
+						startDate = lastSegment:GetDate()
+					end
+					
+					local zoneName, instanceType, difficultyID, difficultyName, maxPlayers, dynamicDifficulty, isDynamic, instanceMapID, instanceGroupSize = GetInstanceInfo()
+	
+					--> tag the segment as mythic overall segment
+					newCombat.is_mythic_dungeon = {
+						StartedAt = segmentsToMerge.PreviousBossKilledAt, --start of the mythic run or when the previous boss got killed
+						EndedAt = segmentsToMerge.LastBossKilledAt, --the time() when encounter_end got triggered
+						SegmentID = "trashoverall",
+						RunID = self.mythic_dungeon_id,
+						TrashOverallSegment = true,
+						ZoneName = self.MythicPlus.DungeonName,
+						MapID = instanceMapID,
+						Level = self.MythicPlus.Level,
+						EJID = self.MythicPlus.ejID,
+						EncounterID = segmentsToMerge.EncounterID,
+						EncounterName = segmentsToMerge.EncounterName or Loc ["STRING_UNKNOW"],
+					}
+					
+					newCombat.is_mythic_dungeon_segment = true
+					newCombat.is_mythic_dungeon_run_id = self.mythic_dungeon_id
+					
+					--> set the segment time / using a sum of combat times, this combat time is reliable
+					newCombat:SetStartTime (GetTime() - totalTime)
+					newCombat:SetEndTime (GetTime())
+					--> set the segment date
+					newCombat:SetDate (startDate, endDate)
+					
+					--> immediatly finishes the segment just started
+					self:SairDoCombate()
+
+					--o combate agora é _tabela_vigente e [1] na tabela de overall
+					--seria necessario passar essa tabela para [2] na overall
+					local segmentHistory = self:GetCombatSegments()
+					local bossSegment = segmentHistory [2]
+					if (bossSegment) then
+						--set the boss as the current combat
+						_detalhes.tabela_vigente = bossSegment
+						--swap tables
+						segmentHistory [1] = bossSegment --as the boss combat is done, it is also the first combat in the past combats table
+						segmentHistory [2] = newCombat --se the overall trash as the second segment on the past table (the semgnet 2 was occupy by the boss segment)
+					end
+					
+					--> update all windows
+					self:InstanciaCallFunction (self.gump.Fade, "in", nil, "barras")
+					self:InstanciaCallFunction (self.AtualizaSegmentos)
+					self:InstanciaCallFunction (self.AtualizaSoloMode_AfertReset)
+					self:InstanciaCallFunction (self.ResetaGump)
+					self:AtualizaGumpPrincipal (-1, true)
+					
+					if (newFrame.DevelopmentDebug) then
+						print ("Details!", "MergeTrashCleanup() > finished merging trash segments.", _detalhes.tabela_vigente, _detalhes.tabela_vigente.is_boss)
+					end	
+					
+					--> should delete the trash segments after the merge?
+					if (_detalhes.mythic_plus.delete_trash_after_merge) then
+						local segmentHistory = self:GetCombatSegments()
+						for _, pastCombat in ipairs (segmentsToMerge) do
+							for i = #segmentHistory, 1, -1 do
+								local segment = segmentHistory [i]
+								if (segment == pastCombat) then
+									wipe (segment)
+									tremove (segmentHistory, i)
+									break
+								end
+							end
+						end
+						wipe (segmentsToMerge)
+						self:SendEvent ("DETAILS_DATA_SEGMENTREMOVED")
+					else
+						--> clear the segments to merge table
+						for i = #segmentsToMerge, 1, -1 do
+							tremove (segmentsToMerge, i)
+							--> notify plugins about a segment deleted
+							self:SendEvent ("DETAILS_DATA_SEGMENTREMOVED")
+						end
+						
+						--> clear encounter name and id
+						segmentsToMerge.EncounterID = nil
+						segmentsToMerge.EncounterName = nil
+					end
+				end
+			end
+			
+			--> this function merges trash segments after all bosses of the mythic dungeon are defeated
+			--> happens when the group finishes all bosses but don't complete the trash requirement
+			function newFrame.MergeRemainingTrashAfterAllBossesDone()
+				if (newFrame.DevelopmentDebug) then
+					print ("Details!", "MergeRemainingTrashAfterAllBossesDone() > running, #segments: ", #newFrame.TrashMergeScheduled2, "trash overall table:", newFrame.TrashMergeScheduled2_OverallCombat)
+				end
+				
+				local segmentsToMerge = newFrame.TrashMergeScheduled2
+				local overallCombat = newFrame.TrashMergeScheduled2_OverallCombat
+				
+				--> needs to merge, add the total combat time, set the date end to the date of the first segment
+				local totalTime = 0
+				local startDate, endDate = "", ""
+				local lastSegment
+				
+				--> add segments
+				for _, pastCombat in ipairs (segmentsToMerge) do
+					overallCombat = overallCombat + pastCombat
+					if (newFrame.DevelopmentDebug) then
+						print ("MergeRemainingTrashAfterAllBossesDone() >  segment added")
+					end
+					totalTime = totalTime + pastCombat:GetCombatTime()
+					
+					--> tag this combat as already added to a boss trash overall
+					pastCombat._trashoverallalreadyadded = true
+					
+					if (endDate == "") then --get the end date of the first index only
+						local _, whenEnded = pastCombat:GetDate()
+						endDate = whenEnded
+					end
+					lastSegment = pastCombat
+				end
+				
+				--> set the segment time / using a sum of combat times, this combat time is reliable
+				local startTime = overallCombat:GetStartTime()
+				overallCombat:SetStartTime (startTime - totalTime)
+				if (newFrame.DevelopmentDebug) then
+					print ("MergeRemainingTrashAfterAllBossesDone() > total combat time:", totalTime)
+				end
+				--> set the segment date
+				local startDate = overallCombat:GetDate()
+				overallCombat:SetDate (startDate, endDate)
+				if (newFrame.DevelopmentDebug) then
+					print ("MergeRemainingTrashAfterAllBossesDone() > new end date:", endDate)
+				end
+				
+				local mythicDungeonInfo = overallCombat:GetMythicDungeonInfo()
+				
+				if (newFrame.DevelopmentDebug) then
+					print ("MergeRemainingTrashAfterAllBossesDone() > elapsed time before:", mythicDungeonInfo.EndedAt - mythicDungeonInfo.StartedAt)
+				end
+				mythicDungeonInfo.StartedAt = mythicDungeonInfo.StartedAt - (self.MythicPlus.EndedAt - self.MythicPlus.PreviousBossKilledAt)
+				if (newFrame.DevelopmentDebug) then
+					print ("MergeRemainingTrashAfterAllBossesDone() > elapsed time after:", mythicDungeonInfo.EndedAt - mythicDungeonInfo.StartedAt)
+				end
+				
+				--> should delete the trash segments after the merge?
+				if (_detalhes.mythic_plus.delete_trash_after_merge) then
+					local segmentHistory = self:GetCombatSegments()
+					for _, pastCombat in ipairs (segmentsToMerge) do
+						for i = #segmentHistory, 1, -1 do
+							local segment = segmentHistory [i]
+							if (segment == pastCombat) then
+								wipe (segment)
+								tremove (segmentHistory, i)
+								break
+							end
+						end
+					end
+					wipe (segmentsToMerge)
+					self:SendEvent ("DETAILS_DATA_SEGMENTREMOVED")
+				else
+					--> clear the segments to merge table
+					for i = #segmentsToMerge, 1, -1 do
+						tremove (segmentsToMerge, i)
+						
+						--> notify plugins about a segment deleted
+						self:SendEvent ("DETAILS_DATA_SEGMENTREMOVED")
+					end
+				end
+
+				newFrame.TrashMergeScheduled2 = nil
+				newFrame.TrashMergeScheduled2_OverallCombat = nil
+
+				if (newFrame.DevelopmentDebug) then
+					print ("Details!", "MergeRemainingTrashAfterAllBossesDone() > done merging")
+				end
+			end
+			
+			--this function is called right after defeat a boss inside a mythic dungeon
+			function newFrame.BossDefeated (this_is_end_end, encounterID, encounterName, difficultyID, raidSize, endStatus) --hold your breath and count to ten
+				if (newFrame.DevelopmentDebug) then
+					print ("Details!", "BossDefeated() > boss defeated | SegmentID:", self.MythicPlus.SegmentID, " | mapID:", self.MythicPlus.DungeonID)
+				end
+				
+				local zoneName, instanceType, difficultyID, difficultyName, maxPlayers, dynamicDifficulty, isDynamic, instanceMapID, instanceGroupSize = GetInstanceInfo()
+				
+				--> addon the mythic dungeon info to the combat
+				_detalhes.tabela_vigente.is_mythic_dungeon = {
+					StartedAt = self.MythicPlus.StartedAt, --the start of the run
+					EndedAt = time(), --when the boss got killed
+					SegmentID = self.MythicPlus.SegmentID, --segment number within the dungeon
+					EncounterID = encounterID,
+					EncounterName = encounterName or Loc ["STRING_UNKNOW"],
+					RunID = self.mythic_dungeon_id,
+					ZoneName = self.MythicPlus.DungeonName,
+					MapID = self.MythicPlus.DungeonID,
+					OverallSegment = false,
+					Level = self.MythicPlus.Level,
+					EJID = self.MythicPlus.ejID,
+				}
+				
+				if (not this_is_end_end) then
+					--> parser doesn't handle ENCOUNTER_END to party instances, so we close the combat from here
+					self:SairDoCombate (true, {encounterID, encounterName, difficultyID, raidSize, endStatus})
+					if (newFrame.DevelopmentDebug) then
+						print ("Details!", "BossDefeated() > closing the combat with SairDoCombate()", _detalhes.tabela_vigente, _detalhes.tabela_vigente.is_boss)
+					end
+				end
+				
+				--> check if need to merge the trash for this boss
+				if (_detalhes.mythic_plus.merge_boss_trash) then
+					--> store on an table all segments which should be merged
+					local segmentsToMerge = newFrame.TrashMergeScheduled or {}
+					--> table with all past semgnets
+					local segmentHistory = self:GetCombatSegments()
+					
+					--> iterate among segments
+					for i = 1, 25 do --> from the newer combat to the oldest
+						local pastCombat = segmentHistory [i]
+						--> does the combat exists
+						if (pastCombat and not pastCombat._trashoverallalreadyadded) then
+							--> is the combat a mythic segment from this run?
+							local isMythicSegment, SegmentID = pastCombat:IsMythicDungeon()
+							if (isMythicSegment and SegmentID == self.mythic_dungeon_id and not pastCombat.is_boss) then
+							
+								local mythicDungeonInfo = pastCombat:GetMythicDungeonInfo() -- .is_mythic_dungeon only boss, trash overall and run overall have it
+								if (not mythicDungeonInfo or not mythicDungeonInfo.TrashOverallSegment) then
+									--> trash segment found, schedule to merge
+									tinsert (segmentsToMerge, pastCombat)
+								end
+							end
+						end
+					end
+					
+					--> add encounter information
+					segmentsToMerge.EncounterID = encounterID
+					segmentsToMerge.EncounterName = encounterName
+					segmentsToMerge.PreviousBossKilledAt = self.MythicPlus.PreviousBossKilledAt
+					
+					--> reduce this boss encounter time from the trash lenght time, since the boss doesn't count towards the time spent cleaning trash
+					segmentsToMerge.LastBossKilledAt = time() - _detalhes.tabela_vigente:GetCombatTime()
+					
+					newFrame.TrashMergeScheduled = segmentsToMerge
+					
+					if (not InCombatLockdown() and not UnitAffectingCombat ("player")) then
+						if (newFrame.DevelopmentDebug) then
+							print ("Details!", "BossDefeated() > not in combat, merging trash now")
+						end
+						newFrame.MergeTrashCleanup()
+					else
+						if (newFrame.DevelopmentDebug) then
+							print ("Details!", "BossDefeated() > player in combatlockdown, scheduling trash merge")
+						end
+						_detalhes.schedule_mythicdungeon_trash_merge = true
+					end
+				end
+
+				--> close the combat
+				if (this_is_end_end) then
+					--> player left the dungeon
+					if (in_combat and _detalhes.mythic_plus.always_in_combat) then
+						self:SairDoCombate()
+					end
+				else
+					--> re-enter in combat if details! is set to always be in combat during mythic plus
+					if (self.mythic_plus.always_in_combat) then
+						self:EntrarEmCombate()
+					end
+					
+					--> increase the segment number for the mythic run
+					self.MythicPlus.SegmentID = self.MythicPlus.SegmentID + 1
+					
+					--> register the time when the last boss has been killed (started a clean up for the next trash)
+					self.MythicPlus.PreviousBossKilledAt = time()
+				end
+			end
+			
+			function newFrame.MythicDungeonFinished()
+				if (newFrame.IsDoingMythicDungeon) then
+					if (newFrame.DevelopmentDebug) then
+						print ("Details!", "MythicDungeonFinished() > the dungeon was a Mythic+ and just ended.")
+					end
+					
+					newFrame.IsDoingMythicDungeon = false
+					self.MythicPlus.Started = false
+					self.MythicPlus.EndedAt = time()-1.9
+					
+					--> at this point, details! should not be in combat, but if something triggered a combat start, just close the combat right away
+					if (self.in_combat) then
+						if (newFrame.DevelopmentDebug) then
+							print ("Details!", "MythicDungeonFinished() > was in combat, calling SairDoCombate():", InCombatLockdown())
+						end
+						self:SairDoCombate()
+					end
+					
+					local segmentsToMerge = {}
+					
+					--> check if there is trash segments after the last boss. need to merge these segments with the trash segment of the last boss
+					if (_detalhes.mythic_plus.merge_boss_trash) then
+						--> is the current combat not a boss fight? this means a combat was opened after the mythic run completed
+						if (not self.tabela_vigente.is_boss and self.tabela_vigente:GetCombatTime() > 5) then
+							if (newFrame.DevelopmentDebug) then
+								print ("Details!", "MythicDungeonFinished() > the last combat isn't a boss fight, might have trash after bosses done.")
+							end
+							
+							--> table with all past semgnets
+							local segmentHistory = self:GetCombatSegments()
+							
+							for i = 1, #segmentHistory do
+								local pastCombat = segmentHistory [i]
+								--> does the combat exists
+							
+								if (pastCombat and not pastCombat._trashoverallalreadyadded and pastCombat:GetCombatTime() > 5) then
+									--> is the last boss?
+									if (pastCombat.is_boss) then
+										break
+									end
+									--> is the combat a mythic segment from this run?
+									local isMythicSegment, SegmentID = pastCombat:IsMythicDungeon()
+									if (isMythicSegment and SegmentID == self.mythic_dungeon_id) then
+										--> if have mythic dungeon info, cancel the loop
+										local mythicDungeonInfo = pastCombat:GetMythicDungeonInfo()
+										if (mythicDungeonInfo) then
+											break
+										end
+										--> merge this segment
+										tinsert (segmentsToMerge, pastCombat)
+										if (newFrame.DevelopmentDebug) then
+											print ("MythicDungeonFinished() > found after last boss combat")
+										end
+									end
+								end
+							end
+						end
+					end
+					
+					if (#segmentsToMerge > 0) then
+						if (newFrame.DevelopmentDebug) then
+							print ("Details!", "MythicDungeonFinished() > found ", #segmentsToMerge, "segments after the last boss")
+						end
+						
+						--> find the latest trash overall
+						local segmentHistory = self:GetCombatSegments()
+						local latestTrashOverall
+						for i = 1, #segmentHistory do
+							local pastCombat = segmentHistory [i]
+							if (pastCombat and pastCombat.is_mythic_dungeon and pastCombat.is_mythic_dungeon.SegmentID == "trashoverall") then
+								latestTrashOverall = pastCombat
+								break
+							end
+						end
+						
+						if (latestTrashOverall) then
+							--> stores the segment table and the trash overall segment to use on the merge
+							newFrame.TrashMergeScheduled2 = segmentsToMerge
+							newFrame.TrashMergeScheduled2_OverallCombat = latestTrashOverall
+							
+							if (not InCombatLockdown() and not UnitAffectingCombat ("player")) then
+								if (newFrame.DevelopmentDebug) then
+									print ("Details!", "MythicDungeonFinished() > not in combat, merging last pack of trash now")
+								end
+								newFrame.MergeRemainingTrashAfterAllBossesDone()
+							else
+								if (newFrame.DevelopmentDebug) then
+									print ("Details!", "MythicDungeonFinished() > player in combatlockdown, scheduling the merge for last trash packs")
+								end
+								_detalhes.schedule_mythicdungeon_endtrash_merge = true
+							end
+						end
+					end
+					
+					--> merge segments
+					if (_detalhes.mythic_plus.make_overall_when_done) then
+						if (not InCombatLockdown() and not UnitAffectingCombat ("player")) then
+							if (newFrame.DevelopmentDebug) then
+								print ("Details!", "MythicDungeonFinished() > not in combat, creating overall segment now")
+							end
+							newFrame.MergeSegmentsOnEnd()
+						else
+							if (newFrame.DevelopmentDebug) then
+								print ("Details!", "MythicDungeonFinished() > player in combatlockdown, scheduling the creation of the overall segment")
+							end
+							_detalhes.schedule_mythicdungeon_overallrun_merge = true
+						end
+					end
+				end
+			end
+
+			function newFrame.MythicDungeonStarted()
+				--> flag as a mythic dungeon
+				newFrame.IsDoingMythicDungeon = true
+				
+				if (newFrame.DevelopmentDebug) then
+					print ("=========")
+					print ("Details!", "Thanks for using an alpha version of Details!, please don't mind all these debug lines.")
+					print ("Details!", "We are developing new stuff.")
+					print ("=========")
+					print ("Details!", "MythicDungeonStarted() > CHALLENGE_MODE_START triggered, setting up details!")
+				end
+				
+				local mythicLevel = C_ChallengeMode.GetActiveKeystoneInfo()
+				local zoneName, _, _, _, _, _, _, currentZoneID = GetInstanceInfo()
+				local ejID = EJ_GetCurrentInstance()
+				
+				--> setup the mythic run info
+				self.MythicPlus.Started = true
+				self.MythicPlus.DungeonName = zoneName
+				self.MythicPlus.DungeonID = currentZoneID
+				self.MythicPlus.StartedAt = time()+9.7 --> there's the countdown timer of 10 seconds
+				self.MythicPlus.SegmentID = 1
+				self.MythicPlus.Level = mythicLevel
+				self.MythicPlus.ejID = ejID
+				self.MythicPlus.PreviousBossKilledAt = time()
+				
+				--> this counter is individual for each character
+				self.mythic_dungeon_id = self.mythic_dungeon_id + 1 --14 --15 
+				
+				--> start a new combat segment after 10 seconds
+				if (_detalhes.mythic_plus.always_in_combat) then
+					C_Timer.After (9.7, function()
+						if (newFrame.DevelopmentDebug) then
+							print ("Details!", "New segment for mythic dungeon created.")
+						end
+						_detalhes:EntrarEmCombate()
+					end)
+				end
+				
+				local name, groupType, difficultyID, difficult = GetInstanceInfo()
+				if (groupType == "party" and self.overall_clear_newchallenge) then
+					self.historico:resetar_overall()
+					if (self.debug) then
+						self:Msg ("(debug) timer is for a mythic+ dungeon, overall has been reseted.")
+					end
+				end
+				
+				if (newFrame.DevelopmentDebug) then
+					print ("Details!", "MythicDungeonStarted() > State set to Mythic Dungeon, new combat starting in 10 seconds.")
+				end
+			end
+			
+			newFrame:SetScript ("OnEvent", function (_, event, ...)
+				
+				if (event == "CHALLENGE_MODE_START") then
+					--> CHALLENGE_MODE_START does trigger every time the player enters a mythic dungeon already in progress
+				
+					if (newFrame.DevelopmentDebug) then
+						print ("Details!", event, ...)
+					end
+					
+					--> is this a mythic dungeon?
+					local _, _, difficulty, _, _, _, _, currentZoneID = GetInstanceInfo()
+					
+					if (newFrame.DevelopmentDebug) then
+						print ("Details!", "Dungeon Dificulty:", difficulty, currentZoneID)
+					end
+					
+					if (difficulty == 8) then
+						--> start the dungeon on Details!
+						newFrame.MythicDungeonStarted()
+					end
+					
+				elseif (event == "CHALLENGE_MODE_COMPLETED") then
+					if (newFrame.DevelopmentDebug) then
+						print ("Details!", event, ...)
+					end
+					
+					--> delay to wait the encounter_end trigger first
+					--> assuming here the party cleaned the mobs kill objective before going to kill the last boss
+					C_Timer.After (2, newFrame.MythicDungeonFinished)
+					
+				elseif (event == "ENCOUNTER_END") then
+					if (newFrame.DevelopmentDebug) then
+						print ("Details!", event, ...)
+					end
+					
+					if (newFrame.IsDoingMythicDungeon) then
+						local encounterID, encounterName, difficultyID, raidSize, endStatus = ...
+						if (endStatus == 1) then
+							newFrame.BossDefeated (false, encounterID, encounterName, difficultyID, raidSize, endStatus)
+						else
+							--> remove the boss table, so it will be considered trash
+							if (self.tabela_vigente.is_boss) then
+								--> check if is still in combat
+								if (newFrame.DevelopmentDebug) then
+									print ("Details!", "Boss Wipe, removing the boss table from the segment.")
+								end
+								if (self.in_combat) then
+									if (newFrame.DevelopmentDebug) then
+										print ("Details!", "Boss Wipe, was in combat, calling SairDoCombate().")
+									end
+									self:SairDoCombate()
+								end
+								self.tabela_vigente.is_boss = nil
+							end
+						end
+					end
+					
+				elseif (event == "ZONE_CHANGED_NEW_AREA") then
+					if (newFrame.IsDoingMythicDungeon) then
+						if (newFrame.DevelopmentDebug) then
+							print ("Details!", event, ...)
+							print ("Zone changed and is Doing Mythic Dungeon")
+						end
+						local _, _, difficulty, _, _, _, _, currentZoneID = GetInstanceInfo()
+						if (currentZoneID ~= self.MythicPlus.DungeonID) then
+							if (newFrame.DevelopmentDebug) then
+								print ("Zone changed and the zone is different than the dungeon")
+							end
+							--> finish the segment
+							newFrame.BossDefeated (true)
+							
+							--> finish the mythic run
+							newFrame.MythicDungeonFinished()
+						end
+					end
+					
+				end
+				
+			end)
+			
+
+			--fazer a captura de dados para o gráfico ao iniciar a corrida e parar ao sair da dungeon ou terminar a run.
+			
+			------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+			
 			self.parser_frame:RegisterEvent ("COMBAT_LOG_EVENT_UNFILTERED")
 
 	--> group

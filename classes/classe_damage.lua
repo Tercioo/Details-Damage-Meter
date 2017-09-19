@@ -1553,11 +1553,19 @@
 
 
 function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, exportar, refresh_needed)
-	
+		
 	local showing = tabela_do_combate [class_type] --> o que esta sendo mostrado -> [1] - dano [2] - cura --> pega o container com ._NameIndexTable ._ActorTable
 
 	--> não há barras para mostrar -- not have something to show
 	if (#showing._ActorTable < 1) then 
+		if (_detalhes.debug) then
+			_detalhes.showing_ActorTable_Timer = _detalhes.showing_ActorTable_Timer or 0
+			if (time() > _detalhes.showing_ActorTable_Timer) then
+				_detalhes:Msg ("(debug) nothing to show -> #showing._ActorTable < 1")
+				_detalhes.showing_ActorTable_Timer = time()+5
+			end
+		end
+		
 		--> colocado isso recentemente para fazer as barras de dano sumirem na troca de atributo
 		return _detalhes:EsconderBarrasNaoUsadas (instancia, showing), "", 0, 0
 	end
@@ -2002,6 +2010,14 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 				end
 			
 				if (#conteudo < 1) then
+					if (_detalhes.debug) then
+						_detalhes.showing_ActorTable_Timer2 = _detalhes.showing_ActorTable_Timer2 or 0
+						if (time() > _detalhes.showing_ActorTable_Timer2) then
+							_detalhes:Msg ("(debug) nothing to show -> #conteudo < 1 (using cache)")
+							_detalhes.showing_ActorTable_Timer2 = time()+5
+						end
+					end
+		
 					return _detalhes:EsconderBarrasNaoUsadas (instancia, showing), "", 0, 0
 				end
 			
@@ -2065,6 +2081,15 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 			end
 		end
 		instancia:EsconderScrollBar() --> precisaria esconder a scroll bar
+		
+		if (_detalhes.debug) then
+			_detalhes.showing_ActorTable_Timer2 = _detalhes.showing_ActorTable_Timer2 or 0
+			if (time() > _detalhes.showing_ActorTable_Timer2) then
+				_detalhes:Msg ("(debug) nothing to show -> amount < 1")
+				_detalhes.showing_ActorTable_Timer2 = time()+5
+			end
+		end
+		
 		return _detalhes:EndRefresh (instancia, total, tabela_do_combate, showing) --> retorna a tabela que precisa ganhar o refresh
 	end
 
@@ -2277,6 +2302,8 @@ function atributo_damage:RefreshWindow (instancia, tabela_do_combate, forcar, ex
 			end
 		end
 	end
+	
+	_detalhes.LastFullDamageUpdate = _detalhes._tempo
 	
 	return _detalhes:EndRefresh (instancia, total, tabela_do_combate, showing) --> retorna a tabela que precisa ganhar o refresh
 	
@@ -2714,19 +2741,23 @@ end
 	elseif (classe == "UNGROUPPLAYER") then
 		if (self.enemy) then
 			if (_detalhes.faction_against == "Horde") then
-				texture:SetTexture ("Interface\\ICONS\\Achievement_Character_Orc_Male")
-				texture:SetTexCoord (0, 1, 0, 1)
+				--texture:SetTexture ("Interface\\ICONS\\Achievement_Character_Orc_Male")
+				texture:SetTexture ("Interface\\ICONS\\PVPCurrency-Honor-Horde.blp")
+				texture:SetTexCoord (0.05, 0.95, 0.05, 0.95)
 			else
-				texture:SetTexture ("Interface\\ICONS\\Achievement_Character_Human_Male")
-				texture:SetTexCoord (0, 1, 0, 1)
+				--texture:SetTexture ("Interface\\ICONS\\Achievement_Character_Human_Male")
+				texture:SetTexture ("Interface\\ICONS\\PVPCurrency-Honor-Alliance.blp")
+				texture:SetTexCoord (0.05, 0.95, 0.05, 0.95)
 			end
 		else
 			if (_detalhes.faction_against == "Horde") then
-				texture:SetTexture ("Interface\\ICONS\\Achievement_Character_Human_Male")
-				texture:SetTexCoord (0, 1, 0, 1)
+				--texture:SetTexture ("Interface\\ICONS\\Achievement_Character_Human_Male")
+				texture:SetTexture ("Interface\\ICONS\\PVPCurrency-Honor-Alliance.blp")
+				texture:SetTexCoord (0.05, 0.95, 0.05, 0.95)
 			else
-				texture:SetTexture ("Interface\\ICONS\\Achievement_Character_Orc_Male")
-				texture:SetTexCoord (0, 1, 0, 1)
+				--texture:SetTexture ("Interface\\ICONS\\Achievement_Character_Orc_Male")
+				texture:SetTexture ("Interface\\ICONS\\PVPCurrency-Honor-Horde.blp")
+				texture:SetTexCoord (0.05, 0.95, 0.05, 0.95)
 			end
 		end
 		texture:SetVertexColor (1, 1, 1)
@@ -3903,7 +3934,7 @@ end
 
 ------ Damage Done & Dps
 function atributo_damage:MontaInfoDamageDone()
-
+	
 	local barras = info.barras1
 	local instancia = info.instancia
 	local total = self.total_without_pet --> total de dano aplicado por este jogador 
@@ -3924,6 +3955,36 @@ function atributo_damage:MontaInfoDamageDone()
 		local nome, _, icone = _GetSpellInfo (_spellid)
 		_table_insert (ActorSkillsSortTable, {_spellid, _skill.total, _skill.total/ActorTotalDamage*100, nome, icone, nil, _skill.spellschool})
 	end
+	
+	--damage rank
+	--este_gump:SetTopRightTexts (text1, text2, size, color, font)	
+	local combat = instancia:GetShowingCombat()
+	local diff = combat:GetDifficulty()
+	local attribute, subattribute = instancia:GetDisplay()
+	
+	--> check if is a raid encounter and if is heroic or mythic
+	if (diff and (diff == 15 or diff == 16)) then
+		local db = _detalhes.OpenStorage()
+		if (db) then
+			local bestRank, encounterTable = _detalhes.storage:GetBestFromPlayer (diff, combat:GetBossInfo().id, "damage", self.nome, true)
+			if (bestRank) then
+				--> discover which are the player position in the guild rank
+				local playerTable, onEncounter, rankPosition = _detalhes.storage:GetPlayerGuildRank (diff, combat:GetBossInfo().id, "damage", self.nome, true)
+				
+				local text1 = self.nome .. " on " .. combat:GetBossInfo().name .. ":"
+				local text2 = "Guild Rank: " .. (rankPosition or "x") .. " Best Dps: " .. _detalhes:ToK2 ((bestRank[1] or 0) / encounterTable.elapsed) .. " (" .. encounterTable.date:gsub (".*%s", "") .. ")"
+				
+				info:SetTopRightTexts (text1, text2, 9, "gray", font)
+			else
+				info:SetTopRightTexts()
+			end
+		else
+			info:SetTopRightTexts()
+		end
+	else
+		info:SetTopRightTexts()
+	end
+	
 
 	--> add pets
 	local ActorPets = self.pets
@@ -3976,10 +4037,10 @@ function atributo_damage:MontaInfoDamageDone()
 		
 		if (info.sub_atributo == 2) then
 			local formated_value = SelectedToKFunction (_, _math_floor (tabela[2]/meu_tempo))
-			self:UpdadeInfoBar (barra, index-1, tabela[1], name, tabela[2], formated_value, max_, tabela[3], tabela[5], true, nil, tabela [7])
+			self:UpdadeInfoBar (barra, index, tabela[1], name, tabela[2], formated_value, max_, tabela[3], tabela[5], true, nil, tabela [7])
 		else
 			local formated_value = SelectedToKFunction (_, _math_floor (tabela[2]))
-			self:UpdadeInfoBar (barra, index-1, tabela[1], name, tabela[2], formated_value, max_, tabela[3], tabela[5], true, nil, tabela [7])
+			self:UpdadeInfoBar (barra, index, tabela[1], name, tabela[2], formated_value, max_, tabela[3], tabela[5], true, nil, tabela [7])
 		end
 		
 		self:FocusLock (barra, tabela[1])
@@ -4926,10 +4987,12 @@ end
 			return shadow
 		end
 		
-		function atributo_damage:r_connect_shadow (actor, no_refresh)
+		function atributo_damage:r_connect_shadow (actor, no_refresh, combat_object)
 	
+			local host_combat = combat_object or _detalhes.tabela_overall
+			
 			--> criar uma shadow desse ator se ainda não tiver uma
-				local overall_dano = _detalhes.tabela_overall [1]
+				local overall_dano = host_combat [1]
 				local shadow = overall_dano._ActorTable [overall_dano._NameIndexTable [actor.nome]]
 				
 				if (not shadow) then 
@@ -4973,9 +5036,9 @@ end
 				shadow.friendlyfire_total = shadow.friendlyfire_total + actor.friendlyfire_total
 
 			--> total no combate overall (captura de dados)
-				_detalhes.tabela_overall.totals[1] = _detalhes.tabela_overall.totals[1] + actor.total
+				host_combat.totals[1] = host_combat.totals[1] + actor.total
 				if (actor.grupo) then
-					_detalhes.tabela_overall.totals_grupo[1] = _detalhes.tabela_overall.totals_grupo[1] + actor.total
+					host_combat.totals_grupo[1] = host_combat.totals_grupo[1] + actor.total
 				end
 				
 			--> copia o damage_from (captura de dados)

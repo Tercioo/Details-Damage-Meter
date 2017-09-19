@@ -146,7 +146,7 @@ local function CreatePluginFrames (data)
 				EncounterDetails:AutoShowIcon()
 			end
 			
-			EncounterDetails:CreateCallbackListeners()
+			--EncounterDetails:CreateCallbackListeners()
 		
 		elseif (event == "COMBAT_PLAYER_ENTER") then --> combat started
 			if (EncounterDetails.showing and EncounterDetails.db.hide_on_combat) then
@@ -236,6 +236,8 @@ local function CreatePluginFrames (data)
 		end
 	end
 	
+	
+	--desativado, agora ele é gerenciado dentro do proprio details!
 	function EncounterDetails:CreateCallbackListeners()
 	
 		EncounterDetails.DBM_timers = {}
@@ -538,6 +540,9 @@ local shift_monitor = function (self)
 	if (IsShiftKeyDown()) then
 		local spellname = GetSpellInfo (self.spellid)
 		if (spellname) then
+			if (GameCooltip) then
+				GameCooltip:Hide()
+			end
 			GameTooltip:SetOwner (self, "ANCHOR_TOPLEFT")
 			GameTooltip:SetSpellByID (self.spellid)
 			GameTooltip:Show()

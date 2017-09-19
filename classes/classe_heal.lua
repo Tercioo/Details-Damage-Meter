@@ -2404,10 +2404,12 @@ end
 			return shadow
 		end
 	
-		function atributo_heal:r_connect_shadow (actor, no_refresh)
+		function atributo_heal:r_connect_shadow (actor, no_refresh, combat_object)
+		
+			local host_combat = combat_object or _detalhes.tabela_overall
 		
 			--> criar uma shadow desse ator se ainda não tiver uma
-				local overall_cura = _detalhes.tabela_overall [2]
+				local overall_cura = host_combat [2]
 				local shadow = overall_cura._ActorTable [overall_cura._NameIndexTable [actor.nome]]
 
 				if (not shadow) then 
@@ -2457,9 +2459,9 @@ end
 				shadow.healing_taken = shadow.healing_taken + actor.healing_taken
 
 			--> total no combate overall (captura de dados)
-				_detalhes.tabela_overall.totals[2] = _detalhes.tabela_overall.totals[2] + actor.total
+				host_combat.totals[2] = host_combat.totals[2] + actor.total
 				if (actor.grupo) then
-					_detalhes.tabela_overall.totals_grupo[2] = _detalhes.tabela_overall.totals_grupo[2] + actor.total
+					host_combat.totals_grupo[2] = host_combat.totals_grupo[2] + actor.total
 				end
 				
 			--> copia o healing_from  (captura de dados)

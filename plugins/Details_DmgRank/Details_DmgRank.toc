@@ -1,4 +1,4 @@
-## Interface: 70200
+## Interface: 70300
 ## Title: Details Damage, the Game! (plugin)
 ## Notes: Plugin for Details
 ## RequiredDeps: Details

@@ -66,7 +66,7 @@ local _
 		micro_frames = {left = "DETAILS_STATUSBAR_PLUGIN_THREAT"},
 		
 		instance_cprops = {
-			["menu_icons_size"] = 1,
+			["menu_icons_size"] = 0.85,
 			["color"] = {
 				1, -- [1]
 				1, -- [2]
@@ -75,7 +75,7 @@ local _
 			},
 			["menu_anchor"] = {
 				13, -- [1]
-				2, -- [2]
+				1, -- [2]
 				["side"] = 2,
 			},
 			["bg_r"] = 0.0941,
@@ -142,7 +142,7 @@ local _
 			["bars_grow_direction"] = 1,
 			["row_info"] = {
 				["textR_outline"] = true,
-				["spec_file"] = "Interface\\AddOns\\Details\\images\\spec_icons_normal_alpha",
+				["spec_file"] = "Interface\\AddOns\\Details\\images\\spec_icons_normal",
 				["textL_outline"] = true,
 				["texture_highlight"] = "Interface\\FriendsFrame\\UI-FriendsList-Highlight",
 				["textR_show_data"] = {
@@ -162,7 +162,7 @@ local _
 					["between"] = 1,
 				},
 				["texture_background_class_color"] = false,
-				["start_after_icon"] = false,
+				["start_after_icon"] = true,
 				["font_face_file"] = "Fonts\\ARIALN.TTF",
 				["textL_custom_text"] = "{data1}. {data3}{data2}",
 				["font_size"] = 10,
@@ -217,7 +217,7 @@ local _
 				["textR_separator"] = ",",
 				["textL_class_colors"] = false,
 			},
-			["show_statusbar"] = true,
+			["show_statusbar"] = false,
 			["bg_alpha"] = 0.699999988079071,
 			["wallpaper"] = {
 				["enabled"] = false,
@@ -425,7 +425,7 @@ local _
 					["between"] = 0,
 				},
 				["texture_background_class_color"] = false,
-				["start_after_icon"] = false,
+				["start_after_icon"] = true,
 				["font_face_file"] = "Interface\\Addons\\Details\\fonts\\Accidental Presidency.ttf",
 				["textL_custom_text"] = "{data1}. {data3}{data2}",
 				["font_size"] = 10,
@@ -571,7 +571,7 @@ local _
 					["between"] = 1,
 				},
 				["texture_background_class_color"] = false,
-				["start_after_icon"] = false,
+				["start_after_icon"] = true,
 				["font_face_file"] = "Fonts\\ARIALN.TTF",
 				["textL_custom_text"] = "{data1}. {data3}{data2}",
 				["font_size"] = 10,
@@ -848,7 +848,7 @@ local _
 					["between"] = 0,
 				},
 				["texture_background_class_color"] = false,
-				["start_after_icon"] = false,
+				["start_after_icon"] = true,
 				["font_face_file"] = "Interface\\Addons\\Details\\fonts\\Accidental Presidency.ttf",
 				["textL_custom_text"] = "{data1}. {data3}{data2}",
 				["font_size"] = 10,
@@ -1517,7 +1517,7 @@ local _
 					["between"] = 1,
 				},
 				["texture_background_class_color"] = false,
-				["start_after_icon"] = false,
+				["start_after_icon"] = true,
 				["font_face_file"] = "Interface\\Addons\\Details\\fonts\\FORCED SQUARE.ttf",
 				["textL_custom_text"] = "{data1}. {data3}{data2}",
 				["font_size"] = 10,
@@ -1706,7 +1706,7 @@ local _
 				["textL_enable_custom_text"] = false,
 				["icon_file"] = "Interface\\AddOns\\Details\\images\\spec_icons_normal",
 				["texture_background_file"] = "Interface\\AddOns\\Details\\images\\BantoBar",
-				["start_after_icon"] = false,
+				["start_after_icon"] = true,
 				["texture_highlight"] = "Interface\\FriendsFrame\\UI-FriendsList-Highlight",
 				["textR_enable_custom_text"] = false,
 				["textR_custom_text"] = "{data1} ({data2}, {data3}%)",
@@ -2207,7 +2207,7 @@ local _
 					["between"] = 0,
 				},
 				["texture_background_class_color"] = false,
-				["start_after_icon"] = false,
+				["start_after_icon"] = true,
 				["font_face_file"] = "Interface\\Addons\\Details\\fonts\\Accidental Presidency.ttf",
 				["backdrop"] = {
 					["enabled"] = false,
