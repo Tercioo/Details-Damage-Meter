@@ -6135,7 +6135,7 @@ local build_segment_list = function (self, elapsed)
 							if (trashInfo) then
 								local backgroundImage = _detalhes:GetRaidIcon (trashInfo.MapID, trashInfo.EJID, "party")
 								if (backgroundImage) then
-									CoolTip:SetWallpaper (2, backgroundImage, party_wallpaper_tex, {1, 1, 1, 0.5}, true)
+									CoolTip:SetWallpaper (2, backgroundImage, {0.070, 0.695, 0.087, 0.566}, {1, 1, 1, 0.5}, true)
 								end
 							end
 						end
@@ -6414,7 +6414,7 @@ local build_segment_list = function (self, elapsed)
 					
 					local backgroundImage = _detalhes:GetRaidIcon (trashInfo.MapID, trashInfo.EJID, "party")
 					if (backgroundImage) then
-						CoolTip:SetWallpaper (2, backgroundImage, party_wallpaper_tex, {1, 1, 1, 0.5}, true)
+						CoolTip:SetWallpaper (2, backgroundImage, {0.070, 0.695, 0.087, 0.566}, {1, 1, 1, 0.5}, true)
 					end
 				end
 				
@@ -6534,12 +6534,15 @@ local build_segment_list = function (self, elapsed)
 			local minutos, segundos = _math_floor (combat_time / 60), _math_floor (combat_time % 60)
 			
 			CoolTip:AddLine (Loc ["STRING_SEGMENTS_LIST_COMBATTIME"] .. ":", minutos.."m "..segundos.."s", 2, "white", "white") 
-
+	
+			CoolTip:SetWallpaper (2, [[Interface\ACHIEVEMENTFRAME\UI-Achievement-StatsComparisonBackground]], {0.085, 166/256, 0, 1}, {.42, .4, .4, 0.9}, true)
+			
 			if (_detalhes.tooltip.submenu_wallpaper) then
-				CoolTip:SetWallpaper (2, [[Interface\PetPaperDollFrame\PetStatsBG-Hunter]], {321/512, 0, 0, 190/512}, {1, 1, 1, 0.9}, true)
+				--CoolTip:SetWallpaper (2, [[Interface\PetPaperDollFrame\PetStatsBG-Hunter]], {321/512, 0, 0, 190/512}, {1, 1, 1, 0.9}, true)
+				--CoolTip:SetWallpaper (2, [[Interface\ACHIEVEMENTFRAME\UI-Achievement-StatsComparisonBackground]], {166/256, 1, 0, 1}, {1, 1, 1, 0.9}, true)
 			else
 				--> wallpaper = main window
-				CoolTip:SetWallpaper (2, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
+				--CoolTip:SetWallpaper (2, _detalhes.tooltip.menus_bg_texture, _detalhes.tooltip.menus_bg_coords, _detalhes.tooltip.menus_bg_color, true)
 			end
 			
 			CoolTip:AddLine (Loc ["STRING_SEGMENT_START"] .. ":", _detalhes.tabela_overall.data_inicio, 2, "white", "white")
@@ -6562,6 +6565,23 @@ local build_segment_list = function (self, elapsed)
 				end
 				
 				CoolTip:AddLine ("" .. name, minutos.."m "..segundos.."s", 2, "white", "white")
+				
+				local segmentType = segment.type
+				if (segmentType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_TRASH) then
+					CoolTip:AddIcon ([[Interface\AddOns\Details\images\icons]], 2, 1, 12, 8, 479/512, 510/512, 24/512, 51/512, nil, nil, true)
+					
+				elseif (segmentType == DETAILS_SEGMENTTYPE_MYTHICDUNGEON_BOSS) then
+					CoolTip:AddIcon ([[Interface\AddOns\Details\images\icons]], 2, 1, 12, 12, 0.96875, 1, 0, 0.03125, party_line_color)
+					
+				elseif (segmentType == DETAILS_SEGMENTTYPE_RAID_TRASH or segmentType == DETAILS_SEGMENTTYPE_DUNGEON_TRASH) then
+					CoolTip:AddIcon ([[Interface\AddOns\Details\images\icons]], 2, 1, 10, 8, 0.02734375, 0.11328125, 0.19140625, 0.3125)
+					
+				elseif (segmentType == DETAILS_SEGMENTTYPE_RAID_BOSS) then
+					CoolTip:AddIcon ([[Interface\AddOns\Details\images\icons]], 2, 1, 12, 12, 0.96875, 1, 0, 0.03125)
+					
+				end
+				
+				--CoolTip:AddStatusBar (100, 2, 0, 0, 0, 0.2, false, false, "Skyline")
 			end
 			
 			--> fill é a quantidade de menu que esta sendo mostrada

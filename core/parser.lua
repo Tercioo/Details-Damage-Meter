@@ -4252,7 +4252,6 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	end
 
 	function _detalhes.parser_functions:PLAYER_REGEN_DISABLED (...)
-
 		if (not _detalhes:CaptureGet ("damage")) then
 			_detalhes:EntrarEmCombate()
 		end
@@ -4269,22 +4268,36 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			end
 		end
 	end
-
-	function _detalhes.parser_functions:PLAYER_REGEN_ENABLED (...)
 	
+	function _detalhes.parser_functions:PLAYER_REGEN_ENABLED (...)
+		
 		_detalhes.LatestCombatDone = GetTime()
 		
 		_current_encounter_id = nil
-	
+		
 		--> playing alone, just finish the combat right now
 		if (not _IsInGroup() and not IsInRaid()) then	
 			_detalhes.tabela_vigente.playing_solo = true
 			_detalhes:SairDoCombate()
 		end
 		
+		--> add segments to overall data if any scheduled
+		if (_detalhes.schedule_add_to_overall and #_detalhes.schedule_add_to_overall > 0) then
+			if (_detalhes.debug) then
+				_detalhes:Msg ("(debug) adding ", #_detalhes.schedule_add_to_overall, "combats in queue to overall data.")
+			end
+			
+			for i = #_detalhes.schedule_add_to_overall, 1, -1 do
+				local CombatToAdd = tremove (_detalhes.schedule_add_to_overall, i)
+				if (CombatToAdd) then
+					_detalhes.historico:adicionar_overall (CombatToAdd)
+				end
+			end
+		end
+		
 		if (_detalhes.schedule_mythicdungeon_trash_merge) then
 			_detalhes.schedule_mythicdungeon_trash_merge = nil
-			DetailsMythicPlusFrame.MergeTrashCleanup()
+			DetailsMythicPlusFrame.MergeTrashCleanup (true)
 		end
 		
 		if (_detalhes.schedule_mythicdungeon_endtrash_merge) then
@@ -4313,26 +4326,13 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 			_detalhes.schedule_flag_boss_components = false
 			_detalhes:FlagActorsOnBossFight()
 		end
-
+		
 		if (_detalhes.schedule_remove_overall) then
 			if (_detalhes.debug) then
 				_detalhes:Msg ("(debug) found schedule overall data clean up.")
 			end
 			_detalhes.schedule_remove_overall = false
 			_detalhes.tabela_historico:resetar_overall()
-		end
-		
-		if (_detalhes.schedule_add_to_overall and _detalhes.schedule_add_to_overall [1]) then
-			if (_detalhes.debug) then
-				_detalhes:Msg ("(debug) adding ", #_detalhes.schedule_add_to_overall, "combats in queue to overall data.")
-			end
-			
-			for i = #_detalhes.schedule_add_to_overall, 1, -1 do
-				local CombatToAdd = tremove (_detalhes.schedule_add_to_overall, i)
-				if (CombatToAdd) then
-					_detalhes.historico:adicionar_overall (CombatToAdd)
-				end
-			end
 		end
 		
 		if (_detalhes.schedule_store_boss_encounter) then

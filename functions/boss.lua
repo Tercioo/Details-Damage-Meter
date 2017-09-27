@@ -255,6 +255,22 @@ do
 		return nil
 	end
 	
+	function _detalhes:GetBossIndex (mapid, encounterCLID, encounterEJID, encounterName)
+		local raidInfo = _detalhes.EncounterInformation [mapid]
+		if (raidInfo) then
+			local index = raidInfo.encounter_ids2 [encounterCLID] or raidInfo.encounter_ids [encounterEJID]
+			if (not index) then
+				for i = 1, #raidInfo.boss_names do
+					if (raidInfo.boss_names [i] == encounterName) then
+						index = i
+						break
+					end
+				end
+			end
+			return index
+		end
+	end
+	
 	--> return the boss icon
 	function _detalhes:GetBossIcon (mapid, bossindex)
 		if (_detalhes.EncounterInformation [mapid]) then

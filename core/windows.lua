@@ -1253,10 +1253,11 @@
 			function f.BuildReport()
 				if (f.LatestResourceTable) then
 					local reportFunc = function (IsCurrent, IsReverse, AmtLines)
-
 						local bossName = f.select_boss.label:GetText()
 						local bossDiff = f.select_diff.label:GetText()
-						local reportTable = {"Details!: DPS Rank for: " .. (bossDiff or "") .. " " .. (bossName or "--x--x--")}
+						local guildName = f.select_guild.label:GetText()
+						
+						local reportTable = {"Details!: DPS Rank for: " .. (bossDiff or "") .. " " .. (bossName or "--x--x--") .. " <" .. (guildName or "") .. ">"}
 						local result = {}
 						
 						for i = 1, AmtLines do
@@ -1348,6 +1349,7 @@
 			
 			--> select raid:
 			local on_raid_select = function (_, _, raid)
+				_detalhes.rank_window.last_raid = raid
 				f:UpdateDropdowns (true)
 				on_select()
 			end
@@ -1369,6 +1371,7 @@
 
 			--> select difficulty:
 			local on_diff_select = function (_, _, diff)
+				_detalhes.rank_window.last_difficulty = diff
 				on_select()
 			end
 			
@@ -1494,6 +1497,20 @@
 								if (encounter) then
 									local InstanceID = _detalhes:GetInstanceIdFromEncounterId (encounterId)
 									if (raidSelected == InstanceID) then
+										--[=[
+										local bossIndex = _detalhes:GetBossIndex (InstanceID, encounterId)
+										if (bossIndex) then
+											local l, r, t, b, texturePath = _detalhes:GetBossIcon (InstanceID, bossIndex)
+											if (texturePath) then
+												tinsert (boss_list, {value = encounterId, label = encounter.boss, icon = texturePath, texcoord = {l, r, t, b}, onclick = on_boss_select})
+											else
+												tinsert (boss_list, {value = encounterId, label = encounter.boss, icon = icon, onclick = on_boss_select})
+											end
+										else
+											tinsert (boss_list, {value = encounterId, label = encounter.boss, icon = icon, onclick = on_boss_select})
+										end
+										--]=]
+										
 										tinsert (boss_list, {value = encounterId, label = encounter.boss, icon = icon, onclick = on_boss_select})
 										boss_repeated [encounterId] = true
 									end
@@ -1576,6 +1593,19 @@
 								if (encounter) then
 									local InstanceID = _detalhes:GetInstanceIdFromEncounterId (encounterId)
 									if (raidSelected == InstanceID) then
+									--[=[
+										local bossIndex = _detalhes:GetBossIndex (InstanceID, encounterId)
+										if (bossIndex) then
+											local l, r, t, b, texturePath = _detalhes:GetBossIcon (InstanceID, bossIndex)
+											if (texturePath) then
+												tinsert (boss_list, {value = encounterId, label = encounter.boss, icon = texturePath, texcoord = {l, r, t, b}, onclick = on_boss_select})
+											else
+												tinsert (boss_list, {value = encounterId, label = encounter.boss, icon = icon, onclick = on_boss_select})
+											end
+										else
+											tinsert (boss_list, {value = encounterId, label = encounter.boss, icon = icon, onclick = on_boss_select})
+										end									
+									--]=]
 										tinsert (boss_list, {value = encounterId, label = encounter.boss, icon = icon, onclick = on_boss_select})
 										boss_repeated [encounterId] = true
 									end
@@ -1897,9 +1927,10 @@
 					end
 				end
 			end
-		
+			
+			f.FirstRun = true
+			
 		end
-		
 		
 		--> table means some button send the request - nil for other ways
 		if (type (_raid) == "table" or (not _raid and not _boss and not _difficulty and not _role and not _guild and not _player_base and not _player_name)) then
@@ -1913,6 +1944,21 @@
 				_player_base = f.LatestSelection.PlayerBase
 				_player_name = f.LatestSelection.PlayerBase
 			end
+		end
+		
+		if (_G.DetailsRaidHistoryWindow.FirstRun) then
+			_difficulty = _detalhes.rank_window.last_difficulty or _difficulty
+			if (IsInGuild()) then
+				local guildName = GetGuildInfo ("player")
+				if (guildName) then
+					_guild = guildName
+				end
+			end
+			if (_detalhes.rank_window.last_raid ~= "") then
+				_raid = _detalhes.rank_window.last_raid or _raid
+			end
+			
+			_G.DetailsRaidHistoryWindow.FirstRun = nil
 		end
 		
 		_G.DetailsRaidHistoryWindow:UpdateDropdowns()

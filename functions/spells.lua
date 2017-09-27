@@ -117,11 +117,11 @@ do
 		[171746] = 103, -- Claws of Shirvallah
 		[22570] = 103, -- Maim
 		[16974] = 103, -- Predatory Swiftness
-		[106785] = 103, -- Swipe
-		[1079] = 103, -- Rip
+		--[106785] = 103, -- Swipe
+		--[1079] = 103, -- Rip
 		[52610] = 103, -- Savage Roar
 		[5217] = 103, -- Tiger's Fury
-		[1822] = 103, -- Rake
+		--[1822] = 103, -- Rake
 		
 		-- Guardian Druid:
 		[155835] = 104, -- Bristling Fur

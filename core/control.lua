@@ -300,9 +300,9 @@
 		-- ~start ~inicio ~novo ñovo
 		function _detalhes:EntrarEmCombate (...)
 			if (_detalhes.debug) then
-				_detalhes:Msg ("(debug) |cFFFFFF00started a new combat|r|cFFFF7700", _detalhes.encounter_table and _detalhes.encounter_table.name or "")
-				local from = debugstack (2, 1, 0)
-				print (from)
+				--_detalhes:Msg ("(debug) |cFFFFFF00started a new combat|r|cFFFF7700", _detalhes.encounter_table and _detalhes.encounter_table.name or "")
+				--local from = debugstack (2, 1, 0)
+				--print (from)
 			end
 
 			if (not _detalhes.tabela_historico.tabelas[1]) then 
@@ -312,7 +312,7 @@
 				_detalhes:InstanciaCallFunction (_detalhes.InstanciaFadeBarras, -1) --> esconde todas as barras
 				_detalhes:InstanciaCallFunction (_detalhes.AtualizaSegmentos) --> atualiza o showing
 			end
-
+			
 			--> re-lock nos tempos da tabela passada -- lock again last table times
 			_detalhes.tabela_vigente:TravarTempos()
 			
@@ -336,7 +336,7 @@
 			
 			--> é o timer que ve se o jogador ta em combate ou não -- check if any party or raid members are in combat
 			_detalhes.tabela_vigente.verifica_combate = _detalhes:ScheduleRepeatingTimer ("EstaEmCombate", 1) 
-
+			
 			_detalhes:ClearCCPetsBlackList()
 			
 			_table_wipe (_detalhes.encounter_end_table)
@@ -514,9 +514,7 @@
 			
 			if (not _detalhes.tabela_vigente.is_boss and from_encounter_end and type (from_encounter_end) == "table") then
 				local encounterID, encounterName, difficultyID, raidSize, endStatus = unpack (from_encounter_end)
-				
 				if (encounterID) then
-				
 					local ZoneName, InstanceType, DifficultyID, DifficultyName, _, _, _, ZoneMapID = GetInstanceInfo()
 					local ejid = EJ_GetCurrentInstance()
 					if (ejid == 0) then
@@ -542,7 +540,13 @@
 			if (_detalhes.MythicPlus.Started) then
 				_detalhes.tabela_vigente.is_mythic_dungeon_segment = true
 				_detalhes.tabela_vigente.is_mythic_dungeon_run_id = _detalhes.mythic_dungeon_id
+			else
+				local mythicLevel = C_ChallengeMode.GetActiveKeystoneInfo()
+				if (mythicLevel and mythicLevel >= 2) then
+					_detalhes.tabela_vigente.is_mythic_dungeon_segment = true
+					_detalhes.tabela_vigente.is_mythic_dungeon_run_id = _detalhes.mythic_dungeon_id
 				end
+			end
 			
 			if (not _detalhes.tabela_vigente.is_boss) then
 

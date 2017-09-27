@@ -30,6 +30,9 @@ function historico:adicionar_overall (tabela)
 		--> only for raids
 		if (tabela.instance_type == "raid" and tabela.is_boss) then
 			if (_detalhes.last_encounter ~= _detalhes.last_encounter2) then
+				if (_detalhes.debug) then
+					_detalhes:Msg ("(debug) new boss detected 'overall_clear_newboss' is true, cleaning overall data.")
+				end
 				for index, combat in ipairs (_detalhes.tabela_historico.tabelas) do 
 					combat.overall_added = false
 				end
@@ -37,14 +40,39 @@ function historico:adicionar_overall (tabela)
 			end
 		end
 	end
-
+	
+	if (tabela.overall_added) then
+		_detalhes:Msg ("error > attempt to add a segment already added > func historico:adicionar_overall()")
+		return
+	end
+	local mythicInfo = tabela.is_mythic_dungeon
+	if (mythicInfo) then
+		--> do not add overall mythic+ dungeon segments
+		if (mythicInfo.TrashOverallSegment) then
+			_detalhes:Msg ("error > attempt to add a TrashOverallSegment > func historico:adicionar_overall()")
+			return
+		elseif (mythicInfo.OverallSegment) then
+			_detalhes:Msg ("error > attempt to add a OverallSegment > func historico:adicionar_overall()")
+			return
+		end
+	end
+	
 	--> store the segments added to the overall data
 	_detalhes.tabela_overall.segments_added = _detalhes.tabela_overall.segments_added or {}
 	local this_clock = tabela.data_inicio
-	tinsert (_detalhes.tabela_overall.segments_added, 1, {name = tabela:GetCombatName (true), elapsed = tabela:GetCombatTime(), clock = this_clock})
 	
-	if (#_detalhes.tabela_overall.segments_added > 20) then
-		tremove (_detalhes.tabela_overall.segments_added, 21)
+	local combatName = tabela:GetCombatName (true)
+	local combatTime = tabela:GetCombatTime()
+	local combatType = tabela:GetCombatType()
+	
+	tinsert (_detalhes.tabela_overall.segments_added, 1, {name = combatName, elapsed = combatTime, clock = this_clock, type = combatType})
+
+	if (#_detalhes.tabela_overall.segments_added > 30) then
+		tremove (_detalhes.tabela_overall.segments_added, 31)
+	end
+	
+	if (_detalhes.debug) then
+		_detalhes:Msg ("(debug) adding the segment to overall data: " .. (tabela:GetCombatName (true) or "no name") .. " with time of: " .. (tabela:GetCombatTime() or "no time"))
 	end
 	
 	_detalhes.tabela_overall = _detalhes.tabela_overall + tabela
@@ -97,6 +125,84 @@ function _detalhes:GetCombatSegments()
 	return _detalhes.tabela_historico.tabelas
 end
 
+function _detalhes:ScheduleAddCombatToOverall (combat)
+	local canAdd = _detalhes:CanAddCombatToOverall (combat)
+	if (canAdd) then
+		_detalhes.schedule_add_to_overall = _detalhes.schedule_add_to_overall or {}
+		tinsert (_detalhes.schedule_add_to_overall, combat)
+	end
+end
+
+function _detalhes:CanAddCombatToOverall (tabela)
+
+	--> already added
+	if (tabela.overall_added) then
+		return false
+	end
+	
+	--> already scheduled to add
+	if (_detalhes.schedule_add_to_overall) then
+		for _, combat in ipairs (_detalhes.schedule_add_to_overall) do
+			if (combat == tabela) then
+				return false
+			end
+		end
+	end
+
+	--> special cases
+	local mythicInfo = tabela.is_mythic_dungeon
+	if (mythicInfo) then
+		--> do not add overall mythic+ dungeon segments
+		if (mythicInfo.TrashOverallSegment) then
+			return false
+		elseif (mythicInfo.OverallSegment) then
+			return false
+		end
+	end
+
+	--> raid boss - flag 0x1
+	if (bit.band (_detalhes.overall_flag, 0x1) ~= 0) then 
+		if (tabela.is_boss and tabela.instance_type == "raid" and not tabela.is_pvp) then
+			if (tabela:GetCombatTime() >= 30) then
+				return true
+			end
+		end
+	end
+	
+	--> raid trash - flag 0x2
+	if (bit.band (_detalhes.overall_flag, 0x2) ~= 0) then 
+		if (tabela.is_trash and tabela.instance_type == "raid") then
+			return true
+		end
+	end
+	
+	--> dungeon boss - flag 0x4
+	if (bit.band (_detalhes.overall_flag, 0x4) ~= 0) then 
+		if (tabela.is_boss and tabela.instance_type == "party" and not tabela.is_pvp) then
+			return true
+		end
+	end
+	
+	--> dungeon trash - flag 0x8
+	if (bit.band (_detalhes.overall_flag, 0x8) ~= 0) then 
+		if ((tabela.is_trash or tabela.is_mythic_dungeon_trash) and tabela.instance_type == "party") then
+			return true
+		end
+	end
+	
+	--> any combat
+	if (bit.band (_detalhes.overall_flag, 0x10) ~= 0) then 
+		return true
+	end
+	
+	--> is a PvP combat
+	if (tabela.is_pvp or tabela.is_arena) then 
+		return true
+	end
+	
+	return false
+end
+
 --> sai do combate, chamou adicionar a tabela ao histórico
 function historico:adicionar (tabela)
 
@@ -112,11 +218,10 @@ function historico:adicionar (tabela)
 		_detalhes:InstanciaCallFunction (_detalhes.CheckFreeze, tamanho+1, ultima_tabela)
 	end
 
-	--> adiciona no index #1
-	
+	--> add to history table
 	_table_insert (self.tabelas, 1, tabela)
 	
-	--_detalhes.encounter_counter
+	--> count boss tries
 	local boss = tabela.is_boss and tabela.is_boss.name
 	if (boss) then
 		local try_number = _detalhes.encounter_counter [boss]
@@ -142,73 +247,26 @@ function historico:adicionar (tabela)
 		tabela.is_boss.try_number = try_number
 	end
 	
-	local overall_added = false
+	--> see if can add the encounter to overall data
+	local canAddToOverall = _detalhes:CanAddCombatToOverall (tabela)
 	
-	if (not overall_added and bit.band (_detalhes.overall_flag, 0x1) ~= 0) then --> raid boss - flag 0x1
-		if (tabela.is_boss and tabela.instance_type == "raid" and not tabela.is_pvp) then
-			overall_added = true
-		end
-		--print ("0x1")
-	end
-
-	if (not overall_added and bit.band (_detalhes.overall_flag, 0x2) ~= 0) then --> raid trash - flag 0x2
-		if (tabela.is_trash and tabela.instance_type == "raid") then --check if the player is in a raid
-			overall_added = true
-		end
-		--print ("0x2")
-	end
-	
-	if (not overall_added and bit.band (_detalhes.overall_flag, 0x4) ~= 0) then --> dungeon boss - flag 0x4
-		if (tabela.is_boss and tabela.instance_type == "party" and not tabela.is_pvp) then --check if this is a dungeon boss
-			overall_added = true
-		end
-		--print ("0x4")
-	end
-
-	if (not overall_added and bit.band (_detalhes.overall_flag, 0x8) ~= 0) then --> dungeon trash - flag 0x8
-		if (tabela.is_trash and tabela.instance_type == "party") then --check if the player is in a raid
-			overall_added = true
-		end
-		--print ("0x8")
-	end
-	
-	if (not overall_added and bit.band (_detalhes.overall_flag, 0x10) ~= 0) then --> any combat
-		overall_added = true
-		--print ("0x10")
-	end
-	
-	if (not overall_added and (tabela.is_pvp or tabela.is_arena)) then --> is a PvP combat
-		overall_added = true
-		--print ("0x10")
-	end
-
-	if (overall_added) then
-		if (tabela.is_boss and tabela:InstanceType() == "raid" and tabela:GetCombatTime() < 30) then
+	if (canAddToOverall) then
+		if (InCombatLockdown()) then
+			_detalhes:ScheduleAddCombatToOverall (tabela)
 			if (_detalhes.debug) then
-				_detalhes:Msg ("segment not added to overall (less than 30 seconds of combat time).")
+				_detalhes:Msg ("(debug) overall data flag match > in combat scheduling overall addition.")
 			end
 		else
 			if (_detalhes.debug) then
-				_detalhes:Msg ("(debug) overall data flag match with the current combat.")
+				_detalhes:Msg ("(debug) overall data flag match addind the combat to overall data.")
 			end
-			if (InCombatLockdown()) then
-				_detalhes.schedule_add_to_overall = _detalhes.schedule_add_to_overall or {}
-				tinsert (_detalhes.schedule_add_to_overall, tabela)
-				if (_detalhes.debug) then
-					_detalhes:Msg ("(debug) player is in combat, scheduling overall addition.")
-				end
-			else
-				historico:adicionar_overall (tabela)
-			end
+			historico:adicionar_overall (tabela)
 		end
 	end
 	
+	--> erase trash segments
 	if (self.tabelas[2]) then
-	
-		--> fazer limpeza na tabela
-
 		local _segundo_combate = self.tabelas[2]
-		
 		local container_damage = _segundo_combate [1]
 		local container_heal = _segundo_combate [2]
 		
@@ -236,10 +294,6 @@ function historico:adicionar (tabela)
 			if (_terceiro_combate) then
 			
 				if ((_terceiro_combate.is_trash and not _terceiro_combate.is_boss) or (_terceiro_combate.is_temporary)) then
-					--if (_terceiro_combate.overall_added) then
-					--	_detalhes.tabela_overall = _detalhes.tabela_overall - _terceiro_combate
-					--	print ("removendo combate 1")
-					--end
 					--> verificar novamente a time machine
 					for _, jogador in ipairs (_terceiro_combate [1]._ActorTable) do --> damage
 						if (jogador.timeMachine) then
@@ -384,6 +438,16 @@ function historico:resetar()
 	end
 	
 	_detalhes.last_closed_combat = nil
+	
+	--> remove mythic dungeon schedules if any
+	_detalhes.schedule_mythicdungeon_trash_merge = nil
+	_detalhes.schedule_mythicdungeon_endtrash_merge = nil
+	_detalhes.schedule_mythicdungeon_overallrun_merge = nil
+	
+	--> clear other schedules
+	_detalhes.schedule_flag_boss_components = nil
+	_detalhes.schedule_store_boss_encounter = nil
+	_detalhes.schedule_remove_overall = nil
 	
 	--> fecha a janela de informações do jogador
 	_detalhes:FechaJanelaInfo()

@@ -1075,6 +1075,17 @@ local default_player_data = {
 		last_instance_id = 0,
 		last_instance_time = 0,
 		mythic_dungeon_id = 0,
+		mythic_dungeon_currentsaved = {
+			started = false,
+			run_id = 0,
+			dungeon_name = "",
+			dungeon_zone_id = 0,
+			started_at = 0,
+			segment_id = 0,
+			level = 0,
+			ej_id = 0,
+			previous_boss_killed_at = 0,
+		},
 	--> nicktag cache
 		nick_tag_cache = {},
 		ignore_nicktag = false,
@@ -1131,6 +1142,11 @@ local default_player_data = {
 		benchmark_db = {
 			frame = {},
 			
+		},
+	--> rank
+		rank_window = {
+			last_difficulty = 15,
+			last_raid = "",
 		},
 }
 
@@ -1330,4 +1346,66 @@ function _detalhes:SaveProfileSpecial()
 
 	--> end
 		return profile
+end
+
+--> save things for the mythic dungeon run
+function _detalhes:SaveState_CurrentMythicDungeonRun (runID, zoneName, zoneID, startAt, segmentID, level, ejID, latestBossAt)
+	local savedTable = _detalhes.mythic_dungeon_currentsaved
+	savedTable.started = true
+	savedTable.run_id = runID
+	savedTable.dungeon_name = zoneName
+	savedTable.dungeon_zone_id = zoneID
+	savedTable.started_at = startAt
+	savedTable.segment_id = segmentID
+	savedTable.level = level
+	savedTable.ej_id = ejID
+	savedTable.previous_boss_killed_at = latestBossAt
+end
+
+function _detalhes:UpdateState_CurrentMythicDungeonRun (stillOngoing, segmentID, latestBossAt)
+	local savedTable = _detalhes.mythic_dungeon_currentsaved
+	
+	if (not stillOngoing) then
+		savedTable.started = false
+	end
+	
+	if (segmentID) then
+		savedTable.segment_id = segmentID
+	end
+	
+	if (latestBossAt) then
+		savedTable.previous_boss_killed_at = latestBossAt
+	end
+end
+
+function _detalhes:RestoreState_CurrentMythicDungeonRun()
+	local savedTable = _detalhes.mythic_dungeon_currentsaved
+	local mythicLevel = C_ChallengeMode.GetActiveKeystoneInfo()
+	local zoneName, _, _, _, _, _, _, currentZoneID = GetInstanceInfo()
+	local ejID = EJ_GetCurrentInstance()
+
+	--> is there a saved state for the dungeon?
+	if (savedTable.started) then
+		--> player are within the same zone?
+		if (zoneName == savedTable.dungeon_name and currentZoneID == savedTable.dungeon_zone_id) then
+			--> is there a mythic run ongoing and the level is the same as the saved state?
+			if (mythicLevel and mythicLevel == savedTable.level) then
+				--> restore the state
+				_detalhes.MythicPlus.Started = true
+				_detalhes.MythicPlus.DungeonName = zoneName
+				_detalhes.MythicPlus.DungeonID = currentZoneID
+				_detalhes.MythicPlus.StartedAt = savedTable.started_at
+				_detalhes.MythicPlus.SegmentID = savedTable.segment_id
+				_detalhes.MythicPlus.Level = mythicLevel
+				_detalhes.MythicPlus.ejID = ejID
+				_detalhes.MythicPlus.PreviousBossKilledAt = savedTable.previous_boss_killed_at
+				_detalhes.MythicPlus.IsRestoredState = true
+				DetailsMythicPlusFrame.IsDoingMythicDungeon = true
+				return
+			end
+		end
+		
+		--> mythic run is over
+		savedTable.started = false
+	end
 end

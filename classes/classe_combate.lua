@@ -138,10 +138,16 @@
 	function combate:GetCombatName (try_find)
 		if (self.is_pvp) then
 			return self.is_pvp.name
+			
 		elseif (self.is_boss) then
 			return self.is_boss.encounter
+			
+		elseif (self.is_mythic_dungeon_trash) then
+			return self.is_mythic_dungeon_trash.ZoneName .. " (" .. Loc ["STRING_SEGMENTS_LIST_TRASH"] .. ")"
+			
 		elseif (_rawget (self, "is_trash")) then
 			return Loc ["STRING_SEGMENT_TRASH"]
+			
 		else
 			if (self.enemy) then
 				return self.enemy
@@ -151,6 +157,92 @@
 			end
 		end
 		return Loc ["STRING_UNKNOW"]
+	end
+	
+	--enum segments type
+	
+	DETAILS_SEGMENTTYPE_GENERIC = 0
+	
+	DETAILS_SEGMENTTYPE_OVERALL = 1
+	
+	DETAILS_SEGMENTTYPE_DUNGEON_TRASH = 5
+	DETAILS_SEGMENTTYPE_DUNGEON_BOSS = 6
+	
+	DETAILS_SEGMENTTYPE_RAID_TRASH = 7
+	DETAILS_SEGMENTTYPE_RAID_BOSS = 8
+	
+	DETAILS_SEGMENTTYPE_MYTHICDUNGEON_GENERIC = 10
+	DETAILS_SEGMENTTYPE_MYTHICDUNGEON_TRASH = 11
+	DETAILS_SEGMENTTYPE_MYTHICDUNGEON_OVERALL = 12
+	DETAILS_SEGMENTTYPE_MYTHICDUNGEON_TRASHOVERALL = 13
+	DETAILS_SEGMENTTYPE_MYTHICDUNGEON_BOSS = 14
+	
+	DETAILS_SEGMENTTYPE_PVP_ARENA = 20
+	DETAILS_SEGMENTTYPE_PVP_BATTLEGROUND = 21
+
+	function combate:GetCombatType()
+		--> mythic dungeon
+		local isMythicDungeon = is_mythic_dungeon_segment
+		if (isMythicDungeon) then
+			local isMythicDungeonTrash = self.is_mythic_dungeon_trash
+			if (isMythicDungeonTrash) then
+				return DETAILS_SEGMENTTYPE_MYTHICDUNGEON_TRASH
+			else
+				local isMythicDungeonOverall = self.is_mythic_dungeon and self.is_mythic_dungeon.OverallSegment
+				local isMythicDungeonTrashOverall = self.is_mythic_dungeon and self.is_mythic_dungeon.TrashOverallSegment
+				if (isMythicDungeonOverall) then
+					return DETAILS_SEGMENTTYPE_MYTHICDUNGEON_OVERALL
+				elseif (isMythicDungeonTrashOverall) then
+					return DETAILS_SEGMENTTYPE_MYTHICDUNGEON_TRASHOVERALL
+				end
+				
+				local bossEncounter =  self.is_boss
+				if (bossEncounter) then
+					return DETAILS_SEGMENTTYPE_MYTHICDUNGEON_BOSS
+				end
+				
+				return DETAILS_SEGMENTTYPE_MYTHICDUNGEON_GENERIC
+			end
+		end
+		
+		--> arena
+		local arenaInfo = self.is_arena
+		if (arenaInfo) then
+			return DETAILS_SEGMENTTYPE_PVP_ARENA
+		end
+		
+		--> battleground
+		local battlegroundInfo = self.is_pvp
+		if (battlegroundInfo) then
+			return DETAILS_SEGMENTTYPE_PVP_BATTLEGROUND
+		end
+		
+		--> dungeon or raid
+		local instanceType = self.instance_type
+		
+		if (instanceType == "party") then
+			local bossEncounter =  self.is_boss
+			if (bossEncounter) then
+				return DETAILS_SEGMENTTYPE_DUNGEON_BOSS
+			else
+				return DETAILS_SEGMENTTYPE_DUNGEON_TRASH
+			end
+			
+		elseif (instanceType == "raid") then
+			local bossEncounter =  self.is_boss
+			if (bossEncounter) then
+				return DETAILS_SEGMENTTYPE_RAID_BOSS
+			else
+				return DETAILS_SEGMENTTYPE_RAID_TRASH
+			end
+		end
+		
+		--> overall data
+		if (self == _detalhes.tabela_overall) then
+			return DETAILS_SEGMENTTYPE_OVERALL
+		end
+		
+		return DETAILS_SEGMENTTYPE_GENERIC
 	end
 
 	--return a numeric table with all actors on the specific containter

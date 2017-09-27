@@ -351,14 +351,19 @@ function DF:CreateCoolTip()
 			
 			end
 		end)	
-
+		
 		frame1:SetScript ("OnHide", function (self)
 			CoolTip.active = false
 			CoolTip.buttonClicked = false
 			CoolTip.mouseOver = false
+			
+			--> reset parent and  strata
+			frame1:SetParent (UIParent)
+			frame2:SetParent (UIParent)
+			frame1:SetFrameStrata ("TOOLTIP")
+			frame2:SetFrameStrata ("TOOLTIP")
 		end)
-	
-	
+		
 ----------------------------------------------------------------------
 	--> Button Creation Functions
 ----------------------------------------------------------------------
@@ -2903,8 +2908,9 @@ function DF:CreateCoolTip()
 		CoolTip.Host = nil
 		DF:FadeFrame (frame1, 1)
 		DF:FadeFrame (frame2, 1)
-		
 	end
+	
+	
 	
 	--> old function call
 	function CoolTip:ShowMe (host, arg2)
