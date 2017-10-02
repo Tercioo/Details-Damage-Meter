@@ -228,14 +228,14 @@ do
 		
 		-- Holy Paladin:
 		[156910] = 65, -- Beacon of Faith
-		[157007] = 65, -- Beacon of Insight
+		[157007] = 65, -- Beacon of Insight --nao existe mais
 		[85222] = 65, -- Light of Dawn
 		[31821] = 65, -- Devotion Aura
 		[82326] = 65, -- Holy Light
-		[148039] = 65, -- Sacred Shield
+		[148039] = 65, -- Sacred Shield --nao existe mais
 		[53563] = 65, -- Beacon of Light
-		[82327] = 65, -- Holy Radiance
-		[2812] = 65, -- Denounce
+		[82327] = 65, -- Holy Radiance --nao existe mais
+		[2812] = 65, -- Denounce --nao existe mais
 		[20473] = 65, -- Holy Shock
 		
 		-- Protection Paladin:
