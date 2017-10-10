@@ -135,14 +135,14 @@ do
 		
 		-- Restoration Druid:
 
-		[145518] = 105, -- Genesis
+		[145518] = 105, -- Genesis --no exists
 		[145205] = 105, -- Wild Mushroom
 		[48438] = 105, -- Wild Growth
 		[740] = 105, -- Tranquility
 		[102342] = 105, -- Ironbark
 		[33763] = 105, -- Lifebloom
 		[88423] = 105, -- Nature's Cure
-		[8936] = 105, -- Regrowth
+		--[8936] = 105, -- Regrowth -overlap
 		[18562] = 105, -- Swiftmend
 		
 		-- Beast Mastery Hunter:
@@ -1570,6 +1570,34 @@ do
 			[109128]	=	"WARRIOR", --charge
 			[12880]	=	"WARRIOR", --enrage
 			--[29842]	=	"WARRIOR", --undribled wrath
+	}
+	
+	_detalhes.HardCrowdControlSpells = {
+		--> death knight
+		
+		--> deamon hunter
+		
+		--> druid
+		[33786] 	= true, -- Cyclone
+		
+		--> hunter
+		
+		--> mage
+		
+		--> monk
+		
+		--> paladin
+		
+		--> priest
+		
+		--> rogue
+		
+		--> shaman
+		
+		--> warlock
+		
+		--> warrior
+		
 	}
 	
 	-- updated on 25/04/2015 (@Tonyleila - WoWInterface)

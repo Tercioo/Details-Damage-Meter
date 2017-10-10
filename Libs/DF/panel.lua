@@ -3618,13 +3618,6 @@ end
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- ~scrollbox
 
-
--- preciso de uma fauxscroll que seja facil de lidar
--- ele cria scroll aqui, preciso falar a função que cria a linha e a função que atualiza
--- precisa passsar o tamanho em height width quantas barras vai mostrar
--- search box incluso opcionalmente
-
-
 DF.SortFunctions = {}
 
 local SortMember = ""
@@ -3659,7 +3652,7 @@ DF.ScrollBoxFunctions.Refresh = function (self)
 		offset = FauxScrollFrame_GetOffset (self)
 	end	
 	
-	local okay, totalLines = pcall (self.refresh_func, self, self.data, offset, #self.Frames)
+	local okay, totalLines = pcall (self.refresh_func, self, self.data, offset, self.LineAmount)
 	if (not okay) then
 		error ("Details! FrameWork: Refresh(): " .. totalLines)
 	end
@@ -3674,6 +3667,19 @@ DF.ScrollBoxFunctions.Refresh = function (self)
 	
 	self:Show()
 	
+	if (self.HideScrollBar) then
+		local frameName = self:GetName()
+		if (frameName) then
+			local scrollBar = _G [frameName .. "ScrollBar"]
+			if (scrollBar) then
+				scrollBar:Hide()
+			end
+		else
+		
+		end
+		
+	end
+	
 	return self.Frames
 end
 
@@ -3683,9 +3689,13 @@ DF.ScrollBoxFunctions.OnVerticalScroll = function (self, offset)
 end
 
 DF.ScrollBoxFunctions.CreateLine = function (self, func)
+	if (not func) then
+		func = self.CreateLineFunc
+	end
 	local okay, newLine = pcall (func, self, #self.Frames+1)
 	if (okay) then
 		tinsert (self.Frames, newLine)
+		newLine.Index = #self.Frames
 		return newLine
 	else
 		error ("Details! FrameWork: CreateLine(): " .. newLine)
@@ -3707,14 +3717,85 @@ DF.ScrollBoxFunctions.GetData = function (self)
 	return self.data
 end
 
-function DF:CreateScrollBox (parent, name, refresh_func, data, width, height, line_amount, line_height)
+DF.ScrollBoxFunctions.GetFrames = function (self)
+	return self.Frames
+end
+
+DF.ScrollBoxFunctions.GetNumFramesCreated = function (self)
+	return #self.Frames
+end
+
+DF.ScrollBoxFunctions.GetNumFramesShown = function (self)
+	return self.LineAmount
+end
+
+DF.ScrollBoxFunctions.SetNumFramesShown = function (self, new_amount)
+	--> hide frames which won't be used
+	if (new_amount < #self.Frames) then
+		for i = new_amount+1, #self.Frames do
+			self.Frames [i]:Hide()
+		end
+	end
+	
+	--> set the new amount
+	self.LineAmount = new_amount
+end
+
+DF.ScrollBoxFunctions.SetFramesHeight = function (self, new_height)
+	self.LineHeight = new_height
+	self:OnSizeChanged()
+	self:Refresh()
+end
+
+DF.ScrollBoxFunctions.OnSizeChanged = function (self)
+	if (self.ReajustNumFrames) then
+		--> how many lines the scroll can show
+		local amountOfFramesToShow = floor (self:GetHeight() / self.LineHeight)
+		
+		--> how many lines the scroll already have
+		local totalFramesCreated = self:GetNumFramesCreated()
+		
+		--> how many lines are current shown
+		local totalFramesShown = self:GetNumFramesShown()
+
+		--> the amount of frames increased
+		if (amountOfFramesToShow > totalFramesShown) then
+			for i = totalFramesShown+1, amountOfFramesToShow do
+				--> check if need to create a new line
+				if (i > totalFramesCreated) then
+					self:CreateLine (self.CreateLineFunc)
+				end
+			end
+			
+		--> the amount of frames decreased
+		elseif (amountOfFramesToShow < totalFramesShown) then
+			--> hide all frames above the new amount to show
+			for i = totalFramesCreated, amountOfFramesToShow, -1 do
+				if (self.Frames [i]) then
+					self.Frames [i]:Hide()
+				end
+			end
+		end
+
+		--> set the new amount of frames
+		self:SetNumFramesShown (amountOfFramesToShow)
+		
+		--> refresh lines
+		self:Refresh()
+	end
+end
+
+function DF:CreateScrollBox (parent, name, refresh_func, data, width, height, line_amount, line_height, create_line_func, auto_amount, no_scroll)
 	local scroll = CreateFrame ("scrollframe", name, parent, "FauxScrollFrameTemplate")
 	
 	scroll:SetSize (width, height)
 	scroll.LineAmount = line_amount
 	scroll.LineHeight = line_height
 	scroll.IsFauxScroll = true
+	scroll.HideScrollBar = no_scroll
 	scroll.Frames = {}
+	scroll.ReajustNumFrames = auto_amount
+	scroll.CreateLineFunc = create_line_func
 	
 	DF:Mixin (scroll, DF.SortFunctions)
 	DF:Mixin (scroll, DF.ScrollBoxFunctions)
@@ -3723,9 +3804,38 @@ function DF:CreateScrollBox (parent, name, refresh_func, data, width, height, li
 	scroll.data = data
 	
 	scroll:SetScript ("OnVerticalScroll", scroll.OnVerticalScroll)
+	scroll:SetScript ("OnSizeChanged", DF.ScrollBoxFunctions.OnSizeChanged)
 	
 	return scroll
 end
 
 
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- ~resizers
 
+function DF:CreateResizeGrips (parent)
+	if (parent) then
+		local parentName = parent:GetName()
+		
+		local leftResizer = CreateFrame ("button", parentName and parentName .. "LeftResizer" or nil, parent)
+		local rightResizer = CreateFrame ("button", parentName and parentName .. "RightResizer" or nil, parent)
+		
+		leftResizer:SetPoint ("bottomleft", parent, "bottomleft")
+		rightResizer:SetPoint ("bottomright", parent, "bottomright")
+		leftResizer:SetSize (16, 16)
+		rightResizer:SetSize (16, 16)
+		
+		rightResizer:SetNormalTexture ([[Interface\CHATFRAME\UI-ChatIM-SizeGrabber-Up]])
+		rightResizer:SetHighlightTexture ([[Interface\CHATFRAME\UI-ChatIM-SizeGrabber-Highlight]])
+		rightResizer:SetPushedTexture ([[Interface\CHATFRAME\UI-ChatIM-SizeGrabber-Down]])
+		leftResizer:SetNormalTexture ([[Interface\CHATFRAME\UI-ChatIM-SizeGrabber-Up]])
+		leftResizer:SetHighlightTexture ([[Interface\CHATFRAME\UI-ChatIM-SizeGrabber-Highlight]])
+		leftResizer:SetPushedTexture ([[Interface\CHATFRAME\UI-ChatIM-SizeGrabber-Down]])
+		
+		leftResizer:GetNormalTexture():SetTexCoord (1, 0, 0, 1)
+		leftResizer:GetHighlightTexture():SetTexCoord (1, 0, 0, 1)
+		leftResizer:GetPushedTexture():SetTexCoord (1, 0, 0, 1)
+		
+		return leftResizer, rightResizer
+	end
+end

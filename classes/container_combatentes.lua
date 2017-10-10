@@ -160,11 +160,21 @@
 			if (have_cached) then
 				novo_objeto.spec = have_cached
 				--> check is didn't changed the spec:
+				if (_detalhes.streamer_config.quick_detection) then
+					--> validate the spec more times if on quick detection
+					_detalhes:ScheduleTimer ("ReGuessSpec", 2, {novo_objeto, self})
+					_detalhes:ScheduleTimer ("ReGuessSpec", 4, {novo_objeto, self})
+					_detalhes:ScheduleTimer ("ReGuessSpec", 6, {novo_objeto, self})
+				end
 				_detalhes:ScheduleTimer ("ReGuessSpec", 15, {novo_objeto, self})
 				--print (nome, "spec em cache:", have_cached)
 			else
-				_detalhes:ScheduleTimer ("GuessSpec", 3, {novo_objeto, self, 1})
-				--print (nome, "nao tem")
+				if (_detalhes.streamer_config.quick_detection) then
+					--> shoot detection early if in quick detection
+					_detalhes:ScheduleTimer ("GuessSpec", 1, {novo_objeto, self, 1})
+				else
+					_detalhes:ScheduleTimer ("GuessSpec", 3, {novo_objeto, self, 1})
+				end
 			end
 		end
 	

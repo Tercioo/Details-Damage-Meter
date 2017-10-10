@@ -459,13 +459,50 @@ do
 			
 			return spec
 		end
-
-		if (tries and tries < 10) then 
-			t[3] = tries + 1
-			_detalhes:ScheduleTimer ("GuessSpec", 3, t)
+		
+		if (_detalhes.streamer_config.quick_detection) then
+			if (tries and tries < 30) then 
+				t[3] = tries + 1
+				_detalhes:ScheduleTimer ("GuessSpec", 1, t)
+			end		
+		else
+			if (tries and tries < 10) then 
+				t[3] = tries + 1
+				_detalhes:ScheduleTimer ("GuessSpec", 3, t)
+			end		
 		end
 		
 		return false
 	end
 
+end
+
+
+function _detalhes:AddColorString (player_name, class)
+	--> check if the class colors exists
+	local classColors = _G.RAID_CLASS_COLORS
+	if (classColors) then
+		local color = classColors [class]
+		--> check if the player name is valid
+		if (type (player_name) == "string" and color) then
+			player_name = "|c" .. color.colorStr .. player_name .. "|r"
+			return player_name
+		end
+	end
+	
+	--> if failed, return the player name without modifications
+	return player_name
+end
+
+function _detalhes:AddRoleIcon (player_name, role, size)
+	--> check if is a valid role
+	local roleIcon = _detalhes.role_texcoord [role]
+	if (type (player_name) == "string" and roleIcon and role ~= "NONE") then
+		--> add the role icon
+		size = size or 14
+		player_name = "|TInterface\\LFGFRAME\\UI-LFG-ICON-ROLES:" .. size .. ":" .. size .. ":0:0:256:256:" .. roleIcon .. "|t " .. player_name
+		return player_name
+	end
+
+	return player_name
 end

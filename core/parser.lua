@@ -4060,6 +4060,13 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 				_detalhes.time_type = 1
 			end
 		
+			if (not _detalhes.is_in_arena) then
+				--> reset spec cache if broadcaster requested
+				if (_detalhes.streamer_config.reset_spec_cache) then
+					wipe (_detalhes.cached_specs)
+				end
+			end
+		
 			_detalhes.is_in_arena = true
 			_detalhes:EnteredInArena()
 			

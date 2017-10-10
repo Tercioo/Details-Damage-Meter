@@ -461,17 +461,34 @@ function _detalhes:ResetSpecCache (forced)
 	
 end
 
+function _detalhes:RefreshUpdater (suggested_interval)
+	local updateInterval = suggested_interval or _detalhes.update_speed
+	
+	if (_detalhes.streamer_config.faster_updates) then
+		--> force 60 updates per second
+		updateInterval = 0.016
+	end
+	
+	if (_detalhes.atualizador) then
+		_detalhes:CancelTimer (_detalhes.atualizador)
+	end
+	_detalhes.atualizador = _detalhes:ScheduleRepeatingTimer ("AtualizaGumpPrincipal", updateInterval, -1)
+end
+
 function _detalhes:SetWindowUpdateSpeed (interval, nosave)
 	if (not interval) then
 		interval = _detalhes.update_speed
+	end
+
+	if (type (interval) ~= "number") then
+		interval = _detalhes.update_speed or 0.3
 	end
 	
 	if (not nosave) then
 		_detalhes.update_speed = interval
 	end
 	
-	_detalhes:CancelTimer (_detalhes.atualizador)
-	_detalhes.atualizador = _detalhes:ScheduleRepeatingTimer ("AtualizaGumpPrincipal", interval, -1)
+	_detalhes:RefreshUpdater (interval)
 end
 
 function _detalhes:SetUseAnimations (enabled, nosave)

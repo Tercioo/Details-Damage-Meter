@@ -20,7 +20,7 @@
 	15 - custom spells
 	16 - data for charts
 	17 - automatization settings
-	18 - misc settings
+	18 - broadcaster options
 	19 - externals widgets (data feed)
 	20 - tooltip
 --]]
@@ -478,8 +478,16 @@ function _detalhes:OpenOptionsWindow (instance, no_reopen, section)
 		local extra_buttons_on_leave = function (self, capsule)
 			capsule.textcolor = "C_OptionsButtonOrange"
 		end
-	
-		local fillbars = g:NewButton (window, _, "$parentCreateExampleBarsButton", nil, 110, 14, _detalhes.CreateTestBars, nil, nil, nil, Loc ["STRING_OPTIONS_TESTBARS"], 1)
+		
+		local create_test_bars_func = function()
+			_detalhes.CreateTestBars()
+			if (not _detalhes.test_bar_update) then
+				_detalhes:StartTestBarUpdate()
+			else
+				_detalhes:StopTestBarUpdate()
+			end
+		end
+		local fillbars = g:NewButton (window, _, "$parentCreateExampleBarsButton", nil, 110, 14, create_test_bars_func, nil, nil, nil, Loc ["STRING_OPTIONS_TESTBARS"], 1)
 		fillbars:SetPoint ("bottomleft", window.widget, "bottomleft", 41, 12)
 		fillbars.textalign = "left"
 		fillbars.textcolor = "C_OptionsButtonOrange"
@@ -566,7 +574,7 @@ function _detalhes:OpenOptionsWindow (instance, no_reopen, section)
 		17, --auto hide settings
 		9, --wallpaper		
 		
-		18, --misc
+		18, --streamer options
 		
 		--advanced
 		11, --raid tools
@@ -600,7 +608,7 @@ local menus = { --labels nos menus
 		Loc ["STRING_OPTIONSMENU_AUTOMATIC"],
 		Loc ["STRING_OPTIONSMENU_WALLPAPER"], 
 		
-		"-- -- --", --Loc ["STRING_OPTIONSMENU_MISC"]
+		"Streamer Settings", --Loc ["STRING_OPTIONSMENU_MISC"]
 	},
 	
 	{	
@@ -631,7 +639,7 @@ local menus2 = {
 		Loc ["STRING_OPTIONSMENU_DATACHART"], --16
 		Loc ["STRING_OPTIONSMENU_AUTOMATIC"], --17
 		--Loc ["STRING_OPTIONSMENU_MISC"], --18
-		"-- -- --", --18
+		"Streamer Settings", --18
 		Loc ["STRING_OPTIONSMENU_DATAFEED"], --19
 		Loc ["STRING_OPTIONSMENU_TOOLTIP"], --20
 	}
@@ -647,10 +655,13 @@ local menus2 = {
 		[9] = true,
 		[14] = true,
 		[17] = true,
-		[18] = true,
+		--[18] = true,
 	}
 	window.is_window_settings = is_window_settings
-
+	
+		local newIcon = g:CreateImage (window, [[Interface\AddOns\Details\images\icons2]], 62*0.6, 40*0.6, "overlay", {443/512, 505/512, 306/512, 346/512})
+		newIcon:SetPoint ("topleft", window.widget, "topleft", 135, -351)
+	
 		local select_options = function (options_type, true_index)
 			
 			window.current_selected = options_type
@@ -2198,7 +2209,7 @@ function window:CreateFrame19()
 end
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- Advanced Settings - Miscellaneous ~18
+-- Advanced Settings - options for broadcasters ~18
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 function window:CreateFrame18()
 
@@ -2209,19 +2220,287 @@ function window:CreateFrame18()
 		titulo_misc_settings_desc.width = 350
 		titulo_misc_settings_desc.height = 20
 	
-		local right_side = {
-			--{"instancesMiscLabel", 1, true},
-			--{"deleteInstanceLabel", 2},
-
-			--{"DisableGroupsLabel", 5, true},
-			--{"DisableLockResizeUngroupLabel", 7},
-			--{"DisableStretchButtonLabel", 8},
-			--{"DisableBarHighlightLabel", 9},
-			--{"DisableAllDisplaysWindowLabel", 10},
-			--{"DamageTakenEverythingLabel", 10},
+		--> 
+		local button_width = 180
+		
+		local titleFrame18 = g:NewLabel (frame18, _, "$parentTitleText", "TitleTextLabel", "Streamer Settings", "GameFontNormal", 16)
+		local titleFrame18Desc = g:NewLabel (frame18, _, "$parentTitleDescText", "TitleDescTextLabel", "Set of tools for streamers, youtubers and broadcasters in general", "GameFontNormal", 10, "white")
+		titleFrame18Desc:SetSize (450, 20)
+		
+		--fazer os headers com espaço para images
+		--fazer o botão para abrir o painel de opçopoes
+		
+		--> streamer plugin - a.k.a. player spell tracker 
+			--> title anchor
+			g:NewLabel (frame18, _, "$parentStreamerPluginAnchor", "streamerPluginAnchor", "Streamer Plugin: Action Tracker", "GameFontNormal")
+			local streamerTitleDesc = g:NewLabel (frame18, _, "$parentStreamerTitleDescText", "StreamerTitleDescTextLabel", "Show the spells you are casting, allowing the viewer to follow your decision making and learn your rotation.", "GameFontNormal", 10, "white")
+			streamerTitleDesc:SetSize (270, 40)
+			streamerTitleDesc:SetJustifyV ("top")
+			streamerTitleDesc:SetPoint ("topleft", frame18.streamerPluginAnchor, "bottomleft", 0, -4)
 			
-			--{"scrollLabel", 11, true},
+			local streamerTitleImage = g:CreateImage (frame18, [[Interface\AddOns\Details\images\icons2]], 256, 41, "overlay", {0.5, 1, 0.49, 0.57})
+			streamerTitleImage:SetPoint ("topleft", frame18.streamerPluginAnchor, "bottomleft", 0, -40)
+			
+			--> get the plugin object
+			local StreamerPlugin = _detalhes:GetPlugin ("DETAILS_PLUGIN_STREAM_OVERLAY")
+			if (StreamerPlugin) then
+				--> get the plugin settings table
+				local tPluginSettings = _detalhes:GetPluginSavedTable ("DETAILS_PLUGIN_STREAM_OVERLAY")
+				if (tPluginSettings) then
+					local bIsPluginEnabled = tPluginSettings.enabled
+					--> plugin already enabled
+					if (bIsPluginEnabled) then
+						--> config button
+						local configure_streamer_plugin = function()
+							StreamerPlugin.OpenOptionsPanel (true)
+							C_Timer.After (0.2, function()
+								window:Hide()
+							end)
+						end
+						local configurePluginButton = g:NewButton (frame18, _, "$parentConfigureStreamerPluginButton", "configureStreamerPlugin", 100, 20, configure_streamer_plugin, nil, nil, nil, "Action Tracker Options", nil, options_button_template)
+						configurePluginButton:SetWidth (button_width)
+						configurePluginButton:SetPoint ("topleft", streamerTitleImage, "bottomleft", 0, -7)
+						
+						--> text telling how to disable
+						local pluginAlreadyEnabled = g:NewLabel (frame18, _, "$parentStreamerAlreadyEnabledText", "StreamerAlreadyEnabledTextLabel", "Plugin is enabled. You may disable it on Plugin Management section.", "GameFontNormal", 10, "white")
+						pluginAlreadyEnabled:SetJustifyV ("top")
+						pluginAlreadyEnabled:SetSize (270, 40)
+						pluginAlreadyEnabled:SetPoint ("topleft", configurePluginButton, "bottomleft", 0, -7)
+					else
+						--> plugin isnt enabled, create the enable button
+						local enable_streamer_plugin = function()
+							tPluginSettings.enabled = true
+							StreamerPlugin.__enabled = true
+							_detalhes:SendEvent ("PLUGIN_ENABLED", StreamerPlugin)
+							
+							frame18.enableStreamerPluginButton:Hide()
+							
+							--> config button
+							local configure_streamer_plugin = function()
+								StreamerPlugin.OpenOptionsPanel()
+							end
+							local configurePluginButton = g:NewButton (frame18, _, "$parentConfigureStreamerPluginButton", "configureStreamerPlugin", 100, 20, configure_streamer_plugin, nil, nil, nil, "Action Tracker Options", nil, options_button_template)
+							configurePluginButton:SetWidth (button_width)
+							configurePluginButton:SetPoint ("topleft", streamerTitleImage, "bottomleft", 0, -7)
+							
+							--> text telling how to disable
+							local pluginAlreadyEnabled = g:NewLabel (frame18, _, "$parentStreamerAlreadyEnabledText", "StreamerAlreadyEnabledTextLabel", "Plugin is enabled. You may disable it on Plugin Management section.", "GameFontNormal", 10, "white")
+							pluginAlreadyEnabled:SetJustifyV ("top")
+							pluginAlreadyEnabled:SetSize (270, 40)
+							pluginAlreadyEnabled:SetPoint ("topleft", configurePluginButton, "bottomleft", 0, -7)
+						end
+						
+						local enablePluginButton = g:NewButton (frame18, _, "$parentEnableStreamerPluginButton", "enableStreamerPluginButton", 100, 20, enable_streamer_plugin, nil, nil, nil, "Enable Plugin", nil, options_button_template)
+						enablePluginButton:SetWidth (button_width)
+						enablePluginButton:SetPoint ("topleft", streamerTitleImage, "bottomleft", 0, -5)
+					end
+				end
+			else
+				--> plugin is disabled at the addon control panel
+				local pluginDisabled = g:NewLabel (frame18, _, "$parentStreamerDisabledText", "StreamerDisabledTextLabel", "Details!: Streamer Plugin is disabled on the AddOns Control Panel.", "GameFontNormal", 10, "red")
+				pluginDisabled:SetSize (270, 40)
+				pluginDisabled:SetPoint ("topleft", streamerTitleImage, "bottomleft", 0, -2)
+			end
+		
+		
+		--> event tracker
+			g:NewLabel (frame18, _, "$parentEventTrackerAnchor", "eventTrackerAnchor", "Event Tracker", "GameFontNormal")
+			local eventTrackerTitleDesc = g:NewLabel (frame18, _, "$parentEventTrackerTitleDescText", "EventTrackerTitleDescTextLabel", "Show what's happening near you so the viewer can follow what's going on. Show cooldowns, CC, spell interruption. Useful on any group content.", "GameFontNormal", 10, "white")
+			eventTrackerTitleDesc:SetJustifyV ("top")
+			eventTrackerTitleDesc:SetSize (270, 40)
+			eventTrackerTitleDesc:SetPoint ("topleft", frame18.eventTrackerAnchor, "bottomleft", 0, -4)
+			
+			local eventTrackerTitleImage = g:CreateImage (frame18, [[Interface\AddOns\Details\images\icons2]], 256, 50, "overlay", {0.5, 1, 134/512, 184/512})
+			eventTrackerTitleImage:SetPoint ("topleft", frame18.eventTrackerAnchor, "bottomleft", 0, -40)
+			
+			--> enable feature checkbox
+				g:NewLabel (frame18, _, "$parentEnableEventTrackerLabel", "EventTrackerLabel", "Enable Event Tracker", "GameFontHighlightLeft")
+				g:NewSwitch (frame18, _, "$parentEventTrackerSlider", "EventTrackerSlider", 60, 20, _, _, _detalhes.event_tracker.enabled, nil, nil, nil, nil, options_switch_template)
 
+				frame18.EventTrackerSlider:SetPoint ("left", frame18.EventTrackerLabel, "right", 2)
+				frame18.EventTrackerSlider:SetAsCheckBox()
+				frame18.EventTrackerSlider.OnSwitch = function (_, _, value)
+					_detalhes.event_tracker.enabled = not _detalhes.event_tracker.enabled
+					Details:LoadFramesForBroadcastTools()
+					_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+				end
+				
+				window:CreateLineBackground2 (frame18, "EventTrackerSlider", "EventTrackerLabel", "Enable Event Tracker")
+				
+				frame18.EventTrackerLabel:SetPoint ("topleft", eventTrackerTitleImage, "bottomleft", 0, -10)
+				frame18.EventTrackerSlider:SetPoint ("left", frame18.EventTrackerLabel, "right", 2, 0)
+				
+			--> configure feature button
+				local configure_event_tracker = function()
+					_detalhes:OpenEventTrackerOptions (true)
+					C_Timer.After (0.2, function()
+						window:Hide()
+					end)
+				end
+				local configureEventTrackerButton = g:NewButton (frame18, _, "$parentConfigureEventTrackerButton", "configureEventTracker", 100, 20, configure_event_tracker, nil, nil, nil, "Event Tracker Options", nil, options_button_template)
+				configureEventTrackerButton:SetWidth (button_width)
+				configureEventTrackerButton:SetPoint ("topleft", frame18.EventTrackerLabel, "bottomleft", 0, -7)
+
+
+		--> current dps
+			g:NewLabel (frame18, _, "$parentCurrentDPSAnchor", "currentDPSAnchor", "The Real Current DPS", "GameFontNormal")
+			local currentDPSTitleDesc = g:NewLabel (frame18, _, "$parentCurrentDPSTitleDescText", "CurrentDPSTitleDescTextLabel", "Show a frame with DPS done only in the last 5 seconds, making it change very quickly when the group uses attack cooldowns.", "GameFontNormal", 10, "white")
+			currentDPSTitleDesc:SetJustifyV ("top")
+			currentDPSTitleDesc:SetSize (270, 40)
+			currentDPSTitleDesc:SetPoint ("topleft", frame18.currentDPSAnchor, "bottomleft", 0, -4)
+			
+			local currentDPSTitleImage = g:CreateImage (frame18, [[Interface\AddOns\Details\images\icons2]], 250, 61, "overlay", {259/512, 509/512, 186/512, 247/512})
+			currentDPSTitleImage:SetPoint ("topleft", frame18.currentDPSAnchor, "bottomleft", 0, -40)
+			
+			--> enable feature checkbox
+				g:NewLabel (frame18, _, "$parentEnableCurrentDPSLabel", "CurrentDPSLabel", "Enable The Real Current Dps", "GameFontHighlightLeft")
+				g:NewSwitch (frame18, _, "$parentCurrentDPSSlider", "CurrentDPSSlider", 60, 20, _, _, _detalhes.current_dps_meter.enabled, nil, nil, nil, nil, options_switch_template)
+
+				frame18.CurrentDPSSlider:SetPoint ("left", frame18.CurrentDPSLabel, "right", 2)
+				frame18.CurrentDPSSlider:SetAsCheckBox()
+				frame18.CurrentDPSSlider.OnSwitch = function (_, _, value)
+					_detalhes.current_dps_meter.enabled = not _detalhes.current_dps_meter.enabled
+					Details:LoadFramesForBroadcastTools()
+					_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+				end
+				
+				window:CreateLineBackground2 (frame18, "CurrentDPSSlider", "CurrentDPSLabel", "Enable The Real Current Dps")
+				
+				frame18.CurrentDPSLabel:SetPoint ("topleft", currentDPSTitleImage, "bottomleft", 0, -10)
+				frame18.CurrentDPSSlider:SetPoint ("left", frame18.CurrentDPSLabel, "right", 2, 0)
+				
+			--> configure feature button
+				local configure_current_dps = function()
+					_detalhes:OpenCurrentRealDPSOptions (true)
+					C_Timer.After (0.2, function()
+						window:Hide()
+					end)
+				end
+				local configureCurrentDPSButton = g:NewButton (frame18, _, "$parentConfigureCurrentDPSButton", "configureCurrentDPS", 100, 20, configure_current_dps, nil, nil, nil, "Current Real DPS Options", nil, options_button_template)
+				configureCurrentDPSButton:SetWidth (button_width)
+				configureCurrentDPSButton:SetPoint ("topleft", frame18.CurrentDPSLabel, "bottomleft", 0, -7)
+
+		
+		--> suppress alerts and tutorial popups
+			g:NewLabel (frame18, _, "$parentAlertsAndPopupsAnchor", "alertsAndPopupsAnchor", "Settings:", "GameFontNormal")
+			
+
+		
+			--> no alerts
+				g:NewLabel (frame18, _, "$parentNoAlertsLabel", "NoAlertsLabel", "No Window Alerts", "GameFontHighlightLeft")
+				g:NewSwitch (frame18, _, "$parentNoAlertsSlider", "NoAlertsSlider", 60, 20, _, _, _detalhes.streamer_config.no_alerts, nil, nil, nil, nil, options_switch_template)
+
+				frame18.NoAlertsSlider:SetPoint ("left", frame18.NoAlertsLabel, "right", 2)
+				frame18.NoAlertsSlider:SetAsCheckBox()
+				frame18.NoAlertsSlider.OnSwitch = function (_, _, value)
+					_detalhes.streamer_config.no_alerts = not _detalhes.streamer_config.no_alerts
+					_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+				end
+				
+				window:CreateLineBackground2 (frame18, "NoAlertsSlider", "NoAlertsLabel", "Don't show alerts in the bottom of the window and avoid show tutorial popups.")
+				
+			--> faster updates
+				g:NewLabel (frame18, _, "$parentFasterUpdatesLabel", "FasterUpdatesLabel", "60 Updates Per Second", "GameFontHighlightLeft")
+				g:NewSwitch (frame18, _, "$parentFasterUpdatesSlider", "FasterUpdatesSlider", 60, 20, _, _, _detalhes.streamer_config.faster_updates, nil, nil, nil, nil, options_switch_template)
+
+				frame18.FasterUpdatesSlider:SetPoint ("left", frame18.FasterUpdatesLabel, "right", 2)
+				frame18.FasterUpdatesSlider:SetAsCheckBox()
+				frame18.FasterUpdatesSlider.OnSwitch = function (_, _, value)
+					_detalhes.streamer_config.faster_updates = not _detalhes.streamer_config.faster_updates
+					_detalhes:RefreshUpdater()
+					_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+				end
+				
+				window:CreateLineBackground2 (frame18, "FasterUpdatesSlider", "FasterUpdatesLabel", "Increase the refresh rate to 60 times per second.")
+			
+			--> quick detection
+				g:NewLabel (frame18, _, "$parentQuickDetectionLabel", "QuickDetectionLabel", "Quick Player Info", "GameFontHighlightLeft")
+				g:NewSwitch (frame18, _, "$parentQuickDetectionSlider", "QuickDetectionSlider", 60, 20, _, _, _detalhes.streamer_config.quick_detection, nil, nil, nil, nil, options_switch_template)
+
+				frame18.QuickDetectionSlider:SetPoint ("left", frame18.QuickDetectionLabel, "right", 2)
+				frame18.QuickDetectionSlider:SetAsCheckBox()
+				frame18.QuickDetectionSlider.OnSwitch = function (_, _, value)
+					_detalhes.streamer_config.quick_detection = not _detalhes.streamer_config.quick_detection
+					_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+				end
+				
+				window:CreateLineBackground2 (frame18, "QuickDetectionSlider", "QuickDetectionLabel", "Attempt to acquire player information such as class, spec or item level faster.")
+			
+			--> disable mythic dungeon
+				g:NewLabel (frame18, _, "$parentDisableMythicDungeonLabel", "DisableMythicDungeonLabel", "No Mythic Dungeon Shenanigans", "GameFontHighlightLeft")
+				g:NewSwitch (frame18, _, "$parentDisableMythicDungeonSlider", "DisableMythicDungeonSlider", 60, 20, _, _, _detalhes.streamer_config.disable_mythic_dungeon, nil, nil, nil, nil, options_switch_template)
+
+				frame18.DisableMythicDungeonSlider:SetPoint ("left", frame18.DisableMythicDungeonLabel, "right", 2)
+				frame18.DisableMythicDungeonSlider:SetAsCheckBox()
+				frame18.DisableMythicDungeonSlider.OnSwitch = function (_, _, value)
+					_detalhes.streamer_config.disable_mythic_dungeon = not _detalhes.streamer_config.disable_mythic_dungeon
+					_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+				end
+				
+				window:CreateLineBackground2 (frame18, "DisableMythicDungeonSlider", "DisableMythicDungeonLabel", "Threat mythic dungeon as a normal dungeon: no trash merge, no mythic run overall segment.")
+				
+			--> clear cache
+				g:NewLabel (frame18, _, "$parentClearCacheLabel", "ClearCacheLabel", "Clear Cache on New Event", "GameFontHighlightLeft")
+				g:NewSwitch (frame18, _, "$parentClearCacheSlider", "ClearCacheSlider", 60, 20, _, _, _detalhes.streamer_config.reset_spec_cache, nil, nil, nil, nil, options_switch_template)
+
+				frame18.ClearCacheSlider:SetPoint ("left", frame18.ClearCacheLabel, "right", 2)
+				frame18.ClearCacheSlider:SetAsCheckBox()
+				frame18.ClearCacheSlider.OnSwitch = function (_, _, value)
+					_detalhes.streamer_config.reset_spec_cache = not _detalhes.streamer_config.reset_spec_cache
+					_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+				end
+				
+				window:CreateLineBackground2 (frame18, "ClearCacheSlider", "ClearCacheLabel", "Reduces the chance of getting a serial number overlap when working with multiple realms.")
+				
+			--> advanced animations
+				g:NewLabel (frame18, _, "$parentAdvancedAnimationsLabel", "AdvancedAnimationsLabel", "Use Animation Acceleration", "GameFontHighlightLeft")
+				g:NewSwitch (frame18, _, "$parentAdvancedAnimationsSlider", "AdvancedAnimationsSlider", 60, 20, _, _, _detalhes.streamer_config.use_animation_accel, nil, nil, nil, nil, options_switch_template)
+
+				frame18.AdvancedAnimationsSlider:SetPoint ("left", frame18.AdvancedAnimationsLabel, "right", 2)
+				frame18.AdvancedAnimationsSlider:SetAsCheckBox()
+				frame18.AdvancedAnimationsSlider.OnSwitch = function (_, _, value)
+					_detalhes.streamer_config.use_animation_accel = not _detalhes.streamer_config.use_animation_accel
+					_detalhes:RefreshAnimationFunctions()
+					_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
+				end
+				
+				window:CreateLineBackground2 (frame18, "AdvancedAnimationsSlider", "AdvancedAnimationsLabel", "Animation speed changes accordly to the amount of space the bar needs to travel.")
+				
+				
+		--> anchoring
+		local x = window.left_start_at
+		titleFrame18:SetPoint (x, window.title_y_pos)
+		titleFrame18Desc:SetPoint (x, window.title_y_pos2)
+	
+		local a = frame18:CreateFontString (nil, "overlay", "GameFontNormal")
+		frame18.a = a
+		
+		local left_side = {
+			{"streamerPluginAnchor", 0, true},
+			
+			{"eventTrackerAnchor", 0, true},
+			{"eventTrackerAnchor", 0, true},
+			{"eventTrackerAnchor", 0, true},
+			{"eventTrackerAnchor", 0, true},
+			{"eventTrackerAnchor", 0, true},
+			
+		}
+		
+		window:arrange_menu (frame18, left_side, x, window.top_start_at)	
+	
+		local right_side = {
+			{"currentDPSAnchor", 0, true},
+			{"alertsAndPopupsAnchor", 0, true},
+			{"alertsAndPopupsAnchor", 0, true},
+			{"alertsAndPopupsAnchor", 0, true},
+			{"alertsAndPopupsAnchor", 0, true},
+			{"alertsAndPopupsAnchor", 0, true},
+			{"NoAlertsLabel"},
+			{"FasterUpdatesLabel"},
+			{"QuickDetectionLabel"},
+			{"DisableMythicDungeonLabel"},
+			{"ClearCacheLabel"},
+			{"AdvancedAnimationsLabel"},
 		}
 		
 		window:arrange_menu (frame18, right_side, window.right_start_at, window.top_start_at)
@@ -11338,6 +11617,16 @@ end --> if not window
 		
 		--> window 16
 		_G.DetailsOptionsWindow16UserTimeCapturesFillPanel.MyObject:Refresh()
+		
+		--> window 18
+		_G.DetailsOptionsWindow18EventTrackerSlider.MyObject:SetValue (_detalhes.event_tracker.enabled)
+		_G.DetailsOptionsWindow18CurrentDPSSlider.MyObject:SetValue (_detalhes.current_dps_meter.enabled)
+		_G.DetailsOptionsWindow18NoAlertsSlider.MyObject:SetValue (_detalhes.streamer_config.no_alerts)
+		_G.DetailsOptionsWindow18FasterUpdatesSlider.MyObject:SetValue (_detalhes.streamer_config.faster_updates)
+		_G.DetailsOptionsWindow18QuickDetectionSlider.MyObject:SetValue (_detalhes.streamer_config.quick_detection)
+		_G.DetailsOptionsWindow18DisableMythicDungeonSlider.MyObject:SetValue (_detalhes.streamer_config.disable_mythic_dungeon)
+		_G.DetailsOptionsWindow18ClearCacheSlider.MyObject:SetValue (_detalhes.streamer_config.reset_spec_cache)
+		_G.DetailsOptionsWindow18AdvancedAnimationsSlider.MyObject:SetValue (_detalhes.streamer_config.use_animation_accel)
 		
 		--> window 17
 		_G.DetailsOptionsWindow17CombatAlphaDropdown.MyObject:Select (editing_instance.hide_in_combat_type, true)

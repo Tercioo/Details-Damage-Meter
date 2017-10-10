@@ -1493,8 +1493,7 @@ local resize_scripts_onmousedown = function (self, button)
 		_detalhes:SendEvent ("DETAILS_INSTANCE_STARTRESIZE", nil, self._instance)
 
 		if (_detalhes.update_speed > 0.3) then
-			_detalhes:CancelTimer (_detalhes.atualizador)
-			_detalhes.atualizador = _detalhes:ScheduleRepeatingTimer ("AtualizaGumpPrincipal", 0.3, -1)
+			_detalhes:SetWindowUpdateSpeed (0.3, true)
 			_detalhes.resize_changed_update_speed = true
 		end
 		
@@ -1591,8 +1590,7 @@ local resize_scripts_onmouseup = function (self, button)
 		end
 		
 		if (_detalhes.resize_changed_update_speed) then
-			_detalhes:CancelTimer (_detalhes.atualizador)
-			_detalhes.atualizador = _detalhes:ScheduleRepeatingTimer ("AtualizaGumpPrincipal", _detalhes.update_speed, -1)
+			_detalhes:SetWindowUpdateSpeed (false, true)
 			_detalhes.resize_changed_update_speed = nil
 		end
 		
@@ -2636,8 +2634,7 @@ local function button_stretch_scripts (baseframe, backgrounddisplay, instancia)
 		
 		--> change the update speed
 		if (_detalhes.update_speed > 0.3) then
-			_detalhes:CancelTimer (_detalhes.atualizador)
-			_detalhes.atualizador = _detalhes:ScheduleRepeatingTimer ("AtualizaGumpPrincipal", 0.3, -1)
+			_detalhes:SetWindowUpdateSpeed (0.3, true)
 			_detalhes.stretch_changed_update_speed = true
 		end
 		
@@ -2723,8 +2720,7 @@ local function button_stretch_scripts (baseframe, backgrounddisplay, instancia)
 		_detalhes:SendEvent ("DETAILS_INSTANCE_ENDSTRETCH", nil, instancia)
 		
 		if (_detalhes.stretch_changed_update_speed) then
-			_detalhes:CancelTimer (_detalhes.atualizador)
-			_detalhes.atualizador = _detalhes:ScheduleRepeatingTimer ("AtualizaGumpPrincipal", _detalhes.update_speed, -1)
+			_detalhes:SetWindowUpdateSpeed (false, true)
 			_detalhes.stretch_changed_update_speed = nil
 		end
 
@@ -2990,6 +2986,10 @@ local hide_click_func = function()
 end
 
 function _detalhes:InstanceAlert (msg, icon, time, clickfunc, doflash)
+	
+	if (_detalhes.streamer_config.no_alerts) then
+		return
+	end
 	
 	if (not self.meu_id) then
 		local lower = _detalhes:GetLowerInstanceNumber()

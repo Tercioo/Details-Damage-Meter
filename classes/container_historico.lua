@@ -424,6 +424,9 @@ function historico:resetar_overall()
 		end
 	end
 	
+	--> stop bar testing if any
+	_detalhes:StopTestBarUpdate()
+	
 	_detalhes:ClockPluginTickOnSegment()
 end
 
@@ -432,6 +435,9 @@ function historico:resetar()
 	if (_detalhes.bosswindow) then
 		_detalhes.bosswindow:Reset()
 	end
+	
+	--> stop bar testing if any
+	_detalhes:StopTestBarUpdate()
 	
 	if (_detalhes.tabela_vigente.verifica_combate) then --> finaliza a checagem se esta ou não no combate
 		_detalhes:CancelTimer (_detalhes.tabela_vigente.verifica_combate)

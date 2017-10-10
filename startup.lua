@@ -133,7 +133,7 @@ function _G._detalhes:Start()
 		end
 	
 		self:AtualizaGumpPrincipal (-1, true)
-		self.atualizador = self:ScheduleRepeatingTimer ("AtualizaGumpPrincipal", _detalhes.update_speed, -1)
+		_detalhes:RefreshUpdater()
 		
 		for index = 1, #self.tabela_instancias do
 			local instance = self.tabela_instancias [index]
@@ -571,6 +571,7 @@ function _G._detalhes:Start()
 						local segment = segmentsToMerge [i]
 						if (segment == _detalhes.tabela_vigente) then
 							_detalhes:Msg ("unhandled exception > merged trash segment is current segment > MergeTrashCleanup() is scheduled:", isFromSchedule)
+							--happened after killing one mob and leaving the dungeon, lots of /reload has done inside the dungeon
 						end
 					end
 					
@@ -1040,15 +1041,43 @@ function _G._detalhes:Start()
 					
 				elseif (event == "CHALLENGE_MODE_START") then
 					--> CHALLENGE_MODE_START does trigger every time the player enters a mythic dungeon already in progress
-
+					
+					--> send mythic dungeon start event
+					local zoneName, instanceType, difficultyID, difficultyName, maxPlayers, dynamicDifficulty, isDynamic, instanceMapID, instanceGroupSize = GetInstanceInfo()
+					if (difficultyID == 8) then
+						_detalhes:SendEvent ("COMBAT_MYTHICDUNGEON_START")
+					end
+					
 					if (newFrame.DevelopmentDebug) then
 						print ("Details!", event, ...)
 					end
+					
+					--> reset spec cache if broadcaster requested
+					if (_detalhes.streamer_config.reset_spec_cache) then
+						wipe (_detalhes.cached_specs)
+					end
+					
+					--> ignore the event if ignoring mythic dungeon special treatment
+					if (_detalhes.streamer_config.disable_mythic_dungeon) then
+						return
+					end
+					
 					C_Timer.After (0.5, newFrame.OnChallengeModeStart)
 					
 				elseif (event == "CHALLENGE_MODE_COMPLETED") then
 					if (newFrame.DevelopmentDebug) then
 						print ("Details!", event, ...)
+					end
+					
+					--> send mythic dungeon end event
+					local zoneName, instanceType, difficultyID, difficultyName, maxPlayers, dynamicDifficulty, isDynamic, instanceMapID, instanceGroupSize = GetInstanceInfo()
+					if (difficultyID == 8) then
+						_detalhes:SendEvent ("COMBAT_MYTHICDUNGEON_END")
+					end
+					
+					--> ignore the event if ignoring mythic dungeon special treatment
+					if (_detalhes.streamer_config.disable_mythic_dungeon) then
+						return
 					end
 					
 					--> delay to wait the encounter_end trigger first
@@ -1058,6 +1087,11 @@ function _G._detalhes:Start()
 				elseif (event == "ENCOUNTER_END") then
 					if (newFrame.DevelopmentDebug) then
 						print ("Details!", event, ...)
+					end
+					
+					--> ignore the event if ignoring mythic dungeon special treatment
+					if (_detalhes.streamer_config.disable_mythic_dungeon) then
+						return
 					end
 					
 					if (newFrame.IsDoingMythicDungeon) then
@@ -1100,11 +1134,21 @@ function _G._detalhes:Start()
 							print ("Details!", event, ...)
 							print ("Zone changed and is Doing Mythic Dungeon")
 						end
+						
+						--> ignore the event if ignoring mythic dungeon special treatment
+						if (_detalhes.streamer_config.disable_mythic_dungeon) then
+							return
+						end
+						
 						local _, _, difficulty, _, _, _, _, currentZoneID = GetInstanceInfo()
 						if (currentZoneID ~= self.MythicPlus.DungeonID) then
 							if (newFrame.DevelopmentDebug) then
 								print ("Zone changed and the zone is different than the dungeon")
 							end
+							
+							--> send mythic dungeon end event
+							_detalhes:SendEvent ("COMBAT_MYTHICDUNGEON_END")
+							
 							--> finish the segment
 							newFrame.BossDefeated (true)
 							
@@ -1449,6 +1493,9 @@ function _G._detalhes:Start()
 	if (self.is_first_run) then
 		_detalhes:OpenWelcomeWindow()
 	end
+	
+	--> load broadcaster tools
+	_detalhes:LoadFramesForBroadcastTools()
 	
 	--_detalhes:OpenWelcomeWindow() --debug
 	-- /run _detalhes:OpenWelcomeWindow()
