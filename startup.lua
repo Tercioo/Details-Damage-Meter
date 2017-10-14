@@ -1245,7 +1245,7 @@ function _G._detalhes:Start()
 		
 	--> send feedback panel if the user got 100 or more logons with details
 		if (self.tutorial.logons > 100) then --  and self.tutorial.logons < 104
-			if (not self.tutorial.feedback_window1) then
+			if (not self.tutorial.feedback_window1 and not _detalhes.streamer_config.no_alerts) then
 				--> check if isn't inside an instance
 				if (_detalhes:IsInCity()) then
 					self.tutorial.feedback_window1 = true
@@ -1253,7 +1253,7 @@ function _G._detalhes:Start()
 				end
 			end
 		end
-	
+		
 	--> check is this is the first run of this version
 		if (self.is_version_first_run) then
 
@@ -1269,6 +1269,55 @@ function _G._detalhes:Start()
 			
 			_detalhes:FillUserCustomSpells()
 			_detalhes:AddDefaultCustomDisplays()
+			
+			-->  show streamer update panel
+			--[
+			if (_detalhes_database.last_realversion and _detalhes_database.last_realversion < 127 and enable_reset_warning) then
+				if (not _detalhes:GetTutorialCVar ("STREAMER_FEATURES_POPUP1")) then
+					_detalhes:SetTutorialCVar ("STREAMER_FEATURES_POPUP1", true)
+					
+					local f = CreateFrame ("frame", "DetailsContentCreatorsAlert", UIParent)
+					tinsert (UISpecialFrames, "DetailsContentCreatorsAlert")
+					f:SetPoint ("center")
+					f:SetSize (785, 516)
+					local bg = f:CreateTexture (nil, "background")
+					bg:SetPoint ("center", f, "center")
+					bg:SetTexture ([[Interface\GLUES\AccountUpgrade\upgrade-texture.blp]])
+					bg:SetTexCoord (0/1024, 785/1024, 192/1024, 708/1024)
+					bg:SetSize (785, 516)
+					C_Timer.After (1, function ()f:Show()end)
+					
+					local logo = f:CreateTexture (nil, "artwork")
+					logo:SetPoint ("topleft", f, "topleft", 40, -60)
+					logo:SetTexture ([[Interface\Addons\Details\images\logotipo]])
+					logo:SetTexCoord (0.07421875, 0.73828125, 0.51953125, 0.890625)
+					logo:SetWidth (186*1.2)
+					logo:SetHeight (50*1.2)
+					
+					local title = f:CreateFontString (nil, "overlay", "GameFontNormal")
+					title:SetPoint ("topleft", f, "topleft", 120, -160)
+					title:SetText ("Updates For Youtubers and Streamers")
+					_detalhes.gump:SetFontSize (title, 16)
+					
+					local text1 = f:CreateFontString (nil, "overlay", "GameFontNormal")
+					text1:SetPoint ("topleft", f, "topleft", 60, -210)
+					text1:SetText ("Yeah, another popup window, but it's for a good cause: has been added new features for content creators, check it out at the options panel > Streamer Settings, thank you!")
+					text1:SetSize (400, 200)
+					text1:SetJustifyV ("top")
+					text1:SetJustifyH ("left")
+					
+					local ipad = f:CreateTexture (nil, "overlay")
+					ipad:SetTexture ([[Interface\Addons\Details\images\icons2]])
+					ipad:SetSize (130, 89)
+					ipad:SetPoint ("topleft", bg, "topleft", 474, -279)
+					ipad:SetTexCoord (110/512, 240/512, 163/512, 251/512)
+					
+					local closebutton = _detalhes.gump:CreateButton (f, function() f:Hide() end, 100, 24, "CLOSE")
+					closebutton:SetPoint ("topleft", bg, "topleft", 400, -405)
+					closebutton:InstallCustomTexture()
+				end
+			end
+			--]]
 			
 			--> erase the custom for damage taken by spell
 			if (_detalhes_database.last_realversion and _detalhes_database.last_realversion < 75 and enable_reset_warning) then
@@ -1290,7 +1339,6 @@ function _G._detalhes:Start()
 			end
 			
 			if (_detalhes_database.last_realversion and _detalhes_database.last_realversion < 73 and enable_reset_warning) then
-			
 				local secure_func = function()
 					for i = #_detalhes.custom, 1, -1 do
 						local index = i
@@ -1311,7 +1359,6 @@ function _G._detalhes:Start()
 					end
 				end
 				pcall (secure_func)
-				
 			end
 			
 			if (_detalhes_database.last_realversion and _detalhes_database.last_realversion < 70 and enable_reset_warning) then

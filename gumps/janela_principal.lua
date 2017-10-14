@@ -6412,9 +6412,11 @@ local build_segment_list = function (self, elapsed)
 					CoolTip:AddLine (Loc ["STRING_SEGMENT_START"] .. ":", thisCombat.data_inicio, 2, "white", "white")
 					CoolTip:AddLine (Loc ["STRING_SEGMENT_END"] .. ":", thisCombat.data_fim or "in progress", 2, "white", "white")
 					
-					local backgroundImage = _detalhes:GetRaidIcon (trashInfo.MapID, trashInfo.EJID, "party")
-					if (backgroundImage) then
-						CoolTip:SetWallpaper (2, backgroundImage, {0.070, 0.695, 0.087, 0.566}, {1, 1, 1, 0.5}, true)
+					if (trashInfo) then
+						local backgroundImage = _detalhes:GetRaidIcon (trashInfo.MapID, trashInfo.EJID, "party")
+						if (backgroundImage) then
+							CoolTip:SetWallpaper (2, backgroundImage, {0.070, 0.695, 0.087, 0.566}, {1, 1, 1, 0.5}, true)
+						end
 					end
 				end
 				

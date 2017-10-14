@@ -2344,7 +2344,7 @@ function window:CreateFrame18()
 
 		--> current dps
 			g:NewLabel (frame18, _, "$parentCurrentDPSAnchor", "currentDPSAnchor", "The Real Current DPS", "GameFontNormal")
-			local currentDPSTitleDesc = g:NewLabel (frame18, _, "$parentCurrentDPSTitleDescText", "CurrentDPSTitleDescTextLabel", "Show a frame with DPS done only in the last 5 seconds, making it change very quickly when the group uses attack cooldowns.", "GameFontNormal", 10, "white")
+			local currentDPSTitleDesc = g:NewLabel (frame18, _, "$parentCurrentDPSTitleDescText", "CurrentDPSTitleDescTextLabel", "Show a frame with DPS done only in the last 5 seconds. Useful for arena matches and mythic dungeons.", "GameFontNormal", 10, "white")
 			currentDPSTitleDesc:SetJustifyV ("top")
 			currentDPSTitleDesc:SetSize (270, 40)
 			currentDPSTitleDesc:SetPoint ("topleft", frame18.currentDPSAnchor, "bottomleft", 0, -4)
@@ -2382,7 +2382,7 @@ function window:CreateFrame18()
 
 		
 		--> suppress alerts and tutorial popups
-			g:NewLabel (frame18, _, "$parentAlertsAndPopupsAnchor", "alertsAndPopupsAnchor", "Settings:", "GameFontNormal")
+			g:NewLabel (frame18, _, "$parentAlertsAndPopupsAnchor", "alertsAndPopupsAnchor", "Other Settings:", "GameFontNormal")
 			
 
 		
@@ -2437,7 +2437,7 @@ function window:CreateFrame18()
 					_detalhes:SendOptionsModifiedEvent (DetailsOptionsWindow.instance)
 				end
 				
-				window:CreateLineBackground2 (frame18, "DisableMythicDungeonSlider", "DisableMythicDungeonLabel", "Threat mythic dungeon as a normal dungeon: no trash merge, no mythic run overall segment.")
+				window:CreateLineBackground2 (frame18, "DisableMythicDungeonSlider", "DisableMythicDungeonLabel", "Threat mythic dungeon segments as common segments: no trash merge, no mythic run overall, segments wraps on entering and leaving combat.")
 				
 			--> clear cache
 				g:NewLabel (frame18, _, "$parentClearCacheLabel", "ClearCacheLabel", "Clear Cache on New Event", "GameFontHighlightLeft")
