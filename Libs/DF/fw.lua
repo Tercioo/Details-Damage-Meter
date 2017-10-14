@@ -1,5 +1,5 @@
 
-local dversion = 57
+local dversion = 58
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary (major, minor)
 
@@ -116,6 +116,7 @@ local embed_functions = {
 	"CreateScrollBox",
 	"CreateBorder",
 	"FormatNumber",
+	"IntegerToTimer",
 }
 
 DF.table = {}
@@ -425,13 +426,13 @@ end
 		
 		if (_type (v1) == "string") then
 			local frameGlobal = _G [v1]
-			if (frameGlobal and frameGlobal.GetObjectType) then
+			if (frameGlobal and type (frameGlobal) == "table" and frameGlobal.GetObjectType) then
 				return DF:CheckPoints (frameGlobal, v2, v3, v4, v5, object)
 			end
 			
 		elseif (_type (v2) == "string") then
 			local frameGlobal = _G [v2]
-			if (frameGlobal and frameGlobal.GetObjectType) then
+			if (frameGlobal and type (frameGlobal) == "table" and frameGlobal.GetObjectType) then
 				return DF:CheckPoints (v1, frameGlobal, v3, v4, v5, object)
 			end
 		end
